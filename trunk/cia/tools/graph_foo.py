@@ -4,6 +4,7 @@ sys.path[0] = os.path.join(sys.path[0], '..')
 
 from LibCIA import Database
 from twisted.internet import reactor, defer, protocol, error
+import time, math
 
 
 class Selector:
@@ -98,34 +99,71 @@ class RelationGrapher:
 
     def _generateDot(self, rows, f, result):
         """Finish generateDot after receiving the SQL query results"""
+        graphAttrs = {
+            'pack': True,
+            'center': True,
+            }
+
         f.write("graph G {\n")
-        f.write('\tpack="true";\n')
+        f.write(''.join(['\t%s=%s;\n' % (key, self.quote(str(value)))
+                         for key, value in graphAttrs.iteritems()]))
 
         # Make a unique list of all nodes in this graph
         nodes = {}
         for row in rows:
-            nodes[row[0]] = 1
-            nodes[row[1]] = 1
+            nodes[row[0]] = None
+            nodes[row[1]] = None
 
-        # Write out attributes for each node
-        for node in nodes:
+        # Find a selector for each node, and write out their attributes
+        for node in nodes.keys():
             attributes = {}
             for selector in self.selectors:
                 if node in selector:
+                    nodes[node] = selector
                     attributes = selector.getAttributes(node)
                     break
             f.write('\t%s %s;\n' % (self.quote(node), self.dictToAttrs(attributes)))
 
+        # Find the maximum strength and minimum freshness in our dataset
+        now = time.time()
+        maxStrength = 0
+        minFreshness = now
+        for row in rows:
+            a, b, strength, freshness = row
+            if strength > maxStrength:
+                maxStrength = strength
+            if freshness < minFreshness:
+                minFreshness = freshness
+
         # Write edges
         for row in rows:
+            a, b, strength, freshness = row
+
+            # Scale the strength and freshness logarithmically to be values between 0 and 1
+            strength = math.log(strength) / math.log(maxStrength)
+            freshness = 1 - (math.log(now - freshness) / math.log(now - minFreshness))
+
+            # By default, generate a length to correspond to the strength of this edge.
+            # We use a high weight to tell neato that this edge length is important.
             attributes = {
-                'len': 5.0,
+                'len': 8.0 - 6 * strength,
+                'weight': 15.0,
                 }
-            f.write('\t%s -- %s %s;\n' % (self.quote(row[0]),
-                                          self.quote(row[1]),
+
+            if nodes[a] is nodes[b]:
+                # Give connections between nodes in the same selector very little weight,
+                # so that children and parents may be placed far apart if necessary. This
+                # makes graphs of projects with many modules much less bunched up.
+                continue
+                attributes['len'] = 10.0
+                attributes['weight'] = 0.1
+
+            f.write('\t%s -- %s %s;\n' % (self.quote(a),
+                                          self.quote(b),
                                           self.dictToAttrs(attributes)))
 
         f.write("}\n")
+        print "Wrote dot source, %d nodes and %d edges" % (len(nodes), len(rows))
         result.callback(None)
 
     def render(self, f, format, bin="neato"):
