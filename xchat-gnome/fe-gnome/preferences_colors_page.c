@@ -24,7 +24,7 @@
 
 void initialize_preferences_colors_page() {
 	GtkWidget *table, *button, *widget;
-	GtkWidget *hbox;
+	GtkWidget *hbox, *color_schemes, *palette_schemes;
 	GtkSizeGroup *group;
 	int i, j;
 
@@ -39,11 +39,11 @@ void initialize_preferences_colors_page() {
 	}
 	hbox = glade_xml_get_widget(gui.xml, "text color hbox");
 	button = gtk_color_button_new();
-	gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[19]);
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[18]);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
 	hbox = glade_xml_get_widget(gui.xml, "background color hbox");
 	button = gtk_color_button_new();
-	gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[20]);
+	gtk_color_button_set_color(GTK_COLOR_BUTTON(button), &colors[19]);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
 	hbox = glade_xml_get_widget(gui.xml, "foreground mark hbox");
 	button = gtk_color_button_new();
@@ -71,10 +71,24 @@ void initialize_preferences_colors_page() {
 	gtk_size_group_add_widget(group, widget);
 	g_object_unref(group);
 
+	color_schemes = gtk_combo_box_new_text();
+	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "White on Black");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "Black on White");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(color_schemes), "Custom");
+	gtk_combo_box_set_active(GTK_COMBO_BOX(color_schemes), 0);
+	palette_schemes = gtk_combo_box_new_text();
+	gtk_combo_box_append_text(GTK_COMBO_BOX(palette_schemes), "X-Chat Default");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(palette_schemes), "Custom");
+	gtk_combo_box_set_active(GTK_COMBO_BOX(palette_schemes), 0);
+
+	hbox = glade_xml_get_widget(gui.xml, "foreground background hbox");
+	gtk_box_pack_start(GTK_BOX(hbox), color_schemes, FALSE, TRUE, 0);
+	hbox = glade_xml_get_widget(gui.xml, "palette hbox");
+	gtk_box_pack_start(GTK_BOX(hbox), palette_schemes, FALSE, TRUE, 0);
+
 	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-	widget = glade_xml_get_widget(gui.xml, "foreground background schemes");
-	gtk_size_group_add_widget(group, widget);
+	gtk_size_group_add_widget(group, color_schemes);
 	widget = glade_xml_get_widget(gui.xml, "palette schemes");
-	gtk_size_group_add_widget(group, widget);
+	gtk_size_group_add_widget(group, palette_schemes);
 	g_object_unref(group);
 }
