@@ -3,6 +3,11 @@
   a rendering server on startup would make it easier to keep windows
   machines permanently in a cluster.
 
+- When a fyre cluster node disconnects, it would be nice if it
+  automatically retries. This would make it possible to re-add cluster
+  nodes automatically when they restart, which currently isn't possible
+  even with cluster autodetection.
+
 - Add another optional command line argument for opening a file,
   where the file type is determined by extension. Once this is added,
   the multiple .desktop files should be merged into a single one
