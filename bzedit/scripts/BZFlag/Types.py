@@ -44,6 +44,19 @@ typeMap = {
     'transform'     : None,
     'waterLevel'    : None,
     'weapon'        : None,
-    'world'         : None,
+    'world'         : World,
     'zone'          : None,
 }
+
+def fromBlender(object, world=None):
+    """Find the proper BZFlag.Object subclass for the given blender object
+       and load its parameters from the blender object. Returns a new
+       BZFlag.Object instance.
+       """
+    bztype = object.getProperty('bztype').getData()
+    if typeMap[bztype]:
+        bzo = typeMap[bztype]()
+        bzo.world = world
+        bzo.fromBlender(object)
+        return bzo
+    return None

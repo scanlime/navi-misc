@@ -41,12 +41,19 @@ class World(Object):
     materials = [grassMaterial]
     materialIndex = [0]
 
-    def __init__(self):
+    def __init__(self, list=None):
         self.set_size()
         self.name = ''
+        if list is not None:
+            for property in list[1:]:
+                getattr(self, "set_%s" % property[0])(property[1:])
 
-    def set_size(self, size=400):
-        self.size = size
+    def serialize(self, writer):
+        Object.serialize(self, writer)
+        writer(('size', self.size))
+
+    def set_size(self, size=[400]):
+        self.size = float(size[0])
 
     def transformBlenderObject(self, world):
         # The world always appears to be a constant size in blender, and other objects

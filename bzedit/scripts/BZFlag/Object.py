@@ -71,6 +71,10 @@ class Object:
     # relative to the world
     world = None
 
+    def serialize(self, writer):
+        if (self.name):
+            writer(('name', self.name))
+
     def set_name(self, name):
         self.name = string.join(name, ' ')
 
