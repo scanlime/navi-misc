@@ -48,6 +48,7 @@ struct _ParameterEditor {
   gchar *previous_group;
 
   gboolean suppress_notify;
+  gboolean suppress_changed;
 };
 
 struct _ParameterEditorClass {
