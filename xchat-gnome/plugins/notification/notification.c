@@ -31,15 +31,29 @@
 #define NOTIFICATION_VERSION "0.1"
 
 
+typedef enum
+{
+	NOTIF_NONE,
+	NOTIF_DATA,
+	NOTIF_MSG,
+	NOTIF_NICK
+} NotifStatus;
+
+
 static xchat_plugin *ph;				// Plugin handle.
+static NotifStatus status = NOTIF_NONE;	// Current status level.
 static gboolean window_visible = TRUE;	// Keep track of whether the window is visible.
 //static NavTree *nav_tree;				// A reference to the navigation tree.
 static EggTrayIcon *notification;		// Notification area icon.
 //static GtkMenu *menu;					// The menu that pops up.
 static GtkWidget *image;				// The image displayed by the icon.
-static GdkPixbuf *logo;					// Pixbufs for the notification area.
+static GdkPixbuf *logo,					// Pixbufs
+				 *nick_said,
+				 *msg_said,
+				 *new_data;
 
 static gboolean notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
+static int new_text_cb (char **word, void *data);
 
 
 void
@@ -102,6 +116,15 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/xchat-gnome-small.png", 0);
 	logo = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
 
+	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/nicksaid.png", 0);
+	nick_said = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
+
+	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/global-message.png", 0);
+	msg_said = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
+
+	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR"/newdata.png", 0);
+	new_data = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
+
 	/* Create the notification icon. */
 	notification = egg_tray_icon_new ("xchat-gnome");
 	box = gtk_event_box_new ();
@@ -127,6 +150,11 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 			(GtkTreeModelForeachFunc)notification_menu_add_channel, NULL);
 	gtk_widget_show (GTK_WIDGET (menu));
 	*/
+
+	/* Hook up our callbacks. */
+	xchat_hook_print (ph, "Channel Message", XCHAT_PRI_NORM, new_text_cb, 0);
+	xchat_hook_print (ph, "Private Message to Dialog", XCHAT_PRI_NORM, new_text_cb, 0);
+
 	xchat_print (ph, "Notification plugin loaded.\n");
 
 	return TRUE;
@@ -177,5 +205,8 @@ notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data
 	return TRUE;
 }
 
-
+static int
+new_text_cb (char **word, void *data)
+{
+}
 /*** The End ***/
