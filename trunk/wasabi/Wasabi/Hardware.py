@@ -23,7 +23,7 @@ the mi6k (both through the mi6k module and through lircd) and the uvswitch
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import IR, Mixer
+import IR, Mixer, threading, time
 
 
 class Devices:
@@ -64,6 +64,11 @@ class Devices:
         if self.uvswitch:
             self.selectWasabiVideo()
 
+        # If we have an mi6k connection, start the updater thread
+        if self.mi6k:
+            self.mi6kUpdater = Mi6kUpdater(self.mi6k)
+            self.mi6kUpdater.start()
+
     def warn(self, msg):
         """Issue a warning related to hardware initialization"""
         print "*** Warning: %s" % msg
@@ -93,5 +98,25 @@ class Devices:
         self.mixer.reset()
         self.mixer.volume = Mixer.onVolume
         self.mixer.pcm = Mixer.onVolume
+
+    def shutdown(self):
+        """Safely power down devices on exit"""
+        if self.mi6k:
+            self.mi6k.lights.blue = 0
+            self.mi6k.lights.white = 0
+
+
+class Mi6kUpdater(threading.Thread):
+    """Thread to update the VFD and LEDs on the mi6k.
+       These operations take a relatively long time and can't yet be made nonblocking.
+       """
+    def __init__(self, mi6k):
+        threading.Thread.__init__(self)
+        self.running = 1
+        self.mi6k = mi6k
+
+    def run(self):
+        while self.running:
+            self.mi6k.lights.blue = time.time() % 1
 
 ### The End ###
