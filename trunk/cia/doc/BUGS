@@ -2,7 +2,7 @@
 Known Bugs
 ==========
 
-important
+Important
 ---------
 
 - Bots need rate limiting and load balancing to prevent them from flooding off
@@ -20,8 +20,8 @@ important
   now, the botnet tries a little too hard and the bot will
   just immediately rejoin.
 
-noncritical
------------
+Not that important
+------------------
 
 - The MIME types the web server gives out are a bit weird in the client
   scripts directory. Everything except HTML and images should probably be
