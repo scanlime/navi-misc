@@ -1,7 +1,7 @@
 /*
- * 
+ * Authors: David Trowbridge <trowbrds@cs.colorado.edu>
  *
- * Copyright (C) 2004 David Trowbridge
+ * Copyright (C) 2005 Novell, Inc (www.novell.com)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,12 +23,22 @@
 #include <libgnomeui/gnome-stock-icons.h>
 #include "eggstatusicon.h"
 
+int  e_plugin_lib_enable (EPluginLib *ep, int enable);
+void new_mail (EPlugin *ep, EMEventTargetFolder *target);
+void reading_message (EPlugin *ep, EMEventTargetMessage *message);
+
+
 static EggStatusIcon *icon = NULL;
 
 int
 e_plugin_lib_enable (EPluginLib *ep, int enable)
 {
-	icon = egg_status_icon_new_from_stock (GNOME_STOCK_MAIL);
+//	icon = egg_status_icon_new_from_stock (GNOME_STOCK_MAIL);
+	icon = egg_status_icon_new_from_file ("/usr/share/icons/hicolor/16x16/stock/net/stock_mail.png");
+	g_print ("icon: 0x%x\n", icon);
+	g_print ("size: %d\n", egg_status_icon_get_size (icon));
+	egg_status_icon_set_balloon_text (icon, "hi!\n");
+	egg_status_icon_set_tooltip (icon, "hi!\n", NULL);
 	return (icon == NULL);
 }
 

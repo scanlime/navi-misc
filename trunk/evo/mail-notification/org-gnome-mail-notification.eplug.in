@@ -4,6 +4,7 @@
      type="shlib"
      location="@PLUGINDIR@/liborg-gnome-mail-notification.so"
      id="org.gnome.evolution.mail.notification"
+     load-on-startup="true"
      name="Mail Notification">
         <description>Provides a notification-area icon showing when new mail has arrived</description>
 	<author name="David Trowbridge" email="trowbrds@cs.colorado.edu"/>
