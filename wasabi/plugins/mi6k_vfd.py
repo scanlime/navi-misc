@@ -140,8 +140,9 @@ class UpdaterThread(threading.Thread):
 
     def run(self):
         oldFrame = None
+        ledUpdater = LEDUpdater(self.mi6k.lights)
         while not self.stop:
-            self.updateLEDs()
+            ledUpdater.run()
             self.surface.update()
             self.lock.acquire()
             try:
@@ -157,26 +158,38 @@ class UpdaterThread(threading.Thread):
                 self.mi6k.vfd.writeLines(frame)
             oldFrame = frame
         self.mi6k.vfd.clear()
-        self.mi6k.lights.blue = 0
-        self.mi6k.lights.white = 0
+        ledUpdater.close()
 
-    def updateLEDs(self):
+
+class LEDUpdater:
+    """This class is responsible for doing background updates of our LEDs"""
+    playingLevel = 0.004
+    blueDimRate = 0.9
+    whiteDimRate = 0.8
+
+    def __init__(self, lights):
+        self.lights = lights
+        self.lastPlayingItem = None
+
+    def close(self):
+        self.lights.blue = 0
+        self.lights.white = 0
+
+    def run(self):
         # The blue LED flashes as we start playing something,
         # then stays dimly lit as long as it's playing
-        playingLevel = 0.004
-        blueDimRate  = 0.9
-        if findPlayingItem():
-            if self.mi6k.lights.blue < playingLevel:
-                self.mi6k.lights.blue = 1
+        currentItem = findPlayingItem()
+        if currentItem:
+            if currentItem != self.lastPlayingItem:
+                self.lights.blue = 1
+                self.lastPlayingItem = currentItem
             else:
-                self.mi6k.lights.blue = max(playingLevel, self.mi6k.lights.blue * blueDimRate)
+                self.lights.blue = max(self.playingLevel, self.lights.blue * self.blueDimRate)
         else:
-            self.mi6k.lights.blue = 0
+            self.lights.blue = 0
 
-        # We flash the white LED when a new OSD message comes in,
-        # this just controls how fast it fades away.
-        whiteDimRate = 0.8
-        self.mi6k.lights.white *= whiteDimRate
+        # We flash the white LED when a new OSD message comes in, this just fades it
+        self.lights.white *= self.whiteDimRate
 
 
 class PluginInterface(plugin.DaemonPlugin):
