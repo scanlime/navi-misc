@@ -198,7 +198,7 @@ volatile xdata at 0xFF08 unsigned char OEPCNF_1;         /* Output endpoint 1 co
 volatile xdata at 0xFF09 unsigned char OEPBBAX_1;        /* Output endpoint 1 X buffer base address */
 volatile xdata at 0xFF0A unsigned char OEPBCTX_1;        /* Output endpoint 1 X byte count */
 volatile xdata at 0xFF0D unsigned char OEPBBAY_1;        /* Output endpoint 1 Y buffer base address */
-volatile xdata at 0xFF0E unsigned char OEPBBTY_1;        /* Output endpoint 1 Y byte count */
+volatile xdata at 0xFF0E unsigned char OEPBCTY_1;        /* Output endpoint 1 Y byte count */
 volatile xdata at 0xFF0F unsigned char OEPSIZXY_1;       /* Output endpoint 1 X/Y buffer size */
 
 /* Output 2 Endpoint Descriptor Block */
@@ -206,7 +206,7 @@ volatile xdata at 0xFF10 unsigned char OEPCNF_2;         /* Output endpoint 2 co
 volatile xdata at 0xFF11 unsigned char OEPBBAX_2;        /* Output endpoint 2 X buffer base address */
 volatile xdata at 0xFF12 unsigned char OEPBCTX_2;        /* Output endpoint 2 X byte count */
 volatile xdata at 0xFF15 unsigned char OEPBBAY_2;        /* Output endpoint 2 Y buffer base address */
-volatile xdata at 0xFF16 unsigned char OEPBBTY_2;        /* Output endpoint 2 Y byte count */
+volatile xdata at 0xFF16 unsigned char OEPBCTY_2;        /* Output endpoint 2 Y byte count */
 volatile xdata at 0xFF17 unsigned char OEPSIZXY_2;       /* Output endpoint 2 X/Y buffer size */
 
 /* Output 3 Endpoint Descriptor Block */
@@ -214,7 +214,7 @@ volatile xdata at 0xFF18 unsigned char OEPCNF_3;         /* Output endpoint 2 co
 volatile xdata at 0xFF19 unsigned char OEPBBAX_3;        /* Output endpoint 2 X buffer base address */
 volatile xdata at 0xFF1A unsigned char OEPBCTX_3;        /* Output endpoint 2 X byte count */
 volatile xdata at 0xFF1D unsigned char OEPBBAY_3;        /* Output endpoint 2 Y buffer base address */
-volatile xdata at 0xFF1E unsigned char OEPBBTY_3;        /* Output endpoint 2 Y byte count */
+volatile xdata at 0xFF1E unsigned char OEPBCTY_3;        /* Output endpoint 2 Y byte count */
 volatile xdata at 0xFF1F unsigned char OEPSIZXY_3;       /* Output endpoint 2 X/Y buffer size */
 
 /* Input 1 Endpoint Descriptor Block */
@@ -222,7 +222,7 @@ volatile xdata at 0xFF48 unsigned char IEPCNF_1;         /* Output endpoint 1 co
 volatile xdata at 0xFF49 unsigned char IEPBBAX_1;        /* Output endpoint 1 X buffer base address */
 volatile xdata at 0xFF4A unsigned char IEPBCTX_1;        /* Output endpoint 1 X byte count */
 volatile xdata at 0xFF4D unsigned char IEPBBAY_1;        /* Output endpoint 1 Y buffer base address */
-volatile xdata at 0xFF4E unsigned char IEPBBTY_1;        /* Output endpoint 1 Y byte count */
+volatile xdata at 0xFF4E unsigned char IEPBCTY_1;        /* Output endpoint 1 Y byte count */
 volatile xdata at 0xFF4F unsigned char IEPSIZXY_1;       /* Output endpoint 1 X/Y buffer size */
 
 /* Input 2 Endpoint Descriptor Block */
@@ -230,7 +230,7 @@ volatile xdata at 0xFF50 unsigned char IEPCNF_2;         /* Output endpoint 2 co
 volatile xdata at 0xFF51 unsigned char IEPBBAX_2;        /* Output endpoint 2 X buffer base address */
 volatile xdata at 0xFF52 unsigned char IEPBCTX_2;        /* Output endpoint 2 X byte count */
 volatile xdata at 0xFF55 unsigned char IEPBBAY_2;        /* Output endpoint 2 Y buffer base address */
-volatile xdata at 0xFF56 unsigned char IEPBBTY_2;        /* Output endpoint 2 Y byte count */
+volatile xdata at 0xFF56 unsigned char IEPBCTY_2;        /* Output endpoint 2 Y byte count */
 volatile xdata at 0xFF57 unsigned char IEPSIZXY_2;       /* Output endpoint 2 X/Y buffer size */
 
 /* Input 3 Endpoint Descriptor Block */
@@ -238,7 +238,7 @@ volatile xdata at 0xFF58 unsigned char IEPCNF_3;         /* Output endpoint 3 co
 volatile xdata at 0xFF59 unsigned char IEPBBAX_3;        /* Output endpoint 3 X buffer base address */
 volatile xdata at 0xFF5A unsigned char IEPBCTX_3;        /* Output endpoint 3 X byte count */
 volatile xdata at 0xFF5D unsigned char IEPBBAY_3;        /* Output endpoint 3 Y buffer base address */
-volatile xdata at 0xFF5E unsigned char IEPBBTY_3;        /* Output endpoint 3 Y byte count */
+volatile xdata at 0xFF5E unsigned char IEPBCTY_3;        /* Output endpoint 3 Y byte count */
 volatile xdata at 0xFF5F unsigned char IEPSIZXY_3;       /* Output endpoint 3 X/Y buffer size */
 
 /* Endpoint Configuration Bits */
