@@ -9,7 +9,7 @@
  *                  this module does not specify the format of the chunk type
  *                  codes or of the file signature.
  *
- * de Jong Explorer - interactive exploration of the Peter de Jong attractor
+ * Fyre - rendering and interactive exploration of chaotic functions
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
  *
  * This program is free software; you can redistribute it and/or
