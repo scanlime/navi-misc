@@ -102,9 +102,17 @@ class File:
     configuration, this may have a module, branch, and URI in addition
     to a path."""
 
-    def __init__(self, fullPath):
+    # Map svn's status letters to our action names
+    actionMap = {
+        'U': 'modify',
+        'A': 'add',
+        'D': 'remove',
+        }
+
+    def __init__(self, fullPath, status=None):
         self.fullPath = fullPath
         self.path = fullPath
+        self.action = self.actionMap.get(status)
 
     def getURI(self, repo):
         """Get the URI of this file, given the repository's URI. This
@@ -123,6 +131,9 @@ class File:
         if config.repositoryURI is not None:
             attrs['uri'] = self.getURI(config.repositoryURI)
 
+        if self.action:
+            attrs['action'] = self.action
+
         attrString = ''.join([' %s="%s"' % (key, escapeToXml(value,1))
                               for key, value in attrs.iteritems()])
         return "<file%s>%s</file>" % (attrString, escapeToXml(self.path))
@@ -132,7 +143,7 @@ class SvnClient:
     """A CIA client for Subversion repositories. Uses svnlook to
     gather information"""
     name = 'Python Subversion client for CIA'
-    version = '1.13'
+    version = '1.14'
 
     def __init__(self, repository, revision, config):
         self.repository = repository
@@ -223,9 +234,10 @@ class SvnClient:
         # Extract all the files from the output of 'svnlook changed'
         files = []
         for line in self.svnlook('changed').split('\n'):
-            line = line[2:].strip()
-            if line:
-                files.append(File(line))
+            path = line[2:].strip()
+            if path:
+                status = line[0]
+                files.append(File(path, status))
 
         if self.config.pathRegex:
             # We have a regex we'll be applying to each path to try to
