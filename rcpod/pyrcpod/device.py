@@ -29,8 +29,7 @@ import re
 
 # These are the symbols that will be pulled from this module
 # into the 'pyrcpod' package.
-__all__ = ['scanForDevices', 'devices', 'mapAddress',
-           'OpenedRcpod', 'I2CDevice', 'I2CError']
+__all__ = ['scanForDevices', 'devices', 'mapAddress', 'OpenedRcpod']
 
 
 def mapAddress(name):
@@ -411,79 +410,6 @@ class Pin:
     def input(self):
         """Return a pin descriptor that is asserted when this pin is an input"""
         return Pin(self.rcpod, self.value | RCPOD_PIN_TRIS | RCPOD_PIN_HIGH)
-
-
-class I2CError(IOError):
-    pass
-
-
-class I2CDevice:
-    """Represents one I2C device on an I2C bus attached to the rcpod"""
-    def __init__(self, clockPin, dataPin, address, speed=0):
-        self.rcpod = clockPin.rcpod
-        self.address = address
-        self.clock = clockPin
-        self.data = dataPin
-        assert clockPin.rcpod is dataPin.rcpod
-
-        self._idev = new_i2cDev(speed, clockPin.value, dataPin.value, address)
-
-    def __repr__(self):
-        return "<I2CDevice at address 0x%02X on clock %r and data %r>" % (
-            self.address, self.clock, self.data)
-
-    def __del__(self):
-        try:
-            delete_i2cDev(self._idev)
-        except AttributeError:
-            pass
-
-    def write(self, txData):
-        try:
-            arr = to_ucharArray(txData)
-            ackCount = rcpod_I2CWrite(self.rcpod.dev, self._idev, arr, len(txData))
-        finally:
-            delete_ucharArray(arr)
-
-        if ackCount == 0:
-            raise I2CError("No device acknowledged address for write")
-        elif ackCount < len(txData)+1:
-            raise I2CError("Device stopped acknowledging %d bytes into write" % (ackCount-1))
-
-    def read(self, count, retType=list):
-        try:
-            buffer = new_ucharArray(count)
-            ackCount = rcpod_I2CRead(self.rcpod.dev, self._idev, buffer, count)
-            data = from_ucharArray(buffer, count, retType)
-        finally:
-            delete_ucharArray(buffer)
-
-        if ackCount == 0:
-            raise I2CError("No device acknowledged address for read")
-        return data
-
-    def writeRead(self, txData, rxCount, retType=list):
-        """Do a write immediately followed by a read, may be faster than
-           separate writes and reads in some common cases.
-           """
-        try:
-            txBuffer = to_ucharArray(txData)
-            rxBuffer = new_ucharArray(rxCount)
-            ackCount = rcpod_I2CWriteRead(self.rcpod.dev, self._idev,
-                                          txBuffer, len(txData),
-                                          rxBuffer, rxCount)
-            rxData = from_ucharArray(rxBuffer, rxCount, retType)
-        finally:
-            delete_ucharArray(txBuffer)
-            delete_ucharArray(rxBuffer)
-
-        if ackCount == 0:
-            raise I2CError("No device acknowledged address for write")
-        elif ackCount < len(txData)+1:
-            raise I2CError("Device stopped acknowledging %d bytes into write" % (ackCount-1))
-        elif ackCount == len(txData)+1:
-            raise I2CError("No device acknowledged address for read")
-        return rxData
 
 
 class AvailableDevice:
