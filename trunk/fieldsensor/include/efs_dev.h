@@ -25,6 +25,18 @@
 #define EFS_DEV_NAMEFORMAT   "usb/efs%d"
 #define EFS_MINOR_BASE       215
 
+/* Each parmaeter block is a set of sensor parameters stored in the board.
+ * Each parameter block is sampled, and generates one byte in the resulting
+ * packets. These bytes are then accumulated until read by userspace code.
+ */
+#define EFS_NUM_PARAM_BLOCKS 8
+
+/* These are returned by read() */
+struct efs_results {
+  int accumulators[EFS_NUM_PARAM_BLOCKS];
+  int num_samples;
+};
+
 #endif /* __EFS_DEV_H */
 
 /* The End */
