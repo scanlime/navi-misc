@@ -291,9 +291,33 @@ class PalantirWindow:
     widget.set_text('')
 
   def on_SendField_key_press_event(self, widget, data):
-    if data == gtk.gdk.Tab:
-      print 'hi'
+    ''' Intercept keypresses to check for tabs for tab-completion of nicks. '''
+    if data.keyval == gtk.gdk.keyval_from_name('Tab'):
+      nicks = []
+      text = self.tree.get_widget('SendField').get_text()
+      model = self.tree.get_widget('UserList').get_model()
+      iter = model.get_iter_root()
+
+      # If we got a valid iter from the treeview.
+      if iter:
+	# Loop through the nicks looking for any that contain the substring.
+	while iter:
+	  if model.get_value(iter, 1).find(text) != -1:
+	    # If we find a match add it to the list of possibles.
+	    nicks.append(model.get_value(iter, 1))
+	  iter = model.iter_next(iter)
+
+	# If we've only got one match put it in the send field.
+        if len(nicks) == 1:
+	  self.tree.get_widget('SendField').set_text(nicks[0] + ': ')
+
+	# Multiple matches get displayed in the chat buffer.
+	elif len(nicks) > 1:
+	  self.messageReceive(None, self.factory.channels[0], string.join(nicks))
+      self.tree.get_widget('SendField').set_position(-1)
+      # If we do our nick completion don't call the default handler.
       return gtk.TRUE
+
     return gtk.FALSE
 
   def on_ChannelTabs_switch_page(self, widget, data, tab):
