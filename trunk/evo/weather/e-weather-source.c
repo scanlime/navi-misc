@@ -25,7 +25,9 @@
 void
 e_weather_source_parse (EWeatherSource *source, EWeatherSourceFinished done, gpointer data)
 {
-	EWeatherSourceClass *class = (EWeatherSourceClass*) G_OBJECT_GET_CLASS (source);
+	EWeatherSourceClass *class;
+	g_return_if_fail (source != NULL);
+	class = (EWeatherSourceClass*) G_OBJECT_GET_CLASS (source);
 	return class->parse (source, done, data);
 }
 
@@ -66,7 +68,8 @@ e_weather_source_get_type (void)
 
 EWeatherSource*	e_weather_source_new (const char *uri)
 {
-	if (strncmp (uri, "ccf/", 4) == 0)
-		return g_object_new (e_weather_source_ccf_get_type(), 0);
+	char *base = uri + 10; /* skip weather:// */
+	if (strncmp (base, "ccf/", 4) == 0)
+		return e_weather_source_ccf_new (base);
 	return NULL;
 }
