@@ -37,6 +37,7 @@ making keys map to pickled callable objects would be too fragile.
 #
 
 from twisted.internet import defer
+from twisted.python import failure
 import string, os, md5, time
 import Database, RpcServer
 
@@ -82,7 +83,10 @@ class SecurityException(Exception):
     pass
 
 
-class NoSuchUser(Exception):
+class NoSuchUser(SecurityException):
+    pass
+
+class InsufficientCapabilities(SecurityException):
     pass
 
 
@@ -253,13 +257,18 @@ class User:
     def require(self, *capabilities):
         """Like test(), but in case none of the listed capabilities have been
            granted to this user, raises a SecurityException.
+           This is guaranteed to either return None or a Failure, where the
+           Failure should be a SecurityException.
            """
         return Database.pool.runInteraction(self._require, *capabilities)
 
     def _require(self, cursor, *capabilities):
-        if not self._test(cursor, *capabilities):
-            raise SecurityException("One of the following capabilities are required: " +
-                                    repr(capabilities)[1:-1])
+        try:
+            if not self._test(cursor, *capabilities):
+                raise InsufficientCapabilities("One of the following capabilities are required: " +
+                                               repr(capabilities)[1:-1])
+        except:
+            return failure.Failure()
 
     def _createTestQuery(self, uid, capabilities):
         """Create an SQL query that returns something nonzero if a uid matches any of

@@ -148,20 +148,21 @@ class Interface(xmlrpc.XMLRPC):
                 caps = caps(path, *args)
 
             # A callback invoked when our key is successfully validated
-            def keyValidated(validationResult):
-                if validationResult is None:
-                    d = defer.maybeDeferred(f, *args)
-                    d.addBoth(self.logProtectedCall, path, args, user)
-                    d.chainDeferred(result)
-                else:
-                    self.logProtectedCall(validationResult, path, args, user, allowed=False)
-                    result.errback(validationResult)
+            def keyValidated(unimportant):
+                d = defer.maybeDeferred(f, *args)
+                d.addBoth(self.logProtectedCall, path, args, user)
+                d.chainDeferred(result)
+
+            def keyError(failure):
+                self.logProtectedCall(failure, path, args, user, allowed=False)
+                result.errback(failure)
 
             # Check the capabilities asynchronously (requires a database query)
             import Security
             user = Security.User(key=str(key))
             d = user.require(*caps)
-            d.addCallbacks(keyValidated)
+            d.addCallback(keyValidated)
+            d.addErrback(keyError)
             return result
         return rpcWrapper
 
