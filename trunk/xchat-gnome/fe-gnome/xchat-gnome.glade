@@ -3658,7 +3658,7 @@
 </widget>
 
 <widget class="GtkWindow" id="setup druid">
-  <property name="title" translatable="yes">Xchat-gnome Setup Assistant</property>
+  <property name="title" translatable="yes">xchat-gnome Setup Assistant</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
@@ -3667,7 +3667,7 @@
 
   <child>
     <widget class="GnomeDruid" id="druid1">
-      <property name="border_width">4</property>
+      <property name="border_width">12</property>
       <property name="visible">True</property>
       <property name="show_help">False</property>
 
@@ -3675,6 +3675,7 @@
 	<widget class="GnomeDruidPageEdge" id="druidpagestart1">
 	  <property name="visible">True</property>
 	  <property name="position">GNOME_EDGE_START</property>
+	  <property name="title" translatable="yes">xchat-gnome setup</property>
 	  <property name="text" translatable="yes">Welcome to the Xchat-gnome IRC client.
 
 Your Xchat-gnome preferences have not yet been set.   You can continue to the Xchat-gnome configuration assistant by clicking &quot;Forward&quot; below, or you can instead skip this process by clicking &quot;Cancel.&quot;</property>
@@ -3684,7 +3685,7 @@ Your Xchat-gnome preferences have not yet been set.   You can continue to the Xc
       <child>
 	<widget class="GnomeDruidPageStandard" id="druidpagestandard1">
 	  <property name="visible">True</property>
-	  <property name="title" translatable="yes">User configuration</property>
+	  <property name="title" translatable="yes">User Configuration</property>
 
 	  <child internal-child="vbox">
 	    <widget class="GtkVBox" id="druid-vbox1">
