@@ -6,8 +6,8 @@
 #
 
 import gtk
-import rtgraph, time, math
-
+import time, math
+import rtgraph
 
 class SineChannel(rtgraph.Channel):
     def __init__(self, frequency, amplitude, color):

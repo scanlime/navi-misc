@@ -9,9 +9,9 @@
 
 from __future__ import division
 import gtk, rtgraph, re
+import graph
 
-
-class CPUActivityChannel(rtgraph.Channel):
+class CPUActivityChannel(graph.Channel):
     lastStatValues = None
     activity = None
 
@@ -38,7 +38,7 @@ class CPUActivityChannel(rtgraph.Channel):
         return self.activity
 
 
-graph = rtgraph.HScrollAreaGraph(
+graph = graph.HScrollAreaGraph(
     scrollRate = 4,
     pollInterval = 200,
     size       = (128,48),

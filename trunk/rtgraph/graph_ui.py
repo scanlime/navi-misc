@@ -8,7 +8,8 @@
 # -- Micah Dowty <micah@picogui.org>
 #
 
-import rtgraph, gtk
+import gtk
+import rtgraph
 
 functions = [
     "0",
