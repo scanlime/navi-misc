@@ -452,6 +452,7 @@ static gboolean tab_complete_nickname(GtkEntry *entry, int start) {
 
 			if (start != 0)
 			{
+				text[start] = '\0';
 				npt = g_strdup_printf ("%s%s", text, (char *) options->data);
 				pos = strlen ((char *) options->data) + start;
 			}
