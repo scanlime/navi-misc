@@ -175,12 +175,18 @@ class Interface(xmlrpc.XMLRPC):
         else:
             main_param = None
 
+        # Get the user's UID. If it hasn't even been looked up successfully,
+        # this is just a failed operation on a nonexistent user and it's not worth logging.
+        uid = user.getCachedUid()
+        if uid is None:
+            return
+
         Database.pool.runOperation(
             "INSERT INTO audit_trail (timestamp, uid, action_domain, action_name,"
             " main_param, params, allowed, results)"
-            " VALUES(%d, %s, 'protected_call', %s, %s, '%s', %d, '%s')" % (
+            " VALUES(%d, %d, 'protected_call', %s, %s, '%s', %d, '%s')" % (
             time.time(),
-            Database.quote(user.getCachedUid(), 'bigint'),
+            uid,
             Database.quote(".".join(path), 'text'),
             Database.quote(main_param, 'text'),
             Database.quoteBlob(cPickle.dumps(args, -1)),
