@@ -40,14 +40,31 @@ except ImportError:
                          "path properly.")
     bzflag = None
 
+
+def importObjects(reader):
+    # First determine if we have a world. If not, we'll need to create a default one.
+    world = None
+    objects = []
+    for object in reader:
+        objects.append(object)
+        if isinstance(object, bzflag.World):
+            world = object
+    if not world:
+        world = bzflag.World()
+        objects.append(world)
+
+    # Create Blender objects for each BZFlag object
+    for object in objects:
+        object.toBlender()
+
+
 def fileSelectedCallback(filename):
     try:
         reader = bzflag.WorldReader(filename)
     except IOError, s:
         bzflag.log.err(s)
     else:
-        for object in reader.readObjects():
-            object.toBlender()
+        importObjects(reader.readObjects())
     if bzflag.log.numErrors:
         bzflag.log.report("Errors in loading world file")
 
