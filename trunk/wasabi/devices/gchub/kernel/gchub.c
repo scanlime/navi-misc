@@ -51,6 +51,12 @@
 
 #define NUM_PORTS      4
 
+#define LED_OFF        0
+#define LED_RED        1
+#define LED_GREEN      2
+#define LED_ORANGE     (LED_RED | LED_GREEN)
+
+
 struct gchub_controller_status {
 	int buttons;
 	int joystick[2];
@@ -60,8 +66,7 @@ struct gchub_controller_status {
 
 struct gchub_controller_outputs {
 	int rumble;
-	int red_led;
-	int green_led;
+	int led_color;
 
 	int dirty;
 	spinlock_t lock;
@@ -97,16 +102,22 @@ struct gchub_dev {
 	unsigned char *         irq_data;
 	dma_addr_t              irq_dma;
 
+	struct urb *            out_status;             /* URB for output status updates (LEDs, rumble) */
+	struct usb_ctrlrequest  out_status_request;
+	int                     out_status_in_progress;  /* Nonzero if a status update is in progress */
+	int                     out_status_pending_sync; /* Another URB needs to be sent right after this one */
+	spinlock_t              out_status_lock;         /* Lock for serializing status updates */
+
 	struct gchub_controller ports[NUM_PORTS];
 };
 
-#define REQUEST_TIMEOUT    (HZ/10)  /* 1/10 second timeout for control requests */
+#define REQUEST_TIMEOUT       (HZ/10)  /* 1/10 second timeout for control requests */
 
-#define STATUS_PACKET_SIZE     8    /* This must always be 8, since that's what the hardware
-				     * gives us. If it's smaller, the HCD will probably crash horribly.
-				     */
+#define STATUS_PACKET_SIZE        8    /* This must always be 8, since that's what the hardware
+				        * gives us. If it's smaller, the HCD will probably crash horribly.
+				        */
 
-#define STATUS_PACKET_INTERVAL 1    /* Polling interval, in milliseconds per packet */
+#define STATUS_PACKET_INTERVAL    1  /* Polling interval, in milliseconds per packet */
 
 #define CONTROLLER_RETRY_ATTEMPTS 20 /* Number of times a controller must report no data to be
 				      * considered disconnected. This gives us tolerance for glitches
@@ -126,6 +137,11 @@ static void   gchub_irq                (struct urb*                     urb,
 static void   gchub_process_status     (struct gchub_dev*               dev,
 					const unsigned char*            packet);
 
+static void   gchub_sync_output_status (struct gchub_dev*               dev);
+static void   gchub_fill_output_request(struct gchub_dev*               dev);
+static void   gchub_out_request_irq    (struct urb*                     urb,
+					struct pt_regs*                 regs);
+
 static int    buttons_to_axis          (int                             buttons,
 					int                             neg_mask,
 					int                             pos_mask);
@@ -144,9 +160,8 @@ static void   controller_attach        (void*                           data);
 static void   controller_detach        (void*                           data);
 static void   controller_set_rumble    (struct gchub_controller*        ctl,
 					int                             rumble);
-static void   controller_set_leds      (struct gchub_controller*        ctl,
-					int                             red,
-					int                             green);
+static void   controller_set_led       (struct gchub_controller*        ctl,
+					int                             led_color);
 
 /* Table of devices that work with this driver */
 static struct usb_device_id gchub_table [] = {
@@ -407,13 +422,12 @@ static void controller_set_rumble(struct gchub_controller* ctl,
 	spin_unlock_irqrestore(&ctl->outputs.lock, flags);
 }
 
-static void controller_set_leds(struct gchub_controller* ctl,
-				int red, int green)
+static void controller_set_led(struct gchub_controller* ctl,
+				int led_color)
 {
 	unsigned long flags;
 	spin_lock_irqsave(&ctl->outputs.lock, flags);
-	ctl->outputs.red_led = red;
-	ctl->outputs.green_led = green;
+	ctl->outputs.led_color = led_color;
 	ctl->outputs.dirty = 1;
 	spin_unlock_irqrestore(&ctl->outputs.lock, flags);
 }
@@ -528,6 +542,113 @@ static void gchub_process_status(struct gchub_dev *dev, const unsigned char *pac
 		controller_sync(port);
 }
 
+/* Check for changes in controller outputs that haven't been sent
+ * yet. If there are any and an update hasn't already been started,
+ * we start one. If an update had already been started, once complete
+ * it will automatically check again for dirty outputs and send
+ * another update if necessary.
+ */
+static void gchub_sync_output_status(struct gchub_dev* dev)
+{
+	unsigned long flags;
+	int dirty = 0;
+	int i;
+
+	/* Are any outputs still dirty? */
+	for (i=0; i<NUM_PORTS; i++)
+		if (dev->ports[i].outputs.dirty)
+			dirty++;
+	if (!dirty)
+		return;
+
+	/* Send out a status packet if one isn't already on its way */
+	spin_lock_irqsave(&dev->out_status_lock, flags);
+	if (dev->out_status_in_progress) {
+		/* A packet is already on its way, but we'll need
+		 * another one to be sent right afterward.
+		 */
+		dev->out_status_pending_sync = 1;
+		spin_unlock_irqrestore(&dev->out_status_lock, flags);
+	}
+	else {
+		dev->out_status_in_progress = 1;
+		spin_unlock_irqrestore(&dev->out_status_lock, flags);
+
+		gchub_fill_output_request(dev);
+		usb_submit_urb(dev->out_status, SLAB_ATOMIC);
+	}
+}
+
+/* Collect output data from all ports into our
+ * out_status_request, clearing dirty flags as we go.
+ */
+static void   gchub_fill_output_request(struct gchub_dev* dev)
+{
+	struct gchub_controller_outputs outputs[NUM_PORTS];
+	int port;
+	unsigned long flags;
+	unsigned short led_bits, rumble_bits;
+
+	/* Take a snapshot of each port's outputs and clear dirty flags,
+	 * while holding the outputs' spinlock.
+	 */
+	for (port=0; port<NUM_PORTS; port++) {
+		spin_lock_irqsave(&dev->ports[port].outputs.lock, flags);
+		outputs[port].rumble = dev->ports[port].outputs.rumble;
+		outputs[port].led_color = dev->ports[port].outputs.led_color;
+		dev->ports[port].outputs.dirty = 0;
+		spin_unlock_irqrestore(&dev->ports[port].outputs.lock, flags);
+	}
+
+	rumble_bits = 0;
+	if (outputs[0].rumble) rumble_bits |= GCHUB_RUMBLE_PORT0;
+	if (outputs[1].rumble) rumble_bits |= GCHUB_RUMBLE_PORT1;
+	if (outputs[2].rumble) rumble_bits |= GCHUB_RUMBLE_PORT2;
+	if (outputs[3].rumble) rumble_bits |= GCHUB_RUMBLE_PORT3;
+
+	led_bits = 0;
+	if (outputs[0].led_color & LED_RED) led_bits |= GCHUB_LED_PORT0_RED;
+	if (outputs[1].led_color & LED_RED) led_bits |= GCHUB_LED_PORT1_RED;
+	if (outputs[2].led_color & LED_RED) led_bits |= GCHUB_LED_PORT2_RED;
+	if (outputs[3].led_color & LED_RED) led_bits |= GCHUB_LED_PORT3_RED;
+	if (outputs[0].led_color & LED_GREEN) led_bits |= GCHUB_LED_PORT0_GREEN;
+	if (outputs[1].led_color & LED_GREEN) led_bits |= GCHUB_LED_PORT1_GREEN;
+	if (outputs[2].led_color & LED_GREEN) led_bits |= GCHUB_LED_PORT2_GREEN;
+	if (outputs[3].led_color & LED_GREEN) led_bits |= GCHUB_LED_PORT3_GREEN;
+
+	memset(&dev->out_status_request, 0, sizeof(dev->out_status_request));
+	dev->out_status_request.bRequestType = USB_TYPE_VENDOR;
+	dev->out_status_request.bRequest = GCHUB_CTRL_SET_STATUS;
+	dev->out_status_request.wValue = cpu_to_le16p(&rumble_bits);
+	dev->out_status_request.wIndex = cpu_to_le16p(&led_bits);
+}
+
+/* An output request just completed, but we might need another right away. */
+static void gchub_out_request_irq(struct urb* urb, struct pt_regs* regs)
+{
+	struct gchub_dev *dev = (struct gchub_dev*)urb->context;
+	unsigned long flags;
+
+	spin_lock_irqsave(&dev->out_status_lock, flags);
+	if (dev->out_status_pending_sync) {
+		/* Yep, we need another. Leave out_status_in_progress
+		 * set, and resumbit this URB with new data.
+		 */
+		dev->out_status_pending_sync = 0;
+		spin_unlock_irqrestore(&dev->out_status_lock, flags);
+
+		gchub_fill_output_request(dev);
+		usb_submit_urb(dev->out_status, SLAB_ATOMIC);
+	}
+	else {
+		/* Done for now. */
+		dev->out_status_pending_sync = 0;
+		dev->out_status_in_progress = 0;
+		spin_unlock_irqrestore(&dev->out_status_lock, flags);
+	}
+
+}
+
 
 /******************************************************************************/
 /************************************************** USB Housekeeping **********/
@@ -543,6 +664,10 @@ static void gchub_delete(struct gchub_dev *dev)
 	}
 	if (dev->irq_data) {
 		usb_buffer_free(dev->udev, STATUS_PACKET_SIZE, dev->irq_data, dev->irq_dma);
+	}
+	if (dev->out_status) {
+		usb_unlink_urb(dev->out_status);
+		usb_free_urb(dev->out_status);
 	}
 
 	for (i=0; i<NUM_PORTS; i++)
@@ -581,22 +706,34 @@ static int gchub_probe(struct usb_interface *interface, const struct usb_device_
 			goto error;
 	}
 
+	/* Prepere the irq URB */
 	dev->irq_data = usb_buffer_alloc(udev, 8, SLAB_ATOMIC, &dev->irq_dma);
 	if (!dev->irq_data) {
 		retval = -ENOMEM;
 		goto error;
 	}
-
 	dev->irq = usb_alloc_urb(0, GFP_KERNEL);
 	if (!dev->irq) {
 		retval = -ENOMEM;
 		goto error;
 	}
 
+	/* Prepare the output status URB */
+	dev->out_status = usb_alloc_urb(0, GFP_KERNEL);
+	if (!dev->out_status) {
+		retval = -ENOMEM;
+		goto error;
+	}
+	usb_fill_control_urb(dev->out_status, udev, usb_sndctrlpipe(udev, 0),
+			     (unsigned char*) &dev->out_status_request, NULL,
+			     0, gchub_out_request_irq, dev);
+
+	/* Start the interrupt data flowing */
 	usb_fill_int_urb(dev->irq, udev, usb_rcvintpipe(udev, 1),
 			 dev->irq_data, STATUS_PACKET_SIZE, gchub_irq,
 			 dev, STATUS_PACKET_INTERVAL);
 	usb_submit_urb(dev->irq, SLAB_ATOMIC);
+
 
 	info(DEVICE_DESC " now attached");
 	return 0;
