@@ -23,6 +23,7 @@ void fe_init(void) {
 	strcpy(prefs.nick1, "flobidob");
 	servlist_init();
 	initialize_gui();
+	prefs.use_server_tab = TRUE;
 }
 
 void fe_main(void) {
