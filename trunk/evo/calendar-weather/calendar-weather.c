@@ -52,7 +52,7 @@ e_plugin_lib_enable (EPluginLib *epl, int enable)
 
 	/* Add the categories icons if we don't have them. */
 	for (l = e_categories_get_list (); l; l = g_list_next (l)) {
-		if (!strcmp (l->data, N_())) {
+		if (!strcmp (l->data, N_("Weather: Cloudy"))) {
 			found = TRUE;
 			break;
 		}
@@ -66,6 +66,8 @@ e_plugin_lib_enable (EPluginLib *epl, int enable)
 		e_categories_add (N_("Weather: Sunny"), NULL, WEATHER_DATADIR "/category_weather_sun_16.png");
 		e_categories_add (N_("Weather: Thunderstorms"), NULL, WEATHER_DATADIR "/category_weather_tstorm_16.png");
 	}
+
+	return 0;
 }
 
 void
