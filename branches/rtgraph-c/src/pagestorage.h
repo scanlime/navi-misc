@@ -107,28 +107,12 @@ RtgPageStorage*   rtg_page_storage_mapped_new    (const char*       filename,
 						  gsize             page_size);
 
 /* The first page in a pagestorage is used internally as a header.
- * It identifies the storage, points to the free block list, and stores
- * a simple mapping of 'named blocks'.
+ * It identifies the storage, points to the free block list, and holds
+ * the first page in a global atom list used to identify other pages by name.
  *
- * These named blocks are used to mark entry points into the storage-
- * so they are designed to be compact and simple, not fast.
+ * The pageatom.h API can be used to access this list- use the initial
+ * page address RTG_PAGE_HEADER.
  */
-RtgPageAddress    rtg_page_storage_find_name     (RtgPageStorage*   self,
-						  const char*       name);
-void              rtg_page_storage_add_name      (RtgPageStorage*   self,
-						  const char*       name,
-						  RtgPageAddress    page);
-
-/* Iterate over named pages, calling the given predicate for each.
- * If the predicate returns nonzero, iteration stops.
- */
-typedef int       (*RtgNamedPagePredicate)       (RtgPageStorage*       storage,
-						  const char*           name,
-						  RtgPageAddress        page,
-						  gpointer              context);
-void              rtg_page_storage_iter_names    (RtgPageStorage*       self,
-						  RtgNamedPagePredicate callback,
-						  gpointer              context);
 
 
 /***********************************************************************/

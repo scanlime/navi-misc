@@ -26,6 +26,7 @@
 #include <config.h>
 #include <string.h>
 #include "pagestorage.h"
+#include "pageatom.h"
 
 /* The header page begins with this data structure that identifies
  * our implementation and points to the first and last free pages.
@@ -50,199 +51,12 @@ struct header_page_prefix {
     RtgPageAddress  first_free;
 };
 
-/* Every page used to store the named page list has this suffix.
- * That includes the header page, which also has a header page
- * prefix. This suffix tells us where in the page the list starts,
- * and where the next page is if there's more than one being
- * used to store the page list.
- *
- * Every page in the page list is an anlignment-padded null-terminated
- * string giving the name followed by an alignment-padded page address.
- */
-struct named_page_table_suffix {
-    int             offset;
-    RtgPageAddress  next;
-};
-
 /* Prefix stored in free pages, for maintaining our free page data structure */
 struct free_page_prefix {
     RtgPageAddress  next;
 };
 
 #define PAGE_PREFIX(type, self, page) ((type*)rtg_page_storage_lookup(self, page))
-
-
-/***********************************************************************/
-/************************************************** Name table utils ***/
-/***********************************************************************/
-
-struct name_table_iter {
-    RtgPageAddress  current_page;
-    int             offset;
-};
-
-/* These would be in the iter, except that it isn't safe to hold on
- * to pointers within pages. This will just expand to some simple pointer
- * math to regenerate them as necessary.
- */
-#define NAME_TABLE_PAGE_ADDR   (rtg_page_storage_lookup(self, iter->current_page))
-#define NAME_TABLE_SUFFIX      ((struct named_page_table_suffix*) \
-	(NAME_TABLE_PAGE_ADDR + self->page_size - sizeof(struct named_page_table_suffix)))
-
-static int    name_table_iter_check      (RtgPageStorage *self,
-					  struct name_table_iter *iter)
-{
-    /* Check the validity of this iterator. Returns the number
-     * of bytes remaining in the current page if the iterator
-     * is valid, or a negative number if invalid.
-     */
-    if (iter->current_page == RTG_PAGE_NULL)
-	return -1;
-    return self->page_size - sizeof(struct named_page_table_suffix) -
-	iter->offset;
-}
-
-static gboolean name_table_is_last_page  (RtgPageStorage *self,
-					  struct name_table_iter *iter)
-{
-    return NAME_TABLE_SUFFIX->next == RTG_PAGE_NULL;
-}
-
-static void   name_table_iter_init       (RtgPageStorage *self,
-					  struct name_table_iter *iter)
-{
-    /* Reset the whole iterator to the beginning of the header page */
-    iter->current_page = RTG_PAGE_HEADER;
-    iter->offset = NAME_TABLE_SUFFIX->offset;
-}
-
-static void   name_table_iter_next_page  (RtgPageStorage *self,
-					  struct name_table_iter *iter)
-{
-    /* Move to the next page */
-    iter->current_page = NAME_TABLE_SUFFIX->next;
-    iter->offset = NAME_TABLE_SUFFIX->offset;
-}
-
-static char*  name_table_peek_string     (RtgPageStorage *self,
-					  struct name_table_iter *iter)
-{
-    /* Read a string without advancing the offset or validating */
-    return (char*) (NAME_TABLE_PAGE_ADDR + iter->offset);
-}
-
-static size_t strnlen                    (const char* s,
-					  size_t maxlen)
-{
-    /* This is available as a GNU extension, but we
-     * use our own version for portability.
-     */
-    size_t len = 0;
-    while (len<maxlen && *s) {
-	len++;
-	s++;
-    }
-    return len;
-}
-
-static char*  name_table_read_string     (RtgPageStorage *self,
-					  struct name_table_iter *iter)
-{
-    /* Read a padded string out of the name table, advancing the
-     * offset within our current page.
-     */
-    char *current = (char*) (NAME_TABLE_PAGE_ADDR + iter->offset);
-    int remaining = name_table_iter_check(self, iter);
-    int length;
-
-    if (remaining < 1)
-	return NULL;
-    length = strnlen(current, remaining);
-    if (length == remaining)
-	return NULL;
-    iter->offset = RTG_ALIGN_CEIL(iter->offset + length + 1);
-    return current;
-}
-
-static void  name_table_write_string     (RtgPageStorage *self,
-					  struct name_table_iter *iter,
-					  const char *str)
-{
-    /* Write a string at the current offset, and advance it. The
-     * caller is expected to have already ensured there's enough room.
-     */
-    char *current = (char*) (NAME_TABLE_PAGE_ADDR + iter->offset);
-    int length = RTG_ALIGN_CEIL(strlen(str) + 1);
-
-    memset(current, 0, length);
-    strcpy(current, str);
-
-    iter->offset = iter->offset + length;
-}
-
-static RtgPageAddress*  name_table_read_address (RtgPageStorage *self,
-						 struct name_table_iter *iter)
-{
-    /* Read a padded page address out of the name table, advancing the
-     * offset within our current page.
-     */
-    RtgPageAddress *current = (RtgPageAddress*) (NAME_TABLE_PAGE_ADDR + iter->offset);
-    int remaining = name_table_iter_check(self, iter);
-
-    if (remaining < sizeof(RtgPageAddress))
-	return NULL;
-    iter->offset = RTG_ALIGN_CEIL(iter->offset + sizeof(RtgPageAddress));
-    return current;
-}
-
-static void             name_table_write_address (RtgPageStorage *self,
-						  struct name_table_iter *iter,
-						  RtgPageAddress addr)
-{
-    /* Write a padded page address into the name table, advancing the
-     * offset within our current page. The caller is expected to have
-     * already ensured there's enough room.
-     */
-    RtgPageAddress *current = (RtgPageAddress*) (NAME_TABLE_PAGE_ADDR + iter->offset);
-
-    memset(current, 0, RTG_ALIGN_CEIL(sizeof(RtgPageAddress)));
-    *current = addr;
-    iter->offset = RTG_ALIGN_CEIL(iter->offset + sizeof(RtgPageAddress));
-}
-
-static void            name_table_insert_page  (RtgPageStorage *self,
-						struct name_table_iter *iter,
-						RtgPageAddress newpage)
-{
-    /* Initialize a new page and append it after the current one.
-     * The iterator is advanced to this new page.
-     */
-    RtgPageAddress next = NAME_TABLE_SUFFIX->next;
-    NAME_TABLE_SUFFIX->next = newpage;
-    name_table_iter_next_page(self, iter);
-    NAME_TABLE_SUFFIX->next = next;
-    NAME_TABLE_SUFFIX->offset = 0;
-    iter->offset = 0;
-
-    /* Put in a null terminator */
-    memset(NAME_TABLE_PAGE_ADDR + iter->offset, 0, RTG_ALIGN_CEIL(1));
-}
-
-static void            name_table_init_header  (RtgPageStorage *self)
-{
-    struct name_table_iter _iter;
-    struct name_table_iter* iter = &_iter;
-    name_table_iter_init(self, iter);
-    NAME_TABLE_SUFFIX->next = RTG_PAGE_NULL;
-    NAME_TABLE_SUFFIX->offset = sizeof(struct header_page_prefix);
-
-    /* Put in a null terminator */
-    memset(NAME_TABLE_PAGE_ADDR + NAME_TABLE_SUFFIX->offset,
-	   0, RTG_ALIGN_CEIL(1));
-}
-
-#undef NAME_TABLE_PAGE_ADDR
-#undef NAME_TABLE_SUFFIX
 
 
 /***********************************************************************/
@@ -290,101 +104,6 @@ void              rtg_page_storage_close         (RtgPageStorage*   self)
     self->close(self);
 }
 
-struct find_name_context {
-    const char *name;
-    RtgPageAddress result;
-};
-
-static int        find_name_predicate            (RtgPageStorage* self,
-						  const char* name,
-						  RtgPageAddress page,
-						  gpointer context)
-{
-    struct find_name_context* ctx = (struct find_name_context*) context;
-    if (!strcmp(ctx->name, name)) {
-	ctx->result = page;
-	return 1;
-    }
-    return 0;
-}
-
-RtgPageAddress    rtg_page_storage_find_name     (RtgPageStorage*   self,
-						  const char*       name)
-{
-    struct find_name_context ctx;
-    ctx.name = name;
-    ctx.result = RTG_PAGE_NULL;
-    rtg_page_storage_iter_names(self, find_name_predicate, &ctx);
-    return ctx.result;
-}
-
-void              rtg_page_storage_add_name      (RtgPageStorage*   self,
-						  const char*       name,
-						  RtgPageAddress    page)
-{
-    struct name_table_iter iter;
-    int remaining, required;
-    int name_len = strlen(name);
-    name_table_iter_init(self, &iter);
-
-    /* First just find the last name table page */
-    while (!name_table_is_last_page(self, &iter))
-	name_table_iter_next_page(self, &iter);
-
-    /* Find the end of this page, leaving the iter
-     * positioned at the null terminator.
-     */
-    while (name_table_peek_string(self, &iter)[0] != '\0') {
-	name_table_read_string(self, &iter);
-	name_table_read_address(self, &iter);
-    }
-
-    /* Is there enough room in this page for the new string,
-     * address, and null terminator?
-     */
-    remaining = name_table_iter_check(self, &iter);
-    required = RTG_ALIGN_CEIL(name_len + 1) +
-	RTG_ALIGN_CEIL(sizeof(RtgPageAddress)) +
-	RTG_ALIGN_CEIL(1);
-    if (remaining < required)
-	name_table_insert_page(self, &iter, rtg_page_storage_alloc(self));
-
-    name_table_write_string(self, &iter, name);
-    name_table_write_address(self, &iter, page);
-    name_table_write_string(self, &iter, "");
-}
-
-void              rtg_page_storage_iter_names    (RtgPageStorage*       self,
-						  RtgNamedPagePredicate callback,
-						  gpointer              context)
-{
-    struct name_table_iter iter;
-    name_table_iter_init(self, &iter);
-
-    while (name_table_iter_check(self, &iter) > 0) {
-	char* name;
-	RtgPageAddress* page;
-
-	/* Extract name */
-	name = name_table_read_string(self, &iter);
-	if (!name)
-	    break;
-	if (!name[0]) {
-	    /* End marker for this page, try the next one */
-	    name_table_iter_next_page(self, &iter);
-	    continue;
-	}
-
-	/* Extract page address */
-	page = name_table_read_address(self, &iter);
-	if (!page)
-	    break;
-
-	if (callback(self, name, *page, context))
-	    break;
-    }
-}
-
 
 /***********************************************************************/
 /*************************************************** Private Methods ***/
@@ -420,7 +139,8 @@ void              rtg_page_storage_init            (RtgPageStorage* self)
     header_p->page_size = self->page_size;
     header_p->first_free = RTG_PAGE_NULL;
 
-    name_table_init_header(self);
+    /* Set up the header as the first page in an atom list */
+    rtg_page_atom_init_page(self, RTG_PAGE_HEADER, 0);
 }
 
 void              rtg_page_storage_resize          (RtgPageStorage* self,

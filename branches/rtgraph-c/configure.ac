@@ -43,7 +43,7 @@ AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
 dnl # Make it faster, yo.. and also warnings
-CFLAGS="$CFLAGS -O3 -Wall"
+CFLAGS="$CFLAGS -O2 -Wall -Werror"
 
 dnl ################################################################
 dnl # Output the Makefiles
