@@ -466,6 +466,10 @@ class ModularFormatter(Formatter):
     defaultComponentTree = None
     componentTree = None
 
+    # Cache a parsed defaultComponentTree
+    _cachedDefaultTree = None
+    _defaultTreeOwner = None
+
     def param_format(self, tree):
         """Handles the <format> parameter. Note that since the format generally
            can't be shared between different types of formatters, there is an
@@ -483,12 +487,13 @@ class ModularFormatter(Formatter):
         """The formatter entry point. This just finds the current component
            tree and invokes walkComponents and joinComponents on it.
            """
-        # Parse the default component tree only once
-        if not self.__class__.componentTree:
-            self.__class__.componentTree = XML.parseString(self.__class__.defaultComponentTree).documentElement
+        # Parse the default component tree, caching it per-class
+        if self.__class__._defaultTreeOwner is not self.__class__.defaultComponentTree:
+            self.__class__._defaultTreeOwner = self.__class__.defaultComponentTree
+            self.__class__._cachedDefaultTree = XML.parseString(self.__class__.defaultComponentTree).documentElement
 
         # This will use the default component tree if it hasn't been overridden in this instance
-        tree = self.componentTree
+        tree = self.componentTree or self.__class__._cachedDefaultTree
         return self.joinComponents(self.walkComponents(tree.childNodes, args))
 
     def evalComponent(self, node, args):
