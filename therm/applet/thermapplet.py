@@ -4,6 +4,10 @@
 This is a Gnome applet to display the latest readings and graphs
 from all sensors on a remote therm server. Requires PyGTK and Twisted.
 
+To install, put GNOME_ThermApplet.server in /usr/lib/bonobo/servers.
+Either put thermapplet.py somewhere in your path, or edit the .server
+file's location attribute to point to it.
+
 """
 #
 # Wireless therm system
