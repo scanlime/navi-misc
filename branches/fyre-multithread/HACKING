@@ -1,0 +1,28 @@
+Multiprocessing
+===============
+Fyre now has (rather, will soonishly have) multiprocessing capabilities.
+This is a brief diatribe on how this is architected.
+
+There are two major computational components in the multiprocessing
+architecture in fyre. The first is the accumulator. This is an object
+which subclasses HistogramImager and provides the capability to
+accumulate multiple histograms into a single image. It does not provide
+any blending capability, merely linear accumulation.
+
+The other component is the render node. Each render node computes
+iterations in short bunches at a time, maintaining its own histogram.
+When it recieves a request from the head node, it sends the contents
+of its histogram across a socket. Render nodes are always separate
+processes that communicate over TCP/IP, even when run on the local
+machine, so as to maintain simplicity.
+
+The actual communication is synchronous. When the head node requests
+a transfer from a render node, it will block until it recieves the data.
+If running interactively, it will compute the average time required to
+gather the information from all the render nodes to adjust the sleep
+time between "frames" accordingly. Render nodes will check for requests
+between blocks of iterations (should probably tweak it such that
+interactive mode checks every 25-50ms or so to begin with, then spreads
+out to 100-250ms). This way transfer requests can be serviced quickly
+enough that the accumulator can gather data from every render node
+and still maintain interactive speeds.
