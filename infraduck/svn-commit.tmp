@@ -1,0 +1,13 @@
+Adding current firmware
+
+--This line, and those below, will be ignored--
+
+A    /home/micah/infraduck/firmware
+A    /home/micah/infraduck/firmware/transmitter
+A    /home/micah/infraduck/firmware/transmitter/lightgun.asm
+A    /home/micah/infraduck/firmware/transmitter/LIGHTGUN.LST
+A    /home/micah/infraduck/firmware/transmitter/LIGHTGUN.HEX
+AM   /home/micah/infraduck/firmware/transmitter/LIGHTGUN.COD
+A    /home/micah/infraduck/firmware/transmitter/LIGHTGUN.ERR
+A    /home/micah/infraduck/firmware/transmitter/LIGHTGUN.$$$
+A    /home/micah/infraduck/firmware/transmitter/lightgun.pjt

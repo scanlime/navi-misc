@@ -1,0 +1,244 @@
+/* Slightly hacked up lucid theme */
+
+property fTranslucent, fSolid, fFramedTranslucent;
+property fNop, frameColor, fBeveledPrism, fFlame;
+property alpha, depth, bevel;
+
+object default {
+  name = "Lucid (incomplete)";
+
+  bgfill = Copy(default::fNop);
+
+  fNop = fillstyle {
+    Nop();
+  };
+
+  fBeveledPrism = fillstyle {
+    var u,ts,d,b;
+
+    u  = 1<<16;         /* Unit for specifying normals */
+    ts = 1<<16;         /* Size in texture coordinates */
+
+    /* Convert the given position to fixed point */
+    x = x<<16;
+    y = y<<16;
+    w = w<<16;
+    h = h<<16;
+
+    /* Shortcuts for property names */
+    d = depth;
+    b = bevel;
+
+    GL.begin(GL_QUADS);
+    
+    /* FIXME: these normals don't account for the beveling */
+
+    /* Right */
+    GL.normal3f(u,0,0);
+    GL.texcoord2f(0,0);     GL.vertex3f(x+w,y,0);
+    GL.texcoord2f(ts,0);    GL.vertex3f(x+w,y+h,0);
+    GL.texcoord2f(ts,ts);   GL.vertex3f(x+w-b,y+h-b,d);
+    GL.texcoord2f(0,ts);    GL.vertex3f(x+w-b,y+b,d);
+    
+    /* Left */
+    GL.normal3f(-u,0,0);
+    GL.texcoord2f(0,0);     GL.vertex3f(x,y,0);
+    GL.texcoord2f(ts,0);    GL.vertex3f(x,y+h,0);
+    GL.texcoord2f(ts,ts);   GL.vertex3f(x+b,y+h-b,d);
+    GL.texcoord2f(0,ts);    GL.vertex3f(x+b,y+b,d);
+    
+    /* Bottom */
+    GL.normal3f(0,u,0);
+    GL.texcoord2f(0,0);     GL.vertex3f(x,y+h,0);
+    GL.texcoord2f(ts,0);    GL.vertex3f(x+w,y+h,0);
+    GL.texcoord2f(ts,ts);   GL.vertex3f(x+w-b,y+h-b,d);
+    GL.texcoord2f(0,ts);    GL.vertex3f(x+b,y+h-b,d);
+    
+    /* Top */
+    GL.normal3f(0,-u,0);
+    GL.texcoord2f(0,0);     GL.vertex3f(x,y,0);
+    GL.texcoord2f(ts,0);    GL.vertex3f(x+w,y,0);
+    GL.texcoord2f(ts,ts);   GL.vertex3f(x+w-b,y+b,d);
+    GL.texcoord2f(0,ts);    GL.vertex3f(x+b,y+b,d);
+    
+    /* Front */
+    GL.normal3f(0,0,u);
+    GL.texcoord2f(0,0);     GL.vertex3f(x+b,y+b,d);
+    GL.texcoord2f(ts,0);    GL.vertex3f(x+w-b,y+b,d);
+    GL.texcoord2f(ts,ts);   GL.vertex3f(x+w-b,y+h-b,d);
+    GL.texcoord2f(0,ts);    GL.vertex3f(x+b,y+h-b,d);
+    
+    GL.end();
+  };
+
+  fTranslucent = fillstyle {
+    /* Use our special "Feedback" primitive to pixelize the background */
+    GL.feedback(x,y,w,h,GL_NEAREST,GL_BACK,0x10004);
+    SetLgop(PG_LGOP_ALPHA);
+    SetColor(PGCF_ALPHA | alpha | bgcolor);
+    Rect(x,y,w,h);
+    SetLgop(PG_LGOP_NONE);
+  };
+
+  fFlame = fillstyle {
+    var wiggle;
+
+    /* This uses interference between the engine's frame rate
+     * and the clock to generate the flame's wiggle
+     */
+    wiggle = ticks & 1;
+
+    GL.pushmatrix();
+    GL.translatef(0,-(1+wiggle)<<16,(-2+wiggle)<<16);
+    GL.feedback(x,y,w,h,GL_LINEAR,GL_FRONT,0);
+    GL.popmatrix();
+
+    SetLgop(PG_LGOP_MULTIPLY);
+    SetColor(0xF2E0A0);
+    Rect(x,y,w,h);
+    SetLgop(PG_LGOP_NONE);
+  };
+
+  fSolid = fillstyle {
+    SetColor(bgcolor);
+    Rect(x,y,w,h);
+  };
+
+  fFramedTranslucent = fillstyle {
+    SetColor(frameColor);
+    Frame(x,y,w,h);
+    fTranslucent(x+1,y+1,w-2,h-2);
+  };
+
+  fgcolor = 0x000000;
+  bgcolor = 0xffffff;
+  alpha   = 0x68000000;
+
+  margin  = 0;
+  spacing = 5;
+  width   = 20;
+  height  = 20;
+}
+
+object base.tlcontainer {
+  margin = 10;
+}
+
+object popup {
+  bgfill = fillstyle {
+    fFramedTranslucent(x,y,w,h);
+  };
+}
+
+object label.dlgtitle parent = PGTH_O_PANELBAR;
+
+object panelbar {
+  margin = 1;
+  font = Font(NULL,0,PG_FSTYLE_BOLD);
+  align = PG_A_LEFT;
+  bgfill = fillstyle {
+    SetColor(0x336699);
+    Slab(x+2,y+h-1,w-4,1);
+  };
+}
+
+object base.panelbtn {
+  side = PG_S_RIGHT;
+}
+
+object closebtn text = "X";
+object rotatebtn text = "/";
+object zoombtn text = "-";
+
+object closebtn.hilight parent = PGTH_O_BUTTON_HILIGHT;
+object rotatebtn.hilight parent = PGTH_O_BUTTON_HILIGHT;
+object zoombtn.hilight parent = PGTH_O_BUTTON_HILIGHT;
+object closebtn.on parent = PGTH_O_BUTTON_ON;
+object rotatebtn.on parent = PGTH_O_BUTTON_ON;
+object zoombtn.on parent = PGTH_O_BUTTON_ON;
+
+object button {
+  margin = 6;
+  height = 28;
+  width = 28;
+
+  bgcolor = 0xC0C0C0;
+
+  bgfill = fillstyle {
+    var bg,r,g,b;
+    bg = bgcolor;
+    r = bg >> 16;
+    g = (bg >> 8) & 0xFF;
+    b = bg & 0xFF;
+
+    GL.enable(GL_DEPTH_TEST);
+    GL.depthfunc(GL_LEQUAL);
+    GL.disable(GL_BLEND);
+
+    GL.lightfv(GL_LIGHT0, GL_AMBIENT,  0,0, 0,0,0);
+    GL.lightfv(GL_LIGHT0, GL_SPECULAR, 0,0, 0,0,0);
+    GL.lightfv(GL_LIGHT0, GL_DIFFUSE,  0,0, 1<<16, 1<<16, 1<<16);
+    GL.lightfv(GL_LIGHT0, GL_POSITION, 0,0, -50<<16,-50<<16,100<<16);
+    GL.materialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,0,0, r<<8, g<<8, b<<8);
+    GL.enable(GL_LIGHT1);
+    GL.enable(GL_LIGHTING);
+    GL.disable(GL_COLOR_MATERIAL);
+
+    fBeveledPrism(x,y,w,h);
+
+    /* Float the button contents in front of our prism */
+    GL.translatef(0,0,depth);
+
+    GL.disable(GL_DEPTH_TEST);
+    GL.disable(GL_LIGHTING);
+  };
+
+  depth = 6<<16;
+  bevel = 4<<16;
+}
+
+object button.hilight {
+  bgcolor = 0xC0C0FF;
+}
+
+object button.on {
+  depth = 1<<16;
+}
+
+object flatbutton parent = PGTH_O_BUTTON;
+
+object panel {
+  border.size = 10;
+  border.fill = fillstyle {
+    fFramedTranslucent(x+border.size-1,y+border.size-1,w-border.size*2+2,h-border.size*2+2);
+  };
+}
+
+object field {
+  bgfill = Copy(default::fFramedTranslucent);
+  frameColor = Copy(button::fgcolor);
+  margin = 3;
+}
+
+object scroll {
+  width = 12;
+  fgcolor = 0x336699;
+
+  bgfill = fillstyle {
+    var m;
+
+    default::bgfill(x,y,w,h);
+    SetColor(fgcolor);
+    m = width/2-1;
+    Rect(x+m,y+m,w-m*2,h-m*2);
+  };
+
+  overlay = fillstyle {
+    SetColor(fgcolor);
+    Frame(x+1,y+1,w-2,h-2);
+    SetColor(bgcolor);
+    Rect(x+2,y+2,w-4,h-4);
+  };
+}
+
+/* The End */
