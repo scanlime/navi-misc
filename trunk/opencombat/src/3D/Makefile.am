@@ -11,7 +11,8 @@ lib3D_a_SOURCES =		\
 	DrawablesManager.cpp	\
 	FontManager.cpp		\
 	TextureFont.cpp		\
-	TextureManager.cpp
+	TextureManager.cpp	\
+	VisualElementManager.cpp
 
 EXTRA_DIST = \
 	README
