@@ -108,4 +108,14 @@ mvmtOneBass = \relative c {
 
 	% 110
 	R1*10 | R1*9
+	<< {
+		r8 fis'^\divisi r gis r fis r a
+		r aes r f r e r g
+		r ees r d r fis r bis,
+	} \\ {
+		r8 fis\ff r gis r fis r a
+		r aes r f r e r g
+		r ees r d r fis r bis,
+	} >>
+	R1*8
 }
