@@ -1,9 +1,35 @@
-simile = \markup {
-	\italic "simile"
+% 1
+allegroMaNonTroppo = \markup {
+    \bold "Allegro ma non troppo"
 }
 
-allegroMaNonTroppo = \markup {
-	\bold "Allegro ma non troppo"
+% 60
+menoMosso = \markup {
+    \bold "meno mosso"
+}
+
+% 69, 137
+andante = \markup {
+    \bold "Andante"
+}
+
+% 89, 221
+tempoI = \markup {
+    \bold "Tempo I"
+}
+
+% 177
+moderatoMaestoso = \markup {
+    \bold "Moderato maestoso"
+}
+
+% 190
+moderato = \markup {
+    \bold "moderato"
+}
+
+simile = \markup {
+	\italic "simile"
 }
 
 oneCello = \markup {
@@ -28,4 +54,12 @@ pizz = \markup {
 
 tuttiPizz = \markup {
 	\italic "tutti pizz."
+}
+
+moltoRit = \markup {
+    \italic "molto rit."
+}
+
+aTempo = \markup {
+    \italic "a tempo"
 }
