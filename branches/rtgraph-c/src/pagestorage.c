@@ -35,7 +35,7 @@
  * ARCH_MAGIC identifies this architecture's word size and byte order.
  */
 #define FILE_MAGIC   "RTGraph Database File v1"
-#define ARCH_MAGIC   (~0x12345678)
+#define ARCH_MAGIC   ((~0x12345678) + G_MEM_ALIGN)
 struct header_page_prefix {
     char            file_magic[32];
     int             arch_magic;
@@ -395,12 +395,15 @@ int               rtg_page_storage_header_validate (RtgPageStorage* self)
     struct header_page_prefix* header_p =
 	PAGE_PREFIX(struct header_page_prefix, self, RTG_PAGE_HEADER);
 
-    if (strcmp(header_p->file_magic, FILE_MAGIC))
+    if (strcmp(header_p->file_magic, FILE_MAGIC)) {
+	g_warning("File doesn't appear to be an rtgraph database");
 	return -1;
-    if (header_p->arch_magic != ARCH_MAGIC)
+    }
+    if (header_p->arch_magic != ARCH_MAGIC) {
+	g_warning("rtgraph database is for an incompatible architecture");
 	return -1;
-    if (header_p->page_size != self->page_size)
-	return -1;
+    }
+    self->page_size = header_p->page_size;
 
     return 0;
 }
@@ -416,9 +419,6 @@ void              rtg_page_storage_init            (RtgPageStorage* self)
 
     header_p->page_size = self->page_size;
     header_p->first_free = RTG_PAGE_NULL;
-
-    /* Defaults, may be overridden by the backend implementation */
-    self->grow_margin = 0.2;
 
     name_table_init_header(self);
 }
@@ -487,6 +487,8 @@ RtgPageStorage*   rtg_page_storage_temp_new      (gsize             page_size)
     /* Start out with one page */
     self->base_address = g_malloc(page_size);
     self->num_pages = 1;
+
+    self->grow_margin = 0.5;
 
     rtg_page_storage_init(self);
     return self;
