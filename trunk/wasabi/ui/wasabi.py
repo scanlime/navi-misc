@@ -155,10 +155,16 @@ class WasabiLogo(Page):
             self.view.scene.add(orbit)
         self.viewport.onSetupFrame.observe(self.setupFrame)
 
+        self.timer = 0
+
     def setupFrame(self):
         dt = self.time.step()
         for orbit in self.orbits:
             orbit.integrate(dt)
+
+        self.timer += dt
+        if self.timer > 5:
+            self.onFinish()
 
 
 class Monkey(Page):
