@@ -238,6 +238,7 @@ void CBaseGameLoop::OnFrameEnd ( void )
 bool CBaseGameLoop::Process ( void )
 {
   bool bDone = false;
+
   input.Process();
   timer.Update();
 	
@@ -301,11 +302,6 @@ const char* CBaseGameLoop::GetPrefsName ( void )
 const char*CBaseGameLoop:: GetWindowName ( void )
 {
 	return "A Game Window";
-}
-
-const char*CBaseGameLoop:: GetGameName ( void )
-{
-	return "SomeGame";
 }
 
 bool	CBaseGameLoop::OnInit ( void )

@@ -22,6 +22,12 @@
 
 #include "bznext.h"
 
+/** Main for entire app
+		@note
+			Windows uses WinMain
+			Everyone else uses main
+			This function dosn't really DO anything, it just gets it all started and gets us into the real main
+*/
 #ifdef _WIN32
 #include <windows.h>
 int APIENTRY WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)

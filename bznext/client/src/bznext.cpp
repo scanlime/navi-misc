@@ -98,11 +98,6 @@ const char* CBZNextLoop:: GetWindowName ( void )
 	return "BZFlag::Next();";
 }
 
-const char* CBZNextLoop:: GetGameName ( void )
-{
-	return "bzflag";
-}
-
 bool CBZNextLoop::GameLoop ( void )
 {
 	// check for sreenshot

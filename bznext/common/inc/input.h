@@ -177,6 +177,30 @@ enum InputKeyCode
 	KEY_MEDIASELECT     =0xED     /* Media Select */
 };
 
+/*class CInputListener
+{
+public:
+	virtual CInputListener();
+};
+
+class CInputAxis
+{
+public:
+	CInputAxis();
+	virtual ~CInputAxis();
+
+	virtual float getRelitive(void);
+	virtual float getAbs(void);
+	virtual float getRaw(void);
+
+	virtual float getMinRange ( void );
+	virtual float getMaxRange ( void );
+
+	virtual float getMaxRaw ( void );
+	virtual float getMinRaw ( void );
+protected:
+}; */
+
 class CInputManager
 {
 	public:
