@@ -496,6 +496,7 @@ class Bot(irc.IRCClient):
         # an ERR_NICKNAMEINUSE which we handle by picking a temporary nick we can
         # use to search for a better one.
         self.nickname = self.findNickQuickly()
+        self.nicknames = [self.nickname]
         irc.IRCClient.connectionMade(self)
 
     def irc_ERR_NICKNAMEINUSE(self, prefix, params):
@@ -507,7 +508,9 @@ class Bot(irc.IRCClient):
            realize this nick doesn't match those allowed by nickAllocator and
            start looking for a better one.
            """
-        self.setNick("CIA-temp%03d" % random.randint(0, 999))
+        tempNick = "CIA-temp%03d" % random.randint(0, 999)
+        self.nicknames.append(tempNick)
+        self.setNick(tempNick)
 
     def nickChanged(self, newname):
         irc.IRCClient.nickChanged(self, newname)
@@ -532,6 +535,7 @@ class Bot(irc.IRCClient):
 
     def foundBetterNick(self, nick):
         log.msg("%r found a better nick, renaming to %r" % (self, nick))
+        self.nicknames.append(nick)
         self.setNick(nick)
 
     def findNickQuickly(self):
@@ -768,6 +772,19 @@ class Bot(irc.IRCClient):
 
     def topicUpdated(self, user, channel, newTopic):
         self.channels[channel].topic = newTopic
+
+    def irc_JOIN(self, prefix, params):
+        """This is a modified implementation that checks the nick against
+           both our current nickname and our previous one. This hopefully
+           avoids a race condition when we're joining a channel and changing
+           our nick at nearly the same time.
+           """
+        nick = prefix.split('!')[0]
+        channel = params[-1]
+        if nick in self.nicknames:
+            self.joined(channel)
+        else:
+            self.userJoined(nick, channel)
 
     def irc_RPL_NAMREPLY(self, prefix, params):
         """Collect usernames from this channel. Several of these
