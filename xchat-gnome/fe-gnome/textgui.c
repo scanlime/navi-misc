@@ -22,9 +22,10 @@
 #include "textgui.h"
 #include "palette.h"
 #include "../common/text.h"
+#include "../common/xchatc.h"
 
 int check_word(GtkWidget *xtext, char *word);
-void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *even, session *sess);
+void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
 
 void initialize_text_gui() {
 	GtkBox *box;
@@ -41,8 +42,8 @@ void initialize_text_gui() {
 	gtk_xtext_set_max_indent(gui.xtext, 500);
 	gtk_xtext_set_thin_separator(gui.xtext, TRUE);
 	gtk_xtext_set_wordwrap(gui.xtext, TRUE);
-//	gtk_xtext_set_urlcheck_function(gui.xtext, check_word);
-//	g_signal_connect(G_OBJECT(gui.xtext), "word_click", G_CALLBACK(clicked_word), NULL);
+	gtk_xtext_set_urlcheck_function(gui.xtext, check_word);
+	g_signal_connect(G_OBJECT(gui.xtext), "word_click", G_CALLBACK(clicked_word), NULL);
 
 	if(!gtk_xtext_set_font(gui.xtext, "Bitstream Vera Sans Mono 9"))
 		g_print("Failed to open BV Sans Mono font!\n");
@@ -160,15 +161,13 @@ void clear_buffer(struct session *sess) {
 }
 
 int check_word(GtkWidget *xtext, char *word) {
-	if(word == NULL)
-		return 0;
+	current_sess = gui.current_session;
 	return text_word_check(word);
 }
 
-void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *event, session *sess) {
+void clicked_word(GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data) {
 	if(word == NULL)
 		return;
-	sess = gui.current_session;
 
 	if(event->button == 1) {
 		/* left click */
