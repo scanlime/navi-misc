@@ -31,6 +31,7 @@
 #define _URL_EDITOR_DIALOG_H_
 
 #include <gtk/gtk.h>
+#include <glade/glade.h>
 
 #include "../e-pub-utils.h"
 #include <libedataserverui/e-source-selector.h>
@@ -58,6 +59,7 @@ struct _UrlEditorDialog {
 
 	GtkWidget *child;
 	GtkTreeModel *url_list_model;
+	GladeXML *gui;
 	EPublishUri *url_data;
 };
 
