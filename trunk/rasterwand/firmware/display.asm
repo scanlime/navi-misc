@@ -23,6 +23,7 @@
 
 #include <p16C745.inc>
 #include "hardware.inc"
+#include "macros.inc"
 #include "../include/rwand_protocol.h"
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message
@@ -196,24 +197,8 @@ try_tmr1_again
 	incf	wand_phase+1, f
 
 	; If wand_phase >= wand_period, subtract wand_period
-	movf	wand_period+1, w	; Test high byte of wand_phase - wand_period
-	subwf	wand_phase+1, w
-	pagesel	phase_rollover
-	btfsc	STATUS, C
-	goto	phase_rollover		; C=1, B=0, wand_period <= wand_phase
+	jl_16	wand_phase, wand_period, no_phase_rollover
 
-	movf	wand_period+1, w	; Test high byte of wand_phase == wand_period
-	subwf	wand_phase+1, w
-	pagesel	no_phase_rollover
-	btfss	STATUS, Z
-	goto	no_phase_rollover	; Not equal, don't need to look at low byte
-	movf	wand_period, w		; Test low byte of wand_phase - wand_period
-	subwf	wand_phase, w
-	btfsc	STATUS, C
-	goto	no_phase_rollover	; C=0, B=1, wand_period > wand_phase
-
-	; Subtract wand_period from wand_phase
-phase_rollover
 	movf	wand_period, w
 	subwf	wand_phase, f
 	btfss	STATUS, C
@@ -225,8 +210,8 @@ phase_rollover
 	bcf		FLAG_REV_TRIGGERED
 	bcf		FLAG_DISPLAY_FWD
 	bcf		FLAG_DISPLAY_REV
-
 no_phase_rollover
+
 	return
 
 
@@ -242,28 +227,14 @@ display_led_scan
 	pagesel	led_scan_disabled
 	btfss	mode_flags, RWAND_MODE_ENABLE_DISPLAY_BIT
 	goto	led_scan_disabled
-	banksel	wand_phase
 
 	; Check for the beginning of a forward scan
 	pagesel	no_forward_scan
 	btfsc	FLAG_FWD_TRIGGERED		; If we've already started, don't bother
 	goto	no_forward_scan
-	movf	display_fwd_phase+1, w	; Test high byte of wand_phase - display_fwd_phase
-	subwf	wand_phase+1, w
-	pagesel	no_forward_scan
-	btfss	STATUS, C
-	goto	no_forward_scan			; C=0, B=1, wand_phase < display_fwd_phase
-	pagesel	start_forward_scan		; If the high bytes aren't equal, no further testing needed...
-	btfss	STATUS, Z
-	goto	start_forward_scan
-	movf	display_fwd_phase, w	; Test low byte of wand_phase - display_fwd_phase
-	subwf	wand_phase, w
-	pagesel	no_forward_scan
-	btfss	STATUS, C
-	goto	no_forward_scan			; C=0, B=1, wand_phase < display_fwd_phase
+	banksel	wand_phase
+	jl_16	wand_phase, display_fwd_phase, no_forward_scan
 
-	; Yay, start a forward display scan
-start_forward_scan
 	pagesel	start_scan_common			; Do the things common to both types of scans
 	call	start_scan_common
 	bsf		FLAG_DISPLAY_FWD			; Set flags
@@ -277,22 +248,9 @@ no_forward_scan
 	pagesel	no_reverse_scan
 	btfsc	FLAG_REV_TRIGGERED		; If we've already started, don't bother
 	goto	no_reverse_scan
-	movf	display_rev_phase+1, w	; Test high byte of wand_phase - display_rev_phase
-	subwf	wand_phase+1, w
-	pagesel	no_reverse_scan
-	btfss	STATUS, C
-	goto	no_reverse_scan			; C=0, B=1, wand_phase < display_rev_phase
-	pagesel	start_reverse_scan		; If the high bytes aren't equal, no further testing needed...
-	btfss	STATUS, Z
-	goto	start_reverse_scan
-	movf	display_rev_phase, w	; Test low byte of wand_phase - display_rev_phase
-	subwf	wand_phase, w
-	pagesel	no_reverse_scan
-	btfss	STATUS, C
-	goto	no_reverse_scan			; C=0, B=1, wand_phase < display_rev_phase
+	banksel	wand_phase
+	jl_16	wand_phase, display_rev_phase, no_reverse_scan
 
-	; Yay, start a reverse display scan
-start_reverse_scan
 	pagesel	start_scan_common			; Do the things common to both types of scans
 	call	start_scan_common
 	bsf		FLAG_DISPLAY_REV			; Set flags
