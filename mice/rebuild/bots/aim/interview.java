@@ -151,7 +151,7 @@ public class interview
 	{
 		try
 		{
-			Thread.sleep(seconds * 1000);
+			sleep(seconds * 1000);
 		}
 		catch (Exception ie) {}
 	}
