@@ -85,6 +85,23 @@ startup
 	movlw	0x02
 	movwf	n64_id_buffer+2
 
+	;; We use the watchdog to implicitly implement controller probing.
+	;; If we have no gamecube controller attached, gamecube_poll_status
+	;; will never return. We therefore never get around to answering the
+	;; N64's requests. This breaks down if we start up with the gamecube
+	;; controller plugged in but it's unplugged while the N64 is idle, but
+	;; the N64 should be polling us pretty constantly.
+	;;
+	;; The watchdog timeout therefore sets how often we retry in our search
+	;; for a responding gamecube controller. The default is a little over
+	;; 2 seconds. This changes the prescaler to 1:16, giving us a nominal
+	;; watchdog timeout of 288ms.
+	clrwdt
+	movlw	0xFC
+	bsf	STATUS, RP0
+	movwf	OPTION_REG
+	bcf	STATUS, RP0
+
 main_loop
 	call	gamecube_poll_status	; The gamecube poll takes place during the dead period
 	call	n64_translate_status	;   between incoming N64 commands, hopefully
@@ -96,16 +113,31 @@ main_loop
 	;; ******************************************************  Button/Axis mapping ***
 	;; *******************************************************************************
 
+	;; Map one button to another button
 map_button macro src_byte, src_bit, dest_byte, dest_bit
 	btfsc	gamecube_buffer+src_byte, src_bit
 	bsf	n64_status_buffer+dest_byte, dest_bit
 	endm
 
+	;; Map an 8-bit 0x80-centered axis to an 8-bit signed axis
 map_axis macro src_byte, dest_byte
-	movlw	0x80			; Subtract 0x80 to convert from 0x80-centered to signed formats
+	movlw	0x80
 	subwf	gamecube_buffer+src_byte, w
 	movwf	n64_status_buffer+dest_byte
 	endm
+
+	;; Map an 8-bit 0x80-centered axis to two buttons, given lower and upper thresholds
+map_button_axis macro axis_byte, lower_byte, lower_bit, upper_byte, upper_bit, lower_thresh, upper_thresh
+	movlw	lower_thresh
+	subwf	gamecube_buffer+axis_byte, w	; Axis - lower_thresh
+	btfss	STATUS, C
+	bsf	lower_byte, lower_bit		; C=0, B=1, lower_thresh > axis
+	movlw	upper_thresh+1
+	subwf	gamecube_buffer+axis_byte, w	; Axis - (upper_thresh+1)
+	btfsc	STATUS, C
+	bsf	upper_byte, upper_bit		; C=1, B=0, (upper_thresh+1) <= axis
+	endm
+
 
 map_start macro
 	clrf	n64_status_buffer+0	; Start out with everything zeroed...
@@ -161,20 +193,26 @@ map_start macro
 	;; as a normal subroutine using the above macros.
 n64_translate_status
 	map_start
-	map_button	GC_A,		N64_A
+	map_button	GC_A,		N64_A		; Shared buttons
 	map_button	GC_B,		N64_B
-	map_button	GC_X,		N64_B
-	map_button	GC_Y,		N64_B
 	map_button	GC_Z,		N64_Z
 	map_button	GC_R,		N64_R
 	map_button	GC_L,		N64_L
 	map_button	GC_START,	N64_START
-	map_button	GC_D_LEFT,	N64_D_LEFT
+
+	map_button	GC_X,		N64_C_DOWN	; Intuitive-ish mappings for the new buttons
+	map_button	GC_Y,		N64_B
+
+	map_button	GC_D_LEFT,	N64_D_LEFT	; D-Pad
 	map_button	GC_D_RIGHT,	N64_D_RIGHT
 	map_button	GC_D_UP,	N64_D_UP
 	map_button	GC_D_DOWN,	N64_D_DOWN
-	map_axis	GC_JOYSTICK_X,	N64_JOYSTICK_X
+
+	map_axis	GC_JOYSTICK_X,	N64_JOYSTICK_X	; Joystick
 	map_axis	GC_JOYSTICK_Y,	N64_JOYSTICK_Y
+
+	map_button_axis	GC_CSTICK_X,    N64_C_RIGHT,	N64_C_LEFT,	0x60, 0xA0 ; C-Button emulation
+	map_button_axis	GC_CSTICK_Y,    N64_C_UP,	N64_C_DOWN,	0x60, 0xA0
 	return
 
 
