@@ -57,16 +57,16 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
 
     def message(self, uri, message, content):
         # Stick the URI's path and the content together into a stats
-        # path, URL-encoding the content first. This combined with
+        # path, URI-encoding the content first. This combined with
         # our statsDirectory gives us the local path for a stats target.
-        t = StatsTarget(os.path.join(self.statsDirectory, self.parseURI(uri)['path'], urlencode(content)))
+        t = StatsTarget(os.path.join(self.statsDirectory, self.parseURI(uri)['path'], uriencode(content)))
 
         # Count this freshly received messages among our stats
         t.increment()
 
 
-def urlencode(s, allowedChars = string.ascii_letters + string.digits + "-_"):
-    """Return a URL-encoded version of 's', all characters not in the
+def uriencode(s, allowedChars = string.ascii_letters + string.digits + "-_"):
+    """Return a URI-encoded version of 's', all characters not in the
        given list will be replaced with their hexadecimal value prefixed
        with '%'.
        """
