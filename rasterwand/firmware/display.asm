@@ -29,6 +29,7 @@
 
 	global	display_poll
 	global	display_init
+	global	display_request_flip
 
 	global	edge_buffer
 	global	wand_period	; NOTE: It's important that the order of wand_period and wand_phase
@@ -36,6 +37,10 @@
 	global	coil_window_min
 	global	coil_window_max
 	global	mode_flags
+	global	display_fwd_phase
+	global	display_rev_phase
+	global	display_column_width
+	global	back_buffer
 
 	extern	temp
 
@@ -80,7 +85,7 @@ back_buffer		res	NUM_COLUMNS
 
 
 ;*****************************************************************************************
-;************************************************************************ Initialization *
+;************************************************************************** Entry Points *
 ;*****************************************************************************************
 
 display_init
@@ -106,14 +111,12 @@ display_init
 	return
 
 
-;*****************************************************************************************
-;*********************************************************************** Polling handler *
-;*****************************************************************************************
-
+	; Called frequently from the main loop
 display_poll
 
 	; Give up and try back later if we're polling too often, to keep our
 	; cycle-chopping below from losing us too much timer precision.
+	banksel	TMR1H
 	movf	TMR1H, w
 	btfsc	STATUS, Z
 	return
@@ -129,7 +132,12 @@ display_poll
 
 	pagesel	display_sync
 	call	display_sync
+	return
 
+
+	; Request a page flip at our next opportunity
+display_request_flip
+	bsf		FLAG_FLIP_REQUEST
 	return
 
 

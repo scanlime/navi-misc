@@ -41,6 +41,12 @@
 	extern	coil_window_min
 	extern	coil_window_max
 	extern	mode_flags
+	extern	back_buffer
+	extern	display_fwd_phase
+	extern	display_rev_phase
+	extern	display_column_width
+
+	extern	display_request_flip
 
 bank0	udata
 
@@ -66,6 +72,10 @@ CheckVendor
 	defineRequest	RWAND_CTRL_SET_PREDICTION,	request_setPrediction
 	defineRequest	RWAND_CTRL_SET_COIL_PHASE,	request_setCoilPhase
 	defineRequest	RWAND_CTRL_SET_MODES,		request_setModes
+	defineRequest	RWAND_CTRL_SET_DISPLAY_PHASE, request_setDisplayPhase
+	defineRequest	RWAND_CTRL_SET_COLUMN_WIDTH, request_setColumnWidth
+	defineRequest	RWAND_CTRL_RANDOM_WRITE3,	request_randomWrite3
+	defineRequest	RWAND_CTRL_FLIP,			request_flip
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -176,11 +186,73 @@ request_setCoilPhase
 	movwf	coil_window_max+1
 	returnEmpty
 
+
 	; Set mode flags
 request_setModes
 	banksel	BufferData
 	movf	BufferData+wValue, w
 	movwf	mode_flags
+	returnEmpty
+
+
+	; Set display phase values, wValue -> forward and wIndex -> reverse
+request_setDisplayPhase
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	display_fwd_phase
+	movwf	display_fwd_phase
+	banksel	BufferData
+	movf	BufferData+(wValue+1), w
+	banksel	display_fwd_phase
+	movwf	display_fwd_phase+1
+	banksel	BufferData
+	movf	BufferData+wIndex, w
+	banksel	display_fwd_phase
+	movwf	display_rev_phase
+	banksel	BufferData
+	movf	BufferData+(wIndex+1), w
+	banksel	display_fwd_phase
+	movwf	display_rev_phase+1
+	returnEmpty
+
+
+	; Set column width from wValue
+request_setColumnWidth
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	display_column_width
+	movwf	display_column_width
+	banksel	BufferData
+	movf	BufferData+(wValue+1), w
+	banksel	display_column_width
+	movwf	display_column_width+1
+	returnEmpty
+
+
+	; Request a page flip at the display's next opportunity
+request_flip
+	pagesel	display_request_flip
+	call	display_request_flip
+	returnEmpty
+
+
+	; Perform a random 3-byte write to the display, using
+	; the low byte of wValue as a column address.
+request_randomWrite3
+	bankisel back_buffer		; Point IRP:FSR at the column of interest.
+	banksel	BufferData			; FIXME: no bounds checking here yet
+	movf	BufferData+wValue, w
+	addlw	back_buffer
+	movwf	FSR
+	
+	movf	BufferData+(wValue+1), w	; Write 1...
+	movwf	INDF
+	incf	FSR, f
+	movf	BufferData+wIndex, w	; Write 2...
+	movwf	INDF
+	incf	FSR, f
+	movf	BufferData+(wIndex+1), w	; Write 3...
+	movwf	INDF
 	returnEmpty
 
 	end

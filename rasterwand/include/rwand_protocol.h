@@ -42,6 +42,21 @@
 ;// Set the mode flags from the low byte of wValue
 #define RWAND_CTRL_SET_MODES		0x05
 
+;// Set the forward display phase (wValue) and reverse display phase (wIndex)
+#define RWAND_CTRL_SET_DISPLAY_PHASE 0x06
+
+;// Set the display's column width (wValue)
+#define RWAND_CTRL_SET_COLUMN_WIDTH	0x07
+
+;// Starting at the column given in the low byte of wValue, write
+;// the values at wValue+1, wIndex, and wIndex+1 to the backbuffer.
+#define RWAND_CTRL_RANDOM_WRITE3	0x08
+
+;// Request a back->front page flip immediately preceeding the next display scan.
+;// No more backbuffer writes should be performed until the flip has been
+;// confirmed to be completed.
+#define RWAND_CTRL_FLIP				0x09
+
 
 ;//************************************************** Mode bits
 
