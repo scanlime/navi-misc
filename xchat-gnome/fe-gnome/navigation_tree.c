@@ -667,7 +667,7 @@ leave_dialog(gpointer data, guint action, GtkWidget *widget)
 			/* FIXME: part reason */
 		}
 		gtk_tree_model_sort_convert_iter_to_child_iter(GTK_TREE_MODEL_SORT(model), &newiter, &iter);
-		gtk_tree_store_set(GTK_TREE_STORE(store), &newiter, 4, &colors[23], -1);
+		gtk_tree_store_set(GTK_TREE_STORE(store), &newiter, 4, &colors[40], -1);
 	}
 }
 
@@ -1085,7 +1085,7 @@ navigation_model_set_disconn_iterate(GtkTreeModel *model, GtkTreePath *path, Gtk
   gpointer s;
 	gtk_tree_model_get(model, iter, 2, &s, -1);
 	if(s == data) {
-		gtk_tree_store_set(GTK_TREE_STORE(model), iter, 4, &colors[23], -1);
+		gtk_tree_store_set(GTK_TREE_STORE(model), iter, 4, &colors[40], -1);
 		return TRUE;
 	}
 	return FALSE;
