@@ -7,7 +7,7 @@ test -f /usr/bin/fyre || exit 0
 
 case "$1" in
 start)	log_begin_msg "Starting fyre cluster daemon..."
-        start-stop-daemon --start --quiet --chuid nobody --name fyre --nicelevel 19 --startas /usr/bin/fyre -- -r
+        start-stop-daemon --start --quiet --chuid nobody --name fyre --nicelevel 19 --exec /usr/bin/fyre -- -r
         log_end_msg $?
 	;;
 stop)	log_begin_msg "Stopping fyre cluster daemon..."
@@ -16,7 +16,7 @@ stop)	log_begin_msg "Stopping fyre cluster daemon..."
         ;;
 restart) log_begin_msg "Restarting fyre cluster daemon..."
         start-stop-daemon --stop --retry 5 --quiet --name fyre
-        start-stop-daemon --start --quiet --chuid nobody --name fyre --nicelevel 19 --startas /usr/bin/fyre -- -r
+        start-stop-daemon --start --quiet --chuid nobody --name fyre --nicelevel 19 --exec /usr/bin/fyre -- -r
         log_end_msg $?
         ;;
 *)	log_success_msg "Usage: /etc/init.d/fyre start|stop|restart"
