@@ -23,8 +23,8 @@ public class logger
 
     public static void log(int ID, String out, int value)
     {
-	if(ID == lastID) System.out.print("," + value);
-	else System.out.print("\n"  + out + ": " + value);
+	if(ID == lastID) System.out.print("" + (char) value);
+	else System.out.print("\n"  + out + ": " + (char) value);
 	lastID = ID;
     }
 }
