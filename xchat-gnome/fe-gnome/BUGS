@@ -3,12 +3,13 @@
   except its inconsistent (perhaps the first time the tree is closed? haven't tested
   sufficiently)
 * networks/channels are not selected properly when starting up (autoconnect)
-* when first selecting a channel from the tree, it switches buffers a couple times,
-  resulting in a quick flicker
 * the completion list is not modified when the user changes nicks
+* the completion list occasionally gets really messed up on autojoin (maybe joining
+  a new channel too)
 * right now the tree view does not allow focus, due to the momentary highlighting
   being terribly annoying. This should change so that the tree view can be keyboard
-  navigable
+  navigable - probably should attach before the default click handler, disable focus,
+  then reenable it after, so that keyboard focus still works
 * if 'refresh' is clicked twice in the channel list, it will send two LIST requests
   and add all the results to the tree. Should probably set the refresh button inactive
   until at least some results come in.
