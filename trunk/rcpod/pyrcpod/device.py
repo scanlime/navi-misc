@@ -410,6 +410,10 @@ class Pin:
         """Place this pin descriptor in its inactive state (same as pin.negate().assert_())"""
         self.rcpod.deassertPin(self)
 
+    # Synonyms
+    on = assert_
+    off = deassert
+
     def test(self):
         """Return a boolean indicating whether this pin is currently asserted or not"""
         return self.rcpod.testPin(self)
