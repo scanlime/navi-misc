@@ -391,6 +391,8 @@ static void    histogram_merge_callback       (RemoteClient*     self,
     HistogramImager *dest = HISTOGRAM_IMAGER(user_data);
     double elapsed;
 
+    self->pending_stream_requests--;
+    
     if (self->pending_param_changes) {
 	/* This data is for an old parameter set, ignore it.
 	 * FIXME: This doesn't distinguish between parameters that
@@ -420,7 +422,6 @@ static void    status_merge_callback          (RemoteClient*     self,
     long density;
     double elapsed;
 
-    self->pending_stream_requests--;
     sscanf(response->message, "iterations=%lf density=%ld", &iters, &density);
 
     /* FIXME: Since we don't know which parameters affect calculation, we don't
@@ -459,7 +460,7 @@ void           remote_client_merge_results    (RemoteClient*     self,
 					       IterativeMap*     dest)
 {
     /* Don't let our stream requests get too backed up */
-    if (self->pending_stream_requests > 5)
+    if (self->pending_stream_requests >= 4)
 	return;
 
     remote_client_command(self, status_merge_callback, dest,

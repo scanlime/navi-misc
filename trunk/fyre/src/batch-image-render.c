@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include <stdio.h>
+#include <string.h>
 #include "batch-image-render.h"
 
 #ifdef HAVE_GNET
@@ -32,6 +33,7 @@
 typedef struct {
     gulong      target_density;
     GMainLoop*  main_loop;
+    GTimer*     status_timer;
 } BatchImageRender;
 
 static void       on_calc_finished            (IterativeMap*      map,
@@ -45,14 +47,20 @@ void batch_image_render(IterativeMap*  map,
 
     self.target_density = target_density;
     self.main_loop = g_main_loop_new(NULL, FALSE);
+    self.status_timer = g_timer_new();
 
     /* Have the map let us know after each iteration block finishes */
     g_signal_connect(map, "calculation-finished", G_CALLBACK(on_calc_finished), &self);
 
-    map->render_time = 1.0;
+    /* Keep the rendering time low enough that gnet doesn't
+     * get cranky, but high enough that it still gets most of our CPU time
+     */
+    map->render_time = 0.1;
     iterative_map_start_calculation(map);
     g_main_loop_run(self.main_loop);
     iterative_map_stop_calculation(map);
+
+    g_timer_destroy(self.status_timer);
 
 #ifdef HAVE_EXR
     /* Save as an OpenEXR file if it has a .exr extension, otherwise use PNG */
@@ -76,6 +84,13 @@ static void       on_calc_finished            (IterativeMap*       map,
 
     if (HISTOGRAM_IMAGER(map)->peak_density >= self->target_density)
 	g_main_loop_quit(self->main_loop);
+
+    /* Limit the update rate of this status message independently
+     * from our actual calculation speed.
+     */
+    if (g_timer_elapsed(self->status_timer, NULL) < 2.0)
+        return;
+    g_timer_start(self->status_timer);
 
     /* This should be a fairly accurate time estimate, since (asymptotically at least)
      * current_density increases linearly with the number of iterations performed.
