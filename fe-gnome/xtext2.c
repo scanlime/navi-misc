@@ -1192,6 +1192,7 @@ render_page (XText2 *xtext)
       {
 	area.x = 0;
 	area.width = width;
+	paint (xtext, &area);
       }
       f->grid_dirty = TRUE;
       return;
