@@ -7,6 +7,23 @@
     <image label="background" filename="wasabi/background.png"/>
     <image label="logo" filename="wasabi/logo.png"/>
 
+
+    <!-- *********************************************************** Splashscreen -->
+
+    <splashscreen>
+        <screen layout="splashscreen" x="0" y="0" width="640" height="480"/>
+    </splashscreen>
+
+    <layout label="splashscreen">
+        <background>
+            <image filename="wasabi/splash.png" x="0" y="0" width="640" height="480"/>
+        </background>
+        <content x="40" y="355" width="530" font="splashscreen font" spacing="18"/>
+    </layout>
+
+    <font label="splashscreen font" name="Vera.ttf" size="16" color="0xffffff"/>
+
+
     <!-- *********************************************************** Main Menu -->
 
     <font label="main" name="VeraBd.ttf" size="18" color="0xeeeeee"/>
@@ -47,6 +64,7 @@
             </item>
         </content>
     </layout>
+
 
     <!-- *********************************************************** Media Menus -->
 
