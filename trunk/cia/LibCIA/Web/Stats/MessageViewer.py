@@ -21,7 +21,7 @@ An interface for viewing the individual messages stored by the stats subsystem
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.web import resource, error
+from twisted.web import resource, error, server
 from twisted.internet import defer
 from LibCIA.Web import Template
 from Nouvelle import tag, place
@@ -57,27 +57,41 @@ class LinksSection(Template.Section):
     def render_rows(self, context):
         return [
             Link.MessageLink(self.target, self.messageId,
-                             extraSegments = ('printable',),
-                             text = 'Printable',
-                             ),
-            Link.MessageLink(self.target, self.messageId,
-                             extraSegments = ('pretty-xml',),
-                             text = 'Pretty-printed XML',
-                             ),
-            Link.MessageLink(self.target, self.messageId,
                              extraSegments = ('xml',),
-                             text = 'Raw XML',
+                             text = 'Unformatted XML',
                              ),
             ]
 
 
+class UnformattedMessagePage(resource.Resource):
+    """A page that sends back the raw XML text of a particular message"""
+    def __init__(self, target, id):
+        self.target = target
+        self.id = id
+        resource.Resource.__init__(self)
+
+    def render(self, request):
+        # Retrieve the metadata value, rendering the page once it arrives
+        self.target.messages.getMessageById(self.id).addCallback(self._render, request).addErrback(request.processingFailed)
+        return server.NOT_DONE_YET
+
+    def _render(self, xml, request):
+        if xml:
+            request.setHeader('content-type', 'text/xml')
+            request.write(xml)
+            request.finish()
+        else:
+            request.write(error.NoResource("Message #%d not found" % self.id).render(request))
+            request.finish()
+
+
 class MessagePage(Template.Page):
     """A page that views one message from the stats database"""
-    isLeaf = 1
-
     def __init__(self, statsPage, id):
         self.statsPage = statsPage
         self.id = id
+        Template.Page.__init__(self)
+        self.putChild('xml', UnformattedMessagePage(self.statsPage.target, self.id))
 
     def parent(self):
         return self.statsPage
