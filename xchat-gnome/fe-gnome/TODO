@@ -19,8 +19,6 @@ autotools:
 
 * find a writer to rewrite all the horribly-worded explainations of things!
 
-* migrate remaining GNOMEUIINFO menus to use GtkUIManager (navigation_tree.c)
-
 * make text surrounded by asterisks bold in the xtext widget
 
 context menus:
