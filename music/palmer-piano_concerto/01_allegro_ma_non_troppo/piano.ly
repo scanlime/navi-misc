@@ -655,6 +655,111 @@ mvmtOnePianoSectEightLeft = \relative b, {
   | <fis fis,>2\fermata r2\fermata
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section 9: Conclusion %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+crossBeamLR = {
+  \change Staff = pianoRight
+  \stemDown
+}
+
+unCrossBeamLR = {
+  \change Staff = pianoLeft
+  \stemNeutral
+}
+
+mvmtOnePianoSectNineRight = \relative dis'' {
+  % 190
+  | dis2 cis
+  | ais b4 dis
+  | gis2. ais4
+  | fis2. f4
+  | << { e2. dis4 } \\
+       { s2 ais4 ais } >>
+  | << { ais2 b4 ais } \\
+       { fisis8 eis fisis ais gis fis eis4 } >>
+  | <ais fisis cis>2 r2
+  | R1*6
+
+  % 203
+  | a2 gis
+  | eis fis
+  | <fis c a>1
+  | <fis c a>
+  | <fis c a>
+  | <fis dis ais>
+  | << { r2 \appoggiatura { fis'8 } <fis fis'>4 <dis dis'> } \\
+       { <fis, dis ais>1 } >>
+  
+  % 210
+  | <e' e'>2 \times 2/3 { <e e'>2 <dis dis'>4 }
+  | <cis cis'>2 \times 2/3 { <cis cis'>2 <e e'>4 }
+  | <dis dis'>2 \times 2/3 { <dis dis'>2 <cis cis'>4 }
+  | <b b'>2 e,
+}
+
+mvmtOnePianoSectNineLeft = \relative b {
+  % 190
+  << {
+      | b8 dis \crossBeamLR fis b \unCrossBeamLR
+        fis, cis' \crossBeamLR fis ais \unCrossBeamLR
+      | g, cis \crossBeamLR e g \unCrossBeamLR
+        gis, dis' fis \crossBeamLR ais \unCrossBeamLR
+      | f, b d \crossBeamLR gis \unCrossBeamLR
+        e, ais cis \crossBeamLR fisis \unCrossBeamLR
+      % XXX hacks follow
+      | dis, a' c \crossBeamLR fis \unCrossBeamLR
+        \stemUp
+        d, gis b eis
+        \stemNeutral
+      | cis \crossBeamLR gis' b gis \unCrossBeamLR
+        \stemUp
+        cis, dis e fis
+      | cis4 ais \appoggiatura { eis8[ fisis] }  gis4 cisis
+      \stemNeutral
+    } \\ {
+      | b2 fis
+      | g gis4 fis
+      | f2 e
+      | dis d
+      | <cis gis' cis> fis
+      | e4 dis gis,2
+  } >>
+  | dis'2 r2
+  | R1*6
+
+  % 203
+  | << { fis8 a cis \crossBeamLR fis \unCrossBeamLR 
+         cis, gis' b \crossBeamLR d \unCrossBeamLR } \\
+       { fis,2 cis } >>
+  | << { cisis8 gis' b a s2 } \\
+       { cisis,2 <dis a' c> \arpeggio } >>
+  | <gis, dis'>1
+  | <gis dis'>
+  | <gis dis'>
+  | <fis e'>
+  | <fis e'>
+  
+  % 210
+  | << { r8 <e' gis dis'>~ <e gis dis'>8. <e gis cis>8. <e g b>8
+         b'32 gis fis e cis' dis e a, } \\
+       { gis,2 g } >>
+  | << { r16 a'32 \change Staff = pianoRight cis dis e gis a
+         \times 2/3 { b16 a g } \times 2/3 { fis \change Staff = pianoLeft e d }
+         cis16 b ais gis \times 2/3 { g8 fis e } } \\
+       { <a, e'>2 <ais e' g> } >>
+  | << { r8 <fisis' cis' e>8~ <fisis cis' e>8. <eis b' dis>8. <eis gis cis>8
+         b'32 cis d eis \change Staff = pianoRight fisis gis ais b 
+       | r cis b ais b gis e dis \times 2/3 { e16 cis ais } \times 2/3 { gis fisis gis }
+         \stemDown
+         \times 4/5 { ais b cis dis eis } \times 4/5 { fisis gis ais b cis } 
+         \stemNeutral
+       } \\ { 
+       | <dis, dis,>2 g,
+       | c, dis4 gis } >>
+}
+
 mvmtOnePianoRight = {
   \clef treble
   \key b \minor
@@ -677,6 +782,7 @@ mvmtOnePianoRight = {
   R2.*17
   \time 4/4
   \mvmtOnePianoSectEightRight
+  \mvmtOnePianoSectNineRight
 }
 
 mvmtOnePianoLeft = {
@@ -701,4 +807,5 @@ mvmtOnePianoLeft = {
   R2.*17
   \time 4/4
   \mvmtOnePianoSectEightLeft
+  \mvmtOnePianoSectNineLeft
 }
