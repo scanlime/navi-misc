@@ -222,6 +222,18 @@ add_server_clicked (GtkButton *button, gpointer data)
 static void
 remove_server_clicked (GtkButton *button, gpointer data)
 {
+	GtkWidget *treeview;
+	GtkTreeSelection *selection;
+	GtkListStore *model;
+	GtkTreeIter iter;
+
+	treeview = glade_xml_get_widget (gui.xml, "server config servers");
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+
+	if (gtk_tree_selection_get_selected (GTK_TREE_SELECTION (selection), &model, &iter)) {
+		gtk_list_store_remove (model, &iter);
+		/* FIXME - save */
+	}
 }
 
 static void
@@ -268,6 +280,18 @@ add_autojoin_clicked (GtkButton *button, gpointer data)
 static void
 remove_autojoin_clicked (GtkButton *button, gpointer data)
 {
+	GtkWidget *treeview;
+	GtkTreeSelection *selection;
+	GtkListStore *model;
+	GtkTreeIter iter;
+
+	treeview = glade_xml_get_widget (gui.xml, "server config channels");
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+
+	if (gtk_tree_selection_get_selected (GTK_TREE_SELECTION (selection), &model, &iter)) {
+		gtk_list_store_remove (model, &iter);
+		/* FIXME - save */
+	}
 }
 
 static void
