@@ -76,6 +76,7 @@ void navigation_tree_select_prev_network (NavTree *navtree);
 
 /* Misc. functions. */
 void navigation_tree_set_channel_name (NavTree *navtree, struct session *sess);
+gboolean navigation_tree_server_connected (NavTree *navtree, gchar *name);
 NavTree* get_navigation_tree ();
 
 
