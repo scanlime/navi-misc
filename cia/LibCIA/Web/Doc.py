@@ -286,7 +286,12 @@ class Page(Template.Page):
 
     def parent(self):
         if self.path:
-            return Page(self.component, posixpath.split(self.path)[0])
+            parent = Page(self.component, posixpath.split(self.path)[0])
+
+            # FIXME: load() may not finish immediately
+            parent.load()
+
+            return parent
 
     def preRender(self, context):
         """Before rendering, load our document and see if we need to abort"""

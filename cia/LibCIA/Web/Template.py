@@ -450,7 +450,7 @@ class Page(Nouvelle.Twisted.Page):
         return self.mainColumn
 
     def render_breadcrumbs(self, context):
-        places = [self.render_mainTitle(context)]
+        places = [place("mainTitle")]
         node = self.parent()
         # If we don't at least have a parent node, breadcrumbs
         # are going to be pretty useless. Just stick in a
@@ -459,7 +459,7 @@ class Page(Nouvelle.Twisted.Page):
             return xml("&nbsp;")
         while node:
             places.insert(0, breadcrumbSeparator)
-            places.insert(0, node.render_link(context))
+            places.insert(0, subcontext(owner=node)[ place("link") ])
             node = node.parent()
         return places
 
@@ -474,7 +474,7 @@ class Page(Nouvelle.Twisted.Page):
            By default, this returns a plain link with the page's title, pointing
            to the page's URL.
            """
-        return tag('a', href=self.getURL(context))[self.render_mainTitle(context)]
+        return tag('a', href=self.getURL(context))[ place("mainTitle") ]
 
     def parent(self):
         """Pages must implement this to return their parent page.
