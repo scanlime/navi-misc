@@ -24,6 +24,18 @@
 
 static GtkDialogClass *parent_class = NULL;
 
+static void
+publish_events_toggled (GtkToggleButton *button, UrlEditorDialog2 *dialog)
+{
+	gtk_widget_set_sensitive (dialog->events_selector, gtk_toggle_button_get_active (button));
+}
+
+static void
+publish_tasks_toggled (GtkToggleButton *button, UrlEditorDialog2 *dialog)
+{
+	gtk_widget_set_sensitive (dialog->tasks_selector, gtk_toggle_button_get_active (button));
+}
+
 static gboolean
 url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 {
@@ -58,7 +70,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	toplevel = glade_xml_get_widget (gui, "publishing toplevel");
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), toplevel);
 
-//	gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
+	gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
 
 	dialog->cancel = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
 	dialog->ok = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK, GTK_RESPONSE_OK);
@@ -81,6 +93,9 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	gtk_size_group_add_widget (group, dialog->username_entry);
 	gtk_size_group_add_widget (group, dialog->password_entry);
 	g_object_unref (group);
+
+	g_signal_connect (G_OBJECT (dialog->publish_events), "toggled", G_CALLBACK (publish_events_toggled), dialog);
+	g_signal_connect (G_OBJECT (dialog->publish_tasks), "toggled", G_CALLBACK (publish_tasks_toggled), dialog);
 
 	g_object_unref (gconf);
 
