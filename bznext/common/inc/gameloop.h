@@ -50,6 +50,7 @@ public:
   virtual SceneType GetSceneType ( void );
   virtual const char* GetCameraName ( void );
   virtual const char* GetRootResDir ( void );
+	virtual const char* GetPluginsDir ( void );
 
  // info methods.
 
@@ -70,6 +71,7 @@ public:
   bool frameEnded(const FrameEvent& evt);
 
 protected:
+	bool LoadPlugins ( void );
   bool SetupConfigure ( void );
   bool SetupResources ( void );
   bool Process( void );
