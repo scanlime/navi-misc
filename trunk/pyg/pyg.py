@@ -113,11 +113,9 @@ class Editor(vte.Terminal):
         self.set_color_foreground(gtk.gdk.color_parse('Black'))
         self.set_color_background(gtk.gdk.color_parse('White'))
         editor = os.environ.get('EDITOR', 'vim')
-        childEnv = dict(os.environ)
-        del childEnv['DISPLAY']
+        del os.environ['DISPLAY']
         self.fork_command('sh', ('sh', '-c', editor),
-                          ["=".join(i) for i in childEnv.iteritems()],
-                          os.getcwd(),
+                          None, os.getcwd(),
                           gtk.FALSE, gtk.FALSE, gtk.FALSE)
 
 main = MainWindow()
