@@ -453,6 +453,13 @@ class Bot(irc.IRCClient):
     signonTimestamp = None
     lastPingTransmitTimestamp = None
 
+    # Unhandled commands to ignore, rather than log
+    ignoredCommands = [
+        "ERR_NOCHANMODES",     # Freenode spamming us to register
+	506,                   # PLD spamming us to register
+	333,                   # Freenode sends these with channel registration info
+	]
+
     def __init__(self):
         self.emptyChannels()
 
@@ -730,6 +737,8 @@ class Bot(irc.IRCClient):
         """Log unknown commands, making debugging easier. This also lets
            us see responses in the log for commands sent via debug_tool.
            """
+        if command in self.ignoredCommands:
+            return
         self.factory.botNet.unknownMessageLog.log(UnknownMessage(self, prefix, command, params))
 
     def topicUpdated(self, user, channel, newTopic):
