@@ -56,7 +56,7 @@ def from_ucharArray(a, n):
     return [ucharArray_getitem(a, i) for i in xrange(n)]
 
 
-class OpenedDevice:
+class OpenedRcpod:
     """Wraps an opened rcpod device, represented in librcpod
        by the rcpod_dev* opaque type.
        Functions are provided to interface with the librcpod API.
@@ -67,8 +67,12 @@ class OpenedDevice:
        in hardware is determined. The 'model' attribute is either "PIC16C745"
        or "PIC16C765", and the 'pins' attribute is a list of Pin instances.
        """
-    def __init__(self, dev, availableDevice):
-        self.dev = dev
+    def __init__(self, availableDevice, reset=True):
+        if availableDevice.opened:
+            raise IOError("rcpod device is already open")
+        availableDevice.opened = True
+
+        self.dev = rcpod_Open(availableDevice.usbdev)
         self.availableDevice = availableDevice
 
         # Make the scratchpad location more easily accessable
@@ -78,6 +82,9 @@ class OpenedDevice:
         # Initially the PIC model number is unknown. It can be determined
         # automatically in reset(), or set manually if reset has been disabled.
         self.setModel(None)
+
+        if reset:
+            self.reset()
 
     def close(self):
         """Terminate our connection to the rcpod. No attributes
@@ -368,17 +375,11 @@ class AvailableDevice:
         self.usbdev = usbdev
         self.opened = False
 
-    def open(self, reset=True):
+    def open(self, cls=OpenedRcpod, reset=True):
         """Open the device, and wrap it in an OpenedDevice class.
            By default the device is reset, though this can be overridden.
            """
-        if self.opened:
-            raise IOError("rcpod device is already open")
-        self.opened = True
-        opened = OpenedDevice(rcpod_Open(self.usbdev), self)
-        if reset:
-            opened.reset()
-        return opened
+        return cls(self, reset)
 
 
 # A list of available rcpod devices (AvailableDevice instances)

@@ -85,7 +85,7 @@ class SelfTest(RcpodTestCase):
         elif self.rcpod.model == "PIC16C765":
             self.assertEqual(len(self.rcpod.pins), 30)
         else:
-            self.fail("Unknown model number")
+            self.fail("Unknown model number: %r" % self.rcpod.model)
 
         # Now make sure all pin instances are installed as attributes of rcpod, and
         # that all are valid pin instances with different pin descriptor values
