@@ -127,5 +127,6 @@ del string
 
 # Convenience imports
 from Serial import *
+from Table import *
 
 ### The End ###
