@@ -32,9 +32,9 @@ class TotalsSection(Template.Section):
         self.totalServers = 0
         self.totalBots = 0
         self.totalChannels = 0
-        for allocator in botNet.servers.itervalues():
+        for server in botNet.servers.iterkeys():
             self.totalServers += 1
-            for bot in allocator.bots.itervalues():
+            for bot in botNet.servers[server]:
                 self.totalBots += 1
                 self.totalChannels += len(bot.channels)
 
@@ -61,19 +61,19 @@ class BotChannelsColumn(Nouvelle.Column):
 
 
 class ServerSection(Template.Section):
-    """A section representing one BotAllocator, and therefore one IRC server"""
-    def __init__(self, allocator):
-        self.allocator = allocator
+    """A section representing one IRC server"""
+    def __init__(self, botNet, server):
+        self.botNet = botNet
+        self.server = server
 
     def render_title(self, context):
-        return "%s:%d" % (self.allocator.host, self.allocator.port)
+        return str(self.server)
 
     def render_rows(self, context):
-        tableId = self.allocator.host.replace(".", "_") + "_" + str(self.allocator.port)
-        return [Template.Table(self.allocator.bots.values(), [
+        return [Template.Table(self.botNet.servers[self.server], [
             Nouvelle.AttributeColumn('nickname', 'nickname'),
             BotChannelsColumn(),
-            ], id=tableId)]
+            ], id=str(self.server))]
 
 
 class IRCBotPage(Template.Page):
@@ -82,10 +82,10 @@ class IRCBotPage(Template.Page):
         self.botNet = botNet
 
     def render_mainColumn(self, context):
-        """Generate one ServerSection for each BotAllocator we have, sorted by hostname"""
-        allocators = self.botNet.servers.values()
-        allocators.sort(lambda a,b: cmp(a.host, b.host))
-        return [ServerSection(a) for a in allocators]
+        # One server section for each server we have bots on
+        servers = self.botNet.servers.keys()
+        servers.sort(lambda a,b: cmp(str(a), str(b)))
+        return [ServerSection(self.botNet, s) for s in servers]
 
     def render_leftColumn(self, context):
         return [
