@@ -28,5 +28,9 @@ public class webconfig implements ActionListener
 	
 	public void actionPerformed(ActionEvent e)
 	{
+		myadmin.rm(submit);
+		myadmin.rm(port);
+		myadmin.rm(host);
+		new aimconfig(myadmin);
 	}
 }
