@@ -3,7 +3,7 @@
   this is fine, but when browsing forward/back in several images
   of non-default size, the size repeatedly changes. This could
   be solved by making parameter_holder_load_string() smarter,
-  or by making the histogram view smarter about resizing. 
+  or by making the histogram view smarter about resizing.
 
 - Cluster autodetection doesn't find multiple fyre
   servers running on different ports but the same host
