@@ -33,6 +33,7 @@
 #include "../common/text.h"
 
 XChatGUI gui;
+Userlist *u;
 
 gboolean initialize_gui_1() {
 	gui.xml = glade_xml_new("xchat-gnome.glade", NULL, NULL);

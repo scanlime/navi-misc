@@ -23,6 +23,7 @@
 #include <gnome.h>
 #include "../fe-gtk/xtext.h"
 #include "../common/xchat.h"
+#include "userlist.h"
 
 #ifndef XCHAT_GNOME_GUI_H
 #define XCHAT_GNOME_GUI_H
@@ -39,6 +40,7 @@ typedef struct {
 } XChatGUI;
 
 extern XChatGUI gui;
+extern Userlist *u;
 
 gboolean initialize_gui_1();
 gboolean initialize_gui_2();

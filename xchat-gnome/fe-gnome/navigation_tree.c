@@ -22,6 +22,7 @@
 #include "navigation_tree.h"
 #include "textgui.h"
 #include "userlist_gui.h"
+#include "userlist.h"
 #include "pixmaps.h"
 #include "palette.h"
 #include "channel_list.h"
@@ -229,9 +230,12 @@ void navigation_tree_set_channel_name(struct session *sess) {
 void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 	GtkTreeIter iter, newiter;
 	GtkTreeModel *model, *store;
+	GtkTreeView *treeview;
 	gpointer *s;
 	session *sess;
 	session_gui *tgui;
+
+	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
 
 	if(gtk_tree_selection_get_selected(selection, &model, &iter) && gui.current_session) {
 		GtkWidget *topic, *entry;
@@ -258,7 +262,7 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 		entry = glade_xml_get_widget(gui.xml, "text entry");
 		gtk_entry_set_text(GTK_ENTRY(entry), tgui->entry);
 		gui.current_session = sess;
-		userlist_display(tgui);
+		gtk_tree_view_set_model (treeview, GTK_TREE_MODEL (userlist_get_store (u, sess)));
 		set_nickname(sess->server, NULL);
 		rename_main_window(sess->server->networkname, sess->channel);
 		/* remove any icon that exists */

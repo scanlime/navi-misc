@@ -53,6 +53,7 @@ int fe_args(int argc, char *argv[]) {
 }
 
 void fe_init(void) {
+	u = userlist_new ();
 	gui.quit = FALSE;
 	servlist_init();
 	palette_init();
@@ -96,7 +97,6 @@ void fe_new_window(struct session *sess) {
 	else if(sess->type == SESS_CHANNEL || sess->type == SESS_DIALOG)
 		navigation_tree_create_new_channel_entry(sess);
 	text_gui_add_text_buffer(sess);
-	create_userlist(sess);
 }
 
 void fe_new_server(struct server *serv) {
@@ -218,20 +218,19 @@ void fe_print_text(struct session *sess, char *text) {
 }
 
 void fe_userlist_insert(struct session *sess, struct User *newuser, int row, int sel) {
-	userlist_insertg(sess, newuser, row, sel);
+	userlist_insert (u, sess, newuser, row, sel);
 }
 
 int fe_userlist_remove(struct session *sess, struct User *user) {
-	return userlist_removeg(sess, user);
+	return userlist_remove (u, sess, user);
 }
 
 void fe_userlist_rehash(struct session *sess, struct User *user) {
-	userlist_change(sess, user);
+	userlist_update (u, sess, user);
 }
 
 void fe_userlist_move(struct session *sess, struct User *user, int new_row) {
-	int sel = userlist_remove(sess, user);
-	fe_userlist_insert(sess, user, new_row, sel);
+	userlist_move (u, sess, user, new_row);
 }
 
 void fe_userlist_numbers(struct session *sess) {
@@ -239,10 +238,7 @@ void fe_userlist_numbers(struct session *sess) {
 }
 
 void fe_userlist_clear(struct session *sess) {
-	session_gui *s = (session_gui *) sess->gui;
-	if(s == NULL)
-		return;
-	gtk_list_store_clear(GTK_LIST_STORE(s->userlist_model));
+	userlist_clear (u, sess);
 }
 
 void fe_dcc_add(struct DCC *dcc) {
