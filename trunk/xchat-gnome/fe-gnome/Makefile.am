@@ -121,7 +121,7 @@ xchat_gnome_DATA =			\
 	channel-list.glade		\
 	transfers.glade			\
 	xchat-gnome.glade
-xchat_gnomedir = $(xchatsharedir)
+xchat_gnomedir = $(datadir)/xchat
 
 about.c:	xtext.h
 
@@ -138,21 +138,21 @@ mmx_cmod.S:	@top_srcdir@/src/fe-gtk/mmx_cmod.S mmx_cmod.h
 	cp -pR @top_srcdir@/src/fe-gtk/mmx_cmod.S .
 
 about.o:	$(srcdir)/about.c
-	$(COMPILE) -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/about.c
+	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/about.c
 
 pixmaps.o:	$(srcdir)/pixmaps.c
-	$(COMPILE) -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/pixmaps.c
+	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/pixmaps.c
 
 gui.o:		$(srcdir)/gui.c
-	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/gui.c
+	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/gui.c
 
 channel_list.o:	$(srcdir)/channel_list.c
-	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/channel_list.c
+	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/channel_list.c
 
 transfers.o:	$(srcdir)/transfers.c
-	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/transfers.c
+	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/transfers.c
 
 guir.o:		$(srcdir)/guir.c
-	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/guir.c
+	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/guir.c
 
 SUBDIRS = data pixmaps

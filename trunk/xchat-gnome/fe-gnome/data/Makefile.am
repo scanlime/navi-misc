@@ -11,6 +11,6 @@ xchat_gnome_DATA = 			\
 	stock_link.png			\
 	toilet-paper.png		\
 	xchat-gnome-small.png
-xchat_gnomedir = $(xchatsharedir)
+xchat_gnomedir = $(datadir)/xchat
 
 EXTRA_DIST = $(xchat_gnome_DATA)
