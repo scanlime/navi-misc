@@ -8,10 +8,7 @@
         <description>Provides a notification-area icon showing when new mail has arrived</description>
 	<author name="David Trowbridge" email="trowbrds@cs.colorado.edu"/>
 	<hook class="org.gnome.evolution.mail.events:1.0">
-	    <event
-	     target="folder"
-	     id="folder.newmail"
-	     handle="new_mail">
+	    <event target="folder" id="folder.newmail" handle="new_mail"/>
 	</hook>
     </e-plugin>
 </e-plugin-list>
