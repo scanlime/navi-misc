@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from BZEngine.UI import Viewport, ThreeDRender, Sequencer, Layout, HUD, ThreeDControl
 from BZEngine import Event
-from Wasabi import Logos, Menu, Icon
+from Wasabi import Logos, Menu, Icon, IR
 from math import *
 import pygame
 
@@ -12,6 +12,8 @@ viewport.setCaption("Wasabi Test")
 view = ThreeDRender.View(viewport)
 control = ThreeDControl.Viewing(view, viewport)
 
+# Set up an LIRC client
+IR.getDefaultClient().attachToLoop(loop)
 
 # A sequencer page that displays a piece of text in the center of the screen, over a background image
 class TextPage(Sequencer.Page):

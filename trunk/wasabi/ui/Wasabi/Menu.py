@@ -108,7 +108,11 @@ class RingMenu(Menu):
             )
 
     def finalize(self):
-        # UGLY HACK!!!!!!!!!
-        self.dock = None
+        import gc
+
+        print "Referrers:"
+        for referrer in gc.get_referrers(self):
+            print referrer
+            print "------------"
 
 ### The End ###
