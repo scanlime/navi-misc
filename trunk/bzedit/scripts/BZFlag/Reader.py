@@ -28,7 +28,7 @@ class Reader:
             comment = Literal('#') + Optional (restOfLine)
             float = Combine(Word('+-'+nums, nums) +
                             Optional(Literal('.') + Optional(Word(nums))) +
-                            Optional(CaselessIteral('E') + Word('+-'+nums, nums)))
+                            Optional(CaselessLiteral('E') + Word('+-'+nums, nums)))
             3dPoint = float + float + float
             globalReference = Word(alphanums + '/:*')
 
