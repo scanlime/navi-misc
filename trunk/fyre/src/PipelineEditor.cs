@@ -224,4 +224,9 @@ public class PipelineEditor
 	public void OnMenuEditDelete (object o, EventArgs args)
 	{
 	}
+
+	/* 'View' Menu events */
+	public void OnMenuViewKeepClean (object o, EventArgs args)
+	{
+	}
 }
