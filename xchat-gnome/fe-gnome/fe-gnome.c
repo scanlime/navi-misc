@@ -73,8 +73,11 @@ fe_init (void)
 	initialize_gui_2 ();
 	run_main_window ();
 	prefs.use_server_tab = TRUE;
-	// Don't allow the core to autoload plugins.
+	/* Don't allow the core to autoload plugins. We use our own
+	 * method for autoloading.
+	 */
 	skip_plugins = 1;
+	autoload_plugins ();
 }
 
 void

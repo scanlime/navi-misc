@@ -26,5 +26,6 @@
 
 void initialize_preferences_plugins_page ();
 void preferences_plugins_page_update ();
+void autoload_plugins ();
 
 #endif
