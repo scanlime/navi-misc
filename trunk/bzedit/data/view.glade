@@ -38,7 +38,7 @@
 	      <signal name="activate" handler="on_views1_activate" last_modification_time="Wed, 24 Mar 2004 05:01:36 GMT"/>
 
 	      <child internal-child="image">
-		<widget class="GtkImage" id="image14">
+		<widget class="GtkImage" id="image30">
 		  <property name="visible">True</property>
 		  <property name="pixbuf">perspective.png</property>
 		  <property name="xalign">0.5</property>
@@ -57,9 +57,10 @@
 		      <property name="label" translatable="yes">Top</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_top1_activate" last_modification_time="Wed, 24 Mar 2004 05:01:36 GMT"/>
+		      <accelerator key="KP_7" modifiers="0" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image15">
+			<widget class="GtkImage" id="image31">
 			  <property name="visible">True</property>
 			  <property name="pixbuf">top.png</property>
 			  <property name="xalign">0.5</property>
@@ -77,9 +78,10 @@
 		      <property name="label" translatable="yes">Front</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_front1_activate" last_modification_time="Wed, 24 Mar 2004 05:02:01 GMT"/>
+		      <accelerator key="KP_1" modifiers="0" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image16">
+			<widget class="GtkImage" id="image32">
 			  <property name="visible">True</property>
 			  <property name="pixbuf">front.png</property>
 			  <property name="xalign">0.5</property>
@@ -97,9 +99,10 @@
 		      <property name="label" translatable="yes">Side</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_side1_activate" last_modification_time="Wed, 24 Mar 2004 05:02:12 GMT"/>
+		      <accelerator key="KP_3" modifiers="0" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image17">
+			<widget class="GtkImage" id="image33">
 			  <property name="visible">True</property>
 			  <property name="pixbuf">side.png</property>
 			  <property name="xalign">0.5</property>
@@ -117,9 +120,10 @@
 		      <property name="label" translatable="yes">Perspective</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_perspective1_activate" last_modification_time="Wed, 24 Mar 2004 05:09:09 GMT"/>
+		      <accelerator key="KP_5" modifiers="0" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image18">
+			<widget class="GtkImage" id="image34">
 			  <property name="visible">True</property>
 			  <property name="pixbuf">perspective.png</property>
 			  <property name="xalign">0.5</property>
