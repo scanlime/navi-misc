@@ -5,7 +5,6 @@
 
 <widget class="GtkWindow" id="setup window">
   <property name="border_width">6</property>
-  <property name="visible">True</property>
   <property name="title" translatable="yes">xchat-gnome setup</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -203,7 +202,7 @@ These are the names by which you'll be recognized on IRC. Your nick name is the 
 	  <property name="spacing">0</property>
 
 	  <child>
-	    <widget class="GtkButton" id="button1">
+	    <widget class="GtkButton" id="ok button">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="has_default">True</property>
