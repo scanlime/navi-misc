@@ -327,7 +327,10 @@ class PalantirWindow:
     else:
       time = None
 
-    self.tabs['None'].DisplayText(time, '>%s< '%(self.factory.nickname), msg)
+    if self.tabs.has_key(nick):
+      self.tabs[nick].DisplayText(time, ' <%s> '%(self.factory.nickname), msg)
+    else:
+      self.tabs['None'].DisplayText(time, ' >%s< '%(self.factory.nickname), msg)
 
   def ping(self, args=''):
     ''' Ping the server. '''
@@ -360,7 +363,7 @@ class PalantirWindow:
       if not self.tabs.has_key(channel):
         notebook = self.tree.get_widget('Tabs')
 	label = gtk.Label()
-	label.set_text(nick)
+	label.set_text(channel)
         self.tabs[channel] = GtkChatBuffer()
 	notebook.append_page(self.tabs[channel], label)
 	self.tabs[channel].show()
