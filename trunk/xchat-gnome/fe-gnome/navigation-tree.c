@@ -959,6 +959,7 @@ navigation_model_add_new_network (NavModel *model, struct session *sess)
 	GtkTreeRowReference *rowref;
 
 	gtk_tree_store_append (model->store, &iter, NULL);
+	/* Add the new server to the model. By default connected is false. */
 	gtk_tree_store_set (model->store, &iter, 1, _("<none>"), 2, sess, 3, 0, 4, NULL, 5, 0, 6, FALSE, -1);
 
 	path = gtk_tree_model_get_path (GTK_TREE_MODEL (model->store), &iter);
@@ -982,6 +983,7 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 		sort = GTK_TREE_MODEL_SORT (gui.tree_model->sorted);
 
 		gtk_tree_store_append (GTK_TREE_STORE (model), &child, iter);
+		/* Add the new channel to the store. By default connected is true. */
 		gtk_tree_store_set (GTK_TREE_STORE (model), &child, 1, data->channel, 2, data, 3, 0, 4, NULL, 5, 0, 6, TRUE, -1);
 
 		path = gtk_tree_model_get_path (model, &child);
@@ -1056,6 +1058,7 @@ navigation_model_set_disconn_iterate (GtkTreeModel *model, GtkTreePath *path, Gt
 	gpointer s;
 	gtk_tree_model_get (model, iter, 2, &s, -1);
 	if (s == data) {
+		/* Change the color and set connected to false. */
 		gtk_tree_store_set (GTK_TREE_STORE (model), iter, 4, &colors[40], 6, FALSE, -1);
 		return TRUE;
 	}
