@@ -330,7 +330,8 @@ on_edit_paste_menu_activate (GtkWidget *widget, gpointer data)
 static void
 on_edit_clear_menu_activate (GtkWidget *widget, gpointer data)
 {
-	/* FIXME: implement */
+	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
+	gtk_editable_delete_selection(GTK_EDITABLE(text_entry));
 }
 
 static void
