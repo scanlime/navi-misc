@@ -61,7 +61,7 @@ enet_host_create (const ENetAddress * address, size_t peerCount, enet_uint32 inc
          ++ currentPeer)
     {
        currentPeer -> host = host;
-       currentPeer -> incomingPeerID = (enet_uint16)currentPeer - (enet_uint16)host -> peers;
+       currentPeer -> incomingPeerID = currentPeer - host -> peers;
        currentPeer -> data = NULL;
 
        enet_list_clear (& currentPeer -> acknowledgements);
@@ -133,21 +133,7 @@ enet_host_connect (ENetHost * host, const ENetAddress * address, size_t channelC
     currentPeer -> address = * address;
     currentPeer -> channels = (ENetChannel *) enet_malloc (channelCount * sizeof (ENetChannel));
     currentPeer -> channelCount = channelCount;
-    currentPeer -> challenge = (enet_uint32) rand ();
 
-    if (host -> outgoingBandwidth == 0)
-      currentPeer -> windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
-    else
-      currentPeer -> windowSize = (host -> outgoingBandwidth /
-                                    ENET_PEER_WINDOW_SIZE_SCALE) * 
-                                      ENET_PROTOCOL_MINIMUM_WINDOW_SIZE;
-
-    if (currentPeer -> windowSize < ENET_PROTOCOL_MINIMUM_WINDOW_SIZE)
-      currentPeer -> windowSize = ENET_PROTOCOL_MINIMUM_WINDOW_SIZE;
-    else
-    if (currentPeer -> windowSize > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE)
-      currentPeer -> windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
-         
     for (channel = currentPeer -> channels;
          channel < & currentPeer -> channels [channelCount];
          ++ channel)

@@ -83,7 +83,7 @@ ENetSocket
 enet_socket_create (ENetSocketType type, const ENetAddress * address)
 {
     ENetSocket newSocket = socket (PF_INET, type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
-    u_long nonBlocking = 1,
+    int nonBlocking = 1,
         receiveBufferSize = ENET_HOST_RECEIVE_BUFFER_SIZE;
     struct sockaddr_in sin;
 
@@ -92,7 +92,7 @@ enet_socket_create (ENetSocketType type, const ENetAddress * address)
 
     if (type == ENET_SOCKET_TYPE_DATAGRAM)
     {
-        ioctlsocket (newSocket, FIONBIO, & nonBlocking);
+        ioctlsocket (newSocket, FIONBIO, (unsigned long*)&nonBlocking);
 
         setsockopt (newSocket, SOL_SOCKET, SO_RCVBUF, (char *) & receiveBufferSize, sizeof (int));
     }
@@ -148,8 +148,8 @@ enet_socket_accept (ENetSocket socket, ENetAddress * address)
     struct sockaddr_in sin;
     int sinLength = sizeof (struct sockaddr_in);
 
-    result = accept (socket, 
-                     address != NULL ? (struct sockaddr *) & sin : NULL, 
+    result = accept ((SOCKET)socket, 
+                     address != NULL ? (struct sockaddr *)(&sin) : NULL, 
                      address != NULL ? & sinLength : NULL);
 
     if (result == -1)
@@ -222,7 +222,7 @@ enet_socket_receive (ENetSocket socket,
                      & recvLength,
                      & flags,
                      address != NULL ? (struct sockaddr *) & sin : NULL,
-                     address != NULL ? (LPINT)(& sinLength) : NULL,
+                     (int*)(address != NULL ? & sinLength : NULL),
                      NULL,
                      NULL) == SOCKET_ERROR)
     {
