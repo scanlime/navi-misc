@@ -1,7 +1,0 @@
-NET "clk" LOC=P13;
-NET "reset" LOC=P71;
-
-NET "led" LOC=P19;
-
-NET "scl" LOC=P18;
-NET "sda" LOC=P23;

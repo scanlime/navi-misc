@@ -1,9 +1,0 @@
-The main Unicone device uses an FPGA, and a TUSB3410 microcontroller
-whose firmware needs to be downloaded each time it's reset. The
-firmware for this device is in "universal", and will be compiled
-to "firmware.bin"
-
-Other devices supported by the Unicone software have firmware stored
-in the other directories here. This firmware isn't needed at runtime,
-and is included only for people constructing these devices.
-

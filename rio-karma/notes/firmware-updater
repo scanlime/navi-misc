@@ -1,8 +1,0 @@
-Firmware itself is stored in a "FIRMWARE" resource.
-
-In RioKarmaFlash_168.exe:  offset=0x200328 size=0x3bb000
-In RioKarmaFlash_141.exe:  offset=0x1fee68 size=0x5a7800
-
-Firmware image itself seems to be compressed. There are numerous error
-strings associated with the firmware uploading code, this should make
-it easier to map out the uploading process.
