@@ -360,6 +360,7 @@ void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
 void on_resize(GtkWidget *widget, gpointer user_data) {
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_width")), render.width);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_height")), render.height);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_oversample")), render.oversample);
 
   gtk_widget_grab_focus(glade_xml_get_widget(gui.xml, "resize_width"));
   gtk_widget_show(glade_xml_get_widget(gui.xml, "resize_window"));
@@ -370,20 +371,23 @@ void on_resize_cancel(GtkWidget *widget, gpointer user_data) {
 }
 
 void on_resize_ok(GtkWidget *widget, gpointer user_data) {
-  int new_width, new_height;
-  GtkSpinButton *width_widget, *height_widget;
+  int new_width, new_height, new_oversample;
+  GtkSpinButton *width_widget, *height_widget, *oversample_widget;
 
-  width_widget  = GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_width"));
+  width_widget = GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_width"));
   height_widget = GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_height"));
+  oversample_widget = GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "resize_oversample"));
 
   gtk_spin_button_update(width_widget);
   gtk_spin_button_update(height_widget);
+  gtk_spin_button_update(oversample_widget);
 
   new_width = gtk_spin_button_get_value(width_widget);
   new_height = gtk_spin_button_get_value(height_widget);
+  new_oversample = gtk_spin_button_get_value(oversample_widget);
   gtk_widget_hide(glade_xml_get_widget(gui.xml, "resize_window"));
 
-  resize(new_width, new_height, render.oversample);
+  resize(new_width, new_height, new_oversample);
   gui_resize(new_width, new_height);
 }
 
