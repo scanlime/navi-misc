@@ -4,7 +4,7 @@
  * This is a module for the Linux kernel, providing a userspace interface
  * to the Raster Wand hardware via the USB protocol described in efs_protocol.h.
  *
- * This drive exposes three basic interfaces:
+ * This driver exposes three basic interfaces:
  *
  *   - Buttons turn into events for the linux input layer
  *   - Frames can be written to /dev/usb/rwand*
@@ -697,6 +697,7 @@ static void rwand_set_model(struct rwand_dev *dev)
 	int model;
 	struct model_intrinsics *intrinsics;
 
+#if 0
 	model = rwand_read_byte(dev, RWAND_CTRL_GET_HW_MODEL, 0, 0);
 
 	for (intrinsics=model_table; intrinsics->model; intrinsics++) {
@@ -707,6 +708,7 @@ static void rwand_set_model(struct rwand_dev *dev)
 			return;
 		}
 	}
+#endif
 
 	/* Oops, can't find it. Generate an error, and use the first
 	 * model in the table whether it's right or not.
@@ -1030,14 +1032,11 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 		return -ENOMEM;
 	}
 	memset(dev, 0, sizeof(*dev));
-	rwand_set_model(dev);
-	rwand_reset_settings(dev);
 
 	init_MUTEX(&dev->sem);
 	init_waitqueue_head(&dev->page_flip_waitq);
 	dev->udev = udev;
 	dev->interface = interface;
-	rwand_enter_state_starting(dev);
 
 	usb_set_intfdata(interface, dev);
 	retval = usb_register_dev(interface, &rwand_class);
@@ -1046,6 +1045,10 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 		err ("Not able to get a minor for this device.");
 		goto error;
 	}
+
+	rwand_set_model(dev);
+	rwand_reset_settings(dev);
+	rwand_enter_state_off(dev);
 
 	/* Register an input device for our buttons */
 	dev->input.private = dev;
