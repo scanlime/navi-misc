@@ -25,21 +25,33 @@
 	  </div>
         </div>
 
-        <!--========== Navigation -->
-	<div class="navbar">
+	<table class="columns">
+
+          <!--========== Navigation -->
+	  <td class="left">
 	    <div class="section">
               <div class="sectionTop">Projects</div>
               <div class="row">
                 <ul>
-		  <xsl:apply-templates select="document('projects.xml')/projects/project"/>
+		  <xsl:apply-templates select="document('projects.xml')//projects/project"/>
                 </ul>
               </div>
             </div>
-	</div>
+	  </td>
 
-	<div class="content">
-          <xsl:apply-templates select="introduction"/>
-	</div>
+          <!--========== Content -->
+	  <td class="main">
+            <xsl:apply-templates select="introduction"/>
+	  </td>
+
+        </table>
+
+        <!--========== Footer -->
+        <div class="footer">
+          <a href="/">
+            <img src="http://navi.picogui.org/images/web/navi64.png" width="64" height="39" alt="Navi"/>
+          </a>
+        </div>
 
       </body>
     </html>
@@ -48,8 +60,7 @@
   <!--================================== Projects -->
 
   <xsl:template match="project">
-    <!-- <li>-->
-      ↪
+    <li>
       <a>
         <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
         <xsl:value-of select="@name"/>
@@ -57,7 +68,7 @@
       <ul>
         <xsl:apply-templates select="project"/>
       </ul>
-    <!-- </li>-->
+    </li>
   </xsl:template>
 
   <!--================================== Introduction -->
@@ -67,7 +78,7 @@
     <div class="section">
       <div class="sectionTop"/>
       <div class="row">
-        boing
+        <xsl:value-of select="."/>
       </div>
     </div>
   </xsl:template>

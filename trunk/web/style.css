@@ -141,16 +141,26 @@ table td {
   text-align: left;
 }
 
-div.navbar {
-  position: absolute;
-  left: -2em;
-  width: 16em;
-  padding: 1.5em;
+table.columns {
+	width: 100%;
 }
 
-div.content {
-  position: absolute;
-  right: 0em;
-  left: 14em;
-  padding: 1.5em 0em;
+table.columns td.left {
+    vertical-align: top;
+    width: 15%;
+    margin: 0em;
+    padding: 0em;
+}
+
+table.columns td.main {
+    vertical-align: top;
+    margin: 0em;
+    padding: 0em;
+}
+
+table.columns td.right {
+    vertical-align: top;
+    width: 15%;
+    margin: 0em;
+    padding: 0em;
 }
