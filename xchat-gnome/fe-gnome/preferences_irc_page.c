@@ -247,6 +247,29 @@ save_hilight ()
 static void
 hilight_add_clicked (GtkButton *button, gpointer data)
 {
+	GtkDialog *dialog;
+	GtkWidget *text;
+	gint response;
+	GtkTreeIter iter;
+
+	dialog = GTK_DIALOG (gtk_dialog_new_with_buttons ("Add Highlight Trigger",
+			GTK_WINDOW (gui.main_window),
+			GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_MODAL,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			GTK_STOCK_OK, GTK_RESPONSE_OK,
+			NULL));
+	text = gtk_entry_new ();
+	gtk_widget_show (text);
+	gtk_container_add (GTK_CONTAINER (dialog->vbox), text);
+	gtk_box_set_spacing (GTK_BOX (dialog->vbox), 12);
+	gtk_container_set_border_width (GTK_CONTAINER (dialog), 12);
+	response = gtk_dialog_run (dialog);
+	if (response == GTK_RESPONSE_OK) {
+		gtk_list_store_append (hilight_store, &iter);
+		gtk_list_store_set (hilight_store, &iter, 0, g_strdup (gtk_entry_get_text (GTK_ENTRY (text))), -1);
+		save_hilight ();
+	}
+	gtk_widget_destroy (GTK_WIDGET (dialog));
 }
 
 static void

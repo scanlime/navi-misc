@@ -962,7 +962,7 @@
 				      <child>
 					<widget class="GtkButton" id="hilight add">
 					  <property name="visible">True</property>
-					  <property name="sensitive">False</property>
+					  <property name="sensitive">True</property>
 					  <property name="can_default">True</property>
 					  <property name="can_focus">True</property>
 					  <property name="label">gtk-add</property>
