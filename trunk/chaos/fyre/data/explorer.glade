@@ -5,7 +5,7 @@
 <requires lib="gnome"/>
 
 <widget class="GtkWindow" id="explorer_window">
-  <property name="title" translatable="yes">de Jong Explorer</property>
+  <property name="title" translatable="yes">Fyre</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
@@ -501,7 +501,7 @@
 </widget>
 
 <widget class="GtkWindow" id="animation_window">
-  <property name="title" translatable="yes">Animation - de Jong Explorer</property>
+  <property name="title" translatable="yes">Animation - Fyre</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>

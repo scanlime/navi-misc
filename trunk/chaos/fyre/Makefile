@@ -4,7 +4,7 @@ CFLAGS  += '-DGLADEDIR="data"'
 CFLAGS  += `pkg-config --cflags $(PKGS)` -O3 -ffast-math
 LIBS    += `pkg-config --libs $(PKGS)`
 
-BIN     = de-jong-explorer
+BIN     = fyre
 
 OBJS    = \
 	src/main.o		\
