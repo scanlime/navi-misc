@@ -26,7 +26,7 @@
 /* An arbitrary 32-character version code stored along with the FPGA
  * bitstream. This is sent preceeding the actual content of the bitstream.
  */
-extern unsigned char fpga_version_stamp[32];
+extern unsigned char fpga_version_stamp[20];
 
 /* Reset the FPGA */
 void             fpga_init();

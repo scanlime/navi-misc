@@ -33,26 +33,30 @@ LDFLAGS += -lusb
 
 FW_CFLAGS = -I $(TUSB_DIR)/include -I include
 FW_LDFLAGS = --xram-loc 0xF800 --xram-size 0x500 -L $(TUSB_DIR)/src -ltusb
+FW_CC = sdcc
 
 all: $(BINS)
 
-loader_tool: $(LOADER_TOOL_OBJS) src/*.h include/*.h
+loader_tool: $(LOADER_TOOL_OBJS)
 	$(CC) -o $@ $(LOADER_TOOL_OBJS) $(LDFLAGS)
 
-led_test: $(LED_TEST_OBJS) src/*.h include/*.h
+led_test: $(LED_TEST_OBJS)
 	$(CC) -o $@ $(LED_TEST_OBJS) $(LDFLAGS) -lm
 
-gc_test: $(GC_TEST_OBJS) src/*.h include/*.h
+gc_test: $(GC_TEST_OBJS)
 	$(CC) -o $@ $(GC_TEST_OBJS) $(LDFLAGS)
 
 firmware/firmware.ihx: $(FIRMWARE_OBJS)
-	sdcc -o $@ $(FIRMWARE_OBJS) $(FW_LDFLAGS)
+	$(FW_CC) -o $@ $(FIRMWARE_OBJS) $(FW_LDFLAGS)
 
 firmware.bin: firmware/firmware.ihx
 	objcopy -I ihex -O binary $< $@
 
-%.rel: %.c
-	sdcc -o $@ -c $< $(FW_CFLAGS)
+%.rel: %.c include/*.h firmware/*.h
+	$(FW_CC) -o $@ -c $< $(FW_CFLAGS)
+
+%.o: %.c include/*.h src/*.h
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:
 	rm -f $(BINS) src/*.o
