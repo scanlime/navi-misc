@@ -50,6 +50,8 @@ protected:
 
 	// global flags
 	bool				inUI;
+	int					numScreenShots;
+	float				lastScreenShotTime;
 
 	// game manager
 	CGameManger			game;
