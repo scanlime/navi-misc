@@ -67,12 +67,14 @@ io_init		macro
 		#define	ANSEL		0x9F
 
 io_init		macro
-		bcf	STATUS, RP0
+		bcf	STATUS, RP0	; Clear output latches
 		clrf	GPIO
+		movlw	0x0F		; Disable the comparator
+		movwf	CMCON
 		bsf	STATUS, RP0
-		movlw	0x03
+		movlw	0x03		; The two controller pins begin as inputs
 		movwf	TRISIO
-		errorlevel	-219
+		errorlevel	-219	; Disable the A/D converter (on the '675)
 		clrf	ANSEL
 		errorlevel	+219
 		bcf	STATUS, RP0
