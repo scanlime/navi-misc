@@ -99,6 +99,7 @@ class VideoChannelPage(Sequencer.Page):
     """A sequencer page that displays video from an external input, via uvswitch"""
     def __init__(self, view, channel):
         Sequencer.Page.__init__(self, view)
+        Hardware.dev.showStatus(VideoSwitch.getInputDict()[channel].text)
         Hardware.dev.selectDirectVideo(channel)
 
     def finalize(self):
@@ -141,6 +142,8 @@ class MainMenu(Menu.RingMenu):
             # Observe the video detection events, so icons can be dynamically added and removed
             Hardware.dev.uvswitch.onChannelActive.observe(self.addChannel)
             Hardware.dev.uvswitch.onChannelInactive.observe(self.removeChannel)
+
+        Hardware.dev.showStatus("Main Menu")
 
         Menu.RingMenu.__init__(self, book, menuItems)
 

@@ -24,7 +24,7 @@ and selecting items.
 
 from BZEngine.UI import Sequencer, Layout, HUD, Input, Viewport
 from BZEngine import Event, Animated
-from Wasabi import Icon, IR
+from Wasabi import Icon, IR, Hardware
 from math import *
 import pygame
 
@@ -252,6 +252,7 @@ class LoaderPage(Sequencer.Page):
        """
     def __init__(self, book):
         Sequencer.Page.__init__(self, book)
+        Hardware.dev.showStatus("Loading...")
 
         # We need the viewport to clear our background to black
         self.viewport.mode = Viewport.GL.ClearedMode()
