@@ -1,16 +1,24 @@
 CFLAGS = `opencv-config --cflags` -g -O3 -Ilib `sdl-config --cflags`
 LDFLAGS = `opencv-config --libs` -lraw1394 -ldc1394_control `sdl-config --libs`
+LD = g++
 CC = g++
-BINS = cam_test face_tracker anaglyph
-LIB_OBJS = lib/cv_dc1394.o lib/cv_sdl.o
+CPPFLAGS = $(CFLAGS)
+
+BINS = cam_test face_tracker anaglyph duck_tracker
 
 all: $(BINS)
 
-cam_test: src/cam_test.o $(LIB_OBJS)
-	$(CC) -o $@ $+ $(LDFLAGS)
+cam_test: src/cam_test.o lib/cv_dc1394.o lib/cv_sdl.o
+	$(LD) -o $@ $+ $(LDFLAGS)
 
-face_tracker: src/face_tracker.o $(LIB_OBJS)
-	$(CC) -o $@ $+ $(LDFLAGS)
+face_tracker: src/face_tracker.o lib/cv_dc1394.o
+	$(LD) -o $@ $+ $(LDFLAGS)
 
-anaglyph: src/anaglyph.o $(LIB_OBJS)
-	$(CC) -o $@ $+ $(LDFLAGS)
+anaglyph: src/anaglyph.o lib/cv_dc1394.o lib/cv_sdl.o
+	$(LD) -o $@ $+ $(LDFLAGS)
+
+duck_tracker: src/duck_tracker.o lib/cv_dc1394.o lib/cv_sdl.o
+	$(LD) -o $@ $+ $(LDFLAGS)
+
+clean:
+	rm -f $(BINS) src/*.o lib/*.o
