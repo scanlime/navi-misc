@@ -5,7 +5,8 @@
 #include <time.h>
 
 #define INDEX(w,lb,hb,p) (((hb)-(lb))/(w)*(p) + (lb))
-#define ENERGY 0.8333
+// #define ENERGY 0.08333
+#define ENERGY 0.125
 
 /* axes:
  * x:  [-0.5, 1.0]
@@ -13,6 +14,8 @@
  */
 
 HistogramPlot plot;
+HistogramImager *hi;
+int w, h;
 
 void ode (float *last, float *deriv, float time)
 {
@@ -30,43 +33,28 @@ void py(float *point)
   float x = point[0];
   float y = point[1];
   float px = point[2];
-  point[3] = sqrt ((-3*(3*x*x*(2*y+1) - 2*y*y*y + 3*y*y - 3*(2*ENERGY - px*px))) / 3) / 10;
+  point[3] = sqrt (-1*(x*x + y*y + 2.0*x*x*y - (2.0/3)*y*y*y + px*px - 2*ENERGY));
 }
 
-int main (int argc, char **argv)
+void hhrun (float *point)
 {
   float point1[5], point2[5];
   float *a, *b, *c;
   float t = 0, tdelt = 0.001;
-  int i;
+  int i, xi, yi;
+
+  memcpy (point1, point, 5 * sizeof (float));
 
   a = point1;
   b = point2;
 
-  /*
-  point1[0] = -0.4;
-  point1[1] = 0;
-  point1[2] = 0;
-  point1[3] = 0.081649658093;
-  point1[4] = 0;
-  */
-
-  point1[0] = 0.4;
-  point1[1] = 0;
-  point1[2] = 0;
-  py(point1);
-  fprintf (stderr, "py is %f\n", point1[3]);
-  point1[4] = 0;
-
-  for (i = 0; i < 50000000; i++)
-//  for (i = 0; i < 500000; i++)
+  for (i = 0; i < 5000000; i++)
   {
     rk (ode, a, b, 5, t, tdelt);
     if (a[0] < 0 && b[0] > 0)
     {
       float dy, dy0;
       float q[5];
-
       /* gross mess to do a linear projection to
          land a point on the plane of section */
       dy = b[0] - a[0];
@@ -77,8 +65,10 @@ int main (int argc, char **argv)
       vector_add (a, q, q, 5);
 //      printf ("%f %f\n", q[1], q[3]);
       printf ("%f %f\n", a[1], a[3]);
+      xi = INDEX (w, -0.5, 1.0, a[1]);
+      yi = INDEX (h, -0.5, 0.5, a[3]);
+      HISTOGRAM_IMAGER_PLOT (plot, xi, yi);
     }
-//    printf ("%f %f\n", a[4], a[0]);
     t += tdelt;
 
     /* swap */
@@ -87,8 +77,43 @@ int main (int argc, char **argv)
     b = c;
     if (i % 500000 == 0)
     {
-      fprintf (stderr, "%d iterations\n", i);
+      fprintf (stderr, "   %d iterations\n", i);
       fflush (stdout);
     }
   }
+}
+
+int main (int argc, char **argv)
+{
+  int i;
+  float point[5];
+
+  g_type_init ();
+  hi = histogram_imager_new ();
+  g_object_set (G_OBJECT (hi), "exposure", 0.10, "gamma", 2.0, NULL);
+  g_object_set (G_OBJECT (hi), "width", 800, "height", 800);
+
+  srand (time (NULL));
+
+  histogram_imager_get_hist_size (hi, &w, &h);
+  histogram_imager_prepare_plots (hi, &plot);
+
+  point[1] = 0;
+  point[2] = 0;
+  point[4] = 0;
+
+  for (i = 0; i < 10; i++)
+  {
+    point[0] = (rand () * 0.6) / RAND_MAX - 0.3;
+    point[1] = (rand () * 0.5) / RAND_MAX - 0.25;
+    py (point);
+    fprintf (stderr, "running integration for point (%f, %f, %f, %f)\n", point[0], point[1], point[2], point[3]);
+    hhrun (point);
+
+    point[0] = -point[0];
+    hhrun (point);
+  }
+
+  histogram_imager_finish_plots (hi, &plot);
+  histogram_imager_save_image_file (hi, "test.png");
 }
