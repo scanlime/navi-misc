@@ -234,7 +234,7 @@ class Info(Template.Section):
         self.photo_url = metadata.get('photo_url')
 
     def isVisible(self, context):
-        return self.url or self.description
+        return self.url or self.description or self.photo_url
 
     def render_rows(self, context):
         rows = []
