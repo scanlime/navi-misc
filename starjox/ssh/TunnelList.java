@@ -33,7 +33,8 @@ public class TunnelList extends JPanel implements ListSelectionListener
     private JFrame myFrame;
     private JList tList;
     private DefaultListModel tListModel;
-    
+    private JButton ssTunnel;
+    private JButton newTunnel;
 
     public TunnelList(JFrame frame)
     {
@@ -48,10 +49,39 @@ public class TunnelList extends JPanel implements ListSelectionListener
 	tList.setVisibleRowCount(10);
 	JScrollPane listScrollPane = new JScrollPane(tList);
 	add(listScrollPane, BorderLayout.CENTER);
+
+	
+	newTunnel = new JButton("New Tunnel");
+	newTunnel.addActionListener(new newTunnelListener());
+
+	ssTunnel = new JButton("Start/Stop");
+	ssTunnel.addActionListener(new ssTunnelListener());
+	JPanel buttonPane = new JPanel();
+	buttonPane.setLayout(new BoxLayout(buttonPane,BoxLayout.LINE_AXIS));
+	buttonPane.add(newTunnel);
+	buttonPane.add(ssTunnel);
+	buttonPane.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        add(buttonPane, BorderLayout.PAGE_END);
     }
 
     public void valueChanged(ListSelectionEvent e)
     {
 	
+    }
+
+    class newTunnelListener implements ActionListener 
+    {
+	public void actionPerformed(ActionEvent e)
+	{
+	    System.out.println("New Tunnel Clicked");
+	}
+    }
+
+    class ssTunnelListener implements ActionListener
+    {
+	public void actionPerformed(ActionEvent e)
+	{
+	    System.out.println("Start/Stop Clicked");
+	}
     }
 }
