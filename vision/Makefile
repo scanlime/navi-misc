@@ -4,7 +4,7 @@ LD = g++
 CC = g++
 CPPFLAGS = $(CFLAGS)
 
-BINS = cam_test face_tracker anaglyph duck_tracker calibration_test
+BINS = cam_test face_tracker anaglyph duck_tracker calibration_test backprojection
 
 all: $(BINS)
 
@@ -18,6 +18,9 @@ anaglyph: src/anaglyph.o lib/cv_dc1394.o lib/cv_sdl.o
 	$(LD) -o $@ $+ $(LDFLAGS)
 
 duck_tracker: src/duck_tracker.o lib/cv_dc1394.o lib/cv_sdl.o
+	$(LD) -o $@ $+ $(LDFLAGS)
+
+backprojection: src/backprojection.o lib/cv_dc1394.o lib/cv_sdl.o
 	$(LD) -o $@ $+ $(LDFLAGS)
 
 calibration_test: src/calibration_test.o lib/cv_dc1394.o
