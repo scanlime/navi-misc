@@ -1,5 +1,0 @@
-# Some search engines just don't know where to stop
-# when indexing our stats browser, so disallow the whole thing
-User-agent: Teoma
-Disallow: /stats
-
