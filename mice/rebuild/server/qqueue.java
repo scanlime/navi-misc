@@ -1,7 +1,7 @@
 /**
-This class handles all the queue stuff, with locks so nobody messes with it
-while someone else wants to play with it.
-*/
+ * This class handles all the queue stuff, with locks so nobody messes with it
+ * while someone else wants to play with it.
+ */
 
 import java.util.*;
 

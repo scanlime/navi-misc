@@ -11,14 +11,27 @@ import java.io.*;
 
 public class njavaint extends nbase
 {
-	public ainterview view;
+	//The abstract interview class associated with this interview client
+	private ainterview view;
 	
+	/**
+	 * This method initializes an interview client.
+	 * @param gonnection The Socket that this connects to the client over.
+	 * @param IN The BufferedReader that reads stuff in.
+	 * @param OUT The OutputStreamWriter for spitting stuff out over the socket.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public njavaint(Socket gonnection, BufferedReader IN, OutputStreamWriter OUT)
 	{
 		super(gonnection,IN,OUT);
-		netdebug = true;
 	}
 	
+	/**
+	 * This is the main method for handling the java interview client.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void run()
 	{
 		if(!authenticate())
