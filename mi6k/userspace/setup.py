@@ -6,6 +6,6 @@ setup (name = "mi6k",
        maintainer = "Micah Dowty",
        maintainer_email = "micah@navi.cx",
        license = "LGPL",
-       py_modules = ['mi6k'],
+       py_modules = ['mi6k', 'vfdwidgets'],
        )
 

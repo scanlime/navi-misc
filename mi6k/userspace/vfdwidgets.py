@@ -82,16 +82,22 @@ class Text(Widget):
     """A fixed-size text widget with no animation, aligned somehow
        in its allocated rectangle. The default is for it to be centered.
        """
-    def __init__(self, text='', gravity=(-1, -1), align=(0.5, 0.5),
-                 priority=1, background=' '):
+    def __init__(self,
+                 text       = '',
+                 gravity    = (-1, -1),
+                 align      = (0.5, 0.5),
+                 priority   = 1,
+                 background = ' ',
+                 ellipses   = '',
+                 ):
         Widget.__init__(self)
         self.text = text
         self.align = align
         self.gravity = gravity
         self.priority = priority
         self.background = background
+        self.ellipses = ellipses
         self.offset = (0, 0)
-        self.ellipses = ""
 
     def setText(self, text):
         self._text = text
@@ -121,8 +127,8 @@ class Text(Widget):
         lines = self.getDrawableLines(width, height)
 
         # Offset our text according to its alignment and our current scrolling offset
-        x = int((width - self.minWidth) * self.align[0] + 0.5) + self.offset[0]
-        y = int((height - self.height) * self.align[1] + 0.5) + self.offset[1]
+        x = max(0, int((width - self.minWidth) * self.align[0] + 0.5)) + self.offset[0]
+        y = max(0, int((height - self.height) * self.align[1] + 0.5)) + self.offset[1]
 
         # Pad the top
         if y > 0:
@@ -262,7 +268,7 @@ class LayoutLine:
         """Add the given widget to this layout line, returning True
            if we succeed or False if this line is full.
            """
-        self.totalMinWidth += widget.minWidth
+        self.totalMinWidth += min(widget.minWidth, self.maxWidth)
         if self.totalMinWidth + len(self.widgets) > self.maxWidth:
             return False
         self.widgets.append(widget)
