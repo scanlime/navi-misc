@@ -69,6 +69,26 @@ void navigation_tree_create_new_channel_entry(struct session *sess) {
 	gtk_tree_model_foreach(store, navigation_tree_create_new_channel_entry_iterate, (gpointer) sess);
 }
 
+static gboolean navigation_tree_remove_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data) {
+	struct session *s;
+	gtk_tree_model_get(model, iter, 2, &s, -1);
+	if(s == data) {
+		gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void navigation_tree_remove(struct session *sess) {
+	GtkTreeStore *store;
+	GtkWidget *treeview;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+
+	gtk_tree_model_foreach(store, navigation_tree_remove_iterate, (gpointer) sess);
+}
+
 static gboolean navigation_tree_set_channel_name_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data) {
 	gpointer s;
 	gtk_tree_model_get(model, iter, 2, &s, -1);
