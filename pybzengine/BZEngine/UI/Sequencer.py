@@ -213,9 +213,10 @@ class FadeInWrapper(PageWrapper):
 
         # Fade out the overlay's alpha. When it hits zero, delete our overlay viewport,
         # causing this function to not be called any longer.
-        self.color[3] -= self.rate * self.time.step()
-        if self.color[3] <= 0:
+        if self.color[3] < 0:
             self.overlay = None
+        else:
+            self.color[3] -= self.rate * self.time.step()
 
 
 def FadeIn(duration, color, page):
@@ -250,10 +251,11 @@ class FadeOutWrapper(PageWrapper):
 
         # Fade in the overlay's alpha. When it hits one, delete our overlay viewport,
         # causing this function to not be called any longer, and call our own onFinish.
-        self.color[3] += self.rate * self.time.step()
         if self.color[3] > 1:
             self.overlay = None
             self.onFinish()
+        else:
+            self.color[3] += self.rate * self.time.step()
 
 
 def FadeOut(duration, color, page):

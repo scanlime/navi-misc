@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Drawable, Sequencer
-from BZEngine import Event, Util
+from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Drawable, Sequencer, HUD
+from BZEngine import Event, Util, Animated
 import cPickle
 
 loop = Event.EventLoop()
@@ -119,6 +119,37 @@ class Warp(Sequencer.Page):
         self.view.scene.remove(self.particle)
 
 
+class Preloader(Sequencer.Page):
+    """A page that displays a 'Loading' message while caching VRML models"""
+    def __init__(self, book, modelList):
+        Sequencer.Page.__init__(self, book)
+        self.modelList = modelList
+
+        self.message = HUD.Text(self.viewport.region(self.viewport.rect),
+                              "Loading...",
+                              color     = (1,1,1,1),
+                              fontSize  = 50,
+                              alignment = (0.5, 0.5))
+
+        self.frameCounter = 0
+        self.viewport.onSetupFrame.observe(self.setupFrame)
+
+    def setupFrame(self):
+        self.frameCounter += 1
+
+        # Actually do the precaching after one complete frame, so our message is displayed
+        if self.frameCounter == 2:
+            for model in self.modelList:
+                Drawable.VRML.load(model)
+
+            # Absorb the gigantic bubble we've just put in the TimeMaster so that it doesn't
+            # cause animations the next frame to jump wildly.
+            Animated.currentTimeMaster.jump()
+
+            # Terminate this page
+            self.onFinish()
+
+
 # Define some common transitions
 fromWhiteFast = lambda page: Sequencer.FadeIn(0.1, (1,1,1), page)
 toWhiteFast   = lambda page: Sequencer.FadeOut(0.1, (1,1,1), page)
@@ -145,15 +176,17 @@ zoomSparkCycle = Sequencer.SubBook(Sequencer.CyclicBook, [
 
 # Our main book, running only once
 mainBook = Sequencer.Book(view, [
-
-    # Execute the zoomSparkCycle book until user input, then fade to black slowly
-    toBlackSlow(Sequencer.UserPageInterrupter(zoomSparkCycle)),
+    # Preload VRML models
+    lambda page: Preloader(page, ('monkey.wrl', 'metal_box.wrl')),
 
     # Show some perty particle systems for 4 seconds, using the PageTimer
     fromBlackSlow(toWhiteFast(Sequencer.PageTimer(4, Sparks))),
 
+    # Execute the zoomSparkCycle book until user input, then fade to black slowly
+    toBlackSlow(Sequencer.UserPageInterrupter(zoomSparkCycle)),
+
     # Spin the 'monkey' model until any key or mouse button is pressed.
-    fromWhiteFast(toBlackSlow(Sequencer.UserPageInterrupter(SpinningMonkey))),
+    blackSlow(Sequencer.UserPageInterrupter(SpinningMonkey)),
     ])
 
 # Exit our main loop once the mainBook finishes
