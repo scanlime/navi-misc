@@ -420,6 +420,7 @@ class CommitToXHTMLLong(CommitToXHTML):
         log       = XML.dig(commit, "log")
         project   = XML.dig(source, "project")
         module    = XML.dig(source, "module")
+        branch    = XML.dig(source, "branch")
         headers   = OrderedDict()
 
         if author:
@@ -428,6 +429,8 @@ class CommitToXHTMLLong(CommitToXHTML):
             headers['Project'] = XML.shallowText(project)
         if module:
             headers['Module'] = XML.shallowText(module)
+        if branch:
+            headers['Branch'] = XML.shallowText(branch)
         if version:
             headers['Version'] = XML.shallowText(version)
         if revision:
