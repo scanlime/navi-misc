@@ -9,10 +9,10 @@
 * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
 * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 */
-// MathUtils.h
+// GeoUtils.h
 
-#ifndef _MATH_UTILS_H_
-#define _MATH_UTILS_H_
+#ifndef _GEO_UTILS_H_
+#define _GEO_UTILS_H_
 
 #ifndef DEG_RAD
 #define DEG_RAD 0.017453f
@@ -378,6 +378,8 @@ inline bool close_2d(const trVertex3D &vec1, const trVertex3D &vec2)
 	return true;
 }
 
+
+// matrix classes
 #define XFORM_TRANS		1
 #define XFORM_SCALE		2
 #define XFORM_ROT		4
@@ -545,4 +547,4 @@ protected:
 };
 
 
-#endif//mathutils
+#endif//_GEO_UTILS_H_

@@ -13,49 +13,8 @@
 #define _FCULL_H_
 
 #include "3dTypes.h"
-#include "MathUtils.h"
+#include "GeoUtils.h"
 #include <stdio.h>
-
-// This is a horibly modified versiuon of the View Frustum tutorial by:
-// Ben Humphrey (DigiBen)
-// Game Programmer
-// DigiBen@GameTutorials.com
-// Co-Web Host of www.GameTutorials.com
-
-class ViewPlane
-{
-public:
-	ViewPlane();
-	~ViewPlane();
-
-	bool PointBehind ( float fX, float fY, float fZ );
-	float PointDist ( float fX, float fY, float fZ );
-	void Set ( float fA, float fB, float fC , float fD );
-
-	float GetA ( void ){return m_rNorm.x;}
-	float GetB ( void ){return m_rNorm.y;}
-	float GetC ( void ){return m_rNorm.z;}
-	float GetD ( void ){return m_fODist;}
-
-	trVertex3D	m_rNorm;
-	float		m_fODist;
-
-	void Normalise();
-
-private:
-	bool	m_bSet;
-};
-
-typedef enum 
-{
-	eFrustRight	= 0,
-	eFrustLeft,		
-	eFrustBotom,	
-	eFrustTop,		
-	eFrustBack,		
-	eFrustFront,
-	eLastFrustSide
-}eFrustumSides; 
 
 class ViewFrustum : public BaseFrustum
 {

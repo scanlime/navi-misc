@@ -11,7 +11,7 @@
  */
 
 // 3dutils.cpp
-
+#include "common.h"
 #include "bzfgl.h"
 #include "3dTypes.h"
 

@@ -12,7 +12,7 @@
 
 // 3dutils.cpp
 
-#include "MathUtils.h"
+#include "GeoUtils.h"
 #include <memory>
 
 #define EQUAL_X(v0, v1, z)	(fabs((v0) - (v1)) < (z))
@@ -1454,18 +1454,19 @@ C3DVertex& CMatrix::TransformNorm2d ( C3DVertex& point )
 */
 // implementation for view cull classes
 
+#include "config.h"
 
-#include "OpenGL.h"
+#include "bzfgl.h"
 #include "ViewCull.h"
 
 // plane class implementation;
-ViewPlane::CViewPlane()
+ViewPlane::ViewPlane()
 {
 	m_rNorm.x = m_rNorm.y = m_rNorm.z = m_fODist = 0;
 	m_bSet = false;
 }
 
-ViewPlane::~CViewPlane()
+ViewPlane::~ViewPlane()
 {
 	m_rNorm.x = m_rNorm.y = m_rNorm.z = m_fODist = 0;
 }
@@ -1504,12 +1505,12 @@ bool ViewPlane::PointBehind ( float fX, float fY, float fZ )
 
 // view frustum class
 
-BaseFrustum::CViewFrustum()
+BaseFrustum::BaseFrustum()
 {
 	m_bSet = false;
 }
 
-BaseFrustum::~CViewFrustum(){}
+BaseFrustum::~BaseFrustum(){}
 
 // functions to set the frustum
 void BaseFrustum::SetPlane ( eFrustumSides side, float a, float b, float c, float d )

@@ -18,6 +18,8 @@
 #include "QuadWallSceneNode.h"
 #include "BZDBCache.h"
 #include "TeleporterSceneNodeGenerator.h"
+#include "VisualElementManager.h"
+#include "TextUtils.h"
 
 std::string		Teleporter::typeName("Teleporter");
 
@@ -26,7 +28,43 @@ Teleporter::Teleporter(const float* p, float a, float w,
 				Obstacle(p, a, w, b + 2 * _border, h + _border,drive,shoot),
 				border(_border)
 {
-  // do nothing
+  // register up a new visual element
+	VisualElementManager::instance().newObject(std::string("Teleporter"),this);
+}
+
+bool Teleporter::getPos ( C3DVertex &pos )
+{
+	pos.Set((float*)getPosition());
+	return true;
+}
+
+bool Teleporter::getSize( C3DVertex &size )
+{
+	size.Set(getBreadth(), getWidth(),getHeight());
+	return true;
+}
+
+bool Teleporter::getRot ( C3DVertex &rot )
+{
+	rot.Set(0,0,getRotation());
+	return true;
+}
+
+bool Teleporter::getInfoI ( std::string tag, int &value )
+{
+	return false;
+}
+
+bool Teleporter::getInfoF ( std::string tag, float &value )
+{
+	std::string realTag = string_util::toupper(tag);
+
+	if (realTag == "BORDER")
+	{
+		value = getBorder();
+		return true;
+	}
+	return false;
 }
 
 Teleporter::~Teleporter()

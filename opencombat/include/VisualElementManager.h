@@ -20,9 +20,22 @@
 #include "Singleton.h"
 #include <map>
 #include <string>
+#include "GeoUtils.h"
 
 class BaseVisualElementFactory;
 class ViewFrustum;
+
+class BaseVisableObject
+{
+public:
+	virtual ~BaseVisableObject(){};
+	virtual bool getPos ( C3DVertex & pos ){return false;}
+	virtual bool getSize( C3DVertex & size ){return false;}
+	virtual bool getRot ( C3DVertex & rot ){return false;}
+	virtual bool getInfoI ( std::string tag, int &value){return false;}
+	virtual bool getInfoF ( std::string tag, float &value){return false;}
+	virtual bool getInfoS ( std::string tag, std::string &value){return false;}
+};
 
 class BaseVisualElement
 {
@@ -39,7 +52,7 @@ public:
 protected:	// dont' mess with these
 	friend class VisualElementManager;
 	BaseVisualElementFactory	*factory;
-	void	*parent;
+	BaseVisableObject	*parent;
 };
 
 class BaseVisualElementFactory
@@ -49,7 +62,7 @@ public:
 	virtual ~BaseVisualElementFactory();
 
 	virtual BaseVisualElement* newElement ( void );
-	virtual void deleteElement ( BaseVisualElement* );
+	virtual void deleteElement ( BaseVisualElement* element);
 };
 
 class VisualElementManager : public Singleton<VisualElementManager>
@@ -59,7 +72,7 @@ public:
 
 	void registerElementFactory ( BaseVisualElementFactory *factory, std::string &name );
 
-	BaseVisualElement* newObject ( std::string &className, void *parent );
+	BaseVisualElement* newObject ( std::string &className, BaseVisableObject *parent );
 	void deleteObject ( BaseVisualElement* element );
 
 	void calcVisObjects ( void );

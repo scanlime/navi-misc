@@ -14,7 +14,7 @@
 #ifndef _3DTYPES_H_
 #define _3DTYPES_H_
 
-#include "MathUtils.h"
+#include "GeoUtils.h"
 
 typedef struct
 {
