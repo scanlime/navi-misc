@@ -7,3 +7,7 @@
   automatically retries. This would make it possible to re-add cluster
   nodes automatically when they restart, which currently isn't possible
   even with cluster autodetection.
+
+- When opening an animation from the command line, it would
+  be nice if it replaced the current parameter set with the
+  first keyframe
