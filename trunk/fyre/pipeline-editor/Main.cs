@@ -32,6 +32,7 @@ public class PipelineEditor
 	/* Widgets */
 	/* Element list (left) */
 	private Gtk.TreeStore		element_store;
+	private Gtk.TreeModelSort	sorted_store;
 	[Widget] Gtk.TreeView		element_list;
 
 	/* Editor workspace (right) */
@@ -51,8 +52,9 @@ public class PipelineEditor
 		gxml.Autoconnect (this);
 
 		/* Do all the setup for the element tree view */
-		this.element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type));
-		element_list.Model = this.element_store;
+		element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type));
+		sorted_store = new Gtk.TreeModelSort (element_store);
+		element_list.Model = sorted_store;
 
 		Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
 		Gtk.CellRenderer text_renderer   = new Gtk.CellRendererText ();
