@@ -12,26 +12,56 @@
         </div>
     </div>
     <table class="columns">
-
         <td class="left">
-            <span class="section">navigation</span>
-            <div class="section">
-                <div class="sectionTop"/>
-                <div class="row">
-                    <ul>
-                    </ul>
-                </div>
+
+	    <div view="if" model="catalog">
+		<span class="section">catalog</span>
+		<div class="section">
+		    <div class="sectionTop"/>
+		    <div class="row"><ul model="catalog" view="List">
+		        <li pattern="listItem"><a view="statsLink"/></li>
+                    </ul></div>
+		</div>
             </div>
-        </td>
 
+        </td>
         <td class="main">
-        </td>
 
+	    <div view="if" model="counters/forever/eventCount">
+		<span class="section">event counters</span>
+		<div class="section">
+		    <div class="sectionTop"/>
+		    <div class="row">
+		    	<b model="counters/today/eventCount" view="Text"/> messages today
+		    </div>
+		    <div class="row">
+		    	<b model="counters/thisWeek/eventCount" view="Text"/> messages this week
+		    </div>
+		    <div class="row">
+		    	<b model="counters/forever/eventCount" view="Text"/>
+			messages since the first one
+		    	<b model="counters/forever/firstEventTime" view="relativeDate"/>
+			ago
+		    </div>
+		</div>
+            </div>
+
+	    <div view="if" model="recentMessages/1">
+		<span class="section">recent messages</span>
+		<div class="section">
+		    <div class="sectionTop"/>
+		    <div class="terminalBox">
+			<ul model="recentMessages/10" view="List">
+			    <li pattern="listItem"><span view="message"/></li>
+			</ul>
+		    </div>
+		</div>
+            </div>
+
+        </td>
     </table>
     <div class="footer">
-        <a href="http://navi.picogui.org">
-            <img src="/images/navi64.png" width="64" height="39" alt="Navi"/>
-        </a>
+        <a href="/"><img src="/images/navi64.png" width="64" height="39" alt="Navi"/></a>
     </div>
   </body>
 </html>
