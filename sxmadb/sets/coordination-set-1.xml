@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<set name="coordination set 1" level="purple">
+<set name="coordination set 1" level="purple"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
   <steps>
     <step>
       Step back into a left neutral bow while executing a left vertical

@@ -368,4 +368,15 @@
   </xsd:complexType>
 </xsd:element>
 
+<!-- =============== top-level set -->
+<xsd:element name="set">
+  <xsd:complexType>
+    <xsd:all>
+      <xsd:element name="steps" type="technique-steps"/>
+    </xsd:all>
+    <xsd:attribute name="name" type="xsd:string"/>
+    <xsd:attribute name="level" type="technique-level"/>
+  </xsd:complexType>
+</xsd:element>
+
 </xsd:schema>
