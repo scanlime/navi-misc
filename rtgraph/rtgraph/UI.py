@@ -24,7 +24,6 @@ Gtk user interface elements for high-level control of graphs
 import gtk
 import gobject
 from HScrollLineGraph import *
-import colorsys
 import Tweak
 
 __all__ = ['ChannelList', 'GraphUI', 'GraphUIWindow']
