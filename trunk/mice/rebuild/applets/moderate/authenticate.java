@@ -20,9 +20,9 @@ public class authenticate implements ActionListener
 	private moderate mymod;
 
 	/** The username text field */
-	private TextField username;
+	public TextField username;
 	/** The password text field */
-	private TextField password;
+	public TextField password;
 	
 	/** The button for submission */
 	private Button submit;
@@ -56,7 +56,7 @@ public class authenticate implements ActionListener
 	{
 		String mykey,user,pass;
 		if(!net.openConnection("localhost",8080)) return;
-		net.write("mod");
+		net.write("jmod");
 		mykey = net.read();
 		user = key.encrypt(mykey,username.getText());
 		pass = key.encrypt(mykey,password.getText());
@@ -72,5 +72,6 @@ public class authenticate implements ActionListener
 		mymod.rm(username);
 		mymod.rm(password);
 		mymod.rm(submit);
+		new build(mymod);
 	}
 }
