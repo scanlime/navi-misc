@@ -119,7 +119,6 @@ editor_init (Editor *editor)
   editor->editor_status_context = gtk_statusbar_get_context_id (editor->statusbar, "Editor status");
 
   editor->scene = scene_new ();
-  editor->view = view_new (editor->scene);
 
   types = find_type_leaves (PARAMETER_HOLDER_TYPE);
   addmenu = GTK_MENU_ITEM (glade_xml_get_widget (editor->xml, "addmenu"));
@@ -161,11 +160,6 @@ editor_init (Editor *editor)
   gtk_menu_item_set_submenu (addmenu, GTK_WIDGET (am));
 
   g_list_free (types);
-
-  editor->view->camera->azimuth = 45;
-  editor->view->camera->elevation = 75;
-  editor->view->camera->distance = 750;
-  editor->view->camera->position[2] = 4;
 }
 
 static void
@@ -210,6 +204,17 @@ on_glarea_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 static void
 on_glarea_realize (GtkWidget *widget, gpointer data)
 {
+  Editor *editor = EDITOR (data);
+
+  gl_drawing_area_make_current (GL_DRAWING_AREA(widget));
+
+  editor->view = view_new (editor->scene);
+
+  editor->view->camera->azimuth = 45;
+  editor->view->camera->elevation = 75;
+  editor->view->camera->distance = 750;
+  editor->view->camera->position[2] = 4;
+
   g_signal_connect(G_OBJECT(widget), "configure-event", G_CALLBACK(on_glarea_configure), data);
   g_signal_connect(G_OBJECT(widget), "expose-event", G_CALLBACK(on_glarea_expose), data);
 }

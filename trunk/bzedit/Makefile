@@ -11,6 +11,7 @@ OBJS	= 			\
 	src/drawable.o		\
 	src/editor.o		\
 	src/gldrawingarea.o	\
+	src/light.o		\
 	src/main.o		\
 	src/parameter-editor.o	\
 	src/parameter-holder.o	\

@@ -212,8 +212,6 @@ brp_render_iterate (gchar *texture, TextureGroup *group, RenderState *rstate)
   if (!tman)
     tman = texture_manager_new ();
 
-  g_print ("iterating over texture groups, texture = '%s'\n", texture);
-
   texture_manager_bind (tman, texture);
   texture_group_draw (DRAWABLE (group), rstate);
 }

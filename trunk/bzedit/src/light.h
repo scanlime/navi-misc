@@ -1,5 +1,5 @@
 /*
- * view.h - A generic 3D view with multiple rendering passes
+ * light.h - Abstraction for an OpenGL light's position and intensity
  *
  * BZEdit
  * Copyright (C) 2004 David Trowbridge
@@ -20,45 +20,43 @@
  *
  */
 
-#ifndef __VIEW_H__
-#define __VIEW_H__
+#ifndef __LIGHT_H__
+#define __LIGHT_H__
 
 #include <gtk/gtk.h>
 #include <GL/gl.h>
-#include "scene.h"
-#include "camera.h"
-#include "light.h"
 
 G_BEGIN_DECLS
 
-#define VIEW_TYPE            (view_get_type ())
-#define VIEW(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), VIEW_TYPE, View))
-#define VIEW_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), VIEW_TYPE, ViewClass))
-#define IS_VIEW(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VIEW_TYPE))
-#define IS_VIEW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VIEW_TYPE))
+#define LIGHT_TYPE            (light_get_type ())
+#define LIGHT(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), LIGHT_TYPE, Light))
+#define LIGHT_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), LIGHT_TYPE, LightClass))
+#define IS_LIGHT(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), LIGHT_TYPE))
+#define IS_LIGHT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), LIGHT_TYPE))
 
-typedef struct _View      View;
-typedef struct _ViewClass ViewClass;
+typedef struct _Light      Light;
+typedef struct _LightClass LightClass;
 
-struct _View
+struct _Light
 {
   GObject parent;
 
-  Camera *camera;
-  Scene *scene;
-  Light **lights;
-  guint nlights;
+  gboolean enabled;
+  gfloat ambient[4];
+  gfloat diffuse[4];
+  gfloat position[4];
+  guint lightnum;
 };
 
-struct _ViewClass
+struct _LightClass
 {
   GObjectClass parent_class;
 };
 
-GType        view_get_type (void) G_GNUC_CONST;
-View*        view_new      (Scene *scene);
-void         view_render   (View *view);
-SceneObject* view_pick     (View *view, guint pos[2]);
+GType  light_get_type (void) G_GNUC_CONST;
+Light* light_new      (guint lightnum);
+void   light_reset    (Light* light);
+void   light_set      (Light* light);
 
 G_END_DECLS
 

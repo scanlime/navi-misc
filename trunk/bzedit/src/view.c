@@ -22,8 +22,11 @@
 
 #include "view.h"
 
-static void view_class_init (ViewClass *klass);
-static void view_init       (View *view);
+static void view_class_init  (ViewClass *klass);
+static void view_init        (View *view);
+static void init_lighting    (View *view);
+static void reset_lighting   (View *view);
+static void default_lighting (View *view);
 
 GType
 view_get_type (void)
@@ -71,13 +74,19 @@ view_new (Scene *scene)
     scene = scene_new ();
 
   view->scene = scene;
+  init_lighting (view);
+  return view;
 }
 
 void
 view_render (View *view)
 {
   RenderState *rstate = render_state_new ();
+  gint i;
+
   camera_load (view->camera);
+  for (i = 0; i < view->nlights; i++)
+    light_set (view->lights[i]);
   scene_render (view->scene, rstate);
 }
 
@@ -87,4 +96,69 @@ view_pick (View *view, guint pos[2])
   RenderState *rstate = render_state_new ();
   camera_load (view->camera);
   return scene_pick (view->scene, rstate, pos);
+}
+
+static void
+init_lighting (View *view)
+{
+  gint i;
+
+  glGetIntegerv (GL_MAX_LIGHTS, &view->nlights);
+  view->lights = g_new (Light*, view->nlights);
+  for (i = 0; i < view->nlights; i++)
+  {
+    view->lights[i] = light_new (GL_LIGHT0 + i);
+  }
+  default_lighting (view);
+}
+
+static void
+reset_lighting (View *view)
+{
+  gint i;
+  static float ambient[] = {0.0f, 0.0f, 0.0f, 1.0f};
+
+  for (i = 0; i < view->nlights; i++)
+    light_reset (view->lights[i]);
+  glLightModelfv (GL_LIGHT_MODEL_AMBIENT, ambient);
+}
+
+static void
+default_lighting (View *view)
+{
+  reset_lighting (view);
+
+  view->lights[0]->enabled = TRUE;
+
+  view->lights[0]->ambient[0] = 0.25f;
+  view->lights[0]->ambient[1] = 0.25f;
+  view->lights[0]->ambient[2] = 0.25f;
+  view->lights[0]->ambient[3] = 1.0f;
+
+  view->lights[0]->diffuse[0] = 0.65f;
+  view->lights[0]->diffuse[1] = 0.65f;
+  view->lights[0]->diffuse[2] = 0.65f;
+  view->lights[0]->diffuse[3] = 1.0f;
+
+  view->lights[0]->position[0] = 300.0f;
+  view->lights[0]->position[1] = 400.0f;
+  view->lights[0]->position[2] = 400.0f;
+  view->lights[0]->position[3] = 1.0f;
+
+  view->lights[1]->enabled = TRUE;
+
+  view->lights[1]->ambient[0] = 0.05f;
+  view->lights[1]->ambient[1] = 0.05f;
+  view->lights[1]->ambient[2] = 0.05f;
+  view->lights[1]->ambient[3] = 1.0f;
+
+  view->lights[1]->diffuse[0] = 0.85f;
+  view->lights[1]->diffuse[1] = 0.85f;
+  view->lights[1]->diffuse[2] = 0.85f;
+  view->lights[1]->diffuse[3] = 1.0f;
+
+  view->lights[1]->position[0] = 0.0f;
+  view->lights[1]->position[1] = 0.0f;
+  view->lights[1]->position[2] = 400.0f;
+  view->lights[1]->position[3] = 1.0f;
 }
