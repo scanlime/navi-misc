@@ -102,6 +102,7 @@ void interactive_camshift(int n_cameras = 1,
   int sample_square_size = 20;
   int num_histogram_samples = 0;
   bool uinput_mouse_enabled = false;
+  bool update_screen = true;
   int i;
   CvKalman* fast_kalman = cvCreateKalman(2, 2, 0);
   CvKalman* slow_kalman = cvCreateKalman(2, 2, 0);
@@ -174,7 +175,7 @@ void interactive_camshift(int n_cameras = 1,
       cvCvtPixToPlane(images[i], planes[0], planes[1], planes[2], 0);
       cvCalcBackProject(planes, backprojection, object_hist[i]);
 
-      if (show_backprojections) {
+      if (show_backprojections && update_screen) {
 	/* Make a YUV version of the output, for display */
 	gray_to_yuv(backprojection, yuv_backprojections[i]);
       }
@@ -189,19 +190,21 @@ void interactive_camshift(int n_cameras = 1,
 	windowIn[i] = comp.rect;
 
 	if (box.size.width > 0 && box.size.height > 0) {
-	  /* If we found something, draw it */
+	  if (update_screen) {
+	    /* If we found something, draw it */
 
-	  /* Check the roll quality. For aspect ratios near 1, the box rotation
-	   * can't be measured accurately. In these situations, we draw the box
-	   * as a circle, to convey this information.
-	   */
-	  float q = box.size.height / box.size.width;
-	  if (q < 1.25) {
-	    cvCircleAA(images[i], cvPoint((int)box.center.x, (int)box.center.y),
-		       (int)((box.size.height + box.size.width)/4), CV_RGB(0,255,128));
-	  }
-	  else {
-	    draw_box(images[i], box);
+	    /* Check the roll quality. For aspect ratios near 1, the box rotation
+	     * can't be measured accurately. In these situations, we draw the box
+	     * as a circle, to convey this information.
+	     */
+	    float q = box.size.height / box.size.width;
+	    if (q < 1.25) {
+	      cvCircleAA(images[i], cvPoint((int)box.center.x, (int)box.center.y),
+			 (int)((box.size.height + box.size.width)/4), CV_RGB(0,255,128));
+	    }
+	    else {
+	      draw_box(images[i], box);
+	    }
 	  }
 
 	  /* Feed the current center point into our kalman filters.
@@ -210,15 +213,17 @@ void interactive_camshift(int n_cameras = 1,
 	   */
 	  const CvMat* fast_prediction = cvKalmanPredict(fast_kalman);
 	  const CvMat* slow_prediction = cvKalmanPredict(slow_kalman);
-	  cvLineAA(images[i],
-		   cvPoint((int)cvmGet(fast_prediction, 0, 0),
-			   (int)cvmGet(fast_prediction, 1, 0)),
-		   cvPoint((int)cvmGet(slow_prediction, 0, 0),
-			   (int)cvmGet(slow_prediction, 1, 0)),
-		   CV_RGB(0,128,128));
-	  plot_crosshairs(images[i],
-			  cvPoint((int)cvmGet(fast_prediction, 0, 0),
-				  (int)cvmGet(fast_prediction, 1, 0)));
+	  if (update_screen) {
+	    cvLineAA(images[i],
+		     cvPoint((int)cvmGet(fast_prediction, 0, 0),
+			     (int)cvmGet(fast_prediction, 1, 0)),
+		     cvPoint((int)cvmGet(slow_prediction, 0, 0),
+			     (int)cvmGet(slow_prediction, 1, 0)),
+		     CV_RGB(0,128,128));
+	    plot_crosshairs(images[i],
+			    cvPoint((int)cvmGet(fast_prediction, 0, 0),
+				    (int)cvmGet(fast_prediction, 1, 0)));
+	  }
 	  cvmSet(measurement, 0, 0, box.center.x);
 	  cvmSet(measurement, 1, 0, box.center.y);
 	  cvKalmanCorrect(fast_kalman, measurement);
@@ -280,6 +285,11 @@ void interactive_camshift(int n_cameras = 1,
 	  case 'm':
 	    uinput_mouse_enabled = !uinput_mouse_enabled;
 	    break;
+
+	    /* The 'u' key toggles screen updates, to reduce CPU load when they're unnecessary */
+	  case 'u':
+	    update_screen = !update_screen;
+	    break;
 	  }
 	  break;
 
@@ -340,13 +350,14 @@ void interactive_camshift(int n_cameras = 1,
       }
 
       /* Draw a box around the current sampling rectangle */
-      if (show_rectangle)
+      if (show_rectangle && update_screen)
 	cvRectangle(images[mouse_camera], cvPoint(sample_rect.x-1, sample_rect.y-1),
 		    cvPoint(sample_rect.x + sample_rect.width + 1, sample_rect.y + sample_rect.width + 1),
 		    CV_RGB(128,128,255), 1);
     }
 
-    cv_sdl_show_yuv_tiles(view_grid, num_views, n_cameras);
+    if (update_screen)
+      cv_sdl_show_yuv_tiles(view_grid, num_views, n_cameras);
   }
 }
 
