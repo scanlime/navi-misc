@@ -18,23 +18,20 @@
 ;
 ; The transmitter is a 916.5MHz module from Laipac.
 ; It's rated for 200kbps, but in practise doesn't seem to
-; perform nearly that well. We currently use a really simple
-; but fairly inefficient protocol. One 'unit delay' is currently
-; 28.5us. There are three codes:
+; perform nearly that well. We're currently just using
+; 19200 baud RS-232 out of laziness ;)
 ;
-;           Zero:  1 unit high,  at least 1 unit low
-;            One:  2 units high, at least 1 unit low
-;    Packet flag:  3 units high, at least 1 unit low
+; Packets are of the following form:
 ;
-; Multiple begin packet codes can be issued to let the
-; receiver's DC bias settle. Any data between two packet
-; flag codes may be a valid packet. The packet format is:
-;
-;   Bytes 0-7:  Data from the 4 16-bit sensors
-;      Byte 8:  Button status
-;      Byte 9:  Cheesy 8-bit checksum- computed such
+;      Byte 0:	Literal "U", for synchronization
+;   Bytes 1-8:  Data from the 4 16-bit sensors
+;      Byte 9:  Button status
+;     Byte 10:  Cheesy 8-bit checksum- computed such
 ;               that the sum of all bytes in the packet
 ;               is zero.
+;
+; There is no packet framing, the receiver must pass a sliding window
+; over the incoming data and detect all valid packets.
 ;
 
 	list	p=12f675
@@ -52,12 +49,12 @@ DOUT_PIN    equ 3
 DIN_PIN     equ 4
 TX_PIN      equ 5
 
-
 ;----------------------------------------------------- Variables
 
 	cblock 0x20
-		IOLATCH, temp, delay_temp
-		analog_high, analog_low, analog_channel
+		IOLATCH, temp, delay_temp, checksum
+		analog_channel
+		analog_buffer:8
 	endc
 
 
@@ -81,35 +78,59 @@ TX_PIN      equ 5
 	bcf	TRISIO, CS_PIN
 	bcf	TRISIO, DIN_PIN
 	bsf	TRISIO, DOUT_PIN
-	banksel	GPIO
 
+	;; Initialize TMR0
+	banksel	OPTION_REG
+	bcf	OPTION_REG, T0CS
+	clrf	TMR0
+	bcf	INTCON, T0IF
+
+	banksel	GPIO
 main_loop
 
-	call	tx_send_flag
-
-	;; Send all analog channels
+	;; Read all analog channels
 	movlw	0x04
 	movwf	analog_channel
-	call	send_analog_channel
-	incf	analog_channel, f
-	call	send_analog_channel
-	incf	analog_channel, f
-	call	send_analog_channel
-	incf	analog_channel, f
-	call	send_analog_channel
+	movlw	analog_buffer
+	movwf	FSR
+	call	analog16_Read
+	call	analog16_Read
+	call	analog16_Read
+	call	analog16_Read
+
+	clrf	checksum	; Prepare for another transmission...
+	call	reset_bit_timer
+
+	movlw	'U'		; Sync byte
+	call	tx_send_byte
+
+	;; Send all analog channels
+	movf	analog_buffer+0, w
+	call	tx_send_byte
+	movf	analog_buffer+1, w
+	call	tx_send_byte
+	movf	analog_buffer+2, w
+	call	tx_send_byte
+	movf	analog_buffer+3, w
+	call	tx_send_byte
+	movf	analog_buffer+4, w
+	call	tx_send_byte
+	movf	analog_buffer+5, w
+	call	tx_send_byte
+	movf	analog_buffer+6, w
+	call	tx_send_byte
+	movf	analog_buffer+7, w
+	call	tx_send_byte
+
+	;; Send buttons (not implemented yet)
+	movlw	0xAA
+	call	tx_send_byte
+
+	;; Send checksum
+	movf	checksum, w
+	call	tx_send_byte
 
 	goto	main_loop
-
-;----------------------------------------------------- Protocol
-
-	;; Read the current analog channel and send two
-	;; bytes of data over the radio.
-send_analog_channel
-	call	analog16_Read
-	movf	analog_high, w
-	call	tx_send_byte
-	movf	analog_low, w
-	goto	tx_send_byte
 
 
 ;----------------------------------------------------- A/D Converter
@@ -163,7 +184,9 @@ shiftInByte macro reg
 	shiftInBit reg
 	endm
 
-	;; Read analog channel given in analog_channel into analog_low and analog_high
+	;; Read analog channel given in analog_channel into *FSR.
+	;; Increments the current channel and leaves FSR pointed after
+	;; the data we just wrote.
 analog16_Read
 	bsf	IOLATCH, CS_PIN	; Reset the state of its serial bus
 	bcf	IOLATCH, DOUT_PIN
@@ -174,6 +197,7 @@ analog16_Read
 	movwf	GPIO
 
 	movf	analog_channel, w
+	incf	analog_channel, f
 	andlw	0x07		; Make a control word with the channel number
 	iorlw	0x78		; External clock mode
 	movwf	temp
@@ -181,56 +205,49 @@ analog16_Read
 	shiftOutByte temp
 	nop
 
-	shiftInByte analog_high
-	shiftInByte analog_low
+	shiftInByte INDF
+	incf	FSR, f
+	shiftInByte INDF
+	incf	FSR, f
 	return
 
 ;----------------------------------------------------- Transmitter
 
+reset_bit_timer
+	movlw	.255
+	movwf	TMR0
+	;; Fall through to wait_next_bit...
+
+	;; Use TMR0 to busy-wait until the next bit period
+wait_next_bit
+	btfss	INTCON, T0IF
+	goto	wait_next_bit
+	movlw	.228		; 19200 baud
+	addwf	TMR0, f
+	bcf	INTCON, T0IF
+	return
+
 	;; Turn on the transmitter pin
-tx_pin_on macro
+tx_pin_on
 	bsf	IOLATCH, TX_PIN
 	movf	IOLATCH, w
 	movwf	GPIO
-	endm
+	return
 
 	;; Turn off the transmitter pin
-tx_pin_off macro
+tx_pin_off
 	bcf	IOLATCH, TX_PIN
 	movf	IOLATCH, w
 	movwf	GPIO
-	endm
-
-	;; Send a "one" code
-tx_send_one
-	tx_pin_on
-	call	unit_delay
-	call	unit_delay
-	tx_pin_off
-	call	unit_delay
 	return
 
-	;; Send a "zero" code
-tx_send_zero
-	tx_pin_on
-	call	unit_delay
-	tx_pin_off
-	call	unit_delay
-	return
-
-	;; Send a "flag" code
-tx_send_flag
-	tx_pin_on
-	call	unit_delay
-	call	unit_delay
-	call	unit_delay
-	tx_pin_off
-	call	unit_delay
-	return
-
-	;; Send one byte, from 'w'
+	;; Send one byte, from 'w'. This also updates the checksum
 tx_send_byte
 	movwf	temp
+	subwf	checksum, f
+	call	wait_next_bit	; Start bit
+	call	tx_pin_on
+
 	call	tx_send_bit
 	call	tx_send_bit
 	call	tx_send_bit
@@ -238,22 +255,18 @@ tx_send_byte
 	call	tx_send_bit
 	call	tx_send_bit
 	call	tx_send_bit
-	goto	tx_send_bit
+	call	tx_send_bit
+
+	call	wait_next_bit	; Stop bit
+	goto	tx_pin_off
 
 	;; Rotate 'temp' left and send the shifted out bit
 tx_send_bit
-	rlf	temp, f
+	call	wait_next_bit
+	rrf	temp, f
 	btfsc	STATUS, C
-	goto	tx_send_one
-	goto	tx_send_zero
-
-unit_delay
-	movlw	0x05
-	movwf	delay_temp
-delay_loop
-	decfsz	delay_temp, f
-	goto	delay_loop
-	return
+	goto	tx_pin_off
+	goto	tx_pin_on
 
 	end
 
