@@ -28,6 +28,17 @@ typedef struct session xchat_context;
 #include "../common/outbound.h"
 #include "../common/util.h"
 
+/* We'll use this struct in our known_plugins list to keep track of plugins
+ * for the page.
+ */
+typedef struct
+{
+	char *filename;
+	char *name;
+	char *desc;
+	char *version;
+} xchat_plugin_info;
+
 typedef int (xchat_init_func) (xchat_plugin *, char **, char **, char **, char *);
 typedef int (xchat_deinit_func) (xchat_plugin *);
 
@@ -43,10 +54,6 @@ static void
 on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
 static void
 xchat_gnome_plugin_add (char *filename);
-static xchat_plugin *
-plugin_list_add (xchat_context *ctx, char *filename, const char *name,
-		const char* desc, const char *version, void *handle,
-		xchat_deinit_func *deinit_func, int fake);
 
 void
 initialize_preferences_plugins_page ()
@@ -94,7 +101,7 @@ preferences_plugins_page_populate()
 	GtkTreeIter iter;
 	GtkListStore *store;
 	GSList *list;
-	xchat_plugin *plugin, *pl;
+	xchat_plugin *plugin;
 	gchar *homedir, *xchatdir;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
@@ -111,7 +118,9 @@ preferences_plugins_page_populate()
 	sprintf (xchatdir, "%s/.xchat2/plugins", homedir);
 
 	/* Create a list of all the plugins in our known directories. */
-	for_files (xchatdir, "*.so", xchat_gnome_plugin_add);
+	for_files (XCHATLIBDIR"/plugins", "*.so", xchat_gnome_plugin_add);
+	for_files (XCHATLIBDIR"/plugins", "*.so", xchat_gnome_plugin_add);
+	for_files (xchatdir, "*.sl", xchat_gnome_plugin_add);
 	for_files (xchatdir, "*.sl", xchat_gnome_plugin_add);
 
 	/* Put our fun, happy plugins of joy into the great list store of pluginny goodness.
@@ -129,16 +138,6 @@ preferences_plugins_page_populate()
 			gtk_list_store_append (store, &iter);
 			gtk_list_store_set (store, &iter, 0, plugin->name, 1, plugin->version, 2, plugin->desc, 3, plugin->filename, -1);
 		}
-		list = list->next;
-	}
-
-	list = plugin_list;
-	while (list)
-	{
-		pl = malloc (sizeof (xchat_plugin));
-		plugin = list->data;
-		memcpy (pl, plugin, sizeof (xchat_plugin));
-		known_plugins = g_slist_prepend (known_plugins, plugin);
 		list = list->next;
 	}
 }
@@ -218,7 +217,8 @@ xchat_gnome_plugin_add (char *filename)
 	void *handle;
 	xchat_init_func *init_func;
 	xchat_deinit_func *deinit_func;
-	xchat_plugin *pl;
+	xchat_plugin_info *pl;
+	xchat_plugin *pl_tmp;
 
 	/* For now we are just assuming it's ok to use gmodule, if this is a mistake
 	 * we can change this to match the common plugins stuff so that we use
@@ -239,38 +239,25 @@ xchat_gnome_plugin_add (char *filename)
 		deinit_func = NULL;
 
 	/* Create a new plugin instance and add it to our list of known plugins. */
-	pl = plugin_list_add (gui.current_session, filename, filename,
-			NULL, NULL, handle, deinit_func, FALSE);
+	pl = malloc (sizeof (xchat_plugin_info));
+	pl_tmp = malloc (sizeof (xchat_plugin));
 
-	/* run xchat_plugin_init, if it returns 0, close the plugin */
-	if (((xchat_init_func *)init_func) (pl, &pl->name, &pl->desc, &pl->version, NULL) == 0)
+	pl->filename = malloc (strlen (filename) + 1);
+	memset (pl->filename, 0, strlen (filename) + 1);
+	pl->filename = memcpy (pl->filename, filename, strlen (filename));
+
+	/* Run xchat_plugin_init, if it returns 0, close the plugin. We need the init
+	 * function to give us the name, description and version of the plugin.
+	 */
+	if (((xchat_init_func *)init_func) (pl_tmp, &pl->name, &pl->desc, &pl->version, NULL) == 0)
 	{
 		// FIXME: we need one of thse too.
 		//plugin_free (pl, FALSE, FALSE);
 		return;
 	}
 
-}
+	if (deinit_func)
+		((xchat_deinit_func *)deinit_func) (pl_tmp);
 
-static xchat_plugin *
-plugin_list_add (xchat_context *ctx, char *filename, const char *name,
-		const char* desc, const char *version, void *handle,
-		xchat_deinit_func *deinit_func, int fake)
-{
-	xchat_plugin *pl;
-
-	pl = malloc (sizeof (xchat_plugin));
-
-	pl->handle = handle;
-	pl->context = ctx;
-	pl->filename = filename;
-	pl->name = (char*)name;
-	pl->version = (char*)version;
-	pl->desc = (char*)desc;
-	pl->deinit_callback = deinit_func;
-	pl->fake = fake;
-
-	known_plugins = g_slist_prepend (known_plugins, pl);
-
-	return pl;
+	g_module_close (handle);
 }
