@@ -123,6 +123,7 @@ TEST_PIR1
 	btfsc	USBMaskedInterrupts,USB_RST	; is it a reset?
 	call	USBReset			; yes, reset the SIE
 
+	pagesel	EndISR
 	btfss	USBMaskedInterrupts,TOK_DNE	; is it a Token Done?
 	goto	EndISR				; no, skip the queueing process
 
