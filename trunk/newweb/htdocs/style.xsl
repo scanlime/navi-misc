@@ -35,6 +35,14 @@
             <table class="columns">
               <!--====== Navigation -->
               <td class="left">
+                <span class="section">navigation</span>
+                <div class="section">
+                  <div class="sectionTop"/>
+                  <div class="row">
+                    blah<br/>
+                    blah<br/>
+                  </div>
+                </div>
               </td>
 
               <!--====== Navigation -->
