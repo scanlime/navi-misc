@@ -38,6 +38,7 @@
             font-size: xx-large;
             align: middle;
             background: lightgrey;
+            border-bottom: 1px black solid;
           }
 
           .type:before {
