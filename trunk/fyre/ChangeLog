@@ -1,5 +1,6 @@
 0.7-pre
 	* Brand New Cluster support!
+	* GtkFileChooser support for gtk+ 2.4+
 	* Tweakable interactivity
 	* Saving to OpenEXR
 	* Autoconf support
