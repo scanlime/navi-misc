@@ -1,4 +1,4 @@
-1.0
+1.0.0 (17 February 2005)
 	* Minor cluster autodetection bugfixes
 	* Fixed a hang on exit when running Fyre in console mode
 	  on Windows XP
