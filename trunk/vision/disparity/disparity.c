@@ -109,7 +109,9 @@ int main( int argc, char** argv )
 	cvPyrDown(buffer, right_frame, CV_GAUSSIAN_5x5);
 
 	cvFindStereoCorrespondence(left_frame, right_frame, CV_DISPARITY_BIRCHFIELD, depth,
-				   10, 25, 5, 12, 15, 25);
+				   50, 15, 3, 6, 8, 15);
+
+	cvConvertScale(depth, depth, 255.0/50, 0);
 
 	cvShowImage( "disparity", depth );
 	cvShowImage( "left", left_frame );
@@ -120,8 +122,6 @@ int main( int argc, char** argv )
 	if( cvWaitKey( 1 ) >= 0 )
 	  break;
       }
-
-    cvDestroyWindow("result");
 
     return 0;
 }
