@@ -40,6 +40,7 @@ static void on_load_plugin_clicked (GtkButton *button, gpointer user_data);
 static void on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
 static void on_open_plugin_clicked (GtkButton *button, gpointer user_data);
 static void on_remove_plugin_clicked (GtkButton *button, gpointer user_data);
+static void on_selection_changed (GtkTreeSelection *selection, gpointer user_data);
 
 /* Helpers */
 static void xchat_gnome_plugin_add (char *filename);
@@ -75,10 +76,11 @@ initialize_preferences_plugins_page ()
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 
-  g_signal_connect (G_OBJECT(load), "clicked", G_CALLBACK (on_load_plugin_clicked), NULL);
-  g_signal_connect (G_OBJECT(unload), "clicked", G_CALLBACK (on_unload_plugin_clicked), NULL);
-  g_signal_connect (G_OBJECT(open), "clicked", G_CALLBACK (on_open_plugin_clicked), NULL);
-  g_signal_connect (G_OBJECT(remove), "clicked", G_CALLBACK (on_remove_plugin_clicked), NULL);
+  g_signal_connect (G_OBJECT (load), "clicked", G_CALLBACK (on_load_plugin_clicked), NULL);
+  g_signal_connect (G_OBJECT (unload), "clicked", G_CALLBACK (on_unload_plugin_clicked), NULL);
+  g_signal_connect (G_OBJECT (open), "clicked", G_CALLBACK (on_open_plugin_clicked), NULL);
+  g_signal_connect (G_OBJECT (remove), "clicked", G_CALLBACK (on_remove_plugin_clicked), NULL);
+	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (on_selection_changed), NULL);
 
 	/* Fun little string things that ultimately become the path to ~/.xchat2/plugins.
 	 * FIXME: It might behoove us to store the expanded path string to ~/.xchat2 somewhere
@@ -210,6 +212,25 @@ on_remove_plugin_clicked (GtkButton *button, gpointer user_data)
 			plugin_kill (filename, TRUE);
 		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
 	}
+}
+
+static void
+on_selection_changed (GtkTreeSelection *selection, gpointer user_data)
+{
+	GtkButton *button;
+	gboolean sensitive = FALSE;
+
+	if (gtk_tree_selection_get_selected (selection, NULL, NULL))
+		sensitive = TRUE;
+
+	//button = GTK_BUTTON (glade_xml_get_widget (gui.xml, "plugin open"));
+	//gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
+	button = GTK_BUTTON (glade_xml_get_widget (gui.xml, "plugin load"));
+	gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
+	button = GTK_BUTTON (glade_xml_get_widget (gui.xml, "plugin unload"));
+	gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
+	button = GTK_BUTTON (glade_xml_get_widget (gui.xml, "plugin remove"));
+	gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
 }
 
 static void
