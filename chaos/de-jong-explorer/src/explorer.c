@@ -22,7 +22,6 @@
 
 #include "explorer.h"
 #include "color-button.h"
-#include "cell-renderer-transition.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -882,16 +881,6 @@ static void explorer_init_animation(Explorer *self) {
 
   gtk_tree_view_append_column(tv, col);
 
-  /* The second column displays and edits all transition parameters.
-   * This is all implemented by our custom CellRendererTransition object.
-   */
-  col = gtk_tree_view_column_new();
-  gtk_tree_view_column_set_title(col, "Transition");
-
-  renderer = cell_renderer_transition_new();
-  gtk_tree_view_column_pack_start(col, renderer, TRUE);
-
-  gtk_tree_view_append_column(tv, col);
 }
 
 static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter) {
@@ -928,6 +917,7 @@ static void on_keyframe_delete(GtkWidget *widget, gpointer user_data) {
 
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "keyframe_delete_button"), FALSE);
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "keyframe_replace_button"), FALSE);
+  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_transition_box"), FALSE);
 
   gtk_list_store_remove(self->animation->model, &iter);
 }
@@ -942,6 +932,7 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
 
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "keyframe_delete_button"), TRUE);
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "keyframe_replace_button"), TRUE);
+  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_transition_box"), TRUE);
 
   animation_keyframe_load_dejong(self->animation, &iter, self->dejong);
   explorer_set_params(self);

@@ -9,9 +9,7 @@ HEADERS = \
 	src/de-jong.h		\
 	src/explorer.h		\
 	src/animation.h		\
-	src/chunked-file.h	\
-	src/cell-editable-table.h \
-	src/cell-renderer-transition.h
+	src/chunked-file.h
 
 OBJS    = \
 	src/main.o		\
@@ -20,9 +18,7 @@ OBJS    = \
 	src/explorer.o		\
 	src/color-button.o	\
 	src/animation.o		\
-	src/chunked-file.o	\
-	src/cell-editable-table.o \
-	src/cell-renderer-transition.o
+	src/chunked-file.o
 
 
 $(BIN): $(OBJS)
