@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # ASFReader.py: parses acclaim ASF (skeleton) files
 #
@@ -19,51 +20,56 @@
 #
 from pyparsing import *
 
-asfbnf = None
-def asf_BNF():
-    global asfbnf
-    if not asfbnf:
-        float = Word('0123456789.e+-')
-        comment = Literal('#') + Optional (restOfLine)
+float = Word('0123456789.e+-')
+comment = Literal('#') + Optional (restOfLine)
 
-        axisOrder = oneOf("XYZ XZY YXZ YZX ZXY ZYX")
-        ro = oneOf("TX TY TZ RX RY RZ")
+axisOrder = oneOf("XYZ XZY YXZ YZX ZXY ZYX")
+ro = oneOf("TX TY TZ RX RY RZ")
 
-        rootElement = \
-            "order" + ro + ro + ro + ro + ro + ro \
-          | "axis" + axisOrder \
-          | "position" + float + float + float \
-          | "orientation" + float + float + float
+rootElement = \
+    "order" + ro + ro + ro + ro + ro + ro \
+  | "axis" + axisOrder \
+  | "position" + float + float + float \
+  | "orientation" + float + float + float
 
-        unitElement = \
-            "mass" + float \
-          | "length" + float \
-          | "angle" + oneOf("deg rad")
+unitElement = \
+    "mass" + float \
+  | "length" + float \
+  | "angle" + oneOf("deg rad")
 
-        dof = oneOf("rx ry rz")
-        triplet = Literal('(').suppress() + float + float + Literal(')').suppress()
+dof = oneOf("rx ry rz")
+triplet = Literal('(').suppress() + float + float + Literal(')').suppress()
 
-        boneElement = \
-            "id" + Word(nums) \
-          | "name" + Word(alphanums) \
-          | "direction" + float + float + float \
-          | "length" + float \
-          | "axis" + float + float + float + axisOrder \
-          | "dof" + oneOrMore(dof) \
-          | "limits" + oneOrMore(triplet)
-        bone = "begin" + oneOrMore(boneElement) + "end"
-        bonedata = zeroOrMore(bone)
+boneElement = \
+    "id" + Word(nums) \
+  | "name" + Word(alphanums) \
+  | "direction" + float + float + float \
+  | "length" + float \
+  | "axis" + float + float + float + axisOrder \
+  | "dof" + OneOrMore(dof) \
+  | "limits" + OneOrMore(triplet)
+bone = "begin" + OneOrMore(boneElement) + "end"
+bonedata = ZeroOrMore(bone)
 
-        sectstart = LineStart() + Literal(':').suppress()
-        section = \
-            sectstart + "version" + float \
-          | sectstart + "name" + Word(printables) \
-          | sectstart + "units" + oneOrMore(unitElement) \
-          | sectstart + "documentation" + zeroOrMore(docLines) \
-          | sectstart + "root" + oneOrMore(rootElement) \
-          | sectStart + "bonedata" + bonedata \
-          | sectStart + "hierarchy" + hierarchy
-    return asfbnf
+hierElement = LineStart() + ZeroOrMore(Literal(' ')).suppress() + Word(alphanums) + OneOrMore(Word(alphanums))
+hierarchy = "begin" + OneOrMore(hierElement) + "end"
 
-file = open("02.asf")
-text = ''.join(file.readlines())
+docLine = LineStart() + Word(alphanums + ' .,;\'"')
+
+sectstart = LineStart() + Literal(':').suppress()
+section = \
+    sectstart + "version" + float \
+  | sectstart + "name" + Word(printables) \
+  | sectstart + "units" + OneOrMore(unitElement) \
+  | sectstart + "documentation" + ZeroOrMore(docLine) \
+  | sectstart + "root" + OneOrMore(rootElement) \
+  | sectstart + "bonedata" + bonedata \
+  | sectstart + "hierarchy" + hierarchy
+
+part = section | comment.suppress()
+
+asfFile = OneOrMore(part)
+
+# main program
+x = asfFile.parseFile('02.asf')
+print x
