@@ -68,7 +68,7 @@ IsoMapObject::render()
 
 	yOff = -(TILE_HEIGHT / 2);
 
-	if (getLocation().getY() % 2 == 1)
+	if (getLocation().getY() % 2 == 0)
 		xOff = -(TILE_WIDTH / 2);
 
 	yOff -= getRaisedOffset();

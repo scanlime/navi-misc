@@ -1,3 +1,11 @@
+Wed Mar 17 22:14:10 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapTile.cpp:
+	* src/IsoMapObject.cpp:
+	* src/main.cpp:
+	  - Fixed map rendering up a bit.
+	  - Added another sheep!
+
 Wed Mar 17 22:03:35 PST 2004  Christian Hammond <chipx86@gnupdate.org>
 
 	* src/MapData.cpp:
