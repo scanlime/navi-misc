@@ -117,6 +117,14 @@ static void             listener_poll          (struct listener* self);
 
 static int              main_loop              (void);
 
+/* Variadic macros are a gcc extension, but this by definition
+ * requires linux so why not require gcc too...
+ */
+#define client_message(self, fmt, ...) do { \
+    if (config_verbose) \
+        printf("[Client %s] " fmt "\n", client_format_addr(self), ## __VA_ARGS__); \
+  } while (0);
+
 
 /***********************************************************************/
 /******************************************************* Client ********/
@@ -254,17 +262,11 @@ static void client_received_packet(struct client* self,
       struct ipipe_event* ip_ev = (struct ipipe_event*) content;
       struct input_event ev;
       if (length != sizeof(struct ipipe_event)) {
-	if (config_verbose) {
-	  printf("Client %s: Received IPIPE_EVENT with incorrect length\n",
-		 client_format_addr(self));
-	}
+	client_message(self, "Received IPIPE_EVENT with incorrect length");
 	break;
       }
       if (!self->device_created) {
-	if (config_verbose) {
-	  printf("Client %s: Received IPIPE_EVENT before IPIPE_CREATE\n",
-		 client_format_addr(self));
-	}
+	client_message(self, "Received IPIPE_EVENT before IPIPE_CREATE");
 	break;
       }
       ev.time.tv_sec = ntohl(ip_ev->tv_sec);
@@ -288,10 +290,7 @@ static void client_received_packet(struct client* self,
     {
       struct ipipe_input_id* ip_id = (struct ipipe_input_id*) content;
       if (length != sizeof(struct ipipe_input_id)) {
-	if (config_verbose) {
-	  printf("Client %s: Received IPIPE_DEVICE_ID with incorrect length\n",
-		 client_format_addr(self));
-	}
+	client_message(self, "Received IPIPE_DEVICE_ID with incorrect length");
 	break;
       }
       self->dev_info.id.bustype = ntohs(ip_id->bustype);
@@ -303,10 +302,7 @@ static void client_received_packet(struct client* self,
 
   case IPIPE_DEVICE_FF_EFFECTS_MAX:
     if (length != sizeof(uint32_t)) {
-      if (config_verbose) {
-	printf("Client %s: Received a IPIPE_DEVICE_FF_EFFECTS_MAX with incorrect length\n",
-	       client_format_addr(self));
-      }
+      client_message(self, "Received a IPIPE_DEVICE_FF_EFFECTS_MAX with incorrect length");
       return;
     }
     self->dev_info.ff_effects_max = ntohl(*(uint32_t*)content);
@@ -317,18 +313,12 @@ static void client_received_packet(struct client* self,
       struct ipipe_absinfo* ip_abs = (struct ipipe_absinfo*) content;
       int axis;
       if (length != sizeof(struct ipipe_absinfo)) {
-	if (config_verbose) {
-	  printf("Client %s: Received IPIPE_DEVICE_ABSINFO with incorrect length\n",
-		 client_format_addr(self));
-	}
+	client_message(self, "Received IPIPE_DEVICE_ABSINFO with incorrect length");
 	break;
       }
       axis = ntohl(ip_abs->axis);
       if (axis > ABS_MAX) {
-	if (config_verbose) {
-	  printf("Client %s: Received IPIPE_DEVICE_ABSINFO with out-of-range axis (%d)\n",
-		 client_format_addr(self), axis);
-	}
+	client_message(self, "Received IPIPE_DEVICE_ABSINFO with out-of-range axis (%d)", axis);
 	break;
       }
       self->dev_info.absmax[axis] = ntohl(ip_abs->max);
@@ -366,26 +356,17 @@ static void client_received_packet(struct client* self,
   case IPIPE_CREATE:
     /* Yay, send the uinput_user_dev and actually create our device */
     if (self->device_created) {
-      if (config_verbose) {
-	printf("Client %s: Duplicate IPIPE_CREATE received\n",
-	       client_format_addr(self));
-      }
+      client_message(self, "Duplicate IPIPE_CREATE received");
       break;
     }
     write(self->uinput_fd, &self->dev_info, sizeof(self->dev_info));
     ioctl(self->uinput_fd, UI_DEV_CREATE, 0);
     self->device_created = 1;
-    if (config_verbose) {
-      printf("Client %s: Created new device \"%s\"\n",
-	     client_format_addr(self), self->dev_info.name);
-    }
+    client_message(self, "Created new device \"%s\"", self->dev_info.name);
     break;
 
   default:
-    if (config_verbose) {
-      printf("Client %s: Received unknown packet type 0x%04X\n",
-	     client_format_addr(self), type);
-    }
+    client_message(self, "Received unknown packet type 0x%04X", type);
   }
 }
 
@@ -393,10 +374,7 @@ static void client_set_bit(struct client* self, int length,
 			     void* content, int ioc)
 {
   if (length != sizeof(uint32_t)) {
-    if (config_verbose) {
-      printf("Client %s: Received a bit setting packet with incorrect length\n",
-	     client_format_addr(self));
-    }
+    client_message(self, "Received a bit setting packet with incorrect length");
     return;
   }
   ioctl(self->uinput_fd, ioc, ntohl(*(uint32_t*)content));
@@ -409,10 +387,7 @@ static void client_set_bit(struct client* self, int length,
 
 static void client_list_remove(struct client* client)
 {
-  if (config_verbose) {
-    printf("Removed client from %s\n", client_format_addr(client));
-  }
-
+  client_message(client, "Removed");
   if (client->prev) {
     client->prev->next = client->next;
   }
@@ -431,10 +406,7 @@ static void client_list_remove(struct client* client)
 
 static void client_list_insert(struct client* client)
 {
-  if (config_verbose) {
-    printf("New client from %s\n", client_format_addr(client));
-  }
-
+  client_message(client, "Connected");
   assert(client->prev == NULL);
   assert(client->next == NULL);
   if (client_list_tail) {
