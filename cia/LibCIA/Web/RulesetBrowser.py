@@ -22,6 +22,113 @@ A web interface for CIA's ruleset database
 #
 
 import Template
+from Base import tag, place
+from twisted.protocols import http
+import urllib
+
+
+class RulesetLink:
+    """An anchor tag linking to the given ruleset URI"""
+    def __init__(self, uri, tagFactory=tag('a')):
+        self.uri = uri
+        self.tagFactory = tagFactory
+
+    def render(self, context):
+        if self.uri.find("://") >= 0:
+            scheme, hostAndPath = self.uri.split("://", 1)
+        else:
+            scheme = self.uri
+            hostAndPath = ''
+        linkUrl = context['rulesetsRootPath'] + urllib.quote(scheme) + '/' + urllib.quote(hostAndPath)
+        return self.tagFactory(href=linkUrl)[self.uri]
+
+
+class URIList(Template.Section):
+    """Displays a list of URIs in a particular RulesetStorage"""
+    title = "URI list"
+
+    def __init__(self, storage):
+        self.uris = storage.rulesetMap.keys()
+        self.uris.sort()
+
+    def render_list(self, context):
+        return [tag('li')[RulesetLink(uri)] for uri in self.uris]
+
+    rows = [ "There are rulesets registered for the following URIs:",
+             Template.catalogList[ place('list') ] ]
+
+
+def singleRulesetPageFactory(caps, storage, uri):
+    """Create and return a SingleRulesetPage instance appropriate
+       for the given parameters.
+       """
+    if uri in storage.rulesetMap:
+        return SingleRulesetEditor(caps, storage, uri)
+    else:
+        return Ruleset404(caps, storage, uri)
+
+
+class SingleRulesetPage(Template.Page):
+    """A viewer/editor for one ruleset. This is a base class for all
+       pages that refer to a single ruleset.
+       """
+    def __init__(self, caps, storage, uri):
+        self.caps = caps
+        self.storage = storage
+        self.uri = uri
+
+    def getChildWithDefault(self, name, request):
+        """The first child of RulesetPage adds the URI scheme, the rest
+           add to the URI host and path.
+           """
+        if self.uri.find("://") < 0:
+            newUri = self.uri + '://' + name
+        else:
+            newUri = self.uri + '/' + name
+        return singleRulesetPageFactory(self.caps, self.storage, newUri)
+
+    def render_mainTitle(self, context):
+        return self.uri
+
+    subTitle = "The CIA ruleset editor, better than a fusion powered duck"
+    headingTabs = [
+        Template.headingTab(href='/')['CIA'],
+        # XXX FIXME: shouldn't be hardcoding this URL
+        Template.headingTab(href='/rulesets')['Rulesets'],
+        ]
+
+
+class RulesetEditorSection(Template.Section):
+    """A Section that can view and edit one ruleset"""
+    def __init__(self, storage, uri):
+        self.storage = storage
+        self.uri = uri
+
+    def render_ruleset(self, context):
+        return tag('pre')[self.storage.rulesetMap[self.uri].ruleset]
+
+    rows = [ place('ruleset') ]
+    title = "ruleset"
+
+
+
+class SingleRulesetEditor(SingleRulesetPage):
+    """A page that can view and edit one ruleset"""
+    def render_mainColumn(self, context):
+        return [
+            RulesetEditorSection(self.storage, self.uri)
+            ]
+
+
+class Ruleset404(SingleRulesetPage):
+    """A page for rulesets that don't exist"""
+    def preRender(self, context):
+        context['request'].setResponseCode(http.NOT_FOUND)
+
+    mainColumn = [ Template.StaticSection('URI not found') [
+        tag('h3')["404"],
+        tag('p')["This URI was not found in the ruleset database"],
+        ]]
 
 
 class RulesetPage(Template.Page):
@@ -34,6 +141,23 @@ class RulesetPage(Template.Page):
         self.caps = caps
         self.storage = storage
 
+    def findRootPath(self, request):
+        """Find the URL path referring to the root of our ruleset browser.
+           The returned path always ends in a slash.
+           Since this function is only present in the root page,
+           this is easy :)
+           """
+        path = request.path
+        if path and path[-1] != '/':
+            path = path + '/'
+        return path
+
+    def preRender(self, context):
+        context['rulesetsRootPath'] = self.findRootPath(context['request'])
+
+    def getChildWithDefault(self, name, request):
+        return singleRulesetPageFactory(self.caps, self.storage, name)
+
     def render_mainTitle(self, context):
         return "Ruleset List"
 
@@ -41,6 +165,12 @@ class RulesetPage(Template.Page):
         return "the little tidbits of XML that make CIA work"
 
     def render_mainColumn(self, context):
-        return []
+        return [
+            URIList(self.storage),
+            ]
+
+    headingTabs = [
+        Template.headingTab(href='/')['CIA'],
+        ]
 
 ### The End ###

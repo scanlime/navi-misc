@@ -53,6 +53,18 @@ class Section(Base.DocumentOwner):
     ]
 
 
+class StaticSection(Section):
+    """A section containing static content, usable with tag-like syntax:
+       StaticSection(title)[body]
+       """
+    def __init__(self, title, rows=[]):
+        self.title = title
+        self.rows = rows
+
+    def __getitem__(self, rows):
+        return self.__class__(self.title, [rows])
+
+
 class Page(Base.Page):
     """A template for pages using our CSS- all pages have a heading with
        title, subtitle, and site name. Pages may have a list of hyperlinked
