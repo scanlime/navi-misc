@@ -10,11 +10,12 @@
 		\context PianoStaff <<
 			\set Score.skipBars = ##t
 			\set PianoStaff.connectArpeggios = ##t
-			\set Staff.midiInstrument = "piano"
 			\context Staff = "pianoRight" {
+                \set Staff.midiInstrument = "piano"
 				\mvmtOnePianoRight
 			}
 			\context Staff = "pianoLeft" {
+                \set Staff.midiInstrument = "piano"
 				\mvmtOnePianoLeft
 			}
 		>>
