@@ -49,6 +49,23 @@ tokenize (const char *buffer)
 	return ret;
 }
 
+static void
+date2tm (char *date, struct tm *times)
+{
+	char tmp[3];
+	time_t curtime = time(NULL);
+	tmp[2] = '\0';
+
+	gmtime_r (&curtime, times);
+
+	tmp[0] = date[0]; tmp[1] = date[1];
+	times->tm_mday = atoi(tmp);
+	tmp[0] = date[2]; tmp[1] = date[3];
+	times->tm_hour = atoi(tmp);
+	tmp[0] = date[4]; tmp[1] = date[5];
+	times->tm_min = atoi(tmp);
+}
+
 static GList*
 e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 {
@@ -85,11 +102,17 @@ e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 	EWeatherSourceCCF *ccfsource = (EWeatherSourceCCF*) source;
 	WeatherForecast *forecasts;
 	GSList *tokens = tokenize (buffer);
+	GSList *date;
 	GSList *current = tokens;
+	struct tm tms;
+
+	date = g_slist_nth (tokens, 3);
+	date2tm (date->data, &tms);
+	g_print ("date is %s\n", asctime (&tms));
 
 	do
 	{
-		g_print ("%s\n", current->data);
+//		g_print ("%s\n", current->data);
 	} while (current = g_slist_next (current));
 }
 
