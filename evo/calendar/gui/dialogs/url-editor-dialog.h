@@ -57,10 +57,20 @@ typedef struct _UrlEditorDialogClass UrlEditorDialogClass;
 struct _UrlEditorDialog {
 	GtkDialog parent;
 
-	GtkWidget *child;
 	GtkTreeModel *url_list_model;
 	GladeXML *gui;
-	EPublishUri *url_data;
+	EPublishUri *uri;
+
+	GtkWidget *url_editor;
+	GtkWidget *calendar_list_label;
+	GtkWidget *url_entry;
+	GtkWidget *daily;
+	GtkWidget *weekly;
+	GtkWidget *user_publish;
+	GtkWidget *scrolled_window;
+	GtkWidget *username_entry;
+	GtkWidget *password_entry;
+	GtkWidget *remember_pw;
 };
 
 struct _UrlEditorDialogClass {
