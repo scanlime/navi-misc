@@ -27,6 +27,7 @@ void fe_exit(void) {
 }
 
 int fe_timeout_add(int interval, void *callback, void *userdata) {
+  return 0;
 }
 
 void fe_timeout_remove(int tag) {
@@ -45,6 +46,7 @@ void fe_message(char *msg, int wait) {
 }
 
 int fe_input_add(int sok, int flags, void *func, void *data) {
+  return 0;
 }
 
 void fe_input_remove(int tag) {
@@ -72,6 +74,7 @@ void fe_update_channel_limit(struct session *sess) {
 }
 
 int fe_is_chanwindow(struct server *serv) {
+  return 0;
 }
 
 void fe_add_chan_list(struct server *serv, char *chan, char *users, char *topic) {
@@ -112,6 +115,7 @@ void fe_userlist_insert(struct session *sess, struct User *newuser, int row, int
 }
 
 int fe_userlist_remove(struct session *sess, struct User *user) {
+  return 0;
 }
 
 void fe_userlist_rehash(struct session *sess, struct User *user) {
@@ -136,12 +140,15 @@ void fe_dcc_remove(struct DCC *dcc) {
 }
 
 int fe_dcc_open_recv_win(int passive) {
+  return 0;
 }
 
 int fe_dcc_open_send_win(int passive) {
+  return 0;
 }
 
 int fe_dcc_open_chat_win(int passive) {
+  return 0;
 }
 
 void fe_clear_channel(struct session *sess) {
