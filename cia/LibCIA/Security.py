@@ -208,6 +208,39 @@ def createRandomKey(bytes = 24,
     return s
 
 
+def logProtectedCall(result, path, args, user, allowed=True):
+    """This should be called when a protected call was attempted,
+       successful or not. It logs the attempt and its results in the
+       audit_trail database. This audit trail can be used for several things-
+       listing recently updated metadata (perhaps for a 'whats new?' page)
+       or detecting and recovering from malicious use of keys.
+       """
+    # Store the first argument separately so we can relatively efficiently search for it
+    if args:
+        main_param = str(args[0])
+    else:
+        main_param = None
+
+    # Get the user's UID. If it hasn't even been looked up successfully,
+    # this is just a failed operation on a nonexistent user and it's not worth logging.
+    uid = user.getCachedUid()
+    if uid is None:
+        return
+
+    Database.pool.runOperation(
+        "INSERT INTO audit_trail (timestamp, uid, action_domain, action_name,"
+        " main_param, params, allowed, results)"
+        " VALUES(%d, %d, 'protected_call', %s, %s, '%s', %d, '%s')" % (
+        time.time(),
+        uid,
+        Database.quote(".".join(path), 'text'),
+        Database.quote(main_param, 'text'),
+        Database.quoteBlob(cPickle.dumps(args, -1)),
+        allowed,
+        Database.quoteBlob(cPickle.dumps(result, -1))))
+    return result
+
+
 class User:
     """Representation of one user. A user always has a secret key
        and a list of capabilities. Most users have a name, though

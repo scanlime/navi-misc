@@ -22,7 +22,6 @@ usual XML-RPC support with our own security and exception handling code.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from LibCIA import Database
 from twisted.web import xmlrpc, server
 from twisted.internet import defer
 from twisted.python import log
@@ -131,6 +130,8 @@ class Interface(xmlrpc.XMLRPC):
            checks capabilities before executing the original function.
            """
         def rpcWrapper(*args):
+            import Security
+
             result = defer.Deferred()
 
             # First argument is the key
@@ -150,53 +151,20 @@ class Interface(xmlrpc.XMLRPC):
             # A callback invoked when our key is successfully validated
             def keyValidated(unimportant):
                 d = defer.maybeDeferred(f, *args)
-                d.addBoth(self.logProtectedCall, path, args, user)
+                d.addBoth(Security.logProtectedCall, path, args, user)
                 d.chainDeferred(result)
 
             def keyError(failure):
-                self.logProtectedCall(failure, path, args, user, allowed=False)
+                Security.logProtectedCall(failure, path, args, user, allowed=False)
                 result.errback(failure)
 
             # Check the capabilities asynchronously (requires a database query)
-            import Security
             user = Security.User(key=str(key))
             d = user.require(*caps)
             d.addCallback(keyValidated)
             d.addErrback(keyError)
             return result
         return rpcWrapper
-
-    def logProtectedCall(self, result, path, args, user, allowed=True):
-        """This should be called when a protected call was attempted,
-           successful or not. It logs the attempt and its results in the
-           audit_trail database. This audit trail can be used for several things-
-           listing recently updated metadata (perhaps for a 'whats new?' page)
-           or detecting and recovering from malicious use of keys.
-           """
-        # Store the first argument separately so we can relatively efficiently search for it
-        if args:
-            main_param = str(args[0])
-        else:
-            main_param = None
-
-        # Get the user's UID. If it hasn't even been looked up successfully,
-        # this is just a failed operation on a nonexistent user and it's not worth logging.
-        uid = user.getCachedUid()
-        if uid is None:
-            return
-
-        Database.pool.runOperation(
-            "INSERT INTO audit_trail (timestamp, uid, action_domain, action_name,"
-            " main_param, params, allowed, results)"
-            " VALUES(%d, %d, 'protected_call', %s, %s, '%s', %d, '%s')" % (
-            time.time(),
-            uid,
-            Database.quote(".".join(path), 'text'),
-            Database.quote(main_param, 'text'),
-            Database.quoteBlob(cPickle.dumps(args, -1)),
-            allowed,
-            Database.quoteBlob(cPickle.dumps(result, -1))))
-        return result
 
     def _cbRender(self, result, request):
         """Wrap the default _cbRender, converting None (which can't be serialized) into True"""
