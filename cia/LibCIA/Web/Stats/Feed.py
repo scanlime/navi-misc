@@ -35,7 +35,14 @@ class BaseFeed(Nouvelle.Twisted.Page):
     """Abstract base classes for XML message feeds, using Nouvelle
        to render text/xml pages from a list of recent messages.
        """
-    def __init__(self, statsPage):
+    defaultLimit = 20
+
+    def __init__(self, statsPage, limit=None, medium='xhtml'):
+        if not limit:
+            limit = self.defaultLimit
+        self.limit = limit
+        self.medium = medium
+
         self.statsPage = statsPage
         self.target = statsPage.target
         Nouvelle.Twisted.Page.__init__(self)
@@ -53,11 +60,11 @@ class BaseFeed(Nouvelle.Twisted.Page):
     def render_description(self, context):
         return self.target.metadata.getValue('description', 'CIA Stats')
 
-    def render_items(self, context, limit=20):
+    def render_items(self, context):
         """Renders the most recent commits as items in the RSS feed"""
         # Get the messages, render them in our Deferred
         result = defer.Deferred()
-        self.target.messages.getLatest(limit).addCallback(
+        self.target.messages.getLatest(self.limit).addCallback(
             self.formatItems, context, result).addErrback(result.errback)
         return result
 
@@ -118,6 +125,10 @@ class RSS2Feed(BaseFeed):
         ]]
 
 
+class RSS1Feed(BaseFeed):
+    document = "Moose"
+
+
 class CustomizeRSS(Template.Page):
     """A web page that lets the user generate a customized RSS feed for a particular
        stats target. This can change the format, message style, number of messages, and such.
@@ -160,8 +171,8 @@ class CustomizeRSS(Template.Page):
         tag('p')[
             "There are two current RSS format specifications. Both are named RSS, but "
             "they are actually very different formats with different goals. RSS 2.0 is not "
-            "'newer' or 'better' than RSS 1.0 just because 2 is greater than 1, they are "
-            "just different specifications. CIA gives you the choice of either."
+            "'newer' or 'better' than RSS 1.0 just because 2 is greater than 1; they are "
+            "just two separate specifications. CIA gives you the choice of either."
         ],
         tag('div', _class='formChoice')[
             tag('input', _type='radio', value='2', _name='ver', checked='checked'),
@@ -240,9 +251,9 @@ class CustomizeRSS(Template.Page):
         ],
         tag('p')[
             "You can optionally change the maximum number of messages a feed will contain "
-            "at once. Leave it blank to use the default. There is no explicit upper limit, "
+            "at once. Leave it blank to use the default of %s. There is no explicit upper limit, "
             "But the database does store a finite number of messages for each stats target. "
-            "Please be reasonable. "
+            "Please be reasonable. " % BaseFeed.defaultLimit
         ],
         tag('div', _class='formChoice')[
             tag('p')[ "Retrieve at most: " ],
@@ -271,8 +282,33 @@ class RSSFrontend(resource.Resource):
         self.putChild('customize', CustomizeRSS(statsPage))
 
     def render(self, request):
-        # Use RSS 2 by default
-        return RSS2Feed(self.statsPage).render(request)
+        # Check the requested RSS version
+        version = request.args.get('ver')
+        if version:
+            # Pick a feed factory based on the RSS version
+            factory = {
+                '1': RSS1Feed,
+                '2': RSS2Feed,
+                }[version[-1]]
+        else:
+            # Use RSS 2 by default
+            factory = RSS2Feed
+
+        # The rest of the arguments get transformed into keyword args
+        kwargs = {}
+
+        # Check the requested message medium, defaulting to XHTML
+        medium = request.args.get('medium')
+        if medium:
+            kwargs['medium'] = medium[-1]
+
+        # Get the message limit, with BaseFeed's default
+        limit = request.args.get('limit')
+        if limit:
+            kwargs['limit'] = int(limit[-1])
+
+        # Now construct the proper feed object and render it
+        return factory(self.statsPage, **kwargs).render(request)
 
 
 class XMLFeed(BaseFeed):
