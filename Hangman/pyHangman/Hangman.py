@@ -414,6 +414,8 @@ class Gallows(gtk.DrawingArea):
 		# Event handlers.
 		self.connect_after("configure_event", self.gallowsConfigure)
 		self.connect("expose_event", self.redraw)
+		self.image = gtk.Image()
+		self.image = gtk.gdk.pixbuf_new_from_file("graphics/burton-gallows.png")
 
 	def gallowsConfigure(self, widget, event):
 		""" When the drawing area is realized set up a graphics context for it. """
@@ -434,6 +436,9 @@ class Gallows(gtk.DrawingArea):
 		x, y, width, height = self.drawingArea((0, 0, self.width, self.height))
 		widget.window.draw_rectangle(self.fg_gc, gtk.FALSE, x, y, width, height)
 
+		self.image.render_to_drawable(self.window, self.fg_gc, 0, 0,
+																	0, 0, self.width, self.height, gtk.gdk.RGB_DITHER_NORMAL,
+																	0, 0)
 	def drawingArea(self, data):
 		""" Calculate a square area within the gtk.DrawingArea in which to draw
 				the gallows, data must be a list or tuple of x, y, height and width.
