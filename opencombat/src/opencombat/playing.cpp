@@ -5147,304 +5147,376 @@ static void		startupErrorCallback(const char* msg)
   //mainWindow->getWindow()->swapBuffers();
 }
 
+void registerCommands ( void )
+{
+	// register some commands
+	for (unsigned int c = 0; c < countof(commandList); ++c)
+		CMDMGR.add(commandList[c].name, commandList[c].func, commandList[c].help);
+}
 
-void			startPlaying(BzfDisplay* _display,
-				     SceneRenderer& renderer,
-				     StartupInfo* _info)
+void initControlPanel ( void )
+{
+	// make control panel
+	ControlPanel _controlPanel(*mainWindow, *sceneRenderer);
+	controlPanel = &_controlPanel;
+
+	// tell the control panel how many frame buffers there are.  we
+	// cheat when drawing the control panel, not drawing it if it
+	// hasn't changed.  that only works if we've filled all the
+	// frame buffers (e.g. front and back buffers) with the correct
+	// data.
+	// FIXME -- assuming the contents of any frame buffer except the
+	// front buffer are anything but garbage violates the OpenGL
+	// spec.  we really should redraw the control panel every frame
+	// but this works on every system so far.
+	{
+		int n = 2;	// assume triple buffering
+		controlPanel->setNumberOfFrameBuffers(n);
+	}
+}
+
+void setDefaultConfig ( StartupInfo* _info )
+{
+	// if no configuration, set some sane options. If they have old slow hardware, they can change it.
+	// evolve or die
+	if (!_info->hasConfiguration)
+	{
+		BZDB.set("lighting", "1");
+		BZDB.set("texture", "1");
+		sceneRenderer->setQuality(4);
+		BZDB.set("shadows", "1");
+		BZDB.set("enhancedradar", "1");
+	}
+}
+
+void checkGrabMouse ( void )
+{
+	// should we grab the mouse?  yes if fullscreen.
+	if (!BZDB.isSet("_window"))
+		setGrabMouse(true);
+	else
+	{
+#if defined(__linux__) && !defined(DEBUG)
+		setGrabMouse(true);	// linux usually has a virtual root window so grab mouse always
+#endif
+	}
+}
+
+void initGraphDisplay ( void )
+{
+	// show window and clear it immediately
+	mainWindow->showWindow(true);
+	// glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	// glDisable(GL_SCISSOR_TEST);
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+	mainWindow->getWindow()->swapBuffers();
+
+	// resize and draw basic stuff
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+	// glEnable(GL_SCISSOR_TEST);
+	//controlPanel->resize();
+	// sceneRenderer->render();
+	// controlPanel->render(*sceneRenderer);
+	// mainWindow->getWindow()->swapBuffers();
+}
+
+void initEpohTimer ( void )
+{
+	// initialize epoch offset (time)
+	userTimeEpochOffset = (double)mktime(&userTime);
+	epochOffset = userTimeEpochOffset;
+	updateDaylight(epochOffset, *sceneRenderer);
+	lastEpochOffset = epochOffset;
+}
+
+void initSignals ( void )
+{
+	// catch kill signals before changing video mode so we can
+	// put it back even if we die.  ignore a few signals.
+	bzSignal(SIGILL, SIG_PF(dying));
+	bzSignal(SIGABRT, SIG_PF(dying));
+	bzSignal(SIGSEGV, SIG_PF(dying));
+	bzSignal(SIGTERM, SIG_PF(suicide));
+#if !defined(_WIN32)
+	if (bzSignal(SIGINT, SIG_IGN) != SIG_IGN)
+		bzSignal(SIGINT, SIG_PF(suicide));
+	bzSignal(SIGPIPE, SIG_PF(hangup));
+	bzSignal(SIGHUP, SIG_IGN);
+	if (bzSignal(SIGQUIT, SIG_IGN) != SIG_IGN)
+		bzSignal(SIGQUIT, SIG_PF(dying));
+#ifndef GUSI_20
+	bzSignal(SIGBUS, SIG_PF(dying));
+#endif
+	bzSignal(SIGUSR1, SIG_IGN);
+	bzSignal(SIGUSR2, SIG_IGN);
+#endif /* !defined(_WIN32) */
+}
+
+void setVideoRes ( void )
+{
+	std::string videoFormat;
+	int format = -1;
+	if (BZDB.isSet("resolution"))
+	{
+		videoFormat = BZDB.get("resolution");
+		if (videoFormat.length() != 0)
+		{
+			format = display->findResolution(videoFormat.c_str());
+			if (format >= 0)
+				mainWindow->getWindow()->callResizeCallbacks();
+		}
+	}
+
+	// set the resolution (only if in full screen mode)
+	if (!BZDB.isSet("_window") && BZDB.isSet("resolution"))
+	{
+		if (videoFormat.length() != 0)
+		{
+			if (display->isValidResolution(format) &&display->getResolution() != format && display->setResolution(format))
+			{
+				if (BZDB.isSet("geometry"))				// handle resize
+				{
+					int w, h, x, y, count;
+					char xs, ys;
+
+					count = sscanf(BZDB.get("geometry").c_str(),"%dx%d%c%d%c%d", &w, &h, &xs, &x, &ys, &y);
+
+					if (w < 640)
+						w = 640;
+
+					if (h < 480)
+						h = 480;
+
+					if (count == 6)
+					{
+						if (xs == '-')
+							x = display->getWidth() - x - w;
+
+						if (ys == '-')
+							y = display->getHeight() - y - h;
+
+						mainWindow->setPosition(x, y);
+					}
+					mainWindow->setSize(w, h);
+				}
+				else
+					mainWindow->setFullscreen();
+
+				// more resize handling
+				mainWindow->getWindow()->callResizeCallbacks();
+				mainWindow->warpMouse();
+			}
+		}
+	}
+}
+
+void grabMouse ( void )
+{
+	// grab mouse if we should
+	if (shouldGrabMouse())
+		mainWindow->grabMouse();
+}
+
+void initPanels ( void )
+{
+	// initialize control panel and hud
+	updateNumPlayers();
+	updateFlag(Flags::Null);
+	updateHighScores();
+	notifyBzfKeyMapChanged();
+}
+
+void loadExplosions ( void )
+{
+	TextureManager &tm = TextureManager::instance();
+
+	bool done = false;
+	int explostion = 1;
+	while (!done)
+	{
+		char text[256];
+		sprintf(text, "explode%d", explostion);
+
+		int tex = tm.getTextureID(text, false);
+
+		if (tex < 0)
+			done = true;
+		else
+		{
+			// make explosion scene node
+			float	zero[3] = {0,0,0};
+			BillboardSceneNode* explosion = new BillboardSceneNode(zero);
+			explosion->setTexture(tex);
+			explosion->setTextureAnimation(8, 8);
+			explosion->setLight();
+			explosion->setLightColor(1.0f, 0.8f, 0.5f);
+			explosion->setLightAttenuation(0.04f, 0.0f, 0.01f);
+
+			// add it to list of prototype explosions
+			prototypeExplosions.push_back(explosion);
+			explostion++;
+		}
+	}
+}
+
+void initWorld ( void )
+{
+	// let other stuff do initialization
+	sceneBuilder = new SceneDatabaseBuilder(sceneRenderer);
+	World::init();
+}
+
+void printStartupMessages ( void )
+{
+	std::string tmpString;
+
+	// print version
+	char bombMessage[80];
+	sprintf(bombMessage, "OpenCombat version %s", getAppVersion());
+	controlPanel->addMessage("");
+	tmpString = ColorStrings[RedColor];
+	tmpString += (const char *) bombMessage;
+	controlPanel->addMessage(tmpString);
+
+	// print modification
+	tmpString = ColorStrings[RedColor];
+	tmpString += "based on bzflag c2004 Tim Riker http://bzflag.org";
+	controlPanel->addMessage(tmpString);
+
+	// print copyright
+	tmpString = ColorStrings[RogueColor];
+	tmpString += copyright;
+	controlPanel->addMessage(tmpString);
+
+	// print authors
+	tmpString = ColorStrings[GreenColor];
+	tmpString += "Project Lead: Jeff Myers <jeff@opencombat.net>";
+	controlPanel->addMessage(tmpString);
+
+	// print website
+	tmpString = ColorStrings[BlueColor];
+	tmpString += "HTTP://www.OpenCombat.net";
+	controlPanel->addMessage(tmpString);
+
+	// print GL renderer
+	tmpString = ColorStrings[PurpleColor];
+	tmpString += (const char*)glGetString(GL_RENDERER);
+	controlPanel->addMessage(tmpString);
+}
+
+void printSilenceWarnings ( void )
+{
+	//inform user of silencePlayers on startup
+	for (unsigned int j = 0; j < silencePlayers.size(); j ++)
+	{
+		std::string aString = silencePlayers[j];
+		aString += " Silenced";
+		if (silencePlayers[j] == "*")
+			aString = "Silenced All Msgs";
+		controlPanel->addMessage(aString);
+	}
+}
+
+void setStartupAction ( void )
+{
+	// enter game if we have all the info we need, otherwise
+	// pop up main menu
+	if (startupInfo.autoConnect && startupInfo.callsign[0] && startupInfo.serverName[0])
+	{
+		joinGameCallback = &joinGameHandler;
+		controlPanel->addMessage("Trying...");
+	}
+	else
+		HUDDialogStack::get()->push(mainMenu);
+}
+
+void cleanUpExplostions ( void )
+{
+	for (unsigned int ext = 0; ext < prototypeExplosions.size(); ext++)
+		delete prototypeExplosions[ext];// clean up
+
+	prototypeExplosions.clear();
+}
+
+void cleanUpGlobals ( void )
+{
+	setErrorCallback(NULL);
+
+	while (HUDDialogStack::get()->isActive())
+		HUDDialogStack::get()->pop();
+
+	delete mainMenu;
+	delete sceneBuilder;
+
+	sceneRenderer->setBackground(NULL);
+	sceneRenderer->setSceneDatabase(NULL);
+
+	delete zScene;
+	delete bspScene;
+	World::done();
+
+	bspScene = NULL;
+	zScene = NULL;
+	mainWindow = NULL;
+	sceneRenderer = NULL;
+	display = NULL;
+}
+
+void startPlaying( BzfDisplay* _display, SceneRenderer& renderer, StartupInfo* _info )
 {
   // initalization
   display = _display;
   sceneRenderer = &renderer;
   mainWindow = &sceneRenderer->getWindow();
 
-  // register some commands
-  for (unsigned int c = 0; c < countof(commandList); ++c) {
-    CMDMGR.add(commandList[c].name, commandList[c].func, commandList[c].help);
-  }
+  registerCommands();
+	initControlPanel();
+	setDefaultConfig(_info);
+	checkGrabMouse();
+	
+	initGraphDisplay();
+  setErrorCallback(startupErrorCallback);  // startup error callback adds message to control panel and forces an immediate redraw.
 
-  // make control panel
-  ControlPanel _controlPanel(*mainWindow, *sceneRenderer);
-  controlPanel = &_controlPanel;
+	initEpohTimer();
+	initSignals();
+	setVideoRes();
+	grabMouse();
 
-  // tell the control panel how many frame buffers there are.  we
-  // cheat when drawing the control panel, not drawing it if it
-  // hasn't changed.  that only works if we've filled all the
-  // frame buffers (e.g. front and back buffers) with the correct
-  // data.
-  // FIXME -- assuming the contents of any frame buffer except the
-  // front buffer are anything but garbage violates the OpenGL
-  // spec.  we really should redraw the control panel every frame
-  // but this works on every system so far.
-  {
-    int n = 2;	// assume triple buffering
-    controlPanel->setNumberOfFrameBuffers(n);
-  }
+	// init hud
+	// TODO, Move this into a singleton
+	HUDRenderer _hud(display, renderer);
 
-  // if no configuration, turn off fancy rendering so startup is fast,
-  // even on a slow machine.
-  if (!_info->hasConfiguration)
-	{
-    BZDB.set("lighting", "1");
-    BZDB.set("texture", "1");
-    sceneRenderer->setQuality(4);
-    BZDB.set("shadows", "1");
-    BZDB.set("enhancedradar", "1");
-	}
-
-  // should we grab the mouse?  yes if fullscreen.
-  if (!BZDB.isSet("_window"))
-    setGrabMouse(true);
-#if defined(__linux__) && !defined(DEBUG)
-  // linux usually has a virtual root window so grab mouse always
-  setGrabMouse(true);
-#endif
-
-  // show window and clear it immediately
-  mainWindow->showWindow(true);
- // glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
- // glDisable(GL_SCISSOR_TEST);
-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
-  mainWindow->getWindow()->swapBuffers();
-
-  // resize and draw basic stuff
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
- // glEnable(GL_SCISSOR_TEST);
-  //controlPanel->resize();
- // sceneRenderer->render();
- // controlPanel->render(*sceneRenderer);
- // mainWindow->getWindow()->swapBuffers();
-
-  // startup error callback adds message to control panel and
-  // forces an immediate redraw.
-  setErrorCallback(startupErrorCallback);
-
-  // initialize epoch offset (time)
-  userTimeEpochOffset = (double)mktime(&userTime);
-  epochOffset = userTimeEpochOffset;
-  updateDaylight(epochOffset, *sceneRenderer);
-  lastEpochOffset = epochOffset;
-
-  // catch kill signals before changing video mode so we can
-  // put it back even if we die.  ignore a few signals.
-  bzSignal(SIGILL, SIG_PF(dying));
-  bzSignal(SIGABRT, SIG_PF(dying));
-  bzSignal(SIGSEGV, SIG_PF(dying));
-  bzSignal(SIGTERM, SIG_PF(suicide));
-#if !defined(_WIN32)
-  if (bzSignal(SIGINT, SIG_IGN) != SIG_IGN)
-    bzSignal(SIGINT, SIG_PF(suicide));
-  bzSignal(SIGPIPE, SIG_PF(hangup));
-  bzSignal(SIGHUP, SIG_IGN);
-  if (bzSignal(SIGQUIT, SIG_IGN) != SIG_IGN)
-    bzSignal(SIGQUIT, SIG_PF(dying));
-#ifndef GUSI_20
-  bzSignal(SIGBUS, SIG_PF(dying));
-#endif
-  bzSignal(SIGUSR1, SIG_IGN);
-  bzSignal(SIGUSR2, SIG_IGN);
-#endif /* !defined(_WIN32) */
-
-  std::string videoFormat;
-  int format = -1;
-  if (BZDB.isSet("resolution")) {
-    videoFormat = BZDB.get("resolution");
-    if (videoFormat.length() != 0) {
-      format = display->findResolution(videoFormat.c_str());
-      if (format >= 0) {
-	mainWindow->getWindow()->callResizeCallbacks();
-      }
-    }
-  };
-  // set the resolution (only if in full screen mode)
-  if (!BZDB.isSet("_window") && BZDB.isSet("resolution")) {
-    if (videoFormat.length() != 0) {
-      if (display->isValidResolution(format) &&
-	  display->getResolution() != format &&
-	  display->setResolution(format)) {
-
-	// handle resize
-	if (BZDB.isSet("geometry")) {
-	  int w, h, x, y, count;
-	  char xs, ys;
-	  count = sscanf(BZDB.get("geometry").c_str(),
-			 "%dx%d%c%d%c%d", &w, &h, &xs, &x, &ys, &y);
-	  if (w < 256) w = 256;
-	  if (h < 192) h = 192;
-	  if (count == 6) {
-	    if (xs == '-') x = display->getWidth() - x - w;
-	    if (ys == '-') y = display->getHeight() - y - h;
-	    mainWindow->setPosition(x, y);
-	  }
-	  mainWindow->setSize(w, h);
-	}
-	else {
-	  mainWindow->setFullscreen();
-	}
-
-	// more resize handling
-	mainWindow->getWindow()->callResizeCallbacks();
-	mainWindow->warpMouse();
-      }
-    }
-  }
-
-  // grab mouse if we should
-  if (shouldGrabMouse())
-    mainWindow->grabMouse();
-
-  // draw again
-  //glClear(GL_COLOR_BUFFER_BIT);
- // sceneRenderer->render();
- // controlPanel->render(*sceneRenderer);
-  mainWindow->getWindow()->swapBuffers();
-  mainWindow->getWindow()->yieldCurrent();
-
-  // make heads up display
-  HUDRenderer _hud(display, renderer);
-  hud = &_hud;
-
-  // initialize control panel and hud
-  updateNumPlayers();
-  updateFlag(Flags::Null);
-  updateHighScores();
-  notifyBzfKeyMapChanged();
+	hud = &_hud;
+	initPanels();
 
   // make background renderer
+	// TODO: move this into the managers and make a bg object
   BackgroundRenderer background(renderer);
   sceneRenderer->setBackground(&background);
 
-  // if no configuration file try to determine rendering settings
-  // that yield reasonable performance.
-  if (!_info->hasConfiguration) {
-    printError("testing performance;  please wait...");
-    findFastConfiguration();
-    dumpResources(display, renderer);
-  }
+	loadExplosions();
+	initWorld();
 
-  static const GLfloat	zero[3] = { 0.0f, 0.0f, 0.0f };
+  mainMenu = new MainMenu;  // prepare dialogs
+  startupInfo = *_info;  // initialize startup info with stuff provided from command line
 
-  TextureManager &tm = TextureManager::instance();
+  setErrorCallback(defaultErrorCallback);  // normal error callback (doesn't force a redraw)
 
-  bool done = false;
-  int explostion = 1;
-  while (!done) {
-    char text[256];
-    sprintf(text, "explode%d", explostion);
+	printStartupMessages();
+	printSilenceWarnings();
+  
+	setStartupAction();
+ 
+  playingLoop();  // start game loop
 
-    int tex = tm.getTextureID(text, false);
-    
-    if (tex < 0) {
-      done = true;
-    } else {
-      // make explosion scene node
-      BillboardSceneNode* explosion = new BillboardSceneNode(zero);
-      explosion->setTexture(tex);
-      explosion->setTextureAnimation(8, 8);
-      explosion->setLight();
-      explosion->setLightColor(1.0f, 0.8f, 0.5f);
-      explosion->setLightAttenuation(0.04f, 0.0f, 0.01f);
+	// clean up your mess
+	cleanUpExplostions();
 
-      // add it to list of prototype explosions
-      prototypeExplosions.push_back(explosion);
-      explostion++;
-    }
-  }
-
-  // let other stuff do initialization
-  sceneBuilder = new SceneDatabaseBuilder(sceneRenderer);
-  World::init();
-
-  // prepare dialogs
-  mainMenu = new MainMenu;
-
-  // initialize startup info with stuff provided from command line
-  startupInfo = *_info;
-
-  // normal error callback (doesn't force a redraw)
-  setErrorCallback(defaultErrorCallback);
-
-  std::string tmpString;
-
-  // print version
-  {
-    char bombMessage[80];
-    sprintf(bombMessage, "BZFlag version %s", getAppVersion());
-    controlPanel->addMessage("");
-    tmpString = ColorStrings[RedColor];
-    tmpString += (const char *) bombMessage;
-    controlPanel->addMessage(tmpString);
-  }
-
-  // print expiration
-  if (timeBombString()) {
-    // add message about date of expiration
-    char bombMessage[80];
-    sprintf(bombMessage, "This release will expire on %s", timeBombString());
-    controlPanel->addMessage(bombMessage);
-  }
-
-  // print copyright
-  tmpString = ColorStrings[RogueColor];
-  tmpString += copyright;
-  controlPanel->addMessage(tmpString);
-  // print author
-  tmpString = ColorStrings[GreenColor];
-  tmpString += "Author: Chris Schoeneman <crs23@bigfoot.com>";
-  controlPanel->addMessage(tmpString);
-  // print maintainer
-  tmpString = ColorStrings[BlueColor];
-  tmpString += "Maintainer: Tim Riker <Tim@Rikers.org>";
-  controlPanel->addMessage(tmpString);
-  // print GL renderer
-  tmpString = ColorStrings[PurpleColor];
-  tmpString += (const char*)glGetString(GL_RENDERER);
-  controlPanel->addMessage(tmpString);
-
-  //inform user of silencePlayers on startup
-  for (unsigned int j = 0; j < silencePlayers.size(); j ++){
-    std::string aString = silencePlayers[j];
-    aString += " Silenced";
-    if (silencePlayers[j] == "*") {
-      aString = "Silenced All Msgs";
-    }
-    controlPanel->addMessage(aString);
-  }
-
-  // enter game if we have all the info we need, otherwise
-  // pop up main menu
-  if (startupInfo.autoConnect &&
-      startupInfo.callsign[0] && startupInfo.serverName[0]) {
-    joinGameCallback = &joinGameHandler;
-    controlPanel->addMessage("Trying...");
-  }
-  else {
-    HUDDialogStack::get()->push(mainMenu);
-  }
-
-  // start game loop
-  playingLoop();
-
-  // clean up
-  for (unsigned int ext = 0; ext < prototypeExplosions.size(); ext++)
-    delete prototypeExplosions[ext];
-  prototypeExplosions.clear();
   *_info = startupInfo;
+
   leaveGame();
-  setErrorCallback(NULL);
-  while (HUDDialogStack::get()->isActive())
-    HUDDialogStack::get()->pop();
-  delete mainMenu;
-  delete sceneBuilder;
-  sceneRenderer->setBackground(NULL);
-  sceneRenderer->setSceneDatabase(NULL);
-  delete zScene;
-  delete bspScene;
-  World::done();
-  bspScene = NULL;
-  zScene = NULL;
-  mainWindow = NULL;
-  sceneRenderer = NULL;
-  display = NULL;
+
+	cleanUpGlobals();
 }
 
 // Local Variables: ***
