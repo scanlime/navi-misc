@@ -31,7 +31,7 @@ e_publish_uri_from_xml (const gchar *xml)
 	xmlDocPtr doc;
 	xmlNodePtr root, p;
 	xmlChar *location, *enabled, *frequency;
-	xmlChar *username, *publish_time, *format;
+	xmlChar *publish_time, *format;
 	GSList *events = NULL, *tasks = NULL;
 	EPublishUri *uri;
 
@@ -49,7 +49,6 @@ e_publish_uri_from_xml (const gchar *xml)
 	enabled = xmlGetProp (root, "enabled");
 	frequency = xmlGetProp (root, "frequency");
 	format = xmlGetProp (root, "format");
-	username = xmlGetProp (root, "username");
 	publish_time = xmlGetProp (root, "publish_time");
 
 	if (location != NULL)
@@ -60,8 +59,6 @@ e_publish_uri_from_xml (const gchar *xml)
 		uri->publish_frequency = atoi (frequency);
 	if (format != NULL)
 		uri->publish_format = atoi (format);
-	if (username != NULL)
-		uri->username = username;
 	if (publish_time != NULL)
 		uri->last_pub_time = publish_time;
 
@@ -111,7 +108,6 @@ e_publish_uri_to_xml (EPublishUri *uri)
 	xmlSetProp (root, "enabled", enabled);
 	xmlSetProp (root, "frequency", frequency);
 	xmlSetProp (root, "format", format);
-	xmlSetProp (root, "username", uri->username);
 	xmlSetProp (root, "publish_time", uri->last_pub_time);
 
 	for (calendars = uri->events; calendars != NULL; calendars = g_slist_next (calendars)) {

@@ -34,16 +34,10 @@ create_uri (UrlEditorDialog *dialog)
 
 	uri = dialog->uri;
 
-	/* GnomeVFSURI *vfs_uri; */
 	if (uri->service_type == TYPE_URI) {
 		if (uri->location)
 			g_free (uri->location);
 		uri->location = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->server_entry)));
-		/*
-		vfs_uri = gnome_vfs_uri_new (uri->location);
-		if (vfs_uri == NULL) {
-		}
-		*/
 	} else {
 		char *method = "", *server, *file, *port, *username, *password;
 
@@ -80,12 +74,12 @@ create_uri (UrlEditorDialog *dialog)
 
 		if (uri->location)
 			g_free (uri->location);
-		uri->location = g_strdup_printf ("%s://%s%s%s%s%s%s",
+		uri->location = g_strdup_printf ("%s://%s%s%s%s%s%s%s",
 						 method,
-						 username, (username[0] != 0) ? "@" : "",
+						 username, (username[0] != '\0') ? "@" : "",
 						 server,
-						 (port[0] != 0) ? ":" : "", port,
-						 file);
+						 (port[0] != '\0') ? ":" : "", port,
+						 (file[0] != '/') ? "/" : "", file);
 
 		g_free (server);
 		g_free (file);
@@ -132,7 +126,6 @@ check_input (UrlEditorDialog *dialog)
 	}
 
 	create_uri (dialog);
-	g_print ("%s\n", uri->location);
 
 	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, TRUE);
 	return;
@@ -261,6 +254,74 @@ remember_pw_toggled (GtkToggleButton *toggle, UrlEditorDialog *dialog)
 {
 }
 
+static void
+set_from_uri (UrlEditorDialog *dialog)
+{
+	EPublishUri *uri;
+	char *method, *username, *server, *port;
+	char *tmp1, *tmp2, *tmp3;
+
+	uri = dialog->uri;
+
+	/* determine our method */
+	tmp1 = strchr (uri->location, ':');
+	method = g_strndup (uri->location, tmp1 - uri->location);
+	if (strcmp (method, "smb") == 0)
+		uri->service_type = TYPE_SMB;
+	else if (strcmp (method, "sftp") == 0)
+		uri->service_type = TYPE_SSH;
+	else if (strcmp (method, "ftp") == 0)
+		/* we set TYPE_FTP here for now. if we don't find a
+		 * username later, we'll change it to TYPE_ANON_FTP */
+		uri->service_type = TYPE_FTP;
+	else if (strcmp (method, "dav") == 0)
+		uri->service_type = TYPE_DAV;
+	else if (strcmp (method, "davs") == 0)
+		uri->service_type = TYPE_DAVS;
+	else
+		uri->service_type = TYPE_URI;
+	g_free (method);
+
+	/* We've eliminated the protocol field. Now we need
+	 * to figure out whether we've got a username */
+	tmp2 = tmp1 + 3;
+	tmp1 = strchr (tmp2, '@');
+	tmp3 = strchr (tmp2, '/');
+	if (tmp1) {
+		if (tmp1 < tmp3) {
+			/* We've got an @, and it's inside the hostname
+			 * field. Extract and set the username */
+			username = g_strndup (tmp2, tmp1 - tmp2);
+			gtk_entry_set_text (GTK_ENTRY (dialog->username_entry), username);
+			g_free (username);
+
+			/* Move tmp2 up to the server field */
+			tmp2 = tmp1 + 1;
+		}
+	}
+
+	/* Do we have a port? */
+	tmp1 = strchr (tmp2, ':');
+	if (tmp1 && (tmp1 < tmp3)) {
+		server = g_strndup (tmp2, tmp1 - tmp2);
+		gtk_entry_set_text (GTK_ENTRY (dialog->server_entry), server);
+		g_free (server);
+
+		tmp1++;
+		port = g_strndup (tmp1, tmp3 - tmp1);
+		gtk_entry_set_text (GTK_ENTRY (dialog->port_entry), port);
+		g_free (port);
+	} else {
+		server = g_strndup (tmp2, tmp3 - tmp2);
+		gtk_entry_set_text (GTK_ENTRY (dialog->server_entry), server);
+		g_free (server);
+	}
+
+	gtk_entry_set_text (GTK_ENTRY (dialog->file_entry), tmp3);
+
+	gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_service), uri->service_type);
+}
+
 static gboolean
 url_editor_dialog_construct (UrlEditorDialog *dialog)
 {
@@ -372,14 +433,10 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 		}
 
 		if (uri->location && strlen (uri->location)) {
-			/* FIXME - url */
-			if (uri->username && strlen (uri->username))
-				gtk_entry_set_text (GTK_ENTRY (dialog->username_entry), uri->username);
+			set_from_uri (dialog);
 		}
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_frequency), uri->publish_frequency);
 		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->type_selector), uri->publish_format);
-
-		gtk_combo_box_set_active (GTK_COMBO_BOX (dialog->publish_service), uri->service_type);
 
 		uri->password = e_passwords_get_password ("Calendar", uri->location);
 		if (uri->password) {
@@ -392,7 +449,6 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 		}
 	}
 
-	/* FIXME - url */
 	g_signal_connect (G_OBJECT (dialog->publish_service), "changed",           G_CALLBACK (publish_service_changed),  dialog);
 	g_signal_connect (G_OBJECT (dialog->type_selector),   "changed",           G_CALLBACK (type_selector_changed),    dialog);
 	g_signal_connect (G_OBJECT (dialog->events_selector), "selection_changed", G_CALLBACK (source_selection_changed), dialog);
@@ -490,10 +546,6 @@ url_editor_dialog_run (UrlEditorDialog *dialog)
 	if (response == GTK_RESPONSE_OK) {
 		GSList *l, *p;
 
-		if (dialog->uri->location)
-			g_free (dialog->uri->location);
-		if (dialog->uri->username)
-			g_free (dialog->uri->username);
 		if (dialog->uri->password)
 			g_free (dialog->uri->password);
 		if (dialog->uri->events) {
@@ -505,8 +557,8 @@ url_editor_dialog_run (UrlEditorDialog *dialog)
 			dialog->uri->tasks = NULL;
 		}
 
-		/* FIXME - url */
-		dialog->uri->username = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->username_entry)));
+		create_uri (dialog);
+
 		dialog->uri->password = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->password_entry)));
 
 		if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->remember_pw))) {
