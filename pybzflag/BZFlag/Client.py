@@ -31,9 +31,9 @@ from BZFlag.Protocol import FromServer, ToServer, Common
 class BaseClient:
     """Implements a very simple but extensible BZFlag client.
        This client can connect and disconnect, and it has a system
-       for asynchronously processing messages. It doesn't actually process
-       any messages. Most common messages are processed by the SimpleClient
-       subclass below.
+       for asynchronously processing messages. This class only processes
+       messages related to upkeep on the server-client link, such as
+       lag ping, disconnection, and UDP-related messages.
 
        The methods of this class and its subclasses use the following
        naming conventions:
@@ -64,6 +64,10 @@ class BaseClient:
         self.tcp.connect(server, Common.defaultPort)
         self.tcp.setBlocking(0)
 
+        # Until we establish a UDP connection, we'll need to send
+        # normally-multicasted messages over TCP
+        self.multicast = self.tcp
+
         # Now we have to wait for the server's Hello packet,
         # with the server version and client ID.
         self.tcp.handler = self.handleHelloPacket
@@ -77,6 +81,7 @@ class BaseClient:
         if self.udp:
             self.udp.close()
             self.udp = None
+        self.multicast = None
         self.connected = 0
 
     def getSockets(self):
@@ -129,6 +134,8 @@ class BaseClient:
         if msg:
             msgName = msg.__class__.__name__
             handler = getattr(self, "on%s" % msgName, None)
+            if self.onAnyMessage(msg, socket, eventLoop):
+                return
             if handler:
                 handler(msg, socket, eventLoop)
             else:
@@ -141,14 +148,17 @@ class BaseClient:
            """
         pass
 
+    def onAnyMessage(self, msg, socket, eventLoop):
+        """This is a hook that subclasses can use to easily
+           monitor and intercept messages. It is called before
+           dispatching each message, and if it returns true that
+           message is cancelled.
+           """
+        return None
+
     def onUnhandledMessage(self, msg, socket, eventLoop):
         raise Errors.ProtocolException("Unhandled message %s" % msg.__class__.__name__)
     
-
-class SimpleClient(BaseClient):
-    """Extends the BaseClient to handle basic message types that don't
-       involve updating a local view of the game world.
-       """
     def onMsgSuperKill(self, msg, socket, eventLoop):
         """The server wants us to die immediately"""
         self.disconnect()
@@ -156,10 +166,16 @@ class SimpleClient(BaseClient):
     def onMsgLagPing(self, msg, socket, eventLoop):
         """The server is measuring our lag, reply with the same message."""
         socket.write(msg)
-        
 
-class StatefulClient(SimpleClient):
-    """Extends the SimpleClient to keep track of the state of the game
+    def onMsgNetworkRelay(self, msg, socket, eventLoop):
+        """The server needs us to use TCP instead of UDP for messages
+           that we'd normally multicast.
+           """
+        self.multicast = self.tcp
+
+        
+class StatefulClient(BaseClient):
+    """Extends the BaseClient to keep track of the state of the game
        world, as reported by the server and the other clients.
        """
     def onMsgFlagUpdate(self, msg, socket, eventLoop):
