@@ -95,13 +95,11 @@ accumulator_merge (Accumulator *acc, IterativeMap *image)
   g_assert ((ax == ix) && (ay == iy));
 
   histogram_imager_prepare_plots (ha, &acc->plot);
+  /* this really is that simple. plot_multiple will
+   * take care of keeping the max density correct */
   for (i = 0; i < ay; i++)
-  {
     for (j = 0; j < ax; j++)
-    {
       HISTOGRAM_IMAGER_PLOT_MULTIPLE(acc->plot, i, j, ((guint**)hi->histogram)[i][j]);
-    }
-  }
   histogram_imager_finish_plots (HISTOGRAM_IMAGER (acc), &acc->plot);
 
   acc->total_iterations += image->iterations;
