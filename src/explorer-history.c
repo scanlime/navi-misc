@@ -329,6 +329,8 @@ static void         on_go_menu_show    (GtkWidget *menu, Explorer *self)
     /* The rest of the list is spread evenly over time, from the end
      * of the above section back to the oldest history we have.
      */
+    if (!current)
+	return;
     node = current->data;
     scaled_reference = &node->timestamp;
     t_total = timeval_subtract(scaled_reference,
@@ -344,13 +346,15 @@ static void         on_go_menu_show    (GtkWidget *menu, Explorer *self)
 	 * node at the proper position in time.
 	 */
 	while (1) {
+	    if (!current)
+		return;
+
 	    node = current->data;
 	    t  = timeval_subtract(scaled_reference, &node->timestamp);
 
 	    if (t > (i*t_total/num_scaled_items))
 		break;
-	    if (!(current = current->prev))
-		return;
+	    current = current->prev;
 	}
 
 	explorer_add_go_item(self, current);
