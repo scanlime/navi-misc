@@ -78,7 +78,9 @@ void navigation_tree_create_new_network_entry(struct session *sess) {
 	GtkTreeStore *store;
 	GtkTreeModel *model;
 	GtkWidget *treeview;
-	GtkTreeIter iter;
+	GtkTreeIter iter, sorted;
+	GtkTreeSelection *selection;
+	GtkTreeModelSort *sort;
 
 	treeview = glade_xml_get_widget(gui.xml, "server channel list");
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
@@ -86,22 +88,34 @@ void navigation_tree_create_new_network_entry(struct session *sess) {
 
 	gtk_tree_store_append(store, &iter, NULL);
 	gtk_tree_store_set(store, &iter, 1, "<none>", 2, sess, 3, 0, 4, NULL, -1);
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	sort = GTK_TREE_MODEL_SORT(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+	gtk_tree_model_sort_convert_child_iter_to_iter(sort, &sorted, &iter);
+//	gtk_tree_selection_select_iter(selection, &sorted);
 }
 
 static gboolean navigation_tree_create_new_channel_entry_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data) {
 	struct session *s;
 	gtk_tree_model_get(model, iter, 2, &s, -1);
 	if(s->type == SESS_SERVER && s->server == data->server) {
-		GtkTreeIter child;
+		GtkTreeIter child, sorted;
 		GtkWidget *treeview;
 		GtkWidget *entry;
+		GtkTreeSelection *selection;
+		GtkTreeModelSort *sort;
 
 		treeview = glade_xml_get_widget(gui.xml, "server channel list");
+		sort = GTK_TREE_MODEL_SORT(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
 
 		gtk_tree_store_append(GTK_TREE_STORE(model), &child, iter);
+
 		gtk_tree_store_set(GTK_TREE_STORE(model), &child, 1, data->channel, 2, data, 3, 0, 4, NULL, -1);
 		/* make sure the tree expands to show the new channel */
 		gtk_tree_view_expand_row(GTK_TREE_VIEW(treeview), path, TRUE);
+
+		gtk_tree_model_sort_convert_child_iter_to_iter(sort, &sorted, iter);
+		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+		gtk_tree_selection_select_iter(selection, &sorted);
 
 		entry = glade_xml_get_widget(gui.xml, "text entry");
 		gtk_widget_grab_focus(entry);

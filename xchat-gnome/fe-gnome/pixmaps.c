@@ -23,6 +23,7 @@
 #include <gdk-pixbuf/gdk-pixdata.h>
 
 #include "../pixmaps/inline_pngs.h"
+#include "pixmaps/inline_pngs.h"
 
 GdkPixbuf *pix_purple;
 GdkPixbuf *pix_red;
@@ -65,35 +66,51 @@ pixmaps_init (void)
 	if (!pix_voice)
 		pix_voice = gdk_pixbuf_new_from_inline(-1, voicepng, FALSE, 0);
 
-	p = gdk_pixbuf_new_from_file("data/newdata.png", 0);
+	p = gdk_pixbuf_new_from_file(XCHATSHAREDIR"/newdata.png", 0);
+	if (!p)
+		p = gdk_pixbuf_new_from_inline(-1, newdatapng, FALSE, 0);
 	pix_newdata = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
 	gdk_pixbuf_unref(p);
 
-	p = gdk_pixbuf_new_from_file("data/nicksaid.png", 0);
+	p = gdk_pixbuf_new_from_file(XCHATSHAREDIR"/nicksaid.png", 0);
+	if (!p)
+		p = gdk_pixbuf_new_from_inline(-1, nicksaidpng, FALSE, 0);
 	pix_nicksaid = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
 	gdk_pixbuf_unref(p);
 
-	p = gdk_pixbuf_new_from_file("data/global-message.png", 0);
+	p = gdk_pixbuf_new_from_file(XCHATSHAREDIR"/global-message.png", 0);
+	if (!p)
+		p = gdk_pixbuf_new_from_inline(-1, globalmessagepng, FALSE, 0);
 	pix_msgsaid = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
 	gdk_pixbuf_unref(p);
 
-	p = gdk_pixbuf_new_from_file("data/irc.png", NULL);
+	p = gdk_pixbuf_new_from_file(XCHATSHAREDIR"/irc.png", NULL);
+	if (!p)
+		p = gdk_pixbuf_new_from_inline(-1, ircpng, FALSE, 0);
 	pix_prefs_irc = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
 	gdk_pixbuf_unref(p);
 
-	p = gdk_pixbuf_new_from_file("data/color.png", NULL);
+	p = gdk_pixbuf_new_from_file(XCHATSHAREDIR"/color.png", NULL);
+	if (!p)
+		p = gdk_pixbuf_new_from_inline(-1, colorpng, FALSE, 0);
 	pix_prefs_colors = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
 	gdk_pixbuf_unref(p);
 
-	p = gdk_pixbuf_new_from_file("data/dcc.png", NULL);
+	p = gdk_pixbuf_new_from_file(XCHATSHAREDIR"/dcc.png", NULL);
+	if (!p)
+		p = gdk_pixbuf_new_from_inline(-1, dccpng, FALSE, 0);
 	pix_prefs_dcc = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
 	gdk_pixbuf_unref(p);
 
-	p = gdk_pixbuf_new_from_file("data/servers.png", NULL);
+	p = gdk_pixbuf_new_from_file(XCHATSHAREDIR"/servers.png", NULL);
+	if (!p)
+		p = gdk_pixbuf_new_from_inline(-1, serverspng, FALSE, 0);
 	pix_prefs_networks = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
 	gdk_pixbuf_unref(p);
 
-	p = gdk_pixbuf_new_from_file("data/plugin-manager.png", NULL);
+	p = gdk_pixbuf_new_from_file(XCHATSHAREDIR"/plugin-manager.png", NULL);
+	if (!p)
+		p = gdk_pixbuf_new_from_inline(-1, pluginmanagerpng, FALSE, 0);
 	pix_prefs_plugins = gdk_pixbuf_scale_simple(p, 16, 16, GDK_INTERP_BILINEAR);
 	gdk_pixbuf_unref(p);
 }
