@@ -30,33 +30,13 @@ using System.Reflection;
 class PluginManager
 {
 	string directory;
-	FileSystemWatcher dir_watcher;
 	public ArrayList plugin_types;
 
 	public PluginManager (string directory)
 	{
 		this.directory = directory;
 
-		dir_watcher = new FileSystemWatcher (directory, "*.dll");
-		dir_watcher.Created += OnPluginCreated;
-		dir_watcher.Deleted += OnPluginDeleted;
-		dir_watcher.EnableRaisingEvents = true;
-
 		plugin_types = FindPluginTypes ();
-	}
-
-	void OnPluginCreated (object sender, FileSystemEventArgs args)
-	{
-		ArrayList asm_plugins = FindPluginTypesInFile (args.FullPath);
-
-		foreach (Type type in asm_plugins) {
-			plugin_types.Add (type);
-		}
-	}
-
-	void OnPluginDeleted (object sender, FileSystemEventArgs args)
-	{
-		/* Not sure we really want to deal with this */
 	}
 
 	ArrayList FindPluginTypes ()
@@ -67,10 +47,9 @@ class PluginManager
 
 		foreach (string file in files) {
 			try {
-				ArrayList asm_plugins = FindPluginTypesInFile (file);
-				foreach (Type type in asm_plugins) {
+				ArrayList asm_types = FindPluginTypesInFile (file);
+				foreach (Type type in asm_types)
 					all_plugin_types.Add (type);
-				}
 			} catch (Exception e) {
 				Console.WriteLine ("Error loading plugin: {0}", e);
 			}
@@ -88,13 +67,12 @@ class PluginManager
 	static ArrayList FindPluginTypesInAssembly (Assembly asm)
 	{
 		Type [] types = asm.GetTypes ();
-		ArrayList asm_plugins = new ArrayList ();
-		bool found_one = false;
+		ArrayList plugin_types = new ArrayList ();
 
 		foreach (Type type in types)
 			if (type.BaseType == typeof (Element))
-				asm_plugins.Add (type);
+				plugin_types.Add (type);
 
-		return asm_plugins;
+		return plugin_types;
 	}
 }
