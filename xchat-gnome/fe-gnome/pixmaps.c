@@ -64,10 +64,10 @@ pixmaps_init (void)
 		pix_voice = gdk_pixbuf_new_from_inline(-1, voicepng, FALSE, 0);
 
 	pix_newdata = gdk_pixbuf_scale_simple(
-				gdk_pixbuf_new_from_file("/usr/share/icons/gnome/24x24/stock/net/stock_post-message.png", 0),
+				gdk_pixbuf_new_from_file("data/newdata.png", 0),
 				16, 16, GDK_INTERP_BILINEAR);
 	pix_nicksaid = gdk_pixbuf_scale_simple(
-				gdk_pixbuf_new_from_file("/usr/share/icons/gnome/24x24/stock/generic/stock_edit.png", 0),
+				gdk_pixbuf_new_from_file("data/nicksaid.png", 0),
 				16, 16, GDK_INTERP_BILINEAR);
 	pix_msgsaid = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/global-message.png", 0),
 				16, 16, GDK_INTERP_BILINEAR);
