@@ -49,7 +49,10 @@ void fe_timeout_remove(int tag) {
 }
 
 void fe_new_window(struct session *sess) {
-	navigation_tree_create_new_network_entry(sess);
+	if(sess->type == SESS_SERVER)
+		navigation_tree_create_new_network_entry(sess);
+	else if(sess->type == SESS_CHANNEL)
+		navigation_tree_create_new_channel_entry(sess);
 	text_gui_add_text_buffer(sess);
 }
 
@@ -94,7 +97,6 @@ void fe_idle_add(void *func, void *data) {
 }
 
 void fe_set_topic(struct session *sess, char *topic) {
-	g_print("fe_set_topic()\n");
 	/* FIXME: implement */
 }
 
@@ -257,8 +259,8 @@ void fe_dcc_send_filereq(struct session *sess, char *nick, int maxcps, int passi
 }
 
 void fe_set_channel(struct session *sess) {
+	g_print("fe_set_channel() - \"%s\"\n", sess->channel);
 	navigation_tree_set_channel_name(sess);
-	/* FIXME: implement */
 }
 
 void fe_set_title(struct session *sess) {
@@ -266,8 +268,7 @@ void fe_set_title(struct session *sess) {
 }
 
 void fe_set_nonchannel(struct session *sess, int state) {
-	g_print("fe_set_nonchannel() - state=%d\n", state);
-	/* FIXME: implement */
+	/* stub? */
 }
 
 void fe_set_nick(struct server *serv, char *newnick) {
