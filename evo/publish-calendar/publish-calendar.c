@@ -58,6 +58,18 @@ url_list_enable_toggled (GtkCellRendererToggle *renderer,
 static void
 selection_changed (GtkTreeSelection *selection, PublishUIData *ui)
 {
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		gtk_widget_set_sensitive (ui->url_edit, TRUE);
+		gtk_widget_set_sensitive (ui->url_remove, TRUE);
+		gtk_widget_set_sensitive (ui->url_enable, TRUE);
+	} else {
+		gtk_widget_set_sensitive (ui->url_edit, FALSE);
+		gtk_widget_set_sensitive (ui->url_remove, FALSE);
+		gtk_widget_set_sensitive (ui->url_enable, FALSE);
+	}
 }
 
 static void
@@ -132,6 +144,8 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 	g_signal_connect (G_OBJECT (ui->url_remove), "clicked", G_CALLBACK (url_remove_clicked), ui);
 	ui->url_enable = glade_xml_get_widget (xml, "url enable");
 	g_signal_connect (G_OBJECT (ui->url_enable), "clicked", G_CALLBACK (url_enable_clicked), ui);
+
+	selection_changed (selection, ui);
 
 	toplevel = glade_xml_get_widget (xml, "toplevel");
 	gtk_widget_show_all (toplevel);
