@@ -54,7 +54,7 @@ namespace Fyre {
 				// Fyre to be run straight from the toplevel directory or the src directory,
 				// and it will still find the plugins
 
-				string plugins = String.Concat (current_dir, "/Plugins");
+				string plugins     = String.Concat (current_dir, "/Plugins");
 				string src_plugins = String.Concat (current_dir, "/src/Plugins");
 
 				if (Directory.Exists (plugins)) {
