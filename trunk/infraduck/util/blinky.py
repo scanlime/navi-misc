@@ -11,7 +11,7 @@ delay = 0.5 / 48.2
 while True:
     glClearColor(0,0,0,0)
     glClear(GL_COLOR_BUFFER_BIT)
-    pygame.display.flip() 
+    pygame.display.flip()
     time.sleep(delay)
     glClearColor(1,1,1,0)
     glClear(GL_COLOR_BUFFER_BIT)

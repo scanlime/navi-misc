@@ -61,7 +61,7 @@ def addPlanets(cow, scene, numPlanets=1000, planetRadius=5, planetCubeRadius=120
         disp.setAttrFloat("Fundamental", 0.8)
         disp.setAttrInt("Octaves", 3)
         disp.setAttrFloat("Persistence", 0.8)
-        
+
         surf = cow.newSceneNode("Surface")
         surf.setAttrFloat("tx",random.uniform(-planetCubeRadius,planetCubeRadius))
         surf.setAttrFloat("ty",random.uniform(-planetCubeRadius,planetCubeRadius))
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     addOriginLight(cow,scene)
     addWorldSphere(cow,scene)
     addPlanets(cow,scene)
-    
+
     # Unreference scene, flush JetCOW to disk
     scene.unref()
     cow.flush()

@@ -12,7 +12,7 @@ class ESDmonitor:
         fd = esd.esd_monitor_stream(esd.ESD_MONO,self.rate,'localhost','')
         self.socket = socket.fromfd(fd, socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setblocking(0)
-        
+
     def read(self):
         data = ''
         while True:
@@ -81,7 +81,7 @@ class NormalizedFreqRange:
 
     def get(self):
         # Decay our max slowly to account for changes in peak volume between songs
-        self.max *= 0.999                                            
+        self.max *= 0.999
 
         raw = self.signal.freqRange(self.fromHz, self.toHz)
         if raw > self.max:
@@ -222,7 +222,7 @@ class BeginPlayingState(VisualizerState):
         if self.timeout < 0:
             self.transition(BeginPlayingFaderState)
 
-                            
+
 class BeginPlayingFaderState(VisualizerState):
     def init(self):
         self.frame = 0
@@ -254,7 +254,7 @@ class VisualizerEffect:
 
     def slowUpdate(self):
         pass
-        
+
 
 class SpectrogramEffect(VisualizerEffect):
     def __init__(self,vis):
@@ -283,11 +283,11 @@ class BeatMapEffect(VisualizerEffect):
     def func(self, led):
         if self.vis.signal.beat[led[self.axis]*self.axisScale+self.axisBias] > self.threshold:
             return 15
-        
+
     def fastUpdate(self):
         self.led.fade(self.group, self.fadeSpeed)
         self.led.set(self.group, self.func)
-        
+
 
 class VUMeterEffect(VisualizerEffect):
     def __init__(self, vis, criteria, axis='x'):
@@ -310,7 +310,7 @@ class VUBrightnessEffect(VisualizerEffect):
         self.group = self.led.select(criteria)
         self.fadeGroup = self.led.select(fadeGroup)
         self.fadeSpeed = fadeSpeed
-        
+
     def fastUpdate(self):
         self.led.fade(self.fadeGroup, self.fadeSpeed)
         self.led.set(self.group, self.vis.signal.vuMeter * 15.9)
@@ -330,7 +330,7 @@ class DotAnalyzerEffect(VisualizerEffect):
         self.led.fade(self.grid, self.fadeSpeed)
         self.led.set(self.grid, self.analyzerFunc)
 
-        
+
 class FadeAnalyzerEffect(VisualizerEffect):
     def __init__(self, vis, fadeSpeed=1.2):
         VisualizerEffect.__init__(self,vis)
@@ -344,7 +344,7 @@ class FadeAnalyzerEffect(VisualizerEffect):
     def fastUpdate(self):
         self.led.fade(self.grid, self.fadeSpeed)
         self.led.set(self.grid, self.analyzerFunc)
-        
+
 
 class PlayingState(VisualizerState):
     def init(self):
@@ -369,13 +369,13 @@ class PlayingState(VisualizerState):
               [VUBrightnessEffect(self.vis, {'group': 'pacman', 'color': 'blue'}, {'group': 'pacman'})],
               [VUBrightnessEffect(self.vis, {'group': 'pacman', 'color': 'yellow'}, {'group': 'pacman'})],
               [VUBrightnessEffect(self.vis, {'group': 'pacman', 'color': 'red'}, {'group': 'pacman'})],
-              ],               
+              ],
             # Corner effects
             [ [BeatMapEffect(self.vis, {'group': 'corners', 'color': 'blue'},  'x', 0, 0, 0.3),
                BeatMapEffect(self.vis, {'group': 'corners', 'color': 'white'}, 'x', 0, 4)],
               ],
             ]
-        
+
         self.resetEffect()
 
     def resetEffect(self):
@@ -449,7 +449,7 @@ class VFDupdater:
                 else:
                     title = ("%s%s%s" % (title, " " * self.scrollerGap, title))[self.scrollerIndex:]
             self.scrollerIndex += 1
-    
+
         # get the current time index
         if xmms.is_playing():
             millisec = xmms.get_output_time()

@@ -52,7 +52,7 @@ class TestBot(SingleServerIRCBot):
 
     def sud(self, c, channel, target):
         c.action(channel, "up %s" % target)
-                
+
 def main():
     server = "irc.freenode.net"
     nickname = "shut"

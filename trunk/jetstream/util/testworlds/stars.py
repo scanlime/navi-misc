@@ -66,7 +66,7 @@ for n in range(numStars):
     surf.setAttrInt("Generator", random.choice(colorMods).id)
     scene.attachChild(surf)
     surf.unref()
-sphereGen.unref()    
+sphereGen.unref()
 print "Added %d stars" % numStars
 
 # Unreference scene, flush JetCOW to disk

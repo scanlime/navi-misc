@@ -99,7 +99,7 @@ class Bot(SingleServerIRCBot):
     def on_pubmsg_protected(self, c, e):
         sourceNick = re.sub("!.*","",e._source)
         self.log("<%s> %s" % (sourceNick, e._arguments[0]))
-        
+
         # Respond to a public message in any of the channels we've joined
         line = string.lower(e._arguments[0])
         words = line.split()
@@ -130,12 +130,12 @@ class Bot(SingleServerIRCBot):
         if triggerFlag or addressed:
             responseWord = None
             responsePrefix = ''
-            
+
             # If the line was long enough, form a response starting with the last word in it
             if len(words) > 1:
                 responseWord = words[-1]
-                responseWord = re.sub("!","",responseWord,0)                
-                responseWord = re.sub("\?","",responseWord,0)                
+                responseWord = re.sub("!","",responseWord,0)
+                responseWord = re.sub("\?","",responseWord,0)
                 responseWord = re.sub("\.","",responseWord,0)
                 self.log("--- Starting response with '%s'" % responseWord)
 
@@ -161,7 +161,7 @@ class Bot(SingleServerIRCBot):
 
             # Log the response
             self.log("--- Responding: '%s'" % response)
-        
+
             # Time for 'typing'
             time.sleep(len(response)/9.0)
 
@@ -173,7 +173,7 @@ class Bot(SingleServerIRCBot):
         self.logfile.write(str + "\n")
         print str
 
-        
+
 def Train(as, corpus):
     corpus = corpus.lower()
     corpus = re.sub("[^a-zA-Z0-9,\?\.!' ]","",corpus,0)

@@ -222,7 +222,7 @@ class MetadataThumbnailCache(Cache.AbstractStringCache):
                         i.size[1] + margins[1]),
                        (255, 255, 255, 0))
         bg.paste(i, (0,0))
-       
+
         bg.thumbnail(size, Image.ANTIALIAS)
         s = StringIO()
         bg.save(s, 'PNG')

@@ -31,7 +31,7 @@ while True:
             oldUserSys = newUserSys
             oldIdle = newIdle
             break
-        
+
     led.vfd.writeScreen("%10.02f%% CPU\n" % (newLoad*100))
 
     # Draw a load bar, with sub-LED accuracy

@@ -9,12 +9,12 @@
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -42,7 +42,7 @@ class Console(InteractiveConsole):
         self.app = engine.globals.app
         self.colorSchemeItems = []
         self.terminalTheme = None
-        
+
         # Load our widget template, importing widgets from it
         self.template = self.app.newTemplate(open("data/console.wt").read())
         self.inst = self.template.instantiate([
@@ -98,13 +98,13 @@ class Console(InteractiveConsole):
         self.app.link(self.bgshadeHandler, self.inst.BackgroundShade, 'activate')
         self.app.link(self.frustumLockHandler, self.inst.FrustumLock, 'activate')
         self.app.link(self.backfaceHandler, self.inst.DisableBackfaceCull, 'activate')
-               
+
         # Split stdout and stderr into our textbox
         self.savedStdout = sys.stdout
         self.savedStderr = sys.stderr
         sys.stdout = Tee([self.savedStdout, self.inst.PythonConsole])
         sys.stderr = Tee([self.savedStderr, self.inst.PythonConsole])
-        
+
         locals = {
             "__name__":   "__console__",
             "__doc__":    None,
@@ -138,7 +138,7 @@ class Console(InteractiveConsole):
         else:
             self.prompt = sys.ps1
         self.inst.PythonPrompt.text = self.prompt
-        
+
     def destroy(self):
         self.updateVideoRecorder()
         sys.stdout = self.savedStdout
@@ -183,13 +183,13 @@ class Console(InteractiveConsole):
             engine.globals.videoRecorder.start()
         else:
             engine.globals.videoRecorder.stop()
-        
+
     def vidHotkeyHandler(self, ev, widget):
         if widget.on:
             self.inst.VideoRecorder_Record.hotkey = 293   # F12
         else:
             self.inst.VideoRecorder_Record.hotkey = 0
-                        
+
     def pyClearHandler(self, ev, widget):
         self.inst.PythonEditor.write('')
 
@@ -216,7 +216,7 @@ class Console(InteractiveConsole):
     def pyRunHandler(self, ev, widget):
         for line in string.split(self.inst.PythonEditor.text,"\n"):
             self.push(line)
-        
+
     def closeHandler(self, ev, widget):
         self.destroy()
 
@@ -304,5 +304,5 @@ class Console(InteractiveConsole):
 
     def terminalResizeHandler(self, ev, widget):
         if ev.x > 0 and ev.y > 0:
-            self.fcntl.ioctl(self.termFd, self.termios.TIOCSWINSZ, 
+            self.fcntl.ioctl(self.termFd, self.termios.TIOCSWINSZ,
                              struct.pack('4H', ev.y, ev.x, 0, 0))

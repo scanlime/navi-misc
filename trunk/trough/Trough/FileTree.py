@@ -40,7 +40,7 @@ class File:
         return self.name
 
     def getPath (self):
-	''' FileTree.File.getPath        
+	''' FileTree.File.getPath
             Returns full path to the File
        	'''
 	if self.parent:

@@ -75,7 +75,7 @@ class Parser(optik.OptionParser):
             help="Enable the given game style. STYLE can be one of %s" %
             ", ".join(map(repr, Common.GameStyle.dict.keys())))
 
-        add("-o", "--shots", dest="shots", metavar="N", 
+        add("-o", "--shots", dest="shots", metavar="N",
             help="Sets the number of shots a player may fire before reloading.")
 
         add("-w", "--world", dest="world", metavar="NAME",
@@ -84,7 +84,7 @@ class Parser(optik.OptionParser):
 
         add("-i", "--interface", dest="interface", metavar="HOST:PORT",
             help="Sets the host and/or the port to listen for clients on.")
-        
+
         add("-c", "--call-sign", dest="callSign", metavar="NAME",
             help="Sets the player callsign to use when joining.")
 

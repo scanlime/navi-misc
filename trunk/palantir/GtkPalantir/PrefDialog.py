@@ -54,7 +54,7 @@ class PrefDialog:
     tree.get_widget('pref ok').connect('clicked', lambda w: dialog.hide())
 
     # Hook up the navigation area.
-    tree.get_widget('prefs navigation').get_selection().connect('changed', 
+    tree.get_widget('prefs navigation').get_selection().connect('changed',
                                                 self.nav_selection_changed)
 
   def SetUpNav(self):

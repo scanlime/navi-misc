@@ -17,29 +17,29 @@ hist = [ 0x00 ] * 30
 
 while 1:
 	cpu = commands.getoutput("cat /proc/stat").splitlines()[0].split()
-	
+
 	uN = float(cpu[1])
 	nN = float(cpu[2])
 	sN = float(cpu[3])
 	iN = float(cpu[4])
-	
+
 	u = uN - old[0]
 	n = nN - old[1]
 	s = sN - old[2]
 	i = iN - old[3]
-	
+
 	old = [ uN, nN, sN, iN ]
-		
+
 	t = u + n + s + i
 	if t == 0:
 		continue
 	m = float(100) / t
-	
+
 	load = (u + n + s) * m
 	user = (u + n) * m
 	sys = (s) * m
 	data = ""
-	
+
 	num = int( ( (load) * 8.0 ) / 100.0 )
 
 	for i in xrange(0, 14):
@@ -47,13 +47,13 @@ while 1:
 
 	for i in xrange(0, 30):
 		data = data + "%c" % hist[i]
-	
+
 	data = data + "%c" % graph[num]
 	dev.writeRaw( data )
 
 	for i in xrange(0, 29):
 		hist[i] = hist[i+1]
-	
+
 	hist[29] = graph[num]
-		
+
 	time.sleep(0.1)

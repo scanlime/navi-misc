@@ -228,7 +228,7 @@ class MetadataUploadSection(Template.Section):
                         ],
                     ]
                 ]]
- 
+
 
 class MetadataValuePage(resource.Resource):
     """A web resource that returns the raw value of a metadata key, with the proper MIME type"""
