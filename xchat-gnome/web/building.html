@@ -14,9 +14,10 @@
 </div>
 <div class="content">
 <p>
-Building xchat-gnome is not a super trivial operation at this point. Here are some basic
-instructions, but as is often the case with young projects such as this, your mileage may
-vary.<br/><br/>
+Building xchat-gnome is not a super trivial operation at this point. Here are
+some basic instructions, but as is often the case with young projects such as
+this, your mileage may vary. Note that as of now, building xchat-gnome requires
+GTK+ version 2.3<br/><br/>
 </p>
 <div class="code">
 $ cvs -d :pserver:anonymous@cvs.sf.net:/cvsroot/xchat co xchat2<br/>
@@ -30,6 +31,7 @@ xchat2$ ./configure --enable-maintainer-mode --enable-xft --enable-gnomefe<br/>
 (make sure that gnome support was found, and gtkspell if desired)<br/>
 xchat2$ make<br/>
 xchat2$ cd src/fe-gnome<br/>
+xchat2$ gconftool-2 --install-schema-file=apps_xchat.schemas.in<br/>
 fe-gnome$ ./xchat-gnome<br/>
 </div>
 </div>
