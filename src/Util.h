@@ -24,8 +24,8 @@
 
 #include <stdlib.h>
 extern "C" {
-#include <SDL_endian.h>
-#include <SDL_types.h>
+#include <SDL/SDL_endian.h>
+#include <SDL/SDL_types.h>
 }
 
 #define rand01() (((float)rand())/RAND_MAX)
