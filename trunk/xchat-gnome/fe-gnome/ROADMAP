@@ -19,6 +19,7 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 	sorting rather than lexicographical order
 -	Fix plugins preferences to properly handle scripts	- Evan
 -	Finish implementing keybindings UI?			- Dan
+-	Implement options in channel list dialog
 
 
 0.5:
