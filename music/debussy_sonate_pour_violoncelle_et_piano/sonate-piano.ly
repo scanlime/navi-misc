@@ -1,7 +1,7 @@
 \include "prologue-cello.ly"
 \include "prologue-piano.ly"
-\include "serenade-finale-cello.ly"
-\include "serenade-finale-piano.ly"
+\include "serenade-cello.ly"
+\include "serenade-piano.ly"
 
 #(set-global-staff-size 16)
 
@@ -38,15 +38,15 @@
 
 \score {
   \context Score <<
-    \context Staff=serenadeFinaleCello <<
-      \serenadeFinaleCello
+    \context Staff=serenadeCello <<
+      \serenadeCello
     >>
     \context PianoStaff <<
-    \context Staff=serenadeFinalePianoTreble << \serenadeFinalePianoTreble >>
-    \context Staff=serenadeFinalePianoBass   << \serenadeFinalePianoBass >>
+    \context Staff=serenadePianoTreble << \serenadePianoTreble >>
+    \context Staff=serenadePianoBass   << \serenadePianoBass >>
     >>
   >>
   \header {
-    piece = "Sérénade et Finale"
+    piece = "Sérénade"
   }
 }

@@ -125,7 +125,7 @@ prologuePianoBass = \new Voice \notes\relative c {
     cis'2 cis
   } >>
   <a e'>4 (<g d'> <d a' d>) ~ <d, d' a' d>8 r8
-  <a' e'>2 <a e'>
+  <a''' e'>2 <a e'>
 }
 
 prologueMiddleDynamics = \notes {
