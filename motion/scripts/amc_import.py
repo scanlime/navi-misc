@@ -31,7 +31,7 @@ import Blender
 from Blender.Armature.Bone import ROT, LOC, SIZE
 import AMCReader
 
-# make it faster?
+# if we've got psyco installed, use it
 try:
     import psyco
 except:
@@ -40,6 +40,22 @@ except:
 dofTable = {}
 axisTable = {}
 baxisTable = {}
+boneTable = {}
+
+def getCorrection (object, bone):
+    try:
+        axis = axisTable[bone]
+        baxis = baxisTable[bone]
+    except KeyError:
+        axis = map(float, object.getProperty ('%s-axis' % bone).getData ().split (','))
+        axisTable[bone] = axis
+        baxis = map(float, object.getProperty ('%s-baxis' % bone).getData ().split (','))
+        baxisTable[bone] = baxis
+
+    for i in range (len (baxis)):
+        baxis[i] = -baxis[i]
+
+    return baxis
 
 def getRot(object, bone, rot):
     try:
@@ -49,15 +65,6 @@ def getRot(object, bone, rot):
         if dof is None:
             dof = []
         dofTable[bone] = dof
-    try:
-        axis = axisTable[bone]
-        baxis = baxisTable[bone]
-    except KeyError:
-        axis = map(float, object.getProperty ('%s-axis' % bone).getData ().split (','))
-        axisTable[bone] = axis
-
-        baxis = map(float, object.getProperty ('%s-baxis' % bone).getData ().split (','))
-        baxisTable[bone] = baxis
     r = [0.0, 0.0, 0.0]
     i = 0
     for d in dof:
@@ -68,12 +75,18 @@ def getRot(object, bone, rot):
         else:
             r[2] = rot[i]
         i += 1
-    #euler = Blender.Mathutils.Euler(r)
-    for i in range(len(baxis)):
-        baxis[i] *= -1
-    euler = Blender.Mathutils.Euler(baxis)
+
+    euler = Blender.Mathutils.Euler (r)
+    #euler.x = euler.x - axis[0] + baxis[0]
+    #euler.y = euler.y - axis[1] + baxis[1]
+    #euler.z = euler.z - axis[2] + baxis[2]
+
+    baxis = getCorrection (object, bone)
+    pquat = boneTable[bone].getParent ().getQuat ()
+    euler = Blender.Mathutils.Euler (baxis)
+
     quat = euler.toQuat()
-    return (quat)
+    return (quat - pquat)
 
 def importData (reader, object, filename):
     action = Blender.Armature.NLA.NewAction(filename.split('/')[-1])
@@ -81,13 +94,12 @@ def importData (reader, object, filename):
     armature = object.getData()
     scene = Blender.Scene.getCurrent()
     context = scene.getRenderingContext()
-    b = {}
 
     context.framesPerSec(120)
 
     bones = armature.getBones()
     for bone in bones:
-        b[bone.getName()] = bone
+        boneTable[bone.getName()] = bone
         bone.setPose([ROT, LOC, SIZE])
 
     for frame in reader.frames:
@@ -99,11 +111,16 @@ def importData (reader, object, filename):
         # swizzle, scale & invert
         (loc[0], loc[2], loc[1]) = (loc[0] * 0.1, loc[1] * 0.1, loc[2] * -0.1)
         rot = frame.bones['root'][3:6]
-        euler = Blender.Mathutils.Euler(rot)
+        euler = Blender.Mathutils.Euler (rot)
         quat = euler.toQuat()
-        b['root'].setLoc(loc)
-        b['root'].setQuat(quat)
-        b['root'].setPose([ROT, LOC])
+        #b['root'].setLoc(loc)
+        #b['root'].setQuat(quat)
+        #b['root'].setPose([ROT, LOC])
+
+        euler = Blender.Mathutils.Euler (getCorrection (object, 'root'))
+        quat = euler.toQuat ();
+        boneTable['root'].setQuat (quat)
+        boneTable['root'].setPose ([ROT])
 
         #print frame.number
 
@@ -111,9 +128,9 @@ def importData (reader, object, filename):
             if bname == 'root':
                 continue
             bone = frame.bones[bname]
-            quat = getRot(object, bname, bone)
-            b[bname].setQuat(quat)
-            b[bname].setPose([ROT])
+            quat = getRot (object, bname, bone)
+            boneTable[bname].setQuat (quat)
+            boneTable[bname].setPose ([ROT])
 
     Blender.Window.RedrawAll()
 
