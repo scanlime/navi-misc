@@ -61,7 +61,7 @@ enet_host_create (const ENetAddress * address, size_t peerCount, enet_uint32 inc
          ++ currentPeer)
     {
        currentPeer -> host = host;
-       currentPeer -> incomingPeerID = (enet_uint16)currentPeer - (enet_uint16)host->peers;
+       currentPeer -> incomingPeerID = (enet_uint16)currentPeer - (enet_uint16)host -> peers;
        currentPeer -> data = NULL;
 
        enet_list_clear (& currentPeer -> acknowledgements);
@@ -168,7 +168,7 @@ enet_host_connect (ENetHost * host, const ENetAddress * address, size_t channelC
     command.connect.outgoingPeerID = ENET_HOST_TO_NET_16 (currentPeer -> incomingPeerID);
     command.connect.mtu = ENET_HOST_TO_NET_16 (currentPeer -> mtu);
     command.connect.windowSize = ENET_HOST_TO_NET_32 (currentPeer -> windowSize);
-    command.connect.channelCount = ENET_HOST_TO_NET_32 ((u_long)channelCount);
+    command.connect.channelCount = ENET_HOST_TO_NET_32 (channelCount);
     command.connect.incomingBandwidth = ENET_HOST_TO_NET_32 (host -> incomingBandwidth);
     command.connect.outgoingBandwidth = ENET_HOST_TO_NET_32 (host -> outgoingBandwidth);
     command.connect.packetThrottleInterval = ENET_HOST_TO_NET_32 (currentPeer -> packetThrottleInterval);
