@@ -28,7 +28,7 @@ stats target using part of the message.
 
 from twisted.python import log
 from twisted.web import xmlrpc
-from twisted.internet import defer
+from twisted.internet import defer, reactor
 import Ruleset, Message, TimeUtil, RpcServer, Database
 import string, os, time, posixpath, sys
 
@@ -305,7 +305,9 @@ class Messages(object):
         if message.xml.timestamp:
             timestamp = Database.quote(str(message.xml.timestamp), 'bigint')
         else:
-            timestamp = NULL
+            # Our message really should have had a timestamp.. don't
+            # store it, because without a timestamp it will be immortal.
+            return
 
         self.target._autoCreateTargetFor(cursor, cursor.execute,
                                          "INSERT INTO stats_messages (target_path, xml, timestamp)"
@@ -539,39 +541,66 @@ class Counters:
                                           Database.quote(self.target.path, 'varchar'))
 
 
-###### Rollovers are still broke
+class Maintenance:
+    """This class performs periodic maintenance of the stats database, including
+       counter rollover and removing old messages. The maintenance cycle is run
+       once on startup, and periodically afterwards.
+       """
+    # Maximum age for messages- currently set at about 6 months
+    maxMessageAge = 60 * 60 * 24 * 30 * 6
 
-#     def checkOneRollover(self, previous, current):
-#         """Check for rollovers in one pair of consecutive time intervals,
-#            like yesterday/today or lastMonth/thisMonth.
-#            """
-#         p = self.getCounter(previous)
-#         c = self.getCounter(current)
-#         pTime = p.get('firstEventTime', None)
-#         cTime = c.get('firstEventTime', None)
+    def run(self):
+        """Triggers one maintenance cycle, and sets up the next one"""
+        log.msg("Initiating stats maintenance...")
+        Database.pool.runInteraction(self._run)
 
-#         if cTime is not None:
-#             if not cTime in TimeUtil.Interval(current):
-#                 # Our current timer is old, copy it to the previous timer and delete it
-#                 p.clear()
-#                 p.update(c)
-#                 c.clear()
+        log.msg("Scheduling another maintenance cycle in 1 hour")
+        reactor.callLater(60*60, self.run)
 
-#         if pTime is not None:
-#             if not pTime in TimeUtil.Interval(previous):
-#                 # The previous timer is old. Either the current timer rolled over first
-#                 # and it was really old, or no events occurred in the first timer
-#                 # (cTime is None) but some had in the previous timer and it's old.
-#                 p.clear()
+    def _run(self, cursor):
+        """Database interaction implementing the maintenance cycle"""
+        self.checkRollovers(cursor)
+        self.cullMessages(cursor)
+        log.msg("Stats maintenance completed")
 
-#     def checkRollovers(self):
-#         """If any of the counters were created outside the interval
-#            they apply to, transfer its value to another counter
-#            if we need to and reset it.
-#            """
-#         self.checkOneRollover('yesterday', 'today')
-#         self.checkOneRollover('lastWeek', 'thisWeek')
-#         self.checkOneRollover('lastMonth', 'thisMonth')
+    def checkOneRollover(self, cursor, previous, current):
+        """Check for rollovers in one pair of consecutive time intervals,
+           like yesterday/today or lastMonth/thisMonth. This is meant to
+           be run inside a database interaction.
+           """
+        # Delete counters that are too old to bother keeping at all
+        cursor.execute("DELETE FROM stats_counters "
+                       "WHERE (name = %s OR name = %s) "
+                       "AND first_time < %s" %
+                       (Database.quote(previous, 'varchar'),
+                        Database.quote(current, 'varchar'),
+                        Database.quote(long(TimeUtil.Interval(previous).getFirstTimestamp()), 'bigint')))
+
+        # Roll over remaining counters that are too old for current
+        # but still within the range of previous. Note that there is a
+        # race condition in which this update will fail because a timer
+        # has been incremented between it and the above DELETE. It could
+        # be prevented by locking the table, but it's probably not worth
+        # it. If the rollover fails this time, it will get another chance.
+        cursor.execute("UPDATE stats_counters SET name = %s "
+                       "WHERE name = %s "
+                       "AND first_time < %s" %
+                       (Database.quote(previous, 'varchar'),
+                        Database.quote(current, 'varchar'),
+                        Database.quote(long(TimeUtil.Interval(current).getFirstTimestamp()), 'bigint')))
+
+    def checkRollovers(self, cursor):
+        """Check all applicable counters for rollovers. This should
+           be executed inside a database interaction.
+           """
+        self.checkOneRollover(cursor, 'yesterday', 'today')
+        self.checkOneRollover(cursor, 'lastWeek', 'thisWeek')
+        self.checkOneRollover(cursor, 'lastMonth', 'thisMonth')
+
+    def cullMessages(self, cursor):
+        """Delete messages that are too old"""
+        cursor.execute("DELETE FROM stats_messages WHERE timestamp < %s" %
+                       Database.quote(long(time.time() - self.maxMessageAge), 'bigint'))
 
 
 ### The End ###
