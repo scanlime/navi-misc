@@ -26,7 +26,8 @@ fyre_SOURCES = 				\
 	animation-render-ui.c		\
 	screensaver.c			\
 	prefix.c			\
-	exr.cpp
+	exr.cpp				\
+	remote.c
 
 noinst_HEADERS =			\
 	animation.h			\
@@ -49,7 +50,8 @@ noinst_HEADERS =			\
 	prefix.h			\
 	screensaver.h			\
 	spline.h			\
-	var-int.h
+	var-int.h			\
+	remote.h
 
 fyre_LDADD = \
 	$(BINRELOC_LIBS)		\
