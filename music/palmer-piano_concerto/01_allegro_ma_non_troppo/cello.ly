@@ -25,7 +25,7 @@ mvmtOneCello = \relative c, {
 	cis16 bis d cis ees d e d f e fis eis g fis aes eis
 	g16 fis a eis gis fis a eis gis fis ais eis gis fis ais eis
 	gis \< (fis ais eis gis fis ais eis gis fis ais eis gis fis ais \! eis)
-	b8-.\f r8 r4 r2
+	b8-.\f^\solo r8 r4 r2
 
 	R1*18
 	r4 fis^\oneCello\mf (g a
@@ -53,7 +53,7 @@ mvmtOneCello = \relative c, {
 	dis1
 
 	% 60
-	r1
+	r1^\tutti
 	e2\mp (d
 	b cis4 e
 	gis2.) fis4 (
@@ -63,7 +63,7 @@ mvmtOneCello = \relative c, {
 	r4 fis,\mf \< (a cis \!
 	d2) r2
 	r4 f,\mf \< (a d \!
-	e2) r2 \fermata
+	e2^\solo) r2 \fermata
 
 	\time 6/8
 	R1*6/8*10
@@ -102,7 +102,7 @@ mvmtOneCello = \relative c, {
 
 	% 100
 	e (dis) e (cis) d (cis) d (b)
-	c16\mf ees d ees f ees d ees c ees fes ees d ees f ees
+	c16\mf^\tutti ees d ees f ees d ees c ees fes ees d ees f ees
 	c\ff (ees d ees a, ees' d ees) d (a bes ees d c bes a)
 	aes8 r8 r4 r4 r16 fis'\mf r8
 	g16 r r8 fis,4 (f e
@@ -120,7 +120,7 @@ mvmtOneCello = \relative c, {
 	fis1\p \trill
 	\> fis1 \! \trill
 
-	R1*10 | R1*9
+	R1*10^\solo | R1*9
 	r8 fis'\ff r gis r fis r a
 
 	% 130
@@ -139,6 +139,13 @@ mvmtOneCello = \relative c, {
 	} >>
 	r2
 	R1*2
+	\mark \markup {
+		\fontsize #-3 {
+		        \note #"2" #1
+		        \large \bold "="
+	        	\note #"4." #1
+		}
+	}
 	\time 6/8
 	R1*6/8*4
 	gis4.\mf^\oneCello gis4 (fis8
@@ -183,9 +190,9 @@ mvmtOneCello = \relative c, {
 	fis32 \< (g fis e fis32 g fis e fis32 g fis e) fis8 fis fis \!
 
 	\time 4/4
-    % 177
+	% 177
 	<< {
-		b8 r d r e r fis r
+		b8^\solo r d r e r fis r
 		g r gis r gis r ais r
 		g r g r fis r fis r
 		b, r b r cis r fis, r
