@@ -70,18 +70,19 @@ class DebugTool(Client.App):
         if self.config['type-profile']:
             print self.server.debug.gc.typeProfile(self.key)
 
-        if not self.config['preserve-namespace']:
-            self.server.debug.resetInterpreter(self.key)
+        if self.config['eval'] or self.config['console']:
+            if not self.config['preserve-namespace']:
+                self.server.debug.resetInterpreter(self.key)
 
-        if self.config['eval']:
-            result = self.server.debug.eval(self.key, self.config['eval'])
-            if result == False:
-                print "Incomplete command"
-            else:
-                print result
+            if self.config['eval']:
+                result = self.server.debug.eval(self.key, self.config['eval'])
+                if result == False:
+                    print "Incomplete command"
+                else:
+                    print result
 
-        if self.config['console']:
-            RemoteConsole(self).interact()
+            if self.config['console']:
+                RemoteConsole(self).interact()
 
 if __name__ == '__main__':
     DebugTool().main()
