@@ -132,19 +132,16 @@ void unstall(usb_dev_handle *d) {
      * angle sensor edges or not) to try to zero in on the resonant frequency.
      */
     if (unstall_edges == 0) {
-      if (period > 53000)
-	period = 47000;
-      period += 500;
-    }
-    else {
-      period -= 10;
+      if (period > 50000)
+	period = 45000;
+      period += 5;
     }
 
     printf("period = %d, edges = %d\n", period, unstall_edges);
-    control_write(d, RWAND_CTRL_SET_PREDICTION, 0, period);
+    control_write(d, RWAND_CTRL_SET_PERIOD, period, 0);
     update_coil_driver(d, &status, 0.25, 0.25);
 
-    usleep(1000000);
+    usleep(10000);
 
     last_status = status;
     read_rwand_status(d, &status);
@@ -181,12 +178,21 @@ void read_image(unsigned char *columns, const char *filename) {
 
 void refresh_display(usb_dev_handle *d, unsigned char *columns) {
   /* Write out an 80x8 frame, given an 80-byte column array */
-  int i, b;
-  for (i=0; i<30; i+=3) {
-    if (i+3 >= 80)
-      i = 77;
-    control_write(d, RWAND_CTRL_RANDOM_WRITE3, i | (columns[i] << 8),
-		  columns[i+1] | (columns[i+2] << 8));
+
+  return;
+  if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_OUT, RWAND_CTRL_SEQ_WRITE12,
+		      columns[0] | (columns[1] << 8),
+		      columns[2] | (columns[3] << 8),
+		      &columns[4], 8, 500) < 0) {
+    perror("usb_control_msg");
+    exit(1);
+  }
+  if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_OUT, RWAND_CTRL_SEQ_WRITE12,
+		      columns[12] | (columns[13] << 8),
+		      columns[14] | (columns[15] << 8),
+		      &columns[16], 8, 500) < 0) {
+    perror("usb_control_msg");
+    exit(1);
   }
   control_write(d, RWAND_CTRL_FLIP, 0,0);
 }
@@ -224,9 +230,7 @@ int main(int argc, char **argv) {
 
     /* If it's been a while since we've seen a sync edge, conclude we're stalled */
     if (time(NULL) > last_edge_timestamp + 1) {
-      control_write(d, RWAND_CTRL_SET_MODES,
-		    RWAND_MODE_ENABLE_SYNC |
-		    RWAND_MODE_ENABLE_COIL, 0);
+      control_write(d, RWAND_CTRL_SET_MODES, RWAND_MODE_ENABLE_COIL, 0);
       unstall(d);
       last_edge_timestamp = time(NULL);
       control_write(d, RWAND_CTRL_SET_MODES,
