@@ -84,15 +84,18 @@ class RelationGrapher:
 
     def quote(self, t):
         """Quote the given text for inclusion in a dot file"""
-        t = t.replace("\\", "\\\\")
-        for badChar in '":<>|':
-            t = t.replace(badChar, '\\' + badChar)
-        return '"' + t + '"'
+        if type(t) in (int, float, bool):
+            return str(t)
+        else:
+            t = str(t)
+            for badChar in '\\":<>|':
+                t = t.replace(badChar, '\\' + badChar)
+            return '"' + t + '"'
 
     def dictToAttrs(self, d):
         """Convert a dictionary to a dot attribute string"""
         if d:
-            return "[%s]" % ",".join(['%s=%s' % (key, self.quote(str(value)))
+            return "[%s]" % ",".join(['%s=%s' % (key, self.quote(value))
                                       for key, value in d.iteritems()])
         else:
             return ""
@@ -100,12 +103,13 @@ class RelationGrapher:
     def _generateDot(self, rows, f, result):
         """Finish generateDot after receiving the SQL query results"""
         graphAttrs = {
-            'pack': True,
+            'packmode': 'graph',
             'center': True,
+            'Damping': 0.9,
             }
 
         f.write("graph G {\n")
-        f.write(''.join(['\t%s=%s;\n' % (key, self.quote(str(value)))
+        f.write(''.join(['\t%s=%s;\n' % (key, self.quote(value))
                          for key, value in graphAttrs.iteritems()]))
 
         # Make a unique list of all nodes in this graph
@@ -113,6 +117,15 @@ class RelationGrapher:
         for row in rows:
             nodes[row[0]] = None
             nodes[row[1]] = None
+
+        # Keep track of node parents, so later we can use them for special cases
+        parents = {}
+        for node in nodes:
+            segments = node.split('/')
+            for i in xrange(len(segments)):
+                parent = '/'.join(segments[:i])
+                if parent:
+                    parents[parent] = True
 
         # Find a selector for each node, and write out their attributes
         for node in nodes.keys():
@@ -139,6 +152,16 @@ class RelationGrapher:
         for row in rows:
             a, b, strength, freshness = row
 
+            # Exclude edges between nodes of dissimilar selectors when a parent node
+            # is involved. The rationale for this is that this edge doesn't give any
+            # real information, since the non-parent node will also have an edge
+            # connecting to a child of the parent node. For example, this would
+            # prevent author/bob from being linked to both project/kde/libwidgets
+            # and project/kde. The link between author/bob and project/kde would
+            # just clutter up the graph.
+            if (parents.has_key(a) or parents.has_key(b)) and nodes[a] != nodes[b]:
+                continue
+
             # Scale the strength and freshness logarithmically to be values between 0 and 1
             strength = math.log(strength) / math.log(maxStrength)
             freshness = 1 - (math.log(now - freshness) / math.log(now - minFreshness))
@@ -147,16 +170,8 @@ class RelationGrapher:
             # We use a high weight to tell neato that this edge length is important.
             attributes = {
                 'len': 8.0 - 6 * strength,
-                'weight': 15.0,
+                'weight': 0.1,
                 }
-
-            if nodes[a] is nodes[b]:
-                # Give connections between nodes in the same selector very little weight,
-                # so that children and parents may be placed far apart if necessary. This
-                # makes graphs of projects with many modules much less bunched up.
-                continue
-                attributes['len'] = 10.0
-                attributes['weight'] = 0.1
 
             f.write('\t%s -- %s %s;\n' % (self.quote(a),
                                           self.quote(b),
