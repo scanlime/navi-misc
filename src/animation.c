@@ -257,7 +257,7 @@ void animation_generate_chunks(Animation *self, ChunkCallback callback, gpointer
     callback(user_data, CHUNK_DURATION, sizeof(duration), (guchar*) &duration);
 
     if (spline) {
-      buffer = spline_serialize(spline, &buffer_len);
+      buffer = spline_serialize(spline, (gsize *) &buffer_len);
       callback(user_data, CHUNK_SPLINE, buffer_len, buffer);
       g_free(buffer);
       spline_free(spline);
