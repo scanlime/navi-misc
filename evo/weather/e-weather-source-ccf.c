@@ -255,7 +255,6 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 		/* We've got a pre-IFPS station. Realloc and return */
 		WeatherForecast *f = g_new0(WeatherForecast, 2);
 		memcpy (f, forecasts, sizeof (WeatherForecast) * 2);
-		g_free (forecasts);
 		fc = g_list_append (fc, &f[0]);
 		fc = g_list_append (fc, &f[1]);
 		source->done (fc, source->finished_data);
@@ -314,9 +313,8 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 	}
 	source->done (fc, source->finished_data);
 
-	g_list_free (tokens);
-
-	g_free (buffer);
+	g_free (forecasts);
+	g_list_free (fc);
 }
 
 static void
