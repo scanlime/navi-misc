@@ -376,12 +376,14 @@ class CatalogIndex:
                       r"\1-\2-\3 \4:\5:\6", date).split()
 
     def reindexFile(self, filename):
+        print "Reading index %r" % filename
+
         # Extract the date from the catalog's filename
         currentDate = self.prettifyDate(os.path.split(filename)[1].split('.', 1)[0])
 
         # Save the md5sum and date for each file we find within
         for line in open(filename):
-            sum, filename = line.strip().split(" ", 1)
+            sum, filename = line.replace("\t", " ").strip().split(" ", 1)
             filename = filename.lstrip()
             self.cache[filename] = (sum, currentDate)
 
