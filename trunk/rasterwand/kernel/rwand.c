@@ -68,6 +68,17 @@ struct filter {
 	int                     pointer;                /* Location to store the next new value in */
 };
 
+#define STATE_OFF         0      /* Don't even try to start the display, we're off */
+#define STATE_STARTING    1      /* We have no timing feedback, we're just blindly trying to get it started.
+				  * This state is done as soon as we get any sync edges from the device.
+				  */
+#define STATE_STABILIZING 2      /* We have timing feedback, but we aren't sure it's stable yet.
+				  * This moves to STATE_RUNNING if it gets a sufficient number
+				  * of sync edges, or back to STATE_STARTING if it times out.
+				  */
+#define STATE_RUNNING     3      /* Yay, we're running */
+
+
 struct rwand_dev {
 	struct usb_device *	udev;			/* save off the usb device pointer */
 	struct input_dev        input;                  /* Input device for the rwand's buttons */
@@ -89,6 +100,7 @@ struct rwand_dev {
 							 * when doing writes in blocks of 4, 8, or 12 bytes.
 							 */
 	struct rwand_status     status;
+	int                     state;
 
 	struct filter           period_filter;          /* We store the last several periods recorded, and actually
 							 * perform the timing calculation using their mean. This prevents
@@ -96,6 +108,9 @@ struct rwand_dev {
 							 * effect on the display.
 							 */
 	int                     filtered_period;
+
+	int                     edge_count;             /* A larger resettable extension of the device's
+							 * tiny edge counter */
 
 	int                     page_flip_pending;      /* Are we waiting on a page flip? */
 	wait_queue_head_t       page_flip_waitq;        /* Processes waiting on a page flip */
@@ -160,7 +175,18 @@ static void    rwand_process_status(struct rwand_dev *dev, const unsigned char *
 static void    rwand_reset_settings(struct rwand_dev *dev);
 static void    rwand_calc_timings(struct rwand_settings *settings, int period,
 				  struct rwand_timings *timings);
-static void    rwand_update_running_display(struct rwand_dev *dev, struct rwand_status *new_status);
+
+static void    rwand_update_state_off         (struct rwand_dev *dev, struct rwand_status *new_status);
+static void    rwand_update_state_starting    (struct rwand_dev *dev, struct rwand_status *new_status);
+static void    rwand_update_state_stabilizing (struct rwand_dev *dev, struct rwand_status *new_status);
+static void    rwand_update_state_running     (struct rwand_dev *dev, struct rwand_status *new_status);
+
+static void    rwand_enter_state_off          (struct rwand_dev *dev);
+static void    rwand_enter_state_starting     (struct rwand_dev *dev);
+static void    rwand_enter_state_stabilizing  (struct rwand_dev *dev);
+static void    rwand_enter_state_running      (struct rwand_dev *dev);
+
+static void    rwand_ensure_mode       (struct rwand_dev *dev, struct rwand_status *new_status, int mode);
 
 static int     filter_push(struct filter *filter, int new_value);
 static void    filter_reset(struct filter *filter);
@@ -233,8 +259,127 @@ static void filter_reset(struct filter *filter)
 
 
 /******************************************************************************/
+/******************************************************** State Handlers ******/
+/******************************************************************************/
+
+static void    rwand_enter_state_off          (struct rwand_dev *dev)
+{
+	dev->state = STATE_OFF;
+}
+
+static void    rwand_enter_state_starting     (struct rwand_dev *dev)
+{
+	dev->state = STATE_STARTING;
+	dev->edge_count = 0;
+}
+
+static void    rwand_enter_state_stabilizing  (struct rwand_dev *dev)
+{
+	dev->state = STATE_STABILIZING;
+	dev->edge_count = 0;
+}
+
+static void    rwand_enter_state_running      (struct rwand_dev *dev)
+{
+	dev->state = STATE_RUNNING;
+}
+
+static void rwand_update_state_off(struct rwand_dev *dev, struct rwand_status *new_status)
+{
+	/* Everything off */
+	rwand_ensure_mode(dev, new_status, 0);
+}
+
+static void rwand_update_state_starting(struct rwand_dev *dev, struct rwand_status *new_status)
+{
+	int new_period;
+
+	rwand_ensure_mode(dev, new_status,
+			  RWAND_MODE_ENABLE_COIL);
+
+	/* Cycle through different frequencies trying to get our wand to start up */
+	new_period = new_status->period;
+	if (new_period > 50000 || new_period < 45000)
+		new_period = 45000;
+	new_period += 5;
+	dbg("period: %d", new_period);
+	rwand_nb_request(dev, RWAND_CTRL_SET_PERIOD, new_period, 0);
+
+	/* If we get any edges at all in this mode, go to stabilizing */
+	if (dev->edge_count > 0)
+		rwand_enter_state_stabilizing(dev);
+}
+
+static void rwand_update_state_stabilizing(struct rwand_dev *dev, struct rwand_status *new_status)
+{
+	/* Let the device start trying to synchronize itself */
+	rwand_ensure_mode(dev, new_status,
+			  RWAND_MODE_ENABLE_SYNC |
+			  RWAND_MODE_ENABLE_COIL);
+}
+
+static void rwand_update_state_running(struct rwand_dev *dev, struct rwand_status *new_status)
+{
+	int new_filtered_period;
+
+	/* We want the works */
+	rwand_ensure_mode(dev, new_status,
+			  RWAND_MODE_STALL_DETECT |
+			  RWAND_MODE_ENABLE_SYNC |
+			  RWAND_MODE_ENABLE_COIL |
+			  RWAND_MODE_ENABLE_DISPLAY);
+
+	/* If our display just turned off, the firmware detected a stall. Go back
+	 * to the 'starting' state and give up this.
+	 */
+	if ((dev->status.mode & RWAND_MODE_ENABLE_DISPLAY) &&
+	    !(new_status->mode & RWAND_MODE_ENABLE_DISPLAY)) {
+		rwand_enter_state_starting(dev);
+		return;
+	}
+
+	/* If our mode has changed, both force a timing update and reset the period filter */
+	if (new_status->mode != dev->status.mode) {
+		dev->settings_dirty = 1;
+		filter_reset(&dev->period_filter);
+	}
+
+	new_filtered_period = filter_push(&dev->period_filter, new_status->period);
+
+	/* Only actually update the timings if our filtered period is noticeably
+	 * different than the last set period. This is mainly here to reduce
+	 * the bus bandwidth used by all the rwand_nb_request()s below when possible.
+	 */
+	if (abs(new_filtered_period - dev->filtered_period) > PERIOD_TOLERANCE) {
+		dev->settings_dirty = 1;
+		dev->filtered_period = new_filtered_period;
+	}
+
+	if (dev->settings_dirty) {
+		struct rwand_timings timings;
+		rwand_calc_timings(&dev->settings, new_filtered_period, &timings);
+		rwand_nb_request(dev, RWAND_CTRL_SET_COIL_PHASE, timings.coil_begin, timings.coil_end);
+		rwand_nb_request(dev, RWAND_CTRL_SET_COLUMN_WIDTH, timings.column_width, timings.gap_width);
+		rwand_nb_request(dev, RWAND_CTRL_SET_DISPLAY_PHASE, timings.fwd_phase, timings.rev_phase);
+		rwand_nb_request(dev, RWAND_CTRL_SET_NUM_COLUMNS, dev->settings.num_columns, 0);
+		dev->settings_dirty = 0;
+	}
+
+}
+
+
+/******************************************************************************/
 /************************************************** Device Communications *****/
 /******************************************************************************/
+
+
+/* Change modes if necessary */
+static void rwand_ensure_mode(struct rwand_dev *dev, struct rwand_status *new_status, int mode)
+{
+	if (new_status->mode != mode)
+		rwand_nb_request(dev, RWAND_CTRL_SET_MODES, mode, 0);
+}
+
 
 static void rwand_status_irq(struct urb *urb, struct pt_regs *regs)
 {
@@ -300,7 +445,7 @@ static void rwand_decode_status(const unsigned char *in, struct rwand_status *ou
 static void rwand_process_status(struct rwand_dev *dev, const unsigned char *packet)
 {
 	struct rwand_status new_status;
-	int power, new_mode;
+	int power;
 	rwand_decode_status(packet, &new_status);
 
 	/* Report button status to the input subsystem */
@@ -320,6 +465,9 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 		wake_up_interruptible(&dev->page_flip_waitq);
 	}
 
+	/* Update our edge counter */
+	dev->edge_count += (new_status.edge_count - dev->status.edge_count) & 0xFF;
+
 	/* Is the display supposed to be on now? */
 	switch (dev->settings.power_mode) {
 	case RWAND_POWER_ON:
@@ -331,60 +479,32 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 	default:
 		power = 0;
 	}
-
 	if (power) {
-		/* The display should be on. Is it? */
-		rwand_update_running_display(dev, &new_status);
-		new_mode =
-			RWAND_MODE_STALL_DETECT |
-			RWAND_MODE_ENABLE_SYNC |
-			RWAND_MODE_ENABLE_COIL |
-			RWAND_MODE_ENABLE_DISPLAY;
+		if (dev->state == STATE_OFF)
+			rwand_enter_state_starting(dev);
 	}
 	else {
-		/* It should be off */
-		new_mode = 0;
+		if (dev->state != STATE_OFF)
+			rwand_enter_state_off(dev);
 	}
 
-	/* Change modes if we need to */
-	if (new_mode != new_status.mode)
-		rwand_nb_request(dev, RWAND_CTRL_SET_MODES, new_mode, 0);
+	/* Now just go to a state-specific handler */
+	switch (dev->state) {
+	case STATE_OFF:
+		rwand_update_state_off(dev, &new_status);
+		break;
+	case STATE_STARTING:
+		rwand_update_state_starting(dev, &new_status);
+		break;
+	case STATE_STABILIZING:
+		rwand_update_state_stabilizing(dev, &new_status);
+		break;
+	case STATE_RUNNING:
+		rwand_update_state_running(dev, &new_status);
+		break;
+	}
 
 	dev->status = new_status;
-}
-
-
-static void rwand_update_running_display(struct rwand_dev *dev, struct rwand_status *new_status)
-{
-	int new_filtered_period;
-
-	/* If our mode has changed, both force a timing update and reset the period filter */
-	if (new_status->mode != dev->status.mode) {
-		dev->settings_dirty = 1;
-		filter_reset(&dev->period_filter);
-	}
-
-	new_filtered_period = filter_push(&dev->period_filter, new_status->period);
-
-	/* Only actually update the timings if our filtered period is noticeably
-	 * different than the last set period. This is mainly here to reduce
-	 * the bus bandwidth used by all the rwand_nb_request()s below when possible.
-	 */
-	dbg("%d %d", new_filtered_period, dev->filtered_period);
-	if (abs(new_filtered_period - dev->filtered_period) > PERIOD_TOLERANCE) {
-		dev->settings_dirty = 1;
-		dev->filtered_period = new_filtered_period;
-	}
-
-	if (dev->settings_dirty) {
-		struct rwand_timings timings;
-		rwand_calc_timings(&dev->settings, new_filtered_period, &timings);
-		rwand_nb_request(dev, RWAND_CTRL_SET_COIL_PHASE, timings.coil_begin, timings.coil_end);
-		rwand_nb_request(dev, RWAND_CTRL_SET_COLUMN_WIDTH, timings.column_width, timings.gap_width);
-		rwand_nb_request(dev, RWAND_CTRL_SET_DISPLAY_PHASE, timings.fwd_phase, timings.rev_phase);
-		rwand_nb_request(dev, RWAND_CTRL_SET_NUM_COLUMNS, dev->settings.num_columns, 0);
-		dev->settings_dirty = 0;
-	}
 }
 
 
