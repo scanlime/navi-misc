@@ -244,6 +244,7 @@ i2c_read_byte
 	movwf	i2c_bit_count
 read_loop
 
+	pscall	data_high		; Release the data line
 	pscall	i2c_delay		; Clock high, wait for valid data
 	pscall	clock_high
 	pscall	i2c_delay
