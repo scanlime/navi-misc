@@ -11,7 +11,7 @@ files using those layouts.
 
 import sys, gtk, gtk.glade
 from random import randint
-from GTKsheet import GTKsheet
+from GtkSheet import GtkSheet
 from Character import Character
 
 def init(filename=None):
@@ -27,7 +27,7 @@ def init(filename=None):
   if filename:
     data = Character()
     data.readCharacter(filename)
-    tree.sheet = GTKsheet(data, DieRoller())
+    tree.sheet = GtkSheet(data, DieRoller())
     tree.sheet.filename = filename
     tree.ViewPort.add(tree.sheet.root)
     tree.sheet.root.edit.set_active(gtk.TRUE)
@@ -83,7 +83,7 @@ def NewSheet(widget, data=None):
                     {'layout':tree.dialog.get_widget('SheetSelection').get_filename()})
   if hasattr(tree, 'sheet'):
     tree.ViewPort.remove(tree.sheet.root)
-  tree.sheet = GTKsheet(data)
+  tree.sheet = GtkSheet(data)
   tree.ViewPort.add(tree.sheet.root)
   tree.sheet.root.edit.set_active(gtk.TRUE)
   tree.sheet.root.show()
@@ -95,7 +95,7 @@ def OpenSheet(widget, data=None):
   if hasattr(tree, 'sheet'):
     tree.ViewPort.remove(tree.sheet.root)
   action = DieRoller()
-  tree.sheet = GTKsheet(data, action)
+  tree.sheet = GtkSheet(data, action)
   tree.sheet.filename = tree.dialog.get_widget('SheetSelection').get_filename()
   tree.ViewPort.add(tree.sheet.root)
   tree.sheet.root.edit.set_active(gtk.TRUE)

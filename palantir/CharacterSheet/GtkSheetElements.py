@@ -11,9 +11,17 @@ from Character import Character
 from random import randint
 
 class sheetElement:
+  gtkBool = {'gtk.TRUE':gtk.TRUE, 'gtk.FALSE':gtk.FALSE}
+
   ''' Superclass for all the tags. '''
   def __init__(self, node):
     self.attributes = self.getAttrs(node)
+    # Get the packing arguments if any are provided.
+    if self.attributes.has_key('packArgs'):
+      args = str(self.attributes['packArgs']).split(',')
+      self.packArgs = [self.gtkBool[args[0]],\
+	               self.gtkBool[args[1]],\
+		       int(args[2])]
 
   def getAttrs(self, node):
     ''' Store all of the tags attributes in a dictionary with attribute names
@@ -115,7 +123,7 @@ class hbox(gtk.HBox, sheetElement):
 
   def packChild(self, child):
     ''' Pack children using pack_start, hbox is just a gtk.HBox. '''
-    self.pack_start(child, padding=5)
+    self.pack_start(child, *getattr(child, 'packArgs', [gtk.TRUE, gtk.TRUE, 5]))
     child.show()
 
 class text_field(gtk.HBox, sheetElement):
