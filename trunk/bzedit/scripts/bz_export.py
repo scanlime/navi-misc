@@ -62,7 +62,7 @@ class BzWorldExporter:
                 bzo = typeReg.fromBlender(object)
                 self.objects.append(bzo)
 
-                if bztype == 'world':
+                if isinstance(bzo, bzflag.World):
                     if self.world:
                         bzflag.log.err("Multiple 'world' objects are not allowed")
                         return
@@ -75,24 +75,23 @@ class BzWorldExporter:
     def save(self, filename):
         """Write all collected bzflag objects to the given file"""
         writer = bzflag.WorldWriter(filename)
-        for objects in self.bzTypeMap.itervalues():
-            for object in objects:
-                writer.writeObject(object)
-
+        for object in self.objects:
+            writer.writeObject(object)
 
 def main():
-    exp = BzWorldExporter()
-    exp.collectObjects()
+    global exporter
+    exporter = BzWorldExporter()
+    exporter.collectObjects()
     if bzflag.log.numErrors:
         bzflag.log.report("Errors in collecting objects")
         return
+    Blender.Window.FileSelector(fileSelectedCallback, "Save BZFlag World")
 
-    def onFileSelected(name):
-        exp.save(name)
-        if bzflag.log.numErrors:
-            bzflag.log.report("Errors in saving world file")
-
-    Blender.Window.FileSelector(onFileSelected, "Save BZFlag World")
+def fileSelectedCallback(filename):
+    global exporter
+    exporter.save(filename)
+    if bzflag.log.numErrors:
+        bzflag.log.report("Errors in saving world file")
 
 if bzflag:
     main()

@@ -25,11 +25,12 @@ except ImportError:
                          "path properly.")
     bzflag = None
 
-# Create a new BZObject and convert that to a new Blender object
-bzo = bzflag.getTypeRegistry().dict[__script__.arg]()
-object = bzo.toBlender()
+if bzflag:
+    # Create a new BZObject and convert that to a new Blender object
+    bzo = bzflag.getTypeRegistry().dict[__script__.arg]()
+    object = bzo.toBlender()
 
-# Put the new object at the cursor
-object.setLocation(*Blender.Window.GetCursorPos())
+    # Put the new object at the cursor
+    object.setLocation(*Blender.Window.GetCursorPos())
 
 ### The End ###
