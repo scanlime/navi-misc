@@ -135,9 +135,9 @@ static gboolean discovery_server_read(GIOChannel*            source,
 
     /* Ignore it if it doesn't exactly match our service */
     if (length != strlen(self->service_name) + 1)
-	return;
+	return TRUE;
     if (strncmp(self->service_name, self->buffer, self->buffer_size))
-	return;
+	return TRUE;
 
     /* Yay, someone cares about us. Tack our port number
      * onto the end and send a reply.

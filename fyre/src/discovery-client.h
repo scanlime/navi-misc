@@ -41,22 +41,44 @@ G_BEGIN_DECLS
 typedef struct _DiscoveryClient         DiscoveryClient;
 typedef struct _DiscoveryClientClass    DiscoveryClientClass;
 
+typedef void (DiscoveryCallback)(DiscoveryClient* client,
+				 const gchar*     host,
+				 int              port,
+				 gpointer         user_data);
+
 struct _DiscoveryClient {
     GObject object;
 
-    gchar*  service_name;
+    gchar*             service_name;
+    DiscoveryCallback* callback;
+    gpointer           user_data;
+    guint              interval;
+
+    guint              broadcast_timer;
+    GInetAddr*         broadcast;
+    GUdpSocket*        socket;
+    guchar*            buffer;
+    gsize              buffer_size;
 };
 
 struct _DiscoveryClientClass {
     GObjectClass parent_class;
 };
 
+
 /************************************************************************************/
 /******************************************************************* Public Methods */
 /************************************************************************************/
 
-GType             discovery_client_get_type         ();
-DiscoveryClient*  discovery_client_new              (const gchar* service_name);
+GType             discovery_client_get_type   ();
+
+/* Automatically look for "service_name". Call the provided callback when the
+ * service is found. Send broadcast packets every 'interval' seconds.
+ */
+DiscoveryClient*  discovery_client_new        (const gchar*       service_name,
+					       guint              interval,
+					       DiscoveryCallback* callback,
+					       gpointer           user_data);
 
 G_END_DECLS
 

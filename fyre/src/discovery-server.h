@@ -38,8 +38,6 @@
 G_BEGIN_DECLS
 
 #define FYRE_DISCOVERY_PORT         7932
-#define FYRE_DEFAULT_SERVICE        "Fyre server 1"
-
 
 #define DISCOVERY_SERVER_TYPE            (discovery_server_get_type ())
 #define DISCOVERY_SERVER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), DISCOVERY_SERVER_TYPE, DiscoveryServer))
@@ -57,7 +55,7 @@ struct _DiscoveryServer {
     int          service_port;
 
     GUdpSocket*  socket;
-    gchar*       buffer;
+    guchar*      buffer;
     gsize        buffer_size;
 };
 
