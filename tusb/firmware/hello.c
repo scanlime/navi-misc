@@ -10,12 +10,16 @@ void main() {
   uart_init();
   puts("\n---- Startup ----");
 
+#if 0
   usb_init();
   puts("USB initialized");
+#else
+  printf("Not reinitializing USB, using address %d\n", FUNADR);
+#endif
 
   while (1) {
+    watchdog_reset();
     usb_poll();
-    delay(20000);
   }
 }
 

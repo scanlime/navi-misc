@@ -297,6 +297,7 @@ xdata at 0xFFFC unsigned char USBCTL;           /* USB control register */
 xdata at 0xFFFD unsigned char USBMSK;           /* USB interrupt mask register */
 xdata at 0xFFFE unsigned char USBSTA;           /* USB status register */
         #define STPOW    (1<<0)                 /* Setup overwrite */
+        #define WAKEUP   (1<<1)                 /* Remote wakeup request */
         #define SETUP    (1<<2)                 /* Setup transaction received */
         #define PWON     (1<<3)                 /* Power on request */
         #define PWOFF    (1<<4)                 /* Power off request */
