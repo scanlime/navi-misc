@@ -1,9 +1,3 @@
-- parameter_holder_load_string() always resets to defaults
-  then processes the string of serialized parameters. Normally
-  this is fine, but when browsing forward/back in several images
-  of non-default size, the size repeatedly changes. This could
-  be solved by making parameter_holder_load_string() smarter,
-  or by making the histogram view smarter about resizing.
 
 - The new quality metric is quite slow, relative to the old
   one at least. It might be further improved, but the first

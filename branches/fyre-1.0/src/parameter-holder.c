@@ -37,6 +37,10 @@ static void value_transform_string_boolean (const GValue *src_value, GValue *des
 static void value_transform_string_ulong   (const GValue *src_value, GValue *dest_value);
 static void value_transform_string_enum    (const GValue *src_value, GValue *dest_value);
 
+static gchar**      parameter_line_parse           (const gchar* line);
+static GHashTable*  parameter_hash_from_string     (const gchar* params);
+static void         parameter_holder_set_with_spec (ParameterHolder *self, GParamSpec *spec, const gchar* value);
+
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -138,7 +142,6 @@ static void value_transform_string_enum(const GValue *src_value, GValue *dest_va
 
 void parameter_holder_set(ParameterHolder *self, const gchar* property, const gchar* value) {
     /* Set a property, casting a string value to whatever type the property expects */
-    GValue strval, converted;
     GParamSpec *spec;
 
     /* Look up the GParamSpec for this property */
@@ -150,6 +153,13 @@ void parameter_holder_set(ParameterHolder *self, const gchar* property, const gc
 	return;
     }
 
+    parameter_holder_set_with_spec(self, spec, value);
+}
+
+static void parameter_holder_set_with_spec (ParameterHolder *self, GParamSpec *spec, const gchar* value)
+{
+    GValue strval, converted;
+
     memset(&strval, 0, sizeof(GValue));
     memset(&converted, 0, sizeof(GValue));
     g_value_init(&strval, G_TYPE_STRING);
@@ -157,37 +167,67 @@ void parameter_holder_set(ParameterHolder *self, const gchar* property, const gc
     g_value_set_string(&strval, value);
 
     if (g_value_transform(&strval, &converted)) {
-	g_object_set_property(G_OBJECT(self), property, &converted);
+	g_object_set_property(G_OBJECT(self), spec->name, &converted);
     }
     else {
 	g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
 	      "Couldn't convert value '%s' for property '%s'",
-	      value, property);
+	      value, spec->name);
     }
 
     g_value_unset(&strval);
     g_value_unset(&converted);
 }
 
-void parameter_holder_set_from_line(ParameterHolder *self,
-				    const gchar     *line)
+static gchar**  parameter_line_parse(const gchar* line)
 {
-    /* Split each line into key and value */
+    /* Split a line into key and value, returning a string vector
+     */
     gchar** tokens = g_strsplit(line, "=", 2);
 
     if (!(tokens[0] && tokens[1])) {
 	/* Need at least two tokens, ignore this invalid line */
-	return;
+	g_strfreev(tokens);
+	return NULL;
     }
 
     g_strstrip(tokens[0]);
     g_strstrip(tokens[1]);
-
-    parameter_holder_set(self, tokens[0], tokens[1]);
-
-    g_strfreev(tokens);
+    return tokens;
 }
 
+static GHashTable* parameter_hash_from_string (const gchar* params)
+{
+    /* Parse a multiline parameter string into a key, value hash
+     */
+    gchar** lines = g_strsplit(params, "\n", 0);
+    gchar** line;
+    GHashTable* hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+
+    for (line=lines; *line; line++) {
+	gchar** tokens = parameter_line_parse(*line);
+
+	if (tokens)
+	    g_hash_table_insert(hash, tokens[0], tokens[1]);
+
+	/* Free the vector, but keep the strings themselves */
+	g_free(tokens);
+    }
+
+    g_strfreev(lines);
+    return hash;
+}
+
+void parameter_holder_set_from_line(ParameterHolder *self,
+				    const gchar     *line)
+{
+    gchar** tokens = parameter_line_parse(line);
+    if (tokens) {
+	parameter_holder_set(self, tokens[0], tokens[1]);
+	g_strfreev(tokens);
+    }
+}
+    
 void parameter_holder_reset_to_defaults(ParameterHolder *self) {
     /* Reset all G_PARAM_CONSTRUCT properties to their default values
      */
@@ -354,18 +394,44 @@ gchar* parameter_holder_save_string(ParameterHolder *self) {
 
 void parameter_holder_load_string(ParameterHolder *self, const gchar *params) {
     /* Load all recognized parameters from a string given in the same
-     * format as the one produced by save_parameters()
+     * format as the one produced by save_parameters(). All parameters
+     * not mentioned will be reset to their defaults.
      */
-    gchar** lines = g_strsplit(params, "\n", 0);
-    gchar** line;
+    GHashTable* hash;
+    GParamSpec** properties;
+    gchar* hash_value;
+    guint n_properties;
+    int i;
+    GValue val;
 
-    /* Always start with defaults */
-    parameter_holder_reset_to_defaults(self);
+    hash = parameter_hash_from_string(params);
+    properties = g_object_class_list_properties(G_OBJECT_GET_CLASS(self), &n_properties);
 
-    for (line=lines; *line; line++)
-	parameter_holder_set_from_line(self, *line);
+    for (i=0; i<n_properties; i++) {
 
-    g_strfreev(lines);
+	/* Is this property being set? */
+	hash_value = g_hash_table_lookup(hash, properties[i]->name);
+	if (hash_value) {
+
+	    /* Yep. Load it from the string */
+	    parameter_holder_set_with_spec(self, properties[i], hash_value);
+
+	}
+	else if (properties[i]->flags & G_PARAM_CONSTRUCT) {
+
+	    /* Set it from the default */
+	    memset(&val, 0, sizeof(val));
+	    g_value_init(&val, properties[i]->value_type);
+	    g_param_value_set_default(properties[i], &val);
+
+	    g_object_set_property(G_OBJECT(self), properties[i]->name, &val);
+
+	    g_value_unset(&val);
+	}
+    }
+
+    g_free(properties);
+    g_hash_table_destroy(hash);
 }
 
 ToolInfoPH* parameter_holder_get_tools(ParameterHolder *self) {
