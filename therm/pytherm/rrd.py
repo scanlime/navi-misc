@@ -23,7 +23,7 @@ A simple Python interface to rrdtool
 #
 
 from Nouvelle import tag
-import os, time, popen2, sys, re, colorsys, random
+import os, time, popen2, sys, re, colorsys, random, shutil
 import Image
 from pytherm import units
 
@@ -31,33 +31,37 @@ from pytherm import units
 def shellEscape(s):
     return re.sub(r"([^0-9A-Za-z_\./:-])", r"\\\1", s)
 
+class RRDException(Exception):
+    pass
+
+_rrdtool = None
 
 def rrd(*args):
-    """Simple wrapper around rrdtool. If the first argument is
-       'graph', this returns a (width, height) tuple with the size
-       reported by rrdtool.
+    """Simple wrapper around rrdtool. It takes parameters to pass to rrdtool, and returns
+       a list of lines returned from it. This keeps a persistent rrdtool process running,
+       and streams commands to it over a pipe.
        """
-    # Quote each argument to protect its valuable spaces from the evil shell
-    command = " ".join(["rrdtool"] + [shellEscape(str(arg)) for arg in args])
-    child = popen2.Popen4(command)
+    global _rrdtool
+    if not _rrdtool:
+        _rrdtool = popen2.Popen3("rrdtool -")
 
-    # If we're graphing, wait for a size line from rrdtool
-    line = child.fromchild.readline().strip()
-    size = None
+    _rrdtool.tochild.write(" ".join([shellEscape(str(arg)) for arg in args]) + "\n")
+    _rrdtool.tochild.flush()
 
-    if args[0] == 'graph':
-        tokens = line.split("x")
-        if len(tokens) != 2:
-            raise Exception("Unexpected response from rrdtool: %r" % line)
-        size = map(int, tokens)
-    elif args[0] == 'create':
-        if line:
-            raise Exception("Unexpected response from rrdtool: %r" % line)
-
-    # Wait for rrdtool to finish
-    if child.wait():
-        raise Exception("Error in rrdtool")
-    return size
+    # Collect results until the "OK" line
+    results = []
+    while 1:
+        line = _rrdtool.fromchild.readline()
+        if not line:
+            _rrdtool = None
+            raise RRDException("Unexpected EOF from rrdtool")
+        line = line.strip()
+        results.append(line)
+        if line.startswith("ERROR:"):
+            raise RRDException(line)
+        if line.startswith("OK "):
+            break
+    return results
 
 
 def getTempDir():
@@ -65,13 +69,13 @@ def getTempDir():
        based on a hash of our path- so individual installations of
        the therm software get distinct temp directories.
        """
-    return "/tmp/therm-%08X" % abs(hash(__file__))
+    return "/tmp/therm-%08X" % abs(hash(__file__.replace("pyc", "py")))
 
 
-def escapeForPath(s:
+def escapeForPath(s):
     """Escape a string such that any characters unsuitable for use
        in a file or directory name are gone"""
-    return s.replace(os.sep, ".")
+    return s.replace(os.sep, "")
 
 
 class CachedResource:
@@ -89,30 +93,47 @@ class CachedResource:
 
     def __init__(self, name):
         self.name = name
-        self.path = os.path.join(getTempDir(), "r_%s" % escapeForPath(name))
-        try:
-            os.makedirs(self.path)
-        except OSError:
-            pass
+        self.path = os.path.join(getTempDir(), "r.%s" % escapeForPath(name))
 
     def getFile(self, stamp):
         """Get the final file name for a particular stamp"""
         return os.path.join(self.path, escapeForPath(str(stamp)))
 
+    def stampExists(self, stamp):
+        return os.path.isfile(self.getFile(stamp))
+
     def iterStamps(self):
         """Iterate over all stamps for which we have finished resources"""
-        for name in os.listdir(self.path):
+        try:
+            names = os.listdir(self.path)
+        except OSError:
+            return
+        for name in names:
             if name and name[0] != '.':
                 try:
                     yield self.stampType(name)
                 except:
                     pass
 
-    def cleanStampsBefore(self, stamp):
-        """Remove all versions of this resource older than the one indicated"""
+    def getLatestStamp(self):
+        # We can't just run max() on the sequence, since it might be empty
+        latest = 0
+        for stamp in self.iterStamps():
+            latest = max(stamp, latest)
+        return latest
+
+    def cleanStamps(self, criteria):
+        """Remove all stamps for which criteria(stamp)==True"""
+        dirEmpty = True
         for s in self.iterStamps():
-            if s < stamp:
+            if criteria(s):
                 os.unlink(self.getFile(s))
+            else:
+                dirEmpty = False
+        try:
+            os.rmdir(self.path)
+        except OSError:
+            pass
 
     def newVersion(self, timeout=60*10):
         """To start writing out a new version of this resource, this
@@ -120,7 +141,12 @@ class CachedResource:
            effect of clearing out any expired temporary files. The new file
            will expire after the given number of seconds.
            """
-        tempDir = os.path.join(self.path, "unfinished")
+        try:
+            os.makedirs(self.path)
+        except OSError:
+            pass
+
+        tempDir = os.path.join(getTempDir(), "unfinished")
         try:
             os.makedirs(tempDir)
         except OSError:
@@ -132,8 +158,8 @@ class CachedResource:
         for filename in os.listdir(tempDir):
             filepath = os.path.join(tempDir, filename)
             try:
-                time, randomness = name.split("_")
-                if float(time) > now:
+                expiration, randomness = name.split("_")
+                if float(expiration) > now:
                     # Expired, delete it
                     os.unlink(filepath)
             except:
@@ -141,86 +167,83 @@ class CachedResource:
                 os.unlink(filepath)
 
         # Generate a new name
-        randomness = abs(hash(random.random()) ^ os.getpid())
-        return os.path.join(tempDir, "%s_%s" % (now + timeout, randomness)
+        randomness = abs(hash(random.random()) ^ hash(self.name) ^ os.getpid())
+        return os.path.join(tempDir, "%s_%s" % (now + timeout, randomness))
 
-    def commitVersion(Self, tempFile, stamp):
+    def commitVersion(self, tempFile, stamp):
         """Commit a finished temporary file by renaming it atomically"""
         os.rename(tempFile, self.getFile(stamp))
 
-
-class Timestamped:
-    """Abstract base class for an object that has a timestamp"""
-    def getTimestamp(self):
-        return None
-
-
-class TimestampedFile(Timestamped):
-    """Abstract base class for a file acting as a timestamp"""
-    def __init__(self, filename):
-        self.filename = filename
-
-    def __repr__(self):
-        return "<%s %r>" % (self.__class__.__name__, self.filename)
-
-    def getTimestamp(self):
+    def rollbackVersion(self, tempFile):
+        """Cancel a version without committing it to a stamp"""
         try:
-            return os.stat(self.filename).st_mtime
+            os.unlink(tempFile)
         except OSError:
-            return None
+            pass
 
 
-class BuildTarget(TimestampedFile):
-    """Abstract object representing a timestamped file that is generated
-       from some other timestamped object.
+class CachedResourceProxy(CachedResource):
+    """A class that isn't a resource by itself but should refer to an external one"""
+    def __init__(self, original):
+        self.original = original
+        for name in "name getFile stampExists iterStamps cleanStamps".split():
+            setattr(self, name, getattr(original, name))
+
+
+class DependentResource(CachedResource):
+    """A CachedResource that is automatically updated to track the latest
+       version of one or more other resources. A provided specification list
+       can contain CachedResource instances that this depends on, plus strings
+       that identify this dependent resource uniquely. This requires that all
+       dependencies use the same format for stamps and that a new stamp for
+       any dependency will be greater than existing stamps for all other
+       dependencies.
        """
-    fileExtension = None
+    def __init__(self, *spec):
+        self.spec = spec
 
-    def __init__(self, filename=None, *dependencies):
-        if filename is None:
-            filename = self.newTempFilename(dependencies, self.fileExtension)
-        TimestampedFile.__init__(self, filename)
-        self.dependencies = dependencies
+        elements = []
+        for item in spec:
+            if isinstance(item, CachedResource):
+                elements.append(item.name)
+            else:
+                elements.append(str(item))
+        CachedResource.__init__(self, ".".join(elements))
 
-    def newTempFilename(self, dependencies, fileExtension=None, tempDir=None):
-        """Automatically generate a temporary file name from the dependencies.
-           The file name is a hash of our dependencies' repr()s.
+    def updateToLatest(self):
+        """Commit a new stamp to this resource generated from the latest versions of
+           all other resources, then delete any old stamps for this resource.
            """
-        if tempDir is None:
-            thisDir = os.path.split(os.path.realpath(__file__))[0]
-            tempDir = os.path.realpath(os.path.join(thisDir, "..", "web", "tmp"))
-        digest = sha.new()
-        for dep in dependencies:
-            digest.update(repr(dep))
-        name = digest.hexdigest()
-        if fileExtension:
-            name = "%s.%s" % (name, fileExtension)
-        return os.path.join(tempDir, name)
+        # Determine the newest stamp in each dependency
+        latest = {}
+        for item in spec:
+            if isinstance(item, CachedResource):
+                latest[item] = item.getLatestStamp()
+        if not latest:
+            return
 
-    def buildRule(self):
-        """This is defined by subclasses, to regenerate the target"""
-        pass
+        # Our new stamp is the greatest out of all deps' stamps
+        stamp = max(latest.itervalues())
+        self.updateStamp(latest, stamp)
 
-    def make(self):
-        """Make the target if necessary"""
-        for dep in self.dependencies:
-            if isinstance(dep, BuildTarget):
-                dep.make()
-        if self.needsBuilding():
-            self.buildRule()
+        # Clean old versions if that was successful
+        self.cleanStamps(lambda s: s < stamp)
 
-    def needsBuilding(self):
-        """Using time stamps, determine whether this needs building"""
-        thisTimestamp = self.getTimestamp()
-        if thisTimestamp is None:
-            return True
-        for dependency in self.dependencies:
-            if not isinstance(dependency, Timestamped):
-                continue
-            depStamp = dependency.getTimestamp()
-            if depStamp is not None and depStamp > thisTimestamp:
-                return True
-        return False
+    def updateStamp(self, depVersions, stamp):
+        """Regenerate a single stamp from the original, using the provided dependency versions"""
+        temp = self.newVersion()
+        try:
+            self.build(depVersions, temp)
+        except:
+            self.rollbackVersion(temp)
+            raise
+        self.commitVersion(temp, stamp)
+
+    def build(self, depVersions, output):
+        """A subclass-defined function to rebuild this resource given
+           dependency versions and an output file path.
+           """
+        raise NotImplementedError()
 
 
 def lerp(a, b, alpha):
@@ -269,70 +292,18 @@ class Color:
             alpha))
 
 
-def makeRelPath(fromPath, toPath):
-    """Create a relative path that when evaluated relative to 'fromPath'
-       will refer to the path in 'toPath'.
-       """
-    fromPath = os.path.realpath(fromPath)
-    toPath = os.path.realpath(toPath)
-    segments = []
-
-    # Back up as much as we need to
-    while 1:
-        base = os.path.realpath(os.path.join(fromPath, *segments))
-        if toPath.startswith(base):
-            break
-        else:
-            segments.append("..")
-
-    # Add the rest
-    for segment in toPath[len(base):].split(os.sep):
-        if segment:
-            segments.append(segment)
-    return os.sep.join(segments)
-
-
-def pathToURL(request, path):
-    """Try to guess a URL for the given path using our current request"""
-    pathDiff = makeRelPath(request.filename, path)
-    return os.path.abspath(os.path.join(request.uri, pathDiff))
-
-
-class ImageBuildTarget(BuildTarget):
-    """A build target that's also an image. The buildRule should fill in
-       width and height. These images are renderable by Nouvelle.
-       """
-    cssClass = None
-    alt = None
-    size = None
-
-    def getUrl(self, context):
-        req = context['request']
-        return pathToURL(req, self.filename)
-
-    def render(self, context):
-        if self.size is None:
-            self.determineSize()
-        return tag('img', src=self.getUrl(context), width=self.size[0], height=self.size[1],
-                   _class=self.cssClass, alt=self.alt)
-
-    def determineSize(self):
-        self.size = Image.open(self.filename).size
-
-
-class ScaledImage(ImageBuildTarget):
+class ScaledImageResource(DependentResource):
     """Rescale the input image. If only width or height are provided,
        the resulting image has the same aspect ratio as the input image.
        """
-    fileExtension = 'png'
-
-    def __init__(self, original, width=None, height=None, filename=None):
+    def __init__(self, original, width=None, height=None):
         assert not (width is None and height is None)
         self.scaleTo = (width, height)
-        ImageBuildTarget.__init__(self, filename, original)
+        DependentResource.__init__(self, original, "scale-%sx%s" % self.scaleTo)
 
-    def buildRule(self):
-        i = Image.open(self.dependencies[0].filename)
+    def build(self, depVersions, output):
+        original = self.spec[0]
+        i = Image.open(original.getFile(depVersions[original]))
 
         width, height = self.scaleTo
         if width is None:
@@ -357,16 +328,14 @@ class ScaledImage(ImageBuildTarget):
         bg.paste(i, (0,0))
 
         bg.thumbnail(self.size, Image.ANTIALIAS)
-        bg.save(self.filename, 'PNG')
+        bg.save(output, 'PNG')
 
 
-class RrdGraph(ImageBuildTarget):
-    """A graph created by rrdtool from one or more RRDs. Dependencies are all
-       rrdtool parameters- either strings interpreted as command line parameters,
-       or RrdDef objects.
+class RrdGraphResource(DependentResource):
+    """A graph created by rrdtool from one or more RRDs. or other dependencies.
+       Parameters should be plain strings for rrdtool, or resources that can be
+       converted to strings using their rrdparam(stamp) method, such as RrdDef objects.
        """
-    fileExtension = 'png'
-
     def __init__(self, params, size=(600,150), yLabel=None, interval="day"):
         prepend = [
             "--width", size[0],
@@ -375,39 +344,73 @@ class RrdGraph(ImageBuildTarget):
             ]
         if yLabel:
             prepend.extend(["--vertical-label", yLabel])
-        BuildTarget.__init__(self, None, *(prepend + list(params)))
 
-    def buildRule(self):
-        self.size = rrd('graph', self.filename, *map(str, self.dependencies))
+        # Our entire spec consists of command line options
+        BuildTarget.__init__(self, *(prepend + list(params)))
+
+    def build(self, depVersions, output):
+        params = []
+        for dep in self.deps:
+            if isinstance(dep, CachedResource):
+                params.append(dep.rrdparam(depVersions[dep]))
+            else:
+                params.append(dep)
+        self.size = rrd('graph', self.filename, *params)
 
 
-class RrdDef(BuildTarget):
+class RrdDef(CachedResourceProxy):
     """A DEF parameter for rrdtool, linking an RrdFile with a particular variable."""
     def __init__(self, varName, rrd, cf='AVERAGE', dsName='x'):
-        BuildTarget.__init__(self, None, varName, rrd, dsName, cf)
+        self.varName = varName
+        self.cf = cf
+        self.dsName = dsName
+        CachedResourceProxy.__init__(self, rrd)
 
-    def __repr__(self):
-        return "<RrdDef %s>" % self
-
-    def __str__(self):
-        return "DEF:%s=%s:%s:%s" % (self.dependencies[0],
-                                    self.dependencies[1].filename,
-                                    self.dependencies[2],
-                                    self.dependencies[3])
+    def rrdparam(self, stamp):
+        return "DEF:%s=%s:%s:%s" % (self.varName,
+                                    self.original.getFile(stamp),
+                                    self.dsName,
+                                    self.cf)
 
 
-class RrdFile(BuildTarget):
+class RrdFile(CachedResource):
     """An RRD file, usable as a dependency to RrdDef"""
-    fileExtension = 'rrd'
+    def update(self, source):
+        """Look for updates and commit a new stamp if necessary. 'source'
+           is a function that returns a (stamp, time, value) tuple for every
+           stamp after the one provided.
+           """
+        temp = self.newVersion()
+        try:
 
-    def buildRule(self):
-        if not os.path.isfile(self.filename):
-            self.rrdInit()
+            # Find the most recent stamp, for a starting point
+            latestStamp = self.getLatestStamp()
+            if latestStamp > 0:
+                # We have an existing stamp to copy
+                shutil.copyfile(self.getFile(latestStamp), temp)
+            else:
+                # Start a blank RRD
+                self.rrdInit(temp)
 
-    def rrdInit(self):
+            # Look for new samples to insert after our current latest.
+            for stamp, time, value in source(latestStamp):
+                if stamp <= latestStamp:
+                    continue
+                rrd("update", temp, "%d:%s" % (int(time), value))
+                latestStamp = stamp
+
+        except:
+            self.rollbackVersion(temp)
+            raise
+
+        # Commit the updated RRD
+        self.commitVersion(temp, latestStamp)
+
+        # Clean old versions if that was successful
+        self.cleanStamps(lambda s: s < latestStamp)
+
+    def rrdInit(self, filename, stepSize=60):
         """Create a blank RRD for this therm"""
-        stepSize = 60
-
         # Define the steps and rows for each RRA in each CF (see the rrdcreate manpage)
         nSamples = 60*60*24*2 / stepSize
         rraList = [
@@ -418,7 +421,7 @@ class RrdFile(BuildTarget):
             ]
 
         # Start out with the parameters to define our RRD file and data source
-        params = ["create", self.filename,
+        params = ["create", filename,
                   "--step", stepSize,
                   "--start", int(time.time() - 60*60*24*365*2),
                   "DS:x:GAUGE:%s:U:U" % int(stepSize * 10)]
@@ -430,9 +433,6 @@ class RrdFile(BuildTarget):
 
         rrd(*params)
 
-    def update(self, pairs):
-        """Update with new data, provided as a list of time/value pairs"""
-        rrd("update", self.filename, *["%d:%.04f" % (int(time), value) for time, value in pairs])
 
 def graphDefineSource(rrd):
     """Define variables for the minimum, maximum, average, and span on an RRD"""
@@ -475,7 +475,7 @@ def graphColorSlice(min, max, color, id=[0]):
         "AREA:s%d%s" % (id[0], color),
         ]
 
-def graphColorRange(min, minColor, max, maxColor, numSlices=64, id=[0]):
+def graphColorRange(min, minColor, max, maxColor, numSlices=256, id=[0]):
     """Graph a linearly interpolated color range, given the minimum and maximum
        data values with their corresponding color. Data outside the minimum and maximum
        gets clamped.
