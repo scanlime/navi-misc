@@ -49,22 +49,20 @@ namespace Fyre {
 			string current_dir = Directory.GetCurrentDirectory();
 
 			if (current_dir.IndexOf (Defines.DATADIR) == -1) {
-				// Before make install is run, the plugins are in the Plugins/<plugin name>
-				// directory. So we go through each dir in the Plugins/ dir and look
-				// for dll's. The nested for loops are a bit gross, but it's not likely
-				// that there's a huge amount of stuff in these directory.
+				// Before make install is run, the plugins are in the various subdirectories
+				// in src/Plugins. Go through each directory and look for dlls. This allows
+				// Fyre to be run straight from the toplevel directory or the src directory,
+				// and it will still find the plugins
 
-				string plugins = String.Concat (current_dir, "/Plugins"),			// ./Plugins
-					   src_plugins = String.Concat (current_dir, "/src/Plugins");	// ./src/Plugins
+				string plugins = String.Concat (current_dir, "/Plugins");
+				string src_plugins = String.Concat (current_dir, "/src/Plugins");
 
 				if (Directory.Exists (plugins)) {
 					foreach (string dir in Directory.GetDirectories (plugins)) {
 						foreach (string file in Directory.GetFiles (dir, "*.dll"))
 							files.Add (file);
 					}
-				}
-
-				if (Directory.Exists (src_plugins)) {
+				} else if (Directory.Exists (src_plugins)) {
 					foreach (string dir in Directory.GetDirectories (src_plugins)) {
 						foreach (string file in Directory.GetFiles (dir, "*.dll"))
 							files.Add (file);
@@ -73,18 +71,23 @@ namespace Fyre {
 			}
 
 			// Add all the files in the PLUGINSDIR to the list of plugins.
-			if (Directory.Exists (directory))
+			if (Directory.Exists (directory)) {
 				foreach (string file in Directory.GetFiles (directory, "*.dll")) {
 					if (!files.Contains (file))
 						files.Add (file);
 				}
+			}
 
 			// Pull in types from assemblies
 			foreach (string file in files) {
 				try {
 					ArrayList asm_types = FindPluginTypesInFile (file);
+					// Since we try multiple plugin directories, it's concievable we'll get
+					// duplicates. Don't add a plugin type unless we can't already find it
+					// in our store.
 					foreach (Type type in asm_types)
-						all_plugin_types.Add (type);
+						if (!all_plugin_types.Contains (type))
+							all_plugin_types.Add (type);
 				} catch (Exception e) {
 					Console.WriteLine ("Error loading plugin: {0}", e);
 				}
