@@ -15,6 +15,10 @@ static void     xtext2_size_request    (GtkWidget *widget, GtkRequisition *requi
 static void     xtext2_size_allocate   (GtkWidget *widget, GtkAllocation *allocation);
 static gboolean xtext2_button_press    (GtkWidget *widget, GdkEventButton *event);
 static gboolean xtext2_button_release  (GtkWidget *widget, GdkEventButton *event);
+static gboolean xtext2_motion_notify   (GtkWidget *widget, GdkEventMotion *event);
+static gboolean xtext2_selection_clear (GtkWidget *widget, GdkEventSelection *event);
+static void     xtext2_selection_get   (GtkWidget *widget, GtkSelectionData *sel_data, guint info, guint time);
+static gboolean xtext2_expose          (GtkWidget *widget, GdkEventExpose *event);
 static gboolean xtext2_scroll          (GtkWidget *widget, GdkEventScroll *event);
 
 static void     backend_init           (XText2 *xtext);
@@ -24,6 +28,8 @@ static int      backend_get_char_width (XText2 *xtext, unsigned char *str, int *
 static int      backend_get_text_width (XText2 *xtext, char *str, int len, gboolean multibyte);
 static int      backend_draw_text      (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *str, int len, int width, gboolean multibyte);
 
+static void     paint                  (GtkWidget *widget, GdkRectangle *area);
+static char*    selection_get_text     (XText2 *xtext, int *len);
 static void     set_indent             (XText2 *xtext, gboolean indent);
 static void     set_show_separator     (XText2 *xtext, gboolean show);
 static void     set_tint_color         (XText2 *xtext, GdkColor *color);
@@ -31,6 +37,7 @@ static void     set_word_wrap          (XText2 *xtext, gboolean wrap);
 
 static gpointer parent_class;
 
+/* properties */
 enum
 {
   PROP_0,
@@ -41,6 +48,7 @@ enum
   PROP_WORD_WRAP,
 };
 
+/* signals */
 enum
 {
   WORD_CLICK,
@@ -48,6 +56,15 @@ enum
 };
 
 static gint xtext_signals[LAST_SIGNAL];
+
+/* selection values */
+enum
+{
+  TARGET_UTF8_STRING,
+  TARGET_STRING,
+  TARGET_TEXT,
+  TARGET_COMPOUND_TEXT,
+};
 
 struct _XText2Private
 {
@@ -147,12 +164,10 @@ xtext2_class_init (XText2Class *klass)
   widget_class->size_allocate         = xtext2_size_allocate;
   widget_class->button_press_event    = xtext2_button_press;
   widget_class->button_release_event  = xtext2_button_release;
-  /*
   widget_class->motion_notify_event   = xtext2_motion_notify;
   widget_class->selection_clear_event = xtext2_selection_clear;
   widget_class->selection_get         = xtext2_selection_get;
   widget_class->expose_event          = xtext2_expose;
-  */
   widget_class->scroll_event          = xtext2_scroll;
 
   pspec = g_param_spec_string ("font",
@@ -488,6 +503,71 @@ xtext2_button_release (GtkWidget *widget, GdkEventButton *event)
 }
 
 static gboolean
+xtext2_motion_notify (GtkWidget *widget, GdkEventMotion *event)
+{
+  /* FIXME !!! */
+  return FALSE;
+}
+
+static gboolean
+xtext2_selection_clear (GtkWidget *widget, GdkEventSelection *event)
+{
+  /* FIXME !!! */
+  return TRUE;
+}
+
+static void
+xtext2_selection_get (GtkWidget *widget, GtkSelectionData *sel_data, guint info, guint time)
+{
+  XText2 *xtext = XTEXT2 (widget);
+  char *stripped;
+  guchar *new_text;
+  int len;
+  gsize glen;
+
+  stripped = selection_get_text (xtext, &len);
+  if (!stripped)
+    return;
+
+  switch (info)
+  {
+    case TARGET_UTF8_STRING:
+      /* it's already in utf8 */
+      gtk_selection_data_set_text (sel_data, stripped, len);
+      break;
+    case TARGET_TEXT:
+    case TARGET_COMPOUND_TEXT:
+    {
+      GdkAtom encoding;
+      gint format;
+      gint new_length;
+
+#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION == 0)
+      gdk_string_to_compound_text (stripped, &encoding, &format, &new_text, &new_length);
+#else
+      gdk_string_to_compound_text_for_display (gdk_drawable_get_display (widget->window),
+                                   stripped, &encoding, &format, &new_text, &new_length);
+#endif
+      gtk_selection_data_set (sel_data, encoding, format, new_text, new_length);
+      gdk_free_compound_text (new_text);
+      break;
+    }
+    default:
+      new_text = g_locale_from_utf8 (stripped, len, NULL, &glen, NULL);
+      gtk_selection_data_set (sel_data, GDK_SELECTION_TYPE_STRING, 8, new_text, glen);
+      g_free (new_text);
+  };
+  g_free (stripped);
+}
+
+static gboolean
+xtext2_expose (GtkWidget *widget, GdkEventExpose *event)
+{
+  paint (widget, &event->area);
+  return FALSE;
+}
+
+static gboolean
 xtext2_scroll (GtkWidget *widget, GdkEventScroll *event)
 {
   XText2 *xtext = XTEXT2 (widget);
@@ -597,6 +677,18 @@ backend_draw_text (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *
 {
 }
 #endif
+
+static void
+paint (GtkWidget *widget, GdkRectangle *area)
+{
+  /* FIXME !!! */
+}
+
+static char*
+selection_get_text (XText2 *xtext, int *len)
+{
+  /* FIXME !!! */
+}
 
 static void
 set_indent (XText2 *xtext, gboolean indent)
