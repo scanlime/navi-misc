@@ -98,7 +98,7 @@ class Serializer:
         return xml(''.join([self.render(o, context) for o in obj]))
 
     def render_tuple(self, obj, context):
-        return xml(''.join([self.render(o, context) for o in obj]))
+        return self.render_list(obj, context)
 
     def render_quote(self, obj, context):
         return xml(escapeToXml(str(self.render(obj.item, context))))
