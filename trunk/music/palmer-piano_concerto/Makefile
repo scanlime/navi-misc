@@ -30,4 +30,4 @@ timpani.pdf: timpani.ly $(TIMPANI) $(TEXT)
 	lilypond timpani.ly
 
 clean:
-	rm -f *.{log,tex,dvi,ps}
+	rm -f *.{log,tex,dvi,ps,pdf}
