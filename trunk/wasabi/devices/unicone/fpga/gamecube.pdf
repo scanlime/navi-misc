@@ -10,8 +10,8 @@ top_level=VHDL
 HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
-library_net=OFF
-lib_order=133 133 155
+library_net=ON
+lib_order=155 155 155 155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -20,7 +20,22 @@ oid=0
 lid=0
 format=19
 source=c:\unicone\fpga\gamecube\gamecube.v
-server_hwnd=917652
+server_hwnd=3015250
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -114,7 +129,7 @@ i2c.v=
 hde/util=0,0,66,66,1026,795,util.v
 hde/n_serial=0,0,88,88,1048,817,n_serial.v
 hde/pwm=0,0,132,132,1182,881,pwm.v
-hde/gamecube=655526,1,31,17,1190,972,gamecube.v
+hde/gamecube=0,0,65,12,1246,1006,gamecube.v
 hde/i2c=0,0,44,44,1094,793,i2c.v
 [netlist]
 external=FALSE
@@ -140,13 +155,12 @@ gamecube=
 foo=
 bar=
 zeroloop=
+i2cram=
 [Schematic]
 Table01=Project
 Table02=Sheet
 Table03=Date
 Table04=Date Last Modified
-[sc_desk]
-desk00=C:\UNICONE\FPGA\GAMECUBE\gamecub1.SCH, 0, 0, 818, 479, 1
 [OPEN32]
 nMaxFile=261
 lpstrFile=

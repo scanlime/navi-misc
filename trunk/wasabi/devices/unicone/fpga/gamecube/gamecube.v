@@ -77,49 +77,21 @@ module gc_i2c (clk, reset,
 		clk, reset, i2c_interface_tx, i2c_interface_rx,
 		ram_addr, ram_data);
 
-	/* Timeslice access to this RAM among our four controller emulators.
-	 * This also maps each port into a different quarter of our address space.
-	 * This is done synchronously, since the SRAM is one of our latency hotspots.
+	/* Multiplex access to the SRAM.
+	 * The ram_mux sequences access to the RAM, generating address/data pairs
+	 * synchronized with each other. The individual controller ports have a say
+	 * in which addresses the mux visits, and they can observe the address/data pair
+	 * to see if the current address is useful to them.
 	 */
-	// First phase, before the SRAM
-	reg [3:0] active_ram_ports;
-	wire [5:0] port1_addr;
-	wire [5:0] port2_addr;
-	wire [5:0] port3_addr;
-	wire [5:0] port4_addr;
-	always @(posedge clk or posedge reset)
-		if (reset) begin
-			active_ram_ports <= 4'b0001;
-			ram_addr <= 0;
-		end
-		else if (active_ram_ports == 4'b0001) begin
-			active_ram_ports <= 4'b0010;
-			ram_addr <= {2'b01, port2_addr};
-		end
-		else if (active_ram_ports == 4'b0010) begin
-			active_ram_ports <= 4'b0100;
-			ram_addr <= {2'b10, port3_addr};
-		end
-		else if (active_ram_ports == 4'b0100) begin
-			active_ram_ports <= 4'b1000;
-			ram_addr <= {2'b11, port4_addr};
-		end
-		else begin
-			active_ram_ports <= 4'b0001;
-			ram_addr <= {2'b00, port1_addr};
-		end
-	// Second phase, after the SRAM
-	reg ram_data_out;
-	reg [3:0] active_ram_ports_out;
-	always @(posedge clk or posedge reset)
-		if (reset) begin
-			ram_data_out <= 0;
-			active_ram_ports_out <= 0;
-		end
-		else begin
-			ram_data_out <= ram_data;
-			active_ram_ports_out <= active_ram_ports;
-		end
+	wire [7:0] port1_addr;
+	wire [7:0] port2_addr;
+	wire [7:0] port3_addr;
+	wire [7:0] port4_addr;
+	wire [7:0] ram_addr_out;
+	wire ram_data_out;
+	sram_mux4 ram_mux(clk, reset, ram_addr, ram_data,
+	                  ram_data_out, ram_addr_out,
+	                  port1_addr, port2_addr, port3_addr, port4_addr);
 
 	/* A shared tranmsitter timebase for all controller ports */
 	wire [2:0] tx_timing;
@@ -132,14 +104,83 @@ module gc_i2c (clk, reset,
 	 * state of the rumble motor.
 	 */
 	wire [3:0] rumble;
-	gc_controller port1(clk, reset, tx_timing, gc_ports[0], rumble[0],
-	                    port1_addr, ram_data_out, active_ram_ports_out[0]);
-	gc_controller port2(clk, reset, tx_timing, gc_ports[1], rumble[1],
-	                    port2_addr, ram_data_out, active_ram_ports_out[1]);
-	gc_controller port3(clk, reset, tx_timing, gc_ports[2], rumble[2],
-	                    port3_addr, ram_data_out, active_ram_ports_out[2]);
-	gc_controller port4(clk, reset, tx_timing, gc_ports[3], rumble[3],
-	                    port4_addr, ram_data_out, active_ram_ports_out[3]);
+	gc_controller #(0) port1(clk, reset, tx_timing, gc_ports[0], rumble[0],
+	                         port1_addr, ram_addr_out, ram_data_out);
+	gc_controller #(1) port2(clk, reset, tx_timing, gc_ports[1], rumble[1],
+	                         port2_addr, ram_addr_out, ram_data_out);
+	gc_controller #(2) port3(clk, reset, tx_timing, gc_ports[2], rumble[2],
+	                         port3_addr, ram_addr_out, ram_data_out);
+	gc_controller #(3) port4(clk, reset, tx_timing, gc_ports[3], rumble[3],
+	                         port4_addr, ram_addr_out, ram_data_out);
+endmodule
+
+
+/*
+ * 4-way SRAM multiplexer. We have four clients giving us addresses to visit.
+ * In turn, we produce synchronized pairs of address and data from the SRAM.
+ */
+module sram_mux4 (clk, reset, ram_addr, ram_data,
+                  ram_data_out, ram_addr_out,
+                  client1_addr, client2_addr, client3_addr, client4_addr);
+	parameter ADDR_WIDTH = 8;
+
+	input clk, reset;
+	output [ADDR_WIDTH-1:0] ram_addr;
+	input ram_data;
+	output ram_data_out;
+	output [ADDR_WIDTH-1:0] ram_addr_out;
+	input [ADDR_WIDTH-1:0] client1_addr;
+	input [ADDR_WIDTH-1:0] client2_addr;
+	input [ADDR_WIDTH-1:0] client3_addr;
+	input [ADDR_WIDTH-1:0] client4_addr;
+	
+	reg [ADDR_WIDTH-1:0] ram_addr;
+	reg [ADDR_WIDTH-1:0] ram_addr_out;
+	reg ram_data_out;
+	reg [1:0] current_client;
+	
+	reg [1:0] state;
+	parameter
+		S_LOAD_ADDR = 0,
+		S_WAIT = 1,
+		S_UPDATE_RESULT = 2;
+
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+			ram_addr_out <= 0;
+			ram_data_out <= 0;
+			ram_addr <= 0;
+			current_client <= 0;
+			state <= S_LOAD_ADDR;
+		end
+		else case (state)
+
+			S_LOAD_ADDR: begin
+				// Put the current client's request on the SRAM's inputs
+				if (current_client == 0)
+					ram_addr <= client1_addr;
+				else if (current_client == 1)
+					ram_addr <= client2_addr;
+				else if (current_client == 2)
+					ram_addr <= client3_addr;
+				else
+					ram_addr <= client4_addr;
+				state <= S_WAIT;
+			end
+			
+			S_WAIT: state <= S_UPDATE_RESULT;
+			
+			S_UPDATE_RESULT: begin
+				// Save this address/data pair
+				ram_data_out <= ram_data;
+				ram_addr_out <= ram_addr;
+				
+				// Next client
+				current_client <= current_client + 1;
+				state <= S_LOAD_ADDR;
+			end
+
+		endcase
 endmodule
 
 
@@ -183,21 +224,22 @@ endmodule
  *
  * This retrieves the controller state as it is needed using an interface designed
  * for time-multiplexed access to SRAM. The required address, in bits, is placed on
- * state_addr. Once it's our turn to access the RAM, state_ack should be high. A lot
- * of latency between sampling state_addr and providing the data is acceptable- up
- * to almost one bit-period.
+ * state_req_addr. The actual address and data available from the SRAM are given in
+ * state_in_addr and state_in_data.
  *
  */
 module gc_controller (clk, reset, tx_timing, gc_port, rumble,
-                      state_addr, state_data, state_ack);
+                      state_req_addr, state_in_addr, state_in_data);
+	parameter SRAM_PAGE = 0;
+
 	input clk, reset;
 	input [2:0] tx_timing;
 	inout gc_port;
 	
 	output rumble;
-	output [5:0] state_addr;
-	input state_data;
-	input state_ack;
+	output [7:0] state_req_addr;
+	input [7:0] state_in_addr;
+	input state_in_data;
 
 	// The bit being transmitted or received
 	reg [6:0] bit_count;
@@ -209,8 +251,8 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 	// Hook a bit generator up to the transmit output,
 	// and a bit detector to our receive input. These give us
 	// a simple serial interface to the raw codes used on the wire.
-	wire tx_busy, tx_data;
-	reg tx_strobe;
+	wire tx_busy;
+	reg tx_strobe, tx_data;
 	wire rx_start, rx_stop, rx_error, rx_data, rx_strobe;
 	n_serial_bit_generator bit_gen(clk, reset, tx_timing, tx_busy,
 	                               tx_data, tx_strobe, tx);
@@ -321,10 +363,11 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 			endcase
 
 	// Status response: 64 bits, read as we need them from external RAM, plus stop bit
-	wire resp_status_data = (bit_count >= 64) ? 1 : state_data;
-	wire resp_status_ack = (bit_count >= 64) ? 1 : state_ack;
+	wire resp_status_data = (bit_count >= 64) ? 1 : state_in_data;
+	wire resp_status_ack = (bit_count >= 64) ? 1 : (state_req_addr == state_in_addr);
 	wire resp_status_done = bit_count > 64;
-	assign state_addr = bit_count[5:0];		
+	wire [1:0] sram_page_bits = SRAM_PAGE;
+	assign state_req_addr = {sram_page_bits, bit_count[5:0]};
 
 	// Multiplex the various receive and transmit modes for each request.
 	// This in effect creates a four-state machine determining which command
@@ -338,7 +381,7 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 		REQ_ORIGINS = 3'b001;
 	wire [2:0] rx_request = {req_status_complete, req_id_complete, req_origins_complete};
 	reg [2:0] tx_request;
-	assign tx_data         = (tx_request == REQ_ID)      ? resp_id_data :
+	wire resp_current_data = (tx_request == REQ_ID)      ? resp_id_data :
 	                         (tx_request == REQ_STATUS)  ? resp_status_data :
 	                         (tx_request == REQ_ORIGINS) ? resp_origins_data : 0;
 	wire resp_current_ack  = (tx_request == REQ_ID)      ? resp_id_ack :
@@ -358,6 +401,7 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 			bit_count <= 0;
 			tx_request <= REQ_NONE;
 			tx_strobe <= 0;
+			tx_data <= 0;
 			wait_for_tx <= 0;
 		end
 		else begin
@@ -414,6 +458,7 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 					// We happen to have data available and room in the transmitter.
 					// Strobe out one bit.
 					tx_strobe <= 1;
+					tx_data <= resp_current_data;
 					wait_for_tx <= 1;
 				end
 			end
