@@ -217,8 +217,6 @@ add_server_clicked (GtkButton *button, gpointer data)
 	treeview = glade_xml_get_widget (gui.xml, "server config servers");
 	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (treeview)));
 	gtk_list_store_append (store, &iter);
-
-
 }
 
 static void
@@ -258,6 +256,13 @@ autojoin_selection_changed (GtkTreeSelection *selection, gpointer data)
 static void
 add_autojoin_clicked (GtkButton *button, gpointer data)
 {
+	GtkWidget *treeview;
+	GtkListStore *store;
+	GtkTreeIter iter;
+
+	treeview = glade_xml_get_widget (gui.xml, "server config channels");
+	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (treeview)));
+	gtk_list_store_append (store, &iter);
 }
 
 static void
