@@ -266,17 +266,17 @@ xtext2_init (XText2 *xtext)
 {
   xtext->priv = g_new0 (XText2Private, 1);
 
-  xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
-  g_print ("xtext2_init()\n");
-  g_print ("  xtext       is 0x%x\n", xtext);
-  g_print ("  buffer_info is 0x%x\n", xtext->priv->buffer_info);
-  g_print ("\n");
-
   xtext->adj = gtk_adjustment_new (0, 0, 1, 1, 1, 1);
   g_object_ref (G_OBJECT (xtext->adj));
   gtk_object_sink (GTK_OBJECT (xtext->adj));
 
   gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
+
+  xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
+  g_print ("xtext2_init()\n");
+  g_print ("  xtext       is 0x%x\n", xtext);
+  g_print ("  buffer_info is 0x%x\n", xtext->priv->buffer_info);
+  g_print ("\n");
 }
 
 GtkWidget*
