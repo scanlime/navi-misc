@@ -11,6 +11,7 @@
   <project name="ledboard" href="ledboard.xml"/>
   <project name="pybzengine" href="pybzengine.xml"/>
   <project name="rcpod" href="rcpod.xml"/>
+  <project name="trough" href="trough.xml"/>
   <project name="wasabi" href="wasabi.xml">
     <project name="mi6k" href="mi6k.xml"/>
     <project name="uvswitch" href="uvswitch.xml"/>
