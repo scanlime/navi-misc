@@ -209,10 +209,6 @@ class MetadataInterface(RPC.Interface):
             Debug.catchFault()
 
 
-class StatsPathException(Exception):
-    pass
-
-
 class StatsTarget:
     """Encapsulates all the stats-logging features used for one particular
        target. This can be one project, one class of messages, etc.
@@ -242,7 +238,7 @@ class StatsTarget:
 
         # Our database uses VARCHAR(128), make sure this fits
         if len(self.path) > 128:
-            raise StatsPathException("Stats paths are currently limited to 128 characters")
+            raise Ruleset.InvalidURIException("Stats paths are currently limited to 128 characters")
 
         # Our name is the last path segment, or None if we're the root
         if self.pathSegments:
@@ -254,6 +250,7 @@ class StatsTarget:
         """An event has occurred which should be logged by this stats target"""
         if message:
             self.messages.push(message)
+        self.counters.increment()
 
     def child(self, name):
         """Return the StatsTarget for the given sub-target name under this one"""
@@ -320,7 +317,11 @@ class StatsTarget:
                                     quoteSQL(self.path, 'varchar'))
         except:
             # Ignore duplicate key errors
-            if str(sys.exc_info()[1]).find("duplicate key") < 0:
+            args = sys.exc_info()[1].args
+            if type(args) == type(()) and args[0] == 1062:
+                # Duplicate entry exception, ignore it
+                pass
+            else:
                 raise
 
     def _autoCreateTargetFor(self, cursor, func, *args, **kwargs):
@@ -427,6 +428,45 @@ class Counters:
     def __init__(self, target):
         self.target = target
 
+    def increment(self):
+        """Increment all applicable counters, signaling the arrival of a new event"""
+        # Automatically create the stats target if it doesn't exist
+        return Database.pool.runInteraction(self._incrementWrapper)
+
+    def _incrementWrapper(self, cursor):
+        """Database interaction implementing increment(). Ensures
+           the stats target exists while calling _increment().
+           """
+        self.target._autoCreateTargetFor(cursor, self._increment, cursor)
+
+    def _createCounter(self, cursor, name):
+        """Internal function to create one blank counter if it doesn't exist."""
+        try:
+            cursor.execute("INSERT INTO stats_counters (target_path, name) VALUES(%s, %s)" %
+                           (quoteSQL(self.target.path, 'varchar'),
+                            quoteSQL(name, 'varchar')))
+        except:
+            # Ignore duplicate key errors
+            if str(sys.exc_info()[1]).find("duplicate key") < 0:
+                raise
+
+    def _increment(self, cursor):
+        """Internal function, run within a database interaction, that ensures
+           all required counters exist then updates them all.
+           """
+        self._incrementCounter(cursor, 'forever')
+        self._incrementCounter(cursor, 'today')
+        self._incrementCounter(cursor, 'thisWeek')
+        self._incrementCounter(cursor, 'thisMonth')
+
+    def _incrementCounter(self, cursor, name):
+        """Increment one counter, creating it if necessary"""
+        cursor.execute("UPDATE stats_counters SET event_count = event_count + 1 WHERE target_path = %s AND name = %s" %
+                       (quoteSQL(self.target.path, 'varchar'),
+                        quoteSQL(name, 'varchar')))
+#        if cursor.rowcount == 0:
+        #self._createCounter(cursor, name)
+
     def getCounter(self, name):
         """Return the Rack associated with a counter. The Rack
            is a subclass of the dictionary type, and can
@@ -485,7 +525,7 @@ class Counters:
         self.checkOneRollover('lastWeek', 'thisWeek')
         self.checkOneRollover('lastMonth', 'thisMonth')
 
-    def increment(self):
+    def old_increment(self):
         """Increments all applicable counters in this list
            and saves them, after checking for rollovers.
            """
