@@ -43,8 +43,8 @@ from __future__ import generators
 import cPickle, struct
 
 
-class Rack(dict):
-    """A dictionary object that, instead of representing in-memory data,
+class Rack(object):
+    """A dictionary-like object that, instead of representing in-memory data,
        represents objects stored in a database or other dictionary-like
        object that accepts strings for keys and values, such as an anydbm
        database. This module includes an open() function that opens a
@@ -109,54 +109,66 @@ class Rack(dict):
           >>> eggs.items()
           [(12, ('spatula', 27))]
        """
-    def __init__(self, db, namespaces=(), pickleProtocol=-1, keyPickler=None):
+    def __init__(self, db,
+                 namespaces     = (),
+                 pickleProtocol = -1,
+                 keyPickler     = None,
+                 ):
         if not keyPickler:
             keyPickler = KeyPickler()
         self.db = db
         self.namespaces = namespaces
         self.pickleProtocol = pickleProtocol
         self.keyPickler = keyPickler
+        self._sysNs = None
 
-        # Since any one namespace will only have one set of sysNs keys
-        # for the head and tail of its linked list, go ahead and pre-serialize these
-        self._tailPointer = self._dumpKey(None, self.SYSNS_TAIL)
-        self._headPointer = self._dumpKey(None, self.SYSNS_HEAD)
+    def __copy__(self):
+        n = self.__class__(self.db,
+                           self.namespaces,
+                           self.pickleProtocol,
+                           self.keyPickler)
+        n._sysNs = self._sysNs
+        return n
 
     def namespace(self, *ns):
-        """Return a Rack object that refers to a namespace within this one.
+        """Return a new Rack object that refers to a namespace within this one.
            The namespace can be any object serializable by KeyPickler.
            If more than one argument is given, this burrows more than one
            level deep in the Rack's namespace hierarchy.
            """
-        return self.__class__(self.db, self.namespaces + tuple(ns))
+        n = self.__copy__()
+        n.namespaces += tuple(ns)
+        return n
 
-    def _dumpKey(self, key, sysNs=None):
+    def _enterSysNs(self, sysNs):
+        """Return a new Rack object that refers to the given object in the
+           system namespace, a single namespace that runs orthogonal to each
+           namespace set up with the namespace() method.
+           All Racks used outside this class should have sysNs=None, but
+           other values of sysNs are used to associate metadata with each
+           normal Rack namespace.
+
+           sysNs values can be any python objects supported by KeyPickler,
+           but small integers are the most space efficient.
+           """
+        n = self.__copy__()
+        n._sysNs = sysNs
+        return n
+
+    def _getKeyList(self):
+        """Return a LinkedList holding all keys in this namespace"""
+        return LinkedList(self.enterSysNs(1))
+
+    def _getSubNsList(self):
+        """Return a LinkedList holding all namespaces directly under this one"""
+        return LinkedList(self.enterSysNs(2))
+
+    def _dumpKey(self, key):
         """Return a string representation of the given key.
-           'sysNs' is an optional 'system namespace'. The value of a
-           particular key is stored with sysNs=None, but other values
-           of sysNs may be used to store metadata about the Rack
-           out-of-band with the application's actual keys and values.
            By default this is the result of running KeyPickler on
            (namespaces, sysNs, key).
            """
-        return self.keyPickler.dumps((self.namespaces, sysNs, key))
-
-    # Values of sysNs currently in use:
-    # Note that these can be any python value supported by KeyPickler,
-    # but currently they are small integers so the resulting pickled
-    # string is as small as possible.
-    #
-    # These sysNs values are used to maintain a singly linked list of all
-    # keys inside a namespace. HEAD and TAIL are always added with
-    # key==None, PREV and NEXT must exist for every key. The values
-    # associated with these sysNs keys are dumpValue'ed representations of
-    # normal keys, as would be passed to _dumpKey. They are -not- serialized
-    # with keyPickler: they must be deserialized and reserialized anyway
-    # to add namespaces and a sysNs, so we might as well make that fast.
-    SYSNS_HEAD = 1
-    SYSNS_TAIL = 2
-    SYSNS_PREV = 3
-    SYSNS_NEXT = 4
+        return self.keyPickler.dumps((self.namespaces, self._sysNs, key))
 
     def _dumpValue(self, value):
         """Return a string representation of the given value. By default
@@ -219,60 +231,14 @@ class Rack(dict):
             raise KeyError(repr(key))
         self._delKey(key)
 
+    def __repr__(self):
+        return repr(dict(self.iteritems()))
+
     def _newKey(self, key):
         """Append a new key to the linked list for this namespace"""
-        dumpedKey = self._dumpValue(key)
-        try:
-            dumpedTail = self.db[self._tailPointer]
-        except KeyError:
-            # No tail, the list is empty. Set head and tail to this key
-            self.db[self._headPointer] = dumpedKey
-            self.db[self._tailPointer] = dumpedKey
-            return
-
-        # Add the new item at the tail
-        tail = self._loadValue(dumpedTail)
-        self.db[self._dumpKey(key, self.SYSNS_PREV)] = dumpedTail
-        self.db[self._dumpKey(tail, self.SYSNS_NEXT)] = dumpedKey
-        self.db[self._tailPointer] = dumpedKey
 
     def _delKey(self, key):
         """Delete a key from the linked list for this namespace"""
-        nextPointer = self._dumpKey(key, self.SYSNS_NEXT)
-        prevPointer = self._dumpKey(key, self.SYSNS_PREV)
-        try:
-            dumpedNext = self.db[nextPointer]
-        except KeyError:
-            dumpedNext = None
-        try:
-            dumpedPrev = self.db[prevPointer]
-        except KeyError:
-            dumpedPrev = None
-
-        if dumpedNext and dumpedPrev:
-            # We have both previous and next pointers. Link our
-            # neighbours around this node and we're done.
-            self.db[self._dumpKey(self._loadValue(dumpedPrev), self.SYSNS_NEXT)] = dumpedNext
-            self.db[self._dumpKey(self._loadValue(dumpedNext), self.SYSNS_PREV)] = dumpedPrev
-
-        elif dumpedNext and not dumpedPrev:
-            # We have a next pointer but not a previous pointer-
-            # this means we're the first node. Point the head
-            # at the next node and delete the next node's previous pointer.
-            self.db[self._headPointer] = dumpedNext
-            del self.db[self._dumpKey(self._loadValue(dumpedNext), self.SYSNS_PREV)]
-
-        elif dumpedPrev:
-            # We have a previous pointer but not a next pointer- we're
-            # the last node. Point the tail at our previous node and delete
-            # the previous node's next pointer.
-            self.db[self._tailPointer] = dumpedPrev
-            del self.db[self._dumpKey(self._loadValue(dumpedPrev), self.SYSNS_NEXT)]
-
-        else:
-            # We're the last node in the namespace, delete head and tail pointers
-            del self.db[self._headPointer]
-            del self.db[self._tailPointer]
 
     def __iter__(self):
         """A generator that iterates over this namespace's linked list of keys"""
@@ -422,6 +388,110 @@ class KeyPickler(object):
 
     def serialize_NoneType(self, obj):
         return 'N'
+
+
+class LinkedList(object):
+    """A doubly-linked list implemented on top of a dictionary-like object such
+       as a Rack. Items in the list must be usable as keys in the underlying
+       dictionary- for a standard dict this means they must be hashable, for
+       a Rack this means they must be compatible with KeyPickler.
+
+       This linked list supports efficient insertion, deletion, and forward
+       or backward iteration. The methods supported by this object overlap in
+       many ways with those supported by a standard Python list, but they
+       are not a superset or a subset.
+       """
+    def __init__(self, db):
+        self.db = db
+
+        # We always use the same keys for the list's head and tail
+        self._headKey = 1
+        self._tailKey = 2
+
+    def _getPrevKey(self, item):
+        """Get a key used for the given item's previous item pointer"""
+        return (1, item)
+
+    def _getNextKey(self, item):
+        """Get a key used for the given item's next item pointer"""
+        return (2, item)
+
+    def __repr__(self):
+        return repr(list(self))
+
+    def __iter__(self):
+        """Efficiently iterate from the beginning of the list to the end"""
+        try:
+            i = self.db[self._headKey]
+            while True:
+                yield i
+                i = self.db[self._getNextKey(i)]
+        except KeyError:
+            pass
+
+    def reversed(self):
+        """A reverse iterstor, iterate from the end of the list to the beginning"""
+        try:
+            i = self.db[self._tailKey]
+            while True:
+                yield i
+                i = self.db[self._getPrevKey(i)]
+        except KeyError:
+            pass
+
+
+
+    
+        
+        dumpedKey = self._dumpValue(key)
+        try:
+            dumpedTail = self.db[self._tailPointer]
+        except KeyError:
+            # No tail, the list is empty. Set head and tail to this key
+            self.db[self._headPointer] = dumpedKey
+            self.db[self._tailPointer] = dumpedKey
+            return
+
+        # Add the new item at the tail
+        tail = self._loadValue(dumpedTail)
+        self.db[self._dumpKey(key, self.SYSNS_PREV)] = dumpedTail
+        self.db[self._dumpKey(tail, self.SYSNS_NEXT)] = dumpedKey
+        self.db[self._tailPointer] = dumpedKey
+        nextPointer = self._dumpKey(key, self.SYSNS_NEXT)
+        prevPointer = self._dumpKey(key, self.SYSNS_PREV)
+        try:
+            dumpedNext = self.db[nextPointer]
+        except KeyError:
+            dumpedNext = None
+        try:
+            dumpedPrev = self.db[prevPointer]
+        except KeyError:
+            dumpedPrev = None
+
+        if dumpedNext and dumpedPrev:
+            # We have both previous and next pointers. Link our
+            # neighbours around this node and we're done.
+            self.db[self._dumpKey(self._loadValue(dumpedPrev), self.SYSNS_NEXT)] = dumpedNext
+            self.db[self._dumpKey(self._loadValue(dumpedNext), self.SYSNS_PREV)] = dumpedPrev
+
+        elif dumpedNext and not dumpedPrev:
+            # We have a next pointer but not a previous pointer-
+            # this means we're the first node. Point the head
+            # at the next node and delete the next node's previous pointer.
+            self.db[self._headPointer] = dumpedNext
+            del self.db[self._dumpKey(self._loadValue(dumpedNext), self.SYSNS_PREV)]
+
+        elif dumpedPrev:
+            # We have a previous pointer but not a next pointer- we're
+            # the last node. Point the tail at our previous node and delete
+            # the previous node's next pointer.
+            self.db[self._tailPointer] = dumpedPrev
+            del self.db[self._dumpKey(self._loadValue(dumpedPrev), self.SYSNS_NEXT)]
+
+        else:
+            # We're the last node in the namespace, delete head and tail pointers
+            del self.db[self._headPointer]
+            del self.db[self._tailPointer]
 
 
 class RingBuffer(object):
