@@ -52,7 +52,6 @@
 #include <X11/Xutil.h>
 #include <X11/extensions/Xvlib.h>
 #include <X11/keysym.h>
-#include <math.h>
 #define _GNU_SOURCE
 #include <getopt.h>
 
@@ -274,10 +273,9 @@ void display_frames()
 		unsigned char *dest = frame_buffer + camera*frame_length;
 		int i=0,j=0;
 		const int NumPixels = device_width*device_height;
-		int y1, y2, y3, u, v;
+		int y0, y1, y2, y3, u, v;
 		int x, y;
 		unsigned long x_sum=0, y_sum=0, total=0;
-		float y0;
 		for (y=0; y<device_height; y++)
 		    for (x=0; x<device_width; x+=4) {
 			u  = cam[i++];
@@ -287,29 +285,34 @@ void display_frames()
 			y2 = cam[i++];
 			y3 = cam[i++];
 
-			y0 = (255 - u) / 255.0;
-			u = 128;
-			v = 128;
-
-			y0 = (log(y0) + 0.5) * 700;
-			if (y0<0) y0 = 0;
-			if (y0>255) y0 = 255;
-
-			x_sum += y0 * x;
-			y_sum += y0 * y;
-			total += y0;
+			if (u < 75) {
+			    /* A duck pixel, add it to the average */
+			    x_sum += x;
+			    y_sum += y;
+			    total++;
+			}
+			else {
+			    /* Not a pixel we're interested in, dim it */
+			    y0 >>= 1;
+			    y1 >>= 1;
+			    y2 >>= 1;
+			    y3 >>= 1;
+			    u = ((u - 128)>>1) + 128;
+			    v = ((v - 128)>>1) + 128;
+			}
 
 			dest[j++] = y0;
 			dest[j++] = u;
-			dest[j++] = y0;
+			dest[j++] = y1;
 			dest[j++] = v;
-			dest[j++] = y0;
+			dest[j++] = y2;
 			dest[j++] = u;
-			dest[j++] = y0;
+			dest[j++] = y3;
 			dest[j++] = v;
 		    }
 
-		plop_cross(dest, x_sum / total, y_sum / total, 17);
+		if (total > 0)
+		    plop_cross(dest, x_sum / total, y_sum / total, 17);
 	    }
 
 	xv_image=XvCreateImage(display,info[adaptor].base_id,format,frame_buffer,
