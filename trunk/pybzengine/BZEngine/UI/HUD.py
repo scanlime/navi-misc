@@ -67,7 +67,11 @@ class Panel:
 
 
 class Text:
-    """A view that draws a block of text."""
+    """A view that draws a block of text.
+       'alignment' specifies the text's justification relative
+       to the viewport. (0,0) is top-left, (1,1) is bottom-right,
+       (0.5, 0.5) is centered, etc.
+       """
     def __init__(self, viewport,
                  text         = '',
                  color        = (1,1,1,1),
@@ -75,7 +79,9 @@ class Text:
                  fontName     = None,
                  shadow       = False,
                  shadowColor  = (0,0,0,0.6),
-                 shadowOffset = 2):
+                 shadowOffset = 2,
+                 alignment    = (0,0)
+                 ):
         viewport.fov = None
         self.viewport = viewport
         self.text = text
@@ -85,6 +91,7 @@ class Text:
         self.shadow = shadow
         self.shadowColor = shadowColor
         self.shadowOffset = shadowOffset
+        self.alignment = alignment
         viewport.onDrawFrame.observe(self.render)
         self.init()
 
@@ -104,6 +111,11 @@ class Text:
         text = self.getText()
         if text:
             glLoadIdentity()
+            if self.alignment:
+                size = GLText.size(text, self.fontSize, self.fontName)
+                glTranslatef(self.viewport.size[0] * self.alignment[0] - size[0] * self.alignment[0],
+                             self.viewport.size[1] * self.alignment[1] - size[1] * self.alignment[1],
+                             0)
             if self.shadow:
                 glPushMatrix()
                 glTranslatef(self.shadowOffset, self.shadowOffset, 0)
