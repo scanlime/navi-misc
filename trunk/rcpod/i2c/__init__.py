@@ -23,6 +23,6 @@ A python package for bit-banging i2c devices
 
 from i2c import *
 # from eeprom import *
-# from therm import *
+from therm import *
 
 ### The End ###
