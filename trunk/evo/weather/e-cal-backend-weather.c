@@ -192,6 +192,7 @@ getConditions (WeatherForecast *report)
 		case WEATHER_FREEZING_DRIZZLE:		return _("Freezing drizzle");
 		case WEATHER_VERY_COLD_WIND_CHILL:	return _("Very cold/wind chill");
 		case WEATHER_RAIN:			return _("Rain");
+		default:				return NULL;
 	}
 }
 
@@ -203,21 +204,13 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	icalcomponent *ical_comp;
 	struct icaltimetype itt;
 	ECalComponentDateTime dt;
-	char *summary;
+	char *summary = g_strdup ("");
 	const char *name, *uid;
-	char *temperature;
-	char *snowfall;
-	char *conditions;
-	char *pop;
+	GSList *text_list = NULL;
+	ECalComponentText *description;
+	int i;
 
 	g_return_val_if_fail (E_IS_CAL_BACKEND_WEATHER (cbw), NULL);
-
-	if (report->high == report->low)
-		temperature = g_strdup_printf("%f\ns%f\n", report->high, report->high);
-	else
-		temperature = g_strdup_printf("%f\n%f", report->high, report->low);
-	summary = g_strdup_printf ("%s\n", temperature);
-	g_free (temperature);
 
 	/* create the component and event object */
 	ical_comp = icalcomponent_new (ICAL_XWEATHER_COMPONENT);
@@ -247,6 +240,28 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	comp_summary.altrep = NULL;
 	e_cal_component_set_summary (cal_comp, &comp_summary);
 
+	/* Create list of data. This takes the following format:
+	 * high temperature
+	 * low temperature (same as high if there's only one temperature forecast)
+	 * conditions
+	 * pop
+	 * high snow level (0 if nonexistant)
+	 * low snow level (0 if nonexistant)
+	 *
+	 * remember to change the drawing code parsing this if you change
+	 * the format!!!!!
+	 */
+	description = g_new0 (ECalComponentText, 6);
+	description[0].value = g_strdup_printf ("%f", report->high);
+	description[1].value = g_strdup_printf ("%f", report->low);
+	description[2].value = g_strdup (getConditions (report));
+	description[3].value = g_strdup_printf ("%d", report->pop);
+	description[4].value = g_strdup_printf ("%f", report->snowhigh);
+	description[5].value = g_strdup_printf ("%f", report->snowlow);
+	for (i = 0; i < 6; i++)
+		text_list = g_slist_append (text_list, &description[i]);
+	e_cal_component_set_description_list (cal_comp, text_list);
+
 	/* Set category and visibility */
 	/* e_cal_component_set_categories (cal_comp, _("Conditions")); */
 	e_cal_component_set_classification (cal_comp, E_CAL_COMPONENT_CLASS_PRIVATE);
@@ -255,8 +270,6 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	e_cal_component_set_transparency (cal_comp, E_CAL_COMPONENT_TRANSP_TRANSPARENT);
 
 	e_cal_component_commit_sequence (cal_comp);
-
-	g_free (summary);
 
 	return cal_comp;
 }
