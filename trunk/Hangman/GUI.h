@@ -10,7 +10,7 @@
  *
  */
 
-#ifndef
+#ifndef GUI
 #define GUI
 
 #include <SDL/SDL.h>

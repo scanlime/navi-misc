@@ -8,7 +8,7 @@
  * Hangman.  
  *
  */
-#ifndef
+#ifndef HANGMANGUI
 #define HANGMANGUI
 
 #include <SDL/SDL.h>

@@ -132,6 +132,37 @@ int margin(GUI_Node *node)
 	return 0;
 }
 
+/******************************* Node combining *****************************/
+GUI_Node* Combine_Horz(GUI_Node* leftNode, GUI_Node* rightNode, int prcnt)
+{
+	GUI_Node* tmpNode;
+
+	tmpNode = GUI_Node_Init();
+
+	tmpNode->percent = prcnt;
+	tmpNode->split = split_horizontal;
+
+	tmpNode->left = leftNode;
+	tmpNode->right = rightNode;
+
+	return tmpNode;
+}
+
+/***********************************/
+GUI_Node* Combine_Vert(GUI_Node* leftNode, GUI_Node* rightNode, int prcnt)
+{
+	GUI_Node* tmpNode;
+
+	tmpNode = GUI_Node_Init();
+
+	tmpNode->percent = prcnt;
+	tmpNode->split = split_vertical;
+
+	tmpNode->left = leftNode;
+	tmpNode->right = rightNode;
+
+	return tmpNode;
+}
 
 /******************************* Window Elements ****************************/
 GUI_Node* make_button()
@@ -157,6 +188,8 @@ GUI_Node* make_button()
 GUI_Node* make_textfield()
 {
 	GUI_Node* newField;
+
+	newField = GUI_Node_Init();
 
 	newField->color = malloc(sizeof(SDL_Color));
 	newField->color->r = 0;
