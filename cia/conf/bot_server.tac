@@ -12,8 +12,6 @@ from twisted.application import service, internet
 from twisted.manhole.telnet import ShellFactory
 from twisted.spread import pb
 from LibCIA.IRC import Bots
-from LibCIA import Security
-import os
 
 application = service.Application("bot_server")
 
@@ -28,16 +26,18 @@ botNet = Bots.BotNetwork(Bots.SequentialNickAllocator("CIA-"))
 # The bot server listens on a UNIX socket rather than TCP/IP, for security
 botSocketName = "bots.socket"
 internet.UNIXServer(botSocketName, pb.PBServerFactory(botNet)).setServiceParent(application)
-#os.chmod(botSocketName, 0600)
 
 # For maintaining the bot server without restarting, if necessary, run
-# a twisted.manhole telnet console. The password is randomly generated
-# and stored in the current directory.
-consolePasswdFile = "bots.passwd"
-console = ShellFactory()
-console.password = Security.createRandomKey()
-console.namespace['botNet'] = botNet
-open(consolePasswdFile, "w").write(console.password + "\n")
-internet.TCPServer(2230, console).setServiceParent(application)
+# a twisted.manhole telnet console. We only start the server if a password
+# has been provided in the "bots.passwd" file.
+try:
+    passwd = open("bots.passwd").read().strip()
+except IOError:
+    pass
+else:
+    console = ShellFactory()
+    console.password = passwd
+    console.namespace['botNet'] = botNet
+    internet.TCPServer(2230, console).setServiceParent(application)
 
 ### The End ###
