@@ -60,11 +60,11 @@ NavTree* navigation_tree_new   (NavModel *model);
  */
 void navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess);
 void navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess);
-void navigation_tree_remove_channel_entry     (NavTree *navtree, struct session *sess);
-void navigation_tree_remove_network_entry     (NavTree *navtree, struct session *sess);
+void navigation_tree_remove                   (NavTree *navtree, struct session *sess);
 
 /* Channel/server selection functions. */
 void navigation_tree_select_nth_channel  (NavTree *navtree, gint chan_num);
+void navigation_tree_select_session      (NavTree *navtree, struct session *sess);
 void navigation_tree_select_next_channel (NavTree *navtree);
 void navigation_tree_select_prev_channel (NavTree *navtree);
 void navigation_tree_select_next_network (NavTree *navtree);

@@ -133,6 +133,199 @@ navigation_tree_finalize (GObject *object)
 	gtk_tree_path_free(navtree->current_path);
 }
 
+/* New NavTree. */
+NavTree*
+navigation_tree_new (NavModel *model)
+{
+	NavTree *new_tree;
+
+	/* Create the new NavTree. */
+	new_tree = NAVTREE(g_object_new(navigation_tree_get_type(), NULL));
+
+	/* Assign a NavModel to the NavTree. */
+	new_tree->model = model;
+  gtk_tree_view_set_model(GTK_TREE_VIEW(new_tree), new_tree->model->sorted);
+
+	return new_tree;
+}
+
+/* Add/remove server/channel functions. */
+void
+navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess)
+{
+	navigation_model_add_new_network(navtree->model, sess);
+	navigation_tree_select_session(navtree, sess);
+}
+
+void
+navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess)
+{
+	navigation_model_add_new_channel_entry(navtree->model, sess);
+	navigation_tree_select_session(navtree, sess);
+}
+
+void
+navigation_tree_remove (NavTree *navtree, struct session *sess)
+{
+	navigation_model_remove (navtree->model, sess);
+}
+/* Channel/server selection functions. */
+void
+navigation_tree_select_nth_channel (NavTree *navtree, gint chan_num)
+{
+	GtkTreeView *view;
+	GtkTreeModel *model;
+	GtkTreeIter server;
+	GtkTreeSelection *selection;
+	GtkTreePath *path;
+	gint kids;
+
+	view = GTK_TREE_VIEW(navtree);
+	selection = gtk_tree_view_get_selection(view);
+	model = gtk_tree_view_get_model(view);
+	/* Make sure we get the an iter in the tree. */
+	if(model != NULL && gtk_tree_model_get_iter_first(model, &server)) {
+		/* Loop until we run out of channels or until we find the one
+		 * we're looking for.
+		 */
+		do {
+			/* Get path to current server. */
+			path = gtk_tree_model_get_path(model, &server);
+
+			/* Only count the channels in the server if the list is expanded. */
+			if(gtk_tree_view_row_expanded(view, path)) {
+				/* Get the number of channels on the current server starting
+			 	 * with the first.
+			 	 */
+				kids = gtk_tree_model_iter_n_children(model, &server);
+				/* If the server has enough channels to contain the one we're looking
+			 	 * for select it and return.
+			 	 */
+				if(chan_num < kids) {
+					GtkTreeIter new_iter;
+					gtk_tree_model_iter_nth_child(model, &new_iter, &server, chan_num);
+					gtk_tree_selection_select_iter(selection, &new_iter);
+					return;
+				}
+				/* If our number wants a channel out of the range of this server
+			 	 * subtract the number of channels in the current server so that
+			 	 * when we find the server that contains the channel we want chan_num
+			 	 * will be the channel's position in the list.
+			 	 */
+				chan_num -= kids;
+			}
+		/* Move to the next channel, if possible. */
+		}while (gtk_tree_model_iter_next(model, &server));
+	}
+}
+
+void
+navigation_tree_select_session (NavTree *navtree, struct session *sess)
+{ /* FIXME: Impelement. */
+}
+
+void
+navigation_tree_select_next_channel (NavTree *navtree)
+{
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	GtkTreeSelection *selection;
+
+	/* Grab our treeview and get a gtk selection. */
+	selection = gtk_tree_view_get_selection(NAVTREE(navtree));
+	model = gtk_tree_view_get_model(NAVTREE(navtree));
+
+	if (!navtree->current_path) {
+		gtk_tree_model_get_iter_first(model, &iter);
+		gtk_tree_path_free(navtree->current_path);
+		navtree->current_path = gtk_tree_model_get_path(model, &iter);
+	}
+
+	gtk_tree_model_get_iter(model, &iter, navtree->current_path);
+	/* If our iter has a child we know it's a server and we need
+	 * to move down one level to get to a channel.
+	 */
+	if(gtk_tree_model_iter_has_child(model, &iter))
+		gtk_tree_path_down(navtree->current_path);
+
+	/* As long as our path depth is greater than one we know we have
+	 * a channel selected, and not a server without any channels.
+	 */
+	else if(gtk_tree_path_get_depth(navtree->current_path) > 1) {
+		GtkTreePath *path_to_bottom;
+		GtkTreeIter parent;
+
+		/* Get the path to the last node for comparison later. */
+		gtk_tree_model_iter_parent(model, &parent, &iter);
+		gtk_tree_model_iter_nth_child(model, &iter, &parent,
+				gtk_tree_model_iter_n_children(model, &parent) - 1);
+		path_to_bottom = gtk_tree_model_get_path(model, &iter);
+
+		/* Advance the path one node. */
+		gtk_tree_path_next(path);
+
+		/* If our new path goes beyond the path to the last node
+		 * we need to wrap around to the top.
+		 */
+		if(gtk_tree_path_compare(path_to_bottom, path) == -1) {
+			gtk_tree_path_up(path);
+			gtk_tree_path_down(path);
+		}
+	}
+
+	/* If we don't have a valid path, return, otherwise move
+	 * the selection to our new path.
+	 */
+	if(path == NULL)
+		return;
+	gtk_tree_selection_select_path(selection, path);
+}
+
+void
+navigation_tree_select_prev_channel (NavTree *navtree)
+{
+	GtkTreeModel *model;
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
+
+	if (!navtree->current_path) {
+		GtkTreePath *new_path;
+		gtk_tree_model_get_iter_first(model, &iter);
+		gtk_tree_path_free(navtree->current_path);
+		navtree->current_path = gtk_tree_model_get_path(model, &iter);
+	}
+
+	gtk_tree_model_get_iter(model, &iter, navtree->current_path);
+	if (gtk_tree_model_iter_has_child(model, &iter))
+		gtk_tree_path_down(navtree->current_path);
+
+	if (!gtk_tree_path_prev(navtree->current_path)) {
+		GtkTreeIter parent;
+		gint children;
+
+		/* Get the parent (server) of our current channel. */
+		gtk_tree_model_iter_parent(model, &parent, &iter);
+
+		/* Move iter to the last child of parent. */
+		children = gtk_tree_model_iter_n_children(model, &parent);
+		gtk_tree_model_iter_nth_child(model, &iter, &parent, children-1);
+
+		/* Set path to the last child. */
+		path = gtk_tree_model_get_path(model, &iter);
+	}
+
+	if (!gtk_tree_view_row_expanded(GTK_TREE_VIEW(navtree), navtree->current_path))
+		gtk_tree_view_expand_row(GTK_TREE_VIEW(navtree), navtree->current_path);
+
+	if (navtree->current_path == NULL)
+		return;
+
+	gtk_tree_selection_select_path(selection, navtree->current_path);
+}
+/* Misc. Functions. */
 /***** Context Menus *****/
 static void
 navigation_context(GtkWidget *treeview, session *selected)
@@ -408,26 +601,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	}
 }
 
-/* New NavTree. */
-NavTree*
-navigation_tree_new (NavModel *model)
-{
-	NavTree *new_tree;
-
-	/* Create the new NavTree. */
-	new_tree = NAVTREE(g_object_new(navigation_tree_get_type(), NULL));
-
-	/* Assign a NavModel to the NavTree. */
-	new_tree->model = model;
-  gtk_tree_view_set_model(GTK_TREE_VIEW(new_tree), new_tree->model->sorted);
-
-	return new_tree;
-}
-
-/* Add/remove server/channel functions. */
-
-/* Channel/server selection functions. */
-
 /********** NavModel **********/
 
 static void navigation_model_init       (NavModel *navmodel);
@@ -511,7 +684,7 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 		GtkTreeModelSort *sort;
 
 		treeview = glade_xml_get_widget(gui.xml, "server channel list");
-		sort = GTK_TREE_MODEL_SORT(NAVTREE(treeview)->model->sorted);
+		sort = GTK_TREE_MODEL_SORT(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
 
 		gtk_tree_store_append(GTK_TREE_STORE(model), &child, iter);
 
