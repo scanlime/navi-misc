@@ -371,6 +371,7 @@ retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 	if (!SOUP_STATUS_IS_SUCCESSFUL (message->status_code))
 	{
 		source->done (NULL, source->finished_data);
+		return;
 	}
 
 	str = g_malloc0 (message->response.length + 1);
