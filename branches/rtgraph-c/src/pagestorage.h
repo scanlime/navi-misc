@@ -8,7 +8,7 @@
  *                 all types of PageStorage, but multiple implementations
  *                 are defined, accessed using different constructors:
  *
- *                   rtg_page_storage_temporary_new() creates an empty
+ *                   rtg_page_storage_temp_new() creates an empty
  *                   PageStorage that exists only in memory.
  *
  *                   rtg_page_storage_mapped_new() creates a PageStorage
@@ -61,8 +61,8 @@ struct _RtgPageStorage {
     /* Resize to be at least new_num_pages large. The backend may resize
      * in larger increments if that would be more efficient.
      */
-    RtgPageAddress (*resize)(RtgPageStorage *self, gsize new_num_pages);
-    void           (*close)(RtgPageStorage *self);
+    void  (*resize)(RtgPageStorage *self, gsize new_num_pages);
+    void  (*close)(RtgPageStorage *self);
 };
 
 
@@ -70,7 +70,10 @@ struct _RtgPageStorage {
 /**************************************************** Public Methods ***/
 /***********************************************************************/
 
-/* Converting page addresses into pointers */
+/* Converting page addresses into pointers. These pointers should
+ * not be stored generally, as some backends may change base addresses
+ * during page allocation.
+ */
 #define           rtg_page_storage_lookup(self, page) \
     (((page) < (self)->num_pages) ? ((self)->base_address + (page)) : NULL)
 
@@ -82,10 +85,17 @@ void              rtg_page_storage_free          (RtgPageStorage*   self,
 /* Implementation-independent destructor */
 void              rtg_page_storage_close         (RtgPageStorage*   self);
 
-/* Implementation-specific constructors */
-RtgPageStorage*   rtg_page_storage_temporary_new (RtgPageStorage*   self);
+/* Implementation-specific constructors. The page size can
+ * be set manually, or you can pass zero to use the most efficient
+ * size for this platform. Note that when opening an existing mapped
+ * storage, the saved page size is always used rather than a specified
+ * page size.
+ */
+RtgPageStorage*   rtg_page_storage_temp_new      (RtgPageStorage*   self,
+						  gsize             page_size);
 RtgPageStorage*   rtg_page_storage_mapped_new    (RtgPageStorage*   self,
-						  const char*       filename);
+						  const char*       filename,
+						  gsize             page_size);
 
 /* The first page in a pagestorage is used internally as a header.
  * It identifies the storage, points to the free block list, and stores
