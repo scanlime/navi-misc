@@ -19,7 +19,7 @@ and displaying them in a separate window.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import xchat, string, re, gconf
+import xchat, string, re, gconf, gnome
 import pygtk
 import gtk
 import gobject
@@ -62,6 +62,10 @@ class URLScraper:
         view.append_column( chan_col )
         view.append_column( url_col )
 
+        # FIXME: This also causes crashes... probably due to the python plugin
+        #        itself.
+        #view.connect( 'row-activated', self.urlClicked )
+
         scrolled.add_with_viewport( view )
         self.window.add( scrolled )
         self.window.connect( 'destroy', self.close )
@@ -83,12 +87,18 @@ class URLScraper:
             self.scrape_email = client.get_bool( '/apps/xchat/url_scraper/scrape_email' )
 
 
+    def urlClicked( self, view, path, col, user_data ):
+        print 'double clicked'
+        iter = self.store.get_iter( path )
+        url = self.store.get_value( iter, 2 )
+        print 'url = %s' % url
+        gnome.url_show( url )
+
     def windowFocused( self, widget, direction, user_data=None ):
         self.window.set_title( 'URL Scraper' )
         self.new_urls = 0
 
         return gtk.FALSE
-
 
     def grabbedURL( self, nick, match ):
         ''' Handler for a URL. Append the URL to the store. '''
