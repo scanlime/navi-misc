@@ -11,5 +11,4 @@
 * Add irc_RPL_NAMEREPLY and irc_RPL_ENDOFNAMES instead of sending WHO
 * Make character sheets detachable
 * Fix SendRoll
-* Nick-completion breaks if the nick isn't at the beginning of the string.
 * Error checking!!!!

@@ -71,17 +71,21 @@ def nickComplete(text, nicks):
       '''
   match = [text]
 
+  # Separate out the search string from the rest of the sentence.
+  search = text.split()[len(text.split())-1]
+
   # Insert any nicks containing the substring text into the matched list.
   for nick in nicks:
-    if nick.find(text) != -1:
+    if nick.find(search) != -1:
       match.append(nick)
 
   # If there's only one match in the list replace the search string with the
   # match.
   if len(match) == 2:
-    match.remove(match[0])
+    match[0] = match[0].replace(search, match[1], 1)
+    match.remove(match[1])
   else:
-    match[0] = findCommonSubstring(match[1:])
+    match[0] = match[0].replace(search, findCommonSubstring(match[1:]), 1)
 
   # Return the list of matches.
   return match
