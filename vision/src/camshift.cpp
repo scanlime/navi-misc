@@ -147,7 +147,7 @@ void interactive_camshift(int n_cameras = 1,
 
   uinput_mouse_init("CamShift");
 
-  while (cv_sdl_process_events()) {
+  while (1) {
     images = cv_dc1394_capture_yuv(n_cameras);
 
     for (i=0; i<n_cameras; i++) {
@@ -223,26 +223,46 @@ void interactive_camshift(int n_cameras = 1,
       CvRect sample_rect;
       int mouse_x, mouse_y, mouse_camera, mouse_buttons;
       bool show_rectangle = false;
+      SDL_Event event;
 
-      /* The < and > keys change the size of the sample square */
-      if (keystate[',']) {
-	sample_square_size -= 4;
-	if (sample_square_size < 1)
-	  sample_square_size = 1;
-	show_rectangle = true;
-      }
-      if (keystate['.']) {
-	sample_square_size += 4;
-	show_rectangle = true;
-      }
+      /* Process SDL events... */
+      while (SDL_PollEvent(&event))
+	switch (event.type) {
+
+	case SDL_MOUSEBUTTONDOWN:
+	  /* Use the scroll wheel to change sample square size */
+	  switch (event.button.button) {
+	  case 5:
+	    sample_square_size -= 2;
+	    if (sample_square_size < 1)
+	      sample_square_size = 1;
+	    show_rectangle = true;
+	    break;
+
+	  case 4:
+	    sample_square_size += 2;
+	    show_rectangle = true;
+	    break;
+	  }
+	  break;
+
+	case SDL_KEYDOWN:
+	  switch (event.key.keysym.sym) {
+	    /* The 'm' key toggles mouse emulation */
+	  case 'm':
+	    uinput_mouse_enabled = !uinput_mouse_enabled;
+	    break;
+	  }
+	  break;
+
+	default:
+	  if (!cv_sdl_event_handler(&event))
+	    return;
+	}
 
       /* The spacebar just shows the rectangle */
       if (keystate[' '])
 	show_rectangle = true;
-
-      /* The 'M' key enables mouse emulation */
-      if (keystate['m'])
-	uinput_mouse_enabled = true;
 
       /* Get the current sampling rect, centered on the mouse cursor */
       mouse_buttons = SDL_GetMouseState(&mouse_x, &mouse_y);
