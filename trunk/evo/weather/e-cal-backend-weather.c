@@ -33,6 +33,7 @@
 
 static gboolean reload_cb (ECalBackendWeather *cbw);
 static gboolean begin_retrieval_cb (ECalBackendWeather *cbw);
+static ECalComponent* create_weather (ECalBackendWeather *cbw, WeatherForecast *report);
 
 
 
@@ -116,7 +117,27 @@ maybe_start_reload_timeout (ECalBackendWeather *cbw)
 static void
 finished_retrieval_cb (GList *forecasts, ECalBackendWeather *cbw)
 {
+	ECalBackendWeatherPrivate *priv;
+	ECalComponent *comp;
+	icalcomponent *icomp;
+	GList *l;
+
 	g_print ("Retrieval finished.\n");
+
+	if (forecasts == NULL) {
+		e_cal_backend_notify_error (E_CAL_BACKEND (cbw), _("Could not retrieve weather data"));
+		return;
+	}
+
+	/* update cache */
+	e_file_cache_clean (E_FILE_CACHE (priv->cache));
+
+	for (l = forecasts; l != NULL; l = g_list_next (l)) {
+		comp = create_weather (cbw, l->data);
+		e_cal_backend_cache_put_component (priv->cache, comp);
+		icomp = e_cal_component_get_icalcomponent (comp);
+		e_cal_backend_notify_object_created (E_CAL_BACKEND (cbw), icalcomponent_as_ical_string (icomp));
+	}
 }
 
 static gboolean
