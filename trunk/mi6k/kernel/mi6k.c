@@ -78,6 +78,8 @@ struct usb_mi6k {
 	int			ir_rx_clients;		/* number of processes reading from the IR device */
 	struct urb		ir_rx_urb;		/* URB for receiver interrupt transfers */
 	unsigned char		ir_rx_tbuffer[IR_URB_BUFFER_SIZE]; /* Buffer holding one interrupt transfer */
+	lirc_t			pulse_flag;		/* flag that alternates, indicating whether we're currently
+							 * receiving a pulse or a space. */
 	struct semaphore	sem;			/* locks this structure */
 };
 
@@ -180,7 +182,6 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 	 * timers to the highest value lirc_t supports.
 	 * This assumes dev->sem is already locked.
 	 */
-	lirc_t pulse_flag = PULSE_BIT;
 	lirc_t value;
 
 	/* If nobody's listening, don't bother saving the data */
@@ -194,8 +195,8 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 		}
 		else {
 			value = value * 4 / 3;
-			value |= pulse_flag;
-			pulse_flag ^= PULSE_BIT;
+			value |= dev->pulse_flag;
+			dev->pulse_flag ^= PULSE_BIT;
 		}
 
 		mi6k_ir_rx_push(dev, value);
