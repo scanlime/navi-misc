@@ -227,6 +227,21 @@ void navigation_context(GtkWidget *treeview, session *selected) {
 	}
 }
 
+static void clear_dialog(gpointer data, guint action, GtkWidget *widget) {
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		clear_buffer(s);
+	}
+}
+
 void server_context(GtkWidget *treeview, session *selected) {
 	static GtkItemFactoryEntry entries[] = {
 		{"/Server",			NULL, NULL, 0, "<Branch>"},
@@ -277,7 +292,7 @@ void channel_context(GtkWidget *treeview, session *selected) {
 		{"/Channel/Separator2",		NULL, NULL,		0, "<Separator>"},
 		{"/Channel/_Find...",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_FIND},
 		{"/Channel/Find Ne_xt",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_FIND},
-		{"/Channel/_Clear Window",	NULL, NULL,		0, "<StockItem>", GTK_STOCK_CLEAR},
+		{"/Channel/_Clear Window",	NULL, clear_dialog,	0, "<StockItem>", GTK_STOCK_CLEAR},
 		{"/Channel/Separator3",		NULL, NULL,		0, "<Separator>"},
 		{"/Channel/_Bans",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_DIALOG_WARNING}
 	};
@@ -301,7 +316,7 @@ void dialog_context(GtkWidget *treeview, session *selected) {
 		{"/Dialog/Separator2",		NULL, NULL,		0, "<Separator>"},
 		{"/Dialog/_Find...",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_FIND},
 		{"/Dialog/Find Ne_xt",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_FIND},
-		{"/Dialog/_Clear Window",	NULL, NULL,		0, "<StockItem>", GTK_STOCK_CLEAR}
+		{"/Dialog/_Clear Window",	NULL, clear_dialog,	0, "<StockItem>", GTK_STOCK_CLEAR}
 	};
 	GtkItemFactory *factory;
 	GtkWidget *menu;
