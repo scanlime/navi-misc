@@ -35,15 +35,15 @@ typedef struct
 
 const KeyListEntry navigation_key_list[] =
 {
-  { "/apps/xchat/keybindings/prev_network", 0 },
-  { "/apps/xchat/keybindings/next_network", 0 },
-  { "/apps/xchat/keybindings/prev_discussion", 0 },
-  { "/apps/xchat/keybindings/next_discussion", 0 },
+  { "/apps/xchat/keybindings/GoPreviousNetwork", 0 },
+  { "/apps/xchat/keybindings/GoNextNetwork", 0 },
+  { "/apps/xchat/keybindings/GoPreviousDiscussion", 0 },
+  { "/apps/xchat/keybindings/GoNextDiscussion", 0 },
   { NULL }
 };
 const KeyListEntry server_key_list[] =
 {
-  { "/apps/xchat/keybindings/close_discussion", 0 },
+  { "/apps/xchat/keybindings/DiscussionClose", 0 },
   { NULL }
 };
 
