@@ -42,7 +42,7 @@ class MainWindow:
 
         hpane = gtk.HPaned()
         main_vbox.pack_start(hpane, gtk.TRUE, gtk.TRUE, 0)
-        hpane.pack1(gtk.Label('Left'), gtk.TRUE, gtk.FALSE)
+        hpane.pack1(gtk.Label('Left '), gtk.TRUE, gtk.FALSE)
         hpane.pack2(gtk.Label('Right'), gtk.TRUE, gtk.FALSE)
 
         window.show_all()
