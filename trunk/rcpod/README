@@ -1,11 +1,78 @@
 rcpod - the Remote Controlled PIC of Doom
 -----------------------------------------
 
-This is a piece of firmware and a python module that lets you peek and poke values
-into the registers of a PIC16C745 or PIC16C765 microcontroller over USB. It is
-intended as a way to rapidly prototype firmware or test hardware when timing isn't
-critical. Python functions are provided that can control I/O ports and other onboard
-hardware like the PWM modules and USART.
+This project is centered around firmware for the PIC16C745/765 microcontrollers
+that allows the devices to perform I/O operations on behalf of the USB host.
+There are PCB designs for projects based on the rcpod firmware, and a C library
+using libusb that allows relatively high-level manipulation of I/O ports.
 
--- Micah Dowty <micah@navi.picogui.org>
+
+-------- Contents of this package:
+
+ hardware : PCB designs and schematics for boards based on rcpod.
+            Currently this includes a test harness board with RS-485,
+	    and a multi-port I2C bus interface with remote thermal sensors.
+
+ firmware : Assembly language source for the rcpod firmware. The firmware
+            accepts simple commands via USB control requests.
+
+ include : Header files for librcpod and the firmware
+
+ src : Source for the 'librcpod' library, providing higher level interfaces
+       to rcpod's commands. This is based on libusb, so it should be portable
+       to any OS supported by it, including linux, various BSDs, and Darwin.
+
+ test : Small test programs to demonstrate librcpod
+
+
+-------- USB permissions
+
+Though libusb supports many operating systems, the information in this section
+is specific to Linux. When the rcpod is plugged in, it is enumerated and a file
+is created in /proc/bus/usb to represent this device. libusb will find this file
+and use it to communicate with the rcpod. Unlike a normal device node in /dev/*,
+any permission changes you make will be lost when the device is unplugged. There
+are multiple solutions to this...
+
+ - Always run applications using librcpod as root.
+   Not the greatest solution...
+
+ - Mount the USB device filesystem world read-write.
+   This is very bad for anything other than a single user machine and won't
+   work under all kernels, but is barely worth mentioning.
+   Add a parameter like 'devmode=0666' to the /etc/fstab line for /proc/bus/usb.
+
+ - Find the device node being used, and change its permissions each time the
+   rcpod is plugged in. This is tedious, but not bad if you hardly ever expect
+   to unplug the rcpod.
+   
+   Use 'lsusb' to find the bus and device number the rcpod has been assigned.
+   This should be the line containing "ID e461:0002". Look for a file in the
+   path /proc/bus/usb/<bus number>/<device number>, and change its permissions
+   as needed.
+
+ - Set up the hotplug utilities to automatically change the device's permissions.
+   This is the preferred method.
+
+   Add a line like the following to /etc/hotplug/usb.usermap:
+
+      rcpod 0x0003 0xe461 0x0002 0x0000 0x0000 0x00 0x00 0x00
+
+   And write a shell script like the following to /etc/hotplug/usb/rcpod:
+
+      #!/bin/bash
+      if [ "$ACTION" = add ] && [ -f "$DEVICE" ]; then
+         chown root:users "$DEVICE"
+         chmod ug+rw "$DEVICE"
+      fi
+
+   (make sure it has execute permissions)
+   Restart the hotplug daemon, and try plugging in and unplugging the rcpod.
+   Shortly after plugging it in, its file in /proc/bus/usb should be set to
+   the proper permissions.
+
+
+-------- Contact information
+
+Micah Dowty <micah@navi.picogui.org>
 
