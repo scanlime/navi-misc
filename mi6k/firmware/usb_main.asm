@@ -76,7 +76,7 @@ USBMaskedInterrupts  res  1
 	; Head indices point to the next available slot for new data, tail indices
 	; point to the oldest stored data.
 bank1	udata
-#define BUFFER_SIZE 16
+#define BUFFER_SIZE .32
 ir_rx_Buffer res BUFFER_SIZE
 ir_rx_Head	res 1
 ir_rx_Tail	res 1
