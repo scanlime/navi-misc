@@ -18,7 +18,7 @@ void initialize_about_dialog() {
 	gui.about = GNOME_ABOUT(gnome_about_new(
 		"X-Chat GNOME",
 		"x.x",
-		"Copyright © 2004\nDavid Trowbridge and Daniel Kuester",
+		"Copyright (c) 2004\nDavid Trowbridge and Daniel Kuester",
 		"It has been well observed that a trombone\nis not a suitable instrument for a gentleman",
 		authors,
 		documentors,
