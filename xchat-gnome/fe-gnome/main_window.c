@@ -314,17 +314,21 @@ setup_menu ()
 }
 
 static void
-close_find_key (GtkWidget *entry, GdkEventKey *event, gpointer data)
+close_find_button (GtkWidget *button, gpointer data)
 {
 	GtkWidget *widget;
-
-	if (event->keyval != GDK_Escape)
-		return;
-
 	widget = glade_xml_get_widget (gui.xml, "find hbox");
 	gtk_widget_hide (widget);
 	widget = glade_xml_get_widget (gui.xml, "text entry");
 	gtk_widget_grab_focus (widget);
+}
+
+static void
+close_find_key (GtkWidget *entry, GdkEventKey *event, gpointer data)
+{
+	if (event->keyval != GDK_Escape)
+		return;
+	close_find_button (NULL, NULL);
 }
 
 static void
@@ -477,6 +481,8 @@ initialize_main_window ()
 	widget = glade_xml_get_widget (gui.xml, "find entry");
 	g_signal_connect (G_OBJECT (widget), "activate", G_CALLBACK (find_next), NULL);
 	g_signal_connect (G_OBJECT (widget), "key-press-event", G_CALLBACK (close_find_key), NULL);
+	widget = glade_xml_get_widget (gui.xml, "find close button");
+	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (close_find_button), NULL);
 }
 
 void
@@ -592,7 +598,7 @@ on_edit_clear_activate (GtkAction *action, gpointer data)
 static void
 on_edit_preferences_activate (GtkAction *action, gpointer data)
 {
-	gtk_widget_show (GTK_WIDGET (gui.preferences_dialog));
+	gtk_widget_show_all (GTK_WIDGET (gui.preferences_dialog));
 }
 
 static void
