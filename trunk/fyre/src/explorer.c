@@ -373,7 +373,7 @@ static void on_load_from_image (GtkWidget *widget, gpointer user_data) {
 	g_error_free (error);
 
 	gtk_dialog_run (GTK_DIALOG (dialog));
-	gtk_widget_hide_all (dialog);
+	gtk_widget_hide (dialog);
     }
     g_free (filename);
 }
@@ -671,7 +671,7 @@ static void on_about_close(GtkWidget *widget, Explorer *self)
 {
     GtkWidget *dialog;
     dialog = glade_xml_get_widget(self->xml, "about_window");
-    gtk_widget_hide_all(dialog);
+    gtk_widget_hide(dialog);
 }
 
 static void on_about_activate(GtkWidget *widget, Explorer *self)
