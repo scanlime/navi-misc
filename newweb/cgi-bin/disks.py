@@ -69,6 +69,16 @@ class DiskChart:
         return total
 
 if __name__ == '__main__':
-    print 'Content-type: text/xml\n\n'
-    print '<?xml version="1.0"?>'
-    print '<xml-stylesheet type="text/xsl" href="/new/style.xsl"?>'
+    print """Content-type: text/xml
+
+<?xml version="1.0"?>
+<xml-stylesheet type="text/xsl" href="/new/style.xsl"?>
+
+<page title="Navi disk status" subtitle="It's big. And stuff">
+  <section title="charts">
+    Yay, charts.
+  </section>
+  <section title="mounts">
+    Yup. mounts.
+  </section>
+</page>"""
