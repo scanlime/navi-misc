@@ -52,16 +52,17 @@ def readDictFile(path):
     return d
 
 
-def createPool():
-    #
-    # This creates the global ConnectionPool object that we use to access our database.
-    # Note that a ConnectionPool doesn't actually connect to the database, it
-    # just imports the database module, validates it, and provides a way to
-    # run queries. This is initialized at the module level, so we can use rebuild
-    # to modify the database information if necessary.
-    #
-    # The database password is retrieved from ~/.mysql_passwd so it isn't stored
-    # in this file. If the file can't be read, an exception is raised.
+def createPool(overrides={}, filename="~/.cia_db"):
+    """
+    This creates the global ConnectionPool object that we use to access our database.
+    Note that a ConnectionPool doesn't actually connect to the database, it
+    just imports the database module, validates it, and provides a way to
+    run queries. This is initialized at the module level, so we can use rebuild
+    to modify the database information if necessary.
+
+    The database password is retrieved from ~/.mysql_passwd so it isn't stored
+    in this file. If the file can't be read, an exception is raised.
+    """
 
     # Defaults
     info = {
@@ -73,21 +74,34 @@ def createPool():
         'cp_noisy':  False,
         }
 
-    filename = os.path.expanduser("~/.cia_db")
-    try:
-        info.update(readDictFile(filename))
-        os.chmod(filename, 0600)
-    except IOError:
-        raise Exception("Please create a file %r containing a list of database parameters.\n"
-                        "For example:\n"
-                        "  host = mysql.example.com\n"
-                        "  user = bob\n"
-                        "  passwd = widgets\n"
-                        % filename)
+    # Load user settings from disk
+    if filename:
+        filename = os.path.expanduser(filename)
+        try:
+            info.update(readDictFile(filename))
+            os.chmod(filename, 0600)
+        except IOError:
+            raise Exception("Please create a file %r containing a list of database parameters.\n"
+                            "For example:\n"
+                            "  host = mysql.example.com\n"
+                            "  user = bob\n"
+                            "  passwd = widgets\n"
+                            % filename)
+
+    # Allow the caller to override settings, and remove Nones
+    info.update(overrides)
+    for key in info.keys():
+        if info[key] is None:
+            del info[key]
 
     return ConnectionPool('MySQLdb', **info)
 
-pool = createPool()
+
+pool = None
+
+def init(*args, **kwargs):
+    global pool
+    pool = createPool(*args, **kwargs)
 
 
 class Filter(XML.XMLObjectParser):
