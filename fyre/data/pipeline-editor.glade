@@ -337,6 +337,8 @@
 		      <property name="rules_hint">False</property>
 		      <property name="reorderable">False</property>
 		      <property name="enable_search">True</property>
+		      <signal name="drag_begin" handler="ElementListDragBegin" last_modification_time="Tue, 22 Mar 2005 14:42:51 GMT"/>
+		      <signal name="drag_end" handler="ElementListDragEnd" last_modification_time="Tue, 22 Mar 2005 14:43:05 GMT"/>
 		    </widget>
 		  </child>
 		</widget>

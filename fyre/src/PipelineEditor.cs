@@ -120,8 +120,6 @@ public class PipelineEditor
 		target_list = new TargetList (targets);
 
 		Gtk.Drag.SourceSet (element_list, Gdk.ModifierType.Button1Mask, targets, Gdk.DragAction.Copy);
-		element_list.DragBegin += ElementListDragBegin;
-		element_list.DragEnd   += ElementListDragEnd;
 	}
 
 	void ElementListDragBegin (object o, DragBeginArgs args)
