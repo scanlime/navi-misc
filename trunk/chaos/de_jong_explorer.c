@@ -26,8 +26,6 @@
 #include <time.h>
 #include <sys/time.h>
 
-#define WIDTH   800
-#define HEIGHT  800
 #define PROGRESSIVE_MASK 3
 
 struct {
@@ -39,15 +37,17 @@ GtkWidget *as, *bs, *cs, *ds, *ls, *zs, *xos, *yos;
 GtkWidget *start, *stop, *save, *randbutton;
 double iterations;
 GdkGC *gc;
-guint data[WIDTH][HEIGHT];
-guint dataMax;
-guchar pixels[WIDTH * HEIGHT * 4];
+guint *counts;
+int width, height;
+guint countsMax;
+guchar *pixels;
 double a, b, c, d, exposure, zoom, xoffset, yoffset;
 guint idler;
 
 void flip();
 void clear();
-int interactive_idle_handler(void *data);
+void resize(int w, int h);
+int interactive_idle_handler(gpointer user_data);
 gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 void param_spinner_changed(GtkWidget *widget, gpointer user_data);
 void exposure_changed(GtkWidget *widget, gpointer user_data);
@@ -76,7 +76,6 @@ int main(int argc, char ** argv) {
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(deletee), NULL);
   drawing_area = gtk_drawing_area_new();
-  gtk_widget_set_size_request(drawing_area, WIDTH, HEIGHT);
   vsep = gtk_vseparator_new();
   hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), build_sidebar(), TRUE, TRUE, 0);
@@ -88,6 +87,7 @@ int main(int argc, char ** argv) {
 
   gc = gdk_gc_new(drawing_area->window);
 
+  resize(800,800);
   clear();
   flip();
 
@@ -202,16 +202,31 @@ GtkWidget *build_sidebar() {
   return table;
 }
 
+void resize(int w, int h) {
+  width = w;
+  height = h;
+
+  gtk_widget_set_size_request(drawing_area, width, height);
+
+  if (counts)
+    g_free(counts);
+  counts = g_malloc(sizeof(counts[0]) * width * height);
+
+  if (pixels)
+    g_free(pixels);
+  pixels = g_malloc(4 * width * height);
+}
+
 void flip() {
-  /* Using the current point density, scale data[] appropriately,
+  /* Using the current point density, scale counts[] appropriately,
    * color it, and copy it to the screen.
    */
 
-  const int rowstride = WIDTH * 4;
+  const int rowstride = width * 4;
   guchar *row;
   guint32 *p;
   guint32 gray, iscale;
-  guint dataclamp, dval;
+  guint countsclamp, dval, *count_p, *count_row;
   int x, y;
   float density, luma, fscale, max_frame_rate;
   struct timeval now;
@@ -239,48 +254,50 @@ void flip() {
   last_flip = now;
 
   /* Update the iteration counter */
-  gchar *iters = g_strdup_printf("Iterations:\n%.3e\n\nmax density:\n%d", iterations, dataMax);
+  gchar *iters = g_strdup_printf("Iterations:\n%.3e\n\nmax density:\n%d", iterations, countsMax);
   gtk_label_set_text(GTK_LABEL(iterl), iters);
   g_free(iters);
 
-  /* Scale our data to a luminance between 0 and 1 that gets fed through our
+  /* Scale our counts to a luminance between 0 and 1 that gets fed through our
    * colormap[] to generate an actual gdk color. 'p' contains the number of
    * times our point has passed the current pixel.
    *
-   * iterations / (WIDTH * HEIGHT) gives us the average density of data[].
+   * iterations / (width * height) gives us the average density of counts[].
    */
-  density = iterations / (WIDTH * HEIGHT);
+  density = iterations / (width * height);
 
   /* fscale is a floating point number that, when multiplied by a raw
-   * data[] value, gives values between 0 and 1 corresponding to full
+   * counts[] value, gives values between 0 and 1 corresponding to full
    * white and full black.
    */
   fscale = (exposure * zoom) / density;
 
   /* The very first frame we render will often be very underexposed.
-   * If fscale > 0.5, this makes dataclamp negative and we get incorrect
-   * results. The lowest usable value of dataclamp is 1.
+   * If fscale > 0.5, this makes countsclamp negative and we get incorrect
+   * results. The lowest usable value of countsclamp is 1.
    */
   if (fscale > 0.5)
     fscale = 0.5;
 
-  /* This is the maximum allowed value for data[], corresponding to full black */
-  dataclamp = (int)(1 / fscale) - 1;
+  /* This is the maximum allowed value for counts[], corresponding to full black */
+  countsclamp = (int)(1 / fscale) - 1;
 
-  /* Convert fscale to an 8:24 fixed point number that will map data[]
+  /* Convert fscale to an 8:24 fixed point number that will map counts[]
    * values to gray levels between 0 and 255.
    */
   iscale = (guint32)(fscale * 0xFF000000L);
 
   row = pixels;
-  for (y=0; y<HEIGHT; y++) {
+  count_row = counts;
+  for (y=0; y<height; y++) {
     if ((y & PROGRESSIVE_MASK) == progressiveRow) {
       p = (guint32*) row;
-      for (x=0; x<WIDTH; x++) {
+      count_p = count_row;
+      for (x=0; x<width; x++) {
 
-	dval = data[x][y];
-	if (dval > dataclamp)
-	  dval = dataclamp;
+	dval = *(count_p++);
+	if (dval > countsclamp)
+	  dval = countsclamp;
 
 	gray = 255 - ((dval * iscale) >> 24);
 
@@ -288,18 +305,19 @@ void flip() {
       }
     }
     row += rowstride;
+    count_row += width;
   }
 
   progressiveRow = (progressiveRow + 1) & PROGRESSIVE_MASK;
 
   gdk_draw_rgb_32_image(drawing_area->window, gc,
-			0, 0, WIDTH, HEIGHT, GDK_RGB_DITHER_NORMAL,
+			0, 0, width, height, GDK_RGB_DITHER_NORMAL,
 			pixels, rowstride);
 }
 
 void clear() {
-  memset(data, 0, WIDTH * HEIGHT * sizeof(int));
-  dataMax = 0;
+  memset(counts, 0, width * height * sizeof(int));
+  countsMax = 0;
   iterations = 0;
   point.x = ((float) rand()) / RAND_MAX;
   point.y = ((float) rand()) / RAND_MAX;
@@ -308,9 +326,10 @@ void clear() {
 void run_iterations(int count) {
   double x, y;
   int i, ix, iy;
+  guint *p;
   guint d;
-  const double xcenter = WIDTH / 2.0;
-  const double ycenter = HEIGHT / 2.0;
+  const double xcenter = width / 2.0;
+  const double ycenter = height / 2.0;
   const double xscale = xcenter / 2.5 * zoom;
   const double yscale = ycenter / 2.5 * zoom;
 
@@ -323,17 +342,17 @@ void run_iterations(int count) {
     ix = (int)((x + xoffset) * xscale + xcenter);
     iy = (int)((y + yoffset) * yscale + ycenter);
 
-    if (ix >= 0 && iy >= 0 && ix < WIDTH && iy < HEIGHT) {
-      d = data[ix][iy] + 1;
-      data[ix][iy] = d;
-      if (d > dataMax)
-	dataMax = d;
+    if (ix >= 0 && iy >= 0 && ix < width && iy < height) {
+      p = counts + ix + width * iy;
+      d = *p = *p + 1;
+      if (d > countsMax)
+	countsMax = d;
     }
   }
   iterations += count;
 }
 
-int interactive_idle_handler(void *extra) {
+int interactive_idle_handler(gpointer user_data) {
   /* An idle handler used for interactively rendering. This runs a relatively
    * small number of iterations, then calls flip() to update our visible image.
    */
@@ -414,7 +433,7 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
 
     filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
     pixbuf = gdk_pixbuf_new_from_data(pixels, GDK_COLORSPACE_RGB, TRUE,
-				      8, WIDTH, HEIGHT, WIDTH*4, NULL, NULL);
+				      8, width, height, width*4, NULL, NULL);
     gdk_pixbuf_save(pixbuf, filename, "png", NULL, NULL);
     gdk_pixbuf_unref(pixbuf);
     g_free(filename);
