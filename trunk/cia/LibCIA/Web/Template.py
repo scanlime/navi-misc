@@ -107,7 +107,12 @@ class StaticSection(Section):
     """A section containing static content, usable with tag-like syntax:
        StaticSection(title)[body]
        """
-    def __init__(self, title=None, rows=[]):
+    def __init__(self, title=None, rows=None):
+        if rows is None:
+            # This is important- remember that default values are only created
+            # once and reused forever. A list specified as a default value would
+            # be shared by all instances that don't specify their own list.
+            rows = []
         self.title = title
         self.rows = rows
 
