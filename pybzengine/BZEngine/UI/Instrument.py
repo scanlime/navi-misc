@@ -117,12 +117,13 @@ class FrequencyCounter:
 
 class TextInstrument(HUD.Text):
     """Abstract base class that attaches to a viewport and overlays a text readout on it"""
-    def __init__(self, viewport):
+    def __init__(self, viewport, **kw):
         self.mainViewport = viewport
         margin = GLText.defaultSize / 2
         HUD.Text.__init__(self, viewport.region(Layout.Rect(viewport).margin(margin)),
                           shadow       = True,
-                          shadowOffset = 1)
+                          shadowOffset = 1,
+                          **kw)
 
 
 class FrameRate(TextInstrument):
@@ -136,5 +137,16 @@ class FrameRate(TextInstrument):
             return "FHz: %.01f" % self.counter.value
         else:
             return "Calculating frame rate..."
+
+
+class CameraInfo(TextInstrument):
+    """An instrument that, given a Camera instance, displays information about it"""
+    def __init__(self, viewport, camera, **kw):
+        self.camera = camera
+        TextInstrument.__init__(self, viewport, **kw)
+
+    def getText(self):
+        return "Camera: (%f,%f,%f):%f %f/%f" % (self.camera.position + (
+            self.camera.distance, self.camera.azimuth, self.camera.elevation))
 
 ### The End ###
