@@ -54,7 +54,7 @@ tokenize (const char *buffer)
 	while ((token = strtok_r (NULL, " \n/", &tokbuf)))
 		ret = g_slist_append (ret, g_strdup (token));
 	g_free (buffer2);
-	g_free (tokbuf);
+//	g_free (tokbuf);
 	return ret;
 }
 
@@ -147,7 +147,7 @@ ftoc (char *data)
 }
 
 static void
-e_weather_source_ccf_do_parse (EWeatherSourceCCF *source)
+e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 {
 	/* CCF gives us either 2 or 7 days of forecast data. IFPS WFO's
 	 * will produce 7 day forecasts, whereas pre-IFPS WFO's are only
@@ -160,16 +160,16 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source)
 	 * http://www.crh.noaa.gov/lmk/product_guide/products/forecast/ccf.htm
 	 */
 	WeatherForecast *forecasts = g_new0 (WeatherForecast, 7);
-//	GSList *tokens = tokenize (source->buffer);
+	GSList *tokens = tokenize (buffer);
 	GSList *date;
-//	GSList *current = tokens;
+	GSList *current = tokens;
 	GList *fc = NULL;
 	struct tm tms;
 	int i;
 
-//	date = g_slist_nth (tokens, 3);
-//	date2tm (date->data, &tms);
-//	g_print ("date is %s\n", asctime (&tms));
+	date = g_slist_nth (tokens, 3);
+	date2tm (date->data, &tms);
+	g_print ("date is %s\n", asctime (&tms));
 
 	/* fast-forward to the particular station we're interested in */
 	/*
@@ -216,7 +216,7 @@ retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 
 	str = g_malloc0 (message->response.length + 1);
 	strncpy (str, message->response.body, message->response.length);
-	g_print ("%s\n", str);
+	e_weather_source_ccf_do_parse (source, str);
 	g_free (str);
 }
 
