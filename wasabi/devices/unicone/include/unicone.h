@@ -31,8 +31,8 @@
 #define UNICONE_PRODUCT_ID  0x000C
 #define UNICONE_VERSION     0x0100
 
-#define UNICONE_BOOTLOAD_VENDOR_ID   0x0451
-#define UNICONE_BOOTLOAD_PRODUCT_ID  0x3410
+#define UNICONE_BOOTLOAD_VENDOR_ID   0xE461
+#define UNICONE_BOOTLOAD_PRODUCT_ID  0x000B
 
 
 /**************************************************************************/
