@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Environment, Drawable
+from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Environment, Drawable, Input
 from BZEngine import Event
 
 # Viewport, view, and event loop setup
@@ -18,7 +18,7 @@ view.camera.elevation = 0
 view.camera.jump()
 
 # Remap the mouse wheel to FOV zoom
-control.bind(ThreeDControl.MouseWheel, -0.05, 'any').observe(control.fovZoom)
+control.bindings.add(Input.MouseWheel, -0.05, 'any').observe(control.fovZoom)
 
 # Add the sky
 sky = Environment.Sky()
