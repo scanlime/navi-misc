@@ -44,54 +44,69 @@ enum {
 
 static guint signals[LAST_SIGNAL] = { 0 };
 
-static void      topic_label_class_init    (TopicLabelClass *klass);
-static void      topic_label_init          (TopicLabel      *label);
-static void      topic_label_set_property  (GObject         *object,
-                                            guint            prop_id,
-                                            const GValue    *value,
-                                            GParamSpec      *pspec);
-static void      topic_label_get_property  (GObject         *object,
-                                            guint            prop_id,
-                                            GValue          *value,
-                                            GParamSpec      *pspec);
-static void      topic_label_destroy       (GtkObject       *object);
-static void      topic_label_finalize      (GObject         *object);
-static void      topic_label_size_request  (GtkWidget       *widget,
-                                            GtkRequisition  *requisition);
-static void      topic_label_size_allocate (GtkWidget       *widget,
-                                            GtkAllocation   *allocation);
+static void      topic_label_class_init     (TopicLabelClass  *klass);
+static void      topic_label_init           (TopicLabel       *label);
+static void      topic_label_set_property   (GObject          *object,
+                                             guint             prop_id,
+                                             const GValue     *value,
+                                             GParamSpec       *pspec);
+static void      topic_label_get_property   (GObject          *object,
+                                             guint             prop_id,
+                                             GValue           *value,
+                                             GParamSpec       *pspec);
+static void      topic_label_destroy        (GtkObject        *object);
+static void      topic_label_finalize       (GObject          *object);
+static void      topic_label_size_request   (GtkWidget        *widget,
+                                             GtkRequisition   *requisition);
+static void      topic_label_size_allocate  (GtkWidget        *widget,
+                                             GtkAllocation    *allocation);
 /* ... */
-static gint     topic_label_expose         (GtkWidget       *widget,
-                                            GdkEventExpose  *event);
-static void     topic_label_realize        (GtkWidget       *widget);
-static void     topic_label_unrealize      (GtkWidget       *widget);
-static void     topic_label_map            (GtkWidget       *widget);
-static void     topic_label_unmap          (GtkWidget       *widget);
-static gboolean topic_label_button_press   (GtkWidget       *widget,
-                                            GdkEventButton  *event);
-static gboolean topic_label_button_release (GtkWidget       *widget,
-                                            GdkEventButton  *event);
-static gboolean topic_label_motion         (GtkWidget       *widget,
-                                            GdkEventMotion  *event);
+static gint     topic_label_expose          (GtkWidget        *widget,
+                                             GdkEventExpose   *event);
+static void     topic_label_realize         (GtkWidget        *widget);
+static void     topic_label_unrealize       (GtkWidget        *widget);
+static void     topic_label_map             (GtkWidget        *widget);
+static void     topic_label_unmap           (GtkWidget        *widget);
+static gboolean topic_label_button_press    (GtkWidget        *widget,
+                                             GdkEventButton   *event);
+static gboolean topic_label_button_release  (GtkWidget        *widget,
+                                             GdkEventButton   *event);
+static gboolean topic_label_motion          (GtkWidget        *widget,
+                                             GdkEventMotion   *event);
 /* ... */
 /* for selectability */
-static void topic_label_move_cursor        (TopicLabel      *label,
-                                            GtkMovementStep  step,
-                                            gint             count,
-                                            gboolean         extend_selection);
-static void topic_label_copy_clipboard     (TopicLabel      *label);
-static void topic_label_select_all         (TopicLabel      *label);
-static void topic_label_do_popup           (TopicLabel      *label,
-                                            GdkEventButton  *event);
-static void topic_label_move_forward_word  (TopicLabel      *label,
-                                            gint             start);
-static void topic_label_move_backward_word (TopicLabel      *label,
-                                            gint             start);
+static void topic_label_move_cursor         (TopicLabel       *label,
+                                             GtkMovementStep   step,
+                                             gint              count,
+                                             gboolean          extend_selection);
+static void topic_label_copy_clipboard      (TopicLabel       *label);
+static void topic_label_select_all          (TopicLabel       *label);
+static void topic_label_do_popup            (TopicLabel       *label,
+                                             GdkEventButton   *event);
+static void topic_label_move_forward_word   (TopicLabel       *label,
+                                             gint              start);
+static void topic_label_move_backward_word  (TopicLabel       *label,
+                                             gint              start);
 
-static void topic_label_create_window      (TopicLabel      *label);
-static void topic_label_destroy_window     (TopicLabel      *label);
-static void topic_label_clear_layout       (TopicLabel      *label);
-static void topic_label_ensure_layout      (TopicLabel      *label);
+static void topic_label_create_window       (TopicLabel       *label);
+static void topic_label_destroy_window      (TopicLabel       *label);
+static void topic_label_clear_layout        (TopicLabel       *label);
+static void topic_label_ensure_layout       (TopicLabel       *label);
+
+static void topic_label_recalculate         (TopicLabel       *label);
+static void topic_label_set_label_internal  (TopicLabel       *label,
+                                             gchar            *str);
+static void topic_label_set_text_internal   (TopicLabel       *label,
+                                             gchar            *str);
+static void topic_label_select_region_index (TopicLabel       *label,
+                                             gint              anchor_index,
+                                             gint              end_index);
+static void get_text_callback               (GtkClipboard     *clipboard,
+                                             GtkSelectionData *selection_data,
+                                             guint             info,
+                                             gpointer          user_data_or_owner);
+static void clear_text_callback             (GtkClipboard     *clipboard,
+                                             gpointer          user_data_or_owner);
 
 static GtkMiscClass *parent_class = NULL;
 
@@ -448,6 +463,123 @@ topic_label_ensure_layout (TopicLabel *label)
   }
 }
 
+static void
+topic_label_recalculate (TopicLabel *label)
+{
+  topic_label_set_text_internal (label, g_strdup (label->label));
+  if (label->attrs)
+    pango_attr_list_ref (label->attrs);
+  if (label->effective_attrs)
+    pango_attr_list_unref (label->effective_attrs);
+  label->effective_attrs = label->attrs;
+
+  topic_label_clear_layout (label);
+  gtk_widget_queue_resize (GTK_WIDGET (label));
+}
+
+static void
+topic_label_set_label_internal (TopicLabel *label, gchar *str)
+{
+  g_free (label->label);
+
+  label->label = str;
+
+  g_object_notify (G_OBJECT (label), "label");
+}
+
+static void
+topic_label_set_text_internal (TopicLabel *label, gchar *str)
+{
+  g_free (label->text);
+
+  label->text = str;
+
+  topic_label_select_region_index (label, 0, 0);
+}
+
+static void
+topic_label_select_region_index (TopicLabel *label, gint anchor_index, gint end_index)
+{
+  static const GtkTargetEntry targets[] = {
+    { "STRING", 0, 0 },
+    { "TEXT", 0, 0 },
+    { "COMPOUND_TEXT", 0, 0 },
+    { "UTF8_STRING", 0, 0 },
+  };
+
+  g_return_if_fail (IS_TOPIC_LABEL (label));
+
+  if (label->select_info)
+  {
+    GtkClipboard *clipboard;
+
+    if (label->select_info->selection_anchor == anchor_index &&
+        label->select_info->selection_end == end_index)
+      return;
+
+    label->select_info->selection_anchor = anchor_index;
+    label->select_info->selection_end = end_index;
+
+    clipboard = gtk_widget_get_clipboard (GTK_WIDGET (label), GDK_SELECTION_PRIMARY);
+
+    if (anchor_index != end_index)
+    {
+      gtk_clipboard_set_with_owner (clipboard, targets, G_N_ELEMENTS (targets), get_text_callback, clear_text_callback, G_OBJECT (label));
+    }
+    else
+    {
+      if (gtk_clipboard_get_owner (clipboard) == G_OBJECT (label))
+        gtk_clipboard_clear (clipboard);
+    }
+
+    gtk_widget_queue_draw (GTK_WIDGET (label));
+    g_object_freeze_notify (G_OBJECT (label));
+    g_object_notify (G_OBJECT (label), "cursor_position");
+    g_object_notify (G_OBJECT (label), "selection_bound");
+    g_object_thaw_notify (G_OBJECT (label));
+  }
+}
+
+static void
+get_text_callback (GtkClipboard *clipboard, GtkSelectionData *selection_data, guint info, gpointer user_data_or_owner)
+{
+  TopicLabel *label;
+
+  label = TOPIC_LABEL (user_data_or_owner);
+
+  if ((label->select_info->selection_anchor != label->select_info->selection_end) && label->text)
+  {
+    gint start, end;
+    gint len;
+
+    start = MIN (label->select_info->selection_anchor, label->select_info->selection_end);
+    end =   MAX (label->select_info->selection_anchor, label->select_info->selection_end);
+
+    len = strlen (label->text);
+
+    if (end > len)
+      end = len;
+    if (start > len)
+      start = len;
+
+    gtk_selection_data_set_text (selection_data, label->text + start, end - start);
+  }
+}
+
+static void
+clear_text_callback (GtkClipboard *clipboard, gpointer user_data_or_owner)
+{
+  TopicLabel *label;
+
+  label = TOPIC_LABEL (user_data_or_owner);
+
+  if (label->select_info)
+  {
+    label->select_info->selection_anchor = label->select_info->selection_end;
+    gtk_widget_queue_draw (GTK_WIDGET (label));
+  }
+}
+
 GtkWidget*
 topic_label_new ()
 {
@@ -457,4 +589,10 @@ topic_label_new ()
 void
 topic_label_set_text (TopicLabel *label, const gchar *str)
 {
+  g_return_if_fail (IS_TOPIC_LABEL (label));
+
+  g_object_freeze_notify (G_OBJECT (label));
+  topic_label_set_label_internal (label, g_strdup (str ? str : ""));
+  topic_label_recalculate (label);
+  g_object_thaw_notify (G_OBJECT (label));
 }
