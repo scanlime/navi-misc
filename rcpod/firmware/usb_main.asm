@@ -39,6 +39,8 @@
 #include <p16c765.inc>
 #include "usb_defs.inc"
 
+	errorlevel -302		; supress "register not in bank0, check page bits" message
+
 	__CONFIG  _H4_OSC & _WDT_OFF & _PWRTE_OFF & _CP_OFF
 
 unbanked	udata_shr
