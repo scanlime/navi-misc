@@ -102,6 +102,7 @@ class ThermGrapher:
         # Set available colors for the therms to use- these
         # are removed as they're allocated by rrdInit
         self.thermColors = [
+            Color(1,0,0.5),
             Color(0,0,1),
             Color(1,0,0),
             ]
