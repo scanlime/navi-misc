@@ -31,7 +31,7 @@ __all__ = ['ColortextToIRC', 'ColortextTitle', 'ColortextToPlaintext', 'Colortex
 
 class ColortextFormatter(Message.Formatter):
     """Abstract base class for formatters that operate on colorText messages"""
-    detector = Message.Filter('<find path="/message/body/colorText"/>')
+    filter = '<find path="/message/body/colorText"/>'
 
 
 class ColortextToIRC(ColortextFormatter):

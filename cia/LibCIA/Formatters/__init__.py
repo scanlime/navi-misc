@@ -25,12 +25,15 @@ The modules are aggregated together here and indexed by the factory.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from Commit import *
-from ColorText import *
-from Builder import *
-from Other import *
-from Patch import *
+import Commit, ColorText, Builder, Other, Patch
 
-factory = Message.FormatterFactory(globals())
+_factory = None
+
+def getFactory():
+    from LibCIA import Message
+    global _factory
+    if not _factory:
+        _factory = Message.FormatterFactory(Commit, ColorText, Builder, Other, Patch)
+    return _factory
 
 ### The End ###

@@ -35,10 +35,10 @@ __all__ = ['CommitToIRC', 'CommitToPlaintext', 'CommitToXHTML',
 
 class CommitFormatter(Message.Formatter):
     """Base class for formatters that operate on commit messages.
-       Includes a detector for commit messages, and utilities for
+       Includes a filter for commit messages, and utilities for
        extracting useful information from the commits.
        """
-    detector = Message.Filter('<find path="/message/body/commit"/>')
+    filter = '<find path="/message/body/commit"/>'
 
     # Subclasses can set this to limit the length of log messages, in lines
     lineLimit = None

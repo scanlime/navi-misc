@@ -31,7 +31,7 @@ __all__ = ['BuilderToPlaintext', 'BuilderToIRC', 'BuilderToXHTML']
 
 class BuilderFormatter(Message.Formatter):
     """Abstract base class for formatters that operate on builder results."""
-    detector = Message.Filter('<find path="/message/body/builder"/>')
+    filter = '<find path="/message/body/builder"/>'
 
     def format(self, args):
         # Format each package inside each result set

@@ -269,11 +269,11 @@ class Ruleset(XML.XMLFunction):
            """
         # Evaluate this once at parse-time so any silly errors
         # like unknown formatters or mediums can be detected.
-        Formatters.factory.fromXml(element)
+        Formatters.getFactory().fromXml(element)
 
         def rulesetFormatter(msg):
             args = Message.FormatterArgs(msg, self.result)
-            self.result = Formatters.factory.fromXml(element, msg).format(args)
+            self.result = Formatters.getFactory().fromXml(element, msg).format(args)
             return True
         return rulesetFormatter
 

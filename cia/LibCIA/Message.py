@@ -414,9 +414,9 @@ class Formatter:
        converting it to plaintext, or annotating the result of another Formatter
        with additional information.
        """
-    # If non-none, this is a filter function that can be called against
+    # If non-none, this is a Filter string that can be tested against
     # a message to detect whether this formatter is applicable.
-    detector = None
+    filter = None
 
     # A string identifying this formatter's output medium. Could be 'html',
     # 'irc', etc.
@@ -536,12 +536,12 @@ class CompositeFormatterParser(XML.XMLObjectParser):
             import Formatters
 
             # Evaluate once at parse time to check validity
-            Formatters.factory.fromXml(element)
+            Formatters.getFactory().fromXml(element)
 
             def formatUsingFactory(args):
                 # This must bind to a particular formatter at runtime rather than parse time
                 # to handle autoformatting properly.
-                return Formatters.factory.fromXml(element, args.message).format(args)
+                return Formatters.getFactory().fromXml(element, args.message).format(args)
             return formatUsingFactory
 
         else:
@@ -658,6 +658,23 @@ class CompositeFormatterParser(XML.XMLObjectParser):
             return text
 
 
+filterCache = {}
+
+def getCachedFilter(xml):
+    """Get the Filter instance corresponding to the given XML
+       fragment, creating one if it doesn't exist yet. As the cache
+       doesn't get cleaned yet, this should only be used for
+       non-user-provided Filter strings.
+       """
+    global filterCache
+    try:
+        return filterCache[xml]
+    except KeyError:
+        f = Filter(xml)
+        filterCache[xml] = f
+        return f
+
+
 def parseCompositeFormatter(xml):
     """A convenience function for defining format functions as XML
        composite formatters at import-time.
@@ -676,17 +693,30 @@ class FormatterFactory:
        This class should be constructed with a dictionary to pull Formatter
        instances out of and catalog.
        """
-    def __init__(self, d):
+    def __init__(self, *args):
         self.nameMap = {}
         self.mediumMap = {}
-        for name, obj in d.iteritems():
-            try:
-                if issubclass(obj, Formatter):
-                    self.nameMap[name] = obj
-                    if obj.detector and obj.medium:
-                        self.mediumMap.setdefault(obj.medium, []).append(obj)
-            except TypeError:
-                pass
+        for arg in args:
+            self.install(arg)
+
+    def install(self, obj):
+        """Install a module, Formatter instance, or dict containing Formatters
+           such that they are searchable by this FormatterFactory.
+           """
+        if type(obj) == type(Formatter) and issubclass(obj, Formatter):
+            self.nameMap[obj.__name__] = obj
+            if obj.filter and obj.medium:
+                self.mediumMap.setdefault(obj.medium, []).append(obj)
+
+        elif type(obj) == dict:
+            for subobj in obj.itervalues():
+                # We only look at Formtter instances inside dicts, to
+                # avoid recursively drilling down into modules.
+                if type(subobj) == type(Formatter) and issubclass(subobj, Formatter):
+                    self.install(subobj)
+
+        elif type(obj) == types.ModuleType:
+            self.install(obj.__dict__)
 
     def findName(self, name):
         """Find a particular formatter by name"""
@@ -707,7 +737,7 @@ class FormatterFactory:
             raise NoFormatterError("No formatters for the %r medium" % medium)
         if message:
             for cls in l:
-                if cls.detector(message):
+                if getCachedFilter(cls.filter)(message):
                     return cls()
             raise NoFormatterError("No matching formatters for the %r medium" % medium)
 
