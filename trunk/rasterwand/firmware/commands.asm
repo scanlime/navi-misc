@@ -87,6 +87,7 @@ CheckVendor
 	defineRequest	RWAND_CTRL_SEQ_WRITE12,		request_seqWrite12
 	defineRequest	RWAND_CTRL_SEQ_WRITE4,		request_seqWrite4
 	defineRequest	RWAND_CTRL_RANDOM_WRITE8,	request_randomWrite8
+	defineRequest	RWAND_CTRL_GET_HW_MODEL,	request_getHwModel
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -429,6 +430,12 @@ ep0loop
     decfsz  byte_iterator, f
     goto    ep0loop
 	return
+
+
+	; Return a byte with the hardware model ID
+request_getHwModel
+	movlw	HWMODEL
+	returnByte
 
 	end
 

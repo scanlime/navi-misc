@@ -18,7 +18,7 @@
 ;// The protocol version, stored in binary coded decimal.
 ;// This is available from the device in the bcdDevice field
 ;// of its DEVICE descriptor.
-#define RWAND_PROTOCOL_VERSION  0x0100
+#define RWAND_PROTOCOL_VERSION  0x0101
 
 ;// Device vendor and product IDs.
 #define RWAND_VENDOR_ID   0xE461
@@ -104,6 +104,9 @@
 ;// Like above, but the other direction.
 ;// (Not yet implemented)
 #define RWAND_CTRL_RIGHT_SHIT		0x11
+
+;// Return a 1-byte packet with the hardware model ID
+#define RWAND_CTRL_GET_HW_MODEL		0x12
 
 
 ;//************************************************** Mode bits
