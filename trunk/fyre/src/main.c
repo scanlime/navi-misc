@@ -136,9 +136,8 @@ int main(int argc, char ** argv) {
 	case 'c':
 #ifdef HAVE_GNET
 	    {
-		ClusterModel *cluster = cluster_model_get(map);
+		ClusterModel *cluster = cluster_model_get(map, TRUE);
 		cluster_model_add_nodes(cluster, optarg);
-		g_object_unref(cluster);
 	    }
 #else
 	    fprintf(stderr,

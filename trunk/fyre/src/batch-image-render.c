@@ -25,6 +25,10 @@
 #include <stdio.h>
 #include "batch-image-render.h"
 
+#ifdef HAVE_GNET
+#include "cluster-model.h"
+#endif
+
 typedef struct {
     gulong      target_density;
     GMainLoop*  main_loop;
@@ -32,7 +36,6 @@ typedef struct {
 
 static void       on_calc_finished            (IterativeMap*      map,
 					       BatchImageRender*  self);
-
 
 void batch_image_render(IterativeMap*  map,
 			const char*    filename,
@@ -42,7 +45,6 @@ void batch_image_render(IterativeMap*  map,
 
     self.target_density = target_density;
     self.main_loop = g_main_loop_new(NULL, FALSE);
-
 
     /* Have the map let us know after each iteration block finishes */
     g_signal_connect(map, "calculation-finished", G_CALLBACK(on_calc_finished), &self);
@@ -92,6 +94,17 @@ static void       on_calc_finished            (IterativeMap*       map,
 	   HISTOGRAM_IMAGER(map)->peak_density, self->target_density,
 	   ((int)elapsed) / (60*60), (((int)elapsed) / 60) % 60, ((int)elapsed)%60,
 	   ((int)remaining) / (60*60), (((int)remaining) / 60) % 60, ((int)remaining)%60);
+
+#ifdef HAVE_GNET
+    {
+	ClusterModel *cluster = cluster_model_get(map, FALSE);
+	if (cluster) {
+	    cluster_model_show_status(cluster);
+	    g_object_unref(cluster);
+	    printf("\n");
+	}
+    }
+#endif
 }
 
 /* The End */
