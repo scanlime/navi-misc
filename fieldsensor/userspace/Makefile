@@ -1,0 +1,3 @@
+LDFLAGS = -lusb
+
+all: test
