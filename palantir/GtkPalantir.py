@@ -11,7 +11,7 @@ from twisted.internet import gtk2reactor
 gtk2reactor.install()
 
 import string, re, gtk, gtk.glade, gobject, palantirIRC
-import gtk.gdk
+from GtkChatBuffer import GtkChatBuffer
 from time import localtime
 from dieRoller import DieRoller
 from CharacterSheet.Character import Character
@@ -35,6 +35,11 @@ class PalantirWindow:
     list.set_model(model=gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING))
     list.append_column(gtk.TreeViewColumn('Icons', gtk.CellRendererPixbuf(), pixbuf=0))
     list.append_column(gtk.TreeViewColumn('Users', gtk.CellRendererText(), text=1))
+
+    self.chatWindow = GtkChatBuffer()
+    self.tree.get_widget('ChatScroller').add_with_viewport(self.chatWindow)
+    self.chatWindow.show()
+
     # Client factory.
     self.factory = palantirIRC.PalantirClientFactory('nuku-nuku', ui=self)
 
@@ -305,34 +310,3 @@ class PalantirWindow:
     if len(sec) is 1: sec = '0'+sec
 
     return (hour, min, sec)
-
-### This was created for doing tabbed chatting, so that you could connect to multiple
-### channels.  The client still supports multiple channels, but the UI does not.  I'm
-### leaving this here in case, at some later date, it becomes necessary to reimplement
-### the tabs.
-class ChatWindowUI(gtk.ScrolledWindow):
-  ''' Objects for creating text buffers for displaying text from the channels.
-      This will hold a reference to the name of the channel the buffer is showing.
-      '''
-  def __init__(self, channel='none'):
-    self.channel = channel
-    gtk.ScrolledWindow.__init__(self)
-    self.set_policy(2, 1)
-    self.chatBox = gtk.TextView()
-    self.chatBox.set_cursor_visible(gtk.FALSE)
-    self.chatBox.set_editable(gtk.FALSE)
-    self.chatBox.set_wrap_mode(2)
-    self.chatBox.show()
-    self.add_with_viewport(self.chatBox)
-
-
-  def show(self):
-    self.chatBox.show()
-    gtk.ScrolledWindow.show(self)
-
-  def display(self, message):
-    ''' Display the message. '''
-    buffer = self.chatBox.get_buffer()
-    buffer.insert(buffer.get_end_iter(), message)
-    # Supposed to scroll the window down to see the message, but it doesn't work, ATM.
-    self.chatBox.scroll_to_iter(buffer.get_end_iter(), 0.0)
