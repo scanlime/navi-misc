@@ -129,13 +129,9 @@ ftoc (char *data)
 static GList*
 e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 {
-	/* CCF gives us either 7 or 8 days into the future, depending on whether
-	 * we've fetched the morning or afternoon forecast. There are actually
-	 * 14 data points, but we'll just have to "average" them since there's
-	 * no real way to create a "nighttime" event. In general, we can just
-	 * display the daytime precipitation, high temperature and conditions
-	 * and the nighttime low temperature, and the current day's weather will
-	 * update to be the nighttime version when it fetches the afternoon forecast.
+	/* CCF gives us 14 12-hour blocks into the future. Depending on the
+	 * time of the forecast (whether it's the morning or afternoon product),
+	 * we can project either 6 or 7 days into the future.
 	 *
 	 * The CCF format is described in NWS directive 10-503, but it's usually
 	 * easier to look at a summary put up by one of the stations:
