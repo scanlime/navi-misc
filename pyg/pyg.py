@@ -96,15 +96,19 @@ class SourceNotebook(gtk.Notebook):
         gtk.Notebook.__init__(self)
         self.set_scrollable(gtk.TRUE)
 
+class CompileOutput(gtk.TextView):
+    def __init__(self):
+        gtk.TextView.__init__(self, buffer=None)
+        self.set_editable(gtk.FALSE)
+        self.set_cursor_visible(gtk.FALSE)
+
 main = MainWindow()
 
 sources = SourceNotebook()
 sources.append_page(gtk.Label('Left Top Squad!'), gtk.Label('Look Ma! A Tab!'))
 main.set(0, sources)
 
-compiler_output = gtk.TextView(buffer=None)
-compiler_output.set_editable(gtk.FALSE)
-compiler_output.set_cursor_visible(gtk.FALSE)
+compiler_output = CompileOutput()
 main.set(1, compiler_output)
 
 main.set(2, gtk.Label(' Right Top  '))
