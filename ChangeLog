@@ -1,3 +1,17 @@
+1.0
+	* Minor cluster autodetection bugfixes
+	* Fixed a hang on exit when running Fyre in console mode
+	  on Windows XP
+	* Implemented a "Go" menu that provides undo/redo
+	  functionality using a web-browser-like history system
+	* Many binreloc fixes
+	* Added the --chuid and --pidfile options for Fyre servers
+	* Replaced the "target density" stopping conditions with a
+	  new quality metric based on the ratio of histogram samples to
+	  distance travelled in color space.
+	* Minor UI bugfixes
+	* Added and updated init scripts and packaging for Linux distros
+
 0.9 (07 February 2005)
 	* Made the about box the coolest thing since sliced cheese
 	* Added keybindings for zoom presets
