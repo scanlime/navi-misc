@@ -347,6 +347,7 @@ class Reader:
               | dynamicColor  \
               | group         \
               | link          \
+              | material      \
               | mesh          \
               | meshbox       \
               | meshpyr       \
