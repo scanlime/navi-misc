@@ -30,6 +30,14 @@ catalogList = tag('ul', _class="catalog")
 headingTab = tag('a', _class="headingtab")
 value = tag('strong')
 
+
+class Bargraph(tag):
+    """A tag that uses its size to express a value between 0 and 1"""
+    def __init__(self, value, width=4, padding=0.2):
+        tag.__init__(self, 'span', _class='bargraph',
+                     style="padding: 0em %.4fem" % (value * width + padding))
+
+
 class Section(Nouvelle.DocumentOwner):
     """A portion of the web page with a title and a body, that may be placed
        in any of the page's columns.
