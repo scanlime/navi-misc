@@ -257,15 +257,15 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->highlight_edit),   "clicked",  G_CALLBACK (highlight_edit),   page);
 	g_signal_connect (G_OBJECT (page->highlight_remove), "clicked",  G_CALLBACK (highlight_remove), page);
 
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/nickname",              (GConfClientNotifyFunc) gconf_entry_changed, page->nick_name,       NULL, NULL);
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/realname",              (GConfClientNotifyFunc) gconf_entry_changed, page->real_name,       NULL, NULL);
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/quitmsg",               (GConfClientNotifyFunc) gconf_entry_changed, page->quit_message,    NULL, NULL);
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/partmsg",               (GConfClientNotifyFunc) gconf_entry_changed, page->part_message,    NULL, NULL);
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/awaymsg",               (GConfClientNotifyFunc) gconf_entry_changed, page->away_message,    NULL, NULL);
-	gconf_client_notify_add (p->gconf, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) gconf_bool_changed,  page->usesysfonts,     NULL, NULL);
-	gconf_client_notify_add (p->gconf, "/apps/xchat/main-window/font",          (GConfClientNotifyFunc) gconf_font_changed,  page->font_selection,  NULL, NULL);
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/showcolors",            (GConfClientNotifyFunc) gconf_bool_changed,  page->show_colors,     NULL, NULL);
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/showtimestamps",        (GConfClientNotifyFunc) gconf_bool_changed,  page->show_timestamps, NULL, NULL);
+	page->nh[0] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/nickname",              (GConfClientNotifyFunc) gconf_entry_changed, page->nick_name,       NULL, NULL);
+	page->nh[1] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/realname",              (GConfClientNotifyFunc) gconf_entry_changed, page->real_name,       NULL, NULL);
+	page->nh[2] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/quitmsg",               (GConfClientNotifyFunc) gconf_entry_changed, page->quit_message,    NULL, NULL);
+	page->nh[3] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/partmsg",               (GConfClientNotifyFunc) gconf_entry_changed, page->part_message,    NULL, NULL);
+	page->nh[4] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/awaymsg",               (GConfClientNotifyFunc) gconf_entry_changed, page->away_message,    NULL, NULL);
+	page->nh[5] = gconf_client_notify_add (p->gconf, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) gconf_bool_changed,  page->usesysfonts,     NULL, NULL);
+	page->nh[6] = gconf_client_notify_add (p->gconf, "/apps/xchat/main-window/font",          (GConfClientNotifyFunc) gconf_font_changed,  page->font_selection,  NULL, NULL);
+	page->nh[7] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/showcolors",            (GConfClientNotifyFunc) gconf_bool_changed,  page->show_colors,     NULL, NULL);
+	page->nh[8] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/showtimestamps",        (GConfClientNotifyFunc) gconf_bool_changed,  page->show_timestamps, NULL, NULL);
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/nickname", NULL);
 	gtk_entry_set_text (GTK_ENTRY (page->nick_name), text);
@@ -330,6 +330,14 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 void
 preferences_page_irc_free (PreferencesIrcPage *page)
 {
+	gint i;
+	GConfClient *client;
+
+	client = gconf_client_get_default ();
+	for (i = 0; i < 9; i++)
+		gconf_client_notify_remove (client, page->nh[i]);
+	g_object_unref (client);
+
 	gdk_pixbuf_unref (page->icon);
 	g_free (page);
 }
