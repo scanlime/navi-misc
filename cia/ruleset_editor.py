@@ -28,7 +28,9 @@ provided.
 #
 
 from LibCIA import Client
-import gtk, gobject, sys, os, gtk.glade
+import gtk, gobject, gtk.glade
+import xmlrpclib
+import sys, os
 
 
 class GladeUI(object):
@@ -282,6 +284,29 @@ class RulesetEditor(GladeUI):
         ruleset = self.buffer.get_text(*self.buffer.get_bounds())
         self.client.setRuleset(ruleset, self.currentURI)
         self.buffer.set_modified(gtk.FALSE)
+
+
+def exceptionDialog(type, value, tb):
+    """Present a dialog to show any unhandled exceptions to the user.
+       Typically these will be errors connecting to the server, invalid
+       XML in the rulesets being sent, or security errors.
+       """
+    # Format the message a little better if it's a generic XML-RPC Fault
+    if type is xmlrpclib.Fault:
+        message = "%s\n\n%s" % (value.faultCode, value.faultString)
+    else:
+        message = "%s\n\n%s" % (type.__name__, value)
+
+    dialog = gtk.MessageDialog(
+        parent = None,
+        flags = 0,
+        type = gtk.MESSAGE_ERROR,
+        buttons = gtk.BUTTONS_CLOSE,
+        message_format = message)
+    dialog.connect('response', lambda win, v: win.destroy())
+    dialog.show_all()
+
+sys.excepthook = exceptionDialog
 
 
 class RulesetWindow(GladeUI):
