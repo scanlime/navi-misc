@@ -3,7 +3,8 @@
 #include "util.h"
 
 
-void uart_init() {
+void uart_init()
+{
   RS232_POWER = 0;            /* Turn on the RS-232 hardware */
   UART_MASK = 0;              /* No interrupts */
   MODECNFG = TXCNTL | SOFTSW; /* Transmitter on */
@@ -13,16 +14,49 @@ void uart_init() {
   LCR  = LCR_WL8 | LCR_FEN;   /* 8-N-1, enable FIFOs */
   FCRL = 0;                   /* No flow control */
   MSR  = 0xFF;                /* Reset modem status */
-  DLH  = 0;                   /* 115200 baud */
+  DLH  = 0;                   /* 115200 baud default speed */
   DLL  = 8;
 }
 
-void putchar(char c) {
+void uart_set_speed(int divisor)
+{
+  DLH = divisor >> 8;
+  DLL = divisor & 0xFF;
+}
+
+void uart_write(char c)
+{
   while (!(LSR & LSR_TxE))
     watchdog_reset();
   TDR = c;
+}
+
+char uart_read()
+{
+  while (!(LSR & LSR_RxF))
+    watchdog_reset();
+  return RDR;
+}
+
+int uart_nb_write(char c)
+{
+  if (!(LSR & LSR_TxE))
+    return -1;
+  TDR = c;
+  return 0;
+}
+
+int uart_nb_read()
+{
+  if (!(LSR & LSR_RxF))
+    return -1;
+  return RDR;
+}
+
+void putchar(char c) {
+  uart_write(c);
 
   /* Convert \n into \n\r */
   if (c == '\n')
-    putchar('\r');
+    uart_write('\r');
 }
