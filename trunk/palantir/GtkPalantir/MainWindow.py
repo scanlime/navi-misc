@@ -265,6 +265,11 @@ class MainWindow:
     # Roll the dice.
     self.dieRoller.roll([int(time)], data, [int(mods)], int(diff))
 
+  def on_pref_apply_clicked(self, widget, data=None):
+    ''' Apply any color changes to the chat buffers. '''
+    for buffer in self.tabs.itervalues():
+      buffer.ChangeColor(self.prefs.text_color, self.prefs.background_color)
+
   ### IRC commands. ###
   def nick(self, args):
     self.factory.client.setNick(args)

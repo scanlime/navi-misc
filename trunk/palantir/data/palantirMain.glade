@@ -820,6 +820,7 @@
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
 	      <property name="response_id">-10</property>
+	      <signal name="clicked" handler="on_pref_apply_clicked" last_modification_time="Sun, 11 Jul 2004 06:18:32 GMT"/>
 	    </widget>
 	  </child>
 
@@ -1558,6 +1559,7 @@
 			      <property name="can_focus">True</property>
 			      <property name="use_alpha">False</property>
 			      <property name="focus_on_click">True</property>
+			      <signal name="color_set" handler="on_text_color_button_color_set" last_modification_time="Sun, 11 Jul 2004 06:12:17 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
@@ -1606,6 +1608,7 @@
 			      <property name="can_focus">True</property>
 			      <property name="use_alpha">False</property>
 			      <property name="focus_on_click">True</property>
+			      <signal name="color_set" handler="on_background_color_button_color_set" last_modification_time="Sun, 11 Jul 2004 06:12:36 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>

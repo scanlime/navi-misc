@@ -25,7 +25,7 @@ class ChatBuffer(gtk.ScrolledWindow):
   ''' Objects for creating text buffers for displaying text from the channels.
       This will hold a reference to the name of the channel the buffer is showing.
       '''
-  def __init__(self):
+  def __init__(self, foreground='white', background='black'):
     # Initialize the scrolled window.
     gtk.ScrolledWindow.__init__(self)
     self.set_policy(2,0)
@@ -41,8 +41,8 @@ class ChatBuffer(gtk.ScrolledWindow):
     self.text_view.set_cursor_visible(gtk.FALSE)
 
     # For now the default colors are white on black, this needs to be configurable.
-    bg = gtk.gdk.color_parse("black")
-    fg = gtk.gdk.color_parse("white")
+    bg = gtk.gdk.color_parse(background)
+    fg = gtk.gdk.color_parse(foreground)
     self.text_view.modify_text(gtk.STATE_NORMAL, fg)
     self.text_view.modify_base(gtk.STATE_NORMAL, bg)
 
@@ -80,3 +80,9 @@ class ChatBuffer(gtk.ScrolledWindow):
       end.forward_char()
       buffer.apply_tag_by_name('nickends', start,bounds[0])
       buffer.apply_tag_by_name('nickends', bounds[1], end)
+
+  def ChangeColor(self, foreground, background):
+    fg = gtk.gdk.color_parse(foreground)
+    bg = gtk.gdk.color_parse(background)
+    self.text_view.modify_text(gtk.STATE_NORMAL, fg)
+    self.text_view.modify_base(gtk.STATE_NORMAL, bg)
