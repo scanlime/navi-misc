@@ -570,8 +570,6 @@ static void on_anim_save_as (GtkWidget *widget, gpointer user_data) {
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					  GTK_STOCK_OK, GTK_RESPONSE_OK,
 					  NULL);
-    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dialog), "animation.fa");
-
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
         gchar *filename;
 	filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));

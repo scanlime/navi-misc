@@ -430,7 +430,6 @@ static void on_save (GtkWidget *widget, Explorer* self) {
 					  GTK_STOCK_SAVE, GTK_RESPONSE_OK,
 					  NULL);
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
-    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dialog), "rendering.png");
     if (file_location != NULL)
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), file_location);
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
@@ -488,7 +487,6 @@ static void on_save_exr (GtkWidget *widget, Explorer* self) {
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
     if (file_location != NULL)
         gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), file_location);
-    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dialog), "rendering.exr");
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
 	filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
