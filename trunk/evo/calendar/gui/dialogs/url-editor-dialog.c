@@ -25,6 +25,9 @@
 #include "url-editor-dialog.h"
 #include <string.h>
 #include <libedataserverui/e-source-selector.h>
+#include <e-util/e-dialog-widgets.h>
+#include <e-util/e-passwords.h>
+#include <e-util/e-icon-factory.h>
 
 static GtkDialogClass *parent_class = NULL;
 
@@ -56,8 +59,44 @@ url_editor_dialog_init (UrlEditorDialog *dialog)
 }
 
 static void
+fb_url_changed (GtkEntry *url_entry, UrlEditorDialog *dialog)
+{
+	/* FIXME */
+}
+
+static void
+fb_url_activated (GtkEntry *url_entry, UrlEditorDialog *dialog)
+{
+	/* FIXME */
+}
+
+static void
+fb_ok_enable (GtkWidget *widget, UrlEditorDialog *dialog)
+{
+	/* FIXME */
+}
+
+static void
+fb_daily_toggled (GtkWidget *button, UrlEditorDialog *dialog)
+{
+	/* FIXME */
+}
+
+static void
+selection_changed (ESourceSelector *selector, UrlEditorDialog *dialog)
+{
+	/* FIXME */
+}
+
+static void
 init_widgets (UrlEditorDialog *dialog)
 {
+	GtkWidget *selector;
+	ESourceList *source_list;
+	GConfClient *gconf;
+	GList *icon_list;
+	GSList *p;
+
 #define GW(name) ((dialog->name) = glade_xml_get_widget (dialog->gui, #name))
 	GW(url_editor);
 	GW(calendar_list_label);
@@ -70,6 +109,53 @@ init_widgets (UrlEditorDialog *dialog)
 	GW(password_entry);
 	GW(remember_pw);
 #undef GW
+
+	dialog->cancel = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+	dialog->ok = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK, GTK_RESPONSE_OK);
+
+	gtk_widget_ensure_style (dialog->url_editor);
+	gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog->url_editor)->vbox), 0);
+	gtk_container_set_border_width (GTK_CONTAINER (GTK_DIALOG (dialog->url_editor)->action_area), 12);
+
+	g_signal_connect (G_OBJECT (dialog->url_entry), "changed", G_CALLBACK (fb_url_changed), dialog);
+	g_signal_connect (G_OBJECT (dialog->username_entry), "changed", G_CALLBACK (fb_ok_enable), dialog);
+	g_signal_connect (G_OBJECT (dialog->password_entry), "changed", G_CALLBACK (fb_ok_enable), dialog);
+	g_signal_connect (G_OBJECT (dialog->remember_pw), "toggled", G_CALLBACK (fb_ok_enable), dialog);
+	g_signal_connect (G_OBJECT (dialog->url_entry), "activate", G_CALLBACK (fb_url_activated), dialog);
+	g_signal_connect (G_OBJECT (dialog->daily), "toggled", G_CALLBACK (fb_daily_toggled), dialog);
+	g_signal_connect (G_OBJECT (dialog->weekly), "toggled", G_CALLBACK (fb_daily_toggled), dialog);
+	g_signal_connect (G_OBJECT (dialog->user_publish), "toggled", G_CALLBACK (fb_daily_toggled), dialog);
+
+	gconf = gconf_client_get_default ();
+	source_list = e_source_list_new_for_gconf (gconf, "/apps/evolution/calendar/sources");
+
+	if (dialog->uri->calendars) {
+		ESource *source;
+
+		selector = e_source_selector_new (source_list);
+
+		for (p = dialog->uri->calendars; p; p = g_slist_next (p)) {
+			gchar *source_uid = g_strdup (p->data);
+			source = e_source_list_peek_source_by_uid (source_list, source_uid);
+			e_source_selector_select_source ((ESourceSelector *)selector, source);
+			g_free (source_uid);
+		}
+	} else {
+		selector = e_source_selector_new (source_list);
+	}
+	e_source_selector_show_selection ((ESourceSelector *) selector, TRUE);
+	g_signal_connect (G_OBJECT (selector), "selection_changed", G_CALLBACK (selection_changed), dialog);
+
+	gtk_label_set_mnemonic_widget (GTK_LABEL (dialog->calendar_list_label), selector);
+	gtk_widget_show (selector);
+	gtk_container_add (GTK_CONTAINER (dialog->scrolled_window), selector);
+
+	icon_list = e_icon_factory_get_icon_list ("stock_calendar");
+	if (icon_list) {
+		gtk_window_set_icon_list (GTK_WINDOW (dialog->url_editor), icon_list);
+		g_list_foreach (icon_list, (GFunc) g_object_unref, NULL);
+		g_list_free (icon_list);
+	}
 }
 
 static void
@@ -99,7 +185,7 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 
 	if (uri->password) {
 		if (strlen (uri->password) != 0) {
-			gtk_entry_set_text (dialog->password_entry, uri->password);
+			gtk_entry_set_text (GTK_ENTRY (dialog->password_entry), uri->password);
 			e_dialog_toggle_set (dialog->remember_pw, TRUE);
 		} else {
 			e_dialog_toggle_set (dialog->remember_pw, FALSE);
@@ -107,8 +193,16 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 	}
 
 	switch (uri->publish_freq) {
+		case URI_PUBLISH_DAILY:
+			e_dialog_radio_set (dialog->daily, URI_PUBLISH_DAILY, pub_frequency_type_map);
+			break;
+		case URI_PUBLISH_WEEKLY:
+			e_dialog_radio_set (dialog->daily, URI_PUBLISH_WEEKLY, pub_frequency_type_map);
+			break;
+		case URI_PUBLISH_USER:
+		default:
+			e_dialog_radio_set (dialog->daily, URI_PUBLISH_USER, pub_frequency_type_map);
 	}
-
 
 	toplevel = glade_xml_get_widget (gui, "toplevel_dialog");
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), toplevel);
