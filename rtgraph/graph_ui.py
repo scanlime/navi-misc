@@ -24,6 +24,7 @@ varDict = {'t': rtgraph.TimeVariable()}
 channels = [rtgraph.FunctionChannel(f, vars=varDict) for f in functions]
 win = rtgraph.GraphUIWindow(channels, rtgraph.HScrollLineGraph(range=(-1,1)))
 win.connect("destroy", gtk.mainquit)
-win.set_size_request(400,400)
+win.set_default_size(400,400)
+win.show()
 gtk.main()
 

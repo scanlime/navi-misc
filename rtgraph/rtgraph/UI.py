@@ -206,7 +206,6 @@ class GraphUI(gtk.VPaned):
     def createChannelList(self):
         """Create the channel list widget and a scrolling container for it"""
         self.channelList = ChannelList(self.graph, self.channels)
-        self.channelList.set_size_request(256, 128)
         self.channelList.show()
 
         scroll = gtk.ScrolledWindow()
@@ -229,7 +228,6 @@ def GraphUIWindow(channels, graph=None, title=None):
     win.set_border_width(8)
     ui.show()
     win.add(ui)
-    win.show()
     return win
 
 ### The End ###

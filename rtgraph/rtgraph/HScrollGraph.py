@@ -39,12 +39,15 @@ class HScrollGraph(Graph):
          scrollRate: Graph scrolling rate, in pixels per second
        """
     def __init__(self,
-                 size       = (384,128),
-                 channels   = [],
-                 gridSize   = 32,
-                 scrollRate = 50,
+                 size         = (384,128),
+                 channels     = [],
+                 gridSize     = 32,
+                 scrollRate   = 50,
+                 pollInterval = 10,
+                 bgColor      = None,
+                 gridColor    = None,
                  ):
-        Graph.__init__(self, size, channels)
+        Graph.__init__(self, size, channels, pollInterval, bgColor, gridColor)
         self.gridSize = gridSize
         self.scrollRate = scrollRate
         self.gridPhase = 0.0       # Number of pixels we've scrolled, modulo gridSize

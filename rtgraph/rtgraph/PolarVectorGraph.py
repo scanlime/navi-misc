@@ -35,8 +35,15 @@ class PolarVectorGraph(StaticGridGraph):
        Expects channel values to be (magnitude, angle) tuples, with
        magnitude in the range [0,1] and angle in radians.
        """
-    def __init__(self, size=(128,128), channels=[]):
-        StaticGridGraph.__init__(self, size, channels)
+    def __init__(self,
+                 size         = (128,128),
+                 channels     = [],
+                 pollInterval = 10,
+                 bgColor      = None,
+                 gridColor    = None,
+                 ):
+        StaticGridGraph.__init__(self, size, channels, pollInterval,
+                                 bgColor, gridColor)
 
         # by default, draw grids at two radii and 8 angles
         self.radiusGrids = (0.25, 0.5, 0.75, 1)

@@ -34,8 +34,15 @@ class IsometricVectorGraph(StaticGridGraph):
        an isometric grid.
        Expects channel values to be 3-tuples of values in the range [0,1]
        """
-    def __init__(self, size=(384,384), channels=[]):
-        StaticGridGraph.__init__(self, size, channels)
+    def __init__(self,
+                 size         = (384,384),
+                 channels     = [],
+                 pollInterval = 10,
+                 bgColor      = None,
+                 gridColor    = None,
+                 ):
+        StaticGridGraph.__init__(self, size, channels, pollInterval,
+                                 bgColor, gridColor)
 
         # Default axis vectors
         self.axes = [(1, 0.6),
