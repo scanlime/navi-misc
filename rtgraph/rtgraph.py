@@ -931,6 +931,7 @@ class GraphUI(gtk.VPaned):
         """Create our container for the graph widget"""
         self.graph.show()
         frame = gtk.Frame()
+        frame.set_shadow_type(gtk.SHADOW_IN)
         frame.add(self.graph)
         frame.show()
         return frame
