@@ -1,4 +1,4 @@
-#!/usr/bin/python2.2
+#!/usr/bin/env python
 
 #
 # $Id: test.py,v 1.7 2003/01/29 21:39:08 gurubert Exp $
