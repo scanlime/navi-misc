@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
   int i;
   int source = 10;      /* default source */
   int destination = 2;  /* default destination (critical decoder) */
-  int timeout = 1;      /* defualt timeout */
+  int timeout = 0;      /* defualt timeout */
   unsigned char data[64];  /* packet data */
   int dataBytes = 0;
 
@@ -82,7 +82,7 @@ void usage(void) {
 	  "destination, and a calculated checksum. Displays the received response.\n"
 	  "\n"
 	  " -h             : This message\n"
-	  " -t timeout     : Number of seconds to wait for a response, defaults to 1\n"
+	  " -t timeout     : Number of extra milliseconds to wait for a response\n"
 	  " -s source      : Specifies the source device address, defaults to 10\n"
 	  " -d destination : Specifies the destination device address, defaults to 2\n"
 	  "                  (the critical decoder)\n"
@@ -134,8 +134,10 @@ int mnetsend(int source, int destination, const unsigned char *data, int dataByt
   /* Wait for a response. The rcpod will be receiving it to its
    * scratchpad RAM. We then pick up whatever it has to offer us into our own buffer.
    */
-  printf("Waiting %d seconds for a response...\n", timeout);
-  sleep(timeout);
+  if (timeout > 0) {
+    printf("Waiting %dms for a response...\n", timeout);
+    usleep(((unsigned long)timeout) * 1000);
+  }
   packetBytes = rcpod_SerialRxFinish(rcpod, packet, sizeof(packet));
 
   /* Show the raw received packet */
