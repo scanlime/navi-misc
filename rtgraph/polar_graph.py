@@ -5,7 +5,8 @@
 # -- Micah Dowty <micah@picogui.org>
 #
 
-import rtgraph, gtk
+import gtk
+import rtgraph
 
 functions = [
     "(1, t % (pi*2))",

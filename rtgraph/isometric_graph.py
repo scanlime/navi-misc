@@ -5,7 +5,8 @@
 # -- Micah Dowty <micah@picogui.org>
 #
 
-import rtgraph, gtk
+import gtk
+import rtgraph
 
 functions = [
     "(sin(t)*0.5+0.5, cos(t)*0.5+0.5, 0)",
