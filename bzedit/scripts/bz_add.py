@@ -25,9 +25,10 @@
 Name: 'BZFlag Object...'
 Blender: 234
 Group: 'Add'
+Submenu: 'World' world
 Submenu: 'Box' box
 Submenu: 'Pyramid' pyramid
-Submenu: 'World' world
+Submenu: 'Teleporter' teleporter
 Tip: 'Add a new BZFlag object'
 """
 
