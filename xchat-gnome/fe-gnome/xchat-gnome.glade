@@ -3396,7 +3396,7 @@ Your Xchat-gnome preferences have not yet been set.   You can continue to the Xc
 		  <child>
 		    <widget class="GtkLabel" id="label65">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">First, enter a nickname and a &quot;real name&quot; you'd like to use for
+		      <property name="label" translatable="yes">First, enter a nickname and a real name that you would like to use for
 most networks. You can set the same information for individual
 networks later inside the &quot;Networks&quot; portion of the setup dialog.</property>
 		      <property name="use_underline">False</property>
@@ -3425,7 +3425,7 @@ networks later inside the &quot;Networks&quot; portion of the setup dialog.</pro
 		      <child>
 			<widget class="GtkLabel" id="label66">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Nickname:</property>
+			  <property name="label" translatable="yes">Nick Name:</property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -3480,7 +3480,7 @@ networks later inside the &quot;Networks&quot; portion of the setup dialog.</pro
 		      <child>
 			<widget class="GtkLabel" id="label67">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Realname:</property>
+			  <property name="label" translatable="yes">Real Name:</property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_LEFT</property>
