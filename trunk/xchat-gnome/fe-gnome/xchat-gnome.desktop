@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=XChat-GNOME IRC Chat
+GenericName=IRC Chat
+Exec=xchat-gnome
+Icon=xchat-gnome.png
+Terminal=false
+Type=Application
+Categories=Application;Network;
+X-GNOME-Bugzilla-Bugzilla=GNOME
+X-GNOME-Bugzilla-Product=xchat-gnome
+X-GNOME-Bugzilla-Component=
