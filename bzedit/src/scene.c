@@ -67,6 +67,12 @@ scene_init (Scene *self)
   self->dirty = FALSE;
 }
 
+Scene*
+scene_new ()
+{
+  return SCENE (g_object_new (scene_get_type (), NULL));
+}
+
 gboolean
 scene_has_main_view (Scene *self)
 {

@@ -29,8 +29,8 @@
 G_BEGIN_DECLS
 
 #define RENDER_STATE_TYPE            (render_state_get_type ())
-#define RENDER_STATE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), RENDER_STATE_TYPE))
-#define RENDER_STATE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), RENDER_STATE_TYPE))
+#define RENDER_STATE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), RENDER_STATE_TYPE, RenderState))
+#define RENDER_STATE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), RENDER_STATE_TYPE, RenderStateClass))
 #define IS_RENDER_STATE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), RENDER_STATE_TYPE))
 #define IS_RENDER_STATE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), RENDER_STATE_TYPE))
 
@@ -42,7 +42,9 @@ struct _RenderState
   GObject parent;
 
   gboolean cube_map;
+  gboolean picking;
   GHashTable *picking_state;
+  guint picking_name;
 };
 
 struct _RenderStateClass
