@@ -72,6 +72,8 @@ class Request(server.Request):
            removing links that the spider shouldn't bother following.
            """
         fullAgent = self.getHeader("user-agent")
+        if not fullAgent:
+            return None
         abridgedAgent = fullAgent.split("/")[0].split()[0].strip().lower()
 
         # Ugly special case because yahoo can't stick with the fucking standards
