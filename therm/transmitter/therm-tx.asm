@@ -63,7 +63,7 @@ TC74_ADDR	equ	5	; The address marked on this station's TC74
 SAMPLE_DELAY	equ	.4	; Delay between temperature readings, in 2.3-second units
 N_THERM_SAMPLES	equ	.15	; Number of temperature readings per RF burst.
 
-N_PACKETS	equ	.3	; Number of duplicate packets sent in a burst
+N_PACKETS	equ	.5	; Number of duplicate packets sent in a burst
 
 
 ;----------------------------------------------------- Constants
@@ -85,7 +85,7 @@ SCL_MASK	equ 0x20
 TC74_ADDR_READ	equ (0x91 | (TC74_ADDR << 1))
 TC74_ADDR_WRITE	equ (0x90 | (TC74_ADDR << 1))
 
-PREAMBLE_LENGTH	equ .64
+PREAMBLE_LENGTH	equ .128
 
 TX_SHORT	equ .312	; Transmit timings, in microseconds
 TX_LONG		equ .730
