@@ -14,7 +14,8 @@
 
   <section title="Patches">
     * <a href="http://www.winehq.org/hypermail/wine-patches/2004/05/0288.html">archive</a> | <a href="patches/full-screen.patch">local</a> : EWMH Full screen support 
-    * <a href="http://www.winehq.org/hypermail/wine-patches/2004/12/0280.html">archive</a> | <a href="patches/systray.patch">local</a> : System tray patch 
+    * <a href="http://www.winehq.org/hypermail/wine-patches/2004/12/0280.html">archive</a> | <a href="patches/systray.patch">local</a> : System tray patch
+    * <a href="http://www.winehq.com/hypermail/wine-patches/2005/01/0020.html">archive</a> | <a href="patches/relauncher.patch">local</a> : Winelib as binaries not .exe.so files
   </section>
     
 </kbpage>
