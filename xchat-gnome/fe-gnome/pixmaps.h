@@ -35,6 +35,7 @@ extern GdkPixbuf *pix_nicksaid;
 extern GdkPixbuf *pix_msgsaid;
 
 extern GdkPixbuf *pix_prefs_irc;
+extern GdkPixbuf *pix_prefs_colors;
 extern GdkPixbuf *pix_prefs_dcc;
 extern GdkPixbuf *pix_prefs_networks;
 extern GdkPixbuf *pix_prefs_plugins;
