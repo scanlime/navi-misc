@@ -2285,7 +2285,7 @@ buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
   /* if we're not indented, we're done */
   if (newent->left_len <= 0)
   {
-    newent->indent = 0;
+    newent->indent = f->indent - xtext->priv->spacewidth;
     return;
   }
 
