@@ -20,22 +20,23 @@
  */
 
 #include <mail/em-event.h>
+#include <libgnomeui/gnome-stock-icons.h>
 #include "eggstatusicon.h"
 
-static EggStatusIcon *icon = NULL;
+static EggStatusIcon *icon;
 
 int
 e_plugin_lib_enable (EPluginLib *ep, int enable)
 {
-	if (icon == NULL) {
-//		icon = ;
-		g_print ("creating icon!\n");
-	}
-	return 0;
+	icon = egg_status_icon_new_from_stock (GNOME_STOCK_MAIL);
+	g_print ("returning %d\n", icon != NULL);
+	return (icon != NULL);
 }
 
 void
 new_mail (EPlugin *ep, EMEventTargetFolder *target)
 {
+	egg_status_icon_set_from_stock (icon, GNOME_STOCK_MAIL_NEW);
+	egg_status_icon_set_is_blinking (icon, TRUE);
 	g_print ("new mail!\n");
 }
