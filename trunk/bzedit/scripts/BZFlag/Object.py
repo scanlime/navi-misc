@@ -25,6 +25,64 @@ class Object:
     type = None
     comment = None
     name = None
+    blendObj = None
 
     def set_name(self, *name):
         self.name = string.join(name, ' ')
+
+    def toBlender(self):
+        """Create a new blender object representing this one and return it."""
+        obj = self.createBlenderObject()
+        self.transformBlenderObject(obj)
+        self.setBlenderProperties(obj)
+        self.blendObj = obj
+        return obj
+
+    def fromBlender(self, object):
+        """Load this object's settings from the given Blender object.
+           The default implementation uses loadBlenderTransform() to retrieve
+           information from the object's location and loadBlenderProperties
+           to retrieve property info.
+           """
+        self.blendObj = object
+        self.loadBlenderTransform(object)
+        self.loadBlenderProperties(object)
+
+    def createBlenderObject(self):
+        """Create a new blender object representing this BZFlag object.
+           The default implementation creates a mesh using our 'verts',
+           'faces', and 'materials' attributes.
+           """
+        obj = meshify (self.verts, self.faces, self.materialIndex, self.name)
+        obj.setMaterials(self.materials)
+        return obj
+
+    def transformBlenderObject(self, object):
+        """Transform the given Blender object using our BZFlag properties.
+           This must be implemented by subclasses in an object-dependent way.
+           """
+        pass
+
+    def loadBlenderTransform(self, object):
+        """The inverse of transformBlenderObject- looks at an existing
+           Blender object, and figures out our object-specific BZFlag properties.
+           """
+        pass
+
+    def setBlenderProperties(self, object):
+        """This sets extra properties on our corresponding Blender object.
+           The default implementation only sets 'bztype', but subclasses
+           may add more properties to this.
+           """
+        object.addProperty('bztype', self.type, 'STRING')
+        if self.name:
+            object.addProperty('name', self.name, 'STRING')
+
+    def loadBlenderProperties(self, object):
+        """The inverse of setBlenderProperties, loading info from the Blender
+           object's extra properties.
+           """
+        try:
+            self.name = object.getProperty('name').getData()
+        except AttributeError:
+            self.name = None
