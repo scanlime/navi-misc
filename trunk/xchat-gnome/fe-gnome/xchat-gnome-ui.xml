@@ -39,7 +39,7 @@
 
 		<menu name="DiscussionMenu" action="Discussion">
 			<menuitem name="DiscussionSaveItem" action="DiscussionSave"/>
-			<menuitem name="DiscussionSavsAsItem" action="DiscussionSaveAs"/>
+			<menuitem name="DiscussionSaveAsItem" action="DiscussionSaveAs"/>
 			<separator name="DiscussionSep0"/>
 			<menuitem name="DiscussionLeaveItem" action="DiscussionLeave"/>
 			<menuitem name="DiscussionCloseItem" action="DiscussionClose"/>

@@ -499,7 +499,7 @@ initialize_main_window ()
 void
 run_main_window ()
 {
-	GtkWidget *pane;
+	GtkWidget *pane, *widget;
 	int width, height;
 	int v, h;
 
@@ -523,9 +523,22 @@ run_main_window ()
 	pane = glade_xml_get_widget (gui.xml, "VPane");
 	g_signal_connect (G_OBJECT (pane), "notify::position", G_CALLBACK (on_vpane_move), NULL);
 	pane = glade_xml_get_widget (gui.xml, "HPane");
-	g_signal_connect (G_OBJECT (pane), "notify::position", G_CALLBACK (on_hpane_move), NULL);
 
 	gtk_widget_show (GTK_WIDGET (gui.main_window));
+
+	/* Temporarily disable menu items */
+	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/IRCMenu/IRCMonkeyBubbleModeItem");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/EditMenu/EditUndoItem");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/Insert/InsertColorCodeItem");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/Network/NetworkInformationItem");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/Discussion/DiscussionSaveItem");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/Discussion/DiscussionSaveAsItem");
+	gtk_widget_set_sensitive (widget, FALSE);g_signal_connect (G_OBJECT (pane), "notify::position", G_CALLBACK (on_hpane_move), NULL);
 }
 
 void
