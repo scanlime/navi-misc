@@ -665,6 +665,7 @@ close_dialog(gpointer data, guint action, GtkWidget *widget)
 		}
 
     fe_close_window(s);
+    text_gui_remove_text_buffer(s);
 	}
 }
 
