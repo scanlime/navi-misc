@@ -145,12 +145,11 @@ static DECLARE_MUTEX (disconnect_sem);
 				 */
 
 /* Mapping between rwand buttons and linux input system buttons */
-#define MAPPED_BTN_SQUARE    KEY_ENTER
-#define MAPPED_BTN_RIGHT     KEY_RIGHT
-#define MAPPED_BTN_LEFT      KEY_LEFT
-#define MAPPED_BTN_UP        KEY_UP
-#define MAPPED_BTN_DOWN      KEY_DOWN
-#define MAPPED_BTN_POWER     KEY_POWER
+#define MAPPED_BTN_SQUARE    BTN_TASK
+#define MAPPED_BTN_RIGHT     BTN_RIGHT
+#define MAPPED_BTN_LEFT      BTN_LEFT
+#define MAPPED_BTN_UP        BTN_FORWARD
+#define MAPPED_BTN_DOWN      BTN_BACK
 
 
 /******************************************************************************/
@@ -476,7 +475,6 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 	input_report_key(&dev->input, MAPPED_BTN_LEFT,   new_status.buttons & RWAND_BUTTON_LEFT);
 	input_report_key(&dev->input, MAPPED_BTN_UP,     new_status.buttons & RWAND_BUTTON_UP);
 	input_report_key(&dev->input, MAPPED_BTN_DOWN,   new_status.buttons & RWAND_BUTTON_DOWN);
-	input_report_key(&dev->input, MAPPED_BTN_POWER,  new_status.buttons & RWAND_BUTTON_POWER);
 	input_sync(&dev->input);
 
 	/* If the page flip counter has incremented, clear our flip pending flag
@@ -993,12 +991,14 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 	dev->input.id.product = udev->descriptor.idProduct;
 	dev->input.id.version = udev->descriptor.bcdDevice;
         set_bit(EV_KEY, dev->input.evbit);
+        set_bit(EV_ABS, dev->input.evbit);
+	set_bit(ABS_X, dev->input.absbit);                /* We don't need axes, but this tricks us into looking */
+	set_bit(ABS_Y, dev->input.absbit);                /* like a joystick to the rest of the input subsystem. */
         set_bit(MAPPED_BTN_SQUARE, dev->input.keybit);
         set_bit(MAPPED_BTN_RIGHT, dev->input.keybit);
         set_bit(MAPPED_BTN_LEFT, dev->input.keybit);
         set_bit(MAPPED_BTN_UP, dev->input.keybit);
         set_bit(MAPPED_BTN_DOWN, dev->input.keybit);
-        set_bit(MAPPED_BTN_POWER, dev->input.keybit);
 	input_register_device(&dev->input);
 
 	/* Allocate some DMA-friendly memory and a URB used for periodic
