@@ -7,3 +7,4 @@ Terminal=false
 Type=Application
 Categories=Application;Graphics;2DGraphics;
 Icon=fyre-48x48.png
+MimeType=application/x-fyre-animation;image/png;

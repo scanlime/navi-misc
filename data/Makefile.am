@@ -10,10 +10,7 @@ fyredata_DATA = 		\
 
 if ENABLE_FDODESKTOP
 desktopdir = $(datadir)/applications
-desktop_DATA =			\
-	fyre.desktop		\
-	fyre-fa.desktop		\
-	fyre-png.desktop
+desktop_DATA = fyre.desktop
 icondir = $(datadir)/pixmaps
 icon_DATA = fyre-48x48.png
 update_fdodesktop = update-desktop-database
