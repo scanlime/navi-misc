@@ -3,13 +3,21 @@
 # Test the CX-1 critical decoder, via the rcpod-485 board
 # Hardware setup is as follows:
 #
-#    - RS-485 port connected to CDH1 via a suitable adaptor
+#  Power:
+#    - CDH1 pin  1 -> External 5v supply +
+#    - CDH1 pin  2 -> External 5v supply -
+#    - CDH3 pin 34 -> VSS
+#
+#  Comm:
+#    - CDH1 pin  8 -> RS-485 +
+#    - CDH1 pin  9 -> RS-485 -
+#
+#  Relays:
 #    - CDH3 pin  1 -> RA0
 #    - CDH3 pin  2 -> RA1
 #    - CDH3 pin  3 -> RA2
 #    - CDH3 pin 10 -> RA3
 #    - CDH3 pin 20 -> RA4
-#    - CDH3 pin 34 -> VSS
 #
 # -- Micah Dowty <micah@picogui.org>
 #
