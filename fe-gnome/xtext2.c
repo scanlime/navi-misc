@@ -31,6 +31,7 @@ static void       render_page            (XText2 *xtext);
 static int        render_line            (XText2 *xtext, XTextFormat *f, textentry *ent, int line, int lines_max, int subline, int win_width);
 static int        render_str             (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char *str, int len, int win_width, int indent, int line, int left_only);
 static int        render_flush           (XText2 *xtext, int x, int y, unsigned char *str, int len, GdkGC *gc, gboolean multibyte);
+static int        render_ents            (XText2 *xtext, textentry *start, textentry *stop);
 static void       draw_bg                (XText2 *xtext, int x, int y, int width, int height);
 static void       draw_sep               (XText2 *xtext, int y);
 static textentry* nth                    (XText2 *xtext, int line, int *subline);
@@ -175,6 +176,8 @@ struct _XTextFormat
 
   textentry *wrapped_first;
   textentry *wrapped_last;
+  textentry *pagetop;
+  textentry *pagetop_subline;
 
   /* handlers */
   guint      append_handler;
@@ -283,11 +286,12 @@ xtext2_init (XText2 *xtext)
 
   gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
 
+  xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
+
   /* each XText owns an empty buffer */
   xtext->priv->original_buffer = xtext_buffer_new ();
   xtext->priv->current_buffer = xtext->priv->original_buffer;
-
-  xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
+  xtext2_show_buffer (xtext, xtext->priv->original_buffer);
 }
 
 GtkWidget*
@@ -735,6 +739,7 @@ static void
 paint (GtkWidget *widget, GdkRectangle *area)
 {
   XText2 *xtext = XTEXT2 (widget);
+  XTextFormat *f;
   textentry *ent_start, *ent_end;
   int x, y;
 
@@ -777,15 +782,51 @@ paint (GtkWidget *widget, GdkRectangle *area)
     return;
   }
 
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
   ent_start = find_char (xtext, area->x, area->y, NULL, NULL);
   if (!ent_start)
   {
+    g_print ("no ent_start!\n");
     draw_bg (xtext, area->x, area->y, area->width, area->height);
     goto xit;
   }
   ent_end = find_char (xtext, area->x + area->width, area->y + area->height, NULL, NULL);
+  if (!ent_end)
+    ent_end = f->wrapped_last;
+
+  /* can't set a clip here, because fgc/bgc are used to draw the DB too */
+  xtext->priv->clip_x = area->x;
+  xtext->priv->clip_x2 = area->x + area->width;
+  xtext->priv->clip_y = area->y;
+  xtext->priv->clip_y2 = area->y + area->height;
+
+  /* y is the last pixel y location it rendered text at */
+  y = render_ents (xtext, ent_start, ent_end);
+
+  if (y && y < widget->allocation.height && !ent_end->next)
+  {
+    GdkRectangle rect;
+
+    rect.x = 0;
+    rect.y = y;
+    rect.width = widget->allocation.width;
+    rect.height = widget->allocation.height;
+
+    /* fill any space below the last line that also intersects with the exposure rectangle */
+    if (gdk_rectangle_intersect (area, &rect, &rect))
+      draw_bg (xtext, rect.x, rect.y, rect.width, rect.height);
+  }
+
+  xtext->priv->clip_x = 0;
+  xtext->priv->clip_x2 = 1000000;
+  xtext->priv->clip_y = 0;
+  xtext->priv->clip_y2 = 1000000;
 
 xit:
+  x = xtext->priv->current_buffer->indent - ((xtext->priv->spacewidth + 1) / 2);
+  if (area->x <= x)
+    draw_sep (xtext, -1);
 }
 
 static void
@@ -824,6 +865,12 @@ render_page (XText2 *xtext)
 
   if (f == NULL)
     return;
+
+  if (xtext->priv->fontsize == 0)
+  {
+    g_print ("fontsize = 0!\n");
+    return;
+  }
 
   subline = line = 0;
   ent = f->wrapped_first;
@@ -1190,6 +1237,91 @@ dounder:
   return str_width;
 }
 
+static int
+render_ents (XText2 *xtext, textentry *start, textentry *stop)
+{
+  textentry *ent, *orig_ent, *tmp_ent;
+  int line;
+  int lines_max;
+  int width;
+  int height;
+  int subline;
+  gboolean drawing = FALSE;
+  XTextFormat *f;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  if (f->indent < MARGIN)
+    f->indent = MARGIN;
+
+  gdk_drawable_get_size (GTK_WIDGET (xtext)->window, &width, &height);
+  width -= MARGIN;
+
+  if (width < 32 || height < xtext->priv->fontsize || width < f->indent + 30)
+    return 0;
+
+  lines_max = ((height + xtext->priv->pixel_offset) / xtext->priv->fontsize) + 1;
+  line = 0;
+  orig_ent = f->pagetop;
+  subline = f->pagetop_subline;
+
+  /* used before a complete page is in buffer */
+  if (orig_ent == NULL)
+    orig_ent = f->wrapped_first;
+
+  /* check if start is before the start of this page */
+  if (stop)
+  {
+    tmp_ent = orig_ent;
+    while (tmp_ent)
+    {
+      if (tmp_ent == start)
+	break;
+      if (tmp_ent == stop)
+      {
+	drawing = TRUE;
+	break;
+      }
+      tmp_ent = tmp_ent->next;
+    }
+  }
+
+  ent = orig_ent;
+  while (ent)
+  {
+    if (stop && ent == start)
+      drawing = TRUE;
+
+    if (drawing || ent == stop || ent == start)
+    {
+      reset (xtext, FALSE, TRUE);
+      line += render_line (xtext, f, ent, line, lines_max, subline, width);
+      subline = 0;
+      xtext->priv->jump_in_offset = 0;
+    }
+    else
+    {
+      if (ent == orig_ent)
+      {
+	line -= subline;
+	subline = 0;
+      }
+      line += ent->lines_taken;
+    }
+
+    if (ent == stop)
+      break;
+
+    if (line >= lines_max)
+      break;
+
+    ent = ent->next;
+  }
+
+  /* space below last line */
+  return (xtext->priv->fontsize * line) - xtext->priv->pixel_offset;
+}
+
 static void
 draw_bg (XText2 *xtext, int x, int y, int width, int height)
 {
@@ -1421,6 +1553,9 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
     /* this isn't a buffer we've seen before */
     f = allocate_buffer (xtext, buffer);
   }
+
+  xtext->priv->current_buffer = buffer;
+  /* FIXME: recalc stuff! */
 }
 
 void
