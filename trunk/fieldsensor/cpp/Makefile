@@ -36,7 +36,7 @@ train_net: src/train_net.cpp $(INCLUDES) $(LIBS)
 	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS)
 
 net_test: src/net_test.cpp $(INCLUDES) $(LIBS)
-	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS)
+	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS) `sdl-config --cflags --libs` -lGL -lGLU
 
 lib/libfield.a: $(LIBSRC)
 	ar r $@ $(LIBSRC)
