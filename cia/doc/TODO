@@ -1,3 +1,9 @@
+==========
+To-do List
+==========
+
+Code
+-----
 
 - Currently the stats maintenance just deletes messages that are more than 6 months
   old. This is silly, it would be much nicer to just keep a fixed number of messages
@@ -14,6 +20,7 @@
   authentication, if necessary?
 
   One idea:
+
     Initially anyone can edit any stats metadata or any ruleset- within limits.
     Potentially harmful rulesets should not be allowed, and deleting stats
     targets shouldn't be allowed. This level of priviledge could be represented
@@ -42,15 +49,15 @@
   that will never be executed on their own but should be referenceable from inside
   others.
 
-- documentation
-
 - rrdtool (or similar) for graphing stats target activity
 
 - Link from authors and projects in the stats browser's message lists to the appropriate
   author and project pages. It would be great to, while browsing a project, be able
   to easily see what a particular person is working on elsewhere. A few things to consider:
+
     - stats metadata could be used to make the connection without hardcoding
       any assumptions about the stats hierarchy into CIA, but where do these go?
+
     - How do we account for any differences in commit authors with stats author
       pages, as caused by the ruleset?
 
@@ -70,3 +77,15 @@
   XML-RPC, HTTP...) to receive real-time notification about any project in CIA. This could
   be done for XML feeds as well.
 
+
+Documentation
+-------------
+
+- figure out what should be in this list :)
+
+
+Hosting
+-------
+
+- Look for potential new homes for CIA. Navi has enough bandwidth for now,
+  but two DSL lines definitely couldn't handle a slashdotting.
