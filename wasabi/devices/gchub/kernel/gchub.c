@@ -336,8 +336,17 @@ static int controller_init(struct gchub_controller* ctl,
 
 		case ABS_Z:
 		case ABS_RZ:
-			ctl->dev.absmax[axis]  = 250;
-			ctl->dev.absmin[axis]  = 0;
+			/* Important: Our minimum is actaully zero,
+			 * but we lie here for the sake of apps that assume
+			 * the center position is halfway between max and
+			 * min. Specifically, this is necessary to keep
+			 * zsnes happy. Yes this is dirty, but easier than
+			 * fixing all those broken apps...
+			 */
+			ctl->dev.absmax[axis]  = 255;
+			ctl->dev.absmin[axis]  = -256;
+			ctl->dev.absflat[axis] =  10;
+			ctl->dev.absfuzz[axis] =  2;
 			break;
 
 		default:
