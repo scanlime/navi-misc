@@ -64,7 +64,7 @@ display_list_class_init (DisplayListClass *klass)
 static void
 display_list_init (DisplayList *dl)
 {
-  dl->list = 0;
+  dl->list = glGenLists (1);
   dl->dirty = TRUE;
 }
 
@@ -74,12 +74,13 @@ display_list_build_list (DisplayList *dl)
   DisplayListClass *dlc = DISPLAY_LIST_CLASS (G_OBJECT_GET_CLASS (dl));
 
   if (dl->list == 0)
-    dl->list = glGenLists (1);
+    dl->list == glGenLists (1);
 
   glNewList (dl->list, GL_COMPILE);
   dlc->draw_to_list (dl);
   glEndList ();
-  dl->dirty = FALSE;
+  if (dl->list != 0)
+    dl->dirty = FALSE;
 }
 
 void

@@ -99,9 +99,7 @@ texture_group_draw (Drawable *d, RenderState *rstate)
   TextureGroup *tg = TEXTURE_GROUP (d);
   GList *dr;
 
-  if (dl->dirty)
-    display_list_build_list (dl);
-  glCallList (dl->list);
+  display_list_draw (d, rstate);
 
   for (dr = tg->dynamic_drawables; dr; dr = dr->next)
   {
@@ -135,7 +133,11 @@ texture_group_draw_to_list (DisplayList *dl)
   RenderState *rstate = render_state_new ();
 
   for (d = tg->static_drawables; d; d = d->next)
+  {
     drawable_draw (DRAWABLE (d->data), rstate);
+  }
+
+  dl->dirty = FALSE;
 }
 
 static void
@@ -170,6 +172,11 @@ static void
 texture_group_add (TextureGroup *tg, Drawable *drawable)
 {
   DisplayList *dl = DISPLAY_LIST (tg);
+
+  if (g_type_is_a (G_TYPE_FROM_INSTANCE (drawable), DISPLAY_LIST_TYPE))
+  {
+    display_list_build_list (DISPLAY_LIST (drawable));
+  }
 
   if (drawable->render.statico)
   {
@@ -325,6 +332,7 @@ static void
 basic_render_pass_erase (RenderPass *pass)
 {
   BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
+
   g_hash_table_foreach_remove (brp->texture_groups, (GHRFunc) brp_tg_destroy, NULL);
   g_free(brp->texture_groups);
   brp->size = 0;

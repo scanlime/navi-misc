@@ -202,7 +202,7 @@ selection_drawable_draw (Drawable *d, RenderState *rstate)
 {
   SceneObject *so = d->parent;
   gdouble offset = 2.5;
-  gdouble len = 5.0;
+  gdouble len = 2.5;
   gdouble x, y, z;
 
   if (!so->selected)
@@ -215,7 +215,7 @@ selection_drawable_draw (Drawable *d, RenderState *rstate)
   glTranslated (so->bb.position[0], so->bb.position[1], so->bb.position[2]);
   glRotated (so->bb.rotation, 0.0, 0.0, 1.0);
 
-  glColor4f (0.0, 1.0, 1.0, 1.0);
+  glColor4f (0.0, 1.0, 0.0, 1.0);
 
   glBegin (GL_LINES);
   {
