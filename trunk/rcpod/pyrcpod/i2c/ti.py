@@ -104,8 +104,101 @@ class DAC8574(i2c.Device):
 
 class ADS1112(i2c.Device):
     """The ADS1112 is a 16-bit A/D converter with 3 single-ended inputs
-       and 2 differential inputs.
+       or 2 differential inputs.
        """
-    pass
+    busAddressBase = 0x48
+
+    # Store the most recently configured values
+    inputChannel = 0
+    singleMode = False
+    dataRate = 3
+    gain = 0
+
+    def readWithStatus(self, channel=None):
+        """Read the latest value, returning None if no new value is available.
+           Optionally changes the input channel before reading.
+           """
+        if channel is not None:
+            self.setChannel(channel)
+        high, low, status = self.busRead(3)
+        if status & 0x80:
+            return None
+        else:
+            return (high << 8) | low
+
+    def read(self, channel=None):
+        """Read the most recently converted value, without regard to whether
+           it has already been read. Optionally changes the input channel first.
+           """
+        if channel is not None:
+            self.setChannel(channel)
+        high, low = self.busRead(2)
+        return (high << 8) | low
+
+    def setChannel(self, channel):
+        """Set the input channel number, as defined in the data sheet.
+           Each channel setting selects a different pair of differential
+           inputs. The voltage returned for each channel will be:
+
+           0:  AIN0 - AIN1
+           1:  AIN2 - AIN3
+           2:  AIN0 - AIN3
+           3:  AIN1 - AIN3
+           """
+        self.writeConfigRegister(inputChannel = channel)
+
+    def enterSingleMode(self):
+        """Put the A/D converter in single conversion mode.
+           Conversions from now on will only be made explicitly.
+           """
+        self.writeConfigRegister(singleMode=True)
+
+    def enterContinuousMode(self):
+        """Put the A/D converter into continuous mode, explicit
+           conversion commands will no longer be necessary.
+           This is the default.
+           """
+        self.writeConfigRegister(singleMode=False)
+
+    def startConversion(self):
+        """Explicitly start a conversion, as is required in
+           single conversion mode. By default this is not necessary.
+           """
+        self.writeConfigRegister(start=True)
+
+    def writeConfigRegister(self,
+                            start        = False,
+                            inputChannel = None,
+                            singleMode   = None,
+                            dataRate     = None,
+                            gain         = None,
+                            ):
+        """Write to the device's configuration register.
+           All values not specified are set to the last
+           values written.
+           """
+        if inputChannel is None:
+            inputChannel = self.inputChannel
+        if singleMode is None:
+            singleMode = self.singleMode
+        if dataRate is None:
+            dataRate = self.dataRate
+        if gain is None:
+            gain = self.gain
+
+        reg = 0
+        if start:
+            reg |= 0x80
+        if singleMode:
+            reg |= 0x10
+        reg |= (inputChannel & 3) << 5
+        reg |= (dataRate & 3) << 2
+        reg |= (gain & 3)
+        self.busWrite([reg])
+
+        self.inputChannel = inputChannel
+        self.singleMode = singleMode
+        self.dataRate = dataRate
+        self.gain = gain
 
 ### The End ###
