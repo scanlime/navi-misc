@@ -21,7 +21,6 @@
 
 #include <gnome.h>
 #include "channel_list.h"
-#include "preferences.h"
 
 static GSList *chanlists = NULL;
 
@@ -86,7 +85,9 @@ static void chanlist_selected(GtkTreeSelection *selection, channel_list_window *
 }
 
 static gboolean chanlist_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data) {
-	preferences_set_channel_list_window_size(event->width, event->height);
+	gnome_config_set_int ("/xchat-gnome/channel_list/width", event->width);
+	gnome_config_set_int ("/xchat-gnome/channel_list/height", event->height);
+	gnome_config_sync ();
 	return FALSE;
 }
 
@@ -187,9 +188,12 @@ void create_channel_list(session *sess) {
 
 
 	widget = glade_xml_get_widget(win->xml, "window 1");
-	preferences_get_channel_list_window_size(&width, &height);
-	if(!(width == 0 || height == 0))
-		gtk_window_resize(GTK_WINDOW(widget), width, height);
+	width = gnome_config_get_int_with_default ("/xchat-gnome/channel_list/width", 0);
+	height = gnome_config_get_int_with_default ("/xchat-gnome/channel_list/height", 0);
+	if(width == 0 || height == 0)
+		gtk_window_set_default_size (GTK_WINDOW (widget), 640, 480);
+	else
+		gtk_window_set_default_size (GTK_WINDOW (widget), width, height);
 	g_signal_connect(G_OBJECT(widget), "configure-event", G_CALLBACK(chanlist_resize), NULL);
 	gtk_widget_show_all(widget);
 

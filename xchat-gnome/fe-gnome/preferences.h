@@ -32,9 +32,5 @@ int preferences_get_color_scheme();
 int preferences_get_palette_scheme();
 void preferences_set_color_scheme(int selection);
 void preferences_set_palette_scheme(int selection);
-void preferences_set_channel_list_window_size(int width, int height);
-void preferences_set_transfers_window_size(int width, int height);
-void preferences_get_channel_list_window_size(int *width, int *height);
-void preferences_get_transfers_window_size(int *width, int *height);
 
 #endif
