@@ -342,8 +342,6 @@ class DVDBurner:
 
 class CatalogWriter:
     """Creates catalog files from a list of paths being backed up"""
-    catalogDir = "/navi/backups/catalog"
-
     def __init__(self, paths):
         self.paths = paths
         self.name = self._getName()
@@ -440,73 +438,128 @@ def flattenBackupPaths(paths):
                         yield fullPath
 
 
+class VerificationRecord:
+    """An objefct representing the results from one verification session"""
+    def __init__(self, catalog, name):
+        self.catalog = catalog
+        self.name = name
+        self.path = os.path.join(catalog.catalogDir, "verified",
+                                 catalog.name, name)
+
+    def __repr__(self):
+        return "<Verification %s for Catalog %s>" % (self.name, self.catalog.name)
+
+    def countErrors(self):
+        """Return the number of errors this verification resulted in"""
+        return len(open(self.path).readlines())
+
+    def iterResults(self):
+        """Iterate over all results from this verification. Returns
+           (type, filename) tuples.
+           """
+        for line in open(self.path):
+            type, filename = line.split(" ", 1)
+            yield (type.strip(), filename.strip())
+
+
+class Catalog:
+    """An object representing one archived catalog"""
+    catalogDir = "/navi/backups/catalog"
+
+    def __init__(self, name):
+        self.name = name
+        self.path = os.path.join(self.catalogDir, name)
+
+    def __repr__(self):
+        return "<Catalog %s>" % self.name
+
+    def getRawDate(self):
+        """Return the date in 'YYYYMMDD_HHMMSS' format"""
+        return self.name.split('.', 1)[0]
+
+    def getDateTime(self):
+        """Return the date in ('YYYY-MM-DD', 'HH:MM:SS') format"""
+        return re.sub(r"(....)(..)(..)_(..)(..)(..)",
+                      r"\1-\2-\3 \4:\5:\6", self.getRawDate()).split()
+
+    def iterVerifications(self):
+        """List all verification records for this catalog, sorted by date"""
+        try:
+            verified = os.listdir(os.path.join(self.catalogDir, "verified", self.name))
+        except OSError:
+            return
+        verified.sort()
+        for name in verified:
+            yield VerificationRecord(self, name)
+
+    def iterFiles(self):
+        """Iterate over all files in this catalog. Yields (md5sum, fielname) tuples"""
+        for line in open(self.path):
+            sum, filename = line.replace("\t", " ").strip().split(" ", 1)
+            yield (sum, filename.lstrip())
+
+    def getLatestVerification(self):
+        """Return this catalog's latest verification, or None if it hasn't
+           had any verifications.
+           """
+        verifications = list(self.iterVerifications())
+        if verifications:
+            return verifications[-1]
+
+def iterCatalogs():
+    """A generator that yields all catalogs, sorted by date"""
+    catalogs = os.listdir(Catalog.catalogDir)
+    catalogs.sort()
+    for name in catalogs:
+        catalog = Catalog(name)
+        if os.path.isfile(catalog.path):
+            yield catalog
+
+
 class CatalogIndex:
     """A searchable index of backup catalogs. This is made persistent by
-       a shelve database mapping filenames to (md5, (date, time)) tuples.
-       The empty string is mapped to the name of the most recent catalog
+       a shelve database mapping filenames to (md5, (date, time), catalogName)
+       tuples. The empty string is mapped to the name of the most recent catalog
        we've indexed.
        """
     def __init__(self):
         self.cache = CacheDir().getDict('catalog-index')
         self.reindexAll()
-
-    def iterCatalogs(self):
-        """A generator that returns the full path of all catalog files"""
-        catalogs = os.listdir(CatalogWriter.catalogDir)
-        catalogs.sort()
-        for catalog in catalogs:
-            path = os.path.join(CatalogWriter.catalogDir, catalog)
-            if os.path.isfile(path):
-	        yield path
+        self.invalidations = InvalidationIndex()
 
     def reindexAll(self):
         """Reindex all catalog files, in order, skipping those that
            we've already stored in the index.
            """
         latest = self.cache.get('')
-        i = self.iterCatalogs()
+        i = iterCatalogs()
 
         # Look for the first catalog we haven't seen yet
         if latest:
             try:
                 while 1:
-                    file = i.next()
-                    if file == latest:
+                    catalog = i.next()
+                    if catalog.name == latest:
                         break
             except StopIteration:
                 # Oops, our latest catalog doesn't even exist.
                 # Start over from the beginning.
-                i = self.iterCatalogs()
+                i = iterCatalogs()
 
         # All other catalogs need indexing
-        for latest in i:
-            self.reindexFile(latest)
+        for catalog in i:
+            self.reindexCatalog(catalog)
+            latest = catalog.name
 
         # Save a new latest catalog
         self.cache[''] = latest
         self.cache.sync()
 
-    def prettifyDate(self, date):
-        """Convert the filename date codes into a tuple of easier
-           to read date and time codes.
-
-           >>> prettifyDate('20041101_204327')
-           ['2004-11-01', '20:43:27']
-           """
-        return re.sub(r"(....)(..)(..)_(..)(..)(..)",
-                      r"\1-\2-\3 \4:\5:\6", date).split()
-
-    def reindexFile(self, filename):
-        print "Reading index %r" % filename
-
-        # Extract the date from the catalog's filename
-        currentDate = self.prettifyDate(os.path.split(filename)[1].split('.', 1)[0])
-
-        # Save the md5sum and date for each file we find within
-        for line in open(filename):
-            sum, filename = line.replace("\t", " ").strip().split(" ", 1)
-            filename = filename.lstrip()
-            self.cache[filename] = (sum, currentDate)
+    def reindexCatalog(self, catalog):
+        print "Reading %r" % catalog
+        currentDate = catalog.getDateTime()
+        for sum, filename in catalog.iterFiles():
+            self.cache[filename] = (sum, currentDate, catalog.name)
 
     def isFileModified(self, filename):
         """Check whether a file has been modified since it was archived"""
@@ -517,7 +570,11 @@ class CatalogIndex:
 
     def needsBackup(self, filename):
         """Return True if the given file needs a new backup"""
+        filename = os.path.abspath(filename)
         try:
+            if self.invalidations.isInvalid(filename, self.cache[filename][2]):
+                return True
+
             return self.isFileModified(filename)
         except KeyError:
             return True
@@ -530,15 +587,58 @@ class CatalogIndex:
            """
         try:
             backupDate = self.cache[os.path.abspath(filename)][1][0]
+            catalogName = self.cache[os.path.abspath(filename)][2]
         except KeyError:
             status = '?'
             backupDate = ''
         else:
-            if self.isFileModified(filename):
+            if self.invalidations.isInvalid(filename, catalogName):
+                status = 'I'
+            elif self.isFileModified(filename):
                 status = 'M'
             else:
                 status = ' '
         print "%1s %10s  %s" % (status, backupDate, filename)
+
+
+class InvalidationIndex:
+    """A searchable index of errors from backup verification results, made
+       persistent using shelve. For every verification error, we map
+       repr((filename, catalogName)) to the type of error that occurred. We
+       keep track of which verification records have been processed by including
+       a dict of them mapped to the empty string.
+       """
+    def __init__(self):
+        self.cache = CacheDir().getDict('invalidation-index')
+        self.reindexAll()
+
+    def reindexAll(self):
+        """Reindex all catalog files, in order, skipping those that
+           we've already stored in the index.
+           """
+        processed = self.cache.get('')
+        if not processed:
+            processed = {}
+
+        for catalog in iterCatalogs():
+            for verification in catalog.iterVerifications():
+                if not verification.path in processed:
+                    self.reindexVerification(verification)
+                    processed[verification.path] = 1
+
+        self.cache[''] = processed
+        self.cache.sync()
+
+    def reindexVerification(self, verification):
+        print "Reading %r" % verification
+        for type, filename in verification.iterResults():
+            filename = os.path.abspath(filename)
+            self.cache[repr((filename, verification.catalog.name))] = type
+
+    def isInvalid(self, filename, catalogName):
+        """Check whether a file has been invalidated"""
+        filename = os.path.abspath(filename)
+        return bool(self.cache.get(repr((filename, catalogName))))
 
 
 def backup(paths, burner):
@@ -578,7 +678,7 @@ class CatalogVerifier:
         self.logBuffer = []
 
         # First, make sure the catalog itself matches navi
-        if localMD5(path) != localMD5(os.path.join(CatalogWriter.catalogDir, catalogName)):
+        if localMD5(path) != localMD5(os.path.join(Catalog.catalogDir, catalogName)):
             print "*** Catalog file doesn't match the copy stored on navi"
             sys.exit(1)
 
@@ -604,7 +704,7 @@ class CatalogVerifier:
 
     def saveResults(self, catalogName):
         """Save the results of verifying 'catalogName'."""
-        verifiedDir = os.path.join(CatalogWriter.catalogDir, "verified", catalogName)
+        verifiedDir = os.path.join(Catalog.catalogDir, "verified", catalogName)
         if not os.path.isdir(verifiedDir):
             os.makedirs(verifiedDir)
         datecode = time.strftime("%Y%m%d_%H%M%S")
@@ -757,33 +857,14 @@ def cmd_verify(paths=[]):
         if not wasMounted:
             reader.unmount()
 
-
 def cmd_history(paths=[]):
-    catalogDir = CatalogWriter.catalogDir
-    catalogs = os.listdir(catalogDir)
-    catalogs.sort()
-    for catalog in catalogs:
-        # Look for verification records
-        catalogPath = os.path.join(catalogDir, catalog)
-        if not os.path.isfile(catalogPath):
-            continue
-
-        try:
-            verified = os.listdir(os.path.join(catalogDir, "verified", catalog))
-        except OSError:
-            verified = []
-        verified.sort()
-
+    for catalog in iterCatalogs():
+        verified = catalog.getLatestVerification()
         if verified:
-            # It's been verified- look at the most recent record
-            # and see if there were any errors.
-            lastVerified = verified[-1]
-            logFile = open(os.path.join(catalogDir, "verified", catalog, lastVerified))
-            lastVerified = "%s (%d errors)" % (lastVerified, len(logFile.readlines()))
+            lastVerified = "%s (%d errors)" % (verified.name, verified.countErrors())
         else:
             lastVerified = "[Not verified]"
-
-        print " %-30s %s" % (lastVerified, catalog)
+        print " %-30s %s" % (lastVerified, catalog.name)
 
 
 def usage():
