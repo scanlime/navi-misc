@@ -211,17 +211,27 @@ def addElement(node, name, content=None, attributes={}):
        simple mapping from name string to value string. This function
        does not support namespaces.
        """
-    newElement = node.ownerDocument.createElementNS(None, name)
+    if node.nodeType == node.DOCUMENT_NODE:
+        doc = node
+    else:
+        doc = node.ownerDocument
+
+    newElement = doc.createElementNS(None, name)
     if content:
-        newElement.appendChild(node.ownerDocument.createTextNode(content))
+        newElement.appendChild(doc.createTextNode(content))
     for attrName, attrValue in attributes.iteritems():
         newElement.setAttributeNS(None, attrName, attrValue)
     node.appendChild(newElement)
+    return newElement
 
 
 def parseString(s, uri=defaultURI):
     """A parseString wrapper that doesn't require a URI"""
     return Domlette.NonvalidatingReader.parseString(s, uri)
+
+
+def createRootNode(uri=defaultURI):
+    return Domlette.implementation.createRootNode(uri)
 
 
 def toString(xml):
