@@ -46,10 +46,10 @@ class RSSFeed(Nouvelle.Twisted.Page):
         return self.target.getTitle()
 
     def render_link(self, context):
-        return self.target.metadata.get('url', Link.StatsLink(self.target).getURL(context))
+        return self.target.metadata.getValue('url', Link.StatsLink(self.target).getURL(context))
 
     def render_description(self, context):
-        return self.target.metadata.get('description', 'CIA Stats')
+        return self.target.metadata.getValue('description', 'CIA Stats')
 
     def render_photo(self, context):
         # First figure out if we have a photo. Actually render it in the Deferred if we do.
