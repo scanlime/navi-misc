@@ -45,10 +45,14 @@ struct uvswitch_calibration {
 };
 
 /* Send a uvswitch_calibration structure */
-#define UVSWITCHIO_CALIBRATE      0x3901
+#define UVSWITCHIO_ADC_CALIBRATE  0x3901
 
 /* Read the values being used for each channel before threshold testing into an array of UVSWITCH_CHANNELS integers */
 #define UVSWITCHIO_ADC_READ_RAW   0x3902
+
+/* Set the default ADC calibration */
+#define UVSWITCHIO_ADC_RESET      0x3903
+
 
 /************************************************** read/write ******************/
 
