@@ -79,7 +79,7 @@ public class updater
 				qt = read();
 				ab = read();
 				at = read();
-				head = new element(head,qb,qt,ab,at);
+				head = new element(head,qt,qb,at,ab);
 				updatePage(filename);
 				break;
 			case 'n':

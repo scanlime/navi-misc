@@ -34,16 +34,19 @@ public class reader
 				header = header + line + "\n";
 				line = infile.readLine();
 			}
+			line = infile.readLine();
 			while(line.compareTo("<!-- End Question Block -->") != 0)
 			{
 				question = question + line + "\n";
 				line = infile.readLine();
 			}
+			line = infile.readLine();
 			while(line.compareTo("!-- End Notice Block -->") != 0)
 			{
 				notice = notice + line + "\n";
 				line = infile.readLine();
 			}
+			line = infile.readLine();
 			while(line != null)
 			{
 				footer = footer + line + "\n";
