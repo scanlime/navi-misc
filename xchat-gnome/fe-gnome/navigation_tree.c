@@ -171,7 +171,20 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 void
 navigation_tree_remove (NavTree *navtree, struct session *sess)
 {
+	GtkTreePath *path = gtk_tree_path_copy(navtree->current_path);
+	GtkTreeSelection *select = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
+
+	if (!gtk_tree_path_prev(path)) {
+	  if (!gtk_tree_path_up(path)) {
+			gtk_tree_path_free(path);
+			path = gtk_tree_path_new_from_string("0");
+		}
+	}
+
+	gtk_tree_selection_select_path(select, path);
 	navigation_model_remove (navtree->model, sess);
+
+	gtk_tree_path_free(path);
 }
 /* Channel/server selection functions. */
 void
@@ -643,7 +656,7 @@ close_dialog(gpointer data, guint action, GtkWidget *widget)
 			s->server->p_part(s->server, s->channel, "ex-chat");
 			/* FIXME: part reason */
 		}
-		/*FIXME: navigation_tree_remove(s); */
+		navigation_tree_remove(gui.server_tree, s);
 		text_gui_remove_text_buffer(s);
 	}
 }
@@ -762,13 +775,15 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 
 		/* Update current_path. */
 		if(gui.server_tree->current_path) {
-			navigation_model_path_deref(gui.tree_model, gui.server_tree->current_path);
+			/* FIXME: Causes crashes. */
+			//navigation_model_path_deref(gui.tree_model, gui.server_tree->current_path);
 		  gtk_tree_path_free(gui.server_tree->current_path);
 		  gtk_tree_selection_get_selected(treeselection, &model, &iter);
 		}
-	  
+
 		gui.server_tree->current_path = gtk_tree_model_get_path(model, &iter);
-		navigation_model_path_ref(gui.tree_model, gui.server_tree->current_path);
+		/* FIXME: Causes crashes. */
+		//navigation_model_path_ref(gui.tree_model, gui.server_tree->current_path);
 
 		gtk_tree_selection_get_selected(treeselection, &model, &iter);
 		/* Get the session for the new selection. */
@@ -935,7 +950,7 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 		GtkWidget *entry;
 		GtkTreeModelSort *sort;
 
-		sort = gui.tree_model->sorted;
+		sort = GTK_TREE_MODEL_SORT(gui.tree_model->sorted);
 		child = g_new(GtkTreeIter, 1);
 
 		gtk_tree_store_append(GTK_TREE_STORE(model), child, iter);
@@ -973,7 +988,9 @@ navigation_model_remove_iterate (GtkTreeModel *model, GtkTreePath *path, GtkTree
 void
 navigation_model_remove (NavModel *model, struct session *sess)
 {
-	gtk_tree_model_foreach(GTK_TREE_MODEL(model->store), (GtkTreeModelForeachFunc) navigation_model_remove_iterate, (gpointer) sess);
+	//gtk_tree_model_foreach(GTK_TREE_MODEL(model->store), (GtkTreeModelForeachFunc) navigation_model_remove_iterate, (gpointer) sess);
+	GtkTreeIter *iter = navigation_model_get_iter(model, sess);
+	gtk_tree_store_remove(model->store, iter);
 }
 
 GtkTreeIter*
@@ -997,7 +1014,7 @@ navigation_model_set_disconn_iterate(GtkTreeModel *model, GtkTreePath *path, Gtk
 void
 navigation_model_set_disconn (NavModel *model, struct session *sess)
 {
-	gtk_tree_model_foreach(model->store, navigation_model_set_disconn_iterate, (gpointer) sess);
+	gtk_tree_model_foreach(GTK_TREE_MODEL(model->store), navigation_model_set_disconn_iterate, (gpointer) sess);
 }
 
 static gboolean
@@ -1033,7 +1050,7 @@ navigation_model_set_hilight (NavModel *model, struct session *sess)
 		sess->new_data = FALSE;
 		return;
 	}
-	gtk_tree_model_foreach(model->store, navigation_model_set_hilight_iterate, (gpointer) sess);
+	gtk_tree_model_foreach(GTK_TREE_MODEL(model->store), navigation_model_set_hilight_iterate, (gpointer) sess);
 }
 
 void
