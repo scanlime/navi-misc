@@ -81,7 +81,7 @@ class ColortextToPlaintext(ColortextFormatter):
             return "\n"
 
         def unknownElement(self, element):
-            return ''.join([self.parse(e) for e in element.children])
+            return ''.join([s for s in self.childParser(element) if s])
 
 
 class ColortextToXHTML(ColortextFormatter):
