@@ -25,6 +25,7 @@ public class personindex
 {
 	public botmain[] bots;
 	public int botcount;
+	public int currentbot;
 	public person masshead;
 	public interview inthead;
 	
@@ -55,7 +56,9 @@ public class personindex
 			othertemp.handle(message);
 			return;
 		}
-		masshead = new person(masshead,bots[0],from);
+		masshead = new person(masshead,bots[currentbot],from);
+		currentbot++;
+		if(currentbot == botcount) currentbot = 0;
 	}
 	
 	public void broadcast(String message)
