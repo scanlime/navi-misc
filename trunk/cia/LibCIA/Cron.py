@@ -82,7 +82,7 @@ class Event:
            """
         self.triggerTime = self.findNextTriggerTime()
         log.msg("Cron: running %s, next run at %s" %
-                (self.name, TimeUtil.formatDate(self.triggerTime)))
+                (self.name, TimeUtil.formatLogDate(self.triggerTime)))
         defer.maybeDeferred(self.callable).addCallback(self.triggerFinished)
 
     def triggerFinished(self, result):
