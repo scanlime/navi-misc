@@ -402,11 +402,11 @@ class Formatter(object):
        """
     # If non-none, this is a filter function that can be called against
     # a message to detect whether this formatter is applicable.
-    self.detector = None
+    detector = None
 
     # A string identifying this formatter's output medium. Could be 'html',
     # 'irc', etc.
-    self.medium = None
+    medium = None
 
     def format(self, message, input=None):
         """Given a message and optionally the result of a previous Formatter,
