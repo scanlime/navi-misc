@@ -31,7 +31,7 @@
 	__CONFIG   _CP_OFF & _PWRTE_ON & _WDT_ON & _HS_OSC
 
 	;; Hardware declarations
-	#define N64_PIN		PORTB, 0 ; Also acts as an interrupt source
+	#define N64_PIN		PORTB, 0
 	#define N64_TRIS	TRISB, 0
 	#define	GAMECUBE_PIN	PORTB, 1
 	#define	GAMECUBE_TRIS	TRISB, 1
@@ -44,7 +44,6 @@
 
 	;; Variables
 	cblock	0x0C
-		temp
 		byte_count
 		bit_count
 		gamecube_buffer:8
@@ -272,23 +271,6 @@ gamecube_poll_status
 	movlw	gamecube_buffer		; Receive 8 status bytes
 	movwf	FSR
 	movlw	8
-	call	gamecube_rx_buffer
-	return
-
-
-	;; Poll for the type of controller attached to the gamecube.
-	;; Sends the poll command 0x00 and receives a 3 byte ID.
-gamecube_poll_id
-	movlw	0x00			; Transmit 0x00
-	movwf	gamecube_buffer+0
-	movlw	gamecube_buffer
-	movwf	FSR
-	movlw	1
-	call	gamecube_tx_buffer
-
-	movlw	gamecube_buffer		; Receive 3 bytes
-	movwf	FSR
-	movlw	3
 	call	gamecube_rx_buffer
 	return
 
