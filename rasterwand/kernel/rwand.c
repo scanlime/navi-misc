@@ -33,8 +33,20 @@
 #define DRIVER_AUTHOR  "Micah Dowty <micah@navi.cx>"
 #define DRIVER_DESC    "Raster Wand driver"
 
-/* Private data for one field sensor device */
-struct field_sensor {
+
+/* Status packets following this format are returned from the
+ * device when it's asked, or from the EP1 interrupt endpoint.
+ */
+struct rwand_status {
+	unsigned short          period;                 /* Period estimation, in 2.66us units */
+	unsigned short          phase;                  /* Phase estimation, in 2.66us units */
+	unsigned char           edge_count;             /* 8-bit counter of sync edges */
+	unsigned char           mode;                   /* RWAND_MODE_* bits */
+	unsigned char           flip_count;             /* 8-bit page flip counter */
+	unsigned char           buttons;                /* RWAND_BUTTON_* bits */
+};
+
+struct rwand_dev {
 	struct usb_device *	udev;			/* save off the usb device pointer */
 	struct usb_interface *	interface;		/* the interface for this device */
 	unsigned char		minor;			/* the starting minor number for this device */
@@ -43,14 +55,20 @@ struct field_sensor {
 	unsigned char *         irq_data;
 	dma_addr_t              irq_dma;
 
+	/* Our local model of the device state */
+	int                     fb_size;                /* The device's current framebuffer size */
+	unsigned char           fb[RWAND_FB_BYTES];     /* Our local copy of the device framebuffer */
+	struct rwand_status     status;
+
 	int                     open_count;
 	struct semaphore	sem;			/* locks this structure */
 };
 
 /* Private data for each file descriptor */
 struct rwand_fd_private {
-	struct field_sensor	*dev;
+	struct rwand_dev	*dev;
 };
+
 
 /* prevent races between open() and disconnect() */
 static DECLARE_MUTEX (disconnect_sem);
@@ -58,13 +76,16 @@ static DECLARE_MUTEX (disconnect_sem);
 /* 1 second timeout for control requests */
 #define REQUEST_TIMEOUT HZ
 
-#define IRQ_INTERVAL    10          /* Polling interval, in milliseconds */
-#define IRQ_SIZE        8           /* EP0 IN packets should always be 8 bytes */
+#define IRQ_INTERVAL       10          /* Polling interval, in milliseconds */
+#define STATUS_PACKET_SIZE 8
+#define IRQ_SIZE           STATUS_PACKET_SIZE
+
 
 /******************************************************************************/
 /************************************************** Function Prototypes *******/
 /******************************************************************************/
 
+static ssize_t rwand_write       (struct file *file, const char *buffer, size_t count, loff_t *ppos);
 static ssize_t rwand_read        (struct file *file, char *buffer, size_t count, loff_t *ppos);
 static int     rwand_ioctl       (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
 static int     rwand_open        (struct inode *inode, struct file *file);
@@ -75,7 +96,17 @@ static void    rwand_disconnect  (struct usb_interface *interface);
 
 static void    rwand_irq         (struct urb *urb, struct pt_regs *regs);
 
-static void    rwand_delete      (struct field_sensor *dev);
+static void    rwand_delete      (struct rwand_dev *dev);
+
+static void    rwand_request     (struct rwand_dev *dev, unsigned short request,
+				  unsigned short wValue, unsigned short wIndex);
+static int     rwand_wait_for_fb (struct rwand_dev *dev);
+static void    rwand_update_fb   (struct rwand_dev *dev, int bytes, unsigned char *fb);
+static void    rwand_request_flip(struct rwand_dev *dev);
+
+static void    rwand_decode_status (const unsigned char *in, struct rwand_status *out);
+static void    rwand_process_status(struct rwand_dev *dev, const unsigned char *packet);
+static void    rwand_poll_status   (struct rwand_dev *dev);
 
 
 /******************************************************************************/
@@ -96,6 +127,7 @@ static struct file_operations rwand_dev_fops = {
 	.open       =  rwand_open,
 	.release    =  rwand_release,
 	.read       =  rwand_read,
+	.write      =  rwand_write,
 };
 
 static struct usb_class_driver rwand_class = {
@@ -120,31 +152,131 @@ static struct usb_driver rwand_driver = {
 static void rwand_irq (struct urb *urb, struct pt_regs *regs)
 {
 	/* Callback for processing incoming interrupt transfers from the IR receiver */
-	struct field_sensor *dev = (struct field_sensor*)urb->context;
+	struct rwand_dev *dev = (struct rwand_dev*)urb->context;
+
+	dbg("update: %d %d %d %d %d %d %d %d",
+	    dev->irq_data[0], dev->irq_data[1], dev->irq_data[2], dev->irq_data[3],
+	    dev->irq_data[4], dev->irq_data[5], dev->irq_data[6], dev->irq_data[7]);
 
 	switch (urb->status) {
 	case -ECONNRESET:
-		dbg("ECONNRESET in rwand_irq, connection reset?");
-		return;
+		err("ECONNRESET in rwand_irq, connection reset?");
+		break;
 	case -ENOENT:
-		dbg("ENOENT in rwand_irq");
+		err("ENOENT in rwand_irq");
 		return;
 	case -ESHUTDOWN:
-		dbg("ESHUTDOWN in rwand_irq");
+		err("ESHUTDOWN in rwand_irq");
 		return;
 	}
 
 	if (urb->status != 0 || urb->actual_length != IRQ_SIZE) {
-		dbg("Bad URB status/size: status=%d, length=%d", urb->status, urb->actual_length);
-		return;
+		err("Bad URB status/size: status=%d, length=%d", urb->status, urb->actual_length);
+		//return;
 	}
-
-	dbg("update: %d %d %d %d %d %d %d %d\n",
-	    dev->irq_data[0], dev->irq_data[1], dev->irq_data[2], dev->irq_data[3],
-	    dev->irq_data[4], dev->irq_data[5], dev->irq_data[6], dev->irq_data[7]);
 
 	/* Resubmit the URB to get another interrupt transfer going */
 	usb_submit_urb(urb, SLAB_ATOMIC);
+}
+
+
+/* Decode a status packet, store the results in 'out' */
+static void    rwand_decode_status(const unsigned char *in, struct rwand_status *out)
+{
+	out->period = in[0] + (in[1] << 8);
+	out->phase = in[2] + (in[3] << 8);
+	out->edge_count = in[4];
+	out->mode = in[5];
+	out->flip_count = in[6];
+	out->buttons = in[7];
+}
+
+
+/* Given an encoded status packet, process it and update the
+ * device's state in any way necessary. This may be called from interrupt
+ * context or from process context, since status packets can be received
+ * by request or through our interrupt endpoint.
+ */
+static void    rwand_process_status(struct rwand_dev *dev, const unsigned char *packet)
+{
+	rwand_decode_status(packet, &dev->status);
+	dbg("Buttons: %02X", dev->status.buttons);
+}
+
+
+/* Perform a blocking request for a new status packet,
+ * processing it on arrival.
+ */
+static void    rwand_poll_status   (struct rwand_dev *dev)
+{
+	unsigned char packet[STATUS_PACKET_SIZE];
+	int retval;
+
+	retval = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
+				 RWAND_CTRL_READ_STATUS, USB_TYPE_VENDOR | USB_DIR_IN,
+				 0, 0, packet, sizeof(packet), REQUEST_TIMEOUT);
+	if (retval) {
+		err("Error polling status, retval=%d", retval);
+		return;
+	}
+	rwand_process_status(dev, packet);
+}
+
+
+/* Send a generic blocking control request */
+static void rwand_request(struct rwand_dev *dev, unsigned short request,
+			  unsigned short wValue, unsigned short wIndex)
+{
+	int retval;
+	retval = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+				 request, 0x40, wValue, wIndex, NULL, 0, REQUEST_TIMEOUT);
+	if (retval) {
+		dbg("Error in rwand_request, retval=%d", retval);
+	}
+}
+
+
+/* Wait for any pending page flips to finish. This can return an error
+ * if the device is disconnected or we're interrupted while waiting.
+ * This should be called while holding the device lock.
+ */
+static int rwand_wait_for_fb(struct rwand_dev *dev)
+{
+	return 0;
+}
+
+
+/* Change the device's framebuffer size and/or contents to match the one given.
+ * This should be called while holding the device lock.
+ */
+static void rwand_update_fb(struct rwand_dev *dev, int bytes, unsigned char *fb)
+{
+	int retval;
+
+	if (bytes != dev->fb_size) {
+		rwand_request(dev, RWAND_CTRL_SET_NUM_COLUMNS, bytes, 0);
+		dev->fb_size = bytes;
+	}
+
+	/*
+	retval = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+				 RWAND_CTRL_SEQ_WRITE12, 0x40,
+				 fb[0] | (fb[1] << 8),
+				 fb[2] | (fb[3] << 8),
+				 &fb[4], 9, REQUEST_TIMEOUT);
+	dbg("retval=%d in 12-byte write", retval);
+	*/
+
+	rwand_poll_status(dev);
+}
+
+
+/* Request a page flip. No display writes should be made until the
+ * page flip completes. This can be checked for using rwand_wait_for_fb().
+ */
+static void rwand_request_flip(struct rwand_dev *dev)
+{
+	rwand_request(dev, RWAND_CTRL_FLIP, 0, 0);
 }
 
 
@@ -154,7 +286,7 @@ static void rwand_irq (struct urb *urb, struct pt_regs *regs)
 
 static int rwand_open(struct inode *inode, struct file *file)
 {
-	struct field_sensor *dev = NULL;
+	struct rwand_dev *dev = NULL;
 	struct rwand_fd_private *prv = NULL;
 	struct usb_interface *interface;
 	int subminor;
@@ -202,7 +334,7 @@ static int rwand_open(struct inode *inode, struct file *file)
 	 * a URB to start the interrupt requests flowing.
 	 */
 	if (dev->open_count == 1) {
-		usb_submit_urb(dev->irq, GFP_KERNEL);
+		//usb_submit_urb(dev->irq, GFP_KERNEL);
 	}
 
 exit:
@@ -217,7 +349,7 @@ exit_no_device:
 static int rwand_release(struct inode *inode, struct file *file)
 {
 	struct rwand_fd_private *prv;
-	struct field_sensor *dev;
+	struct rwand_dev *dev;
 	int retval = 0;
 
 	prv =(struct rwand_fd_private *)file->private_data;
@@ -263,7 +395,7 @@ exit_not_opened:
 static int rwand_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
 	struct rwand_fd_private *prv;
-	struct field_sensor *dev;
+	struct rwand_dev *dev;
 	int retval = 0;
 
 	prv =(struct rwand_fd_private *)file->private_data;
@@ -297,10 +429,68 @@ static int rwand_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 	return retval;
 }
 
+
+static ssize_t rwand_write(struct file *file, const char *buffer, size_t count, loff_t *ppos)
+{
+	struct rwand_fd_private *prv;
+	struct rwand_dev *dev;
+	int retval = 0;
+	int bytes_written;
+	unsigned char new_fb[RWAND_FB_BYTES];
+
+	prv =(struct rwand_fd_private *)file->private_data;
+	if (prv == NULL) {
+		dbg("object is NULL");
+		return -ENODEV;
+	}
+	dev = prv->dev;
+
+	/* lock this object */
+	down(&dev->sem);
+
+	/* verify that the device wasn't unplugged */
+	if (dev->udev == NULL) {
+		retval = -ENODEV;
+		goto exit;
+	}
+
+	/* verify that we actually have some data to write */
+	if (count == 0) {
+		dbg("write request of 0 bytes");
+		goto exit;
+	}
+
+	bytes_written = min(sizeof(new_fb), count);
+	if (copy_from_user(dev->fb, buffer, bytes_written)) {
+		retval = -EFAULT;
+		goto exit;
+	}
+
+	/* Make sure the device's backbuffer is available,
+	 * rather than waiting for a sync from us. This can
+	 * fail, so return its error if so.
+	 */
+	retval = rwand_wait_for_fb(dev);
+	if (retval)
+		goto exit;
+
+	/* Change the framebuffer size if necessary and write its new content */
+	rwand_update_fb(dev, bytes_written, new_fb);
+	rwand_request_flip(dev);
+	retval = bytes_written;
+
+exit:
+	/* unlock the device */
+	up(&dev->sem);
+
+	return retval;
+}
+
+
 static ssize_t rwand_read(struct file *file, char *buffer, size_t count, loff_t *ppos)
 {
 	struct rwand_fd_private *prv;
-	struct field_sensor *dev;
+	struct rwand_dev *dev;
 	int retval = 0;
 
 	prv =(struct rwand_fd_private *)file->private_data;
@@ -333,7 +523,7 @@ exit:
 /************************************************** USB Housekeeping **********/
 /******************************************************************************/
 
-static void rwand_delete(struct field_sensor *dev)
+static void rwand_delete(struct rwand_dev *dev)
 {
 	if (dev->irq) {
 		usb_unlink_urb(dev->irq);
@@ -348,7 +538,7 @@ static void rwand_delete(struct field_sensor *dev)
 static int rwand_probe(struct usb_interface *interface, const struct usb_device_id *id)
 {
 	struct usb_device *udev = interface_to_usbdev(interface);
-	struct field_sensor *dev = NULL;
+	struct rwand_dev *dev = NULL;
 	struct usb_host_interface *host_interface = &interface->altsetting[interface->act_altsetting];
 	int retval;
 
@@ -359,7 +549,7 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 	}
 
 	/* allocate memory for our device state and intialize it */
-	dev = kmalloc(sizeof(struct field_sensor), GFP_KERNEL);
+	dev = kmalloc(sizeof(struct rwand_dev), GFP_KERNEL);
 	if (dev == NULL) {
 		err("Out of memory");
 		return -ENOMEM;
@@ -379,7 +569,7 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 	}
 
 	/* Allocate some DMA-friendly memory and a URB used for our interrupt
-	 * transfers carrying actual sensor readings back to us.
+	 * transfers carrying predictor status, button status, and page flip status.
 	 */
 	dev->irq_data = usb_buffer_alloc(udev, IRQ_SIZE, SLAB_ATOMIC, &dev->irq_dma);
 	if (!dev->irq_data) {
@@ -398,7 +588,7 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 			 rwand_irq, dev, IRQ_INTERVAL);
 
 	dev->minor = interface->minor;
-	info("Electric Field Sensor device now attached");
+	info("Raster Wand device now attached");
 	return 0;
 
 error:
@@ -409,7 +599,7 @@ error:
 
 static void rwand_disconnect(struct usb_interface *interface)
 {
-	struct field_sensor *dev;
+	struct rwand_dev *dev;
 	int minor;
 
 	/* prevent races with open() */
