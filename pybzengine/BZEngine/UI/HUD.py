@@ -22,9 +22,9 @@ Views and utilities for rendering the Heads Up Display
 #
 
 from __future__ import division
-from OpenGL.GL import *
-from BZEngine.UI import GLText, GLExtension, GLOrtho
+from BZEngine.UI import GLText, GLExtension, GLOrtho, Texture
 from BZEngine import Animated
+from Numeric import subtract
 
 
 class Panel:
@@ -35,35 +35,20 @@ class Panel:
         viewport.onDrawFrame.observe(self.render)
 
     def render(self):
-        glEnable(GL_BLEND)
-        glDisable(GL_LIGHTING)
-        glDisable(GL_CULL_FACE)
-        glDisable(GL_COLOR_MATERIAL)
-        glDisable(GL_DEPTH_TEST)
-        GLExtension.disableMultitex()
-        glDisable(GL_TEXTURE_2D)
-        glLoadIdentity()
-        size = self.viewport.size
+        GLOrtho.setup()
 
-        def square():
-            # Set the square inside our viewport by one
-            # pixel so the antialiased lines won't be chopped in half.
-            glVertex2f(1,1)
-            glVertex2f(size[0]-1, 1)
-            glVertex2f(size[0]-1, size[1]-1)
-            glVertex2f(1, size[1]-1)
+        # Set the square inside our viewport by one
+        # pixel so the antialiased lines won't be chopped in half.
+        GLOrtho.translate(1,1)
+        size = subtract(self.viewport.size, (2,2))
 
-        # Creamy translucent filling
-        glColor4f(0,0,0,0.3)
-        glBegin(GL_POLYGON)
-        square()
-        glEnd()
+        # Translucent filling
+        GLOrtho.setColor(0,0,0,0.3)
+        GLOrtho.filledRect(size)
 
         # Bright border
-        glColor4f(1,1,1,1)
-        glBegin(GL_LINE_LOOP)
-        square()
-        glEnd()
+        GLOrtho.setColor(1,1,1,1)
+        GLOrtho.rectOutline(size)
 
 
 class Text:
@@ -110,19 +95,50 @@ class Text:
     def render(self):
         text = self.getText()
         if text:
-            glLoadIdentity()
+            GLOrtho.setup()
+
             if self.alignment:
-                glTranslatef(self.viewport.size[0] * self.alignment[0],
-                             self.viewport.size[1] * self.alignment[1],
-                             0)
+                GLOrtho.translate(self.viewport.size[0] * self.alignment[0],
+                                  self.viewport.size[1] * self.alignment[1])
             if self.shadow:
-                glPushMatrix()
-                glTranslatef(self.shadowOffset, self.shadowOffset, 0)
-                glColor4f(*self.shadowColor)
+                GLOrtho.push()
+                GLOrtho.translate(self.shadowOffset, self.shadowOffset)
+                GLOrtho.setColor(*self.shadowColor)
                 GLText.draw(text, self.fontSize, self.fontName, self.alignment)
-                glPopMatrix()
-            glColor4f(*self.color)
+                GLOrtho.pop()
+            GLOrtho.setColor(*self.color)
             GLText.draw(text, self.fontSize, self.fontName, self.alignment)
+
+
+class Image:
+    """A view that draws an image, stored in a single texture. The image's
+       size is specified separately, so the image can be rescaled to fit in
+       an OpenGL-friendly texture size.
+       'alignment' specifies the text's justification relative
+       to the viewport. (0,0) is top-left, (1,1) is bottom-right,
+       (0.5, 0.5) is centered, etc.
+       """
+    def __init__(self, viewport, textureName, size,
+                 color        = (1,1,1,1),
+                 alignment    = (0,0)
+                 ):
+        viewport.fov = None
+        self.viewport = viewport
+        self.texture = Texture.load(textureName)
+        self.size = size
+        self.color = color
+        self.alignment = alignment
+        viewport.onDrawFrame.observe(self.render)
+
+    def render(self):
+        GLOrtho.setup()
+
+        if self.alignment:
+            GLOrtho.translate(self.viewport.size[0] * self.alignment[0],
+                              self.viewport.size[1] * self.alignment[1])
+            GLOrtho.setColor(*self.color)
+            GLOrtho.setTexture(self.texture)
+            GLOrtho.filledRect(self.size, self.alignment)
 
 
 class ScrolledText(Text):
