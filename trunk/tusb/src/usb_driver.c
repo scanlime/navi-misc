@@ -279,7 +279,21 @@ void usb_init() {
 void usb_dma_setup(unsigned char ep, xdata unsigned char *buffer, unsigned char buffer_size) {
   EDB[ep].x_base = (((unsigned short)buffer) >> 3) & 0xFF;
   EDB[ep].buffer_size = buffer_size;
-  EDB[ep].x_count = 0;
+
+  /* If this is an IN transfer, we need to set the
+   * initial byte count to the amount of data we're
+   * transmitting. Assume this is the whole buffer,
+   * since there's no reason our caller can't just give
+   * us a smaller buffer size to send less data.
+   *
+   * For OUT transfers, this always starts out as
+   * zero just to indicate that we're ready to
+   * receive on this buffer.
+   */
+  if (ep >= EDB_IEP1)
+    EDB[ep].x_count = buffer_size;
+  else
+    EDB[ep].x_count = 0;
 }
 
 void usb_dma_stall(unsigned char ep) {
@@ -292,8 +306,18 @@ void usb_dma_unstall(unsigned char ep) {
 
 int usb_dma_status(unsigned char ep) {
   unsigned char c = EDB[ep].x_count;
-  if (c & 0x80)
+  if (c & 0x80) {
+    c &= 0x7F;
+
+    /* IN endpoints will give us a status of 0x80.
+     * Just return '1' to indicate we've sent
+     * some data without any indication of it's size.
+     */
+    if (!c)
+      return 1;
+
     return c & 0x7F;
+  }
   else
     return 0;
 }
