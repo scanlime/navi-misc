@@ -28,11 +28,6 @@
 
 gboolean preferences_exist();
 void load_preferences();
-char *preferences_nickname();
-char *preferences_realname();
-char *preferences_quitmsg();
-char *preferences_partmsg();
-char *preferences_awaymsg();
 int preferences_get_color_scheme();
 int preferences_get_palette_scheme();
 void preferences_set_color_scheme(int selection);
