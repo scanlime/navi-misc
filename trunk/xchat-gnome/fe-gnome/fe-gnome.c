@@ -183,11 +183,12 @@ int fe_userlist_remove(struct session *sess, struct User *user) {
 }
 
 void fe_userlist_rehash(struct session *sess, struct User *user) {
-	/* FIXME: implement */
+	userlist_change(sess, user);
 }
 
 void fe_userlist_move(struct session *sess, struct User *user, int new_row) {
-	/* FIXME: implement */
+	int sel = userlist_remove(sess, user);
+	fe_userlist_insert(sess, user, new_row, sel);
 }
 
 void fe_userlist_numbers(struct session *sess) {
