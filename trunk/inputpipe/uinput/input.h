@@ -94,6 +94,8 @@ struct input_absinfo {
 #define EV_FF_STATUS		0x17
 #define EV_MAX			0x1f
 
+#define EV_UINPUT		0x0101     /* Used only between /dev/uinput and applications */
+
 /*
  * Synchronization events.
  */
