@@ -108,6 +108,8 @@ xchat_plugin_deinit ()
 static gboolean
 notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
+	//xchat_print (ph, "event\n");
+
 	return TRUE;
 }
 
