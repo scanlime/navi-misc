@@ -154,6 +154,19 @@ int main (int argc, char **argv)
 
 	logOut("Prefs loaded","main");
 
+	// randdom generateor
+	if (args.Exists("srand"))
+		srand(args.GetDataI("srand"));
+	else
+	{
+#ifdef _WIN32
+		srand(GetTickCount());
+#else
+		srand(time(NULL));
+#endif
+	}
+
+
 	registerAsPublic = args.GetDataB("public");
 
 	if (!registerAsPublic)

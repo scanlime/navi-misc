@@ -25,6 +25,7 @@
 #define	_MESSAGE_KICK 0x4b4b				// KK
 #define _MESSAGE_UPDATE 0x5544			//UD
 #define _MESSAGE_ACKNOWLEDGE 0x414b	//AK
+#define _MESSAGE_SPAWN 0x5350				//SP
 
 void CTestGame::registerFactory (const char* name, CBaseDrawableFactory* factory)
 {
@@ -50,6 +51,8 @@ void CTestGame::Kill ( void )
 
 void CTestGame::Attach ( void )
 {
+	players.clear();
+	localPlayer = NULL;
 	// get the connection info
 	CFirestarterLoop &loop = CFirestarterLoop::instance();
 
@@ -68,7 +71,6 @@ void CTestGame::Attach ( void )
 		port = atoi(portChr);
 		*(portChr-1)= '\0';
 	}
-
 	network.Connect(temp2,port);
 
 	// build up some simple world
@@ -84,6 +86,11 @@ void CTestGame::Attach ( void )
 	info.skybox = "malrav1sky";
 
 	world.Load(info,true);
+
+	// build up the local player
+	localPlayer = new CPlayerObject;
+	localPlayer->active = false;
+	localPlayer->idNumber = -1;
 }
 
 void CTestGame::Release ( void )
@@ -125,6 +132,11 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 	switch(message.GetType())
 	{
 		case _MESSAGE_SERVER_INFO:
+			// get our ID
+			localPlayer->idNumber = outMessage.ReadI();
+			players[localPlayer->idNumber] = localPlayer;
+
+			// send back a client info
 			outMessage.SetType("CI");
 			outMessage.AddStr(prefs.GetItemS("PlayerName"));
 			outMessage.Send(peer,true);
