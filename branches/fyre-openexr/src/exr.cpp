@@ -90,6 +90,16 @@ extern "C" void exr_write_histogram (HistogramImager *hi, const char* filename)
         cur_pixel->b = luma * range.b + bg.b;
         cur_pixel->a = luma * range.a + bg.a;
 
+	/* Fyre images are generally authored to look good in sRGB,
+	 * so they'll already be in the monitor's gamma. This should
+	 * perform the inverse of OpenEXR's default monitor gamma
+	 * correction. Alpha should always be linear, so leave
+	 * that alone.
+	 */
+	cur_pixel->r = pow(cur_pixel->r * 3.012, 2.2) / 5.55555;
+	cur_pixel->g = pow(cur_pixel->g * 3.012, 2.2) / 5.55555;
+	cur_pixel->b = pow(cur_pixel->b * 3.012, 2.2) / 5.55555;
+
         cur_pixel++;
         cur_bucket++;
       }
