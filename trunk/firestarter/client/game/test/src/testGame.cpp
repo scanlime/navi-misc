@@ -81,7 +81,7 @@ void CTestGame::Release ( void )
 
 bool CTestGame::Think ( void )
 {
-	if (network.Connected())
+	//if (network.Connected())
 		network.ProcessMessages();
 
 	if (CInputManager::instance().KeyDown(KEY_ESCAPE))

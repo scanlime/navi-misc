@@ -57,8 +57,9 @@ int CServerListener::getCurrentPlayers ( void )
 
 bool CServerListener::update ( void )
 {
-
 	server.ProcessMessages();
+	logOut("update","CServerListener::update");
+
 	if (!game)
 		return true;
 
