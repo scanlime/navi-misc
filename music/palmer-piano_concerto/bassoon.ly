@@ -4,6 +4,7 @@
 	\header {
 		composer = "LUKE PALMER"
 		title = "CONCERTO"
+		instrument = "BASSOON"
 	}
 
 	\score {
