@@ -15,7 +15,8 @@ with web, IRC, XML-RPC, and email interfaces.
     CIA's services for processing XML-RPC and web browser requests as well as
     its outgoing connections for IRC are all run from within one Twisted
     twistd process. This is the configuration file that plugs together the
-    above module into an actual application
+    above module into an actual application.
+    The CIA server is usually started by running "twistd -oy cia_server.tac"
 
   - incoming_mail.py
 
@@ -25,6 +26,11 @@ with web, IRC, XML-RPC, and email interfaces.
   - ruleset_editor.py
 
     A PyGTK/Glade editor for CIA's rulesets
+
+  - htdocs
+
+    Contains the static files served by CIA's web interface. cia_server.tac
+    injects several dynamic resources into the same namespace.
 
 
 -------- An overview of CIA's internals:
