@@ -34,11 +34,7 @@
 	extern	temp
 	extern	Send_0Len_pkt
 
-	extern	sensor_sampler
-
-bank1	udata
-
-sensor_params	res	8
+	extern	sensor_buffer
 
 	code
 
@@ -54,7 +50,6 @@ defineRequest	macro	id,	handler
 
 CheckVendor
 	defineRequest	EFS_CTRL_SET_PARAM_BYTE,	request_setParamByte
-	defineRequest	EFS_CTRL_TAKE_READING,		request_takeReading
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -62,11 +57,11 @@ CheckVendor
 ;********************************************** Request handlers
 
 request_setParamByte
-	; Point IRP:FSR at the applicable sensor_params byte (no bounds checking yet)
 	banksel BufferData
 	movf	BufferData+wIndex, w
-	bankisel sensor_params
-	addlw	sensor_params
+	andlw	.63						; Limit the range to our buffer size
+	bankisel sensor_buffer
+	addlw	sensor_buffer
 	movwf	FSR
 
 	; Copy in the byte from wValue
@@ -76,30 +71,6 @@ request_setParamByte
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt
 	goto	Send_0Len_pkt
-
-
-request_takeReading
-	bankisel sensor_params
-	movlw	sensor_params
-	movwf	FSR
-	pagesel	sensor_sampler
-	call	sensor_sampler
-
-	movwf   temp
-
-	banksel BD0IAL
-	movf    low BD0IAL,w    ; get address of buffer
-	movwf   FSR
-	bsf     STATUS,IRP      ; indirectly to banks 2-3
-
-	movf    temp, w         ;  Write the saved byte to our buffer
-	movwf   INDF
-	banksel BD0IBC
-	movlw   0x01
-	movwf   BD0IBC          ; set byte count to 1
-	movlw   0xc8            ; DATA1 packet, DTS enabled
-	movwf   BD0IST          ; give buffer back to SIE
-	return
 
 	end
 

@@ -71,6 +71,10 @@ epByteTemp	res 1
 	extern	USB_dev_req
 	extern	finish_set_address
 
+	extern	sensor_sample_all
+	extern	sensor_buffer
+	extern	sensor_init
+
 STARTUP	code
 	pagesel	Main
 	goto	Main
@@ -198,11 +202,36 @@ Main
 	pagesel	InitUSB
 	call	InitUSB
 
+	pagesel	sensor_init
+	call	sensor_init
+
 ;******************************************************************* Main Loop
 
 MainLoop
 	pagesel ServiceUSB
 	call	ServiceUSB	; see if there are any USB tokens to process
+
+	ConfiguredUSB           ; macro to check configuration status
+	pagesel MainLoop
+	btfss   STATUS,Z        ; Z = 1 when configured
+	goto    MainLoop    ; Wait until we're configured
+
+    ; The rest of this loop makes analog video detection measurements when the
+    ; EP1 endpoint is available, and makes the measurements available to transmit
+    ; back to the host.
+	banksel BD1IST          ; If we don't own the EP1 buffer, keep waiting
+	btfsc   BD1IST, UOWN
+	goto    MainLoop
+
+	pagesel	sensor_sample_all
+	call	sensor_sample_all
+
+	bankisel sensor_buffer
+	movlw   sensor_buffer
+	movwf   FSR
+	movlw   8                               ; 8 bytes long
+	pagesel PutEP1
+	call    PutEP1
 
 	pagesel	MainLoop
 	goto	MainLoop
