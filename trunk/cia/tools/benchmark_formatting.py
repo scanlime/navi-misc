@@ -30,8 +30,9 @@ r = range(200)
 start = time.time()
 for i in r:
     m = Message.Message(messageText)
-    Formatters.getFactory().findMedium('xhtml', m).formatMessage(m)
+    f = Formatters.getFactory().findMedium('xhtml', m).formatMessage(m)
 end = time.time()
+
 
 print "%.04f seconds/message" % ((end - start) / len(r))
 
