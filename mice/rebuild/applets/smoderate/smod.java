@@ -26,8 +26,10 @@ public class smod extends java.applet.Applet implements ActionListener
 	public Button bget;
 	/** This is the reject question button. */
 	public Button breject;
-	/** An array of accept buttons. */
-	public Button[] accept;
+	/** An accept button. */
+	public Button accept;
+	/** Who is getting it accepted. */
+	public Checkbox[] acptfor;
 	
 	public void init()
 	{
@@ -50,11 +52,15 @@ public class smod extends java.applet.Applet implements ActionListener
 		add(bget);
 		add(breject);
 		
-		accept = new Button[10];
+		accept = new Button("Accept for checked");
+		add(accept);
+		
+		acptfor = new Checkbox[10];
+		
 		for(i=0;i<10;i++)
 		{
-			accept[i] = new Button("Approve for 000000000000"+i);
-			add(accept[i]);
+			acptfor[i] = new Checkbox("000000000000");
+			add(acptfor[i]);
 		}
 
 	}
@@ -80,10 +86,9 @@ public class smod extends java.applet.Applet implements ActionListener
 		j=Integer.parseInt(net.read());
 		for(i=0;i<j;i++)
 		{
-			accept[i].addActionListener(new accepted(i,question));
-			accept[i].setLabel("Approve For " + net.read());
+			acptfor[i].setLabel(net.read());
 		}
 		for(;i<10;i++)
-			remove(accept[i]);
+			remove(acptfor[i]);
 	}
 }
