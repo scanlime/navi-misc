@@ -24,10 +24,10 @@ class GnomeFilter(CommitFilter):
                 self.readAuthor(line)
 
     def readModule(self, line):
-        self.addModule(line.split("\t")[1].strip())
+        self.addModule(line.split(':',1)[1].strip())
 
     def readAuthor(self, line):
-        self.addAuthor(line.split("\t")[1].strip())
+        self.addAuthor(line.split(':',1)[1].split()[0].strip())
 
     def readURL(self, line):
         self.addURL(line[5:].strip())
