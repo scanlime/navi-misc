@@ -197,6 +197,9 @@ class NewBotsSection(Template.Section):
 
 class IRCBotPage(Template.Page):
     """A web page showing the status of the BotNetwork"""
+    mainTitle = "IRC Bot Status"
+    subTitle = "what's that blue thing doing there?"
+
     def __init__(self, botNet):
         self.botNet = botNet
 
@@ -211,11 +214,5 @@ class IRCBotPage(Template.Page):
         return [
             TotalsSection(self.botNet),
             ]
-
-    mainTitle = "IRC Bot Status"
-    subTitle = "what's that blue thing doing there?"
-    headingTabs = [
-        Template.headingTab(href='/')['CIA'],
-        ]
 
 ### The End ###

@@ -113,6 +113,8 @@ class SingleRulesetPage(Template.Page):
     """A viewer/editor for one ruleset. This is a base class for all
        pages that refer to a single ruleset.
        """
+    subTitle = "The CIA ruleset editor, better than a fusion powered duck"
+
     def __init__(self, storage, uri):
         self.storage = storage
         self.uri = uri
@@ -129,13 +131,6 @@ class SingleRulesetPage(Template.Page):
 
     def render_mainTitle(self, context):
         return self.uri
-
-    subTitle = "The CIA ruleset editor, better than a fusion powered duck"
-    headingTabs = [
-        Template.headingTab(href='/')['CIA'],
-        # XXX FIXME: shouldn't be hardcoding this URL
-        Template.headingTab(href='/rulesets')['Rulesets'],
-        ]
 
 
 class RulesetEditorSection(Template.Section):

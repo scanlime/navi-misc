@@ -28,7 +28,6 @@ from Nouvelle import tag, place, xml, subcontext
 
 # Tag templates
 catalogList = tag('ul', _class="catalog")
-headingTab = tag('a', _class="headingtab")
 value = tag('strong')
 error = tag('span', _class="error")
 unableToFormat = error[ "Unable to format data" ]
@@ -129,12 +128,14 @@ class StaticSection(Section):
 
 class Page(Nouvelle.Twisted.Page):
     """A template for pages using our CSS- all pages have a heading with
-       title, subtitle, and site name. Pages may have a list of hyperlinked
-       tabs at the bottom of the heading, as well as columns containing
-       Sections.
+       title, subtitle, and site name. The content of each page is in
+       columns holding sections, while each page shares certain navigation
+       features- section tabs at the top, and a 'breadcrumbs' display
+       linking to and showing a page's parent pages.
        """
     siteName = "CIA"
-    subTitle = "More wet kittens than you can shake a cheese grater at"
+    mainTitle = None
+    subTitle = []
 
     def render_pageTitle(self, context):
         return [self.render_mainTitle,
@@ -149,9 +150,6 @@ class Page(Nouvelle.Twisted.Page):
 
     def render_subTitle(self, context):
         return self.subTitle
-
-    def render_headingTabs(self, context):
-        return self.headingTabs
 
     def render_leftColumn(self, context):
         return self.leftColumn
@@ -169,25 +167,50 @@ class Page(Nouvelle.Twisted.Page):
             return xml("&nbsp;")
         while node:
             places.insert(0, breadcrumbSeparator)
-            places.insert(0, node.render_mainTitle(context))
+            places.insert(0, node.render_link(context))
             node = node.parent()
         return places
 
+    def render_link(self, context):
+        """Return a serializable object that should be used to link to this page.
+           By default, this returns a plain link with the page's title, pointing
+           to the page's URL.
+           """
+        return tag('a', href=self.getURL(context))[self.render_mainTitle(context)]
+
     def parent(self):
-        """Pages should implement this to return their parent page.
+        """Pages must implement this to return their parent page.
            This is used for the default implementation of breadcrumbs.
            """
-        return None
+        pass
+
+    def render_tabs(self, context):
+        """The page's tabs show all Page instances hooked up as
+           children of the root resource in our web site.
+           """
+        request = context['request']
+        tabs = []
+        for name, page in request.site.resource.children.iteritems():
+            if isinstance(page, Page):
+                # Decide if this section should be marked active or not
+                if request.prepath[0] == name:
+                    id = 'active'
+                else:
+                    id = 'inactive'
+                tabs.append(tag('a', _class='tab', id=id, href=page.getURL(context))[
+                    page.render_mainTitle(context)
+                    ])
+        return tabs
+
+    def getURL(self, context, absolute=False):
+        """Retrieve a URL suitable for linking to this page.
+           By default it will be relative to this site. If
+           'absolute' is true, this will be a fully qualified URL.
+           """
+        return 'boing'
 
     leftColumn  = []
     mainColumn  = []
-
-    headingTabs = [
-        tag('a', _class='tab', href='/')['CIA'],
-        tag('a', _class='tab', href='/')['CIA'],
-        tag('a', _class='tab', id='active', href='/')['CIA'],
-        tag('a', _class='tab', href='/')['CIA'],
-        ]
 
     document = [
         ## Commented out for now, as it seems to break some of the CSS formatting. Why?
@@ -209,7 +232,7 @@ class Page(Nouvelle.Twisted.Page):
                         ],
                         tag('td', _class="sitename")[ place("siteName") ],
                     ]],
-                    tag('div', _class="tabs")[ place("headingTabs") ],
+                    tag('div', _class="tabs")[ place("tabs") ],
                     tag('div', _class="tabBar")[ place("breadcrumbs") ],
                 ],
                 tag('table', _class="columns")[ tag('tr')[
