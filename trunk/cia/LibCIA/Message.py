@@ -218,7 +218,7 @@ class Filter(XMLObject):
          >>> Filter('<not><false/><true/><false/></not>')(msg)
          False
 
-       As if we weren't already having too much fun, several of Python bitwise
+       As if we weren't already having too much fun, several of the Python bitwise
        operators can be used like logical operators to combine Filter instances
        after they're parsed but before their value has been determined:
 
