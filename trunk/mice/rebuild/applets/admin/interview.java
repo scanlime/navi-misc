@@ -88,6 +88,8 @@ public class interview implements ActionListener
 					myadmin.rm(aim[i]);
 				}
 				myadmin.rm(submit);
+				new webconfig(myadmin);
+				new aimconfig(myadmin);
 				new notice(myadmin);
 			}
 		}

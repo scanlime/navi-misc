@@ -5,6 +5,8 @@ CLASSES=\
 	authenticate.class\
 	interview.class\
 	moderator.class\
+	aimconfig.class\
+	webconfig.class\
 	admin.class
 
 app: $(CLASSES)
@@ -18,6 +20,11 @@ authenticate.class: authenticate.java
 interview.class: interview.java
 	javac interview.java
 
+webconfig.class: webconfig.java
+	javac webconfig.java
+
+aimconfig.class: aimconfig.java
+	javac aimconfig.java
 keyinfo.class: keyinfo.java
 	javac keyinfo.java
 
