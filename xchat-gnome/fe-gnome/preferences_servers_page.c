@@ -40,6 +40,39 @@ static void edit_global_changed(GtkToggleButton *togglebutton, gpointer data) {
 	}
 }
 
+static void edit_ok_clicked(GtkWidget *button, gpointer data) {
+	GtkWidget *treeview, *widget, *dialog;
+	GtkTreeSelection *select;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	ircnet *net;
+
+	treeview = glade_xml_get_widget(gui.xml, "configure server list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	gtk_tree_selection_get_selected(select, &model, &iter);
+	gtk_tree_model_get(model, &iter, 2, &net, -1);
+
+	widget = glade_xml_get_widget(gui.xml, "server config network name");
+	char *text = gtk_entry_get_text(GTK_ENTRY(text));
+	if(servlist_net_find(text, NULL) != NULL) {
+		/* FIXME: pop up error about duplicate */
+		return;
+	} else if(strlen(text) == 0) {
+		/* FIXME: pop up error about empty */
+		return;
+	}
+
+	dialog = glade_xml_get_widget(gui.xml, "server configuration");
+	gtk_widget_hide_all(dialog);
+}
+
+static void edit_cancel_clicked(GtkWidget *button, gpointer data) {
+	GtkWidget *dialog;
+
+	dialog = glade_xml_get_widget(gui.xml, "server configuration");
+	gtk_widget_hide_all(dialog);
+}
+
 static void edit_clicked(GtkWidget *button, gpointer data) {
 	GtkWidget *dialog, *password, *nick, *real;
 	GtkWidget *treeview, *widget;
@@ -97,10 +130,13 @@ static void edit_clicked(GtkWidget *button, gpointer data) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), (net->flags & FLAG_CYCLE));
 
 	widget = glade_xml_get_widget(gui.xml, "server config network name");
-	char *name = g_strdup_printf("<span weight=\"bold\">%s</span>", net->name);
-	gtk_label_set_text(GTK_LABEL(widget), name);
-	gtk_label_set_use_markup(GTK_LABEL(widget), TRUE);
-	g_free(name);
+	gtk_entry_set_text(GTK_ENTRY(widget), net->name);
+
+	widget = glade_xml_get_widget(gui.xml, "server config ok");
+	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(edit_ok_clicked), NULL);
+
+	widget = glade_xml_get_widget(gui.xml, "server config cancel");
+	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(edit_cancel_clicked), NULL);
 
 	gtk_widget_show_all(dialog);
 }
