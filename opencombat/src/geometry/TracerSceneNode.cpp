@@ -77,19 +77,6 @@ void			TracerSceneNode::notifyStyleChange(
 				const SceneRenderer&)
 {
   OpenGLGStateBuilder builder(gstate);
-  if (BZDBCache::blend) {
-    // add tail contribution instead of regular blend
-    builder.setBlending(GL_SRC_ALPHA, GL_ONE);
-    builder.setShading(GL_SMOOTH);
-    builder.setStipple(1.0f);
-    style = 1;
-  }
-  else {
-    builder.resetBlending();
-    builder.setShading(GL_FLAT);
-    builder.setStipple(0.7f);
-    style = 0;
-  }
   gstate = builder.getState();
 }
 
@@ -138,8 +125,6 @@ void			TracerSceneNode::TracerRenderNode::render()
       glVertex3fv(tailVertex[8]);
     glEnd();
 
-    if (sceneNode->style == 0) myStipple(1.0f);
-    else glDisable(GL_BLEND);
     glBegin(GL_TRIANGLE_FAN);
       glVertex3fv(tailVertex[8]);
       glVertex3fv(tailVertex[7]);
@@ -150,8 +135,6 @@ void			TracerSceneNode::TracerRenderNode::render()
       glVertex3fv(tailVertex[2]);
       glVertex3fv(tailVertex[1]);
     glEnd();
-    if (sceneNode->style == 0) myStipple(0.7f);
-    else glEnable(GL_BLEND);
 
   glPopMatrix();
 }

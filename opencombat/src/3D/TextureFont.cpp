@@ -229,8 +229,6 @@ void TextureFont::preLoadLists(void)
   // create GState
   OpenGLGStateBuilder builder(gstate);
   builder.setTexture(textureID);
-  builder.setBlending();
-  builder.setAlphaFunc();
   builder.enableTextureReplace(false);
   gstate = builder.getState();
 }

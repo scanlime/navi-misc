@@ -16,7 +16,6 @@
 
 void buildHighLTread( void )
 {
-  glShadeModel(GL_FLAT);
   glBegin(GL_TRIANGLE_STRIP);
     doNormal3f(0.984696f, 0.000000f, 0.174282f);
     glTexCoord2f(-0.193f, 0.727f);

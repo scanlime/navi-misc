@@ -112,7 +112,6 @@ void DrawTankSides ( void )
 
 void DrawCentralBody( void )
 {
-  glShadeModel(GL_FLAT);
   DrawTankSides();
   // draw the outer loop
   glBegin(GL_TRIANGLE_STRIP);

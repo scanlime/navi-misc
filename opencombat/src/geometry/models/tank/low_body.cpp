@@ -17,7 +17,6 @@
 
 void buildLowBody ( void )
 {
-    glShadeModel(GL_FLAT);
       glBegin(GL_TRIANGLE_STRIP);
 	doNormal3f(0.023598f, 0.000000f, 0.999722f);
 	glTexCoord2f(1.360f, 1.970f);

@@ -2298,7 +2298,7 @@ bool			addExplosion(const float* _pos,
   if (sceneRenderer->useQuality() < 2) return false;
 
   // don't add explosion if blending or texture mapping are off
-  if (!BZDBCache::blend || !BZDBCache::texture)
+  if (!BZDBCache::texture)
     return false;
 
   // pick a random prototype explosion
@@ -4724,11 +4724,9 @@ static void		playingLoop()
 	  glPopMatrix();
 
 	  // zoom small image to entire window
-	  glDisable(GL_DITHER);
 	  glPixelZoom((float)zoomFactor, (float)zoomFactor);
 	  glCopyPixels(x, y, w, h, GL_COLOR);
 	  glPixelZoom(1.0f, 1.0f);
-	  if (BZDB.isTrue("dither")) glEnable(GL_DITHER);
 	} else {
 	  // normal rendering
 	  sceneRenderer->render();
@@ -4903,166 +4901,6 @@ static float		timeConfiguration(bool useZBuffer)
 
 static void		timeConfigurations()
 {
-  static const float MaxFrameTime = 0.050f;	// seconds
-
-  // ignore results of first test.  OpenGL could be doing lazy setup.
-  BZDB.set("blend", "0");
-  BZDB.set("smooth", "0");
-  BZDB.set("lighting", "0");
-  BZDB.set("texture", "0");
-  sceneRenderer->setQuality(0);
-  BZDB.set("dither", "1");
-  BZDB.set("shadows", "0");
-  BZDB.set("enhancedradar", "0");
-#ifdef _MSC_VER
-  // Suppose Pat want to remind himself
-  { int somebody_get_tm_to_set_texture; }
-#endif
-//  OpenGLTexture::setFilter(OpenGLTexture::Off);
-  timeConfiguration(true);
-
-  // time lowest quality with and without blending.  some systems
-  // stipple very slowly even though everything else is fast.  we
-  // don't want to conclude the system is slow because of stippling.
-  printError("  lowest quality");
-  const float timeNoBlendNoZ = timeConfiguration(false);
-  const float timeNoBlendZ   = timeConfiguration(true);
-  BZDB.set("blend", "1");
-  const float timeBlendNoZ   = timeConfiguration(false);
-  const float timeBlendZ     = timeConfiguration(true);
-  if (timeNoBlendNoZ > MaxFrameTime &&
-      timeNoBlendZ   > MaxFrameTime &&
-      timeBlendNoZ   > MaxFrameTime &&
-      timeBlendZ     > MaxFrameTime) {
-    if (timeNoBlendNoZ < timeNoBlendZ &&
-	timeNoBlendNoZ < timeBlendNoZ &&
-	timeNoBlendNoZ < timeBlendZ) {
-      // no depth, no blending definitely fastest
-      BZDB.set("zbuffer", "0");
-      BZDB.set("blend", "0");
-    }
-    if (timeNoBlendZ < timeBlendNoZ &&
-	timeNoBlendZ < timeBlendZ) {
-      // no blending faster than blending
-      BZDB.set("zbuffer", "0");
-      BZDB.set("blend", "0");
-    }
-    if (timeBlendNoZ < timeBlendZ) {
-      // blending faster than depth
-      BZDB.set("zbuffer", "0");
-      BZDB.set("blend", "1");
-    }
-    // blending and depth faster than without either
-    BZDB.set("zbuffer", "1");
-    BZDB.set("blend", "1");
-    return;
-  }
-
-  // leave blending on if blending clearly faster than stippling
-  if (timeBlendNoZ > timeNoBlendNoZ || timeBlendNoZ > timeNoBlendZ &&
-      timeBlendZ   > timeNoBlendNoZ || timeBlendZ   > timeNoBlendZ) {
-    BZDB.set("blend", "0");
-  }
-
-  // try texturing.  if it's too slow then fall back to
-  // lowest quality and return.
-#ifdef _MSC_VER
-  // Suppose Pat want to remind himself
-{ int somebody_get_tm_to_set_texture; }
-#endif
-//  OpenGLTexture::setFilter(OpenGLTexture::Nearest);
-  BZDB.set("texture", OpenGLTexture::getFilterName());
-  sceneRenderer->setQuality(1);
-  printError("  lowest quality with texture");
-  if (timeConfiguration(false) > MaxFrameTime ||
-      timeConfiguration(true) > MaxFrameTime) {
-    BZDB.set("texture", "0");
-#ifdef _MSC_VER
-    // Suppose Pat want to remind himself
-    { int somebody_get_tm_to_set_texture; }
-#endif
-//    OpenGLTexture::setFilter(OpenGLTexture::Off);
-    sceneRenderer->setQuality(0);
-    return;
-  }
-
-  // everything
-  printError("  full quality");
-  BZDB.set("blend", "1");
-  BZDB.set("smooth", "1");
-  BZDB.set("lighting", "1");
-#ifdef _MSC_VER
-  // Suppose Pat want to remind himself
-{ int somebody_get_tm_to_set_texture; }
-#endif
-//  OpenGLTexture::setFilter(OpenGLTexture::LinearMipmapLinear);
-  BZDB.set("texture", OpenGLTexture::getFilterName());
-  sceneRenderer->setQuality(2);
-  BZDB.set("dither", "1");
-  BZDB.set("shadows", "1");
-  BZDB.set("enhancedradar", "1");
-  if (timeConfiguration(true) < MaxFrameTime) return;
-  if (timeConfiguration(false) < MaxFrameTime) return;
-
-  // try it without shadows -- some platforms stipple very slowly
-  BZDB.set("shadows", "0");
-  if (timeConfiguration(true) < MaxFrameTime) return;
-  if (timeConfiguration(false) < MaxFrameTime) return;
-
-  // no high quality
-  printError("  medium quality");
-  sceneRenderer->setQuality(1);
-  if (timeConfiguration(true) < MaxFrameTime) return;
-  if (timeConfiguration(false) < MaxFrameTime) return;
-  printError("  low quality");
-  sceneRenderer->setQuality(0);
-  if (timeConfiguration(true) < MaxFrameTime) return;
-  if (timeConfiguration(false) < MaxFrameTime) return;
-
-  // lower quality texturing
-  printError("  nearest texturing");
-#ifdef _MSC_VER
-            // Suppose Pat want to remind himself
-{ int somebody_get_tm_to_set_texture; }
-#endif
-//  OpenGLTexture::setFilter(OpenGLTexture::Nearest);
-  if (timeConfiguration(true) < MaxFrameTime) return;
-  if (timeConfiguration(false) < MaxFrameTime) return;
-
-  // no texturing
-  printError("  no texturing");
-  BZDB.set("texture", "0");
-#ifdef _MSC_VER
-            // Suppose Pat want to remind himself
-{ int somebody_get_tm_to_set_texture; }
-#endif
-//  OpenGLTexture::setFilter(OpenGLTexture::Off);
-  if (timeConfiguration(true) < MaxFrameTime) return;
-  if (timeConfiguration(false) < MaxFrameTime) return;
-
-  // no blending
-  printError("  no blending");
-  BZDB.set("blend", "0");
-  if (timeConfiguration(true) < MaxFrameTime) return;
-  if (timeConfiguration(false) < MaxFrameTime) return;
-
-  // no smoothing.  shouldn't really affect fill rate too much.
-  printError("  no smoothing");
-  BZDB.set("smooth", "0");
-  if (timeConfiguration(true) < MaxFrameTime) return;
-  if (timeConfiguration(false) < MaxFrameTime) return;
-
-  // no lighting.  shouldn't really affect fill rate, either.
-  printError("  no lighting");
-  BZDB.set("lighting", "0");
-  if (timeConfiguration(true) < MaxFrameTime) return;
-  if (timeConfiguration(false) < MaxFrameTime) return;
-
-  // no dithering
-  printError("  no dithering");
-  BZDB.set("dither", "0");
-  if (timeConfiguration(true) < MaxFrameTime) return;
-  if (timeConfiguration(false) < MaxFrameTime) return;
 }
 
 static void		findFastConfiguration()
@@ -5180,21 +5018,14 @@ void			startPlaying(BzfDisplay* _display,
 
   // if no configuration, turn off fancy rendering so startup is fast,
   // even on a slow machine.
-  if (!_info->hasConfiguration) {
-    BZDB.set("blend", "0");
-    BZDB.set("smooth", "0");
-    BZDB.set("lighting", "0");
-    BZDB.set("texture", "0");
-    sceneRenderer->setQuality(0);
-    BZDB.set("dither", "0");
-    BZDB.set("shadows", "0");
-    BZDB.set("enhancedradar", "0");
-#ifdef _MSC_VER
-            // Suppose Pat want to remind himself
-{ int somebody_get_tm_to_set_texture; }
-#endif
-//    OpenGLTexture::setFilter(OpenGLTexture::Off);
-  }
+  if (!_info->hasConfiguration)
+	{
+    BZDB.set("lighting", "1");
+    BZDB.set("texture", "1");
+    sceneRenderer->setQuality(4);
+    BZDB.set("shadows", "1");
+    BZDB.set("enhancedradar", "1");
+	}
 
   // should we grab the mouse?  yes if fullscreen.
   if (!BZDB.isSet("_window"))

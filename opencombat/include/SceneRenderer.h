@@ -75,7 +75,6 @@ class SceneRenderer {
     bool		isSameFrame() const;
     ViewType		getViewType() const;
 
-    void		setSmoothing(bool on);
     void		setZBuffer(bool on);
     void		setZBufferSplit(bool on);
     void		setQuality(int value);

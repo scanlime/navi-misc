@@ -22,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\win32,..\..\include,..\..\src\opencombatd,.\"
+				AdditionalIncludeDirectories="..\..\win32,..\..\include,..\..\src\opencombat,.\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

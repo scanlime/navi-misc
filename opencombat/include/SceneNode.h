@@ -47,7 +47,6 @@
 #define	myColor4f(r, g, b, a)	SceneNode::glColor4f(r, g, b, a)
 #define	myColor3fv(rgb)		SceneNode::glColor3fv(rgb)
 #define	myColor4fv(rgba)	SceneNode::glColor4fv(rgba)
-#define	myStipple(alpha)	SceneNode::setStipple(alpha)
 
 class ViewFrustum;
 class SceneRenderer;
@@ -92,8 +91,6 @@ class SceneNode {
 #else
 				{ (*color4fv)(rgba); }
 #endif
-    static void		setStipple(GLfloat alpha)
-				{ (*stipple)(alpha); }
 
   protected:
     void		setRadius(GLfloat radiusSquared);
@@ -117,7 +114,6 @@ class SceneNode {
     static void __stdcall	noColor3fv(const GLfloat*);
     static void __stdcall	noColor4fv(const GLfloat*);
 #endif
-    static void			noStipple(GLfloat);
 
   private:
     int			styleMailbox;
@@ -130,7 +126,6 @@ class SceneNode {
     static void		(__stdcall *color3fv)(const GLfloat*);
     static void		(__stdcall *color4fv)(const GLfloat*);
 #endif
-    static void		(*stipple)(GLfloat);
 };
 
 typedef GLfloat		GLfloat2[2];

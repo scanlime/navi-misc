@@ -77,7 +77,6 @@ void			ShellSceneNode::notifyStyleChange(
   OpenGLGStateBuilder builder(gstate);
   const bool lighting = BZDB.isTrue("lighting");
   builder.enableMaterial(lighting);
-  builder.setShading(lighting ? GL_SMOOTH : GL_FLAT);
   renderNode.setLighting(lighting);
   gstate = builder.getState();
 }

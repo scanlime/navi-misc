@@ -41,7 +41,7 @@ WinWindow::WinWindow(const WinDisplay* _display, WinVisual* _visual) :
 				next(NULL)
 {
   // make window
-  hwnd = CreateWindow("BZFLAG", "bzflag",
+  hwnd = CreateWindow("BZFLAG", "OpenCombat",
 			WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP |
 			WS_BORDER | WS_CAPTION,
 			0, 0, 640, 480, NULL, NULL,

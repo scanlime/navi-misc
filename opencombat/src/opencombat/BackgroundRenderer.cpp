@@ -130,22 +130,17 @@ BackgroundRenderer::BackgroundRenderer(const SceneRenderer&) :
 
   // make grid stuff
   gstate.reset();
-  gstate.setBlending();
-  gstate.setSmoothing();
   gridGState = gstate.getState();
 
   // make receiver stuff
   {
     // gstates
     gstate.reset();
-    gstate.setShading();
-    gstate.setBlending((GLenum)GL_ONE, (GLenum)GL_ONE);
     receiverGState = gstate.getState();
   }
 
   // sun shadow stuff
   gstate.reset();
-  gstate.setStipple(0.5f);
   gstate.setCulling((GLenum)GL_NONE);
   sunShadowsGState = gstate.getState();
 
@@ -157,12 +152,10 @@ BackgroundRenderer::BackgroundRenderer(const SceneRenderer&) :
   }*/
   // sky stuff
   gstate.reset();
-  gstate.setShading();
   skyGState = gstate.getState();
   gstate.reset();
   sunGState = gstate.getState();
   gstate.reset();
-  gstate.setBlending((GLenum)GL_ONE, (GLenum)GL_ONE);
  // if (useMoonTexture)
  //   gstate.setTexture(*moonTexture);
   moonGState[0] = gstate.getState();
@@ -173,8 +166,6 @@ BackgroundRenderer::BackgroundRenderer(const SceneRenderer&) :
   gstate.reset();
   starGState[0] = gstate.getState();
   gstate.reset();
-  gstate.setBlending();
-  gstate.setSmoothing();
   starGState[1] = gstate.getState();
 
   // make cloud stuff
@@ -183,8 +174,6 @@ BackgroundRenderer::BackgroundRenderer(const SceneRenderer&) :
   if (cloudsTexture >=0) {
     cloudsAvailable = true;
     gstate.reset();
-    gstate.setShading();
-    gstate.setBlending((GLenum)GL_SRC_ALPHA, (GLenum)GL_ONE_MINUS_SRC_ALPHA);
     gstate.setMaterial(defaultMaterial);
     gstate.setTexture(cloudsTexture);
     gstate.setAlphaFunc();
@@ -218,8 +207,6 @@ BackgroundRenderer::BackgroundRenderer(const SceneRenderer&) :
 
       // prepare common gstate
       gstate.reset();
-      gstate.setShading();
-      gstate.setBlending();
       gstate.setMaterial(defaultMaterial);
       gstate.setAlphaFunc();
 
@@ -277,18 +264,14 @@ void			BackgroundRenderer::notifyStyleChange(
       styleIndex = 0;
 
   // some stuff is drawn only for certain states
-  cloudsVisible = (styleIndex >= 2 && cloudsAvailable && BZDBCache::blend);
+  cloudsVisible = (styleIndex >= 2 && cloudsAvailable);
   mountainsVisible = (styleIndex >= 2 && mountainsAvailable);
   shadowsVisible = BZDB.isTrue("shadows");
-  starGStateIndex = BZDB.isTrue("smooth");
+  starGStateIndex = true;
 
   // fixup gstates
   OpenGLGStateBuilder gstate;
   gstate.reset();
-  if (BZDB.isTrue("smooth")) {
-    gstate.setBlending();
-    gstate.setSmoothing();
-  }
   gridGState = gstate.getState();
 }
 
@@ -429,7 +412,6 @@ void			BackgroundRenderer::renderSkyAndGround(
     const SceneRenderer::ViewType viewType = renderer.getViewType();
 
     // draw sky
-    glDisable(GL_DITHER);
     glPushAttrib(GL_SCISSOR_BIT);
     glScissor(x, y + height - (viewHeight >> 1), width, (viewHeight >> 1));
     glClearColor(skyZenithColor[0], skyZenithColor[1], skyZenithColor[2], 1.0f);
@@ -453,7 +435,6 @@ void			BackgroundRenderer::renderSkyAndGround(
 
     // back to normal
     glPopAttrib();
-    if (BZDB.isTrue("dither")) glEnable(GL_DITHER);
   }
 }
 
@@ -475,7 +456,7 @@ void			BackgroundRenderer::render(SceneRenderer& renderer)
     // the ground gets illuminated).  this is necessary because lighting is
     // performed only at a vertex, and the ground's vertices are a few
     // kilometers away.
-    if (BZDBCache::blend && BZDB.isTrue("lighting"))
+    if (BZDB.isTrue("lighting"))
       drawGroundReceivers(renderer);
 
     if (renderer.useQuality() > 1) {
@@ -693,7 +674,8 @@ void			BackgroundRenderer::drawGroundShadows(
   SceneNode::setColorOverride(true);
 
   sunShadowsGState.setState();
-  glColor3f(0.0f, 0.0f, 0.0f);
+	float shadowAlpha = 0.25f;
+  glColor4f(0.0f, 0.0f, 0.0f,shadowAlpha);
   renderer.getShadowList().render();
 
   // enable color updates

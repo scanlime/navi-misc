@@ -41,15 +41,10 @@ class OpenGLGStateState {
     void		enableMaterial(bool);
     void		setTexture(const int tex);
     void		setMaterial(const OpenGLMaterial&);
-    void		setBlending(GLenum sFactor, GLenum dFactor);
-    void		setStipple(float alpha);
-    void		setSmoothing(bool smooth);
     void		setCulling(GLenum culling);
     void		setShading(GLenum);
     void		setAlphaFunc(GLenum func, GLclampf ref);
 
-    bool		isBlended() const
-				{ return unsorted.hasBlending; }
     bool		isTextured() const
 				{ return sorted.texture >= 0; }
     bool		isTextureReplace() const
@@ -86,15 +81,8 @@ class OpenGLGStateState {
 	void		reset();
 
       public:
-	bool		hasBlending;
-	bool		hasStipple;
-	bool		hasSmoothing;
 	bool		hasCulling;
-	bool		hasShading;
 	bool		hasAlphaFunc;
-	GLenum		blendSFactor;
-	GLenum		blendDFactor;
-	int		stippleIndex;
 	GLenum		culling;
 	GLenum		alphaFunc;
 	GLclampf	alphaRef;
@@ -115,7 +103,6 @@ class OpenGLGStateRep {
 			OpenGLGStateRep(const OpenGLGStateState&);
 			~OpenGLGStateRep();
 
-    bool		isBlended() { return state.isBlended(); }
     bool		isTextured() { return state.isTextured(); }
     bool		isTextureReplace() { return state.isTextureReplace(); }
     bool		isLighted() { return state.isLighted(); }
@@ -203,15 +190,8 @@ bool			OpenGLGStateState::Sorted::operator<(
 }
 
 OpenGLGStateState::Unsorted::Unsorted() :
-				hasBlending(false),
-				hasStipple(false),
-				hasSmoothing(false),
 				hasCulling(true),
-				hasShading(false),
 				hasAlphaFunc(false),
-				blendSFactor(GL_ONE),
-				blendDFactor(GL_ZERO),
-				stippleIndex(0),
 				culling(GL_BACK),
 				alphaFunc(GL_ALWAYS),
 				alphaRef(0.0f)
@@ -226,11 +206,7 @@ OpenGLGStateState::Unsorted::~Unsorted()
 
 void			OpenGLGStateState::Unsorted::reset()
 {
-  hasBlending = false;
-  hasStipple = false;
-  hasSmoothing = false;
   hasCulling = true;
-  hasShading = false;
   culling = GL_BACK;
 }
 
@@ -287,35 +263,10 @@ void			OpenGLGStateState::setMaterial(
   sorted.material = _material;
 }
 
-void			OpenGLGStateState::setBlending(
-					GLenum sFactor, GLenum dFactor)
-{
-  unsorted.hasBlending = (sFactor != GL_ONE || dFactor != GL_ZERO);
-  unsorted.blendSFactor = sFactor;
-  unsorted.blendDFactor = dFactor;
-}
-
-void			OpenGLGStateState::setStipple(float alpha)
-{
-  unsorted.stippleIndex = OpenGLGState::getStippleIndex(alpha);
-  unsorted.hasStipple =
-	(unsorted.stippleIndex < OpenGLGState::getOpaqueStippleIndex());
-}
-
-void			OpenGLGStateState::setSmoothing(bool smooth)
-{
-  unsorted.hasSmoothing = smooth;
-}
-
 void			OpenGLGStateState::setCulling(GLenum _culling)
 {
   unsorted.hasCulling = (_culling != GL_NONE);
   unsorted.culling = _culling;
-}
-
-void			OpenGLGStateState::setShading(GLenum shading)
-{
-  unsorted.hasShading = (shading != GL_FLAT);
 }
 
 void			OpenGLGStateState::setAlphaFunc(
@@ -338,24 +289,9 @@ void			OpenGLGStateState::resetOpenGLState() const
     glDisable(GL_LIGHTING);
     glDisable(GL_COLOR_MATERIAL);
   }
-  if (unsorted.hasBlending) {
-    glDisable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  }
-  if (unsorted.hasSmoothing) {
-    glDisable(GL_LINE_SMOOTH);
-    glDisable(GL_POINT_SMOOTH);
-  }
-  if (unsorted.hasStipple) {
-    glDisable(GL_LINE_STIPPLE);
-    glDisable(GL_POLYGON_STIPPLE);
-  }
   if (!unsorted.hasCulling || unsorted.culling != GL_BACK) {
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
-  }
-  if (unsorted.hasShading) {
-    glShadeModel(GL_FLAT);
   }
   if (unsorted.hasAlphaFunc) {
     glDisable(GL_ALPHA_TEST);
@@ -408,56 +344,6 @@ void			OpenGLGStateState::setOpenGLState(
       }
     }
 
-    // blending and blend function
-    if (unsorted.hasBlending) {
-      if (oldState->unsorted.hasBlending) {
-	if (unsorted.blendSFactor != oldState->unsorted.blendSFactor ||
-	    unsorted.blendDFactor != oldState->unsorted.blendDFactor)
-	  glBlendFunc(unsorted.blendSFactor, unsorted.blendDFactor);
-      }
-      else {
-	glBlendFunc(unsorted.blendSFactor, unsorted.blendDFactor);
-	glEnable(GL_BLEND);
-      }
-    }
-    else {
-      if (oldState->unsorted.hasBlending)
-	glDisable(GL_BLEND);
-    }
-
-    // antialiasing
-    if (unsorted.hasSmoothing) {
-      if (!oldState->unsorted.hasSmoothing) {
-	glEnable(GL_LINE_SMOOTH);
-	glEnable(GL_POINT_SMOOTH);
-      }
-    }
-    else {
-      if (oldState->unsorted.hasSmoothing) {
-	glDisable(GL_LINE_SMOOTH);
-	glDisable(GL_POINT_SMOOTH);
-      }
-    }
-
-    // stippling
-    if (unsorted.hasStipple) {
-      if (oldState->unsorted.hasStipple) {
-	if (unsorted.stippleIndex != oldState->unsorted.stippleIndex)
-	  OpenGLGState::setStippleIndex(unsorted.stippleIndex);
-      }
-      else {
-	OpenGLGState::setStippleIndex(unsorted.stippleIndex);
-	glEnable(GL_LINE_STIPPLE);
-	glEnable(GL_POLYGON_STIPPLE);
-      }
-    }
-    else {
-      if (oldState->unsorted.hasStipple) {
-	glDisable(GL_LINE_STIPPLE);
-	glDisable(GL_POLYGON_STIPPLE);
-      }
-    }
-
     // culling
     if (unsorted.hasCulling) {
       if (oldState->unsorted.hasCulling) {
@@ -472,16 +358,6 @@ void			OpenGLGStateState::setOpenGLState(
     else {
       if (oldState->unsorted.hasCulling)
 	glDisable(GL_CULL_FACE);
-    }
-
-    // shading
-    if (unsorted.hasShading) {
-      if (!oldState->unsorted.hasShading)
-	glShadeModel(GL_SMOOTH);
-    }
-    else {
-      if (oldState->unsorted.hasShading)
-	glShadeModel(GL_FLAT);
     }
 
     // alpha func
@@ -525,36 +401,6 @@ void			OpenGLGStateState::setOpenGLState(
       glDisable(GL_COLOR_MATERIAL);
     }
 
-    // blending and blend function
-    if (unsorted.hasBlending) {
-      glBlendFunc(unsorted.blendSFactor, unsorted.blendDFactor);
-      glEnable(GL_BLEND);
-    }
-    else {
-      glDisable(GL_BLEND);
-    }
-
-    // antialiasing
-    if (unsorted.hasSmoothing) {
-      glEnable(GL_LINE_SMOOTH);
-      glEnable(GL_POINT_SMOOTH);
-    }
-    else {
-      glDisable(GL_LINE_SMOOTH);
-      glDisable(GL_POINT_SMOOTH);
-    }
-
-    // stippling
-    if (unsorted.hasStipple) {
-      OpenGLGState::setStippleIndex(unsorted.stippleIndex);
-      glEnable(GL_LINE_STIPPLE);
-      glEnable(GL_POLYGON_STIPPLE);
-    }
-    else {
-      glDisable(GL_LINE_STIPPLE);
-      glDisable(GL_POLYGON_STIPPLE);
-    }
-
     // texture mapping
     if (unsorted.hasCulling) {
       glCullFace(unsorted.culling);
@@ -562,14 +408,6 @@ void			OpenGLGStateState::setOpenGLState(
     }
     else {
       glDisable(GL_CULL_FACE);
-    }
-
-    // shading
-    if (unsorted.hasShading) {
-      glShadeModel(GL_SMOOTH);
-    }
-    else {
-      glShadeModel(GL_FLAT);
     }
 
     // alpha function
@@ -820,21 +658,6 @@ OpenGLGState::ContextInitializer*
 //
 // OpenGLGState
 //
-
-const int NumStipples = 9;
-static const GLubyte	stipplePattern[NumStipples][4] = {
-				{ 0x00, 0x00, 0x00, 0x00 },
-				{ 0x88, 0x00, 0x22, 0x00 },
-				{ 0xaa, 0x00, 0xaa, 0x00 },
-				{ 0xaa, 0x44, 0xaa, 0x44 },
-				{ 0xaa, 0x55, 0xaa, 0x55 },
-				{ 0xea, 0x55, 0xbb, 0x55 },
-				{ 0xff, 0x55, 0xff, 0x55 },
-				{ 0xff, 0xdd, 0xff, 0x77 },
-				{ 0xff, 0xff, 0xff, 0xff },
-			};
-GLuint			OpenGLGState::stipples = 0u;
-
 OpenGLGState::OpenGLGState()
 {
   rep = new OpenGLGStateRep();
@@ -867,11 +690,6 @@ OpenGLGState&		OpenGLGState::operator=(const OpenGLGState& state)
 void			OpenGLGState::setState() const
 {
   rep->setState();
-}
-
-bool			OpenGLGState::isBlended() const
-{
-  return rep->isBlended();
 }
 
 bool			OpenGLGState::isTextured() const
@@ -909,85 +727,13 @@ void			OpenGLGState::renderLists()
   SortedGState::render();
 }
 
-void			OpenGLGState::setStipple(GLfloat alpha)
-{
-  setStippleIndex(getStippleIndex(alpha));
-}
-
-void			OpenGLGState::setStippleIndex(int index)
-{
-  glCallList(stipples + index);
-}
-
-int			OpenGLGState::getStippleIndex(float alpha)
-{
-  return (int)((float)(NumStipples - 1) * alpha + 0.5f);
-}
-
-int			OpenGLGState::getOpaqueStippleIndex()
-{
-  return NumStipples - 1;
-}
-
-void			OpenGLGState::initStipple(void*)
-{
-  stipples = glGenLists(NumStipples);
-  for (int i = 0; i < NumStipples; i++) {
-    GLubyte stipple[132];
-    GLubyte* sPtr = (GLubyte*)(((unsigned long)stipple & ~3) + 4);
-    GLushort lineStipple;
-    for (int j = 0; j < 128; j += 16) {
-      sPtr[j+0] = stipplePattern[i][0];
-      sPtr[j+1] = stipplePattern[i][0];
-      sPtr[j+2] = stipplePattern[i][0];
-      sPtr[j+3] = stipplePattern[i][0];
-      sPtr[j+4] = stipplePattern[i][1];
-      sPtr[j+5] = stipplePattern[i][1];
-      sPtr[j+6] = stipplePattern[i][1];
-      sPtr[j+7] = stipplePattern[i][1];
-      sPtr[j+8] = stipplePattern[i][2];
-      sPtr[j+9] = stipplePattern[i][2];
-      sPtr[j+10] = stipplePattern[i][2];
-      sPtr[j+11] = stipplePattern[i][2];
-      sPtr[j+12] = stipplePattern[i][3];
-      sPtr[j+13] = stipplePattern[i][3];
-      sPtr[j+14] = stipplePattern[i][3];
-      sPtr[j+15] = stipplePattern[i][3];
-    }
-    lineStipple = (GLushort)stipplePattern[i][0] +
-			(((GLushort)stipplePattern[i][0]) << 8);
-    glNewList(stipples + i, GL_COMPILE);
-      glPolygonStipple(sPtr);
-      glLineStipple(1, lineStipple);
-    glEndList();
-  }
-}
-
 void			OpenGLGState::init()
 {
   // choose texture replace enum
-#if defined(GL_EXT_texture)
-  // IMPACT, RE, RE2, and VTX known not to support GL_REPLACE_EXT.
-  // doesn't matter... they wouldn't go any faster.
-  const char* renderer = (const char*)glGetString(GL_RENDERER);
-  if (strncmp(renderer, "IMPACT", 6) != 0 &&
-      strncmp(renderer, "REC/", 4) != 0 &&
-      strncmp(renderer, "RE/", 3) != 0 &&
-      strncmp(renderer, "REV/", 2) != 0 &&
-      strstr((const char*)glGetString(GL_EXTENSIONS), "GL_EXT_texture"))
-    MY_GL_REPLACE = GL_REPLACE_EXT;
-#elif defined(GL_VERSION_1_1)
   MY_GL_REPLACE = GL_REPLACE;
-#endif
 
   // initialize GL state to what we expect
   initGLState();
-
-  // other initialization
-  initStipple();
-
-  // redo stipple init if context is recreated
-  registerContextInitializer(initStipple);
 }
 
 void			OpenGLGState::registerContextInitializer(
@@ -1036,20 +782,18 @@ void			OpenGLGState::initContext()
 void			OpenGLGState::initGLState()
 {
   // initialize GL state to what we expect
-  glDisable(GL_TEXTURE_2D);
+  glEnable(GL_TEXTURE_2D);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  glDisable(GL_LIGHTING);
-  glDisable(GL_COLOR_MATERIAL);
-  glDisable(GL_BLEND);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_COLOR_MATERIAL);
+  glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glDisable(GL_LINE_SMOOTH);
-  glDisable(GL_POINT_SMOOTH);
-  glDisable(GL_LINE_STIPPLE);
-  glDisable(GL_POLYGON_STIPPLE);
+  glEnable(GL_LINE_SMOOTH);
+  glEnable(GL_POINT_SMOOTH);
   glCullFace(GL_BACK);
   glEnable(GL_CULL_FACE);
-  glShadeModel(GL_FLAT);
-  glDisable(GL_ALPHA_TEST);
+  glShadeModel(GL_SMOOTH);
+  glEnable(GL_ALPHA_TEST);
 }
 
 //
@@ -1104,16 +848,6 @@ void			OpenGLGStateBuilder::enableMaterial(bool on)
   state->enableMaterial(on);
 }
 
-void			OpenGLGStateBuilder::resetBlending()
-{
-  state->setBlending(GL_ONE, GL_ZERO);
-}
-
-void			OpenGLGStateBuilder::resetSmoothing()
-{
-  state->setSmoothing(false);
-}
-
 void			OpenGLGStateBuilder::resetAlphaFunc()
 {
   state->setAlphaFunc(GL_ALWAYS, 0.0f);
@@ -1131,30 +865,10 @@ void			OpenGLGStateBuilder::setMaterial(
   state->setMaterial(material);
 }
 
-void			OpenGLGStateBuilder::setBlending(
-					GLenum sFactor, GLenum dFactor)
-{
-  state->setBlending(sFactor, dFactor);
-}
-
-void			OpenGLGStateBuilder::setStipple(float alpha)
-{
-  state->setStipple(alpha);
-}
-
-void			OpenGLGStateBuilder::setSmoothing(bool smooth)
-{
-  state->setSmoothing(smooth);
-}
 
 void			OpenGLGStateBuilder::setCulling(GLenum culling)
 {
   state->setCulling(culling);
-}
-
-void			OpenGLGStateBuilder::setShading(GLenum shading)
-{
-  state->setShading(shading);
 }
 
 void			OpenGLGStateBuilder::setAlphaFunc(

@@ -115,21 +115,9 @@ void			FlagSceneNode::setTexture(const int texture)
 void			FlagSceneNode::notifyStyleChange(
 				const SceneRenderer&)
 {
-  texturing = BZDBCache::texture && BZDBCache::blend;
+  texturing = BZDBCache::texture;
   OpenGLGStateBuilder builder(gstate);
   builder.enableTexture(texturing);
-  if (BZDBCache::blend && (transparent || texturing)) {
-    builder.setBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    builder.setStipple(1.0f);
-  }
-  else if (transparent) {
-    builder.resetBlending();
-    builder.setStipple(0.5f);
-  }
-  else {
-    builder.resetBlending();
-    builder.setStipple(1.0f);
-  }
   if (billboard) builder.setCulling(GL_BACK);
   else builder.setCulling(GL_NONE);
   gstate = builder.getState();
@@ -176,9 +164,6 @@ void			FlagSceneNode::FlagRenderNode::render()
     glTranslatef(sphere[0], sphere[1], sphere[2]);
 
     myColor4fv(sceneNode->color);
-    if (!BZDBCache::blend &&
-			(sceneNode->transparent || sceneNode->texturing))
-      myStipple(sceneNode->color[3]);
     if (sceneNode->billboard) {
       SceneRenderer::getInstance()->getViewFrustum().executeBillboard();
       glBegin(GL_QUAD_STRIP);
@@ -234,10 +219,8 @@ void			FlagSceneNode::FlagRenderNode::render()
       glVertex3f(0.0f, base + Height, 0.0f);
     glEnd();
     }
-    if (sceneNode->texturing) glEnable(GL_TEXTURE_2D);
-
-    if (!BZDBCache::blend && sceneNode->transparent)
-      myStipple(0.5f);
+    if (sceneNode->texturing)
+			glEnable(GL_TEXTURE_2D);
 
   glPopMatrix();
 }

@@ -35,10 +35,6 @@ void  OptionsManager::init ( void )
     options.textures[2] = BZDB.isTrue("environmentTextures");
     options.filterMode = (textureFilterModes)(textureMode - 1);
   }
-
-  options.blending = BZDB.isTrue("blend");
-  options.dither = BZDB.isTrue("dither");
-  options.smoothing = BZDB.isTrue("smooth");
   options.dethBuffer = BZDB.isTrue("zbuffer");
   options.quality  = (renderQuality)BZDB.evalInt("useQuality");
   options.shadows  = BZDB.isTrue("shadows");
@@ -52,10 +48,6 @@ void  OptionsManager::save ( void )
     textureMode = options.filterMode+1;
 
   BZDB.setInt("texture",textureMode);
-
-  BZDB.setBool("blend", options.blending );
-  BZDB.setBool("dither", options.dither );
-  BZDB.setBool("smooth", options.smoothing );
   BZDB.setBool("zbuffer", options.dethBuffer );
   BZDB.setInt("useQuality", options.quality );
   BZDB.setBool("shadows", options.shadows );
@@ -114,35 +106,6 @@ void  OptionsManager::setQuality ( renderQuality quality )
 }
 
 // GL state modes
-bool  OptionsManager::getBlending ( void )
-{
-  return options.blending;
-}
-
-void  OptionsManager::setBlending ( bool on )
-{
-  options.blending = on;
-}
-
-bool  OptionsManager::getDither ( void )
-{
-  return options.dither;
-}
-
-void  OptionsManager::setDither ( bool on )
-{
-  options.dither = on;
-}
-
-bool  OptionsManager::getSmothing ( void )
-{
-  return options.smoothing;
-}
-
-void  OptionsManager::setSmothing ( bool on )
-{
-  options.smoothing = on;
-}
 
 bool  OptionsManager::getLighting ( void )
 {
@@ -175,10 +138,7 @@ void OptionsManager::computeBestSetings ( void )
   options.textures[0] = options.textures[1] = options.textures[2] = true;
   options.filterMode = linearMipmapLinear;
   options.quality = normal;
-  options.blending = true;
-  options.dither = false;
   options.shadows = true;
-  options.smoothing = true;
   options.lighting = true;
   options.dethBuffer = true;
   options.hardware = true;

@@ -39,9 +39,6 @@ typedef struct
   bool                textures[3];
   textureFilterModes  filterMode;
   renderQuality       quality;
-  bool                blending;
-  bool                dither;
-  bool                smoothing;
   bool                shadows;
   bool                lighting;
   bool                dethBuffer;
@@ -74,12 +71,6 @@ public:
   void  setQuality ( renderQuality quality );
 
   // GL state modes
-  bool  getBlending ( void );
-  void  setBlending ( bool on );
-
-  bool  getDither ( void );
-  void  setDither ( bool on );
-
   bool  getSmothing ( void );
   void  setSmothing ( bool on );
 

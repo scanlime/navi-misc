@@ -1063,7 +1063,6 @@ void			HUDRenderer::renderBox(SceneRenderer&)
   FontManager &fm = FontManager::instance();
 
   OpenGLGState::resetState();
-  const bool smooth = BZDB.isTrue("smooth");
 
   // draw targeting box
   hudColor3fv(hudColor);
@@ -1112,16 +1111,10 @@ void			HUDRenderer::renderBox(SceneRenderer&)
 
     // draw tick marks
     glPushMatrix();
-    if (smooth) {
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      glEnable(GL_LINE_SMOOTH);
-      glEnable(GL_BLEND);
-    }
     GLfloat basex = maxMotionSize * (heading - 10.0f * float(minMark)) /
 								headingOffset;
-    if (!smooth) basex = floorf(basex);
     glTranslatef((float)centerx - basex, (float)(centery + maxMotionSize), 0.0f);
-    x = smooth ? 0.0f : -0.5f;
+    x = 0.0f;
     glBegin(GL_LINES);
     for (i = minMark; i <= maxMark; i++) {
       glVertex2i((int)x, 0);
@@ -1134,33 +1127,25 @@ void			HUDRenderer::renderBox(SceneRenderer&)
     glEnd();
 
     // back to our regular rendering mode
-    if (smooth) {
-      glDisable(GL_LINE_SMOOTH);
-      glDisable(GL_BLEND);
-    }
     glPopMatrix();
 
-    bool smoothLabel = smooth;
     x = (float)centerx - basex;
     y = 7.0f + (float)(centery + maxMotionSize);
-    if (smoothLabel) {
-      x -= 0.5f;
-      hudColor4f(hudColor[0], hudColor[1], hudColor[2], basex - floorf(basex));
-    }
+    x -= 0.5f;
+    hudColor4f(hudColor[0], hudColor[1], hudColor[2], basex - floorf(basex));
     for (i = minMark; i <= maxMark; i++) {
       fm.drawString(x - headingLabelWidth[(i + 36) % 36], y, 0, headingFontFace,
 		    headingFontSize, headingLabel[(i + 36) % 36]);
       x += 2.0f * headingMarkSpacing;
     }
-    if (smoothLabel) {
-      x = (float)centerx - basex + 0.5f;
-      basex -= floorf(basex);
-      hudColor4f(hudColor[0], hudColor[1], hudColor[2], 1.0f - basex);
-      for (i = minMark; i <= maxMark; i++) {
-      fm.drawString(x - headingLabelWidth[(i + 36) % 36], y, 0, headingFontFace,
-		    headingFontSize, headingLabel[(i + 36) % 36]);
-	x += 2.0f * headingMarkSpacing;
-      }
+
+		x = (float)centerx - basex + 0.5f;
+		basex -= floorf(basex);
+		hudColor4f(hudColor[0], hudColor[1], hudColor[2], 1.0f - basex);
+		for (i = minMark; i <= maxMark; i++)
+		{
+			fm.drawString(x - headingLabelWidth[(i + 36) % 36], y, 0, headingFontFace, headingFontSize, headingLabel[(i + 36) % 36]);
+			x += 2.0f * headingMarkSpacing;
     }
     OpenGLGState::resetState();
 
@@ -1225,16 +1210,11 @@ void			HUDRenderer::renderBox(SceneRenderer&)
 
     // draw tick marks
     glPushMatrix();
-    if (smooth) {
-      glEnable(GL_LINE_SMOOTH);
-      glEnable(GL_BLEND);
-    }
-    GLfloat basey = maxMotionSize * (altitude - 5.0f * float(minMark)) /
-								altitudeOffset;
-    if (!smooth) basey = floorf(basey);
-    glTranslatef((float)(centerx + maxMotionSize),
+    GLfloat basey = maxMotionSize * (altitude - 5.0f * float(minMark)) / altitudeOffset;
+
+		glTranslatef((float)(centerx + maxMotionSize),
 				(float)centery - basey, 0.0f);
-    y = smooth ? 0.0f : -0.5f;
+    y = 0.0f;
     glBegin(GL_LINES);
     for (i = minMark; i <= maxMark; i++) {
       glVertex2i(0, (int)y);
@@ -1244,32 +1224,27 @@ void			HUDRenderer::renderBox(SceneRenderer&)
     glEnd();
 
     // back to our regular rendering mode
-    if (smooth) {
-      glDisable(GL_LINE_SMOOTH);
-      glDisable(GL_BLEND);
-    }
     glPopMatrix();
 
-    bool smoothLabel = smooth;
     x = (float)(10 + centerx + maxMotionSize);
     y = (float)centery - basey + floorf(fm.getStrHeight(headingFontFace, headingFontSize, "0") / 2);
-    if (smoothLabel) {
-      y -= 0.5f;
-      hudColor4f(hudColor[0], hudColor[1], hudColor[2], basey - floorf(basey));
-    }
-    for (i = minMark; i <= maxMark; i++) {
+    y -= 0.5f;
+    hudColor4f(hudColor[0], hudColor[1], hudColor[2], basey - floorf(basey));
+
+    for (i = minMark; i <= maxMark; i++)
+		{
       fm.drawString(x, y, 0, headingFontFace, headingFontSize, altitudeLabel[i]);
       y += altitudeMarkSpacing;
     }
-    if (smoothLabel) {
-      y = (float)centery - basey + floorf(fm.getStrHeight(headingFontFace, headingFontSize, "0") / 2);
-      y += 0.5f;
-      basey -= floorf(basey);
-      hudColor4f(hudColor[0], hudColor[1], hudColor[2], 1.0f - basey);
-      for (i = minMark; i <= maxMark; i++) {
-        fm.drawString(x, y, 0, headingFontFace, headingFontSize, altitudeLabel[i]);
-	y += altitudeMarkSpacing;
-      }
+
+    y = (float)centery - basey + floorf(fm.getStrHeight(headingFontFace, headingFontSize, "0") / 2);
+    y += 0.5f;
+    basey -= floorf(basey);
+    hudColor4f(hudColor[0], hudColor[1], hudColor[2], 1.0f - basey);
+    for (i = minMark; i <= maxMark; i++)
+		{
+      fm.drawString(x, y, 0, headingFontFace, headingFontSize, altitudeLabel[i]);
+			y += altitudeMarkSpacing;
     }
   }
 }

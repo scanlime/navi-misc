@@ -52,36 +52,6 @@ DisplayMenu::DisplayMenu() : formatMenu(NULL)
 
   option = new HUDuiList;
   option->setFontFace(fontFace);
-  option->setLabel("Dithering:");
-  option->setCallback(callback, (void*)"1");
-  options = &option->getList();
-  options->push_back(std::string("Off"));
-  options->push_back(std::string("On"));
-  option->update();
-  list.push_back(option);
-
-  option = new HUDuiList;
-  option->setFontFace(fontFace);
-  option->setLabel("Blending:");
-  option->setCallback(callback, (void*)"2");
-  options = &option->getList();
-  options->push_back(std::string("Off"));
-  options->push_back(std::string("On"));
-  option->update();
-  list.push_back(option);
-
-  option = new HUDuiList;
-  option->setFontFace(fontFace);
-  option->setLabel("Smoothing:");
-  option->setCallback(callback, (void*)"3");
-  options = &option->getList();
-  options->push_back(std::string("Off"));
-  options->push_back(std::string("On"));
-  option->update();
-  list.push_back(option);
-
-  option = new HUDuiList;
-  option->setFontFace(fontFace);
   option->setLabel("Lighting:");
   option->setCallback(callback, (void*)"4");
   options = &option->getList();
@@ -255,9 +225,6 @@ void			DisplayMenu::resize(int width, int height)
   SceneRenderer* renderer = getSceneRenderer();
   if (renderer) {
     HUDuiList* tex;
-    ((HUDuiList*)list[i++])->setIndex(BZDB.isTrue("dither"));
-    ((HUDuiList*)list[i++])->setIndex(BZDBCache::blend);
-    ((HUDuiList*)list[i++])->setIndex(BZDB.isTrue("smooth"));
     ((HUDuiList*)list[i++])->setIndex(BZDB.isTrue("lighting"));
     tex = (HUDuiList*)list[i++];
     ((HUDuiList*)list[i++])->setIndex(renderer->useQuality());
@@ -298,18 +265,6 @@ void			DisplayMenu::callback(HUDuiControl* w, void* data) {
   HUDuiList* list = (HUDuiList*)w;
   SceneRenderer* sceneRenderer = getSceneRenderer();
   switch (((const char*)data)[0]) {
-  case '1':
-    BZDB.set("dither", list->getIndex() ? "1" : "0");
-    sceneRenderer->notifyStyleChange();
-    break;
-  case '2':
-    BZDB.set("blend", list->getIndex() ? "1" : "0");
-    sceneRenderer->notifyStyleChange();
-    break;
-  case '3':
-    BZDB.set("smooth", list->getIndex() ? "1" : "0");
-    sceneRenderer->notifyStyleChange();
-    break;
   case '4':
     BZDB.set("lighting", list->getIndex() ? "1" : "0");
     BZDB.set("_texturereplace", (!BZDB.isTrue("lighting") &&

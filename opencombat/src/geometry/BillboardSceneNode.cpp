@@ -33,7 +33,6 @@ BillboardSceneNode::BillboardSceneNode(const GLfloat pos[3]) :
 				renderNode(this)
 {
   OpenGLGStateBuilder builder(gstate);
-  builder.setBlending();
   builder.setAlphaFunc();
   builder.enableTextureReplace();
   gstate = builder.getState();
@@ -273,20 +272,6 @@ void			BillboardSceneNode::addLight(
 void			BillboardSceneNode::notifyStyleChange(
 				const SceneRenderer&)
 {
-  show = hasTexture && BZDBCache::texture &&
-	(!hasAlpha || BZDBCache::blend);
-  if (show) {
-    OpenGLGStateBuilder builder(gstate);
-    if (hasAlpha) {
-      builder.setBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      builder.setAlphaFunc();
-    }
-    else {
-      builder.resetBlending();
-      builder.resetAlphaFunc();
-    }
-    gstate = builder.getState();
-  }
 }
 
 void			BillboardSceneNode::addRenderNodes(

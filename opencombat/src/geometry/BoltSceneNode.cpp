@@ -28,8 +28,6 @@ BoltSceneNode::BoltSceneNode(const GLfloat pos[3]) :
 				renderNode(this)
 {
   OpenGLGStateBuilder builder(gstate);
-  builder.setBlending();
-  builder.setAlphaFunc();
   builder.enableTextureReplace();
   gstate = builder.getState();
 
@@ -124,23 +122,6 @@ void			BoltSceneNode::addLight(
 void			BoltSceneNode::notifyStyleChange(
 				const SceneRenderer&)
 {
-  texturing = BZDBCache::texture && BZDBCache::blend;
-  OpenGLGStateBuilder builder(gstate);
-  builder.enableTexture(texturing);
-  if (BZDBCache::blend) {
-    builder.setBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    builder.setStipple(1.0f);
-    builder.setAlphaFunc();
-    if (!texturing) builder.setShading(GL_SMOOTH);
-    else builder.setShading(GL_FLAT);
-  }
-  else {
-    builder.resetBlending();
-    builder.resetAlphaFunc();
-    builder.setStipple(0.5f);
-    builder.setShading(GL_FLAT);
-  }
-  gstate = builder.getState();
 }
 
 void			BoltSceneNode::addRenderNodes(
@@ -277,7 +258,6 @@ void			BoltSceneNode::BoltRenderNode::render()
 
       if (sceneNode->texturing) glDisable(GL_TEXTURE_2D);
       myColor4fv(flareColor);
-      if (!BZDBCache::blend) myStipple(flareColor[3]);
       glBegin(GL_QUADS);
       for (int i = 0; i < numFlares; i++) {
 	// pick random direction in 3-space.  picking a random theta with
@@ -297,123 +277,18 @@ void			BoltSceneNode::BoltRenderNode::render()
       if (sceneNode->texturing) glEnable(GL_TEXTURE_2D);
     }
 
-    if (sceneNode->texturing) {
-      // draw billboard square
-      myColor4fv(textureColor); // 1.0f all
-      glBegin(GL_QUADS);
-      glTexCoord2f(   u0,    v0);
-      glVertex2f  (-1.0f, -1.0f);
-      glTexCoord2f(du+u0,    v0);
-      glVertex2f  ( 1.0f, -1.0f);
-      glTexCoord2f(du+u0, dv+v0);
-      glVertex2f  ( 1.0f,  1.0f);
-      glTexCoord2f(   u0, dv+v0);
-      glVertex2f  (-1.0f,  1.0f);
-      glEnd();
-    }
-
-    else if (BZDBCache::blend) {
-      // draw corona
-      glBegin(GL_QUAD_STRIP);
-      myColor4fv(mainColor);
-      glVertex2fv(core[1]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[0]);
-      myColor4fv(mainColor);
-      glVertex2fv(core[2]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[1]);
-      myColor4fv(mainColor);
-      glVertex2fv(core[3]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[2]);
-      myColor4fv(mainColor);
-      glVertex2fv(core[4]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[3]);
-      myColor4fv(mainColor);
-      glVertex2fv(core[5]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[4]);
-      myColor4fv(mainColor);
-      glVertex2fv(core[6]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[5]);
-      myColor4fv(mainColor);
-      glVertex2fv(core[7]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[6]);
-      myColor4fv(mainColor);
-      glVertex2fv(core[8]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[7]);
-      myColor4fv(mainColor);
-      glVertex2fv(core[1]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[0]);
-      glEnd();
-
-      // draw core
-      glBegin(GL_TRIANGLE_FAN);
-      myColor4fv(innerColor);
-      glVertex2fv(core[0]);
-      myColor4fv(mainColor);
-      glVertex2fv(core[1]);
-      glVertex2fv(core[2]);
-      glVertex2fv(core[3]);
-      glVertex2fv(core[4]);
-      glVertex2fv(core[5]);
-      glVertex2fv(core[6]);
-      glVertex2fv(core[7]);
-      glVertex2fv(core[8]);
-      glVertex2fv(core[1]);
-      glEnd();
-    }
-
-    else {
-      // draw corona
-      myColor4fv(coronaColor);
-      myStipple(coronaColor[3]);
-      glBegin(GL_QUAD_STRIP);
-      glVertex2fv(core[1]);
-      glVertex2fv(corona[0]);
-      glVertex2fv(core[2]);
-      glVertex2fv(corona[1]);
-      glVertex2fv(core[3]);
-      glVertex2fv(corona[2]);
-      glVertex2fv(core[4]);
-      glVertex2fv(corona[3]);
-      glVertex2fv(core[5]);
-      glVertex2fv(corona[4]);
-      glVertex2fv(core[6]);
-      glVertex2fv(corona[5]);
-      glVertex2fv(core[7]);
-      glVertex2fv(corona[6]);
-      glVertex2fv(core[8]);
-      glVertex2fv(corona[7]);
-      glVertex2fv(core[1]);
-      glVertex2fv(corona[0]);
-      glEnd();
-
-      // draw core
-      myStipple(1.0f);
-      glBegin(GL_TRIANGLE_FAN);
-      myColor4fv(innerColor);
-      glVertex2fv(core[0]);
-      myColor4fv(mainColor);
-      glVertex2fv(core[1]);
-      glVertex2fv(core[2]);
-      glVertex2fv(core[3]);
-      glVertex2fv(core[4]);
-      glVertex2fv(core[5]);
-      glVertex2fv(core[6]);
-      glVertex2fv(core[7]);
-      glVertex2fv(core[8]);
-      glVertex2fv(core[1]);
-      glEnd();
-
-      myStipple(0.5f);
-    }
+		// draw billboard square
+		myColor4fv(textureColor); // 1.0f all
+		glBegin(GL_QUADS);
+			glTexCoord2f(   u0,    v0);
+			glVertex2f  (-1.0f, -1.0f);
+			glTexCoord2f(du+u0,    v0);
+			glVertex2f  ( 1.0f, -1.0f);
+			glTexCoord2f(du+u0, dv+v0);
+			glVertex2f  ( 1.0f,  1.0f);
+			glTexCoord2f(   u0, dv+v0);
+			glVertex2f  (-1.0f,  1.0f);
+		glEnd();
 
   glPopMatrix();
 

@@ -130,15 +130,11 @@ void			ControlPanel::render(SceneRenderer& renderer)
   OpenGLGState::resetState();
   if (renderer.getPanelOpacity() > 0.0f) {
     // nice blended messages background
-    if (BZDBCache::blend && renderer.getPanelOpacity() < 1.0f)
-      glEnable(GL_BLEND);
     glColor4f(0.0f, 0.0f, 0.0f, renderer.getPanelOpacity());
     glRecti(messageAreaPixels[0],
     messageAreaPixels[1],
     messageAreaPixels[0] + messageAreaPixels[2],
     messageAreaPixels[1] + messageAreaPixels[3]);
-    if (BZDBCache::blend && renderer.getPanelOpacity() < 1.0f)
-      glDisable(GL_BLEND);
   }
 
   // draw messages

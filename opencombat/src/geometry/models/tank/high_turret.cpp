@@ -16,7 +16,6 @@
 
 void buildHighTurret ( void )
 {
-    glShadeModel(GL_FLAT);
     glBegin(GL_TRIANGLE_STRIP);
       doNormal3f(0.005904f, 0.999963f, 0.006290f);
       glTexCoord2f(0.999f, 0.075f);
@@ -136,7 +135,6 @@ void buildHighTurret ( void )
       glTexCoord2f(0.760f, -0.122f);
       doVertex3f(0.108f, 0.757f, 2.080f);
     glEnd();
-    glShadeModel(GL_SMOOTH);
     glBegin(GL_TRIANGLE_STRIP);
       doNormal3f(-0.542880f, -0.839586f, 0.019418f);
       glTexCoord2f(0.766f, 0.326f);

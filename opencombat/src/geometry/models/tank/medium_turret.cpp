@@ -16,7 +16,6 @@
 
 void buildMedTurret ( void )
 {
-      glShadeModel(GL_FLAT);
       glBegin(GL_TRIANGLE_STRIP);
 	doNormal3f(-0.235964f, 0.967658f, 0.089216f);
 	glTexCoord2f(0.812f, -0.134f);
@@ -55,7 +54,6 @@ void buildMedTurret ( void )
 	glTexCoord2f(0.812f, -0.134f);
 	doVertex3f(0.007f, 1.110f, 1.940f);
       glEnd();
-      glShadeModel(GL_SMOOTH);
       glBegin(GL_TRIANGLE_FAN);
 	doNormal3f(0.149229f, -0.988713f, 0.013310f);
 	glTexCoord2f(0.458f, 0.244f);
