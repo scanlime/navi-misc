@@ -28,8 +28,8 @@ public class aimconfig implements ActionListener
 	public aimconfig(admin my)
 	{
 		admin.help.setText("Please enter the hostname and port that the web updater is running on");
-		host = new TextField("AIM bot hostname",40);
-		port = new TextField("port",6);
+		host = new TextField("localhost",40);
+		port = new TextField("8082",6);
 		submit = new Button("Submit");
 		myadmin = my;
 		myadmin.ad(host);

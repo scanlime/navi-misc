@@ -29,9 +29,9 @@ public class webconfig implements ActionListener
 	public webconfig(admin my)
 	{
 		admin.help.setText("Please enter the hostname and port that the web updater is running on");
-		host = new TextField("Web bot hostname",40);
-		port = new TextField("port",6);
-		filename = new TextField("The filename for the web update thing");
+		host = new TextField("localhost",40);
+		port = new TextField("8081",6);
+		filename = new TextField("/home/httpd/htdocs/mice/index.html");
 		submit = new Button("Submit");
 		myadmin = my;
 		myadmin.ad(host);
