@@ -395,6 +395,8 @@ static void on_cluster_add_host(GtkWidget *widget, gpointer user_data)
     cluster_node_enable(self, &iter);
 
     gtk_entry_set_text(GTK_ENTRY(glade_xml_get_widget(self->xml, "cluster_hostname")), "");
+    explorer_set_port(self, FYRE_DEFAULT_PORT);
+    gtk_widget_grab_focus(glade_xml_get_widget(self->xml, "cluster_hostname"));
 }
 
 static void on_cluster_remove_host(GtkWidget *widget, gpointer user_data)

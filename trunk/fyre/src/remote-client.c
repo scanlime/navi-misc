@@ -396,7 +396,6 @@ static void    histogram_merge_callback       (RemoteClient*     self,
 	 * FIXME: This doesn't distinguish between parameters that
 	 *        actaully affect calculation and those that don't.
 	 */
-	printf("Ignoring %d bytes of data rendered with old parameters\n", response->data_length);
 	return;
     }
 
