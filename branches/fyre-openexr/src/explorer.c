@@ -250,7 +250,7 @@ static void on_save_exr(GtkWidget *widget, gpointer user_data) {
   if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
     const gchar *filename;
     filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
-    exr_write_histogram(HISTOGRAM_IMAGER(self->map), filename);
+    exr_save_image_file(HISTOGRAM_IMAGER(self->map), filename);
   }
   gtk_widget_destroy(dialog);
 }

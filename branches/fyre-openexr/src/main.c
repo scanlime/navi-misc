@@ -28,6 +28,7 @@
 
 #include <gtk/gtk.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <getopt.h>
 #include "de-jong.h"
@@ -262,8 +263,15 @@ static void image_render_main (DeJong     *dejong,
 	   ((int)remaining) / (60*60), (((int)remaining) / 60) % 60, ((int)remaining)%60);
   }
 
-  printf("Creating image...\n");
-  histogram_imager_save_image_file(HISTOGRAM_IMAGER(dejong), filename);
+  /* Save as an OpenEXR file if it has a .exr extension, otherwise use PNG */
+  if (strlen(filename) > 4 && strcmp(".exr", filename + strlen(filename) - 4)==0) {
+    printf("Creating OpenEXR image...\n");
+    exr_save_image_file(HISTOGRAM_IMAGER(dejong), filename);
+  }
+  else {
+    printf("Creating PNG image...\n");
+    histogram_imager_save_image_file(HISTOGRAM_IMAGER(dejong), filename);
+  }
 }
 
 static void animation_render_main (DeJong      *dejong,

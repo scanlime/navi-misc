@@ -121,11 +121,12 @@ void             histogram_imager_load_image_file (HistogramImager *self,
 						   const gchar     *filename);
 void             histogram_imager_save_image_file (HistogramImager *self,
 						   const gchar     *filename);
+void             exr_save_image_file              (HistogramImager *hi,
+						   const gchar     *filename);
 
 void             histogram_imager_get_hist_size   (HistogramImager *self,
 						   int             *hist_width,
 						   int             *hist_height);
-gulong           histogram_imager_get_max_usable_density (HistogramImager *self);
 
 void             histogram_imager_clear           (HistogramImager *self);
 gdouble          histogram_imager_get_elapsed_time (HistogramImager *self);
@@ -159,7 +160,6 @@ void             histogram_imager_finish_plots    (HistogramImager *self,
 /************************************************************************************/
 
 float histogram_imager_get_pixel_scale(HistogramImager *self);
-void exr_write_histogram (HistogramImager *hi, const char* filename);
 
 
 G_END_DECLS
