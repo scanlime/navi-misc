@@ -21,43 +21,32 @@
  */
 
 #include <stdio.h>
+
 #include <uart_driver.h>
 #include <tusb.h>
+#include <util.h>
+
 #include <unicone.h>
+#include "hardware.h"
 
 static bit config_in_progress;
 static long bytes_configured;
 
 static void      fpga_config_write_byte(unsigned char c);
 static void      fpga_init();
-static void      fpga_program_on();
-static void      fpga_program_off();
 
 
 /**************************************************************************/
 /********************************************** Low-level configuration ***/
 /**************************************************************************/
 
-#define CCLK P3_0
-#define DIN  P3_2
-
-/* The PROGRAM pin is connected to RTS on our serial port */
-static void fpga_program_on()
-{
-  MCR |= MCR_RTS;
-}
-
-static void fpga_program_off()
-{
-  MCR &= ~MCR_RTS;
-}
-
 static void fpga_init()
 {
-  DIN = 0;
-  CCLK = 0;
-  fpga_program_on();
+  fpga_din_off();
+  fpga_cclk_off();
   fpga_program_off();
+  delay(1000);
+  fpga_program_on();
 }
 
 static void fpga_config_write_byte(unsigned char c)
@@ -66,10 +55,15 @@ static void fpga_config_write_byte(unsigned char c)
 
   /* Clock out bits left-to-right */
   for (i=8; i; i--) {
-    DIN = (c & 0x80) ? 1 : 0;
+    if (c & 0x80)
+      fpga_din_on();
+    else
+      fpga_din_off();
     c <<= 1;
-    CCLK = 1;
-    CCLK = 0;
+    watchdog_reset();
+    fpga_cclk_on();
+    watchdog_reset();
+    fpga_cclk_off();
   }
 }
 
@@ -114,7 +108,7 @@ unsigned char fpga_config_end()
 {
   config_in_progress = 0;
 
-  /* Clock out a few more bits just to make sure the FPGA is in a sane state */
+  /* Give it a few more CCLKs after the bitstream to release user I/Os */
   fpga_config_write_byte(0x00);
 
   printf("\nDone, wrote %ld bytes\n\n", bytes_configured);

@@ -58,11 +58,6 @@ void main()
     watchdog_reset();
     usb_poll();
 
-    /* Use the LED brightness as a rough indicator of CPU activity */
-    led_off();
-    delay(100);
-    led_on();
-
     /* If we have data on EP1 OUT, configure the FPGA with it and look for more */
     c = usb_dma_status(EDB_OEP1);
     if (c) {

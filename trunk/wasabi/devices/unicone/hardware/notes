@@ -10,13 +10,13 @@ TUSB3410 (Keyspan HS-19US, firmware removed):
  I2C Data   (5) - Configuration EEPROM SDA
  GPIO P3.0  (6) - FPGA 'CCLK' (pin 73)
  GPIO P3.1  (7) - RS-232 driver power
- GPIO P3.3  (8) - FPGA 'DIN' (pin 71)
- GPIO P3.4  (9) -
+ GPIO P3.3  (8) - (used by the Keyspan HS-19US for an unknown purpose?)
+ GPIO P3.4  (9) - (used by the Keyspan HS-19US for an unknown purpose?)
 
  RS-232 DCD (1) -
  RS-232 RxD (2) -
  RS-232 TxD (3) - Debugging serial port, TxD (3)
- RS-232 DTR (4) - White status LED, via 330 ohm resistor
+ RS-232 DTR (4) - FPGA 'DIN' (pin 71), via 1k resistor
  RS-232 DSR (6) -
  RS-232 RTS (7) - FPGA 'PROGRAM' (pin 55), via 1k resistor
  RS-232 CTS (8) - FPGA 'DONE' (pin 53)
