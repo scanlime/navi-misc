@@ -560,6 +560,8 @@ def backup(paths, burner):
     # Burn the DVD. If that worked, archive the catalog
     burner.burn(pathMap)
     cat.archive()
+    print "\nFinished burning and archiving."
+    print "Please label this disc: %r" % cat.name
 
 
 class CatalogVerifier:
