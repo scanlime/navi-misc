@@ -47,7 +47,6 @@ class ActivitySection(Template.Section):
         IF(M_ICON.name IS NOT NULL, M_ICON.name, M_PHOTO.name),
         STAT.%(counter_attrib)s
     FROM stats_catalog T
-        LEFT OUTER JOIN stats_catalog  CHILD       ON (CHILD.parent_path = T.target_path)
         LEFT OUTER JOIN stats_metadata M_TITLE     ON (T.target_path = M_TITLE.target_path     AND M_TITLE.name     = 'title')
         LEFT OUTER JOIN stats_metadata M_PHOTO     ON (T.target_path = M_PHOTO.target_path     AND M_PHOTO.name     = 'photo')
         LEFT OUTER JOIN stats_metadata M_ICON      ON (T.target_path = M_ICON.target_path      AND M_ICON.name      = 'icon')
