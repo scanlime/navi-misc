@@ -28,6 +28,17 @@ import Nouvelle
 import time
 
 
+class Component(Server.Component):
+    """A server component for the IRC bot status section"""
+    name = 'IRC Bots'
+
+    def __init__(self, botNet):
+        self.resource = IRCBotPage(botNet)
+
+    def __contains__(self, page):
+        return isinstance(page, IRCBotPage)
+
+
 class TotalsSection(Template.Section):
     """A Section that displays fun-filled facts about our BotNetwork"""
     def __init__(self, botNet):
