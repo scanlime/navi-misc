@@ -26,7 +26,16 @@ import os
 
 
 class StatsPage(page.Page):
+    """A Woven view representing one stats:// path"""
+
     templateFile = "stats_browser.xhtml"
     templateDirectory = os.path.split(os.path.abspath(__file__))[0]
+
+    def initialize(self, caps, storage, path='/'):
+        self.caps = caps
+        self.storage = storage
+        self.path = path
+
+
 
 ### The End ###
