@@ -40,6 +40,18 @@
 #include <linux/input.h>
 #include "inputpipe.h"
 
+/* Linux 2.4 compatibility */
+#ifndef EV_SYN
+#define EV_SYN 0
+struct input_absinfo {
+  __s32 value;
+  __s32 minimum;
+  __s32 maximum;
+  __s32 fuzz;
+  __s32 flat;
+};                                        
+#endif
+
 struct buffer {
   unsigned char data[4096];
   int remaining;
