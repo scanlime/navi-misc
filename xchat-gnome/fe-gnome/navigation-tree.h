@@ -1,5 +1,5 @@
 /*
- * navtree.h - functions to create and maintain the navigation tree
+ * navigation-tree.h - functions to create and maintain the navigation tree
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *

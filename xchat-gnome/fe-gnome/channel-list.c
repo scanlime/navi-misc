@@ -1,5 +1,5 @@
 /*
- * channel_list.c - channel list
+ * channel-list.c - channel list
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -20,7 +20,7 @@
  */
 
 #include <gnome.h>
-#include "channel_list.h"
+#include "channel-list.h"
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
 

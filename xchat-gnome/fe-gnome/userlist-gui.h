@@ -1,5 +1,5 @@
 /*
- * main_window.h - main GUI window functions
+ * userlist-gui.h - helpers for the userlist view
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -20,13 +20,11 @@
  */
 
 #include "gui.h"
+#include "textgui.h"
 
-#ifndef XCHAT_GNOME_MAIN_WINDOW_H
-#define XCHAT_GNOME_MAIN_WINDOW_H
+#ifndef XCHAT_GNOME_USERLIST_GUI_H
+#define XCHAT_GNOME_USERLIST_GUI_H
 
-void initialize_main_window ();
-void run_main_window ();
-void rename_main_window (gchar *server, gchar *channel);
-void set_statusbar ();
+void initialize_userlist ();
 
 #endif

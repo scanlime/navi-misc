@@ -1,5 +1,5 @@
 /*
- * userlist_gui.c - helpers for the userlist view
+ * userlist-gui.c - helpers for the userlist view
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -20,7 +20,7 @@
  */
 
 #include <gnome.h>
-#include "userlist_gui.h"
+#include "userlist-gui.h"
 #include "pixmaps.h"
 #include "textgui.h"
 #include "palette.h"

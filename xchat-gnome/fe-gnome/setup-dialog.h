@@ -1,5 +1,5 @@
 /*
- * preferences_plugins_page.h - helpers for the plugins preferences page
+ * setup-dialog.h - Initial setup dialog for first-time users
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -19,18 +19,9 @@
  *
  */
 
-#include "gui.h"
+#ifndef XCHAT_GNOME_SETUP_DIALOG_H
+#define XCHAT_GNOME_SETUP_DIALOG_H
 
-#ifndef XCHAT_GNOME_PREFERENCES_PLUGINS_PAGE_H
-#define XCHAT_GNOME_PREFERENCES_PLUGINS_PAGE_H
+void run_setup_dialog ();
 
-void initialize_preferences_plugins_page ();
-void preferences_plugins_page_update ();
-/* This is a small helper function to autoload the plugins we had enabled
- * last session. We put this here instead of just doing from the initialize
- * function so that we can load the plugins after the window is created. It
- * seems to me that's the kind of behaviour you'd expect (having the windows
- * of the plugins show up after the main window, not before).
- */
-void autoload_plugins ();
 #endif

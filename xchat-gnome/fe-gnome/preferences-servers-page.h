@@ -1,5 +1,5 @@
 /*
- * preferences_colors_page.h - helpers for the colors preferences page
+ * preferences-servers-page.h - helpers for the servers preferences page
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -21,9 +21,10 @@
 
 #include "gui.h"
 
-#ifndef XCHAT_GNOME_PREFERENCES_COLORS_PAGE_H
-#define XCHAT_GNOME_PREFERENCES_COLORS_PAGE_H
+#ifndef XCHAT_GNOME_PREFERENCES_SERVERS_PAGE_H
+#define XCHAT_GNOME_PREFERENCES_SERVERS_PAGE_H
 
-void initialize_preferences_colors_page ();
+void initialize_preferences_servers_page ();
+void preferences_servers_page_populate ();
 
 #endif

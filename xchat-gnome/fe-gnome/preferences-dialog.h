@@ -1,5 +1,5 @@
 /*
- * preferences_plugins_page.h - helpers for the plugins preferences page
+ * preferences-dialog.h - helpers for the preference dialog
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -21,10 +21,9 @@
 
 #include "gui.h"
 
-#ifndef XCHAT_GNOME_PREFERENCES_KEYBINDINGS_PAGE_H
-#define XCHAT_GNOME_PREFERENCES_KEYBINDINGS_PAGE_H
+#ifndef XCHAT_GNOME_PREFERENCES_DIALOG_H
+#define XCHAT_GNOME_PREFERENCES_DIALOG_H
 
-void initialize_preferences_keybindings_page ();
-void preferences_plugins_keybindings_update ();
+void initialize_preferences_dialog ();
 
 #endif

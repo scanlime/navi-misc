@@ -40,10 +40,10 @@ EXTRA_DIST =					\
 	BUGS					\
 	about.h					\
 	about.c					\
-	channel_list.h				\
-	channel_list.c				\
-	connect_dialog.h			\
-	connect_dialog.c			\
+	channel-list.h				\
+	channel-list.c				\
+	connect-dialog.h			\
+	connect-dialog.c			\
 	eggaccelerators.c			\
 	eggaccelerators.h			\
 	eggcellrendererkeys.c			\
@@ -55,38 +55,38 @@ EXTRA_DIST =					\
 	irc-network-editor.h			\
 	gui.h					\
 	gui.c					\
-	main_window.h				\
-	main_window.c				\
-	navigation_tree.h			\
-	navigation_tree.c			\
+	main-window.h				\
+	main-window.c				\
+	navigation-tree.h			\
+	navigation-tree.c			\
 	palette.h				\
 	palette.c				\
 	pixmaps.h				\
 	pixmaps.c				\
 	preferences.h				\
 	preferences.c				\
-	preferences_colors_page.h		\
-	preferences_colors_page.c		\
-	preferences_dialog.h			\
-	preferences_dialog.c			\
-	preferences_irc_page.h			\
-	preferences_irc_page.c			\
-	preferences_plugins_page.h		\
-	preferences_plugins_page.c		\
-	preferences_keybindings_page.c		\
-	preferences_keybindings_page.h		\
-	preferences_servers_page.h		\
-	preferences_servers_page.c		\
-	setup_dialog.h				\
-	setup_dialog.c				\
+	preferences-colors-page.h		\
+	preferences-colors-page.c		\
+	preferences-dialog.h			\
+	preferences-dialog.c			\
+	preferences-irc-page.h			\
+	preferences-irc-page.c			\
+	preferences-keybindings-page.c		\
+	preferences-keybindings-page.h		\
+	preferences-plugins-page.h		\
+	preferences-plugins-page.c		\
+	preferences-servers-page.h		\
+	preferences-servers-page.c		\
+	setup-dialog.h				\
+	setup-dialog.c				\
 	textgui.h				\
 	textgui.c				\
 	transfers.h				\
 	transfers.c				\
 	userlist.h				\
 	userlist.c				\
-	userlist_gui.h				\
-	userlist_gui.c				\
+	userlist-gui.h				\
+	userlist-gui.c				\
 	util.h					\
 	util.c					\
 	$(xchat_gnome_DATA)			\
@@ -97,10 +97,10 @@ xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
 xchat_gnome_SOURCES =				\
 	about.h					\
 	about.c					\
-	channel_list.h				\
-	channel_list.c				\
-	connect_dialog.h			\
-	connect_dialog.c			\
+	channel-list.h				\
+	channel-list.c				\
+	connect-dialog.h			\
+	connect-dialog.c			\
 	eggaccelerators.c			\
 	eggaccelerators.h			\
 	eggcellrendererkeys.c			\
@@ -112,39 +112,39 @@ xchat_gnome_SOURCES =				\
 	irc-network-editor.h			\
 	gui.h					\
 	gui.c					\
-	main_window.h				\
-	main_window.c				\
+	main-window.h				\
+	main-window.c				\
 	$(mmx_cmod_S)				\
-	navigation_tree.h			\
-	navigation_tree.c			\
+	navigation-tree.h			\
+	navigation-tree.c			\
 	palette.h				\
 	palette.c				\
 	pixmaps.h				\
 	pixmaps.c				\
 	preferences.h				\
 	preferences.c				\
-	preferences_colors_page.h		\
-	preferences_colors_page.c		\
-	preferences_dialog.h			\
-	preferences_dialog.c			\
-	preferences_irc_page.h			\
-	preferences_irc_page.c			\
-	preferences_plugins_page.h		\
-	preferences_plugins_page.c		\
-	preferences_keybindings_page.c		\
-	preferences_keybindings_page.h		\
-	preferences_servers_page.h		\
-	preferences_servers_page.c		\
-	setup_dialog.h				\
-	setup_dialog.c				\
+	preferences-colors-page.h		\
+	preferences-colors-page.c		\
+	preferences-dialog.h			\
+	preferences-dialog.c			\
+	preferences-irc-page.h			\
+	preferences-irc-page.c			\
+	preferences-keybindings-page.c		\
+	preferences-keybindings-page.h		\
+	preferences-plugins-page.h		\
+	preferences-plugins-page.c		\
+	preferences-servers-page.h		\
+	preferences-servers-page.c		\
+	setup-dialog.h				\
+	setup-dialog.c				\
 	textgui.h				\
 	textgui.c				\
 	transfers.h				\
 	transfers.c				\
 	userlist.h				\
 	userlist.c				\
-	userlist_gui.h				\
-	userlist_gui.c				\
+	userlist-gui.h				\
+	userlist-gui.c				\
 	util.h					\
 	util.c					\
 	xtext.h					\

@@ -1,5 +1,6 @@
 /*
- * userlist_gui.h - helpers for the userlist view
+ * preferences-keybindings-page.h - helpers for the keybindings
+ * 	preferences page
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -20,11 +21,11 @@
  */
 
 #include "gui.h"
-#include "textgui.h"
 
-#ifndef XCHAT_GNOME_USERLIST_GUI_H
-#define XCHAT_GNOME_USERLIST_GUI_H
+#ifndef XCHAT_GNOME_PREFERENCES_KEYBINDINGS_PAGE_H
+#define XCHAT_GNOME_PREFERENCES_KEYBINDINGS_PAGE_H
 
-void initialize_userlist ();
+void initialize_preferences_keybindings_page ();
+void preferences_plugins_keybindings_update ();
 
 #endif
