@@ -3,6 +3,7 @@
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libgnome/gnome-url.h>
 
 #include "xchat-plugin.h"
 
