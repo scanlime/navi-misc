@@ -132,12 +132,14 @@ InterruptServiceVector
 	; Is it a TMR0 interrupt? (used for the IR transmitter)
 	; This is the most time-critical interrupt.
 TEST_TMR0
-	btfss	INTCON, T0IF
+	btfss	INTCON, T0IF	; It's only a timer interrupt if we have both T0IF and T0IE
 	goto	TEST_RB0_INT
-	bcf		INTCON, T0IF	; A TMR0 overflow occurred. Reset the timer ASAP
+	btfss	INTCON, T0IE
+	goto	TEST_RB0_INT
 	movlw	.199			; 256 - (6 MIPS / 38 KHz / 2 - 18 cycles overhead)
 	banksel	ir_tx_Mask		; TMR0, ir_tx_Cycles, and ir_tx_Mask all in the same bank
 	movwf	TMR0
+	bcf		INTCON, T0IF	; Reset the interrupt flag
 	movf	ir_tx_Mask, w	; Flip the transmitter bit if necessary
 	xorwf	PORTB, f
 	decfsz	ir_tx_Cycles, f	; If we finished this batch of transmit cycles, get some more from
