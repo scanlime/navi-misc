@@ -29,9 +29,9 @@
 #include "animation.h"
 #include "prefix.h"
 
-static void on_about_activate(GtkWidget *widget, Explorer *self);
-static void on_about_close(GtkWidget *widget, Explorer *self);
-static void on_about_close_window(GtkWidget *window, GdkEvent *event, Explorer *self);
+static void     on_about_activate     (GtkWidget *widget, Explorer *self);
+static void     on_about_close        (GtkWidget *widget, Explorer *self);
+static gboolean on_about_close_window (GtkWidget *window, GdkEvent *event, Explorer *self);
 
 
 /************************************************************************************/
@@ -81,9 +81,10 @@ static void on_about_close(GtkWidget *widget, Explorer *self)
         iterative_map_start_calculation(self->map);
 }
 
-static void on_about_close_window(GtkWidget *window, GdkEvent *event, Explorer *self)
+static gboolean on_about_close_window(GtkWidget *window, GdkEvent *event, Explorer *self)
 {
-	on_about_close(window, self);
+    on_about_close(window, self);
+    return TRUE;
 }
 
 static void on_about_activate(GtkWidget *widget, Explorer *self)
