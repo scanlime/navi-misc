@@ -21,6 +21,7 @@ void draw();
 void flip();
 static int draw_more(void *data);
 gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
+void spinnerchanged(GtkWidget *widget, gpointer user_data);
 void startclick(GtkWidget *widget, gpointer user_data);
 void stopclick(GtkWidget *widget, gpointer user_data);
 void saveclick(GtkWidget *widget, gpointer user_data);
@@ -93,22 +94,22 @@ GtkWidget *build_sidebar() {
   dl = gtk_label_new("d:");
   gtk_table_attach(GTK_TABLE(table), dl, 0, 1, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
-  as = gtk_spin_button_new_with_range(-4.0, 4.0, 0.00000001);
+  as = gtk_spin_button_new_with_range(-4.0, 4.0, 0.001);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(as), a);
-  gtk_widget_set_sensitive(as, FALSE);
   gtk_table_attach(GTK_TABLE(table), as, 1, 2, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 6);
-  bs = gtk_spin_button_new_with_range(-4.0, 4.0, 0.00000001);
+  bs = gtk_spin_button_new_with_range(-4.0, 4.0, 0.001);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(bs), b);
-  gtk_widget_set_sensitive(bs, FALSE);
   gtk_table_attach(GTK_TABLE(table), bs, 1, 2, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-  cs = gtk_spin_button_new_with_range(-4.0, 4.0, 0.00000001);
+  cs = gtk_spin_button_new_with_range(-4.0, 4.0, 0.001);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(cs), c);
-  gtk_widget_set_sensitive(cs, FALSE);
   gtk_table_attach(GTK_TABLE(table), cs, 1, 2, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-  ds = gtk_spin_button_new_with_range(-4.0, 4.0, 0.00000001);
+  ds = gtk_spin_button_new_with_range(-4.0, 4.0, 0.001);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(ds), d);
-  gtk_widget_set_sensitive(ds, FALSE);
   gtk_table_attach(GTK_TABLE(table), ds, 1, 2, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+  g_signal_connect(G_OBJECT(as), "changed", G_CALLBACK(spinnerchanged), NULL);
+  g_signal_connect(G_OBJECT(bs), "changed", G_CALLBACK(spinnerchanged), NULL);
+  g_signal_connect(G_OBJECT(cs), "changed", G_CALLBACK(spinnerchanged), NULL);
+  g_signal_connect(G_OBJECT(ds), "changed", G_CALLBACK(spinnerchanged), NULL);
 
   iterl = gtk_label_new("");
   gtk_table_attach(GTK_TABLE(table), iterl, 0, 2, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
@@ -181,10 +182,6 @@ void startclick(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(stop, TRUE);
   gtk_widget_set_sensitive(start, FALSE);
   gtk_widget_set_sensitive(save, FALSE);
-  gtk_widget_set_sensitive(as, FALSE);
-  gtk_widget_set_sensitive(bs, FALSE);
-  gtk_widget_set_sensitive(cs, FALSE);
-  gtk_widget_set_sensitive(ds, FALSE);
   bzero(data, 800 * 800 * sizeof(int));
   draw();
   a = gtk_spin_button_get_value(GTK_SPIN_BUTTON(as));
@@ -199,11 +196,12 @@ void stopclick(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(stop, FALSE);
   gtk_widget_set_sensitive(start, TRUE);
   gtk_widget_set_sensitive(save, TRUE);
-  gtk_widget_set_sensitive(as, TRUE);
-  gtk_widget_set_sensitive(bs, TRUE);
-  gtk_widget_set_sensitive(cs, TRUE);
-  gtk_widget_set_sensitive(ds, TRUE);
   g_source_remove(idler);
+}
+
+void spinnerchanged(GtkWidget *widget, gpointer user_data) {
+  stopclick(widget, user_data);
+  startclick(widget, user_data);
 }
 
 void saveclick(GtkWidget *widget, gpointer user_data) {
