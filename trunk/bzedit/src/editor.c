@@ -21,11 +21,17 @@
  *
  */
 
+#include <GL/gl.h>
 #include "editor.h"
+#include "gldrawingarea.h"
 
-static void editor_class_init (EditorClass *klass);
-static void editor_init       (Editor      *editor);
-static void editor_dispose    (GObject     *object);
+static void editor_class_init   (EditorClass *klass);
+static void editor_init         (Editor      *editor);
+static void editor_dispose      (GObject     *object);
+
+static void on_glarea_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
+static void on_glarea_expose    (GtkWidget *widget, GdkEventExpose *event, gpointer data);
+static void on_glarea_realize   (GtkWidget *widget, gpointer data);
 
 GType
 editor_get_type (void)
@@ -66,8 +72,19 @@ editor_class_init (EditorClass *klass)
 static void
 editor_init (Editor *editor)
 {
-  editor->xml = glade_xml_new (GLADEDIR "data/bzedit.glade", NULL, NULL);
+  GdkGLConfig *config;
+
+  editor->xml = glade_xml_new (GLADEDIR "/bzedit.glade", NULL, NULL);
   editor->window = glade_xml_get_widget (editor->xml, "editor window");
+
+  config = gdk_gl_config_new_by_mode (GDK_GL_MODE_RGBA  |
+                                      GDK_GL_MODE_DEPTH |
+				      GDK_GL_MODE_DOUBLE);
+
+  editor->glarea = gl_drawing_area_new(config);
+  g_signal_connect_after(G_OBJECT(editor->glarea), "realize", G_CALLBACK(on_glarea_realize), NULL);
+  editor->eventbox = glade_xml_get_widget (editor->xml, "event box");
+  gtk_container_add(GTK_CONTAINER(editor->eventbox), editor->glarea);
 
   editor->statusbar = GTK_STATUSBAR(glade_xml_get_widget(editor->xml, "statusbar"));
   editor->editor_status_context = gtk_statusbar_get_context_id(editor->statusbar, "Editor status");
@@ -81,5 +98,34 @@ editor_dispose (GObject *object)
 Editor*
 editor_new (void)
 {
-  return g_object_new (EDITOR_TYPE, NULL);
+  Editor *self = EDITOR (g_object_new (editor_get_type(), NULL));
+
+  gtk_widget_show_all(self->window);
+
+  return self;
+}
+
+static void
+on_glarea_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
+{
+  gl_drawing_area_make_current (GL_DRAWING_AREA(widget));
+  glClearColor (0.0, 0.0, 0.0, 0.0);
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  gl_drawing_area_swap_buffers (GL_DRAWING_AREA(widget));
+}
+
+static void
+on_glarea_expose (GtkWidget *widget, GdkEventExpose *event, gpointer data)
+{
+  gl_drawing_area_make_current (GL_DRAWING_AREA(widget));
+  glClearColor (0.0, 0.0, 0.0, 0.0);
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  gl_drawing_area_swap_buffers (GL_DRAWING_AREA(widget));
+}
+
+static void
+on_glarea_realize (GtkWidget *widget, gpointer data)
+{
+  g_signal_connect(G_OBJECT(widget), "configure-event", G_CALLBACK(on_glarea_configure), NULL);
+  g_signal_connect(G_OBJECT(widget), "expose-event", G_CALLBACK(on_glarea_expose), NULL);
 }

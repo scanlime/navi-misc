@@ -43,7 +43,8 @@ struct _Editor {
 
   GladeXML *xml;
   GtkWidget *window;
-  GtkWidget *view;
+  GtkWidget *glarea;
+  GtkWidget *eventbox;
 
   GtkStatusbar *statusbar;
   guint editor_status_context;
