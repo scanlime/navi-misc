@@ -17,7 +17,7 @@ class GTKsheet:
   def __init__(self, dataFile):
     self.character = Character()
     self.character.readCharacter(dataFile)
-    self.readSheet(self.character.getData('/character/layoutSheet'))
+    self.readSheet(self.character.dom.getElementsByTagName('character')[0].getAttribute('layout'))
     self.root = []
 
   def readSheet(self, layoutFile):
