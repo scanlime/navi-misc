@@ -35,6 +35,12 @@
 	extern	temp
 	extern	Send_0Len_pkt
 
+	extern	edge_buffer
+	extern	wand_period
+	extern	wand_phase
+	extern	coil_window_min
+	extern	coil_window_max
+
 bank0	udata
 
 src_ptr                 res     1
@@ -56,6 +62,8 @@ defineRequest	macro	id,	handler
 CheckVendor
 	defineRequest	RWAND_CTRL_READ_EDGES,		request_readEdges
 	defineRequest	RWAND_CTRL_READ_PREDICTION,	request_readPrediction
+	defineRequest	RWAND_CTRL_SET_PREDICTION,	request_setPrediction
+	defineRequest	RWAND_CTRL_SET_COIL_PHASE,	request_setCoilPhase
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -70,11 +78,10 @@ returnEmpty		macro
 	goto	Send_0Len_pkt
 	endm
 
-    ; Return 'length' bytes of data copied from buffer[w]
+    ; Return 'length' bytes of data copied from buffer
 returnBuffer    macro   buffer, length
     local   loop
-
-    addlw   buffer
+    movlw   buffer
     banksel src_ptr
     movwf   src_ptr
 
@@ -119,15 +126,39 @@ loop
 
 ;********************************************** Request handlers
 
+	; Return edge buffer contents
 request_readEdges
-	extern	edge_buffer
-	clrw
 	returnBuffer edge_buffer, 8
 
+	; Return prediction values
 request_readPrediction
-	extern	wand_period
-	clrw
 	returnBuffer wand_period, 4
+
+	; Set prediction balues: wValue -> phase, wIndex -> period
+request_setPrediction
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	movwf	wand_phase
+	movf	BufferData+(wValue+1), w
+	movwf	wand_phase+1
+	movf	BufferData+wIndex, w
+	movwf	wand_period
+	movf	BufferData+(wIndex+1), w
+	movwf	wand_period+1
+	returnEmpty
+
+	; Set coil driver, enable between wValue and wIndex
+request_setCoilPhase
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	movwf	coil_window_min
+	movf	BufferData+(wValue+1), w
+	movwf	coil_window_min+1
+	movf	BufferData+wIndex, w
+	movwf	coil_window_max
+	movf	BufferData+(wIndex+1), w
+	movwf	coil_window_max+1
+	returnEmpty
 
 	end
 
