@@ -191,6 +191,9 @@ scene_render (Scene *self, RenderState *rstate)
   if (self->dirty)
     scene_preprocess (self);
 
+  glClearDepth (1.0);
+  glDepthFunc (GL_LESS);
+  glShadeModel (GL_SMOOTH);
   glDisable (GL_BLEND);
   glEnable (GL_DEPTH_TEST);
   glEnable (GL_CULL_FACE);

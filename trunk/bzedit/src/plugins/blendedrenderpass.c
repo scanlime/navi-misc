@@ -80,7 +80,10 @@ blended_render_pass_render (RenderPass *pass, RenderState *rstate)
 {
   glDepthMask (0);
   glEnable (GL_BLEND);
+  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   parent_class->render (pass, rstate);
+
   glDisable (GL_BLEND);
   glDepthMask (1);
 }
