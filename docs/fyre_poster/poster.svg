@@ -152,10 +152,10 @@
      inkscape:pageopacity="1.0000000"
      inkscape:pageshadow="2"
      inkscape:zoom="0.21707918"
-     inkscape:cx="1496.2246"
-     inkscape:cy="2055.1195"
-     inkscape:window-width="1066"
-     inkscape:window-height="1117"
+     inkscape:cx="1465.7896"
+     inkscape:cy="2486.5577"
+     inkscape:window-width="1230"
+     inkscape:window-height="1166"
      showgrid="false"
      snaptogrid="false"
      inkscape:window-x="47"
@@ -229,7 +229,7 @@
   </g>
   <g
      id="g1440"
-     transform="translate(0.000000,558.5520)">
+     transform="translate(0.000000,1066.118)">
     <image
        xlink:href="images/base-larger.png"
        sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/base-larger.png"
@@ -311,8 +311,70 @@
          style="fill:#000000;fill-opacity:1.0000000;">Increased Gamma</tspan></text>
   </g>
   <g
-     id="g1399"
-     transform="translate(25.88790,765.8496)">
+     id="g1475">
+    <image
+       xlink:href="images/goodbif-large.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/goodbif-large.png"
+       width="1319.4247"
+       height="439.80820"
+       id="image1459"
+       x="235.79959"
+       y="1493.5368"
+       style=""
+       transform="translate(20.08220,0.000000)" />
+    <image
+       xlink:href="images/goodbif-large.png"
+       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/goodbif-large.png"
+       width="1319.4247"
+       height="439.80820"
+       id="image1460"
+       x="1644.6113"
+       y="1493.5367"
+       transform="translate(20.08220,0.000000)"
+       style="" />
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="630.71414"
+       y="2062.7996"
+       id="text1464"><tspan
+         id="tspan1465"
+         style="fill:#000000;fill-opacity:1.0000000;">Traditional Rendering</tspan></text>
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="2040.7558"
+       y="2062.7996"
+       id="text1467"><tspan
+         id="tspan1468"
+         style="fill:#000000;fill-opacity:1.0000000;">Histogram Rendering</tspan></text>
+  </g>
+  <g
+     id="g1490"
+     transform="translate(50.27412,276.3968)"
+     style="fill:#000000;fill-opacity:1.0000000;">
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="802.92673"
+       y="3216.8450"
+       id="text1484"
+       transform="scale(1.513519,1.513519)"><tspan
+         id="tspan1485"
+         style="fill:#000000;fill-opacity:1.0000000;">SIGGRAPH 2004</tspan></text>
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="1053.7117"
+       y="4302.4865"
+       id="text1487"
+       transform="scale(1.150824,1.150824)"><tspan
+         id="tspan1488"
+         style="fill:#000000;fill-opacity:1.0000000;">Los Angeles, California</tspan></text>
+  </g>
+  <g
+     id="g1578"
+     transform="translate(0.000000,400.0155)">
     <image
        xlink:href="images/clamped-pre-interp.png"
        sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/clamped-pre-interp.png"
@@ -321,7 +383,8 @@
        id="image1035"
        x="809.73941"
        y="2933.1016"
-       style="" />
+       style=""
+       transform="translate(25.88790,765.8496)" />
     <image
        xlink:href="images/clamped-post-interp.png"
        sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/clamped-post-interp.png"
@@ -330,10 +393,12 @@
        id="image1036"
        x="1676.7099"
        y="2933.1016"
-       style="" />
+       style=""
+       transform="translate(25.88790,765.8496)" />
     <g
        id="g1381"
-       transform="translate(95.01141,9.892334)">
+       transform="translate(120.8993,775.7419)"
+       style="">
       <rect
          style="fill:url(#linearGradient941);fill-rule:evenodd;stroke:#000000;stroke-width:6.6815262;"
          id="rect825"
@@ -397,19 +462,11 @@
          transform="scale(2.084623,2.084623)"><tspan
            id="tspan871"
            style="fill:#272727;fill-opacity:1.0000000;">Colorspace</tspan></text>
-      <text
-         xml:space="preserve"
-         style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-         x="59.195531"
-         y="1149.1690"
-         id="text910"
-         transform="scale(2.672611,2.672611)"><tspan
-           id="tspan911"
-           style="fill:#000000;fill-opacity:1.0000000;">Clamped before interpolation</tspan></text>
     </g>
     <g
        id="g1361"
-       transform="translate(-22.00995,9.892334)">
+       transform="translate(3.877950,775.7419)"
+       style="">
       <rect
          style="fill:url(#linearGradient936);fill-rule:evenodd;stroke:#000000;stroke-width:6.6815262;"
          id="rect890"
@@ -482,77 +539,74 @@
          transform="scale(2.084623,2.084623)"><tspan
            id="tspan908"
            style="fill:#272727;fill-opacity:1.0000000;">Colorspace</tspan></text>
-      <text
-         xml:space="preserve"
-         style="fill:#000000;stroke:none;font-family:helvetica;font-style:normal;font-weight:normal;font-size:12px;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-         x="960.90436"
-         y="1149.1689"
-         id="text913"
-         transform="scale(2.672611,2.672611)"><tspan
-           id="tspan914"
-           style="fill:#000000;fill-opacity:1.0000000;">Clamped after interpolation</tspan></text>
     </g>
+    <text
+       xml:space="preserve"
+       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="805.80725"
+       y="4555.4260"
+       id="text1538"><tspan
+         id="tspan1539"
+         style="fill:#000000;fill-opacity:1.0000000;">Clamped Before Interpolation</tspan></text>
+    <text
+       xml:space="preserve"
+       style="fill:black;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:0.75;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+       x="1697.7979"
+       y="4555.4260"
+       id="text1541"><tspan
+         id="tspan1542">Clamped After Interpolation</tspan></text>
   </g>
-  <g
-     id="g1475">
-    <image
-       xlink:href="images/goodbif-large.png"
-       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/goodbif-large.png"
-       width="1319.4247"
-       height="439.80820"
-       id="image1459"
-       x="235.79959"
-       y="1493.5368"
-       style=""
-       transform="translate(20.08220,0.000000)" />
-    <image
-       xlink:href="images/goodbif-large.png"
-       sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/goodbif-large.png"
-       width="1319.4247"
-       height="439.80820"
-       id="image1460"
-       x="1644.6113"
-       y="1493.5367"
-       transform="translate(20.08220,0.000000)"
-       style="" />
-    <text
-       xml:space="preserve"
-       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-       x="630.71414"
-       y="2062.7996"
-       id="text1464"><tspan
-         id="tspan1465"
-         style="fill:#000000;fill-opacity:1.0000000;">Traditional Rendering</tspan></text>
-    <text
-       xml:space="preserve"
-       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-       x="2040.7558"
-       y="2062.7996"
-       id="text1467"><tspan
-         id="tspan1468"
-         style="fill:#000000;fill-opacity:1.0000000;">Histogram Rendering</tspan></text>
-  </g>
-  <g
-     id="g1490"
-     transform="translate(50.27412,276.3968)"
-     style="fill:#000000;fill-opacity:1.0000000;">
-    <text
-       xml:space="preserve"
-       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-       x="802.92673"
-       y="3216.8450"
-       id="text1484"
-       transform="scale(1.513519,1.513519)"><tspan
-         id="tspan1485"
-         style="fill:#000000;fill-opacity:1.0000000;">SIGGRAPH 2004</tspan></text>
-    <text
-       xml:space="preserve"
-       style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
-       x="1053.7117"
-       y="4302.4865"
-       id="text1487"
-       transform="scale(1.150824,1.150824)"><tspan
-         id="tspan1488"
-         style="fill:#000000;fill-opacity:1.0000000;">Los Angeles, California</tspan></text>
-  </g>
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="240.36008"
+     y="3771.3159"
+     id="text1619"
+     sodipodi:linespacing="120%"><tspan
+       id="tspan1620"
+       style="fill:#000000;fill-opacity:1.0000000;">The extra detail stored in the original high dynamic range histogram can also be expressed with the help</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1622"
+       x="240.36008"
+       y="3843.3159"
+       style="fill:#000000;fill-opacity:1.0000000;">of color. We take an approach that mirrors the way natural objects appear in photography. Very bright</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1624"
+       x="240.36008"
+       y="3915.3159"
+       style="fill:#000000;fill-opacity:1.0000000;">objects, for example, saturate the image and always appear white. By clamping each color component</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1626"
+       x="240.36008"
+       y="3987.3159"
+       style="fill:#000000;fill-opacity:1.0000000;">as late as possible in the rendering process, a similar saturation effect can be achieved:</tspan></text>
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="240.36008"
+     y="2366.5759"
+     id="text1628"
+     sodipodi:linespacing="120%"><tspan
+       id="tspan1629"
+       style="fill:#000000;fill-opacity:1.0000000;">The histogram data collected while iterating the chaotic system is treated as a high dynamic range</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1639"
+       x="240.36008"
+       y="2438.5759">image. As is common with high dynamic range image processing, we can perform gamma and exposure</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1641"
+       x="240.36008"
+       y="2510.5759">adjustment at the original image's full precision, and use various settings to bring out different details</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1643"
+       x="240.36008"
+       y="2582.5759">in the image. This step is computationally cheap and performed separately from the chaotic system</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1645"
+       x="240.36008"
+       y="2654.5759">calculations. The exposure, gamma adjustment, and colorization parameters can all be adjusted in</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1647"
+       x="240.36008"
+       y="2726.5759">real-time without restarting any calculations, making it easy to explore the hidden details in a histogram:</tspan></text>
 </svg>
