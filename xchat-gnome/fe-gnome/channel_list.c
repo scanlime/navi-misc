@@ -3,9 +3,10 @@
 
 channel_list_window *create_channel_list(session *sess) {
 	channel_list_window *win;
-	GtkWidget *treeview;
+	GtkWidget *treeview, *widget;
 	GtkCellRenderer *channel_r, *users_r, *topic_r;
 	GtkTreeViewColumn *channel_c, *users_c, *topic_c;
+	GtkSizeGroup *group;
 /*	GtkTreeSelection *select; */
 
 	win = malloc(sizeof(channel_list_window));
@@ -28,6 +29,15 @@ channel_list_window *create_channel_list(session *sess) {
 	topic_r = gtk_cell_renderer_text_new();
 	topic_c = gtk_tree_view_column_new_with_attributes("Topic", topic_r, "text", 3, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), topic_c);
+
+	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+	widget = glade_xml_get_widget(win->xml, "minimum users");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(win->xml, "maximum users");
+	gtk_size_group_add_widget(group, widget);
+	widget = glade_xml_get_widget(win->xml, "text filter");
+	gtk_size_group_add_widget(group, widget);
+	g_object_unref(group);
 
 	return win;
 }
