@@ -31,16 +31,17 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 -	User documentation!
 
 undetermined:
--	Integration with autopackage as much as possible (relaytool, etc)
--	Split each dialog out of xchat-gnome.glade into its own file
--	Make URLs in xtext show up as blue (or configurable link color)
--	Make text surrounded by asterisks show up as bold, text surrouned by
-	underscores show up as underlined, etc
+-	Autopackage
+-	Split each dialog out of into its own glade file
+-	Make URLs in xtext show up as blue (configurable color)
+-	Make text surrounded by asterisks show up as bold, text
+	surrouned by underscores show up as underlined, etc
 
 when releasing:
 -	Check to make sure changelog is complete
 -	Make sure all version numbers are up-to-date
+-	Make sure screenshots on the web site are current
 -	Tag the release
--	Notify http://www.gnomefiles.org (Dan)
--	Notify freshmeat (David)
+-	Notify http://www.gnomefiles.org 			- Dan
+-	Notify freshmeat 					- David
 -	Notify footnotes
