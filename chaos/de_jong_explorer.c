@@ -14,7 +14,7 @@ struct {
 } point;
 
 GtkWidget *window, *drawing_area, *iterl;
-GtkWidget *as, *bs, *cs, *ds, *ls, *start, *stop, *save;
+GtkWidget *as, *bs, *cs, *ds, *ls, *start, *stop, *save, *randbutton;
 GdkPixbuf *pixbuf;
 gulong iterations;
 GdkGC *gc;
@@ -30,6 +30,7 @@ void spinnerchanged(GtkWidget *widget, gpointer user_data);
 void startclick(GtkWidget *widget, gpointer user_data);
 void stopclick(GtkWidget *widget, gpointer user_data);
 void saveclick(GtkWidget *widget, gpointer user_data);
+void randomclick(GtkWidget *widget, gpointer user_data);
 gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 GtkWidget *build_sidebar();
 
@@ -73,7 +74,7 @@ GtkWidget *build_sidebar() {
   GtkWidget *table;
   GtkWidget *al, *bl, *cl, *dl, *ll;
 
-  table = gtk_table_new(9, 2, FALSE);
+  table = gtk_table_new(10, 2, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE(table), 6);
   gtk_table_set_col_spacings(GTK_TABLE(table), 6);
   al = gtk_label_new("a:");
@@ -110,16 +111,23 @@ GtkWidget *build_sidebar() {
 
   iterl = gtk_label_new("");
   gtk_table_attach(GTK_TABLE(table), iterl, 0, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+
   start = gtk_button_new_from_stock(GTK_STOCK_APPLY);
   gtk_widget_set_sensitive(start, FALSE);
   g_signal_connect(G_OBJECT(start), "clicked", G_CALLBACK(startclick), NULL);
   gtk_table_attach(GTK_TABLE(table), start, 0, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+
   stop = gtk_button_new_from_stock(GTK_STOCK_STOP);
   g_signal_connect(G_OBJECT(stop), "clicked", G_CALLBACK(stopclick), NULL);
   gtk_table_attach(GTK_TABLE(table), stop, 0, 2, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+
   save = gtk_button_new_from_stock(GTK_STOCK_SAVE);
   g_signal_connect(G_OBJECT(save), "clicked", G_CALLBACK(saveclick), NULL);
   gtk_table_attach(GTK_TABLE(table), save, 0, 2, 8, 9, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+
+  randbutton = gtk_button_new_with_label("Random");
+  g_signal_connect(G_OBJECT(randbutton), "clicked", G_CALLBACK(randomclick), NULL);
+  gtk_table_attach(GTK_TABLE(table), randbutton, 0, 2, 9, 10, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
   return table;
 }
@@ -282,6 +290,20 @@ void spinnerchanged(GtkWidget *widget, gpointer user_data) {
     stopclick(widget, user_data);
     startclick(widget, user_data);
   }
+}
+
+void randomclick(GtkWidget *widget, gpointer user_data) {
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(as),
+			    ((float) rand()) / RAND_MAX * 20 - 10);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(bs),
+			    ((float) rand()) / RAND_MAX * 20 - 10);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(cs),
+			    ((float) rand()) / RAND_MAX * 20 - 10);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(ds),
+			    ((float) rand()) / RAND_MAX * 20 - 10);
+
+  stopclick(widget, user_data);
+  startclick(widget, user_data);
 }
 
 void saveclick(GtkWidget *widget, gpointer user_data) {
