@@ -27,7 +27,9 @@ EXTRA_DIST =				\
 	preferences_servers_page.h	\
 	preferences_servers_page.c	\
 	textgui.h			\
-	textgui.c
+	textgui.c			\
+	userlist.h			\
+	userlist.c
 
 xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
 xchat_gnome_SOURCES =			\
@@ -51,6 +53,8 @@ xchat_gnome_SOURCES =			\
 	preferences_servers_page.c	\
 	textgui.h			\
 	textgui.c			\
+	userlist.h			\
+	userlist.c			\
 	xtext.h				\
 	xtext.c
 
