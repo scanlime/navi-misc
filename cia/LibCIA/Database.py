@@ -25,12 +25,31 @@ from twisted.enterprise.adbapi import ConnectionPool
 import _mysql
 import os
 
+
 # Import quoting functions for use elsewhere.
 # We use twisted's quote utility most places,
 # but as it doesn't understand MySQL-style binary
 # objects, we use _mysql to define quoteBlob.
 from twisted.enterprise.util import quote
 from _mysql import escape_string as quoteBlob
+
+
+def readDictFile(path):
+    """Read a file formatted as a list of keys and values
+       separated by '=' signs. Any amount of whitespace
+       is allowed around the '=' and at the beginning and
+       end of lines.
+       """
+    d = {}
+    for line in open(path).readlines():
+        line = line.strip()
+        try:
+            key, value = line.split('=', 1)
+            d[key.strip()] = value.strip()
+        except ValueError:
+            pass
+    return d
+
 
 def createPool():
     #
@@ -43,21 +62,29 @@ def createPool():
     # The database password is retrieved from ~/.mysql_passwd so it isn't stored
     # in this file. If the file can't be read, an exception is raised.
 
-    passwdFilename = os.path.expanduser("~/.mysql_passwd")
-    try:
-        passwd = open(passwdFilename).read().strip()
-        os.chmod(passwdFilename, 0600)
-    except IOError:
-        raise Exception("Please create a file %r containing the MySQL database password" % passwdFilename)
+    # Defaults
+    info = {
+        'host': 'localhost',
+        'db':   'cia',
+        'user': 'root',
 
-    return ConnectionPool('MySQLdb',
-                          host   = 'localhost',
-                          db     = 'cia',
-                          user   = 'root',
-                          passwd = passwd,
-                          # This is so we don't splurt our password out to twistd.log...
-                          cp_noisy = False,
-                           )
+        # This is so we don't splurt our password out to twistd.log...
+        'cp_noisy':  False,
+        }
+
+    filename = os.path.expanduser("~/.cia_db")
+    try:
+        info.update(readDictFile(filename))
+        os.chmod(filename, 0600)
+    except IOError:
+        raise Exception("Please create a file %r containing a list of database parameters.\n"
+                        "For example:\n"
+                        "  host = mysql.example.com\n"
+                        "  user = bob\n"
+                        "  passwd = widgets\n"
+                        % filename)
+
+    return ConnectionPool('MySQLdb', **info)
 
 pool = createPool()
 
