@@ -51,7 +51,9 @@ class PythonFilter(CommitFilter):
             dirName = ''
         self.addModule(module)
 
-        # Author is the first token of the from address. Most of the from addresses
+        # Author is the first token of the from address. Authors are
+        # in the form of an email address. Usually this is a sourceforge
+        # account, so simplify it if we can.
         # are @users.sourceforge.net, so strip that out if we have it.
         address = self.message['from'].split(' ')[0]
         try:
@@ -59,7 +61,9 @@ class PythonFilter(CommitFilter):
             address = address.split("<", 1)[1].split(">", 1)[0]
         except IndexError:
             pass
-        address = address.replace("@users.sourceforge.net", "")
+        for host in ("@users.sourceforge.net",
+                     "@projects.sourceforge.net"):
+            address = address.replace(host, "")
         self.addAuthor(address)
 
         # Skip lines until we get to a section we can process
