@@ -162,21 +162,35 @@ float normal_variate() {
 }
 
 void run_iterations(int count) {
-  double x, y, sine_rotation, cosine_rotation;
-  unsigned int i, ix, iy;
-  guint *p;
-
-  guint d;
   const double xcenter = render.width / 2.0;
   const double ycenter = render.height / 2.0;
   const double scale = xcenter / 2.5 * params.zoom;
   const gboolean rotation_enabled = params.rotation > 0.0001 || params.rotation < -0.0001;
-  const gboolean blur_enabled = params.blur_ratio > 0.0001 || params.blur_radius > 0.00001;
+  const gboolean blur_enabled = params.blur_ratio > 0.0001 && params.blur_radius > 0.00001;
+  const int blur_table_size = 128; /* Must be a power of two */
+
+  double x, y, sine_rotation, cosine_rotation;
+  unsigned int i, ix, iy;
+  guint *p;
+  guint d;
+  int blur_index;
+  float blur_table[blur_table_size];
 
   /* Precalculate the sine and cosine of the rotation angle, if we'll need it */
   if (rotation_enabled) {
     sine_rotation = sin(params.rotation);
     cosine_rotation = cos(params.rotation);
+  }
+
+  /* Initialize the blur table with a set of precalculated normally distributed
+   * random numbers. Larger blur tables just increase the independence between
+   * blocks of iterations. Since a new blur table is calculated at each run_iterations,
+   * at infinity the image still has the same effect, but each iteration runs much faster.
+   */
+  if (blur_enabled) {
+    for (i=0; i<blur_table_size; i++)
+      blur_table[i] = normal_variate() * params.blur_radius;
+    blur_index = 0;
   }
 
   for(i=count; i; --i) {
@@ -203,8 +217,10 @@ void run_iterations(int count) {
      */
     if (blur_enabled) {
       if (uniform_variate() < params.blur_ratio) {
-	x += normal_variate() * params.blur_radius;
-	y += normal_variate() * params.blur_radius;
+	x += blur_table[blur_index];
+	blur_index = (blur_index+1) & (blur_table_size-1);
+	y += blur_table[blur_index];
+	blur_index = (blur_index+1) & (blur_table_size-1);
       }
     }
 
