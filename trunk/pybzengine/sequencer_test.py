@@ -89,14 +89,15 @@ book = Sequencer.Book(view, [
 
     # Zoom in on the 'texture_test' model. This page finishes itself when the camera is close enough.
     # We fade in from black slowly, and fade out to white quickly
-    Sequencer.FadeIn(3, (0,0,0), Sequencer.FadeOut(0.2, (1,1,1), TextureTest)),
+    Sequencer.FadeIn(3, (0,0,0), Sequencer.FadeOut(0.1, (1,1,1), TextureTest)),
 
     # Show some perty particle systems for 5 seconds, using the PageTimer
-    # Fade in from white quickly.
-    Sequencer.FadeIn(0.2, (1,1,1), Sequencer.PageTimer(5, Sparks)),
+    # Fade in from white quickly, fade out to white quickly.
+    Sequencer.FadeIn(0.1, (1,1,1), Sequencer.FadeOut(0.1, (1,1,1), Sequencer.PageTimer(5, Sparks))),
 
     # Spin the 'monkey' model for 10 seconds
-    Sequencer.PageTimer(10, Monkey),
+    # Also fade in from white quickly, fade out to black slowly.
+    Sequencer.FadeIn(0.1, (1,1,1), Sequencer.FadeOut(10, (0,0,0), Sequencer.PageTimer(10, Monkey))),
     ])
 
 # Run our event loop until the book finishes
