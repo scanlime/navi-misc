@@ -123,7 +123,7 @@ class AbstractStringCache:
 class Maintenance:
     """Maintenance operations we run regularly to keep the cache in shape:"""
     # Maximum number of items we keep in the cache
-    maxItems = 100
+    maxItems = 300
 
     def run(self):
         """This is the entry point for all maintenance procedures"""
