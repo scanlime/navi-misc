@@ -383,9 +383,13 @@ static void parameter_editor_add_enum(ParameterEditor *self, GParamSpec *spec) {
   GValue gv;
   GEnumClass *klass;
   gint i;
+#if (GTK_MINOR_VERSION < 4)
+  GtkWidget *menu;
+#endif
 
   klass = (GEnumClass*) g_type_class_ref (spec->value_type);
 
+#if (GTK_MINOR_VERSION >= 4)
   combo = gtk_combo_box_new_text ();
   for (i = 0; i < klass->n_values; i++)
   {
@@ -395,12 +399,31 @@ static void parameter_editor_add_enum(ParameterEditor *self, GParamSpec *spec) {
 
     gtk_combo_box_append_text (GTK_COMBO_BOX (combo), value->value_nick);
   }
+#else
+  combo = gtk_option_menu_new ();
+  menu = gtk_menu_new ();
+
+  for (i = 0; i < klass->n_values; i++)
+  {
+    GEnumValue *value;
+
+    value = g_enum_get_value (klass, i);
+
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), gtk_menu_item_new_with_label (value->value_nick));
+  }
+
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (combo), menu);
+#endif
 
   /* Get the parameter's current value */
   memset (&gv, 0, sizeof (gv));
   g_value_init (&gv, spec->value_type);
   g_object_get_property (G_OBJECT (self->holder), spec->name, &gv);
+#if (GTK_MINOR_VERSION >= 4)
   gtk_combo_box_set_active (GTK_COMBO_BOX (combo), g_value_get_enum (&gv));
+#else
+  gtk_option_menu_set_history (GTK_OPTION_MENU (combo), g_value_get_enum (&gv));
+#endif
   g_value_unset (&gv);
 
   /* Set up our callback on change */
@@ -490,7 +513,11 @@ static void on_changed_enum(GtkWidget *widget, ParameterEditor *self) {
   if (self->suppress_changed)
     return;
 
+#if (GTK_MINOR_VERSION >= 4)
   active = gtk_combo_box_get_active (GTK_COMBO_BOX (widget));
+#else
+  active = gtk_option_menu_get_history (GTK_OPTION_MENU (widget));
+#endif
 
   self->suppress_notify = TRUE;
   g_object_set (self->holder,
@@ -588,7 +615,11 @@ static void on_notify_enum(ParameterHolder *holder, GParamSpec *spec, GtkWidget 
   g_object_get_property (G_OBJECT (holder), spec->name, &gv);
 
   self->suppress_changed = TRUE;
+#if (GTK_MINOR_VERSION >= 4)
   gtk_combo_box_set_active (GTK_COMBO_BOX (widget), g_value_get_enum (&gv));
+#else
+  gtk_option_menu_set_history (GTK_OPTION_MENU (widget), g_value_get_enum (&gv));
+#endif
   self->suppress_changed = FALSE;
 
   g_value_unset (&gv);
