@@ -434,19 +434,15 @@ class World(BZObject):
             self.set_size()
 
     def getBzToBlendMatrix(self):
-        """Get a matrix that converts BZFlag coordinates to Blender coordinates
+        """Get a 3x3 matrix that converts BZFlag coordinates to Blender coordinates
            relative to this world. Requires that the world have an associated
            Blender object.
            """
         scale = 1.0 / self.size
-        return self.blendObject.mat * Blender.Mathutils.Matrix(
-            [scale, 0,     0    , 0],
-            [0,     scale, 0    , 0],
-            [0,     0,     scale, 0],
-            [0,     0,     0,     1])
+        return self.blendObject.mat.rotationPart() * scale
 
     def getBlendToBzMatrix(self):
-        """Get a matrix that converts Blender coordintes back to BZFlag coordinates,
+        """Get a 3x3 matrix that converts Blender coordintes back to BZFlag coordinates,
            relative to this world. Requires that the world have an associated
            Blender object.
            """
@@ -523,15 +519,28 @@ class Box(BZObject):
 
         mat *= Blender.Mathutils.TranslationMatrix(
             Blender.Mathutils.Vector(self.position))
-        mat *= self.world.getBzToBlendMatrix()
+
+        transform = self.world.getBzToBlendMatrix()
+        transform.resize4x4()
+        mat *= transform
+
+        mat *= Blender.Mathutils.TranslationMatrix(
+            self.world.blendObject.mat.translationPart())
+
         obj.setMatrix(mat)
 
     def loadBlenderTransform(self, obj):
         """Retrieves the object's position, size, and rotation
            from a Blender object- the inverse of transformBlenderObject().
            """
+        # Before anything else, subtract the world origin
+        mat = obj.mat * Blender.Mathutils.TranslationMatrix(
+            self.world.blendObject.mat.translationPart() * -1.0)
+
         # Convert to BZFlag coordinates, relative to the World object
-        mat = obj.mat * self.world.getBlendToBzMatrix()
+        transform = self.world.getBlendToBzMatrix()
+        transform.resize4x4()
+        mat *= transform
 
         # Extract translation, leave a 3x3 matrix with rotation and scale
         self.position = list(mat.translationPart())
