@@ -121,6 +121,11 @@ void              remote_server_main_loop     (int        port_number,
 
     self.gserver = gnet_server_new(NULL, port_number,
 				   remote_server_connect, &self);
+    if (!self.gserver) {
+	printf("Unable to listen on port %d!\n", port_number);
+	exit(1);
+    }
+
     self.command_hash = g_hash_table_new(g_str_hash, g_str_equal);
     self.gui_hash = g_hash_table_new(g_str_hash, g_str_equal);
     remote_server_init_commands(&self);
