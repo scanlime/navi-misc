@@ -124,7 +124,6 @@ static void parameter_editor_attach(ParameterEditor *self, ParameterHolder *hold
   int i;
 
   self->holder = g_object_ref(holder);
-  self->holder = g_object_ref(holder);
 
   properties = g_object_class_list_properties(G_OBJECT_GET_CLASS(holder), &n_properties);
   for (i=0; i<n_properties; i++) {

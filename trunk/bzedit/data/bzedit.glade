@@ -479,7 +479,7 @@
 	<widget class="GtkHPaned" id="hpaned1">
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
-	  <property name="position">150</property>
+	  <property name="position">250</property>
 
 	  <child>
 	    <widget class="GtkVPaned" id="vpaned1">
@@ -509,7 +509,7 @@
 		</widget>
 		<packing>
 		  <property name="shrink">False</property>
-		  <property name="resize">False</property>
+		  <property name="resize">True</property>
 		</packing>
 	      </child>
 

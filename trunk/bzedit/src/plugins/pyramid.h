@@ -53,6 +53,7 @@ struct _Pyramid
   PyramidParams param;
   gboolean state_dirty;
   GList *drawables;
+  Drawable *drawable;
 };
 
 struct _PyramidClass
@@ -62,6 +63,33 @@ struct _PyramidClass
 
 GType    pyramid_get_type (void) G_GNUC_CONST;
 Pyramid* pyramid_new      (void);
+
+#define PYRAMID_DRAWABLE_TYPE            (pyramid_drawable_get_type ())
+#define PYRAMID_DRAWABLE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), PYRAMID_DRAWABLE_TYPE, PyramidDrawable))
+#define PYRAMID_DRAWABLE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), PYRAMID_DRAWABLE_TYPE, PyramidDrawableClass))
+#define IS_PYRAMID_DRAWABLE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), PYRAMID_DRAWABLE_TYPE))
+#define IS_PYRAMID_DRAWABLE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), PYRAMID_DRAWABLE_TYPE))
+
+typedef struct _PyramidDrawable      PyramidDrawable;
+typedef struct _PyramidDrawableClass PyramidDrawableClass;
+
+struct _PyramidDrawable
+{
+  DisplayList parent;
+
+  gdouble position[3];
+  gdouble size[3];
+  gdouble rotation;
+  gboolean inverted;
+};
+
+struct _PyramidDrawableClass
+{
+  DisplayListClass parent_class;
+};
+
+GType     pyramid_drawable_get_type (void) G_GNUC_CONST;
+Drawable* pyramid_drawable_new      (void);
 
 G_END_DECLS
 
