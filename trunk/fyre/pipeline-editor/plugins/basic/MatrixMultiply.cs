@@ -25,7 +25,9 @@ using Gdk;
 
 class MatrixMultiply : Element
 {
-	private static Gdk.Pixbuf icon;
+	static Gdk.Pixbuf icon;
+	static string[,] inputs;
+	static string[,] outputs;
 
 	public override string Name ()
 	{
@@ -49,13 +51,22 @@ class MatrixMultiply : Element
 		return "Multiplies a vector\nand a matrix\n";
 	}
 
-	public override string InputDesc ()
+	public override string[,] InputDesc ()
 	{
-		return "<i>v<sub>0</sub></i>:  vector\n" + "<b>M</b>:  matrix";
+		if (inputs == null) {
+			inputs = new string[2,2];
+			inputs[0,0] = "<i>v<sub>0</sub></i>";	inputs[0,1] = "point";
+			inputs[1,0] = "<b>M</b>";		inputs[1,1] = "matrix";
+		}
+		return inputs;
 	}
 
-	public override string OutputDesc ()
+	public override string[,] OutputDesc ()
 	{
-		return "<i>v<sub>1</sub></i>:\tnew vector";
+		if (outputs == null) {
+			outputs = new string[1,2];
+			outputs[0,0] = "<i>v<sub>1</sub></i>";	outputs[0,1] = "new point";
+		}
+		return outputs;
 	}
 }
