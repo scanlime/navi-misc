@@ -610,7 +610,7 @@ void de_jong_calculate_bifurcation(DeJong             *self,
       c = column->interpolated[j].c;
       d = column->interpolated[j].d;
 
-      for(block=500; i && block; --i, --block) {
+      for(block=50; i && block; --i, --block) {
 	/* These are the actual Peter de Jong map equations. The new point value
 	 * gets stored into 'point', then we go on and mess with x and y before plotting.
 	 */
