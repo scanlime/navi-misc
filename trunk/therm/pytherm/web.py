@@ -203,28 +203,32 @@ class IndexPage(ModPython.Page):
         return []
 
 
-def foo(after):
-    yield (after+1, time.time(), 1234)
-
-def packetGrapher(source, key):
-    def f(stamp):
+def getSourceRrd(source, key):
+    """Maintain an RrdFile for the specified key in packets from the specified source.
+       Returns a tuple with the RrdFile instance and the latest stamp.
+       """
+    def dataGenerator(stamp):
         for packet in source.iterPacketsAfter(stamp):
             value = packet.get(key)
             if value is not None:
                 yield packet['id'], packet['time'].ticks(), packet[key]
-    return f
 
-def renderGraph(req):
-    source = database.open().getSource('outside')
+    rrdf = rrd.RrdFile("%s-%s" % (source.name, key))
+    return (rrdf, rrdf.update(dataGenerator))
 
-    rrdf = rrd.RrdFile("outside-average")
-    stamp = rrdf.update(packetGrapher(source, 'average'))
 
+def getSourceGraph(source, key, description, interval="day"):
+    """Maintain an RrdGraph showing data from a single source. Returns
+       a tuple with the RrdGraph instance and the latest stamp."""
+    rrdf, stamp = getSourceRrd(source, key)
     graph = rrd.RrdGraph(rrd.graphDefineSource(rrdf) +
-                         rrd.graphSpan("Foo!"))
-
+                         rrd.graphColorRange(-20.0, rrd.Color(0.5, 0.5, 1),
+                                             40.0, rrd.Color(1, 1, 0),
+                                             id=[0]) +
+                         rrd.graphSpan(description),
+                         interval=interval)
     graph.updateToLatest()
-    return graph.getFile(stamp)
+    return (graph, stamp)
 
 
 def handler(req):
@@ -241,7 +245,9 @@ def handler(req):
 
     if pathSegments[0] == 'graph':
         req.content_type = "image/png"
-        shutil.copyfileobj(open(renderGraph(req)), req)
+        source = database.open().getSource('outside')
+        graph, stamp = getSourceGraph(source, 'average', "Outside Temperature")
+        shutil.copyfileobj(open(graph.getFile(stamp)), req)
         return apache.OK
 
     req.write(repr(pathSegments))

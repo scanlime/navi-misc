@@ -23,7 +23,7 @@ A simple Python interface to rrdtool
 #
 
 from Nouvelle import tag
-import os, time, popen2, sys, re
+import os, time, popen2, sys, re, md5
 import threading, colorsys, random, shutil
 import Image
 from pytherm import units
@@ -32,8 +32,6 @@ from pytherm import units
 class RRDException(Exception):
     pass
 
-def escapeForRrd(s):
-    return s.replace(" ", r"\ ")
 
 _rrdtool = {}
 
@@ -49,7 +47,7 @@ def rrd(*args):
         _rrdtool[thisThread] = popen2.Popen3("rrdtool -")
     rrdtool = _rrdtool[thisThread]
 
-    command = " ".join([escapeForRrd(str(arg)) for arg in args])
+    command = " ".join(['"%s"' % str(arg).replace('"','') for arg in args])
     rrdtool.tochild.write(command + "\n")
     rrdtool.tochild.flush()
 
@@ -344,24 +342,36 @@ class RrdGraph(DependentResource):
        converted to strings using their rrdparam(stamp) method, such as RrdDef objects.
        """
     def __init__(self, params, size=(600,150), yLabel=None, interval="day"):
-        prepend = [
+        self.params = [
             "--width", size[0],
             "--height", size[1],
             "--start", -units.time.lookupName(interval),
             ]
         if yLabel:
-            prepend.extend(["--vertical-label", yLabel])
+            self.params.extend(["--vertical-label", yLabel])
+        self.params.extend(params)
 
-        # Our entire spec consists of command line options
-        DependentResource.__init__(self, *(prepend + list(params)))
+        # Putting all rrdtool params in the spec would be prohibitively long
+        # for a filename. We have to include the resoruces themselves. For readability
+        # we also include the size and interval, and for uniqueness we include an md5
+        # digest of all string parameters.
+        resources = []
+        digest = md5.new()
+        for param in params:
+            if isinstance(param, CachedResource):
+                resources.append(param)
+            else:
+                digest.update(str(param))
+        DependentResource.__init__(self, "%dx%d" % size, interval,
+                                   digest.hexdigest(), *resources)
 
     def build(self, depVersions, output):
         params = []
-        for dep in self.spec:
-            if isinstance(dep, CachedResource):
-                params.append(dep.rrdparam(depVersions[dep]))
+        for param in self.params:
+            if isinstance(param, CachedResource):
+                params.append(param.rrdparam(depVersions[param]))
             else:
-                params.append(dep)
+                params.append(param)
         self.size = rrd('graph', output, "-a", "PNG", *params)
 
 
@@ -490,7 +500,7 @@ def graphColorSlice(min, max, color, id=[0]):
         "AREA:s%d%s" % (id[0], color),
         ]
 
-def graphColorRange(min, minColor, max, maxColor, numSlices=256, id=[0]):
+def graphColorRange(min, minColor, max, maxColor, numSlices=96, id=[0]):
     """Graph a linearly interpolated color range, given the minimum and maximum
        data values with their corresponding color. Data outside the minimum and maximum
        gets clamped.
