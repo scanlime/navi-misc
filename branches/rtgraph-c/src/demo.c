@@ -26,7 +26,6 @@ int main(int argc, char** argv)
 			compare_int_func, NULL);
 
 
-
   rtg_bptree_close(tree);
   rtg_page_storage_close(storage);
   return 0;

@@ -201,7 +201,21 @@ RtgBPTree*        rtg_bptree_new                 (RtgPageStorage*   storage,
     index_init(self);
     leaf_init(self);
 
-
+    /* Find/create atoms for our important page references */
+    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
+				 "BPFoo", RtgPageAddress, RTG_PAGE_NULL);
+    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
+				 "blarrrrr", RtgPageAddress, RTG_PAGE_NULL);
+    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
+				 "blarrrrr", RtgPageAddress, RTG_PAGE_NULL);
+    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
+				 "blarrrrr", RtgPageAddress, RTG_PAGE_NULL);
+    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
+				 "yepski", RtgPageAddress, RTG_PAGE_NULL);
+    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
+				 "BPFoo", RtgPageAddress, RTG_PAGE_NULL);
+    rtg_page_atom_find_or_create(storage, RTG_PAGE_HEADER, &self->root,
+				 "noooooooooope", RtgPageAddress, RTG_PAGE_NULL);
 
     return self;
 }

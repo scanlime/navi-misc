@@ -29,6 +29,7 @@
 
 #include <gtk/gtk.h>
 #include "pagestorage.h"
+#include "pageatom.h"
 
 G_BEGIN_DECLS
 
@@ -68,12 +69,9 @@ struct _RtgBPTree {
 	int key_value_count;
     } leaf;
 
-    /* Our storage, and the address of our root page */
+    /* Our storage, and atoms referring to our important pages. */
     RtgPageStorage *storage;
-    RtgPageAddress root;
-
-    /* Endpoints in our doubly-linked list of leaves */
-    RtgPageAddress first_leaf, last_leaf;
+    RtgPageAtom     root, first_leaf, last_leaf;
 
     /* A version stamp used to track iterator validity */
     gulong stamp;

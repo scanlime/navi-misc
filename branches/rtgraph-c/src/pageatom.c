@@ -35,6 +35,7 @@
 
 #include <config.h>
 #include <string.h>
+#include <stdio.h>
 #include <gtk/gtk.h>
 #include "pageatom.h"
 
@@ -43,11 +44,11 @@
  */
 struct atom_page_footer {
     int            offset;       /* First offset within this page we can use for atom storage */
-    int            utilization;  /* Number of bytes actually in use, starting at offset */
     RtgPageAddress next;         /* All pages in this atom list form a circular linked list */
 };
 
 #define ATOM_LEN_SIZE   RTG_ALIGN_CEIL(sizeof(int))
+#define FOOTER_SIZE     RTG_ALIGN_CEIL(sizeof(struct atom_page_footer))
 
 /* The atoms are stored sequentially in each page, starting at
  * the footer's specified offset and ending before the footer itself.
@@ -69,11 +70,10 @@ struct atom_page_footer {
 #define page_address(page)            rtg_page_storage_lookup(storage, page)
 #define page_item(page, offset, type) (*((type*)(page_address(page)+(offset))))
 #define page_footer(page) \
-    page_item(page, storage->page_size - \
-    RTG_ALIGN_CEIL(sizeof(struct atom_page_footer)), struct atom_page_footer)
+    page_item(page, storage->page_size - FOOTER_SIZE, struct atom_page_footer)
 
-static size_t strnlen                    (const char* s,
-					  size_t maxlen)
+static
+size_t strnlen(const char* s, size_t maxlen)
 {
     /* This is available as a GNU extension, but we
      * use our own version for portability.
@@ -86,38 +86,7 @@ static size_t strnlen                    (const char* s,
     return len;
 }
 
-gboolean          rtg_page_atom_alloc_extend     (RtgPageStorage*   storage,
-						  RtgPageAddress    initial,
-						  RtgPageAddress*   page,
-						  int*              offset,
-						  int               length)
-{
-    /* Try to allocate an area of 'length' bytes by extending the
-     * utilization of an existing page. This is the fastest method of
-     * allocation, and the most common.
-     * Returns TRUE if 'page' and 'offset' now point to an allocated
-     * area of 'length' bytes, or FALSE if no pages could satisfy this request.
-     */
-    RtgPageAddress current = initial;
-
-    while (1) {
-	int max_utilization = storage->page_size - page_footer(current).offset -
-	    RTG_ALIGN_CEIL(sizeof(struct atom_page_footer));
-
-	/* Yay, this page has room */
-	if (page_footer(current).utilization + length <= max_utilization) {
-	    *page = current;
-	    *offset = page_footer(current).utilization + page_footer(current).offset;
-	    page_footer(current).utilization += length;
-	}
-
-	/* Next page, checking for wraparound */
-	current = page_footer(current).next;
-	if (current == initial)
-	    return FALSE;
-    }
-}
-
+static
 gboolean          rtg_page_atom_alloc_reclaim    (RtgPageStorage*   storage,
 						  RtgPageAddress    initial,
 						  RtgPageAddress*   page,
@@ -125,8 +94,7 @@ gboolean          rtg_page_atom_alloc_reclaim    (RtgPageStorage*   storage,
 						  int               length)
 {
     /* Try to allocate an area of 'length' bytes by recycling one or
-     * more contiguous deleted atoms. This is slowest, but we should
-     * try it before allocating new pages.
+     * more contiguous deleted atoms.
      */
     RtgPageAtom current, next;
     gboolean not_last_page;
@@ -180,13 +148,14 @@ gboolean          rtg_page_atom_alloc_reclaim    (RtgPageStorage*   storage,
 		/* Write a new length word immediately after this allocation,
 		 * and mark it as a deleted atom.
 		 */
-		page_item(current.page, current.key_offset + current.length,
+		page_item(current.page, current.key_offset + length - ATOM_LEN_SIZE,
 			  int) = current.length - length;
-		page_item(current.page, current.key_offset + current.length + 1,
+		page_item(current.page, current.key_offset + length,
 			  char) = '\0';
 
 		*offset = current.key_offset - ATOM_LEN_SIZE;
 		*page = current.page;
+		return TRUE;
 	    }
 	}
 
@@ -197,6 +166,7 @@ gboolean          rtg_page_atom_alloc_reclaim    (RtgPageStorage*   storage,
 }
 
 
+static
 void              rtg_page_atom_alloc_new_page   (RtgPageStorage*   storage,
 						  RtgPageAddress    initial,
 						  RtgPageAddress*   page,
@@ -216,11 +186,44 @@ void              rtg_page_atom_alloc_new_page   (RtgPageStorage*   storage,
     rtg_page_atom_add_page(storage, initial, current, 0);
 
     *page = current;
-    *offset = page_footer(current).utilization + page_footer(current).offset;
-    page_footer(current).utilization += length;
+    *offset = page_footer(current).offset;
 
-    g_assert(page_footer(current).utilization + page_footer(current).offset +
-	     RTG_ALIGN_CEIL(sizeof(struct atom_page_footer)) < storage->page_size);
+    g_assert(page_footer(current).offset + FOOTER_SIZE < storage->page_size);
+}
+
+static
+gboolean          rtg_page_atom_iter_set_offset  (RtgPageStorage*   storage,
+						  RtgPageAtom*      iter,
+						  int               offset)
+{
+    /* Try to read in data for the provided iterator at a particular
+     * offset within its current page. Returns TRUE if the data can
+     * be read, or FALSE if this offset is invalid.
+     */
+    int key_size;
+    int offset_limit = storage->page_size - FOOTER_SIZE;
+
+    if (offset >= offset_limit)
+	return FALSE;
+
+    /* Offset points to the length byte on our new atom */
+    iter->length = page_item(iter->page, offset, int);
+    offset += ATOM_LEN_SIZE;
+    if (offset >= offset_limit)
+	return FALSE;
+
+    /* Now it points to the key string. Count it and advance past */
+    iter->key_offset = offset;
+    key_size = RTG_ALIGN_CEIL(strnlen(rtg_page_atom_get_key(storage, iter), offset_limit-offset) + 1);
+    offset += key_size;
+    if (offset >= offset_limit)
+	return FALSE;
+
+    /* Everything remaining in 'length' is the value */
+    iter->value_offset = offset;
+    iter->value_length = iter->length - key_size;
+
+    return TRUE;
 }
 
 
@@ -232,28 +235,24 @@ void              rtg_page_atom_iter_init        (RtgPageStorage*   storage,
 						  RtgPageAddress    initial,
 						  RtgPageAtom*      iter)
 {
+    gboolean iter_set_correctly;
     iter->initial_page = initial;
     iter->page = initial;
+    iter_set_correctly = rtg_page_atom_iter_set_offset(storage, iter, page_footer(initial).offset);
+    g_assert(iter_set_correctly);
 }
 
 gboolean          rtg_page_atom_iter_next        (RtgPageStorage*   storage,
 						  RtgPageAtom*      iter)
 {
     int offset;
-    int offset_limit;
-    int length_size;
-    int key_size;
     RtgPageAddress next;
 
     /* Point to the length byte after the current atom */
     offset = iter->value_offset + iter->value_length;
 
     /* Loop until we have a valid offset... this will skip empty pages */
-    while (1) {
-	/* Have we exited the portion of this page used for atoms? */
-	offset_limit = page_footer(iter->page).offset + page_footer(iter->page).utilization;
-	if (offset < offset_limit)
-	    break;
+    while (!rtg_page_atom_iter_set_offset(storage, iter, offset)) {
 
 	/* Next page, if we aren't wrapping around */
 	next = page_footer(iter->page).next;
@@ -266,22 +265,6 @@ gboolean          rtg_page_atom_iter_next        (RtgPageStorage*   storage,
 	/* Point to the beginning of this page's atom list */
 	offset = page_footer(iter->page).offset;
     }
-
-    /* Offset points to the length byte on our new atom */
-    iter->length = page_item(iter->page, offset, int);
-    length_size = ATOM_LEN_SIZE;
-    offset += length_size;
-    g_assert(offset < offset_limit);
-
-    /* Now it points to the key string. Count it and advance past */
-    iter->key_offset = offset;
-    key_size = RTG_ALIGN_CEIL(strnlen(rtg_page_atom_get_key(storage, iter), offset_limit-offset) + 1);
-    offset += key_size;
-    g_assert(offset < offset_limit);
-
-    /* Everything remaining in 'length' is the value */
-    iter->value_offset = offset;
-    iter->value_length = iter->length - (length_size + key_size);
 
     return TRUE;
 }
@@ -331,12 +314,9 @@ void              rtg_page_atom_new              (RtgPageStorage*   storage,
     value_size = RTG_ALIGN_CEIL(value_size);
     atom_size = ATOM_LEN_SIZE + key_size + value_size;
 
-    /* Try our various atom allocation methods */
-    if (!rtg_page_atom_alloc_extend(storage, initial, &page, &offset, atom_size)) {
-	if (!rtg_page_atom_alloc_reclaim(storage, initial, &page, &offset, atom_size)) {
-	    rtg_page_atom_alloc_new_page(storage, initial, &page, &offset, atom_size);
-	}
-    }
+    /* Try to allocate it within existing pages, but if that fails get a new page */
+    if (!rtg_page_atom_alloc_reclaim(storage, initial, &page, &offset, atom_size))
+	rtg_page_atom_alloc_new_page(storage, initial, &page, &offset, atom_size);
 
     /* Write out this atom's length and key */
     iter->initial_page = initial;
@@ -377,10 +357,17 @@ void              rtg_page_atom_init_page        (RtgPageStorage*   storage,
 						  RtgPageAddress    initial,
 						  int               reserved)
 {
+    int offset;
+    offset = RTG_ALIGN_CEIL(reserved);
+
     /* Fill in the page footer */
-    page_footer(initial).offset = RTG_ALIGN_CEIL(reserved);
-    page_footer(initial).utilization = 0;
+    page_footer(initial).offset = offset;
     page_footer(initial).next   = initial;
+
+    /* Fill the rest of it with one big deleted atom */
+    page_item(initial, offset, int) = storage->page_size - offset - ATOM_LEN_SIZE - FOOTER_SIZE;
+    offset += ATOM_LEN_SIZE;
+    page_item(initial, offset, char) = '\0';
 }
 
 void              rtg_page_atom_add_page         (RtgPageStorage*   storage,
