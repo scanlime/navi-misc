@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="iso-8859-1"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>Firestarter::Input Manager</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link rel="stylesheet" type="text/css" href="../../CSS/basic.css" />
+</head>
+
+<body>
+<div id="container">
+
+<div id="header">
+<h1><a href="../../index.html">Firestarter</a></h1>
+</div>
+
+<div id="nav">
+<ul>
+	<li class="head">About
+	<ul>
+		<li><a href="../../news.html">News</a></li>
+		<li><a href="../../readme.html">Readme</a></li>
+		<li><a href="../../todo.html">Todo</a></li>
+		<li><a href="../../relnotes.html">Release Notes</a></li>
+		<li><a href="../../bugs.html">Bugs</a></li>
+		<li><a href="../../devinfo.html">Developer Info</a></li>
+		<li><a href="../../compiling.html">Compiling</a></li>
+		<li><a href="../../coding.html">Coding Style</a></li>
+		<li><a href="../../porting.html">Porting</a></li>
+		<li><a href="../../copying.html">Copying</a></li>
+		<li><a href="../../authors.html">Authors</a></li>
+		<li><a href="../../contacts.html">Contact Us</a></li>
+	</ul>
+	</li>
+</ul>
+<ul>
+	<li class="head">Documentation
+	<ul>
+		<li><a href="../user/index.html">User Manual</a></li>
+		<li><a href="index.html">Developer Manual</a></li>
+	</ul>
+	</li>
+</ul>
+<ul>
+	<li class="head">Resources
+	<ul>
+		<li><a href="http://forum.firestarter.org">Forum</a></li>
+		<li><a href="http://somecgiircthing">Irc</a></li>
+		<li><a href="http://www.ogre3d.org">Ogre</a></li>
+		<li><a href="http://www.libsdl.org">SDL</a></li>
+		<li><a href="http://www.bzflag.org">BZFlag</a></li>
+	</ul>
+	</li>
+</ul>
+
+<br />
+<p class="copy">Copyright &copy; 2004<br />Jeff Myers</p>
+</div>
+
+<div id="content">
+<h4>Input Manager</h4>
+<p><b>Input API requirements doc</b></p>
+<ul>
+<li>One central input manager
+
+<li>Able to handle input from keyboard, mouse (5 buttons + wheel), n joysticks/game pads, and any other device/api in the future.
+
+<li>Able to enumerate the devices on a system, and each item on each device
+
+<li>Able to register 4 types of "actions", Button, axis, positional, and text.
+	<ul><li>Button actions return a value from 0 to 1 and can have a threshold for Boolean tests. They are for actions such as "fire". They should also be able to return a "toggle" state
+	<li>Axis actions return a value from -1 to 1. They are used for actions such as "turn", They can be bound to mouse, stick, or keys. If they are bound to keys the axis should do some sort of interpolations. They should have features for scale, clamp, and dead zone settings
+	<li>Positional actions return a screen X and Y pos and a click state. These are use for actions such as menu "clicks" and other UI items. they should work with all devices and do similar interpolations.
+	<li>Text actions return the current character or string from the keyboard. These are use for chat or text entry actions.</ul>
+
+<li>The calling applications can register listeners with each action that will be called each time an action is updated.
+
+<li>The calling application can also poll the state of any action at any time.
+
+<li>Each action should be able to be assigned to a scope or group so that they can be turned on or off (muted) at any time.
+<ul><li>Muted actions do not call there listeners and return 0 for all polls</ul>
+
+<li>Actions can be bound to any item on any device. Actions that take more then one input item must keep items on the same device (keyboard, mouse axes) etc..
+
+<li>The input manager should be able to load in a configuration file and bind up a default set of actions.
+
+<li>The input manager should allow definition of multiple "binding sets" that can be swapped out at any time.
+
+<li>Actions can be rebound to new keys at any time and not change the pointer to the action object.
+
+<li>Input manger should be able to poll the state of any item on any device to know "what is down now" for configurations interfaces.
+
+<li>The input manager should be able to support future devices by only accessing devices by a base API/class
+
+<li>A custom "calibrate" method should be implementing in each device for the weird "devices' like voice commands or some other whackass idea.
+</ul>
+</div>
+
+</div> <!-- End Container div -->
+</body>
+</html>
