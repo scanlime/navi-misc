@@ -9,18 +9,22 @@ mvmtOneBass = \relative c {
 	b4\f r r r
 	b r cis r
 	c r r2
+	b4 b b fis'-.
 
 	% 10
-	b4 b b fis'-.
 	R1*4
+	b8\mf r r4 b8 r r4
 
 	% 15
-	b8\mf r r4 b8 r r4
 	r4 b8 r r4 b8 r
 	r4 b8 r r4 cis8 r
 	gis8 r r4 gis'8 r r4
 	fis8 r r4
+	b,8 r r4
 
 	% 20
-	b,8 r r4
+	fis1 ~
+	fis1 ~
+	\< <fis cis'> \!
+	<b, fis'>8 r r4 r2
 }
