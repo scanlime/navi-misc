@@ -1,4 +1,4 @@
 BUGS for XXXXX
 ==============
 
-none yet cus no code
+crash in ogre on clearing of scenemanger when going between menu and game system
