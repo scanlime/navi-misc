@@ -69,10 +69,9 @@ def SectionGrid(*rows):
     """Create a grid of sections, for layouts showing a lot of small boxes
        in a regular pattern.
        """
-    # FIXME: this CSS is crufty
-    return tag('table', _class="columns")[[
-        tag('tr')[[
-            tag('td', _class="main")[
+    return tag('table', _class="sectionGrid")[[
+        tag('tr', _class="sectionGrid")[[
+            tag('td', _class="sectionGrid")[
                 cell
             ] for cell in row
         ]] for row in rows
