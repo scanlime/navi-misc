@@ -384,8 +384,8 @@ class Reader:
 
             worldObject = (
                 arc
-              | box
               | base
+              | box
               | cone
               | define
               | dynamicColor
