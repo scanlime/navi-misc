@@ -732,7 +732,7 @@
 	      <property name="can_focus">True</property>
 	      <property name="show_tabs">True</property>
 	      <property name="show_border">False</property>
-	      <property name="tab_pos">GTK_POS_TOP</property>
+	      <property name="tab_pos">GTK_POS_LEFT</property>
 	      <property name="scrollable">False</property>
 	      <property name="enable_popup">False</property>
 
@@ -3093,7 +3093,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkLabel" id="label68">
+		<widget class="GtkLabel" id="scripts and plugins*">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">scripts and plugins</property>
 		  <property name="use_underline">False</property>
@@ -3217,7 +3217,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkLabel" id="label98">
+		<widget class="GtkLabel" id="keybindings*">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">keyboard shortcuts</property>
 		  <property name="use_underline">False</property>
