@@ -352,6 +352,7 @@ adChannelLoop
 	movlw	0xFF		; Wait a while to for the ADC holding capacitor to aquire the signal.
 	movwf	acq_iterator ; This should be plenty long enough for an input with an impedence up to 1k ohm
 aquisitionLoop
+	clrwdt
 	decfsz	acq_iterator, f
 	goto	aquisitionLoop	
 
@@ -359,6 +360,7 @@ aquisitionLoop
 	bsf	ADCON0, GO		; Start the ADC
 	pagesel	adFinishLoop ; Wait for it to finish
 adFinishLoop
+	clrwdt
 	btfsc	ADCON0, NOT_DONE
 	goto	adFinishLoop
 
@@ -416,9 +418,10 @@ TxRxRequest
 	movf	BufferData+wIndex, w ; Load address bits 0-7 into FSR
 	movwf	FSR
 
-txLoop
 	pagesel	txLoop
 	banksel	PIR1		; Poll for transmitter availability
+txLoop
+	clrwdt
 	btfss	PIR1, TXIF
 	goto	txLoop
 
@@ -434,6 +437,7 @@ txLoop
 	banksel	TXSTA		; Wait for the transmit shift register to empty
 	pagesel	txFinish
 txFinish
+	clrwdt
 	btfss	TXSTA, TRMT
 	goto	txFinish
 
