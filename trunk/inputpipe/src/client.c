@@ -34,6 +34,7 @@
 #include <sys/select.h>
 #include <sys/time.h>
 #include <sys/select.h>
+#include <dirent.h>
 #include <linux/tcp.h>
 #include <netdb.h>
 #include <errno.h>
@@ -51,6 +52,9 @@ struct input_absinfo {
   __s32 flat;
 };
 #endif
+
+#define test_bit(nr, addr) \
+        (((1UL << ((nr) & 31)) & (((const unsigned int *) addr)[(nr) >> 5])) != 0)
 
 struct buffer {
   unsigned char data[4096];
@@ -91,7 +95,16 @@ struct connection {
 static struct connection *connection_list_head = NULL;
 static struct connection *connection_list_tail = NULL;
 
+/* Configuration, set via the command line */
 static int config_verbose = 1;
+static char *config_host_and_port = "wasabi";
+static int config_single_connection = 0;
+static int config_hotplug_polling = 1;
+static int config_detect_joystick = 1;
+static int config_detect_mouse = 0;
+static int config_detect_keyboard = 0;
+static int config_detect_all = 0;
+static char *config_input_path = "/dev/input";
 
 #define connection_message(self, fmt, ...) do { \
     if (config_verbose) \
@@ -124,13 +137,17 @@ static void               connection_add_fds  (struct connection *self,
 static int                connection_poll     (struct connection *self,
 					       fd_set *fd_read);
 
-static void               connection_list_add_fds(int *fd_max,
-						  fd_set *fd_read);
-static void               connection_list_poll(fd_set *fd_read);
-static void               connection_list_append(struct connection *c);
-static void               connection_list_remove(struct connection *c);
+static void               connection_list_add_fds   (int *fd_max,
+						     fd_set *fd_read);
+static void               connection_list_poll      (fd_set *fd_read);
+static void               connection_list_append    (struct connection *c);
+static void               connection_list_remove    (struct connection *c);
+static struct connection* connection_list_find_path (const char *path);
 
 static int                event_loop          (void);
+static void               hotplug_poll        (void);
+static int                hotplug_detect      (int fd);
+
 static void               event_from_server   (struct server *svr,
 					       int evdev);
 static void               repack_bits         (unsigned long *src,
@@ -636,6 +653,17 @@ static void connection_list_poll(fd_set *fd_read)
   }
 }
 
+static struct connection* connection_list_find_path (const char *path)
+{
+  struct connection *i;
+
+  for (i=connection_list_head; i; i=i->next) {
+    if (!strcmp(i->evdev_path, path))
+      return i;
+  }
+  return NULL;
+}
+
 
 /***********************************************************************/
 /******************************************************* Event Loop ****/
@@ -665,7 +693,12 @@ static int event_loop(void) {
   fd_set fd_read;
   int fd_max;
   int n;
-  struct timeval timeout;
+  struct timeval timeout, remaining;
+
+  /* The polling interval for detecting device insertion/removal */
+  timeout.tv_sec = 1;
+  timeout.tv_usec = 0;
+  remaining = timeout;
 
   while (1) {
     FD_ZERO(&fd_read);
@@ -673,21 +706,138 @@ static int event_loop(void) {
 
     connection_list_add_fds(&fd_max, &fd_read);
 
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
-
-    n = select(fd_max, &fd_read, NULL, NULL, &timeout);
+    n = select(fd_max, &fd_read, NULL, NULL, &remaining);
     if (n<0) {
       perror("select");
       exit(1);
     }
+    else if (n == 0) {
+      /* Remaining time expired, poll for new devices.
+       * This also polls implicitly for disconnections,
+       * when we do connection_list_poll()
+       */
+      remaining = timeout;
+      if (config_hotplug_polling)
+	hotplug_poll();
+    }
 
     connection_list_poll(&fd_read);
+
+    /* In single conneciton mode, we exit if we have no connections left */
+    if (config_single_connection && !connection_list_head)
+      break;
   }
 }
 
+static void hotplug_poll(void)
+{
+  /* Scan the input path for event devices */
+  DIR *dir;
+  struct dirent *dent;
+  int fd;
+  char full_path[PATH_MAX];
 
-int main(int argc, char **argv) {
+  dir = opendir(config_input_path);
+  if (!dir) {
+    /* No point to continuing if we can't scan the directory */
+    perror("Opening input directory");
+    exit(1);
+  }
+
+  while ((dent = readdir(dir))) {
+
+    /* We only care about event devices */
+    if (strncmp(dent->d_name, "event", 5))
+      continue;
+
+    /* Construct a full path, we'll need it for the rest */
+    strncpy(full_path, config_input_path, sizeof(full_path)-1);
+    full_path[sizeof(full_path)-1] = '\0';
+    strncat(full_path, "/", sizeof(full_path)-1);
+    full_path[sizeof(full_path)-1] = '\0';
+    strncat(full_path, dent->d_name, sizeof(full_path)-1);
+    full_path[sizeof(full_path)-1] = '\0';
+
+    /* Make sure it isn't a device we already have connected */
+    if (connection_list_find_path(full_path))
+      continue;
+
+    /* Make sure we can open it- if we can, we'll need to see
+     * whether it's a device we're interested in.
+     */
+    fd = open(full_path, O_RDWR);
+    if (fd >= 0) {
+      if (hotplug_detect(fd)) {
+	close(fd);
+	connection_new(full_path, config_host_and_port);
+      }
+      else {
+	close(fd);
+      }
+    }
+  }
+
+  closedir(dir);
+}
+
+static int hotplug_detect(int fd)
+{
+  /* Given an opened event device, return nonzero if it's
+   * one we're interested in automatically connecting.
+   * This uses the config_detect_* criteria.
+   */
+  unsigned char evbits[32];
+  unsigned char keybits[32];
+  unsigned char absbits[32];
+  unsigned char relbits[32];
+
+  if (config_detect_all)
+    return 1;
+
+  if (ioctl(fd, EVIOCGBIT(0, sizeof(evbits)), evbits) < 0)
+    return 0;
+  if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keybits)), keybits) < 0)
+    return 0;
+  if (ioctl(fd, EVIOCGBIT(EV_REL, sizeof(relbits)), relbits) < 0)
+    return 0;
+  if (ioctl(fd, EVIOCGBIT(EV_ABS, sizeof(absbits)), absbits) < 0)
+    return 0;
+
+  if (config_detect_joystick) {
+    /* Joysticks need two absolute axes and a joystickesque button */
+    if (test_bit(EV_KEY, evbits) &&
+	test_bit(EV_ABS, evbits) &&
+	test_bit(ABS_X, absbits) &&
+	test_bit(ABS_Y, absbits) &&
+	(test_bit(BTN_TRIGGER, keybits) ||
+	 test_bit(BTN_A, keybits) ||
+	 test_bit(BTN_1, keybits)))
+      return 1;
+  }
+
+  if (config_detect_mouse) {
+    /* Mice have two relative axes and a mouse-like button */
+    if (test_bit(EV_KEY, evbits) &&
+	test_bit(EV_REL, evbits) &&
+	test_bit(REL_X, relbits) &&
+	test_bit(REL_Y, relbits) &&
+	test_bit(BTN_MOUSE, keybits))
+      return 1;
+  }
+
+  if (config_detect_keyboard) {
+    /* Keyboards have keys, but no axes */
+    if (test_bit(EV_KEY, evbits) &&
+	(!test_bit(EV_REL, evbits)) &&
+	(!test_bit(EV_ABS, evbits)))
+      return 1;
+  }
+
+  return 0;
+}
+
+int main(int argc, char **argv)
+{
   struct connection *conn;
   int evdev;
 
