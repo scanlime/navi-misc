@@ -77,12 +77,13 @@ static void animation_class_init(AnimationClass *klass) {
 }
 
 static void animation_init(Animation *self) {
-  self->model = gtk_list_store_new(5,
-				   GDK_TYPE_PIXBUF,     /* ANIMATION_MODEL_THUMBNAIL */
-				   G_TYPE_STRING,       /* ANIMATION_MODEL_PARAMS    */
-				   G_TYPE_DOUBLE,       /* ANIMATION_MODEL_DURATION  */
-				   SPLINE_TYPE,         /* ANIMATION_MODEL_SPLINE    */
-				   GTK_TYPE_TREE_ITER); /* ANIMATION_MODEL_ITER      */
+  self->model = gtk_list_store_new(6,
+				   GDK_TYPE_PIXBUF,     /* ANIMATION_MODEL_THUMBNAIL   */
+				   G_TYPE_STRING,       /* ANIMATION_MODEL_PARAMS      */
+				   G_TYPE_DOUBLE,       /* ANIMATION_MODEL_DURATION    */
+				   SPLINE_TYPE,         /* ANIMATION_MODEL_SPLINE      */
+				   GTK_TYPE_TREE_ITER,  /* ANIMATION_MODEL_ITER        */
+				   G_TYPE_OBJECT);      /* ANIMATION_MODEL_BIFURCATION */
 }
 
 static void animation_dispose(GObject *gobject) {

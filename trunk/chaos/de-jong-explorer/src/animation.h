@@ -53,6 +53,7 @@ enum {
   ANIMATION_MODEL_DURATION,     /* The duration of the following transition, in seconds */
   ANIMATION_MODEL_SPLINE,       /* The interpolation spline, a boxed Spline instance */
   ANIMATION_MODEL_ITER,         /* A GtkTreeIter pointing to this node */
+  ANIMATION_MODEL_BIFURCATION,  /* Cached BifurcationDiagram instance for this keyframe */
 };
 
 typedef struct _AnimationIter {
