@@ -4,7 +4,7 @@
  * This is a module for the Linux kernel, providing a userspace interface
  * to the uvswitch hardware via the USB protocol described in uvswitch_protocol.h.
  *
- * Copyright(c) 2003 Micah Dowty <micah@picogui.org>
+ * Copyright (C) 2003-2004 Micah Dowty <micah@picogui.org>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
