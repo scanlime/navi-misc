@@ -130,7 +130,7 @@ class NotifiyingChannel(Channel):
     def setValue(self, value, timestamp=None):
         Channel.setValue(self, value, timestamp)
         for listener in listeners:
-            listener.Notify(self)
+            listener.notifyData(self)
 
 class FunctionChannel(Channel):
     """A channel that evaluates a function, specified as a Python expression
