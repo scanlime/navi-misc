@@ -120,5 +120,11 @@ to least important:
 
     This metadata key is probably not useful for projects, so the XML format isn't documented here yet :)
 
+* links-filter
 
+    A way to control the contents of the 'links' box in the stats browser. The fitler is made up of
+    actions, each of which is a line starting with "+" or "-" followed by whitespace and a regular
+    expression. "+" actions add all available links matching the regex, "-" actions remove any
+    links matching the regex. The default links are RSSLink, RSSCustomizer, MetadataLink,
+    and XMLLink. To disable all RSS links, for example, you could use the line "- RSS.*"
 
