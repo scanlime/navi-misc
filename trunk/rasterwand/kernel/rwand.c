@@ -52,7 +52,7 @@ struct rwand_timings {
 	int                     coil_end;
 };
 
-#define FILTER_SIZE_SHIFT       8
+#define FILTER_SIZE_SHIFT       10
 #define FILTER_SIZE             (1<<FILTER_SIZE_SHIFT)
 
 /* A simple averaging low-pass filter, O(1) */
@@ -110,7 +110,9 @@ static DECLARE_MUTEX (disconnect_sem);
 /* 1/10 second timeout for control requests */
 #define REQUEST_TIMEOUT    (HZ/10)
 
-#define STATUS_PACKET_SIZE 6
+#define STATUS_PACKET_SIZE 8    /* This must always be 8, since that's what the hardware
+				 * gives us. If it's smaller, the HCD will probably crash horribly.
+				 */
 
 /* Mapping between rwand buttons and linux input system buttons */
 #define MAPPED_BTN_SQUARE    KEY_ENTER
@@ -197,7 +199,7 @@ static struct usb_driver rwand_driver = {
 /******************************************************************************/
 
 /* Add a new value to the filter, returning the filter's current value */
-static int     filter_push(struct filter *filter, int new_value) {
+static int filter_push(struct filter *filter, int new_value) {
 	int old_value;
 
 	old_value = filter->buffer[filter->pointer];
