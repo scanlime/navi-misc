@@ -2,19 +2,23 @@
   <StartMode startupentry="pipeline-editor" single="True">
     <Execute entry="pipeline-editor" type="None" />
     <Execute entry="basic" type="None" />
+    <Execute entry="histogram-imager" type="None" />
   </StartMode>
   <Entries>
     <Entry filename="./pipeline-editor.prjx" />
     <Entry filename="./plugins/basic/basic.prjx" />
+    <Entry filename="./plugins/histogram-imager/histogram-imager.prjx" />
   </Entries>
   <Configurations active="Debug">
     <Configuration name="Release">
       <Entry name="pipeline-editor" configurationname="Debug" build="False" />
       <Entry name="basic" configurationname="Debug" build="False" />
+      <Entry name="histogram-imager" configurationname="Debug" build="False" />
     </Configuration>
     <Configuration name="Debug">
       <Entry name="pipeline-editor" configurationname="Debug" build="False" />
       <Entry name="basic" configurationname="Debug" build="False" />
+      <Entry name="histogram-imager" configurationname="Debug" build="False" />
     </Configuration>
   </Configurations>
 </Combine>
