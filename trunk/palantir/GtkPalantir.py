@@ -257,18 +257,24 @@ class PalantirWindow:
     reactor.stop()
 
   def on_dice_button_clicked(self, widget, data=10):
+    ''' Whenever one of the dice buttons is clicked roll it. '''
+    # Get number of times to roll and modifiers.
     time = self.tree.get_widget('times').get_text()
     mods = self.tree.get_widget('mods').get_text()
+    # If we're using the White Wolf dice system we'll need to get the difficulty.
     if self.tree.get_widget('white_wolf_dice').get_active():
       diff = self.tree.get_widget('diff').get_text()
       if not diff:
 	diff = 6
     else:
       diff = 0
+    # Default values if the fields are blank.
     if not time:
       time = 1
     if not mods:
       mods = 0
+
+    # Roll the dice.
     self.dieRoller.roll([int(time)], data, [int(mods)], int(diff))
 
   ### Misc. Necessary Functions ###

@@ -23,6 +23,8 @@ class DieRoller:
   # All action objects for the character sheet are required to have this function.
   def roll(self, times, sides, mods=0, diff=0):
     ''' Roll the dice. '''
+    ### This needs to be cleaned up a lot.  And support for critical misses should be
+    ### added.
     total = 0
     totalTimes = 0
     rolls = []
@@ -44,10 +46,14 @@ class DieRoller:
     # Use the dice system from the White Wolf games.
     else:
       for roll in range(totalTimes):
+	# Get the die roll.
 	score = randint(1, sides)
+	# Add the modifiers.
 	for mod in mods:
 	  score += mod
+	# Append the roll to the list of rolls.
 	rolls.append(score)
+	# If it's a success increase the total by one.
 	if score >= diff:
 	  total += 1
 
