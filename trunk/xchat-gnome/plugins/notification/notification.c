@@ -34,6 +34,7 @@ static xchat_plugin *ph;				// Plugin handle.
 static gboolean window_visible = TRUE;	// Keep track of whether the window is visible.
 static NavTree *nav_tree;				// A reference to the navigation tree.
 static EggTrayIcon *notification;		// Notification area icon.
+static GtkMenu *menu;					// The menu that pops up.
 static GtkWidget *image;				// The image displayed by the icon.
 static GdkPixbuf *logo,					// Pixbufs for the notification area.
 				 *new_data,
@@ -110,6 +111,33 @@ xchat_plugin_deinit ()
 	return 1;
 }
 
+gboolean
+notification_menu_add_channel (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+	GtkWidget *item;
+	GdkPixbuf *image;
+	gchar *channel;
+
+	/* Create a new menu item with a perdy picture. */
+	gtk_tree_model_get (model, iter, 0, &image, 1, &channel, -1);
+	item = gtk_image_menu_item_new_with_label (channel);
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), gtk_image_new_from_pixbuf (item));
+
+	/* Shove it in the menu. */
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+	gtk_widget_show (item);
+
+	return FALSE;
+}
+
+static void
+notification_menu_show ()
+{
+	menu = gtk_menu_new ();
+	gtk_tree_model_foreach (GTK_TREE_MODEL (nav_tree->model->sorted),
+			(GtkTreeModelForeachFunc) notification_menu_add_channel, NULL);
+}
+
 static gboolean
 notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
@@ -128,11 +156,10 @@ notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data
 
 		/* Right click. */
 		case 3:
-			xchat_print (ph, "right click\n");
+			notification_menu_show();
 			break;
 
 		default:
-			xchat_print (ph, "event\n");
 			break;
 	}
 
