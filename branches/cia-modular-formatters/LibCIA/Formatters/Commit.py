@@ -33,7 +33,7 @@ __all__ = ['CommitToIRC', 'CommitToPlaintext', 'CommitToXHTML',
            'CommitTitle', 'CommitToXHTMLLong']
 
 
-class CommitFormatter(Message.Formatter):
+class CommitFormatter(Message.ModularFormatter):
     """Base class for formatters that operate on commit messages.
        Includes a filter for commit messages, and utilities for
        extracting useful information from the commits.
@@ -89,7 +89,7 @@ class CommitFormatter(Message.Formatter):
         """Break up our list of files into a common prefix and a sensibly-sized
            list of filenames after that prefix.
            """
-        files = XML.dig(message.xml, "message", "body", "commit", "files")
+        files = XML.dig(args.message.xml, "message", "body", "commit", "files")
         if not files:
             return []
 
@@ -107,7 +107,7 @@ class CommitFormatter(Message.Formatter):
             return [prefix]
 
     def component_log(self, element, args):
-        log = XML.dig(message.xml, "message", "body", "commit", "log")
+        log = XML.dig(args.message.xml, "message", "body", "commit", "log")
         if not log:
             return []
 
@@ -195,12 +195,11 @@ class CommitToIRC(CommitFormatter):
     wrapWidth = 80
 
     defaultComponentTree = """<format>
-    <color fg="green"><author/> <branch/> * <version/> <autoHide>r<revision/></autoHide> <module/>/<files/>: <log/>
+    <author/> <branch/> * <version/> <autoHide>r<revision/></autoHide> <module/>/<files/>: <log/>
     </format>"""
 
     def __init__(self):
         """By default, use the IRC color formatter"""
-        CommitFormatter.__init__(self)
         from LibCIA.IRC.Formatting import format
         self.colorFormatter = format
 
@@ -217,24 +216,6 @@ class CommitToIRC(CommitFormatter):
            colorization tags inside the <format> parameter.
            """
         pass
-
-    def format_author(self, author):
-        return self.colorFormatter(CommitFormatter.format_author(self, author), 'green')
-
-    def format_version(self, version):
-        return self.colorFormatter(XML.shallowText(version).strip(), 'bold')
-
-    def format_revision(self, rev):
-        return 'r' + self.colorFormatter(XML.shallowText(rev).strip(), 'bold')
-
-    def format_module(self, module):
-        return self.colorFormatter(CommitFormatter.format_module(self, module), 'aqua')
-
-    def format_branch(self, branch):
-        return self.colorFormatter(CommitFormatter.format_branch(self, branch), 'orange')
-
-    def joinMessage(self, metadata, log):
-        return "%s%s %s" % (" ".join(metadata), self.colorFormatter(':', 'bold'), log)
 
 
 class CommitToPlaintext(CommitFormatter):
