@@ -6,7 +6,7 @@ There are only a few steps in connecting a project with CIA:
 
 - Make sure you understand `how CIA works`_
 
-- Download the `client script` that's right for you, following the
+- Download the `client script`_ that's right for you, following the
   instructions within to install it.
 
 - Tada. The next time you commit, your project should show up in the
@@ -40,6 +40,7 @@ There are only a few steps in connecting a project with CIA:
 .. _Freenode: http://freenode.org
 .. _ruleset: /rulesets
 .. _rulesets: /rulesets
+.. _client script: /doc/clients
 .. _Micah: mailto:micah@picogui.org
 .. _BZFlag: /stats/project/BZFlag
 .. _Gaim: /stats/project/Gaim
