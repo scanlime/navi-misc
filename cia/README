@@ -31,6 +31,10 @@ with web, IRC, XML-RPC, and email interfaces.
     Contains the static files served by CIA's web interface. cia_server.tac
     injects several dynamic resources into the same namespace.
 
+  - clients
+
+    Scripts projects can run remotely to deliver their messages to CIA
+
 
 -------- An overview of CIA's internals:
 
