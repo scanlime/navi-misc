@@ -201,6 +201,12 @@ class NullFile:
 
 class Page(Template.Page):
     """A web page holding a docutils-formatted document"""
+
+    # Our title isn't set until render-time. We still need a title to
+    # use for linking and such however. For now, this isn't terribly
+    # important- we just use a static and rather generic title.
+    mainTitle = "Docmentation"
+
     def __init__(self, path):
         self.path = path
         Template.Page.__init__(self)
