@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import gtk, GTKpalantir
+import gtk, GTKpalantir, palantirIRC
+from twisted.internet import reactor
 
 if __name__ == '__main__':
   GTKpalantir.Init()
