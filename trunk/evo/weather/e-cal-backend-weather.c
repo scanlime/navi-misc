@@ -259,6 +259,7 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	else
 		snow = g_strdup_printf ("%d-%d\" snowfall\n", (int) report->snowlow, (int) report->snowhigh);
 	description.value = g_strdup_printf ("%s\n%s%s", getConditions (report), pop, snow);
+	description.altrep = g_strdup_printf ("");
 	text_list = g_slist_append (text_list, &description);
 	e_cal_component_set_description_list (cal_comp, text_list);
 

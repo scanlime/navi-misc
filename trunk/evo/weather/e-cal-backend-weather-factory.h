@@ -22,6 +22,9 @@
 #ifndef E_CAL_BACKEND_WEATHER_FACTORY_H
 #define E_CAL_BACKEND_WEATHER_FACTORY_H
 
+#include <glib-object.h>
+#include "libedata-cal/e-cal-backend-factory.h"
+
 G_BEGIN_DECLS
 
 void		eds_module_initialize (GTypeModule *module);
