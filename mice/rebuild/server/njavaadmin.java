@@ -61,7 +61,7 @@ public class njavaadmin extends nbase
 		{
 			cmd = read();
 			if(cmd.compareTo("notice") == 0)
-				System.out.println("Notice: " + read());
+				imain.database.updater.sendNotice(read());
 			if(cmd.compareTo("quit") == 0)
 				return;
 		}
