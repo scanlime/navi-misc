@@ -23,6 +23,8 @@
  */
 
 #include "url-editor-dialog.h"
+#include <string.h>
+#include <libedataserverui/e-source-selector.h>
 
 static GtkDialogClass *parent_class = NULL;
 
@@ -54,16 +56,61 @@ url_editor_dialog_init (UrlEditorDialog *dialog)
 }
 
 static void
+init_widgets (UrlEditorDialog *dialog)
+{
+#define GW(name) ((dialog->name) = glade_xml_get_widget (dialog->gui, #name))
+	GW(url_editor);
+	GW(calendar_list_label);
+	GW(url_entry);
+	GW(daily);
+	GW(weekly);
+	GW(user_publish);
+	GW(scrolled_window);
+	GW(username_entry);
+	GW(password_entry);
+	GW(remember_pw);
+#undef GW
+}
+
+static void
 url_editor_dialog_construct (UrlEditorDialog *dialog)
 {
 	GladeXML *gui;
 	GtkWidget *toplevel;
+	EPublishUri *uri;
 
 	gui = glade_xml_new (EVOLUTION_GLADEDIR "/url-editor-dialog.glade", "toplevel_dialog", NULL);
 	dialog->gui = gui;
 
-	toplevel = glade_xml_get_widget (gui, "toplevel_dialog");
+	g_return_if_fail (gui != NULL);
 
+	init_widgets (dialog);
+
+	uri = dialog->uri;
+
+	if (uri->location && uri->username) {
+		if (strlen (uri->location) != 0)
+			gtk_entry_set_text (GTK_ENTRY (dialog->url_entry), uri->location);
+		if (strlen (uri->username) != 0)
+			gtk_entry_set_text (GTK_ENTRY (dialog->username_entry), uri->username);
+	}
+
+	uri->password = e_passwords_get_password ("Calendar", uri->location);
+
+	if (uri->password) {
+		if (strlen (uri->password) != 0) {
+			gtk_entry_set_text (dialog->password_entry, uri->password);
+			e_dialog_toggle_set (dialog->remember_pw, TRUE);
+		} else {
+			e_dialog_toggle_set (dialog->remember_pw, FALSE);
+		}
+	}
+
+	switch (uri->publish_freq) {
+	}
+
+
+	toplevel = glade_xml_get_widget (gui, "toplevel_dialog");
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), toplevel);
 }
 
@@ -73,9 +120,17 @@ url_editor_dialog_new (GtkTreeModel *url_list_model, EPublishUri *pub_uri)
 	UrlEditorDialog *dialog;
 
 	dialog = (UrlEditorDialog *) g_object_new (url_editor_dialog_get_type (), NULL);
+
+	dialog->uri = pub_uri;
+
 	url_editor_dialog_construct (dialog);
 
-	return GTK_WIDGET (dialog);
+	if (dialog->gui) {
+		return GTK_WIDGET (dialog);
+	} else {
+		g_object_unref (dialog);
+		return NULL;
+	}
 }
 
 GType
