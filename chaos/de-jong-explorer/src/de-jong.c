@@ -28,6 +28,7 @@
 
 static void de_jong_class_init(DeJongClass *klass);
 static void de_jong_init(DeJong *self);
+static void de_jong_init_calc_params(GObjectClass *object_class);
 static void de_jong_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void de_jong_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 static void de_jong_reset_calc(DeJong *self);
@@ -84,104 +85,121 @@ static void de_jong_class_init(DeJongClass *klass) {
   object_class->set_property = de_jong_set_property;
   object_class->get_property = de_jong_get_property;
 
-  g_object_class_install_property(object_class,
-				  PROP_A,
-				  g_param_spec_double("a",
-						      "A",
-						      "de Jong parameter A",
-						      -G_MAXDOUBLE, G_MAXDOUBLE, 1.41914,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
+  de_jong_init_calc_params(object_class);
+}
 
-  g_object_class_install_property(object_class,
-				  PROP_B,
-				  g_param_spec_double("b",
-						      "B",
-						      "de Jong parameter B",
-						      -G_MAXDOUBLE, G_MAXDOUBLE, -2.28413,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
+static void de_jong_init_calc_params(GObjectClass *object_class) {
+  GParamSpec *spec;
+  const gchar *current_group = "Computation";
 
-  g_object_class_install_property(object_class,
-				  PROP_C,
-				  g_param_spec_double("c",
-						      "C",
-						      "de Jong parameter C",
-						      -G_MAXDOUBLE, G_MAXDOUBLE, 2.42754,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
+  spec = g_param_spec_double       ("a",
+				    "A",
+				    "de Jong parameter A",
+				    -G_MAXDOUBLE, G_MAXDOUBLE, 1.41914,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.001, 0.01, 5);
+  g_object_class_install_property  (object_class, PROP_A, spec);
 
-  g_object_class_install_property(object_class,
-				  PROP_D,
-				  g_param_spec_double("d",
-						      "D",
-						      "de Jong parameter D",
-						      -G_MAXDOUBLE, G_MAXDOUBLE, -2.17719,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
+  spec = g_param_spec_double       ("b",
+				    "B",
+				    "de Jong parameter B",
+				    -G_MAXDOUBLE, G_MAXDOUBLE, -2.28413,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.001, 0.01, 5);
+  g_object_class_install_property  (object_class, PROP_B, spec);
 
-  g_object_class_install_property(object_class,
-				  PROP_ZOOM,
-				  g_param_spec_double("zoom",
-						      "Zoom",
-						      "Zoom factor",
-						      0.2, 1000, 1,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
+  spec = g_param_spec_double       ("c",
+				    "C",
+				    "de Jong parameter C",
+				    -G_MAXDOUBLE, G_MAXDOUBLE, 2.42754,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.001, 0.01, 5);
+  g_object_class_install_property  (object_class, PROP_C, spec);
 
-  g_object_class_install_property(object_class,
-				  PROP_XOFFSET,
-				  g_param_spec_double("xoffset",
-						      "X Offset",
-						      "Horizontal image offset",
-						      -G_MAXDOUBLE, G_MAXDOUBLE, 0,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
+  spec = g_param_spec_double       ("d",
+				    "D",
+				    "de Jong parameter D",
+				    -G_MAXDOUBLE, G_MAXDOUBLE, -2.17719,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.001, 0.01, 5);
+  g_object_class_install_property  (object_class, PROP_D, spec);
 
-  g_object_class_install_property(object_class,
-				  PROP_YOFFSET,
-				  g_param_spec_double("yoffset",
-						      "Y Offset",
-						      "Vertical image offset",
-						      -G_MAXDOUBLE, G_MAXDOUBLE, 0,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
+  spec = g_param_spec_double       ("zoom",
+				    "Zoom",
+				    "Zoom factor",
+				    0.2, 1000, 1,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.01, 0.1, 3);
+  g_object_class_install_property  (object_class, PROP_ZOOM, spec);
 
-  g_object_class_install_property(object_class,
-				  PROP_ROTATION,
-				  g_param_spec_double("rotation",
-						      "Rotation",
-						      "Rotation angle, in radians",
-						      -G_MAXDOUBLE, G_MAXDOUBLE, 0,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
+  spec = g_param_spec_double       ("xoffset",
+				    "X Offset",
+				    "Horizontal image offset",
+				    -G_MAXDOUBLE, G_MAXDOUBLE, 0,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.001, 0.01, 3);
+  g_object_class_install_property  (object_class, PROP_XOFFSET, spec);
 
-  g_object_class_install_property(object_class,
-				  PROP_BLUR_RADIUS,
-				  g_param_spec_double("blur_radius",
-						      "Blur Radius",
-						      "Gaussian blur radius",
-						      0, 100, 0,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
+  spec = g_param_spec_double       ("yoffset",
+				    "Y Offset",
+				    "Vertical image offset",
+				    -G_MAXDOUBLE, G_MAXDOUBLE, 0,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.001, 0.01, 3);
+  g_object_class_install_property  (object_class, PROP_YOFFSET, spec);
 
-  g_object_class_install_property(object_class,
-				  PROP_BLUR_RATIO,
-				  g_param_spec_double("blur_ratio",
-						      "Blur Ratio",
-						      "Amount of blurred vs non-blurred rendering",
-						      0, 1, 1,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
+  spec = g_param_spec_double       ("rotation",
+				    "Rotation",
+				    "Rotation angle, in radians",
+				    -G_MAXDOUBLE, G_MAXDOUBLE, 0,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.001, 0.01, 3);
+  g_object_class_install_property  (object_class, PROP_ROTATION, spec);
 
-  g_object_class_install_property(object_class,
-				  PROP_TILEABLE,
-				  g_param_spec_boolean("tileable",
-						       "Tileable",
-						       "When set, the image is wrapped rather than clipped at the edges",
-						       FALSE,
-						       G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
-						       G_PARAM_SERIALIZED | G_PARAM_INTERPOLATE));
+  spec = g_param_spec_double       ("blur_radius",
+				    "Blur Radius",
+				    "Gaussian blur radius",
+				    0, 100, 0,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.0001, 0.001, 4);
+  g_object_class_install_property  (object_class, PROP_BLUR_RADIUS, spec);
+
+  spec = g_param_spec_double       ("blur_ratio",
+				    "Blur Ratio",
+				    "Amount of blurred vs non-blurred rendering",
+				    0, 1, 1,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 0.01, 0.1, 4);
+  g_object_class_install_property  (object_class, PROP_BLUR_RATIO, spec);
+
+  spec = g_param_spec_boolean      ("tileable",
+				    "Tileable",
+				    "When set, the image is wrapped rather than clipped at the edges",
+				    FALSE,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  g_object_class_install_property  (object_class, PROP_TILEABLE, spec);
 }
 
 static void de_jong_init(DeJong *self) {
