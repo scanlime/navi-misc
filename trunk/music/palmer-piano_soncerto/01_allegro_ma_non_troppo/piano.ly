@@ -129,7 +129,7 @@ mvmtOnePianoSectThreeRight = \relative b' {
   | f8 
       \clef bass
       g,,16 a g a f g e f g e c'-. g-. c,-. g-.
-  | a8 
+  | a8\mp
       \clef treble
       a'\glissando a'4
       << { e'8 f~ f g } \\
@@ -137,7 +137,11 @@ mvmtOnePianoSectThreeRight = \relative b' {
   | e8 a,\glissando cis'4
       << { e'16 d-. cis-. d-. cis-. b-. a-. b-. } \\
          { e,8 f~ f g } >>
-  | cis8 e,16 a <cis cis,>8 a16 cis <e e,>8 fis,16 bis <dis dis,>8 cis16 dis
+  | cis8\< e,16 a <cis cis,>8 a16 cis <e e,>8 fis,16 bis <dis dis,>8 cis16 dis\!
+  | <eis eis,>8\f gis,16[ a fis gis] fis[ gis e fis] eis'[ fis dis eis d e]
+  | <cis eis, cis>8 a,16 b gis a gis a fis g fis' gis e fis d e
+  | <cis gis>8\> r8 r4\! r2
+  | r1 r1 r1
 }
 
 mvmtOnePianoSectThreeLeft = \relative b, {
@@ -179,6 +183,15 @@ mvmtOnePianoSectThreeLeft = \relative b, {
         << { cis' d-. dis-. e-. eis-. fis-. g-. gis-. }
            { s16 c,-. b-. bes-. a-. aes-. g-. b-. } >>
   | <a' cis,>8 gis16 e <cis cis,>8 e16 cis <a a,>8 dis16 bis <gis gis,>8 gis16 eis
+  | <cis cis,>8 
+      \clef treble
+      <eis' cis'>16[ fis <a d,> cis] <dis e,>[ bis <cis e,> e] bis'[ a <bis dis,> e, <a cis,> d,]
+  | <cis, gis'>8
+      \clef bass
+      <d fis,>16 b <cis eis,> a <e' gis,> a, <d fis,> gis, <b d,> b, <cis g'> d dis <e gis>
+  | <cis eis> gis' eis cis fis, d' a e' b' gis b gis a, e' b' gis
+  | a, fis' b gis b gis a, fis' b gis a, b cis gis b a e d fis gis e d fis cis b d a gis b4 
+  | cis1
 }
 
 mvmtOnePianoRight = {
