@@ -10,12 +10,12 @@ fyredata_DATA = 		\
 
 if ENABLE_FDODESKTOP
 desktopdir = $(datadir)/applications
-%.desktop:	%.desktop.in
-	sed 's|\@DATADIR\@|$(datadir)/fyre/|' $< > $@
 desktop_DATA =			\
 	fyre.desktop		\
 	fyre-fa.desktop		\
 	fyre-png.desktop
+icondir = $(datadir)/pixmaps
+icon_DATA = fyre-48x48.png
 update_fdodesktop = update-desktop-database
 else
 update_fdodesktop = /bin/true
@@ -42,12 +42,10 @@ uninstall-hook:
 
 EXTRA_DIST =			\
 	$(fyredata_DATA)	\
+	$(desktop_DATA)		\
 	fyre-48x48.xcf.gz       \
         fyre-32x32.xcf.gz       \
         fyre-16x16.xcf.gz       \
         fyre-win32-icons.xcf.gz	\
-	fyre.desktop.in		\
-	fyre-fa.desktop.in	\
-	fyre-png.desktop.in	\
 	fyre.xml		\
 	application-x-fyre-animation.png
