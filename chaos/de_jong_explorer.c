@@ -94,6 +94,7 @@ void rendering_param_changed(GtkWidget *widget, gpointer user_data);
 float generate_random_param();
 void randomclick(GtkWidget *widget, gpointer user_data);
 gchar* save_parameters();
+gboolean set_parameter(const char *key, const char *value);
 void load_parameters(const gchar *params);
 void load_parameters_from_file(const char *name);
 void save_to_file(const char *name);
@@ -640,6 +641,7 @@ void run_iterations(int count) {
   double x, y;
   unsigned int i, ix, iy;
   guint *p;
+
   guint d;
   const double xcenter = render.width / 2.0;
   const double ycenter = render.height / 2.0;
@@ -743,10 +745,47 @@ gchar* save_parameters() {
 			 "xoffset = %f\n"
 			 "yoffset = %f\n"
 			 "exposure = %f\n"
-			 "gamma = %f\n",
+			 "gamma = %f\n"
+			 "bgcolor = #%02X%02X%02X\n"
+			 "fgcolor = #%02X%02X%02X\n",
 			 params.a, params.b, params.c, params.d,
 			 params.zoom, params.xoffset, params.yoffset,
-			 render.exposure, render.gamma);
+			 render.exposure, render.gamma,
+			 render.bgcolor.red >> 8, render.bgcolor.green >> 8, render.bgcolor.blue >> 8,
+			 render.fgcolor.red >> 8, render.fgcolor.green >> 8, render.fgcolor.blue >> 8);
+}
+
+gboolean set_parameter(const char *key, const char *value) {
+  /* Set a single parameter in key-value form, using the same key and value format
+   * as save_parameters(). Returns TRUE if the key wasn't recognized.
+   */
+
+  if (!strcmp(key, "a"))
+    params.a = atof(value);
+  else if (!strcmp(key, "b"))
+    params.b = atof(value);
+  else if (!strcmp(key, "c"))
+    params.c = atof(value);
+  else if (!strcmp(key, "d"))
+    params.d = atof(value);
+  else if (!strcmp(key, "zoom"))
+    params.zoom = atof(value);
+  else if (!strcmp(key, "xoffset"))
+    params.xoffset = atof(value);
+  else if (!strcmp(key, "yoffset"))
+    params.yoffset = atof(value);
+  else if (!strcmp(key, "exposure"))
+    render.exposure = atof(value);
+  else if (!strcmp(key, "gamma"))
+    render.gamma = atof(value);
+  else if (!strcmp(key, "fgcolor"))
+    gdk_color_parse(value, &render.fgcolor);
+  else if (!strcmp(key, "bgcolor"))
+    gdk_color_parse(value, &render.bgcolor);
+  else
+    return TRUE;
+
+  return FALSE;
 }
 
 void load_parameters(const gchar *paramstring) {
@@ -754,8 +793,7 @@ void load_parameters(const gchar *paramstring) {
    * format as the one produced by save_parameters()
    */
   gchar *copy, *line, *nextline;
-  gchar *key;
-  float value;
+  gchar *key, *value;
 
   /* Make a copy of the parameters, since we'll be modifying it */
   copy = g_strdup(paramstring);
@@ -771,31 +809,11 @@ void load_parameters(const gchar *paramstring) {
 
     /* Separate it into key and value */
     key = g_malloc(strlen(line)+1);
-    if (sscanf(line, " %s = %f", key, &value) == 2) {
-      printf("%s = %f", key, value);
-
-      /* We found a valid key/value line.. see if we recognize the key */
-      if (!strcmp(key, "a"))
-	params.a = value;
-      else if (!strcmp(key, "b"))
-	params.b = value;
-      else if (!strcmp(key, "c"))
-	params.c = value;
-      else if (!strcmp(key, "d"))
-	params.d = value;
-      else if (!strcmp(key, "zoom"))
-	params.zoom = value;
-      else if (!strcmp(key, "xoffset"))
-	params.xoffset = value;
-      else if (!strcmp(key, "yoffset"))
-	params.yoffset = value;
-      else if (!strcmp(key, "exposure"))
-	render.exposure = value;
-      else if (!strcmp(key, "gamma"))
-	render.gamma = value;
-      else
+    value = g_malloc(strlen(line)+1);
+    if (sscanf(line, " %s = %s", key, value) == 2) {
+      printf("%s = %s", key, value);
+      if (set_parameter(key, value))
 	printf(" (unrecognized)");
-
       printf("\n");
     }
     g_free(key);
