@@ -60,14 +60,24 @@ def getIoStatus():
 def installRateLimiter():
     from twisted.internet import reactor
     from LibCIA.Web import Server
+    import time
     if not hasattr(Server.Request, "_original_process"):
         Server.Request._original_process = Server.Request.process
+    if not hasattr(Server.Request, "_original_finish"):
+        Server.Request._original_finish = Server.Request.finish
     def rateLimiter(self):
-        if getIoStatus()['io_tokens'] > 100000:
+        stat = getIoStatus()
+        if stat['io_tokens'] > 100000:
+            self.ioStartCount = stat['io_count']
             return Server.Request._original_process(self)
         else:
             reactor.callLater(0.1, rateLimiter, self)
+    def requestTimer(self):
+        t = getIoStatus()['io_count'] - self.ioStartCount
+        open("request_io.log", "a").write("%15d %s\n" % (t, self.uri))
+        return Server.Request._original_finish(self)
     Server.Request.process = rateLimiter
+    Server.Request.finish = requestTimer
 installRateLimiter()
 
 
