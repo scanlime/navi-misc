@@ -50,8 +50,8 @@ void initialize_text_gui() {
 	*/
 	g_signal_connect(G_OBJECT(gui.xtext), "word_click", G_CALLBACK(clicked_word), NULL);
 
-//	if(!gtk_xtext_set_font(gui.xtext, "Bitstream Vera Sans Mono 9"))
-//		g_print("Failed to open BV Sans Mono font!\n");
+	if(!xtext2_set_font(gui.xtext, "Bitstream Vera Sans Mono 9"))
+		g_print("Failed to open BV Sans Mono font!\n");
 
 	gtk_widget_show_all(GTK_WIDGET(gui.xtext));
 }
