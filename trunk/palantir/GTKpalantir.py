@@ -92,12 +92,18 @@ class PalantirWindow:
 
   def ctcpReceive(self, user, channel, messages):
     nick = re.search('([^!]*).*', user).group(1)
+    # If the ctcp message is a dice roll format the message to display the roll.
     if 'ROLL' in messages[0]:
       data = re.search('(\[.*\]) ([0-9]*) ([0-9]*)', messages[0][1])
       text = nick + ' rolled a ' + str(len(data.group(1).split())) + 'd' + data.group(2) + ': ' + data.group(1) + ' => ' + data.group(3)
+    # If it isn't a dice roll just display the message.
     else:
-      message = string.join(messages[0])
+      if messages[0][1]:
+        message = string.join(messages[0])
+      else:
+	message = messages[0][0]
       text = 'Received a CTCP ' + message + ' from ' + nick + ' (to ' + channel + ')'
+      print messages
 
     self.messageReceive(None, channel, text)
 
@@ -121,7 +127,7 @@ class PalantirWindow:
     if hasattr(self, 'data'):
       nick = self.data.getData('/character/name')
       if nick is not '':
-	self.factory.nick(str(nick))
+	self.factory.nick(self.factory.channels[0], str(nick))
 	self.tree.get_widget('Nick').set_text(nick)
 
   def on_open_sheet_activate(self, widget, data=None):
@@ -274,7 +280,16 @@ class PalantirWindow:
         to the channel with the roll information and displays the information on your
 	screen as well.
 	'''
+    # Send a CTCP message to the channel.
     self.factory.SendCTCP(self.factory.channels[0], [('roll', [rolls, sides, total])])
+
+    # Format the text to display in our window.
+    if self.tree.get_widget('time_stamps').get_active():
+      hour, min, sec = self.GetTime()
+      time = '[' + hour + ':' + min + ':' + sec + ']'
+    else:
+      time = ''
+    self.PrintText(time + 'You rolled a ' + str(len(rolls)) + 'd' + str(sides) + ': ' + str(rolls) + ' => ' + str(total) + '\n')
 
   def GetTime(self):
     ''' Return the local hour, minute and seconds. '''
