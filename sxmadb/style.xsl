@@ -173,13 +173,13 @@
       <xsl:for-each select="technique">
         <xsl:if test="not(position() = last())">
           <div class="rowMiddle">
-            <xsl:value-of select="."/>
+            <xsl:value-of select="text()"/>
             <xsl:apply-templates select="note"/>
           </div>
         </xsl:if>
         <xsl:if test="position() = last()">
           <div class="row">
-            <xsl:value-of select="."/>
+            <xsl:value-of select="text()"/>
             <xsl:apply-templates select="note"/>
           </div>
         </xsl:if>
