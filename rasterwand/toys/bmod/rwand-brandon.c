@@ -17,7 +17,7 @@ static void plugin_render_freq(gint16 data[2][256]);
 
 static int fd;
 pthread_t my_thread;
-int columns[NUM_COLUMNS + 2];
+int columns[NUM_COLUMNS];
 
 VisPlugin plugin_vp = {
   .description         = "Raster Wand (hacked)",
@@ -57,7 +57,7 @@ void *refresh_thread(void *foo) {
 	  level = 8;
 	frame[i] = levels[level];
 	//emphasize the bass a tad more.
-	if(i < (NUM_COLUMNS / 4)) mean += level;
+	if(i < (NUM_COLUMNS >> 2)) mean += level;
 	mean += level;
       }
       else {
