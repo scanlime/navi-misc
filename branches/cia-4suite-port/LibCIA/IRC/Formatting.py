@@ -147,6 +147,7 @@ class ColortextFormatter(XML.XMLObjectParser):
         """Generates formatting codes appropriate to represent a foreground and/or background color"""
         codes = []
         bg = xml.getAttributeNS(None, 'bg')
+        fg = xml.getAttributeNS(None, 'fg')
 
         if bg:
             if bg in ColorText.allowedColors:
@@ -161,5 +162,8 @@ class ColortextFormatter(XML.XMLObjectParser):
                 raise XML.XMLValidityError("%r is not a color" % fg)
 
         return self.codeWrap(xml, codeStack, *codes)
+
+    def parseString(self, text, codeStack):
+        return [text]
 
 ### The End ###
