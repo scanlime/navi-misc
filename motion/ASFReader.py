@@ -59,10 +59,15 @@ class ASFReader:
         self.bones[bone.name] = bone
     def gotName(self, s, loc, toks):
         self.name = toks[0]
+    def gotHierarchy(self, s, loc, toks):
+        lines = [s.strip(' \r') for s in toks[1].split('\n')]
+        [self.hierarchy.append(s.split(' ')) for s in lines]
 
     def getGrammar(self):
         if self.grammar is None:
-            float = Word(nums + '.e+-')
+            float = Combine(Word('+-'+nums, nums) +
+                            Optional(Literal('.') + Optional(Word(nums))) +
+                            Optional(CaselessLiteral('E') + Word('+-'+nums, nums)))
             name = Word(printables)
             comment = Literal('#') + Optional (restOfLine)
             axisOrder = oneOf("XYZ XZY YXZ YZX ZXY ZYX")
@@ -91,6 +96,7 @@ class ASFReader:
             bonedata = ZeroOrMore(bone)
             docLine = Combine(OneOrMore(Word(alphanums + '!"#$%&\'()*+,-./;<=>?@[\\]^_`{|}~')), joinString=' ', adjacent=False)
             sectstart = LineStart() + Literal(':').suppress()
+            hierarchy = "begin" + SkipTo("end", include=True)
             section = Group(
                 sectstart + "version" + float \
               | sectstart + "name" + name \
@@ -98,7 +104,7 @@ class ASFReader:
               | sectstart + "documentation" + docLine \
               | sectstart + "root" + root \
               | sectstart + "bonedata" + bonedata \
-              | sectstart + "hierarchy" + docLine
+              | sectstart + "hierarchy" + hierarchy
               )
             part = section | Suppress(comment)
             self.grammar = OneOrMore(part)
@@ -107,22 +113,10 @@ class ASFReader:
             unit.setParseAction(self.gotUnit)
             bone.setParseAction(self.gotBone)
             name.setParseAction(self.gotName)
+            hierarchy.setParseAction(self.gotHierarchy)
 
         return self.grammar
 
     def parse(self, filename):
         g = self.getGrammar()
         g.parseFile(filename)
-        file = open(filename)
-        lines = file.readlines()
-        for i in range(len(lines)):
-            if lines[i][:10] == ':hierarchy':
-                break
-        i += 2
-        for i in range(i, len(lines)):
-            l = lines[i].strip(' \n\r')
-            if l == 'end':
-                break
-            s = l.split(' ')
-            self.hierarchy.append(s)
-        file.close()
