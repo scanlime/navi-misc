@@ -44,7 +44,7 @@
 		      <property name="visible">True</property>
 		      <property name="label">gtk-new</property>
 		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="OnMenuFileNew" last_modification_time="Thu, 17 Mar 2005 22:23:35 GMT"/>
+		      <signal name="activate" handler="OnNew" last_modification_time="Thu, 17 Mar 2005 22:43:56 GMT"/>
 		    </widget>
 		  </child>
 
@@ -53,7 +53,7 @@
 		      <property name="visible">True</property>
 		      <property name="label">gtk-open</property>
 		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="OnMenuFileOpen" last_modification_time="Thu, 17 Mar 2005 22:23:35 GMT"/>
+		      <signal name="activate" handler="OnOpen" last_modification_time="Thu, 17 Mar 2005 22:43:56 GMT"/>
 		    </widget>
 		  </child>
 
@@ -62,7 +62,7 @@
 		      <property name="visible">True</property>
 		      <property name="label">gtk-save</property>
 		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="OnMenuFileSave" last_modification_time="Thu, 17 Mar 2005 22:23:35 GMT"/>
+		      <signal name="activate" handler="OnSave" last_modification_time="Thu, 17 Mar 2005 22:43:56 GMT"/>
 		    </widget>
 		  </child>
 
@@ -108,7 +108,7 @@
 		      <property name="visible">True</property>
 		      <property name="label">gtk-cut</property>
 		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="OnMenuEditCut" last_modification_time="Thu, 17 Mar 2005 22:28:22 GMT"/>
+		      <signal name="activate" handler="OnCut" last_modification_time="Thu, 17 Mar 2005 22:43:56 GMT"/>
 		    </widget>
 		  </child>
 
@@ -117,7 +117,7 @@
 		      <property name="visible">True</property>
 		      <property name="label">gtk-copy</property>
 		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="OnMenuEditCopy" last_modification_time="Thu, 17 Mar 2005 22:28:22 GMT"/>
+		      <signal name="activate" handler="OnCopy" last_modification_time="Thu, 17 Mar 2005 22:43:56 GMT"/>
 		    </widget>
 		  </child>
 
@@ -126,7 +126,7 @@
 		      <property name="visible">True</property>
 		      <property name="label">gtk-paste</property>
 		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="OnMenuEditPaste" last_modification_time="Thu, 17 Mar 2005 22:28:22 GMT"/>
+		      <signal name="activate" handler="OnPaste" last_modification_time="Thu, 17 Mar 2005 22:43:56 GMT"/>
 		    </widget>
 		  </child>
 
@@ -214,6 +214,7 @@
 		  <property name="visible_horizontal">True</property>
 		  <property name="visible_vertical">True</property>
 		  <property name="is_important">False</property>
+		  <signal name="clicked" handler="OnNew" last_modification_time="Thu, 17 Mar 2005 22:42:41 GMT"/>
 		</widget>
 		<packing>
 		  <property name="expand">False</property>
@@ -228,6 +229,7 @@
 		  <property name="visible_horizontal">True</property>
 		  <property name="visible_vertical">True</property>
 		  <property name="is_important">False</property>
+		  <signal name="clicked" handler="OnOpen" last_modification_time="Thu, 17 Mar 2005 22:42:48 GMT"/>
 		</widget>
 		<packing>
 		  <property name="expand">False</property>
@@ -242,6 +244,7 @@
 		  <property name="visible_horizontal">True</property>
 		  <property name="visible_vertical">True</property>
 		  <property name="is_important">False</property>
+		  <signal name="clicked" handler="OnSave" last_modification_time="Thu, 17 Mar 2005 22:42:54 GMT"/>
 		</widget>
 		<packing>
 		  <property name="expand">False</property>
@@ -269,6 +272,7 @@
 		  <property name="visible_horizontal">True</property>
 		  <property name="visible_vertical">True</property>
 		  <property name="is_important">False</property>
+		  <signal name="clicked" handler="OnCut" last_modification_time="Thu, 17 Mar 2005 22:43:01 GMT"/>
 		</widget>
 		<packing>
 		  <property name="expand">False</property>
@@ -283,6 +287,7 @@
 		  <property name="visible_horizontal">True</property>
 		  <property name="visible_vertical">True</property>
 		  <property name="is_important">False</property>
+		  <signal name="clicked" handler="OnCopy" last_modification_time="Thu, 17 Mar 2005 22:43:09 GMT"/>
 		</widget>
 		<packing>
 		  <property name="expand">False</property>
@@ -297,6 +302,7 @@
 		  <property name="visible_horizontal">True</property>
 		  <property name="visible_vertical">True</property>
 		  <property name="is_important">False</property>
+		  <signal name="clicked" handler="OnPaste" last_modification_time="Thu, 17 Mar 2005 22:43:15 GMT"/>
 		</widget>
 		<packing>
 		  <property name="expand">False</property>
