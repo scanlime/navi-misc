@@ -197,9 +197,8 @@ class PalantirWindow:
     else:
       notebook = self.tree.get_widget('Tabs')
       key = notebook.get_tab_label(notebook.get_nth_page(notebook.get_current_page())).get_text()
-      print key, self.tabs[key]
       self.factory.Send(self.tabs[key], text)
-      self.messageReceive(self.factory.nickname, self.tabs[key], text)
+      self.messageReceive(self.factory.nickname, key, text)
 
     # Reset the text in the text field.
     widget.set_text('')
@@ -343,7 +342,9 @@ class PalantirWindow:
     if not self.tree.get_widget('time_stamps').get_active():
       time = None
 
-    getattr(self.tabs, channel, self.tabs['None']).DisplayText(time, nick, text, addressed)
+    if not self.tabs.has_key(channel):
+      channel = 'None'
+    self.tabs[channel].DisplayText(time, nick, text, addressed)
 
   def meReceive(self, user, channel, msg):
     ''' When someone does a '/me' display the action. '''
