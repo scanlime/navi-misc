@@ -115,36 +115,42 @@ class Icon:
         GLOrtho.pop()
 
 
-class DockIcon:
+class DockIcon(object):
     """An icon container used by the dock. Includes animation information for each icon,
        and methods for rendering the icon on a dock's parametric track.
        """
     def __init__(self, dock, icon):
         self.dock = dock
         self.icon = icon
-        self.position = Animated.Value(Animated.LogApproach(0, dock.iconApproachSpeed))
+        self.animPosition = Animated.Value(Animated.LogApproach(0, dock.iconApproachSpeed))
 
     def integrate(self, dt):
-        self.position.integrate(dt)
+        self.animPosition.integrate(dt)
 
     def setPosition(self, x):
         """Sets the animation target for this icon's position"""
-        self.position.f.target = x
+        self.animPosition.f.target = x
+
+    def getPosition(self):
+        """Get the animation target for this icon's position"""
+        return self.animPosition.f.target
+
+    position = property(getPosition, setPosition)
 
     def jump(self):
         """Instantly jump to the target track position"""
-        self.position.value = self.position.f.target
+        self.animPosition.value = self.animPosition.f.target
 
     def draw(self):
         """Draw the icon at its current position, size, and style"""
-        (position, height) = self.dock.trackFunction(self.position.value)
+        (position, height) = self.dock.trackFunction(self.animPosition.value)
         GLOrtho.push()
         GLOrtho.translate(*position)
         self.icon.draw(self.dock.iconStyle, height)
         GLOrtho.pop()
 
 
-class Dock:
+class Dock(object):
     """A container for icons. The Dock defines a parametric 'track' icons move along,
        mapping a scalar position in [0,1] to a position and size in screen coordinates.
        Icons are spaced along this track and rotated along it as the user makes a
@@ -163,7 +169,7 @@ class Dock:
                  icons             = [],
                  iconSpacing       = None,
                  iconStyle         = LargeIconStyle,
-                 iconApproachSpeed = 3,
+                 iconApproachSpeed = 8,
                  selectionIndex    = 0.0,
                  ):
         self.viewport = viewport
@@ -171,7 +177,7 @@ class Dock:
         self.iconSpacing = iconSpacing
         self.iconStyle = iconStyle
         self.iconApproachSpeed = iconApproachSpeed
-        self.selectionIndex = selectionIndex
+        self._selectionIndex = selectionIndex
 
         self.empty()
         self.add(*icons)
@@ -221,7 +227,19 @@ class Dock:
         position = -self.selectionIndex * spacing
 
         for icon in self.icons:
-            icon.setPosition(position)
+            icon.position = position
             position += spacing
+
+    def setSelectionIndex(self, i):
+        """Set the index of the currently selected icon. It may be a floating point
+           number to show the icons at positions in between selections.
+           """
+        self._selectionIndex = i
+        self.respaceIcons()
+
+    def getSelectionIndex(self):
+        return self._selectionIndex
+
+    selectionIndex = property(getSelectionIndex, setSelectionIndex)
 
 ### The End ###

@@ -3,6 +3,7 @@ from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Sequencer, HUD, G
 from BZEngine import Event, Animated
 from Wasabi import Logos, Icon
 from math import *
+import pygame
 
 loop = Event.EventLoop()
 viewport = Viewport.OpenGLViewport(loop)
@@ -11,8 +12,8 @@ view = ThreeDRender.View(viewport)
 
 
 class IconTest(Sequencer.Page):
-    def __init__(self, view):
-        Sequencer.Page.__init__(self, view)
+    def __init__(self, book):
+        Sequencer.Page.__init__(self, book)
 
         overlay = self.viewport.region(self.viewport.rect)
         self.background = HUD.Image(overlay,
@@ -22,6 +23,16 @@ class IconTest(Sequencer.Page):
         icon = Icon.Icon('navi512.png', 'Hello Navi', imageAspect=1.623)
 
         self.dock = Icon.Dock(overlay, self.trackFunction, [icon] * 10)
+
+        self.viewport.onKeyDown.observe(self.keyDown)
+
+    def keyDown(self, ev):
+        if ev.key == pygame.K_SPACE:
+            self.onFinish()
+        elif ev.key == pygame.K_LEFT:
+            self.dock.selectionIndex -= 1
+        elif ev.key == pygame.K_RIGHT:
+            self.dock.selectionIndex += 1
 
     def trackFunction(self, x):
         """An example track function that moves the icons along a circle in
@@ -42,10 +53,10 @@ class IconTest(Sequencer.Page):
 
 mainBook = Sequencer.CyclicBook(view, [
     # Cycle through wasabi logos until user intervention, then fade out
-#    Sequencer.FadeOut(0.2, (1,1,1), Sequencer.UserPageInterrupter(Logos.getLogoSubBook())),
+    Sequencer.FadeOut(0.2, (1,1,1), Sequencer.UserPageInterrupter(Logos.getLogoSubBook())),
 
     # Icon test
-    Sequencer.FadeIn(0.2, (1,1,1), Sequencer.FadeOut(1, (0,0,0), Sequencer.UserPageInterrupter(IconTest)))
+    Sequencer.FadeIn(0.2, (1,1,1), Sequencer.FadeOut(1, (0,0,0), IconTest))
     ])
 
 # Exit our main loop once the mainBook finishes
