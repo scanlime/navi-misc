@@ -26,6 +26,7 @@
 #ifndef __H_FIELDSENSOR
 #define __H_FIELDSENSOR
 
+#include <pthread.h>
 #include <list>
 
 /* annie is the neural net library we use */
@@ -41,28 +42,22 @@ class FieldSensor {
  public:
   FieldSensor(const char *serialPort="/dev/ttyS0", const char *netFile="data/current.net");
   ~FieldSensor(void);
-
-  /* Read a packet- if 'blocking' is false and no new data is
-   * available this returns the previous packet received.
-   */
-  VECTOR readPacket(bool blocking=true);
-
-  /* Like readPacket, but also decodes the packet 
-   * into a position using the supplied neural net file.
-   */
-  Vector3 rawPosition(bool blocking=true);
-
-  /* Put the position through a filter to eliminate most of the noise. */
-  Vector3 readPosition(bool blocking=false);
+  
+  VECTOR getRawData(void);
+  Vector3 getPosition(void);
 
  private:
   /* Low-level communications */
   int fd;
+  pthread_t thread_id;
+  static void *readerThread(void *pthis);
   void sendSlowly(const char *str);
   void reset(void);
   void boot(void);
   void waitForData(void);
-  VECTOR resultBuffer;
+  VECTOR rawData;
+  Vector3 unfilteredPosition;
+  bool newData;
 
   /* Neural net */
   TwoLayerNetwork net;
@@ -76,13 +71,6 @@ class FieldSensor {
    *  z: New measurement
    */
   Vector3 x, z, P, Q, R, K, A;
-
-  /* Physics model variables:
-   *  p: Position
-   *  v: Velocity
-   *  a: Acceleration
-   */
-  Vector3 p, v, a;
 };
 
 #endif /* __H_FIELDSENSOR */

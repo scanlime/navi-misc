@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
 #include <sys/termios.h>
 #include <sys/ioctl.h>
 #include <netinet/in.h>    /* For ntohs() */
@@ -34,7 +35,7 @@
 
 
 FieldSensor::FieldSensor(const char *serialPort, const char *netFile) 
-  : net(netFile), resultBuffer(8) {
+  : net(netFile), rawData(8) {
 
   struct termios options;
 
@@ -62,6 +63,8 @@ FieldSensor::FieldSensor(const char *serialPort, const char *netFile)
   R.set(0.7,0.7,0.7);              /* Measurement noise variance */
   x.set(0.5,0.5,0.5);              /* Initial estimate */
   P.set(1.0,1.0,1.0);              /* Initial variance estimate */
+
+  pthread_create(&thread_id, NULL, &readerThread, this);
 }
 
 FieldSensor::~FieldSensor(void) {
@@ -70,6 +73,7 @@ FieldSensor::~FieldSensor(void) {
    */
   reset();
 
+  pthread_kill(thread_id, 9);
   close(fd);
 }
 
@@ -97,28 +101,27 @@ void FieldSensor::waitForData(void) {
   select(fd+1, &rfds, NULL, NULL, NULL);
 }
 
-VECTOR FieldSensor::readPacket(bool blocking) {
+void *FieldSensor::readerThread(void *pthis) {
+  FieldSensor *sensor = (FieldSensor*) pthis;
   unsigned char c, theirChecksum, ourChecksum;
   union {
     unsigned short shorts[8];
     unsigned char bytes[16];
   } rawPacket;
   int i;
+  VECTOR resultBuffer(8);
 
   while (1) {
     /* Synchronize to 0x80 synchronization byte */
     do {
-      if (blocking)
-	waitForData();
-      /* No data available? return the old data */
-      if (read(fd, &c, 1) != 1)
-	return resultBuffer;
+      sensor->waitForData();
+      read(sensor->fd, &c, 1);
     } while (c != 0x80);
     
-    waitForData();
-    read(fd, &rawPacket, 16);
-    waitForData();
-    read(fd, &theirChecksum, 1);
+    sensor->waitForData();
+    read(sensor->fd, &rawPacket, 16);
+    sensor->waitForData();
+    read(sensor->fd, &theirChecksum, 1);
 
     /* Verify the checksum byte */
     ourChecksum = 0;
@@ -130,7 +133,11 @@ VECTOR FieldSensor::readPacket(bool blocking) {
     /* Convert the received big-endian integers to floating point */
     for (i=0;i<8;i++)
       resultBuffer[i] = ntohs(rawPacket.shorts[i]) / 65535.0;
-    return resultBuffer;
+
+    sensor->rawData = resultBuffer;
+    VECTOR out = sensor->net.getOutput(resultBuffer);
+    sensor->unfilteredPosition.set(out[0],out[1],out[2]);
+    sensor->newData = true;
   }
 }
 
@@ -142,38 +149,25 @@ void FieldSensor::sendSlowly(const char *str) {
   }
 }
 
-Vector3 FieldSensor::rawPosition(bool blocking) {
-  VECTOR packet = readPacket(blocking);
-  VECTOR netOutput = net.getOutput(packet);
-  return Vector3(netOutput[0], netOutput[1], netOutput[2]);
+VECTOR FieldSensor::getRawData(void) {
+  return rawData;
 }
 
-Vector3 FieldSensor::readPosition(bool blocking) {
-  bool dataIsNew = true;
-
-  Vector3 newReading = rawPosition(blocking);
-  if (newReading == z)
-    dataIsNew = false;
-  z = newReading;
-
-  /* A simple 1D Kalman filter on each axis */
+Vector3 FieldSensor::getPosition(void) {
+  /* A simple 1D Kalman filter on each axis combined with a simple physics model */
   for (int i=0;i<3;i++) {
     /* Time update equations */
+    x[i] += A[i];
     P[i] += Q[i];
     
-    if (dataIsNew) {
+    if (newData) {
       /* Measurement update equations */
+      z = unfilteredPosition;
       K[i] = P[i]/(P[i]+R[i]);
       x[i] += K[i]*(z[i]-x[i]);
       P[i] *= 1-K[i];
     }
   }
-
-  /* Use the Kalman filter to adjust a simple physics model */
-  p += v;
-  v += a;
-
-  
 
   return x;
 }
