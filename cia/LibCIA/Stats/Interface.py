@@ -112,6 +112,17 @@ class MetadataInterface(RpcServer.Interface):
             d[name] = self.wrapTuple(t)
         result.callback(d)
 
+    def caps_set(self, rpcPath, statsPath, name, value, mimeType=None):
+        """In addition to the usual capabilities, allow ('stats.path', path),
+           ('stats.metadata.path', path), and ('stats.metadata.key', path, name)
+           for setting metadata.
+           """
+        return self.makeDefaultCaps(rpcPath) + [
+            ('stats.path', statsPath),
+            ('stats.metadata.path', statsPath),
+            ('stats.metadata.key', statsPath, name),
+            ]
+
     def protected_set(self, path, name, value, mimeType='text/plain'):
         """Set a metadata key's value and MIME type"""
         return StatsTarget(path).metadata.set(name, str(value), mimeType)
