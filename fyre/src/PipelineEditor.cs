@@ -130,6 +130,7 @@ public class PipelineEditor
 		// create the canvas
 		pipeline_drawing = new PipelineDrawing();
 		pipeline_window.Add (pipeline_drawing);
+		pipeline_drawing.Show ();
 
 		// Set up drag-and-drop for the canvas
 		Gtk.Drag.DestSet (pipeline_drawing, Gtk.DestDefaults.All, targets, Gdk.DragAction.Copy);
