@@ -261,7 +261,7 @@ class Reader:
               | obstacleProperty
             mesh = Group(CaselessLiteral('mesh') + OneOrMore(meshProperty) + end)
 
-            options = Group(CaselessLiteral('options') + SkipTo(end, include=True))
+            options = Group(CaselessLiteral('options') + SkipTo(LineStart() + end, include=True))
 
             worldObject =     \
                 arc           \
