@@ -44,9 +44,9 @@ initialize_setup_druid ()
 	GtkTreeViewColumn *text_column, *autoconnect_column;
 	GtkTreeSelection *select;
 
-	gui.setup_xml = glade_xml_new ("setup_druid.glade", NULL, NULL);
+	gui.setup_xml = glade_xml_new ("setup-druid.glade", NULL, NULL);
 	if (!gui.setup_xml)
-		gui.setup_xml = glade_xml_new (XCHATSHAREDIR "/setup_druid.glade", NULL, NULL);
+		gui.setup_xml = glade_xml_new (XCHATSHAREDIR "/setup-druid.glade", NULL, NULL);
 	if (!gui.setup_xml)
 		return;
 
