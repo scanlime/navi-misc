@@ -532,7 +532,7 @@ class CommitToXHTMLLong(CommitToXHTML):
             # If we have a 'uri' attribute, make this file a hyperlink
             uri = fileTag.getAttributeNS(None, 'uri')
             if uri:
-                return tag('a', href=uri)[ name ]
+                name = tag('a', href=uri)[ name ]
 
             # If we have an 'action' attribute, represent it with an icon
             actionIcon = self.actionIcons.get(fileTag.getAttributeNS(None, 'action'))
