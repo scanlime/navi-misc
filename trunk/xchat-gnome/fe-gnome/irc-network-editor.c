@@ -20,6 +20,7 @@
  */
 
 #include "irc-network-editor.h"
+#include <gtk/gtk.h>
 
 static void
 irc_network_editor_class_init (IrcNetworkEditorClass *klass)
@@ -54,6 +55,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	GW(remove_server);
 
 	GW(use_globals);
+	GW(use_custom);
 	GW(nickname);
 	GW(realname);
 
@@ -84,6 +86,26 @@ irc_network_editor_get_type (void)
 	return irc_network_editor_type;
 }
 
+static void
+irc_network_editor_populate (IrcNetworkEditor *e)
+{
+	gtk_entry_set_text           (GTK_ENTRY         (e->network_name),     e->network->name);
+
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->autoconnect),      e->network->autoconnect);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_ssl),          e->network->use_ssl);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->cycle),            e->network->cycle);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->autoreconnect),    e->network->reconnect);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->giveup_reconnect), e->network->nogiveup_reconnect);
+
+	gtk_entry_set_text           (GTK_ENTRY         (e->password),         e->network->password);
+	gtk_combo_box_set_active     (GTK_COMBO_BOX     (e->encoding),         e->network->encoding);
+
+	if (e->network->use_global)
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_globals), TRUE);
+	else
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_custom), TRUE);
+}
+
 IrcNetworkEditor *
 irc_network_editor_new (IrcNetwork *network)
 {
@@ -91,6 +113,7 @@ irc_network_editor_new (IrcNetwork *network)
 	IrcNetworkEditor *e = g_object_new (irc_network_editor_get_type (), 0);
 
 	e->network = network;
+	irc_network_editor_populate (e);
 }
 
 void

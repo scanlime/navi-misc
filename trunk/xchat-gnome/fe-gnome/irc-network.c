@@ -21,6 +21,23 @@
 
 #include "irc-network.h"
 
+const char *encodings[] =
+{
+	"UTF-8",
+	"ISO-8859-15 (Western Europe)",
+	"ISO-8859-2 (Central Europe)",
+	"ISO-8859-7 (Greek)",
+	"ISO-8859-8 (Hebrew)",
+	"ISO-8859-9 (Turkish)",
+	"ISO-2022-JP (Japanese)",
+	"SJIS (Japanese)",
+	"CP949 (Korean)",
+	"CP1251 (Cyrillic)",
+	"CP1256 (Arabic)",
+	"GB18030 (Chinese)",
+	NULL
+};
+
 static void
 irc_network_dispose (GObject *object)
 {

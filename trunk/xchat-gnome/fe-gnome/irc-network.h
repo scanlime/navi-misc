@@ -70,6 +70,8 @@ GType       irc_network_get_type (void) G_GNUC_CONST;
 IrcNetwork *irc_network_new (ircnet *net);
 void        irc_network_save (IrcNetwork *net);
 
+extern const char *encodings[];
+
 G_END_DECLS
 
 #endif
