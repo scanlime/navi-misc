@@ -145,7 +145,7 @@ editor_init (Editor *editor)
     {
       gpointer klass = g_type_class_ref (type);
       GtkMenuItem *item = GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (g_type_name (type)));
-      GtkWidget *image = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon (NULL));
+      GtkWidget *image = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
       gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
       gtk_menu_shell_append (GTK_MENU_SHELL (am), item);
       g_type_class_unref (klass);

@@ -75,10 +75,3 @@ scene_object_serialize (SceneObject *self, GIOChannel *out)
   SceneObjectClass *class = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (self));
   class->serialize (self, out);
 }
-
-GdkPixbuf*
-scene_object_get_icon (SceneObject *self)
-{
-  SceneObjectClass *class = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (self));
-  return class->get_icon (self);
-}

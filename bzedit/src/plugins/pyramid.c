@@ -30,7 +30,7 @@ static void       pyramid_finalize             (GObject *object);
 static void       pyramid_init_position_params (GObjectClass *object_class);
 static void       pyramid_init_size_params     (GObjectClass *object_class);
 static void       pyramid_init_other_params    (GObjectClass *object_class);
-static GdkPixbuf* pyramid_get_icon             (SceneObject *object);
+static GdkPixbuf* pyramid_get_icon             (void);
 
 enum
 {
@@ -42,6 +42,7 @@ enum
   PROP_SIZE_X,
   PROP_SIZE_Y,
   PROP_SIZE_Z,
+  PROP_INVERTED,
   PROP_DRIVE_THROUGH,
   PROP_SHOOT_THROUGH,
 };
@@ -156,6 +157,10 @@ pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GPara
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[2], 0.09);
       break;
 
+    case PROP_INVERTED:
+      update_boolean_if_necessary (g_value_get_boolean (value), &self->state_dirty, &self->param.inverted);
+      break;
+
     case PROP_DRIVE_THROUGH:
       update_boolean_if_necessary (g_value_get_boolean (value), &self->state_dirty, &self->param.drive_through);
       break;
@@ -203,6 +208,10 @@ pyramid_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec 
 
     case PROP_SIZE_Z:
       g_value_set_double (value, self->param.size[2]);
+      break;
+
+    case PROP_INVERTED:
+      g_value_set_boolean(value, self->param.inverted);
       break;
 
     case PROP_DRIVE_THROUGH:
@@ -310,6 +319,15 @@ pyramid_init_other_params (GObjectClass *object_class)
   GParamSpec *spec;
   const gchar *current_group = "Doopy";
 
+  spec = g_param_spec_boolean     ("inverted",
+                                   "Inverted",
+				   "Whether the pyramid is inverted or not",
+				   FALSE,
+				   G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
+				   PARAM_IN_GUI);
+  param_spec_set_group            (spec, current_group);
+  g_object_class_install_property (object_class, PROP_INVERTED, spec);
+
   spec = g_param_spec_boolean     ("drive-through",
                                    "Drive through",
 				   "Whether or not tanks can drive through the pyramid",
@@ -336,7 +354,7 @@ pyramid_new (void)
 }
 
 static GdkPixbuf*
-pyramid_get_icon (SceneObject *object)
+pyramid_get_icon (void)
 {
   static GdkPixbuf *icon = NULL;
 
