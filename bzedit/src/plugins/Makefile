@@ -5,22 +5,18 @@ LIBS			+= $(shell pkg-config --libs $(PKGS))
 
 PLUGINS			=			\
 			core.so			\
-			renderpasses.so		\
-			test.so
+			renderpasses.so
 
 CORE_SO_OBJS		=			\
 			box.o			\
 			core.o			\
+			pyramid.o		\
 			teleporter.o		\
 			world.o
 
 RENDERPASSES_SO_OBJS	=			\
 			basicrenderpass.o	\
 			renderpasses.o
-
-TEST_SO_OBJS		=			\
-			pyramid.o		\
-			test.o
 
 all:			$(PLUGINS)
 
@@ -29,9 +25,6 @@ core.so:		$(CORE_SO_OBJS)
 
 renderpasses.so:	$(RENDERPASSES_SO_OBJS)
 			gcc -shared -o $@ $(RENDERPASSES_SO_OBJS) $(LIBS)
-
-test.so:		$(TEST_SO_OBJS)
-			gcc -shared -o $@ $(TEST_SO_OBJS) $(LIBS)
 
 %.o:			%.c *.h
 			gcc -c -o $@ $< $(CFLAGS)

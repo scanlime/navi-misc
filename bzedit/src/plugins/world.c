@@ -303,3 +303,9 @@ ground_drawable_draw_to_list (DisplayList *dl)
   glLightModeli (GL_LIGHT_MODEL_TWO_SIDE, 0);
   glPopMatrix ();
 }
+
+Drawable*
+ground_drawable_new (void)
+{
+  return DRAWABLE (g_object_new (ground_drawable_get_type(), NULL));
+}
