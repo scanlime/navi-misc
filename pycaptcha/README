@@ -21,7 +21,11 @@ alternative was needed.
 Examples
 --------
 
-FIXME
+Included are two example programs. simple_example.py is a bare-bones
+example that just generates and displays an image. http_example.py is
+a longer example that uses BaseHTTPServer to simulate a CAPTCHA's use
+in a web environment. In most applications you would use this with
+an environment like Twisted, Zope, or mod_python.
 
 
 Dependencies
