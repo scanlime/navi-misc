@@ -36,7 +36,7 @@ namespace Fyre
 		[Glade.Widget] PipelineDrawing		pipeline_drawing;
 
 		// Editor workspace (right)
-		[Glade.Widget] Gtk.Frame		pipeline_window;
+		[Glade.Widget] Gtk.Frame		pipeline_frame;
 		[Glade.Widget] Gtk.Scrollbar		drawing_hscroll;
 		[Glade.Widget] Gtk.Scrollbar		drawing_vscroll;
 
@@ -102,7 +102,7 @@ namespace Fyre
 			if (func_name == "CreateNavigationImage")
 				return new NavigationImage ();
 			if (func_name == "CreatePipelineDrawing")
-				return new PipelineDrawing ();
+				return new PipelineDrawing (xml);
 			return null;
 		}
 
@@ -114,7 +114,7 @@ namespace Fyre
 			// Set up drag-and-drop for the frame. This looks better than setting it
 			// up for the drawing area, but it doesn't really affect structure, since
 			// we just delegate the event back to the proper objects
-			Gtk.Drag.DestSet (pipeline_window, Gtk.DestDefaults.All, DragTargets, Gdk.DragAction.Copy);
+			Gtk.Drag.DestSet (pipeline_frame, Gtk.DestDefaults.All, DragTargets, Gdk.DragAction.Copy);
 		}
 
 		// Event handlers - most of these come from the glade file
