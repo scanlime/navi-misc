@@ -175,6 +175,8 @@ def dig(node, *subElements):
     """Search for the given named subelements inside a node. Returns
        None if any subelement isn't found.
        """
+    if not node:
+        return None
     for name in subElements:
         nextNode = None
         for child in node.childNodes:
@@ -184,7 +186,7 @@ def dig(node, *subElements):
         if nextNode:
             node = nextNode
         else:
-            return
+            return None
     return node
 
 

@@ -76,6 +76,7 @@ class RulesetInterface(RpcServer.Interface):
 
     def xmlrpc_getUriList(self):
         """Return a list of all URIs with non-empty rulesets"""
+        print self.storage.rulesetMap
         return self.storage.rulesetMap.keys()
 
     def xmlrpc_getRuleset(self, uri):
@@ -89,7 +90,7 @@ class RulesetInterface(RpcServer.Interface):
         """Returns all rulesets in the form of a mapping from URI to ruleset text"""
         results = {}
         for delivery in self.storage.rulesetMap.itervalues():
-            results[delivery.ruleset.uri] = XML.toString(delivery.ruleset)
+            results[delivery.ruleset.uri] = str(delivery.ruleset)
         return results
 
 
@@ -221,8 +222,9 @@ class Ruleset(XML.XMLFunction):
         childFunctions = list(self.childParser(element))
         def rulesetRule(msg):
             for child in childFunctions:
-                if not child(msg):
-                    break
+                if child:
+                    if not child(msg):
+                        break
             return True
         return rulesetRule
 
