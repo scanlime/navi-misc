@@ -22,12 +22,15 @@ Background layers for visual CAPTCHAs
 #
 
 from Captcha.Visual import Layer
-import random
-import ImageDraw
+import Captcha
+import random, os
+import ImageDraw, Image
 
 
 class SolidColor(Layer):
-    """A solid color background, mostly for testing"""
+    """A solid color background. Very weak on its own, but good
+       to combine with other backgrounds.
+       """
     def __init__(self, color="white"):
         self.color = color
 
@@ -36,13 +39,12 @@ class SolidColor(Layer):
 
 
 class Grid(Layer):
-    """A grid of lines, with a given foreground and background.
-       The size is given in pixels. The background can be None
-       to avoid drawing any background.
+    """A grid of lines, with a given foreground color.
+       The size is given in pixels. The background is transparent,
+       so another layer (like SolidColor) should be put behind it.
        """
-    def __init__(self, size=16, background="white", foreground="black"):
+    def __init__(self, size=16, foreground="black"):
         self.size = size
-        self.background = background
         self.foreground = foreground
 
     def render(self, image):
@@ -51,9 +53,6 @@ class Grid(Layer):
         ya = random.uniform(0, self.size)
         draw = ImageDraw.Draw(image)
 
-        if self.background:
-            image.paste(self.background)
-
         for i in xrange(image.size[0] / self.size + 1):
             draw.line( (i*self.size+xa, 0,
                         i*self.size+xa, image.size[1]), fill=self.foreground)
@@ -61,5 +60,31 @@ class Grid(Layer):
         for i in xrange(image.size[0] / self.size + 1):
             draw.line( (0, i*self.size+ya,
                         image.size[0], i*self.size+ya), fill=self.foreground)
+
+
+class TiledImage(Layer):
+    """Pick a random image and a random offset, and tile the rendered image with it"""
+    def pickTile(self):
+        """Return the image we'll use for tiling"""
+        bgDir = os.path.join(Captcha.dataDir, "backgrounds")
+        files = []
+        for name in os.listdir(bgDir):
+            if name.endswith(".jpeg"):
+                files.append(os.path.join(bgDir, name))
+
+        return Image.open(random.choice(files))
+
+    def render(self, image):
+        # Random image
+        tile = self.pickTile()
+
+        # Random offset
+        xa = random.uniform(0, tile.size[0])
+        ya = random.uniform(0, tile.size[1])
+
+        for j in xrange(-1, int(image.size[1] / tile.size[1]) + 1):
+            for i in xrange(-1, int(image.size[0] / tile.size[0]) + 1):
+                dest = (int(xa+i*tile.size[0]), int(ya+j*tile.size[1]))
+                image.paste(tile, dest)
 
 ### The End ###

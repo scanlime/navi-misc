@@ -65,7 +65,7 @@ class FontFactory(object):
         return ImageFont.truetype(fileName, size)
 
 # Predefined font factories
-defaultFontFactory = FontFactory((25, 40), "vera")
+defaultFontFactory = FontFactory((30, 40), "vera")
 
 
 class TextLayer(Visual.Layer):
