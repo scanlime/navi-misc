@@ -22,6 +22,7 @@
 #include "irc-network.h"
 #include <gtk/gtkdialog.h>
 #include <glade/glade.h>
+#include <gconf/gconf-client.h>
 
 #ifndef __XCHAT_GNOME_IRC_NETWORK_EDITOR_H__
 #define __XCHAT_GNOME_IRC_NETWORK_EDITOR_H__
@@ -41,6 +42,7 @@ struct _IrcNetworkEditor
 	GtkDialog parent;
 
 	IrcNetwork *network;
+	GConfClient *gconf;
 	GladeXML *xml;
 
 	GtkWidget *network_name;

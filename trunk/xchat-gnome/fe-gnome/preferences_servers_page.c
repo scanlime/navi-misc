@@ -52,7 +52,8 @@ edit_clicked (GtkWidget *button, gpointer data)
 	e = irc_network_editor_new (n);
 
 	irc_network_editor_run (e);
-	gtk_widget_destroy (n);
+	gtk_widget_destroy (e);
+	g_object_unref (n);
 }
 
 static void
