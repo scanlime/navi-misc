@@ -17,8 +17,16 @@ desktop_DATA =			\
 	fyre-fa.desktop		\
 	fyre-png.desktop
 
-mimedir = $(datadir)/mime/packages
-mime_DATA = fyre.xml
+xdgmimedir = $(datadir)/mime/packages
+xdgmime_DATA = fyre.xml
+
+install-data-hook:
+	update-mime-database $(datadir)/mime
+	update-desktop-database
+
+uninstall-hook:
+	update-mime-database $(datadir)/mime
+	update-desktop-database
 
 EXTRA_DIST =			\
 	$(fyredata_DATA)	\
