@@ -99,6 +99,7 @@ class RelationGrapher:
     def _generateDot(self, rows, f, result):
         """Finish generateDot after receiving the SQL query results"""
         f.write("graph G {\n")
+        f.write('\tpack="true";\n')
 
         # Make a unique list of all nodes in this graph
         nodes = {}
