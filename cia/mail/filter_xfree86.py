@@ -1,45 +1,73 @@
 #!/usr/bin/env python
-import sys, email, smtplib
-from StringIO import StringIO
+from filterlib import CommitFilter
+import posixpath, re
 
-returnAddress = "xfree86_commits@picogui.org"
-toAddress = "commits@picogui.org"
-projectName = "xfree86"
-logFile = "/home/commits/mail.log"
+class Xfree86Filter(CommitFilter):
+    project = 'xfree86'
 
-message = email.message_from_file(sys.stdin)
-body = StringIO(message.get_payload())
+    def readLog(self):
+        # Read the log message, until we hit a line that doesn't start with whitespace
+        lines = []
+        while True:
+            line = self.pullLine()
+            if not line:
+                break
+            if not line.startswith(" "):
+                self.pushLine(line)
+                break
+            line = line.strip()
+            if line:
+                lines.append(line)
+        self.addLog("\n".join(lines))
 
-# If this appears to be a reply, ignore it
-if message['subject'].strip().lower().find("re") == 0:
-    sys.exit(0)
+    def readFiles(self):
+        # Read the list of files, until we hit a blank line
+        while True:
+            line = self.pullLine()
+            if not line.strip():
+                break
 
-# Module name is the third token in the subject
-modName = message['subject'].split(" ")[2]
+            # crufty!
+            fileName = line[25:].strip()
 
-# Use the from address as the author
-author = message['from']
+            # Chop off the first segment of the path, which will be the module name
+            fileName = fileName.split('/', 1)[1]
+            self.addFile(fileName)
 
-# The body is the set of non-blank lines starting after "Log Message:"
-log = ""
-while True:
-    line = body.readline()
-    if not line:
-        break
-    if line.strip() == "Log message:":
-        break
-while True:
-    line = body.readline().strip()
-    if not line:
-        break
-    log += line + "\n"
+    def parse(self):
+        # Parse the subject with a regex
+        match = re.match(r" *CVS Update: +(?P<module>[^ ]+)( *\(branch: (?P<branch>[^\) ]+)\))? *",
+                         self.message['subject'])
+        if not match:
+            return
+        module, branch = match.group('module', 'branch')
+        if module:
+            self.addModule(module)
+        if branch:
+            self.addBranch(branch)
 
-ciaMessage = "%s {green}%s{normal}: %s" % (modName, author, log)
+        # Author is the first token of the from address. Most of the from addresses
+        # are @XFree86.Org, so strip that out if we have it.
+        address = self.message['from'].split(' ')[0]
+        try:
+            # If the address is in <brackets>, strip them off
+            address = address.split("<", 1)[1].split(">", 1)[0]
+        except IndexError:
+            pass
+        address = address.replace("@XFree86.Org", "")
+        self.addAuthor(address)
 
-s = smtplib.SMTP()
-s.connect()
-s.sendmail(returnAddress, toAddress,
-           "From: %s\nTo: %s\nSubject: Announce %s\n\n%s" % \
-           (returnAddress, toAddress, projectName, ciaMessage))
-s.close()
+        # Skip lines until we get to a section we can process
+        while True:
+            line = self.pullLine()
+            if not line:
+                break
 
+            if line == 'Log message:\n':
+                self.readLog()
+            elif re.match(" +Revision +Changes +Path\n", line):
+                self.readFiles()
+                break
+
+if __name__ == '__main__':
+    Xfree86Filter().main()

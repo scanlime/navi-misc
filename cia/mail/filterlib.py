@@ -36,6 +36,7 @@ class Filter:
        """
     project = None
     server = "http://localhost:3910"
+    debug = False
 
     def pullLine(self):
         """Read one line from the message, with support for lookahead"""
@@ -88,7 +89,10 @@ class Filter:
 
     def deliver(self):
         """Deliver the message in self.xml"""
-        xmlrpclib.ServerProxy(self.server).hub.deliver(self.xml.toXml())
+        if self.debug:
+            print self.xml.toXml()
+        else:
+            xmlrpclib.ServerProxy(self.server).hub.deliver(self.xml.toXml())
 
 
 class CommitFilter(Filter):
