@@ -1,7 +1,7 @@
 /*
- * pixmaps.h - helper functions for pixmaps
+ * preferences-page-dcc.h - helpers for the DCC preferences page
  *
- * Copyright (C) 2004-2005 xchat-gnome team
+ * Copyright (C) 2005 xchat-gnome team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,24 +19,18 @@
  *
  */
 
-#ifndef XCHAT_GNOME_PIXMAPS_H
-#define XCHAT_GNOME_PIXMAPS_H
+#include "gui.h"
+#include <glade/glade-xml.h>
 
-#include <gdk-pixbuf/gdk-pixbuf.h>
+#ifndef XCHAT_GNOME_PREFERENCES_PAGE_DCC_H
+#define XCHAT_GNOME_PREFERENCES_PAGE_DCC_H
 
-extern GdkPixbuf *pix_purple;
-extern GdkPixbuf *pix_red;
-extern GdkPixbuf *pix_op;
-extern GdkPixbuf *pix_hop;
-extern GdkPixbuf *pix_voice;
+typedef struct
+{
+	GdkPixbuf *icon;
+} PreferencesDCCPage;
 
-extern GdkPixbuf *pix_newdata;
-extern GdkPixbuf *pix_nicksaid;
-extern GdkPixbuf *pix_msgsaid;
-
-extern GdkPixbuf *pix_prefs_plugins;
-extern GdkPixbuf *pix_prefs_keybindings;
-
-extern void pixmaps_init (void);
+PreferencesDCCPage *preferences_page_dcc_new  (gpointer prefs_dialog, GladeXML *xml);
+void                preferences_page_dcc_free (PreferencesDCCPage *page);
 
 #endif

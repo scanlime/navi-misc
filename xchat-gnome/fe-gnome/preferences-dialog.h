@@ -23,6 +23,7 @@
 #include <gconf/gconf-client.h>
 #include "preferences-page-irc.h"
 #include "preferences-page-colors.h"
+#include "preferences-page-dcc.h"
 #include "preferences-page-networks.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_DIALOG_H
@@ -52,6 +53,7 @@ struct _PreferencesDialog
 
 	PreferencesIrcPage      *irc_page;
 	PreferencesColorsPage   *colors_page;
+	PreferencesDCCPage      *dcc_page;
 	PreferencesNetworksPage *networks_page;
 };
 

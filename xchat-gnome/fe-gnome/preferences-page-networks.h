@@ -38,7 +38,7 @@ typedef struct
 	GdkPixbuf *icon;
 } PreferencesNetworksPage;
 
-PreferencesNetworksPage *preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml);
-void preferences_page_networks_free (PreferencesNetworksPage *page);
+PreferencesNetworksPage *preferences_page_networks_new  (gpointer prefs_dialog, GladeXML *xml);
+void                     preferences_page_networks_free (PreferencesNetworksPage *page);
 
 #endif

@@ -1,7 +1,7 @@
 /*
- * pixmaps.h - helper functions for pixmaps
+ * preferences-page-dcc.c - helpers for the DCC preferences page
  *
- * Copyright (C) 2004-2005 xchat-gnome team
+ * Copyright (C) 2005 David Trowbridge
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,24 +19,24 @@
  *
  */
 
-#ifndef XCHAT_GNOME_PIXMAPS_H
-#define XCHAT_GNOME_PIXMAPS_H
+#include "preferences-page-dcc.h"
+#include "preferences-dialog.h"
 
-#include <gdk-pixbuf/gdk-pixbuf.h>
+PreferencesDCCPage *
+preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
+{
+	GtkTreeIter iter;
+	PreferencesDCCPage *page = g_new0 (PreferencesDCCPage, 1);
+	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 
-extern GdkPixbuf *pix_purple;
-extern GdkPixbuf *pix_red;
-extern GdkPixbuf *pix_op;
-extern GdkPixbuf *pix_hop;
-extern GdkPixbuf *pix_voice;
+	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/dcc.png", NULL);
+	gtk_list_store_append (p->page_store, &iter);
+	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "File Transfers & DCC", 2, 2, -1);
+}
 
-extern GdkPixbuf *pix_newdata;
-extern GdkPixbuf *pix_nicksaid;
-extern GdkPixbuf *pix_msgsaid;
-
-extern GdkPixbuf *pix_prefs_plugins;
-extern GdkPixbuf *pix_prefs_keybindings;
-
-extern void pixmaps_init (void);
-
-#endif
+void
+preferences_page_dcc_free (PreferencesDCCPage *page)
+{
+	gdk_pixbuf_unref (page->icon);
+	g_free (page);
+}
