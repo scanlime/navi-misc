@@ -1187,10 +1187,13 @@ render_page (XText2 *xtext)
       }
       gdk_gc_set_exposures (xtext->priv->fgc, FALSE);
 
+      g_print ("scroll hacking!\n");
+
       if (area.height > 0)
       {
 	area.x = 0;
 	area.width = width;
+	g_print ("painting area: (%d, %d) -> (%d, %d)\n", area.x, area.y, area.width, area.height);
 	paint (xtext, &area);
       }
       f->grid_dirty = TRUE;
@@ -2280,8 +2283,11 @@ buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
   }
 
   /* if we're not indented, we're done */
-  if (newent->left_len == 0)
+  if (newent->left_len <= 0)
+  {
+    newent->indent = 0;
     return;
+  }
 
   left_width = text_width (xtext, newent->str, newent->left_len, NULL);
 
@@ -2333,9 +2339,11 @@ allocate_buffer (XText2 *xtext, XTextBuffer *buffer)
   XTextFormat *f = g_new0 (XTextFormat, 1);
   g_hash_table_insert (xtext->priv->buffer_info, buffer, f);
   /* FIXME: should copy existing lines & set wraps here */
-  f->old_adj = 0;
+  f->old_adj = -1;
   f->wrapped_first = NULL;
   f->wrapped_last  = NULL;
+  f->scrollbar_down = TRUE;
+  f->indent = xtext->priv->spacewidth * 2;
   f->append_handler = g_signal_connect (G_OBJECT (buffer), "append", G_CALLBACK (buffer_append), (gpointer) xtext);
   f->clear_handler  = g_signal_connect (G_OBJECT (buffer), "clear",  G_CALLBACK (buffer_clear),  (gpointer) xtext);
   f->remove_handler = g_signal_connect (G_OBJECT (buffer), "remove", G_CALLBACK (buffer_remove), (gpointer) xtext);
@@ -2797,8 +2805,6 @@ adjustment_changed (GtkAdjustment *adj, XText2 *xtext)
   XTextFormat *f;
   f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
 
-  g_print ("adjustment_changed ()\n");
-
 #ifdef SMOOTH_SCROLL
   if (f->old_adj != adj->value)
 #else
@@ -2829,7 +2835,6 @@ adjustment_changed (GtkAdjustment *adj, XText2 *xtext)
 static gint
 adjustment_timeout (XText2 *xtext)
 {
-  g_print ("adjustment_timeout ()\n");
   render_page (xtext);
   xtext->priv->io_tag = 0;
   return 0;

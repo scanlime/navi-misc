@@ -682,7 +682,7 @@ static gboolean tab_complete_nickname(GtkEntry *entry, int start) {
 			printtext = npt;
 		}
 		tgui = (session_gui *) gui.current_session->gui;
-		//text_gui_print(tgui->buffer, printtext, TRUE);
+		text_gui_print(tgui->buffer, printtext, TRUE);
 		g_free(printtext);
 		if(strcasecmp(prefix, new_prefix) != 0) {
 			/* insert the new prefix into the entry */
