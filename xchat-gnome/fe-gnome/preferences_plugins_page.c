@@ -83,7 +83,9 @@ preferences_plugins_page_populate()
 
 	gtk_list_store_clear (store);
 
-	list = plugin_list;
+  for_files (XCHATLIBDIR"/plugins", "*.so", plugin_add);
+
+	list = known_plugins;
 	while (list)
 	{
 		plugin = list->data;
@@ -94,6 +96,11 @@ preferences_plugins_page_populate()
 		}
 		list = list->next;
 	}
+}
+
+static void
+plugin_add (char* dirname)
+{
 }
 
 static void
