@@ -303,7 +303,7 @@ static ssize_t uvswitch_write(struct file *file, const char *buffer, size_t coun
 	r_audio = video;
 	bypass = 0;
 
-	uvswitch_switch(dev, video, video, video, 0);
+	uvswitch_switch(dev, video, video, video, 1);
 
 exit:
 	/* unlock the device */
