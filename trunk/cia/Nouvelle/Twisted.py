@@ -156,13 +156,9 @@ class Page(resource.Resource):
         context['request'].write(str(obj))
         context['request'].finish()
 
-    def pageErrorCallback(self, obj, context):
+    def pageErrorCallback(self, failure, context):
         """Error handler for pages rendered asynchronously"""
-        request = context['request']
-        # FIXME: need a better page here
-        message = "Error in deferred page rendering:<p>%s</p>" % (Nouvelle.Serial.escapeToXml(repr(obj)),)
-        request.write(error.ErrorPage(http.INTERNAL_SERVER_ERROR, "Internal Error", message).render(request))
-        request.finish()
+        context['request'].processingFailed(failure)
 
     def preRender(self, context):
         """Called prior to rendering each request, subclasses can use this to annotate
