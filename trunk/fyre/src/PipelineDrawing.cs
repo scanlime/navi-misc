@@ -131,6 +131,16 @@ namespace Fyre
 			Show ();
 		}
 
+		Gdk.Rectangle
+		ExpandRect (Gdk.Rectangle source, int pixels)
+		{
+			Gdk.Rectangle ret = new Gdk.Rectangle ();
+			ret.X = source.X - pixels;
+			ret.Y = source.Y - pixels;
+			ret.Width  = source.Width  + pixels*2;
+			ret.Height = source.Height + pixels*2;
+			return ret;
+		}
 
 		Gdk.Cursor
 		CreateCursor (string data, string mask)
@@ -156,44 +166,46 @@ namespace Fyre
 		protected override bool
 		OnConfigureEvent (Gdk.EventConfigure ev)
 		{
-			if (hadj != null) {
-				hadj.PageSize = ev.Width;
-				vadj.PageSize = ev.Height;
-
-				hadj.PageIncrement = ev.Width;
-				vadj.PageIncrement = ev.Height;
-
-				// FIXME - Temporarily set the range here. This will need to
-				// set the document extents and modify scrollbars
-				hadj.Upper = ev.Width * 8;
-				vadj.Upper = ev.Height * 8;
-			}
-
 			drawing_extents.Width = ev.Width;
 			drawing_extents.Height = ev.Height;
 
+			if (hadj != null)
+				SetScrollbars ();
+
 			return base.OnConfigureEvent (ev);
+		}
+
+		void
+		SetScrollbars ()
+		{
+			Gdk.Rectangle exp_layout = ExpandRect (layout_extents, 50);
+			Gdk.Rectangle size = exp_layout.Union (drawing_extents);
+
+			hadj.Lower = size.X;
+			vadj.Lower = size.Y;
+
+			hadj.Upper = size.X + size.Width;
+			vadj.Upper = size.Y + size.Height;
+
+			hadj.PageIncrement = drawing_extents.Width / 2;
+			vadj.PageIncrement = drawing_extents.Height / 2;
+			hadj.PageSize = drawing_extents.Width;
+			vadj.PageSize = drawing_extents.Height;
 		}
 
 		protected override void
 		OnSetScrollAdjustments (Gtk.Adjustment hadj, Gtk.Adjustment vadj)
 		{
-			hadj.Lower         = 0.0;
-			hadj.Upper         = 0.0;
 			hadj.Value         = 0.0;
-			hadj.PageIncrement = 0.0;
-			hadj.PageSize      = 0.0;
-			hadj.StepIncrement = 0.0;
-
-			vadj.Lower         = 0.0;
-			vadj.Upper         = 0.0;
 			vadj.Value         = 0.0;
-			vadj.PageIncrement = 0.0;
-			vadj.PageSize      = 0.0;
-			vadj.StepIncrement = 0.0;
+
+			hadj.StepIncrement = 10.0;
+			vadj.StepIncrement = 10.0;
 
 			this.hadj = hadj;
 			this.vadj = vadj;
+
+			SetScrollbars ();
 		}
 
 		void
