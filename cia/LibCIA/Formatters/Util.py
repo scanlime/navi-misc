@@ -22,6 +22,7 @@ Utilities shared by several formatters
 #
 
 from LibCIA import XML
+import re
 
 
 def wrapLine(line, width):
@@ -48,6 +49,9 @@ def extractSummary(element, widthLimit=80):
     """Extract all text from the given XML element, remove extra
        whitespace, and truncate it to no longer than the given width.
        """
-    return wrapLine(re.sub("\s+", " ", XML.allText(element)).strip(), widthLimit)[0]
+    lines = wrapLine(re.sub("\s+", " ", XML.allText(element)).strip(), widthLimit)
+    if len(lines) > 1:
+        lines[0] += "..."
+    return lines[0]
 
 ### The End ###
