@@ -321,7 +321,11 @@ class Rack(BaseRack):
         # check whether this subnamespace needs to be removed.
         for key in self:
             del self.db[self._dumpKey(key)]
-        self._getKeyList().clear()
+        try:
+            self._getKeyList().clear()
+        except KeyError:
+            # HACK
+            self.reindex()
         self._testKeySubNsDel()
 
     def __iter__(self):
@@ -384,6 +388,8 @@ class Rack(BaseRack):
            This can be very slow, as it must scan and unserialize all keys
            in the database.
            """
+        print "REINDEXING rack namespace %r" % (self.path,)
+
         # First scan the db, building key and subns lists in memory.
         # We don't want to modify the db until we're done iterating over it.
         keyList = []
@@ -636,7 +642,7 @@ class LinkedList(object):
 
     def __len__(self):
         try:
-            return self.db[self._countKey]
+            return max(0, self.db[self._countKey])
         except KeyError:
             return 0
 
@@ -838,20 +844,25 @@ class RingBuffer(object):
         """Add the given node to the FIFO, overwriting
            the oldest entries if the buffer is full.
            """
-        self._load(True)
+        try:
+            self._load(True)
 
-        # Stow the new node at our head and increment it
-        self.db[self.head] = node
-        self.head = self.head + 1
-        if self.head >= self.size:
-            self.head -= self.size
-        self.db['head'] = self.head
+            # Stow the new node at our head and increment it
+            self.db[self.head] = node
+            self.head = self.head + 1
+            if self.head >= self.size:
+                self.head -= self.size
+            self.db['head'] = self.head
 
-        # If we haven't just also pushed out an old item,
-        # increment the count of items in our db.
-        if self.count < self.size:
-            self.count += 1
-            self.db['count'] = self.count
+            # If we haven't just also pushed out an old item,
+            # increment the count of items in our db.
+            if self.count < self.size:
+                self.count += 1
+                self.db['count'] = self.count
+        except KeyError:
+            # HACK
+            self.clear()
+            self.push(node)
 
     def pop(self, n):
         """Delete the 'n' oldest items from the RingBuffer. This does
@@ -924,7 +935,7 @@ class RingBuffer(object):
             self._load(False)
         except KeyError:
             return 0
-        return self.count
+        return max(0, self.count)
 
     def __getitem__(self, i):
         """Implements Numeric-style slicing for iterating forward
