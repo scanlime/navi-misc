@@ -18,6 +18,7 @@ prologuePianoTreble = \new Voice \notes\relative c' {
     <f a>2.\tenuto\marcato a8 b16 c
     \times 2/3 {c16\accent (b a g8.)} r4
   } \\ {
+    \once \override DynamicText #'extra-offset = #'(0 . -2.0)
     r8\f r16 \times 2/3 {c,32 [d e]} d4. f8 e d16 c ~
     c8 bis16\< a bis2 <g c>4\!
     r8
