@@ -78,8 +78,6 @@ startup
 	movwf	TRISA
 	movlw	0x01
 	movwf	TRISB
-	movlw	0xEF
-	movwf	OPTION_REG
 
 	n64gc_init
 
@@ -109,6 +107,10 @@ tx_read_loop
 	decfsz	byte_count, f
 	goto	tx_read_loop
 
+	bsf	STATUS, RP0	; Reset the counter
+	movlw	0xEF
+	movwf	OPTION_REG
+	bcf	STATUS, RP0
 	clrf	TMR0
 
 	movlw	buffer		; Transmit to the Nintendo bus...
@@ -124,6 +126,7 @@ nothing_to_transmit
 	goto	main_loop
 	call	nintendo_rx
 
+	bcf	STATUS, RP0
 	movf	TMR0, w		; Transmit the transition detection byte
 	call	serial_tx
 
