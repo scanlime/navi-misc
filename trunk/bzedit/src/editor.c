@@ -86,7 +86,7 @@ editor_selected (SceneObject *object, Editor *editor)
 {
   GtkWidget *viewport = glade_xml_get_widget (editor->xml, "property editor viewport");
 
-  if (editor->selected)
+  if (editor->selected && editor->selected != object)
     scene_object_deselect (editor->selected);
 
   gtk_widget_destroy (editor->pe);

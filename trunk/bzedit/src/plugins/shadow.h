@@ -1,5 +1,5 @@
 /*
- * group.h - Definition for the group object
+ * shadow.h - Definition for the group object
  *
  * BZEdit
  * Copyright (C) 2004 David Trowbridge
@@ -20,34 +20,33 @@
  *
  */
 
-#ifndef __GROUP_H__
-#define __GROUP_H__
+#ifndef __SHADOW_H__
+#define __SHADOW_H__
 
 #include "sceneobject.h"
 
 G_BEGIN_DECLS
 
-#define GROUP_TYPE            (group_get_type ())
-#define GROUP(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GROUP_TYPE, Group))
-#define GROUP_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), GROUP_TYPE, GroupClass))
-#define IS_GROUP(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GROUP_TYPE))
-#define IS_GROUP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), GROUP_TYPE))
+#define SHADOW_TYPE            (shadow_get_type ())
+#define SHADOW(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), SHADOW_TYPE, Shadow))
+#define SHADOW_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), SHADOW_TYPE, ShadowClass))
+#define IS_SHADOW(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), SHADOW_TYPE))
+#define IS_SHADOW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), SHADOW_TYPE))
 
-typedef struct _Group      Group;
-typedef struct _GroupClass GroupClass;
+typedef struct _Shadow      Shadow;
+typedef struct _ShadowClass ShadowClass;
 
-struct _Group
+struct _Shadow
 {
   SceneObject parent;
 };
 
-struct _GroupClass
+struct _ShadowClass
 {
   SceneObjectClass parent_class;
 };
 
-GType  group_get_type (void) G_GNUC_CONST;
-Group* group_new      (void);
+GType shadow_get_type (void) G_GNUC_CONST;
 
 G_END_DECLS
 
