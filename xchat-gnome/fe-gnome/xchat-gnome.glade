@@ -2100,7 +2100,7 @@
 		      <property name="spacing">0</property>
 
 		      <child>
-			<widget class="GtkButton" id="button15">
+			<widget class="GtkButton" id="servers add">
 			  <property name="visible">True</property>
 			  <property name="can_default">True</property>
 			  <property name="can_focus">True</property>
@@ -2122,7 +2122,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkButton" id="button17">
+			<widget class="GtkButton" id="servers remove">
 			  <property name="visible">True</property>
 			  <property name="can_default">True</property>
 			  <property name="can_focus">True</property>
