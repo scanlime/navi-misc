@@ -1741,14 +1741,14 @@ CheckVendor
 	; A 9-bit address in wIndex, 8-bit data in wValue
 PokeRequest
 	banksel BufferData
-	bcf	STATUS, IRP	; Transfer bit 9 of wIndex into IRP
+	bcf	STATUS, IRP	; Transfer bit 8 of wIndex into IRP
 	btfsc	BufferData+(wIndex+1), 0
 	bsf	STATUS, IRP
 
-	movf	BufferData+wIndex, w ; And bits 0-8 into FSR
+	movf	BufferData+wIndex, w ; And bits 0-7 into FSR
 	movwf	FSR
 
-	movf	BufferData+wValue, w ; Now write bits 0-8 of wValue to [IRP:FSR]
+	movf	BufferData+wValue, w ; Now write bits 0-7 of wValue to [IRP:FSR]
 	movwf	INDF
 
 	; Acknowledge the request
@@ -1760,11 +1760,11 @@ PokeRequest
 	; 9-bit address in wIndex, an 8-bit value returned in a 1-byte packet
 PeekRequest
 	banksel BufferData
-	bcf	STATUS, IRP	; Transfer bit 9 of wIndex into IRP
+	bcf	STATUS, IRP	; Transfer bit 8 of wIndex into IRP
 	btfsc	BufferData+(wIndex+1), 0
 	bsf	STATUS, IRP
 
-	movf	BufferData+wIndex, w ; And bits 0-8 into FSR
+	movf	BufferData+wIndex, w ; And bits 0-7 into FSR
 	movwf	FSR
 
 	movf	INDF, w		; Save the referenced byte in temp
