@@ -125,11 +125,11 @@ class BaseTable:
 
     def render_headings(self, context):
         """Return a list of headingTag instances labelling each column"""
-        return [self.render_heading(context, c) for c in self.getVisibleColumns(context)]
+        return [self.headingTag[self.render_heading(context, c)] for c in self.getVisibleColumns(context)]
 
     def render_heading(self, context, column):
         """Return a serializable representation of one column heading"""
-        return self.headingTag[column.render_heading(context)]
+        return column.render_heading(context)
 
     def getVisibleColumns(self, context):
         """Return an iterator over all visible columns"""
@@ -201,7 +201,7 @@ class ResortableTable(BaseTable):
     def render_heading(self, context, column):
         """Override render_heading to insert hyperlinks generated with createSortCookie"""
         url = self.getCookieHyperlink(self.getSortCookie(column))
-        return self.headingTag[self.headingLinkTag(href=url)[column.render_heading(context)]]
+        return self.headingLinkTag(href=url)[column.render_heading(context)]
 
     def setSortFromCookie(self, cookie):
         """Set our current sort using the given cookie.

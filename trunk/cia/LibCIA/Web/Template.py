@@ -62,7 +62,22 @@ class Section(Nouvelle.DocumentOwner):
 
 
 class Table(Nouvelle.ResortableTable):
-    pass
+    """Add sorting indicators to Nouvelle's normal ResortableTable"""
+    def render_heading(self, context, column):
+        if self.columns[self.sortColumnIndex] == column:
+            # This is the sort column, indicate the direction
+            if self.sortReversed:
+                indicator = tag('img', width=11, height=7, src="/images/sort_up.png", alt="Reversed sort column")
+            else:
+                indicator = tag('img', width=11, height=7, src="/images/sort_down.png", alt="Sort column")
+        else:
+            # Not the sort column
+            indicator = []
+
+        return [
+            Nouvelle.ResortableTable.render_heading(self, context, column),
+            indicator,
+            ]
 
 
 class StaticSection(Section):
