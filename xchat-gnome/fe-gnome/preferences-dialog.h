@@ -21,7 +21,7 @@
 
 #include "gui.h"
 #include <gconf/gconf-client.h>
-#include "preferences-irc-page.h"
+#include "preferences-page-irc.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_DIALOG_H
 #define XCHAT_GNOME_PREFERENCES_DIALOG_H
