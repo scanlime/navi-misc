@@ -36,6 +36,10 @@ class Options(usage.Options):
         ['key', 'k', None, 'Load a capabilities key from this file'],
         ]
 
+    def opt_h(self):
+        # By default only --help is recognized, not -h
+        self.opt_help()
+
 
 class App(object):
     """An object that can be subclassed to create a quick client app"""

@@ -27,13 +27,16 @@ class Options(Client.Options):
         ['output', 'o', 'granted.key', 'A file to write the granted key to'],
         ]
 
+    def getSynopsis(self):
+        return Client.Options.getSynopsis(self) + ' capability'
+
     def parseArgs(self, *args):
         if len(args) > 1:
             self['capability'] = args
         elif len(args) == 1:
             self['capability'] = args[0]
         else:
-            raise usage.UsageError("A capability name must be specified")
+            self.opt_help()
 
 class KeyGranter(Client.App):
     optionsClass = Options
