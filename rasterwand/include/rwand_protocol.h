@@ -92,14 +92,17 @@
 ;// Copy wIndex bytes from the address at the low byte of wValue
 ;// to the address at the high byte of wValue. Leaves the write
 ;// pointer at the first byte after the end of the destination area.
+;// (Not yet implemented)
 #define RWAND_CTRL_BLIT				0x0F
 
 ;// Left-shift a block of 32 bytes starting at the write pointer,
 ;// filling in the new bit positions with each bit in wValue+wIndex,
 ;// starting with the low bit of wValue.
+;// (Not yet implemented)
 #define RWAND_CTRL_LEFT_SHIFT		0x10
 
 ;// Like above, but the other direction.
+;// (Not yet implemented)
 #define RWAND_CTRL_RIGHT_SHIT		0x11
 
 
