@@ -55,6 +55,7 @@ def importObjects(reader):
 
     # Create Blender objects for each BZFlag object
     for object in objects:
+        object.world = world
         object.toBlender()
 
 

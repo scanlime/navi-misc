@@ -41,55 +41,56 @@ except ImportError:
     bzflag = None
 
 
-class BzWorldExporter:
-    def collectObjects(self):
-        """Look through all Blender objects, finding those tagged with
-           a 'bztype' property. This looks for exactly one 'world' object,
-           storing it in self.world. All bzflag objects are added to
-           self.objects.
-           """
-        self.world = None
-        self.objects = []
-        typeReg = bzflag.getTypeRegistry()
+def collectObjects():
+    """Look through all Blender objects, finding those tagged with
+       a 'bztype' property. This looks for exactly one 'world' object,
+       and assigns that world to all objects. Returns a list of prepared
+       BZObject instances.
+       """
+    world = None
+    objects = []
+    typeReg = bzflag.getTypeRegistry()
 
-        for object in Blender.Object.Get():
-            try:
-                bztype = object.getProperty("bztype")
-            except AttributeError:
-                pass
-            else:
-                # Create a BZObject using the TypeRegistry
-                bzo = typeReg.fromBlender(object)
-                self.objects.append(bzo)
+    for object in Blender.Object.Get():
+        try:
+            bztype = object.getProperty("bztype")
+        except AttributeError:
+            pass
+        else:
+            # Create a BZObject using the TypeRegistry
+            bzo = typeReg.fromBlender(object)
+            objects.append(bzo)
 
-                if isinstance(bzo, bzflag.World):
-                    if self.world:
-                        bzflag.log.err("Multiple 'world' objects are not allowed")
-                        return
-                    else:
-                        self.world = bzo
+            if isinstance(bzo, bzflag.World):
+                if world:
+                    bzflag.log.err("Multiple 'world' objects are not allowed")
+                    return
+                else:
+                    world = bzo
 
-        if not self.world:
-            bzflag.log.err("A 'world' object is required")
+    if not world:
+        bzflag.log.err("A 'world' object is required")
+    for object in objects:
+        object.world = world
+    return objects
 
-    def save(self, filename):
-        """Write all collected bzflag objects to the given file"""
-        writer = bzflag.WorldWriter(filename)
-        for object in self.objects:
-            writer.writeObject(object)
+def saveObjects(objects, filename):
+    """Write all collected bzflag objects to the given file"""
+    writer = bzflag.WorldWriter(filename)
+    for object in objects:
+        writer.writeObject(object)
 
 def main():
-    global exporter
-    exporter = BzWorldExporter()
-    exporter.collectObjects()
+    global objects
+    objects = collectObjects()
     if bzflag.log.numErrors:
         bzflag.log.report("Errors in collecting objects")
         return
     Blender.Window.FileSelector(fileSelectedCallback, "Save BZFlag World")
 
 def fileSelectedCallback(filename):
-    global exporter
-    exporter.save(filename)
+    global objects
+    saveObjects(objects, filename)
     if bzflag.log.numErrors:
         bzflag.log.report("Errors in saving world file")
 
