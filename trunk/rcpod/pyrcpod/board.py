@@ -85,7 +85,9 @@ class Rcpod485(device.OpenedRcpod):
 
         # Make a string describing both the sent and the received packets,
         # to be used in case of error.
-        pktInfo = "%s -> %s" % (packet, retPacket)
+        pktInfo = "[%s] -> [%s]" % (
+            " ".join(["%02X" % byte for byte in packet]),
+            " ".join(["%02X" % byte for byte in retPacket]))
 
         # Validate the received packet
         if not retPacket:
