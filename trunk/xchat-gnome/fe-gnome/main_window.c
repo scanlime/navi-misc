@@ -301,6 +301,7 @@ static void
 on_irc_quit_menu_activate (GtkWidget *widget, gpointer data)
 {
 	hide_transfers_window ();
+	gtk_widget_hide (GTK_WIDGET (gui.main_window));
 	gui.quit = TRUE;
 	xchat_exit ();
 }
