@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 
+from __future__ import division
 import time, re
+
+
+def toFahrenheit(celcius):
+        """Return the therm's value in degrees fahrenheit rather than the default degrees celcius"""
+        return celcius * 9.0 / 5 + 32
 
 
 def getTherms(file="therms.conf"):
@@ -36,27 +42,44 @@ class Therm:
         self.address = address
         self.description = description
         self.value = None
+        self.avgTotal = 0
+        self.avgSamples = 0
 
     def __repr__(self):
         if self.value is None:
             data = "no reading"
         else:
-            data = "%.02f F" % self.inFahrenheit()
+            data = "%.02f F" % toFahrenheit(self.value)
         return '<Therm %r at %s:%s, %s>' % (
             self.description, self.bus, self.address, data)
 
-    def inFahrenheit(self):
-        """Return the therm's value in degrees fahrenheit rather than the default degrees celcius"""
-        if self.value is not None:
-            return self.value * 9.0 / 5 + 32
+    def update(self, newValue):
+        """Set a new current reading for this therm. newValue may be None to indicate
+           that data is no longer available.
+           """
+        self.value = newValue
+        if newValue is not None:
+            self.avgTotal += newValue
+            self.avgSamples += 1
+
+    def getAverage(self):
+        """Read the average value since the last time getAverage was called"""
+        if self.avgSamples > 0:
+            avg = self.avgTotal / self.avgSamples
+            self.avgTotal = 0
+            self.avgSamples = 0
+            return avg
 
 
 class ThermSampler:
     """Given a list of Therm instances that need updating, determines which addresses
        need to be scanned on the given i2c bus and updates the therms.
        """
-    def __init__(self, i2c):
-        self.mtherm = MultiTherm(i2c)
+    def __init__(self):
+        import pyrcpod, i2c
+        rcpod = pyrcpod.devices[0].open()
+        mbus = i2c.MultiBus(rcpod)
+        self.mtherm = MultiTherm(mbus)
 
     def update(self, therms):
         """Scan for available readings on the given list of thermometers, and update
@@ -84,9 +107,9 @@ class ThermSampler:
                         # disconnected (the bus's idle state is 1, and the devices
                         # can't produce readings that high)
                         if temp == 255:
-                            addrTherm.value = None
+                            addrTherm.update(None)
                         else:
-                            addrTherm.value = temp
+                            addrTherm.update(temp)
 
 
 class MultiTherm:
