@@ -94,7 +94,7 @@ class Channel(object):
            This returns True only once for a given value of 'obj' after this channel's
            timestamp has changed.
            """
-        if self.timeMap.has_key(obj):
+        if not self.timeMap.has_key(obj):
             # obj has never seen this channel yet
             return True
 
