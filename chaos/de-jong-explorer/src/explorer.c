@@ -912,6 +912,7 @@ static void explorer_update_animation(Explorer *self) {
   double diff, new_value;
   GtkRange *range;
   GtkAdjustment *adj;
+  GtkWidget *loop_widget;
 
   if (!self->playing_animation)
     return;
@@ -930,9 +931,18 @@ static void explorer_update_animation(Explorer *self) {
     gtk_range_set_value(range, new_value);
   }
   else {
-    /* Last frame, stop playback */
-    gtk_range_set_value(range, adj->upper);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "anim_play_button")), FALSE);
+    /* We've reached the end... */
+
+    loop_widget = glade_xml_get_widget(self->xml, "loop_animation");
+    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(loop_widget))) {
+      /* Loop the animation */
+      gtk_range_set_value(range, adj->lower);
+    }
+    else {
+      /* Stop at the end */
+      gtk_range_set_value(range, adj->upper);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "anim_play_button")), FALSE);
+    }
   }
 }
 
@@ -1010,10 +1020,12 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
     /* Assuming the user clicked us rather than this being called as the result of
      * a seek, seek the animation to this keyframe's location.
      */
+    self->selecting_keyframe = TRUE;
     gtk_range_set_value(GTK_RANGE(glade_xml_get_widget(self->xml, "anim_scale")),
 			animation_keyframe_get_time(self->animation, &iter));
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "anim_play_button")), FALSE);
+    self->selecting_keyframe = FALSE;
   }
 
   /* Load this keyframe's transition parameters into our GUI */
@@ -1111,12 +1123,14 @@ static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
   }
   animation_iter_load_dejong(self->animation, &iter, self->dejong);
 
-  /* Put the tree view's cursor on the current keyframe */
-  path = gtk_tree_model_get_path(GTK_TREE_MODEL(self->animation->model), &iter.keyframe);
-  self->seeking_animation = TRUE;
-  gtk_tree_view_set_cursor(tv, path, NULL, FALSE);
-  self->seeking_animation = FALSE;
-  gtk_tree_path_free(path);
+  if (!self->selecting_keyframe) {
+    /* Put the tree view's cursor on the current keyframe */
+    path = gtk_tree_model_get_path(GTK_TREE_MODEL(self->animation->model), &iter.keyframe);
+    self->seeking_animation = TRUE;
+    gtk_tree_view_set_cursor(tv, path, NULL, FALSE);
+    self->seeking_animation = FALSE;
+    gtk_tree_path_free(path);
+  }
 
   if (!self->playing_animation) {
     /* Just like the color picker, the hscale will probably try to suck up

@@ -1652,7 +1652,7 @@ Settings&lt;/b&gt;</property>
 		      <accelerator key="n" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image195">
+			<widget class="GtkImage" id="image198">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-new</property>
 			  <property name="icon_size">1</property>
@@ -1674,7 +1674,7 @@ Settings&lt;/b&gt;</property>
 		      <accelerator key="o" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image196">
+			<widget class="GtkImage" id="image199">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-open</property>
 			  <property name="icon_size">1</property>
@@ -1696,7 +1696,7 @@ Settings&lt;/b&gt;</property>
 		      <accelerator key="s" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image197">
+			<widget class="GtkImage" id="image200">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-save</property>
 			  <property name="icon_size">1</property>
@@ -1718,7 +1718,7 @@ Settings&lt;/b&gt;</property>
 		      <accelerator key="s" modifiers="GDK_CONTROL_MASK | GDK_SHIFT_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image198">
+			<widget class="GtkImage" id="image201">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-save-as</property>
 			  <property name="icon_size">1</property>
@@ -1728,6 +1728,29 @@ Settings&lt;/b&gt;</property>
 			  <property name="ypad">0</property>
 			</widget>
 		      </child>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
+	    </widget>
+	  </child>
+
+	  <child>
+	    <widget class="GtkMenuItem" id="view1">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">View</property>
+	      <property name="use_underline">True</property>
+
+	      <child>
+		<widget class="GtkMenu" id="view1_menu">
+
+		  <child>
+		    <widget class="GtkCheckMenuItem" id="loop_animation">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Loop animation</property>
+		      <property name="use_underline">True</property>
+		      <property name="active">False</property>
+		      <signal name="activate" handler="on_loop_animation_activate" last_modification_time="Sun, 22 Feb 2004 22:14:40 GMT"/>
 		    </widget>
 		  </child>
 		</widget>
@@ -2084,7 +2107,7 @@ Settings&lt;/b&gt;</property>
 			      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 			      <property name="snap_to_ticks">False</property>
 			      <property name="wrap">False</property>
-			      <property name="adjustment">0 0 1000 0.01 1 0</property>
+			      <property name="adjustment">1 0.01 1000 0.01 1 0</property>
 			      <signal name="value_changed" handler="on_keyframe_duration_change" last_modification_time="Sun, 22 Feb 2004 21:23:29 GMT"/>
 			    </widget>
 			    <packing>
