@@ -178,10 +178,15 @@ TEST_RB0_INT
 	goto	PERIPHERALTEST
 	banksel	TMR1H
 	movf	TMR1H, w		; Save and reset the tmr1 value ASAP
+	btfsc	PIR1, TMR1IF	; If the timer overflowed, set our saved value to 0xFFFF
+	movlw	0xFF
 	movwf	tmr1h_save
 	movf	TMR1L, w
+	btfsc	PIR1, TMR1IF
+	movlw	0xFF
 	movwf	tmr1l_save
-	clrf	TMR1L
+	clrf	TMR1L			; Reset the timer and the overflow flag in the right order so we don't get a race condition
+	bcf		PIR1, TMR1IF
 	clrf	TMR1H
 	clrf	TMR1L
 	bcf		INTCON, INTF	; Clear the external interrupt flag
@@ -373,6 +378,7 @@ Main
 	banksel	T1CON
 	movwf	T1CON
 	clrf	TMR1L		; Clear the timer such that it's safe from rollovers
+	bcf		PIR1, TMR1IF ; Reset the overflow flag
 	clrf	TMR1H
 	clrf	TMR1L
 
