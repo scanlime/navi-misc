@@ -45,9 +45,44 @@
       </item>
     </box>
   </item>
+  
   <!-- Menubar -->
   <item type="rect">
     <normal color="#000000" alpha="0.6"/>
-    <pos x="0" y="-30" width="100%" height="30"/>
+    <pos x="100%" y="-30" width="100%" height="30" anchor="ne"/>
+    <fixed>
+      <!-- Clock -->
+      <item type="label" id="clock">
+        <normal color="#ffffff" font="Sans 12"/>
+        <pos x="20" y="50%" anchor="w" expand="true"/>
+        <text>%c</text>
+      </item>
+
+      <item type="rect" id="language_button" button="true">
+        <normal color="#000000" alpha="0.0"/>
+        <pos x="50%" y="50%" anchor="e" width="box" height="box" expand="true"/>
+        <box orientation="vertical">
+          <item type="label">
+            <pos y="50%" anchor="e"/>
+            <normal color="#cccccc" font="Sans 12"/>
+            <prelight color="#ffffff" font="Sans 12"/>
+            <stock type="language"/>
+          </item>
+        </box>
+      </item>
+
+      <item type="rect" id="config_button" button="true">
+        <normal color="#000000" alpha="0.0"/>
+        <pos x="90%" y="50%" anchor="e" width="box" height="box" expand="true"/>
+        <box orientation="horizontal">
+          <item type="label">
+            <pos y="50%" anchor="e"/>
+            <normal color="#cccccc" font="Sans 12"/>
+            <prelight color="#ffffff" font="Sans 12"/>
+            <text>Setup</text>
+          </item>
+        </box>
+      </item>
+    </fixed>
   </item>
 </greeter>
