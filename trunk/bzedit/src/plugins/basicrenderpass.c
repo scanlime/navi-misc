@@ -180,6 +180,9 @@ basic_render_pass_class_init (BasicRenderPassClass *klass)
   rpc->add = basic_render_pass_add;
   rpc->erase = basic_render_pass_erase;
   rpc->is_empty = basic_render_pass_is_empty;
+
+  rpc->filter_priority = 0;
+  rpc->render_priority = 100;
 }
 
 static void
@@ -228,6 +231,18 @@ basic_render_pass_preprocess (RenderPass *pass)
 static void
 basic_render_pass_add (RenderPass *pass, Drawable *drawable)
 {
+  BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
+  TextureGroup *group;
+
+  group = g_hash_table_lookup (brp->texture_groups, (gpointer) drawable->texture);
+  if (group)
+  {
+    texture_group_add (group, drawable);
+  } else {
+    group = texture_group_new ();
+    texture_group_add (group, drawable);
+    g_hash_table_insert (brp->texture_groups, (gpointer) drawable->texture, (gpointer) group);
+  }
 }
 
 static void
@@ -241,4 +256,6 @@ basic_render_pass_erase (RenderPass *pass)
 static gboolean
 basic_render_pass_is_empty (RenderPass *pass)
 {
+  BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
+  return g_hash_table_size (brp->texture_groups);
 }

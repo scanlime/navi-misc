@@ -43,9 +43,6 @@ typedef struct _RenderPassClass RenderPassClass;
 struct _RenderPass
 {
   GObject object;
-
-  guint filter_priority;
-  guint render_priority;
 };
 
 struct _RenderPassClass
@@ -58,6 +55,9 @@ struct _RenderPassClass
   void     (*add)        (RenderPass *pass, Drawable *drawable);
   void     (*erase)      (RenderPass *pass);
   gboolean (*is_empty)   (RenderPass *pass);
+
+  guint filter_priority;
+  guint render_priority;
 };
 
 GType    render_pass_get_type   (void) G_GNUC_CONST;
