@@ -1,16 +1,7 @@
 INCLUDES =						\
 	-DG_LOG_DOMAIN=\"libecalbackendweather\"	\
-	-I$(top_srcdir)					\
-	-I$(top_builddir)				\
-	-I$(top_srcdir)/calendar			\
-	-I$(top_builddir)/calendar			\
-	-I$(top_srcdir)/calendar/libical/src		\
-	-I$(top_builddir)/calendar/libical/src		\
-	-I$(top_srcdir)/calendar/libical/src/libical	\
-	-I$(top_builddir)/calendar/libical/src/libical	\
-	-I$(top_srcdir)/addressbook			\
-	-I$(top_builddir)/addressbook			\
 	-DWEATHER_DATADIR=\""$(weatherdatadir)"\"	\
+	$(EDS_BACKEND_CFLAGS)				\
 	$(EVOLUTION_CALENDAR_CFLAGS)			\
 	$(SOUP_CFLAGS)
 
@@ -29,16 +20,8 @@ libecalbackendweather_la_SOURCES =	\
 	e-weather-source-ccf.h
 
 libecalbackendweather_la_LIBADD =	\
-	$(top_builddir)/calendar/libedata-cal/libedata-cal-1.2.la	\
+	$(EDS_BACKEND_LIBS)		\
 	$(SOUP_LIBS)
 
 libecalbackendweather_la_LDFLAGS =	\
 	-avoid-version
-
-weatherdata_in_files = Locations.xml.in
-weatherdata_DATA = $(weatherdata_in_files:.xml.in=.xml)
-# FIXME - should probably do some sort of intltool merge here
-%.xml:	%.xml.in
-	cp $< $@
-
-EXTRA_DIST = Locations.xml.in

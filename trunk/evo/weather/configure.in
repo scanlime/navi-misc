@@ -1,0 +1,28 @@
+AC_PREREQ(2.54)
+
+AC_INIT(AUTHORS)
+AM_INIT_AUTOMAKE(eds-weather-backend, 0.1)
+AM_CONFIG_HEADER(config.h)
+
+AM_MAINTAINER_MODE
+AC_PROG_CC
+AC_STDC_HEADERS
+AM_DISABLE_STATIC
+AM_PROG_LIBTOOL
+
+AM_PATH_GLIB_2_0
+
+PKG_CHECK_MODULES(EDS_BACKEND,
+[
+	libecal-1.2 >= 1.1.0
+	libedata-cal-1.2 >= 1.1.0
+	libedataserver-1.2 >= 1.1.0
+])
+AC_SUBST(EDS_BACKEND_CFLAGS)
+AC_SUBST(EDS_BACKEND_LIBS)
+
+AC_OUTPUT([
+Makefile
+data/Makefile
+src/Makefile
+])
