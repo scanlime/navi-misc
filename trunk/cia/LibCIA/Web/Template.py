@@ -53,6 +53,10 @@ class Section(Nouvelle.DocumentOwner):
     ]
 
 
+class Table(Nouvelle.ResortableTable):
+    pass
+
+
 class StaticSection(Section):
     """A section containing static content, usable with tag-like syntax:
        StaticSection(title)[body]

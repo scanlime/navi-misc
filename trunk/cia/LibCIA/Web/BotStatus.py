@@ -23,6 +23,7 @@ A web interface showing the current status of the BotNetwork
 
 import Template
 from Nouvelle import tag, place
+import Nouvelle
 
 
 class TotalsSection(Template.Section):
@@ -48,6 +49,17 @@ class TotalsSection(Template.Section):
         ]]
 
 
+class BotChannelsColumn(Nouvelle.Column):
+    """A table column listing a bot's channels"""
+    heading = 'channels'
+
+    def render_data(self, context, bot):
+        return ", ".join(bot.channels)
+
+    def getValue(self, bot):
+        return len(bot.channels)
+
+
 class ServerSection(Template.Section):
     """A section representing one BotAllocator, and therefore one IRC server"""
     def __init__(self, allocator):
@@ -56,24 +68,11 @@ class ServerSection(Template.Section):
     def render_title(self, context):
         return "%s:%d" % (self.allocator.host, self.allocator.port)
 
-    def render_tableRows(self, context):
-        nicks = self.allocator.bots.keys()
-        nicks.sort()
-        return [tag('tr')[self.renderBot(self.allocator.bots[nick])] for nick in nicks]
-
-    def renderBot(self, bot):
-        return [
-            tag('td')[ bot.nickname ],
-            tag('td')[ ", ".join(bot.channels) ],
-            ]
-
-    rows = [ tag('table')[
-                 tag('tr')[
-                     tag('th')[ 'nickname' ],
-                     tag('th')[ 'channels' ],
-                 ],
-                 place('tableRows'),
-             ]]
+    def render_rows(self, context):
+        return [Template.Table(self.allocator.bots.values(), [
+            Nouvelle.AttributeColumn('nickname', 'nickname'),
+            BotChannelsColumn(),
+            ])]
 
 
 class IRCBotPage(Template.Page):

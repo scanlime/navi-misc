@@ -34,6 +34,7 @@ class Page(resource.Resource):
         context  = {
             'owner': self,
             'request': request,
+            'args': request.args,  # For compatibility across systems utilizing Nouvelle
             }
         self.preRender(context)
         return str(self.serializerFactory().render(self.document, context))

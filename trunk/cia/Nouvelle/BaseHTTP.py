@@ -27,7 +27,7 @@ server with a particular Page at its root.
 
 import Nouvelle
 from Nouvelle import tag
-import BaseHTTPServer
+import BaseHTTPServer, urlparse
 
 
 class Page:
@@ -37,7 +37,7 @@ class Page:
     serializerFactory = Nouvelle.Serializer
     responseCode = 200
 
-    def handleRequest(self, request):
+    def handleRequest(self, request, args):
         """Given a RequestHandler instance, send back an HTTP response code,
            headers, and a rendition of this page.
            """
@@ -47,6 +47,7 @@ class Page:
         context  = {
             'owner': self,
             'request': request,
+            'args': args,
             }
         self.preRender(context)
 
@@ -98,10 +99,24 @@ class Error404(Page):
 
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
+        # Parse the path we were given as a URL...
+        scheme, host, path, parameters, query, fragment = urlparse.urlparse(self.path)
+
+        # Find the page corresponding with our URL's path
         page = self.rootPage
-        for segment in self.path.split("/"):
+        for segment in path.split("/"):
             page = page.findChild(segment)
-        page.handleRequest(self)
+
+        # Split the query into key-value pairs
+        args = {}
+        for pair in query.split("&"):
+            if pair.find("=") >= 0:
+                key, value = pair.split("=", 1)
+                args.setdefault(key, []).append(value)
+            else:
+                args[pair] = []
+
+        page.handleRequest(self, args)
 
 
 def main(rootPage, port=8080):
