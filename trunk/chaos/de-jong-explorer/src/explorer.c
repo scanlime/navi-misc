@@ -52,6 +52,7 @@ static void explorer_class_init(ExplorerClass *klass);
 static void explorer_init(Explorer *self);
 static void explorer_dispose(GObject *gobject);
 
+static void explorer_init_animation(Explorer *self);
 static int explorer_idle_handler(gpointer user_data);
 static void explorer_set_params(Explorer *self);
 static void explorer_get_params(Explorer *self);
@@ -62,6 +63,7 @@ static int explorer_limit_update_rate(Explorer *self, float max_rate);
 static const ToolInfo* explorer_get_current_tool(Explorer *self);
 static void explorer_update_idle_tool(Explorer *self);
 static void explorer_fill_toolinput_relative_positions(Explorer *self, ToolInput *ti);
+static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter);
 
 static gdouble generate_random_param();
 
@@ -83,6 +85,11 @@ static gboolean on_button_press(GtkWidget *widget, GdkEvent *event, gpointer use
 static gboolean on_button_release(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 static void on_widget_toggle(GtkWidget *widget, gpointer user_data);
 static void on_color_changed(GtkWidget *widget, gpointer user_data);
+static void on_anim_play_toggled(GtkWidget *widget, gpointer user_data);
+static void on_keyframe_add(GtkWidget *widget, gpointer user_data);
+static void on_keyframe_replace(GtkWidget *widget, gpointer user_data);
+static void on_keyframe_delete(GtkWidget *widget, gpointer user_data);
+static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_data);
 
 static void tool_grab(Explorer *self, ToolInput *i);
 static void tool_blur(Explorer *self, ToolInput *i);
@@ -160,23 +167,28 @@ static void explorer_init(Explorer *self) {
 
   /* Connect signal handlers
    */
-  glade_xml_signal_connect_data(self->xml, "on_expose",                 G_CALLBACK(on_expose),                 self);
-  glade_xml_signal_connect_data(self->xml, "on_param_changed",          G_CALLBACK(on_param_changed),          self);
-  glade_xml_signal_connect_data(self->xml, "on_randomize",              G_CALLBACK(on_randomize),              self);
-  glade_xml_signal_connect_data(self->xml, "on_load_defaults",          G_CALLBACK(on_load_defaults),          self);
-  glade_xml_signal_connect_data(self->xml, "on_save",                   G_CALLBACK(on_save),                   self);
-  glade_xml_signal_connect_data(self->xml, "on_quit",                   G_CALLBACK(on_quit),                   self);
-  glade_xml_signal_connect_data(self->xml, "on_pause_rendering_toggle", G_CALLBACK(on_pause_rendering_toggle), self);
-  glade_xml_signal_connect_data(self->xml, "on_load_from_image",        G_CALLBACK(on_load_from_image),        self);
-  glade_xml_signal_connect_data(self->xml, "on_resize",                 G_CALLBACK(on_resize),                 self);
-  glade_xml_signal_connect_data(self->xml, "on_resize_cancel",          G_CALLBACK(on_resize_cancel),          self);
-  glade_xml_signal_connect_data(self->xml, "on_resize_ok",              G_CALLBACK(on_resize_ok),              self);
-  glade_xml_signal_connect_data(self->xml, "on_tool_activate",          G_CALLBACK(on_tool_activate),          self);
-  glade_xml_signal_connect_data(self->xml, "on_viewport_expose",        G_CALLBACK(on_viewport_expose),        self);
-  glade_xml_signal_connect_data(self->xml, "on_motion_notify",          G_CALLBACK(on_motion_notify),          self);
-  glade_xml_signal_connect_data(self->xml, "on_button_press",           G_CALLBACK(on_button_press),           self);
-  glade_xml_signal_connect_data(self->xml, "on_button_release",         G_CALLBACK(on_button_release),         self);
-  glade_xml_signal_connect_data(self->xml, "on_widget_toggle",          G_CALLBACK(on_widget_toggle),          self);
+  glade_xml_signal_connect_data(self->xml, "on_expose",                       G_CALLBACK(on_expose),                       self);
+  glade_xml_signal_connect_data(self->xml, "on_param_changed",                G_CALLBACK(on_param_changed),                self);
+  glade_xml_signal_connect_data(self->xml, "on_randomize",                    G_CALLBACK(on_randomize),                    self);
+  glade_xml_signal_connect_data(self->xml, "on_load_defaults",                G_CALLBACK(on_load_defaults),                self);
+  glade_xml_signal_connect_data(self->xml, "on_save",                         G_CALLBACK(on_save),                         self);
+  glade_xml_signal_connect_data(self->xml, "on_quit",                         G_CALLBACK(on_quit),                         self);
+  glade_xml_signal_connect_data(self->xml, "on_pause_rendering_toggle",       G_CALLBACK(on_pause_rendering_toggle),       self);
+  glade_xml_signal_connect_data(self->xml, "on_load_from_image",              G_CALLBACK(on_load_from_image),              self);
+  glade_xml_signal_connect_data(self->xml, "on_resize",                       G_CALLBACK(on_resize),                       self);
+  glade_xml_signal_connect_data(self->xml, "on_resize_cancel",                G_CALLBACK(on_resize_cancel),                self);
+  glade_xml_signal_connect_data(self->xml, "on_resize_ok",                    G_CALLBACK(on_resize_ok),                    self);
+  glade_xml_signal_connect_data(self->xml, "on_tool_activate",                G_CALLBACK(on_tool_activate),                self);
+  glade_xml_signal_connect_data(self->xml, "on_viewport_expose",              G_CALLBACK(on_viewport_expose),              self);
+  glade_xml_signal_connect_data(self->xml, "on_motion_notify",                G_CALLBACK(on_motion_notify),                self);
+  glade_xml_signal_connect_data(self->xml, "on_button_press",                 G_CALLBACK(on_button_press),                 self);
+  glade_xml_signal_connect_data(self->xml, "on_button_release",               G_CALLBACK(on_button_release),               self);
+  glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_play_toggled",            G_CALLBACK(on_anim_play_toggled),            self);
+  glade_xml_signal_connect_data(self->xml, "on_keyframe_add",                 G_CALLBACK(on_keyframe_add),                 self);
+  glade_xml_signal_connect_data(self->xml, "on_keyframe_replace",             G_CALLBACK(on_keyframe_replace),             self);
+  glade_xml_signal_connect_data(self->xml, "on_keyframe_delete",              G_CALLBACK(on_keyframe_delete),              self);
+  glade_xml_signal_connect_data(self->xml, "on_keyframe_view_cursor_changed", G_CALLBACK(on_keyframe_view_cursor_changed), self);
 
   /* Set up the drawing area
    */
@@ -222,14 +234,22 @@ static void explorer_dispose(GObject *gobject) {
     g_source_remove(self->idler);
     self->idler = 0;
   }
+  if (self->animation) {
+    g_object_unref(self->animation);
+    self->animation = NULL;
+  }
 }
 
 Explorer* explorer_new(DeJong *dejong) {
   Explorer *self = EXPLORER(g_object_new(explorer_get_type(), NULL));
 
+  self->animation = animation_new();
   self->dejong = DE_JONG(g_object_ref(dejong));
+
+  explorer_init_animation(self);
   explorer_set_params(self);
   explorer_resize(self);
+
   self->idler = g_idle_add(explorer_idle_handler, self);
 }
 
@@ -831,5 +851,77 @@ static void tool_ac_bd(Explorer *self, ToolInput *i) {
 	       "d", self->dejong->d + i->delta_y * 0.001,
 	       NULL);
 }
+
+
+/************************************************************************************/
+/************************************************************************ Animation */
+/************************************************************************************/
+
+static void explorer_init_animation(Explorer *self) {
+  GtkTreeView *tv = GTK_TREE_VIEW(glade_xml_get_widget(self->xml, "keyframe_view"));
+
+  gtk_tree_view_set_model(tv, GTK_TREE_MODEL(self->animation->model));
+
+  gtk_tree_view_insert_column_with_attributes(tv, -1,
+					      "Keyframe", gtk_cell_renderer_pixbuf_new(),
+					      "pixbuf", ANIMATION_MODEL_THUMBNAIL, NULL);
+  gtk_tree_view_insert_column_with_attributes(tv, -1,
+					      "Transition", gtk_cell_renderer_text_new(),
+					      "text", ANIMATION_MODEL_DURATION, NULL);
+}
+
+static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter) {
+  GtkTreePath *path;
+  GtkTreeView *tv = GTK_TREE_VIEW(glade_xml_get_widget(self->xml, "keyframe_view"));
+  gtk_tree_view_get_cursor(tv, &path, NULL);
+  gtk_tree_model_get_iter(GTK_TREE_MODEL(self->animation->model), iter, path);
+  gtk_tree_path_free(path);
+}
+
+static void on_anim_play_toggled(GtkWidget *widget, gpointer user_data) {
+  Explorer *self = EXPLORER(user_data);
+}
+
+static void on_keyframe_add(GtkWidget *widget, gpointer user_data) {
+  Explorer *self = EXPLORER(user_data);
+  animation_keyframe_append(self->animation, self->dejong);
+}
+
+static void on_keyframe_replace(GtkWidget *widget, gpointer user_data) {
+  Explorer *self = EXPLORER(user_data);
+  GtkTreeIter iter;
+  explorer_get_current_keyframe(self, &iter);
+  animation_keyframe_store_dejong(self->animation, &iter, self->dejong);
+}
+
+static void on_keyframe_delete(GtkWidget *widget, gpointer user_data) {
+  /* Determine which row the cursor is on, delete it, and make the delete
+   * button insensitive again until another row is selected.
+   */
+  Explorer *self = EXPLORER(user_data);
+  GtkTreeIter iter;
+  explorer_get_current_keyframe(self, &iter);
+
+  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "keyframe_delete_button"), FALSE);
+  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "keyframe_replace_button"), FALSE);
+
+  gtk_list_store_remove(self->animation->model, &iter);
+}
+
+static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_data) {
+  /* This is called when a new row in the keyframe view is selected.
+   * enable the delete button, and load this row's parameters.
+   */
+  Explorer *self = EXPLORER(user_data);
+  GtkTreeIter iter;
+  explorer_get_current_keyframe(self, &iter);
+
+  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "keyframe_delete_button"), TRUE);
+  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "keyframe_replace_button"), TRUE);
+
+  animation_keyframe_load_dejong(self->animation, &iter, self->dejong);
+  explorer_set_params(self);
+}
+
 
 /* The End */

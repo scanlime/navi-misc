@@ -39,6 +39,7 @@ int main(int argc, char ** argv) {
 
   srand(time(NULL));
   g_type_init();
+
   dejong = de_jong_new();
 
   while (1) {
