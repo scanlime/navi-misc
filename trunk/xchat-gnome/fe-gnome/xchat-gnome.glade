@@ -3006,6 +3006,7 @@
 		      <child>
 			<widget class="GtkLabel" id="label59">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="label" translatable="yes">C_onnect</property>
 			  <property name="use_underline">True</property>
 			  <property name="use_markup">False</property>
