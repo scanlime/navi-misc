@@ -20,7 +20,7 @@
  *
  */
 
-#include "de-jong.h"
+#include "main.h"
 
 static void store_keyframe(GtkTreeIter *iter);
 static void get_current_keyframe(GtkTreeIter *iter);

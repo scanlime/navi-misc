@@ -24,7 +24,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include "de-jong.h"
+#include "main.h"
 
 struct vector2 point;
 

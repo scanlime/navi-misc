@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <getopt.h>
-#include "de-jong.h"
+#include "main.h"
 
 static void usage(char **argv);
 static void render_main(const char *filename);

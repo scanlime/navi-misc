@@ -6,7 +6,7 @@ BIN     = de-jong-explorer
 
 HEADERS = \
 	src/color-button.h	\
-	src/de-jong.h
+	src/main.h
 
 OBJS    = \
 	src/main.o		\
