@@ -10,6 +10,7 @@
 * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 */
 #include "testGameServer.h"
+#include "timer.h"
 
 // messages
 #define	_MESSAGE_SERVER_INFO 0x5349	// SI 
@@ -27,6 +28,25 @@ void CTestGameServer::init ( void )
 
 bool CTestGameServer::think ( void )
 {
+	std::map<int,trPlayerInfo>::iterator players = users.begin();
+
+	while (players != users.end())
+	{
+		if (players->second.bot)
+		{
+			if(players->second.bot->think())	// let the bot think, if it needs an update then let it FLY
+			{
+				CNetworkMessage message;
+				message.SetType(_MESSAGE_UPDATE);
+				message.AddI(players->first);
+				message.AddV(players->second.pos);
+				message.AddV(players->second.rot);
+				message.AddV(players->second.vec);
+				sendToAllBut(message,-1,false);
+			}
+		}
+		players++;
+	}
 	return false;
 }
 
@@ -36,8 +56,11 @@ void CTestGameServer::sendToAllBut ( CNetworkMessage &message, int player, bool 
 
 	while (players != users.end())
 	{
-		if (player != players->first)
+		if (player != players->first && !players->second.bot)
 			message.Send(*players->second.peer,relyable);
+
+		if (players->second.bot)
+			players->second.bot->message(message);
 		players++;
 	}
 }
@@ -141,7 +164,7 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	info.pos[0] = info.pos[1] = info.pos[2] = 0;
 	info.rot[0] = info.rot[1] = info.rot[2] = 0;
 	info.vec[0] = info.vec[1] = info.vec[2] = 0;
-
+	info.bot = NULL;
 	users[playerID] = info;
 
 	CNetworkMessage	message;
@@ -182,6 +205,58 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	message.AddI(playerID);
 	sendToAllBut(message,playerID);
 	return false;
+}
+
+void CTestGameServer::addBot (int playerID, const char* name, const char* config )
+{
+	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
+	if (itr != users.end())
+		return;
+
+	trPlayerInfo info;
+	info.name = name;
+
+	info.player = false;
+	info.peer = NULL;
+	info.pos[0] = info.pos[1] = info.pos[2] = 0;
+	info.rot[0] = info.rot[1] = info.rot[2] = 0;
+	info.vec[0] = info.vec[1] = info.vec[2] = 0;
+	info.bot = new CRobotPlayer;
+
+	users[playerID] = info;
+
+	info.bot->init(name,config,&users[playerID]);
+
+	CNetworkMessage	message;
+
+	// send an add to everyone else
+	message.SetType(_MESSAGE_USER_ADD);
+	message.AddI(playerID);
+	sendToAllBut(message,playerID);
+	message.ClearData();
+
+	// it's a bot so it won't send stuff like server info so just send the info now
+	message.SetType(_MESSAGE_CLIENT_INFO);	//
+	message.AddI(playerID);
+	message.AddStr(info.name.c_str());
+	message.AddStr(info.material.c_str());
+	message.AddV(info.pos);
+	message.AddV(info.rot);
+	message.AddV(info.vec);
+	sendToAllBut(message,playerID);
+	message.ClearData();
+
+	// now force it to spawn
+	spawnPlayer(playerID);
+
+	message.SetType(_MESSAGE_SPAWN);
+	message.AddI(playerID);
+	message.AddV(itr->second.pos);
+	message.AddV(itr->second.rot);
+	message.AddV(itr->second.vec);
+
+	// send spawn to everyone 
+	sendToAllBut(message,-1);
 }
 
 bool CTestGameServer::remove ( int playerID, CNetworkPeer &peer )
@@ -250,4 +325,42 @@ void CTestGameServer::spawnPlayer ( int playerID )
 	itr->second.vec[2] = grav;
 }
 
+// bots
+CRobotPlayer::CRobotPlayer()
+{
+	playerInfo = NULL;
+	lastUpdateTime = -1;
+}
+ CRobotPlayer::~CRobotPlayer()
+ {
 
+ }
+
+ void CRobotPlayer::init ( const char* name, const char* config, trPlayerInfo *info )
+ {
+	playerInfo = info;
+	if (playerInfo)
+	{
+		playerInfo->name = name;
+		playerInfo->material = "RedkMK3";
+	}
+	lastUpdateTime = (float)CTimer::instance().GetTime();
+ }
+
+ bool CRobotPlayer::think ( void )
+ {
+	if (!playerInfo)
+		return false;
+
+	// just make it spin
+	playerInfo->rot[2] += 0.5f;
+
+	float botUpdateTime = 1.0f/0.5f;
+	if (CTimer::instance().GetTime() - lastUpdateTime > botUpdateTime )
+		return true;
+ }
+
+ bool CRobotPlayer::message ( CNetworkMessage &message )
+ {
+	 return false;
+ }

@@ -22,12 +22,11 @@
 
 #include "serverListener.h"
 #include "firestarterd.h"
+#include "commandargs.h"
 
 CServerListener::CServerListener()
 {
 	InitNetwork();
-	//CNetworkServer	server;
-	//tmNetUserMap		users;
 	lastID = 0;
 	game = NULL;;
 }
@@ -49,6 +48,20 @@ bool CServerListener::init ( const char* gameType, int port, int maxListens )
 
 	server.SetMesageHandaler(this);
 	server.Start(maxListens,-1,-1,port);
+
+	// add some bots
+	CCommandLineArgs	&args = CCommandLineArgs::instance();
+	if (args.Exists("robots"))
+	{
+		int bots = args.GetDataI("robots");
+		for (int i = 0; i < bots; i++ )
+		{
+			char temp[512];
+			sprintf(temp,"robot-%d",i);
+			
+			game->addBot(lastID++,temp,"default");
+		}
+	}
 	return game != NULL;
 }
 
