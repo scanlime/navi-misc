@@ -26,7 +26,7 @@
 public class key
 {
     /** The keystring for this instance of the object. */
-    private int[] keystring;
+    public int[] keystring;
 	
     /**
      * This is an empty constructor, as this class is static
@@ -55,6 +55,7 @@ public class key
 
     public int[] getKey()
     {
+	System.out.println("Get key called-"+keystring[0]);
 	return keystring;
     }
 
@@ -70,20 +71,23 @@ public class key
 	keyinfo start, end;
 	int i;
 	int j;
+	int k;
 	end = new keyinfo(0,null);
 	start = end;
 	for(i=1;i<256;i++)
 	    start = new keyinfo(i,start);
 	end.next = start;
-	i = 0;
+	k = 0;
 	while(start != start.next)
 	{
 	    j = (int) (Math.random() * 256);
 	    for(i=0;i<j;i++) start = start.next;
-	    newkey[i++] = start.next.code;
+	    newkey[k++] = start.next.code;
+	    System.out.println("Extracted: "+newkey[k-1]);
 	    start.next = start.next.next;
 	}
 	newkey[255] = start.code;
+	System.out.println("Extracted: "+newkey[255]);
 	return newkey;
     }
     

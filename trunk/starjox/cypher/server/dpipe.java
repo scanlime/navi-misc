@@ -60,17 +60,17 @@ public class dpipe extends Thread
     public void run()
     {
 	int temp;
-	String s;
+	int[] s = new int[1];
 	try
 	{
 	    while(true)
 	    {
 		temp = in.read();
-		if(temp == -1)
+		if(temp != -1)
 		{
-		    s = "" + (char) temp;
+		    s[0] = temp;
 		    s = nukey.decrypt(s);
-		    temp = s.charAt(0);
+		    temp = s[0];
 		    System.out.println("dpipe: " +s);
 		}
 		out.write(temp);
