@@ -97,6 +97,9 @@ namespace Fyre
 		static Gtk.Widget
 		GladeCustomHandler (Glade.XML xml, string func_name, string name, string str1, string str2, int int1, int int2)
 		{
+			// It seems like the glade autoconnect stuff for custom widgets
+			// isn't elegant yet for Glade#. Get around that by creating
+			// the custom widgets here based on the strings that glade knows.
 			if (func_name == "CreateElementList")
 				return new ElementList (xml.GetWidget ("toplevel"));
 			if (func_name == "CreateNavigationImage")
@@ -112,8 +115,8 @@ namespace Fyre
 			pipeline_drawing.SetScrollAdjustments (drawing_hscroll.Adjustment, drawing_vscroll.Adjustment);
 
 			// Set up drag-and-drop for the frame. This looks better than setting it
-			// up for the drawing area, but it doesn't really affect structure, since
-			// we just delegate the event back to the proper objects
+			// up for the drawing area, and we delegate the event back into the
+			// PipelineDrawing object when we drop.
 			Gtk.Drag.DestSet (pipeline_frame, Gtk.DestDefaults.All, DragTargets, Gdk.DragAction.Copy);
 		}
 

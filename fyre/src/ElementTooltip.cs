@@ -71,7 +71,9 @@ namespace Fyre
 		private Gtk.Table
 		CreateDescTable (string[,] s)
 		{
-			// Create a 2xn table from a list of strings
+			// Create a 2xn table from a list of strings. We expect
+			// that any special syntax we need here is encoded in
+			// pango markup or unicode.
 			uint len = (uint) s.Length / 2;
 			Gtk.Table t = new Gtk.Table (len, 2, false);
 			for (uint i = 0; i < len; i++) {

@@ -83,14 +83,17 @@ namespace Fyre
 			background.DrawRectangle (white, true, 0, 0, size[0] - 1, size[1] - 1);
 			background.DrawRectangle (black, false, 0, 0, size[0] - 1, size[1] - 1);
 
-			// FIXME - we want to draw our pipeline onto this window
+			// FIXME - we want to draw our pipeline onto this window at
+			// reduced size (either some fixed relative, like 1/10 or
+			// force to a width of 200(?) pixels).
 		}
 
 		void
 		DrawArea (Gdk.Rectangle area)
 		{
-			int vx =  visible[0] / 2;
-			int vy =  visible[1] / 2;
+			// Update the backing store
+			int vx = visible[0] / 2;
+			int vy = visible[1] / 2;
 			backing.DrawDrawable (white, background, area.X, area.Y, area.X, area.Y, area.Width, area.Height);
 			if (mouse[0] == -1)
 				return;
@@ -111,9 +114,12 @@ namespace Fyre
 		{
 			backing.DrawRectangle (black, false, mouse);
 
-			mouse.X += 1;
-			mouse.Y += 1;
-			mouse.Width -= 2;
+			// Draw the box with a weight of 2px, since it looks a little
+			// bit more solid than 1px. Might want to exchange it so the
+			// view box is 1px and the border is 2px.
+			mouse.X      += 1;
+			mouse.Y      += 1;
+			mouse.Width  -= 2;
 			mouse.Height -= 2;
 
 			backing.DrawRectangle (black, false, mouse);
@@ -124,6 +130,8 @@ namespace Fyre
 		{
 			Gdk.Rectangle r = ev.Area;
 
+			// Update the backing store for the part of the image we need
+			// to redraw, then copy it to the window.
 			DrawArea (r);
 
 			GdkWindow.DrawDrawable (white, backing, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
