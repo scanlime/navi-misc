@@ -20,9 +20,16 @@ Subclass of BZFlag.Object implementing a Box.
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-from Object import Object
+from Object import Object, createTexture
 import math
 import Blender
+
+try:
+    boxTopMaterial = Blender.Material.Get('BoxTop')
+    boxWallMaterial = Blender.Material.Get('BoxWall')
+except:
+    boxTopMaterial = createTexture('BoxTop', '/usr/share/bzedit/tetrawall.png')
+    boxWallMaterial = createTexture('BoxWall', '/usr/share/bzedit/boxwall.png')
 
 class Box(Object):
     type = 'box'
@@ -43,6 +50,9 @@ class Box(Object):
              (0, 2, 6, 4), # Z+
              (1, 5, 7, 3), # Z-
             ]
+
+    materials = [boxWallMaterial, boxTopMaterial]
+    materialIndex = [0, 0, 0, 0, 1, 1]
 
     def __init__(self, list=None):
         # Load defaults

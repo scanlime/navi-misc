@@ -20,6 +20,13 @@ BZFlag.Object implementing a pyramid.
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 from Box import Box
+import Object
+import Blender
+
+try:
+    pyramidMaterial = Blender.Material.Get('Pyramid')
+except NameError:
+    pyramidMaterial = Object.createTexture('Ground', '/usr/share/bzedit/pyrwall.png')
 
 # FIXME - flipz
 class Pyramid(Box):
@@ -39,8 +46,8 @@ class Pyramid(Box):
              (0, 1, 2, 3), # Z-
             ]
 
-    materials = []
-    materialIndex = []
+    materials = [pyramidMaterial]
+    materialIndex = [0, 0, 0, 0, 0]
 
     def set_size(self, size=[8.2, 8.2, 10.25]):
         self.size = [float(n) for n in size]

@@ -19,7 +19,12 @@ Subclass of BZFlag.Object implementing the world.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
-from Object import Object
+from Object import Object, createTexture
+
+try:
+    grassMaterial = Blender.Material.Get('Grass')
+except:
+    grassMaterial = createTexture('Grass', '/usr/share/bzedit/std_ground.png')
 
 class World(Object):
     """Represents the size of the bzflag world and other global attributes"""
@@ -32,6 +37,9 @@ class World(Object):
             ]
 
     faces = [(0, 1, 2, 3)]
+
+    materials = [grassMaterial]
+    materialIndex = [0]
 
     def __init__(self):
         self.set_size()
