@@ -1,10 +1,10 @@
 Index: configure.in
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/configure.in,v
-retrieving revision 1.75
-diff -u -r1.75 configure.in
---- configure.in	2 Feb 2005 10:03:39 -0000	1.75
-+++ configure.in	5 Mar 2005 10:26:03 -0000
+retrieving revision 1.76
+diff -u -r1.76 configure.in
+--- configure.in	16 Mar 2005 04:15:42 -0000	1.76
++++ configure.in	30 Mar 2005 06:49:01 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
@@ -181,7 +181,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.4
 diff -u -r1.4 Makefile.am
 --- plugins/Makefile.am	13 Jan 2003 07:29:36 -0000	1.4
-+++ plugins/Makefile.am	5 Mar 2005 10:26:03 -0000
++++ plugins/Makefile.am	30 Mar 2005 06:49:01 -0000
 @@ -1,10 +1,10 @@
  # temp. solution while mailcheck & xdcc arn't in SUBDIRS
 -EXTRA_DIST = plugin20.html Make.plugin plugin-conf.in \
@@ -220,7 +220,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/mailcheck/Makefile.am,v
 retrieving revision 1.1
 diff -u -r1.1 Makefile.am
 --- plugins/mailcheck/Makefile.am	17 Dec 2002 15:36:39 -0000	1.1
-+++ plugins/mailcheck/Makefile.am	5 Mar 2005 10:26:03 -0000
++++ plugins/mailcheck/Makefile.am	30 Mar 2005 06:49:01 -0000
 @@ -10,7 +10,6 @@
  
  # This file must be in the form PLUGIN-config.h.in, it can be empty but
@@ -235,7 +235,7 @@ RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	5 Mar 2005 10:26:34 -0000
++++ src/Makefile.am	30 Mar 2005 06:49:29 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
@@ -246,3 +246,19 @@ diff -u -r1.1.1.1 Makefile.am
 +endif
 +
 +SUBDIRS = pixmaps common $(gtk_fe) $(text_fe) $(gnome_fe)
+Index: src/pixmaps/Makefile.am
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/src/pixmaps/Makefile.am,v
+retrieving revision 1.8
+diff -u -r1.8 Makefile.am
+--- src/pixmaps/Makefile.am	9 Jan 2003 06:22:30 -0000	1.8
++++ src/pixmaps/Makefile.am	30 Mar 2005 06:49:29 -0000
+@@ -14,5 +14,8 @@
+ CLEANFILES = $(noinst_HEADERS)
+ EXTRA_DIST = $(PNGS) makefile.msc
+ 
++xchatdatadir = $(prefix)/share/xchat
++xchatdata_DATA = $(PNGS)
++
+ inline_pngs.h:
+ 	@gdkpixbufcsourcepath@ --build-list $(LIST) > $(srcdir)/inline_pngs.h
