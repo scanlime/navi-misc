@@ -58,6 +58,17 @@ epBufferSizeTemp res 1
 epBufferPtrTemp res 1
 epByteTemp	res 1
 
+	;; USART receiver, running in the background
+rx_fsr		res	1	; Saved FSR pointing to the location for the next received byte
+rx_status	res	1	; Saved STATUS with the high bit of the buffer pointer
+rx_remaining	res	1	; Number of bytes left to receive
+rx_count	res	1	; number of bytes received so far
+
+	global	rx_fsr
+	global	rx_status
+	global	rx_remaining
+	global	rx_count
+
 	extern	InitUSB
 	extern	PutEP1
 	extern	GetEP1

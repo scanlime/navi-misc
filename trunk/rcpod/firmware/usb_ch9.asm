@@ -112,6 +112,11 @@ USB_BTS_ERR		res	2
 	extern	StringDescriptions
 	extern  GetStringIndex
 
+	extern	rx_fsr
+	extern	rx_status
+	extern	rx_remaining
+	extern	rx_count
+
 ; **********************************************************************
 ; This section contains the functions to interface with the main
 ; application.
@@ -1722,17 +1727,29 @@ SetConfiguration
 ; return.
 ; *********************************************************************
 CheckVendor
-	movf	BufferData+bRequest,w	; Is it a poke request?
+	movf	BufferData+bRequest,w
 	xorlw	RCPOD_CTRL_POKE
 	pagesel	PokeRequest
 	btfsc	STATUS,Z
 	goto	PokeRequest
 
-	movf	BufferData+bRequest,w	; Is it a peek request?
+	movf	BufferData+bRequest,w
 	xorlw	RCPOD_CTRL_PEEK
 	pagesel	PeekRequest
 	btfsc	STATUS,Z
 	goto	PeekRequest
+
+	movf	BufferData+bRequest,w
+	xorlw	RCPOD_CTRL_ANALOG_ALL
+	pagesel	AnalogAllRequest
+	btfsc	STATUS,Z
+	goto	AnalogAllRequest
+
+	movf	BufferData+bRequest,w
+	xorlw	RCPOD_CTRL_USART_TXRX
+	pagesel	TxRxRequest
+	btfsc	STATUS,Z
+	goto	TxRxRequest
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -1783,6 +1800,116 @@ PeekRequest
 	movwf	BD0IBC		; set byte count to 1
 	movlw	0xc8		; DATA1 packet, DTS enabled
 	movwf	BD0IST		; give buffer back to SIE
+	return
+
+	;********************* Request read all A/D converters
+	; No inputs, returns an 8-byte packet
+AnalogAllRequest
+	banksel	BD0IAL
+	movf	low BD0IAL,w	; get address of buffer
+	movwf	FSR
+	bsf 	STATUS,IRP	; indirectly to banks 2-3
+
+	banksel	ADCON0		; Turn on the ADC and initialize it to full precision and channel 0
+	movlw	0x81
+	movwf	ADCON0
+
+	movlw	8		; Loop over all 8 A/D inputs
+	banksel	temp
+	movwf	temp
+adChannelLoop
+	banksel	ADCON0		; Start the ADC
+	bsf	ADCON0, GO
+
+	pagesel	adFinishLoop	; Wait for it to finish
+adFinishLoop
+	btfsc	ADCON0, NOT_DONE
+	goto	adFinishLoop
+
+	banksel	ADRES		; Stow the finished value in our packet buffer
+	movf	ADRES, w
+	movwf	INDF
+
+	movlw	0x80		; Next channel
+	banksel	ADCON0
+	addwf	ADCON0, f
+
+	incf	FSR, f		; Next buffer byte
+
+	banksel	temp		; Loop over all channels
+	pagesel	adChannelLoop
+	decfsz	temp, f
+	goto	adFinishLoop
+
+	banksel	ADCON0		; Turn off the ADC
+	clrf	ADCON0
+
+	banksel	BD0IBC
+	bsf 	STATUS, RP0
+	movlw	0x08
+	movwf	BD0IBC		; set byte count to 8
+	movlw	0xc8		; DATA1 packet, DTS enabled
+	movwf	BD0IST		; give buffer back to SIE
+	return
+
+	;********************* Request to send then receive via the USART
+	; A 9-bit buffer address in wIndex, number of bytes to transmit in wValue,
+	; number of bytes to receive in wValue+1
+TxRxRequest
+	banksel BufferData
+	bcf	STATUS, IRP	; Transfer bit 8 of wIndex into IRP
+	btfsc	BufferData+(wIndex+1), 0
+	bsf	STATUS, IRP
+
+	movf	BufferData+wIndex, w ; Load address bits 0-7 into FSR
+	movwf	FSR
+
+	movf	BufferData+wValue, w ; See if we have anything to transmit
+	btfsc	STATUS, Z
+	goto	skipTx
+
+	;; FIXME: turn on transmit enable pin
+
+txLoop
+	pagesel	txLoop
+	banksel	PIR1		; Poll for transmitter availability
+	btfss	PIR1, TXIF
+	goto	txLoop
+
+	movf	INDF, w		; Stick the next buffered byte into the transmitter
+	banksel	TXREG
+	movwf	TXREG
+	incf	FSR, f		; Increment the buffer pointer
+
+	banksel	BufferData
+	decfsz	BufferData+wValue, f ; Count down the number of bytes to send...
+	goto	txLoop
+
+	;; FIXME: turn off transmit enable pin
+
+skipTx
+
+	banksel	BufferData
+	movf	BufferData+wIndex, w ; Store the beginning of the receive buffer
+	banksel	rx_fsr
+	movwf	rx_fsr
+
+	banksel STATUS		; Save STATUS, containing the buffer's IRP bit
+	movf	STATUS, w
+	banksel	rx_status
+	movwf	rx_status
+
+	banksel	BufferData
+	movf	BufferData+(wValue+1), w ; Store the number of bytes to receive
+	banksel	rx_remaining
+	movwf	rx_remaining
+
+	banksel	rx_count	; Clear the count of received bytes
+	clrf	rx_count
+
+	; Acknowledge the request
+	pagesel	Send_0Len_pkt
+	call	Send_0Len_pkt
 	return
 
 	end
