@@ -33,6 +33,12 @@ public class connection extends Thread
 	
 	public connection(Socket exter, Socket inter)
 	{
-		
+		external = exter;
+		internal = inter;
+	}
+	
+	public void run()
+	{
+		System.out.println("stuff..");
 	}
 }
