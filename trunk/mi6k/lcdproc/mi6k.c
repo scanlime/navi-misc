@@ -54,7 +54,7 @@ typedef enum {
 	beat = 8
 } custom_type;
 
-static int fd;
+static FILE *dev;
 static char *framebuf = NULL;
 static int width = 0;
 static int height = 0;
@@ -107,7 +107,7 @@ mi6k_init (Driver * drvthis, char *args)
 		height = h;
 	}
 
-	/*Which backlight brightness*/
+	/* Which backlight brightness */
 	if (0<=drvthis->config_get_int ( drvthis->name , "Brightness" , 0 , DEFAULT_BRIGHTNESS) &&
 	    drvthis->config_get_int ( drvthis->name , "Brightness" , 0 , DEFAULT_BRIGHTNESS) <= 7) {
 		brightness = drvthis->config_get_int ( drvthis->name , "Brightness" , 0 , DEFAULT_BRIGHTNESS);
@@ -115,7 +115,7 @@ mi6k_init (Driver * drvthis, char *args)
 		report (RPT_WARNING, "mi6k_init: Brightness must between 0 and 7. Using default value.\n");
 	}
 
-	/*Which backlight-off "brightness"*/
+	/* Which backlight-off "brightness" */
 	if (0<=drvthis->config_get_int ( drvthis->name , "OffBrightness" , 0 , DEFAULT_OFFBRIGHTNESS) &&
 	    drvthis->config_get_int ( drvthis->name , "OffBrightness" , 0 , DEFAULT_OFFBRIGHTNESS) <= 255) {
 		offbrightness = drvthis->config_get_int ( drvthis->name , "OffBrightness" , 0 , DEFAULT_OFFBRIGHTNESS);
@@ -123,20 +123,23 @@ mi6k_init (Driver * drvthis, char *args)
 		report (RPT_WARNING, "mi6k_init: OffBrightness must between 0 and 255. Using default value.\n");
 	}
 
-	// Set up io port correctly, and open it...
+	/* Open the mi6k device node. We use stdio's buffered I/O, to
+	 * increase efficiency by flushing output only when necessary.
+	 */
 	debug( RPT_DEBUG, "mi6k: Opening device: %s", device);
-	fd = open (device, O_RDWR | O_NOCTTY | O_NDELAY);
-	if (fd == -1) {
+	dev = fopen(device, "w");
+	if (!dev) {
 		report (RPT_ERR, "mi6k_init: can't open %s, %s\n", device, strerror(errno));
 		return -1;
 	}
 
-	// Make sure the frame buffer is there...
+	/* Make sure the frame buffer is there... */
 	framebuf = (unsigned char *) malloc (width * height);
 	memset (framebuf, ' ', width * height);
 
-	mi6k_hidecursor ();
-	mi6k_backlight (drvthis, 1);
+	mi6k_hidecursor();
+	mi6k_backlight(drvthis, 1);
+	mi6k_flush(drvthis);
 
 	report (RPT_DEBUG, "mi6k_init: done\n");
 
@@ -149,7 +152,7 @@ mi6k_init (Driver * drvthis, char *args)
 MODULE_EXPORT void
 mi6k_close (Driver * drvthis)
 {
-	close (fd);
+	fclose(dev);
 
 	if(framebuf) free (framebuf);
 	framebuf = NULL;
@@ -179,20 +182,17 @@ mi6k_height (Driver *drvthis)
 MODULE_EXPORT void
 mi6k_flush (Driver * drvthis)
 {
-	char out[2];
-	int i;
+	/* Move the cursor to its home position */
+	fputc(0x16, dev);
 
-	snprintf (out, sizeof(out), "%c", 22);
-	write (fd, out, 1);
-
-	for (i = 0; i < height; i++) {
-		write (fd, framebuf + (width * i), width);
-	}
+	/* Write the whole framebuffer */
+	fwrite(framebuf, height, width, dev);
+	fflush(dev);
 }
 
 /////////////////////////////////////////////////////////////////
 // Prints a character on the lcd display, at position (x,y).  The
-// upper-left is (1,1), and the lower right should be (20,4).
+// upper-left is (1,1), and the lower right should be (20,2).
 //
 MODULE_EXPORT void
 mi6k_chr (Driver * drvthis, int x, int y, char c)
@@ -207,30 +207,25 @@ mi6k_chr (Driver * drvthis, int x, int y, char c)
 }
 
 /////////////////////////////////////////////////////////////////
-// Sets the backlight on or off -- can be done quickly for
-// an intermediate brightness...
+// Sets the backlight on or off
 //
 MODULE_EXPORT void
 mi6k_backlight (Driver * drvthis, int on)
 {
-	char out[6];
 	if (on) {
-		snprintf (out, sizeof(out), "%c%c%c%c", 0x19, 0x30, 0xFF, brightness);
+		fprintf(dev, "%c%c%c%c", 0x19, 0x30, 0xFF, brightness);
 	} else {
-		snprintf (out, sizeof(out), "%c%c%c%c", 0x19, 0x30, 0xFF, offbrightness);
+		fprintf(dev, "%c%c%c%c", 0x19, 0x30, 0xFF, offbrightness);
 	}
-	write (fd, out, 4);
 }
 
 /////////////////////////////////////////////////////////////////
-// Get rid of the blinking curson
+// Get rid of the blinking cursor
 //
 static void
 mi6k_hidecursor ()
 {
-	char out[4];
-	snprintf (out, sizeof(out), "%c", 14);
-	write (fd, out, 1);
+	fputc(0x0E, dev);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -300,17 +295,13 @@ mi6k_hbar (Driver * drvthis, int x, int y, int len, int promille, int options)
 MODULE_EXPORT void
 mi6k_set_char (Driver * drvthis, int n, char *dat)
 {
-	char out[4];
-
 	if (n < 0 || n > 9)
 		return;
 	if (!dat)
 		return;
 
-	snprintf (out, sizeof(out), "%c%c", 0x18, 0xF6 + n);
-	write (fd, out, 2);
-
-	write (fd, dat, 5);
+	fprintf(dev, "%c%c", 0x18, 0xF6 + n);
+	fwrite(dat, 1, 5, dev);
 }
 
 /////////////////////////////////////////////////////////////////
