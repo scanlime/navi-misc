@@ -302,7 +302,7 @@ void fe_set_channel(struct session *sess) {
 }
 
 void fe_set_title(struct session *sess) {
-	/* FIXME: implement */
+	rename_main_window(sess->server->networkname, sess->channel);
 }
 
 void fe_set_nonchannel(struct session *sess, int state) {
