@@ -93,14 +93,14 @@ class CommitFormatter(Message.Formatter):
         metadata = []
 
         if commit.author:
-            metadata.append(self.format_author(str(commit.author).strip()))
+            metadata.append(self.format_author(commit.author))
         if message.xml.source and message.xml.source.branch:
-            metadata.append(self.format_branch(str(message.xml.source.branch).strip()))
+            metadata.append(self.format_branch(message.xml.source.branch))
         metadata.append(self.format_asterisk())
         if commit.revision:
-            metadata.append(self.format_revision(str(commit.revision).strip()))
+            metadata.append(self.format_revision(commit.revision))
         metadata.append(self.format_moduleAndFiles(message))
-        return self.joinMessage(metadata, self.format_log(str(commit.log).strip()))
+        return self.joinMessage(metadata, self.format_log(commit.log))
 
     def joinMessage(self, metadata, log):
         """Join a list of formatted metadata and a formatted log message
@@ -108,15 +108,11 @@ class CommitFormatter(Message.Formatter):
            """
         return "%s: %s" % (" ".join(metadata), log)
 
-    def format_default(self, str):
-        """A hook for formatting that should be applied to all text"""
-        return str
-
     def format_asterisk(self):
         """Format an asterisk that goes between the author + branch and the
            rest of the message, to enhance the message visually.
            """
-        return self.format_default("*")
+        return "*"
 
     def format_moduleAndFiles(self, message):
         """Format the module name and files, joined together if they are both present."""
@@ -143,9 +139,9 @@ class CommitFormatter(Message.Formatter):
         if prefix.startswith('/'):
             prefix = prefix[1:]
         if endingStr:
-            return self.format_default("%s (%s)" % (prefix, endingStr))
+            return "%s (%s)" % (prefix, endingStr)
         else:
-            return self.format_default(prefix)
+            return prefix
 
     def summarizeFiles(self, files):
         """Given a list of strings representing file paths, return
@@ -181,10 +177,10 @@ class CommitFormatter(Message.Formatter):
             lines.append(newLine.rstrip())
         return lines
 
-    def format_log(self, logString):
+    def format_log(self, log):
         # Break the log string into wrapped lines
         lines = []
-        for line in logString.split("\n"):
+        for line in str(log).strip().split("\n"):
             # Ignore blank lines
             if not line.strip():
                 continue
@@ -208,19 +204,19 @@ class CommitFormatter(Message.Formatter):
                 del lines[self.logLinesLimit + 1:]
 
         # Reassemble the log message and send it to the default formatter
-        return self.format_default("\n".join(lines))
+        return "\n".join(lines)
 
     def format_module(self, module):
-        return self.format_default(module)
+        return str(module).strip()
 
     def format_author(self, author):
-        return self.format_default(author)
+        return str(author).strip()
 
     def format_branch(self, branch):
-        return self.format_default(branch)
+        return str(branch).strip()
 
     def format_revision(self, rev):
-        return self.format_default('r' + rev)
+        return 'r' + str(rev).strip()
 
 
 class CommitToIRC(CommitFormatter):
@@ -252,27 +248,20 @@ class CommitToIRC(CommitFormatter):
 
 
 class CommitToXHTML(CommitFormatter):
-    """Converts commit messages to XHTML"""
+    """Converts commit messages to XHTML.
+       Note that since this is intended to be used with Nouvelle, it doesn't handle quoting.
+       """
     medium = 'xhtml'
-
-    def format_default(self, obj):
-        return XML.domish.escapeToXml(obj)
 
 
 class CommitToRSS(CommitFormatter):
     """Converts commit messages to <item> tags for use in RSS feeds"""
     medium = 'rss'
 
-    def format_default(self, obj):
-        # We need to escape the text twice- once because RSS is XML,
-        # and a second time because the content of RSS tags are expected
-        # to be HTML and we'd rather it just be plain text.
-        return XML.domish.escapeToXml(XML.domish.escapeToXml(obj))
-
     def format(self, message, input=None):
         commit = message.xml.body.commit
         return "<item><description>%s</description><pubDate>%s</pubDate></item>" % (
-            self.format_log(str(commit.log).strip()),
+            self.format_log(commit.log),
             TimeUtil.formatDateRFC822(int(str(message.xml.timestamp))),
             )
 
