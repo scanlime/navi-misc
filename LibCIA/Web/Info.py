@@ -74,11 +74,11 @@ class WebServer(Template.Section):
     rows = [
                [
                    Template.value[ place('requestCount') ],
-                   ' requests processed so far',
+                   ' requests have been processed since the server was loaded',
                ],
                [
                    'The server has been up for ',
-                   place('uptime'),
+                   Template.value[ place('uptime') ],
                ],
            ]
 
@@ -86,8 +86,27 @@ class WebServer(Template.Section):
 class System(Template.Section):
     title = 'system'
 
+    def render_pyInfo(self, context):
+        result = []
+        for line in ('Python %s on %s' % (sys.version, sys.platform)).split("\n"):
+            if result:
+                result.append(tag('br'))
+            result.append(line)
+        return result
+
+    def render_sysUptime(self, context):
+        # This only works on linux systems for now
+        try:
+            seconds = float(open("/proc/uptime").read().split()[0])
+        except:
+            return "System uptime unknown"
+        else:
+            return ["This system has been up for ",
+                    Template.value[ TimeUtil.formatDuration(seconds) ]]
+
     rows = [
-               [tag('pre')[ 'Python %s on %s' % (sys.version, sys.platform) ]],
+               [ place('pyInfo') ],
+               [ place('sysUptime') ],
            ]
 
 

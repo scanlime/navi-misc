@@ -148,9 +148,12 @@ class Page(Nouvelle.Twisted.Page):
     def render_mainColumn(self, context):
         return self.mainColumn
 
-    headingTabs = []
     leftColumn  = []
     mainColumn  = []
+
+    headingTabs = [
+        headingTab(href='/')['CIA'],
+        ]
 
     document = [
         ## Commented out for now, as it seems to break some of the CSS formatting. Why?

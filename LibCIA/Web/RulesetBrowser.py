@@ -237,8 +237,5 @@ class RulesetList(Template.Page):
 
     mainTitle = "Ruleset List"
     subTitle = "the little tidbits of XML that make CIA work"
-    headingTabs = [
-        Template.headingTab(href='/')['CIA'],
-        ]
 
 ### The End ###
