@@ -46,9 +46,12 @@ static int        text_width_8bit        (XText2 *xtext, unsigned char *str, int
 static int        count_lines_taken      (XText2 *xtext, textentry *ent);
 static int        find_next_wrap         (XText2 *xtext, textentry *ent, unsigned char *str, int win_width, int indent);
 static void       recalc_widths          (XText2 *xtext, gboolean do_str_width);
+static void       calc_lines             (XText2 *xtext, gboolean fire_signal);
 static void       fix_indent             (XText2 *xtext);
 static void       reset                  (XText2 *xtext, gboolean mark, gboolean attribs);
 static void       adjustment_set         (XText2 *xtext, gboolean fire_signal);
+static void       adjustment_changed     (GtkAdjustment *adj, XText2 *xtext);
+static gint       adjustment_timeout     (XText2 *xtext);
 
 static gpointer parent_class;
 
@@ -101,6 +104,12 @@ struct _XText2Private
   /* This structure contains all the private data of the XText.
      Most of this is internal state needed to draw */
 
+  /* state associated with rendering specific buffers */
+  GHashTable  *buffer_info;          /* stores an XTextFormat for each buffer we observe */
+  XTextBuffer *current_buffer;
+  XTextBuffer *original_buffer;
+  XTextBuffer *selection_buffer;
+
   /* view settings */
   gboolean     indent;               /* indent text? */
   gboolean     show_separator;       /* show the separator bar? */
@@ -126,8 +135,6 @@ struct _XText2Private
 
   /* state data */
   int          pixel_offset;         /* number of pixels the top line is chopped by */
-  int          window_width;         /* width of the window when last rendered */
-  int          window_height;        /* height of the window when last rendered */
   int          last_win_x;           /* previous X */
   int          last_win_y;           /* previous Y */
   int          last_pixel_pos;       /* where the window was scrolled to */
@@ -164,11 +171,7 @@ struct _XText2Private
   int          hilight_end;
   textentry   *hilight_ent;
 
-  /* state associated with rendering specific buffers */
-  GHashTable  *buffer_info;          /* stores an XTextFormat for each buffer we observe */
-  XTextBuffer *current_buffer;
-  XTextBuffer *original_buffer;
-  XTextBuffer *selection_buffer;
+  XTextFormat *current_format;
 
   /* backend state */
   guint16 fontwidth[128];            /* pixel width for the ASCII chars */
@@ -306,13 +309,9 @@ xtext2_class_init (XText2Class *klass)
 static void
 xtext2_init (XText2 *xtext)
 {
+  XTextBuffer *buffer;
+
   xtext->priv = g_new0 (XText2Private, 1);
-
-  xtext->adj = gtk_adjustment_new (0, 0, 1, 1, 1, 1);
-  g_object_ref (G_OBJECT (xtext->adj));
-  gtk_object_sink (GTK_OBJECT (xtext->adj));
-
-  gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
 
   xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
 
@@ -320,6 +319,12 @@ xtext2_init (XText2 *xtext)
   xtext->priv->original_buffer = xtext_buffer_new ();
   xtext->priv->current_buffer = xtext->priv->original_buffer;
   xtext2_show_buffer (xtext, xtext->priv->original_buffer);
+
+  xtext->adj = gtk_adjustment_new (0, 0, 1, 1, 1, 1);
+  g_object_ref (G_OBJECT (xtext->adj));
+  gtk_object_sink (GTK_OBJECT (xtext->adj));
+
+  gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
 
   xtext->priv->indent = TRUE;
   xtext->priv->auto_indent = TRUE;
@@ -331,6 +336,10 @@ xtext2_init (XText2 *xtext)
   xtext->priv->clip_x2 = 1000000;
   xtext->priv->clip_y = 0;
   xtext->priv->clip_y2 = 1000000;
+  xtext->priv->ts_x = 0;
+  xtext->priv->ts_y = 0;
+
+  xtext->priv->vc_signal_tag = g_signal_connect (G_OBJECT (xtext->adj), "value-changed", G_CALLBACK (adjustment_changed), xtext);
 }
 
 GtkWidget*
@@ -438,8 +447,6 @@ xtext2_realize (GtkWidget *widget)
 
   cmap = gtk_widget_get_colormap (widget);
 
-  xtext->priv = g_new0 (XText2Private, 1);
-
   attributes.x           = widget->allocation.x;
   attributes.y           = widget->allocation.y;
   attributes.width       = widget->allocation.width;
@@ -516,16 +523,48 @@ xtext2_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
   XText2 *xtext = XTEXT2 (widget);
   gboolean height_only = FALSE;
   gboolean transparent = TRUE;
+  XTextFormat *f;
 
-  /* FIXME: buffer madness */
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  if (allocation->width == f->window_width)
+    height_only = TRUE;
+
+  /*
+  if (allocation->x == widget->allocation.x &&
+      allocation->y == widget->allocation.y &&
+      xtext->priv->avoid_trans)
+    transparent = FALSE;
+  */
 
   widget->allocation = *allocation;
   if (GTK_WIDGET_REALIZED (widget))
   {
-    /* FIXME: stuff! */
-    xtext->priv->window_width = allocation->width;
-    xtext->priv->window_height = allocation->height;
+    f->window_width = allocation->width;
+    f->window_height = allocation->height;
     gdk_window_move_resize (widget->window, allocation->x, allocation->y, allocation->width, allocation->height);
+    dontscroll (xtext);
+    if (!height_only)
+    {
+      calc_lines (xtext, FALSE);
+    }
+    else
+    {
+      f->pagetop = NULL;
+      adjustment_set (xtext, FALSE);
+    }
+#if defined(USE_XLIB) || defined(WIN32)
+    if (transparent && xtext->priv->transparent && xtext->priv->shaded)
+    {
+      /*
+      free_trans (xtext);
+      load_trans (xtext);
+      */
+    }
+#endif
+
+    if (f->scrollbar_down)
+      gtk_adjustment_set_value (xtext->adj, xtext->adj->upper - xtext->adj->page_size);
   }
 }
 
@@ -741,8 +780,6 @@ backend_draw_text (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *
   GdkColor col;
   PangoLayoutLine *line;
 
-  g_print ("backend_draw_text ('%s')\n", str);
-
   pango_layout_set_text (xtext->priv->layout, str, len);
 
   if (fill)
@@ -766,7 +803,6 @@ backend_draw_text (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *
 
   line = pango_layout_get_lines (xtext->priv->layout)->data;
   gdk_draw_layout_line_with_colors (xtext->priv->draw_buffer, gc, x, y, line, 0, 0);
-  g_print ("  drew line!\n");
 
   if (xtext->priv->overdraw)
     gdk_draw_layout_line_with_colors (xtext->priv->draw_buffer, gc, x, y, line, 0, 0);
@@ -897,10 +933,6 @@ render_page (XText2 *xtext)
 #else
   xtext->priv->pixel_offset = 0;
 #endif
-
-  /* HACK HACK HACK */
-  if (xtext->priv->buffer_info == NULL)
-    xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
 
   f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
 
@@ -1383,8 +1415,6 @@ render_flush (XText2 *xtext, int x, int y, unsigned char *str, int len, GdkGC *g
   GdkDrawable *pix = NULL;
   int dest_x, dest_y;
 
-  g_print ("render_flush ('%s', %d)\n", str, len);
-
   if (xtext->priv->dont_render || len < 1)
     return 0;
 
@@ -1392,10 +1422,6 @@ render_flush (XText2 *xtext, int x, int y, unsigned char *str, int len, GdkGC *g
 
   if (xtext->priv->dont_render2)
     return str_width;
-
-  /* HACK HACK HACK */
-  if (xtext->priv->clip_x2 == 0)
-    xtext->priv->clip_x2 = 1000000;
 
   /* roll-your-own clipping (avoiding XftDrawString is always good!) */
   if (x > xtext->priv->clip_x2 || x + str_width < xtext->priv->clip_x)
@@ -1964,10 +1990,6 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
 {
   XTextFormat *f;
 
-  /* HACK HACK HACK */
-  if (xtext->priv->buffer_info == NULL)
-    xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
-
   f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
   if (f == NULL)
   {
@@ -2015,8 +2037,11 @@ count_lines_taken (XText2 *xtext, textentry *ent)
   unsigned char *str;
   int indent, taken, len;
   int win_width;
+  XTextFormat *f;
 
-  win_width = xtext->priv->window_width - MARGIN;
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  win_width = f->window_width - MARGIN;
 
   if (ent->str_width + ent->indent < win_width)
     return 1;
@@ -2146,6 +2171,37 @@ recalc_widths (XText2 *xtext, gboolean do_str_width)
 }
 
 static void
+calc_lines (XText2 *xtext, gboolean fire_signal)
+{
+  textentry *ent;
+  int width;
+  int height;
+  int lines;
+  XTextFormat *f;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  gdk_drawable_get_size (GTK_WIDGET (xtext)->window, &width, &height);
+  width -= MARGIN;
+
+  if (width < 30 || height < xtext->priv->fontsize || width < f->indent + 30)
+    return;
+
+  lines = 0;
+  ent = f->wrapped_first;
+  while (ent)
+  {
+    ent->lines_taken = count_lines_taken (xtext, ent);
+    lines += ent->lines_taken;
+    ent = ent->next;
+  }
+
+  f->pagetop = NULL;
+  f->num_lines = lines;
+  adjustment_set (xtext, fire_signal);
+}
+
+static void
 fix_indent (XText2 *xtext)
 {
   int j;
@@ -2216,4 +2272,48 @@ adjustment_set (XText2 *xtext, gboolean fire_signal)
 
   if (fire_signal)
     gtk_adjustment_changed (adj);
+}
+
+static void
+adjustment_changed (GtkAdjustment *adj, XText2 *xtext)
+{
+  XTextFormat *f;
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+#ifdef SMOOTH_SCROLL
+  if (f->old_adj != adj->value)
+#else
+  if ((int) f->old_adj != (int) adj->value)
+#endif /* SMOOTH_SCROLL */
+  {
+    if (adj->value >= adj->upper - adj->page_size)
+      f->scrollbar_down = TRUE;
+    else
+      f->scrollbar_down = FALSE;
+
+    if (adj->value + 1 == f->old_adj || adj->value - 1 == f->old_adj)
+    {
+      /* clicked an arrow? */
+      if (xtext->priv->io_tag)
+      {
+	g_source_remove (xtext->priv->io_tag);
+	xtext->priv->io_tag = 0;
+      }
+      render_page (xtext);
+    }
+    else
+    {
+      if (!xtext->priv->io_tag)
+	xtext->priv->io_tag = g_timeout_add (REFRESH_TIMEOUT, (GSourceFunc) adjustment_timeout, xtext);
+    }
+  }
+  f->old_adj = adj->value;
+}
+
+static gint
+adjustment_timeout (XText2 *xtext)
+{
+  render_page (xtext);
+  xtext->priv->io_tag = 0;
+  return 0;
 }
