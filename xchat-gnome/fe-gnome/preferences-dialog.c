@@ -228,18 +228,16 @@ initialize_pages_list ()
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (settings_page_changed), NULL);
 
 	gtk_list_store_append (store, &iter);
-	gtk_list_store_set (store, &iter, 0, pix_prefs_irc, 1, "IRC Preferences", 2, 0, -1);
+	gtk_list_store_set (store, &iter, 0, pix_prefs_colors, 1, "Colors", 2, 0, -1);
 	gtk_list_store_append (store, &iter);
-	gtk_list_store_set (store, &iter, 0, pix_prefs_colors, 1, "Colors", 2, 1, -1);
+	gtk_list_store_set (store, &iter, 0, pix_prefs_dcc, 1, "File Transfers & DCC", 2, 1, -1);
 	gtk_list_store_append (store, &iter);
-	gtk_list_store_set (store, &iter, 0, pix_prefs_dcc, 1, "File Transfers & DCC", 2, 2, -1);
+	gtk_list_store_set (store, &iter, 0, pix_prefs_networks, 1, "Networks", 2, 2, -1);
 	gtk_list_store_append (store, &iter);
-	gtk_list_store_set (store, &iter, 0, pix_prefs_networks, 1, "Networks", 2, 3, -1);
-	gtk_list_store_append (store, &iter);
-	gtk_list_store_set (store, &iter, 0, pix_prefs_plugins, 1, "Scripts and Plugins", 2, 4, -1);
+	gtk_list_store_set (store, &iter, 0, pix_prefs_plugins, 1, "Scripts and Plugins", 2, 3, -1);
 	/*
 	gtk_list_store_append (store, &iter);
-	gtk_list_store_set (store, &iter, 0, pix_prefs_keybindings, 1, "Keyboard Shortcuts", 2, 5, -1);
+	gtk_list_store_set (store, &iter, 0, pix_prefs_keybindings, 1, "Keyboard Shortcuts", 2, 4, -1);
 	*/
 }
 
