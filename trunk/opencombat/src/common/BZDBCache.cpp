@@ -19,7 +19,6 @@
 
 bool  BZDBCache::displayMainFlags;
 bool  BZDBCache::enhancedRadar;
-bool  BZDBCache::blend;
 bool  BZDBCache::texture;
 
 
@@ -36,7 +35,6 @@ void BZDBCache::init()
 {
   BZDB.addCallback("displayMainFlags", clientCallback, NULL);
   BZDB.addCallback("enhancedradar", clientCallback, NULL);
-  BZDB.addCallback("blend", clientCallback, NULL);
   BZDB.addCallback("texture", clientCallback, NULL);
 
   BZDB.addCallback(StateDatabase::BZDB_MAXLOD, serverCallback, NULL);
@@ -55,9 +53,7 @@ void BZDBCache::init()
 
 void BZDBCache::clientCallback(const std::string& name, void *)
 {
-  if (name == "blend")
-    blend = BZDB.isTrue("blend");
-  else if (name == "displayMainFlags")
+  if (name == "displayMainFlags")
     displayMainFlags = BZDB.isTrue("displayMainFlags");
   else if (name == "enhancedradar")
     enhancedRadar = BZDB.isTrue("enhancedradar");

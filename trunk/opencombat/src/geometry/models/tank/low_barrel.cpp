@@ -17,7 +17,6 @@
 
 void buildLowBarrel ( void )
 {
-  glShadeModel(GL_SMOOTH);
       glBegin(GL_TRIANGLE_STRIP);
 	doNormal3f(0.0f, -1.0f, 0.0f);
 	doVertex3f(1.570f, -0.18f, 1.530f);
@@ -35,7 +34,6 @@ void buildLowBarrel ( void )
 	doVertex3f(1.570f, -0.18f, 1.530f);
 	doVertex3f(4.940f, -0.126f, 1.530f);
       glEnd();
-      glShadeModel(GL_FLAT);
       glBegin(GL_TRIANGLE_FAN);
 	doNormal3f(1.000000f, 0.000000f, 0.000000f);
 	doVertex3f(4.940f, 0.0f, 1.410f);

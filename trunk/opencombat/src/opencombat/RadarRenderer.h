@@ -42,7 +42,7 @@ class RadarRenderer {
     void		setJammed(bool = true);
 
     void		render(SceneRenderer&, bool blank = false);
-    void		makeList(bool, SceneRenderer&);
+    void		makeList(SceneRenderer&);
 
   private:
     // no copying
@@ -63,7 +63,6 @@ class RadarRenderer {
     int			w, h;
     float		ps;
     float		range;
-    bool		smooth;
     bool		jammed;
     double		decay;
     GLfloat		teamColor[3];

@@ -17,8 +17,7 @@
 
 void buildMedRTread ( void )
 {
-  glShadeModel(GL_FLAT);
-      glBegin(GL_TRIANGLE_STRIP);
+	glBegin(GL_TRIANGLE_STRIP);
 	doNormal3f(0.998233f, 0.000000f, 0.059419f);
 	glTexCoord2f(-0.415f, 0.172f);
 	doVertex3f(2.790f, -1.400f, 0.408f);

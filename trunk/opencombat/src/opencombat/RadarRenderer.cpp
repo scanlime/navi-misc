@@ -36,24 +36,17 @@ static bool toggleTank = false;
 
 const float		RadarRenderer::colorFactor = 40.0f;
 
-RadarRenderer::RadarRenderer(const SceneRenderer&,
-			     const World& _world) :
-				world(_world),
-				x(0),
-				y(0),
-				w(0),
-				h(0),
-				jammed(false),
-				decay(0.01)
+RadarRenderer::RadarRenderer(	const SceneRenderer&,
+															const World& _world) :
+															world(_world),
+															x(0),
+															y(0),
+															w(0),
+															h(0),
+															jammed(false),
+															decay(0.01)
 {
   setControlColor();
-
-  smooth = true;
-#if defined(GLX_SAMPLES_SGIS) && defined(GLX_SGIS_multisample)
-  GLint bits;
-  glGetIntergerv(GL_SAMPLES_SGIS, &bits);
-  if (bits > 0) smooth = false;
-#endif
 }
 
 void			RadarRenderer::setControlColor(const GLfloat *color)
@@ -141,22 +134,14 @@ void RadarRenderer::drawFlagOnTank(float x, float y, float)
 void			RadarRenderer::render(SceneRenderer& renderer,
 							bool blank)
 {
-  const bool smoothingOn = smooth && BZDB.isTrue("smooth");
-
   const int ox = renderer.getWindow().getOriginX();
   const int oy = renderer.getWindow().getOriginY();
   float opacity = renderer.getPanelOpacity();
 
   if ((opacity < 1.0f) && (opacity > 0.0f)) {
     glScissor(ox + x - 2, oy + y - 2, w + 4, h + 4);
-
-    // draw nice blended background
-    if (BZDBCache::blend && opacity < 1.0f)
-      glEnable(GL_BLEND);
     glColor4f(0.0f, 0.0f, 0.0f, opacity);
     glRectf((float) x, (float) y, (float)(x + w), (float)(y + h));
-    if (BZDBCache::blend && opacity < 1.0f)
-      glDisable(GL_BLEND);
   }
 
   glScissor(ox + x, oy + y, w, h);
@@ -191,8 +176,7 @@ void			RadarRenderer::render(SceneRenderer& renderer,
   const double yCenter = double(y) + 0.5 * double(h);
   const double xUnit = 2.0 * range / double(w);
   const double yUnit = 2.0 * range / double(h);
-  glOrtho(-xCenter * xUnit, (xSize - xCenter) * xUnit,
-		-yCenter * yUnit, (ySize - yCenter) * yUnit, -1.0, 1.0);
+  glOrtho(-xCenter * xUnit, (xSize - xCenter) * xUnit, -yCenter * yUnit, (ySize - yCenter) * yUnit, -1.0, 1.0);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
@@ -202,78 +186,76 @@ void			RadarRenderer::render(SceneRenderer& renderer,
   int noiseTexture = tm.getTextureID( "noise" );
 
   // if jammed then draw white noise.  occasionally draw a good frame.
-  if (jammed && bzfrand() > decay) {
+  if (jammed && bzfrand() > decay)
+	{
 
     glColor3f(1.0,1.0,1.0);
 
-    if (noiseTexture >= 0 && renderer.useQuality() > 0) {
-
+    if (noiseTexture >= 0 && renderer.useQuality() > 0)
+		{
       const int sequences = 10;
 
-      static float np[] =
-	  { 0, 0, 1, 1,
-	    1, 1, 0, 0,
-	    0.5f, 0.5f, 1.5f, 1.5f,
-	    1.5f, 1.5f, 0.5f, 0.5f,
-	    0.25f, 0.25f, 1.25f, 1.25f,
-	    1.25f, 1.25f, 0.25f, 0.25f,
-	    0, 0.5f, 1, 1.5f,
-	    1, 1.5f, 0, 0.5f,
-	    0.5f, 0, 1.5f, 1,
-	    1.4f, 1, 0.5f, 0,
-	    0.75f, 0.75f, 1.75f, 1.75f,
-	    1.75f, 1.75f, 0.75f, 0.75f,
-	  };
-
+      static float np[] = { 0, 0, 1, 1,
+														1, 1, 0, 0,
+														0.5f, 0.5f, 1.5f, 1.5f,
+														1.5f, 1.5f, 0.5f, 0.5f,
+														0.25f, 0.25f, 1.25f, 1.25f,
+														1.25f, 1.25f, 0.25f, 0.25f,
+														0, 0.5f, 1, 1.5f,
+														1, 1.5f, 0, 0.5f,
+														0.5f, 0, 1.5f, 1,
+														1.4f, 1, 0.5f, 0,
+														0.75f, 0.75f, 1.75f, 1.75f,
+														1.75f, 1.75f, 0.75f, 0.75f,
+													};
       int noisePattern = 4 * int(floor(sequences * bzfrand()));
 
       glEnable(GL_TEXTURE_2D);
       tm.bind(noiseTexture);
 
       glBegin(GL_QUADS);
-	glTexCoord2f(np[noisePattern+0],np[noisePattern+1]);
-	glVertex2f(-range,-range);
-	glTexCoord2f(np[noisePattern+2],np[noisePattern+1]);
-	glVertex2f( range,-range);
-	glTexCoord2f(np[noisePattern+2],np[noisePattern+3]);
-	glVertex2f( range, range);
-	glTexCoord2f(np[noisePattern+0],np[noisePattern+3]);
-	glVertex2f(-range, range);
-
+				glTexCoord2f(np[noisePattern+0],np[noisePattern+1]);
+				glVertex2f(-range,-range);
+				glTexCoord2f(np[noisePattern+2],np[noisePattern+1]);
+				glVertex2f( range,-range);
+				glTexCoord2f(np[noisePattern+2],np[noisePattern+3]);
+				glVertex2f( range, range);
+				glTexCoord2f(np[noisePattern+0],np[noisePattern+3]);
+				glVertex2f(-range, range);
       glEnd();
       glDisable(GL_TEXTURE_2D);
     }
-
-    else if (noiseTexture >= 0 && BZDBCache::texture &&
-	     renderer.useQuality() == 0) {
+    else if (noiseTexture >= 0 && BZDBCache::texture && renderer.useQuality() == 0)
+		{
       glEnable(GL_TEXTURE_2D);
       tm.bind(noiseTexture);
+
       glBegin(GL_QUADS);
-
-	glTexCoord2f(0,0);
-	glVertex2f(-range,-range);
-	glTexCoord2f(1,0);
-	glVertex2f( range,-range);
-	glTexCoord2f(1,1);
-	glVertex2f( range, range);
-	glTexCoord2f(0,1);
-	glVertex2f(-range, range);
-
+				glTexCoord2f(0,0);
+				glVertex2f(-range,-range);
+				glTexCoord2f(1,0);
+				glVertex2f( range,-range);
+				glTexCoord2f(1,1);
+				glVertex2f( range, range);
+				glTexCoord2f(0,1);
+				glVertex2f(-range, range);
       glEnd();
+
       glDisable(GL_TEXTURE_2D);
     }
-    if (decay > 0.015f) decay *= 0.5f;
+    if (decay > 0.015f)
+			decay *= 0.5f;
   }
-
-  // only draw if there's a local player
-  else if (myTank) {
+	else if (myTank)  // only draw if there's a local player
+	{
     // if decay is sufficiently small then boost it so it's more
     // likely a jammed radar will get a few good frames closely
     // spaced in time.  value of 1 guarantees at least two good
     // frames in a row.
-    if (decay <= 0.015f) decay = 1.0f;
-    else decay *= 0.5f;
-
+    if (decay <= 0.015f)
+			decay = 1.0f;
+    else
+			decay *= 0.5f;
 
     // get size of pixel in model space (assumes radar is square)
     ps = 2.0f * range / GLfloat(w);
@@ -289,9 +271,9 @@ void			RadarRenderer::render(SceneRenderer& renderer,
     const float fovx = renderer.getViewFrustum().getFOVx();
     const float viewWidth = range * tanf(0.5f * fovx);
     glBegin(GL_LINE_STRIP);
-    glVertex2f(-viewWidth, range);
-    glVertex2f(0.0f, 0.0f);
-    glVertex2f(viewWidth, range);
+			glVertex2f(-viewWidth, range);
+			glVertex2f(0.0f, 0.0f);
+			glVertex2f(viewWidth, range);
     glEnd();
 
     glPushMatrix();
@@ -300,41 +282,34 @@ void			RadarRenderer::render(SceneRenderer& renderer,
     glTranslatef(-pos[0], -pos[1], 0.0f);
 
     // Redraw buildings
-    makeList(smoothingOn, renderer);
-
-    // antialiasing on for lines and points unless we're multisampling,
-    // in which case it's automatic and smoothing makes them look worse.
-    if (smoothingOn) {
-      glEnable(GL_BLEND);
-      glEnable(GL_LINE_SMOOTH);
-      glEnable(GL_POINT_SMOOTH);
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    }
+    makeList( renderer);
 
     // draw my shots
     int maxShots = world.getMaxShots();
     int i;
     float muzzleHeight = BZDB.eval(StateDatabase::BZDB_MUZZLEHEIGHT);
-    for (i = 0; i < maxShots; i++) {
+    for (i = 0; i < maxShots; i++)
+		{
       const ShotPath* shot = myTank->getShot(i);
-      if (shot) {
-	const float cs = colorScale(shot->getPosition()[2],
-		muzzleHeight, BZDBCache::enhancedRadar);
-	glColor3f(1.0f * cs, 1.0f * cs, 1.0f * cs);
-	shot->radarRender();
-      }
+      if (shot)
+			{
+				const float cs = colorScale(shot->getPosition()[2], muzzleHeight, BZDBCache::enhancedRadar);
+				glColor3f(1.0f * cs, 1.0f * cs, 1.0f * cs);
+				shot->radarRender();
+			}
     }
 
     //draw world weapon shots
     WorldPlayer *worldWeapons = World::getWorld()->getWorldWeapons();
     maxShots = worldWeapons->getMaxShots();
-    for (i = 0; i < maxShots; i++) {
+    for (i = 0; i < maxShots; i++)
+		{
       const ShotPath* shot = worldWeapons->getShot(i);
-      if (shot) {
-	const float cs = colorScale(shot->getPosition()[2],
-		muzzleHeight, BZDBCache::enhancedRadar);
-	glColor3f(1.0f * cs, 1.0f * cs, 1.0f * cs);
-	shot->radarRender();
+      if (shot)
+			{
+				const float cs = colorScale(shot->getPosition()[2],	muzzleHeight, BZDBCache::enhancedRadar);
+				glColor3f(1.0f * cs, 1.0f * cs, 1.0f * cs);
+				shot->radarRender();
       }
     }
 
@@ -466,12 +441,6 @@ void			RadarRenderer::render(SceneRenderer& renderer,
     glVertex2f(0.0f, range - 4.0f * ps);
     glEnd();
 
-    if (smoothingOn) {
-      glDisable(GL_BLEND);
-      glDisable(GL_LINE_SMOOTH);
-      glDisable(GL_POINT_SMOOTH);
-    }
-
     // my tank
     glColor3f(1.0f, 1.0f, 1.0f);
     drawTank(0.0f, 0.0f, myTank->getPosition()[2]);
@@ -535,15 +504,8 @@ float			RadarRenderer::transScale(const Obstacle& o)
   return scaleColor;
 }
 
-void			RadarRenderer::makeList(bool smoothingOn, SceneRenderer&)
+void			RadarRenderer::makeList( SceneRenderer&)
 {
-  // antialias if smoothing is on.
-  if (smoothingOn) {
-    glEnable(GL_BLEND);
-    glEnable(GL_LINE_SMOOTH);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  }
-
   // draw walls.  walls are flat so a line will do.
   const std::vector<WallObstacle>& walls = world.getWalls();
   int count = walls.size();
@@ -560,9 +522,6 @@ void			RadarRenderer::makeList(bool smoothingOn, SceneRenderer&)
     glVertex2f(pos[0] + s, pos[1] - c);
   }
   glEnd();
-
-  // don't blend the polygons if enhanced radar disabled
-  if (smoothingOn && BZDBCache::enhancedRadar == false) glDisable(GL_BLEND);
 
   // draw box buildings.
   const std::vector<BoxBuilding>& boxes = world.getBoxes();
@@ -607,30 +566,30 @@ void			RadarRenderer::makeList(bool smoothingOn, SceneRenderer&)
   glEnd();
 
   // now draw antialiased outlines around the polygons
-  if (smoothingOn) {
-    glEnable(GL_BLEND);
     count = boxes.size();
-    for (i = 0; i < count; i++) {
-      const BoxBuilding& box = boxes[i];
-      if (box.isInvisible())
-	continue;
-      const float cs = colorScale(box.getPosition()[2], box.getHeight(), BZDBCache::enhancedRadar);
-      glColor4f(0.25f * cs, 0.5f * cs, 0.5f * cs, transScale(box));
-      const float c = cosf(box.getRotation());
-      const float s = sinf(box.getRotation());
-      const float wx = c * box.getWidth(), wy = s * box.getWidth();
-      const float hx = -s * box.getBreadth(), hy = c * box.getBreadth();
-      const float* pos = box.getPosition();
-      glBegin(GL_LINE_LOOP);
-      glVertex2f(pos[0] - wx - hx, pos[1] - wy - hy);
-      glVertex2f(pos[0] + wx - hx, pos[1] + wy - hy);
-      glVertex2f(pos[0] + wx + hx, pos[1] + wy + hy);
-      glVertex2f(pos[0] - wx + hx, pos[1] - wy + hy);
-      glEnd();
+    for (i = 0; i < count; i++)
+		{
+				const BoxBuilding& box = boxes[i];
+				if (box.isInvisible())
+		continue;
+				const float cs = colorScale(box.getPosition()[2], box.getHeight(), BZDBCache::enhancedRadar);
+				glColor4f(0.25f * cs, 0.5f * cs, 0.5f * cs, transScale(box));
+				const float c = cosf(box.getRotation());
+				const float s = sinf(box.getRotation());
+				const float wx = c * box.getWidth(), wy = s * box.getWidth();
+				const float hx = -s * box.getBreadth(), hy = c * box.getBreadth();
+				const float* pos = box.getPosition();
+				glBegin(GL_LINE_LOOP);
+					glVertex2f(pos[0] - wx - hx, pos[1] - wy - hy);
+					glVertex2f(pos[0] + wx - hx, pos[1] + wy - hy);
+					glVertex2f(pos[0] + wx + hx, pos[1] + wy + hy);
+					glVertex2f(pos[0] - wx + hx, pos[1] - wy + hy);
+				glEnd();
     }
 
     count = pyramids.size();
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < count; i++)
+		{
       const PyramidBuilding& pyr = pyramids[i];
       const float cs = colorScale(pyr.getPosition()[2], pyr.getHeight(), BZDBCache::enhancedRadar);
       glColor4f(0.25f * cs, 0.5f * cs, 0.5f * cs, transScale(pyr));
@@ -640,13 +599,12 @@ void			RadarRenderer::makeList(bool smoothingOn, SceneRenderer&)
       const float hx = -s * pyr.getBreadth(), hy = c * pyr.getBreadth();
       const float* pos = pyr.getPosition();
       glBegin(GL_LINE_LOOP);
-      glVertex2f(pos[0] - wx - hx, pos[1] - wy - hy);
-      glVertex2f(pos[0] + wx - hx, pos[1] + wy - hy);
-      glVertex2f(pos[0] + wx + hx, pos[1] + wy + hy);
-      glVertex2f(pos[0] - wx + hx, pos[1] - wy + hy);
+				glVertex2f(pos[0] - wx - hx, pos[1] - wy - hy);
+				glVertex2f(pos[0] + wx - hx, pos[1] + wy - hy);
+				glVertex2f(pos[0] + wx + hx, pos[1] + wy + hy);
+				glVertex2f(pos[0] - wx + hx, pos[1] - wy + hy);
       glEnd();
     }
-  }
 
   // draw team bases
   if(world.allowTeamFlags()) {
@@ -696,11 +654,6 @@ void			RadarRenderer::makeList(bool smoothingOn, SceneRenderer&)
     glVertex2f(pos[0] - s, pos[1] + c);
   }
   glEnd();
-
-  if (smoothingOn) {
-    glDisable(GL_BLEND);
-    glDisable(GL_LINE_SMOOTH);
-  }
 }
 
 // Local Variables: ***

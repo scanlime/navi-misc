@@ -28,7 +28,6 @@ PhotonTorpedoSceneNode::PhotonTorpedoSceneNode(const GLfloat pos[3]) :
 				renderNode(this)
 {
   OpenGLGStateBuilder builder(gstate);
-  builder.setShading(GL_SMOOTH);
   gstate = builder.getState();
 
   // prepare light
@@ -64,14 +63,6 @@ void			PhotonTorpedoSceneNode::notifyStyleChange(
 				const SceneRenderer&)
 {
   OpenGLGStateBuilder builder(gstate);
-  if (BZDBCache::blend) {
-    builder.setBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    builder.setStipple(1.0f);
-  }
-  else {
-    builder.resetBlending();
-    builder.setStipple(0.5f);
-  }
   gstate = builder.getState();
 }
 
@@ -147,7 +138,6 @@ void			PhotonTorpedoSceneNode::PTRenderNode::render()
 
     // draw some flares
     myColor4fv(flareColor);
-    if (!BZDBCache::blend) myStipple(flareColor[3]);
     glBegin(GL_QUADS);
     for (int i = 0; i < numFlares; i++) {
       // pick random direction in 3-space.  picking a random theta with
@@ -165,107 +155,61 @@ void			PhotonTorpedoSceneNode::PTRenderNode::render()
     }
     glEnd();
 
-    if (BZDBCache::blend) {
-      // draw corona
-      glBegin(GL_QUAD_STRIP);
-      myColor3fv(mainColor);
-      glVertex2fv(core[1]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[0]);
-      myColor3fv(mainColor);
-      glVertex2fv(core[2]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[1]);
-      myColor3fv(mainColor);
-      glVertex2fv(core[3]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[2]);
-      myColor3fv(mainColor);
-      glVertex2fv(core[4]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[3]);
-      myColor3fv(mainColor);
-      glVertex2fv(core[5]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[4]);
-      myColor3fv(mainColor);
-      glVertex2fv(core[6]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[5]);
-      myColor3fv(mainColor);
-      glVertex2fv(core[7]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[6]);
-      myColor3fv(mainColor);
-      glVertex2fv(core[8]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[7]);
-      myColor3fv(mainColor);
-      glVertex2fv(core[1]);
-      myColor4fv(outerColor);
-      glVertex2fv(corona[0]);
-      glEnd();
+    // draw corona
+    glBegin(GL_QUAD_STRIP);
+    myColor3fv(mainColor);
+    glVertex2fv(core[1]);
+    myColor4fv(outerColor);
+    glVertex2fv(corona[0]);
+    myColor3fv(mainColor);
+    glVertex2fv(core[2]);
+    myColor4fv(outerColor);
+    glVertex2fv(corona[1]);
+    myColor3fv(mainColor);
+    glVertex2fv(core[3]);
+    myColor4fv(outerColor);
+    glVertex2fv(corona[2]);
+    myColor3fv(mainColor);
+    glVertex2fv(core[4]);
+    myColor4fv(outerColor);
+    glVertex2fv(corona[3]);
+    myColor3fv(mainColor);
+    glVertex2fv(core[5]);
+    myColor4fv(outerColor);
+    glVertex2fv(corona[4]);
+    myColor3fv(mainColor);
+    glVertex2fv(core[6]);
+    myColor4fv(outerColor);
+    glVertex2fv(corona[5]);
+    myColor3fv(mainColor);
+    glVertex2fv(core[7]);
+    myColor4fv(outerColor);
+    glVertex2fv(corona[6]);
+    myColor3fv(mainColor);
+    glVertex2fv(core[8]);
+    myColor4fv(outerColor);
+    glVertex2fv(corona[7]);
+    myColor3fv(mainColor);
+    glVertex2fv(core[1]);
+    myColor4fv(outerColor);
+    glVertex2fv(corona[0]);
+    glEnd();
 
-      // draw core
-      glBegin(GL_TRIANGLE_FAN);
-      myColor3fv(innerColor);
-      glVertex2fv(core[0]);
-      myColor3fv(mainColor);
-      glVertex2fv(core[1]);
-      glVertex2fv(core[2]);
-      glVertex2fv(core[3]);
-      glVertex2fv(core[4]);
-      glVertex2fv(core[5]);
-      glVertex2fv(core[6]);
-      glVertex2fv(core[7]);
-      glVertex2fv(core[8]);
-      glVertex2fv(core[1]);
-      glEnd();
-    }
-    else {
-      // draw corona
-      myColor3fv(coronaColor);
-      myStipple(coronaColor[3]);
-      glBegin(GL_QUAD_STRIP);
-      glVertex2fv(core[1]);
-      glVertex2fv(corona[0]);
-      glVertex2fv(core[2]);
-      glVertex2fv(corona[1]);
-      glVertex2fv(core[3]);
-      glVertex2fv(corona[2]);
-      glVertex2fv(core[4]);
-      glVertex2fv(corona[3]);
-      glVertex2fv(core[5]);
-      glVertex2fv(corona[4]);
-      glVertex2fv(core[6]);
-      glVertex2fv(corona[5]);
-      glVertex2fv(core[7]);
-      glVertex2fv(corona[6]);
-      glVertex2fv(core[8]);
-      glVertex2fv(corona[7]);
-      glVertex2fv(core[1]);
-      glVertex2fv(corona[0]);
-      glEnd();
-
-      // draw core
-      myStipple(1.0f);
-      glBegin(GL_TRIANGLE_FAN);
-      myColor3fv(innerColor);
-      glVertex2fv(core[0]);
-      myColor3fv(mainColor);
-      glVertex2fv(core[1]);
-      glVertex2fv(core[2]);
-      glVertex2fv(core[3]);
-      glVertex2fv(core[4]);
-      glVertex2fv(core[5]);
-      glVertex2fv(core[6]);
-      glVertex2fv(core[7]);
-      glVertex2fv(core[8]);
-      glVertex2fv(core[1]);
-      glEnd();
-
-      myStipple(0.5f);
-    }
+    // draw core
+    glBegin(GL_TRIANGLE_FAN);
+    myColor3fv(innerColor);
+    glVertex2fv(core[0]);
+    myColor3fv(mainColor);
+    glVertex2fv(core[1]);
+    glVertex2fv(core[2]);
+    glVertex2fv(core[3]);
+    glVertex2fv(core[4]);
+    glVertex2fv(core[5]);
+    glVertex2fv(core[6]);
+    glVertex2fv(core[7]);
+    glVertex2fv(core[8]);
+    glVertex2fv(core[1]);
+    glEnd();
 
   glPopMatrix();
 }

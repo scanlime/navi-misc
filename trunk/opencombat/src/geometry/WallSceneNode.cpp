@@ -271,10 +271,6 @@ void			WallSceneNode::notifyStyleChange(
   style = 0;
   if (lighted) {
     style += 1;
-    builder.setShading();
-  }
-  else {
-    builder.setShading(GL_FLAT);
   }
   if (BZDBCache::texture && gstate.isTextured()) {
     style += 2;
@@ -287,14 +283,6 @@ void			WallSceneNode::notifyStyleChange(
   }
   builder.enableTextureReplace(BZDB.isTrue("_texturereplace"));
   builder.enableMaterial(lighted);
-  if (BZDBCache::blend && alpha != 1.0f) {
-    builder.setBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    builder.setStipple(1.0f);
-  }
-  else {
-    builder.resetBlending();
-    builder.setStipple(alpha);
-  }
   gstate = builder.getState();
 }
 

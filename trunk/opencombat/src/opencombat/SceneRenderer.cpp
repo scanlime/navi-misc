@@ -159,8 +159,7 @@ SceneRenderer::SceneRenderer(MainWindow& _window) :
   // check if we're running OpenGL 1.1.  if so we'll use the fog hack
   // to fade the screen;  otherwise fall back on a full screen blended
   // polygon.
-  if (version != NULL && strncmp(version, "1.1", 3) == 0)
-    useFogHack = true;
+  useFogHack = true;
 
   // prepare context with stuff that'll never change
   glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
@@ -744,19 +743,7 @@ void			SceneRenderer::render(
       glLoadIdentity();
       glMatrixMode(GL_MODELVIEW);
       glColor4f(color[0], color[1], color[2], density);
-
-      // if low quality then use stipple -- it's probably much faster
-      if (BZDBCache::blend && (useQualityValue >= 2)) {
-	glEnable(GL_BLEND);
-	glRectf(-1.0f, -1.0f, 1.0f, 1.0f);
-	glDisable(GL_BLEND);
-      }
-      else {
-	OpenGLGState::setStipple(density);
-	glEnable(GL_POLYGON_STIPPLE);
-	glRectf(-1.0f, -1.0f, 1.0f, 1.0f);
-	glDisable(GL_POLYGON_STIPPLE);
-      }
+			glRectf(-1.0f, -1.0f, 1.0f, 1.0f);
     }
   }
 
@@ -788,27 +775,6 @@ void			SceneRenderer::render(
 void			SceneRenderer::notifyStyleChange()
 {
   style++;
-
-/* FIXME
-  // fixup my gstates
-  OpenGLGStateBuilder builder(flareGState);
-  builder.enableTexture(BZDBCache::texture));
-  if (BZDB.isTrue("smooth")) {
-    if (BZDBCache::texture))
-      builder.setBlending(GL_ONE, GL_ONE);
-    else
-      builder.setBlending();
-    builder.setSmoothing();
-  }
-  else {
-    if (BZDBCache::texture)
-      builder.setBlending(GL_ONE, GL_ONE);
-    else
-      builder.resetBlending();
-    builder.setSmoothing(false);
-  }
-  flareGState = builder.getState();
-*/
 }
 
 const RenderNodeList&	SceneRenderer::getShadowList() const
@@ -819,11 +785,10 @@ const RenderNodeList&	SceneRenderer::getShadowList() const
 void			SceneRenderer::addRenderNode(
 				RenderNode* node, const OpenGLGState* gstate)
 {
-  if (inOrder || gstate->isBlended()) {
+  if (inOrder) {
     // nodes will be drawn in the same order received
     orderedList.append(node, gstate);
   }
-
   else {
     // store node in gstate bucket
     gstate->addRenderNode(node);

@@ -36,7 +36,6 @@ class OpenGLGState {
 			~OpenGLGState();
     OpenGLGState&	operator=(const OpenGLGState& state);
     void		setState() const;
-    bool		isBlended() const;
     bool		isTextured() const;
     bool		isTextureReplace() const;
     bool		isLighted() const;
@@ -44,11 +43,6 @@ class OpenGLGState {
     static void		resetState();
     static void		clearLists();
     static void		renderLists();
-    static void		setStipple(GLfloat alpha);
-    static void		setStippleIndex(int index);
-    static int		getStippleIndex(float alpha);
-    static int		getOpaqueStippleIndex();
-
     static void		init();
 
     // these are in OpenGLGState for lack of a better place.  register...
@@ -72,7 +66,6 @@ class OpenGLGState {
 
   private:
     static void		initGLState();
-    static void		initStipple(void* = NULL);
 
     struct ContextInitializer {
       public:
@@ -92,7 +85,6 @@ class OpenGLGState {
 
   private:
     OpenGLGStateRep*	rep;
-    static GLuint	stipples;
 };
 
 class OpenGLGStateBuilder {
@@ -106,17 +98,10 @@ class OpenGLGStateBuilder {
     void		enableTexture(bool = true);
     void		enableTextureReplace(bool = true);
     void		enableMaterial(bool = true);
-    void		resetBlending();
-    void		resetSmoothing();
     void		resetAlphaFunc();
     void		setTexture(const int texture);
     void		setMaterial(const OpenGLMaterial& material);
-    void		setBlending(GLenum sFactor = GL_SRC_ALPHA,
-				    GLenum dFactor = GL_ONE_MINUS_SRC_ALPHA);
-    void		setStipple(float alpha);
-    void		setSmoothing(bool smooth = true);
     void		setCulling(GLenum culling);
-    void		setShading(GLenum shading = GL_SMOOTH);
     void		setAlphaFunc(GLenum func = GL_GEQUAL,
 				     GLclampf ref = 0.1f);
     OpenGLGState	getState() const;

@@ -16,7 +16,7 @@
 #define	doNormal3f	doNormal3f
 
 void buildMedBody ( void )
-{      glShadeModel(GL_FLAT);
+{
       glBegin(GL_TRIANGLE_STRIP);
 	doNormal3f(0.997647f, 0.000000f, 0.068567f);
 	glTexCoord2f(1.240f, 2.230f);

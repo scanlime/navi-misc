@@ -17,7 +17,6 @@
 
 void buildLowLTread ( void )
 {
-     glShadeModel(GL_FLAT);
       glBegin(GL_TRIANGLE_STRIP);
 	doNormal3f(0.020362f, 0.000000f, 0.999793f);
 	glTexCoord2f(0.033f, 0.684f);
@@ -44,7 +43,6 @@ void buildLowLTread ( void )
 	glTexCoord2f(0.095f, 0.570f);
 	doVertex3f(2.730f, 1.400f, 1.294f);
       glEnd();
-      glShadeModel(GL_FLAT);
       glBegin(GL_TRIANGLE_FAN);
 	doNormal3f(0.000000f, -1.000000f, 0.000000f);
 	glTexCoord2f(0.375f, 1.300f);

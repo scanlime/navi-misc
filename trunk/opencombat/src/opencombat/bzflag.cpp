@@ -1016,7 +1016,7 @@ int			main(int argc, char** argv)
     printFatalError("Can't create window.  Exiting.");
     return 1;
   }
-  window->setTitle("bzflag");
+  window->setTitle("OpenCombat");
 
   // create & initialize the joystick
   BzfJoystick* joystick = platformFactory->createJoystick();

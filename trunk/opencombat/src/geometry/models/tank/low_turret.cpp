@@ -17,7 +17,6 @@
 
 void buildLowTurret( void )
 {
-      glShadeModel(GL_FLAT);
       glBegin(GL_TRIANGLE_STRIP);
 	doNormal3f(0.991228f, 0.000000f, -0.132164f);
 	glTexCoord2f(0.107f, -0.009f);
@@ -39,7 +38,6 @@ void buildLowTurret( void )
 	glTexCoord2f(0.996f, -0.132f);
 	doVertex3f(-0.456f, 1.080f, 1.040f);
       glEnd();
-      glShadeModel(GL_SMOOTH);
       glBegin(GL_TRIANGLE_FAN);
 	doNormal3f(0.183504f, -0.940289f, 0.286676f);
 	glTexCoord2f(0.559f, 0.339f);

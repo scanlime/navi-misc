@@ -61,18 +61,9 @@ bool			LaserSceneNode::cull(const ViewFrustum&) const
 void			LaserSceneNode::notifyStyleChange(
 				const SceneRenderer&)
 {
-  texturing = BZDBCache::texture && BZDBCache::blend;
+  texturing = BZDBCache::texture;
   OpenGLGStateBuilder builder(gstate);
   builder.enableTexture(texturing);
-  if (BZDBCache::blend) {
-    // add in contribution from laser
-    builder.setBlending(GL_SRC_ALPHA, GL_ONE);
-    builder.setSmoothing(BZDB.isTrue("smooth"));
-  }
-  else {
-    builder.resetBlending();
-    builder.setSmoothing(false);
-  }
   gstate = builder.getState();
 }
 

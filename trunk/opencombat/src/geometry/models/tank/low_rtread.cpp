@@ -17,7 +17,6 @@
 
 void buildLowRTread ( void )
 {
-    glShadeModel(GL_FLAT);
       glBegin(GL_TRIANGLE_STRIP);
 	doNormal3f(0.020362f, 0.000000f, 0.999793f);
 	glTexCoord2f(-0.072f, 0.099f);

@@ -22,7 +22,6 @@ void			(__stdcall *SceneNode::color4f)(GLfloat, GLfloat, GLfloat, GLfloat);
 void			(__stdcall *SceneNode::color3fv)(const GLfloat*);
 void			(__stdcall *SceneNode::color4fv)(const GLfloat*);
 #endif
-void			(*SceneNode::stipple)(GLfloat);
 
 SceneNode::SceneNode() : styleMailbox(0)
 {
@@ -62,7 +61,6 @@ void __stdcall		SceneNode::noColor4f(
 void __stdcall		SceneNode::noColor3fv(const GLfloat*) { }
 void __stdcall		SceneNode::noColor4fv(const GLfloat*) { }
 #endif
-void			SceneNode::noStipple(GLfloat) { }
 
 void			SceneNode::setColorOverride(bool on)
 {
@@ -76,7 +74,6 @@ void			SceneNode::setColorOverride(bool on)
     color3fv = &noColor3fv;
     color4fv = &noColor4fv;
 #endif
-    stipple  = &noStipple;
   }
   else {
 #if defined(sun)
@@ -92,7 +89,6 @@ void			SceneNode::setColorOverride(bool on)
     color4fv = &::glColor4fv;
 #endif
 #endif
-    stipple  = &OpenGLGState::setStipple;
   }
 }
 

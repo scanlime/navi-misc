@@ -24,7 +24,6 @@ public:
 
 	static bool  displayMainFlags;
 	static bool  enhancedRadar;
-	static bool  blend;
 	static bool  texture;
 
 	static float maxLOD;

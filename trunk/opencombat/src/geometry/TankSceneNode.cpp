@@ -179,26 +179,9 @@ void			TankSceneNode::notifyStyleChange(
   OpenGLGStateBuilder builder(gstate);
   builder.enableTexture(BZDBCache::texture);
   builder.enableMaterial(BZDB.isTrue("lighting"));
-  builder.setSmoothing(BZDB.isTrue("smooth"));
-  if (BZDBCache::blend && transparent) {
-    builder.setBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    builder.setStipple(1.0f);
-  }
-  else {
-    builder.resetBlending();
-    builder.setStipple(transparent ? 0.5f : 1.0f);
-  }
   gstate = builder.getState();
 
   OpenGLGStateBuilder builder2(lightsGState);
-  if (BZDB.isTrue("smooth")) {
-    builder2.setBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    builder2.setSmoothing();
-  }
-  else {
-    builder2.resetBlending();
-    builder2.setSmoothing(false);
-  }
   lightsGState = builder2.getState();
 }
 
@@ -331,8 +314,6 @@ TankIDLSceneNode::TankIDLSceneNode(const TankSceneNode* _tank) :
 
   OpenGLGStateBuilder builder(gstate);
   builder.setCulling(GL_NONE);
-  builder.setShading(GL_SMOOTH);
-  builder.setBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gstate = builder.getState();
 }
 
@@ -359,14 +340,6 @@ void			TankIDLSceneNode::notifyStyleChange(
 				const SceneRenderer&)
 {
   OpenGLGStateBuilder builder(gstate);
-  if (BZDBCache::blend) {
-    builder.setBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    builder.setStipple(1.0f);
-  }
-  else {
-    builder.resetBlending();
-    builder.setStipple(0.5f);
-  }
   gstate = builder.getState();
 }
 
@@ -630,7 +603,6 @@ void			TankSceneNode::TankRenderNode::render()
   color = sceneNode->color;
   alpha = sceneNode->color[3];
 
-  if (!BZDBCache::blend && sceneNode->transparent) myStipple(alpha);
   if (sceneNode->clip) {
     glClipPlane(GL_CLIP_PLANE0, sceneNode->clipPlane);
     glEnable(GL_CLIP_PLANE0);
@@ -658,13 +630,17 @@ void			TankSceneNode::TankRenderNode::render()
     }
     else {
       // any old order is fine.  if exploding then draw both sides.
-      if (isExploding) glDisable(GL_CULL_FACE);
+      if (isExploding)
+				glDisable(GL_CULL_FACE);
+
       renderPart(LeftTread);
       renderPart(RightTread);
       renderPart(Body);
       renderPart(Turret);
       renderPart(Barrel);
-      if (isExploding) glEnable(GL_CULL_FACE);
+
+      if (isExploding)
+				glEnable(GL_CULL_FACE);
     }
 
   glPopMatrix();
@@ -673,10 +649,8 @@ void			TankSceneNode::TankRenderNode::render()
     // FIXME -- add flare lights using addFlareLight().  pass
     // light position in world space.
   }
-
-  glShadeModel(GL_FLAT);
-  if (!BZDBCache::blend && sceneNode->transparent) myStipple(0.5f);
-  if (sceneNode->clip) glDisable(GL_CLIP_PLANE0);
+  if (sceneNode->clip)
+		glDisable(GL_CLIP_PLANE0);
 }
 
 void			TankSceneNode::TankRenderNode::renderParts()

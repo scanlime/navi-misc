@@ -75,14 +75,6 @@ void			EighthDBoxSceneNode::notifyStyleChange(
   EighthDimSceneNode::notifyStyleChange(renderer);
 
   OpenGLGStateBuilder builder(gstate);
-  if (BZDB.isTrue("smooth")) {
-    builder.setBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    builder.setSmoothing();
-  }
-  else {
-    builder.resetBlending();
-    builder.resetSmoothing();
-  }
   gstate = builder.getState();
 }
 

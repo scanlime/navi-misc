@@ -118,8 +118,6 @@ HUDuiControl::HUDuiControl() : showingFocus(true),
     gstate = new OpenGLGState;
     OpenGLGStateBuilder builder(*gstate);
     builder.setTexture(arrow);
-    builder.setBlending();
-//    builder.setSmoothing();
     builder.enableTextureReplace();
     *gstate = builder.getState();
 
@@ -755,7 +753,6 @@ void			HUDuiTextureLabel::setTexture(const int t)
 {
   OpenGLGStateBuilder builder(gstate);
   builder.setTexture(t);
-  builder.setBlending();
   gstate = builder.getState();
   texture = t;
 }

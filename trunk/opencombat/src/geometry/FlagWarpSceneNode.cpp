@@ -69,14 +69,6 @@ void			FlagWarpSceneNode::notifyStyleChange(
 				const SceneRenderer&)
 {
   OpenGLGStateBuilder builder(gstate);
-  if (BZDBCache::blend) {
-    builder.setBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    builder.setStipple(1.0f);
-  }
-  else {
-    builder.resetBlending();
-    builder.setStipple(FlagWarpAlpha);
-  }
   gstate = builder.getState();
 }
 

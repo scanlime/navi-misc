@@ -108,18 +108,6 @@ void			SphereSceneNode::notifyStyleChange(
 {
   lighting = BZDB.isTrue("lighting");
   OpenGLGStateBuilder builder(gstate);
-  if (BZDBCache::blend && transparent) {
-    builder.setBlending(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    builder.setStipple(1.0f);
-  }
-  else if (transparent) {
-    builder.resetBlending();
-    builder.setStipple(0.5f);
-  }
-  else {
-    builder.resetBlending();
-    builder.setStipple(1.0f);
-  }
   gstate = builder.getState();
 }
 
@@ -134,13 +122,11 @@ void			SphereSceneNode::addRenderNodes(
 
   renderNode.setHighResolution(lod != 0);
 
-  if (BZDBCache::blend) {
-    const GLfloat* eye = view.getEye();
-    const float azimuth = atan2f(sphere[1] - eye[1], eye[0] - sphere[0]);
-    const int numSlices = (lod == 1) ? NumSlices : SphereLowRes;
-    renderNode.setBaseIndex(int(float(numSlices) *
-				(1.0f + 0.5f * azimuth / M_PI)) % numSlices);
-  }
+  const GLfloat* eye = view.getEye();
+  const float azimuth = atan2f(sphere[1] - eye[1], eye[0] - sphere[0]);
+  const int numSlices = (lod == 1) ? NumSlices : SphereLowRes;
+  renderNode.setBaseIndex(int(float(numSlices) *
+			(1.0f + 0.5f * azimuth / M_PI)) % numSlices);
 
   renderer.addRenderNode(&renderNode, &gstate);
 }
@@ -231,8 +217,6 @@ void			SphereSceneNode::SphereRenderNode::render()
     glScalef(radius, radius, radius);
 
     myColor4fv(sceneNode->color);
-    if (!BZDBCache::blend && sceneNode->transparent)
-      myStipple(sceneNode->color[3]);
     if (sceneNode->lighting) {
       // draw with normals (normal is same as vertex!
       // one of the handy properties of a sphere.)
@@ -304,9 +288,6 @@ void			SphereSceneNode::SphereRenderNode::render()
 	}
       }
     }
-
-    if (!BZDBCache::blend && sceneNode->transparent)
-      myStipple(0.5f);
 
   glPopMatrix();
 
@@ -398,8 +379,6 @@ void			SphereFragmentSceneNode::FragmentRenderNode::render()
     glScalef(pRadius, pRadius, pRadius);
 
     myColor4fv(sceneNode->color);
-    if (!BZDBCache::blend && sceneNode->transparent)
-      myStipple(sceneNode->color[3]);
     glBegin(GL_QUADS);
       if (sceneNode->lighting) {
 	glNormal3fv(SphereSceneNode::SphereRenderNode::lgeom[SphereLowRes * phi + theta]);
