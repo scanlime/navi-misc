@@ -25,7 +25,7 @@ __module_name__ = 'URL Scraper'
 __module_version__ = '0.1-pre'
 __module_description__ = 'Collect URLs said and display them in a separate window'
 
-def close( window, event, user_data ):
+def close( window, event=None, user_data=None ):
     ''' Unload the module when you close the window. '''
     # FIXME: In the future this might just hide the window if we can add a
     #        item to the main window that would allow us to show the window,
@@ -65,12 +65,18 @@ window.set_default_size( 300, 350 )
 store = gtk.ListStore( gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING )
 
 view = gtk.TreeView( store )
-view.append_column( gtk.TreeViewColumn( 'Nick', gtk.CellRendererText(), text=0 ) )
-view.append_column( gtk.TreeViewColumn( 'Channel', gtk.CellRendererText(), text=1) )
-view.append_column( gtk.TreeViewColumn( 'URL', gtk.CellRendererText(), text=2 ) )
+nick_col =  gtk.TreeViewColumn( 'Nick', gtk.CellRendererText(), text=0 )
+nick_col.set_sort_column_id( 0 )
+chan_col = gtk.TreeViewColumn( 'Channel', gtk.CellRendererText(), text=1)
+chan_col.set_sort_column_id( 1 )
+url_col =  gtk.TreeViewColumn( 'URL', gtk.CellRendererText(), text=2 )
+
+view.append_column( nick_col )
+view.append_column( chan_col )
+view.append_column( url_col )
 
 window.add( view )
-window.connect( 'destroy', close)
+window.connect( 'destroy', close )
 window.show_all()
 
 xchat.hook_print( 'Channel Message', grabURL )
