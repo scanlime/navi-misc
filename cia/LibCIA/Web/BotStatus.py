@@ -162,8 +162,8 @@ class RequestsSection(Template.Section):
     title = 'requests'
 
     columns = [
-        OptionalAttributeStringColumn('server', 'server'),
         OptionalAttributeStringColumn('channel', 'channel'),
+        OptionalAttributeStringColumn('server', 'server'),
         OptionalAttributeStringColumn('# of bots', 'numBots'),
         RequestStatusColumn(),
         RequestBotsColumn(),
