@@ -58,7 +58,11 @@ class CommitFormatter(Message.Formatter):
                 if fileTag.name == 'file':
                     files.append(str(fileTag))
 
-        prefix = os.path.commonprefix(files)
+        # Start with the prefix found by os.path.commonprefix,
+        # then actually make it end with a directory rather than
+        # possibly ending with part of a filename.
+        prefix = re.sub("[^/]*$", "", os.path.commonprefix(files))
+
         endings = []
         for file in files:
             endings.append(file[len(prefix):])
