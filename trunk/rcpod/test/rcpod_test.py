@@ -29,6 +29,9 @@ class RcpodTestCase(unittest.TestCase):
         self.rcpod = pyrcpod.devices[0].open()
 
     def tearDown(self):
+        # Reset the rcpod before closing it, in case the test
+        # left the I/Os in a funny state.
+        self.rcpod.reset()
         self.rcpod.close()
 
 

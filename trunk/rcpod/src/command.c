@@ -125,7 +125,7 @@ void rcpod_GpioAssert4(rcpod_dev* rcpod, rcpod_pin pins[4]) {
   /* All pin descriptors are packed into the four bytes of wValue and wIndex such
    * that in the control message header the bytes are contiguous.
    */
-  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR, RCPOD_CTRL_POKE,
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR, RCPOD_CTRL_GPIO_ASSERT,
 			   pins[0] | (((int)pins[1])<<8),
 			   pins[2] | (((int)pins[3])<<8),
 			   NULL, 0, RCPOD_TIMEOUT);
