@@ -6,3 +6,6 @@
   partial buffers have been merged, leaving ugly horizontal
   banding on the resulting image.
 
+- The command-line options for clustering don't print out useful
+  errors if we're built without gnet. It's a bad failure mode
+  to try to start up a gui if -r is given
