@@ -5,6 +5,7 @@ before release:
 
 -----
 
+* if a word-check function is installed into xtext, should make URLs blue
 * add/remove in the server list
 * the way it looks up the icon is *really* expensive, and this happens every
   time a row is updated. Should probably move the icon theme initialization
