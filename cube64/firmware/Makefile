@@ -1,7 +1,7 @@
 
 all: cube64.hex
 
-cube64.hex: cube64.asm
+cube64.hex: cube64.asm *.inc
 	gpasm cube64.asm
 
 install: cube64.hex
