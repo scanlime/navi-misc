@@ -35,7 +35,7 @@ public class webconfig implements ActionListener
 		admin.help.setText("Please enter the hostname and port that the web updater is running on");
 		host = new TextField("localhost",40);
 		port = new TextField("8081",6);
-		filename = new TextField("/home/httpd/htdocs/mice/index.html");
+		filename = new TextField("/Library/WebServer/Documents/chat/live.html");
 		submit = new Button("Submit");
 		myadmin = my;
 		myadmin.ad(host);

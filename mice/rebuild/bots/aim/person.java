@@ -69,7 +69,7 @@ public class person
 		{
 		case 0:
 			name = message;
-			mybot.sendMessage(nick,"Thanks " + name + ", now what is your standing (Freshman/Sophomore/Junior/Senior), of if you're a faculty, what is your position?");
+			mybot.sendMessage(nick,"Thanks " + name + ", now what is your standing (Freshman/Sophomore/Junior/Senior), or if you're a faculty, what is your position?");
 			status = 1;
 			break;
 		case 1:
