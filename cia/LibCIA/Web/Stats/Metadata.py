@@ -143,6 +143,21 @@ class MetadataSizeColumn(Nouvelle.Column):
         return self.formatter(self.getValue(item))
 
 
+class MetadataDeleteColumn(Nouvelle.Column):
+    """A column that, when a key is set, shows a delete button for each item"""
+    heading = 'delete'
+
+    def isVisible(self, context):
+        return Keyring.getKeyring(context).hasKey
+
+    def render_data(self, context, item):
+        return tag('form', method="post", action=Keyring.getSecureURL(context))[
+            tag('input', _type='hidden', _name='metadata-key', value=item[0]),
+            tag('input', _type='hidden', _name='metadata-delete', value=1),
+            tag('input', _type='submit', value='Delete'),
+            ]
+
+
 class MetadataViewSection(Template.Section):
     """A section displaying a table of metadata keys for one stats target"""
     title = "view metadata"
@@ -150,6 +165,7 @@ class MetadataViewSection(Template.Section):
     columns = [
         MetadataKeyColumn(),
         MetadataValueColumn(),
+        MetadataDeleteColumn(),
         MetadataTypeColumn(),
         MetadataSizeColumn(),
         ]
@@ -368,11 +384,14 @@ class MetadataPage(Template.Page):
            """
         args = context['request'].args
         keyring = Keyring.getKeyring(context)
-        
+        path = self.statsPage.target.path
+        iRoot = RpcServer.getRootInterface()
+
         name = args.get('metadata-key', (None,))[0]
         mimeType = args.get('metadata-type', (None,))[0]
         value = args.get('metadata-value', (None,))[0]
         valueFile = args.get('metadata-value-file', (None,))[0]
+        delete = int(args.get('metadata-delete', (0,))[0])
 
         if not name:
             # Nothing to do, return an already complted Deferred
@@ -385,8 +404,10 @@ class MetadataPage(Template.Page):
 
         # We actually do the metadata setting via the RPC tree,
         # so we can ensure it has the exact same security semantics.
-        return RpcServer.getRootInterface().call('stats.metadata.set', keyring.key, 
-                                                 self.statsPage.target.path, name, value, mimeType)
+        if delete:
+            return iRoot.call('stats.metadata.remove', keyring.key, path, name)
+        else:
+            return iRoot.call('stats.metadata.set', keyring.key, path, name, value, mimeType)
 
     leftColumn = [
         Keyring.SecuritySection(),
