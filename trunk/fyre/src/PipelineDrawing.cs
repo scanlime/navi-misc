@@ -41,68 +41,67 @@ namespace Fyre
 		Gdk.Rectangle		drawing_extents;
 		Gdk.Rectangle		layout_extents;
 
-		Gdk.Cursor		hand_open_cursor;
-		Gdk.Cursor		hand_closed_cursor;
-		Gdk.Cursor		pointer_cursor;
-
 		Gtk.EventBox		event_box;
 
 		/* String data for our hand cursors. These have been taken pretty much
 		 * verbatim from eog */
-		static byte[] hand_open_data_bits =
+		static string hand_open_data =
+			"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00" +
+			"\x60\x36\x00\x60\x36\x00\xc0\x36\x01\xc0\xb6\x01" +
+			"\x80\xbf\x01\x98\xff\x01\xb8\xff\x00\xf0\xff\x00" +
+			"\xe0\xff\x00\xe0\x7f\x00\xc0\x7f\x00\x80\x3f\x00" +
+			"\x00\x3f\x00\x00\x3f\x00\x00\x00\x00\x00\x00\x00";
+		static string hand_open_mask =
+			"\x00\x00\x00\x00\x00\x00\x00\x06\x00\x60\x3f\x00" +
+			"\xf0\x7f\x00\xf0\x7f\x01\xe0\xff\x03\xe0\xff\x03" +
+			"\xd8\xff\x03\xfc\xff\x03\xfc\xff\x01\xf8\xff\x01" +
+			"\xf0\xff\x01\xf0\xff\x00\xe0\xff\x00\xc0\x7f\x00" +
+			"\x80\x7f\x00\x80\x7f\x00\x00\x00\x00\x00\x00\x00";
+		static string hand_closed_data =
+			"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+			"\x00\x00\x00\x00\x00\x00\x00\x06\x00\x80\x3f\x00" +
+			"\x80\xff\x00\x80\xff\x00\xb0\xff\x00\xf0\xff\x00" +
+			"\xe0\xff\x00\xe0\x7f\x00\xc0\x7f\x00\x80\x3f\x00" +
+			"\x00\x3f\x00\x00\x3f\x00\x00\x00\x00\x00\x00\x00";
+		static string hand_closed_mask =
+			"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+			"\x00\x00\x00\x00\x06\x00\x80\x3f\x00\xc0\xff\x00" +
+			"\xc0\xff\x01\xf0\xff\x01\xf8\xff\x01\xf8\xff\x01" +
+			"\xf0\xff\x01\xf0\xff\x00\xe0\xff\x00\xc0\x7f\x00" +
+			"\x80\x7f\x00\x80\x7f\x00\x00\x00\x00\x00\x00\x00";
+		Gdk.Cursor hand_open_cursor;
+		Gdk.Cursor HandOpenCursor
 		{
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00,
-			0x60, 0x36, 0x00, 0x60, 0x36, 0x00, 0xc0, 0x36, 0x01, 0xc0, 0xb6, 0x01,
-			0x80, 0xbf, 0x01, 0x98, 0xff, 0x01, 0xb8, 0xff, 0x00, 0xf0, 0xff, 0x00,
-			0xe0, 0xff, 0x00, 0xe0, 0x7f, 0x00, 0xc0, 0x7f, 0x00, 0x80, 0x3f, 0x00,
-			0x00, 0x3f, 0x00, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0
-		};
-		static byte[] hand_open_mask_bits =
+			get {
+				if (hand_open_cursor == null)
+					hand_open_cursor   = CreateCursor (hand_open_data,   hand_open_mask);
+				return hand_open_cursor;
+			}
+		}
+		Gdk.Cursor hand_closed_cursor;
+		Gdk.Cursor HandClosedCursor
 		{
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x60, 0x3f, 0x00,
-			0xf0, 0x7f, 0x00, 0xf0, 0x7f, 0x01, 0xe0, 0xff, 0x03, 0xe0, 0xff, 0x03,
-			0xd8, 0xff, 0x03, 0xfc, 0xff, 0x03, 0xfc, 0xff, 0x01, 0xf8, 0xff, 0x01,
-			0xf0, 0xff, 0x01, 0xf0, 0xff, 0x00, 0xe0, 0xff, 0x00, 0xc0, 0x7f, 0x00,
-			0x80, 0x7f, 0x00, 0x80, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-		};
-		static byte[] hand_closed_data_bits =
+			get {
+				if (hand_closed_cursor == null)
+					hand_closed_cursor = CreateCursor (hand_closed_data, hand_closed_mask);
+				return hand_closed_cursor;
+			}
+		}
+		Gdk.Cursor pointer_cursor;
+		Gdk.Cursor PointerCursor
 		{
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x80, 0x3f, 0x00,
-			0x80, 0xff, 0x00, 0x80, 0xff, 0x00, 0xb0, 0xff, 0x00, 0xf0, 0xff, 0x00,
-			0xe0, 0xff, 0x00, 0xe0, 0x7f, 0x00, 0xc0, 0x7f, 0x00, 0x80, 0x3f, 0x00,
-			0x00, 0x3f, 0x00, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-		};
-		static byte[] hand_closed_mask_bits =
-		{
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x80, 0x3f, 0x00, 0xc0, 0xff, 0x00,
-			0xc0, 0xff, 0x01, 0xf0, 0xff, 0x01, 0xf8, 0xff, 0x01, 0xf8, 0xff, 0x01,
-			0xf0, 0xff, 0x01, 0xf0, 0xff, 0x00, 0xe0, 0xff, 0x00, 0xc0, 0x7f, 0x00,
-			0x80, 0x7f, 0x00, 0x80, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-		};
-		static string hand_open_data, hand_open_mask, hand_closed_data, hand_closed_mask;
+			get {
+				if (pointer_cursor == null)
+					pointer_cursor = new Gdk.Cursor (Gdk.CursorType.LeftPtr);
+				return pointer_cursor;
+			}
+		}
 
 		public
 		PipelineDrawing (Glade.XML xml) : base ()
 		{
 			drawing_extents = new Gdk.Rectangle ();
 			layout_extents = new Gdk.Rectangle ();
-
-			// Initialize our cursors, if we need to
-			if (hand_open_data == null) {
-				/*
-				hand_open_data = new string (hand_open_data_bits);
-				hand_open_mask = new string (hand_open_mask_bits);
-				hand_closed_data = new string (hand_open_data_bits);
-				hand_closed_mask = new string (hand_open_mask_bits);
-				*/
-				pointer_cursor = new Gdk.Cursor (Gdk.CursorType.LeftPtr);
-				/*
-				hand_open_cursor = new Gdk.Cursor (FIXME);
-				hand_closed_cursor = new Gdk.Cursor (FIXME);
-				*/
-			}
 
 			// For now, initialize the layout extents to 400x400, centered at the origin
 			layout_extents.X = -200;
@@ -122,6 +121,18 @@ namespace Fyre
 			event_box.LeaveNotifyEvent   += new Gtk.LeaveNotifyEventHandler   (LeaveNotifyHandler);
 
 			Show ();
+		}
+
+
+		Gdk.Cursor
+		CreateCursor (string data, string mask)
+		{
+			Gdk.Color fore = new Gdk.Color (0xff, 0xff, 0xff);
+			Gdk.Color back = new Gdk.Color (0x00, 0x00, 0x00);
+			Gdk.Pixmap source = Gdk.Pixmap.CreateBitmapFromData (GdkWindow, data, 20, 20);
+			Gdk.Pixmap cmask  = Gdk.Pixmap.CreateBitmapFromData (GdkWindow, mask, 20, 20);
+
+			return new Gdk.Cursor (source, cmask, fore, back, 10, 10);
 		}
 
 		protected override bool
@@ -180,11 +191,13 @@ namespace Fyre
 		void
 		ButtonPressHandler (object o, Gtk.ButtonPressEventArgs args)
 		{
+			event_box.GdkWindow.Cursor = HandOpenCursor;
 		}
 
 		void
 		ButtonReleaseHandler (object o, Gtk.ButtonReleaseEventArgs args)
 		{
+			event_box.GdkWindow.Cursor = PointerCursor;
 		}
 
 		void
