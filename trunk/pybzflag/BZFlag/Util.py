@@ -59,7 +59,14 @@ class Event:
            represent the call parameters.
            """
         def traceCallback(*args, **kw):
-            print fmt % args
+            # Make a dictionary with both keyword args and normal
+            # args, representing normal args by their place in the
+            # argument list, starting with 1.
+            index = 1
+            for arg in args:
+                kw[str(index)] = arg
+                index += 1
+            print fmt % kw
         self.observe(traceCallback)
 
 

@@ -27,24 +27,33 @@ over the network, frontends display and modify it.
 from BZFlag import World, Util
 
 class Game:
-    """Container for all game state information"""
+    """Container for all game state information.
+       This object has events and functions for adding and removing
+       objects from the game. Events for tracking modifications to an object
+       are stored in that object's class.
+       """
     def __init__(self):
         self.players = {}
         self.flags = {}
+        self.teams = {}
         self.world = World.World()
         Util.initEvents(self, 'onChangePlayerList', 'onAddPlayer', 'onRemovePlayer')
 
+    def integrate(dt):
+        """Integrate velocity with respect to time everywhere it's needed"""
+        for player in self.players:
+            player.motion.integrate(dt)
+
     def addPlayer(self, player):
-        self.players[player.id] = player
+        self.players[player.identity.playerId] = player
         self.onAddPlayer(self, player)
         self.onChangePlayerList(self, self.players)
 
-    def RemovePlayer(self, playerId):
+    def removePlayer(self, playerId):
+        player = self.players[playerId]
         del self.players[playerId]
-        self.onAddPlayer(self, player)
-        self.onChangePlayerList(self, self.players)
-
-    
+        self.onRemovePlayer(self, player)
+        self.onChangePlayerList(self, self.players)    
 
 ### The End ###
         
