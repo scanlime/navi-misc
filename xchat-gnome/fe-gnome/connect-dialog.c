@@ -23,8 +23,8 @@
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 
-void connection_dialog_close (GtkWidget *widget, gpointer data);
-void connection_dialog_connect (GtkWidget *widget, gpointer data);
+static void connection_dialog_close (GtkWidget *widget, gpointer data);
+static void connection_dialog_connect (GtkWidget *widget, gpointer data);
 
 static void close_window (GtkWidget *widget, GdkEvent *event, gpointer data);
 
