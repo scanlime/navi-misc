@@ -16,10 +16,10 @@ struct {
 GtkWidget *window, *drawing_area, *iterl;
 GtkWidget *as, *bs, *cs, *ds, *ls, *start, *stop, *save;
 GdkPixbuf *pixbuf;
-int iterations;
+gulong iterations;
 int flippiness;
 GdkGC *gc;
-int data[WIDTH][HEIGHT];
+guint data[WIDTH][HEIGHT];
 double a, b, c, d, bright;
 guint idler;
 struct timeval last_flip;
