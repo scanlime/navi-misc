@@ -46,6 +46,7 @@ typedef struct
 	GtkWidget *show_timestamps;
 
 	GdkPixbuf *icon;
+	GtkListStore *highlight_store;
 } PreferencesIrcPage;
 
 PreferencesIrcPage *preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml);
