@@ -22,5 +22,6 @@ A python package for bit-banging i2c devices
 #
 
 from i2c import *
+import devices
 
 ### The End ###
