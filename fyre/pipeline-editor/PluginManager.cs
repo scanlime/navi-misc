@@ -23,6 +23,7 @@
  */
 
 using System;
+using System.Collections;
 using System.IO;
 using System.Reflection;
 
@@ -30,22 +31,48 @@ class PluginManager
 {
 	string directory;
 	FileSystemWatcher dir_watcher;
+	ArrayList plugin_types;
 
 	public PluginManager (string directory)
 	{
 		this.directory = directory;
-		
+
 		dir_watcher = new FileSystemWatcher (directory, "*.dll");
 		dir_watcher.Created += OnPluginCreated;
 		dir_watcher.Deleted += OnPluginDeleted;
 		dir_watcher.EnableRaisingEvents = true;
 	}
-	
+
 	void OnPluginCreated (object sender, FileSystemEventArgs args)
 	{
+		ArrayList asm_plugins = FindPluginTypesInFile (args.FullPath);
+
+		foreach (Type type in asm_plugins) {
+			plugin_types.Add (type);
+		}
 	}
-	
+
 	void OnPluginDeleted (object sender, FileSystemEventArgs args)
 	{
+		/* Not sure we really want to deal with this */
+	}
+
+	static ArrayList FindPluginTypesInFile (string filepath)
+	{
+		Assembly asm = Assembly.LoadFrom (filepath);
+		return FindPluginTypesInAssembly (asm);
+	}
+
+	static ArrayList FindPluginTypesInAssembly (Assembly asm)
+	{
+		Type [] types = asm.GetTypes ();
+		ArrayList asm_plugins = new ArrayList ();
+		bool found_one = false;
+
+		foreach (Type type in types)
+			if (type.BaseType == typeof (Element))
+				asm_plugins.Add (type);
+
+		return asm_plugins;
 	}
 }
