@@ -598,6 +598,8 @@ histogram_imager_make_thumbnail (HistogramImager *self, guint max_width, guint m
 	height = max_height;
 	width = height * aspect;
     }
+    width = MAX(width, 5);
+    height = MAX(height, 5);
     thumb = gdk_pixbuf_scale_simple (self->image, width, height, GDK_INTERP_BILINEAR);
 
     /* Do an in-place composite of a checkerboard behind this image, to make alpha visible */
@@ -1016,30 +1018,50 @@ histogram_imager_compute_quality (HistogramImager *self)
     histogram_imager_require_histogram (self);
     histogram_imager_generate_color_table (self, FALSE);
     {
-	guint *hist_p = self->histogram;
+	guint *row = self->histogram;
+	guint *hist_p;
 	float *qual_p = self->color_table.quality;
 	guint count;
 	guint hist_clamp = self->color_table.filled_size - 1;
 	int width = self->width * self->oversample;
 	int height = self->height * self->oversample;
-	int x, y;
+	int x, y, x_scale, y_scale;
+	int stride;
 
 	gulong denominator = 0;
 	double numerator = 0;
 
 	if (self->color_table.filled_size < 1)
 	    return G_MAXDOUBLE;
- 
-	for (y=height; y; y--)
-	    for (x=width; x; x--) {
-		count = *(hist_p++);
+
+	/* Sample the histogram at a reduced resolution, calculated
+	 * such that we get about a 256x256 grid.
+	 */
+	x_scale = MAX(1, width >> 8);
+	y_scale = MAX(1, height >> 8);
+
+	y = height;
+	stride = y_scale * width;
+	while (y > 0) {
+
+	    hist_p = row;
+	    x = width;
+	    while (x > 0) {
+		count = *hist_p;
 
 		/* We average only those buckets that aren't empty or satuated */
 		if (count <= hist_clamp && count > 0) {
 		    numerator += qual_p[count];
 		    denominator++;
 		}
+
+		x -= x_scale;
+		hist_p += x_scale;
 	    }
+	    
+	    y -= y_scale;
+	    row += stride;
+	}
 
 	if (!denominator)
 	    return G_MAXDOUBLE;

@@ -106,8 +106,10 @@ void  image_add_thumbnail_frame(GdkPixbuf *img)
     guint32 shadow      = IMAGEFU_COLOR(0x22, 0x00, 0x00, 0x00);
     int width = gdk_pixbuf_get_width(img);
     int height = gdk_pixbuf_get_height(img);
-    g_assert(width > 2);
-    g_assert(height > 2);
+    if (width <= 2)
+	return;
+    if (height <= 2)
+	return;
 
     image_draw_rect_outline(img, 0, 0, width, height, transparent);
     image_draw_rect_outline(img, 1, 1, width-2, height-2, outline);
