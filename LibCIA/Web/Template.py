@@ -140,10 +140,8 @@ class Page(Nouvelle.Twisted.Page):
     mainColumn  = []
 
     document = [
-        ## Commented out for now, as it seems to break some of the CSS formatting. Why?
-        ##
-        #xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
-        #    '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n'),
+        xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
+            '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n'),
 
         tag('html', xmlns="http://www.w3.org/1999/xhtml")[
             tag('head')[
@@ -233,7 +231,7 @@ class Page(Nouvelle.Twisted.Page):
                 if request.prepath[0] == name:
                     id = 'active'
                 else:
-                    id = 'inactive'
+                    id = None
                 tabs.append(tag('a', _class='tab', id=id, href=page.getURL(context))[
                     page.render_mainTitle(context)
                     ])
