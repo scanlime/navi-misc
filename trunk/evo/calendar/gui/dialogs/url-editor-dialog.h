@@ -71,8 +71,6 @@ struct _UrlEditorDialog {
 	GtkWidget *username_entry;
 	GtkWidget *password_entry;
 	GtkWidget *remember_pw;
-	GtkWidget *cancel;
-	GtkWidget *ok;
 };
 
 struct _UrlEditorDialogClass {
@@ -81,6 +79,7 @@ struct _UrlEditorDialogClass {
 
 GtkWidget *url_editor_dialog_new (GtkTreeModel *url_list_model, EPublishUri *pub_uri);
 GType      url_editor_dialog_get_type (void);
+void       url_editor_dialog_run (UrlEditorDialog *dialog);
 
 G_END_DECLS
 
