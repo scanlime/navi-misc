@@ -988,7 +988,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkScrolledWindow" id="scrolledwindow15">
+				    <widget class="GtkScrolledWindow" id="highlight list container">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
