@@ -28,9 +28,5 @@
 
 gboolean preferences_exist();
 void load_preferences();
-int preferences_get_color_scheme();
-int preferences_get_palette_scheme();
-void preferences_set_color_scheme(int selection);
-void preferences_set_palette_scheme(int selection);
 
 #endif
