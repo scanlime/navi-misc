@@ -40,13 +40,14 @@ class SettingsMenu(Menu.ArcMenu):
         Menu.ArcMenu.__init__(self, book, items, "Settings")
 
 
-backgroundItems = []
+backgroundItems = None
 
 class BackgroundLoader(Menu.LoaderPage):
     """Loads backgrounds into memory before the backgrounds menu itself runs"""
     def run(self):
         global backgroundItems
         if not backgroundItems:
+            backgroundItems = []
             bgc = BackgroundCache()
             for file in getBackgroundList():
                 item = Menu.Item(Icon.Icon(bgc.load(file), imageAspect=4/3))
@@ -71,6 +72,10 @@ class BackgroundsMenu(Menu.ImageMenu):
 
     def onSelected(self, item):
         setCurrentBackground(item.file)
+
+        # We're done with the backgroundItems list, free up a big chunk of memory
+        global backgroundItems
+        backgroundItems = None
 
 
 def getBackgroundList():
