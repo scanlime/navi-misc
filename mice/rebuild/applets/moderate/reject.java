@@ -16,6 +16,8 @@ public class reject implements ActionListener
 {
 	/**
 	 * This is a constructor that is empty, cause this class only does actions
+	 * @author Brandon Smith
+	 * @version 2.0
 	 */
 	public reject(){}
 	

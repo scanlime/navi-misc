@@ -22,17 +22,23 @@ public class build
 	public Button[] approve;
 	
 	/** This is a Button for rejecting questions. */
-	public Button reject;
+	public Button rejectb;
 
 	/** This is a button for quitting. */
-	public Button quit;
+	public Button quitb;
 	
 	/** This button gets a question from the server. */
-	public Button get;
+	public Button getb;
 	
 	/** This TextArea is for the express purpose of displaying the questions. */
 	public TextArea question;
 	
+	/**
+	 * This builds the applet such that it has all the important stuff there.
+	 * @param my The moderator that takes care of stuff
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public build(moderate my)
 	{
 		mymod = my;
@@ -46,15 +52,18 @@ public class build
 			approve[i].addActionListener(new accept(i,question));
 		}
 		question = new TextArea("",6,60,TextArea.SCROLLBARS_VERTICAL_ONLY);
-		get = new Button("Get Question");
-		reject = new Button("Reject");
-		quit = new Button("Quit");
+		getb = new Button("Get Question");
+		getb.addActionListener(new get(question));
+		rejectb = new Button("Reject");
+		rejectb.addActionListener(new reject());
+		quitb = new Button("Quit");
+		quitb.addActionListener(new quit());
 
 		mymod.ad(question);
-		mymod.ad(get);
+		mymod.ad(getb);
 		for(i=0;i<interviews;i++)
 			mymod.ad(approve[i]);
-		mymod.ad(reject);
-		mymod.ad(quit);
+		mymod.ad(rejectb);
+		mymod.ad(quitb);
 	}
 }
