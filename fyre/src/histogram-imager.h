@@ -118,11 +118,12 @@ GdkPixbuf*       histogram_imager_make_thumbnail  (HistogramImager *self,
 						   guint            max_width,
 						   guint            max_height);
 
-gboolean         histogram_imager_load_image_file (HistogramImager *self,
+void	         histogram_imager_load_image_file (HistogramImager *self,
 						   const gchar     *filename,
 						   GError          **error);
 void             histogram_imager_save_image_file (HistogramImager *self,
-						   const gchar     *filename);
+						   const gchar     *filename,
+						   GError          **error);
 void             exr_save_image_file              (HistogramImager *hi,
 						   const gchar     *filename);
 
