@@ -36,15 +36,16 @@ int tusb_init(void) {
   struct usb_device *tusb_dev = NULL;
 
   usb_init();
-  if(usb_find_busses())
+  if(usb_find_busses()<0)
     die("Bus scan");
-  if(usb_find_devices())
+  if(usb_find_devices()<0)
     die("Device scan");
 
   for (bus = usb_busses; bus; bus = bus->next) {
     for (dev = bus->devices; dev; dev = dev->next) {
       if(dev->descriptor.idVendor==0x0451 &&       /* TI */
-	 dev->descriptor.idProduct==0x2136) {      /* TUSB2316/3210 */
+	 (dev->descriptor.idProduct==0x2136 ||     /* TUSB2316/3210 */
+	  dev->descriptor.idProduct==0x3410)) {     /* TUSB3410 */
 	if(tusb_dev!=NULL) {
 	  /* More than one, but there's no way of knowing which one to
 	     program, so give up */
@@ -55,6 +56,7 @@ int tusb_init(void) {
       }
     }
   }
+
   if(tusb_dev==NULL) {
     fprintf(stderr,"TUSB2316/3210 not found.\n");
     return 1;
