@@ -43,8 +43,8 @@ int tusb_init(void) {
 
   for (bus = usb_busses; bus; bus = bus->next) {
     for (dev = bus->devices; dev; dev = dev->next) {
-      if(dev->descriptor.idVendor==0x0451 &&       /* TI */
-	 (dev->descriptor.idProduct==0x2136 ||     /* TUSB2316/3210 */
+      if(dev->descriptor.idVendor==0xE461 &&       /* TI */
+	 (dev->descriptor.idProduct==0x0012 ||     /* TUSB2316/3210 */
 	  dev->descriptor.idProduct==0x3410)) {     /* TUSB3410 */
 	if(tusb_dev!=NULL) {
 	  /* More than one, but there's no way of knowing which one to

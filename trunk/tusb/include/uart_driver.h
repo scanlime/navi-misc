@@ -23,7 +23,21 @@
 #ifndef _H_UART_DRIVER
 #define _H_UART_DRIVER
 
-void uart_init();
+#define UART_BAUD_TO_DIVISOR(baud)  ((int)(14.76923077e6 / ((baud) * 16) + 0.5))
+
+/* Initialization */
+void uart_init       ();
+void uart_set_speed  (int divisor);
+
+/* blocking I/O */
+void uart_write      (char c);
+char uart_read       ();
+
+/* Nonblocking I/O (Returns -1 if the operation can't be completed yet) */
+int  uart_nb_write   (char c);
+int  uart_nb_read    ();
+
+/* stdio compatibility */
 void putchar(char c);
 
 #endif /* _H_UART_DRIVER */
