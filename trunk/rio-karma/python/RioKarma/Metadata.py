@@ -24,6 +24,7 @@ and provides utilities for converting metadata between formats.
 
 import md5, os, cPickle
 import mmpython
+from mmpython.audio import mp3info
 import sqlite
 from RioKarma import Paths
 
@@ -73,7 +74,7 @@ class RidCalculator:
         # and the last 128 bytes of the file. mmpython can tell us where the
         # header starts, but only in a somewhat ugly way.
         if isinstance(mminfo, mmpython.audio.eyed3info.eyeD3Info):
-            offset = mminfo._find_header(f)[0]
+            offset = mp3info.MPEG(f)._find_header(f)[0]
             if offset < 0:
                 # Hmm, it couldn't find the header? Set this to zero
                 # so we still get a usable RID, but it probably
@@ -347,7 +348,6 @@ class LocalCache(BaseCache):
         for root, dirs, files in os.walk(path):
             for name in files:
                 filename = os.path.join(root, name)
-                print filename
                 self.lookup(filename)
 
             # checkpoint this after every directory
@@ -373,6 +373,7 @@ class Converter:
     # hardware supports.
     codecNames = {
         mmpython.audio.eyed3info.eyeD3Info: 'mp3',
+        mmpython.audio.mp3info.MP3Info:     'mp3',
         mmpython.audio.flacinfo.FlacInfo:   'flac',
         mmpython.audio.pcminfo.PCMInfo:     'wave',
         mmpython.video.asfinfo.AsfInfo:     'wma',
