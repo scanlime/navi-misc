@@ -21,15 +21,22 @@
  *
  */
 
-#include <ImfRgbaFile.h>
-
 extern "C" {
 #include "histogram-imager.h"
+#include "config.h"
 }
 
+#ifdef HAVE_EXR
+#include <ImfRgbaFile.h>
 using namespace Imf;
+#endif
 
-
+/* FIXME:
+ * This whole file should really be conditionally compiled,
+ * but doing that we think we ran into an automake bug- so
+ * this works for now.
+ */
+#ifdef HAVE_EXR
 extern "C" void exr_save_image_file(HistogramImager *hi, const gchar* filename)
 {
   int width = hi->width;
@@ -140,5 +147,6 @@ extern "C" void exr_save_image_file(HistogramImager *hi, const gchar* filename)
 
   delete[] pixels;
 }
+#endif /* HAVE_EXR */
 
 /* The End */
