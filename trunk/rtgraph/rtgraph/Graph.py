@@ -106,4 +106,8 @@ class Graph(gtk.DrawingArea):
         """Hook to animate this graph, given the delta-t since the last call to integrate()"""
         pass
 
+    def getTweakControls(self):
+        """Returns a list of tweak controls for tweakable parts of this widget"""
+        return []
+
 ### The End ###

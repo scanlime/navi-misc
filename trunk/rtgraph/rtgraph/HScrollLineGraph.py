@@ -22,6 +22,7 @@ that scrolls horizontally as time progresses.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from __future__ import division
 from HScrollGraph import *
 
 __all__ = ["HScrollLineGraph"]
@@ -29,15 +30,25 @@ __all__ = ["HScrollLineGraph"]
 
 class HScrollLineGraph(HScrollGraph):
     """A horizontally scrolling real-time line plot.
-       Expects scalar values in the range [0,1].
+       Expects scalar values within the given range.
     """
-    def __init__(self, *args, **kwargs):
-        HScrollGraph.__init__(self, *args, **kwargs)
+    def __init__(self,
+                 size       = (384,128),
+                 channels   = [],
+                 gridSize   = 32,
+                 scrollRate = 80,
+                 range      = (0,1),
+                 ):
+        HScrollGraph.__init__(self, size, channels, gridSize, scrollRate)
+        self.range = range
         self.penVectors = {}
 
     def graphChannel(self, channel):
+        # Scale the channel value to match a range of (0,1)
+        scaled = (channel.getValue() - self.range[0]) / (self.range[1] - self.range[0])
+
         # Calculate a current pen position, always at the right side of the graph
-        penVector = (self.width-1, int((self.height-1) * (1-channel.getValue())))
+        penVector = (self.width-1, int((self.height-1) * (1-scaled)))
 
         # If we have both a new pen vector and an old pen vector, we can draw a line
         if self.penVectors.has_key(channel):
