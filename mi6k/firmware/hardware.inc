@@ -1,0 +1,24 @@
+;################################################################################
+;
+; hardware.inc - Definitions related to the hardware present in the MI6K
+;
+; This file is part of the MI6K project.
+; Micah Dowty <micah@picogui.org>
+;
+;###############################################################################
+
+;//****** Default port directions
+#define TRISA_VALUE		0xFF
+#define	TRISB_VALUE		0xFC
+#define	TRISC_VALUE		0xFF
+
+;//****** I/O bits
+#define LED_WHITE		PORTC,1
+#define LED_BLUE		PORTC,2
+#define VFD_POWER		PORTB,7
+#define IR_TX			PORTB,6
+#define EXT_POWER_SENSE	PORTB,1
+#define IR_RX			PORTB,0
+#define VFD_TX			PORTC,6
+
+;### The End ###

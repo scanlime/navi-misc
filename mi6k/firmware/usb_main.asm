@@ -38,6 +38,7 @@
 
 #include <p16c745.inc>
 #include "usb_defs.inc"
+#include "hardware.inc"
 
 	__CONFIG  _H4_OSC & _WDT_OFF & _PWRTE_OFF & _CP_OFF
 
@@ -213,138 +214,63 @@ ServiceUSB
 ;     
 ; ******************************************************************
 Main
-	movlw	.30		; delay 16 uS to wait for USB to reset
+	movlw	.30			; delay 16 uS to wait for USB to reset
 	movwf	W_save		; SIE before initializing registers
 	decfsz	W_save,f	; W_save is merely a convienient register
-	goto	$-1		; to use for the delay counter.
+	goto	$-1			; to use for the delay counter.
 
-	clrf	STATUS		; Bank0
-	clrf	PORTB
+	clrf	STATUS		; Clear outputs and initialize port directions
 	clrf	PORTA
-	banksel	TRISA		; Bank 1
-	clrf	TRISB		; Set PORTB as all outputs
-	movlw	0x10
-	movwf	TRISA		; Set RA4 as input
+	clrf	PORTB
+	clrf	PORTC
+	banksel	TRISA
+	movlw	TRISA_VALUE
+	movwf	TRISA
+	movlw	TRISB_VALUE
+	movwf	TRISB
+	movlw	TRISC_VALUE
+	movwf	TRISC
 
-	movlw	0x07
-	movwf	OPTION_REG	; Prescaler -> Timer0, (7 gives 1:256 scaling), 10.9mS
+	pagesel	InitUSB
+	call	InitUSB
 
-	pagesel	InitUSB		; These six lines of code show the appropriate
-	call	InitUSB		;  way to initialize the USB. First, initialize
-				;  the USB (wait for host enumeration) then wait
-				;  until the enumeration process to complete.
-
+	movlw	.155		; Set UART to 19200 baud 
+	banksel	SPBRG
+	movwf	SPBRG
+	banksel	TXSTA
+	bsf		TXSTA, BRGH
+	bsf		RCSTA, SPEN	; Enable serial port
+	bcf		TXSTA, SYNC	; Asynchronous mode
+	bsf		TXSTA, TXEN	; Enable transmitter
+		
 ;******************************************************************* Main Loop
-
-	bsf		PORTB,0		; Power LED on
-
-	banksel COUNTER
-	clrf	COUNTER
 
 MainLoop
 	bcf	INTCON,T0IF
 	pagesel ServiceUSB
 	call	ServiceUSB	; see if there are any USB tokens to process
 
-	pagesel MainLoop
-	banksel	INTCON
-	btfss	INTCON,T0IF
-	goto	MainLoop    ; Wait for a timer interrupt
-
 	ConfiguredUSB		; macro to check configuration status
 	pagesel MainLoop
 	btfss	STATUS,Z	; Z = 1 when configured
 	goto	MainLoop    ; Wait until we're configured
 
-	pagesel GetEP1		; Read endpoint 1, putting the received byte on PORTB
-	bankisel PORTB
-	movlw	PORTB
-	movwf	FSR
-	call	GetEP1
-
-	pagesel	PutEP1	    ; Send a 4-byte packet consisting of a counter followed by 01 02 03
-	banksel COUNTER
-	movf	COUNTER, w
-	banksel	BUFFER
-	movwf	BUFFER
-	movlw	1
-	movwf	BUFFER+1
-	movlw	2
-	movwf	BUFFER+2
-	movlw	3
-	movwf	BUFFER+3
-	bankisel BUFFER
-	movlw	BUFFER
-	movwf	FSR
-	movlw	4
-	call	PutEP1
-	btfsc	STATUS, C
-	incf	COUNTER, f
+	; Code to read and write endpoints goes here
 
 	goto	MainLoop
 
 ;******************************************************************* VFD functions
-; Note that the PIC16C745 has a built-in USART, but we don't use it
-; since it has no invert bit and we'd rather not have to use a real
-; serial line driver to communicate with the VFD.
 
-	; Send 'w' bytes to the VFD, starting at BUFFER
-VFD_SendBuffer:
-	banksel	ByteCount
-	movwf	ByteCount
-	bankisel BUFFER
-	movlw	BUFFER
-	movwf	FSR
-byteLoop:
-	pagesel	VFD_SendByte
-	movf	INDF, w
-	call	VFD_SendByte
-	incf	FSR, f
-	pagesel	byteLoop
-	decfsz	ByteCount, f
-	goto	byteLoop
-	return
-
-	; Macro to put a space on the VFD serial line
-VFD_SerialSpace	macro
-	bcf		PORTB, 7
-	endm
-
-	; Macro to put a mark on the VFD serial line
-VFD_SerialMark	macro
-	bsf		PORTB, 7
-	endm
-
-	; Delay for one bit length at 19200 baud and 6 MIPS
-	; This should waste 312 clock cycles.
-VFD_SerialDelay:
-	movlw	0x67
-	movwf	DelayTemp
-delayLoop:
-	decfsz	DelayTemp, f
-	goto	delayLoop
-	return
-
-	; Send a byte to the VFD from 'w'
+	; Send a byte to the VFD from 'w', return once it's done
 VFD_SendByte:
 	global	VFD_SendByte
-	bsf		PORTB,1			; Activity LED on
-	movwf	SerialByte		; Save input byte
-	movlw	8
-	movwf	BitCount
-	VFD_SerialMark			; Start bit
-	call	VFD_SerialDelay
-bitLoop:
-	rrf		SerialByte, f	; Shift out the LSB
-	VFD_SerialSpace			; Assume space
-	btfss	STATUS, C
-	VFD_SerialMark			; Set a mark if necessary
-	call	VFD_SerialDelay
-	decfsz	BitCount, f
-	goto	bitLoop
-	VFD_SerialSpace			; Stop bit
-	call	VFD_SerialDelay
-	bcf		PORTB,1			; Activity LED off
+	banksel	TXREG
+	movwf	TXREG
+	pagesel	sendLoop
+	banksel	PIR1
+sendLoop:
+	btfss	PIR1, TXIF
+	goto	sendLoop
 	return
 
 	end
