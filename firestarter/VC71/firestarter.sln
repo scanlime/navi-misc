@@ -10,6 +10,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "curllib", "..\common\curl\l
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "firestarterd", "..\server\VC71\firestarterd.vcproj", "{7F69D647-FFEB-429B-AA69-D25F787EBCA7}"
 	ProjectSection(ProjectDependencies) = postProject
+		{2C923CB2-4087-4556-8D87-7425B2F935D2} = {2C923CB2-4087-4556-8D87-7425B2F935D2}
 	EndProjectSection
 EndProject
 Global
