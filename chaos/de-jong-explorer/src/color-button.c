@@ -33,11 +33,13 @@ enum {
 };
 
 static void color_button_class_init(ColorButtonClass *klass);
-static void color_button_init(ColorButton *cb);
-static void color_button_activate(GtkWidget *widget, ColorButton *cb);
-static void set_sample_color(ColorButton *cb, GdkColor *c);
-static void color_changed(GtkWidget *widget, ColorButton *cb);
-static void color_response(GtkWidget *widget, gint response, ColorButton *cb);
+static void color_button_init(ColorButton *self);
+static void color_button_activate(GtkWidget *widget, ColorButton *self);
+static void color_changed(GtkWidget *widget, ColorButton *self);
+static void color_response(GtkWidget *widget, gint response, ColorButton *self);
+
+static void on_realize(GtkWidget *widget, ColorButton *self);
+static void update_color_sample(ColorButton *self);
 
 static guint color_button_signals[LAST_SIGNAL] = { 0 };
 
@@ -76,37 +78,65 @@ static void color_button_class_init(ColorButtonClass *klass) {
 						      G_TYPE_NONE, 0);
 }
 
-static void color_button_init(ColorButton *cb) {
-  cb->ignore_changes = FALSE;
+static void color_button_init(ColorButton *self) {
+  self->ignore_changes = FALSE;
 
-  g_signal_connect(G_OBJECT(cb), "clicked", G_CALLBACK(color_button_activate), (gpointer) cb);
+  g_signal_connect(G_OBJECT(self), "clicked", G_CALLBACK(color_button_activate), (gpointer) self);
 
-  cb->frame = gtk_frame_new(NULL);
-  gtk_frame_set_shadow_type(GTK_FRAME(cb->frame), GTK_SHADOW_IN);
-  gtk_container_add(GTK_CONTAINER(cb), GTK_WIDGET(cb->frame));
+  self->frame = gtk_frame_new(NULL);
+  gtk_frame_set_shadow_type(GTK_FRAME(self->frame), GTK_SHADOW_IN);
+  gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(self->frame));
 
-  cb->drawing_area = gtk_drawing_area_new();
-  gtk_drawing_area_size(GTK_DRAWING_AREA(cb->drawing_area), 16, 16);
-  gtk_container_add(GTK_CONTAINER(cb->frame), GTK_WIDGET(cb->drawing_area));
+  self->drawing_area = gtk_drawing_area_new();
+  gtk_drawing_area_size(GTK_DRAWING_AREA(self->drawing_area), 16, 16);
+  gtk_container_add(GTK_CONTAINER(self->frame), GTK_WIDGET(self->drawing_area));
+  g_signal_connect(self->drawing_area, "realize", G_CALLBACK(on_realize), self);
 }
 
-static void set_sample_color(ColorButton *cb, GdkColor *c) {
-  GtkRcStyle *rc_style;
+static void on_realize(GtkWidget *widget, ColorButton *self) {
+  update_color_sample(self);
+}
 
-  rc_style = gtk_rc_style_new();
-  rc_style->bg[GTK_STATE_NORMAL] = *c;
-  rc_style->color_flags[GTK_STATE_NORMAL] |= GTK_RC_BG;
-  gtk_widget_modify_style(GTK_WIDGET(cb->drawing_area), rc_style);
-  gtk_rc_style_unref(rc_style);
+static void update_color_sample(ColorButton *self) {
+  /* Composite together a pixbuf showing a sample of this color, with alpha,
+   * and set it as the drawing area's background pixmap.
+   */
+  GdkPixbuf *color, *composited;
+  GdkPixmap *pixmap;
+  const int tile_size = 16;
+
+  /* First make a 1x1 pixbuf of our color */
+  color = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8, 1, 1);
+  gdk_pixbuf_fill(color,
+		  ((self->color.red   >> 8) << 24) |
+		  ((self->color.green >> 8) << 16) |
+		  ((self->color.blue  >> 8) <<  8));
+
+  /* Blend this on top of a checkerboard pattern */
+  composited = gdk_pixbuf_composite_color_simple(color, tile_size*2, tile_size*2,
+						 GDK_INTERP_TILES, self->alpha >> 8,
+						 tile_size, 0xaaaaaa, 0x555555);
+
+  /* Make a pixbuf out of it */
+  pixmap = gdk_pixmap_new(self->drawing_area->window, tile_size*2, tile_size*2, -1);
+  gdk_pixbuf_render_to_drawable(composited, pixmap, self->drawing_area->style->fg_gc[GTK_STATE_NORMAL],
+				0, 0, 0, 0, tile_size*2, tile_size*2, GDK_RGB_DITHER_NORMAL, 0, 0);
+
+  /* Set it as a backing pixmap */
+  gdk_window_set_back_pixmap(self->drawing_area->window, pixmap, FALSE);
+  gdk_window_clear(self->drawing_area->window);
+
+  gdk_pixbuf_unref(color);
+  gdk_pixbuf_unref(composited);
+  gdk_pixmap_unref(pixmap);
 }
 
 GtkWidget* color_button_new_with_defaults(const char *title, GdkColor *default_color, guint16 default_alpha) {
-  ColorButton *cb = g_object_new(color_button_get_type(), NULL);
-  cb->title = g_strdup(title);
-  cb->color = *default_color;
-  cb->alpha = default_alpha;
-  set_sample_color(cb, default_color);
-  return GTK_WIDGET(cb);
+  ColorButton *self = g_object_new(color_button_get_type(), NULL);
+  self->title = g_strdup(title);
+  self->color = *default_color;
+  self->alpha = default_alpha;
+  return GTK_WIDGET(self);
 }
 
 GtkWidget* color_button_new(const char *title) {
@@ -114,71 +144,80 @@ GtkWidget* color_button_new(const char *title) {
   return color_button_new_with_defaults(title, &black, 0xFFFF);
 }
 
-static void color_button_activate(GtkWidget *widget, ColorButton *cb) {
+static void color_button_activate(GtkWidget *widget, ColorButton *self) {
   GtkWidget *colorsel;
 
   /* Only allow one dialog open at a time */
-  if (cb->dialog)
+  if (self->dialog)
     return;
 
-  cb->dialog = gtk_color_selection_dialog_new(cb->title);
-  colorsel = GTK_COLOR_SELECTION_DIALOG(cb->dialog)->colorsel;
+  self->dialog = gtk_color_selection_dialog_new(self->title);
+  colorsel = GTK_COLOR_SELECTION_DIALOG(self->dialog)->colorsel;
   gtk_color_selection_set_has_opacity_control(GTK_COLOR_SELECTION(colorsel), TRUE);
 
-  g_signal_connect(G_OBJECT(cb->dialog), "response", G_CALLBACK(color_response), (gpointer) cb);
+  g_signal_connect(G_OBJECT(self->dialog), "response", G_CALLBACK(color_response), (gpointer) self);
 
   gtk_color_selection_set_update_policy(GTK_COLOR_SELECTION(colorsel), GTK_UPDATE_CONTINUOUS);
-  g_signal_connect(G_OBJECT(colorsel), "color-changed", G_CALLBACK(color_changed), (gpointer) cb);
+  g_signal_connect(G_OBJECT(colorsel), "color-changed", G_CALLBACK(color_changed), (gpointer) self);
 
   /* Set the current and previous colors in the dialog */
-  cb->previous_color = cb->color;
-  cb->previous_alpha = cb->alpha;
-  cb->ignore_changes = TRUE;
-  gtk_color_selection_set_current_alpha(GTK_COLOR_SELECTION(colorsel), cb->alpha);
-  gtk_color_selection_set_previous_alpha(GTK_COLOR_SELECTION(colorsel), cb->previous_alpha);
-  gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel), &cb->color);
-  gtk_color_selection_set_previous_color(GTK_COLOR_SELECTION(colorsel), &cb->previous_color);
-  cb->ignore_changes = FALSE;
+  self->previous_color = self->color;
+  self->previous_alpha = self->alpha;
+  self->ignore_changes = TRUE;
+  gtk_color_selection_set_current_alpha(GTK_COLOR_SELECTION(colorsel), self->alpha);
+  gtk_color_selection_set_previous_alpha(GTK_COLOR_SELECTION(colorsel), self->previous_alpha);
+  gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel), &self->color);
+  gtk_color_selection_set_previous_color(GTK_COLOR_SELECTION(colorsel), &self->previous_color);
+  self->ignore_changes = FALSE;
 
   /* Is there a better way to hide the help button? */
-  gtk_widget_show_all(cb->dialog);
-  gtk_widget_hide(GTK_COLOR_SELECTION_DIALOG(cb->dialog)->help_button);
+  gtk_widget_show_all(self->dialog);
+  gtk_widget_hide(GTK_COLOR_SELECTION_DIALOG(self->dialog)->help_button);
 }
 
-static void color_response(GtkWidget *widget, gint response, ColorButton *cb) {
+static void color_response(GtkWidget *widget, gint response, ColorButton *self) {
   if (response == GTK_RESPONSE_CANCEL) {
-    color_button_set_color(cb, &cb->previous_color);
-    color_button_set_alpha(cb, cb->previous_alpha);
+    color_button_set_color(self, &self->previous_color);
+    color_button_set_alpha(self, self->previous_alpha);
   }
-  gtk_widget_destroy(cb->dialog);
-  cb->dialog = NULL;
+  gtk_widget_destroy(self->dialog);
+  self->dialog = NULL;
 }
 
-static void color_changed(GtkWidget *widget, ColorButton *cb) {
+static void color_changed(GtkWidget *widget, ColorButton *self) {
   GdkColor gcolor;
-  if (!cb->ignore_changes) {
+  if (!self->ignore_changes) {
     gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(widget), &gcolor);
-    cb->alpha = gtk_color_selection_get_current_alpha(GTK_COLOR_SELECTION(widget));
-    color_button_set_color(cb, &gcolor);
+    self->alpha = gtk_color_selection_get_current_alpha(GTK_COLOR_SELECTION(widget));
+    color_button_set_color(self, &gcolor);
   }
 }
 
-void color_button_set_color(ColorButton *cb, GdkColor *c) {
-  cb->color = *c;
-  set_sample_color(cb, &cb->color);
-  g_signal_emit(G_OBJECT(cb), color_button_signals[CHANGED_SIGNAL], 0);
+void color_button_get_color(ColorButton *self, GdkColor *c) {
+  *c = self->color;
 }
 
-void color_button_get_color(ColorButton *cb, GdkColor *c) {
-  *c = cb->color;
+guint16 color_button_get_alpha(ColorButton *self) {
+  return self->alpha;
 }
 
-void color_button_set_alpha(ColorButton *cb, guint16 alpha) {
-  cb->alpha = alpha;
+void color_button_set_color(ColorButton *self, GdkColor *c) {
+  self->color = *c;
+  update_color_sample(self);
+  g_signal_emit(G_OBJECT(self), color_button_signals[CHANGED_SIGNAL], 0);
 }
 
-guint16 color_button_get_alpha(ColorButton *cb) {
-  return cb->alpha;
+void color_button_set_alpha(ColorButton *self, guint16 alpha) {
+  self->alpha = alpha;
+  update_color_sample(self);
+  g_signal_emit(G_OBJECT(self), color_button_signals[CHANGED_SIGNAL], 0);
+}
+
+void color_button_set_color_and_alpha(ColorButton *self, GdkColor *c, guint16 alpha) {
+  self->alpha = alpha;
+  self->color = *c;
+  update_color_sample(self);
+  g_signal_emit(G_OBJECT(self), color_button_signals[CHANGED_SIGNAL], 0);
 }
 
 /* The End */
