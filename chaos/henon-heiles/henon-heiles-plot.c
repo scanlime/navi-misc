@@ -40,7 +40,7 @@ void py (float *point)
 
 long hhrun (float *point)
 {
-	float point1[5], point2[5];
+	float point1[5];
 	float *a, *b, *c;
 	float t = 0, tdelt = 0.001;
 	int xi, yi;
@@ -51,7 +51,7 @@ long hhrun (float *point)
 	memcpy (point1, point, 5 * sizeof (float));
 
 	a = point1;
-	b = point2;
+	b = point;
 
 	for (i = 0;; i++) {
 		rk (ode, a, b, 5, t, tdelt, scratch);
@@ -94,7 +94,7 @@ int main (int argc, char **argv)
 {
 	int i;
 	float point[5];
-	gchar *filename;
+	gchar *filename, *pstring;
 	long points;
 
 	g_type_init ();
@@ -120,6 +120,7 @@ int main (int argc, char **argv)
 	py (point);
 
 	histogram_imager_get_hist_size (hi, &w, &h);
+	pstring = g_strdup_printf ("%f-%f-%f-%f--%d.png", point[0], point[1], point[2], point[3]);
 
 	fprintf (stderr, "running integration for point (%f, %f, %f, %f)\n", point[0], point[1], point[2], point[3]);
 	while (1) {
@@ -131,7 +132,7 @@ int main (int argc, char **argv)
 		point[0] = -point[0];
 
 		histogram_imager_finish_plots (hi, &plot);
-		filename = g_strdup_printf ("%f-%f-%f-%f--%d.png", point[0], point[1], point[2], point[3], points);
+		filename = g_strdup_printf ("%s--%d.png", pstring, points);
 		histogram_imager_save_image_file (hi, filename);
 		g_free (filename);
 		g_print ("Completed %lld iterations, %d points plotted\n", iterations, points);
