@@ -43,6 +43,7 @@ struct _EWeatherSourceCCF {
 	EWeatherSource parent;
 
 	char *station;
+	char *buffer;
 	SourceFinished done;
 	GnomeVFSAsyncHandle *handle;
 };
