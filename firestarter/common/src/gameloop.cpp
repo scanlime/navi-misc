@@ -30,7 +30,7 @@
 #include "osfile.h"
 
 #include "input.h"
-#include "timer.h"
+#include "syncedClock.h"
 #include "prefs.h"
 #include "commandargs.h"
 #include "drawManager.h"
@@ -108,7 +108,7 @@ bool CBaseGameLoop::Run ( void )
   TextureManager::getSingleton().setDefaultNumMipMaps(5);
 
 	CInputManager::instance().Init(GetRenderWindow());
-	CTimer::instance().Init();
+	CSyncedClock::instance().Init();
 	
 	// set up the draw manager
 	CDrawManager::instance().Init();
@@ -232,7 +232,7 @@ bool CBaseGameLoop::Process ( void )
   bool bDone = false;
 
   CInputManager::instance().Process();
-	CTimer::instance().Update();
+  CSyncedClock::instance().Update();
 	
   if (!bDone)
     bDone = GameLoop();

@@ -30,6 +30,7 @@ CSyncedClock::CSyncedClock():timer(CTimer::instance())
 {
 	/*
 	float					serverOffset;
+	float					lastPing;
 	std::map<int,float>		syncPingMap;
 	int						sentPings;
 	CTimer					&timer;		
@@ -37,6 +38,7 @@ CSyncedClock::CSyncedClock():timer(CTimer::instance())
 
 	sentPings = 0;
 	serverOffset = 0;
+	lastPing = 0;
 }
 
 CSyncedClock::~CSyncedClock()
@@ -61,7 +63,7 @@ float CSyncedClock::GetTime()
 
 float CSyncedClock::GetFrameTime()
 {
-	return (float)(timer.GetFrameTime()+serverOffset);
+	return (float)timer.GetFrameTime();
 }
 
 int CSyncedClock::GetNewSyncPing ( void )
@@ -73,7 +75,10 @@ int CSyncedClock::GetNewSyncPing ( void )
 
 void CSyncedClock::ReturnSyncPing ( int ping, float value )
 {
-	float now = timer.GetTime();
+	if (value == 0)
+		return;
+
+	float now = (float)timer.GetTime();
 	std::map<int,float>::iterator itr = syncPingMap.find(ping);
 	if (itr == syncPingMap.end())
 		return;
@@ -82,6 +87,7 @@ void CSyncedClock::ReturnSyncPing ( int ping, float value )
 	float serverNow = value + delta;
 
 	serverOffset = serverNow - now;
+	lastPing = delta;
 
 	// clear the ping
 	syncPingMap.erase(itr);
@@ -91,4 +97,10 @@ float CSyncedClock::GetServerPingLoss ( void )
 {
 	return ((float)(syncPingMap.size())-1.0f)/(float)sentPings;
 }
+
+float CSyncedClock::GetLastPingTime ( void )
+{
+	return lastPing;
+}
+
 

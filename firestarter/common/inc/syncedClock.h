@@ -46,8 +46,11 @@ public:
 	void		ReturnSyncPing ( int ping, float value );
 
 	float		GetServerPingLoss ( void );
+	float		GetLastPingTime ( void );
+
 private:
 	float					serverOffset;
+	float					lastPing;
 	std::map<int,float>		syncPingMap;
 	int						sentPings;
 	CTimer					&timer;
