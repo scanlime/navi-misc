@@ -23,7 +23,7 @@ and selecting items.
 #
 
 from BZEngine.UI import Sequencer, Layout, HUD, Input, Viewport
-from BZEngine import Event
+from BZEngine import Event, Animated
 from Wasabi import Icon, IR
 from math import *
 import pygame
@@ -42,14 +42,20 @@ class Item:
 
 
 class PageItem(Item):
-    """A menu item that, upon selection, pushes a specified page onto the current book"""
+    """A menu item that, upon selection, pushes one or more pages onto the current book.
+       'page' can be a single page, or a list of pages.
+       """
     def __init__(self, icon, page):
         self.page = page
         Item.__init__(self, icon)
 
     def onSelected(self, menu):
         self.menu = menu
-        menu.book.pushBack(self.page)
+        if type(self.page) == type(()) or type(self.page) == type([]):
+            for page in self.page:
+                menu.book.pushBack(page)
+        else:
+            menu.book.pushBack(self.page)
 
 
 class Menu(Sequencer.Page):
@@ -227,5 +233,43 @@ def userPageInterrupter(page):
             ]
         return Sequencer.PageInterrupter(events, page)(book)
     return f
+
+
+class LoaderPage(Sequencer.Page):
+    """A page that displays a 'Loading' message while performing
+       some time-consuming function.
+       """
+    def __init__(self, book):
+        Sequencer.Page.__init__(self, book)
+
+        # We need the viewport to clear our background to black
+        self.viewport.mode = Viewport.GL.ClearedMode()
+
+        self.message = HUD.Text(self.viewport.region(self.viewport.rect),
+                              "Loading...",
+                              color     = (1,1,1,1),
+                              fontSize  = 50,
+                              alignment = (0.5, 0.5))
+
+        self.frameCounter = 0
+        self.viewport.onSetupFrame.observe(self.setupFrame)
+
+    def setupFrame(self):
+        self.frameCounter += 1
+
+        # Actually do the loading after one complete frame, so our message is displayed
+        if self.frameCounter == 2:
+            self.run()
+
+            # Absorb the gigantic bubble we've just put in the TimeMaster so that it doesn't
+            # cause animations the next frame to jump wildly.
+            Animated.currentTimeMaster.jump()
+
+            # Terminate this page
+            self.onFinish()
+
+    def run(self):
+        """Hook for subclasses to add the actual loading functionality"""
+        pass
 
 ### The End ###
