@@ -20,11 +20,18 @@
  */
 
 #include <mail/em-event.h>
+#include <mail/em-config.h>
+#include <gtk/gtk.h>
+#include <libgnome/gnome-i18n.h>
 #include "notification-area-icon.h"
 
-int  e_plugin_lib_enable (EPluginLib *ep, int enable);
-void new_mail (EPlugin *ep, EMEventTargetFolder *target);
-void reading_message (EPlugin *ep, EMEventTargetMessage *message);
+int        e_plugin_lib_enable (EPluginLib *ep, int enable);
+void       new_mail (EPlugin *ep, EMEventTargetFolder *target);
+void       reading_message (EPlugin *ep, EMEventTargetMessage *message);
+GtkWidget *mnotify_notification_area (EPlugin *epl, struct _EConfigHookItemFactoryData *data);
+GtkWidget *mnotify_beep (EPlugin *epl, struct _EConfigHookItemFactoryData *data);
+GtkWidget *mnotify_sound (EPlugin *epl, struct _EConfigHookItemFactoryData *data);
+GtkWidget *mnotify_sound_prefs (EPlugin *epl, struct _EConfigHookItemFactoryData *data);
 
 int
 e_plugin_lib_enable (EPluginLib *ep, int enable)
@@ -46,4 +53,77 @@ reading_message (EPlugin *ep, EMEventTargetMessage *message)
 {
 	g_print ("reading message...\n");
 	ni_set_status (NI_STATUS_NORMAL);
+}
+
+GtkWidget *
+mnotify_notification_area (EPlugin *epl, struct _EConfigHookItemFactoryData *data)
+{
+	GtkWidget *check;
+
+	if (data->old)
+		return data->old;
+
+	check = gtk_check_button_new_with_mnemonic (_("_Show an icon in the notification area"));
+
+	gtk_box_pack_start (GTK_BOX (data->parent), check, FALSE, FALSE, 0);
+	gtk_widget_show (check);
+
+	return check;
+}
+
+GtkWidget *
+mnotify_beep (EPlugin *epl, struct _EConfigHookItemFactoryData *data)
+{
+	GtkWidget *check;
+
+	if (data->old)
+		return data->old;
+
+	check = gtk_check_button_new_with_mnemonic (_("Beep w_hen new mail arrives"));
+
+	gtk_box_pack_start (GTK_BOX (data->parent), check, FALSE, FALSE, 0);
+	gtk_widget_show (check);
+
+	return check;
+}
+
+GtkWidget *
+mnotify_sound (EPlugin *epl, struct _EConfigHookItemFactoryData *data)
+{
+	GtkWidget *check;
+
+	if (data->old)
+		return data->old;
+
+	check = gtk_check_button_new_with_mnemonic (_("Play a sound file when new mail _arrives"));
+
+	gtk_box_pack_start (GTK_BOX (data->parent), check, FALSE, FALSE, 0);
+	gtk_widget_show (check);
+
+	return check;
+}
+
+GtkWidget *
+mnotify_sound_prefs (EPlugin *epl, struct _EConfigHookItemFactoryData *data)
+{
+	GtkWidget *hbox, *label, *entry, *browse, *play;
+
+	if (data->old)
+		return data->old;
+
+	hbox = gtk_hbox_new (FALSE, 6);
+	label = gtk_label_new_with_mnemonic (_("Specify _filename:"));
+	entry = gtk_entry_new ();
+	browse = gtk_button_new_with_mnemonic (_("_Browse..."));
+	play = gtk_button_new_with_mnemonic (_("_Play"));
+	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), entry, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), browse, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), play, FALSE, TRUE, 0);
+	gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
+
+	gtk_box_pack_start (GTK_BOX (data->parent), hbox, FALSE, FALSE, 0);
+	gtk_widget_show_all (hbox);
+
+	return hbox;
 }

@@ -1,10 +1,14 @@
 INCLUDES =				\
 	-I$(top_srcdir)			\
-	-I$(EVOLUTION_MAIL_CFLAGS)
+	-I$(EVOLUTION_MAIL_CFLAGS)	\
+	-DPLUGINDIR="\"$(plugindir)\""
 
 @EVO_PLUGIN_RULE@
 
-plugin_DATA = org-gnome-mail-notification.eplug
+plugin_DATA =	\
+	org-gnome-mail-notification.eplug	\
+	mail-notification.glade
+
 plugin_LTLIBRARIES = liborg-gnome-mail-notification.la
 
 liborg_gnome_mail_notification_la_SOURCES =	\
@@ -16,4 +20,6 @@ liborg_gnome_mail_notification_la_SOURCES =	\
 
 liborg_gnome_mail_notification_la_LDFLAGS = -module -avoid-version
 
-EXTRA_DIST = org-gnome-mail-notification.eplug.in
+EXTRA_DIST =	\
+	org-gnome-mail-notification.eplug.in	\
+	mail-notification.glade
