@@ -43,6 +43,7 @@
 	global	back_buffer
 
 	extern	temp
+	extern	temp2
 
 bank0	udata
 
@@ -72,6 +73,8 @@ remaining_col_width	res 2	; Remaining width in this column
 mode_flags		res	1	; Holds the mode flags, settable by the USB host. These are defined in rwand_protocol.h
 display_flags	res	1
 delta_t			res	2	; 16-bit time delta, in cycles, since the last poll
+tmr1_prev		res	2	; Previous value of TMR1, for calculating delta_t
+tmr1_cur		res	2	; TMR1 value captured at the beginning of the polling loop
 
 #define FLAG_ASENSOR_TEMP 	display_flags, 0	; The previous sample recorded from the angle sensor
 #define FLAG_FLIP_REQUEST 	display_flags, 1	; At the beginning of the next display scan, copy the backbuffer
@@ -80,7 +83,8 @@ delta_t			res	2	; 16-bit time delta, in cycles, since the last poll
 #define FLAG_DISPLAY_REV	display_flags, 3	; Set if we're currently traversing video memory backwards
 #define FLAG_FWD_TRIGGERED	display_flags, 4	; Keep track of whether we've done a forward scan yet this period
 #define FLAG_REV_TRIGGERED	display_flags, 5	; Keep track of whether we've done a reverse scan yet this period
-	
+#define FLAG_NEXT_COLUMN	display_flags, 6	; Temporary flag used in deciding whether to go to the next column	
+
 bank1	udata
 front_buffer	res	NUM_COLUMNS
 bank2	udata
@@ -118,13 +122,6 @@ display_init
 	; Called frequently from the main loop
 display_poll
 
-	; Give up and try back later if we're polling too often, to keep our
-	; cycle-chopping below from losing us too much timer precision.
-	banksel	TMR1H
-	movf	TMR1H, w
-	btfsc	STATUS, Z
-	return
-
 	pagesel	display_keep_time		; Must be done first, so we have valid angle predictions below
 	call	display_keep_time
 
@@ -153,17 +150,39 @@ display_request_flip
 	; The period and phase of this wand predictor is corrected by the synchronization code.
 display_keep_time
 
-	; Calculate delta_t while resetting the timer. This loses about 8 cycles,
-	; but that's still within the precision that we're cutting off anyway.
-	banksel	T1CON
-	bcf		T1CON, TMR1ON		; Turn the timer off, so we don't have a moving target
-	movf	TMR1L, w			; Copy its value
+	; Capture the current value of TMR1, safe from overflows. This uses the method
+	; described in example 12-2 of the PICmicro mid-range reference manual.
+	; This procedure should be performed with interrupts off- we have interrupts on,
+	; but they shouldn't be in use now and nothing catastrophic will happen if they are.
+	banksel	TMR1H
+	pagesel	try_tmr1_again
+try_tmr1_again
+	movf	TMR1H, w			; Read the high byte followed by the low byte
+	movwf	tmr1_cur+1
+	movf	TMR1L, w
+	movwf	tmr1_cur
+	movf	TMR1H, w			; Read the high byte again, in case it rolled over.
+	subwf	tmr1_cur+1, w
+	btfsc	STATUS, Z
+	goto	try_tmr1_again		; It rolled over, try again
+	
+	movf	tmr1_cur, w			; Copy to delta_t
 	movwf	delta_t
-	movf	TMR1H, w
+	movf	tmr1_cur+1, w
 	movwf	delta_t+1
-	clrf	TMR1H				; Reset the timer
-	clrf	TMR1L
-	bsf		T1CON, TMR1ON		; Turn the timer back on
+
+	movf	tmr1_prev, w		; Subtract tmr1_prev from delta_t
+	subwf	delta_t, f
+	btfss	STATUS, C
+	decf	delta_t+1, f
+	movf	tmr1_prev+1, w
+	subwf	delta_t+1, f
+
+	movf	tmr1_cur, w			; Copy to tmr1_prev
+	movwf	tmr1_prev
+	movf	tmr1_cur+1, w
+	movwf	tmr1_prev+1
+
 	rrf		delta_t+1, f		; Divide by 2, to get a final 16:1 prescale
 	rrf		delta_t, f
 	bcf		delta_t+1, 7
@@ -205,6 +224,8 @@ phase_rollover
 
 	bcf		FLAG_FWD_TRIGGERED	; Clear status flags used last period
 	bcf		FLAG_REV_TRIGGERED
+	bcf		FLAG_DISPLAY_FWD
+	bcf		FLAG_DISPLAY_REV
 
 no_phase_rollover
 	return
@@ -247,6 +268,7 @@ start_forward_scan
 	pagesel	start_scan_common			; Do the things common to both types of scans
 	call	start_scan_common
 	bsf		FLAG_DISPLAY_FWD			; Set flags
+	bcf		FLAG_DISPLAY_REV
 	bsf		FLAG_FWD_TRIGGERED
 	banksel	current_column
 	clrf	current_column				; Start at the beginning
@@ -275,6 +297,7 @@ start_reverse_scan
 	pagesel	start_scan_common			; Do the things common to both types of scans
 	call	start_scan_common
 	bsf		FLAG_DISPLAY_REV			; Set flags
+	bcf		FLAG_DISPLAY_FWD
 	bsf		FLAG_REV_TRIGGERED
 	movlw	NUM_COLUMNS-1				; Start at the end
 	banksel	current_column
@@ -319,6 +342,7 @@ scan_in_progress
 										; so we might as well do that here.
 
 	; Subtract our delta-t from the current column width. If we borrow, it's time for a new column.
+	bcf		FLAG_NEXT_COLUMN
 	movf	delta_t, w					; Subtract the low byte
 	subwf	remaining_col_width, f
 	pagesel	no_colwidth_borrow
@@ -327,31 +351,28 @@ scan_in_progress
 	decf	remaining_col_width+1, f	; Decrement the high byte, for borrowative purposes...
 	movf	remaining_col_width+1, w	; Compare it to 255 to see if we just caused the whole thing to roll over
 	sublw	0xFF
-	pagesel	next_column
 	btfsc	STATUS, Z
-	goto	next_column					; Yep, it rolled over. Next column.
+	bsf		FLAG_NEXT_COLUMN			; Yep, it rolled over. Next column.
 no_colwidth_borrow
 	movf	delta_t+1, w				; Subtract the high byte
 	subwf	remaining_col_width+1, f
-	pagesel	next_column
 	btfss	STATUS, C
-	goto	next_column					; C=0, B=1
+	bsf		FLAG_NEXT_COLUMN			; C=0, B=1
 
-	; Looks like we're done for now...
+	btfss	FLAG_NEXT_COLUMN			; Return if we're not moving to the next column
 	return
 	
-
-	; This is invoked when the current column runs out of time. Switch to the next column.
-next_column
 	btfsc	FLAG_DISPLAY_FWD			; Increment/decrement the current column
 	incf	current_column, f
 	btfsc	FLAG_DISPLAY_REV
 	decf	current_column, f
 
-	movf	display_column_width, w		; Give this column all its allocated width
-	movwf	remaining_col_width
+	movf	display_column_width, w		; Give this column all its allocated width.
+	addwf	remaining_col_width, f		; Note that this carries over the error from the last column.
+	btfsc	STATUS, C
+	incf	remaining_col_width+1, f
 	movf	display_column_width+1, w
-	movwf	remaining_col_width+1
+	addwf	remaining_col_width+1, f
 	return
 
 
@@ -362,10 +383,16 @@ next_column
 	; NOTE: This uses current_column for a blit if it needs to, so this must be called
 	;       before that is initialized.
 start_scan_common
-	movf	display_column_width, w		; Give this column all its allocated width
-	movwf	remaining_col_width			; FIXME: I'm not sure yet if this will be noticeable,
-	movf	display_column_width+1, w	;        but the first column should actually get more width
-	movwf	remaining_col_width+1		;        than this for nonzero delta_t.
+	movf	display_column_width, w		; Give this column all its allocated width.
+	movwf	remaining_col_width			; We add the current delta_t, since it will be subtracted later.
+	movf	display_column_width+1, w
+	movwf	remaining_col_width+1
+	movf	delta_t, w
+	addwf	remaining_col_width, f
+	btfsc	STATUS, C
+	incf	remaining_col_width+1, f
+	movf	delta_t+1, w
+	addwf	remaining_col_width+1, f
 
 	btfss	FLAG_FLIP_REQUEST			; We're done if we haven't had a page flip request
 	return
