@@ -27,5 +27,6 @@ for the PIC's peripherals.
 #
 
 from Device import *
+from Analog import *
 
 ### The End ###
