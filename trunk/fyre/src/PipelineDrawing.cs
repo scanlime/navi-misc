@@ -42,8 +42,13 @@ namespace Fyre
 		Gdk.Rectangle		drawing_extents;
 		Gdk.Rectangle		layout_extents;
 
+		Gdk.Cursor		hand_cursor;
+		Gdk.Cursor		pointer_cursor;
+
+		Gtk.EventBox		event_box;
+
 		public
-		PipelineDrawing () : base ()
+		PipelineDrawing (Glade.XML xml) : base ()
 		{
 			drawing_extents = new Gdk.Rectangle ();
 			layout_extents = new Gdk.Rectangle ();
@@ -56,6 +61,17 @@ namespace Fyre
 
 			drawing_extents.X = 0;
 			drawing_extents.Y = 0;
+
+			// Create the various cursors we use
+			hand_cursor = new Gdk.Cursor (Gdk.CursorType.Hand1);
+			pointer_cursor = new Gdk.Cursor (Gdk.CursorType.Arrow);
+
+			// Get a handle to our event box
+			event_box = (Gtk.EventBox) xml.GetWidget ("pipeline_window");
+			event_box.ButtonPressEvent   += new Gtk.ButtonPressEventHandler   (ButtonPressHandler);
+			event_box.ButtonReleaseEvent += new Gtk.ButtonReleaseEventHandler (ButtonReleaseHandler);
+			event_box.MotionNotifyEvent  += new Gtk.MotionNotifyEventHandler  (MotionNotifyHandler);
+			event_box.LeaveNotifyEvent   += new Gtk.LeaveNotifyEventHandler   (LeaveNotifyHandler);
 
 			Show ();
 		}
@@ -111,6 +127,29 @@ namespace Fyre
 
 			this.hadj = hadj;
 			this.vadj = vadj;
+		}
+
+		void
+		ButtonPressHandler (object o, Gtk.ButtonPressEventArgs args)
+		{
+			GdkWindow.Cursor = hand_cursor;
+		}
+
+		void
+		ButtonReleaseHandler (object o, Gtk.ButtonReleaseEventArgs args)
+		{
+			GdkWindow.Cursor = hand_cursor;
+		}
+
+		void
+		MotionNotifyHandler (object o, Gtk.MotionNotifyEventArgs args)
+		{
+		}
+
+		void
+		LeaveNotifyHandler (object o, Gtk.LeaveNotifyEventArgs args)
+		{
+			GdkWindow.Cursor = pointer_cursor;
 		}
 	}
 
