@@ -101,6 +101,9 @@ static void topic_label_set_text_internal   (TopicLabel       *label,
 static void topic_label_select_region_index (TopicLabel       *label,
                                              gint              anchor_index,
                                              gint              end_index);
+static void topic_label_draw_cursor         (TopicLabel       *label,
+                                             gint              xoffset,
+                                             gint              yoffset);
 static void get_text_callback               (GtkClipboard     *clipboard,
                                              GtkSelectionData *selection_data,
                                              guint             info,
@@ -110,6 +113,12 @@ static void clear_text_callback             (GtkClipboard     *clipboard,
 static void get_layout_location             (TopicLabel       *label,
                                              gint             *xp,
                                              gint             *yp);
+static void draw_insertion_cursor           (TopicLabel       *label,
+                                             GdkRectangle     *cursor_location,
+                                             gboolean          is_primary,
+                                             PangoDirection    direction,
+                                             gboolean          draw_arrow);
+static PangoDirection get_cursor_direction  (TopicLabel       *label);
 
 static GtkMiscClass *parent_class = NULL;
 
@@ -296,7 +305,36 @@ topic_label_expose (GtkWidget *widget, GdkEventExpose  *event)
     get_layout_location (label, &x, &y);
     gtk_paint_layout (widget->style, widget->window, GTK_WIDGET_STATE (widget), FALSE, &event->area, widget, "label", x, y, label->layout);
 
-    /* ... */
+    if (label->select_info && (label->select_info->selection_anchor != label->select_info->selection_end))
+    {
+      gint range[2];
+      GdkRegion *clip;
+      GtkStateType state;
+
+      range[0] = label->select_info->selection_anchor;
+      range[1] = label->select_info->selection_end;
+
+      if (range[0] > range[1])
+      {
+      }
+
+      clip = gdk_pango_layout_get_clip_region (label->layout, x, y, range, 1);
+
+      gdk_gc_set_clip_region (widget->style->black_gc, clip);
+
+      state = GTK_STATE_SELECTED;
+      if (!GTK_WIDGET_HAS_FOCUS (widget))
+        state = GTK_STATE_ACTIVE;
+
+      gdk_draw_layout_with_colors (widget->window, widget->style->black_gc, x, y, label->layout, &widget->style->text[state], &widget->style->base[state]);
+
+      gdk_gc_set_clip_region (widget->style->black_gc, NULL);
+      gdk_region_destroy (clip);
+    }
+    else if (label->select_info && GTK_WIDGET_HAS_FOCUS (widget))
+    {
+      topic_label_draw_cursor (label, x, y);
+    }
   }
   return FALSE;
 }
@@ -319,10 +357,8 @@ topic_label_unrealize (GtkWidget *widget)
   TopicLabel *label;
   label = TOPIC_LABEL (widget);
 
-  /*
   if (label->select_info)
     topic_label_destroy_window (label);
-  */
 
   (* GTK_WIDGET_CLASS (parent_class)->unrealize) (widget);
 }
@@ -374,11 +410,30 @@ topic_label_move_cursor (TopicLabel *label, GtkMovementStep step, gint count, gb
 static void
 topic_label_copy_clipboard (TopicLabel *label)
 {
+  if (label->text && label->select_info)
+  {
+    gint start, end;
+    gint len;
+
+    start = MIN (label->select_info->selection_anchor, label->select_info->selection_end);
+    end   = MAX (label->select_info->selection_anchor, label->select_info->selection_end);
+
+    len = strlen (label->text);
+
+    if (end > len)
+      end = len;
+    if (start > len)
+      start = len;
+
+    if (start != end)
+      gtk_clipboard_set_text (gtk_widget_get_clipboard (GTK_WIDGET (label), GDK_SELECTION_CLIPBOARD), label->text + start, end - start);
+  }
 }
 
 static void
 topic_label_select_all (TopicLabel *label)
 {
+  topic_label_select_region_index (label, 0, strlen (label->text));
 }
 
 static void
@@ -546,6 +601,75 @@ topic_label_select_region_index (TopicLabel *label, gint anchor_index, gint end_
 }
 
 static void
+topic_label_draw_cursor (TopicLabel *label, gint xoffset, gint yoffset)
+{
+  if (label->select_info == NULL)
+    return;
+
+  if (GTK_WIDGET_DRAWABLE (label))
+  {
+    GtkWidget *widget = GTK_WIDGET (label);
+
+    PangoDirection keymap_direction;
+    PangoDirection cursor_direction;
+    PangoRectangle strong_pos, weak_pos;
+    gboolean split_cursor;
+    PangoRectangle *cursor1 = NULL;
+    PangoRectangle *cursor2 = NULL;
+    GdkRectangle cursor_location;
+    PangoDirection dir1 = PANGO_DIRECTION_NEUTRAL;
+    PangoDirection dir2 = PANGO_DIRECTION_NEUTRAL;
+
+    keymap_direction = gdk_keymap_get_direction (gdk_keymap_get_for_display (gtk_widget_get_display (widget)));
+    cursor_direction = get_cursor_direction (label);
+
+    topic_label_ensure_layout (label);
+
+    pango_layout_get_cursor_pos (label->layout, label->select_info->selection_end, &strong_pos, &weak_pos);
+
+    g_object_get (gtk_widget_get_settings (widget), "gtk-split-cursor", &split_cursor, NULL);
+
+    dir1 = cursor_direction;
+
+    if (split_cursor)
+    {
+      cursor1 = &strong_pos;
+
+      if (strong_pos.x != weak_pos.x || strong_pos.y != weak_pos.y)
+      {
+        dir2 = (cursor_direction == PANGO_DIRECTION_LTR) ? PANGO_DIRECTION_RTL : PANGO_DIRECTION_LTR;
+        cursor2 = &weak_pos;
+      }
+    }
+    else
+    {
+      if (keymap_direction == cursor_direction)
+        cursor1 = &strong_pos;
+      else
+        cursor1 = &weak_pos;
+    }
+
+    cursor_location.x = xoffset + PANGO_PIXELS (cursor1->x);
+    cursor_location.y = yoffset + PANGO_PIXELS (cursor1->y);
+    cursor_location.width = 0;
+    cursor_location.height = PANGO_PIXELS (cursor1->height);
+
+    draw_insertion_cursor (label, &cursor_location, TRUE, dir1, dir2 != PANGO_DIRECTION_NEUTRAL);
+
+    if (dir2 != PANGO_DIRECTION_NEUTRAL)
+    {
+      cursor_location.x = xoffset + PANGO_PIXELS (cursor2->x);
+      cursor_location.y = yoffset + PANGO_PIXELS (cursor2->y);
+      cursor_location.width = 0;
+      cursor_location.height = PANGO_PIXELS (cursor2->height);
+
+      draw_insertion_cursor (label, &cursor_location, FALSE, dir2, TRUE);
+    }
+  }
+}
+
+
+static void
 get_text_callback (GtkClipboard *clipboard, GtkSelectionData *selection_data, guint info, gpointer user_data_or_owner)
 {
   TopicLabel *label;
@@ -614,6 +738,47 @@ get_layout_location (TopicLabel *label, gint *xp, gint *yp)
     *xp = x;
   if (yp)
     *yp = y;
+}
+
+static void
+draw_insertion_cursor (TopicLabel *label, GdkRectangle *cursor_location, gboolean is_primary, PangoDirection direction, gboolean draw_arrow)
+{
+  GtkWidget *widget = GTK_WIDGET (label);
+  GtkTextDirection text_dir;
+
+  if (direction == PANGO_DIRECTION_LTR)
+    text_dir = GTK_TEXT_DIR_LTR;
+  else
+    text_dir = GTK_TEXT_DIR_RTL;
+
+  gtk_draw_insertion_cursor (widget, widget->window, NULL, cursor_location, is_primary, text_dir, draw_arrow);
+}
+
+static PangoDirection
+get_cursor_direction (TopicLabel *label)
+{
+  GSList *l;
+
+  g_assert (label->select_info);
+
+  topic_label_ensure_layout (label);
+
+  for (l = pango_layout_get_lines (label->layout); l; l = l->next)
+  {
+    PangoLayoutLine *line = l->data;
+
+    /* If label->select_info->selection_end is at the very end of
+     * the line, we don't know if the cursor is on this line or
+     * the next without looking ahead at the next line. (End
+     * of paragraph is different from line break.) But it's
+     * definitely in this paragraph, which is good enough
+     * to figure out the resolved direction.
+     */
+    if (line->start_index + line->length >= label->select_info->selection_end)
+      return line->resolved_dir;
+  }
+
+  return PANGO_DIRECTION_LTR;
 }
 
 GtkWidget*
