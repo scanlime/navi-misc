@@ -13,7 +13,7 @@ class CriticalDecoderTest(RcpodTestCase):
 
     def testPing(self):
         """verify that a ping packet is echoed correctly"""
-        self.assertEqual(self.mnetPacket([1]), [1])
+        self.assertEqual(self.rcpod.mnetSend([1]), [1])
 
 
 if __name__ == '__main__':
