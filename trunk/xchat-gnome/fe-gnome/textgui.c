@@ -24,6 +24,7 @@
 #include "preferences.h"
 #include "../common/text.h"
 #include "../common/xchatc.h"
+#include "../common/fe.h"
 #include <libgnome/gnome-url.h> /* gnome_url_show */
 #include <gconf/gconf-client.h>
 
