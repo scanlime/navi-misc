@@ -246,9 +246,14 @@ static void server_delete(struct server *self)
   if (self->host) {
     free(self->host);
   }
+
   if (self->tcp_file) {
     fclose(self->tcp_file);
   }
+  else if (self->tcp_fd) {
+    close(self->tcp_fd);
+  }
+
   free(self);
 }
 
