@@ -25,7 +25,7 @@ void initialize_pages_list() {
 	GtkCellRenderer *icon_renderer, *text_renderer;
 	GtkTreeViewColumn *icon_column, *text_column;
 	GtkTreeSelection *select;
-	GdkPixbuf *file_transfers, *irc_prefs, *servers;
+	GdkPixbuf *file_transfers, *irc_prefs, *servers, *plugins;
 
 	options_list = glade_xml_get_widget(gui.xml, "settings page list");
 
@@ -52,6 +52,9 @@ void initialize_pages_list() {
 	servers = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/servers.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
 	gtk_list_store_append(store, &iter);
 	gtk_list_store_set(store, &iter, 0, servers, 1, "Networks", 2, 2, -1);
+	plugins = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/plugin-manager.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
+	gtk_list_store_append(store, &iter);
+	gtk_list_store_set(store, &iter, 0, plugins, 1, "Scripts and Plugins", 2, 3, -1);
 }
 
 void initialize_irc_preferences_page() {

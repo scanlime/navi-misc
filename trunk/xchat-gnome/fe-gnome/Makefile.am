@@ -9,6 +9,8 @@ mmx_cmod_S = 				\
 endif
 
 EXTRA_DIST =				\
+	about.h				\
+	about.c				\
 	connect_dialog.h		\
 	connect_dialog.c		\
 	fe-gnome.c			\
@@ -25,6 +27,8 @@ EXTRA_DIST =				\
 
 xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
 xchat_gnome_SOURCES =			\
+	about.h				\
+	about.c				\
 	connect_dialog.h		\
 	connect_dialog.c		\
 	fe-gnome.c			\
