@@ -25,7 +25,6 @@ particle systems, like spring and mass simulations.
 from __future__ import division
 from Numeric import *
 from BZEngine.Geometry import *
-from BZEngine.World import Scale
 from BZEngine import Noise
 import random
 
