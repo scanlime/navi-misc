@@ -34,39 +34,70 @@
 	extern	temp
 	extern	Send_0Len_pkt
 
+	extern	sensor_sampler
+
 bank1	udata
+
+sensor_params	res	8
 
 	code
 
-; *********************************************************************
-; Vendor Specific calls
-; control is transferred here when bmRequestType bits 5 & 6 = 10 indicating
-; the request is a vendor specific request.  This function then would
-; interpret the bRequest field to determine what action is required.
-; The end of each vendor specific command should be terminated with a
-; return.
-; *********************************************************************
-CheckVendor
+;********************************************** Vendor-specific request table
+
+defineRequest	macro	id,	handler
 	movf	BufferData+bRequest,w
-	xorlw	EFS_CTRL_SET_FREQUENCY
-	pagesel	SetFrequencyRequest
+	xorlw	id
+	pagesel	handler
 	btfsc	STATUS,Z
-	goto	SetFrequencyRequest
+	goto	handler
+	endm
+
+CheckVendor
+	defineRequest	EFS_CTRL_SET_PARAM_BYTE,	request_setParamByte
+	defineRequest	EFS_CTRL_TAKE_READING,		request_takeReading
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
 
-	;********************* Request to set one channel's modulation frequency
-	; Channel number in wIndex, PR2 value in wValue.
-SetFrequencyRequest
-	banksel BufferData
-	movf	BufferData+wValue, w
-	banksel	PR2
-	movwf	PR2
+;********************************************** Request handlers
 
+request_setParamByte
+	; Point IRP:FSR at the applicable sensor_params byte (no bounds checking yet)
+	banksel BufferData
+	movf	BufferData+wIndex, w
+	bankisel sensor_params
+	addlw	sensor_params
+	movwf	FSR
+
+	; Copy in the byte from wValue
+	movf	BufferData+wValue, w
+	movwf	INDF
+	
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt
 	call	Send_0Len_pkt
+	return
+
+
+request_takeReading
+	pagesel	sensor_sampler
+	call	sensor_sampler
+
+	movwf   temp
+
+	banksel BD0IAL
+	movf    low BD0IAL,w    ; get address of buffer
+	movwf   FSR
+	bsf     STATUS,IRP      ; indirectly to banks 2-3
+
+	movf    temp, w         ;  Write the saved byte to our buffer
+	movwf   INDF
+	banksel BD0IBC
+	bsf     STATUS, RP0
+	movlw   0x01
+	movwf   BD0IBC          ; set byte count to 1
+	movlw   0xc8            ; DATA1 packet, DTS enabled
+	movwf   BD0IST          ; give buffer back to SIE
 	return
 
 	end
