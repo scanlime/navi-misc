@@ -1,12 +1,12 @@
-AM_cppFLAGS = -DBUILDING_BZADMIN
-INCLUDES = -I@top_srcdir@/src/bzflag
+AM_cppFLAGS = -DBUILDING_OCADMIN
+INCLUDES = -I@top_srcdir@/src/opencombat
 
 MAINTAINERCLEANFILES = \
 	ServerLink.cpp \
 	Makefile.in
 
-if BZADMIN_INCLUDED
-bin_PROGRAMS = GTXadmin
+if OCADMIN_INCLUDED
+bin_PROGRAMS = ocadmin
 endif
 
 if HAVE_CURSES
@@ -14,14 +14,14 @@ CURSES_SRC = CursesUI.h CursesUI.cpp CursesMenu.h CursesMenu.cpp
 else
 CURSES_SRC =
 
-EXTRA_bzadmin_SOURCES = \
+EXTRA_ocadmin_SOURCES = \
 	CursesMenu.h \
 	CursesMenu.cpp \
 	CursesUI.h \
 	CursesUI.cpp
 endif
 
-GTXadmin_SOURCES = \
+ocadmin_SOURCES = \
 	AutoCompleter.h \
 	AutoCompleter.cpp \
 	BZAdminClient.h \
@@ -45,12 +45,12 @@ GTXadmin_SOURCES = \
 	bzadmin.cpp \
 	curses_wrapper.h
 
-ServerLink.cpp: @top_srcdir@/src/bzflag/ServerLink.cpp
-	cp -pR @top_srcdir@/src/bzflag/ServerLink.cpp .
+ServerLink.cpp: @top_srcdir@/src/opencombat/ServerLink.cpp
+	cp -pR @top_srcdir@/src/opencombat/ServerLink.cpp .
 
 LDADD = \
 	@CURSES_LIB@ \
 	../net/libNet.a			\
 	../common/libCommon.a
 
-GTXadmin_LDFLAGS = ../date/buildDate.o
+ocadmin_LDFLAGS = ../date/buildDate.o
