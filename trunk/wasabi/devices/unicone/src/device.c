@@ -290,7 +290,7 @@ int                       unicone_device_upload_bitstream (struct unicone_device
   }
 
   if (progress)
-    progress_op = progress->start(progress, "Uploading FPGA bitstream");
+    progress_op = progress->start(progress, "Uploading bitstream");
 
   if (!bf)
     goto done;
