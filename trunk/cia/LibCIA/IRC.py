@@ -25,7 +25,7 @@ a handler for the 'irc' URI scheme.
 from twisted.protocols import irc
 from twisted.internet import protocol, reactor
 from twisted.python import log
-import XML, ColorText, Ruleset
+import XML, ColorText, Ruleset, Message
 import types
 
 
@@ -41,8 +41,18 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
        (:(?P<port>[0-9]+))?/(?P<channel>[^\s#]\S*)$
        """
 
-    def __init__(self, botNet):
+    def __init__(self, hub, botNet):
+        # A reverse map for the result of uriToTuple,
+        # so a (server,channel) tuple can be uniquely
+        # converted back to the URI that generated it.
+        # This also lets assigned() raise an exception
+        # if someone tries to add a second URI that refers
+        # to a server and channel we're already in.
+        self.tupleToUriMap = {}
+
+        self.hub = hub
         self.botNet = botNet
+        botNet.kickCallback = self.kickCallback
         Ruleset.RegexURIHandler.__init__(self)
 
     def uriToTuple(self, uri):
@@ -58,14 +68,36 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
         return ((host, port), '#' + channel)
 
     def assigned(self, uri, newRuleset):
-        self.botNet.addChannel(*self.uriToTuple(uri))
+        t = self.uriToTuple(uri)
+        if self.tupleToUriMap.has_key(t) and self.tupleToUriMap[t] != uri:
+            raise Ruleset.InvalidURIException("Another URI referring to the same server and channel already exists")
+        self.tupleToUriMap[t] = uri
+        self.botNet.addChannel(*t)
 
     def unassigned(self, uri):
-        self.botNet.delChannel(*self.uriToTuple(uri))
+        t = self.uriToTuple(uri)
+        self.botNet.delChannel(*t)
+        del self.tupleToUriMap[t]
 
     def message(self, uri, message, content):
         server, channel = self.uriToTuple(uri)
         self.botNet.msg(server, channel, content)
+
+    def kickCallback(self, server, channel, kicker, message):
+        """Called with a ((host, port), channel) tuple whenever a bot has
+           been kicked from that channel. Since we're no longer wanted,
+           send a message back into the hub to delete that channel's ruleset.
+           """
+        xml = XML.domish.Element((None, 'message'))
+        gen = xml.addElement('generator')
+        gen.addElement('name', content='IRC kick handler')
+        kick = gen.addElement('kick')
+        if kicker:
+            kick.addElement('kicker', content=str(kicker))
+        if message:
+            kick.addElement('message', content=str(message))
+        xml.addElement('body').addElement('ruleset')['uri'] = self.tupleToUriMap[(server, channel)]
+        self.hub.deliver(Message.Message(xml))
 
 
 class Bot(irc.IRCClient):
@@ -199,7 +231,7 @@ class BotAllocator:
         log.msg("Bot %r on server %r was kicked from %r by %r: %r" %
                 (bot.nickname, self.host, channel, kicker, message))
         if self.kickCallback:
-            self.kickCallback((self.host, self.port), channel)
+            self.kickCallback((self.host, self.port), channel, kicker, message)
 
     def botDisconnected(self, bot):
         """Called when one of our bots has been disconnected"""
@@ -302,8 +334,8 @@ class BotNetwork:
         # A map from (host, port) to BotAllocator instances
         self.servers = {}
 
-        # An optional callback to be called with a the server tuple
-        # and channel name whenever a bot is kicked.
+        # An optional callback to be called when a bot is kicked, with
+        # (server, channel, kicker, message) as arguments.
         self.kickCallback = None
 
     def getServers(self):
