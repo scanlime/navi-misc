@@ -35,6 +35,10 @@ Web Interface
   to make the full message list accessable and searchable. An SQL-aware table
   widget for this has been started in the cia-data-driven-tables branch.
 
+  - While implementing the searchability for these new tables, it would be possible
+    for example to make URLs that query for commits between two dates. That would be
+    a handy thing to have for ChipX86's status reports :)
+
 - Clean up the relation graphing interface so it isn't stuck hackishly at /graph.
   Maybe stats metadata could be used to attach graphs to individual targets?
 
