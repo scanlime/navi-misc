@@ -233,15 +233,21 @@ static gboolean navigation_tree_set_hilight_iterate(GtkTreeModel *model, GtkTree
 		if(sess->nick_said) {
 			gtk_tree_store_set(GTK_TREE_STORE(model), iter, 0, pix_nicksaid, 3, 3, -1);
 			sess->nick_said = FALSE;
+			sess->msg_said = FALSE;
+			sess->new_data = FALSE;
 			return TRUE;
 		}
 		if(sess->msg_said && e < 2) {
 			gtk_tree_store_set(GTK_TREE_STORE(model), iter, 0, pix_msgsaid, 3, 2, -1);
+			sess->nick_said = FALSE;
 			sess->msg_said = FALSE;
+			sess->new_data = FALSE;
 			return TRUE;
 		}
 		if(sess->new_data && e < 1) {
 			gtk_tree_store_set(GTK_TREE_STORE(model), iter, 0, pix_newdata, 3, 1, -1);
+			sess->nick_said = FALSE;
+			sess->msg_said = FALSE;
 			sess->new_data = FALSE;
 			return TRUE;
 		}

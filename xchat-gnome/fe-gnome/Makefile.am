@@ -43,7 +43,9 @@ EXTRA_DIST =				\
 	textgui.h			\
 	textgui.c			\
 	userlist.h			\
-	userlist.c
+	userlist.c			\
+	channel-list.glade		\
+	xchat-gnome.glade
 
 xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
 xchat_gnome_SOURCES =			\
@@ -86,6 +88,11 @@ xchat_gnome_SOURCES =			\
 	xtext.h				\
 	xtext.c
 
+xchat_gnome_DATA =			\
+	channel-list.glade		\
+	xchat-gnome.glade
+xchat_gnomedir = $(xchatsharedir)
+
 about.c:	xtext.h
 
 xtext.h: @top_srcdir@/src/fe-gtk/xtext.h
@@ -102,3 +109,11 @@ mmx_cmod.S:	@top_srcdir@/src/fe-gtk/mmx_cmod.S mmx_cmod.h
 
 pixmaps.o:	$(srcdir)/pixmaps.c
 	$(COMPILE) -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/pixmaps.c
+
+gui.o:		$(srcdir)/gui.c
+	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/gui.c
+
+channel_list.o:	$(srcdir)/channel_list.c
+	$(COMPILE)  -DXCHATSHAREDIR=\"$(xchatsharedir)\" -c $(srcdir)/channel_list.c
+
+SUBDIRS = data

@@ -14,4 +14,3 @@
   until at least some results come in.
 * there is a 1px border on the right & bottom of the GtkXText - this is likely due to
   the GdkWindow being 1px off in both directions within the viewport
-* status icons seem to be a little broken, still
