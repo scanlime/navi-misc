@@ -123,6 +123,7 @@ ScreenSaver* screensaver_new(IterativeMap *map, Animation *animation) {
   self->direction = 1;
 
   self->idler = g_idle_add(screensaver_idle_handler, self);
+  return self;
 }
 
 

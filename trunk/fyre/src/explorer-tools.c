@@ -24,6 +24,7 @@
 #include "explorer.h"
 #include "de-jong.h"
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 typedef void (ToolHandler)(Explorer *self, ToolInput *i);

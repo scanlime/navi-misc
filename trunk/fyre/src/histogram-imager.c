@@ -25,6 +25,7 @@
 #include "histogram-imager.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 
 static void histogram_imager_class_init(HistogramImagerClass *klass);
@@ -613,7 +614,6 @@ void histogram_imager_update_image(HistogramImager *self) {
        * histogram buckets to each pixel
        */
 
-      const int oversample_squared = oversample * oversample;
       const int sample_stride = (self->width * oversample) - oversample;
       const int sample_y_stride = (self->width * oversample) * (oversample - 1);
       guint* linearize_table;

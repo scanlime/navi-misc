@@ -23,6 +23,8 @@
  *
  */
 
+#include <string.h>
+#include <math.h>
 #include "bifurcation-diagram.h"
 #include "math-util.h"
 

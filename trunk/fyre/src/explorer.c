@@ -25,6 +25,7 @@
 #include "math-util.h"
 #include "histogram-view.h"
 #include "prefix.h"
+#include <string.h>
 
 
 static void explorer_class_init(ExplorerClass *klass);
@@ -32,10 +33,7 @@ static void explorer_init(Explorer *self);
 static void explorer_dispose(GObject *gobject);
 
 static int explorer_idle_handler(gpointer user_data);
-static void explorer_get_params(Explorer *self);
-static void explorer_resize_notify(HistogramImager *imager, GParamSpec *spec, Explorer *self);
 static gboolean explorer_auto_limit_update_rate(Explorer *self);
-static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter);
 static gboolean limit_update_rate(GTimeVal *last_update, float max_rate);
 
 static gdouble generate_random_param();

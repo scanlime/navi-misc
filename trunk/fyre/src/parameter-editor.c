@@ -24,6 +24,7 @@
 #include "parameter-editor.h"
 #include "color-button.h"
 #include <gtk/gtk.h>
+#include <string.h>
 
 static void parameter_editor_class_init(ParameterEditorClass *klass);
 static void parameter_editor_init(ParameterEditor *self);
@@ -467,7 +468,6 @@ static void on_changed_numeric(GtkWidget *widget, ParameterEditor *self) {
 static void on_changed_color(GtkWidget *widget, ParameterEditor *self) {
   GParamSpec *spec = g_object_get_data(G_OBJECT(widget), "ParamSpec");
   GdkColor c;
-  GtkWidget *color_button;
   const gchar* opacity_property;
   guint opacity;
 

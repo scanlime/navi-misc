@@ -21,6 +21,7 @@
  */
 
 #include <gdk-pixbuf/gdk-pixdata.h>
+#include <string.h>
 #include "animation.h"
 #include "chunked-file.h"
 #include "spline.h"
@@ -349,7 +350,7 @@ void animation_load_file(Animation *self, const gchar *filename) {
   FILE *f;
   AnimChunkState state;
 
-  g_return_if_fail(f = fopen(filename, "rb"));
+  g_return_if_fail((f = fopen(filename, "rb")));
   g_return_if_fail(chunked_file_read_signature(f, FILE_SIGNATURE) ||
 		   chunked_file_read_signature(f, OLD_FILE_SIGNATURE));
 
@@ -363,7 +364,7 @@ void animation_load_file(Animation *self, const gchar *filename) {
 void animation_save_file(Animation *self, const gchar *filename) {
   FILE *f;
 
-  g_return_if_fail(f = fopen(filename, "wb"));
+  g_return_if_fail((f = fopen(filename, "wb")));
   chunked_file_write_signature(f, FILE_SIGNATURE);
   animation_generate_chunks(self, CHUNK_CALLBACK(chunked_file_write_chunk), f);
   fclose(f);
