@@ -23,15 +23,30 @@
 #
 
 import Blender
-from Blender import NMesh, Material
+from Blender import NMesh, Material, Image, Texture
 import math
 
-boxMaterial = Material.New('newMat')
-boxMaterial.rgbCol = [1.0, 0.6, 0.6]
-boxMaterial.setName('BoxColor')
+# create textures
+def createTexture(name, filename):
+    material = Material.New(name)
+    texture = Texture.New(name)
+    image = Image.Load(filename)
+    texture.image = image
+    texture.setType('Image')
+    material.setTexture(0, texture)
+    return material
 
+try:
+    boxTopMaterial = Material.Get('BoxTop')
+except NameError:
+    boxTopMaterial = createTexture('BoxTop', '/usr/share/bzflag/tetrawall.png')
 
-def meshify(vertex, face):
+try:
+    boxWallMaterial = Material.Get('BoxWall')
+except NameError:
+    boxWallMaterial = createTexture('BoxWall', '/usr/share/bzflag/boxwall.png')
+
+def meshify(vertex, face, material):
     mesh = NMesh.GetRaw()
     verts = []
     for v in vertex:
@@ -42,6 +57,8 @@ def meshify(vertex, face):
         face = NMesh.Face()
         for v in f:
             face.v.append(verts[v])
+            if len(material) > v:
+                face.materialIndex = material[v]
         mesh.faces.append(face)
     return NMesh.PutRaw(mesh)
 
@@ -207,6 +224,7 @@ class BZObject(object):
     verts = []
     faces = []
     materials = []
+    materialIndex = []
 
     # If a world is associated with this object, it will be used
     # in computing transformations between blender coordinates
@@ -268,7 +286,7 @@ class BZObject(object):
            The default implementation creates a mesh using our 'verts',
            'faces', and 'materials' attributes.
            """
-        obj = meshify(self.verts, self.faces)
+        obj = meshify(self.verts, self.faces, self.materialIndex)
         obj.setMaterials(self.materials)
         return obj
 
@@ -384,7 +402,8 @@ class Box(BZObject):
              (1, 5, 7, 3), # Z-
              ]
 
-    materials = [boxMaterial]
+    materials = [boxTopMaterial, boxWallMaterial]
+    materialIndex = [1, 1, 1, 1, 2, 2]
 
     def __init__(self):
         # Load defaults
