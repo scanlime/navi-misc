@@ -1,13 +1,14 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 
-/* 
- * Author : 
+/*
+ * Authors :
  *  Gary Ekker <gekker@novell.com>
+ *  David Trowbridge <trowbrds@cs.colorado.edu>
  *
  * Copyright 2004, Ximian, Inc.
  *
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of version 2 of the GNU General Public 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of version 2 of the GNU General Public
  * License as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -29,13 +30,18 @@
 #ifndef _URL_EDITOR_DIALOG_H_
 #define _URL_EDITOR_DIALOG_H_
 
-G_BEGIN_DECLS
-
 #include <gtk/gtk.h>
-#include <glade/glade.h>
 
 #include "../e-pub-utils.h"
 #include <libedataserverui/e-source-selector.h>
+
+G_BEGIN_DECLS
+
+#define URL_EDITOR_DIALOG_TYPE            (url_editor_dialog_get_type ())
+#define URL_EDITOR_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), URL_EDITOR_DIALOG, UrlEditorDialog))
+#define URL_EDITOR_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), URL_EDITOR_DIALOG, UrlEditorDialogClass))
+#define IS_URL_EDITOR_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), URL_EDITOR_DIALOG))
+#define IS_URL_EDITOR_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), URL_EDITOR_DIALOG))
 
 enum {
 	URL_LIST_ENABLED_COLUMN,
@@ -44,81 +50,23 @@ enum {
 	URL_LIST_N_COLUMNS
 };
 
-struct _DialogData {
-	/* Glade XML data */
-	GladeXML *xml;
-	
-	GConfClient *gconf;
+typedef struct _UrlEditorDialog UrlEditorDialog;
+typedef struct _UrlEditorDialogClass UrlEditorDialogClass;
 
-	GtkWidget *page;
+struct _UrlEditorDialog {
+	GtkDialog parent;
 
-	GtkWidget *timezone;
-	GtkWidget *working_days[7];
-	GtkWidget *week_start_day;
-	GtkWidget *start_of_day;
-	GtkWidget *end_of_day;
-	GtkWidget *use_12_hour;
-	GtkWidget *use_24_hour;
-	GtkWidget *time_divisions;
-	GtkWidget *show_end_times;
-	GtkWidget *compress_weekend;
-	GtkWidget *dnav_show_week_no;
-
-	/* Widgets for the task list options */
-	GtkWidget *tasks_due_today_color;
-	GtkWidget *tasks_overdue_color;
-
-	GtkWidget *tasks_hide_completed_checkbutton;
-	GtkWidget *tasks_hide_completed_spinbutton;
-	GtkWidget *tasks_hide_completed_optionmenu;
-	
-	/* Widgets for the Free/Busy options */
-	GtkWidget *url_add;
-	GtkWidget *url_edit;
-	GtkWidget *url_remove;
-	GtkWidget *url_enable;
-	GtkTreeView *url_list;
-	gboolean url_editor;
-	GtkWidget* url_editor_dlg;
-	guint destroyed : 1;
-
-	/* widgets for the Free/Busy template */
-	GtkWidget *template_url;
-		
-	/* Other page options */
-	GtkWidget *confirm_delete;
-	GtkWidget *default_reminder;
-	GtkWidget *default_reminder_interval;
-	GtkWidget *default_reminder_units;
-};
-typedef struct _DialogData DialogData;
-
-struct _UrlDialogData {
-	/* Glade XML data */
-	GladeXML *xml;
-	GtkWidget *url_editor;
-	GtkWidget *url_dialog;
-
-	GtkEntry *url_entry;
-	GtkWidget *daily;
-	GtkWidget *weekly;
-	GtkWidget *user_publish;
-	
-	GtkWidget *calendar_list_label;
-	GtkWidget *scrolled_window;
-	
-	GtkEntry *username_entry;
-	GtkEntry *password_entry;
-	GtkWidget *remember_pw;
-	
-	GtkWidget *cancel;
-	GtkWidget *ok;
+	GtkWidget *child;
+	GtkTreeModel *url_list_model;
 	EPublishUri *url_data;
 };
-typedef struct _UrlDialogData UrlDialogData;
 
-gboolean			
-url_editor_dialog_new (DialogData *dialog_data, EPublishUri *pub_uri);
+struct _UrlEditorDialogClass {
+	GtkDialogClass parent_class;
+};
+
+GtkWidget *url_editor_dialog_new (GtkTreeModel *url_list_model, EPublishUri *pub_uri);
+GType      url_editor_dialog_get_type (void);
 
 G_END_DECLS
 
