@@ -35,6 +35,23 @@ class PipelineDrawing : Gtk.DrawingArea
 	{
 	}
 
+	protected override bool OnConfigureEvent (Gdk.EventConfigure ev)
+	{
+		if (hadj != null) {
+			hadj.PageSize = ev.Width;
+			vadj.PageSize = ev.Height;
+
+			hadj.PageIncrement = ev.Width;
+			vadj.PageIncrement = ev.Height;
+
+			// temporarily set lower here
+			hadj.Upper = ev.Width * 8;
+			vadj.Upper = ev.Height * 8;
+		}
+
+		return base.OnConfigureEvent (ev);
+	}
+
 	protected override void OnSetScrollAdjustments (Gtk.Adjustment hadj, Gtk.Adjustment vadj)
 	{
 		hadj.Lower         = 0.0;
