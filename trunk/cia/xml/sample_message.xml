@@ -1,4 +1,6 @@
-<message>
+<message
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
    <generator>
        <name>CIA client for Subversion</name>
        <version>0.52</version>

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<xsd:schema
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:complexType name="fileList">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="file" type="xsd:string"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="commit">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="revision" type="xsd:string"/>
+    <xsd:element name="log" type="xsd:string"/>
+    <xsd:element name="files" type="fileList"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="message-body">
+  <xsd:choice>
+    <xsd:element name="commit" type="commit"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="message-source">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="project" type="xsd:string"/>
+    <xsd:element name="module" type="xsd:string"/>
+    <xsd:element name="branch" type="xsd:string"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="message-generator">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="version" type="xsd:decimal"/>
+    <xsd:element name="url" type="xsd:string"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:element name="message">
+  <xsd:complexType>
+    <xsd:choice maxOccurs="unbounded" minOccurs="0">
+      <xsd:element name="generator" type="message-generator"/>
+      <xsd:element name="source" type="message-source"/>
+      <xsd:element name="timestamp" type="xsd:integer"/>
+      <xsd:element name="body" type="message-body"/>
+    </xsd:choice>
+  </xsd:complexType>
+</xsd:element>
+
+</xsd:schema>
