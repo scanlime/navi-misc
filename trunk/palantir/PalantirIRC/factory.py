@@ -10,7 +10,7 @@ of PalantirClient.
 from client import Client
 from twisted.internet import protocol, reactor
 
-class PalantirClientFactory(protocol.ClientFactory):
+class Factory(protocol.ClientFactory):
   ''' Factory to create the IRC client.  The factory will be used as an interface
       between the client and the ui, so the factory saves a reference to the ui and
       the ui should save a reference to the factory.  The client that is created
