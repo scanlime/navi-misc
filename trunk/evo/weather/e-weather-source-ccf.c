@@ -43,7 +43,7 @@ tokenize (const char *buffer)
 
 	token = strtok_r (buffer2, " \n", &tokbuf);
 	ret = g_slist_append (NULL, g_strdup (token));
-	while ((token = strtok_r (NULL, " \n", &tokbuf)))
+	while ((token = strtok_r (NULL, " \n/", &tokbuf)))
 		ret = g_slist_append (ret, g_strdup (token));
 	g_free (buffer2);
 	g_free (tokbuf);
@@ -103,6 +103,15 @@ decodeConditions (char code)
 	}
 }
 
+static float
+ftoc (char *data)
+{
+	int fahrenheit = atoi(data);
+	if (fahrenheit >= 900)
+		fahrenheit = (fahrenheit - 900) * -1;
+	return ((float)(fahrenheit-32)) * 5.0f / 9.0f;
+}
+
 static GList*
 e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 {
@@ -114,34 +123,18 @@ e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 	 * and the nighttime low temperature, and the current day's weather will
 	 * update to be the nighttime version when it fetches the afternoon forecast.
 	 *
-	 * Supposedly, the CCF format is described in NOAA document 10-503, but I've
-	 * been unable to find a copy of this online. The real meat of the format
-	 * is summarized pretty well at
+	 * The CCF format is described in NWS directive 10-503, but it's usually
+	 * easier to look at a summary put up by one of the stations:
 	 * http://www.crh.noaa.gov/lmk/product_guide/products/forecast/ccf.htm
-	 *
-	 * There are a few fields left out of the summary which are located at the
-	 * top of the file. These are:
-	 *
-	 * 000
-	 * FPUSxx KSSS DDHHMM
-	 * CCFSSS
-	 *
-	 * The first line is zeroed in all the files I've seen. FPUSxx is some
-	 * identifier, but without real documentation it will remain forever a
-	 * mystery to us non-NWS folk. KSSS is the location code for the station,
-	 * and CCFSSS indicates that the file is a CCF product put out by station
-	 * SSS. DDHHMM is a date indicator showing when the product was released,
-	 * with day-of-month, hour and minute in UTC.
-	 *
-	 * Note that the station in this header will usually be one of the stations
-	 * represented in the file, but this is not always the case.
 	 */
 	EWeatherSourceCCF *ccfsource = (EWeatherSourceCCF*) source;
 	WeatherForecast *forecasts = g_new0 (WeatherForecast, 7);
 	GSList *tokens = tokenize (buffer);
 	GSList *date;
 	GSList *current = tokens;
+	GList *fc = NULL;
 	struct tm tms;
+	int i;
 
 	date = g_slist_nth (tokens, 3);
 	date2tm (date->data, &tms);
@@ -152,11 +145,10 @@ e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 	while (strcmp(current->data, ccfsource->station))
 		current = g_slist_next (current);
 
-	current = g_slist_next (current);
-	forecasts[0].conditions = decodeConditions(((char *)(current->data))[0]);
-	forecasts[1].conditions = decodeConditions(((char *)(current->data))[1]);
+	for (i = 0; i < 7; i++)
+		fc = g_list_append (fc, &forecasts[i]);
 
-	return NULL;
+	return fc;
 }
 
 static void

@@ -13,7 +13,16 @@ const char *ccf =
 int
 main ()
 {
+	GList *list;
+	GList *data;
 	g_type_init ();
 	EWeatherSource *source = e_weather_source_ccf_new ("DEN");
-	e_weather_source_parse (source, ccf);
+	list = e_weather_source_parse (source, ccf);
+
+	data = list;
+	do
+	{
+		WeatherForecast *f = data->data;
+		g_print ("%s:\n\t%f/%f\n\t%d\n%d%%\n\n", ctime (&f->curtime), f->high, f->low, f->conditions, f->pop);
+	} while (data = g_list_next (data));
 }
