@@ -12,6 +12,7 @@
 // worldDrawables.cpp
 
 #include "worldDrawables.h"
+#include "firestarter.h"
 
 // skybox factory
 CBaseDrawable* CSkyboxObjectFactory::New ( CBaseObject* parent )
@@ -29,7 +30,6 @@ void CSkyboxObjectFactory::Delete ( CBaseDrawable* object )
 // skybox object
 CSkyObject::CSkyObject()
 {
-
 }
 
 CSkyObject::~CSkyObject()
@@ -38,10 +38,48 @@ CSkyObject::~CSkyObject()
 
 void CSkyObject::Init ( void )
 {
+	CFirestarterLoop::instance().GetSceneManager()->setSkyBox(true, "grassland_skybox",5000,true,Quaternion(1.57079632f,Vector3(1,0,0)));
 }
 
 void CSkyObject::Think ( void )
 {
-
 }
 
+// ground factory
+CBaseDrawable* CGroundObjectFactory::New ( CBaseObject* parent )
+{
+	CBaseDrawable* obj = new CGroundObject;
+	obj->Set(parent);
+	return obj;
+}
+
+void CGroundObjectFactory::Delete ( CBaseDrawable* object )
+{
+	delete(object);
+}
+
+// skybox object
+CGroundObject::CGroundObject()
+{
+	mGroundNode = NULL;
+}
+
+CGroundObject::~CGroundObject()
+{
+}
+
+void CGroundObject::Init ( void )
+{
+	Mesh* mesh = MeshManager::getSingleton().createPlane("GroundPlane", Plane (Vector3(0,1,0),Vector3(0,0,0),Vector3(1,0,0)),800, 800,1,1,true,1,60,60);
+	if (mesh && mesh->getSubMeshIterator().hasMoreElements())
+	{
+		mesh->getSubMeshIterator().getNext()->setMaterialName("ground_mat");
+	}
+	Entity *mGroundEntity = CFirestarterLoop::instance().GetSceneManager()->createEntity("Ground","GroundPlane");
+	mGroundNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+	mGroundNode->attachObject(mGroundEntity);
+}
+
+void CGroundObject::Think ( void )
+{
+}

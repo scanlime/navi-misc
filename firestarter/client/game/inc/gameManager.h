@@ -41,6 +41,8 @@ public:
 
 	virtual bool Think ( void ) = 0;
 
+	virtual void Kill ( void ){ return;}
+
 protected:
 };
 

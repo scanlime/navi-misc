@@ -13,11 +13,27 @@
 #include "input.h"
 
 // the drawables for this game
-//#include "worldDrawables"
+#include "worldDrawables.h"
+
+
+void CTestGame::registerFactory (const char* name, CBaseDrawableFactory* factory)
+{
+	CDrawManager::instance().Register(factory,name);
+	factoryList.push_back(factory);
+}
 
 void CTestGame::Init ( void )
 {
 	// do one time init stuff here
+	registerFactory("sky",new CSkyboxObjectFactory);
+	registerFactory("ground",new CGroundObjectFactory);
+}
+
+void CTestGame::Kill ( void )
+{
+	std::vector<CBaseDrawableFactory*>::iterator	itr = factoryList.begin();
+	while (itr != factoryList.end())
+		delete(*(itr++));
 }
 
 void CTestGame::Attach ( void )

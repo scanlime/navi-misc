@@ -189,53 +189,19 @@
 						<File
 							RelativePath="..\game\test\src\world.cpp">
 						</File>
-						<Filter
-							Name="Core"
-							Filter="">
-							<File
-								RelativePath="..\..\common\inc\commandargs.h">
-							</File>
-							<File
-								RelativePath="..\..\common\inc\events.h">
-							</File>
-							<File
-								RelativePath="..\..\common\inc\gameloop.h">
-							</File>
-							<File
-								RelativePath="..\..\common\inc\input.h">
-							</File>
-							<File
-								RelativePath="..\..\common\inc\listserver.h">
-							</File>
-							<File
-								RelativePath="..\..\common\inc\osfile.h">
-							</File>
-							<File
-								RelativePath="..\..\common\inc\prefs.h">
-							</File>
-							<File
-								RelativePath="..\..\common\inc\Singleton.h">
-							</File>
-							<File
-								RelativePath="..\..\common\inc\timer.h">
-							</File>
-						</Filter>
 					</Filter>
 					<Filter
 						Name="gfx"
 						Filter="">
+						<File
+							RelativePath="..\game\test\gfx\src\worldDrawables.cpp">
+						</File>
 					</Filter>
 				</Filter>
 			</Filter>
 			<Filter
 				Name="drawing"
 				Filter="">
-				<File
-					RelativePath="..\drawing\src\drawManager.cpp">
-				</File>
-				<File
-					RelativePath="..\game\test\gfx\src\worldDrawables.cpp">
-				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -298,6 +264,40 @@
 				Filter="">
 				<File
 					RelativePath="..\drawing\inc\drawManager.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="Core"
+				Filter="">
+				<File
+					RelativePath="..\..\common\inc\commandargs.h">
+				</File>
+				<File
+					RelativePath="..\drawing\src\drawManager.cpp">
+				</File>
+				<File
+					RelativePath="..\..\common\inc\events.h">
+				</File>
+				<File
+					RelativePath="..\..\common\inc\gameloop.h">
+				</File>
+				<File
+					RelativePath="..\..\common\inc\input.h">
+				</File>
+				<File
+					RelativePath="..\..\common\inc\listserver.h">
+				</File>
+				<File
+					RelativePath="..\..\common\inc\osfile.h">
+				</File>
+				<File
+					RelativePath="..\..\common\inc\prefs.h">
+				</File>
+				<File
+					RelativePath="..\..\common\inc\Singleton.h">
+				</File>
+				<File
+					RelativePath="..\..\common\inc\timer.h">
 				</File>
 			</Filter>
 		</Filter>

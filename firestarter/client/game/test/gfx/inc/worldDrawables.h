@@ -35,4 +35,23 @@ public:
 protected:
 };
 
+class CGroundObjectFactory : public CBaseDrawableFactory
+{
+public:
+	virtual CBaseDrawable* New ( CBaseObject* parent );
+	virtual void Delete ( CBaseDrawable* object );
+};
+
+class CGroundObject : public CBaseDrawable
+{
+public:
+	CGroundObject();
+	virtual ~CGroundObject();
+	virtual void Init ( void );
+	virtual void Think ( void );
+
+protected:
+	SceneNode* mGroundNode;
+};
+
 #endif //_WORLD_DRAWABLES_H_
