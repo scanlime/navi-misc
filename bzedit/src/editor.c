@@ -184,6 +184,7 @@ on_glarea_configure (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 
   gl_drawing_area_make_current (GL_DRAWING_AREA(widget));
 
+  glViewport(0, 0, event->width, event->height);
   glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
   gluPerspective (45.0, (float)event->width / (float)event->height, 0.1, 2500.0);
@@ -219,7 +220,7 @@ on_glarea_realize (GtkWidget *widget, gpointer data)
   editor->view = view_new (editor->scene);
 
   editor->view->camera->azimuth = 45;
-  editor->view->camera->elevation = 75;
+  editor->view->camera->elevation = -25;
   editor->view->camera->distance = 750;
   editor->view->camera->position[2] = 4;
 

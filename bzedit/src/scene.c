@@ -182,10 +182,10 @@ scene_render (Scene *self, RenderState *rstate)
     scene_preprocess (self);
 
   glDisable (GL_BLEND);
-  glEnable (GL_DEPTH_TEST);
-  glEnable (GL_CULL_FACE);
+  glDisable (GL_DEPTH_TEST);
+  glDisable (GL_CULL_FACE);
   glEnable (GL_COLOR_MATERIAL);
-  glEnable (GL_LIGHTING);
+  glDisable (GL_LIGHTING);
   glDisable (GL_LINE_SMOOTH);
   glColor4f (1.0, 1.0, 1.0, 1.0);
 
@@ -194,8 +194,6 @@ scene_render (Scene *self, RenderState *rstate)
     RenderPass *rpass = RENDER_PASS (pass->data);
     if (!render_pass_is_empty (rpass))
       render_pass_render (rpass, rstate);
-    else
-      g_print ("%s seems empty!\n", g_type_name (G_TYPE_FROM_INSTANCE (rpass)));
   }
 }
 
