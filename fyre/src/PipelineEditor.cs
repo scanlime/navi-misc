@@ -49,10 +49,12 @@ namespace Fyre
 		uint					tooltip_timeout;
 		Gdk.Rectangle				tip_rect;
 
-		// statusbar data
-		[Glade.Widget] Gtk.ComboBox		zoom;
-		float					zoom_level;
+		// status bar
 		[Glade.Widget] Gtk.Statusbar		statusbar;
+
+		// image browsing
+		[Glade.Widget] Gtk.Image		navigation_image;
+		[Glade.Widget] Gtk.EventBox		navigation_event;
 
 		// D-n-D private data
 		int					click_x, click_y;
@@ -78,8 +80,10 @@ namespace Fyre
 			targets[0] = new Gtk.TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
 			target_list = new Gtk.TargetList (targets);
 
+			// Set up the major parts of the UI
 			SetupElementList ();
 			SetupDrawingCanvas ();
+			SetupNavigationBox ();
 
 			// These start out nulled
 			current_tooltip = null;
@@ -87,10 +91,6 @@ namespace Fyre
 			click_x = -1;
 			click_y = -1;
 			dragging = false;
-
-			// Our zoom starts at 100%
-			zoom_level = 1.0f;
-			zoom.Active = 6;
 
 			// Set up plugins directory
 			plugin_manager = new PluginManager (Defines.PLUGINSDIR);
@@ -147,6 +147,12 @@ namespace Fyre
 			// Set up drag-and-drop for the frame. This looks better than setting it
 			// up for the drawing area, but it doesn't really affect structure
 			Gtk.Drag.DestSet (pipeline_window, Gtk.DestDefaults.All, targets, Gdk.DragAction.Copy);
+		}
+
+		void SetupNavigationBox ()
+		{
+			Gdk.Pixbuf pixbuf = new Gdk.Pixbuf (null, "navigation.png");
+			navigation_image.Pixbuf = pixbuf;
 		}
 
 		void ElementListDragBegin (object o, Gtk.DragBeginArgs args)
