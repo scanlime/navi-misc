@@ -49,7 +49,7 @@ def grabURL( word, word_eol, user_data ):
     message = word[1]
     for regex, handler in regexes.iteritems():
         for match in regex.finditer(message):
-            handler(nick, natch)
+            handler(nick, match)
     return xchat.EAT_NONE
 
 def unload( user_data ):
