@@ -12,8 +12,8 @@
 #define HW_XP3		.2			; Fascinations XP3 clock
 
 ; Define this to indicate the hardware this firmware is for
-;#define HWMODEL		HW_RAVINIA
-#define HWMODEL		HW_XP3
+#define HWMODEL		HW_RAVINIA
+;#define HWMODEL		HW_XP3
 
 #if HWMODEL == HW_RAVINIA
 #define TRISA_VALUE	0x3F	; Buttons and angle sensor are inputs

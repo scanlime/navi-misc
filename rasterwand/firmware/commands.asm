@@ -53,6 +53,7 @@
 	extern	display_save_status
 	extern	display_seek
 	extern	display_seq_write_byte
+	extern	back_buffer
 
 bank0	udata
 
@@ -87,6 +88,7 @@ CheckVendor
 	defineRequest	RWAND_CTRL_SEQ_WRITE12,		request_seqWrite12
 	defineRequest	RWAND_CTRL_SEQ_WRITE4,		request_seqWrite4
 	defineRequest	RWAND_CTRL_RANDOM_WRITE8,	request_randomWrite8
+	defineRequest	RWAND_CTRL_BLIT,			request_blit
 	defineRequest	RWAND_CTRL_GET_HW_MODEL,	request_getHwModel
 
 	pagesel	wrongstate		; Not a recognized request
@@ -337,6 +339,33 @@ request_randomWrite3
 	movf	BufferData+(wIndex+1), w
 	pagesel	display_seq_write_byte
 	call	display_seq_write_byte
+	returnEmpty
+
+
+	; Position the write pointer at the high byte of wValue,
+	; and write out wIndex bytes copied from the column address
+	; at the low byte of wValue.
+request_blit
+	banksel	BufferData					; Put the pointer at wValue+1
+	movf	BufferData+(wValue+1), w
+	pagesel	display_seek
+	call	display_seek
+
+blit_loop
+	banksel	BufferData					; Get the backbuffer data at the low byte of wValue
+	movf	BufferData+wValue, w
+	incf	BufferData+wValue, f		; (and increment it)
+	bankisel back_buffer
+	addlw	back_buffer
+	movwf	FSR
+	movf	INDF, w						; Copy to w and write it
+	pagesel	display_seq_write_byte
+	call	display_seq_write_byte
+
+	banksel	BufferData					; Loop, counting bytes with wIndex
+	pagesel	blit_loop
+	decfsz	BufferData+wIndex, f
+	goto	blit_loop
 	returnEmpty
 
 

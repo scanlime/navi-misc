@@ -18,7 +18,7 @@
 ;// The protocol version, stored in binary coded decimal.
 ;// This is available from the device in the bcdDevice field
 ;// of its DEVICE descriptor.
-#define RWAND_PROTOCOL_VERSION  0x0101
+#define RWAND_PROTOCOL_VERSION  0x0102
 
 ;// Device vendor and product IDs.
 #define RWAND_VENDOR_ID   0xE461
@@ -92,21 +92,11 @@
 ;// Copy wIndex bytes from the address at the low byte of wValue
 ;// to the address at the high byte of wValue. Leaves the write
 ;// pointer at the first byte after the end of the destination area.
-;// (Not yet implemented)
+;// wIndex must be nonzero.
 #define RWAND_CTRL_BLIT				0x0F
 
-;// Left-shift a block of 32 bytes starting at the write pointer,
-;// filling in the new bit positions with each bit in wValue+wIndex,
-;// starting with the low bit of wValue.
-;// (Not yet implemented)
-#define RWAND_CTRL_LEFT_SHIFT		0x10
-
-;// Like above, but the other direction.
-;// (Not yet implemented)
-#define RWAND_CTRL_RIGHT_SHIT		0x11
-
 ;// Return a 1-byte packet with the hardware model ID
-#define RWAND_CTRL_GET_HW_MODEL		0x12
+#define RWAND_CTRL_GET_HW_MODEL		0x10
 
 
 ;//************************************************** Mode bits
