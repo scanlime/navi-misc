@@ -90,13 +90,18 @@ public class njavaadmin extends nbase
 	 */
 	public void aiminit()
 	{
-		nchatup aim;
+		nchatup aim = new nchatup(imain.database.updater);
 		String host;
 		int port;
 		host = read();
 		port = Integer.parseInt(read());
 		/* Start the aim service client thingy */
-		aim = new nchatup(host,port);
+		if(!aim.connect(host,port))
+		{
+			write("-ERR");
+			return;
+		}
+		aim.init(aadmin.iuns,aadmin.ipas);
 		write("+OK");
 		aadmin.confstate = 4;
 	}

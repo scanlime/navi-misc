@@ -16,6 +16,7 @@ CLASSFILES=\
 	njavamod.class\
 	njavaint.class\
 	nchatint.class\
+	nchatup.class\
 	imain.class\
 	njavaadmin.class
 
@@ -44,6 +45,9 @@ njavaint.class: njavaint.java
 
 nchatint.class: nchatint.java
 	javac nchatint.java
+
+nchatup.class: nchatup.java
+	javac nchatup.java
 
 njavaadmin.class: njavaadmin.java
 	javac njavaadmin.java
