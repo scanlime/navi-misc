@@ -59,7 +59,7 @@ e_calendar_http_url (EPlugin *epl, EConfigHookItemFactoryData *data)
 
 	row = ((GtkTable*)parent)->nrows;
 
-	label = gtk_label_new (_("URL:"));
+	label = gtk_label_new_with_mnemonic (_("_URL:"));
 	gtk_widget_show (label);
 	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 	gtk_table_attach (GTK_TABLE (parent), label, 0, 1, row, row+1, GTK_FILL, 0, 0, 0);
@@ -68,6 +68,7 @@ e_calendar_http_url (EPlugin *epl, EConfigHookItemFactoryData *data)
 	gtk_widget_show (entry);
 	gtk_entry_set_text (GTK_ENTRY (entry), e_source_get_uri (source));
 	gtk_table_attach (GTK_TABLE (parent), entry, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+	gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
 
 	g_object_set_data (G_OBJECT (epl), "calendar.http.uri", entry);
 
@@ -123,7 +124,7 @@ e_calendar_http_refresh (EPlugin *epl, EConfigHookItemFactoryData *data)
 
 	row = ((GtkTable*)parent)->nrows;
 
-	label = gtk_label_new (_("Refresh:"));
+	label = gtk_label_new_with_mnemonic (_("_Refresh:"));
 	gtk_widget_show (label);
 	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 	gtk_table_attach (GTK_TABLE (parent), label, 0, 1, row, row+1, GTK_FILL, 0, 0, 0);
@@ -132,6 +133,7 @@ e_calendar_http_refresh (EPlugin *epl, EConfigHookItemFactoryData *data)
 	gtk_widget_show (hbox);
 
 	spin = gtk_spin_button_new_with_range (0, 100, 1);
+	gtk_label_set_mnemonic_widget (GTK_LABEL (label), spin);
 	gtk_widget_show (spin);
 	gtk_box_pack_start (GTK_BOX (hbox), spin, FALSE, TRUE, 0);
 
