@@ -104,8 +104,10 @@ class Text(Widget):
         self.offset = (0, 0)
 
     def setText(self, text):
-        self._text = str(text)
-        self.textChanged(self._text.split('\n'))
+        text = str(text)
+        if text != self._text:
+            self._text = text
+            self.textChanged(self._text.split('\n'))
 
     def getText(self):
         return self._text
