@@ -11,6 +11,7 @@ Palantir/__init__.py
 Palantir/dieRoller.py
 Palantir/palantirIRC.py
 data/palantirMain.glade
+data/sheetviewer.glade
 data/pixmaps/dm.png
 data/pixmaps/palantir-icon.png
 data/pixmaps/palantir-logo-small.png
