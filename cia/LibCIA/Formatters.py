@@ -33,12 +33,20 @@ class ColortextToIRC(Message.Formatter):
        """
     detector = Message.Filter('<find path="/message/body/colorText"/>')
     medium = 'irc'
+    color = True
+
+    def param_noColor(self, tag):
+        self.color = False
+
     def __init__(self):
         from IRC.Formatting import ColortextFormatter
         self.formatter = ColortextFormatter()
 
     def format(self, message, input=None):
-        return self.formatter.format(message.xml.body.colorText)
+        if self.color:
+            return self.formatter.format(message.xml.body.colorText)
+        else:
+            return XML.allText(message.xml.body.colorText)
 
 
 class CommitFormatter(Message.Formatter):
@@ -253,29 +261,36 @@ class CommitToIRC(CommitFormatter):
     widthLimit = 220
     wrapWidth = 80
 
-    def format_author(self, author):
+    def __init__(self):
+        """By default, use the IRC color formatter"""
         from IRC.Formatting import format
-        return format(CommitFormatter.format_author(self, author), 'green')
+        self.colorFormatter = format
+
+    def noColorFormatter(self, text, *tags):
+        """A replacement formatter that ignores colors"""
+        return text
+
+    def param_noColor(self, tag):
+        """The <noColor> tag disables colors, naturally"""
+        self.colorFormatter = self.noColorFormatter
+
+    def format_author(self, author):
+        return self.colorFormatter(CommitFormatter.format_author(self, author), 'green')
 
     def format_version(self, version):
-        from IRC.Formatting import format
-        return format(str(version).strip(), 'bold')
+        return self.colorFormatter(str(version).strip(), 'bold')
 
     def format_revision(self, rev):
-        from IRC.Formatting import format
-        return 'r' + format(str(rev).strip(), 'bold')
+        return 'r' + self.colorFormatter(str(rev).strip(), 'bold')
 
     def format_module(self, module):
-        from IRC.Formatting import format
-        return format(CommitFormatter.format_module(self, module), 'aqua')
+        return self.colorFormatter(CommitFormatter.format_module(self, module), 'aqua')
 
     def format_branch(self, branch):
-        from IRC.Formatting import format
-        return format(CommitFormatter.format_branch(self, branch), 'orange')
+        return self.colorFormatter(CommitFormatter.format_branch(self, branch), 'orange')
 
     def joinMessage(self, metadata, log):
-        from IRC.Formatting import format
-        return "%s%s %s" % (" ".join(metadata), format(':', 'bold'), log)
+        return "%s%s %s" % (" ".join(metadata), self.colorFormatter(':', 'bold'), log)
 
 
 class CommitToXHTML(CommitFormatter):
