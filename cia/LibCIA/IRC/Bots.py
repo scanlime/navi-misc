@@ -620,7 +620,7 @@ class Bot(irc.IRCClient):
     def sendServerPing(self):
         """Send a ping stamped with the current time and schedule the next one"""
         self.lastPingTransmitTimestamp = time.time()
-	self.sendLine("PING %f" % self.lastPingTransmitTimestamp)
+        self.sendLine("PING %f" % self.lastPingTransmitTimestamp)
         reactor.callLater(self.pingInterval, self.sendServerPing)
 
     def irc_PONG(self, prefix, params):
@@ -628,11 +628,11 @@ class Bot(irc.IRCClient):
            the timestamp in the pong (from when the ping was sent) and the current
            time, storing the lag and the current time.
            """
-	try:
+        try:
             self.lastPingTimestamp = float(params[1])
-	except ValueError:
+        except ValueError:
             # This must be some broken IRC server that's not preserving our ping timestamp.
-	    # The best we can do is assume this is the pong for the most recent ping we sent.
+            # The best we can do is assume this is the pong for the most recent ping we sent.
             self.lastPingTimestamp = self.lastPingTransmitTimestamp
         self.lastPongTimestamp = time.time()
 
