@@ -3,6 +3,7 @@
 import BZFlag.Network
 import BZFlag.Client
 import BZFlag.ListServer
+import BZFlag.Player
 import BZFlag.Protocol.FromServer
 import sys
 
@@ -19,7 +20,7 @@ class TestClient(BZFlag.Client.BaseClient):
     def onConnect(self):
         print "Connected, got client id %d" % self.id
         print "Trying to join game..."
-        self.enterGame(BZFlag.Client.PlayerIdentity("Bob the Avenger"))
+        self.enterGame(BZFlag.Player.Identity("Bob the Avenger"))
 
     def expectMessage(self, socket, eventLoop):
         msg = socket.readMessage()
