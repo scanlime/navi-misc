@@ -62,6 +62,8 @@ xchat_gnome_SOURCES =			\
 	xtext.h				\
 	xtext.c
 
+about.c:	xtext.h
+
 xtext.h: @top_srcdir@/src/fe-gtk/xtext.h
 	cp -pR @top_srcdir@/src/fe-gtk/xtext.h .
 
