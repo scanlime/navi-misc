@@ -27,6 +27,7 @@
 #ifndef __DISCOVERY_CLIENT_H__
 #define __DISCOVERY_CLIENT_H__
 
+#include "platform.h"
 #include <gtk/gtk.h>
 #include <gnet.h>
 

@@ -31,6 +31,7 @@
 #ifndef __REMOTE_CLIENT_H__
 #define __REMOTE_CLIENT_H__
 
+#include "platform.h"
 #include <gtk/gtk.h>
 #include <gnet.h>
 #include "animation.h"

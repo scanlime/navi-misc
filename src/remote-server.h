@@ -29,6 +29,7 @@
 #ifndef __REMOTE_SERVER_H__
 #define __REMOTE_SERVER_H__
 
+#include "platform.h"
 #include <gtk/gtk.h>
 #include "animation.h"
 #include "iterative-map.h"

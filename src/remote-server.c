@@ -26,6 +26,9 @@
  *
  */
 
+#include "config.h"
+#include "platform.h"
+
 #include <gnet.h>
 #include <gtk/gtk.h>
 #include <string.h>
