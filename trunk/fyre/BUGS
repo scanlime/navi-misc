@@ -1,0 +1,9 @@
+- The --help text is too wide for an 80-column terminal
+
+- Cluster autodetection doesn't find multiple fyre
+  servers running on different ports but the same host
+
+- Cluster autodetection will find fyre servers on
+  localhost. This should probably be disabled if we
+  can determine the machine is single-processor.
+
