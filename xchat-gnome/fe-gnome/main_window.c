@@ -840,7 +840,6 @@ on_topic_change (GtkButton *widget, gpointer data)
 	gtk_text_buffer_set_text (buffer, gui.current_session->topic, -1);
 
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
-	g_print ("got response %d\n", response);
 
 	if (response == GTK_RESPONSE_OK)
 	{
@@ -850,8 +849,10 @@ on_topic_change (GtkButton *widget, gpointer data)
 
 		gtk_text_buffer_get_start_iter (buffer, &start);
 		gtk_text_buffer_get_end_iter (buffer, &end);
+		gtk_widget_hide_all (dialog);
+		gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (entry), GTK_WRAP_NONE);
 		newtopic = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
-		/* FIXME - set new topic */
+		gui.current_session->server->p_topic(gui.current_session->server, gui.current_session->channel, newtopic);
 		g_free (newtopic);
 	}
 
