@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from filterlib import CommitFilter
-import re
+import re, posixpath
 
 class KdeFilter(CommitFilter):
     project = 'kde'
@@ -12,20 +12,44 @@ class KdeFilter(CommitFilter):
         # Author is the last token of the first line, with a trailing colon
         self.addAuthor(self.body.readline().strip().split(" ")[-1][:-1])
 
-        # The body is the set of non-blank lines starting on the third line
-        self.body.readline()
-        self.slurpLog()
+        # A regex that matches lines containing file information, returning groups
+        # for the status, lines added, lines removed, name, and revision.
+        fileRegex = re.compile(r"  (?P<status>[UPARMC\?]) (\+(?P<addedLines>[0-9]+))? (\-(?P<removedLines>[0-9]+))? +(?P<file>[^ ]+) +(?P<revision>[0-9]+(\.[0-9]+)+)\n")
 
-        # Slurp up the rest of the message looking for files
+        # Read in the rest of the file, sorting lines into either log message
+        # lines or file information lines.
+        logLines = []
+        fileInfo = []
         while True:
             line = self.body.readline()
+
+            # Remove all those annoying CVS_SILENT thingies
+            line.replace("CVS_SILENT", "")
+
+            # Quit when we get to a line starting with "---", this means we've reached the included diffs
+            if line.startswith('---'):
+                break
+
+            # End of file
             if not line:
                 break
-            try:
-                status, added, removed, name, revision = re.split("[ \t]+", line.strip())
-            except:
+
+            # Skip blank lines
+            strippedLine = line.strip()
+            if not strippedLine:
                 continue
-            self.addFile(dirName + '/' + name)
+
+            # Is this a file or a log line?
+            fileMatch = fileRegex.match(line)
+            if fileMatch:
+                fileInfo.append(fileMatch.groupdict())
+            else:
+                logLines.append(strippedLine)
+
+        self.addLog("\n".join(logLines))
+
+        for info in fileInfo:
+            self.addFile(posixpath.join(dirName, info['file']))
 
 if __name__ == '__main__':
     KdeFilter().main()
