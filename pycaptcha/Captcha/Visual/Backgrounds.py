@@ -22,9 +22,8 @@ Background layers for visual CAPTCHAs
 #
 
 from Captcha.Visual import Layer
-import Numeric, RandomArray
 import random
-import Image, ImageDraw
+import ImageDraw
 
 
 class SolidColor(Layer):
@@ -34,13 +33,6 @@ class SolidColor(Layer):
 
     def render(self, image):
         image.paste(self.color)
-
-
-class Noise(Layer):
-    """A background made of grayscale random noise"""
-    def render(self, image):
-        i = RandomArray.uniform(0, 255, image.size).astype(Numeric.UInt8).tostring()
-        image.paste(Image.frombuffer("L", image.size, i))
 
 
 class Grid(Layer):

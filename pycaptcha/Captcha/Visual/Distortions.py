@@ -22,8 +22,7 @@ Distortion layers for visual CAPTCHAs
 #
 
 from Captcha.Visual import Layer
-import Numeric, RandomArray
-import Image, ImageDraw
+import ImageDraw
 import random, math
 
 
