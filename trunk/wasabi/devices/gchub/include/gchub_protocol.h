@@ -56,10 +56,10 @@
 ;// The low nybble of this code identifies the controller
 ;// (from 0 to 3) while the high nybble holds one of the
 ;// following codes:
+;// (note that all bytes not mentioned are undefined)
 
 ;// Type code for packets identifying controllers that
-;// are unplugged. No further information is encoded
-;// in the packet.
+;// are unplugged. No meaningful data follows the code byte.
 #define GCHUB_PACKET_DISCONNECT  0x10
 
 ;// Type code for packets containing analog axis bytes:
