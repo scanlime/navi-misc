@@ -25,6 +25,7 @@ other hardware like our Sega Genesis microcontroller.
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+import os
 from libunicone import *
 
 unicone_usb_init()
@@ -50,7 +51,7 @@ class UniconeDevice(object):
         if self._progress_c:
             progress_reporter_delete(self._progress_c)
 
-    def configure(self, bitstream, firmware = "firmware.bin"):
+    def configure(self, firmware, bitstream):
         """Ensure that the Unicone device has the given FPGA bitstream
            and microcontroller firmware. If the firmware and bitstream
            are already installed, this returns quickly. If any downloads
@@ -100,6 +101,14 @@ class UniconeDevice(object):
        by setting this to None.
        """
 
+_uniconeDevice = None
+def getUniconeDevice():
+    """Return the singleton UniconeDevice"""
+    global _uniconeDevice
+    if not _uniconeDevice:
+        _uniconeDevice = UniconeDevice()
+    return _uniconeDevice
+
 
 class GenesisDevice(object):
     """Low-level interface for initializing the Sega Genesis controller
@@ -119,6 +128,14 @@ class GenesisDevice(object):
     def update(self, wValue, wIndex):
         """Send a raw update. The caller is responsible for packing controller status."""
         genesis_device_update(self._dev, wValue, wIndex)
+
+_genesisDevice = None
+def getGenesisDevice():
+    """Return the singleton GenesisDevice"""
+    global _genesisDevice
+    if not _genesisDevice:
+        _genesisDevice = GenesisDevice()
+    return _genesisDevice
 
 
 class Emulator(object):
@@ -163,14 +180,26 @@ class FPGAEmulator(Emulator):
        """
     fpgaConfigName = None
 
-    def __init__(self, uniconeDevice):
+    def __init__(self, uniconeDevice=None):
+        if not uniconeDevice:
+            uniconeDevice = getUniconeDevice()
         self.dev = uniconeDevice
         Emulator.__init__(self)
         self.configure()
 
-    def configure(self):
-        self.dev.configure("fpga/%(fpgaConfigName)s/%(fpgaConfigName)s.bit" %
-                           self.__class__.__dict__)
+    def configure(self, dataDir=None):
+        """Configure the FPGA and/or microcontroller as necessary.
+           We look for the firmware and FPGA files relative to our
+           python module's directory by default.
+           """
+        if not dataDir:
+            import PyUnicone
+            moduleDir = os.path.split(PyUnicone.__file__)[0]
+            dataDir = os.path.join(moduleDir, '..')
+            
+        self.dev.configure(os.path.join(dataDir, 'firmware.bin'),
+                           os.path.join(dataDir, 'fpga', self.fpgaConfigName,
+                                        "%s.bit" % self.fpgaConfigName))
 
     def sync(self):
         """Send our our current controller status to the hardware.

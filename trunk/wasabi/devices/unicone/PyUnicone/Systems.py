@@ -111,7 +111,9 @@ class GenesisEmulator(Device.Emulator):
     numPorts = 2
     controllerClass = GenesisController
 
-    def __init__(self, genesisDevice):
+    def __init__(self, genesisDevice=None):
+        if not genesisDevice:
+            genesisDevice = Device.getGenesisDevice()
         self.dev = genesisDevice
         Device.Emulator.__init__(self)
         self.power = Controller.Button("BTN_POWER", 0)
