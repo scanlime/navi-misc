@@ -31,10 +31,10 @@ rulesetStorage = Ruleset.RulesetStorage(hub, uriRegistry)
 # Save the 'universe' capability key so it can be used later by the administrative tools
 Security.caps.saveKey('universe', '~/.cia_key')
 
-# Our front page is the 'welcome' document, but unless otherwise specified we load
-# other pages form the 'htdocs' directory, as static files.
+# Our front page renders the documentation root, but unless otherwise specified
+# we load other pages form the 'htdocs' directory, as static files.
 doc = Web.Doc.Component('doc')
-webRoot = Web.Server.StaticJoiner('htdocs', Web.Doc.Page(doc, 'welcome'))
+webRoot = Web.Server.StaticJoiner('htdocs', doc.resource)
 site = Web.Server.Site(webRoot)
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port

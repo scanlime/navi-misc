@@ -1,29 +1,75 @@
-===================
-Documentation Index
-===================
+=======
+CIA Bot
+=======
 
-wow, it's like documentation
-============================
-
-Using CIA
----------
-
-- User Documentation
-
-  - `Adding projects </doc/adding-projects>`_
-
-Development
------------
-
-- Introduction
-
-  - `README file </doc/README>`_
-
-- Status
-
-  - `Known Bugs </doc/BUGS>`_
-  - `To-do List </doc/TODO>`_
+Tracking open source projects in real-time
+==========================================
 
 
+Introduction
+------------
+
+CIA is a system for tracking open-source projects in real-time.  The
+most popular incarnation of CIA now is a system of IRC bots that hang
+out mostly in #commits on Freenode_ and report commit messages from
+over 100 open source projects, even `CIA itself`_.
+
+CIA has just been through a complete rewrite that makes its internals
+much cleaner, and lets it track more than just commit messages with
+more than just IRC bots. The public interface for stats and setup
+however isn't done yet. If you have a project you would like CIA to
+monitor, talk to 'scanline' in #commits on freenode.
+
+CIA is Free Software, licensed under the GPL. The source is available
+from a Subversion_ repository_.
 
 
+History
+-------
+
+- May 23, 2003
+
+    CIA started out as a simple bot hacked together by Micah Dowty in an
+    afternoon to monitor commit messages for the PicoGUI_ project.  Lalo
+    Martins came up with the name "CIA" to refer to this IRC bot:
+    PicoGUI_ is hosted in Subversion_, and the bot was a brainless entity
+    designed to keep an eye on subversion :)
+
+- June 1, 2003
+
+    About a week later, Mike Hearn suggested expanding it to work with
+    other projects, displaying them all in one channel in addition to
+    the project's home channel. After a morning of quick hacking,
+    #commits on Freenode_ was born. Popularity grew almost instantly.
+
+    Micah stepped into the shadows for a while. Mike maintained CIA, but
+    the code remained stagnant.  It was a quick hack, so incremental
+    changes just made it messier. It needed a rewrite.
+
+- December 13, 2003
+
+    Micah finally gets the motivation to rewrite CIA, bringing you what
+    you see here.
+
+
+Brought to you by...
+--------------------
+
+CIA is written and hosted by `Micah Dowty`_.
+
+CIA makes extensive use of many fine open source projects, including
+Python_, Twisted_, Procmail_, MySQL_, and Apache_.
+
+CIA uses open standards, including XHTML, CSS2, and XML-RPC.
+
+.. _Micah Dowty: mailto:micah@picogui.org
+.. _Python: http://python.org
+.. _Twisted: http://twistedmatrix.com
+.. _Procmail: http://www.procmail.org
+.. _MySQL: http://www.mysql.com
+.. _Apache: http://apache.org
+.. _Freenode: http://freenode.org
+.. _PicoGUI: http://picogui.org
+.. _CIA itself: /stats/project/navi-misc/cia
+.. _repository: http://navi.cx/svn/misc/trunk/cia/
+.. _Subversion: http://subversion.tigris.org/
