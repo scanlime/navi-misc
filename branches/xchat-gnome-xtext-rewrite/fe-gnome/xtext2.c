@@ -493,6 +493,19 @@ set_bg (XText2 *xtext, GdkGC *gc, int index)
 #endif
 }
 
+static void
+buffer_destruction_notify (XText2 *xtext, XTextBuffer *buffer)
+{
+}
+
+static XTextFormat*
+allocate_buffer (XText2 *xtext, XTextBuffer *buffer)
+{
+  XTextFormat *f = g_new0 (XTextFormat, 1);
+  g_hash_table_insert (xtext->priv->buffer_info, buffer, f);
+  g_object_weak_ref (G_OBJECT (buffer), (GWeakNotify) buffer_destruction_notify, xtext);
+}
+
 void
 xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
 {
@@ -502,7 +515,6 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
   if (f == NULL)
   {
     /* this isn't a buffer we've seen before */
-    f = g_new0 (XTextFormat, 1);
-    g_hash_table_insert (xtext->priv->buffer_info, buffer, f);
+    f = allocate_buffer (xtext, buffer);
   }
 }
