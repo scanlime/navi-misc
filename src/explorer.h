@@ -92,6 +92,11 @@ struct _Explorer {
 
     GTimeVal             last_anim_frame_time;
 
+    GQueue*              history_queue;
+    guint                history_timer;
+    GList*               history_current_link;
+    gboolean             history_freeze;
+
 #ifdef HAVE_GNET
     ClusterModel*        cluster_model;
 #endif
@@ -125,6 +130,9 @@ void      explorer_init_cluster          (Explorer *self);
 void      explorer_dispose_cluster       (Explorer *self);
 
 void      explorer_init_about            (Explorer *self);
+
+void      explorer_init_history          (Explorer *self);
+void      explorer_dispose_history       (Explorer *self);
 
 void      explorer_run_iterations        (Explorer *self);
 void      explorer_update_gui            (Explorer *self);

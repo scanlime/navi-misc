@@ -148,6 +148,7 @@ static void explorer_dispose(GObject *gobject) {
 
     explorer_dispose_animation(self);
     explorer_dispose_cluster(self);
+    explorer_dispose_history(self);
 
     if (self->speed_timer) {
 	g_timer_destroy(self->speed_timer);
@@ -191,6 +192,7 @@ Explorer* explorer_new(IterativeMap *map, Animation *animation) {
     /* Set the initial render time */
     on_render_time_changed(glade_xml_get_widget(self->xml, "render_time"), self);
 
+    explorer_init_history(self);
     explorer_init_animation(self);
     explorer_init_tools(self);
     explorer_init_cluster(self);
