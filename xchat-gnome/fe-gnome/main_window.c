@@ -29,6 +29,7 @@
 #include "channel_list.h"
 #include "preferences.h"
 #include "navigation_tree.h"
+#include "textgui.h"
 
 #ifdef HAVE_GTKSPELL
 #include <gtkspell/gtkspell.h>
@@ -253,7 +254,7 @@ void on_help_about_menu_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_text_entry_activate(GtkWidget *widget, gpointer data) {
-	char *entry_text = gtk_entry_get_text(GTK_ENTRY(widget));
+	const char *entry_text = gtk_entry_get_text(GTK_ENTRY(widget));
 	handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
@@ -279,32 +280,67 @@ static void history_key_up(GtkEntry *entry) {
 static void tab_complete_nickname(GtkEntry *entry, int start) {
 	GCompletion *completion;
 	int cursor, length;
-	const char *text;
+	char *text;
 	GList *list;
-
+	char *printtext, *npt;
+	session_gui *tgui;
 
 	completion = userlist_get_nick_completion();
 	g_completion_set_compare(completion, (GCompletionStrncmpFunc) strncasecmp);
-	text = gtk_entry_get_text(entry);
+	text = g_strdup(gtk_entry_get_text(entry));
 	length = strlen(text);
 	cursor = gtk_editable_get_position(GTK_EDITABLE(entry));
-	g_print("trying to complete!\nstart  = %d\ncursor = %d\n\n", start, cursor);
 	if(length - cursor != 1) {
 		/* we're at the end of the entry, just complete from start to cursor*/
 		GList *options;
 		gchar *new_prefix;
 		gchar prefix[cursor - start];
 
-		strncpy(prefix, text, cursor - start);
+		strncpy(prefix, &text[start], cursor - start);
 		prefix[cursor - start] = '\0';
 
 		options = g_completion_complete(completion, prefix, &new_prefix);
-		g_print("new prefix=\"%s\"\navailable items:\n", new_prefix);
-		for(list = options; list; list = list->next) {
-			g_print("  %s\n", list->data);
+		if(g_list_length(options) == 0) {
+			g_free(text);
+			return;
 		}
-		g_list_free(options);
-		g_print("\n\n");
+		if(g_list_length(options) == 1) {
+			int pos;
+
+			text[start] = '\0';
+			if(start != 0) {
+				npt = g_strdup_printf("%s%s%s", text, (char *) options->data, &text[start]);
+				pos = strlen((char *) options->data) + start;
+			} else {
+				npt = g_strdup_printf("%s: %s", (char *) options->data, text);
+				pos = strlen((char *) options->data) + 2;
+			}
+			gtk_entry_set_text(entry, npt);
+			gtk_editable_set_position(GTK_EDITABLE(entry), pos);
+			g_free(npt);
+			g_free(text);
+			return;
+		}
+		/* we have more than one match - print a list of options to the window */
+		list = options;
+		printtext = g_strdup((char *) list->data);
+		for(list = list->next; list; list = list->next) {
+			npt = g_strdup_printf("%s %s", printtext, (char *) list->data);
+			g_free(printtext);
+			printtext = npt;
+		}
+		tgui = (session_gui *) gui.current_session->gui;
+		text_gui_print(tgui->buffer, printtext, TRUE);
+		g_free(printtext);
+		if(strcasecmp(prefix, new_prefix) != 0) {
+			/* insert the new prefix into the entry */
+			text[start] = '\0';
+			npt = g_strdup_printf("%s%s%s", text, new_prefix, &text[cursor]);
+			gtk_entry_set_text(entry, npt);
+			g_free(npt);
+			gtk_editable_set_position(GTK_EDITABLE(entry), start + strlen(new_prefix));
+		}
+		g_free(text);
 	}
 }
 
