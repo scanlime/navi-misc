@@ -105,6 +105,9 @@
 ;//    wIndex low:   Current slave address
 ;//    wValue high:  Pin descriptor for clock
 ;//    wValue low:   Pin descriptor for data (simulated open drain)
+;//
+;// New in protocol version 1.20
+;//
 #define RCPOD_CTRL_I2C_SET      0x30
 
 ;// Perform short I2C bus writes of various sizes. The bytes to
@@ -112,6 +115,9 @@
 ;//
 ;// Returns a 1-byte packet indicating the number of successful writes, including
 ;// the address bytes.
+;//
+;// New in protocol version 1.20
+;//
 #define RCPOD_CTRL_I2C_WRITE0   0x31
 #define RCPOD_CTRL_I2C_WRITE1   0x32
 #define RCPOD_CTRL_I2C_WRITE2   0x33
@@ -121,12 +127,18 @@
 ;// Perform an I2C bus read, of length given in the low byte of wValue,
 ;// up to a maximum of 8 bytes. Returns an empty packet if the address
 ;// byte is not acknowledged.
+;//
+;// New in protocol version 1.20
+;//
 #define RCPOD_CTRL_I2C_READ8    0x36
 
 ;// Write one byte, from wValue, then read wIndex bytes of data, up to 8
 ;// bytes. This is an optimization for the common case where you need
 ;// to write a command address then read from that address. Returns a
 ;// zero-length packet if the write or the address byte does not acknowledge.
+;//
+;// New in protocol version 1.20
+;//
 #define RCPOD_CTRL_I2C_W1READ8  0x37
 
 ;// Optionally do a generic transmit to the current address, then optionally
@@ -134,6 +146,9 @@
 ;// of wValue holds the number of bytes to transmit, the high byte of wValue
 ;// holds the number of bytes to receive. Returns a 1-byte packet with the
 ;// ACK count.
+;//
+;// New in protocol version 1.20
+;//
 #define RCPOD_CTRL_I2C_TXRX     0x38
 
 
