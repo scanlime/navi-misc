@@ -32,7 +32,8 @@ class PalantirWindow:
 
     list = self.tree.get_widget('UserList')
     list.set_model(model=gtk.ListStore(gobject.TYPE_STRING))
-    list.append_column(gtk.TreeViewColumn())
+    #list.append_column(gtk.TreeViewColumn('Icons', gtk.CellRendererPixbuf()))
+    list.append_column(gtk.TreeViewColumn('Users', gtk.CellRendererText(), text=0))
     # Client factory.
     self.factory = palantirIRC.PalantirClientFactory('nuku-nuku', ui=self)
 
@@ -270,7 +271,7 @@ class PalantirWindow:
     ''' Add nick the userlist. '''
     list = self.tree.get_widget('UserList')
     store = list.get_model()
-    store.set_value(store.append([gobject.TYPE_STRING]), 1, nick)
+    store.set_value(store.append([gobject.TYPE_STRING]), 0, nick)
 
 
   def PrintText(self, text):
