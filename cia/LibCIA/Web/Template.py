@@ -29,6 +29,7 @@ from Nouvelle import tag, place
 catalogList = tag('ul', _class="catalog")
 headingTab = tag('a', _class="headingtab")
 value = tag('strong')
+photo = tag('img', _class="photo")
 
 
 class Bargraph(tag):
