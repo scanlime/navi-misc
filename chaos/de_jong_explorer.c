@@ -31,6 +31,11 @@ struct {
   double x,y;
 } point;
 
+/* Convert a gray level from 0 to 255 to an ARGB color in little endian.
+ * This macro can be redefined to colorize the image differently.
+ */
+#define GRAY_TO_RGBA(gray) (GUINT32_TO_LE( gray | (gray<<8) | (gray<<16) | 0xFF000000UL ))
+
 GtkWidget *window, *drawing_area, *iterl;
 GtkWidget *as, *bs, *cs, *ds, *ls, *zs, *xos, *yos;
 GtkWidget *start, *stop, *save, *randbutton;
@@ -48,6 +53,7 @@ void update_pixels();
 void clear();
 void resize(int w, int h);
 void set_defaults();
+float get_pixel_scale();
 void load_parameters_from_file(const char *name);
 void interactive_main(int argc, char **argv);
 void render_main(const char *filename, guint targetDensity);
@@ -179,7 +185,6 @@ void render_main(const char *filename, guint targetDensity) {
   }
 
   printf("Creating image...\n");
-  update_pixels();
   save_to_file(filename);
 }
 
@@ -354,23 +359,11 @@ int auto_limit_update_rate(void) {
   return limit_update_rate(200 / (1 + (log(iterations) - 9.21) * 4));
 }
 
-void progressive_update_pixels(int steps) {
-  /* Progressively update the pixels[] with RGBA values corresponding to the
-   * raw point counts in counts[]. This uses an interlacing method where only
-   * 1/steps of the image is updated each call. The entire image will be updated
-   * if steps == 1.
-   *
-   * 'steps' MUST be a power of two!
+float get_pixel_scale() {
+  /* Calculate the scale factor for converting count[] values to luminance
+   * values between 0 and 1.
    */
-  const int rowstride = width * 4;
-  const int progressive_mask = steps - 1;
-  guchar *row;
-  guint32 *p;
-  guint32 gray, iscale;
-  guint countsclamp, dval, *count_p, *count_row;
-  int x, y;
-  float density, luma, fscale;
-  static int progressive_row = 0;
+  float density, fscale;
 
   /* Scale our counts to a luminance between 0 and 1 that gets fed through our
    * colormap[] to generate an actual gdk color. 'p' contains the number of
@@ -392,6 +385,27 @@ void progressive_update_pixels(int steps) {
    */
   if (fscale > 0.5)
     fscale = 0.5;
+
+  return fscale;
+}
+
+void fast_update_pixels(int steps) {
+  /* Progressively update the pixels[] with RGBA values corresponding to the
+   * raw point counts in counts[]. This uses an interlacing method where only
+   * 1/steps of the image is updated each call. The entire image will be updated
+   * if steps == 1.
+   *
+   * 'steps' MUST be a power of two!
+   */
+  const int rowstride = width * 4;
+  const int progressive_mask = steps - 1;
+  guchar *row;
+  guint32 *p;
+  guint32 gray, iscale;
+  guint countsclamp, dval, *count_p, *count_row;
+  int x, y;
+  static int progressive_row = 0;
+  float fscale = get_pixel_scale();
 
   /* This is the maximum allowed value for counts[], corresponding to full black */
   countsclamp = (int)(1 / fscale) - 1;
@@ -415,7 +429,7 @@ void progressive_update_pixels(int steps) {
 
 	gray = 255 - ((dval * iscale) >> 24);
 
-	*(p++) = GUINT32_TO_LE( gray | (gray<<8) | (gray<<16) | 0xFF000000UL );
+	*(p++) = GRAY_TO_RGBA(gray);
       }
     }
     row += rowstride;
@@ -426,8 +440,36 @@ void progressive_update_pixels(int steps) {
 }
 
 void update_pixels() {
-  /* Update all pixels, no progressive rendering */
-  progressive_update_pixels(1);
+  /* A slower but higher quality method of converting counts[] to pixels[].
+   * This uses floating point math, and doesn't perform any progressive rendering.
+   */
+  const int rowstride = width * 4;
+  guchar *row;
+  guint32 *p;
+  guint32 gray;
+  guint *count_p, *count_row;
+  int x, y;
+  float fscale = get_pixel_scale();
+  float luma;
+
+  row = pixels;
+  count_row = counts;
+
+  for (y=0; y<height; y++) {
+    p = (guint32*) row;
+    count_p = count_row;
+    for (x=0; x<width; x++) {
+
+      luma = *(count_p++) * fscale;
+      if (luma > 1)
+	luma = 1;
+
+      gray = 255 - (luma * 255);
+      *(p++) = GRAY_TO_RGBA(gray);
+    }
+    row += rowstride;
+    count_row += width;
+  }
 }
 
 void update_gui() {
@@ -446,7 +488,7 @@ void update_gui() {
   g_free(iters);
 
   /* Update our pixels[] from counts[], 1/4 of the rows at a time */
-  progressive_update_pixels(4);
+  fast_update_pixels(4);
 
   /* Update our drawing area */
   gdk_draw_rgb_32_image(drawing_area->window, gc,
@@ -634,6 +676,10 @@ void save_to_file(const char *name) {
   /* Save the current contents of pixels[] to a .PNG file */
   GdkPixbuf *pixbuf;
   gchar *params;
+
+  /* Get a higher quality rendering */
+  update_pixels();
+
   pixbuf = gdk_pixbuf_new_from_data(pixels, GDK_COLORSPACE_RGB, TRUE,
 				    8, width, height, width*4, NULL, NULL);
 
