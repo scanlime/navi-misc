@@ -25,6 +25,8 @@ public class imain
 
 	/** The server socket that listens for stuff */
 	private ServerSocket server = null;
+	/** The question database */
+	private qbase database = null;
 	
 	/**
 	 * This method constructs the server, and handles the basic initialization
@@ -45,6 +47,8 @@ public class imain
 			System.out.println(exception);
 			System.exit(0);
 		}
+		database = new qbase(1,1);
+		asubmit.init(database);
 	}
 	
 	/**

@@ -72,4 +72,5 @@ jar: $(CLASSFILES) server.jar
 	jar cmf .manifest server.jar *.class
 
 run: $(CLASSFILES) server.jar
-	java -jar server.jar
+	java imain
+#	java -jar server.jar
