@@ -28,8 +28,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <math.h>
 
 static int uinput_fd = 0;
+static float subpixel_residual_x = 0;
+static float subpixel_residual_y = 0;
 
 
 void uinput_mouse_init(const char *dev_name) {
@@ -79,6 +82,17 @@ void uinput_mouse_move(int rel_x, int rel_y) {
   event.code = SYN_REPORT;
   event.value = 0;
   write(uinput_fd, &event, sizeof(event));
+}
+
+void uinput_mouse_move_subpixel(float rel_x, float rel_y) {
+  int ix, iy;
+  rel_x += subpixel_residual_x;
+  rel_y += subpixel_residual_y;
+  ix = (int)floor(rel_x);
+  iy = (int)floor(rel_y);
+  uinput_mouse_move(ix, iy);
+  subpixel_residual_x = rel_x - ix;
+  subpixel_residual_y = rel_y - iy;
 }
 
 /* The End */

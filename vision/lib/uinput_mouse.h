@@ -24,6 +24,7 @@
 
 void uinput_mouse_init(const char *dev_name);
 void uinput_mouse_move(int rel_x, int rel_y);
+void uinput_mouse_move_subpixel(float rel_x, float rel_y);
 
 #endif /* __UINPUT_MOUSE__H_ */
 
