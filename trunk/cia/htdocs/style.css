@@ -32,7 +32,7 @@ a:hover {
 
 ul {
   line-height: 1.5em;
-  list-style-image: url(bullet.png);
+  list-style-image: url(/images/bullet.png);
   margin-left: 2.0em;
   padding: 0em;
   margin: 0em 0em 0em 1.5em;
