@@ -11,10 +11,10 @@ CSFLAGS =		\
 
 CSFILES =			\
 	CanvasElement.cs	\
+	Dialogs.cs		\
 	Element.cs		\
 	ElementList.cs		\
 	ElementTooltip.cs	\
-	ErrorDialog.cs		\
 	NavigationImage.cs	\
 	Pipeline.cs		\
 	PipelineDrawing.cs	\
