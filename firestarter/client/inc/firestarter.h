@@ -53,6 +53,9 @@ public:
   virtual const char* GetRootResDir ( void );
 	virtual const char* GetPrefsName ( void );
 
+	CListServerClientConnection & getListServer ( void ) { return listServer;}
+
+
 protected:
 	// global flags
 	bool				inUI;

@@ -26,6 +26,7 @@
 
 // the individual menu items
 #include "mainMenu.h"
+#include "joinMenu.h"
 
 CUserInterface::CUserInterface()
 {
@@ -54,6 +55,7 @@ void CUserInterface::Init ( void )
 void CUserInterface::LoadPanels ( void )	// load and init all panels
 {
 	panels["mainMenu"] = (CBaseUIPanel*)new CMainMenu;
+	panels["joinMenu"] = (CBaseUIPanel*)new CJoinMenu;
 
 	panelmap::iterator itr = panels.begin();
 	while (itr != panels.end())

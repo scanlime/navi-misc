@@ -164,6 +164,9 @@
 					Name="menus"
 					Filter="">
 					<File
+						RelativePath="..\ui\src\joinMenu.cpp">
+					</File>
+					<File
 						RelativePath="..\ui\src\mainMenu.cpp">
 					</File>
 				</Filter>
@@ -186,6 +189,37 @@
 						<File
 							RelativePath="..\game\test\src\world.cpp">
 						</File>
+						<Filter
+							Name="Core"
+							Filter="">
+							<File
+								RelativePath="..\..\common\inc\commandargs.h">
+							</File>
+							<File
+								RelativePath="..\..\common\inc\events.h">
+							</File>
+							<File
+								RelativePath="..\..\common\inc\gameloop.h">
+							</File>
+							<File
+								RelativePath="..\..\common\inc\input.h">
+							</File>
+							<File
+								RelativePath="..\..\common\inc\listserver.h">
+							</File>
+							<File
+								RelativePath="..\..\common\inc\osfile.h">
+							</File>
+							<File
+								RelativePath="..\..\common\inc\prefs.h">
+							</File>
+							<File
+								RelativePath="..\..\common\inc\Singleton.h">
+							</File>
+							<File
+								RelativePath="..\..\common\inc\timer.h">
+							</File>
+						</Filter>
 					</Filter>
 					<Filter
 						Name="gfx"
@@ -211,40 +245,6 @@
 			<File
 				RelativePath="..\inc\firestarter.h">
 			</File>
-			<File
-				RelativePath=".\resource.h">
-			</File>
-			<Filter
-				Name="Core"
-				Filter="">
-				<File
-					RelativePath="..\..\common\inc\commandargs.h">
-				</File>
-				<File
-					RelativePath="..\..\common\inc\events.h">
-				</File>
-				<File
-					RelativePath="..\..\common\inc\gameloop.h">
-				</File>
-				<File
-					RelativePath="..\..\common\inc\input.h">
-				</File>
-				<File
-					RelativePath="..\..\common\inc\listserver.h">
-				</File>
-				<File
-					RelativePath="..\..\common\inc\osfile.h">
-				</File>
-				<File
-					RelativePath="..\..\common\inc\prefs.h">
-				</File>
-				<File
-					RelativePath="..\..\common\inc\Singleton.h">
-				</File>
-				<File
-					RelativePath="..\..\common\inc\timer.h">
-				</File>
-			</Filter>
 			<Filter
 				Name="UI"
 				Filter="">
@@ -254,6 +254,9 @@
 				<Filter
 					Name="menus"
 					Filter="">
+					<File
+						RelativePath="..\ui\inc\joinMenu.h">
+					</File>
 					<File
 						RelativePath="..\ui\inc\mainMenu.h">
 					</File>
@@ -307,6 +310,9 @@
 			</File>
 			<File
 				RelativePath=".\icon1.ico">
+			</File>
+			<File
+				RelativePath=".\resource.h">
 			</File>
 		</Filter>
 	</Files>

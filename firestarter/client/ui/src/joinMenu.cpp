@@ -1,5 +1,5 @@
 /* Firestarter
-* mainMenu.cpp : 
+* joinMenu.cpp : 
 *
 * Copyright (C) 2004 Jeffrey Myers
 *
@@ -19,22 +19,22 @@
 *
 * email: jeffm2501@sbcglobal.net
 */
-#include "mainMenu.h"
+#include "joinMenu.h"
 #include "firestarter.h"
 #include "input.h"
 #include "timer.h"
 
-CMainMenu::CMainMenu()
+CJoinMenu::CJoinMenu()
 {
 	CBaseUIPanel::CBaseUIPanel();
 }
 
-CMainMenu::~CMainMenu()
+CJoinMenu::~CJoinMenu()
 {
 
 }
 
-void CMainMenu::Init ( void  )
+void CJoinMenu::Init ( void  )
 {
 	CBaseUIPanel::Init();
 
@@ -44,12 +44,72 @@ void CMainMenu::Init ( void  )
 	currentItem = 0;
 }
 
-void CMainMenu::Attach ( void )
+void CJoinMenu::Attach ( void )
 {
 	CFirestarterLoop &gameLoop = CFirestarterLoop::instance();
 
-	mainMenu = (Overlay*)OverlayManager::getSingleton().getByName("menu/mainMenu");
+	mainMenu = (Overlay*)OverlayManager::getSingleton().getByName("menu/joinMenu");
 	mainMenu->show();
+
+	GuiContainer* container = mainMenu->getChild("join/menuPanel");
+// fill in the servers
+	char temp[512];
+
+	GuiElement* selction = container->getChild("join/server1");
+	if (gameLoop.getListServer().count() >0 && selction)
+	{
+		trServerInfo	&info = gameLoop.getListServer().info(0);
+		sprintf(temp,"%s:%d - %s - %s  %d/%d",info.address.c_str(),info.port,info.name.c_str(),info.game.c_str(),info.currentPlayers,info.maxPlayers);
+		Ogre::String	caption(temp);
+		selction->setCaption(caption);
+	}
+	else if (selction)
+		selction->setCaption("-");
+
+	selction = container->getChild("join/server2");
+	if (gameLoop.getListServer().count() >1 && selction)
+	{
+		trServerInfo	&info = gameLoop.getListServer().info(1);
+		sprintf(temp,"%s:%d - %s - %s  %d/%d",info.address.c_str(),info.port,info.name.c_str(),info.game.c_str(),info.currentPlayers,info.maxPlayers);
+		Ogre::String	caption(temp);
+		selction->setCaption(caption);
+	}
+	else if (selction)
+		selction->setCaption("-");
+
+	selction = container->getChild("join/server3");
+	if (gameLoop.getListServer().count() >2 && selction)
+	{
+		trServerInfo	&info = gameLoop.getListServer().info(2);
+		sprintf(temp,"%s:%d - %s - %s  %d/%d",info.address.c_str(),info.port,info.name.c_str(),info.game.c_str(),info.currentPlayers,info.maxPlayers);
+		Ogre::String	caption(temp);
+		selction->setCaption(caption);
+	}
+	else if (selction)
+		selction->setCaption("-");
+
+	selction = container->getChild("join/server4");
+	if (gameLoop.getListServer().count() >3 && selction)
+	{
+		trServerInfo	&info = gameLoop.getListServer().info(3);
+		sprintf(temp,"%s:%d - %s - %s  %d/%d",info.address.c_str(),info.port,info.name.c_str(),info.game.c_str(),info.currentPlayers,info.maxPlayers);
+		Ogre::String	caption(temp);
+		selction->setCaption(caption);
+	}
+	else if (selction)
+		selction->setCaption("-");
+
+	selction = container->getChild("join/server5");
+	if (gameLoop.getListServer().count() >4 && selction)
+	{
+		trServerInfo	&info = gameLoop.getListServer().info(4);
+		sprintf(temp,"%s:%d - %s - %s  %d/%d",info.address.c_str(),info.port,info.name.c_str(),info.game.c_str(),info.currentPlayers,info.maxPlayers);
+		Ogre::String	caption(temp);
+		selction->setCaption(caption);
+	}
+	else if (selction)
+		selction->setCaption("-");
+
 
 	gameLoop.GetCamera()->moveRelative(Vector3(0,1.5f,0));
 
@@ -103,7 +163,7 @@ void CMainMenu::Attach ( void )
 	ships[2]->translate(-rad,0,z); 
 }
 
-void CMainMenu::Release ( void )
+void CJoinMenu::Release ( void )
 {
 	CFirestarterLoop &gameLoop = CFirestarterLoop::instance();
 
@@ -117,7 +177,7 @@ void CMainMenu::Release ( void )
 	gameLoop.ClearScene();
 }
 
-tePanelReturn CMainMenu::Process ( std::string &next )
+tePanelReturn CJoinMenu::Process ( std::string &next )
 {
 	CFirestarterLoop &gameLoop = CFirestarterLoop::instance();
 
@@ -137,18 +197,13 @@ tePanelReturn CMainMenu::Process ( std::string &next )
 	if (CInputManager::instance().KeyDown(KEY_RETURN))
 	{
 		// put somethign not lame here]
-		switch (currentItem)
-		{
-		case 0:
-			next = "joinMenu";
-			return ePanelNext;
-			break;
+		trServerInfo	&info = gameLoop.getListServer().info(currentItem);
 
-		case 1:
-			next = "settingsMenu";
-			return ePanelNext;
-			break;
-		}
+		gameLoop.SetGameName(info.game.c_str());
+		char temp[512];
+		sprintf(temp,"%s:%d",info.address,info.port);
+		gameLoop.SetGameStartString(temp);
+		return ePanelStart;
 	}
 	// do the menu stuff here
 	if (CInputManager::instance().KeyDown(KEY_DOWN))
@@ -158,11 +213,11 @@ tePanelReturn CMainMenu::Process ( std::string &next )
 
 	if (currentItem < 0)
 		currentItem = 0;
-	else if (currentItem > 1)
-		currentItem = 1;
+	else if (currentItem > gameLoop.getListServer().count()-1)
+		currentItem = gameLoop.getListServer().count()-1;
 
-	GuiContainer* selction = mainMenu->getChild("main/selection");
-	selction->setPosition(-200-64-10,175+currentItem*100);
+	GuiContainer* selction = mainMenu->getChild("join/selection");
+	selction->setPosition(-350,200+currentItem*25);
 
 	if (CInputManager::instance().KeyDown(KEY_Q))
 		return ePanelBack;
