@@ -71,6 +71,7 @@ static void on_insert_color_code_activate (GtkAction *action, gpointer data);
 static void on_network_information_activate (GtkAction *action, gpointer data);
 static void on_network_reconnect_activate (GtkAction *action, gpointer data);
 static void on_network_disconnect_activate (GtkAction *action, gpointer data);
+static void on_network_close_activate (GtkAction *action, gpointer data);
 static void on_network_channels_activate (GtkAction *action, gpointer data);
 static void on_network_users_activate (GtkAction *action, gpointer data);
 static void on_discussion_save_activate (GtkAction *action, gpointer data);
@@ -137,6 +138,7 @@ static GtkActionEntry action_entries [] = {
 	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, _("_Information"), "", NULL, G_CALLBACK (on_network_information_activate) },
 	{ "NetworkReconnect", GTK_STOCK_REFRESH, _("_Reconnect"), "<control>R", NULL, G_CALLBACK (on_network_reconnect_activate) },
 	{ "NetworkDisconnect", GTK_STOCK_STOP, _("_Disconnect"), "", NULL, G_CALLBACK (on_network_disconnect_activate) },
+	{ "NetworkClose", GTK_STOCK_CLOSE, _("_Close"), "", NULL, G_CALLBACK (on_network_close_activate) },
 	{ "NetworkChannels", GTK_STOCK_INDEX, _("_Channels"), "<alt>C", NULL, G_CALLBACK (on_network_channels_activate) },
 	{ "NetworkUsers", NULL, _("_Users"), "<alt>U", NULL, G_CALLBACK (on_network_users_activate) },
 
@@ -629,6 +631,11 @@ on_network_disconnect_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
 	s->server->disconnect (s, TRUE, -1);
+}
+
+static void
+on_network_close_activate (GtkAction *actoin, gpointer data)
+{
 }
 
 static void

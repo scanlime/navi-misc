@@ -26,6 +26,7 @@
 			<separator name="NetworkSep0"/>
 			<menuitem name="NetworkReconnectItem" action="NetworkReconnect"/>
 			<menuitem name="NetworkDisconnectItem" action="NetworkDisconnect"/>
+			<menuitem name="NetworkCloseItem" action="NetworkClose"/>
 			<separator name="NetworkSep1"/>
 			<menuitem name="NetworkChannelsItem" action="NetworkChannels"/>
 			<menuitem name="NetworkUsersItem" action="NetworkUsers"/>
@@ -70,7 +71,8 @@
                 <menuitem name="ServerInformation" action="ServerInformation"/>
                 <separator name="ServerPopupSep0"/>
                 <menuitem name="ServerReconnect" action="ServerReconnect"/>
-                <menuitem name="ServerDisconnect" action="ServerDisconnect"/>
+				<menuitem name="ServerDisconnect" action="ServerDisconnect"/>
+				<menuitem name="ServerClose" action="ServerClose"/>
                 <separator name="ServerPopupSep1"/>
                 <menuitem name="ServerChannels" action="ServerChannels"/>
         </popup>
