@@ -392,6 +392,7 @@ static gboolean tab_complete_nickname(GtkEntry *entry, int start) {
 	text = g_strdup(gtk_entry_get_text(entry));
 	length = strlen(text);
 	cursor = gtk_editable_get_position(GTK_EDITABLE(entry));
+
 	if(length - cursor != 1) {
 		/* we're at the end of the entry, just complete from start to cursor*/
 		GList *options;
@@ -402,10 +403,15 @@ static gboolean tab_complete_nickname(GtkEntry *entry, int start) {
 		prefix[cursor - start] = '\0';
 
 		options = g_completion_complete(completion, prefix, &new_prefix);
+
+		/* No matches */
 		if(g_list_length(options) == 0) {
+			gtk_widget_grab_focus(GTK_WIDGET(entry));
 			g_free(text);
 			return FALSE;
 		}
+
+		/* One match */
 		if(g_list_length(options) == 1) {
 			int pos;
 
@@ -423,13 +429,17 @@ static gboolean tab_complete_nickname(GtkEntry *entry, int start) {
 			g_free(text);
 			return TRUE;
 		}
+
 		/* we have more than one match - print a list of options to the window */
 		list = options;
 		printtext = g_strdup((char *) list->data);
+		int i;
+		i=0;
 		for(list = list->next; list; list = list->next) {
 			npt = g_strdup_printf("%s %s", printtext, (char *) list->data);
 			g_free(printtext);
 			printtext = npt;
+			i++;
 		}
 		tgui = (session_gui *) gui.current_session->gui;
 		text_gui_print(tgui->buffer, printtext, TRUE);
@@ -458,9 +468,9 @@ static gboolean tab_complete(GtkEntry *entry) {
 		return FALSE;
 
 	/* search backwards to find /, #, ' ' or start */
-	for(start = cursor_pos; start >= 0; --start) {
+	for(start = cursor_pos - 1; start >= 0; --start) {
 		/* check if we can match a channel */
-#if 0
+#if 0 /* <- (fails for all non-constant values of zero) */
 		if(text[start] == '#') {
 			if(start == 0 || text[start - 1] == ' ') {
 				tab_complete_channel(entry, start);
@@ -471,6 +481,7 @@ static gboolean tab_complete(GtkEntry *entry) {
 
 		/* check if we can match a command */
 		if(start == 0 && text[0] == '/') {
+		    /* TODO: Something? */
 		}
 
 		/* check if we can match a nickname */
