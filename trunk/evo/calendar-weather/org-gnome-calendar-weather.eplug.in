@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<e-plugin-list>
+    <e-plugin
+     type="shlib"
+     locaiton="@PLUGINDIR@/liborg-gnome-calendar-weather.so"
+     id="Weather Calendars">
+        <hook class="org.gnome.evolution.calendar.config:1.0">
+	    <group
+	     target="source"
+	     id="org.gnome.evolution.calendar.calendarProperties"
+	     check="e_calendar_weather_check">
+	        <item
+		 type="item_table"
+		 path="00.general/00.source/30.location"
+		 factory="e_calendar_weather_location"/>
+		<item
+		 type="item_table"
+		 path="00.general/00.source/40.refresh"
+		 factory="e_calendar_weather_refresh"/>
+	    </group>
+	</hook>
+    </e-plugin>
+</e-plugin-list>
