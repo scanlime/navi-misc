@@ -3,3 +3,4 @@
 * Some commands like /close don't seem to work
 * Sending a message when you're not in a channel breaks it too.
 * Connection bug when you background the app.
+* Separate chat buffer thing doesn't send things properly.

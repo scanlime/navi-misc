@@ -195,8 +195,11 @@ class PalantirWindow:
 
     # If the message isn't a command it's a regular message.
     else:
-      self.factory.Send(self.factory.channels[0], text)
-      self.messageReceive(self.factory.nickname, self.factory.channels[0], text)
+      notebook = self.tree.get_widget('Tabs')
+      key = notebook.get_tab_label(notebook.get_nth_page(notebook.get_current_page())).get_text()
+      print key, self.tabs[key]
+      self.factory.Send(self.tabs[key], text)
+      self.messageReceive(self.factory.nickname, self.tabs[key], text)
 
     # Reset the text in the text field.
     widget.set_text('')
@@ -297,10 +300,21 @@ class PalantirWindow:
 
   def query(self, args):
     ''' Open a query window. '''
-    tabpage = self.tree.get_widget('Tabs')
+    # Nickname of ther person we're querying.
     nick = args.split()[0]
+
+    tabpage = self.tree.get_widget('Tabs')
+
+    # Create a new chat buffer.
     self.tabs[nick] = GtkChatBuffer()
-    tabpage.append_page(self.tabs[nick], nick)
+    self.tabs[nick].show()
+
+    # Create a label for the new page in the notebook.
+    label = gtk.Label()
+    label.set_text(nick)
+
+    # add the page to the notebook.
+    tabpage.append_page(self.tabs[nick], label)
     tabpage.set_current_page(tabpage.page_num(self.tabs[nick]))
 
   def ping(self, args=''):
@@ -352,14 +366,17 @@ class PalantirWindow:
     ''' Just display a short message saying we joined the channel and send
         a WHO request to get the users in the channel.
 	'''
+    # Create a new item in the tabs dictionary for this channel.
     self.tabs[channel] = self.tabs['None']
-    self.tree.get_widget('Tabs').add(self.tabs[channel])
+    # Set the channel name to the label.
     self.tree.get_widget('Tabs').set_tab_label_text(self.tabs[channel],channel)
 
     if self.tree.get_widget('time_stamps').get_active():
       time = palantir.getTime()
     else:
       time = None
+
+    # Print a message saying we've joined.
     self.tabs[channel].DisplayText(time, '', 'Joined ' + channel)
 
   def left(self, channel):
@@ -370,9 +387,16 @@ class PalantirWindow:
       time = palantir.getTime()
     else:
       time = None
+
+    # Clear the user list.
     self.tree.get_widget('UserList').get_model().clear()
+    # Print a message saying we've left.
     self.tabs[channel].DisplayText(time, '', 'Left ' + channel)
+    # Clear the topic.
     self.tree.get_widget('Topic').set_text('')
+
+    # Delete the item in the tabs dictionary corresponding to this channel.
+    del self.tabs[channel]
 
   def topicReceive(self, user, channel, topic):
     ''' Recieved a topic change, so set the topic bar to the new topic. '''
