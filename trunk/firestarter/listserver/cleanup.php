@@ -21,9 +21,7 @@ function cleanupdb($thetime)
 	while ($line = mysql_fetch_array($result, MYSQL_ASSOC))
 	{
 		if ($thetime - $line[lastupdate] > 5*60 )	// if it's over 5 min
-		{
-			echo "the time delta was ".$thetime - $line[lastupdate]."<br>";
-			
+		{			
 			$deletequery = "DELETE FROM servers WHERE id = ".$line[id];
 			mysql_query($deletequery)
 				or die("cleanupdb::delete failed : " . mysql_error());
