@@ -105,6 +105,56 @@ unsigned char rcpod_Peek(rcpod_dev* rcpod, int address);
 void rcpod_AnalogSampleAll(rcpod_dev* rcpod, unsigned char buffer[8]);
 
 
+/************************************************** Constants*/
+
+
+#define RCPOD_MEM_SIZE          0x0200    /* Size of the address space reachable via peek and poke */
+
+/* A subset of the PIC's hardware registers. Those that couldn't possibly
+ * be useful to poke at via the rcpod have been omitted.
+ */
+#define RCPOD_REG_TMR0	        0x0001
+#define RCPOD_REG_STATUS        0x0003
+#define RCPOD_REG_PORTA	        0x0005
+#define RCPOD_REG_PORTB	        0x0006
+#define RCPOD_REG_PORTC	        0x0007
+#define RCPOD_REG_PORTD	        0x0008
+#define RCPOD_REG_PORTE	        0x0009
+#define RCPOD_REG_PCLATH        0x000A
+#define RCPOD_REG_INTCON        0x000B
+#define RCPOD_REG_PIR1	        0x000C
+#define RCPOD_REG_PIR2	        0x000D
+#define RCPOD_REG_TMR1L	        0x000E
+#define RCPOD_REG_TMR1H	        0x000F
+#define RCPOD_REG_T1CON         0x0010
+#define RCPOD_REG_TMR2	        0x0011
+#define RCPOD_REG_T2CON	        0x0012
+#define RCPOD_REG_CCPR1L        0x0015
+#define RCPOD_REG_CCPR1H        0x0016
+#define RCPOD_REG_CCP1CON       0x0017
+#define RCPOD_REG_RCSTA         0x0018
+#define RCPOD_REG_TXREG	        0x0019
+#define RCPOD_REG_RCREG	        0x001A
+#define RCPOD_REG_CCPR2L        0x001B
+#define RCPOD_REG_CCPR2H        0x001C
+#define RCPOD_REG_CCP2CON       0x001D
+#define RCPOD_REG_ADRES	        0x001E
+#define RCPOD_REG_ADCON0        0x001F
+#define RCPOD_REG_OPTION_REG    0x0081
+#define RCPOD_REG_TRISA	        0x0085
+#define RCPOD_REG_TRISB	        0x0086
+#define RCPOD_REG_TRISC	        0x0087
+#define RCPOD_REG_TRISD	        0x0088
+#define RCPOD_REG_TRISE	        0x0089
+#define RCPOD_REG_PIE1	        0x008C
+#define RCPOD_REG_PIE2	        0x008D
+#define RCPOD_REG_PCON	        0x008E
+#define RCPOD_REG_PR2	        0x0092
+#define RCPOD_REG_TXSTA	        0x0098
+#define RCPOD_REG_SPBRG	        0x0099
+#define RCPOD_REG_ADCON1        0x009F
+
+
 #endif /* __RCPOD_H */
 
 /* The End */

@@ -7,13 +7,13 @@ int main() {
   rcpod_dev *rcpod = rcpod_InitSimple();
 
   /* Make PORTC all outputs */
-  rcpod_Poke(rcpod, 0x87, 0x00);
+  rcpod_Poke(rcpod, RCPOD_REG_TRISC, 0x00);
 
   /* Flash PORTC */
   while (1) {
-    rcpod_Poke(rcpod, 0x07, 0xFF);
+    rcpod_Poke(rcpod, RCPOD_REG_PORTC, 0xFF);
     usleep(50000);
-    rcpod_Poke(rcpod, 0x07, 0x00);
+    rcpod_Poke(rcpod, RCPOD_REG_PORTC, 0x00);
     usleep(50000);
   }
 
