@@ -56,6 +56,12 @@ i2c_data_pin	res	1
 i2c_address	res	1
 i2c_ack_count	res	1
 
+i2c_byte	res	1
+i2c_byte_count	res	1
+i2c_bit_count	res	1
+i2c_irp		res	1
+i2c_fsr		res	1
+
 	code
 
 
@@ -131,32 +137,104 @@ data_read
 	pscall	io_Read
 	return
 
-	;; Generate the appropriate delay between i2c bus transitions
+	;; Generate the appropriate delay between i2c bus transitions,
+	;; approximately 1/2 the bit period.
 i2c_delay
 	return
 
 	;; Put the bus into various states
-i2c_stop macro
+i2c_stop
+	pscall	i2c_delay
 	pscall	data_low
 	pscall	i2c_delay
 	pscall	clock_high
 	pscall	i2c_delay
 	pscall	data_high
-	endm
+	return
 
-i2c_start macro
+i2c_start
 	pscall	clock_high
-	pscall	data_high
 	pscall	data_low
 	pscall	i2c_delay
 	pscall	clock_low
-	endm
+	return
 
-i2c_clockout macro
+i2c_clockout
+	pscall	i2c_delay
 	pscall	clock_high
 	pscall	i2c_delay
 	pscall	clock_low
+	return
+
+
+	;; Save the byte count and pointer we were given
+i2c_save_pointer
+	banksel	i2c_byte_count
+	movwf	i2c_byte_count
+	movf	STATUS, w
+	movwf	i2c_irp
+	movf	FSR, w
+	movwf	i2c_fsr
+	return
+
+
+	;; Point INDF at the current buffer byte
+i2c_load_pointer
+	banksel	i2c_irp
+	movf	i2c_irp, w
+	movwf	STATUS
+	movf	i2c_fsr, w
+	movwf	FSR
+	return
+
+
+	;; Macro for looping over the I2C buffer
+i2c_buffer_loop macro	lbl
+	banksel	i2c_byte_count
+	incf	i2c_fsr, f
+	pagesel	lbl
+	decfsz	i2c_byte_count, f
+	goto	lbl
 	endm
+
+
+	;; Write out i2c_byte. If and only if the byte was successfully acknowledged,
+	;; the zero flag will be set.
+i2c_write_byte
+	movlw	8
+	movwf	i2c_bit_count
+write_loop
+	banksel	i2c_byte		; Shift the next MSB into the carry flag
+	rlf	i2c_byte, f
+	pagesel	write_zero
+	btfss	STATUS, C
+	goto	write_zero		; Put the next bit on the bus
+write_one
+	pscall	data_high
+	psgoto	write_next
+write_zero
+	pscall	data_low
+write_next
+	pscall	i2c_clockout		; Clock out this bit, with the right delays
+	banksel	i2c_bit_count		; Next bit...
+	pagesel	write_loop
+	decfsz	i2c_bit_count, f
+	goto	write_loop
+
+	pscall	i2c_delay		; Clock in the ACK bit
+	pscall	clock_high
+	pscall	data_high
+	pscall	i2c_delay
+
+	pscall	data_read		; Store the ACK bit in i2c_byte
+	banksel	i2c_byte
+	movwf	i2c_byte
+
+	pscall	clock_low		; Pull the clock back low and return
+
+	banksel	i2c_byte
+	movf	i2c_byte, w		; Zero flag set if we got ACK'ed
+	return
 
 
 ;; **********************************************************************************
@@ -164,20 +242,59 @@ i2c_clockout macro
 ;; **********************************************************************************
 
 
+	;; Reset the I2C bus to its idle state
 i2c_Reset
-	i2c_stop
-	return
+	psgoto	i2c_stop
 
+
+	;; Write 'w' bytes from IRP:FSR to the current bus
 i2c_Write
-	i2c_start
+	pscall	i2c_save_pointer
+	pscall	i2c_start
 
-	i2c_stop
+	banksel	i2c_address		; Write the address, with the read bit clear
+	rlf	i2c_address, w
+	andlw	0xFE
+	movwf	i2c_byte
+
+	pscall	i2c_write_byte		; Write the byte, give up if we get no ACK
+	pagesel	i2c_Write_done
+	btfss	STATUS, Z
+	goto	i2c_Write_done
+
+	banksel	i2c_ack_count		; Note that we got an ACK
+	incf	i2c_ack_count, f
+
+	movf	i2c_byte_count, w	; If we have no bytes to write, skip the loop
+	pagesel	i2c_Write_done
+	btfsc	STATUS, Z
+	goto	i2c_Write_done
+
+i2c_Write_loop
+	pscall	i2c_load_pointer	; Load the next i2c_byte
+	movf	INDF, w
+	banksel	i2c_byte
+	movwf	i2c_byte
+
+	pscall	i2c_write_byte		; Write the byte, give up if we get no ACK
+	pagesel	i2c_Write_done
+	btfss	STATUS, Z
+	goto	i2c_Write_done
+
+	banksel	i2c_ack_count		; Note that we got an ACK
+	incf	i2c_ack_count, f
+
+	i2c_buffer_loop i2c_Write_loop	; Next...
+
+i2c_Write_done
+	pscall	i2c_stop
 	return
+
 
 i2c_Read
-	i2c_start
+	pscall	i2c_start
 
-	i2c_stop
+	pscall	i2c_stop
 	return
 
 	end

@@ -39,7 +39,13 @@ io_tmp  res 1
 io_iterator res 1
 
 io_dummy_port res 1		; FSR is pointed at this by io_SetFSR if the pin descriptor is a no-op
-                        ; Must be in an IRP=0 bank (0 or 1) to match PORT*
+	                        ; Must be in an IRP=0 bank (0 or 1) to match PORT*
+
+LATA	res	1		; Latch registers, holding the current output values of all ports.
+LATB	res	1		;    These are used to avoid read-modify-write errors on the GPIOs.
+LATC	res	1
+LATD	res	1
+LATE	res	1
 
 	code
 
