@@ -1,5 +1,1 @@
-* Allow for boolean options, not just <flag> <value> pairs.
-* Have an option so that it can create the help message from the known
-	options so that you don't have to write out the entire usage message with
-	all the options by hand. (Also probably involves a help string for the Option
-	class.)
+* Clean up output from the help message.
