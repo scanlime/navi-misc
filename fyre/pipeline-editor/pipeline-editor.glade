@@ -607,7 +607,7 @@ v&lt;sub&gt;0&lt;/sub&gt;: vector</property>
 		  <property name="shadow_type">GTK_SHADOW_IN</property>
 
 		  <child>
-		    <widget class="GtkDrawingArea" id="drawing_area">
+		    <widget class="GtkDrawingArea" id="pipeline_drawing">
 		      <property name="visible">True</property>
 		    </widget>
 		  </child>

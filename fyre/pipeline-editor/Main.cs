@@ -25,8 +25,20 @@ using Glade;
 
 public class PipelineEditor
 {
-	private Gtk.TreeStore	element_store;
-	[Widget] Gtk.TreeView	element_list;
+	/* Element list (upper left) */
+	private Gtk.TreeStore		element_store;
+	[Widget] Gtk.TreeView		element_list;
+	
+	/* Element information (bottom left) */
+	[Widget] Gtk.Image		element_image;
+	[Widget] Gtk.Label		element_name;
+	[Widget] Gtk.Label		element_description;
+	[Widget] Gtk.Label		element_inputs;
+	[Widget] Gtk.Label		element_outputs;
+	
+	/* Editor workspace (right) */
+	[Widget] Gtk.ScrolledWindow	pipeline_window;
+	[Widget] Gtk.DrawingArea	pipeline_drawing;
 
         public static void Main (string[] args)
         {
