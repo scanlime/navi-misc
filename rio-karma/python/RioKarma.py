@@ -10,6 +10,8 @@ work done by the Karmalib and libkarma projects:
     http://karmalib.sourceforge.net/docs/protocol.php
     http://www.freakysoft.de/html/libkarma/
 
+Requires Twisted and mmpython.
+
 """
 #
 # Copyright (C) 2005 Micah Dowty <micah@navi.cx>
@@ -34,6 +36,7 @@ import shelve, cPickle
 from cStringIO import StringIO
 from twisted.internet import protocol, defer, reactor
 from twisted.python import failure, log
+import mmpython
 
 
 ############################################################################
@@ -691,7 +694,7 @@ class FileDatabaseWriter(LineBufferedWriter):
 
 
 ############################################################################
-######################################################  File Management  ###
+#####################################################  Cache Management  ###
 ############################################################################
 
 class AllocationTree:
@@ -884,6 +887,10 @@ class Cache:
         self.open('n')
 
 
+############################################################################
+######################################################  File Management  ###
+############################################################################
+
 class Filesystem:
     """The Filesystem is a high-level abstraction for the Rio's file database.
        This includes a local cache of the device's database, and interfaces
@@ -939,6 +946,57 @@ class Filesystem:
         print hex(int(details['fid']))
 
 
+class RidCalculator:
+    """This object calculates the RID of a file- a sparse digest used by Rio Karma.
+       For files <= 64K, this is the file's md5sum. For larger files, this is the XOR
+       of three md5sums, from 64k blocks in the beginning, middle, and end.
+       """
+    def fromSection(self, fileObj, start, end, blockSize=0x10000):
+        """This needs a file-like object, as well as the offset and length of the portion
+           the RID is generated from. Beware that there is a special case for MP3 files.
+           """
+        # It's a short file, compute only one digest
+        if end-start <= blockSize:
+            fileObj.seek(start)
+            return md5.md5(fileObj.read(length)).hexdigest()
+
+        # Three digests for longer files
+        fileObj.seek(start)
+        a = md5.md5(fileObj.read(blockSize)).digest()
+
+        fileObj.seek(end - blockSize)
+        b = md5.md5(fileObj.read(blockSize)).digest()
+
+        fileObj.seek((start + end - blockSize) / 2)
+        c = md5.md5(fileObj.read(blockSize)).digest()
+
+        # Combine the three digests
+        return ''.join(["%02x" % (ord(a[i]) ^ ord(b[i]) ^ ord(c[i])) for i in range(16)])
+
+    def fromFile(self, filename, length=None, mminfo=None):
+        """Calculate the RID from a file, given its name. The file's length and
+           mmpython results may be provided if they're known, to avoid duplicating work.
+           """
+        if mminfo is None:
+            mminfo = mmpython.parse(filename)
+
+        f = open(filename, "rb")
+
+        if length is None:
+            f.seek(0, 2)
+            length = f.tell()
+            f.seek(0)
+
+        # Is this an MP3 file? For some silliness we have to skip the header
+        # and the last 128 bytes of the file. mmpython can tell us where the
+        # header starts, but only in a somewhat ugly way.
+        if isinstance(mminfo, mmpython.audio.eyed3info.eyeD3Info):
+            offset = mminfo._find_header(f)[0]
+            f.seek(0)
+            return self.fromSection(f, offset, length-128)
+
+
+
 class File:
     """A File represents one media or data file corresponding to an entry in
        the device's database and our copy of that database. File objects
@@ -947,9 +1005,58 @@ class File:
        provided, we generate a new ID and metadata will be uploaded.
        """
     def __init__(self, filesystem, fileID=None):
+        self.filesystem = filesystem
 
         if fileID is None:
-            fileID = self.filesystem.newFileID()
+            # New file, start out with barebones metadata
+            now = int(time.time())
+            self.fileID = self.filesystem.cache.fileIdAllocator.next()
+            self.details = {
+                'ctime': now,
+                'fid_generation': now,
+                'fid': str(self.fileID),
+                }
+        else:
+            # Load this file from the cache
+            self.fileID = fileID
+            self.details = self.filesystem.cache.fileDetails[str(fileID)]
+
+    def loadMetadataFrom(self, filename):
+        """Automagically load media metadata out of the provided filedata,
+           adding entries to self.details. This works on any file type
+           mmpython recognizes, and other files should be tagged appropriately
+           for Rio Taxi.
+           """
+        info = mmpython.parse(filename)
+        st = os.stat(filename)
+
+        # Generic details for any file
+        self.details['length'] = st.st_size
+
+        if info:
+            # Map mmpython keys to Rio keys
+
+            # Generic details for songs
+            self.details['type'] = 'tune'
+
+            # Map the easy ones
+            for fromKey, toKey in (
+                ('trackno', 'tracknr'),
+                ('artist', 'artist'),
+                ('title', 'title'),
+                ('album', 'source'),
+                ('date', 'year'),
+                ('samplerate', 'samplerate'),
+                ):
+                v = info[fromKey]
+                if v is not None:
+                    self.details[toKey] = v
+
+            
+
+    def loadFrom(self, filename):
+        """Load this file's metadata and content from a file on disk"""
+        
 
 
 ### The End ###
