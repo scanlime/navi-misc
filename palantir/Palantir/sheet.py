@@ -7,7 +7,7 @@ Copyright (C) 2003 W. Evan Sheehan <evan@navi.picogui.org>
 '''
 
 import xml.dom, xml.dom.minidom, string
-from Character import Character
+from character import Character
 
 
 class Sheet:

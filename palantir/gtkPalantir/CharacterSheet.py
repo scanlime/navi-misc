@@ -4,6 +4,9 @@ Object for dealing with the character sheets loaded into the MainWindow.
 
   Copyright (C) 2004 W. Evan Sheehan
 '''
+from Palantir.sheet import Sheet
+from Palantir.character import Character
+import SheetElements
 
 class CharacterSheet:
   def __init__(self, viewport):
@@ -15,7 +18,7 @@ class CharacterSheet:
     self.tree.dialog.get_widget('SheetSelection').set_filename('CharacterSheet/data/')
     self.tree.dialog.signal_autoconnect({ 'on_ok_button_clicked':self.installSheet,
       'on_cancel_button_clicked':lambda w: self.tree.dialog.get_widget('SheetSelection').destroy()})
-  
+
   def installSheet(self, widget, data=None):
     ''' Open up a character sheet in the client. '''
     # Store the character data.
