@@ -3,10 +3,14 @@
 
 // get our configs
 include('config.php');
+include('cleanup.php');
 
 $serverVers = 0.1;
 
 echo "<html><head></head><body>";
+
+//make sure everyone is current;
+//cleanupdb(date("U"));
 
 /* Connecting, selecting database */
 $link = mysql_connect($dbhost, $dbuser, $dbpasswd)
@@ -15,21 +19,32 @@ echo "BZFlagFirestarter list server $serverVers : $dbhost : $hostpublicaddr<br>"
 
 mysql_select_db($dbname ) or die("Could not select database : $dbname ");
 
-echo "!beginlist<br><table border=\"0\" cellspacing=\"2\" cellpading=\"5\">";
+echo "!beginlist<br><table border=\"1\" cellspacing=\"2\" cellpading=\"5\">";
 echo "<tr><td>#id</td><td>#servername</td><td>#address</td><td>#port</td><td>#game</td><td>#version</td><td>#os</td><td>#maxplayers</td><td>#currentplayers</td><td>#lastupdate</td><tr>";
 
 // get a list of each field from servers and just dump every field
 $query = "SELECT * FROM servers";
 $result = mysql_query($query) or die("Query failed : " . mysql_error());
 
-while ($line = mysql_fetch_array($result, MYSQL_ASSOC)) {
-   echo "<tr>";
-   foreach ($line as $col_value) {
-       echo "<td>$col_value</td> ";
-   }
-   echo "</tr>";
+while ($row = mysql_fetch_array($result, MYSQL_ASSOC))
+{
+	echo "<tr>";
+	echo '<td>'.$row[id].'</td>'; // id
+	echo '<td>'.$row[address].'</td>'; // address
+	echo '<td>'.$row[servername].'</td>'; // servername
+	echo '<td>'.$row[port].'</td>'; // port
+	echo '<td>'.$row[game].'</td>'; // game
+	echo '<td>'.$row[version].'</td>'; // version
+	echo '<td>'.$row[os].'</td>'; // os
+	echo '<td>'.$row[maxplayers].'</td>'; // maxplayers
+	echo '<td>'.$row[currentplayers].'</td>'; // currentplayers
+	echo '<td>'.$row[lastupdate].'</td>'; // lastupdate
+	echo "</tr>"; 
 }
 echo "</table>";
+
+$timestamp = date("U");
+echo "the stamp $timestamp<br>";
 echo "!endlist<br>";
 echo "</body></html>";
 
