@@ -3,3 +3,6 @@ documents:
 
 run: documents
 	open index.html
+
+clean:
+	rm -Rf *.html *.css package-list

@@ -7,3 +7,14 @@ Get Question
 Answer Question
 Reject Question
 Quit
+
+Scenarios: (others may call these usecases)
+These are in the authentication mode
+1)	Starting the interview w/ a question waiting
+2)	Starting the interview w/o a question waiting
+
+These are when the chat is in progress, and are completed with an answer, or a rejection
+3)	Continuing the interview w/ a question waiting
+4)	Continuing the interivew w/o a question waiting
+5)	Ending the interview w/ a question waiting
+6)	Ending the interview w/o a question waiting
