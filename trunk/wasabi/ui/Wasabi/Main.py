@@ -59,8 +59,14 @@ class Main:
     def getPages(self):
         """Return a list of pages to include in the main sequencer book"""
         return [
+            # Display the logo sequence until user interruption
             Sequencer.FadeOut(0.2, (1,1,1), logoInterrupter),
-            Sequencer.FadeIn(0.5, (1,1,1), Sequencer.FadeOut(0.25, (0,0,0), MainMenu))
+
+            # Run the device menu, with fade in and out
+            Sequencer.FadeIn(0.5, (1,1,1), Sequencer.FadeOut(0.25, (0,0,0), DeviceMenu))
+
+            # The device menu will insert additional pages at the end,
+            # depending on the selection made.
             ]
 
     def run(self):
@@ -81,8 +87,11 @@ def logoInterrupter(book):
     return Sequencer.PageInterrupter(events, Logos.getLogoSubBook())(book)
 
 
-class MainMenu(Menu.RingMenu):
-    """A RingMenu subclass that displays available devices, and lets the user select one"""
+class DeviceMenu(Menu.RingMenu):
+    """A RingMenu subclass that displays available devices, and lets the user select one.
+       Devices can be made available and unavailable during the operation of the menu, with
+       the menu properly reflecting this.
+       """
     def __init__(self, book):
         # For now this just shows all icons we have.
         # Construct a list of Menu.Item instances for each loaded icon.

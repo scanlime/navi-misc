@@ -108,11 +108,8 @@ class RingMenu(Menu):
             )
 
     def finalize(self):
-        import gc
-
-        print "Referrers:"
-        for referrer in gc.get_referrers(self):
-            print referrer
-            print "------------"
+        # Break a circular reference (self -> self.dock -> self.dock.trackFunction)
+        # that python's GC seems to have trouble with, at least in version 2.2.3
+        self.dock = None
 
 ### The End ###
