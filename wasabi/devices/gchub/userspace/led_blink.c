@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
   while (1) {
     write(fd, &ev, sizeof(ev));
     ev.value = !ev.value;
-    usleep(200000);
+//    usleep(200000);
   }
 
   return 0;
