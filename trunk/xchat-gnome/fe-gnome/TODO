@@ -6,6 +6,7 @@ before release:
 
 -----
 
+* make things static where possible
 * hook up pgup/pgdn
 * topic bar should have a tooltip with the entire topic
 * position of panes should be saved
