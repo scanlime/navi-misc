@@ -53,6 +53,7 @@ class CenturyVFD:
             elif len(l) > self.width:
                 l = l[:self.width]
             self.writeVFD(l)
+        self.dev.flush()
 
 
 class VFDupdater:
