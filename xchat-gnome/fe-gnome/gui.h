@@ -26,6 +26,9 @@
 #include "userlist.h"
 #include "navigation_tree.h"
 
+#include <gtk/gtkactiongroup.h>
+#include <gtk/gtkuimanager.h>
+
 #ifndef XCHAT_GNOME_GUI_H
 #define XCHAT_GNOME_GUI_H
 
@@ -34,6 +37,8 @@ typedef struct
 	GladeXML *xml;
 	GladeXML *setup_xml;
 	GnomeApp *main_window;
+	GtkActionGroup *action_group;
+	GtkUIManager *manager;
 	GtkDialog *preferences_dialog;
 	GnomeAbout *about;
 	GtkXText *xtext;

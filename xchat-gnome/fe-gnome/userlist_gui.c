@@ -30,6 +30,19 @@
 gboolean userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data);
 void userlist_context (GtkWidget *treeview, struct User *user);
 
+/* action callbacks */
+
+static void user_send_file_activate (GtkAction *action, gpointer data);
+static void user_open_dialog_activate (GtkAction *action, gpointer data);
+static void user_kick_activate (GtkAction *action, gpointer data);
+static void user_ban_activate (GtkAction *action, gpointer data);
+
+static GtkActionEntry popup_action_entries [] = {
+	{ "UserlistSendFile", NULL, N_("_Send File"), "", NULL, G_CALLBACK (user_send_file_activate) },
+	{ "UserlistOpenDialog", NULL, N_("Open _Dialog"), "", NULL, G_CALLBACK (user_open_dialog_activate) },
+	{ "UserlistKick", NULL, N_("_Kick"), "", NULL, G_CALLBACK (user_kick_activate) },
+	{ "UserlistBan", NULL, N_("_Ban"), "", NULL, G_CALLBACK (user_ban_activate) }
+};
 
 GtkTooltips *tooltips;
 
@@ -56,6 +69,8 @@ initialize_userlist ()
 	tooltips = gtk_tooltips_new ();
 
 	g_signal_connect (G_OBJECT (userlist_view), "button_press_event", G_CALLBACK (userlist_click), NULL);
+
+	gtk_action_group_add_actions (gui.action_group, popup_action_entries, G_N_ELEMENTS (popup_action_entries), NULL);
 }
 
 struct User*
@@ -116,15 +131,30 @@ userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data)
 void
 userlist_context (GtkWidget *treeview, struct User *user)
 {
-	static GnomeUIInfo userlist_context[] =
-	{
-		GNOMEUIINFO_ITEM_NONE("_Send File", NULL, NULL),
-		GNOMEUIINFO_ITEM_NONE("Open _Dialog", NULL, NULL),
-		GNOMEUIINFO_ITEM_NONE("_Kick", NULL, NULL),
-		GNOMEUIINFO_ITEM_NONE("_Ban", NULL, NULL)
-	};
 	GtkWidget *menu;
 
-	menu = gnome_popup_menu_new (userlist_context);
-	gnome_popup_menu_do_popup (menu, NULL, NULL, NULL, NULL, treeview);
+	menu = gtk_ui_manager_get_widget (gui.manager, "/UserlistPopup");
+	g_return_if_fail (menu != NULL);
+
+	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 2, gtk_get_current_event_time ());
+}
+
+static void user_send_file_activate (GtkAction *action, gpointer data)
+{
+	/* FIXME implement me! */
+}
+
+static void user_open_dialog_activate (GtkAction *action, gpointer data)
+{
+	/* FIXME implement me! */
+}
+
+static void user_kick_activate (GtkAction *action, gpointer data)
+{
+	/* FIXME implement me! */
+}
+
+static void user_ban_activate (GtkAction *action, gpointer data)
+{
+	/* FIXME implement me! */
 }

@@ -1,3 +1,6 @@
+0.3pre
+	* Conversion to GtkUIManager - Christian Persch
+
 0.2 "This is my boomstick" (13 September 2004)
 	* various GUI prettification - Ramón Rey Vicente
 	* GUI for selecting character encoding - David Trowbridge
