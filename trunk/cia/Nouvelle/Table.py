@@ -183,10 +183,16 @@ class ResortableTable(BaseTable):
     def __init__(self, rows, columns,
                  defaultSortColumnIndex = 0,
                  defaultSortReversed    = False,
+                 id                     = None,
                  ):
         self.defaultSortColumnIndex = defaultSortColumnIndex
         self.defaultSortReversed = defaultSortReversed
         BaseTable.__init__(self, rows, columns)
+
+        if id:
+            self.sortArgName = '%sSort' % id
+        else:
+            self.sortArgName = 'sort'
 
     def render(self, context={}):
         cookie = self.getCookieFromContext(context)
@@ -200,7 +206,7 @@ class ResortableTable(BaseTable):
 
     def render_heading(self, context, column):
         """Override render_heading to insert hyperlinks generated with createSortCookie"""
-        url = self.getCookieHyperlink(self.getSortCookie(column))
+        url = self.getCookieHyperlink(context, self.getSortCookie(column))
         return self.headingLinkTag(href=url)[column.render_heading(context)]
 
     def setSortFromCookie(self, cookie):
@@ -226,11 +232,17 @@ class ResortableTable(BaseTable):
 
     def getCookieFromContext(self, context):
         try:
-            return context['args']['sort'][0]
+            return context['args'][self.sortArgName][0]
         except:
             return None
 
-    def getCookieHyperlink(self, cookie):
-        return "?sort=%s" % cookie
+    def getCookieHyperlink(self, context, cookie):
+        newArgs = dict(context['args'])
+        newArgs[self.sortArgName] = [cookie]
+        pairs = []
+        for key in newArgs:
+            for value in newArgs[key]:
+                pairs.append('%s=%s' % (key, value))
+        return '?' + '&'.join(pairs)
 
 ### The End ###

@@ -285,7 +285,7 @@ class Catalog(Template.Section):
             TargetPercentColumn('% total', 'forever'),
             TargetLastEventColumn(),
             TargetSubTargetsColumn(),
-            ])]
+            ], id='catalog')]
 
 
 class Info(Template.Section):
@@ -358,7 +358,8 @@ class MessageList(Template.Section):
     def render_rows(self, context):
         return [
             Template.Table(self.messages, self.columns,
-                           defaultSortReversed = True),
+                           defaultSortReversed = True,
+                           id = 'message'),
             ]
 
 
@@ -460,7 +461,7 @@ class MetadataSection(Template.Section):
             MetadataKeyColumn(),
             MetadataTypeColumn(),
             MetadataValueColumn(),
-            ])]
+            ], id='metadata')]
 
 
 class MetadataValuePage(resource.Resource):

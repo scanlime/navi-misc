@@ -18,9 +18,6 @@
 
 ######## Noncritical
 
-- The ResortableTable's "cookies" dont' namespace themselves to one particular table,
-  so things break when there are multiple tables on a page.
-
 - The XML parser (somewhat hacked up domish) breaks when messages specify
   a namespace.
 
