@@ -54,6 +54,9 @@ static struct usb_device_id mi6k_table [] = {
 };
 MODULE_DEVICE_TABLE(usb, mi6k_table);
 
+/* Size of the buffer for received IR data. Must be a power of two */
+#define IR_RECV_BUFFER_SIZE 512
+
 /* Structure to hold all of our device specific stuff */
 struct usb_mi6k {
 	struct usb_device *	udev;			/* save off the usb device pointer */
@@ -62,6 +65,10 @@ struct usb_mi6k {
 	devfs_handle_t		lirc_devfs;		/* devfs device node for our LIRC-compatible device */
 	unsigned char		minor;			/* the starting minor number for this device */
 	int			open_count;		/* number of times this port has been opened */
+	lirc_t			ir_rx_buffer[IR_RECV_BUFFER_SIZE]; /* ring buffer for incoming IR data */
+	int			ir_rx_head;		/* empty slot for the next received value */
+	int			ir_rx_tail;		/* slot for the oldest value in the buffer */
+	wait_queue_head_t	ir_rx_wait;		/* wait queue for processes reading IR data */
 	struct semaphore	sem;			/* locks this structure */
 };
 
@@ -114,6 +121,34 @@ static void mi6k_request(struct usb_mi6k *dev, unsigned short request,
 	/* Send a control request to the device synchronously */
 	usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
 			request, 0x40, wValue, wIndex, NULL, 0, REQUEST_TIMEOUT);
+}
+
+static int mi6k_ir_rx_available(struct usb_mi6k *dev)
+{
+	/* Return the number of bytes available in the receive ring buffer.
+	 * It is assumed that dev->sem has already been locked.
+	 */
+	return (dev->ir_rx_head - dev->ir_rx_tail) & (IR_RECV_BUFFER_SIZE - 1);
+}
+
+static int mi6k_ir_rx_push(struct usb_mi6k *dev, lirc_t x)
+{
+	/* Push a value into the receive ring buffer
+	 * It is assumed that dev->sem has already been locked.
+	 * This will overwrite data if the ring buffer is full.
+	 */
+	dev->ir_rx_buffer[ir_rx_head] = x;
+	dev->ir_rx_head = (dev->ir_rx_head + 1) & (IR_RECV_BUFFER_SIZE - 1);
+}
+
+static int mi6k_ir_rx_pop(struct usb_mi6k *dev)
+{
+	/* Pop a value out of the receive ring buffer.
+	 * It is assumed that dev->sem has already been locked.
+	 * This function will return an undefined value if the ring buffer is empty.
+	 */
+	lirc_t result =	dev->ir_rx_buffer[ir_rx_tail];
+	dev->ir_rx_tail = (dev->ir_rx_tail + 1) & (IR_RECV_BUFFER_SIZE - 1);
 }
 
 
@@ -324,22 +359,65 @@ static struct file_operations mi6k_dev_fops = {
 
 static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, loff_t *ppos)
 {
-	struct usb_mi6k *dev;
+	DECLARE_WAITQUEUE(wait, current);
+	struct usb_mi6k *dev = (struct usb_mi6k *)file->private_data;
 	int retval = 0;
-
-	dev = (struct usb_mi6k *)file->private_data;
 
 	/* lock this object */
 	down (&dev->sem);
 
 	/* verify that the device wasn't unplugged */
 	if (dev->udev == NULL) {
-		up (&dev->sem);
-		return -ENODEV;
+		retval = -ENODEV;
+		goto exit;
 	}
 
+	/* We only support read sizes that are a multiple of sizeof(lirc_t) */
+	if (count % sizeof(lirc_t) != 0) {
+		retval = -EINVAL;
+		goto exit;
+	}
+
+	/* If there's no data available yet, release our lock temporarily and
+	 * block the process until there is data available.
+	 */
+	if (!mi6k_ir_rx_available(dev)) {
+		add_wait_queue(&dev->ir_rx_wait, &wait);
+		current->state = TASK_INTERRUPTIBLE;
+
+		while (!mi6k_ir_rx_available(dev)) {
+
+			if (file->f_flags & O_NONBLOCK) {
+				retval = -EAGAIN;
+				break;
+			}
+			if (signal_pending(current)) {
+				retval = -ERESTARTSYS;
+				break;
+			}
+
+			up(&dev->sem);
+			schedule();
+			down(&dev->sem);
+		}
+
+		current->state = TASK_RUNNING;
+		remove_wait_queue(&dev->ir_rx_wait, &wait);
+	}
+
+	/* If we're still running successfully, start shuffling values from
+	 * the ring buffer into the process' provided userspace buffer.
+	 */
+	if (retval == 0) {
+		while (count > 0 && mi6k_ir_rx_available(dev)
+
+
+
+	}
+
+exit:
 	/* unlock the device */
-	up (&dev->sem);
+	up(&dev->sem);
 	return retval;
 }
 
@@ -380,7 +458,7 @@ static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int 
 {
 	struct usb_mi6k *dev;
 	int retval=0;
-	struct mi6k_leds leds;
+	unsigned long value;
 
 	dev =(struct usb_mi6k *)file->private_data;
 
@@ -395,6 +473,42 @@ static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int 
 
 	switch(cmd) {
 
+	case LIRC_GET_FEATURES:
+		retval = put_user(LIRC_CAN_SEND_PULSE |
+				  LIRC_CAN_REC_MODE2,
+				  (unsigned long *) arg);
+		break;
+
+	case LIRC_GET_SEND_MODE:
+		retval = put_user(LIRC_SEND2MODE(LIRC_CAN_SEND_PULSE),
+				  (unsigned long *) arg);
+		break;
+
+	case LIRC_GET_REC_MODE:
+		retval = put_user(LIRC_REC2MODE(LIRC_CAN_REC_MODE2),
+				  (unsigned long *) arg);
+		break;
+
+	case LIRC_SET_SEND_MODE:
+		retval = get_user(value,(unsigned long *) arg);
+		if (retval != 0)
+			break;
+
+		/* only LIRC_MODE_PULSE supported */
+		if (value != LIRC_MODE_PULSE)
+			retval = -ENOSYS;
+		break;
+
+	case LIRC_SET_REC_MODE:
+		retval = get_user(value,(unsigned long *) arg);
+		if (retval != 0)
+			break;
+
+		/* only LIRC_MODE_MODE2 supported */
+		if (value != LIRC_MODE_MODE2)
+			retval = -ENOSYS;
+		break;
+
 	default:
 		/* Indicate that we didn't understand this ioctl */
 		retval = -ENOTTY;
@@ -407,12 +521,28 @@ static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int 
 	return retval;
 }
 
+static unsigned int mi6k_lirc_poll(struct file *file, poll_table *wait)
+{
+	struct usb_mi6k *dev = (struct usb_mi6k *)file->private_data;
+	int retval=0;
+
+	poll_wait(file, &dev->ir_rx_wait, wait);
+
+	down(&dev->sem);
+	if (mi6k_ir_rx_available(dev))
+		retval = POLLIN | POLLRDNORM;
+	up(&dev->sem);
+
+	return retval;
+}
+
 static struct file_operations mi6k_lirc_fops = {
 	owner:		THIS_MODULE,        /* This automates updating the module's use count */
 
 	write:		mi6k_lirc_write,
 	read:		mi6k_lirc_read,
 	ioctl:		mi6k_lirc_ioctl,
+	poll:		mi6k_lirc_poll,
 	open:		mi6k_open,
 	release:	mi6k_release,
 };
@@ -558,9 +688,6 @@ static int __init usb_mi6k_init(void)
 		    result);
 		return -1;
 	}
-
-	/* Symlink /dev/lirc to /dev/usb/lirc0 */
-	
 
 	info(DRIVER_DESC " " DRIVER_VERSION);
 	return 0;
