@@ -23,7 +23,7 @@ by the Pearl protocol.
 #
 
 import struct, md5
-from RioKarma import Pearl
+from RioKarma import Pearl, Property
 
 
 class GetProtocolVersion(Pearl.StructRequest):
@@ -103,7 +103,7 @@ class GetDeviceSettings(Pearl.StructRequest):
 
     def receivedResponse(self, source, status):
         self.decodeStatus(status)
-        self.properties = Pearl.PropertyFileWriter({})
+        self.properties = Property.PropertyFileWriter({})
 
         self.reader = Pearl.AlignedStringReader()
         self.stateTransition(self.state_readSettings, source)
@@ -188,7 +188,7 @@ class GetAllFileDetails(Pearl.StructRequest):
 
     def receivedResponse(self, source, status):
         self.decodeStatus(status)
-        self.fileDatabase = Pearl.FileDatabaseWriter(self.callback)
+        self.fileDatabase = Property.FileDatabaseWriter(self.callback)
 
         self.reader = Pearl.AlignedStringReader()
         self.stateTransition(self.state_readFiles, source)
@@ -216,7 +216,7 @@ class GetFileDetails(Pearl.StructRequest):
 
     def receivedResponse(self, source, status):
         self.decodeStatus(status)
-        self.properties = Pearl.PropertyFileWriter(self.storage)
+        self.properties = Property.PropertyFileWriter(self.storage)
 
         self.reader = Pearl.AlignedStringReader()
         self.stateTransition(self.state_readDetails, source)
@@ -236,7 +236,7 @@ class UpdateFileDetails(Pearl.StructRequest):
 
     def __init__(self, fileId, data):
         self.parameters = (fileId,)
-        self.properties = Pearl.PropertyFileReader(data)
+        self.properties = Property.PropertyFileReader(data)
         Pearl.StructRequest.__init__(self)
 
     def receivedResponse(self, source, status):

@@ -2,6 +2,7 @@
 
 from twisted.internet import reactor
 from twisted.python import log
+from cStringIO import StringIO
 import sys, time
 
 import RioKarma
@@ -17,12 +18,6 @@ class RioApp:
     def connected(self, fileManager):
         self.fileManager = fileManager
         print "Connected. %d files in database." % self.fileManager.cache.countFiles()
-
-        self.fileManager.getStorageDetails().addCallback(self._gotStorageDetails).addErrback(log.err)
-
-    def _gotStorageDetails(self, details):
-        print "Storage: %0.02f / %0.02f GB free" % (details['freeSpace'] / (1024.0*1024*1024),
-                                                    details['totalSpace'] / (1024.0*1024*1024))
         self.main()
 
     def finished(self, retval=None):
@@ -46,7 +41,7 @@ class Downloader(RioApp):
         filename = f.suggestFilename()
 
         print "\n"
-        print f
+        print f.details
         print " -> %s" % filename
 
         self.fileManager.saveToDisk(f, filename).addCallback(self.nextFile).addErrback(self.error)
@@ -90,11 +85,73 @@ class Uploader(RioApp):
         print "\n%.02f KB/s" % (f.details['length'] / (now - startTime) / 1000.0)
 
 
+def hexDump(src, dest, bytesPerLine=16, wordSize=2):
+    """A pretty standard hex dumper routine.
+       Dumps the stream 'src' to the stream 'dest'
+       """
+    addr = 0
+    while 1:
+        srcLine = src.read(bytesPerLine)
+        if not srcLine:
+            break
+
+        # Address
+        dest.write("%04X: " % addr)
+        addr += len(srcLine)
+
+        # Hex values
+        for i in xrange(bytesPerLine):
+            if i < len(srcLine):
+                dest.write("%02X" % ord(srcLine[i]))
+            else:
+                dest.write("  ")
+            if not (i+1) % wordSize:
+                dest.write(" ")
+        dest.write(" ")
+
+        # ASCII representation
+        for byte in srcLine:
+            if ord(byte) >= 32 and ord(byte) < 128:
+                dest.write(byte)
+            else:
+                dest.write(".")
+        for i in xrange(bytesPerLine - len(srcLine)):
+            dest.write(" ")
+        dest.write("\n")
+
+
+class PlaylistDownloader(RioApp):
+    def main(self):
+        self.fileIter = iter(self.fileManager.cache.findFiles(type='playlist'))
+        self.fileManager.readLock()
+        self.nextFile()
+
+    def nextFile(self, retval=None):
+        try:
+            f = self.fileIter.next()
+        except StopIteration:
+            self.finished()
+            return
+
+        print
+        print f.details['title'].encode('ascii', 'replace')
+        for keys in f.details['playlist']:
+            print "\t%r\t%r" % (keys, self.fileManager.cache.findFiles(**keys))
+
+        self.nextFile()
+
+    def error(self, e):
+        log.err(e)
+        self.nextFile()
+
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         Uploader().run()
     else:
-        Downloader().run()
+        #Downloader().run()
+        PlaylistDownloader().run()
 
 ### The End ###
 
