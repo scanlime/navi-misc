@@ -25,17 +25,9 @@ from GLDrawable import *
 from Container import *
 from DisplayList import *
 from Ground import *
-from Wall import *
-from Teleporter import *
 from Array import *
-from TestWidget import *
 from Vector import *
 from Sprite import *
-
-from Box import detectBoxDrawables
-from Pyramid import detectPyramidDrawables
-from Base import detectBaseDrawables
-
 import VRML
 import Sky
 

@@ -22,21 +22,12 @@ protocols used by BZEngine.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-# The version of the BZEngine protocol this should be compatible with
-protocolVersion = "BZFS109a"
-
 # Information about this implementation
 name    = "PyBZEngine"
 version = "cvs-dev"
 
-about = "%s - code version %s, protocol version %s" % \
-        (name, version, protocolVersion)
-
-serverWelcomeMessage = "Welcome to the %s Server (code/%s protocol/%s)" % \
-                       (name, version, protocolVersion)
-
 # Default pathnames
-cachePath = "~/.bzflag-cache"
+cachePath = "~/.bzengine-cache"
 
 # Check the python version here before we proceed further
 requiredPythonVersion = (2,2,1)

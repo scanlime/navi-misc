@@ -23,7 +23,7 @@ into observable and traceable events.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZEngine import Network, Errors
+from BZEngine import Errors
 import select, time, sys, weakref, types
 
 
@@ -283,7 +283,8 @@ class EventLoop:
             self.selectDict[selectable] = socket
 
     def add(self, item):
-        if isinstance(item, Network.BaseSocket):
+        # If the item supports the getSelectable interface, it's a socket
+        if hasattr(item, "getSelectable"):
             self.sockets.append(item)
             self.updateSelectDict()
 
@@ -296,7 +297,8 @@ class EventLoop:
             raise TypeError("Only Sockets and Timers are supported by this event loop")
 
     def remove(self, item):
-        if isinstance(item, Network.BaseSocket):
+        # If the item supports the getSelectable interface, it's a socket
+        if hasattr(item, "getSelectable"):
             self.sockets.remove(item)
             self.updateSelectDict()
 
