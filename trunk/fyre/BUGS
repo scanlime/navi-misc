@@ -20,4 +20,3 @@ Would be nice to fix, and most of these are dead simple:
 	* If opening an image on the command line but running in interactive mode,
 	  it'll still output to stdout. Should pop up an error message in this case.
 	* The 'save' menu item in the animation window is 'save as' for now
-	* gtk <= 2.2 File dialogs don't remember their previous directory (probably not an issue)
