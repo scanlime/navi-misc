@@ -239,6 +239,10 @@ protected:
 	std::string						group;
 	std::string						name;
 	CInputManager					*manager;
+
+	// the pimple
+	struct trInfo;
+	trInfo	*info;
 };
 
 typedef std::map<std::string, CAction*> tmActionMap;
