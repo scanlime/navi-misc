@@ -88,7 +88,7 @@ GAMES_ITEMS = [
     ('Nintendo Entertainment System', '/navi/media/games/nes',
      ('GENERIC', '/bin/sh', '/home/freevo/wasabi/fceu.sh', '', None)),
     ]
-plugin.activate('games')
+plugin.activate('games', level=45)
 
 # Remove standard plugins we have no use for
 plugin.remove('tv')
