@@ -75,21 +75,27 @@ int cv_sdl_process_events() {
     return 1;
 
   while (SDL_PollEvent(&event))
-    switch (event.type) {
-
-    case SDL_QUIT:
+    if (!cv_sdl_event_handler(&event))
       return 0;
 
-    case SDL_VIDEORESIZE:
-      SDL_SetVideoMode(event.resize.w, event.resize.h, 0, SDL_RESIZABLE);
-      sdl_dest_rect.x = 0;
-      sdl_dest_rect.y = 0;
-      sdl_dest_rect.w = event.resize.w;
-      sdl_dest_rect.h = event.resize.h;
-      break;
+  return 1;
+}
 
-    }
+int cv_sdl_event_handler(SDL_Event *event) {
+  switch (event->type) {
 
+  case SDL_QUIT:
+    return 0;
+
+  case SDL_VIDEORESIZE:
+    SDL_SetVideoMode(event->resize.w, event->resize.h, 0, SDL_RESIZABLE);
+    sdl_dest_rect.x = 0;
+    sdl_dest_rect.y = 0;
+    sdl_dest_rect.w = event->resize.w;
+    sdl_dest_rect.h = event->resize.h;
+    break;
+
+  }
   return 1;
 }
 
