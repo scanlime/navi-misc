@@ -38,8 +38,8 @@
 
 ;// Set LED brightnesses. The brighness values range
 ;// from 0x0000 for fully off to 0x03FF for fully on.
-;// wValue specifies the white LEDs brightness, wIndex
-;// specifies the blue LEDs brightness.
+;// wValue specifies the blue LEDs brightness, wIndex
+;// specifies the white LEDs brightness.
 #define MI6K_CTRL_LED_SET		0x03
 
 ;// Returns a 1-byte data packet with status bits

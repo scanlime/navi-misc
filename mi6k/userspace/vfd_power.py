@@ -2,4 +2,4 @@
 import sys
 from fcntl import ioctl
 f = open("/dev/usb/widget", "w")
-ioctl(f, 1, int(sys.argv[1]))
+ioctl(f, 0x3600, int(sys.argv[1]))
