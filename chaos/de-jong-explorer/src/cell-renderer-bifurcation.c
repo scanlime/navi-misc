@@ -22,44 +22,38 @@
  */
 
 #include "cell-renderer-bifurcation.h"
+#include "bifurcation-diagram.h"
 #include <gtk/gtk.h>
 
-static void cell_renderer_bifurcation_class_init(CellRendererBifurcationClass *klass);
-static void cell_renderer_bifurcation_init(CellRendererBifurcation *self);
+static void cell_renderer_bifurcation_class_init    (CellRendererBifurcationClass *klass);
+static void cell_renderer_bifurcation_init          (CellRendererBifurcation  *self);
 
 static void cell_renderer_bifurcation_finalize      (GObject                  *object);
 
 static void cell_renderer_bifurcation_get_property  (GObject                  *object,
-						    guint                     param_id,
-						    GValue                   *value,
-						    GParamSpec               *pspec);
+						     guint                     param_id,
+						     GValue                   *value,
+						     GParamSpec               *pspec);
 static void cell_renderer_bifurcation_set_property  (GObject                  *object,
-						    guint                     param_id,
-						    const GValue             *value,
-						    GParamSpec               *pspec);
+						     guint                     param_id,
+						     const GValue             *value,
+						     GParamSpec               *pspec);
 static void cell_renderer_bifurcation_get_size      (GtkCellRenderer          *cell,
-						    GtkWidget                *widget,
-						    GdkRectangle             *cell_area,
-						    gint                     *x_offset,
-						    gint                     *y_offset,
-						    gint                     *width,
-						    gint                     *height);
+						     GtkWidget                *widget,
+						     GdkRectangle             *cell_area,
+						     gint                     *x_offset,
+						     gint                     *y_offset,
+						     gint                     *width,
+						     gint                     *height);
 static void cell_renderer_bifurcation_render        (GtkCellRenderer          *cell,
-						    GdkWindow                *window,
-						    GtkWidget                *widget,
-						    GdkRectangle             *background_area,
-						    GdkRectangle             *cell_area,
-						    GdkRectangle             *expose_area,
-						    GtkCellRendererState      flags);
+						     GdkWindow                *window,
+						     GtkWidget                *widget,
+						     GdkRectangle             *background_area,
+						     GdkRectangle             *cell_area,
+						     GdkRectangle             *expose_area,
+						     GtkCellRendererState      flags);
 
-static PangoLayout* cell_renderer_bifurcation_get_text_layout (CellRendererBifurcation *self,
-							      GtkWidget              *widget);
-
-static void cell_renderer_bifurcation_render_spline (CellRendererBifurcation   *self,
-						    GdkWindow                *window,
-						    GtkWidget                *widget,
-						    GtkStateType             state,
-						    GdkRectangle             *area);
+static BifurcationDiagram* get_bifurcation_diagram  (CellRendererBifurcation  *self);
 
 enum {
   PROP_0,
@@ -134,14 +128,6 @@ GtkCellRenderer* cell_renderer_bifurcation_new() {
 static void cell_renderer_bifurcation_finalize(GObject *object) {
   CellRendererBifurcation *self = CELL_RENDERER_BIFURCATION(object);
 
-  if (self->pair.a) {
-    g_object_unref(self->pair.a);
-    self->pair.a = NULL;
-  }
-  if (self->pair.b) {
-    g_object_unref(self->pair.b);
-    self->pair.b = NULL;
-  }
   if (self->animation) {
     g_object_unref(self->animation);
     self->animation = NULL;
@@ -199,6 +185,51 @@ static void cell_renderer_bifurcation_set_property(GObject       *object,
   }
 }
 
+static BifurcationDiagram* get_bifurcation_diagram  (CellRendererBifurcation  *self) {
+  /* Using the current iterator and animation, find the corresponding
+   * bifurcation diagram object, creating and/or updating it if necessary.
+   */
+  GObject *obj;
+  BifurcationDiagram *bd;
+  GtkTreeIter next_keyframe;
+  DeJong *a, *b;
+
+  next_keyframe = self->keyframe;
+  if (!gtk_tree_model_iter_next(GTK_TREE_MODEL(self->animation->model), &next_keyframe)) {
+    /* We're at the last keyframe, no bifurcation diagram for us */
+    return NULL;
+  }
+
+  /* Try to extract an existing bifurcation diagram */
+  gtk_tree_model_get(GTK_TREE_MODEL(self->animation->model), &self->keyframe,
+		     ANIMATION_MODEL_BIFURCATION, &obj,
+		     -1);
+  if (obj) {
+    /* We have an existing object, yay */
+    bd = BIFURCATION_DIAGRAM(obj);
+  }
+  else {
+    /* Nope, create a new object and store it in the model */
+    bd = bifurcation_diagram_new();
+    gtk_list_store_set(self->animation->model, &self->keyframe,
+		       ANIMATION_MODEL_BIFURCATION, bd,
+		       -1);
+  }
+
+  /* Load parameters from both keyframes */
+  a = de_jong_new();
+  b = de_jong_new();
+  animation_keyframe_load(self->animation, &self->keyframe, PARAMETER_HOLDER(a));
+  animation_keyframe_load(self->animation, &next_keyframe,  PARAMETER_HOLDER(b));
+
+  /* Set up this bifurcation diagram for linear interpolation between the two */
+  bifurcation_diagram_set_linear_endpoints(bd, a, b);
+
+  g_object_unref(a);
+  g_object_unref(b);
+  return bd;
+}
+
 
 /************************************************************************************/
 /********************************************************** GtkCellRenderer Methods */
@@ -223,27 +254,17 @@ static void cell_renderer_bifurcation_render(GtkCellRenderer      *cell,
 					     GdkRectangle         *expose_area,
 					     GtkCellRendererState  flags) {
   CellRendererBifurcation *self = CELL_RENDERER_BIFURCATION(cell);
-  GtkTreeIter next_keyframe;
-  GdkPixbuf *pixbuf;
+  BifurcationDiagram *bd = get_bifurcation_diagram(self);
 
-  next_keyframe = self->keyframe;
-  if (gtk_tree_model_iter_next(GTK_TREE_MODEL(self->animation->model), &next_keyframe)) {
+  if (bd) {
+    g_object_set(bd, "size", "512x128", NULL);
+    bifurcation_diagram_calculate(bd, 10000, 100);
+    histogram_imager_update_image(HISTOGRAM_IMAGER(bd));
 
-    /*
-    animation_keyframe_load_dejong(self->animation, &self->keyframe, self->pair.a);
-    animation_keyframe_load_dejong(self->animation, &next_keyframe, self->pair.b);
-
-    pixbuf = de_jong_make_bifurcation_diagram(DE_JONG_INTERPOLATOR(de_jong_interpolate_linear),
-					      &self->pair, cell_area->width, cell_area->height,
-					      500, 100);
-
-    gdk_draw_pixbuf(window, GTK_WIDGET(widget)->style->fg_gc[GTK_STATE_NORMAL], pixbuf,
-		    0, 0, cell_area->x, cell_area->y, cell_area->width, cell_area->height,
+    gdk_draw_pixbuf(window, GTK_WIDGET(widget)->style->fg_gc[GTK_STATE_NORMAL],
+		    HISTOGRAM_IMAGER(bd)->image,
+		    0, 0, cell_area->x, cell_area->y, 512, 128,
 		    GDK_RGB_DITHER_NONE, 0, 0);
-
-    gdk_pixbuf_unref(pixbuf);
-
-    */
   }
 }
 

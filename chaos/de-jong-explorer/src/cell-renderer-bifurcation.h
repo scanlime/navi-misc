@@ -46,7 +46,6 @@ struct _CellRendererBifurcation {
 
   Animation *animation;
   GtkTreeIter keyframe;
-  ParameterHolderPair pair;
 };
 
 struct _CellRendererBifurcationClass {

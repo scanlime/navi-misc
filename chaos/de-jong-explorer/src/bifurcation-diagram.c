@@ -250,6 +250,7 @@ void bifurcation_diagram_calculate (BifurcationDiagram *self,
 
     column = bifurcation_diagram_next_column(self);
     bifurcation_diagram_get_column_params(self, column, &param);
+    ix = column->ix;
     point_x = column->point.x;
     point_y = column->point.y;
 
