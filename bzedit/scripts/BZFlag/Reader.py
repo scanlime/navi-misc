@@ -1,5 +1,7 @@
-#
-# Reader.py - parses bzflag world files
+""" BZFlag.Reader
+
+Parser for BZFlag world files.
+"""
 #
 # Copyright (C) 2005 David Trowbridge
 #
