@@ -1,0 +1,45 @@
+
+material ht8_default
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture HT-08-MT.JPG
+			}
+		}
+	}
+}
+
+material ht8_red
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture ht-08-mt-Red.jpg
+			}
+		}
+	}
+}
+
+material ht8_blue
+{
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture ht-08-mt-blue.jpg
+			}
+		}
+	}
+}
