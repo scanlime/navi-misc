@@ -256,8 +256,9 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 	if (event->button == 1)
 	{
 		/* left click */
+		int type = check_word (xtext, word);
 
-		switch (check_word (xtext, word))
+		switch (type)
 		{
 			case 0:
 				return;
@@ -268,7 +269,13 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 				 * elsewhere in gnome */
 				GError *err = NULL;
 
-				gnome_url_show (word, &err);
+				if (strncmp (word, "http", 4)) {
+					gchar *newword = g_strdup_printf ("http://%s", word);
+					gnome_url_show (newword, &err);
+					g_free (newword);
+				} else {
+					gnome_url_show (word, &err);
+				}
 				if (err != NULL)
 				{
 					/* FIXME: should actually check the contents of the error quark, and
