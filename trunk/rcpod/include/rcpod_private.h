@@ -83,6 +83,9 @@ void rcpod_UsartTxRx(rcpod_dev* rcpod, int address, int txBytes, int rxBytes);
  */
 int rcpod_UsartRxEnd(rcpod_dev* rcpod);
 
+/* Return the number of bytes received so far without cancelling */
+int rcpod_UsartRxProgress(rcpod_dev* rcpod);
+
 /* Set the pin descriptor used as a USART transmit enable, for RS-485 or similar
  * protocols that require enabling a line driver. May be zero (a no-op pin descriptor)
  * to disable this feature.

@@ -111,6 +111,20 @@ int rcpod_UsartRxEnd(rcpod_dev* rcpod) {
 }
 
 
+int rcpod_UsartRxProgress(rcpod_dev* rcpod) {
+  int retval;
+  unsigned char byteCount;
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
+			   RCPOD_CTRL_USART_RX_PROGRESS, 0, 0,
+			   (char*) &byteCount, 1, RCPOD_TIMEOUT);
+  if (retval < 0) {
+    rcpod_HandleError("rcpod_UsartRxProgress", errno, strerror(errno));
+    return 0;
+  }
+  return byteCount;
+}
+
+
 void rcpod_UsartTxe(rcpod_dev* rcpod, rcpod_pin txe) {
   int retval;
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR, RCPOD_CTRL_USART_TXE,
@@ -338,6 +352,20 @@ void rcpod_SerialRxStart(rcpod_dev* rcpod, int count) {
 int rcpod_SerialRxFinish(rcpod_dev* rcpod, unsigned char* buffer, int count) {
   int receivedBytes;
   receivedBytes = rcpod_UsartRxEnd(rcpod);
+
+  /* Copy back the received data from the rcpod's scratchpad */
+  if (count > receivedBytes)
+    count = receivedBytes;
+  if (count > 0)
+    rcpod_PeekBuffer(rcpod, RCPOD_REG_SCRATCHPAD, buffer, count);
+
+  return receivedBytes;
+}
+
+
+int rcpod_SerialRxProgress(rcpod_dev* rcpod, unsigned char* buffer, int count) {
+  int receivedBytes;
+  receivedBytes = rcpod_UsartRxProgress(rcpod);
 
   /* Copy back the received data from the rcpod's scratchpad */
   if (count > receivedBytes)

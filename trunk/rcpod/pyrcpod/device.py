@@ -51,9 +51,24 @@ def to_ucharArray(list):
     return a
 
 
-def from_ucharArray(a, n):
-    """Converts a C unsigned character array with 'n' entries to a python list"""
-    return [ucharArray_getitem(a, i) for i in xrange(n)]
+def from_ucharArray(a, n, retType=list):
+    """Converts a C unsigned character array with 'n' entries to
+       a python object, depending on retType:
+
+       int  : Single bytes will be returned as integers,
+              multiple bytes will be returned as lists of integers
+       list : Always returns a list of integers
+       str  : Returns a string with the peek'ed bytes
+       """
+    data = [ucharArray_getitem(a, i) for i in xrange(n)]
+    if retType == str:
+        s = ""
+        for value in data:
+            s += chr(value)
+        return s
+    if retType == int and n == 1:
+        return data[0]
+    return data
 
 
 class OpenedRcpod:
@@ -186,28 +201,12 @@ class OpenedRcpod:
              str  : Returns a string with the peek'ed bytes
            """
         address = mapAddress(address)
-
-        if length > 1:
-            # Use PeekBuffer, converting from a C array
-            try:
-                arr = new_ucharArray(length)
-                rcpod_PeekBuffer(self.dev, address, arr, length)
-                data = from_ucharArray(arr, length)
-            finally:
-                delete_ucharArray(arr)
-        elif length == 1:
-            data = [rcpod_Peek(self.dev, address)]
-        else:
-            data = []
-
-        # data is now a list, convert it if necessary
-        if retType == str:
-            s = ""
-            for value in data:
-                s += chr(value)
-            return s
-        if retType == int and length == 1:
-            return data[0]
+        try:
+            arr = new_ucharArray(length)
+            rcpod_PeekBuffer(self.dev, address, arr, length)
+            data = from_ucharArray(arr, length, retType)
+        finally:
+            delete_ucharArray(arr)
         return data
 
     def analogReadAll(self):
@@ -278,13 +277,22 @@ class OpenedRcpod:
            """
         buffer = new_ucharArray(RCPOD_SCRATCHPAD_SIZE)
         count = rcpod_SerialRxFinish(self.dev, buffer, RCPOD_SCRATCHPAD_SIZE)
-        data = from_ucharArray(buffer, count)
+        data = from_ucharArray(buffer, count, retType)
         delete_ucharArray(buffer)
-        if retType == str:
-            s = ""
-            for value in data:
-                s += chr(value)
-            return s
+        return data
+
+    def serialRxProgress(self):
+        """Returns the number of bytes received so far in the current
+           serial receive without stopping it.
+           """
+        return rcpod_SerialRxProgress(self.dev, None, 0)
+
+    def serialRxCheckpoint(self, retType=list):
+        """Like serialRxFinish, but doesn't stop the serial receive"""
+        buffer = new_ucharArray(RCPOD_SCRATCHPAD_SIZE)
+        count = rcpod_SerialRxProgress(self.dev, buffer, RCPOD_SCRATCHPAD_SIZE)
+        data = from_ucharArray(buffer, count, retType)
+        delete_ucharArray(buffer)
         return data
 
     def serialSetTxEnable(self, pin):

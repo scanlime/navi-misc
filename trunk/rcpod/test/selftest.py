@@ -380,6 +380,8 @@ class SelfTest(RcpodTestCase):
         self.rcpod.serialSetTxEnable(txe)
         self.rcpod.serialTx("U" * 20)
         self.rcpod.serialUnsetTxEnable()
+        self.assertEqual(self.rcpod.serialRxProgress(), 0)
+        self.assertEqual(self.rcpod.serialRxCheckpoint(), [])
         self.assertEqual(self.rcpod.serialRxFinish(), [])
 
 
