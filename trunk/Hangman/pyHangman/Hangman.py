@@ -13,7 +13,7 @@ keeping track of the number of misses.
 #
 
 import sys, string
-import webpageParser
+from wordoftheday import wordoftheday
 from urllib2 import urlopen
 from random import seed, choice
 
@@ -139,9 +139,8 @@ class Hangman:
 	def NetGame(self):
 		""" Start a new game using the word of the day from dictionary.com.
 				"""
-		page = urlopen("http://www.dictionary.com").readlines()
-		parser = webpageParser()
+		page = urlopen("http://www.dictionary.com").read()
+		parser = wordoftheday()
 		parser.feed(page)
-		self.wordlist[0] = page[parser.handle_starttag('a',[('href','/wordoftheday/')]):
-														parser.handle_endtag('a')]
+		self.words[parser.word] = ""
 		self.NewGame()
