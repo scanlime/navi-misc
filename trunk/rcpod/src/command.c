@@ -57,7 +57,7 @@ unsigned char rcpod_Peek(rcpod_dev* rcpod, int address) {
 }
 
 
-void rcpod_Poke4(rcpod_dev* rcpod, unsigned char data[4]) {
+void rcpod_Poke4(rcpod_dev* rcpod, const unsigned char data[4]) {
   int retval;
   /* All pin descriptors are packed into the four bytes of wValue and wIndex such
    * that in the control message header the bytes are contiguous.
@@ -192,7 +192,7 @@ void rcpod_PeekBuffer(rcpod_dev* rcpod, int address, unsigned char *buffer, int 
 }
 
 
-void rcpod_PokeBuffer(rcpod_dev* rcpod, int address, unsigned char *buffer, int bytes) {
+void rcpod_PokeBuffer(rcpod_dev* rcpod, int address, const unsigned char *buffer, int bytes) {
   /* The first byte must be sent using poke, since poke4 picks
    * an address following the previous poke command.
    */
