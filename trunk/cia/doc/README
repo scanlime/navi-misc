@@ -1,9 +1,9 @@
-===================================
-CIA open source notification system
-===================================
+======
+README
+======
 
-Version pre-0.81
-================
+CIA Open Source Notification System, version pre-0.81
+=====================================================
 
 About CIA
 ---------
@@ -102,4 +102,5 @@ Contacts
 --------
 
 Micah Dowty <micah@picogui.org>
+
 'scanline' on irc.freenode.net
