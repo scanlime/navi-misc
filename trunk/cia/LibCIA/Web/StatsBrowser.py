@@ -41,39 +41,41 @@ class Clock(Template.Section):
 class Counters(Template.Section):
     """A Section displaying the counters from a StatsTarget"""
     title = "event counters"
-    rows = [
-               [
-                   'The last message was received ',
-                   Template.value[ place('relativeDate', 'forever', 'lastEventTime') ],
-                   ' ago at ',
-                   Template.value[ place('date', 'forever', 'lastEventTime') ],
-               ],
-               [
-                   Template.value[ place('value', 'today', 'eventCount') ],
-                   ' messages so far today, ',
-                   Template.value[ place('value', 'yesterday', 'eventCount') ],
-                   ' messages yesterday',
-               ],
-               [
-                   Template.value[ place('value', 'thisWeek', 'eventCount') ],
-                   ' messages so far this week, ',
-                   Template.value[ place('value', 'lastWeek', 'eventCount') ],
-                   ' messages last week',
-               ],
-               [
-                   Template.value[ place('value', 'thisMonth', 'eventCount') ],
-                   ' messages so far this month, ',
-                   Template.value[ place('value', 'lastMonth', 'eventCount') ],
-                   ' messages last month',
-               ],
-               [
-                   Template.value[ place('value', 'forever', 'eventCount') ],
-                   ' messages since the first one, ',
-                   Template.value[ place('relativeDate', 'forever', 'firstEventTime') ],
-                   ' ago',
-                   place('averagePeriod', 'forever'),
-               ],
-        ]
+    rows = []
+
+#     rows = [
+#                [
+#                    'The last message was received ',
+#                    Template.value[ place('relativeDate', 'forever', 'lastEventTime') ],
+#                    ' ago at ',
+#                    Template.value[ place('date', 'forever', 'lastEventTime') ],
+#                ],
+#                [
+#                    Template.value[ place('value', 'today', 'eventCount') ],
+#                    ' messages so far today, ',
+#                    Template.value[ place('value', 'yesterday', 'eventCount') ],
+#                    ' messages yesterday',
+#                ],
+#                [
+#                    Template.value[ place('value', 'thisWeek', 'eventCount') ],
+#                    ' messages so far this week, ',
+#                    Template.value[ place('value', 'lastWeek', 'eventCount') ],
+#                    ' messages last week',
+#                ],
+#                [
+#                    Template.value[ place('value', 'thisMonth', 'eventCount') ],
+#                    ' messages so far this month, ',
+#                    Template.value[ place('value', 'lastMonth', 'eventCount') ],
+#                    ' messages last month',
+#                ],
+#                [
+#                    Template.value[ place('value', 'forever', 'eventCount') ],
+#                    ' messages since the first one, ',
+#                    Template.value[ place('relativeDate', 'forever', 'firstEventTime') ],
+#                    ' ago',
+#                    place('averagePeriod', 'forever'),
+#                ],
+#         ]
 
     def __init__(self, target):
         self.counters = target.counters
@@ -302,18 +304,18 @@ class Catalog(Template.Section):
         return result
 
     def _render_rows(self, childTargets, context, result):
-        # Deferred callback to render the table once we have our list of children
-        return [tar.name for tar in childTargets]
-
-        return [Template.Table(self.childTargets, [
-            TargetTitleColumn(),
-            TargetBargraphColumn('events today', 'today'),
-            TargetBargraphColumn('events yesterday', 'yesterday'),
-            TargetBargraphColumn('total events', 'forever'),
-            TargetPercentColumn('% total', 'forever'),
-            TargetLastEventColumn(),
-            TargetSubTargetsColumn(),
-            ], id='catalog')]
+        if childTargets:
+            result.callback([Template.Table(childTargets, [
+                TargetTitleColumn(),
+                TargetBargraphColumn('events today', 'today'),
+                TargetBargraphColumn('events yesterday', 'yesterday'),
+                TargetBargraphColumn('total events', 'forever'),
+                TargetPercentColumn('% total', 'forever'),
+                TargetLastEventColumn(),
+                TargetSubTargetsColumn(),
+                ], id='catalog')])
+        else:
+            result.callback(None)
 
 
 class Info(Template.Section):
@@ -408,7 +410,10 @@ class RecentMessages(MessageList):
 
     def _render_rows(self, messages, context, result):
         """Actually render the rows, called after the message list has been retrieved"""
-        result.callback(self.renderMessages(context, messages))
+        if messages:
+            result.callback(self.renderMessages(context, [Message.Message(m) for m in messages]))
+        else:
+            result.callback(None)
 
 
 class MetadataKeyColumn(Nouvelle.Column):

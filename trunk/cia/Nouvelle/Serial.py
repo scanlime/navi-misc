@@ -55,7 +55,7 @@ class xml(str):
     __slots__ = []
 
 
-class quote(object):
+class quote:
     """A wrapper for any serializable object that fully serializes it then
        leaves the result as a string rather than an xml() object, so it is quoted.
        This is useful for rendering HTML as quoted text inside of other XML
@@ -132,18 +132,18 @@ class tag:
             return [self.renderedOpening, self.content, self.renderedClosing]
 
 
-class subcontext(object):
+class subcontext:
     """A wrapper for any serializable object that makes note of a modified
        context to serialize all content in. This can be used like a tag,
        with content in [] and context changes in ().
 
        It is not enforced, but normally subcontexts should be immutable.
        """
-    def __init__(self, content, **modifications):
+    def __init__(self, content=None, **modifications):
         self.content = content
         self.modifications = modifications
 
-    def __call__(serf, content=None, **modifications):
+    def __call__(self, content=None, **modifications):
         """Like tags, instances can be used as templates for creating other
            subcontexts. This returns a new distinct subcontext based on
            the current one.
@@ -152,11 +152,11 @@ class subcontext(object):
             content = self.content
         newMods = dict(self.modifications)
         newMods.update(modifications)
-        return subcontext(content, newMods)
+        return subcontext(content, **newMods)
 
     def __getitem__(self, content):
         """Returns a new subcontext, like this one but with the indicated content"""
-        return subcontext(content, self.modifications)
+        return subcontext(content, **self.modifications)
 
 
 def escapeToXml(text, isAttrib=0):

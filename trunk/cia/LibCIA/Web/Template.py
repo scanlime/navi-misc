@@ -23,7 +23,7 @@ Template classes for building web pages using our particular style
 
 import Nouvelle.Twisted
 from twisted.internet import defer
-from Nouvelle import tag, place, xml
+from Nouvelle import tag, place, xml, subcontext
 
 
 # Tags with 'class' attributes should be placed in this module
@@ -42,9 +42,13 @@ def Bargraph(value, width=4, padding=0.2):
                style="padding: 0em %.4fem" % (value * width + padding))
 
 
-class Section(Nouvelle.DocumentOwner):
-    """A portion of the web page with a title and a body, that may be placed
-       in any of the page's columns.
+class Section:
+    """A renderable portion of the web page with a title and a body,
+       that may be placed in any of the page's columns.
+
+       A section can be made up of any number of 'rows', which manifest
+       themselves as whitespace-padded sections. A section without any
+       rows is completely hidden.
        """
     def render_title(self, context):
         return self.title
@@ -52,25 +56,27 @@ class Section(Nouvelle.DocumentOwner):
     def render_rows(self, context):
         return self.rows
 
-    def render_body(self, context):
-        # Wrap each of the rows returned by render_rows() in a proper <div> tag
+    def render(self, context):
         result = defer.Deferred()
         defer.maybeDeferred(self.render_rows, context).addCallback(
-            self._assembleRows, result).addErrback(result.errback)
+            self._render, result).addErrback(result.errback)
+        # Optimize out Deferreds where we can
         if result.called:
             return result.result
         return result
 
-    def _assembleRows(self, rows, result):
-        result.callback([tag('div', _class="row")[r] for r in rows])
-
-    document = [
-        tag('span', _class="section")[ place("title") ],
-        tag('div', _class="section")[
-            tag('div', _class="sectionTop")[" "],
-            place("body"),
-        ],
-    ]
+    def _render(self, rows, result):
+        """The backend for render(), called once our rows list is known"""
+        if rows:
+            result.callback(subcontext(owner=self)[
+                tag('span', _class="section")[ place("title") ],
+                tag('div', _class="section")[
+                    tag('div', _class="sectionTop")[" "],
+                    [tag('div', _class="row")[r] for r in rows],
+                ],
+            ])
+        else:
+            result.callback([])
 
 
 class Table(Nouvelle.ResortableTable):
