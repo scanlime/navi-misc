@@ -40,6 +40,10 @@ class Reader:
             phydrv = Group(CaselessLiteral('phydrv') + Word(alphanums))
             smoothbounce = CaselessLiteral('smoothbounce')
             flatshading = CaselessLiteral('flatshading')
+            shootthrough = CaselessLiteral('shootthrough')
+            drivethrough = CaselessLiteral('drivethrough')
+            passable = CaselessLiteral('passable')
+            noclusters = CaselessLiteral('noclusters')
 
             end = Suppress(CaselessLiteral('end'))
             name = CaselessLiteral('name')
@@ -64,9 +68,9 @@ class Reader:
               | Group(xform + globalReference) \
               | objectProperty
             obstacleProperty =                  \
-                CaselessLiteral('drivethrough') \
-              | CaselessLiteral('shootthrough') \
-              | CaselessLiteral('passable')     \
+                drivethrough                    \
+              | shootthrough                    \
+              | passable                        \
               | locationProperty
 
             channel =                    \
@@ -230,6 +234,33 @@ class Reader:
               | objectProperty
             transform = Group(CaselessLiteral('transform') + OneOrMore(transformProperty) + end)
 
+            # FIXME - add material to this object
+            faceProperty =                                                       \
+                Group(CaselessLiteral('vertices') + int + int + OneOrMore(int))  \
+              | Group(CaselessLiteral('normals') + int + int + OneOrMore(int))   \
+              | Group(CaselessLiteral('texcoords') + int + int + OneOrMore(int)) \
+              | phydrv                                                           \
+              | smoothbounce                                                     \
+              | noclusters                                                       \
+              | drivethrough                                                     \
+              | shootthrough                                                     \
+              | passable
+            face = Group(CaselessLiteral('face') + OneOrMore(faceProperty) + CaselessLiteral('endface').suppress())
+
+            # FIXME - add material to this object
+            meshProperty =                                      \
+                face                                            \
+              | Group(CaselessLiteral('inside') + ThreeDPoint)  \
+              | Group(CaselessLiteral('outside') + ThreeDPoint) \
+              | Group(CaselessLiteral('vertex') + ThreeDPoint)  \
+              | Group(CaselessLiteral('normal') + ThreeDPoint)  \
+              | Group(CaselessLiteral('texcoord') + TwoDPoint)  \
+              | phydrv                                          \
+              | smoothbounce                                    \
+              | noclusters                                      \
+              | obstacleProperty
+            mesh = Group(CaselessLiteral('mesh') + OneOrMore(meshProperty) + end)
+
             worldObject =     \
                 arc           \
               | box           \
@@ -237,6 +268,7 @@ class Reader:
               | cone          \
               | dynamicColor  \
               | link          \
+              | mesh          \
               | meshbox       \
               | meshpyr       \
               | physics       \
