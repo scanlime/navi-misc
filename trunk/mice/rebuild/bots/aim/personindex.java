@@ -104,7 +104,7 @@ public class personindex
 	 */
 	public void addinterview(botmain bot, String name, String pass)
 	{
-		inthead = new interview(inthead, bot, name.toUpperCase(), pass);
+		inthead = new interview(inthead, bot, name, pass);
 	}
 	
 	/**
