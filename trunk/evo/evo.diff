@@ -1,81 +1,51 @@
 ? calendar-config-hooks.tar.gz
-? plugin.mk
 ? plugins
 ? calendar/gui/apps_evolution_calendar-2.2.schemas
 ? calendar/gui/e-cal-config.c
 ? calendar/gui/e-cal-config.h
+? calendar/gui/dialogs/.cal-properties.c.swp
 ? calendar/gui/dialogs/cal-properties.c
 ? calendar/gui/dialogs/cal-properties.h
+? e-util/.e-config.h.swp
 ? help/C/evolution-2.2-C.omf
 ? help/C/evolution-2.2.xml
+? mail/.em-config.c.swp
 ? mail/evolution-mail-2.2.schemas
-Index: ChangeLog
-===================================================================
-RCS file: /cvs/gnome/evolution/ChangeLog,v
-retrieving revision 1.1375
-diff -u -r1.1375 ChangeLog
---- ChangeLog	1 Oct 2004 19:39:05 -0000	1.1375
-+++ ChangeLog	14 Oct 2004 08:30:04 -0000
-@@ -1,3 +1,7 @@
-+2004-10-14  David Trowbridge  <trowbrds@cs.colorado.edu>
-+
-+	* configure.in: added new "plugins" directory
-+
- 2004-10-01  Jeffrey Stedfast  <fejj@novell.com>
- 
- 	* configure.in (localedir): Enable imap4 plugin by default. We
-Index: Makefile.am
-===================================================================
-RCS file: /cvs/gnome/evolution/Makefile.am,v
-retrieving revision 1.96
-diff -u -r1.96 Makefile.am
---- Makefile.am	12 Feb 2004 20:16:13 -0000	1.96
-+++ Makefile.am	14 Oct 2004 08:30:04 -0000
-@@ -48,7 +48,8 @@
- 	views			\
- 	tools			\
- 	help			\
--	po
-+	po			\
-+	plugins
- 
- 
- # CDE Stuff
+? widgets/misc/test-source-option-menu
+? widgets/misc/test-source-selector
 Index: configure.in
 ===================================================================
 RCS file: /cvs/gnome/evolution/configure.in,v
-retrieving revision 1.722
-diff -u -r1.722 configure.in
---- configure.in	1 Oct 2004 19:39:05 -0000	1.722
-+++ configure.in	14 Oct 2004 08:30:05 -0000
-@@ -1277,6 +1277,9 @@
- plugindir="$privlibdir/plugins"
- AC_SUBST(plugindir)
+retrieving revision 1.727
+diff -u -r1.727 configure.in
+--- configure.in	20 Oct 2004 08:18:12 -0000	1.727
++++ configure.in	21 Oct 2004 01:55:14 -0000
+@@ -1341,7 +1341,7 @@
+ AC_ARG_ENABLE(plugins, [  --enable-plugins=[no/all/list]      Enable plugins.],enable_plugins="$enableval",enable_plugins=no)
  
-+EVO_PLUGIN_RULE=$srcdir/plugin.mk
-+AC_SUBST_FILE(EVO_PLUGIN_RULE)
-+
- idldir="$datadir/idl/evolution-$BASE_VERSION"
- AC_SUBST(idldir)
+ dnl Add any new plugins here
+-plugins_all="subject-thread save-attachments prefer-plain"
++plugins_all="calendar-http subject-thread save-attachments prefer-plain"
  
-@@ -1514,6 +1517,8 @@
- smime/lib/Makefile
- smime/gui/Makefile
- tools/Makefile
-+plugins/Makefile
-+plugins/com-novell-calendar-http/Makefile
- evolution-shell.pc
- camel.pc
- ])
+ if test x"$enable_plugins" = "xno"; then
+ 	plugins_enabled=""
+@@ -1533,6 +1533,7 @@
+ mail/default/C/Makefile
+ mail/importers/Makefile
+ plugins/Makefile
++plugins/calendar-http/Makefile
+ plugins/subject-thread/Makefile
+ plugins/save-attachments/Makefile
+ plugins/prefer-plain/Makefile
 Index: calendar/ChangeLog
 ===================================================================
 RCS file: /cvs/gnome/evolution/calendar/ChangeLog,v
-retrieving revision 1.2535
-diff -u -r1.2535 ChangeLog
---- calendar/ChangeLog	13 Oct 2004 04:58:51 -0000	1.2535
-+++ calendar/ChangeLog	14 Oct 2004 08:30:18 -0000
+retrieving revision 1.2550
+diff -u -r1.2550 ChangeLog
+--- calendar/ChangeLog	20 Oct 2004 03:03:30 -0000	1.2550
++++ calendar/ChangeLog	21 Oct 2004 01:55:22 -0000
 @@ -1,3 +1,11 @@
-+2004-10-14  David Trowbridge  <trowbrds@cs.colorado.edu>
++2004-10-20  David Trowbridge  <trowbrds@cs.colorado.edu>
 +
 +	* gui/e-cal-config.c: added EConfig subclass for calendars
 +	* gui/calendar-component.c: initialize plugin hooks on
@@ -83,16 +53,16 @@ diff -u -r1.2535 ChangeLog
 +	* gui/dialogs/cal-properties.c: added EConfig-based dialog
 +	  for the calendar properties window.
 +
- 2004-10-12  Li Yuan  <li.yuan@sun.com>
+ 2004-10-19  JP Rosevear  <jpr@novell.com>
  
- 	* gui/e-day-view.c: (e_day_view_on_main_canvas_button_press):
+ 	* gui/calendar-component.c, gui/e-cal-menu.c, gui/e-cal-popup.c,
 Index: calendar/gui/Makefile.am
 ===================================================================
 RCS file: /cvs/gnome/evolution/calendar/gui/Makefile.am,v
-retrieving revision 1.298
-diff -u -r1.298 Makefile.am
---- calendar/gui/Makefile.am	6 Oct 2004 03:22:38 -0000	1.298
-+++ calendar/gui/Makefile.am	14 Oct 2004 08:30:19 -0000
+retrieving revision 1.299
+diff -u -r1.299 Makefile.am
+--- calendar/gui/Makefile.am	18 Oct 2004 04:08:47 -0000	1.299
++++ calendar/gui/Makefile.am	21 Oct 2004 01:55:23 -0000
 @@ -59,6 +59,11 @@
  
  component_LTLIBRARIES = libevolution-calendar.la
@@ -111,17 +81,17 @@ diff -u -r1.298 Makefile.am
  	e-cal-component-preview.h		\
 +	e-cal-config.c				\
 +	e-cal-config.h				\
- 	e-cal-model-calendar.h			\
- 	e-cal-model-calendar.c			\
+ 	e-cal-menu.c				\
+ 	e-cal-menu.h				\
  	e-cal-model-calendar.h			\
 Index: calendar/gui/calendar-component.c
 ===================================================================
 RCS file: /cvs/gnome/evolution/calendar/gui/calendar-component.c,v
-retrieving revision 1.185
-diff -u -r1.185 calendar-component.c
---- calendar/gui/calendar-component.c	7 Oct 2004 01:42:50 -0000	1.185
-+++ calendar/gui/calendar-component.c	14 Oct 2004 08:30:21 -0000
-@@ -46,6 +46,7 @@
+retrieving revision 1.188
+diff -u -r1.188 calendar-component.c
+--- calendar/gui/calendar-component.c	20 Oct 2004 03:03:30 -0000	1.188
++++ calendar/gui/calendar-component.c	21 Oct 2004 01:55:24 -0000
+@@ -47,6 +47,7 @@
  #include "comp-util.h"
  #include "common/authentication.h"
  #include "dialogs/calendar-setup.h"
@@ -142,7 +112,7 @@ diff -u -r1.185 calendar-component.c
  		return;
  
 -	calendar_setup_edit_calendar (GTK_WINDOW (gtk_widget_get_toplevel(ep->target->widget)), selected_source);
-+	ec_calendar_properties_show (GTK_WINDOW (gtk_widget_get_toplevel (ep->target->widget)), selected_source);
++	e_calendar_properties_show (GTK_WINDOW (gtk_widget_get_toplevel (ep->target->widget)), selected_source);
  }
  
  static EPopupItem ecc_source_popups[] = {
@@ -157,7 +127,7 @@ diff -u -r1.185 calendar-component.c
 +		return;
 +	started = 1;
 +
-+	e_plugin_hook_register_type (ec_config_hook_get_type ());
++	e_plugin_hook_register_type (e_cal_config_hook_get_type ());
 +}
 +
 +static void
@@ -181,7 +151,7 @@ RCS file: /cvs/gnome/evolution/calendar/gui/dialogs/Makefile.am,v
 retrieving revision 1.64
 diff -u -r1.64 Makefile.am
 --- calendar/gui/dialogs/Makefile.am	24 Jun 2004 21:02:09 -0000	1.64
-+++ calendar/gui/dialogs/Makefile.am	14 Oct 2004 08:30:24 -0000
++++ calendar/gui/dialogs/Makefile.am	21 Oct 2004 01:55:24 -0000
 @@ -38,6 +38,8 @@
  	alarm-list-dialog.h	\
  	cal-prefs-dialog.c	\
