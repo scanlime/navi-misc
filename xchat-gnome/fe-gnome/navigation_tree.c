@@ -80,6 +80,17 @@ static gboolean navigation_tree_remove_iterate(GtkTreeModel *model, GtkTreePath 
 	gtk_tree_model_get(model, iter, 2, &s, -1);
 	if(s == data) {
 		gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
+		if(s == gui.current_session) {
+			GtkWidget *treeview;
+			GtkTreeSelection *select;
+
+			treeview = glade_xml_get_widget(gui.xml, "server channel list");
+			select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+			if(!gtk_tree_path_up(path)) {
+				path = gtk_tree_path_new_first();
+			}
+			gtk_tree_selection_select_path(select, path);
+		}
 		return TRUE;
 	}
 	return FALSE;
@@ -236,19 +247,39 @@ void server_context(GtkWidget *treeview, session *selected) {
 	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 0, 0);
 }
 
+static void close_dialog(gpointer data, guint action, GtkWidget *widget) {
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		if(s->type == SESS_CHANNEL) {
+			s->server->p_part(s->server, s->channel, "ex-chat");
+			/* FIXME: part reason */
+		}
+		navigation_tree_remove(s);
+		text_gui_remove_text_buffer(s);
+	}
+}
+
 void channel_context(GtkWidget *treeview, session *selected) {
 	static GtkItemFactoryEntry entries[] = {
-		{"/Channel",			NULL, NULL, 0, "<Branch>"},
-		{"/Channel/_Save",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_SAVE},
-		{"/Channel/Save _As...",	NULL, NULL, 0, "<StockItem>", GTK_STOCK_SAVE_AS},
-		{"/Channel/Separator1",		NULL, NULL, 0, "<Separator>"},
-		{"/Channel/Leave",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_CLOSE},
-		{"/Channel/Separator2",		NULL, NULL, 0, "<Separator>"},
-		{"/Channel/_Find...",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_FIND},
-		{"/Channel/Find Ne_xt",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_FIND},
-		{"/Channel/_Clear Window",	NULL, NULL, 0, "<StockItem>", GTK_STOCK_CLEAR},
-		{"/Channel/Separator3",		NULL, NULL, 0, "<Separator>"},
-		{"/Channel/_Bans",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_DIALOG_WARNING}
+		{"/Channel",			NULL, NULL,		0, "<Branch>"},
+		{"/Channel/_Save",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_SAVE},
+		{"/Channel/Save _As...",	NULL, NULL,		0, "<StockItem>", GTK_STOCK_SAVE_AS},
+		{"/Channel/Separator1",		NULL, NULL,		0, "<Separator>"},
+		{"/Channel/Leave",		NULL, close_dialog,	0, "<StockItem>", GTK_STOCK_CLOSE},
+		{"/Channel/Separator2",		NULL, NULL,		0, "<Separator>"},
+		{"/Channel/_Find...",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_FIND},
+		{"/Channel/Find Ne_xt",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_FIND},
+		{"/Channel/_Clear Window",	NULL, NULL,		0, "<StockItem>", GTK_STOCK_CLEAR},
+		{"/Channel/Separator3",		NULL, NULL,		0, "<Separator>"},
+		{"/Channel/_Bans",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_DIALOG_WARNING}
 	};
 	GtkItemFactory *factory;
 	GtkWidget *menu;
@@ -262,15 +293,15 @@ void channel_context(GtkWidget *treeview, session *selected) {
 
 void dialog_context(GtkWidget *treeview, session *selected) {
 	static GtkItemFactoryEntry entries[] = {
-		{"/Dialog",			NULL, NULL, 0, "<Branch>"},
-		{"/Dialog/_Save",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_SAVE},
-		{"/Dialog/Save _As...",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_SAVE_AS},
-		{"/Dialog/Separator1",		NULL, NULL, 0, "<Separator>"},
-		{"/Dialog/Close",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_CLOSE},
-		{"/Dialog/Separator2",		NULL, NULL, 0, "<Separator>"},
-		{"/Dialog/_Find...",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_FIND},
-		{"/Dialog/Find Ne_xt",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_FIND},
-		{"/Dialog/_Clear Window",	NULL, NULL, 0, "<StockItem>", GTK_STOCK_CLEAR}
+		{"/Dialog",			NULL, NULL,		0, "<Branch>"},
+		{"/Dialog/_Save",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_SAVE},
+		{"/Dialog/Save _As...",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_SAVE_AS},
+		{"/Dialog/Separator1",		NULL, NULL,		0, "<Separator>"},
+		{"/Dialog/Close",		NULL, close_dialog,	0, "<StockItem>", GTK_STOCK_CLOSE},
+		{"/Dialog/Separator2",		NULL, NULL,		0, "<Separator>"},
+		{"/Dialog/_Find...",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_FIND},
+		{"/Dialog/Find Ne_xt",		NULL, NULL,		0, "<StockItem>", GTK_STOCK_FIND},
+		{"/Dialog/_Clear Window",	NULL, NULL,		0, "<StockItem>", GTK_STOCK_CLEAR}
 	};
 	GtkItemFactory *factory;
 	GtkWidget *menu;
