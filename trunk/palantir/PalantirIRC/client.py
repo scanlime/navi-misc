@@ -7,7 +7,7 @@ The PalantirClient class handles all of the IRC protocols.
 
 from twisted.protocols import irc
 
-class PalantirClient(irc.IRCClient):
+class Client(irc.IRCClient):
   ''' This is the class that handles all the nitty gritty of the IRC
       stuff.
       '''
