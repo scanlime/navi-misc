@@ -22,33 +22,38 @@
  */
 
 
-/* An I2C-attached PWM module */
-module pwm16_i2c (clk, reset,
+/* An I2C-attached PWM module. The I2C register is always
+ * two bytes, but the actual precision of the PWM generator
+ * may be adjusted. If the precision is less than 16 bits, 
+ * some of the low-order bits will be ignored.
+ */
+module pwm_i2c (clk, reset,
                   scl, sda_in, sda_out,
                   out);
         parameter I2C_ADDRESS = 0;
-
+        parameter PWM_BITS = 16;
+               
 	input clk, reset;
 	input scl, sda_in;
 	output sda_out, out;
 	wire [15:0] duty_cycle;
 
-	pwm16 p(clk, reset, duty_cycle, out);
+	pwm #(PWM_BITS) p(clk, reset, duty_cycle[15:16-PWM_BITS], out);
 	i2c_slave_reg #(I2C_ADDRESS, 2) i2creg16(
 		clk, reset,
 		scl, sda_in, sda_out,
 		duty_cycle);
 endmodule
 
+/* A simple pulse width modulation module, of arbitrary precision */
+module pwm (clk, reset, duty_cycle, out);
+	parameter BITS = 16;
 
-/* A simple 16-bit pulse width modulation module */
-module pwm16 (clk, reset,
-	      duty_cycle, out);
 	input clk, reset;
-	input [15:0] duty_cycle;
+	input [BITS-1:0] duty_cycle;
 	output out;
 	reg out;
-	reg [16:0] pwmreg;
+	reg [BITS:0] pwmreg;
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
@@ -56,7 +61,7 @@ module pwm16 (clk, reset,
 			out <= 0;
 		end
 		else begin
-			if (pwmreg < 17'h10000)
+			if (pwmreg < { 1'b1, {BITS{1'b0}} })
 				pwmreg <= pwmreg + 1;
 			else
 				pwmreg <= 0;
