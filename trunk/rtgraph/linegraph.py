@@ -20,7 +20,8 @@ win.add(vbox)
 win.set_border_width(5)
 
 for name, rate, channels in [
-    ("Sub-ether phase", 80, [SineChannel(2, 0.8, (0,0,1))]),
+    ("Sub-ether phase", 80, [SineChannel(2, 0.8, (0,0,1)),
+                             rtgraph.Channel(0.5, (0,0,0))]),
     ("Tachyon variance", 30, [SineChannel(1, 1, (0,0,1)),
                               SineChannel(1.01, 1, (0,0.5,0)),
                               SineChannel(10, 0.4, (1,0,0))]),
