@@ -34,8 +34,8 @@ class ColortextToIRC(Message.Formatter):
     detector = Message.Filter('<find path="/message/body/colorText"/>')
     medium = 'irc'
     def __init__(self):
-        import IRC
-        self.formatter = IRC.ColortextFormatter()
+        from IRC.Formatting import ColortextFormatter
+        self.formatter = ColortextFormatter()
 
     def format(self, message, input=None):
         return self.formatter.format(message.xml.body.colorText)
@@ -232,28 +232,28 @@ class CommitToIRC(CommitFormatter):
     logWrapWidth = 80
 
     def format_author(self, author):
-        import IRC
-        return IRC.format(CommitFormatter.format_author(self, author), 'green')
+        from IRC.Formatting import format
+        return format(CommitFormatter.format_author(self, author), 'green')
 
     def format_version(self, version):
-        import IRC
-        return IRC.format(str(version).strip(), 'bold')
+        from IRC.Formatting import format
+        return format(str(version).strip(), 'bold')
 
     def format_revision(self, rev):
-        import IRC
-        return 'r' + IRC.format(str(rev).strip(), 'bold')
+        from IRC.Formatting import format
+        return 'r' + format(str(rev).strip(), 'bold')
 
     def format_module(self, module):
-        import IRC
-        return IRC.format(CommitFormatter.format_module(self, module), 'aqua')
+        from IRC.Formatting import format
+        return format(CommitFormatter.format_module(self, module), 'aqua')
 
     def format_branch(self, branch):
-        import IRC
-        return IRC.format(CommitFormatter.format_branch(self, branch), 'orange')
+        from IRC.Formatting import format
+        return format(CommitFormatter.format_branch(self, branch), 'orange')
 
     def joinMessage(self, metadata, log):
-        import IRC
-        return "%s%s %s" % (" ".join(metadata), IRC.format(':', 'bold'), log)
+        from IRC.Formatting import format
+        return "%s%s %s" % (" ".join(metadata), format(':', 'bold'), log)
 
 
 class CommitToXHTML(CommitFormatter):
@@ -353,8 +353,8 @@ class IRCProjectName(Message.Formatter):
         if not input:
             return
         if message.xml.source and message.xml.source.project:
-            import IRC
-            prefix = IRC.format("%s:" % message.xml.source.project, 'bold') + " "
+            from IRC.Formatting import format
+            prefix = format("%s:" % message.xml.source.project, 'bold') + " "
             return "\n".join([prefix + line for line in input.split("\n")])
         else:
             return input
