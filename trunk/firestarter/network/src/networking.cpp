@@ -1312,7 +1312,7 @@ void CNetworkClient::Disconect ( void )
 	if (!info->host)
 		return;
 
-	enet_host_flush(info->host)
+	enet_host_flush(info->host);
 	enet_peer_disconnect((ENetPeer*)server.GetPeer());
 	enet_host_destroy(info->host);
 	info->host = NULL;

@@ -175,8 +175,6 @@ bool CTestGame::Think ( void )
 			network.ProcessMessages();
 			network.ProcessMessages();
 			network.Disconect();
-			network.ProcessMessages();
-			network.ProcessMessages();
 		}
 	}
 	return exit;
