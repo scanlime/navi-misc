@@ -452,7 +452,7 @@ teleporter_field_drawable_draw_to_list (DisplayList *dl)
   glTranslatef (t->param.position[0], t->param.position[1], t->param.position[2]);
   glRotatef (t->param.rotation, 0.0, 0.0, 1.0);
 
-  glColor4f (0.0, 0.0, 0.0, 0.1);
+  glColor4f (0.0, 0.0, 0.0, 0.6);
 
   glBegin (GL_QUADS);
   {
