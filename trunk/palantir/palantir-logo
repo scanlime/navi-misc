@@ -7,13 +7,24 @@
    sodipodi:version="0.33"
    width="210mm"
    height="297mm"
-   sodipodi:docname="/home/evan/palantir-logo"
-   sodipodi:docbase="/home/evan/"
+   sodipodi:docname="/home/evan/projects/navi-misc/palantir/palantir-logo"
+   sodipodi:docbase="/home/evan/projects/navi-misc/palantir/"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs
      id="defs581">
+    <linearGradient
+       id="linearGradient639">
+      <stop
+         style="stop-color:#856d87;stop-opacity:0.1020;"
+         offset="0"
+         id="stop640" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0.3843;"
+         offset="1"
+         id="stop641" />
+    </linearGradient>
     <linearGradient
        id="linearGradient581">
       <stop
@@ -59,8 +70,13 @@
          id="stop585" />
     </linearGradient>
     <linearGradient
-       xlink:href="#linearGradient581"
-       id="linearGradient586" />
+       xlink:href="#linearGradient639"
+       id="linearGradient586"
+       x1="0.494423"
+       y1="-0.155560"
+       x2="0.520446"
+       y2="0.611111"
+       spreadMethod="pad" />
     <radialGradient
        xlink:href="#linearGradient589"
        id="radialGradient588" />
@@ -132,8 +148,13 @@
        fx="0.789460"
        fy="0.156251" />
     <radialGradient
-       xlink:href="#linearGradient581"
-       id="radialGradient611" />
+       xlink:href="#linearGradient639"
+       id="radialGradient611"
+       cx="0.386617"
+       cy="-0.111111"
+       r="0.500000"
+       fx="0.386617"
+       fy="-0.111111" />
     <radialGradient
        xlink:href="#linearGradient581"
        id="radialGradient614"
@@ -345,7 +366,7 @@
      id="path637" />
   <path
      style="font-size:12.000;fill:#191919;fill-rule:evenodd;stroke:#000000;stroke-width:1.000000;"
-     d="M 171.9202 1222.599 L 353.4021 1256.028 L 521.6062 1248.512 C 521.6062 1248.512 562.2952 1346.165 563.4798 1346.144 C 564.6647 1346.123 358.9533 1367.491 358.9533 1367.491 L 143.8936 1348.663 L 171.9202 1222.599 z "
+     d="M 175.4750 1228.524 L 353.4021 1256.028 L 522.7911 1237.848 C 522.7911 1237.848 562.2952 1346.165 563.4798 1346.144 C 564.6647 1346.123 358.9533 1367.491 358.9533 1367.491 L 143.8936 1348.663 L 175.4750 1228.524 z "
      id="path639"
      sodipodi:nodetypes="ccccccc" />
   <path
@@ -360,11 +381,12 @@
      sodipodi:nodetypes="cccccccc" />
   <path
      style="fill:none;fill-rule:evenodd;stroke:black;stroke-opacity:1;stroke-width:1pt;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;"
-     d="M 157.5950 1300.012 L 218.0263 1234.841 "
+     d="M 157.5950 1300.012 L 221.5811 1236.026 "
      id="path649"
      sodipodi:nodetypes="cc" />
   <path
      style="fill:none;fill-rule:evenodd;stroke:black;stroke-opacity:1;stroke-width:1pt;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;"
-     d="M 547.4353 1307.121 L 530.8464 1315.416 L 475.1549 1253.799 "
-     id="path650" />
+     d="M 547.4353 1307.121 L 530.8464 1315.416 L 492.9288 1243.135 "
+     id="path650"
+     sodipodi:nodetypes="ccc" />
 </svg>
