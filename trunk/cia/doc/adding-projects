@@ -21,10 +21,6 @@ There are only a few steps in connecting a project with CIA:
   displayed title, add a URL to the project's homepage, add a short
   description, or even an image.
 
-  The web interface for this isn't done however, so currently you
-  have to bug Micah_ about it or ask for a 'metadata key' and try
-  the command line tools.
-
   Some examples of stats pages that use metadata:
 
     - BZFlag_
