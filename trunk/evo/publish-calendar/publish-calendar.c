@@ -311,5 +311,7 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 	gtk_widget_show_all (toplevel);
 	gtk_box_pack_start (GTK_BOX (data->parent), toplevel, FALSE, TRUE, 0);
 
+	g_object_unref (xml);
+
 	return toplevel;
 }
