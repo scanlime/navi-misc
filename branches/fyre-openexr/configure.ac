@@ -37,7 +37,7 @@ PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
-PKG_CHECK_MODULES(EXR, OpenEXR, have_exr=yes)
+PKG_CHECK_MODULES(EXR, OpenEXR, have_exr=yes, have_exr=no)
 AC_SUBST(EXR_CFLAGS)
 AC_SUBST(EXR_LIBS)
 if test "x$have_exr" = "xyes"; then
