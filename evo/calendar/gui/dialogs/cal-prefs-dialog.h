@@ -43,8 +43,42 @@ struct _CalendarPrefsDialog {
 
 	GConfClient *gconf;
 
+	/* General tab */
 	GtkWidget *timezone;
 	GtkWidget *working_days[7];
+	GtkWidget *week_start_day;
+	GtkWidget *start_of_day;
+	GtkWidget *end_of_day;
+	GtkWidget *use_12_hour;
+	GtkWidget *use_24_hour;
+	GtkWidget *confirm_delete;
+	GtkWidget *default_reminder;
+	GtkWidget *default_reminder_interval;
+	GtkWidget *default_reminder_units;
+
+	/* Display tab */
+	GtkWidget *time_divisions;
+	GtkWidget *show_end_times;
+	GtkWidget *compress_weekend;
+	GtkWidget *dnav_show_week_no;
+	GtkWidget *tasks_due_today_color;
+	GtkWidget *tasks_overdue_color;
+	GtkWidget *tasks_hide_completed;
+	GtkWidget *tasks_hide_completed_interval;
+	GtkWidget *tasks_hide_completed_units;
+
+	/* Free/Busy tab */
+	GtkWidget *url_add;
+	GtkWidget *url_edit;
+	GtkWidget *url_remove;
+	GtkWidget *url_enable;
+	GtkWidget *url_enable_label;
+	GtkWidget *url_enable_image;
+	GtkWidget *url_list;
+	GtkWidget *url_editor_dlg;
+	GtkWidget *template_url;
+	guint destroyed : 1;
+	gboolean url_editor;
 };
 
 struct _CalendarPrefsDialogClass {
