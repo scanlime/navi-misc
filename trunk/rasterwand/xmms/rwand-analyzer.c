@@ -9,15 +9,11 @@ static void plugin_init(void);
 static void plugin_cleanup(void);
 static void plugin_render_freq(gint16 data[2][256]);
 
-#define NUM_COLUMNS 32
+#define NUM_COLUMNS 16
 
 static int fd;
 pthread_t my_thread;
-
-struct column {
-  int total;
-  int n_samples;
-} columns[NUM_COLUMNS];
+int columns[NUM_COLUMNS];
 
 VisPlugin plugin_vp = {
   .description         = "Raster Wand spectrum analyzer",
@@ -34,24 +30,24 @@ VisPlugin *get_vplugin_info(void) {
 void *refresh_thread(void *foo) {
   unsigned char frame[NUM_COLUMNS];
   int i, level;
-  struct column *c;
   unsigned char levels[9] = {0x00, 0x80, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC, 0xFE, 0xFF};
+  const float scale = 14 / log(256);
 
   while (fd) {
     for (i=0; i<NUM_COLUMNS; i++) {
-      c = &columns[i];
-      if (c->n_samples) {
-	level = c->total / c->n_samples / 180;
-	c->total = c->n_samples = 0;
-
+      if (columns[i] > 256) {
+	level = log((columns[i]>>8)) * scale;
 	if (level > 8)
 	  level = 8;
 	frame[i] = levels[level];
       }
       else {
-	/* No data */
-	frame[i] = 0x24;
+	frame[i] = 0;
       }
+
+      columns[i] -= 1500;
+      if (columns[i] < 0)
+	columns[i] = 0;
     }
     write(fd, frame, sizeof(frame));
   }
@@ -74,17 +70,16 @@ static void plugin_cleanup(void) {
 }
 
 static void plugin_render_freq(gint16 data[2][256]) {
-  /* Scale the given frequency data down, both temporally and spatially, to match our output resolution */
   int i, colnum;
-  struct column *c;
+  int xscale[] = {0, 1, 2, 3, 5, 7, 10, 14, 20, 28, 40, 54, 74, 101, 137, 187, 255};
 
+  colnum = 0;
   for (i=0; i<256; i++) {
-    colnum = i/3;
-    if (colnum >= NUM_COLUMNS)
-      break;
-    c = &columns[colnum];
-    c->total += data[0][i];
-    c->n_samples++;
+    while (xscale[colnum] < i)
+      colnum++;
+
+    if (data[0][i] > columns[colnum])
+      columns[colnum] = data[0][i];
   }
 }
 
