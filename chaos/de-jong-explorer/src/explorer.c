@@ -451,15 +451,18 @@ static gboolean explorer_auto_limit_update_rate(Explorer *self) {
   /* Automatically determine a good maximum frame rate based on the current
    * number of iterations, and use limit_update_rate() to limit us to that.
    * Returns 1 if a frame should not be rendered.
-   *
-   * When we just start rendering an image, we want a quite high frame rate
-   * (but not high enough we bog down the GUI) so the user can interactively
-   * set parameters. After the rendering has been running for a while though,
-   * the image changes much less and a very slow frame rate will leave more
-   * CPU for calculations.
    */
-  return limit_update_rate(&self->last_gui_update,
-			   200 / (1 + (log(self->dejong->iterations) - 9.21) * 5));
+
+  const float initial_rate = 60;
+  const float final_rate = 1;
+  const float ramp_down_iterations = 2e6;
+  float rate;
+
+  rate = initial_rate + (final_rate - initial_rate) * (self->dejong->iterations / ramp_down_iterations);
+  if (rate < final_rate)
+    rate = final_rate;
+
+  return limit_update_rate(&self->last_gui_update, rate);
 }
 
 void explorer_update_gui(Explorer *self) {
