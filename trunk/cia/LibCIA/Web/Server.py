@@ -78,7 +78,10 @@ class Request(server.Request):
 
         # Ugly special case because yahoo can't stick with the fucking standards
         if abridgedAgent == "mozilla":
-            return fullAgent.find("Yahoo!") >= 0
+            for substr in ("Yahoo!", "Jeeves"):
+                if fullAgent.find(substr) > 0:
+                    return True
+            return False
 
         # Nowhere near a full list, just a sampling of the bots bothering CIA most in a day
         return abridgedAgent in [
