@@ -1,0 +1,65 @@
+[project]
+name=test
+netlist=test
+contents=
+date=09/25/04
+time=00:00:44
+version=3.1.5.00.33
+Type=F21i
+top_level=VHDL
+HDL netlist format=Auto
+generics=MAX
+lib_order=155 155 133 155
+[libraries]
+133=c:\fndtn\active\syslib\simprims
+155=c:\fndtn\active\syslib\xc4000x
+[xilinx]
+libraries=unified
+family=2
+xfam=XC4000XL
+xact9=On
+[APP_95]
+oid=0
+lid=0
+format=19
+source=c:\fndtn\active\projects\test\test.v
+
+Feature:       FPGA-Express-RL2100
+License path:  C:\Fndtn\data\license.dat
+FLEXlm error:  -5,357
+Feature:       FPGA-Express-RL2100
+License path:  C:\Fndtn\data\license.dat
+FLEXlm error:  -5,357
+Feature:       FPGA-Express-RL2100
+License path:  C:\Fndtn\data\license.dat
+FLEXlm error:  -5,357
+Feature:       FPGA-Express-RL2100
+License path:  C:\Fndtn\data\license.dat
+FLEXlm error:  -5,357
+[Top Doc]
+test.v=21
+[hdl_sheets]
+test.v= 
+[OpenDoc]
+[device]
+part=4010XLPC84-09
+xilinx=4010XLPC84-09
+[implement_HDL]
+family=2
+xfam=XC4000XL
+part=4010XLPC84-09
+xilinx=4010XLPC84-09
+functional=ver1
+optimized=ver1-Optimized
+design=test,c:\unicone\fpga\test\test.v
+[OPEN32]
+nMaxFile=261
+lpstrFile=c:\unicone\fpga\test\test.ucf
+lpstrFilter=User Constraints (*.UCF)|*.ucf||
+lpstrTitle=Select file
+nFilterIndex=0
+Flags=530436
+cmdLine=-h 352 -hp 670 -m PCM_OPEN_32_MESSAGE -f C:\FNDTN\ACTIVE\PROJECTS\current.pdf
+[implement_XIE]
+version=ver1
+revision=rev1
