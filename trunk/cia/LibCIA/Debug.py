@@ -88,7 +88,7 @@ def getSingleton(t):
        """
     insts = typeInstances(t)
     if len(insts) != 1:
-        return Exception("Found %d instances of %r, expected it to be a singleton" % len(insts))
+        raise Exception("Found %d instances of %r, expected it to be a singleton" % (len(insts), t))
     return insts[0]
 
 

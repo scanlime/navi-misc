@@ -363,6 +363,47 @@ class Rack(BaseRack):
     def items(self):
         return list(self.iteritems())
 
+    def reindex(self):
+        """Regenerate the list of keys and subnamespaces in this rack.
+           This can be very slow, as it must scan and unserialize all keys
+           in the database.
+           """
+        # First scan the db, building key and subns lists in memory.
+        # We don't want to modify the db until we're done iterating over it.
+        keyList = []
+        subNsList = []
+        internalNsKeys = []
+
+        for dbkey in self.db:
+            path, internalNs, key = self.serializer.loadKey(dbkey)
+
+            # Is this one of our keys?
+            if path == self.path:
+                if internalNs is None:
+                    if not key in keyList:
+                        keyList.append(key)
+                else:
+                    # It's a key in one of our internal namespaces, make note of it
+                    internalNsKeys.append(dbkey)
+
+            # Is it a child of our path?
+            if len(path) == len(self.path) + 1 and path[:-1] == self.path:
+                name = path[-1]
+                if not name in subNsList:
+                    subNsList.append(name)
+
+        # Now delete all of our internal namespace keys, nuking our possibly
+        # corrupted namespace and key lists.
+        for key in internalNsKeys:
+            del self.db[key]
+
+        # Rebuild fresh linked lists of our keys and subnamespaces
+        l = self._getSubNsList()
+        for subNs in subNsList:
+            l.append(subNs)
+        l = self._getKeyList()
+        for key in keyList:
+            l.append(key)
 
 class KeyPickler(object):
     r"""A very simple pickler that handles a very restricted set of data types, but
