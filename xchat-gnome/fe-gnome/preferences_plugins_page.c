@@ -56,7 +56,8 @@ initialize_preferences_plugins_page ()
 	GtkCellRenderer *text_renderer, *load_renderer;
 	GtkTreeViewColumn *text_column, *load_column;
 	GtkTreeSelection *select;
-	gchar *homedir, *xchatdir;
+	const gchar *homedir;
+	gchar *xchatdir;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
 	open = glade_xml_get_widget (gui.xml, "plugin open");
@@ -187,7 +188,8 @@ on_load_toggled (GtkCellRendererToggle *toggle, gchar *arg, gpointer user_data)
 static void
 on_open_plugin_clicked (GtkButton *button, gpointer user_data)
 {
-	char *homedir, *plugindir;
+	const gchar *homedir;
+	gchar *plugindir;
 
 	homedir = g_get_home_dir();
 	plugindir = malloc (strlen (homedir) + strlen ("/.xchat2/plugins") + 1);
@@ -272,7 +274,7 @@ xchat_gnome_plugin_add (char *filename)
 	 * sure the file is even a valid type. Should add some stuff to maybe check the
 	 * extension?
 	 */
-	if (handle != NULL && g_module_symbol (handle, "xchat_plugin_get_info", (gpointer *)&info_func)) {
+	if (handle != NULL && g_module_symbol (handle, "xchat_plugin_get_info", (gpointer *) (&info_func))) {
 		/* Create a new plugin instance and add it to our list of known plugins. */
 		((xchat_plugin_get_info*)info_func) (&name, &desc, &version);
 	}
