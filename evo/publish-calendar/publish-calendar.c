@@ -500,7 +500,13 @@ publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 void
 action_publish (EPlugin *ep, ECalMenuTargetSelect *t)
 {
-	g_print ("action: publish!\n");
+	GSList *l;
+
+	for (l = publish_uris; l; l = g_slist_next (l)) {
+		EPublishUri *uri = l->data;
+		if (uri->publish_frequency == URI_PUBLISH_MANUAL)
+			publish (uri);
+	}
 }
 
 int
