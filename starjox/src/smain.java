@@ -28,8 +28,36 @@ import java.util.*;
 
 public class smain
 {
+	public static String host;
+	public static int port;
+	
 	public static void main(String[] args)
 	{
-		System.out.println("Hello World");
+		argparse(args);
+		System.out.println("proxy for " + host + " on port " + port);
+	}
+	
+	public static void listen()
+	{
+		
+	}
+	
+	public static void startserver()
+	{
+	
+	}
+	
+	public static void argparse(String[] args)
+	{
+		try
+		{
+			host = args[0];
+			port = Integer.parseInt(args[1]);
+		}
+		catch(Exception e)
+		{
+			System.out.println("Usage: java <host to proxy to> <port to proxy on>");
+			System.exit(1);
+		}
 	}
 }
