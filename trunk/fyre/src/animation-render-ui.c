@@ -91,8 +91,10 @@ static void animation_render_ui_class_init(AnimationRenderUiClass *klass) {
 
 static void animation_render_ui_init(AnimationRenderUi *self) {
   self->xml = glade_xml_new(GLADEDIR "/animation-render.glade", NULL, NULL);
+#ifdef ENABLE_BINRELOC
   if (!self->xml)
     self->xml = glade_xml_new(BR_DATADIR("/animation-render.glade"), NULL, NULL);
+#endif
 
   glade_xml_signal_connect_data(self->xml, "on_ok_clicked",                 G_CALLBACK(on_ok_clicked),                 self);
   glade_xml_signal_connect_data(self->xml, "on_cancel_clicked",             G_CALLBACK(on_cancel_clicked),             self);
