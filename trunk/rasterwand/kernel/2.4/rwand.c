@@ -137,7 +137,7 @@ static void rwand_request_flip(struct usb_rwand *dev);
 #define REQUEST_TIMEOUT (HZ/10)
 #define STATUS_PACKET_SIZE 8
 
-#ifndef VERTICAL_FLIP
+#ifdef VERTICAL_FLIP
 #define CONVERT_FB_BYTE(b)   (reverse_bits(b))
 #else
 #define CONVERT_FB_BYTE(b)   (b)
