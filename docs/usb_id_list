@@ -20,3 +20,4 @@ vendor ID:
 000E  TUSB3210 Example Firmware (bootloader mode)
 000F  Dino communications interface
 0010  Dino communications interface (bootloader mode)
+0011  Therm receiver
