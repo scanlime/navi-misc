@@ -116,6 +116,9 @@ about the current web request, for example.
 #
 
 __version__ = "pre-0.92"
+
+# The third number will be zero for releases, and an increasing
+# number for development versions.
 version_info = (0, 92, 1)
 
 # Check the python version here before we proceed further
