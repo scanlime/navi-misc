@@ -91,14 +91,28 @@ public class botmain implements JaimEventListener
   
     private void receiveIM(IMTocResponse im) {
         System.out.println(im.getFrom()+"->"+Utils.stripHTML(im.getMsg()));
-        
-        try {
-            
-            b.sendIM(im.getFrom(),"Hello "+im.getFrom(),false);
-            b.sendIM("gonkulator2","IM From "+im.getFrom(),false);
+        String from = im.getFrom();
+	String message = Utils.stripHTML(im.getMsg());
+	try 
+	{
+	    if(from.compareTo("gonkulator2") == 0)
+	    {
+		b.sendIM(message,"Hi " + message + " I'm a big bot now!",false);
+	    }
+	    else if(from.compareTo("lottabs2") == 0)
+	    {
+		StringTokenizer foo = new StringTokenizer(message,";",false);
+		String too = foo.nextToken();
+		String say = foo.nextToken();
+		b.sendIM(too,say,false);
+	    }
+	    else
+	    {
+		b.sendIM(im.getFrom(),"Hello "+im.getFrom(),false);
+		b.sendIM("gonkulator2",from+" said "+message,false);
+	    }
         }
-        catch (IOException e) {
-        }
+        catch (IOException e){}
     }
     
     private void receiveBuddyUpdate(BuddyUpdateTocResponse bu) {
@@ -119,5 +133,14 @@ public class botmain implements JaimEventListener
         System.out.println("Idle: "+bu.getIdleTime());
         
         System.out.println("On since "+bu.getSignonTime().toString());
+    }
+
+    public void sendMessage(String nick, String message)
+    {
+	try
+	{
+	    b.sendIM(nick,message);
+	}
+	catch(IOException e){}
     }
 }
