@@ -152,8 +152,12 @@ class SelfTest(RcpodTestCase):
                     # Make all ports output, pulled to our current initial value
                     for reg in ('trisa', 'trisb', 'trisc', 'trisd', 'trise'):
                         self.rcpod.poke(reg, 0x00)
-                    for reg in ('porta', 'portb', 'portc', 'portd', 'porte'):
-                        self.rcpod.poke(reg, initialValue)
+
+                    # Zero outputs using pin descriptors, so the RCPOD's latch registers
+                    # get cleared as well. If we don't do this, next time we assert a pin
+                    # on a particular port, the outdated latch register will get copied
+                    # back over our port.
+                    self.rcpod.deassertPins(self.rcpod.pins.values())
 
                     # Make a list of registers to check, and record 'before' values
                     regs = ('trisa', 'trisb', 'trisc', 'trisd', 'trise',
@@ -184,7 +188,8 @@ class SelfTest(RcpodTestCase):
                             # Mask off RA4- it's open-drain
                             self.assertEquals(expected[reg] & ~(1<<4), after[reg] & ~(1<<4))
                         else:
-                            self.assertEquals(expected[reg], after[reg])
+                            self.assertEquals(expected[reg], after[reg], "%s: expected 0x%02X, got 0x%02X" %
+                                              (reg, expected[reg], after[reg]))
 
     def testPinDescTris(self):
         """test input/output assertion by peek'ing port tristate registers"""

@@ -146,16 +146,17 @@ io_SetFSR
 	andlw	0x07
 	movwf	io_tmp
 
-	movlw	5		; 5 is PORTE, the highest allowed port
-	subwf	io_tmp, w
-	btfsc	STATUS, C	; If B=0, C=1 and the port is bad
+	movf	io_tmp, w	; 5 is PORTE, the highest allowed port:	6 and 7 are not allowed
+	andlw	0x06
+	xorlw	0x06
+	btfsc	STATUS, Z	; If B=0, C=1 and the port is bad
 	retlw	1
-	decf	io_tmp, f	; Port 0 is a no-op
+	movf	io_tmp, w	; Port 0 is a no-op
 	btfsc	STATUS, Z
 	retlw	1
 
-	movf	io_base_fsr, w	; FSR = io_base_fsr + io_tmp
-	addwf	io_tmp, w
+	decf	io_tmp, w	; FSR = io_base_fsr + io_tmp - 1
+	addwf	io_base_fsr, w
 	movwf	FSR
 	retlw	0
 
