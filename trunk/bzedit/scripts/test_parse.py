@@ -20,4 +20,5 @@ import BZFlag
 
 reader = BZFlag.Reader()
 x = reader.parse('../decks')
-print x
+for object in x:
+    print object

@@ -35,7 +35,7 @@ class Reader:
             ThreeDPoint = float + float + float
             globalReference = Word(alphanums + '/:*_?')
 
-            end = CaselessLiteral('end')
+            end = Suppress(CaselessLiteral('end'))
             name = CaselessLiteral('name')
             pos = CaselessLiteral('position') | CaselessLiteral('pos')
             rot = CaselessLiteral('rotation') | CaselessLiteral('rot')
@@ -45,15 +45,15 @@ class Reader:
             size = CaselessLiteral('size')
             spin = CaselessLiteral('spin')
 
-            objectProperty = name + Word(alphanums)
+            objectProperty = Group(name + Word(alphanums))
             locationProperty =      \
-                pos + ThreeDPoint   \
-              | size + ThreeDPoint  \
-              | rot + float         \
-              | shift + ThreeDPoint \
-              | scale + ThreeDPoint \
-              | shear + ThreeDPoint \
-              | spin + ThreeDPoint  \
+                Group(pos + ThreeDPoint)   \
+              | Group(size + ThreeDPoint)  \
+              | Group(rot + float)         \
+              | Group(shift + ThreeDPoint) \
+              | Group(scale + ThreeDPoint) \
+              | Group(shear + ThreeDPoint) \
+              | Group(spin + ThreeDPoint)  \
               | objectProperty
             obstacleProperty =                  \
                 CaselessLiteral('drivethrough') \
@@ -61,28 +61,28 @@ class Reader:
               | CaselessLiteral('passable')     \
               | locationProperty
 
-            box = CaselessLiteral('box') + OneOrMore(obstacleProperty) + end
+            box = Group(CaselessLiteral('box') + OneOrMore(obstacleProperty) + end)
 
             pyramidProperty =            \
                 CaselessLiteral('flipz') \
               | obstacleProperty
-            pyramid = CaselessLiteral('pyramid') + OneOrMore(pyramidProperty) + end
+            pyramid = Group(CaselessLiteral('pyramid') + OneOrMore(pyramidProperty) + end)
 
             baseProperty =                            \
                 CaselessLiteral('color') + Word(nums) \
               | obstacleProperty
-            base = CaselessLiteral('base') + OneOrMore(baseProperty) + end
+            base = Group(CaselessLiteral('base') + OneOrMore(baseProperty) + end)
 
             worldProperty =                           \
                 size + float                          \
               | CaselessLiteral('flagHeight') + float \
               | objectProperty
-            world = CaselessLiteral('world') + OneOrMore(worldProperty) + end
+            world = Group(CaselessLiteral('world') + OneOrMore(worldProperty) + end)
 
             teleporterProperty =                  \
                 CaselessLiteral('border') + float \
               | obstacleProperty
-            teleporter = CaselessLiteral('teleporter') + OneOrMore(teleporterProperty) + end
+            teleporter = Group(CaselessLiteral('teleporter') + OneOrMore(teleporterProperty) + end)
 
             teleporterSide =         \
                 CaselessLiteral('f') \
@@ -90,13 +90,13 @@ class Reader:
               | Literal('?')         \
               | Literal('*')
             teleporterSpec = \
-                Word(nums) \
+                Word(nums)   \
               | Combine(globalReference + Optional(Literal(':') + teleporterSide))
-            linkProperty =                               \
-                CaselessLiteral('to') + teleporterSpec   \
-              | CaselessLiteral('from') + teleporterSpec \
+            linkProperty =                                      \
+                Group(CaselessLiteral('to') + teleporterSpec)   \
+              | Group(CaselessLiteral('from') + teleporterSpec) \
               | objectProperty
-            link = CaselessLiteral('link') + OneOrMore(linkProperty) + end
+            link = Group(CaselessLiteral('link') + OneOrMore(linkProperty) + end)
 
             # FIXME - add material to this object
             arcProperty =                                                  \
@@ -116,7 +116,7 @@ class Reader:
               | CaselessLiteral('normals') + ThreeDPoint \
               | CaselessLiteral('texcoords') + TwoDPoint \
               | obstacleProperty
-            tetra = CaselessLiteral('tetra') + OneOrMore(tetraProperty)
+            tetra = Group(CaselessLiteral('tetra') + OneOrMore(tetraProperty))
 
             flagSpec =                  \
                 CaselessLiteral('good') \
