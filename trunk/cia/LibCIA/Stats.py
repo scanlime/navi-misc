@@ -569,8 +569,8 @@ class Maintenance:
        counter rollover and removing old messages. The maintenance cycle is run
        once on startup, and periodically afterwards.
        """
-    # Maximum age for messages- currently set at about 6 months
-    maxMessageAge = 60 * 60 * 24 * 30 * 6
+    # Maximum number of messages to keep around for each stats target
+    maxTargetMessages = 200
 
     scheduledRun = None
 
@@ -589,7 +589,7 @@ class Maintenance:
     def _run(self, cursor):
         """Database interaction implementing the maintenance cycle"""
         self.checkRollovers(cursor)
-        self.cullMessages(cursor)
+        self.pruneTargets(cursor)
         log.msg("Stats maintenance completed")
 
     def checkOneRollover(self, cursor, previous, current):
@@ -626,10 +626,23 @@ class Maintenance:
         self.checkOneRollover(cursor, 'lastWeek', 'thisWeek')
         self.checkOneRollover(cursor, 'lastMonth', 'thisMonth')
 
-    def cullMessages(self, cursor):
-        """Delete messages that are too old"""
-        cursor.execute("DELETE FROM stats_messages WHERE timestamp < %s" %
-                       Database.quote(long(time.time() - self.maxMessageAge), 'bigint'))
+    def pruneTargets(self, cursor):
+        """Find all stats targets, running pruneTarget on each"""
+        cursor.execute("SELECT target_path FROM stats_catalog")
+        for row in cursor.fetchall():
+            self.pruneTarget(cursor, row[0])
+        cursor.execute("OPTIMIZE TABLE stats_messages")
 
+    def pruneTarget(self, cursor, path):
+        """Delete messages that are too old, from one particular stats target"""
+        # Find the ID of the oldest message we want to keep
+        cursor.execute("SELECT id FROM stats_messages WHERE target_path = %s ORDER BY id DESC LIMIT 1 OFFSET %d" %
+                       (Database.quote(path, 'varchar'),
+                        self.maxTargetMessages))
+        row = cursor.fetchone()
+        if row:
+            id = row[0]
+            cursor.execute("DELETE FROM stats_messages WHERE target_path = %s AND id < %d" %
+                           (Database.quote(path, 'varchar'), id))
 
 ### The End ###
