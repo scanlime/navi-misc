@@ -65,12 +65,6 @@ src_compile() {
 
 src_install() {
 
-	# some magic to create a menu entry for xchat 2
-	sed -i \
-		-e "s:^Exec=xchat$:Exec=xchat-2:" \
-		-e "s:Name=XChat IRC:Name=XChat 2 Gnome IRC:" \
-		xchat.desktop
-
 	make DESTDIR=${D} install || die "Install failed"
 
 	# install plugin development header
