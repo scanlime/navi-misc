@@ -14,6 +14,7 @@
 #include "firestarter.h"
 #include "prefs.h"
 #include "timer.h"
+#include "input.h"
 
 // the drawables for this game
 #include "worldDrawables.h"
@@ -117,8 +118,12 @@ bool CTestGame::Think ( void )
 
 	// do some game like things here, logic and stuff like that
 	
+	if (processPlayerInput())
+		return true;
+
 	// let the drawables update themseves ( if they exist )
 	CDrawManager::instance().ThinkAll();
+
 	return false;
 }
 
@@ -251,5 +256,53 @@ bool CTestGame::GetRot ( float *rot )
 
 	memcpy(rot,localPlayer->rot,sizeof(float)*3);
 		return true;
+}
+
+bool CTestGame::processPlayerInput ( void )
+{
+	CInputManager	&input = CInputManager::instance();
+	CTimer	&timer = CTimer::instance();
+
+	if (!localPlayer)
+		return false;
+
+	float rotspeed = 60.0f;
+	float linspeed = 100.0f;
+	float reversemod = 0.5f;
+	float	friction = 0.95f;
+	float stoptol = 1.0f;
+	float grav = -10.0f;
+
+	// compute a new rotation
+	if (input.KeyDown(KEY_LEFT))
+	{
+		localPlayer->rot[2] += rotspeed*timer.GetFrameTime();
+	}
+	else if (input.KeyDown(KEY_RIGHT))
+	{
+		localPlayer->rot[2] -= rotspeed*timer.GetFrameTime();
+	}
+
+	float h,v;
+	float deg2rad = 0.017453292519943295769236907684886f;
+
+	h = sin(localPlayer->rot[2]*deg2rad);
+	v = cos(localPlayer->rot[2]*deg2rad);
+
+	// compute new thrust vector
+	if (input.KeyDown(KEY_UP))
+	{
+	//	float 
+	}
+	else if (input.KeyDown(KEY_UP))
+	{
+
+	}
+	else
+	{
+
+	}
+
+	// apply gravity if above 0;
 }
 
