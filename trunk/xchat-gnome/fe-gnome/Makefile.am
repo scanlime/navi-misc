@@ -25,6 +25,8 @@ xchat_gnome_SOURCES =		\
 	main_window.h		\
 	main_window.c		\
 	$(mmx_cmod_S)		\
+	palette.h		\
+	palette.c		\
 	preferences_dialog.h	\
 	preferences_dialog.c	\
 	xtext.h			\
