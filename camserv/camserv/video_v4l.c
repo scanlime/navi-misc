@@ -507,8 +507,9 @@ int video_init( Video_V4L *v4l_dev, CamConfig *ccfg ){
   if( setup_video_channel( v4l_dev, ccfg ) == -1 )
     return -1;
 
-  if( ioctl (v4l_dev->video_fd, VIDIOCGMBUF, &v4l_dev->vidmbuf) == -1 ){
-    camserv_log( MODNAME, "Coulnd't use VIDIOCGMBUF -- assuming non bttv");
+ // if( ioctl (v4l_dev->video_fd, VIDIOCGMBUF, &v4l_dev->vidmbuf) == -1 ){
+  if (1) {
+camserv_log( MODNAME, "Coulnd't use VIDIOCGMBUF -- assuming non bttv");
     v4l_dev->uses_mbuf = 0;
   } else {
     v4l_dev->video_buffer_size = v4l_dev->vidmbuf.size;
@@ -668,9 +669,11 @@ bgr2rgb (char *out_addr, char *in_addr, int rowstride, int width, int height)
     
     for (j=0; j<width; j++)
       {
+      	char tmp;
+	tmp = p[2];
 	q[2] = p[0];
 	q[1] = p[1];
-	q[0] = p[2];
+	q[0] = tmp;
 	
 	q += 3;
 	p += 3;
@@ -696,7 +699,6 @@ int mbuf_snapshot( Video_V4L *vid_dev, char *place_buffer ){
 	   vid_dev->video_buffer + 
 	   vid_dev->vidmbuf.offsets[ vid_dev->current_frame ],
 	   vid_dev->width * 3, vid_dev->width, vid_dev->height );
-
 
 
   if( ioctl( vid_dev->video_fd, VIDIOCMCAPTURE, &vid_dev->vidmmap ) == -1 ){
@@ -757,7 +759,10 @@ int video_snap( Video_V4L *vid_dev, char *place_buffer, Video_Info *vinfo,
     return -1;
   }
 
-  
+  bgr2rgb( place_buffer, place_buffer,
+           vid_dev->width * 3, vid_dev->width, vid_dev->height );
+				     
+ 
   adjust_bright( vid_dev->width, vid_dev->height, place_buffer,
 		 !vinfo->is_black_white, vid_dev, ccfg );
   
