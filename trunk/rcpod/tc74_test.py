@@ -18,18 +18,22 @@ io.write([0x01, 0x00])
 
 startTime = time.time()
 numReads = 0
+lastDisplay = startTime
 
 while 1:
     # Point at the temperature register and read 1 byte
     b = io.writeRead([0x00], 1)[0]
-
-    # Sign-extend the 8 bit value
-    if b & 0x80:
-        b -= 256
-
     numReads += 1
-    now = time.time()
-    rate = numReads / (now - startTime)
 
-    print "%d C\t%.2f reads/sec" % (b, rate)
+    # Limit display rate to 5 times per second
+    now = time.time()
+    if now > lastDisplay + 1.0/5:
+        lastDisplay = now
+        rate = numReads / (now - startTime)
+
+        # Sign-extend the 8 bit value
+        if b & 0x80:
+            b -= 256
+
+        print "%d C\t%.2f reads/sec" % (b, rate)
 

@@ -656,9 +656,11 @@ request_I2CTxRx
 	movf	BufferData+wIndex, w		; Load write address
 	movwf	FSR
 	movf	BufferData+wValue, w		; Load write count
-	pagesel	i2c_Write
-	btfss	STATUS, Z			; Skip if the write count is zero
-	call	i2c_Write			; Perform the write
+	pagesel	i2c_txrx_skip_write
+	btfsc	STATUS, Z			; Skip if the write count is zero
+	goto	i2c_txrx_skip_write
+
+	pscall	i2c_Write			; Perform the write
 
 	banksel	i2c_ack_count			; If the write was successful, we got write_count+1 ACKs
 	decf	i2c_ack_count, w
@@ -668,6 +670,7 @@ request_I2CTxRx
 	btfss	STATUS, Z
 	goto	i2c_txrx_write_failed
 
+i2c_txrx_skip_write
 	banksel	BufferData
 	movf	BufferData+wIndex, w		; Load read address
 	movwf	FSR

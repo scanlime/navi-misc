@@ -376,10 +376,8 @@ int rcpod_I2CWrite(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
   if (i2c_set_dev(rcpod, idev) < 0)
     return 0;
 
-  /*
   if (write_count <= 4)
     return i2c_write4(rcpod, write_buffer, write_count);
-  */
 
   return i2c_write_read(rcpod, write_buffer, write_count, NULL, 0);
 }
@@ -392,10 +390,8 @@ int rcpod_I2CRead(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
   if (i2c_set_dev(rcpod, idev) < 0)
     return 0;
 
-  /*
   if (read_count <= 8)
     return i2c_read8(rcpod, read_buffer, read_count);
-  */
 
   return i2c_write_read(rcpod, NULL, 0, read_buffer, read_count);
 }
