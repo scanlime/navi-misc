@@ -99,8 +99,14 @@ with a large cluster, the cluster-utils.sh file will probably prove useful.
 Dependencies
 ------------
 
+Hard Dependencies:
 - GTK+ 2.0
 - libglade
+
+Soft Dependencies:
+- GTK+ 2.4
+- OpenEXR
+- GNet
 
 
 Compiling
