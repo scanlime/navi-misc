@@ -409,24 +409,24 @@ void animation_iter_load_dejong(Animation *self, AnimationIter *iter, DeJong *de
   GtkTreeModel *model = GTK_TREE_MODEL(self->model);
   GtkTreeIter next_keyframe = iter->keyframe;
   gdouble keyframe_duration;
-  DeJong *a, *b;
+  DeJongPair pair;
   gdouble alpha;
   Spline *spline;
 
   g_return_if_fail(iter->valid);
 
   /* We should always be able to load the first keyframe */
-  a = de_jong_new();
-  animation_keyframe_load_dejong(self, &iter->keyframe, a);
+  pair.a = de_jong_new();
+  animation_keyframe_load_dejong(self, &iter->keyframe, pair.a);
 
   if (gtk_tree_model_iter_next(model, &next_keyframe)) {
     /* We have a next keyframe, load it */
-    b = de_jong_new();
-    animation_keyframe_load_dejong(self, &next_keyframe, b);
+    pair.b = de_jong_new();
+    animation_keyframe_load_dejong(self, &next_keyframe, pair.b);
   }
   else {
     /* No next keyframe, use another copy of the first */
-    b = g_object_ref(a);
+    pair.b = g_object_ref(pair.a);
   }
 
   gtk_tree_model_get(model, &iter->keyframe,
@@ -446,10 +446,28 @@ void animation_iter_load_dejong(Animation *self, AnimationIter *iter, DeJong *de
   spline_free(spline);
 
   /* Only do linear interpolation for now */
-  de_jong_interpolate_linear(dejong, a, b, alpha);
+  de_jong_interpolate_linear(dejong, alpha, &pair);
 
-  g_object_unref(a);
-  g_object_unref(b);
+  g_object_unref(pair.a);
+  g_object_unref(pair.b);
+}
+
+gboolean animation_iter_read_frame(Animation *self, AnimationIter *iter, DeJongPair *frame, double frame_rate) {
+  /* Retrieve and step over one frame of the animation.
+   * Sets frame->a to the beginning of this frame and frame->b to the end.
+   * Returns TRUE if a frame was retrieved successfully, FALSE on end-of-animation.
+   */
+  if (!iter->valid)
+    return FALSE;
+  animation_iter_load_dejong(self, iter, frame->a);
+
+  animation_iter_seek_relative(self, iter, 1/frame_rate);
+
+  if (!iter->valid)
+    return FALSE;
+  animation_iter_load_dejong(self, iter, frame->b);
+
+  return TRUE;
 }
 
 /* The End */

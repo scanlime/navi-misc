@@ -89,6 +89,16 @@ struct _DeJongClass {
   GObjectClass parent_class;
 };
 
+typedef void (DeJongInterpolator)(DeJong  *self,
+				  double   alpha,
+				  gpointer user_data);
+
+#define DE_JONG_INTERPOLATOR(x)   ((DeJongInterpolator*)(x))
+
+typedef struct {
+  DeJong *a, *b;
+} DeJongPair;
+
 
 /************************************************************************************/
 /******************************************************************* Public Methods */
@@ -104,16 +114,19 @@ void       de_jong_calculate(DeJong *self, guint iterations);
 void       de_jong_update_image(DeJong *self);
 GdkPixbuf* de_jong_make_thumbnail(DeJong *self, guint max_width, guint max_height);
 
-void       de_jong_interpolate_linear(DeJong *self, DeJong *a, DeJong *b, double alpha);
-void       de_jong_calculate_motion(DeJong *self, DeJong *a, DeJong *b,
-				    guint iterations, gboolean continuation);
-
 void       de_jong_load_string(DeJong *self, const gchar *params);
 gchar*     de_jong_save_string(DeJong *self);
 
 void       de_jong_load_image_file(DeJong *self, const gchar *filename);
 void       de_jong_save_image_file(DeJong *self, const gchar *filename);
 
+void       de_jong_interpolate_linear(DeJong *self, double alpha, DeJongPair *p);
+
+void       de_jong_calculate_motion(DeJong             *self,
+				    guint               iterations,
+				    gboolean            continuation,
+				    DeJongInterpolator *interp,
+				    gpointer            interp_data);
 
 G_END_DECLS
 
