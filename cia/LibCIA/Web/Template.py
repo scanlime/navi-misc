@@ -56,20 +56,13 @@ def Bargraph(value, width=4, padding=0.2):
 
 
 def SubscriptionLink(url, content, icon="/images/rss.png", iconSize=(36,14)):
-    """An anchor tag that can be used to link to RSS feeds with quickSub support.
-       On mouseover, this link will display a menu of RSS aggregation services.
+    """An anchor tag that can be used to link to RSS feeds.
        """
-    return [
-        tag('a', href = url,
-            onmouseout  = "return timeqs();",
-            onmouseover = "return quicksub(this, %r);" % str(url))[
-                tag('img', src=icon, _class="left-icon", alt="RSS",
-                    width=iconSize[0], height=iconSize[1]),
-        ],
-        tag('a', href = url)[
-            content
-        ],
-    ]
+    return tag('a', href = url)[
+              tag('img', src=icon, _class="left-icon", alt="RSS",
+                  width=iconSize[0], height=iconSize[1]),
+              content,
+           ]
 
 
 def MessageHeaders(d):
@@ -218,14 +211,7 @@ class Page(Nouvelle.Twisted.Page):
                 place('extraHeaders'),
                 ],
             tag('body')[
-
-                # For quickSub, a JavaScript doodad that makes it easy to subscribe to RSS feeds
-                # using several aggregation services. This loads its javascript source and provides
-                # a div for it to pop up when necessary.
-                tag('div', id="quickSub", style="position:absolute; visibility:hidden; z-index:1000;",
-                    onmouseout="return timeqs();", onmousemove="return delayqs();")[ " " ],
-                tag('script', type="text/javascript", src="/quicksub.js")[ " " ],
-
+                
                 # Page heading, including title, subtitle, site name, and tabs
                 tag('div', _class="heading")[
                     tag('table', _class="heading")[ tag('tr', _class="heading")[
