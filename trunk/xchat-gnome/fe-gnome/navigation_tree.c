@@ -202,19 +202,19 @@ navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess
 	GtkTreeIter *iter;
 	GtkWidget *button;
 
-	navigation_model_add_new_network(navtree->model, sess);
+	navigation_model_add_new_network (navtree->model, sess);
 
 	/* Because we added a network it is likely that the path to the current session has changed
 	 * so we update it.
 	 */
-	iter = navigation_model_get_sorted_iter(navtree->model, gui.current_session);
+	iter = navigation_model_get_sorted_iter (navtree->model, gui.current_session);
 	if (iter)
 	{
-		navtree->current_path = gtk_tree_model_get_path(GTK_TREE_MODEL(navtree->model->sorted),iter);
-		gtk_tree_iter_free(iter);
+		navtree->current_path = gtk_tree_model_get_path (GTK_TREE_MODEL (navtree->model->sorted), iter);
+		gtk_tree_iter_free (iter);
 	}
 
-	navigation_tree_select_session(navtree, sess);
+	navigation_tree_select_session (navtree, sess);
 
 	button = glade_xml_get_widget (gui.xml, "topic change");
 	gtk_widget_set_sensitive (button, FALSE);
@@ -995,6 +995,9 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 		path = gtk_tree_model_get_path (model, &child);
 		rowref = gtk_tree_row_reference_new (model, path);
 		g_hash_table_insert (gui.tree_model->session_rows, (gpointer) data, (gpointer) rowref);
+
+		/* Set our nick. */
+		set_nickname (s->server, NULL);
 
 		entry = glade_xml_get_widget (gui.xml, "text entry");
 		gtk_widget_grab_focus (entry);

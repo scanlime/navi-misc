@@ -111,11 +111,11 @@ fe_timeout_remove (int tag)
 void
 fe_new_window (struct session *sess, int focus)
 {
+	text_gui_add_text_buffer (sess);
 	if (sess->type == SESS_SERVER)
 		navigation_tree_create_new_network_entry (gui.server_tree, sess);
 	else if (sess->type == SESS_CHANNEL || sess->type == SESS_DIALOG)
 		navigation_tree_create_new_channel_entry (gui.server_tree, sess);
-	text_gui_add_text_buffer (sess);
 }
 
 void
