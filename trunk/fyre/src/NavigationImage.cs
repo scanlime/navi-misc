@@ -37,18 +37,39 @@ namespace Fyre
 			ShowAll ();
 		}
 
+		int GetWindowPosition (int mouse, int winsize, int screensize)
+		{
+			if (mouse - (winsize / 2) < 0)
+				return 0;
+			if (mouse + (winsize / 2) > screensize)
+				return screensize - winsize;
+			return mouse - (winsize / 2);
+		}
+
 		protected override bool OnButtonPressEvent (Gdk.EventButton ev)
 		{
 			window = new Gtk.Window (Gtk.WindowType.Popup);
 			Gtk.DrawingArea da = new Gtk.DrawingArea ();
 			window.Add (da);
-			window.DefaultWidth = 200;
-			window.DefaultHeight = 150;
 
-			int x = (int) ev.XRoot - 100;
-			int y = (int) ev.YRoot - 75;
-			window.Move (x, y);
-			window.ShowAll ();
+			window.DefaultWidth = 0;
+			window.DefaultHeight = 0;
+			window.Show ();
+
+			Gdk.Screen screen = window.GdkWindow.Screen;
+
+			int mouse_x = (int) ev.XRoot;
+			int mouse_y = (int) ev.YRoot;
+
+			// FIXME: replace this with document extents * 0.1
+			int width = 200;
+			int height = 150;
+
+			int win_x = GetWindowPosition (mouse_x, width, screen.Width);
+			int win_y = GetWindowPosition (mouse_y, height, screen.Height);
+
+			window.Move (win_x, win_y);
+			window.Resize (width, height);
 
 			return true;
 		}
