@@ -39,6 +39,7 @@ static void make_window ()
 	GtkCellRenderer *nick_rend, *chan_rend, *url_rend, *time_rend;
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title (GTK_WINDOW (window), "xchat URL scraper");
 	gtk_window_set_default_size (GTK_WINDOW(window), 400, 400);
 	g_signal_connect (G_OBJECT(window), "delete-event", G_CALLBACK(delete_cb), 0);
 
