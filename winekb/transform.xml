@@ -98,6 +98,10 @@
   <xsl:template match="type">
     <div class="type"> <xsl:apply-templates/> </div>
   </xsl:template>
+
+  <xsl:template match="email">
+    <div style="color: blue; display:inline; unicode-bidi:bidi-override; direction: rtl;"><xsl:value-of select="node()"/></div>
+  </xsl:template>
   
   <xsl:template match="@*|node()">
     <xsl:copy>
