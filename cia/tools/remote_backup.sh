@@ -8,8 +8,8 @@
 CIA_HOST=cia@flapjack
 BACKUPDIR=/navi/backups/cia
 
-DUMP_FILE=`date "+cia-%F.dump.bz2"`
+DUMP_FILE=`date "+cia-%F.dump.gz"`
 
-ssh $CIA_HOST 'database=cia; user=root; . ~/.cia_db; nice -n 19 mysqldump -u $user --password=$passwd $database | bzip2' > $BACKUPDIR/$DUMP_FILE
+ssh $CIA_HOST 'database=cia; user=root; . ~/.cia_db; nice -n 19 mysqldump -u $user --password=$passwd $database | gzip' > $BACKUPDIR/$DUMP_FILE
 
 
