@@ -128,6 +128,23 @@ class Reader:
               | smoothbounce                              \
               | flatshading
 
+            meshboxProperty =                                                     \
+                Group(CaselessLiteral('angle') + float)                           \
+              | Group(CaselessLiteral('ratio') + float)                           \
+              | Group(CaselessLiteral('texsize') + float + float + float + float) \
+              | curveProperty                                                     \
+              | obstacleProperty
+            meshbox = Group(CaselessLiteral('meshbox') + OneOrMore(meshboxProperty) + end)
+
+            meshpyrProperty =                                     \
+                Group(CaselessLiteral('angle') + float)           \
+              | Group(CaselessLiteral('ratio') + float)           \
+              | Group(CaselessLiteral('texsize') + float + float) \
+              | CaselessLiteral('flipz')                          \
+              | curveProperty                                     \
+              | obstacleProperty
+            meshpyr = Group(CaselessLiteral('meshpyr') + OneOrMore(meshpyrProperty) + end)
+
             arcProperty =                                                         \
                 Group(CaselessLiteral('ratio') + float)                           \
               | Group(CaselessLiteral('angle') + float)                           \
@@ -220,6 +237,8 @@ class Reader:
               | cone          \
               | dynamicColor  \
               | link          \
+              | meshbox       \
+              | meshpyr       \
               | physics       \
               | pyramid       \
               | sphere        \
