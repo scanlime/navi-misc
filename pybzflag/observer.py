@@ -3,7 +3,7 @@
 from BZFlag.Client import PlayerClient
 from BZFlag import Player
 
-client = PlayerClient("brlcad.org:4242", Player.Identity("Bob the Avenger"))
+client = PlayerClient("brlcad.org:4242", Player.Identity("Super Observer Duckie", type="observer"))
 
 # Stick some instrumentation in select events
 client.onConnect.trace("Connected.")
