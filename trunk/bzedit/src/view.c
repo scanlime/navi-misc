@@ -81,8 +81,6 @@ view_resize (View *view)
   glMatrixMode (GL_MODELVIEW);
   glLoadIdentity ();
   glDepthRange (0.1, 2000.0);
-
-  view_render (view);
 }
 
 static gboolean
