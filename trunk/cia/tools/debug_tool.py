@@ -71,7 +71,7 @@ class DebugTool(Client.App):
             print self.server.debug.gc.typeProfile(self.key)
 
         if not self.config['preserve-namespace']:
-            self.server.debug.resetInterpreter(app.key)
+            self.server.debug.resetInterpreter(self.key)
 
         if self.config['eval']:
             result = self.server.debug.eval(self.key, self.config['eval'])
