@@ -404,10 +404,7 @@ void load_parameters(const gchar *paramstring) {
     key = g_malloc(strlen(line)+1);
     value = g_malloc(strlen(line)+1);
     if (sscanf(line, " %s = %s", key, value) == 2) {
-      printf("%s = %s", key, value);
-      if (set_parameter(key, value))
-	printf(" (unrecognized)");
-      printf("\n");
+      set_parameter(key, value);
     }
     g_free(key);
     line = nextline;
