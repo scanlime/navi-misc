@@ -98,7 +98,7 @@ class MainWindow:
     # Create an object to handle die rolls.
     self.dieRoller = DieRoller(self)
 
-    self.prefs = PrefDialog()
+    self.prefs = PrefDialog(self.tree)
 
     # Character sheet object.
     self.sheet = CharacterSheet(self.tree.get_widget('character sheet view'))
