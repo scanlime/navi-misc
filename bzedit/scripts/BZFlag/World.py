@@ -61,7 +61,7 @@ class World(Object):
             self.set_size()
         self.name = object.getName()
 
-    def getBZToBlendMatrix(self):
+    def getBzToBlendMatrix(self):
         """Get a 3x3 matrix that converts BZFlag coordinates to Blender coordinates
            relative to this world. Requires that the world have an associated
            Blender object.
