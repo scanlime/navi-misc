@@ -4,7 +4,8 @@
 Yay for tiny test controllers.
 """
 
-import Hangman, gtk
+import gtk
+from HangmanGUI import HangmanGUI
 
-window = Hangman.HangmanGUI()
+window = HangmanGUI()
 gtk.main()
