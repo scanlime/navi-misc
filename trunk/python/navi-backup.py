@@ -320,13 +320,22 @@ class CatalogWriter:
         f.write(line + "\n")
 
 
-def flattenPaths(paths):
-    """From a list of paths, generates a list of full filenames in sorted order"""
+def flattenBackupPaths(paths):
+    """From a list of paths, generates a list of full filenames in sorted order.
+       Since this should always crawl a list of files in the same way we
+       would create a backup, this is where we handle ignored directories
+       and checking for special files.
+       """
     for path in paths:
         if os.path.isfile(path):
             yield path
         else:
             for root, dirs, files in os.walk(path):
+                # Recursively ignore directories with ".navi-backup-skip" files in them
+                if ".navi-backup-skip" in files:
+                    del files[:]
+                    del dirs[:]
+
                 dirs.sort()
                 files.sort()
                 for name in files:
@@ -461,7 +470,7 @@ def cmd_store(paths):
 
 def cmd_status(paths):
     index = CatalogIndex()
-    for path in flattenPaths(paths):
+    for path in flattenBackupPaths(paths):
         index.fileStatus(path)
 
 
@@ -477,7 +486,7 @@ def cmd_auto(paths, assumedOverhead = 0.01, safetyTimer = 3):
     remaining -= assumedOverhead * remaining
     total = 0
 
-    for path in flattenPaths(paths):
+    for path in flattenBackupPaths(paths):
         # Show status of all files, to give visual indication of what we're scanning.
         # Only those marked with a '?' or 'M' will be backed up.
         index.fileStatus(path)
@@ -502,13 +511,13 @@ def cmd_auto(paths, assumedOverhead = 0.01, safetyTimer = 3):
 
 def cmd_pending(paths):
     index = CatalogIndex()
-    for path in flattenPaths(paths):
+    for path in flattenBackupPaths(paths):
         if index.needsBackup(path):
             index.fileStatus(path)
 
 
 def cmd_md5(paths, filesPerCommand=8):
-    pathGen = flattenPaths(paths)
+    pathGen = flattenBackupPaths(paths)
     while 1:
         # At each iteration, look for files that need md5sums until we
         # run out of source files or we hit the filesPerCommand limit.
