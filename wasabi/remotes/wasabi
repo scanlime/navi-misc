@@ -1,0 +1,82 @@
+#
+# lircd configuration for wasabi's remote control codes.
+# These codes should be unique to wasabi, they are
+# programmed into a learning remote using the mi6k's
+# IR transmitter.
+#
+
+begin remote
+
+  name  wasabi
+  bits           16
+  flags SPACE_ENC|CONST_LENGTH
+  eps            30
+  aeps          100
+
+  header       2448   530
+  one          1210   567
+  zero          623   567
+  gap    50000
+  min_repeat      2
+  toggle_bit      0
+
+
+      begin codes
+          1                    0x000000000000ff00
+          2                    0x000000000000fe01
+          3                    0x000000000000fd02
+          4                    0x000000000000fc03
+          5                    0x000000000000fb04
+          6                    0x000000000000fa05
+          7                    0x000000000000f906
+          8                    0x000000000000f807
+          9                    0x000000000000f708
+          10                   0x000000000000f609
+          0                    0x000000000000f50a
+          x                    0x000000000000f40b
+          power                0x000000000000f30c
+          ch+                  0x000000000000f20d
+          ch-                  0x000000000000f10e
+          vol+                 0x000000000000f00f
+          vol-                 0x000000000000ef10
+          band                 0x000000000000ee11
+          mute                 0x000000000000ed12
+          play                 0x000000000000ec13
+          prev                 0x000000000000eb14
+          next                 0x000000000000ea15
+          pause                0x000000000000e916
+          stop                 0x000000000000e817
+          guide                0x000000000000e718
+          menu                 0x000000000000e619
+          up                   0x000000000000e51a
+          down                 0x000000000000e41b
+          left                 0x000000000000e31c
+          right                0x000000000000e21d
+          enter                0x000000000000e11e
+          search-              0x000000000000e01f
+          search+              0x000000000000df20
+          cd                   0x000000000000de21
+          tun                  0x000000000000dd22
+          ph                   0x000000000000dc23
+          tape1                0x000000000000db24
+          tape2                0x000000000000da25
+          v1                   0x000000000000d926
+          v2                   0x000000000000d827
+          v3                   0x000000000000d728
+          v4                   0x000000000000d629
+          v5                   0x000000000000d52a
+          filter               0x000000000000d42b
+          ext_in               0x000000000000d32c
+          zone                 0x000000000000d22d
+          preset               0x000000000000d12e
+          sur+                 0x000000000000d02f
+          shift                0x000000000000cf30
+          pty                  0x000000000000ce31
+          ta                   0x000000000000cd32
+          tp                   0x000000000000cc33
+          display              0x000000000000cb34
+      end codes
+
+end remote
+
+
