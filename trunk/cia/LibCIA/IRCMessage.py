@@ -55,6 +55,25 @@ class HubListener(object):
         self.hub.addClient(lambda msg: self.getIrcRuleset(msg), Message.Filter(
             '<find path="/message/body/getIrcRuleset">'))
 
+    def parseIrcRulesetAttribs(self, element):
+        """Given a setIrcRuleset or getIrcRuleset element, returns a
+           (serverTuple, channel) representing the server and channel
+           it refers to.
+           """
+        channel = element.getAttribute('channel')
+        if not channel:
+            raise XML.XMLValidityError("The 'channel' attribute on <setIrcRuleset> and <getIrcRuleset> is required")
+        if channel[0] != '#':
+            channel = '#' + channel
+        server = element.getAttribute('server', self.defaultHost)
+
+        # Split the server into host and port, using our default if we can't
+        if server.find(":") > 0:
+            serverTuple = server.split(":")
+        else:
+            serverTuple = server, self.defaultPort
+        return (serverTuple, channel)
+
     def setIrcRuleset(self, message):
         """Handle messages instructing us to add, modify, or remove
            the IRCRuleset instance for a particular channel.
@@ -75,20 +94,8 @@ class HubListener(object):
            An empty <setIrcRuleset> removes the ruleset associated with
            its channel, also causing the bot network to leave it.
            """
-        # Extract the channel and server
         tag = message.xml.body.setIrcRuleset
-        channel = tag.getAttribute('channel')
-        if not channel:
-            raise XML.XMLValidityError("The 'channel' attribute on <setIrcRuleset> is required")
-        if channel[0] != '#':
-            channel = '#' + channel
-        server = tag.getAttribute('server', self.defaultHost)
-
-        # Split the server into host and port, using our default if we can't
-        if server.find(":") > 0:
-            serverTuple = server.split(":")
-        else:
-            serverTuple = server, self.defaultPort
+        server, channel = self.parseIrcRulesetAttribs(tag)
 
         # Make sure the ruleset parses before we do anything permanent
         if tag.ruleset:
@@ -98,8 +105,8 @@ class HubListener(object):
 
         # Remove this channel's old IRCRuleset if it has one
         try:
-            oldRuleset = self.rulesets[(serverTuple, channel)]
-            del self.rulesets[(serverTuple, channel)]
+            oldRuleset = self.rulesets[(server, channel)]
+            del self.rulesets[(server, channel)]
             self.hub.delClient(oldRuleset)
         except KeyError:
             pass
@@ -107,24 +114,25 @@ class HubListener(object):
         if ruleset:
             # We have a ruleset. Make this channel part of the bot network
             # if it isn't already, and set up an IRCRuleset.
-            self.botNet.addChannel(serverTuple, channel)
-            ircRuleset = IRCRuleset(self.botNet, serverTuple, channel, ruleset)
+            self.botNet.addChannel(server, channel)
+            ircRuleset = IRCRuleset(self.botNet, server, channel, ruleset)
 
             # Install the new ruleset
-            self.rulesets[(serverTuple, channel)] = ircRuleset
+            self.rulesets[(server, channel)] = ircRuleset
             self.hub.addClient(ircRuleset)
             log.msg("Set IRC ruleset for channel %r on server %r:\n%s" %
-                    (channel, serverTuple, XML.prettyPrint(ruleset.xml)))
+                    (channel, server, XML.prettyPrint(ruleset.xml)))
         else:
             # No ruleset, we're removing this channel
-            self.botNet.delChannel(serverTuple, channel)
-            log.msg("Removed IRC ruleset for channel %r on server %r" % (channel, serverTuple))
+            self.botNet.delChannel(server, channel)
+            log.msg("Removed IRC ruleset for channel %r on server %r" % (channel, server))
 
     def getIrcRuleset(self, message):
         """Return the current <ircFilters> tag with attributes matching
            those of the <getIrcFilters> tag.
            """
-        return 42
+        ircRuleset = self.rulesets[self.parseIrcRulesetAttribs(message.xml.body.getIrcRuleset)]
+        return XML.prettyPrint(ircRuleset.ruleset.xml)
 
 
 class IRCRuleset(object):
