@@ -1,20 +1,14 @@
-Definitely fix before the next release:
-        * There are some remaining problems with the win32 build:
-                - Resources (for the icon) haven't been implemented in
-                  the autoconfiscated build system
-                - Cluster support compiles, but it doesn't seem to work at
-                  all. In server mode it isn't listening, and in client mode
-                  it can't connect to rendering servers. Maybe a gnet problem?
-                - Libpng isn't linking correctly. I know this at least breaks
-                  the about box, and it probably also breaks loading/saving
-                - Still untested with OpenEXR
-
-Probably fix before the next release, definitely for 1.0:
-	* Fyre has no icon
-	* The AVI files exported by Fyre don't play in windows media player.
-	  Is the exporter broken, or can WMP just not handle uncompressed RGB?
-	  This is probably actually the lack of an index
-
-Would be nice to fix, and most of these are dead simple:
-	* If opening an image on the command line but running in interactive mode,
-	  it'll still output to stdout. Should pop up an error message in this case.
+* The AVI files exported by Fyre don't play in windows media player.
+  Is the exporter broken, or can WMP just not handle uncompressed RGB?
+  This is probably actually the lack of an index
+* If opening an image on the command line but running in interactive mode,
+  it'll still output to stdout. Should pop up an error message in this case.
+* There are some remaining problems with the win32 build:
+  - Resources (for the icon) haven't been implemented in
+    the autoconfiscated build system
+  - Cluster support compiles, but it doesn't seem to work at
+    all. In server mode it isn't listening, and in client mode
+    it can't connect to rendering servers. Maybe a gnet problem?
+  - Libpng isn't linking correctly. I know this at least breaks
+    the about box, and it probably also breaks loading/saving
+  - Still untested with OpenEXR

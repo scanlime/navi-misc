@@ -358,7 +358,7 @@ void animation_store_chunk(AnimChunkState *state,
 	else {
 	    g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
 		  "Duration chunk is incorrectly sized, %ld bytes instead of %ld",
-		  length, sizeof(gdouble));
+		  (long) length, (long) sizeof(gdouble));
 	}
 	break;
 
