@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<technique name="shield and mace" level="first-brown" category="punch">
+<technique name="shield and mace" level="first-brown" category="punch"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
   <attack>step through right straight punch</attack>
   <stances>
     <attacker>left neutral bow</attacker>
@@ -34,13 +36,12 @@
     </step>
     <step>
       Continue the motion of your right hand circularly as you
-      <footManeuver>drop</footManeuver> into a
-      <stance side="left">close kneel</stance>. Strike the top of your
-      opponent's calf with a <strike side="right">downward hand sword</strike>.
+      drop into a <stance side="left">close kneel</stance>. Strike the top of
+      your opponent's calf with a
+      <strike side="right">downward hand sword</strike>.
     </step>
     <step>
-      <!-- FIXME - how to characterize foot maneuver? -->
-      Keeping your body low, perform a <footManeuver>step through</footManeuver>
+      Keeping your body low, perform a <footManeuver>step-through</footManeuver>
       <kick side="right">knife-edge side</kick>
       to the back of your opponent's left leg.
     </step>

@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<technique name="reversing mace" level="orange" category="punch">
+<technique name="reversing mace" level="orange" category="punch"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
   <attack>left step-through straight punch</attack>
   <stances>
     <attacker>right neutral bow</attacker>
@@ -10,7 +12,7 @@
   <steps>
     <step>
       <footManeuver side="right">step</footManeuver> toward 12:00 into a
-      <stance side="right">rear bow</stance> as you execute a
+      <stance side="right">reverse bow</stance> as you execute a
       <parry side="right">inward</parry> to the outside of your opponent's
       left arm.
     </step>

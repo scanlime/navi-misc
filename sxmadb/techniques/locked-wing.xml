@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<technique name="locked wing" level="green" category="hugs-and-holds">
+<technique name="locked wing" level="green" category="hugs-and-holds"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
   <attack>Right arm hammer lock with a left wrist grab</attack>
   <stances>
     <attacker>right foot forward</attacker>
