@@ -583,7 +583,7 @@ static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer use
   GdkRectangle *rects;
   int n_rects, i;
 
-  if (self->dejong->image) {
+  if (self->dejong->image && !self->dejong->size_dirty_flag) {
 
     gdk_region_get_rectangles(event->region, &rects, &n_rects);
 
