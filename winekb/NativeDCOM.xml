@@ -16,5 +16,5 @@
 
     * Now put native overrides for ole32, oleaut32, and rpcrt4 into your <l>ConfigFile</l>.
   </section>
-    
+
 </kbpage>
