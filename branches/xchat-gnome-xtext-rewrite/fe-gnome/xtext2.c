@@ -1,6 +1,8 @@
 #include "xtext2.h"
 #include <string.h>
 
+typedef struct _XTextFormat XTextFormat;
+
 static void       xtext2_class_init      (XText2Class *klass);
 static void       xtext2_init            (XText2 *xtext);
 
@@ -25,6 +27,8 @@ static void       backend_draw_text      (XText2 *xtext, gboolean fill, GdkGC *g
 
 static void       paint                  (GtkWidget *widget, GdkRectangle *area);
 static void       render_page            (XText2 *xtext);
+static int        render_line            (XText2 *xtext, XTextFormat *f, textentry *ent, int line, int lines_max, int subline, int win_width);
+static int        render_str             (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char *str, int len, int win_width, int indent, int line, int left_only);
 static void       draw_bg                (XText2 *xtext, int x, int y, int width, int height);
 static void       draw_sep               (XText2 *xtext, int y);
 static textentry* nth                    (XText2 *xtext, int line, int *subline);
@@ -38,6 +42,7 @@ static int        count_lines_taken      (XText2 *xtext, textentry *ent);
 static int        find_next_wrap         (XText2 *xtext, textentry *ent, unsigned char *str, int win_width, int indent);
 static void       recalc_widths          (XText2 *xtext, gboolean do_str_width);
 static void       fix_indent             (XText2 *xtext);
+static void       reset                  (XText2 *xtext, gboolean mark, gboolean attribs);
 
 static gpointer parent_class;
 
@@ -110,6 +115,18 @@ struct _XText2Private
   int          last_win_x;           /* previous X */
   int          last_win_y;           /* previous Y */
   int          last_pixel_pos;       /* where the window was scrolled to */
+  int          jump_in_offset;       /* "" start rendering */
+  gboolean     dont_render;
+  gboolean     dont_render2;
+  gboolean     in_hilight;
+  gboolean     skip_border_fills;
+  gboolean     underline;
+  gboolean     backcolor;
+  gboolean     parsing_color;
+  gboolean     parsing_backcolor;
+  int          nc;                   /* offset into xtext->priv->num */
+  int          col_fore;
+  int          col_back;
 
   /* state associated with rendering specific buffers */
   GHashTable  *buffer_info;          /* stores an XTextFormat for each buffer we observe */
@@ -137,20 +154,21 @@ struct _XText2Private
 #endif
 };
 
-typedef struct _XTextFormat XTextFormat;
 struct _XTextFormat
 {
-  int   window_width;  /* window size when */
-  int   window_height; /* last rendered */
-  int   indent;        /* indent value */
+  int        window_width;  /* window size when */
+  int        window_height; /* last rendered */
+  int        indent;        /* indent value */
+  guint16    grid_offset[256];
+  gboolean   grid_dirty;
 
   textentry *wrapped_first;
   textentry *wrapped_last;
 
   /* handlers */
-  guint append_handler;
-  guint clear_handler;
-  guint remove_handler;
+  guint      append_handler;
+  guint      clear_handler;
+  guint      remove_handler;
 };
 
 GType
@@ -250,6 +268,10 @@ xtext2_init (XText2 *xtext)
 
   xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
   g_print ("xtext2_init() - buffer_info is 0x%x\n", xtext->priv->buffer_info);
+
+  xtext->adj = gtk_adjustment_new (0, 0, 1, 1, 1, 1);
+  g_object_ref (G_OBJECT (xtext->adj));
+  gtk_object_sink (GTK_OBJECT (xtext->adj));
 
   gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
 }
@@ -762,6 +784,7 @@ render_page (XText2 *xtext)
   int height;
   int subline;
   int startline = xtext->adj->value;
+  XTextFormat *f;
 
   if (!GTK_WIDGET_REALIZED (xtext))
     return;
@@ -773,16 +796,166 @@ render_page (XText2 *xtext)
   if (width < 34 || height < xtext->priv->fontsize /* || indent */)
     return;
 
-  ent = NULL; /* FIXME */
+#ifdef SMOOTH_SCROLL
+  xtext->priv->pixel_offset = (xtext->adj->value - startline) * xtext->priv->fontsize;
+#else
+  xtext->priv->pixel_offset = 0;
+#endif
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, xtext->priv->current_buffer);
+
+  if (f == NULL)
+    return;
+
+  subline = line = 0;
+  ent = f->wrapped_first;
+
+  if (startline > 0)
+    ent = nth (xtext, startline, &subline);
+
+  /* FIXME: stuff */
+
+  f->grid_dirty = FALSE;
+  width -= MARGIN;
+  lines_max = ((height + xtext->priv->pixel_offset) / xtext->priv->fontsize) + 1;
+
   while (ent)
   {
+    reset (xtext, FALSE, TRUE);
+    line += render_line (xtext, f, ent, line, lines_max, subline, width);
+    subline = 0;
+
+    if (line >= lines_max)
+      break;
+
+    ent = ent->next;
   }
+
+  line = (xtext->priv->fontsize * line) - xtext->priv->pixel_offset;
 
   /* fill any space below the last line with our background GC */
   draw_bg (xtext, 0, line, width + MARGIN, height - line);
 
   /* draw the separator line */
   draw_sep (xtext, -1);
+}
+
+static int
+render_line (XText2 *xtext, XTextFormat *f, textentry *ent, int line, int lines_max, int subline, int win_width)
+{
+  unsigned char *str;
+  int indent, taken, entline, len, y;
+
+  entline = taken = 0;
+  str = ent->str;
+  indent = ent->indent;
+
+#ifdef XCHAT
+#endif
+
+  /* draw each line one-by-one */
+  do
+  {
+    /* FIXME: prerecorded wrap stuff? */
+    len = find_next_wrap (xtext, ent, str, win_width, indent);
+    entline++;
+    y = (xtext->priv->fontsize * line) + xtext->priv->font->ascent + xtext->priv->pixel_offset;
+
+    if (!subline)
+    {
+      if (!render_str (xtext, f, y, ent, str, len, win_width, indent, line, FALSE))
+      {
+	/* small optimization */
+	return ent->lines_taken - subline;
+      }
+    }
+    else
+    {
+      xtext->priv->dont_render = TRUE;
+      render_str (xtext, f, y, ent, str, len, win_width, indent, line, FALSE);
+      xtext->priv->dont_render = FALSE;
+      subline--;
+      line--;
+      taken--;
+    }
+
+    indent = f->indent;
+    line++;
+    taken++;
+    str += len;
+
+    if (line >= lines_max)
+      break;
+  } while (str < ent->str + ent->str_len);
+
+  return taken;
+}
+
+static int
+render_str (XText2 *xtext, XTextFormat *f, int y, textentry *ent, unsigned char *str, int len, int win_width, int indent, int line, int left_only)
+{
+  GdkGC *gc;
+  int i = 0, x = indent, j = 0;
+  unsigned char *pstr = str;
+  int col_num, tmp;
+  int offset;
+  gboolean mark = FALSE;
+  int ret = 1;
+
+  xtext->priv->in_hilight = FALSE;
+
+  offset = str - ent->str;
+
+  if (line >= 0 && line < 255)
+    f->grid_offset[line] = offset;
+
+  gc = xtext->priv->fgc;
+
+  if (ent->mark_start != -1 &&
+      ent->mark_start <= i + offset &&
+      ent->mark_end > i + offset)
+  {
+  }
+#ifdef MOTION_MONITOR
+  if (xtext->priv->hilight_start <= i + offset && xtext->priv->hilight_end > i + offset)
+  {
+    if (!xtext->priv->un_hilight)
+    {
+#ifdef COLOR_HILIGHT
+      set_bg (xtext, gc, 2);
+#else
+      xtext->priv->underline = TRUE;
+#endif /* COLOR_HILIGHT */
+    }
+    xtext->priv->in_hilight = TRUE;
+  }
+#endif /* MOTION_MONITOR */
+
+  if (!xtext->priv->skip_border_fills && !xtext->priv->dont_render)
+  {
+  }
+
+  if (xtext->priv->jump_in_offset > 0 && offset < xtext->priv->jump_in_offset)
+    xtext->priv->dont_render2 = TRUE;
+
+  while (i < len)
+  {
+  }
+
+  if (j)
+    x += render_flush (xtext, x, y, pstr, j, gc, ent->multibyte);
+
+  if (mark)
+  {
+  }
+
+  /* draw background to the right of the text */
+  if (!left_only && !xtext->priv->dont_render)
+  {
+  }
+
+  xtext->priv->dont_render2 = FALSE;
+  return ret;
 }
 
 static void
@@ -1184,4 +1357,27 @@ recalc_widths (XText2 *xtext, gboolean do_str_width)
 static void
 fix_indent (XText2 *xtext)
 {
+}
+
+static void
+reset (XText2 *xtext, gboolean mark, gboolean attribs)
+{
+  if (attribs)
+  {
+    xtext->priv->underline = FALSE;
+    xtext->priv->bold = FALSE;
+  }
+  if (!mark)
+  {
+    xtext->priv->backcolor = FALSE;
+    if (xtext->priv->col_fore != 18)
+      set_fg (xtext, xtext->priv->fgc, 18);
+    if (xtext->priv->col_back != 19)
+      set_bg (xtext, xtext->priv->fgc, 19);
+  }
+  xtext->priv->col_fore = 18;
+  xtext->priv->col_back = 19;
+  xtext->priv->parsing_color = FALSE;
+  xtext->priv->parsing_backcolor = FALSE;
+  xtext->priv->nc = 0;
 }
