@@ -104,6 +104,20 @@ static void explorer_init(Explorer *self) {
         self->xml = glade_xml_new (FYRE_DATADIR "/explorer.glade", NULL, NULL);
     if (!self->xml)
 	self->xml = glade_xml_new(BR_DATADIR("/fyre/explorer.glade"), NULL, NULL);
+    if (!self->xml) {
+	GtkWidget *dialog;
+	dialog = gtk_message_dialog_new_with_markup(NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
+						    "<b>Fyre can't find its data files.</b>\n\n"
+						    "The main glade file could not be located.\n"
+						    "We tried looking for it in the following places:\n"
+						    "\n"
+						    "    %s\n"
+						    "    %s",
+						    FYRE_DATADIR "/explorer.glade",
+						    BR_DATADIR("/fyre/explorer.glade"));
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	exit(0);
+    }
 
     self->window = glade_xml_get_widget(self->xml, "explorer_window");
     fyre_set_icon_later(self->window);
@@ -706,7 +720,7 @@ static gchar*   explorer_strdup_status (Explorer *self)
     gchar *status;
     gchar *speed = explorer_strdup_speed(self);
     gchar *quality = explorer_strdup_quality(self);
-    
+
     status = g_strdup_printf("Iterations:    %.3e    \t"
 			     "Speed:    %s    \t"
 			     "Quality:    %s    \t"
