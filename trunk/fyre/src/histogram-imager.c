@@ -569,7 +569,7 @@ histogram_imager_save_image_file (HistogramImager *self, const gchar *filename, 
      * is both human-readable and easy to load parameters from automatically.
      */
     params = parameter_holder_save_string (PARAMETER_HOLDER(self));
-    gdk_pixbuf_save (self->image, filename, "png", NULL, "tEXt::fyre_params", params, error);
+    gdk_pixbuf_save (self->image, filename, "png", error, "tEXt::fyre_params", params, NULL);
     g_free (params);
 }
 
