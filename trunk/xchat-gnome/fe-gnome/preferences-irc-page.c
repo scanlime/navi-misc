@@ -22,6 +22,15 @@
 #include <gconf/gconf-client.h>
 #include "preferences-irc-page.h"
 
+PreferencesIrcPage *
+preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
+{
+}
+
+/*******************************************************************************
+ * CRUFT BARRIER ***************************************************************
+ *******************************************************************************/
+
 static GtkListStore *hilight_store;
 extern struct xchatprefs prefs;
 
