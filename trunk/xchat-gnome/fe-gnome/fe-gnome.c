@@ -614,7 +614,31 @@ fe_serverlist_open (session *sess)
 void
 fe_ctrl_gui(session *sess, int action, int arg)
 {
-	/* FIXME: implement */
+	GtkWidget *window = glade_xml_get_widget (gui.xml, "");
+
+	switch (action) {
+		case 0:
+			gtk_widget_hide (window);
+			break;
+
+		case 1:
+			gtk_widget_show (window);
+			gtk_window_present (GTK_WINDOW (window));
+			break;
+
+		case 2:
+			break;
+
+		case 3:
+			break;
+
+		case 4:
+			break;
+
+		case 5:
+			gtk_window_iconify (GTK_WINDOW (window));
+			break;
+	}
 }
 
 void
@@ -625,7 +649,7 @@ fe_confirm (const char *message, void (*yesproc)(void *), void (*noproc)(void *)
 int
 fe_gui_info (session *sess, int info_type)
 {
-	/* FIXME: implement */
+	
 	return -1;
 }
 
