@@ -20,8 +20,7 @@
           <div class="title"><xsl:value-of select="@title"/></div>
           <div class="subtitle"><xsl:value-of select="@subtitle"/></div>
 	  <div class="headingTabs">
-	    <a class="headingTab" href="index.xml">projects</a>
-	    <a class="headingTab" href="http://navi.picogui.org/svn/misc">repository</a>
+            <xsl:apply-templates select="document('tabs.xml')//headingTab"/>
 	  </div>
         </div>
 
@@ -29,8 +28,9 @@
 
           <!--========== Navigation -->
 	  <td class="left">
+            <span class="section">Projects</span>
 	    <div class="section">
-              <div class="sectionTop">Projects</div>
+              <div class="sectionTop"/>
               <div class="row">
                 <ul>
 		  <xsl:apply-templates select="document('projects.xml')//projects/project"/>
@@ -55,6 +55,15 @@
 
       </body>
     </html>
+  </xsl:template>
+
+  <!--================================== Heading Tabs -->
+
+  <xsl:template match="headingTab">
+    <a class="headingTab">
+      <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
+      <xsl:value-of select="@name"/>
+    </a>
   </xsl:template>
 
   <!--================================== Projects -->
