@@ -63,12 +63,19 @@ io_Init
 	movlw	0x81
 	movwf	ADCON0
 
-	banksel	PORTA
-	clrf	PORTA
-	clrf	PORTB
-	clrf	PORTC
-	clrf	PORTD
-	clrf	PORTE
+	banksel	T1CON		; Make sure the timers, PWM units, and USART are disabled
+	clrf	T1CON
+	banksel	T2CON
+	clrf	T2CON
+	banksel	CCP1CON
+	clrf	CCP1CON
+	banksel	CCP2CON
+	clrf	CCP2CON
+	banksel	RCSTA
+	clrf	RCSTA
+	banksel	TXSTA
+	movlw	0x02
+	movwf	TXSTA
 
 	banksel	TRISA		; Set pin directions:
 	movlw	0x2F		; Analog 0-4, others unused
@@ -82,19 +89,38 @@ io_Init
 	movlw	0x07		; Analog 5-7, PSP disabled
 	movwf	TRISE
 
-	banksel	channel_yellow
+	banksel	PORTA		; All outputs initially disabled
+	clrf	PORTA
+	clrf	PORTB
+	clrf	PORTC		; Especially output drivers for the I2C bus
+	clrf	PORTD
+	clrf	PORTE
+
+	banksel	channel_yellow ; Turn off all inputs
 	clrf	channel_yellow
 	clrf	channel_red
 	clrf	channel_white
 	clrf	channel_bypass
 
-	bsf	GREEN_LED	; Power LED on
+	pagesel	switch_Update ; Initialize the video switch chips and LEDs
+	call	switch_Update
 
 	return
 
 
 	;; ************************************************ I2C
 
+	;; Delay to let the I2C bus stabilize
+i2c_Delay
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	return
 
 	;; Clock out a byte, in w, and the corresponding acknowledge bit
 i2c_Byte
@@ -109,48 +135,56 @@ bitLoop
 	pagesel	bitSet
 	btfsc	STATUS, C	; Transfer the bit from C to SDA
 	goto	bitSet
-	banksel	TRISA
+	banksel	TRISC
 	bcf	SDA
 	pagesel	bitClear
 	goto	bitClear
 bitSet
-	banksel	TRISA
+	banksel	TRISC
 	bsf	SDA
 bitClear
 
+	pagesel i2c_Delay
+	call	i2c_Delay
+	banksel	TRISC
 	bsf	SCL		; Clock out this bit
-	nop
-	nop
-	nop
-	nop
+	pagesel i2c_Delay
+	call	i2c_Delay
+	banksel	TRISC
 	bcf	SCL
 
 	banksel	i2c_iterator
 	decfsz	i2c_iterator, f	; Next bit...
 	goto	bitLoop
 
-	banksel	TRISA
+	pagesel i2c_Delay
+	call	i2c_Delay
+	banksel	TRISC
 	bsf	SDA		; Let the device send an acknowledge bit, but ignore it
-	nop
-	nop
+	pagesel i2c_Delay
+	call	i2c_Delay
+	banksel	TRISC
 	bsf	SCL
-	nop
-	nop
-	nop
-	nop
+	pagesel i2c_Delay
+	call	i2c_Delay
+	banksel	TRISC
 	bcf	SCL
+	pagesel i2c_Delay
+	call	i2c_Delay
 	return
 
 
 	;; Send a word-long I2C packet
 i2c_Send
-	banksel	TRISA
+	banksel	TRISC
 	bsf	SCL		; Start condition
-	nop
-	nop
+	pagesel i2c_Delay
+	call	i2c_Delay
+	banksel	TRISC
 	bcf	SDA
-	nop
-	nop
+	pagesel i2c_Delay
+	call	i2c_Delay
+	banksel	TRISC
 	bcf	SCL
 
 	banksel	i2c_address
@@ -173,12 +207,13 @@ i2c_Send
 	movf	i2c_low, w
 	call	i2c_Byte
 
-	banksel	TRISA
-	nop
-	nop
+	pagesel i2c_Delay
+	call	i2c_Delay
+	banksel	TRISC
 	bsf	SCL		; Stop condition
-	nop
-	nop
+	pagesel i2c_Delay
+	call	i2c_Delay
+	banksel	TRISC
 	bsf	SDA
 	return
 
@@ -436,6 +471,8 @@ led_Update
 	banksel	PORTA
 	btfss	STATUS, Z
 	bsf	YELLOW_LED
+
+	bsf	GREEN_LED	; Power LED on
 
 	return
 
