@@ -130,3 +130,6 @@ Entity test, non optimized chip, file c:\unicone\fpga\test\test.v.Implementation
 Entity test, optimized chip ver1-Optimized, file c:\unicone\fpga\test\test.v.Implementation ver1 updated: 9/26/100 [6.26.46].
 Entity test, optimized chip ver1-Optimized, file c:\unicone\fpga\test\test.v.'c:\unicone\fpga\test\test.v' saved on 00/09/26 06:35
 'c:\unicone\fpga\test\test.v' saved on 00/09/26 06:35
+Implementation ver1 updated: 9/26/100 [6.40.10].
+Entity test, non optimized chip, file c:\unicone\fpga\test\test.v.Implementation ver1 updated: 9/26/100 [6.40.25].
+Entity test, optimized chip ver1-Optimized, file c:\unicone\fpga\test\test.v.
