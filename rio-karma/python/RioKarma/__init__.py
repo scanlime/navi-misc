@@ -103,21 +103,23 @@ def autoConnect(keychain=None, service="urn:empeg-com:protocol2"):
 
     def foundService((usn, (host, port))):
         keychain.lookup(usn).addCallback(
-            gotPassword, host, port).addErrback(
-            connectionError, host, port, usn)
+            gotPassword, host, port, usn).addErrback(
+            result.errback)
 
     def connectionError(err, host, port, usn):
         if isinstance(err.value, Pearl.AuthenticationError):
             # Bad password, let the user try again
             keychain.lookup(usn, ignoreStored=True).addCallback(
-                gotPassword, host, port).addErrback(
+                gotPassword, host, port, usn).addErrback(
                 connectionError, host, port, usn)
         else:
             # Pass on other errors
             result.errback(err)
 
-    def gotPassword(password, host, port):
-        connect(host, port, password).chainDeferred(result)
+    def gotPassword(password, host, port, usn):
+        connect(host, port, password).addCallback(
+            result.callback).addErrback(
+            connectionError, host, port, usn)
 
     SSDP.findService(service).addCallback(
         foundService).addErrback(result.errback)
