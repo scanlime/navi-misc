@@ -1,0 +1,105 @@
+Section "ServerLayout"
+	Identifier     "XFree86 Configured"
+	Screen      0  "Screen0" 0 0
+	InputDevice    "Mouse0" "CorePointer"	
+	InputDevice    "Keyboard0" "CoreKeyboard"
+EndSection
+
+Section "ServerFlags"
+	Option "BlankTime" "0"
+	Option "NoPM" "true"
+EndSection
+
+Section "Files"
+	RgbPath      "/usr/X11R6/lib/X11/rgb"
+
+	ModulePath   "/usr/X11R6/lib/modules"
+
+	FontPath     "/usr/X11R6/lib/X11/fonts/misc:unscaled"
+	FontPath     "/usr/X11R6/lib/X11/fonts/75dpi:unscaled"
+	FontPath     "/usr/X11R6/lib/X11/fonts/100dpi:unscaled"
+	FontPath     "/usr/X11R6/lib/X11/fonts/misc"
+	FontPath     "/usr/X11R6/lib/X11/fonts/Type1"
+	FontPath     "/usr/X11R6/lib/X11/fonts/Speedo"
+	FontPath     "/usr/X11R6/lib/X11/fonts/75dpi"
+	FontPath     "/usr/X11R6/lib/X11/fonts/100dpi"
+	FontPath     "/usr/X11R6/lib/X11/fonts/freefont"
+EndSection
+
+Section "Module"
+	Load  "extmod"
+	Load  "glx"
+	Load  "dbe"
+	Load  "freetype"
+	Load  "speedo"
+	Load  "type1"
+EndSection
+
+Section "InputDevice"
+	Identifier  "Keyboard0"
+	Driver      "keyboard"
+
+	Option "AutoRepeat" "3 250"
+	Option "XkbRules"   "xfree86"
+	Option "XkbModel"   "pc104"
+	Option "XkbLayout"  "us"
+EndSection
+
+Section "InputDevice"
+	Identifier  "Mouse0"
+	Driver      "mouse"
+	Option      "Protocol" "IMPS/2"
+	Option      "Device" "/dev/input/mice"
+	Option      "Buttons" "5"
+	Option      "ZAxisMapping" "4 5"
+EndSection
+
+Section "Monitor"
+	Identifier   "Monitor0"
+	VendorName   "TV"
+	ModelName    "3da"
+	HorizSync    30.0 - 50.0
+	VertRefresh  60
+EndSection
+
+Section "Device"
+	Identifier  "Card0"
+	Driver      "nvidia"
+	VendorName  "NVidia"
+	BoardName   "GeForce2 MX"
+
+	#Option "NvAGP" "1"
+	#Option "IgnoreEDID" "1"
+	#Option "TwinView"
+	#Option "SecondMonitorHorizSync" "30-50"
+	#Option "SecondMonitorVertRefresh" "60"
+	#Option "MetaModes" "800x600, 800x600; 640x480, 640x480"
+	Option "TVStandard" "NTSC-M"
+	Option "NoLogo" "1"
+EndSection
+
+Section "Screen"
+	Identifier "Screen0"
+	Device     "Card0"
+	Monitor    "Monitor0"
+	DefaultDepth      24
+	SubSection "Display"
+		Depth     1
+	EndSubSection
+	SubSection "Display"
+		Depth     4
+	EndSubSection
+	SubSection "Display"
+		Depth     8
+	EndSubSection
+	SubSection "Display"
+		Depth     15
+	EndSubSection
+	SubSection "Display"
+		Depth     16
+	EndSubSection
+	SubSection "Display"
+		Depth     24
+		Modes     "640x480"
+	EndSubSection
+EndSection
