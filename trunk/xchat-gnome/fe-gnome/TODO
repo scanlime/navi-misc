@@ -9,7 +9,6 @@
 	o use these user settings:
 		nick ...
 		real ...
-* Channel close button should be tooltipped!
 * Several options in the 'Discussion' menu don't make sense for servers
 * Do we really need a collapse/expand menu item? If yes, we should use
   the accelerator on the menu (is there an accelerator?)
