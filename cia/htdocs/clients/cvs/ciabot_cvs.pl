@@ -217,7 +217,7 @@ if (-f $syncfile and -w $syncfile) {
 ### Compose the mail message
 
 
-my ($VERSION) = '2.0';
+my ($VERSION) = '2.1 (cia.navi.cx)';
 my $ts = time;
 
 $message = <<EM
