@@ -1,33 +1,41 @@
 #
-# Build script for SCons (http://www.scons.org)
+# rcpod build script for SCons (http://www.scons.org)
 #
 
 
 ########### Directories and source files
 
 libSrc = [
-    'src/device.c'
+    'device.c'
     ]
 testProgs = [
     'blinkytest'
     ]
-libDir = '/usr/lib'
+libHeader = 'include/rcpod.h'
+prefix = '/usr'
 
 
 ########### Build targets
 
+# Add our local include directory to the C preprocessor path
 env = Environment()
+env['CPPPATH'] = 'include'
 
 # Building librcpod
-librcpod = env.SharedLibrary('rcpod', libSrc, LIBS=['usb'])
+librcpod = env.SharedLibrary('rcpod',
+                             ["src/%s" % file for file in libSrc],
+                             LIBS=['usb'])
 
 # Building the test programs
 for testName in testProgs:
     env.Program(testName, 'test/%s.c' % testName, LIBS=['rcpod'])
 
 # Installing librcpod
-env.Alias('install', libDir)
+libDir = "%s/lib" % prefix
+includeDir = "%s/include" % prefix
+env.Alias('install', [libDir, includeDir])
 env.Install(dir=libDir, source=librcpod)
+env.Install(dir=includeDir, source=libHeader)
 
 
 ### The End ###

@@ -1,8 +1,8 @@
 ;//################################################################################
 ;//
 ;// rcpod_protocol.h - Definitions describing the host to device protocol used by the
-;//                    rcpod This file is both valid C and assembly source, so it can be
-;//                    shared by host and device code.
+;//                    rcpod. This file is both valid C and assembly source, so it can be
+;//                    shared by the firmware and librcpod.
 ;//
 ;// This file is part of the rcpod project.
 ;// Micah Dowty <micah@picogui.org>
