@@ -9,6 +9,12 @@ class KdeFilter(CommitFilter):
         # Directory name is the first token in the subject
         dirName = self.message['subject'].split(" ")[0]
 
+        # Extract the first directory in the subject as the module name
+        if dirName.find('/'):
+            sections = dirName.split('/')
+            self.addModule(sections[0])
+            dirName = '/'.join(sections[1:])
+
         # Author is the last token of the first line, with a trailing colon
         self.addAuthor(self.body.readline().strip().split(" ")[-1][:-1])
 
