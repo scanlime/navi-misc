@@ -119,10 +119,10 @@ class CommitFormatter(Message.Formatter):
         else:
             formattedModule = ""
 
-        if formattedFiles and formattedFiles[0] != '/':
+        if formattedFiles:
             return formattedModule + '/' + formattedFiles
         else:
-            return formattedModule + formattedFiles
+            return formattedModule
 
     def format_files(self, files):
         """Break up our list of files into a common prefix and a sensibly-sized
@@ -132,6 +132,8 @@ class CommitFormatter(Message.Formatter):
         endingStr = " ".join(endings)
         if len(endingStr) > 20:
             endingStr = "%d files" % len(endings)
+        if prefix.startswith('/'):
+            prefix = prefix[1:]
         if endingStr:
             return self.format_default("%s (%s)" % (prefix, endingStr))
         else:
