@@ -112,8 +112,6 @@ box_init (Box *box)
   box->drawables = NULL;
   box->sides = g_object_ref (box_sides_drawable_new ((SceneObject*) box));
   box->top = g_object_ref (box_top_drawable_new ((SceneObject*) box));
-  box->sides->parent = (SceneObject*) box;
-  box->top->parent = (SceneObject*) box;
 
   box->drawables = g_list_append (box->drawables, (gpointer) box->sides);
   box->drawables = g_list_append (box->drawables, (gpointer) box->top);
@@ -125,16 +123,6 @@ update_double_if_necessary (gdouble new_value, gboolean *dirty, gdouble *param, 
   if (fabs (new_value - *param) > epsilon)
   {
     *param = new_value;
-    *dirty = TRUE;
-  }
-}
-
-static void
-update_float_if_necessary (gdouble new_value, gboolean *dirty, gfloat *param, gfloat epsilon)
-{
-  if (fabs ((gfloat)new_value - *param) > epsilon)
-  {
-    *param = (gfloat) new_value;
     *dirty = TRUE;
   }
 }

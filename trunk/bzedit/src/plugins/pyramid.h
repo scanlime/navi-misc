@@ -77,11 +77,6 @@ typedef struct _PyramidDrawableClass PyramidDrawableClass;
 struct _PyramidDrawable
 {
   DisplayList parent;
-
-  gfloat position[3];
-  gfloat size[3];
-  gfloat rotation;
-  gboolean inverted;
 };
 
 struct _PyramidDrawableClass
@@ -90,7 +85,7 @@ struct _PyramidDrawableClass
 };
 
 GType     pyramid_drawable_get_type (void) G_GNUC_CONST;
-Drawable* pyramid_drawable_new      (void);
+Drawable* pyramid_drawable_new      (SceneObject *parent);
 
 G_END_DECLS
 
