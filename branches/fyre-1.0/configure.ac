@@ -126,6 +126,7 @@ dnl # Output the Makefiles
 dnl ################################################################
 AC_CONFIG_FILES([
 Makefile
+autopackage/default.apspec
 data/Makefile
 src/Makefile
 contrib/Makefile
