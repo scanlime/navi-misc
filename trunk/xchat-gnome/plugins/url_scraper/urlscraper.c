@@ -31,18 +31,21 @@ static void make_window ()
 			GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	treeview = gtk_tree_view_new ();
 
+	gtk_tree_view_set_model (GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(list_store));
+
 	nick_rend = gtk_cell_renderer_text_new ();
-	nick_col = gtk_tree_view_column_new_with_attributes ("Nick", nick_rend, 0);
+	nick_col = gtk_tree_view_column_new_with_attributes ("Nick", nick_rend, "text", 0, NULL);
 
 	chan_rend = gtk_cell_renderer_text_new ();
-	chan_col = gtk_tree_view_column_new_with_attributes ("Channel", chan_rend, 0);
+	chan_col = gtk_tree_view_column_new_with_attributes ("Channel", chan_rend, "text", 1, NULL);
 
 	url_rend = gtk_cell_renderer_text_new ();
-	url_col = gtk_tree_view_column_new_with_attributes ("URL", url_rend, 0);
+	url_col = gtk_tree_view_column_new_with_attributes ("URL", url_rend, "text", 2, NULL);
 
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), nick_col);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), chan_col);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), url_col);
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(treeview), TRUE);
 
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW(scrolled), treeview);
 
@@ -102,7 +105,7 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 
 	xchat_hook_print (ph, "Channel Message", XCHAT_PRI_NORM, grabURL, 0);
 
-	xchat_print (ph, "URL Scrapler loaded.\n");
+	xchat_print (ph, "URL Scraper loaded.\n");
 
 	return 1;
 }
@@ -110,6 +113,9 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 int xchat_plugin_deinit ()
 {
 	gtk_widget_destroy (window);
+
+	xchat_print (ph, "URL Scraper unloaded.\n");
+
 	return 1;
 }
 
