@@ -25,6 +25,7 @@
 
 #include "histogram-imager.h"
 #include "var-int.h"
+#include "image-fu.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -583,9 +584,12 @@ histogram_imager_make_thumbnail (HistogramImager *self, guint max_width, guint m
 {
     float aspect = ((float)self->width) / ((float)self->height);
     guint width, height;
+    GdkPixbuf *thumb;
 
+    /* Make sure the histogram is up to date */
     histogram_imager_update_image (self);
 
+    /* Scale it down aspect-correctly */
     if (aspect > 1) {
 	width = max_width;
 	height = width / aspect;
@@ -594,8 +598,19 @@ histogram_imager_make_thumbnail (HistogramImager *self, guint max_width, guint m
 	height = max_height;
 	width = height * aspect;
     }
+    thumb = gdk_pixbuf_scale_simple (self->image, width, height, GDK_INTERP_BILINEAR);
 
-    return gdk_pixbuf_scale_simple (self->image, width, height, GDK_INTERP_BILINEAR);
+    /* Do an in-place composite of a checkerboard behind this image, to make alpha visible */
+    image_add_checkerboard(thumb);
+
+    /* If the image is particularly small, enhance its visibility */
+    if (width < 128 || height < 128)
+	image_adjust_levels(thumb);
+
+    /* Put a standard frame around it */
+    image_add_thumbnail_frame(thumb);
+
+    return thumb;
 }
 
 
@@ -877,10 +892,7 @@ histogram_imager_generate_color_table (HistogramImager *self, gboolean force)
 	if (current.a<0) current.a = 0;  if (current.a>255) current.a = 255;
 
 	/* Colors are always ARGB order in little endian */
-	self->color_table.table[count] = GUINT32_TO_LE( (current.a<<24) |
-							(current.b<<16) |
-							(current.g<<8)  |
-							current.r );
+	self->color_table.table[count] = IMAGEFU_COLOR(current.a, current.r, current.g, current.b);
 
 	/* Update our elapsed distance */
 	if (count > 0) {
@@ -1006,7 +1018,6 @@ histogram_imager_compute_quality (HistogramImager *self)
     {
 	guint *hist_p = self->histogram;
 	float *qual_p = self->color_table.quality;
-	float dist;
 	guint count;
 	guint hist_clamp = self->color_table.filled_size - 1;
 	int width = self->width * self->oversample;
