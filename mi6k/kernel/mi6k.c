@@ -72,10 +72,8 @@ struct usb_mi6k {
 	struct semaphore	sem;			/* locks this structure */
 
 	/* IR receive */
-	lirc_t			ir_rx_buffer[IR_RECV_BUFFER_SIZE]; /* ring buffer for incoming IR data */
-	int			ir_rx_head;		/* empty slot for the next received value */
-	int			ir_rx_tail;		/* slot for the oldest value in the buffer */
-	wait_queue_head_t	ir_rx_wait;		/* wait queue for processes reading IR data */
+	struct lirc_buffer      ir_rx_buffer;
+	struct lirc_plugin      ir_plugin;
 	struct urb*		ir_rx_urb;		/* URB for receiver interrupt transfers */
 	unsigned char*		ir_rx_tbuffer;          /* Buffer holding one interrupt transfer */
 	dma_addr_t		ir_rx_dma;
@@ -103,8 +101,6 @@ struct mi6k_fd_private {
 
 /* LIRC buffer sizes, must be powers of two */
 #define RBUF_LEN 256
-
-static struct lirc_buffer rbuf;
 
 /* prevent races between open() and disconnect() */
 static DECLARE_MUTEX (disconnect_sem);
@@ -154,6 +150,8 @@ static int          mi6k_lirc_ioctl           (struct inode*   inode,
 					       struct file*    file,
 					       unsigned int    cmd,
 					       unsigned long   arg);
+static int          mi6k_lirc_use_inc         (void*           data);
+static void         mi6k_lirc_use_dec         (void*           data);
 
 static inline void  mi6k_delete               (struct usb_mi6k*            dev);
 static int          mi6k_probe                (struct usb_interface*       interface,
@@ -161,6 +159,7 @@ static int          mi6k_probe                (struct usb_interface*       inter
 static void         mi6k_disconnect           (struct usb_interface*       interface);
 static int __init   usb_mi6k_init             (void);
 static void __exit  usb_mi6k_exit             (void);
+
 
 
 static struct file_operations mi6k_dev_fops = {
@@ -180,9 +179,8 @@ static struct lirc_plugin mi6k_lirc_plugin = {
 	.features    =  LIRC_CAN_SEND_PULSE | LIRC_CAN_REC_MODE2,
 	.minor       =  -1,
         .code_length =  1,
-	.rbuf        =  &rbuf,
-	.set_use_inc =  set_use_inc,
-	.set_use_dec =  set_use_dec,
+	.set_use_inc =  mi6k_lirc_use_inc,
+	.set_use_dec =  mi6k_lirc_use_dec,
 	.ioctl       =  mi6k_lirc_ioctl,
         .fops        =  &mi6k_lirc_fops,
 };
@@ -247,11 +245,11 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 			value |= dev->pulse_flag;
 		}
 
-		mi6k_ir_rx_push(dev, value);
+		lirc_buffer_write_1(dev->ir_rx_buffer, &value);
 		buffer += 2;
 		count -= 2;
 	}
-	wake_up_interruptible(&dev->ir_rx_wait);
+	wake_up(&dev->ir_rx_buffer->wait_poll);
 }
 
 /* Convert a pulse or space value from microseconds to the transmitter's ~12.8us units */
@@ -318,14 +316,30 @@ static void mi6k_ir_rx_irq(struct urb *urb, struct pt_regs *regs)
 	/* Callback for processing incoming interrupt transfers from the IR receiver */
 	struct usb_mi6k *dev = (struct usb_mi6k*)urb->context;
 
-	if (dev && urb->status == 0 && urb->actual_length > 0) {
+	if (!dev) {
+		usb_unlink_urb(urb);
+		return;
+	}
+
+	switch (urb->status) {
+
+	case 0:
 		dbg("ir_rx_irq, length %d, buffer: %02X%02X %02X%02X %02X%02X %02X%02X",
 		    urb->actual_length, dev->ir_rx_tbuffer[1], dev->ir_rx_tbuffer[0], dev->ir_rx_tbuffer[3],
 		    dev->ir_rx_tbuffer[2], dev->ir_rx_tbuffer[5], dev->ir_rx_tbuffer[4], dev->ir_rx_tbuffer[7],
 		    dev->ir_rx_tbuffer[6]);
 
 		mi6k_ir_rx_store(dev, dev->ir_rx_tbuffer, urb->actual_length);
+		break;
+
+	case -ECONNRESET:
+	case -ENOENT:
+	case -ESHUTDOWN:
+		usb_unlink_urb(urb);
+		return;
 	}
+
+	usb_submit_urb(urb, SLAB_ATOMIC);
 }
 
 static int mi6k_status(struct usb_mi6k *dev)
@@ -568,80 +582,6 @@ static int mi6k_dev_ioctl(struct inode *inode, struct file *file, unsigned int c
 /************************************************** LIRC character device *****/
 /******************************************************************************/
 
-static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, loff_t *ppos)
-{
-	DECLARE_WAITQUEUE(wait, current);
-	struct mi6k_fd_private *prv;
-	struct usb_mi6k *dev;
-	int retval = 0;
-	lirc_t value;
-	int available;
-
-	prv = (struct mi6k_fd_private *) file->private_data;
-	if (prv == NULL) {
-		dbg("object is NULL");
-		return -ENODEV;
-	}
-	dev = prv->dev;
-
-	/* lock this object */
-	down (&dev->sem);
-
-	/* verify that the device wasn't unplugged */
-	if (dev->udev == NULL) {
-		retval = -ENODEV;
-		goto exit;
-	}
-
-	/* If there's no data available yet, release our lock temporarily and
-	 * block the process until there is data available.
-	 */
-	if (!mi6k_ir_rx_available(dev)) {
-		add_wait_queue(&dev->ir_rx_wait, &wait);
-		current->state = TASK_INTERRUPTIBLE;
-
-		while (!mi6k_ir_rx_available(dev)) {
-
-			if (file->f_flags & O_NONBLOCK) {
-				retval = -EAGAIN;
-				break;
-			}
-			if (signal_pending(current)) {
-				retval = -ERESTARTSYS;
-				break;
-			}
-
-			up(&dev->sem);
-			schedule();
-			down(&dev->sem);
-		}
-
-		current->state = TASK_RUNNING;
-		remove_wait_queue(&dev->ir_rx_wait, &wait);
-	}
-	if (retval != 0)
-		goto exit;
-
-	/* Shuffle values from the ring buffer into the process' provided userspace buffer */
-	available = mi6k_ir_rx_available(dev);
-	while (count >= sizeof(value) && available > 0) {
-		value = mi6k_ir_rx_pop(dev);
-		if (copy_to_user(buffer, &value, sizeof(value))) {
-			retval = -EFAULT;
-			goto exit;
-		}
-		buffer += sizeof(value);
-		retval += sizeof(value);
-		count -= sizeof(value);
-		available--;
-	}
-
-exit:
-	/* unlock the device */
-	up(&dev->sem);
-	return retval;
-}
-
 static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t count, loff_t *ppos)
 {
 	struct mi6k_fd_private *prv;
@@ -783,29 +723,13 @@ static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int 
 	return retval;
 }
 
-static unsigned int mi6k_lirc_poll(struct file *file, poll_table *wait)
+static int mi6k_lirc_use_inc(void *data)
 {
-	struct mi6k_fd_private *prv;
-	struct usb_mi6k *dev;
-
-	prv = (struct mi6k_fd_private *) file->private_data;
-	if (prv == NULL) {
-		dbg("object is NULL");
-		return -ENODEV;
-	}
-	dev = prv->dev;
-
-	poll_wait(file, &dev->ir_rx_wait, wait);
-
-	/* Was the device unplugged? */
-	if (dev->udev == NULL)
-		return POLLERR | POLLHUP;
-
-	/* Data available in the rx ringbuffer? */
-	if (mi6k_ir_rx_available(dev))
-		return POLLIN | POLLRDNORM;
-
 	return 0;
+}
+
+static void mi6k_lirc_use_dec(void *data)
+{
 }
 
 
@@ -860,8 +784,10 @@ static int mi6k_probe(struct usb_interface *interface, const struct usb_device_i
 	}
 
 	/* Initialize our LIRC plugin */
-	lirc_buffer_init(&rbuf, sizeof(lirc_t), RBUF_LEN);
-	if ((mi6k_lirc_plugin.minor = lirc_register_plugin(&mi6k_lirc_plugin)) < 0) {
+	lirc_buffer_init(&dev->ir_rx_rbuffer, sizeof(lirc_t), RBUF_LEN);
+	memcpy(&dev->ir_plugin, &mi6k_lirc_plugin, sizeof(struct lirc_plugin));
+	dev->ir_plugin.rbuf = &dev->ir_rx_buffer;
+	if ((dev->ir_plugin.minor = lirc_register_plugin(&dev->ir_plugin)) < 0) {
 		err("lirc_register_plugin failed\n");
 		return -EIO;
 	}
@@ -912,7 +838,7 @@ static void mi6k_disconnect(struct usb_interface *interface)
 
 	usb_deregister_dev(interface, &mi6k_class);
 
-	lirc_buffer_free(&rbuf);
+	lirc_buffer_free(&dev->ir_rx_rbuffer);
 	lirc_unregister_plugin(mi6k_lirc_plugin.minor);
 
 	/* if the device is not opened, then we clean up right now */
