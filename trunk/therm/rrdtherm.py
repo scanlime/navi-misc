@@ -106,21 +106,20 @@ class Therm:
 
     def rrdInit(self):
         """Create a blank RRD for this therm"""
-
-        # The heartbeat is the number of seconds rrdtool allows for each sample
-        heartbeat = self.config['averagePeriod']
+        stepSize = self.config['averagePeriod']
 
         # Define the steps and rows for each RRA in each CF (see the rrdcreate manpage)
         rraList = [
-            (1, 60*60*24*2 / heartbeat),             # Store every sample for the last 2 days
-            (7, 60*60*24*7*2 / heartbeat / 7),       # Every 7th sample for the last 2 weeks
-            (31, 60*60*24*31*2 / heartbeat / 31),    # Every 31st sample for the last 2 months
-            (365, 60*60*24*365*2 / heartbeat / 365), # Every 365th sample for the last 2 years
+            (1, 60*60*24*2 / stepSize),             # Store every sample for the last 2 days
+            (7, 60*60*24*7*2 / stepSize / 7),       # Every 7th sample for the last 2 weeks
+            (31, 60*60*24*31*2 / stepSize / 31),    # Every 31st sample for the last 2 months
+            (365, 60*60*24*365*2 / stepSize / 365), # Every 365th sample for the last 2 years
             ]
 
         # Start out with the parameters to define our RRD file and data source
         params = ["create", self.rrdFile,
-                  "DS:temp:GAUGE:%s:U:U" % heartbeat]
+                  "--step", str(stepSize),
+                  "DS:temp:GAUGE:%s:U:U" % int(stepSize * 1.5)]
 
         # Define RRAs with all the combining functions we're interested in
         for cf in ("AVERAGE", "MIN", "MAX"):
