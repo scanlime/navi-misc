@@ -204,7 +204,6 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	icalcomponent *ical_comp;
 	struct icaltimetype itt;
 	ECalComponentDateTime dt;
-	char *summary = g_strdup ("");
 	const char *name, *uid;
 	GSList *text_list = NULL;
 	ECalComponentText *description;
@@ -235,8 +234,9 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	/* We have to add 1 day to DTEND, as it is not inclusive. */
 	e_cal_component_set_dtend (cal_comp, &dt);
 
-	/* Create summary */
-	comp_summary.value = summary;
+	/* Create summary - this gives us the current conditions so we can
+	 * map to an icon in the rendering. yes, it's a bit hackish.  */
+	comp_summary.value = g_strdup_printf ("%d", report->conditions);
 	comp_summary.altrep = NULL;
 	e_cal_component_set_summary (cal_comp, &comp_summary);
 
@@ -322,6 +322,8 @@ e_cal_backend_weather_open (ECalBackendSync *backend, EDataCal *cal, gboolean on
 	ECalBackendWeather *cbw;
 	ECalBackendWeatherPrivate *priv;
 
+	g_print ("e_cal_backend_weather_open ()\n");
+
 	cbw = E_CAL_BACKEND_WEATHER (backend);
 	priv = cbw->priv;
 
@@ -367,6 +369,8 @@ e_cal_backend_weather_get_object (ECalBackendSync *backend, EDataCal *cal, const
 	ECalBackendWeatherPrivate *priv = cbw->priv;
 	ECalComponent *comp;
 
+	g_print ("e_cal_backend_weather_get_object (%s)\n", uid);
+
 	g_return_val_if_fail (uid != NULL, GNOME_Evolution_Calendar_ObjectNotFound);
 	g_return_val_if_fail (priv->cache != NULL, GNOME_Evolution_Calendar_ObjectNotFound);
 
@@ -387,13 +391,19 @@ e_cal_backend_weather_get_object_list (ECalBackendSync *backend, EDataCal *cal, 
 	ECalBackendSExp *sexp = e_cal_backend_sexp_new (sexp_string);
 	GList *components, *l;
 
+	g_print ("e_cal_backend_weather_get_object_list ()\n");
+
 	if (!sexp)
 		return GNOME_Evolution_Calendar_InvalidQuery;
 
 	*objects = NULL;
+	g_print ("    query is \"%s\"\n", e_cal_backend_sexp_text (sexp));
 	components = e_cal_backend_cache_get_components (priv->cache);
 	for (l = components; l != NULL; l = g_list_next (l)) {
 		if (e_cal_backend_sexp_match_comp (sexp, E_CAL_COMPONENT (l->data), E_CAL_BACKEND (backend))) {
+			char *uid;
+			e_cal_component_get_uid (l->data, &uid);
+			g_print ("    %s\n", uid);
 			*objects = g_list_append (*objects, e_cal_component_get_as_string (l->data));
 		}
 	}
@@ -412,6 +422,8 @@ e_cal_backend_weather_get_timezone (ECalBackendSync *backend, EDataCal *cal, con
 	ECalBackendWeatherPrivate *priv;
 	icaltimezone *zone;
 	icalcomponent *icalcomp;
+
+	g_print ("e_cal_backend_weather_get_timezone (%s)\n", tzid);
 
 	cbw = E_CAL_BACKEND_WEATHER (backend);
 	priv = cbw->priv;
@@ -493,6 +505,8 @@ e_cal_backend_weather_get_free_busy (ECalBackendSync *backend, EDataCal *cal, GL
 	icaltimezone *utc_zone = icaltimezone_get_utc_timezone ();
 	char *calobj;
 
+	g_print ("e_cal_backend_weather_get_free_busy ()\n");
+
 	icalcomponent_set_dtstart (vfb, icaltime_from_timet_with_zone (start, FALSE, utc_zone));
 	icalcomponent_set_dtend (vfb, icaltime_from_timet_with_zone (end, FALSE, utc_zone));
 
@@ -515,6 +529,8 @@ e_cal_backend_weather_is_loaded (ECalBackend *backend)
 	ECalBackendWeather *cbw;
 	ECalBackendWeatherPrivate *priv;
 
+	g_print ("e_cal_backend_weather_is_loaded ()\n");
+
 	cbw = E_CAL_BACKEND_WEATHER (backend);
 	priv = cbw->priv;
 
@@ -534,26 +550,40 @@ static void e_cal_backend_weather_start_query (ECalBackend *backend, EDataCalVie
 	cbw = E_CAL_BACKEND_WEATHER (backend);
 	priv = cbw->priv;
 
+	g_print ("e_cal_backend_weather_start_query ()\n");
+
 	if (!priv->cache) {
+		g_print ("    no cache!\n");
 		e_data_cal_view_notify_done (query, GNOME_Evolution_Calendar_NoSuchCal);
 		return;
 	}
 
 	sexp = e_data_cal_view_get_object_sexp (query);
 	if (!sexp) {
+		g_print ("    SExp broken!!\n");
 		e_data_cal_view_notify_done (query, GNOME_Evolution_Calendar_InvalidQuery);
 		return;
 	}
 
 	objects = NULL;
+	g_print ("    contacting the cache...\n");
 	components = e_cal_backend_cache_get_components (priv->cache);
+	g_print ("    %d components found!\n", g_list_length (components));
+	g_print ("    query is \"%s\"\n", e_cal_backend_sexp_text (sexp));
 	for (l = components; l != NULL; l = g_list_next (l)) {
+		gchar *uid;
+		e_cal_component_get_uid (l->data, &uid);
+		g_print ("    testing %s...", uid);
 		if (e_cal_backend_sexp_match_comp (sexp, E_CAL_COMPONENT (l->data), backend)) {
+			g_print ("match!\n");
 			objects = g_list_append (objects, e_cal_component_get_as_string (l->data));
 		}
+		else
+			g_print ("no match\n");
 	}
 
-	e_data_cal_view_notify_objects_added (query, (const GList *) objects);
+	if (objects)
+		e_data_cal_view_notify_objects_added (query, (const GList *) objects);
 
 	g_list_foreach (components, (GFunc) g_object_unref, NULL);
 	g_list_free (components);
