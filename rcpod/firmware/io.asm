@@ -137,7 +137,7 @@ io_SetFSR
 
 	movlw	5		; 5 is PORTE, the highest allowed port
 	subwf	io_tmp, w
-	btfss	STATUS, C	; If B=1, C=0 and the port is bad
+	btfsc	STATUS, C	; If B=0, C=1 and the port is bad
 	retlw	1
 	decfsz	io_tmp, f	; Port 0 is a no-op
 	retlw	1
