@@ -57,8 +57,11 @@ class MessagePage(Template.Page):
         return self.statsPage
 
     def render_mainTitle(self, context):
-        return [self.statsPage.render_mainTitle(context),
-                " message #%d" % self.id]
+        return "Message #%d" % self.id
+
+    def render_subTitle(self, context):
+        return ["for ",
+                self.statsPage.render_mainTitle(context)]
 
     def render_message(self, context):
         # Grab the message from our database first
@@ -107,6 +110,5 @@ class MessagePage(Template.Page):
     mainColumn = [
         Template.pageBody[ place('message') ],
         ]
-
 
 ### The End ###
