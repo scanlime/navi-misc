@@ -15,8 +15,6 @@ autotools:
 
 * sort the channel list window in non-case sensitive alphabetical order
 
-* make the channel list respond to mouse wheel scrolling
-
 * make the connect dialog check existing open networks before creating a new connection
 
 * find a writer to rewrite all the horribly-worded explainations of things!
