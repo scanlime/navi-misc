@@ -502,6 +502,7 @@ in_gap
 
 	pagesel	next_column_loop	
 	decfsz	temp, f
+	goto	next_column_loop
 	return								; We're giving up
 
 not_in_gap
@@ -521,6 +522,7 @@ not_in_gap
 
 	pagesel	next_column_loop	
 	decfsz	temp, f
+	goto	next_column_loop
 	return								; We're giving up
 
 
