@@ -10,12 +10,6 @@ body.white {
   background: #ffffff;
 }
 
-img.footer {
-  border: none;
-  vertical-align: middle;
-  padding: 0em 1em;
-}
-
 .centered {
   text-align: center;
   margin: 1.5em;
@@ -188,9 +182,22 @@ div.photo {
   text-align: center;
 }
 
+img {
+  border: none;
+  vertical-align: middle;
+}
+
 img.photo {
   border: 1px dashed #8CACBB;
   padding: 0.5em;
+}
+
+img.footer {
+  padding: 0em 1em;
+}
+
+img.sortIndicator {
+  padding: 0em 0.5em;
 }
 
 .fgColor-black       { color: #000000; }

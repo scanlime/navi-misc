@@ -70,9 +70,11 @@ class Table(Nouvelle.ResortableTable):
         if self.columns[self.sortColumnIndex] == column:
             # This is the sort column, indicate the direction
             if self.sortReversed:
-                indicator = tag('img', width=11, height=7, src="/images/sort_up.png", alt="Reversed sort column")
+                indicator = tag('img', _class='sortIndicator', width=11, height=7,
+                                src="/images/sort_up.png", alt="Reversed sort column")
             else:
-                indicator = tag('img', width=11, height=7, src="/images/sort_down.png", alt="Sort column")
+                indicator = tag('img', _class='sortIndicator', width=11, height=7,
+                                src="/images/sort_down.png", alt="Sort column")
         else:
             # Not the sort column
             indicator = []
