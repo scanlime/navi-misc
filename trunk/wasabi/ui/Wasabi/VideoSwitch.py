@@ -36,7 +36,8 @@ class Device(object):
         devs = glob.glob(devPattern)
         if not devs:
             raise IOError, "No uvswitch device found"
-        self.dev = open(devs[0], "rw")
+        self.writeDev = open(devs[0], "w")
+        self.readDev = open(devs[0], "r")
 
         # Default settings show video from wasabi, with no external input selected
         self._videoChannel = 0
@@ -54,11 +55,11 @@ class Device(object):
 
     def update(self):
         """Send all current settings to the device"""
-        self.dev.write("%d %d %d %d\n" % (self._videoChannel,
+        self.writeDev.write("%d %d %d %d\n" % (self._videoChannel,
                                           self._bypassSwitch,
                                           self._whiteAudioChannel,
                                           self._redAudioChannel))
-        self.dev.flush()
+        self.writeDev.flush()
 
     def setChannel(self, c):
         self._videoChannel = c
@@ -105,7 +106,7 @@ class Device(object):
 
     def getSelectable(self):
         """Called by the main loop to see what items we have for its select()"""
-        return self.dev
+        return self.readDev
 
     def needsWrite(self):
         """Called by the main loop to see if we need to poll for writing.
@@ -118,7 +119,7 @@ class Device(object):
            From the uvswitch, this will be a line of text indicating which
            input ports are active.
            """
-        line = self.dev.readline().strip()
+        line = self.readDev.readline().strip()
         if line:
             newActiveChannels = map(int, line.split(" "))
         else:
@@ -129,6 +130,6 @@ class Device(object):
         for channel in self.activeChannels:
             if not channel in newActiveChannels:
                 self.onChannelInactive(channel)
-        self.activeChannels = newActiveList
+        self.activeChannels = newActiveChannels
 
 ### The End ###
