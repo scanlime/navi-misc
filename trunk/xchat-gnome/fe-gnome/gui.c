@@ -34,12 +34,13 @@
 XChatGUI gui;
 
 gboolean initialize_gui_1() {
-	gui.xml = glade_xml_new(XCHATSHAREDIR"/xchat-gnome.glade", NULL, NULL);
+	gui.xml = glade_xml_new("xchat-gnome.glade", NULL, NULL);
 	if(!gui.xml)
-		gui.xml = glade_xml_new("xchat-gnome.glade", NULL, NULL);
+		gui.xml = glade_xml_new(XCHATSHAREDIR"/xchat-gnome.glade", NULL, NULL);
 	if(!gui.xml)
 		return FALSE;
 	initialize_setup_druid();
+	return TRUE;
 }
 
 gboolean initialize_gui_2() {

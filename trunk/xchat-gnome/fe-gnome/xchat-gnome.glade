@@ -1058,7 +1058,7 @@
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
 				      <property name="visibility">True</property>
-				      <property name="max_length">0</property>
+				      <property name="max_length">32</property>
 				      <property name="text" translatable="yes"></property>
 				      <property name="has_frame">True</property>
 				      <property name="invisible_char" translatable="yes">*</property>
@@ -1113,7 +1113,7 @@
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
 				      <property name="visibility">True</property>
-				      <property name="max_length">0</property>
+				      <property name="max_length">32</property>
 				      <property name="text" translatable="yes"></property>
 				      <property name="has_frame">True</property>
 				      <property name="invisible_char" translatable="yes">*</property>
@@ -1168,7 +1168,7 @@
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
 				      <property name="visibility">True</property>
-				      <property name="max_length">0</property>
+				      <property name="max_length">256</property>
 				      <property name="text" translatable="yes"></property>
 				      <property name="has_frame">True</property>
 				      <property name="invisible_char" translatable="yes">*</property>
@@ -1223,7 +1223,7 @@
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
 				      <property name="visibility">True</property>
-				      <property name="max_length">0</property>
+				      <property name="max_length">256</property>
 				      <property name="text" translatable="yes"></property>
 				      <property name="has_frame">True</property>
 				      <property name="invisible_char" translatable="yes">*</property>
@@ -1278,7 +1278,7 @@
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
 				      <property name="visibility">True</property>
-				      <property name="max_length">0</property>
+				      <property name="max_length">256</property>
 				      <property name="text" translatable="yes"></property>
 				      <property name="has_frame">True</property>
 				      <property name="invisible_char" translatable="yes">*</property>
@@ -1416,6 +1416,7 @@
 				      <child>
 					<widget class="GtkButton" id="button21">
 					  <property name="visible">True</property>
+					  <property name="sensitive">False</property>
 					  <property name="can_default">True</property>
 					  <property name="can_focus">True</property>
 					  <property name="label">gtk-add</property>
@@ -1427,6 +1428,7 @@
 				      <child>
 					<widget class="GtkButton" id="button22">
 					  <property name="visible">True</property>
+					  <property name="sensitive">False</property>
 					  <property name="can_default">True</property>
 					  <property name="can_focus">True</property>
 					  <property name="label">gtk-remove</property>
@@ -1561,6 +1563,7 @@
 			      <child>
 				<widget class="GtkCheckButton" id="checkbutton1">
 				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Show Colors</property>
 				  <property name="use_underline">True</property>
@@ -1579,6 +1582,7 @@
 			      <child>
 				<widget class="GtkCheckButton" id="checkbutton2">
 				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Show Timestamps</property>
 				  <property name="use_underline">True</property>
@@ -2210,6 +2214,7 @@
 				  <child>
 				    <widget class="GtkButton" id="browse download">
 				      <property name="visible">True</property>
+				      <property name="sensitive">False</property>
 				      <property name="can_focus">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
 
@@ -2336,6 +2341,7 @@
 				  <child>
 				    <widget class="GtkButton" id="browse completed">
 				      <property name="visible">True</property>
+				      <property name="sensitive">False</property>
 				      <property name="can_focus">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
 
@@ -2434,6 +2440,7 @@
 			      <child>
 				<widget class="GtkCheckButton" id="convert spaces">
 				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Convert spaces to underscores in filenames</property>
 				  <property name="use_underline">True</property>
@@ -2452,6 +2459,7 @@
 			      <child>
 				<widget class="GtkCheckButton" id="save nicknames dcc">
 				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Save nickname in filenames</property>
 				  <property name="use_underline">True</property>
@@ -2551,6 +2559,7 @@
 			      <child>
 				<widget class="GtkCheckButton" id="autoaccept dcc chat">
 				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Auto-accept DCC Chat</property>
 				  <property name="use_underline">True</property>
@@ -2569,6 +2578,7 @@
 			      <child>
 				<widget class="GtkCheckButton" id="autoaccept dcc file">
 				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Auto-accept DCC File Transfers</property>
 				  <property name="use_underline">True</property>
@@ -2587,6 +2597,7 @@
 			      <child>
 				<widget class="GtkCheckButton" id="get dcc ip">
 				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Get IP Address from IRC server</property>
 				  <property name="use_underline">True</property>
@@ -2633,6 +2644,7 @@
 				  <child>
 				    <widget class="GtkEntry" id="dcc ip address">
 				      <property name="visible">True</property>
+				      <property name="sensitive">False</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
 				      <property name="visibility">True</property>
@@ -2769,6 +2781,7 @@
 				  <child>
 				    <widget class="GtkSpinButton" id="individual send throttle">
 				      <property name="visible">True</property>
+				      <property name="sensitive">False</property>
 				      <property name="can_focus">True</property>
 				      <property name="climb_rate">1</property>
 				      <property name="digits">0</property>
@@ -2824,6 +2837,7 @@
 				  <child>
 				    <widget class="GtkSpinButton" id="global send throttle">
 				      <property name="visible">True</property>
+				      <property name="sensitive">False</property>
 				      <property name="can_focus">True</property>
 				      <property name="climb_rate">1</property>
 				      <property name="digits">0</property>
@@ -2879,6 +2893,7 @@
 				  <child>
 				    <widget class="GtkSpinButton" id="individual receive throttle">
 				      <property name="visible">True</property>
+				      <property name="sensitive">False</property>
 				      <property name="can_focus">True</property>
 				      <property name="climb_rate">1</property>
 				      <property name="digits">0</property>
@@ -2934,6 +2949,7 @@
 				  <child>
 				    <widget class="GtkSpinButton" id="global receive throttle">
 				      <property name="visible">True</property>
+				      <property name="sensitive">False</property>
 				      <property name="can_focus">True</property>
 				      <property name="climb_rate">1</property>
 				      <property name="digits">0</property>
