@@ -56,7 +56,9 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
        """
     scheme = 'irc'
     regex = r"""
-       ^irc://(?P<host>[a-zA-Z]([a-zA-Z0-9.-]*[a-zA-Z0-9])?)
+       ^irc://(?P<host>(  ([a-zA-Z]([a-zA-Z0-9.-]*[a-zA-Z0-9])?) |
+                          ([0-9]+(\.[0-9]+){3})
+                       ))
        (:(?P<port>[0-9]+))?/(?P<target>[^\s,]+)(?P<isnick>,isnick)?$
        """
 
