@@ -113,7 +113,10 @@ rcpod_dev* rcpod_Open(struct usb_device *usbdev) {
   rcpod_dev* rcpod;
 
   if (usbdev->descriptor.bcdDevice != RCPOD_PROTOCOL_VERSION) {
-    static char errorBuffer[256];
+    /* We had a version mismatch. Both version numbers are stored as BCD integers
+     * with two digits to the right of the decimal point, decode them for an error message.
+     */
+    char errorBuffer[256];
     sprintf(errorBuffer, "Protocol version mismatch, device is version %d.%02x, host is version %d.%02x",
 	    usbdev->descriptor.bcdDevice >> 8, usbdev->descriptor.bcdDevice & 0xFF,
 	    RCPOD_PROTOCOL_VERSION >> 8, RCPOD_PROTOCOL_VERSION & 0xFF);

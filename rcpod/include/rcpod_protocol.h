@@ -12,17 +12,46 @@
 #ifndef __RCPOD_PROTOCOL_H
 #define __RCPOD_PROTOCOL_H
 
+
 ;//************************************************** Idenfification
 
 ;// The protocol version, stored in binary coded decimal.
 ;// This is available from the device in the bcdDevice field
 ;// of its DEVICE descriptor.
-#define RCPOD_PROTOCOL_VERSION  0x0102
+#define RCPOD_PROTOCOL_VERSION  0x0103
 
 ;// Device vendor and product IDs.
 ;// The RCPOD's device class and protocol are both set to 'vendor-specific'.
 #define RCPOD_VENDOR_ID   0xE461
 #define RCPOD_PRODUCT_ID  0x0002
+
+
+;//************************************************** Pin Descriptors
+
+;// Pin descriptors are used several places in the protocol,
+;// where a pin on any I/O port with any polarity, or its corresponding
+;// tristate register, need to be manipulated. Any pin can be set or cleared,
+;// or turned into an input or an output with a pin descriptor.
+
+;// A pin descriptor is represented as an 8-bit byte with the port number,
+;// polarity, and bit number packed in. Note that zero is a no-op pin
+;// descriptor, so a fixed-size block of pin descriptors can be processed
+;// without any extra bytes for length.
+
+;// One each of the RCPOD_PINDESC_BIT*, RCPOD_PINDESC_POLARITY*, and
+;// RCPOD_PINDESC_PORT* constants are or'ed together to form a pin descriptor.
+
+;// MSB  7  6  5  4  3  2  1  0  LSB
+;//      |  |  \_____/  \_____/
+;//      |  |     |        |
+;//      |  |     |        \___ Bit number
+;//      |  |     |
+;//      |  |     \____________ Port number, 0=no-op, 1=PORTA ... 5=PORTE
+;//      |  |
+;//      |  \__________________ 0=PORT*, 1=TRIS*
+;//      |
+;//      \_____________________ 0=active low, 1=active high
+
 
 ;//************************************************** Control requests
 
@@ -35,12 +64,19 @@
 ;// it in a 1-byte data packet.
 #define RCPOD_CTRL_PEEK		0x02
 
+;// Write 4 bytes sequentially after the last byte written with 'poke',
+;// stored continuously in the wValue and wIndex fields.
+#define RCPOD_CTRL_POKE4        0x03
+
+;// Read 8 bytes starting at the address in wIndex
+#define RCPOD_CTRL_PEEK8        0x04
+
 ;//------------------ Analog
 
 ;// Read all analog inputs at full precision, returns an 8-byte packet
 #define RCPOD_CTRL_ANALOG_ALL   0x10
 
-;//------------------ Serial
+;//------------------ Asynchronous serial
 
 ;// Using current USART settings, perform an optional transmit and optional receive
 ;// using a buffer at the address in wIndex. The number of bytes specified in the
@@ -53,36 +89,36 @@
 ;// Cancels an ongoing USART receive
 #define RCPOD_CTRL_USART_RX_END 0x21
 
-;// Sets the pin to use as a USART transmit enable. When transmitting, this pin is
-;// pulled high, then after the transmission is complete it is pulled low.
-;// This feature is disabled by setting the pin to zero.
+;// Sets the pin descriptor to use as a USART transmit enable. When transmitting,
+;// this pin is asserted, then after the transmission is complete it is deasserted.
+;// This feature is disabled by setting the pin to zero (a no-op pin descriptor)
 #define RCPOD_CTRL_USART_TXE    0x23
-
-;//------------------ Memory management
-
-;// Returns information about the memory available for use by user programs, as buffers
-;// for USART activity and such. wIndex and wValue are ignored, returns a packet
-;// with two bytes (in little endian) specifying the start address of the heap and
-;// two bytes specifying the size of the heap.
-#define RCPOD_CTRL_GET_HEAP     0x30
 
 ;//------------------ General purpose I/O
 
-;// Make the pin indicated by wIndex an output
-#define RCPOD_CTRL_PIN_OUTPUT   0x40
+;// Assert up to 4 pin descriptors given in the bytes of wIndex and wValue.
+;// Note that this can be used to deassert pin descriptors by toggling
+;// their polairty first.
+#define RCPOD_CTRL_GPIO_ASSERT  0x40
 
-;// Make the pin indicated by wIndex an input
-#define RCPOD_CTRL_PIN_INPUT    0x41
+;// Read the value of the pin descriptor in wIndex
+#define RCPOD_CTRL_GPIO_READ    0x41
 
-;// Make the pin indicated by wIndex an output and pull it high
-#define RCPOD_CTRL_PIN_HIGH     0x42
+;//------------------ Synchronous serial
 
-;// Make the pin indicated by wIndex an output and pull it low
-#define RCPOD_CTRL_PIN_LOW      0x43
+;// These requests mainly exist to accelerate I2C a bit while still
+;// leaving most of the work on the host :)
 
-;// make the pin indicated by wIndex an input and return its status
-#define RCPOD_CTRL_PIN_READ     0x44
+;// Write the byte given in the low byte of wValue LSB-first using the
+;// pin descriptor in the low byte of wIndex for data, and the pin
+;// descriptor in the high byte of wIndex for clock. The high byte of
+;// wValue gives the number of extra cycles to delay between clocks.
+#define RCPOD_CTRL_SYNC_TX      0x50
 
+;// Like SYNC_TX, except the low byte of wValue is ignored and
+;// a 1-byte packet is returned with the received data. Samples a bit
+;// just before deasserting the clock pin.
+#define RCPOD_CTRL_SYNC_RX      0x51
 
 #endif
 
