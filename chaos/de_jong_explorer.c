@@ -749,6 +749,7 @@ void save_to_file(const char *name) {
   gdk_pixbuf_unref(pixbuf);
 }
 
+#if (GTK_MAJOR_VERSION > 2) || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 3)
 static void update_preview(GtkFileChooser *chooser, gpointer data) {
   GtkWidget *preview;
   char *filename;
@@ -767,6 +768,7 @@ static void update_preview(GtkFileChooser *chooser, gpointer data) {
     gdk_pixbuf_unref(pixbuf);
   gtk_file_chooser_set_preview_widget_active(chooser, have_preview);
 }
+#endif
 
 void saveclick(GtkWidget *widget, gpointer user_data) {
   /* Sorry, saving only works with gtk 2.3's file selector for now */
