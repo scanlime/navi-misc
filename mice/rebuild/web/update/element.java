@@ -9,10 +9,7 @@ import java.util.*;
 public class element
 {
 	/** The template string for questions from the template file. */
-	public static String question;
-
-	/** The template string for notices from the template file. */
-	public static String notice;
+	public static reader strgs;
 
 	/** A pointer to the next one for linked listing purposes. */
 	public element next;
@@ -31,7 +28,7 @@ public class element
 	{
 		String temp;
 		next = prev;
-		StringTokenizer it = new StringTokenizer(element.notice,"$",false);
+		StringTokenizer it = new StringTokenizer(element.strgs.notice,"$",false);
 		fork = it.nextToken();
 		while(it.hasMoreTokens())
 		{
@@ -54,7 +51,7 @@ public class element
 	{
 		String temp;
 		next = prev;
-		StringTokenizer it = new StringTokenizer(element.question,"$",false);
+		StringTokenizer it = new StringTokenizer(element.strgs.question,"$",false);
 		fork = it.nextToken();
 		while(it.hasMoreTokens())
 		{

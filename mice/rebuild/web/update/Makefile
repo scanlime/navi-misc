@@ -1,22 +1,18 @@
 CLASSES=\
-	keyinfo.class\
-	key.class\
 	element.class\
-	reader.class
+	reader.class\
+	updater.class
 
 update: $(CLASSES)
-
-keyinfo.class: keyinfo.java
-	javac keyinfo.java
-
-key.class: key.java
-	javac key.java
 
 element.class: element.java
 	javac element.java
 
 reader.class: reader.java
 	javac reader.java
+
+updater.class: updater.java
+	javac updater.java
 
 clean:
 	rm -Rf *.class *~

@@ -1,3 +1,0 @@
-I need the following information from the server
-	The template that I read in to keep things all happy.
-	The filename (and path) I write to for this
