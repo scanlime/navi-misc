@@ -7,7 +7,10 @@ There are only a few steps in connecting a project with CIA:
 - Make sure you understand `how CIA works`_
 
 - Download the `client script`_ that's right for you, following the
-  instructions within to install it.
+  instructions within to install it. If you're using Sourceforge, we
+  have a detailed `HOWTO document`_ for setting up CIA.
+
+.. _HOWTO document: /doc/sourceforge-howto
 
 - Tada. The next time you commit, your project should show up in the
   #commits IRC channel on Freenode_, and in the `stats browser`_.
