@@ -5,32 +5,13 @@ This modules controls the IRC aspect of the Palantir RPG client.
   Copyright (C) 2004 W. Evan Sheehan <evan@navi.cx>
 '''
 
-# Note: palantirIRC must be imported before gtk because of
-#       problems with the reactor.
-
-from __future__ import nested_scopes
-
-# Get a reactor that allows for gtk, so gtk.main doesn't get held up
-# by running the reactor
-from twisted.internet import gtk2reactor
-gtk2reactor.install()
-
 from twisted.protocols import irc
 from twisted.internet import protocol, reactor
 
-def Connect(factory, server='irc.freenode.net'):
-  global reactor
-  return getattr(reactor.connectTCP(server, 6667, factory), 'transport')
 
-def Disconnect():
-  if hasattr(globals(), 'reactor'):
-    reactor.stop()
-
-def Start():
-  reactor.run()
 class PalantirClient(irc.IRCClient):
   ''' This is the class that handles all the nitty gritty of the IRC
-      stuff.  Yay for twisted making things pretty easy on me.
+      stuff.
       '''
   def __init__(self):
     self.realname = 'Palantir'
@@ -40,33 +21,41 @@ class PalantirClient(irc.IRCClient):
 
   ### IRC Callbacks ###
   def connectionMade(self):
-    print 'connected'
-    self.nickname = self.factory.nick
+    print 'Connected'
+    self.nickname = self.factory.nickname
     irc.IRCClient.connectionMade(self)
 
   def connectionLost(self, reason):
     print 'Connection Lost:', reason
 
   def signedOn(self):
-    self.join(self.factory.channel)
+    self.join(self.factory.channels)
 
   def privmsg(self, user, channel, msg):
-    print user, ':', msg
+    if self.factory.ui:
+      self.factory.ui.messageReceive(user, channel, msg)
+    else:
+      print '<', user, '>', msg, '\n'
 
   def action(self, user, channel, msg):
-    print 'action'
+    if self.factory.ui:
+      self.factory.ui.meReceive(user, channel, msg)
+    else:
+      print '*', user, ' ', msg, '\n'
 
-  def irc_NICK(self, prefix, params):
-    print 'Nick'
+  #def irc_NICK(self, prefix, params):
+    #if self.factory.ui:
+      #self.factory.ui.nickReceive(params[0])
 
 class PalantirClientFactory(protocol.ClientFactory):
   ''' Factory to create the IRC client. '''
   protocol = PalantirClient
 
-  def __init__(self, nick, server='irc.freenode.net', channel='#palantir'):
-    self.nick = nick
+  def __init__(self, nick, server='irc.freenode.net', channels='#palantir', ui=None):
+    self.nickname = nick
     self.server = server
-    self.channel = channel
+    self.channels = channels
+    self.ui = ui
 
   def clientConnectionLost(self, connector, reason):
     connector.connect()
@@ -74,6 +63,29 @@ class PalantirClientFactory(protocol.ClientFactory):
   def clientConnectionFailed(self, connector, reason):
     print 'Connection failed:', reason
     reactor.stop()
+
+  def buildProtocol(self, addr):
+    ''' Overridden to save a reference to the instance of the actual IRC client
+        so that it can be accessed via the factory that created it.
+	'''
+    self.client = protocol.ClientFactory.buildProtocol(self, addr)
+    return self.client
+
+  def Send(self, msg):
+    self.client.say(self.channels, msg)
+
+  def me(self, action):
+    self.client.me(self.channels, action)
+
+  def join(self, channel):
+    self.client.leave(self.channels, 'Leaving...')
+    self.channels = channel
+    self.client.join(self.channels)
+
+  def nick(self, nick):
+    self.nickname = nick
+    if hasattr(self, 'client'):
+      self.client.setNick(self.nickname)
 
 # Just for a little testing.
 if __name__ == '__main__':

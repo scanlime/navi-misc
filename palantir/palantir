@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-# Note: palantirIRC must be imported before gtk.
-import palantirIRC, gtk, GTKpalantir
+import GTKpalantir, gtk
 
 if __name__ == '__main__':
-  GTKpalantir.Init()
+  window = GTKpalantir.PalantirWindow()
   gtk.main()
