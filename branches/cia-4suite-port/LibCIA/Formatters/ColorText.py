@@ -34,11 +34,10 @@ class ColortextFormatter(Message.Formatter):
     detector = Message.Filter('<find path="/message/body/colorText"/>')
 
 
-class ColortextToIRC(Message.Formatter):
+class ColortextToIRC(ColortextFormatter):
     """Converts messages with colorText content to plain text
        with IRC color tags.
        """
-    detector = Message.Filter('<find path="/message/body/colorText"/>')
     medium = 'irc'
     color = True
 
@@ -62,7 +61,7 @@ class ColortextTitle(ColortextFormatter):
     medium = 'title'
 
     def format(self, args):
-        return Util.extractSummary(args.message.xml.body.colorText)
+        return Util.extractSummary(XML.dig(args.message.xml, "message", "body", "colorText"))
 
 
 class ColortextToPlaintext(ColortextFormatter):
@@ -70,7 +69,7 @@ class ColortextToPlaintext(ColortextFormatter):
     medium = 'plaintext'
 
     def format(self, args):
-        return self.Parser(args.message.xml.body.colorText).result
+        return self.Parser(XML.dig(args.message.xml, "message", "body", "colorText")).result
 
     class Parser(XML.XMLObjectParser):
         requiredRootElement = 'colorText'
@@ -93,7 +92,7 @@ class ColortextToXHTML(ColortextFormatter):
     medium = 'xhtml'
 
     def format(self, args):
-        return self.Parser(args.message.xml.body.colorText).result
+        return self.Parser(XML.dig(args.message.xml, "message", "body", "colorText")).result
 
     class Parser(XML.XMLObjectParser):
         requiredRootElement = 'colorText'
