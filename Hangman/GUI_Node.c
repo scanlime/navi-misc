@@ -26,6 +26,8 @@ void GUI_Node_Init(GUI_Node *node)
 	node->w = 0;
 
 	node->percent = 0;
+
+	node->color = 0;
 	
 	node->split = 0;
 	node->draw = 0;
@@ -35,7 +37,7 @@ void GUI_Node_Init(GUI_Node *node)
 }
 
 /**************************** Rectangle Splitting ***************************/
-void split_horizontal(GUI_Node *node)
+int split_horizontal(GUI_Node *node)
 {
 	/* Create children. */
 	if(!node->left) {
@@ -66,10 +68,12 @@ void split_horizontal(GUI_Node *node)
 	/* width and height. */
 	node->right->w = node->w;
 	node->right->h = node->h - node->left->h;
+
+	return 0;
 }
 
 /******************************************************************/
-void split_vertical(GUI_Node *node)
+int split_vertical(GUI_Node *node)
 {
 	/* Create child nodes. */
 	node->left = malloc(sizeof(GUI_Node));
@@ -98,10 +102,12 @@ void split_vertical(GUI_Node *node)
 	/* width and height. */
 	node->right->w = node->w - node->left->w;
 	node->right->h = node->h;
+
+	return 0;
 }
 
 /*********************************************************************/
-void margin(GUI_Node *node)
+int margin(GUI_Node *node)
 {
 	/* Create childe node. */
 	node->left = malloc(sizeof(GUI_Node));
@@ -117,6 +123,8 @@ void margin(GUI_Node *node)
 	/* x and y of new node */
 	node->left->x = node->x +((node->h - node->left->h)/2);
 	node->left->y = node->y + ((node->w - node->left->w)/2);
+
+	return 0;
 }
 
 
@@ -132,6 +140,11 @@ GUI_Node* make_button()
 	newButton->draw = draw_button;
 	newButton->action = button_control;
 
+	newButton->color = malloc(sizeof(SDL_Color));
+	newButton->color->r = 150;
+	newButton->color->g = 150;
+	newButton->color->b = 150;
+
 	return newButton;
 }
 
@@ -139,6 +152,11 @@ GUI_Node* make_button()
 GUI_Node* make_textfield()
 {
 	GUI_Node* newField;
+
+	newField->color = malloc(sizeof(SDL_Color));
+	newField->color->r = 0;
+	newField->color->g = 0;
+	newField->color->b = 0;
 
 	/* Initialize */
 	newField = malloc(sizeof(GUI_Node));
@@ -155,6 +173,11 @@ GUI_Node* make_drawfield()
 {
 	GUI_Node* newField;
 
+	newField->color = malloc(sizeof(SDL_Color));
+	newField->color->r = 0;
+	newField->color->g = 0;
+	newField->color->b = 0;
+
 	/* Initialize */
 	newField = malloc(sizeof(GUI_Node));
 	GUI_Node_Init(newField);
@@ -169,10 +192,10 @@ int draw_button(GUI_Node *node, SDL_Surface *dest)
 {
 	SDL_Surface *char_surface;
 	TTF_Font *font;
-	SDL_Color color;
+	SDL_Color textColor;
 
 	boxRGBA(dest, node->x, node->y, node->x+node->w, node->y+node->h,
-			150,150,150, 255);
+			node->color->r, node->color->g, node->color->b, 255);
 	rectangleRGBA(dest, node->x, node->y, node->x+node->w, node->y+node->h,
 			255,255,255, 255);
 
@@ -180,12 +203,13 @@ int draw_button(GUI_Node *node, SDL_Surface *dest)
 		if (TTF_Init() == -1) 
 			return -1;
 		font = TTF_OpenFont("/home/evan/bitstream/VeraMono.ttf", ((node->w * node->h) * 33)/100);
-		if (!label)
+		if (!font)
 			return -1;
-		color.r = 0;
-		color.g = 0;
-		color.b = 0;
-		char_print = TTF_RenderText_Solid(font, node->text, color);
+
+		textColor.r = 0;
+		textColor.g = 0;
+		textColor.b = 0;
+		char_surface = TTF_RenderText_Solid(font, node->text, textColor);
 	}
 
 	return 0;
@@ -195,7 +219,7 @@ int draw_button(GUI_Node *node, SDL_Surface *dest)
 int draw_textfield(GUI_Node *node, SDL_Surface *dest)
 {
 	boxRGBA(dest, node->x, node->y, node->x+node->w, node->y+node->h,
-			0,0,0, 255);
+			node->color->r, node->color->g, node->color->b, 255);
 
 	return 0;
 }
@@ -204,7 +228,7 @@ int draw_textfield(GUI_Node *node, SDL_Surface *dest)
 int draw_drawfield(GUI_Node *node, SDL_Surface *dest)
 {
 	boxRGBA(dest, node->x, node->y, node->x+node->w, node->y+node->h,
-			0,0,0, 255);
+			node->color->r, node->color->g, node->color->b, 255);
 
 	return 0;
 }
