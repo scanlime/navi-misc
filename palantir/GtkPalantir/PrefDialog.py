@@ -50,10 +50,11 @@ class PrefDialog:
     navigation.set_model(model=store)
     navigation.append_column(gtk.TreeViewColumn('Pages', gtk.CellRendererText(), text=1))
 
-    for num in len(notebook.get_n_pages()):
+    for num in range(notebook.get_n_pages()):
       page = notebook.get_nth_page(num)
       pageName = notebook.get_tab_label_text(page)
-      store.set(store.append(), 0, pageName)
+      print num, pageName
+      #store.set(store.append(), 0, pageName)
 
   def SavePrefs(self, widget, data=None):
     self.general.Save(self.prefs)
