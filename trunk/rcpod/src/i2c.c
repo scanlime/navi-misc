@@ -44,6 +44,17 @@ static int           softi2c_write_read (rcpod_dev *rcpod, rcpod_i2c_dev *idev,
 					 const unsigned char* write_buffer, int write_count,
 					 unsigned char* read_buffer, int read_count);
 
+static int           i2c_write_read     (rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+					 const unsigned char* write_buffer, int write_count,
+					 unsigned char* read_buffer, int read_count);
+static int           i2c_write1_read8   (rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+					 unsigned char write_byte,
+					 unsigned char* read_buffer, int read_count);
+static int           i2c_read8          (rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+					 unsigned char* read_buffer, int read_count);
+static int           i2c_write4         (rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+					 const unsigned char* write_buffer, int write_count);
+
 
 /*************************************************************************************/
 /************************************************* Host-side software implementation */
@@ -195,23 +206,69 @@ static int softi2c_write_read(rcpod_dev *rcpod, rcpod_i2c_dev *idev,
 
 
 /*************************************************************************************/
+/************************************************** Low-level I2C commands ***********/
+/*************************************************************************************/
+
+static int i2c_write_read(rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+			  const unsigned char* write_buffer, int write_count,
+			  unsigned char* read_buffer, int read_count) {
+}
+
+static int i2c_write1_read8(rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+			    unsigned char write_byte,
+			    unsigned char* read_buffer, int read_count) {
+}
+
+static int i2c_read8(rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+		     unsigned char* read_buffer, int read_count) {
+}
+
+static int i2c_write4(rcpod_dev *rcpod, rcpod_i2c_dev *idev,
+		      const unsigned char* write_buffer, int write_count) {
+}
+
+
+/*************************************************************************************/
 /************************************************** Public I2C entry points **********/
 /*************************************************************************************/
+
+int rcpod_HasAcceleratedI2C(rcpod_dev* rcpod) {
+  /* We always have accelerated I2C if the firmware is version 1.20 or later. */
+  return usb_device(rcpod->usbdevh)->descriptor.bcdDevice >= 0x0120;
+}
 
 int rcpod_I2CWriteRead(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
 		       const unsigned char* write_buffer, int write_count,
 		       unsigned char* read_buffer, int read_count) {
-  return softi2c_write_read(rcpod, idev, write_buffer, write_count, read_buffer, read_count);
+  if (!rcpod_HasAcceleratedI2C(rcpod))
+    return softi2c_write_read(rcpod, idev, write_buffer, write_count, read_buffer, read_count);
+
+  if (write_count == 1 && read_count <= 8)
+    return i2c_write1_read8(rcpod, idev, write_buffer[0], read_buffer, read_count);
+
+  return i2c_write_read(rcpod, idev, write_buffer, write_count, read_buffer, read_count);
 }
 
 int rcpod_I2CWrite(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
 		   const unsigned char* write_buffer, int write_count) {
-  return softi2c_write(rcpod, idev, write_buffer, write_count);
+  if (!rcpod_HasAcceleratedI2C(rcpod))
+    return softi2c_write(rcpod, idev, write_buffer, write_count);
+
+  if (write_count <= 4)
+    return i2c_write4(rcpod, idev, write_buffer, write_count);
+
+  return i2c_write_read(rcpod, idev, write_buffer, write_count, NULL, 0);
 }
 
 int rcpod_I2CRead(rcpod_dev* rcpod, rcpod_i2c_dev* idev,
 		  unsigned char* read_buffer, int read_count) {
-  return softi2c_read(rcpod, idev, read_buffer, read_count);
+  if (!rcpod_HasAcceleratedI2C(rcpod))
+    return softi2c_read(rcpod, idev, read_buffer, read_count);
+
+  if (read_count <= 8)
+    return i2c_read8(rcpod, idev, read_buffer, read_count);
+
+  return i2c_write_read(rcpod, idev, NULL, 0, read_buffer, read_count);
 }
 
 /* The End */
