@@ -5,38 +5,14 @@
 # -- Micah Dowty <micah@picogui.org>
 #
 
-import gtk
-import rtgraph, time, math
+import rtgraph, gtk
 
-
-class PolarFunction(rtgraph.Channel):
-    def __init__(self, f, s, color):
-        rtgraph.Channel.__init__(self, color=color)
-        self.f = f
-        self.s = s
-
-    def getValue(self):
-        theta = (self.s * time.time()) % (math.pi*2)
-        return (self.f(theta) * 0.5 + 0.5,
-                theta)
-
-
-win = gtk.Window(gtk.WINDOW_TOPLEVEL)
-
-graph = rtgraph.PolarVectorGraph()
-graph.channels = [
-    PolarFunction(math.sin, 1, (0,0,1)),
-    PolarFunction(math.cos, 1.1, (1,0,0)),
-    PolarFunction(lambda t: 1, 4, (0,0.8,0)),
+functions = [
+    "(1, t % (pi*2))",
     ]
-graph.show()
 
-frame = gtk.AspectFrame()
-frame.add(graph)
-frame.show()
-
-win.add(frame)
-win.set_border_width(8)
-win.show()
+varDict = {'t': rtgraph.TimeVariable()}
+channels = [rtgraph.FunctionChannel(f, vars=varDict) for f in functions]
+win = rtgraph.GraphUIWindow(channels, rtgraph.PolarVectorGraph())
 win.connect("destroy", gtk.mainquit)
 gtk.main()

@@ -26,7 +26,7 @@ from __future__ import generators
 import colorsys
 import time
 
-__all__ = ["Channel"]
+__all__ = ["Channel", "FunctionChannel", "TimeVariable"]
 
 
 class Channel(object):
@@ -146,17 +146,74 @@ class Channel(object):
                     yield colorsys.hsv_to_rgb(hue, 1, luma)
 
     def strValue(self):
-        """Get a string representation of the current value.
-           If the value is a float, return a string representation of it
-           with a reasonable amount of precision. Otherwise, this lets
-           repr() handle the conversion.
-           If you need other representations, subclass Channel
-           and override this function.
+        """Get a string representation of the current value. This works
+           well on floats, tuples, and strings, but if you need other
+           representations it's easy to override this in a Channel subclass.
            """
-        v = self.value
-        if type(v) == float:
-            return "%.04f" % v
-        else:
-            return repr(v)
+        return limitFloatPrecision(self.value, 4)
+
+
+def limitFloatPrecision(v, d):
+    """Return a string representation of v with at most d digits of precision.
+       Operates recursively on tuples/lists, and uses repr() for other data types.
+       """
+    if type(v) == float:
+        return ("%%.0%df" % d) % v
+    elif type(v) == tuple:
+        return "(%s)" % ", ".join([limitFloatPrecision(i, d) for i in v])
+    elif type(v) == list:
+        return "[%s]" % ", ".join([limitFloatPrecision(i, d) for i in v])
+    else:
+        return repr(v)
+
+
+class FunctionChannel(Channel):
+    """A channel that evaluates the given function.
+
+       fString : The function to evaluate, as a string
+       name    : The name to give this channel, None to use the function string
+       modules : Modules to import the full contents of into globals
+       globals : Extra items to place in the function's global namespace
+       locals  : Extra items to place in the function's local namespace
+       vars    : A dict of callables that are called and placed in the function's
+                 global namespace before each evaluation.
+       """
+    def __init__(self,
+                 fString,
+                 name     = None,
+                 modules  = ('math', 'random'),
+                 globals  = {},
+                 locals   = {},
+                 vars     = {}
+                 ):
+        if name is None:
+            name = fString
+        self.globals = dict(globals)
+        self.locals = dict(locals)
+        self.vars = dict(vars)
+        self.fString = fString
+        Channel.__init__(self, name=fString)
+
+        # Import the specified modules into globals
+        for module in modules:
+            self.globals.update(__import__(module).__dict__)
+
+    def getValue(self):
+        # Evaluate vars
+        for var, callable in self.vars.iteritems():
+            self.globals[var] = callable()
+
+        return eval(self.fString, self.globals, self.locals)
+
+
+class TimeVariable:
+    """A callable class that returns the number of seconds since it was created.
+       This is helpful for use with FunctionChannel's variables feature.
+       """
+    def __init__(self):
+        self.tInitial = time.time()
+
+    def __call__(self):
+        return time.time() - self.tInitial
 
 ### The End ###
