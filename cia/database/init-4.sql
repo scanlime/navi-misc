@@ -21,7 +21,7 @@ USE cia;
 CREATE TABLE IF NOT EXISTS meta
 (
     name         VARCHAR(32),
-    value        VARCHAR(255),
+    value        VARCHAR(255)
 );
 
 INSERT IGNORE INTO meta VALUES( 'version', 4 );
@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS cache
     id          VARCHAR(32) PRIMARY KEY,
     value       LONGBLOB NOT NULL,
     atime       BIGINT,
-    expiration  BIGINT,
+    expiration  BIGINT
 );
 
 ------------------------------------------------------------------------
