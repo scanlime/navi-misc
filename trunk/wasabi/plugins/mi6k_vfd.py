@@ -32,20 +32,89 @@ import threading
 import thread
 
 
-class MediaClock(vfdwidgets.Clock):
-    """A Clock widget that displays a time
-       given in seconds, rather than wallclock time.
+class MediaWidgetMixin(object):
+    """A widget mix-in that causes any widget to show
+       information about the currently playing media file,
+       if there is one.
        """
-    def __init__(self,
-                 seconds   = 0,
-                 format    = "%H:%M:%S",
-                 blinkTime = None,
-                 **kwargs):
-        vfdwidgets.Clock.__init__(self, format, blinkTime, **kwargs)
-        self.seconds = seconds
+    def findPlayingItem(self):
+        """If a video or audio item is currently playing, returns it"""
+        players = plugin.getbyname('VIDEO_PLAYER', True) + plugin.getbyname("AUDIO_PLAYER", False)
+        for player in players:
+            if not getattr(player, 'item', None):
+                continue
+            if not (player.app and player.app.isAlive()):
+                continue
+            return player.item
 
-    def getTime(self):
-        return time.gmtime(self.seconds)
+    def update(self, dt):
+        """At each time step, try to format information from
+           the currently active item. If we can't find any info
+           or we aren't playing anything, hide ourselves.
+           """
+        item = self.findPlayingItem()
+        if item:
+            t = self.formatItem(item)
+            if t:
+                self.visible = True
+                self.text = t
+            else:
+                self.visible = False
+        else:
+            self.visible = False
+        super(MediaWidgetMixin, self).update(dt)
+
+    def formatItem(self, item):
+        """Subclasses must implement this to gather some
+           bit of data from the media item and format it
+           as a string.
+           """
+        raise NotImplementedError
+
+
+class MediaTitleWidget(MediaWidgetMixin, vfdwidgets.LoopingScroller):
+    """A widget that shows the title of the currently playing media file"""
+    def formatItem(self, item):
+        return getattr(item, 'title', None) or getattr(item, 'name', None)
+
+
+class MediaElapsedWidget(MediaWidgetMixin, vfdwidgets.Text):
+    """A widget that shows the amount of elapsed time
+       in the currently playing media file
+       """
+    def formatItem(self, item):
+        try:
+            elapsed = item['elapsed']
+        except:
+            return None
+
+        if isinstance(elapsed, str):
+            # The item already formatted it for us
+            return elapsed
+
+        if elapsed > 3600:
+            # Format it with hours
+            return "%d:%02d:%02d" % (elapsed/3600, (elapsed/60)%60, elapsed%60)
+        else:
+            return "%02d:%02d" % (elapsed/60, elapsed%60)
+
+
+class MediaLengthWidget(MediaWidgetMixin, vfdwidgets.Text):
+    """A widget that shows the total length
+       of the currently playing media file
+       """
+    def formatItem(self, item):
+        try:
+            length = item['runtime']
+        except:
+            length = None
+        if not length:
+            try:
+                length = item['length']
+            except:
+                length = None
+        if length:
+            return "/ %s" % length
 
 
 class UpdaterThread(threading.Thread):
@@ -63,6 +132,7 @@ class UpdaterThread(threading.Thread):
             self.surface.update()
             self.lock.acquire()
             try:
+                self.surface.layout()
                 frame = self.surface.draw()
             finally:
                 self.lock.release()
@@ -80,8 +150,10 @@ class PluginInterface(plugin.DaemonPlugin):
     """Plugin to start and stop the VFD updater thread, and pass events to it"""
     def __init__(self, device="/dev/usb/mi6k*"):
         plugin.DaemonPlugin.__init__(self)
+
+        # We want OSD events even if another plugin does too
+        self.event_listener = True
         self.osdWidget = None
-        self.lastDrawHandler = None
 
         self.mi6k = mi6k.Device(device)
         self.vfd = self.mi6k.vfd
@@ -132,23 +204,10 @@ class PluginInterface(plugin.DaemonPlugin):
                                                          priority=1)
         self.surface.add(self.selectionTitle)
 
-        # A relatively high priority widget with the title of the
-        # currently playing video or audio track.
-        self.playerTitle = vfdwidgets.LoopingScroller(visible=False,
-                                                      gravity=(0,-1),
-                                                      priority=10)
-        self.surface.add(self.playerTitle)
-
-        # Add another two higher-priority clocks at the lower-right
-        # to show our progress through media files.
-        self.elapsedTime = MediaClock(gravity=(9,1),
-                                      priority=5,
-                                      visible=False)
-        self.surface.add(self.elapsedTime)
-        self.totalTime = MediaClock(gravity=(10,1),
-                                    priority=4,
-                                    visible=False)
-        self.surface.add(self.totalTime)
+        # The status of the current media file
+        self.surface.add(MediaTitleWidget(gravity=(0,-1), priority=10))
+        self.surface.add(MediaElapsedWidget(gravity=(10,1), priority=5))
+        self.surface.add(MediaLengthWidget(gravity=(11,1), priority=3))
 
     def drawBegin(self):
         """Called before any draw_* handler, or even if we have no handler
@@ -156,9 +215,6 @@ class PluginInterface(plugin.DaemonPlugin):
            inactive state, so widgets we aren't using will go away.
            """
         self.selectionTitle.visible = False
-        self.elapsedTime.visible = False
-        self.totalTime.visible = False
-        self.playerTitle.visible = False
 
     def draw(self, (type, object), osd):
         """This handler gives plugins a chance to draw extra information
@@ -168,11 +224,6 @@ class PluginInterface(plugin.DaemonPlugin):
            this to draw_* handlers based on the type of object onscreen.
            """
         f = getattr(self, "draw_%s" % type, None)
-        if f != self.lastDrawHandler:
-            # We've switched gears, relayout the screen next chance we get
-            self.surface.layoutRequired = True
-            self.lastDrawHandler = f
-
         self.updater.lock.acquire()
         try:
             self.drawBegin()
@@ -180,6 +231,16 @@ class PluginInterface(plugin.DaemonPlugin):
                 f(object, osd)
         finally:
             self.updater.lock.release()
+
+    def draw_menu(self, menuw, osd):
+        """Update our widgets with information about the current
+           menu and the currently hilighted menu item. This should
+           work well enough to give us basic navigation even with
+           the TV turned off.
+           """
+        menu = menuw.menustack[-1]
+        self.selectionTitle.visible = True
+        self.selectionTitle.text = menu.selected.name
 
     def eventhandler(self, event, menuw=None):
         """Handle special events containing messages we should display"""
@@ -205,46 +266,7 @@ class PluginInterface(plugin.DaemonPlugin):
             self.surface.add(w, lifetime = 1)
             self.osdWidget = w
         finally:
+            pass
             self.updater.lock.release()
-
-    def draw_menu(self, menuw, osd):
-        """Update our widgets with information about the current
-           menu and the currently hilighted menu item. This should
-           work well enough to give us basic navigation even with
-           the TV turned off.
-           """
-        # If audio is playing anyway, the audio player is probably
-        # running in detached mode. Show its status too, even if it
-        # covers up menu status.
-        if audio.player.get() and audio.player.get().player:
-            self.draw_player(audio.player.get().item)
-
-        menu = menuw.menustack[-1]
-        self.selectionTitle.visible = True
-        self.selectionTitle.text = menu.selected.name
-
-    def draw_player(self, player, osd=None):
-        self.playerTitle.visible = True
-        self.playerTitle.text = player.getattr('title') or player.getattr('name')
-
-        if hasattr(player, 'elapsed'):
-            self.elapsedTime.visible = True
-            self.elapsedTime.seconds = player.elapsed
-            if player.elapsed >= 3600:
-                self.elapsedTime.format = "%H:%M:%S"
-            else:
-                self.elapsedTime.format = "%M:%S"
-
-        if hasattr(player, 'length'):
-            self.totalTime.visible = True
-            self.totalTime.seconds = player.length
-            if player.length >= 3600:
-                self.totalTime.format = "/ %H:%M:%S"
-            else:
-                self.totalTime.format = "/ %M:%S"
-
-        # Always re-layout if we get here- it's easier than
-        # keeping track of whether any of the time formats changed :P
-        self.surface.layoutRequired = True
 
 ### The End ###
