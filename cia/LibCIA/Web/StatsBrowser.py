@@ -35,7 +35,6 @@ class Clock(Base.Section):
     body = getTime
 
 
-
 class StatsPage(Base.Template):
     def __init__(self, caps, storage):
         self.caps = caps
@@ -46,8 +45,12 @@ class StatsPage(Base.Template):
         return self
 
     def render_leftColumn(self, context, data):
+        s = Base.SectionSerializer(Base.Section("Squirrels", "moose bites?"))
+        from twisted.python import components
+        from nevow.iwoven import ISerializable
+        print "squidgey", components.implements(s, ISerializable)
         return [
-            Base.Section()
+            s
             ]
 
 ### The End ###

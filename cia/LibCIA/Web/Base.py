@@ -32,8 +32,9 @@ class Section:
     """Represents a named section which can be placed in any of the columns on a page.
        This is a base class with defaults that you probably want to override :)
        """
-    title = "Squeegies"
-    body = "Mynd you, m00se bites Kan be pretty nasti ..."
+    def __init__(self, title, body):
+        self.title = title
+        self.body = body
 
 
 class SectionSerializer(components.Adapter):
