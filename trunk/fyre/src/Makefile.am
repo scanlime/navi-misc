@@ -24,7 +24,8 @@ if HAVE_GNET
 GNET_SRC = \
 	remote-server.c			\
 	remote-client.c			\
-	explorer-cluster.c
+	explorer-cluster.c		\
+	cluster-model.c
 else
 GNET_SRC =
 endif

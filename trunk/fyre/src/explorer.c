@@ -21,13 +21,13 @@
  *
  */
 
+#include "config.h"
 #include <string.h>
 #include "explorer.h"
 #include "parameter-editor.h"
 #include "math-util.h"
 #include "histogram-view.h"
 #include "prefix.h"
-#include "config.h"
 
 static void explorer_class_init(ExplorerClass *klass);
 static void explorer_init(Explorer *self);
@@ -161,7 +161,6 @@ Explorer* explorer_new(IterativeMap *map, Animation *animation) {
      * of calculations finish so we can update the GUI.
      */
     iterative_map_start_calculation(self->map);
-    explorer_cluster_start(self);
     g_signal_connect(G_OBJECT(self->map), "calculation-finished",
 		     G_CALLBACK(on_calculation_finished), self);
 
@@ -196,10 +195,6 @@ void      explorer_init_cluster          (Explorer *self)
 }
 
 void      explorer_dispose_cluster       (Explorer *self) {}
-void      explorer_cluster_update_params (Explorer *self) {}
-void      explorer_cluster_start         (Explorer *self) {}
-void      explorer_cluster_stop          (Explorer *self) {}
-void      explorer_cluster_merge_results (Explorer *self) {}
 
 #endif /* !HAVE_GNET */
 
@@ -328,14 +323,10 @@ static gboolean on_cluster_window_delete(GtkWidget *widget, GdkEvent *event, gpo
 
 static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
     Explorer *self = EXPLORER(user_data);
-    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
+    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
 	iterative_map_stop_calculation(self->map);
-	explorer_cluster_stop(self);
-    }
-    else {
+    else
 	iterative_map_start_calculation(self->map);
-	explorer_cluster_start(self);
-    }
 }
 
 static void on_calculation_finished(IterativeMap *map, gpointer user_data)
@@ -402,12 +393,6 @@ void explorer_update_gui(Explorer *self) {
 	if (explorer_auto_limit_update_rate(self))
 	    return;
     }
-
-    /* Merge in cluster results at the same rate we update our view.
-     * Note that the results of this merge won't be available right
-     * away- this is just here to get the update rate right.
-     */
-    explorer_cluster_merge_results(self);
 
     /* We don't want to update the status bar if we're trying to show rendering changes quickly */
     if (!HISTOGRAM_IMAGER(self->map)->render_dirty_flag) {

@@ -30,6 +30,10 @@
 #include "animation.h"
 #include "animation-render-ui.h"
 
+#ifdef HAVE_GNET
+#include "cluster-model.h"
+#endif
+
 G_BEGIN_DECLS
 
 #define EXPLORER_TYPE            (explorer_get_type ())
@@ -77,8 +81,9 @@ struct _Explorer {
 
     AnimationRenderUi *render_window;
 
-    GtkListStore *cluster_model;
-    gboolean cluster_running;
+#ifdef HAVE_GNET
+    ClusterModel *cluster_model;
+#endif
 };
 
 struct _ExplorerClass {
@@ -107,9 +112,6 @@ void      explorer_update_animation      (Explorer *self);
 
 void      explorer_init_cluster          (Explorer *self);
 void      explorer_dispose_cluster       (Explorer *self);
-void      explorer_cluster_start         (Explorer *self);
-void      explorer_cluster_stop          (Explorer *self);
-void      explorer_cluster_merge_results (Explorer *self);
 
 void      explorer_run_iterations        (Explorer *self);
 void      explorer_update_gui            (Explorer *self);

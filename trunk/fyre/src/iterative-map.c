@@ -28,6 +28,8 @@
 
 enum {
     CALCULATION_FINISHED_SIGNAL,
+    CALCULATION_START_SIGNAL,
+    CALCULATION_STOP_SIGNAL,
     LAST_SIGNAL,
 };
 
@@ -66,6 +68,26 @@ GType iterative_map_get_type(void) {
 static void iterative_map_class_init(IterativeMapClass *klass) {
     iterative_map_signals[CALCULATION_FINISHED_SIGNAL] =
 	g_signal_new("calculation-finished",
+		     G_TYPE_FROM_CLASS(klass),
+		     G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+		     G_STRUCT_OFFSET(IterativeMapClass, iterative_map),
+		     NULL,
+		     NULL,
+		     g_cclosure_marshal_VOID__VOID,
+		     G_TYPE_NONE, 0);
+
+    iterative_map_signals[CALCULATION_START_SIGNAL] =
+	g_signal_new("calculation-start",
+		     G_TYPE_FROM_CLASS(klass),
+		     G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+		     G_STRUCT_OFFSET(IterativeMapClass, iterative_map),
+		     NULL,
+		     NULL,
+		     g_cclosure_marshal_VOID__VOID,
+		     G_TYPE_NONE, 0);
+
+    iterative_map_signals[CALCULATION_STOP_SIGNAL] =
+	g_signal_new("calculation-stop",
 		     G_TYPE_FROM_CLASS(klass),
 		     G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
 		     G_STRUCT_OFFSET(IterativeMapClass, iterative_map),
@@ -154,6 +176,7 @@ void          iterative_map_start_calculation      (IterativeMap          *self)
     if (self->idle_handler)
 	return;
     self->idle_handler = g_idle_add(iterative_map_idle_handler, self);
+    g_signal_emit(G_OBJECT(self), iterative_map_signals[CALCULATION_START_SIGNAL], 0);
 }
 
 void          iterative_map_stop_calculation       (IterativeMap          *self)
@@ -162,6 +185,7 @@ void          iterative_map_stop_calculation       (IterativeMap          *self)
 	return;
     g_source_remove(self->idle_handler);
     self->idle_handler = 0;
+    g_signal_emit(G_OBJECT(self), iterative_map_signals[CALCULATION_STOP_SIGNAL], 0);
 }
 
 /* The End */
