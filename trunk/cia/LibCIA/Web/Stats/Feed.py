@@ -83,6 +83,7 @@ class RSSFeed(BaseFeed):
         items = []
         for m in messages:
             try:
+                m = Message.Message(m)
                 items.append(Formatters.factory.findMedium('rss', m).format(m))
             except Message.NoFormatterError:
                 # We can't find a formatter, stick in a placeholder noting this fact
