@@ -42,7 +42,8 @@ CREATE TABLE stats_catalog
 );
 
 -- A place to store all stats messages, with a global continuously increasing ID.
--- This doesn't yet include rules to automatically delete old messages, so the log is infinite :-/
+-- This doesn't yet include rules to automatically delete old messages, so the log is infinite.
+-- Note the index on (id). This is required to get reasonable performance.
 CREATE TABLE stats_messages
 (
     target_path  VARCHAR(128) REFERENCES stats_catalog ON DELETE CASCADE,
@@ -50,6 +51,7 @@ CREATE TABLE stats_messages
     xml          TEXT NOT NULL,
     PRIMARY KEY(target_path, id)
 );
+CREATE INDEX stats_message_id_index ON stats_messages (id);
 
 -- Store metadata keys, times, and values for each target
 CREATE TABLE stats_metadata
