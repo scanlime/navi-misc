@@ -1,5 +1,5 @@
 TUSB_DIR = ../../../../tusb
-OBJS = main.rel descript.rel fpga.rel
+OBJS = main.rel descript.rel fpga.rel i2c.rel
 
 CFLAGS = -I $(TUSB_DIR)/include -I ../include
 LDFLAGS = --xram-loc 0xF800 --xram-size 0x500 -L $(TUSB_DIR)/src -ltusb

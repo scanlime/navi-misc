@@ -38,10 +38,17 @@ int main()
   }
 
   d = open_dev();
+  if (!d)
+    return 1;
+
   if (write_bitstream(d, bf) < 0) {
     perror("write_bitstream");
     return 1;
   }
+
+  while (1)
+    usb_control_msg(d, USB_TYPE_VENDOR, UNICONE_REQ_LED_BRIGHTNESS,
+		    0x8000, 0, NULL, 0, 1000);
 
   bitfile_delete(bf);
   return 0;
