@@ -59,6 +59,7 @@ int main(int argc, char ** argv) {
       {"background",  1, NULL, 1003},
       {"size",        1, NULL, 's'},
       {"density",     1, NULL, 'd'},
+      {"clamped",     0, NULL, 1004},
     };
     c = getopt_long(argc, argv, "hi:o:a:b:c:d:x:y:z:r:e:g:s:t:",
 		    long_options, &option_index);
@@ -85,6 +86,7 @@ int main(int argc, char ** argv) {
     case 1001: set_parameter("blur_ratio",     optarg); break;
     case 1002: set_parameter("fgcolor",        optarg); break;
     case 1003: set_parameter("bgcolor",        optarg); break;
+    case 1004: set_parameter("clamped",        "1");    break;
 
     case 'h':
     default:
@@ -147,6 +149,8 @@ static void usage(char **argv) {
 	 "                          or in #RRGGBB hexadecimal format [%s]\n"
 	 "  --background COLOR    Set the background color, specified as a color name\n"
 	 "                          or in #RRGGBB hexadecimal format [%s]\n"
+	 "  --clamped             Clamp the image to the foreground color, rather than\n"
+	 "                          allowing more intense pixels to have other values\n"
 	 "\n"
 	 "Quality:\n"
 	 "  -s, --size X[xY]      Set the image size in pixels. If only one value is\n"
@@ -176,7 +180,9 @@ static void render_main(const char *filename) {
   while (render.current_density < render.target_density) {
     run_iterations(1000000);
 
-    /* This should be a fairly accurate time estimate, since current_density increases linearly */
+    /* This should be a fairly accurate time estimate, since (asymptotically at least)
+     * current_density increases linearly with the number of iterations performed.
+     */
     now = time(NULL);
     elapsed = now - start_time;
     remaining = ((float)elapsed) * render.target_density / render.current_density - elapsed;
@@ -213,11 +219,13 @@ void set_defaults() {
 
   render.exposure = 0.05;
   render.gamma = 1;
+  render.clamped = FALSE;
+  gdk_color_parse("white", &render.bgcolor);
+  gdk_color_parse("black", &render.fgcolor);
+
   render.width = 600;
   render.height = 600;
   render.target_density = 10000;
-  gdk_color_parse("white", &render.bgcolor);
-  gdk_color_parse("black", &render.fgcolor);
 }
 
 static gchar* describe_color(GdkColor *c) {
@@ -246,12 +254,13 @@ gchar* save_parameters() {
 			   "exposure = %f\n"
 			   "gamma = %f\n"
 			   "bgcolor = %s\n"
-			   "fgcolor = %s\n",
+			   "fgcolor = %s\n"
+			   "clamped = %d\n",
 			   params.a, params.b, params.c, params.d,
 			   params.zoom, params.xoffset, params.yoffset, params.rotation,
 			   params.blur_radius, params.blur_ratio,
 			   render.exposure, render.gamma,
-			   bg, fg);
+			   bg, fg, render.clamped);
 
   g_free(fg);
   g_free(bg);
@@ -320,6 +329,9 @@ gboolean set_parameter(const char *key, const char *value) {
 
   else if (!strcmp(key, "target_density"))
     render.target_density = atol(value);
+
+  else if (!strcmp(key, "clamped"))
+    render.clamped = atol(value) != 0;
 
   else
     return TRUE;
