@@ -110,6 +110,27 @@ object_create_toolbar (GtkToolButton *button, Editor *editor)
   scene_object_select (object);
 }
 
+static gboolean
+tree_model_row_draggable (GtkTreeDragSource *drag_source, GtkTreePath *source)
+{
+  GtkTreeModel *model = GTK_TREE_MODEL (drag_source);
+  GtkTreeIter iter;
+  SceneObject *object;
+  SceneObjectClass *klass;
+
+  gtk_tree_model_get_iter (model, &iter, source);
+  gtk_tree_model_get (model, &iter, 3, &object, -1);
+  klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (object));
+  return (klass->parentable);
+}
+
+static gboolean
+tree_model_row_drop_possible (GtkTreeDragDest *drag_dest, GtkTreePath *dest, GtkSelectionData *selection_data)
+{
+  g_print ("row_drop_possible ()\n");
+  return TRUE;
+}
+
 static void
 editor_init (Editor *editor)
 {
@@ -123,6 +144,12 @@ editor_init (Editor *editor)
   ParameterHolder *p;
   GtkWidget *e, *v, *l;
   GList *types, *t;
+  GtkTargetEntry targets =
+  {
+    "reordering",
+    GTK_TARGET_SAME_WIDGET,
+    0
+  };
 
   load_plugins();
 
@@ -146,6 +173,11 @@ editor_init (Editor *editor)
   select = gtk_tree_view_get_selection (editor->element_list);
   gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
   g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (object_selection_changed), NULL);
+
+  gtk_tree_view_enable_model_drag_source (editor->element_list, GDK_BUTTON1_MASK, &targets, 1, GDK_ACTION_DEFAULT);
+  gtk_tree_view_enable_model_drag_dest   (editor->element_list, &targets, 1, GDK_ACTION_DEFAULT);
+  GTK_TREE_DRAG_DEST_GET_IFACE (editor->scene->element_store)->row_drop_possible = tree_model_row_drop_possible;
+  GTK_TREE_DRAG_SOURCE_GET_IFACE (editor->scene->element_store)->row_draggable = tree_model_row_draggable;
 
   icon_renderer = gtk_cell_renderer_pixbuf_new();
   text_renderer = gtk_cell_renderer_text_new();
