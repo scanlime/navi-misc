@@ -147,10 +147,24 @@ namespace Fyre
 			int cell_x, cell_y;
 
 			if (element_list.GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
+				/*
 				Gdk.Pixmap pixmap = element_list.CreateRowDragIcon (path);
 				Gdk.Rectangle rect = pixmap.VisibleRegion.Clipbox;
 				Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, rect.Width, rect.Height);
 				icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, rect.Width, rect.Height);
+				Gtk.Drag.SetIconPixbuf (args.Context, icon, click_x + 1, cell_y);
+				*/
+
+				Gdk.Pixmap pixmap = new Gdk.Pixmap (null, 200, 150, 24);
+
+				Gdk.GC gc = new Gdk.GC (pixmap);
+				Gdk.Color white = new Gdk.Color (0xff, 0xff, 0xff);
+				Gdk.Colormap.System.AllocColor (ref white, true, true);
+				gc.Foreground = white;
+
+				pixmap.DrawRectangle (gc, true, 0, 0, 200, 150);
+				Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, 200, 150);
+				icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, 200, 150);
 				Gtk.Drag.SetIconPixbuf (args.Context, icon, click_x + 1, cell_y);
 			}
 		}
