@@ -46,7 +46,10 @@ def fromEscaped(s):
     results = segments[:1]
     for i in xrange(1, len(segments)):
         segment = segments[i]
-        if segment[0] == 'x':
+        if not segment:
+            # Escaped slash
+            results.append('\\')
+        elif segment[0] == 'x':
             # Parse a 2-digit hex character
             results.append(chr(int(segment[1:3], 16)) + segment[3:])
         else:
