@@ -195,10 +195,23 @@ module n_serial_rx (clk, reset, serial_in,
 			end
 			
 			S_WAIT_FOR_Q1: begin
-				// At the next clock tick, we sample the Q1 quarter-bit
+				// At the next clock tick, we sample the Q1 quarter-bit.
 				if (tick) begin
-					state <= S_WAIT_FOR_Q2;
-					qbits[3] <= serial_in;
+					if (serial_in) begin
+						/* Normally the Q1 bit is always zero- if it's one, we have
+						 * a special case that warps us right to S_DECODE_QBITS
+						 * with qbits==1111. This isn't strictly necessary, but
+						 * it means we need only 1/8 bit period rather than a full
+						 * bit period after the packet ends to detect the stop condition.
+						 */
+						
+						state <= S_DECODE_QBITS;
+						qbits <= 4'b1111;
+					end
+					else begin
+						state <= S_WAIT_FOR_Q2;
+						qbits[3] <= serial_in;
+					end
 				end
 				rx_start <= 0;
 				rx_stop <= 0;
