@@ -141,5 +141,9 @@ class NotifiedGraph(Graph):
                  ):
         Graph.__init__(self, size, channels, bgColor, gridColor)
 
-    def notifyData(self):
-        self.integrate(1) #hrm, this is...tricky
+    def notifyData(self, channel):
+        self.update(channel)
+
+    def update(self, channel):
+        """Hook for subclasses to redraw the data they're interested in"""
+        pass
