@@ -93,7 +93,7 @@ class ButtonPress(Event.Event):
        are all optional. None is treated as a wildcard.
        This uses the default IR client.
        """
-    def __init__(self, viewport, name=None, remote=None, repeat=None):
+    def __init__(self, viewport, name=None, remote=None, repeat=0):
         Event.Event.__init__(self)
         self.name = name
         self.remote = remote
