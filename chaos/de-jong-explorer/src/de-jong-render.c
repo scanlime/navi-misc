@@ -540,46 +540,75 @@ void de_jong_calculate_bifurcation(DeJong             *self,
     const gdouble y_max = 5;
 
     BifurcationColumn *column;
-    DeJong *interpolant;
     double x, y, a, b, c, d, alpha, point_x, point_y;
     gulong density, bucket;
-    int i, block, ix, iy;
+    int block, ix, iy, i, j;
     guint *p;
 
-    interpolant = de_jong_new();
     density = self->current_density;
 
     if (!self->columns) {
-      /* Create columns */
+      DeJong *interpolant;
+      int tmp;
+
+      interpolant = de_jong_new();
+
+      printf("Initializing column table\n");
+
+      /* Create columns and number them */
       self->columns = g_new0(BifurcationColumn, hist_width);
-      for (i=0; i<hist_width; i++) {
-	column = &self->columns[i];
-	column->point_x = uniform_variate();
-	column->point_y = uniform_variate();
+      for (i=0; i<hist_width; i++)
+	self->columns[i].ix = i;
+
+      /* Shuffle them, so we render in a seemingly-random order */
+      for (i=hist_width-1; i>=0; i--) {
+	j = ((int) random() % (i+1));
+	tmp = self->columns[i].ix;
+	self->columns[i].ix = self->columns[j].ix;
+	self->columns[j].ix = tmp;
       }
+
+      /* Initialize each column */
+      for (i=hist_width-1; i>=0; i--) {
+	self->columns[i].ix;
+	self->columns[i].point_x = uniform_variate();
+	self->columns[i].point_y = uniform_variate();
+
+	/* Generate a small number of parameters, randomly chosen from those
+	 * within this column's section of the bifurcation diagram. This
+	 * still gives us the subpixel accuracy of having more than one set
+	 * of parameters per column, but saves us from the relatively costly interpolation
+	 */
+	for (j=0; j<(sizeof(self->columns[0].interpolated) / sizeof(self->columns[0].interpolated[0])); j++) {
+	  interp(interpolant, (self->columns[i].ix + uniform_variate()) / (hist_width - 1), interp_data);
+	  self->columns[i].interpolated[j].a = interpolant->a;
+	  self->columns[i].interpolated[j].b = interpolant->b;
+	  self->columns[i].interpolated[j].c = interpolant->c;
+	  self->columns[i].interpolated[j].d = interpolant->d;
+	}
+      }
+
+      printf("Done initializing column table\n");
+
+      g_object_unref(interpolant);
     }
 
     for (i=iterations; i;) {
 
-      /* Pick the next column */
-      ix = self->current_column++;
-      column = &self->columns[ix];
+      /* Pick the next column, with a randomly chosen set of interpolated parameters */
+      column = &self->columns[self->current_column++];
       if (self->current_column >= hist_width)
 	self->current_column = 0;
 
-      /* At each iteration block, we pick a new interpolated set of points
-       * and the corresponding X coordinate on our histogram.
-       * Vary the alpha parameter within the column to pick up features smaller than a pixel.
-       */
-      alpha = (ix + uniform_variate()) / (hist_width - 1);
-      interp(interpolant, alpha, interp_data);
-
+      ix = column->ix;
       point_x = column->point_x;
       point_y = column->point_y;
-      a = interpolant->a;
-      b = interpolant->b;
-      c = interpolant->c;
-      d = interpolant->d;
+
+      j = random() % (sizeof(self->columns[0].interpolated) / sizeof(self->columns[0].interpolated[0]));
+      a = column->interpolated[j].a;
+      b = column->interpolated[j].b;
+      c = column->interpolated[j].c;
+      d = column->interpolated[j].d;
 
       for(block=500; i && block; --i, --block) {
 	/* These are the actual Peter de Jong map equations. The new point value
@@ -609,7 +638,6 @@ void de_jong_calculate_bifurcation(DeJong             *self,
     }
 
     self->current_density = density;
-    g_object_unref(interpolant);
   }
 }
 
