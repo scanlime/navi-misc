@@ -27,10 +27,10 @@
 # If it does not work, try to disable $xml_rpc in the configuration section
 # below.
 #
-# $Id: ciabot.pl,v 1.103 2004/01/04 23:08:51 pasky Exp $
+# $Id: ciabot.pl,v 1.112 2004/01/10 10:55:25 pasky Exp $
 
 use strict;
-use vars qw ($project $from_email $dest_email $rpc_uri @sendmail $sync_delay
+use vars qw ($project $from_email $dest_email $rpc_uri $sendmail $sync_delay
 		$xml_rpc $ignore_regexp $alt_local_message_target);
 
 
@@ -39,10 +39,10 @@ use vars qw ($project $from_email $dest_email $rpc_uri @sendmail $sync_delay
 ### Configuration
 
 # Project name (as known to CIA).
-$project = 'YOUR_PROJECT_HERE';
+$project = 'ELinks';
 
 # The from address in generated mails.
-$from_email = 'YOUR_EMAIL_HERE';
+$from_email = 'pasky@ucw.cz';
 
 # Mail all reports to this address.
 $dest_email = 'cia@navi.cx';
@@ -50,10 +50,9 @@ $dest_email = 'cia@navi.cx';
 # If using XML-RPC, connect to this URI.
 $rpc_uri = 'http://cia.navi.cx/RPC2';
 
-# Path to your sendmail binary. If you have it at a different place (and
-# outside of $PATH), add your location at the start of this list. By all means
-# keep the trailing empty string in the array.
-@sendmail = ('sendmail', '/usr/lib/sendmail', '/usr/sbin/sendmail', '');
+# Path to your USCD sendmail compatible binary (your mailer daemon created this
+# program somewhere).
+$sendmail = '/usr/sbin/sendmail';
 
 # Number of seconds to wait for possible concurrent instances. CVS calls up
 # this script for each involved directory separately and this is the sync
@@ -141,6 +140,9 @@ while (<STDIN>) {
 
 while (<STDIN>) {
   next unless ($_ and $_ ne "\n" and $_ ne "\r\n");
+  s/&/&amp;/g;
+  s/</&lt;/g;
+  s/>/&gt;/g;
   $logmsg .= $_;
 }
 
@@ -150,8 +152,8 @@ while (<STDIN>) {
 
 $dirfiles[0] = join (' ',
   grep {
-    $_ = "$module/$dir[0]/$_";
-    not m/$ignore_regexp/;
+    my $f = "$module/$dir[0]/$_";
+    $f !~ m/$ignore_regexp/;
   } split (/\s+/, $dirfiles[0])
 ) if ($ignore_regexp);
 exit unless $dirfiles[0];
@@ -210,7 +212,7 @@ if (-f $syncfile and -w $syncfile) {
 ### Compose the mail message
 
 
-my ($VERSION) = '$Revision: 1.103 $' =~ / (\d+\.\d+) /;
+my ($VERSION) = '2.0';
 my $ts = time;
 
 $message = <<EM
@@ -242,7 +244,7 @@ for (my $dirnum = 0; $dirnum < @dir; $dirnum++) {
   map {
     $_ = $dir[$dirnum] . '/' . $_;
     s#^.*?/##; # weed out the module name
-    s/ /&nbsp;/g;
+    s/&/&amp;/g;
     s/</&lt;/g;
     s/>/&gt;/g;
     $message .= "  <file>$_</file>\n";
@@ -300,10 +302,7 @@ if ($xml_rpc) {
 
 # Open our mail program
 
-foreach my $sendmail (@sendmail) {
-  die "$0: cannot fork sendmail: $!\n" unless ($sendmail);
-  open (MAIL, "| $sendmail -t -oi -oem") and last;
-}
+open (MAIL, "| $sendmail -t -oi -oem") or die "Cannot execute $sendmail : " . ($?>>8);
 
 
 # The mail header
@@ -322,6 +321,6 @@ print MAIL $message;
 # Close the mail
 
 close MAIL;
-die "$0: sendmail exit status " . $? >> 8 . "\n" unless ($? == 0);
+die "$0: sendmail exit status " . ($? >> 8) . "\n" unless ($? == 0);
 
 # vi: set sw=2:
