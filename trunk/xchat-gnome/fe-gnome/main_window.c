@@ -12,7 +12,7 @@ void on_preferences_menu_activate(GtkWidget *widget, gpointer data);
 void on_connect_menu_activate(GtkWidget *widget, gpointer data);
 void on_about_menu_activate(GtkWidget *widget, gpointer data);
 void on_quit_menu_activate(GtkWidget *widget, gpointer data);
-void on_text_entry_activate(GtkWidget *widget, gpointer data);
+void on_text_entry_activate(GtkWidget *widget, GdkEventKey *event, gpointer data);
 
 void initialize_main_window() {
 	GtkWidget *entry;
@@ -26,7 +26,7 @@ void initialize_main_window() {
 	gtk_widget_show_all(GTK_WIDGET(gui.main_window));
 
 	entry = glade_xml_get_widget(gui.xml, "text entry");
-	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_text_entry_activate), NULL);
+	g_signal_connect(G_OBJECT(entry), "key-release-event", G_CALLBACK(on_text_entry_activate), NULL);
 }
 
 void on_preferences_menu_activate(GtkWidget *widget, gpointer data) {
@@ -45,9 +45,22 @@ void on_quit_menu_activate(GtkWidget *widget, gpointer data) {
 	xchat_exit();
 }
 
-void on_text_entry_activate(GtkWidget *widget, gpointer data) {
+void on_text_entry_activate(GtkWidget *widget, GdkEventKey *event, gpointer data) {
+	GtkTextBuffer *buffer;
 	const gchar *entry_text;
-	entry_text = gtk_entry_get_text(GTK_ENTRY(widget));
-	handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
-	gtk_entry_set_text(GTK_ENTRY(widget), "");
+	GtkTextIter start, end;
+
+	if(event->keyval == GDK_Return) {
+		buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
+		gtk_text_buffer_get_start_iter(buffer, &start);
+		gtk_text_buffer_get_end_iter(buffer, &end);
+		entry_text = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+		handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
+		gtk_text_buffer_set_text(buffer, "", -1);
+		/*
+		entry_text = gtk_entry_get_text(GTK_ENTRY(widget));
+		handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
+		gtk_entry_set_text(GTK_ENTRY(widget), "");
+		*/
+	}
 }
