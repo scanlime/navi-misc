@@ -57,7 +57,6 @@ src_compile() {
 		$(use_enable xchattext textfe) \
 		$(use_enable !xchatnogtk gtkfe) \
 		$(use_enable !xchatnognome gnomefe) \
-		--program-suffix=-2 \
 		|| die "Configure failed"
 
 	emake || die "Compile failed"
