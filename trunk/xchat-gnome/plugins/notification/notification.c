@@ -29,6 +29,13 @@
 #define VERSION "0.1"
 
 
+static xchat_plugin *ph;			// Plugin handle.
+static EggTrayIcon *notification;	// Notification area icon.
+static GtkWidget *image;			// The image displayed by the icon.
+
+static gboolean notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
+
+
 void
 xchat_plugin_get_info (char **plugin_name, char **plugin_desc,
 		char **plugin_version, void **reserved)
@@ -45,8 +52,22 @@ void
 xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 		char **plugin_desc, char **plugin_version, char *arg)
 {
+	GtkWidget *box;
+
 	/* Set the plugin info. */
 	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version, NULL);
+
+	/* Create the notification icon. */
+	notification = egg_tray_icon_new ("xchat-gnome");
+	box = gtk_event_box_new ();
+	image = gtk_image_new ();
+
+	g_signal_connect (G_OBJECT (box), "button-press-event", G_CALLBACK (notification_clicked_cb), NULL);
+}
+
+static gboolean
+notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
 }
 
 
