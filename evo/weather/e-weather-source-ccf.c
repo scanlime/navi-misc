@@ -130,10 +130,17 @@ decodePOP (char data)
 	int ret;
 	switch (data)
 	{
-		case '-': ret = 5;
-		case '+': ret = 95;
-		case '/': ret = -1;	/* missing data */
-		default: ret = (data - '0') * 10;
+		case '-':
+			ret = 5;
+			break;
+		case '+':
+			ret = 95;
+			break;
+		case '/':
+			ret = -1;	/* missing data */
+			break;
+		default:
+			ret = (data - '0') * 10;
 	}
 	return ret;
 }
@@ -241,7 +248,7 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 		current = g_slist_next (current);
 	}
 
-	if (strlen (current->data) == 3)
+	if (current == NULL || strlen (current->data) == 3)
 	{
 		/* We've got a pre-IFPS station. Realloc and return */
 		WeatherForecast *f = g_new0(WeatherForecast, 2);
@@ -279,6 +286,12 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 		current = g_slist_next (current);
 		forecasts[6].high = ftoc (current->data);
 		forecasts[6].low  = forecasts[6].high;
+		current = g_slist_next (current);
+		forecasts[2].pop = decodePOP (((char*)(current->data))[1]);
+		forecasts[3].pop = decodePOP (((char*)(current->data))[3]);
+		forecasts[4].pop = decodePOP (((char*)(current->data))[5]);
+		forecasts[5].pop = decodePOP (((char*)(current->data))[7]);
+		forecasts[6].pop = decodePOP (((char*)(current->data))[9]);
 	}
 	else
 	{
@@ -300,6 +313,13 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 		current = g_slist_next (current);
 		forecasts[6].high = ftoc (current->data);
 		forecasts[6].low  = forecasts[6].high;
+		current = g_slist_next (current);
+		forecasts[1].pop = decodePOP (((char*)(current->data))[0]);
+		forecasts[2].pop = decodePOP (((char*)(current->data))[2]);
+		forecasts[3].pop = decodePOP (((char*)(current->data))[4]);
+		forecasts[4].pop = decodePOP (((char*)(current->data))[6]);
+		forecasts[5].pop = decodePOP (((char*)(current->data))[8]);
+		forecasts[6].pop = decodePOP (((char*)(current->data))[10]);
 	}
 
 	for (i = 0; i < 7; i++)
