@@ -71,16 +71,23 @@ class MainWindow:
         right = gtk.VPaned()
         hpane.pack2(right, gtk.TRUE, gtk.FALSE)
 
-        left.pack1(gtk.Label('  Left Top '), gtk.TRUE, gtk.FALSE)
-        right.pack1(gtk.Label(' Right Top  '), gtk.TRUE, gtk.FALSE)
-        right.pack2(gtk.Label('Right Bottom'), gtk.TRUE, gtk.FALSE)
+        ul = gtk.Frame(label=None)
+        left.pack1(ul, gtk.TRUE, gtk.FALSE)
+        ll = gtk.Frame(label=None)
+        left.pack2(ll, gtk.TRUE, gtk.FALSE)
+        ur = gtk.Frame(label=None)
+        right.pack1(ur, gtk.TRUE, gtk.FALSE)
+        lr = gtk.Frame(label=None)
+        right.pack2(lr, gtk.TRUE, gtk.FALSE)
+
+        ul.add(gtk.Label('  Left Top  '))
+        ur.add(gtk.Label(' Right Top  '))
+        lr.add(gtk.Label('Right Bottom'))
 
         compiler_output = gtk.TextView(buffer=None)
         compiler_output.set_editable(gtk.FALSE)
         compiler_output.set_cursor_visible(gtk.FALSE)
-        compiler_frame = gtk.Frame(label=None)
-        compiler_frame.add(compiler_output)
-        left.pack2(compiler_frame, gtk.TRUE, gtk.FALSE)
+        ll.add(compiler_output)
 
         main_vbox.pack_start(hpane, gtk.TRUE, gtk.TRUE, 0)
 
