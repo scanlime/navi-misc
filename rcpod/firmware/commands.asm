@@ -388,14 +388,8 @@ adFinishLoop
 	; A 9-bit buffer address in wIndex, number of bytes to transmit in wValue,
 	; number of bytes to receive in wValue+1
 TxRxRequest
-	banksel BufferData
-	bcf	STATUS, IRP	; Transfer bit 8 of wIndex into IRP
-	btfsc	BufferData+(wIndex+1), 0
-	bsf	STATUS, IRP
-
-	movf	BufferData+wIndex, w ; Load address bits 0-7 into FSR
-	movwf	FSR
-
+	pagesel	skipTx
+	banksel	BufferData
 	movf	BufferData+wValue, w ; See if we have anything to transmit
 	btfsc	STATUS, Z
 	goto	skipTx
@@ -406,6 +400,14 @@ TxRxRequest
 	movwf	io_pin
 	pagesel	io_Assert
 	call	io_Assert
+
+	banksel BufferData
+	bcf	STATUS, IRP	; Transfer bit 8 of wIndex into IRP
+	btfsc	BufferData+(wIndex+1), 0
+	bsf	STATUS, IRP
+
+	movf	BufferData+wIndex, w ; Load address bits 0-7 into FSR
+	movwf	FSR
 
 txLoop
 	pagesel	txLoop
