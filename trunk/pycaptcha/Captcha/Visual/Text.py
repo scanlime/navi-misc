@@ -22,20 +22,21 @@ Text generation for visual CAPTCHAs.
 #
 
 import random, os
-import Captcha
-from Captcha import Visual
+from Captcha import Visual, File
 import ImageFont, ImageDraw
 
 
-class FontFactory(object):
+class FontFactory(File.RandomFileFactory):
     """Picks random fonts and/or sizes from a given list.
        'sizes' can be a single size or a (min,max) tuple.
        If any of the given files are directories, all *.ttf found
        in that directory will be added.
        """
+    extensions = [".ttf"]
+    basePath = "fonts"
+
     def __init__(self, sizes, *fileNames):
-        self.fileNames = fileNames
-        self.fullPaths = None
+        File.RandomFileFactory.__init__(self, *fileNames)
 
         if type(sizes) is tuple:
             self.minSize = sizes[0]
@@ -44,23 +45,8 @@ class FontFactory(object):
             self.minSize = sizes
             self.maxSize = sizes
 
-    def findFullPaths(self, names):
-        """Find full paths corresponding to the given file names"""
-        paths = []
-        for name in names:
-            path = os.path.join(Captcha.dataDir, "fonts", name)
-            if os.path.isdir(path):
-                for content in os.listdir(path):
-                    if content.endswith(".ttf"):
-                        paths.append(os.path.join(path, content))
-            else:
-                paths.append(path)
-        return paths
-
     def pick(self):
-        if self.fullPaths is None:
-            self.fullPaths = self.findFullPaths(self.fileNames)
-        fileName = random.choice(self.fullPaths)
+        fileName = File.RandomFileFactory.pick(self)
         size = int(random.uniform(self.minSize, self.maxSize) + 0.5)
         return ImageFont.truetype(fileName, size)
 

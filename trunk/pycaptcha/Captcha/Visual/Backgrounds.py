@@ -21,8 +21,7 @@ Background layers for visual CAPTCHAs
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from Captcha.Visual import Layer
-import Captcha
+from Captcha.Visual import Layer, Pictures
 import random, os
 import ImageDraw, Image
 
@@ -63,20 +62,12 @@ class Grid(Layer):
 
 class TiledImage(Layer):
     """Pick a random image and a random offset, and tile the rendered image with it"""
-    def __init__(self):
-        self.tile = self.pickTile()
+    def __init__(self, imageFactory=None):
+        if not imageFactory:
+            imageFactory = Pictures.defaultImageFactory
+        self.tile = imageFactory.pick()
         self.offset = (random.uniform(0, self.tile.size[0]),
                        random.uniform(0, self.tile.size[1]))
-
-    def pickTile(self):
-        """Return the image we'll use for tiling"""
-        bgDir = os.path.join(Captcha.dataDir, "backgrounds")
-        files = []
-        for name in os.listdir(bgDir):
-            if name.endswith(".jpeg"):
-                files.append(os.path.join(bgDir, name))
-
-        return Image.open(random.choice(files))
 
     def render(self, image):
         for j in xrange(-1, int(image.size[1] / self.tile.size[1]) + 1):
