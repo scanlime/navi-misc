@@ -21,18 +21,30 @@
  *
  */
 
+#define _XOPEN_SOURCE
+#include <time.h>
 #include <string.h>
 #include <stdlib.h>
 #include <libgnome/gnome-i18n.h>
-#include "e-weather-source-ccf.h"
+#include "e-weather-source-accid.h"
 
 #define DATA_SIZE 5000
+
+static void
+find_station_code (gchar *uri, EWeatherSourceACCID *source)
+{
+	gchar **sstation = g_strsplit (uri, "/", 2);
+	source->station = g_strdup (sstation[0]);
+	g_strfreev (sstation);
+}
 
 EWeatherSource*
 e_weather_source_accid_new (const char *uri)
 {
 	/* Our URI is weather://accid/AAAAnnnn/City, where AAAAnnnn is the ACCID code */
 	EWeatherSourceACCID *source = E_WEATHER_SOURCE_ACCID (g_object_new (e_weather_source_accid_get_type (), NULL));
+	find_station_code (strchr (uri, '/') + 1, source);
+	return E_WEATHER_SOURCE (source);
 }
 
 static float
@@ -190,6 +202,9 @@ decodeConditions (char *data)
 	case 171: /* snow to ice */
 		return WEATHER_SNOW;
 	case 992: /* mist */
+		return WEATHER_MIST;
+	default:
+		return WEATHER_UNKNOWN;
 	}
 }
 
@@ -201,7 +216,8 @@ e_weather_source_accid_do_parse (EWeatherSourceACCID *source, char *buffer)
 	char *base;
 	char **tokens;
 	WeatherForecast *forecasts = g_new0 (WeatherForecast, 5);
-	GList *fc;
+	GList *fc = NULL;
+	int i;
 
 	base = strstr (buffer, "this.swFore");
 	if (base == NULL) {
@@ -210,7 +226,8 @@ e_weather_source_accid_do_parse (EWeatherSourceACCID *source, char *buffer)
 	}
 
 	base += 15;
-	tokens = g_strsplit (base, '|', 45);
+	g_print ("");
+	tokens = g_strsplit (base, "|", 46);
 
 	for (i = 5; i < 10; i++)
 		forecasts[i - 5].date = decodeDate (tokens[i]);
@@ -221,13 +238,13 @@ e_weather_source_accid_do_parse (EWeatherSourceACCID *source, char *buffer)
 	for (i = 40; i < 45; i++)
 		forecasts[i - 40].low = ftoc (tokens[i]);
 
-	g_strfreev (tokens);
-
-	for (i = 0; i < n; i++)
+	for (i = 0; i < 5; i++)
 		fc = g_list_append (fc, &forecasts[i]);
 	source->done (fc, source->finished_data);
 	g_free (forecasts);
 	g_list_free (fc);
+
+	g_strfreev (tokens);
 }
 
 static void
@@ -257,7 +274,7 @@ retrieval_done (SoupMessage *message, EWeatherSourceACCID *source)
 		return;
 	}
 
-	str = g_malloc0 (message->response_length + 1);
+	str = g_malloc0 (message->response.length + 1);
 	strncpy (str, message->response.body, message->response.length);
 	e_weather_source_accid_do_parse (source, str);
 	g_free (str);
