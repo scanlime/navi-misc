@@ -29,9 +29,9 @@ class Reader:
 
     def gotElement(self, s, loc, toks):
         object = toks[0]
-        type = typeMap[object[0]]
-        if type is not None:
-            self.objects.append(type(object))
+        objtype = typeMap[object[0]]
+        if objtype is not None:
+            self.objects.append(objtype(object))
 
     def getGrammar(self):
         if self.grammar is None:
@@ -119,8 +119,8 @@ class Reader:
             base = Group(CaselessLiteral('base') + OneOrMore(baseProperty) + end)
 
             worldProperty = (
-                size + float
-              | CaselessLiteral('flagHeight') + float
+                Group(size + float)
+              | Group(CaselessLiteral('flagHeight') + float)
               | objectProperty
               )
             world = Group(CaselessLiteral('world') + OneOrMore(worldProperty) + end)

@@ -22,24 +22,15 @@
 #
 
 """ Registration info for Blender menus:
-Name: 'BZFlag World...'
+Name: 'BZFlag World (.bzw)...'
 Blender: 234
 Group: 'Export'
 Tip: 'Exports specially tagged Blender objects to a BZFlag world file'
 """
 
 import Blender
+import BZFlag
 import math
-
-try:
-    import bzflag
-except ImportError:
-    Blender.Draw.PupMenu("Error importing 'bzflag' module%t|"
-                         "You may have to start the Blender game engine|"
-                         "momentarily then exit it to set the Python|"
-                         "path properly.")
-    bzflag = None
-
 
 def collectObjects():
     """Look through all Blender objects, finding those tagged with
@@ -49,7 +40,6 @@ def collectObjects():
        """
     world = None
     blendObjects = []
-    typeReg = bzflag.getTypeRegistry()
 
     scene = Blender.Scene.GetCurrent()
     for object in scene.getChildren():
@@ -61,45 +51,46 @@ def collectObjects():
             if bztype == 'world':
                 # Create the world object first, and save it
                 if world:
-                    bzflag.log.err("Multiple 'world' objects are not allowed")
+                    BZFlag.log.err("Multiple 'world' objects are not allowed")
                     return
                 else:
-                    world = typeReg.fromBlender(object)
+                    world = BZFlag.fromBlender(object)
             else:
                 # Store the blender object for now
                 blendObjects.append(object)
 
     if not world:
-        bzflag.log.err("A 'world' object is required")
+        BZFlag.log.err("A 'world' object is required")
 
     # Create the BZObjects only after we have established our world object
     objects = [world]
     for object in blendObjects:
-        bzo = typeReg.fromBlender(object, world)
-        objects.append(bzo)
+        bzo = BZFlag.fromBlender(object, world)
+        if bzo:
+            objects.append(bzo)
     return objects
 
 def saveObjects(objects, filename):
     """Write all collected bzflag objects to the given file"""
-    writer = bzflag.WorldWriter(filename)
+    writer = BZFlag.Writer(filename)
     for object in objects:
         writer.writeObject(object)
 
 def main():
     global objects
     objects = collectObjects()
-    if bzflag.log.numErrors:
-        bzflag.log.report("Errors in collecting objects")
+    if BZFlag.log.numErrors:
+        BZFlag.log.report("Errors in collecting objects")
         return
     Blender.Window.FileSelector(fileSelectedCallback, "Save BZFlag World")
 
 def fileSelectedCallback(filename):
     global objects
     saveObjects(objects, filename)
-    if bzflag.log.numErrors:
-        bzflag.log.report("Errors in saving world file")
+    if BZFlag.log.numErrors:
+        BZFlag.log.report("Errors in saving world file")
 
-if bzflag:
+if BZFlag:
     main()
 
 ### The End ###

@@ -68,6 +68,19 @@ class Box(Object):
             for property in list[1:]:
                 getattr(self, "set_%s" % property[0])(property[1:])
 
+    def serialize(self, writer):
+        Object.serialize(self, writer)
+        writer(('position',) + tuple(self.position))
+        writer(('size',) + tuple(self.size))
+        writer(('rotation', self.rotation))
+        writer(('scale',) + tuple(self.scale))
+        writer(('shear',) + tuple(self.shear))
+        writer(('spin',) + tuple(self.spin))
+        if self.drivethrough == 1:
+            writer('drivethrough')
+        if self.shootthrough == 1:
+            writer('shootthrough')
+
     def set_drivethrough(self):
         self.drivethrough = 1
 

@@ -47,6 +47,7 @@ class Teleporter(Box):
     materialIndex = [0]
 
     def __init__(self, list=None):
+        self.set_border()
         if list:
             if type(list[1]) is str:
                 Box.__init__(self, list[0] + list[2:])
@@ -55,6 +56,10 @@ class Teleporter(Box):
                 Box.__init__(self, list)
         else:
             Box.__init__(self)
+
+    def serialize(self, writer):
+        Box.serialize(self, writer)
+        writer(('border', self.border))
 
     def set_size(self, size=[1, 4.48, 20.16]):
         self.size = [1.0] + [float(n) for n in size[1:]]
