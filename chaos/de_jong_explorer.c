@@ -66,12 +66,7 @@ int main(int argc, char ** argv) {
   clear();
   flip();
 
-  point.x = rand() / RAND_MAX;
-  point.y = rand() / RAND_MAX;
-
   idler = g_idle_add(draw_more, NULL);
-
-  iterations = 0;
 
   gtk_main();
 }
@@ -94,16 +89,16 @@ GtkWidget *build_sidebar() {
   ll = gtk_label_new("brightness:");
   gtk_table_attach(GTK_TABLE(table), ll, 0, 1, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
-  as = gtk_spin_button_new_with_range(-4.0, 4.0, 0.001);
+  as = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(as), a);
   gtk_table_attach(GTK_TABLE(table), as, 1, 2, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-  bs = gtk_spin_button_new_with_range(-4.0, 4.0, 0.001);
+  bs = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(bs), b);
   gtk_table_attach(GTK_TABLE(table), bs, 1, 2, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-  cs = gtk_spin_button_new_with_range(-4.0, 4.0, 0.001);
+  cs = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(cs), c);
   gtk_table_attach(GTK_TABLE(table), cs, 1, 2, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-  ds = gtk_spin_button_new_with_range(-4.0, 4.0, 0.001);
+  ds = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(ds), d);
   gtk_table_attach(GTK_TABLE(table), ds, 1, 2, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   ls = gtk_spin_button_new_with_range(0.001, 1, 0.001);
@@ -189,6 +184,9 @@ void flip() {
 
 void clear() {
   memset(data, 0, WIDTH * HEIGHT * sizeof(int));
+  iterations = 0;
+  point.x = rand() / RAND_MAX;
+  point.y = rand() / RAND_MAX;
 }
 
 static int draw_more(void *extra) {
@@ -238,7 +236,6 @@ void startclick(GtkWidget *widget, gpointer user_data) {
   b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(bs));
   c = gtk_spin_button_get_value(GTK_SPIN_BUTTON(cs));
   d = gtk_spin_button_get_value(GTK_SPIN_BUTTON(ds));
-  iterations = 0;
   idler = g_idle_add(draw_more, NULL);
 }
 
