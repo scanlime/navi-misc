@@ -1,9 +1,6 @@
 This is just a preliminary roadmap, subject to whatever people want to work on.
 
 0.4:	Bugfixes
--	Autogenerate inline pngs during build
-	(maybe just eliminate the inlines? we don't really
-	 work without a data directory...)
 -	Fix connect dialog to check for existing open
 	networks before creating a new connection
 -	Fix context menus - implement unworking,
