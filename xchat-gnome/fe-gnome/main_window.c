@@ -107,7 +107,7 @@ void initialize_main_window() {
 
 	entry = glade_xml_get_widget(gui.xml, "text entry");
 	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_text_entry_activate), NULL);
-	g_signal_connect(G_OBJECT(entry), "key_press_event", G_CALLBACK(on_text_entry_key), NULL);
+	g_signal_connect_after(G_OBJECT(entry), "key_press_event", G_CALLBACK(on_text_entry_key), NULL);
 #if 0
 	completion = gtk_entry_completion_new();
 	gtk_entry_completion_set_text_column(completion, 1);
@@ -251,7 +251,7 @@ void on_help_about_menu_activate(GtkWidget *widget, gpointer data) {
 }
 
 void on_text_entry_activate(GtkWidget *widget, gpointer data) {
-	const char *entry_text = gtk_entry_get_text(GTK_ENTRY(widget));
+	char *entry_text = gtk_entry_get_text(GTK_ENTRY(widget));
 	handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
@@ -274,6 +274,79 @@ static void history_key_up(GtkEntry *entry) {
 	}
 }
 
+static void tab_complete_nickname(GtkEntry *entry, int start) {
+	GCompletion *completion;
+	int cursor, length;
+	const char *text;
+	GList *items = NULL, *list;
+
+
+/*	completion = userlist_get_nick_completion();*/
+	completion = g_completion_new(NULL);
+	g_completion_set_compare(completion, (GCompletionStrncmpFunc) strncasecmp);
+	items = g_list_append(items, "captain_proton");
+	items = g_list_append(items, "Cae");
+	items = g_list_append(items, "scanline");
+	g_completion_add_items(completion, items);
+	text = gtk_entry_get_text(entry);
+	length = strlen(text);
+	cursor = gtk_editable_get_position(GTK_EDITABLE(entry));
+	g_print("trying to complete!\nstart  = %d\ncursor = %d\n\n", start, cursor);
+	if(length - cursor != 1) {
+		/* we're at the end of the entry, just complete from start to cursor*/
+		GList *options;
+		gchar *new_prefix;
+		gchar prefix[cursor - start];
+
+		strncpy(prefix, text, cursor - start);
+		prefix[cursor - start] = '\0';
+
+		options = g_completion_complete(completion, prefix, &new_prefix);
+		g_print("new prefix=\"%s\"\navailable items:\n", new_prefix);
+		for(list = options; list; list = list->next) {
+			g_print("  %s\n", list->data);
+		}
+		g_list_free(options);
+		g_print("\n\n");
+	}
+	/* FIXME: remove */
+	g_completion_free(completion);
+}
+
+static void tab_complete(GtkEntry *entry) {
+	const char *text;
+	int start, cursor_pos;
+
+	text = gtk_entry_get_text(entry);
+	cursor_pos = gtk_editable_get_position(GTK_EDITABLE(entry));
+
+	if(cursor_pos == 0)
+		return;
+
+	/* search backwards to find /, #, ' ' or start */
+	for(start = cursor_pos; start >= 0; --start) {
+		/* check if we can match a channel */
+#if 0
+		if(text[start] == '#') {
+			if(start == 0 || text[start - 1] == ' ') {
+				tab_complete_channel(entry, start);
+				return;
+			}
+		}
+#endif
+
+		/* check if we can match a command */
+		if(start == 0 && text[0] == '/') {
+		}
+
+		/* check if we can match a nickname */
+		if(start == 0 || text[start] == ' ') {
+			tab_complete_nickname(entry, start == 0 ? start : start + 1);
+			return;
+		}
+	}
+}
+
 gboolean on_text_entry_key(GtkWidget *widget, GdkEventKey *key, gpointer data) {
 	if(key->keyval == GDK_Down) {
 		history_key_down(GTK_ENTRY(widget));
@@ -281,6 +354,10 @@ gboolean on_text_entry_key(GtkWidget *widget, GdkEventKey *key, gpointer data) {
 	}
 	if(key->keyval == GDK_Up) {
 		history_key_up(GTK_ENTRY(widget));
+		return TRUE;
+	}
+	if(key->keyval == GDK_Tab) {
+		tab_complete(GTK_ENTRY(widget));
 		return TRUE;
 	}
 	return FALSE;
