@@ -70,6 +70,9 @@ scene_object_class_init (SceneObjectClass *klass)
 				 NULL, NULL,
 				 g_cclosure_marshal_VOID__VOID,
 				 G_TYPE_NONE, 0);
+
+  klass->creatable = TRUE;
+  klass->autocreate = FALSE;
 }
 
 static void

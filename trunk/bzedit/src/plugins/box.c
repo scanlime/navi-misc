@@ -31,7 +31,6 @@ static void       box_init_position_params (GObjectClass *object_class);
 static void       box_init_size_params     (GObjectClass *object_class);
 static void       box_init_other_params    (GObjectClass *object_class);
 static GdkPixbuf* box_get_icon             (void);
-static gboolean   box_creatable            (void);
 static GList*     box_get_drawables        (SceneObject *self);
 
 enum
@@ -87,7 +86,7 @@ box_class_init (BoxClass *klass)
   so_class = (SceneObjectClass*) klass;
 
   so_class->get_icon = box_get_icon;
-  so_class->creatable = box_creatable;
+  so_class->creatable = TRUE;
   so_class->get_drawables = box_get_drawables;
 
   object_class->set_property = box_set_property;
@@ -350,12 +349,6 @@ box_get_icon (void)
   }
 
   return gdk_pixbuf_ref (icon);
-}
-
-static gboolean
-box_creatable (void)
-{
-  return TRUE;
 }
 
 static GList*

@@ -31,7 +31,6 @@ static void       pyramid_init_position_params (GObjectClass *object_class);
 static void       pyramid_init_size_params     (GObjectClass *object_class);
 static void       pyramid_init_other_params    (GObjectClass *object_class);
 static GdkPixbuf* pyramid_get_icon             (void);
-static gboolean   pyramid_creatable            (void);
 static GList*     pyramid_get_drawables        (SceneObject *self);
 
 enum
@@ -92,7 +91,7 @@ pyramid_class_init (PyramidClass *klass)
   object_class->finalize = pyramid_finalize;
 
   so_class->get_icon = pyramid_get_icon;
-  so_class->creatable = pyramid_creatable;
+  so_class->creatable = TRUE;
   so_class->get_drawables = pyramid_get_drawables;
 
   pyramid_init_position_params (object_class);
@@ -368,12 +367,6 @@ pyramid_get_icon (void)
   }
 
   return icon;
-}
-
-static gboolean
-pyramid_creatable (void)
-{
-  return TRUE;
 }
 
 static GList*

@@ -130,8 +130,8 @@ editor_init (Editor *editor)
     GType type = GPOINTER_TO_UINT (t->data);
     if (type != 0)
     {
-      gpointer klass = g_type_class_ref (type);
-      if (((SceneObjectClass*) klass)->creatable ())
+      SceneObjectClass *klass = SCENE_OBJECT_CLASS (g_type_class_ref (type));
+      if (klass->creatable)
       {
         GtkMenuItem *item = GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (g_type_name (type)));
         GtkWidget *image1 = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
@@ -141,17 +141,20 @@ editor_init (Editor *editor)
         gtk_menu_shell_append (GTK_MENU_SHELL (am), GTK_WIDGET (item));
         gtk_toolbar_insert (tbar, titem, -1);
       }
-      v = gtk_hseparator_new();
-      gtk_box_pack_start (box, v, FALSE, TRUE, 0);
-      l = gtk_label_new (g_type_name (type));
-      gtk_box_pack_start (box, l, FALSE, TRUE, 0);
-      v = gtk_hseparator_new();
-      gtk_box_pack_start (box, v, FALSE, TRUE, 0);
-      SceneObject *object = SCENE_OBJECT (g_object_new (type, NULL));
-      p = PARAMETER_HOLDER (object);
-      scene_add (editor->scene, object);
-      e = parameter_editor_new (p);
-      gtk_box_pack_start (box, e, FALSE, TRUE, 0);
+      if (klass->autocreate)
+      {
+        v = gtk_hseparator_new();
+        gtk_box_pack_start (box, v, FALSE, TRUE, 0);
+        l = gtk_label_new (g_type_name (type));
+        gtk_box_pack_start (box, l, FALSE, TRUE, 0);
+        v = gtk_hseparator_new();
+        gtk_box_pack_start (box, v, FALSE, TRUE, 0);
+        SceneObject *object = SCENE_OBJECT (g_object_new (type, NULL));
+        p = PARAMETER_HOLDER (object);
+        scene_add (editor->scene, object);
+        e = parameter_editor_new (p);
+        gtk_box_pack_start (box, e, FALSE, TRUE, 0);
+      }
       g_type_class_unref (klass);
     }
   }
