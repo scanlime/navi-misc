@@ -26,13 +26,56 @@
 static GtkDialogClass *parent_class;
 
 static void
+connect_dialog_finalize (GObject *object)
+{
+	ConnectDialog *dialog = (ConnectDialog *) object;
+
+	g_object_unref (dialog->server_store);
+
+	((GObjectClass *) parent_class)->finalize (object);
+}
+
+static void
 connect_dialog_class_init (ConnectDialogClass *klass)
 {
+	GObjectClass *object_class = (GObjectClass *) klass;
+	object_class->finalize = connect_dialog_finalize;
 }
 
 static void
 connect_dialog_init (ConnectDialog *dialog)
 {
+	GtkCellRenderer *renderer;
+	GladeXML *xml;
+	GtkButton *button;
+
+	dialog->toplevel = NULL;
+
+	xml = NULL;
+	if (g_file_test ("connect-dialog.glade", G_FILE_TEST_EXISTS))
+		xml = glade_xml_new ("connect-dialog.glade", "toplevel", NULL);
+	if (!xml)
+		xml = glade_xml_new (XCHATSHAREDIR "/connect-dialog.glade", "toplevel", NULL);
+	if (!xml)
+		return;
+
+#define GW(name) ((dialog->name) = glade_xml_get_widget (xml, #name))
+	GW(toplevel);
+	GW(server_list);
+#undef GW
+
+	g_object_unref (xml);
+
+	dialog->server_store = gtk_list_store_new (1, G_TYPE_STRING);
+	renderer = gtk_cell_renderer_text_new ();
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->server_list), 0, "name", renderer, "text", 0, NULL);
+
+	button = gtk_button_new_with_mnemonic (_("_Connect"));
+	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE);
+	gtk_dialog_add_action_widget (GTK_DIALOG (dialog), button, GTK_RESPONSE_OK);
+	gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), dialog->toplevel);
+	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
 }
 
 GType
