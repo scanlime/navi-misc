@@ -69,32 +69,18 @@ class StatsInterface(xmlrpc.XMLRPC):
         """Return 'limit' latest messages delivered to this stats target,
            or all available recent messages if 'limit' isn't specified.
            """
-        recentMessages = self.storage.getPathTarget(path).recentMessages
-        if recentMessages:
-            return recentMessages.getLatest(limit)
-        else:
-            return []
+        return self.storage.getPathTarget(path).recentMessages.getLatest(limit)
 
     def xmlrpc_getCounterValues(self, path, name):
-        """Returns a dictionary with current values for the given counter,
-           in the same format as would be returned by the counter's getValues()
-           member. Note that times are returned as UNIX-style seconds since
+        """Returns a dictionary with current values for the given counter.
+           Note that times are returned as UNIX-style seconds since
            the epoch in UTC.
            """
-        counters = self.storage.getPathTarget(path).counters
-        if counters:
-            counter = counters.getCounter(name)
-            if counter:
-                return counter.getValues()
-        return {}
+        return dict(self.storage.getPathTarget(path).counters.getCounter(name))
 
     def xmlrpc_getMetadata(self, path):
         """Return a dictionary holding all metadata for a particular stats path"""
-        target = self.storage.getPathTarget(path)
-        if target.metadata:
-            return target.metadata.dict
-        else:
-            return {}
+        return dict(self.storage.getPathTarget(path).metadata)
 
     def xmlrpc_updateMetadata(self, path, d, key):
         """Merge the given dictionary into a path's metadata.
@@ -104,8 +90,7 @@ class StatsInterface(xmlrpc.XMLRPC):
            """
         self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
                                  ('stats.path', path))
-        target = self.storage.getPathTarget(path)
-        target.metadata.update(d)
+        self.storage.getPathTarget(path).metadata.update(d)
         return True
 
 
@@ -124,7 +109,9 @@ class StatsStorage(object):
 
     def getPathTarget(self, path, *extraSegments):
         """Like getTarget, but split up 'path' into segments and optionally append extraSegments first"""
-        return self.getTarget(list(path.split("/")) + list(extraSegments))
+        # Strip empty strings, so that "/" and "" give us (), and paths like "a/////b" turn into ('a', 'b')
+        segments = path.split("/") + list(extraSegments)
+        return self.getTarget([segment for segment in segments if segment])
 
     def getRoot(self):
         return StatsTarget(self)

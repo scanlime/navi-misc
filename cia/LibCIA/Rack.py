@@ -793,6 +793,13 @@ class RingBuffer(object):
 
         return self._iter(self.head - self.count, self.count)
 
+    def __len__(self):
+        try:
+            self._load(False)
+        except KeyError:
+            return 0
+        return self.count
+
     def __getitem__(self, i):
         """Implements Numeric-style slicing for iterating forward
            or backward over any portion of the RingBuffer.
@@ -825,6 +832,15 @@ class RingBuffer(object):
             if i < 0:
                 i += self.count
             return self.db[(self.head - self.count + i) % self.size]
+
+    def getLatest(self, limit=None):
+        """Get a list of up to 'limit' of the most recently pushed items"""
+        count = len(self)
+        if limit is None or limit > count:
+            limit = count
+        if not limit:
+            return []
+        return list(self[-limit:])
 
 
 def open(filename, flags='c', mode=0666, rootNamespace=(), serializer=None):
