@@ -32,10 +32,13 @@ a:hover {
 
 ul {
   line-height: 1.5em;
-  list-style-image: url(/images/bullet.png);
   margin-left: 2.0em;
   padding: 0em;
   margin: 0em 0em 0em 1.5em;
+}
+
+ul.catalog {
+  list-style-image: url(/images/bullet.png);
 }
 
 div.headingTabs {
@@ -70,7 +73,7 @@ div.heading {
   margin: 0em 0em 2.0em 0em;
 }
 
-.majorTitle {
+div.majorTitle {
   text-align: center;
   font: 30pt sans-serif;
   margin: 0em;
