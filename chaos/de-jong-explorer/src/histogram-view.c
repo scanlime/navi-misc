@@ -30,6 +30,9 @@ static void histogram_view_finalize(GObject *object);
 static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event);
 static void on_resize_notify(HistogramImager *imager, GParamSpec *spec, HistogramView *self);
 
+static void histogram_view_draw_image_region(HistogramView *self, GdkRegion *region);
+static void histogram_view_draw_background_region(HistogramView *self, GdkRegion *region);
+
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -66,6 +69,12 @@ static void histogram_view_class_init(HistogramViewClass *klass) {
 }
 
 static void histogram_view_init(HistogramView *self) {
+  /* Double buffering will just slow us down.
+   * Turing this off also gives us the chance to paint our own background
+   * in the expose handler. Painting it only behind the areas we don't have an
+   * image in will make resizing much more speedy and usable.
+   */
+  gtk_widget_set_double_buffered(GTK_WIDGET(self), FALSE);
 }
 
 static void histogram_view_finalize(GObject *object) {
@@ -132,39 +141,67 @@ void histogram_view_update(HistogramView *self) {
 			self->imager->width * 4);
 }
 
+static void histogram_view_draw_image_region(HistogramView *self, GdkRegion *region) {
+  GdkRectangle *rects;
+  int n_rects, i;
+  gdk_region_get_rectangles(region, &rects, &n_rects);
+
+  for (i=0; i<n_rects; i++) {
+    /* Render a rectangle taken from our pixbuf.
+     * We use GdkRGB directly here to force ignoring the alpha channel.
+     */
+    gdk_draw_rgb_32_image(GTK_WIDGET(self)->window, GTK_WIDGET(self)->style->fg_gc[GTK_STATE_NORMAL],
+			  rects[i].x, rects[i].y,
+			  rects[i].width, rects[i].height,
+			  GDK_RGB_DITHER_NORMAL,
+			  gdk_pixbuf_get_pixels(self->viewable_image) +
+			  rects[i].x * 4 +
+			  rects[i].y * self->imager->width * 4,
+			  self->imager->width * 4);
+  }
+  g_free(rects);
+}
+
+static void histogram_view_draw_background_region(HistogramView *self, GdkRegion *region) {
+  GdkRectangle *rects;
+  int n_rects, i;
+  gdk_region_get_rectangles(region, &rects, &n_rects);
+
+  for (i=0; i<n_rects; i++) {
+    gdk_draw_rectangle(GTK_WIDGET(self)->window, GTK_WIDGET(self)->style->bg_gc[GTK_STATE_NORMAL],
+		       TRUE,
+		       rects[i].x, rects[i].y,
+		       rects[i].width, rects[i].height);
+  }
+  g_free(rects);
+}
 
 static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event) {
   HistogramView *self = HISTOGRAM_VIEW(widget);
-  GdkRectangle *rects;
-  int n_rects, i;
+  GdkRegion *image_rect_region, *outside_image;
+  GdkRectangle image_rect;
 
   if (self->viewable_image && !self->imager->size_dirty_flag) {
+    /* Separate the expose region into a region inside our image and a region outside
+     * our image. Draw the first with histogram_view_draw_image_region and the second
+     * with histogram_view_draw_background_region.
+     */
+    image_rect.x = 0;
+    image_rect.y = 0;
+    image_rect.width = self->imager->width;
+    image_rect.height = self->imager->height;
+    image_rect_region = gdk_region_rectangle(&image_rect);
 
-    gdk_region_get_rectangles(event->region, &rects, &n_rects);
+    outside_image = gdk_region_copy(event->region);
+    gdk_region_subtract(outside_image, image_rect_region);
 
-    for (i=0; i<n_rects; i++) {
-      /* Clip this rectangle to the image size, since reading outside our buffer is a bad thing */
-      if (rects[i].x + rects[i].width > self->imager->width)
-	rects[i].width = self->imager->width - rects[i].x;
-      if (rects[i].y + rects[i].height > self->imager->height)
-	rects[i].height = self->imager->height - rects[i].y;
-      if (rects[i].width <= 0 || rects[i].height <= 0)
-	continue;
+    gdk_region_intersect(image_rect_region, event->region);
 
-      /* Render a rectangle taken from our pixbuf.
-       * We use GdkRGB directly here to force ignoring the alpha channel.
-       */
-      gdk_draw_rgb_32_image(GTK_WIDGET(self)->window, GTK_WIDGET(self)->style->fg_gc[GTK_STATE_NORMAL],
-			    rects[i].x, rects[i].y,
-			    rects[i].width, rects[i].height,
-			    GDK_RGB_DITHER_NORMAL,
-			    gdk_pixbuf_get_pixels(self->viewable_image) +
-			    rects[i].x * 4 +
-			    rects[i].y * self->imager->width * 4,
-			    self->imager->width * 4);
-    }
+    histogram_view_draw_image_region(self, image_rect_region);
+    histogram_view_draw_background_region(self, outside_image);
 
-    g_free(rects);
+    gdk_region_destroy(image_rect_region);
+    gdk_region_destroy(outside_image);
   }
   return FALSE;
 }
