@@ -11,16 +11,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #include "Noise.h"
@@ -72,7 +72,7 @@ void PerlinNoise3::set(int seed, int octaves, float persistence, int logTableSiz
 
 inline float PerlinNoise3::noise(int n) {
   n = (n<<13) ^ n;
-  return ( 1.0 - ( (n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);   
+  return ( 1.0 - ( (n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);
 }
 
 inline Vector3 &PerlinNoise3::tableNoise3(int x, int y, int z) {
@@ -82,7 +82,7 @@ inline Vector3 &PerlinNoise3::tableNoise3(int x, int y, int z) {
 float PerlinNoise3::smoothNoise3(const Vector3 &point) {
   int ip0 = (int) floor(point[0]);
   int ip1 = (int) floor(point[1]);
-  int ip2 = (int) floor(point[2]);  
+  int ip2 = (int) floor(point[2]);
 
   /* Get a random gradient for each */
   Vector3 &g000 = tableNoise3(ip0  ,ip1  ,ip2  );
@@ -152,7 +152,7 @@ Vector3 PerlinNoise3::smoothNoiseGradient3(const Vector3 &point) {
 
   int ip0 = (int) floor(point[0]);
   int ip1 = (int) floor(point[1]);
-  int ip2 = (int) floor(point[2]);  
+  int ip2 = (int) floor(point[2]);
 
   /* Get a random gradient for each */
   Vector3 &g000 = tableNoise3(ip0  ,ip1  ,ip2  );
@@ -173,7 +173,7 @@ Vector3 PerlinNoise3::smoothNoiseGradient3(const Vector3 &point) {
   Vector3 v101(point[0] - (ip0+1), point[1] - (ip1  ), point[2] - (ip2+1));
   Vector3 v110(point[0] - (ip0+1), point[1] - (ip1+1), point[2] - (ip2  ));
   Vector3 v111(point[0] - (ip0+1), point[1] - (ip1+1), point[2] - (ip2+1));
-  
+
   /* Dot products to calculate the influence of each grid point */
   float i000 = g000 * v000;
   float i001 = g001 * v001;
@@ -183,7 +183,7 @@ Vector3 PerlinNoise3::smoothNoiseGradient3(const Vector3 &point) {
   float i101 = g101 * v101;
   float i110 = g110 * v110;
   float i111 = g111 * v111;
-  
+
   /* Cubic interpolation in three dimensions */
   float r0   = v000[0];
   float r1   = v000[1];
@@ -197,7 +197,7 @@ Vector3 PerlinNoise3::smoothNoiseGradient3(const Vector3 &point) {
   float ax11 = i011 + s0*(i111-i011);
   float ay0  = ax00 + s1*(ax10-ax00);
   float ay1  = ax01 + s1*(ax11-ax01);
-  
+
   /* Partial derivative with respect to x */
   Vector3 v_dx(1,0,0);
   float s0_dx   = 6*(r0 - r0*r0);

@@ -7,16 +7,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #ifndef _H_SURFACEGENERATOR
@@ -38,7 +38,7 @@ class SurfacePoint;
  */
 class SurfaceGenerator : public JetCOWDictionary {
  public:
-  
+
   /* Push and pop opengl settings for drawing */
   virtual void push(void);
   virtual void pop(void);
@@ -53,9 +53,9 @@ class SurfaceGenerator : public JetCOWDictionary {
   /* Generate a midpoint for refining the mesh.
    * Default is a linear interpolation. The qn parameter isn't usually necessary to use.
    */
-  virtual void generateMidpoint(SurfacePoint &a, SurfacePoint &b, SurfacePoint &midpoint, 
+  virtual void generateMidpoint(SurfacePoint &a, SurfacePoint &b, SurfacePoint &midpoint,
 				SurfaceQuadtreeNode *qn);
-  
+
   /* generate a bounding sphere for the surface */
   virtual void generateBoundingSphere(Vector3 &center, float &radius) = 0;
 
@@ -98,16 +98,16 @@ class SurfaceModifier : public SurfaceGenerator {
   /* The implementations of these functions call the parent, then pass the result through f() */
   virtual void generateSeedMesh(std::vector<SurfaceQuadtreeNode> &mesh,
 				VertexBuffer<SurfacePoint> &vbuffer);
-  virtual void generateMidpoint(SurfacePoint &a, SurfacePoint &b, SurfacePoint &midpoint, 
+  virtual void generateMidpoint(SurfacePoint &a, SurfacePoint &b, SurfacePoint &midpoint,
 				SurfaceQuadtreeNode *qn);
 
-  /* This just calls the parent. If you are modifying any 
+  /* This just calls the parent. If you are modifying any
    * geometry this should probably be overridden by the subclass.
    */
   virtual void generateBoundingSphere(Vector3 &center, float &radius);
   virtual void updateBounds(SurfaceQuadtreeNode *n, Surface *s);
 
-  /* Dictionary keys: 
+  /* Dictionary keys:
    *    Parent - JetCOW object ID of the parent
    */
 
@@ -115,7 +115,7 @@ class SurfaceModifier : public SurfaceGenerator {
   SurfaceModifier(JetCOW *cow, Sint32 id,  const char *type="SurfaceModifier");
   virtual ~SurfaceModifier();
   virtual void loadCachedValues(void);
-  virtual void saveCachedValues(void);  
+  virtual void saveCachedValues(void);
 
   /* Test the dirty flag of this and the parent, and unset it if it's set */
   virtual bool testDirty(void);

@@ -11,16 +11,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #ifndef _H_VERTEXBUFFER
@@ -42,7 +42,7 @@ class BufferedVertex {
   GLfloat color[4];
   Vector3 normal;
   Vector3 vertex;
-  
+
   /* refcount must be the item immediately after the GL params above,
    * since it is used to calculate the array stride.
    */
@@ -52,7 +52,7 @@ class BufferedVertex {
     refcount = 1;
     memset(texcoord, 0, sizeof(texcoord) + sizeof(color) + sizeof(normal) + sizeof(vertex));
   }
-  
+
   /* Linear interpolation used as a source position in geomorphing.
    * Sets the vertex data as an interpolation between the given vertices,
    * and leaves the non-BufferedVertex data unchanged.
@@ -72,7 +72,7 @@ class BufferedVertex {
     vertex[2]   = interpolate(from.vertex[2],   to.vertex[2],   weight);
   }
 
- private:  
+ private:
   float interpolate(float from, float to, float weight) {
     return (to-from)*weight + from;
   }
@@ -119,21 +119,21 @@ class VertexBuffer {
        */
       i = freeSlots.front();
       freeSlots.pop_front();
-      
+
       if (i < buffer.size()) {
 	/* Reinitialize this slot and return it */
 	buffer[i] = T();
 	return i;
       }
     }
-    
+
     /* Stick a new node onto the buffer, rely on std::vector to manage buffer memory */
     buffer.push_back(T());
-    i = &buffer.back() - &buffer[0];    
+    i = &buffer.back() - &buffer[0];
     buffer[i].refcount = 1;
     return i;
   }
-  
+
   void ref(int v) {
     buffer[v].refcount++;
   }
@@ -143,7 +143,7 @@ class VertexBuffer {
     if (--buffer[v].refcount == 0) {
       numUsedSlots--;
       freeSlots.push_front(v);
-      
+
       /* Shrink the buffer if we can easily */
       while (allocatedSize() > 0 && buffer.back().refcount == 0)
 	buffer.pop_back();

@@ -8,16 +8,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #ifndef _H_JETCOW
@@ -67,12 +67,12 @@ class JetCOW {
 
   /* Make a copy-on-write fork of the JetCOW */
   JetCOW *fork(const char *newFilename, Uint32 cacheSize=4*1024*1024, Uint32 pageSize=8*1024);
-  
+
   const std::string &getFilename(void) const;
 
   /* This is a wrapper function that constructs the JetCOWObject but insures that
    * each unique object only has one reference counted instance in memory.
-   * 
+   *
    * Possible values for 'id':
    *     -1 : allocate a new ID, creates an object of the specified type.
    *     >0 : Use this id, load existing data- checks that the object is
@@ -100,7 +100,7 @@ class JetCOW {
  private:
   JetCOWDictionary *header;
   std::string filename;
-  Db *dbp; 
+  Db *dbp;
   bool readOnly;
   JetCOW *parent;
   std::map<Sint32,JetCOWObject*> objectInstances;
@@ -148,7 +148,7 @@ class JetCOWObject {
 /*
  * This is a page that can hold simple key-value pairs. It's used for the
  * JetCOW header, and may be useful anywhere else a very simple yet extensible
- * format is needed. 
+ * format is needed.
  *
  * The format is as follows, for each key/value pair:
  *   - The key value in ASCII or UTF-8 encoding
@@ -183,7 +183,7 @@ class JetCOWDictionary : public JetCOWObject, public Mutex {
 
   /* Never use these directly! */
   JetCOWDictionary(JetCOW *cow, Sint32 id, const char *type="JetCOWDictionary");
-  virtual ~JetCOWDictionary();  
+  virtual ~JetCOWDictionary();
 
  protected:
   /* Subclasses can define these to maintain a cache of frequently used values in the dict.
@@ -204,7 +204,7 @@ class JetCOWDictionary : public JetCOWObject, public Mutex {
   char *getAttrStrProtected(char *name);
   float getAttrFloatProtected(char *name);
   void delAttrProtected(char *name);
- 
+
  private:
   void addKeyHeader(std::string &page, std::string key, char type);
   std::map<std::string,Sint32> intValues;            /* Stored here in host byte order */
@@ -218,7 +218,7 @@ class JetCOWVector : public JetCOWObject, private Mutex {
   /* JetCOW hooks - Never use these directly! */
   JetCOWVector(JetCOW *cow, Sint32 id, const char *type="JetCOWVector");
   virtual ~JetCOWVector();
-  
+
   virtual void revert(void);
   virtual void commit(void);
 

@@ -15,16 +15,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #ifndef _H_SURFACE
@@ -64,7 +64,7 @@ class SurfacePoint : public BufferedVertex {
    * For calculations, two versions of the vertex are provided: the vertex that lies on the surface,
    * and the vertex that's a linear interpolation between the two points it was calculated from.
    * Depending on whether we're splitting or merging, we may be going either direction between the
-   * two. 
+   * two.
    *
    * We define the morphing interpolation as:
    *   for morphBackwards == false:
@@ -101,7 +101,7 @@ class SurfacePoint : public BufferedVertex {
 class SurfaceEdge {
  public:
   SurfaceEdge(SurfacePoint &a, SurfacePoint &b);
-  
+
   /* Equality is independent of point order,
    * the < comparison is arbitrary.
    */
@@ -131,7 +131,7 @@ class SurfaceQuadtreeNode {
   /****** Algorizhems *****/
 
   SurfaceQuadtreeNode();
-  SurfaceQuadtreeNode(VertexBuffer<SurfacePoint> &vbuffer, 
+  SurfaceQuadtreeNode(VertexBuffer<SurfacePoint> &vbuffer,
 		      SurfacePoint a, SurfacePoint b, SurfacePoint c);
   SurfaceQuadtreeNode(SurfaceQuadtreeNode *parent,
 		      unsigned int a, unsigned int b, unsigned int c);
@@ -256,11 +256,11 @@ class SurfaceQuadtreeNode {
     SurfaceQuadtreeNode *n;
     enum sideNames side;
   } neighbors[3];
-  
+
   SurfaceQuadtreeNode *children[4];
 
   SurfaceQuadtreeNode *parent;
-  
+
   /* If isEnqueued is true, this points to the triangle's enqueued location */
   std::list<SurfaceQuadtreeNode*>::iterator iter;
   std::list<SurfaceQuadtreeNode*> *list;
@@ -276,7 +276,7 @@ class Surface : public TransformedSceneNode {
   virtual void draw();
   virtual void animate(float dt);
 
-  /* Dictionary keys: 
+  /* Dictionary keys:
    *   Generator   - JetCOW object ID of the surface generator
    */
 
@@ -284,7 +284,7 @@ class Surface : public TransformedSceneNode {
   Surface(JetCOW *cow, Sint32 id=0, const char *type="Surface");
   virtual ~Surface();
   virtual void loadCachedValues(void);
-  virtual void saveCachedValues(void);  
+  virtual void saveCachedValues(void);
 
   /* Vertex buffer */
   VertexBuffer<SurfacePoint> vbuffer;
