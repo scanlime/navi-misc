@@ -32,6 +32,7 @@
 #include "preferences.h"
 #include "setup_druid.h"
 #include "palette.h"
+#include "preferences_plugins_page.h"
 
 int fe_args(int argc, char *argv[]) {
 	if(argc > 1) {
@@ -281,7 +282,7 @@ void fe_url_add(const char *text) {
 }
 
 void fe_pluginlist_update(void) {
-	/* FIXME: implement */
+	preferences_plugins_page_populate();
 }
 
 void fe_buttons_update(struct session *sess) {

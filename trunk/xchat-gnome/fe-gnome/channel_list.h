@@ -10,6 +10,8 @@ typedef struct {
 	struct server *server;
 } channel_list_window;
 
-channel_list_window *create_channel_list(session *sess);
+void initialize_channel_lists();
+void create_channel_list(session *sess);
+void repopulate_channel_list(channel_list_window *win);
 
 #endif
