@@ -24,6 +24,7 @@
 #define __VIEW_H__
 
 #include <gtk/gtk.h>
+#include <glade/glade.h>
 #include <GL/gl.h>
 #include "scene.h"
 #include "camera.h"
@@ -43,24 +44,25 @@ typedef struct _ViewClass ViewClass;
 
 struct _View
 {
-  GObject parent;
+  GtkVBox parent;
 
   Camera *camera;
   Scene *scene;
   Light **lights;
   guint nlights;
   GLDrawingArea *context;
+  GladeXML *xml;
 
   gdouble mouse[2];
 };
 
 struct _ViewClass
 {
-  GObjectClass parent_class;
+  GtkVBoxClass parent_class;
 };
 
 GType        view_get_type (void) G_GNUC_CONST;
-View*        view_new      (Scene *scene, GLDrawingArea *context);
+GtkWidget*   view_new      (Scene *scene, GLDrawingArea *context);
 void         view_render   (View *view);
 SceneObject* view_pick     (View *view, guint pos[2]);
 
