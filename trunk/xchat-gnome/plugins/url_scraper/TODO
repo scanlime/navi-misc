@@ -14,3 +14,6 @@
 * Add an option to change the window title whenever there's a new
 	URL, the title reverts to normal whenever the window gets focused
 	next. Like in Gaim.
+
+* Hook it up to a URL handler so that you can open a link by clicking
+	it.
