@@ -106,9 +106,7 @@ class StatsInterface(xmlrpc.XMLRPC):
         self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
                                  ('stats.path', path))
         target = self.storage.getPathTarget(path)
-        target.open(resource='metadata')
-        target.metadata.dict.update(d)
-        target.metadata.save()
+        target.metadata.update(d)
         return True
 
 
@@ -147,7 +145,6 @@ class StatsTarget(object):
 
     def deliver(self, message):
         """A message has been received which should be logged by this stats target"""
-        self.open()
         self.counters.increment()
         self.recentMessages.push(str(message))
 
@@ -344,7 +341,7 @@ class Counters(object):
            """
         return self.rack.namespace(name)
 
-    def incrementCounter(self, name, evTime):
+    def incrementCounter(self, name, evTime=None):
         """Increment the counter with the given name.
            If evTime is provided, that is used as the
            time at which this event was received. Otherwise,
@@ -368,14 +365,14 @@ class Counters(object):
         cTime = c.get('firstEventTime', None)
 
         if cTime is not None:
-            if not cTime in TimeInterval(current):
+            if not datetime.datetime.utcfromtimestamp(cTime) in TimeInterval(current):
                 # Our current timer is old, copy it to the previous timer and delete it
                 p.clear()
                 p.update(c)
                 c.clear()
 
         if pTime is not None:
-            if not pTime in TimeInterval(previous):
+            if not datetime.datetime.utcfromtimestamp(pTime) in TimeInterval(previous):
                 # The previous timer is old. Either the current timer rolled over first
                 # and it was really old, or no events occurred in the first timer
                 # (cTime is None) but some had in the previous timer and it's old.
