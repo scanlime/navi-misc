@@ -48,7 +48,8 @@
   <!--================================== Projects -->
 
   <xsl:template match="project">
-    <li>
+    <!-- <li>-->
+      ↪
       <a>
         <xsl:attribute name="href"><xsl:value-of select="@href"/></xsl:attribute>
         <xsl:value-of select="@name"/>
@@ -56,7 +57,7 @@
       <ul>
         <xsl:apply-templates select="project"/>
       </ul>
-    </li>
+    <!-- </li>-->
   </xsl:template>
 
   <!--================================== Introduction -->
