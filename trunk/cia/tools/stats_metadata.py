@@ -45,7 +45,7 @@ class MetadataTool(Client.App):
             value = xmlrpclib.Binary(open(value, 'rb').read())
 
         if self.config['remove']:
-            metadata.remove(self.key, self.config['path'], [self.config['dataKey']])
+            metadata.remove(self.key, self.config['path'], self.config['dataKey'])
 
         if self.config['dataValue'] is not None:
             metadata.set(self.key, self.config['path'], self.config['dataKey'], value, self.config['type'])
