@@ -1,4 +1,5 @@
 #include "preferences_dialog.h"
+#include "preferences_servers_page.h"
 
 void initialize_pages_list();
 void initialize_irc_preferences_page();
@@ -14,6 +15,7 @@ void initialize_preferences_dialog() {
 	initialize_pages_list();
 	initialize_irc_preferences_page();
 	initialize_file_transfers_page();
+	initialize_preferences_servers_page();
 }
 
 void initialize_pages_list() {

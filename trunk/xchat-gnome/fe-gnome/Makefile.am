@@ -3,33 +3,39 @@ bin_PROGRAMS = xchat-gnome
 INCLUDES = $(GUI_CFLAGS)
 
 if USE_MMX
-mmx_cmod_S = 			\
-	mmx_cmod.h		\
+mmx_cmod_S = 				\
+	mmx_cmod.h			\
 	mmx_cmod.S
 endif
 
-EXTRA_DIST =			\
-	fe-gnome.c		\
-	gui.h			\
-	gui.c			\
-	main_window.h		\
-	main_window.c		\
-	preferences_dialog.h	\
-	preferences_dialog.c
+EXTRA_DIST =				\
+	fe-gnome.c			\
+	gui.h				\
+	gui.c				\
+	main_window.h			\
+	main_window.c			\
+	palette.h			\
+	palette.c			\
+	preferences_dialog.h		\
+	preferences_dialog.c		\
+	preferences_servers_page.h	\
+	preferences_servers_page.c
 
 xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
-xchat_gnome_SOURCES =		\
-	fe-gnome.c		\
-	gui.h			\
-	gui.c			\
-	main_window.h		\
-	main_window.c		\
-	$(mmx_cmod_S)		\
-	palette.h		\
-	palette.c		\
-	preferences_dialog.h	\
-	preferences_dialog.c	\
-	xtext.h			\
+xchat_gnome_SOURCES =			\
+	fe-gnome.c			\
+	gui.h				\
+	gui.c				\
+	main_window.h			\
+	main_window.c			\
+	$(mmx_cmod_S)			\
+	palette.h			\
+	palette.c			\
+	preferences_dialog.h		\
+	preferences_dialog.c		\
+	preferences_servers_page.h	\
+	preferences_servers_page.c	\
+	xtext.h				\
 	xtext.c
 
 xtext.h: @top_srcdir@/src/fe-gtk/xtext.h
