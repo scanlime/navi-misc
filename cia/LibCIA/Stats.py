@@ -260,6 +260,7 @@ class SubscriptionDelivery:
         """After retrieving a list of applicable triggers, this calls them.
            'rows' should be a sequence of (id, trigger) tuples.
            """
+        log.msg("Notifying %d subscribers for %r" % (len(rows), self.target))
         for id, trigger in rows:
             f, args, kwargs = cPickle.loads(trigger)
             defer.maybeDeferred(f, *args, **kwargs).addCallback(
