@@ -27,6 +27,7 @@
 
 #include "commandargs.h"
 #include "prefs.h"
+#include "textUtils.h"
 
 
 size_t serverWriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
@@ -97,6 +98,7 @@ bool CListServerServerConnection::add ( trServerInfo &info )
 	sprintf(temp,"&currentplayers=%d",info.currentPlayers);
 	url += temp;
 
+	url = url_encode(url);
 	clearPageData();
 
 	curl = curl_easy_init();
@@ -174,6 +176,7 @@ bool CListServerServerConnection::update ( trServerInfo &info )
 
 	sprintf(temp,"&currentplayers=%d",info.currentPlayers);
 	url += temp;
+	url = url_encode(url);
 
 	clearPageData();
 
@@ -231,6 +234,7 @@ bool CListServerServerConnection::remove ( trServerInfo &info )
 
 	sprintf(temp,"&id=%d",info.token);
 	url += temp;
+	url = url_encode(url);
 
 	clearPageData();
 
