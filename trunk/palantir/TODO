@@ -9,3 +9,4 @@
   the factory instead of adding unnecessary function calls.
 * Move the character sheets out from under the userlist over to the right of the
   chat buffer.
+* Make chat buffer scroll a little further for niceness of viewing.

@@ -66,7 +66,7 @@ class PalantirWindow:
 
     # Create a chat buffer from our custom widget.
     self.chatWindow = GtkChatBuffer()
-    self.tree.get_widget('ChatScroller').add_with_viewport(self.chatWindow)
+    self.tree.get_widget('ChatPane').add2(self.chatWindow)
     self.chatWindow.show()
 
     # Client factory.
