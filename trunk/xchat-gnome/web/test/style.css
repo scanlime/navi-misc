@@ -51,7 +51,7 @@ div.content {
   padding-top: 1.5em;
   padding-bottom: 2em;
   width: 75%;
-  margin-left: 150px;
+  position:	relative;
 }
 
 div.footer {
