@@ -28,12 +28,12 @@ class GtkChatBuffer(gtk.TextView):
     buffer.insert(buffer.get_end_iter(), time + nickends[0] + nick + nickends[1] + msg + '\n')
 
     if highlight:
-      bounds = buffer.get_end_iter().backward_search(nick.strip(string.join(nickends,(' '))), gtk.TEXT_SEARCH_TEXT_ONLY)
+      bounds = buffer.get_end_iter().backward_search(nick.strip(string.join(nickends,(' '))), 1)
       buffer.apply_tag_by_name('highlight', bounds[0], bounds[1])
     self.scroll_to_iter(buffer.get_end_iter(), 0.0)
 
     iter = buffer.get_end_iter()
     iter.backward_line()
     for end in nickends:
-      bounds = iter.forward_search(end.strip(), gtk.TEXT_SEARCH_TEXT_ONLY)
+      bounds = iter.forward_search(end.strip(), 1)
       if bounds: buffer.apply_tag_by_name('nickends', bounds[0], bounds[1])
