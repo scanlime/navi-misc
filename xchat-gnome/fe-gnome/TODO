@@ -4,3 +4,8 @@
 * make the connect dialog check existing open networks before creating a new connection
 * list accelerators in the context menus
 * flesh out the userlist context menu
+
+autotools:
+* slurp the gtkspell check from gaim's configure.in
+* check for an adequate version of gnome-icon-theme
+* make the autotools stuff install the gnome frontend
