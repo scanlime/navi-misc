@@ -39,13 +39,20 @@ class Keyring:
         self.request = request
 
         # Parse our incoming cookies, these may be overridden by outgoing cookies
-        cookie = self.request.getCookie("CIA-key-presence")
+        cookie = request.getCookie("CIA-key-presence")
         if cookie and int(cookie):
             self.hasKey = True
         else:
             self.hasKey = False
+        self.key = request.getCookie("CIA-key-value")
 
-        self.key = self.request.getCookie("CIA-key-value")
+        # Are we setting the key just now?
+        if 'CIA-set-key' in request.args:
+            key = request.args['CIA-set-key'][0]
+            if key:
+                self.setKey(request.args['CIA-set-key'][0])
+            else:
+                self.unsetKey()
 
     def setKey(self, key, expires=None, presence=1):
         """Set the client's current key. This sets one insecure
@@ -74,30 +81,32 @@ class Keyring:
         self.setKey("", presence=0)
 
 
+def getKeyring(context):
+    """Get the keyring associated with a request, creating it if necessary"""
+    request = context['request']
+    if hasattr(request, 'keyring'):
+        return request.keyring
+    else:
+        request.keyring = Keyring(request)
+        return request.keyring
+
+
+def getSecureURL(context):
+    """Return an HTTPS URL referring to the current page"""
+    request = context['request']
+    inet, addr, port = request.getHost()
+    return quote('https://%s/%s' % (
+        request.getRequestHostname(),
+        "/".join(request.prepath)), ":/")
+
+
 class SecuritySection(Template.Section):
     """A sidebar section that can be used to log in and show current key info"""
     title = 'security'
 
-    def getSecureURL(self, context):
-        """Return an HTTPS URL referring to the current page"""
-        request = context['request']
-        inet, addr, port = request.getHost()
-        return quote('https://%s/%s' % (
-            request.getRequestHostname(),
-            "/".join(request.prepath)), ":/")
-
     def render_rows(self, context):
-        request = context['request']
-        keyring = Keyring(request)
+        keyring = getKeyring(context)
         rows = []
-
-        # Are we setting the key just now?
-        if 'CIA-set-key' in request.args:
-            key = request.args['CIA-set-key'][0]
-            if key:
-                keyring.setKey(request.args['CIA-set-key'][0])
-            else:
-                keyring.unsetKey()
 
         if keyring.hasKey:
             rows.append(tag('strong')[ "Key set" ])
@@ -108,11 +117,10 @@ class SecuritySection(Template.Section):
                         "to begin editing metadata.")
             actionText = "Set key"
 
-        rows.append(tag('form', method="post", action=self.getSecureURL(context))[
+        rows.append(tag('form', method="post", action=getSecureURL(context))[
             tag('div')[ tag('input',  _type='password', _name='CIA-set-key', size=30) ],
             tag('div')[ tag('input',  _type='submit', value=actionText) ],
             ])
         return rows
-
 
 ### The End ###

@@ -143,9 +143,9 @@ class MetadataSizeColumn(Nouvelle.Column):
         return self.formatter(self.getValue(item))
 
 
-class MetadataSection(Template.Section):
+class MetadataViewSection(Template.Section):
     """A section displaying a table of metadata keys for one stats target"""
-    title = "metadata"
+    title = "view metadata"
 
     columns = [
         MetadataKeyColumn(),
@@ -172,6 +172,62 @@ class MetadataSection(Template.Section):
                 Template.Table(rows, self.columns, id='metadata')
             ]])
 
+
+class MetadataUploadSection(Template.Section):
+    """A section providing a way to upload metadata using the Keyring for security"""
+    title = "upload metadata"
+
+    def __init__(self, target):
+        self.target = target
+
+    def render_rows(self, context):
+        keyring = Keyring.getKeyring(context)
+        if not keyring.hasKey:
+            return []
+
+        # Process the results of this form, if we have them
+        args = context['request'].args
+        if args.get('metadata-key'):
+            self.processResults(keyring.key, args)
+
+        return [tag('form', method="post", enctype="multipart/form-data",
+                    action=Keyring.getSecureURL(context))[
+                    tag('table')[
+                        tag('tr')[
+                            tag('td')[ "Metadata key:" ],
+                            tag('td')[ tag('input', _type='text', _name='metadata-key', size=30) ],
+                        ],
+                        tag('tr')[
+                            tag('td')[ "MIME type:" ],
+                            tag('td')[ tag('input', _type='text', _name='metadata-type', size=30, value="text/plain") ],
+                        ],
+                        tag('tr')[
+                            tag('td')[ "Set value to:" ],
+                            tag('td')[ tag('textarea', _name='metadata-value', rows=6, cols=50)[ [""] ]],
+                        ],
+                        tag('tr')[
+                            tag('td')[ "Upload value from file:" ],
+                            tag('td')[ tag('input', _type='file', _name='metadata-value-file') ],
+                        ],
+                        tag('tr')[
+                            tag('td')[ " " ],
+                            tag('td')[ tag('input', _type='submit', value="Set Metadata") ],
+                        ],
+                    ]
+                ]]
+
+    def processResults(self, key, args):
+        """Process the results of submitting our metadata modification form"""
+        name = args.get('metadata-key')[0]
+        mimeType = args.get('metadata-type')[0]
+        value = args.get('metadata-value', (None,))[0]
+        valueFile = args.get('metadata-value-file', (None,))[0]
+
+        # A file takes precedence over the entry field if we have one
+        value = valueFile or value
+
+        #self.target.metadata.set(name, value, mimeType)
+        
 
 class MetadataValuePage(resource.Resource):
     """A web resource that returns the raw value of a metadata key, with the proper MIME type"""
@@ -282,7 +338,8 @@ class MetadataPage(Template.Page):
 
     def render_mainColumn(self, context):
         return [
-            MetadataSection(self.statsPage.target),
+            MetadataViewSection(self.statsPage.target),
+            MetadataUploadSection(self.statsPage.target),
             ]
 
     def getChildWithDefault(self, name, request):
