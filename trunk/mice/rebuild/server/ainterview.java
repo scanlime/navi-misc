@@ -86,6 +86,7 @@ public class ainterview
 		answ.add(current);
 		//
 		//hit the abstract interface for outgoing stuff
+		System.out.println(current);
 		//
 		current = null;
 	}
