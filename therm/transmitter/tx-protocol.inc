@@ -43,7 +43,7 @@ TX_SHORT_DELAY	equ (.258 - (TX_SHORT / 4))
 TX_LONG_DELAY	equ (.258 - (TX_LONG / 4))
 
 
-#define	 tx_define_vars	consecutive_ones, packet_seq, crc_reg_high, crc_reg_low
+#define	 tx_define_vars	consecutive_ones, crc_reg_high, crc_reg_low
 
 
 ;----------------------------------------------------- Protocol: Frame check sequence
@@ -263,6 +263,7 @@ tx_send_zero
 	endm
 
 ;----------------------------------------------------- Other Macros
+
 
 tx_define_all_layers	macro
 	tx_define_framing_layer
