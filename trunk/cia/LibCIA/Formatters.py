@@ -24,6 +24,7 @@ elsewhere, for example in IRC filters.
 
 import Message
 
+
 class ColortextToIRC(Message.Formatter):
     """Converts messages with colorText content to plain text
        with IRC color tags.
@@ -36,5 +37,13 @@ class ColortextToIRC(Message.Formatter):
 
     def format(self, message, input=None):
         return self.formatter.format(message.xml.body.colorText)
+
+
+class IRCProjectName(Message.Formatter):
+    """Prepends the project name to the input message, boldinated for IRC"""
+    medium = 'irc'
+    def format(self, message, input):
+        import IRCColor
+        return "%s %s" % (IRCColor.format("%s:" % message.xml.source.project, 'bold'), input)
 
 ### The End ###
