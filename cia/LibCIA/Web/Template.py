@@ -226,11 +226,15 @@ class Page(Nouvelle.Twisted.Page):
         tabs = []
         for component in context['request'].site.components:
             if component.name:
+
+                # Allow the component to decide if it owns the current page
                 if self in component:
                     id = 'active'
                 else:
                     id = None
+
                 tabs.append(tag('a', _class='tab', id=id, href=component.url)[ component.name ])
+
         return tabs
 
     def getURL(self, context):

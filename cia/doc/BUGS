@@ -5,7 +5,7 @@ Known Bugs
 important
 ---------
 
-- Rate limiting and load balancing to prevent bots from flooding off
+- Bots need rate limiting and load balancing to prevent them from flooding off
 
 - Some of the stats catalogs are getting rather big and it would be good
   to make the full message list accessable and searchable. An SQL-aware table

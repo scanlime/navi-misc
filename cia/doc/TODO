@@ -2,6 +2,32 @@
 To-do List
 ==========
 
+
+Hosting
+-------
+
+- Look for potential new homes for CIA. Navi has enough bandwidth for now,
+  but two DSL lines definitely couldn't handle a slashdotting.
+
+
+Documentation
+-------------
+
+- figure out what should be in this list :)
+
+
+Web
+---
+
+- Make CIA more accessable to text browsers and non-CSS browsers. This probably
+  means using some tricks like Plone does to have headings and links that are hidden when
+  using CSS, and making headings and tabs into <h1> tags and <li> tags rather than
+  just <div>s and such.
+
+- Clean up the CSS. It still uses tables to position the heading and the columns,
+  where it should be using CSS positioning.
+
+
 Code
 -----
 
@@ -76,16 +102,3 @@ Code
   stats maintenance. This would finally make it possible to use standard protocols (RSS,
   XML-RPC, HTTP...) to receive real-time notification about any project in CIA. This could
   be done for XML feeds as well.
-
-
-Documentation
--------------
-
-- figure out what should be in this list :)
-
-
-Hosting
--------
-
-- Look for potential new homes for CIA. Navi has enough bandwidth for now,
-  but two DSL lines definitely couldn't handle a slashdotting.

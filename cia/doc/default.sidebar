@@ -6,11 +6,12 @@ Vital Links
 - `All Commits </stats/total/commits>`_
 - `Adding projects </doc/adding-projects>`_
 
-Sections
-========
+Development
+===========
 
-- `Stats </stats>`_
-- `Rulesets </rulesets>`_
-- `IRC Bots </irc>`_
-- `Server Info </info>`_
-- `Documentation </doc>`_
+- `README file </doc/README>`_
+- `Known Bugs </doc/BUGS>`_
+- `To-do List </doc/TODO>`_
+- `License </doc/COPYING>`_
+
+boing

@@ -245,13 +245,7 @@ class Page(Template.Page):
         self.component = component
         self.path = path
         self.fsPath = self.getFilesystemPath()
-
-        if os.path.isfile(self.fsPath):
-            self.load(self.fsPath)
-        elif os.path.isdir(self.fsPath):
-            # If we have a directory with no index, make our title the directory name
-            self.mainTitle = self.path.split('/')[-1]
-
+        self.load()
         Template.Page.__init__(self)
 
     def getFilesystemPath(self):
@@ -266,14 +260,21 @@ class Page(Template.Page):
                     return os.path.join(p, indexName)
         return p
 
-    def load(self, fspath):
-        """Load the formatted document at the given filesystem path"""
-        self.mainDoc = getFormattedDoc(fspath)
-        self.mainColumn = self.mainDoc.output
-        self.mainTitle = self.mainDoc.docTitle
-        if self.mainDoc.docSubtitle:
-            self.subTitle = self.mainDoc.docSubtitle
-        self.leftColumn = getFormattedDoc(self.findSidebarPath(fspath)).output
+    def load(self):
+        """Load our formatted document from disk, via getFormattedDoc's cache"""
+        if os.path.isfile(self.fsPath):
+            # It's a normal document. Get the document itself and its sidebar,
+            # and store the formatter results that we're interested in.
+            self.mainDoc = getFormattedDoc(self.fsPath)
+            self.mainColumn = self.mainDoc.output
+            self.mainTitle = self.mainDoc.docTitle
+            if self.mainDoc.docSubtitle:
+                self.subTitle = self.mainDoc.docSubtitle
+            self.leftColumn = getFormattedDoc(self.findSidebarPath(self.fsPath)).output
+
+        elif os.path.isdir(self.fsPath):
+            # If we have a directory with no index, make our title the directory name
+            self.mainTitle = self.path.split('/')[-1]
 
     def getChild(self, path, request):
         if path and path[0] != '.':
@@ -292,6 +293,12 @@ class Page(Template.Page):
         """Intercept the normal rendering process if necessary to display
            a 'file not found' error or a directory listing page.
            """
+        # This is redundant if we've just created this Page, but
+        # for pages that stick around for a while like the root document
+        # this is necessary to let the page update at all. A bit messy, but
+        # not really slow because of the cache.
+        self.load()
+
         if os.path.isdir(self.fsPath):
             return dirlist.DirectoryLister(self.fsPath).render(request)
         elif not os.path.isfile(self.fsPath):
