@@ -79,9 +79,17 @@ static guint32 update_crc(guint32 crc, const guchar *buf, guint len) {
   return c;
 }
 
-/* Return the CRC of the bytes buf[0..len-1]. */
-static guint32 crc(const guchar *buf, guint len) {
-  return update_crc(0xffffffffL, buf, len) ^ 0xffffffffL;
+/* Return the CRC of a data field and a type field */
+static guint32 chunk_crc(ChunkType type, gulong length, const guchar* data) {
+  guint32 c = 0xffffffffL;
+  guint32 word;
+
+  word = GUINT32_TO_BE(type);
+  c = update_crc(c, (const guchar*) &word, sizeof(word));
+
+  c = update_crc(c, data, length);
+
+  return c ^ 0xffffffffL;
 }
 
 
@@ -99,7 +107,7 @@ gboolean chunked_file_read_signature(FILE* self, const gchar* signature) {
   int expected_size = strlen(signature);
   gchar read_sig[expected_size];
 
-  if (!fread(read_sig, expected_size, 1, self))
+  if (fread(read_sig, 1, expected_size, self) != expected_size)
     return FALSE;
 
   if (memcmp(read_sig, signature, expected_size))
@@ -119,7 +127,7 @@ void chunked_file_write_chunk(FILE* self, ChunkType type, gulong length, const g
 
   fwrite(data, length, 1, self);
 
-  word = GUINT32_TO_BE(crc(data, length));
+  word = GUINT32_TO_BE(chunk_crc(type, length, data));
   fwrite(&word, sizeof(word), 1, self);
 }
 
@@ -135,12 +143,12 @@ gboolean chunked_file_read_chunk(FILE* self, ChunkType *type, gulong *length, gu
   while (1) {
 
     /* Read length */
-    if (!fread(&word, sizeof(word), 1, self))
+    if (fread(&word, 1, sizeof(word), self) != sizeof(word))
       return FALSE;
     *length = GUINT32_FROM_BE(word);
 
     /* Read type */
-    if (!fread(&word, sizeof(word), 1, self)) {
+    if (fread(&word, 1, sizeof(word), self) != sizeof(word)) {
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
 	    "Unexpected EOF trying to read chunk type");
       return FALSE;
@@ -149,10 +157,12 @@ gboolean chunked_file_read_chunk(FILE* self, ChunkType *type, gulong *length, gu
 
     /* Read data, allocating a new buffer for it */
     *data = g_malloc(*length);
-    if (!fread(*data, *length, 1, self)) {
+    if (fread(*data, 1, *length, self) != *length) {
+      gchar *type_string = chunk_type_to_string(*type);
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
-	    "Unexpected EOF trying to read chunk data");
+	    "Unexpected EOF trying to read data for chunk of type %s", type_string);
       g_free(*data);
+      g_free(type_string);
       return FALSE;
     }
 
@@ -160,13 +170,13 @@ gboolean chunked_file_read_chunk(FILE* self, ChunkType *type, gulong *length, gu
      * return successfully, otherwise issue a warning
      * and ignore the corrupted chunk.
      */
-    if (!fread(&word, sizeof(word), 1, self)) {
+    if (fread(&word, 1, sizeof(word), self) != sizeof(word)) {
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
 	    "Unexpected EOF trying to read chunk CRC");
       g_free(*data);
       return FALSE;
     }
-    if (crc(*data, *length) == GUINT32_FROM_BE(word)) {
+    if (chunk_crc(*type, *length, *data) == GUINT32_FROM_BE(word)) {
       return TRUE;
     }
     else {

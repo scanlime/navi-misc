@@ -25,16 +25,16 @@
 #define __CHUNKED_FILE_H__
 
 #include <stdio.h>
-#include <glib.h>
+#include <glib-object.h>
 
 G_BEGIN_DECLS
 
-/* Convert a 4-character string literal to a number which, in network
+/* Convert 4 characters representing the type code into a number which, in network
  * byte order, is represented by the same bytes. This makes chunk types
  * easier to work with. In particular, they can be used as switch statement cases.
  */
 typedef guint32 ChunkType;
-#define CHUNK_TYPE(str)    (((str)[0] << 24) | ((str)[1] << 16) | ((str)[2] << 8) | (str)[3])
+#define CHUNK_TYPE(a,b,c,d)   ((guint32)(((a) << 24) | ((b) << 16) | ((c) << 8) | (d)))
 
 
 void      chunked_file_write_signature(FILE* self, const gchar* signature);

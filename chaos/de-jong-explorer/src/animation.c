@@ -21,10 +21,21 @@
  */
 
 #include "animation.h"
+#include "chunked-file.h"
 
 static void animation_class_init(AnimationClass *klass);
 static void animation_init(Animation *self);
 static void animation_dispose(GObject *gobject);
+
+
+/* Animations are serialized using chunked-file.
+ * These are the chunk types and file signature
+ */
+#define FILE_SIGNATURE   "de Jong Explorer Animation\n\r\xFF\n"
+#define CHUNK_KEYFRAME_START  CHUNK_TYPE("KfrS")   /* Begin a new keyframe definition */
+#define CHUNK_KEYFRAME_END    CHUNK_TYPE("KfrE")   /* End a keyframe definition */
+#define CHUNK_DE_JONG_PARAMS  CHUNK_TYPE("djPR")   /* Set de-jong parameters, represented as a string */
+#define CHUNK_THUMBNAIL       CHUNK_TYPE("djTH")   /* Set a thumbnail, represented as a PNG image */
 
 
 /************************************************************************************/
@@ -123,6 +134,55 @@ void animation_keyframe_append(Animation *self, DeJong *dejong) {
   gtk_list_store_set(self->model, &iter,
 		     ANIMATION_MODEL_DURATION, (gfloat) 1.0,
 		     -1);
+}
+
+
+/************************************************************************************/
+/************************************************************************* File I/O */
+/************************************************************************************/
+
+void animation_load_file(Animation *self, const gchar *filename) {
+  FILE *f;
+  ChunkType type;
+  gulong length;
+  guchar* data;
+
+  g_return_if_fail(f = fopen(filename, "rb"));
+  g_return_if_fail(chunked_file_read_signature(f, FILE_SIGNATURE));
+
+  while (chunked_file_read_chunk(f, &type, &length, &data)) {
+    switch (type) {
+
+    default:
+      chunked_file_warn_unknown_type(type);
+    }
+  }
+
+  fclose(f);
+}
+
+void animation_save_file(Animation *self, const gchar *filename) {
+  FILE *f;
+  GtkTreeModel *model = GTK_TREE_MODEL(self->model);
+  GtkTreeIter *iter;
+  gboolean valid;
+
+  /* Start a new chunked file */
+  g_return_if_fail(f = fopen(filename, "wb"));
+  chunked_file_write_signature(f, FILE_SIGNATURE);
+
+  /* Iterate over each keyframe in our model */
+  valid = gtk_tree_model_get_iter_first(model, &iter);
+  while (valid) {
+
+    chunked_file_write_chunk(f, CHUNK_KEYFRAME_START, 0, NULL);
+
+    chunked_file_read_chunk
+
+    valid = gtk_tree_model_iter_next(model, &iter);
+  }
+
+  fclose(f);
 }
 
 /* The End */
