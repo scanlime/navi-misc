@@ -24,6 +24,7 @@
 #include "../fe-gtk/xtext.h"
 #include "../common/xchat.h"
 #include "userlist.h"
+#include "navigation_tree.h"
 
 #ifndef XCHAT_GNOME_GUI_H
 #define XCHAT_GNOME_GUI_H
@@ -37,6 +38,9 @@ typedef struct {
 	session *current_session;
 	GnomeDruid *setup_druid;
 	gboolean quit;
+
+	NavModel *tree_model;
+	NavTree *server_tree;
 } XChatGUI;
 
 extern XChatGUI gui;
