@@ -38,7 +38,8 @@ G_BEGIN_DECLS
 typedef struct _Editor      Editor;
 typedef struct _EditorClass EditorClass;
 
-struct _Editor {
+struct _Editor
+{
   GObject object;
 
   GladeXML *xml;
@@ -53,7 +54,8 @@ struct _Editor {
   GtkTreeStore *element_store;
 };
 
-struct _EditorClass {
+struct _EditorClass
+{
   GObjectClass parent_class;
 };
 
