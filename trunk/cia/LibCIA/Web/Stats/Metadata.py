@@ -24,7 +24,7 @@ Viewers and editors for the metadata associated with each stats target
 from twisted.internet import defer
 from twisted.web import resource, server, error
 from LibCIA.Web import Template
-from LibCIA import Units
+from LibCIA import Units, Stats
 from Nouvelle import tag, subcontext
 import Nouvelle
 import Link
@@ -181,6 +181,7 @@ class MetadataValuePage(resource.Resource):
         self.target = target
         self.key = key
         resource.Resource.__init__(self)
+        self.putChild('.thumbnail', ThumbnailRootPage(target, key))
 
     def render(self, request):
         # Retrieve the metadata value, rendering the page once it arrives
@@ -196,6 +197,42 @@ class MetadataValuePage(resource.Resource):
         else:
             request.write(error.NoResource("No such metadata key %r" % self.key).render(request))
             request.finish()
+
+
+class ThumbnailRootPage(resource.Resource):
+    """A web resource whose children are thumbnails of image metadata.
+       This allows URLs like /stats/some/target/.metadata/photo/.thumbnail/300x400
+       """
+    def __init__(self, target, key):
+        self.target = target
+        self.key = key
+        resource.Resource.__init__(self)
+
+    def getChildWithDefault(self, name, request):
+        width, height = map(int, name.split("x"))
+        return ThumbnailPage(self.target, self.key, (width, height))
+
+
+class ThumbnailPage(resource.Resource):
+    """A web resource that returns a dynamically generated and cached thumbnail
+       of a metadata value that happens to be an image.
+       """
+    def __init__(self, target, key, size):
+        self.target = target
+        self.key = key
+        self.size = size
+        resource.Resource.__init__(self)
+
+    def render(self, request):
+        # Retrieve the thumbnail, rendering our page once it arrives
+        Stats.MetadataThumbnailCache().get(self.target.path, self.key, self.size).addCallback(
+            self._render, request).addErrback(request.processingFailed)
+        return server.NOT_DONE_YET
+
+    def _render(self, value, request):
+        request.setHeader('content-type', Stats.MetadataThumbnailCache.mimeType)
+        request.write(value)
+        request.finish()
 
 
 class MetadataPage(Template.Page):
