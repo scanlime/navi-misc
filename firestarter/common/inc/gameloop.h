@@ -30,8 +30,6 @@
 
 using namespace Ogre;
 
-class CDrawManager;
-
 /** BaseGameLoop to provide interface and initalisation to ogre
 	@note
 	the app needs to provide it's own derived CBaseGameLoop implementation
@@ -192,8 +190,6 @@ public:
   SceneManager* GetSceneManager ( void ) {return mSceneMgr;}
   RenderWindow* GetRenderWindow ( void ) {return mWindow;}
 
-	CDrawManager* GetDrawManager ( void ) {return drawManager;}
-
 	// common operations
 	void ClearScene ( void );
 
@@ -223,8 +219,6 @@ protected:
 
 	void updateStats ( void );
 	void showDebugOverlay(bool show);
-
-	CDrawManager			*drawManager;
 
   Root *mRoot;
   Camera* mCamera;

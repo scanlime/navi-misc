@@ -33,13 +33,13 @@
 #include "timer.h"
 #include "prefs.h"
 #include "commandargs.h"
+#include "drawManager.h"
 
 // C RunTime Header Files
 #include <stdlib.h>
 #include <map>
 #include <string>
 #include <stdio.h>
-#include "drawManager.h"
 
 void OSSleep ( float time )
 {
@@ -69,7 +69,6 @@ CBaseGameLoop::CBaseGameLoop()
 {
   mRoot = 0;
 	showDebug = false;
-	drawManager = NULL;
 }
 
 CBaseGameLoop::~CBaseGameLoop()
@@ -121,8 +120,7 @@ bool CBaseGameLoop::Run ( void )
 	CTimer::instance().Init();
 	
 	// set up the draw manager
-	drawManager = new CDrawManager();
-	drawManager->Init(this);
+	CDrawManager::instance().Init();
 
 	// load the debug overlay
 	showDebug = CCommandLineArgs::instance().GetDataB("showDebug");
