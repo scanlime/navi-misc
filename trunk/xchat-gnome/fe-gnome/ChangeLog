@@ -1,10 +1,10 @@
 0.3
-	* Fixed and implemented network configuration - David Trowbridge
-	* Added firefox-style search bar - David Trowbridge
+	* Network configuration - David Trowbridge
+	* Added Firefox-style search bar - David Trowbridge
 	* Conversion to GtkUIManager - Christian Persch / David Trowbridge
-	* Implemented Hilight List editing - David Trowbridge
-	* Color Configuration (schemes, custom) - David Trowbridge
-	* Keybinding Configuration - Dan Kuester
+	* Implemented hilight list editing - David Trowbridge
+	* Color configuration (schemes, custom) - David Trowbridge
+	* Keybinding configuration - Dan Kuester
 
 0.2 "This is my boomstick" (13 September 2004)
 	* various GUI prettification - Ramón Rey Vicente
