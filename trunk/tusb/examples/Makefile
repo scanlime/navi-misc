@@ -13,7 +13,7 @@ hello: hello.ihx
 	objcopy -I ihex -O binary hello.ihx hello
 
 install: hello
-	../bootload/bootload hello
+	$(TUSB_DIR)/bootload/bootload hello
 
 hello.ihx: $(OBJS)
 	sdcc -o hello.ihx $(OBJS) $(LDFLAGS)
