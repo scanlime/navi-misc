@@ -7,7 +7,7 @@ This module contains the object for the chat buffer.
 
 import gtk, string
 
-class GtkChatBuffer(gtk.ScrolledWindow):
+class ChatBuffer(gtk.ScrolledWindow):
   ''' Objects for creating text buffers for displaying text from the channels.
       This will hold a reference to the name of the channel the buffer is showing.
       '''
