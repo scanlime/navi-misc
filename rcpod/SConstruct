@@ -81,7 +81,7 @@ if 'swig' in env['TOOLS']:
         # shared library prefix, since it isn't needed or wanted for building
         # dynamically loadable python extensions.
         pylibrcpod = env.SharedLibrary('pyrcpod/_librcpod',
-                                       ['pyrcpod/librcpod.i', libSrcPaths],
+                                       ['pyrcpod/librcpod.i'] + libSrcPaths,
                                        LIBS=libs, SHLIBPREFIX='')
 
 	# If we also have a valid installation path, use it
