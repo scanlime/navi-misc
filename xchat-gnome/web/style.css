@@ -15,12 +15,22 @@ h1 {
   padding: 0em 0em 0.2em 0.2em;
 }
 
+a.navigation:hover {
+  text-decoration: underline;
+}
+
+a.navigation {
+  font: 120% sans-serif;
+  text-decoration: none;
+  color: #9f4747;
+}
+
 a:hover {
   text-decoration: underline;
 }
 
 a {
-  font: 120% sans-serif;
+  font: sans-serif;
   text-decoration: none;
   color: #9f4747;
 }
@@ -32,6 +42,14 @@ div.navigation {
 div.content {
   padding-top: 1.5em;
   width: 75%;
+}
+
+div.code {
+  border: 1px dashed #AAA;
+  font-family: monospace;
+  padding: 0.2em 0.2em 0.2em 0.2em;
+  width: 90%;
+  float: right;
 }
 
 p {
