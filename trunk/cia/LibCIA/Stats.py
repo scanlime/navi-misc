@@ -43,12 +43,33 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
     scheme = 'stats'
     regex = r"^stats://(?P<path>([a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*)?)$"
 
+    def __init__(self):
+        self.lastMessage = None
+        self.messageTargets = []
+
     def message(self, uri, message, content):
         """Appends 'content' to the path represented by the given URI
            and delivers a message to its associated stats target.
+
+           This includes a bit of a hack for tracking associations
+           between stats targets. We assume that messages are delivered
+           one at a time- if we get a duplicate message (presumably to a
+           different stats target) we add that stats target to the list of
+           targets this message has been delivered to, and reinforce the
+           new relations this forms.
            """
         path = posixpath.join(self.parseURI(uri)['path'], content)
-        StatsTarget(path).deliver(message)
+        target = StatsTarget(path)
+        target.deliver(message)
+
+        if message == self.lastMessage:
+            for prevTarget in self.messageTargets:
+                print prevTarget, target
+                Relation(prevTarget, target).reinforce()
+        else:
+            self.messageTargets = []
+        self.messageTargets.append(target)
+        self.lastMessage = message
 
 
 class StatsInterface(RpcServer.Interface):
@@ -871,5 +892,37 @@ class Maintenance:
         """Delete subscriptions that have expired"""
         cursor.execute("DELETE FROM stats_subscriptions WHERE expiration < %s" %
                        Database.quote(int(time.time()), 'bigint'))
+
+
+class Relation:
+    """Represents a relationship between two stats targets- an edge on the stats graph.
+       These relationships can be queried or reinforced. You can ask a stats target for
+       a list of relations containing it.
+       """
+    def __init__(self, a, b):
+        # Our targets must be sorted by path, to make this edge unique
+        if a.path > b.path:
+            a, b = b, a
+        self.a = a
+        self.b = b
+
+    def reinforce(self):
+        """Increment this relation's strength and set its freshness to the current time"""
+        return Database.pool.runInteraction(self._reinforce)
+
+    def _reinforce(self, cursor):
+        """Database interaction implementing reinforce()"""
+        # First touch the edge to make sure it exists
+        cursor.execute("INSERT IGNORE INTO stats_relations "
+                       "(target_a_path, target_b_path) VALUES(%s, %s)" %
+                       (Database.quote(self.a.path, 'varchar'),
+                        Database.quote(self.b.path, 'varchar')))
+
+        cursor.execute("UPDATE stats_relations "
+                       "SET strength = strength + 1, freshness = %s "
+                       "WHERE target_a_path = %s AND target_b_path = %s" %
+                       (Database.quote(int(time.time()), 'bigint'),
+                        Database.quote(self.a.path, 'varchar'),
+                        Database.quote(self.b.path, 'varchar')))
 
 ### The End ###
