@@ -1,6 +1,10 @@
 /*
  * Media Infrawidget 6000 driver
  *
+ * ** This driver is dangerous, and is here only for quick&dirty testing. **
+ * ** It needs to be rewritten using usb-skeleton as a guide, to properly **
+ * ** handle disconnections, locks, and multiple devices.                 **
+ *
  * Copyright(c) 2003 Micah Dowty <micah@picogui.org>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -45,7 +49,6 @@ struct mi6k {
 	devfs_handle_t devfs;
 	struct urb read_urb;
 	unsigned char read_data[BUFFER_SIZE];
-	int open;
 	struct usb_endpoint_descriptor *endpoint;
 };
 
@@ -61,14 +64,18 @@ static void mi6k_read_complete(struct urb *urb)
 
 static int mi6k_dev_open (struct inode *inode, struct file *file)
 {
+	int retval = 0;
 	MOD_INC_USE_COUNT;
-	return 0;
+ err_out:
+	return retval;
 }
 
 static int mi6k_dev_release (struct inode *inode, struct file *file)
 {
+	int retval = 0;
 	MOD_DEC_USE_COUNT;
-	return 0;
+ err_out:
+	return retval;
 }
 
 /* Send a control request to the device synchronously */
@@ -87,6 +94,7 @@ static void mi6k_request (struct mi6k* widget, unsigned short request,
 
 static ssize_t mi6k_dev_write (struct file *file, const char *buffer, size_t count, loff_t *ppos)
 {
+	int retval = 0;
 	struct mi6k *widget = (struct mi6k*) file->private_data;
 
 	if (count) {
@@ -99,21 +107,31 @@ static ssize_t mi6k_dev_write (struct file *file, const char *buffer, size_t cou
 		if (copy_from_user(tbuffer, buffer, transfer_length))
 			return -EFAULT;
 
-		/* Temporary debug code: turn the VFD on */
-		mi6k_request(widget, MI6K_CTRL_VFD_POWER, 1, 0);
-		mi6k_request(widget, MI6K_CTRL_LED_SET, 0x50, 0x50);
-
 		/* Pack 4 bytes of the character stream into the packet's value and index parameters */
 		mi6k_request(widget, MI6K_CTRL_VFD_WRITE,
 			     tbuffer[0] | (((int)tbuffer[1]) << 8),
 			     tbuffer[2] | (((int)tbuffer[3]) << 8));
 
-		return transfer_length;
+		retval = transfer_length;
 	}
-	else {
-		/* Nothing to do */
-		return 0;
-	}
+
+ err_out:
+	return retval;
+}
+
+static ssize_t mi6k_dev_ioctl (struct inode *inode, struct file *file, unsigned int cmd,
+			       unsigned long arg)
+{
+	struct mi6k *widget = (struct mi6k*) file->private_data;
+	int retval = 0;
+
+	if (cmd == 0x0001)
+	  mi6k_request(widget, MI6K_CTRL_VFD_POWER, arg ? 1 : 0, 0);
+	else if (cmd == 0x0002)
+	  mi6k_request(widget, MI6K_CTRL_LED_SET, arg >> 16, arg & 0xFFFF);
+
+ err_out:
+	return retval;
 }
 
 static struct file_operations mi6k_fops = {
@@ -121,6 +139,7 @@ static struct file_operations mi6k_fops = {
 	write:          mi6k_dev_write,
 	open:		mi6k_dev_open,
 	release:	mi6k_dev_release,
+	ioctl:  	mi6k_dev_ioctl,
 };
 
 static void *mi6k_probe(struct usb_device *dev, unsigned int ifnum,
