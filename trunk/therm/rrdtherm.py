@@ -139,6 +139,7 @@ class Therm:
            """
         lineColor = Color(0,0,1)
         noDataColor = Color(1,1,0).blend(Color(1,1,1), 0.8)
+        freezingColor = Color(0,0,0)
         
         params = [     
             # Graph options
@@ -152,20 +153,22 @@ class Therm:
             "DEF:temp_max=%s:temp:MAX" % self.rrdFile,
             "CDEF:temp_span=temp_max,temp_min,-",
             "DEF:temp_average=%s:temp:AVERAGE" % self.rrdFile,
-            
-            # Unknown data
-            "CDEF:no_data=temp_max,temp_min,+,UN,INF,UNKN,IF",
-            "AREA:no_data%s:No data" % noDataColor,
             ]
 
         # Create a color gradient indicating the hot/coldness of the current temperature.
         warmthMin = 0
         warmthMax = 0.05
         sliceNum = 0
-        while warmthMax <= 1:
+        while warmthMin < 1:
             # Convert the current 'warmth' values to a color and a temperature range
-            tempMin = warmthMin * 100
-            tempMax = warmthMax * 100
+            if warmthMin > 0:
+                tempMin = warmthMin * 100
+            else:
+                tempMin = "-INF"
+            if warmthMax < 1:
+                tempMax = warmthMax * 100
+            else:
+                tempMax = "INF"
             color = Color(*colorsys.hsv_to_rgb(0.5 + (warmthMin + warmthMax) / 4.0, 0.2, 1))
 
             params.extend([
@@ -187,6 +190,13 @@ class Therm:
 
             # Average line
             "LINE1:temp_average%s:%s" % (lineColor, self.description),
+
+            # Unknown data
+            "CDEF:no_data=temp_max,temp_min,+,UN,INF,UNKN,IF",
+            "AREA:no_data%s:No data" % noDataColor,
+
+            # Freezing point
+            "HRULE:32%s" % freezingColor,
             ])
 
         return Graph(self.config, "%s-%s" % (self.id, interval[0]), *params)
