@@ -19,8 +19,7 @@ class PlayList:
 			self.playlist = Pieces.Pieces()
 
 	def dump (self):
-		print 'dumping to '+self.path
-		cPickle.dump(self.playlist,open(self.path,'w'))
+		cPickle.dump(self.playlist,open(self.path,'w'),1)
 
 	def getPieces (self):
 		return self.playlist

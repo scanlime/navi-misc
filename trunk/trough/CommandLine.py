@@ -22,8 +22,6 @@ class CommandLine:
 
 		self.playlist = PlayList()
 
-		print self.playlist.getPieces()
-
 		if opts.add:
 			self.add()
 			
@@ -32,7 +30,7 @@ class CommandLine:
 
 
 	def add(self):
-		print 'adding',self.args
+		print 'adding ',self.args
 		self.playlist.getPieces().addPaths(self.args)
 		self.playlist.dump()
 		sys.exit(0)
@@ -41,3 +39,6 @@ class CommandLine:
 #		playlist.getPieces().removePaths(self.args)
 #		playlist.dump()
 		sys.exit(0)
+
+	def getPieces(self):
+		return self.playlist.getPieces()

@@ -1,7 +1,17 @@
 #!/usr/bin/env python
 
 import CommandLine
+import Select
+import sys
+from types import *
 
-CommandLine.CommandLine()
+cmdl = CommandLine.CommandLine()
 
-print "Done"
+p = cmdl.getPieces()
+p.addPaths (sys.argv[1:])
+                                                                                
+s = Select.Select(p)
+if type(s) is StringType:
+	s = [s]
+for x in s:
+	print x
