@@ -174,6 +174,7 @@ i2c_buffer_loop macro	lbl
 	;; Write out i2c_byte. If and only if the byte was successfully acknowledged,
 	;; the zero flag will be set.
 i2c_write_byte
+	banksel	i2c_bit_count
 	movlw	8
 	movwf	i2c_bit_count
 write_loop
@@ -213,6 +214,7 @@ write_next
 	;; Read into i2c_byte. This does not clock in an ACK byte, call either i2c_read_ack
 	;; or i2c_read_nak after this, to indicate whether you want more data.
 i2c_read_byte
+	banksel	i2c_bit_count
 	movlw	8
 	movwf	i2c_bit_count
 read_loop
@@ -223,6 +225,7 @@ read_loop
 	pscall	i2c_delay
 
 	pscall	data_read		; Shift in the next bit
+	banksel	i2c_byte
 	rlf	i2c_byte, f
 	iorwf	i2c_byte, f
 
