@@ -68,4 +68,10 @@ class SysInterface(xmlrpc.XMLRPC):
                 rebuild(item)
         return True
 
+    def xmlrpc_revoke(self, capability, key=None):
+        """Revoke the specified capability. Requires a key for the 'revoke' capability"""
+        self.capDb.faultIfMissing(key, 'revoke')
+        self.capDb.revoke(capability)
+        return True
+
 ### The End ###
