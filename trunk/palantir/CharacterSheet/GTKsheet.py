@@ -14,8 +14,12 @@ class GTKsheet:
   ''' Assemble the character sheet from the specified XML file using the
       objects in GTKsheetElements.
       '''
-  def __init__(self, characterData):
+  def __init__(self, characterData, actionObject):
     self.character = characterData
+    # The action object will handle the button presses in the character sheet.
+    # This way the actions are more easily customizable depending on how the sheet
+    # is opened.
+    self.actionObject = actionObject
     self.readSheet(self.character.getLayoutFile())
 
   def readSheet(self, layoutFile):
@@ -51,5 +55,10 @@ class GTKsheet:
       for node in newNode.childNodes:
 	if node.nodeType is xml.dom.Node.ELEMENT_NODE:
 	  newObject.packChild(self.makeObjects(node, newObject, editList))
+
+      # If the new object needs to know about the action object then we'll add the action
+      # object to the new object.
+      if hasattr(newObject, 'addActionObject'):
+	newObject.addActionObject(self.actionObject)
 
       return newObject

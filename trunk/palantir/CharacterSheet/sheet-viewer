@@ -10,6 +10,7 @@ files using those layouts.
 '''
 
 import sys, gtk, gtk.glade
+from random import randint
 from GTKsheet import GTKsheet
 from Character import Character
 
@@ -26,7 +27,7 @@ def init(filename=None):
   if filename:
     data = Character()
     data.readCharacter(filename)
-    tree.sheet = GTKsheet(data)
+    tree.sheet = GTKsheet(data, DieRoller())
     tree.sheet.filename = filename
     tree.ViewPort.add(tree.sheet.root)
     tree.sheet.root.edit.set_active(gtk.TRUE)
@@ -93,7 +94,8 @@ def OpenSheet(widget, data=None):
   data = Character(tree.dialog.get_widget('SheetSelection').get_filename())
   if hasattr(tree, 'sheet'):
     tree.ViewPort.remove(tree.sheet.root)
-  tree.sheet = GTKsheet(data)
+  action = DieRoller()
+  tree.sheet = GTKsheet(data, action)
   tree.sheet.filename = tree.dialog.get_widget('SheetSelection').get_filename()
   tree.ViewPort.add(tree.sheet.root)
   tree.sheet.root.edit.set_active(gtk.TRUE)
@@ -107,6 +109,26 @@ def SaveSheet(widget, data=None):
   tree.sheet.character.writeOut()
   CloseDialog()
 
+class DieRoller:
+  ''' Debugging action object for the sheet viewer.  It just prints out all the relevant
+      information about the die rolls to stdout.
+      '''
+  def roll(self, times, sides, mods):
+    ''' Roll the dice, print results to stdout. '''
+    total = 0
+    rolls = []
+
+    # Make the rolls, keep track of each individual roll and the running total.
+    for time in times:
+      for roll in range(time):
+	rolls.append(randint(1, sides))
+	total += rolls[len(rolls)-1]
+
+    # Add the modifiers.
+    for mod in mods:
+      total += mod
+
+    print times, sides, mods, rolls, total
 
 if __name__ == '__main__':
   if len(sys.argv) > 1:
