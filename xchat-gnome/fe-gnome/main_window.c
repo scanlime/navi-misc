@@ -24,8 +24,11 @@
 #include "about.h"
 #include "userlist.h"
 #include "../common/xchatc.h"
+#include "../common/outbound.h"
 #include "gui.h"
 #include "channel_list.h"
+#include "preferences.h"
+#include "navigation_tree.h"
 
 #ifdef HAVE_GTKSPELL
 #include <gtkspell/gtkspell.h>
@@ -64,6 +67,7 @@ void on_go_next_discussion_activate(GtkWidget *widget, gpointer data);
 void on_help_about_menu_activate(GtkWidget *widget, gpointer data);
 
 void on_text_entry_activate(GtkWidget *widget, gpointer data);
+gboolean on_text_entry_key(GtkWidget *widget, GdkEventKey *key, gpointer data);
 
 gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 
@@ -103,6 +107,7 @@ void initialize_main_window() {
 
 	entry = glade_xml_get_widget(gui.xml, "text entry");
 	g_signal_connect(G_OBJECT(entry), "activate", G_CALLBACK(on_text_entry_activate), NULL);
+	g_signal_connect(G_OBJECT(entry), "key_press_event", G_CALLBACK(on_text_entry_key), NULL);
 #if 0
 	completion = gtk_entry_completion_new();
 	gtk_entry_completion_set_text_column(completion, 1);
@@ -249,6 +254,36 @@ void on_text_entry_activate(GtkWidget *widget, gpointer data) {
 	const char *entry_text = gtk_entry_get_text(GTK_ENTRY(widget));
 	handle_multiline(gui.current_session, entry_text, TRUE, FALSE);
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
+}
+
+static void history_key_down(GtkEntry *entry) {
+	char *new_line;
+	new_line = history_down(&(gui.current_session->history));
+	if(new_line) {
+		gtk_entry_set_text(entry, new_line);
+		gtk_editable_set_position(GTK_EDITABLE(entry), -1);
+	}
+}
+
+static void history_key_up(GtkEntry *entry) {
+	char *new_line;
+	new_line = history_up(&(gui.current_session->history), (char *)entry->text);
+	if(new_line) {
+		gtk_entry_set_text(entry, new_line);
+		gtk_editable_set_position(GTK_EDITABLE(entry), -1);
+	}
+}
+
+gboolean on_text_entry_key(GtkWidget *widget, GdkEventKey *key, gpointer data) {
+	if(key->keyval == GDK_Down) {
+		history_key_down(GTK_ENTRY(widget));
+		return TRUE;
+	}
+	if(key->keyval == GDK_Up) {
+		history_key_up(GTK_ENTRY(widget));
+		return TRUE;
+	}
+	return FALSE;
 }
 
 gboolean on_resize(GtkWidget *widget, GdkEventConfigure *event, gpointer data) {
