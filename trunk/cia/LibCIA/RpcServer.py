@@ -150,16 +150,15 @@ class Interface(xmlrpc.XMLRPC):
             # A callback invoked when our key is successfully validated
             def keyValidated(x=None):
                 d = defer.maybeDeferred(f, *args)
-                d.chainDeferred(result)
                 d.addBoth(self.logProtectedCall, path, args, user)
+                d.chainDeferred(result)
 
             # Check the capabilities asynchronously (requires a database query)
             import Security
             user = Security.User(key=key)
             d = user.require(*caps)
-            d.addCallback(keyValidated)
-            d.addErrback(result.errback)
             d.addErrback(self.logProtectedCall, path, args, user, allowed=False)
+            d.addCallbacks(keyValidated, result.errback)
             return result
         return rpcWrapper
 
@@ -187,7 +186,8 @@ class Interface(xmlrpc.XMLRPC):
             Database.quoteBlob(cPickle.dumps(args, -1)),
             allowed,
             Database.quoteBlob(cPickle.dumps(result, -1))))
-
+        return result
+            
     def _cbRender(self, result, request):
         """Wrap the default _cbRender, converting None (which can't be serialized) into True"""
         if result is None:
