@@ -146,6 +146,9 @@ class StatsPage(page.Page):
 
     def getPathTo(self, request, destination):
         """Assuming this is the page requested, return a relative URI to the given page"""
+        if self.path == destination.path:
+            return '.'
+
         # Figure out how many levels deep we are in the stats path
         # and what levels there are in the destination, and start
         # cancelling out what we can to create an optimized relative path.

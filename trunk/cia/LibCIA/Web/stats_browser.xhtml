@@ -9,6 +9,7 @@
         <div class="title" model="title" view="Text"/>
         <div class="subtitle">More wet kittens than you can shake a cheese grater at</div>
         <div class="headingTabs">
+            <a class="headingTab" href="/">CIA</a>
             <a class="headingTab" view="statsLink" model="root"/>
             <a class="headingTab" view="statsLink" model="root/child/project"/>
         </div>
@@ -22,7 +23,7 @@
                 <div class="row" model="currentTime" view="fullDate"/>
             </div>
 
-            <span class="section">catagories</span>
+            <span class="section">categories</span>
             <div class="section">
                 <div class="sectionTop"/>
                 <div class="row"><ul model="root/catalog" view="List" class="catalog">
@@ -37,12 +38,20 @@
                 <span class="section">catalog</span>
                 <div class="section">
                     <div class="sectionTop"/>
-                    <div class="row"><ul model="catalog" view="List" class="catalog">
-                        <li pattern="listItem"><a view="statsLink"/></li>
-                    </ul></div>
+                    <div class="row">
+                        <table view="List" model="catalog">
+                            <tr pattern="listHeader">
+                                <th>title</th>
+                                <th>today</th>
+                            </tr>
+                            <tr pattern="listItem">
+                                <td><a view="statsLink"/></td>
+                                <td><span class="bargraph" view="Text" model="counters/today/eventCount"/></td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
-
 
             <div view="if" model="counters/forever/eventCount">
                 <span class="section">event counters</span>
@@ -90,7 +99,9 @@
         </td>
     </table>
     <div class="footer">
-        <a href="/"><img src="/images/navi64.png" width="64" height="39" alt="Navi"/></a>
+        <a href="http://navi.picogui.org">
+            <img src="/images/navi64.png" width="64" height="39" alt="Navi"/>
+        </a>
     </div>
   </body>
 </html>

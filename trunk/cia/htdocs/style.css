@@ -179,6 +179,11 @@ table.columns td.right {
   padding: 0em 1.5em 0em 0em;
 }
 
+span.bargraph {
+  background: #DEECE7;
+  border: 1px solid #8CBBAC;
+}
+
 .fgColor-black       { color: #000000; }
 .fgColor-dark-blue   { color: #0000cc; }
 .fgColor-dark-green  { color: #00cc00; }
