@@ -1,6 +1,6 @@
 from __future__ import division
 from Graph import PolledGraph
-import gtk
+import gtk, os
 
 class HScrollGraph(PolledGraph):
     """A graph that shows time on the horizontal axis, multiple channels
@@ -23,6 +23,16 @@ class HScrollGraph(PolledGraph):
         self.gridSize = gridSize
         self.scrollRate = scrollRate
         self.gridPhase = 0.0       # Number of pixels we've scrolled, modulo gridSize
+
+        # Normally we copy from backbuffer to backbuffer when scrolling.
+        # This breaks under the win32 implementation of GDK, so use a temporary
+        # buffer then.
+        self.useTemporaryPixmap = os.name == "nt"
+
+    def resized(self):
+        PolledGraph.resized(self)
+        if self.useTemporaryPixmap:
+            self.tempPixmap = gtk.gdk.Pixmap(self.window, self.width, self.height)
 
     def graphChannel(self, channel):
         """Hook for graphing the current values of each channel. Called for
@@ -91,9 +101,21 @@ class HScrollGraph(PolledGraph):
 
         if newPixels > 0:
             # Scroll the backing store left by newPixels pixels
-            self.backingPixmap.draw_drawable(self.get_style().fg_gc[gtk.STATE_NORMAL],
-                                             self.backingPixmap, newPixels, 0, 0, 0,
-                                             self.width - newPixels, self.height)
+
+            if self.useTemporaryPixmap:
+                # We can't safely copy from and to the same pixmap, copy this
+                # via a temporary off-screen buffer.
+                self.tempPixmap.draw_drawable(self.get_style().fg_gc[gtk.STATE_NORMAL],
+                                              self.backingPixmap, newPixels, 0, 0, 0,
+                                              self.width - newPixels, self.height)
+                self.backingPixmap.draw_drawable(self.get_style().fg_gc[gtk.STATE_NORMAL],
+                                                 self.tempPixmap, 0, 0, 0, 0,
+                                                 self.width - newPixels, self.height)
+            else:
+                # Copy directly from and to the backbuffer
+                self.backingPixmap.draw_drawable(self.get_style().fg_gc[gtk.STATE_NORMAL],
+                                                 self.backingPixmap, newPixels, 0, 0, 0,
+                                                 self.width - newPixels, self.height)
 
             # Draw a blank grid in the new area
             self.drawGrid(self.width - newPixels, newPixels)
