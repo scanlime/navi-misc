@@ -90,6 +90,7 @@ AC_CONFIG_FILES([
 Makefile
 data/Makefile
 src/Makefile
+contrib/Makefile
 ])
 
 AC_OUTPUT

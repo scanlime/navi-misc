@@ -1,4 +1,4 @@
-SUBDIRS = data src
+SUBDIRS = data src contrib
 
 desktopdir = $(datadir)/applications
 desktop_DATA = fyre.desktop
