@@ -3,51 +3,55 @@
 -- in a blank database, or repair deleted tables. This will -not- upgrade
 -- existing old tables to a new schema.
 --
--- For example:
---  mysql -u root -p < init.sql
+-- In postgresql, for example:
+--   dbcreate cia
+--   psql -f init.sql cia
 --
 
-CREATE DATABASE IF NOT EXISTS cia;
-USE cia;
+----------------------------------------------------------- Security
 
-CREATE TABLE IF NOT EXISTS capabilities
+CREATE TABLE capabilities
 (
     key_data  TEXT NOT NULL,
     id        TEXT NOT NULL,
-    owner     TEXT,
+    owner     TEXT
 );
 
-CREATE TABLE IF NOT EXISTS rulesets
+----------------------------------------------------------- Rulesets
+
+CREATE TABLE rulesets
 (
     uri TEXT NOT NULL,
-    xml TEXT NOT NULL,
+    xml TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS stats_messages
+----------------------------------------------------------- Stats
+
+CREATE TABLE stats_messages
 (
     target_path  VARCHAR(128) NOT NULL,
-    id           INT NOT NULL AUTO_INCREMENT,
+    id           INT NOT NULL,
     xml          TEXT NOT NULL,
     PRIMARY KEY(target_path, id)
 );
 
-CREATE TABLE IF NOT EXISTS stats_catalog
+CREATE TABLE stats_catalog
 (
     target_path  VARCHAR(128) NOT NULL,
     parent_path  VARCHAR(128) NOT NULL,
     PRIMARY KEY(target_path, parent_path)
 );
 
-CREATE TABLE IF NOT EXISTS stats_metadata
+CREATE TABLE stats_metadata
 (
     target_path  VARCHAR(128) NOT NULL,
     name         VARCHAR(32) NOT NULL,
     mime_type    VARCHAR(32) NOT NULL,
-    value        BLOB NOT NULL,
+    value        BYTEA NOT NULL,
     PRIMARY KEY(target_path, name)
 );
 
-CREATE TABLE IF NOT EXISTS stats_counters
+CREATE TABLE stats_counters
 (
     target_path  VARCHAR(128) NOT NULL,
     name         VARCHAR(32) NOT NULL,
@@ -56,3 +60,5 @@ CREATE TABLE IF NOT EXISTS stats_counters
     last_time    BIGINT,
     PRIMARY KEY(target_path, name)
 );
+
+--- The End ---
