@@ -54,6 +54,9 @@ class CommitFormatter(Message.Formatter):
     logWidthLimit = None
     logWrapWidth = None
 
+    # If the list of files ends up longer than this many characters, summarize it
+    fileSummarizationThreshold = 60
+
     def consolidateFiles(self, xmlFiles):
         """Given a <files> element, find the directory common to all files
            and return a 2-tuple with that directory followed by
@@ -133,7 +136,7 @@ class CommitFormatter(Message.Formatter):
            """
         prefix, endings = self.consolidateFiles(files)
         endingStr = " ".join(endings)
-        if len(endingStr) > 20:
+        if len(endingStr) > self.fileSummarizationThreshold:
             # If the full file list is too long, give a file summary instead
             endingStr = self.summarizeFiles(endings)
         if prefix.startswith('/'):
