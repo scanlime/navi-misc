@@ -32,6 +32,9 @@ void             fpga_config_write(unsigned char *cfgdata, int length);
 /* Finish configuring the FPGA, returning a status code (UNICONE_STATUS_*) */
 unsigned char    fpga_config_end();
 
+/* Only return the FPGA status, without sending anything */
+unsigned char    fpga_config_status();
+
 #endif /* _H_FPGA */
 
 /* The End */

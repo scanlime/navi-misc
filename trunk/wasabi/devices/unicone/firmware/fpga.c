@@ -115,10 +115,21 @@ unsigned char fpga_config_end()
     printf(" Done\n");
     return UNICONE_STATUS_OK;
   }
-  else{
+  else {
     printf(" Error\n");
     return UNICONE_STATUS_ERROR;
   }
 }
+
+unsigned char fpga_config_status()
+{
+  if (config_in_progress)
+    return UNICONE_STATUS_IN_PROGRESS;
+  if (fpga_done())
+    return UNICONE_STATUS_OK;
+  else
+    return UNICONE_STATUS_ERROR;
+}
+
 
 /* The End */

@@ -41,15 +41,24 @@
  * long enough for the FPGA to reset itself, the host should begin sending
  * the configuration bitstream on EP1 OUT.
  */
-#define UNICONE_REQ_FPGA_CONFIG_BEGIN    0x01
+#define UNICONE_REQ_FPGA_CONFIG_BEGIN    0x11
 
 /* Finish programming the FPGA. This finishes clocking the bitstream
  * into the FPGA and checks the 'DONE' pin. Returns a 1-byte status code.
  */
-#define UNICONE_REQ_FPGA_CONFIG_END      0x02
+#define UNICONE_REQ_FPGA_CONFIG_END      0x12
 
-/* Set the status LED brightness, from wValue */
-#define UNICONE_REQ_LED_BRIGHTNESS       0x03
+/* Check the FPGA programming status, returns UNICONE_STATUS_OK if the FPGA
+ * is programmed, or UNICONE_STATUS_ERROR if it has not yet been successfully
+ * configured.
+ */
+#define UNICONE_REQ_FPGA_STATUS          0x13
+
+/* Set the status LED brightness, from wValue, in the range [0x0000, 0xFFFF] */
+#define UNICONE_REQ_LED_BRIGHTNESS       0x23
+
+/* Force us to reboot back into the TUSB bootloader */
+#define UNICONE_REQ_REBOOT               0x34
 
 
 /**************************************************************************/
@@ -57,7 +66,8 @@
 /**************************************************************************/
 
 #define UNICONE_STATUS_OK                0x00
-#define UNICONE_STATUS_ERROR             0x01   /* Generic error code */
+#define UNICONE_STATUS_ERROR             0x01
+#define UNICONE_STATUS_IN_PROGRESS       0x02
 
 
 #endif /* _H_UNICONE */

@@ -94,9 +94,19 @@ void usb_handle_vendor_request()
     usb_write_ep0_buffer(&retval, 1);
     break;
 
+  case UNICONE_REQ_FPGA_STATUS:
+    retval = fpga_config_status();
+    usb_write_ep0_buffer(&retval, 1);
+    break;
+
   case UNICONE_REQ_LED_BRIGHTNESS:
     led_set_brightness(usb_setup_buffer.wValue);
     usb_write_ack();
+    break;
+
+  case UNICONE_REQ_REBOOT:
+    usb_write_ack();
+    while (1);
     break;
 
   default:
