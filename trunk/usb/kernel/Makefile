@@ -11,3 +11,7 @@ all: ${OBJS}
 
 clean:
 	rm -rf *.o
+
+test: usbwidget.o
+	rmmod usbwidget || true
+	insmod usbwidget.o
