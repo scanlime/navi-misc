@@ -52,7 +52,7 @@ public class PipelineEditor
 		gxml.Autoconnect (this);
 
 		/* Do all the setup for the element tree view */
-		element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type));
+		element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type), typeof (ElementTooltip));
 		sorted_store = new Gtk.TreeModelSort (element_store);
 		element_list.Model = sorted_store;
 
@@ -81,6 +81,7 @@ public class PipelineEditor
         {
         	object[] i = {};
 		Element e = (Element) t.GetConstructor(Type.EmptyTypes).Invoke(i);
+		ElementTooltip tt = new ElementTooltip (e);
 
 		string name = e.Name ();
 		string category = e.Category ();
@@ -93,13 +94,13 @@ public class PipelineEditor
 				string cat = (string) element_store.GetValue (iter, 1);
 				if (cat.Equals (category)) {
 					found = true;
-					element_store.AppendValues (iter, pixbuf, name, t);
+					element_store.AppendValues (iter, pixbuf, name, t, tt);
 				}
 			} while (element_store.IterNext (ref iter));
 		}
 		if (!found) {
 			iter = element_store.AppendValues (null, category);
-			element_store.AppendValues (iter, pixbuf, name, t);
+			element_store.AppendValues (iter, pixbuf, name, t, tt);
 			element_list.ExpandAll ();
 		}
         }
