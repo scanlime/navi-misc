@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * parameter-holder.c - A base class for GObjects whose properties include
  *                      algorithm parameters that can be serialized to key/value
  *                      pairs and interpolated between.

@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * de-jong.c - The DeJong object builds on the ParameterHolder and HistogramRender
  *             objects to provide a rendering of the DeJong map into a histogram image.
  *

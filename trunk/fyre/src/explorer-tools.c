@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * explorer-tools.c - Implementation for the GUI 'tools' that allow
  *                    direct interaction with the mouse.
  *

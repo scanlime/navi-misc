@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * histogram-view.h - A DrawingArea subclass that displays the results of a HistogramImager
  *
  * Fyre - rendering and interactive exploration of chaotic functions

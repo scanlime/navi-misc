@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * var-int.h - Inlines for encoding and decoding integers into a
  *             variable length format reminicent of UTF-8 or EBML.
  *             In fact, this is a subset of EBML's size encoding,

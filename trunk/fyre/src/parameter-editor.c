@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * parameter-editor.c - Automatically constructs a GUI for editing the
  *                      parameters of a ParameterHolder instance.
  *

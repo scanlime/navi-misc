@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * bifurcation-diagram.h - A HistogramImager that renders a bifurcation diagram
  *                         in which one axis interpolates across de Jong parameters
  *                         and the other axis shows a 1 dimensional projection of the

@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * animation.c - A simple keyframe animation system for ParameterHolder objects
  *
  * Fyre - rendering and interactive exploration of chaotic functions

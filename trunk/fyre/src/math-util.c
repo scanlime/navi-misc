@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * math-util.c - Small math utilities shared by other modules
  *
  * Fyre - rendering and interactive exploration of chaotic functions

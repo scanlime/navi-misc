@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * exr.cpp - Optional OpenEXR extensions to the HistogramImager,
  *           for saving high dynamic range images from it.
  *

@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * explorer.c - An interactive GUI for manipulating a DeJong object and viewing its output
  *
  * Fyre - rendering and interactive exploration of chaotic functions

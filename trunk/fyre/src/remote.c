@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * remote.c - Remote control mode, an interface for automating
  *            Fyre rendering. Among other things, this is used
  *            to implement slave nodes in a cluster.

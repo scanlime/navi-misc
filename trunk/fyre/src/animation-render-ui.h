@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * animation-render-ui.h - A user interface for preparing an animation
  *                         rendering and viewing its progress.
  *

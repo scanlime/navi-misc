@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * iterative-map.h - The IterativeMap object builds on the ParameterHolder and
  *		     HistogramRender objects to provide a rendering of a chaotic
  *		     map into a histogram image.

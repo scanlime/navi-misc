@@ -1,4 +1,5 @@
-/*
+/* -*- mode: c; c-basic-offset: 4; -*-
+ *
  * screensaver.h - A self-running Fyre screen saver
  *
  * Fyre - rendering and interactive exploration of chaotic functions
