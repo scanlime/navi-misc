@@ -80,7 +80,7 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
         del self.queueMap[uri]
 
     def message(self, uri, message, content):
-        self.queueMap[uri].send(content)
+        self.queueMap[uri].send(str(content))
 
 
 class MessageQueue:
