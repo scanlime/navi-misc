@@ -51,6 +51,10 @@ struct _ColorButton {
   gchar *title;
   GdkColor previous_color;
   GdkColor color;
+  guint16 previous_alpha;
+  guint16 alpha;
+
+  gboolean ignore_changes;
 };
 
 struct _ColorButtonClass {
@@ -60,9 +64,11 @@ struct _ColorButtonClass {
 };
 
 GType      color_button_get_type(void);
-GtkWidget* color_button_new(const char *title, GdkColor *defaultColor);
+GtkWidget* color_button_new(const char *title, GdkColor *default_color, guint16 default_alpha);
 void       color_button_set_color(ColorButton *cb, GdkColor *c);
 void       color_button_get_color(ColorButton *cb, GdkColor *c);
+void       color_button_set_alpha(ColorButton *cb, guint16 alpha);
+guint16    color_button_get_alpha(ColorButton *cb);
 
 G_END_DECLS
 

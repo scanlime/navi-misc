@@ -41,9 +41,9 @@ void resize(int w, int h, int oversample) {
     g_free(render.counts);
   render.counts = g_malloc(sizeof(render.counts[0]) * w * h * oversample * oversample);
 
-  if (render.pixels)
-    g_free(render.pixels);
-  render.pixels = g_malloc(4 * render.width * render.height);
+  if (render.pixbuf)
+    gdk_pixbuf_unref(render.pixbuf);
+  render.pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, render.width, render.height);
 
   clear();
 }
@@ -94,7 +94,7 @@ static void update_color_table() {
    */
   guint required_size = render.current_density + 1;
   guint count;
-  int r, g, b;
+  int r, g, b, a;
   float pixel_scale = get_pixel_scale();
   float luma;
   double one_over_gamma = 1/render.gamma;
@@ -124,14 +124,16 @@ static void update_color_table() {
     r = ((int)(render.bgcolor.red   * (1-luma) + render.fgcolor.red   * luma)) >> 8;
     g = ((int)(render.bgcolor.green * (1-luma) + render.fgcolor.green * luma)) >> 8;
     b = ((int)(render.bgcolor.blue  * (1-luma) + render.fgcolor.blue  * luma)) >> 8;
+    a = ((int)(render.bgalpha       * (1-luma) + render.fgalpha       * luma)) >> 8;
 
     /* Always clamp color components */
     if (r<0) r = 0;  if (r>255) r = 255;
     if (g<0) g = 0;  if (g>255) g = 255;
     if (b<0) b = 0;  if (b>255) b = 255;
+    if (a<0) a = 0;  if (a>255) a = 255;
 
     /* Colors are always ARGB order in little endian */
-    render.color_table[count] = GUINT32_TO_LE( 0xFF000000UL | (b<<16) | (g<<8) | r );
+    render.color_table[count] = GUINT32_TO_LE( (a<<24) | (b<<16) | (g<<8) | r );
   }
 }
 
@@ -146,7 +148,7 @@ void update_pixels() {
 
   update_color_table();
 
-  pixel_p = render.pixels;
+  pixel_p = (guint32*) gdk_pixbuf_get_pixels(render.pixbuf);
   count_p = render.counts;
 
   if (oversample > 1) {

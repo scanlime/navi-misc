@@ -77,6 +77,8 @@ static void color_button_class_init(ColorButtonClass *klass) {
 }
 
 static void color_button_init(ColorButton *cb) {
+  cb->ignore_changes = FALSE;
+
   g_signal_connect(G_OBJECT(cb), "clicked", G_CALLBACK(color_button_activate), (gpointer) cb);
 
   cb->frame = gtk_frame_new(NULL);
@@ -98,11 +100,12 @@ static void set_sample_color(ColorButton *cb, GdkColor *c) {
   gtk_rc_style_unref(rc_style);
 }
 
-GtkWidget* color_button_new(const char *title, GdkColor *defaultColor) {
+GtkWidget* color_button_new(const char *title, GdkColor *default_color, guint16 default_alpha) {
   ColorButton *cb = g_object_new(color_button_get_type(), NULL);
   cb->title = g_strdup(title);
-  cb->color = *defaultColor;
-  set_sample_color(cb, defaultColor);
+  cb->color = *default_color;
+  cb->alpha = default_alpha;
+  set_sample_color(cb, default_color);
   return GTK_WIDGET(cb);
 }
 
@@ -115,6 +118,7 @@ static void color_button_activate(GtkWidget *widget, ColorButton *cb) {
 
   cb->dialog = gtk_color_selection_dialog_new(cb->title);
   colorsel = GTK_COLOR_SELECTION_DIALOG(cb->dialog)->colorsel;
+  gtk_color_selection_set_has_opacity_control(GTK_COLOR_SELECTION(colorsel), TRUE);
 
   g_signal_connect(G_OBJECT(cb->dialog), "response", G_CALLBACK(color_response), (gpointer) cb);
 
@@ -123,8 +127,13 @@ static void color_button_activate(GtkWidget *widget, ColorButton *cb) {
 
   /* Set the current and previous colors in the dialog */
   cb->previous_color = cb->color;
+  cb->previous_alpha = cb->alpha;
+  cb->ignore_changes = TRUE;
+  gtk_color_selection_set_current_alpha(GTK_COLOR_SELECTION(colorsel), cb->alpha);
+  gtk_color_selection_set_previous_alpha(GTK_COLOR_SELECTION(colorsel), cb->previous_alpha);
   gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel), &cb->color);
   gtk_color_selection_set_previous_color(GTK_COLOR_SELECTION(colorsel), &cb->previous_color);
+  cb->ignore_changes = FALSE;
 
   /* Is there a better way to hide the help button? */
   gtk_widget_show_all(cb->dialog);
@@ -132,16 +141,21 @@ static void color_button_activate(GtkWidget *widget, ColorButton *cb) {
 }
 
 static void color_response(GtkWidget *widget, gint response, ColorButton *cb) {
-  if (response == GTK_RESPONSE_CANCEL)
+  if (response == GTK_RESPONSE_CANCEL) {
     color_button_set_color(cb, &cb->previous_color);
+    color_button_set_alpha(cb, cb->previous_alpha);
+  }
   gtk_widget_destroy(cb->dialog);
   cb->dialog = NULL;
 }
 
 static void color_changed(GtkWidget *widget, ColorButton *cb) {
   GdkColor gcolor;
-  gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(widget), &gcolor);
-  color_button_set_color(cb, &gcolor);
+  if (!cb->ignore_changes) {
+    gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(widget), &gcolor);
+    cb->alpha = gtk_color_selection_get_current_alpha(GTK_COLOR_SELECTION(widget));
+    color_button_set_color(cb, &gcolor);
+  }
 }
 
 void color_button_set_color(ColorButton *cb, GdkColor *c) {
@@ -152,6 +166,14 @@ void color_button_set_color(ColorButton *cb, GdkColor *c) {
 
 void color_button_get_color(ColorButton *cb, GdkColor *c) {
   *c = cb->color;
+}
+
+void color_button_set_alpha(ColorButton *cb, guint16 alpha) {
+  cb->alpha = alpha;
+}
+
+guint16 color_button_get_alpha(ColorButton *cb) {
+  return cb->alpha;
 }
 
 /* The End */

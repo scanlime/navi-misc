@@ -62,6 +62,8 @@ int main(int argc, char ** argv) {
       {"clamped",     0, NULL, 1004},
       {"oversample",  1, NULL, 1005},
       {"tileable",    0, NULL, 1006},
+      {"fg-alpha",    1, NULL, 1007},
+      {"bg-alpha",    1, NULL, 1008},
       NULL,
     };
     c = getopt_long(argc, argv, "hi:o:a:b:c:d:x:y:z:r:e:g:s:t:",
@@ -92,6 +94,8 @@ int main(int argc, char ** argv) {
     case 1004: set_parameter("clamped",        "1");    break;
     case 1005: set_parameter("oversample",     optarg); break;
     case 1006: set_parameter("tileable",       "1");    break;
+    case 1007: set_parameter("fgalpha",        optarg); break;
+    case 1008: set_parameter("bgalpha",        optarg); break;
 
     case 'h':
     default:
@@ -155,6 +159,10 @@ static void usage(char **argv) {
 	 "                          or in #RRGGBB hexadecimal format [%s]\n"
 	 "  --background COLOR    Set the background color, specified as a color name\n"
 	 "                          or in #RRGGBB hexadecimal format [%s]\n"
+	 "  --fg-alpha ALPHA      Set the foreground alpha, between 0 (transparent)\n"
+	 "                          and 65535 (completely opaque)\n"
+	 "  --bg-alpha ALPHA      Set the background alpha, between 0 (transparent)\n"
+	 "                          and 65535 (completely opaque)\n"
 	 "  --clamped             Clamp the image to the foreground color, rather than\n"
 	 "                          allowing more intense pixels to have other values\n"
 	 "\n"
@@ -235,6 +243,8 @@ void set_defaults() {
   render.clamped = FALSE;
   gdk_color_parse("white", &render.bgcolor);
   gdk_color_parse("black", &render.fgcolor);
+  render.fgalpha = 0xFFFF;
+  render.bgalpha = 0xFFFF;
 
   render.width = 600;
   render.height = 600;
@@ -270,12 +280,15 @@ gchar* save_parameters() {
 			   "bgcolor = %s\n"
 			   "fgcolor = %s\n"
 			   "clamped = %d\n"
-			   "tileable = %d\n",
+			   "tileable = %d\n"
+			   "bgalpha = %d\n"
+			   "fgalpha = %d\n",
 			   params.a, params.b, params.c, params.d,
 			   params.zoom, params.xoffset, params.yoffset, params.rotation,
 			   params.blur_radius, params.blur_ratio,
 			   render.exposure, render.gamma,
-			   bg, fg, render.clamped, params.tileable);
+			   bg, fg, render.clamped, params.tileable,
+			   render.bgalpha, render.fgalpha);
 
   g_free(fg);
   g_free(bg);
@@ -357,6 +370,12 @@ gboolean set_parameter(const char *key, const char *value) {
       render.oversample = 1;
   }
 
+  else if (!strcmp(key, "fgalpha"))
+    render.fgalpha = atol(value);
+
+  else if (!strcmp(key, "bgalpha"))
+    render.bgalpha = atol(value);
+
   else
     return TRUE;
   return FALSE;
@@ -409,23 +428,18 @@ void load_parameters_from_file(const char *name) {
 }
 
 void save_to_file(const char *name) {
-  /* Save the current contents of pixels[] to a .PNG file */
-  GdkPixbuf *pixbuf;
+  /* Save our current image to a .PNG file */
   gchar *params;
 
   /* Get a higher quality rendering */
   update_pixels();
 
-  pixbuf = gdk_pixbuf_new_from_data((guchar*) render.pixels, GDK_COLORSPACE_RGB, TRUE,
-				    8, render.width, render.height, render.width*4, NULL, NULL);
-
   /* Save our current parameters in a tEXt chunk, using a format that
    * is both human-readable and easy to load parameters from automatically.
    */
   params = save_parameters();
-  gdk_pixbuf_save(pixbuf, name, "png", NULL, "tEXt::de_jong_params", params, NULL);
+  gdk_pixbuf_save(render.pixbuf, name, "png", NULL, "tEXt::de_jong_params", params, NULL);
   g_free(params);
-  gdk_pixbuf_unref(pixbuf);
 }
 
 /* The End */
