@@ -61,7 +61,7 @@ class IconStyle:
 # Define a few common icon styles
 ListIconStyle = IconStyle(
     textHeight = 0.9,
-    textSide   = (1, 0.5))
+    textSide   = (1.05, 0.5))
 LargeIconStyle = IconStyle()
 
 
