@@ -21,6 +21,7 @@
 
 #include <gnome.h>
 #include "channel_list.h"
+#include "../common/xchat.h"
 
 static GSList *chanlists = NULL;
 

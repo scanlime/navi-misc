@@ -37,7 +37,10 @@ typedef struct
 	GtkDialog *preferences_dialog;
 	GnomeAbout *about;
 	GtkXText *xtext;
-	GtkWidget *topic;
+#if (GTK_CHECK_VERSION(2,5,0))
+	GtkExpander *topic_expander;
+#endif
+	GtkLabel *topic_label;
 	session *current_session;
 	GnomeDruid *setup_druid;
 	gboolean quit;
