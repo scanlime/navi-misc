@@ -19,6 +19,7 @@ BIN     = fyre
 
 OBJS    = \
 	src/main.o		\
+	src/accumulator.o	\
 	src/de-jong.o		\
 	src/explorer.o		\
 	src/color-button.o	\
