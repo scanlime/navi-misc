@@ -405,9 +405,15 @@ TxRxRequest
 	bcf	STATUS, IRP	; Transfer bit 8 of wIndex into IRP
 	btfsc	BufferData+(wIndex+1), 0
 	bsf	STATUS, IRP
+	movf	STATUS, w	; Save STATUS, containing the buffer's IRP bit, for receiving later
+	banksel	rx_status
+	movwf	rx_status
 
+	banksel	BufferData
 	movf	BufferData+wIndex, w ; Load address bits 0-7 into FSR
 	movwf	FSR
+	banksel	rx_fsr		; And save it for receiving later
+	movwf	rx_fsr
 
 txLoop
 	pagesel	txLoop
@@ -438,16 +444,6 @@ txFinish
 	call	io_Deassert
 
 skipTx
-
-	banksel	BufferData
-	movf	BufferData+wIndex, w ; Store the beginning of the receive buffer
-	banksel	rx_fsr
-	movwf	rx_fsr
-
-	banksel STATUS		; Save STATUS, containing the buffer's IRP bit
-	movf	STATUS, w
-	banksel	rx_status
-	movwf	rx_status
 
 	banksel	RCREG		; Make sure the receive register is empty, so we
 	movf	RCREG, w	;   don't start receiving on a byte that came in either
