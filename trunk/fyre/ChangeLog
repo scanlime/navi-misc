@@ -3,7 +3,8 @@
 	* Added keybindings for zoom presets
 	* Added an index to AVI files created with the animation renderer,
 	  allowing them to be played in Windows Media Player
-	* Added file associations for image/png, application/x-fyre-animation
+	* Added file associations for image/png and
+	  application/x-fyre-animation on linux
 	* Minor bugfixes and UI polishing
 
 0.8 (27 January 2005)
