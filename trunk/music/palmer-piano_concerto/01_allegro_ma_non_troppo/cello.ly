@@ -118,7 +118,7 @@ mvmtOneCello = \relative c, {
 		g, (bes a
 		bes)
 	} >> r4 r2
-	r1
+	R1
 	fis1\p \trill
 	\> fis1 \! \trill
 
@@ -128,7 +128,7 @@ mvmtOneCello = \relative c, {
 	% 130
 	r8 aes r f r e r g
 	r8 ees r d r fis r bis,
-	r1
+	R1
 	r2 r4
 	<< {
 		a4 (
