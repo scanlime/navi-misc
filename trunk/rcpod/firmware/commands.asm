@@ -192,7 +192,7 @@ adFinishLoop
 	movf	ADRES, w
 	movwf	INDF
 
-	movlw	0x80		; Next channel
+	movlw	0x08		; Next channel
 	banksel	ADCON0
 	addwf	ADCON0, f
 
