@@ -12,12 +12,11 @@
 // world.cpp
 
 #include "world.h"
+#include "drawManager.h"
 
 CTestWorld::CTestWorld()
 {
 }
-
-
 
 CTestWorld::~CTestWorld()
 {
@@ -28,7 +27,7 @@ void CTestWorld::Load ( trWorldInfo &info, bool draw )
 {
 	if (draw)
 	{
-	//	worldDrawable = game
+		worldDrawable = CDrawManager::instance().New("World",this);
 	}
 }
 
