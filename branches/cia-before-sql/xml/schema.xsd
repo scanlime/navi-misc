@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<xsd:schema
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<!-- ====== data types for a CIA message -->
+<xsd:complexType name="fileList">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="file" type="xsd:string"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="commit">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="user" type="xsd:string"/>
+    <xsd:element name="revision" type="xsd:string"/>
+    <xsd:element name="log" type="xsd:string"/>
+    <xsd:element name="files" type="fileList"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="message-body">
+  <xsd:choice>
+    <xsd:element name="commit" type="commit"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="message-source">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="project" type="xsd:string"/>
+    <xsd:element name="module" type="xsd:string"/>
+    <xsd:element name="branch" type="xsd:string"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="message-generator">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="version" type="xsd:decimal"/>
+    <xsd:element name="url" type="xsd:anyURI"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<!-- ====== top-level CIA message -->
+<xsd:element name="message">
+  <xsd:complexType>
+    <xsd:choice maxOccurs="unbounded" minOccurs="0">
+      <xsd:element name="generator" type="message-generator"/>
+      <xsd:element name="source" type="message-source"/>
+      <xsd:element name="timestamp" type="xsd:integer"/>
+      <xsd:element name="body" type="message-body"/>
+    </xsd:choice>
+  </xsd:complexType>
+</xsd:element>
+
+<!-- ====== data types for a CIA filter -->
+<xsd:complexType name="filter-element" mixed="true">
+  <xsd:attribute name="path" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="empty"/>
+
+<xsd:group name="filters">
+  <xsd:choice>
+    <xsd:element name="and" type="filter-aggregation"/>
+    <xsd:element name="or" type="filter-aggregation"/>
+    <xsd:element name="not" type="filter-aggregation"/>
+    <xsd:element name="match" type="filter-element"/>
+    <xsd:element name="find" type="filter-element"/>
+    <xsd:element name="true" type="empty"/>
+    <xsd:element name="false" type="empty"/>
+  </xsd:choice>
+</xsd:group>
+
+<xsd:complexType name="filter-aggregation">
+  <xsd:choice maxOccurs="unbounded">
+    <xsd:group ref="filters"/>
+  </xsd:choice>
+</xsd:complexType>
+
+<!-- ====== top-level filters -->
+<xsd:element name="and" type="filter-aggregation"/>
+<xsd:element name="or" type="filter-aggregation"/>
+<xsd:element name="not" type="filter-aggregation"/>
+<xsd:element name="match" type="filter-element"/>
+<xsd:element name="find" type="filter-element"/>
+<xsd:element name="true" type="empty"/>
+<xsd:element name="false" type="empty"/>
+
+</xsd:schema>

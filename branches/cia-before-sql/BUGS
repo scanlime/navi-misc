@@ -1,0 +1,59 @@
+######## Critical
+
+- Rack is cool, but the current implementation isn't nearly robust enough.
+  Look into implementing a similar system on top of a better database, like maybe
+  MySQL.
+
+- The IRC bot allocator really needs rethinking (again). It's looking like a much
+  better approach would be to have a Request object that specifies a channel and
+  server that should be serviced by a bot. The request object would then have the
+  logic to know if it's been satisfied, and if not, try to find and/or create a
+  bot to satisfy it. The request object would also manage timeouts such that if
+  a bot takes too long to join or connect to a channel, that request will still
+  be unsatisfied.
+
+  Whenever a request is modified plus every so often on a timer, requests would
+  be reevaluated- unstatisfied requests that have reached their timeout will get
+  another chance to start bots and such, bots or channels that aren't fulfilling
+  any requests will get removed, bots will try to take their preferred nick if
+  they don't have it already.
+
+######## Noncritical
+
+- The XML parser (somewhat hacked up domish) breaks when messages specify
+  a namespace.
+
+######## Cleanups
+
+- FIXME for hardcoding URLs in the ruleset browser
+
+######## Enhancements
+
+- Web interface for editing rulesets and stats metadata- how would we handle
+  authentication, if necessary?
+
+- Rulesets could use some sort of subroutine call, maybe by embedding a <ruleset>
+  tag with a different ruleset's URI. A new URI scheme could be added for rulesets
+  that will never be executed on their own but should be referenceable from inside
+  others.
+
+- Formatters need to be able to take parameters, so they can be generalized more.
+  For example, IRCProjectName should be refactored into a generic prefixing
+  formatter that could instead prepend a module name, for channels that only
+  display one project
+
+- documentation
+
+- rrdtool (or similar) for graphing stats target activity
+
+- Link from authors and projects in the stats browser's message lists to the appropriate
+  author and project pages. It would be great to, while browsing a project, be able
+  to easily see what a particular person is working on elsewhere. A few things to consider:
+    - stats metadata could be used to make the connection without hardcoding
+      any assumptions about the stats hierarchy into CIA, but where do these go?
+    - How do we account for any differences in commit authors with stats author
+      pages, as caused by the ruleset?
+
+- We have an RSS 2.0 interface now, but it doesn't yet display much. The formatters for
+  the 'rss' medium should be enhanced.
+
