@@ -94,17 +94,14 @@ main(int argc, char **argv)
 		}
 	}
 
-	mapData->addMapObject(
-		objFactory->makeObject(MAP_OBJECT_SHEEP), MapLocation(1, 4, 1));
+	mapData->addMapObject( objFactory->makeSheep(), MapLocation(1, 4, 1));
 	mapData->addMapObject(
 		objFactory->makeTile(MAP_TILE_GRASS_BROWN), MapLocation(1, 5, 1));
 
 	mapData->addMapObject(
 		objFactory->makeTile(MAP_TILE_GRASS_BROWN), MapLocation(4, 10, 1));
-	mapData->addMapObject(objFactory->makeObject(MAP_OBJECT_SHEEP),
-						  MapLocation(4, 10));
-	mapData->addMapObject(objFactory->makeObject(MAP_OBJECT_SHEEP),
-						  MapLocation(4, 10));
+	mapData->addMapObject(objFactory->makeSheep(), MapLocation(4, 10));
+	mapData->addMapObject(objFactory->makeSheep(), MapLocation(4, 10));
 
 	mapView->repaintMap();
 

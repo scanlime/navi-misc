@@ -55,6 +55,8 @@ Sheep::Sheep(SDL_Surface *screen)
 
 	if (imageCache == NULL)
 		initImageCache();
+
+	directionChanged(getDirection());
 }
 
 Sheep::~Sheep()

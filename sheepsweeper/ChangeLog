@@ -1,3 +1,12 @@
+Thu Mar 18 00:45:05 PST 2004  Christian Hammond <chipx86@gnupdate.org>
+
+	* src/IsoMapObjectFactory.cpp:
+	* src/IsoMapObjectFactory.h:
+	* src/MapObjectFactory.h:
+	* src/Sheep.cpp:
+	* src/main.cpp:
+	  - Added MapObjectFactory::makeSheep().
+
 Thu Mar 18 00:33:56 PST 2004  Christian Hammond <chipx86@gnupdate.org>
 
 	* src/Sheep.cpp:

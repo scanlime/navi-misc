@@ -12,7 +12,8 @@ class IsoMapObjectFactory : public MapObjectFactory
 		~IsoMapObjectFactory();
 
 		virtual MapObject *makeObject(MapObjectType type);
-		virtual MapTile *makeTile(MapTileType type);
+		virtual MapObject *makeSheep();
+		virtual MapTile   *makeTile(MapTileType type);
 
 		void setScreen(SDL_Surface *screen);
 		SDL_Surface *getScreen() const;
