@@ -25,6 +25,14 @@ AC_PROG_MAKE_SET
 AC_PROG_LN_S
 AC_PROG_INSTALL
 
+AC_CHECK_SIZEOF(void *)
+AC_CHECK_SIZEOF(unsigned short)
+AC_CHECK_SIZEOF(unsigned int)
+AC_CHECK_SIZEOF(unsigned long)
+AC_CHECK_SIZEOF(unsigned long long)
+
+AC_FUNC_MMAP
+
 AC_C_CONST
 AC_TYPE_SIZE_T
 AC_EXEEXT
@@ -34,8 +42,8 @@ PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
-dnl # Make it faster, yo
-CFLAGS="$CFLAGS -O3"
+dnl # Make it faster, yo.. and also warnings
+CFLAGS="$CFLAGS -O3 -Wall"
 
 dnl ################################################################
 dnl # Output the Makefiles

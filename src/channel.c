@@ -25,6 +25,8 @@
  *
  */
 
+#include <rtgraph/channel.h>
+
 static void rtg_channel_class_init(RtgChannelClass *klass);
 static void rtg_channel_init(RtgChannel *self);
 
