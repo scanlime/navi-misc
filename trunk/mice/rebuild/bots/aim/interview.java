@@ -68,15 +68,39 @@ public class interview
 				return;
 			}
 			com.write("cint");
-			send("Go ahead and send me a message when you're ready for your first question");
+			String mykey = com.read();
+			com.write(nick);
+			com.write(key.encrypt(mykey,pass));
+			com.write(name);
+			send("Go ahead and send me a message when you're ready for your first question.  If you want to not answer a question, type 'skip' and you will get the next question.");
+			state = 3;
+			break;
+
+		case 2: //This is all about sending the answer off, and getting the next question on its way.
+			com.write("answ");
+			StringTokenizer botfood = new StringTokenizer(message,"\n",false);
+			message = "";
+			while(botfood.hasMoreTokens())
+				message = message + "<br>" + botfood.nextToken();
+			com.write(message);
+			
+		case 3: //this is the "raw" get state, in that it gets a question without sending an answer
+			String tname, tques;
+			com.write("get");
+			tname = com.read();
+			if(tname.charAt(0) == '-')
+			{
+				send("No questions right now, I'll message you when I have one for you.");
+				state = 4;
+			}
+			tname = com.read();
+			tques = com.read();
+			send(tname + " Asks: " + tques);
 			state = 2;
 			break;
-		case 2:
-			
-			break;
-		case 3:
-			break;
 		case 4:
+			send("Hold your horses! I said I would message you when I got a message.");
+			break;
 		}
 	}
 	
