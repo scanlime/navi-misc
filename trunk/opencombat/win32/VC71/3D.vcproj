@@ -114,6 +114,9 @@
 				RelativePath="..\..\src\3d\DisplayListManager.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\3d\displayManager.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\3d\DrawablesManager.cpp">
 			</File>
 			<File
@@ -147,6 +150,9 @@
 			</File>
 			<File
 				RelativePath="..\..\include\DisplayListManager.h">
+			</File>
+			<File
+				RelativePath="..\..\include\displayManager.h">
 			</File>
 			<File
 				RelativePath="..\..\include\DrawablesManager.h">
