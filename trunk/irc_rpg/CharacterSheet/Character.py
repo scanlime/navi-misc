@@ -32,6 +32,7 @@ class Character:
     return ""
 
   def setData(self, path, data):
+    ''' Set the data at the node denoted by path. '''
     xml.xpath.Evaluate(path, self.dom)[0].childNodes[0].data = data
 
   def writeOut(self):
