@@ -1,11 +1,20 @@
 \documentclass{book}
-\usepackage[paperwidth=40in,paperheight=60in]{geometry}
+\usepackage[paperwidth=40in,paperheight=60in,hmargin=0.75in,vmargin=0.75in]{geometry}
 \usepackage{graphicx}
 
 \begin{document}
-\begin{figure}
-\centering
-\includegraphics[width=4in]{images/4x4-1.png}
-\end{figure}
+
+\setlength{\unitlength}{1in}
+\begin{picture}(38.5,58.5){}
+\linethickness{0.125in}
+\put(0,0.0625){\line(1,0){38.4375}}
+\put(0,58.375){\line(1,0){38.4375}}
+\put(0,0){\line(0,1){58.4375}}
+\put(38.375,0){\line(0,1){58.4375}}
+\end{picture}
+
+% \begin{figure}
+% \includegraphics[width=4in]{images/4x4-1.png}
+% \end{figure}
 
 \end{document}
