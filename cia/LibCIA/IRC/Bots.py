@@ -27,6 +27,33 @@ from twisted.python import log
 import time
 
 
+class ChannelMessageQueue:
+    """A way to deliver buffered messages to a particular IRC server and
+       channel, handling flood protection and load balancing when necessary.
+       """
+    def __init__(self, botNet, server, channel):
+        self.request = ChannelRequest(botNet, server, channel)
+        self.queuedLines = []
+
+    def send(self, message):
+        """Split up a message into lines and queue it for transmission"""
+        self.queuedLines.extend(message.split('\n'))
+        self.checkQueue()
+
+    def cancel(self):
+        """Cancel the request associated with this message queue"""
+        self.request.cancel()
+
+    def checkQueue(self):
+        # FIXME: for now, send the whole queue contents to the first bot.
+        #        This is where rate limiting and load balancing goes.
+        while self.queuedLines:
+            if not self.request.bots:
+                return
+            self.request.bots[0].msg(self.request.channel, self.queuedLines[0])
+            del self.queuedLines[0]
+
+
 class Request:
     """The Request object is an abstract base class for needs that can
        be fulfilled by a set of IRC bots.
@@ -47,7 +74,7 @@ class Request:
     lastActionTime = None
 
     fulfillmentTimer = None
-    bot = None
+    bots = None
     _active = True
 
     def __init__(self, botNet):
@@ -76,8 +103,8 @@ class Request:
 
     def recheck(self):
         """Decide whether the request is fulfilled or not, and take actions if necessary"""
-        self.bot = self.findBot()
-        if self.bot:
+        self.bots = self.findBots()
+        if self.isFulfilled():
             # Yay, we're done. Clean up a bit.
             self.lastActionTime = None
             self.cancelFulfillmentTimer()
@@ -96,15 +123,17 @@ class Request:
         """To be implemented by subclasses: return a list of Bot instances that satisfy this Request"""
         return []
 
-    def getUnneededBots(self):
-        """Return a list of bots satisfying this request that aren't necessary"""
-        return []
-
     def takeAction(self):
         """To be implemented by subclasses: none of the current bots satisfy this
            need, take some action to try to correct this.
            """
         pass
+
+    def isFulfilled(self):
+        """By default, a request is fulfilled if we have any bots attached.
+           If the subclass knows better, this can be overridden.
+           """
+        return len(self.bots) > 0
 
 
 class Server:
@@ -126,6 +155,12 @@ class Server:
     def __repr__(self):
         return "<Server at %s>" % self
 
+    def __eq__(self, other):
+        return self.host == other.host and self.port == other.port
+
+    def __hash__(self):
+        return hash((self.host, self.port))
+
 
 class ChannelRequest(Request):
     """A Request implementation that requires a specified number of bots to be
@@ -140,27 +175,33 @@ class ChannelRequest(Request):
     def __repr__(self):
         return "<ChannelRequest for %s on %s>" % (self.channel, self.server)
 
-    def findBot(self):
-        # Look for our server in the map from servers to channel maps
+    def findBots(self):
+        # Look for our server and channel in the map from servers to bot lists
+        matches = []
         if self.server in self.botNet.servers:
             # Look for our channel in the map from channel names to bot lists
-            channels = self.botNet.servers[self.server]
-            if self.channel in channels:
-                return channels[self.channel]
+            for bot in self.botNet.servers[self.server]:
+                if self.channel in bot.channels:
+                    matches.append(bot)
 
-    def getUnneededBots(self):
-        """Return a list of bots satisfying this request that aren't necessary"""
-        return self.bots[self.numBots:]
+        # Ignore any bots we don't need
+        return matches[:self.numBots]
+
+    def isFulfilled(self):
+        return len(self.bots) == self.numBots
 
     def takeAction(self):
         # First, see if there are any existing bots already on our server that aren't full
-        for bot in self.botNet.bots:
-            if bot.server == self.server and not bot.isFull():
+        for bot in self.botNet.servers.get(self.server, []):
+            if not bot.isFull():
                 bot.join(self.channel)
                 return
 
         # Nope, ask for a new bot
         self.botNet.requestNewBot(self, self.server)
+
+        # FIXME: HACK!
+        self.lastActionTime = None
 
 
 class BotNetwork:
@@ -170,7 +211,10 @@ class BotNetwork:
     # Every so often we check whether bots are really needed. This is the bot
     # garbage collection interval, in seconds. This also implicitly gives
     # each request a chance to recheck itself.
-    botGcInterval = 60
+    botCheckInterval = 60
+
+    # Timeout, in seconds, for creating new bots
+    newBotTimeout = 120
 
     # Bots are given this many seconds after being marked inactive before they're
     # disconnected. This way if a request is deleted then immediately replaced
@@ -178,17 +222,13 @@ class BotNetwork:
     # a bot we just deleted. I'm sure it has other good qualities too.
     botInactivityTimeout = 60 * 5
 
-    botGcTimer = None
+    botCheckTimer = None
 
     def __init__(self, nickFormat):
         self.requests = []
 
-        # A map from Server to a map from channel name to list of Bot instances
+        # A map from Server to list of Bots
         self.servers = {}
-
-        # Request objects that are waiting for a new bot. Maps from Request
-        # instance to a Server instance.
-        self.newBotRequests = {}
 
         # A list of all servers for which bots are being created currently.
         # Maps from Server instance to a DelayedCall signalling a timeout.
@@ -198,12 +238,11 @@ class BotNetwork:
         # Maps from Bot instance to a DelayedCall.
         self.inactiveBots = {}
 
-        # Start the bot garbage collection cycle
-        #self.gcBots()
+        # Map (server, channel) tuples to message queues
+        self.messageQueueMap = {}
 
-    def msg(*args):
-        # FIXME: no-op until the rest is ready
-        pass
+        # Start the bot checking cycle
+        self.checkBots()
 
     def addRequest(self, request):
         """Add a request to be serviced by this bot network. This should
@@ -215,7 +254,7 @@ class BotNetwork:
     def removeRequest(self, request):
         """Indicates that a request is no longer needed"""
         self.requests.remove(request)
-        self.gcBots()
+        self.checkBots()
 
     def requestNewBot(self, request, server):
         """Called by a Request to indicate that it needs a new bot created for a given server.
@@ -223,7 +262,6 @@ class BotNetwork:
            interest in the same server, this needs to ensure that only one new bot at a time
            is created for each server.
            """
-        self.newBotRequests[request] = server
         if not server in self.newBotServers:
             self.createBot(server)
 
@@ -242,86 +280,100 @@ class BotNetwork:
 
     def botConnected(self, bot):
         """Called by a bot when it has been successfully connected."""
+        self.servers.setdefault(bot.server, []).append(bot)
+        log.msg("Bot %r connected" % bot)
+
         try:
-            timer = self.newBotServers[server]
+            timer = self.newBotServers[bot.server]
             if timer.active():
                 timer.cancel()
-            del self.newBotServers[server]
+            del self.newBotServers[bot.server]
         except KeyError:
             # Hmm, we weren't waiting for this bot to connect?
             # Oh well, this bot will be garbage collected soon if that's really the case.
             pass
-
-        # Recheck all the requests that were waiting on a bot. If there are still
-        # some requests for this server that couldn't be satisfied (this bot is full already)
-        # start creating yet another bot.
-        needAnotherBot = False
-        for request, server in self.newBotRequests.items():
-            if server == bot.server:
-                request.recheck()
-                if not request.bot:
-                    needAnotherBot = True
-                else:
-                    del self.newBotRequests[request]
-        if needAnotherBot:
-            self.createBot(bot.server)
+        self.checkBots()
 
     def botDisconnected(self, bot):
         """Called by a bot when it has been disconnected for any reason. Since
-           this might have been a disconnection we didn't intend, do another bot GC
+           this might have been a disconnection we didn't intend, do another bot CHECK
            run right away to recheck all requests.
            """
-        self.bots.remove(bot)
+        self.servers[bot.server].remove(bot)
+        log.msg("Bot %r disconnected" % bot)
+        if not self.servers[bot.server]:
+            del self.servers[bot.server]
 
-    def gcBots(self):
-        """We periodically garbage collect our bots- all requests are rechecked,
-           then bots that aren't used by any requests are marked for deletion after
-           botInactivityTimeout seconds.
+        self.checkBots()
+
+    def checkBots(self):
+        """This gives all requests a chance to recheck themselves, and searches
+           for bots that are no longer being used, eventually disconnecting them.
            """
-        referencedBots = []
+        referencedBots = {}
         for request in self.requests:
             request.recheck()
-            if request.bot:
-                referencedBots.append(request.bot)
+            for refBot in request.bots:
+                referencedBots[refBot] = True
 
-            # Make sure that any referenced bots are no longer marked inactive
-            if request.bot in self.inactiveBots:
-                timer = self.inactiveBots[request.bot]
-                if timer.active():
-                    timer.cancel()
-                del self.inactiveBots[request.bot]
+                # Make sure that any referenced bots are no longer marked inactive
+                if refBot in self.inactiveBots:
+                    timer = self.inactiveBots[refBot]
+                    if timer.active():
+                        timer.cancel()
+                    del self.inactiveBots[refBot]
 
         # Now find any bots that aren't in referencedBots or inactiveBots already,
         # and mark them as inactive (setting a fresh inactivity timer)
-        for bot in self.bots:
-            if bot not in referencedBots and bot not in self.inactiveBots:
-                self.inactiveBots[bot] = reactor.callLater(
-                    self.botInactivityTimeout, self.botInactivityCallback, bot)
+        for server in self.servers.itervalues():
+            for bot in server:
+                if bot not in referencedBots and bot not in self.inactiveBots:
+                    self.inactiveBots[bot] = reactor.callLater(
+                        self.botInactivityTimeout, self.botInactivityCallback, bot)
 
-        # Set up the next round of garbage collection
-        if self.botGcTimer and self.botGcTimer.active():
-            self.botGcTimer.cancel()
-        self.botGcTimer = reactor.callLater(self.botGcInterval, self.gcBots)
+        # Set up the next round of bot checking
+        if self.botCheckTimer and self.botCheckTimer.active():
+            self.botCheckTimer.cancel()
+        self.botCheckTimer = reactor.callLater(self.botCheckInterval, self.checkBots)
 
     def botInactivityCallback(self, bot):
         """Bots that have been unused for a while eventually end up here, and are disconnected"""
         log.msg("Disconnecting inactive bot %r" % bot)
         bot.quit()
 
+    def botJoined(self, bot, channel):
+        log.msg("%r joined %r" % (bot, channel))
+        self.checkBots()
+
+    def botLeft(self, bot, channel):
+        log.msg("%r left %r" % (bot, channel))
+        self.checkBots()
+
+    def botKicked(self, bot, channel, kicker, message):
+        # FIXME: remove the ruleset
+        pass
+
 
 class Bot(irc.IRCClient):
     """An IRC bot connected to one server any any number of channels,
        sending messages on behalf of the BotController.
        """
+    maxChannels = 18
+
     def __repr__(self):
         return "<Bot %r on server %s>" % (self.nickname, self.server)
+
+    def isFull(self):
+        return len(self.channels) + len(self.requestedChannels) >= self.maxChannels
 
     def connectionMade(self):
         """Called by IRCClient when we have a socket connection to the server.
            This allocates the nick we'd like to use.
            """
         self.emptyChannels()
-        self.nickname = self.factory.allocator.allocateNick()
+        self.server = self.factory.server
+        self.botNet = self.factory.botNet
+        self.nickname = "squiggly"
         irc.IRCClient.connectionMade(self)
 
     def emptyChannels(self):
@@ -336,10 +388,10 @@ class Bot(irc.IRCClient):
            the IRC server and can finally start joining channels.
            """
         self.emptyChannels()
-        self.factory.allocator.botConnected(self)
+        self.botNet.botConnected(self)
 
     def connectionLost(self, reason):
-        self.factory.allocator.botDisconnected(self)
+        self.botNet.botDisconnected(self)
         irc.IRCClient.connectionLost(self)
 
     def join(self, channel):
@@ -357,22 +409,18 @@ class Bot(irc.IRCClient):
         # message will be effectively ignored.
         self.requestedChannels.remove(channel)
         self.channels.append(channel)
-        self.factory.allocator.botJoined(self, channel)
+        self.factory.botNet.botJoined(self, channel)
 
     def left(self, channel):
         """Called when part() is successful and we've left a channel.
            Implicitly also called when we're kicked via kickedFrom().
            """
-        # If we no longer are in any channels, turn off
-        # automatic reconnect so we can quit without being reconnected.
         self.channels.remove(channel)
-        if not self.channels:
-            self.factory.reconnect = False
-        self.factory.allocator.botLeft(self, channel)
+        self.factory.botNet.botLeft(self, channel)
 
     def kickedFrom(self, channel, kicker, message):
         self.left(channel)
-        self.factory.allocator.botKicked(self, channel, kicker, message)
+        self.factory.botNet.botKicked(self, channel, kicker, message)
 
 
 class BotFactory(protocol.ClientFactory):
@@ -385,31 +433,9 @@ class BotFactory(protocol.ClientFactory):
         reactor.connectTCP(server.host, server.port, self)
 
     def clientConnectionLost(self, connector, reason):
-        """There was a connection, but we lost it. This usually happens because
-           we flooded off, or there was a network problem. Try to reconnect right away.
-           Note that this only handles reconnecting- in the meantime, we probably will
-           have already reassigned this bot's channels to another bot in the allocator's
-           botDisconnected function.
-           """
-        log.msg("Connection to %r lost: %r" % (connector.getDestination(), reason))
-        if self.reconnect:
-            log.msg("Reconnecting...")
-            connector.connect()
-        else:
-            log.msg("Not reconnecting")
+        log.msg("IRC Connection to %r lost: %r" % (self.server, reason))
 
     def clientConnectionFailed(self, connector, reason):
-        """Our connection attempt has failed. The server we were given could be
-           nonexistant, in which case it would be nice to remove whatever it is that's
-           telling us to connect, but it could also be a temporary error. We can't
-           decide that here, so just schedule a reconnect later.
-           """
-        log.msg("Connection to %r failed: %r" % (connector.getDestination(), reason))
-        if self.allocator.newBotRequests:
-            reconnectMinutes = 10
-            log.msg("Looks like this bot is still needed, trying again in %s minutes" % reconnectMinutes)
-            reactor.callLater(60 * reconnectMinutes, connector.connect)
-        else:
-            log.msg("Not reconnecting")
+        log.msg("IRC Connection to %r failed: %r" % (self.server, reason))
 
 ### The End ###
