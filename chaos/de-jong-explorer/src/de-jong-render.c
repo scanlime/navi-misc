@@ -574,7 +574,7 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 
     if (!self->column_heap) {
       /* Create columns, toss them on the heap */
-      self->column_heap = heap_new(hist_width, column_cmp_inverse_density, NULL);
+      self->column_heap = heap_new(hist_width, (GCompareDataFunc) column_cmp_inverse_density, NULL);
       for (i=0; i<hist_width; i++) {
 	column = g_new0(BifurcationColumn, 1);
 	column->column_number = i;
