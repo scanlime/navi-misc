@@ -90,6 +90,5 @@ void initialize_navigation_tree() {
 }
 
 void on_preferences_menu_activate(GtkWidget *widget, gpointer data) {
-	g_print("activating preferences\n");
 	gtk_widget_show_all(GTK_WIDGET(gui.preferences_dialog));
 }

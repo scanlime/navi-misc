@@ -2,6 +2,8 @@
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 
+void preferences_servers_selected(GtkTreeSelection *selection, gpointer data);
+
 void initialize_preferences_servers_page() {
 	GtkWidget *treeview, *edit_button, *remove_button;
 	GtkListStore *store;
@@ -22,6 +24,10 @@ void initialize_preferences_servers_page() {
 	gtk_widget_set_sensitive(edit_button, FALSE);
 	remove_button = glade_xml_get_widget(gui.xml, "servers remove");
 	gtk_widget_set_sensitive(remove_button, FALSE);
+
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
+	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(preferences_servers_selected), NULL);
 
 	preferences_servers_page_populate(treeview, NULL);
 }
@@ -46,4 +52,13 @@ void preferences_servers_page_populate(GtkWidget *treeview, GSList *netlist) {
 		gtk_list_store_set(store, &iter, 0, net->name, -1);
 		netlist = netlist->next;
 	}
+}
+
+void preferences_servers_selected(GtkTreeSelection *selection, gpointer data) {
+	GtkWidget *edit_button, *remove_button;
+
+	edit_button = glade_xml_get_widget(gui.xml, "servers edit");
+	gtk_widget_set_sensitive(edit_button, TRUE);
+	remove_button = glade_xml_get_widget(gui.xml, "servers remove");
+	gtk_widget_set_sensitive(remove_button, TRUE);
 }

@@ -51,7 +51,7 @@ void initialize_pages_list() {
 	gtk_list_store_set(store, &iter, 0, file_transfers, 1, "File Transfers & DCC", 2, 1, -1);
 	servers = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/servers.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
 	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 0, servers, 1, "Servers", 2, 2, -1);
+	gtk_list_store_set(store, &iter, 0, servers, 1, "Networks", 2, 2, -1);
 }
 
 void initialize_irc_preferences_page() {
