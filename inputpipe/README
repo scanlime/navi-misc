@@ -14,6 +14,8 @@ those devices to an inputpipe server. The server creates local input
 devices that are for all practical purposes identical copies of the
 devices being forwarded.
 
+Build with "make", install with "make install". Nothing fancy there.
+
 Inputpipe is licensed under the GNU GPL.
 
 
