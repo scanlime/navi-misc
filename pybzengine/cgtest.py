@@ -12,26 +12,26 @@ from OpenGL.GLU import *
 
 normals = [(-1.0, 0.0,  0.0),
            (0.0,  1.0,  0.0),
-	   (1.0,  0.0,  0.0),
-	   (0.0, -1.0,  0.0),
-	   (0.0,  0.0,  1.0),
-	   (0.0,  0.0, -1.0)]
+           (1.0,  0.0,  0.0),
+           (0.0, -1.0,  0.0),
+           (0.0,  0.0,  1.0),
+           (0.0,  0.0, -1.0)]
 
 faces = [(0, 1, 2, 3),
          (3, 2, 6, 7),
-	 (7, 6, 5, 4),
-	 (4, 5, 1, 0),
-	 (5, 6, 2, 1),
-	 (7, 4, 0, 3)]
+         (7, 6, 5, 4),
+         (4, 5, 1, 0),
+         (5, 6, 2, 1),
+         (7, 4, 0, 3)]
 
 vertices = [(-1, -1,  1),
             (-1, -1, -1),
-	    (-1,  1, -1),
-	    (-1,  1,  1),
-	    ( 1, -1,  1),
-	    ( 1, -1, -1),
-	    ( 1,  1, -1),
-	    ( 1,  1,  1)]
+            (-1,  1, -1),
+            (-1,  1,  1),
+            ( 1, -1,  1),
+            ( 1, -1, -1),
+            ( 1,  1, -1),
+            ( 1,  1,  1)]
 
 program = None
 Kd = None
@@ -71,16 +71,16 @@ def DrawCube():
 
     for i in range(5):
         glBegin(GL_QUADS)
-	glNormal3fv(normals[i])
-	cgGLSetParameter3f(testColor, 1.0, 0.0, 0.0);
-	glVertex3fv(vertices[faces[i][0]])
-	cgGLSetParameter3f(testColor, 0.0, 1.0, 0.0);
-	glVertex3fv(vertices[faces[i][1]])
-	cgGLSetParameter3f(testColor, 0.0, 0.0, 1.0);
-	glVertex3fv(vertices[faces[i][2]])
-	cgGLSetParameter3f(testColor, 1.0, 1.0, 1.0);
-	glVertex3fv(vertices[faces[i][3]])
-	glEnd()
+        glNormal3fv(normals[i])
+        cgGLSetParameter3f(testColor, 1.0, 0.0, 0.0);
+        glVertex3fv(vertices[faces[i][0]])
+        cgGLSetParameter3f(testColor, 0.0, 1.0, 0.0);
+        glVertex3fv(vertices[faces[i][1]])
+        cgGLSetParameter3f(testColor, 0.0, 0.0, 1.0);
+        glVertex3fv(vertices[faces[i][2]])
+        cgGLSetParameter3f(testColor, 1.0, 1.0, 1.0);
+        glVertex3fv(vertices[faces[i][3]])
+        glEnd()
 
     cgGLDisableProfile(CG_PROFILE_VP20)
     CheckCGError()

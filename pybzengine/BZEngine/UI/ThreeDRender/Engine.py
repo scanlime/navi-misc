@@ -58,7 +58,7 @@ class Camera:
         self.distance  = 0
         self.azimuth   = 0
         self.elevation = 0
-	self.azimuthOffset = 0
+        self.azimuthOffset = 0
 
     def jump(self):
         """If this camera class implements any animation techniques, this method
@@ -266,7 +266,7 @@ class Scene:
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_CULL_FACE)
         glEnable(GL_COLOR_MATERIAL)
-	glEnable(GL_LIGHTING)
+        glEnable(GL_LIGHTING)
         glDisable(GL_LINE_SMOOTH)
         glColor4f(1,1,1,1)
 

@@ -37,7 +37,7 @@ class RenderSettings:
         self.overlay = False      # This object is on top of the scene, rather than part of it
         self.static = True        # This object doesn't change, so it can be cached in a display list
         self.decal = False        # This object is a decal, to be drawn with a depth offset
-	self.camera = False       # This object is a camera-induced effect
+        self.camera = False       # This object is a camera-induced effect
         self.reflection = False   # This object is a cube-mapped reflection
         self.background = False   # This object is part of a location-independent background behind the scene
 
@@ -73,7 +73,7 @@ class GLDrawable(object):
 
     def __init__(self):
         self.render = RenderSettings()
-	self.object = None
+        self.object = None
         self.loadTextures()
 
     def loadTextures(self):
