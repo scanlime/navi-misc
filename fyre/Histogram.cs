@@ -1,13 +1,15 @@
-using Gdk
+using Gdk;
 
-public struct HistogramPlot {
-	int[] histogram;
-	int hist_width;
-	int density;
-	long plot_count;
+public struct HistogramPlot
+{
+	public int[] histogram;
+	public int hist_width;
+	public int density;
+	public long plot_count;
 }
 
-public class Histogram {
+public class Histogram
+{
 	int width, height;
 	double exposure, gamma;
 	Gdk.Color fgcolor, bgcolor;
@@ -19,22 +21,31 @@ public class Histogram {
 
 	Gdk.Pixbuf image;
 
-	struct color_table {
+	struct color_table
+	{
 		int allocated_size;
 		int filled_size;
 		int[] table;
 	}
 
-	public void UpdateImage () {
+	public void UpdateImage ()
+	{
 	}
 
-	public void SaveImageFile (const string filename) {
+	public void SaveImageFile (string filename)
+	{
 	}
 
-	private void CheckDirtyFlags () {
+	private void CheckDirtyFlags ()
+	{
 	}
 
-	public void PreparePlots (HistogramPlot plot) {
+	private void RequireHistogram ()
+	{
+	}
+
+	public void PreparePlots (HistogramPlot plot)
+	{
 		CheckDirtyFlags ();
 		RequireHistogram ();
 		plot.histogram = histogram;
@@ -43,17 +54,23 @@ public class Histogram {
 		plot.plot_count = 0;
 	}
 
-	public void FinishPlots (HistogramPlot plot) {
+	public void FinishPlots (HistogramPlot plot)
+	{
 		total_points_plotted += plot.plot_count;
 		if (plot.density > peak_density)
 			peak_density = plot.density;
 	}
 
-	public void Plot (HistogramPlot plot, int x, int y) {
+	public void Plot (HistogramPlot plot, int x, int y)
+	{
 		int bucket;
 		plot.plot_count++;
 		bucket = ++plot.histogram[x + plot.hist_width * y];
 		if (bucket > plot.density)
 			plot.density = bucket;
+	}
+
+	static void Main ()
+	{
 	}
 };
