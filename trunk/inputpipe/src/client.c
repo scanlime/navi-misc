@@ -38,8 +38,9 @@
 #include <linux/tcp.h>
 #include <netdb.h>
 #include <errno.h>
-
+#include <getopt.h>
 #include <linux/input.h>
+
 #include "inputpipe.h"
 
 /* Linux 2.4 compatibility */
@@ -97,10 +98,9 @@ static struct connection *connection_list_tail = NULL;
 
 /* Configuration, set via the command line */
 static int config_verbose = 1;
-static char *config_host_and_port = "wasabi";
-static int config_single_connection = 0;
-static int config_hotplug_polling = 1;
-static int config_detect_joystick = 1;
+static char *config_host_and_port = NULL;
+static int config_hotplug_polling = 0;
+static int config_detect_joystick = 0;
 static int config_detect_mouse = 0;
 static int config_detect_keyboard = 0;
 static int config_detect_all = 0;
@@ -150,6 +150,7 @@ static int                hotplug_detect      (int fd);
 
 static void               event_from_server   (struct server *svr,
 					       int evdev);
+static void               usage               (char *progname);
 static void               repack_bits         (unsigned long *src,
 					       unsigned char *dest,
 					       int len);
@@ -723,8 +724,8 @@ static int event_loop(void) {
 
     connection_list_poll(&fd_read);
 
-    /* In single conneciton mode, we exit if we have no connections left */
-    if (config_single_connection && !connection_list_head)
+    /* With hotplugging disabled, exit after the last connection is gone */
+    if ((!config_hotplug_polling) && (!connection_list_head))
       break;
   }
 }
@@ -836,22 +837,113 @@ static int hotplug_detect(int fd)
   return 0;
 }
 
+static void usage(char *progname)
+{
+  fprintf(stderr,
+	  "Usage: %s [options] server[:port] [devices...]\n"
+	  "\n"
+	  "Export any device registered with the Linux input system to\n"
+	  "a remote machine running inputpipe-server. Any event devices\n"
+	  "(/dev/input/eventN) given on the command line will be sent to\n"
+	  "the indicated server. In addition to or instead of the explicit\n"
+	  "devices given on the command line, this can automatically detect\n"
+	  "categories of devices to send to the server using the --hotplug-*\n"
+	  "command line options.\n"
+	  "\n"
+	  "  -h, --help                     This text\n"
+	  "  -q, --quiet                    Suppress normal log output\n"
+	  "  -p, --input-path PATH          Set the path to scan for hotpluggable\n"
+	  "                                 input devices [%s]\n"
+	  "  -j, --hotplug-js               Detect and export joystick devices\n"
+	  "  -m, --hotplug-mice             Detect and export mouse devices\n"
+	  "  -k, --hotplug-kb               Detect and export keyboard devices\n"
+	  "  -a, --hotplug-all              Detect and export all input devices\n"
+	  "\n"
+	  "WARNING: Do not use --hotplug-kb or --hotplug-all if this system has\n"
+	  "         keyboards attached that may be used to input passwords or other\n"
+	  "         sensitive information\n",
+	  progname, config_input_path);
+}
+
 int main(int argc, char **argv)
 {
-  struct connection *conn;
-  int evdev;
+  int c;
 
-  if (argc != 3 || argv[1][0]=='-' || argv[2][0]=='-') {
-    printf("Usage: %s server[:port] /dev/input/eventN\n\n"
-	   "Export any device registered with the Linux input system to\n"
-	   "a remote machine running inputpipe-server.\n",
-	   argv[0]);
+  while (1) {
+    static struct option long_options[] = {
+      {"help",         0, 0, 'h'},
+      {"quiet",        0, 0, 'q'},
+      {"input-path",   1, 0, 'p'},
+      {"hotplug-js",   0, 0, 'j'},
+      {"hotplug-mice", 0, 0, 'm'},
+      {"hotplug-kb",   0, 0, 'k'},
+      {"hotplug-all",  0, 0, 'a'},
+      {0},
+    };
+
+    c = getopt_long(argc, argv, "hqp:jmka",
+		    long_options, NULL);
+    if (c == -1)
+      break;
+    switch (c) {
+
+    case 'q':
+      config_verbose = 0;
+      break;
+
+    case 'p':
+      config_input_path = optarg;
+      break;
+
+    case 'j':
+      config_detect_joystick = 1;
+      config_hotplug_polling = 1;
+      break;
+
+    case 'm':
+      config_detect_mouse = 1;
+      config_hotplug_polling = 1;
+      break;
+
+    case 'k':
+      config_detect_keyboard = 1;
+      config_hotplug_polling = 1;
+      break;
+
+    case 'a':
+      config_detect_all = 1;
+      config_hotplug_polling = 1;
+      break;
+
+    case 'h':
+    default:
+      usage(argv[0]);
+      return 1;
+    }
+  }
+
+  /* We require at least a server name */
+  if (!argv[optind]) {
+    usage(argv[0]);
+    return 1;
+  }
+  config_host_and_port = argv[optind++];
+
+  /* Let the user know they're doing something silly if we aren't in hotplug
+   * polling mode and there aren't any explicitly specified devices.
+   */
+  if ((!config_hotplug_polling) && !argv[optind]) {
+    printf("Nothing to do; give at least one hotplug option or device name\n\n");
+    usage(argv[0]);
     return 1;
   }
 
-  conn = connection_new(argv[2], argv[1]);
-  if (!conn)
-    return 1;
+  /* Open all the explicitly mentioned devices */
+  while (argv[optind]) {
+    if (!connection_new(argv[optind], config_host_and_port))
+      return 1;
+    optind++;
+  }
 
   return event_loop();
 }
