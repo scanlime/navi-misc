@@ -28,8 +28,6 @@ from twisted.web import resource
 
 class Page(resource.Resource):
     """A web resource that renders a tree of tag instances from its 'document' attribute"""
-    serializerFactory = Nouvelle.Serializer
-
     def render(self, request):
         context  = {
             'owner': self,
@@ -37,7 +35,7 @@ class Page(resource.Resource):
             'args': request.args,  # For compatibility across systems utilizing Nouvelle
             }
         self.preRender(context)
-        return str(self.serializerFactory().render(self.document, context))
+        return str(Nouvelle.Serializer().render(self.document, context))
 
     def preRender(self, context):
         """Called prior to rendering each request, subclasses can use this to annotate
