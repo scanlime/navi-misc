@@ -46,15 +46,38 @@ GdkColor colors[] = {
 	{0, 0xeeee, 0x2222, 0xeeee}, /* 13 light purple */
 	{0, 0x7777, 0x7777, 0x7777}, /* 14 grey */
 	{0, 0x9999, 0x9999, 0x9999}, /* 15 light grey */
-	{0, 0xa4a4, 0xdfdf, 0xffff}, /* 16 marktext Back (blue) */
-	{0, 0x0000, 0x0000, 0x0000}, /* 17 marktext Fore (black) */
-	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* 18 foreground (white) */
-	{0, 0x0000, 0x0000, 0x0000}, /* 19 background (black) */
-	{0, 0x8c8c, 0x1010, 0x1010}, /* 20 tab New Data (dark red) */
-	{0, 0x0000, 0x0000, 0xffff}, /* 21 tab Nick Mentioned (blue) */
-	{0, 0xf5f5, 0x0000, 0x0000}, /* 22 tab New Message (red) */
-	{0, 0x9999, 0x9999, 0x9999}, /* 23 away user (grey) */
+
+	{0, 0xcccc, 0xcccc, 0xcccc}, /* 16 white */
+	{0, 0x0000, 0x0000, 0x0000}, /* 17 black */
+	{0, 0x0000, 0x0000, 0xcccc}, /* 18 blue */
+	{0, 0x0000, 0x9999, 0x0000}, /* 19 green */
+	{0, 0xcccc, 0x0000, 0x0000}, /* 20 red */
+	{0, 0xaaaa, 0x0000, 0x0000}, /* 21 light red */
+	{0, 0xaaaa, 0x0000, 0xaaaa}, /* 22 purple */
+	{0, 0x9999, 0x3333, 0x0000}, /* 23 orange */
+	{0, 0xffff, 0xaaaa, 0x0000}, /* 24 yellow */
+	{0, 0x0000, 0xffff, 0x0000}, /* 25 green */
+	{0, 0x0000, 0x5555, 0x5555}, /* 26 aqua */
+	{0, 0x3333, 0x9999, 0x7f7f}, /* 27 light aqua */
+	{0, 0x0000, 0x0000, 0xffff}, /* 28 blue */
+	{0, 0xffff, 0x3333, 0xffff}, /* 29 light purple */
+	{0, 0x7f7f, 0x7f7f, 0x7f7f}, /* 30 grey */
+	{0, 0x9595, 0x9595, 0x9595}, /* 31 light grey */
+
+	{0, 0xa4a4, 0xdfdf, 0xffff}, /* 32 marktext Back (blue) */
+	{0, 0x0000, 0x0000, 0x0000}, /* 33 marktext Fore (black) */
+	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* 34 foreground (white) */
+	{0, 0x0000, 0x0000, 0x0000}, /* 35 background (black) */
+	{0, 0xcccc, 0x0000, 0x0000}, /* 36 marker line (red) */
+
+	/* colors for GUI */
+	{0, 0x8c8c, 0x1010, 0x1010}, /* 37 tab New Data (dark red) */
+	{0, 0x0000, 0x0000, 0xffff}, /* 38 tab Nick Mentioned (blue) */
+	{0, 0xf5f5, 0x0000, 0x0000}, /* 39 tab New Message (red) */
+	{0, 0x9999, 0x9999, 0x9999}, /* 40 away user (grey) */
 };
+
+#define MAX_COL 40
 
 const GdkColor colors_white_on_black[] = {
 	{0, 0xffff, 0xffff, 0xffff}, /* background (white) */
@@ -97,9 +120,26 @@ const GdkColor default_palette[] = {
 	{0, 0xeeee, 0x2222, 0xeeee}, /* 13 light purple */
 	{0, 0x7777, 0x7777, 0x7777}, /* 14 grey */
 	{0, 0x9999, 0x9999, 0x9999}, /* 15 light grey */
+
+	{0, 0xcccc, 0xcccc, 0xcccc}, /* 16 white */
+	{0, 0x0000, 0x0000, 0x0000}, /* 17 black */
+	{0, 0x0000, 0x0000, 0xcccc}, /* 18 blue */
+	{0, 0x0000, 0x9999, 0x0000}, /* 19 green */
+	{0, 0xcccc, 0x0000, 0x0000}, /* 20 red */
+	{0, 0xaaaa, 0x0000, 0x0000}, /* 21 light red */
+	{0, 0xaaaa, 0x0000, 0xaaaa}, /* 22 purple */
+	{0, 0x9999, 0x3333, 0x0000}, /* 23 orange */
+	{0, 0xffff, 0xaaaa, 0x0000}, /* 24 yellow */
+	{0, 0x0000, 0xffff, 0x0000}, /* 25 green */
+	{0, 0x0000, 0x5555, 0x5555}, /* 26 aqua */
+	{0, 0x3333, 0x9999, 0x7f7f}, /* 27 light aqua */
+	{0, 0x0000, 0x0000, 0xffff}, /* 28 blue */
+	{0, 0xffff, 0x3333, 0xffff}, /* 29 light purple */
+	{0, 0x7f7f, 0x7f7f, 0x7f7f}, /* 30 grey */
+	{0, 0x9595, 0x9595, 0x9595}, /* 31 light grey */
 };
 
-GdkColor custom_palette[16];
+GdkColor custom_palette[32];
 
 const GdkColor *palette_schemes[] = {
 	default_palette,
@@ -107,17 +147,17 @@ const GdkColor *palette_schemes[] = {
 };
 
 void load_colors(int selection) {
-	colors[19] = color_schemes[selection][0];
-	colors[18] = color_schemes[selection][1];
-	colors[16] = color_schemes[selection][2];
-	colors[17] = color_schemes[selection][3];
-	colors[23] = color_schemes[selection][4];
+	colors[35] = color_schemes[selection][0];
+	colors[34] = color_schemes[selection][1];
+	colors[32] = color_schemes[selection][2];
+	colors[33] = color_schemes[selection][3];
+	colors[40] = color_schemes[selection][4];
 }
 
 void load_palette(int selection) {
 	int i;
 
-	for(i = 0; i < 16; i++) {
+	for(i = 0; i < 32; i++) {
 		colors[i] = palette_schemes[selection][i];
 	}
 }
@@ -125,7 +165,7 @@ void load_palette(int selection) {
 void palette_init() {
 	int i;
 
-	for(i = 0; i < 16; i++) {
+	for(i = 0; i < 32; i++) {
 		custom_palette[i] = palette_schemes[0][i];
 	}
 	for(i = 0; i < 5; i++) {
@@ -143,10 +183,8 @@ void palette_alloc(GtkWidget *widget) {
 	if(done)
 		gdk_colormap_free_colors(cmap, colors, 24);
 
-	for(i = 0; i < 24; i++)
+	for(i = 0; i < 40; i++)
 		gdk_colormap_alloc_color(cmap, &colors[i], FALSE, TRUE);
 
 	done = TRUE;
 }
-
-#define MAX_COL 23
