@@ -107,5 +107,24 @@ not used by the RAM but maybe used by the rumble pak or other controller paks.
 Saved trace "WR1" with rumble pak attached, during game play in Super Smash.
 Can't make out a whole lot, but it's clear how the 0x03 packets work.
 
+Recorded an odd packet at the title screen of Majora's Mask- controller slot
+was empty, but I was pulling the DETECT pin high to get it to talk anyway.
+N64 sent a write (03 80 01) then 32 0x80 bytes. Controller responded with
+0xB8 (!). Saved to "no_pak".
 
+The address does auto-increment during a 32-byte write to the controller pak.
+With the write command 03 80 01, addresses start at zero.
 
+Memory pak reads, observed in Bomberman 64:
+N64 sent: 02 00 35
+Read 32 bytes starting at 0x0020.
+Trace saved as "RD1".
+
+Command    Start address
+-------------------------
+02 00 35   0020
+02 01 16   0100
+02 01 23   0120
+02 01 49   0140
+02 01 7C   0160
+02 01 9D   0180
