@@ -37,4 +37,20 @@ protected:
 	bool				vis;
 };
 
+// camera
+class CCameraObjectFactory : public CBaseDrawableFactory
+{
+public:
+	virtual CBaseDrawable* New ( CBaseObject* parent ) {return new CCameraObject;}
+	virtual void Delete ( CBaseDrawable* object ) {delete(object);}
+};
+
+class CCameraObject : public CBaseDrawable
+{
+public:
+	CCameraObject();
+	virtual ~CCameraObject();
+	virtual void Think ( void );
+};
+
 #endif //_PLAYER_DRAWABLES_H_

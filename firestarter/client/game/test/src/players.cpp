@@ -17,8 +17,11 @@
 CPlayerObject::CPlayerObject()
 {
 	drawable = -1;
-
-	Init(false);
+	idNumber = -1;
+	active = false;
+	pos[0] = pos[1] = pos[2] = 0;
+	rot[0] = rot[1] = rot[2] = 0;
+	vec[0] = vec[1] = vec[2] = 0;
 }
 
 CPlayerObject::~CPlayerObject()
@@ -30,14 +33,8 @@ void CPlayerObject::Init ( bool draw )
 {
 	Kill();
 
-	idNumber = -1;
-	active = false;
-	name = "player_NILL";
-	pos[0] = pos[1] = pos[2] = 0;
-	rot[0] = rot[1] = rot[2] = 0;
-	vec[0] = vec[1] = vec[2] = 0;
-	material = "RedkMK3";
-	drawable = -1;
+	if (material.size() ==0)
+		material = "RedkMK3";
 
 	if (draw)
 		drawable = CDrawManager::instance().New("playerTank",this);

@@ -30,14 +30,14 @@ bool CTestGameServer::think ( void )
 	return false;
 }
 
-void CTestGameServer::sendToAllBut ( CNetworkMessage &message, int player )
+void CTestGameServer::sendToAllBut ( CNetworkMessage &message, int player, bool relyable )
 {
 	std::map<int,trPlayerInfo>::iterator players = users.begin();
 
 	while (players != users.end())
 	{
 		if (player != players->first)
-			message.Send(*players->second.peer,true);
+			message.Send(*players->second.peer,relyable);
 		players++;
 	}
 }
@@ -52,6 +52,7 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 
 	bool rellay = false;
 	bool spawn = false;
+	bool relyable = true;
 
 	switch (message.GetType())
 	{
@@ -72,6 +73,7 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 		// this we should never get
 		case _MESSAGE_USER_ADD:	// UA
 		case _MESSAGE_KICK:			// KK
+			rellay = false;
 			break;
 
 		// don't care about this one
@@ -82,6 +84,7 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 			if (itr->second.player)
 			{
 				rellay = true;
+				relyable = false;
 				message.ReadV(itr->second.pos);
 				message.ReadV(itr->second.rot);
 				message.ReadV(itr->second.vec);
@@ -90,7 +93,6 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 
 		default:
 			rellay = true;
-
 			break;
 	}
 
@@ -105,7 +107,7 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 		newMessage.AddN(message.GetSize(),mem);
 
 		// send an add to everyone else
-		sendToAllBut(newMessage,playerID);
+		sendToAllBut(newMessage,playerID,relyable);
 	}
 
 	if (spawn)
@@ -123,7 +125,6 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 		// send spawn to everyone 
 		sendToAllBut(newMessage,-1);
 	}
-
 	return false;
 }
 
