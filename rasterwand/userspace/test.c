@@ -8,7 +8,7 @@ struct rwand_status {
   unsigned short phase;
   unsigned char edge_count;
   unsigned char mode;
-  unsigned char flip_pending;
+  unsigned char flip_count;
   unsigned char buttons;
 };
 
@@ -65,7 +65,7 @@ void read_rwand_status(usb_dev_handle *d, struct rwand_status *status) {
   status->phase = packet[2] + (packet[3] << 8);
   status->edge_count = packet[4];
   status->mode = packet[5];
-  status->flip_pending = packet[6];
+  status->flip_count = packet[6];
   status->buttons = packet[7];
 }
 
@@ -78,14 +78,16 @@ void update_coil_driver(usb_dev_handle *d, struct rwand_status *status,
 
 void update_display_timing(usb_dev_handle *d, struct rwand_status *status,
 			   float center, float width, float duty_cycle) {
-  int col_and_gap_width = (status->period * (width/2)) / 80;
+  const int num_columns = 80;
+  int col_and_gap_width = (status->period * (width/2)) / num_columns;
   int col_width = col_and_gap_width * duty_cycle;
   int gap_width = col_and_gap_width - col_width;
-  int total_width = 80 * col_width + 79 * gap_width;
+  int total_width = num_columns * col_width + (num_columns-1) * gap_width;
   int fwd_phase = status->period/2 * (center - width/2);
   int rev_phase = status->period - fwd_phase - total_width;
   static int fudge_factor = 0;
 
+  control_write(d, RWAND_CTRL_SET_NUM_COLUMNS, num_columns, 0);
   control_write(d, RWAND_CTRL_SET_COLUMN_WIDTH, col_width, gap_width);
   control_write(d, RWAND_CTRL_SET_DISPLAY_PHASE, fwd_phase, rev_phase + fudge_factor);
 
@@ -178,6 +180,7 @@ int main(int argc, char **argv) {
   struct rwand_status status, last_status;
   time_t last_edge_timestamp;
   unsigned char frame[80];
+  int flip_pending = 0;
 
   if (!(d = open_rwand()))
     return 1;
@@ -213,6 +216,7 @@ int main(int argc, char **argv) {
       control_write(d, RWAND_CTRL_SET_MODES,
 		    RWAND_MODE_ENABLE_SYNC |
 		    RWAND_MODE_ENABLE_COIL |
+		    RWAND_MODE_STALL_DETECT |
 		    RWAND_MODE_ENABLE_DISPLAY, 0);
     }
 
@@ -220,17 +224,21 @@ int main(int argc, char **argv) {
     update_coil_driver(d, &status, 0.25, 0.2);
 
     /* Update display phase and column width */
-    update_display_timing(d, &status, 0.5, 0.75, 0.75);
+    update_display_timing(d, &status, 0.5, 0.75, 1);
+
+    if (status.flip_count != last_status.flip_count)
+      flip_pending = 0;
 
     /* Was the square just now pushed? */
     if ((status.buttons & RWAND_BUTTON_SQUARE) && !(last_status.buttons & RWAND_BUTTON_SQUARE)) {
       read_image(frame, "test-image.pgm");
       refresh_display(d, frame);
       control_write(d, RWAND_CTRL_FLIP, 0, 0);
+      flip_pending = 1;
     }
     else if (!(status.buttons & RWAND_BUTTON_SQUARE)) {
       /* If our last page flip has finished, write another frame */
-      if (!status.flip_pending) {
+      if (!flip_pending) {
 	static float t = 0;
 	int i, y;
 	for (i=0; i<80; i++) {
@@ -245,6 +253,7 @@ int main(int argc, char **argv) {
 
 	refresh_display(d, frame);
 	control_write(d, RWAND_CTRL_FLIP, 0, 0);
+	flip_pending = 1;
       }
     }
   }
