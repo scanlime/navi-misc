@@ -1,0 +1,12 @@
+--- contrib/fyre.gentoo-initscript	2005-02-07 02:37:03.000000000 -0700
++++ contrib/fyre.gentoo-initscript.new	2005-02-12 16:00:06.620284615 -0700
+@@ -8,8 +8,8 @@
+ 	ebegin "Starting fyre"
+ 	start-stop-daemon --start --quiet --nicelevel 19 \
+ 		--pidfile /var/run/fyre.pid \
+ 		--startas /usr/bin/fyre -- \
+-		-r --pidfile /var/run/fyre.pid
++		-r --chuid nobody
+ 	eend $?
+ }
+ 
