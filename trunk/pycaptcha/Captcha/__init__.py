@@ -37,17 +37,25 @@ __version__ = "0.2-pre"
 
 # Check the python version here before we proceed further
 requiredPythonVersion = (2,2,1)
-import sys, string
-if sys.version_info < requiredPythonVersion:
-    raise Exception("%s requires at least Python %s, found %s instead." % (
-        name,
-        string.join(map(str, requiredPythonVersion), "."),
-        string.join(map(str, sys.version_info), ".")))
-del sys
-del string
+def checkVersion():
+    import sys, string
+    if sys.version_info < requiredPythonVersion:
+        raise Exception("%s requires at least Python %s, found %s instead." % (
+            name,
+            string.join(map(str, requiredPythonVersion), "."),
+            string.join(map(str, sys.version_info), ".")))
+checkVersion()
+
+
+# Determine the data directory. This can be overridden after import-time if needed.
+def getDefaultDataDir():
+    import os
+    return os.path.join(os.path.split(os.path.abspath(__file__))[0], "data")
+dataDir = getDefaultDataDir()
 
 
 # Convenience imports
 from Base import *
+import Words
 
 ### The End ###
