@@ -220,13 +220,20 @@ void run_main_window() {
 	gtk_widget_show_all(GTK_WIDGET(gui.main_window));
 }
 
-void rename_main_window(gchar *server, gchar *channel) {
+void
+rename_main_window (gchar *server, gchar *channel)
+{
 	gchar *new_title;
 
+	if (server == NULL)
+	{
+		gtk_window_set_title (GTK_WINDOW (gui.main_window), channel);
+		return;
+	}
 	new_title = g_strconcat (server, ": ", channel, NULL);
-	gtk_window_set_title(GTK_WINDOW(gui.main_window), new_title);
+	gtk_window_set_title (GTK_WINDOW (gui.main_window), new_title);
 
-	g_free(new_title);
+	g_free (new_title);
 }
 
 void on_irc_connect_menu_activate(GtkWidget *widget, gpointer data) {
