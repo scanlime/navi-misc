@@ -23,6 +23,8 @@ Copyright (C) 2004 Micah Dowty <micah@navi.cx>
 import plugin
 import rc
 import item
+import config
+from event import *
 
 
 class VideoSwitch:
@@ -65,6 +67,36 @@ class VideoSwitch:
         f = open(self.device, "w")
         f.write(s + "\n")
         f.close()
+
+    def setAudioBalance(self, b):
+        """Set the balance between video channel sound and
+           any sound we might be playing. b=0 gives our PCM
+           channel full volume and the line in nothing, b=1
+           sets the line in to full volume and PCM is muted.
+           """
+        mixer = plugin.getbyname("MIXER")
+        mixer.setPcmVolume(int(config.MAX_VOLUME * (1-b) + 0.5))
+        mixer.setLineinVolume(int(config.MAX_VOLUME * b + 0.5))
+
+    def getAudioBalance(self):
+        mixer = plugin.getbyname("MIXER")
+        pcm = mixer.getPcmVolume()
+        line =mixer.getLineinVolume()
+        return float(line) / (pcm + line)
+
+    def stepAudioBalance(self, s):
+        """Modify the audio balance by the given amount, then
+           show the current value on the OSD.
+           """
+        b = self.getAudioBalance()
+        b += s
+        if b < 0:
+            b = 0
+        if b > 1:
+            b = 1
+        self.setAudioBalance(b)
+        msg = "Input Audio: %d%%" % int(b * 100 + 0.5)
+        rc.post_event(Event(OSD_MESSAGE, arg=msg))
 
 
 _globalVideoSwitch = None
@@ -166,6 +198,7 @@ class VideoInputItem(item.Item):
            the current event handler.
            """
         self.switch.setChannel(self.channel, False)
+        self.switch.setAudioBalance(0.5)
         menuw.hide()
         self.menuw = menuw
         rc.app(self)
@@ -173,10 +206,15 @@ class VideoInputItem(item.Item):
     def eventhandler(self, event, menuw=None):
         if event == "MENU_BACK_ONE_MENU":
             self.unselect()
+        elif event == "MENU_UP":
+            self.switch.stepAudioBalance(0.02)
+        elif event == "MENU_DOWN":
+            self.switch.stepAudioBalance(-0.02)
 
     def unselect(self):
         rc.app(None)
         self.menuw.show()
+        self.switch.setAudioBalance(0)
         self.switch.reset()
 
 ### The End ###
