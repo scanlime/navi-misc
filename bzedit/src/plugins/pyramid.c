@@ -107,8 +107,7 @@ static void
 pyramid_init (Pyramid *pyramid)
 {
   pyramid->drawables = NULL;
-  pyramid->drawable = g_object_ref (pyramid_drawable_new ());
-  pyramid->drawable->parent = (SceneObject*) pyramid;
+  pyramid->drawable = g_object_ref (pyramid_drawable_new ((SceneObject*) pyramid));
 
   pyramid->drawables = g_list_append (pyramid->drawables, (gpointer) pyramid->drawable);
 }
@@ -119,16 +118,6 @@ update_double_if_necessary (gdouble new_value, gboolean *dirty, gdouble *param, 
   if (fabs (new_value - *param) > epsilon)
   {
     *param = new_value;
-    *dirty = TRUE;
-  }
-}
-
-static void
-update_float_if_necessary (gdouble new_value, gboolean *dirty, gfloat *param, gfloat epsilon)
-{
-  if (fabs ((gfloat)new_value - *param) > epsilon)
-  {
-    *param = (gfloat) new_value;
     *dirty = TRUE;
   }
 }
@@ -152,82 +141,34 @@ pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GPara
   {
     case PROP_POSITION_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[0], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->position[0], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->drawable)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_POSITION_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[1], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->position[1], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->drawable)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_POSITION_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[2], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->position[2], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->drawable)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_ROTATION:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.rotation, 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->rotation, 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->drawable)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_SIZE_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->size[0], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->drawable)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_SIZE_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->size[1], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->drawable)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_SIZE_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[2], 0.09);
-      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->size[2], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->drawable)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_INVERTED:
       update_boolean_if_necessary (g_value_get_boolean (value), &self->state_dirty, &self->param.inverted);
-      update_boolean_if_necessary (g_value_get_boolean (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                   &PYRAMID_DRAWABLE (self->drawable)->inverted);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->drawable)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_DRIVE_THROUGH:
@@ -241,6 +182,12 @@ pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GPara
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
+  }
+  if (self->state_dirty)
+  {
+    DISPLAY_LIST (self->drawable)->dirty = TRUE;
+    g_signal_emit_by_name (object, "dirty");
+    g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
   }
 }
 
@@ -485,9 +432,11 @@ pyramid_drawable_init (PyramidDrawable *pd)
 }
 
 Drawable*
-pyramid_drawable_new (void)
+pyramid_drawable_new (SceneObject *parent)
 {
-  return DRAWABLE (g_object_new (pyramid_drawable_get_type (), NULL));
+  Drawable *d = DRAWABLE (g_object_new (pyramid_drawable_get_type (), NULL));
+  d->parent = parent;
+  return d;
 }
 
 static void
@@ -502,23 +451,24 @@ static void
 pyramid_drawable_draw_to_list (DisplayList *dl)
 {
   PyramidDrawable *pd = PYRAMID_DRAWABLE (dl);
+  Pyramid *p = PYRAMID (DRAWABLE (dl)->parent);
   float width, depth, height;
   float wrep, drep, hrep;
   float a[3], b[3], normal[3];
 
-  width = pd->size[0];
-  depth = pd->size[1];
-  height = pd->size[2];
+  width = p->param.size[0];
+  depth = p->param.size[1];
+  height = p->param.size[2];
 
   wrep = width / 8;
   drep = depth / 8;
   hrep = height / 8;
 
   glPushMatrix ();
-  glTranslatef (pd->position[0], pd->position[1], pd->position[2]);
-  glRotatef (pd->rotation, 0.0, 0.0, 1.0);
+  glTranslatef (p->param.position[0], p->param.position[1], p->param.position[2]);
+  glRotatef (p->param.rotation, 0.0, 0.0, 1.0);
 
-  if (pd->inverted)
+  if (p->param.inverted)
   {
     glBegin (GL_QUADS);
     {
