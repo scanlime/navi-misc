@@ -44,6 +44,7 @@
 ;         - 10-bit battery voltage
 ;         - 16-bit temperature accumulator
 ;         - 8-bit temperature sample count
+;	  - 16-bit CRC-16 of the above
 ;      - 6-bit Flag sequence
 ;
 
@@ -96,9 +97,12 @@ TX_LONG_DELAY	equ (.258 - (TX_LONG / 4))
 ;----------------------------------------------------- Variables
 
 	cblock 0x20
-		temp, consecutive_ones, crc_reg, temp2, packet_seq
-		iolatch, therm_total_low, therm_total_high, therm_count
+		iolatch
+		temp, temp2
 		main_iter
+		consecutive_ones, packet_seq
+		crc_reg_high, crc_reg_low
+		therm_total_low, therm_total_high, therm_count
 	endc
 
 
@@ -448,7 +452,8 @@ tx_packet
 
 	;; Reinitialize the CRC8 and send a few copies of the flag sequence
 tx_begin_content
-	clrf	crc_reg
+	clrf	crc_reg_low
+	clrf	crc_reg_high
 	call	tx_send_start
 	call	tx_send_flag
 	call	tx_send_flag
@@ -458,34 +463,44 @@ tx_begin_content
 
 	;; A macro to shift a new bit into the CRC
 crc_shift macro value
-	rlf	crc_reg, f
+	local	skip_poly
+	rlf	crc_reg_low, f
+	rlf	crc_reg_high, f
 	if value
-	 bsf	crc_reg, 0
+	 bsf	crc_reg_low, 0
 	else
-	 bcf	crc_reg, 0
+	 bcf	crc_reg_low, 0
 	endif
-	movlw	0x07
-	btfsc	STATUS, C	; XOR with the polynomial if 1 came out
-	xorwf	crc_reg, f
+	btfss	STATUS, C	; XOR with the polynomial if 1 came out
+	goto	skip_poly
+	movlw	0x05
+	xorwf	crc_reg_low, f
+	movlw	0x80
+	xorwf	crc_reg_high, f
+skip_poly
 	endm
 
-	;; Send the CRC8 followed by a flag. Note that this first has to push
-	;; 8 zeroes through the CRC8 shift register to pad the message, as
-	;; per the CRC8 specification.
+	;; Send the CRC16 followed by a flag
 tx_end_content
+	movlw	.16		; Augment the message with 16 zero bits
+	movwf	temp
+message_augment
 	crc_shift 0
-	crc_shift 0
-	crc_shift 0
-	crc_shift 0
-	crc_shift 0
-	crc_shift 0
-	crc_shift 0
-	crc_shift 0
-	movf	crc_reg, w	; Send the CRC
+	decfsz	temp, f
+	goto	message_augment
+
+	movf	crc_reg_low, w	; Send the CRC
+	movwf	temp
+	movf	crc_reg_high, w	; We have to save the high byte, since transmitting
+	movwf	temp2		;   the low byte will alter it
+	call	tx_content_8bit
+	movf	temp2, w
 	movwf	temp
 	call	tx_content_8bit
-	call	tx_send_flag
+
+	call	tx_send_flag	; Send the flag
 	goto	tx_send_end
+
 
 	;; Send a bit-stuffed "1" that is included in the CRC8
 tx_content_one
