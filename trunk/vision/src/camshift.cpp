@@ -151,29 +151,25 @@ void interactive_camshift(int n_cameras, bool show_backprojections) {
 	gray_to_yuv(backprojection, yuv_backprojections[i]);
       }
 
-      /* Limit the size of CAMSHIFT's initial search window to 1/2 the image
-       * size, avoiding speed problems if we lose tracking on one object and
-       * the window wants to expand.
-       */
-      if (windowIn[i].width > images[i]->width/2) {
-	windowIn[i].x += (windowIn[i].width - images[i]->width/2) / 2;
-	windowIn[i].width = images[i]->width/2;
-      }
-      if (windowIn[i].height > images[i]->height/2) {
-	windowIn[i].y += (windowIn[i].height - images[i]->height/2) / 2;
-	windowIn[i].height = images[i]->height/2;
-      }
-
       /* Run the output through the CAMSHIFT algorithm to locate objects */
       CvBox2D box;
       CvConnectedComp comp;
       cvCamShift(backprojection, windowIn[i],
-		 cvTermCriteria(CV_TERMCRIT_EPS, 0, 0.1),
+		 cvTermCriteria(CV_TERMCRIT_ITER, 20, 0),
 		 &comp, &box);
       windowIn[i] = comp.rect;
+
       if (box.size.width > 0 && box.size.height > 0) {
+	/* If we found something, draw it */
 	draw_box(images[i], box);
 	plot_crosshairs(images[i], cvPoint((int)box.center.x, (int)box.center.y));
+      }
+      else {
+	/* If not, reset our search window */
+	windowIn[i].x = 0;
+	windowIn[i].y = 0;
+	windowIn[i].width = images[i]->width;
+	windowIn[i].height = images[i]->height;
       }
     }
 
