@@ -47,13 +47,63 @@
     </box>
   </item>
 
+  <!-- Menubar -->
   <item type="rect">
     <normal color="#ffffff"/>
     <pos anchor="sw" x="0" y="100%" width="100%" height="10%"/>
+    <fixed>
+
+      <item type="rect">
+        <pos anchor="se" x="100%" y="100%" width="box" height="100%"/>
+        <box orientation="horizontal" xpadding="10" spacing="10">
+          <item type="rect" id="system_button" button="true">
+            <pos anchor="sw" y="50%" width="box" height="box"/>
+            <box orientation="horizontal">
+              <item type="pixmap">
+                <normal file="head1.png"/>
+              </item>
+              <item type="label">
+                <pos y="50%"/>
+                <normal color="#000000" font="Bitstream Vera Sans 14"/>
+                <stock type="system"/>
+              </item>
+            </box>
+          </item>
+
+          <item type="rect" id="session_button" button="true">
+            <pos anchor="sw" y="50%" width="box" height="box"/>
+            <box orientation="horizontal">
+              <item type="pixmap">
+                <normal file="moongoat.png"/>
+              </item>
+              <item type="label">
+                <pos y="50%"/>
+                <normal color="#000000" font="Bitstream Vera Sans 14"/>
+                <stock type="session"/>
+              </item>
+            </box>
+          </item>
+
+          <item type="rect" id="language_button" button="true">
+            <pos anchor="sw" y="50%" width="box" height="box"/>
+            <box orientation="horizontal">
+              <item type="pixmap">
+                <normal file="head2.png"/>
+              </item>
+              <item type="label">
+                <pos y="50%"/>
+                <normal color="#000000" font="Bitstream Vera Sans 14"/>
+                <stock type="language"/>
+              </item>
+            </box>
+          </item>
+        </box>
+      </item>
+    </fixed>
   </item>
 
   <item type="pixmap">
-    <pos anchor="sw" x="5%" y="95%"/>
+    <pos anchor="sw" x="2%" y="97%"/>
     <normal file="tummy_hole.png"/>
   </item>
 </greeter>
