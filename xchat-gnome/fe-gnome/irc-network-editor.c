@@ -444,7 +444,7 @@ apply_changes (IrcNetworkEditor *e)
 	IrcNetwork *net;
 	GSList *s;
 	GtkTreeIter iter;
-	gchar *t1, *t2, *t3;
+	gchar *t1 = NULL, *t2, *t3;
 
 	net = e->network;
 
