@@ -1,0 +1,14 @@
+Known Bugs
+----------
+
+- Dragging keysframes in the animation editor will cause a few
+  GLib errors and eventually a segfault
+
+- The bifurcation diagrams only update when they are redrawn,
+  such as when your mouse enters or leaves them.
+
+- Errors in opening or saving files aren't reported properly
+
+- The 'save' menu items actually are 'save as' for now
+
+
