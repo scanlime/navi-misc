@@ -1,0 +1,6 @@
+All the scripts in this directory generate a world.cow with their scene in it.
+Make sure the contents of your world.cow aren't important, then run:
+  
+  ./jetstream -e util/testworlds/<name>.py
+
+You should have a world.cow now with that test world in it.

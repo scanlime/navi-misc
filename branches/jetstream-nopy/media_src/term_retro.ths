@@ -1,0 +1,30 @@
+/* Green-on-black fun :) */
+
+obj default name = "Retro terminal theme";
+
+obj terminal {
+  /* Green, green, and more green... */
+  textcolors = Array(0x000000,
+		     0x008000,
+		     0x008000,
+		     0x008000,
+		     0x008000,
+		     0x008000,
+		     0x008000,
+		     0x008000,
+		     0x008000,
+		     0x00FF00,
+		     0x00FF00,
+		     0x00FF00,
+		     0x00FF00,
+		     0x00FF00,
+		     0x00FF00,
+		     0x00C000);
+  attr.default = 0x0F;
+  attr.cursor = 0xF0;
+
+  /* less smart timing */
+  time.on = 500;
+  time.off = 500;
+  time.delay = 10;
+}
