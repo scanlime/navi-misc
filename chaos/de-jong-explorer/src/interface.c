@@ -59,7 +59,8 @@ void on_stop_activate(GtkWidget *widget, gpointer user_data);
 void on_param_spinner_changed(GtkWidget *widget, gpointer user_data);
 void on_render_spinner_changed(GtkWidget *widget, gpointer user_data);
 void on_color_changed(GtkWidget *widget, gpointer user_data);
-void on_random_activate(GtkWidget *widget, gpointer user_data);
+void on_randomize_activate(GtkWidget *widget, gpointer user_data);
+void on_load_defaults_activate(GtkWidget *widget, gpointer user_data);
 void on_save_activate(GtkWidget *widget, gpointer user_data);
 gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data);
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1, gchar *string2, gint int1, gint int2);
@@ -102,7 +103,6 @@ static void gui_resize(int width, int height) {
 gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data) {
   /* After the drawing area is shown, go back to the natural size request */
   if (gui.just_resized) {
-    printf("boing\n");
     gtk_widget_set_size_request(widget, -1, -1);
     gui.just_resized = FALSE;
   }
@@ -329,13 +329,20 @@ static float generate_random_param() {
   return uniform_variate() * 12 - 6;
 }
 
-void on_random_activate(GtkWidget *widget, gpointer user_data) {
+void on_randomize_activate(GtkWidget *widget, gpointer user_data) {
   params.a = generate_random_param();
   params.b = generate_random_param();
   params.c = generate_random_param();
   params.d = generate_random_param();
   write_gui_params();
 
+  on_stop_activate(widget, user_data);
+  on_start_activate(widget, user_data);
+}
+
+void on_load_defaults_activate(GtkWidget *widget, gpointer user_data) {
+  set_defaults();
+  write_gui_params();
   on_stop_activate(widget, user_data);
   on_start_activate(widget, user_data);
 }

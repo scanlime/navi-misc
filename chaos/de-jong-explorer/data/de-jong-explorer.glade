@@ -41,7 +41,7 @@
 		      <accelerator key="i" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image16">
+			<widget class="GtkImage" id="image36">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-zoom-in</property>
 			  <property name="icon_size">1</property>
@@ -63,7 +63,7 @@
 		      <accelerator key="s" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image17">
+			<widget class="GtkImage" id="image37">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-save-as</property>
 			  <property name="icon_size">1</property>
@@ -109,7 +109,7 @@
 		      <accelerator key="o" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image18">
+			<widget class="GtkImage" id="image38">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-open</property>
 			  <property name="icon_size">1</property>
@@ -127,11 +127,11 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Load _defaults</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_load_defaults1_activate" last_modification_time="Sun, 15 Feb 2004 07:08:11 GMT"/>
+		      <signal name="activate" handler="on_load_defaults_activate" last_modification_time="Sun, 15 Feb 2004 08:49:13 GMT"/>
 		      <accelerator key="d" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image19">
+			<widget class="GtkImage" id="image39">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-new</property>
 			  <property name="icon_size">1</property>
@@ -149,11 +149,11 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">_Randomize</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_randomize1_activate" last_modification_time="Sun, 15 Feb 2004 07:08:11 GMT"/>
+		      <signal name="activate" handler="on_randomize_activate" last_modification_time="Sun, 15 Feb 2004 08:50:38 GMT"/>
 		      <accelerator key="r" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image20">
+			<widget class="GtkImage" id="image40">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-refresh</property>
 			  <property name="icon_size">1</property>
