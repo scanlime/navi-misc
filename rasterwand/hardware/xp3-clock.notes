@@ -40,7 +40,7 @@ the XP3 into a rasterwand device.
    capacitor on the back of the PCB, between pin 14 of U1 and the
    nearby grounded side of D4 (which was removed).
 
-10. Add a 1.5k resistor between pins 15 and 15 of U1. Again, this
+10. Add a 1.5k resistor between pins 14 and 15 of U1. Again, this
     can go on the back of the PCB. 1k should be close enough, but
     1.5k is nominal.
 
