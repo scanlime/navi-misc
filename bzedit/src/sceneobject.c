@@ -81,6 +81,7 @@ scene_object_class_init (SceneObjectClass *klass)
 
   klass->creatable = TRUE;
   klass->autocreate = FALSE;
+  klass->canparent = FALSE;
 
   klass->select = NULL;
   klass->deselect = NULL;
@@ -90,6 +91,7 @@ static void
 scene_object_init (SceneObject *self)
 {
   self->selected = FALSE;
+  self->parent = NULL;
 }
 
 void

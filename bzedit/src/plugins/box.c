@@ -438,7 +438,7 @@ box_get_icon (void)
 
   if (icon == NULL)
   {
-    icon = gdk_pixbuf_new_from_file ("data/boxicon.png", NULL);
+    icon = gdk_pixbuf_new_from_file ("data/box.png", NULL);
   }
 
   return gdk_pixbuf_ref (icon);

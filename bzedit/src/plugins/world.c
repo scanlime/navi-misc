@@ -249,7 +249,7 @@ world_get_icon (void)
 
   if (icon == NULL)
   {
-    icon = gdk_pixbuf_new_from_file ("data/groundicon.png", NULL);
+    icon = gdk_pixbuf_new_from_file ("data/ground.png", NULL);
   }
 
   return icon;
