@@ -8,7 +8,7 @@ Hangman class, functions for controlling a game of hangman.
 # evan@navi.picogui.org
 #
 
-import sys, os
+import sys, os, gtk
 from Menu import menu
 from random import seed, randint
 
@@ -93,3 +93,31 @@ class Hangman:
 
 		fileName = "games/" + fileName
 		return fileName
+
+class HangmanGUI:
+	""" A class for creating and controlling a GUI for Hangman. __init__ creates
+	all the necessary widgets and connects them to the appropriate Hangman functions. """
+	def __init__(self):
+		# Game controller.
+		self.controller = Hangman()
+
+		# Set up the window.
+		self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+		self.window.set_title("Hangman")
+		self.window.connect("delete_event", gtk.quit_main())
+
+		# Last thing, show the window.
+		self.window.show()
+
+	def Pack(boxClass, widgets, packArgs=[]):
+		""" Packs all the widgets in the last argument into a box of boxType
+		(horizontal or vertical) and returns the box.  packArgs are used as the
+		arguments to the pack function."""
+
+		box = boxClass()
+
+		# Pack the widgets with packArgs.
+		for child in widgets:
+			box.pack_start(child, *packArgs)
+
+		return box
