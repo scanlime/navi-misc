@@ -1,6 +1,6 @@
 bin_PROGRAMS = fyre
 
-INCLUDES = $(BINRELOC_CFLAGS) $(PACKAGE_CFLAGS) '-DGLADEDIR="data"'
+INCLUDES = $(BINRELOC_CFLAGS) $(PACKAGE_CFLAGS) $(EXR_CFLAGS) '-DGLADEDIR="data"'
 
 fyre_SOURCES = 				\
 	main.c				\
@@ -50,4 +50,4 @@ noinst_HEADERS =			\
 	screensaver.h			\
 	spline.h
 
-fyre_LDADD = $(BINRELOC_LIBS) $(PACKAGE_LIBS)
+fyre_LDADD = $(BINRELOC_LIBS) $(PACKAGE_LIBS) $(EXR_LIBS)
