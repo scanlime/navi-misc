@@ -7,7 +7,7 @@ of PalantirClient.
   Copyrit (C) 2004 W. Evan Sheehan <evan@navi.cx>
 '''
 
-from palantirIRCClient import PalantirClient
+from client import Client
 from twisted.internet import protocol, reactor
 
 class PalantirClientFactory(protocol.ClientFactory):
@@ -16,7 +16,7 @@ class PalantirClientFactory(protocol.ClientFactory):
       the ui should save a reference to the factory.  The client that is created
       saves a reference to the factory by default.
       '''
-  protocol = PalantirClient
+  protocol = Client
 
   def __init__(self, nick, server=None, channels=None, ui=None):
     ''' 'channels' should be a string of channels, separated by commas that the client
