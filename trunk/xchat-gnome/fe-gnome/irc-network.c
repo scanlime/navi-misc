@@ -98,9 +98,9 @@ irc_network_get_type (void)
 		};
 
 		irc_network_type = g_type_register_static (G_TYPE_OBJECT, "IrcNetwork", &irc_network_info, 0);
-	}
 
-	parent_class = g_type_class_ref (G_TYPE_OBJECT);
+		parent_class = g_type_class_ref (G_TYPE_OBJECT);
+	}
 
 	return irc_network_type;
 }
