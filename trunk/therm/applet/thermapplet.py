@@ -259,6 +259,8 @@ class ThermApplet:
 
     def updateCallback(self):
         self.menu.updateContent()
+        if self.currentWidget:
+            self.currentWidget.update()
         reactor.callLater(self.updateInterval, self.updateCallback)
 
     def changeSource(self, source):
