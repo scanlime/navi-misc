@@ -51,13 +51,13 @@ class config:
     # Several common directory structure styles are below as defaults.
     # Uncomment the ones you're using, or add your own regexes.
     # Whitespace in the each regex are ignored.
-    
+
     pathRegexes = [
-    #   r"^ trunk/           (?P<module>[^/]+) ",
-    #   r"^ (branches|tags)/ (?P<branch>[^/]+) ",
-    #   r"^ (branches|tags)/ (?P<module>[^/]+)/ (?P<branch>[^/]+) ",
+    #   r"^ trunk/           (?P<module>[^/]+)/ ",
+    #   r"^ (branches|tags)/ (?P<branch>[^/]+)/ ",
+    #   r"^ (branches|tags)/ (?P<module>[^/]+)/ (?P<branch>[^/]+)/ ",
         ]
-    
+
     # If your repository is accessable over the web, put its base URL here
     # and 'uri' attributes will be given to all <file> elements. This means
     # that in CIA's online message viewer, each file in the tree will link
