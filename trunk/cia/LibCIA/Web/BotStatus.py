@@ -127,6 +127,7 @@ class BotsSection(Template.Section):
             ListIndexedColumn('channels', 2),
             ListIndexedColumn('requested', 3),
             LagColumn('lag', 4),
+            TimeElapsedColumn('uptime', 6),
             Nouvelle.IndexedColumn('status', 5),
             ]
 
@@ -154,6 +155,7 @@ class BotsSection(Template.Section):
                 bot.callRemote("getRequestedChannels"),
                 bot.callRemote("getLag"),
                 bot.callRemote("getStatusText"),
+                bot.callRemote("getConnectTimestamp"),
                 ]))
 
         defer.gatherResults(deferreds).addCallback(
@@ -252,6 +254,11 @@ class TimeRemainingColumn(Nouvelle.IndexedColumn):
     """An indexed column that shows the amount of time remaining until the given timestamp"""
     def render_data(self, context, row):
         return TimeUtil.formatDuration(self.getValue(row) - time.time())
+
+class TimeElapsedColumn(Nouvelle.IndexedColumn):
+    """An indexed column that shows the amount of time elapsed since the given timestamp"""
+    def render_data(self, context, row):
+        return TimeUtil.formatDuration(time.time() - self.getValue(row))
 
 
 class NewBotsSection(Template.Section):
