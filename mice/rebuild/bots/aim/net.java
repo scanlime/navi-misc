@@ -37,8 +37,8 @@ public class net
 		link = ink;
 		try
 		{
-			BufferedReader in = new BufferedReader(new InputStreamReader(ink.getInputStream()));
-			OutputStreamWriter out = new OutputStreamWriter(ink.getOutputStream());
+			in = new BufferedReader(new InputStreamReader(ink.getInputStream()));
+			out = new OutputStreamWriter(ink.getOutputStream());
 		}
 		catch(IOException e){}
 	}

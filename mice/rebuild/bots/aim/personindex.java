@@ -33,6 +33,8 @@ public class personindex
 	{
 		int botcount = 0;
 		bots = new botmain[numbots];
+		masshead = null;
+		inthead = null;
 	}
 	
 	public void registerBot(botmain toadd)
@@ -59,6 +61,11 @@ public class personindex
 		masshead = new person(masshead,bots[currentbot],from);
 		currentbot++;
 		if(currentbot == botcount) currentbot = 0;
+	}
+	
+	public void addInterview(botmain bot, String name, String pass)
+	{
+		inthead = new interview(inthead, bot, name, pass);
 	}
 	
 	public void broadcast(String message)
