@@ -1,17 +1,17 @@
 Index: configure.in
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/configure.in,v
-retrieving revision 1.57
-diff -u -r1.57 configure.in
---- configure.in	20 Mar 2004 08:51:29 -0000	1.57
-+++ configure.in	8 May 2004 22:25:55 -0000
+retrieving revision 1.59
+diff -u -r1.59 configure.in
+--- configure.in	7 Apr 2004 06:03:45 -0000	1.59
++++ configure.in	9 May 2004 18:04:25 -0000
 @@ -60,6 +60,10 @@
  [  --enable-memdebug       enable use of Memory Debug (default: no)],
          memdebug=$enableval, memdebug=no)
  
 +AC_ARG_ENABLE(profiling,
-+[  --enable-profiling      turn on profiling (default: no)],
-+	profiling=$enableval, profiling=no)
++[  --enable-profiling      turn on profiling support (default: no)],
+++       profiling=$enableval, profiling=no)
 +
  AC_ARG_ENABLE(socks,
  [  --enable-socks          enable use of SOCKS5 (default: no)],
@@ -38,7 +38,7 @@ diff -u -r1.57 configure.in
  	zvt=no
  	COMMON_LIBS="$GLIB_LIBS"
  	COMMON_CFLAGS="$GLIB_CFLAGS"
-@@ -171,22 +175,33 @@
+@@ -171,22 +175,38 @@
  GUI_LIBS="$GUI_LIBS $GTK_LIBS"
  GUI_CFLAGS="$GUI_CFLAGS $GTK_CFLAGS"
  
@@ -79,16 +79,21 @@ diff -u -r1.57 configure.in
 +		GUI_LIBS="$GUI_LIBS `$pkgconfigpath libgnome-2.0 --libs`"
 +		GUI_LIBS="$GUI_LIBS `$pkgconfigpath libgnomeui-2.0 --libs`";
 +		GUI_LIBS="$GUI_LIBS `$pkgconfigpath libglade-2.0 --libs`";
-+		GUI_LIBS="$GUI_LIBS `$pkgconfigpath gconf-2.0 --libs`";
 +		GUI_LIBS="$GUI_LIBS `$pkgconfigpath gnome-vfs-2.0 --libs`";
++		GUI_LIBS="$GUI_LIBS `$pkgconfigpath gconf-2.0 --libs`";
 +		GUI_CFLAGS="$GUI_CFLAGS $GNOME_CFLAGS"
 +		AC_MSG_RESULT(ok)
 +	fi
++
 +fi
++
++# GConf
++AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
++AM_GCONF_SOURCE_2
  
  dnl *********************************************************************
  dnl ** XFT **************************************************************
-@@ -465,6 +480,7 @@
+@@ -465,6 +485,7 @@
  AM_CONDITIONAL(USE_OPENSSL, test "x$openssl" = "xyes")
  AM_CONDITIONAL(DO_TEXT, test "x$textfe" = "xyes")
  AM_CONDITIONAL(DO_GTK, test "x$gtkfe" = "xyes")
@@ -96,7 +101,7 @@ diff -u -r1.57 configure.in
  AM_CONDITIONAL(DO_PERL, test "x$perl" = "xyes")
  AM_CONDITIONAL(DO_PYTHON, test "x$python" = "xyes")
  AM_CONDITIONAL(DO_TCL, test "x$tcl" = "xyes")
-@@ -561,6 +577,10 @@
+@@ -561,6 +582,10 @@
  	fi
  fi
  
@@ -107,16 +112,17 @@ diff -u -r1.57 configure.in
  dnl *********************************************************************
  dnl ** FUNCTIONS/LIBS/CFLAGS ********************************************
  dnl *********************************************************************
-@@ -648,6 +668,8 @@
+@@ -648,6 +673,9 @@
  src/Makefile
  src/common/Makefile
  src/fe-text/Makefile
 +src/fe-gnome/Makefile
 +src/fe-gnome/data/Makefile
++src/fe-gnome/pixmaps/Makefile
  src/fe-gtk/Makefile
  src/pixmaps/Makefile
  plugins/Makefile
-@@ -661,8 +683,9 @@
+@@ -661,8 +689,9 @@
  echo
  echo xchat $VERSION
  echo
@@ -134,7 +140,7 @@ RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	8 May 2004 22:25:56 -0000
++++ src/Makefile.am	9 May 2004 18:04:26 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
