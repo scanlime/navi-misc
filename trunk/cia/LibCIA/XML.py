@@ -22,7 +22,7 @@ Utilities for dealing with objects built on top of XML trees
 #
 
 from twisted.xish import domish
-import types, os
+import types, os, shutil
 
 
 class XMLObject(object):
@@ -140,9 +140,16 @@ class XMLStorage(object):
 
     def save(self):
         """Save our in-memory representation back to disk"""
-        f = open(self.fileName, "w")
+        # To keep the data safe in the event of an error or crash while writing
+        # to disk, we write to a .new file, then only if that succeeded we copy
+        # the existing file (if there is one) to a '~' backup and move the .new
+        # file to its final location.
+        f = open(self.fileName + '.new', "w")
         f.write(self.toXml())
         f.close()
+        if os.path.isfile(self.fileName):
+            shutil.copyfile(self.fileName, self.fileName + '~')
+        os.rename(self.fileName + '.new', self.fileName)
 
     def toXml(self):
         """Return the contents of this XMLStorage as raw XML. If it hasn't
