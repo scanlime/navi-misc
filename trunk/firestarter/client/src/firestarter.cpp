@@ -136,7 +136,6 @@ bool CFirestarterLoop::GameLoop ( void )
 		lastScreenShotTime = CTimer::instance().GetTime();
 		//GetRenderWindow()->setDebugText(String("Wrote ") + tmp);
 	}
-
 	if (inUI)
 	{
 		if (ui.Think())
