@@ -6,18 +6,18 @@ fyredata_DATA = 		\
 	about-box.fa		\
 	fyre-48x48.png          \
         fyre-32x32.png          \
-        fyre-16x16.png
+        fyre-16x16.png		\
+	x-fyre-animation.png
 
 desktopdir = $(datadir)/applications
-fyre.desktop:	fyre.desktop.in
+%.desktop:	%.desktop.in
 	sed 's|\@DATADIR\@|$(datadir)/fyre/|' $< > $@
-desktop_DATA = fyre.desktop
+desktop_DATA =			\
+	fyre.desktop		\
+	fyre-fa.desktop
 
 mimedir = $(datadir)/mime/packages
 mime_DATA = fyre.xml
-
-mimeinfodir = $(datadir)/mime-info
-mimeinfo_DATA = fyre.keys
 
 EXTRA_DIST =			\
 	$(fyredata_DATA)	\
@@ -26,5 +26,6 @@ EXTRA_DIST =			\
         fyre-16x16.xcf.gz       \
         fyre-win32-icons.xcf.gz	\
 	fyre.desktop.in		\
-	fyre.keys		\
-	x-fyre-animation.xml
+	fyre-fa.desktop.in	\
+	x-fyre-animation.xml	\
+	x-fyre-animation.png
