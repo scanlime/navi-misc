@@ -1,0 +1,98 @@
+<gconfschemafile>
+  <schemalist>
+
+    <!-- xchat-gnome config version -->
+    <schema>
+      <key>/schemas/apps/xchat/version</key>
+      <applyto>/apps/xchat/version</applyto>
+      <owner>xchat</owner>
+      <type>string</type>
+      <locale name="C">
+        <short>xchat configuration version</short>
+      </locale>
+    </schema>
+
+    <!-- nickname -->
+    <schema>
+      <key>/schemas/apps/xchat/irc/nickname</key>
+      <applyto>/apps/xchat/irc/nickname</applyto>
+      <owner>xchat</owner>
+      <type>string</type>
+      <locale name="C">
+        <short>Default nickname used by servers without special options set</short>
+      </locale>
+    </schema>
+
+    <!-- real name -->
+    <schema>
+      <key>/schemas/apps/xchat/irc/realname</key>
+      <applyto>/apps/xchat/irc/realname</applyto>
+      <owner>xchat</owner>
+      <type>string</type>
+      <locale name="C">
+        <short>Default real name used by servers without special options set</short>
+      </locale>
+    </schema>
+
+    <!-- quit message -->
+    <schema>
+      <key>/schemas/apps/xchat/irc/quitmsg</key>
+      <applyto>/apps/xchat/irc/quitmsg</applyto>
+      <owner>xchat</owner>
+      <type>string</type>
+      <default>Ex-Chat</default>
+      <locale name="C">
+        <short>Message sent on quit</short>
+      </locale>
+    </schema>
+
+    <!-- part message -->
+    <schema>
+      <key>/schemas/apps/xchat/irc/partmsg</key>
+      <applyto>/apps/xchat/irc/partmsg</applyto>
+      <owner>xchat</owner>
+      <type>string</type>
+      <default>Ex-Chat</default>
+      <locale name="C">
+        <short>Message sent on channel part</short>
+      </locale>
+    </schema>
+
+    <!-- away message -->
+    <schema>
+      <key>/schemas/apps/xchat/irc/awaymsg</key>
+      <applyto>/apps/xchat/irc/awaymsg</key>
+      <owner>xchat</owner>
+      <type>string</type>
+      <default>Away</default>
+      <locale name="C">
+        <short>Message sent on away</short>
+      </locale>
+    </schema>
+
+    <!-- show colors -->
+    <schema>
+      <key>/schemas/apps/xchat/irc/showcolors</key>
+      <applyto>/apps/xchat/irc/showcolors</applyto>
+      <owner>xchat</owner>
+      <type>bool</type>
+      <default>true</default>
+      <locale name="C">
+        <short>Show colors in the main window</short>
+      </locale>
+    </schema>
+
+    <!-- show timestamps -->
+    <schema>
+      <key>/schemas/apps/xchat/irc/showtimestamps</key>
+      <applyto>/apps/xchat/irc/showtimestamps</applyto>
+      <owner>xchat</owner>
+      <type>bool</type>
+      <default>true</default>
+      <locale name="C">
+        <short>Show timestamps in the main window</short>
+      </locale>
+    </schema>
+
+  </schemalist>
+</gconfschemafile>
