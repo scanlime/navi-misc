@@ -24,8 +24,8 @@ CIA is running.
 
 from twisted.python import rebuild, log
 import RpcServer
-import gc
-import sys, traceback
+from cStringIO import StringIO
+import gc, sys, traceback, code
 
 
 class DebugInterface(RpcServer.Interface):
@@ -33,6 +33,13 @@ class DebugInterface(RpcServer.Interface):
     def __init__(self):
         RpcServer.Interface.__init__(self)
         self.putSubHandler('gc', GcInterface())
+        self.protected_resetInterpreter()
+
+    def newCommandNamespace(self):
+        """Return a dictionary that acts as a fresh namespace for
+           executing debug console commands in.
+           """
+        return dict(globals())
 
     def protected_rebuild(self, *packageNames):
         """Use twisted.python.rebuild to reload the given package or module
@@ -45,14 +52,69 @@ class DebugInterface(RpcServer.Interface):
             package = __import__(packageName, globals(), locals(), [''])
             rebuildPackage(package)
 
-    def protected_eval(self, code):
+    def protected_resetInterpreter(self):
+        """Reinitialize the debug interpreter, beginning a new session with a new namespace"""
+        self.interpreter = RemoteInterpreter()
+
+    def protected_eval(self, source):
         """Evaluate arbitrary code in the context of this module.
-           Returns the repr() of the result.
+           This is meant to be used to provide an interface similar to the python
+           interpreter. For this reason, incomplete code is detected and causes False
+           to be returned. If the code was complete, it is run and a string indicating
+           the result to display is returned.
+
            NOTE: This is an extremely powerful function, so a 'debug' or 'debug.eval'
                  key should be treated with equivalent respect to a 'universe' key.
+                 It is also quite dangerous. Besides being able to execute arbitrary
+                 code, any infinite loops or code that takes a long time to run
+                 will cause CIA to hang.
            """
-        log.msg("Executing code in debug.eval: %r" % code)
-        return repr(eval(code))
+        log.msg("Executing code in debug.evalCommand: %r" % source)
+        if self.interpreter.runsource(source):
+            # Incomplete
+            return False
+        else:
+            return self.interpreter.collectOutput()
+
+
+class RemoteInterpreter(code.InteractiveInterpreter):
+    """An interpreter similar to the Python console that takes acts on commands
+       delivered over XML-RPC and captures what would be stdout into a string.
+       """
+    def __init__(self):
+        # By default, give them all the utilities we have in this module,
+        # but use a copy of our namespace so newly created locals won't
+        # affect us.
+        code.InteractiveInterpreter.__init__(self, dict(globals()))
+        self.capturedOutput = StringIO()
+
+    def runsource(self, source):
+        # Redirect stdout and stderr to our capturedOutput.
+        # We could just override write() to get tracebacks
+        # and such, but we also want commands that generate
+        # output via 'print' to work.
+        #
+        # This could be dangerous if we have other threads
+        # trying to write to them as well, but that would only
+        # happen (currently at least) if there's an error in
+        # one of our database threads. Since this is only used
+        # for debugging and such, that's an acceptable risk.
+        savedStdout = sys.stdout
+        savedStderr = sys.stderr
+        sys.stdout = self.capturedOutput
+        sys.stderr = self.capturedOutput
+        try:
+            result = code.InteractiveInterpreter.runsource(self, source)
+        finally:
+            sys.stdout = savedStdout
+            sys.stderr = savedStderr
+        return result
+
+    def collectOutput(self):
+        """Return a string with all output generated since the last call"""
+        output = self.capturedOutput.getvalue()
+        self.capturedOutput = StringIO()
+        return output
 
 
 def typeInstances(t):
@@ -73,19 +135,6 @@ def getSingleton(t):
     if len(insts) != 1:
         raise Exception("Found %d instances of %r, expected it to be a singleton" % (len(insts), t))
     return insts[0]
-
-
-def catchFault(message="Exception occurred"):
-    """Put this in the 'except' section of a try block to convert the exception
-       that just occurred to an XMLRPC Fault and log it.
-       Not related to Messages, but this is as good a place as any for it right now...
-       """
-    e = sys.exc_info()[1]
-    if isinstance(e, xmlrpc.Fault):
-        raise
-    else:
-        log.msg(message + "\n" + "".join(traceback.format_exception(*sys.exc_info())))
-        raise xmlrpc.Fault(e.__class__.__name__, str(e))
 
 
 def rebuildPackage(package):
