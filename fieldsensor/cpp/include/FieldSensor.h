@@ -29,9 +29,7 @@
 #include <pthread.h>
 #include <list>
 
-/* annie is the neural net library we use */
-#include <annie.h>
-using namespace annie;
+#include <FieldNetwork.h>
 
 /* Linear algebra classes borrowed from Jetstream */
 #include <Vector.h>
