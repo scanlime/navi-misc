@@ -61,6 +61,8 @@ void CTestWorld::Load ( CNetworkMessage &message, bool draw )
 		tuft.center[0] = message.ReadF();
 		tuft.center[1] = message.ReadF();
 		tuft.range = message.ReadF();
+		tuft.scale[0] = message.ReadF();
+		tuft.scale[1] = message.ReadF();
 		tufts.push_back(tuft);
 	}
 

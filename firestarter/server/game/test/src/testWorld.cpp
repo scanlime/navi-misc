@@ -100,14 +100,14 @@ bool CTestWorld::init ( const char* mapFileName )
 	// tuft groups
 	int tufCount = 0;
 	//tufts: n
-	sscanf(mapFile.ReadLine(),"tufts: %d",&tufCount);
+	sscanf(mapFile.ReadLine(),"flairgroups: %d",&tufCount);
 	
 	trTuftDef	tuft;
 	int			temp;
 	for(int i = 0; i < tufCount; i++)
 	{
 		//tuft: n
-		sscanf(mapFile.ReadLine(),"tuft: %d",&temp);
+		sscanf(mapFile.ReadLine(),"flair: %d",&temp);
 
 		//mesh: name
 		tuft.mesh = &(mapFile.ReadLine()[6]);
@@ -120,6 +120,9 @@ bool CTestWorld::init ( const char* mapFileName )
 
 		//range: r
 		sscanf(mapFile.ReadLine(),"range: %f",&tuft.range);
+
+		//scale: min max
+		sscanf(mapFile.ReadLine(),"scale: %f %f",&tuft.scale[0],&tuft.scale[1]);
 
 		tufts.push_back(tuft);
 	}
@@ -159,6 +162,8 @@ void CTestWorld::sendMapTo ( CNetworkPeer &peer )
 		message.AddF(itr->center[0]);
 		message.AddF(itr->center[1]);
 		message.AddF(itr->range);
+		message.AddF(itr->scale[0]);
+		message.AddF(itr->scale[1]);
 		itr++;
 	}
 	message.Send(peer,true);

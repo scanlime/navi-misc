@@ -61,6 +61,7 @@ protected:
 		int			count;
 		float		center[2];
 		float		range;
+		float		scale[2];
 	}trTuftDef;
 
 	std::vector<trTuftDef> tufts;

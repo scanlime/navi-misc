@@ -85,18 +85,7 @@ void CGroundObject::Init ( void )
 	// make the Xaxis stuff
 	Entity  *ball;
 	SceneNode *ballNode;
-/*	ball = CFirestarterLoop::instance().GetSceneManager()->createEntity("xball", "xball.mesh");
-	ballNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
-	ballNode->attachObject(ball);
-	ballNode->translate(10,0,0);
 
-	// make the Yaxis stuff
-	ball = CFirestarterLoop::instance().GetSceneManager()->createEntity("yball", "yball.mesh");
-	ballNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
-	ballNode->attachObject(ball);
-	ballNode->translate(0,10,0);
-	ballNode->rotate(Vector3(1,0,0),90);
-*/
 	// make the Zaxis stuff
 	ball = CFirestarterLoop::instance().GetSceneManager()->createEntity("zball", "zball.mesh");
 	ballNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
@@ -117,6 +106,7 @@ void CGroundObject::Init ( void )
 		{
 
 			float xyRange = itr->range;
+			float scaleRange = itr->scale[1] - itr->scale[0];
 
 			for (int i = 0; i < itr->count; i++)
 			{
@@ -135,6 +125,9 @@ void CGroundObject::Init ( void )
 				tuftNode->attachObject(tuftEnt);
 				tuftNode->rotate(Vector3(0,0,1),(((float)rand()/(float)RAND_MAX)*360));
 				tuftNode->translate(pos[0],pos[1],pos[2]); 
+
+				float scale = (((float)rand()/(float)RAND_MAX)* scaleRange) + itr->scale[0];
+				tuftNode->scale(scale,scale,scale);
 			}
 			itr++;
 			baseName++;

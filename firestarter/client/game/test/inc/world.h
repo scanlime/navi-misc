@@ -49,6 +49,7 @@ typedef struct
 	int					count;
 	float				center[2];
 	float				range;
+	float				scale[2];
 }trTuftDef;
 
 class CTestWorld : public CBaseObject
