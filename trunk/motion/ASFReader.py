@@ -52,24 +52,29 @@ bone = "begin" + OneOrMore(boneElement) + "end"
 bonedata = ZeroOrMore(bone)
 
 hierElement = LineStart() + ZeroOrMore(Literal(' ')).suppress() + Word(alphanums) + OneOrMore(Word(alphanums))
-hierarchy = "begin" + OneOrMore(hierElement) + "end"
+hierarchy = Group("begin" + OneOrMore(hierElement) + "end")
 
-docLine = LineStart() + Word(alphanums + ' .,;\'"')
+docLine = OneOrMore(Word('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\\\'()*+,-./;<=>?@[\\]^_`{|}~'))
 
 sectstart = LineStart() + Literal(':').suppress()
 section = \
     sectstart + "version" + float \
-  | sectstart + "name" + Word(printables) \
+  | sectstart + "name" + Word(printables).setResultsName('name') \
   | sectstart + "units" + OneOrMore(unitElement) \
   | sectstart + "documentation" + ZeroOrMore(docLine) \
   | sectstart + "root" + OneOrMore(rootElement) \
   | sectstart + "bonedata" + bonedata \
   | sectstart + "hierarchy" + hierarchy
 
-part = section | comment.suppress()
+part = Group(section) | Suppress(comment)
 
 asfFile = OneOrMore(part)
 
 # main program
 x = asfFile.parseFile('02.asf')
 print x
+
+s = {}
+for section in x:
+    s[section[0]] = section[1:]
+    print section[0]
