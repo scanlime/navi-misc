@@ -245,8 +245,13 @@ class Page(Template.Page):
         self.component = component
         self.path = path
         self.fsPath = self.getFilesystemPath()
+
         if os.path.isfile(self.fsPath):
             self.load(self.fsPath)
+        elif os.path.isdir(self.fsPath):
+            # If we have a directory with no index, make our title the directory name
+            self.mainTitle = self.path.split('/')[-1]
+
         Template.Page.__init__(self)
 
     def getFilesystemPath(self):
