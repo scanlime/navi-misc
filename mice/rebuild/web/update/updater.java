@@ -28,9 +28,11 @@ public class updater
 	 */
 	public static void main(String[] args)
 	{
+		String fn;
 		startServer(8081);
 		element.strgs = new reader("template.html");
-		mainLoop(read());
+		fn = read();
+		mainLoop(fn);
 		closeConnection();
 	}
 
