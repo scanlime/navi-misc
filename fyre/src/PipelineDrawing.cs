@@ -57,7 +57,19 @@ namespace Fyre
 		// cursors. At the moment, my best guess is that the string data type here
 		// is doing some funky unicode conversion that's screwing up our XBM data.
 
-		/* String data for our hand cursors. The XBM data here has been
+		/*
+		 * We use a bunch of different cursors here:
+		 *
+		 * Open hand: normal cursor when the mouse is just over the background
+		 * Closed hand: used when dragging the document canvas around
+		 * Pointer: cursor when the mouse is hovering over an element
+		 * Fleur: cursor when moving an element
+		 * FIXME: cursor when hovering over a pad
+		 * FIXME: cursor when dragging out a new edge
+		 */
+
+		/*
+		 * String data for our hand cursors. The XBM data here has been
 		 * taken pretty much verbatim from eog. Remind me why these aren't
 		 * standard GDK cursors?
 		 */
@@ -112,8 +124,6 @@ namespace Fyre
 				return pointer_cursor;
 			}
 		}
-
-		// Temporary
 		Gdk.Cursor fleur_cursor;
 		Gdk.Cursor FleurCursor
 		{
