@@ -29,7 +29,10 @@ public class moderate extends java.applet.Applet implements ActionListener
 	}
 	
 	/**
-	 * 
+	 * This is the first click of the program.  It gets everything started.
+	 * @param e The AciontEvent associated with the click... ignored!
+	 * @author Brandon Smith
+	 * @version 2.0
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
