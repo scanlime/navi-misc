@@ -27,6 +27,7 @@
 #include "de-jong.h"
 #include "animation.h"
 #include "explorer.h"
+#include "avi-writer.h"
 
 static void usage                  (char       **argv);
 static void animation_render_main  (DeJong      *dejong,
@@ -261,7 +262,10 @@ static void animation_render_main (DeJong      *dejong,
   ParameterHolderPair frame;
   guint frame_count = 0;
   gboolean continuation;
-  gchar *f;
+  AviWriter *avi = avi_writer_new(fopen(filename, "wb"),
+				  HISTOGRAM_IMAGER(dejong)->width,
+				  HISTOGRAM_IMAGER(dejong)->height,
+				  frame_rate);
 
   animation_iter_get_first(animation, &iter);
   frame.a = PARAMETER_HOLDER(de_jong_new());
@@ -278,12 +282,14 @@ static void animation_render_main (DeJong      *dejong,
       continuation = TRUE;
     } while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density);
 
-    f = g_strdup_printf("frame%05d.png", frame_count);
-    histogram_imager_save_image_file(HISTOGRAM_IMAGER(dejong), f);
-    g_free(f);
+
+    histogram_imager_update_image(HISTOGRAM_IMAGER(dejong));
+    avi_writer_append_frame(avi, HISTOGRAM_IMAGER(dejong)->image);
 
     frame_count++;
   }
+
+  avi_writer_close(avi);
 }
 
 
