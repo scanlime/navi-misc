@@ -6,3 +6,6 @@
   resulting in a quick flicker
 * dialog "windows" don't set their title correctly
 * the completion list is not modified when the user changes nicks
+* right now the tree view does not allow focus, due to the momentary highlighting
+  being terribly annoying. This should change so that the tree view can be keyboard
+  navigable
