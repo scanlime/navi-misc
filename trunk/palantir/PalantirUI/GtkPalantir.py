@@ -10,7 +10,7 @@ for the IRC stuff.
 from twisted.internet import gtk2reactor
 gtk2reactor.portableInstall()
 
-import gtk, gtk.glade, gobject, CharacterSheet.GtkSheetElements
+import string, gtk, gtk.glade, gobject, CharacterSheet.GtkSheetElements
 from GtkChatBuffer import GtkChatBuffer
 from PalantirIRC import palantir, palantirIRC
 from PalantirIRC.dieRoller import DieRoller
@@ -96,13 +96,14 @@ class PalantirWindow:
 	self.tree.get_widget('Nick').set_text(nick)
 
   def on_open_sheet_activate(self, widget, data=None):
-    ''' Open a character sheet, it will displayed in the CharacterSheetPane if that
-        is visible.
+    ''' Open a character sheet, it will displayed in the
+        CharacterSheetPane if that is visible.
 	'''
     self.tree.dialog = gtk.glade.XML('CharacterSheet/sheetselection.glade')
     self.tree.dialog.get_widget('SheetSelection').set_filename('CharacterSheet/data/')
     self.tree.dialog.signal_autoconnect({ 'on_ok_button_clicked':self.OpenSheet,
-      'on_cancel_button_clicked':lambda w: self.tree.dialog.get_widget('SheetSelection').destroy()})
+      'on_cancel_button_clicked':
+      lambda w: self.tree.dialog.get_widget('SheetSelection').destroy()})
 
   def on_preferences_activate(self, widget, data=None):
     ''' Open the color selection dialog. '''
@@ -123,8 +124,8 @@ class PalantirWindow:
     self.dieRoller.system = 'WW'
 
   def on_dungeon_master_activate(self, widget, data=None):
-    ''' When the Dungeon Master menu item is toggled either display or hide the DM icon
-        next to our nick.
+    ''' When the Dungeon Master menu item is toggled either
+        display or hide the DM icon next to our nick.
 	'''
     store = self.tree.get_widget('UserList').get_model()
     image = gtk.Image()
@@ -289,10 +290,8 @@ class PalantirWindow:
   ### Must be implemented for palantirIRC to work.  These methods are called by the
   ### the client when it receives certain events and needs to display them in the UI.
   def messageReceive(self, user, channel, msg):
-    ''' This handles the formatting of regular conversation.  Gets the nick of the
-        person who said it, encloses it in <>, if timestamps are visible it grabs
-	the formatted time and determines if we need to highlight the nick. It sends
-	all this to the chat buffer UI.
+    ''' When we receive a message call palantir.formatMessage() to
+        format the text and then display it in the cat buffer.
 	'''
     time,nick,text,addressed = palantir.formatMessage(user, msg,
 	                                         ourName=self.factory.nickname)
@@ -315,19 +314,20 @@ class PalantirWindow:
 
   # CTCP messages.
   def DM(self, user, channel, data):
-    ''' The user who sent this message has DM status, so we display that icon next to their
-        name in the user list.
+    ''' The user who sent this message has DM status, so we
+        display that icon next to their name in the user list.
 	'''
     nick = palantir.getNick(user, False)
     time = palantir.getTime()
     image = gtk.Image()
     image.set_from_file('/usr/share/palantir/pixmaps/dm.png')
-    self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, image.get_pixbuf()))
+    self.tree.get_widget('UserList').get_model().foreach(
+	self.setUserIcon, (nick, image.get_pixbuf()))
     self.chatWindow.DisplayText(time, '', '*** ' + nick + ' now had DM status.')
 
   def UNDM(self, user, channel, data):
-    ''' The user who sent this message has removed DM status from themselves, so remove the
-        icon from next to their name.
+    ''' The user who sent this message has removed DM status from
+        themselves, so remove the icon from next to their name.
 	'''
     nick = palantir.getNick(user, False)
     time = palantir.getTime()
@@ -335,8 +335,9 @@ class PalantirWindow:
     self.chatWindow.DisplayText(time, '', '*** ' + nick + ' has removed DM status.')
 
   def DMQUERY(self, user, channel, data):
-    ''' This is a request for our DM status.  If we have ourselves marked as DM we send a
-        send a CTCP DM message to the person who made the query, otherwise do nothing.
+    ''' This is a request for our DM status.  If we have ourselves
+        marked as DM we send a send a CTCP DM message to the person
+	who made the query, otherwise do nothing.
 	'''
     if self.tree.get_widget('dungeon_master').get_active():
       self.factory.SendCTCP(self.GetNick(user), [('DM',None)])
@@ -344,9 +345,6 @@ class PalantirWindow:
   def ROLL(self, user, channel, data):
     ''' Someone rolled some dice, so we'll format the results and display. '''
     time,text = palantir.formatRoll(user, *self.dieRoller.getData(data))
-    #data = re.search('(\[.*\]) ([0-9]*) ([0-9]*)', messages[0][1])
-    #text = nick + ' rolled a ' + str(len(data.group(1).split())) + 'd' + data.group(2) + ': ' + data.group(1) + ' => ' + data.group(3)
-    #self.messageReceive(None, channel, text)
     self.chatWindow.DisplayText(time, '', text)
 
   def unknownCTCP(self, user, channel, data):
@@ -356,8 +354,8 @@ class PalantirWindow:
 
   ### Misc. Necessary Functions ###
   def ConnectionDialog(self):
-    ''' Brings up a small dialog for creating a connection, prompts for a server and a
-        channel name.
+    ''' Brings up a small dialog for creating a connection,
+        prompts for a server and a channel name.
 	'''
     dialog = gtk.Dialog('Connection', self.tree.get_widget('Main'),
 	                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
@@ -459,12 +457,12 @@ class PalantirWindow:
     store.set(store.append(), 1, nick)
 
   def SendRoll(self, times, sides, rolls, total):
-    ''' Implemented for the DieRoller used when loading character sheets.  Sends a CTCP
-        to the channel with the roll information and displays the information on your
-	screen as well.
+    ''' Implemented for the DieRoller used when loading character
+        sheets.  Sends a CTCP to the channel with the roll information
+	and displays the information on your screen as well.
 	'''
     # Send a CTCP message to the channel.
-    self.factory.SendCTCP(self.factory.channels[0], [('roll', [rolls, sides, total])])
+    self.factory.SendCTCP(self.factory.channels[0],[('roll', [rolls, sides, total])])
 
     # Format the text to display in our window.
     if self.tree.get_widget('time_stamps').get_active():
@@ -472,13 +470,15 @@ class PalantirWindow:
       time = '[' + hour + ':' + min + ':' + sec + ']'
     else:
       time = ''
-    self.chatWindow.DisplayText(time, '', 'You rolled a ' + str(len(rolls)) + 'd' + str(sides) + ': ' + str(rolls) + ' => ' + str(total) + '\n')
+    self.chatWindow.DisplayText(time, '',
+	'You rolled a '+str(len(rolls))+'d'+str(sides)+': '+str(rolls)+
+	' => '+str(total)+'\n')
 
-  ### Formatting stuff. ###
   def setUserIcon(self, listStore, path, iter, data):
-    ''' Sets the icon next to the username in the userlist, return gtk.TRUE if and when we find the
-        user specified in data, return gtk.FALSE otherwise.  data is a list or tuple of
-        the username and a gdk.Pixbuf.
+    ''' Sets the icon next to the username in the userlist, return
+        gtk.TRUE if and when we find the user specified in data,
+	return gtk.FALSE otherwise.  data is a list or tuple of the
+	username and a gdk.Pixbuf.
 	'''
     # Unpack.
     name, pixbuf = data
@@ -491,3 +491,10 @@ class PalantirWindow:
       return gtk.TRUE
     else:
       return gtk.FALSE
+
+  def getUsers(self, listStore, path, iter, nicks):
+    ''' Called in foreach() on the userlist to store all the users in
+        a list of strings.
+	'''
+    nicks.append(listStore.get_value(iter, 1))
+    return gtk.FALSE
