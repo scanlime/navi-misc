@@ -1,4 +1,13 @@
 #!/usr/bin/env python
+#
+# Example for the GraphUI component,
+# displays a scrolling line graph, with a GraphUI
+# that allows selecting from several available
+# channels.
+#
+# -- Micah Dowty <micah@picogui.org>
+#
+
 import rtgraph
 import time, math, random
 import gtk
