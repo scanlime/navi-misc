@@ -287,8 +287,8 @@ no_reverse_scan
 	movlw	NUM_COLUMNS-1			; Test current_column - (NUM_COLUMNS-1)
 	subwf	current_column, w
 	pagesel	led_scan_disabled
-	btfss	STATUS, C
-	goto	led_scan_disabled		; C=0, B=1, (NUM_COLUMNS-1) > display_fwd_phase
+	btfsc	STATUS, C
+	goto	led_scan_disabled		; C=1, B=0, (NUM_COLUMNS-1) <= current_column
 
 	; Is there any scan in progress? If not...
 	pagesel	scan_in_progress
