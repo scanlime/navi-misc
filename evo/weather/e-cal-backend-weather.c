@@ -122,6 +122,8 @@ finished_retrieval_cb (GList *forecasts, ECalBackendWeather *cbw)
 	icalcomponent *icomp;
 	GList *l;
 
+	priv = cbw->priv;
+
 	g_print ("Retrieval finished.\n");
 
 	if (forecasts == NULL) {
@@ -151,6 +153,11 @@ begin_retrieval_cb (ECalBackendWeather *cbw)
 	maybe_start_reload_timeout (cbw);
 
 	g_print ("Starting retrieval...\n");
+
+	g_print ("uri is %s\n", e_cal_backend_get_uri (E_CAL_BACKEND (cbw)));
+
+	if (priv->source == NULL)
+		priv->source = e_weather_source_new (e_cal_backend_get_uri (E_CAL_BACKEND (cbw)));
 
 	if (priv->is_loading)
 		return FALSE;
@@ -659,6 +666,10 @@ e_cal_backend_weather_init (ECalBackendWeather *cbw, ECalBackendWeatherClass *cl
 
 	priv->reload_timeout_id = 0;
 	priv->opened = FALSE;
+	priv->source = NULL;
+	priv->cache = NULL;
+
+	g_print ("Creating a new weather backend! Yippee!\n");
 
 	priv->zones = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, free_zone);
 }
