@@ -71,3 +71,7 @@ aTempo = \markup {
 divisi = \markup {
 	\italic "div."
 }
+
+oneBass = \markup {
+	\italic "bass solo"
+}
