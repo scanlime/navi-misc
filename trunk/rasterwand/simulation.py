@@ -55,89 +55,64 @@ class WindowComparator(rtgraph.Channel):
 
 class PulseTracker(rtgraph.Channel):
     """Algorithm for recovering a sinusoidal signal given a pulse
-       that's high when the signal is within some small off-center window.
+       when the signal is within some small off-center window
        """
     def __init__(self, name, pulse, oscillator):
         rtgraph.Channel.__init__(self, name=name)
         self.pulse = pulse
         self.oscillator = oscillator
 
-        # 'c' is the sine value at the leading edge of the window when the
-        # sine's derivative is positive. This is the same as the smaller of the
-        # two window boundaries.
-        self.c = -0.1
-
         # Pulse edge-detector and period measurement
         self.pulseTimer = TimeStepper()
-        self.lastStep = 0
+        self.stepBuffer = []
         self.lastPulseVal = None
-
-        # The sign of the derivative of the true angle,
-        # inferred from the asymmetry of 'c'.
-        self.direction = 1
-
-        # Another timer to sample the period of the original oscillation
-        self.periodTimer = TimeStepper()
 
     def getValue(self):
         self.oscVal = self.oscillator.getValue()
         pulseVal = self.pulse.getValue() > 0
 
-        # Detect edges in the pulse input
+        # Detect edges in the pulse input, store
+        # the last 4 intervals.
         if pulseVal != self.lastPulseVal:
-            if pulseVal:
-                self.leadingEdge()
-            else:
-                self.fallingEdge()
             self.lastPulseVal = pulseVal
+            dt = self.pulseTimer.step()
+            if dt > 0:
+                self.stepBuffer = self.stepBuffer[-3:] + [dt]
+                self.sync()
 
         return self.oscVal
 
-    def leadingEdge(self):
-        # Our input pulse is off-center, so even pulses and odd pulses
-        # will be notably different. Compare this pulse time to the last
-        # one to determine which direction we're going.
-        dt = self.pulseTimer.step()
-        if dt > self.lastStep:
-            if self.c > 0:
-                self.direction = 1
-            else:
-                self.direction = -1
-        else:
-            if self.c > 0:
-                self.direction = -1
-            else:
-                self.direction = 1
-        self.lastStep = dt
-
-        # If we're heading positive, we synchronize to the leading edge
-        if self.direction > 0:
-            self.sync()
-
-    def fallingEdge(self):
-        # If we're heading negative, sync to the falling edge
-        if self.direction < 0:
-            self.sync()
-
     def sync(self):
-        # Synchronize phase and frequency
-        if self.direction > 0:
-            # Sync the period only on +1 slope
-            period = self.periodTimer.step()
-            if period:
-                self.oscillator.frequency = 1 / period
+        # By examining our current step buffer, infer the period and phase
+        # of the original signal.
+        step = self.stepBuffer
 
-            self.oscillator.theta = math.asin(self.c)
+        if len(step) < 4:
+            # Not enough info to sync yet
+            return
+
+        if step[0] > step[1] or step[2] > step[3]:
+            # We're outside of the sync window, wait 'til we're back in
+            return
+
+        # Adjust the oscillator period by adding all step times
+        self.oscillator.frequency = 1 / sum(step)
+
+        # Adjust the oscillator phase. First calculate how much time
+        # has elapsed since the origin of this period.
+        if step[1] < step[3]:
+            # The origin is in the center of step[1]
+            t = step[1]/2 + step[2] + step[3]
         else:
-            self.oscillator.theta = math.pi - math.asin(self.c)
-
-        # Synchronize the window position
-        self.c += (self.oscVal - self.c) * 0.1
-        print self.c
+            # The origin is in the center of step[2]
+            t = step[3]/2
+        print t
+        # Then calculate the current theta using this time and our period
+        self.oscillator.theta = -math.pi/2 + 2*math.pi * self.oscillator.frequency * t
 
 
 def simulate():
-    trueAngle = SineWave("True Angle", 0.5)
+    trueAngle = SineWave("True Angle", 0.6)
     iSensor = WindowComparator("Interruption Sensor", trueAngle, (-0.5, -0.4))
     recoveredAngle = PulseTracker("Recovered Angle", iSensor, SineWave())
 
@@ -145,8 +120,7 @@ def simulate():
                 iSensor,
                 recoveredAngle,
                 ]
-    win = rtgraph.GraphUIWindow(channels, rtgraph.HScrollLineGraph(range=(-1,1),
-                                                                   pollInterval=2),
+    win = rtgraph.GraphUIWindow(channels, rtgraph.HScrollLineGraph(range=(-1,1)),
                                 visibilityDefault = True)
     win.connect("destroy", gtk.mainquit)
     gtk.main()
