@@ -25,7 +25,7 @@ CIA is running.
 from twisted.python import rebuild, log
 import RpcServer
 from cStringIO import StringIO
-import gc, sys, traceback, code
+import gc, sys, traceback, code, types
 
 
 class DebugInterface(RpcServer.Interface):
@@ -76,16 +76,39 @@ class DebugInterface(RpcServer.Interface):
         else:
             return self.interpreter.collectOutput()
 
+    def protected_getBanner(self):
+        """Return an appropriate banner string to use for interactive interpreters"""
+        return ('Python %s on %s\n'
+                'Type "help", "copyright", "credits" or "license" for more information.\n'
+                '*** Running remotely in CIA: commands can not be interrupted ***' %
+                (sys.version, sys.platform))
+
+
+class NullDev:
+    """A fake device, like /dev/null"""
+    def write(self, data):
+        pass
+
+    def read(self):
+        return ''
+
+    def readline(self):
+        return ''
+
 
 class RemoteInterpreter(code.InteractiveInterpreter):
     """An interpreter similar to the Python console that takes acts on commands
        delivered over XML-RPC and captures what would be stdout into a string.
        """
     def __init__(self):
-        # By default, give them all the utilities we have in this module,
-        # but use a copy of our namespace so newly created locals won't
-        # affect us.
-        code.InteractiveInterpreter.__init__(self, dict(globals()))
+        # By default, give them a new namespace filled with
+        # all the bare functions from this module.
+        ns = {}
+        for name, value in globals().iteritems():
+            if type(value) == types.FunctionType:
+                ns[name] = value
+
+        code.InteractiveInterpreter.__init__(self, ns)
         self.capturedOutput = StringIO()
 
     def runsource(self, source):
@@ -94,6 +117,9 @@ class RemoteInterpreter(code.InteractiveInterpreter):
         # and such, but we also want commands that generate
         # output via 'print' to work.
         #
+        # We override stdin because it's pretty useless, and
+        # commands like help() that try to read from it will stall.
+        #
         # This could be dangerous if we have other threads
         # trying to write to them as well, but that would only
         # happen (currently at least) if there's an error in
@@ -101,13 +127,16 @@ class RemoteInterpreter(code.InteractiveInterpreter):
         # for debugging and such, that's an acceptable risk.
         savedStdout = sys.stdout
         savedStderr = sys.stderr
+        savedStdin = sys.stdin
         sys.stdout = self.capturedOutput
         sys.stderr = self.capturedOutput
+        sys.stdin = NullDev()
         try:
             result = code.InteractiveInterpreter.runsource(self, source)
         finally:
             sys.stdout = savedStdout
             sys.stderr = savedStderr
+            sys.stdin = savedStdin
         return result
 
     def collectOutput(self):
