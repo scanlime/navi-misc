@@ -331,9 +331,9 @@ irc_network_editor_get_type (void)
 		};
 
 		irc_network_editor_type = g_type_register_static (GTK_TYPE_DIALOG, "IrcNetworkEditor", &irc_network_editor_info, 0);
-	}
 
-	parent_class = g_type_class_ref (GTK_TYPE_DIALOG);
+		parent_class = g_type_class_ref (GTK_TYPE_DIALOG);
+	}
 
 	return irc_network_editor_type;
 }
