@@ -132,12 +132,21 @@ class Graph:
         self.nodes.append(node)
         return node
 
+    def findNode(self, key):
+        """Find a node, given a node instance, text, or index"""
+        if type(key) is int:
+            return self.nodes[key]
+        if type(key) is str:
+            for node in self.nodes:
+                if node.text == key:
+                    return node
+            return self.addNode(key)
+        return key
+
     def connectNodes(self, node1, node2, *args, **kwargs):
-        if type(node1) is int:
-            node1 = self.nodes[node1]
-        if type(node2) is int:
-            node2 = self.nodes[node2]
-        edge = Edge(node1, node2)
+        edge = Edge(self.findNode(node1),
+                    self.findNode(node2),
+                    *args, **kwargs)
         self.edges.append(edge)
 
     def render(self):
@@ -220,20 +229,16 @@ def main():
     graph = Graph(viewport)
     gc = GraphController(viewport, graph)
 
-    graph.addNode("Fruit")
-    graph.addNode("Vegetable")
-    graph.addNode("Anthill")
-    graph.addNode("Water")
-    graph.addNode("Moose")
-    graph.connectNodes(0,1)
-    graph.connectNodes(1,2)
-    graph.connectNodes(2,3)
-    graph.connectNodes(3,4)
-    graph.connectNodes(4,2)
+    graph.connectNodes("Fruit", "Vegetable")
+    graph.connectNodes("Vegetable", "Anthill")
+    graph.connectNodes("Anthill", "Green")
+    graph.connectNodes("Anthill", "Water")
+    graph.connectNodes("Water", "Eggs")
+    graph.connectNodes("Water", "Moose")
+    graph.connectNodes("Moose", "Vegetable")
 
-    graph.connectNodes(graph.addNode("Banana"), graph.addNode("Celery"))
-    graph.connectNodes(graph.addNode("Shovel"), graph.addNode("Optical"))
-
+    graph.connectNodes("Banana", "Celery")
+    graph.connectNodes("Shovel", "Optical")
 
     loop.run()
 
