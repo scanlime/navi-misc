@@ -104,7 +104,8 @@ public class interview
 			{
 				com.write("answ");
 				StringTokenizer botfood = new StringTokenizer(message,"\n",false);
-				message = "";
+				if(botfood.hasMoreTokens())
+					message = botfood.nextToken();
 				while(botfood.hasMoreTokens())
 					message = message + "<br>" + botfood.nextToken();
 				com.write(message);

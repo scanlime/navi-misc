@@ -52,7 +52,7 @@ public class aimup
 	 */
 	public static void main(String[] args)
 	{
-		botmain interviewbot = initbots(4,"fakeword");
+		botmain interviewbot = initbots(4,"fakepassword");
 		sleep(4);
 		startServer(8082);
 		configureServer(interviewbot);
