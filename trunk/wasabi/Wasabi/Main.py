@@ -25,7 +25,7 @@ hardware components, then uses Sequencer to start the menu.
 import os, pygame
 from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Sequencer, Input
 from BZEngine import Event
-from Wasabi import Hardware, Logos, Menu, IR, Icon, VideoSwitch
+from Wasabi import Hardware, Logos, Menu, IR, Icon, VideoSwitch, Settings
 
 # Modify the default font size so we can actually see it on a TV.
 # Only render it at one size, since on a TV we also don't care about hinting
@@ -71,7 +71,7 @@ class Main:
         """Return a list of pages to include in the main sequencer book"""
         return [
             # Display the logo sequence until user interruption
-            Sequencer.FadeOut(0.2, (1,1,1), userPageInterrupter(Logos.getLogoSubBook())),
+            Sequencer.FadeOut(0.2, (1,1,1), Menu.userPageInterrupter(Logos.getLogoSubBook())),
 
             # Run the main menu, with fade in and out
             Sequencer.FadeIn(0.5, (1,1,1), Sequencer.FadeOut(0.25, (0,0,0), lambda book:
@@ -84,27 +84,6 @@ class Main:
     def run(self):
         """Run the main loop, doesn't return until the program exits"""
         self.loop.run()
-
-
-def userPageInterrupter(page):
-    """A wrapper around the book of logos that runs them until any IR code
-       is received, the mouse is clicked, or the space/enter keys are pressed.
-       """
-    def f(book):
-        events = [
-            Input.KeyPress(book.viewport, pygame.K_SPACE),
-            Input.KeyPress(book.viewport, pygame.K_RETURN),
-            Input.MousePress(book.viewport, 1),
-            IR.ButtonPress(book.viewport, 'enter'),
-            IR.ButtonPress(book.viewport, 'up'),
-            IR.ButtonPress(book.viewport, 'down'),
-            IR.ButtonPress(book.viewport, 'left'),
-            IR.ButtonPress(book.viewport, 'right'),
-            IR.ButtonPress(book.viewport, 'play'),
-            IR.ButtonPress(book.viewport, 'stop'),
-            ]
-        return Sequencer.PageInterrupter(events, page)(book)
-    return f
 
 
 class VideoChannelPage(Sequencer.Page):
@@ -125,22 +104,8 @@ class VideoInput(Menu.PageItem):
     def __init__(self, channel):
         Menu.PageItem.__init__(self,
                                VideoSwitch.getInputDict()[channel],
-                               userPageInterrupter(lambda book: VideoChannelPage(book, self.menu.hardware, channel))
-#                               Sequencer.PageTimer(5, lambda book: VideoChannelPage(book, self.menu.hardware, channel))
+                               Menu.userPageInterrupter(lambda book: VideoChannelPage(book, self.menu.hardware, channel))
                                )
-
-
-class SettingsMenu(Menu.ArcMenu):
-    def __init__(self, book):
-        items = [
-            Menu.Item(Icon.load('background')),
-            Menu.Item(Icon.load('background')),
-            Menu.Item(Icon.load('background')),
-            Menu.Item(Icon.load('background')),
-            Menu.Item(Icon.load('background')),
-            Menu.Item(Icon.load('background')),
-            ]
-        Menu.ArcMenu.__init__(self, book, items, "Settings")
 
 
 class MainMenu(Menu.RingMenu):
@@ -154,7 +119,7 @@ class MainMenu(Menu.RingMenu):
         # Add items that always appear on the menu
         menuItems = [
             Menu.Item(Icon.load('navi')),
-            Menu.PageItem(Icon.load('settings'), Sequencer.FadeIn(0.25, (0,0,0), Sequencer.FadeOut(0.25, (0,0,0), SettingsMenu))),
+            Menu.PageItem(Icon.load('settings'), Menu.defaultFades(Settings.SettingsMenu)),
             ]
 
         # If we have a video switch device, integrate it with the main menu

@@ -24,7 +24,7 @@ and selecting items.
 
 from BZEngine.UI import Sequencer, Layout, HUD, Input, Viewport
 from BZEngine import Event
-from Wasabi import Icon
+from Wasabi import Icon, IR
 from math import *
 import pygame
 
@@ -201,5 +201,31 @@ class ArcMenu(DockMenu):
         item.onSelected(self)
         self.onSelected(item)
         self.onFinish()
+
+
+def defaultFades(page):
+    """A page wrapper that applies a default fade in from and out to black"""
+    return Sequencer.FadeIn(0.25, (0,0,0), Sequencer.FadeOut(0.25, (0,0,0), page))
+
+
+def userPageInterrupter(page):
+    """A page wrapper that interrupts the page when any of several keys are pressed.
+       This is like the one included in Sequencer, but IR-aware.
+       """
+    def f(book):
+        events = [
+            Input.KeyPress(book.viewport, pygame.K_SPACE),
+            Input.KeyPress(book.viewport, pygame.K_RETURN),
+            Input.MousePress(book.viewport, 1),
+            IR.ButtonPress(book.viewport, 'enter'),
+            IR.ButtonPress(book.viewport, 'up'),
+            IR.ButtonPress(book.viewport, 'down'),
+            IR.ButtonPress(book.viewport, 'left'),
+            IR.ButtonPress(book.viewport, 'right'),
+            IR.ButtonPress(book.viewport, 'play'),
+            IR.ButtonPress(book.viewport, 'stop'),
+            ]
+        return Sequencer.PageInterrupter(events, page)(book)
+    return f
 
 ### The End ###
