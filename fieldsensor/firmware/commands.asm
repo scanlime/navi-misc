@@ -75,11 +75,13 @@ request_setParamByte
 	
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
+	goto	Send_0Len_pkt
 
 
 request_takeReading
+	bankisel sensor_params
+	movlw	sensor_params
+	movwf	FSR
 	pagesel	sensor_sampler
 	call	sensor_sampler
 

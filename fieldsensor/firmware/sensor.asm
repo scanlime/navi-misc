@@ -50,6 +50,7 @@ period			res	1
 phase			res 1
 period_counter	res 1
 accumulator_num	res 1
+lc_port_buffer  res 1
 
 ;************************************************** Step 1
 
@@ -93,8 +94,9 @@ sensor_sampler
 	incf	FSR, f
 
 	movf	INDF, w			; 7. EFS_PARAM_LC_PORT_INIT
-	banksel	period			; bank 0 (PORTB and all our variables)
+	banksel	lc_port_buffer			; bank 0 (PORTB and all our variables)
 	movwf	PORTB
+	movwf	lc_port_buffer
 	incf	FSR, f
 
 ;************************************************** Step 2
@@ -119,9 +121,16 @@ page_1	code
 
 page_2 code
 
-	; Toggle the LC tank outputs
+	; Toggle the LC tank outputs via a buffer register.
+	; This is important, since reading from an I/O port
+	; gives you the current inputs rather than the output
+	; driver state. If the output is changing state slowly
+	; (as it will be when we first try to excite the LC tank)
+	; we'll end up reading the wrong state.
 	movf	lc_port_xor, w
-	xorwf	PORTB, f
+	xorwf	lc_port_buffer, f
+	movf	lc_port_buffer, w
+	movwf	PORTB
 
 	; Loop back to the period jumptable if we still have
 	; more excitation periods to run.
@@ -145,14 +154,24 @@ page_3	code
 ;************************************************** Step 5
 
 page_4 code
-	
+
 	; Start the ADC and wait for it to finish conversion
+	banksel ADCON0
 	bsf		ADCON0, GO
 	pagesel	adFinishLoop
 adFinishLoop
 	btfsc	ADCON0, NOT_DONE
 	goto	adFinishLoop
 
+	; Get the LC tanks to discharge as fast as possible by
+	; tristating PORTB- this disconnects them from everything
+	; except the antennas.
+	movlw	0xFF
+	banksel	TRISB
+	movwf	TRISB	
+
+	; Return the ADC's result
+	banksel ADRES
 	movf	ADRES, w
 	return
 
