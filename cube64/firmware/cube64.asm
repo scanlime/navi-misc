@@ -65,10 +65,7 @@ startup
 	movlw	0x03
 	movwf	TRISB
 
-	;; Put us back in bank 0 with a bit_count of 8, preconditions for rx_buffer
-	bcf	STATUS, RP0
-	movlw	8
-	movwf	bit_count
+	n64gc_init
 
 	;; Initialize the ID buffer with values measured from an official nintendo
 	;; controller with no rumble pak or memory pak attached. The page at
@@ -188,7 +185,7 @@ n64_wait_for_command
 	;; extra instuction here decreases the sampling quality in the receive,
 	;; so we include our own copy of the receive macro. This also lets us disable
 	;; watchdog clearing, so we won't get stalled in here if the N64 gives up.
-	movlw	0x03
+	movlw	N64_COMMAND_WRITE_BUS
 	xorwf	n64_command, w
 	btfss	STATUS, Z
 	goto	not_bus_write
@@ -221,15 +218,20 @@ n64_send_id
 
 not_bus_write
 	movf	n64_command, w
+	xorlw	N64_COMMAND_IDENTIFY
 	btfsc	STATUS, Z
-	goto	n64_send_id		; 0x00 sends a controller identification packet
-	xorlw	0x01
-	btfsc	STATUS, Z
-	goto	n64_send_status		; 0x01 sends a status packet
+	goto	n64_send_id
+
 	movf	n64_command, w
-	xorlw	0x02
+	xorlw	N64_COMMAND_STATUS
 	btfsc	STATUS, Z
-	goto	n64_bus_read		; 0x02 is a read from the controller pak bus
+	goto	n64_send_status
+
+	movf	n64_command, w
+	xorlw	N64_COMMAND_READ_BUS
+	btfsc	STATUS, Z
+	goto	n64_bus_read
+
 	goto	n64_wait_for_command	; Ignore other commands
 
 
@@ -249,14 +251,14 @@ keep_waiting_for_idle
 	;; been left high by a read-modify-write operation elsewhere.
 n64_tx
 	bcf	N64_PIN
-	tx_buffer N64_TRIS, 0
+	n64gc_tx_buffer N64_TRIS, 0
 n64_tx_widestop
 	bcf	N64_PIN
-	tx_buffer N64_TRIS, 1
+	n64gc_tx_buffer N64_TRIS, 1
 n64_rx
-	rx_buffer N64_PIN, 0
+	n64gc_rx_buffer N64_PIN, 0
 n64_rx_command
-	rx_buffer N64_PIN, 1		; Clear the watchdog while waiting for commands
+	n64gc_rx_buffer N64_PIN, 1		; Clear the watchdog while waiting for commands
 
 
 	;; *******************************************************************************

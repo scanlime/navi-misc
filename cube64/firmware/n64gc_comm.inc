@@ -123,6 +123,14 @@
 	#define N64_JOYSTICK_Y	3
 
 
+n64gc_init macro
+	;; Put us back in bank 0 with a bit_count of 8, preconditions for rx_buffer
+	bcf	STATUS, RP0
+	movlw	8
+	movwf	bit_count
+	endm
+
+
 	;; *******************************************************************************
 	;; *********************************************************** Transmitter *******
 	;; *******************************************************************************
@@ -271,5 +279,3 @@ not_last_bit
 	bsf	INDF, 0		; 2.2us
 	goto	bit_loop	; 2.4us
 	endm
-
-	end
