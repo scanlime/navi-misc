@@ -1,9 +1,11 @@
-<and>
+<and
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
     <match path="/message/source/project">navi-misc</match>
     <or>
         <and>
             <match path="/message/source/module">cia</match>
-            <search path="/message/body">xml</search>
+            <find path="/message/body">xml</find>
         </and>
         <match path="/message/source/module">sxmadb</match>
     </or>
