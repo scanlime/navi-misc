@@ -69,9 +69,18 @@ use_custom_set (GtkRadioButton *button, IrcNetworkEditor *e)
 }
 
 static void
+add_server_clicked (GtkButton *button, IrcNetworkEditor *e)
+{
+	GtkTreeIter iter;
+
+	gtk_list_store_append (e->server_store, &iter);
+	/* FIXME - start editing */
+}
+
+static void
 edit_server_clicked (GtkButton *button, IrcNetworkEditor *e)
 {
-	gtk_cell_editable_start_editing (GTK_CELL_EDITABLE (e->server_renderer), NULL);
+	/* FIXME - start editing */
 }
 
 static void
@@ -81,9 +90,8 @@ remove_server_clicked (GtkButton *button, IrcNetworkEditor *e)
 	GtkTreeIter iter;
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->servers));
-	if (gtk_tree_selection_get_selected (selection, NULL, &iter)) {
+	if (gtk_tree_selection_get_selected (selection, NULL, &iter))
 		gtk_list_store_remove (e->server_store, &iter);
-	}
 }
 
 static void
@@ -111,11 +119,61 @@ server_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, IrcNe
 }
 
 static void
+add_autojoin_clicked (GtkButton *button, IrcNetworkEditor *e)
+{
+	GtkTreeIter iter;
+
+	gtk_list_store_append (e->autojoin_store, &iter);
+	/* FIXME - start editing */
+}
+
+static void
+edit_autojoin_clicked (GtkButton *button, IrcNetworkEditor *e)
+{
+	/* FIXME - start editing */
+}
+
+static void
+remove_autojoin_clicked (GtkButton *button, IrcNetworkEditor *e)
+{
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->autojoin_channels));
+	if (gtk_tree_selection_get_selected (selection, NULL, &iter))
+		gtk_list_store_remove (e->autojoin_store, &iter);
+}
+
+static void
+autojoin_selection_changed (GtkTreeSelection *selection, IrcNetworkEditor *e)
+{
+	if (gtk_tree_selection_get_selected (selection, NULL, NULL)) {
+		gtk_widget_set_sensitive (e->edit_autojoin, TRUE);
+		gtk_widget_set_sensitive (e->remove_autojoin, TRUE);
+	} else {
+		gtk_widget_set_sensitive (e->edit_autojoin, FALSE);
+		gtk_widget_set_sensitive (e->remove_autojoin, FALSE);
+	}
+}
+
+static void
+autojoin_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, IrcNetworkEditor *e)
+{
+	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->autojoin_channels));
+	if (gtk_tree_selection_get_selected (selection, &model, &iter))
+		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, newtext, -1);
+}
+
+static void
 irc_network_editor_init (IrcNetworkEditor *dialog)
 {
 	GtkSizeGroup *group;
 	gchar **enc;
-	GtkTreeSelection *selection;
+	GtkTreeSelection *server_selection, *autojoin_selection;
 
 	dialog->gconf = NULL;
 	dialog->network = NULL;
@@ -197,13 +255,22 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
 	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
 
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->servers));
-	g_signal_connect (G_OBJECT (dialog->use_globals),     "toggled", G_CALLBACK (use_globals_set),          dialog);
-	g_signal_connect (G_OBJECT (dialog->use_custom),      "toggled", G_CALLBACK (use_custom_set),           dialog);
-	g_signal_connect (G_OBJECT (dialog->edit_server),     "clicked", G_CALLBACK (edit_server_clicked),      dialog);
-	g_signal_connect (G_OBJECT (dialog->remove_server),   "clicked", G_CALLBACK (remove_server_clicked),    dialog);
-	g_signal_connect (G_OBJECT (selection),               "changed", G_CALLBACK (server_selection_changed), dialog);
-	g_signal_connect (G_OBJECT (dialog->server_renderer), "edited",  G_CALLBACK (server_edited),            dialog);
+	g_signal_connect (G_OBJECT (dialog->use_globals),       "toggled", G_CALLBACK (use_globals_set),            dialog);
+	g_signal_connect (G_OBJECT (dialog->use_custom),        "toggled", G_CALLBACK (use_custom_set),             dialog);
+
+	server_selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->servers));
+	g_signal_connect (G_OBJECT (dialog->add_server),        "clicked", G_CALLBACK (add_server_clicked),         dialog);
+	g_signal_connect (G_OBJECT (dialog->edit_server),       "clicked", G_CALLBACK (edit_server_clicked),        dialog);
+	g_signal_connect (G_OBJECT (dialog->remove_server),     "clicked", G_CALLBACK (remove_server_clicked),      dialog);
+	g_signal_connect (G_OBJECT (server_selection),          "changed", G_CALLBACK (server_selection_changed),   dialog);
+	g_signal_connect (G_OBJECT (dialog->server_renderer),   "edited",  G_CALLBACK (server_edited),              dialog);
+
+	autojoin_selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->autojoin_channels));
+	g_signal_connect (G_OBJECT (dialog->add_autojoin),      "clicked", G_CALLBACK (add_autojoin_clicked),       dialog);
+	g_signal_connect (G_OBJECT (dialog->edit_autojoin),     "clicked", G_CALLBACK (edit_autojoin_clicked),      dialog);
+	g_signal_connect (G_OBJECT (dialog->remove_autojoin),   "clicked", G_CALLBACK (remove_autojoin_clicked),    dialog);
+	g_signal_connect (G_OBJECT (autojoin_selection),        "changed", G_CALLBACK (autojoin_selection_changed), dialog);
+	g_signal_connect (G_OBJECT (dialog->autojoin_renderer), "edited",  G_CALLBACK (autojoin_edited),            dialog);
 }
 
 GType
