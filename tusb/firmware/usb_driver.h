@@ -5,10 +5,15 @@
 #ifndef __USB_DRIVER_H
 #define __USB_DRIVER_H
 
+/* Main entry points */
 void usb_init();
 void usb_poll();
 
-void usb_handle_vendor_request();   /* Application-defined */
+/* Reply functions */
+void usb_write_ep0_buffer(unsigned char *data, int length);
+
+/* Application-defined functions */
+void usb_handle_vendor_request();
 
 struct usb_ctrlrequest {
   unsigned char bRequestType;
