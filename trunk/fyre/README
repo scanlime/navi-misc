@@ -65,8 +65,8 @@ These lines include:
 Animation
 ---------
 
-Fyre now includes an animation system. From the main explorer window, use
-View -> Animation window to open the animation interface. Animations are
+Fyre includes an animation subsystem. From the main explorer window, use
+View > Animation window to open the animation interface. Animations are
 represented as a list of keyframes, with a transition after each. Keyframes
 can be manipulated with the buttons at the top of the window. Transitions
 consist of a duration, in seconds, and an editable curve. This curve's
@@ -96,19 +96,20 @@ As of 0.7, Fyre supports cluster rendering. On each worker node, start up
 fyre with the -r command-line switch. On the head node, select your cluster
 nodes using either the GUI or -c on the command line. If you're dealing
 with a large cluster, the cluster-utils.sh file will probably prove useful.
+Clusters on the local network can be autodetected using UDP broadcast packets.
+See the -C command line option, or the autodetection check box in the GUI.
 
 
 Dependencies
 ------------
 
 Hard Dependencies:
-- GTK+ 2.0
+- GTK+ 2.4
 - libglade
 
 Soft Dependencies:
-- GTK+ 2.4
-- OpenEXR
-- GNet
+- OpenEXR, necessary for saving .exr files
+- GNet, for clustering and remote control mode
 
 
 Compiling
@@ -117,10 +118,10 @@ Compiling
 Standard autotools procedure. configure, make, make install, you know
 the drill.
 
-Fyre supports Windows now. You'll need windows versions of gcc, binutils,
-gtk, libglade, and their dependencies to compile it. More information on
-compiling the windows version is in Makefile.win32, or you can download
-a binary release for windows from http://fyre.navi.cx
+Fyre supports Windows, using the same autotools build system. You'll
+need Cygwin to compile this under Windows, but we find a cross-compiler
+under Linux easier. The tools in the 'build' directory are used to create
+the final binary packages.
 
 
 Authors
@@ -128,3 +129,4 @@ Authors
 
 David Trowbridge
 Micah Dowty
+
