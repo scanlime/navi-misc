@@ -15,6 +15,7 @@
 CBZNextLoop::CBZNextLoop()
 {
   quit = false;
+	inUI = true;
 }
 
 CBZNextLoop::~CBZNextLoop()
@@ -24,21 +25,29 @@ CBZNextLoop::~CBZNextLoop()
 
 bool CBZNextLoop::OnInit ( void )
 {
-  showDebugOverlay(true);
+	ui.Set(this);
+	ui.Init();
 
-  GetSceneManager()->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+	if (inUI)
+		ui.Attach();
+	else
+	{
+		showDebugOverlay(true);
 
-	// use the ogre input for now
-	mInputDevice = PlatformManager::getSingleton().createInputReader();
-	mInputDevice->initialise(GetRenderWindow(),true, false);
+		GetSceneManager()->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
-  mSceneMgr->setSkyBox(true, "grassland_skybox",5000,true,Quaternion(1.57079632f,Vector3(1,0,0)));
+		// use the ogre input for now
+		mInputDevice = PlatformManager::getSingleton().createInputReader();
+		mInputDevice->initialise(GetRenderWindow(),true, false);
 
-  float height = 1.25f;
+		mSceneMgr->setSkyBox(true, "grassland_skybox",5000,true,Quaternion(1.57079632f,Vector3(1,0,0)));
 
-  ViewPoint vp = GetSceneManager()->getSuggestedViewpoint(true);
-  GetCamera()->setPosition(Vector3(0,-50,height));
-  GetCamera()->setOrientation(Quaternion(1.57079632f,Vector3(1,0,0)));
+		float height = 1.25f;
+
+		ViewPoint vp = GetSceneManager()->getSuggestedViewpoint(true);
+		GetCamera()->setPosition(Vector3(0,-50,height));
+		GetCamera()->setOrientation(Quaternion(1.57079632f,Vector3(1,0,0)));
+	}
   return false;
 }
 
@@ -83,8 +92,6 @@ void CBZNextLoop::ProcessInput ( void )
   Real MoveFactor = 45.0 * GetTimer().GetFrameTime();
   mInputDevice->capture();
 
-  GetCamera()->setFixedYawAxis(true);
-
   // Move the ship node!
   if(mInputDevice->isKeyDown(Ogre::KC_UP))
     GetCamera()->moveRelative(Vector3(0,0,-MoveFactor));// MoveFactor,Node::TS_PARENT);
@@ -119,7 +126,19 @@ void CBZNextLoop::ProcessInput ( void )
 
 bool CBZNextLoop::GameLoop ( void )
 {
-  ProcessInput();
+	if (inUI)
+	{
+		if (ui.Think())
+		{
+			ui.Release();
+			inUI = false;
+			// do some sort of game init here
+		}
+	}
+	else
+	{
+		ProcessInput();
+	}
   return quit;
 }
 void CBZNextLoop::OnFrameEnd ( void )
