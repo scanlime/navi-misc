@@ -10,125 +10,72 @@
 * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-#include "bznext.h"
+#include "drawManager.h"
 
-CBZNextLoop::CBZNextLoop()
+CDrawManager::CDrawManager()
 {
-	SetQuit(false);
-	inUI = true;
-	numScreenShots = 0;
+	gameLoop = NULL;
+	lastID = -1;
 }
 
-CBZNextLoop::~CBZNextLoop()
+CDrawManager::~CDrawManager()
 {
+	//drawables
 
-}
+	drawableMap::iterator itr = drawables.begin();
 
-bool CBZNextLoop::OnInit ( void )
-{
-	// some default values
-	SetGameName("susan");
-	SetGameStartString("test");
-
-	inUI = args.GetDataB("forceGame");
-
-	// init the shit
-	ui.Set(this);
-	ui.Init();
-	game.Set(this);
-	game.Init();
-
-	if (inUI)
-		ui.Attach();
-	else
-		game.Attach();
-
-	return false;
-}
-
-bool CBZNextLoop::OnKill( void )
-{
-  return false;
-}
-
-bool CBZNextLoop::OnActivate ( void )
-{
-  return false;
-}
-
-bool CBZNextLoop::OnDeactivate ( void )
-{
-  return false;
-}
-
-SceneType CBZNextLoop::GetSceneType ( void )
-{
-  return ST_GENERIC;
-}
-
-const char* CBZNextLoop::GetCameraName ( void )
-{
-  return "BZPlayerCam";
-}
-
-const char*  CBZNextLoop::GetRootResDir ( void )
-{
-	if (prefs.ItemExists("dataDir"))
-		return prefs.GetItemS("dataDir");
-  return "../data";
-}
-
-const char* CBZNextLoop::GetPrefsName ( void )
-{
-	 return "bznext/client.prefs";
-}
-
-const char* CBZNextLoop:: GetWindowName ( void )
-{
-	return "BZFlag::Next();";
-}
-
-const char* CBZNextLoop:: GetGameName ( void )
-{
-	return "bzflag";
-}
-
-bool CBZNextLoop::GameLoop ( void )
-{
-	// check for sreenshot
-	float togleTime = 0.5f;
-	if (GetInput().KeyDown(KEY_SYSRQ) && (lastScreenShotTime < GetTimer().GetTime()+togleTime))
+	while (itr != drawables.end())
 	{
-		char tmp[20];
-		sprintf(tmp, "screenshot_%d.png", ++numScreenShots);
-		GetRenderWindow()->writeContentsToFile(tmp);
-		lastScreenShotTime = GetTimer().GetTime();
-		GetRenderWindow()->setDebugText(String("Wrote ") + tmp);
+		factories[itr->second->GetName()]->Delete(itr->second);
+		itr++;
 	}
-
-	if (inUI)
-	{
-		if (ui.Think())
-		{
-			ui.Release();
-			inUI = false;
-
-			if (!game.GameActive())
-				game.Attach();
-		}
-	}
-	else
-	{
-		if (game.Think())
-		{
-			game.Release();
-			inUI = true;
-			ui.Attach();
-		}
-	}
-  return quit;
+	drawables.clear();
+	factories.clear();
 }
-void CBZNextLoop::OnFrameEnd ( void )
+
+void CDrawManager::Init ( CBaseGameLoop * pGameLoop )
 {
+	gameLoop = pGameLoop;
 }
 
+void CDrawManager::Register ( CBaseDrawableFactory* factory, const char* name )
+{
+	std::string className = name;
+	if (factory)
+		return;
+
+	factories[name] = factory;
+}
+
+int CDrawManager::New ( const char* name, CBaseObject* parent )
+{
+	std::string className = name;
+	factoryMap::iterator itr = factories.find(className);
+
+	if (itr == factories.end())
+		return -1;
+	
+	CBaseDrawable *object = itr->second->New(parent);
+	if (!object)
+		return -1;
+
+	lastID++;
+
+	object->SetName(name);
+	drawables[lastID] = object;
+
+	return lastID;
+}
+
+bool CDrawManager::Delete ( int item )
+{
+	drawableMap::iterator itr = drawables.find(item);
+
+	if (itr == drawables.end())
+		return false;
+
+	factories[itr->second->GetName()]->Delete(itr->second);
+	drawables.erase(itr);
+
+	return true;
+}
