@@ -607,8 +607,14 @@ class Bot(irc.IRCClient, pb.Referenceable):
         self.setNick(tempNick)
 
     def nickChanged(self, newname):
+        print "nickchanged: %r" % newname
+        
         irc.IRCClient.nickChanged(self, newname)
-        if not self.botNet.nickAllocator.isValid(newname):
+        if self.botNet.nickAllocator.isValid(newname):
+            # The nick was valid. If we aren't completely connected yet, fix that
+            if self.signonTimestamp is None:
+                self.finishConnection()
+        else:
             # We got a bad nick, try to find a better one
             log.msg("%r starting nick negotiation" % self)
             self.findNick().addCallback(self.foundBetterNick)
@@ -729,9 +735,10 @@ class Bot(irc.IRCClient, pb.Referenceable):
            """
         self.emptyChannels()
 
-        # Important to check whether the nick we got was any good
+        # Check our initial nick, finish our connection if it was good
         self.nickChanged(self.nickname)
 
+    def finishConnection(self):
         log.msg("%r connected" % self)
         self.botNet.botConnected(self)
         self.signonTimestamp = time.time()
@@ -889,6 +896,17 @@ class Bot(irc.IRCClient, pb.Referenceable):
         else:
             self.userJoined(nick, channel)
 
+    def irc_NICK(self, prefix, params):
+        """This is a modified implementation that checks the nick against
+           both our current nickname and our previous one. This ensures
+           that we get confirmation for our own nick changes.
+           """
+        nick = prefix.split('!')[0]
+        if nick in self.nicknames:
+            self.nickChanged(params[0])
+        else:
+            self.userRenamed(nick, params[0])
+
     def irc_RPL_NAMREPLY(self, prefix, params):
         """Collect usernames from this channel. Several of these
            messages may be sent to cover the channel's full nicklist.
@@ -943,8 +961,22 @@ class Bot(irc.IRCClient, pb.Referenceable):
                 pass
 
     def action(self, user, channel, message):
-        if message.lower().strip() == 'hugs %s' % self.nickname.lower():
-            self.me(channel, 'hugs %s' % user.split('!')[0])
+        """Just for fun"""
+        text = message.lower().strip()
+        me = self.nickname.lower()
+        them = user.split('!')[0]
+
+        if text == 'hugs %s' % me:
+            self.me(channel, 'hugs %s' % them)
+
+        elif text == 'kicks %s' % me:
+            self.say(channel, 'ow')
+        
+        elif text == 'kills %s' % me:
+            self.me(channel, 'dies')
+
+        elif text == 'eats %s' % me:
+            self.me(channel, 'tastes crunchy')
 
     def remote_msg(self, target, text):
         self.msg(target, text)
