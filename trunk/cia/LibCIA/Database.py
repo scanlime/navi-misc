@@ -99,11 +99,16 @@ class Filter(XML.XMLObjectParser):
 
        After parsing, the completed SQL expression is available in the 'sql' attribute.
 
-       >>> Filter('<or> \
-                       <match var="parent_path">project</match> \
-                       <match var="parent_path">author</match> \
-                   </or>').sql
-       "((parent_path = 'project') OR (parent_path = 'author'))"
+       >>> Filter('<and> \
+                       <or> \
+                           <match var="parent_path">project</match> \
+                           <match var="parent_path">author</match> \
+                       </or> \
+                       <not> \
+                           <match var="target_path">project/muffin-deluxe</match> \
+                       </not> \
+                   </and>').sql
+       "(((parent_path = 'project') OR (parent_path = 'author')) AND (!((target_path = 'project/muffin-deluxe'))))"
 
        """
     resultAttribute = 'sql'
