@@ -29,7 +29,7 @@ from twisted.web import resource, server
 from LibCIA.Web import Template, Info, Server
 from LibCIA import Stats, Message, TimeUtil, Formatters
 from Nouvelle import tag, place
-import Nouvelle, time, sys, posixpath
+import Nouvelle, time, sys, posixpath, re
 import Metadata, Catalog, Feed, Link, MessageViewer, Graph
 
 
@@ -311,18 +311,64 @@ class RecentMessages(MessageList):
 
 
 class LinksSection(Template.Section):
-    """A section displaying useful links for a particular stats target"""
+    """A section displaying useful links for a particular stats target. All links
+       are classes in the Link module that take only our stats target as a constructor argument.
+       We have a list of allowed links and default links, but the exact links we display may
+       be modified by the links-filter metadata key.
+
+       The links-filter format is simple- one entry per line, each entry consists of an
+       action and a link name regex, separated by whitespace. The action can be "+" to add the
+       link(s) or "-" to remove the link(s).
+       """
     title = 'links'
+
+    availableLinkNames = [
+        "RSSLink",
+        "RSSCustomizer",
+        "MetadataLink",
+        "XMLLink",
+        ]
+
+    defaultLinkNames = [
+        "RSSLink",
+        "RSSCustomizer",
+        "MetadataLink",
+        "XMLLink",
+        ]
 
     def __init__(self, target):
         self.target = target
 
     def render_rows(self, context):
-        return [
-            Link.RSSLink(self.target),
-            Link.RSSCustomizer(self.target),
-            Link.MetadataLink(self.target),
-            Link.XMLLink(self.target),
-            ]
+        # First look for a links-filter metadata key for this target.
+        # The default is empty.
+        result = defer.Deferred()
+        self.target.metadata.getValue("links-filter", default="").addCallback(
+            self._render_rows, context, result
+            ).addErrback(result.errback)
+        return result
+
+    def _render_rows(self, linksFilter, context, result):
+        linkNames = list(self.defaultLinkNames)
+
+        for line in linksFilter.split("\n"):
+            line = line.strip()
+            if line:
+                action, name = line.split(None, 1)
+                regex = re.compile(name)
+
+                if action == "+":
+                    for available in self.availableLinkNames:
+                        if regex.match(available):
+                            linkNames.append(available)
+
+                elif action == "-":
+                    filtered = []
+                    for name in linkNames:
+                        if not regex.match(name):
+                            filtered.append(name)
+                    linkNames = filtered
+
+        result.callback([getattr(Link, linkName)(self.target) for linkName in linkNames])
 
 ### The End ###
