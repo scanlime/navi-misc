@@ -4,6 +4,8 @@
  * This is a Linux 2.6 kernel module that exposes linux input devices corresponding
  * to all controllers attached to the gchub. It handles basic calibration, and rumble
  * support is provided using the linux force feedback interface's FF_RUMBLE effect.
+ * Every port has an LED that by default glows green when a controller is connected.
+ * Input events for LED_MISC can be used to change this LED to red or back to green.
  *
  * Each controller is given a name that both identifies it as a GC controller and
  * gives the port numer it's connected to. Additionally, the physical location of
@@ -212,6 +214,9 @@ static int    controller_flush         (struct input_dev*               dev,
 static int    controller_ff_event      (struct gchub_controller*        ctl,
 					unsigned int                    code,
 					int                             value);
+static int    controller_led_event     (struct gchub_controller*        ctl,
+					unsigned int                    code,
+					int                             value);
 
 
 /* Table of devices that work with this driver */
@@ -288,14 +293,17 @@ static int controller_init(struct gchub_controller* ctl,
 	INIT_WORK(&ctl->reg_work, controller_attach, ctl);
 	INIT_WORK(&ctl->unreg_work, controller_detach, ctl);
 
-	/* Set up this input device's capabilities */
-	set_bit(EV_KEY, ctl->dev.evbit);
-	set_bit(EV_ABS, ctl->dev.evbit);
-	set_bit(EV_FF, ctl->dev.evbit);
+	/* We support one LED, to change the color of the port from green to red */
+	set_bit(EV_LED, ctl->dev.evbit);
+	set_bit(LED_MISC, ctl->dev.ledbit);
 
+	/* Support the rumble motor via the FF_RUMBLE force feedback bit */
+	set_bit(EV_FF, ctl->dev.evbit);
 	set_bit(FF_RUMBLE, ctl->dev.ffbit);
 	ctl->dev.ff_effects_max = EFFECTS_MAX;
 
+	/* Add our buttons */
+	set_bit(EV_KEY, ctl->dev.evbit);
 	set_bit(BTN_A, ctl->dev.keybit);
 	set_bit(BTN_B, ctl->dev.keybit);
 	set_bit(BTN_X, ctl->dev.keybit);
@@ -305,6 +313,8 @@ static int controller_init(struct gchub_controller* ctl,
 	set_bit(BTN_TR, ctl->dev.keybit);
 	set_bit(BTN_START, ctl->dev.keybit);
 
+	/* Add the axes, which includes the D-pad mapped onto a hat */
+	set_bit(EV_ABS, ctl->dev.evbit);
 	for (axis=0; axis<ABS_MAX; axis++) {
 		switch (axis) {
 
@@ -455,7 +465,7 @@ static void controller_attach(void *data)
 	struct gchub_controller *ctl = (struct gchub_controller*) data;
 
 	/* In process context, via a work queue */
-	dbg("Attached '%s'", ctl->dev.name);
+	info("Attached '%s'", ctl->dev.name);
 	input_register_device(&ctl->dev);
 	ctl->dev_registered = 1;
 	ctl->calibration_valid = 0;
@@ -471,7 +481,7 @@ static void controller_detach(void *data)
 	struct gchub_controller *ctl = (struct gchub_controller*) data;
 
 	/* In process context, via a work queue */
-	dbg("Removed '%s'", ctl->dev.name);
+	info("Removed '%s'", ctl->dev.name);
 	input_unregister_device(&ctl->dev);
 	ctl->dev_registered = 0;
 	ctl->reg_in_progress = 0;
@@ -490,8 +500,10 @@ static void controller_set_rumble(struct gchub_controller* ctl,
 {
 	unsigned long flags;
 	spin_lock_irqsave(&ctl->outputs.lock, flags);
-	ctl->outputs.rumble = rumble;
-	ctl->outputs.dirty = 1;
+	if (ctl->outputs.rumble != rumble) {
+		ctl->outputs.rumble = rumble;
+		ctl->outputs.dirty = 1;
+	}
 	spin_unlock_irqrestore(&ctl->outputs.lock, flags);
 }
 
@@ -500,8 +512,10 @@ static void controller_set_led(struct gchub_controller* ctl,
 {
 	unsigned long flags;
 	spin_lock_irqsave(&ctl->outputs.lock, flags);
-	ctl->outputs.led_color = led_color;
-	ctl->outputs.dirty = 1;
+	if (ctl->outputs.led_color != led_color) {
+		ctl->outputs.led_color = led_color;
+		ctl->outputs.dirty = 1;
+	}
 	spin_unlock_irqrestore(&ctl->outputs.lock, flags);
 }
 
@@ -519,6 +533,9 @@ static int controller_event(struct input_dev* dev, unsigned int type,
 	case EV_FF:
 		return controller_ff_event(ctl, code, value);
 
+	case EV_LED:
+		return controller_led_event(ctl, code, value);
+
 	}
 	return -EINVAL;
 }
@@ -526,8 +543,6 @@ static int controller_event(struct input_dev* dev, unsigned int type,
 static int controller_ff_event(struct gchub_controller* ctl,
 			       unsigned int code, int value)
 {
-	dbg("ff_event code=%d value=%d", code, value);
-
 	if (!EFFECT_CHECK_ID(code))
 		return -EINVAL;
 	if (!EFFECT_CHECK_OWNERSHIP(code, ctl))
@@ -535,11 +550,23 @@ static int controller_ff_event(struct gchub_controller* ctl,
 	if (value < 0)
 		return -EINVAL;
 
-	/* FIXME: make this correct and stuff */
-
-	dbg("setting rumble to %d on controller '%s'", value, ctl->dev.name);
+	/* FIXME: implement support for timers */
 	controller_set_rumble(ctl, value);
-	controller_set_led(ctl, value ? LED_RED : LED_GREEN);
+	gchub_sync_output_status(ctl->hub);
+
+	return 0;
+}
+
+static int controller_led_event(struct gchub_controller* ctl,
+			       unsigned int code, int value)
+{
+	/* The input core has already set ctl->dev.led accordingly,
+	 * we just have to update the current state of everything.
+	 */
+	if (test_bit(LED_MISC, ctl->dev.led))
+		controller_set_led(ctl, LED_RED);
+	else
+		controller_set_led(ctl, LED_GREEN);
 	gchub_sync_output_status(ctl->hub);
 
 	return 0;
@@ -813,8 +840,6 @@ static void   gchub_fill_output_request(struct gchub_dev* dev)
 	if (outputs[1].rumble) rumble_bits |= GCHUB_RUMBLE_PORT1;
 	if (outputs[2].rumble) rumble_bits |= GCHUB_RUMBLE_PORT2;
 	if (outputs[3].rumble) rumble_bits |= GCHUB_RUMBLE_PORT3;
-
-	dbg("rumble_bits = %d\n", rumble_bits);
 
 	led_bits = 0;
 	if (outputs[0].led_color & LED_RED) led_bits |= GCHUB_LED_PORT0_RED;
