@@ -199,6 +199,7 @@ class PluginInterface(plugin.DaemonPlugin):
         self.thread = PluginThread()
         self.thread.setDaemon(1)
         self.thread.start()
+	plugin.DaemonPlugin.__init__(self)
 
     def shutdown(self):
         while self.updater.isAlive():
