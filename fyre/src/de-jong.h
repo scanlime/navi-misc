@@ -47,7 +47,7 @@ struct _DeJong {
 
   /* Calculation Parameters */
   DeJongParams param;
-  gdouble zoom, xoffset, yoffset, rotation;
+  gdouble zoom, aspect, xoffset, yoffset, rotation;
   gdouble blur_radius, blur_ratio;
   gboolean tileable;
   gboolean emphasize_transient;
