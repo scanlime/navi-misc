@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link href="style.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+<div class="navigation">
+<h1>xchat-gnome</h1>
+<a class="navigation" href="/">main</a><br>
+<a class="navigation" href="screenshots/">screenshots</a><br>
+<a class="navigation" href="http://navi.cx/svn/misc/trunk/xchat-gnome/">subversion</a><br>
+<a class="navigation" href="http://cia.navi.cx/stats/project/navi-misc/xchat-gnome/">CIA</a><br>
+</div>
+<div class="content">
+<p>
+The first requirement is to fetch X-Chat CVS. You can do this from their
+sourceforge project page at
+<a href="http://sourceforge.net/projects/xchat">SourceForge</a>. Make sure to grab
+the 'xchat2' module. Check the
+<a href="http://navi.cx/svn/misc/trunk/xchat-gnome/buildsystem.diff">buildsystem patch</a>
+out from subversion and apply it to the xchat trunk. Then check out the
+<a href="http://navi.cx/svn/misc/trunk/xchat-gnome/fe-gnome/">gnome frontend</a>
+into xchat2/src. After this, the process to build consists of:
+</p>
+<div class="code">
+xchat2$ ./autogen.sh<br>
+xchat2$ ./configure --enable-maintainer-mode --enable-xft --enable-gnomefe<br>
+(make sure that gnome support was found, and gtkspell if desired)<br>
+xchat2$ make<br>
+xchat2$ cd src/fe-gnome<br>
+fe-gnome$ ./xchat-gnome<br>
+</div>
+</div>
+</html>
