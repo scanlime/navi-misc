@@ -417,6 +417,7 @@ class Bot(irc.IRCClient):
     lastPingTimestamp = None
     lastPongTimestamp = None
     signonTimestamp = None
+    lastPingTransmitTimestamp = None
 
     def __init__(self):
         self.emptyChannels()
@@ -579,7 +580,8 @@ class Bot(irc.IRCClient):
 
     def sendServerPing(self):
         """Send a ping stamped with the current time and schedule the next one"""
-        self.sendLine("PING %f" % time.time())
+        self.lastPingTransmitTimestamp = time.time()
+	self.sendLine("PING %f" % self.lastPingTransmitTimestamp)
         reactor.callLater(self.pingInterval, self.sendServerPing)
 
     def irc_PONG(self, prefix, params):
@@ -587,7 +589,12 @@ class Bot(irc.IRCClient):
            the timestamp in the pong (from when the ping was sent) and the current
            time, storing the lag and the current time.
            """
-        self.lastPingTimestamp = float(params[1])
+	try:
+            self.lastPingTimestamp = float(params[1])
+	except ValueError:
+            # This must be some broken IRC server that's not preserving our ping timestamp.
+	    # The best we can do is assume this is the pong for the most recent ping we sent.
+            self.lastPingTimestamp = self.lastPingTransmitTimestamp
         self.lastPongTimestamp = time.time()
 
     def connectionLost(self, reason):
@@ -617,7 +624,10 @@ class Bot(irc.IRCClient):
             lag = None
         else:
             timeSincePong = time.time() - self.lastPongTimestamp
-            lag = self.lastPongTimestamp - self.lastPingTimestamp
+            if self.lastPingTimestamp is None:
+                lag = None
+            else:
+                lag = self.lastPongTimestamp - self.lastPingTimestamp
 
         if timeSincePong < self.pingInterval * 2:
             # We're doing fine, report the raw lag
@@ -625,7 +635,7 @@ class Bot(irc.IRCClient):
         else:
             # Yikes, it's been a while since we've had a good pong.
             # Weigh that in to the returned lag figure as described above.
-            return (lag + (timeSincePong - self.pingInterval)) / 2
+            return ((lag or 0) + (timeSincePong - self.pingInterval)) / 2
 
     def join(self, channel):
         """Called by the bot's owner to request that a channel be joined.
