@@ -195,6 +195,38 @@ def getTypeName(obj):
     return t
 
 
+_leakTracker = None
+
+def debugLeaks(reset=False, quiet=False):
+    """Show representations of all object instances tracked by the garbage collector that
+       were not present at the last invocation.
+       """
+    global _leakTracker
+    gc.collect()
+
+    if _leakTracker is None or reset:
+        _leakTracker = {}
+        quiet = True
+
+    objlist = gc.get_objects()
+    newCount = 0
+    instCount = 0
+    for object in objlist:
+        if type(object) != types.InstanceType:
+            continue
+        instCount += 1
+        if _leakTracker.get(id(object)) is object.__class__:
+            continue
+        newCount += 1
+        _leakTracker[id(object)] = object.__class__
+
+        if not quiet:
+            print repr(object)
+
+    print "\n-- %d new instances, %d total instances, %d total objects" % (
+        newCount, instCount, len(objlist))
+
+
 class GcInterface(RpcServer.Interface):
     """Memory debugging and profiling via python's garbage collector interface"""
     def protected_garbageInfo(self):
