@@ -94,7 +94,7 @@ static void animation_render_ui_init(AnimationRenderUi *self) {
   glade_xml_signal_connect_data(self->xml, "on_ok_clicked",                 G_CALLBACK(on_ok_clicked),                 self);
   glade_xml_signal_connect_data(self->xml, "on_cancel_clicked",             G_CALLBACK(on_cancel_clicked),             self);
   glade_xml_signal_connect_data(self->xml, "on_select_output_file_clicked", G_CALLBACK(on_select_output_file_clicked), self);
-  glade_xml_signal_connect_data(self->xml, "on_delete_event",               G_CALLBACK(on_delete_event),              self);
+  glade_xml_signal_connect_data(self->xml, "on_delete_event",               G_CALLBACK(on_delete_event),               self);
 
   self->dejong = de_jong_new();
   self->frame.a = PARAMETER_HOLDER(de_jong_new());
@@ -160,8 +160,8 @@ static void on_cancel_clicked(GtkWidget *widget, AnimationRenderUi *self) {
   if (self->render_in_progress)
     animation_render_ui_stop(self);
   else {
-    g_signal_emit(G_OBJECT(self), animation_render_ui_signals[CLOSED_SIGNAL], 0);
     gtk_widget_destroy(glade_xml_get_widget(self->xml, "window"));
+    g_signal_emit(G_OBJECT(self), animation_render_ui_signals[CLOSED_SIGNAL], 0);
   }
 }
 
