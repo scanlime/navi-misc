@@ -39,6 +39,29 @@ simplified to a single map, producing visually coherent images.
 % noise distributions, histogram imaging, HDR processing, density field stuff,
 % that crazy crazy color vector, etc
 \paragraph*{}
+Although our software has been tested with several maps, we focus
+on the Peter de Jong map:
+\begin{eqnarray*}
+  x_{n+1} &= \sin (a y_n) - \cos (b x_n) \\
+  y_{n+1} &= \sin (c x_n) - \cos (d y_n)
+\end{eqnarray*}
+The initial conditions, $x_0$ and $y_0$ are random. For millions or billions
+of iterations, $x_n$ and $y_n$ are plotted on a two-dimensional histogram.
+Unlike previous techniques, where each $x_n$ and $y_n$ plotted or darkened
+a pixel directly, this histogram technique maintains image intensity as
+more iterations are performed. As more samples accumulate in the histogram,
+the image simply gets more detailed.
+
+
+
+blar blar blar blar blar blar blar blar blar blar blar blar blar blar blar
+blar blar blar blar blar blar blar blar blar blar blar blar blar blar blar
+blar blar blar blar blar blar blar blar blar blar blar blar blar blar blar
+blar blar blar blar blar blar blar blar blar blar blar blar blar blar blar
+blar blar blar blar blar blar blar blar blar blar blar blar blar blar blar
+blar blar blar blar blar blar blar blar blar blar blar blar blar blar blar
+blar blar blar blar blar blar blar blar blar blar blar blar blar blar blar
+blar blar blar blar blar blar blar blar blar blar blar blar blar blar blar
 
 
 % possible applications
