@@ -26,7 +26,7 @@
 static void animation_class_init(AnimationClass *klass);
 static void animation_init(Animation *self);
 static void animation_dispose(GObject *gobject);
-
+static void animation_set_default_transition(Animation *self, GtkTreeIter *iter);
 
 /* Animations are serialized using chunked-file.
  * These are the chunk types and file signature
@@ -75,7 +75,7 @@ static void animation_init(Animation *self) {
   self->model = gtk_list_store_new(3,
 				   GDK_TYPE_PIXBUF,   /* ANIMATION_MODEL_THUMBNAIL */
 				   G_TYPE_STRING,     /* ANIMATION_MODEL_PARAMS    */
-				   G_TYPE_FLOAT);     /* ANIMATION_MODEL_DURATION  */
+				   G_TYPE_DOUBLE);    /* ANIMATION_MODEL_DURATION  */
 }
 
 static void animation_dispose(GObject *gobject) {
@@ -126,23 +126,23 @@ void animation_keyframe_load_dejong(Animation *self, GtkTreeIter *iter, DeJong *
 void animation_keyframe_append(Animation *self, DeJong *dejong) {
   GtkTreeIter iter;
   gtk_list_store_append(self->model, &iter);
-
-  /* Save de jong parameters */
   animation_keyframe_store_dejong(self, &iter, dejong);
-
-  /* Set a default transition */
-  gtk_list_store_set(self->model, &iter,
-		     ANIMATION_MODEL_DURATION, (gfloat) 1.0,
-		     -1);
+  animation_set_default_transition(self, &iter);
 }
 
 void animation_clear(Animation *self) {
   gtk_list_store_clear(self->model);
 }
 
+static void animation_set_default_transition(Animation *self, GtkTreeIter *iter) {
+  gtk_list_store_set(self->model, iter,
+		     ANIMATION_MODEL_DURATION, (gdouble) 1.0,
+		     -1);
+}
+
 
 /************************************************************************************/
-/************************************************************************* File I/O */
+/********************************************************************** Persistence */
 /************************************************************************************/
 
 void animation_load_file(Animation *self, const gchar *filename) {
@@ -165,6 +165,7 @@ void animation_load_file(Animation *self, const gchar *filename) {
     case CHUNK_KEYFRAME_START:
       /* Start a new keyframe, point iter at it */
       gtk_list_store_append(self->model, &iter);
+      animation_set_default_transition(self, &iter);
       break;
 
     case CHUNK_KEYFRAME_END:
@@ -249,6 +250,127 @@ void animation_save_file(Animation *self, const gchar *filename) {
   }
 
   fclose(f);
+}
+
+
+/************************************************************************************/
+/************************************************************** Animation Iterators */
+/************************************************************************************/
+
+gdouble animation_get_length(Animation *self) {
+  /* Return the animation's total length in seconds. Currently this
+   * requires iterating over the keyframes.
+   */
+  GtkTreeModel *model = GTK_TREE_MODEL(self->model);
+  GtkTreeIter iter;
+  gboolean valid;
+  gdouble keyframe_duration;
+  gdouble total = 0;
+
+  valid = gtk_tree_model_get_iter_first(model, &iter);
+  while (valid) {
+
+    gtk_tree_model_get(model, &iter,
+		       ANIMATION_MODEL_DURATION, &keyframe_duration,
+		       -1);
+    total += keyframe_duration;
+
+    valid = gtk_tree_model_iter_next(model, &iter);
+  }
+
+  return total;
+}
+
+void animation_iter_get_first(Animation *self, AnimationIter *iter) {
+  /* Initialize an iterator to the beginning of the animation
+   */
+  GtkTreeModel *model = GTK_TREE_MODEL(self->model);
+
+  iter->valid = gtk_tree_model_get_iter_first(model, &iter->keyframe);
+  iter->absolute_time = 0;
+  iter->time_after_keyframe = 0;
+}
+
+void animation_iter_seek(Animation *self, AnimationIter *iter, gdouble absolute_time) {
+  /* Initialize an iterator to an absolute time in seconds
+   */
+  animation_iter_get_first(self, iter);
+  animation_iter_seek_relative(self, iter, absolute_time);
+}
+
+void animation_iter_seek_relative(Animation *self, AnimationIter *iter, gdouble delta_time) {
+  /* Seek an iterator forward or backwards by a given number of seconds. This works
+   * by first adding the delta_time to the time_after_keyframe, then moving the
+   * current keyframe until time_after_keyframe is in an acceptable range.
+   */
+  GtkTreeModel *model = GTK_TREE_MODEL(self->model);
+  gdouble keyframe_duration;
+
+  iter->time_after_keyframe += delta_time;
+
+  while (iter->valid) {
+    gtk_tree_model_get(model, &iter->keyframe,
+		       ANIMATION_MODEL_DURATION, &keyframe_duration,
+		       -1);
+
+    if (iter->time_after_keyframe >= keyframe_duration) {
+      /* Skip to the next keyframe */
+      iter->valid = gtk_tree_model_iter_next(model, &iter->keyframe);
+      iter->time_after_keyframe -= keyframe_duration;
+    }
+
+    else if (iter->time_after_keyframe < 0) {
+      /* Skip to the previous keyframe.
+       * Unfortunately, there's no gtk_tree_model_iter_prev, so
+       * the best way we can do this from here is to seek back to the beginning.
+       */
+      animation_iter_get_first(self, iter);
+    }
+
+    else
+      break;
+  }
+
+}
+
+void animation_iter_load_dejong(Animation *self, AnimationIter *iter, DeJong *dejong) {
+  /* Load the dejong parameters corresponding to the given iterator into a DeJong object.
+   * This finds the keyframes before and after the iterator and applies the proper type
+   * of interpolation.
+   */
+  GtkTreeModel *model = GTK_TREE_MODEL(self->model);
+  GtkTreeIter next_keyframe = iter->keyframe;
+  gdouble keyframe_duration;
+  DeJong *a, *b;
+  gdouble alpha;
+
+  g_return_if_fail(iter->valid);
+
+  /* We should always be able to load the first keyframe */
+  a = de_jong_new();
+  animation_keyframe_load_dejong(self, &iter->keyframe, a);
+
+  if (gtk_tree_model_iter_next(model, &next_keyframe)) {
+    /* We have a next keyframe, load it */
+    b = de_jong_new();
+    animation_keyframe_load_dejong(self, &next_keyframe, b);
+  }
+  else {
+    /* No next keyframe, use another copy of the first */
+    b = g_object_ref(a);
+  }
+
+  /* Find out how far along we are in this keyframe */
+  gtk_tree_model_get(model, &iter->keyframe,
+		     ANIMATION_MODEL_DURATION, &keyframe_duration,
+		     -1);
+  alpha = iter->time_after_keyframe / keyframe_duration;
+
+  /* Only do linear interpolation for now */
+  de_jong_interpolate_linear(dejong, a, b, alpha);
+
+  g_object_unref(a);
+  g_object_unref(b);
 }
 
 /* The End */

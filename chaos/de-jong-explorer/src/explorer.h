@@ -57,6 +57,7 @@ struct _Explorer {
 
   guint idler;
   gboolean setting_params;
+  gboolean seeking_animation;
   gboolean just_resized;
   GTimeVal last_update;
 

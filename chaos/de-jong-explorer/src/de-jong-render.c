@@ -194,6 +194,25 @@ void de_jong_calculate(DeJong *self, guint iterations) {
   }
 }
 
+void de_jong_calculate_motion(DeJong *self, DeJong *a, DeJong *b,
+			      guint iterations, gboolean continuation) {
+  /* The equivalent of de_jong_calculate, but for an object moving uniformly between
+   * point a and point b. The given number of iterations are divided into smaller
+   * blocks, each of which are run with different random coordinates between a and b.
+   * This gives us accurate motion blur almost for free. Since the existing parameters
+   * of this DeJong object are ignored, the 'continuation' flag must be set on
+   * all but the first call for rendering to be reset properly.
+   */
+  const guint blocksize = iterations / 10;
+  guint count;
+
+  for (count=0; count<iterations; count+=blocksize) {
+    de_jong_interpolate_linear(self, a, b, uniform_variate());
+    self->calc_dirty_flag = !continuation;
+    de_jong_calculate(self, blocksize);
+  }
+}
+
 
 /************************************************************************************/
 /****************************************************************** Image Rendering */

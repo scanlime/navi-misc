@@ -934,8 +934,10 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "keyframe_replace_button"), TRUE);
   gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "anim_transition_box"), TRUE);
 
-  animation_keyframe_load_dejong(self->animation, &iter, self->dejong);
-  explorer_set_params(self);
+  if (!self->seeking_animation) {
+    animation_keyframe_load_dejong(self->animation, &iter, self->dejong);
+    explorer_set_params(self);
+  }
 }
 
 static gboolean on_anim_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
@@ -987,19 +989,19 @@ static void on_anim_save_as(GtkWidget *widget, gpointer user_data) {
 static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
   double v = gtk_range_get_adjustment(GTK_RANGE(widget))->value;
   Explorer *self = EXPLORER(user_data);
-  DeJong *from = de_jong_new();
-  DeJong *to = de_jong_new();
-  GtkTreeIter iter;
-  explorer_get_current_keyframe(self, &iter);
+  AnimationIter iter;
+  GtkTreePath *path;
+  GtkTreeView *tv = GTK_TREE_VIEW(glade_xml_get_widget(self->xml, "keyframe_view"));
 
-  animation_keyframe_load_dejong(self->animation, &iter, from);
-  gtk_tree_model_iter_next(GTK_TREE_MODEL(self->animation->model), &iter);
-  animation_keyframe_load_dejong(self->animation, &iter, to);
 
-  de_jong_interpolate_linear(self->dejong, from, to, v);
+  animation_iter_seek(self->animation, &iter, v*5);
+  animation_iter_load_dejong(self->animation, &iter, self->dejong);
 
-  g_object_unref(from);
-  g_object_unref(to);
+  path = gtk_tree_model_get_path(GTK_TREE_MODEL(self->animation->model), &iter.keyframe);
+  self->seeking_animation = TRUE;
+  gtk_tree_view_set_cursor(tv, path, NULL, FALSE);
+  self->seeking_animation = FALSE;
+  gtk_tree_path_free(path);
 }
 
 /* The End */
