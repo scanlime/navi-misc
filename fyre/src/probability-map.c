@@ -227,13 +227,15 @@ void             probability_map_ints             (ProbabilityMap*       self,
 						   guint*                x,
 						   guint*                y)
 {
+#if 1
     gfloat key;
-    int index;
     gfloat* cumulative = self->cumulative;
     gsize length = self->cumulative_length;
     gsize width = self->width;
-    int endpoints[2];
-    int midpoints[2];
+    struct {
+	int index;
+	int ge;
+    } endpoints[2], midpoints[2];
 
     /* Start with a uniform variate, scaled to cover the range of our CDF */
     key = uniform_variate() * cumulative[length - 1];
@@ -243,33 +245,59 @@ void             probability_map_ints             (ProbabilityMap*       self,
      * of values with the same cumulative value, only the first one is ever chosen
      * since the other values have zero probability in the original image.
      */
-    endpoints[0] = 0;
-    endpoints[1] = length - 1;
-    while (endpoints[1] > endpoints[0]) {
-	midpoints[0] = (endpoints[0] + endpoints[1]) / 2;
-	midpoints[1] = midpoints[0] + 1;
+    endpoints[0].index = 0;
+    endpoints[1].index = length - 1;
+    endpoints[0].ge = cumulative[endpoints[0].index] >= key;
+    endpoints[1].ge = cumulative[endpoints[1].index] >= key;
 
-	if (cumulative[midpoints[0]] < key &&
-	    cumulative[midpoints[1]] >= key) {
+    while (endpoints[1].index > endpoints[0].index) {
+	midpoints[0].index = (endpoints[0].index + endpoints[1].index) >> 1;
+	midpoints[1].index = midpoints[0].index + 1;
+	midpoints[0].ge = cumulative[midpoints[0].index] >= key;
+	midpoints[1].ge = cumulative[midpoints[1].index] >= key;
+
+	if ((!midpoints[0].ge) && midpoints[1].ge) {
 	    /* We're sitting right on the stopping condition */
 	    break;
 	}
-	else if (cumulative[midpoints[1]] < key) {
+	else if (!midpoints[1].ge) {
 	    /* The solution is above this */
 	    endpoints[0] = midpoints[1];
 	}
-	else if (cumulative[midpoints[0]] >= key) {
+	else if (midpoints[0].ge) {
 	    /* The solution is below this */
 	    endpoints[1] = midpoints[0];
 	}
 	else {
+	    /* This should only be possible if our CDF wasn't sorted */
 	    g_assert(0);
 	}
     }
 
     /* Convert an index within our cumulative array into (x,y) coords */
-    *x = midpoints[1] % width;
-    *y = midpoints[1] / width;
+    *x = midpoints[1].index % width;
+    *y = midpoints[1].index / width;
+#else
+    gfloat* cumulative = self->cumulative;
+    gsize length = self->cumulative_length;
+    gdouble energy;
+    gint current = self->current;
+    gsize width = self->width;
+
+    energy = uniform_variate() * 1000;
+
+    while (energy > 0) {
+	energy -= cumulative[current+1] - cumulative[current];
+	current++;
+	if (current == length-2)
+	    current = 0;
+    }
+
+    *x = current % width;
+    *y = current / width;
+
+    self->current = current;
+#endif
 }
 
 void             probability_map_normalized       (ProbabilityMap*       self,
