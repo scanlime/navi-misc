@@ -151,10 +151,13 @@ editor_init (Editor *editor)
     if (type != 0)
     {
       gpointer klass = g_type_class_ref (type);
-      GtkMenuItem *item = GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (g_type_name (type)));
-      GtkWidget *image = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
-      gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
-      gtk_menu_shell_append (GTK_MENU_SHELL (am), item);
+      if (((SceneObjectClass*) klass)->creatable ())
+      {
+        GtkMenuItem *item = GTK_MENU_ITEM (gtk_image_menu_item_new_with_label (g_type_name (type)));
+        GtkWidget *image = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
+        gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+        gtk_menu_shell_append (GTK_MENU_SHELL (am), item);
+      }
       v = gtk_hseparator_new();
       gtk_box_pack_start (box, v, FALSE, TRUE, 0);
       l = gtk_label_new (g_type_name (type));
