@@ -25,7 +25,7 @@ from __future__ import division
 import time, math
 import Template, Nouvelle
 from LibCIA import TimeUtil, Message
-from twisted.web import resource
+from twisted.web import resource, error
 from Nouvelle import tag, place
 
 
@@ -386,7 +386,7 @@ class MetadataValueColumn(Nouvelle.Column):
 
     def renderData_image(self, context, mimeType, value):
         """Return an <img> tag linking to the key's value"""
-        return 'foo'
+        return repr(value)
 
     def renderData_other(self, context, mimeType, value):
         return "Unable to format data of type %r" % mimeType
@@ -417,7 +417,9 @@ class MetadataValuePage(resource.Resource):
         try:
             value = self.target.metadata[self.key]
         except KeyError:
-            return "404"
+            return error.NoResource("No such metadata key %r" % self.key).render(request)
+
+        request.setHeader('content-type', self.target.getMetadataType(self.key))
         return str(value)
 
 

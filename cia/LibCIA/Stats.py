@@ -61,7 +61,8 @@ class StatsInterface(xmlrpc.XMLRPC):
 
     def dictify(self, d):
         """Cast an object into a dictionary, converting lists to tuples
-           to make sure the keys end up hashable.
+           to make sure the keys end up hashable, and converting xmlrpclib.Binary
+           objects to 8-bit strings.
            """
         if type(d) == dict:
             return d
@@ -69,6 +70,13 @@ class StatsInterface(xmlrpc.XMLRPC):
         for key, value in d:
             if type(key) == list:
                 key = tuple(key)
+
+            try:
+                if isinstance(value, xmlrpc.Binary):
+                    value = str(value)
+            except TypeError:
+                pass
+
             newDict[key] = value
         return newDict
 

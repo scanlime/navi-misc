@@ -10,9 +10,13 @@ stats browser. For example:
 import sys, os; sys.path[0] = os.path.join(sys.path[0], '..')
 from twisted.python import usage
 from LibCIA import Client
-import os
+import os, xmlrpclib
 
 class Options(Client.Options):
+    optFlags = [
+        ['from-file', 'f', 'The value specified is actually a file to read the value from']
+        ]
+
     optParameters = [
         ['type', 't', None, "Sets the key's MIME type"]
         ]
@@ -30,7 +34,11 @@ class MetadataTool(Client.App):
     optionsClass = Options
 
     def main(self):
-        d = [ (self.config['dataKey'], self.config['dataValue']) ]
+        value = self.config['dataValue']
+        if self.config['from-file']:
+            value = xmlrpclib.Binary(open(value, 'rb').read())
+
+        d = [ (self.config['dataKey'], value) ]
         if self.config['type'] is not None:
             d.append(((self.config['dataKey'], 'type'), self.config['type']))
         self.server.stats.updateMetadata(self.config['path'], d, self.key)
