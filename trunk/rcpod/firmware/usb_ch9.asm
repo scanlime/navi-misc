@@ -46,12 +46,8 @@
 
 	errorlevel -302		; suppress "register not in bank0, check page bits" message
 
-;#define	SHOW_ENUM_STATUS
-;#define COUNTERRORS
-
 unbanked	udata_shr		; these will get assigned to unbanked RAM (0x70-0x7F)
 temp			res	1	; short term temp register used in Get Interface
-GPtemp			res	1	; temporary storage location used in Get and PutEPn
 
 	extern	CheckVendor
 
@@ -68,12 +64,10 @@ GPtemp			res	1	; temporary storage location used in Get and PutEPn
 bank2	udata
 BufferDescriptor	res	3
 BufferData		res	8
-USB_Curr_Config		res	1
 USB_status_device	res	1	; status of device
 USB_dev_req		res	1
 USB_address_pending	res	1
 USB_Protocol		res	1
-USBMaskedErrors		res	1
 PIDs 			res	1
 EP0_start		res	2	; pointer to first byte of data to send
 EP0_end			res	1	; pointer to last byte of data to send
@@ -83,8 +77,6 @@ bufindex		res	1
 USB_Interface		res	3	; allow 3 interfaces to have alternate endpoints
 inner			res	1
 outer			res	1
-dest_ptr		res	1	; used in buffer copies for Get and
-source_ptr		res	1	; Put USB calls
 hid_dest_ptr		res	1	; used in buffer copies for HIDSetReport
 hid_source_ptr		res	1	;
 counter			res	1
@@ -94,22 +86,10 @@ IS_IDLE			res	1
 USB_USTAT		res	1
 
 	global	USB_USTAT
-	global	USB_Curr_Config
 	global	USB_status_device
 	global	USB_dev_req
 	global	USB_Interface
 	global	USB_Protocol
-
-#ifdef	COUNTERRORS
-USB_PID_ERR		res	2	; 16 bit counters for each error condition
-USB_CRC5_ERR		res	2
-USB_CRC16_ERR		res	2
-USB_DFN8_ERR		res	2
-USB_BTO_ERR		res	2
-USB_WRT_ERR		res	2
-USB_OWN_ERR		res	2
-USB_BTS_ERR		res	2
-#endif
 
 	extern	Config_desc_index
 	extern	Descriptions
@@ -125,49 +105,6 @@ USB_BTS_ERR		res	2
 
 interface	code
 
-; **********************************************************************
-; GETEP1 and GETEP2
-;
-; Note:  These functions are macros defined in usb_defs.inc.
-;        To save ROM, delete the instances below that you will not need.
-;
-; Enter with buffer pointer in IRP+FSR.
-; Each function checks the UOWNs bit for the particular OUT endpoint,
-; and copies the buffer if available.  Upon completion of the function,
-; the bank bits are restored to the state they were in when this
-; function was entered.
-;
-; Returns the bytecount in the W register and return status in the carry
-; bit as follows:
-; 0 - no buffer available,
-; 1 - Buffer copied and buffer made available for next transfer.
-;
-; The number of bytes moved is returned in W reg.
-; **********************************************************************
-
-	GETEP1		; create instance of GETEP1
-;	GETEP2		; create instance of GETEP2
-
-; **********************************************************************
-; PUTEP1 and PUTEP2
-;
-; Note:  These functions are macros defined in usb_defs.inc.
-;        To save ROM, delete the instances below that you will not need.
-;
-; Enter with bytecount in W and buffer pointer in IRP+FSR.
-;
-; Tests the UOWNs bit for the IN side of the specified Endpoint.
-; If we own the buffer, the buffer pointed to by the FSR is copied
-; to the EPn IN buffer, then the UOWNs bit is set so the data will be
-; TX'd next time polled.
-;
-; Returns the status in the carry bit as follows:
-; 1 - buffer available and copied.
-; 0 - buffer not available (try again later)
-; **********************************************************************
-
-	PUTEP1		; create instance of PUTEP1
-;	PUTEP2		; create instance of PUTEP2
 
 ; *********************************************************************
 ; Stall Endpoint.
@@ -212,18 +149,18 @@ UnstallUSBEP
 RemoteWakeup
 	global	RemoteWakeup
 
-	banksel USB_status_device	; BANK 2
+	banksel USB_status_device
 	btfss	USB_status_device, 1
 	return
 
-	bsf	STATUS, RP0	; BANK 3
+	banksel	UCTRL
 	bcf	UCTRL, SUSPND
 	bcf	UIR,UIDLE
 	bcf	UIE,ACTIVITY
 	bcf	UIR,ACTIVITY
 	bsf	UCTRL, 2	; RESUME SIGNALING
-	bcf	STATUS, RP0	; BANK 2
 
+	banksel	inner
 	clrf	inner
 	movlw	0x80
 	movwf	outer
@@ -234,7 +171,7 @@ RemoteLoop
 	decfsz	outer, f
 	goto	RemoteLoop
 
-	bsf	STATUS, RP0	; BANK 3
+	banksel	UCTRL
 	bcf	UCTRL, 2	; Clear Resume bit
 	return
 
@@ -250,7 +187,7 @@ SoftDetachUSB
 	global	SoftDetachUSB
 	banksel	UCTRL
 	bcf	UCTRL,DEV_ATT	; clear attach bit
-	bcf	STATUS, RP0	; bank 2
+	banksel	outer
 	clrf	outer
 	clrf	inner
 	pagesel	SoftDetachLoop
@@ -274,48 +211,29 @@ InitUSB
 	banksel	USWSTAT
 	clrf	USWSTAT		; default to powered state
 	movlw	0x01		; mask all USB interrupts except reset
+	banksel	UIE
 	movwf	UIE
+	banksel	UIR
 	clrf	UIR		; clear all USB Interrupt flags
 	movlw	0x08		; Device attached
+	banksel	UCTRL
 	movwf	UCTRL
 
-	bcf	STATUS, RP0	; bank 2
-	clrf	USB_Curr_Config
 	movlw	1
+	banksel	USB_status_device
 	movwf	USB_status_device
 	clrf	USB_Interface
 	clrf	USB_Interface+1
 	clrf	USB_Interface+2
 	movlw	0xFF
 	movwf	USB_dev_req	; no device requests in process
-#ifdef COUNTERRORS
-	clrf	USB_PID_ERR
-	clrf	USB_PID_ERR+1
-	clrf	USB_CRC5_ERR
-	clrf	USB_CRC5_ERR+1
-	clrf	USB_CRC16_ERR
-	clrf	USB_CRC16_ERR+1
-	clrf	USB_DFN8_ERR
-	clrf	USB_DFN8_ERR+1
-	clrf	USB_BTO_ERR
-	clrf	USB_BTO_ERR+1
-	clrf	USB_WRT_ERR
-	clrf	USB_WRT_ERR+1
-	clrf	USB_OWN_ERR
-	clrf	USB_OWN_ERR+1
-	clrf	USB_BTS_ERR
-	clrf	USB_BTS_ERR+1
-#endif
-	banksel PIR1		; bank 0
+	banksel PIR1
 	bcf 	PIR1,USBIF	; clear the USB flag
-	bsf 	STATUS,RP0	; bank 1
+	banksel	PIE1
 	bsf 	PIE1,USBIE	; enable usb interrupt
 	bsf  	INTCON, 6	; enable global and peripheral interrupts
 	bsf 	INTCON, 7
 	bcf 	STATUS,RP0	; select bank 0
-#ifdef SHOW_ENUM_STATUS
-	bsf 	PORTB,0		; set bit zero to indicate Powered status
-#endif
 	return
 
 
@@ -329,13 +247,9 @@ DeInitUSB
 	bcf	UCTRL,DEV_ATT	; D+/D- go high Z
 	bsf	UCTRL,SUSPND	; Place USB module in low power mode.
 	clrf	USWSTAT		; set device state to powered.
-	bcf	STATUS,RP1	; select bank 1
+	banksel	PIE1
 	bcf	PIE1,USBIE	; clear USB interrupt enable
 	bcf 	STATUS,RP0
-#ifdef SHOW_ENUM_STATUS
-	movlw	0x01
-	movwf	PORTB		; clear all lights except powered
-#endif
 	return
 
 
@@ -351,10 +265,9 @@ core	code
 ; ******************************************************************
 USBReset
 	global	USBReset
-	banksel	USB_Curr_Config
-	clrf	USB_Curr_Config
+	banksel	IS_IDLE
 	clrf	IS_IDLE
-	bsf 	STATUS, RP0	; bank 3
+	banksel	UIR
 	bcf 	UIR,TOK_DNE	; hit this 4 times to clear out the
 	bcf 	UIR,TOK_DNE	; USTAT FIFO
 	bcf 	UIR,TOK_DNE
@@ -383,13 +296,9 @@ USBReset
 	movwf	UEIE
 	movlw	DEFAULT_STATE
 	movwf	USWSTAT
-	bcf 	STATUS,RP0	; select bank 2
+	banksel	USB_status_device
 	movlw	0x01
 	movwf	USB_status_device ; Self powered, remote wakeup disabled
-	bcf 	STATUS,RP1	; bank 0
-#ifdef SHOW_ENUM_STATUS
-	bsf 	PORTB,1		; set bit one to indicate Reset status
-#endif
 	return  		; to keep straight with host controller tests
 
 ; ******************************************************************
@@ -403,9 +312,8 @@ USBSleep
 	bcf 	UIR,UIDLE
 	bsf 	UIE,ACTIVITY
 	bsf 	UCTRL, SUSPND
-	bcf	STATUS, RP0	; switch to bank 2
+	banksel	IS_IDLE
 	bsf 	IS_IDLE, 0
-	bcf	STATUS, RP1	; switch to bank 0
 	return
 
 ; ******************************************************************
@@ -420,9 +328,8 @@ USBActivity
 	bcf 	UCTRL, SUSPND	; Bring the SIE back to life
 	bcf 	UIR,ACTIVITY	; clear activity flag
 	bcf 	UIE,ACTIVITY	; Disable activity interrupt
-	bcf 	STATUS,RP0	; switch to bank 2
+	banksel	IS_IDLE
 	clrf	IS_IDLE
-	bcf	STATUS,RP1	; switch to bank 0
 	return
 
 ; ******************************************************************
@@ -449,9 +356,7 @@ USBError
 	movf	UEIR,w		; get the error register
 	andwf	UEIE,w		; mask with the enables
 	clrf	UEIR
-	banksel	USBMaskedErrors ; switch to bank 2
-	movwf	USBMaskedErrors	; save the masked errors
-	bcf	STATUS,RP1	; Bank 0
+	;; Errors are in 'w' now, but we ignore them
 	return
 
 ; ******************************************************************
@@ -465,30 +370,10 @@ TokenDone
 	banksel	USTAT
 	movf	USTAT,w		; get the status register
 	bcf 	UIR,TOK_DNE	; clearing the token done interrupt.
-	bcf 	STATUS,RP0	; switch to bank 2
+	banksel	USB_USTAT
 	movwf	USB_USTAT	; Save USTAT in bank 2
 
-#ifdef SHOW_ENUM_STATUS
-; This toggles the activity bits on portB  (EP0 -> Bit 5; EP1 -> bit 6; EP2 -> bit 7)
-	bcf 	STATUS,RP1	; bank 0
-	andlw	0x18		; save endpoint bits
-	pagesel tryEP1activity
-	btfss	STATUS,Z	; is it EP0?
-	goto	tryEP1activity
-	movlw	0x20
-	pagesel maskport
-	goto	maskport
-tryEP1activity
-	xorlw	0x08		; is it bit one?
-	btfss	STATUS,Z
-	movlw	0x80		; No, It's not EP0, nor 1 so it must be EP2.  toggle bit 7
-	btfsc	STATUS,Z
-	movlw	0x40		; Yes, toggle bit 6 to Show EP1 activity
-maskport
-	xorwf	PORTB,f
-#endif
-
-; check UOWN bit here if desired
+	; check UOWN bit here if desired
 	banksel	BufferDescriptor
 	movf	BufferDescriptor,w  ; get the first byte of the BD
 	andlw	0x3c		; save the PIDs
@@ -519,63 +404,15 @@ maskport
 ; tokens to deal with.
 ; EP1 and EP2 have live data destined for the application
 ; ******************************************************************
-TokenOutPID  ; STARTS IN BANK2
+TokenOutPID
+	banksel	USB_USTAT
 	movf	USB_USTAT,w	; get the status register
 	pagesel	tryEP1
 	btfss	STATUS,Z	; was it EP0?
 	goto	tryEP1 		; no, try EP1
-	movf	USB_dev_req,w
-	xorlw	HID_SET_REPORT
-	pagesel	ResetEP0OutBuffer
-	btfss	STATUS,Z
-	goto	ResetEP0OutBuffer
-
-HIDSetReport
-
-; ******************************************************************
-; You must write your own SET_REPORT routine.  The following
-; commented out code is provided if you desire to make a SET_REPORT
-; look like a EP1 OUT Interrupt transfer.  Uncomment it and use it
-; if you desire this functionality.
-; ******************************************************************
-;	movlw	0xFF
-;	movwf	USB_dev_req	; clear the request type
-;	banksel	BD1IST
-;	movf	BD0OST,w
-;	movwf	BD1OST		; Copy status register to EP1 Out
-;	movf	BD0OAL,w	; get EP0 Out buffer address
-;	bcf 	STATUS,RP0	; bank 2
-;	movwf	hid_source_ptr
-;	bsf 	STATUS,RP0	; bank 3
-;	movf	BD1OAL,w	; get EP1 Out Buffer Address
-;	bcf 	STATUS,RP0	; bank 2
-;	movwf	hid_dest_ptr
-;	bsf 	STATUS,RP0	; bank 3
-;	movf	BD0OBC,w	; Get byte count
-;	movwf	BD1OBC		; copy to EP1 Byte count
-;	bcf 	STATUS,RP0	; bank 2
-;	movwf	counter
-;	bankisel BD1IST		; indirectly to bank 3
-;HIDSRCopyLoop
-;	movf	hid_source_ptr,w
-;	movwf	FSR
-;	movf	INDF,w
-;	movwf	temp
-;	movf	hid_dest_ptr,w
-;	movwf	FSR
-;	movf	temp,w
-;	movwf	INDF
-;	incf	hid_source_ptr,f
-;	incf	hid_dest_ptr,f
-;	decfsz	counter,f
-;	goto	HIDSRCopyLoop
-;
-;	bsf 	STATUS,RP0	; bank 3
-;	movlw	0x08
-;	movwf	BD0OST		; REset EP0 Status back to SIE
 
 ResetEP0OutBuffer
-	bsf 	STATUS,RP0	; no, just reset buffer and move on.
+	banksel	BD0OBC
 	movlw	0x08		; it's EP0.. buffer already copied,
 	movwf	BD0OBC		; just reset the buffer
 	movlw	0x88
@@ -583,30 +420,31 @@ ResetEP0OutBuffer
 	pagesel	Send_0Len_pkt
 	goto	Send_0Len_pkt
 
-tryEP1  ; bank 2
+tryEP1
 	xorlw	0x08		; was it EP1?
 	pagesel	tryEP2
 	btfss	STATUS,Z
 	goto	tryEP2
 
-; **** Add Callout here to service EP1 in transactions.  ****
+	; **** Add Callout here to service EP1 in transactions.  ****
 	return
 
-tryEP2  ; bank 2
+tryEP2
 	movf	USB_USTAT,w
 	xorlw	0x10		; was it EP2?
 	btfsc	STATUS,Z
 	return  		; unrecognized EP (Should never take this exit)
 
-; **** Add Callout here to service EP2 in transactions.  ****
+	; **** Add Callout here to service EP2 in transactions.  ****
 	return
 
 ; ******************************************************************
 ; Process in tokens
 ; ******************************************************************
-TokenInPID  ; starts in bank2
-; Assumes EP0 vars are setup in a previous call to setup.
+TokenInPID
+	; Assumes EP0 vars are setup in a previous call to setup.
 EP0_in
+	banksel	USB_USTAT
 	movf	USB_USTAT,w	; get the status register
 	andlw	0x18		; save only EP bits (we already know it's an IN)
 	pagesel	tryEP1in
@@ -655,7 +493,7 @@ check_CF
 	pagesel	clear_EP2
 	btfss	STATUS,Z
 	goto	clear_EP2
-	bsf 	STATUS, RP0	; bank 3
+	banksel	UEP1
 	bsf 	UEP1, EP_STALL
 	pagesel	exitEP0in
 	goto	exitEP0in
@@ -665,14 +503,13 @@ clear_EP2
 	pagesel	exitEP0in
 	btfss	STATUS,Z
 	goto	exitEP0in
-	bsf 	STATUS, RP0	; bank 3
+	banksel	UEP2
 	bsf 	UEP2, EP_STALL
 	pagesel	exitEP0in
 	goto	exitEP0in
 
 Class_Specific
-;	pagesel	Check_Class_Specific_IN
-;	goto	Check_Class_Specific_IN
+	;; *** check for class-specific requests here
 
 exitEP0in
 	return
@@ -705,19 +542,20 @@ Send_0Len_pkt
 	clrf	BD0IBC		; set byte count to 0
 	movlw	0xc8
 	movwf	BD0IST		; set owns bit
-	bcf	STATUS,RP0	; back to bank 2
+	banksel	USB_dev_req
 	clrf	USB_dev_req
 	return
 
 ; ********************************************************************
 ; process setup tokens
 ; ******************************************************************
-TokenSetupPID  ; starts in bank 2
-	bsf 	STATUS,IRP	; indirectly to pages 2/3
-	movf	BufferDescriptor+ADDRESS,w ; get the status register
-	movwf	FSR ; save in the FSR.
+TokenSetupPID
+	bsf 	STATUS,IRP			; indirectly to pages 2/3
+	banksel	BufferDescriptor
+	movf	BufferDescriptor+ADDRESS,w	; get the status register
+	movwf	FSR				; save in the FSR.
 	movf	INDF,w
-	movwf	BufferData	; in shared RAM
+	movwf	BufferData			; in shared RAM
 	incf	FSR,f
 	movf	INDF,w
 	movwf	BufferData+1
@@ -739,64 +577,58 @@ TokenSetupPID  ; starts in bank 2
 	incf	FSR,f
 	movf	INDF,w
 	movwf	BufferData+7
-	bsf 	STATUS, RP0	; bank 3
+	banksel	BD0OBC
 	movlw	0x08
-	movwf	BD0OBC		; reset the byte count too.
-	movwf	BD0IST		; return the in buffer to us (dequeue any pending requests)
-	bcf 	STATUS, RP0	; bank 2
+	movwf	BD0OBC			; reset the byte count too.
+	movwf	BD0IST			; return the in buffer to us (dequeue any pending requests)
+	banksel	BufferData
 	movf	BufferData+bmRequestType, w
-	xorlw	0x21		; set EP0 OUT UOWNs back to SIE
-	movlw	0x88		; set DATA0/DATA1 packet according to request type
+	xorlw	0x21			; set EP0 OUT UOWNs back to SIE
+	movlw	0x88			; set DATA0/DATA1 packet according to request type
 	btfsc	STATUS, Z
 	movlw	0xC8
-	bsf 	STATUS, RP0	; bank 3
+	banksel	BD0OST
 	movwf	BD0OST
 
-	bcf 	UCTRL,PKT_DIS	; Assuming there is nothing to dequeue, clear the packet disable bit
+	banksel	UCTRL
+	bcf 	UCTRL,PKT_DIS		; Assuming there is nothing to dequeue, clear the packet disable bit
 
-	bcf 	STATUS,RP0	; bank 2
-	clrf	USB_dev_req	; clear the device request..
+	banksel	USB_dev_req
+	clrf	USB_dev_req		; clear the device request..
 	movf	BufferData+bmRequestType,w
 	pagesel	HostToDevice
 	btfsc	STATUS,Z
 	goto	HostToDevice
 
 	movf	BufferData+bmRequestType,w
-	xorlw	0x01		; test for host to Interface tokens
+	xorlw	0x01			; test for host to Interface tokens
 	pagesel	HostToInterface
 	btfsc	STATUS,Z
 	goto	HostToInterface
 
 	movf	BufferData+bmRequestType,w
-	xorlw	0x02		; test for host to Endpoint tokens
+	xorlw	0x02			; test for host to Endpoint tokens
 	pagesel	HostToEndpoint
 	btfsc	STATUS,Z
 	goto	HostToEndpoint
 
 	movf	BufferData+bmRequestType,w
-	xorlw	0x80		; test for device to Host tokens
+	xorlw	0x80			; test for device to Host tokens
 	pagesel	DeviceToHost
 	btfsc	STATUS,Z
 	goto	DeviceToHost
 
 	movf	BufferData+bmRequestType,w
-	xorlw	0x81		; test for device to Interface tokens
+	xorlw	0x81			; test for device to Interface tokens
 	pagesel	InterfaceToHost
 	btfsc	STATUS,Z
 	goto	InterfaceToHost
 
 	movf	BufferData+bmRequestType,w
-	xorlw	0x82		; test for device to Endpoint tokens
+	xorlw	0x82			; test for device to Endpoint tokens
 	pagesel	EndpointToHost
 	btfsc	STATUS,Z
 	goto	EndpointToHost
-
-	;movf	BufferData+bmRequestType,w
-	;andlw	0x60		; mask off type bits
-	;xorlw	0x20		; test for class specific
-	;pagesel	ClassSpecificRequest
-	;btfsc	STATUS,Z	; was it a standard request?
-	;goto	ClassSpecificRequest ; nope, see if it was a class specific request
 
 CheckForVendorRequest
 	movf	BufferData+bmRequestType,w
@@ -808,12 +640,13 @@ CheckForVendorRequest
 	pagesel	CheckVendor
 	goto	CheckVendor	; nope, see if it was a vendor specific
 
-; now test bRequest to see what the request was.
+	; now test bRequest to see what the request was.
 
 CheckForStandardRequest
-; bmRequestType told us it was a Host to Device transfer.  Now look at
-; the specifics to see what's up
-HostToDevice  ; starts in bank 2
+	; bmRequestType told us it was a Host to Device transfer.  Now look at
+	; the specifics to see what's up
+HostToDevice
+	banksel	BufferData
 	movf	BufferData+bRequest,w ; what was our request
 	xorlw	CLEAR_FEATURE
 	pagesel	Clear_Device_Feature
@@ -841,7 +674,8 @@ HostToDevice  ; starts in bank 2
 	pagesel	wrongstate
 	goto	wrongstate
 
-HostToInterface  ; starts in bank 2
+HostToInterface
+	banksel	BufferData
 	movf	BufferData+bRequest,w ; what was our request
 	xorlw	CLEAR_FEATURE
 	pagesel	Clear_Interface_Feature
@@ -863,7 +697,8 @@ HostToInterface  ; starts in bank 2
 	pagesel	wrongstate
 	goto	wrongstate
 
-HostToEndpoint  ; starts in bank2
+HostToEndpoint
+	banksel	BufferData
 	movf	BufferData+bRequest,w ; what was our request
 	xorlw	CLEAR_FEATURE
 	pagesel	Clear_Endpoint_Feature
@@ -879,7 +714,8 @@ HostToEndpoint  ; starts in bank2
 	pagesel	wrongstate
 	goto	wrongstate
 
-DeviceToHost  ; starts in bank2
+DeviceToHost
+	banksel	BufferData
 	movf	BufferData+bRequest,w ; what was our request
 	xorlw	GET_CONFIGURATION
 	pagesel	Get_Configuration
@@ -901,7 +737,8 @@ DeviceToHost  ; starts in bank2
 	pagesel	wrongstate
 	goto	wrongstate
 
-InterfaceToHost  ; starts in bank2
+InterfaceToHost
+	banksel	BufferData
 	movf	BufferData+bRequest,w ; was our request Get Interface?
 	xorlw	GET_INTERFACE
 	pagesel	Get_Interface
@@ -923,7 +760,8 @@ InterfaceToHost  ; starts in bank2
 	pagesel	wrongstate
 	goto	wrongstate
 
-EndpointToHost  ; starts in bank2
+EndpointToHost
+	banksel	BufferData
 	movf	BufferData+bRequest,w ; was our request Get Status?
 	xorlw	GET_STATUS
 	pagesel	Get_Endpoint_Status
@@ -937,20 +775,10 @@ EndpointToHost  ; starts in bank2
 ; Get Descriptor
 ; Handles the three different Get Descriptor commands
 ; ******************************************************************
-Get_Descriptor  ; starts in bank2
-	;movf	BufferData+(wValue+1),w ; request, which seems to be undefined,
-	;xorlw	0x22		; but it won't enumerate without it
-	;pagesel	Get_Report_Descriptor
-	;btfsc	STATUS,Z
-	;goto	Get_Report_Descriptor
-
-	;movf	BufferData+(wValue+1),w
-	;xorlw	0x21
-	;pagesel	Get_HID_Descriptor
-	;btfsc	STATUS,Z
-	;goto	Get_HID_Descriptor
+Get_Descriptor
 
 GetCh9Descriptor
+	banksel	BufferData
 	movlw	high StartGDIndex ; set up PCLATH with the current address
 	movwf	PCLATH		; set up pclath for the computed goto
 	bcf 	STATUS, C
@@ -977,7 +805,8 @@ StartGDIndex
 ; or the number of bytes requested in the message (wLength).
 ; EP0_maxLength is the number of bytes to transfer at a time, 8 bytes
 ; ******************************************************************
-Get_Device_Descriptor  ; starts in bank 2
+Get_Device_Descriptor
+	banksel	USB_dev_req
 	movlw	GET_DESCRIPTOR
 	movwf	USB_dev_req	; currently processing a get descriptor request
 
@@ -1020,7 +849,8 @@ DeviceEndPtr
 ; or the number of bytes requested in the message (wLength).
 ; EP0_maxLength is the number of bytes to transfer at a time, 8 bytes
 ; ******************************************************************
-Get_Config_Descriptor  ; starts in bank2
+Get_Config_Descriptor
+	banksel	BufferData
 	movlw	GET_DESCRIPTOR
 	movwf	USB_dev_req	; currently processing a get descriptor request
 
@@ -1080,7 +910,8 @@ ConfigEndPtr
 ; of wValue.  The pointers are set up and the data is copied to the
 ; buffer, then the flags are set.
 ; ******************************************************************
-Get_String_Descriptor  ; starts in bank2
+Get_String_Descriptor
+	banksel	BufferData
 	movlw	GET_STRING_DESCRIPTOR
 	movwf	USB_dev_req		; currently processing a get descriptor request
 
@@ -1127,18 +958,19 @@ wrongstate
 ; ******************************************************************
 ; Loads the device status byte into the EP0 In Buffer.
 ; ******************************************************************
-Get_Device_Status  ; starts in bank2
+Get_Device_Status
+	banksel	BD0IAL
 	bsf 	STATUS,RP0
 	movf	BD0IAL,w	; get buffer pointer
 	movwf	FSR
-	bcf 	STATUS,RP0	; bank 2
 	bsf 	STATUS,IRP	; select indirectly banks 2-3
+	banksel	USB_status_device
 	movf	USB_status_device,w ; get device status byte
 	movwf	INDF
 	incf	FSR,f
 	clrf	INDF
 
-	bsf 	STATUS,RP0	; bank 3
+	banksel	BD0IBC
 	movlw	0x02
 	movwf	BD0IBC		; set byte count to 2
 	movlw	0xC8
@@ -1150,21 +982,21 @@ Get_Device_Status  ; starts in bank2
 ; bits zero.
 ; ******************************************************************
 Get_Interface_Status ; starts in bank 2
-	bsf 	STATUS, RP0	; bank 3
+	banksel	USWSTAT
 	movf	USWSTAT,w
 	xorlw	ADDRESS_STATE
 	pagesel	Get_Interface_Status2
 	btfss	STATUS, Z
 	goto	Get_Interface_Status2
 
-	bcf 	STATUS, RP0	; bank 2
+	banksel	BufferData
 	movf	BufferData+wIndex, w
 	pagesel	Get_Interface_Status2
 	btfss	STATUS, Z
 	goto	Get_Interface_Status2
 
 Get_Interface_Status2
-	bsf 	STATUS, RP0	; bank3
+	banksel	USWSTAT
 	movf	USWSTAT,w
 	xorlw	CONFIG_STATE
 	pagesel	wrongstate
@@ -1186,7 +1018,7 @@ Get_Interface_Status_end
 	movf	INDF,w
 	movwf	temp		; store in temp register
 
-	bsf 	STATUS,RP0	; bank3
+	banksel	BD0IAL
 	movf	BD0IAL,w	; get address of buffer
 	movwf	FSR
 	movf	temp,w		; load temp
@@ -1201,7 +1033,8 @@ Get_Interface_Status_end
 ; ******************************************************************
 ; Returns the Endpoint stall bit via a 2 byte in buffer
 ; ******************************************************************
-Get_Endpoint_Status  ; starts in bank 2
+Get_Endpoint_Status
+	banksel	BufferData
 	movlw	0x0f
 	andwf	BufferData+wIndex,w ; get endpoint, strip off direction bit
 	xorlw	0x01		; is it EP1?
@@ -1218,7 +1051,7 @@ Get_Endpoint_Status  ; starts in bank 2
 
 get_EP2_status
 	bcf 	STATUS,C
-	bsf 	STATUS,RP0
+	banksel	UEP2
 	btfsc	UEP2,EP_STALL
 	bsf 	STATUS,C
 	pagesel	build_status_buffer
@@ -1226,7 +1059,7 @@ get_EP2_status
 
 get_EP1_status
 	bcf 	STATUS,C
-	bsf 	STATUS,RP0
+	banksel	UEP1
 	btfsc	UEP1,EP_STALL
 	bsf 	STATUS,C
 
@@ -1251,7 +1084,8 @@ build_status_buffer
 ; This assumes the SIE has already sent the status stage of the transaction
 ; as implied by Figure 3-35 of the DOS (Rev A-7)
 ; ******************************************************************
-Set_Address  ; starts in bank 2
+Set_Address
+	banksel	BufferData
 	movf	BufferData+wValue,w ; new address in low order byte of wValue
 	movwf	USB_address_pending
 	pagesel	wrongstate
@@ -1265,12 +1099,11 @@ Set_Address  ; starts in bank 2
 	bsf	UIE,TOK_DNE	; enable token done interrupt
 	return
 
-finish_set_address 	; starts in bank 2
+finish_set_address
 	global	finish_set_address
 	clrf	USB_dev_req	; no request pending
-	clrf	USB_Curr_Config	; make sure current configuration is 0
 	movf	USB_address_pending,w
-	bsf 	STATUS, RP0	; bank 3
+	banksel	UADDR
 	movwf	UADDR		; set the device address
 	bcf	UIE,TOK_DNE	; clear token done interrupt enable
 	btfsc	STATUS,Z	; was address 0?
@@ -1278,11 +1111,6 @@ finish_set_address 	; starts in bank 2
 
 	movlw	ADDRESS_STATE	; non-zero: transition to addressed state
 	movwf	USWSTAT		; transition to addressed state
-#ifdef SHOW_ENUM_STATUS
-	banksel	PORTB
-	bsf 	PORTB,2		; set bit 2 to indicate Addressed state
-	banksel	USWSTAT		; not necessary, Send_0LenPkt resets bank bits
-#endif
 	return
 
 ; ******************************************************************
@@ -1311,33 +1139,31 @@ Clear_Endpoint_Feature  ; starts in bank 2
 	btfss	STATUS, Z
 	goto	wrongstate
 
-	bsf 	STATUS, RP0	; bank3
+	banksel	USWSTAT
 	movlw	0x03		; if ((USWSTAT & 0x03) == ADDRESS_STATE)
 	andwf	USWSTAT, w
 	xorlw	ADDRESS_STATE
 	pagesel clear_endpoint_feature2
 	btfss	STATUS, Z
 	goto	clear_endpoint_feature2
-	bcf 	STATUS, RP0	; bank2
+	banksel	BufferData
 	movlw	0x0F		; if ((Bufferdata+wIndex & 0x07) = 0)
 	andwf	BufferData+wIndex, w
 	btfss 	STATUS, Z
 	goto	clear_endpoint_feature2
-	bsf 	STATUS, RP0	; bank 3
+	banksel	UEP0
 	bcf 	UEP0, 0
-	pagesel	Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
+	psgoto	Send_0Len_pkt
 
 clear_endpoint_feature2
-	bsf 	STATUS, RP0
+	banksel	USWSTAT
 	movlw	0x03		; if ((USWSTAT & 0X03) == CONFIG_STATE)
 	andwf	USWSTAT, w
 	xorlw	CONFIG_STATE
 	pagesel wrongstate
 	btfss	STATUS, Z
 	goto	wrongstate
-	bcf 	STATUS, RP0	; bank2
+	banksel	BufferData
 	movlw	0x0F
 	andwf	BufferData+wIndex, w ; if (BufferData+wIndex < 3)
 	sublw	2
@@ -1347,7 +1173,6 @@ clear_endpoint_feature2
 	bsf 	STATUS, IRP
 	movlw	0x0F
 	andwf	BufferData+wIndex,w
-	bsf 	STATUS, RP0 	; bank3
 	addlw	UEP0&0xFF
 	movwf	FSR
 	bcf 	INDF, 0
@@ -1355,28 +1180,28 @@ clear_endpoint_feature2
 	call	Send_0Len_pkt
 	return
 
-Clear_Interface_Feature ; starts in bank2
-	pagesel	wrongstate
-	goto	wrongstate
+Clear_Interface_Feature
+	psgoto	wrongstate
 
 ; ******************************************************************
 ; only feature valid for device feature is Device Remote wakeup
 ; ******************************************************************
-Set_Device_Feature  ; starts in bank 2
-	movf	BufferData+wValue,w ; get high order byte of wValue
-	xorlw	0x01		; was it a Device Remote wakeup?
+Set_Device_Feature
+	banksel	BufferData
+	movf	BufferData+wValue,w	; get high order byte of wValue
+	xorlw	0x01			; was it a Device Remote wakeup?
 	pagesel	wrongstate
 	btfss	STATUS,Z
-	goto	wrongstate	; request error
-	bsf 	USB_status_device,1 ; set device remote wakeup
-	pagesel	Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
+	goto	wrongstate		; request error
+	bsf 	USB_status_device,1	; set device remote wakeup
+	psgoto	Send_0Len_pkt
+
 
 ; ******************************************************************
 ; Only endpoint feature is Endpoint halt.
 ; ******************************************************************
-Set_Endpoint_Feature  ; starts in bank 2
+Set_Endpoint_Feature
+	banksel	BufferData
 	movf	BufferData+wValue, w
 	pagesel	wrongstate
 	btfss	STATUS, Z	; only valid feature is 0 (Remote Wakeup)
@@ -1385,34 +1210,32 @@ Set_Endpoint_Feature  ; starts in bank 2
 	btfss	STATUS, Z
 	goto	wrongstate
 
-	bsf 	STATUS, RP0	; bank3
+	banksel	USWSTAT
 	movlw	0x03		; if ((USWSTAT & 0x03) == ADDRESS_STATE)
 	andwf	USWSTAT, w
 	xorlw	ADDRESS_STATE
 	pagesel set_endpoint_feature2
 	btfss	STATUS, Z
 	goto	set_endpoint_feature2
-	bcf 	STATUS, RP0	; bank2
+	banksel	BufferData
 	movlw	0x0F		; if ((Bufferdata+wIndex & 0x07) = 0)
 	andwf	BufferData+wIndex, w
 	pagesel wrongstate
 	btfss 	STATUS, Z
 	goto	wrongstate	; only Endpoint 0 is valid when in addressed state.
-	bsf 	STATUS, RP0	; bank 3
+	banksel	UEP0
 	bsf 	UEP0, EP_STALL
-	pagesel	Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
+	psgoto	Send_0Len_pkt
 
 set_endpoint_feature2
-	bsf 	STATUS, RP0
+	banksel	USWSTAT
 	movlw	0x03		; if ((USWSTAT & 0X03) == CONFIG_STATE)
 	andwf	USWSTAT, w
 	xorlw	CONFIG_STATE
 	pagesel wrongstate
 	btfss	STATUS, Z
 	goto	wrongstate
-	bcf 	STATUS, RP0	; bank2
+	banksel	BufferData
 	movlw	0x0F
 	andwf	BufferData+wIndex, w ; if (BufferData+wIndex < 3)
 	sublw	2
@@ -1422,7 +1245,6 @@ set_endpoint_feature2
 	bsf 	STATUS, IRP
 	movlw	0x0F
 	andwf	BufferData+wIndex,w
-	bsf 	STATUS, RP0 	; bank3
 	addlw	low UEP0
 	movwf	FSR
 	bsf 	INDF, EP_STALL
@@ -1430,9 +1252,8 @@ set_endpoint_feature2
 	call	Send_0Len_pkt
 	return
 
-Set_Interface_Feature; starts in bank 2
-	pagesel	wrongstate
-	goto	wrongstate	; invalid request
+Set_Interface_Feature
+	psgoto	wrongstate	; invalid request
 
 ; ********************************************************************
 ; Get configuration returns a single byte Data1 packet indicating the
@@ -1441,15 +1262,15 @@ Set_Interface_Feature; starts in bank 2
 ; Addressed State  - returns 0
 ; Configured state - returns current configured state.
 ; ******************************************************************
-Get_Configuration  ; starts in bank 2
-	bsf 	STATUS, RP0
+Get_Configuration
+	banksel	BD0IAL
 	movf	low BD0IAL,w	; get address of buffer
 	movwf	FSR
-	bcf 	STATUS, RP0
 	bsf 	STATUS,IRP	; indirectly to banks 2-3
-	movf	USB_Curr_Config,w
+	movlw	0x00		; Current config is always zero
 	movwf	INDF		; write byte to buffer
 	bsf 	STATUS, RP0
+	banksel	BD0IBC
 	movlw	0x01
 	movwf	BD0IBC		; set byte count to 1
 	movlw	0xc8		; DATA1 packet, DTS enabled
@@ -1460,30 +1281,22 @@ Get_Configuration  ; starts in bank 2
 ; Set configuration uses the configuration selected by the low order
 ; byte of wValue.  Sets up a zero length data1 packet as a reply.
 ; ******************************************************************
-Set_Configuration  ; starts in bank 2
-; All we do is set a meaningless number.  This'll
-; need more code here to actually give meaning to each configuration
-; we choose.
+Set_Configuration
 	movf	BufferData+wValue,w ; is it a valid configuration?
 	sublw	NUM_CONFIGURATIONS
 	pagesel	wrongstate
 	btfss	STATUS,C	; if config <= num configs, request appears valid
 	goto	wrongstate
 
-	movf	BufferData+wValue,w
-	movwf	USB_Curr_Config	; store new state in configuration
+	;; Ignore this, we only have one configuration
 
 	pagesel	AckSetConfigCmd
 	btfsc	STATUS,Z	; was the configuration zero?
 	goto	AckSetConfigCmd	; yes: stay in the addressed state
 
-	bsf 	STATUS, RP0 	; bank 3
+	banksel	USWSTAT
 	movlw	CONFIG_STATE	; No: transition to configured
 	movwf	USWSTAT		; save new state.
-#ifdef SHOW_ENUM_STATUS
-	banksel	PORTB
-	bsf 	PORTB,3		; set bit 3 to show configured
-#endif
 
 AckSetConfigCmd
 	pagesel	Send_0Len_pkt
@@ -1519,21 +1332,18 @@ AckSetConfigCmd
 	movwf	BD2IAL		; set up buffer address
 	movlw	0x48		; set own bit of EP2 (PIC can write)
 	movwf	BD2IST
-; Set up the Endpoint Control Registers.  The following patterns are defined
-; ENDPT_DISABLED - endpoint not used
-; ENDPT_IN_ONLY  - endpoint supports IN transactions only
-; ENDPT_OUT_ONLY - endpoint supports OUT transactions only
-; ENDPT_CONTROL - Supports IN, OUT and CONTROL transactions - Only use with EP0
-; ENDPT_NON_CONTROL - Supports both IN and OUT transactions
+
+	; Set up the Endpoint Control Registers.  The following patterns are defined
+	; ENDPT_DISABLED - endpoint not used
+	; ENDPT_IN_ONLY  - endpoint supports IN transactions only
+	; ENDPT_OUT_ONLY - endpoint supports OUT transactions only
+	; ENDPT_CONTROL - Supports IN, OUT and CONTROL transactions - Only use with EP0
+	; ENDPT_NON_CONTROL - Supports both IN and OUT transactions
 	movlw	ENDPT_NON_CONTROL
 	movwf	UEP1		; enable EP's 1 and 2 for In and Outs...
 	movlw	ENDPT_NON_CONTROL
 	movwf	UEP2
 
-;pagesel SetConfiguration; call SetConfiguration etc. after configuration changed
-;movfUSB_Curr_Config,w; if you have multiple configurations
-;callSetConfiguration
-;pagesel Set_Configuration
 	return
 
 
@@ -1545,14 +1355,14 @@ AckSetConfigCmd
 ; Configured state - returns current configured state.
 ; ******************************************************************
 Get_Interface  ; STARTS IN BANK 2
-	bsf 	STATUS, RP0
+	banksel	USWSTAT
 	movf	USWSTAT,w	; Only valid in the configured state
 	xorlw	CONFIG_STATE
 	pagesel	wrongstate
 	btfss	STATUS, Z
 	goto	wrongstate
 
-	bcf 	STATUS, RP0
+	banksel	BufferData
 	movf	BufferData+wIndex,w ; if Interface < NUM_INTERFACES
 	sublw	(NUM_INTERFACES-1)
 	pagesel	wrongstate
@@ -1566,7 +1376,7 @@ Get_Interface  ; STARTS IN BANK 2
 	movf	INDF,w
 	movwf	temp		; store in temp register
 
-	bsf 	STATUS,RP0	; bank 3
+	banksel	BD0IAL
 	movf	BD0IAL,w	; get address of buffer
 	movwf	FSR
 	movf	temp,w		; load temp
@@ -1582,10 +1392,10 @@ Get_Interface  ; STARTS IN BANK 2
 ; Set configuration uses the configuration selected by the low order
 ; byte of wValue.  Sets up a zero length data1 packet as a reply.
 ; ******************************************************************
-Set_Interface  ; start bank 2
-	bsf 	STATUS, RP0	; bank3
+Set_Interface
+	banksel	USWSTAT
 	movf	USWSTAT,w	; test to make sure we're configured
-	bcf 	STATUS,RP0	; bank2
+	banksel	BufferData
 	andlw	0x03
 	xorlw	CONFIG_STATE
 	pagesel	wrongstate
@@ -1598,12 +1408,11 @@ Set_Interface  ; start bank 2
 	bsf 	STATUS,IRP	; indirectly to banks 2-3
 	movf	BufferData+wValue,w ; get alternate interface
 	movwf	INDF		; store in array
-; All we do is set a meaningless number.  This'll
-; need more code here to actually give meaning to each configuration
-; we choose.
-	pagesel	Send_0Len_pkt
-	call	Send_0Len_pkt
-	return
+	; All we do is set a meaningless number.  This'll
+	; need more code here to actually give meaning to each configuration
+	; we choose.
+	psgoto	Send_0Len_pkt
+
 
 ; *********************************************************************
 ; copies the next chunk of buffer descriptor over to the EP0 In buffer.
@@ -1653,7 +1462,7 @@ end_gdd_loop_short_packet
 	clrf	USB_dev_req	; we're sending a short packet, clear the device request
 end_gdd_loop
 	movf	bufindex,w	; write number of bytes to byte count
-	bsf 	STATUS,RP0	; Bank 3
+	banksel	BD0IBC
 	movwf	BD0IBC
 	movlw	(0x01<<DATA01)	; toggle data0/1 bit
 	xorwf	BD0IST,w

@@ -78,8 +78,6 @@ rx_count		res 1	; Total number of received bytes, modulo 256
 	extern	txe_pin
 
 	extern	InitUSB
-	extern	PutEP1
-	extern	GetEP1
 	extern	USBReset
 	extern	USBActivity
 	extern	USBStall
