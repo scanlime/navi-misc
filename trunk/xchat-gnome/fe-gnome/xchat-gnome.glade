@@ -325,7 +325,7 @@
 		      <property name="max_length">0</property>
 		      <property name="text" translatable="yes"></property>
 		      <property name="has_frame">True</property>
-		      <property name="invisible_char" translatable="yes">*</property>
+		      <property name="invisible_char">*</property>
 		      <property name="activates_default">False</property>
 		    </widget>
 		    <packing>
@@ -580,7 +580,7 @@
 				      <property name="max_length">32</property>
 				      <property name="text" translatable="yes"></property>
 				      <property name="has_frame">True</property>
-				      <property name="invisible_char" translatable="yes">*</property>
+				      <property name="invisible_char">*</property>
 				      <property name="activates_default">False</property>
 				      <property name="width_chars">50</property>
 				    </widget>
@@ -635,7 +635,7 @@
 				      <property name="max_length">32</property>
 				      <property name="text" translatable="yes"></property>
 				      <property name="has_frame">True</property>
-				      <property name="invisible_char" translatable="yes">*</property>
+				      <property name="invisible_char">*</property>
 				      <property name="activates_default">False</property>
 				    </widget>
 				    <packing>
@@ -690,7 +690,7 @@
 				      <property name="max_length">256</property>
 				      <property name="text" translatable="yes"></property>
 				      <property name="has_frame">True</property>
-				      <property name="invisible_char" translatable="yes">*</property>
+				      <property name="invisible_char">*</property>
 				      <property name="activates_default">False</property>
 				    </widget>
 				    <packing>
@@ -745,7 +745,7 @@
 				      <property name="max_length">256</property>
 				      <property name="text" translatable="yes"></property>
 				      <property name="has_frame">True</property>
-				      <property name="invisible_char" translatable="yes">*</property>
+				      <property name="invisible_char">*</property>
 				      <property name="activates_default">False</property>
 				    </widget>
 				    <packing>
@@ -800,7 +800,7 @@
 				      <property name="max_length">256</property>
 				      <property name="text" translatable="yes"></property>
 				      <property name="has_frame">True</property>
-				      <property name="invisible_char" translatable="yes">*</property>
+				      <property name="invisible_char">*</property>
 				      <property name="activates_default">False</property>
 				    </widget>
 				    <packing>
@@ -2220,7 +2220,7 @@
 				      <property name="max_length">0</property>
 				      <property name="text" translatable="yes"></property>
 				      <property name="has_frame">True</property>
-				      <property name="invisible_char" translatable="yes">*</property>
+				      <property name="invisible_char">*</property>
 				      <property name="activates_default">False</property>
 				    </widget>
 				    <packing>
@@ -2801,13 +2801,13 @@
 		  <property name="spacing">12</property>
 
 		  <child>
-		    <widget class="GtkVBox" id="vbox48">
+		    <widget class="GtkVBox" id="shortcuts_vbox">
 		      <property name="visible">True</property>
 		      <property name="homogeneous">False</property>
 		      <property name="spacing">6</property>
 
 		      <child>
-			<widget class="GtkScrolledWindow" id="scrolledwindow23">
+			<widget class="GtkScrolledWindow" id="actions_swindow">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
@@ -2816,7 +2816,7 @@
 			  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 			  <child>
-			    <widget class="GtkTreeView" id="treeview1">
+			    <widget class="GtkTreeView" id="shortcut_treeview">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="headers_visible">True</property>
@@ -3098,7 +3098,7 @@
 			      <property name="max_length">0</property>
 			      <property name="text" translatable="yes"></property>
 			      <property name="has_frame">True</property>
-			      <property name="invisible_char" translatable="yes">*</property>
+			      <property name="invisible_char">*</property>
 			      <property name="activates_default">False</property>
 			    </widget>
 			    <packing>
@@ -3247,7 +3247,7 @@
 			      <property name="max_length">0</property>
 			      <property name="text" translatable="yes"></property>
 			      <property name="has_frame">True</property>
-			      <property name="invisible_char" translatable="yes">*</property>
+			      <property name="invisible_char">*</property>
 			      <property name="activates_default">False</property>
 			    </widget>
 			    <packing>
@@ -3448,7 +3448,7 @@
 			      <property name="max_length">0</property>
 			      <property name="text" translatable="yes"></property>
 			      <property name="has_frame">True</property>
-			      <property name="invisible_char" translatable="yes">*</property>
+			      <property name="invisible_char">*</property>
 			      <property name="activates_default">False</property>
 			    </widget>
 			    <packing>
@@ -3502,7 +3502,7 @@
 			      <property name="max_length">0</property>
 			      <property name="text" translatable="yes"></property>
 			      <property name="has_frame">True</property>
-			      <property name="invisible_char" translatable="yes">*</property>
+			      <property name="invisible_char">*</property>
 			      <property name="activates_default">False</property>
 			    </widget>
 			    <packing>
@@ -3962,7 +3962,7 @@ Your Xchat-gnome preferences have not yet been set.  You can continue to the Xch
 			      <property name="max_length">0</property>
 			      <property name="text" translatable="yes"></property>
 			      <property name="has_frame">True</property>
-			      <property name="invisible_char" translatable="yes">*</property>
+			      <property name="invisible_char">*</property>
 			      <property name="activates_default">False</property>
 			    </widget>
 			    <packing>
@@ -4017,7 +4017,7 @@ Your Xchat-gnome preferences have not yet been set.  You can continue to the Xch
 			      <property name="max_length">0</property>
 			      <property name="text" translatable="yes"></property>
 			      <property name="has_frame">True</property>
-			      <property name="invisible_char" translatable="yes">*</property>
+			      <property name="invisible_char">*</property>
 			      <property name="activates_default">False</property>
 			    </widget>
 			    <packing>
