@@ -17,7 +17,7 @@ fyre_LDADD = \
 fyre_DEPENDENCIES = \
 	$(WIN32_LIBS)
 
-fyre-win32-res.o: fyre.rc fyre.ico
+fyre-win32-res.o: fyre.rc *.ico
 	$(WINDRES) fyre.rc fyre-win32-res.o
 
 if HAVE_EXR
