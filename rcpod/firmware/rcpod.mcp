@@ -22,7 +22,8 @@ file_002=usb_main.asm
 file_003=io.asm
 file_004=commands.asm
 file_005=usb_defs.inc
-file_006=16c765.lkr
+file_006=C:\navi-misc\rcpod\include\rcpod_protocol.h
+file_007=16c765.lkr
 [SUITE_INFO]
 suite_guid={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}
 suite_state=
