@@ -5,7 +5,7 @@
 ; This file is part of the rcpod project. This file contains original code,
 ; released into the public domain.
 ;
-; Micah Dowty <micah@picogui.org>
+; Micah Dowty <micah@navi.cx>
 ;
 ;###############################################################################
 
