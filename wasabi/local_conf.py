@@ -29,27 +29,25 @@ if have_wasabi_hardware:
     # on the MI6K, we don't need the detachbar any more.
     plugin.remove('audio.detachbar')
 
-    class InputHooks:
-        def start(self):
-            from gui import ProgressBox
-            import time
-            b = ProgressBox(text="Wheeee....", full=100)
-            b.show()
-            for i in xrange(100):
-                time.sleep(0.01)
-                b.tick()
-            b.destroy()
+    # Link up our uvswitch plugin with PyUnicone to automatically
+    # emulate video game controllers when a system is selected.
+    import sys; sys.path.append("/home/freevo/wasabi/devices/unicone")
+    from PyUnicone.Freevo import UniconeHooks
+    from PyUnicone.Systems import GamecubeEmulator, GenesisEmulator
 
     # Add the USB Video Switch plugin and map all our inputs
     plugin.activate('uvswitch.detector')
-    plugin.activate('uvswitch.input', args=(1, 'Nintendo 64', 'n64'))
-    plugin.activate('uvswitch.input', args=(2, 'Playstation 2', 'playstation'))
-    plugin.activate('uvswitch.input', args=(3, 'Sega Dreamcast', 'dreamcast'))
-    plugin.activate('uvswitch.input', args=(4, 'NES', 'nes'))
-    plugin.activate('uvswitch.input', args=(5, 'Nintendo Gamecube', 'gamecube', InputHooks()))
-    plugin.activate('uvswitch.input', args=(6, 'Sega Genesis', 'sega'))
-    plugin.activate('uvswitch.input', args=(7, 'Atari', 'atari'))
-    plugin.activate('uvswitch.input', args=(8, 'Video Input', 'video_input'))
+    for args in (
+        (1, 'Nintendo 64', 'n64'),
+        (2, 'Playstation 2', 'playstation'),
+        (3, 'Sega Dreamcast', 'dreamcast'),
+        (4, 'NES', 'nes'),
+        (5, 'Nintendo Gamecube', 'gamecube', UniconeHooks(GamecubeEmulator)),
+        (6, 'Sega Genesis', 'sega', UniconeHooks(GenesisEmulator)),
+        (7, 'Atari', 'atari'),
+        (8, 'Video Input', 'video_input'),
+        ):
+        plugin.activate('uvswitch.input', args=args)
 
 # Our remote has a pretty high repeat rate, make these more sensitive
 EVENTS['global']['VOL+'] = Event('MIXER_VOLUP', arg=2)

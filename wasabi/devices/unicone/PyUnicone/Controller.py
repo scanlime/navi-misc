@@ -348,8 +348,9 @@ class EvdevBus(object):
            on existing input devices. Scans for new devices every scanInterval
            seconds- this may be a floating point number.
            """
+        self.running = True
         nextScanAt = time.time()
-        while 1:
+        while self.running:
             now = time.time()
             if nextScanAt <= now:
                 self.scan()
