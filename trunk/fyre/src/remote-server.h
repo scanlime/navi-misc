@@ -55,11 +55,13 @@ void              remote_server_main_loop     (int        port_number,
 #define FYRE_RESPONSE_READY         220  /* Server is ready for commands */
 #define FYRE_RESPONSE_OK            250  /* Successfully executed the last command */
 #define FYRE_RESPONSE_PROGRESS      251  /* Progress in calculation */
+#define FYRE_RESPONSE_FALSE         252  /* Command succeeded, but the result was negative */
 #define FYRE_RESPONSE_BINARY        380  /* Length, in bytes, is the first token of
 					  * the response message. Binary data follows
 					  * after the message's newline.
 					  */
 #define FYRE_RESPONSE_UNRECOGNIZED  500  /* Command not recognized */
+#define FYRE_RESPONSE_BAD_VALUE     501  /* Inappropriate parameter value */
 
 
 G_END_DECLS
