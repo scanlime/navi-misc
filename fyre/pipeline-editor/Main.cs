@@ -39,11 +39,55 @@ public class PipelineEditor
                 Application.Run();
         }
 
-        /* Connect the Signals defined in Glade */
+        /* Event handlers - most of these come from the glade file */
+        
+        /* Window events */
         public void OnDeleteEvent (object o, DeleteEventArgs args) 
         {
                 Application.Quit ();
                 args.RetVal = true;
         }
-}
 
+		/* 'File' Menu events */
+		public void OnMenuFileNew (object o, EventArgs args)
+		{
+		}
+		
+		public void OnMenuFileOpen (object o, EventArgs args)
+		{
+		}
+		
+		public void OnMenuFileSave (object o, EventArgs args)
+		{
+		}
+		
+		public void OnMenuFileSaveAs (object o, EventArgs args)
+		{
+		}
+		
+		public void OnMenuFileQuit (object o, EventArgs args)
+		{
+				Application.Quit ();
+		}
+		
+		/* 'Edit' Menu events */
+		public void OnMenuEditCut (object o, EventArgs args)
+		{
+		}
+		
+		public void OnMenuEditCopy (object o, EventArgs args)
+		{
+		}
+		
+		public void OnMenuEditPaste (object o, EventArgs args)
+		{
+		}
+		
+		public void OnMenuEditDelete (object o, EventArgs args)
+		{
+		}
+		
+		public void OnMenuHelpAbout (object o, EventArgs args)
+		{
+		}
+}
