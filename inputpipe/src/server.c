@@ -40,6 +40,7 @@
 #include <linux/input.h>
 #include <uinput.h>
 #include "inputpipe.h"
+#include "packet.h"
 
 
 /* Our server's representation of one input client */
@@ -56,17 +57,8 @@ struct client {
   int device_created;
   struct uinput_user_dev dev_info;
 
-  int tcp_fd;
   struct sockaddr_in addr;
-
-  /* We use buffered I/O to receive our packets over TCP.
-   * fread() will guarantee that we don't receive only part
-   * of a header or part of the content, but we might get
-   * stuck between the header and content.
-   */
-  FILE *tcp_file;
-  struct inputpipe_packet tcp_packet;
-  int received_header;
+  struct packet_socket *socket;
 
   struct client *next, *prev;
 };
@@ -149,14 +141,8 @@ static struct client* client_new(int tcp_fd, struct sockaddr_in *addr)
   if (addr)
     memcpy(&self->addr, addr, sizeof(*addr));
 
-  if (fcntl(tcp_fd, F_SETFL, fcntl(tcp_fd, F_GETFL, 0) | O_NONBLOCK) < 0) {
-    perror("fcntl");
-    client_delete(self);
-    return NULL;
-  }
-  self->tcp_fd = tcp_fd;
-  self->tcp_file = fdopen(self->tcp_fd, "rw");
-  assert(self->tcp_file);
+  self->socket = packet_socket_new(tcp_fd);
+  assert(self->socket);
 
   /* Open the uinput device for this input client. Our clients
    * and our uinput devices both only support a single device.
@@ -172,18 +158,18 @@ static struct client* client_new(int tcp_fd, struct sockaddr_in *addr)
    * the client has registered a new device. select() on a uinput
    * device in this state will cause an oops on some kernels.
    */
-  FD_SET(self->tcp_fd, &fd_request_read);
-  if (self->tcp_fd >= fd_count)
-    fd_count = self->tcp_fd + 1;
+  FD_SET(self->socket->fd, &fd_request_read);
+  if (self->socket->fd >= fd_count)
+    fd_count = self->socket->fd + 1;
 
   return self;
 }
 
 static void client_delete(struct client* self)
 {
-  if (self->tcp_fd > 0) {
-    FD_CLR(self->tcp_fd, &fd_request_read);
-    fclose(self->tcp_file);
+  if (self->socket) {
+    FD_CLR(self->socket->fd, &fd_request_read);
+    packet_socket_delete(self->socket);
   }
   if (self->uinput_fd > 0) {
     FD_CLR(self->uinput_fd, &fd_request_read);
@@ -194,7 +180,7 @@ static void client_delete(struct client* self)
 
 static const char* client_format_addr (struct client* self)
 {
-  if (self->tcp_fd == fileno(stdin)) {
+  if (self->socket->fd == fileno(stdin)) {
     return "stdin";
   }
   else {
@@ -217,48 +203,19 @@ static void client_poll(struct client* self)
   }
 
   /* Is our TCP socket ready? */
-  if (FD_ISSET(self->tcp_fd, &fd_read)) {
+  if (FD_ISSET(self->socket->fd, &fd_read)) {
+    int length, type;
+    void* content;
 
     while (1) {
-      /* Already received a packet header? Try to get the content */
-      if (self->received_header) {
-	int type = ntohs(self->tcp_packet.type);
-	int length = ntohs(self->tcp_packet.length);
-
-	if (length > 0) {
-	  /* We have content to receive... */
-	  void *content = malloc(length);
-	  assert(content != NULL);
-
-	  if (fread(content, length, 1, self->tcp_file)) {
-	    /* Yay, got a whole packet to process */
-	    self->received_header = 0;
-	    client_received_packet(self, type, length, content);
-	    free(content);
-	  }
-	  else {
-	    /* Can't do anything else until we get the content */
-	    free(content);
-	    break;
-	  }
-	}
-	else {
-	  /* This packet included no content, we're done */
-	  self->received_header = 0;
-	  client_received_packet(self, type, length, NULL);
-	}
-      }
-
-      /* See if we can get another header */
-      if (fread(&self->tcp_packet, sizeof(self->tcp_packet), 1, self->tcp_file)) {
-	/* Yep. Next we'll try to get the content. */
-	self->received_header = 1;
-      }
-      else
+      type = packet_socket_read(self->socket, &length, &content);
+      if (!type)
 	break;
+      client_received_packet(self, type, length, content);
+      free(content);
     }
 
-    if (feof(self->tcp_file)) {
+    if (feof(self->socket->file)) {
       /* Connection closed, self-destruct this client */
       client_list_remove(self);
       client_delete(self);
