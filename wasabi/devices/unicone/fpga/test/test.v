@@ -8,7 +8,7 @@ module test (clk, reset,
 
 	// Shared I2C frontend
 	wire [1:0] i2c_interface_tx;
-	wire [19:0] i2c_interface_rx;
+	wire [20:0] i2c_interface_rx;
 	i2c_frontend i2c_fe(
 		clk, reset, 
 		scl, sda,

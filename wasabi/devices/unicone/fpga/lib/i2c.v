@@ -148,7 +148,7 @@ endmodule
  *
  * All I2C signals are packed into a bus:
  *   i2c_interface_tx = {tx_content, ack}
- *   i2c_interface_rx = {rx_stop, rx_content, content_strobe, bit_count[7:0]
+ *   i2c_interface_rx = {rx_stop, rx_content, content_strobe, bit_count[8:0]
  *                       pkt_address[6:0], pkt_read_wr, pkt_addressed}
  *
  */
@@ -156,7 +156,7 @@ module i2c_frontend (clk, reset, scl, sda, i2c_interface_tx, i2c_interface_rx);
 	input clk, reset, scl;
 	inout sda;
 	input [1:0] i2c_interface_tx;
-	output [19:0] i2c_interface_rx;
+	output [20:0] i2c_interface_rx;
 	
 	// Unpack the received bus
 	wire tx_content = i2c_interface_tx[1];
@@ -164,7 +164,7 @@ module i2c_frontend (clk, reset, scl, sda, i2c_interface_tx, i2c_interface_rx);
 	
 	// Pack the transmitted bus
 	wire rx_stop, rx_content, content_strobe;
-	reg [7:0] bit_count;
+	reg [8:0] bit_count;
 	wire [6:0] pkt_address;
 	wire pkt_read_wr;
 	reg pkt_addressed;
@@ -257,16 +257,16 @@ module i2c_slave_reg (clk, reset, i2c_interface_tx, i2c_interface_rx, reg_out);
 
 	input clk, reset;
 	output [1:0] i2c_interface_tx;
-	input [19:0] i2c_interface_rx;
+	input [20:0] i2c_interface_rx;
 	output [WIDTH-1:0] reg_out;
 
 	// Expand on-chip busses
 	wire tx_content, ack;
 	assign i2c_interface_tx = {tx_content, ack};
-	wire rx_stop = i2c_interface_rx[19];
-	wire rx_content = i2c_interface_rx[18];
-	wire content_strobe = i2c_interface_rx[17];
-	wire [7:0] bit_count = i2c_interface_rx[16:9];
+	wire rx_stop = i2c_interface_rx[20];
+	wire rx_content = i2c_interface_rx[19];
+	wire content_strobe = i2c_interface_rx[18];
+	wire [8:0] bit_count = i2c_interface_rx[17:9];
 	wire [6:0] pkt_address = i2c_interface_rx[8:2];
 	wire pkt_read_wr = i2c_interface_rx[1];
 	wire pkt_addressed = i2c_interface_rx[0];

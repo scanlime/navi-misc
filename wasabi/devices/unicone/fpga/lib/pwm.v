@@ -35,7 +35,7 @@ module pwm_i2c (clk, reset,
 
 	input clk, reset;
 	output [1:0] i2c_interface_tx;
-	input [19:0] i2c_interface_rx;
+	input [20:0] i2c_interface_rx;
 	output out;
 
 	wire [15:0] duty_cycle;

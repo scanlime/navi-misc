@@ -10,7 +10,7 @@ top_level=VHDL
 HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
-lib_order=155 155 133 155
+lib_order=155 155 155 155 155 155 155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -18,8 +18,10 @@ lib_order=155 155 133 155
 oid=0
 lid=0
 format=19
-source=C:\unicone\fpga\lib\i2c.v
+source=C:\unicone\fpga\lib\pwm.v
 server_hwnd=983812
+
+
 
 
 
@@ -45,6 +47,7 @@ n_serial.v=
 [OpenDoc]
 hde/i2c=0,0,44,441,1004,1170,i2c.v
 hde/pwm=0,0,53,534,1013,1263,pwm.v
+hde/test=0,0,44,44,1094,793,test.v
 [netlist]
 external=FALSE
 [Log]
