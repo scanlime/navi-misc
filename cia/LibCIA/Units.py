@@ -79,11 +79,11 @@ class TimeUnits(UnitCollection):
 class StorageUnits(UnitCollection):
     """Storage unit, standard is 1 bytes"""
     units = [
-        ('TB',          'TB',      1024 * 1024 * 1024 * 1024),
-        ('GB',          'GB',      1024 * 1024 * 1024),
-        ('MB',          'MB',      1024 * 1024),
-        ('kB',          'kB',      1024),
-        ('byte',        'bytes',   1),
+        ('TB',   'TB',    1024 * 1024 * 1024 * 1024),
+        ('GB',   'GB',    1024 * 1024 * 1024),
+        ('MB',   'MB',    1024 * 1024),
+        ('kB',   'kB',    1024),
+        ('byte', 'bytes', 1),
         ]
 
 ### The End ###
