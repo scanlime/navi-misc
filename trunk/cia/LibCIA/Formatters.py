@@ -118,11 +118,7 @@ class CommitFormatter(Message.Formatter):
             formattedModule = self.format_module(str(message.xml.source.module).strip())
         else:
             formattedModule = ""
-
-        if formattedFiles:
-            return formattedModule + '/' + formattedFiles
-        else:
-            return formattedModule
+        return formattedModule + '/' + formattedFiles
 
     def format_files(self, files):
         """Break up our list of files into a common prefix and a sensibly-sized
