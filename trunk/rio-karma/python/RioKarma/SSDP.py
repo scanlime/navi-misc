@@ -23,9 +23,8 @@ plugged in (coldplug/hotplug)
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.internet import reactor, protocol
+from twisted.internet import reactor, protocol, defer
 import re
-
 
 class Packet:
     """Represents the data in one SSDP packet"""
@@ -59,12 +58,14 @@ class Protocol(protocol.DatagramProtocol):
     SSDP_PORT = 1900
     SSDP_ADDR = '239.255.255.250'
 
-    def startListening(self):
-        port = reactor.listenMulticast(self.SSDP_PORT, self, self.SSDP_ADDR)
-        port.joinGroup(self.SSDP_ADDR)
+    def listen(self):
+        self.port = reactor.listenUDP(self.SSDP_PORT, self)
+
+    def listenMulticast(self):
+        self.port = reactor.listenMulticast(self.SSDP_PORT, self, self.SSDP_ADDR)
+        self.port.joinGroup(self.SSDP_ADDR)
 
     def datagramReceived(self, data, sender):
-        print repr(data)
         self.packetReceived(Packet(data=data, sender=sender))
 
     def sendPacket(self, packet):
@@ -77,20 +78,22 @@ class Protocol(protocol.DatagramProtocol):
 
 
 class Discovery(Protocol):
-    """A bare-bones SSDP server that's really only capable of looking
-       for the Rio Karma over ethernet on the local network.
+    """A bare-bones SSDP server that can discover a service actively
+       via normal UDP or passively by listening for multicast packets.
+       It invokes a callback with the USN on the discovered device,
+       and its address.
        """
-    service = "urn:empeg-com:protocol2"
+    def __init__(self, service, callback):
+        self.service = service
+        self.callback = callback
 
-    def packetRecevied(self, packet):
-        if packet.headers.get('NT') == self.service:
+    def packetReceived(self, packet):
+        if (packet.headers.get('ST') == self.service or
+            packet.headers.get('NT') == self.service):
             location = re.match("http://([^:/]+):([0-9]+)(/.*)?",
                                 packet.headers.get('LOCATION'))
-            self.rioDetected(packet.headers.get('USN'),
-                             location.group(1), int(location.group(2)));
-
-    def serviceDiscovered(self, usn, host, port):
-        print "%r at %s:%d" % (usn, host, port)
+            address = (location.group(1), int(location.group(2)))
+            self.callback(packet.headers.get('USN'), address)
 
     def search(self):
         p = Packet("M-SEARCH * HTTP/1.1")
@@ -100,12 +103,35 @@ class Discovery(Protocol):
         p.headers['MX'] = 3
         self.sendPacket(p)
 
+
+def findService(service, timeout=2.0):
+    """Look for the given service name on this network. Returns a
+       Deferred that yields a (usn, address) tuple on success, or
+       None if the service isn't found within the timeout.
+       """
+    result = defer.Deferred()
+
+    def timedOut():
+        p.port.stopListening()
+        result.callback(None)
+
+    timer = reactor.callLater(timeout, timedOut)
+
+    def callback(usn, addr):
+        timer.cancel()
+        p.port.stopListening()
+        result.callback((usn, addr))
+
+    p = Discovery(service, callback)
+    p.listen()
+    p.search()
+    return result
+
+
 if __name__ == "__main__":
-    p = Discovery()
-    p.startListening()
-    reactor.callLater(0.1, p.search)
+    def cb(result):
+        print result
+    findService("urn:empeg-com:protocol2").addCallback(cb)
     reactor.run()
-
-
 
 ### The End ###
