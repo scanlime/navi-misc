@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 #
-# CIA bot client script for Subversion repositories, written in python
-# and delivering messages directly to the server using XML-RPC.
+# CIA bot client script for Subversion repositories, written in python.
+# This generates commit messages using CIA's XML commit format, and can
+# deliver themusing either XML-RPC or email.
+#
 # -- Micah Dowty <micah@picogui.org>
 #
 # This script is cleaner, more featureful, and faster than the shell
@@ -57,24 +59,32 @@ class config:
     #
     pathRegex = None
 
-    # The XML-RPC server to deliver messages to
+    # This can be the http:// URI of the CIA server to deliver commits over
+    # XML-RPC, or it can be an email address to deliver using SMTP. The
+    # default here should work for most people. If you need to use e-mail
+    # instead, you can replace this with "cia@cia.navi.cx"
     server = "http://cia.navi.cx"
 
-    # When True, print the message to stdout instead of delivering it to CIA
-    debug = False
+    # The SMTP server to use, only used if the CIA server above is an email address
+    smtpServer = "localhost"
+
+    # The 'from' address to use. If you're delivering commits via email, set
+    # this to the address you would normally send email from on this host.
+    fromAddress = "cia-user@localhost"
+
+    # When nonzero, print the message to stdout instead of delivering it to CIA
+    debug = 0
 
 
 ############# Normally the rest of this won't need modification
 
-import xmlrpclib, sys, os, re
+import sys, os, re
 
 
 class SvnClient:
-    """A CIA client for Subversion repositories. Uses svnlook to gather information,
-       forming an XML message delivered using xmlrpclib.
-       """
-    name = 'Subversion client for CIA, python version'
-    version = '1.0'
+    """A CIA client for Subversion repositories. Uses svnlook to gather information"""
+    name = 'Python Subversion client for CIA'
+    version = '1.1'
 
     def __init__(self, repository, revision, config):
         self.repository = repository
@@ -85,7 +95,18 @@ class SvnClient:
         if config.debug:
             print message
         else:
-            xmlrpclib.ServerProxy(self.config.server).hub.deliver(message)
+            server = self.config.server
+            if server.startswith('http:') or server.startswith('https:'):
+                # Deliver over XML-RPC
+                import xmlrpclib
+                xmlrpclib.ServerProxy(server).hub.deliver(message)
+            else:
+                # Deliver over email
+                import smtplib
+                smtp = smtplib.SMTP(self.config.smtpServer)
+                smtp.sendmail(self.config.fromAddress, server,
+                              "From: %s\r\nTo: %s\r\n\r\n%s" %
+                              (self.config.fromAddress, server, message))
 
     def main(self):
         self.collectData()
