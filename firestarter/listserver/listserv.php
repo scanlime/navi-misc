@@ -15,9 +15,10 @@ echo "BZFlagFirestarter list server $serverVers : $dbhost : $hostpublicaddr<br>"
 
 mysql_select_db($dbname ) or die("Could not select database : $dbname ");
 
-echo "!beginlist<br><table border=\"1\" cellspacing=\"2\" cellpading=\"5\">";
-echo "<tr><td>#id</td><td>#servername</td><td>#address</td><td>#port</td><td>#game</td><td>#version</td><td>#os</td><td>#maxplayers</td><td>#currentplayers<tr>";
+echo "!beginlist<br><table border=\"0\" cellspacing=\"2\" cellpading=\"5\">";
+echo "<tr><td>#id</td><td>#servername</td><td>#address</td><td>#port</td><td>#game</td><td>#version</td><td>#os</td><td>#maxplayers</td><td>#currentplayers</td><td>#lastupdate</td><tr>";
 
+// get a list of each field from servers and just dump every field
 $query = "SELECT * FROM servers";
 $result = mysql_query($query) or die("Query failed : " . mysql_error());
 
