@@ -25,6 +25,7 @@ class MPAVClient:
        """
     lastUpdateTime = 0
     lastUpdateCount = 0
+    stop = False
 
     def __init__(self, filename="/tmp/mpav"):
         self.fd = os.open(filename, os.O_RDONLY)
@@ -65,7 +66,7 @@ class MPAVClient:
             self.lastUpdateTime = currentTime
 
         if currentTime > self.lastUpdateTime + threshold:
-            while 1:
+            while not self.stop:
                 self.onIdle()
                 time.sleep(pollInterval)
                 if self.getCount() != currentCount:
@@ -184,14 +185,20 @@ class PluginThread(threading.Thread):
     stop = False
 
     def run(self):
-        mpav = MPAVClient()
+        self.mpav = MPAVClient()
         rw = RasterBargraph()
         mpav.onIdle = rw.clear
-        delayed = Delay(30, mpav.waitForBuffer)
+        delayed = Delay(30, self.mpav.waitForBuffer)
         viz = Visualizer()
         while not self.stop:
             rw.writeBars(viz.transform(delayed()))
         rw.clear()
+
+    def waitForCompletion(self):
+        self.stop = True
+	self.mpav.stop = True
+	while self.thread.isAlive():
+	    time.sleep(0.1)
 
 
 class PluginInterface(plugin.DaemonPlugin):
@@ -202,8 +209,6 @@ class PluginInterface(plugin.DaemonPlugin):
 	plugin.DaemonPlugin.__init__(self)
 
     def shutdown(self):
-        while self.thread.isAlive():
-            self.thread.stop = True
-            time.sleep(0.1)
+        self.thread.waitForCompletion()
 
 ### The End ###
