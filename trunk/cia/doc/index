@@ -55,7 +55,7 @@ History
 Brought to you by...
 --------------------
 
-CIA is written and hosted by `Micah Dowty`_.
+CIA is written and maintained by `Micah Dowty`_.
 
 CIA makes extensive use of many fine open source projects, including
 Python_, Twisted_, Procmail_, MySQL_, and Apache_.
