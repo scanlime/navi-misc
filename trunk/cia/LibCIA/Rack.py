@@ -862,7 +862,6 @@ class RingBuffer(object):
         except KeyError:
             # HACK
             self.clear()
-            self.push(node)
 
     def pop(self, n):
         """Delete the 'n' oldest items from the RingBuffer. This does
