@@ -29,9 +29,10 @@ namespace Fyre
 		// Plugin stuff
 		PluginManager plugin_manager;
 
-		// Widgets
+		// High-level Widgets
 		[Glade.Widget] Gtk.Window		toplevel;
 		[Glade.Widget] ElementList		element_list;
+		[Glade.Widget] NavigationImage		navigation_image;
 
 		// Editor workspace (right)
 		[Glade.Widget] Gtk.Frame		pipeline_window;
@@ -41,10 +42,6 @@ namespace Fyre
 
 		// Status bar
 		[Glade.Widget] Gtk.Statusbar		statusbar;
-
-		// Image browsing
-		[Glade.Widget] Gtk.Image		navigation_image;
-		[Glade.Widget] Gtk.EventBox		navigation_event;
 
 		static Gtk.TargetEntry[]		targets;
 		static Gtk.TargetList			target_list;
@@ -82,9 +79,8 @@ namespace Fyre
 			Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
 			gxml.Autoconnect (this);
 
-			// Set up the major parts of the UI
+			// Set up our drawing canvas
 			SetupDrawingCanvas ();
-			SetupNavigationBox ();
 
 			// Set up plugins directory
 			plugin_manager = new PluginManager (Defines.PLUGINSDIR);
@@ -101,6 +97,8 @@ namespace Fyre
 			Gtk.Widget ret = null;
 			if (func_name == "CreateElementList")
 				ret = new ElementList (xml.GetWidget ("toplevel"));
+			if (func_name == "CreateNavigationImage")
+				ret = new NavigationImage ();
 			return ret;
 		}
 
@@ -116,12 +114,6 @@ namespace Fyre
 			// Set up drag-and-drop for the frame. This looks better than setting it
 			// up for the drawing area, but it doesn't really affect structure
 			Gtk.Drag.DestSet (pipeline_window, Gtk.DestDefaults.All, DragTargets, Gdk.DragAction.Copy);
-		}
-
-		void SetupNavigationBox ()
-		{
-			Gdk.Pixbuf pixbuf = new Gdk.Pixbuf (null, "navigation.png");
-			navigation_image.Pixbuf = pixbuf;
 		}
 
 		// Event handlers - most of these come from the glade file
