@@ -403,6 +403,28 @@ class ColortextToXHTML(Message.Formatter):
     class Parser(XML.XMLObjectParser):
         requiredRootElement = 'colorText'
 
+        colorTable = {
+            'black':        "#000000",
+            'dark-blue':    "#0000cc",
+            'dark-green':   "#00cc00",
+            'green':        "#00cc00",
+            'red':          "#cc0000",
+            'brown':        "#aa0000",
+            'purple':       "#bb00bb",
+            'orange':       "#ffaa00",
+            'yellow':       "#eedd22",
+            'light-green':  "#33d355",
+            'aqua':         "#00cccc",
+            'light-blue':   "#33eeff",
+            'blue':         "#0000ff",
+            'violet':       "#ee22ee",
+            'grey':         "#777777",
+            'gray':         "#777777",
+            'light-grey':   "#999999",
+            'light-gray':   "#999999",
+            'white':        "#FFFFFF",
+            }
+
         def element_colorText(self, element):
             return [self.parse(e) for e in element.children]
 
@@ -428,12 +450,17 @@ class ColortextToXHTML(Message.Formatter):
 
         def element_color(self, element):
             """Convert the fg and bg attributes, if we have them, to <span> tags"""
-            s = self.element_colorText(element)
-            if element.hasAttribute('fg'):
-                s = Nouvelle.tag('span', _class='fgColor-'+self.colorQuote(element['fg']))[s]
-            if element.hasAttribute('bg'):
-                s = Nouvelle.tag('span', _class='bgColor-'+self.colorQuote(element['bg']))[s]
-            return s
+            style = ''
+            for attr, css in (
+                ('fg', 'color'),
+                ('bg', 'background'),
+                ):
+                if element.hasAttribute(attr):
+                    try:
+                        style = "%s%s: %s;" % (style, css, self.colorTable[element[attr]])
+                    except KeyError:
+                        pass
+            return Nouvelle.tag('span', style=style)[self.element_colorText(element)]
 
 
 class IRCProjectName(Message.Formatter):
