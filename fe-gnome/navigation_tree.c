@@ -42,7 +42,7 @@ static void dialog_context               (GtkWidget *treeview, session *selected
 static gboolean click                    (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static gboolean declick                  (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static void navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data);
-
+static void row_expanded                 (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpointer user_data);
 GType
 navigation_tree_get_type (void)
 {
@@ -103,6 +103,7 @@ navigation_tree_init (NavTree *navtree)
 
 	/* Connect the callbacks. */
   g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);
+	g_signal_connect(G_OBJECT(navtree), "row-expanded", G_CALLBACK(row_expanded), NULL);
   g_signal_connect(G_OBJECT(navtree), "button_press_event", G_CALLBACK(click), NULL);
   g_signal_connect(G_OBJECT(navtree), "button_release_event", G_CALLBACK(declick), NULL);
 }
@@ -761,6 +762,16 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	}
 }
 
+static void
+row_expanded (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpointer user_data)
+{
+	/* If we had something selected before the row was collapsed make sure it gets selected. */
+	if (NAVTREE(treeview)->current_path) {
+		GtkTreeSelection *selection;
+		selection = gtk_tree_view_get_selection(treeview);
+		gtk_tree_selection_select_path(selection, NAVTREE(treeview)->current_path);
+	}
+}
 /********** NavModel **********/
 
 static void navigation_model_init       (NavModel *navmodel);
