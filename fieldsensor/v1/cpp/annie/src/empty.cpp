@@ -1,6 +1,0 @@
-namespace annie
-{
-
-
-}; //namespace annie
-
