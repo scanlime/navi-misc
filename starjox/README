@@ -1,0 +1,1 @@
+This program is for doing the same thing port forwarding does, except in userspace with a proxy server type thing.  It is done in Java so I can learn more about the Java Socket API, and doing real bi-directional communication.
