@@ -129,6 +129,8 @@ static unsigned char softi2c_read_byte(rcpod_dev *rcpod, rcpod_i2c_dev *idev,
   softi2c_set_data(rcpod, idev, !ack);
   softi2c_set_clock(rcpod, idev, 1);
   softi2c_set_clock(rcpod, idev, 0);
+
+  return byte;
 }
 
 static int softi2c_write_byte(rcpod_dev *rcpod, rcpod_i2c_dev *idev,

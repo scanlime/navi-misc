@@ -452,7 +452,7 @@ class I2CDevice:
     def read(self, count, retType=list):
         try:
             buffer = new_ucharArray(count)
-            ackCount = rcpod_I2CRead(self.rcpod.dev, buffer, count)
+            ackCount = rcpod_I2CRead(self.rcpod.dev, self._idev, buffer, count)
             data = from_ucharArray(buffer, count, retType)
         finally:
             delete_ucharArray(buffer)
