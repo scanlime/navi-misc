@@ -56,6 +56,7 @@ static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, 
 static gboolean on_cluster_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 static void on_about_activate(GtkWidget *widget, Explorer *self);
 
+static gchar *file_location = NULL;
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -332,10 +333,16 @@ static void on_load_from_image (GtkWidget *widget, gpointer user_data) {
     image = gtk_image_new ();
     gtk_file_chooser_set_preview_widget (GTK_FILE_CHOOSER (dialog), image);
     g_signal_connect (G_OBJECT (dialog), "update-preview", G_CALLBACK (update_image_preview), image);
+    if (file_location)
+	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), file_location);
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
 	filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
 	histogram_imager_load_image_file (HISTOGRAM_IMAGER (self->map), filename, &error);
+
+	if (file_location)
+	    g_free (file_location);
+	file_location = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
     }
 #else
     dialog = gtk_file_selection_new ("Open Image Parameters");
@@ -380,9 +387,15 @@ static void on_save (GtkWidget *widget, gpointer user_data) {
 					  NULL);
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dialog), "rendering.png");
+    if (file_location != NULL)
+        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), file_location);
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
 	filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
 	histogram_imager_save_image_file (HISTOGRAM_IMAGER (self->map), filename, &error);
+
+	if (file_location)
+            g_free (file_location);
+	file_location = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
     }
 #else
     dialog = gtk_file_selection_new ("Save Image");
@@ -429,6 +442,8 @@ static void on_save_exr (GtkWidget *widget, gpointer user_data) {
 					  GTK_STOCK_SAVE, GTK_RESPONSE_OK,
 					  NULL);
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
+    if (file_location != NULL)
+        gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (dialog), file_location);
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dialog), "rendering.exr");
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
@@ -436,6 +451,10 @@ static void on_save_exr (GtkWidget *widget, gpointer user_data) {
 	filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
 	exr_save_image_file (HISTOGRAM_IMAGER (self->map), filename);
 	g_free (filename);
+
+	if (file_location)
+	    g_free (file_location);
+	file_location = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
     }
 #else
     dialog = gtk_file_selection_new ("Save OpenEXR Image");
