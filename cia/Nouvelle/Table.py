@@ -5,7 +5,7 @@ sequence containing arbitrary objects representing rows. Columns
 are classes that know how to retrieve a particular piece of data
 from the table and optionally format it.
 
-SortedTable is a Table in which each column heading is a link that
+ResortableTable is a Table in which each column heading is a link that
 toggles sorting by that column and the direction of the sort.
 """
 #
@@ -29,8 +29,10 @@ toggles sorting by that column and the direction of the sort.
 
 from __future__ import generators
 from Serial import tag
+import re
 
-__all__ = ['Table']
+__all__ = ['Table', 'Column', 'AttributeColumn', 'IndexedColumn',
+           'ResortableTable']
 
 
 class Column:
@@ -55,6 +57,16 @@ class Column:
            """
         pass
 
+    def cmp(self, a, b):
+        """This column's comparison function, used for sorting a table by this column.
+           By default this does an ascending sort using getValue.
+           """
+        return cmp(self.getValue(a), self.getValue(b))
+
+    def isVisible(self, context):
+        """Subclasses can override this to hide the entire column in some circumstances"""
+        return True
+
 
 class AttributeColumn(Column):
     """A Column that has a fixed heading and returns some attribute from each row,
@@ -66,6 +78,18 @@ class AttributeColumn(Column):
 
     def getValue(self, row):
         return getattr(row, self.attribute)
+
+
+class IndexedColumn(Column):
+    """A Column that has a fixed index it uses to retrieve an item from the row
+       and return it with no special formatting.
+       """
+    def __init__(self, heading, index):
+        self.heading = heading
+        self.index = index
+
+    def getValue(self, row):
+        return row[self.index]
 
 
 class Table:
@@ -94,14 +118,24 @@ class Table:
 
         body = []
         if self.showHeading:
-            body.append(self.rowTag[self.render_heading(context)])
+            body.append(self.rowTag[self.render_headings(context)])
         for row in self.rows:
             body.append(self.rowTag[self.render_row(context, row)])
         return self.tableTag[body]
 
-    def render_heading(self, context):
+    def render_headings(self, context):
         """Return a list of headingTag instances labelling each column"""
-        return [self.headingTag[c.render_heading(context)] for c in self.columns]
+        return [self.render_heading(context, c) for c in self.getVisibleColumns(context)]
+
+    def render_heading(self, context, column):
+        """Return a serializable representation of one column heading"""
+        return self.headingTag[column.render_heading(context)]
+
+    def getVisibleColumns(self, context):
+        """Return an iterator over all visible columns"""
+        for column in self.columns:
+            if column.isVisible(context):
+                yield column
 
     def render_row(self, context, row):
         """Return a list of dataTag instances for each column in the given row"""
@@ -122,5 +156,81 @@ class Table:
         if not self._reduceColumnCache.has_key(key):
             self._reduceColumnCache[key] = operation(self.getColumnValues(column))
         return self._reduceColumnCache[key]
+
+    def sortByColumn(self, column, reverse=False):
+        if reverse:
+            self.rows.sort(lambda a,b: -column.cmp(a,b))
+        else:
+            self.rows.sort(column.cmp)
+
+
+class ResortableTable(Table):
+    """A Table with hyperlinks on each table column that set that column
+       as the sort column, or if it's already the sort column reverse the
+       order.
+
+       By default, this generates link URLs and retrieves the user's sort
+       setting by assuming context['args'] is a dictionary of arguments
+       passed in the query section of our URL, mapping key names to lists
+       of values.
+
+       Subclasses can override getCookieFromContext and getCookieHyperlink
+       to change this behaviour. The 'cookie' is an opaque piece of information
+       used to keep the table's state across page views.
+       """
+    headingLinkTag = tag('a')
+
+    def __init__(self, rows, columns,
+                 defaultSortColumnIndex = 0,
+                 defaultSortReversed    = False,
+                 ):
+        self.defaultSortColumnIndex = defaultSortColumnIndex
+        self.defaultSortReversed = defaultSortReversed
+        Table.__init__(self, rows, columns)
+
+    def render(self, context={}):
+        cookie = self.getCookieFromContext(context)
+        if cookie:
+            self.setSortFromCookie(cookie)
+        else:
+            self.sortColumnIndex = self.defaultSortColumnIndex
+            self.sortReversed = self.defaultSortReversed
+        self.sortByColumn(self.columns[self.sortColumnIndex], self.sortReversed)
+        return Table.render(self, context)
+
+    def render_heading(self, context, column):
+        """Override render_heading to insert hyperlinks generated with createSortCookie"""
+        url = self.getCookieHyperlink(self.getSortCookie(column))
+        return self.headingTag[self.headingLinkTag(href=url)[column.render_heading(context)]]
+
+    def setSortFromCookie(self, cookie):
+        """Set our current sort using the given cookie.
+           Our cookies are just the column index (in the original
+           column list, not just visible columns) optionally
+           followed by 'R' for reversed sorts.
+           """
+        match = re.match("(?P<column>[0-9]+)(?P<reversed>R)?", str(cookie))
+        self.sortColumnIndex = int(match.group('column'))
+        self.sortReversed = bool(match.group('reversed'))
+
+    def getSortCookie(self, column):
+        """Return the cookie that should be used after the user clicks the given column.
+           If this is the current sort column already, we reverse the sorting direction.
+           If not, we set the column.
+           """
+        index = self.columns.index(column)
+        if index == self.sortColumnIndex and not self.sortReversed:
+            return "%dR" % index
+        else:
+            return str(index)
+
+    def getCookieFromContext(self, context):
+        try:
+            return context['args']['sort'][0]
+        except:
+            return None
+
+    def getCookieHyperlink(self, cookie):
+        return "?sort=%s" % cookie
 
 ### The End ###

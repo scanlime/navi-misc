@@ -162,10 +162,10 @@ class tag:
         return newTag
 
     def render(self, context=None):
-        if self.content:
-            return [self.renderedOpening, self.content, self.renderedClosing]
-        else:
+        if self.content in ('', [], ()):
             return self.renderedEmpty
+        else:
+            return [self.renderedOpening, self.content, self.renderedClosing]
 
 
 class DocumentOwner(object):
