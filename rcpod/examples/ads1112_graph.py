@@ -50,7 +50,10 @@ def main():
     win.connect("destroy", gtk.mainquit)
 
     try:
-        gtk.threads_init()
+        # Windows just hangs in gtk.threads_init()
+        if os.name != 'nt':
+            gtk.threads_init()
+
         gtk.main()
     finally:
         analogThread.running = False
