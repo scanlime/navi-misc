@@ -121,7 +121,7 @@ CIA uses open standards, including XHTML, CSS2, and XML-RPC.
 .. _PicoGUI: http://picogui.org
 .. _repository: http://navi.cx/svn/misc/trunk/cia/
 .. _Subversion: http://subversion.tigris.org/
-.. _PLD Linux: http://pld-linux.orgi
+.. _PLD Linux: http://pld-linux.org
 .. _architecture: /doc/how-cia-works
 .. _Graphviz:  http://www.research.att.com/sw/tools/graphviz/
 .. _Docutils: http://docutils.sourceforge.net/
