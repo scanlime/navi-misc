@@ -42,13 +42,20 @@ EVENTS['global']['VOL-'] = Event('MIXER_VOLDOWN', arg=2)
 
 # Make freevo knowful of Navi
 common_items = [
-    ('Wasabi', '/'),
     ('Navi', '/navi'),
+    ('Local Files', '/'),
     ]
 VIDEO_ITEMS = [
+    ('Movies', '/navi/media/video/movies'),
+    ('Series', '/navi/media/video/series'),
+    ('Anime', '/navi/media/video/anime'),
     ('Navi Video', '/navi/media/video'),
     ] + common_items
 AUDIO_ITEMS = [
+    ('Groups', '/navi/media/audio/groups'),
+    ('Soundtracks', '/navi/media/audio/soundtracks'),
+    ('Composers', '/navi/media/audio/composers'),
+    ('Comedy', '/navi/media/audio/comedy'),
     ('Navi Audio', '/navi/media/audio'),
     ] + common_items
 IMAGE_ITEMS = [
