@@ -51,20 +51,20 @@ entity. The structure of the attractor is only minimally visible using
 such techniques, because a long iteration run will quickly result in a
 completely black image.
 
-Instead, our technique treats the entire image region as a two dimensional histogram.
-Unlike previous techniques, where each $x_n$ and $y_n$ plotted by darkening a
-a pixel directly, this histogram technique maintains total image intensity as
-more iterations are performed. As more samples accumulate in the histogram,
-the image simply gets more detailed. Instead of an image containing only a
-few thousand iterations of the map, millions or billions of points can be
-plotted with no loss of detail.
-
 \begin{figure}[ht]
 \centering
 \includegraphics[width=2.5in]{1.png}
 \caption{A complex attractor rendered as a two-dimensional histogram.
 Fine details are made easily visible by color and shading}
 \end{figure}
+
+Instead, our technique treats the entire image region as a two dimensional
+histogram. Unlike previous techniques, where each iteration is plotted by
+darkening a a pixel directly, this histogram technique maintains total image
+intensity as more iterations are performed. As more samples accumulate in the
+histogram, the image simply gets more detailed. Instead of an image containing
+only a few thousand iterations of the map, millions or billions of points can
+be plotted with no loss of detail.
 
 Like other rendering techniques that progressively refine an image, this
 histogram method performes particularly well in interactive applications.
