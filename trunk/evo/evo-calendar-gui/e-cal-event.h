@@ -44,7 +44,6 @@ enum {
 	E_CAL_EVENT_SOURCE_CALENDAR_CHANGED = 1 << 0,
 };
 
-/* Flags that describe TARGET_COMPONENT */
 enum {
 	E_CAL_EVENT_COMPONENT_INITIALIZED = 1 << 0,
 };

@@ -47,7 +47,14 @@ ece_target_free (EEvent *ev, EEventTarget *t)
 		if (s->source)
 			g_object_unref (s->source);
 		break; }
+	case E_CAL_EVENT_TARGET_COMPONENT: {
+		ECalEventTargetComponent *s = (ECalEventTargetComponent *) t;
+		if (s->component)
+			g_object_unref (s->component);
+		break; }
 	}
+
+	((EEventClass *)ece_parent)->target_free (ev, t);
 }
 
 static void
@@ -140,9 +147,15 @@ eceh_finalize (GObject *o)
 static void
 eceh_class_init (EPluginHookClass *klass)
 {
-	GObjectClass *object_class = (GObjectClass *) klass;
+	int i;
 
-	object_class->finalize = eceh_finalize;
+	((GObjectClass *)klass)->finalize = eceh_finalize;
+	((EPluginHookClass *)klass)->id = "org.gnome.evolution.calendar.events:1.0";
+
+	for (i = 0; eceh_targets[i].type; i++)
+		e_event_hook_class_add_target_map ((EEventHookClass *)klass, &eceh_targets[i]);
+
+	((EEventHookClass *)klass)->event = (EEvent *) e_cal_event_peek ();
 }
 
 GType
