@@ -71,7 +71,6 @@ public class personindex
 	 */
 	public void handleMessage(String from, String message)
 	{
-		from = from.toUpperCase();
 		System.out.print("Message from " + from);
 		interview othertemp = findInterview(from);
 		if(othertemp != null)
@@ -135,7 +134,7 @@ public class personindex
 		interview temphead = inthead;
 		while(temphead != null)
 		{
-			if(temphead.nick.compareTo(nick) == 0)
+			if(temphead.nick.toUpperCase().compareTo(nick.toUpperCase()) == 0)
 				return temphead;
 			temphead = temphead.next;
 		}
@@ -154,7 +153,7 @@ public class personindex
 		person temphead = masshead;
 		while(temphead != null)
 		{
-			if(temphead.nick.compareTo(nick) == 0)
+			if(temphead.nick.toUpperCase().compareTo(nick.toUpperCase()) == 0)
 				return temphead;
 			temphead = temphead.next;
 		}

@@ -64,7 +64,7 @@ public class interview extends Thread
 	public interview(interview prev, botmain bot, String NICK, String PASS)
 	{
 		next = prev;
-		nick = NICK.toUpperCase();
+		nick = NICK;
 		pass = PASS;
 		mybot = bot;
 		com = new net();
