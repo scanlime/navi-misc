@@ -32,6 +32,13 @@ int main(int argc, char **argv) {
   if (!d)
     return 1;
 
+  if (usb_control_msg(d, USB_TYPE_VENDOR, RWAND_CTRL_SET_PREDICTION,
+		      0, 43000, NULL, 0, 500) < 0)
+    perror("usb_control_msg");
+  if (usb_control_msg(d, USB_TYPE_VENDOR, RWAND_CTRL_SET_COIL_PHASE,
+		      8000, 15000, NULL, 0, 500) < 0)
+    perror("usb_control_msg");
+
   while (1) {
     if (usb_control_msg(d, USB_TYPE_VENDOR | USB_ENDPOINT_IN, 1,
 			0, 0, c, 8, 500) < 0)
@@ -47,6 +54,8 @@ int main(int argc, char **argv) {
 	   c[6] | (c[7] << 8),
 	   x[0] | (x[1] << 8),
 	   x[2] | (x[3] << 8));
+
+    usleep(1000);
   }
 
   return 0;
