@@ -121,7 +121,7 @@ class Editor(vte.Terminal):
         editor = os.environ.get('EDITOR', 'vim')
         childEnv = dict(os.environ)
         del childEnv['DISPLAY']
-        self.fork_command('sh', ('-c', editor),
+        self.fork_command('sh', ('sh', '-c', editor),
                           ["=".join(i) for i in childEnv.iteritems()],
                           os.getcwd(),
                           gtk.FALSE, gtk.FALSE, gtk.FALSE)
