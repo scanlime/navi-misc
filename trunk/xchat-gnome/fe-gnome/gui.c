@@ -4,6 +4,7 @@
 #include "connect_dialog.h"
 #include "navigation_tree.h"
 #include "about.h"
+#include "textgui.h"
 
 XChatGUI gui;
 
@@ -12,6 +13,7 @@ gboolean initialize_gui() {
 	if(!gui.xml)
 		return FALSE;
 	initialize_main_window();
+	initialize_text_gui();
 	initialize_preferences_dialog();
 	initialize_connection_dialog();
 	initialize_navigation_tree();

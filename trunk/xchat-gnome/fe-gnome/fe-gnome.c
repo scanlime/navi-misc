@@ -166,7 +166,7 @@ void fe_progressbar_end(struct server *serv) {
 }
 
 void fe_print_text(struct session *sess, char *text) {
-	g_print("fe_print_text() \"%s\"\n", text);
+	g_print("%s", text);
 	/* FIXME: implement */
 }
 
