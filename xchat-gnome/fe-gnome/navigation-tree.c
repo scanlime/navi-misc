@@ -270,8 +270,9 @@ navigation_tree_remove (NavTree *navtree, struct session *sess)
 
 	if (!gtk_tree_path_prev (path)) {
 		if (!gtk_tree_path_up (path)) {
+			/* At this point we know we're at the root. */
 			gtk_tree_path_free (path);
-			path = gtk_tree_path_new_from_string ("0");
+			path = gtk_tree_path_new_first ();
 		}
 	}
 
