@@ -105,7 +105,9 @@ class Text(Widget):
         self.offset = (0, 0)
 
     def setText(self, text):
-        text = str(text)
+        if type(text) is unicode:
+	    # FIXME: try to convert common unicode characters to the VFD's builtin charset
+	    text = text.encode('ascii', 'replace')
         if text != self._text:
             self._text = text
             self.textChanged(self._text.split('\n'))
