@@ -215,30 +215,31 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 
 static lirc_t mi6k_ir_tx_convert(lirc_t v)
 {
-	/* Convert a pulse or space value from microseconds to the transmitter's ~13.5us units */
-        v = ((v & PULSE_MASK) * 100 + 50) / 1350;
+	/* Convert a pulse or space value from microseconds to the transmitter's ~12.8us units */
+        v = ((v & PULSE_MASK) * 100 + 50) / 1285 + 1;
 	if (v > 0xFFFF) v = 0xFFFF;
-
-	/* At this time our firmware only correctly handles values 255 or lower. Issue a warning if this is a problem */
-	if (v > 255) {
-		dbg("sending a pulse/space too large for current firmware");
-	}
-
-	/* Lengths of zero are not allowed either, bump them up to 1 */
-	if (v == 0)
-		v = 1;
 
 	return v;
 }
 
 static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space)
 {
+	int i;
+
 	/* Send a pulse and space to the device synchronously. */
 	dbg("ir_tx_send unconverted: %d %d", pulse, space);
 	pulse = mi6k_ir_tx_convert(pulse);
 	space = mi6k_ir_tx_convert(space);
 	dbg("ir_tx_send converted: %d %d", pulse, space);
-	mi6k_request(dev, MI6K_CTRL_IR_SEND, space, pulse);
+
+	/* The firmware can only send values in the range [1, 255]. If we have a value
+	 * larger than this, split it into smaller pieces.
+	 */
+	for (i=pulse >> 8; i; i--)
+		mi6k_request(dev, MI6K_CTRL_IR_SEND, 255, 1);
+	mi6k_request(dev, MI6K_CTRL_IR_SEND, pulse & 0xFF, space & 0xFF);
+	for (i=space >> 8; i; i--)
+		mi6k_request(dev, MI6K_CTRL_IR_SEND, 1, 255);
 }
 
 static void mi6k_ir_rx_irq(struct urb *urb)
