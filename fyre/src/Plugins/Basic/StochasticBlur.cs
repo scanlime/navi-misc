@@ -1,6 +1,6 @@
 /*
  * StochasticBlur.cs - An Element which takes a blur radius and ratio
- *	and perturbs it's input point randomly according to the 
+ *	and perturbs it's input point randomly according to the
  *	probability given in the ratio.
  *
  * Fyre - rendering and interactive exploration of chaotic functions
