@@ -11,7 +11,7 @@
 			\context Staff = mvmtOneCello <<
 				\set Staff.midiInstrument = "cello"
 				\set Score.skipBars = ##t
-				\mvmtOneCello
+				\keepWithTag #'part \mvmtOneCello
 			>>
 		>>
 	}

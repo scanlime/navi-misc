@@ -144,8 +144,68 @@ mvmtOneCello = \relative c, {
 	R1*6/8*5
 	r4. r8.\mp cis16 \< cis-. cis-. \!
 	<fis,-. cis'>16 r16 r4 r4.
-	cis'16-.->\mf cis16-. cis16-. cis16-. cis16-. cis16-. \repeat "tremolo" 6 bis16^\simile
+	cis'16-.->\mf cis-. cis-. cis-. cis-. cis-. \repeat "tremolo" 6 bis16^\simile
 	\repeat "tremolo" 6 b16 \repeat "tremolo" 6 ais
 	\repeat "tremolo" 6 a16 \repeat "tremolo" 6 gis
 	\repeat "tremolo" 6 g16 \repeat "tremolo" 6 fis
+	b16\mf \tenuto b\tenuto b-. b-. b-. b-. \repeat "tremolo" 6 fisis16^\simile
+	\repeat "tremolo" 6 gis16 \repeat "tremolo" 6 fis16
+	\repeat "tremolo" 6 e16
+	<< {
+		\repeat "tremolo" 6 b'16
+		\repeat "tremolo" 6 g16 fis fis fis fis e e
+		\repeat "tremolo" 6 d'16 \repeat "tremolo" 6 d16
+		\repeat "tremolo" 6 e16 \repeat "tremolo" 6 e16
+		\repeat "tremolo" 6 c16 \repeat "tremolo" 6 b16
+		\repeat "tremolo" 6 b16 \repeat "tremolo" 6 cis16
+	} \\ {
+		\repeat "tremolo" 6 dis,16
+		\repeat "tremolo" 6 cis cis cis cis cis cis cis
+		\repeat "tremolo" 6 fis16 \repeat "tremolo" 6 g16
+		\repeat "tremolo" 6 g16 \repeat "tremolo" 6 fis16
+		\repeat "tremolo" 6 fis16 \repeat "tremolo" 6 e16
+		\repeat "tremolo" 6 fis16 \repeat "tremolo" 6 fis16
+	} >>
+	r4. r16\mf <fis b>16 \< <fis b> <fis cis'> <fis cis'> <fis cis'> \!
+	R1*6/8
+	r4. r16\f <fis b>16 \< <fis b> <fis cis'> <fis cis'> <fis cis'> \!
+	r4. r16\f <fis b>16 \< <fis b> <fis cis'> <fis cis'> <fis cis'> \!
+	<fis b>8 fis32 (g fis e \repeat "unfold" 3 {fis32 g fis e} fis32 g fis e)
+	\repeat "percent" 4 {fis32 (g fis e \repeat "unfold" 4 {fis32 g fis e} fis32 g fis e) }
+	fis32 \< (g fis e fis32 g fis e fis32 g fis e) fis8 fis fis \!
+
+	\time 4/4
+	<< {
+		b8 r d r e r e r
+		g r gis r gis r ais r
+		g r g r fis r fis r
+		b, r b r cis r fis, r
+	} \\ {
+		b8 r fis r ais r ais r
+		b r b r bis r cis r
+		e r c r d r cis r
+		e, r e r cis' r fis, r
+	} >>
+	R1*15
+	dis2\p cis
+	cis'4 (ais) dis,2
+	gis ais
+	<< {
+		ais'1
+		fis2 eis
+		fis4 cis dis2
+		cis1
+	} \\ {
+		dis2. cisis4
+		cis4 b ~ b cis
+		fis,2 dis
+		<cis gis'>1
+	} >>
+	R1*14
+	b'4 ais a gis
+	\repeat "unfold" 2 {b4 ais a gis}
+	g fis f e
+	e r r2
+	R1*6
+	\bar "|."
 }
