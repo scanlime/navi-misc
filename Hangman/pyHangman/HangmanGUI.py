@@ -121,7 +121,6 @@ class HangmanGUI:
 
 		# Create a menu bar.
 		self.makeMenu()
-		self.menuBar.show()
 
 		# Final box.  Pack the menubar into the top, so it spans the entire width
 		# of the window.  Pack box2 underneath it.
@@ -143,7 +142,9 @@ class HangmanGUI:
 
 		menuItems = (
 				("/_File", None, None, 0, "<Branch>"),
-				("/File/_New Game", "<control>N", self.NewGame, 0, None),
+				("/File/New", None, None, 0, "<Branch>"),
+				("/File/New/_Game from File", "<control>N", self.NewGame, 0, None),
+				("/File/New/_Internet Game", "<control>I", self.NewGame, 1, None),
 				("/File/_Open", "<control>O", self.openFile, 0, None),
 				("/File/sep", None, None, 0, "<Separator>"),
 				("/File/_Quit", "<control>Q", self.Quit, 0, None),
@@ -161,6 +162,7 @@ class HangmanGUI:
 
 		self.window.add_accel_group(accelGroup)
 		self.menuBar = itemFactory.get_widget("<main>")
+		self.menuBar.show()
 
 	def getStyles(self):
 		""" Get a list of all the available style directories and create a tuple for the
@@ -263,12 +265,15 @@ class HangmanGUI:
 
 	def NewGame(self, widget=None, data=None):
 		""" Begin a new game. """
-		# If there is nothing loaded bring up the file selection widget.
-		if self.controller.words == {}:
-			self.openFile()
-			return
+		if data == 1:
+			self.controller.NetGame()
+		else:
+			# If there is nothing loaded bring up the file selection widget.
+			if self.controller.words == {}:
+				self.openFile()
+				return
+			self.controller.NewGame()
 
-		self.controller.NewGame()
 		# Update window.
 		self.clue.set_text(self.controller.words[self.controller.answer])
 		self.Update(self.controller.gameStat())
@@ -298,8 +303,8 @@ class HangmanGUI:
 		""" Callback for file selection from openFile().  Get the file name
 				and send it to be opened and read into the controller.
 				"""
-		filename = data.get_filename()
-		self.controller.openFile("file://" + filename)
+		filename = "file://" + data.get_filename()
+		self.controller.openFile(filename)
 
 	def error(self, parent=None, data=None):
 		""" General error message generator.  data is the text to be printed in
