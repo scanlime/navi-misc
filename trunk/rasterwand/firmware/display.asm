@@ -282,11 +282,11 @@ start_reverse_scan
 no_reverse_scan
 
 	; Bounds check the current column. If it's out of range, disable current scans
-	movlw	NUM_COLUMNS-1			; Test current_column - (NUM_COLUMNS-1)
+	movlw	NUM_COLUMNS				; Test current_column - NUM_COLUMNS
 	subwf	current_column, w
 	pagesel	led_scan_disabled
 	btfsc	STATUS, C
-	goto	led_scan_disabled		; C=1, B=0, (NUM_COLUMNS-1) <= current_column
+	goto	led_scan_disabled		; C=1, B=0, NUM_COLUMNS <= current_column
 
 	; Is there any scan in progress? If not...
 	pagesel	scan_in_progress
