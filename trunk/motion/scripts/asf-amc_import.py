@@ -33,23 +33,28 @@ import AMCReader
 import math
 import string
 
+from Blender.Armature.Bone import ROT, LOC
+
 # make it faster?
 try:
     import psyco
 except:
     pass
 
-armature    = None
-armatureObj = None
-asfReader   = None
-scene       = None
-
-def cleanup ():
-    # Clean up our global data, so we can run multiple times without problems
+class dataStorage:
     armature    = None
     armatureObj = None
     asfReader   = None
     scene       = None
+    bones       = {}
+
+def cleanup (d):
+    # Clean up our global data, so we can run multiple times without problems
+    d.armature    = None
+    d.armatureObj = None
+    d.asfReader   = None
+    d.scene       = None
+    d.bones       = {}
 
 def addVectors (a, b):
     x = []
@@ -58,29 +63,26 @@ def addVectors (a, b):
     return x
 
 def loadASF (filename):
-    print 'loading',filename
-    asfReader = ASFReader.ASFReader ()
+    d = dataStorage ()
+    d.asfReader = ASFReader.ASFReader ()
     try:
-        asfReader.parse (filename)
+        d.asfReader.parse (filename)
     except IOError, s:
         ASFReader.log.err (s)
 
     if ASFReader.log.numErrors:
         # Report any errors we encountered and quit
         ASFReader.log.report ('Errors in loading ASF')
-        cleanup ()
+        cleanup (d)
         return
 
-
     # Load our data into an armature.
-    scene = Blender.Scene.getCurrent ()
-    armatureObj = Blender.Object.New ('Armature', asfReader.name)
-    armature = Blender.Armature.New ()
-
-    bones = {}
+    d.scene = Blender.Scene.getCurrent ()
+    d.armatureObj = Blender.Object.New ('Armature', d.asfReader.name)
+    d.armature = Blender.Armature.New ()
 
     # Create all the bones. for now, they're just positioned at the origin.
-    for name, data in asfReader.bones.iteritems ():
+    for name, data in d.asfReader.bones.iteritems ():
         bone = Blender.Armature.Bone.New (name)
 
         # Head is at the origin. Tail is direction * length. Scale by 1/10
@@ -94,46 +96,45 @@ def loadASF (filename):
         # traditional Z-up.
         bone.setTail ([tail[0], tail[2], tail[1]])
 
-        bones[name] = bone
+        d.bones[name] = bone
 
     # Create the root and add it to the armature.
     bone = Blender.Armature.Bone.New ('root')
     bone.setHead (0.0, 0.0, 0.0)
     bone.setTail (0.0, 0.0, 0.0)
-    bones['root'] = bone
-    armature.addBone (bone)
+    d.bones['root'] = bone
+    d.armature.addBone (bone)
 
     # Iterate through the hierarchy and position child bones at the tails of
     # their parents. Blender doesn't require a bone and its parent to be
     # touching, but ASF does.
-    for set in asfReader.hierarchy:
+    for set in d.asfReader.hierarchy:
         parent = set[0]
         for child in set[1:]:
-            bones[child].setTail (addVectors (bones[child].tail, bones[parent].tail))
-            bones[child].setHead (addVectors (bones[child].head, bones[parent].tail))
+            d.bones[child].setTail (addVectors (d.bones[child].tail, d.bones[parent].tail))
+            d.bones[child].setHead (addVectors (d.bones[child].head, d.bones[parent].tail))
 
     # Iterate through the hierarchy again, linking bones to their parents and
     # adding them to the armature object.
-    for set in asfReader.hierarchy:
+    for set in d.asfReader.hierarchy:
         parent = set[0]
         for child in set[1:]:
-            bones[child].setParent (bones[parent])
-            armature.addBone (bones[child])
+            d.bones[child].setParent (d.bones[parent])
+            d.armature.addBone (d.bones[child])
 
     # Link the armature to it's object, add it to the scene and queue a window redraw.
-    armatureObj.link (armature)
-    scene.link (armatureObj)
-    armatureObj.makeDisplayList ()
-    Blender.Window.RedrawAll ()
+    d.armatureObj.link (d.armature)
+    d.scene.link (d.armatureObj)
+    d.armatureObj.makeDisplayList ()
 
     # Finally, pop up a file selector for importing the AMC
-    Blender.Window.FileSelector (loadAMC, 'Load AMC Motion Capture')
+    # Blender.Window.FileSelector (loadAMC, 'Load AMC Motion Capture')
+    loadAMC ('/home/david/projects/motion/data/07_02.amc', d)
 
 def getRotation (bone):
     pass
 
-def loadAMC (filename):
-    print 'loading',filename
+def loadAMC (filename, d):
     amcReader = AMCReader.AMCReader ()
     try:
         amcReader.parse (filename)
@@ -142,13 +143,14 @@ def loadAMC (filename):
 
     if AMCReader.log.numErrors:
         AMCReader.log.report ('Errors in loading AMC')
-        cleanup ()
+        cleanup (d)
+        return
 
     # Create a new action, named after the file
     action = Blender.Armature.NLA.NewAction (filename.split (Blender.sys.dirsep)[-1])
-    action.setActive (armatureObj)
+    action.setActive (d.armatureObj)
 
-    context = scene.getRenderingContext ()
+    context = d.scene.getRenderingContext ()
     # FIXME - Pretty much all of the data we've gotten is at 120Hz. It would
     # be nice to pull this out of the data file, but for now, just hardcode it.
     context.framesPerSec (120)
@@ -168,24 +170,24 @@ def loadAMC (filename):
         location = [(n * 0.1) for n in frame.bones['root'][0:3]]
         rotation = Blender.Mathutils.Euler (frame.bones['root'][3:6]).toQuat ()
 
-        bones['root'].setLoc (location)
-        bones['root'].setQuat (quat)
-        bones['root'].setPose ([ROT, LOC])
+        d.bones['root'].setLoc (location)
+        d.bones['root'].setQuat (rotation)
+        d.bones['root'].setPose ([ROT, LOC])
 
         # Set orientations for each bone for this frame
         for name, bone in frame.bones.iteritems ():
             if name == 'root':
                 continue
-            bone = bones[bname]
+            bone = d.bones[name]
             quat = getRotation (bone)
-            #bones[name].setQuat (quat)
-            #bones[name].setPose ([ROT])
+            #d.bones[name].setQuat (quat)
+            #d.bones[name].setPose ([ROT])
 
     # No more wait indicators, since we're done
     Blender.Window.WaitCursor (False)
     Blender.Window.DrawProgressBar (1.0, 'Finished AMC import')
     Blender.Window.RedrawAll ()
-    cleanup ()
+    cleanup (d)
 
 # Show our ASF file selector
 Blender.Window.FileSelector (loadASF, 'Load ASF Skeleton File')
