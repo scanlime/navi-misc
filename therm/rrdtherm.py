@@ -9,7 +9,7 @@
 # -- Micah Dowty <micah@picogui.org>
 #
 
-import os, time, popen2, sys, xmlrpclib, re
+import os, time, popen2, sys, xmlrpclib, re, colorsys
 
 
 def quote(s):
@@ -102,8 +102,6 @@ class Therm:
         if not os.path.isfile(self.rrdFile):
             self.rrdInit()
 
-        self.color = Color(0,0,1)
-
     def rrdInit(self):
         """Create a blank RRD for this therm"""
         stepSize = self.config['averagePeriod']
@@ -139,28 +137,59 @@ class Therm:
         """Create a graph of this therm over the given interval.
            Intervals are specified as (name, seconds) tuples, as in the config.
            """
-        return Graph(self.config, "%s-%s" % (self.id, interval[0]),
-                     # Graph options
-                     "--start", "-%d" % interval[1],
-                     "--vertical-label", "Degrees Fahrenheit",
-                     "--width", str(self.config['graphSize'][0]),
-                     "--height", str(self.config['graphSize'][1]),
+        lineColor = Color(0,0,1)
+        noDataColor = Color(1,1,0).blend(Color(1,1,1), 0.8)
+        
+        params = [     
+            # Graph options
+            "--start", "-%d" % interval[1],
+            "--vertical-label", "Degrees Fahrenheit",
+            "--width", str(self.config['graphSize'][0]),
+            "--height", str(self.config['graphSize'][1]),
+            
+            # Data sources
+            "DEF:temp_min=%s:temp:MIN" % self.rrdFile,
+            "DEF:temp_max=%s:temp:MAX" % self.rrdFile,
+            "CDEF:temp_span=temp_max,temp_min,-",
+            "DEF:temp_average=%s:temp:AVERAGE" % self.rrdFile,
+            
+            # Unknown data
+            "CDEF:no_data=temp_max,temp_min,+,UN,INF,UNKN,IF",
+            "AREA:no_data%s:No data" % noDataColor,
+            ]
 
-                     # Min/max ranges for each therm
-                     "DEF:temp_min=%s:temp:MIN" % self.rrdFile,
-                     "DEF:temp_max=%s:temp:MAX" % self.rrdFile,
-                     "CDEF:temp_span=temp_max,temp_min,-",
-                     "AREA:temp_min",
-                     "STACK:temp_span%s" % self.color.blend(Color(1,1,1), 0.7),
+        # Create a color gradient indicating the hot/coldness of the current temperature.
+        warmthMin = 0
+        warmthMax = 0.05
+        sliceNum = 0
+        while warmthMax <= 1:
+            # Convert the current 'warmth' values to a color and a temperature range
+            tempMin = warmthMin * 100
+            tempMax = warmthMax * 100
+            color = Color(*colorsys.hsv_to_rgb(0.5 + (warmthMin + warmthMax) / 4.0, 0.2, 1))
 
-                     # Average line
-                     "DEF:temp_average=%s:temp:AVERAGE" % self.rrdFile,
-                     "LINE1:temp_average%s:%s" % (self.color, self.description),
+            params.extend([
+                "CDEF:s%d=temp_average,%s,%s,LIMIT" % (sliceNum, tempMin, tempMax),
+                "AREA:s%d%s" % (sliceNum, color),
+                ])
 
-                     # Unknown data
-                     "CDEF:no_data=temp_max,temp_min,+,UN,INF,UNKN,IF",
-                     "AREA:no_data%s:No data" % Color(1,1,0).blend(Color(1,1,1), 0.8),
-                     )
+            # Next slice...
+            warmthMin, warmthMax = warmthMax, warmthMax + (warmthMax - warmthMin)
+            sliceNum += 1
+
+        params.extend([
+            # Thick white line at the minimum to separate it from the gradient
+            "LINE3:temp_min%s" % Color(1,1,1),
+
+            # Min/max ranges for each therm
+            "AREA:temp_min",
+            "STACK:temp_span%s" % lineColor.blend(Color(1,1,1), 0.7),    
+
+            # Average line
+            "LINE1:temp_average%s:%s" % (lineColor, self.description),
+            ])
+
+        return Graph(self.config, "%s-%s" % (self.id, interval[0]), *params)
 
 
 class ThermGrapher:
