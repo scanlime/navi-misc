@@ -210,8 +210,6 @@ libevolution_calendar_la_SOURCES =		\
 	tasks-control.h				\
 	weekday-picker.c			\
 	weekday-picker.h
-#	e-pub-utils.c
-#	e-pub-utils.h
 
 libevolution_calendar_la_LIBADD =					\
 	$(top_builddir)/widgets/menus/libmenus.la			\

@@ -1248,12 +1248,6 @@ on_forward (EPopup *ep, EPopupItem *pitem, void *data)
 }
 
 static void
-on_publish (EPopup *ep, EPopupItem *pitem, void *data)
-{
-	/* FIXME */
-}
-
-static void
 on_delete_appointment (EPopup *ep, EPopupItem *pitem, void *data)
 {
 	ECalendarView *cal_view = data;
@@ -1288,6 +1282,7 @@ on_unrecur_appointment (EPopup *ep, EPopupItem *pitem, void *data)
 
 	comp = e_cal_component_new ();
 	e_cal_component_set_icalcomponent (comp, icalcomponent_new_clone (event->comp_data->icalcomp));
+	e_cal_component_set_recurid (comp, NULL);
 	cal_comp_util_add_exdate (comp, event->comp_data->instance_start, e_calendar_view_get_timezone (cal_view));
 	e_cal_component_commit_sequence (comp);
 
@@ -1299,6 +1294,7 @@ on_unrecur_appointment (EPopup *ep, EPopupItem *pitem, void *data)
 	new_uid = e_cal_component_gen_uid ();
 	e_cal_component_set_uid (new_comp, new_uid);
 	g_free (new_uid);
+	e_cal_component_set_recurid (new_comp, NULL);
 	e_cal_component_set_rdate_list (new_comp, NULL);
 	e_cal_component_set_rrule_list (new_comp, NULL);
 	e_cal_component_set_exdate_list (new_comp, NULL);
@@ -1318,7 +1314,7 @@ on_unrecur_appointment (EPopup *ep, EPopupItem *pitem, void *data)
 	/* Now update both ECalComponents. Note that we do this last since at
 	 * present the updates happen synchronously so our event may disappear.
 	 */
-	if (!e_cal_modify_object (client, e_cal_component_get_icalcomponent (comp), CALOBJ_MOD_THIS, NULL))
+	if (!e_cal_modify_object (client, e_cal_component_get_icalcomponent (comp), CALOBJ_MOD_ALL, NULL))
 		g_message ("on_unrecur_appointment(): Could not update the object!");
 
 	g_object_unref (comp);
@@ -1383,11 +1379,6 @@ static EPopupItem ecv_main_items [] = {
 	
 	{ E_POPUP_ITEM, "61.today", N_("Select _Today"), on_goto_today, NULL, GTK_STOCK_HOME },
 	{ E_POPUP_ITEM, "62.todate", N_("_Select Date..."), on_goto_date, NULL, GTK_STOCK_JUMP_TO },
-
-	{ E_POPUP_BAR, "70." },
-
-	/* TODO: Why is this in a context menu when it applies globally? */
-	{ E_POPUP_ITEM, "70.publish", N_("_Publish Free/Busy Information"), on_publish, },
 };
 
 static EPopupItem ecv_child_items [] = {
