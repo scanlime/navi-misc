@@ -48,14 +48,28 @@ import sys, traceback, re
 
 class RulesetInterface(xmlrpc.XMLRPC):
     """An XML-RPC interface used to set and query the rulesets in a RulesetStorage"""
-    def __init__(self, storage):
+    def __init__(self, caps, storage):
+        self.caps = caps
         self.storage = storage
 
-    def xmlrpc_store(self, xml):
+    def xmlrpc_store(self, xml, key):
         """Stores a ruleset provided as XML text. Deleting a ruleset is equivalent
            to storing an empty one with the same URI.
+
+           There are many capabilities that can allow access to this function.
+           The 'universe', 'ruleset', and 'ruleset.store' keys give access to this
+           function for any ruleset. In addition, the capability ('ruleset.uri', x)
+           will grant access if 'x' matchies this ruleset's URI.
            """
-        return Interface.catchFaults(self.storage.storeAndSave, xml)
+        try:
+            dom = XML.parseString(xml)
+            self.caps.faultIfMissing(key, 'universe', 'ruleset', 'ruleset.store',
+                                     ('ruleset.uri', dom['uri']))
+            self.storage.store(dom)
+            self.storage.save()
+        except:
+            Interface.catchFault()
+        return True
 
     def xmlrpc_getUriList(self):
         """Return a list of all URIs with non-empty rulesets"""
@@ -450,11 +464,6 @@ class RulesetStorage(XML.XMLStorage):
 
             log.msg("Removed ruleset for %r" % ruleset.uri)
             handler.unassigned(ruleset.uri)
-
-    def storeAndSave(self, xml):
-        """Convenience function to call store(xml) then save to disk"""
-        self.store(xml)
-        self.save()
 
     def flatten(self):
         """Return a flat list of all Ruleset objects so we can store 'em"""

@@ -35,7 +35,33 @@ particular identity.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import anydbm, cPickle, base64
+from twisted.web import xmlrpc
+import anydbm, cPickle, base64, os
+
+class SecurityInterface(xmlrpc.XMLRPC):
+    """An XML-RPC interface to the capabilities database"""
+    def __init__(self, caps):
+        self.caps = caps
+
+    def xmlrpc_revoke(self, capability, key):
+        """Revoke the given capability, invalidating its current key"""
+        self.caps.faultIfMissing(key, 'universe', 'security.revoke')
+        self.caps.revoke(capability)
+        return True
+
+    def xmlrpc_grant(self, capability, key):
+        """Return the key for the given capability. Note that this means
+           that the capability to use this function is effectively equivalent
+           to the 'universe' key- this is why there are no 'security' or
+           'security.grant' capabilities.
+           """
+        self.caps.faultIfMissing(key, 'universe')
+        return self.caps.get(capability)
+
+    def xmlrpc_list(self):
+        """Return a list of all capabilities that have been assigned keys"""
+        self.caps.faultIfMissing(key, 'universe', 'security.list')
+        return self.caps.list()
 
 
 def createRandomKey(bytes=128):
@@ -65,8 +91,20 @@ class CapabilityDB(object):
        keys are pickled representations of a capability, and values are the
        associated random keys stored as 8-bit strings.
        """
-    def __init__(self, fileName, flags='csu', mode=0600):
+    def __init__(self, fileName, flags='c', mode=0600):
         self.db = anydbm.open(fileName, flags, mode)
+
+    def saveKey(self, capability, file):
+        """Save the key for a capability to the given filename.
+           Useful for saving important keys on initialization so that
+           they can later be used to retrieve other keys.
+           This ensures that the freshly created key isn't readable
+           by other users.
+           """
+        f = open(file, "w")
+        os.chmod(file, 0600)
+        f.write(self.get(capability))
+        f.close()
 
     def close(self):
         self.db.close()
@@ -83,13 +121,15 @@ class CapabilityDB(object):
         """Test the given key for some capability"""
         return key and self.get(capability, create=False) == key
 
-    def faultIfMissing(self, key, capability):
-        """Test whether the key matches that for the given capability.
-           If not, raise a Fault.
-           """
-        if not self.test(key, capability):
-            import xmlrpclib
-            raise xmlrpclib.Fault("SecurityException", "The capability %r is required" % capability)
+    def faultIfMissing(self, key, *capabilities):
+        """Raise a fault if the given key doesn't match any of the given capabilities"""
+        for capability in capabilities:
+            if self.test(key, capability):
+                return
+        import xmlrpclib
+        raise xmlrpclib.Fault("SecurityException",
+                              "One of the following capabilities are required: " +
+                              repr(capabilities)[1:-1])
 
     def get(self, capability, create=True):
         """Return the key for some capability, optionally creating it

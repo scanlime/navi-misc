@@ -28,35 +28,29 @@ import sys, traceback
 from twisted.python import log
 
 
-def catchFaults(callable, *args, **kwargs):
-    """Call the provided function with the provided arguments.
-       If an exception is raised, it is logged and converted to
-       an XML-RPC Fault, and that is returned. If not, the value
-       of the callable is returned. A None result is converted to True.
+def catchFault(message="Exception occurred"):
+    """Put this in the 'except' section of a try block to convert the exception
+       that just occurred to an XMLRPC Fault and log it.
        """
-    try:
-        result = callable(*args, **kwargs)
-    except:
-        e = sys.exc_info()[1]
-        log.msg("Exception occurred while calling %r with the args %r %r\n%s" %
-                (callable, args, kwargs, "".join(traceback.format_exception(*sys.exc_info()))))
-        return xmlrpc.Fault(e.__class__.__name__, str(e))
-    if result is not None:
-        return result
-    return True
+    e = sys.exc_info()[1]
+    if isinstance(e, xmlrpc.Fault):
+        raise
+    else:
+        log.msg(message + "\n" + "".join(traceback.format_exception(*sys.exc_info())))
+        raise xmlrpc.Fault(e.__class__.__name__, str(e))
 
 
 class SysInterface(xmlrpc.XMLRPC):
     """An interface over XML-RPC to functionality that doesn't belong in any one other module
 
-       capDb : The CapabilityDB used to authorize access to these functions
+       caps : The CapabilityDB used to authorize access to these functions
        """
-    def __init__(self, capDb):
-        self.capDb = capDb
+    def __init__(self, caps):
+        self.caps = caps
 
-    def xmlrpc_rebuild(self, key=None):
+    def xmlrpc_rebuild(self, key):
         """Use twisted.python.rebuild to reload all applicable modules"""
-        self.capDb.faultIfMissing(key, 'rebuild')
+        self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.rebuild')
 
         # Rebuild our package to make sure we have the latest module list
         import LibCIA
@@ -66,12 +60,6 @@ class SysInterface(xmlrpc.XMLRPC):
         for item in LibCIA.__dict__.itervalues():
             if type(item) == type(LibCIA):
                 rebuild(item)
-        return True
-
-    def xmlrpc_revoke(self, capability, key=None):
-        """Revoke the specified capability. Requires a key for the 'revoke' capability"""
-        self.capDb.faultIfMissing(key, 'revoke')
-        self.capDb.revoke(capability)
         return True
 
 ### The End ###
