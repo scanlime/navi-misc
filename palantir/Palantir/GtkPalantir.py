@@ -270,7 +270,7 @@ class PalantirWindow:
         command = text[1:text.find(' ')].lower()
         # Get the arguments to the command.
         arg = text[text.find(' '):].strip()
-      
+
       # If the command is implemented here, call that function.
       if hasattr(self, command):
 	if arg:
@@ -350,6 +350,7 @@ class PalantirWindow:
 
   def me(self, args):
     self.factory.me(self.factory.channels[0], args)
+    self.meReceive(self.factory.nickname, self.factory.channels[0], args)
 
   def ctcp(self, args):
     print 'Not Done'
