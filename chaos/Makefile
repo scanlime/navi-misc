@@ -1,4 +1,4 @@
-CFLAGS = -O3 -g
+CFLAGS = -O3 -g -ffast-math -march=i686
 BIN = de_jong_explorer
 
 all: $(BIN)
