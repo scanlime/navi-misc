@@ -355,11 +355,11 @@ request_seqWrite12
 	pagesel	display_seq_write_byte
 	call	display_seq_write_byte
 
-	movlw	EP0_WRITE_BACKBUFFER	; Transfer control to ep0_write_backbuffer to handle the data packet
+	; Don't acknowledge yet, wait for some data on EP0 OUT
+	movlw	EP0_WRITE_BACKBUFFER
 	banksel	USB_dev_req
 	movwf	USB_dev_req
-	returnEmpty
-
+	return
 
 	; Handles the data packets that should follow request_seqWrite12
 ep0_write_backbuffer
@@ -374,7 +374,7 @@ ep0loop
     movf    src_ptr,w               ; get address of buffer
     movwf   FSR
     bsf     STATUS,IRP              ; indirectly to banks 2-3
-	movf	INDF
+	movf	INDF, w
 	pagesel	display_seq_write_byte
 	call	display_seq_write_byte
 
