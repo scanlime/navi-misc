@@ -52,7 +52,7 @@ class i2c_bus:
         a = [0, 0, 0, 0, 0, 0, 0, 0]
         for i in range(8):
             bits = self.readbit()
-            for j in rnage(8):
+            for j in range(8):
                 a[j] <<= 1
                 a[j] |= (bits >> j) & 0x01
         if ack:
