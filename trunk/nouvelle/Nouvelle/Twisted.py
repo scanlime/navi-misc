@@ -143,10 +143,17 @@ class Page(resource.Resource):
         return server.NOT_DONE_YET
 
     def _afterPreRender(self, preRenderResult, context):
+        if preRenderResult is not None:
+            if type(preRenderResult) in (str, unicode):
+                context['request'].write(preRenderResult)
+                context['request'].finish()
+            else:
+                assert preRenderResult == server.NOT_DONE_YET
+            return
+
         request = context['request']
         defer.maybeDeferred(self.serializer.render, self.document, context).addCallback(
             self.pageFinishedCallback, context).addErrback(self.pageErrorCallback, context)
-        return server.NOT_DONE_YET
 
     def pageFinishedCallback(self, obj, context):
         """Callback for asynchronous page rendering from a Deferred object"""
@@ -161,6 +168,8 @@ class Page(resource.Resource):
         """Called prior to rendering each request, subclasses can use this to annotate
            'context' with extra information or perform other important setup tasks.
            If this returns a Deferred, rendering will be delayed until it is resolved.
+           If it returns anything but None, normal rendering is aborted and render() returns
+           that value.
            """
         pass
 
