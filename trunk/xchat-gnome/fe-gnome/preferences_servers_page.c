@@ -46,16 +46,17 @@ static void edit_ok_clicked(GtkWidget *button, gpointer data) {
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 	ircnet *net;
+	char *realname, *text;
+	int position;
 
 	treeview = glade_xml_get_widget(gui.xml, "configure server list");
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	gtk_tree_selection_get_selected(select, &model, &iter);
-	gtk_tree_model_get(model, &iter, 2, &net, -1);
+	gtk_tree_model_get(model, &iter, 0, &realname, 2, &net, -1);
 
 	widget = glade_xml_get_widget(gui.xml, "server config network name");
-	char *text = (char *) gtk_entry_get_text(GTK_ENTRY(widget));
-	int position;
-	if(servlist_net_find(text, &position) != NULL) {
+	text = (char *) gtk_entry_get_text(GTK_ENTRY(widget));
+	if(!((servlist_net_find(text, &position) == NULL) || (strcmp(realname, text) == 0))) {
 		/* FIXME: pop up error about duplicate */
 		return;
 	} else if(strlen(text) == 0) {
