@@ -81,16 +81,19 @@ class TortureStats(Client.App):
 
     def main(self):
         # Load rulesets
+        print "Loading rulesets..."
         for ruleset in self.rulesets:
             self.server.ruleset.store(self.key, ruleset)
 
-        # Deliver random messages
-        totalMessages = 10000
+        # Deliver random messages. We generate them beforehand,
+        # so the time that takes isn't included in the simple benchmark
+        print "Generating messages..."
+        messages = [randomCommit() for i in xrange(10000)]
         startTime = time.time()
-        for i in xrange(totalMessages):
+        for i, message in enumerate(messages):
             speed = i / (time.time() - startTime)
-            print "Message %d/%d...\taverage %.02f messages/second" % (i, totalMessages, speed)
-            self.server.hub.deliver(randomCommit())
+            print "Message %d/%d...\taverage %.02f messages/second" % (i, len(messages), speed)
+            self.server.hub.deliver(message)
 
 if __name__ == '__main__':
     TortureStats().main()
