@@ -22,7 +22,7 @@
 #include "gui.h"
 #include <gconf/gconf-client.h>
 #include "preferences-page-irc.h"
-#include "preferences-colors-page.h"
+#include "preferences-page-colors.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_DIALOG_H
 #define XCHAT_GNOME_PREFERENCES_DIALOG_H

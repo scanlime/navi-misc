@@ -65,8 +65,8 @@ EXTRA_DIST =					\
 	pixmaps.c				\
 	preferences.h				\
 	preferences.c				\
-	preferences-colors-page.h		\
-	preferences-colors-page.c		\
+	preferences-page-colors.h		\
+	preferences-page-colors.c		\
 	preferences-dialog.h			\
 	preferences-dialog.c			\
 	preferences-page-irc.h			\
@@ -123,8 +123,8 @@ xchat_gnome_SOURCES =				\
 	pixmaps.c				\
 	preferences.h				\
 	preferences.c				\
-	preferences-colors-page.h		\
-	preferences-colors-page.c		\
+	preferences-page-colors.h		\
+	preferences-page-colors.c		\
 	preferences-dialog.h			\
 	preferences-dialog.c			\
 	preferences-page-irc.h			\
