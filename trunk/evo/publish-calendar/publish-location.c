@@ -71,7 +71,6 @@ migrateURI (const gchar *xml, xmlDocPtr doc)
 		uri->enabled = atoi (enabled);
 	if (frequency != NULL)
 		uri->publish_frequency = atoi (frequency);
-		/* FIXME - migrate #s */
 	uri->publish_format = URI_PUBLISH_AS_FB;
 	if (publish_time != NULL)
 		uri->last_pub_time = publish_time;
