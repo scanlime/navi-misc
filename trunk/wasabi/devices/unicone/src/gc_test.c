@@ -20,6 +20,10 @@
 #include "device.h"
 #include "progress.h"
 
+#ifndef EV_SYN
+#define EV_SYN EV_RST
+#endif
+
 struct gc_status {
   int btn_start;
   int btn_y;
