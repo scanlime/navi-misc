@@ -158,7 +158,6 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 
 	g_return_val_if_fail (E_IS_CAL_BACKEND_WEATHER (cbw), NULL);
 
-	uid = g_strdup_printf ("%s%s", (char *) /* FIXME */ "BLARG!", WEATHER_UID_EXT);
 	if (report->high == report->low)
 		temperature = g_strdup_printf("%f °F", report->high);
 	else
@@ -172,6 +171,7 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	e_cal_component_set_icalcomponent (cal_comp, ical_comp);
 
 	/* set uid */
+	uid = e_cal_component_gen_uid ();
 	e_cal_component_set_uid (cal_comp, uid);
 
 	/* Set all-day event's date from forecast data */
