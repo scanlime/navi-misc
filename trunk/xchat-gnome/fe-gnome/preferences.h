@@ -1,5 +1,5 @@
 /*
- * textgui.h - helpers for the main text gui
+ * preferences.h - interface to storing preferences
  *
  * Copyright (C) 2004 David Trowbridge and Dan Kuester
  *
@@ -19,26 +19,11 @@
  *
  */
 
-#include "gui.h"
-#include "../common/xchat.h"
-#include "xtext.h"
+#include <gnome.h>
 
-#ifndef XCHAT_GNOME_TEXTGUI_H
-#define XCHAT_GNOME_TEXTGUI_H
+#ifndef XCHAT_GNOME_PREFERENCES_H
+#define XCHAT_GNOME_PREFERENCES_H
 
-void initialize_text_gui();
-void text_gui_add_text_buffer(struct session *sess);
-void text_gui_remove_text_buffer(struct session *sess);
-void text_gui_print(xtext_buffer *buf, unsigned char *text, gboolean indent);
-void set_nickname(struct server *serv, char *newnick);
-void set_gui_topic(struct session *sess, char *topic);
-void clear_buffer(struct session *sess);
-
-typedef struct {
-	xtext_buffer *buffer;
-	GtkTreeModel *userlist_model;
-	GtkTextBuffer *topic_buffer;
-	GtkTextBuffer *entry_buffer;
-} session_gui;
+gboolean preferences_exist();
 
 #endif

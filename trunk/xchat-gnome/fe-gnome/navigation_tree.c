@@ -156,14 +156,17 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 	session_gui *tgui;
 
 	if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+		GtkWidget *topic, *entry;
+
 		gtk_tree_model_get(model, &iter, 2, &s, -1);
 		sess = s;
 		tgui = sess->gui;
 		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
+		topic = glade_xml_get_widget(gui.xml, "topic entry");
+		gtk_text_view_set_buffer(GTK_TEXT_VIEW(topic), tgui->topic_buffer);
 		gui.current_session = sess;
 		userlist_display(tgui);
 		set_nickname(sess->server, NULL);
-		set_gui_topic(sess, NULL);
 		/* remove any icon that exists */
 		gtk_tree_store_set(GTK_TREE_STORE(model), &iter, 0, NULL, 3, 0, -1);
 	}

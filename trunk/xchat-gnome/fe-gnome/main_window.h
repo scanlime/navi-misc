@@ -25,5 +25,6 @@
 #define XCHAT_GNOME_MAIN_WINDOW_H
 
 void initialize_main_window();
+void run_main_window();
 
 #endif

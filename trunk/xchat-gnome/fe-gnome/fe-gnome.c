@@ -27,7 +27,9 @@
 #include "gui.h"
 #include "navigation_tree.h"
 #include "textgui.h"
+#include "main_window.h"
 #include "userlist.h"
+#include "preferences.h"
 
 int fe_args(int argc, char *argv[]) {
 	if(argc > 1) {
@@ -41,9 +43,14 @@ int fe_args(int argc, char *argv[]) {
 }
 
 void fe_init(void) {
-	strcpy(prefs.nick1, "flobidob");
-	servlist_init();
 	initialize_gui();
+	if(!preferences_exist()) {
+		run_setup_druid();
+	} else {
+		strcpy(prefs.nick1, "flobidob");
+	}
+	run_main_window();
+	servlist_init();
 	prefs.use_server_tab = TRUE;
 }
 
