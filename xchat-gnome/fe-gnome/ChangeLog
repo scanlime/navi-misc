@@ -4,7 +4,7 @@
 	* Conversion to GtkUIManager - Christian Persch / David Trowbridge
 	* Implemented hilight list editing - David Trowbridge
 	* Color configuration (schemes, custom) - David Trowbridge
-	* Keybinding configuration - Dan Kuester
+	* Infrastructure for Keybinding configuration - Dan Kuester
 
 0.2 "This is my boomstick" (13 September 2004)
 	* various GUI prettification - Ramón Rey Vicente
