@@ -368,6 +368,59 @@ mvmtOnePianoSectFiveLeft = \relative b {
   | <c g'>8-.-> r8 r4 r2
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section 6, introduce developmental theme %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+mvmtOnePianoSectSixRight = \relative b'' {
+  % 110
+  | r1
+  | r2. fis4
+  | e2 d
+  | cis8 <fis fis,>~ <fis fis,> <fis fis,>~ <fis fis,> <g g,>~ <g g,> <a a,>~
+  
+  << {
+      | <a a,> <g g,>~ <g g,> <fis fis,>~ <fis fis,> <eis eis,>~ <eis eis,> <fis fis,>~
+      | <fis fis,> <e e,>~ <e e,> <d d,>~ <d d,> <a' a,>~ <a a,> <g g,>~
+      | <g g,> <g g,>~ <g g,> <b b,>~ <b b,> <eis, eis,>~ <eis eis,> <g g,>~
+      | <g g,> <fis fis,>~ <fis fis,> <e e,>~ <e e,> <d d,>~ <d d,> <cis cis,>
+    } \\ {
+      | r2 cis
+      | a fis
+      | c' d
+      | <d b> <cis ais>
+    } >>
+
+  % 118
+  | r16 b, fis' cis r ais g' c, r a' e b r bis' g d
+  | r \times 2/3 { g' d a } e r g, c e r \times 2/3 { fis' cis a } d, r a d fis
+  | r g, \times 2/3 { b c e } \times 4/5 { a g dis b g } 
+    \times 4/5 { fis ais cis e g} \times 4/5 { d' ais eis cis bis }
+  | << { \times 4/5 { fis'' c g fis dis } r g \times 2/3 { fis g a }
+         r cis, d e r cis \times 2/3 { d e fis } } \\
+       { r4 <a fis cis a> <g e b g> <fis cis ais fis> } >>
+}
+
+mvmtOnePianoSectSixLeft = \relative b, {
+  % 110
+  | b4 cis b d 
+  | cis bes a c 
+  | aes g b eis,
+  | fis a' \appoggiatura { g8[ a] } g4 ees
+  
+  | \appoggiatura { g8[ a] } b4 cis \appoggiatura { b8[ cis] } b4 d
+  | cis bes \appoggiatura { ces8[ bes] } a4 c
+  | aes g \appoggiatura { aes8[ ais] } b4 eis,
+  | fis <a, a,> \appoggiatura { g8[ a] } <g g,>4 <eis eis,>
+
+  % 118
+  | \appoggiatura { g8[ a] } <b b,>4 <cis cis,> <b b,> <d d,>
+  | <cis cis,> <bes bes,> <a a,> <c c,>
+  | <aes aes,> <g g,> <b b,> <eis, eis,> 
+  | <fis fis,> <a' a,> <g g,> <fis fis,>
+}
+
+
 mvmtOnePianoRight = {
   \clef treble
   \key b \minor
@@ -382,6 +435,8 @@ mvmtOnePianoRight = {
   \time 4/4
   R1*4
   \mvmtOnePianoSectFiveRight
+  R1*8
+  \mvmtOnePianoSectSixRight
 }
 
 mvmtOnePianoLeft = {
@@ -398,4 +453,6 @@ mvmtOnePianoLeft = {
   \time 4/4
   R1*4
   \mvmtOnePianoSectFiveLeft
+  R1*8
+  \mvmtOnePianoSectSixLeft
 }
