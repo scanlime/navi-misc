@@ -153,8 +153,9 @@ module n_serial_rx (clk, reset, serial_in,
 	 * as long as we're idle.
 	 */
 	wire tick;
-	wire tick_reset = state == S_IDLE;
-	n_serial_timebase rx_ticker(clk, reset, tick, 1'b0, tick_reset);
+	wire tick_sync_reset = 1'b0;
+	wire tick_sync_center = state == S_IDLE;
+	n_serial_timebase rx_timebase(clk, reset, tick, tick_sync_reset, tick_sync_center);
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
@@ -341,7 +342,9 @@ module n_serial_tx (clk, reset,
 	
 	/* 1us serial timebase, without the sync resets hooked up */
 	wire tick;
-	n_serial_timebase tx_ticker(clk, reset, tick, 0, 0);
+	wire tick_sync_reset = 1'b0;
+	wire tick_sync_center = 1'b0;
+	n_serial_timebase tx_timebase(clk, reset, tick, tick_sync_reset, tick_sync_center);
 	
 	/* Buffer the incoming data stream, consisting
 	 * of both the tx_data and the stop bit flag.
