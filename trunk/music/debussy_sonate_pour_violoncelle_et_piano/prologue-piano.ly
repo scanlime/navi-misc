@@ -16,14 +16,21 @@ prologuePianoTreble = \new Voice \notes\relative c' {
     ^\prologueTempo
     <f a>2. (g8 e8)
     <f a>2.\tenuto\marcato a8 b16 c
-    \times 2/3 {c16\accent (b a g8.)} r4
+    \once \override Slur #'attachment-offset = #'((0 . 2) . (0 . 2))
+    \times 2/3 {c16\accent (b a)} <d, g>8 r4
   } \\ {
     \once \override DynamicText #'extra-offset = #'(0 . -2.0)
-    r8\f r16 \times 2/3 {c,32 [d e]} d4. f8 e d16 c ~
+    r8\f
+    \once \override Rest #'extra-offset = #'(0 . -1.8)
+    r16 \times 2/3 {c32 [d e]} d4. f8 e d16 c ~
     c8 bis16\< a bis2 <g c>4\!
+    \once \override TextScript #'extra-offset = #'(-1 . 0)
     r8
     _\markup {\bold \italic "più" \dynamic f}
+    \once \override Rest #'extra-offset = #'(0 . -1.8)
     r16 \times 2/3 {c32 [d e]} d4.  f8\< ~ f4\!
+    \once \override Slur #'attachment = #'(stem . stem)
+    \once \override Slur #'attachment-offset = #'((0 . 1) . (0 . 1))
     <d g>8 (\times 2/3 {c16_\accent b a} g8) r8
   } >>
   r2
@@ -45,11 +52,14 @@ prologuePianoTreble = \new Voice \notes\relative c' {
   } \\ {
     r2 ees,4 ~ ees8 r8
     r2 ees4 ~ ees8 r8
+    \once \override TextScript #'extra-offset = #'(0 . -2.0)
     d'4
     _\markup {\bold \italic "sempre" \dynamic pp}
     (cis c b)
     d (cis c\> b\!)
   } >>
+  \once \override TextScript #'extra-offset = #'(0 . -1.4)
+  \slurUp
   <a d f>4
   _\markup {\bold \italic "più dolce"}
   (<g c e> <f bes d> <g c e>
@@ -63,18 +73,30 @@ prologuePianoTreble = \new Voice \notes\relative c' {
   } >>
   << {
     \stemUp c'2 (d4 e)
+    <a, f'a>4 (<a f' a>) <a f' a> (<a f' a>)
   } \\ {
     << {
-      \stemDown a,4
+      \stemDown a4
       \stemUp aes ~ aes ~ aes
     } \\ {
       f4 (e2\< \stemUp d4\!)
     } >>
+    \stemDown
+    cis'2 cis
   } >>
-  r1
-  r1
-  r1
-  ^\auMouvt
+  \clef bass
+  <a, c e>4
+  ^\cedez
+  (<g b d> <f a d>) ~ <f a d>8 r8
+  \clef treble
+  << {
+    <a e'>2
+    ^\auMouvt
+    <a e'> ~
+%    e8 (f g a a) r8 r4
+  } \\ {
+    bes4\p\< (cis)\! bes\p\< (cis)\!
+  } >>
 }
 
 prologuePianoBass = \new Voice \notes\relative c {
@@ -98,11 +120,12 @@ prologuePianoBass = \new Voice \notes\relative c {
   f'4 (bes,) f' (bes,)
   f' (bes,) f' (bes,)
   << {
+    <g g'>4 (<fis fis'>) <g g'> (<fis fis'>)
   } \\ {
+    cis'2 cis
   } >>
-  r1
-  r1
-  r1
+  <a e'>4 (<g d'> <d a' d>) ~ <d, d' a' d>8 r8
+  <a' e'>2 <a e'>
 }
 
 prologueMiddleDynamics = \notes {

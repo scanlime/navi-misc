@@ -51,14 +51,18 @@ prologueCello = \notes \relative c {
   (f e) r8 a16 (f e4) ~
   e8 (d16 c a4 ~ a8\> f e d\!)
   \clef bass
-  r8 bes
+  r8
+  \slurDown
+  \once \override TextScript #'extra-offset = #'(-1 . -2)
+  bes
   _\markup {\bold \italic "più dolce"}
   (c d e d16 c bes4 ~
   bes8\> a g4)\! ~ g8 r8 r4
   \clef tenor
+  \slurUp
   r8 a''8
   _\markup {\bold \italic "più" \dynamic p}
-  (f e) r8 (a16 f e4) ~
+  (f e) r8 a16 (f e4) ~
   e8 (d16 c aes4 ~ aes8\< bes c d\!)
   \clef bass
   r2 r8 a16\pp (f e4 ~
