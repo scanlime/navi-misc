@@ -389,6 +389,14 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 				wait_for_tx <= 0;
 			end
 
+			else if (wait_for_tx) begin
+				// Kill one cycle immediately after we transmit something,
+				// to let the transmitter buffer update itself.
+				wait_for_tx <= 0;
+				tx_strobe <= 0;
+				bit_count <= bit_count + 1;
+			end
+
 			else begin
 				// We're in the middle of transmitting something.
 				// It doesn't matter what, since above we've multiplexed
@@ -404,17 +412,9 @@ module gc_controller (clk, reset, tx_timing, gc_port, rumble,
 				end
 				else if (resp_current_ack && !tx_busy) begin
 					// We happen to have data available and room in the transmitter.
-					// Strobe out one bit. After this, we need to wait one clock cycle
-					// for tx_busy to be updated.
-					if (wait_for_tx) begin
-						wait_for_tx <= 0;
-						tx_strobe <= 0;
-						bit_count <= bit_count + 1;
-					end
-					else begin
-						tx_strobe <= 1;
-						wait_for_tx <= 1;
-					end
+					// Strobe out one bit.
+					tx_strobe <= 1;
+					wait_for_tx <= 1;
 				end
 			end
 		end

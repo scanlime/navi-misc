@@ -10,8 +10,8 @@ top_level=VHDL
 HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
-library_net=ON
-lib_order=155 155 155 155 155 155 155 155 155 155 133 155
+library_net=OFF
+lib_order=133 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -123,7 +123,7 @@ netlist.log=Simulator Netlist Log
 [sim_config]
 Lower Bound=2048
 Upper Bound=2048
-B0 Period=50
+B0 Period=200
 Transport Delay=On
 Enable Global Netlist Analysis=On
 Forced State=Default
@@ -139,6 +139,7 @@ gamecube=
 [designs]
 foo=
 bar=
+zeroloop=
 [Schematic]
 Table01=Project
 Table02=Sheet
