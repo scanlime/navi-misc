@@ -107,6 +107,7 @@ nodes using either the GUI or -c on the command line. If you're dealing
 with a large cluster, the cluster-utils.sh file will probably prove useful.
 Clusters on the local network can be autodetected using UDP broadcast packets.
 See the -C command line option, or the autodetection check box in the GUI.
+Note that cluster mode cannot be used for animations at this time.
 
 
 Dependencies
