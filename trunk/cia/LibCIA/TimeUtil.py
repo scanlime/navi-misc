@@ -72,6 +72,10 @@ class Interval(object):
 
         return dt >= self.range[0] and dt < self.range[1]
 
+    def getFirstTimestamp(self):
+        """Return the first timestamp value within this range"""
+        return datetimeToTimestamp(self.range[0])
+
     def today(self, now):
         midnightToday = now.replace(hour=0, minute=0, second=0, microsecond=0)
         midnightTomorrow = midnightToday + datetime.timedelta(days=1)
@@ -156,6 +160,13 @@ def formatDateRFC822(t):
     """Format a data, in UTC seconds since the epoch, using RFC822 formatting"""
     return time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime(t))
 
+def mktime_utc(data):
+    t = time.mktime(data[:8] + (0,))
+    return t - time.timezone
+
+def datetimeToTimestamp(datetime):
+    """Convert a UTC datetime object to a UTC timestamp"""
+    return mktime_utc(datetime.utctimetuple())
 
 def _test():
     import doctest, TimeUtil

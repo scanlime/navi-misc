@@ -14,6 +14,9 @@ hub = Message.Hub()
 # A network of IRC bots used to handle irc:// URIs
 botNet = IRC.BotNetwork("CIA-%d")
 
+# Set up periodic maintenance of our stats database
+Stats.Maintenance().run()
+
 # A list of URI handlers that can be used as targets for rulesets
 uriRegistry = Ruleset.URIRegistry(
     IRC.IrcURIHandler(botNet),
