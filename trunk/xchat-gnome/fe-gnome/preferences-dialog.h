@@ -40,6 +40,12 @@ struct _PreferencesDialog
 	GtkDialog parent;
 
 	GConfClient *gconf;
+
+	GtkWidget *toplevel;
+	GtkWidget *settings_page_list;
+	GtkWidget *settings_notebook;
+
+	GtkListStore *page_store;
 };
 
 struct _PreferencesDialogClass
