@@ -23,6 +23,30 @@
 	;;   http://instruct1.cit.cornell.edu/courses/ee476/FinalProjects/s2002/jew17/lld.html
 	;;   http://www.mixdown.ca/n64dev/
 	;;
+	;; Unfortunately, the above sources still don't tell you everything you
+	;; need to know to trick an N64 into thinking you're a controller. The rest
+	;; of this information was reverse engineered by the author.
+	;;
+	;; The serial format is the same as that used by the gamecube: zeroes
+	;; are 1us off 3us on, ones are 3us off 1us on. All packets are a multiple
+	;; of 8 bits long not including the single '1' bit used as a stop bit.
+	;;
+	;; The N64 initiates communications by sending a 1-byte command packet. The
+	;; following commands are known:
+	;;
+	;;   0x00 :   Asks the controller to identify itself. Returns a 24-bit word.
+	;;            An official N64 controller will respond with 0x050002 if it has
+	;;            nothing in the expansion slot, 0x050001 if it has a memory or
+	;;            rumble pak installed.
+	;;
+	;;   0x01 :   Returns a 32-bit status word including all button and axis state.
+	;;            The format of this status word is documented in the sources above.
+	;;
+	;;   0x03 :   Seems to read from the expansion slot. Some games (Ocarina of Time
+	;;            and Majora's Mask at least) require this to be supported even if
+	;;            the controller's response to the identification command doesn't
+	;;            indicate that it has a memory/rumble pak.
+	;; 
 
 	list	p=16f84a
 	#include p16f84a.inc
