@@ -54,10 +54,6 @@ __all__ = [
     ]
 
 
-class ProtocolException(Exception):
-    pass
-
-
 class EntryType:
     """Abstract base class for a data type used in structure entries"""
     def unmarshall(self, packed):

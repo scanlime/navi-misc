@@ -24,7 +24,7 @@ links.
 # 
 
 from BZFlag.Protocol import Common
-from BZFlag import Protocol
+from BZFlag import Protocol, Errors
 import socket, select
 
 
@@ -144,7 +144,7 @@ class Socket:
         try:
             msgClass = Common.getMessageDict()[header.id]
         except KeyError:
-            raise Protocol.ProtocolException("Received unknown message type 0x%04X" % header.id)
+            raise Errors.ProtocolException("Received unknown message type 0x%04X" % header.id)
         return msgClass(str(header) + body)
 
 
@@ -163,7 +163,12 @@ class EventLoop:
             (iwtd, owtd, ewtd) = select.select(selectables, [], selectables)
             readyList = iwtd + owtd + ewtd
             for ready in readyList:
-                selectDict[ready].poll(self)
+                try:
+                    selectDict[ready].poll(self)
+                except Errors.NonfatalException:
+                    # Catch nonfatal exceptions
+                    import sys
+                    print "*** %s: %s" % (sys.exc_info()[0], sys.exc_info()[1])
 
     def stop(self):
         self.running = 0

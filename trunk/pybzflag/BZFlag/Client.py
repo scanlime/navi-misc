@@ -24,7 +24,7 @@ in subclasses.
 # 
 
 import BZFlag
-from BZFlag import Network, Protocol
+from BZFlag import Network, Protocol, Errors
 from BZFlag.Protocol import FromServer, ToServer, Common
 
 
@@ -102,7 +102,7 @@ class BaseClient:
         # the server version and our client ID.
         hello = socket.readStruct(FromServer.HelloPacket)
         if hello.version != BZFlag.protocolVersion:
-            raise Protocol.ProtocolException(
+            raise Errors.ProtocolException(
                 "Protocol version mismatch: The server is version " +
                 "'%s', this client is version '%s'." % (
                 hello.version, BZFlag.protocolVersion))
