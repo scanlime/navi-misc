@@ -1,6 +1,6 @@
 BIN = rcpod.hex
 LKR = 16c745.lkr
-OBJ = usb_main.o usb_ch9.o descript.o
+OBJ = usb_main.o usb_ch9.o descript.o commands.o
 ASMFLAGS = -p p16c745
 
 $(BIN): $(OBJ)
