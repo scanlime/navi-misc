@@ -58,17 +58,4 @@ class SimpleCIAInterface(xmlrpc.XMLRPC):
         return True
 
 
-if __name__ == "__main__":
-    # A simple test that just creates a hub and starts an XML-RPC server
-    from twisted.internet import reactor
-    from twisted.web import server
-    from Message import Hub
-    hub = Hub()
-    def f(msg):
-        print msg
-    hub.addClient(f)
-    r = SimpleCIAInterface(hub)
-    reactor.listenTCP(3910, server.Site(r))
-    reactor.run()
-
 ### The End ###
