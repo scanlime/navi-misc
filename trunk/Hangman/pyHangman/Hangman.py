@@ -8,7 +8,8 @@ Hangman class, functions for controlling a game of hangman.
 # evan@navi.picogui.org
 #
 
-import sys, pickle
+import sys, os
+from Menu import menu
 from random import seed, randint
 
 class Hangman:
@@ -17,6 +18,7 @@ class Hangman:
 		self.answer = 0
 		self.words = []
 		self.guesses = []
+		self.correct = []
 
 
 	def FilePlay(self, fileName):
@@ -49,10 +51,9 @@ class Hangman:
 		""" Once game data is all set this runs the game flow through the course of
 		1 round.
 		"""
-		correct = []
 		
 		for i in range(len(self.words[self.answer])):
-			correct.append('_')
+			self.correct.append('_')
 		
 		while len(self.guesses) < 8:
 			print "Enter a guess: "
@@ -62,17 +63,21 @@ class Hangman:
 			if self.words[self.answer].find(temp) != -1:
 				# If the answer is correct insert it into the correct places in the
 				# 'correct' list.
-				correct = [self.TestEntry(i, temp) for i in range(len(correct))]
+				self.correct = [self.TestEntry(i, temp) for i in range(len(self.correct))]
 			# If not correct append to guesses.
 			else:
 				self.guesses.append(temp)
 
-			print correct
+			print self.correct
 
 	def TestEntry(self, index, entry):
-		if self.words[self.answer][index] != '_':
-			return self.words[self.answer][index]
-		elif self.words[self.answer][index] != entry:
+		""" Test 'entry' against all of the characters in words. If it matches, return
+		it, if not and that letter has already been guessed correctly return the letter,
+		otherwise return a '_'.
+		"""
+		if self.correct[index] != '_':	
+			return self.correct[index]
+		elif self.words[self.answer][index] != entry:	
 			return '_'
 		else:
 			return entry
@@ -82,5 +87,9 @@ class Hangman:
 		""" Prompt for a file name and return it. """
 		print "Enter a file name:"
 		fileName = sys.stdin.readline().strip()
+		
+		if fileName == '?':
+			fileName = menu("Files:", os.listdir("games"))
 
+		fileName = "games/" + fileName
 		return fileName
