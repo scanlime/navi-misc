@@ -25,6 +25,7 @@ void CTestGame::registerFactory (const char* name, CBaseDrawableFactory* factory
 
 void CTestGame::Init ( void )
 {
+	InitNetwork();
 	// do one time init stuff here
 	registerFactory("sky",new CSkyboxObjectFactory);
 	registerFactory("ground",new CGroundObjectFactory);
@@ -32,6 +33,7 @@ void CTestGame::Init ( void )
 
 void CTestGame::Kill ( void )
 {
+	FreeNetwork();
 	std::vector<CBaseDrawableFactory*>::iterator	itr = factoryList.begin();
 	while (itr != factoryList.end())
 		delete(*(itr++));
