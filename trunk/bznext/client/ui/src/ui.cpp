@@ -61,14 +61,14 @@ void CUserInterface::LoadPanels ( void )	// load and init all panels
 
 void CUserInterface::Attach ( void )	// prepare the current panel for display
 {
-	gameLoop->GetSceneManager()->clearScene();
+	gameLoop->ClearScene();
 	panelStack[panelStack.size()-1]->Attach();
 }
 
 void CUserInterface::Release ( void )	// let the panel display go, we are going to the game
 {
 	panelStack[panelStack.size()-1]->Release();
-	gameLoop->GetSceneManager()->clearScene();
+	gameLoop->ClearScene();
 }
 
 bool CUserInterface::Think ( void )
@@ -96,7 +96,7 @@ bool CUserInterface::Think ( void )
 				{
 					panelStack[panelStack.size()-1]->Release();
 					panelStack.pop_back();
-					gameLoop->GetSceneManager()->clearScene();
+					gameLoop->ClearScene();
 					panelStack[panelStack.size()-1]->Attach();
 				}
 				else	// if there are no more panels I guess we are done
@@ -110,7 +110,7 @@ bool CUserInterface::Think ( void )
 				{
 					panelStack[panelStack.size()-1]->Release();
 					panelStack.push_back(itr->second);
-					gameLoop->GetSceneManager()->clearScene();
+					gameLoop->ClearScene();
 					panelStack[panelStack.size()-1]->Attach();
 				}
 			}
