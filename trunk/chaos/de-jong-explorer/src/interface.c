@@ -67,13 +67,14 @@ void interactive_main(int argc, char **argv) {
   gtk_init(&argc, &argv);
   glade_init();
 
-  gui.xml = glade_xml_new("data/explorer-ui.glade", NULL, NULL);
+  gui.xml = glade_xml_new("data/de-jong-explorer.glade", NULL, NULL);
   glade_xml_signal_autoconnect(gui.xml);
 
   gui.window = glade_xml_get_widget(gui.xml, "explorer_window");
 
   gui.drawing_area = glade_xml_get_widget(gui.xml, "main_drawingarea");
   gui.gc = gdk_gc_new(gui.drawing_area->window);
+  gtk_widget_set_size_request(gui.drawing_area, render.width, render.height);
 
   gui.statusbar = GTK_STATUSBAR(glade_xml_get_widget(gui.xml, "statusbar"));
   gui.render_status_context = gtk_statusbar_get_context_id(gui.statusbar, "Rendering status");
@@ -164,8 +165,31 @@ static int interactive_idle_handler(gpointer user_data) {
 }
 
 gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
-  update_drawing_area();
-  return TRUE;
+  GdkRectangle *rects;
+  int n_rects, i;
+
+  gdk_region_get_rectangles(event->region, &rects, &n_rects);
+
+  for (i=0; i<n_rects; i++) {
+    /* Clip this rectangle to the image size, since reading outside our buffer is a bad thing */
+    if (rects[i].x + rects[i].width > render.width)
+      rects[i].width = render.width - rects[i].x;
+    if (rects[i].y + rects[i].height > render.height)
+      rects[i].height = render.height - rects[i].y;
+    if (rects[i].width <= 0 || rects[i].height <= 0)
+      continue;
+
+    /* Render a rectangle taken from our pixels[] array */
+    gdk_draw_rgb_32_image(gui.drawing_area->window, gui.gc,
+			  rects[i].x, rects[i].y,
+			  rects[i].width, rects[i].height,
+			  GDK_RGB_DITHER_NORMAL,
+			  (guchar*) (render.pixels + rects[i].x + rects[i].y * render.width),
+			  render.width * 4);
+  }
+
+  g_free(rects);
+  return FALSE;
 }
 
 gboolean on_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
