@@ -37,13 +37,12 @@ class RcpodTestCase(unittest.TestCase):
         self.rcpod.close()
 
 
-def main():
-    """A 'main' function for tests to invoke.
-       Currently just passes control to unittest.main(),
-       but this in the future may be used to specify rcpod-related
-       command line options.
-       """
-    unittest.main()
+# "A 'main' function for tests to invoke.
+# Currently just passes control to unittest.main(),
+# but this in the future may be used to specify rcpod-related
+# command line options.
+main = unittest.main
+
 
 ### The End ###
 

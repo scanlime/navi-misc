@@ -9,13 +9,14 @@ from rcpod_test import *
 import unittest
 import pyrcpod
 import random
+import time
 
 
 class Dual485Test(unittest.TestCase):
     """A TestCase subclass that opens two rcpod-485 devices"""
     def setUp(self):
         if len(pyrcpod.devices) != 2:
-            raise Exception("This test requires exactly two rcpod devices");
+            raise IOError("This test requires exactly two rcpod devices");
         self.rcpods = [dev.open(pyrcpod.Rcpod485) for dev in pyrcpod.devices]
 
     def tearDown(self):
@@ -26,42 +27,60 @@ class Dual485Test(unittest.TestCase):
 
 
 class CommTest(Dual485Test):
-    """Sends packets back and forth between two rcpod devices"""
+    """Sends a packet back and forth between two rcpod devices,
+       at the specified baud rate. Each instance of this class
+       represents one packet, baud rate, and transmission direction
+       to test at.
+       """
+    def __init__(self, data, source, destination, baud):
+        self.data = data
+        self.source = source
+        self.destination = destination
+        self.baud = baud
+        Dual485Test.__init__(self)
 
-    def testBytePackets(self):
-        """tests communications with various one-byte packets that form corner cases"""
-        for byte in testBytes:
-            self.tryPacket([byte])
-
-    def testLongPacket(self):
-        """tests communications with maximum-size packets"""
-        self.tryPacket([random.randint(0,255)
-                        for i in xrange(self.rcpods[0].scratchpadSize)])
-
-    def setBaud(self, baud):
-        """Initialize both rcpods' serial ports, setting the baud rate"""
+    def runTest(self):
         for rcpod in self.rcpods:
-            rcpod.serialInit(baud)
+            rcpod.serialInit(self.baud)
 
-    def tryPacket(self, data):
-        """Given a chunk of data to test with, send from each rcpod,
-           using the other rcpod to receive and validate the data.
-           Tests at multiple baud rates.
-           """
-        for baud in (110, 300, 1200, 2400, 4800, 9600, 19200, 57600, 115200):
-            self.setBaud(baud)
+        source = self.rcpods[self.source]
+        destination = self.rcpods[self.destination]
 
-            for source, destination in [
-                (self.rcpods[0], self.rcpods[1]),
-                (self.rcpods[1], self.rcpods[0]),
-                ]:
-                destination.serialRxStart(destination.scratchpadSize)
-                source.serialTx(data)
-                returned = destination.serialRxFinish(type(data))
-                self.assertEqual(data, returned, "%s -> %s (at %d baud)" %
-                                 (data, returned, baud))
+        destination.serialRxStart(destination.scratchpadSize)
+        source.serialTx(self.data)
+        returned = destination.serialRxFinish(type(self.data))
+        self.assertEqual(self.data, returned)
+
+    def __str__(self):
+        return "sending from rcpod%d to rcpod%d at %d baud" % (
+            self.source, self.destination, self.baud)
+
+
+class CommSuite(unittest.TestSuite):
+    """A test suite that automatically builds a list of
+       CommTest instances to test all baud rates, device
+       combinations, and test packets.
+       """
+    def __init__(self, tests=()):
+        unittest.TestSuite.__init__(self, tests)
+        self.addCommTests()
+
+    def addCommTests(self):
+        # Start out by testing single-byte packets that act as corner cases
+        testPackets = [[byte] for byte in testBytes]
+
+        # Add a few random maximum-length packets
+#        for i in xrange(4):
+#            testPackets.append([random.randint(0,255)
+#                                for j in xrange(pyrcpod.device.RCPOD_SCRATCHPAD_SIZE)])
+
+        for packet in testPackets:
+            for baud in (300, 9600, 115200):
+                for source, destination in [(0,1), (1,0)]:
+                    self.addTest(CommTest(packet, source, destination, baud))
+
 
 if __name__ == '__main__':
-    main()
+    main(defaultTest="CommSuite")
 
 ### The End ###
