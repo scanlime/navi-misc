@@ -35,4 +35,5 @@ tweaker.show()
 vbox.pack_start(tweaker, gtk.FALSE)
 
 win.show()
+win.connect("destroy", gtk.mainquit)
 gtk.main()

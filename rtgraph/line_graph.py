@@ -45,4 +45,5 @@ for name, rate, channels in [
     vbox.pack_end(frame)
 
 win.show()
+win.connect("destroy", gtk.mainquit)
 gtk.main()

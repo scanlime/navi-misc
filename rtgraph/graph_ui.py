@@ -42,5 +42,6 @@ channels = [
     ]
 
 win = rtgraph.GraphUIWindow(channels, rtgraph.HScrollLineGraph(range=(-1,1)))
+win.connect("destroy", gtk.mainquit)
 gtk.main()
 
