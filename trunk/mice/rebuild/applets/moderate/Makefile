@@ -2,15 +2,27 @@ CLASSES =\
 	net.class\
 	keyinfo.class\
 	key.class\
-	build.class\
 	moderate.class\
 	authenticate.class\
-	accept.class
+	build.class\
+	accept.class\
+	quit.class\
+	get.class\
+	reject.class
 
 app: $(CLASSES)
 
 moderate.class: moderate.java
 	javac moderate.java
+
+quit.class: quit.java
+	javac quit.java
+
+get.class: get.java
+	javac get.java
+
+reject.class: reject.java
+	javac reject.java
 
 accept.class: accept.java
 	javac accept.java
