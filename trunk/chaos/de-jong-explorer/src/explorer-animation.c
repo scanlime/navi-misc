@@ -173,7 +173,7 @@ static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter) {
 
 static void on_keyframe_add(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
-  animation_keyframe_append(self->animation, self->dejong);
+  animation_keyframe_append(self->animation, PARAMETER_HOLDER(self->dejong));
   explorer_update_animation_length(self);
 }
 
@@ -181,7 +181,7 @@ static void on_keyframe_replace(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   GtkTreeIter iter;
   explorer_get_current_keyframe(self, &iter);
-  animation_keyframe_store_dejong(self->animation, &iter, self->dejong);
+  animation_keyframe_store(self->animation, &iter, PARAMETER_HOLDER(self->dejong));
 }
 
 static void on_keyframe_delete(GtkWidget *widget, gpointer user_data) {
@@ -228,7 +228,7 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
     /* Now load this keyframe's parameters. Usually seeking won't do this,
      * but we need to make sure because zero-duration keyframes can't be seeked to.
      */
-    animation_keyframe_load_dejong(self->animation, &iter, self->dejong);
+    animation_keyframe_load(self->animation, &iter, PARAMETER_HOLDER(self->dejong));
     explorer_set_params(self);
 
     /* Set the transition scale to zero. Normally setting anim_scale would be
@@ -401,7 +401,7 @@ static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
   animation_iter_seek(self->animation, &iter, v);
   if (iter.valid) {
 
-    animation_iter_load_dejong(self->animation, &iter, self->dejong);
+    animation_iter_load(self->animation, &iter, PARAMETER_HOLDER(self->dejong));
 
     /* Seek the transition_scale to our current position within the current keyframe */
     if (!self->seeking_animation_transition) {

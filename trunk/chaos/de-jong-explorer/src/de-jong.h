@@ -1,8 +1,6 @@
 /*
- * de-jong.h - The DeJong object stores all the parameters necessary for
- *             rendering the de Jong map, runs iterations to generate a
- *             point histogram, and can update a GdkPixbuf with an image
- *             generated from the histogram.
+ * de-jong.h - The DeJong object builds on the ParameterHolder and HistogramRender
+ *             objects to provide a rendering of the DeJong map into a histogram image.
  *
  * de Jong Explorer - interactive exploration of the Peter de Jong attractor
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
@@ -27,6 +25,7 @@
 #define __DE_JONG_H__
 
 #include <gtk/gtk.h>
+#include "histogram-imager.h"
 
 G_BEGIN_DECLS
 
@@ -39,116 +38,41 @@ G_BEGIN_DECLS
 typedef struct _DeJong      DeJong;
 typedef struct _DeJongClass DeJongClass;
 
-
-/* DEBUGGATIVE CRUFT */
-typedef struct {
-  guint ix;
-  gboolean initialized;
-  gdouble point_x, point_y;
-  struct {
-    gboolean initialized;
-    double a,b,c,d;
-  } interpolated[1];
-} BifurcationColumn;
-
-
 struct _DeJong {
-  GObject object;
+  HistogramImager parent;
 
-  /* Current image size
-   */
-  guint width, height;
-  guint oversample;
-  gboolean size_dirty_flag;
-
-  /* Calculation Parameters
-   *
-   * Parameters that affect the calculation process.
-   * Changing these requires starting calculation over.
-   */
+  /* Calculation Parameters */
   gdouble a, b, c, d;
   gdouble zoom, xoffset, yoffset, rotation;
   gdouble blur_radius, blur_ratio;
   gboolean tileable;
   gboolean calc_dirty_flag;
 
-  /* Rendering Parameters
-   *
-   * Changing these parameters will not affect the
-   * histogram, only the image generated from it.
-   */
-  gdouble exposure, gamma;
-  GdkColor fgcolor, bgcolor;
-  guint fgalpha, bgalpha;
-  gboolean clamped;
-  gboolean render_dirty_flag;
-
-  /* Current rendering/calculation state
-   */
+  /* Current calculation state */
   gdouble point_x, point_y;
   gdouble iterations;
-  gulong current_density;
-  gulong target_density;
-  guint *histogram;
-
-  GdkPixbuf *image;
-
-  guint color_table_allocated_size;
-  guint color_table_filled_size;
-  guint32 *color_table;
-
-  /* DEBUGGATIVE CRUFT */
-  BifurcationColumn *columns;
-  int current_column;
 };
 
 struct _DeJongClass {
-  GObjectClass parent_class;
+  HistogramImagerClass parent_class;
 };
-
-typedef void (DeJongInterpolator)(DeJong  *self,
-				  double   alpha,
-				  gpointer user_data);
-
-#define DE_JONG_INTERPOLATOR(x)   ((DeJongInterpolator*)(x))
-
-typedef struct {
-  DeJong *a, *b;
-} DeJongPair;
 
 
 /************************************************************************************/
 /******************************************************************* Public Methods */
 /************************************************************************************/
 
-GType      de_jong_get_type();
-DeJong*    de_jong_new();
+GType      de_jong_get_type         ();
+DeJong*    de_jong_new              ();
 
-void       de_jong_reset_to_defaults(DeJong *self);
-void       de_jong_set(DeJong *self, const gchar* property, const gchar* value);
+void       de_jong_calculate        (DeJong                *self,
+				     guint                  iterations);
 
-void       de_jong_calculate(DeJong *self, guint iterations);
-void       de_jong_update_image(DeJong *self);
-GdkPixbuf* de_jong_make_thumbnail(DeJong *self, guint max_width, guint max_height);
-
-void       de_jong_load_string(DeJong *self, const gchar *params);
-gchar*     de_jong_save_string(DeJong *self);
-
-void       de_jong_load_image_file(DeJong *self, const gchar *filename);
-void       de_jong_save_image_file(DeJong *self, const gchar *filename);
-
-void       de_jong_interpolate_linear(DeJong *self, gdouble alpha, DeJongPair *p);
-
-void       de_jong_calculate_motion(DeJong             *self,
-				    guint               iterations,
-				    gboolean            continuation,
-				    DeJongInterpolator *interp,
-				    gpointer            interp_data);
-
-void       de_jong_calculate_bifurcation(DeJong             *self,
-					 DeJongInterpolator *interp,
-					 gpointer            interp_data,
-					 guint               iterations);
+void       de_jong_calculate_motion (DeJong                *self,
+				     guint                  iterations,
+				     gboolean               continuation,
+				     ParameterInterpolator *interp,
+				     gpointer               interp_data);
 
 G_END_DECLS
 

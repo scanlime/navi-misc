@@ -28,9 +28,14 @@
 #include "animation.h"
 #include "explorer.h"
 
-static void usage(char **argv);
-static void animation_render_main(DeJong *dejong, Animation *animation, const gchar *filename);
-static void image_render_main(DeJong *dejong, const gchar *filename);
+static void usage                  (char       **argv);
+static void animation_render_main  (DeJong      *dejong,
+				    Animation   *animation,
+				    const gchar *filename,
+				    gulong       target_density);
+static void image_render_main      (DeJong      *dejong,
+				    const gchar *filename,
+				    gulong       target_density);
 
 
 int main(int argc, char ** argv) {
@@ -40,6 +45,7 @@ int main(int argc, char ** argv) {
   enum {INTERACTIVE, RENDER} mode = INTERACTIVE;
   const gchar *outputFile;
   int c, option_index=0;
+  gulong target_density = 10000;
 
   srand(time(NULL));
   g_type_init();
@@ -77,33 +83,43 @@ int main(int argc, char ** argv) {
 
     switch (c) {
 
-    case 'i':  de_jong_load_image_file(dejong, optarg);       break;
-    case 'o':  mode = RENDER; outputFile = optarg;            break;
-    case 'a':  de_jong_set(dejong, "a",              optarg); break;
-    case 'b':  de_jong_set(dejong, "b",              optarg); break;
-    case 'c':  de_jong_set(dejong, "c",              optarg); break;
-    case 'd':  de_jong_set(dejong, "d",              optarg); break;
-    case 'x':  de_jong_set(dejong, "xoffset",        optarg); break;
-    case 'y':  de_jong_set(dejong, "yoffset",        optarg); break;
-    case 'z':  de_jong_set(dejong, "zoom",           optarg); break;
-    case 'r':  de_jong_set(dejong, "rotation",       optarg); break;
-    case 'e':  de_jong_set(dejong, "exposure",       optarg); break;
-    case 'g':  de_jong_set(dejong, "gamma",          optarg); break;
-    case 's':  de_jong_set(dejong, "size" ,          optarg); break;
-    case 't':  de_jong_set(dejong, "target_density", optarg); break;
-    case 1000: de_jong_set(dejong, "blur_radius",    optarg); break;
-    case 1001: de_jong_set(dejong, "blur_ratio",     optarg); break;
-    case 1002: de_jong_set(dejong, "fgcolor",        optarg); break;
-    case 1003: de_jong_set(dejong, "bgcolor",        optarg); break;
-    case 1004: de_jong_set(dejong, "clamped",        "1");    break;
-    case 1005: de_jong_set(dejong, "oversample",     optarg); break;
-    case 1006: de_jong_set(dejong, "tileable",       "1");    break;
-    case 1007: de_jong_set(dejong, "fgalpha",        optarg); break;
-    case 1008: de_jong_set(dejong, "bgalpha",        optarg); break;
+    case 'a':  parameter_holder_set(PARAMETER_HOLDER(dejong), "a",              optarg); break;
+    case 'b':  parameter_holder_set(PARAMETER_HOLDER(dejong), "b",              optarg); break;
+    case 'c':  parameter_holder_set(PARAMETER_HOLDER(dejong), "c",              optarg); break;
+    case 'd':  parameter_holder_set(PARAMETER_HOLDER(dejong), "d",              optarg); break;
+    case 'x':  parameter_holder_set(PARAMETER_HOLDER(dejong), "xoffset",        optarg); break;
+    case 'y':  parameter_holder_set(PARAMETER_HOLDER(dejong), "yoffset",        optarg); break;
+    case 'z':  parameter_holder_set(PARAMETER_HOLDER(dejong), "zoom",           optarg); break;
+    case 'r':  parameter_holder_set(PARAMETER_HOLDER(dejong), "rotation",       optarg); break;
+    case 'e':  parameter_holder_set(PARAMETER_HOLDER(dejong), "exposure",       optarg); break;
+    case 'g':  parameter_holder_set(PARAMETER_HOLDER(dejong), "gamma",          optarg); break;
+    case 's':  parameter_holder_set(PARAMETER_HOLDER(dejong), "size" ,          optarg); break;
+    case 1000: parameter_holder_set(PARAMETER_HOLDER(dejong), "blur_radius",    optarg); break;
+    case 1001: parameter_holder_set(PARAMETER_HOLDER(dejong), "blur_ratio",     optarg); break;
+    case 1002: parameter_holder_set(PARAMETER_HOLDER(dejong), "fgcolor",        optarg); break;
+    case 1003: parameter_holder_set(PARAMETER_HOLDER(dejong), "bgcolor",        optarg); break;
+    case 1004: parameter_holder_set(PARAMETER_HOLDER(dejong), "clamped",        "1");    break;
+    case 1005: parameter_holder_set(PARAMETER_HOLDER(dejong), "oversample",     optarg); break;
+    case 1006: parameter_holder_set(PARAMETER_HOLDER(dejong), "tileable",       "1");    break;
+    case 1007: parameter_holder_set(PARAMETER_HOLDER(dejong), "fgalpha",        optarg); break;
+    case 1008: parameter_holder_set(PARAMETER_HOLDER(dejong), "bgalpha",        optarg); break;
+
+    case 'i':
+      histogram_imager_load_image_file(HISTOGRAM_IMAGER(dejong), optarg);
+      break;
+
+    case 'o':
+      mode = RENDER;
+      outputFile = optarg;
+      break;
 
     case 'n':
       animation_load_file(animation, optarg);
       animate = TRUE;
+      break;
+
+    case 't':
+      target_density = atol(optarg);
       break;
 
     case 'h':
@@ -128,10 +144,10 @@ int main(int argc, char ** argv) {
 
   case RENDER:
     if (animate) {
-      animation_render_main(dejong, animation, outputFile);
+      animation_render_main(dejong, animation, outputFile, target_density);
     }
     else {
-      image_render_main(dejong, outputFile);
+      image_render_main(dejong, outputFile, target_density);
     }
     break;
   }
@@ -195,7 +211,9 @@ static void usage(char **argv) {
 	 argv[0]);
 }
 
-static void image_render_main(DeJong *dejong, const char *filename) {
+static void image_render_main (DeJong     *dejong,
+			       const char *filename,
+			       gulong      target_density) {
   /* Main function for noninteractive rendering. This renders an image with the
    * current settings until render.current_density reaches target_density. We show helpful
    * progress doodads on stdout while the poor user has to wait.
@@ -206,7 +224,7 @@ static void image_render_main(DeJong *dejong, const char *filename) {
 
   g_get_current_time(&start_time);
 
-  while (dejong->current_density < dejong->target_density) {
+  while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density) {
     de_jong_calculate(dejong, 1000000);
 
     /* This should be a fairly accurate time estimate, since (asymptotically at least)
@@ -216,49 +234,52 @@ static void image_render_main(DeJong *dejong, const char *filename) {
     g_get_current_time(&now);
     elapsed = ((now.tv_usec - start_time.tv_usec) / 1000000.0 +
 	       (now.tv_sec  - start_time.tv_sec ));
-    remaining = elapsed * dejong->target_density / dejong->current_density - elapsed;
+    remaining = elapsed * target_density / HISTOGRAM_IMAGER(dejong)->peak_density - elapsed;
 
     /* After each batch of iterations, show the percent completion, number
      * of iterations (in scientific notation), iterations per second,
      * density / target density, and elapsed time / remaining time.
      */
     printf("%6.02f%%   %.3e   %.2e/sec   %6d / %d   %02d:%02d:%02d / %02d:%02d:%02d\n",
-	   100.0 * dejong->current_density / dejong->target_density,
+	   100.0 * HISTOGRAM_IMAGER(dejong)->peak_density / target_density,
 	   dejong->iterations, dejong->iterations / elapsed,
-	   dejong->current_density, dejong->target_density,
+	   HISTOGRAM_IMAGER(dejong)->peak_density, target_density,
 	   ((int)elapsed) / (60*60), (((int)elapsed) / 60) % 60, ((int)elapsed)%60,
 	   ((int)remaining) / (60*60), (((int)remaining) / 60) % 60, ((int)remaining)%60);
   }
 
   printf("Creating image...\n");
-  de_jong_save_image_file(dejong, filename);
+  histogram_imager_save_image_file(HISTOGRAM_IMAGER(dejong), filename);
 }
 
-static void animation_render_main(DeJong *dejong, Animation *animation, const gchar *filename) {
+static void animation_render_main (DeJong      *dejong,
+				   Animation   *animation,
+				   const gchar *filename,
+				   gulong      target_density) {
   const double frame_rate = 24;
   AnimationIter iter;
-  DeJongPair frame;
+  ParameterHolderPair frame;
   guint frame_count = 0;
   gboolean continuation;
   gchar *f;
 
   animation_iter_get_first(animation, &iter);
-  frame.a = de_jong_new();
-  frame.b = de_jong_new();
+  frame.a = PARAMETER_HOLDER(de_jong_new());
+  frame.b = PARAMETER_HOLDER(de_jong_new());
 
   while (animation_iter_read_frame(animation, &iter, &frame, frame_rate)) {
 
     continuation = FALSE;
     do {
       de_jong_calculate_motion(dejong, 100000, continuation,
-			       DE_JONG_INTERPOLATOR(de_jong_interpolate_linear),
+			       PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
 			       &frame);
-      printf("Frame %d, %e iterations, %d density\n", frame_count, dejong->iterations, dejong->current_density);
+      printf("Frame %d, %e iterations, %d density\n", frame_count, dejong->iterations, HISTOGRAM_IMAGER(dejong)->peak_density);
       continuation = TRUE;
-    } while (dejong->current_density < dejong->target_density);
+    } while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density);
 
     f = g_strdup_printf("frame%05d.png", frame_count);
-    de_jong_save_image_file(dejong, f);
+    histogram_imager_save_image_file(HISTOGRAM_IMAGER(dejong), f);
     g_free(f);
 
     frame_count++;

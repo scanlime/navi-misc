@@ -1,8 +1,6 @@
 /*
- * de-jong.c - The DeJong object stores all the parameters necessary for
- *             rendering the de Jong map, runs iterations to generate a
- *             point histogram, and can update a GdkPixbuf with an image
- *             generated from the histogram.
+ * de-jong.c - The DeJong object builds on the ParameterHolder and HistogramRender
+ *             objects to provide a rendering of the DeJong map into a histogram image.
  *
  * de Jong Explorer - interactive exploration of the Peter de Jong attractor
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
@@ -25,35 +23,23 @@
 
 #include "de-jong.h"
 #include <stdlib.h>
-
-static GObjectClass *parent_class = NULL;
+#include <math.h>
 
 static void de_jong_class_init(DeJongClass *klass);
 static void de_jong_init(DeJong *self);
-static void de_jong_dispose(GObject *gobject);
 static void de_jong_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void de_jong_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void de_jong_resize_from_string(DeJong *self, const gchar *s);
+static void de_jong_reset_calc(DeJong *self);
 
 static void update_double_if_necessary(gdouble new_value, gboolean *dirty_flag, gdouble *param, gdouble epsilon);
-static void update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param);
 static void update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param);
-static void update_color_if_necessary(const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param);
-static void update_color_string_if_necessary(const gchar* new_value, gboolean *dirty_flag, GdkColor *param);
-static gchar* describe_color(GdkColor *c);
 
-static void value_transform_string_uint(const GValue *src_value, GValue *dest_value);
-static void value_transform_string_double(const GValue *src_value, GValue *dest_value);
-static void value_transform_string_boolean(const GValue *src_value, GValue *dest_value);
-static void value_transform_string_ulong(const GValue *src_value, GValue *dest_value);
-
+static float uniform_variate();
+static float normal_variate();
+static int find_upper_pow2(int x);
 
 enum {
   PROP_0,
-  PROP_WIDTH,
-  PROP_HEIGHT,
-  PROP_OVERSAMPLE,
-  PROP_SIZE,
   PROP_A,
   PROP_B,
   PROP_C,
@@ -65,22 +51,7 @@ enum {
   PROP_BLUR_RADIUS,
   PROP_BLUR_RATIO,
   PROP_TILEABLE,
-  PROP_EXPOSURE,
-  PROP_GAMMA,
-  PROP_FGCOLOR,
-  PROP_BGCOLOR,
-  PROP_FGALPHA,
-  PROP_BGALPHA,
-  PROP_CLAMPED,
-  PROP_TARGET_DENSITY,
-  PROP_DENSITY,
-  PROP_ITERATIONS,
-  PROP_FGCOLOR_GDK,
-  PROP_BGCOLOR_GDK,
 };
-
-#define G_PARAM_SERIALIZED   (1 << (G_PARAM_USER_SHIFT + 0))    /* Parameters we're interested in serializing */
-#define G_PARAM_INTERPOLATE  (1 << (G_PARAM_USER_SHIFT + 1))    /* Parameters we're interested in interpolating */
 
 
 /************************************************************************************/
@@ -103,7 +74,7 @@ GType de_jong_get_type(void) {
       (GInstanceInitFunc) de_jong_init,
     };
 
-    dj_type = g_type_register_static(G_TYPE_OBJECT, "DeJong", &dj_info, 0);
+    dj_type = g_type_register_static(HISTOGRAM_IMAGER_TYPE, "DeJong", &dj_info, 0);
   }
 
   return dj_type;
@@ -111,53 +82,10 @@ GType de_jong_get_type(void) {
 
 static void de_jong_class_init(DeJongClass *klass) {
   GObjectClass *object_class;
-
-  parent_class = g_type_class_ref(G_TYPE_OBJECT);
   object_class = (GObjectClass*) klass;
 
   object_class->set_property = de_jong_set_property;
   object_class->get_property = de_jong_get_property;
-  object_class->dispose      = de_jong_dispose;
-
-  /* Register a few custom GValueTransforms, since glib doesn't have
-   * built-in transforms from strings to other types.
-   */
-  g_value_register_transform_func(G_TYPE_STRING, G_TYPE_UINT,    value_transform_string_uint);
-  g_value_register_transform_func(G_TYPE_STRING, G_TYPE_DOUBLE,  value_transform_string_double);
-  g_value_register_transform_func(G_TYPE_STRING, G_TYPE_BOOLEAN, value_transform_string_boolean);
-  g_value_register_transform_func(G_TYPE_STRING, G_TYPE_ULONG,   value_transform_string_ulong);
-
-  g_object_class_install_property(object_class,
-				  PROP_WIDTH,
-				  g_param_spec_uint("width",
-						    "Width",
-						    "Width of the rendered image, in pixels",
-						    0, G_MAXUINT, 600,
-						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
-
-  g_object_class_install_property(object_class,
-				  PROP_HEIGHT,
-				  g_param_spec_uint("height",
-						    "Height",
-						    "Height of the rendered image, in pixels",
-						    0, G_MAXUINT, 600,
-						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
-
-  g_object_class_install_property(object_class,
-				  PROP_OVERSAMPLE,
-				  g_param_spec_uint("oversample",
-						    "Oversampling",
-						    "Oversampling factor, 1 for no oversampling to 4 for heavy oversampling",
-						    1, 4, 1,
-						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
-
-  g_object_class_install_property(object_class,
-				  PROP_SIZE,
-				  g_param_spec_string("size",
-						      "Size",
-						      "Image size as a WIDTH or WIDTHxHEIGHT string",
-						      NULL,
-						      G_PARAM_READWRITE));
 
   g_object_class_install_property(object_class,
 				  PROP_A,
@@ -257,156 +185,14 @@ static void de_jong_class_init(DeJongClass *klass) {
 						       FALSE,
 						       G_PARAM_READWRITE | G_PARAM_CONSTRUCT |
 						       G_PARAM_SERIALIZED | G_PARAM_INTERPOLATE));
-
-  g_object_class_install_property(object_class,
-				  PROP_EXPOSURE,
-				  g_param_spec_double("exposure",
-						      "Exposure",
-						      "The relative strength, darkness, or brightness of the image",
-						      0, 100, 0.05,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
-
-  g_object_class_install_property(object_class,
-				  PROP_FGCOLOR,
-				  g_param_spec_string("fgcolor",
-						      "Foreground Color",
-						      "The foreground color, as a color name or #RRGGBB hex triple",
-						      "#000000",
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
-
-  g_object_class_install_property(object_class,
-				  PROP_BGCOLOR,
-				  g_param_spec_string("bgcolor",
-						      "Background Color",
-						      "The background color, as a color name or #RRGGBB hex triple",
-						      "#FFFFFF",
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED));
-
-  g_object_class_install_property(object_class,
-				  PROP_FGCOLOR_GDK,
-				  g_param_spec_boxed("fgcolor_gdk",
-						     "Foreground GdkColor",
-						     "The foreground color, as a GdkColor",
-						     GDK_TYPE_COLOR,
-						     G_PARAM_READWRITE | G_PARAM_INTERPOLATE));
-
-  g_object_class_install_property(object_class,
-				  PROP_BGCOLOR_GDK,
-				  g_param_spec_boxed("bgcolor_gdk",
-						     "Background GdkColor",
-						     "The background color, as a GdkColor",
-						     GDK_TYPE_COLOR,
-						     G_PARAM_READWRITE | G_PARAM_INTERPOLATE));
-
-  g_object_class_install_property(object_class,
-				  PROP_FGALPHA,
-				  g_param_spec_uint("fgalpha",
-						    "Foreground Alpha",
-						    "The foreground color's opacity",
-						    0, 65535, 65535,
-						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						    G_PARAM_INTERPOLATE));
-
-  g_object_class_install_property(object_class,
-				  PROP_BGALPHA,
-				  g_param_spec_uint("bgalpha",
-						    "Background Alpha",
-						    "The background color's opacity",
-						    0, 65535, 65535,
-						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						    G_PARAM_INTERPOLATE));
-
-  g_object_class_install_property(object_class,
-				  PROP_GAMMA,
-				  g_param_spec_double("gamma",
-						      "Gamma",
-						      "A gamma correction applied while rendering the image",
-						      0, 10, 1,
-						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						      G_PARAM_LAX_VALIDATION | G_PARAM_INTERPOLATE));
-
-  g_object_class_install_property(object_class,
-				  PROP_CLAMPED,
-				  g_param_spec_boolean("clamped",
-						       "Clamped",
-						       "When set, luminances are clamped to [0,1] before linear interpolation",
-						       FALSE,
-						       G_PARAM_READWRITE | G_PARAM_CONSTRUCT | G_PARAM_SERIALIZED |
-						       G_PARAM_INTERPOLATE));
-
-  g_object_class_install_property(object_class,
-				  PROP_TARGET_DENSITY,
-				  g_param_spec_ulong("target_density",
-						     "Target Density",
-						     "The peak image density to stop calculation at",
-						     0, G_MAXULONG, 10000,
-						     G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-
-  g_object_class_install_property(object_class,
-				  PROP_DENSITY,
-				  g_param_spec_ulong("density",
-						     "Density",
-						     "The current peak histogram density, a rough measure of the image's quality",
-						     0, G_MAXULONG, 0,
-						     G_PARAM_READABLE));
-
-  g_object_class_install_property(object_class,
-				  PROP_ITERATIONS,
-				  g_param_spec_double("iterations",
-						      "Iterations",
-						      "The number of calculation iterations completed so far",
-						      0, G_MAXDOUBLE, 0,
-						      G_PARAM_READABLE));
 }
 
 static void de_jong_init(DeJong *self) {
   /* Nothing to do here yet, everything's set up by our G_PARAM_CONSTRUCT properties */
 }
 
-static void de_jong_dispose(GObject *gobject) {
-  DeJong *self = DE_JONG(gobject);
-
-  if (self->histogram) {
-    g_free(self->histogram);
-    self->histogram = NULL;
-  }
-  if (self->image) {
-    gdk_pixbuf_unref(self->image);
-    self->image = NULL;
-  }
-  if (self->color_table) {
-    g_free(self->color_table);
-    self->color_table = NULL;
-  }
-}
-
 DeJong* de_jong_new() {
   return DE_JONG(g_object_new(de_jong_get_type(), NULL));
-}
-
-static void value_transform_string_uint(const GValue *src_value, GValue *dest_value) {
-  dest_value->data[0].v_uint = strtoul(src_value->data[0].v_pointer, NULL, 10);
-}
-
-static void value_transform_string_double(const GValue *src_value, GValue *dest_value) {
-  dest_value->data[0].v_double = strtod(src_value->data[0].v_pointer, NULL);
-}
-
-static void value_transform_string_boolean(const GValue *src_value, GValue *dest_value) {
-  if (!g_strcasecmp(src_value->data[0].v_pointer, "true")) {
-    dest_value->data[0].v_int = TRUE;
-  }
-  else if (!g_strcasecmp(src_value->data[0].v_pointer, "false")) {
-    dest_value->data[0].v_int = FALSE;
-  }
-  else {
-    dest_value->data[0].v_int = strtoul(src_value->data[0].v_pointer, NULL, 10) != 0;
-  }
-}
-
-static void value_transform_string_ulong(const GValue *src_value, GValue *dest_value) {
-  dest_value->data[0].v_ulong = strtoul(src_value->data[0].v_pointer, NULL, 10);
 }
 
 
@@ -414,34 +200,8 @@ static void value_transform_string_ulong(const GValue *src_value, GValue *dest_v
 /*********************************************************************** Properties */
 /************************************************************************************/
 
-static gchar* describe_color(GdkColor *c) {
-  /* Convert a GdkColor back to a gdk_color_parse compatible hex value.
-   * Returns a freshly allocated buffer that should be freed.
-   */
-  return g_strdup_printf("#%02X%02X%02X", c->red >> 8, c->green >> 8, c->blue >> 8);
-}
-
-static void de_jong_resize_from_string(DeJong *self, const gchar *s) {
-  /* Set the current width and height from a WIDTH or WIDTHxHEIGHT in the given string */
-  char *cptr;
-  guint width, height;
-  width = strtol(s, &cptr, 10);
-  if (*cptr == 'x')
-    height = atoi(cptr+1);
-  else
-    height = width;
-  g_object_set(self, "width", width, "height", height, NULL);
-}
-
 static void update_double_if_necessary(double new_value, gboolean *dirty_flag, double *param, double epsilon) {
   if (fabs(new_value - *param) > epsilon) {
-    *param = new_value;
-    *dirty_flag = TRUE;
-  }
-}
-
-static void update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param) {
-  if (new_value != *param) {
     *param = new_value;
     *dirty_flag = TRUE;
   }
@@ -454,42 +214,10 @@ static void update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag
   }
 }
 
-static void update_color_if_necessary(const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param) {
-  if (new_value->red != param->red || new_value->green != param->green || new_value->blue != param->blue) {
-    *param = *new_value;
-    *dirty_flag = TRUE;
-  }
-}
-
-static void update_color_string_if_necessary(const gchar* new_value, gboolean *dirty_flag, GdkColor *param) {
-  GdkColor new;
-  gdk_color_parse(new_value, &new);
-  if (new.red != param->red || new.green != param->green || new.blue != param->blue) {
-    *param = new;
-    *dirty_flag = TRUE;
-  }
-}
-
 static void de_jong_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec) {
   DeJong *self = DE_JONG(object);
 
   switch (prop_id) {
-
-  case PROP_WIDTH:
-    update_uint_if_necessary(g_value_get_uint(value), &self->size_dirty_flag, &self->width);
-    break;
-
-  case PROP_HEIGHT:
-    update_uint_if_necessary(g_value_get_uint(value), &self->size_dirty_flag, &self->height);
-    break;
-
-  case PROP_OVERSAMPLE:
-    update_uint_if_necessary(g_value_get_uint(value), &self->size_dirty_flag, &self->oversample);
-    break;
-
-  case PROP_SIZE:
-    de_jong_resize_from_string(self, g_value_get_string(value));
-    break;
 
   case PROP_A:
     update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->a, 0.000009);
@@ -535,46 +263,6 @@ static void de_jong_set_property (GObject *object, guint prop_id, const GValue *
     update_boolean_if_necessary(g_value_get_boolean(value), &self->calc_dirty_flag, &self->tileable);
     break;
 
-  case PROP_EXPOSURE:
-    update_double_if_necessary(g_value_get_double(value), &self->render_dirty_flag, &self->exposure, 0.00009);
-    break;
-
-  case PROP_GAMMA:
-    update_double_if_necessary(g_value_get_double(value), &self->render_dirty_flag, &self->gamma, 0.00009);
-    break;
-
-  case PROP_FGCOLOR:
-    update_color_string_if_necessary(g_value_get_string(value), &self->render_dirty_flag, &self->fgcolor);
-    break;
-
-  case PROP_BGCOLOR:
-    update_color_string_if_necessary(g_value_get_string(value), &self->render_dirty_flag, &self->bgcolor);
-    break;
-
-  case PROP_FGCOLOR_GDK:
-    update_color_if_necessary((GdkColor*) g_value_get_boxed(value), &self->render_dirty_flag, &self->fgcolor);
-    break;
-
-  case PROP_BGCOLOR_GDK:
-    update_color_if_necessary((GdkColor*) g_value_get_boxed(value), &self->render_dirty_flag, &self->bgcolor);
-    break;
-
-  case PROP_FGALPHA:
-    update_uint_if_necessary(g_value_get_uint(value), &self->render_dirty_flag, &self->fgalpha);
-    break;
-
-  case PROP_BGALPHA:
-    update_uint_if_necessary(g_value_get_uint(value), &self->render_dirty_flag, &self->bgalpha);
-    break;
-
-  case PROP_CLAMPED:
-    update_boolean_if_necessary(g_value_get_boolean(value), &self->render_dirty_flag, &self->clamped);
-    break;
-
-  case PROP_TARGET_DENSITY:
-    self->target_density = g_value_get_ulong(value);
-    break;
-
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     break;
@@ -585,18 +273,6 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
   DeJong *self = DE_JONG(object);
 
   switch (prop_id) {
-
-  case PROP_WIDTH:
-    g_value_set_uint(value, self->width);
-    break;
-
-  case PROP_HEIGHT:
-    g_value_set_uint(value, self->height);
-    break;
-
-  case PROP_OVERSAMPLE:
-    g_value_set_uint(value, self->oversample);
-    break;
 
   case PROP_A:
     g_value_set_double(value, self->a);
@@ -642,334 +318,224 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
     g_value_set_boolean(value, self->tileable);
     break;
 
-  case PROP_CLAMPED:
-    g_value_set_boolean(value, self->clamped);
-    break;
-
-  case PROP_EXPOSURE:
-    g_value_set_double(value, self->exposure);
-    break;
-
-  case PROP_GAMMA:
-    g_value_set_double(value, self->gamma);
-    break;
-
-  case PROP_FGALPHA:
-    g_value_set_uint(value, self->fgalpha);
-    break;
-
-  case PROP_BGALPHA:
-    g_value_set_uint(value, self->bgalpha);
-    break;
-
-  case PROP_TARGET_DENSITY:
-    g_value_set_ulong(value, self->target_density);
-    break;
-
-  case PROP_SIZE:
-    g_value_set_string_take_ownership(value, g_strdup_printf("%dx%d", self->width, self->height));
-    break;
-
-  case PROP_FGCOLOR:
-    g_value_set_string_take_ownership(value, describe_color(&self->fgcolor));
-    break;
-
-  case PROP_BGCOLOR:
-    g_value_set_string_take_ownership(value, describe_color(&self->bgcolor));
-    break;
-
-  case PROP_FGCOLOR_GDK:
-    g_value_set_boxed(value, &self->fgcolor);
-    break;
-
-  case PROP_BGCOLOR_GDK:
-    g_value_set_boxed(value, &self->bgcolor);
-    break;
-
-  case PROP_DENSITY:
-    g_value_set_ulong(value, self->current_density);
-    break;
-
-  case PROP_ITERATIONS:
-    g_value_set_double(value, self->iterations);
-    break;
-
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     break;
   }
 }
 
-void de_jong_set(DeJong *self, const gchar* property, const gchar* value) {
-  /* Set a property, casting a string value to whatever type the property expects */
-  GValue strval, converted;
-  GParamSpec *spec;
+/************************************************************************************/
+/********************************************************************** Calculation */
+/************************************************************************************/
 
-  /* Look up the GParamSpec for this property */
-  spec = g_object_class_find_property(G_OBJECT_GET_CLASS(self), property);
-  if (!spec) {
-    g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
-	  "Ignoring attempt to set undefined property '%s' to '%s'",
-	  property, value);
-    return;
+void de_jong_calculate(DeJong *self, guint iterations) {
+  /* Copy frequently used parameters to local variables */
+  const gboolean tileable = self->tileable;
+  const double a = self->a;
+  const double b = self->b;
+  const double c = self->c;
+  const double d = self->d;
+
+  /* Histogram state */
+  HistogramPlot plot;
+  guint hist_width, hist_height;
+
+  /* Toggles to disable features that aren't needed */
+  const gboolean rotation_enabled = self->rotation > 0.0001 || self->rotation < -0.0001;
+  const gboolean blur_enabled = self->blur_ratio > 0.0001 && self->blur_radius > 0.00001;
+
+  /* Blurring variables */
+  int blur_table_size;
+  int blur_ratio_period;
+  int blur_index, blur_ratio_index, blur_ratio_threshold;
+  float *blur_table;
+
+  /* Rotation variables */
+  double sine_rotation, cosine_rotation;
+
+  /* Iteration and projection variables */
+  double x, y, point_x, point_y;
+  double scale, xcenter, ycenter;
+  int i, ix, iy;
+
+  /* Reset calculation if we need to */
+  if (self->calc_dirty_flag || HISTOGRAM_IMAGER(self)->histogram_clear_flag)
+    de_jong_reset_calc(self);
+
+  /* Ask the histogram imager to prepare a group of plots */
+  histogram_imager_prepare_plots(HISTOGRAM_IMAGER(self), &plot);
+  histogram_imager_get_hist_size(HISTOGRAM_IMAGER(self), &hist_width, &hist_height);
+
+  /* Calculate the scale and offset in histogram coordinates */
+  scale = hist_width / 5.0 * self->zoom;
+  xcenter = hist_width / 2.0 + self->xoffset * scale;
+  ycenter = hist_height / 2.0 + self->yoffset * scale;
+
+  /* Precalculate the sine and cosine of the rotation angle, if we'll need it */
+  if (rotation_enabled) {
+    sine_rotation = sin(self->rotation);
+    cosine_rotation = cos(self->rotation);
   }
 
-  memset(&strval, 0, sizeof(GValue));
-  memset(&converted, 0, sizeof(GValue));
-  g_value_init(&strval, G_TYPE_STRING);
-  g_value_init(&converted, spec->value_type);
-  g_value_set_string(&strval, value);
-
-  //  if (g_param_value_convert(spec, &strval, &converted, FALSE)) {
-  if (g_value_transform(&strval, &converted)) {
-    g_object_set_property(G_OBJECT(self), property, &converted);
-  }
-  else {
-    g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
-	  "Couldn't convert value '%s' for property '%s'",
-	  value, property);
-  }
-
-  g_value_unset(&strval);
-  g_value_unset(&converted);
-}
-
-
-void de_jong_reset_to_defaults(DeJong *self) {
-  /* Reset all G_PARAM_CONSTRUCT properties to their default values
+  /* Initialize the blur table with a set of precalculated normally distributed
+   * random numbers. Larger blur tables just increase the independence between
+   * blocks of iterations. Since a new blur table is calculated at each run_iterations,
+   * at infinity the image still has the same effect, but each iteration runs much faster.
    */
-  GParamSpec** properties;
-  guint n_properties;
-  int i;
-  GValue val;
+  if (blur_enabled) {
+    /* Find a good size for the blur table. Our current heuristic finds
+     * the smallest power of two that's still larger than 1/50 our iteration count.
+     */
+    blur_table_size = find_upper_pow2(iterations / 50);
 
-  properties = g_object_class_list_properties(G_OBJECT_GET_CLASS(self), &n_properties);
-  for (i=0; i<n_properties; i++) {
+    /* Allocate and fill the blur table */
+    blur_table = alloca(blur_table_size * sizeof(blur_table[0]));
+    for (i=0; i<blur_table_size; i++)
+      blur_table[i] = normal_variate() * self->blur_radius;
+    blur_index = 0;
 
-    if (properties[i]->flags & G_PARAM_CONSTRUCT) {
-      /* Make a GValue with the default in it */
-      memset(&val, 0, sizeof(val));
-      g_value_init(&val, properties[i]->value_type);
-      g_param_value_set_default(properties[i], &val);
+    /* Initialize the blur ratio counter and threshold */
+    blur_ratio_index = 0;
+    blur_ratio_period = 1024;
+    blur_ratio_threshold = self->blur_ratio * blur_ratio_period;
+  }
 
-      g_object_set_property(G_OBJECT(self), properties[i]->name, &val);
+  point_x = self->point_x;
+  point_y = self->point_y;
 
-      g_value_unset(&val);
+  for(i=iterations; i; --i) {
+    /* These are the actual Peter de Jong map equations. The new point value
+     * gets stored into 'point', then we go on and mess with x and y before plotting.
+     */
+    x = sin(a * point_y) - cos(b * point_x);
+    y = sin(c * point_x) - cos(d * point_y);
+    point_x = x;
+    point_y = y;
+
+    /* If rotation is enabled, rotate each point around
+     * the origin by self->rotation radians.
+     */
+    if (rotation_enabled) {
+      x =  cosine_rotation * point_x + sine_rotation   * point_y;
+      y = -sine_rotation   * point_x + cosine_rotation * point_y;
     }
 
-  }
-  g_free(properties);
-}
+    /* If blurring is enabled, use blur_ratio to decide how often to perturb
+     * the apparent point position, and blur_radius to determine how much.
+     * By perturbing the point using a normal variate, we create a true gaussian
+     * blur as the number of iterations approaches infinity.
+     */
+    if (blur_enabled) {
+      if (blur_ratio_index < blur_ratio_threshold) {
+	x += blur_table[blur_index];
+	blur_index = (blur_index+1) & (blur_table_size-1);
+	y += blur_table[blur_index];
+	blur_index = (blur_index+1) & (blur_table_size-1);
+      }
+      blur_ratio_index = (blur_ratio_index+1) & (blur_ratio_period-1);
+    }
 
-void de_jong_interpolate_linear(DeJong *self, double alpha, DeJongPair *p) {
-  /* A DeJongInterpolator function that takes a DeJongPair as its parameter.
-   * Linearly interpolates between the points 'a' and 'b' in the pair.
-   */
-  GParamSpec** properties;
-  guint n_properties;
-  int i;
-  GValue a_val, b_val, self_val;
+    /* Scale and translate our (x,y) coordinates into pixel coordinates */
+    x = x * scale + xcenter;
+    y = y * scale + ycenter;
 
-  properties = g_object_class_list_properties(G_OBJECT_GET_CLASS(self), &n_properties);
-  for (i=0; i<n_properties; i++) {
-    if (properties[i]->flags & G_PARAM_INTERPOLATE) {
+    /* Convert (x,y) to integers.
+     * Note that just casting to int here is incorrect! We want the behaviour
+     * of floor(), always rounding toward -inf rather than zero. This should
+     * behave identically to floor(), but a little faster.
+     */
+    if (x<0)
+      ix = x-1;
+    else
+      ix = x;
+    if (y<0)
+      iy = y-1;
+    else
+      iy = y;
 
-      /* Initialize a place to put our source and destination values */
-      memset(&a_val, 0, sizeof(a_val));
-      g_value_init(&a_val, properties[i]->value_type);
-      memset(&b_val, 0, sizeof(b_val));
-      g_value_init(&b_val, properties[i]->value_type);
-      memset(&self_val, 0, sizeof(self_val));
-      g_value_init(&self_val, properties[i]->value_type);
-
-      /* Get a and b's current values for this parameter */
-      g_object_get_property(G_OBJECT(p->a), properties[i]->name, &a_val);
-      g_object_get_property(G_OBJECT(p->b), properties[i]->name, &b_val);
-
-      /* Now pick a type-dependent interpolation procedure...
+    if (tileable) {
+      /* In tileable rendering, we wrap at the edges */
+      ix %= hist_width;
+      iy %= hist_height;
+      if (ix < 0) ix += hist_width;
+      if (iy < 0) iy += hist_height;
+    }
+    else {
+      /* Otherwise, clip off the edges.
+       * Cast ix and iy to unsigned so our comparison against
+       * the width/height also implicitly compares against zero.
        */
-      if (properties[i]->value_type == G_TYPE_DOUBLE) {
-	g_value_set_double(&self_val,
-			   g_value_get_double(&a_val) * (1-alpha) +
-			   g_value_get_double(&b_val) * (alpha));
-      }
-
-      else if (properties[i]->value_type == G_TYPE_BOOLEAN) {
-	if (alpha < 0.5)
-	  g_value_set_boolean(&self_val, g_value_get_boolean(&a_val));
-	else
-	  g_value_set_boolean(&self_val, g_value_get_boolean(&b_val));
-      }
-
-      else if (properties[i]->value_type == GDK_TYPE_COLOR) {
-	GdkColor *color_a = g_value_get_boxed(&a_val);
-	GdkColor *color_b = g_value_get_boxed(&b_val);
-	GdkColor interp;
-	interp.red   = color_a->red   * (1-alpha) + color_b->red   * alpha;
-	interp.green = color_a->green * (1-alpha) + color_b->green * alpha;
-	interp.blue  = color_a->blue  * (1-alpha) + color_b->blue  * alpha;
-	g_value_set_boxed(&self_val, &interp);
-      }
-
-      else if (properties[i]->value_type == G_TYPE_UINT) {
-	g_value_set_uint(&self_val,
-			 g_value_get_uint(&a_val) * (1-alpha) +
-			 g_value_get_uint(&a_val) * (alpha));
-      }
-
-      else {
-	g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
-	      "Can't interpolate values of type %s",
-	      g_type_name(properties[i]->value_type));
-	g_value_unset(&a_val);
-	g_value_unset(&b_val);
+      if (((unsigned int)ix) >= hist_width  ||
+	  ((unsigned int)iy) >= hist_height)
 	continue;
-      }
-
-      /* Save the interpolated value */
-      g_object_set_property(G_OBJECT(self), properties[i]->name, &self_val);
-
-      g_value_unset(&a_val);
-      g_value_unset(&b_val);
-      g_value_unset(&self_val);
     }
+
+    HISTOGRAM_IMAGER_PLOT(plot, ix, iy);
   }
-  g_free(properties);
+
+  histogram_imager_finish_plots(HISTOGRAM_IMAGER(self), &plot);
+  self->iterations += iterations;
+  self->point_x = point_x;
+  self->point_y = point_y;
 }
 
-gchar* de_jong_save_string(DeJong *self) {
-  /* Create a new string consisting of key-value pairs, one per line,
-   * listing the value of all parameters that are no longer set to
-   * their default value. This string can be loaded back into
-   * de_jong_load_string to recreate the same property values.
+void de_jong_calculate_motion(DeJong               *self,
+			      guint                 iterations,
+			      gboolean              continuation,
+			      ParameterInterpolator *interp,
+			      gpointer              interp_data) {
+  /* The equivalent of de_jong_calculate, but for an object moving according
+   * to a given interpolation function.
+   *
+   * The given number of iterations are divided into smaller blocks, each of
+   * which are run with different random coordinates between a and b. This gives
+   * us accurate motion blur almost for free. Since the existing interpolated
+   * parameters of this DeJong object are ignored, the 'continuation' flag must be
+   * set on all but the first call for rendering to be reset properly.
    */
-  gchar* joined;
-  gchar** lines;
-  guint n_properties;
-  GParamSpec** properties;
-  int i, n_lines;
-  GValue val, strval;
+  const guint blocksize = iterations / 10;
+  guint count;
 
-  /* Get a list of all properties, and use that to allocate an array of lines
-   * large enough to handle the worst case, where each property has a non-default value
-   */
-  properties = g_object_class_list_properties(G_OBJECT_GET_CLASS(self), &n_properties);
-  lines = g_malloc0(sizeof(lines[0]) * (n_properties+1));
-
-  /* Search for non-default properties, creating lines for each */
-  n_lines = 0;
-  for (i=0; i<n_properties; i++) {
-
-    /* We have our own GParamFlag indicating whether a parameter should be serialized */
-    if (properties[i]->flags & G_PARAM_SERIALIZED) {
-
-      memset(&val, 0, sizeof(val));
-      g_value_init(&val, properties[i]->value_type);
-      g_object_get_property(G_OBJECT(self), properties[i]->name, &val);
-
-      if (!g_param_value_defaults(properties[i], &val)) {
-
-	/* Yay, we have a readable and writeable non-default value. Convert it to a string */
-	memset(&strval, 0, sizeof(strval));
-	g_value_init(&strval, G_TYPE_STRING);
-	g_value_transform(&val, &strval);
-	lines[n_lines++] = g_strdup_printf("%s = %s", properties[i]->name, g_value_get_string(&strval));
-	g_value_unset(&strval);
-
-      }
-      g_value_unset(&val);
-    }
+  for (count=0; count<iterations; count+=blocksize) {
+    interp(PARAMETER_HOLDER(self), uniform_variate(), interp_data);
+    self->calc_dirty_flag = !continuation;
+    de_jong_calculate(self, blocksize);
   }
-
-  lines[n_lines] = NULL;
-  joined = g_strjoinv("\n", lines);
-
-  g_free(properties);
-  g_strfreev(lines);
-
-  return joined;
-}
-
-void de_jong_load_string(DeJong *self, const gchar *params) {
-  /* Load all recognized parameters from a string given in the same
-   * format as the one produced by save_parameters()
-   */
-  gchar *copy, *line, *nextline;
-  gchar *key, *value;
-
-  /* Always start with defaults */
-  de_jong_reset_to_defaults(self);
-
-  /* Make a copy of the parameters, since we'll be modifying it */
-  copy = g_strdup(params);
-
-  /* Iterate over lines... */
-  line = copy;
-  while (line) {
-    nextline = strchr(line, '\n');
-    if (nextline) {
-      *nextline = '\0';
-      nextline++;
-    }
-
-    /* Separate it into key and value */
-    key = g_malloc(strlen(line)+1);
-    value = g_malloc(strlen(line)+1);
-    if (sscanf(line, " %s = %s", key, value) == 2)
-      de_jong_set(self, key, value);
-    g_free(key);
-    line = nextline;
-  }
-  g_free(copy);
 }
 
 
 /************************************************************************************/
-/************************************************************************ Image I/O */
+/************************************************************************ Utilities */
 /************************************************************************************/
 
-void de_jong_load_image_file(DeJong *self, const gchar *filename) {
-  /* Try to open the given PNG file and load parameters from it */
-  const gchar *params;
-  GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
-  params = gdk_pixbuf_get_option(pixbuf, "tEXt::de_jong_params");
-  if (params)
-    de_jong_load_string(self, params);
-  else
-    printf("No parameters chunk found\n");
-  gdk_pixbuf_unref(pixbuf);
+static float uniform_variate() {
+  /* A uniform random variate between 0 and 1 */
+  return ((float) rand()) / RAND_MAX;
 }
 
-void de_jong_save_image_file(DeJong *self, const gchar *filename) {
-  /* Save our current image to a .PNG file */
-  gchar *params;
-
-  de_jong_update_image(self);
-
-  /* Save our current parameters in a tEXt chunk, using a format that
-   * is both human-readable and easy to load parameters from automatically.
-   */
-  params = de_jong_save_string(self);
-  gdk_pixbuf_save(self->image, filename, "png", NULL, "tEXt::de_jong_params", params, NULL);
-  g_free(params);
+static float normal_variate() {
+  /* A unit-normal random variate, implemented with the Box-Muller method */
+  return sqrt(-2*log(uniform_variate())) * cos(uniform_variate() * (2*M_PI));
 }
 
-GdkPixbuf* de_jong_make_thumbnail(DeJong *self, guint max_width, guint max_height) {
-  float aspect = ((float)self->width) / ((float)self->height);
-  guint width, height;
+static int find_upper_pow2(int x) {
+  /* Find the smallest power of two greater than or equal to x */
+  int p = 1;
+  while (p < x)
+    p <<= 1;
+  return p;
+}
 
-  de_jong_update_image(self);
+static void de_jong_reset_calc(DeJong *self) {
+  /* Reset the histogram and calculation state */
+  histogram_imager_clear(HISTOGRAM_IMAGER(self));
 
-  if (aspect > 1) {
-    width = max_width;
-    height = width / aspect;
-  }
-  else {
-    height = max_height;
-    width = height * aspect;
-  }
+  /* Random starting point */
+  self->point_x = uniform_variate();
+  self->point_y = uniform_variate();
 
-  return gdk_pixbuf_scale_simple(self->image, width, height, GDK_INTERP_BILINEAR);
+  HISTOGRAM_IMAGER(self)->histogram_clear_flag = FALSE;
+  self->calc_dirty_flag = FALSE;
 }
 
 /* The End */

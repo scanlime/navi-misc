@@ -35,7 +35,7 @@
 
 G_BEGIN_DECLS
 
-#define TYPE_SPLINE  (spline_get_type ())
+#define SPLINE_TYPE  (spline_get_type ())
 
 typedef gfloat SplineControlPoint[2];
 

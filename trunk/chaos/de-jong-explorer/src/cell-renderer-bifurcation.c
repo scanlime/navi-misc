@@ -125,8 +125,6 @@ static void cell_renderer_bifurcation_class_init(CellRendererBifurcationClass *k
 }
 
 static void cell_renderer_bifurcation_init(CellRendererBifurcation *self) {
-  self->pair.a = de_jong_new();
-  self->pair.b = de_jong_new();
 }
 
 GtkCellRenderer* cell_renderer_bifurcation_new() {
@@ -231,10 +229,10 @@ static void cell_renderer_bifurcation_render(GtkCellRenderer      *cell,
   next_keyframe = self->keyframe;
   if (gtk_tree_model_iter_next(GTK_TREE_MODEL(self->animation->model), &next_keyframe)) {
 
+    /*
     animation_keyframe_load_dejong(self->animation, &self->keyframe, self->pair.a);
     animation_keyframe_load_dejong(self->animation, &next_keyframe, self->pair.b);
 
-    /*
     pixbuf = de_jong_make_bifurcation_diagram(DE_JONG_INTERPOLATOR(de_jong_interpolate_linear),
 					      &self->pair, cell_area->width, cell_area->height,
 					      500, 100);

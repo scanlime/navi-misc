@@ -1,5 +1,5 @@
 /*
- * animation.c - A simple keyframe animation system for DeJong objects
+ * animation.c - A simple keyframe animation system for ParameterHolder objects
  *
  * de Jong Explorer - interactive exploration of the Peter de Jong attractor
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
@@ -24,6 +24,7 @@
 #include "animation.h"
 #include "chunked-file.h"
 #include "spline.h"
+#include "histogram-imager.h"
 
 static void animation_class_init(AnimationClass *klass);
 static void animation_init(Animation *self);
@@ -80,7 +81,7 @@ static void animation_init(Animation *self) {
 				   GDK_TYPE_PIXBUF,     /* ANIMATION_MODEL_THUMBNAIL */
 				   G_TYPE_STRING,       /* ANIMATION_MODEL_PARAMS    */
 				   G_TYPE_DOUBLE,       /* ANIMATION_MODEL_DURATION  */
-				   TYPE_SPLINE,         /* ANIMATION_MODEL_SPLINE    */
+				   SPLINE_TYPE,         /* ANIMATION_MODEL_SPLINE    */
 				   GTK_TYPE_TREE_ITER); /* ANIMATION_MODEL_ITER      */
 }
 
@@ -102,22 +103,34 @@ Animation* animation_new() {
 /************************************************************ Keyframe Manipulation */
 /************************************************************************************/
 
-void animation_keyframe_store_dejong(Animation *self, GtkTreeIter *iter, DeJong *dejong) {
+void animation_keyframe_store (Animation       *self,
+			       GtkTreeIter     *iter,
+			       ParameterHolder *key) {
   /* Save de-jong parameters and a thumbnail to the keyframe at the given iterator
    */
-  GdkPixbuf *thumbnail = de_jong_make_thumbnail(dejong, 128, 128);
-  gchar *params = de_jong_save_string(dejong);
+  GdkPixbuf *thumbnail;
+  gchar *params;
 
+  /* We can always save the parameters of a ParameterHolder */
+  params = parameter_holder_save_string(key);
   gtk_list_store_set(self->model, iter,
-		     ANIMATION_MODEL_THUMBNAIL, thumbnail,
 		     ANIMATION_MODEL_PARAMS,    params,
 		     -1);
-
   g_free(params);
-  gdk_pixbuf_unref(thumbnail);
+
+  /* If this ParameterHolder is also a HistogramImager, we can get a thumbnail */
+  if (IS_HISTOGRAM_IMAGER(key)) {
+    thumbnail = histogram_imager_make_thumbnail(HISTOGRAM_IMAGER(key), 128, 128);
+    gtk_list_store_set(self->model, iter,
+		       ANIMATION_MODEL_THUMBNAIL, thumbnail,
+		       -1);
+    gdk_pixbuf_unref(thumbnail);
+  }
 }
 
-void animation_keyframe_load_dejong(Animation *self, GtkTreeIter *iter, DeJong *dejong) {
+void animation_keyframe_load (Animation       *self,
+			      GtkTreeIter     *iter,
+			      ParameterHolder *key) {
   /* Load de-jong parameters from the keyframe at the given iterator
    */
   gchar *params;
@@ -125,14 +138,15 @@ void animation_keyframe_load_dejong(Animation *self, GtkTreeIter *iter, DeJong *
   gtk_tree_model_get(GTK_TREE_MODEL(self->model), iter,
 		     ANIMATION_MODEL_PARAMS, &params,
 		     -1);
-  de_jong_load_string(dejong, params);
+  parameter_holder_load_string(key, params);
   g_free(params);
 }
 
-void animation_keyframe_append(Animation *self, DeJong *dejong) {
+void animation_keyframe_append (Animation       *self,
+				ParameterHolder *key) {
   GtkTreeIter iter;
   animation_keyframe_append_default(self, &iter);
-  animation_keyframe_store_dejong(self, &iter, dejong);
+  animation_keyframe_store(self, &iter, key);
 }
 
 static void animation_keyframe_append_default(Animation *self, GtkTreeIter *iter) {
@@ -400,28 +414,30 @@ void animation_iter_seek_relative(Animation *self, AnimationIter *iter, gdouble 
 
 }
 
-void animation_iter_load_dejong(Animation *self, AnimationIter *iter, DeJong *dejong) {
-  /* Load the dejong parameters corresponding to the given iterator into a DeJong object.
+void animation_iter_load (Animation       *self,
+			  AnimationIter   *iter,
+			  ParameterHolder *inbetween) {
+  /* Load the parameters corresponding to the given iterator into a ParameterHolder object.
    * This finds the keyframes before and after the iterator and applies the proper type
    * of interpolation.
    */
   GtkTreeModel *model = GTK_TREE_MODEL(self->model);
   GtkTreeIter next_keyframe = iter->keyframe;
   gdouble keyframe_duration;
-  DeJongPair pair;
+  ParameterHolderPair pair;
   gdouble alpha;
   Spline *spline;
 
   g_return_if_fail(iter->valid);
 
   /* We should always be able to load the first keyframe */
-  pair.a = de_jong_new();
-  animation_keyframe_load_dejong(self, &iter->keyframe, pair.a);
+  pair.a = PARAMETER_HOLDER(g_object_new(G_TYPE_FROM_INSTANCE(inbetween), NULL));
+  animation_keyframe_load(self, &iter->keyframe, pair.a);
 
   if (gtk_tree_model_iter_next(model, &next_keyframe)) {
     /* We have a next keyframe, load it */
-    pair.b = de_jong_new();
-    animation_keyframe_load_dejong(self, &next_keyframe, pair.b);
+    pair.b = PARAMETER_HOLDER(g_object_new(G_TYPE_FROM_INSTANCE(inbetween), NULL));
+    animation_keyframe_load(self, &next_keyframe, pair.b);
   }
   else {
     /* No next keyframe, use another copy of the first */
@@ -445,26 +461,29 @@ void animation_iter_load_dejong(Animation *self, AnimationIter *iter, DeJong *de
   spline_free(spline);
 
   /* Only do linear interpolation for now */
-  de_jong_interpolate_linear(dejong, alpha, &pair);
+  parameter_holder_interpolate_linear(PARAMETER_HOLDER(inbetween), alpha, &pair);
 
   g_object_unref(pair.a);
   g_object_unref(pair.b);
 }
 
-gboolean animation_iter_read_frame(Animation *self, AnimationIter *iter, DeJongPair *frame, double frame_rate) {
+gboolean animation_iter_read_frame (Animation           *self,
+				    AnimationIter       *iter,
+				    ParameterHolderPair *frame,
+				    double               frame_rate) {
   /* Retrieve and step over one frame of the animation.
    * Sets frame->a to the beginning of this frame and frame->b to the end.
    * Returns TRUE if a frame was retrieved successfully, FALSE on end-of-animation.
    */
   if (!iter->valid)
     return FALSE;
-  animation_iter_load_dejong(self, iter, frame->a);
+  animation_iter_load(self, iter, frame->a);
 
   animation_iter_seek_relative(self, iter, 1/frame_rate);
 
   if (!iter->valid)
     return FALSE;
-  animation_iter_load_dejong(self, iter, frame->b);
+  animation_iter_load(self, iter, frame->b);
 
   return TRUE;
 }

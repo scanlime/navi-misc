@@ -1,5 +1,5 @@
 /*
- * animation.h - A simple keyframe animation system for DeJong objects
+ * animation.h - A simple keyframe animation system for ParameterHolder objects
  *
  * de Jong Explorer - interactive exploration of the Peter de Jong attractor
  * Copyright (C) 2004 David Trowbridge and Micah Dowty
@@ -23,7 +23,7 @@
 #ifndef __ANIMATION_H__
 #define __ANIMATION_H__
 
-#include "de-jong.h"
+#include "parameter-holder.h"
 
 G_BEGIN_DECLS
 
@@ -49,7 +49,7 @@ struct _AnimationClass {
 /* Items in the GdkListStore holding our keyframes */
 enum {
   ANIMATION_MODEL_THUMBNAIL,    /* The thumbnail, as a GdkPixbuf */
-  ANIMATION_MODEL_PARAMS,       /* The DeJong parameters, as a string */
+  ANIMATION_MODEL_PARAMS,       /* The parameters, serialized to a string */
   ANIMATION_MODEL_DURATION,     /* The duration of the following transition, in seconds */
   ANIMATION_MODEL_SPLINE,       /* The interpolation spline, a boxed Spline instance */
   ANIMATION_MODEL_ITER,         /* A GtkTreeIter pointing to this node */
@@ -67,27 +67,45 @@ typedef struct _AnimationIter {
 /******************************************************************* Public Methods */
 /************************************************************************************/
 
-GType        animation_get_type();
-Animation*   animation_new();
-void         animation_clear(Animation *self);
+GType        animation_get_type              ();
+Animation*   animation_new                   ();
+void         animation_clear                 (Animation           *self);
 
 /* Persistence */
-void         animation_load_file(Animation *self, const gchar *filename);
-void         animation_save_file(Animation *self, const gchar *filename);
+void         animation_load_file             (Animation           *self,
+					      const gchar         *filename);
+void         animation_save_file             (Animation           *self,
+					      const gchar         *filename);
 
 /* Keyframe manipulation */
-void         animation_keyframe_store_dejong(Animation *self, GtkTreeIter *iter, DeJong *dejong);
-void         animation_keyframe_load_dejong(Animation *self, GtkTreeIter *iter, DeJong *dejong);
-void         animation_keyframe_append(Animation *self, DeJong *dejong);
-gdouble      animation_keyframe_get_time(Animation *self, GtkTreeIter *iter);
+void         animation_keyframe_store        (Animation           *self,
+					      GtkTreeIter         *iter,
+					      ParameterHolder     *key);
+void         animation_keyframe_load         (Animation           *self,
+					      GtkTreeIter         *iter,
+					      ParameterHolder     *key);
+void         animation_keyframe_append       (Animation           *self,
+					      ParameterHolder     *key);
+gdouble      animation_keyframe_get_time     (Animation           *self,
+					      GtkTreeIter         *iter);
 
 /* Animation iterators */
-gdouble      animation_get_length(Animation *self);
-void         animation_iter_get_first(Animation *self, AnimationIter *iter);
-void         animation_iter_seek(Animation *self, AnimationIter *iter, gdouble absolute_time);
-void         animation_iter_seek_relative(Animation *self, AnimationIter *iter, gdouble delta_time);
-void         animation_iter_load_dejong(Animation *self, AnimationIter *iter, DeJong *dejong);
-gboolean     animation_iter_read_frame(Animation *self, AnimationIter *iter, DeJongPair *frame, double frame_rate);
+gdouble      animation_get_length            (Animation           *self);
+void         animation_iter_get_first        (Animation           *self,
+					      AnimationIter       *iter);
+void         animation_iter_seek             (Animation           *self,
+					      AnimationIter       *iter,
+					      gdouble              absolute_time);
+void         animation_iter_seek_relative    (Animation           *self,
+					      AnimationIter       *iter,
+					      gdouble delta_time);
+void         animation_iter_load             (Animation           *self,
+					      AnimationIter       *iter,
+					      ParameterHolder     *inbetween);
+gboolean     animation_iter_read_frame       (Animation           *self,
+					      AnimationIter       *iter,
+					      ParameterHolderPair *frame,
+					      double               frame_rate);
 
 G_END_DECLS
 

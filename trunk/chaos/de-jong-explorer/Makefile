@@ -13,12 +13,14 @@ HEADERS = \
 	src/curve-editor.h	\
 	src/spline.h		\
 	src/cell-renderer-transition.h \
-	src/cell-renderer-bifurcation.h
+	src/cell-renderer-bifurcation.h \
+	src/histogram-imager.h	\
+	src/parameter-holder.h	\
+	src/bifurctaion-diagram.h
 
 OBJS    = \
 	src/main.o		\
 	src/de-jong.o		\
-	src/de-jong-render.o	\
 	src/explorer.o		\
 	src/color-button.o	\
 	src/animation.o		\
@@ -28,7 +30,10 @@ OBJS    = \
 	src/explorer-tools.o	\
 	src/explorer-animation.o \
 	src/cell-renderer-transition.o \
-	src/cell-renderer-bifurcation.o
+	src/cell-renderer-bifurcation.o \
+	src/histogram-imager.o	\
+	src/parameter-holder.o	\
+	src/bifurcation-diagram.o
 
 
 $(BIN): $(OBJS)
