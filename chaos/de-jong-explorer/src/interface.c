@@ -281,7 +281,19 @@ void on_stop_activate(GtkWidget *widget, gpointer user_data) {
 }
 
 void on_param_spinner_changed(GtkWidget *widget, gpointer user_data) {
+  struct computation_params old_params;
+
   if (gui.writing_params)
+    return;
+
+  /* It's worth it to make sure the parameters really changed. The
+   * spin buttons seem to like sending out changed signals even when
+   * nothing actually changed, and this could be really frustrating
+   * if the image has been rendering for a while.
+   */
+  old_params = params;
+  read_gui_params();
+  if (!memcmp(&params, &old_params, sizeof(params)))
     return;
 
   on_stop_activate(widget, user_data);
