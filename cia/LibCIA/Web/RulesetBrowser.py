@@ -112,6 +112,43 @@ class RulesetEditorSection(Template.Section):
 
 
 
+class RulesetTotalsSection(Template.Section):
+    """A Section that displays fun-filled facts about our ruleset database"""
+    def __init__(self, storage):
+        self.total = 0
+        self.schemeTotals = {}
+        self.ircServers = {}
+        for uri in storage.rulesetMap.keys():
+            self.total += 1
+            if uri.find("://") >= 0:
+                scheme, hostAndPath = uri.split("://", 1)
+                self.schemeTotals[scheme] = self.schemeTotals.get(scheme, 0) + 1
+                if scheme == "irc":
+                    host = hostAndPath.split("/", 1)[0]
+                    self.ircServers[host] = True
+
+    def render_totalRulesets(self, context):
+        return self.total
+
+    def render_schemeTotal(self, context, scheme):
+        return self.schemeTotals.get(scheme, 0)
+
+    def render_ircServers(self, context):
+        return len(self.ircServers)
+
+    title = "totals"
+    rows = [[
+        Template.value[ place('totalRulesets') ],
+        ' total rulesets are registered. This includes ',
+        Template.value[ place('schemeTotal', 'irc') ],
+        ' IRC channels on ',
+        Template.value[ place('ircServers') ],
+        ' servers, and ',
+        Template.value[ place('schemeTotal', 'stats') ],
+        ' stats rulesets.',
+        ]]
+
+
 class SingleRulesetEditor(SingleRulesetPage):
     """A page that can view and edit one ruleset"""
     def render_mainColumn(self, context):
@@ -167,6 +204,11 @@ class RulesetPage(Template.Page):
     def render_mainColumn(self, context):
         return [
             URIList(self.storage),
+            ]
+
+    def render_leftColumn(self, context):
+        return [
+            RulesetTotalsSection(self.storage),
             ]
 
     headingTabs = [
