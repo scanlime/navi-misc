@@ -106,8 +106,9 @@ pyramid_class_init (PyramidClass *klass)
 static void
 pyramid_init (Pyramid *pyramid)
 {
-  pyramid->drawable = g_object_ref (pyramid_drawable_new ());
   pyramid->drawables = NULL;
+  pyramid->drawable = g_object_ref (pyramid_drawable_new ());
+  pyramid->drawable->parent = (SceneObject*) pyramid;
 
   pyramid->drawables = g_list_append (pyramid->drawables, (gpointer) pyramid->drawable);
 }

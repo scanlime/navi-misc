@@ -103,6 +103,8 @@ world_init (World *world)
   world->drawables = NULL;
   world->ground = ground_drawable_new ();
   world->wallsides = wall_sides_drawable_new ();
+  world->ground->parent = (SceneObject*) world;
+  world->wallsides->parent = (SceneObject*) world;
 
   world->drawables = g_list_append (world->drawables, (gpointer) world->ground);
   world->drawables = g_list_append (world->drawables, (gpointer) world->wallsides);
