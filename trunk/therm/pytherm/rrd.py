@@ -474,7 +474,7 @@ def graphUnknownData(title="No data",
         "CDEF:no_data_pos=data_min,data_max,+,UN,INF,UNKN,IF",
         "AREA:no_data_pos%s:%s" % (color, title),
         "CDEF:no_data_neg=data_min,data_max,+,UN,-INF,UNKN,IF",
-        "AREA:no_data_neg%s:%s" % (color, title),
+        "AREA:no_data_neg%s" % color,
         ]
 
 def graphHorizontalRule(value, title, color=Color(0,0,0)):
