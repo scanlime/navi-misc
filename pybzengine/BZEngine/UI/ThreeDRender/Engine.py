@@ -183,22 +183,27 @@ class Scene:
         self.objects = {}
         self.dirty = True
 
-    def add(self, object):
-        """Add the given object to the scene.
+    def objectToDrawables(self, object):
+        """Convert an object to a list of drawables.
            The object may be:
               - Any object that supports the getDrawables() method
               - A list of drawables
               - A drawable
            """
         if hasattr(object, 'getDrawables'):
-            drawables = object.getDrawables()
+            return object.getDrawables()
         elif type(object) == type(()) or type(object) == type([]):
-            drawables = object
+            return object
         elif isinstance(object, Drawable.GLDrawable):
-            drawables = (object,)
+            return (object,)
         else:
-            raise TypeError("Scene.add() expects an object with getDrawables(), a drawable list, or a drawable")
+            raise TypeError("Expected an object with getDrawables(), a drawable list, or a drawable")
 
+    def add(self, object):
+        """Add the given object to the scene.
+           The object may be in any form supported by objectToDrawables above.
+           """
+        drawables = self.objectToDrawables(object)
         for drawable in drawables:
             for texture in drawable.render.textures:
                 # If this is a dynamic texture and we have a renderstate to hand it, do so
@@ -208,6 +213,11 @@ class Scene:
 
             drawable.parent(object)
         self.objects.setdefault(object, []).extend(drawables)
+        self.dirty = True
+
+    def remove(self, object):
+        """Reverses all actions taken by add()"""
+        del self.objects[object]
         self.dirty = True
 
     def preprocess(self):
