@@ -8,7 +8,7 @@
 typedef boost::numeric::ublas::vector<double> twov;
 
 twov point(2);
-GtkWidget *drawing_area;
+GtkWidget *window, *drawing_area;
 GtkWidget *as, *bs, *cs, *ds, *start, *stop, *save;
 GdkPixmap *backb;
 int iterations;
@@ -23,6 +23,7 @@ static int draw_more(void *data);
 gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 void startclick(GtkWidget *widget, gpointer user_data);
 void stopclick(GtkWidget *widget, gpointer user_data);
+void saveclick(GtkWidget *widget, gpointer user_data);
 gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 twov dejong(float a, float b, float c, float d, boost::numeric::ublas::vector<double> xyn);
 GtkWidget *build_sidebar();
@@ -31,7 +32,7 @@ int main(int argc, char ** argv) {
   std::srand(std::time(NULL));
   gtk_init(&argc, &argv);
 
-  GtkWidget *window, *hbox, *vsep;
+  GtkWidget *hbox, *vsep;
 
   a = 1.4191403;
   b = -2.2841323;
@@ -75,7 +76,7 @@ int main(int argc, char ** argv) {
 
   gtk_main();
 
-  std::cout << "completed " << iterations << " iterations\n";
+  g_print("completed %d iterations\n", iterations);
 }
 
 GtkWidget *build_sidebar() {
@@ -120,7 +121,7 @@ GtkWidget *build_sidebar() {
   gtk_table_attach(GTK_TABLE(table), stop, 0, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   save = gtk_button_new_from_stock(GTK_STOCK_SAVE);
   gtk_widget_set_sensitive(save, FALSE);
-//  g_signal_connect(G_OBJECT(stop), "clicked", G_CALLBACK(stopclick), NULL);
+  g_signal_connect(G_OBJECT(save), "clicked", G_CALLBACK(saveclick), NULL);
   gtk_table_attach(GTK_TABLE(table), save, 0, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
   return table;
@@ -206,5 +207,23 @@ void stopclick(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(cs, TRUE);
   gtk_widget_set_sensitive(ds, TRUE);
   g_source_remove(idler);
-  std::cout << "completed " << iterations << " iterations\n";
+  g_print("completed %d iterations\n", iterations);
+}
+
+void saveclick(GtkWidget *widget, gpointer user_data) {
+  /* wait for gtk 2.3....
+  GtkWidget *dialog;
+
+  dialog = gtk_file_chooser_dialog_new("Save", window, GTK_FILE_CHOOSER_ACTION_SAVE,
+  				       GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+				       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				       NULL);
+  if(gtk_dialog_run(GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
+    char *filename;
+    filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+    g_print("saving to '%s'\n", filename);
+    g_free(filename);
+  }
+  gtk_widget_destroy(dialog);
+  */
 }
