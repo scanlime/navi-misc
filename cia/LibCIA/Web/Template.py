@@ -144,6 +144,7 @@ class Page(Nouvelle.Twisted.Page):
     subTitle = []
     leftColumn  = []
     mainColumn  = []
+    extraHeaders = []
 
     document = [
         xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
@@ -154,6 +155,7 @@ class Page(Nouvelle.Twisted.Page):
                 xml('<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />'),
                 tag('title')[ place("pageTitle") ],
                 tag('style', type="text/css", media="all")[ "@import url(/style.css);" ],
+                place('extraHeaders'),
                 ],
             tag('body')[
                 tag('div', _class="heading")[
