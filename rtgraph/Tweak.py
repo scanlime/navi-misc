@@ -332,11 +332,11 @@ class Text(AttributeControl):
 
 
 class Boolean(AttributeControl):
-    """A control that lets you directly manipulate strings using text entry boxes"""
+    """A control that manipulates a boolean value using a CheckButton widget"""
     def addWidget(self, initialValue, setFunction):
         entry = gtk.CheckButton()
         self.setWidget(entry, initialValue)
-        entry.connect("toggled", lambda widget: setFunction(entry.get_active()))
+        entry.connect("toggled", lambda widget: setFunction(bool(entry.get_active())))
         return entry
 
     def setWidget(self, widget, newValue):
