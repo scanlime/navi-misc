@@ -1,9 +1,9 @@
 /* 
- * gstplugin.h: sample header file for plug-in
+ * gstopenglsink.h: video sink that draws to an opengl texture
  */
 
-#ifndef __GST_PLUGIN_TEMPLATE_H__
-#define __GST_PLUGIN_TEMPLATE_H__
+#ifndef __GST_PLUGIN_OPENGLSINK_H__
+#define __GST_PLUGIN_OPENGLSINK_H__
 
 #include <gst/gst.h>
 
@@ -12,38 +12,38 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* #define's don't like whitespacey bits */
-#define GST_TYPE_PLUGIN_TEMPLATE \
-  (gst_gst_plugin_template_get_type())
-#define GST_PLUGIN_TEMPLATE(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_PLUGIN_TEMPLATE,GstPluginTemplate))
-#define GST_PLUGIN_TEMPLATE_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_PLUGIN_TEMPLATE,GstPluginTemplate))
-#define GST_IS_PLUGIN_TEMPLATE(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_PLUGIN_TEMPLATE))
-#define GST_IS_PLUGIN_TEMPLATE_CLASS(obj) \
-  (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_PLUGIN_TEMPLATE))
+#define GST_TYPE_PLUGIN_OPENGLSINK \
+  (gst_gst_plugin_openglsink_get_type())
+#define GST_PLUGIN_OPENGLSINK(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_PLUGIN_OPENGLSINK,GstPluginTemplate))
+#define GST_PLUGIN_OPENGLSINK_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_PLUGIN_OPENGLSINK,GstPluginTemplate))
+#define GST_IS_PLUGIN_OPENGLSINK(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_PLUGIN_OPENGLSINK))
+#define GST_IS_PLUGIN_OPENGLSINK_CLASS(obj) \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_PLUGIN_OPENGLSINK))
 
-typedef struct _GstPluginTemplate      GstPluginTemplate;
-typedef struct _GstPluginTemplateClass GstPluginTemplateClass;
+typedef struct _GstPluginOpenGLSink      GstPluginOpenGLSink;
+typedef struct _GstPluginOpenGLSinkClass GstPluginOpenGLSinkClass;
 
-struct _GstPluginTemplate
+struct _GstPluginOpenGLSink
 {
   GstElement element;
 
-  GstPad *sinkpad, *srcpad;
+  GstPad *sinkpad;
 
   gboolean silent;
 };
 
-struct _GstPluginTemplateClass 
+struct _GstPluginOpenGLSinkClass
 {
   GstElementClass parent_class;
 };
 
-GType gst_gst_plugin_template_get_type (void);
+GType gst_gst_plugin_openglsink_get_type (void);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __GST_PLUGIN_TEMPLATE_H__ */
+#endif /* __GST_PLUGIN_OPENGLSINK_H__ */
