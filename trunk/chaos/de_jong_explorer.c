@@ -7,7 +7,8 @@
 
 #define WIDTH   800
 #define HEIGHT  800
-#define MAX_FRAME_RATE 10
+#define MAX_FRAME_RATE   50
+#define PROGRESSIVE_MASK 7
 
 struct {
   double x,y;
@@ -17,12 +18,10 @@ GtkWidget *window, *drawing_area, *iterl;
 GtkWidget *as, *bs, *cs, *ds, *ls, *start, *stop, *save;
 GdkPixbuf *pixbuf;
 gulong iterations;
-int flippiness;
 GdkGC *gc;
 guint data[WIDTH][HEIGHT];
 double a, b, c, d, exposure;
 guint idler;
-struct timeval last_flip;
 
 void flip();
 void clear();
@@ -139,6 +138,8 @@ void flip() {
   float density, luma, fscale;
   struct timeval now;
   suseconds_t diff;
+  static struct timeval last_flip;
+  static int progressiveRow = 0;
 
   /* Limit the maximum frame rate, so we're more responsive when dragging parameters */
   gettimeofday(&now, NULL);
@@ -179,21 +180,25 @@ void flip() {
 
   row = pixels;
   for (y=0; y<HEIGHT; y++) {
-    p = row;
-    for (x=0; x<WIDTH; x++) {
+    if ((y & PROGRESSIVE_MASK) == progressiveRow) {
+      p = row;
+      for (x=0; x<WIDTH; x++) {
 
-      dval = data[x][y];
-      if (dval > dataclamp)
-	dval = dataclamp;
+	dval = data[x][y];
+	if (dval > dataclamp)
+	  dval = dataclamp;
 
-      gray = 255 - ((dval * iscale) >> 24);
+	gray = 255 - ((dval * iscale) >> 24);
 
-      *((guint32*)p) = GUINT32_TO_LE( gray | (gray<<8) | (gray<<16) );
+	*((guint32*)p) = GUINT32_TO_LE( gray | (gray<<8) | (gray<<16) );
 
-      p += pixelstride;
+	p += pixelstride;
+      }
     }
     row += rowstride;
   }
+
+  progressiveRow = (progressiveRow + 1) & PROGRESSIVE_MASK;
 
   gdk_draw_pixbuf(drawing_area->window, gc, pixbuf,
 		  0, 0, 0, 0, WIDTH, HEIGHT,
@@ -225,10 +230,7 @@ static int draw_more(void *extra) {
   }
   iterations += iterationsAtOnce;
 
-  if (flippiness++ > 4) {
-    flip();
-    flippiness = 0;
-  }
+  flip();
 
   gchar *iters = g_strdup_printf("%d", iterations);
   gtk_label_set_text(GTK_LABEL(iterl), iters);
