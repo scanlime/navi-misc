@@ -27,6 +27,8 @@ from twisted.internet import defer
 from LibCIA.Web import Template
 from LibCIA import Stats, Database
 from Nouvelle import tag
+from twisted.web import resource, server
+import LibCIA.Stats.Graph
 import Link
 
 
@@ -117,5 +119,30 @@ class RelatedSection(Template.Section):
                 for item in contents
             ]],
         ]
+
+
+class GraphPage(resource.Resource):
+    """Implements a web resource that generates rasterized and cached
+       graphs from the stats_relations table.
+       """
+    def __init__(self, *args, **kwargs):
+        self.grapher = Stats.Graph.RelationGrapher(*args, **kwargs)
+        self.layout = Stats.Graph.GraphLayout(self.grapher)
+
+    def render(self, request):
+        # Get the resolution from our page arguments, but put an upper
+        # limit on it so we don't use all our memory trying to rasterize this.
+        dpi = min(60, float(request.args.get('dpi',[3])[0]))
+
+        # Cache the rasterized graph
+        r = Stats.Graph.SvgRasterizer(self.layout, dpi=dpi, background='white')
+        Stats.Graph.RenderCache().get(r).addCallback(
+            self._render, request).addErrback(request.processingFailed)
+        return server.NOT_DONE_YET
+
+    def _render(self, image, request):
+        request.setHeader('content-type', 'image/png')
+        request.write(image)
+        request.finish()
 
 ### The End ###

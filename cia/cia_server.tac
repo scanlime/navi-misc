@@ -43,6 +43,12 @@ site = Web.Server.Site(webRoot)
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port
 webRoot.putChild('vhost', vhost.VHostMonsterResource())
 
+# debuggative cruft
+webRoot.putChild('graph', Web.Stats.Graph.GraphPage(
+    Stats.Graph.PrefixSelector('project/', color='#FF0000', shape='box'),
+    Stats.Graph.PrefixSelector('author/', color='#0000FF'),
+    ))
+
 # Create a root XML-RPC object, with interfaces attached for each subsystem
 rpc = RpcServer.Interface()
 rpc.putSubHandler('hub', Message.HubInterface(hub))
