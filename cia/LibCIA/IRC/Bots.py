@@ -572,6 +572,18 @@ class Bot(irc.IRCClient):
         self.left(channel)
         self.factory.botNet.botKicked(self, channel, kicker, message)
 
+    def ctcpUnknownQuery(self, user, channel, tag, data):
+        """Ignore unknown queries, so if someone sends a CTCP BAGEL to
+           the channel CIA doesn't respond needlessly.
+           """
+        pass
+
+    def irc_unknown(self, prefix, command, params):
+        """Log unknown commands, making debugging easier. This also lets
+           us see responses in the log for commands sent via debug_tool.
+           """
+        log.msg("Unknown IRC command %r received with parameters %r" % (command, params))
+
 
 class BotFactory(protocol.ClientFactory):
     """Twisted ClientFactory for creating Bot instances"""
