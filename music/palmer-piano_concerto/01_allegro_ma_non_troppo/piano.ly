@@ -73,9 +73,9 @@ mvmtOnePianoSectTwoRight = \relative b {
       cis' a fis' cis) 
       g'( e b e b' dis, fis a)
   | gis( e cis' a) dis( b fis dis' e a, gis eis') fis( a, ais g')
-  | fis\<( dis a fis) g( e cis g) dis''( a fis dis)
+  | fis( dis a fis) g( e cis g) dis''( a fis dis)
       \clef bass
-      cis( g e b)\!
+      cis( g e b)
   | fis( g a g fis a g fis) e cis dis e a, d cis c
 
   % 31
@@ -85,9 +85,9 @@ mvmtOnePianoSectTwoRight = \relative b {
   | r b fis g fis' gis, b cis g' d cis g fis e d cis
   
   % 35
-  | b fis' b d fis\< ais b cis d fis,( a b
+  | b fis' b d fis ais b cis d fis,( a b
       \clef treble
-      d fis g a)\!
+      d fis g a)
 }
 
 mvmtOnePianoSectTwoLeft = \relative b, {
@@ -135,20 +135,20 @@ mvmtOnePianoSectThreeRight = \relative b' {
   | e8. cis16 e8. g16 b8. cis16 fis8. e16
   | g16 cis, fis, cis ais e
       \clef bass
-      ais, e d\< fis b d fis, a c e\!
+      ais, e d fis b d fis, a c e
   | d b g d cis fis ais cis d b fis d e a cis e
-  | fis\< d a fis e g c e fis dis a fis gis b d gis\!
+  | fis d a fis e g c e fis dis a fis gis b d gis
   
   % 44
   \clef treble
   | fis8 e gis4. fis8 d4~
-  | d8 f \stemUp cis'4. b8 a g-.\sf \stemNeutral  % XXX sf conflicts
-  | fis8 <e b f>-.\sf gis4 r8 gis16 a d8 <e bes>
+  | d8 f \stemUp cis'4. b8 a g-. \stemNeutral  % XXX sf conflicts
+  | fis8 <e b f>-. gis4 r8 gis16 a d8 <e bes>
   
   % 47
-  | << { d8\< c e d f e~\! e4 } \\
+  | << { d8 c e d f e~ e4 } \\
        { r16 bes a g a f bes c des bes e,8~ e4 } >>
-  | << { f'8 e g\> f a g~ g f\! } \\
+  | << { f'8 e g f a g~ g f } \\
        { d,16 a' cis d e cis a d c a b g a bes~ bes d } >>
   | g8 e'16 f e f d e cis d e8 a16-. e-. a,-. e-.
   | f8 
@@ -163,12 +163,12 @@ mvmtOnePianoSectThreeRight = \relative b' {
   | e8 a,\glissando cis'4
       << { e'16 d-. cis-. d-. cis-. b-. a-. b-. } \\
          { e,8 f~ f g } >>
-  | cis8\< e,16 a <cis cis,>8 a16 cis <e e,>8 fis,16 bis <dis dis,>8 cis16 dis\!
+  | cis8 e,16 a <cis cis,>8 a16 cis <e e,>8 fis,16 bis <dis dis,>8 cis16 dis
   
   % 54
   | <eis eis,>8 gis,16[ a fis gis] fis[ gis e fis] eis'[ fis dis eis d e]
   | <cis eis, cis>8 a,16 b gis a gis a fis g fis' gis e fis d e
-  | <cis gis>8\> r8 r4\! r2
+  | <cis gis>8 r8 r4 r2
 
   % 57
   | r1 r1 r1
@@ -262,7 +262,7 @@ mvmtOnePianoSectFourRight = \relative cis'' {
        { e,4. <d g> } >>
   | << { cis'4. b4~ b16 b } \\
        { <cis, fis>4. <dis fis> } >>
-  | << { bis'4.\< bes\! } \\
+  | << { bis'4. bes } \\
        { dis,4. f } >>
 
   % 80
@@ -348,8 +348,8 @@ mvmtOnePianoSectFiveRight = \relative b' {
   | e b ais b d fis eis fis gis cis, b' eis, cis' gis e' b
   \clef treble
   | g' b ais b f' b, ais b a' b, g' b, f' c ees c
-  | e b e, b' e, ais e' ais, d a d, a' c a <f b>8-.->
-  | <ees c'>8-.-> r8 r4 r2
+  | e b e, b' e, ais e' ais, d a d, a' c a <f b>8-.
+  | <ees c'>8-. r8 r4 r2
 }
 
 mvmtOnePianoSectFiveLeft = \relative b {
@@ -365,8 +365,8 @@ mvmtOnePianoSectFiveLeft = \relative b {
   | b,,16 d cis d e d cis d b d ees d cis d e d
   | e b ais b d fis eis fis gis cis, b' eis, cis' gis e' b
   | g' b ais b f' b, ais b a' b, g' b, f' c ees c
-  | e b e, b' e, ais e' ais, d a d, a' c a <d, g>8-.->
-  | <c g'>8-.-> r8 r4 r2
+  | e b e, b' e, ais e' ais, d a d, a' c a <d, g>8-.
+  | <c g'>8-. r8 r4 r2
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -857,5 +857,115 @@ mvmtOnePianoLeft = {
   \mvmtOnePianoSectNineLeft
 }
 
-mvmtOnePianoDynamics = {}
+mvmtOnePianoDynamics = {
+  % 1
+  s1*2 
+  s1\mf
+  s1*3
+  s1\f
+  s1*7
+  s1*8
+  % 23
+  s1\f
+  s1*4
+  s1\< 
+  s1\!\ff
+  s1
+  s1\fp
+  s1*3
+  s1\<
+  % 36
+  s1\!\mp
+  s1*5
+  s1\mf
+  s1\<
+  s1\!\mp
+  s2 s4 s8 s8\sf
+  s8 s8\sf s4 s2
+  s2\< s4 s4\!
+  s4 s4\> s2
+  s1\!\mp
+  s1\f
+  s1\mp
+  s1
+  s1\<
+  s1\!\f
+  s1
+  s2\> s2\!
+  s1*3
+  s1*8
+  s1
+
+  % 69
+  s2.\p
+  s2.*9
+  s2.\<
+  s4. s4.\!\mp
+  s2.*8
+  
+  % 89
+  s1*4
+  s1\mf
+  s1*6
+  s2 s4 s8 s8\sf
+  s1\sf
+  s1*8
+
+  % 110
+  s1\pp
+  s2. s4\p
+  s1
+  s1\<
+  s1\!\mp
+  s1*2
+  s1\<
+  s1\!\f
+  s1*3
+  s4\f s4\> s2\!\mp
+  s4\f s4\> s2\!\mp
+  s1\fp
+  s2. s4\>
+  s1
+  s2\!\sfp s4 s4\<
+  s1\!\ff
+  s1*4
+  s4\f s4\mf s2
+  s2 s4 s4\mp
+  s4\mf s4\mp s2
+  s1
+  % 137
+  s2.*14
+  % 151
+  s2.\mf
+  s2.*2
+  s4. s4.\>  % XXX this dim clashes with beams
+  s2.\!\mp 
+  s2.*4
+  s2.*17
+  % 177
+  s1\ff
+  s1*12
+  % 190
+  s1\p
+  s1*12
+  s1\p
+  s1*2
+  s1\mp
+  s1\ff
+  s1\mp
+  s1\p
+  s1\mp
+  s1*6
+  s1\p
+  s1*2
+  s2 s4 s4\<
+  s1
+  s1\!\f
+  s1
+  s1\>
+  s1
+  s1\!\p
+  s1
+}
+
 mvmtOnePianoPedal = {}
