@@ -523,13 +523,12 @@ class PalantirWindow:
 
     # Format the text to display in our window.
     if self.tree.get_widget('time_stamps').get_active():
-      hour, min, sec = palantir.getTime()
-      time = '[' + hour + ':' + min + ':' + sec + ']'
+      time = palantir.getTime()
     else:
-      time = ''
+      time = None
     self.chatWindow.DisplayText(time, '',
 	'You rolled a '+str(len(rolls))+'d'+str(sides)+': '+str(rolls)+
-	' => '+str(total)+'\n')
+	' => '+str(total))
 
   def setUserIcon(self, listStore, path, iter, data):
     ''' Sets the icon next to the username in the userlist, return
