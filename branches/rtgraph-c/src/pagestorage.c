@@ -223,6 +223,9 @@ static void            name_table_insert_page  (RtgPageStorage *self,
     NAME_TABLE_SUFFIX->next = next;
     NAME_TABLE_SUFFIX->offset = 0;
     iter->offset = 0;
+
+    /* Put in a null terminator */
+    memset(NAME_TABLE_PAGE_ADDR + iter->offset, 0, RTG_ALIGN_CEIL(1));
 }
 
 static void            name_table_init_header  (RtgPageStorage *self)
@@ -232,6 +235,10 @@ static void            name_table_init_header  (RtgPageStorage *self)
     name_table_iter_init(self, iter);
     NAME_TABLE_SUFFIX->next = RTG_PAGE_NULL;
     NAME_TABLE_SUFFIX->offset = sizeof(struct header_page_prefix);
+
+    /* Put in a null terminator */
+    memset(NAME_TABLE_PAGE_ADDR + NAME_TABLE_SUFFIX->offset,
+	   0, RTG_ALIGN_CEIL(1));
 }
 
 #undef NAME_TABLE_PAGE_ADDR
@@ -252,6 +259,9 @@ RtgPageAddress    rtg_page_storage_alloc         (RtgPageStorage*   self)
     if (header_p->first_free == RTG_PAGE_NULL) {
 	/* No pages free. Resize our storage */
 	rtg_page_storage_resize(self, self->num_pages + 1);
+
+	/* Get a new header pointer, since the resize just invalidated ours */
+	header_p = PAGE_PREFIX(struct header_page_prefix, self, RTG_PAGE_HEADER);
 	g_assert(header_p->first_free != RTG_PAGE_NULL);
     }
 
@@ -447,7 +457,7 @@ void              rtg_page_storage_resize          (RtgPageStorage* self,
 static void       temp_storage_resize            (RtgPageStorage*   self,
 						  gsize             new_num_pages)
 {
-    self->page_size = new_num_pages;
+    self->num_pages = new_num_pages;
     self->base_address = g_realloc(self->base_address, self->num_pages * self->page_size);
 }
 
