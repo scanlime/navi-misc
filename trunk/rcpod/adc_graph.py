@@ -58,7 +58,7 @@ class ScrollingLineGraph(gtk.DrawingArea):
             channel = self.channels[i]
             if channel is not None:
                 # Calculate a current pen position, always at the right side of the graph
-                penVector = (self.width-1, (self.height-1) * (1-channel))
+                penVector = (self.width-1, int((self.height-1) * (1-channel)))
 
                 # If we have both a new pen vector and an old pen vector, we can draw a line
                 oldPenVector = self.channelPenVectors[i]
