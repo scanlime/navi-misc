@@ -16,7 +16,7 @@
 #
 
 import os, sys, stat, statvfs, random
-import threading, time, Queue
+import threading, time, Queue, traceback
 import fam, select, errno
 import pinefs.srv
 import pinefs.rpc
@@ -146,12 +146,10 @@ class SpreadFileBase(pinefs.fsbase.FileObj):
         self.blocks = (size-1)/self.blocksize+1
         pinefs.fsbase.FileObj.__init__(self)
 
-    def monitor(self):
-        """Start watching this filesystem object for changes"""
-
     def unmonitor(self):
-        """Reverse the effects of monitor(). The default implementation
-           expects monitor() to fill self.monitorKeys.
+        """Reverse the effects of any file monitoring this object uses.
+           The default implementation expects self.monitorKeys to list
+           all keys that need unregistering.
            """
         for key in self.monitorKeys:
             self.fs.fileMonitor.unmonitor(key)
@@ -230,11 +228,36 @@ class SpreadDirectory(SpreadFileBase):
             self.monitorKeys.append(self.fs.fileMonitor.monitor('dir', path, self.onMonitorEvent))
 
     def onMonitorEvent(self, event):
-        if event.code2str() in ('changed', 'deleted', 'created', 'moved'):
-            self.fs.mapper.invalidateObject(self)
+        code = event.code2str()
+
+        # Do we have a cached object this affects?
+        obj = self.fs.mapper.objectCache.get(os.path.join(self.path, event.filename))
+        if obj:
+
+            # Always invalidate if it was deleted
+            if code == 'deleted':
+                self.fs.mapper.invalidateObject(obj)
+
+            # We only care if it was changed if it was a file. Changed directories
+            # get their own notifications.
+            if code == 'changed' and isinstance(obj, SpreadFile):
+                self.fs.mapper.invalidateObject(obj)
+
+        if self.dirCache and event.filename in self.dirCache:
+            # Do we need to update the directory cache?
+            # We don't seem to ever actually get 'moved' events,
+            # so for now this only handles 'deleted' and 'created'.
+            if code == 'deleted':
+                del self.dirCache[event.filename]
+            elif code == 'created':
+                self.dirCache[event.filename] = self.getChild(event.filename).fileHandle
 
     def get_dir(self):
         """Return a directory listing, as a mapping from child names to their file handles"""
+
+        # Once we grow a directory cache, we'll need monitoring for it
+        if not self.monitorKeys:
+            self.monitor()
 
         # Our results get cached for the lifetime of this object,
         # since file objects get removed when the underlying data on disk changes.
@@ -338,11 +361,6 @@ class SpreadMapper:
             obj.fileHandle = self.getHandleFromPath(path)
             obj.fileid = int(obj.fileHandle, 16)
 
-            # Start watching for changes so we can automatically
-            # invalidate objects when the underlying disk data
-            # is modified.
-            obj.monitor()
-
             self.objectCache[path] = obj
 
         return obj
@@ -351,6 +369,10 @@ class SpreadMapper:
         """Remove an object from our cache"""
         obj.unmonitor()
         del self.objectCache[obj.path]
+
+    def invalidateObjectByPath(self, path):
+        if path in self.objectCache:
+            self.invalidateObject(self.objectCache[path])
 
 
 class SpreadFilesystem:
@@ -485,7 +507,11 @@ class FileMonitor(threading.Thread):
             # Read anything pending from FAM
             while self.connection.pending():
                 event = self.connection.nextEvent()
-                event.userData(event)
+                try:
+                    event.userData(event)
+                except:
+                    print "*** Exception in FAM event handler:"
+                    traceback.print_last()
 
         c = self.connection
         self.connection = None
@@ -497,7 +523,6 @@ class FileMonitor(threading.Thread):
            to unmonitor() the request.
            """
         key = type, path, callback
-        print "Monitoring: %r" % (key,)
 
         # Remember that we need this request. It will be actually
         # filled in later from inside the thread.
@@ -508,7 +533,6 @@ class FileMonitor(threading.Thread):
         return key
 
     def unmonitor(self, key):
-        print "Unmonitoring: %r" % (key,)
         r = self.requests[key]
         if self.connection:
             self.runInThread(r.cancelMonitor)
