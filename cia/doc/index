@@ -52,7 +52,8 @@ and XML-RPC delivery.
 
 CIA is implemented using the Python_ programming language and Twisted_
 networking framework. It is Free Software, licensed under the `GNU GPL`_.
-The source is available from a Subversion_ repository_.
+The source is available from a Subversion_ repository_, and CIA even tracks
+`changes to its own codebase`_.
 
 You can read more about CIA's architecture_ and `adding your project`_ to CIA.
 
@@ -107,6 +108,7 @@ CIA uses open standards, including XHTML, CSS2, and XML-RPC.
 
 
 .. _adding your project: /doc/adding-projects
+.. _changes to its own codebase: /stats/project/navi-misc/cia
 .. _stats browser: /stats
 .. _bot: /irc
 .. _client script: /doc/clients
