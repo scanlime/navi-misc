@@ -157,7 +157,7 @@ class XMLStorage(object):
            """
         pass
 
-    def storage(self, xml):
+    def store(self, xml):
         """Subclasses must implement this to add the given object to the storage.
            'xml' will be a domish.Element instance.
            """
