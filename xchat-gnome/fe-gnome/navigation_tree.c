@@ -199,7 +199,7 @@ void
 navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess)
 {
 	GtkTreeIter *iter;
-	GtkWidget *button;
+	GtkWidget *menuitem;
 
 	navigation_model_add_new_network (navtree->model, sess);
 
@@ -214,15 +214,17 @@ navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess
 
 	navigation_tree_select_session (navtree, sess);
 
-	button = glade_xml_get_widget (gui.xml, "topic change");
-	gtk_widget_set_sensitive (button, FALSE);
+	menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionChangeTopicItem");
+	if (menuitem == NULL)
+		g_warning ("can't disable topic change menu item");
+	gtk_widget_set_sensitive (menuitem, FALSE);
 }
 
 void
 navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess)
 {
 	GtkTreeIter *iter;
-	GtkWidget *button;
+	GtkWidget *menuitem;
 	ircnet *net;
 
 	navigation_model_add_new_channel (navtree->model, sess);
@@ -241,17 +243,22 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 
 	navigation_tree_select_session (navtree, sess);
 
-	button = glade_xml_get_widget (gui.xml, "topic change");
 	gtk_label_set_text (GTK_LABEL (gui.topic_label), sess->topic);
 	net = sess->server->network;
 	if (net == NULL)
 		rename_main_window (NULL, sess->channel);
 	else
 		rename_main_window (net->name, sess->channel);
-	if (sess->type == SESS_CHANNEL)
-		gtk_widget_set_sensitive (button, TRUE);
+
+	menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionChangeTopicItem");
+	if (menuitem == NULL)
+		g_warning ("can't access topic change menu item");
 	else
-		gtk_widget_set_sensitive (button, FALSE);
+		gtk_widget_set_sensitive (menuitem, sess->type == SESS_CHANNEL);
+/*		if (sess->type == SESS_CHANNEL)
+			gtk_widget_set_sensitive (menuitem, TRUE);
+		else
+			gtk_widget_set_sensitive (menuitem, FALSE);*/
 }
 
 void
@@ -725,7 +732,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	 *      not a GtkTreeModel. The iter is for that ModelSort.
 	 */
 	if (gtk_tree_selection_get_selected (treeselection, &model, &iter) && gui.current_session) {
-		GtkWidget *entry;
+		GtkWidget *entry, *menuitem;
 
 		/* back up existing entry */
 		tgui = (session_gui *) gui.current_session->gui;
@@ -788,13 +795,15 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 			rename_main_window (net->name, sess->channel);
 		}
 
-		if (sess->type == SESS_CHANNEL) {
-			GtkWidget *button = glade_xml_get_widget (gui.xml, "topic change");
-			gtk_widget_set_sensitive (button, TRUE);
-		} else {
-			GtkWidget *button = glade_xml_get_widget (gui.xml, "topic change");
-			gtk_widget_set_sensitive (button, FALSE);
-		}
+		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionChangeTopicItem");
+		if (menuitem == NULL)
+			g_warning ("can't disable topic change menu item");
+		else
+			gtk_widget_set_sensitive (menuitem,sess->type == SESS_CHANNEL);
+/*			if (sess->type == SESS_CHANNEL)
+				gtk_widget_set_sensitive (menuitem, TRUE);
+			else
+				gtk_widget_set_sensitive (menuitem, FALSE);*/
 
 		/* remove any icon that exists */
 		store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
