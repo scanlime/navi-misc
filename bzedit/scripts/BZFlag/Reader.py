@@ -31,14 +31,14 @@ class Reader:
             float = Combine(Word('+-'+nums, nums) +
                             Optional(Literal('.') + Optional(Word(nums))) +
                             Optional(CaselessLiteral('E') + Word('+-'+nums, nums)))
-            2dPoint = float + float
-            3dPoint = float + float + float
+            TwoDPoint = float + float
+            ThreeDPoint = float + float + float
             globalReference = Word(alphanums + '/:*_?')
 
             end = CaselessLiteral('end')
             name = CaselessLiteral('name')
-            pos = CaselessLiteral('pos') | CaselessLiteral('position')
-            rot = CaselessLiteral('rot') | CaselessLiteral('rotation')
+            pos = CaselessLiteral('position') | CaselessLiteral('pos')
+            rot = CaselessLiteral('rotation') | CaselessLiteral('rot')
             scale = CaselessLiteral('scale')
             shear = CaselessLiteral('shear')
             shift = CaselessLiteral('shift')
@@ -46,81 +46,104 @@ class Reader:
             spin = CaselessLiteral('spin')
 
             objectProperty = name + Word(alphanums)
-            locationProperty =
-                pos + 3dPoint
-              | size + 3dPoint
-              | rot + float
-              | shift + 3dPoint
-              | scale + 3dPoint
-              | shear + 3dPoint
-              | spin + 3dPoint
+            locationProperty =      \
+                pos + ThreeDPoint   \
+              | size + ThreeDPoint  \
+              | rot + float         \
+              | shift + ThreeDPoint \
+              | scale + ThreeDPoint \
+              | shear + ThreeDPoint \
+              | spin + ThreeDPoint  \
               | objectProperty
-            obstacleProperty =
-                CaselessLiteral('drivethrough')
-              | CaselessLiteral('shootthrough')
-              | CaselessLiteral('passable')
+            obstacleProperty =                  \
+                CaselessLiteral('drivethrough') \
+              | CaselessLiteral('shootthrough') \
+              | CaselessLiteral('passable')     \
               | locationProperty
 
             box = CaselessLiteral('box') + OneOrMore(obstacleProperty) + end
 
-            pyramidProperty =
-                CaselessLiteral('flipz')
+            pyramidProperty =            \
+                CaselessLiteral('flipz') \
               | obstacleProperty
             pyramid = CaselessLiteral('pyramid') + OneOrMore(pyramidProperty) + end
 
-            baseProperty =
-                CaselessLiteral('color') + Word(nums)
+            baseProperty =                            \
+                CaselessLiteral('color') + Word(nums) \
               | obstacleProperty
             base = CaselessLiteral('base') + OneOrMore(baseProperty) + end
 
-            worldProperty =
-                size + float
-              | CaselessLiteral('flagHeight') + float
+            worldProperty =                           \
+                size + float                          \
+              | CaselessLiteral('flagHeight') + float \
               | objectProperty
             world = CaselessLiteral('world') + OneOrMore(worldProperty) + end
 
-            teleporterProperty =
-                CaselessLiteral('border') + float
+            teleporterProperty =                  \
+                CaselessLiteral('border') + float \
               | obstacleProperty
             teleporter = CaselessLiteral('teleporter') + OneOrMore(teleporterProperty) + end
 
-            teleporterSide =
-                CaselessLiteral('f')
-              | CaselessLiteral('b')
-              | Literal('?')
+            teleporterSide =         \
+                CaselessLiteral('f') \
+              | CaselessLiteral('b') \
+              | Literal('?')         \
               | Literal('*')
-            teleporterSpec =
-                Word(digits)
+            teleporterSpec = \
+                Word(nums) \
               | Combine(globalReference + Optional(Literal(':') + teleporterSide))
-            linkProperty =
-                CaselessLiteral('to') + teleporterSpec
-              | CaselessLiteral('from') + teleporterSpec
+            linkProperty =                               \
+                CaselessLiteral('to') + teleporterSpec   \
+              | CaselessLiteral('from') + teleporterSpec \
               | objectProperty
             link = CaselessLiteral('link') + OneOrMore(linkProperty) + end
 
             # FIXME - add material to this object
-            arcProperty =
-                CaselessLiteral('divisions') + Word(nums)
-              | CaselessLiteral('angle') + float
-              | CaselessLiteral('ratio') + float
-              | CaselessLiteral('texsize') + float + float + float + float
-              | CaselessLiteral('phydrv') + Word(alphanums)
-              | CaselessLiteral('smoothbounce')
-              | CaselessLiteral('flatshading')
+            arcProperty =                                                  \
+                CaselessLiteral('divisions') + Word(nums)                  \
+              | CaselessLiteral('angle') + float                           \
+              | CaselessLiteral('ratio') + float                           \
+              | CaselessLiteral('texsize') + float + float + float + float \
+              | CaselessLiteral('phydrv') + Word(alphanums)                \
+              | CaselessLiteral('smoothbounce')                            \
+              | CaselessLiteral('flatshading')                             \
               | obstacleProperty
             arc = CaselessLiteral('arc') + OneOrMore(arcProperty) + end
 
             # FIXME - add material to this object
-            tetraProperty =
-                CaselessLiteral('vertex') + 3dPoint
-              | CaselessLiteral('normals') + 3dPoint
-              | CaselessLiteral('texcoords') + 2dPoint
+            tetraProperty =                              \
+                CaselessLiteral('vertex') + ThreeDPoint  \
+              | CaselessLiteral('normals') + ThreeDPoint \
+              | CaselessLiteral('texcoords') + TwoDPoint \
               | obstacleProperty
             tetra = CaselessLiteral('tetra') + OneOrMore(tetraProperty)
 
-            zoneProperty =
-                CaselessLiteral('flag') + OneOrMore('good' | 'bad' | Word(alphas, min=1, max=2))
-              | CaselessLiteral('team') + OneOrMore(Word(nums))
-              | CaselessLiteral('safety') + OneOrMore(Word(nums))
+            flagSpec =                  \
+                CaselessLiteral('good') \
+              | CaselessLiteral('bad')  \
+              | Word(alphas, min=1, max=2)
+            zoneProperty =                                        \
+                CaselessLiteral('flag') + OneOrMore(flagSpec)     \
+              | CaselessLiteral('team') + OneOrMore(Word(nums))   \
+              | CaselessLiteral('safety') + OneOrMore(Word(nums)) \
               | locationProperty
             zone = CaselessLiteral('zone') + OneOrMore(zoneProperty)
+
+            worldObject =  \
+                box        \
+              | pyramid    \
+              | base       \
+              | teleporter \
+              | link       \
+              | arc        \
+              | tetra      \
+              | zone
+
+            self.grammar = OneOrMore(worldObject)
+            self.grammar.ignore(comment)
+        return self.grammar
+
+    def parse(self, filename):
+        g = self.getGrammar()
+        a = g.parseFile(filename)
+        return a
