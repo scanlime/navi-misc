@@ -1,5 +1,6 @@
 /*
  * This file initializes CIA's PostgreSQL database.
+ * Requires PostgreSQL and the PL/pgSQL procedural language.
  *
  * For example:
  *   dbcreate cia
@@ -25,7 +26,7 @@ CREATE TABLE rulesets
     xml TEXT NOT NULL
 );
 
------------------------------------------------------------ Stats Tables
+----------------------------------------------------------- Stats
 
 -- Generates unique IDs for all messages we store
 CREATE SEQUENCE stats_message_id;
@@ -71,82 +72,7 @@ CREATE TABLE stats_counters
     PRIMARY KEY(target_path, name)
 );
 
------------------------------------------------------------ Stats functions/rules
-
--- Cleanup: uncomment to remove old versions of the below functions and rules
-/*
-DROP RULE stats_messages_autocreate ON stats_messages;
-DROP RULE stats_metadata_autocreate ON stats_metadata;
-DROP RULE stats_counters_autocreate ON stats_counters;
-DROP FUNCTION statsParent(VARCHAR);
-DROP FUNCTION statsCreateTarget(VARCHAR);
-DROP FUNCTION statsIncrementCounter(VARCHAR, VARCHAR);
-DROP FUNCTION statsIncrement(VARCHAR);
-*/
-
--- This function returns the parent associated with a given stats path
-CREATE FUNCTION statsParent(VARCHAR) RETURNS VARCHAR AS '
-    SELECT substring($1 from ''(.+)/[^/]+$'')
-' LANGUAGE SQL STRICT;
-
--- A function that creates a target_path in our stats_catalog if it doesn't
--- exist, including creating parent entries recursively if necessary.
--- Really ugly... hopefully there's a better way to do this.
---
-CREATE FUNCTION statsCreateTarget(VARCHAR) RETURNS VARCHAR AS '
-    SELECT statsCreateTarget(statsParent($1));
-    LOCK TABLE stats_catalog IN SHARE MODE;
-    INSERT INTO stats_catalog (
-       parent_path,
-       target_path)
-    (
-       SELECT statsParent($1), $1 WHERE NOT EXISTS (
-           SELECT 1 FROM stats_catalog WHERE target_path = $1
-       )
-    );
-    SELECT $1;
-' LANGUAGE SQL STRICT;
-
--- Rules to automatically create stats_catalog entries when
--- we try to insert new keys elsewhere for a stats target that
--- doesn't yet exist.
-CREATE RULE stats_messages_autocreate AS ON INSERT TO stats_messages
-    DO SELECT statsCreateTarget(NEW.target_path);
-CREATE RULE stats_metadata_autocreate AS ON INSERT TO stats_metadata
-    DO SELECT statsCreateTarget(NEW.target_path);
-CREATE RULE stats_counters_autocreate AS ON INSERT TO stats_counters
-    DO SELECT statsCreateTarget(NEW.target_path);
-
--- A function to increment one stats counter, creating it if necessary
--- usage: statsIncrementCounter(stats_target, counter_name)
---
--- Note the statsCreateTarget call: this should be done automatically
--- on insert by the stats_counters_autocreate rule, but it looks like
--- rules might not work from inside functions?
---
-CREATE FUNCTION statsIncrementCounter(VARCHAR, VARCHAR) RETURNS VARCHAR AS '
-    SELECT statsCreateTarget($1);
-    INSERT INTO stats_counters (
-       target_path,
-       name)
-    (
-       SELECT $1, $2 WHERE NOT EXISTS (
-           SELECT 1 FROM stats_counters WHERE target_path = $1 AND name = $2
-       )
-    );
-    UPDATE stats_counters SET
-       event_count = event_count + 1,
-       last_time = NOW()
-    WHERE target_path = $1 and name = $2;
-    SELECT $1;
-' LANGUAGE SQL STRICT;
-
--- Increment all applicable stats counters for a given path
-CREATE FUNCTION statsIncrement(VARCHAR) RETURNS VARCHAR AS '
-    SELECT statsIncrementCounter($1, ''today'');
-    SELECT statsIncrementCounter($1, ''thisWeek'');
-    SELECT statsIncrementCounter($1, ''thisMonth'');
-    SELECT statsIncrementCounter($1, ''forever'');
-' LANGUAGE SQL STRICT;
+CREATE VIEW stats_message_counts AS
+    SELECT target_path, COUNT(target_path) FROM stats_messages GROUP BY target_path;
 
 --- The End ---
