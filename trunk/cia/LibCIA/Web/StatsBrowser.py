@@ -260,20 +260,21 @@ class Info(Template.Section):
     title = "information"
 
     def __init__(self, target):
-        metadata = target.metadata
-        self.url = metadata.get('url')
-        self.description = metadata.get('description')
-        self.photo_url = metadata.get('photo_url')
+        self.target = target
+        self.metadata = target.metadata
+        self.url = self.metadata.get('url')
+        self.description = self.metadata.get('description')
+        self.hasPhoto = 'photo' in self.metadata
 
     def isVisible(self, context):
-        return self.url or self.description or self.photo_url
+        return self.url or self.description or self.hasPhoto
 
     def render_rows(self, context):
         rows = []
         if self.url:
             rows.append(tag('a', href=self.url)[self.url])
-        if self.photo_url:
-            rows.append(Template.Photo(self.photo_url))
+        if self.hasPhoto:
+            rows.append(Template.Photo(MetadataLink(self.target, 'photo').getURL(context)))
         if self.description:
             rows.append(self.description)
         return rows
