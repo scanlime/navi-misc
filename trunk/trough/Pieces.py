@@ -45,6 +45,7 @@ class Pieces:
 			if not subdirs:
 				files.sort()
 				if files[len(files)-1].getName()[0].isdigit():
+					print dir.getFiles().getPath()
 					self.addFilesGrouped (dir.getName(),dir.getFiles())
 				else:
 					self.addFilesSeparate (dir.getName(),dir.getFiles())
@@ -58,6 +59,9 @@ class Pieces:
 		for path in paths:
 			self.addDirectory(FSTree.Directory(path))
 		print 'found ',len(self.pieces)
+
+	def delPieces (self, pattern):
+		pass
 
 	def getCount (self):
 		return len(self.pieces)
