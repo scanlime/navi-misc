@@ -28,6 +28,13 @@ static gboolean chanlist_delete(GtkWidget *widget, GdkEvent *event, channel_list
 }
 
 static void chanlist_refresh(GtkWidget *button, channel_list_window *win) {
+	GtkWidget *treeview;
+	GtkTreeModel *model, *store;
+
+	treeview = glade_xml_get_widget(win->xml, "channel list");
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
+	gtk_list_store_clear(GTK_LIST_STORE(store));
 	win->server->p_list_channels(win->server, "");
 }
 
@@ -98,6 +105,7 @@ void create_channel_list(session *sess) {
 	g_signal_connect(G_OBJECT(widget), "delete-event", G_CALLBACK(chanlist_delete), win);
 
 	treeview = glade_xml_get_widget(win->xml, "channel list");
+	gtk_tree_view_set_search_column(GTK_TREE_VIEW(treeview), 1);
 
 	widget = glade_xml_get_widget(win->xml, "refresh button");
 	g_signal_connect(G_OBJECT(widget), "clicked", G_CALLBACK(chanlist_refresh), win);
