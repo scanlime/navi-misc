@@ -29,7 +29,6 @@ Dependencies
 
 - Python 2.2.1 or later
 - the Python Imaging Library, required for visual CAPTCHAs
-- Numeric, (with RandomArray) required for several distortions and backgrounds
 
 
 Contacts
