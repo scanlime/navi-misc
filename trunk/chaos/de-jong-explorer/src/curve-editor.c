@@ -57,9 +57,6 @@ static gint curve_editor_graph_events (GtkWidget     *widget,
 				       GdkEvent      *event,
 				       CurveEditor   *c);
 static void curve_editor_size_graph   (CurveEditor   *curve);
-static void curve_editor_get_vector   (CurveEditor   *c,
-				       int           veclen,
-				       gfloat        vector[]);
 
 enum {
   CHANGED_SIGNAL,
@@ -152,10 +149,12 @@ curve_editor_interpolate (CurveEditor *c, gint width, gint height)
 {
   gfloat *vector;
   int i;
+  Spline *active = spline_find_active_points(&c->spline);
 
   vector = g_malloc (width * sizeof (vector[0]));
 
-  curve_editor_get_vector (c, width, vector);
+  spline_solve_and_eval_range(active, width, vector, 0, 1);
+  g_free(active);
 
   c->height = height;
   if (c->num_points != width)
@@ -448,68 +447,7 @@ curve_editor_set_spline(CurveEditor* self, const Spline *spline)
 
 Spline*
 curve_editor_get_spline(CurveEditor* self) {
-  return spline_copy(&self->spline);
-}
-
-static void
-curve_editor_get_vector (CurveEditor *c, int veclen, gfloat vector[])
-{
-  gfloat rx, ry, dx, dy, delta_x, *y2v, prev;
-  gint dst, i, x, next, first_active = -1;
-  Spline active;
-
-  /* count active points: */
-  prev = -1;
-  for (i = active.num_points = 0; i < c->spline.num_points; ++i)
-    if (c->spline.points[i][0] > prev)
-      {
-	if (first_active < 0)
-	  first_active = i;
-	prev = c->spline.points[i][0];
-	++active.num_points;
-      }
-
-  /* handle degenerate case: */
-  if (active.num_points < 2)
-    {
-      if (active.num_points > 0)
-	ry = c->spline.points[first_active][1];
-      else
-	ry = 0;
-      if (ry < 0) ry = 0;
-      if (ry > 1) ry = 1;
-      for (x = 0; x < veclen; ++x)
-	vector[x] = ry;
-      return;
-    }
-
-  active.points = g_malloc(active.num_points * sizeof(SplineControlPoint));
-  y2v = g_malloc (3 * active.num_points * sizeof(gfloat));
-
-  prev = -1;
-  for (i = dst = 0; i < c->spline.num_points; ++i)
-    if (c->spline.points[i][0] > prev)
-      {
-	prev    = c->spline.points[i][0];
-	active.points[dst][0] = c->spline.points[i][0];
-	active.points[dst][1] = c->spline.points[i][1];
-	++dst;
-      }
-
-  spline_solve (&active, y2v);
-
-  rx = 0;
-  dx = 1.0 / (veclen - 1);
-  for (x = 0; x < veclen; ++x, rx += dx)
-    {
-      ry = spline_eval (&active, y2v, rx);
-      if (ry < 0) ry = 0;
-      if (ry > 1) ry = 1;
-      vector[x] = ry;
-    }
-
-  g_free(y2v);
-  g_free(active.points);
+  return spline_find_active_points(&self->spline);
 }
 
 GtkWidget*
