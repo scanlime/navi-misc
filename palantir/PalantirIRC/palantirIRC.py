@@ -140,10 +140,6 @@ class PalantirClientFactory(protocol.ClientFactory):
     self.channels.append(channelname)
 
   ### IRC Commands ###
-  def me(self, channel, action):
-    ''' Emote something. '''
-    self.client.me(channel, action)
-
   def join(self, channel, msg=None):
     ''' Join a channel '''
     if None in self.channels:
@@ -165,15 +161,6 @@ class PalantirClientFactory(protocol.ClientFactory):
       self.client.quit(message)
     self.channels = [None]
     self.client = None
-
-  def nick(self, nick):
-    ''' Change your nick. '''
-    self.nickname = nick
-    if hasattr(self, 'client'):
-      self.client.setNick(self.nickname)
-
-  def topic(self, channel, topic):
-    self.client.topic(channel, topic)
 
 
 # Just for a little testing.
