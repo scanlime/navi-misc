@@ -19,14 +19,17 @@ else:
 
 
 class TestClient(BZFlag.Client.PlayerClient):
-    def onMsgAccept(self, msg, socket, eventLoop):
-        alive = BZFlag.Protocol.ToServer.MsgAlive()
-        alive.position = (10,10,20)
-        alive.forward  = (1,0,0)
-        socket.write(alive)
-
-    def onMsgMessage(self, msg, socket, eventLoop):
+    def onMsgMessage(self, msg):
         print "Message from %s to %s: %s" % (msg.fromId, msg.toId, msg.message)
+
+    def onEnterGame(self):
+        print "Entered the game"
+        pos = [10, 10, 20]
+        alive = BZFlag.Protocol.ToServer.MsgAlive()
+        alive.position = pos
+        alive.forward  = (1,0,0)
+        self.tcp.write(alive)
+        update = BZFlag.Protocol.ToServer.MsgPlayerUpdate()
 
 
 playerIdent = BZFlag.Player.Identity("Bob the Avenger")
