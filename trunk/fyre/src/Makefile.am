@@ -74,7 +74,8 @@ fyre_SOURCES = 				\
 	$(EXR_SRC)			\
 	$(BINRELOC_SRC)			\
 	$(GETOPT_SRC)			\
-	$(GNET_SRC)
+	$(GNET_SRC)			\
+	$(WIN32_SRC)
 
 noinst_HEADERS =			\
 	animation.h			\
