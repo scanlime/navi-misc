@@ -38,6 +38,9 @@ CREATE TABLE IF NOT EXISTS sources
     name          VARCHAR(64) NOT NULL,
     description   TEXT,
 
+    micro_type    VARCHAR(64),
+    sensor_type   VARCHAR(64),
+
     INDEX(name),
     INDEX(medium, protocol, station_id)
 ) TYPE=INNODB;
