@@ -27,8 +27,8 @@ or IDs to use for new files.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import os, time, sys
-import shelve, cPickle
+import os, time, sys, cPickle
+import sqlite
 from twisted.internet import defer
 from RioKarma import Request, Metadata
 
@@ -162,78 +162,175 @@ class FileIdAllocator:
 
 
 class Cache:
-    """This is a container for the several individual databases that make up
-       our cache of the Rio's file database. It is responsible for opening,
-       closing, synchronizing, and resetting all caches in unison.
+    """This is a container for the various bits that make up our on-disk cache
+       of the Rio's file database. It is stored in a sqlite database- most of the
+       information is stored directly in sqlite tables, but this class also hides
+       the fact that we have other data structures (the ID allocation tree) that
+       must be serialized and deserialized.
        """
-    def __init__(self, path):
-        self.path = os.path.expanduser(path)
 
-    def _openShelve(self, name, mode):
-        """This is a convenience function for opening shelve databases using
-           a common naming convention and parent directory.
-           """
-        return shelve.open(os.path.join(self.path, name + '.db'), mode)
+    schemaVersion = 1
+    schema = """
 
-    def _openPickle(self, name, mode, factory, *args, **kwargs):
-        """This is a convenience function for opening pickled objects in the same
-           fashion as an anydbm database.
-           """
-        filename = os.path.join(self.path, name + '.p')
-        if mode == 'n' or not os.path.isfile(filename):
-            return factory(*args, **kwargs)
-        else:
-            return cPickle.load(open(filename, "rb"))
+    -- Holds individual strings that only need to be accessed by key
+    CREATE TABLE dict
+    (
+        name   VARCHAR(32),
+        value  TEXT
+    );
 
-    def _savePickle(self, obj, name):
-        """A convenience function for saving pickled objects using
-           our common naming convention
-           """
-        filename = os.path.join(self.path, name + '.p')
-        cPickle.dump(obj, open(filename, "wb"), cPickle.HIGHEST_PROTOCOL)
+    -- This is the meat of our cache- each file on the Rio gets a row.
+    -- We store a full pickled copy of the details for that file, plus
+    -- we separately store all entries that are interesting to search.
+    CREATE TABLE files
+    (
+        -- All of these fields match keys in 'details'
+        fid       INT PRIMARY KEY,
+        type      VARCHAR(16),
+        rid       VARCHAR(32),
+        title     VARCHAR(255),
+        artist    VARCHAR(255),
+        source    VARCHAR(255),
+        codec     VARCHAR(32),
 
-    def open(self, mode='c'):
-        """Open all cache components, creating them if necessary"""
-        if not os.path.isdir(self.path):
-            os.makedirs(self.path)
+        details   TEXT NOT NULL
+    );
+    """
 
-        self.fileDetails     = self._openShelve('file-details', mode)
-        self.fileIdAllocator = self._openPickle('file-id-allocator', mode, FileIdAllocator)
+    # This is a list of the items from 'details' that get their own database column
+    detailsColumns = ('fid', 'type', 'rid', 'title', 'artist', 'source', 'codec')
+
+    def __init__(self, filename):
+        self.filename = os.path.expanduser(filename)
+
+    def open(self):
+        """Open the cache, creating it if necessary"""
+
+        # create our directory if necessary
+        parentDir = self.filename.rsplit(os.sep, 1)[0]
+        if not os.path.isdir(parentDir):
+            os.makedirs(parentDir)
+
+        self.connection = sqlite.connect(self.filename)
+        self.cursor = self.connection.cursor()
+
+        # See what version of the database we got. If it's empty
+        # or it's old, we need to reset it.
+        try:
+            self.cursor.execute("SELECT value FROM dict WHERE name = 'schemaVersion'")
+            version = int(self.cursor.fetchone().value)
+        except sqlite.DatabaseError:
+            version = None
+
+        if version != self.schemaVersion:
+            self.empty()
+
+        # Load the File ID allocator
+        self.cursor.execute("SELECT value FROM dict WHERE name = 'fileIdAllocator'")
+        self.fileIdAllocator = cPickle.loads(sqlite.decode(self.cursor.fetchone().value))
 
     def close(self):
         self.sync()
-        self.quickClose()
+        self.connection.close()
 
     def sync(self):
         """Synchronize in-memory parts of the cache with disk"""
-        self.fileDetails.sync()
-        self._savePickle(self.fileIdAllocator, 'file-id-allocator')
 
-    def quickClose(self):
-        """Close without regard to data integrity! This will close our
-           databases, but does not flush in-memory caches to disk.
-           This should only be used when we're throwing the cache
-           away soon anyway.
-           """
-        self.fileDetails.close()
+        # Update the file ID allocator
+        self.cursor.execute("UPDATE dict SET value = '%s' WHERE name = 'fileIdAllocator'" %
+                            sqlite.encode(cPickle.dumps(self.fileIdAllocator, -1)))
+
+        # Commit the database itself to disk
+        self.connection.commit()
 
     def empty(self):
-        """Discard the contents of the cache"""
-        self.quickClose()
-        self.open('n')
+        """Reset the database to a default empty state"""
+
+        # Find and destroy every table in the database
+        self.cursor.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'")
+        tables = [row.tbl_name for row in self.cursor.fetchall()]
+        for table in tables:
+            self.cursor.execute("DROP TABLE %s" % table)
+
+        # Apply the schema
+        self.cursor.execute(self.schema)
+        self.cursor.execute("INSERT INTO dict (name, value) VALUES ('schemaVersion', '%s')" %
+                            self.schemaVersion)
+
+        # Create a fresh new file ID allocator. Put a blank entry in the database for now,
+        # then let sync() update it before committing all this to disk.
+        self.fileIdAllocator = FileIdAllocator()
+        self.cursor.execute("INSERT INTO dict (name, value) VALUES ('fileIdAllocator', '')")
+        self.sync()
+
+    def insertFile(self, f):
+        """Insert a new File object into the cache. If an existing file with this ID
+           exists, it is updated rather than overwritten.
+           """
+
+        # Add it to the ID allocator
+        self.fileIdAllocator.allocate(f.id)
+
+        # Make name/value lists for everything we want to update
+        dbItems = {'details': "'%s'" % sqlite.encode(cPickle.dumps(f.details, -1))}
+        for column in self.detailsColumns:
+            if column in f.details:
+                dbItems[column] = "'%s'" % sqlite.encode(unicode(f.details[column]).encode('utf-8'))
+
+        # First try updating an existing row
+        self.cursor.execute("UPDATE files SET %s WHERE fid = %d" % (
+            ", ".join(["%s = %s" % i for i in dbItems.iteritems()]), f.id))
+
+        if self.cursor.rowcount < 1:
+            # Nope. Insert a new item
+            names = dbItems.keys()
+            self.cursor.execute("INSERT INTO files (%s) VALUES (%s)" %
+                                (",".join(names), ",".join([dbItems[k] for k in names])))
+
+    def deleteFile(self, f):
+        """Delete a File object from the cache"""
+        # FIXME: This can't remove the ID from the allocation tree yet
+        self.cursor.execute("DELETE FROM files WHERE fid = %d" % f.id)
+
+    def getFile(self, fid):
+        """Return a File object, given a file ID"""
+        self.cursor.execute("SELECT details FROM files WHERE fid = %d" % fid)
+        return File(details=cPickle.loads(sqlite.decode(self.cursor.fetchone().details)))
+
+    def findFiles(self, **kw):
+        """Search for files. The provided keywords must be included in
+           self.detailsColumns. Any keyword can be None (matches anything)
+           or it can be a string to match. Keywords that aren't provided
+           are assumed to be None. Returns a list of File objects.
+           """
+        constraints = []
+        for key, value in kw.iteritems():
+            if key not in self.detailsColumns:
+                raise ValueError("Key name %r is not searchable" % key)
+            constraints.append("%s = '%s'" % (
+                key, sqlite.encode(unicode(value).encode('utf-8'))))
+
+        self.cursor.execute("SELECT details FROM files WHERE %s" %
+                            " AND ".join(constraints))
+        return [File(details=cPickle.loads(sqlite.decode(row.details)))
+                for row in self.cursor.fetchall()]
+
+    def countFiles(self):
+        """Return the number of files cached"""
+        self.cursor.execute("SELECT COUNT(fid) FROM files")
+        return int(self.cursor.fetchone()[0])
 
 
-class Filesystem:
-    """The Filesystem coordinates the activity of several File objects
-       through one Protocol, and provides ways of discovering Files.
-       It owns a local cache of the rio's database, which it can synchronize.
-
-       The Filesystem is responsible for organizing metadata, but not for
-       collecting it, or for dealing with file contents.
+class FileManager:
+    """The FileManager coordinates the activity of Cache and File objects
+       with a real Rio device.
        """
-    def __init__(self, protocol, cacheDir="~/.riokarma-py/cache"):
+    def __init__(self, protocol, cachePath=None):
+        if cachePath is None:
+            cachePath = "~/.riokarma-py/cache.db"
+
         self.protocol = protocol
-        self.cache = Cache(cacheDir)
+        self.cache = Cache(cachePath)
         self.cache.open()
 
     def readLock(self):
@@ -268,12 +365,22 @@ class Filesystem:
             # Empty and rebuild all database files
             self.cache.empty()
             self.protocol.sendRequest(Request.GetAllFileDetails(
-                self._cacheFileDetails)).addCallback(
+                self._synchronizeFile)).addCallback(
                 self._finishSynchronize, d).addErrback(d.errback)
         else:
             d.callback(None)
 
+    def _synchronizeFile(self, details):
+        # Add one file to the cache
+        self.cache.insertFile(File(details=details))
+
+        # FIXME: Progress reporter should get poked here
+        sys.stderr.write('.')
+
     def _finishSynchronize(self, retval, d):
+        # FIXME: Progress reporter should get poked here
+        print "Done"
+
         # Before signalling completion, sync the cache
         self.cache.sync()
         d.callback(None)
@@ -284,102 +391,114 @@ class Filesystem:
            """
         # FIXME: this should compare datestamps, or free space on the disk, to
         #        be able to invalidate the cache when the rio is externally modified.
-        if len(self.cache.fileDetails) == 0:
+        if self.cache.countFiles() == 0:
             return True
         else:
             return False
-
-    def _cacheFileDetails(self, details):
-        """Add a file details dictionary to our database cache. This is used to populate
-           the database when synchronizing from the device, and it's used internally
-           by updateFileDetails().
-           """
-        self.cache.fileIdAllocator.allocate(int(details['fid']))
-        self.cache.fileDetails[str(details['fid'])] = details
-
-        # FIXME: Report progress near here, at least for synchronization
-        print "FID: 0x%05X" % details['fid']
 
     def updateFileDetails(self, f):
         """Update our cache and the device itself with the latest details dictionary
            from this file object. Returns a Deferred signalling completion.
            """
-        self._cacheFileDetails(f.details)
+        self.cache.insertFile(f)
         self.cache.sync()
-        return self.protocol.sendRequest(Request.UpdateFileDetails(f.fileID, f.details))
+        return self.protocol.sendRequest(Request.UpdateFileDetails(f.id, f.details))
 
+    def createFile(self):
+        """Allocate a new file ID, and return a new File object representing it"""
+        return File(id=self.cache.fileIdAllocator.next())
 
-class File:
-    """A File represents one media or data file corresponding to an entry in
-       the device's database and our copy of that database. File objects
-       have lifetimes disjoint from that of the actual files on disk- if a
-       file ID is provided, existing metadata is looked up. If an ID isn't
-       provided, we generate a new ID and metadata will be uploaded.
-
-       Files are responsible for holding metadata, extracting that metadata
-       from real files on disk, and for transferring a file's content to and
-       from disk. Since the real work of metadata extraction is done by
-       mmpython, this mostly concerns translating mmpython's metadata into
-       the Rio's metadata format.
-       """
-    def __init__(self, filesystem, fileID=None):
-        self.filesystem = filesystem
-
-        if fileID is None:
-            # New file, start out with barebones metadata
-            now = int(time.time())
-            self.fileID = self.filesystem.cache.fileIdAllocator.next()
-            self.details = {
-                'ctime': now,
-                'fid_generation': now,
-                'fid': self.fileID,
-                }
-        else:
-            # Load this file from the cache
-            self.fileID = int(fileID)
-            self.details = self.filesystem.cache.fileDetails[str(fileID)]
-
-    def loadFromDisk(self, filename):
-        """Load this file's metadata and content from a file on disk.
+    def loadFromDisk(self, remoteFile, localFilename, blockSize=None):
+        """Load a file's metadata and content from a file on disk.
            Returns a Deferred signalling completion.
            """
-        Metadata.Converter().detailsFromDisk(filename, self.details)
+        remoteFile.loadMetadataFrom(localFilename)
         result = defer.Deferred()
-        self.loadContentFrom(open(filename, "rb")).addCallback(
-            self._updateDetailsAfterLoad, result).addErrback(result.errback)
+
+        transfer = ContentTransfer(Request.WriteFileChunk, self.protocol,
+                                   remoteFile, open(localFilename, "rb"), blockSize)
+
+        transfer.start().addCallback(
+            self._updateDetailsAfterLoad, remoteFile, result).addErrback(
+            result.errback)
         return result
 
-    def _updateDetailsAfterLoad(self, retval, result):
-        self.filesystem.updateFileDetails(self).chainDeferred(result)
+    def _updateDetailsAfterLoad(self, retval, remoteFile, result):
+        """The Rio gets fairly angry if we update details on a file before
+           it has any valid content. This is called after the transfer
+           finishes when we're doing a loadFromDisk.
+           """
+        self.updateFileDetails(remoteFile).chainDeferred(result)
 
-    def saveToDisk(self, filename):
+    def saveToDisk(self, remoteFile, localFilename, blockSize=None):
         """Save this file's content to disk. Returns a deferred signalling completion."""
-        # We make sure to explicitly close it, so that
-        # when this returns you're sure the file is complete.
         result = defer.Deferred()
-        dest = open(filename, "wb")
-        self.saveContentTo(dest).addCallback(
+
+        dest = open(localFilename, "wb")
+        transfer = ContentTransfer(Request.ReadFileChunk, self.protocol,
+                                   remoteFile, dest, blockSize)
+
+        transfer.start().addCallback(
             self._finishSaveToDisk, dest, result.callback).addErrback(
             self._finishSaveToDisk, dest, result.errback)
         return result
 
     def _finishSaveToDisk(self, retval, dest, chainTo):
+        """After the transfer for saveToDisk finishes, we explicitly
+           close the file to be sure that its filesystem metadata is
+           up to date by the time this returns.
+           """
         dest.close()
         chainTo(retval)
 
-    def saveContentTo(self, fileObj, blockSize=8192):
-        """Save this file's content to a file-like object.
-           Returns a deferred signalling completion.
-           """
-        return ContentTransfer(Request.ReadFileChunk,
-                               self, fileObj, blockSize).result
 
-    def loadContentFrom(self, fileObj, blockSize=8192):
-        """Load this file's content from a file-like object.
-           Returns a Deferred signalling completion.
-           """
-        return ContentTransfer(Request.WriteFileChunk,
-                               self, fileObj, blockSize).result
+class File:
+    """A File represents one media or data file corresponding to an entry in
+       the device's database and our copy of that database. File objects
+       always have an ID and a 'details' dictionary containing that file's
+       metadata. Either of these may be provided when the file is created.
+       Files can't do much on their own, since they have no knowledge
+       of the device or the cache- the FileManager coordinates the movement
+       and life of a File.
+       """
+    def __init__(self, id=None, details=None):
+
+        if details is None:
+            # New file, start out with barebones metadata
+            if id is None:
+                raise ValueError("File instances must be created with an 'id' and/or 'details'")
+            now = int(time.time())
+            details = {
+                'ctime': now,
+                'fid_generation': now,
+                'fid': id,
+                }
+        else:
+            id = details['fid']
+
+        self.id = id
+        self.details = details
+
+    def loadMetadataFrom(self, filename):
+        """Populate this object's metadata from a real file on disk"""
+        Metadata.Converter().detailsFromDisk(filename, self.details)
+
+    def suggestFilename(self, **options):
+        return Metadata.Converter().filenameFromDetails(self.details, **options)
+
+    def __repr__(self):
+        if self.details.get('type') == 'tune':
+            return "<File 0x%05X: song %r on album %r by %r>" % (
+                self.id,
+                self.details.get('title').encode('ascii', 'replace'),
+                self.details.get('source').encode('ascii', 'replace'),
+                self.details.get('artist').encode('ascii', 'replace'),
+                )
+        else:
+            return "<File 0x%05X: %r>" % (
+                self.id,
+                self.details.get('title'),
+                )
 
 
 class ContentTransfer:
@@ -388,26 +507,35 @@ class ContentTransfer:
        also throttled so we don't dump the entire file into the request queue
        right away.
        """
-    def __init__(self, request, rioFile, fileObj, blockSize):
-        self.rioFile = rioFile
+    def __init__(self, request, protocol, remoteFile, localFile, blockSize=None):
+        if blockSize is None:
+            blockSize = 8192
+
         self.request = request
-        self.fileObj = fileObj
+        self.protocol = protocol
+        self.remoteFile = remoteFile
+        self.localFile = localFile
         self.blockSize = blockSize
+
+    def start(self):
+        """Begins the transfer, and returns a Deferred signalling its completion"""
         self.offset = 0
-        self.remaining = self.rioFile.details['length']
+        self.remaining = self.remoteFile.details['length']
         self.result = defer.Deferred()
+        self._next()
+        return self.result
 
-        self.next()
-
-    def next(self):
+    def _next(self):
         """Queue up another transfer block"""
 
         if self.remaining <= 0:
+            # We're already done, let our caller know
+            self.result.callback(None)
             return
 
         chunkLen = min(self.remaining, self.blockSize)
-        d = self.rioFile.filesystem.protocol.sendRequest(self.request(
-            self.rioFile.fileID, self.offset, chunkLen, self.fileObj))
+        d = self.protocol.sendRequest(self.request(
+            self.remoteFile.id, self.offset, chunkLen, self.localFile))
         self.remaining -= chunkLen
         self.offset += chunkLen
 
@@ -415,13 +543,12 @@ class ContentTransfer:
             # This is the last one, chain to our deferred and
             # stop setting up transfers.
             d.addCallback(self.result.callback)
-            return
+        else:
+            # FIXME: real progress updates should be triggered here
+            d.addCallback(lambda x: sys.stderr.write("."))
+            d.addErrback(self.result.errback)
 
-        # FIXME: real progress updates should be triggered here
-        d.addCallback(lambda x: sys.stderr.write("."))
-        d.addErrback(self.result.errback)
-
-        # Queue up the next block once Protocol thinks we should
-        self.rioFile.filesystem.protocol.throttle(self.next)
+            # Queue up the next block once Protocol thinks we should
+            self.protocol.throttle(self._next)
 
 ### The End ###

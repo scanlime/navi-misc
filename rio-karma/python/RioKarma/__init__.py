@@ -14,8 +14,7 @@ projects:
     http://karmalib.sourceforge.net/docs/protocol.php
     http://www.freakysoft.de/html/libkarma/
 
-Requires Twisted. For downloading files to the Rio Karma, requires
-mmpython to extract metadata from those files.
+Requires Twisted, mmpython, and pysqlite.
 
 """
 #
@@ -36,15 +35,54 @@ mmpython to extract metadata from those files.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-def connect(host, port=8302, password=''):
+def getProtocol(host, port=None, password=''):
     """Connect to a Rio Karma device. Returns a Deferred that results in
-       an AuthenticatedProtocol instance on success.
+       an Authenticated.Protocol instance on success.
        """
     from twisted.internet import reactor
     from RioKarma.Authenticated import Factory
 
+    if port is None:
+        port = 8302
+
     factory = Factory(password)
     reactor.connectTCP(host, port, factory)
     return factory.authResult
+
+
+def getFileManager(host, port=None, password='', cachePath=None):
+    """Connect to a Rio Karma device. Returns a Deferred that
+       results in a Filesystem.FileManager instance on success.
+       """
+    from RioKarma.Filesystem import FileManager
+    from twisted.internet import defer
+
+    result = defer.Deferred()
+    getProtocol(host, port, password).addCallback(
+        lambda protocol: result.callback(FileManager(protocol))
+        ).addErrback(result.errback)
+    return result
+
+
+def connect(host, port=None, password='', cachePath=None):
+    """Do everything necessary to establish a useful connection
+       to the Rio Karma. Currently this includes creating a FileManager
+       object and synchronizing its database.
+       """
+    from twisted.internet import defer
+
+    result = defer.Deferred()
+
+    def gotFileManager(fm):
+        fm.synchronize().addCallback(
+            synchronized, fm).addErrback(result.errback)
+
+    def synchronized(retval, fm):
+        result.callback(fm)
+
+    getFileManager(host, port, password, cachePath).addCallback(
+        gotFileManager).addErrback(result.errback)
+
+    return result
 
 ### The End ###
