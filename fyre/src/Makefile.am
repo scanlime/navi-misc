@@ -5,6 +5,7 @@ CSC = mcs -g
 TARGET = Fyre.exe
 WRAPPER = fyre
 
+pluginsdir = $(pkglibdir)/Plugins
 CSFLAGS =		\
 	-target:exe
 
@@ -22,8 +23,8 @@ RESOURCES =							\
 	-resource:$(top_srcdir)/data/pipeline-editor.glade	\
 	-resource:$(top_srcdir)/data/element-tooltip.glade
 
-$(TARGET): $(CSFILES)
-	$(CSC) -o $@ $^ $(ASSEMBLIES) $(RESOURCES)
+$(TARGET): $(CSFILES) $(srcdir)/Defines.cs
+	$(CSC) -o $@ $(CSFLAGS) $^ $(ASSEMBLIES) $(RESOURCES)
 
 tomboylibdir = $(pkglibdir)
 tomboylib_DATA = $(TARGET)
@@ -39,11 +40,19 @@ $(WRAPPER): $(srcdir)/$(WRAPPER).in Makefile
 	    < $< > $@
 	chmod +x $(WRAPPER)
 
-EXTRA_DIST = 		\
-	$(CSFILES)	\
+$(srcdir)/Defines.cs: $(srcdir)/Defines.cs.in Makefile
+	sed -e "s|\@version\@|$(VERSION)|"     \
+	    -e "s|\@datadir\@|$(datadir)|"     \
+	    -e "s|\@pkglibdir\@|$(pkglibdir)|" \
+	    < $< > $@
+
+EXTRA_DIST = 			\
+	$(CSFILES)		\
+	$(srcdir)/Defines.cs.in	\
 	$(WRAPPER).in
 
 CLEANFILES = 		\
 	$(TARGET)	\
 	$(TARGET).mdb	\
-	$(WRAPPER)
+	$(WRAPPER)	\
+	Defines.cs
