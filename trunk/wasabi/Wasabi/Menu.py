@@ -81,7 +81,8 @@ class Menu(Sequencer.Page):
 
         # Draw a background image
         import Settings
-        self.background = HUD.Background(self.overlay, Settings.getCurrentBackground())
+        bgTexture = Settings.BackgroundCache().load(Settings.getCurrentBackground())
+        self.background = HUD.Background(self.overlay, bgTexture)
 
     def cancel(self):
         """Called to cancel the menu without selecting an item"""

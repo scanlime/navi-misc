@@ -94,17 +94,17 @@ def getBackgroundList():
 
 
 def getCurrentBackground():
-    """Return the absolute path of the current background file"""
+    """Return the path of the current background file"""
     try:
         return open(os.path.expanduser("~/.wasabi/current_background")).read().strip()
     except IOError:
         # Return the default background
-        return os.path.abspath(getBackgroundList()[0])
+        return getBackgroundList()[0]
 
 
 def setCurrentBackground(path):
     """Save the given path as the current background file"""
-    open(os.path.expanduser("~/.wasabi/current_background"), "w").write(os.path.abspath(path) + "\n")
+    open(os.path.expanduser("~/.wasabi/current_background"), "w").write(path + "\n")
 
 
 class BackgroundCache:
