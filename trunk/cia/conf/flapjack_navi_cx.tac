@@ -45,6 +45,32 @@ Web.Template.Page.site_mainServerNotice = []
 Web.Template.Page.site_belowFirstSidebox = [DonationSection()]
 
 
+# FIXME: This is an experimental rate limiter that shoudl keep CIA
+#        from getting completely pegged against the linode's I/O quotas.
+#        This isn't a solution though, CIA's I/O usage needs optimization.
+def getIoStatus():
+    d = {}
+    for token in open("/proc/io_status").read().split():
+        token = token.strip()
+        if token:
+            key, value = token.split('=')
+            d[key] = int(value)
+    return d
+
+def installRateLimiter():
+    from twisted.internet import reactor
+    from LibCIA.Web import Server
+    if not hasattr(Server.Request, "_original_process"):
+        Server.Request._original_process = Server.Request.process
+    def rateLimiter(self):
+        if getIoStatus()['io_tokens'] > 10000:
+            return Server.Request._original_process(self)
+        else:
+            reactor.callLater(0.1, rateLimiter, self)
+    Server.Request.process = rateLimiter
+installRateLimiter()
+
+
 application = service.Application("cia_server")
 hub = Message.Hub()
 
