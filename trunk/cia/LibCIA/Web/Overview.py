@@ -141,8 +141,11 @@ class OverviewPage(Template.Page):
         ]
 
     def __init__(self, leftColumnFrom, statsComponent):
-        self.leftColumn = leftColumnFrom.leftColumn
+        self.leftColumnFrom = leftColumnFrom
         self.statsComponent = statsComponent
+
+    def render_leftColumn(self, context):
+        return self.leftColumnFrom.leftColumn
 
     def render_mainColumn(self, context):
         return [
