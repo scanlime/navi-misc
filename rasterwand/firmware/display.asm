@@ -31,6 +31,7 @@
 	global	display_poll
 	global	display_init
 	global	display_request_flip
+	global	display_check_flip
 
 	global	edge_buffer
 	global	wand_period
@@ -147,6 +148,13 @@ display_poll
 display_request_flip
 	bsf		FLAG_FLIP_REQUEST
 	return
+
+
+	; Check the status of a flip in progress, nonzero if it's in progress
+display_check_flip
+	btfss	FLAG_FLIP_REQUEST
+	retlw	0x00
+	retlw	0xFF
 
 
 ;*****************************************************************************************

@@ -7,9 +7,8 @@
 ;
 ;###############################################################################
 
-; Default tristate values: the only input we have is the
-; interruption sensor, all others are outputs.
-#define TRISA_VALUE	0x00
+; Default tristate values: the interruption sensor and buttons are inputs.
+#define TRISA_VALUE	0x3F
 #define TRISB_VALUE	0x00
 #define TRISC_VALUE	0x02
 
@@ -24,6 +23,7 @@
 ; Timer 1 on, 8:1 prescaler
 #define T1CON_VALUE	0x31
 
+#define BUTTON_PORT  PORTA
 #define LED_PORT 	 PORTB		; All of PORTB are active-low LEDs
 #define COIL_DRIVER  PORTC, 0	; Coil drive transistor
 #define ANGLE_SENSOR PORTC, 1	; Interruption sensor used to synchronize wand motion
