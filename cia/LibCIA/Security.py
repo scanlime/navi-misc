@@ -39,7 +39,7 @@ making keys map to pickled callable objects would be too fragile.
 from twisted.web import xmlrpc
 from twisted.internet import defer
 from twisted.python import failure, log
-import string, os, md5, time
+import string, os, md5, time, cPickle
 from cStringIO import StringIO
 import Database, RpcServer
 
