@@ -41,10 +41,13 @@ static void on_unload_plugin_clicked (GtkButton *button, gpointer user_data);
 static void on_open_plugin_clicked (GtkButton *button, gpointer user_data);
 static void on_remove_plugin_clicked (GtkButton *button, gpointer user_data);
 static void on_selection_changed (GtkTreeSelection *selection, gpointer user_data);
+static void on_plugin_filechooser (GtkDialog *dialog, gint response, gpointer user_data);
 
 /* Helpers */
 static void xchat_gnome_plugin_add (char *filename);
 static gboolean set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data);
+
+static GtkWidget *file_selector; // because everyone needs a file selec-tor!
 
 void
 initialize_preferences_plugins_page ()
@@ -81,6 +84,14 @@ initialize_preferences_plugins_page ()
   g_signal_connect (G_OBJECT (open), "clicked", G_CALLBACK (on_open_plugin_clicked), NULL);
   g_signal_connect (G_OBJECT (remove), "clicked", G_CALLBACK (on_remove_plugin_clicked), NULL);
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (on_selection_changed), NULL);
+
+	file_selector = gtk_file_chooser_dialog_new ("Open Plugin",
+			GTK_WINDOW (glade_xml_get_widget (gui.xml, "preferences")),
+			GTK_FILE_CHOOSER_ACTION_OPEN,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+			NULL);
+	g_signal_connect (G_OBJECT (file_selector), "response", G_CALLBACK (on_plugin_filechooser), NULL);
 
 	/* Fun little string things that ultimately become the path to ~/.xchat2/plugins.
 	 * FIXME: It might behoove us to store the expanded path string to ~/.xchat2 somewhere
@@ -180,15 +191,14 @@ on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
 static void
 on_open_plugin_clicked (GtkButton *button, gpointer user_data)
 {
-	GtkWidget *file_selector; // because everyone needs a file selec-tor!
 	char *homedir, *plugindir;
-
-	file_selector = glade_xml_get_widget (gui.xml, "load plugin filechooser");
 
 	homedir = g_get_home_dir();
 	plugindir = malloc (strlen (homedir) + strlen ("/.xchat2/plugins") + 1);
 	sprintf (plugindir, "%s/.xchat2/plugins", homedir);
-	gtk_file_selection_set_filename( GTK_FILE_SELECTION (file_selector), plugindir);
+
+	gtk_file_chooser_set_filename( GTK_FILE_CHOOSER (file_selector), plugindir);
+	gtk_widget_show (file_selector);
 }
 
 static void
@@ -223,14 +233,24 @@ on_selection_changed (GtkTreeSelection *selection, gpointer user_data)
 	if (gtk_tree_selection_get_selected (selection, NULL, NULL))
 		sensitive = TRUE;
 
-	//button = GTK_BUTTON (glade_xml_get_widget (gui.xml, "plugin open"));
-	//gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
 	button = GTK_BUTTON (glade_xml_get_widget (gui.xml, "plugin load"));
 	gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
 	button = GTK_BUTTON (glade_xml_get_widget (gui.xml, "plugin unload"));
 	gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
 	button = GTK_BUTTON (glade_xml_get_widget (gui.xml, "plugin remove"));
 	gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
+}
+
+static void on_plugin_filechooser (GtkDialog *dialog, gint response, gpointer user_data)
+{
+	char *filename;
+
+	if (response == GTK_RESPONSE_ACCEPT) {
+		filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_selector));
+		xchat_gnome_plugin_add (filename);
+	}
+
+	gtk_widget_hide (file_selector);
 }
 
 static void
