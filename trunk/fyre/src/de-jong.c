@@ -336,7 +336,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 				    initial_conditions_enum_get_type(),
 				    0,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
-				    PARAM_IN_GUI);
+				    PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
   param_spec_set_dependency        (spec, emphasize_transient);
   g_object_class_install_property  (object_class, PROP_INITIAL_CONDITIONS, spec);
