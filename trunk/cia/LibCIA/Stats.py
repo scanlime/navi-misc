@@ -105,6 +105,11 @@ class StatsInterface(xmlrpc.XMLRPC):
         log.msg("Replacing metadata for stats path %r\n%r" % (path, d))
         return True
 
+    def xmlrpc_sync(self):
+        """Force any pending changes to the StatsStorage to be written to disk"""
+	self.storage.sync()
+	return True
+
 
 class StatsStorage(object):
     """A filesystem-like system for storing stats, based on Rack.
@@ -112,6 +117,10 @@ class StatsStorage(object):
        """
     def __init__(self, fileName):
         self.rack = Rack.open(fileName)
+
+    def sync(self):
+        """Write out any pending changes to disk"""
+        self.rack.sync()
 
     def getTarget(self, pathSegments):
         """Return a StatsTarget representing the stats stored at the given path,
