@@ -115,6 +115,10 @@ class Subscriber(SimpleXMLRPCServer):
         self.urlToCallbackMap[feed.url] = callback
         feed.subscribe('notify', self.port, '/RPC2')
 
+    def log_request(self, code='-', size='-'):
+        """Be quiet, we don't want to see all HTTP traffic"""
+	pass
+
 
 def main(c):
     """Main program, print new items to stdout as they appear, using the supplied configuration"""
