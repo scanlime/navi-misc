@@ -181,6 +181,9 @@
 					Name="test"
 					Filter="">
 					<File
+						RelativePath="..\game\test\src\players.cpp">
+					</File>
+					<File
 						RelativePath="..\game\test\src\testGame.cpp">
 					</File>
 					<Filter
@@ -278,6 +281,9 @@
 				<Filter
 					Name="test"
 					Filter="">
+					<File
+						RelativePath="..\game\test\inc\players.h">
+					</File>
 					<File
 						RelativePath="..\game\test\inc\testGame.h">
 					</File>

@@ -16,49 +16,10 @@
 
 #include "gameManager.h"
 #include "world.h"
-#include "drawManager.h"
 #include <vector>
 
 #include "networking.h"
-#include "baseObject.h"
-
-class CPlayerObject : public CBaseObject
-{
-public:
-	CPlayerObject(){return;}
-	virtual ~CPlayerObject(){return;}
-
-	void Init ( bool draw ){return;}
-	bool Think ( void ){return false;}
-	void Kill ( void ){return;}
-
-	// functions for the world drawable to call
-	const char* GetValueS ( const char *item ){return NULL;}
-	float GetValueF ( const char *item ){return 0;}
-	int GetValueI ( const char *item ){return 0;}
-
-	bool GetPos ( float *pos ){return false;}
-	bool GetRot ( float *rot ){return false;}
-	bool GetScale ( float *scale ){return false;}
-	bool GetMatrix( float *matrix ){return false;}
-
-	bool GetType ( int *type ){return false;}
-
-	bool GetMaterial ( int item, char *material ){return false;}
-	bool GetMaterial (  const char * item, char *material ) {return false;}
-
-	int					idNumber;
-	bool				active;
-	std::string name;
-	float				pos[3];
-	float				rot[3];
-	float				vec[3];	
-	std::string	material;
-protected:
-	int					drawable;
-};
-
-typedef std::map<int, CPlayerObject> tmPlayerMap;
+#include "players.h"
 
 class CTestGame : public CBaseGame , CNetworkMessageProcessor
 {

@@ -30,27 +30,76 @@ void CPlayerObjectFactory::Delete ( CBaseDrawable* object )
 // player tank object
 CPlayerDrawObject::CPlayerDrawObject()
 {
+	vis = false;
+	node = NULL;
 }
 
 CPlayerDrawObject::~CPlayerDrawObject()
 {
+	if (!node)
+		return;
+
+	if (vis)
+		CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->removeAndDestroyChild(node->getName());
+	else
+		CFirestarterLoop::instance().GetSceneManager()->destroySceneNode(node->getName());
+	node = NULL;
 }
 
 void CPlayerDrawObject::Init ( void )
 {
+	char	temp[512];
+
 	Entity* mShip1 = CFirestarterLoop::instance().GetSceneManager()->createEntity(parent->GetValueS("name"), parent->GetValueS("mesh"));
-	mShip1->getMesh()->getSubMeshIterator().getNext()->setMaterialName(parent->GetValueS("meterial"));
+	parent->GetMaterial(NULL,temp);
+	mShip1->getMesh()->getSubMeshIterator().getNext()->setMaterialName(temp);
+
+	vis = false;
+	if (node)
+	{
+		if (vis)
+			CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->removeAndDestroyChild(node->getName());
+		else
+			CFirestarterLoop::instance().GetSceneManager()->destroySceneNode(node->getName());
+		node = NULL;
+	}
 
 	node = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+	if (!node)
+		return;
+
 	node->attachObject(mShip1);
 
 	node->rotate(Vector3(0,0,1),parent->GetValueF("rotz"));
 	node->translate(parent->GetValueF("posx"),parent->GetValueF("posy"),parent->GetValueF("posz")); 
+
+	vis = true;
 }
 
 void CPlayerDrawObject::Think ( void )
 {
-	node->rotate(Vector3(0,0,1),parent->GetValueF("rotz"));
-	node->translate(parent->GetValueF("posx"),parent->GetValueF("posy"),parent->GetValueF("posz")); 
+	// see if it's suposed to be visible and hide it if it's not, or show it if it is
+	if (parent->Visible())
+	{
+		if (!vis)
+		{
+			CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->addChild(node);
+			vis = true;
+		}
+	}
+	else
+	{
+		if (vis)
+		{
+			CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->removeChild(node->getName());
+			vis = false;
+		}
+	}
+
+	if (vis)
+	{
+		node->rotate(Vector3(0,0,1),parent->GetValueF("rotz"));
+		node->translate(parent->GetValueF("posx"),parent->GetValueF("posy"),parent->GetValueF("posz")); 
+	}
 }
 
