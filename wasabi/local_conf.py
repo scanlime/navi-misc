@@ -59,7 +59,7 @@ CONFIG_VERSION = 5.13
 # VCR_IN_VOLUME       = 90              # If you use different input from TV
 # DEV_MIXER           = '/dev/mixer'    # mixer device 
 
-# START_FULLSCREEN_X  = 0               # Start in fullscreen mode if using x11 or xv.
+START_FULLSCREEN_X  = 1               # Start in fullscreen mode if using x11 or xv.
 
 # CONFIRM_SHUTDOWN    = 1               # ask before shutdown
 
@@ -188,6 +188,16 @@ CACHE_IMAGES = 1
 plugin.remove('tv')
 plugin.remove('games')
 plugin.activate('lcd')
+
+plugin.activate('uvswitch.detector')
+plugin.activate('uvswitch.input', args=(1, 'Nintendo 64', 'n64'))
+plugin.activate('uvswitch.input', args=(2, 'Playstation 2', 'ps2'))
+plugin.activate('uvswitch.input', args=(3, 'Sega Dreamcast', 'dreamcast'))
+plugin.activate('uvswitch.input', args=(4, 'NES', 'nes'))
+plugin.activate('uvswitch.input', args=(5, 'Nintendo Gamecube', 'gamecube'))
+plugin.activate('uvswitch.input', args=(6, 'Video Input', 'video_input'))
+plugin.activate('uvswitch.input', args=(7, 'Video Input', 'video_input'))
+plugin.activate('uvswitch.input', args=(8, 'Video Input', 'video_input'))
 
 #
 # Use ivtv_record instead if you have an ivtv based card (PVR-250/350)
