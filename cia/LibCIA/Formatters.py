@@ -232,15 +232,15 @@ class CommitToIRC(CommitFormatter):
 
     def format_revision(self, rev):
         import IRC
-        return 'r' + IRC.format(str(rev), 'bold')
+        return 'r' + IRC.format(CommitFormatter.format_revision(self, rev), 'bold')
 
     def format_module(self, module):
         import IRC
-        return IRC.format(module, 'aqua')
+        return IRC.format(CommitFormatter.format_module(self, module), 'aqua')
 
     def format_branch(self, branch):
         import IRC
-        return IRC.format(branch, 'orange')
+        return IRC.format(CommitFormatter.format_branch(self, branch), 'orange')
 
     def joinMessage(self, metadata, log):
         import IRC
