@@ -292,15 +292,15 @@ void spinnerchanged(GtkWidget *widget, gpointer user_data) {
   }
 }
 
+float generateRandomParameter() {
+  return ((float) rand()) / RAND_MAX * 12 - 6;
+}
+
 void randomclick(GtkWidget *widget, gpointer user_data) {
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(as),
-			    ((float) rand()) / RAND_MAX * 20 - 10);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(bs),
-			    ((float) rand()) / RAND_MAX * 20 - 10);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(cs),
-			    ((float) rand()) / RAND_MAX * 20 - 10);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(ds),
-			    ((float) rand()) / RAND_MAX * 20 - 10);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(as), generateRandomParameter());
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(bs), generateRandomParameter());
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(cs), generateRandomParameter());
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(ds), generateRandomParameter());
 
   stopclick(widget, user_data);
   startclick(widget, user_data);
