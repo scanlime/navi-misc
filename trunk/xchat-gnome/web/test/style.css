@@ -43,7 +43,7 @@ a {
 }
 
 div.navigation {
-  min-width:	150px;
+  min-width:	150pt;
   position:	static;
 }
 
@@ -51,7 +51,7 @@ div.content {
   padding-top: 1.5em;
   padding-bottom: 2em;
   width: 75%;
-  position:	relative;
+  margin-left:	150pt;
 }
 
 div.footer {
