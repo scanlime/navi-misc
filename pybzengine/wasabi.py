@@ -12,10 +12,10 @@ viewport.setCaption("Wasabi")
 
 viewport.mode = Viewport.GL.ClearedMode(clearColor=(0, 0, 0, 1))
 
-view.camera.position = (0, 0, 0)
-view.camera.distance = 10
-view.camera.azimuth = 0
-view.camera.elevation = 0
+view.camera.position = (0.0314, -3, 0)
+view.camera.distance = 4.49
+view.camera.azimuth = 3
+view.camera.elevation = 2.4
 view.camera.jump()
 
 title = HUD.Text(viewport.region(viewport.rect), "wasabi",
