@@ -20,3 +20,55 @@
  */
 
 #include "navtree.h"
+
+/***** NavTree *****/
+GType navigation_tree_get_type (void) G_GNUC_CONST
+{
+  static GType navigation_tree_type = 0;
+  if (!navigation_tree_type) {
+    static const GTypeInfo navigation_tree_info =
+    {
+      sizeof (NavTreeClass),
+      NULL,
+      NULL,
+      (GClassInitFunc) navigation_tree_class_init,
+      NULL,
+      NULL,
+      sizeof (NavTree),
+      0,
+      (GInstanceInitFunc) navigation_tree_init,
+    };
+
+    navigation_tree_type = g_type_register_static(G_TYPE_OBJECT, "NavTree", &navigation_tree_info, 0);
+  }
+
+  return navigation_tree_type;
+}
+
+/***** NavModel *****/
+
+static void navigation_model_init(NavModel *navmodel);
+static void navigation_model_class_init(NavModelClass *klass);
+
+GType navigation_model_get_type (void) G_GNUC_CONST
+{
+  static GType navigation_model_type = 0;
+  if (!navigation_model_type) {
+    static const GTypeInfo navigation_mode_info =
+    {
+      sizeof (NavTreeClass),
+      NULL,
+      NULL,
+      (GClassInitFunc) navigation_model_class_init,
+      NULL,
+      NULL,
+      sizeof(NavModel),
+      0,
+      (GInstanceInitFunc) navigation_model_init,
+    };
+
+    navigation_model_type = g_type_register_static(G_TYPE_OBJECT, "NavModel", &navigation_model_info, 0);
+  }
+
+  return navigation_model_type;
+}
