@@ -1,35 +1,51 @@
-? calendar-config-hooks.tar.gz
 ? plugins
-? calendar/gui/apps_evolution_calendar-2.2.schemas
 ? calendar/gui/e-cal-config.c
 ? calendar/gui/e-cal-config.h
-? calendar/gui/dialogs/.cal-properties.c.swp
 ? calendar/gui/dialogs/cal-properties.c
 ? calendar/gui/dialogs/cal-properties.h
-? e-util/.e-config.h.swp
-? help/C/evolution-2.2-C.omf
-? help/C/evolution-2.2.xml
-? mail/.em-config.c.swp
-? mail/evolution-mail-2.2.schemas
-? widgets/misc/test-source-option-menu
-? widgets/misc/test-source-selector
 Index: configure.in
 ===================================================================
 RCS file: /cvs/gnome/evolution/configure.in,v
 retrieving revision 1.727
 diff -u -r1.727 configure.in
 --- configure.in	20 Oct 2004 08:18:12 -0000	1.727
-+++ configure.in	21 Oct 2004 01:55:14 -0000
-@@ -1341,7 +1341,7 @@
- AC_ARG_ENABLE(plugins, [  --enable-plugins=[no/all/list]      Enable plugins.],enable_plugins="$enableval",enable_plugins=no)
++++ configure.in	21 Oct 2004 03:27:01 -0000
+@@ -1338,21 +1338,27 @@
+ EVO_PLUGIN_RULE=$srcdir/plugin.mk
+ AC_SUBST_FILE(EVO_PLUGIN_RULE)
+ 
+-AC_ARG_ENABLE(plugins, [  --enable-plugins=[no/all/list]      Enable plugins.],enable_plugins="$enableval",enable_plugins=no)
++AC_ARG_ENABLE(plugins, [  --enable-plugins=[base/no/all/list]      Enable plugins.],enable_plugins="$enableval",enable_plugins=base)
  
  dnl Add any new plugins here
 -plugins_all="subject-thread save-attachments prefer-plain"
++plugins_base="calendar-http"
 +plugins_all="calendar-http subject-thread save-attachments prefer-plain"
  
  if test x"$enable_plugins" = "xno"; then
  	plugins_enabled=""
-@@ -1533,6 +1533,7 @@
+ 	msg_plugins="no"
+ else
+-	if test x"$enable_plugins" = "xall"; then
+-		plugins_enabled="$plugins_all"
++	if test x"$enable_plugins" = "xbase"; then
++		plugins_enabled="$plugins_base"
++		msg_plugins="$plugins_base"
+ 	else
+-		plugins_enabled="$enable_plugins"
+-	fi	
+-	msg_plugins="$enable_plugins"
++		if test x"$enable_plugins" = "xall"; then
++			plugins_enabled="$plugins_all"
++		else
++			plugins_enabled="$enable_plugins"
++		fi
++		msg_plugins="$enable_plugins"
++	fi
+ fi
+ AC_SUBST(plugins_enabled)
+ AC_SUBST(plugins_all)
+@@ -1533,6 +1539,7 @@
  mail/default/C/Makefile
  mail/importers/Makefile
  plugins/Makefile
@@ -43,7 +59,7 @@ RCS file: /cvs/gnome/evolution/calendar/ChangeLog,v
 retrieving revision 1.2550
 diff -u -r1.2550 ChangeLog
 --- calendar/ChangeLog	20 Oct 2004 03:03:30 -0000	1.2550
-+++ calendar/ChangeLog	21 Oct 2004 01:55:22 -0000
++++ calendar/ChangeLog	21 Oct 2004 03:27:06 -0000
 @@ -1,3 +1,11 @@
 +2004-10-20  David Trowbridge  <trowbrds@cs.colorado.edu>
 +
@@ -62,7 +78,7 @@ RCS file: /cvs/gnome/evolution/calendar/gui/Makefile.am,v
 retrieving revision 1.299
 diff -u -r1.299 Makefile.am
 --- calendar/gui/Makefile.am	18 Oct 2004 04:08:47 -0000	1.299
-+++ calendar/gui/Makefile.am	21 Oct 2004 01:55:23 -0000
++++ calendar/gui/Makefile.am	21 Oct 2004 03:27:06 -0000
 @@ -59,6 +59,11 @@
  
  component_LTLIBRARIES = libevolution-calendar.la
@@ -90,7 +106,7 @@ RCS file: /cvs/gnome/evolution/calendar/gui/calendar-component.c,v
 retrieving revision 1.188
 diff -u -r1.188 calendar-component.c
 --- calendar/gui/calendar-component.c	20 Oct 2004 03:03:30 -0000	1.188
-+++ calendar/gui/calendar-component.c	21 Oct 2004 01:55:24 -0000
++++ calendar/gui/calendar-component.c	21 Oct 2004 03:27:07 -0000
 @@ -47,6 +47,7 @@
  #include "comp-util.h"
  #include "common/authentication.h"
@@ -151,7 +167,7 @@ RCS file: /cvs/gnome/evolution/calendar/gui/dialogs/Makefile.am,v
 retrieving revision 1.64
 diff -u -r1.64 Makefile.am
 --- calendar/gui/dialogs/Makefile.am	24 Jun 2004 21:02:09 -0000	1.64
-+++ calendar/gui/dialogs/Makefile.am	21 Oct 2004 01:55:24 -0000
++++ calendar/gui/dialogs/Makefile.am	21 Oct 2004 03:27:08 -0000
 @@ -38,6 +38,8 @@
  	alarm-list-dialog.h	\
  	cal-prefs-dialog.c	\
