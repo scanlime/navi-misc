@@ -96,10 +96,13 @@ Compiling
 ---------
 
 Nothing fancy, just type 'make'. Currently the i686 architecture is
-hardcoded, as on modern intel-compatible machines this gives a major
-speed boost. You'll need to change this if you're not on an intel-compatible
-machine. This has been tested on an Athlon XP, Pentium 4, and PowerPC G3.
+turned on automatically if your CPU implements mmx, as on modern
+ia32 machines this gives a major speed boost. This has been tested on
+Athlon XP, Pentium 4, Itanium2 and PowerPC G3 CPUs.
 
+If you have the Intel C compiler installed, you can use this by setting
+your CC environment variable to "icc". On a 1500MHz ia64 test, using the
+intel compiler compiler resulted in a 25% speed increase.
 
 Authors
 --------
