@@ -30,6 +30,7 @@
 #include "main_window.h"
 #include "userlist.h"
 #include "preferences.h"
+#include "setup_druid.h"
 
 int fe_args(int argc, char *argv[]) {
 	if(argc > 1) {
@@ -197,7 +198,7 @@ void fe_progressbar_end(struct server *serv) {
 }
 
 void fe_print_text(struct session *sess, char *text) {
-	session_gui *tgui = sess->gui;
+	session_gui *tgui = (session_gui *) sess->gui;
 	if(tgui == NULL)
 		return;
 	text_gui_print(tgui->buffer, text, TRUE);
@@ -227,7 +228,7 @@ void fe_userlist_numbers(struct session *sess) {
 }
 
 void fe_userlist_clear(struct session *sess) {
-	session_gui *s = sess->gui;
+	session_gui *s = (session_gui *) sess->gui;
 	if(s == NULL)
 		return;
 	gtk_list_store_clear(GTK_LIST_STORE(s->userlist_model));

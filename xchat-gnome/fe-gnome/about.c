@@ -24,14 +24,13 @@
 void on_about_close(GtkWidget *widget, gpointer data);
 
 void initialize_about_dialog() {
-	GtkWidget *about;
 	GdkPixbuf *soap;
-	gchar *authors[] = {
+	const gchar *authors[] = {
 		"David Trowbridge",
 		"Dan Kuester",
 		NULL
 	};
-	gchar *documentors[] = {
+	const gchar *documentors[] = {
 		NULL
 	};
 
