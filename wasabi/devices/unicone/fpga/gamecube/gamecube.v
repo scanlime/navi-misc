@@ -110,7 +110,8 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 	reg rumble;
 	reg [7:0] rx_poll_flags;
 	reg [63:0] latched_controller_state;
-	reg [2:0] tx_byte_count;
+	reg [3:0] tx_byte_count;
+	reg [23:0] latched_controller_id;
 
 	wire rx_start, rx_stop, rx_error, rx_strobe;
 	wire [7:0] rx_data;
@@ -133,10 +134,10 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 		S_FINISH_ID_COMMAND = 4,
 		S_FINISH_POLL_COMMAND = 5,
 		S_TX_STOPBIT = 6,
-		S_TX_ID_0 = 7,
-		S_TX_ID_1 = 8,
-		S_TX_ID_2 = 9,
-		S_TX_STATE = 10;
+		S_TX_ID = 7,
+		S_TX_ID_WAIT = 8,
+		S_TX_STATE = 9,
+		S_TX_STATE_WAIT = 10;
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
@@ -148,6 +149,7 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 			rx_poll_flags <= 0;
 			tx_byte_count <= 0;
 			latched_controller_state <= 0;
+			latched_controller_id <= 0;
 			state <= S_IDLE;
 
 		end
@@ -219,7 +221,10 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 				if (rx_start || rx_error || rx_strobe)
 					state <= S_IDLE;
 				else if (rx_stop) begin
-					state <= S_TX_ID_0;
+					// Prepare to send a response
+					latched_controller_id <= CONTROLLER_ID;
+					tx_byte_count <= 0;
+					state <= S_TX_ID;
 				end
 			end
 			
@@ -229,7 +234,11 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 				if (rx_start || rx_error || rx_strobe)
 					state <= S_IDLE;
 				else if (rx_stop) begin
+					// Save the rumble flag, now that we know the command
+					// reception was successful.
 					rumble <= rx_poll_flags[0];
+
+					// Prepare to send a response
 					latched_controller_state <= controller_state;
 					tx_byte_count <= 0;
 					state <= S_TX_STATE;					
@@ -245,25 +254,30 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 				end
 			end
 			
-			// Send back the controller ID
-			S_TX_ID_0: 	if (!tx_busy) begin
-						tx_data <= CONTROLLER_ID[23:16];
-						tx_stopbit <= 0;
-						tx_strobe <= 1;
-						state <= S_TX_ID_1;
-					end
-			S_TX_ID_1: 	if (!tx_busy) begin
-						tx_data <= CONTROLLER_ID[15:8];
-						tx_stopbit <= 0;
-						tx_strobe <= 1;
-						state <= S_TX_ID_2;
-					end
-			S_TX_ID_2: 	if (!tx_busy) begin
-						tx_data <= CONTROLLER_ID[7:0];
-						tx_stopbit <= 0;
-						tx_strobe <= 1;
-						state <= S_TX_STOPBIT;
-					end
+			S_TX_ID: begin
+				// Send back the controller ID
+				if (!tx_busy) begin
+					tx_data <= latched_controller_id[23:16];
+					latched_controller_id <= { latched_controller_id[15:0], 8'h00 };
+					tx_stopbit <= 0;
+					tx_strobe <= 1;
+					tx_byte_count <= tx_byte_count + 1;
+					
+					// Wait one cycle for the transmitter
+					// to update its queue status
+					state <= S_TX_ID_WAIT;
+				end
+			end
+			
+			S_TX_ID_WAIT: begin
+				// Waiting for the transmitter to update itself.
+				// Head back to another ID bit, or the stop bit.
+				tx_strobe <= 0;
+				if (tx_byte_count == 3)
+					state <= S_TX_STOPBIT;
+				else
+					state <= S_TX_ID;
+			end
 			
 			S_TX_STATE: begin
 				// Send back the controller state
@@ -272,13 +286,22 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 					latched_controller_state <= { latched_controller_state[55:0], 8'h00 };
 					tx_stopbit <= 0;
 					tx_strobe <= 1;
+					tx_byte_count <= tx_byte_count + 1;
 					
-					// Run through this state exactly 8 times
-					if (tx_byte_count == 7)
-						state <= S_TX_STOPBIT;
-					else
-						tx_byte_count <= tx_byte_count + 1;		
+					// Wait one cycle for the transmitter
+					// to update its queue status
+					state <= S_TX_ID_WAIT;
 				end
+			end
+
+			S_TX_STATE_WAIT: begin
+				// Waiting for the transmitter to update itself.
+				// Head back to another ID bit, or the stop bit.
+				tx_strobe <= 0;
+				if (tx_byte_count == 8)
+					state <= S_TX_STOPBIT;
+				else
+					state <= S_TX_STATE;
 			end
 
 		endcase
