@@ -80,8 +80,8 @@ SCL_MASK	equ 0x20
 TC74_ADDR_READ	equ (0x91 | (TC74_ADDR << 1))
 TC74_ADDR_WRITE	equ (0x90 | (TC74_ADDR << 1))
 
-TX_SHORT_DELAY	equ .180	; 156.3us
-TX_LONG_DELAY	equ .76		; 364.6us
+TX_SHORT_DELAY	equ .200	; Tuned on the transmit side so that we get the ideal
+TX_LONG_DELAY	equ .53		;    waveform on the receive side.
 
 
 ;----------------------------------------------------- Variables
