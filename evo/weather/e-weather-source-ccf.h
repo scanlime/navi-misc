@@ -23,7 +23,8 @@
 #ifndef E_WEATHER_SOURCE_CCF_H
 #define E_WEATHER_SOURCE_CCF_H
 
-#include <libgnomevfs/gnome-vfs.h>
+#include <libsoup/soup-session-async.h>
+#include <libsoup/soup-uri.h>
 #include "e-weather-source.h"
 
 G_BEGIN_DECLS
@@ -43,9 +44,8 @@ struct _EWeatherSourceCCF {
 	EWeatherSource parent;
 
 	char *station;
-	char *buffer;
 	SourceFinished done;
-	GnomeVFSAsyncHandle *handle;
+	SoupSession *soup_session;
 };
 
 struct _EWeatherSourceCCFClass {
