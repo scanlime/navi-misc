@@ -1,5 +1,9 @@
-all: bassoon.pdf piano.pdf cello.pdf
+all: flute.pdf bassoon.pdf piano.pdf cello.pdf
 	
+
+flute.pdf: flute.ly 01_allegro_ma_non_troppo/flute.ly
+	lilypond flute.ly
+
 bassoon.pdf: bassoon.ly 01_allegro_ma_non_troppo/bassoon.ly
 	lilypond bassoon.ly
 
