@@ -101,6 +101,7 @@ tmr1_prev		res	2	; Previous value of TMR1, for calculating delta_t
 #define FLAG_FWD_TRIGGERED	display_flags, 4	; Keep track of whether we've done a forward scan yet this period
 #define FLAG_REV_TRIGGERED	display_flags, 5	; Keep track of whether we've done a reverse scan yet this period
 #define FLAG_IN_GAP			display_flags, 6	; Set if we're in a gap rather than an actual column
+#define FLAG_PRESCALE3		display_flags, 7	; Simulate a fourth prescaler bit
 
 bank1	udata
 front_buffer	res	NUM_COLUMNS
@@ -273,9 +274,29 @@ try_tmr1_again
 	movf	temp2, w
 	movwf	tmr1_prev+1
 
-	rrf		delta_t+1, f		; Divide by 2, to get a final 16:1 prescale
-	rrf		delta_t, f
-	bcf		delta_t+1, 7
+	; Simulate an extra bit of prescaler, so we get a final ratio of 16 cycles to
+	; 1 timer tick. We need to save this bit rather than just discarding it, since
+	; 8 CPU cycles per poll can make a noticeable difference in the display timings.
+	rrf		delta_t+1, f		; Rotate the high byte
+	bcf		delta_t+1, 7		; Clear the new high bit
+	rrf		delta_t, f			; Rotate the low bit into C
+	pagesel	finish_prescaler3
+	btfss	STATUS, C			; If the low bit was 0, we have nothing to do
+	goto	finish_prescaler3
+	pagesel	prescale_flag_clear
+	btfss	FLAG_PRESCALE3		; Was our prescaler bit set?
+	goto	prescale_flag_clear
+
+prescale_flag_set
+	bcf		FLAG_PRESCALE3		; Carry over our two bits to delta_t
+	incf	delta_t, f
+	pagesel	finish_prescaler3
+	goto	finish_prescaler3
+
+prescale_flag_clear
+	bsf		FLAG_PRESCALE3
+
+finish_prescaler3
 	
 	; Add our current delta-t to the predicted wand phase
 	banksel	edge_buffer
