@@ -35,6 +35,7 @@ static void explorer_dispose(GObject *gobject);
 
 static gboolean explorer_auto_limit_update_rate(Explorer *self);
 static gboolean limit_update_rate(GTimeVal *last_update, float max_rate);
+static gdouble  explorer_get_iter_speed(Explorer *self);
 
 static gdouble generate_random_param();
 
@@ -117,18 +118,24 @@ static void explorer_init(Explorer *self) {
     /* Set up the statusbar */
     self->statusbar = GTK_STATUSBAR(glade_xml_get_widget(self->xml, "statusbar"));
     self->render_status_context = gtk_statusbar_get_context_id(self->statusbar, "Rendering status");
+    self->speed_timer = g_timer_new();
 }
 
 static void explorer_dispose(GObject *gobject) {
     Explorer *self = EXPLORER(gobject);
 
+    explorer_dispose_animation(self);
+    explorer_dispose_cluster(self);
+
+    if (self->speed_timer) {
+	g_timer_destroy(self->speed_timer);
+	self->speed_timer = NULL;
+    }
+
     if (self->map) {
 	g_object_unref(self->map);
 	self->map = NULL;
     }
-
-    explorer_dispose_animation(self);
-    explorer_dispose_cluster(self);
 }
 
 Explorer* explorer_new(IterativeMap *map, Animation *animation) {
@@ -396,8 +403,11 @@ void explorer_update_gui(Explorer *self) {
 
     /* We don't want to update the status bar if we're trying to show rendering changes quickly */
     if (!HISTOGRAM_IMAGER(self->map)->render_dirty_flag) {
-	gchar *iters = g_strdup_printf("Iterations:    %.3e    \tPeak density:    %ld    \tCurrent tool: %s",
-				       self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density, self->current_tool);
+	gchar *iters = g_strdup_printf("Iterations:    %.3e    \tSpeed:    %.3e/sec    \t"
+				       "Peak density:    %ld    \tCurrent tool: %s",
+				       self->map->iterations, explorer_get_iter_speed(self),
+				       HISTOGRAM_IMAGER(self->map)->peak_density, self->current_tool);
+
 	if (self->render_status_message_id)
 	    gtk_statusbar_remove(self->statusbar, self->render_status_context, self->render_status_message_id);
 	self->render_status_message_id = gtk_statusbar_push(self->statusbar, self->render_status_context, iters);
@@ -406,6 +416,24 @@ void explorer_update_gui(Explorer *self) {
     }
 
     histogram_view_update(HISTOGRAM_VIEW(self->view));
+}
+
+static gdouble  explorer_get_iter_speed(Explorer *self)
+{
+    double elapsed = g_timer_elapsed(self->speed_timer, NULL);
+    double iter_diff = self->map->iterations - self->last_iterations;
+
+    if (iter_diff < 0) {
+	/* Calculation restarted */
+	g_timer_start(self->speed_timer);
+	self->last_iterations = self->map->iterations;
+    }
+    else if (iter_diff > 0 && elapsed > 1.0) {
+	g_timer_start(self->speed_timer);
+	self->last_iterations = self->map->iterations;
+	self->iter_speed = iter_diff / elapsed;
+    }
+    return self->iter_speed;
 }
 
 /* The End */

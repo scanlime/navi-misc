@@ -90,6 +90,8 @@ struct _RemoteClient {
     double                prev_iterations;
     GTimer*               status_timer;
     GTimer*               stream_timer;
+    double                iter_accumulator;
+    double                byte_accumulator;
     double                iters_per_sec;
     double                bytes_per_sec;
 

@@ -47,6 +47,9 @@ static void       histogram_merge_callback    (RemoteClient*     self,
 					       RemoteResponse*   response,
 					       gpointer          user_data);
 
+/* Smallest time interval, in seconds, to allow in speed calculations */
+#define MINIMUM_SPEED_WINDOW 1.0
+
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -407,10 +410,13 @@ static void    histogram_merge_callback       (RemoteClient*     self,
     histogram_imager_merge_stream(dest, response->data, response->data_length);
 
     /* Update our download speed */
+    self->byte_accumulator += response->data_length;
     elapsed = g_timer_elapsed(self->stream_timer, NULL);
-    g_timer_start(self->stream_timer);
-    if (elapsed > 0)
-	self->bytes_per_sec = response->data_length / elapsed;
+    if (elapsed > MINIMUM_SPEED_WINDOW) {
+	g_timer_start(self->stream_timer);
+	self->bytes_per_sec = self->byte_accumulator / elapsed;
+	self->byte_accumulator = 0;
+    }
 }
 
 static void    status_merge_callback          (RemoteClient*     self,
@@ -446,14 +452,16 @@ static void    status_merge_callback          (RemoteClient*     self,
     dest->iterations += iter_delta;
 
     /* Update our iteration speed */
+    self->iter_accumulator += iter_delta;
     elapsed = g_timer_elapsed(self->status_timer, NULL);
-    g_timer_start(self->status_timer);
-    if (elapsed > 0)
-	self->iters_per_sec = iter_delta / elapsed;
-
-    if (self->speed_callback)
-	self->speed_callback(self, self->iters_per_sec, self->bytes_per_sec,
-			     self->speed_callback_user_data);
+    if (elapsed > MINIMUM_SPEED_WINDOW) {
+	g_timer_start(self->status_timer);
+	self->iters_per_sec = self->iter_accumulator / elapsed;
+	self->iter_accumulator = 0;
+	if (self->speed_callback)
+	    self->speed_callback(self, self->iters_per_sec, self->bytes_per_sec,
+				 self->speed_callback_user_data);
+    }
 }
 
 void           remote_client_merge_results    (RemoteClient*     self,
