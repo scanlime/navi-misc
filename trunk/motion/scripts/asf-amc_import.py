@@ -47,7 +47,6 @@ class dataStorage:
     asfReader   = None
     scene       = None
     bones       = {}
-    static      = []
 
 def cleanup (d):
     # Clean up our global data, so we can run multiple times without problems
@@ -56,7 +55,6 @@ def cleanup (d):
     d.asfReader   = None
     d.scene       = None
     d.bones       = {}
-    d.static      = []
 
 def addVectors (a, b):
     x = []
@@ -99,8 +97,6 @@ def loadASF (filename):
         bone.setTail ([tail[0], tail[2], tail[1]])
 
         d.bones[name] = bone
-        if data.dof is None:
-            d.static.append (name)
 
     # Create the root and add it to the armature.
     bone = Blender.Armature.Bone.New ('root')
@@ -146,6 +142,8 @@ def getRotation (bone, rotation, d):
     # between these two reference frames
     axis = Blender.Mathutils.Euler (map (float, d.asfReader.bones[name].axis[0:3]))
     baxis = bone.getRestMatrix ('worldspace').rotationPart ().toEuler ()
+    print name,'[',baxis.x,',',baxis.y,',',baxis.z,']'
+
     baxis = bone.getRestMatrix ('bonespace').rotationPart ().toEuler ()
     correction = Blender.Mathutils.Euler ([
         axis.x - baxis.x,
@@ -227,21 +225,27 @@ def loadAMC (filename, d):
         #d.bones['root'].setQuat (rotation)
         #d.bones['root'].setPose ([ROT, LOC])
 
-        # Perform axis corrections on the static items
-        for name in d.static:
-            bone = d.bones[name]
-            quat = getRotation (bone, [0.0, 0.0, 0.0], d)
-            d.bones[name].setQuat (quat)
-            d.bones[name].setPose ([ROT])
+        # Run through this using the hierarchy list in the ASF file rather than the
+        # order we get in the AMC. AMC transformations are order independent, since
+        # each bone has it's own coordinate system that's related to the global one.
+        # However, blender does things based on the transformation of the parent,
+        # so we need to be careful to start at the root and work our way out to the
+        # terminals.
+        print '\n\n'
+        for set in d.asfReader.hierarchy:
+            for child in set[1:]:
+                bone = d.bones[child]
+                quat = None
 
-        # Set orientations for each bone for this frame
-        for name, rotation in frame.bones.iteritems ():
-            if name == 'root':
-                continue
-            bone = d.bones[name]
-            quat = getRotation (bone, rotation, d)
-            d.bones[name].setQuat (quat)
-            d.bones[name].setPose ([ROT])
+                # If we don't have any degrees of freedom, we don't see a rotation
+                # in the AMC file. In that case, just pass 0,0,0 euler.
+                try:
+                    rotation = frame.bones[child]
+                    quat = getRotation (bone, rotation, d)
+                except KeyError:
+                    quat = getRotation (bone, [0.0, 0.0, 0.0], d)
+                d.bones[child].setQuat (quat)
+                d.bones[child].setPose ([ROT])
 
     # No more wait indicators, since we're done
     Blender.Window.WaitCursor (False)
