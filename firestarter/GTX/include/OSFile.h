@@ -77,6 +77,7 @@ public:
 
 	const char* getOSFileDir ( void );
 
+	bool exists ( void );
 	bool isOpen ( void );
 
 	int read ( void* data, int size, int count = 1 );
