@@ -91,6 +91,7 @@ InterruptServiceVector
 ; ******************************************************************
 
 PERIPHERALTEST
+	pagesel	EndISR
 	btfss	INTCON,PEIE	; is there a peripheral interrupt?
 	goto	EndISR		; all done....
 
