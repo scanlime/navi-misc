@@ -22,6 +22,7 @@
 
 #ifdef _WIN32
 	#pragma warning( disable : 4786 )  // Disable warning message
+	#include <Windows.h>
 #else
 	#define stricmp strcasecmp
 #endif
