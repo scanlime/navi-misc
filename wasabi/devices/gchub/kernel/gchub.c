@@ -63,13 +63,13 @@ struct gchub_controller {
 	int attached;            /* Nonzero if this controller is physically present */
 	int dev_registered;      /* Nonzero if 'dev' has been registered */
 	int reg_in_progress;     /* Nonzero if a registration/unregistration is pending */
+	int calibration_valid;   /* If zero, we'll sample calibration_status next chance we get */
 
 	struct work_struct reg_work, unreg_work;
 	spinlock_t reg_lock;
 
 	struct gchub_controller_status current_status;
-	struct gchub_controller_status prev_status;
-	struct gchub_controller_status calibrated_status;
+	struct gchub_controller_status calibration_status;
 };
 
 struct gchub_dev {
@@ -95,27 +95,33 @@ struct gchub_dev {
 #define STATUS_PACKET_INTERVAL 1    /* Polling interval, in milliseconds per packet */
 
 
-static int    gchub_probe          (struct usb_interface*       interface,
-				    const struct usb_device_id* id);
-static void   gchub_disconnect     (struct usb_interface*       interface);
-static void   gchub_delete         (struct gchub_dev*           dev);
+static int    gchub_probe              (struct usb_interface*           interface,
+					const struct usb_device_id*     id);
+static void   gchub_disconnect         (struct usb_interface*           interface);
+static void   gchub_delete             (struct gchub_dev*               dev);
 
-static void   gchub_irq            (struct urb*                 urb,
-				    struct pt_regs*             regs);
-static void   gchub_process_status (struct gchub_dev*           dev,
-				    const unsigned char*        packet);
+static void   gchub_irq                (struct urb*                     urb,
+					struct pt_regs*                 regs);
+static void   gchub_process_status     (struct gchub_dev*               dev,
+					const unsigned char*            packet);
 
-static int    buttons_to_axis      (int                         buttons,
-				    int                         neg_mask,
-				    int                         pos_mask);
-static int    controller_init      (struct gchub_controller*    ctl,
-				    struct usb_interface*       interface,
-				    const char*                 format,
-				    int                         port_number);
-static void   controller_delete    (struct gchub_controller*    ctl);
-static void   controller_sync      (struct gchub_controller*    ctl);
-static void   controller_attach    (void*                       data);
-static void   controller_detach    (void*                       data);
+static int    buttons_to_axis          (int                             buttons,
+					int                             neg_mask,
+					int                             pos_mask);
+static int    controller_init          (struct gchub_controller*        ctl,
+					struct usb_interface*           interface,
+					const char*                     format,
+					int                             port_number);
+static void   controller_delete        (struct gchub_controller*        ctl);
+static void   controller_sync          (struct gchub_controller*        ctl);
+static void   controller_report_status (struct gchub_controller*        ctl,
+					struct gchub_controller_status* status);
+static void   controller_status_diff   (struct gchub_controller_status* a,
+					struct gchub_controller_status* b,
+					struct gchub_controller_status* out);
+static void   controller_attach        (void*                           data);
+static void   controller_detach        (void*                           data);
+
 
 
 /* Table of devices that work with this driver */
@@ -281,30 +287,59 @@ static void controller_sync(struct gchub_controller *ctl)
 	}
 
 	if (ctl->dev_registered && ctl->attached) {
-		input_report_key(&ctl->dev, BTN_Z,     ctl->current_status.buttons & GCHUB_BUTTON_Z);
-		input_report_key(&ctl->dev, BTN_TR,    ctl->current_status.buttons & GCHUB_BUTTON_R);
-		input_report_key(&ctl->dev, BTN_TL,    ctl->current_status.buttons & GCHUB_BUTTON_L);
-		input_report_key(&ctl->dev, BTN_A,     ctl->current_status.buttons & GCHUB_BUTTON_A);
-		input_report_key(&ctl->dev, BTN_B,     ctl->current_status.buttons & GCHUB_BUTTON_B);
-		input_report_key(&ctl->dev, BTN_X,     ctl->current_status.buttons & GCHUB_BUTTON_X);
-		input_report_key(&ctl->dev, BTN_Y,     ctl->current_status.buttons & GCHUB_BUTTON_Y);
-		input_report_key(&ctl->dev, BTN_START, ctl->current_status.buttons & GCHUB_BUTTON_START);
+		struct gchub_controller_status calibrated;
 
-		input_report_abs(&ctl->dev, ABS_X,     ctl->current_status.joystick[0]);
-		input_report_abs(&ctl->dev, ABS_Y,     ctl->current_status.joystick[1]);
-		input_report_abs(&ctl->dev, ABS_Z,     ctl->current_status.triggers[0]);
-		input_report_abs(&ctl->dev, ABS_RZ,    ctl->current_status.triggers[1]);
-		input_report_abs(&ctl->dev, ABS_RX,    ctl->current_status.cstick[0]);
-		input_report_abs(&ctl->dev, ABS_RY,    ctl->current_status.cstick[1]);
+		if (!ctl->calibration_valid) {
+			ctl->calibration_status = ctl->current_status;
+			ctl->calibration_valid = 1;
+		}
 
-		input_report_abs(&ctl->dev, ABS_HAT0X, buttons_to_axis(ctl->current_status.buttons,
-								       GCHUB_BUTTON_DPAD_LEFT,
-								       GCHUB_BUTTON_DPAD_RIGHT));
-		input_report_abs(&ctl->dev, ABS_HAT0Y, buttons_to_axis(ctl->current_status.buttons,
-								       GCHUB_BUTTON_DPAD_DOWN,
-								       GCHUB_BUTTON_DPAD_UP));
-		input_sync(&ctl->dev);
+		controller_status_diff(&ctl->current_status,
+				       &ctl->calibration_status,
+				       &calibrated);
+		controller_report_status(ctl, &calibrated);
 	}
+}
+
+static void controller_status_diff(struct gchub_controller_status* a,
+				   struct gchub_controller_status* b,
+				   struct gchub_controller_status* out)
+{
+	out->buttons = a->buttons;
+	out->joystick[0] = a->joystick[0] - b->joystick[0];
+	out->joystick[1] = a->joystick[1] - b->joystick[1];
+	out->cstick[0] = a->cstick[0] - b->cstick[0];
+	out->cstick[1] = a->cstick[1] - b->cstick[1];
+	out->triggers[0] = a->triggers[0] - b->triggers[0];
+	out->triggers[1] = a->triggers[1] - b->triggers[1];
+}
+
+static void controller_report_status(struct gchub_controller* ctl,
+				     struct gchub_controller_status* status)
+{
+	input_report_key(&ctl->dev, BTN_Z,     status->buttons & GCHUB_BUTTON_Z);
+	input_report_key(&ctl->dev, BTN_TR,    status->buttons & GCHUB_BUTTON_R);
+	input_report_key(&ctl->dev, BTN_TL,    status->buttons & GCHUB_BUTTON_L);
+	input_report_key(&ctl->dev, BTN_A,     status->buttons & GCHUB_BUTTON_A);
+	input_report_key(&ctl->dev, BTN_B,     status->buttons & GCHUB_BUTTON_B);
+	input_report_key(&ctl->dev, BTN_X,     status->buttons & GCHUB_BUTTON_X);
+	input_report_key(&ctl->dev, BTN_Y,     status->buttons & GCHUB_BUTTON_Y);
+	input_report_key(&ctl->dev, BTN_START, status->buttons & GCHUB_BUTTON_START);
+
+	input_report_abs(&ctl->dev, ABS_X,     status->joystick[0]);
+	input_report_abs(&ctl->dev, ABS_Y,    -status->joystick[1]);
+	input_report_abs(&ctl->dev, ABS_Z,     status->triggers[0]);
+	input_report_abs(&ctl->dev, ABS_RZ,    status->triggers[1]);
+	input_report_abs(&ctl->dev, ABS_RX,    status->cstick[0]);
+	input_report_abs(&ctl->dev, ABS_RY,   -status->cstick[1]);
+
+	input_report_abs(&ctl->dev, ABS_HAT0X, buttons_to_axis(status->buttons,
+							       GCHUB_BUTTON_DPAD_LEFT,
+							       GCHUB_BUTTON_DPAD_RIGHT));
+	input_report_abs(&ctl->dev, ABS_HAT0Y, buttons_to_axis(status->buttons,
+							       GCHUB_BUTTON_DPAD_UP,
+							       GCHUB_BUTTON_DPAD_DOWN));
+	input_sync(&ctl->dev);
 }
 
 static void controller_attach(void *data)
@@ -315,6 +350,7 @@ static void controller_attach(void *data)
 	dbg("Attached '%s'", ctl->dev.name);
 	input_register_device(&ctl->dev);
 	ctl->dev_registered = 1;
+	ctl->calibration_valid = 0;
 	ctl->reg_in_progress = 0;
 }
 
