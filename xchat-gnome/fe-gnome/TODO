@@ -2,8 +2,6 @@ autotools:
   * check for an adequate version of gnome-icon-theme, etc
   * autogenerate inline pngs during build
 
-* use alt++ and alt+- to allow server-independent access to higher channels
-
 
 * make strings translateable --> _("blah")
 * if a word-check function is installed into xtext, should make URLs blue
