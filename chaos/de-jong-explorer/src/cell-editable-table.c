@@ -24,8 +24,11 @@
 #include <gtk/gtk.h>
 
 static void cell_editable_table_class_init(CellEditableTableClass *klass);
-static void cell_editable_table_init(CellEditableTable *cb);
+static void cell_editable_table_init(CellEditableTable *self);
 static void cell_editable_table_cell_editable_init(GtkCellEditableIface *iface);
+
+static void cell_editable_table_start_editing(GtkCellEditable *cell_editable,
+					      GdkEvent        *event);
 
 
 GType cell_editable_table_get_type(void) {
@@ -64,15 +67,30 @@ GType cell_editable_table_get_type(void) {
 static void cell_editable_table_class_init(CellEditableTableClass *klass) {
 }
 
-static void cell_editable_table_init(CellEditableTable *cb) {
+static void cell_editable_table_init(CellEditableTable *self) {
 }
 
-GtkWidget* cell_editable_table_new() {
-  return GTK_WIDGET(g_object_new(cell_editable_table_get_type(), NULL));
+GtkWidget* cell_editable_table_new(guint rows, guint columns, gboolean homogeneous) {
+  CellEditableTable *self = CELL_EDITABLE_TABLE(g_object_new(cell_editable_table_get_type(), NULL));
+  GtkTable *table = GTK_TABLE(self);
+
+  if (rows == 0)
+    rows = 1;
+  if (columns == 0)
+    columns = 1;
+
+  table->homogeneous = (homogeneous ? TRUE : FALSE);
+  gtk_table_resize (table, rows, columns);
+
+  return GTK_WIDGET(self);
 }
 
 static void cell_editable_table_cell_editable_init(GtkCellEditableIface *iface) {
-  /* Interface initialization */
+  iface->start_editing = cell_editable_table_start_editing;
+}
+
+static void cell_editable_table_start_editing(GtkCellEditable *cell_editable,
+					      GdkEvent        *event) {
 }
 
 /* The End */
