@@ -53,7 +53,7 @@ struct _RenderPassClass
   GObjectClass parent_class;
 
   void     (*render)     (RenderPass *pass);
-  void     (*filter)     (RenderPass *pass, Drawable *drawable);
+  gboolean (*filter)     (RenderPass *pass, Drawable *drawable);
   void     (*preprocess) (RenderPass *pass);
   void     (*add)        (RenderPass *pass, Drawable *drawable);
   void     (*erase)      (RenderPass *pass);
@@ -62,7 +62,7 @@ struct _RenderPassClass
 
 GType    render_pass_get_type   (void) G_GNUC_CONST;
 void     render_pass_render     (RenderPass *pass);
-void     render_pass_filter     (RenderPass *pass, Drawable *drawable);
+gboolean render_pass_filter     (RenderPass *pass, Drawable *drawable);
 void     render_pass_preprocess (RenderPass *pass);
 void     render_pass_add        (RenderPass *pass, Drawable *drawable);
 void     render_pass_erase      (RenderPass *pass);

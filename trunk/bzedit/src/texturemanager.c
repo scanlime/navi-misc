@@ -64,6 +64,15 @@ texture_manager_init (TextureManager *tm)
   tm->textures = g_hash_table_new (g_str_hash, g_str_equal);
 }
 
+TextureManager*
+texture_manager_new (void)
+{
+  static TextureManager *tman = NULL;
+  if (!tman)
+    tman = TEXTURE_MANAGER (g_object_new (texture_manager_get_type (), NULL));
+  return tman;
+}
+
 void
 texture_manager_bind (TextureManager *tm, gchar *name)
 {

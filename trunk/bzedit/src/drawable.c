@@ -62,6 +62,14 @@ static void
 drawable_init (Drawable *drawable)
 {
   drawable->texture = NULL;
+
+  drawable->render.blended    = FALSE;
+  drawable->render.overlay    = FALSE;
+  drawable->render.statico    = TRUE;
+  drawable->render.decal      = FALSE;
+  drawable->render.camera     = FALSE;
+  drawable->render.reflection = FALSE;
+  drawable->render.background = FALSE;
 }
 
 void

@@ -23,15 +23,18 @@
  */
 
 #include "basicrenderpass.h"
+#include "texturemanager.h"
 
 static void     texture_group_class_init     (TextureGroupClass *klass);
 static void     texture_group_init           (TextureGroup *self);
 static void     texture_group_draw           (Drawable *d);
+static void     texture_group_picking_draw   (Drawable *d);
 static void     texture_group_draw_to_list   (DisplayList *dl);
+static void     texture_group_add            (TextureGroup *tg, Drawable *drawable);
 static void     basic_render_pass_class_init (BasicRenderPassClass *klass);
 static void     basic_render_pass_init       (BasicRenderPass *self);
 static void     basic_render_pass_render     (RenderPass *pass);
-static void     basic_render_pass_filter     (RenderPass *pass, Drawable *drawable);
+static gboolean basic_render_pass_filter     (RenderPass *pass, Drawable *drawable);
 static void     basic_render_pass_preprocess (RenderPass *pass);
 static void     basic_render_pass_add        (RenderPass *pass, Drawable *drawable);
 static void     basic_render_pass_erase      (RenderPass *pass);
@@ -101,6 +104,24 @@ texture_group_draw (Drawable *d)
 }
 
 static void
+texture_group_picking_draw (Drawable *d)
+{
+  TextureGroup *tg = TEXTURE_GROUP (d);
+  GList *dr;
+
+  for (dr = tg->static_drawables; dr; dr = dr->next)
+  {
+    /* store name */
+    drawable_draw (DRAWABLE (dr->data));
+  }
+  for (dr = tg->dynamic_drawables; dr; dr = dr->next)
+  {
+    /* store name */
+    drawable_draw (DRAWABLE (dr->data));
+  }
+}
+
+static void
 texture_group_draw_to_list (DisplayList *dl)
 {
   GList *d;
@@ -110,6 +131,15 @@ texture_group_draw_to_list (DisplayList *dl)
   {
     display_list_build_list (DISPLAY_LIST (d->data));
   }
+}
+
+static void
+texture_group_add (TextureGroup *tg, Drawable *drawable)
+{
+  if (drawable->render.statico)
+    g_list_append (tg->static_drawables, (gpointer) g_object_ref (drawable));
+  else
+    g_list_append (tg->dynamic_drawables, (gpointer) g_object_ref (drawable));
 }
 
 GType
@@ -155,21 +185,44 @@ basic_render_pass_class_init (BasicRenderPassClass *klass)
 static void
 basic_render_pass_init (BasicRenderPass *self)
 {
+  self->texture_groups = g_hash_table_new (g_str_hash, g_str_equal);
+}
+
+static void
+brp_render_iterate (gchar *texture, TextureGroup *group, TextureManager *tman)
+{
+  texture_manager_bind (tman, texture);
+  texture_group_draw (DRAWABLE (group));
 }
 
 static void
 basic_render_pass_render (RenderPass *pass)
 {
+  /* if picking ... */
+  BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
+  TextureManager *tman = texture_manager_new ();
+  g_hash_table_foreach (brp->texture_groups, (GHFunc) brp_render_iterate, (gpointer) tman);
+}
+
+static gboolean
+basic_render_pass_filter (RenderPass *pass, Drawable *drawable)
+{
+  return TRUE;
 }
 
 static void
-basic_render_pass_filter (RenderPass *pass, Drawable *drawable)
+brp_preprocess_iterate (gpointer key, gpointer value, gpointer data)
 {
+  DisplayList *dl = DISPLAY_LIST (value);
+  dl->dirty = TRUE;
 }
 
 static void
 basic_render_pass_preprocess (RenderPass *pass)
 {
+  BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
+  /* this builds display lists for all our texture groups */
+  g_hash_table_foreach (brp->texture_groups, brp_preprocess_iterate, NULL);
 }
 
 static void
@@ -180,6 +233,9 @@ basic_render_pass_add (RenderPass *pass, Drawable *drawable)
 static void
 basic_render_pass_erase (RenderPass *pass)
 {
+  BasicRenderPass *brp = BASIC_RENDER_PASS (pass);
+  g_free(brp->texture_groups);
+  brp->texture_groups = g_hash_table_new (g_str_hash, g_str_equal);
 }
 
 static gboolean
