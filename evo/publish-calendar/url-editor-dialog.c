@@ -463,6 +463,8 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 
 	g_object_unref (gconf);
 
+	check_input (dialog);
+
 	return TRUE;
 }
 
