@@ -308,7 +308,8 @@ class CatalogIndex:
 
         # Save the md5sum and date for each file we find within
         for line in open(filename):
-            sum, filename = line.strip().split()
+            sum, filename = line.strip().split(" ", 1)
+            filename = filename.lstrip()
             self.dateMap[filename] = currentDate
             self.md5Map[filename] = sum
 
