@@ -127,11 +127,9 @@ void unstall(usb_dev_handle *d) {
   status = last_status;
 
   while (unstall_edges < 40) {
-    if (unstall_edges == 0) {
-      if (period > 50000)
-	period = 45000;
-      period += 5;
-    }
+    if (period > 50000)
+      period = 45000;
+    period += 5;
 
     printf("period = %d, edges = %d\n", period, unstall_edges);
     control_write(d, RWAND_CTRL_SET_PERIOD, period, 0);
