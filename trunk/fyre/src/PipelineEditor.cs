@@ -21,336 +21,336 @@
  *
  */
 
-using System;
-using GLib;
-using Gtk;
-using Glade;
-
-public class PipelineEditor
+namespace Fyre
 {
-	// Plugin stuff
-	PluginManager plugin_manager;
 
-	// Widgets
-	[Widget] Gtk.Window		toplevel;
-
-	// Element list (left)
-	private Gtk.TreeStore		element_store;
-	private Gtk.TreeModelSort	sorted_store;
-	private Gtk.TreeViewColumn	column;
-	[Widget] Gtk.TreeView		element_list;
-
-	// Editor workspace (right)
-	[Widget] Gtk.Frame		pipeline_window;
-	private PipelineDrawing		pipeline_drawing;
-	[Widget] Gtk.Scrollbar		drawing_hscroll;
-	[Widget] Gtk.Scrollbar		drawing_vscroll;
-
-	// Current tooltip
-	private ElementTooltip		current_tooltip;
-	private uint			tooltip_timeout;
-	private Gdk.Rectangle		tip_rect;
-
-	// D-n-D private data
-	private int			click_x, click_y;
-	private bool			dragging;
-	private bool			check_drag;
-	private TargetEntry[]		targets;
-	private TargetList		target_list;
-
-	public static void Main (string[] args)
+	public class PipelineEditor
 	{
-		new PipelineEditor (args);
-	}
+		// Plugin stuff
+		PluginManager plugin_manager;
 
-	public PipelineEditor (string[] args)
-	{
-		Application.Init();
+		// Widgets
+		[Glade.Widget] Gtk.Window		toplevel;
 
-		Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
-		gxml.Autoconnect (this);
+		// Element list (left)
+		private Gtk.TreeStore			element_store;
+		private Gtk.TreeModelSort		sorted_store;
+		private Gtk.TreeViewColumn		column;
+		[Glade.Widget] Gtk.TreeView		element_list;
 
-		// Create drag-and-drop target
-		targets = new TargetEntry[1];
-		targets[0] = new TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
-		target_list = new TargetList (targets);
+		// Editor workspace (right)
+		[Glade.Widget] Gtk.Frame		pipeline_window;
+		private PipelineDrawing			pipeline_drawing;
+		[Glade.Widget] Gtk.Scrollbar		drawing_hscroll;
+		[Glade.Widget] Gtk.Scrollbar		drawing_vscroll;
 
-		SetupElementList ();
-		SetupDrawingCanvas ();
+		// Current tooltip
+		private ElementTooltip			current_tooltip;
+		private uint				tooltip_timeout;
+		private Gdk.Rectangle			tip_rect;
 
-		// These start out nulled
-		current_tooltip = null;
-		tooltip_timeout = 0;
-		click_x = -1;
-		click_y = -1;
-		dragging = false;
+		// D-n-D private data
+		private int				click_x, click_y;
+		private bool				dragging;
+		private bool				check_drag;
+		private Gtk.TargetEntry[]		targets;
+		private Gtk.TargetList			target_list;
 
-		// Set up plugins directory
-		plugin_manager = new PluginManager (Defines.PLUGINSDIR);
-		foreach (Type t in plugin_manager.plugin_types)
-			AddElementType (t);
-
-		// Finally, run the application
-		Application.Run();
-	}
-
-	void SetupElementList ()
-	{
-		//                                         Icon                 Name             Type           Tooltip Window
-		element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (Type), typeof (ElementTooltip));
-
-		// We sort the element list in alphabetical order by name/category,
-		// since we don't know what order plugins will be loaded in, and
-		// alphabetical order makes sense to people.
-		sorted_store = new Gtk.TreeModelSort (element_store);
-		sorted_store.SetSortColumnId (1, Gtk.SortType.Ascending);
-
-		// And set it as the model
-		element_list.Model = sorted_store;
-
-		// Create the column and the renderers */
-		column = new Gtk.TreeViewColumn ();
-		column.Title = "Elements";
-
-		// Icon
-		Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
-		column.PackStart (pixbuf_renderer, false);
-		column.AddAttribute (pixbuf_renderer, "pixbuf", 0);
-
-		// Name
-		Gtk.CellRenderer text_renderer   = new Gtk.CellRendererText ();
-		column.PackStart (text_renderer, true);
-		column.AddAttribute (text_renderer, "text", 1);
-
-		element_list.AppendColumn (column);
-
-		// Set up drag-and-drop for our tree view
-		Gtk.Drag.SourceSet (element_list, Gdk.ModifierType.Button1Mask, targets, Gdk.DragAction.Copy);
-	}
-
-	void SetupDrawingCanvas ()
-	{
-		// create the canvas
-		pipeline_drawing = new PipelineDrawing();
-		pipeline_window.Add (pipeline_drawing);
-		pipeline_drawing.Show ();
-
-		pipeline_drawing.SetScrollAdjustments (drawing_hscroll.Adjustment, drawing_vscroll.Adjustment);
-
-		// Set up drag-and-drop for the frame. This looks better than setting it
-		// up for the drawing area, but it doesn't really affect structure
-		Gtk.Drag.DestSet (pipeline_window, Gtk.DestDefaults.All, targets, Gdk.DragAction.Copy);
-	}
-
-	void ElementListDragBegin (object o, DragBeginArgs args)
-	{
-		Gtk.TreePath path;
-		Gtk.TreeViewColumn column;
-		int cell_x, cell_y;
-
-		if (element_list.GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
-			Gdk.Pixmap pixmap = element_list.CreateRowDragIcon (path);
-			Gdk.Rectangle rect = pixmap.VisibleRegion.Clipbox;
-			Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, rect.Width, rect.Height);
-			icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, rect.Width, rect.Height);
-			Gtk.Drag.SetIconPixbuf (args.Context, icon, click_x + 1, cell_y);
+		public static void Main (string[] args)
+		{
+			new PipelineEditor (args);
 		}
-	}
 
-	void ElementListDragEnd (object o, DragEndArgs args)
-	{
-		dragging = false;
-		click_x = -1;
-		click_y = -1;
-	}
+		public PipelineEditor (string[] args)
+		{
+			Gtk.Application.Init();
 
-	void ElementListButtonPressEvent (object o, ButtonPressEventArgs args)
-	{
-		if (current_tooltip != null) {
-			current_tooltip.Hide ();
+			Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
+			gxml.Autoconnect (this);
+
+			// Create drag-and-drop target
+			targets = new Gtk.TargetEntry[1];
+			targets[0] = new Gtk.TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
+			target_list = new Gtk.TargetList (targets);
+
+			SetupElementList ();
+			SetupDrawingCanvas ();
+
+			// These start out nulled
 			current_tooltip = null;
-		}
-		if (tooltip_timeout != 0) {
-			GLib.Source.Remove (tooltip_timeout);
 			tooltip_timeout = 0;
-		}
-		click_x = (int) args.Event.X;
-		click_y = (int) args.Event.Y;
-		check_drag = false;
-	}
+			click_x = -1;
+			click_y = -1;
+			dragging = false;
 
-	void ElementListButtonReleaseEvent (object o, ButtonReleaseEventArgs args)
-	{
-		click_x = -1;
-		click_y = -1;
-		check_drag = false;
-	}
+			// Set up plugins directory
+			plugin_manager = new PluginManager (Defines.PLUGINSDIR);
+			foreach (System.Type t in plugin_manager.plugin_types)
+				AddElementType (t);
 
-	void ElementListMotionNotifyEvent (object o, MotionNotifyEventArgs args)
-	{
-		Gdk.EventMotion ev = args.Event;
-		Gtk.TreePath path;
-
-		if (tooltip_timeout != 0) {
-			if ((ev.Y > tip_rect.Y) && ((ev.Y - tip_rect.Height) < tip_rect.Y))
-				return;
-			// We've moved outside the current cell. Destroy the
-			// timeout and create a new one
-			GLib.Source.Remove (tooltip_timeout);
+			// Finally, run the application
+			Gtk.Application.Run();
 		}
 
-		if (ev.State == Gdk.ModifierType.Button1Mask) {
-			// If we're just continuing a drag, don't do anything
-			if (dragging)
-				return;
-			// If we've already checked this drag, don't do anything either
-			if (check_drag)
-				return;
-			// Check that we have a path
-			if (element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path) == false) {
-				check_drag = true;
-				return;
+		void SetupElementList ()
+			{
+			//                                         Icon                 Name             Type                  Tooltip Window
+			element_store = new Gtk.TreeStore (typeof (Gdk.Pixbuf), typeof (string), typeof (System.Type), typeof (ElementTooltip));
+
+			// We sort the element list in alphabetical order by name/category,
+			// since we don't know what order plugins will be loaded in, and
+			// alphabetical order makes sense to people.
+			sorted_store = new Gtk.TreeModelSort (element_store);
+			sorted_store.SetSortColumnId (1, Gtk.SortType.Ascending);
+
+			// And set it as the model
+			element_list.Model = sorted_store;
+
+			// Create the column and the renderers */
+			column = new Gtk.TreeViewColumn ();
+			column.Title = "Elements";
+
+			// Icon
+			Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
+			column.PackStart (pixbuf_renderer, false);
+			column.AddAttribute (pixbuf_renderer, "pixbuf", 0);
+
+			// Name
+			Gtk.CellRenderer text_renderer   = new Gtk.CellRendererText ();
+			column.PackStart (text_renderer, true);
+			column.AddAttribute (text_renderer, "text", 1);
+
+			element_list.AppendColumn (column);
+
+			// Set up drag-and-drop for our tree view
+			Gtk.Drag.SourceSet (element_list, Gdk.ModifierType.Button1Mask, targets, Gdk.DragAction.Copy);
+		}
+
+		void SetupDrawingCanvas ()
+		{
+			// create the canvas
+			pipeline_drawing = new PipelineDrawing();
+			pipeline_window.Add (pipeline_drawing);
+			pipeline_drawing.Show ();
+
+			pipeline_drawing.SetScrollAdjustments (drawing_hscroll.Adjustment, drawing_vscroll.Adjustment);
+
+			// Set up drag-and-drop for the frame. This looks better than setting it
+			// up for the drawing area, but it doesn't really affect structure
+			Gtk.Drag.DestSet (pipeline_window, Gtk.DestDefaults.All, targets, Gdk.DragAction.Copy);
+		}
+
+		void ElementListDragBegin (object o, Gtk.DragBeginArgs args)
+		{
+			Gtk.TreePath path;
+			Gtk.TreeViewColumn column;
+			int cell_x, cell_y;
+
+			if (element_list.GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
+				Gdk.Pixmap pixmap = element_list.CreateRowDragIcon (path);
+				Gdk.Rectangle rect = pixmap.VisibleRegion.Clipbox;
+				Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, rect.Width, rect.Height);
+				icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, rect.Width, rect.Height);
+				Gtk.Drag.SetIconPixbuf (args.Context, icon, click_x + 1, cell_y);
+			}
+		}
+
+		void ElementListDragEnd (object o, Gtk.DragEndArgs args)
+		{
+			dragging = false;
+			click_x = -1;
+			click_y = -1;
+		}
+
+		void ElementListButtonPressEvent (object o, Gtk.ButtonPressEventArgs args)
+		{
+			if (current_tooltip != null) {
+				current_tooltip.Hide ();
+				current_tooltip = null;
+			}
+			if (tooltip_timeout != 0) {
+				GLib.Source.Remove (tooltip_timeout);
+				tooltip_timeout = 0;
+			}
+			click_x = (int) args.Event.X;
+			click_y = (int) args.Event.Y;
+			check_drag = false;
+		}
+
+		void ElementListButtonReleaseEvent (object o, Gtk.ButtonReleaseEventArgs args)
+		{
+			click_x = -1;
+			click_y = -1;
+			check_drag = false;
+		}
+
+		void ElementListMotionNotifyEvent (object o, Gtk.MotionNotifyEventArgs args)
+		{
+			Gdk.EventMotion ev = args.Event;
+			Gtk.TreePath path;
+
+			if (tooltip_timeout != 0) {
+				if ((ev.Y > tip_rect.Y) && ((ev.Y - tip_rect.Height) < tip_rect.Y))
+					return;
+				// We've moved outside the current cell. Destroy the
+				// timeout and create a new one
+				GLib.Source.Remove (tooltip_timeout);
 			}
 
-			// Check that the path exists
-			Gtk.TreeIter iter;
-			if (sorted_store.GetIter (out iter, path) == false) {
-				check_drag = true;
-				return;
-			}
-			// Check that we're in a leaf node
-			if (!sorted_store.IterParent (out iter, iter)) {
-				check_drag = true;
-				return;
-			}
-			// Start a drag
-			dragging = true;
-			Gtk.Drag.Begin (element_list, target_list, Gdk.DragAction.Copy, 1, ev);
-			return;
-		}
-
-		if (element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path)) {
-			tip_rect = element_list.GetCellArea (path, column);
-			tooltip_timeout = GLib.Timeout.Add (200, new GLib.TimeoutHandler(TooltipTimeout));
-		}
-	}
-
-	bool TooltipTimeout ()
-	{
-		Gtk.TreePath path;
-		Gtk.TreeIter iter;
-		if (!element_list.GetPathAtPos (tip_rect.X, tip_rect.Y, out path))
-			return false;
-		sorted_store.GetIter (out iter, path);
-		if (current_tooltip != null)
-			current_tooltip.Hide ();
-		current_tooltip = (ElementTooltip) sorted_store.GetValue (iter, 3);
-		if (current_tooltip == null)
-			return false;
-
-		int x, y;
-		toplevel.GetPosition (out x, out y);
-		current_tooltip.Move (x + tip_rect.X + 160, y + tip_rect.Y + 80);
-		current_tooltip.Show ();
-		tooltip_timeout = 0;
-		return false;
-	}
-
-	void ElementListLeaveNotifyEvent (object o, LeaveNotifyEventArgs args)
-	{
-		if (tooltip_timeout != 0) {
-			GLib.Source.Remove (tooltip_timeout);
-			tooltip_timeout = 0;
-		}
-		if (current_tooltip != null) {
-			current_tooltip.Hide ();
-			current_tooltip = null;
-		}
-	}
-
-	private void AddElementType (Type t)
-	{
-		object[] i = {};
-		Element e = (Element) t.GetConstructor(Type.EmptyTypes).Invoke(i);
-		ElementTooltip tt = new ElementTooltip (e);
-
-		string name = e.Name ();
-		string category = e.Category ();
-		Gdk.Pixbuf pixbuf = e.Icon ();
-		bool found = false;
-
-		Gtk.TreeIter iter;
-		if (element_store.GetIterFirst (out iter)) {
-			do {
-				string cat = (string) element_store.GetValue (iter, 1);
-				if (cat.Equals (category)) {
-					found = true;
-					element_store.AppendValues (iter, pixbuf, name, t, tt);
+			if (ev.State == Gdk.ModifierType.Button1Mask) {
+				// If we're just continuing a drag, don't do anything
+				if (dragging)
+					return;
+				// If we've already checked this drag, don't do anything either
+				if (check_drag)
+					return;
+				// Check that we have a path
+				if (element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path) == false) {
+					check_drag = true;
+					return;
 				}
-			} while (element_store.IterNext (ref iter));
+
+				// Check that the path exists
+				Gtk.TreeIter iter;
+				if (sorted_store.GetIter (out iter, path) == false) {
+					check_drag = true;
+					return;
+				}
+				// Check that we're in a leaf node
+				if (!sorted_store.IterParent (out iter, iter)) {
+					check_drag = true;
+					return;
+				}
+				// Start a drag
+				dragging = true;
+				Gtk.Drag.Begin (element_list, target_list, Gdk.DragAction.Copy, 1, ev);
+				return;
+			}
+
+			if (element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path)) {
+				tip_rect = element_list.GetCellArea (path, column);
+				tooltip_timeout = GLib.Timeout.Add (200, new GLib.TimeoutHandler(TooltipTimeout));
+			}
 		}
-		if (!found) {
-			iter = element_store.AppendValues (null, category);
-			element_store.AppendValues (iter, pixbuf, name, t, tt);
-			element_list.ExpandAll ();
+
+		bool TooltipTimeout ()
+		{
+			Gtk.TreePath path;
+			Gtk.TreeIter iter;
+			if (!element_list.GetPathAtPos (tip_rect.X, tip_rect.Y, out path))
+				return false;
+			sorted_store.GetIter (out iter, path);
+			if (current_tooltip != null)
+				current_tooltip.Hide ();
+			current_tooltip = (ElementTooltip) sorted_store.GetValue (iter, 3);
+			if (current_tooltip == null)
+				return false;
+
+			int x, y;
+			toplevel.GetPosition (out x, out y);
+			current_tooltip.Move (x + tip_rect.X + 160, y + tip_rect.Y + 80);
+			current_tooltip.Show ();
+			tooltip_timeout = 0;
+			return false;
+		}
+
+		void ElementListLeaveNotifyEvent (object o, Gtk.LeaveNotifyEventArgs args)
+		{
+			if (tooltip_timeout != 0) {
+				GLib.Source.Remove (tooltip_timeout);
+				tooltip_timeout = 0;
+			}
+			if (current_tooltip != null) {
+				current_tooltip.Hide ();
+				current_tooltip = null;
+			}
+		}
+
+		private void AddElementType (System.Type t)
+		{
+			object[] i = {};
+			Element e = (Element) t.GetConstructor(System.Type.EmptyTypes).Invoke(i);
+			ElementTooltip tt = new ElementTooltip (e);
+
+			string name = e.Name ();
+			string category = e.Category ();
+			Gdk.Pixbuf pixbuf = e.Icon ();
+			bool found = false;
+
+			Gtk.TreeIter iter;
+			if (element_store.GetIterFirst (out iter)) {
+				do {
+					string cat = (string) element_store.GetValue (iter, 1);
+					if (cat.Equals (category)) {
+						found = true;
+						element_store.AppendValues (iter, pixbuf, name, t, tt);
+					}
+				} while (element_store.IterNext (ref iter));
+			}
+			if (!found) {
+				iter = element_store.AppendValues (null, category);
+				element_store.AppendValues (iter, pixbuf, name, t, tt);
+				element_list.ExpandAll ();
+			}
+		}
+
+		// Event handlers - most of these come from the glade file
+		// Window events
+		public void OnDeleteEvent (object o, Gtk.DeleteEventArgs args)
+		{
+			Gtk.Application.Quit ();
+			args.RetVal = true;
+		}
+
+		// Shared events - menus/toolbars
+		public void OnNew (object o, System.EventArgs args)
+		{
+		}
+
+		public void OnOpen (object o, System.EventArgs args)
+		{
+		}
+
+		public void OnSave (object o, System.EventArgs args)
+		{
+		}
+
+		public void OnCut (object o, System.EventArgs args)
+		{
+		}
+
+		public void OnCopy (object o, System.EventArgs args)
+		{
+		}
+
+		public void OnPaste (object o, System.EventArgs args)
+		{
+		}
+
+		// 'File' Menu events
+		public void OnMenuFileSaveAs (object o, System.EventArgs args)
+		{
+		}
+
+		public void OnMenuFileQuit (object o, System.EventArgs args)
+		{
+			Gtk.Application.Quit ();
+		}
+
+		// 'Edit' Menu events
+		public void OnMenuEditDelete (object o, System.EventArgs args)
+		{
+		}
+
+		// 'View' Menu events
+		public void OnMenuViewKeepClean (object o, System.EventArgs args)
+		{
+		}
+
+		// 'Help' Menu events
+		public void OnMenuHelpContents (object o, System.EventArgs args)
+		{
 		}
 	}
 
-	// Event handlers - most of these come from the glade file
-	// Window events
-	public void OnDeleteEvent (object o, DeleteEventArgs args)
-	{
-		Application.Quit ();
-		args.RetVal = true;
-	}
-
-	// Shared events - menus/toolbars
-	public void OnNew (object o, EventArgs args)
-	{
-	}
-
-	public void OnOpen (object o, EventArgs args)
-	{
-	}
-
-	public void OnSave (object o, EventArgs args)
-	{
-	}
-
-	public void OnCut (object o, EventArgs args)
-	{
-	}
-
-	public void OnCopy (object o, EventArgs args)
-	{
-	}
-
-	public void OnPaste (object o, EventArgs args)
-	{
-	}
-
-	// 'File' Menu events
-	public void OnMenuFileSaveAs (object o, EventArgs args)
-	{
-	}
-
-	public void OnMenuFileQuit (object o, EventArgs args)
-	{
-		Application.Quit ();
-	}
-
-	// 'Edit' Menu events
-	public void OnMenuEditDelete (object o, EventArgs args)
-	{
-	}
-
-	// 'View' Menu events
-	public void OnMenuViewKeepClean (object o, EventArgs args)
-	{
-	}
-
-	// 'Help' Menu events
-	public void OnMenuHelpContents (object o, EventArgs args)
-	{
-	}
 }

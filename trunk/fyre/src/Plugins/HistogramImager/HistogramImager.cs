@@ -21,9 +21,7 @@
  *
  */
 
-using Gdk;
-
-class HistogramImager : Element
+class HistogramImager : Fyre.Element
 {
 	static Gdk.Pixbuf icon;
 	static string[,] inputs;

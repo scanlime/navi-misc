@@ -27,55 +27,59 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 
-class PluginManager
-{
-	string directory;
-	public ArrayList plugin_types;
+namespace Fyre {
 
-	public PluginManager (string directory)
+	class PluginManager
 	{
-		this.directory = directory;
+		string directory;
+		public ArrayList plugin_types;
 
-		plugin_types = FindPluginTypes ();
-	}
+		public PluginManager (string directory)
+		{
+			this.directory = directory;
 
-	ArrayList FindPluginTypes ()
-	{
-		ArrayList all_plugin_types = new ArrayList ();
-
-		string [] files = Directory.GetFiles (directory, "*.dll");
-
-		// Pull in types from assemblies
-		foreach (string file in files) {
-			try {
-				ArrayList asm_types = FindPluginTypesInFile (file);
-				foreach (Type type in asm_types)
-					all_plugin_types.Add (type);
-			} catch (Exception e) {
-				Console.WriteLine ("Error loading plugin: {0}", e);
-			}
+			plugin_types = FindPluginTypes ();
 		}
 
-		return all_plugin_types;
+		ArrayList FindPluginTypes ()
+		{
+			ArrayList all_plugin_types = new ArrayList ();
+
+			string [] files = Directory.GetFiles (directory, "*.dll");
+
+			// Pull in types from assemblies
+			foreach (string file in files) {
+				try {
+					ArrayList asm_types = FindPluginTypesInFile (file);
+					foreach (Type type in asm_types)
+						all_plugin_types.Add (type);
+				} catch (Exception e) {
+					Console.WriteLine ("Error loading plugin: {0}", e);
+				}
+			}
+
+			return all_plugin_types;
+		}
+
+		static ArrayList FindPluginTypesInFile (string filepath)
+		{
+			Assembly asm = Assembly.LoadFrom (filepath);
+			return FindPluginTypesInAssembly (asm);
+		}
+
+		static ArrayList FindPluginTypesInAssembly (Assembly asm)
+		{
+			Type [] types = asm.GetTypes ();
+			ArrayList plugin_types = new ArrayList ();
+
+			// Grab Element types. Eventually, we might want to convert this
+			// to just load everything and keep a hash for different plugin hooks
+			foreach (Type type in types)
+				if (type.BaseType == typeof (Element))
+					plugin_types.Add (type);
+
+			return plugin_types;
+		}
 	}
 
-	static ArrayList FindPluginTypesInFile (string filepath)
-	{
-		Assembly asm = Assembly.LoadFrom (filepath);
-		return FindPluginTypesInAssembly (asm);
-	}
-
-	static ArrayList FindPluginTypesInAssembly (Assembly asm)
-	{
-		Type [] types = asm.GetTypes ();
-		ArrayList plugin_types = new ArrayList ();
-
-		// Grab Element types. Eventually, we might want to convert this
-		// to just load everything and keep a hash for different plugin hooks
-		foreach (Type type in types)
-			if (type.BaseType == typeof (Element))
-				plugin_types.Add (type);
-
-		return plugin_types;
-	}
 }
