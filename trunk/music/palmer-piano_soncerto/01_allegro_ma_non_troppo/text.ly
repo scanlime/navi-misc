@@ -1,0 +1,3 @@
+simile = \markup {
+	\italic simile
+}
