@@ -114,10 +114,22 @@ void initialize_preferences_irc_page()
 
 	g_object_unref (group);
 
+	widget = glade_xml_get_widget (gui.xml, "show colors");
+	toggle = gconf_client_get_bool (client, "/apps/xchat/irc/showcolors", NULL);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggle);
+	gconf_client_notify_add (client, "/apps/xchat/irc/showcolors", (GConfClientNotifyFunc) gconf_bool_changed, widget, NULL, NULL);
+	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (bool_changed), "/apps/xchat/irc/showcolors");
+
+	widget = glade_xml_get_widget (gui.xml, "show timestamps");
+	toggle = gconf_client_get_bool (client, "/apps/xchat/irc/showtimestamps", NULL);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggle);
+	gconf_client_notify_add (client, "/apps/xchat/irc/showtimestamps", (GConfClientNotifyFunc) gconf_bool_changed, widget, NULL, NULL);
+	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (bool_changed), "/apps/xchat/irc/showtimestamps");
+
 	widget = glade_xml_get_widget (gui.xml, "usesysfonts");
 	toggle = gconf_client_get_bool (client, "/apps/xchat/main_window/use_sys_fonts", NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggle);
-	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) gconf_bool_changed, NULL, NULL, NULL);
+	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) gconf_bool_changed, widget, NULL, NULL);
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (bool_changed), "/apps/xchat/main_window/use_sys_fonts");
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (sysfonts_changed), glade_xml_get_widget (gui.xml, "font selection"));
 

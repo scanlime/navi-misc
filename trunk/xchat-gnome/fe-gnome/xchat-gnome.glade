@@ -1152,9 +1152,8 @@
 			      </child>
 
 			      <child>
-				<widget class="GtkCheckButton" id="checkbutton1">
+				<widget class="GtkCheckButton" id="show colors">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Show Colors</property>
 				  <property name="use_underline">True</property>
@@ -1172,9 +1171,8 @@
 			      </child>
 
 			      <child>
-				<widget class="GtkCheckButton" id="checkbutton2">
+				<widget class="GtkCheckButton" id="show timestamps">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Show Timestamps</property>
 				  <property name="use_underline">True</property>
