@@ -52,9 +52,11 @@ FieldSensor::FieldSensor(const char *serialPort) {
   tcsetattr(fd, TCSANOW, &options);
 
   reset();
+  boot();
 }
 
 FieldSensor::~FieldSensor(void) {
+  reset();
   close(fd);
 }
 
@@ -68,7 +70,9 @@ void FieldSensor::reset(void) {
   usleep(5000);
   x = TIOCM_DTR;
   ioctl(fd, TIOCMBIC, &x);
+}
 
+void FieldSensor::boot(void) {
   /* Instruct the bootloader to run our code */
   sendSlowly("0000hg");
 }

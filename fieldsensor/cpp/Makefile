@@ -1,9 +1,26 @@
 BINS = raw_test
 
-LIBSRC = lib/FieldSensor.o
+LIBSRC = \
+	lib/FieldSensor.o \
+	annie/src/Layer.o \
+	annie/src/Exception.o \
+	annie/src/File.o \
+	annie/src/InputLayer.o \
+	annie/src/InputNeuron.o \
+	annie/src/Link.o \
+	annie/src/Matrix.o \
+	annie/src/MultiLayerNetwork.o \
+	annie/src/Network.o \
+	annie/src/Neuron.o \
+	annie/src/SimpleNeuron.o \
+	annie/src/TrainingSet.o \
+	annie/src/TwoLayerNetwork.o \
 
-CPPFLAGS += -Iinclude
-INCLUDES = include/*.h
+
+CPPFLAGS += -Iinclude -Iannie/include 
+CPPFLAGS += -O3 -fschedule-insns -falign-functions=4 -ffast-math -fforce-addr
+CPPFLAGS += -march=athlon-xp -fprefetch-loop-arrays -mfpmath=sse
+INCLUDES = include/*.h annie/include/*.h
 LIBS = lib/libfield.a
 
 all: $(BINS)
@@ -12,7 +29,8 @@ raw_test: src/raw_test.cpp $(INCLUDES) $(LIBS)
 	g++ -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(LIBS)
 
 lib/libfield.a: $(LIBSRC)
-	ar r lib/libfield.a $(LIBSRC)
+	ar r $@ $<
+	ranlib $@
 
 clean:
 	rm -f $(BINS) $(LIBS) $(LIBSRC)
