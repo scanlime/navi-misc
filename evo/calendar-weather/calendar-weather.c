@@ -26,6 +26,7 @@
 #include <calendar/gui/calendar-component.h>
 #include <libedataserver/e-source.h>
 #include <libedataserver/e-url.h>
+#include <libedataserver/e-categories.h>
 #include <libgnome/gnome-i18n.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -74,6 +75,16 @@ e_calendar_weather_migrate (EPlugin *epl, ECalEventTargetComponent *data)
 		e_source_list_add_group (source_list, group, -1);
 
 		weather = group;
+
+		/* If we haven't got a weather source group, we haven't got weather categories.
+		 * Add in the categories so we'll have the right icons */
+		e_categories_add (N_("Weather: Cloudy"), NULL, WEATHER_DATADIR "/category_weather_cloudy_16.png");
+		e_categories_add (N_("Weather: Fog"), NULL, WEATHER_DATADIR "/category_weather_fog_16.png");
+		e_categories_add (N_("Weather: Partly Cloudy"), NULL, WEATHER_DATADIR "/category_weather_partly_cloudy_16.png");
+		e_categories_add (N_("Weather: Rain"), NULL, WEATHER_DATADIR "/category_weather_rain_16.png");
+		e_categories_add (N_("Weather: Snow"), NULL, WEATHER_DATADIR "/category_weather_snow_16.png");
+		e_categories_add (N_("Weather: Sunny"), NULL, WEATHER_DATADIR "/category_weather_sun_16.png");
+		e_categories_add (N_("Weather: Thunderstorms"), NULL, WEATHER_DATADIR "/category_weather_tstorm_16.png");
 	}
 
 	if (weather)
