@@ -53,8 +53,9 @@ static void edit_ok_clicked(GtkWidget *button, gpointer data) {
 	gtk_tree_model_get(model, &iter, 2, &net, -1);
 
 	widget = glade_xml_get_widget(gui.xml, "server config network name");
-	char *text = gtk_entry_get_text(GTK_ENTRY(text));
-	if(servlist_net_find(text, NULL) != NULL) {
+	char *text = (char *) gtk_entry_get_text(GTK_ENTRY(widget));
+	int position;
+	if(servlist_net_find(text, &position) != NULL) {
 		/* FIXME: pop up error about duplicate */
 		return;
 	} else if(strlen(text) == 0) {
