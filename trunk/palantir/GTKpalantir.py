@@ -11,6 +11,7 @@ from twisted.internet import gtk2reactor
 gtk2reactor.install()
 
 import string, re, gtk, gtk.glade, gobject, palantirIRC
+import gtk.gdk
 from time import localtime
 from dieRoller import DieRoller
 from CharacterSheet.Character import Character
@@ -31,9 +32,9 @@ class PalantirWindow:
         self.tree.signal_connect(func, getattr(self, func))
 
     list = self.tree.get_widget('UserList')
-    list.set_model(model=gtk.ListStore(gobject.TYPE_STRING))
-    #list.append_column(gtk.TreeViewColumn('Icons', gtk.CellRendererPixbuf()))
-    list.append_column(gtk.TreeViewColumn('Users', gtk.CellRendererText(), text=0))
+    list.set_model(model=gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING))
+    list.append_column(gtk.TreeViewColumn('Icons', gtk.CellRendererPixbuf(), pixbuf=0))
+    list.append_column(gtk.TreeViewColumn('Users', gtk.CellRendererText(), text=1))
     # Client factory.
     self.factory = palantirIRC.PalantirClientFactory('nuku-nuku', ui=self)
 
@@ -271,7 +272,7 @@ class PalantirWindow:
     ''' Add nick the userlist. '''
     list = self.tree.get_widget('UserList')
     store = list.get_model()
-    store.set_value(store.append([gobject.TYPE_STRING]), 0, nick)
+    store.set(store.append(), 1, nick)
 
 
   def PrintText(self, text):
