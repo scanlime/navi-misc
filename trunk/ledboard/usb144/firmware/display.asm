@@ -263,14 +263,14 @@ scan_row macro prev_port, prev_bit, current_port, current_bit, address
 	prepare_pwm_row address + 0x02, 0x05, 0
 	prepare_pwm_row address + 0x03, 0x06, 1
 	prepare_pwm_row address + 0x03, 0x07, 0
-	prepare_pwm_row address + 0x00, 0x08, 1
-	prepare_pwm_row address + 0x00, 0x09, 0
-	prepare_pwm_row address + 0x01, 0x0A, 1
-	prepare_pwm_row address + 0x01, 0x0B, 0
-	prepare_pwm_row address + 0x02, 0x0C, 1
-	prepare_pwm_row address + 0x02, 0x0D, 0
-	prepare_pwm_row address + 0x03, 0x0E, 1
-	prepare_pwm_row address + 0x03, 0x0F, 0
+	prepare_pwm_row address + 0x04, 0x08, 1
+	prepare_pwm_row address + 0x04, 0x09, 0
+	prepare_pwm_row address + 0x05, 0x0A, 1
+	prepare_pwm_row address + 0x05, 0x0B, 0
+	prepare_pwm_row address + 0x06, 0x0C, 1
+	prepare_pwm_row address + 0x06, 0x0D, 0
+	prepare_pwm_row address + 0x07, 0x0E, 1
+	prepare_pwm_row address + 0x07, 0x0F, 0
 
 	;; Turn off the last row driver, clear the column drivers, then turn on the
 	;; current row. This sequence is necessary to keep the rows isolated.
