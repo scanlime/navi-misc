@@ -53,7 +53,7 @@ class WorldReader:
                         except ValueError:
                             if token:
                                 tokens.append(token)
-                    yield tokens
+                    yield tuple(tokens)
 
     def readBlocks(self):
         """Iterates over the blocks in a BZFlag world. For
@@ -88,9 +88,15 @@ class WorldReader:
             typeRegistry = getTypeRegistry()
 
         for type, content in self.readBlocks():
-            obj = typeRegistry.dict[type]()
-            obj.deserialize(content)
-            yield obj
+            try:
+                obj = typeRegistry.dict[type]()
+            except KeyError:
+                print "Warning: skipping unknown object type %s in world" % type
+                for line in content:
+                    pass
+            else:
+                obj.deserialize(content)
+                yield obj
 
 
 class WorldWriter:
@@ -130,7 +136,7 @@ class WorldWriter:
         self.writeBlock(object.serialize)
 
 
-class BZObject:
+class BZObject(object):
     """Abstract base class for BZFlag objects. Each BZFlag object
        has a named type, can serialize/deserialize itself, and
        can be converted to and from blender objects.
@@ -141,17 +147,36 @@ class BZObject:
     def serialize(self, writer):
         """Store this BZFlag object to a world file by calling the
            given writer for each tuple or comment to be included
-           in the world block. This must be implemented by
-           subclasses.
+           in the world block. The default implementation writes
+           comments, but subclasses must add to this to write useful
+           data.
            """
-        pass
+        if self.comment:
+            for line in comment.split("\n"):
+                writer(CommentLine(line))
 
     def deserialize(self, reader):
         """Read information for this BZFlag object from the given
            iterator. The iterator is expected to return either comment
-           objects or tuples. This must be implemented by subclasses.
+           objects or tuples.
+           The default implementation of this stores comment lines,
+           and dispatches other types of lines to set_* handlers.
            """
-        pass
+        commentLines = []
+        for line in reader:
+            if isinstance(line, CommentLine):
+                commentLines = str(line)
+            else:
+                f = getattr(self, "set_%s" % line[0], None)
+                if f:
+                    try:
+                        f(*line[1:])
+                    except TypeError:
+                        # This probably means the number of arguments
+                        # were wrong, but we don't verify this yet.
+                        print "Warning: line %r probably has the wrong number of parameters"
+                else:
+                    print "Warning: ignoring unknown line type %r in %r object" % (line[0], self.type)
 
     def toBlender(self):
         """Create a new Blender object representing this one,
@@ -204,7 +229,6 @@ class ObjectTypeRegistry:
         bzo.fromBlender(object)
         return bzo
 
-
 _typeRegistry = None
 
 def getTypeRegistry():
@@ -213,5 +237,30 @@ def getTypeRegistry():
     if not _typeRegistry:
         _typeRegistry = ObjectTypeRegistry(globals())
     return _typeRegistry
+
+
+class Box(BZObject):
+    """A rectangular prism, with translation and with rotation in the Z axis"""
+    type = 'box'
+
+    def __init__(self):
+        # Load defaults
+        self.set_position()
+        self.set_rotation()
+        self.set_size()
+
+    def set_position(self, x=0, y=0, z=0):
+        self.position = [x,y,z]
+
+    def set_rotation(self, degrees=0):
+        self.rotation = degrees
+
+    def set_size(self, x=1, y=1, z=1):
+        self.size = [x,y,z]
+
+
+class Pyramid(Box):
+    """A tetrahedron, pointing straight up or down, with rotation in the Z axis"""
+    type = 'pyramid'
 
 ### The End ###
