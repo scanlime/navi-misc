@@ -2972,7 +2972,7 @@
 	  <property name="layout_style">GTK_BUTTONBOX_END</property>
 
 	  <child>
-	    <widget class="GtkButton" id="closebutton1">
+	    <widget class="GtkButton" id="close server connect">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
@@ -2984,8 +2984,9 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="button23">
+	    <widget class="GtkButton" id="connect to server">
 	      <property name="visible">True</property>
+	      <property name="sensitive">False</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
