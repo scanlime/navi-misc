@@ -20,7 +20,8 @@ OBJS    = \
 	src/histogram-imager.o	\
 	src/parameter-holder.o	\
 	src/bifurcation-diagram.o \
-	src/math-util.o
+	src/math-util.o		\
+	src/avi-writer.o
 
 
 $(BIN): $(OBJS)
