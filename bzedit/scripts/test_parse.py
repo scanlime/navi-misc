@@ -19,6 +19,6 @@
 import BZFlag
 
 reader = BZFlag.Reader()
-x = reader.parse('../decks')
+x = reader.parse('../river.bzw')
 for object in x:
     print object

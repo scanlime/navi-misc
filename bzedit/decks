@@ -1,5 +1,10 @@
 # Copyright (c) 2001 Michael Rodgers
 
+options
+    -j -fb
+    -srvmsg "this is the end"
+  end
+
 #------------------steps up to teleporter 0
 
 box
