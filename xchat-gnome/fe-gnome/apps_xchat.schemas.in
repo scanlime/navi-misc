@@ -61,7 +61,7 @@
     <!-- away message -->
     <schema>
       <key>/schemas/apps/xchat/irc/awaymsg</key>
-      <applyto>/apps/xchat/irc/awaymsg</key>
+      <applyto>/apps/xchat/irc/awaymsg</applyto>
       <owner>xchat</owner>
       <type>string</type>
       <default>Away</default>
