@@ -164,8 +164,14 @@ class NewRulesetDialog(GladeUI):
         return "\t<return/>\n"
 
     def buildAllProjectsRules(self):
-        """Return a ruleset for showing all projects in IRC"""
-        return "\t<formatter medium='irc'/>\n\t<formatter name='IRCProjectName'/>\n"
+        """Return a ruleset for showing commits from all projects in IRC"""
+        return ("\t<or>\n"
+		"\t\t<find path='/message/body/commit'/>\n"
+		"\t\t<find path='/message/body/colorText'/>\n"
+                "\t</or>\n"
+                "\n"
+                "\t<formatter medium='irc'/>\n"
+                "\t<formatter name='IRCProjectName'/>\n")
 
     def buildSingleProjectRules(self, project):
         """Return a ruleset for showing one project on IRC"""
