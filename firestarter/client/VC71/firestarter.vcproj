@@ -360,9 +360,6 @@
 						RelativePath="..\..\network\enet\inc\enet\types.h">
 					</File>
 					<File
-						RelativePath="..\..\network\enet\inc\enet\unix.h">
-					</File>
-					<File
 						RelativePath="..\..\network\enet\inc\enet\utility.h">
 					</File>
 					<File
