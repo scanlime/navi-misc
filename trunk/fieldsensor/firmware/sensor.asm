@@ -37,7 +37,10 @@
 
 	errorlevel -302			; Disable register page warnings
 
+	global  sensor_init
 	global	sensor_sampler
+	global	sensor_sample_all
+	global	sensor_buffer
 
 ;************************************************** Variables
 
@@ -49,20 +52,79 @@ lc_port_xor		res	1
 period			res	1
 phase			res 1
 period_counter	res 1
-accumulator_num	res 1
+result_num		res 1
 lc_port_buffer  res 1
+
+	; Result buffer
+sensor_buffer	res 8
+
+	; Parameter buffers
+parameter_buffers res .64
+parameter_iter	res 1
+buffer_fsr		res	1
+
+	code
+
+;************************************************** Frontend
+
+	; Clear all parameter buffers and the sensor buffer
+sensor_init
+	movlw	8
+	banksel	parameter_iter
+	movwf	parameter_iter
+	bankisel sensor_buffer
+	movlw	sensor_buffer
+	movwf	FSR
+sensorClearLoop
+	clrf	INDF
+	incf	FSR
+	decfsz	parameter_iter
+	goto	sensorClearLoop
+
+	movlw	64
+	movlw	parameter_iter
+	bankisel parameter_buffers
+	movlw	parameter_buffers
+	movwf	FSR
+paramClearLoop	
+	clrf	INDF
+	incf	FSR
+	decfsz	parameter_iter
+	goto	paramClearLoop
+	return
+	
+	
+	; Runs sensor_sampler on all active parameter blocks in parameter_buffers
+sensor_sample_all
+	movlw	8
+	banksel	parameter_iter
+	movwf	parameter_iter
+	movlw	parameter_buffers
+	movwf	buffer_fsr
+paramBufferLoop
+	bankisel parameter_buffers
+	banksel	buffer_fsr
+	movf	buffer_fsr, w
+	movwf	FSR
+	pagesel	sensor_sampler
+	call	sensor_sampler
+	banksel	buffer_fsr
+	movf	buffer_fsr, w
+	addlw	8
+	movwf	buffer_fsr
+	pagesel	paramBufferLoop
+	decfsz	parameter_iter
+	goto	paramBufferLoop
+	return
 
 ;************************************************** Step 1
 
-	; This is our entry point, it can occur in any code page.
-	; A parameter block as described in efs_protocol.h must be
-	; pointed to by IRP:FSR.
-	code
+	; Sample using a parameter block at IRP:FSR
 sensor_sampler
 
-	movf	INDF, w			; 0. EFS_PARAM_ACCUMULATOR_NUM
-	banksel	accumulator_num
-	movwf	accumulator_num
+	movf	INDF, w			; 0. EFS_PARAM_RESULT_NUM
+	banksel	result_num
+	movwf	result_num
 	incf	FSR, f
 	
 	movf	INDF, w			; 1. EFS_PARAM_LC_PORT_XOR
@@ -86,12 +148,17 @@ sensor_sampler
 
 	movf	INDF, w			; 5. EFS_PARAM_NUM_HALF_PERIODS
 	movwf	period_counter
+	xorlw	0				; Test for zero, disables the whole parameter block
+	btfsc	STATUS, Z
+	return
 	incf	FSR, f
 
 	movf	INDF, w			; 6. EFS_PARAM_LC_TRIS_INIT
 	banksel	TRISB
 	movwf	TRISB
 	incf	FSR, f
+
+	bcf		INTCON, GIE		; From here on, we need interrupts off for precise timing
 
 	movf	INDF, w			; 7. EFS_PARAM_LC_PORT_INIT
 	banksel	lc_port_buffer			; bank 0 (PORTB and all our variables)
@@ -158,6 +225,7 @@ page_4 code
 	; Start the ADC and wait for it to finish conversion
 	banksel ADCON0
 	bsf		ADCON0, GO
+	bcf		INTCON, GIE		; Now that the A/D converter is on, interrupts are fine again
 	pagesel	adFinishLoop
 adFinishLoop
 	btfsc	ADCON0, NOT_DONE
@@ -170,9 +238,17 @@ adFinishLoop
 	banksel	TRISB
 	movwf	TRISB	
 
-	; Return the ADC's result
+	; Store the ADC's result
+	bankisel sensor_buffer
+	banksel	result_num
+	movf	result_num, w
+	andlw	0x07			; Limit to the size of the result buffer
+	addlw	sensor_buffer
+	movwf	FSR
+
 	banksel ADRES
 	movf	ADRES, w
+	movwf	INDF	
 	return
 
 	end
