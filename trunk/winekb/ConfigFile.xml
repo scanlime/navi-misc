@@ -1,6 +1,6 @@
 <?xml-stylesheet href="transform.xml" type="text/xsl"?>
 
-<kbpage title="Config file">
+<kbpage title="Config file" backlink="index">
 
   <section title="What is it?">
     The config file controls Wines operation and lets you set particular settings on a per-app basis.  It's in the
