@@ -659,8 +659,8 @@ class Teleporter(Box):
     def set_rotation(self, degrees=0):
         self.rotation = degrees
 
-    def set_size(self, x=0, y=4.48, z=20.16):
-        self.size = [x,y,z]
+    def set_size(self, x=1, y=4.48, z=20.16):
+        self.size = [1.0,y,z]
 
     def set_border(self, border=1.0):
         self.border = border
