@@ -199,8 +199,8 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 	urls = 0;
 
 	/* Set our prefs from GConf. */
-	history = gconf_client_get_int (client, "/apps/xchat/urlscraper/history", NULL);
-	timestamps = gconf_client_get_bool (client, "/apps/xchat/urlscraper/timestamps", NULL);
+	history = gconf_client_get_int (client, "/apps/xchat/plugins/urlscraper/history", NULL);
+	timestamps = gconf_client_get_bool (client, "/apps/xchat/plugins/urlscraper/timestamps", NULL);
 
 	make_window ();
 
