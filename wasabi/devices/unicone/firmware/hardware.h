@@ -31,6 +31,7 @@
 #define fpga_din_off()      do { MCR &= ~MCR_DTR; } while (0)
 #define fpga_cclk_on()      do { P3_0 = 1;        } while (0)
 #define fpga_cclk_off()     do { P3_0 = 0;        } while (0)
+#define fpga_done()         ((MSR & MSR_LCTS) != 0)
 
 
 #endif /* _H_HARDWARE */
