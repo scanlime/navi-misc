@@ -267,6 +267,23 @@
 </ruleset>
 </ircRuleset>
 
+<ircRuleset channel='#commits-testing' server='irc.gimp.net:6667'>
+<ruleset>
+	<or>
+		<match path='/message/source/project'>gnome</match>
+		<match path='/message/source/project'>gstreamer</match>
+		<match path='/message/source/project'>gaim</match>
+		<match path='/message/source/project'>gphoto</match>
+		<match path='/message/source/project'>gnue</match>
+		<match path='/message/source/project'>gnupdate</match>
+		<match path='/message/source/project'>gcc</match>
+	</or>
+
+	<formatter medium='irc'/>
+	<formatter name='IRCProjectName'/>
+</ruleset>
+</ircRuleset>
+
 <ircRuleset channel='#doi' server='irc.freenode.net:6667'>
 <ruleset>
 	<match path='/message/source/project'>doi</match>
