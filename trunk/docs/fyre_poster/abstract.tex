@@ -48,17 +48,17 @@ a characteristic picture of the map.
 % that crazy crazy color vector, etc
 \section{Exposition}
 Although our software has been tested with several maps, we focus on one
-originally attributed to Peter de Jong:
+attributed to Peter de Jong:
 \begin{eqnarray*}
   x_{n+1} &= \sin (a y_n) - \cos (b x_n) \\
   y_{n+1} &= \sin (c x_n) - \cos (d y_n)
 \end{eqnarray*}
-The initial conditions, $x_0$ and $y_0$ are random. For the vast majority
+The initial conditions $x_0$ and $y_0$ are random. For the vast majority
 of cases, these chaotic maps contain only one strange attractor. No matter
 what initial conditions are chosen, the image will converge towards a
-visualization of that attractor. While there are many maps that behave
+portrait of that attractor. While there are many maps that behave
 chaotically, those that involve transcendental functions like the Peter
-de Jong and Clifford Pickover maps have shown the most interesting behavior.
+de Jong map tend to create the most visually interesting attractors.
 
 Generally the literature discussing these maps is full of black and white
 images, created where each pixel is blackened as the point $(x_n, y_n)$
@@ -66,11 +66,11 @@ moves around the image region. This technique is often sufficient for
 analyzing the structure of a map but does not provide a sound basis for
 the use of the map as an artistic entity. The structure of the attractor
 is only minimally visible using such techniques, because a long iteration
-run will result in a completely black image.
+run will quickly result in a completely black image.
 
 Instead, the entire image region is treated as a two dimensional histogram.
-Unlike previous techniques, where each $x_n$ and $y_n$ plotted or darkened
-a pixel directly, this histogram technique maintains image intensity as
+Unlike previous techniques, where each $x_n$ and $y_n$ plotted by darkening a
+a pixel directly, this histogram technique maintains total image intensity as
 more iterations are performed. As more samples accumulate in the histogram,
 the image simply gets more detailed. Instead of an image containing only a
 few thousand iterations of the map, millions or billions of points can be
