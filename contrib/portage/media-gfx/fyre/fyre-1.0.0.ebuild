@@ -44,11 +44,6 @@ src_unpack() {
 }
 
 src_compile() {
-	# Fyre 0.9 can't find its datadir without binreloc,
-	# and it won't autodetect binreloc-safety correctly
-	# if we're in the sandbox.
-	local myconf="--enable-binreloc"
-
 	use cluster || myconf="${myconf} --disable-gnet"
 	use openexr || myconf="${myconf} --disable-openexr"
 
