@@ -381,45 +381,55 @@ edit_clicked (GtkWidget *button, gpointer data)
 
 	/* servers list */
 	widget = glade_xml_get_widget (gui.xml, "server config servers");
-	store = gtk_list_store_new (1, G_TYPE_STRING);
-	gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (store));
-	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new ();
-	gtk_tree_view_column_pack_start (column, renderer, TRUE);
-	gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
-	gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
-	g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
+	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (widget)));
+	if (store == NULL) {
+		store = gtk_list_store_new (1, G_TYPE_STRING);
+		gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (store));
+		renderer = gtk_cell_renderer_text_new ();
+		column = gtk_tree_view_column_new ();
+		gtk_tree_view_column_pack_start (column, renderer, TRUE);
+		gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
+		gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
+		g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
 
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
-	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK(server_selection_changed), NULL);
+		select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
+		g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK(server_selection_changed), NULL);
 
-	widget = glade_xml_get_widget (gui.xml, "server config add server");
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK(add_server_clicked), NULL);
-	widget = glade_xml_get_widget (gui.xml, "server config remove server");
-	gtk_widget_set_sensitive (widget, FALSE);
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK(remove_server_clicked), NULL);
+		widget = glade_xml_get_widget (gui.xml, "server config add server");
+		g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK(add_server_clicked), NULL);
+		widget = glade_xml_get_widget (gui.xml, "server config remove server");
+		gtk_widget_set_sensitive (widget, FALSE);
+		g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK(remove_server_clicked), NULL);
+	} else {
+		gtk_list_store_clear (store);
+	}
 
 	populate_servers_list (store, net);
 
 	/* channels list */
 	widget = glade_xml_get_widget (gui.xml, "server config channels");
-	store = gtk_list_store_new (1, G_TYPE_STRING);
-	gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (store));
-	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new ();
-	gtk_tree_view_column_pack_start (column, renderer, TRUE);
-	gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
-	gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
-	g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
+	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (widget)));
+	if (store == NULL) {
+		store = gtk_list_store_new (1, G_TYPE_STRING);
+		gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (store));
+		renderer = gtk_cell_renderer_text_new ();
+		column = gtk_tree_view_column_new ();
+		gtk_tree_view_column_pack_start (column, renderer, TRUE);
+		gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
+		gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
+		g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
 
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
-	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (autojoin_selection_changed), NULL);
+		select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
+		g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (autojoin_selection_changed), NULL);
 
-	widget = glade_xml_get_widget (gui.xml, "add autojoin channel");
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (add_autojoin_clicked), NULL);
-	widget = glade_xml_get_widget (gui.xml, "remove autojoin channel");
-	gtk_widget_set_sensitive (widget, FALSE);
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (remove_autojoin_clicked), NULL);
+		widget = glade_xml_get_widget (gui.xml, "add autojoin channel");
+		g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (add_autojoin_clicked), NULL);
+		widget = glade_xml_get_widget (gui.xml, "remove autojoin channel");
+		gtk_widget_set_sensitive (widget, FALSE);
+		g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (remove_autojoin_clicked), NULL);
+	} else {
+		gtk_list_store_clear (store);
+	}
 
 	populate_channels_list (store, net);
 
