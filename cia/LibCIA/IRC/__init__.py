@@ -24,7 +24,6 @@ color formatting, and the irc:// URI handler.
 #
 
 # Convenience imports
-import Bots
 import Handler
 import Formatting
 

@@ -21,12 +21,12 @@ from LibCIA import Debug, Security, RpcServer, RpcClient, Web
 application = service.Application("cia_server")
 hub = Message.Hub()
 
-# A network of IRC bots used to handle irc:// URIs
-botNet = IRC.Bots.BotNetwork(IRC.Bots.SequentialNickAllocator("CIA-"))
+# Connect to IRC bots running in a separate process
+remoteBots = IRC.Handler.RemoteBots("bots.socket")
 
 # Include URI handlers for IRC, and for relaying messages over XML-RPC
 uriRegistry = Ruleset.URIRegistry(
-    IRC.Handler.IrcURIHandler(botNet),
+    IRC.Handler.IrcURIHandler(remoteBots),
     RpcClient.XmlrpcURIHandler(),
     )
 

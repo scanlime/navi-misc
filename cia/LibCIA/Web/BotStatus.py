@@ -25,6 +25,7 @@ import Template, Server, Info
 from LibCIA import TimeUtil
 from Nouvelle import tag, place
 import Nouvelle
+from twisted.internet import defer
 import time
 
 
@@ -32,8 +33,8 @@ class Component(Server.Component):
     """A server component for the IRC bot status section"""
     name = 'IRC Bots'
 
-    def __init__(self, botNet):
-        self.resource = IRCBotPage(botNet)
+    def __init__(self, remoteBots):
+        self.resource = IRCBotPage(remoteBots)
 
     def __contains__(self, page):
         return isinstance(page, IRCBotPage)
@@ -41,109 +42,72 @@ class Component(Server.Component):
 
 class TotalsSection(Template.Section):
     """A Section that displays fun-filled facts about our BotNetwork"""
-    def __init__(self, botNet):
-        self.totalNetworks = 0
-        self.totalBots = 0
-        self.totalChannels = 0
-        self.totalUsers = 0
-        
-        for network in botNet.networks.iterkeys():
-            self.totalNetworks += 1
-            for bot in botNet.networks[network]:
-                self.totalBots += 1
-                self.totalChannels += len(bot.channels)
-
-        self.numRequests = 0
-        self.numUnfulfilled = 0
-        for request in botNet.requests:
-            self.numRequests += 1
-            self.totalUsers += request.getUserCount() or 0
-            if not request.isFulfilled():
-                self.numUnfulfilled += 1
-
     title = "totals"
-    rows = [
-               [
-                   Template.value[ place('totalBots') ],
-                   ' total IRC bots across ',
-                   Template.value[ place('totalNetworks') ],
-                   ' networks, inhabiting ',
-                   Template.value[ place('totalChannels') ],
-                   ' channels with a total of ',
-                   Template.value[ place('totalUsers') ],
-                   ' users.',
-               ],
-               [
-                   Template.value[ place('numRequests') ],
-                   ' requests are currently registered with the bot network. ',
-                   Template.value[ place('numUnfulfilled') ],
-                   ' of these are unfulfilled.',
-               ],
-           ]
+
+    def __init__(self, remoteBots):
+        self.remoteBots = remoteBots
+
+    def render_rows(self, context):
+        if self.remoteBots.botNet:
+            result = defer.Deferred()
+            self.remoteBots.botNet.callRemote("getTotals").addCallback(
+                self._render_rows, result).addErrback(
+                result.errback)
+            return result
+        else:
+            return [
+                Template.error[ "Bot server not available" ]
+                ]
+
+    def _render_rows(self, totals, result):
+        result.callback([
+            [
+                Template.value[ totals['bots'] ],
+                ' total IRC bots across ',
+                Template.value[ totals['networks'] ],
+                ' networks, inhabiting ',
+                Template.value[ totals['channels'] ],
+                ' channels with a total of ',
+                Template.value[ totals['users'] ],
+                ' users.',
+            ],
+            [
+                Template.value[ totals['requests'] ],
+                ' requests are currently registered with the bot network. ',
+                Template.value[ totals['unfulfilled'] ],
+                ' of these are unfulfilled.',
+            ],
+       ])
 
 
-class ListAttributeColumn(Nouvelle.AttributeColumn):
-    """An AttributeColumn that formats lists nicely, and sorts by list length"""
+class ListIndexedColumn(Nouvelle.IndexedColumn):
+    """An IndexedColumn that formats lists nicely, and sorts by list length"""
     def render_data(self, context, obj):
-        l = getattr(obj, self.attribute)
-        return ", ".join(l.iterkeys())
+        return ", ".join(obj[self.index])
 
     def isVisible(self, context):
         return context['table'].reduceColumn(self, max)
 
     def getValue(self, obj):
-        return len(getattr(obj, self.attribute))
+        return len(obj[self.index])
 
 
-class BotStatusColumn(Nouvelle.Column):
-    """Show the fullness status of the bot"""
-    heading = 'status'
-
-    def __init__(self, botNet):
-        self.botNet = botNet
-
-    def getValue(self, bot):
-        indicators = []
-
-        if bot.isFull():
-            indicators.append('full')
-
-        if (not bot.channels) and (not bot.requestedChannels):
-            indicators.append('empty')
-
-        if bot in self.botNet.inactiveBots:
-            timer = self.botNet.inactiveBots[bot]
-            indicators.append('GC in %s' % TimeUtil.formatDuration(timer.getTime() - time.time()))
-
-        return ', '.join(indicators)
-
-
-class LagColumn(Nouvelle.Column):
-    heading = 'lag'
-
-    def getValue(self, bot):
-        return bot.getLag()
-
-    def render_data(self, context, bot):
-        lag = bot.getLag()
+class LagColumn(Nouvelle.IndexedColumn):
+    def render_data(self, context, row):
+        lag = self.getValue(row)
         if lag is None:
             return Template.error["unknown"]
         else:
             return "%.2fs" % lag
 
 
-class BotServerColumn(Nouvelle.Column):
+class BotServerColumn(Nouvelle.IndexedColumn):
     """A column showing the server a bot is connected to.
        For sorting purposes, this returns the network, so
        bots on the same network are grouped together.
        """
-    heading = 'server'
-
-    def getValue(self, bot):
-        return str(bot.network)
-
-    def render_data(self, context, bot):
-        host, port = bot.transport.addr
+    def render_data(self, context, row):
+        network, host, port = self.getValue(row)
         if port == 6667:
             return host
         else:
@@ -154,26 +118,49 @@ class BotsSection(Template.Section):
     """A section holding a table listing all bots"""
     title = 'bots'
 
-    def __init__(self, botNet):
-        self.botNet = botNet
+    def __init__(self, remoteBots):
+        self.remoteBots = remoteBots
 
         self.columns = [
-            BotServerColumn(),
-            Nouvelle.AttributeColumn('nickname', 'nickname'),
-            ListAttributeColumn('channels', 'channels'),
-            ListAttributeColumn('requested', 'requestedChannels'),
-            LagColumn(),
-            BotStatusColumn(botNet),
+            BotServerColumn('server', 0),
+            Nouvelle.IndexedColumn('nickname', 1),
+            ListIndexedColumn('channels', 2),
+            ListIndexedColumn('requested', 3),
+            LagColumn('lag', 4),
+            Nouvelle.IndexedColumn('status', 5),
             ]
 
     def render_rows(self, context):
-        bots = []
-        for networkBots in self.botNet.networks.itervalues():
-            bots.extend(networkBots)
-        if bots:
-            return [Template.Table(bots, self.columns, id='bots')]
+        # First, we need to get a list of bots
+        if self.remoteBots.botNet:
+            result = defer.Deferred()
+            self.remoteBots.botNet.callRemote("getBots").addCallback(
+                self._getBotInfo, result).addErrback(result.errback)
+            return result
         else:
             return []
+
+    def _getBotInfo(self, bots, result):
+        if not bots:
+            result.callback([])
+            return
+
+        deferreds = []
+        for bot in bots:
+            deferreds.append(defer.gatherResults([
+                bot.callRemote("getNetworkInfo"),
+                bot.callRemote("getNickname"),
+                bot.callRemote("getChannels"),
+                bot.callRemote("getRequestedChannels"),
+                bot.callRemote("getLag"),
+                bot.callRemote("getStatusText"),
+                ]))
+
+        defer.gatherResults(deferreds).addCallback(
+            self._render_rows, result).addErrback(result.errback)
+
+    def _render_rows(self, tableRows, result):
+        result.callback([Template.Table(tableRows, self.columns, id='bots')])
 
 
 class OptionalAttributeStringColumn(Nouvelle.AttributeColumn):
@@ -189,37 +176,19 @@ class OptionalAttributeStringColumn(Nouvelle.AttributeColumn):
             return str(value)
 
 
-class RequestBotsColumn(Nouvelle.Column):
-    """A column showing the bots assigned to a particular request"""
-    heading = 'current bots'
-
-    def getValue(self, req):
-        return ", ".join([ bot.nickname for bot in req.bots ])
-
-
-class RequestStatusColumn(Nouvelle.Column):
+class RequestStatusColumn(Nouvelle.IndexedColumn):
     """A column that gives a quick indication of a request's fulfillment status"""
-    heading = 'status'
-
-    def getValue(self, req):
-        return req.isFulfilled()
-
     def render_data(self, context, req):
-        if req.isFulfilled():
+        if self.getValue(req):
             return 'ok'
         else:
             return Template.error["not fulfilled"]
 
 
-class RequestUsersColumn(Nouvelle.Column):
+class RequestUsersColumn(Nouvelle.IndexedColumn):
     """A column that displays the number of users a request serves"""
-    heading = '# of users'
-
-    def getValue(self, req):
-        return req.getUserCount()
-
-    def render_data(self, context, req):
-        uc = req.getUserCount()
+    def render_data(self, context, row):
+        uc = self.getValue(row)
         if uc is None:
             return Template.error["unavailable"]
         else:
@@ -227,60 +196,7 @@ class RequestUsersColumn(Nouvelle.Column):
 
     def cmp(self, a, b):
         # Reverse sort
-        return cmp(b.getUserCount(), a.getUserCount())
-
-
-class DateColumn(Nouvelle.AttributeColumn):
-    """An AttributeColumn that formats unix-style timestamps as dates"""
-    def render_data(self, context, message):
-        return TimeUtil.formatDate(self.getValue(message))
-
-
-class MessageBotColumn(Nouvelle.Column):
-    """Shows the name of the bot that received a particular message in the message log"""
-    heading = 'bot'
-
-    def getValue(self, msg):
-        return msg.bot.nickname
-
-
-class MessageNetworkColumn(Nouvelle.Column):
-    """Shows the name of the network a bot is on"""
-    heading = 'network'
-
-    def getValue(self, msg):
-        return str(msg.bot.factory.network)
-
-
-class MessageParamsColumn(Nouvelle.Column):
-    """Shows the parameters associated with one logged message"""
-    heading = 'parameters'
-
-    def getValue(self, msg):
-        return repr(msg.params)[1:-1]
-
-
-class MessageLogSection(Template.Section):
-    """A section listing recent unknown IRC messages, including errors"""
-    title = 'recent unhandled messages'
-
-    columns = [
-        DateColumn('time', 'timestamp'),
-        MessageBotColumn(),
-        MessageNetworkColumn(),
-        Nouvelle.AttributeColumn('code', 'command'),
-        MessageParamsColumn(),
-       ]
-
-    def __init__(self, botNet):
-        self.botNet = botNet
-
-    def render_rows(self, context):
-        messages = self.botNet.unknownMessageLog.buffer
-        if messages:
-            return [Template.Table(messages, self.columns, id='msglog')]
-        else:
-            return []
+        return cmp(self.getValue(b), self.getValue(a))
 
 
 class RequestsSection(Template.Section):
@@ -288,22 +204,54 @@ class RequestsSection(Template.Section):
     title = 'requests'
 
     columns = [
-        OptionalAttributeStringColumn('channel', 'channel'),
-        OptionalAttributeStringColumn('network', 'network'),
-        OptionalAttributeStringColumn('# of bots', 'numBots'),
-        RequestStatusColumn(),
-        RequestUsersColumn(),
-        RequestBotsColumn(),
-       ]
+        Nouvelle.IndexedColumn('channel', 0),
+        Nouvelle.IndexedColumn('network', 1),
+        Nouvelle.IndexedColumn('# of bots', 2),
+        RequestStatusColumn('status', 3),
+        RequestUsersColumn('users', 4),
+        ListIndexedColumn('current bots', 5),
+        ]
 
-    def __init__(self, botNet):
-        self.botNet = botNet
+    def __init__(self, remoteBots):
+        self.remoteBots = remoteBots
 
     def render_rows(self, context):
-        if self.botNet.requests:
-            return [Template.Table(self.botNet.requests, self.columns, id='requests')]
+        # First, we need to get a list of request instances
+        if self.remoteBots.botNet:
+            result = defer.Deferred()
+            self.remoteBots.botNet.callRemote("getRequests").addCallback(
+                self._getRequestInfo, result).addErrback(result.errback)
+            return result
         else:
             return []
+
+    def _getRequestInfo(self, requests, result):
+        if not requests:
+            result.callback([])
+            return
+
+        deferreds = []
+        for request in requests.itervalues():
+            deferreds.append(defer.gatherResults([
+                request.callRemote("getChannel"),
+                request.callRemote("getNetworkName"),
+                request.callRemote("getNumBots"),
+                request.callRemote("isFulfilled"),
+                request.callRemote("getUserCount"),
+                request.callRemote("getBotNicks"),
+                ]))
+
+        defer.gatherResults(deferreds).addCallback(
+            self._render_rows, result).addErrback(result.errback)
+
+    def _render_rows(self, tableRows, result):
+        result.callback([Template.Table(tableRows, self.columns, id='requests')])
+
+
+class TimeRemainingColumn(Nouvelle.IndexedColumn):
+    """An indexed column that shows the amount of time remaining until the given timestamp"""
+    def render_data(self, context, row):
+        return TimeUtil.formatDuration(self.getValue(row) - time.time())
 
 
 class NewBotsSection(Template.Section):
@@ -312,20 +260,64 @@ class NewBotsSection(Template.Section):
 
     columns = [
         Nouvelle.IndexedColumn('connecting to...', 0),
-        Nouvelle.IndexedColumn('time remaining', 1),
+        TimeRemainingColumn('time remaining', 1),
        ]
 
-    def __init__(self, botNet):
-        self.botNet = botNet
+    def __init__(self, remoteBots):
+        self.remoteBots = remoteBots
 
     def render_rows(self, context):
-        newBots = []
-        for network, timer in self.botNet.newBotNetworks.iteritems():
-            newBots.append((str(network), TimeUtil.formatDuration(timer.getTime() - time.time())))
-        if newBots:
-            return [Template.Table(newBots, self.columns, id='newBots')]
+        if self.remoteBots.botNet:
+            result = defer.Deferred()
+            self.remoteBots.botNet.callRemote("getNewBots").addCallback(
+                self._render_rows, result).addErrback(result.errback)
+            return result
         else:
             return []
+
+    def _render_rows(self, rows, result):
+        if rows:
+            result.callback([Template.Table(rows, self.columns, id='newBots')])
+        else:
+            result.callback([])
+
+
+class DateColumn(Nouvelle.IndexedColumn):
+    """An IndexedColumn that formats unix-style timestamps as dates"""
+    def render_data(self, context, message):
+        return TimeUtil.formatDate(self.getValue(message))
+
+
+class MessageLogSection(Template.Section):
+    """A section listing recent unknown IRC messages, including errors"""
+    title = 'recent unhandled messages'
+
+    columns = [
+        DateColumn('time', 0),
+        Nouvelle.IndexedColumn('bot', 1),
+        Nouvelle.IndexedColumn('network', 2),
+        Nouvelle.IndexedColumn('code', 3),
+        Nouvelle.IndexedColumn('parameters', 4),
+        ]
+
+    def __init__(self, remoteBots):
+        self.remoteBots = remoteBots
+
+    def render_rows(self, context):
+        # Retrieve the message buffer
+        if self.remoteBots.botNet:
+            result = defer.Deferred()
+            self.remoteBots.botNet.callRemote("getMessageLog").addCallback(
+                self._render_rows, result).addErrback(result.errback)
+            return result
+        else:
+            return []
+
+    def _render_rows(self, buffer, result):
+        if buffer:
+            result.callback([Template.Table(buffer, self.columns, id='msglog')])
+        else:
+            result.callback([])
 
 
 class IRCBotPage(Template.Page):
@@ -333,20 +325,20 @@ class IRCBotPage(Template.Page):
     mainTitle = "IRC Bot Status"
     subTitle = "When you give a mouse a cookie, everything looks like a nail"
 
-    def __init__(self, botNet):
-        self.botNet = botNet
+    def __init__(self, remoteBots):
+        self.remoteBots = remoteBots
 
     def render_mainColumn(self, context):
         return [
-            BotsSection(self.botNet),
-            NewBotsSection(self.botNet),
-            MessageLogSection(self.botNet),
-            RequestsSection(self.botNet),
+            BotsSection(self.remoteBots),
+            NewBotsSection(self.remoteBots),
+            MessageLogSection(self.remoteBots),
+            RequestsSection(self.remoteBots),
             ]
 
     def render_leftColumn(self, context):
         return [
-            TotalsSection(self.botNet),
+            TotalsSection(self.remoteBots),
             Info.Clock(),
             ]
 

@@ -29,7 +29,8 @@ from twisted.internet import protocol, reactor, defer
 from twisted.python import log, util
 from twisted.spread import pb
 import time, random
-import Network
+from LibCIA import TimeUtil
+from LibCIA.IRC import Network
 
 
 class Request(pb.Referenceable):
@@ -110,8 +111,38 @@ class Request(pb.Referenceable):
     def remote_getBots(self):
         return self.bots
 
+    def remote_getNumBots(self):
+        return self.numBots
+
+    def remote_getBotNicks(self):
+        return [bot.nickname for bot in self.bots]
+
+    def remote_isFulfilled(self):
+        return self.isFulfilled()
+
+    def remote_getChannel(self):
+        return self.channel
+
+    def remote_getNetworkName(self):
+        return str(self.network)
+
     def remote_getUserCount(self):
         return self.getUserCount()
+
+    def remote_msg(self, target, line):
+        """Use an arbitrary bot in this request to send a message to a
+           supplied target (channel or nickname). Currently this always
+           uses the first bot if possible and ignores the request if no
+           bots are available, but it may be extended later to support
+           queueing and load balancing.
+           """
+        if self.bots:
+            self.bots[0].msg(target, line)
+
+    def remote_msgList(self, target, lines):
+        """Send multiple msg()es"""
+        for line in lines:
+            self.remote_msg(target, line)
 
 
 class NickAllocator:
@@ -175,28 +206,16 @@ class RandomAcronymNickAllocator(NickAllocator):
             yield "".join([random.choice(self.alphabet) for i in xrange(self.length)])
 
 
-class UnknownMessage:
-    """An entry in the UnknownMessageLog"""
-    def __init__(self, bot, prefix, command, params):
-        self.bot = bot
-        self.prefix = prefix
-        self.command = command
-        self.params = params
-        self.timestamp = time.time()
 
-
-class UnknownMessageLog:
-    """Temporarily logs unknown IRC messages, possibly errors, received by the bots"""
+class MessageLog:
+    """A log that stores a fixed number of messages"""
     numMessages = 20
 
     def __init__(self):
         self.buffer = []
 
-    def log(self, unknownMessage):
-        self.buffer = self.buffer[-self.numMessages:] + [unknownMessage]
-        log.msg("%r received unknown IRC command %s: %r" % (unknownMessage.bot,
-                                                            unknownMessage.command,
-                                                            unknownMessage.params))
+    def log(self, message):
+        self.buffer = self.buffer[-self.numMessages:] + [message]
 
 
 class BotNetwork(pb.Root):
@@ -224,7 +243,7 @@ class BotNetwork(pb.Root):
     def __init__(self, nickAllocator):
         self.nickAllocator = nickAllocator
         self.requests = []
-        self.unknownMessageLog = UnknownMessageLog()
+        self.unknownMessageLog = MessageLog()
 
         # A map from Network to list of Bots
         self.networks = {}
@@ -255,12 +274,8 @@ class BotNetwork(pb.Root):
             if bot.nickname == nickname:
                 return bot
 
-    def findRequest(self, host, channel=None, port=None):
-        """Find a request matching the given host, port, and channel.
-           This is mostly for use with the debug console, hence it taking
-           a host and port for convenience rather than a BaseNetwork instance.
-           """
-        network = Network.find(host, port)
+    def findRequest(self, network, channel):
+        """Find a request matching the given network, and channel"""
         for req in self.requests:
             if req.network == network and req.channel == channel:
                 return req
@@ -429,12 +444,66 @@ class BotNetwork(pb.Root):
         # FIXME: remove the ruleset
         pass
 
-    def remote_createRequest(self, host, port, channel):
+    def remote_findRequest(self, host, port, channel, create=True):
+        """Find and return a request, optionally creating it if necessary"""
         network = Network.find(host, port)
-        return Request(self, network, channel)
+        r = self.findRequest(network, channel)
+        if r:
+            return r
+        elif create:
+            return Request(self, network, channel)
+        else:
+            return None
 
     def remote_getRequests(self):
-        return self.requests
+        """Return a dictionary mapping (host, port, channel) to request instances"""
+        d = {}
+        for request in self.requests:
+            d[ request.network.getIdentity() + (request.channel,) ] = request
+        return d
+
+    def remote_getTotals(self):
+        """Return a dictionary of impressive-looking totals related to the bots"""
+        totals = dict(
+            networks = 0,
+            bots = 0,
+            channels = 0,
+            users = 0,
+            requests = 0,
+            unfulfilled = 0,
+            )
+
+        for network in self.networks.iterkeys():
+            totals['networks'] += 1
+            for bot in self.networks[network]:
+                totals['bots'] += 1
+                totals['channels'] += len(bot.channels)
+
+        for request in self.requests:
+            totals['requests'] += 1
+            totals['users'] += request.getUserCount() or 0
+            if not request.isFulfilled():
+                totals['unfulfilled'] += 1
+
+        return totals
+
+    def remote_getBots(self):
+        bots = []
+        for networkBots in self.networks.itervalues():
+            bots.extend(networkBots)
+        return bots
+
+    def remote_getMessageLog(self):
+        return self.unknownMessageLog.buffer
+
+    def remote_getNewBots(self):
+        """Return a list of bots that are currently trying to
+           connect, represented as (network, deadline) tuples.
+           """
+        newBots = []
+        for network, timer in self.newBotNetworks.iteritems():
+            newBots.append((str(network), timer.getTime()))
+        return newBots
 
 
 class ChannelInfo:
@@ -793,7 +862,16 @@ class Bot(irc.IRCClient, pb.Referenceable):
            """
         if command in self.ignoredCommands:
             return
-        self.factory.botNet.unknownMessageLog.log(UnknownMessage(self, prefix, command, params))
+
+        log.msg("%r received unknown IRC command %s: %r" % (self, command, params))
+
+        self.factory.botNet.unknownMessageLog.log((
+            time.time(),
+            self.nickname,
+            str(self.network),
+            command,
+            repr(params)[1:-1],
+            ))
 
     def topicUpdated(self, user, channel, newTopic):
         self.channels[channel].topic = newTopic
@@ -871,17 +949,58 @@ class Bot(irc.IRCClient, pb.Referenceable):
     def remote_msg(self, target, text):
         self.msg(target, text)
 
-    def remote_getNick(self):
+    def remote_getNickname(self):
         return self.nickname
 
-    def remote_getNetworkName(self):
-        return str(self.network)
+    def remote_getChannels(self):
+        return self.channels.keys()
+
+    def remote_getRequestedChannels(self):
+        # Convert from an InsensitiveDict to a normal one
+        return self.requestedChannels.keys()
+
+    def remote_getNetworkInfo(self):
+        """Returns a (networkName, host, port) tuple"""
+        host, port = self.transport.addr
+        return (str(self.network), host, port)
 
     def remote_repr(self):
         return repr(self)
 
     def remote_getConnectTimestamp(self):
         return self.connectTimestamp
+
+    def remote_getInactivity(self):
+        """If this bot is inactive, returns the time at which it will be garbage
+           collected. If not, returns None.
+           """
+        if self in self.botNet.inactiveBots:
+            return self.botNet.inactiveBots[self].getTime()
+
+    def remote_isFull(self):
+        return self.isFull()
+
+    def remote_isEmpty(self):
+        return (not self.channels) and (not self.requestedChannels)
+
+    def remote_getStatusText(self):
+        """Get a textual description of this bot's status"""
+        indicators = []
+
+        if self.remote_isFull():
+            indicators.append('full')
+
+        if self.remote_isEmpty():
+            indicators.append('empty')
+
+        timer = self.remote_getInactivity()
+        if timer:
+            indicators.append('GC in %s' % TimeUtil.formatDuration(timer - time.time()))
+
+        return ', '.join(indicators)
+
+    def remote_getLag(self):
+        return self.getLag()
 
 
 class BotFactory(protocol.ClientFactory):
