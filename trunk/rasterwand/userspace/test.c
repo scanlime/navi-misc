@@ -48,6 +48,13 @@ void control_read(usb_dev_handle *d, int request, unsigned char* buffer, int byt
   }
 }
 
+unsigned char control_read_byte(usb_dev_handle *d, int request) {
+  unsigned char b;
+  control_read(d, request, &b, 1);
+  return b;
+}
+
+
 void read_prediction_status(usb_dev_handle *d, struct prediction_status *status) {
   unsigned char packet[5];
   control_read(d, RWAND_CTRL_READ_PREDICTION, packet, sizeof(packet));
@@ -78,7 +85,7 @@ void unstall(usb_dev_handle *d) {
   int unstall_edges = 0;
   struct prediction_status predicted, last_predicted;
 
-  printf("Stalled. Trying to restart...\n");
+  printf("Possibly stalled, trying to restart...\n");
 
   read_prediction_status(d, &last_predicted);
   predicted = last_predicted;
@@ -151,23 +158,18 @@ int main(int argc, char **argv) {
   usb_dev_handle *d;
   struct prediction_status predicted, last_predicted;
   int last_period = 0;
-  time_t last_edge_timestamp = time(NULL);
+  time_t last_edge_timestamp;
   unsigned char frame[80];
-  memset(&predicted, 0, sizeof(predicted));
 
   if (!(d = open_rwand()))
     return 1;
 
-  control_write(d, RWAND_CTRL_SET_MODES,
-		RWAND_MODE_ENABLE_SYNC |
-		RWAND_MODE_ENABLE_COIL |
-		//RWAND_MODE_COIL_DEBUG |
-		RWAND_MODE_ENABLE_DISPLAY |
-		0,
-		0);
-
   read_image(frame, "test-image.pgm");
   refresh_display(d, frame);
+
+  /* start out stalled, so we can verify our current status */
+  last_edge_timestamp = 0;
+  read_prediction_status(d, &predicted);
 
   while (1) {
     /* Read the current period prediction, calculate the frequency.
@@ -175,10 +177,9 @@ int main(int argc, char **argv) {
      */
     last_predicted = predicted;
     read_prediction_status(d, &predicted);
-    printf("Wand period: %d (%.02f Hz)\tPhase: %d\n",
-	   predicted.period,
+    printf("%.02f Hz    Buttons: 0x%02X\n",
 	   1/(predicted.period * 16 / 6000000.0),
-	   predicted.phase);
+	   control_read_byte(d, RWAND_CTRL_CHECK_BUTTONS));
 
     /* Have we had any synchronization edges this time? */
     if (predicted.edge_count != last_predicted.edge_count)
@@ -186,8 +187,15 @@ int main(int argc, char **argv) {
 
     /* If it's been a while since we've seen a sync edge, conclude we're stalled */
     if (time(NULL) > last_edge_timestamp + 1) {
-      //      unstall(d);
+      control_write(d, RWAND_CTRL_SET_MODES,
+		    RWAND_MODE_ENABLE_SYNC |
+		    RWAND_MODE_ENABLE_COIL, 0);
+      unstall(d);
       last_edge_timestamp = time(NULL);
+      control_write(d, RWAND_CTRL_SET_MODES,
+		    RWAND_MODE_ENABLE_SYNC |
+		    RWAND_MODE_ENABLE_COIL |
+		    RWAND_MODE_ENABLE_DISPLAY, 0);
     }
 
     /* update coil driver phase */
@@ -196,14 +204,18 @@ int main(int argc, char **argv) {
     /* Update display phase and column width */
     update_display_timing(d, &predicted, 0.5, 0.75);
 
-    if (0) {
-      int i;
-      for (i=0; i<80; i++)
-	frame[i] = random();
+    /* If our last page flip has finished, write another frame */
+    if (!control_read_byte(d, RWAND_CTRL_CHECK_FLIP)) {
+      static float t = 0;
+      int i, y;
+      for (i=0; i<80; i++) {
+	y = sin(t + i * 0.2) * 3.99 + 4;
+	frame[i] = 1<<y;
+      }
+      t+=0.4;
       refresh_display(d, frame);
+      control_write(d, RWAND_CTRL_FLIP, 0, 0);
     }
-
-    usleep(50000);
   }
 
   return 0;
