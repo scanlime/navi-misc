@@ -13,9 +13,9 @@ import java.io.*;
 
 public class net
 {
-	public static Socket link;
-	public static BufferedReader in;
-	public static OutputStreamWriter out;
+	private static Socket link;
+	private static BufferedReader in;
+	private static OutputStreamWriter out;
 	
 	/**
 	 * This method opens a connection and takes care of all the pre/post 
