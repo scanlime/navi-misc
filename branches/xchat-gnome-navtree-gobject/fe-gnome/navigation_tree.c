@@ -362,9 +362,28 @@ navigation_tree_select_next_network (NavTree *navtree)
 }
 
 /* Misc. Functions. */
+static gboolean
+navigation_tree_set_channel_name_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+	gpointer s;
+	gtk_tree_model_get(model, iter, 2, &s, -1);
+	if(s == data) {
+		struct session *sess = s;
+		gtk_tree_store_set(GTK_TREE_STORE(model), iter, 1, (sess->channel), 4, NULL, -1);
+		return TRUE;
+	}
+	return FALSE;
+}
+
 void
-navigation_tree_set_channel_name (NavTree *navtree, struct session *sess)
-{ /* FIXME: Implement. */
+navigation_tree_set_channel_name(NavTree *navtree, struct session *sess)
+{
+	GtkTreeModel *store, *model;
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
+	store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
+
+	gtk_tree_model_foreach(store, navigation_tree_set_channel_name_iterate, sess);
 }
 
 void
