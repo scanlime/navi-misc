@@ -1714,7 +1714,7 @@
 			      <property name="spacing">6</property>
 
 			      <child>
-				<widget class="GtkLabel" id="label80">
+				<widget class="GtkLabel" id="color label 1">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">Built-_in schemes:</property>
 				  <property name="use_underline">True</property>
@@ -1762,7 +1762,7 @@
 			      <property name="spacing">6</property>
 
 			      <child>
-				<widget class="GtkLabel" id="label84">
+				<widget class="GtkLabel" id="color label 2">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">_Text color:</property>
 				  <property name="use_underline">True</property>
@@ -1801,7 +1801,7 @@
 			      <property name="spacing">6</property>
 
 			      <child>
-				<widget class="GtkLabel" id="label85">
+				<widget class="GtkLabel" id="color label 3">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">_Background color:</property>
 				  <property name="use_underline">True</property>
@@ -1840,7 +1840,7 @@
 			      <property name="spacing">6</property>
 
 			      <child>
-				<widget class="GtkLabel" id="label86">
+				<widget class="GtkLabel" id="color label 4">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">_Foreground mark color:</property>
 				  <property name="use_underline">True</property>
@@ -1879,7 +1879,7 @@
 			      <property name="spacing">6</property>
 
 			      <child>
-				<widget class="GtkLabel" id="label87">
+				<widget class="GtkLabel" id="color label 5">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">Background _mark color:</property>
 				  <property name="use_underline">True</property>
@@ -2007,7 +2007,7 @@
 			      <property name="spacing">6</property>
 
 			      <child>
-				<widget class="GtkLabel" id="label81">
+				<widget class="GtkLabel" id="color label 6">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">Built-in _schemes:</property>
 				  <property name="use_underline">True</property>
@@ -2055,7 +2055,7 @@
 			      <property name="spacing">6</property>
 
 			      <child>
-				<widget class="GtkLabel" id="label83">
+				<widget class="GtkLabel" id="color label 7">
 				  <property name="visible">True</property>
 				  <property name="label" translatable="yes">Color _palette:</property>
 				  <property name="use_underline">True</property>
