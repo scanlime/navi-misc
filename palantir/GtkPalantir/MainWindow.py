@@ -29,9 +29,9 @@ import string, gtk, gtk.glade, gobject
 from ChatBuffer import ChatBuffer
 from CharacterSheet import CharacterSheet
 from PrefDialog import PrefDialog
-from Palantir import Palantir
-from Palantir.Factory import Factory
-from Palantir.DieRoller import DieRoller
+from Common import Palantir
+from Common.Factory import Factory
+from Common.DieRoller import DieRoller
 
 from twisted.internet import reactor
 

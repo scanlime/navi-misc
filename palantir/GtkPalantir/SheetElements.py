@@ -21,7 +21,7 @@ widgets.
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import gtk, re, traceback, string
-from Palantir.Character import Character
+from Common.Character import Character
 from random import randint
 
 class sheetElement:
