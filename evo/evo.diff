@@ -1,182 +1,154 @@
-? calendar/gui/apps_evolution_calendar-2.2.schemas
-? calendar/gui/dialogs/.calendar-setup.c.swp
-? help/C/evolution-2.2-C.omf
-? help/C/evolution-2.2.xml
-? mail/evolution-mail-2.2.schemas
-Index: calendar/gui/migration.c
+? plugin.mk
+? plugins
+? calendar/gui/e-cal-config.c
+? calendar/gui/e-cal-config.h
+? calendar/gui/dialogs/cal-properties.c
+? calendar/gui/dialogs/cal-properties.h
+Index: Makefile.am
 ===================================================================
-RCS file: /cvs/gnome/evolution/calendar/gui/migration.c,v
-retrieving revision 1.31
-diff -u -r1.31 migration.c
---- calendar/gui/migration.c	28 Sep 2004 15:57:33 -0000	1.31
-+++ calendar/gui/migration.c	30 Sep 2004 11:02:07 -0000
-@@ -366,6 +366,7 @@
- #define WEBCAL_BASE_URI "webcal://"
- #define CONTACTS_BASE_URI "contacts://"
- #define BAD_CONTACTS_BASE_URI "contact://"
-+#define WEATHER_BASE_URI "weather://"
- #define PERSONAL_RELATIVE_URI "system"
+RCS file: /cvs/gnome/evolution/Makefile.am,v
+retrieving revision 1.96
+diff -u -r1.96 Makefile.am
+--- Makefile.am	12 Feb 2004 20:16:13 -0000	1.96
++++ Makefile.am	14 Oct 2004 07:36:53 -0000
+@@ -48,7 +48,8 @@
+ 	views			\
+ 	tools			\
+ 	help			\
+-	po
++	po			\
++	plugins
  
- static ESourceGroup *
-@@ -394,7 +395,8 @@
- 			 ESourceGroup **on_this_computer,
- 			 ESource **personal_source,
- 			 ESourceGroup **on_the_web,
--			 ESourceGroup **contacts)
-+			 ESourceGroup **contacts,
-+			 ESourceGroup **weather)
- {
- 	GSList *groups;
- 	ESourceGroup *group;
-@@ -487,7 +489,14 @@
  
- 		*contacts = group;
- 	}
+ # CDE Stuff
+Index: configure.in
+===================================================================
+RCS file: /cvs/gnome/evolution/configure.in,v
+retrieving revision 1.722
+diff -u -r1.722 configure.in
+--- configure.in	1 Oct 2004 19:39:05 -0000	1.722
++++ configure.in	14 Oct 2004 07:36:54 -0000
+@@ -1277,6 +1277,9 @@
+ plugindir="$privlibdir/plugins"
+ AC_SUBST(plugindir)
+ 
++EVO_PLUGIN_RULE=$srcdir/plugin.mk
++AC_SUBST_FILE(EVO_PLUGIN_RULE)
++
+ idldir="$datadir/idl/evolution-$BASE_VERSION"
+ AC_SUBST(idldir)
+ 
+@@ -1514,6 +1517,8 @@
+ smime/lib/Makefile
+ smime/gui/Makefile
+ tools/Makefile
++plugins/Makefile
++plugins/com-novell-calendar-http/Makefile
+ evolution-shell.pc
+ camel.pc
+ ])
+Index: calendar/gui/Makefile.am
+===================================================================
+RCS file: /cvs/gnome/evolution/calendar/gui/Makefile.am,v
+retrieving revision 1.298
+diff -u -r1.298 Makefile.am
+--- calendar/gui/Makefile.am	6 Oct 2004 03:22:38 -0000	1.298
++++ calendar/gui/Makefile.am	14 Oct 2004 07:36:54 -0000
+@@ -59,6 +59,11 @@
+ 
+ component_LTLIBRARIES = libevolution-calendar.la
+ 
++ecalendarincludedir = $(privincludedir)/calendar/gui
++
++ecalendarinclude_HEADERS =	\
++	e-cal-config.h
++
+ INCLUDES =						\
+ 	-DG_LOG_DOMAIN=\"calendar-gui\"			\
+ 	-I$(top_builddir)/shell				\
+@@ -115,6 +120,8 @@
+ 	e-alarm-list.h				\
+ 	e-cal-component-preview.c		\
+ 	e-cal-component-preview.h		\
++	e-cal-config.c				\
++	e-cal-config.h				\
+ 	e-cal-model-calendar.h			\
+ 	e-cal-model-calendar.c			\
+ 	e-cal-model-calendar.h			\
+Index: calendar/gui/calendar-component.c
+===================================================================
+RCS file: /cvs/gnome/evolution/calendar/gui/calendar-component.c,v
+retrieving revision 1.185
+diff -u -r1.185 calendar-component.c
+--- calendar/gui/calendar-component.c	7 Oct 2004 01:42:50 -0000	1.185
++++ calendar/gui/calendar-component.c	14 Oct 2004 07:36:54 -0000
+@@ -46,6 +46,7 @@
+ #include "comp-util.h"
+ #include "common/authentication.h"
+ #include "dialogs/calendar-setup.h"
++#include "dialogs/cal-properties.h"
+ #include "dialogs/comp-editor.h"
+ #include "dialogs/copy-source-dialog.h"
+ #include "dialogs/event-editor.h"
+@@ -54,6 +55,7 @@
+ #include "widgets/misc/e-error.h"
+ #include "e-util/e-icon-factory.h"
+ #include "e-cal-popup.h"
++#include "e-cal-config.h"
+ 
+ /* IDs for user creatable items */
+ #define CREATE_EVENT_ID        "event"
+@@ -375,7 +377,7 @@
+ 	if (!selected_source)
+ 		return;
+ 
+-	calendar_setup_edit_calendar (GTK_WINDOW (gtk_widget_get_toplevel(ep->target->widget)), selected_source);
++	ec_calendar_properties_show (GTK_WINDOW (gtk_widget_get_toplevel (ep->target->widget)), selected_source);
+ }
+ 
+ static EPopupItem ecc_source_popups[] = {
+@@ -1182,6 +1184,17 @@
+ }
+ 
+ static void
++cc_startup (CalendarComponent *cc)
++{
++	static int started = 0;
++	if (started)
++		return;
++	started = 1;
++
++	e_plugin_hook_register_type (ec_config_hook_get_type ());
++}
++
++static void
+ impl_createControls (PortableServer_Servant servant,
+ 		     Bonobo_Control *corba_sidebar_control,
+ 		     Bonobo_Control *corba_view_control,
+@@ -1191,7 +1204,9 @@
+ 	CalendarComponent *calendar_component = CALENDAR_COMPONENT (bonobo_object_from_servant (servant));
+ 	CalendarComponentPrivate *priv;
+ 	CalendarComponentView *component_view;
 -	
 +
-+	if (!*weather) {
-+		group = e_source_group_new (_("Weather"), WEATHER_BASE_URI);
-+		e_source_list_add_group (source_list, group, -1);
++	cc_startup (calendar_component);
 +
-+		*weather = group;
-+	}
-+
- 	g_free (base_uri_proto);
- 	g_free (base_uri);
- }
-@@ -699,14 +708,14 @@
- gboolean
- migrate_calendars (CalendarComponent *component, int major, int minor, int revision, GError **err)
- {
--	ESourceGroup *on_this_computer = NULL, *on_the_web = NULL, *contacts = NULL;
-+	ESourceGroup *on_this_computer = NULL, *on_the_web = NULL, *contacts = NULL, *weather = NULL;
- 	ESource *personal_source = NULL;
- 	gboolean retval = FALSE;
+ 	priv = calendar_component->priv;
  
- 	/* we call this unconditionally now - create_groups either
- 	   creates the groups/sources or it finds the necessary
- 	   groups/sources. */
--	create_calendar_sources (component, calendar_component_peek_source_list (component), &on_this_computer, &personal_source, &on_the_web, &contacts);
-+	create_calendar_sources (component, calendar_component_peek_source_list (component), &on_this_computer, &personal_source, &on_the_web, &contacts, &weather);
- 
- 	if (major == 1) {
- 		xmlDocPtr config_doc = NULL;
-@@ -842,6 +851,8 @@
- 		g_object_unref (on_the_web);
- 	if (contacts)
- 		g_object_unref (contacts);
-+	if (weather)
-+		g_object_unref (weather);
- 	if (personal_source)
- 		g_object_unref (personal_source);
- 
-Index: calendar/gui/dialogs/calendar-setup.c
+ 	/* Create the calendar component view */
+Index: calendar/gui/dialogs/Makefile.am
 ===================================================================
-RCS file: /cvs/gnome/evolution/calendar/gui/dialogs/calendar-setup.c,v
-retrieving revision 1.29
-diff -u -r1.29 calendar-setup.c
---- calendar/gui/dialogs/calendar-setup.c	30 Jul 2004 07:37:02 -0000	1.29
-+++ calendar/gui/dialogs/calendar-setup.c	30 Sep 2004 11:02:07 -0000
-@@ -187,12 +187,13 @@
- 	 * silently translate an explicit file:// into http:// though. */
- 	if (uri->protocol &&
- 	    strcmp (uri->protocol, "http") &&
--	    strcmp (uri->protocol, "webcal")) {
-+	    strcmp (uri->protocol, "webcal") &&
-+	    strcmp (uri->protocol, "weather")) {
- 		e_uri_free (uri);
- 
- 		if (interactive)
- 			e_notice (parent, GTK_MESSAGE_ERROR,
--				  _("The source location '%s' is not a webcal source."),
-+				  _("The source location '%s' is not a weather or webcal source."),
- 				  source_location);
- 		return FALSE;
- 	}
-Index: mail/em-filter-i18n.h
-===================================================================
-RCS file: /cvs/gnome/evolution/mail/em-filter-i18n.h,v
-retrieving revision 1.1
-diff -u -r1.1 em-filter-i18n.h
---- mail/em-filter-i18n.h	17 Jun 2004 07:34:49 -0000	1.1
-+++ mail/em-filter-i18n.h	30 Sep 2004 11:02:09 -0000
-@@ -4,36 +4,19 @@
- char *s = N_("Assign Score");
- char *s = N_("Attachments");
- char *s = N_("Beep");
--char *s = N_("contains");
- char *s = N_("Copy to Folder");
- char *s = N_("Date received");
- char *s = N_("Date sent");
- char *s = N_("Delete");
- char *s = N_("Deleted");
--char *s = N_("does not contain");
--char *s = N_("does not end with");
--char *s = N_("does not exist");
--char *s = N_("does not return");
--char *s = N_("does not sound like");
--char *s = N_("does not start with");
- char *s = N_("Do Not Exist");
- char *s = N_("Draft");
--char *s = N_("ends with");
- char *s = N_("Exist");
--char *s = N_("exists");
- char *s = N_("Expression");
- char *s = N_("Follow Up");
- char *s = N_("Important");
--char *s = N_("is");
--char *s = N_("is after");
--char *s = N_("is before");
--char *s = N_("is Flagged");
--char *s = N_("is greater than");
--char *s = N_("is less than");
--char *s = N_("is not");
--char *s = N_("is not Flagged");
--char *s = N_("Junk");
- char *s = N_("Junk Test");
-+char *s = N_("Junk");
- char *s = N_("Label");
- char *s = N_("Mailing list");
- char *s = N_("Message Body");
-@@ -47,19 +30,36 @@
- char *s = N_("Recipients");
- char *s = N_("Regex Match");
- char *s = N_("Replied to");
--char *s = N_("returns");
--char *s = N_("returns greater than");
--char *s = N_("returns less than");
- char *s = N_("Run Program");
- char *s = N_("Score");
- char *s = N_("Sender");
- char *s = N_("Set Status");
- char *s = N_("Size (kB)");
--char *s = N_("sounds like");
- char *s = N_("Source Account");
- char *s = N_("Specific header");
--char *s = N_("starts with");
- char *s = N_("Status");
- char *s = N_("Stop Processing");
- char *s = N_("Subject");
- char *s = N_("Unset Status");
-+char *s = N_("contains");
-+char *s = N_("does not contain");
-+char *s = N_("does not end with");
-+char *s = N_("does not exist");
-+char *s = N_("does not return");
-+char *s = N_("does not sound like");
-+char *s = N_("does not start with");
-+char *s = N_("ends with");
-+char *s = N_("exists");
-+char *s = N_("is Flagged");
-+char *s = N_("is after");
-+char *s = N_("is before");
-+char *s = N_("is greater than");
-+char *s = N_("is less than");
-+char *s = N_("is not Flagged");
-+char *s = N_("is not");
-+char *s = N_("is");
-+char *s = N_("returns greater than");
-+char *s = N_("returns less than");
-+char *s = N_("returns");
-+char *s = N_("sounds like");
-+char *s = N_("starts with");
+RCS file: /cvs/gnome/evolution/calendar/gui/dialogs/Makefile.am,v
+retrieving revision 1.64
+diff -u -r1.64 Makefile.am
+--- calendar/gui/dialogs/Makefile.am	24 Jun 2004 21:02:09 -0000	1.64
++++ calendar/gui/dialogs/Makefile.am	14 Oct 2004 07:36:54 -0000
+@@ -38,6 +38,8 @@
+ 	alarm-list-dialog.h	\
+ 	cal-prefs-dialog.c	\
+ 	cal-prefs-dialog.h	\
++	cal-properties.c	\
++	cal-properties.h	\
+ 	calendar-setup.c	\
+ 	calendar-setup.h	\
+ 	cancel-comp.c		\
