@@ -2,7 +2,10 @@
  * Media Infrawidget 6000 driver
  *
  * This is a module for the Linux kernel, providing a userspace interface
- * as described in mi6k_dev.h to the USB protocol described in mi6k_protocol.h
+ * to the MI6K hardware via the USB protocol described in mi6k_protocol.h.
+ * In addition to the new interfaces described in mi6k_dev.h, this driver
+ * creates an LIRC-compatible device for accessing the MI6K's infrared
+ * transmitter and receiver.
  *
  * Copyright(c) 2003 Micah Dowty <micah@picogui.org>
  *
@@ -80,8 +83,8 @@ static DECLARE_MUTEX(minor_table_mutex);
 /* Wait 1/8 second after powering the VFD on or off */
 #define VFD_POWER_DELAY (HZ / 8)
 
-/* The default major for /dev/lirc */
-#define LIRC_MAJOR              61
+/* Number of minor numbers we use per physical device */
+#define MINORS_PER_DEVICE 2
 
 
 /******************************************************************************/
@@ -124,7 +127,7 @@ static int mi6k_open(struct inode *inode, struct file *file)
 	int subminor;
 	int retval = 0;
 
-	subminor = MINOR(inode->i_rdev) - MI6K_MINOR_BASE;
+	subminor = (MINOR(inode->i_rdev) - MI6K_MINOR_BASE) / MINORS_PER_DEVICE;
 	if ((subminor < 0) ||
 	   (subminor >= MAX_DEVICES)) {
 		return -ENODEV;
@@ -319,6 +322,27 @@ static struct file_operations mi6k_dev_fops = {
 /************************************************** LIRC character device *****/
 /******************************************************************************/
 
+static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, loff_t *ppos)
+{
+	struct usb_mi6k *dev;
+	int retval = 0;
+
+	dev = (struct usb_mi6k *)file->private_data;
+
+	/* lock this object */
+	down (&dev->sem);
+
+	/* verify that the device wasn't unplugged */
+	if (dev->udev == NULL) {
+		up (&dev->sem);
+		return -ENODEV;
+	}
+
+	/* unlock the device */
+	up (&dev->sem);
+	return retval;
+}
+
 static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t count, loff_t *ppos)
 {
 	struct usb_mi6k *dev;
@@ -387,6 +411,7 @@ static struct file_operations mi6k_lirc_fops = {
 	owner:		THIS_MODULE,        /* This automates updating the module's use count */
 
 	write:		mi6k_lirc_write,
+	read:		mi6k_lirc_read,
 	ioctl:		mi6k_lirc_ioctl,
 	open:		mi6k_open,
 	release:	mi6k_release,
@@ -460,25 +485,27 @@ static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const stru
 	sprintf(name, MI6K_DEV_NAMEFORMAT, dev->minor);
 	dev->devfs = devfs_register(usb_devfs_handle, name,
 				     DEVFS_FL_DEFAULT, USB_MAJOR,
-				     MI6K_MINOR_BASE + dev->minor,
+				     MI6K_MINOR_BASE + dev->minor*MINORS_PER_DEVICE,
 				     S_IFCHR | S_IRUSR | S_IWUSR |
 				     S_IRGRP | S_IWGRP | S_IROTH,
 				     &mi6k_dev_fops, NULL);
 	info("MI6K device now attached to %s", name);
 
 	/* Initialize our LIRC-compatible character device */
+	sprintf(name, "lirc%d", dev->minor);
+	dev->lirc_devfs = devfs_register(usb_devfs_handle, name,
+					 DEVFS_FL_DEFAULT, USB_MAJOR,
+					 MI6K_MINOR_BASE + dev->minor*MINORS_PER_DEVICE + 1,
+					 S_IFCHR | S_IRUSR | S_IWUSR |
+					 S_IRGRP | S_IWGRP | S_IROTH,
+					 &mi6k_lirc_fops, NULL);
+
+	/* Automatically add a /dev/lirc symlink if this is the first device */
 	if (dev->minor == 0) {
-		strcpy(name, "lirc");
+	  devfs_handle_t slave;
+	  devfs_mk_symlink(NULL, "lirc", DEVFS_FL_DEFAULT, "usb/lirc0", &slave, NULL);
+	  devfs_auto_unregister(dev->lirc_devfs, slave);
 	}
-	else {
-		sprintf(name, "lirc%d", dev->minor);
-	}
-	dev->devfs = devfs_register(NULL, name,
-				    DEVFS_FL_DEFAULT, LIRC_MAJOR,
-				    dev->minor,
-				    S_IFCHR | S_IRUSR | S_IWUSR |
-				    S_IRGRP | S_IWGRP | S_IROTH,
-				    &mi6k_lirc_fops, NULL);
 
 	goto exit;
 
@@ -532,9 +559,8 @@ static int __init usb_mi6k_init(void)
 		return -1;
 	}
 
-	/* Register the major number for LIRC devices */
-	if (devfs_register_chrdev(LIRC_MAJOR, "mi6k", &mi6k_lirc_fops))
-		err("unable to get major %d for LIRC devices", LIRC_MAJOR);
+	/* Symlink /dev/lirc to /dev/usb/lirc0 */
+	
 
 	info(DRIVER_DESC " " DRIVER_VERSION);
 	return 0;
@@ -544,9 +570,6 @@ static void __exit usb_mi6k_exit(void)
 {
 	/* deregister this driver with the USB subsystem */
 	usb_deregister(&mi6k_driver);
-
-	/* deregister our character device major */
-	devfs_unregister_chrdev(LIRC_MAJOR, "mi6k");
 }
 
 module_init(usb_mi6k_init);
