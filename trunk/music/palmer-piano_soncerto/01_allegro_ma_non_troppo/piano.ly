@@ -194,6 +194,65 @@ mvmtOnePianoSectThreeLeft = \relative b, {
   | cis1
 }
 
+mvmtOnePianoSectFourRight = \relative cis'' {
+  | r2 r4. cis8
+  \time 6/8
+  | cis4. cis4 b8
+  | << { cis4.~ cis4 b8 } \\
+       { r4 b8~ b4 a8 } >>
+  | a4. a4 b8
+  | << { a2. } \\
+       { f4. c4. } >>
+  | b'4. b4 a8
+  | b4. a4 b8
+  | a4. cis16 d e8-. bis-.
+  | cis4. cis4~ cis16 b
+  | << { cis4.~ cis4 d8 } \\
+       { e,4. <d g> } >>
+  | << { cis'4. b4~ b16 b } \\
+       { <cis, fis>4. <dis fis> } >>
+  | << { bis'4.\< bes\! } \\
+       { dis,4. f } >>
+  | << { a4. } \\
+       { e4. } >>
+    #(set-octavation 1)
+    b'''4.
+  | g e
+  #(set-octavation 0)
+  | <bes, ees,> des'
+  | aes ees
+}
+
+mvmtOnePianoSectFourLeft = \relative a {
+  | r1
+  \time 6/8
+  | a8 e' a gis, e' gis
+  | g, e' g fis, e' fis
+  | f, d' f e, d' fis
+  | ees, c' g'~ g f e
+  | dis fis b, d f b,
+  | << { cis e a, c ees gis, } \\
+       { a4. ees } >>
+  | << { b'4. } \\
+       { d,4. } >>
+      \clef treble
+      <d' fis a b>8 <d f a b>-. <d e gis>-.
+  \clef bass
+  | a8 e' a eis, b' gis'
+  | fis, cis' a' e, b' g'
+  | dis, a' fis' a a, dis,
+  | a fis' dis' aes, f' d'
+  | g,, e' cis'
+      \clef treble
+      \appoggiatura b'8 b'4.
+  | \appoggiatura g,8 g'4. \appoggiatura e,8 e'4.
+  \clef bass
+  | aes,,,8 ees' c'
+      \clef treble
+      \appoggiatura des8 des'4.
+  | \appoggiatura aes,8 aes'4. \clef bass \appoggiatura ees,8 ees'4.
+}
+
 mvmtOnePianoRight = {
   \clef treble
   \key b \minor
@@ -203,6 +262,8 @@ mvmtOnePianoRight = {
   R1*8
   \mvmtOnePianoSectTwoRight
   \mvmtOnePianoSectThreeRight
+  R1*8
+  \mvmtOnePianoSectFourRight
 }
 
 mvmtOnePianoLeft = {
@@ -214,4 +275,6 @@ mvmtOnePianoLeft = {
   R1*8
   \mvmtOnePianoSectTwoLeft
   \mvmtOnePianoSectThreeLeft
+  R1*8
+  \mvmtOnePianoSectFourLeft
 }
