@@ -170,6 +170,7 @@ class Viewing:
         self.movieRecorder = None
         self.savedMode = None
         self.frameRateInstrument = None
+        self.cameraInfoInstrument = None
 
         self.view.camera = ThreeDRender.SmoothedCamera()
         view.camera.position = (0, 0, 20)
@@ -179,6 +180,7 @@ class Viewing:
         view.camera.jump()
 
         self.bind(KeyPress, 'f').observe(self.toggleFullscreen)
+        self.bind(KeyPress, 'c').observe(self.toggleCameraInfo)
         self.bind(KeyPress, 'w').observe(self.toggleWireframe)
         self.bind(KeyPress, 'x').observe(self.toggleXRay)
         self.bind(KeyPress, 'r').observe(self.toggleRecorder)
@@ -258,6 +260,15 @@ class Viewing:
             self.frameRateInstrument = None
         else:
             self.frameRateInstrument = Instrument.FrameRate(self.viewport)
+
+    def toggleCameraInfo(self):
+        if self.cameraInfoInstrument:
+            self.cameraInfoInstrument = None
+        else:
+            # The alignment keyword is interpreted by HUD.Text, placing the info at the
+            # bottom-left corner of the screen
+            self.cameraInfoInstrument = Instrument.CameraInfo(self.viewport, self.view.camera,
+                                                              alignment = (0,1))
 
     def quit(self):
         self.viewport.eventLoop.stop()
