@@ -199,7 +199,7 @@ void
 navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess)
 {
 	GtkTreeIter *iter;
-	GtkWidget *menuitem;
+	GtkWidget *menuitem, *button;
 
 	navigation_model_add_new_network (navtree->model, sess);
 
@@ -214,6 +214,8 @@ navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess
 
 	navigation_tree_select_session (navtree, sess);
 
+	button = glade_xml_get_widget (gui.xml, "close discussion");
+	gtk_widget_set_sensitive (button, FALSE);
 	menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionChangeTopicItem");
 	if (menuitem == NULL)
 		g_warning ("can't disable topic change menu item");
@@ -224,7 +226,7 @@ void
 navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess)
 {
 	GtkTreeIter *iter;
-	GtkWidget *menuitem;
+	GtkWidget *menuitem, *button;
 	ircnet *net;
 
 	navigation_model_add_new_channel (navtree->model, sess);
@@ -250,6 +252,9 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 	else
 		rename_main_window (net->name, sess->channel);
 
+	button = glade_xml_get_widget (gui.xml, "close discussion");
+	if (sess->type == SESS_CHANNEL)
+		gtk_widget_set_sensitive (button, TRUE);
 	menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionChangeTopicItem");
 	if (menuitem == NULL)
 		g_warning ("can't access topic change menu item");
@@ -719,6 +724,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	GtkTreeIter iter, newiter;
 	GtkTreeModel *model, *store;
 	GtkTreeView *treeview;
+	GtkWidget *button;
 	gpointer *s;
 	session *sess;
 	session_gui *tgui;
@@ -800,10 +806,11 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 			g_warning ("can't disable topic change menu item");
 		else
 			gtk_widget_set_sensitive (menuitem,sess->type == SESS_CHANNEL);
-/*			if (sess->type == SESS_CHANNEL)
-				gtk_widget_set_sensitive (menuitem, TRUE);
-			else
-				gtk_widget_set_sensitive (menuitem, FALSE);*/
+		button = glade_xml_get_widget (gui.xml, "close discussion");
+		if (sess->type == SESS_CHANNEL)
+			gtk_widget_set_sensitive (button, TRUE);
+		else
+			gtk_widget_set_sensitive (button, FALSE);
 
 		/* remove any icon that exists */
 		store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
