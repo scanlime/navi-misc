@@ -21,6 +21,7 @@ Subclass of BZFlag.Object implementing a Box.
 #
 
 from Object import Object
+import math
 
 class Box(Object):
     type = 'box'
@@ -108,6 +109,30 @@ class Box(Object):
            """
         if not self.world:
             return
+
+        size = list(self.size)
+        position = list(self.position)
+
+        # Fix-up objects with negative scales - upside-down objects
+        # are represented in blender with a positive scale and a rotation
+        if size[2] < 0:
+            size[2] = -size[2]
+            position[2] += size[2]
+
+        mat = Blender.Mathutils.Matrix(
+            [size[0], 0,       0,       0],
+            [0,       size[1], 0,       0],
+            [0,       0,       size[2], 0],
+            [0,       0,       0,       1])
+
+        theta = self.rotation * math.pi / 180.0
+        cos = math.cos(theta)
+        sin = math.sin(theta)
+        mat *= Blender.Mathutils.Matrix(
+            [ cos, sin, 0, 0],
+            [-sin, cos, 0, 0],
+            [ 0,   0,   1, 0],
+            [ 0,   0,   0, 1])
 
     def loadBlenderTransform(self, obj):
         """Retrieves the object's position, size, and rotation
