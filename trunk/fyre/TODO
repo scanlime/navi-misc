@@ -1,1 +1,6 @@
+I really want new stopping conditions, at the very least a way
+    to limit animation frames by wallclock time rather than density.
+    Maybe change "Target density: ___" to smoething of the form "Stop
+    frames at: ______ [density|seconds]"
+
 Get .fa document icon working in linux
