@@ -467,13 +467,7 @@
 		  <signal name="expose_event" handler="on_viewport_expose" last_modification_time="Sun, 15 Feb 2004 07:43:11 GMT"/>
 
 		  <child>
-		    <widget class="GtkDrawingArea" id="main_drawingarea">
-		      <property name="visible">True</property>
-		      <signal name="expose_event" handler="on_expose" last_modification_time="Sun, 15 Feb 2004 05:43:44 GMT"/>
-		      <signal name="motion_notify_event" handler="on_motion_notify" last_modification_time="Wed, 18 Feb 2004 01:59:20 GMT"/>
-		      <signal name="button_press_event" handler="on_button_press" last_modification_time="Wed, 18 Feb 2004 02:59:29 GMT"/>
-		      <signal name="button_release_event" handler="on_button_release" last_modification_time="Sat, 21 Feb 2004 19:50:07 GMT"/>
-		    </widget>
+		    <placeholder/>
 		  </child>
 		</widget>
 	      </child>

@@ -48,9 +48,7 @@ struct _Explorer {
   GladeXML *xml;
   GtkWidget *window;
 
-  GtkWidget *drawing_area;
-  GdkGC *gc;
-  GdkPixbuf *image;
+  GtkWidget *view;
 
   GtkStatusbar *statusbar;
   guint render_status_message_id;

@@ -22,7 +22,8 @@ OBJS    = \
 	src/bifurcation-diagram.o \
 	src/math-util.o		\
 	src/avi-writer.o	\
-	src/parameter-editor.o
+	src/parameter-editor.o	\
+	src/histogram-view.o
 
 
 $(BIN): $(OBJS)
