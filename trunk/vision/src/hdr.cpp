@@ -53,6 +53,9 @@ int main(int argc, char **argv) {
   IplImage *frame, *black_level = NULL;
   int frame_count = 0;
 
+  cv_dc1394_set_framerate(FRAMERATE_15);
+  cv_dc1394_set_mode(MODE_640x480_RGB);
+
   cv_dc1394_init();
   cvNamedWindow("image", 1);
   cvCreateTrackbar("scale", "image", &image_scale, 1000, on_trackbar);
@@ -64,7 +67,7 @@ int main(int argc, char **argv) {
 
   while (cvWaitKey(1) < 0) {
     for (int i=0; i<5; i++) {
-      frame = cv_dc1394_capture_rgb(1)[0];
+      frame = cv_dc1394_capture_rgb_raw(1)[0];
 
       if (!accumulator)
 	accumulator = cvCreateImage(cvGetSize(frame), 32, 3);
