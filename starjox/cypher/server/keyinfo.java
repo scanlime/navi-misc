@@ -27,6 +27,5 @@ public class keyinfo
     {
 	code = in;
 	next = prev;
-	System.out.println("locus created: " + in);
     }
 }
