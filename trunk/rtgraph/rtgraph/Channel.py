@@ -22,6 +22,8 @@ specifying drawing style.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from __future__ import generators
+import colorsys
 import time
 
 __all__ = ["Channel"]
@@ -106,10 +108,34 @@ class Channel(object):
             return True
 
     def __str__(self):
-        """Returns the channels name, if it has one, or the repr() otherwise"""
+        """Returns the channel's name, if it has one, or the repr() otherwise"""
         if self.name is not None:
             return self.name
         else:
             return repr(self)
+
+    def autoColor(self, i=None):
+        """Automatically color this channel, returning an iterator that can be
+           passed to autoColor instead of None to continue coloring other channels.
+           For example:
+
+              i = None
+              for channel in channels:
+                  i = channel.autoColor(i)
+           """
+        # If we don't have an iterator from before, start a fresh one
+        if i is None:
+            i = self.colorGenerator()
+        self.color = i.next()
+        return i
+
+    def colorGenerator(self):
+        """A generator that indefinitely yields color values to use when
+           autocoloring channels.
+           """
+        while True:
+            for luma in (0.9, 0.5):
+                for hue in (0.66, 0, 0.33, 0.75):
+                    yield colorsys.hsv_to_rgb(hue, 1, luma)
 
 ### The End ###
