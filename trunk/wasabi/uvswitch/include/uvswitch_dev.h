@@ -37,6 +37,9 @@ struct uvswitch_calibration {
 	/* Number of reads to accumulate for each packet sent from uvswitch to host. Between 1 and 255 */
 	int integration_reads;
 
+	/* Number of milliseconds between ADC interrupt requests. Between 1 and 255 */
+	int interval;
+
 	/* Number of packets to accumulate before applying the threshold */
 	int integration_packets;
 
