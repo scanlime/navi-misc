@@ -37,7 +37,6 @@ static void histogram_imager_get_property (GObject *object, guint prop_id, GValu
 static void histogram_imager_resize_from_string(HistogramImager *self, const gchar *s);
 
 static void histogram_imager_generate_color_table(HistogramImager *self);
-static gulong histogram_imager_get_max_usable_density(HistogramImager *self);
 
 static void histogram_imager_check_dirty_flags(HistogramImager *self);
 static void histogram_imager_require_histogram(HistogramImager *self);
@@ -799,7 +798,7 @@ static void histogram_imager_generate_color_table(HistogramImager *self) {
   }
 }
 
-static gulong histogram_imager_get_max_usable_density(HistogramImager *self) {
+gulong histogram_imager_get_max_usable_density(HistogramImager *self) {
   /* This determines the highest histogram count value that will
    * produce any change in the color value of a pixel. This can be
    * used as an upper limit on the size of the color table. Note that
