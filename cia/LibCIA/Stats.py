@@ -38,7 +38,7 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
        a path identifying a class of messages that stats are collected for.
        """
     scheme = 'stats'
-    regex = r"^stats://(?P<path>[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*)$"
+    regex = r"^stats://(?P<path>([a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*)?)$"
 
     def __init__(self, hub, statsDirectory):
         self.statsDirectory = statsDirectory
@@ -51,18 +51,82 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
            rebuild() work its magic without breaking.
            """
         hub.addClient(lambda msg: self.queryStats(msg),
-                      Message.Filter('<find path="/message/body/queryStats">'))
+                      Message.Filter('<find path="/message/body/queryStats"/>'))
 
     def queryStats(self, message):
-        """Handle <queryStats> messages"""
-        return "moo"
+        """Handle <queryStats> messages.
+           A <queryStats> tag includes a 'uri' attribute with the stats:// URI
+           for which stats should be retrieved. An empty <queryStats/> will return
+           no information, only check the validity of the URI. Any number of the
+           following tags may be included inside <queryStats> to retrieve information
+           on the stats URI:
+
+             <catalog>               : Return a list of valid relative URIs under the given URI in the directory tree.
+                                       Each uri in the returned list can be joined to the given URI with a / separating
+                                       them to forma  new valid URI.
+             <messages [count='n']>  : Return the last 'n' messages sent to this stats target,
+                                       or all available messages if a count isn't given.
+             <counters>              : Return the event counters for this stats target
+        """
+        # Get the StatsTarget for this URI
+        query = message.xml.body.queryStats
+        uri = query.getAttribute('uri')
+        if not uri:
+            raise XML.XMLValidityError("A 'uri' attribute for the <queryStats> element is required")
+        uriPath = self.parseURI(uri)['path']
+        target = StatsTarget(os.path.join(self.statsDirectory, uriPath))
+        if not target.exists():
+            raise XML.XMLValidityError("URI is not a valid stats target")
+
+        # Process each element in the query, storing results inside.
+        # Queries are processed by functions in this class of the form query_*
+        for queryItem in query.elements():
+            try:
+                f = getattr(self, 'query_' + queryItem.name)
+            except AttributeError:
+                raise XML.XMLValidityError("Unexpected %r element inside <queryStats>" % queryItem.name)
+            f(queryItem, target)
+
+        # Return the query converted back to XML text, containing the results
+        return query.toXml()
 
     def message(self, uri, message, content):
-        # Stick the URI's path and the content together into a stats
-        # path, URI-encoding the content first. This combined with
-        # our statsDirectory gives us the local path for a stats target.
+        """Combines the path in the given URI with a uri-encoded version
+           of 'content' into an absolute path for a StatsTarget and delivers
+           the given message to it.
+           """
         StatsTarget(os.path.join(self.statsDirectory, self.parseURI(uri)['path'],
                                  uriencode(content))).deliver(message)
+
+    def query_catalog(self, element, target):
+        """Implements the <catalog> tag in queryStats. The <catalog> element gets
+           filled with a list of valid <uri>s that are children of the provided target.
+           """
+        for subdir in target.catalog():
+            element.addElement('uri', content=subdir)
+
+    def query_messages(self, element, target):
+        """Implements the <messages> tag in queryStats, returning the n most
+           recent messages logged to the given stats target.
+           """
+        try:
+            count = int(element['count'])
+        except KeyError:
+            count = None
+        except ValueError:
+            raise XML.XMLValidityError("'count' parameter must be an integer")
+
+        if target.recentMessages:
+            for message in target.recentMessages.getLatest(count):
+                element.addChild(XML.parseString(message))
+
+    def query_counters(self, element, target):
+        """Implements the <counters> tag in queryStats. If the StatsTarget
+           has counters, returns them as-is stuffed into the <counters> tag.
+           """
+        if target.counters:
+            for counter in target.counters.flatten():
+                element.children.append(counter.xml)
 
 
 def uriencode(s, allowedChars = string.ascii_letters + string.digits + "-_"):
@@ -84,23 +148,53 @@ class StatsTarget(object):
        target. This can be one project, one class of messages, etc.
        It is constructed with the path of a directory in the filesystem
        which represents this target.
+
+       On message delivery, the path and all files within will be created
+       automatically. Until then though, the path may not exist and the
+       'counters' and 'recentMessages' attributes may be None.
        """
     def __init__(self, path):
         self.path = path
-        self.createIfNecessary(path)
-        self.counters = IntervalCounters(os.path.join(self.path, 'counters.xml'))
-        self.recentMessages = LogDB(os.path.join(self.path, 'recent_messages.db'))
+        self.open(False)
 
-    def createIfNecessary(self, path):
-        try:
-            os.makedirs(path)
-        except OSError:
-            pass
+    def exists(self):
+        """Returns True if this stats target is valid"""
+        return os.path.isdir(self.path)
+
+    def open(self, createIfNecessary=True):
+        """Open all resources in this stats target. If createIfNecessary is True,
+           the resources will be created if they don't already exist.
+           """
+        # If we're in the business of creating things that don't exist,
+        # make sure our stats path exists.
+        if createIfNecessary:
+            try:
+                os.makedirs(self.path)
+            except OSError:
+                pass
+
+        for attrName, cls, filename in [
+            ('counters', IntervalCounters, os.path.join(self.path, 'counters.xml')),
+            ('recentMessages', LogDB, os.path.join(self.path, 'recent_messages.db')),
+            ]:
+            if hasattr(self, attrName) and getattr(self, attrName):
+                # Already open, skip it
+                continue
+            if createIfNecessary or os.path.isfile(filename):
+                obj = cls(filename)
+            else:
+                obj = None
+            setattr(self, attrName, obj)
 
     def deliver(self, message):
         """A message has been received which should be logged by this stats target"""
+        self.open()
         self.counters.increment()
         self.recentMessages.push(str(message))
+
+    def catalog(self):
+        """Return a list of subdirectories of this stats target"""
+        return [dir for dir in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, dir))]
 
 
 class TimeInterval(object):
