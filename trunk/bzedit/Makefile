@@ -1,7 +1,7 @@
 CC			= gcc
 CXX			= g++
-CFLAGS			= -Wall -g `pkg-config --cflags libgnomeui-2.0 gtkgl-2.0 gdl-1.0` -Iinclude
-LDFLAGS			= `pkg-config --libs libgnomeui-2.0 gtkgl-2.0 gdl-1.0`
+CFLAGS			= -Wall -g `pkg-config --cflags libgnomeui-2.0 gtkgl-2.0 gdl-1.0` -Iinclude -ITextureManager
+LDFLAGS			= `pkg-config --libs libgnomeui-2.0 gtkgl-2.0 gdl-1.0 libgsf-1`
 CELLRCFLAGS		= -Wall -g `pkg-config --cflags libbonobo-2.0 libgnome-2.0 gtk+-2.0`
 CELLRLDFLAGS		= `pkg-config --libs libbonobo-2.0`
 OBJECTS			= cell-renderer-captioned-image.o cell-renderer-toggle-image.o bzedit.o application.o toolbar.o editboxes.o listbox.o viewbox.o preferences.o 3dtypes.o model.o globals.o object.o map.o camera.o world.o document.o walls.o ground.o box.o pyramid.o teleporter.o base.o
