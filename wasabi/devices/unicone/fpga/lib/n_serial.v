@@ -44,16 +44,16 @@ module n_serial_io_buffer (clk, reset,
 	inout pad;
 	input tx;
 	output rx;
-
+	
 	reg [1:2] rx_sync;
 	reg tx_sync;
-
+	
 	/* Imply an open-collector output */
 	assign pad = tx_sync ? 1'bz : 1'b0;
 
 	/* Our receiver gets the sync'ed input */
 	assign rx = rx_sync[2];
-
+	
 	always @(posedge clk or posedge reset)
 		if (reset) begin
 			rx_sync <= 2'b11;
@@ -63,7 +63,7 @@ module n_serial_io_buffer (clk, reset,
 			/* Sync inputs for two cycles */
 			rx_sync[1] <= pad;
 			rx_sync[2] <= rx_sync[1];
-
+			
 			/* Sync output once */
 			tx_sync <= tx;
 		end
@@ -83,19 +83,22 @@ endmodule
  * the Nintendo hardware does something similar.
  *
  * Two synchronous resets are provided- sync_begin resets to the beginning of
- * one tick cycle, sync_middle resets close to the center of a cycle. The
+ * one tick cycle, sync_middle resets close to the center of a cycle. The 
  * cycle immediately after sync_reset is asserted, a tick will be generated.
  */
 module n_serial_timebase (clk, reset, tick, sync_begin, sync_middle);
+	/* Important: Ensure the counter below is wide enough for
+	 * any new values you try here.
+	 */
 	parameter BIT_WIDTH_US = 4;
-
+	
 	parameter CLOCK_MHZ = 25;
 	parameter CLOCKS_PER_TICK = CLOCK_MHZ * BIT_WIDTH_US / 4;
 
 	input clk, reset, sync_begin, sync_middle;
 	output tick;
 	reg tick;
-	reg [5:0] counter;
+	reg [4:0] counter;
 
 	always @(posedge clk or posedge reset)
 		if (reset) begin
@@ -122,7 +125,7 @@ endmodule
 
 
 /*
- * A receiver for N64/Gamecube formatted serial data.
+ * A receiver for N64/Gamecube formatted serial data. 
  *
  * A typical transmission:
  *   1. Activity is detected on the input
@@ -209,7 +212,7 @@ module n_serial_rx (clk, reset, serial_in,
 				shifter <= 0;
 				qbits <= 4'b1111;
 			end
-
+			
 			S_WAIT_FOR_Q1: begin
 				// At the next clock tick, we sample the Q1 quarter-bit.
 				if (tick) begin
@@ -220,7 +223,7 @@ module n_serial_rx (clk, reset, serial_in,
 						 * it means we need only 1/8 bit period rather than a full
 						 * bit period after the packet ends to detect the stop condition.
 						 */
-
+						
 						state <= S_DECODE_QBITS;
 						qbits <= 4'b1111;
 					end
@@ -270,7 +273,7 @@ module n_serial_rx (clk, reset, serial_in,
 				rx_error <= 0;
 				strobe <= 0;
 			end
-
+			
 			S_DECODE_QBITS: begin
 				// We've received a full bit, decode the quarter-bits to
 				// determine what it was.
@@ -311,7 +314,7 @@ module n_serial_rx (clk, reset, serial_in,
 				else if (qbits == 4'b1111) begin
 					// The line is idle again. If we just got a stop bit,
 					// this is the end of a transmission
-
+					
 					if (bit_count == 1 && shifter[0] == 1'b1) begin
 						// Yep, we have a stop bit. Signal a successful stop
 						rx_stop <= 1;
@@ -357,27 +360,19 @@ endmodule
  * Note that busy=0 does not mean we aren't transmitting, just that we
  * are ready for more data to be received.
  *
- * Our timing is derived from the n_serial_timebase module.
+ * An external n_serial_timebase must supply the 'tick' signal.
+ * One timebase can be shared among all transmitters.
  */
-module n_serial_tx (clk, reset,
+module n_serial_tx (clk, reset, tick,
                     busy, tx_stopbit, tx_data, strobe,
                     serial_out);
-	parameter BIT_WIDTH_US = 4;
-
-	input clk, reset;
+	input clk, reset, tick;
 	output busy;
 	input tx_stopbit;
 	input [7:0] tx_data;
 	input strobe;
 	output serial_out;
 	reg serial_out;
-
-	/* 1/4 bit serial timebase, without the sync resets hooked up */
-	wire tick;
-	wire tick_sync_reset = 1'b0;
-	wire tick_sync_center = 1'b0;
-	n_serial_timebase #(BIT_WIDTH_US) tx_timebase(
-		clk, reset, tick, tick_sync_reset, tick_sync_center);
 
 	/* Buffer the incoming data stream, consisting
 	 * of both the tx_data and the stop bit flag.
@@ -407,7 +402,7 @@ module n_serial_tx (clk, reset,
 	reg ser_ready;
 	serializer ser(clk, reset, buffered_data, normal_byte_ready,
 		       normal_byte_ack, ser_data, ser_ready, ser_strobe, ser_is_empty);
-
+	
 	/* Our actual serial transmission is divided
 	 * Into four quarters, plus wait states. The four
 	 * quarters correspond to each 1us section of the
@@ -469,7 +464,7 @@ module n_serial_tx (clk, reset,
 				state <= S_WAIT_FOR_BIT;
 				ser_ready <= 0;
 			end
-
+			
 			S_WAIT_FOR_TICK: begin
 				// Between S_WAIT_FOR_BIT and S_Q1, sync to a clock tick
 				if (tick) begin
@@ -487,8 +482,8 @@ module n_serial_tx (clk, reset,
 					serial_out <= current_bit;
 				end
 				stop_bit_ack <= 0;
-			end
-
+			end				
+				
 			S_Q2: begin
 				// Second quarter of the output bit, reflects the current bit.
 				// Next state is S_Q3, but serial_out doesn't change.
@@ -497,8 +492,8 @@ module n_serial_tx (clk, reset,
 					serial_out <= current_bit;
 				end
 				stop_bit_ack <= 0;
-			end
-
+			end	
+			
 			S_Q3: begin
 				// Third quarter of the output bit, reflects the current bit.
 				// The fourth quarter is always 1. We set that up here, but
@@ -509,7 +504,7 @@ module n_serial_tx (clk, reset,
 					serial_out <= 1;
 				end
 				stop_bit_ack <= 0;
-			end
+			end				
 
 		endcase
 endmodule
