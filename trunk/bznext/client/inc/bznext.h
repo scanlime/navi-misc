@@ -52,6 +52,7 @@ public:
   virtual SceneType GetSceneType ( void );
   virtual const char* GetCameraName ( void );
   virtual const char* GetRootResDir ( void );
+	virtual const char* GetPrefsName ( void );
 
 protected:
   void ProcessInput ( void );
