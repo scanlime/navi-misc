@@ -39,10 +39,6 @@ while True:
                 ownerMail = ownerParts[1].split(">")[0].strip()
             else:
                 owner = owner.strip()
-        else:
-            # Keys without an owner belong to the administrator now,
-            # since a name is now required.
-            owner = "Administrator"
 
         key_owner[key] = owner
         key_ownerMail[key] = ownerMail
@@ -59,7 +55,7 @@ CREATE TABLE users
     secret_key    VARCHAR(32) NOT NULL,
     active        BOOL NOT NULL DEFAULT 1,
 
-    full_name     TEXT NOT NULL,
+    full_name     TEXT,
     email         TEXT,
     creation_time BIGINT NOT NULL,
     key_atime     BIGINT,

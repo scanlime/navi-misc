@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS users
     secret_key    VARCHAR(32) NOT NULL,
     active        BOOL NOT NULL DEFAULT 1,
 
-    full_name     TEXT NOT NULL,
+    full_name     TEXT,
     email         TEXT,
     creation_time BIGINT NOT NULL,
     key_atime     BIGINT,
