@@ -118,22 +118,25 @@ class RSSFeed(FormattedFeed):
     def render_description(self, context):
         return self.target.metadata.getValue('description', 'CIA Stats')
 
-    def formatItems(self, messages, context, result):
-        items = []
-        for m in messages:
-            items.append(tag('item')[self.messageToItemContent(Message.Message(m))])
-        result.callback(items)
-
 
 class RSS2Feed(RSSFeed):
     """A web resource representing an RSS 2.0 feed for a particular stats target,
        constructed according to the spec at http://blogs.law.harvard.edu/tech/rss
        """
-    def messageToItemContent(self, m):
+    def formatItems(self, messages, context, result):
+        items = []
+        for id, content in messages:
+            items.append(tag('item')[self.messageToItemContent(context, Message.Message(content), id)])
+        result.callback(items)
+
+    def messageToItemContent(self, context, m, id):
         """Render an XML message as the content of an RSS <item>"""
-        # We can always get a timestamp
+        url = Link.MessageLink(self.target, id).getURL(context)
         tags = [
             tag('pubDate')[ TimeUtil.formatDateRFC822(int(str(m.xml.timestamp))) ],
+            tag('guid')[url],
+            tag('link')[url],
+            tag('description')[ quote(self.formatMessage(m)) ],
             ]
 
         # Generate a title if we can, but if we can't don't worry too much
@@ -141,9 +144,6 @@ class RSS2Feed(RSSFeed):
             tags.append(tag('title')[ Formatters.factory.findMedium('title', m).format(m) ])
         except Message.NoFormatterError:
             pass
-
-        # Put in the description as quoted HTML
-        tags.append(tag('description')[ quote(self.formatMessage(m)) ])
 
         return tags
 
@@ -164,28 +164,72 @@ class RSS2Feed(RSSFeed):
 class RSS1Feed(RSSFeed):
     """A web resource representing an RSS 1.0 feed for a particular stats target,
        constructed according to the standard at http://web.resource.org/rss/1.0/spec
+
+       This uses mostly core RSS 1.0, with the dublin core module for datestamps.
        """
-    def messageToItemContent(self, m):
+    def messageToItemContent(self, context, m, id):
         return []
+
+    def formatItems(self, messages, context, result):
+        """This is called after we've retrieved a list of the target's recent messages.
+           Most of the document can't be formatted until this point, as we need to generate
+           both <item> elements and the <items> table of contents.
+           """
+        # Add our channel description to the content of our <rdf>
+        content = [ self.render_channel(context, messages) ]
+
+        # Add <item>s for each message
+        for id, messageContent in messages:
+            content.append(self.render_item(context, id, messageContent))
+        result.callback(content)
+
+    def render_channel(self, context, messages):
+        """Generate our <channel> element and all of its children"""
+        # Make a table of contents for the messages
+        toc = []
+        for id, content in messages:
+            url = Link.MessageLink(self.target, id).getURL(context)
+            toc.append(tag('rdf:li', resource=url))
+
+        targetUrl = Link.StatsLink(self.target).getURL(context)
+        return tag('channel', **{
+                   'rdf:about': targetUrl,
+               })[
+                   tag('title')[ place('title') ],
+                   tag('link')[ targetUrl ],
+                   tag('description')[ place('description') ],
+                   place('photo'),
+
+                   tag('items')[
+                       tag('rdf:Seq')[ toc ],
+                   ],
+               ]
+
+    def render_item(self, context, id, content):
+        url = Link.MessageLink(self.target, id).getURL(context)
+        m = Message.Message(content)
+        tags = [
+            tag('link')[ url ],
+            tag('dc:date')[ TimeUtil.formatDateRFC822(int(str(m.xml.timestamp))) ],
+            tag('description')[ quote(self.formatMessage(m)) ],
+            ]
+
+        # Generate a title if we can, but if we can't don't worry too much
+        try:
+            tags.append(tag('title')[ Formatters.factory.findMedium('title', m).format(m) ])
+        except Message.NoFormatterError:
+            pass
+
+        return tag('item', **{'rdf:about': url})[tags]
 
     document = [
         xml('<?xml version="1.0"?>\n'),
         tag('rdf:RDF', **{
             'xmlns:rdf': "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            'xmlns': "http://purl.org/rss/1.0/",
+            'xmlns:dc':  "http://purl.org/dc/elements/1.1/",
+            'xmlns':     "http://purl.org/rss/1.0/",
         })[
-            tag('channel')[
-                tag('title')[ place('title') ],
-                tag('link')[ place('link') ],
-                tag('description')[ place('description') ],
-                place('photo'),
-
-                tag('items')[
-                    tag('rdf:Seq')[
-                        place('items'),
-                    ],
-                ],
-            ],
+            place('items'),
         ],
     ]
 
@@ -193,7 +237,7 @@ class RSS1Feed(RSSFeed):
 class XMLFeed(BaseFeed):
     """A web resource representing a feed of unformatted XML commits for a stats target."""
     def formatItems(self, messages, context, result):
-        result.callback(map(xml, messages))
+        result.callback([xml(content) for id, content in messages])
 
     def render_metadata(self, context):
         # Look up all the metadata first

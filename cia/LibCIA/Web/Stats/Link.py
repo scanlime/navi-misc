@@ -60,6 +60,12 @@ class StatsLink(TargetRelativeLink):
         return self.tagFactory(href=self.getURL(context))[text]
 
 
+class MessageLink(TargetRelativeLink):
+    """A link to a particular message delivered to a stats target"""
+    def __init__(self, target, id):
+        TargetRelativeLink.__init__(self, target, ('.message', str(id)))
+
+
 class MetadataLink(TargetRelativeLink):
     """An anchor tag linking to an item in the given stats target's metadata.
        Text for the link may be specified, but by default the key is used.
