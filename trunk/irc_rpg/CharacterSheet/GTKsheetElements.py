@@ -190,15 +190,17 @@ class drop_down(hbox):
 
   def roll(self, widget=None):
     ''' Roll the dice object. '''
-    values = re.search('\[([1-9]*)d([1-9]*)\]', self.menu.entry.get_text())
+    values = re.search('\[([1-9]+)d([1-9]+)\+?([1-9]*)\]', self.menu.entry.get_text())
     if values is not None:
       if not self.beenPressed:
 	self.beenPressed = True
 	self.button.data['times'].append(int(values.group(1)))
-	#self.button.data['mods'].append(int(values.group(3).strip('+')))
+	if values.group(3):
+	  self.button.data['mods'].append(int(values.group(3)))
       else:
 	self.button.data['times'][len(self.button.data['times']) - 1] = int(values.group(1))
-	#self.button.data['mods'][len(self.button.data['mods'])] = values.group(3).strip('+')
+	if values.group(3):
+	  self.button.data['mods'][len(self.button.data['mods']) - 1] = int(values.group(3))
       self.button.attributes['sides'] = values.group(2)
       dice.roll(self.button)
 
