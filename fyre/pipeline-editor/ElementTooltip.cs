@@ -44,10 +44,7 @@ public class ElementTooltip
 			"<span weight=\"bold\" size=\"large\">" +
 			e.Name () +
 			"</span>";
-		element_description.Markup =
-			"<span size=\"small\">" +
-			e.Description () +
-			"</span>";
+		element_description.Markup = BuildString (e.Description ());
 
 		this.inputs.PackStart  (CreateDescTable (e.InputDesc  ()), false, true, 0);
 		this.outputs.PackStart (CreateDescTable (e.OutputDesc ()), false, true, 0);
