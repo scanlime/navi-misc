@@ -68,7 +68,10 @@ def meshify(vertex, face, material):
             if len(material) > v:
                 face.materialIndex = material[v]
         mesh.faces.append(face)
-    return NMesh.PutRaw(mesh)
+    object = NMesh.PutRaw(mesh)
+    for i in range(len(material)):
+        object.colbits |= 1 << i
+    return object
 
 
 class CommentLine(str):
