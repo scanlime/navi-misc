@@ -22,7 +22,6 @@ class PlayList:
             self.playlist = GroupList.GroupList()
 
     def dump (self):
-        print 'self.path=',self.path
         pickle.dump(self.playlist,open(self.path,'w'),1)
 
     def getGroupList (self):

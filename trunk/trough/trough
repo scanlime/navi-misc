@@ -60,7 +60,5 @@ if options.breakup:
 #
 p = playlist.getGroupList()
 
-print playlist.getGroupList().getCount()
- 
 for x in Trough.Select.Select(p):
     print x.getPath()
