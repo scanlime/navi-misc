@@ -26,6 +26,7 @@ format and deliver to an IRC channel.
 
 from twisted.python import log
 import Message, XML
+import os
 
 
 class HubListener(object):
@@ -36,11 +37,12 @@ class HubListener(object):
        messages sent to a particular IRC channel via
        a supplied BotNetwork instance.
        """
-    def __init__(self, hub, botNet, defaultHost, defaultPort=6667):
+    def __init__(self, hub, botNet, defaultHost, defaultPort=6667, ruleFile="data/irc_rules.xml"):
         self.hub = hub
         self.botNet = botNet
         self.defaultHost = defaultHost
         self.defaultPort = defaultPort
+        self.ruleFile = ruleFile
         self.addClients()
 
         # Maps (serverTuple, channel) tuples to IRCRuleset instances
@@ -50,6 +52,33 @@ class HubListener(object):
         # Since we must no longer be wanted, this sends a message that
         # deletes the associated IRC ruleset.
         botNet.kickCallback = self.kickCallback
+
+        # Load our initial ruleset if the file exists
+        if os.path.isfile(self.ruleFile):
+            self.load()
+
+    def load(self):
+        """Load rulesets from self.ruleFile"""
+        f = open(self.ruleFile)
+        f.readline()
+        xml = XML.parseString(f.read())
+        f.close()
+
+        for tag in xml.children:
+            if isinstance(tag, XML.domish.Element):
+                self.installIrcRuleset(tag)
+
+    def save(self):
+        """Save our currently loaded rulesets to self.ruleFile"""
+        f = open(self.ruleFile, "w")
+        f.write('<?xml version="1.0"?>\n')
+        f.write('<ircRuleSets>\n')
+
+        for ruleset in self.rulesets.itervalues():
+            f.write("\n%s\n" % ruleset)
+
+        f.write('\n</ircRuleSets>\n')
+        f.close()
 
     def kickCallback(self, server, channel):
         """Called when any of our bots are kicked from a channel-
@@ -67,9 +96,9 @@ class HubListener(object):
         """Add all our initial clients to the hub"""
         # This uses an extra level of indirection so that
         # rebuild can replace references to our callbacks correctly.
-        self.hub.addClient(lambda msg: self.setIrcRuleset(msg), Message.Filter(
+        self.hub.addClient(lambda msg: self.handle_ircRuleset(msg), Message.Filter(
             '<find path="/message/body/ircRuleset">'))
-        self.hub.addClient(lambda msg: self.queryIrcRulesets(msg), Message.Filter(
+        self.hub.addClient(lambda msg: self.handle_queryIrcRulesets(msg), Message.Filter(
             '<find path="/message/body/queryIrcRulesets">'))
 
     def parseIrcRulesetAttribs(self, element):
@@ -93,7 +122,7 @@ class HubListener(object):
             serverTuple = None
         return (serverTuple, channel)
 
-    def setIrcRuleset(self, message):
+    def handle_ircRuleset(self, message):
         """Handle messages instructing us to add, modify, or remove
            the IRCRuleset instance for a particular channel.
            These messages are of the form:
@@ -113,7 +142,11 @@ class HubListener(object):
            An empty <ircRuleset> removes the ruleset associated with
            its channel, also causing the bot network to leave it.
            """
-        tag = message.xml.body.ircRuleset
+        self.installIrcRuleset(message.xml.body.ircRuleset)
+        self.save()
+
+    def installIrcRuleset(self, tag):
+        """Parse and install an <ircRuleset> tag"""
         server, channel = self.parseIrcRulesetAttribs(tag)
         if not channel:
             raise XML.XMLValidityError("The 'channel' attribute on <ircRuleset> is required")
@@ -151,7 +184,7 @@ class HubListener(object):
             self.botNet.delChannel(server, channel)
             log.msg("Removed IRC ruleset for channel %r on server %r" % (channel, server))
 
-    def queryIrcRulesets(self, message):
+    def handle_queryIrcRulesets(self, message):
         """Handles messages containing a <queryIrcRulesets> tag in its body.
            We search for all IRCRulesets matching the given server and/or channel,
            and return a list of matches each as a string of XML.
@@ -182,7 +215,7 @@ class IRCRuleset(object):
 
     def __str__(self):
         """Return an XML representation of this object as an <ircRuleset> tag"""
-        return "<ircRuleset channel='%s' server='%s:%s'>%s</ircRuleset>" % (
+        return "<ircRuleset channel='%s' server='%s:%s'>\n%s\n</ircRuleset>" % (
             self.channel, self.server[0], self.server[1], self.ruleset.xml.toXml())
 
     def __call__(self, message):
