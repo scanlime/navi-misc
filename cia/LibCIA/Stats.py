@@ -27,6 +27,7 @@ the actual stats target using part of the message.
 #
 
 from twisted.web import xmlrpc
+from twisted.python import log
 import Ruleset, Message, Rack, TimeUtil
 import string, os, time
 
@@ -91,6 +92,17 @@ class StatsInterface(xmlrpc.XMLRPC):
         self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
                                  ('stats.path', path))
         self.storage.getPathTarget(path).metadata.update(d)
+        log.msg("Updating metadata for stats path %r\n%r" % (path, d))
+        return True
+
+    def xmlrpc_setMetadata(self, path, d, key):
+        """Replace a path's metadata with the given dictionary"""
+        self.caps.faultIfMissing(key, 'universe', 'stats', 'stats.metadata',
+                                 ('stats.path', path))
+        metadata = self.storage.getPathTarget(path).metadata
+        metadata.clear()
+        metadata.update(d)
+        log.msg("Replacing metadata for stats path %r\n%r" % (path, d))
         return True
 
 
