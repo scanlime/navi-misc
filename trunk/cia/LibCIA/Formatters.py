@@ -135,7 +135,7 @@ class CommitFormatter(Message.Formatter):
         endingStr = " ".join(endings)
         if len(endingStr) > 20:
             # If the full file list is too long, give a file summary instead
-            self.summarizeFiles(endings)
+            endingStr = self.summarizeFiles(endings)
         if prefix.startswith('/'):
             prefix = prefix[1:]
         if endingStr:
