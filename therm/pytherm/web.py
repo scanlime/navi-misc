@@ -215,6 +215,30 @@ def renderTimestamp(latest):
         tag('strong')[ units.time.format(delta) ], " ago",
         ]
 
+def getSourceRrd(source, key, filter=None):
+    """Returns an RrdFile for the specified key in packets from the specified source"""
+    def dataGenerator(stamp):
+        for packet in source.iterPacketsAfter(stamp):
+            value = packet.get(key)
+            if value is not None:
+                if filter:
+                    value = filter(value)
+                yield packet['id'], packet['time'].ticks(), value
+
+    rrdf = rrd.RrdFile("%s-%s" % (source.name, key))
+    rrdf.update(dataGenerator)
+    return rrdf
+
+def colorGenerator():
+    """A generator that indefinitely yields color values to use when
+       autocoloring channels.
+       """
+    import colorsys
+    while True:
+        for luma in (0.8, 0.5):
+            for hue in (0.66, 0, 0.33, 0.75, 0.15):
+                yield rrd.Color(hsv=(hue,1,luma))
+
 
 class IndexPage(ModPython.Page):
     """The root page of the web site- gives a summary of each individual sensor,
@@ -230,6 +254,9 @@ class IndexPage(ModPython.Page):
                 template.stylesheet,
             ],
             tag('body')[
+                tag('div', _class='graphs') [
+                    tag('img', _class='graph', src='overview-graph', alt="Temperature overview"),
+                ],
                 place('sources'),
                 template.footer,
             ],
@@ -238,7 +265,27 @@ class IndexPage(ModPython.Page):
 
     def __init__(self):
         self.db = database.open()
-        self.children = dict(source=SourceLookupPage(self.db))
+        self.children = {
+            'source': SourceLookupPage(self.db),
+            'overview-graph': ImageResourcePage(self.getOverviewGraph()),
+            }
+
+    def getOverviewGraph(self):
+        """Return a graph showing all sensors' temperatures for the past day"""
+        spec = []
+        colors = colorGenerator()
+        for source in self.db.iterSources():
+            rrdf = getSourceRrd(source, 'average')
+            spec.extend(rrd.graphDefineSource(rrdf, name=source.name))
+            spec.extend(rrd.graphSpan(str(source), color=colors.next(), name=source.name))
+
+        spec.extend(rrd.graphHorizontalRule(0, "Freezing Point"))
+        graph = rrd.RrdGraph(spec,
+                             interval='day',
+                             size=(700,200),
+                             yLabel="Degrees Celsius")
+        graph.updateToLatest()
+        return graph
 
     def render_date(self, context):
         return time.ctime()
@@ -426,23 +473,9 @@ class SourceGraphs(ModPython.Page):
             return apache.HTTP_NOT_FOUND
         return ImageResourcePage(f(interval))
 
-    def getSourceRrd(self, key, filter=None):
-        """Returns an RrdFile for the specified key in packets from the specified source"""
-        def dataGenerator(stamp):
-            for packet in self.source.iterPacketsAfter(stamp):
-                value = packet.get(key)
-                if value is not None:
-                    if filter:
-                        value = filter(value)
-                    yield packet['id'], packet['time'].ticks(), value
-
-        rrdf = rrd.RrdFile("%s-%s" % (self.source.name, key))
-        rrdf.update(dataGenerator)
-        return rrdf
-
     def graph_temperature(self, interval):
         """Return an RrdGraph showing temperature data"""
-        rrdf = self.getSourceRrd('average')
+        rrdf = getSourceRrd(self.source, 'average')
         graph = rrd.RrdGraph(rrd.graphDefineSource(rrdf) +
                              rrd.graphUnknownData() +
                              rrd.graphColorRange(-20.0, rrd.Color(0.5, 0.5, 1),
@@ -457,7 +490,7 @@ class SourceGraphs(ModPython.Page):
 
     def graph_voltage(self, interval):
         """Return an RrdGraph showing battery voltage"""
-        rrdf = self.getSourceRrd('voltage')
+        rrdf = getSourceRrd(self.source, 'voltage')
         graph = rrd.RrdGraph(rrd.graphDefineSource(rrdf) +
                              rrd.graphUnknownData() +
                              rrd.graphColorRange(6, rrd.Color(1, 1, 1),
@@ -472,7 +505,7 @@ class SourceGraphs(ModPython.Page):
     def graph_signal(self, interval):
         """Return an RrdGraph showing signal strength"""
         # Convert to percent
-        rrdf = self.getSourceRrd('signal_strength', lambda x: x*100)
+        rrdf = getSourceRrd(self.source, 'signal_strength', lambda x: x*100)
         graph = rrd.RrdGraph(rrd.graphDefineSource(rrdf) +
                              rrd.graphUnknownData() +
                              rrd.graphSpan("%s - Signal Strength" % self.source) +
