@@ -1,5 +1,5 @@
 /*
- * USB Widget driver
+ * Media Infrawidget 6000 driver
  *
  * Copyright(c) 2003 Micah Dowty <micah@picogui.org>
  *
@@ -18,6 +18,7 @@
 #include <linux/init.h>
 #include <linux/poll.h>
 #include <linux/devfs_fs_kernel.h>
+#include "../include/protocol.h"
 
 #define DEBUG
 #include <linux/usb.h>
@@ -31,7 +32,7 @@
 
 #define DRIVER_VERSION "v0.1"
 #define DRIVER_AUTHOR "Micah Dowty <micah@picogui.org>"
-#define DRIVER_DESC "USB Widget Driver"
+#define DRIVER_DESC "Media Infrawidget 6000 driver"
 
 MODULE_AUTHOR( DRIVER_AUTHOR );
 MODULE_DESCRIPTION( DRIVER_DESC );
@@ -72,6 +73,20 @@ static int usb_widget_dev_release (struct inode *inode, struct file *file)
 	return 0;
 }
 
+/* Send a control request to the device synchronously */
+static void usb_widget_request (struct usb_widget* widget, unsigned short request, 
+				unsigned short wValue, unsigned short wIndex)
+{
+	usb_control_msg(widget->usbdev, usb_sndctrlpipe(widget->usbdev, 0),
+			request,
+			0x40,     /* Request type: vendor specific, host-to-device */
+			wValue,
+			wIndex,
+			NULL, 0,  /* data (not used) */
+			HZ / 2    /* Timeout: 1/2 second */
+			);
+}
+
 static ssize_t usb_widget_dev_write (struct file *file, const char *buffer, size_t count, loff_t *ppos)
 {
 	struct usb_widget *widget = (struct usb_widget*) file->private_data;
@@ -86,9 +101,13 @@ static ssize_t usb_widget_dev_write (struct file *file, const char *buffer, size
 		if (copy_from_user(tbuffer, buffer, transfer_length))
 			return -EFAULT;
 
+		/* Temporary debug code: turn the VFD on */
+		usb_widget_request(widget, MI6K_CTRL_VFD_POWER, 1, 0);
+		usb_widget_request(widget, MI6K_CTRL_LED_SET, 0x50, 0x50);
+
 		/* Pack 4 bytes of the character stream into the packet's value and index parameters */
 		usb_control_msg(widget->usbdev, usb_sndctrlpipe(widget->usbdev, 0),
-				0,        /* Request: VFD_WRITE */
+				MI6K_CTRL_VFD_WRITE,
 				0x40,     /* Request type: vendor specific, host-to-device */
 				tbuffer[0] | (((int)tbuffer[1]) << 8),  /* value */
 				tbuffer[2] | (((int)tbuffer[3]) << 8),  /* index */
