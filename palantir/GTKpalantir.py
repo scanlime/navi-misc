@@ -30,16 +30,8 @@ class PalantirWindow:
     
     # Client factory.
     self.factory = palantirIRC.PalantirClientFactory('nuku-nuku',
-	channels='#palantir,#pony', ui=self)
+	channels='#palantir', ui=self)
     self.tree.get_widget('Nick').set_text(self.factory.nickname)
-
-    # Tabs.
-    self.currentTab = ChatWindowUI()
-    self.tabs = {'none':[self.currentTab]}
-    self.currentTab.show()
-    self.tree.get_widget('ChannelTabs').add(self.currentTab)
-    self.tree.get_widget('ChannelTabs').set_tab_label_text(self.currentTab,
-	self.currentTab.channel)
 
   ### Must be implemented for palantirIRC to work. ###
   def messageReceive(self, user, channel, msg):
@@ -52,52 +44,29 @@ class PalantirWindow:
       text = '<' + nick + '>' + msg + '\n'
     else:
       text = msg + '\n'
-
-    self.tabs[channel].display(text)
+    self.PrintText(text)    
 
   def meReceive(self, user, channel, msg):
     ''' When someone does a '/me' display the action. '''
     # Format the nick.
     nick = re.search('([^!]*).*', user).group(1)
     text = '* ' + nick + ' ' + msg + '\n'
-    self.tabs[channel].display(text)
+    self.PrintText(text)
 
   def nickReceive(self, oldNick, channel, newNick):
     ''' When someone changes a nick display it. '''
     text = oldNick + ' is now known as ' + newNick + '\n'
-    self.tabs[channel].display(text)
+    self.PrintText(text)
+  
+  def SetTopic(self, user, channel, topic):
+    self.tree.get_widget('Topic').set_text(topic)
 
   ### Glade Callbacks ###
   # Menu Items.
   def on_new_connection_activate(self, widget, data=None):
     ''' Create a new connection. '''
-    # Set up the new dictionary of tabs for the new connection from the channels list in
-    # the factory.
-    self.tabs = dict([self.NewTab(channel) for channel in self.factory.channels])
-    
-    # Show the new chat windows and add them to the notebook.
-    for window in self.tabs.itervalues():
-      self.tree.get_widget('ChannelTabs').add(window)
-      window.show()
-
-    # Set the labels on each tab to show the name of the channel.
-    for channel in self.factory.channels:
-      self.tree.get_widget('ChannelTabs').set_tab_label_text(self.tabs[channel], channel)
-
-    # Make a connection and run the reactor.
     reactor.connectTCP('irc.freenode.net', 6667, self.factory)
     reactor.run()
-
-  def on_new_tab_activate(self, widget, data=None):
-    ''' Create a new tab. '''
-    newChat = ChatWindowUI()
-    if self.tabs.has_key(newChat.channel):
-      self.tabs[newChat.channel].append(newChat)
-    else:
-      self.tabs[newChat.channel] = [newChat]
-    newChat.show()
-    self.tree.get_widget('ChannelTabs').add(newChat.window)
-    self.tree.get_widget('ChannelTabs').set_tab_label_text(newChat.window, newChat.channel)
 
   def on_character_sheet_activate(self, widget, data=None):
     '''Show the part of the window that displays character sheets. '''
@@ -146,13 +115,13 @@ class PalantirWindow:
       # matching receive method.
       if hasattr(self.factory, command):
         getattr(self, command + 'Receive')(self.factory.nickname,
-	    self.factory.channels, arg)
+	    self.factory.channels[0], arg)
 	getattr(self.factory, command)(arg)
 
     # If the message isn't a command it's a regular message.
     else:
-      self.factory.Send(self.currentTab.channel, text)
-      self.messageReceive(self.factory.nickname, self.currentTab.channel, text)
+      self.factory.Send(self.factory.channels[0], text)
+      self.messageReceive(self.factory.nickname, self.factory.channels[0], text)
 
     # Reset the text in the text field.
     widget.set_text('')
@@ -160,6 +129,10 @@ class PalantirWindow:
   def on_ChannelTabs_switch_page(self, widget, data, tab):
     ''' When the current tab is changed, update self.currentTab to reflect that. '''
     self.currentTab = self.tree.get_widget('ChannelTabs').get_nth_page(tab)
+
+  def on_Topic_activate(self, widget, data=None):
+    ''' Change the topic. '''
+    self.factory.topic(self.factory.channels[0], widget.get_text())
 
   # Closing stuff.
   def on_Main_destroy(self, widget, data=None):
@@ -172,7 +145,7 @@ class PalantirWindow:
   def OpenSheet(self, widget, data=None):
     # Store the character data.
     self.data = Character(self.tree.dialog.get_widget('SheetSelection').get_filename())
-    
+
     # If we've already loaded a sheet it needs to be removed.
     if hasattr(self, 'sheet'):
       self.tree.get_widget('CharacterViewPort').remove(self.sheet.root)
@@ -187,23 +160,22 @@ class PalantirWindow:
     # Kill the file selector.
     self.tree.dialog.get_widget('SheetSelection').destroy()
 
-  def NewTab(self, channel):
-    ''' Return a tuple containing the channel name and a ChatWindowUI object.  Intended for
-        use in creating a dictionary of all the channel names and the associated
-	ChatWindowUI.
-	'''
-    # If there are any tabs labeled 'none' use their ChatWindowUI's first.
-    if self.tabs.has_key('none') and len(self.tabs['none']) is not 0:
-      window = self.tabs['none'][0]
-      del self.tabs['none'][0]
-    # If there aren't any tabs labeled 'none' create a new ChatWindowUI.
-    else:
-      window = ChatWindowUI()
+  def AddUserToList(self, nick, channel):
+    ''' Add nick the userlist. '''
+    buffer = self.tree.get_widget('UserList').get_buffer()
+    buffer.insert(buffer.get_end_iter(), nick + '\n')
 
-    # Set the channel name and return the tuple of channel name and ChatWindowUI.
-    window.channel = channel
-    return (channel, window)
+  def PrintText(self, text):
+    ''' Print the text in the chat buffer. '''
+    buffer = self.tree.get_widget('ChatArea').get_buffer()
+    buffer.insert(buffer.get_end_iter(), text)
+    self.tree.get_widget('ChatArea').scroll_to_iter(buffer.get_end_iter(), 0.0)
 
+
+### This was created for doing tabbed chatting, so that you could connect to multiple
+### channels.  The client still supports multiple channels, but the UI does not.  I'm
+### leaving this here in case, at some later date, it becomes necessary to reimplement
+### the tabs.
 class ChatWindowUI(gtk.ScrolledWindow):
   ''' Objects for creating text buffers for displaying text from the channels.
       This will hold a reference to the name of the channel the buffer is showing.
