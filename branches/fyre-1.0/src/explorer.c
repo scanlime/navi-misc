@@ -24,6 +24,7 @@
 #include <config.h>
 #include <string.h>
 #include <math.h>
+#include <stdlib.h>
 #include "explorer.h"
 #include "parameter-editor.h"
 #include "math-util.h"
