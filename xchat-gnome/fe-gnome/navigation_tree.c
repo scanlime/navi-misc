@@ -37,6 +37,7 @@ void initialize_navigation_tree() {
 	GtkTreeStore *store;
 	GtkCellRenderer *icon_renderer, *text_renderer;
 	GtkTreeViewColumn *icon_column, *text_column;
+	GtkTreeViewColumn *column;
 	GtkTreeSelection *select;
 
 	navigation_view = glade_xml_get_widget(gui.xml, "server channel list");
@@ -44,12 +45,18 @@ void initialize_navigation_tree() {
 	store = gtk_tree_store_new(5, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_INT, GDK_TYPE_COLOR);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(navigation_view), GTK_TREE_MODEL(store));
 
-	text_renderer = gtk_cell_renderer_text_new();
-	text_column = gtk_tree_view_column_new_with_attributes("name", text_renderer, "text", 1, "foreground-gdk", 4, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(navigation_view), text_column);
+	column = gtk_tree_view_column_new();
 	icon_renderer = gtk_cell_renderer_pixbuf_new();
-	icon_column = gtk_tree_view_column_new_with_attributes("icon", icon_renderer, "pixbuf", 0, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(navigation_view), icon_column);
+	text_renderer = gtk_cell_renderer_text_new();
+//	icon_column = gtk_tree_view_column_new_with_attributes("icon", icon_renderer, "pixbuf", 0, NULL);
+	gtk_tree_view_column_pack_start(column, icon_renderer, FALSE);
+	gtk_tree_view_column_set_attributes(column, icon_renderer, "pixbuf", 0, NULL);
+	gtk_tree_view_column_pack_start(column, text_renderer, TRUE);
+	gtk_tree_view_column_set_attributes(column, text_renderer, "text", 1, "foreground-gdk", 4, NULL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(navigation_view), column);
+//	gtk_tree_view_append_column(GTK_TREE_VIEW(navigation_view), icon_column);
+//	text_column = gtk_tree_view_column_new_with_attributes("name", text_renderer, "text", 1, "foreground-gdk", 4, NULL);
+//	gtk_tree_view_append_column(GTK_TREE_VIEW(navigation_view), text_column);
 
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(navigation_view));
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
