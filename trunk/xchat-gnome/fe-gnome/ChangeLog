@@ -1,0 +1,8 @@
+0.2pre
+	* various GUI prettification - Ramón Rey Vicente
+	* GUI for selecting character encoding - David Trowbridge
+	* fix build prefix for creating packages - Bastien Nocera
+	* implemented leave/close/reconnect - Dan Kuester
+
+0.1 "Doctors are Standing By" (3 May 2004)
+	* first release, generally lots of stuff
