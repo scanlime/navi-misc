@@ -1,0 +1,6 @@
+The idea behind the networking implementation is that it is a stateless server.
+
+Each transaction is done through a new connection.
+	There are two kinds of connections.
+		initialization connections
+		update connections 

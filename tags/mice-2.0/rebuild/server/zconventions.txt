@@ -1,0 +1,7 @@
+classes starting with the following letters have the following jobs.
+
+q - question database related classes
+a - abstract interface related classes (functions)
+n - network classes
+i - initialization (what was the mainClass) 
+z - documentation text files
