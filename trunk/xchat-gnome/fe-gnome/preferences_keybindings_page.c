@@ -17,10 +17,9 @@
 #include <X11/Xatom.h>
 
 #include "eggcellrendererkeys.h"
+#include "gui.h"
 
 #define MAX_ELEMENTS_BEFORE_SCROLLING 10
-
-#define _(x) dgettext (PACKAGE, x)
 
 #if defined(__powerpc__) && defined (__linux__)
 #define USE_FBLEVEL
@@ -76,7 +75,7 @@ typedef struct
   char *description;
 } KeyEntry;
 
-static void  reload_key_entries (GladeXML               *dialog);
+static void  reload_key_entries ();
 static char* binding_name       (guint                   keyval,
 				 guint			 keycode,
                                  EggVirtualModifierType  mask,
@@ -96,15 +95,6 @@ get_real_model (GtkTreeView *tree_view)
     submodel = NULL;
   
   return submodel;
-}
-
-static GladeXML *
-create_dialog (void)
-{
-  GladeXML *dialog;
-
-  dialog = glade_xml_new (XCHATSHAREDIR "/xchat-gnome.glade", "keybindings", NULL);
-  return dialog;
 }
 
 static char*
@@ -278,8 +268,7 @@ keyentry_sort_func (GtkTreeModel *model,
 }
 
 static void
-clear_old_model (GladeXML  *dialog,
-		 GtkWidget *tree_view)
+clear_old_model (GtkWidget *tree_view)
 {
   GtkTreeModel *model;
   GtkTreeModel *sort_model;
@@ -328,9 +317,9 @@ clear_old_model (GladeXML  *dialog,
   g_object_unref (G_OBJECT (model));
   g_object_unref (G_OBJECT (sort_model));
 
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (glade_xml_get_widget (dialog, "actions_swindow")),
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (glade_xml_get_widget (gui.xml, "actions_swindow")),
 				  GTK_POLICY_NEVER, GTK_POLICY_NEVER);
-  gtk_widget_set_usize (glade_xml_get_widget (dialog,"actions_swindow"), -1, -1);
+  gtk_widget_set_usize (glade_xml_get_widget (gui.xml,"actions_swindow"), -1, -1);
 }
 
 static gboolean
@@ -365,8 +354,7 @@ should_show_key (const KeyListEntry *entry)
 }
 
 static void
-append_keys_to_tree (GladeXML           *dialog,
-		     const gchar        *title,
+append_keys_to_tree (const gchar        *title,
 		     const KeyListEntry *keys_list)
 {
   GConfClient *client;
@@ -375,7 +363,7 @@ append_keys_to_tree (GladeXML           *dialog,
   gint i, j;
 
   client = gconf_client_get_default ();
-  model = get_real_model (GTK_TREE_VIEW (glade_xml_get_widget (dialog, "shortcut_treeview")));
+  model = get_real_model (GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "shortcut_treeview")));
 
   i = 0;
   gtk_tree_model_foreach (model, count_rows_foreach, &i);
@@ -387,7 +375,6 @@ append_keys_to_tree (GladeXML           *dialog,
 
   for (j = 0; keys_list[j].name != NULL; j++)
     {
-      printf("%i\n",j);
       GConfEntry *entry;
       GConfSchema *schema = NULL;
       KeyEntry *key_entry;
@@ -443,10 +430,10 @@ append_keys_to_tree (GladeXML           *dialog,
       if (i == MAX_ELEMENTS_BEFORE_SCROLLING)
 	{
 	  GtkRequisition rectangle;
-	  gtk_widget_ensure_style (glade_xml_get_widget (dialog, "shortcut_treeview"));
-	  gtk_widget_size_request (glade_xml_get_widget (dialog, "shortcut_treeview"), &rectangle);
-	  gtk_widget_set_size_request (glade_xml_get_widget (dialog, "shortcut_treeview"), -1, rectangle.height);
-	  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (glade_xml_get_widget (dialog, "actions_swindow")),
+	  gtk_widget_ensure_style (glade_xml_get_widget (gui.xml, "shortcut_treeview"));
+	  gtk_widget_size_request (glade_xml_get_widget (gui.xml, "shortcut_treeview"), &rectangle);
+	  gtk_widget_set_size_request (glade_xml_get_widget (gui.xml, "shortcut_treeview"), -1, rectangle.height);
+	  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (glade_xml_get_widget (gui.xml, "actions_swindow")),
 					  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	}
       i++;
@@ -462,26 +449,26 @@ append_keys_to_tree (GladeXML           *dialog,
 			    DESCRIPTION_COLUMN, _("<Unknown Action>"),
 			    KEYENTRY_COLUMN, key_entry,
 			    -1);
-      gtk_tree_view_expand_all (GTK_TREE_VIEW (glade_xml_get_widget (dialog, "shortcut_treeview")));
+      gtk_tree_view_expand_all (GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "shortcut_treeview")));
       gconf_entry_free (entry);
       gconf_schema_free (schema);
     }
 
   if (i == 0)
-      gtk_widget_hide (glade_xml_get_widget (dialog, "shortcuts_vbox"));
+      gtk_widget_hide (glade_xml_get_widget (gui.xml, "shortcuts_vbox"));
   else
-      gtk_widget_show (glade_xml_get_widget (dialog, "shortcuts_vbox"));
+      gtk_widget_show (glade_xml_get_widget (gui.xml, "shortcuts_vbox"));
 }
 
 static void
-reload_key_entries (GladeXML *dialog)
+reload_key_entries ()
 {
-  clear_old_model (dialog, glade_xml_get_widget (dialog, "shortcut_treeview"));
+  clear_old_model (glade_xml_get_widget (gui.xml, "shortcut_treeview"));
 
-  append_keys_to_tree (dialog, _("Minkeys"), desktop_key_list);
-  append_keys_to_tree (dialog, _("Sound"), sounds_key_list);
+  append_keys_to_tree (_("Minkeys"), desktop_key_list);
+  append_keys_to_tree (_("Sound"), sounds_key_list);
 
-  append_keys_to_tree (dialog, _("Window Management"), metacity_key_list);
+  append_keys_to_tree (_("Window Management"), metacity_key_list);
 }
 
 static void
@@ -692,8 +679,7 @@ real_start_editing_cb (IdleData *idle_data)
 
 static gboolean
 start_editing_cb (GtkTreeView    *tree_view,
-		  GdkEventButton *event,
-		  GladeXML       *dialog)
+		  GdkEventButton *event)
 {
   GtkTreePath *path;
 
@@ -723,8 +709,9 @@ start_editing_cb (GtkTreeView    *tree_view,
   return TRUE;
 }
 
-static void
-setup_dialog (GladeXML *dialog)
+//static void
+void initialize_preferences_keybindings_page ()
+//setup_dialog ()
 {
   GConfClient *client;
   GtkCellRenderer *renderer;
@@ -734,9 +721,9 @@ setup_dialog (GladeXML *dialog)
 
   client = gconf_client_get_default ();
 
-  g_signal_connect (GTK_TREE_VIEW (glade_xml_get_widget (dialog, "shortcut_treeview")),
+  g_signal_connect (GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "shortcut_treeview")),
 		    "button_press_event",
-		    G_CALLBACK (start_editing_cb), dialog),
+		    G_CALLBACK (start_editing_cb), gui.xml),
 		    
   column = gtk_tree_view_column_new_with_attributes (_("Action"),
 						  gtk_cell_renderer_text_new (),
@@ -744,7 +731,7 @@ setup_dialog (GladeXML *dialog)
 						     NULL);
   gtk_tree_view_column_set_resizable (column, FALSE);
 
-  gtk_tree_view_append_column (GTK_TREE_VIEW (glade_xml_get_widget (dialog, "shortcut_treeview")), column);
+  gtk_tree_view_append_column (GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "shortcut_treeview")), column);
   gtk_tree_view_column_set_sort_column_id (column, DESCRIPTION_COLUMN);  
   
   renderer = (GtkCellRenderer *) g_object_new (EGG_TYPE_CELL_RENDERER_KEYS,
@@ -755,18 +742,18 @@ setup_dialog (GladeXML *dialog)
   g_signal_connect (G_OBJECT (renderer),
 		    "accel_edited",
                     G_CALLBACK (accel_edited_callback),
-                    glade_xml_get_widget (dialog, "shortcut_treeview"));
+                    glade_xml_get_widget (gui.xml, "shortcut_treeview"));
 
   g_signal_connect (G_OBJECT (renderer),
 		    "accel_cleared",
                     G_CALLBACK (accel_cleared_callback),
-                    glade_xml_get_widget (dialog, "shortcut_treeview"));
+                    glade_xml_get_widget (gui.xml, "shortcut_treeview"));
 
   column = gtk_tree_view_column_new_with_attributes (_("Shortcut"), renderer, NULL);
   gtk_tree_view_column_set_cell_data_func (column, renderer, accel_set_func, NULL, NULL);
   gtk_tree_view_column_set_resizable (column, FALSE);
 
-  gtk_tree_view_append_column (GTK_TREE_VIEW (glade_xml_get_widget (dialog, "shortcut_treeview")), column);
+  gtk_tree_view_append_column (GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "shortcut_treeview")), column);
   /* N_COLUMNS is just a place to stick the extra sort function */
   gtk_tree_view_column_set_sort_column_id (column, N_COLUMNS); 
   
@@ -775,20 +762,13 @@ setup_dialog (GladeXML *dialog)
   gconf_client_notify_add (client,
 			   "/apps/metacity/general/num_workspaces",
 			   (GConfClientNotifyFunc) &key_entry_controlling_key_changed,
-			   dialog, NULL, NULL);
+			   gui.xml, NULL, NULL);
 
   /* set up the dialog */
-  reload_key_entries (dialog);
+  reload_key_entries (gui.xml);
 
-  widget = glade_xml_get_widget (dialog, "shortcut_treeview");
+  widget = glade_xml_get_widget (gui.xml, "shortcut_treeview");
   /*capplet_set_icon (widget, "gnome-settings-keybindings");*/
   gtk_widget_show (widget);
 }
 
-void initialize_preferences_keybindings_page ()
-{
-  GladeXML *dialog;
-
-  dialog = create_dialog ();
-  setup_dialog (dialog);
-}
