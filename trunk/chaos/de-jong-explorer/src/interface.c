@@ -23,7 +23,7 @@
 
 #include <gtk/gtk.h>
 #include <glade/glade.h>
-#include "main.h"
+#include "de-jong.h"
 #include "color-button.h"
 
 struct {

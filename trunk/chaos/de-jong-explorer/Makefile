@@ -3,7 +3,7 @@ CFLAGS  = `pkg-config --cflags $(PKGS)` -O3 -g -ffast-math -march=i686
 LIBS    = `pkg-config --libs $(PKGS)`
 
 BIN     = de-jong-explorer
-OBJS    = src/main.o src/interface.o src/color-button.o
+OBJS    = src/main.o src/interface.o src/color-button.o src/render.o
 HEADERS = src/color-button.h
 
 $(BIN): $(OBJS)
