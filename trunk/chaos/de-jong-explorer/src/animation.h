@@ -65,6 +65,9 @@ void         animation_keyframe_store_dejong(Animation *self, GtkTreeIter *iter,
 void         animation_keyframe_load_dejong(Animation *self, GtkTreeIter *iter, DeJong *dejong);
 void         animation_keyframe_append(Animation *self, DeJong *dejong);
 
+void         animation_load_file(Animation *self, const gchar *filename);
+void         animation_save_file(Animation *self, const gchar *filename);
+
 G_END_DECLS
 
 #endif /* __ANIMATION_H__ */
