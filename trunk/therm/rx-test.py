@@ -113,7 +113,7 @@ def log(*values):
     """Log a tuple of values in CSV format to stdout and a log file"""
     global logFile
     if logFile is None:
-        logFile = open("rx-log.csv", "w")
+        logFile = open("rx-log.csv", "a")
     line = ", ".join([str(value) for value in values])
     print line
     logFile.write(line + "\n")
@@ -121,8 +121,8 @@ def log(*values):
 
 
 if __name__ == "__main__":
-    log("time", "signalStrength", "protocol", "station", "sequence",
-        "voltage", "temperature", "sample_count")
+#    log("time", "signalStrength", "protocol", "station", "sequence",
+#        "voltage", "temperature", "sample_count")
     startTime = time.time()
 
     for content, signalStrength in receiveContent("/dev/usb/tts/0"):
