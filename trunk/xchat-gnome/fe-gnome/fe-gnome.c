@@ -250,6 +250,7 @@ void fe_dcc_add(struct DCC *dcc) {
 			break;
 
 		default:
+		  break;
 	}
 }
 
@@ -261,6 +262,7 @@ void fe_dcc_update(struct DCC *dcc) {
 			break;
 
 		default:
+		  break;
 	}
 }
 
@@ -273,6 +275,7 @@ void fe_dcc_remove(struct DCC *dcc) {
 			break;
 
 		default:
+		  break;
 	}
 }
 
