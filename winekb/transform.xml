@@ -4,7 +4,7 @@
   <xsl:template match="kbpage">
     <html>
       <head>
-        <title><xsl:value-of select="@title"/></title>
+        <title>WineHQ Knowledge Base: <xsl:value-of select="@title"/></title>
         <style>
           body {
             font-family: Helvetica;

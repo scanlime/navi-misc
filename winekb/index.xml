@@ -1,6 +1,6 @@
 <?xml-stylesheet href="transform.xml" type="text/xsl"?>
 
-<kbpage title="Wine Knowledge Base">
+<kbpage title="Index">
 
   <section title="Users">
     * Installing <l>NativeMSI</l> and <l>NativeDCOM</l>
