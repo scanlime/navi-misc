@@ -30,6 +30,9 @@ void CTestGame::Attach ( void )
 	info.groundSize = 800;
 	info.groundTextureRepeat = 80;
 
+	info.groundTexture = "ground_mat";
+	info.skybox = "malrav1sky";
+
 	world.Load(info,true);
 }
 
