@@ -51,14 +51,16 @@
    _endasm; \
 
 /* Globals */
+BIT_AT(PORTB_ADDR,0) Light0;
+BIT_AT(PORTB_ADDR,1) Light1;
+BIT_AT(PORTB_ADDR,2) Light2;
+BIT_AT(PORTB_ADDR,3) Light3;
 BIT_AT(PORTE_ADDR,2) SerialPort;
 BIT_AT(TRISE_ADDR,2) SerialTris;
-BIT_AT(PORTB_ADDR,2) SerialTris;
 int reading0, reading1, reading2, reading3, reading4, reading5, reading6, reading7;
-unsigned char portbBuffer;
 
 /* Number of half-cycles used to excite the resonator */
-unsigned char numResonationHalfcycles = 10;      
+unsigned char numResonationHalfcycles = 3;      
 
 /* Number of samples to integrate-
  *   larger numbers give less jittery results, but at a lower rate.
@@ -74,10 +76,6 @@ unsigned char numIntegrationSamples = 8;
 /* ADCON0 values for each receive channel */
 #define Receive0   0x81
 #define Receive1   0x89
-
-/* Debugging pins */
-BIT_AT(PORTD_ADDR,7) debugSync;
-BIT_AT(PORTD_ADDR,6) debugSample;
 
 /* Functions */
 void txInterrupt(void) interrupt 0;
@@ -97,6 +95,24 @@ void sendPacket(void);
 
 void main(void) {
   initialize();
+
+  Light0 = 1;
+
+#if 0  /* DEBUG code */
+  while (1) {
+    switch (getc()) {
+
+    case 'a':
+      Light1 = 1;
+      break;
+
+    case 'b':
+      Light2 = 1;
+      break;
+
+    }
+  }
+#endif
 
   /* Just send out packets continuously */
   while (1) {
@@ -122,8 +138,6 @@ void initialize(void) {
   PORTD = 0x00;
   PORTE = 0x00;
 
-  portbBuffer = 1;
-
   /* ADC init */
   ADCON1 = 0x82;
   ADCON0 = 0x81;
@@ -138,9 +152,7 @@ void sampleAll(void) {
   reading0 = integrateSample(Transmit0, Receive0);
   reading1 = integrateSample(Transmit1, Receive0);
   reading2 = integrateSample(Transmit2, Receive0);
-  debugSync = 1;
   reading3 = integrateSample(Transmit3, Receive0);
-  debugSync = 0;
   reading4 = integrateSample(Transmit0, Receive1);
   reading5 = integrateSample(Transmit1, Receive1);
   reading6 = integrateSample(Transmit2, Receive1);
@@ -173,7 +185,7 @@ int sensorSample(unsigned char transmitter, unsigned char receiver, unsigned cha
   unsigned char halfcycles;
   unsigned char h,l;
 
-  portbBuffer &= 0x0F;      /* Disable all transmitters */  
+  PORTB &= 0x0F;            /* Disable all transmitters */  
   TRISB = 0x00;             /* I -think- we want the other plates to be ground planes now,
 			     * rather than leaving them floating at high impedence.
 			     */
@@ -191,9 +203,8 @@ int sensorSample(unsigned char transmitter, unsigned char receiver, unsigned cha
    */
   halfcycles = numResonationHalfcycles;
   do {
-    portbBuffer ^= transmitter;
-    PORTB = portbBuffer;
-    NOP;
+    PORTB ^= transmitter;
+    NOP NOP NOP;
     NOP NOP NOP NOP NOP;
     NOP NOP NOP NOP NOP;
     NOP NOP NOP NOP NOP;
@@ -201,28 +212,20 @@ int sensorSample(unsigned char transmitter, unsigned char receiver, unsigned cha
   } while (--halfcycles);
 
   /* Now the phase controls the position of our ADC sample within the wave. */
-  debugSample = 1;
   if (phase0)
     GO_DONE = 1;
-  debugSample = 0;
   NOP NOP NOP NOP NOP;
   NOP NOP NOP NOP NOP;
-  debugSample = 1;
   if (phase1)
     GO_DONE = 1;
-  debugSample = 0;
   NOP NOP NOP NOP NOP;
   NOP NOP NOP NOP NOP NOP;
-  debugSample = 1;
   if (phase2)
     GO_DONE = 1;
-  debugSample = 0;
   NOP NOP NOP NOP NOP;
   NOP NOP NOP NOP NOP;
-  debugSample = 1;
   if (phase3)
     GO_DONE = 1;
-  debugSample = 0;
 
   /* Wait for the ADC to do its magic */
   while (NOT_DONE);
@@ -283,6 +286,42 @@ void putc(unsigned char byte) {
   serialBitDelay();
   SerialTris = 1;
 }
+
+unsigned char getc(void) {
+  unsigned char bitnum, byte;
+
+  /* Switch it to an input, and let things stabilize */
+  SerialPort = 1;
+  SerialTris = 1;
+  NOP;
+
+  do {
+    /* Start bit */
+    while (SerialPort);
+    halfSerialBitDelay();
+    serialBitDelay();
+    
+    Light3 = !Light3;
+
+    /* Shift in 8 bits, LSB first */
+    bitnum = 8;
+    byte = 0;
+    do {
+      byte >>= 1;
+      if (SerialPort)
+	byte |= 0x80;
+      serialBitDelay();
+    } while (--bitnum);
+    
+    /* Stop bit */
+  } while (!SerialPort);
+  serialBitDelay();
+
+  Light2 = !Light2;
+
+  return byte;
+} 
+
 
 void sendPacket(void) {
   int i;
