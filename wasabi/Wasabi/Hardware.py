@@ -104,6 +104,7 @@ class Devices:
         if self.mi6k:
             self.mi6k.lights.blue = 0
             self.mi6k.lights.white = 0
+            self.mi6k.vfd.powerOff()
 
 
 class Mi6kUpdater(threading.Thread):
@@ -114,6 +115,8 @@ class Mi6kUpdater(threading.Thread):
         threading.Thread.__init__(self)
 
         self.mi6k = mi6k
+        self.mi6k.vfd.powerOn()
+        self.vfdPage = StatusClockVFDPage()
 
         IR.defaultClient.onReceivedCode.observe(self.irFeedback)
 
@@ -148,6 +151,10 @@ class Mi6kUpdater(threading.Thread):
                 value *= math.pow(0.005, dt)
                 setattr(lights, color, value)
 
+        # update the VFD
+        if self.vfdPage:
+            self.vfdPage.integrate(dt, self.mi6k.vfd)
+
     def irFeedback(self, code):
         """Visual feedback for received IR codes"""
         if code.remote == "wasabi":
@@ -156,5 +163,31 @@ class Mi6kUpdater(threading.Thread):
         else:
             # Any other recognized remote
             self.mi6k.lights.white = 0.3
+
+
+class VFDPage:
+    """An abstract page of information that is displayed on the VFD. Updated by
+       the Mi6kUpdater thread.
+       """
+    def integrate(self, dt, vfd):
+        """Called by the updater thread with the delta-T since the last update, and the
+           VFD to draw to.
+           """
+        pass
+
+
+class StatusClockVFDPage(VFDPage):
+    """A VFD page that displays a clock and a status line"""
+    def __init__(self):
+        self.colonIndex = 0
+        self.status = "Idle"
+
+    def integrate(self, dt, vfd):
+        # Clock with a flashing colon
+	self.colonIndex += dt * 3
+	self.colonIndex %= 2
+	clock = time.strftime("%%H%s%%M" % ": "[int(self.colonIndex)], time.localtime())
+
+        vfd.writeScreen("%s\n%s" % (self.status, clock))
 
 ### The End ###
