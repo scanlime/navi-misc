@@ -202,7 +202,13 @@ unsigned char rcpod_Peek(rcpod_dev* rcpod, int address) {
   return byte;
 }
 
-void rcpod_AnalogSampleAll(rcpod_dev* rcpod, unsigned char buffer[8]);
 
+void rcpod_AnalogSampleAll(rcpod_dev* rcpod, unsigned char buffer[8]) {
+  int retval;
+  retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
+			   RCPOD_CTRL_ANALOG_ALL, 0, 0, (char*) buffer, 8, RCPOD_TIMEOUT);
+  if (retval < 0)
+    handleError("rcpod_AnalogSampleAll", retval);
+}
 
 /* The End */
