@@ -308,7 +308,7 @@ void on_discussion_leave_activate(GtkWidget *widget, gpointer data) {
 		s->server->p_part(s->server, s->channel, "ex-chat");
 		/* FIXME: part reason */
 	}
-	navigation_tree_remove(s);
+	navigation_tree_remove(gui.server_tree, s);
 	text_gui_remove_text_buffer(s);
 }
 
