@@ -1,4 +1,4 @@
-/* XXXXX
+/* Firestarter
 * commandargs.h :
 *
 * Copyright (C) 2004 Jeffrey Myers

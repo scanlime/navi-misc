@@ -1,4 +1,4 @@
-/* XXXXX
+/* Firestarter
 * gameloop.h :
 *
 * Copyright (C) 2004 Jeffrey Myers

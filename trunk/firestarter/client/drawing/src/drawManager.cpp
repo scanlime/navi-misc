@@ -1,4 +1,4 @@
-/* XXXXX
+/* Firestarter
 * drawManager.cpp :
 *
 * Copyright (C) 2004 Jeffrey Myers

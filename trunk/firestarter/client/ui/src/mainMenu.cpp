@@ -1,4 +1,4 @@
-/* XXXXX
+/* Firestarter
 * mainMenu.cpp : 
 *
 * Copyright (C) 2004 Jeffrey Myers

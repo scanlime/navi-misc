@@ -1,4 +1,4 @@
-/* XXXXX
+/* Firestarter
 * prefs.h : 
 *
 * Copyright (C) 2004 Jeffrey Myers
