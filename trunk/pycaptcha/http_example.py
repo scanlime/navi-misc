@@ -1,9 +1,6 @@
 #!/usr/bin/env python
-#
-#
-#
 
-from Captcha.Visual.Tests import PseudoGimpy
+from Captcha.Visual import Tests
 from Captcha import Factory
 import BaseHTTPServer, urlparse, sys
 
@@ -29,7 +26,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             pathSegments = pathSegments[3:]
 
         if pathSegments[0] == "":
-            self.handleRootPage()
+            self.handleRootPage(args.get('test', Tests.__all__)[0])
 
         elif pathSegments[0] == "images":
             self.handleImagePage(pathSegments[1])
@@ -46,12 +43,20 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write("<html><body><h1>No such resource</h1></body></html>")
 
-    def handleRootPage(self):
+    def handleRootPage(self, testName):
         self.send_response(200)
         self.send_header("Content-Type", "text/html")
         self.end_headers()
 
-        test = self.captchaFactory.new()
+        test = self.captchaFactory.new(getattr(Tests, testName))
+
+        # Make a list of tests other than the one we're using
+        others = []
+        for t in Tests.__all__:
+            if t != testName:
+                others.append('<li><a href="/?test=%s">%s</a></li>' % (t,t))
+        others = "\n".join(others)
+
         self.wfile.write("""<html>
 <head>
 <title>PyCAPTCHA Example</title>
@@ -59,6 +64,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 <body>
 <h1>PyCAPTCHA Example</h1>
 <h2>%s</h2>
+
 <p><img src="/images/%s"/></p>
 <p>
   <form action="/solutions/%s" method="get">
@@ -66,9 +72,17 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     <input type="text" name="word"/>
   </form>
 </p>
+
+<p>
+Or try...
+<ul>
+%s
+</ul>
+</p>
+
 </body>
 </html>
-""" % (test.__class__.__name__, test.id, test.id))
+""" % (test.__class__.__name__, test.id, test.id, others))
 
     def handleImagePage(self, id):
         test = self.captchaFactory.get(id)
@@ -114,10 +128,10 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 """ % (test.__class__.__name__, test.id, result, word, ", ".join(test.solutions)))
 
 
-def main(port, captchaClass=PseudoGimpy):
+def main(port):
     print "Starting server at http://localhost:%d/" % port
     handler = RequestHandler
-    handler.captchaFactory = Factory(captchaClass)
+    handler.captchaFactory = Factory()
     BaseHTTPServer.HTTPServer(('', port), RequestHandler).serve_forever()
 
 if __name__ == "__main__":

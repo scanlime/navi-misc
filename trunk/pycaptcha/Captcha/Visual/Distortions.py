@@ -80,10 +80,8 @@ class WarpBase(Layer):
                 x, y = f(i*r, j*r)
 
                 # Clamp the edges so we don't get black undefined areas
-                if x < 0: x = 0
-                if y < 0: y = 0
-                if x >= image.size[0]: x = image.size[0]-1
-                if y >= image.size[1]: y = image.size[1]-1
+                x = max(0, min(image.size[0]-1, x))
+                y = max(0, min(image.size[1]-1, y))
 
                 xRow.append(x)
                 yRow.append(y)
@@ -113,7 +111,7 @@ class SineWarp(WarpBase):
     """Warp the image using a random composition of sine waves"""
 
     def __init__(self,
-                 amplitudeRange = (3, 8),
+                 amplitudeRange = (3, 6.5),
                  periodRange    = (0.04, 0.1),
                  ):
         self.amplitude = random.uniform(*amplitudeRange)
@@ -122,8 +120,11 @@ class SineWarp(WarpBase):
                        random.uniform(0, math.pi * 2 / self.period))
 
     def getTransform(self, image):
-        return lambda x, y, a=self.amplitude, p=self.period, o=self.offset: \
-            (math.sin( (y+o[0])*p )*a + x,
-             math.sin( (x+o[1])*p )*a + y)
+        return (lambda x, y,
+                a = self.amplitude,
+                p = self.period,
+                o = self.offset:
+                (math.sin( (y+o[0])*p )*a + x,
+                 math.sin( (x+o[1])*p )*a + y))
 
 ### The End ###

@@ -21,20 +21,60 @@ Visual CAPTCHA tests
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from Captcha.Visual import Text, Backgrounds, Distortions, ImageCaptcha, Pictures
+from Captcha.Visual import Text, Backgrounds, Distortions, ImageCaptcha
 from Captcha import Words
+import random
+
+__all__ = ["PseudoGimpy", "AngryGimpy", "AntiSpam"]
 
 
 class PseudoGimpy(ImageCaptcha):
+    """A relatively easy CAPTCHA that's somewhat easy on the eyes"""
     def getLayers(self):
         word = Words.defaultWordList.pick()
         self.addSolution(word)
         return [
-            Backgrounds.CroppedImage(),
+            random.choice([
+                Backgrounds.CroppedImage(),
+                Backgrounds.TiledImage(),
+            ]),
             Text.TextLayer(word, borderSize=1),
-            #Distortions.WigglyBlocks(),
             Distortions.SineWarp(),
-            #Backgrounds.RandomDots(),
+            ]
+
+
+class AngryGimpy(ImageCaptcha):
+    """A harder CAPTCHA that looks fairly bad and should be harder to crack"""
+    def getLayers(self):
+        word = Words.defaultWordList.pick()
+        self.addSolution(word)
+        return [
+            Backgrounds.TiledImage(),
+            Backgrounds.RandomDots(),
+            Text.TextLayer(word, borderSize=1),
+            Distortions.WigglyBlocks(),
+            ]
+
+
+class AntiSpam(ImageCaptcha):
+    """A fixed-solution CAPTCHA that can be used to hide email addresses or URLs from bots"""
+    fontFactory = Text.FontFactory(20, "vera/VeraBd.ttf")
+
+    def getLayers(self, solution="murray@example.com"):
+        self.addSolution(solution)
+
+        textLayer = Text.TextLayer(solution,
+                                   borderSize = 2,
+                                   fontFactory = self.fontFactory)
+
+        # Automatically calculate a good default size given our text and font
+        self.defaultSize = (textLayer.textSize[0] + 40,
+                            textLayer.textSize[1] + 20)
+
+        return [
+            Backgrounds.CroppedImage(),
+            textLayer,
+            Distortions.SineWarp(amplitudeRange = (2, 4)),
             ]
 
 ### The End ###
