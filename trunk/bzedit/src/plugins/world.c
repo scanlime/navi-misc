@@ -118,6 +118,16 @@ update_double_if_necessary (gdouble new_value, gboolean *dirty, gdouble *param, 
 }
 
 static void
+update_float_if_necessary (gfloat new_value, gboolean *dirty, gfloat *param, gfloat epsilon)
+{
+  if (fabs (new_value - *param) > epsilon)
+  {
+    *param = new_value;
+    *dirty = TRUE;
+  }
+}
+
+static void
 world_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
   World *self = WORLD (object);
@@ -126,24 +136,30 @@ world_set_property (GObject *object, guint prop_id, const GValue *value, GParamS
   {
     case PROP_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.9);
-      GROUND_DRAWABLE (self->ground)->size[0] = self->param.size[0];
-      WALL_SIDES_DRAWABLE (self->wallsides)->size[0] = self->param.size[0];
-      DISPLAY_LIST (self->ground)->dirty = TRUE;
-      DISPLAY_LIST (self->wallsides)->dirty = TRUE;
-      g_signal_emit_by_name (object, "dirty");
-      g_signal_emit_by_name (G_OBJECT (self->ground), "dirty");
-      g_signal_emit_by_name (G_OBJECT (self->wallsides), "dirty");
+      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->ground)->dirty,
+                                  &GROUND_DRAWABLE (self->ground)->size[0], 0.9);
+      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->wallsides)->dirty,
+                                  &WALL_SIDES_DRAWABLE (self->wallsides)->size[0], 0.9);
+      if (self->state_dirty)
+        g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->ground)->dirty)
+        g_signal_emit_by_name (G_OBJECT (self->ground), "dirty");
+      if (DISPLAY_LIST (self->wallsides)->dirty)
+        g_signal_emit_by_name (G_OBJECT (self->wallsides), "dirty");
       break;
 
     case PROP_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.9);
-      GROUND_DRAWABLE (self->ground)->size[1] = self->param.size[1];
-      WALL_SIDES_DRAWABLE (self->wallsides)->size[1] = self->param.size[1];
-      DISPLAY_LIST (self->ground)->dirty = TRUE;
-      DISPLAY_LIST (self->wallsides)->dirty = TRUE;
-      g_signal_emit_by_name (object, "dirty");
-      g_signal_emit_by_name (G_OBJECT (self->ground), "dirty");
-      g_signal_emit_by_name (G_OBJECT (self->wallsides), "dirty");
+      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->ground)->dirty,
+                                  &GROUND_DRAWABLE (self->ground)->size[1], 0.9);
+      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->wallsides)->dirty,
+                                  &WALL_SIDES_DRAWABLE (self->wallsides)->size[1], 0.9);
+      if (self->state_dirty)
+        g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->ground)->dirty)
+        g_signal_emit_by_name (G_OBJECT (self->ground), "dirty");
+      if (DISPLAY_LIST (self->wallsides)->dirty)
+        g_signal_emit_by_name (G_OBJECT (self->wallsides), "dirty");
       break;
 
     case PROP_GRAVITY:
