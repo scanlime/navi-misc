@@ -203,10 +203,10 @@ class StatusClockVFDPage(VFDPage):
 
     def integrate(self, dt, vfd):
         # Clock with a flashing colon
-	self.colonIndex += dt * 3
-	self.colonIndex %= 2
+        self.colonIndex += dt * 3
+        self.colonIndex %= 2
         localTime = time.localtime()
-	clockTime = time.strftime("%%H%s%%M" % ": "[int(self.colonIndex)], localTime)
+        clockTime = time.strftime("%%H%s%%M" % ": "[int(self.colonIndex)], localTime)
         clockDate = time.strftime("%a %b %d", localTime)
 
         # If the status has changed, make the VFD bright and dim it gradually
