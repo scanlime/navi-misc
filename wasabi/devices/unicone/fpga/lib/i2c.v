@@ -71,26 +71,6 @@ endmodule
 
 
 /*
- * A tee, for merging two on-chip 3-wire I2C busses. This can be used
- * to have multiple on-chip peripherals present on one I2C bus. The
- * redundant parts of each I2C peripheral should optimize out.
- */
-module i2c_tee (ext_scl, ext_sda_in, ext_sda_out,
-                int1_scl, int1_sda_in, int1_sda_out,
-                int2_scl, int2_sda_in, int2_sda_out);
-	input ext_scl, ext_sda_in;
-	output int1_scl, int1_sda_in, int2_scl, int2_sda_in;
-	input int1_sda_out, int2_sda_out;
-	output ext_sda_out;
-	
-	assign ext_sda_out = int1_sda_out && int2_sda_out;
-	assign int1_scl = ext_scl;
-	assign int2_scl = ext_scl;
-	assign int1_sda_in = ext_sda_in;
-	assign int2_sda_in = ext_sda_in;
-endmodule
-
-/*
  * A simple I2C slave that lets the host write to a 16-bit register
  */
 module i2c_slave_reg16 (clk, reset,

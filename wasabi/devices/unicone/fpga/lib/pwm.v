@@ -21,10 +21,29 @@
  *
  */
 
-// A simple 16-bit pulse width modulation module
+
+/* An I2C-attached PWM module */
+module pwm16_i2c (clk, reset,
+                  scl, sda_in, sda_out,
+                  out);
+        parameter I2C_ADDRESS = 0;   
+               
+	input clk, reset;
+	input scl, sda_in;
+	output sda_out, out;
+	wire [15:0] duty_cycle;
+
+	pwm16 p(clk, reset, duty_cycle, out);
+	i2c_slave_reg16 #(I2C_ADDRESS) i(
+		clk, reset,
+		scl, sda_in, sda_out,
+		duty_cycle);
+endmodule             
+                  
+
+/* A simple 16-bit pulse width modulation module */
 module pwm16 (clk, reset,
 	      duty_cycle, out);
-
 	input clk, reset;
 	input [15:0] duty_cycle;
 	output out;

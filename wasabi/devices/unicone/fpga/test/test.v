@@ -13,9 +13,9 @@ module test (clk, reset,
 	                     scl, sda,
 	                     int_scl, int_sda_in, int_sda_out);
 	
-	wire [15:0] brightness;
-	pwm16 led_pwm(clk, reset, brightness, led);
-	i2c_slave_reg16 #(7'h21) led_i2c(clk, reset,
-	                                 int_scl, int_sda_in, int_sda_out,
-	                                 brightness);
+	/* Add an I2C-addressable LED brightness control */
+	pwm16_i2c #(7'h21) led_controller(
+		clk, reset, 
+		int_scl, int_sda_in, int_sda_out,
+		led);
 endmodule
