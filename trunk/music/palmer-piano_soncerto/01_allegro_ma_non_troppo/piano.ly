@@ -120,6 +120,24 @@ mvmtOnePianoSectThreeRight = \relative b' {
   \clef treble
   | fis8\fp e gis4. fis8 d4~
   | d8 f \stemUp cis'4. b8 a g-.\sf \stemNeutral  % XXX sf conflicts
+  | fis8 <e b f>-.\sf gis4 r8 gis16 a d8 <e bes>
+  | << { d8\< c e d f e~\! e4 } \\
+       { r16 bes a g a f bes c des bes e,8~ e4 } >>
+  | << { f'8 e g\> f a g~ g f\! } \\
+       { d,16 a' cis d e cis a d c a b g a bes~ bes d } >>
+  | g8\mp e'16 f e f d e cis d e8 a16-. e-. a,-. e-.
+  | f8 
+      \clef bass
+      g,,16 a g a f g e f g e c'-. g-. c,-. g-.
+  | a8 
+      \clef treble
+      a'\glissando a'4
+      << { e'8 f~ f g } \\
+         { c,16 bes a bes a g f g } >>
+  | e8 a,\glissando cis'4
+      << { e'16 d-. cis-. d-. cis-. b-. a-. b-. } \\
+         { e,8 f~ f g } >>
+  | cis8 e,16 a <cis cis,>8 a16 cis <e e,>8 fis,16 bis <dis dis,>8 cis16 dis
 }
 
 mvmtOnePianoSectThreeLeft = \relative b, {
@@ -140,6 +158,27 @@ mvmtOnePianoSectThreeLeft = \relative b, {
       { b8 \change Staff = pianoRight \stemDown d g eis fis4 cis8 b8-. \stemNeutral } \\
       { r16 eis,, b' eis ais b cis d r fis,, cis' fis a fis <e a,>8-. }
     >>
+  | r16 d <a e'>8-. 
+      \clef treble
+      b'16 cis d e c a c f b a d, bes
+  \clef bass
+  | r4 f8 fis g gis e,16 c' \change Staff = pianoRight a' e'
+  \change Staff = pianoLeft
+  | << { r8 e, cis f d a' f c' } \\
+       { r4 cis,, d f8 d'8 } >>
+  | bes 
+      \clef treble
+      g'''16 a g a f g e f g cis, a'-. e-. a,-. e-.
+  | bes8
+      \clef bass
+      << { bes,16 c bes c a bes g a bes8 } \\
+         { d,8~ d cis~ cis c } >>
+      c'16-. g-. c,-. g-.
+  | a16( e' a e') a e a e eis fis g gis a ais b bis
+  | cis16 e,, a e' a e a e 
+        << { cis' d-. dis-. e-. eis-. fis-. g-. gis-. }
+           { s16 c,-. b-. bes-. a-. aes-. g-. b-. } >>
+  | <a' cis,>8 gis16 e <cis cis,>8 e16 cis <a a,>8 dis16 bis <gis gis,>8 gis16 eis
 }
 
 mvmtOnePianoRight = {
