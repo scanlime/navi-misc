@@ -422,24 +422,6 @@ class CommitToXHTMLLong(CommitToXHTML):
                         node = node.setdefault(segment, {})
 
         # Now generate Nouvelle tags from our dict tree
-        return self.renderFileTree(fileTree)
-
-    def renderFileTree(self, tree):
-        """Recursively render nested dictionaries as a tree of lists"""
-        keys = tree.keys()
-        keys.sort()
-        items = []
-        for key in keys:
-            if not key:
-                # This can happen when there's a trailing slash, for example because a new directory
-                # was added. (in clients that are smart enough to detect that) Ignore it here for now.
-                continue
-
-            if tree[key]:
-                items.append( tag('li', _class='directory')[ key, self.renderFileTree(tree[key]) ])
-            else:
-                items.append( tag('li', _class='file')[ key ])
-
-        return tag('ul', _class='fileTree')[ items ]
+        return Template.FileTree(fileTree)
 
 ### The End ###

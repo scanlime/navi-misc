@@ -35,6 +35,10 @@ unableToFormat = error[ "Unable to format data" ]
 breadcrumbSeparator = xml(" &raquo; ")
 pageBody = tag('div', _class="pageBody")
 
+# Stock images
+fileIcon = tag('img', src="/images/bullet.png", _class="left-icon", width=9, height=9, alt="file")
+dirIcon = tag('img', src="/images/folder.png", _class="left-icon", width=14, height=12, alt="directory")
+
 
 def Photo(url, **attrs):
     """A factory for images presented as a photo"""
@@ -54,7 +58,7 @@ def SubscriptionLink(url, content, icon="/images/rss.png", iconSize=(36,14)):
     return tag('a', href = url,
                onmouseout  = "return timeqs();",
                onmouseover = "return quicksub(this, %r);" % str(url))[
-                  tag('img', src=icon, _class="xml-icon", alt="RSS",
+                  tag('img', src=icon, _class="left-icon", alt="RSS",
                       width=iconSize[0], height=iconSize[1]),
                   content,
               ]
@@ -71,6 +75,28 @@ def MessageHeaders(d):
         ]
         for name, value in d.iteritems()
     ]]
+
+
+def FileTree(tree):
+    """A factory for rendering file trees from a tree of nested dictionaries.
+       Dictionaries with no children are treated as files, dictionaries with
+       children are treated as directories.
+       """
+    keys = tree.keys()
+    keys.sort()
+    items = []
+    for key in keys:
+        if not key:
+            # This can happen when there's a trailing slash, for example because a new directory
+            # was added. (in clients that are smart enough to detect that) Ignore it here for now.
+            continue
+
+        if tree[key]:
+            items.append( tag('li', _class='directory')[ key, FileTree(tree[key]) ])
+        else:
+            items.append( tag('li', _class='file')[ key ])
+
+    return tag('ul', _class='fileTree')[ items ]
 
 
 class Section:

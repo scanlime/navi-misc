@@ -22,82 +22,10 @@ Site and Request classes.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.web import server, error, static
-from twisted.protocols import http
+from twisted.web import server, static
 from twisted.python import log
-from Nouvelle import tag, place, Serializer, Twisted
-import Nouvelle
-from LibCIA import TimeUtil
+import ServerPages
 import time
-
-
-class InternalErrorPage(Twisted.Page):
-    def __init__(self, failure):
-        self.failure = failure
-
-    def preRender(self, context):
-        request = context['request']
-        request.setHeader('content-type', "text/html")
-        request.setResponseCode(http.INTERNAL_SERVER_ERROR)
-
-    def render_time(self, context):
-        return TimeUtil.formatDateRFC822(time.time())
-
-    def render_excType(self, context):
-        return str(self.failure.value.__class__)
-
-    def render_excValue(self, context):
-        return str(self.failure.value)
-
-    def render_traceback(self, context):
-        return self.failure.getTraceback()
-
-    def render_uri(self, context):
-        return context['request'].uri
-
-    document = tag('html')[
-                   tag('head')[
-                       tag('title')[ "Internal Server Error" ],
-                   ],
-                   tag('body')[
-                       tag('h2')[ "Internal Server Error" ],
-
-                       # Friendly message
-                       tag('p')[
-                           "Sorry, it looks like you just found a bug. If you would like to "
-                           "help us identify the problem, please email a copy of this page to the "
-                           "webmaster of this site along with a description of what happened. Thanks!"
-                       ],
-
-                       # Table of useful values
-                       tag('table', cellpadding=5) [
-                           tag('tr')[
-                               tag('td')[ tag('b')[ 'Current time:' ]],
-                               tag('td')[ place('time') ],
-                           ],
-                           tag('tr')[
-                               tag('td')[ tag('b')[ 'Requested path:' ]],
-                               tag('td')[ place('uri') ],
-                           ],
-                           tag('tr')[
-                               tag('td')[ tag('b')[ 'Exception type:' ]],
-                               tag('td')[ place('excType') ],
-                           ],
-                           tag('tr')[
-                               tag('td')[ tag('b')[ 'Exception value:' ]],
-                               tag('td')[ place('excValue') ],
-                           ],
-                       ],
-
-                       # Traceback
-                       tag('p')[
-                           tag('b')[ 'Traceback:' ],
-                       ],
-                       tag('p')[
-                           tag('pre')[ place('traceback') ],
-                       ],
-                   ],
-               ]
 
 
 class Request(server.Request):
@@ -119,7 +47,7 @@ class Request(server.Request):
               ones reported to twistd.log :)
         """
         log.err(reason)
-        page = InternalErrorPage(reason)
+        page = ServerPages.InternalErrorPage(reason)
         self.write(page.render(self))
         self.finish()
         return reason
@@ -140,8 +68,11 @@ class Request(server.Request):
 
 
 class File(static.File):
-    """A local subclass of static.File that overrides the default MIME type map"""
-    print static.File.contentTypes
+    """A local subclass of static.File that overrides the default MIME type map
+       and directory listing behaviour. We would rather all the scripts in /clients
+       be given out as text/plain so they're easy to view in a browser, and the directory
+       listings should be given using our own template rather than Twisted's.
+       """
     contentTypes = {
         '.png':   'image/png',
         '.ico':   'image/png',
@@ -153,6 +84,18 @@ class File(static.File):
         '.css':   'text/css',
         '.js':    'application/x-javascript',
         }
+
+    def listNames(self):
+        """Override listNames to hide hidden files, like .svn and .xvpics"""
+        listing = static.File.listNames(self)
+        return [item for item in listing if not item.startswith(".")]
+
+    def directoryListing(self):
+        """Use our own directory lister rather than relying on Twisted's default.
+           This lets us keep the site's look more consistent, and doesn't pull
+           in all of Woven just for a silly listing page.
+           """
+        return ServerPages.DirectoryListing(self)
 
 
 class StaticJoiner(File):
