@@ -10,7 +10,6 @@
 
 from twisted.application import service, internet
 from twisted.web import vhost
-from twisted.internet import ssl
 from LibCIA import Database, Message, Ruleset, IRC, Stats, IncomingMail, Cron
 from LibCIA import Debug, Security, RpcServer, RpcClient, Web, Cache
 from twisted.internet import tcp
