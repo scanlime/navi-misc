@@ -89,6 +89,18 @@
     </people>
   </project>
 
+  <project name="pyg" href="pyg.xml">
+    <description>
+      An open source python-based environment for experimenting with the Cg shader language
+    </description>
+    <status>
+      UI designed, python interface to the Cg runtime works
+    </status>
+    <people>
+      David
+    </people>
+  </project>
+
   <project name="wasabi" href="wasabi.xml">
     <description>
       A set-top-box system capable of managing video game systems, presenting
