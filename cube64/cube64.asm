@@ -102,7 +102,8 @@ map_button macro src_byte, src_bit, dest_byte, dest_bit
 	endm
 
 map_axis macro src_byte, dest_byte
-	movf	gamecube_buffer+src_byte, w
+	movlw	0x80			; Subtract 0x80 to convert from 0x80-centered to signed formats
+	subwf	gamecube_buffer+src_byte, w
 	movwf	n64_status_buffer+dest_byte
 	endm
 
