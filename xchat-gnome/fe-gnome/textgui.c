@@ -85,11 +85,21 @@ void text_gui_print(xtext_buffer *buf, unsigned char *text, gboolean indent) {
 }
 
 void set_nickname(struct server *serv, char *newnick) {
-	if (serv == gui.current_session->server) {
+	if(serv == gui.current_session->server) {
 		GtkWidget *nick = glade_xml_get_widget(gui.xml, "nickname");
 		if(newnick == NULL)
 			gtk_label_set_text(GTK_LABEL(nick), serv->nick);
 		else
 			gtk_label_set_text(GTK_LABEL(nick), newnick);
+	}
+}
+
+void set_gui_topic(struct session *sess, char *topic) {
+	if(sess == gui.current_session) {
+		GtkWidget *topicw = glade_xml_get_widget(gui.xml, "topic entry");
+		if(topic == NULL)
+			gtk_entry_set_text(GTK_ENTRY(topicw), sess->topic);
+		else
+			gtk_entry_set_text(GTK_ENTRY(topicw), topic);
 	}
 }

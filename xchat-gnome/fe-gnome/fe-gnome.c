@@ -99,7 +99,8 @@ void fe_idle_add(void *func, void *data) {
 }
 
 void fe_set_topic(struct session *sess, char *topic) {
-	/* FIXME: implement */
+	g_print("setting topic to \"%s\"\n", topic);
+	set_gui_topic(sess, topic);
 }
 
 void fe_set_hilight(struct session *sess) {
