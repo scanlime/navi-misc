@@ -90,8 +90,7 @@ static fd_set fd_request_read, fd_request_write, fd_request_except;
 static fd_set fd_read, fd_write, fd_except;
 int fd_count = 0;
 
-static struct client*   client_new             (int tcp_fd,
-						struct sockaddr_in *addr);
+static struct client*   client_new             (int tcp_fd);
 static void             client_delete          (struct client* self);
 static void             client_poll            (struct client* self);
 static const char*      client_format_addr     (struct client* self);
@@ -128,18 +127,21 @@ static int              main_loop              (void);
 /* Accept a connection from the given socket fd, returning
  * a new client for that connection.
  */
-static struct client* client_new(int tcp_fd, struct sockaddr_in *addr)
+static struct client* client_new(int tcp_fd)
 {
   struct client *self;
+  socklen_t addrlen = sizeof(struct sockaddr_in);
 
   /* Create and init the client itself */
   self = malloc(sizeof(struct client));
   assert(self != NULL);
   memset(self, 0, sizeof(struct client));
 
-  /* If we got the address of our client, save that */
-  if (addr)
-    memcpy(&self->addr, addr, sizeof(*addr));
+  /* Save our peer's internet address. This is how we will
+   * identify this client in our debug output and in our
+   * input device's physical address.
+   */
+  getpeername(tcp_fd, (struct sockaddr*) &self->addr, &addrlen);
 
   self->socket = packet_socket_new(tcp_fd);
   assert(self->socket);
@@ -180,17 +182,12 @@ static void client_delete(struct client* self)
 
 static const char* client_format_addr (struct client* self)
 {
-  if (self->socket->fd == fileno(stdin)) {
-    return "stdin";
-  }
-  else {
-    static char buffer[25];
-    unsigned char *ip = (unsigned char*) &self->addr.sin_addr.s_addr;
-    int port = ntohs(self->addr.sin_port);
-    sprintf(buffer, "%d.%d.%d.%d:%d",
-	    ip[0], ip[1], ip[2], ip[3], port);
-    return buffer;
-  }
+  static char buffer[25];
+  unsigned char *ip = (unsigned char*) &self->addr.sin_addr.s_addr;
+  int port = ntohs(self->addr.sin_port);
+  sprintf(buffer, "%d.%d.%d.%d:%d",
+	  ip[0], ip[1], ip[2], ip[3], port);
+  return buffer;
 }
 
 static void client_poll(struct client* self)
@@ -602,17 +599,15 @@ static void listener_delete(struct listener* self)
 static void listener_poll(struct listener* self)
 {
   struct client *c;
-  socklen_t addrlen = sizeof(struct sockaddr_in);
-  struct sockaddr_in in_addr;
 
   if (FD_ISSET(self->fd, &fd_read)) {
     /* Accept the client's connection, save this as our TCP socket */
-    int fd = accept(self->fd, (struct sockaddr*) &in_addr, &addrlen);
+    int fd = accept(self->fd, NULL, NULL);
     if (fd < 0) {
       perror("Accepting client");
     }
     else {
-      c = client_new(fd, &in_addr);
+      c = client_new(fd);
       if (c)
 	client_list_insert(c);
     }
@@ -639,7 +634,7 @@ static int main_loop(void) {
      */
     struct client *c;
     tcp_listener = NULL;
-    c = client_new(fileno(stdin), NULL);
+    c = client_new(fileno(stdin));
     if (c == NULL)
       return 1;
     client_list_insert(c);
