@@ -24,11 +24,12 @@ def synchronized(retval):
 
         print
         print
-        print "          Title: %s" % f.details.get('title')
-        print "          Album: %s" % f.details.get('source')
-        print "         Artist: %s" % f.details.get('artist')
-        print "         Length: %s" % f.details.get('length')
-        print " Downloading To: %s" % destName
+        print "          FID: 0x%05X" % f.details.get('fid')
+        print "        Title: %s" % f.details.get('title')
+        print "        Album: %s" % f.details.get('source')
+        print "       Artist: %s" % f.details.get('artist')
+        print "       Length: %s" % f.details.get('length')
+        print "  Downloading: %s" % destName
 
         f.saveToDisk(destName).addCallback(finishFile, i).addErrback(log.err)
 

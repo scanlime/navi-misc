@@ -1091,7 +1091,10 @@ class MetadataConverter:
         'vorbis': 'ogg',
         }
 
-    def filenameFromDetails(self, details, replaceSpaces=True, lowercase=True):
+    def filenameFromDetails(self, details,
+                            replaceSpaces   = True,
+                            lowercase       = True,
+                            unicodeEncoding = 'utf-8'):
         """Determine a good filename to use for a file with the given metadata
            in the Rio 'details' format. If it's a data file, this will use the
            original file as stored in 'title'. Otherwise, it cleans up the filename
@@ -1112,7 +1115,7 @@ class MetadataConverter:
         extension = self.codecExtensions.get(codec, codec)
         if extension:
             name += '.' + extension
-        return name
+        return unicode(name).encode(unicodeEncoding, 'replace')
 
     def detailsFromDisk(self, filename, details):
         """Automagically load media metadata out of the provided filename,
