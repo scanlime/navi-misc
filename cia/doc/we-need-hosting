@@ -18,51 +18,68 @@ Needs
 
 For us to consider a new host for CIA, it must meet the following requirements:
 
-- It needs an operating system capable of running CIA. In theory this is
-  anything that Python can run on, but it would be the least hassle if it
-  is a Linux machine.
+- It needs an operating system capable of running CIA.
+
+    In theory this is
+    anything that Python can run on, but it would be the least hassle if it
+    is a Linux machine.
 
 - We need a normal user account on the hosting machine, accessable via ssh.
-  Everything except possibly HTTP proxy configuration should be doable
-  without any special account, though it would be handy if the administrator
-  could install packages that CIA depends on.
+
+    Everything except possibly HTTP proxy configuration should be doable
+    without any special account, though it would be handy if the administrator
+    could install packages that CIA depends on.
 
 - It would need to be able to serve HTTP traffic for http://cia.navi.cx.
-  The web server is in the same process as the rest of CIA, but like in the
-  current setup it could be proxied from another server. Currently HTTP
-  traffic to CIA first passes into an Apache named virtual host, then via
-  a ProxyPass directive into CIA's VHostMonster.
+
+    The web server is in the same process as the rest of CIA, but like in the
+    current setup it could be proxied from another server. Currently HTTP
+    traffic to CIA first passes into an Apache named virtual host, then via
+    a ProxyPass directive into CIA's VHostMonster.
 
 - CIA needs a MySQL database, with a good amount of potential disk space.
-  Our `current needs` aren't too high, but keep in mind the new stats system
-  has only been in place for weeks. Preferably a couple gigabytes of space
-  would be available for CIA if it needed it.
 
-- CIA must be able to make and sustain outgoing connections, for IRC bots,
-  XML-RPC notification, and possible future IM notification features.
+    Our `current needs` aren't too high, but keep in mind the new stats system
+    has only been in place for weeks. Preferably a couple gigabytes of space
+    would be available for CIA if it needed it.
 
-- CIA needs to accept incoming email. Preferably this would involve giving
-  the new host an MX record for cia.navi.cx, encouraging people to switch
-  their client scripts to a compatible address, then redirecting all other
-  addresses from navi to the new host. All email is filtered via procmail,
-  and piped into one of several small python scripts.
+- CIA must be able to make and sustain outgoing connections.
 
-- We would be happy to display a small image thanking the host and linking
-  to them, in the page's footer, but nothing obtrusive. Definitely no form
-  of advertising would be allowed.
+    This is of course needed for IRC bots, but CIA also can send XML-RPC
+    notifications, and in the future it might support Jabber or other IM
+    protocols.
 
-- It needs a decent amount of RAM and CPU. In the current setup it uses
-  around 20MB of RAM and depending on the page serves maybe 10 requests
-  per second on a 1GHz Athlon XP. Of course optimization and caching is
-  expected to reduce this load dramatically, the host should still be
-  decently speedy.
+- CIA needs to accept incoming email.
 
-- It should have a good amount of bandwidth at its disposal, but CIA
-  probably won't need much yet. Actual figures on CIA's bandwidth usage
-  are pending, but keep in mind that right now it's on two DSL lines.
+    Preferably this would involve giving
+    the new host an MX record for cia.navi.cx, encouraging people to switch
+    their client scripts to a compatible address, then redirecting all other
+    addresses from navi to the new host. All email is filtered via procmail,
+    and piped into one of several small python scripts.
 
-- It needs to be free or very cheap. CIA's author is a college student
-  with little cash.
+- No obtrusive advertising.
+
+    We would be happy to display a small image thanking the host and linking
+    to them, in the page's footer, but nothing obtrusive. Definitely no form
+    of ad banners would be allowed.
+
+- CIA needs a relatively speedy machine.
+
+    It needs a decent amount of RAM and CPU. In the current setup it uses
+    around 20MB of RAM and depending on the page serves maybe 10 requests
+    per second on a 1GHz Athlon XP. Of course optimization and caching is
+    expected to reduce this load dramatically, the host should still be
+    decently speedy.
+
+- CIA probably doesn't need that much bandwidth, but it might...
+
+    It should have a good amount of bandwidth at its disposal, but CIA
+    probably won't need much yet. Actual figures on CIA's bandwidth usage
+    are pending, but keep in mind that right now it's on two DSL lines.
+
+- It needs to be free or very cheap.
+
+    CIA's author is a college student with little cash.
 
 Contact
 -------
