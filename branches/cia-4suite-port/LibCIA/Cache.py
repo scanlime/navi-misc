@@ -28,6 +28,35 @@ from twisted.internet import defer
 import time, md5
 
 
+class CachePerformance:
+    """Collects performance information about a cache.
+       This is not persistent across server sessions.
+       """
+    def __init__(self, name):
+        self.name = name
+        self.hits = 0
+        self.misses = 0
+
+_cachePerformanceStorage = {}
+
+def getNamedCachePerformance(name):
+    """Retrieve a CachePerformance object with the given name,
+       creating it if necessary.
+       """
+    global _cachePerformanceStorage
+    try:
+        return _cachePerformanceStorage[name]
+    except KeyError:
+        perf = CachePerformance(name)
+        _cachePerformanceStorage[name] = perf
+        return perf
+
+def getCachePerformanceList():
+    """Return an iterator for all registered CachePerformance instances"""
+    global _cachePerformanceStorage
+    return _cachePerformanceStorage.itervalues()
+
+
 class AbstractStringCache:
     """An abstract cache mapping arbitrary python parameters to
        a string. Subclasses should define the miss() function to
@@ -61,6 +90,7 @@ class AbstractStringCache:
             if expiration is None or expiration > time.time():
                 # It's a cache hit, yay. Update the access time asynchronously,
                 # and return the cached result immediately.
+                getNamedCachePerformance(self.__class__.__name__).hits += 1
                 result.callback(rows[0][0])
                 Database.pool.runOperation("UPDATE cache SET atime = %s WHERE id = %s" %
                                            (Database.quote(int(time.time()), 'bigint'),
@@ -68,6 +98,7 @@ class AbstractStringCache:
                 return
 
         # Darn, a cache miss. Start generating the data, possibly asynchronously
+        getNamedCachePerformance(self.__class__.__name__).misses += 1
         defer.maybeDeferred(self.miss, *args).addCallback(
             self.returnAndStoreValue, result, id).addErrback(result.errback)
 

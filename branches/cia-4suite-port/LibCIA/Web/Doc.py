@@ -158,7 +158,7 @@ class NouvelleTranslator(nodes.NodeVisitor):
         'block_quote':     tag('blockquote'),
         'emphasis':        tag('em'),
         'strong':          tag('strong'),
-        'literal_block':   tag('pre'),
+        'literal_block':   tag('pre', _class='literal-block'),
         'definition':      tag('dd'),
         'definition_list': tag('dl'),
         'table':           tag('table'),
