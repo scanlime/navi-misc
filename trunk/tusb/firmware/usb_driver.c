@@ -192,6 +192,7 @@ void usb_poll() {
 
 void usb_init() {
   FUNADR = 0;       /* We haven't been assigned an address yet */
+  USBMSK = 0;       /* No USB interrupts */
 
   /* Set up endpoint 0. In and out both start out stalled. */
   IEPCNFG_0 = STALL | UBME;
