@@ -377,4 +377,31 @@ class CommitToXHTMLLong(CommitToXHTML):
             self.format_files(message.xml.body.commit.files),
             ]
 
+    def format_files(self, xmlFiles):
+        """Format the contents of our <files> tag as a tree with nested lists"""
+        # First we organize the files into a tree of nested dictionaries
+        fileTree = {}
+        if xmlFiles:
+            for fileTag in xmlFiles.elements():
+                if fileTag.name == 'file':
+                    # Separate the file into path segments and walk into our tree
+                    node = fileTree
+                    for segment in str(fileTag).split('/'):
+                        node = node.setdefault(segment, {})
+
+        # Now generate Nouvelle tags from our dict tree
+        return self.renderFileTree(fileTree)
+
+    def renderFileTree(self, tree):
+        """Recursively render nested dictionaries as a tree of lists"""
+        keys = tree.keys()
+        keys.sort()
+        items = []
+        for key in keys:
+            if tree[key]:
+                items.append( tag('li', _class='directory')[ key, self.renderFileTree(tree[key]) ])
+            else:
+                items.append( tag('li', _class='file')[ key ])
+        return tag('ul', _class='fileTree')[ items ]
+
 ### The End ###
