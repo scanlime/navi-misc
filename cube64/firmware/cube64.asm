@@ -17,7 +17,14 @@
 	;; See n64gc_comm.inc for code and documentation related to the protocol
 	;; used between here, the N64, and the Gamecube.
 	;;
-
+	;; This file doesn't implement all of the N64 controller protocol, but
+	;; it should correctly emulate an official N64 controller with rumble pak.
+	;; It might not respond to unusual circumstances the same as a real N64
+	;; controller would, both due to potential gaps in the reverse engineering,
+	;; and due to corners cut in the algorithm implementation to fit it on
+	;; this microcontroller. In particular, only a partial implementation of
+	;; the CRC algorithm is used and the address check bits are ignored.
+	;;
 
 	list	p=16f84a
 	#include p16f84a.inc
@@ -46,8 +53,12 @@
 		gamecube_buffer:8
 		n64_status_buffer:4
 		n64_id_buffer:3
-		n64_command
-		n64_bus_buffer:34	; Must immediately follow n64_command
+
+		;; These four items must be contiguous
+		n64_command:1
+		n64_bus_address:2
+		n64_bus_packet:.32
+		n64_crc
 	endc
 
 	;; *******************************************************************************
@@ -67,16 +78,13 @@ startup
 
 	n64gc_init
 
-	;; Initialize the ID buffer with values measured from an official nintendo
-	;; controller with no rumble pak or memory pak attached. The page at
-	;; http://www.mixdown.ca/n64dev/ mentioned the existence of this ID command,
-	;; but I obtained this value myself. In the future this might be changed to
-	;; support the N64 rumble pak via the gamecube controller's built-in motor.
+	;; Initialize the ID buffer to identify this controller as an N64
+	;; controller with its controller pak slot occupied.
 	movlw	0x05
 	movwf	n64_id_buffer+0
 	movlw	0x00
 	movwf	n64_id_buffer+1
-	movlw	0x02
+	movlw	0x01
 	movwf	n64_id_buffer+2
 
 	;; We use the watchdog to implicitly implement controller probing.
@@ -193,30 +201,95 @@ n64_wait_for_command
 	call	n64_rx			; FSR is already pointing at our buffer, it's after n64_command
 	;; Fall through...
 
+
+	;; The N64 requested a 32-byte write to our controller pak bus.
+	;; The start address is given in the high 11 bits of n64_bus_address.
+	;; The low 5 bits are to verify the address- the algorithm for this is
+	;; known, but to save time they are currently ignored.
+	;; Addresses from 0x0000 to 0x7FFF are only used by the memory pak's RAM.
+	;; To emulate a rumble pak, we should only need to respond to configuration
+	;; writes at 0x8000 and rumble pak motor writes at 0xC000.
+	;;
+	;; Since all the packets we'll get while emulating a rumble pak are copies
+	;; of the same byte, we assume this is always true and use a table storing
+	;; the checksums of all such packets. We always negate the checksum to indicate
+	;; that a controller pak has been detected and initialized properly.
 n64_bus_write
-	movlw	0x1E			; Always indicate that we have no controller pak
-	movwf	n64_command
-	movlw	n64_command
+	goto	$+1			; We have about 3us to kill here, we don't
+	goto	$+1			;   want to begin transmitting before the stop bit is over.
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+
+	call	get_repeated_crc	; Get our limited CRC from the lookup table
+	xorlw	0xFF			; Negate the CRC, we emulate a rumble pak
+	movwf	n64_crc			; Send back the CRC in a 1-byte transmission
+	movlw	n64_crc
 	movwf	FSR
 	movlw	1
-	goto	n64_tx_widestop		; I don't know why, but these replies use a funky stop bit
+	call	n64_tx_widestop		; We need a 2us stop bit after all CRCs
 
-n64_bus_read				; Not implemented yet...
-	goto	n64_wait_for_command
+	;; FIXME: handle rumble pak writes
+	return
 
+
+	;; The N64 requested a 32-byte read from our controller pak bus.
+	;; If all is well, this should only happen at address 0x8000, where it
+	;; tries to identify what type of controller pak we have. Always
+	;; indicate we have a rumble pak by sending all 0x80s.
+	;;
+	;; It's not as important as in n64_bus_write, since we currently don't
+	;; need the data at all, but we do have to read the address word from
+	;; the N64 very quickly. FSR is already pointing at the buffer.
+n64_bus_read
+	movlw	.2
+	call	n64_rx
+
+	movlw	.32			; Fill the buffer with 0x80
+	movwf	byte_count
+	movlw	n64_bus_packet
+	movwf	FSR
+pak_identify_fill_loop
+	movlw	0x80
+	movwf	INDF
+	incf	FSR, f
+	decfsz	byte_count, f
+	goto	pak_identify_fill_loop
+
+	movlw	0x47			; 0x47 is the CRC of a packet with all 0x80s
+	movwf	n64_crc
+
+	movlw	n64_bus_packet		; Send back the data and CRC
+	movwf	FSR
+	movlw	.33
+	goto	n64_tx_widestop		; We need a 2us stop bit after all CRCs
+
+
+	;; The N64 asked for our button and joystick status
 n64_send_status
 	movlw	n64_status_buffer	; Transmit the status buffer
 	movwf	FSR
 	movlw	4
 	goto	n64_tx
 
+
+	;; The N64 asked for our identity, which we've already prepared
 n64_send_id
 	movlw	n64_id_buffer		; Transmit the ID buffer
 	movwf	FSR
 	movlw	3
 	goto	n64_tx
 
+
 not_bus_write
+	movf	n64_command, w
+	xorlw	N64_COMMAND_READ_BUS
+	btfsc	STATUS, Z
+	goto	n64_bus_read
+
 	movf	n64_command, w
 	xorlw	N64_COMMAND_IDENTIFY
 	btfsc	STATUS, Z
@@ -226,11 +299,6 @@ not_bus_write
 	xorlw	N64_COMMAND_STATUS
 	btfsc	STATUS, Z
 	goto	n64_send_status
-
-	movf	n64_command, w
-	xorlw	N64_COMMAND_READ_BUS
-	btfsc	STATUS, Z
-	goto	n64_bus_read
 
 	goto	n64_wait_for_command	; Ignore other commands
 
@@ -292,5 +360,30 @@ gamecube_tx
 	n64gc_tx_buffer GAMECUBE_TRIS, 0
 gamecube_rx
 	n64gc_rx_buffer GAMECUBE_PIN, 0
+
+
+	;; *******************************************************************************
+	;; ******************************************************  Lookup Tables  ********
+	;; *******************************************************************************
+
+	;; This is a table of the resulting CRCs
+	;; for every message consisting of 32 copies
+	;; of a single byte. It's cheesy, but our
+	;; microcontroller is a bit on the slow side
+	;; to implement the full CRC in the allotted time,
+	;; and this is all we need for initialization
+	;; and rumble pak support.
+	;;
+	;; It was generated using the small-table
+	;; implementation of the CRC, in notes/crc.py
+get_repeated_crc
+	movlw	high crc_table
+	movwf	PCLATH
+	movf	n64_bus_packet, w
+	movwf	PCL
+
+	org 0x300
+crc_table
+	#include repeated_crc_table.inc
 
 	end

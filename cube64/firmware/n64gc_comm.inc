@@ -87,7 +87,6 @@
 	;; *********************************************************** Definitions *******
 	;; *******************************************************************************
 
-
 	;; 1-byte commands sent from N64 to controller
 	#define N64_COMMAND_IDENTIFY	0x00
 	#define N64_COMMAND_STATUS	0x01
