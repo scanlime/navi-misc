@@ -42,8 +42,8 @@ EXTRA_DIST =				\
 	setup_druid.c			\
 	textgui.h			\
 	textgui.c			\
-	userlist.h			\
-	userlist.c			\
+	userlist_gui.h			\
+	userlist_gui.c			\
 	channel-list.glade		\
 	xchat-gnome.glade
 
@@ -83,8 +83,8 @@ xchat_gnome_SOURCES =			\
 	setup_druid.c			\
 	textgui.h			\
 	textgui.c			\
-	userlist.h			\
-	userlist.c			\
+	userlist_gui.h			\
+	userlist_gui.c			\
 	xtext.h				\
 	xtext.c
 
