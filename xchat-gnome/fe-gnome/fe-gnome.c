@@ -49,11 +49,12 @@ void fe_init(void) {
 	gui.quit = FALSE;
 	servlist_init();
 	palette_init();
+	initialize_gui_1();
 	if(!preferences_exist()) {
 		run_setup_druid();
 	}
 	load_preferences();
-	initialize_gui();
+	initialize_gui_2();
 	run_main_window();
 	prefs.use_server_tab = TRUE;
 }
