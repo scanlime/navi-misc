@@ -122,6 +122,35 @@ class MsgAlive(Common.Message):
 class MsgNetworkRelay(Common.Message):
     messageId = 0x6e72
 
+class MsgShotBegin(Common.Message):
+    messageId = 0x7362
+    entries = [
+        StructEntry(Common.PlayerId, 'playerId'),
+        StructEntry(UInt16,          'shotId'),
+        StructEntry(Common.Vector3,  'position'),
+        StructEntry(Common.Vector3,  'velocity'),
+        StructEntry(Float,           'time'),
+        StructEntry(UInt16,          'flagType'),
+        StructEntry(Float,           'lifetime'),
+        ]
+
+class MsgDropFlag(Common.Message):
+    messageId = 0x6466
+    entries = [
+        StructEntry(Common.PlayerId, 'playerId'),
+        StructEntry(UInt16,          'flagNum'),
+        StructEntry(UInt16,          'flagId'),
+        StructEntry(UInt16,          'status'),
+        StructEntry(UInt16,          'type'),
+        StructEntry(Common.PlayerId, 'ownerId'),
+        StructEntry(Common.Vector3,  'position'),
+        StructEntry(Common.Vector3,  'launch'),
+        StructEntry(Common.Vector3,  'landing'),
+        StructEntry(Float,           'flightTime'),
+        StructEntry(Float,           'flightEnd'),
+        StructEntry(Float,           'initialVelocity'),
+        ]
+
 ### The End ###
         
     
