@@ -208,8 +208,19 @@ class ThumbnailRootPage(resource.Resource):
         self.key = key
         resource.Resource.__init__(self)
 
+    def render(self, request):
+        return error.NoResource("There's nothing here, it's just an object that generates thumbnails").render(request)
+
     def getChildWithDefault(self, name, request):
-        width, height = map(int, name.split("x"))
+        if not name:
+            # Ignore empty path segments
+            return self
+
+        # The child name is a thumbnail size
+        try:
+            width, height = map(int, name.split("x"))
+        except ValueError:
+            return error.NoResource("Improperly formatted thumbnail size")
         return ThumbnailPage(self.target, self.key, (width, height))
 
 
