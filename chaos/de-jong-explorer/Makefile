@@ -1,8 +1,9 @@
-CFLAGS  = `pkg-config --cflags gtk+-2.0` -O3 -g -ffast-math -march=i686
-LIBS    = `pkg-config --libs gtk+-2.0`
+PKGS    = libglade-2.0 gtk+-2.0
+CFLAGS  = `pkg-config --cflags $(PKGS)` -O3 -g -ffast-math -march=i686
+LIBS    = `pkg-config --libs $(PKGS)`
 
 BIN     = de-jong-explorer
-OBJS    = main.o color-button.o
+OBJS    = src/main.o src/interface.o src/color-button.o
 HEADERS = src/color-button.h
 
 $(BIN): $(OBJS)
