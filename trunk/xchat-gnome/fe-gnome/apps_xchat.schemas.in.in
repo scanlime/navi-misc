@@ -186,5 +186,17 @@
       </locale>
     </schema>
 
+	<schema>
+		<key>/schemas/apps/xchat/plugins/enabled</key>
+		<applyto>/apps/xchat/plugins/enabled</applyto>
+		<owner>xchat</owner>
+		<type>list</type>
+		<list_type>string</list_type>
+		<default>[]</default>
+		<locale name="C">
+			<short>List of enabled plugins</short>
+		</locale>
+	</schema>
+
   </schemalist>
 </gconfschemafile>
