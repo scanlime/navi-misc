@@ -30,7 +30,7 @@ class Prefs:
 
     lines = file.readlines()
     for line in lines:
-      pref = line.split()
+      pref = line.split('=')
       setattr(self, pref[0].strip(), string.join(pref[1:]).strip())
     file.close()
 
