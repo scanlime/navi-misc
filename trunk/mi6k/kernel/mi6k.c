@@ -146,16 +146,13 @@ static void mi6k_request(struct usb_mi6k *dev, unsigned short request,
 
 static int mi6k_ir_rx_available(struct usb_mi6k *dev)
 {
-	/* Return the number of bytes available in the receive ring buffer.
-	 * It is assumed that dev->sem has already been locked.
-	 */
+	/* Return the number of bytes available in the receive ring buffer. */
 	return (dev->ir_rx_head - dev->ir_rx_tail) & (IR_RECV_BUFFER_SIZE - 1);
 }
 
 static void mi6k_ir_rx_push(struct usb_mi6k *dev, lirc_t x)
 {
 	/* Push a value into the receive ring buffer
-	 * It is assumed that dev->sem has already been locked.
 	 * This will overwrite data if the ring buffer is full.
 	 */
 	dev->ir_rx_buffer[dev->ir_rx_head] = x;
@@ -165,7 +162,6 @@ static void mi6k_ir_rx_push(struct usb_mi6k *dev, lirc_t x)
 static int mi6k_ir_rx_pop(struct usb_mi6k *dev)
 {
 	/* Pop a value out of the receive ring buffer.
-	 * It is assumed that dev->sem has already been locked.
 	 * This function will return an undefined value if the ring buffer is empty.
 	 */
 	lirc_t result =	dev->ir_rx_buffer[dev->ir_rx_tail];
@@ -181,7 +177,6 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 	 * This involves converting from the receiver's 4/3us unit to microseconds,
 	 * and setting the pulse/space flag appropriately. It also extends overflowed
 	 * timers to the highest value lirc_t supports.
-	 * This assumes dev->sem is already locked.
 	 */
 	lirc_t value;
 
@@ -229,6 +224,10 @@ static lirc_t mi6k_ir_tx_convert(lirc_t v)
 		dbg("sending a pulse/space too large for current firmware");
 	}
 
+	/* Lengths of zero are not allowed either, bump them up to 1 */
+	if (v == 0)
+		v = 1;
+
 	return v;
 }
 
@@ -247,16 +246,8 @@ static void mi6k_ir_rx_irq(struct urb *urb)
 	/* Callback for processing incoming interrupt transfers from the IR receiver */
 	struct usb_mi6k *dev = (struct usb_mi6k*)urb->context;
 
-	if (dev && urb->status == 0 && urb->actual_length > 0) {
-		dbg("ir_rx_irq, length %d, buffer: %02X%02X %02X%02X %02X%02X %02X%02X",
-		    urb->actual_length, dev->ir_rx_tbuffer[1], dev->ir_rx_tbuffer[0], dev->ir_rx_tbuffer[3],
-		    dev->ir_rx_tbuffer[2], dev->ir_rx_tbuffer[5], dev->ir_rx_tbuffer[4], dev->ir_rx_tbuffer[7],
-		    dev->ir_rx_tbuffer[6]);
-
-		down(&dev->sem);
+	if (dev && urb->status == 0 && urb->actual_length > 0)
 		mi6k_ir_rx_store(dev, dev->ir_rx_tbuffer, urb->actual_length);
-		up(&dev->sem);
-	}
 }
 
 static int mi6k_status(struct usb_mi6k *dev)

@@ -52,6 +52,7 @@
 ;// Note that the current firmware implementation ignores the high
 ;// byte of both values, limiting the maximum pulse length to
 ;// 3.35ms. This may be changed in a future firmware revision.
+;// A pulse or space length of zero is undefined.
 #define MI6K_CTRL_IR_SEND		0x05
 
 ;//************************************************** Status bits
