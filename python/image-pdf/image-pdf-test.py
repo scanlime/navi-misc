@@ -47,47 +47,7 @@ def binSearch(array, key):
         else:
             assert 0
 
-def buildTree(a, origin=0):
-
-    # Stopping conditions
-    if len(a) == 1:
-        # Got a single pixel
-        return origin
-    if len(a) == 0:
-        # Empty region, this should never be reached when walking the tree
-        return None
-
-    sums = cumsum(a)
-    total = sums[-1]
-
-    if total < 1:
-        return None
-
-    # Split at approximately 0.5 probability
-    splitLoc = binSearch(sums, total / 2 + 1)
-    if not splitLoc:
-        splitLoc = 1
-
-    left = a[:splitLoc]
-    right = a[splitLoc:]
-
-    return (buildTree(left, origin),
-            buildTree(right, origin + splitLoc))
-
-
-def walkTree(t):
-    while 1:
-        if type(t) is tuple:
-            if random() < 0.5:
-                t = t[0]
-            else:
-                t = t[1]
-        else:
-            return t
-
 psyco.bind(binSearch)
-psyco.bind(buildTree)
-psyco.bind(walkTree)
 
 print "Opening image..."
 a = openGrayImage("test.png")
@@ -95,12 +55,15 @@ originalShape = a.shape
 a = reshape(a, (-1,))
 
 print "Building tree..."
-t = buildTree(a)
+
+t = cumsum(a).astype(Float)
+t /= t[-1]
 
 print "Plotting points..."
 out = zeros(a.shape, Int32)
-for i in xrange(100000):
-    v = walkTree(t)
+for i in xrange(1000000):
+    i = random()
+    v = binSearch(t, i)
     try:
         out[v] += 1
     except IndexError:
