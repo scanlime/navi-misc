@@ -38,7 +38,7 @@ making keys map to pickled callable objects would be too fragile.
 
 from twisted.web import xmlrpc
 from twisted.internet import defer
-from twisted.python import failure
+from twisted.python import failure, log
 import string, os, md5, time
 from cStringIO import StringIO
 import Database, RpcServer
@@ -54,6 +54,16 @@ try:
         captchaFactory = Captcha.Factory()
 except ImportError:
     captchaFactory = None
+
+
+class SecurityException(Exception):
+    pass
+
+class NoSuchUser(SecurityException):
+    pass
+
+class InsufficientCapabilities(SecurityException):
+    pass
 
 
 class SecurityInterface(RpcServer.Interface):
@@ -91,29 +101,66 @@ class SecurityInterface(RpcServer.Interface):
            """
         return caps.test(key, *capabilities)
 
+    def getCaptchaFactory(self):
+        """Return our current CAPTCHA factory"""
+        global captchaFactory
+        if not captchaFactory:
+            raise SecurityException("PyCAPTCHA is not installed")
+        return captchaFactory
+
+    def getCaptchaFromID(self, id):
+        """Get a CAPTCHA test given its ID"""
+        test = self.getCaptchaFactory().get(id)
+        if not test:
+            raise SecurityException("No test with the given ID was found, it might have expired")
+        return test
+
     def xmlrpc_newCaptcha(self):
         """Creates a new CAPTCHA test that the caller can solve to perform
            certain operations that humans should be able to do easily but
            shouldn't be scriptable. Returns an ID that uniquely identifies
            this CAPTCHA test.
            """
-        if not captchaFactory:
-            raise Exception("PyCAPTCHA is not installed")
-        return captchaFactory.new(Captcha.Visual.Tests.PseudoGimpy).id
+        return self.getCaptchaFactory().new(Captcha.Visual.Tests.PseudoGimpy).id
 
     def xmlrpc_renderCaptcha(self, id):
         """Renders a (value, type) tuple containing a rendered version of
            the CAPTCHA test with the given ID. Currently the type will
            always be image/jpeg.
            """
-        if not captchaFactory:
-            raise Exception("PyCAPTCHA is not installed")
-        test = captchaFactory.get(id)
-        if not test:
-            raise Exception("No test with the given ID was found, it might have expired")
         io = StringIO()
-        test.render().save(io, "JPEG")
+        self.getCaptchaFromID(id).render().save(io, "JPEG")
         return (xmlrpc.Binary(io.getvalue()), "image/jpeg")
+
+    def requireCaptcha(self, id, solutions):
+        """A utility for XML-RPC interfaces that require that they were
+           originally invoked by a human. The caller must have previously
+           requested and rendered a test using newCaptcha() and renderCaptcha(),
+           then presented it to the user. They must then present the test ID and
+           solution(s) to gain access to this function.
+           A particular CAPTCHA test can only be used once.
+           """
+        if not self.getCaptchaFromID(id).testSolutions(solutions):
+            raise SecurityException("Incorrect or expired CAPTCHA solution(s)")
+
+    def xmlrpc_selfCreateUser(self, captchaId, captchaSolutions, fullName, email, loginName=None):
+        """Whereas createUser() above requires special permissions,
+           anyone can call this function if they can prove they're human
+           by solving a CAPTCHA test. This lets people create new accounts
+           for themselves on their own. Unlike createUser(), this can not be
+           used to retrieve information about an existing user.
+           """
+        self.requireCaptcha(captchaId, captchaSolutions)
+        u = User(full_name=fullName, email=email,
+                 login_name=loginName, create=True)
+        result = defer.Deferred()
+        u.getInfo().addCallback(self._selfCreateUser, u, result).addErrback(result.errback)
+        return result
+
+    def _selfCreateUser(self, info, user, result):
+        if not user.newUser:
+            raise SecurityException("That user already exists")
+        result.callback((info['uid'], info['secret_key']))
 
 
 def createRandomKey(bytes = 24,
@@ -131,17 +178,6 @@ def createRandomKey(bytes = 24,
         s += allowedChars[ ord(f.read(1)) % len(allowedChars) ]
     f.close()
     return s
-
-
-class SecurityException(Exception):
-    pass
-
-
-class NoSuchUser(SecurityException):
-    pass
-
-class InsufficientCapabilities(SecurityException):
-    pass
 
 
 class User:
@@ -173,6 +209,7 @@ class User:
         self._key = key
         self._create = create
         self._email = email
+        self.newUser = False
 
         self._validatedUid = None
 
@@ -385,6 +422,8 @@ class User:
         """Create a new user, optionally setting the given parameters.
            Returns the new user ID.
            """
+        log.msg("Creating new user %r" % self._full_name)
+        self.newUser = True
         cursor.execute("INSERT INTO users (secret_key, creation_time, full_name, email, login_name) "
                        "VALUES (%s, %d, %s, %s, %s)" % (
             Database.quote(createRandomKey(), 'varchar'),
