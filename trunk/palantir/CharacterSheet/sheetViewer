@@ -21,7 +21,7 @@ def init(filename=None):
   tree.OpenSheetDialog = tree.get_widget('OpenSheetDialog')
   tree.SaveSheetDialog = tree.get_widget('SaveSheetDialog')
   tree.ViewPort = tree.get_widget('SheetViewPort')
-  
+
   # Create the window with a sheet already loaded.
   if filename:
     OpenSheet(filename)
@@ -54,37 +54,55 @@ def on_quit_activate(widget=None, data=None):
   gtk.main_quit()
 
 def on_New_activate(widget, data=None):
-  tree.characterData = Character()
-  tree.characterData.makeNewDoc()
-  tree.OpenSheetDialog.set_filename('layout/')
-  tree.OpenSheetDialog.show()
+  OpenFileDialog(NewSheet, 'layout/')
 
 def on_Open_activate(widget, data=None):
-  del tree.characterData
-  tree.OpenSheetDialog.set_filename('data/')
-  tree.OpenSheetDialog.show()
+  OpenFileDialog(OpenSheet, 'data/')
 
 def on_Save_activate(widget, data=None):
-  tree.SaveSheetDialog.set_filename('data/')
-  tree.SaveSheetDialog.show()
+  OpenFileDialog(SaveSheet, 'data/')
 
-def on_cancel_open_button_clicked(widget, data=None):
-  tree.OpenSheetDialog.hide()
-  tree.OpenSheetDialog.set_filename('..')
+def OpenFileDialog(okCallback, defaultDir):
+  ''' Open up the file selector dialog and connect the ok button the callback
+      'okCallback'.
+      '''
+  tree.dialog = gtk.glade.XML('sheetselection.glade')
+  tree.dialog.signal_autoconnect({'on_ok_button_clicked' : okCallback,
+                                  'on_cancel_button_clicked' : CloseDialog})
+  if defaultDir:
+    tree.dialog.get_widget('SheetSelection').set_filename(defaultDir)
 
-def on_ok_open_button_clicked(widget, data=None):
-  OpenSheet(tree.OpenSheetDialog.get_filename())
-  tree.OpenSheetDialog.hide()
-  tree.OpenSheetDialog.set_filename('..')
+def CloseDialog(widget=None, data=None):
+  tree.dialog.get_widget('SheetSelection').destroy()
+  print tree.dialog
 
-def on_cancel_save_button_clicked(widget, data=None):
-  tree.SaveSheetDialog.hide()
+def NewSheet(widget, data=None):
+  ''' Create a new sheet from the layout file selected. '''
+  data = Character()
+  data.makeNewDoc()
+  data.setNodeAttr('/character', 
+                    {'layout':tree.dialog.get_widget('SheetSelection').get_filename()})
+  if hasattr(tree, 'sheet'):
+    tree.ViewPort.remove(tree.sheet.root)
+  tree.sheet = GTKsheet(data)
+  tree.ViewPort.add(tree.sheet.root)
+  tree.sheet.root.show()
+  CloseDialog()
 
-def on_ok_save_button_clicked(widget, data=None):
-  tree.characterData.filename = tree.SaveSheetDialog.get_filename()
-  tree.sheet.root.applyChanges()
-  tree.characterData.writeOut()
-  tree.SaveSheetDialog.hide()
+def OpenSheet(widget, data=None):
+  ''' Open a character sheet in the window. '''
+  data = Character(tree.dialog.get_widget('SheetSelection').get_filename())
+  if hasattr(tree, 'sheet'):
+    tree.ViewPort.remove(tree.sheet.root)
+  tree.sheet = GTKsheet(data)
+  tree.ViewPort.add(tree.sheet.root)
+  tree.sheet.root.show()
+  CloseDialog()
+
+def SaveSheet(widget, data=None):
+  ''' Save the current character data to a file. '''
+  print 'Not Implemented.'
+
 
 if __name__ == '__main__':
   if len(sys.argv) > 1:
