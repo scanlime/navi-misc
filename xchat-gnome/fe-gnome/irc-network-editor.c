@@ -23,8 +23,19 @@
 #include <gtk/gtk.h>
 
 static void
+irc_network_editor_dispose (GObject *object)
+{
+	IrcNetworkEditor *e = (IrcNetworkEditor *) object;
+
+	g_object_unref (e->gconf);
+	g_object_unref (e->network);
+}
+
+static void
 irc_network_editor_class_init (IrcNetworkEditorClass *klass)
 {
+	GObjectClass *parent_class = (GObjectClass *) klass;
+	parent_class->dispose = irc_network_editor_dispose;
 }
 
 static void
@@ -89,8 +100,24 @@ irc_network_editor_get_type (void)
 }
 
 static void
+use_globals_set (GtkRadioButton *button, IrcNetworkEditor *e)
+{
+	gtk_widget_set_sensitive (e->nickname, FALSE);
+	gtk_widget_set_sensitive (e->realname, FALSE);
+}
+
+static void
+use_custom_set (GtkRadioButton *button, IrcNetworkEditor *e)
+{
+	gtk_widget_set_sensitive (e->nickname, TRUE);
+	gtk_widget_set_sensitive (e->realname, TRUE);
+}
+
+static void
 irc_network_editor_populate (IrcNetworkEditor *e)
 {
+	e->gconf = gconf_client_get_default ();
+
 	gtk_entry_set_text           (GTK_ENTRY         (e->network_name),     e->network->name);
 
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->autoconnect),      e->network->autoconnect);
@@ -99,13 +126,16 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->autoreconnect),    e->network->reconnect);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->giveup_reconnect), e->network->nogiveup_reconnect);
 
+	if (e->network->use_global) {
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_globals), TRUE);
+		use_globals_set (e->use_globals, e);
+	} else {
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_custom), TRUE);
+		use_custom_set (e->use_custom, e);
+	}
+
 	gtk_entry_set_text           (GTK_ENTRY         (e->password),         e->network->password);
 	gtk_combo_box_set_active     (GTK_COMBO_BOX     (e->encoding),         e->network->encoding);
-
-	if (e->network->use_global)
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_globals), TRUE);
-	else
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_custom), TRUE);
 
 	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_APPLY,  GTK_RESPONSE_APPLY);
 	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
@@ -114,6 +144,10 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 	gtk_container_set_border_width (GTK_CONTAINER (e), 6);
 	gtk_container_add (GTK_CONTAINER(GTK_DIALOG(e)->vbox), e->toplevel);
 	gtk_dialog_set_has_separator (GTK_DIALOG (e), FALSE);
+	gtk_window_set_modal (GTK_WINDOW (e), TRUE);
+
+	g_signal_connect (G_OBJECT (e->use_globals), "toggled", G_CALLBACK (use_globals_set), e);
+	g_signal_connect (G_OBJECT (e->use_custom),  "toggled", G_CALLBACK (use_custom_set),  e);
 }
 
 IrcNetworkEditor *
@@ -122,7 +156,7 @@ irc_network_editor_new (IrcNetwork *network)
 	//IrcNetworkEditor *e = IRC_NETWORK_EDITOR (g_object_new (irc_network_editor_get_type (), 0));
 	IrcNetworkEditor *e = g_object_new (irc_network_editor_get_type (), 0);
 
-	e->network = network;
+	e->network = g_object_ref (network);
 	irc_network_editor_populate (e);
 
 	return e;

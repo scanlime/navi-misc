@@ -39,7 +39,7 @@ const char *encodings[] =
 };
 
 static void
-irc_network_dispose (GObject *object)
+irc_network_finalize (GObject *object)
 {
 	IrcNetwork *network = IRC_NETWORK (object);
 
@@ -60,7 +60,7 @@ irc_network_class_init (IrcNetworkClass *klass)
 {
 	GObjectClass *object_class = (GObjectClass *) klass;
 
-	object_class->dispose = irc_network_dispose;
+	object_class->finalize = irc_network_finalize;
 }
 
 static void
