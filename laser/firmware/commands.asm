@@ -35,12 +35,15 @@
 	extern	wrongstate
 	extern	temp
 	extern	Send_0Len_pkt
+	extern	ServiceTimer
 
-bank0	udata
-
-src_ptr                 res     1
-dest_ptr                res     1
-byte_iterator   res     1       
+	extern	num_queued_events
+	extern	buffer_head
+	extern	x_buffer
+	extern	y_buffer
+	extern	duration_buffer
+	extern	misc_buffer
+	extern	tmr1_adj
 
 	code
 
@@ -55,6 +58,8 @@ defineRequest	macro	id,	handler
 	endm
 
 CheckVendor
+	defineRequest	LASER_CTRL_ENQUEUE,      request_enqueue
+	defineRequest	LASER_CTRL_SET_TIMEBASE, request_setTimebase
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -69,75 +74,80 @@ returnEmpty		macro
 	goto	Send_0Len_pkt
 	endm
 
-    ; Return 'length' bytes of data copied from buffer
-returnBuffer    macro   buffer, length
-    local   loop
-    movlw   buffer
-    banksel src_ptr
-    movwf   src_ptr
-
-    banksel BD0IAL
-    movf    low BD0IAL,w    ; Get the address of the EP0 IN buffer
-    banksel dest_ptr
-    movwf   dest_ptr                ; Start a buffer pointer we'll increment...
-
-    movlw   length
-    movwf   byte_iterator
-loop
-
-    bankisel buffer
-    movf    src_ptr, w
-    movwf   FSR
-
-    movf    INDF, w                 ; Save the referenced byte in temp
-    movwf   temp
-
-    movf    dest_ptr,w              ; get address of buffer
-    movwf   FSR
-    bsf     STATUS,IRP              ; indirectly to banks 2-3
-
-    movf    temp, w                 ;  Write the saved byte to our buffer
-    movwf   INDF
-
-    incf    src_ptr, f              ; Next...
-    incf    dest_ptr, f
-    banksel byte_iterator
-    decfsz  byte_iterator, f
-    goto    loop
-
-    banksel BD0IBC
-    bsf     STATUS, RP0
-    movlw   length
-    movwf   BD0IBC                  ; set byte count
-    movlw   0xc8                    ; DATA1 packet, DTS enabled
-    movwf   BD0IST                  ; give buffer back to SIE
-    return
-    endm
-
-
-    ; Return 1 byte from 'w'
-returnByte    macro
-	movwf	temp					; Save the byte
-
-    banksel BD0IAL
-    movf    low BD0IAL,w			; Get the address of the EP0 IN buffer
-    movwf   FSR
-    bsf     STATUS,IRP				; indirectly to banks 2-3
-
-    movf    temp, w                 ;  Write the saved byte to our buffer
-    movwf   INDF
-
-    banksel BD0IBC
-    bsf     STATUS, RP0
-    movlw   1
-    movwf   BD0IBC                  ; set byte count
-    movlw   0xc8                    ; DATA1 packet, DTS enabled
-    movwf   BD0IST                  ; give buffer back to SIE
-    return
-    endm
-
 
 ;********************************************** Request handlers
+
+	; Queue up a new event:
+	;   wValue low  -> x_buffer
+	;   wValue high -> y_buffer
+	;   wIndex low  -> duration_buffer
+	;   wIndex high -> misc_buffer
+request_enqueue
+	
+	movf	num_queued_events, w	; Make sure we have room in the buffer
+	xorlw	EVENT_BUFFER_SIZE
+	pagesel	buffer_space_available
+	btfss	STATUS, Z
+	goto	buffer_space_available
+	
+	pagesel	ServiceTimer			; No room? Wait until there is
+	call	ServiceTimer
+	pagesel	request_enqueue
+	goto	request_enqueue
+
+buffer_space_available
+	banksel	BufferData
+	bankisel x_buffer
+	movlw	x_buffer
+	addwf	buffer_head, w
+	movwf	FSR
+	movf	BufferData+wValue, w
+	movwf 	INDF
+
+	movlw	y_buffer
+	addwf	buffer_head, w
+	movwf	FSR
+	movf	BufferData+(wValue+1), w
+	movwf 	INDF
+
+	bankisel duration_buffer
+	movlw	duration_buffer
+	addwf	buffer_head, w
+	movwf	FSR
+	movf	BufferData+wIndex, w
+	movwf 	INDF
+
+	movlw	misc_buffer
+	addwf	buffer_head, w
+	movwf	FSR
+	movf	BufferData+(wIndex+1), w
+	movwf 	INDF
+
+	; Update buffer state
+	incf	num_queued_events, f
+	incf	buffer_head, f
+	movf	buffer_head, w		; Wrap around if necessary
+	xorlw	EVENT_BUFFER_SIZE
+	btfsc	STATUS, Z
+	clrf	buffer_head
+
+	returnEmpty
+
+
+	; Set the TMR1 adjustment, from wValue
+request_setTimebase
+
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	tmr1_adj
+	movwf 	tmr1_adj
+
+	banksel	BufferData
+	movf	BufferData+(wValue+1), w
+	banksel	tmr1_adj
+	movwf 	tmr1_adj+1
+
+	returnEmpty
 
 	end
 
