@@ -69,7 +69,7 @@ static float get_pixel_scale() {
    *
    * iterations / (width * height) gives us the average density of counts[].
    */
-  density = render.iterations / (render.width * render.height);
+  density = render.iterations / (render.width * render.height * render.oversample * render.oversample);
 
   /* fscale is a floating point number that, when multiplied by a raw
    * counts[] value, gives values between 0 and 1 corresponding to full
