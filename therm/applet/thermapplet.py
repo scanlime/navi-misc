@@ -190,12 +190,13 @@ class ThermWidget(gtk.HBox):
 
 class ThermMenu(gtk.Menu):
     """A widget showing a menu of all therm sources"""
-    def __init__(self, server, selectionCallback):
+    def __init__(self, server, selectionCallback, updateInterval=60*10):
         gtk.Menu.__init__(self)
         self.server = server
         self.columns = ColumnSet()
         self.widgets = []
         self.selectionCallback = selectionCallback
+        self.updateInterval = updateInterval
 
         self.retrievingSources = gtk.MenuItem("Retrieving sources...")
         self.add(self.retrievingSources)
@@ -204,6 +205,7 @@ class ThermMenu(gtk.Menu):
     def updateSources(self):
         self.retrievingSources.show()
         self.server.iterSources().addCallback(self.setSources)
+        reactor.callLater(self.updateInterval, self.updateSources)
 
     def updateContent(self):
         for widget in self.widgets:
