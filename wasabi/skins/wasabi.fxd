@@ -35,7 +35,7 @@
         <item label="audio" name="Listen to Music" image="wasabi/speaker.png"/>
         <item label="image" name="Browse Images" image="wasabi/paint_roller.png"/>
         <item label="shutdown" name="Shutdown" image="wasabi/hammer.png"/>
-        <item label="games" name="Game Emulators" image="wasabi/jetcow.png"/>
+        <item label="games" name="Game Emulators" image="wasabi/games.png"/>
     </main>
 
     <menuset label="main menu">
