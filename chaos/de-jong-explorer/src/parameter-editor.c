@@ -34,6 +34,7 @@ static void parameter_editor_add_paramspec(ParameterEditor *self, GParamSpec *sp
 static void parameter_editor_add_group_heading(ParameterEditor *self, const gchar *group);
 static void parameter_editor_add_row(ParameterEditor *self, GtkWidget *row);
 static void parameter_editor_add_labeled_row(ParameterEditor *self, GParamSpec *spec, GtkWidget *row);
+static void parameter_editor_connect_notify(ParameterEditor *self, GtkWidget *widget, GParamSpec *spec, GCallback func);
 
 static void parameter_editor_add_numeric(ParameterEditor *self, GParamSpec *spec);
 static void parameter_editor_add_color(ParameterEditor *self, GParamSpec *spec);
@@ -42,6 +43,10 @@ static void parameter_editor_add_boolean(ParameterEditor *self, GParamSpec *spec
 static void on_changed_numeric(GtkWidget *widget, ParameterEditor *self);
 static void on_changed_color(GtkWidget *widget, ParameterEditor *self);
 static void on_changed_boolean(GtkWidget *widget, ParameterEditor *self);
+
+static void on_notify_numeric(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
+static void on_notify_color(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
+static void on_notify_boolean(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
 
 
 /************************************************************************************/
@@ -202,6 +207,24 @@ static void parameter_editor_add_labeled_row(ParameterEditor *self, GParamSpec *
 /********************************************************************* Type Editors */
 /************************************************************************************/
 
+static void parameter_editor_connect_notify(ParameterEditor *self,
+					    GtkWidget       *widget,
+					    GParamSpec      *spec,
+					    GCallback        func) {
+  /* Connect to the notify::<property> signal so we can update the
+   * GUI automatically when someone else changes the property. The
+   * callback needs to know which widget is associated with this property,
+   * and it needs a pointer to our ParameterEditor instance. We do this by
+   * passing the widget as user_data but using g_object_set_data to
+   * attach the ParameterEditor to the widget.
+   */
+  gchar *signal_name;
+  signal_name = g_strdup_printf("notify::%s", spec->name);
+  g_object_set_data(G_OBJECT(widget), "ParameterEditor", self);
+  g_signal_connect(self->holder, signal_name, func, widget);
+  g_free(signal_name);
+}
+
 static void parameter_editor_add_numeric(ParameterEditor *self, GParamSpec *spec) {
   GtkWidget *spinner;
   GtkObject *adjustment;
@@ -254,9 +277,10 @@ static void parameter_editor_add_numeric(ParameterEditor *self, GParamSpec *spec
   spinner = gtk_spin_button_new(GTK_ADJUSTMENT(adjustment), climb_rate, digits);
 
   /* Set up our callback on change */
-  g_object_set_data(G_OBJECT(spinner), "paramspec", spec);
+  g_object_set_data(G_OBJECT(spinner), "ParamSpec", spec);
   g_signal_connect(spinner, "value-changed", G_CALLBACK(on_changed_numeric), self);
 
+  parameter_editor_connect_notify(self, spinner, spec, G_CALLBACK(on_notify_numeric));
   parameter_editor_add_labeled_row(self, spec, spinner);
 }
 
@@ -289,9 +313,10 @@ static void parameter_editor_add_color(ParameterEditor *self, GParamSpec *spec) 
   color_button = color_button_new_with_defaults(g_param_spec_get_nick(spec), &color, opacity);
 
   /* Set up our callback on change */
-  g_object_set_data(G_OBJECT(color_button), "paramspec", spec);
+  g_object_set_data(G_OBJECT(color_button), "ParamSpec", spec);
   g_signal_connect(color_button, "changed", G_CALLBACK(on_changed_color), self);
 
+  parameter_editor_connect_notify(self, color_button, spec, G_CALLBACK(on_notify_color));
   parameter_editor_add_labeled_row(self, spec, color_button);
 }
 
@@ -309,19 +334,20 @@ static void parameter_editor_add_boolean(ParameterEditor *self, GParamSpec *spec
   g_value_unset(&gv);
 
   /* Set up our callback on change */
-  g_object_set_data(G_OBJECT(check), "paramspec", spec);
+  g_object_set_data(G_OBJECT(check), "ParamSpec", spec);
   g_signal_connect(check, "toggled", G_CALLBACK(on_changed_boolean), self);
 
+  parameter_editor_connect_notify(self, check, spec, G_CALLBACK(on_notify_boolean));
   parameter_editor_add_labeled_row(self, spec, check);
 }
 
 
 /************************************************************************************/
-/************************************************************************ Callbacks */
+/***************************************************************** Widget callbacks */
 /************************************************************************************/
 
 static void on_changed_numeric(GtkWidget *widget, ParameterEditor *self) {
-  GParamSpec *spec = g_object_get_data(G_OBJECT(widget), "paramspec");
+  GParamSpec *spec = g_object_get_data(G_OBJECT(widget), "ParamSpec");
   GValue gv, double_gv;
 
   /* Convert the current spinner value from a double to whatever type we need,
@@ -333,13 +359,17 @@ static void on_changed_numeric(GtkWidget *widget, ParameterEditor *self) {
   g_value_init(&double_gv, G_TYPE_DOUBLE);
   g_value_set_double(&double_gv, gtk_spin_button_get_value(GTK_SPIN_BUTTON(widget)));
   g_value_transform(&double_gv, &gv);
+
+  self->suppress_notify = TRUE;
   g_object_set_property(G_OBJECT(self->holder), spec->name, &gv);
+  self->suppress_notify = FALSE;
+
   g_value_unset(&gv);
   g_value_unset(&double_gv);
 }
 
 static void on_changed_color(GtkWidget *widget, ParameterEditor *self) {
-  GParamSpec *spec = g_object_get_data(G_OBJECT(widget), "paramspec");
+  GParamSpec *spec = g_object_get_data(G_OBJECT(widget), "ParamSpec");
   GdkColor c;
   GtkWidget *color_button;
   const gchar* opacity_property = g_param_spec_get_qdata(spec, g_quark_from_static_string("opacity-property"));
@@ -351,19 +381,61 @@ static void on_changed_color(GtkWidget *widget, ParameterEditor *self) {
    * an opacity property, opacity_property will be NULL and the opacity
    * parameter will be ignored.
    */
+  self->suppress_notify = TRUE;
   g_object_set(self->holder,
 	       spec->name, &c,
 	       opacity_property, opacity,
 	       NULL);
+  self->suppress_notify = FALSE;
 }
 
 static void on_changed_boolean(GtkWidget *widget, ParameterEditor *self) {
-  GParamSpec *spec = g_object_get_data(G_OBJECT(widget), "paramspec");
+  GParamSpec *spec = g_object_get_data(G_OBJECT(widget), "ParamSpec");
   gboolean active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
 
+  self->suppress_notify = TRUE;
   g_object_set(self->holder,
 	       spec->name, active,
 	       NULL);
+  self->suppress_notify = FALSE;
+}
+
+
+/************************************************************************************/
+/***************************************************************** Notify callbacks */
+/************************************************************************************/
+
+static void on_notify_numeric(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget) {
+  ParameterEditor *self = g_object_get_data(G_OBJECT(widget), "ParameterEditor");
+  GValue gv, double_gv;
+
+  if (self->suppress_notify)
+    return;
+
+  /* Conver the current property value to a double and set our spin button */
+  memset(&gv, 0, sizeof(gv));
+  memset(&double_gv, 0, sizeof(double_gv));
+  g_value_init(&gv, spec->value_type);
+  g_value_init(&double_gv, G_TYPE_DOUBLE);
+  g_object_get_property(G_OBJECT(holder), spec->name, &gv);
+  g_value_transform(&gv, &double_gv);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget), g_value_get_double(&double_gv));
+  g_value_unset(&gv);
+  g_value_unset(&double_gv);
+}
+
+static void on_notify_color(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget) {
+  ParameterEditor *self = g_object_get_data(G_OBJECT(widget), "ParameterEditor");
+
+  if (self->suppress_notify)
+    return;
+}
+
+static void on_notify_boolean(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget) {
+  ParameterEditor *self = g_object_get_data(G_OBJECT(widget), "ParameterEditor");
+
+  if (self->suppress_notify)
+    return;
 }
 
 /* The End */
