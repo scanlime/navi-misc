@@ -72,9 +72,6 @@ on the controller's PCB:
  Note 3:
    Possibly a chip select
 
- Note 4:
-   Pulses after every byte received over the serial port, it seems.
-
 
 Majora's Mask observed startup sequence
 
@@ -198,3 +195,22 @@ FF     72  0111 0010
                    read back 0x00 on the memory pak or 0x80 on the rumble pak.
 
 0xC000          :  Motor control latch (low bit) for the rumble pak
+
+
+- Figured out a lot more about the detection sequence.. see bus.py for
+  an implementation of it, with comments
+
+Poked around in the saved game format a little.. bomberman's saved characters
+are easy to modify, it uses a very simple checksum and each character attribute
+is just a byte.
+
+The game names used in the controller pak data screen (press start while turning
+on the N64) aren't ASCII, but the character set is simple enough. Here's a partial
+translation table:
+
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ "
+"\x1a\x1b\x1c\x1d\x1e\x1f !\"#$%&'()*+,-./0123\x0F"
+
+Each game gets a 32-byte table of contents entry, starting at 0x300. The second
+half of each entry is reserved for a 16-byte zero-padded game name.
+
