@@ -195,7 +195,6 @@ class drop_down(gtk.HBox, sheetElement):
       #self.menu.append(gtk.Combo())
       #self.menu[i].connect("activate", self.setButton)
       #self.items.append({})
-    print self, node.childNodes
 
   def packChild(self, child):
     ''' If the child is a dice object copy it with a new callback and save
@@ -243,7 +242,7 @@ class drop_down_item(sheetElement):
 
     if node.childNodes[0].data.count('/') > 0:
       self.data = character.getData(node.childNodes[0].data).split('\n')
-      for item in self.data:
-	item.strip()
+      for i in range(len(self.data)):
+	self.data[i] = self.data[i].strip()
     else:
       self.data = [node.childNodes[0].data]
