@@ -706,6 +706,7 @@
 
 		      <child>
 			<widget class="GtkTextView" id="text entry">
+			  <property name="height_request">17</property>
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="editable">True</property>
@@ -726,6 +727,7 @@
 		      <property name="padding">0</property>
 		      <property name="expand">True</property>
 		      <property name="fill">True</property>
+		      <property name="pack_type">GTK_PACK_END</property>
 		    </packing>
 		  </child>
 		</widget>
