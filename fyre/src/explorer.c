@@ -46,6 +46,8 @@ static void on_quit(GtkWidget *widget, gpointer user_data);
 static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data);
 static void on_load_from_image(GtkWidget *widget, gpointer user_data);
 static void on_widget_toggle(GtkWidget *widget, gpointer user_data);
+static void on_render_time_changed(GtkWidget *widget, gpointer user_data);
+static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 
 
 /************************************************************************************/
@@ -99,6 +101,8 @@ static void explorer_init(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_pause_rendering_toggle",       G_CALLBACK(on_pause_rendering_toggle),       self);
   glade_xml_signal_connect_data(self->xml, "on_load_from_image",              G_CALLBACK(on_load_from_image),              self);
   glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
+  glade_xml_signal_connect_data(self->xml, "on_render_time_changed",          G_CALLBACK(on_render_time_changed),          self);
+  glade_xml_signal_connect_data(self->xml, "on_interactive_prefs_delete",     G_CALLBACK(on_interactive_prefs_delete),     self);
 
 #ifndef HAVE_EXR
   /* If we don't have OpenEXR support, gray out the menu item
@@ -145,6 +149,9 @@ Explorer* explorer_new(IterativeMap *map, Animation *animation) {
   self->view = histogram_view_new(HISTOGRAM_IMAGER(map));
   gtk_container_add(GTK_CONTAINER(glade_xml_get_widget(self->xml, "drawing_area_viewport")), self->view);
   gtk_widget_show_all(self->view);
+
+  /* Set the initial render time */
+  on_render_time_changed(glade_xml_get_widget(self->xml, "render_time"), self);
 
   explorer_init_animation(self);
   explorer_init_tools(self);
@@ -264,6 +271,21 @@ static void on_save_exr(GtkWidget *widget, gpointer user_data) {
 #endif
 }
 
+static void on_render_time_changed(GtkWidget *widget, gpointer user_data) {
+  double v = gtk_range_get_adjustment(GTK_RANGE(widget))->value;
+  Explorer *self = EXPLORER(user_data);
+  self->render_time = (gulong)(v * 1000.0 + 0.5);  /* Milliseconds to microseconds */
+}
+
+static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+  /* Just hide the window when the user tries to close it
+   */
+  Explorer *self = EXPLORER(user_data);
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_interactive_prefs")), FALSE);
+  return TRUE;
+}
+
+
 /************************************************************************************/
 /************************************************************************ Rendering */
 /************************************************************************************/
@@ -298,7 +320,7 @@ void explorer_run_iterations(Explorer *self) {
   do {
     iterative_map_calculate(ITERATIVE_MAP(self->map), 5000);
     g_timer_elapsed(timer, &elapsed);
-  } while (elapsed < 13000);
+  } while (elapsed < self->render_time);
 
   g_timer_destroy(timer);
 }
