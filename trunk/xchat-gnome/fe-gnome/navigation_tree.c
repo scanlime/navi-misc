@@ -674,25 +674,6 @@ navigation_context (GtkWidget *treeview, session *selected)
 	}
 }
 
-/*** Server Context Menu ***/
-static void
-clear_dialog (gpointer data, guint action, GtkWidget *widget)
-{
-	GtkTreeView *treeview;
-	GtkTreeSelection *select;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-	session *s;
-
-	treeview = GTK_TREE_VIEW (gui.server_tree);
-	select = gtk_tree_view_get_selection (treeview);
-	if (gtk_tree_selection_get_selected (select, &model, &iter))
-	{
-		gtk_tree_model_get (model, &iter, 2, &s, -1);
-		clear_buffer (s);
-	}
-}
-
 static void
 server_context (GtkWidget *treeview, session *selected)
 {
@@ -704,7 +685,6 @@ server_context (GtkWidget *treeview, session *selected)
 	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 }
 
-/*** Channel Context Menu ***/
 static void
 channel_context (GtkWidget *treeview, session *selected)
 {
@@ -716,7 +696,6 @@ channel_context (GtkWidget *treeview, session *selected)
 	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 }
 
-/*** Dialog Context Menu ***/
 static void
 dialog_context (GtkWidget *treeview, session *selected)
 {
@@ -1305,6 +1284,19 @@ on_find_again (GtkAction *action, gpointer data)
 static void
 on_clear (GtkAction *action, gpointer data)
 {
+	GtkTreeView *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = GTK_TREE_VIEW (gui.server_tree);
+	select = gtk_tree_view_get_selection (treeview);
+	if (gtk_tree_selection_get_selected (select, &model, &iter))
+	{
+		gtk_tree_model_get (model, &iter, 2, &s, -1);
+		clear_buffer (s);
+	}
 }
 
 static void
