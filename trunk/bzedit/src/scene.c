@@ -211,6 +211,7 @@ scene_render (Scene *self, RenderState *rstate)
   glEnable (GL_COLOR_MATERIAL);
   glEnable (GL_LIGHTING);
   glDisable (GL_LINE_SMOOTH);
+  glEnable (GL_NORMALIZE);
   glColor4f (1.0, 1.0, 1.0, 1.0);
 
   for (pass = self->render_passes; pass; pass = pass->next)
