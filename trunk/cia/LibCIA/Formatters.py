@@ -47,6 +47,9 @@ class CommitFormatter(Message.Formatter):
        """
     detector = Message.Filter('<find path="/message/body/commit"/>')
 
+    # Subclasses can set this to limit the length of log messages, in lines
+    logLinesLimit = None
+
     def consolidateFiles(self, xmlFiles):
         """Given a <files> element, find the directory common to all files
            and return a 2-tuple with that directory followed by
@@ -135,11 +138,31 @@ class CommitFormatter(Message.Formatter):
         else:
             return self.format_default(prefix)
 
+    def format_log(self, logString):
+        # Break the log string into lines...
+        lines = []
+        for line in logString.split("\n"):
+            # Ignore blank lines
+            if not line.strip():
+                continue
+
+            # TODO: wrap long lines
+
+            lines.append(line)
+
+        # Multiline logs shouldn't start on the same line as the metadata
+        if len(lines) > 1:
+            lines.insert(0, '')
+
+            # Truncate long log messages if we have a limit
+            if self.logLinesLimit and len(lines) > self.logLinesLimit:
+                lines[0] = "(log message trimmed)"
+
+        # Reassemble the log message and send it to the default formatter
+        return self.format_default("\n".join(lines))
+
     def format_module(self, module):
         return self.format_default(module)
-
-    def format_log(self, logString):
-        return self.format_default(logString)
 
     def format_author(self, author):
         return self.format_default(author)
@@ -154,6 +177,7 @@ class CommitFormatter(Message.Formatter):
 class CommitToIRC(CommitFormatter):
     """Converts commit messages to plain text with IRC color tags"""
     medium = 'irc'
+    logLinesLimit = 6
 
     def format_author(self, author):
         import IRC
