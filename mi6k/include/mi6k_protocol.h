@@ -46,14 +46,20 @@
 ;// set according to the MI6K_STATUS_* constants.
 #define MI6K_CTRL_STATUS		0x04
 
-;// Queue one pulse and space to be sent via the IR transmitter.
-;// Pulse length is in wValue and space length is in wIndex.
-;// Both are specified in number of 38khz half-cycles. (13.16us units)
-;// Note that the current firmware implementation ignores the high
-;// byte of both values, limiting the maximum pulse length to
-;// 3.35ms. This may be changed in a future firmware revision.
-;// A pulse or space length of zero is undefined.
+;// Queue two pulse/space pairs to be sent via the IR transmitter.
+;// wIndex contains the first pulse in its low byte and the first space
+;// in its high byte. wValue contains the second pulse and space.
+;// Any value can be zero if it is not needed.
+;// All lengths are specified in number of 38khz half-cycles. (13.16us units)
+;// Pulses or spaces longer than 3.35ms must be split.
+;// All IR values are buffered. The interrupt handler that reads the
+;// buffer and actually sends IR signals is not started until the buffer
+;// is full or until MI6K_CTRL_IR_FLUSH is sent.
 #define MI6K_CTRL_IR_SEND		0x05
+
+;// Start the IR transmit process to send the contents of the IR buffer,
+;// if the buffer has data in it and the transmit process is not already running.
+#define MI6K_CTRL_IR_FLUSH		0x06
 
 ;//************************************************** Status bits
 
