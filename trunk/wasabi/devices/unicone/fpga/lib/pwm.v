@@ -34,7 +34,7 @@ module pwm16_i2c (clk, reset,
 	wire [15:0] duty_cycle;
 
 	pwm16 p(clk, reset, duty_cycle, out);
-	i2c_slave_reg16 #(I2C_ADDRESS) i(
+	i2c_slave_reg #(I2C_ADDRESS, 2) i2creg16(
 		clk, reset,
 		scl, sda_in, sda_out,
 		duty_cycle);
