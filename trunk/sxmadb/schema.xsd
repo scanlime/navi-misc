@@ -71,6 +71,7 @@
     <xsd:enumeration value="step-drag"/>
     <xsd:enumeration value="step-through"/>
     <xsd:enumeration value="rear cover"/>
+    <xsd:enumeration value="reverse rear cover"/>
     <xsd:enumeration value="side cover"/>
     <xsd:enumeration value="push step-drag"/>
     <xsd:enumeration value="front crossover"/>
@@ -181,6 +182,7 @@
     <xsd:enumeration value="inward overhead elbow"/>
     <xsd:enumeration value="obscure elbow"/>
     <xsd:enumeration value="back hammer fist"/>
+    <xsd:enumeration value="outward downward hammer fist"/>
     <xsd:enumeration value="thrusting palm heel"/>
     <xsd:enumeration value="upward elbow"/>
     <xsd:enumeration value="back elbow"/>

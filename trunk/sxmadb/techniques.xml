@@ -21,6 +21,7 @@
 	<technique category="punch" href="raining-claw.xml" level="purple" name="raining claw" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schema.xsd"/>
 	<technique category="" href="template.xml" level="" name="" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schema.xsd"/>
 	<technique category="kick" href="buckling-branch.xml" level="orange" name="buckling branch" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schema.xsd"/>
+	<technique category="kick" href="swinging-pendulum.xml" level="purple" name="swinging pendulum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schema.xsd"/>
 	<technique category="hugs-and-holds" href="scraping-hoof.xml" level="orange" name="scraping hoof" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schema.xsd"/>
 	<technique category="chokes-and-locks" href="grasp-of-death.xml" level="yellow" name="grasp of death" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schema.xsd"/>
 	<technique category="push" href="alternating-maces.xml" name="alternating maces" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schema.xsd"/>
