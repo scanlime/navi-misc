@@ -7,7 +7,7 @@ install: main.hex
 	~/bin/xwisp write main.hex || true
 
 run:
-	../lib/gl_test.py
+	../python/raw_test.py
 
 clean:
 	rm -f main.asm main.cod main.d main.lnk main.lst main.p main.hex main.map main.ihx main.mem main.rel main.rst 
