@@ -31,7 +31,7 @@ AC_EXEEXT
 
 AM_BINRELOC
 
-pkg_modules="glib-2.0 >= 2.2.0, gtk+-2.0 >= 2.2.0, libglade-2.0 >= 2.0"
+pkg_modules="glib-2.0 >= 2.0.0, gtk+-2.0 >= 2.0.0, libglade-2.0 >= 2.0"
 PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
