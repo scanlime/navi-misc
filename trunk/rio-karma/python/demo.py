@@ -26,7 +26,7 @@ class RioApp:
 
 class Downloader(RioApp):
     def main(self):
-        self.fileIter = iter(self.fileManager.cache.findFiles(artist="Zero 7"))
+        self.fileIter = iter(self.fileManager.cache.findFiles(type='taxi'))
         self.nextFile()
 
     def nextFile(self, retval=None):

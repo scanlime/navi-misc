@@ -224,7 +224,7 @@ class StatefulRequest(BaseRequest):
 
             elif responseId == 1:
                 # This is a NAK response, the device rejected our command
-                raise ProtocolError("NAK response")
+                raise ProtocolError("NAK response to %r" % self)
 
             elif responseId == 2:
                 # This is a "Busy" response, we have a state for that

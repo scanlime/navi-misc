@@ -528,8 +528,22 @@ class ContentTransfer:
         self._next()
         return self.result
 
+    def _error(self, err):
+        """Handle an error in the file transfer. This prevents duplicate
+           errors from reaching self.result, since if any blocks fail,
+           the ones after that one surely will too.
+           """
+        if not self.result.called:
+            self.result.errback(err)
+
     def _next(self):
         """Queue up another transfer block"""
+
+        # If our result has already been issued, something went
+        # wrong- bail out now to avoid a flood of 'already called'
+        # errors.
+        if self.result.called:
+            return
 
         if self.remaining <= 0:
             # We're already done, let our caller know
@@ -546,10 +560,11 @@ class ContentTransfer:
             # This is the last one, chain to our deferred and
             # stop setting up transfers.
             d.addCallback(self.result.callback)
+            d.addErrback(self._error)
         else:
             # FIXME: real progress updates should be triggered here
             d.addCallback(lambda x: sys.stderr.write("."))
-            d.addErrback(self.result.errback)
+            d.addErrback(self._error)
 
             # Queue up the next block once Protocol thinks we should
             self.protocol.throttle(self._next)
