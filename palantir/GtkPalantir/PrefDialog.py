@@ -20,6 +20,7 @@ Creates and controls the preference dialog.
 
 import gtk, gtk.glade, gobject
 from Common.Prefs import Prefs
+from gtk.gdk import color_parse
 
 class PrefDialog:
   def __init__(self, tree, prefs=None):
@@ -37,6 +38,10 @@ class PrefDialog:
     # Create an object for the general prefs.
     self.general = GenPrefs(self.tree)
     self.general.Set(self.prefs, self.tree)
+
+    # Create an object for the color prefs.
+    self.colors = ColorPrefs(self.tree)
+    self.colors.set(self.prefs, self.tree)
 
     # Hook up the buttons.
     tree.get_widget('pref cancel').connect('clicked',lambda w: dialog.hide())
@@ -113,3 +118,17 @@ class GenPrefs:
     tree.get_widget('quitmsg').set_text(getattr(prefs, 'quitmsg', 'good-bye'))
     tree.get_widget('partmsg').set_text(getattr(prefs, 'partmsg', 'Leaving...'))
     tree.get_widget('awaymsg').set_text(getattr(prefs, 'awaymsg', 'Away...'))
+
+class ColorPrefs:
+  def __init__(self, tree):
+    self.page = tree.get_widget('colors')
+
+    sizegroup = gtk.SizeGroup(gtk.SIZE_GROUP_HORIZONTAL)
+    sizegroup.add_widget(tree.get_widget('color label 1'))
+    sizegroup.add_widget(tree.get_widget('color label 2'))
+    sizegroup.add_widget(tree.get_widget('color label 3'))
+    sizegroup.add_widget(tree.get_widget('color label 4'))
+
+  def set(self, prefs, tree):
+    tree.get_widget('text color button').set_color(color_parse(prefs.text_color))
+    tree.get_widget('background color button').set_color(color_parse(prefs.background_color))
