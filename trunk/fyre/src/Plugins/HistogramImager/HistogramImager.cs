@@ -73,9 +73,11 @@ class HistogramImager : Fyre.Element
 
 	public override void Serialize (XmlWriter writer)
 	{
+		base.Serialize (writer);
 	}
 
 	public override void DeSerialize (XmlReader reader)
 	{
+		base.DeSerialize (reader);
 	}
 }
