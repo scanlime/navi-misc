@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <evolutionweather format="1.0">
-    <!-- FIXME: GSP appears in both North Dakota and South Carolina! -->
     <region name="Atlantic Ocean">
 	<territory name="Puerto Rico">
 	    <location type="ccf" code="SJU" url="http://www.crh.noaa.gov/data/JSJ/CCFSJU">San Juan</location>
@@ -472,16 +471,13 @@
 		<location type="ccf" code="ILM" url="http://www.crh.noaa.gov/data/ILM/CCFILM">Wilmington</location>
 	    </state>
 	    <state name="North Dakota">
-		<location type="ccf" code="AVL" url="http://www.crh.noaa.gov/data/GSP/CCFGSP">Asheville</location>
 		<location type="ccf" code="BJI" url="http://www.crh.noaa.gov/data/FGF/CCFFGF">Bemidji</location>
 		<location type="ccf" code="BIS" url="http://www.crh.noaa.gov/data/BIS/CCFBIS">Bismarck</location>
-		<location type="ccf" code="CLT" url="http://www.crh.noaa.gov/data/GSP/CCFGSP">Charlotte</location>
 		<location type="ccf" code="DVL" url="http://www.crh.noaa.gov/data/FGF/CCFFGF">Devils Lake</location>
 		<location type="ccf" code="DIK" url="http://www.crh.noaa.gov/data/BIS/CCFBIS">Dickinson</location>
 		<location type="ccf" code="FAR" url="http://www.crh.noaa.gov/data/FGF/CCFFGF">Fargo</location>
 		<location type="ccf" code="GFK" url="http://www.crh.noaa.gov/data/FGF/CCFFGF">Grand Forks</location>
 		<location type="ccf" code="HEI" url="http://www.crh.noaa.gov/data/BIS/CCFBIS">Hettinger</location>
-		<location type="ccf" code="HKY" url="http://www.crh.noaa.gov/data/GSP/CCFGSP">Hickory</location>
 		<location type="ccf" code="JMS" url="http://www.crh.noaa.gov/data/BIS/CCFBIS">Jamestown</location>
 		<location type="ccf" code="MOT" url="http://www.crh.noaa.gov/data/BIS/CCFBIS">Minot</location>
 		<location type="ccf" code="ISN" url="http://www.crh.noaa.gov/data/BIS/CCFBIS">Williston</location>
