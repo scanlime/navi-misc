@@ -37,7 +37,7 @@
 #include <sys/select.h>
 #include <linux/tcp.h>
 
-#include <linux/input.h>
+#include <input.h>
 #include <uinput.h>
 #include "inputpipe.h"
 #include "packet.h"

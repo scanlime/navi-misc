@@ -9,8 +9,7 @@ SERVER_OBJS = $(COMMON_OBJS) \
 CLIENT_OBJS = $(COMMON_OBJS) \
 	src/client.o
 
-LINUX_DIR = /lib/modules/$(shell uname -r)/build
-CFLAGS = -I$(LINUX_DIR)/include -I uinput -DLOCAL_UINPUT_H -g
+CFLAGS = -I uinput -I src -g
 
 all: $(BINS)
 
