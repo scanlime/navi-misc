@@ -52,6 +52,7 @@ void initialize_setup_druid() {
 
 	nickname_entry = glade_xml_get_widget(gui.xml, "setup druid nickname");
 	g_signal_connect(G_OBJECT(nickname_entry), "changed", G_CALLBACK(setup_druid_nickname_changed), NULL);
+	g_signal_connect(G_OBJECT(nickname_entry), "realize", G_CALLBACK(setup_druid_nickname_changed), NULL);
 	realname_entry = glade_xml_get_widget(gui.xml, "setup druid realname");
 	g_signal_connect(G_OBJECT(realname_entry), "changed", G_CALLBACK(setup_druid_realname_changed), NULL);
 }
