@@ -30,17 +30,7 @@ Web
 Code
 -----
 
-- CIA is now keeping a graph associating related stats targets. It doesn't yet
-  do anything with the data. This stats_relations table can be used to implement
-  several neat features, including:
-
-  - A 'related items' list on each stats target, including links from projects
-    to authors and vice versa. The edges containing the current stats target
-    could be sorted first by parent, then by association strength.
-
-  - Use Graphviz or similar to actually plot the graphs. A big-picture graph
-    showing all the clusters of people and projects could be quite spiffy,
-    as well as having graphs showing each stats target's nearest neighbours.
+- Clean up the relation graphing interface so it isn't stuck hackishly at /graph
 
 - Web interface for editing rulesets and stats metadata- how would we handle
   authentication, if necessary?
