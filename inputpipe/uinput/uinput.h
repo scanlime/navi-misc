@@ -81,6 +81,15 @@ struct uinput_ff_erase {
 #define UINPUT_IOCTL_BASE	'U'
 #define UI_DEV_CREATE		_IO(UINPUT_IOCTL_BASE, 1)
 #define UI_DEV_DESTROY		_IO(UINPUT_IOCTL_BASE, 2)
+
+#define UI_BEGIN_FF_UPLOAD	_IOWR(UINPUT_IOCTL_BASE, 50, struct uinput_ff_upload)
+#define UI_END_FF_UPLOAD	_IOW(UINPUT_IOCTL_BASE, 51, struct uinput_ff_upload)
+#define UI_BEGIN_FF_ERASE	_IOWR(UINPUT_IOCTL_BASE, 52, struct uinput_ff_erase)
+#define UI_END_FF_ERASE		_IOW(UINPUT_IOCTL_BASE, 53, struct uinput_ff_erase)
+
+/* All ioctls UI_SET_EVBIT and above are only valid
+ * when the device has not been created.
+ */
 #define UI_SET_EVBIT		_IOW(UINPUT_IOCTL_BASE, 100, int)
 #define UI_SET_KEYBIT		_IOW(UINPUT_IOCTL_BASE, 101, int)
 #define UI_SET_RELBIT		_IOW(UINPUT_IOCTL_BASE, 102, int)
@@ -89,10 +98,7 @@ struct uinput_ff_erase {
 #define UI_SET_LEDBIT		_IOW(UINPUT_IOCTL_BASE, 105, int)
 #define UI_SET_SNDBIT		_IOW(UINPUT_IOCTL_BASE, 106, int)
 #define UI_SET_FFBIT		_IOW(UINPUT_IOCTL_BASE, 107, int)
-#define UI_BEGIN_FF_UPLOAD	_IOWR(UINPUT_IOCTL_BASE, 108, struct uinput_ff_upload)
-#define UI_END_FF_UPLOAD	_IOW(UINPUT_IOCTL_BASE, 109, struct uinput_ff_upload)
-#define UI_BEGIN_FF_ERASE	_IOWR(UINPUT_IOCTL_BASE, 110, struct uinput_ff_erase)
-#define UI_END_FF_ERASE		_IOW(UINPUT_IOCTL_BASE, 111, struct uinput_ff_erase)
+#define UI_SET_PHYS		_IOW(UINPUT_IOCTL_BASE, 108, char*)
 
 /* To write a force-feedback-capable driver, the upload_effect
  * and erase_effect callbacks in input_dev must be implemented.
