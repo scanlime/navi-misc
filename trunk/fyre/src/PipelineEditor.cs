@@ -133,7 +133,7 @@ public class PipelineEditor
 		// create the canvas
 		pipeline_drawing = new PipelineDrawing();
 		pipeline_window.Add (pipeline_drawing);
-		pipeline_drawing.Show ();
+		pipeline_drawing.ShowAll ();
 
 		pipeline_drawing.SetScrollAdjustments (drawing_hscroll.Adjustment, drawing_vscroll.Adjustment);
 

@@ -23,69 +23,17 @@
 
 using System;
 using System.Collections;
+using Gnome;
 using Gtk;
 using GLib;
 
-class PipelineDrawing : Gtk.DrawingArea
+class PipelineDrawing : Gnome.Canvas
 {
-	private int			size_x, size_y;
-	private int			drawing_x, drawing_y;
 	private Gtk.Adjustment		hadj;
 	private Gtk.Adjustment		vadj;
+	private Gnome.Canvas		child;
 
 	public PipelineDrawing ()
 	{
-		drawing_x = 0;
-		drawing_y = 0;
-	}
-
-	protected override bool OnConfigureEvent (Gdk.EventConfigure ev)
-	{
-		size_x = ev.Width;
-		size_y = ev.Height;
-
-		if (drawing_x == 0)
-			drawing_x = size_x;
-		if (drawing_y == 0)
-			drawing_y = size_y;
-
-		if (hadj != null) {
-			float w = (float) ev.Width;
-			float h = (float) ev.Height;
-
-			// temporarily set a big region. this will need to be replaced by
-			// tracking the drawing on the page
-			hadj.Upper = w * 8;
-			vadj.Upper = h * 8;
-
-			// set our page size to be wxh
-			hadj.PageSize = w;
-			vadj.PageSize = h;
-			hadj.PageIncrement = w;
-			vadj.PageIncrement = h;
-		}
-
-		return base.OnConfigureEvent (ev);
-	}
-
-	protected override void OnSetScrollAdjustments (Adjustment hadj, Adjustment vadj)
-	{
-		// set step size to 10px, everything else to 0
-		hadj.Value         = 0.0f;
-		hadj.Upper         = 0.0f;
-		hadj.Lower         = 0.0f;
-		hadj.StepIncrement = 10.0f;
-		hadj.PageIncrement = 0.0f;
-		hadj.PageSize      = 0.0f;
-
-		vadj.Value         = 0.0f;
-		vadj.Upper         = 0.0f;
-		vadj.Lower         = 0.0f;
-		vadj.StepIncrement = 10.0f;
-		vadj.PageIncrement = 0.0f;
-		vadj.PageSize      = 0.0f;
-
-		this.hadj = hadj;
-		this.vadj = vadj;
 	}
 };
