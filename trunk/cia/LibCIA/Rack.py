@@ -415,6 +415,92 @@ class KeyPickler(object):
         return 'N'
 
 
+class RingBuffer(object):
+    """A FIFO buffer for the last n objects delivered to it, based on Rack.
+       The rack includes keys for the numbers 0 through n-1, plus the following
+       strings:
+
+          head  : The key to place the next node at
+          count : Total number of nodes in the buffer
+          size  : Size of this buffer, can't be changed after it's created.
+                  The size specified to the constructor is only
+                  used when a new database has been created.
+
+       >>> import Rack
+       >>> d = Rack.RingBuffer(Rack.open('/tmp/ringbuffer_test.db', 'n'))
+       >>> d.getLatest()
+       []
+       >>> d.push('foo')
+       >>> d.push('bar')
+       >>> d.push((42, None))
+       >>> d.getLatest()
+       ['foo', 'bar', (42, None)]
+       >>> for i in xrange(5000):
+       ...    d.push(str(i))
+       >>> len(d.getLatest())
+       1024
+       >>> len(d.getLatest(10000))
+       1024
+       >>> len(d.getLatest(100))
+       100
+       >>> d.getLatest(10)
+       ['4990', '4991', '4992', '4993', '4994', '4995', '4996', '4997', '4998', '4999']
+       """
+    def __init__(self, rack, size=1024):
+        self.rack = rack
+
+        if not self.rack.has_key('size'):
+            # It's a new database, initialize the special keys
+            self.rack['head'] = 0
+            self.rack['count'] = 0
+            self.rack['size'] = size
+
+        # Cache the special keys
+        self.head = self.rack['head']
+        self.count = self.rack['count']
+        self.size = self.rack['size']
+
+    def push(self, node):
+        """Add the given node to the FIFO, overwriting
+           the oldest entries if the buffer is full.
+           """
+        # Stow the new node at our head and increment it
+        self.rack[self.head] = node
+        self.head = self.head + 1
+        if self.head >= self.size:
+            self.head -= self.size
+        self.rack['head'] = self.head
+
+        # If we haven't just also pushed out an old item,
+        # increment the count of items in our rack.
+        if self.count < self.size:
+            self.count += 1
+            self.rack['count'] = self.count
+
+    def getLatest(self, n=None):
+        """Returns up to the latest 'n' items. If n is None,
+           returns the entire contents of the FIFO.
+           Returns a list, oldest items first.
+           """
+        # Figure out how many items we can actually extract
+        if n is None or n > self.count:
+            n = self.count
+
+        # Find the key holding the oldest item we want to return,
+        # and start pulling items out from there
+        key = self.head - n
+        if key < 0:
+            key += self.size
+        results = []
+        while n > 0:
+            results.append(self.rack[key])
+            key += 1
+            if key >= self.size:
+                key -= self.size
+            n -= 1
+        return results
+
+
 def open(filename, flags='c', mode=0666, rootNamespace=(), pickleProtocol=-1):
     """Create a RackDict object from an anydbm-compatible database file"""
     return Rack(anydbm.open(filename, flags, mode), rootNamespace, pickleProtocol)

@@ -24,85 +24,55 @@ A web interface using Woven for browsing CIA's stats:// namespace
 from twisted.web import static, domhelpers
 from twisted.web.woven import page, widgets, model
 from LibCIA import Message
-import os, urllib, time
+import os, time
 
 
-def pathSplit(s):
-    """Given a path as a string, return it split into directories,
-       ignoring leading and trailing slashes or multiple slashes.
-       """
-    return [i for i in s.split('/') if i]
-
-
-class CounterListModel(model.Wrapper):
+class CountersModel(model.MethodModel):
     """A Model representing a set of event counters, constructed
-       around a Stats.CounterList. Submodels are dictionaries as
-       returned by the counter's getValues() member.
+       around a Stats.Counters
        """
-    def getSubmodel(self, request, name):
-        if self.original:
-            counter = self.original.getCounter(name, create=False)
-            return CounterModel(counter)
-        return CounterModel(None)
+    def submodelCheck(self, request, name):
+        return True
+
+    def submodelFactory(self, request, name):
+        return CounterModel(self.original.getCounter(name))
 
 
-class RecentMessagesModel(model.Wrapper):
+class CounterModel(model.MethodModel):
+    """A Model representing one counter, wrapping a dictionary
+       of that counter's values.
+       """
+    def submodelCheck(self, request, name):
+        return True
+
+    def submodelFactory(self, request, name):
+        return 'foo'
+        return self.original.get(name, 0)
+
+
+class RecentMessagesModel(model.MethodModel):
     """A Model wrapping a StatsTarget's recentMesssages attribute
        (a LogDB instance). Submodels are integers representing how many
        messages to list. Submodels of those integers are lists of
        messages in XML.
        """
-    def getSubmodel(self, request, name):
+    
+    def submodelCheck(self, request, name):
+        return True
+
+    def submodelFactory(self, request, name):
         if self.original:
             return model.ListModel(self.original.getLatest(int(name)))
         return model.ListModel([])
 
 
-class StatsChildrenModel(model.Wrapper):
+class StatsChildrenModel(model.MethodModel):
     """Wraps a StatsPage, providing access to its child pages"""
-    def getSubmodel(self, request, name):
+    def submodelCheck(self, request, name):
+        return True
+
+    def submodelFactory(self, request, name):
         return self.original.getDynamicChild(name)
-
-
-class CounterModel(model.MethodModel):
-    """A Model representing a single event counter, providing submodels
-       for retrieving the total event count, creation date, most recent
-       event date, and mean time between events. This may be constructed
-       with None to stand in for a nonexistent counter, returning default
-       values.
-
-       Times are returned in UNIX-style seconds since the epoch, in UTC.
-       The meanPeriod is in seconds.
-       """
-    def wmfactory_eventCount(self, request):
-        if self.original:
-            return self.original.getEventCount()
-        else:
-            return 0
-
-    def wmfactory_firstEventTime(self, request):
-        if self.original:
-            return self.original.getFirstEventTime()
-        return ''
-
-    def wmfactory_lastEventTime(self, request):
-        if self.original:
-            return self.original.getLastEventTime()
-        return ''
-
-    def wmfactory_creationTime(self, request):
-        if self.original:
-            return self.original.getCreationTime()
-        return ''
-
-    def wmfactory_meanPeriod(self, request):
-        if self.original:
-            lastTime = self.original.getLastEventTime()
-            firstTime = self.original.getFirstEventTime()
-            count = self.original.getEventCount()
-            if lastTime and firstTime and count > 1:
-                return float(lastTime - firstTime) / count
-        return ''
 
 
 class Conditional(widgets.Widget):
@@ -120,25 +90,21 @@ class Conditional(widgets.Widget):
 
 
 class StatsPage(page.Page):
-    """A Woven view representing one stats:// path"""
+    """A Woven view representing one StatsTarget"""
 
     templateFile = "stats_browser.xhtml"
     templateDirectory = os.path.split(os.path.abspath(__file__))[0]
 
-    def initialize(self, caps=None, storage=None, path=''):
+    def initialize(self, caps=None, target=None, storage=None):
         self.caps = caps
-        self.storage = storage
-        self.path = path
-        self.target = self.storage.getPathTarget(path)
+        self.target = target
+        if storage:
+            self.target = storage.getRoot()
+        self.storage = self.target.storage
 
     def getDynamicChild(self, name, request=None):
-        if self.path == '' or self.path[-1] == '/':
-            newPath = self.path + name
-        else:
-            newPath = self.path + '/' + name
-        return StatsPage(caps = self.caps,
-                         storage = self.storage,
-                         path = newPath)
+        return StatsPage(caps   = self.caps,
+                         target = self.target.child(name))
 
     def submodelCheck(self, request, name):
         """The default implementation of this chokes when name is None"""
@@ -146,20 +112,7 @@ class StatsPage(page.Page):
 
     def getPathTo(self, request, destination):
         """Assuming this is the page requested, return a relative URI to the given page"""
-        if self.path == destination.path:
-            return '.'
-
-        # Figure out how many levels deep we are in the stats path
-        # and what levels there are in the destination, and start
-        # cancelling out what we can to create an optimized relative path.
-        selfPath = pathSplit(self.path)
-        upLevels = len(selfPath)
-        down = pathSplit(destination.path)
-        while selfPath and down and selfPath[0] == down[0]:
-            del selfPath[0]
-            del down[0]
-            upLevels -= 1
-        return '/'.join(['..'] * upLevels + down + [''])
+        return 'boing'
 
     def getNodeModel(self, request, node, submodel):
         """Override the default getNodeModel so that nodes we can't find
@@ -170,27 +123,6 @@ class StatsPage(page.Page):
             page.Page.getNodeModel(self, request, node, submodel)
         except:
             return None
-
-    def addTimeUnits(self, original):
-        """Convert a time in seconds to a time in some other appropriate units"""
-        # A table of various units, listed in decreasing order.
-        # We convert to the first unit in which the given value would
-        # be greater than some threshold
-        threshold = 0.8
-        units = (
-            ('years',   365 * 24 * 60 * 60),
-            ('months',  30 * 24 * 60 * 60),
-            ('weeks',   7 * 24 * 60 * 60),
-            ('days',    24 * 60 * 60),
-            ('hours',   60 * 60),
-            ('minutes', 60),
-            ('seconds', 1),
-            )
-        for name, seconds in units:
-            converted = original / seconds
-            if converted > threshold:
-                break
-        return "%.02f %s" % (converted, name)
 
 
     ######################################### Submodel Factories
@@ -212,37 +144,20 @@ class StatsPage(page.Page):
 
     def wmfactory_metadata(self, request):
         """Return a dictionary of all metadata for this stats target"""
-        if self.target.metadata:
-            return self.target.metadata.dict
-        return {}
+        return self.target.metadata
 
     def wmfactory_title(self, requeset):
         """Return the human-readable title of this stats target. This
            is loaded from the 'title' metadata item if that exists, otherwise
            it's an un-URI-encoded version of the last item in our path.
            """
-        # First try to return the 'title' metadata key
-        if self.target.metadata:
-            try:
-                title = self.target.metadata.dict['title']
-                if title:
-                    return title
-            except KeyError:
-                pass
-
-        # Now try the path
-        title = urllib.unquote(self.path.split('/')[-1])
-        if title:
-            return title
-
-        # If that failed, we're at the root- make up a default root title
-        return "Stats"
+        return self.target.getTitle()
 
     def wmfactory_counters(self, request):
         """Return a CountersModel instance that can be used to access
            the event counters stored at this stats path.
            """
-        return CounterListModel(self.target.counters)
+        return CountersModel(self.target.counters)
 
     def wmfactory_recentMessages(self, request):
         """Returns a model that can be used to return the 'n' most recent
@@ -281,11 +196,11 @@ class StatsPage(page.Page):
 
     def wvfactory_if(self, request, node, data):
         """Hide the children of this widget if our model evaluates to False"""
-        return Conditional(condition = data.original)
+        return Conditional(condition = data and data.original)
 
     def wvfactory_ifNot(self, request, node, data):
         """Hide the children of this widget if our model evaluates to True"""
-        return Conditional(condition = not data.original)
+        return Conditional(condition = not (data and data.original))
 
     def wvfactory_fullDate(self, request, node, data):
         """Convert UNIX time in UTC to a complete date and time"""

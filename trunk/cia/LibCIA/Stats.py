@@ -27,9 +27,8 @@ the actual stats target using part of the message.
 #
 
 from twisted.web import xmlrpc
-import Ruleset, Message, Rack
-import string, os
-import time, datetime, calendar
+import Ruleset, Message, Rack, TimeUtil
+import string, os, time
 
 
 class StatsURIHandler(Ruleset.RegexURIHandler):
@@ -127,6 +126,9 @@ class StatsStorage(object):
         """Like getTarget, but split up 'path' into segments and optionally append extraSegments first"""
         return self.getTarget(list(path.split("/")) + list(extraSegments))
 
+    def getRoot(self):
+        return StatsTarget(self)
+
 
 class StatsTarget(object):
     """Encapsulates all the stats-logging features used for one particular
@@ -134,13 +136,13 @@ class StatsTarget(object):
        It is constructed around a Rack namespace that stores the various
        resources this stats target owns.
        """
-    def __init__(self, storage, pathSegments):
+    def __init__(self, storage, pathSegments=()):
         self.storage = storage
         self.pathSegments = pathSegments
         self.rack = storage.rack.namespace(pathSegments)
 
         self.counters = Counters(self.rack.namespace('counters'))
-        self.recentMessages = RingBuffer(self.rack.namespace('recentMessages'))
+        self.recentMessages = Rack.RingBuffer(self.rack.namespace('recentMessages'))
         self.metadata = self.rack.namespace('metadata')
 
     def deliver(self, message):
@@ -156,176 +158,23 @@ class StatsTarget(object):
         """Return the StatsTarget for the given sub-target name under this one"""
         return StatsTarget(self.storage, tuple(self.pathSegments) + (name,))
 
-
-class TimeInterval(object):
-    """Represents some interval of time, like 'yesterday' or 'this week'.
-       Provides functions for returning the bounds of the
-       interval and testing whether a particular time is within it.
-       Represents time using datetime objects. By default, the interval
-       is created relative to the current date and time in UTC. To override
-       this, a datetime object can be passed to the constructor.
-
-       TimeInterval is constructed with the name of the interval
-       it should represent.
-
-       >>> now = datetime.datetime(2003, 12, 19, 2, 19, 39, 50279)
-
-       >>> TimeInterval('today', now)
-       <TimeInterval from 2003-12-19 00:00:00 to 2003-12-20 00:00:00>
-
-       >>> TimeInterval('yesterday', now)
-       <TimeInterval from 2003-12-18 00:00:00 to 2003-12-19 00:00:00>
-
-       >>> TimeInterval('thisWeek', now)
-       <TimeInterval from 2003-12-15 00:00:00 to 2003-12-22 00:00:00>
-
-       >>> TimeInterval('lastWeek', now)
-       <TimeInterval from 2003-12-08 00:00:00 to 2003-12-15 00:00:00>
-
-       >>> TimeInterval('thisMonth', now)
-       <TimeInterval from 2003-12-01 00:00:00 to 2004-01-01 00:00:00>
-
-       >>> TimeInterval('lastMonth', now)
-       <TimeInterval from 2003-11-01 00:00:00 to 2003-12-01 00:00:00>
-       """
-    def __init__(self, name, now=None):
-        if not now:
-            now = datetime.datetime.utcnow()
-        self.range = getattr(self, name)(now)
-
-    def __repr__(self):
-        return "<TimeInterval from %s to %s>" % self.range
-
-    def __contains__(self, dt):
-        return dt >= self.range[0] and dt < self.range[1]
-
-    def today(self, now):
-        midnightToday = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        midnightTomorrow = midnightToday + datetime.timedelta(days=1)
-        return (midnightToday, midnightTomorrow)
-
-    def yesterday(self, now):
-        midnightToday = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        midnightYesterday = midnightToday - datetime.timedelta(days=1)
-        return (midnightYesterday, midnightToday)
-
-    def thisWeek(self, now):
-        midnightToday = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        beginning = midnightToday - datetime.timedelta(days=calendar.weekday(now.year, now.month, now.day))
-        end = beginning + datetime.timedelta(weeks=1)
-        return (beginning, end)
-
-    def lastWeek(self, now):
-        thisWeek = self.thisWeek(now)
-        return (thisWeek[0] - datetime.timedelta(weeks=1), thisWeek[0])
-
-    def thisMonth(self, now):
-        beginning = now.replace(hour=0, minute=0, second=0, microsecond=0, day=1)
-        try:
-            end = beginning.replace(month=now.month+1)
-        except ValueError:
-            # Next year
-            end = beginning.replace(month=1, year=now.year+1)
-        return (beginning, end)
-
-    def lastMonth(self, now):
-        end = now.replace(hour=0, minute=0, second=0, microsecond=0, day=1)
-        try:
-            beginning = end.replace(month=now.month-1)
-        except ValueError:
-            # Last year
-            beginning = end.replace(month=12, year=now.year-1)
-        return (beginning, end)
-
-
-class RingBuffer(object):
-    """A FIFO buffer for the last n objects delivered to it, based on Rack.
-       The rack includes keys for the numbers 0 through n-1, plus the following
-       strings:
-
-          head  : The key to place the next node at
-          count : Total number of nodes in the buffer
-          size  : Size of this buffer, can't be changed after it's created.
-                  The size specified to the constructor is only
-                  used when a new database has been created.
-
-       >>> d = RingBuffer(Rack.open('/tmp/ringbuffer_test.db', 'n'))
-       >>> d.getLatest()
-       []
-       >>> d.push('foo')
-       >>> d.push('bar')
-       >>> d.push((42, None))
-       >>> d.getLatest()
-       ['foo', 'bar', (42, None)]
-       >>> for i in xrange(5000):
-       ...    d.push(str(i))
-       >>> len(d.getLatest())
-       1024
-       >>> len(d.getLatest(10000))
-       1024
-       >>> len(d.getLatest(100))
-       100
-       >>> d.getLatest(10)
-       ['4990', '4991', '4992', '4993', '4994', '4995', '4996', '4997', '4998', '4999']
-       """
-    def __init__(self, rack, size=1024):
-        self.rack = rack
-
-        if not self.rack.has_key('size'):
-            # It's a new database, initialize the special keys
-            self.rack['head'] = 0
-            self.rack['count'] = 0
-            self.rack['size'] = size
-
-        # Cache the special keys
-        self.head = self.rack['head']
-        self.count = self.rack['count']
-        self.size = self.rack['size']
-
-    def push(self, node):
-        """Add the given node to the FIFO, overwriting
-           the oldest entries if the buffer is full.
+    def getTitle(self):
+        """Return the human-readable title of this stats target-
+           the 'title' metadata key if we have one, otherwise the last
+           section of our path. The root stats target has the special
+           default title 'Stats', since it has no last path segment.
            """
-        # Stow the new node at our head and increment it
-        self.rack[self.head] = node
-        self.head = self.head + 1
-        if self.head >= self.size:
-            self.head -= self.size
-        self.rack['head'] = self.head
-
-        # If we haven't just also pushed out an old item,
-        # increment the count of items in our rack.
-        if self.count < self.size:
-            self.count += 1
-            self.rack['count'] = self.count
-
-    def getLatest(self, n=None):
-        """Returns up to the latest 'n' items. If n is None,
-           returns the entire contents of the FIFO.
-           Returns a list, oldest items first.
-           """
-        # Figure out how many items we can actually extract
-        if n is None or n > self.count:
-            n = self.count
-
-        # Find the key holding the oldest item we want to return,
-        # and start pulling items out from there
-        key = self.head - n
-        if key < 0:
-            key += self.size
-        results = []
-        while n > 0:
-            results.append(self.rack[key])
-            key += 1
-            if key >= self.size:
-                key -= self.size
-            n -= 1
-        return results
+        title = self.metadata.get('title')
+        if title:
+            return title
+        if self.pathSegments:
+            return self.pathSegments[-1]
+        return 'Stats'
 
 
 class Counters(object):
     """A set of counters which are used together to track events
-       occurring over several TimeIntervals. Stored in a Rack.
+       occurring over several TimeUtil.Intervals. Stored in a Rack.
        """
     def __init__(self, rack):
         self.rack = rack
@@ -365,14 +214,14 @@ class Counters(object):
         cTime = c.get('firstEventTime', None)
 
         if cTime is not None:
-            if not datetime.datetime.utcfromtimestamp(cTime) in TimeInterval(current):
+            if not cTime in TimeUtil.Interval(current):
                 # Our current timer is old, copy it to the previous timer and delete it
                 p.clear()
                 p.update(c)
                 c.clear()
 
         if pTime is not None:
-            if not datetime.datetime.utcfromtimestamp(pTime) in TimeInterval(previous):
+            if not pTime in TimeUtil.Interval(previous):
                 # The previous timer is old. Either the current timer rolled over first
                 # and it was really old, or no events occurred in the first timer
                 # (cTime is None) but some had in the previous timer and it's old.
