@@ -32,6 +32,7 @@ static void       teleporter_init_size_params     (GObjectClass *object_class);
 static void       teleporter_init_other_params    (GObjectClass *object_class);
 static GdkPixbuf* teleporter_get_icon             (void);
 static gboolean   teleporter_creatable            (void);
+static GList*     teleporter_get_drawables        (SceneObject *self);
 
 enum
 {
@@ -87,6 +88,7 @@ teleporter_class_init (TeleporterClass *klass)
 
   so_class->get_icon = teleporter_get_icon;
   so_class->creatable = teleporter_creatable;
+  so_class->get_drawables = teleporter_get_drawables;
 
   object_class->set_property = teleporter_set_property;
   object_class->get_property = teleporter_get_property;
@@ -100,7 +102,7 @@ teleporter_class_init (TeleporterClass *klass)
 static void
 teleporter_init (Teleporter *teleporter)
 {
-  /* nothing to do here yet, since everything is set up by the G_PARAM_CONSTRUCT properties */
+  teleporter->drawables = g_list_alloc ();
 }
 
 static void
@@ -354,4 +356,11 @@ static gboolean
 teleporter_creatable (void)
 {
   return TRUE;
+}
+
+static GList*
+teleporter_get_drawables (SceneObject *self)
+{
+  Teleporter *t = TELEPORTER (self);
+  return t->drawables;
 }

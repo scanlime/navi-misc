@@ -52,6 +52,7 @@ struct _Pyramid
 
   PyramidParams param;
   gboolean state_dirty;
+  GList *drawables;
 };
 
 struct _PyramidClass

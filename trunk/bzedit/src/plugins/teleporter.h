@@ -52,6 +52,7 @@ struct _Teleporter
 
   TeleporterParams param;
   gboolean state_dirty;
+  GList *drawables;
 };
 
 struct _TeleporterClass
