@@ -1,8 +1,8 @@
-Coding guidelines for PyBZFlag:
+Coding guidelines for pybzengine:
 
   - All modules must start with a doc string of the following format:
 
-    """ BZFlag.Package.Module
+    """ BZEngine.Package.Module
 
     An example module that's here for the documentation.
     """
