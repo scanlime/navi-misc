@@ -30,7 +30,25 @@ extern "C" {
 #include <ImfRgbaFile.h>
 using namespace Imf;
 
-extern "C" void exr_save_image_file(HistogramImager *hi, const gchar* filename)
+void exr_save_real (HistogramImager *hi, const gchar *filename);
+
+#define fyre_exr_error_quark() (g_quark_from_string("FYRE_EXR_ERROR"))
+enum {
+    FYRE_EXR_SAVE_FAILURE,
+} FyreExrError;
+
+extern "C" void exr_save_image_file(HistogramImager *hi, const gchar* filename, GError **error)
+{
+    try {
+	exr_save_real (hi, filename);
+    } catch (const std::exception &exc) {
+	GError *nerror = g_error_new (fyre_exr_error_quark(), FYRE_EXR_SAVE_FAILURE, exc.what());
+	*error = nerror;
+    }
+}
+
+void
+exr_save_real (HistogramImager *hi, const gchar *filename)
 {
     int width = hi->width;
     int height = hi->height;

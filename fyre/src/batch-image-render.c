@@ -76,8 +76,13 @@ void batch_image_render(IterativeMap*  map,
 #ifdef HAVE_EXR
     /* Save as an OpenEXR file if it has a .exr extension, otherwise use PNG */
     if (strlen(filename) > 4 && strcmp(".exr", filename + strlen(filename) - 4)==0) {
+	GError *error = NULL;
 	printf("Creating OpenEXR image...\n");
-	exr_save_image_file(HISTOGRAM_IMAGER(map), filename);
+	exr_save_image_file(HISTOGRAM_IMAGER(map), filename, &error);
+	if (error) {
+	    g_print ("Error: %s\n", error->message);
+	    g_error_free (error);
+	}
     }
     else
 #endif

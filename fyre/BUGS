@@ -16,6 +16,5 @@ Probably fix before the next release, definitely for 1.0:
 	  This is probably actually the lack of an index
 
 Would be nice to fix, and most of these are dead simple:
-	* Errors in saving OpenEXR aren't reported
 	* If opening an image on the command line but running in interactive mode,
 	  it'll still output to stdout. Should pop up an error message in this case.
