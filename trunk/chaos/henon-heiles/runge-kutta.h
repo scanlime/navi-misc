@@ -10,10 +10,10 @@ float vector_length   (float *a, int dim);
 void vector_normalize (float *a, float *result, int dim);
 
 void k1 (ODEFunc ode, float *xn, float *d, float time, float tdelt);
-void k2 (ODEFunc ode, float *xn, float *d, float *k1, float time, float tdelt, int dim);
-void k3 (ODEFunc ode, float *xn, float *d, float *k2, float time, float tdelt, int dim);
-void k4 (ODEFunc ode, float *xn, float *d, float *k3, float time, float tdelt, int dim);
+void k2 (ODEFunc ode, float *xn, float *d, float *k1, float time, float tdelt, int dim, float *scratch);
+void k3 (ODEFunc ode, float *xn, float *d, float *k2, float time, float tdelt, int dim, float *scratch);
+void k4 (ODEFunc ode, float *xn, float *d, float *k3, float time, float tdelt, int dim, float *scratch);
 
-void rk (ODEFunc ode, float *xn, float *xn1, int dim, float time, float tdelt);
+void rk (ODEFunc ode, float *xn, float *xn1, int dim, float time, float tdelt, float *scratch);
 
 #endif
