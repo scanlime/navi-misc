@@ -52,7 +52,7 @@ public class aimup
 	 */
 	public static void main(String[] args)
 	{
-		botmain interviewbot = initbots(1,"nomorefake");
+		botmain interviewbot = initbots(1,"fake");
 		startServer(8082);
 		sleep(2);
 		configureServer(interviewbot);
