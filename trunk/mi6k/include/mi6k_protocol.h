@@ -17,7 +17,7 @@
 ;// The protocol version, stored in binary coded decimal.
 ;// This is available from the device in the bcdDevice field
 ;// of its DEVICE descriptor.
-#define MI6K_PROTOCOL_VERSION  0x0101
+#define MI6K_PROTOCOL_VERSION  0x0102
 
 ;// Device vendor and product IDs.
 ;// The MI6K's device class and protocol are both set to 'vendor-specific'.
