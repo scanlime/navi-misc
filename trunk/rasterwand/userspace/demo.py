@@ -1,25 +1,19 @@
 #!/usr/bin/env python
-import rasterwand
-import Image, ImageDraw, ImageFont
-import time, math
+import rasterwand, xmlrpclib, time
 
+s = xmlrpclib.ServerProxy("http://navi.picogui.org:4510")
 dev = rasterwand.Device()
-frame = Image.new("1", (40,8))
-draw = ImageDraw.Draw(frame)
-font = ImageFont.load("data/helvetica8.pil")
 
-t0 = time.time()
-while True:
-    t = time.time() - t0
-    frame.paste(0)
+dev.params.display_width = 0xFFFF * 0.75
+dev.params.duty_cycle = 0xFFFF * 0.5
 
-    draw.rectangle((0,0,39,7), outline=1)
-    draw.text((2,-2), time.strftime("%H:%M:%S"), fill=1, font=font)
+while 1:
+    # Show the time
+    dev.vScrollText(time.strftime("%l:%M %p"), width=60, pause=3)
 
-    #theta = t*10
-    #radius = 4
-    #draw.line((20 + math.cos(theta)*radius, 3.99 + math.sin(theta)*radius,
-    #           20 - math.cos(theta)*radius, 3.99 - math.sin(theta)*radius),
-    #          fill=1)
+    # Scroll all temperatures continuously
+    desc = s.getDescriptions()
+    avg = s.getAverages()
+    text = (" "*10).join(["%s: %0.1f \xb0F" % (name, avg[id]) for id, name in desc.iteritems()])
+    rasterwand.TextScroller(dev, text, width=70).scroll(start=(1, 0), end=(-1, 0), speed=1)
 
-    dev.writeImage(frame)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import struct, os, fcntl
+import struct, os, fcntl, time
 
 
 class Params:
@@ -88,5 +88,71 @@ class Device:
                 bit <<= 1
         self.writeRaw("".join([chr(b) for b in bytes]))
 
+    def showText(self, text):
+        TextScroller(self, text).show()
+
+    def hScrollText(self, text, speed=0.5, pause=1, width=40):
+        s = TextScroller(self, text, width=width)
+        s.scroll(start=(-1, 0), speed=speed)
+        time.sleep(pause)
+        s.scroll(end=(1, 0), speed=speed)
+
+    def vScrollText(self, text, speed=0.5, pause=1, width=40):
+        s = TextScroller(self, text, width=width)
+        s.scroll(start=(0, 1), speed=speed)
+        time.sleep(pause)
+        s.scroll(end=(0, -1), speed=speed)
+
+
+def sgn(x):
+    if x > 0:
+        return 1
+    elif x < 0:
+        return -1
+    else:
+        return 0
+
+
+class TextScroller:
+    def __init__(self, dev, text, font=None, fontFile="data/helvetica8.pil", width=40):
+        import ImageDraw, Image, ImageFont
+
+        if font is None:
+            font = ImageFont.load(fontFile)
+
+        self.font = font
+        self.dev = dev
+        self.text = text
+
+        self.frame = Image.new("1", (width, 8))
+        self.draw = ImageDraw.Draw(self.frame)
+        self.textWidth = self.draw.textsize(text, font=font)[0]
+
+    def show(self, offset=(0,0)):
+        """Draw and show the text with the given offset"""
+        self.frame.paste(0)
+        self.drawText(offset)
+        self.dev.writeImage(self.frame)
+
+    def drawText(self, offset=(0,0)):
+        self.draw.text( ((self.frame.size[0] - self.textWidth)/2 + offset[0] - 1,
+                         -2 + offset[1]),
+                        self.text, fill=255, font=self.font)
+
+    def _textAlignOuter(self, p):
+        return [(self.frame.size[0]/2 + self.textWidth/2 + 4) * p[0],
+                12 * p[1]]
+
+    def scroll(self, start=(0,0), end=(0,0), speed=0.5):
+        p = self._textAlignOuter(start)
+        end = self._textAlignOuter(end)
+        d = [sgn(end[i] - p[i]) for i in (0,1)]
+        while d[0] or d[1]:
+            self.show(p)
+            p = [p[0]+d[0]*speed, p[1]+d[1]*speed]
+            for i in (0,1):
+                if (d[i] > 0 and p[i] >= end[i]) or (d[i] < 0 and p[i] <= end[i]):
+                    d[i] = 0
+                    p[i] = end[i]
 
 ### The End ###
