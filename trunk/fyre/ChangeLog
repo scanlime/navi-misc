@@ -1,0 +1,36 @@
+0.7-pre
+	* Brand New Cluster support!
+	* Tweakable interactivity
+	* Saving to OpenEXR
+	* Autoconf support
+	* Added binreloc support for relocatability
+	* Added windows support
+
+0.6 (11 August 2004)
+	* Support 64-bit machines and Intel icc
+	* Added experimental "screensaver" mode
+	* Added gamma correction for oversampling
+	* Scrolly parameter panel, due to feature bloat!
+	* Add selectable distributions for the initial conditions in
+	  emphasize-transient mode
+	* Added new "emphasize transient" feature to show just the first few
+	  iterations of the map
+	* En-coolinated the rotate tool - now rotates around the center of the
+	  view rather than the origin
+	* Begin the long road towards multiple function support
+	* Renamed project to "Fyre"
+
+0.5 (01 March 2004)
+	* Added animation support
+	* Added tileable image support
+	* Added mouse-based tools
+	* Improved oversampling
+
+0.3 (15 February 2004)
+	* Fixed a super-critical bug in parameters
+	* Added oversampling
+	* Added color clamping
+	* Lots of speed improvements
+
+0.2 (15 February 2004)
+	* First histogram-based release
