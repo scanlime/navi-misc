@@ -68,6 +68,7 @@ class ChannelList(gtk.TreeView):
                               gobject.TYPE_STRING,    # (1) Channel name
                               gobject.TYPE_BOOLEAN,   # (2) Visibility flag
                               gobject.TYPE_BOOLEAN,   # (3) Activatable flag
+                              gobject.TYPE_OBJECT,    # (4) Color sample
                               )
         for channel in availableChannels:
             i = model.append(row=(
@@ -75,6 +76,7 @@ class ChannelList(gtk.TreeView):
                 str(channel),
                 gtk.FALSE,
                 gtk.TRUE,
+                self.makeColorSamplePixbuf(channel),
                 ))
 
         # Now we can initialize this class, the view
@@ -84,6 +86,9 @@ class ChannelList(gtk.TreeView):
         renderer = gtk.CellRendererToggle()
         renderer.connect('toggled', self.visibilityToggleCallback, model)
         self.append_column(gtk.TreeViewColumn("Visible", renderer, active=2, activatable=3))
+
+        # Show the channel color
+        self.append_column(gtk.TreeViewColumn("Color", gtk.CellRendererPixbuf(), pixbuf=4))
 
         # Show the channel name
         self.append_column(gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=1))
@@ -102,6 +107,19 @@ class ChannelList(gtk.TreeView):
             self.graph.channels.append(channel)
         else:
             self.graph.channels.remove(channel)
+
+    def makeColorSamplePixbuf(self, channel, width=24, height=12):
+        """Create a small pixbuf giving a color sample for the given channel"""
+        # Convert the channel's color to 8-bit RGBA
+        r,g,b = channel.color
+        rgba = ((int(r * 255) << 24)|
+                (int(g * 255) << 16)|
+                (int(b * 255) <<  8))
+
+        # Fill a properly sized blank pixbuf with it
+        pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8, width, height)
+        pixbuf.fill(rgba)
+        return pixbuf
 
 
 class GraphUI(gtk.VPaned):
