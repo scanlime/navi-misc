@@ -142,6 +142,37 @@ int mnetsend(int source, int destination, const unsigned char *data, int dataByt
   printf("Received %d byte%s:", packetBytes, packetBytes==1 ? "" : "s");
   for (i=0; i<packetBytes; i++)
     printf(" %02X", packet[i]);
+  printf("\n\n");
+
+  /* Check the source and destination bytes, they should be opposite those of our sent packet */
+  if (packet[0] != source || packet[1] != destination) {
+    printf("* Incorrect source/destination\n");
+    return 1;
+  }
+
+  /* Verify the length */
+  if (packetBytes > packet[2]+4) {
+    printf("* Received too many bytes\n");
+    return 1;
+  }
+  if (packetBytes < packet[2]+4) {
+    printf("* Received too few bytes\n");
+    return 1;
+  }
+
+  /* Verify the checksum */
+  csum = 0;
+  for (i=0; i<packetBytes; i++)
+    csum += packet[i];
+  if (csum != 255) {
+    printf("* Incorrect checksum\n");
+    return 1;
+  }
+
+  /* Yay, a good response */
+  printf("Valid packet data:\n   ");
+  for (i=3; i<packetBytes-1; i++)
+    printf(" %d", packet[i]);
   printf("\n");
 
   return 0;
