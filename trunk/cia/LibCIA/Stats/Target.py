@@ -492,9 +492,20 @@ class Maintenance:
            all at once, this randomly queues all stats targets then prunes them
            just a few at a time.
            """
+        fetchCount = 0
         for i in xrange(quantity):
 
             if not self.targetQueue:
+
+                # If our queue is empty, fill it up with new targets
+                # to prune. We can't do this more than once in a particular
+                # pruneTargets call: this keeps us from looping over the
+                # same items if 'quantity' is more than the number of
+                # total stats targets.
+                if fetchCount > 0:
+                    return
+
+                fetchCount += 1
                 cursor.execute("SELECT target_path FROM stats_catalog")
                 self.targetQueue = list(cursor.fetchall())
                 random.shuffle(self.targetQueue)
