@@ -46,7 +46,6 @@ if options.remove:
 # At some point, this may be replaced by code that actually plays something
 #
 p = playlist.getPieces()
-p.addPaths (sys.argv[1:])
                                                                                 
 for x in Select.Select(p):
 	print x.getPath()

@@ -46,7 +46,7 @@ class File:
 		'''
 		return self.parent
 
-	def clear(self):
+	def destroy(self):
 		''' FSTree.File.removed
 		'''
 		if self.callback:
@@ -105,6 +105,28 @@ class Directory (File):
 	def getFiles(self):
 		return self.files
 
+	def find(self,path):
+		'''	FSTree.Directory.find
+		
+			Returns a Directory structure for a file or directory with
+			the given path, if found inside anywhere recursively within
+			the current directory.
+		'''
+		path = os.path.abspath(path)
+		
+		if self.getPath() == path:
+			return self
+
+		for i in xrange(0,len(self.files)):
+			if self.files[i].getPath() == path:
+				return self.files[i]
+		for i in xrange(0,len(self.subdirs)):
+			if path.find(self.subdirs[i].getPath()) is 0:
+				return self.subdirs[i].find(path)
+
+		return []
+		
+
 	def inPath(self, path):
 		'''	FSTree.Directory.inPath
 		
@@ -124,14 +146,6 @@ class Directory (File):
 			self.subdirs[i].destroy()
 		while len(self.files):
 			l=len(self.files)
-			self.files[0].clear()
+			self.files[0].destroy()
 			if l == len(self.files):
 				self.files.remove(self.files[0])
-
-if __name__ == "__main__":
-	import sys
-	import time
-
-	dir = []
-	for x in sys.argv[1:]:
-		dir.append(Directory(x))
