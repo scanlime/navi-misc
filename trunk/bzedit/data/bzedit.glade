@@ -218,6 +218,7 @@
 
 	      <child>
 		<widget class="GtkToolbar" id="parameters toolbar">
+		  <property name="width_request">18</property>
 		  <property name="visible">True</property>
 		  <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
 		  <property name="toolbar_style">GTK_TOOLBAR_BOTH</property>

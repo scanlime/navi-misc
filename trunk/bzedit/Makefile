@@ -7,7 +7,9 @@ BIN	= bzedit
 
 OBJS	= 			\
 	src/gldrawingarea.o	\
-	src/main.o
+	src/main.o		\
+	src/parameter-editor.o	\
+	src/parameter-holder.o
 
 $(BIN):	$(OBJS)
 	gcc -o $@ $(OBJS) $(LIBS)
