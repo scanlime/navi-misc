@@ -135,15 +135,21 @@ class StatsTarget(object):
        target. This can be one project, one class of messages, etc.
        It is constructed around a Rack namespace that stores the various
        resources this stats target owns.
+
+       Each path segment corresponds to one namespace in the Rack. String
+       rack namespaces are always path segments, other data types like
+       tuples are used for particular stats resources.
        """
     def __init__(self, storage, pathSegments=()):
         self.storage = storage
         self.pathSegments = pathSegments
-        self.rack = storage.rack.namespace(pathSegments)
+        self.rack = storage.rack.child(*map(str, pathSegments))
 
-        self.counters = Counters(self.rack.namespace('counters'))
-        self.recentMessages = Rack.RingBuffer(self.rack.namespace('recentMessages'))
-        self.metadata = self.rack.namespace('metadata')
+        # Child namespaces that are tuples rather than strings are used
+        # for our actual resource storage.
+        self.counters = Counters(self.rack.child(('counters',)))
+        self.recentMessages = Rack.RingBuffer(self.rack.unlistedChild(('recentMessages',)), 500)
+        self.metadata = self.rack.child(('metadata',))
 
     def deliver(self, message):
         """A message has been received which should be logged by this stats target"""
@@ -152,11 +158,12 @@ class StatsTarget(object):
 
     def catalog(self):
         """Return a list of subdirectories of this stats target"""
-        return 'not', 'here', 'yet', 'FIXME'
+        # This is just a list of strings from the rack's subnamespace catalog
+        return [item for item in self.rack.catalog() if type(item) == str]
 
     def child(self, name):
         """Return the StatsTarget for the given sub-target name under this one"""
-        return StatsTarget(self.storage, tuple(self.pathSegments) + (name,))
+        return StatsTarget(self.storage, tuple(self.pathSegments) + (str(name),))
 
     def getTitle(self):
         """Return the human-readable title of this stats target-
@@ -188,7 +195,7 @@ class Counters(object):
            lastEventTime  : The time when the most recent event occurred
            eventCount     : The number of events that have occurred
            """
-        return self.rack.namespace(name)
+        return self.rack.child(name)
 
     def incrementCounter(self, name, evTime=None):
         """Increment the counter with the given name.
