@@ -140,7 +140,8 @@ endmodule
  *   4. If we receive further data, individual bits are clocked out on 'rx_content'
  *      using 1-cycle pulses on 'content_strobe'. pkt_address and pkt_read_wr remain valid.
  *      bit_count is incremented after each strobe. This does not count ACK bits,
- *      which are handled internally using the active-high 'ack' signal.
+ *      which are handled internally using the active-high 'ack' signal, but
+ *      it does count the 8 bits received as part of the address byte.
  *      Data is transmitted analogously by placing valid data on tx_content when
  *      content_strobe pulses.
  *   5. Once a stop condition is received, pkt_addressed goes low.
@@ -183,14 +184,13 @@ module i2c_frontend (clk, reset, scl, sda, i2c_interface_tx, i2c_interface_rx);
 	// Our bit counter is reset by the bit_count_reset net, and advanced by strobe.
 	// Every 9th bit, the ACK, pulls 'ack_flag' high for one bit-time rather than
 	// incrementing bit_count.
-	wire bit_count_reset;
 	reg ack_flag;
 	always @(posedge clk or posedge reset)
 		if (reset) begin
 			bit_count <= 0;
 			ack_flag <= 0;
 		end
-		else if (bit_count_reset) begin
+		else if (rx_start) begin
 			bit_count <= 0;
 			ack_flag <= 0;
 		end
@@ -199,7 +199,7 @@ module i2c_frontend (clk, reset, scl, sda, i2c_interface_tx, i2c_interface_rx);
 				ack_flag <= 0;
 				bit_count <= bit_count + 1;
 			end
-			else if (bit_count[2:0] == 3'b111) begin
+			else if (bit_count[2:0] == 7) begin
 				ack_flag <= 1;
 			end
 			else begin
@@ -207,16 +207,12 @@ module i2c_frontend (clk, reset, scl, sda, i2c_interface_tx, i2c_interface_rx);
 				bit_count <= bit_count + 1;
 			end
 		end
-		
-	// Reset the bit count either on rx_start, or when we've just
-	// finished receiving the I2C address.
-	assign bit_count_reset = rx_start || (bit_count == 8 && pkt_addressed);
 	
 	// Send out ACK bits as appropriate
 	assign tx_data = ack_flag ? (!ack) : tx_content;
 
 	// Pass on content once we've decoded the address and we aren't ACK'ing
-	assign content_strobe = (!pkt_addressed) && strobe && bit_count==7;
+	assign content_strobe = pkt_addressed && strobe && (!ack_flag);
 	assign rx_content = rx_data;
 
 	// Enter and leave addressed mode as appropriate
@@ -229,7 +225,7 @@ module i2c_frontend (clk, reset, scl, sda, i2c_interface_tx, i2c_interface_rx);
 			if (!pkt_addressed) begin
 				// We're waiting on receiving the address byte
 				if (strobe) begin
-					// Got a bit. Is this the last one?
+					// Got a bit. Is this the last one in our address byte?
 					if (bit_count == 7)
 						pkt_addressed <= 1;
 					addr_shift <= {addr_shift[6:0], rx_data};
@@ -286,7 +282,7 @@ module i2c_slave_reg (clk, reset, i2c_interface_tx, i2c_interface_rx, reg_out);
 	// Shift register and output register. We shift in new data when this
 	// device has been addressed and we're getting content bits. These shifted
 	// in bits get copied to our output register only if we get a stop condtition
-	// and exactly the right number of bits have been received.
+	// and we've received at least enough bits.
 
 	reg [WIDTH-1:0] shifter;
 	reg [WIDTH-1:0] reg_out;
@@ -296,10 +292,10 @@ module i2c_slave_reg (clk, reset, i2c_interface_tx, i2c_interface_rx, reg_out);
 			shifter <= 0;
 			reg_out <= DEFAULT_VALUE;
 		end
-		else if (content_strobe && dev_addressed) begin
+		else if (content_strobe && dev_addressed && bit_count < WIDTH + 8) begin
 			shifter <= { shifter[WIDTH-2:0], rx_content };
 		end
-		else if (rx_stop && bit_count == WIDTH) begin
+		else if (rx_stop && bit_count >= WIDTH + 8) begin
 			reg_out <= shifter;
 		end
 endmodule	
