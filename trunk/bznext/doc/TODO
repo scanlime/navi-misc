@@ -44,3 +44,14 @@ THESE MUST HAPPEN BEFORE THE ANY RELEASE: (in no particular order)
 * Implement some sort of content management system.
 
 * Many other things
+
+
+
+Documentation TODO for XXXXX
+============================
+
+* Convert all existing docs to .html format
+
+* Develop directory structure for Manual / Dev Docs, etc further (add CSS folder, and so-on)
+
+* Add content to existing docs.
