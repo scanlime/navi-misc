@@ -20,7 +20,7 @@ gulong iterations;
 int flippiness;
 GdkGC *gc;
 guint data[WIDTH][HEIGHT];
-double a, b, c, d, bright;
+double a, b, c, d, exposure;
 guint idler;
 struct timeval last_flip;
 
@@ -45,7 +45,7 @@ int main(int argc, char ** argv) {
   b = -2.2841323;
   c = 2.4275403;
   d = -2.177196;
-  bright = 0.05;
+  exposure = 0.05;
 
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(deletee), NULL);
@@ -86,7 +86,7 @@ GtkWidget *build_sidebar() {
   gtk_table_attach(GTK_TABLE(table), cl, 0, 1, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   dl = gtk_label_new("d:");
   gtk_table_attach(GTK_TABLE(table), dl, 0, 1, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
-  ll = gtk_label_new("brightness:");
+  ll = gtk_label_new("exposure:");
   gtk_table_attach(GTK_TABLE(table), ll, 0, 1, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
   as = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
@@ -102,7 +102,7 @@ GtkWidget *build_sidebar() {
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(ds), d);
   gtk_table_attach(GTK_TABLE(table), ds, 1, 2, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   ls = gtk_spin_button_new_with_range(0.001, 1, 0.001);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(ls), bright);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(ls), exposure);
   gtk_table_attach(GTK_TABLE(table), ls, 1, 2, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   g_signal_connect(G_OBJECT(as), "changed", G_CALLBACK(spinnerchanged), NULL);
   g_signal_connect(G_OBJECT(bs), "changed", G_CALLBACK(spinnerchanged), NULL);
@@ -160,7 +160,7 @@ void flip() {
    * iterations / (WIDTH * HEIGHT) gives us the average density of data[].
    */
   density = ((float)iterations) / (WIDTH * HEIGHT);
-  scale = bright / density;
+  scale = exposure / density;
 
   row = pixels;
   for (y=0; y<HEIGHT; y++) {
@@ -247,7 +247,7 @@ void stopclick(GtkWidget *widget, gpointer user_data) {
 
 void spinnerchanged(GtkWidget *widget, gpointer user_data) {
   if(widget == ls) {
-    bright = gtk_spin_button_get_value(GTK_SPIN_BUTTON(ls));
+    exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(ls));
   } else {
     stopclick(widget, user_data);
     startclick(widget, user_data);
