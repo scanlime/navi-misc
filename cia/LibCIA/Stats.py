@@ -294,7 +294,7 @@ class StatsTarget:
     def __repr__(self):
         return "<StatsTarget at %r>" % self.path
 
-    def _create(self, transaction):
+    def _create(self, cursor):
         """Internal function to create a new stats target, meant to be run from
            inside a database interaction. This is actually a recursive operation
            that tries to create parent stats targets if necessary.
@@ -309,21 +309,21 @@ class StatsTarget:
             if parent:
                 # If we have a parent, we have to worry about creating it
                 # if it doesn't exist and generating the proper parent path.
-                parent._autoCreateTargetFor(transaction, transaction.execute,
+                parent._autoCreateTargetFor(cursor, cursor.execute,
                                             "INSERT INTO stats_catalog (parent_path, target_path) VALUES(%s, %s)" %
                                             (quoteSQL(parent.path, 'varchar'),
                                              quoteSQL(self.path, 'varchar')))
             else:
                 # This is the root node. We still need to insert a parent to keep the
                 # table consistent, but our parent in this case is NULL.
-                transaction.execute("INSERT INTO stats_catalog (target_path) VALUES(%s)" %
+                cursor.execute("INSERT INTO stats_catalog (target_path) VALUES(%s)" %
                                     quoteSQL(self.path, 'varchar'))
         except:
             # Ignore duplicate key errors
             if str(sys.exc_info()[1]).find("duplicate key") < 0:
                 raise
 
-    def _autoCreateTargetFor(self, transaction, func, *args, **kwargs):
+    def _autoCreateTargetFor(self, cursor, func, *args, **kwargs):
         """Run the given function. If an exception occurs that looks like a violated
            foreign key constraint, add our path to the database and try
            again (without attempting to catch any exceptions).
@@ -332,25 +332,25 @@ class StatsTarget:
            existing stats targets.
 
            NOTE: This is meant to be run inside a database interaction, hence
-                 a transaction is required. This transaction will be used to
+                 a cursor is required. This cursor will be used to
                  create the new stats target if one is required.
            """
         try:
             func(*args, **kwargs)
         except:
             if str(sys.exc_info()[1]).find("foreign key") >= 0:
-                self._create(transaction)
+                self._create(cursor)
                 func(*args, **kwargs)
             else:
                 raise
 
-    def _catalog(self, transaction):
+    def _catalog(self, cursor):
         """Database interaction representing the internals of catalog()"""
-        transaction.execute("SELECT target_path FROM stats_catalog WHERE parent_path = %s" %
+        cursor.execute("SELECT target_path FROM stats_catalog WHERE parent_path = %s" %
                             quoteSQL(self.path, 'varchar'))
         results = []
         while True:
-            row = transaction.fetchone()
+            row = cursor.fetchone()
             if row is None:
                 break
             results.append(StatsTarget(row[0]))
@@ -368,14 +368,14 @@ class Messages(object):
         # to create the target's catalog entry if it doesn't exist.
         return Database.pool.runInteraction(self._push, message)
 
-    def _push(self, transaction, message):
+    def _push(self, cursor, message):
         # Does this message have a timestamp?
         if message.xml.timestamp:
             timestamp = quoteSQL(str(message.xml.timestamp), 'bigint')
         else:
             timestamp = NULL
 
-        self.target._autoCreateTargetFor(transaction, transaction.execute,
+        self.target._autoCreateTargetFor(cursor, cursor.execute,
                                          "INSERT INTO stats_messages (target_path, xml, timestamp)"
                                          " VALUES(%s, %s, %s)" %
                                          (quoteSQL(self.target.path, 'varchar'),
@@ -388,17 +388,17 @@ class Messages(object):
            """
         return Database.pool.runInteraction(self._getLatest, limit)
 
-    def _getLatest(self, transaction, limit):
+    def _getLatest(self, cursor, limit):
         if limit is None:
             limitClause = ''
         else:
             limitClause = " LIMIT %d" % limit
-        transaction.execute("SELECT xml FROM stats_messages WHERE target_path = %s ORDER BY id DESC%s" %
+        cursor.execute("SELECT xml FROM stats_messages WHERE target_path = %s ORDER BY id DESC%s" %
                             (quoteSQL(self.target.path, 'varchar'),
                              limitClause))
         results = []
         while True:
-            row = transaction.fetchone()
+            row = cursor.fetchone()
             if row is None:
                 break
             results.append(row[0])
