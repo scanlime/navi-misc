@@ -44,6 +44,8 @@ io_Assert
 	movwf	io_tmp
 
 	; Test io_tmp and run the proper bcf/bsf instruction on INDF
+	pagesel io_Assert
+	banksel	io_tmp
 
 	movlw	0x00		; Clear bit 0
 	xorwf	io_tmp, w
@@ -80,6 +82,11 @@ io_Assert
 	btfsc	STATUS, Z
 	bcf		INDF, 6
 
+	movlw	0x07		; Clear bit 7
+	xorwf	io_tmp, w
+	btfsc	STATUS, Z
+	bcf		INDF, 7
+
 	movlw	0x80		; Set bit 0
 	xorwf	io_tmp, w
 	btfsc	STATUS, Z
@@ -114,6 +121,11 @@ io_Assert
 	xorwf	io_tmp, w
 	btfsc	STATUS, Z
 	bsf		INDF, 6
+
+	movlw	0x87		; Set bit 7
+	xorwf	io_tmp, w
+	btfsc	STATUS, Z
+	bsf		INDF, 7
 	return
 
 	; Test the current pin descriptor, return its value in w
