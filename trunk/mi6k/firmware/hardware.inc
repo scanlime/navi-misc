@@ -8,9 +8,9 @@
 ;###############################################################################
 
 ;//****** Default port directions
-#define TRISA_VALUE		0xFF
-#define	TRISB_VALUE		0xFC
-#define	TRISC_VALUE		0xFF
+#define TRISA_VALUE		0x00
+#define	TRISB_VALUE		0x03
+#define	TRISC_VALUE		0x00
 
 ;//****** I/O bits
 #define LED_WHITE		PORTC,1

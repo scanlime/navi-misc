@@ -237,16 +237,16 @@ Main
 	movlw	.155		; Set UART to 19200 baud 
 	banksel	SPBRG
 	movwf	SPBRG
+	banksel	RCSTA
+	bsf		RCSTA, SPEN	; Enable serial port
 	banksel	TXSTA
 	bsf		TXSTA, BRGH
-	bsf		RCSTA, SPEN	; Enable serial port
 	bcf		TXSTA, SYNC	; Asynchronous mode
 	bsf		TXSTA, TXEN	; Enable transmitter
 		
 ;******************************************************************* Main Loop
 
 MainLoop
-	bcf	INTCON,T0IF
 	pagesel ServiceUSB
 	call	ServiceUSB	; see if there are any USB tokens to process
 
