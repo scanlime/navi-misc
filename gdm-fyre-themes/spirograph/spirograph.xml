@@ -10,17 +10,17 @@
   <!-- Username/passwd entry -->
   <item type="rect">
     <normal color="#000000" alpha="0.3"/>
-    <pos anchor="nw" x="25%" y="25%" width="box" height="box"/>
+    <pos anchor="nw" x="10%" y="10%" width="box" height="box"/>
     <box orientation="vertical" min-width="340" xpadding="30" ypadding="30" spacing="10">
       <item type="label">
         <pos anchor="n" x="50%"/>
-        <normal color="#FFFFFF" font="Bitsatream Vera Sans Mono 14"/>
+        <normal color="#FFFFFF" font="Bitstream Vera Sans 14"/>
 	      <!-- Stock label for: Welcome to %h -->
 	      <stock type="welcome-label"/>
       </item>
       <item type="label" id="pam-prompt">
         <pos anchor="nw" x="10%"/>
-        <normal color="#FFFFFF" font="Bitsatream Vera Sans Mono 12"/>
+        <normal color="#FFFFFF" font="Bitstream Vera Sans 12"/>
 	      <!-- Stock label for: Username: -->
 	      <stock type="username-label"/>
       </item>
@@ -35,11 +35,11 @@
       </item>
       <item type="label" id="pam-message">
         <pos anchor="n" x="50%"/>
-        <normal color="#FFFFFF" font="Bitsatream Vera Sans Mono 12"/>
+        <normal color="#FFFFFF" font="Bitstream Vera Sans 12"/>
 	      <text></text>
       </item>
       <item type="label" id="caps-lock-warning">
-        <normal color="#FFFFFF" font="Bitsatream Vera Sans Mono 12"/>
+        <normal color="#FFFFFF" font="Bitstream Vera Sans 12"/>
         <pos anchor="s" x="50%" y="80%"/>
         <stock type="caps-lock-warning"/>
       </item>
@@ -53,7 +53,7 @@
     <fixed>
       <!-- Clock -->
       <item type="label" id="clock">
-        <normal color="#ffffff" font="Bitsatream Vera Sans Mono 14"/>
+        <normal color="#ffffff" font="Bitstream Vera Sans 14"/>
         <pos x="20" y="50%" anchor="w" expand="true"/>
         <text>%c</text>
       </item>
@@ -61,16 +61,29 @@
       <item type="rect">
         <normal alpha="0.0"/>
         <pos x="100%" width="box" height="30" anchor="ne"/>
-        <box orientation="horizontal" xpadding="12" spacing="12">
+        <box orientation="horizontal" xpadding="20" spacing="20">
           <item type="rect" id="session_button" button="true">
             <normal alpha="0.0"/>
             <pos y="50%" anchor="sw" width="box" height="box"/>
             <box orientation="horizontal">
               <item type="label">
                 <pos y="50%"/>
-                <normal color="#cccccc" font="Bitsatream Vera Sans Mono 14"/>
-                <prelight color="#ffffff" font="Bitsatream Vera Sans Mono 14"/>
+                <normal color="#cccccc" font="Bitstream Vera Sans 14"/>
+                <prelight color="#ffffff" font="Bitstream Vera Sans 14"/>
                 <stock type="session"/>
+              </item>
+            </box>
+          </item>
+
+          <item type="rect" id="system_button" button="true">
+            <normal alpha="0.0"/>
+            <pos y="50%" anchor="sw" width="box" height="box" expand="true"/>
+            <box orientation="horizontal">
+              <item type="label">
+                <pos y="50%"/>
+                <normal color="#cccccc" font="Bitstream Vera Sans 14"/>
+                <prelight color="#ffffff" font="Bitstream Vera Sans 14"/>
+                <stock type="system"/>
               </item>
             </box>
           </item>
@@ -81,8 +94,8 @@
             <box orientation="vertical">
               <item type="label">
                 <pos y="50%" />
-                <normal color="#cccccc" font="Bitsatream Vera Sans Mono 14"/>
-                <prelight color="#ffffff" font="Bitsatream Vera Sans Mono 14"/>
+                <normal color="#cccccc" font="Bitstream Vera Sans 14"/>
+                <prelight color="#ffffff" font="Bitstream Vera Sans 14"/>
                 <stock type="language"/>
               </item>
             </box>
@@ -94,8 +107,8 @@
             <box orientation="horizontal">
               <item type="label">
                 <pos y="50%" />
-                <normal color="#cccccc" font="Bitstream Vera Sans  Mono 14"/>
-                <prelight color="#ffffff" font="Bitstream Vera  Sans Mono 14"/>
+                <normal color="#cccccc" font="Bitstream Vera Sans 14"/>
+                <prelight color="#ffffff" font="Bitstream Vera Sans 14"/>
                 <stock type="reboot"/>
               </item>
             </box>
@@ -107,8 +120,8 @@
             <box orientation="horizontal">
               <item type="label">
                 <pos y="50%" />
-                <normal color="#cccccc" font="Bitsatream Vera Sans Mono 14"/>
-                <prelight color="#ffffff" font="Bitsatream Vera Sans Mono 14"/>
+                <normal color="#cccccc" font="Bitstream Vera Sans 14"/>
+                <prelight color="#ffffff" font="Bitstream Vera Sans 14"/>
                 <stock type="halt"/>
               </item>
             </box>
