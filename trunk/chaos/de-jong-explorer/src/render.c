@@ -284,9 +284,14 @@ void run_iterations(int count) {
       }
     }
 
-    /* Scale and translate our (x,y) coordinates into pixel coordinates */
-    ix = (int)((x + params.xoffset) * scale + xcenter);
-    iy = (int)((y + params.yoffset) * scale + ycenter);
+    /* Scale and translate our (x,y) coordinates into pixel coordinates.
+     * Note that the floor() here is important! Casting -0.5 to integer
+     * will give you 0, but floor(-0.5) is -1. This causes the 0th row
+     * and column to overlap with the -1st, making it about twice as
+     * exposed as it should be.
+     */
+    ix = (int)floor((x + params.xoffset) * scale + xcenter);
+    iy = (int)floor((y + params.yoffset) * scale + ycenter);
 
     if (params.tileable) {
       /* In tileable rendering, we wrap at the edges */
