@@ -331,6 +331,7 @@ void on_discussion_bans_activate(GtkWidget *widget, gpointer data) {
 
 void on_go_previous_network_activate(GtkWidget *widget, gpointer data) {
   /*navigation_tree_select_prev_network(gui.server_tree);*/
+	navigation_tree_select_prev_network(gui.server_tree);
 }
 
 void on_go_next_network_activate(GtkWidget *widget, gpointer data) {
