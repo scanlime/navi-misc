@@ -133,6 +133,9 @@ class SelfTest(RcpodTestCase):
 
     def testPinDescOutput(self):
         """test pin descriptor assertion by peek'ing port status"""
+        # Make PORTA and PORTE pins digital rather than the default of analog
+        self.rcpod.poke('adcon1', 0xFF)
+
         for name, originalPin in self.rcpod.pins.iteritems():
 
             # Test with all ports initially set to 0 and to 1
@@ -144,6 +147,10 @@ class SelfTest(RcpodTestCase):
                         pin = originalPin.negate()
                     else:
                         pin = originalPin
+
+                    # Can't test pin ra4 pulled high, it's open-drain
+                    if negated == False and name == 'ra4':
+                        continue
 
                     # Make all ports output, pulled to our current initial value
                     for reg in ('trisa', 'trisb', 'trisc', 'trisd', 'trise'):
