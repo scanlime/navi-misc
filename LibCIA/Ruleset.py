@@ -189,7 +189,7 @@ class Ruleset(XML.XMLFunction):
         >>> Ruleset('<ruleset/>').uri is None
         True
         >>> Ruleset('<ruleset uri="sponge://"/>').uri
-        u'sponge://'
+        'sponge://'
         """
     requiredRootElement = "ruleset"
 
