@@ -9,11 +9,11 @@
 INPUT_FILE = efs-1.log
 
 # Parameters for building the SVM models
-SVMFLAGS = -s 4 -v 3
+SVMFLAGS = -s 3 -p 0.01
 
 #######################################################################
 
-default: tmp/x.model tmp/y.model tmp/z.model
+default: x.model y.model z.model
 
 # Split the test and training sets into files for each output variable
 split_log: $(INPUT_FILE)
@@ -39,10 +39,10 @@ tmp/z.training.scaled: tmp/z.training
 	svm-scale -s tmp/z.scale tmp/z.training > tmp/z.training.scaled
 
 # Train the SVMs
-tmp/x.model: tmp/x.training
-	svm-train $(SVMFLAGS) tmp/x.training tmp/x.model
-tmp/y.model: tmp/y.training
-	svm-train $(SVMFLAGS) tmp/y.training tmp/y.model
-tmp/z.model: tmp/z.training
-	svm-train $(SVMFLAGS) tmp/z.training tmp/z.model
+x.model: tmp/x.training
+	svm-train $(SVMFLAGS) tmp/x.training x.model
+y.model: tmp/y.training
+	svm-train $(SVMFLAGS) tmp/y.training y.model
+z.model: tmp/z.training
+	svm-train $(SVMFLAGS) tmp/z.training z.model
 
