@@ -22,6 +22,7 @@ The irc:// URI handler, acting as a frontend to our network of bots
 #
 
 from LibCIA import Ruleset
+import Bots
 
 
 class IrcURIHandler(Ruleset.RegexURIHandler):
@@ -37,43 +38,39 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
        """
 
     def __init__(self, botNet):
-        # A reverse map for the result of uriToTuple,
-        # so a (server,channel) tuple can be uniquely
-        # converted back to the URI that generated it.
-        # This also lets assigned() raise an exception
-        # if someone tries to add a second URI that refers
-        # to a server and channel we're already in.
-        self.tupleToUriMap = {}
+        # A map from (server, channel) tuple to ChannelMessageQueue
+        self.channelQueueMap = {}
+
+        # Map from (server, channel) tuples to URIs, so we can avoid duplicates
+        self.uriMap = {}
 
         self.botNet = botNet
         Ruleset.RegexURIHandler.__init__(self)
 
     def uriToTuple(self, uri):
-        """On top of the regex matching done by our superclass, separate
-           the URI into host, port, and channel.
-           We apply the default port number if the URI doesn't have one,
-           and prepend a '#' to the channel.
-           """
+        """Convert a URI to a (server, channel) tuple"""
         d = self.parseURI(uri)
-        host, port, channel = d['host'], d['port'], d['channel']
-        if not port:
-            port = 6667
-        return ((host, port), '#' + channel)
+        return (Bots.Server(d['host'], d['port']), '#' + d['channel'])
 
     def assigned(self, uri, newRuleset):
         t = self.uriToTuple(uri)
-        if self.tupleToUriMap.has_key(t) and self.tupleToUriMap[t] != uri:
+
+        # Check for duplicates
+        if self.uriMap.has_key(t) and self.uriMap[t] != uri:
             raise Ruleset.InvalidURIException("Another URI referring to the same server and channel already exists")
-        self.tupleToUriMap[t] = uri
-        self.botNet.addChannel(*t)
+        self.uriMap[t] = uri
+
+        # Create a new channel queue if we need one
+        if not self.channelQueueMap.has_key(t):
+            self.channelQueueMap[t] = Bots.ChannelMessageQueue(self.botNet, t[0], t[1])
 
     def unassigned(self, uri):
         t = self.uriToTuple(uri)
-        self.botNet.delChannel(*t)
-        del self.tupleToUriMap[t]
+        self.channelQueueMap[t].cancel()
+        del self.channelQueueMap[t]
+        del self.uriMap[t]
 
     def message(self, uri, message, content):
-        server, channel = self.uriToTuple(uri)
-        self.botNet.msg(server, channel, content)
+        self.channelQueueMap[self.uriToTuple(uri)].send(content)
 
 ### The End ###
