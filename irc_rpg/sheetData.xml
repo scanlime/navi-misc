@@ -1,0 +1,10 @@
+<character>
+	<name>Silme</name>
+	<race>Elf</race>
+	<class>Bard</class>
+	<level>18</level>
+	<exp>15000</exp>
+
+	<strength>12</strength>
+	<dexterity>20</dexterity>
+</character>
