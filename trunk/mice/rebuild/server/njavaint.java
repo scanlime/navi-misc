@@ -13,4 +13,9 @@ public class njavaint extends nbase
 	{
 		super(gonnection,IN,OUT);
 	}
+	
+	public void run()
+	{
+		closeConnection();
+	}
 }

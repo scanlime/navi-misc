@@ -76,7 +76,9 @@ public class imain
 					break;
 				case 1:
 					njavasub.go(link,in,out);
-					System.out.println("foo");
+					break;
+				case 2:
+					nperlsub.go(link,in,out);
 					break;
 				}
 			}
@@ -94,8 +96,10 @@ public class imain
 	 */
 	public int clitype(String it)
 	{
+		System.out.println(it);
 		if(it == null) return -1;
 		if(it.compareTo("jsub") == 0) return 1;
+		if(it.compareTo("psub") == 0) return 2;
 		return -1;
 	}
 	
