@@ -3,7 +3,7 @@
 import distutils.core
 from Trough import version
 
-data_files=[('bin',['trough']),
+data_files=[('bin',['trough-frontend.py']),
 	    ('share/trough',['share/trough/properties']),
 	    ('doc/trough',['doc/trough/properties.example'])]
 
