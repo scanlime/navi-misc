@@ -85,4 +85,42 @@ def connect(host, port=None, password=''):
 
     return result
 
+
+def autoConnect(keychain=None, service="urn:empeg-com:protocol2"):
+    """Look for a rio karma device using SSDP, then look for
+       a corresponding password with the given Keychain instance.
+       If no keychain is provided, this automatically uses
+       a ConsoleKeychain.
+       """
+    from RioKarma import SSDP, Authenticated, Pearl
+    from twisted.internet import defer
+
+    if keychain is None:
+        keychain = Authenticated.ConsoleKeychain()
+        keychain.open()
+
+    result = defer.Deferred()
+
+    def foundService((usn, (host, port))):
+        keychain.lookup(usn).addCallback(
+            gotPassword, host, port).addErrback(
+            connectionError, host, port, usn)
+
+    def connectionError(err, host, port, usn):
+        if isinstance(err.value, Pearl.AuthenticationError):
+            # Bad password, let the user try again
+            keychain.lookup(usn, ignoreStored=True).addCallback(
+                gotPassword, host, port).addErrback(
+                connectionError, host, port, usn)
+        else:
+            # Pass on other errors
+            result.errback(err)
+
+    def gotPassword(password, host, port):
+        connect(host, port, password).chainDeferred(result)
+
+    SSDP.findService(service).addCallback(
+        foundService).addErrback(result.errback)
+    return result
+
 ### The End ###
