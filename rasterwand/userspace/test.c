@@ -63,6 +63,16 @@ void update_coil_driver(usb_dev_handle *d, struct prediction_status *status,
 		status->period * (pulse_center + pulse_width));
 }
 
+void update_display_timing(usb_dev_handle *d, struct prediction_status *status,
+			   float center, float width) {
+  int col_width = (status->period * (width/2)) / 80;
+
+  control_write(d, RWAND_CTRL_SET_COLUMN_WIDTH, col_width, 0);
+  control_write(d, RWAND_CTRL_SET_DISPLAY_PHASE,
+		status->period * 0.5 * (center - width/2),
+		status->period * 0.5 * (1 + center - width/2) - col_width*0.96);
+}
+
 void unstall(usb_dev_handle *d) {
   unsigned period = -1;
   int unstall_edges = 0;
@@ -121,7 +131,7 @@ void read_image(unsigned char *columns, const char *filename) {
   for (y=0; y<8; y++)
     for (x=0; x<80; x++)
       if (fgetc(f) < 0x80)
-	columns[x] |= 1 << (7-y);
+	columns[x] |= 1 << y;
   fclose(f);
 }
 
@@ -156,14 +166,7 @@ int main(int argc, char **argv) {
 		0,
 		0);
 
- //  read_image(frame, "test-image.pgm");
-  memset(frame, 0, 80);
-  frame[0] = 1;
-  frame[1] = 2;
-  frame[2] = 4;
-  frame[3] = 8;
-  frame[4] = 16;
-  frame[5] = 32;
+  read_image(frame, "test-image.pgm");
   refresh_display(d, frame);
 
   while (1) {
@@ -172,8 +175,10 @@ int main(int argc, char **argv) {
      */
     last_predicted = predicted;
     read_prediction_status(d, &predicted);
-    printf("Wand period: %d (%.02f Hz)\n", predicted.period,
-	   1/(predicted.period * 16 / 6000000.0));
+    printf("Wand period: %d (%.02f Hz)\tPhase: %d\n",
+	   predicted.period,
+	   1/(predicted.period * 16 / 6000000.0),
+	   predicted.phase);
 
     /* Have we had any synchronization edges this time? */
     if (predicted.edge_count != last_predicted.edge_count)
@@ -181,7 +186,7 @@ int main(int argc, char **argv) {
 
     /* If it's been a while since we've seen a sync edge, conclude we're stalled */
     if (time(NULL) > last_edge_timestamp + 1) {
-      unstall(d);
+      //      unstall(d);
       last_edge_timestamp = time(NULL);
     }
 
@@ -189,11 +194,14 @@ int main(int argc, char **argv) {
     update_coil_driver(d, &predicted, 0.25, 0.2);
 
     /* Update display phase and column width */
-    //control_write(d, RWAND_CTRL_SET_DISPLAY_PHASE, 0, predicted.period/2);
-    //control_write(d, RWAND_CTRL_SET_COLUMN_WIDTH, predicted.period/2 / 80, 0);
+    update_display_timing(d, &predicted, 0.5, 0.75);
 
-    control_write(d, RWAND_CTRL_SET_DISPLAY_PHASE, 100, 0xFFFF);
-    control_write(d, RWAND_CTRL_SET_COLUMN_WIDTH, 500, 0);
+    if (0) {
+      int i;
+      for (i=0; i<80; i++)
+	frame[i] = random();
+      refresh_display(d, frame);
+    }
 
     usleep(50000);
   }
