@@ -57,6 +57,8 @@ THESE SHOULD BE IN GTX
 	* session state to restore state on connection loss
 	* team changing
 	* bump to oberver
+	* drop to observer
+	* map defined saftey zone
 
 * changes
 	* concepts
