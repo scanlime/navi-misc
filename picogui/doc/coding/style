@@ -50,7 +50,16 @@ into sections by language.
  - Where applicable, constructor and destructor methods for objects 
    should be named "Create" and "Destroy"
 
- - In C code, C-style comments must be used
+ - In C code, C-style comments must be used. Examples of appropriate 
+   commenting styles:
+ 
+      /* Single line comment */
+
+      some code...                           /* Single line comment */
+
+      /* This is a 
+       * Multiline comment
+       */
 
  - Lines longer than 80 characters should be split
 
