@@ -3,7 +3,7 @@
 #
 
 bindings.add(KeyPress, pygame.K_LEFT).observe(command.spinLeft)
-bindings.add(KeyPress, pygame.K_RIGHT).observe(command.spinLeft)
+bindings.add(KeyPress, pygame.K_RIGHT).observe(command.spinRight)
 
 bindings.add(MousePress, 4).observe(command.spinLeft)
 bindings.add(MousePress, 5).observe(command.spinRight)
