@@ -36,6 +36,18 @@ entry_changed (GtkEntry *entry, const gchar *key)
 	g_object_unref (client);
 }
 
+static void
+highlight_selection_changed (GtkTreeSelection *select, PreferencesIrcPage *page)
+{
+	if (gtk_tree_selection_get_selected (select, NULL, NULL)) {
+		gtk_widget_set_sensitive (page->highlight_edit, TRUE);
+		gtk_widget_set_sensitive (page->highlight_remove, TRUE);
+	} else {
+		gtk_widget_set_sensitive (page->highlight_edit, FALSE);
+		gtk_widget_set_sensitive (page->highlight_remove, FALSE);
+	}
+}
+
 PreferencesIrcPage *
 preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 {
@@ -45,6 +57,7 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	GtkCellRenderer *renderer;
 	gchar *text;
 	GtkSizeGroup *group;
+	GtkTreeSelection *select;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
 	GW(nick_name);
@@ -109,6 +122,11 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/awaymsg", NULL);
 	gtk_entry_set_text (GTK_ENTRY (page->away_message), text);
 	g_free (text);
+
+	gtk_widget_set_sensitive (page->highlight_edit, FALSE);
+	gtk_widget_set_sensitive (page->highlight_remove, FALSE);
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->highlight_list));
+	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (highlight_selection_changed), page);
 
 	return page;
 }

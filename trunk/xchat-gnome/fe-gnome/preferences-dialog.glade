@@ -604,7 +604,7 @@
 				      </child>
 
 				      <child>
-					<widget class="GtkButton" id="hilight_edit">
+					<widget class="GtkButton" id="highlight_edit">
 					  <property name="visible">True</property>
 					  <property name="sensitive">False</property>
 					  <property name="can_default">True</property>
