@@ -26,7 +26,7 @@ import java.util.*;
 
 public class aimup
 {
-    public JaimConnection connection;
+    public static botmain mybot;
 
     public static void main(String[] args)
     {
@@ -34,7 +34,12 @@ public class aimup
 	    System.out.println("name and password please");
 	else
 	{
-	    
+	    mybot = new botmain(args[0],args[1]);
+	    try {
+		Thread.sleep(300000);       //Wait for 5 minutes
+	    }
+	    catch (InterruptedException ie) {
+	    }
 	}
     }
 }
