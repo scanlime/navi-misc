@@ -46,7 +46,7 @@ class MainWindow:
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.connect('destroy', gtk.mainquit, 'WM destroy')
         self.window.set_title('pyg')
-        self.window.set_size_request(300, 200)
+        self.window.set_size_request(1000, 700)
 
         self.main_vbox = gtk.VBox(gtk.FALSE, 1)
         self.main_vbox.set_border_width(1)
