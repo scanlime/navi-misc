@@ -68,9 +68,13 @@ IMAGE_ITEMS = [
 
 CACHE_IMAGES = 1
 
+GAMES_ITEMS = [
+    ('Super Nintendo', '/navi/media/games/snes',
+     ('SNES', '/bin/sh', '/home/freevo/wasabi/snes9x.sh', '', None)),
+    ]
+
 # Remove standard plugins we have no use for
 plugin.remove('tv')
-plugin.remove('games')
 
 # Add standard plugins we want
 plugin.activate('audio.mplayervis')
