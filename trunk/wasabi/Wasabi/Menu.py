@@ -113,7 +113,7 @@ class DockMenu(Menu):
 
 class RingMenu(DockMenu):
     """A circular menu, showing the current item large and near the middle of the screen"""
-    keyFile = 'ringmenu_keys.py'
+    keyFile = 'horizontal_menu_keys.py'
     def trackFunction(self, x):
         """A track function that moves the icons along a circle in
            the middle of the screen. The bottom of the circle is at 0,
@@ -155,7 +155,7 @@ class RingMenu(DockMenu):
 
 class ArcMenu(DockMenu):
     """A menu that forms an arc along the right side of the screen, with a title shown to the left"""
-    keyFile = 'arcmenu_keys.py'
+    keyFile = 'vertical_menu_keys.py'
     def __init__(self, book, items=[], title=None):
         DockMenu.__init__(self, book, items,
                           iconSpacing = 1
@@ -276,5 +276,57 @@ class LoaderPage(Sequencer.Page):
     def run(self):
         """Hook for subclasses to add the actual loading functionality"""
         pass
+
+
+class ImageMenu(DockMenu):
+    """A menu that shows the current item very large, and all others in a row along the bottom of the screen"""
+    keyFile = 'horizontal_menu_keys.py'
+    def __init__(self, book, items=[]):
+        DockMenu.__init__(self, book, items,
+                          iconSpacing = 1
+                          )
+
+    def trackFunction(self, x):
+        """A track function that moves the icons along an arc on the right side of the screen.
+           Icons are spaced apart by 1 unit, positive is down.
+           """
+        rowY = self.viewport.size[1] * 0.85
+        rowSize = self.viewport.size[1] * 0.14
+        centerX = self.viewport.size[0] * 0.5
+        centerY = self.viewport.size[1] * 0.4
+        centerSize = self.viewport.size[1] * 0.6
+        rowSpacing = rowSize * 1.6
+
+        # i is an interpolation amount- the center icon will be near 0,
+        # all other icons will be near 1. The states for the center icons
+        # and icons i the bottom row are calculated independently, then
+        # interpolated together
+        i = abs(x)
+        if i > 1:
+            i = 1
+        return (
+            (self.lerp(centerX, centerX + rowSpacing * x, i),
+             self.lerp(centerY, rowY, i)),
+            self.lerp(centerSize, rowSize, i))
+
+    def lerp(self, a, b, i):
+        """Linear interpolation between a and b with amount i"""
+        return a*(1-i) + b * i
+
+    def spinLeft(self):
+        if self.dock.selectionIndex > 0:
+            self.dock.selectionIndex -= 1
+
+    def spinRight(self):
+        if self.dock.selectionIndex < len(self.items) - 1:
+            self.dock.selectionIndex += 1
+
+    def selectCurrent(self):
+        index = int(floor(self.dock.selectionIndex + 0.5))
+        item = self.items[index]
+
+        item.onSelected(self)
+        self.onSelected(item)
+        self.onFinish()
 
 ### The End ###
