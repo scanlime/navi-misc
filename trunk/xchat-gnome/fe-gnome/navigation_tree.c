@@ -161,6 +161,7 @@ void
 navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess)
 {
 	GtkTreeIter *iter;
+	GtkWidget *button;
 
 	navigation_model_add_new_network(navtree->model, sess);
 
@@ -175,12 +176,17 @@ navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess
 	}
 
 	navigation_tree_select_session(navtree, sess);
+
+	button = glade_xml_get_widget (gui.xml, "topic change");
+	gtk_widget_set_sensitive (button, FALSE);
 }
 
 void
 navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess)
 {
 	GtkTreeIter *iter;
+	GtkWidget *button;
+	ircnet *net;
 
 	navigation_model_add_new_channel(navtree->model, sess);
 
@@ -199,6 +205,17 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 
 	navigation_tree_select_session(navtree, sess);
 
+	button = glade_xml_get_widget (gui.xml, "topic change");
+	gtk_label_set_text (GTK_LABEL (gui.topic_label), sess->topic);
+	net = sess->server->network;
+	if (net == NULL)
+		rename_main_window (NULL, sess->channel);
+	else
+		rename_main_window (net->name, sess->channel);
+	if (sess->type == SESS_CHANNEL)
+		gtk_widget_set_sensitive (button, TRUE);
+	else
+		gtk_widget_set_sensitive (button, FALSE);
 }
 
 void
@@ -924,6 +941,17 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		{
 			ircnet *net = sess->server->network;
 			rename_main_window (net->name, sess->channel);
+		}
+
+		if (sess->type == SESS_CHANNEL)
+		{
+			GtkWidget *button = glade_xml_get_widget (gui.xml, "topic change");
+			gtk_widget_set_sensitive (button, TRUE);
+		}
+		else
+		{
+			GtkWidget *button = glade_xml_get_widget (gui.xml, "topic change");
+			gtk_widget_set_sensitive (button, FALSE);
 		}
 
 		/* remove any icon that exists */
