@@ -5,13 +5,21 @@
 #
 
 import xmms, time, os
+from fcntl import ioctl
 
 class CenturyVFD:
     width = 20
     lines = 2
 
     def __init__(self):
-        self.dev = open("/dev/usb/widget", "w")
+        self.dev = open("/dev/usb/mi6k0", "w")
+        self.powerOn()
+
+    def powerOn(self):
+        ioctl(self.dev, 0x3600, 1)
+
+    def powerOff(self):
+        ioctl(self.dev, 0x3600, 0)
 
     def write(self, data):
         "Write a string, handling newlines"
@@ -121,15 +129,18 @@ if __name__ == '__main__':
     components = [vfdupdater]
     then = time.time()
 
-    while True:
-        # slowUpdates every 0.1 seconds, fastUpdates every 0.01 seconds nominally
-        for c in components:
-            c.slowUpdate()
-        for i in range(10):
+    try:
+        while True:
+            # slowUpdates every 0.1 seconds, fastUpdates every 0.01 seconds nominally
             for c in components:
-                c.fastUpdate()
-            now = time.time()
-            target = then + 0.01
-            if now < target:
-                time.sleep(target - now)
-            then = now
+                c.slowUpdate()
+            for i in range(10):
+                for c in components:
+                    c.fastUpdate()
+                now = time.time()
+                target = then + 0.01
+                if now < target:
+                    time.sleep(target - now)
+                then = now
+    finally:
+        vfdupdater.vfd.powerOff()

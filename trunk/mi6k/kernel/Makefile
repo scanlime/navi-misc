@@ -12,5 +12,3 @@ clean:
 test: mi6k.o
 	rmmod mi6k || true
 	insmod mi6k.o
-	echo -ne "\x15Hello World\r\nYay, this is line 2" > /dev/usb/widget
-	rmmod mi6k || true

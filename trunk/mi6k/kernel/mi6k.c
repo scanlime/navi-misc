@@ -70,7 +70,12 @@ static struct usb_mi6k *minor_table[MAX_DEVICES];
 /* lock to protect the minor_table structure */
 static DECLARE_MUTEX (minor_table_mutex);
 
-#define REQUEST_TIMEOUT  (HZ / 2)   /* 1/2 second timeout for control requests */
+/* 1/2 second timeout for control requests */
+#define REQUEST_TIMEOUT  (HZ / 2)
+
+/* Wait 1/8 second after powering the VFD on or off */
+#define VFD_POWER_DELAY  (HZ / 8)
+
 
 /************************************************** Function Prototypes *******/
 
@@ -248,6 +253,8 @@ exit:
 static int mi6k_ioctl (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
 	struct usb_mi6k *dev;
+	int retval=0;
+	struct mi6k_leds leds;
 
 	dev = (struct usb_mi6k *)file->private_data;
 
@@ -263,14 +270,41 @@ static int mi6k_ioctl (struct inode *inode, struct file *file, unsigned int cmd,
 	dbg("minor %d, cmd 0x%.4x, arg %ld", 
 	    dev->minor, cmd, arg);
 
+	switch (cmd) {
 
-	/* fill in your device specific stuff here */
+	case MI6KIO_VFD_POWER:
+		/* Issue a blocking power command, then wait a bit for the device to power on/off.
+		 * Note that the device is locked during this time, preventing multiple processes
+		 * from potentially damaging the VFD by switching it on and off rapidly. This also
+		 * prevents writes to the VFD before it's initialized.
+		 */
+		mi6k_request(dev, MI6K_CTRL_VFD_POWER, arg ? 1 : 0, 0);
+		set_current_state(TASK_UNINTERRUPTIBLE);
+		schedule_timeout(VFD_POWER_DELAY);
+		break;
+
+	case MI6KIO_LED_SET:
+		/* Set the MI6K's LEDs from a mi6k_leds struct. The struct uses the full range of
+		 * a u16 to hide the details of the PWM resolution. We chop off 6 bits to quantize
+		 * into the PWM's 10-bit resolution.
+		 */
+		if (copy_from_user(&leds, (struct mi6k_leds*) arg, sizeof(leds))) {
+			retval = -EFAULT;
+			break;
+		}
+		mi6k_request(dev, MI6K_CTRL_LED_SET, leds.blue >> 6, leds.white >> 6);
+		break;
+
+	default:
+		/* Indicate that we didn't understand this ioctl */
+		retval = -ENOTTY;
+		break;
+	}
 
 	/* unlock the device */
 	up (&dev->sem);
 
-	/* return that we did not understand this ioctl call */
-	return -ENOTTY;
+	return retval;
 }
 
 static struct file_operations mi6k_fops = {
