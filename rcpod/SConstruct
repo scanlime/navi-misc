@@ -17,25 +17,27 @@ prefix = '/usr'
 
 ########### Build targets
 
+# Debug symbols
+env = Environment(CCFLAGS='-g')
+
 # Add our local include directory to the C preprocessor path
-env = Environment()
 env['CPPPATH'] = 'include'
 
-# Building librcpod
-librcpod = env.SharedLibrary('rcpod',
-                             ["src/%s" % file for file in libSrc],
-                             LIBS=['usb'])
+# Build shared and static libraries
+libSrcPaths = ["src/%s" % file for file in libSrc]
+sharedLib = env.SharedLibrary('rcpod', libSrcPaths, LIBS=['usb'])
+staticLib= env.StaticLibrary('rcpod', libSrcPaths)
 
-# Building the test programs
+# Build the test programs, using the static library
+# (it can be a pain to use shared libs without installing them...)
 for testName in testProgs:
-    env.Program(testName, 'test/%s.c' % testName, LIBS=['rcpod'])
+    env.Program(testName, ['test/%s.c' % testName, staticLib], LIBS=['usb'])
 
 # Installing librcpod
 libDir = "%s/lib" % prefix
 includeDir = "%s/include" % prefix
 env.Alias('install', [libDir, includeDir])
-env.Install(dir=libDir, source=librcpod)
+env.Install(dir=libDir, source=sharedLib)
 env.Install(dir=includeDir, source=libHeader)
-
 
 ### The End ###
