@@ -213,7 +213,7 @@ class StatsTarget:
     def _getTitle(self, metadataTitle, result):
         if metadataTitle is not None:
             result.callback(metadataTitle)
-        if self.name:
+        elif self.name:
             result.callback(self.name)
         else:
             result.callback('Stats')
