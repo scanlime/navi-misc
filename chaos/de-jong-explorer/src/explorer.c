@@ -863,15 +863,43 @@ static void tool_ac_bd(Explorer *self, ToolInput *i) {
 
 static void explorer_init_animation(Explorer *self) {
   GtkTreeView *tv = GTK_TREE_VIEW(glade_xml_get_widget(self->xml, "keyframe_view"));
+  GtkTreeViewColumn *col;
+  GtkCellRenderer *renderer;
 
   gtk_tree_view_set_model(tv, GTK_TREE_MODEL(self->animation->model));
 
-  gtk_tree_view_insert_column_with_attributes(tv, -1,
-					      "Keyframe", gtk_cell_renderer_pixbuf_new(),
-					      "pixbuf", ANIMATION_MODEL_THUMBNAIL, NULL);
-  gtk_tree_view_insert_column_with_attributes(tv, -1,
-					      "Transition", gtk_cell_renderer_text_new(),
-					      "text", ANIMATION_MODEL_DURATION, NULL);
+  /* The first column only displays the keyframe, in the form of a thumbnail
+   */
+  col = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(col, "Keyframe");
+
+  renderer = gtk_cell_renderer_pixbuf_new();
+  gtk_tree_view_column_pack_start(col, renderer, FALSE);
+  gtk_tree_view_column_set_attributes(col, renderer,
+				      "pixbuf", ANIMATION_MODEL_THUMBNAIL,
+				      NULL);
+
+  gtk_tree_view_append_column(tv, col);
+
+  /* The second column displays and edits all transition parameters
+   */
+  col = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(col, "Transition");
+
+  renderer = gtk_cell_renderer_text_new();
+  g_object_set(renderer, "editable", TRUE, NULL);
+  gtk_tree_view_column_pack_start(col, renderer, TRUE);
+  gtk_tree_view_column_set_attributes(col, renderer,
+				      "text", ANIMATION_MODEL_DURATION,
+				      NULL);
+
+  renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(col, renderer, TRUE);
+  gtk_tree_view_column_set_attributes(col, renderer,
+				      "text", ANIMATION_MODEL_DURATION,
+				      NULL);
+
+  gtk_tree_view_append_column(tv, col);
 }
 
 static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter) {
