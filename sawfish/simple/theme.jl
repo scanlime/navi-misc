@@ -28,17 +28,25 @@
                           (make-image "iconify-active.png") nil
                           (make-image "iconify-pressed.png")))
 
+    (s-iconify-images (list (make-image "iconify-inactive-shaded.png")
+                            (make-image "iconify-active-shaded.png") nil
+                            (make-image "iconify-pressed-shaded.png")))
+
     (maximize-images (list (make-image "maximize-inactive.png")
                            (make-image "maximize-active.png") nil
                            (make-image "maximize-pressed.png")))
+
+    (s-maximize-images (list (make-image "maximize-inactive-shaded.png")
+                             (make-image "maximize-active-shaded.png") nil
+                             (make-image "maximize-pressed-shaded.png")))
 
     (close-images (list (make-image "close-inactive.png")
                         (make-image "close-active.png") nil
                         (make-image "close-pressed.png")))
 
-    (s-close-images (list (make-image "close-inactive.png")
-                          (make-image "close-active.png") nil
-                          (make-image "close-pressed.png")))
+    (s-close-images (list (make-image "close-inactive-shaded.png")
+                          (make-image "close-active-shaded.png") nil
+                          (make-image "close-pressed-shaded.png")))
 
     (menu-background-images (list (make-image "menu-background-inactive.png")
                           	  (make-image "menu-background-active.png") nil
@@ -221,7 +229,7 @@
 	)
 
 	((background . ,(lambda (w)
-		(let ((icon (window-icon-images w)))
+		(let ((icon (window-icon-image w)))
 		  (if icon icon default-icon))))
 	 (top-edge . -16)
 	 (left-edge . 0)
@@ -232,7 +240,7 @@
 
     ;; iconify button
 
-        ((background . ,iconify-images)
+        ((background . ,s-iconify-images)
          (top-edge . -19)
          (right-edge . 33)
          (class . iconify-button)
@@ -240,7 +248,7 @@
 
     ;; maximize button
 
-        ((background . ,maximize-images)
+        ((background . ,s-maximize-images)
          (top-edge . -19)
          (right-edge . 14)
          (class . maximize-button)
