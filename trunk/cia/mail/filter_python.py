@@ -45,8 +45,9 @@ class PythonFilter(CommitFilter):
         module, dirName = self.message['subject'].strip().split(" ")[1].split('/', 1)
         self.addModule(module)
 
-        # Author is the first token of the from address
-        self.addAuthor(self.message['from'].split(' ')[0])
+        # Author is the first token of the from address. AFAICT all the from addresses
+        # are @users.sourceforge.net, so strip that out if we have it.
+        self.addAuthor(self.message['from'].split(' ')[0].replace("@users.sourceforge.net", ""))
 
         # Skip lines until we get to a section we can process
         while True:
