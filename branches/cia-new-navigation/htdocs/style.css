@@ -122,9 +122,12 @@ div.sectionTop {
 }
 
 div.section {
-  background: White;
   border: 1px solid #8CACBB;
   margin: 0em 0em 2em 0em;
+  background-color: white;
+  background-image: url(/images/dots.png);
+  background-repeat: repeat-y;
+  background-position: right;
 }
 
 div.tabs {
