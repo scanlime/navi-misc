@@ -51,6 +51,7 @@ enum {
   ANIMATION_MODEL_THUMBNAIL,    /* The thumbnail, as a GdkPixbuf */
   ANIMATION_MODEL_PARAMS,       /* The DeJong parameters, as a string */
   ANIMATION_MODEL_DURATION,     /* The duration of the following transition, in seconds */
+  ANIMATION_MODEL_SPLINE,       /* The interpolation spline, a boxed Spline instance */
 };
 
 typedef struct _AnimationIter {

@@ -31,6 +31,22 @@
 #include <math.h>
 #include "spline.h"
 
+static SplineControlPoint template_linear_points[] = {
+  {0, 0},
+  {1, 1},
+};
+
+static SplineControlPoint template_smooth_points[] = {
+  {0,     0   },
+  {0.375, 0.25},
+  {0.625, 0.75},
+  {1,     1   },
+};
+
+const Spline spline_template_linear = {template_linear_points, sizeof(template_linear_points) / sizeof(SplineControlPoint)};
+const Spline spline_template_smooth = {template_smooth_points, sizeof(template_smooth_points) / sizeof(SplineControlPoint)};
+
+
 GType spline_get_type(void) {
   static GType spline_type = 0;
   if (!spline_type)

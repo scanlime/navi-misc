@@ -45,6 +45,10 @@ typedef struct {
 } Spline;
 
 
+extern const Spline spline_template_linear;
+extern const Spline spline_template_smooth;
+
+
 GType    spline_get_type(void);
 Spline*  spline_copy(Spline *spline);
 void     spline_free(Spline *spline);
