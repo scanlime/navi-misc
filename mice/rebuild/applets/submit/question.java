@@ -75,7 +75,7 @@ public class question extends java.applet.Applet implements ActionListener
 		ques.setText("");
 		position.setText("");
 
-		if(!openConnection("localhost",8080))
+		if(!openConnection("ion.picogui.org",8080))
 		{
 			name.setText("connection failure");
 			submit.removeActionListener(this);
