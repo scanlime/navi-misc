@@ -33,7 +33,7 @@ class PrefDialog:
 
     # Create an object for the general prefs.
     self.general = GenPrefs(self.tree)
-    self.general.Set(self.prefs)
+    self.general.Set(self.prefs, self.tree)
 
     # Hook up the buttons.
     tree.get_widget('pref cancel').connect('clicked',lambda w: dialog.hide())
@@ -79,20 +79,13 @@ class GenPrefs:
   def __init__(self, tree):
     self.page = tree.get_widget('general')
 
-    # FIXME: why are we storing all of this???
-    self.nickname = tree.get_widget('nickname')
-    self.realname = tree.get_widget('realname')
-    self.quitmsg = tree.get_widget('quitmsg')
-    self.partmsg = tree.get_widget('partmsg')
-    self.awaymsg = tree.get_widget('awaymsg')
-
     # Make all the text entries the same width.
     sizegroup = gtk.SizeGroup(gtk.SIZE_GROUP_HORIZONTAL)
-    sizegroup.add_widget(self.nickname)
-    sizegroup.add_widget(self.realname)
-    sizegroup.add_widget(self.quitmsg)
-    sizegroup.add_widget(self.partmsg)
-    sizegroup.add_widget(self.awaymsg)
+    sizegroup.add_widget(tree.get_widget('nickname'))
+    sizegroup.add_widget(tree.get_widget('realname'))
+    sizegroup.add_widget(tree.get_widget('quitmsg'))
+    sizegroup.add_widget(tree.get_widget('partmsg'))
+    sizegroup.add_widget(tree.get_widget('awaymsg'))
 
     sizegroup.add_widget(tree.get_widget('highlight'))
 
@@ -111,12 +104,12 @@ class GenPrefs:
     prefs.partmsg = self.partmsg.get_text()
     prefs.awaymsg = self.awaymsg.get_text()
 
-  def Set(self, prefs):
+  def Set(self, prefs, tree):
     ''' Set the fields in the dialog to reflect the user's prefs. 'prefs' must be
         an instance of Prefs from Common.Prefs
         '''
-    self.nickname.set_text(getattr(prefs, 'nickname', ''))
-    self.realname.set_text(getattr(prefs, 'realname', 'Unknown'))
-    self.quitmsg.set_text(getattr(prefs, 'quitmsg', 'good-bye'))
-    self.partmsg.set_text(getattr(prefs, 'partmsg', 'Leaving...'))
-    self.awaymsg.set_text(getattr(prefs, 'awaymsg', 'Away...'))
+    tree.get_widget('nickname').set_text(getattr(prefs, 'nickname', ''))
+    tree.get_widget('realname').set_text(getattr(prefs, 'realname', 'Unknown'))
+    tree.get_widget('quitmsg').set_text(getattr(prefs, 'quitmsg', 'good-bye'))
+    tree.get_widget('partmsg').set_text(getattr(prefs, 'partmsg', 'Leaving...'))
+    tree.get_widget('awaymsg').set_text(getattr(prefs, 'awaymsg', 'Away...'))
