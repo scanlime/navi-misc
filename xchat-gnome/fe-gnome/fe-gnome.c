@@ -28,11 +28,12 @@
 #include "navigation_tree.h"
 #include "textgui.h"
 #include "main_window.h"
-#include "userlist.h"
+#include "userlist_gui.h"
 #include "preferences.h"
 #include "setup_druid.h"
 #include "palette.h"
 #include "preferences_plugins_page.h"
+#include "channel_list.h"
 
 int fe_args(int argc, char *argv[]) {
 	if(argc > 1) {

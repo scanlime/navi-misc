@@ -21,7 +21,7 @@
 
 #include "navigation_tree.h"
 #include "textgui.h"
-#include "userlist.h"
+#include "userlist_gui.h"
 #include "pixmaps.h"
 #include "palette.h"
 #include "channel_list.h"

@@ -26,7 +26,7 @@
 #include "navigation_tree.h"
 #include "about.h"
 #include "textgui.h"
-#include "userlist.h"
+#include "userlist_gui.h"
 #include "setup_druid.h"
 #include "pixmaps.h"
 #include "../common/text.h"

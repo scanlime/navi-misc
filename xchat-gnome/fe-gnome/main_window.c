@@ -22,7 +22,7 @@
 #include "main_window.h"
 #include "connect_dialog.h"
 #include "about.h"
-#include "userlist.h"
+#include "userlist_gui.h"
 #include "../common/xchatc.h"
 #include "../common/outbound.h"
 #include "gui.h"
