@@ -1,8 +1,15 @@
+# -march=i686 speeds this up quite a bit on my machine (even more so
+# than -march=athlon-xp) so if this looks like a recent x86 machine,
+# stick that in CFLAGS
+CFLAGS  += $(shell if grep mmx /proc/cpuinfo > /dev/null; then echo -march=i686; fi)
+
+# -O3 and -ffast-math should make it go much faster on any system
+CFLAGS  += -O3 -ffast-math
+
 PKGS    += libglade-2.0 gtk+-2.0
-CFLAGS  += -march=i686
 CFLAGS  += '-DGLADEDIR="data"'
-CFLAGS  += `pkg-config --cflags $(PKGS)` -O3 -ffast-math
-LIBS    += `pkg-config --libs $(PKGS)`
+CFLAGS  += $(shell pkg-config --cflags $(PKGS))
+LIBS    += $(shell pkg-config --libs $(PKGS))
 
 BIN     = fyre
 
