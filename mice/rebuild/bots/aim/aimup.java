@@ -31,10 +31,12 @@ public class aimup
 	public static ServerSocket server;
 
 	public static net link;
+	
+	public static personindex index;
 
 	public static void main(String[] args)
 	{
-		botmain interviewbot = initbots(1,"passphrase");
+		botmain interviewbot = initbots(1,"wrongpassword");
 		startServer(8082);
 		sleep(2);
 		configureServer(interviewbot);
@@ -62,7 +64,7 @@ public class aimup
 				index.broadcast(link.read());
 				break;
 			case 'q':
-				return
+				return;
 			}
 		}
 	}
@@ -101,7 +103,7 @@ public class aimup
 	public static botmain initbots(int count, String password)
 	{
 		int i,j;
-		personindex index = new personindex(1);
+		index = new personindex(1);
 		bot = new botmain[1];
 		bot[0] = new botmain("MICEBot",password,index);
 		index.registerBot(bot[0]);
