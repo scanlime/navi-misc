@@ -1,11 +1,9 @@
 <?xml version="1.0" ?>
-<character>
+<character layout="sheet.xml">
 	<level>12</level>
 	<exp>10</exp>
 	<name>Bob Dole!</name>
 	<race>Unknown</race>
-
-	<layoutSheet>sheet.xml</layoutSheet>
 
 	<strength>2</strength>
 	<dexterity>1</dexterity>
