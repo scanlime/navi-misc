@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
-from twisted.protocols import irc
+from twisted.protocols import irc, telnet
 from twisted.internet import reactor, protocol
-from twisted.internet.interfaces import IReactorTCP
 from twisted.internet.protocol import ClientCreator
 
 import string, time
@@ -37,10 +36,13 @@ class TwoInTwo(irc.IRCClient):
     def __init__(self):
         self.nickname = 'testingbot'
         self.recievers = []
+        self.lastmsg = 0
+        self.queue = []
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
         print '[connected at %s]' % time.asctime(time.localtime(time.time()))
+        self.factory.telnet.ircbot = self
 
     def signedOn(self):
         self.join(self.factory.channel)
@@ -52,19 +54,22 @@ class TwoInTwo(irc.IRCClient):
         print '[joined %s]' % channel
 
     def privmsg(self, user, channel, msg):
-        user = string.split(user, '!', 1)[0]
-        print '<%s> %s' % (user, msg)
-
-    def dccDoResume(self, user, file, port, resumePos):
-        print '%s is trying to resume %s at %s, on port %s' % (user, file, resumePos, port)
+        # its hackish, but use this as a trigger for sending
+        if time.time() > (self.lastmsg + 70) and len(self.queue) > 1:
+            message = self.queue[0]
+            self.queue = self.queue[1:]
+            self.msg('#testing123', message)
+            self.lastmsg = time.time()
 
     def dccDoSend(self, user, address, port, fileName, size, data):
         f = ReceiverFactory(fileName, size)
         reactor.connectTCP(address, port, f)
 
-class LogBotFactory(protocol.ClientFactory):
+class TwoInTwoFactory(protocol.ClientFactory):
     protocol = TwoInTwo
+    telnet = None
     def __init__(self, channel):
+        print self
         self.channel = channel
 
     def clientConnectionLost(self, connector, reason):
@@ -73,8 +78,42 @@ class LogBotFactory(protocol.ClientFactory):
     def clientConnectionFailed(self, connector, reason):
         print 'connection failed:', reason
 
+class TelnetClient(telnet.Telnet):
+    def connectionMade(self):
+        telnet.Telnet.connectionMade(self)
+        self.lineBuffer = []
+
+    def loggedIn(self):
+        self.transport.write('>> ')
+
+    def checkUserAndPass(self, username, password):
+        return ((self.factory.username == username) and (password == self.factory.password))
+
+    def write(self, data):
+        self.transport.write(data)
+
+    def telnet_Command(self, cmd):
+        print 'recieved command "%s"' % cmd
+        if cmd == 'exit' or cmd == 'quit':
+            self.transport.loseConnection()
+            return 'Command'
+        self.factory.ircbot.queue.append(cmd)
+        print self.factory.ircbot.queue
+        self.transport.write('>> ')
+        return 'Command'
+
+class TelnetFactory(protocol.Factory):
+    username = 'admin'
+    password = 'admin'
+    protocol = TelnetClient
+
 if __name__ == '__main__':
     import sys
-    f = LogBotFactory('#testing123')
+    f = TwoInTwoFactory('#testing123')
     reactor.connectTCP('irc.freenode.net', 6667, f)
+
+    g = TelnetFactory()
+    f.telnet = g
+    reactor.listenTCP(1024, g)
+
     reactor.run()
