@@ -23,10 +23,19 @@ from Common.Palantir import dataDir
 
 class Prefs:
   def __init__(self):
+    defaults = {}
     # If we're on linux and we've got a ~/.palantirrc use that.
     if string.find(sys.platform, 'linux') != -1 and \
        os.path.exists(os.path.join(os.environ['HOME'],'.palantirrc')):
+      file = open(os.path.join(dataDir, 'palantirrc'))
+      lines = file.readlines()
+
+      # Load default values to check against user defined prefs.
+      for line in lines:
+        pref = line.split('=')
+        defaults[pref[0].strip()] = pref[1].strip()
       file = open(os.path.join(os.environ['HOME'],'.palantirrc'))
+
     # Otherwise use the config in the data directory.
     else:
       file = open(os.path.join(dataDir, 'palantirrc'))
@@ -35,8 +44,15 @@ class Prefs:
     # Set the preferences' values as attributes of the object.
     for line in lines:
       pref = line.split('=')
-      setattr(self, pref[0].strip(), string.join(pref[1:]).strip())
+      setattr(self, pref[0].strip(), pref[1].strip())
     file.close()
+
+    # Compare the default values against the ones we loaded to make sure
+    # we didn't miss anything.
+    if defaults:
+      for key,value in defaults.iteritems():
+        if key not in self.__dict__:
+          setattr(self, key, value)
 
   def Save(self):
     ''' Write the current preference settings to ~/.palantirrc '''
