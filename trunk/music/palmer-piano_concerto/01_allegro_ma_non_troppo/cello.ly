@@ -5,7 +5,7 @@ mvmtOneCello = \relative c, {
 	\clef bass
 	\key b \minor
 
-	R1*6
+	R1*6^\allegroMaNonTroppo
 	fis4 \f r r r
 	fis4 r fis r
 	g4 r r r
@@ -15,7 +15,7 @@ mvmtOneCello = \relative c, {
 	R1*4
 
 	% 15
-	b16 (d cis d e d cis d b d ees d cis d) e (d)
+	b16\mp (d cis d e d cis d b d ees d cis d) e (d)
 	f16 (d cis d b d) fis (cis) g' (dis cisis dis) gis (e dis e)
 	g16 (d cis d b d cis d) fis (d cis d) f (cis b cis)
 	gis16 (cis b cis) gis' (cis, d cis) b' (d, e d) b' (e, f e)
@@ -24,44 +24,44 @@ mvmtOneCello = \relative c, {
 	% 20
 	cis16 bis d cis ees d e d f e fis eis g fis aes eis
 	g16 fis a eis gis fis a eis gis fis ais eis gis fis ais eis
-	gis (fis ais eis gis fis ais eis gis fis ais eis gis fis ais eis)
-	b8-. r8 r4 r2
+	gis \< (fis ais eis gis fis ais eis gis fis ais eis gis fis ais \! eis)
+	b8-.\f r8 r4 r2
 
 	R1*18
-	r4 fis (g a
-	d c b e)
+	r4 fis^\oneCello\mf (g a
+	d \< c b e) \!
 	a,2 e
 
 	% 45
 	eis fis
-	d8-. e'-. e16 d e r r2
+	d8-.^\tutti e'-. e16 d e r r2
 	R1*3
 
 	% 50
-	r2 r4 g16 c, g8
+	r2 r4 g16\mf c, g8
 	\repeat "tremolo" 6 { a16 e16 }  ais16 e16 ais16 e16
 	\repeat "tremolo" 6 { a16 e16 }  b'16 e,16 b'16 e,16
-	a8 cis[ r a] r gis[ r cis]
+	a8 cis\f [r a] r gis [r cis]
 	c8 r8 r4 r2
 
 	% 55
-	r8 cis' b a gis fis e d
-	cis d16 d d8 fis r e [r dis]
+	r8 cis'\p \< b a gis fis e d \!
+	cis\f d16 d d8 fis r e [r dis]
 	r cis fis (e dis cis) r r
 	r2 e
 	dis1
 
 	% 60
 	r1
-	e2 (d
+	e2\mp (d
 	b cis4 e
 	gis2.) fis4 (
 	dis2 eis)
 
 	% 65
-	r4 fis, (a cis
+	r4 fis,\mf \< (a cis \!
 	d2) r2
-	r4 f, (a d
+	r4 f,\mf \< (a d \!
 	e2) r2 \fermata
 
 	\time 6/8
@@ -73,28 +73,30 @@ mvmtOneCello = \relative c, {
 		s a (
 		c des)
 	} \\ {
-		r4. bes (
+		r4.\p \< bes \! (
 		a f)
-		r a (
+		r\p \< a \! (
 		aes fes)
 	} >>
-	r4. r8 dis'16 e dis8-.->
+	r4. r8 dis'16\f e dis8-.->
 	gis,8-> r4 r4.
 
 	% 85
 	r4. r8 cis16 d cis8-.->
 	b8-> r4 r8 a'16 b a8-.->
 	d,8-> r4 r8 c16 b a8-.->
-	gis8 r4 cis16-> cis cis-. cis-. cis-. cis-.
+	\setTextDecresc
+	gis8 r4 cis16-> \> cis \! cis-. cis-. cis-. cis-.
+	\setHairpinDecresc
 	\time 4/4
-	\times 4/6 {<gis cis>8->[ <gis cis> <gis cis>-. <gis cis>-. <gis cis>-. <gis cis>-.]} 
-        \times 4/6 {<g c>8->[ <g c> <g c>-. <g c>-. <g c>-. <g c>-.]}
+	\times 4/6 {<gis cis>8-> [<gis cis> <gis cis>-. <gis cis>-. <gis cis>-. <gis cis>-.]}
+        \times 4/6 {<g c>8-> [<g c> <g c>-. <g c>-. <g c>-. <g c>-.]}
 
 	% 90
 	<g c>4\pp aes8->\mf r8 r4 g8-> r8
 	fis8-> r8 r4 r2
 	R1*7
-	g8 (b d g) fis (e) f (ees)
+	g8\f (b d g) fis (e) f (ees)
 
 	% 100
 	e (dis) e (cis) d (cis) d (b)
@@ -114,10 +116,10 @@ mvmtOneCello = \relative c, {
 	} >> r4 r2
 	r1
 	fis1\p \trill
-	fis1 \trill
+	\> fis1 \! \trill
 
 	R1*19
-	r8 fis' r gis r fis r a
+	r8 fis'\ff r gis r fis r a
 
 	% 130
 	r8 aes r f r e r g
@@ -135,7 +137,7 @@ mvmtOneCello = \relative c, {
 	R1*2
 	\time 6/8
 	R1*6/8*4
-	gis4.\mf gis4 (fis8
+	gis4.\mf^\oneCello gis4 (fis8
 	b4.) a4.
 	\appoggiatura gis8 gis'4. fis4 eis8
 	e8. dis8. ~ dis8. bis8.
@@ -143,12 +145,12 @@ mvmtOneCello = \relative c, {
 	gis d
 	cis r
 	R1*6/8*5
-	r4. r8.\mp cis16 \< cis-. cis-. \!
+	r4.^\tutti r8.\mp cis16 \< cis-. cis-. \!
 	<fis,-. cis'>16 r16 r4 r4.
 	cis'16-.->\mf cis-. cis-. cis-. cis-. cis-. \repeat "tremolo" 6 bis16^\simile
 	\repeat "tremolo" 6 b16 \repeat "tremolo" 6 ais
 	\repeat "tremolo" 6 a16 \repeat "tremolo" 6 gis
-	\repeat "tremolo" 6 g16 \repeat "tremolo" 6 fis
+	\repeat "tremolo" 6 g16 \< \repeat "tremolo" 6 fis \!
 	b16\mf \tenuto b\tenuto b-. b-. b-. b-. \repeat "tremolo" 6 fisis16^\simile
 	\repeat "tremolo" 6 gis16 \repeat "tremolo" 6 fis16
 	\repeat "tremolo" 6 e16
@@ -183,28 +185,28 @@ mvmtOneCello = \relative c, {
 		g r g r fis r fis r
 		b, r b r cis r fis, r
 	} \\ {
-		b8 r fis r ais r ais r
+		b8\ff r fis r ais r ais r
 		b r b r bis r cis r
 		e r c r d r cis r
 		e, r e r cis' r fis, r
 	} >>
 	R1*15
-	dis2\p cis
+	dis2\p^\oneCello cis
 	cis'4 (ais) dis,2
-	gis ais
+	gis \< ais \!
 	<< {
-		ais'1
+		ais'1^\twoCellos
 		fis2 eis
 		fis4 cis dis2
 		cis1
 	} \\ {
-		dis2. cisis4
+		dis2. \> cisis4 \!
 		cis4 b ~ b cis
 		fis,2 dis
-		<cis gis'>1
+		\> <cis gis'>1 \!
 	} >>
 	R1*14
-	b'4 ais a gis
+	b'4\p^\tuttiPizz ais a gis
 	\repeat "unfold" 2 {b4 ais a gis}
 	g fis f e
 	e r r2
