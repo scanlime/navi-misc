@@ -227,14 +227,16 @@ void render_main(const char *filename, guint targetDensity) {
     remaining = ((float)elapsed) * targetDensity / countsMax - elapsed;
 
     /* After each batch of iterations, show the percent completion, number
-     * of iterations (in scientific notation), density / target density,
-     * and elapsed time / remaining time.
+     * of iterations (in scientific notation), iterations per second,
+     * density / target density, and elapsed time / remaining time.
      */
-    printf("%6.02f%%    %.3e  %6d / %d    %02d:%02d:%02d / %02d:%02d:%02d\n",
-	   100.0 * countsMax / targetDensity,
-	   iterations, countsMax, targetDensity,
-	   elapsed / (60*60), (elapsed / 60) % 60, elapsed % 60,
-	   remaining / (60*60), (remaining / 60) % 60, remaining % 60);
+    if (elapsed > 0) {
+      printf("%6.02f%%   %.3e   %.2e/sec %6d / %d   %02d:%02d:%02d / %02d:%02d:%02d\n",
+	     100.0 * countsMax / targetDensity,
+	     iterations, iterations / elapsed, countsMax, targetDensity,
+	     elapsed / (60*60), (elapsed / 60) % 60, elapsed % 60,
+	     remaining / (60*60), (remaining / 60) % 60, remaining % 60);
+    }
   }
 
   printf("Creating image...\n");
@@ -635,6 +637,8 @@ void param_spinner_changed(GtkWidget *widget, gpointer user_data) {
 
 void exposure_changed(GtkWidget *widget, gpointer user_data) {
   exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(ls));
+  fast_update_pixels(1);
+  update_drawing_area();
 }
 
 float generateRandomParameter() {
