@@ -56,6 +56,11 @@ FieldSensor::FieldSensor(const char *serialPort, const char *netFile)
   /* Boot up our firmware on the board */
   reset();
   boot();
+
+  /* Initial conditions for the Kalman filter */
+  Q = 0.001;                                   /* Process variance */
+  x.set(0.5, 0.5, 0.5);                        /* Initial estimate */
+  P.set(1,1,1);                                /* Initial variance estimate */
 }
 
 FieldSensor::~FieldSensor(void) {
@@ -142,14 +147,20 @@ Vector3 FieldSensor::rawPosition(bool blocking) {
   return Vector3(netOutput[0], netOutput[1], netOutput[2]);
 }
 
+/* A Kalman filter to predict the actual position given noisy measurements */
 Vector3 FieldSensor::readPosition(bool blocking) {
-  Vector3 inPosition = rawPosition(blocking);
-  Vector3 direction = inPosition - filterPosition;
-  direction.normalize();
 
-  //  filterPosition += direction * 0.5;
+  /* Time update equations */
 
-  return inPosition;
+  x = x;       /* FIXME: assuming x is constant. replace this with a velocity model */
+  P = P + Q;   /* Add process noise to error covariance estimate */
+  
+  /* Measurement update equations */
+  
+  z = rawPosition();
+  K = P * (P+R).invert();
+  
+
 }
 
 /* The End */

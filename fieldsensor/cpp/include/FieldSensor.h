@@ -32,8 +32,9 @@
 #include <annie.h>
 using namespace annie;
 
-/* Vector classes borrowed from Jetstream */
+/* Linear algebra classes borrowed from Jetstream */
 #include <Vector.h>
+#include <Matrix.h>
 
 
 class FieldSensor {
@@ -66,8 +67,16 @@ class FieldSensor {
   /* Neural net */
   TwoLayerNetwork net;
 
-  /* Filter */
-  Vector3 filterPosition;
+  /* Kalman filter variables:
+   *  x: State vector
+   *  P: Estimated error covariance
+   *  Q: Process noise covariance
+   *  R: Measurement noise covariance
+   *  K: filter gain
+   *  z: New measurement
+   */
+  Vector3 x, z;
+  Matrix3x3 P, Q, R, K;
 };
 
 #endif /* __H_FIELDSENSOR */
