@@ -14,7 +14,7 @@ class GnomeFilter(CommitFilter):
 
             if line.endswith(' files:\n'):
                 self.readFiles()
-            elif line == 'Log message:\n':
+            elif line.lower().strip() == 'log message:':
                 self.readLog()
             elif line.startswith('URL : '):
                 self.readURL(line)
