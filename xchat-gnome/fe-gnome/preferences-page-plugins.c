@@ -90,7 +90,7 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 	if (loaded) {
 		GSList *removed_plugin;
 
-		if (plugin_kill (filename, 1) == 0) {
+		if (plugin_kill (filename, 1) == 1) {
 			gtk_list_store_set (page->plugin_store, &iter, 4, FALSE, -1);
 
 			if ((removed_plugin = g_slist_find_custom (enabled_plugins, filename, &filename_test)) != NULL) {
