@@ -347,12 +347,6 @@ url_enable_clicked (GtkButton *button, PublishUIData *ui)
 }
 
 void
-publish_calendar_context_activate (EPlugin *ep, ECalPopupTargetSource *target)
-{
-	/* FIXME: implement */
-}
-
-void
 online_state_changed (EPlugin *ep, ESEventTargetState *target)
 {
 	online = target->state;

@@ -47,7 +47,7 @@ write_calendar (gchar *uid, ESourceList *source_list, GnomeVFSHandle *handle)
 	}
 
 	if (!e_cal_open (client, TRUE, &error)) {
-		/* FIXME: show error */
+		/* FIXME: EError */
 		g_object_unref (client);
 		g_error_free (error);
 		return FALSE;
@@ -69,12 +69,12 @@ write_calendar (gchar *uid, ESourceList *source_list, GnomeVFSHandle *handle)
 
 		ical_string = icalcomponent_as_ical_string (top_level);
 		if ((result = gnome_vfs_write (handle, (gconstpointer) ical_string, strlen (ical_string), &bytes_written)) != GNOME_VFS_OK) {
-			/* FIXME: show error */
+			/* FIXME: EError */
 			gnome_vfs_close (handle);
 			return FALSE;
 		}
 	} else {
-		/* FIXME: show error */
+		/* FIXME: EError */
 		g_object_unref (client);
 		g_error_free (error);
 		return FALSE;
