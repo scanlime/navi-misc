@@ -21,8 +21,6 @@
       I/O ports to output mode. This won't affect any hardware plugged
       into the rcpod, but can't test much.
 
-    * Tests all rcpod devices found on the USB bus.
-
    single
    ------
 
@@ -35,8 +33,6 @@
 
     * Also runs all tests covered by 'safe'
 
-    * Tests all rcpod devices found on the USB bus.
-
    dual
    ----
 
@@ -44,13 +40,13 @@
       USB, and oscillator) connected to each other. This uses each rcpod
       to test the I/O features on the other.
 
-    * Also runs all tests covered by 'single'
+    * Also runs all tests covered by 'single' (on each rcpod)
 
 
  -- Micah Dowty <micah@picogui.org>
 """
 
-import pyrcpod, unittest, sys
+import pyrcpod, unittest, sys, random
 
 
 # A set of byte values used to test several things.
@@ -60,14 +56,14 @@ testBytes = (0x00, 0xFF, 0xAA, 0x55, 0x01, 0x02, 0x80, 0x40)
 
 
 class SimpleRcpodTestCase(unittest.TestCase):
-    """A TestCase subclass that, for each available rcpod device, opens
-       the device, runs the test case, and closes the device.
+    """A TestCase subclass that opens the first available
+       rcpod device and closes it afterwards.
        """
-    def __call__(self, result=None):
-        for dev in pyrcpod.devices:
-            self.rcpod = dev.open()
-            unittest.TestCase.__call__(self, result)
-            self.rcpod.close()
+    def setUp(self):
+        self.rcpod = pyrcpod.devices[0].open()
+
+    def tearDown(self):
+        self.rcpod.close()
 
 
 class safe(SimpleRcpodTestCase):
@@ -76,12 +72,28 @@ class safe(SimpleRcpodTestCase):
        """
 
     def testPokePeek(self):
-        """Tests whether poke and peek work on 1 byte, using the scratchpad"""
+        """poke and peek work on 1 byte, using the scratchpad"""
         address = 'scratchpad'
         for byte in testBytes:
             self.rcpod.poke(address, byte)
             result = self.rcpod.peek(address)
             self.assertEqual(byte, result)
+
+    def testScratchpad(self):
+        """testing all bytes of the scratchpad"""
+        for address in xrange(*self.rcpod.scratchpadRange):
+            for byte in (0x00, 0xFF):
+                self.rcpod.poke(address, byte)
+                result = self.rcpod.peek(address)
+                self.assertEqual(byte, result)
+
+    def testPokePeekBlock(self):
+        """poke and peek the entire scratchpad, as a block"""
+        address = 'scratchpad'
+        testPattern = [random.randint(0, 255) for i in xrange(*self.rcpod.scratchpadRange)]
+        self.rcpod.poke(address, testPattern)
+        result = self.rcpod.peek(address, len(testPattern))
+        self.assertEqual(testPattern, result)
 
 
 if __name__ == '__main__':

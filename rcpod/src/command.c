@@ -39,7 +39,7 @@ void rcpod_Poke(rcpod_dev* rcpod, int address, unsigned char data) {
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR, RCPOD_CTRL_POKE,
 			   data, address, NULL, 0, RCPOD_TIMEOUT);
   if (retval < 0)
-    rcpod_HandleError("rcpod_Poke", -retval, strerror(-retval));
+    rcpod_HandleError("rcpod_Poke", errno, strerror(errno));
 }
 
 
@@ -50,7 +50,7 @@ unsigned char rcpod_Peek(rcpod_dev* rcpod, int address) {
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
 			   RCPOD_CTRL_PEEK, 0, address, (char*) &byte, 1, RCPOD_TIMEOUT);
   if (retval < 0) {
-    rcpod_HandleError("rcpod_Peek", -retval, strerror(-retval));
+    rcpod_HandleError("rcpod_Peek", errno, strerror(errno));
     return 0;
   }
   return byte;
@@ -67,7 +67,7 @@ void rcpod_Poke4(rcpod_dev* rcpod, unsigned char data[4]) {
 			   data[2] | (((int)data[3])<<8),
 			   NULL, 0, RCPOD_TIMEOUT);
   if (retval < 0)
-    rcpod_HandleError("rcpod_Poke4", -retval, strerror(-retval));
+    rcpod_HandleError("rcpod_Poke4", errno, strerror(errno));
 }
 
 
@@ -76,7 +76,7 @@ void rcpod_Peek8(rcpod_dev* rcpod, int address, unsigned char data[8]) {
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
 			   RCPOD_CTRL_PEEK8, 0, address, (char*) data, 8, RCPOD_TIMEOUT);
   if (retval < 0)
-    rcpod_HandleError("rcpod_Peek8", -retval, strerror(-retval));
+    rcpod_HandleError("rcpod_Peek8", errno, strerror(errno));
 }
 
 
@@ -85,7 +85,7 @@ void rcpod_AnalogReadAll(rcpod_dev* rcpod, unsigned char buffer[8]) {
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
 			   RCPOD_CTRL_ANALOG_ALL, 0, 0, (char*) buffer, 8, RCPOD_TIMEOUT);
   if (retval < 0)
-    rcpod_HandleError("rcpod_AnalogReadAll", -retval, strerror(-retval));
+    rcpod_HandleError("rcpod_AnalogReadAll", errno, strerror(errno));
 }
 
 
@@ -94,7 +94,7 @@ void rcpod_UsartTxRx(rcpod_dev* rcpod, int address, int txBytes, int rxBytes) {
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR, RCPOD_CTRL_POKE,
 			   txBytes | (((int)rxBytes) << 8), address, NULL, 0, RCPOD_TIMEOUT);
   if (retval < 0)
-    rcpod_HandleError("rcpod_UsartTxRx", -retval, strerror(-retval));
+    rcpod_HandleError("rcpod_UsartTxRx", errno, strerror(errno));
 }
 
 
@@ -104,7 +104,7 @@ int rcpod_UsartRxEnd(rcpod_dev* rcpod) {
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
 			   RCPOD_CTRL_USART_RX_END, 0, 0, (char*) &byteCount, 1, RCPOD_TIMEOUT);
   if (retval < 0) {
-    rcpod_HandleError("rcpod_UsartRxEnd", -retval, strerror(-retval));
+    rcpod_HandleError("rcpod_UsartRxEnd", errno, strerror(errno));
     return 0;
   }
   return byteCount;
@@ -116,7 +116,7 @@ void rcpod_UsartTxe(rcpod_dev* rcpod, rcpod_pin txe) {
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR, RCPOD_CTRL_USART_TXE,
 			   txe, 0, NULL, 0, RCPOD_TIMEOUT);
   if (retval < 0)
-    rcpod_HandleError("rcpod_UsartTxe", -retval, strerror(-retval));
+    rcpod_HandleError("rcpod_UsartTxe", errno, strerror(errno));
 }
 
 
@@ -130,7 +130,7 @@ void rcpod_GpioAssert4(rcpod_dev* rcpod, rcpod_pin pins[4]) {
 			   pins[2] | (((int)pins[3])<<8),
 			   NULL, 0, RCPOD_TIMEOUT);
   if (retval < 0)
-    rcpod_HandleError("rcpod_GpioAssert4", -retval, strerror(-retval));
+    rcpod_HandleError("rcpod_GpioAssert4", errno, strerror(errno));
 }
 
 
@@ -141,7 +141,7 @@ int rcpod_GpioRead(rcpod_dev* rcpod, rcpod_pin pin) {
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
 			   RCPOD_CTRL_GPIO_READ, 0, pin, (char*) &byte, 1, RCPOD_TIMEOUT);
   if (retval < 0) {
-    rcpod_HandleError("rcpod_GpioRead", -retval, strerror(-retval));
+    rcpod_HandleError("rcpod_GpioRead", errno, strerror(errno));
     return 0;
   }
   return byte;

@@ -63,8 +63,15 @@ class OpenedDevice:
     def __init__(self, dev):
         self.dev = dev
 
+        # Make the scratchpad location more easily accessable
+        self.scratchpadRange = (RCPOD_REG_SCRATCHPAD,
+                                RCPOD_REG_SCRATCHPAD + RCPOD_SCRATCHPAD_SIZE)
+
     def __del__(self):
-        self.close()
+        try:
+            self.close()
+        except:
+            pass
 
     def close(self):
         """Terminate our connection to the rcpod. No attributes
