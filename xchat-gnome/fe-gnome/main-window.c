@@ -44,6 +44,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <gtk/gtk.h>
 #include <gtk/gtkstock.h>
 #include <gtk/gtkaction.h>
 #include <gtk/gtkactiongroup.h>
@@ -552,7 +553,7 @@ static void
 on_irc_connect_activate (GtkAction *action, gpointer data)
 {
 	ConnectDialog *dialog = connect_dialog_new ();
-	gtk_widget_show_all (dialog);
+	gtk_widget_show_all (GTK_WIDGET (dialog));
 }
 
 static void
@@ -636,6 +637,19 @@ on_network_disconnect_activate (GtkAction *action, gpointer data)
 static void
 on_network_close_activate (GtkAction *actoin, gpointer data)
 {
+	session *sess = gui.current_session;
+	GtkTreeIter parent,
+				*iter =	navigation_model_get_unsorted_iter (gui.tree_model, sess);
+
+	sess->server->disconnect (sess, TRUE, -1);
+
+	if (gtk_tree_model_iter_parent (GTK_TREE_MODEL (gui.tree_model->store), &parent, iter)) {
+		gtk_tree_store_remove (gui.tree_model->store, &parent);
+	} else {
+		gtk_tree_store_remove (gui.tree_model->store, iter);
+	}
+
+	gtk_tree_iter_free (iter);
 }
 
 static void
