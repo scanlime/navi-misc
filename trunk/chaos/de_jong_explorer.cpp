@@ -8,7 +8,7 @@
 typedef boost::numeric::ublas::vector<double> twov;
 
 twov point(2);
-GtkWidget *window, *drawing_area;
+GtkWidget *window, *drawing_area, *iterl;
 GtkWidget *as, *bs, *cs, *ds, *start, *stop, *save;
 GdkPixmap *backb;
 int iterations;
@@ -75,19 +75,17 @@ int main(int argc, char ** argv) {
   iterations = 0;
 
   gtk_main();
-
-  g_print("completed %d iterations\n", iterations);
 }
 
 GtkWidget *build_sidebar() {
   GtkWidget *table;
   GtkWidget *al, *bl, *cl, *dl;
 
-  table = gtk_table_new(7, 2, FALSE);
+  table = gtk_table_new(8, 2, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE(table), 6);
   gtk_table_set_col_spacings(GTK_TABLE(table), 6);
   al = gtk_label_new("a:");
-  gtk_table_attach(GTK_TABLE(table), al, 0, 1, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 6);
+  gtk_table_attach(GTK_TABLE(table), al, 0, 1, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   bl = gtk_label_new("b:");
   gtk_table_attach(GTK_TABLE(table), bl, 0, 1, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   cl = gtk_label_new("c:");
@@ -112,17 +110,19 @@ GtkWidget *build_sidebar() {
   gtk_widget_set_sensitive(ds, FALSE);
   gtk_table_attach(GTK_TABLE(table), ds, 1, 2, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
+  iterl = gtk_label_new("");
+  gtk_table_attach(GTK_TABLE(table), iterl, 0, 2, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   start = gtk_button_new_from_stock(GTK_STOCK_APPLY);
   gtk_widget_set_sensitive(start, FALSE);
   g_signal_connect(G_OBJECT(start), "clicked", G_CALLBACK(startclick), NULL);
-  gtk_table_attach(GTK_TABLE(table), start, 0, 2, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+  gtk_table_attach(GTK_TABLE(table), start, 0, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   stop = gtk_button_new_from_stock(GTK_STOCK_STOP);
   g_signal_connect(G_OBJECT(stop), "clicked", G_CALLBACK(stopclick), NULL);
-  gtk_table_attach(GTK_TABLE(table), stop, 0, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+  gtk_table_attach(GTK_TABLE(table), stop, 0, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
   save = gtk_button_new_from_stock(GTK_STOCK_SAVE);
   gtk_widget_set_sensitive(save, FALSE);
   g_signal_connect(G_OBJECT(save), "clicked", G_CALLBACK(saveclick), NULL);
-  gtk_table_attach(GTK_TABLE(table), save, 0, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
+  gtk_table_attach(GTK_TABLE(table), save, 0, 2, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 6, 0);
 
   return table;
 }
@@ -159,7 +159,10 @@ static int draw_more(void *data) {
     plop(int((*i)(0) * 160 + 400), int((*i)(1) * 160 + 400));
   }
   flip();
-  iterations += 50;
+  iterations += 500;
+  gchar *iters = g_strdup_printf("%d", iterations);
+  gtk_label_set_text(GTK_LABEL(iterl), iters);
+  g_free(iters);
   return 1;
 }
 
@@ -207,7 +210,6 @@ void stopclick(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(cs, TRUE);
   gtk_widget_set_sensitive(ds, TRUE);
   g_source_remove(idler);
-  g_print("completed %d iterations\n", iterations);
 }
 
 void saveclick(GtkWidget *widget, gpointer user_data) {
