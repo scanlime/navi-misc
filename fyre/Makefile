@@ -27,6 +27,7 @@ OBJS    = \
 	src/cell-renderer-transition.o \
 	src/cell-renderer-bifurcation.o \
 	src/histogram-imager.o	\
+	src/iterative-map.o \
 	src/parameter-holder.o	\
 	src/bifurcation-diagram.o \
 	src/math-util.o		\
