@@ -51,6 +51,8 @@ public class PipelineEditor
 
 	/* D-n-D private data */
 	private int			click_x, click_y;
+	private bool			dragging;
+	TargetList			target_list;
 
 	public static void Main (string[] args)
 	{
@@ -71,6 +73,7 @@ public class PipelineEditor
 		tooltip_timeout = 0;
 		click_x = -1;
 		click_y = -1;
+		dragging = false;
 
 		/* Set up plugins directory */
 		plugin_manager = new PluginManager (Defines.PLUGINSDIR);
@@ -114,9 +117,11 @@ public class PipelineEditor
 		/* Set up drag-and-drop for our tree view */
 		TargetEntry[] targets = new TargetEntry[1];
 		targets[0] = new TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
+		target_list = new TargetList (targets);
 
 		Gtk.Drag.SourceSet (element_list, Gdk.ModifierType.Button1Mask, targets, Gdk.DragAction.Copy);
 		element_list.DragBegin += ElementListDragBegin;
+		element_list.DragEnd   += ElementListDragEnd;
 	}
 
 	void ElementListDragBegin (object o, DragBeginArgs args)
@@ -126,9 +131,16 @@ public class PipelineEditor
 		int cell_x, cell_y;
 
 		if (element_list.GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
-			Gdk.Pixmap icon = element_list.CreateRowDragIcon (path);
-			Gtk.Drag.SetIconPixmap (args.Context, icon.Colormap, icon, null, click_x + 1, cell_y);
+	//		Gdk.Pixmap icon = element_list.CreateRowDragIcon (path);
+	//		Gtk.Drag.SetIconPixmap (args.Context, icon.Colormap, icon, null, click_x + 1, cell_y);
 		}
+	}
+
+	void ElementListDragEnd (object o, DragEndArgs args)
+	{
+		dragging = false;
+		click_x = -1;
+		click_y = -1;
 	}
 
 	void ElementListButtonPressEvent (object o, ButtonPressEventArgs args)
@@ -162,10 +174,15 @@ public class PipelineEditor
 			GLib.Source.Remove (tooltip_timeout);
 		}
 
-		/* If we've got our left button down, we're starting or
-		 * continuing a drag. Don't pop up a tooltip in this case */
-		if (ev.State == Gdk.ModifierType.Button1Mask)
+		if (ev.State == Gdk.ModifierType.Button1Mask) {
+			/* If we're just continuing a drag, don't do anything */
+			if (dragging)
+				return;
+			/* Start a drag */
+			dragging = true;
+			Gtk.Drag.Begin (element_list, target_list, Gdk.DragAction.Copy, 1, ev);
 			return;
+		}
 
 		Gtk.TreePath path;
 		if (element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path)) {
