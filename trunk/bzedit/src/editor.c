@@ -118,7 +118,7 @@ editor_init (Editor *editor)
   editor->statusbar = GTK_STATUSBAR (glade_xml_get_widget (editor->xml, "statusbar"));
   editor->editor_status_context = gtk_statusbar_get_context_id (editor->statusbar, "Editor status");
 
-  types = find_leaves (PARAMETER_HOLDER_TYPE);
+  types = find_type_leaves (PARAMETER_HOLDER_TYPE);
   addmenu = GTK_MENU_ITEM (glade_xml_get_widget (editor->xml, "addmenu"));
   am = GTK_MENU (gtk_menu_new ());
   box = GTK_BOX (gtk_vbox_new (0, 6));
