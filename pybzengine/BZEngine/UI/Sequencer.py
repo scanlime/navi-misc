@@ -190,9 +190,47 @@ class FadeInWrapper(PageWrapper):
 
 def FadeIn(duration, color, page):
     """Given a page class or a callable, return a callable for creating that page
-       with a PageTimerWrapper around it.
+       with a FadeInWrapper around it.
        """
     return lambda view: FadeInWrapper(view, page(view), duration, color)
+
+
+class FadeOutWrapper(PageWrapper):
+    """A page wrapper that fades in any page to a solid color over the given
+       duration after that page's onFinish has been called.
+       """
+    def __init__(self, view, subpage, duration, color):
+        PageWrapper.__init__(self, view, subpage)
+        self.rate = 1/duration
+        self.color = list(color[:3]) + [0]
+        self.overlay = None
+        subpage.onFinish.replace(self.start)
+
+    def start(self):
+        if not self.overlay:
+            self.overlay = self.viewport.region(self.viewport.rect)
+            self.overlay.fov = None
+            self.overlay.onDrawFrame.observe(self.drawFrame)
+
+    def drawFrame(self):
+        # Draw a rectangle of the color 'self.color' over the entire screen
+        GLOrtho.setup()
+        GLOrtho.setColor(*self.color)
+        GLOrtho.filledRect(self.overlay.size)
+
+        # Fade in the overlay's alpha. When it hits one, delete our overlay viewport,
+        # causing this function to not be called any longer, and call our own onFinish.
+        self.color[3] += self.rate * self.time.step()
+        if self.color[3] > 1:
+            self.overlay = None
+            self.onFinish()
+
+
+def FadeOut(duration, color, page):
+    """Given a page class or a callable, return a callable for creating that page
+       with a FadeOutWrapper around it.
+       """
+    return lambda view: FadeOutWrapper(view, page(view), duration, color)
 
 
 ### The End ###
