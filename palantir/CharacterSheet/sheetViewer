@@ -16,7 +16,7 @@ from Character import Character
 def init():
   ''' Initialize the window and stuff using glade. '''
   global tree
-  tree = gtk.glade.XML('sheetviewer.glade')
+  tree = gtk.glade.XML('sheetviewer/sheetviewer.glade')
 
   for func in globals().iterkeys():
     if func.startswith('on_'):
@@ -32,7 +32,11 @@ def on_new_activate(widget, data=None):
   print 'Not implemented.'
 
 def on_open_activate(widget, data=None):
-  print 'Not implemented.'
+  fileSelector = gtk.glade.XML('sheetselector/sheetselector.glade')
+
+  for func in globals().iterkeys():
+    if func.startswith('on_'):
+      fileSelector.signal_connect(func, globals()[func])
 
 def on_cancel_button_clicked(widget, data=None):
   print widget
