@@ -2,8 +2,8 @@
  * Blandford <jrb@gnome.org>
  *
  * It was subsequently heartlessly stolen from the control-center keybindings
- * configger and hatcheted to pieces by Dan Kuester (lurgyman@navi.cx) for
- * xchat-gnome.
+ * configger and impetuously pounded into xchat-gnome by Dan Kuester
+ * (dkuester@colorado.edu).
  */
 
 #include <config.h>
