@@ -44,6 +44,10 @@ class PrefDialog:
     tree.get_widget('pref ok').connect('clicked', self.SavePrefs)
     tree.get_widget('pref ok').connect('clicked', lambda w: dialog.hide())
 
+    # Hook up the navigation area.
+    tree.get_widget('prefs navigation').get_selection().connect('changed', 
+                                                self.on_nav_selection_changed)
+
   def SetUpNav(self):
     ''' SetUpNav creates the list of pages in the navigation list from the pages
         in the notebook.
@@ -51,7 +55,7 @@ class PrefDialog:
     navigation = self.tree.get_widget('prefs navigation')
     notebook = self.tree.get_widget('pref notebook')
 
-    store = gtk.ListStore(gobject.TYPE_STRING)
+    store = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_INT)
     cell = gtk.CellRendererText()
     cell.visible = gtk.TRUE
     navigation.set_model(model=store)
@@ -60,23 +64,16 @@ class PrefDialog:
     for num in range(notebook.get_n_pages()):
       page = notebook.get_nth_page(num)
       pageName = notebook.get_tab_label_text(page)
-      store.set(store.append(), 0, pageName)
+      store.set(store.append(), 0, pageName, 1, num)
 
   def SavePrefs(self, widget, data=None):
     self.general.Save(self.prefs)
     self.prefs.Save()
 
-  def GetNick(self):
-    return getattr(self.prefs, 'nickname', '')
-
-  def GetQuitMsg(self):
-    return self.prefs.quitmsg
-
-  def GetPartMsg(self):
-    return self.prefs.partmsg
-
-  def GetAwayMsg(self):
-    return self.prefs.awaymsg
+  def on_nav_selection_changed(self, treeselection, data=None):
+    model, iter = treeselection.get_selected()
+    notebook = self.tree.get_widget('pref notebook')
+    notebook.set_current_page(model.get(iter, 1)[0])
 
 class GenPrefs:
   def __init__(self, tree):
