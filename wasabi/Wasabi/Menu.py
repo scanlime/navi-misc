@@ -41,6 +41,16 @@ class Item:
         self.icon = icon
 
 
+class PageItem(Item):
+    """A menu item that, upon selection, pushes a specified page onto the current book"""
+    def __init__(self, icon, page):
+        self.page = page
+        Item.__init__(self, icon)
+
+    def onSelected(self, menu):
+        menu.book.pushBack(self.page)
+
+
 class Menu(Sequencer.Page):
     """Abstract base class for menus. All menus have common code for managing
        backgrounds, and all menus signal selections compatibly. The menu item's
@@ -137,7 +147,9 @@ class ArcMenu(DockMenu):
     """A menu that forms an arc along the right side of the screen, with a title shown to the left"""
     keyFile = 'arcmenu_keys.py'
     def __init__(self, book, items=[], title=None):
-        DockMenu.__init__(self, book, items, iconSpacing=1)
+        DockMenu.__init__(self, book, items,
+                          iconSpacing = 1
+                          )
         if title:
             self.titleText = HUD.Text(self.overlay, title,
                                       fontSize = self.viewport.size[1] / 15,
@@ -151,9 +163,9 @@ class ArcMenu(DockMenu):
            """
         thetaExp = 0.5
         thetaCoeff = 0.05
-        sizeExp = 1.2
+        sizeExp = 5
         maxSize = self.viewport.size[0] * 0.15
-        radius = self.viewport.size[0] * 0.75
+        radius = self.viewport.size[0] * 0.7
         vCenter = self.viewport.size[1] * 0.5
         hCenter = 0
 
@@ -165,7 +177,7 @@ class ArcMenu(DockMenu):
         return (
             (hCenter + cos(theta) * radius,
              vCenter + sin(theta) * radius),
-            maxSize / pow(1 + abs(x), sizeExp)
+            maxSize / pow(abs(sin(theta))+1, sizeExp)
             )
 
     def spinUp(self):
