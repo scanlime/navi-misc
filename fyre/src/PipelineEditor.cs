@@ -31,12 +31,7 @@ namespace Fyre
 
 		// Widgets
 		[Glade.Widget] Gtk.Window		toplevel;
-
-		// Element list (left)
-		Gtk.TreeStore				element_store;
-		Gtk.TreeModelSort			sorted_store;
-		Gtk.TreeViewColumn			column;
-		[Glade.Widget] Gtk.TreeView		element_list;
+		[Glade.Widget] ElementList		element_list;
 
 		// Editor workspace (right)
 		[Glade.Widget] Gtk.Frame		pipeline_window;
@@ -59,7 +54,6 @@ namespace Fyre
 				if (targets == null) {
 					targets = new Gtk.TargetEntry[1];
 					targets[0] = new Gtk.TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
-					target_list = new Gtk.TargetList (targets);
 				}
 				return targets;
 			}
@@ -68,7 +62,7 @@ namespace Fyre
 		{
 			get {
 				if (target_list == null) {
-					Gtk.TargetEntry[] tmp = DragTargets;
+					target_list = new Gtk.TargetList (DragTargets);
 				}
 				return target_list;
 			}
@@ -83,6 +77,8 @@ namespace Fyre
 		{
 			Gtk.Application.Init();
 
+			Glade.XML.SetCustomHandler (new Glade.XMLCustomWidgetHandler (GladeCustomHandler));
+
 			Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
 			gxml.Autoconnect (this);
 
@@ -93,16 +89,19 @@ namespace Fyre
 			// Set up plugins directory
 			plugin_manager = new PluginManager (Defines.PLUGINSDIR);
 			foreach (System.Type t in plugin_manager.plugin_types)
-				AddElementType (t);
+				element_list.AddType (t);
 
 			// Finally, run the application
 			Gtk.Application.Run();
 		}
 
-		// Creation function for the Element List
-		static ElementList GladeCustomHandler (Glade.XML xml, string func_name, string name, string str1, string str2, int int1, int int2)
+		// Glade custom widget handler
+		static Gtk.Widget GladeCustomHandler (Glade.XML xml, string func_name, string name, string str1, string str2, int int1, int int2)
 		{
-			return new ElementList (xml.GetWidget ("toplevel"));
+			Gtk.Widget ret = null;
+			if (func_name == "CreateElementList")
+				ret = new ElementList (xml.GetWidget ("toplevel"));
+			return ret;
 		}
 
 		void SetupDrawingCanvas ()
@@ -123,34 +122,6 @@ namespace Fyre
 		{
 			Gdk.Pixbuf pixbuf = new Gdk.Pixbuf (null, "navigation.png");
 			navigation_image.Pixbuf = pixbuf;
-		}
-
-		private void AddElementType (System.Type t)
-		{
-			object[] i = {};
-			Element e = (Element) t.GetConstructor(System.Type.EmptyTypes).Invoke(i);
-			ElementTooltip tt = new ElementTooltip (e);
-
-			string name = e.Name ();
-			string category = e.Category ();
-			Gdk.Pixbuf pixbuf = e.Icon ();
-			bool found = false;
-
-			Gtk.TreeIter iter;
-			if (element_store.GetIterFirst (out iter)) {
-				do {
-					string cat = (string) element_store.GetValue (iter, 1);
-					if (cat.Equals (category)) {
-						found = true;
-						element_store.AppendValues (iter, pixbuf, name, t, tt);
-					}
-				} while (element_store.IterNext (ref iter));
-			}
-			if (!found) {
-				iter = element_store.AppendValues (null, category);
-				element_store.AppendValues (iter, pixbuf, name, t, tt);
-				element_list.ExpandAll ();
-			}
 		}
 
 		// Event handlers - most of these come from the glade file

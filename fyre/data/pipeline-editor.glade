@@ -343,13 +343,26 @@
 	  <property name="spacing">6</property>
 
 	  <child>
-	    <widget class="Custom" id="element_list">
-	      <property name="width_request">180</property>
+	    <widget class="GtkScrolledWindow" id="scrolledwindow1">
+	      <property name="width_request">190</property>
 	      <property name="visible">True</property>
-	      <property name="creation_function">CreateElementList</property>
-	      <property name="int1">0</property>
-	      <property name="int2">0</property>
-	      <property name="last_modification_time">Sat, 02 Apr 2005 01:00:54 GMT</property>
+	      <property name="can_focus">True</property>
+	      <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+	      <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+	      <property name="shadow_type">GTK_SHADOW_IN</property>
+	      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
+
+	      <child>
+		<widget class="Custom" id="element_list">
+		  <property name="width_request">180</property>
+		  <property name="visible">True</property>
+		  <property name="events">GDK_POINTER_MOTION_MASK | GDK_BUTTON_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_LEAVE_NOTIFY_MASK</property>
+		  <property name="creation_function">CreateElementList</property>
+		  <property name="int1">0</property>
+		  <property name="int2">0</property>
+		  <property name="last_modification_time">Sat, 02 Apr 2005 01:00:54 GMT</property>
+		</widget>
+	      </child>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
