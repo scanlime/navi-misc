@@ -24,6 +24,18 @@
 static void
 irc_network_dispose (GObject *object)
 {
+	IrcNetwork *network = IRC_NETWORK (object);
+
+	g_free (network->name);
+	g_free (network->password);
+	g_free (network->nick);
+	g_free (network->real);
+
+	g_slist_foreach (network->servers, g_free, NULL);
+	g_slist_free (network->servers);
+
+	g_slist_foreach (network->autojoin, g_free, NULL);
+	g_slist_free (network->autojoin);
 }
 
 static void
@@ -89,6 +101,29 @@ irc_network_new (ircnet *net)
 }
 
 void
-irc_network_save (IrcNetwork *net)
+irc_network_save (IrcNetwork *network)
 {
+	ircnet *net = network->net;
+	guint32 flags = 0;
+
+	if (net->name) g_free (net->name);
+	if (net->pass) g_free (net->pass);
+	if (net->nick) g_free (net->nick);
+	if (net->real) g_free (net->real);
+
+	net->name = g_strdup (network->name);
+	net->pass = g_strdup (network->password);
+	net->nick = g_strdup (network->nick);
+	net->real = g_strdup (network->real);
+
+	if (network->autoconnect) flags |= FLAG_AUTO_CONNECT;
+	if (network->use_ssl)     flags |= FLAG_USE_SSL;
+	if (network->cycle)       flags |= FLAG_CYCLE;
+	if (network->use_global)  flags |= FLAG_USE_GLOBAL;
+	net->flags = flags;
+
+	/* FIXME - autojoin */
+	/* FIXME - encoding */
+	/* FIXME - reconnect */
+	/* FIXME - nogiveup */
 }
