@@ -1,0 +1,118 @@
+<?xml version="1.0" standalone="no"?> <!--*- mode: xml -*-->
+<!DOCTYPE glade-interface SYSTEM "http://glade.gnome.org/glade-2.0.dtd">
+
+<glade-interface>
+
+<widget class="GtkWindow" id="window2">
+  <property name="visible">True</property>
+  <property name="title" translatable="yes">window2</property>
+  <property name="type">GTK_WINDOW_TOPLEVEL</property>
+  <property name="window_position">GTK_WIN_POS_NONE</property>
+  <property name="modal">False</property>
+  <property name="resizable">True</property>
+  <property name="destroy_with_parent">False</property>
+  <property name="decorated">True</property>
+  <property name="skip_taskbar_hint">False</property>
+  <property name="skip_pager_hint">False</property>
+  <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
+  <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
+
+  <child>
+    <widget class="GtkVBox" id="view vbox">
+      <property name="visible">True</property>
+      <property name="homogeneous">False</property>
+      <property name="spacing">0</property>
+
+      <child>
+	<placeholder/>
+      </child>
+
+      <child>
+	<widget class="GtkMenuBar" id="menubar1">
+	  <property name="visible">True</property>
+
+	  <child>
+	    <widget class="GtkMenuItem" id="views1">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">Views</property>
+	      <property name="use_underline">True</property>
+	      <signal name="activate" handler="on_views1_activate" last_modification_time="Wed, 24 Mar 2004 05:01:36 GMT"/>
+
+	      <child>
+		<widget class="GtkMenu" id="views1_menu">
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="top1">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Top</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_top1_activate" last_modification_time="Wed, 24 Mar 2004 05:01:36 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image2">
+			  <property name="visible">True</property>
+			  <property name="pixbuf">top.png</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="front1">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Front</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_front1_activate" last_modification_time="Wed, 24 Mar 2004 05:02:01 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image3">
+			  <property name="visible">True</property>
+			  <property name="pixbuf">front.png</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="side1">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Side</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_side1_activate" last_modification_time="Wed, 24 Mar 2004 05:02:12 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image4">
+			  <property name="visible">True</property>
+			  <property name="pixbuf">side.png</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
+	    </widget>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
+	</packing>
+      </child>
+    </widget>
+  </child>
+</widget>
+
+</glade-interface>
