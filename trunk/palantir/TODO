@@ -1,8 +1,6 @@
 Before release:
   * Refactoring
   * Store user preferences for the chat client
-    * The actual prefs data should be more separate from the
-      GUI
 
 ------
 
