@@ -21,11 +21,19 @@ alternative was needed.
 Examples
 --------
 
-Included are two example programs. simple_example.py is a bare-bones
-example that just generates and displays an image. http_example.py is
-a longer example that uses BaseHTTPServer to simulate a CAPTCHA's use
-in a web environment. In most applications you would use this with
-an environment like Twisted, Zope, or mod_python.
+Included are several example programs:
+
+  - simple_example.py is a bare-bones example that just generates
+    and displays an image.
+
+  - http_example.py is a longer example that uses BaseHTTPServer
+    to simulate a CAPTCHA's use in a web environment. Running this
+    example and connecting to it from your web browser is a quick
+    and easy way to see PyCAPTCHA in action
+
+  - modpython_example.py is a version of http_example that runs
+    from an Apache server equipped with a properly configured
+    mod_python.
 
 
 Dependencies
