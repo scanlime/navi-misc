@@ -20,9 +20,9 @@ class IconTest(Sequencer.Page):
                                     "brushed_metal.png",
                                     overlay.size)
 
-        icon = Icon.Icon('navi512.png', 'Hello Navi', imageAspect=1.623)
+        icon = Icon.Icon('navi512.png', 'Navi', imageAspect=1.623)
 
-        self.dock = Icon.Dock(overlay, self.trackFunction, [icon] * 2)
+        self.dock = Icon.Dock(overlay, self.trackFunction, [icon] * 5)
 
         self.viewport.onKeyDown.observe(self.keyDown)
 
