@@ -459,8 +459,8 @@ box_sides_drawable_draw_to_list (DisplayList *dl)
 {
   BoxSidesDrawable *bsd = BOX_SIDES_DRAWABLE (dl);
   Box *b = BOX (DRAWABLE (dl)->parent);
-  float width, depth, height;
-  float wrep, drep, hrep;
+  gdouble width, depth, height;
+  gdouble wrep, drep, hrep;
 
   width = b->param.size[0];
   depth = b->param.size[1];
@@ -471,61 +471,61 @@ box_sides_drawable_draw_to_list (DisplayList *dl)
   hrep = height / 5;
 
   glPushMatrix ();
-  glTranslatef (b->param.position[0], b->param.position[1], b->param.position[2]);
-  glRotatef (b->param.rotation, 0.0, 0.0, 1.0);
+  glTranslated (b->param.position[0], b->param.position[1], b->param.position[2]);
+  glRotated (b->param.rotation, 0.0, 0.0, 1.0);
 
   if (b->selected)
-    glColor4f (1.0, 0.5, 0.5, 1.0);
+    glColor4f (1.0f, 0.5f, 0.5f, 1.0f);
 
   glBegin (GL_QUADS);
   {
     /* Y+ side */
-    glNormal3f (0.0, 1.0, 0.0);
-    glTexCoord2f ( 0,     0);
-    glVertex3f   (-width, depth, 0);
-    glTexCoord2f ( 0,     hrep);
-    glVertex3f   (-width, depth, height);
-    glTexCoord2f (wrep,   hrep);
-    glVertex3f   ( width, depth, height);
-    glTexCoord2f (wrep,   0);
-    glVertex3f   ( width, depth, 0);
+    glNormal3f (0.0f, 1.0f, 0.0f);
+    glTexCoord2d ( 0,     0);
+    glVertex3d   (-width, depth, 0);
+    glTexCoord2d ( 0,     hrep);
+    glVertex3d   (-width, depth, height);
+    glTexCoord2d (wrep,   hrep);
+    glVertex3d   ( width, depth, height);
+    glTexCoord2d (wrep,   0);
+    glVertex3d   ( width, depth, 0);
 
     /* Y- side */
-    glNormal3f (0.0, -1.0, 0.0);
-    glTexCoord2f (wrep, 0);
-    glVertex3f   ( width, -depth, 0);
-    glTexCoord2f (wrep, hrep);
-    glVertex3f   ( width, -depth, height);
-    glTexCoord2f ( 0,      hrep);
-    glVertex3f   (-width, -depth, height);
-    glTexCoord2f ( 0,      0);
-    glVertex3f   (-width, -depth, 0);
+    glNormal3f (0.0f, -1.0f, 0.0f);
+    glTexCoord2d (wrep, 0);
+    glVertex3d   ( width, -depth, 0);
+    glTexCoord2d (wrep, hrep);
+    glVertex3d   ( width, -depth, height);
+    glTexCoord2d ( 0,      hrep);
+    glVertex3d   (-width, -depth, height);
+    glTexCoord2d ( 0,      0);
+    glVertex3d   (-width, -depth, 0);
 
     /* X+ side */
-    glNormal3f (1.0, 0.0, 0.0);
-    glTexCoord2f (0,      0);
-    glVertex3f   (width,  depth, 0);
-    glTexCoord2f (0,      hrep);
-    glVertex3f   (width,  depth, height);
-    glTexCoord2f (drep,   hrep);
-    glVertex3f   (width, -depth, height);
-    glTexCoord2f (drep,   0);
-    glVertex3f   (width, -depth, 0);
+    glNormal3f (1.0f, 0.0f, 0.0f);
+    glTexCoord2d (0,      0);
+    glVertex3d   (width,  depth, 0);
+    glTexCoord2d (0,      hrep);
+    glVertex3d   (width,  depth, height);
+    glTexCoord2d (drep,   hrep);
+    glVertex3d   (width, -depth, height);
+    glTexCoord2d (drep,   0);
+    glVertex3d   (width, -depth, 0);
 
     /* X- side */
-    glNormal3f (-1.0, 0.0, 0.0);
-    glTexCoord2f ( 0,      0);
-    glVertex3f   (-width, -depth, 0);
-    glTexCoord2f ( 0,      hrep);
-    glVertex3f   (-width, -depth, height);
-    glTexCoord2f ( drep,   hrep);
-    glVertex3f   (-width,  depth, height);
-    glTexCoord2f ( drep,   0);
-    glVertex3f   (-width,  depth, 0);
+    glNormal3f (-1.0f, 0.0f, 0.0f);
+    glTexCoord2d ( 0,      0);
+    glVertex3d   (-width, -depth, 0);
+    glTexCoord2d ( 0,      hrep);
+    glVertex3d   (-width, -depth, height);
+    glTexCoord2d ( drep,   hrep);
+    glVertex3d   (-width,  depth, height);
+    glTexCoord2d ( drep,   0);
+    glVertex3d   (-width,  depth, 0);
   }
   glEnd ();
 
-  glColor4f (1.0, 1.0, 1.0, 1.0);
+  glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
 
   glPopMatrix();
 }
@@ -585,8 +585,8 @@ box_top_drawable_draw_to_list (DisplayList *dl)
 {
   BoxTopDrawable *btd = BOX_TOP_DRAWABLE (dl);
   Box *b = BOX (DRAWABLE (dl)->parent);
-  float width, depth, height;
-  float wrep, drep;
+  gdouble width, depth, height;
+  gdouble wrep, drep;
 
   width = b->param.size[0];
   depth = b->param.size[1];
@@ -595,40 +595,40 @@ box_top_drawable_draw_to_list (DisplayList *dl)
   drep = depth / 20;
 
   glPushMatrix ();
-  glTranslatef (b->param.position[0], b->param.position[1], b->param.position[2]);
-  glRotatef (b->param.rotation, 0.0, 0.0, 1.0);
+  glTranslated (b->param.position[0], b->param.position[1], b->param.position[2]);
+  glRotated (b->param.rotation, 0.0, 0.0, 1.0);
 
   if (b->selected)
-    glColor4f (1.0, 0.5, 0.5, 1.0);
+    glColor4f (1.0f, 0.5f, 0.5f, 1.0f);
 
   /* FIXME: should align texcoords with the world */
   glBegin (GL_QUADS);
   {
     /* Z+ side */
-    glNormal3f (0.0, 0.0, 1.0);
-    glTexCoord2f ( wrep,   0);
-    glVertex3f   ( width, -depth, height);
-    glTexCoord2f ( wrep,   drep);
-    glVertex3f   ( width,  depth, height);
-    glTexCoord2f ( 0,      drep);
-    glVertex3f   (-width,  depth, height);
-    glTexCoord2f ( 0,      0);
-    glVertex3f   (-width, -depth, height);
+    glNormal3f (0.0f, 0.0f, 1.0f);
+    glTexCoord2d ( wrep,   0);
+    glVertex3d   ( width, -depth, height);
+    glTexCoord2d ( wrep,   drep);
+    glVertex3d   ( width,  depth, height);
+    glTexCoord2d ( 0,      drep);
+    glVertex3d   (-width,  depth, height);
+    glTexCoord2d ( 0,      0);
+    glVertex3d   (-width, -depth, height);
 
     /* Z- side */
-    glNormal3f (0.0, 0.0, -1.0);
-    glTexCoord2f ( 0,      0);
-    glVertex3f   (-width, -depth, 0);
-    glTexCoord2f ( 0,      drep);
-    glVertex3f   (-width,  depth, 0);
-    glTexCoord2f ( wrep,   drep);
-    glVertex3f   ( width,  depth, 0);
-    glTexCoord2f ( wrep,   0);
-    glVertex3f   ( width, -depth, 0);
+    glNormal3f (0.0f, 0.0f, -1.0f);
+    glTexCoord2d ( 0,      0);
+    glVertex3d   (-width, -depth, 0);
+    glTexCoord2d ( 0,      drep);
+    glVertex3d   (-width,  depth, 0);
+    glTexCoord2d ( wrep,   drep);
+    glVertex3d   ( width,  depth, 0);
+    glTexCoord2d ( wrep,   0);
+    glVertex3d   ( width, -depth, 0);
   }
   glEnd ();
 
-  glColor4f (1.0, 1.0, 1.0, 1.0);
+  glColor4f (1.0f, 1.0f, 1.0f, 1.0f);
 
   glPopMatrix ();
 }
