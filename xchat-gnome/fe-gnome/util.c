@@ -33,3 +33,13 @@ error_dialog (const gchar *header, const gchar *message)
 	gtk_dialog_run (GTK_DIALOG (dialog));
 	gtk_widget_hide (dialog);
 }
+
+gint gtk_tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer data)
+{
+	gchar *as, *bs;
+	gtk_tree_model_get (model, a, 1, &as, -1);
+	gtk_tree_model_get (model, b, 1, &bs, -1);
+	if (as == NULL) return 1;
+	if (bs == NULL) return -1;
+	return strcasecmp (as, bs);
+}
