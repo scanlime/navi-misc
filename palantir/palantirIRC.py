@@ -29,7 +29,7 @@ class PalantirClient(irc.IRCClient):
   def signedOn(self):
     ''' Join the channels in factory.channels upon connecting. '''
     for channel in self.factory.channels:
-      if len(channel) > 0:
+      if channel:
         self.join(channel)
 
   def joined(self, channel):
@@ -85,10 +85,12 @@ class PalantirClientFactory(protocol.ClientFactory):
     else:
       self.channels = [None]
     self.ui = ui
+    self.did_quit = False
 
   def clientConnectionLost(self, connector, reason):
     ''' Reconnect if we lose a connection. '''
-    connector.connect()
+    if not self.did_quit:
+      connector.connect()
 
   def clientConnectionFailed(self, connector, reason):
     print 'Connection failed:', reason
@@ -122,17 +124,24 @@ class PalantirClientFactory(protocol.ClientFactory):
 
   def join(self, channel, msg=None):
     ''' Join a channel '''
-    self.channels.append(channel)
+    if None in self.channels:
+      self.channels[self.channels.index(None)] = channel
+    else:
+      self.channels.append(channel)
     self.client.join(channel)
 
   def close(self, channel, reason='Leaving...'):
     self.channels.remove(channel)
     self.client.leave(channel, reason)
+    if len(self.channels) is 0:
+      self.channels.append(None)
 
   def quit(self, message='Leaving...'):
     ''' Quit IRC. '''
-    self.client.quit(message)
-    self.channels = ['']
+    self.did_quit = True
+    if self.client:
+      self.client.quit(message)
+    self.channels = [None]
     self.client = None
 
   def nick(self, nick):
