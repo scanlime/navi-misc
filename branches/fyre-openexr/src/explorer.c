@@ -100,6 +100,13 @@ static void explorer_init(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_load_from_image",              G_CALLBACK(on_load_from_image),              self);
   glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
 
+#ifndef HAVE_EXR
+  /* If we don't have OpenEXR support, gray out the menu item
+   * so it sits there taunting the user and not breaking HIG
+   */
+  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "on_save_exr"), FALSE);
+#endif
+
   /* Set up the statusbar */
   self->statusbar = GTK_STATUSBAR(glade_xml_get_widget(self->xml, "statusbar"));
   self->render_status_context = gtk_statusbar_get_context_id(self->statusbar, "Rendering status");
@@ -241,6 +248,7 @@ static void on_save(GtkWidget *widget, gpointer user_data) {
 }
 
 static void on_save_exr(GtkWidget *widget, gpointer user_data) {
+#ifdef HAVE_EXR
   Explorer *self = EXPLORER(user_data);
   GtkWidget *dialog;
 
@@ -253,6 +261,7 @@ static void on_save_exr(GtkWidget *widget, gpointer user_data) {
     exr_save_image_file(HISTOGRAM_IMAGER(self->map), filename);
   }
   gtk_widget_destroy(dialog);
+#endif
 }
 
 /************************************************************************************/
