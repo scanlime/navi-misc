@@ -939,9 +939,9 @@ navigation_model_init (NavModel *navmodel)
 		GDK_TYPE_PIXBUF,	/* status image */
 		G_TYPE_STRING,		/* name */
 		G_TYPE_POINTER,		/* session pointer */
-		G_TYPE_INT,			/* status # (for tracking highest state) */
+		G_TYPE_INT,		/* status # (for tracking highest state) */
 		GDK_TYPE_COLOR,		/* status color (disconnected, etc) */
-		G_TYPE_INT,			/* reference count */
+		G_TYPE_INT,		/* reference count */
 		G_TYPE_BOOLEAN);	/* connected */
 	navmodel->sorted = gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (navmodel->store));
 	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (navmodel->sorted), 1, GTK_SORT_ASCENDING);
@@ -1288,14 +1288,15 @@ on_close (GtkAction *action, gpointer data)
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	session *s;
+	gboolean joined = FALSE;
 
 	treeview = GTK_TREE_VIEW (gui.server_tree);
 	select = gtk_tree_view_get_selection (treeview);
 
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, 2, &s, -1);
+		gtk_tree_model_get (model, &iter, 2, &s, 6, &joined, -1);
 
-		if (s->type == SESS_CHANNEL) {
+		if (s->type == SESS_CHANNEL && joined) {
 			GConfClient *client;
 			gchar *text;
 
@@ -1367,7 +1368,7 @@ on_channel_leave (GtkAction *action, gpointer data)
 			g_free (text);
 		}
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
-		gtk_tree_store_set (GTK_TREE_STORE (store), &newiter, 4, &colors[40], -1);
+		gtk_tree_store_set (GTK_TREE_STORE (store), &newiter, 4, &colors[40], 6, FALSE, -1);
 	}
 }
 
