@@ -22,7 +22,7 @@ Pages for getting real-time message feeds in RSS and unformatted XML
 #
 
 from twisted.internet import defer
-from LibCIA import Message
+from LibCIA import Message, Formatters
 import Nouvelle
 import Nouvelle.Twisted
 from Nouvelle import tag, place, xml
@@ -80,13 +80,11 @@ class RSSFeed(BaseFeed):
             result.callback([])
 
     def formatItems(self, messages, context, result):
-        formatter = Message.AutoFormatter('rss')
         items = []
         for m in messages:
-            i = formatter.format(Message.Message(m))
-            if i:
-                items.append(i)
-            else:
+            try:
+                items.append(Formatters.factory.findMedium('rss', m).format(m))
+            except Message.NoFormatterError:
                 # We can't find a formatter, stick in a placeholder noting this fact
                 items.append(tag('item')[ tag('description')[
                     "(Unable to format message)"

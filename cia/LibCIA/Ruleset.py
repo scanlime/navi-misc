@@ -39,7 +39,7 @@ used to store and query rulesets in a RulesetStorage.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import XML, Message, Debug, Database, Security, RpcServer
+import XML, Message, Debug, Database, Security, RpcServer, Formatters
 from twisted.python import log
 from twisted.xish.xpath import XPathQuery
 from twisted.internet import defer
@@ -262,15 +262,8 @@ class Ruleset(XML.XMLFunction):
            returns a function that applies the formatter against the current
            message and result.
            """
-        if element.hasAttribute('name'):
-            formatter = Message.NamedFormatter(element['name'])
-        elif element.hasAttribute('medium'):
-            formatter = Message.AutoFormatter(element['medium'])
-        else:
-            raise XML.XMLValidityError("<formatter> must have a 'name' or 'medium' attribute")
-
         def rulesetFormatter(msg):
-            self.result = formatter.format(msg, self.result)
+            self.result = Formatters.factory.fromXml(element, msg).format(msg, self.result)
             return True
         return rulesetFormatter
 

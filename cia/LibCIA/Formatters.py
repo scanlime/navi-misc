@@ -1,7 +1,7 @@
 """ LibCIA.Formatters
 
-A collection of Formatter subclasses that may be referred to by name
-elsewhere, for example in IRC filters.
+A collection of Formatter subclasses that can be searched and
+instantiated via the 'factory' object here.
 """
 #
 # CIA open source notification system
@@ -358,5 +358,10 @@ class IRCProjectName(Message.Formatter):
             return "\n".join([prefix + line for line in input.split("\n")])
         else:
             return input
+
+
+# This indexes the formatters in this module and provide a
+# higher level interface for picking one and instantiating it.
+factory = Message.FormatterFactory(globals())
 
 ### The End ###

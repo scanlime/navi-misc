@@ -382,7 +382,7 @@ class Filter(XML.XMLFunction):
         return newFilter
 
 
-class Formatter(object):
+class Formatter:
     """An abstract object capable of creating and/or modifying alternate
        representations of a Message. This could include converting it to HTML,
        converting it to plaintext, or annotating the result of another Formatter
@@ -402,50 +402,71 @@ class Formatter(object):
            """
         pass
 
+    def loadParametersFrom(self, xml):
+        """This is given a <formatter> element possibly containing
+           extra parameters for the formatter to process and store.
+           Any problems should be signalled with an XML.XMLValidityError.
 
-class AutoFormatter(Formatter):
-    r"""A meta-formatter that, based on the provided output medium, automatically
-        finds an applicable formatter and runs it.
-
-        The AutoFormatter is constructed with the target medium you're interested in.
-        All formatters with that target medium are loaded. When a message must be
-        formatted, the first one with a matching detector filter is chosen and
-        invoked.
-
-          >>> f = AutoFormatter('irc')
-          >>> msg = Message('<message><body><colorText><b>Hello</b>World</colorText></body></message>')
-          >>> f.format(msg)
-          '\x02Hello\x0fWorld'
-        """
-    def __init__(self, medium):
-        self.medium = medium
-
-    def format(self, message, input=None):
-        """Find and invoke a formatter applicable to this message"""
-        import Formatters
-        for cls in Formatters.__dict__.itervalues():
-            if type(cls) is type and hasattr(cls, 'format'):
-                if cls.medium == self.medium and cls.detector is not None:
-                    if cls.detector(message):
-                        return cls().format(message, input)
+           By default all parameters are ignored. It's probably a good
+           idea to ignore top-level tags you don't understand, so
+           parameters are useful when picking formatters automatically.
+           """
+        pass
 
 
-class NamedFormatter(Formatter):
-    """A meta-formatter that loads a named Formatter class from the Formatters
-       module and invokes it.
+class NoFormatterError(Exception):
+    pass
+
+
+class FormatterFactory:
+    """An object that keeps track of a collection of Formatter objects
+       and can create formatters to match particular requirements.
+
+       This class should be constructed with a dictionary to pull Formatter
+       instances out of and catalog.
        """
-    def __init__(self, name):
-        import Formatters
-        try:
-            cls = Formatters.__dict__[name]
-        except KeyError:
-            raise KeyError("No such formatter %r" % name)
-        if not hasattr(cls, 'format'):
-            raise KeyError("%r is not a formatter" % name)
-        self.formatter = cls()
+    def __init__(self, d):
+        self.nameMap = {}
+        self.mediumMap = {}
+        for name, obj in d.iteritems():
+            try:
+                if issubclass(obj, Formatter):
+                    self.nameMap[name] = obj
+                    self.mediumMap.setdefault(obj.medium, []).append(obj)
+            except TypeError:
+                pass
 
-    def format(self, message, input=None):
-        return self.formatter.format(message, input)
+    def findName(self, name):
+        """Find a particular formatter by name"""
+        try:
+            cls = self.nameMap[name]
+        except KeyError:
+            raise NoFormatterError("No such formatter %r" % name)
+        return cls()
+
+    def findMedium(self, medium, message):
+        """Find a formatter for the given medium and matching the given message."""
+        try:
+            l = self.mediumMap[medium]
+        except KeyError:
+            raise NoFormatterError("No formatters for the %r medium" % medium)
+        for cls in l:
+            if cls.detector(message):
+                return cls()
+        raise NoFormatterError("No matching formatters for the %r medium" % medium)
+
+    def fromXml(self, xml, message):
+        """Create a formatter to match the given <formatter> element"""
+        name = xml.getAttribute('name')
+        medium = xml.getAttribute('medium')
+        if (name and medium) or not (name or medium):
+            raise XML.XMLValidityError("<formatter> must have exactly one 'name' or 'medium' attribute")
+        if name:
+            f = self.findName(xml)
+        else:
+            f = self.findMedium(medium, message)
+        f.loadParametersFrom(xml)
+        return f
 
 
 def _test():
