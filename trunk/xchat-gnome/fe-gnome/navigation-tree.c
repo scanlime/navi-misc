@@ -604,7 +604,7 @@ navigation_tree_set_channel_name_iterate (GtkTreeModel *model, GtkTreePath *path
 	gtk_tree_model_get (model, iter, 2, &s, -1);
 	if (s == data) {
 		struct session *sess = s;
-		gtk_tree_store_set (GTK_TREE_STORE (model), iter, 1, (sess->channel), 4, NULL, -1);
+		gtk_tree_store_set (GTK_TREE_STORE (model), iter, 1, (sess->channel), 4, NULL, 6, TRUE, -1);
 		return TRUE;
 	}
 	return FALSE;
@@ -621,11 +621,40 @@ navigation_tree_set_channel_name (NavTree *navtree, struct session *sess)
 	gtk_tree_model_foreach (store, navigation_tree_set_channel_name_iterate, sess);
 }
 
-void
-get_navigation_tree (NavTree **tree)
+gboolean
+navigation_tree_server_connected (NavTree *navtree, gchar *name)
+{
+	GtkTreeModel *model, *store;
+	GtkTreeIter iter;
+	GtkTreePath *path;
+	gboolean connected;
+	gchar *network;
+
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW (navtree));
+	store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
+
+	path = gtk_tree_path_new_first ();
+
+	printf ("navigation_tree_server_connected()\n");
+	while (gtk_tree_model_get_iter (store, &iter, path)) {
+		gtk_tree_model_get (store, &iter, 1, &network, 6, &connected, -1);
+		if (strcmp (network, name) == 0) {
+			printf ("found %s\n", name);
+			if (connected)
+				printf ("%s is connected\n", name);
+			return connected;
+		}
+		gtk_tree_path_next (path);
+	}
+
+	return FALSE;
+}
+
+NavTree *
+get_navigation_tree ()
 {
 	error_dialog ("get nav tree", "returning server tree");
-	tree =  gui.server_tree;
+	return gui.server_tree;
 }
 
 /***** Context Menus *****/
@@ -873,13 +902,14 @@ navigation_model_get_type (void)
 static void
 navigation_model_init (NavModel *navmodel)
 {
-	navmodel->store = gtk_tree_store_new (6,
+	navmodel->store = gtk_tree_store_new (7,
 		GDK_TYPE_PIXBUF,	/* status image */
 		G_TYPE_STRING,		/* name */
 		G_TYPE_POINTER,		/* session pointer */
-		G_TYPE_INT,		/* status # (for tracking highest state) */
+		G_TYPE_INT,			/* status # (for tracking highest state) */
 		GDK_TYPE_COLOR,		/* status color (disconnected, etc) */
-		G_TYPE_INT);		/* reference count */
+		G_TYPE_INT,			/* reference count */
+		G_TYPE_BOOLEAN);	/* connected */
 	navmodel->sorted = gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (navmodel->store));
 	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (navmodel->sorted), 1, GTK_SORT_ASCENDING);
 	gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE (navmodel->sorted), 1, gtk_tree_iter_sort_func_nocase, NULL, NULL);
@@ -933,7 +963,7 @@ navigation_model_add_new_network (NavModel *model, struct session *sess)
 	GtkTreeRowReference *rowref;
 
 	gtk_tree_store_append (model->store, &iter, NULL);
-	gtk_tree_store_set (model->store, &iter, 1, _("<none>"), 2, sess, 3, 0, 4, NULL, 5, 0, -1);
+	gtk_tree_store_set (model->store, &iter, 1, _("<none>"), 2, sess, 3, 0, 4, NULL, 5, 0, 6, FALSE, -1);
 
 	path = gtk_tree_model_get_path (GTK_TREE_MODEL (model->store), &iter);
 	rowref = gtk_tree_row_reference_new (GTK_TREE_MODEL (model->store), path);
@@ -956,7 +986,7 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 		sort = GTK_TREE_MODEL_SORT (gui.tree_model->sorted);
 
 		gtk_tree_store_append (GTK_TREE_STORE (model), &child, iter);
-		gtk_tree_store_set (GTK_TREE_STORE (model), &child, 1, data->channel, 2, data, 3, 0, 4, NULL, 5, 0, -1);
+		gtk_tree_store_set (GTK_TREE_STORE (model), &child, 1, data->channel, 2, data, 3, 0, 4, NULL, 5, 0, 6, TRUE, -1);
 
 		path = gtk_tree_model_get_path (model, &child);
 		rowref = gtk_tree_row_reference_new (model, path);
@@ -1030,7 +1060,7 @@ navigation_model_set_disconn_iterate (GtkTreeModel *model, GtkTreePath *path, Gt
 	gpointer s;
 	gtk_tree_model_get (model, iter, 2, &s, -1);
 	if (s == data) {
-		gtk_tree_store_set (GTK_TREE_STORE (model), iter, 4, &colors[40], -1);
+		gtk_tree_store_set (GTK_TREE_STORE (model), iter, 4, &colors[40], 6, FALSE, -1);
 		return TRUE;
 	}
 	return FALSE;
