@@ -11,8 +11,12 @@
 	     id="com.novell.evolution.calendar.calendarProperties">
                 <item
 		 type="item_table"
-		 path="00.general/00.source/20.url"
+		 path="00.general/00.source/30.url"
 		 factory="e_calendar_http_url"/>
+		<item
+		 type="item_table"
+		 path="00.general/00.source/40.refresh"
+		 factory="e_calendar_http_refresh"/>
             </group>
         </hook>
     </e-plugin>
