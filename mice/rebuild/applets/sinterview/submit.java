@@ -11,7 +11,7 @@ import java.io.*;
  * @author Brandon Smith
  * @version 2.0
  */
-public class submit implements ActionListener
+public class submit extends Thread implements ActionListener
 {
 	/** This holds the head information, so it can mess with text fields. */
 	public sint head;
@@ -47,6 +47,43 @@ public class submit implements ActionListener
 		head.answer.setText("");
 		name = net.read();
 		ques = net.read();
+		if(name == null) return;
+		if(name.compareTo("No Questions") == 0) this.start();
 		head.question.setText(name + " Asks: " + ques);
+	}
+	
+	/**
+	 * This method is the thread that gets spawned off if there aren't any questions available
+	 * @author Brandon Smith
+	 * @version 2.1
+	 */
+	public void run()
+	{
+		boolean happy = false;
+		String in,tname,tques;
+		while(!happy)
+		{
+			sleep(1);
+			in = net.read();
+			happy = !(in.charAt(0) == '-');
+		}
+		name = net.read();
+		ques = net.read();
+		head.question.setText(name + " Asks: " + ques);
+	}
+		
+	/**
+	 * This method makes this thread sleep.
+	 * @param seconds The duration of the nap in seconds.
+	 * @author Brandon Smith
+	 * @version 2.1
+	 */
+	public void sleep(int seconds)
+	{
+		try
+		{
+			sleep(seconds * 1000);
+		}
+		catch (Exception ie) {}
 	}
 }
