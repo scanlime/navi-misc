@@ -46,13 +46,12 @@ class CommTest(Dual485Test):
         source = self.rcpods[self.source]
         destination = self.rcpods[self.destination]
 
-        destination.serialRxStart(destination.scratchpadSize)
+        destination.serialRxStart()
         source.serialTx(self.data)
         self.assertEqual(destination.serialRxProgress(), len(self.data))
         self.assertEqual(destination.serialRxProgress(), len(self.data))
-        self.assertEqual(destination.serialRxCheckpoint(type(self.data)), self.data)
-        self.assertEqual(destination.serialRxCheckpoint(type(self.data)), self.data)
-        self.assertEqual(destination.serialRxFinish(type(self.data)), self.data)
+        self.assertEqual(destination.serialRxRead(type(self.data)), self.data)
+        self.assertEqual(destination.serialRxRead(), [])
 
     def __str__(self):
         return "sending from rcpod%d to rcpod%d at %d baud" % (

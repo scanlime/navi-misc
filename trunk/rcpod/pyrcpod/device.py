@@ -247,61 +247,88 @@ class OpenedRcpod:
         rcpod_GpioDeassertBuffer(self.dev, arr, len(pins))
         delete_ucharArray(arr)
 
-    def serialInit(self, baudRate):
+    def serialInit(self, baudRate, setPinDirections=True):
         """Initialize the serial port and set it to the given baud rate"""
         rcpod_SerialInit(self.dev, baudRate)
+        if setPinDirections:
+            Pin(self, RCPOD_PIN_TX).output().assert_()
+            Pin(self, RCPOD_PIN_RX).input().assert_()
 
-    def serialTxRxStart(self, txData, rxBytes):
-        """Transmit txData if present, then begin receiving up to rxBytes bytes.
-           txData may be a list of byte values, or a string.
+    def serialTxRxStart(self, txData):
+        """Transmit the given buffer, then immediately begin receiving data.
+           Currently the maximum size for txBytes is RCPOD_SCRATCHPAD_SIZE. The error handler
+           will be called if this maximum is exceeded. The data will start being received
+           into the rcpod's (tiny) internal buffer.
+           currently this buffer is of size RCPOD_SCRATCHPAD_SIZE, and it will wrap around
+           when full. The receive will continue until the next call to any of the
+           following functions:
+              serialTxRxStart, serialTx, serialRxStart, or serialRxFinish
            """
         # Convert strings to lists
         if type(txData) == type(''):
             txData = [ord(c) for c in txData]
 
         arr = to_ucharArray(txData)
-        rcpod_SerialTxRxStart(self.dev, arr, len(txData), rxBytes)
+        rcpod_SerialTxRxStart(self.dev, arr, len(txData))
         delete_ucharArray(arr)
 
     def serialTx(self, txData):
-        """Transmit the contents of txData, which may be a list of byte values or a string."""
-        self.serialTxRxStart(txData, 0)
-
-    def serialRxStart(self, count):
-        """Start receiving up to 'count' bytes"""
-        rcpod_SerialRxStart(self.dev, count)
-
-    def serialRxFinish(self, retType=list):
-        """Stop a currently in progress serial receive, return the received data
-           in the specified data type, either a list or a string.
+        """Transmit the given buffer. The same transmit buffer size
+           limitation exists as in SerialTxRxStart
            """
-        buffer = new_ucharArray(RCPOD_SCRATCHPAD_SIZE)
-        count = rcpod_SerialRxFinish(self.dev, buffer, RCPOD_SCRATCHPAD_SIZE)
-        data = from_ucharArray(buffer, count, retType)
-        delete_ucharArray(buffer)
-        return data
+        # Convert strings to lists
+        if type(txData) == type(''):
+            txData = [ord(c) for c in txData]
+
+        arr = to_ucharArray(txData)
+        rcpod_SerialTx(self.dev, arr, len(txData))
+        delete_ucharArray(arr)
+
+    def serialRxStart(self):
+        """Start receiving data into the rcpod's (tiny) internal buffer.
+           Currently this buffer is of size RCPOD_SCRATCHPAD_SIZE, and it will wrap around
+           when full. The receive will continue until the next call to any of the
+           following functions:
+              SerialTxRxStart, SerialTx, SerialRxStart, or SerialRxFinish
+           """
+        rcpod_SerialRxStart(self.dev)
+
+    def serialRxFinish(self):
+        """Cancel the current receive. Normally this does not need to be done explicitly,
+           but if you need to use the rcpod's scratchpad buffer for some other purpose,
+           it may be.
+           """
+        rcpod_SerialRxFinish(self.dev)
 
     def serialRxProgress(self):
-        """Returns the number of bytes received so far in the current
-           serial receive without stopping it.
+        """Return the number of bytes received so far, without stopping the
+           receive in progress or retrieving any data. This will also detect
+           a buffer overflow condition if one exists on the rcpod. If the
+           rcpod's internal buffer overflows, an IOError will be raised.
            """
-        return rcpod_SerialRxProgress(self.dev, None, 0)
+        return rcpod_SerialRxProgress(self.dev)
 
-    def serialRxCheckpoint(self, retType=list):
-        """Like serialRxFinish, but doesn't stop the serial receive"""
+    def serialRxRead(self, retType=list):
+        """Read any available bytes from the rcpod's on-chip serial receive
+           buffer, making that space available for continued reception.
+           A buffer overflow will be detected here, and it will cause an
+           IOError to be raised.
+           """
         buffer = new_ucharArray(RCPOD_SCRATCHPAD_SIZE)
-        count = rcpod_SerialRxProgress(self.dev, buffer, RCPOD_SCRATCHPAD_SIZE)
+        count = rcpod_SerialRxRead(self.dev, buffer, RCPOD_SCRATCHPAD_SIZE)
         data = from_ucharArray(buffer, count, retType)
         delete_ucharArray(buffer)
         return data
 
-    def serialSetTxEnable(self, pin):
+    def serialSetTxEnable(self, pin, setPinDirections=True):
         """Set the given Pin instance as a serial transmit enable.
            It will be asserted immediately before transmitting and deasserted
            after the transmission is completely finished.
+           If setPinDirections is true, the pin will be made an output.
            """
         if pin:
             rcpod_SerialSetTxEnable(self.dev, pin.value)
+            pin.output().assert_()
         else:
             rcpod_SerialSetTxEnable(self.dev, RCPOD_PIN_NONE)
 

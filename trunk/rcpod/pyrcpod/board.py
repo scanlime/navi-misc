@@ -51,7 +51,6 @@ class Rcpod485(device.OpenedRcpod):
 
         # Set up transmit enable pin
         self.txe = self.rd4
-        self.txe.output().assert_()
         self.serialSetTxEnable(self.txe)
 
     def mnetSend(self, data, source=10, destination=2, timeout=0.2):
@@ -76,12 +75,11 @@ class Rcpod485(device.OpenedRcpod):
             csum = (csum - byte) & 0xFF
         packet.append(csum)
 
-        # Set the baud rate and send our packet, receiving
-        # up to the maximum number of bytes our scratchpad can hold
+        # Set the baud rate, send the packet, and wait for a response
         self.serialInit(9600)
-        self.serialTxRxStart(packet, self.scratchpadSize)
+        self.serialTxRxStart(packet)
         time.sleep(timeout)
-        retPacket = self.serialRxFinish()
+        retPacket = self.serialRxRead()
 
         # Make a string describing both the sent and the received packets,
         # to be used in case of error.
