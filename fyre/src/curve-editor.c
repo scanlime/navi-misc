@@ -55,7 +55,6 @@ static void curve_editor_finalize     (GObject       *object);
 static gint curve_editor_graph_events (GtkWidget     *widget,
 				       GdkEvent      *event,
 				       CurveEditor   *c);
-static void curve_editor_size_graph   (CurveEditor   *curve);
 
 enum {
   CHANGED_SIGNAL,
@@ -251,7 +250,6 @@ curve_editor_graph_events (GtkWidget *widget, GdkEvent *event, CurveEditor *c)
   gint closest_point = 0;
   gfloat rx, ry, min_x;
   guint distance;
-  gint x1, x2, y1, y2;
   gint retval = FALSE;
 
   w = GTK_WIDGET (c);
@@ -430,8 +428,6 @@ curve_editor_graph_events (GtkWidget *widget, GdkEvent *event, CurveEditor *c)
 void
 curve_editor_set_spline(CurveEditor* self, const Spline *spline)
 {
-  gint i;
-
   if (self->spline.points)
     g_free (self->spline.points);
 

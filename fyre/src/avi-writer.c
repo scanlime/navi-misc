@@ -352,7 +352,6 @@ static void avi_writer_pop_chunk(AviWriter *self) {
    * Assumes that the file pointer is placed just after the chunk data.
    */
   long after_data = ftell(self->file);
-  gint32 size;
   ChunkStackEntry *old_chunk;
   GSList *removed_link;
 

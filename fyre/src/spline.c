@@ -28,6 +28,7 @@
  * See the CurveEditor widget for more information.
  */
 
+#include <string.h>
 #include "spline.h"
 
 static SplineControlPoint template_linear_points[] = {
@@ -164,7 +165,7 @@ Spline* spline_find_active_points(Spline *spline) {
   /* Return a new spline with only the active points from the first one
    */
   gfloat prev, ry;
-  gint dst, i, next, first_active = -1;
+  gint dst, i, first_active = -1;
   Spline *active = g_malloc(sizeof(Spline));
 
   /* count active points: */

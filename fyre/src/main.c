@@ -51,7 +51,7 @@ int main(int argc, char ** argv) {
   Animation* animation;
   gboolean animate = FALSE;
   enum {INTERACTIVE, RENDER, SCREENSAVER} mode = INTERACTIVE;
-  const gchar *outputFile;
+  const gchar *outputFile = NULL;
   int c, option_index=0;
   gulong target_density = 10000;
 
@@ -83,7 +83,7 @@ int main(int argc, char ** argv) {
       {"bg-alpha",    1, NULL, 1008},
       {"animate",     1, NULL, 'n'},
       {"screensaver", 0, NULL, 1009},
-      NULL,
+      {NULL},
     };
     c = getopt_long(argc, argv, "hi:o:a:b:c:d:x:y:z:r:e:g:s:t:n:",
 		    long_options, &option_index);
@@ -239,7 +239,6 @@ static void image_render_main (DeJong     *dejong,
    * progress doodads on stdout while the poor user has to wait.
    */
   float elapsed, remaining;
-  double iterations;
 
   while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density) {
     iterative_map_calculate(ITERATIVE_MAP(dejong), 1000000);

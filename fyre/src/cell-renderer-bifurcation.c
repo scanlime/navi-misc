@@ -242,8 +242,6 @@ static void cell_renderer_bifurcation_get_size(GtkCellRenderer  *cell,
 					       gint             *y_offset,
 					       gint             *width,
 					       gint             *height) {
-  CellRendererBifurcation *self = CELL_RENDERER_BIFURCATION(cell);
-
   /* We don't bother suggesting a size yet, just use whatever's available */
 }
 
