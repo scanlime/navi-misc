@@ -73,6 +73,10 @@ enum {
 
 static gpointer parent_class = NULL;
 
+#define fyre_histogram_imager_error_quark() (g_quark_from_string("FYRE_HISTOGRAM_IMAGER_ERROR"))
+typedef enum {
+  FYRE_HISTOGRAM_IMAGER_ERROR_NO_METADATA,
+} FyreHistogramImagerError;
 
 /************************************************************************************/
 /**************************************************** Initialization / Finalization */
@@ -497,22 +501,34 @@ static void histogram_imager_get_property (GObject *object, guint prop_id, GValu
 /************************************************************************ Image I/O */
 /************************************************************************************/
 
-void histogram_imager_load_image_file(HistogramImager *self, const gchar *filename) {
+gboolean
+histogram_imager_load_image_file (HistogramImager *self, const gchar *filename, GError **error)
+{
     /* Try to open the given PNG file and load parameters from it */
     const gchar *params;
-    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file (filename, error);
+    if (!pixbuf)
+	return FALSE;
 
-    params = gdk_pixbuf_get_option(pixbuf, "tEXt::fyre_params");
+    params = gdk_pixbuf_get_option (pixbuf, "tEXt::fyre_params");
 
     /* For backward compatibility with de Jong Explorer and early versions of Fyre */
     if (!params)
-	params = gdk_pixbuf_get_option(pixbuf, "tEXt::de_jong_params");
+	params = gdk_pixbuf_get_option (pixbuf, "tEXt::de_jong_params");
 
-    if (params)
-	parameter_holder_load_string(PARAMETER_HOLDER(self), params);
-    else
-	printf("No parameters chunk found\n");
-    gdk_pixbuf_unref(pixbuf);
+    if (params) {
+	parameter_holder_load_string (PARAMETER_HOLDER (self), params);
+    } else {
+	if (error != NULL) {
+	    GError *nerror = g_error_new (fyre_histogram_imager_error_quark(),
+			                  FYRE_HISTOGRAM_IMAGER_ERROR_NO_METADATA,
+				          "The image does not contain Fyre metadata");
+	    *error = nerror;
+	}
+	return FALSE;
+    }
+    gdk_pixbuf_unref (pixbuf);
+    return TRUE;
 }
 
 void histogram_imager_save_image_file(HistogramImager *self, const gchar *filename) {
