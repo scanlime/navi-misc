@@ -210,6 +210,7 @@ void usb_poll();
 
 /* Reply functions */
 void usb_write_ep0_buffer(unsigned char *buffer, int length);
+void usb_write_ack();
 
 /* Application-defined functions */
 void usb_handle_vendor_request();
