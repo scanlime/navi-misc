@@ -30,7 +30,7 @@ class TwoDTransform : Element
 
 	public override string Name ()
 	{
-		return "TwoDTransform";
+		return "2D Transform";
 	}
 
 	public override string Category()
@@ -40,8 +40,9 @@ class TwoDTransform : Element
 
 	public override Gdk.Pixbuf Icon ()
 	{
-		/* FIXME: initialize */
-		return null;
+		if (icon == null)
+			icon = new Gdk.Pixbuf ("/usr/share/fyre/2.0/TwoDTransform.png");
+		return icon;
 	}
 
 	public override string Description ()
