@@ -35,7 +35,7 @@ class Devices:
         # Try to connect to lircd
         try:
             IR.initDefaultClient(eventLoop)
-        except IOError:
+        except:
             import sys
             self.warn("Can't connect to lircd, %s" % sys.exc_info()[1])
 
@@ -58,8 +58,9 @@ class Devices:
             self.uvswitch= None
 
         # FIXME: Testing IR and such..
+        if self.mi6k:
             self.mi6k.vfd.powerOn()
-        IR.defaultClient.onReceivedCode.observe(self.foo)
+            IR.defaultClient.onReceivedCode.observe(self.foo)
 
     def foo(self, code):
         if code.repeat == 0:

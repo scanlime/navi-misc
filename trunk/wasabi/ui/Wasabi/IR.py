@@ -109,7 +109,8 @@ class ButtonPress(Event.Event):
         self.name = name
         self.remote = remote
         self.repeat = repeat
-        defaultClient.onReceivedCode.observe(self.handleCode)
+        if defaultClient:
+            defaultClient.onReceivedCode.observe(self.handleCode)
 
     def handleCode(self, code):
         if self.name is not None and self.name != code.name:

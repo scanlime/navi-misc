@@ -11,10 +11,13 @@ viewport = Viewport.OpenGLViewport(loop)
 viewport.setCaption("Wasabi UI")
 view = ThreeDRender.View(viewport)
 
-viewport.display.toggle_fullscreen()
-pygame.mouse.set_visible(0)
-
 hw = Hardware.Devices(loop)
+
+# If we're running on actual wasabi hardware, go fullscreen
+if hw.uvswitch:
+    viewport.display.toggle_fullscreen()
+    pygame.mouse.set_visible(0)
+
 
 # A sequencer page that displays a piece of text in the center of the screen, over a background image
 class TextPage(Sequencer.Page):

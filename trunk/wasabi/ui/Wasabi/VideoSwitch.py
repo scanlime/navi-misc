@@ -32,7 +32,7 @@ class Device(object):
     def __init__(self, devPattern="/dev/usb/uvswitch*"):
         devs = glob.glob(devPattern)
         if not devs:
-            raise IOError, "No mi6k device found"
+            raise IOError, "No uvswitch device found"
         self.dev = open(devs[0], "w")
 
         # Default settings show video from wasabi, with no external input selected
