@@ -1,5 +1,5 @@
 /*
- * core.c - Interface for the base plugin
+ * renderpasses.c - Various render passes available
  *
  * BZEdit
  * Copyright (C) 2004 David Trowbridge
@@ -21,22 +21,18 @@
  */
 
 #include <gmodule.h>
-#include "box.h"
-#include "teleporter.h"
-#include "world.h"
+#include "basicrenderpass.h"
 
 const gchar*
 g_module_check_init (GModule *module)
 {
-  static GType box, teleporter, world;
+  static GType basic;
 
   /* permanently insert ourself */
   g_module_make_resident (module);
 
   /* and register our types */
-  box = BOX_TYPE;
-  teleporter = TELEPORTER_TYPE;
-  world = WORLD_TYPE;
+  basic = BASIC_RENDER_PASS_TYPE;
 
   return NULL;
 }
