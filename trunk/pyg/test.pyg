@@ -8,3 +8,12 @@ tweakables = [
           'float4x4',
 	  analog = 'WorldViewProjection'),
 ]
+
+programs = [
+    VertexProgram(file = 'goochVP.cg',
+                  entry = 'goochVP',
+                  profile = 'vp20'),
+    FragmentProgram(file = 'goochFP.cg',
+                    entry = 'goochFP',
+		    profile = 'fp20'),
+]
