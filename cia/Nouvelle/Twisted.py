@@ -1,7 +1,8 @@
 """ Nouvelle.Twisted
 
 Glue to help interface Nouvelle with twisted.web.
-This includes a twisted.web.resource that renders a Nouvelle document.
+This includes a twisted.web.resource that renders a Nouvelle document,
+and support for asynchronous rendering using Deferred.
 """
 #
 # Nouvelle web framework
@@ -24,10 +25,54 @@ This includes a twisted.web.resource that renders a Nouvelle document.
 
 import Nouvelle
 from twisted.web import resource
+from twisted.internet import defer
+from twisted.web import server
+
+
+class TwistedSerializer(Nouvelle.Serializer):
+    """A subclass of Nouvelle.Serializer that understands twisted's Deferred
+       objects and can render web pages asynchronously. If at any time a Deferred
+       object is encountered, a new Deferred object is created to represent the
+       serialized form of the original Deferred. If a Deferred is left over after
+       rendering the complete document, the document is rendered in the Deferred's
+       callback and our render function returns server.NOT_DONE_YET.
+       """
+    def renderPage(self, obj, context):
+        """A wrapper around render() that handles deferred rendering of the web page"""
+        result = self.render(obj, context)
+        if isinstance(result, defer.Deferred):
+            result.addCallback(self.deferred_renderPage, context)
+            return server.NOT_DONE_YET
+        else:
+            return str(result)
+
+    def deferredRenderPage(self, obj, context):
+        """Callback for asynchronous page rendering from a Deferred object"""
+        context['request'].write(obj)
+        context['request'].finish()
+
+    def render(self, obj, context):
+        # Deferreds aren't new-style classes (yet?) so we have to detect
+        # them here rather than writing a render_* handler for them.
+        if isinstance(obj, defer.Deferred):
+            # Render the deferred when it produces a result, returning our own Deferred
+            result = defer.Deferred()
+            obj.addCallback(self.render_deferred, context, result)
+            return result
+        else:
+            return Nouvelle.Serializer.render(self, obj, context)
+
+    def render_deferred(self, obj, context, result):
+        """A Deferred callback that renders data when it becomes available, adding the
+           result to our 'result' deferred.
+           """
+        result.callback(self.render(obj, context))
 
 
 class Page(resource.Resource):
     """A web resource that renders a tree of tag instances from its 'document' attribute"""
+    serializer = TwistedSerializer()
+
     def render(self, request):
         context  = {
             'owner': self,
@@ -35,7 +80,7 @@ class Page(resource.Resource):
             'args': request.args,  # For compatibility across systems utilizing Nouvelle
             }
         self.preRender(context)
-        return str(Nouvelle.Serializer().render(self.document, context))
+        return self.serializer.renderPage(self.document, context)
 
     def preRender(self, context):
         """Called prior to rendering each request, subclasses can use this to annotate
