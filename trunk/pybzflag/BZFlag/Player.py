@@ -80,7 +80,7 @@ class Player:
         self.score = Score()
 
     def __str__(self):
-        return "%s  %s" % (self.score, self.identity)
+        return "%s : %s" % (self.score, self.identity)
 
 
 def fromMessage(msg):
