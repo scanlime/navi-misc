@@ -3,7 +3,8 @@
 
 SOURCES = \
 ./Main.cs \
-./AssemblyInfo.cs
+./AssemblyInfo.cs \
+./Element.cs
 
 RESOURCES = \
 ./pipeline-editor.glade
