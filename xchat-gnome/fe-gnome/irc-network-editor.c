@@ -146,12 +146,18 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	GW(toplevel);
 #undef GW
 
-	dialog->store = gtk_list_store_new (1, G_TYPE_STRING);
+	dialog->server_store = gtk_list_store_new (1, G_TYPE_STRING);
+	dialog->autojoin_store = gtk_list_store_new (1, G_TYPE_STRING);
 	dialog->server_renderer = gtk_cell_renderer_text_new ();
+	dialog->autojoin_renderer = gtk_cell_renderer_text_new ();
 
-	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->servers), GTK_TREE_MODEL (dialog->store));
+	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->servers), GTK_TREE_MODEL (dialog->server_store));
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->servers), 0, "Server", dialog->server_renderer, "text", 0, NULL);
 	g_object_set (G_OBJECT (dialog->server_renderer), "editable", TRUE, NULL);
+
+	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->autojoin_channels), GTK_TREE_MODEL (dialog->autojoin_store));
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->autojoin_channels), 0, "Channel", dialog->autojoin_renderer, "text", 0, NULL);
+	g_object_set (G_OBJECT (dialog->autojoin_renderer), "editable", TRUE, NULL);
 
 	dialog->encoding = gtk_combo_box_new_text ();
 	gtk_widget_show (dialog->encoding);
@@ -218,15 +224,25 @@ populate_server_list (IrcNetworkEditor *e)
 	for (s = e->network->servers; s; s = g_slist_next (s)) {
 		serv = s->data;
 
-		gtk_list_store_append (e->store, &iter);
-		gtk_list_store_set (e->store, &iter, 0, serv->hostname, -1);
+		gtk_list_store_append (e->server_store, &iter);
+		gtk_list_store_set (e->server_store, &iter, 0, serv->hostname, -1);
 	}
 }
 
 static void
 populate_autojoin_list (IrcNetworkEditor *e)
 {
-	g_print ("autojoin = %s\n", e->network->autojoin);
+	GtkTreeIter iter;
+	gchar **channels;
+	gint i;
+
+	channels = g_strsplit (e->network->autojoin, ",", 0);
+	for (i = 0; channels[i]; i++) {
+		gtk_list_store_append (e->autojoin_store, &iter);
+		gtk_list_store_set (e->autojoin_store, &iter, 0, channels[i]);
+	}
+
+	g_strfreev (channels);
 }
 
 static void
@@ -322,13 +338,13 @@ apply_changes (IrcNetworkEditor *e)
 	}
 	g_slist_free (s);
 	s = NULL;
-	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (e->store), &iter)) {
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (e->server_store), &iter)) {
 		do {
 			char *text;
 			ircserver *serv = g_new0 (ircserver, 1);
-			gtk_tree_model_get (GTK_TREE_MODEL (e->store), &iter, 0, &text, -1);
+			gtk_tree_model_get (GTK_TREE_MODEL (e->server_store), &iter, 0, &text, -1);
 			serv->hostname = g_strdup (text);
-		} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (e->store), &iter));
+		} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (e->server_store), &iter));
 	}
 
 	irc_network_save (net);
