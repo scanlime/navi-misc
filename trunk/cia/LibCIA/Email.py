@@ -1,7 +1,8 @@
 """ LibCIA.Email
 
-Log and process incoming emails. This supports commands from the old
-CIA bot as well as new commands for delivering XML messages and such.
+Functionality related to Email, of course :)
+This includes an IncomingMailParser that converts emails to Messages
+and delivers them to the Message.Hub.
 """
 #
 # CIA open source notification system
@@ -26,11 +27,18 @@ from Message import Message
 import email
 
 
-class CommandParser:
-    """Parses commands from incoming email messages. The parse() method
-       determines the nature of the message and directs execution to a command_*
-       method.
+class IncomingMailParser:
+    """Parses commands from incoming email messages, generating and dispatching
+       Message instances to the provided Hub. The parse() method determines
+       the nature of the message and directs execution to a command_* method.
        """
+    def __init__(self, hub):
+        self.hub = hub
+
+    def parseString(self, string):
+        """Convert the given string to an email.Message, then parse it"""
+        self.parse(email.message_from_string(string))
+
     def parse(self, message):
         """Given an email.Message instance, determines the command it represents
            (if any) and passes control to it.
@@ -50,10 +58,5 @@ class CommandParser:
     def command_Announce(self, message, project):
         """Old-style announcements."""
         print project
-
-
-def process(backend, message):
-    """Parse a raw email message and act on any commands it contains"""
-    CommandParser().parse(email.message_from_string(message))
 
 ### The End ###

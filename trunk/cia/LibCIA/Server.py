@@ -1,8 +1,6 @@
 """ LibCIA.Server
 
-Collects all the various components of CIA together into one object,
-which can then be accessed using the various frontends- XML-RPC, Email,
-Perspective Broker, or a combination of those.
+Initializes the various components of the CIA server and lets them run.
 """
 #
 # CIA open source notification system
@@ -23,15 +21,6 @@ Perspective Broker, or a combination of those.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import Message, IRC
-
-class Backend(object):
-    """Holds all the objects that need to be controlled over various interfaces.
-       This includes the message hub and IRC bot network.
-       """
-    def __init__(self):
-        self.hub = Message.Hub()
-        self.botNet = IRC.BotNetwork()
-
+# Write me!
 
 ### The End ###

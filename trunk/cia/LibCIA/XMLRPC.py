@@ -36,15 +36,15 @@ import sys
 
 class SimpleCIAInterface(xmlrpc.XMLRPC):
     """A simple interface to CIA over XML-RPC.
-       Must be constructed with a reference to a Server.Backend
+       Must be constructed with a reference to a Message.Hub
        """
-    def __init__(self, backend):
-        self.backend = backend
+    def __init__(self, hub):
+        self.hub = hub
 
     def xmlrpc_deliverMessage(self, xml):
         """Deliver the given message, provided as XML text"""
         try:
-            self.backend.hub.deliver(Message(xml))
+            self.hub.deliver(Message(xml))
         except:
             e = sys.exc_info()[1]
             return xmlrpc.Fault(e.__class__.__name__, str(e))
@@ -52,7 +52,7 @@ class SimpleCIAInterface(xmlrpc.XMLRPC):
 
     def xmlrpc_processEmail(self, message):
         """Given the raw text of an email message, log it and process it if applicable"""
-        Email.process(self.backend, message)
+        Email.IncomingMailParser(self.hub).parseString(message)
         return True
 
 
