@@ -20,13 +20,14 @@ from twisted.internet import protocol, reactor
 
 def Connect(factory, server='irc.freenode.net'):
   global reactor
-  reactor.connectTCP(server, 6667, factory)
-  reactor.run()
+  return getattr(reactor.connectTCP(server, 6667, factory), 'transport')
 
 def Disconnect():
   if hasattr(globals(), 'reactor'):
     reactor.stop()
 
+def Start():
+  reactor.run()
 class PalantirClient(irc.IRCClient):
   ''' This is the class that handles all the nitty gritty of the IRC
       stuff.  Yay for twisted making things pretty easy on me.

@@ -105,7 +105,7 @@
 			      <property name="visible">True</property>
 			      <property name="label" translatable="yes">D&amp;D</property>
 			      <property name="use_underline">True</property>
-			      <property name="active">False</property>
+			      <property name="active">True</property>
 			      <signal name="activate" handler="on_d&amp;d_dice_activate" last_modification_time="Sat, 10 Jan 2004 09:41:03 GMT"/>
 			    </widget>
 			  </child>
