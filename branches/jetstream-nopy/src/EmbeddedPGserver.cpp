@@ -7,16 +7,16 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 extern "C" {
@@ -57,7 +57,7 @@ void EmbeddedPGserver::init(void) {
   e = pgserver_init(PGINIT_NO_CONFIGFILE | PGINIT_NO_COMMANDLINE, 0, NULL);
   if (iserror(e))
     throw PicoGUIException(e);
-  
+
   pgserver_mainloop_start();
   pg_clock = 0;
 
@@ -70,7 +70,7 @@ void EmbeddedPGserver::init(void) {
   mainHandler = new MainLoopHandler<EmbeddedPGserver>(this,
 						      Engine::priority_drawUI,
 						      &EmbeddedPGserver::mainloopIteration);
-}  
+}
 
 void EmbeddedPGserver::shutdown() {
   g_error e;
@@ -79,7 +79,7 @@ void EmbeddedPGserver::shutdown() {
   e = pgserver_shutdown();
   if (iserror(e))
     throw PicoGUIException(e);
-}  
+}
 
 const char *EmbeddedPGserver::getParam(const char *section, const char *param, const char *def) {
   const char *s;
@@ -138,7 +138,8 @@ EmbeddedPGserver *EmbeddedPGserver::getInstance(void) {
   return instance;
 }
 
-void EmbeddedPGserver::write(PyObject *req) {
+void EmbeddedPGserver::write(std::string req) {
+  /* FIXME
   char *reqbuffer;
   int reqbuffer_len;
   struct request_data d;
@@ -149,21 +150,27 @@ void EmbeddedPGserver::write(PyObject *req) {
   d.in.req = (struct pgrequest*) reqbuffer;
   d.in.data = reqbuffer + sizeof(pgrequest);
   d.in.owner = 1;
+  FIXME */
 
   /* Errors here are encoded in the response rather
    * than being immediately converted to exceptions.
    */
+  /* FIXME
   request_exec(&d);
+  FIXME */
 
   /* Stick the response in a buffer */
+  /* FIXME
   responseBuffer.append((char*) &d.out.response, d.out.response_len);
   if (d.out.response_data)
     responseBuffer.append((char*) d.out.response_data, d.out.response_data_len);
   if (d.out.free_response_data)
-    g_free(d.out.response_data);  
+    g_free(d.out.response_data);
+  FIXME */
 }
 
-PyObject *EmbeddedPGserver::read(int bytes) {
+std::string EmbeddedPGserver::read(int bytes) {
+  /* FIXME
   PyObject *str;
 
   if (bytes > responseBuffer.size())
@@ -172,6 +179,7 @@ PyObject *EmbeddedPGserver::read(int bytes) {
   responseBuffer.erase(0,bytes);
 
   return str;
+  FIXME */
 }
 
 bool EmbeddedPGserver::getShowFPS(void) {
