@@ -6,8 +6,6 @@
 
 int main(void) {
   FieldSensor s;
-  annie::TwoLayerNetwork net("data/current.net");
-  double packet[8];
   annie::VECTOR position;
 
   float colors[][4] = {
@@ -48,67 +46,53 @@ int main(void) {
 
       }
 
-    s.readPacket(packet);
-    position = net.getOutput(packet);
+    position = s.readPosition();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     glTranslatef(0.0,0.0,-4.0);
 
-    /* Raw values */
-    glPushMatrix();
-    glTranslatef(-2.0,-1.6,0);
-    for (int i=0;i<8;i++) {
-      float height = packet[i] * 20;
-      glColor4fv(colors[i]);
-      glBegin(GL_QUADS);
-      glVertex3f(-0.05,0,0);
-      glVertex3f(-0.05,height,0);
-      glVertex3f( 0.05,height,0);
-      glVertex3f( 0.05,0,0);
-      glEnd();
-      glTranslatef(0.2,0,0);
-    }
-    glPopMatrix();
-
-    /* Neural network output values */
-    glPushMatrix();
-    glTranslatef(1.6,-1.6,0);
-    glScalef(1,1,0.25);
-    glColor4f(1,1,0.5,1);
-    for (int i=0;i<3;i++) {
-      float height = position[i];
-      glBegin(GL_QUADS);
-      glVertex3f(-0.05,0,0);
-      glVertex3f(-0.05,height,0);
-      glVertex3f( 0.05,height,0);
-      glVertex3f( 0.05,0,0);
-      glEnd();
-      glBegin(GL_LINES);
-      for (float y=0;y<1.1;y+=0.1) {
-	glVertex3f(-0.08,y,0);
-	glVertex3f(-0.1,y,0);
-      }
-      glEnd();
-      glTranslatef(0.2,0,0);
-    }
-    glPopMatrix();
-
-    /* 3D cube graph */
-
-    glPushMatrix();
     glScalef(1.6,-1.6,1.6);
     glRotatef(60,1,0,0);
-    glTranslatef(-0.5,-0.2,0.3);
-    glScalef(1,1,0.6);
+    glTranslatef(-0.5,-0.2,-0.2);
     
-    /* Base rectangle */
-    glColor4f(0.5,0.5,0.5,1);
+    /* Base cube */
+    glColor4f(1,1,1,0.2);
     glBegin(GL_LINE_LOOP);
     glVertex3f(0,0,0);
     glVertex3f(1,0,0);
     glVertex3f(1,1,0);
     glVertex3f(0,1,0);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+    glVertex3f(0,0,1);
+    glVertex3f(1,0,1);
+    glVertex3f(1,1,1);
+    glVertex3f(0,1,1);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+    glVertex3f(0,0,0);
+    glVertex3f(1,0,0);
+    glVertex3f(1,0,1);
+    glVertex3f(0,0,1);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+    glVertex3f(0,1,0);
+    glVertex3f(1,1,0);
+    glVertex3f(1,1,1);
+    glVertex3f(0,1,1);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+    glVertex3f(0,0,0);
+    glVertex3f(0,1,0);
+    glVertex3f(0,1,1);
+    glVertex3f(0,0,1);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+    glVertex3f(1,0,0);
+    glVertex3f(1,1,0);
+    glVertex3f(1,1,1);
+    glVertex3f(1,0,1);
     glEnd();
     
     /* Position indicator cube */

@@ -33,7 +33,7 @@
 #include <FieldSensor.h>
 
 
-FieldSensor::FieldSensor(const char *serialPort) {
+FieldSensor::FieldSensor(const char *serialPort, const char *netFile) : net(netFile) {
   struct termios options;
 
   fd = open(serialPort, O_NOCTTY | O_RDWR);
@@ -84,13 +84,14 @@ void FieldSensor::waitForData(void) {
   select(fd+1, &rfds, NULL, NULL, NULL);
 }
 
-void FieldSensor::readPacket(double *packet) {
+VECTOR FieldSensor::readPacket(void) {
   unsigned char c, theirChecksum, ourChecksum;
   union {
     unsigned short shorts[8];
     unsigned char bytes[16];
   } rawPacket;
   int i;
+  VECTOR results;
 
   while (1) {
     /* Synchronize to 0x80 synchronization byte */
@@ -113,8 +114,8 @@ void FieldSensor::readPacket(double *packet) {
 
     /* Convert the received big-endian integers to floating point */
     for (i=0;i<8;i++)
-      packet[i] = ntohs(rawPacket.shorts[i]) / 65535.0;
-    return;
+      results.push_back(ntohs(rawPacket.shorts[i]) / 65535.0);
+    return results;
   }
 }
 
@@ -124,6 +125,11 @@ void FieldSensor::sendSlowly(const char *str) {
     write(fd, str, 1);
     str++;
   }
+}
+
+VECTOR FieldSensor::readPosition(void) {
+  VECTOR packet = readPacket();
+  return net.getOutput(packet);
 }
 
 /* The End */
