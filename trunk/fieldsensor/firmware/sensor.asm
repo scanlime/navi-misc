@@ -7,10 +7,10 @@
 ;
 ;              This is done in 5 steps:
 ;                1. A/D and LC tank parameters are set up
-;                2. A calculated jump into page_18 is performed to get a precise excitation period
-;                3. In page_19, the LC tank outputs are toggled, jumping back to step 2 as necessary
-;                4. A calculated jump into page_1A is made to get a precise sampling phase
-;                5. In page_1B, the A/D converter is sampled and a reading is returned
+;                2. A calculated jump into page_1 is performed to get a precise excitation period
+;                3. In page_2, the LC tank outputs are toggled, jumping back to step 2 as necessary
+;                4. A calculated jump into page_3 is made to get a precise sampling phase
+;                5. In page_4, the A/D converter is sampled and a reading is returned
 ;
 ; The USB Electric Field Sensor project
 ; Copyright (C) 2004 Micah Dowty <micah@navi.cx>
@@ -103,20 +103,20 @@ sensor_sampler
 	; as on the future periods, but it will be close since PORT_INIT was
 	; the last parameter we initialized. The first period shouldn't have
 	; to be exactly timed, as the LC tank(s) are just getting warmed up.
-	movlw	0x18
+	movlw	0x01
 	movwf	PCLATH
 	movf	period, w
 	movwf	PCL
 	
-	; Page 0x18 is full of no-ops, as the period jump table.
+	; Page 0x01 is full of no-ops, as the period jump table.
 	; Calculated jumps end up somewhere in this table, and the amount
-	; of time it takes to roll over into page 0x19 can be precisely controlled.
-page_18	code
+	; of time it takes to roll over into page 0x02 can be precisely controlled.
+page_1	code
 	nop256
 
 ;************************************************** Step 3
 
-page_19 code
+page_2 code
 
 	; Toggle the LC tank outputs
 	movf	lc_port_xor, w
@@ -124,7 +124,7 @@ page_19 code
 
 	; Loop back to the period jumptable if we still have
 	; more excitation periods to run.
-	movlw	0x18
+	movlw	0x01
 	movwf	PCLATH
 	movf	period, w
 	decfsz	period_counter, f
@@ -133,17 +133,17 @@ page_19 code
 ;************************************************** Step 4
 
 	; Calculated jump into the phase table
-	movlw	0x1A
+	movlw	0x03
 	movwf	PCLATH
 	movf	phase, w
 	movwf	PCL
 
-page_1A	code
+page_3	code
 	nop256
 
 ;************************************************** Step 5
 
-page_1B code
+page_4 code
 	
 	; Start the ADC and wait for it to finish conversion
 	bsf		ADCON0, GO
