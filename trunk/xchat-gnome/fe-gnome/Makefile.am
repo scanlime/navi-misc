@@ -13,6 +13,8 @@ EXTRA_DIST =				\
 	about.c				\
 	channel_list.h			\
 	channel_list.c			\
+	completion-store.h		\
+	completion-store.c		\
 	connect_dialog.h		\
 	connect_dialog.c		\
 	fe-gnome.c			\
@@ -53,6 +55,8 @@ xchat_gnome_SOURCES =			\
 	about.c				\
 	channel_list.h			\
 	channel_list.c			\
+	completion-store.h		\
+	completion-store.c		\
 	connect_dialog.h		\
 	connect_dialog.c		\
 	fe-gnome.c			\
