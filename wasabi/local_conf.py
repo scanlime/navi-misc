@@ -78,6 +78,6 @@ plugin.activate('audio.mplayervis')
 LIRCRC = 'lircrc'
 
 # Always start up with the wasabi skin
-SKIN_XML_FILE = 'wasabi'
+SKIN_XML_FILE = 'wasabi-calm'
 
 ### The End ###
