@@ -69,6 +69,7 @@ public class ainterview
 	{
 		if(current != null) return null;
 		current = pullfrom.pop();
+		if(current == null) return null;
 		return current.toNet();
 	}
 	

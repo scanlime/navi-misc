@@ -37,8 +37,8 @@ public class imain
 	 */
 	public imain(int port)
 	{
-		BufferedReader in;
-		OutputStreamWriter out;
+//		BufferedReader in;
+//		OutputStreamWriter out;
 		try 
 		{
 			server = new ServerSocket(port);
@@ -48,8 +48,8 @@ public class imain
 			System.out.println(exception);
 			System.exit(0);
 		}
-		database = new qbase(1,1);
-		asubmit.init(database);
+//		database = new qbase(1,1);
+//		asubmit.init(database);
 	}
 	
 	/**
