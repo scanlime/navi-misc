@@ -27,13 +27,13 @@ and xmlrpclib. If you need anything different, this module isn't for you.
 #
 
 from twisted.python import usage
-import xmlrpclib
+import xmlrpclib, os
 
 
 class Options(usage.Options):
     optParameters = [
         ['server', 's', 'http://localhost:3910', 'The URI of the CIA server to connect to'],
-        ['key', 'k', None, 'Load a capabilities key from this file'],
+        ['key', 'k', "~/.cia_key", 'Load a capability key from this file'],
         ]
 
     def opt_h(self):
@@ -51,7 +51,7 @@ class App(object):
 
         self.server = xmlrpclib.ServerProxy(self.config['server'], allow_none=True)
         if self.config['key']:
-            self.key = open(self.config['key']).read()
+            self.key = open(os.path.expanduser(self.config['key'])).read()
         else:
             self.key = None
 

@@ -27,13 +27,6 @@ from twisted.python import rebuild, log
 import gc
 import sys, traceback
 
-if not hasattr(xmlrpc, '__version__') or float(xmlrpc.__version__) < 1.31:
-    raise Exception("\n"
-                    "The DebugInterface uses nested XML-RPC subhandlers,\n"
-                    "which were broken until revision 1.31 of xmlrpc.py.\n"
-                    "You need to upgrade to a CVS version of Twisted\n"
-                    "if you're already on the latest release.")
-
 
 class DebugInterface(xmlrpc.XMLRPC):
     """An XML-RPC interface for remote debugging and dynamic reloading of CIA."""

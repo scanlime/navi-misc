@@ -36,35 +36,26 @@ making keys map to pickled callable objects would be too fragile.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.web import xmlrpc
 from twisted.internet import defer
 from twisted.enterprise.util import quote as quoteSQL
 import string, os
-import Database
+import Database, RPC
 
 
-class SecurityInterface(xmlrpc.XMLRPC):
+class SecurityInterface(RPC.Interface):
     """An XML-RPC interface to the global capabilities database"""
-    def xmlrpc_revoke(self, key):
-        """Revoke the given key"""
-        caps.faultIfMissing(key, 'universe', 'security.revoke')
-        caps.revoke(key)
-        return True
-
-    def xmlrpc_grant(self, capability, key):
+    def protected_grant(self, capability, owner=None):
         """Return a new key for the given capability. Note that this means
            that the capability to use this function is effectively equivalent
-           to the 'universe' key- this is why there are no 'security' or
-           'security.grant' capabilities.
+           to the 'universe' key
            """
-        caps.faultIfMissing(key, 'universe')
-        return self.caps.grant(capability)
+        return caps.grant(capability, owner)
 
-    def xmlrpc_test(self, capability, key):
-        """Test the given key against a capability, returning True if it
-           passes, False if it fails.
+    def xmlrpc_test(self, key, *capabilities):
+        """Test the given key against one or more capabilities, returning True if it
+           matches any of them, False otherwise.
            """
-        return caps.test(key, capability)
+        return caps.test(key, *capabilities)
 
 
 def createRandomKey(bytes = 24,
@@ -82,6 +73,10 @@ def createRandomKey(bytes = 24,
         s += allowedChars[ ord(f.read(1)) % len(allowedChars) ]
     f.close()
     return s
+
+
+class SecurityException(Exception):
+    pass
 
 
 class CapabilityDB:
@@ -105,8 +100,9 @@ class CapabilityDB:
     def __init__(self):
         # Make sure our table exists in the database.
         # Note that this can be a race condition, if something else in
-        # our initialization assumes the table exists already. Currently
-        # this isn't the case, so we won't worry about it :)
+        # our initialization assumes the table exists already before this
+        # command will have had a chance to complete.
+        # Currently this isn't the case, so we won't worry about it :)
         Database.pool.runOperation(self.tableSchema)
 
     def saveKey(self, capability, file):
@@ -154,24 +150,46 @@ class CapabilityDB:
             result.callback(self.grant(capability))
         return keys
 
-    def test(self, key, capability):
-        """Test the given key for some capability"""
-        decoded = decodeKey(key)
-        try:
-            return self.rack[capability] == decoded
-        except KeyError:
-            return False
+    def _createTestQuery(self, key, capabilities):
+        """Create an SQL query that returns something nonzero if a key matches any of
+           a list of capabilities. If the capabilities list is empty, this creates a
+           query that always has a nonzero result.
+           """
+        if capabilities:
+            return "SELECT 1 FROM capabilities WHERE key_data = %s AND (%s) LIMIT 1" % (
+                quoteSQL(key, 'text'),
+                " OR ".join(["id = " + quoteSQL(repr(c), 'text') for c in capabilities]),
+                )
+        else:
+            return "SELECT 1"
 
-    def faultIfMissing(self, key, *capabilities):
-        """Raise a fault if the given key doesn't match any of the given capabilities"""
-        for capability in capabilities:
-            if self.test(key, capability):
-                return
-        import xmlrpclib
-        raise xmlrpclib.Fault("SecurityException",
-                              "One of the following capabilities are required: " +
-                               repr(capabilities)[1:-1])
-        pass
+    def test(self, key, *capabilities):
+        """Test the given key for any of the given capabilities. Returns a Deferred"""
+        result = defer.Deferred()
+        d = Database.pool.runQuery(self._createTestQuery(key, capabilities))
+        d.addErrback(result.errback)
+        d.addCallback(self._testCallback, result)
+        return result
+
+    def _testCallback(self, matched, result):
+        result.callback(bool(matched))
+
+    def require(self, key, *capabilities):
+        """Return a deferred that runs its callback if the key matches any of the given
+           capabilities. If not, this raises an error explaining the capabilities required.
+           """
+        result = defer.Deferred()
+        d = Database.pool.runQuery(self._createTestQuery(key, capabilities))
+        d.addCallback(self._requireCallback, result, capabilities)
+        d.addErrback(result.errback)
+        return result
+
+    def _requireCallback(self, matched, result, capabilities):
+        if matched:
+            result.callback(None)
+        else:
+            raise SecurityException("One of the following capabilities are required: " +
+                                    repr(capabilities)[1:-1])
 
     def grant(self, capability, owner=None):
         """Create a new key for some capability. The key is generated and returned
@@ -189,13 +207,6 @@ class CapabilityDB:
             owner,
             ))
         return newKey
-
-    def revoke(self, capability):
-        """Delete the current key for the given capability if one exists"""
-        try:
-            del self.rack[capability]
-        except KeyError:
-            pass
 
 
 caps = CapabilityDB()

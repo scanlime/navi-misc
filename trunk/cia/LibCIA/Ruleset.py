@@ -39,48 +39,42 @@ used to store and query rulesets in a RulesetStorage.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import XML, Message, Debug, Database, Security
+import XML, Message, Debug, Database, Security, RPC
 from twisted.python import log
 from twisted.xish.xpath import XPathQuery
-from twisted.web import xmlrpc
 from twisted.internet import defer
 from twisted.enterprise.util import quote as quoteSQL
 import sys, traceback, re
 
 
-class RulesetInterface(xmlrpc.XMLRPC):
+class RulesetInterface(RPC.Interface):
     """An XML-RPC interface used to set and query the rulesets in a RulesetStorage"""
     def __init__(self, storage):
-        xmlrpc.XMLRPC.__init__(self)
         self.storage = storage
+        RPC.Interface.__init__(self)
 
-    def xmlrpc_store(self, xml, key):
+    def protected_store(self, xml):
         """Stores a ruleset provided as XML text. Deleting a ruleset is equivalent
            to storing an empty one with the same URI.
-
-           There are many capabilities that can allow access to this function.
-           The 'universe', 'ruleset', and 'ruleset.store' keys give access to this
-           function for any ruleset. In addition, the capability ('ruleset.uri', x)
-           will grant access if 'x' matchies this ruleset's URI.
            """
-        try:
-            dom = XML.parseString(xml)
-            Security.caps.faultIfMissing(key, 'universe', 'ruleset', 'ruleset.store',
-                                     ('ruleset.uri', str(dom['uri'])))
-            self.storage.store(dom)
-        except:
-            Debug.catchFault()
-        return True
+        self.storage.store(xml)
 
-    def xmlrpc_getUriKey(self, uri, key):
+    def caps_store(self, path, xml):
+        """Generate a list of acceptable capabilities to grant access to 'store'.
+           In addition to the usual ones, allow ('ruleset.uri', x) where x is the
+           ruleset's URI.
+           """
+        uri = XML.parseString(xml).getAttribute('uri')
+        return self.makeDefaultCaps(path) + [('ruleset.uri', uri)]
+
+    def protected_getUriKey(self, uri, owner=None):
         """Returns a key for the capability ('ruleset.uri', uri).
            This can be used to delegate control of a particular URI's ruleset-
            an administrator would call this function to retrieve a key for a particular
            URI, then hand that to someone else who would only have the ability
            to edit that URI.
            """
-        Security.caps.faultIfMissing(key, 'universe', 'ruleset', 'ruleset.getUriKey')
-        return Security.caps.grant(('ruleset.uri', str(uri)))
+        return Security.caps.grant(('ruleset.uri', str(uri)), owner)
 
     def xmlrpc_getUriList(self):
         """Return a list of all URIs with non-empty rulesets"""

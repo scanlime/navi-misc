@@ -4,27 +4,28 @@
 #
 
 from twisted.application import service, internet
-from twisted.web import server, xmlrpc, static, vhost
-from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Debug, Security, Database
+from twisted.web import server, static, vhost
+from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Debug, Security, RPC
 from LibCIA.Web import StatsBrowser, RulesetBrowser, BotStatus
+import os
 
 application = service.Application("cia_server")
 hub = Message.Hub()
 
 # A network of IRC bots used to handle irc:// URIs
-#botNet = IRC.BotNetwork("CIA-%d")
+botNet = IRC.BotNetwork("CIA-%d")
 
 # A list of URI handlers that can be used as targets for rulesets
 uriRegistry = Ruleset.URIRegistry(
-#    IRC.IrcURIHandler(botNet),
+    IRC.IrcURIHandler(botNet),
 #    Stats.StatsURIHandler(),
     )
 
 # Use a persistent set of rulesets to filter and format messages
 rulesetStorage = Ruleset.RulesetStorage(hub, uriRegistry)
 
-# Save the 'universe' capability key so it can be used later to retrieve additional keys
-Security.caps.saveKey('universe', 'data/universe.key')
+# Save the 'universe' capability key so it can be used later by the administrative tools
+Security.caps.saveKey('universe', os.path.expanduser("~/.cia_key"))
 
 # Create the web interface. We start with all the static
 # files in 'htdocs' and add dynamic content from there.
@@ -37,12 +38,12 @@ webRoot = static.File("htdocs")
 webRoot.putChild('vhost', vhost.VHostMonsterResource())
 
 # Create a root XML-RPC object, with interfaces attached for each subsystem
-rpc = xmlrpc.XMLRPC()
+rpc = RPC.Interface()
 rpc.putSubHandler('hub', Message.HubInterface(hub))
 rpc.putSubHandler('mail', IncomingMail.MailInterface(hub))
 rpc.putSubHandler('ruleset', Ruleset.RulesetInterface(rulesetStorage))
 # rpc.putSubHandler('stats', Stats.StatsInterface())
-# rpc.putSubHandler('security', Security.SecurityInterface())
+rpc.putSubHandler('security', Security.SecurityInterface())
 #rpc.putSubHandler('debug', Debug.DebugInterface())
 webRoot.putChild('RPC2', rpc)
 
