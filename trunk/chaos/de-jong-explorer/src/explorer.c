@@ -33,9 +33,9 @@ static void explorer_dispose(GObject *gobject);
 static int explorer_idle_handler(gpointer user_data);
 static void explorer_get_params(Explorer *self);
 static void explorer_resize(Explorer *self);
-static int explorer_auto_limit_update_rate(Explorer *self);
-static int explorer_limit_update_rate(Explorer *self, float max_rate);
+static gboolean explorer_auto_limit_update_rate(Explorer *self);
 static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter);
+static gboolean limit_update_rate(GTimeVal *last_update, float max_rate);
 
 static gdouble generate_random_param();
 
@@ -438,29 +438,29 @@ static void explorer_resize(Explorer *self) {
   self->just_resized = TRUE;
 }
 
-static int explorer_limit_update_rate(Explorer *self, float max_rate) {
+static gboolean limit_update_rate(GTimeVal *last_update, float max_rate) {
   /* Limit the frame rate to the given value. This should be called once per
-   * frame, and will return 0 if it's alright to render another frame, or 1
-   * otherwise.
+   * frame, and will return FALSE if it's alright to render another frame,
+   * or TRUE otherwise.
    */
   GTimeVal now;
   gulong diff;
 
   /* Figure out how much time has passed, in milliseconds */
   g_get_current_time(&now);
-  diff = ((now.tv_usec - self->last_update.tv_usec) / 1000 +
-	  (now.tv_sec  - self->last_update.tv_sec ) * 1000);
+  diff = ((now.tv_usec - last_update->tv_usec) / 1000 +
+	  (now.tv_sec  - last_update->tv_sec ) * 1000);
 
   if (diff < (1000 / max_rate)) {
-    return 1;
+    return TRUE;
   }
   else {
-    self->last_update = now;
-    return 0;
+    *last_update = now;
+    return FALSE;
   }
 }
 
-static int explorer_auto_limit_update_rate(Explorer *self) {
+static gboolean explorer_auto_limit_update_rate(Explorer *self) {
   /* Automatically determine a good maximum frame rate based on the current
    * number of iterations, and use limit_update_rate() to limit us to that.
    * Returns 1 if a frame should not be rendered.
@@ -471,7 +471,8 @@ static int explorer_auto_limit_update_rate(Explorer *self) {
    * the image changes much less and a very slow frame rate will leave more
    * CPU for calculations.
    */
-  return explorer_limit_update_rate(self, 200 / (1 + (log(self->dejong->iterations) - 9.21) * 5));
+  return limit_update_rate(&self->last_gui_update,
+			   200 / (1 + (log(self->dejong->iterations) - 9.21) * 5));
 }
 
 void explorer_update_gui(Explorer *self) {
@@ -481,7 +482,6 @@ void explorer_update_gui(Explorer *self) {
    */
   GtkWidget *statusbar;
   gchar *iters;
-  static int count = 0;
 
   /* Skip frame rate limiting and updating the iteration counter if we're in
    * a hurry to show the user the result of a modified rendering parameter.
@@ -509,9 +509,10 @@ void explorer_update_gui(Explorer *self) {
 			0, 0, self->dejong->width, self->dejong->height, GDK_RGB_DITHER_NORMAL,
 			gdk_pixbuf_get_pixels(self->dejong->image), self->dejong->width * 4);
 
-  if(count == 0)
+  /* Update our icon with the current rendering every 5 seconds
+   */
+  if (!limit_update_rate(&self->last_icon_update, 1/5.0))
     gtk_window_set_icon(GTK_WINDOW(self->window), self->dejong->image);
-  count = (count + 1) % 50;
 }
 
 static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
