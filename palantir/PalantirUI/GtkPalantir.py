@@ -294,20 +294,20 @@ class PalantirWindow:
 	the formatted time and determines if we need to highlight the nick. It sends
 	all this to the chat buffer UI.
 	'''
-    time,text,addressed = palantir.formatMessage(user, msg,
+    time,nick,text,addressed = palantir.formatMessage(user, msg,
 	                                         ourName=self.factory.nickname)
-    self.chatWindow.DisplayText(time, text, addressed)
+    self.chatWindow.DisplayText(time, nick, text, addressed)
 
   def meReceive(self, user, channel, msg):
     ''' When someone does a '/me' display the action. '''
-    time,text,addressed = palantir.formatMessage(user, msg,
+    time, nick, text,addressed = palantir.formatMessage(user, msg,
 	                                         True, self.factory.nickname)
-    self.chatWindow.DisplayText(time, text, addressed)
+    self.chatWindow.DisplayText(time, nick, text, addressed)
 
   def nickReceive(self, oldNick, channel, newNick):
     ''' When someone changes a nick display it. '''
     time = palantir.getTime()
-    self.chatWindow.DisplayText(time, oldNick + ' is now known as ' + newNick)
+    self.chatWindow.DisplayText(time, '', oldNick + ' is now known as ' + newNick)
 
   def topicReceive(self, user, channel, topic):
     ''' Recieved a topic change, so set the topic bar to the new topic. '''
@@ -323,7 +323,7 @@ class PalantirWindow:
     image = gtk.Image()
     image.set_from_file('/usr/share/palantir/pixmaps/dm.png')
     self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, image.get_pixbuf()))
-    self.chatWindow.DisplayText(time, '*** ' + nick + ' now had DM status.')
+    self.chatWindow.DisplayText(time, '', '*** ' + nick + ' now had DM status.')
 
   def UNDM(self, user, channel, data):
     ''' The user who sent this message has removed DM status from themselves, so remove the
@@ -332,7 +332,7 @@ class PalantirWindow:
     nick = palantir.getNick(user, False)
     time = palantir.getTime()
     self.tree.get_widget('UserList').get_model().foreach(self.setUserIcon, (nick, None))
-    self.chatWindow.DisplayText(time, '*** ' + nick + ' has removed DM status.')
+    self.chatWindow.DisplayText(time, '', '*** ' + nick + ' has removed DM status.')
 
   def DMQUERY(self, user, channel, data):
     ''' This is a request for our DM status.  If we have ourselves marked as DM we send a
@@ -347,12 +347,12 @@ class PalantirWindow:
     #data = re.search('(\[.*\]) ([0-9]*) ([0-9]*)', messages[0][1])
     #text = nick + ' rolled a ' + str(len(data.group(1).split())) + 'd' + data.group(2) + ': ' + data.group(1) + ' => ' + data.group(3)
     #self.messageReceive(None, channel, text)
-    self.chatWindow.DisplayText(time, text)
+    self.chatWindow.DisplayText(time, '', text)
 
   def unknownCTCP(self, user, channel, data):
     ''' Any non-specific ctcp message just gets displayed as text. '''
     time,text = palantir.formatCTCP(user, channel, data)
-    self.chatWindow.DisplayText(time, text)
+    self.chatWindow.DisplayText(time, '', text)
 
   ### Misc. Necessary Functions ###
   def ConnectionDialog(self):
