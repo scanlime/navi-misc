@@ -39,58 +39,57 @@ class GTKsheet:
     else:
       print "Tag error:", newNode.tagName
 
-class character_sheet(gtk.Window):
+class sheetElement:
+  def __init__(self, node):
+    self.node = node
+    self.attributes = self.getAttrs()
+
+  def getAttrs(self):
+    return dict([(self.node.attributes.item(i).name,\
+	self.node.getAttribute(self.node.attributes.item(i).name))\
+	for i in range(self.node.attributes.length)])
+
+class character_sheet(gtk.Window, sheetElement):
   def __init__(self, node):
     gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
-    self.node = node
+    sheetElement.__init__(self, node)
     self.connect("delete_event", lambda w,d: gtk.main_quit())
 
   def packChild(self, child):
     gtk.Window.add(self, child)
     child.show()
 
-class tab_view(gtk.Notebook):
+class tab_view(gtk.Notebook, sheetElement):
   """ gtk.Notebook subclassed for tabbed elements in the character
       sheet.
       """
   def __init__(self, node):
+    sheetElement.__init__(self, node)
     gtk.Notebook.__init__(self)
-    self.node = node
     self.set_tab_pos(gtk.POS_TOP)
 
   def packChild(self, child):
     gtk.Notebook.append_page(self, child, child.label)
     child.show()
 
-class tab(gtk.HBox):
+class tab(gtk.VBox, sheetElement):
   def __init__(self, node):
-    gtk.HBox.__init__(self)
-    self.node = node
-    # Grab tags attributes.
-    self.attributes = {}
-    for i in range(node.attributes.length):
-      self.attributes[node.attributes.item(i).name] =\
-	  node.getAttribute(node.attributes.item(i).name)
-    if self.attributes.has_key('label'):
-      self.label = gtk.Label(self.attributes['label'])
-    else:
-      self.label = gtk.Label()
+    sheetElement.__init__(self, node)
+    gtk.VBox.__init__(self)
+    self.label = gtk.Label(self.attributes.get('label', ''))
 
   def packChild(self, child):
-    gtk.HBox.pack_start(self, child)
+    gtk.VBox.pack_start(self, child)
     child.show()
 
-class text_field(gtk.HBox):
+class text_field(gtk.HBox, sheetElement):
   """ The text_field widget is a combination of a gtk.Label and a
       gtk.Entry packed into a gtk.HBox.
       """
   def __init__(self, node):
+    sheetElement.__init__(self, node)
     gtk.HBox.__init__(self)
-    self.attributes = {}
-    for i in range(node.attributes.length):
-      self.attributes[node.attributes.item(i).name] =\
-	  node.getAttribute(node.attributes.item(i).name)
-    self.label = gtk.Label(self.attributes['label'])
+    self.label = gtk.Label(self.attributes.get('label', ''))
     self.text = gtk.Entry()
     self.pack_start(self.label)
     self.pack_start(self.text)
@@ -104,17 +103,14 @@ class text_field(gtk.HBox):
     self.label.show()
     gtk.HBox.show(self)
 
-class dice(gtk.Button):
+class dice(gtk.Button, sheetElement):
   """ gtk.Button subclass to add some additional information about
       the widget, such as a reference to the dom node that created
       it.
       """
   def __init__(self, node):
-    self.attributes = {}
-    for i in range(node.attributes.length):
-      self.attributes[node.attributes.item(i).name] =\
-	  node.getAttribute(node.attributes.item(i).name)
-    gtk.Button.__init__(self, self.attributes['label'])
+    sheetElement.__init__(self, node)
+    gtk.Button.__init__(self, self.attributes.get('label', ''))
     self.node = node
     # Will this work?
     self.connect("clicked", self.roll)
