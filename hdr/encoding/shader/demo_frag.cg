@@ -23,6 +23,27 @@ Comments:
 half diffuse(half4 l) { return l.y; }
 half specular(half4 l) { return l.z; }
 
+
+half4 hdr_encode(half3 color, int subcarrier, float4 wpos) {
+    // Compute our position on the 4x4 grid
+    int2 grid = floor(fmod(wpos.xy, 4));
+
+    /* Compute LSBs with encoded information */
+    half3 lsb;
+    lsb.x = 0;
+    lsb.z = grid.x == 0 && grid.y == 0;
+    lsb.y = lsb.x ? lsb.z : (1-lsb.z);
+
+    // Quantize to 21-bit color
+    color = floor(saturate(color) * 127.5) / 127.5;
+
+    // Add in the LSBs for each channel
+    color += lsb * (1 / 255.0);
+
+    return half4(color, 1);
+}
+
+
 // Main shader.
 
 half4 main(float3 Peye         : TEXCOORD0,
@@ -36,6 +57,7 @@ half4 main(float3 Peye         : TEXCOORD0,
            uniform half3 lightColor,
            uniform half3 shininess) : COLOR
 {
+
     // Normalize surface normal, vector to light source, and vector
     // to the viewer
     half3 N = normalize(Neye);
@@ -57,25 +79,5 @@ half4 main(float3 Peye         : TEXCOORD0,
 	(diffuse(lighting) * Kd * (half3)tex2D(diffuseMap, uv).xyz +
 	 specular(lighting) * Ks);
 
-
-    // End normal lighting code, begin HDR encoding...
-
-
-    // Compute our position on the 4x4 grid
-    half2 grid = floor(fmod(wpos.xy, 4));
-
-    /* Compute LSBs with encoded information */
-    half3 lsb;
-    lsb.x = 1;
-    lsb.z = grid.x == 0 && grid.y == 0;
-    lsb.y = lsb.x ? lsb.z : 1-lsb.z;
-
-    // Quantize to 21-bit color
-    C = floor(C * 128) / 128.0;
-
-    // Add in the LSBs for each channel
-    C += lsb * (1 / 255.0);
-
-    // Always set the alpha value to 1.
-    return half4(C, 1);
+    return hdr_encode(C, 0x8000, wpos);
 }
