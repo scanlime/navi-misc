@@ -28,9 +28,11 @@ typedef struct session xchat_context;
 #include "../common/outbound.h"
 #include "../common/util.h"
 
-extern GSList *plugin_list;
+extern GSList *plugin_list; // xchat's list of loaded plugins.
 extern XChatGUI gui;
-static GSList *known_plugins;
+static GSList *known_plugins; // Our own list of all the known plugins, loaded or not.
+															// Known being any .so or .sl file located in either
+															// XCHATDIR/plugins or ~/.xchat2/plugins.
 
 static void
 on_load_plugin_clicked (GtkButton *button, gpointer user_data);
@@ -73,6 +75,11 @@ initialize_preferences_plugins_page ()
 	//preferences_plugins_page_populate ();
 }
 
+/* FIXME: As far as I can tell this function is getting called atleast 3 times at the
+ * start of the application, which seems kinda dumb. That means that just at the start
+ * of the application we fill and clear the list 3 times... I'm 99% sure this is coming
+ * from fe-gnome.c
+ */
 void
 preferences_plugins_page_populate()
 {
@@ -81,19 +88,36 @@ preferences_plugins_page_populate()
 	GtkListStore *store;
 	GSList *list;
 	xchat_plugin *plugin;
+	gchar *homedir, *xchatdir;
 
 	treeview = glade_xml_get_widget (gui.xml, "plugins list");
 	store = GTK_LIST_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (treeview)));
 
 	gtk_list_store_clear (store);
 
+	/* Fun little string things that ultimately become the path to ~/.xchat2/plugins.
+	 * FIXME: It might behoove us to store the expanded path string to ~/.xchat2 somewhere
+	 * more permanent...
+	 */
+	homedir = g_get_home_dir();
+	xchatdir = malloc (strlen (homedir) + strlen (".xchat2/plugins") + 1);
+	sprintf (xchatdir, "%s/.xchat2/plugins", homedir);
+
+	/* Create a list of all the plugins in our known directories. */
   for_files (XCHATLIBDIR"/plugins", "*.so", xchat_gnome_plugin_add);
   for_files (XCHATLIBDIR"/plugins", "*.sl", xchat_gnome_plugin_add);
+	for_files (xchatdir, "*.so", xchat_gnome_plugin_add);
+	for_files (xchatdir, "*.sl", xchat_gnome_plugin_add);
 
+	/* Put our fun, happy plugins of joy into the great list store of pluginny goodness.
+	 * FIXME: It would be a good idea to use xchat's list of loaded plugins to toggle the
+	 * loaded thingy here.
+	 */
 	list = known_plugins;
 	while (list)
 	{
 		plugin = list->data;
+    printf ("%s %s\n", plugin->filename, plugin->name);
 		if (plugin->version[0] != 0)
 		{
 			gtk_list_store_append (store, &iter);
@@ -117,12 +141,17 @@ on_load_plugin_clicked (GtkButton *button, gpointer user_data)
   model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
   selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 
+	/* Ooooh... something's highlighted... */
   if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
     char *buf;
 
+		/* Yay! We got a filename! */
     gtk_tree_model_get (model, &iter, 3, &filename, -1);
     buf = malloc (strlen (filename) + 9);
 
+		/* Use the /LOAD command to load the plugin, rather than rewriting all that code
+		 * ourselves, aren't we clever.
+		 */
     if (strchr (filename, ' '))
       snprintf (buf, strlen (filename) + 9, "LOAD \"%s\"", filename);
     else
@@ -149,6 +178,10 @@ on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
   if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
     char *buf;
 
+		/* With the exception of the larger buffer size and the addition of the letters
+		 * U and N here, this function is the same as the one just above it. I'm sure
+		 * you can figure it out.
+		 */
     gtk_tree_model_get (model, &iter, 3, &filename, -1);
     buf = malloc (strlen (filename) + 10);
 
@@ -166,5 +199,5 @@ on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
 static void
 xchat_gnome_plugin_add (char *filename)
 {
-	printf ("xchat_gnome_plugin_add: %s\n", filename);
+	/* FIXME: Look, Ma!! No code!!! */
 }
