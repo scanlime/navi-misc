@@ -42,6 +42,7 @@ public:
 
 	bool GetMaterial ( int item, char *szMaterial );
 	bool GetMaterial (  const char * item, char *szMaterial );
+	bool Visible ( void ) { return active; }
 
 	int					idNumber;
 	bool				active;

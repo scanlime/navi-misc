@@ -11,6 +11,7 @@
 */
 #include "testGameServer.h"
 #include "timer.h"
+#include "firestarterd.h";
 
 // messages
 #define	_MESSAGE_SERVER_INFO 0x5349	// SI 
@@ -80,9 +81,11 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 	switch (message.GetType())
 	{
 		case _MESSAGE_SERVER_INFO:	// SI 
+			logOut("receve _MESSAGE_SERVER_INFO","CTestGameServer::message");
 			break;
 
 		case _MESSAGE_CLIENT_INFO:	// CI 
+			logOut("receve _MESSAGE_CLIENT_INFO","CTestGameServer::message");
 			rellay = true;
 			spawn = true;
 			itr->second.player = true;
@@ -91,20 +94,25 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 			break;
 
 		case _MESSAGE_USER_PART:		// UP
+			logOut("receve _MESSAGE_USER_PART","CTestGameServer::message");
 			remove(playerID,peer);
 			break;
 
 		// this we should never get
 		case _MESSAGE_USER_ADD:	// UA
 		case _MESSAGE_KICK:			// KK
+			logOut("receve _MESSAGE_USER_ADD OR KICK","CTestGameServer::message");
+
 			rellay = false;
 			break;
 
 		// don't care about this one
 		case _MESSAGE_ACKNOWLEDGE:
+			logOut("receve _MESSAGE_ACKNOWLEDGE","CTestGameServer::message");
 			break;
 
 		case _MESSAGE_UPDATE: //UD
+			logOut("receve _MESSAGE_UPDATE","CTestGameServer::message");
 			if (itr->second.player)
 			{
 				rellay = true;
@@ -116,6 +124,8 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 			break;
 
 		default:
+			logOut("receve unknown message","CTestGameServer::message");
+
 			rellay = true;
 			break;
 	}
@@ -129,6 +139,8 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 		void* mem = malloc(message.GetSize());
 		message.GetDataMem(mem);
 		newMessage.AddN(message.GetSize(),mem);
+
+		logOut("relay message","CTestGameServer::message");
 
 		// send an add to everyone else
 		sendToAllBut(newMessage,playerID,relyable);
@@ -145,6 +157,8 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 		newMessage.AddV(itr->second.pos);
 		newMessage.AddV(itr->second.rot);
 		newMessage.AddV(itr->second.vec);
+
+		logOut("send spawn","CTestGameServer::message");
 
 		// send spawn to everyone 
 		sendToAllBut(newMessage,-1);
@@ -176,11 +190,14 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	{
 		if (itr->first !=playerID)
 		{
+			logOut("send _MESSAGE_USER_ADD","CTestGameServer::add");
+
 			message.SetType(_MESSAGE_USER_ADD);
 			message.AddI(itr->first);
 			message.Send(peer,true);
 			message.ClearData();
 
+			logOut("send _MESSAGE_CLIENT_INFO","CTestGameServer::add");
 			message.SetType(_MESSAGE_CLIENT_INFO);	
 			message.AddI(itr->first);
 			message.AddStr(itr->second.name.c_str());
@@ -190,17 +207,18 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 			message.AddV(itr->second.vec);
 			message.Send(peer,true);
 			message.ClearData();
-
 		}
 		itr++;
 	}
 
+	logOut("send _MESSAGE_SERVER_INFO","CTestGameServer::add");
 	message.ClearData();
 	message.SetType(_MESSAGE_SERVER_INFO);	// ServerInfo
 	message.AddI(playerID);
 	message.Send(peer,true);
 
 	// send an add to everyone else
+	logOut("send _MESSAGE_USER_ADD","CTestGameServer::add::everyone else");
 	message.SetType(_MESSAGE_USER_ADD);	// UserAdd
 	message.AddI(playerID);
 	sendToAllBut(message,playerID);
@@ -229,6 +247,8 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 
 	CNetworkMessage	message;
 
+	logOut("send _MESSAGE_USER_ADD","CTestGameServer::addBot::everyone else");
+
 	// send an add to everyone else
 	message.SetType(_MESSAGE_USER_ADD);
 	message.AddI(playerID);
@@ -236,6 +256,7 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 	message.ClearData();
 
 	// it's a bot so it won't send stuff like server info so just send the info now
+	logOut("send _MESSAGE_CLIENT_INFO","CTestGameServer::addBot::everyone else");
 	message.SetType(_MESSAGE_CLIENT_INFO);	//
 	message.AddI(playerID);
 	message.AddStr(info.name.c_str());
@@ -256,6 +277,7 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 	message.AddV(itr->second.vec);
 
 	// send spawn to everyone 
+	logOut("send _MESSAGE_SPAWN","CTestGameServer::addBot::everyone");
 	sendToAllBut(message,-1);
 }
 
@@ -339,13 +361,13 @@ CRobotPlayer::CRobotPlayer()
 	playerInfo = NULL;
 	lastUpdateTime = -1;
 }
- CRobotPlayer::~CRobotPlayer()
- {
 
- }
+CRobotPlayer::~CRobotPlayer()
+{
+}
 
- void CRobotPlayer::init ( const char* name, const char* config, trPlayerInfo *info )
- {
+void CRobotPlayer::init ( const char* name, const char* config, trPlayerInfo *info )
+{
 	playerInfo = info;
 	if (playerInfo)
 	{
@@ -353,10 +375,10 @@ CRobotPlayer::CRobotPlayer()
 		playerInfo->material = "RedkMK3";
 	}
 	lastUpdateTime = (float)CTimer::instance().GetTime();
- }
+}
 
- bool CRobotPlayer::think ( void )
- {
+bool CRobotPlayer::think ( void )
+{
 	if (!playerInfo)
 		return false;
 
@@ -386,9 +408,10 @@ CRobotPlayer::CRobotPlayer()
 		return true;
 	else
 		return false;
- }
+}
 
- bool CRobotPlayer::message ( CNetworkMessage &message )
- {
-	 return false;
- }
+bool CRobotPlayer::message ( CNetworkMessage &message )
+{
+	return false;
+}
+
