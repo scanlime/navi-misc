@@ -28,6 +28,9 @@ typedef struct session xchat_context;
 
 extern GSList *plugin_list;
 
+static void
+load_plugin (GtkButton *button, gpointer user_data);
+
 void
 initialize_preferences_plugins_page ()
 {
@@ -80,4 +83,9 @@ preferences_plugins_page_populate()
 		}
 		list = list->next;
 	}
+}
+
+static void
+load_plugin (GtkButton *button, gpointer user_data)
+{
 }
