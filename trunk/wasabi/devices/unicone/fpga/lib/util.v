@@ -43,6 +43,27 @@ endmodule
 
 
 /*
+ * A high-to-low edge detector. 'edge_detected' is high on cycle N
+ * if 'in' is low and 'in' was high on cycle N-1.
+ */
+module falling_edge_detector (clk, reset, in, edge_detected);
+	input clk, reset;
+	input in;
+	output edge_detected;
+
+	reg in_prev;
+	assign edge_detected = in_prev && !in;
+	
+	always @(posedge clk or posedge reset)
+		if (reset)
+			/* Defaulting to '0' prevents spurious edge detection */
+			in_prev <= 0;
+		else
+			in_prev <= in;
+endmodule
+
+
+/*
  * An MSB-first parallel to serial shift register with flow
  * control. This can be used with shallow_buffer or other
  * modules with similar interfaces.
