@@ -6,3 +6,4 @@
 * when first selecting a channel from the tree, it switches buffers a couple times,
   resulting in a quick flicker
 * dialog windows don't set their title correctly
+* spell checking doesn't work now that per-session buffers are in place
