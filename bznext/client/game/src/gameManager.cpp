@@ -51,7 +51,7 @@ void CGameManger::Init ( void )
 
 void CGameManger::RegisterGameModules ( void )
 {
-	gameModules["test"] = new CTestGame;
+	gameModules["susan"] = new CTestGame;
 
 	gameModuleMap::iterator itr =	gameModules.begin();
 	while (itr != gameModules.end())
