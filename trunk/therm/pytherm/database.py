@@ -30,6 +30,12 @@ import os, time
 
 class ThermSource:
     """One data source in the therm database"""
+    packetQuery = """
+        SELECT * FROM packets P
+            LEFT OUTER JOIN temperatures T ON (T.packet = P.id)
+            LEFT OUTER JOIN battery_voltage V ON (V.packet = P.id)
+        """
+
     def __init__(self, db, id, **properties):
         self.db = db
         self.id = id
@@ -47,20 +53,24 @@ class ThermSource:
         return " ".join([ word.capitalize() for word in words ])
 
     def getLatestPacket(self):
-       for row in self.db.iterDictQuery(
-           "SELECT * FROM packets P "
-           "LEFT OUTER JOIN temperatures T ON (T.packet = P.id) "
-           "LEFT OUTER JOIN battery_voltage V ON (V.packet = P.id) "
-           "WHERE source = %d ORDER BY P.id DESC LIMIT 1" % self.id):
-           return row
+        for row in self.db.iterDictQuery(
+            "%s WHERE source = %d ORDER BY P.id DESC LIMIT 1" % (
+            self.packetQuery, self.id)):
+            return row
 
     def iterPacketsAfter(self, id):
         """Iterate over packets after the given ID"""
         return self.db.iterDictQuery(
-            "SELECT * FROM packets P "
-            "LEFT OUTER JOIN temperatures T ON (T.packet = P.id) "
-            "LEFT OUTER JOIN battery_voltage V ON (V.packet = P.id) "
-            "WHERE source = %d AND P.id > %d ORDER BY P.time" % (self.id, id))
+            "%s WHERE source = %d AND P.id > %d ORDER BY P.time" % (
+            self.packetQuery, self.id, id))
+
+    def iterPacketsBeforeOrEqual(self, id):
+        """The complement to iterPacketsAfter- iterates backwards over
+           all packets with an ID less than or equal to the given one.
+           """
+        return self.db.iterDictQuery(
+            "%s WHERE source = %d AND P.id <= %d ORDER BY P.time DESC" % (
+            self.packetQuery, self.id, id))
 
     def pollNewPackets(self, afterId=None, pollInterval=0.5):
         """Iterate over new packets as they arrive. If an ID is given,

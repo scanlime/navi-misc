@@ -229,6 +229,36 @@ def getSourceRrd(source, key, filter=None):
     rrdf.update(dataGenerator)
     return rrdf
 
+def getPacketLossRrd(source, sequenceMask=31):
+    """Returns an RrdFile that measures packet loss for the given source.
+       This looks for gaps in the packet sequence numbers.
+       """
+    def dataGenerator(stamp):
+        # Get an initial value for the previous sequence number
+        try:
+            prev = source.iterPacketsBeforeOrEqual(stamp).next().get('sequence')
+        except StopIteration:
+            prev = 0
+
+        for packet in source.iterPacketsAfter(stamp):
+            value = packet.get('sequence')
+            if value is not None and prev is not None:
+                delta = (value - prev) & sequenceMask
+
+                # If there is no packet loss, the delta will be 1. Packet loss
+                # gives us a higher delta. If the delta is zero, it means either we
+                # received different versions of the same packet or there was enough
+                # packet loss that the counter rolled over exactly once. Ignore these
+                # situations for now.
+                loss = max(0, delta - 1)
+
+                yield packet['id'], packet['time'].ticks(), loss
+            prev = value
+
+    rrdf = rrd.RrdFile("%s-sequence-deltas" % source.name)
+    rrdf.update(dataGenerator)
+    return rrdf
+
 def colorGenerator():
     """A generator that indefinitely yields color values to use when
        autocoloring channels.
@@ -362,7 +392,6 @@ class SourcePage(ModPython.Page):
             tag('body')[
                 tag('h1')[ place('source') ],
                 place('description'),
-                place('navigation'),
                 place('intervals'),
                 template.footer,
             ],
@@ -398,6 +427,7 @@ class SourcePage(ModPython.Page):
     def render_intervals(self, context):
         return [[
             tag('a', _name=anchor, id=anchor),
+            place('navigation'),
             tag('h2')[ name ],
             self.renderInterval(length),
         ] for name, length, anchor in self.intervals]
@@ -427,6 +457,10 @@ class SourcePage(ModPython.Page):
                 graphs.append('voltage')
             if self.latest.get('signal_strength'):
                 graphs.append('signal')
+            if self.latest.get('sequence'):
+                graphs.append('packetLoss')
+            if self.latest.get('num_copies'):
+                graphs.append('packetCopies')
 
         return tag('div', _class='graphs')[" ", [
                 tag('img', _class='graph',
@@ -514,6 +548,36 @@ class SourceGraphs(ModPython.Page):
                              rrd.graphHorizontalRule(100, "Full Strength"),
                              interval=interval,
                              yLabel="Percent Signal")
+        graph.updateToLatest()
+        return graph
+
+    def graph_packetLoss(self, interval):
+        """Return an RrdGraph showing the number of packets that were dropped
+           completely. This doesn't count dropped duplicates in which one copy
+           could still be received successfully, so this only reports actual
+           loss of sensor readings.
+           """
+        rrdf = getPacketLossRrd(self.source)
+        graph = rrd.RrdGraph(rrd.graphDefineSource(rrdf) +
+                             rrd.graphUnknownData() +
+                             rrd.graphSpan("%s - Number of packets completely lost" % self.source),
+                             interval=interval,
+                             yLabel="Dropped Packets")
+        graph.updateToLatest()
+        return graph
+
+    def graph_packetCopies(self, interval):
+        """Return an RrdGraph showing the number of packets that were dropped
+           completely. This doesn't count dropped duplicates in which one copy
+           could still be received successfully, so this only reports actual
+           loss of sensor readings.
+           """
+        rrdf = getSourceRrd(self.source, 'num_copies')
+        graph = rrd.RrdGraph(rrd.graphDefineSource(rrdf) +
+                             rrd.graphUnknownData() +
+                             rrd.graphSpan("%s - Number of duplicate packets" % self.source),
+                             interval=interval,
+                             yLabel="Duplicate Packets")
         graph.updateToLatest()
         return graph
 
