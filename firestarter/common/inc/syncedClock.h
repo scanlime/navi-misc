@@ -47,10 +47,10 @@ public:
 
 	float		GetServerPingLoss ( void );
 private:
-	float		serverOffset;
-	std::map<int,float>	syncPingMap;
-	int			sentPings;
-	CTimer		&timer;
+	float					serverOffset;
+	std::map<int,float>		syncPingMap;
+	int						sentPings;
+	CTimer					&timer;
 };
 
 #endif

@@ -20,7 +20,6 @@
 * email: jeffm2501@sbcglobal.net
 */
 
-
 #include "syncedClock.h"
 
 template <>
@@ -30,49 +29,66 @@ CSyncedClock* Singleton<CSyncedClock>::_instance = (CSyncedClock*)0;
 CSyncedClock::CSyncedClock():timer(CTimer::instance())
 {
 	/*
-		float		serverOffset;
-		std::map<int,float>	syncPingMap;
-		int			sentPings;	*/
-	
+	float					serverOffset;
+	std::map<int,float>		syncPingMap;
+	int						sentPings;
+	CTimer					&timer;		
+	*/
+
+	sentPings = 0;
+	serverOffset = 0;
 }
 
 CSyncedClock::~CSyncedClock()
 {
-
+	syncPingMap.clear();
 }
 
 void CSyncedClock::Init()
 {
-
+	timer.Init();
 }
 
 void CSyncedClock::Update()
 {
-
+	timer.Update();
 }
 
 float CSyncedClock::GetTime()
 {
-	return 0;
+	return (float)(timer.GetTime()+serverOffset);
 }
 
 float CSyncedClock::GetFrameTime()
 {
-	return 0;
+	return (float)(timer.GetFrameTime()+serverOffset);
 }
 
 int CSyncedClock::GetNewSyncPing ( void )
 {
-	return 0;
+	int pingID = sentPings++;
+	syncPingMap[pingID] = (float)(timer.GetTime());
+	return pingID;
 }
 
 void CSyncedClock::ReturnSyncPing ( int ping, float value )
 {
+	float now = timer.GetTime();
+	std::map<int,float>::iterator itr = syncPingMap.find(ping);
+	if (itr == syncPingMap.end())
+		return;
 
+	float delta = (now - itr->second) * 0.5f;
+	float serverNow = value + delta;
+
+	serverOffset = serverNow - now;
+
+	// clear the ping
+	syncPingMap.erase(itr);
 }
 
 float CSyncedClock::GetServerPingLoss ( void )
 {
-	return 0;
+	return ((float)(syncPingMap.size())-1.0f)/(float)sentPings;
 }
 
