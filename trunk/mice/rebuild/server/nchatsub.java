@@ -33,5 +33,10 @@ public class nchatsub extends nbase
 	 */
 	public void run()
 	{
+		String name, question;
+		name = read();
+		question = read();
+		asubmit.submit(name,question);
+		closeConnection();
 	}
 }

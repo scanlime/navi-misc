@@ -11,39 +11,15 @@ import java.io.*;
 
 public class nperlsub extends nbase
 {
-	/** This is the head of the linked list of njavasub threads */
-	public static nperlsub head;
-	/**
-	 * This method handles the submission and thread management stuff
-	 */
-	public static void go(Socket LINK, BufferedReader IN, OutputStreamWriter OUT)
-	{
-			head = new nperlsub();
-			head.reinit(LINK,IN,OUT);
-			head.start();
-	}
-	
-	/** A reference to the next perl submission thread. */
-	public nperlsub next;
-	
-	/**
-	 * This is an empty constructor for the initial initialization
-	 * @author Brandon Smith
-	 * @version 2.0
-	 */
-	public nperlsub(){}
-	
 	/**
 	 * This method initializes this thread with the new connection information
 	 * @param gonnection The socket descriptor for the connection type stuff
 	 * @param IN The buffered reader that reads data from the socket
 	 * @param OUT The output stream writer that writes data to the socket
 	 */
-	public void reinit(Socket ink, BufferedReader IN, OutputStreamWriter OUT)
+	public nperlsub(Socket ink, BufferedReader IN, OutputStreamWriter OUT)
 	{
-		link = ink;
-		in = IN;
-		out = OUT;
+		super(ink,IN,OUT);
 	}
 	
 	/**

@@ -74,10 +74,10 @@ public class imain
 					closeConnection(link);
 					break;
 				case 1:
-					njavasub.go(link,in,out);
+					new njavasub(link,in,out).start();
 					break;
 				case 2:
-					nperlsub.go(link,in,out);
+					new nperlsub(link,in,out).start();
 					break;
 				case 3:
 					new nchatsub(link,in,out).start();
@@ -111,10 +111,10 @@ public class imain
 		if(it == null) return -1;
 		if(it.compareTo("jsub") == 0) return 1; //Java Submission
 		if(it.compareTo("psub") == 0) return 2; //Perl Submission (CGI)
-		if(it.compareTo("asub") == 0) return 3; //Chat Submission
+		if(it.compareTo("csub") == 0) return 3; //Chat Submission
 		if(it.compareTo("jmod") == 0) return 4; //Java Moderation
 		if(it.compareTo("jint") == 0) return 5; //Java Interview
-		if(it.compareTo("amod") == 0) return 6; //Chat Interview
+		if(it.compareTo("cmod") == 0) return 6; //Chat Interview
 		
 		if(it.compareTo("admin") == 0) return -10;
 		return -1;
