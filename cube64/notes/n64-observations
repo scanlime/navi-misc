@@ -42,7 +42,7 @@ on the controller's PCB:
 
   17    Ground
   18    Unknown 1 (3)
-  19    Unknown 2 (4)
+  19    A15
   20    /WE
   21    A13
   22    A8
@@ -70,8 +70,7 @@ on the controller's PCB:
    attempt any writes or reads and it acknowledges with 0x1E.
 
  Note 3:
-   Could be another chip select or address signal. Goes high after the address
-   becomes valid, before WR is asserted, at about the same time data becomes valid.
+   Possibly a chip select
 
  Note 4:
    Pulses after every byte received over the serial port, it seems.
@@ -187,3 +186,15 @@ FF     72  0111 0010
 04     64  0110 0100
 08     4C  0100 1100
 10     1C  0001 1100
+
+
+
+- Memory map
+
+0x0000 - 0x7FFF :  SRAM, on the memory pak
+
+0x8000          :  Identification/initialization.
+                   Write all 0xFEs to it for initialization, then
+                   read back 0x00 on the memory pak or 0x80 on the rumble pak.
+
+0xC000          :  Motor control latch (low bit) for the rumble pak
