@@ -1,6 +1,12 @@
+===================================
 CIA open source notification system
------------------------------------
+===================================
+
 Version pre-0.81
+================
+
+About CIA
+---------
 
 CIA is at its heart a system for distributing commit messages from the
 version control systems used by open source projects worldwide. It started
@@ -9,7 +15,8 @@ but has grown into a general message passing, filtering, and formatting system
 with web, IRC, XML-RPC, and email interfaces.
 
 
--------- The most important top-level components of CIA:
+Top-level components of CIA
+---------------------------
 
   - cia_server.tac
 
@@ -40,7 +47,8 @@ with web, IRC, XML-RPC, and email interfaces.
     and therefore the client scripts.
 
 
--------- An overview of CIA's internals:
+An overview of CIA's internals
+------------------------------
 
   - LibCIA.Message
 
@@ -79,7 +87,8 @@ with web, IRC, XML-RPC, and email interfaces.
     A web interface to CIA built with Nouvelle
 
 
--------- Requirements
+Requirements
+------------
 
  - Python 2.2.1 or later
  - Twisted 1.1.1 or later
@@ -89,7 +98,8 @@ with web, IRC, XML-RPC, and email interfaces.
  - Docutils <http://docutils.sourceforge.net/>
 
 
--------- Contacts
+Contacts
+--------
 
 Micah Dowty <micah@picogui.org>
 'scanline' on irc.freenode.net
