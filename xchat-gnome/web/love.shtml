@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <link href="style.css" type="text/css" rel="stylesheet" />
+    <title>xchat-gnome - contact</title>
+  </head>
+  <body>
+    <div class="title">
+      xchat-gnome
+      <span class="subtitle">Love</span>
+    </div>
+    <div class="body">
+      <div class="sidebar">
+        <!--#include file="navigation.inc"-->
+      </div>
+      <div class="content">
+        <p>Feel like giving xchat-gnome some love? There are plenty of tasks that are
+	outside of our core focus at the moment but still ought to be done. A lot of
+	these are pretty simple, and we'd love to have the help :)</p>
+	<div class="section-title">Art Love</div>
+        <div class="section">
+	  <b>New user status icons</b><br />
+	  <p>The current bullets next to nicknames in the user list which indicate
+	  operator/voice/etc status are inaccessible to colorblind people. In order to
+	  fix this, we need new icons that have distinct silhouettes.</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
