@@ -15,6 +15,9 @@ class MPAVClient:
        shared memory area used by MPlayer to export audio information,
        and packages the received data in Numeric arrays.
        """
+    lastUpdateTime = 0
+    lastUpdateCount = 0
+
     def __init__(self, filename="/tmp/mpav"):
         self.fd = os.open(filename, os.O_RDONLY)
 
@@ -36,6 +39,28 @@ class MPAVClient:
         a = fromstring(self.map[16:], Int16)
         a.shape = (self.channels, -1)
         return a
+
+    def waitForBuffer(self):
+        self.waitForUpdates()
+        return self.getBuffer()
+
+    def waitForUpdates(self, threshold=0.5, pollInterval=1.0):
+        """This keeps track of how long it's been since the buffer's
+           count has been updated. If the buffer is older than the
+           specified threshold time, we poll every pollInterval seconds
+           for new data.
+           """
+        currentTime = time.time()
+        currentCount = self.getCount()
+        if currentCount != self.lastUpdateCount:
+            self.lastUpdateCount = currentCount
+            self.lastUpdateTime = currentTime
+
+        if currentTime > self.lastUpdateTime + threshold:
+            while 1:
+                time.sleep(pollInterval)
+                if self.getCount() != currentCount:
+                    break
 
 
 class Delay:
@@ -107,11 +132,20 @@ def fft_loop(input, *outputs):
     #print taps
 
     bars = None
+    inputVolume = 8e4
     while 1:
 
+        # Automatic gain control
+        gain = 0.4e5 / inputVolume
+
         # Read the audio, take an FFT of the left channel
-        audio = delayed()
-        fft = abs(FFT.real_fft(audio[0]))
+        audio = input()[0]
+        fft = abs(FFT.real_fft(audio * gain))
+
+        # Track the input volume, for automatic gain control
+        total = abs(add.reduce(audio))
+        alpha = 0.001
+        inputVolume = (1-alpha)*inputVolume + alpha*total
 
         # Scale down the frequency axis nicely by integrating,
         # sampling, then differentiating.
@@ -136,7 +170,7 @@ if __name__ == "__main__":
     mpav = MPAVClient()
     rw = RasterBargraph()
     #sb = SDLBargraph()
-    delayed = Delay(30, mpav.getBuffer)
+    delayed = Delay(30, mpav.waitForBuffer)
     try:
         fft_loop(delayed, rw.writeBars)
     finally:
