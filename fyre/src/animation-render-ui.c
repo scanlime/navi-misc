@@ -96,7 +96,7 @@ static void animation_render_ui_init(AnimationRenderUi *self) {
   glade_xml_signal_connect_data(self->xml, "on_select_output_file_clicked", G_CALLBACK(on_select_output_file_clicked), self);
   glade_xml_signal_connect_data(self->xml, "on_delete_event",               G_CALLBACK(on_delete_event),               self);
 
-  self->dejong = de_jong_new();
+  self->map = ITERATIVE_MAP(de_jong_new());
   self->frame.a = PARAMETER_HOLDER(de_jong_new());
   self->frame.b = PARAMETER_HOLDER(de_jong_new());
 }
@@ -192,7 +192,7 @@ static gboolean on_delete_event(GtkWidget *widget, GdkEvent *event, AnimationRen
 /************************************************************************************/
 
 static void animation_render_ui_start(AnimationRenderUi *self) {
-  g_object_set(self->dejong,
+  g_object_set(self->map,
 	       "width", self->width,
 	       "height", self->height,
 	       "oversample", self->oversample,
@@ -247,17 +247,17 @@ static int animation_render_ui_idle_handler(gpointer user_data) {
   animation_render_ui_run_timed_calculation(self);
 
   /* Figure out how complete this frame is */
-  frame_completion = ((gdouble) HISTOGRAM_IMAGER(self->dejong)->peak_density) / self->target_density;
+  frame_completion = ((gdouble) HISTOGRAM_IMAGER(self->map)->peak_density) / self->target_density;
   if (frame_completion >= 1) {
     frame_completion = 1;
 
     /* Write out this frame */
-    histogram_imager_update_image(HISTOGRAM_IMAGER(self->dejong));
-    avi_writer_append_frame(self->avi, HISTOGRAM_IMAGER(self->dejong)->image);
+    histogram_imager_update_image(HISTOGRAM_IMAGER(self->map));
+    avi_writer_append_frame(self->avi, HISTOGRAM_IMAGER(self->map)->image);
 
     /* Show the completed frame in our GUI's preview area */
     gtk_image_set_from_pixbuf(GTK_IMAGE(glade_xml_get_widget(self->xml, "preview")),
-			      HISTOGRAM_IMAGER(self->dejong)->image);
+			      HISTOGRAM_IMAGER(self->map)->image);
     gtk_widget_show(glade_xml_get_widget(self->xml, "preview_frame"));
 
     /* Move to the next frame */
@@ -299,9 +299,9 @@ static void animation_render_ui_run_timed_calculation(AnimationRenderUi *self) {
   timer = g_timer_new();
   g_timer_start(timer);
 
-  de_jong_calculate_motion(self->dejong, self->iterations_per_idle, self->continuation,
-			   PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
-			   &self->frame);
+  iterative_map_calculate_motion(ITERATIVE_MAP(self->map), self->iterations_per_idle, self->continuation,
+			         PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
+			         &self->frame);
 
   g_timer_elapsed(timer, &elapsed);
   g_timer_destroy(timer);

@@ -139,7 +139,7 @@ int main(int argc, char ** argv) {
 
   case INTERACTIVE:
     gtk_init(&argc, &argv);
-    explorer_new(dejong, animation);
+    explorer_new(ITERATIVE_MAP(dejong), animation);
     gtk_main();
     break;
 
@@ -221,7 +221,7 @@ static void image_render_main (DeJong     *dejong,
   double iterations;
 
   while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density) {
-    de_jong_calculate(dejong, 1000000);
+    iterative_map_calculate(ITERATIVE_MAP(dejong), 1000000);
 
     /* This should be a fairly accurate time estimate, since (asymptotically at least)
      * current_density increases linearly with the number of iterations performed.
@@ -236,7 +236,7 @@ static void image_render_main (DeJong     *dejong,
      */
     printf("%6.02f%%   %.3e   %.2e/sec   %6d / %d   %02d:%02d:%02d / %02d:%02d:%02d\n",
 	   100.0 * HISTOGRAM_IMAGER(dejong)->peak_density / target_density,
-	   dejong->iterations, dejong->iterations / elapsed,
+	   ITERATIVE_MAP(dejong)->iterations, ITERATIVE_MAP(dejong)->iterations / elapsed,
 	   HISTOGRAM_IMAGER(dejong)->peak_density, target_density,
 	   ((int)elapsed) / (60*60), (((int)elapsed) / 60) % 60, ((int)elapsed)%60,
 	   ((int)remaining) / (60*60), (((int)remaining) / 60) % 60, ((int)remaining)%60);
@@ -268,10 +268,10 @@ static void animation_render_main (DeJong      *dejong,
 
     continuation = FALSE;
     do {
-      de_jong_calculate_motion(dejong, 100000, continuation,
+      iterative_map_calculate_motion(ITERATIVE_MAP(dejong), 100000, continuation,
 			       PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
 			       &frame);
-      printf("Frame %d, %e iterations, %d density\n", frame_count, dejong->iterations, HISTOGRAM_IMAGER(dejong)->peak_density);
+      printf("Frame %d, %e iterations, %d density\n", frame_count, ITERATIVE_MAP(dejong)->iterations, HISTOGRAM_IMAGER(dejong)->peak_density);
       continuation = TRUE;
     } while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density);
 

@@ -72,7 +72,7 @@ GType de_jong_get_type(void) {
       (GInstanceInitFunc) de_jong_init,
     };
 
-    dj_type = g_type_register_static(HISTOGRAM_IMAGER_TYPE, "DeJong", &dj_info, 0);
+    dj_type = g_type_register_static(ITERATIVE_MAP_TYPE, "DeJong", &dj_info, 0);
   }
 
   return dj_type;
@@ -80,10 +80,15 @@ GType de_jong_get_type(void) {
 
 static void de_jong_class_init(DeJongClass *klass) {
   GObjectClass *object_class;
+  IterativeMapClass *im_class;
   object_class = (GObjectClass*) klass;
+  im_class = (IterativeMapClass*) klass;
 
   object_class->set_property = de_jong_set_property;
   object_class->get_property = de_jong_get_property;
+
+  im_class->calculate = de_jong_calculate;
+  im_class->calculate_motion = de_jong_calculate_motion;
 
   de_jong_init_calc_params(object_class);
 }
@@ -344,8 +349,9 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
 /********************************************************************** Calculation */
 /************************************************************************************/
 
-void de_jong_calculate(DeJong *self, guint iterations) {
+void de_jong_calculate(IterativeMap *map, guint iterations) {
   /* Copy frequently used parameters to local variables */
+  DeJong *self = DE_JONG(map);
   const gboolean tileable = self->tileable;
   const DeJongParams param = self->param;
 
@@ -487,12 +493,12 @@ void de_jong_calculate(DeJong *self, guint iterations) {
   }
 
   histogram_imager_finish_plots(HISTOGRAM_IMAGER(self), &plot);
-  self->iterations += iterations;
+  ITERATIVE_MAP(self)->iterations += iterations;
   self->point_x = point_x;
   self->point_y = point_y;
 }
 
-void de_jong_calculate_motion(DeJong               *self,
+void de_jong_calculate_motion(IterativeMap         *self,
 			      guint                 iterations,
 			      gboolean              continuation,
 			      ParameterInterpolator *interp,
@@ -511,7 +517,7 @@ void de_jong_calculate_motion(DeJong               *self,
 
   for (count=0; count<iterations; count+=blocksize) {
     interp(PARAMETER_HOLDER(self), uniform_variate(), interp_data);
-    self->calc_dirty_flag = !continuation;
+    DE_JONG(self)->calc_dirty_flag = !continuation;
     de_jong_calculate(self, blocksize);
   }
 }
@@ -519,7 +525,7 @@ void de_jong_calculate_motion(DeJong               *self,
 static void de_jong_reset_calc(DeJong *self) {
   /* Reset the histogram and calculation state */
   histogram_imager_clear(HISTOGRAM_IMAGER(self));
-  self->iterations = 0;
+  ITERATIVE_MAP(self)->iterations = 0;
 
   /* Random starting point */
   self->point_x = uniform_variate();

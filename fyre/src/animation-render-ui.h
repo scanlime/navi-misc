@@ -26,7 +26,7 @@
 
 #include <gtk/gtk.h>
 #include <glade/glade.h>
-#include "de-jong.h"
+#include "iterative-map.h"
 #include "animation.h"
 #include "avi-writer.h"
 
@@ -53,7 +53,7 @@ struct _AnimationRenderUi {
   guint width, height, oversample;
   gulong target_density;
 
-  DeJong *dejong;
+  IterativeMap *map;
   AviWriter *avi;
   AnimationIter iter;
   ParameterHolderPair frame;

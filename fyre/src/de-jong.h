@@ -25,7 +25,7 @@
 #define __DE_JONG_H__
 
 #include <gtk/gtk.h>
-#include "histogram-imager.h"
+#include "iterative-map.h"
 
 G_BEGIN_DECLS
 
@@ -43,7 +43,7 @@ typedef struct {
 } DeJongParams;
 
 struct _DeJong {
-  HistogramImager parent;
+  IterativeMap parent;
 
   /* Calculation Parameters */
   DeJongParams param;
@@ -54,11 +54,10 @@ struct _DeJong {
 
   /* Current calculation state */
   gdouble point_x, point_y;
-  gdouble iterations;
 };
 
 struct _DeJongClass {
-  HistogramImagerClass parent_class;
+  IterativeMapClass parent_class;
 };
 
 
@@ -69,10 +68,10 @@ struct _DeJongClass {
 GType      de_jong_get_type         ();
 DeJong*    de_jong_new              ();
 
-void       de_jong_calculate        (DeJong                *self,
+void       de_jong_calculate        (IterativeMap          *self,
 				     guint                  iterations);
 
-void       de_jong_calculate_motion (DeJong                *self,
+void       de_jong_calculate_motion (IterativeMap          *self,
 				     guint                  iterations,
 				     gboolean               continuation,
 				     ParameterInterpolator *interp,

@@ -42,8 +42,12 @@ typedef struct _IterativeMapClass IterativeMapClass;
 struct _IterativeMap {
   HistogramImager parent;
   
-  /* Calculation Parameters */
-  gboolean calc_dirty_flag;
+  /* Current calculation state */
+  gdouble iterations;
+};
+
+struct _IterativeMapClass {
+  HistogramImagerClass parent_class;
 
   /* Overrideable methods */
   void (*calculate)        (IterativeMap          *self,
@@ -53,13 +57,6 @@ struct _IterativeMap {
                             gboolean               continuation,
                             ParameterInterpolator *interp,
                             gpointer               interp_data);
-
-  /* Current calculation state */
-  gdouble iterations;
-};
-
-struct _IterativeMapClass {
-  HistogramImagerClass parent_class;
 };
 
 /************************************************************************************/
