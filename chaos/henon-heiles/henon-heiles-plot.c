@@ -38,9 +38,9 @@ void py (float *point)
 	point[3] = sqrt (-1*(x*x + y*y + 2.0*x*x*y - (2.0/3)*y*y*y + px*px - 2*ENERGY));
 }
 
-long hhrun (float *point)
+long hhrun (float *point, float *pointret)
 {
-	float point1[5];
+	float point1[5], point2[5];
 	float *a, *b, *c;
 	float t = 0, tdelt = 0.001;
 	int xi, yi;
@@ -51,7 +51,7 @@ long hhrun (float *point)
 	memcpy (point1, point, 5 * sizeof (float));
 
 	a = point1;
-	b = point;
+	b = point2;
 
 	for (i = 0;; i++) {
 		rk (ode, a, b, 5, t, tdelt, scratch);
@@ -86,6 +86,8 @@ long hhrun (float *point)
 
 	g_free (scratch);
 
+	memcpy (pointret, a, 5 * sizeof (float));
+
 	iterations += i;
 	return POINTS;
 }
@@ -93,7 +95,7 @@ long hhrun (float *point)
 int main (int argc, char **argv)
 {
 	int i;
-	float point[5];
+	float point[5], scratch[5];
 	gchar *filename, *pstring;
 	long points;
 
@@ -126,10 +128,9 @@ int main (int argc, char **argv)
 	while (1) {
 		histogram_imager_prepare_plots (hi, &plot);
 
-		points += hhrun (point);
+		points += hhrun (point, scratch);
 		point[0] = -point[0];
-		hhrun (point);
-		point[0] = -point[0];
+		hhrun (point, point);
 
 		histogram_imager_finish_plots (hi, &plot);
 		filename = g_strdup_printf ("%s--%d.png", pstring, points);
