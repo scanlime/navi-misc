@@ -5,6 +5,7 @@
 #include <string.h>
 #include <libgnome/gnome-url.h>
 #include <gconf/gconf-client.h>
+#include <time.h>
 
 #include "xchat-plugin.h"
 
@@ -35,14 +36,14 @@ static gboolean delete_cb (GtkWidget *widget, GdkEvent *event, gpointer user_dat
 static void make_window ()
 {
 	GtkWidget *treeview, *scrolled;
-	GtkTreeViewColumn *nick_col, *chan_col, *url_col;
-	GtkCellRenderer *nick_rend, *chan_rend, *url_rend;
+	GtkTreeViewColumn *nick_col, *chan_col, *url_col, *time_col;
+	GtkCellRenderer *nick_rend, *chan_rend, *url_rend, *time_rend;
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size (GTK_WINDOW(window), 400, 400);
 	g_signal_connect (G_OBJECT(window), "delete-event", G_CALLBACK(delete_cb), 0);
 
-	list_store = gtk_list_store_new (4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);
+	list_store = gtk_list_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);
 
 	scrolled = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrolled),
@@ -51,16 +52,21 @@ static void make_window ()
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(list_store));
 
+	time_rend = gtk_cell_renderer_text_new ();
+	time_col = gtk_tree_view_column_new_with_attributes ("Time", time_rend, "text", 0, NULL);
+	gtk_tree_view_column_set_visible (time_col, timestamps);
+
 	nick_rend = gtk_cell_renderer_text_new ();
-	nick_col = gtk_tree_view_column_new_with_attributes ("Nick", nick_rend, "text", 0, NULL);
+	nick_col = gtk_tree_view_column_new_with_attributes ("Nick", nick_rend, "text", 1, NULL);
 
 	chan_rend = gtk_cell_renderer_text_new ();
-	chan_col = gtk_tree_view_column_new_with_attributes ("Channel", chan_rend, "text", 1, NULL);
+	chan_col = gtk_tree_view_column_new_with_attributes ("Channel", chan_rend, "text", 2, NULL);
 
 	url_rend = gtk_cell_renderer_text_new ();
 	g_object_set (G_OBJECT(url_rend), "ellipsize", PANGO_ELLIPSIZE_END, NULL);
-	url_col = gtk_tree_view_column_new_with_attributes ("URL", url_rend, "text", 2, NULL);
+	url_col = gtk_tree_view_column_new_with_attributes ("URL", url_rend, "text", 3, NULL);
 
+	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), time_col);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), nick_col);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), chan_col);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), url_col);
@@ -80,7 +86,9 @@ static void add_match (char **word, regmatch_t match, gboolean isurl)
 {
 	int len;
 	const char *chan;
-	char *url_match, *channel;
+	time_t footime;
+	struct tm *time_struct;
+	char *url_match, *channel, time_str[9];
 	GtkTreeIter iter;
 
 	len = match.rm_eo - match.rm_so;
@@ -96,7 +104,7 @@ static void add_match (char **word, regmatch_t match, gboolean isurl)
 	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter)) {
 		char *entry;
 		do {
-			gtk_tree_model_get (GTK_TREE_MODEL(list_store), &iter, 2, &entry, -1);
+			gtk_tree_model_get (GTK_TREE_MODEL(list_store), &iter, 3, &entry, -1);
 			if (strcmp (entry, url_match) == 0) {
 				free (url_match);
 				return;
@@ -110,9 +118,11 @@ static void add_match (char **word, regmatch_t match, gboolean isurl)
 	}
 	else
 		urls++;
-
+	footime = time (NULL);
+	time_struct = localtime (&footime);
+	sprintf (time_str, "%d:%d:%d", time_struct->tm_hour, time_struct->tm_min, time_struct->tm_sec);
 	gtk_list_store_append (list_store, &iter);
-	gtk_list_store_set (list_store, &iter, 0, word[1], 1, channel, 2, url_match, 3, isurl, -1);
+	gtk_list_store_set (list_store, &iter, 0, time_str, 1, word[1], 2, channel, 3, url_match, 4, isurl, -1);
 }
 
 static int grabURL (char **word, void *userdata)
@@ -149,7 +159,7 @@ void url_open (GtkTreeView *treeview, GtkTreePath *path,
 	model = gtk_tree_view_get_model (treeview);
 	selection = gtk_tree_view_get_selection (treeview);
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, 2, &cur_url, 3, &isurl, -1);
+		gtk_tree_model_get (model, &iter, 3, &cur_url, 4, &isurl, -1);
 		if (isurl)
 			gnome_url_show (cur_url, &err);
 	}
