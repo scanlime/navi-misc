@@ -100,7 +100,8 @@ CIA is written and maintained by `Micah Dowty`_.
 CIA is hosted by the `PLD Linux`_ project.
 
 CIA makes extensive use of many fine open source projects, including
-Python_, Twisted_, Procmail_, and MySQL_.
+Python_, Twisted_, Procmail_, MySQL_, Subversion_, Graphviz_, Docutils_,
+PyGTK_, Squid_, and Linux_.
 
 CIA uses open standards, including XHTML, CSS2, and XML-RPC.
 
@@ -122,3 +123,8 @@ CIA uses open standards, including XHTML, CSS2, and XML-RPC.
 .. _Subversion: http://subversion.tigris.org/
 .. _PLD Linux: http://pld-linux.orgi
 .. _architecture: /doc/how-cia-works
+.. _Graphviz:  http://www.research.att.com/sw/tools/graphviz/
+.. _Docutils: http://docutils.sourceforge.net/
+.. _Linux: http://linux.org
+.. _Squid: http://www.squid-cache.org/
+.. _PyGTK: http://www.daa.com.au/~james/software/pygtk/
