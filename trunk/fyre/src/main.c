@@ -59,7 +59,7 @@ int main(int argc, char ** argv) {
     const gchar *outputFile = NULL;
     int c, option_index=0;
     gulong target_density = 10000;
-    int port_number = 7931;
+    int port_number = FYRE_DEFAULT_PORT;
 
     g_random_set_seed(time(NULL));
     g_type_init();

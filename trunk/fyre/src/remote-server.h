@@ -47,6 +47,9 @@ void              remote_server_main_loop     (int        port_number,
 /******************************************************************* Protocol *******/
 /************************************************************************************/
 
+#define FYRE_DEFAULT_PORT           7931
+
+
 #define FYRE_RESPONSE_READY         220  /* Server is ready for commands */
 #define FYRE_RESPONSE_OK            250  /* Successfully executed the last command */
 #define FYRE_RESPONSE_PROGRESS      251  /* Progress in calculation */
