@@ -25,7 +25,8 @@ namespace Fyre
 
 	class NavigationWindow : Gtk.Window
 	{
-		Gdk.Pixmap	pixmap;
+		Gdk.Pixmap	background;
+		Gdk.Pixmap	backing;
 		Gdk.GC		white, black;
 		int[]		size, visible, mouse;
 
@@ -49,7 +50,8 @@ namespace Fyre
 
 			Resize (w, h);
 
-			pixmap = new Gdk.Pixmap (GdkWindow, w, h, -1);
+			background = new Gdk.Pixmap (GdkWindow, w, h, -1);
+			backing = new Gdk.Pixmap (GdkWindow, w, h, -1);
 
 			DrawBackground ();
 		}
@@ -71,14 +73,16 @@ namespace Fyre
 			if (white == null)
 				AllocGCs ();
 
-			pixmap.DrawRectangle (white, true, 0, 0, size[0] - 1, size[1] - 1);
-			pixmap.DrawRectangle (black, false, 0, 0, size[0] - 1, size[1] - 1);
+			background.DrawRectangle (white, true, 0, 0, size[0] - 1, size[1] - 1);
+			background.DrawRectangle (black, false, 0, 0, size[0] - 1, size[1] - 1);
 		}
 
 		protected override bool OnExposeEvent (Gdk.EventExpose ev)
 		{
 			Gdk.Rectangle r = ev.Area;
-			GdkWindow.DrawDrawable (white, pixmap, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
+			backing.DrawDrawable (white, background, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
+			// FIXME - mouse box
+			GdkWindow.DrawDrawable (white, backing, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
 			return true;
 		}
 
@@ -91,8 +95,9 @@ namespace Fyre
 		{
 			int vx =  visible[0] / 2;
 			int vy =  visible[1] / 2;
-			GdkWindow.DrawDrawable (white, pixmap, 0, 0, 0, 0, size[0], size[1]);
-			GdkWindow.DrawRectangle (black, false, mx - vx, my - vy, visible[0], visible[1]);
+			backing.DrawDrawable (white, background, 0, 0, 0, 0, size[0], size[1]);
+			backing.DrawRectangle (black, false, mx - vx, my - vy, visible[0], visible[1]);
+			GdkWindow.DrawDrawable (white, backing, 0, 0, 0, 0, size[0], size[1]);
 		}
 	}
 
