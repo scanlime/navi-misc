@@ -20,6 +20,7 @@ xchat_gnome_DATA =			\
 	channel-list.glade		\
 	transfers.glade			\
 	setup-dialog.glade		\
+	topic-change.glade		\
 	xchat-gnome.glade		\
 	xchat-gnome-ui.xml
 xchat_gnomedir = $(datadir)/xchat
