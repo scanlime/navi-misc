@@ -55,7 +55,7 @@ public class authenticate implements ActionListener
 	public void actionPerformed(ActionEvent e)
 	{
 		String mykey,user,pass;
-		if(!net.openConnection("localhost",8080)) return;
+		if(!net.openConnection("ion.picogui.org",8080)) return;
 		net.write("jmod");
 		mykey = net.read();
 		user = key.encrypt(mykey,username.getText());
