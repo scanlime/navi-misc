@@ -1250,16 +1250,11 @@ on_server_close (GtkAction *action, gpointer data)
 	select = gtk_tree_view_get_selection (treeview);
 
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-		printf ("got selection\n");
 		gtk_tree_model_get (model, &iter, 2, &sess, -1);
-		printf ("got session\n");
 		/* Close the server. */
 		navigation_tree_remove (gui.server_tree, sess);
-		printf ("removed\n");
 		/* Disconnect the server. */
 		sess->server->disconnect (sess, TRUE, -1);
-		printf ("disconnected\n");
-		printf ("done\n");
 	}
 }
 
