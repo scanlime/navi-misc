@@ -101,8 +101,6 @@ tree_store_row_changed (GtkTreeModel *treemodel, GtkTreePath *path, GtkTreeIter 
       parent = gtk_tree_path_copy (path);
       gtk_tree_path_up (parent);
       cpath = gtk_tree_path_to_string (parent);
-      if (so->parent != NULL)
-	scene_object_deparent (so->parent, so);
       if (cpath)
       {
 	GtkTreeIter parent_iter;
@@ -110,7 +108,12 @@ tree_store_row_changed (GtkTreeModel *treemodel, GtkTreePath *path, GtkTreeIter 
 
 	gtk_tree_model_get_iter (treemodel, &parent_iter, parent);
 	gtk_tree_model_get (treemodel, &parent_iter, 3, &parent_so, -1);
-	scene_object_parent (parent_so, so);
+	if (parent_so != so->parent)
+	{
+	  if (so->parent)
+	    scene_object_deparent (so->parent, so);
+	  scene_object_parent (parent_so, so);
+	}
       }
       else
       {
