@@ -23,7 +23,7 @@ Note that this only handles real XML commit messages. The legacy
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from LibCIA import Message
+from LibCIA import Message, XML
 from Nouvelle import tag
 import re, posixpath
 from twisted.python.util import OrderedDict
@@ -51,18 +51,18 @@ class CommitFormatter(Message.Formatter):
     filesWidthLimit = 60
 
     def param_lineLimit(self, tag):
-        self.lineLimit = int(str(tag))
+        self.lineLimit = int(XML.shallowText(tag))
 
     def param_widthLimit(self, tag):
-        self.widthLimit = int(str(tag))
+        self.widthLimit = int(XML.shallowText(tag))
         if self.wrapWidth > self.widthLimit:
             self.wrapWidth = self.widthLimit
 
     def param_wrapWidth(self, tag):
-        self.wrapWidth = int(str(tag))
+        self.wrapWidth = int(XML.shallowText(tag))
 
     def param_filesWidthLimit(self, tag):
-        self.filesWidthLimit = int(str(tag))
+        self.filesWidthLimit = int(XML.shallowText(tag))
 
     def consolidateFiles(self, xmlFiles):
         """Given a <files> element, find the directory common to all files
@@ -73,7 +73,7 @@ class CommitFormatter(Message.Formatter):
         if xmlFiles:
             for fileTag in xmlFiles.elements():
                 if fileTag.name == 'file':
-                    files.append(str(fileTag))
+                    files.append(XML.shallowText(fileTag))
 
         # If we only have one file, return it as the prefix.
         # This prevents the below regex from deleting the filename
@@ -96,20 +96,26 @@ class CommitFormatter(Message.Formatter):
            one of our format_* member functions.
            """
         message = args.message
-        commit = message.xml.body.commit
         metadata = []
+        commit   = XML.dig(message.xml, "message", "body", "commit")
+        source   = XML.dig(message.xml, "message", "source")
+        author   = XML.dig(commit, "author")
+        version  = XML.dig(commit, "version")
+        revision = XML.dig(commit, "revision")
+        log      = XML.dig(commit, "log")
+        branch   = XML.dig(source, "branch")
 
-        if commit.author:
-            metadata.append(self.format_author(commit.author))
-        if message.xml.source and message.xml.source.branch:
-            metadata.append(self.format_branch(message.xml.source.branch))
+        if author:
+            metadata.append(self.format_author(author))
+        if branch:
+            metadata.append(self.format_branch(branch))
         metadata.append(self.format_separator())
-        if commit.version:
-            metadata.append(self.format_version(commit.version))
-        if commit.revision:
-            metadata.append(self.format_revision(commit.revision))
+        if version:
+            metadata.append(self.format_version(version))
+        if revision:
+            metadata.append(self.format_revision(revision))
         metadata.append(self.format_moduleAndFiles(message))
-        return self.joinMessage(metadata, self.format_log(commit.log))
+        return self.joinMessage(metadata, self.format_log(log))
 
     def joinMessage(self, metadata, log):
         """Join a list of formatted metadata and a formatted log message
@@ -125,13 +131,15 @@ class CommitFormatter(Message.Formatter):
 
     def format_moduleAndFiles(self, message):
         """Format the module name and files, joined together if they are both present."""
-        if message.xml.body.commit.files:
-            formattedFiles = self.format_files(message.xml.body.commit.files)
+        files = XML.dig(message.xml, "message", "body", "commit", "files")
+        if files:
+            formattedFiles = self.format_files(files)
         else:
             formattedFiles = ""
 
-        if message.xml.source and message.xml.source.module:
-            formattedModule = self.format_module(str(message.xml.source.module).strip())
+        module = XML.dig(message.xml, "message", "body", "source", "module")
+        if module:
+            formattedModule = self.format_module(XML.shallowText(module).strip())
         else:
             formattedModule = ""
         return formattedModule + '/' + formattedFiles
@@ -170,7 +178,7 @@ class CommitFormatter(Message.Formatter):
     def format_log(self, log):
         # Break the log string into wrapped lines
         lines = []
-        for line in str(log).strip().split("\n"):
+        for line in XML.shallowText(log).strip().split("\n"):
             # Ignore blank lines
             if not line.strip():
                 continue
@@ -205,19 +213,19 @@ class CommitFormatter(Message.Formatter):
         return "\n".join(lines)
 
     def format_module(self, module):
-        return str(module).strip()
+        return XML.shallowText(module).strip()
 
     def format_author(self, author):
-        return str(author).strip()
+        return XML.shallowText(author).strip()
 
     def format_branch(self, branch):
-        return str(branch).strip()
+        return XML.shallowText(branch).strip()
 
     def format_version(self, version):
-        return str(rev).strip()
+        return XML.shallowText(rev).strip()
 
     def format_revision(self, rev):
-        return 'r' + str(rev).strip()
+        return 'r' + XML.shallowText(rev).strip()
 
 
 class CommitToIRC(CommitFormatter):
@@ -244,10 +252,10 @@ class CommitToIRC(CommitFormatter):
         return self.colorFormatter(CommitFormatter.format_author(self, author), 'green')
 
     def format_version(self, version):
-        return self.colorFormatter(str(version).strip(), 'bold')
+        return self.colorFormatter(XML.shallowText(version).strip(), 'bold')
 
     def format_revision(self, rev):
-        return 'r' + self.colorFormatter(str(rev).strip(), 'bold')
+        return 'r' + self.colorFormatter(XML.shallowText(rev).strip(), 'bold')
 
     def format_module(self, module):
         return self.colorFormatter(CommitFormatter.format_module(self, module), 'aqua')
@@ -271,7 +279,7 @@ class CommitTitle(CommitFormatter):
     medium = 'title'
 
     def format(self, args):
-        log = args.message.xml.body.commit.log
+        log = XML.dig(args.message.xml, "message", "body", "commit", "log")
         if log:
             return Util.extractSummary(log)
 
@@ -300,7 +308,7 @@ class CommitToXHTML(CommitFormatter):
            Remember that Nouvelle handles quoting automagically for us.
            """
         content = []
-        log = str(log).strip()
+        log = XML.shallowText(log).strip()
         if log:
             for line in log.split("\n"):
                 if content:
@@ -313,7 +321,7 @@ class CommitToXHTML(CommitFormatter):
     def format_author(self, author):
         return [
             " Commit by ",
-            tag('strong')[ str(author) ],
+            tag('strong')[ XML.shallowText(author) ],
             " ",
             ]
 
@@ -321,26 +329,28 @@ class CommitToXHTML(CommitFormatter):
         return tag('span', style="color: #888;")[" :: "]
 
     def format_revision(self, rev):
-        return [' r', tag('b')[str(rev).strip()], ' ']
+        return [' r', tag('b')[XML.shallowText(rev).strip()], ' ']
 
     def format_version(self, ver):
-        return [' ', tag('b')[str(ver)], ' ']
+        return [' ', tag('b')[XML.shallowText(ver)], ' ']
 
     def format_branch(self, branch):
-        return [' on ', str(branch), ' ']
+        return [' on ', XML.shallowText(branch), ' ']
 
     def format_module(self, module):
-        return tag('b')[str(module).strip()]
+        return tag('b')[XML.shallowText(module).strip()]
 
     def format_moduleAndFiles(self, message):
         """Format the module name and files, joined together if they are both present."""
         items = [' ']
-        if message.xml.source and message.xml.source.module:
-            items.append(self.format_module(message.xml.source.module))
-        if message.xml.body.commit.files:
+        module = XML.dig(message.xml, "message", "source", "module")
+        if module:
+            items.append(self.format_module(module))
+        files = XML.dig(message.xml, "message", "body", "commit", "files")
+        if files:
             if items:
                 items.append("/")
-            items.append(self.format_files(message.xml.body.commit.files))
+            items.append(self.format_files(files))
         items.append(' ')
         return items
 
@@ -354,26 +364,32 @@ class CommitToXHTMLLong(CommitToXHTML):
     def format(self, args):
         from LibCIA.Web import Template
 
-        message = args.message
-        commit = message.xml.body.commit
-        source = message.xml.source
-        headers = OrderedDict()
+        message   = args.message
+        commit    = XML.dig(message.xml, "message", "body", "commit")
+        source    = XML.dig(message.xml, "message", "source")
+        author    = XML.dig(commit, "author")
+        version   = XML.dig(commit, "version")
+        revision  = XML.dig(commit, "revision")
+        diffLines = XML.dig(commit, "diffLines")
+        url       = XML.dig(commit, "url")
+        project   = XML.dig(source, "project")
+        module    = XML.dig(source, "module")
+        headers   = OrderedDict()
 
-        if commit.author:
-            headers['Author'] = str(commit.author)
-        if source:
-            if source.project:
-                headers['Project'] = str(source.project)
-            if source.module:
-                headers['Module'] = str(source.module)
-        if commit.version:
-            headers['Version'] = str(commit.version)
-        if commit.revision:
-            headers['Revision'] = str(commit.revision)
-        if commit.diffLines:
-            headers['Changed Lines'] = str(commit.diffLines)
+        if author:
+            headers['Author'] = XML.shallowText(author)
+        if project:
+            headers['Project'] = XML.shallowText(project)
+        if module:
+            headers['Module'] = XML.shallowText(module)
+        if version:
+            headers['Version'] = XML.shallowText(version)
+        if revision:
+            headers['Revision'] = XML.shallowText(revision)
+        if diffLines:
+            headers['Changed Lines'] = XML.shallowText(diffLines)
         if commit.url:
-            headers['URL'] = tag('a', href=str(commit.url))[ Util.extractSummary(commit.url) ]
+            headers['URL'] = tag('a', href=XML.shallowText(url))[ Util.extractSummary(url) ]
 
         content = [
             tag('h1')[ "Commit Message" ],
@@ -397,7 +413,7 @@ class CommitToXHTMLLong(CommitToXHTML):
                 if fileTag.name == 'file':
                     # Separate the file into path segments and walk into our tree
                     node = fileTree
-                    for segment in str(fileTag).split('/'):
+                    for segment in XML.shallowText(fileTag).split('/'):
                         node = node.setdefault(segment, {})
 
         # Now generate Nouvelle tags from our dict tree

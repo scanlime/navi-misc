@@ -302,6 +302,7 @@ def exceptionDialog(type, value, tb):
         message = "%s\n\n%s" % (value.faultCode, value.faultString)
     else:
         message = "%s\n\n%s" % (type.__name__, value)
+    print value
 
     dialog = gtk.MessageDialog(
         parent = None,
