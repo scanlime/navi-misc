@@ -38,14 +38,13 @@ static void histogram_imager_set_property (GObject *object, guint prop_id, const
 static void histogram_imager_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 static void histogram_imager_resize_from_string (HistogramImager *self, const gchar *s);
 
-static void histogram_imager_generate_color_table (HistogramImager *self);
+static void histogram_imager_generate_color_table (HistogramImager *self, gboolean force);
 
 static void histogram_imager_check_dirty_flags (HistogramImager *self);
 static void histogram_imager_require_histogram (HistogramImager *self);
 static void histogram_imager_require_image (HistogramImager *self);
 static void histogram_imager_require_oversample_tables (HistogramImager *self);
 static gulong histogram_imager_get_max_usable_density (HistogramImager *self);
-static double histogram_imager_get_color_path_length (HistogramImager *self);
 
 static gboolean update_double_if_necessary (gdouble new_value, gboolean *dirty_flag, gdouble *param, gdouble epsilon);
 static gboolean update_uint_if_necessary (guint new_value, gboolean *dirty_flag, guint *param);
@@ -284,6 +283,10 @@ histogram_imager_dispose (GObject *gobject)
     if (self->color_table.table) {
 	g_free (self->color_table.table);
 	self->color_table.table = NULL;
+    }
+    if (self->color_table.distances) {
+	g_free (self->color_table.distances);
+	self->color_table.distances = NULL;
     }
     if (self->oversample_tables.linearize) {
 	g_free (self->oversample_tables.linearize);
@@ -646,7 +649,7 @@ histogram_imager_update_image (HistogramImager *self)
     histogram_imager_check_dirty_flags (self);
     histogram_imager_require_histogram (self);
     histogram_imager_require_image (self);
-    histogram_imager_generate_color_table (self);
+    histogram_imager_generate_color_table (self, TRUE);
 
     {
 	guint32 *pixel_p;
@@ -771,11 +774,15 @@ histogram_imager_resize_color_table (HistogramImager *self, gulong size)
 	(self->color_table.allocated_size > 10 * size)) {
 	if (self->color_table.table)
 	    g_free (self->color_table.table);
+	if (self->color_table.distances)
+	    g_free (self->color_table.distances);
 
 	/* Allocate it to double the size we need now, as we expect our needs to grow. */
 	self->color_table.allocated_size = size * 2;
 	self->color_table.table = g_malloc (self->color_table.allocated_size *
 					    sizeof(self->color_table.table[0]));
+	self->color_table.distances = g_malloc (self->color_table.allocated_size *
+						sizeof(self->color_table.distances[0]));
     }
 }
 
@@ -811,17 +818,21 @@ histogram_imager_get_pixel_scale (HistogramImager *self)
 }
 
 static void
-histogram_imager_generate_color_table (HistogramImager *self)
+histogram_imager_generate_color_table (HistogramImager *self, gboolean force)
 {
     /* Regenerate the contents of the color mapping table, a mapping from all
      * possible histogram values to the corresponding ARGB color, in the current image.
      */
     guint count;
-    int r, g, b, a;
     float pixel_scale = histogram_imager_get_pixel_scale (self);
     gulong usable_density = histogram_imager_get_max_usable_density (self);
     float luma;
     double one_over_gamma = 1/self->gamma;
+    float distance = 0;
+    gulong color_table_size;
+    struct {
+	int r, g, b, a;
+    } current, previous;
 
     /* Our actual color table size should be either the maximum
      * usable density, or our histogram's current peak density,
@@ -830,8 +841,15 @@ histogram_imager_generate_color_table (HistogramImager *self)
     if (usable_density > self->peak_density)
 	usable_density = self->peak_density;
 
+    /* If the table is already the right size and we aren't being
+     * forced to regenerate it, stop now.
+     */
+    color_table_size = usable_density + 1;
+    if ((!force) && self->color_table.filled_size == color_table_size)
+	return;
+
     /* Make sure our table is appropriately sized */
-    histogram_imager_resize_color_table (self, usable_density + 1);
+    histogram_imager_resize_color_table (self, color_table_size);
 
     /* Generate one color for every currently-possible count value that
      * doesn't fully saturate our image, as determined by histogram_imager_get_max_usable_density
@@ -847,19 +865,37 @@ histogram_imager_generate_color_table (HistogramImager *self)
 	    luma = 1;
 
 	/* Linearly interpolate between fgcolor and bgcolor */
-	r = ((int)(self->bgcolor.red   * (1-luma) + self->fgcolor.red   * luma)) >> 8;
-	g = ((int)(self->bgcolor.green * (1-luma) + self->fgcolor.green * luma)) >> 8;
-	b = ((int)(self->bgcolor.blue  * (1-luma) + self->fgcolor.blue  * luma)) >> 8;
-	a = ((int)(self->bgalpha       * (1-luma) + self->fgalpha       * luma)) >> 8;
+	current.r = ((int)(self->bgcolor.red   * (1-luma) + self->fgcolor.red   * luma)) >> 8;
+	current.g = ((int)(self->bgcolor.green * (1-luma) + self->fgcolor.green * luma)) >> 8;
+	current.b = ((int)(self->bgcolor.blue  * (1-luma) + self->fgcolor.blue  * luma)) >> 8;
+	current.a = ((int)(self->bgalpha       * (1-luma) + self->fgalpha       * luma)) >> 8;
 
 	/* Always clamp color components */
-	if (r<0) r = 0;  if (r>255) r = 255;
-	if (g<0) g = 0;  if (g>255) g = 255;
-	if (b<0) b = 0;  if (b>255) b = 255;
-	if (a<0) a = 0;  if (a>255) a = 255;
+	if (current.r<0) current.r = 0;  if (current.r>255) current.r = 255;
+	if (current.g<0) current.g = 0;  if (current.g>255) current.g = 255;
+	if (current.b<0) current.b = 0;  if (current.b>255) current.b = 255;
+	if (current.a<0) current.a = 0;  if (current.a>255) current.a = 255;
 
 	/* Colors are always ARGB order in little endian */
-	self->color_table.table[count] = GUINT32_TO_LE( (a<<24) | (b<<16) | (g<<8) | r );
+	self->color_table.table[count] = GUINT32_TO_LE( (current.a<<24) |
+							(current.b<<16) |
+							(current.g<<8)  |
+							current.r );
+
+	/* Update our elapsed distance */
+	if (count > 0) {
+	    distance += sqrt( (current.r - previous.r) * (current.r - previous.r) +
+			      (current.g - previous.g) * (current.g - previous.g) +
+			      (current.b - previous.b) * (current.b - previous.b) +
+			      (current.a - previous.a) * (current.a - previous.a) );
+	}
+	previous = current;
+
+	/* The distances table records the cumulative elapsed distance, in the color
+	 * hypercube, at this point. It can be used to compute distance between any two
+	 * table entries very quickly.
+	 */
+	self->color_table.distances[count] = distance;
     }
 }
 
@@ -949,47 +985,6 @@ histogram_imager_get_max_usable_density (HistogramImager *self)
     return (gulong) max_usable;
 }
 
-static double
-histogram_imager_get_color_path_length (HistogramImager *self)
-{
-    /* This determines the total length of the path we take through
-     * an RGBA color cube, starting at the background color and ending
-     * when we hit the maximum usable density.
-     *
-     * FIXME: This is a slow numerical method. If this function turns
-     *        out to be a bottleneck, it can be implemented much faster
-     *        by dividing the path into straight segments and calculating
-     *        their length directly.
-     */
-    int i;
-    guint32 color;
-    double total = 0;
-    struct {
-	guchar r, g, b, a;
-    } current, previous;
-
-    histogram_imager_generate_color_table(self);
-
-    for (i=0; i<self->color_table.filled_size; i++) {
-	color = GUINT32_FROM_LE(self->color_table.table[i]);
-
-	current.r = (color >>  0) & 0xFF;
-	current.g = (color >>  8) & 0xFF;
-	current.b = (color >> 16) & 0xFF;
-	current.a = (color >> 24) & 0xFF;
-	
-	if (i > 0) {
-	    total += sqrt( (current.r - previous.r) * (current.r - previous.r) +
-			   (current.g - previous.g) * (current.g - previous.g) +
-			   (current.b - previous.b) * (current.b - previous.b) +
-			   (current.a - previous.a) * (current.a - previous.a) );
-	}
-	previous = current;
-    }
-
-    return total;
-}
-
 gdouble
 histogram_imager_compute_quality (HistogramImager *self)
 {
@@ -998,36 +993,41 @@ histogram_imager_compute_quality (HistogramImager *self)
      */
     histogram_imager_check_dirty_flags (self);
     histogram_imager_require_histogram (self);
+    histogram_imager_generate_color_table (self, FALSE);
     {
 	guint *hist_p = self->histogram;
+	float *dist_p = self->color_table.distances;
+	float dist;
 	guint count;
 	guint hist_clamp = self->color_table.filled_size - 1;
 	int width = self->width * self->oversample;
 	int height = self->height * self->oversample;
 	int x, y;
-	gulong qual_denominator = 0;
-	gulong qual_numerator = 0;
-	gdouble path_len;
 
-	for (y=self->height; y; y--)
-	    for (x=self->width; x; x--) {
+	gulong denominator = 0;
+	double numerator = 0;
+
+	if (self->color_table.filled_size < 1)
+	    return G_MAXDOUBLE;
+ 
+	for (y=height; y; y--)
+	    for (x=width; x; x--) {
 		count = *(hist_p++);
 
 		/* We average only those buckets that aren't empty or satuated */
 		if (count <= hist_clamp && count > 0) {
-		    qual_numerator += count;
-		    qual_denominator++;
+		    dist = dist_p[count];
+		    if (dist > 0) {
+			numerator += count / dist_p[count];		
+			denominator++;
+		    }
 		}
 	    }
 
-	if (!qual_denominator)
+	if (!denominator)
 	    return G_MAXDOUBLE;
 
-	path_len = histogram_imager_get_color_path_length(self);
-	if (path_len < 1.0)
-	    return G_MAXDOUBLE;
-
-	return ((double) qual_numerator) / qual_denominator / path_len;
+	return numerator / denominator;
     }
 }
 
