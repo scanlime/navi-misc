@@ -5,7 +5,7 @@ import cPickle
 
 loop = Event.EventLoop()
 viewport = Viewport.OpenGLViewport(loop)
-viewport.setCaption("Wasabi")
+viewport.setCaption("Sequencer Test")
 view = ThreeDRender.View(viewport)
 control = ThreeDControl.Viewing(view, viewport)
 
