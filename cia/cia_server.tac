@@ -14,7 +14,7 @@ application = service.Application("cia_server")
 hub = Message.Hub()
 
 # Control a network of IRC bots using messages sent through the Hub
-botNet = IRCBot.BotNetwork(nickFormat="NSA-%d")
+botNet = IRCBot.BotNetwork(nickFormat="CIA-%d")
 hl = IRCMessage.HubListener(hub, botNet, defaultHost="irc.freenode.net")
 
 # The XMLRPC.SimpleCIAInterface is a simple XML-RPC interface
