@@ -28,7 +28,7 @@ import device, time
 
 # These are the symbols that will be pulled from this module
 # into the 'pyrcpod' package.
-__all__ = ['Rcpod485']
+__all__ = ['Rcpod485', 'MnetError']
 
 
 class MnetError(Exception):

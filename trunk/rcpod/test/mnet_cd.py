@@ -23,6 +23,7 @@
 #
 
 from rcpod_test import *
+import time
 
 # CD command numbers
 CMD_DIGOUT = 7
@@ -37,6 +38,20 @@ class CriticalDecoderTest(RcpodTestCase):
 
     def testPing(self):
         """verify that a ping packet is echoed correctly"""
+        self.assertEqual(self.rcpod.mnetSend([1]), [1])
+
+    def testFlood(self):
+        """floods the CD with packets, then verifies that it still responds to a ping"""
+        for i in xrange(100):
+            try:
+                self.rcpod.mnetSend([1,2,3,4,5], timeout=0)
+            except pyrcpod.MnetError:
+                # We don't expect there to be a valid response
+                pass
+
+        # Let the CD expire any partial packets it may have
+        time.sleep(1)
+
         self.assertEqual(self.rcpod.mnetSend([1]), [1])
 
     def verifyOutput(self, cdPinNum, rcpodPinName):
