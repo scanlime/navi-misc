@@ -92,8 +92,8 @@ class URLScraper:
     def grabbedURL( self, nick, match ):
         ''' Handler for a URL. Append the URL to the store. '''
         if self.urls >= self.history:
-            iter = store.get_iter_first()
-            store.remove( iter )
+            iter = self.store.get_iter_first()
+            self.store.remove( iter )
         else:
             self.urls += 1
 
