@@ -33,6 +33,10 @@ static void bool_changed (GtkToggleButton *button, const gchar *key);
 static void font_changed (GtkFontButton *button, const gchar *key);
 static void sysfonts_changed (GtkToggleButton *toggle, GtkWidget *font);
 static void populate_hilight ();
+static void save_hilight ();
+static void hilight_add_clicked (GtkButton *button, gpointer data);
+static void hilight_remove_clicked (GtkButton *button, GtkTreeView *view);
+static void hilight_selection (GtkTreeSelection *selection, gpointer data);
 
 void initialize_preferences_irc_page()
 {
@@ -43,6 +47,7 @@ void initialize_preferences_irc_page()
 	GConfClient *client;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
+	GtkTreeSelection *selection;
 
 	client = gconf_client_get_default ();
 
@@ -99,6 +104,13 @@ void initialize_preferences_irc_page()
 	gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
 	populate_hilight ();
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (hilight_selection), NULL);
+
+	widget = glade_xml_get_widget (gui.xml, "hilight add");
+	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (hilight_add_clicked), NULL);
+	widget = glade_xml_get_widget (gui.xml, "hilight remove");
+	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (hilight_remove_clicked), glade_xml_get_widget (gui.xml, "highlist list"));
 
 	g_object_unref (group);
 
@@ -203,10 +215,59 @@ populate_hilight ()
 	GtkTreeIter iter;
 
 	for (i = 0; tokens[i]; i++) {
-		g_print ("adding hilight '%s'\n", tokens[i]);
 		gtk_list_store_append (hilight_store, &iter);
 		gtk_list_store_set (hilight_store, &iter, 0, tokens[i], -1);
 	}
 
 	g_strfreev (tokens);
+}
+
+static void
+save_hilight ()
+{
+	GtkTreeIter iter;
+	gchar *hilight, *tmp, *tmp2;
+
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (hilight_store), &iter)) {
+		gtk_tree_model_get (GTK_TREE_MODEL (hilight_store), &iter, 0, &tmp, -1);
+		hilight = g_strdup (tmp);
+	} else {
+		return;
+	}
+	while (gtk_tree_model_iter_next (GTK_TREE_MODEL (hilight_store), &iter)) {
+		tmp2 = hilight;
+		gtk_tree_model_get (GTK_TREE_MODEL (hilight_store), &iter, 0, &tmp, -1);
+		hilight = g_strdup_printf ("%s,%s", tmp2, tmp);
+		g_free (tmp2);
+	}
+	strncpy (prefs.bluestring, hilight, 300);
+	g_free (hilight);
+}
+
+static void
+hilight_add_clicked (GtkButton *button, gpointer data)
+{
+}
+
+static void
+hilight_remove_clicked (GtkButton *button, GtkTreeView *view)
+{
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (view));
+	if (gtk_tree_selection_get_selected (selection, GTK_TREE_MODEL (hilight_store), &iter)) {
+		gtk_list_store_remove (hilight_store, &iter);
+		save_hilight ();
+	}
+}
+
+static void
+hilight_selection (GtkTreeSelection *selection, gpointer data)
+{
+	GtkWidget *remove = glade_xml_get_widget (gui.xml, "hilight remove");
+	if (gtk_tree_selection_get_selected (selection, GTK_TREE_MODEL (hilight_store), NULL))
+		gtk_widget_set_sensitive (remove, TRUE);
+	else
+		gtk_widget_set_sensitive (remove, FALSE);
 }

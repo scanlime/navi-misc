@@ -622,3 +622,22 @@ fe_gui_info (session *sess, int info_type)
 	/* FIXME: implement */
 	return -1;
 }
+
+void
+fe_set_inputbox_cursor (session *sess, int delta, int pos)
+{
+	/* FIXME: implement? */
+}
+
+void
+fe_set_inputbox_contents (session *sess, char *text)
+{
+	/* FIXME: implement? */
+}
+
+char *
+fe_get_inputbox_contents (session *sess)
+{
+	/* FIXME: implement? */
+	return NULL;
+}
