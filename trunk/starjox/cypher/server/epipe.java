@@ -71,7 +71,6 @@ public class epipe extends Thread
 		    s[0] = temp;
 		    s = nukey.encrypt(s);
 		    temp = s[0];
-		    System.out.println("epipe: " +s);
 		}
 		out.write(temp);
 		out.flush();

@@ -117,12 +117,8 @@ public class client extends Thread
 	key foo;
 	int[] kei = new int[256];
 	InputStream in = client.getInputStream();
-	System.out.println("Getting the key");
 	for(i=0;i<256;i++)
-	{
 	    kei[i] = in.read();
-	    System.out.println(kei[i]);
-	}
 	foo = new key(kei);
 	return foo;
     }
@@ -131,11 +127,9 @@ public class client extends Thread
     {
 	OutputStream out = client.getOutputStream();
 	int i;
-	System.out.println("KEY DONE:");
 	for(i=0;i<rhost.length();i++)
 	{
 	    out.write(rhost.charAt(i));
-	    System.out.println((int)rhost.charAt(i));
 	    out.flush();
 	}
 	out.write(0);
@@ -188,7 +182,7 @@ public class client extends Thread
 	    System.exit(1);
 	}
 	System.out.println("Starting tunnel from localhost:"+lport+" through "+
-			   server+":5050 to " + thost+":"+tport);
+			   server+":8080 to " + thost+":"+tport);
 	new client(lport,server,thost,tport).start();
     }
 }

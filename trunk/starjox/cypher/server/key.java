@@ -55,7 +55,6 @@ public class key
 
     public int[] getKey()
     {
-	System.out.println("Get key called-"+keystring[0]);
 	return keystring;
     }
 
@@ -83,11 +82,9 @@ public class key
 	    j = (int) (Math.random() * 256);
 	    for(i=0;i<j;i++) start = start.next;
 	    newkey[k++] = start.next.code;
-	    System.out.println("Extracted: "+newkey[k-1]);
 	    start.next = start.next.next;
 	}
 	newkey[255] = start.code;
-	System.out.println("Extracted: "+newkey[255]);
 	return newkey;
     }
     

@@ -102,12 +102,11 @@ public class server extends Thread
 	key foo = new key();
 	int[] kei = foo.getKey();
 	OutputStream out = client.getOutputStream();
-	System.out.println("Sending the key");
+
 	for(i=0;i<256;i++)
 	{
 	    out.write(kei[i]);
 	    out.flush();
-	    System.out.println(kei[i]);
 	}
 	return foo;
     }
@@ -123,14 +122,13 @@ public class server extends Thread
 
 	/* get the hostname (probably localhost) */
 	temp = in.read();
-	System.out.println("KEY DONE:\n" + temp);
+
 	while(temp != 0)
 	{
 	    host = host + (char) temp;
 	    temp = in.read();
-	    System.out.println(host + " : " + temp);
 	}
-	System.out.println(host);
+
 	/* get the desired port, 110 for POP3, etc..*/
 	temp = in.read();
 	while(temp != 0)
@@ -139,9 +137,6 @@ public class server extends Thread
 	    temp = in.read();
 	}
 	iport = Integer.parseInt(tport);
-
-	System.out.println("connecting to "+host+":"+iport);
-
 	return new Socket(host,iport);
     }
 

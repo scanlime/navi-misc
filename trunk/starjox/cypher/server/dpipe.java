@@ -71,7 +71,6 @@ public class dpipe extends Thread
 		    s[0] = temp;
 		    s = nukey.decrypt(s);
 		    temp = s[0];
-		    System.out.println("dpipe: " +s);
 		}
 		out.write(temp);
 		out.flush();
