@@ -4,20 +4,6 @@ LIBS    += `pkg-config --libs $(PKGS)`
 
 BIN     = de-jong-explorer
 
-HEADERS = \
-	src/color-button.h	\
-	src/de-jong.h		\
-	src/explorer.h		\
-	src/animation.h		\
-	src/chunked-file.h	\
-	src/curve-editor.h	\
-	src/spline.h		\
-	src/cell-renderer-transition.h \
-	src/cell-renderer-bifurcation.h \
-	src/histogram-imager.h	\
-	src/parameter-holder.h	\
-	src/bifurctaion-diagram.h
-
 OBJS    = \
 	src/main.o		\
 	src/de-jong.o		\
@@ -39,7 +25,7 @@ OBJS    = \
 $(BIN): $(OBJS)
 	gcc -o $@ $(OBJS) $(LIBS)
 
-%.o: %.c $(HEADERS)
+%.o: %.c src/*.h
 	gcc -c -o $@ $< $(CFLAGS)
 
 clean:

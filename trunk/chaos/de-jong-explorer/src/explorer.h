@@ -54,6 +54,7 @@ struct _Explorer {
   GtkStatusbar *statusbar;
   guint render_status_message_id;
   guint render_status_context;
+  gboolean status_dirty_flag;
 
   guint idler;
   gboolean setting_params;
