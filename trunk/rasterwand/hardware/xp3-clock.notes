@@ -73,3 +73,16 @@ the XP3 into a rasterwand device.
     USB should now work- with a chip in the U1 socket, the device
     should be enumerated and appear in lsusb or usbview.
 
+16. Scrape off the solder mask to expose small areas of each button
+    trace, near where they were cut (under L1). Stagger them so that
+    it's easy to solder to each trace without shorting to nearby
+    traces. From each, solder a 220k resistor. Connect the other side
+    of all 220k resistors to +5v, available nearby from Q3.
+
+17. Connect the switches. Looking at the back of the board, with the
+    wand pointing up, from topmost trace to bottommost trace, the switches
+    connect to pins 4, 2, 6, 3, and 5 on U1.
+
+18. Connect PORTB on U1 (pins 21 through 28) to the bases of Q4 through Q11,
+    respectively. These 8 wires carry the LED drive pattern.
+
