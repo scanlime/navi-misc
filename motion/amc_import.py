@@ -30,9 +30,10 @@ Tip: 'Imports an Acclaim AMC file and applies motion capture data to an armature
 import Blender
 import AMCReader
 
-def importData (reader, armature):
-    action = Blender.Armature.NLA.NewAction()
-    #action.setActive(armature)
+def importData (reader, armature, filename):
+    action = Blender.Armature.NLA.NewAction(filename)
+    object = armature.getParent()
+    action.setActive(object)
     scene = Blender.Scene.getCurrent()
     context = scene.getRenderingContext()
     b = {}
@@ -42,8 +43,7 @@ def importData (reader, armature):
         b[bone.getName()] = bone
 
     for frame in reader.frames:
-        print frame.number,type(frame.number)
-        context.currentFrame(int(frame.number))
+        context.currentFrame(frame.number)
         loc = frame.bones['root'][0:3]
         b['root'].setLoc(loc)
 
@@ -59,10 +59,9 @@ def fileSelectedCallback(filename):
             AMCReader.log.error('No armatures exist!')
         else:
             if len(armatures) == 1:
-                importData(reader, armatures[0])
+                importData(reader, armatures[0], filename)
             else:
-                for a in armatures:
-                    print 'Armature ', a.name
+                pass
 
     if AMCReader.log.numErrors:
         AMCReader.log.report('Errors in loading AMC file')
