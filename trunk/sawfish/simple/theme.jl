@@ -73,6 +73,8 @@
 
     (default-icon (make-image "icon.png"))
 
+    (foreground-color (list "black" "white"))
+
 ;; frame layout
 
     (frame
@@ -81,7 +83,7 @@
     ;; title
 
         ((background . ,title-images)
-         (foreground . ("white"))
+         (foreground . ,foreground-color)
          (font . ,font)
          (text . ,window-name)
          (x-justify . center)
@@ -197,7 +199,7 @@
     ;; title
 
         ((background . ,s-title-images)
-         (foreground . ("white"))
+         (foreground . ,foreground-color)
          (font . ,font)
          (text . ,window-name)
          (x-justify . center)
@@ -271,7 +273,7 @@
     ;; title
 
         ((background . ,title-images)
-         (foreground . ("white"))
+         (foreground . ,foreground-color)
          (font . ,font)
          (text . ,window-name)
          (x-justify . center)
@@ -371,7 +373,7 @@
     ;; title
 
         ((background . ,s-title-images)
-         (foreground . ("white"))
+         (foreground . ,foreground-color)
          (font . ,font)
          (text . ,window-name)
          (x-justify . center)
