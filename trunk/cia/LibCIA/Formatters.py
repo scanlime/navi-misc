@@ -127,10 +127,6 @@ class CommitToIRC(CommitFormatter):
         import IRC
         return 'r' + IRC.format(str(rev), 'bold')
 
-    def format_files(self, files):
-        import IRC
-        return IRC.format(CommitFormatter.format_files(self, files), 'bold')
-
     def join_message(self, metadata, log):
         import IRC
         return "%s%s %s" % (" ".join(metadata), IRC.format(':', 'bold'), log)
