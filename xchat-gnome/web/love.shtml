@@ -43,7 +43,7 @@
 	  in #xchat-gnome.</p><br /><br />
 	  <b>irc:// URI support</b><br />
 	  <p>There are a couple parts to this. The first is a parser for the URI that
-	  handles everything in <a href="http://www.ietf.org/internet-drafts/draft-butcher-irc-url-02.tx.txt">This internet draft</a>.
+	  handles everything in <a href="http://www.ietf.org/internet-drafts/draft-butcher-irc-url-02.tx.txt">this internet draft</a>.
 	  The second is registering URL handlers with gnome.</p>
 	</div>
       </div>
