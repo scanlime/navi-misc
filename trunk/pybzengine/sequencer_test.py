@@ -77,7 +77,7 @@ class TextureTest(Sequencer.Page):
         self.view.camera.distance -= dt * 8
 
         # Once the camera is too close to the crate, declare this scene finished
-        if self.view.camera.distance < 7:
+        if self.view.camera.distance < 8:
             self.onFinish()
 
     def finalize(self):
@@ -88,10 +88,12 @@ class TextureTest(Sequencer.Page):
 book = Sequencer.Book(view, [
 
     # Zoom in on the 'texture_test' model. This page finishes itself when the camera is close enough.
-    Sequencer.FadeIn(3, (1,1,1), TextureTest),
+    # We fade in from black slowly, and fade out to white quickly
+    Sequencer.FadeIn(3, (0,0,0), Sequencer.FadeOut(0.2, (1,1,1), TextureTest)),
 
     # Show some perty particle systems for 5 seconds, using the PageTimer
-    Sequencer.PageTimer(5, Sparks),
+    # Fade in from white quickly.
+    Sequencer.FadeIn(0.2, (1,1,1), Sequencer.PageTimer(5, Sparks)),
 
     # Spin the 'monkey' model for 10 seconds
     Sequencer.PageTimer(10, Monkey),
