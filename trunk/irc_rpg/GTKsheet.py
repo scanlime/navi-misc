@@ -28,8 +28,7 @@ class GTKsheet:
       #newObject.setAttributes(newNode)
 
       for node in newNode.childNodes:
-	if node.nodeType is xml.dom.Node.ELEMENT_NODE:
-	  newObject.packChild(self.makeObjects(node, newObject))
+	if node.nodeType is xml.dom.Node.ELEMENT_NODE: newObject.packChild(self.makeObjects(node, newObject))
       return newObject
 
     # Tag is data for it's parent object.
@@ -42,8 +41,9 @@ class GTKsheet:
 
 class character_sheet(gtk.Window):
   def __init__(self, node):
-    gtk.Window.__init__(self)
+    gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
     self.node = node
+    self.connect("delete_event", lambda w,d: gtk.main_quit())
 
   def packChild(self, child):
     gtk.Window.add(self, child)
@@ -59,13 +59,22 @@ class tab_view(gtk.Notebook):
     self.set_tab_pos(gtk.POS_TOP)
 
   def packChild(self, child):
-    gtk.Notebook.append_page(self, child, gtk.Label("bob"))
+    gtk.Notebook.append_page(self, child, child.label)
     child.show()
 
 class tab(gtk.HBox):
   def __init__(self, node):
     gtk.HBox.__init__(self)
     self.node = node
+    # Grab tags attributes.
+    self.attributes = {}
+    for i in range(node.attributes.length):
+      self.attributes[node.attributes.item(i).name] =\
+	  node.getAttribute(node.attributes.item(i).name)
+    if self.attributes.has_key('label'):
+      self.label = gtk.Label(self.attributes['label'])
+    else:
+      self.label = gtk.Label()
 
   def packChild(self, child):
     gtk.HBox.pack_start(self, child)
@@ -77,7 +86,11 @@ class text_field(gtk.HBox):
       """
   def __init__(self, node):
     gtk.HBox.__init__(self)
-    self.label = gtk.Label()
+    self.attributes = {}
+    for i in range(node.attributes.length):
+      self.attributes[node.attributes.item(i).name] =\
+	  node.getAttribute(node.attributes.item(i).name)
+    self.label = gtk.Label(self.attributes['label'])
     self.text = gtk.Entry()
     self.pack_start(self.label)
     self.pack_start(self.text)
@@ -97,7 +110,11 @@ class dice(gtk.Button):
       it.
       """
   def __init__(self, node):
-    gtk.Button.__init__(self)
+    self.attributes = {}
+    for i in range(node.attributes.length):
+      self.attributes[node.attributes.item(i).name] =\
+	  node.getAttribute(node.attributes.item(i).name)
+    gtk.Button.__init__(self, self.attributes['label'])
     self.node = node
     # Will this work?
     self.connect("clicked", self.roll)
