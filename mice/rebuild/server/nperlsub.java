@@ -53,8 +53,8 @@ public class nperlsub extends nbase
 		String toreturn = "", temp;
 		int value = 32;
 		StringTokenizer tokens = new StringTokenizer(toclean,"%",false);
-		if(toreturn.hasMoreTokens())
-			tokens.nextToken();
+		if(tokens.hasMoreTokens())
+			toreturn = tokens.nextToken();
 		while(tokens.hasMoreTokens())
 		{
 			//squeeze the juice out of it!
