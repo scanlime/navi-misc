@@ -31,7 +31,7 @@ Requires Twisted and mmpython.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import struct, md5, os, random
+import struct, md5, os, random, time
 import shelve, cPickle
 from cStringIO import StringIO
 from twisted.internet import protocol, defer, reactor
@@ -289,6 +289,7 @@ class StructRequest(StatefulRequest):
     def state_normalReply(self, fileObj):
         if self.fillResponseBuffer(fileObj, self._responseLength):
             response = struct.unpack(self.responseFormat, self.responseBuffer)
+            self.responseBuffer = ''
             self.receivedResponse(fileObj, *response)
 
     def receivedResponse(self, source, *args):
@@ -385,11 +386,10 @@ class Request_GetDeviceSettings(StructRequest):
         self.decodeStatus(status)
         self.properties = PropertyFileAdaptor({})
 
-        self.readResponse = self.readSettings
         self.reader = AlignedStringReader()
-        self.readSettings(source)
+        self.stateTransition(self.state_readSettings, source)
 
-    def readSettings(self, fileObj):
+    def state_readSettings(self, fileObj):
         if not self.reader.next(fileObj, self.properties):
             self.result.callback(self.properties.db)
 
@@ -430,9 +430,25 @@ class Request_ReleaseIOLock(StructRequest):
 
 
 class Request_WriteFileChunk(StructRequest):
+    """Write a block of data to a file, identified by its number.
+       The offset and size are 64-bit.
+       """
     id = 12
-    def __init__(self):
-        raise NotImplementedError
+    requestFormat = '<QQII'
+    responseFormat = '<I'
+
+    def __init__(self, fileID, offset, size, dataSource, storageID=0):
+        self.dataSource = dataSource
+        self.parameters = (offset, size, fileID, storageID)
+        StructRequest.__init__(self)
+
+    def sendTo(self, fileObj):
+        StructRequest.sendTo(self, fileObj)
+        AlignedBlockWriter().next(self.dataSource, fileObj)
+
+    def receivedResponse(self, source, status):
+        self.decodeStatus(status)
+        self.result.callback(None)
 
 
 class Request_GetAllFileDetails(StructRequest):
@@ -450,11 +466,10 @@ class Request_GetAllFileDetails(StructRequest):
         self.decodeStatus(status)
         self.fileDatabase = FileDatabaseWriter(self.callback)
 
-        self.readResponse = self.readSettings
         self.reader = AlignedStringReader()
-        self.readSettings(source)
+        self.stateTransition(self.state_readFiles, source)
 
-    def readSettings(self, fileObj):
+    def state_readFiles(self, fileObj):
         if not self.reader.next(fileObj, self.fileDatabase):
             self.result.callback(None)
 
@@ -479,11 +494,10 @@ class Request_GetFileDetails(StructRequest):
         self.decodeStatus(status)
         self.properties = PropertyFileWriter(self.storage)
 
-        self.readResponse = self.readDetails
         self.reader = AlignedStringReader()
-        self.readDetails(source)
+        self.stateTransition(self.state_readDetails, source)
 
-    def readDetails(self, fileObj):
+    def state_readDetails(self, fileObj):
         if not self.reader.next(fileObj, self.properties):
             self.result.callback(self.storage)
 
@@ -511,9 +525,38 @@ class Request_UpdateFileDetails(StructRequest):
 
 
 class Request_ReadFileChunk(StructRequest):
+    """Read a block of data from a file, identified by its number.
+       This supports 64-bit offsets and lengths. This writes
+       all received data to the 'destination' file-like object,
+       then returns, via a deferred, the number of bytes
+       actually read.
+       """
     id = 16
-    def __init__(self):
-        raise NotImplementedError
+    requestFormat = '<QQI'
+    responseFormat = '<QI'
+
+    def __init__(self, fileID, offset, size, destination):
+        self.destination = destination
+        self.parameters = (offset, size, fileID)
+        StructRequest.__init__(self)
+
+    def receivedResponse(self, source, size, status):
+        self.decodeStatus(status)
+        self.reader = AlignedBlockReader(size)
+        self.stateTransition(self.state_readChunk, source)
+
+    def state_readChunk(self, fileObj):
+        """Wait for the bulk of the file to transfer"""
+        if not self.reader.next(fileObj, self.destination):
+            self.stateTransition(self.state_finalStatus, fileObj)
+
+    def state_finalStatus(self, fileObj):
+        """Wait for the final status code to arrive, after the file content"""
+        if self.fillResponseBuffer(fileObj, 4):
+            status = struct.unpack("<I", self.responseBuffer)[0]
+            self.responseBuffer = ''
+            self.decodeStatus(status)
+            self.result.callback(self.reader.transferred)
 
 
 class Request_DeleteFile(StructRequest):
@@ -536,7 +579,7 @@ class Request_Hangup(StructRequest):
 
 
 ############################################################################
-#####################################################  Property Storage  ###
+#####################################################  Protocol Helpers  ###
 ############################################################################
 
 class AlignedStringReader:
@@ -569,22 +612,23 @@ class AlignedStringReader:
                 else:
                     destination.write(block[:i])
                     self.foundNull = True
+        return False
 
 
 class AlignedStringWriter:
     """This object copies all data from the source into one
        4-byte-aligned null terminated string in the destination.
        """
-    blockSize = 4096
+    bufferSize = 4096
 
     def next(self, source, destination):
         totalLength = 0
 
         # Copy as many complete blocks as we can, tracking the total size
         while 1:
-            block = source.read(self.blockSize)
+            block = source.read(self.bufferSize)
             totalLength += len(block)
-            if len(block) == self.blockSize:
+            if len(block) == self.bufferSize:
                 destination.write(block)
             else:
                 break
@@ -592,6 +636,57 @@ class AlignedStringWriter:
         # Null-terminate the last block
         block += "\x00" * (4 - (totalLength & 0x03))
         destination.write(block)
+
+
+class AlignedBlockReader:
+    """This object copies one 4-byte-aligned block from source to
+       destination, in which the length is known beforehand.
+       This returns True as long as it needs more data.
+       """
+    def __init__(self, size, bufferSize=16384):
+        self.size = size
+        self.bufferSize = bufferSize
+        self.paddedSize = size + ((4 - (size & 0x03)) & 0x03)
+        self.transferred = 0
+
+    def next(self, source, destination):
+        while self.transferred < self.paddedSize:
+            block = source.read(min(self.bufferSize, self.paddedSize - self.transferred))
+            if not block:
+                return True
+            self.transferred += len(block)
+
+            if self.transferred >= self.bufferSize:
+                # We've transferred all the real data already, the rest is padding
+                continue
+            else:
+                # Write up until we hit the end of the real data
+                destination.write(block[:self.bufferSize - self.transferred])
+        return False
+
+
+class AlignedBlockWriter:
+    """This object copies all data from the source into one
+       4-byte-aligned block in the destination.
+       """
+    bufferSize = 16384
+
+    def next(self, source, destination):
+        totalLength = 0
+
+        # Copy as many complete buffers as we can, tracking the total size
+        while 1:
+            block = source.read(self.bufferSize)
+            totalLength += len(block)
+            if len(block) == self.bufferSize:
+                destination.write(block)
+            else:
+                break
+
+        # Pad the last block as necessary
+        block += "\x00" * ((4 - (totalLength & 0x03)) & 0x03)
+        if block:
+            destination.write(block)
 
 
 class LineBufferedWriter:
@@ -892,9 +987,9 @@ class Cache:
 ############################################################################
 
 class Filesystem:
-    """The Filesystem is a high-level abstraction for the Rio's file database.
-       This includes a local cache of the device's database, and interfaces
-       for obtaining and storing File objects.
+    """The Filesystem coordinates the activity of several File objects
+       through one Protocol, and provides ways of discovering Files.
+       It owns a local cache of the rio's database, which it can synchronize.
        """
     def __init__(self, protocol, cacheDir="~/.riokarma-py/cache"):
         self.protocol = protocol
@@ -1006,6 +1101,12 @@ class File:
        have lifetimes disjoint from that of the actual files on disk- if a
        file ID is provided, existing metadata is looked up. If an ID isn't
        provided, we generate a new ID and metadata will be uploaded.
+
+       Files are responsible for holding metadata, extracting that metadata
+       from real files on disk, and for transferring a file's content to and
+       from disk. Since the real work of metadata extraction is done by
+       mmpython, this mostly concerns translating mmpython's metadata into
+       the Rio's metadata format.
        """
 
     # This table maps mmpython classes to codec names for all
@@ -1016,6 +1117,13 @@ class File:
         mmpython.audio.pcminfo.PCMInfo:     'wave',
         mmpython.video.asfinfo.AsfInfo:     'wma',
         mmpython.audio.ogginfo.OggInfo:     'vorbis',
+        }
+
+    # Maps codec names to extensions. Identity mappings are the
+    # default, so they are omitted.
+    codecExtensions = {
+        'wave': 'wav',
+        'vorbis': 'ogg',
         }
 
     def __init__(self, filesystem, fileID=None):
@@ -1032,8 +1140,31 @@ class File:
                 }
         else:
             # Load this file from the cache
-            self.fileID = fileID
+            self.fileID = int(fileID)
             self.details = self.filesystem.cache.fileDetails[str(fileID)]
+
+    def pickFilename(self, replaceSpaces=True, lowercase=True):
+        """Determine a good filename to use for this file. If it's a data file,
+           this will use the original file as stored in 'title'. Otherwise,
+           it cleans up the filename (always removing slashes, optionally
+           replacing spaces with underscores) and adds an extension.
+           """
+        if self.details.get('type') == 'taxi':
+            return self.details['title']
+
+        name = self.details['title']
+        name = name.replace(os.sep, "")
+        if replaceSpaces:
+            name = name.replace(" ", "_")
+        if lowercase:
+            name = name.lower()
+
+        codec = self.details.get('codec')
+        extension = self.codecExtensions.get(codec, codec)
+        if extension:
+            name += '.' + extension
+
+        return name
 
     def loadMetadataFrom(self, filename):
         """Automagically load media metadata out of the provided filedata,
@@ -1051,7 +1182,6 @@ class File:
         self.details['type'] = 'taxi'
 
         if info:
-
             # Mime types aren't implemented consistently in mmpython, but
             # we can look at the type of the returned object to decide
             # whether this is a format that the Rio probably supports.
@@ -1062,9 +1192,8 @@ class File:
                     self.details['codec'] = codec
                     break
 
-            # Map mmpython keys to Rio keys
+            # Map simple keys that don't require and hackery
             for fromKey, toKey in (
-                ('trackno', 'tracknr'),
                 ('artist', 'artist'),
                 ('title', 'title'),
                 ('album', 'source'),
@@ -1075,17 +1204,54 @@ class File:
                 if v is not None:
                     self.details[toKey] = v
 
-        # If mmpython understood this file and it's something the rio can
-        # play, label it as a 'tune', otherwise the type should be 'taxi'
-        # so it's considered as a data file for use with rio taxi
+            # The rio uses a two-letter prefix on bit rates- the first letter
+            # is 'f' or 'v', presumably for fixed or variable. The second is
+            # 'm' for mono or 's' for stereo. There doesn't seem to be a good
+            # way to get VBR info out of mmpython, so currently this always
+            # reports a fixed bit rate. We also have to kludge a bit because
+            # some metdata sources give us bits/second while some give us
+            # kilobits/second. And of course, there are multiple ways of
+            # reporting stereo...
+            kbps = info['bitrate']
+            if kbps and kbps > 0:
+                stereo = bool( (info['channels'] and info['channels'] >= 2) or
+                               (info['mode'] and info['mode'].find('stereo') >= 0) )
+                if kbps > 8000:
+                    kbps = kbps // 1000
+                self.details['bitrate'] = ('fm', 'fs')[stereo] + str(kbps)
 
-        # All taxi files plus any audio files without titles get their filename
-        if self.details['type'] == 'taxi' or not self.details.get('title'):
+            # If mmpython gives us a length it seems to always be in seconds,
+            # whereas the Rio expects milliseconds.
+            length = info['length']
+            if length:
+                self.details['duration'] = str(int(length * 1000))
+
+            # mmpython often gives track numbers as a fraction- current/total.
+            # The Rio only wants the current track, and we might as well also
+            # strip off leading zeros and such.
+            trackNo = info['trackno']
+            if trackNo:
+                self.details['tracknr'] = str(int(trackNo.split("/", 1)[0]))
+
+        if self.details['type'] == 'taxi':
+
+            # All taxi files get their filename as their title, regardless of what mmpython said
             self.details['title'] = os.path.basename(filename)
+
+            # Taxi files also always get a codec of 'taxi'
+            self.details['codec'] = 'taxi'
+
+        elif not self.details.get('title'):
+
+            # Music files that still don't get a title get their filename minus the extension
+            self.details['title'] = os.path.splitext(os.path.basename(filename))[0]
+
+            # Music files get an 'RID' message digest
+            RidCalculator().fromFile(filename, st.st_size, info)
 
     def loadFrom(self, filename):
         """Load this file's metadata and content from a file on disk"""
-        
+
 
 
 ### The End ###
