@@ -85,7 +85,7 @@ static ssize_t usb_widget_dev_write (struct file *file, const char *buffer, size
 		dbg("Sending 0x%02X", byte);
 
 		usb_control_msg(widget->usbdev, usb_sndctrlpipe(widget->usbdev, 0),
-				0, 0x40, byte, 0, NULL, 0, 2);
+				0, 0x40, byte, 0, NULL, 0, HZ / 2);
 
 		return 1;
 	}
