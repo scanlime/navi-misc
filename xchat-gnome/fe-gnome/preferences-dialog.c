@@ -27,6 +27,118 @@
 #include "preferences-plugins-page.h"
 #include "pixmaps.h"
 
+static GtkDialogClass *parent_class;
+
+static void
+preferences_dialog_dispose (GObject *object)
+{
+	PreferencesDialog *p = (PreferencesDialog *) object;
+
+	if (p->gconf) {
+		g_object_unref (p->gconf);
+		p->gconf = NULL;
+	}
+
+	((GObjectClass *) parent_class)->dispose (object);
+}
+
+static void
+preferences_dialog_class_init (PreferencesDialogClass *klass)
+{
+	GObjectClass *parent = (GObjectClass *) klass;
+	parent->dispose = preferences_dialog_dispose;
+}
+
+static void
+preferences_dialog_init (PreferencesDialog *p)
+{
+	GtkCellRenderer *icon_renderer, *text_renderer;
+	GtkTreeViewColumn *column;
+	GtkTreeSelection *select;
+	GladeXML *xml;
+
+	p->gconf = NULL;
+	p->toplevel = NULL;
+
+	xml = NULL;
+	if (g_file_test ("preferences-dialog.glade", G_FILE_TEST_EXISTS))
+		xml = glade_xml_new ("preferences-dialog.glade", "toplevel", NULL);
+	if (!xml)
+		xml = glade_xml_new (XCHATSHAREDIR "/preferences-dialog.glade", "toplevel", NULL);
+	if (!xml)
+		return;
+
+#define GW(name) ((p->name) = glade_xml_get_widget (xml, #name))
+	GW(toplevel);
+	GW(settings_page_list);
+	GW(settings_notebook);
+#undef GW
+
+	g_object_unref (xml);
+
+	p->gconf = gconf_client_get_default ();
+
+	gtk_dialog_add_button (GTK_DIALOG (p), GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE);
+	gtk_dialog_add_button (GTK_DIALOG (p), GTK_STOCK_HELP, GTK_RESPONSE_HELP);
+	gtk_container_set_border_width (GTK_CONTAINER (p), 6);
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (p)->vbox), p->toplevel);
+	gtk_dialog_set_has_separator (GTK_DIALOG (p), FALSE);
+
+	gtk_notebook_set_show_tabs (GTK_NOTEBOOK (p->settings_notebook), FALSE);
+
+	p->page_store = gtk_list_store_new (3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
+	gtk_tree_view_set_model (GTK_TREE_VIEW (p->settings_page_list), GTK_TREE_MODEL (p->page_store));
+	column = gtk_tree_view_column_new ();
+	icon_renderer = gtk_cell_renderer_pixbuf_new ();
+	text_renderer = gtk_cell_renderer_text_new ();
+	gtk_tree_view_column_pack_start (column, icon_renderer, FALSE);
+	gtk_tree_view_column_set_attributes (column, icon_renderer, "pixbuf", 0, NULL);
+	gtk_tree_view_column_pack_start (column, text_renderer, FALSE);
+	gtk_tree_view_column_set_attributes (column, text_renderer, "text", 1, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (p->settings_page_list), column);
+
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (p->settings_page_list));
+	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
+}
+
+GType
+preferences_dialog_get_type (void)
+{
+	static GType preferences_dialog_type = 0;
+	if (!preferences_dialog_type) {
+		static const GTypeInfo preferences_dialog_info = {
+			sizeof (PreferencesDialogClass),
+			NULL, NULL,
+			(GClassInitFunc) preferences_dialog_class_init,
+			NULL, NULL,
+			sizeof (PreferencesDialog),
+			0,
+			(GInstanceInitFunc) preferences_dialog_init,
+		};
+		preferences_dialog_type = g_type_register_static (GTK_TYPE_DIALOG, "PreferencesDialog", &preferences_dialog_info, 0);
+
+		parent_class = g_type_class_ref (GTK_TYPE_DIALOG);
+	}
+
+	return preferences_dialog_type;
+}
+
+PreferencesDialog *
+preferences_dialog_new ()
+{
+	PreferencesDialog *p = g_object_new (preferences_dialog_get_type (), 0);
+	if (p->toplevel == NULL) {
+		g_object_unref (p);
+		return NULL;
+	}
+
+	return p;
+}
+
+/*******************************************************************************
+ * CRUFT BARRIER ***************************************************************
+ *******************************************************************************/
+
 void initialize_pages_list ();
 void hide_preferences_dialog (GtkWidget *widget, gpointer data);
 void initialize_file_transfers_page ();
