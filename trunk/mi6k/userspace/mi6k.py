@@ -4,7 +4,9 @@ Python module for interacting with the Media Infrawidget 6000
 """
 
 from fcntl import ioctl
+import struct
 from Numeric import *
+
 
 class CenturyVFD:
     width = 20
@@ -101,9 +103,45 @@ class CenturyVFD:
 
     def flush(self):
         self.dev.flush()
-        
+
+
+class Lights(object):
+    """Abstraction for the mi6k's front panel lights. They can both be set in one operation
+       using the set() member, or they can be transparently modified using the magic of properties.
+       All brightnesses are normalized to fit the range [0,1]
+       """
+    def __init__(self, dev):
+        self.dev = dev
+        self._white = 0
+        self._blue = 0
+
+    def set(self, white, blue):
+        ioctl(self.dev, 0x3601, struct.pack("HH",
+                                            min(1, max(0, white)) * 0xFFFF,
+                                            min(1, max(0, blue )) * 0xFFFF))
+
+    def setWhite(self, white):
+        self.set(white, self._blue)
+        self._white = white
+        self.dev.flush()
+
+    def setBlue(self, blue):
+        self.set(self._white, blue)
+        self._blue = blue
+        self.dev.flush()
+
+    def getWhite(self):
+        return self._white
+
+    def getBlue(self):
+        return self._blue
+
+    blue = property(getBlue, setBlue)
+    white = property(getWhite, setWhite)
+
 
 class MI6K:
-    def __init__(self):
-        self.dev = open("/dev/usb/mi6k0", "w")
+    def __init__(self, device="/dev/usb/mi6k0"):
+        self.dev = open(device, "w")
         self.vfd = CenturyVFD(self.dev)
+        self.lights = Lights(self.dev)
