@@ -458,17 +458,51 @@ class CommitToXHTMLLong(CommitToXHTML):
         """Format the contents of our <files> tag as a tree with nested lists"""
         from LibCIA.Web import Template
 
-        # First we organize the files into a tree of nested dictionaries
+        # First we organize the files into a tree of nested dictionaries.
+        # The dictionary we ultimately have FileTree render maps each node
+        # (file or directory) to a dictionary of its contents. The keys
+        # in these dictionaries can be any Nouvelle-renderable object
+        # produced by format_file.
+        #
+        # As a first step, we build a dictionary mapping path segment to
+        # [fileTag, children] lists. We then create a visual representation
+        # of each fileTag and generate the final dictionary.
         fileTree = {}
         if xmlFiles:
             for fileTag in XML.getChildElements(xmlFiles):
                 if fileTag.nodeName == 'file':
                     # Separate the file into path segments and walk into our tree
-                    node = fileTree
+                    node = [None, fileTree]
                     for segment in XML.shallowText(fileTag).split('/'):
-                        node = node.setdefault(segment, {})
+                        node = node[1].setdefault(segment, [None, {}])
+                    # The leaf node owns this fileTag
+                    node[0] = fileTag
 
-        # Now generate Nouvelle tags from our dict tree
-        return Template.FileTree(fileTree)
+        return Template.FileTree(self.format_file_tree(fileTree))
+
+    def format_file_tree(self, fileTree):
+        """This is the second half of format_files- it recursively
+           converts a tree of [fileTag,children] style dictionaries
+           into a tree of Template.FileTree() compatible dicts,
+           using format_file() to render each fileTag.
+           """
+        result = {}
+        for name, t in fileTree.iteritems():
+            fileTag, children = t
+            result[self.format_file(name, fileTag)] = self.format_file_tree(children)
+        return result
+
+    def format_file(self, name, fileTag=None):
+        """Given the short name of a file, and optionally its XML tag,
+           return a Nouvelle-serializable representation.
+           """
+        if fileTag:
+            
+            # If we have a 'uri' attribute, make this file a hyperlink
+            uri = fileTag.getAttributeNS(None, 'uri')
+            if uri:
+                return tag('a', href=uri)[ name ]
+              
+        return name
 
 ### The End ###
