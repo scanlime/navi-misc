@@ -1,10 +1,9 @@
 <html>
 <head>
-<title>Mice Chat</title>
-<style type="text/css" media="all"> @import "mice.css";</style>
+<title>Mice Chat $(INT)</title>
 </head>
 <body>
-<div class="close">
+<center>
 <FORM ACTION="http://localhost/cgi-bin/submission.pl" METHOD="POST">
 <INPUT TYPE="TEXT" NAME="name" SIZE="31" VALUE="Name" ALT="Name Input Field"><br>
 <INPUT TYPE="TEXT" NAME="tag" SIZE="31" VALUE="Standing/Major" ALT="Standing and Major input Field"><br>
@@ -13,9 +12,10 @@ Question
 </TEXTAREA><br>
 <INPUT TYPE="SUBMIT" VALUE="Submit Question">
 </FORM>
-</div>
-<div class="qa">
-Just a little text after the end of the thing for fun.
-</div>
+</center>
+<!-- Begin the Question showing stuff -->
+<p>$(SUBMITTER) Asks: $(QUESTION)<br>
+$(INTERVIEW) Answeres: $(ANSWER)</p>
+<!-- End the single Question showing stuff -->
 </body>
 </html>
