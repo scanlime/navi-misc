@@ -76,8 +76,9 @@ if 'swig' in env['TOOLS']:
         # for the python module to be usable. We want to override the
         # shared library prefix, since it isn't needed or wanted for building
         # dynamically loadable python extensions.
-        pylibrcpod = env.SharedLibrary('pyrcpod/_librcpod', ['pyrcpod/librcpod.i', staticLib],
-                                       LIBS=libs, SHLIBPREFIX='')
+        pylibrcpod = env.SharedLibrary('pyrcpod/_librcpod',
+                                       ['pyrcpod/librcpod.i'] + libSrcPaths,
+                                       LIBS=libs)
 
 	# If we also have a valid installation path, use it
         if os.path.isdir(pyInstallPath):
