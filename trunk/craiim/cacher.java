@@ -60,14 +60,14 @@ public class cacher
 	if(nick.equals("gonkulator2"))
 	{
             if(message.startsWith("/me"))
-                Justin.me.sayAction(message.substring(3));
+                Justin.me.sayAction(message.substring(4));
             else
                 Justin.me.say(message);
         }
         else
 	{
 	    if(message.startsWith("/me"))
-		message = "*AIM:"+nick+ message.substring(3);
+		message = "*AIM:"+nick+ message.substring(4);
 	    else
 		message = "<AIM:"+nick+"> " + message;
 	    Justin.me.say(message);
