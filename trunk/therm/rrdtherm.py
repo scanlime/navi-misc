@@ -106,20 +106,28 @@ class Therm:
 
     def rrdInit(self):
         """Create a blank RRD for this therm"""
-        rrd("create", self.rrdFile,
-            "DS:temperature:GAUGE:600:U:U",
-            "RRA:AVERAGE:0.5:1:600",
-            "RRA:AVERAGE:0.5:6:700",
-            "RRA:AVERAGE:0.5:24:775",
-            "RRA:AVERAGE:0.5:288:797",
-            "RRA:MAX:0.5:1:600",
-            "RRA:MAX:0.5:6:700",
-            "RRA:MAX:0.5:24:775",
-            "RRA:MAX:0.5:288:797",
-            "RRA:MIN:0.5:1:600",
-            "RRA:MIN:0.5:6:700",
-            "RRA:MIN:0.5:24:775",
-            "RRA:MIN:0.5:288:797")
+
+        # The heartbeat is the number of seconds rrdtool allows for each sample
+        heartbeat = self.config['averagePeriod']
+
+        # Define the steps and rows for each RRA in each CF (see the rrdcreate manpage)
+        rraList = [
+            (1, 60*60*24*2 / heartbeat),             # Store every sample for the last 2 days
+            (7, 60*60*24*7*2 / heartbeat / 7),       # Every 7th sample for the last 2 weeks
+            (31, 60*60*24*31*2 / heartbeat / 31),    # Every 31st sample for the last 2 months
+            (365, 60*60*24*365*2 / heartbeat / 365), # Every 365th sample for the last 2 years
+            ]
+
+        # Start out with the parameters to define our RRD file and data source
+        params = ["create", self.rrdFile,
+                  "DS:temp:GAUGE:%s:U:U" % heartbeat]
+
+        # Define RRAs with all the combining functions we're interested in
+        for cf in ("AVERAGE", "MIN", "MAX"):
+            for steps, rows in rraList:
+                params.append("RRA:%s:0.5:%s:%s" % (cf, steps, rows))
+
+        rrd(*params)
 
     def update(self, time, value):
         """Update with new data. 'time' should be the UNIX time of the end of the sampling
@@ -140,14 +148,14 @@ class Therm:
                      "--height", str(self.config['graphSize'][1]),
 
                      # Min/max ranges for each therm
-                     "DEF:temp_min=%s:temperature:MIN" % self.rrdFile,
-                     "DEF:temp_max=%s:temperature:MAX" % self.rrdFile,
+                     "DEF:temp_min=%s:temp:MIN" % self.rrdFile,
+                     "DEF:temp_max=%s:temp:MAX" % self.rrdFile,
                      "CDEF:temp_span=temp_max,temp_min,-",
                      "AREA:temp_min",
                      "STACK:temp_span%s" % self.color.blend(Color(1,1,1), 0.7),
 
                      # Average line
-                     "DEF:temp_average=%s:temperature:AVERAGE" % self.rrdFile,
+                     "DEF:temp_average=%s:temp:AVERAGE" % self.rrdFile,
                      "LINE1:temp_average%s:%s" % (self.color, self.description),
 
                      # Unknown data
@@ -168,6 +176,7 @@ class ThermGrapher:
             "rrdDir":  "rrd",                             # Directory for RRD files
             "webUpdatePeriod": 10*60,                     # Number of seconds between web page and graph updates
             "webRefreshPeriod": 5*60,                     # Number of seconds between browser refreshes
+            'averagePeriod': 60,                          # Number of seconds the thermserver should average samples for
             "graphSize": (600,150),                       # Size of the graphs' drawing area (not of the final image)
             'graphIntervals': [                           # Intervals to make graphs at: (name,seconds) tuples
                ('6 hours', 60*60*6),
@@ -180,8 +189,12 @@ class ThermGrapher:
             'graphFormat': "%s.png",                      # Image format string for graphs
             }
         self.config.update(config)
-        
+
+        # Create a proxy object we use to make XML-RPC calls to the server,
+        # and make sure its averaging period is set correctly
         self.server = xmlrpclib.ServerProxy(self.config['server'])
+        self.server.setAveragePeriod(self.config['averagePeriod'])
+
         self.running = False
         self.lastWebUpdate = 0
 
