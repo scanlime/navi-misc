@@ -22,7 +22,7 @@
 #ifndef XCHAT_GNOME_SETUP_DRUID_H
 #define XCHAT_GNOME_SETUP_DRUID_H
 
-void initialize_setup_druid();
-void run_setup_druid();
+void initialize_setup_druid ();
+void run_setup_druid ();
 
 #endif

@@ -35,37 +35,43 @@
 XChatGUI gui;
 Userlist *u;
 
-gboolean initialize_gui_1() {
-	gui.xml = glade_xml_new("xchat-gnome.glade", NULL, NULL);
-	if(!gui.xml)
-		gui.xml = glade_xml_new(XCHATSHAREDIR"/xchat-gnome.glade", NULL, NULL);
-	if(!gui.xml)
+gboolean
+initialize_gui_1 ()
+{
+	gui.xml = glade_xml_new ("xchat-gnome.glade", NULL, NULL);
+	if (!gui.xml)
+		gui.xml = glade_xml_new (XCHATSHAREDIR "/xchat-gnome.glade", NULL, NULL);
+	if (!gui.xml)
 		return FALSE;
-	initialize_setup_druid();
+	initialize_setup_druid ();
 	return TRUE;
 }
 
-gboolean initialize_gui_2() {
+gboolean
+initialize_gui_2 ()
+{
 	GtkWidget *widget;
 
 	gui.current_session = NULL;
-	pixmaps_init();
-	initialize_main_window();
-	initialize_text_gui();
-	initialize_preferences_dialog();
-	initialize_connection_dialog();
-	initialize_userlist();
-	initialize_transfers_window();
+	pixmaps_init ();
+	initialize_main_window ();
+	initialize_text_gui ();
+	initialize_preferences_dialog ();
+	initialize_connection_dialog ();
+	initialize_userlist ();
+	initialize_transfers_window ();
 
-	gui.tree_model = navigation_model_new();
-	gui.server_tree = navigation_tree_new(gui.tree_model);
-	widget = glade_xml_get_widget(gui.xml, "server channel list");
-	gtk_widget_show(GTK_WIDGET(gui.server_tree));
-	gtk_container_add(GTK_CONTAINER(widget), GTK_WIDGET(gui.server_tree));
+	gui.tree_model = navigation_model_new ();
+	gui.server_tree = navigation_tree_new (gui.tree_model);
+	widget = glade_xml_get_widget (gui.xml, "server channel list");
+	gtk_widget_show (GTK_WIDGET (gui.server_tree));
+	gtk_container_add (GTK_CONTAINER (widget), GTK_WIDGET (gui.server_tree));
 
 	return TRUE;
 }
 
-int xtext_get_stamp_str (time_t tim, char **ret) {
-	return get_stamp_str("[%H:%M:%S] ", tim, ret);
+int
+xtext_get_stamp_str (time_t tim, char **ret)
+{
+	return get_stamp_str ("[%H:%M:%S] ", tim, ret);
 }

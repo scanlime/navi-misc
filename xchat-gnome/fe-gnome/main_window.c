@@ -195,7 +195,7 @@ initialize_main_window ()
 }
 
 void
-run_main_window()
+run_main_window ()
 {
 	GtkWidget *pane;
 	int width, height;

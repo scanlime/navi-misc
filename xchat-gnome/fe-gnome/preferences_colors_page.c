@@ -28,67 +28,71 @@
 static void gconf_color_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkEntry *entry);
 static void gconf_palette_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkEntry *entry);
 
-static void set_color_buttons(int selection, GtkWidget **color_buttons) {
-	load_colors(selection);
-	palette_alloc(GTK_WIDGET(gui.xtext));
-	gtk_xtext_set_palette(gui.xtext, colors);
-	gtk_xtext_set_background(gui.xtext, NULL, FALSE, FALSE);
-	gtk_xtext_refresh(gui.xtext, FALSE);
-	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[0]), &colors[18]);
-	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[1]), &colors[19]);
-	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[2]), &colors[17]);
-	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[3]), &colors[16]);
+static void
+set_color_buttons (int selection, GtkWidget **color_buttons)
+{
+	load_colors (selection);
+	palette_alloc (GTK_WIDGET (gui.xtext));
+	gtk_xtext_set_palette (gui.xtext, colors);
+	gtk_xtext_set_background (gui.xtext, NULL, FALSE, FALSE);
+	gtk_xtext_refresh (gui.xtext, FALSE);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[0]), &colors[18]);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[1]), &colors[19]);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[2]), &colors[17]);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[3]), &colors[16]);
 }
 
-static void set_palette_buttons(int selection, GtkWidget **palette_buttons) {
+static void
+set_palette_buttons (int selection, GtkWidget **palette_buttons)
+{
 	int i;
 
-	load_palette(selection);
-	for(i = 0; i < 16; i++) {
-		gtk_color_button_set_color(GTK_COLOR_BUTTON(palette_buttons[i]), &colors[i]);
-	}
-	palette_alloc(GTK_WIDGET(gui.xtext));
-	gtk_xtext_set_palette(gui.xtext, colors);
-	gtk_xtext_refresh(gui.xtext, FALSE);
+	load_palette (selection);
+	for (i = 0; i < 16; i++)
+		gtk_color_button_set_color (GTK_COLOR_BUTTON (palette_buttons[i]), &colors[i]);
+	palette_alloc (GTK_WIDGET (gui.xtext));
+	gtk_xtext_set_palette (gui.xtext, colors);
+	gtk_xtext_refresh (gui.xtext, FALSE);
 }
 
-static void colors_changed(GtkComboBox *combo_box, gpointer data) {
+static void
+colors_changed (GtkComboBox *combo_box, gpointer data)
+{
 	GtkWidget **color_buttons = (GtkWidget **) data;
 	int i, selection;
 	GConfClient *client;
 
 	client = gconf_client_get_default ();
 
-	selection = gtk_combo_box_get_active(combo_box);
-	if(selection == 2) {
-		for(i = 0; i < 4; i++)
-			gtk_widget_set_sensitive(color_buttons[i], TRUE);
-	} else {
-		for(i = 0; i < 4; i++)
-			gtk_widget_set_sensitive(color_buttons[i], FALSE);
-	}
+	selection = gtk_combo_box_get_active (combo_box);
+	if (selection == 2)
+		for (i = 0; i < 4; i++)
+			gtk_widget_set_sensitive (color_buttons[i], TRUE);
+	else
+		for (i = 0; i < 4; i++)
+			gtk_widget_set_sensitive (color_buttons[i], FALSE);
 	gconf_client_set_int (client, "/apps/xchat/irc/color_scheme", selection, NULL);
-	set_color_buttons(selection, color_buttons);
+	set_color_buttons (selection, color_buttons);
 }
 
-static void palette_changed(GtkComboBox *combo_box, gpointer data) {
+static void
+palette_changed (GtkComboBox *combo_box, gpointer data)
+{
 	GtkWidget **palette_buttons = (GtkWidget **) data;
 	int i, selection;
 	GConfClient *client;
 
 	client = gconf_client_get_default ();
 
-	selection = gtk_combo_box_get_active(combo_box);
-	if(selection == 1) {
-		for(i = 0; i < 16; i++)
-			gtk_widget_set_sensitive(palette_buttons[i], TRUE);
-	} else {
-		for(i = 0; i < 16; i++) {
-			gtk_widget_set_sensitive(palette_buttons[i], FALSE);
-		}
-	}
+	selection = gtk_combo_box_get_active (combo_box);
+	if (selection == 1)
+		for (i = 0; i < 16; i++)
+			gtk_widget_set_sensitive (palette_buttons[i], TRUE);
+	else
+		for (i = 0; i < 16; i++)
+			gtk_widget_set_sensitive (palette_buttons[i], FALSE);
 	gconf_client_set_int (client, "/apps/xchat/irc/palette_scheme", selection, NULL);
-	set_palette_buttons(selection, palette_buttons);
+	set_palette_buttons (selection, palette_buttons);
 }
 
 void
@@ -123,10 +127,10 @@ initialize_preferences_colors_page ()
 	color_buttons[1] = gtk_color_button_new ();
 	color_buttons[2] = gtk_color_button_new ();
 	color_buttons[3] = gtk_color_button_new ();
-	gtk_color_button_set_color (GTK_COLOR_BUTTON(color_buttons[0]), &colors[18]);
-	gtk_color_button_set_color (GTK_COLOR_BUTTON(color_buttons[1]), &colors[19]);
-	gtk_color_button_set_color (GTK_COLOR_BUTTON(color_buttons[2]), &colors[17]);
-	gtk_color_button_set_color (GTK_COLOR_BUTTON(color_buttons[3]), &colors[16]);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[0]), &colors[18]);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[1]), &colors[19]);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[2]), &colors[17]);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[3]), &colors[16]);
 	gtk_widget_set_sensitive (color_buttons[0], FALSE);
 	gtk_widget_set_sensitive (color_buttons[1], FALSE);
 	gtk_widget_set_sensitive (color_buttons[2], FALSE);

@@ -24,7 +24,7 @@
 #ifndef XCHAT_GNOME_PREFERENCES_PLUGINS_PAGE_H
 #define XCHAT_GNOME_PREFERENCES_PLUGINS_PAGE_H
 
-void initialize_preferences_plugins_page();
-void preferences_plugins_page_populate();
+void initialize_preferences_plugins_page ();
+void preferences_plugins_page_populate ();
 
 #endif

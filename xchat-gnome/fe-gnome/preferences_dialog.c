@@ -26,34 +26,40 @@
 #include "preferences_plugins_page.h"
 #include "pixmaps.h"
 
-void initialize_pages_list();
-void hide_preferences_dialog(GtkWidget *widget, gpointer data);
-void initialize_file_transfers_page();
-void settings_page_changed(GtkTreeSelection *selection, gpointer data);
+void initialize_pages_list ();
+void hide_preferences_dialog (GtkWidget *widget, gpointer data);
+void initialize_file_transfers_page ();
+void settings_page_changed (GtkTreeSelection *selection, gpointer data);
 
-void initialize_preferences_dialog() {
+void
+initialize_preferences_dialog ()
+{
 	GtkWidget *close_button;
 
-	gui.preferences_dialog = GTK_DIALOG(glade_xml_get_widget(gui.xml, "preferences"));
-	gtk_window_set_transient_for(GTK_WINDOW(gui.preferences_dialog), GTK_WINDOW(gui.main_window));
-	gtk_widget_hide_all(GTK_WIDGET(gui.preferences_dialog));
-	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(glade_xml_get_widget(gui.xml, "settings notebook")), FALSE);
-	initialize_pages_list();
-	initialize_preferences_irc_page();
-	initialize_file_transfers_page();
-	initialize_preferences_servers_page();
-	initialize_preferences_colors_page();
-	initialize_preferences_plugins_page();
+	gui.preferences_dialog = GTK_DIALOG (glade_xml_get_widget (gui.xml, "preferences"));
+	gtk_window_set_transient_for (GTK_WINDOW (gui.preferences_dialog), GTK_WINDOW (gui.main_window));
+	gtk_widget_hide_all (GTK_WIDGET (gui.preferences_dialog));
+	gtk_notebook_set_show_tabs (GTK_NOTEBOOK (glade_xml_get_widget (gui.xml, "settings notebook")), FALSE);
+	initialize_pages_list ();
+	initialize_preferences_irc_page ();
+	initialize_file_transfers_page ();
+	initialize_preferences_servers_page ();
+	initialize_preferences_colors_page ();
+	initialize_preferences_plugins_page ();
 
-	close_button = glade_xml_get_widget(gui.xml, "close preferences");
-	g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(hide_preferences_dialog), NULL);
+	close_button = glade_xml_get_widget (gui.xml, "close preferences");
+	g_signal_connect (G_OBJECT (close_button), "clicked", G_CALLBACK (hide_preferences_dialog), NULL);
 }
 
-void hide_preferences_dialog(GtkWidget *widget, gpointer data) {
-	gtk_widget_hide_all(GTK_WIDGET(gui.preferences_dialog));
+void
+hide_preferences_dialog (GtkWidget *widget, gpointer data)
+{
+	gtk_widget_hide_all (GTK_WIDGET (gui.preferences_dialog));
 }
 
-void initialize_pages_list() {
+void
+initialize_pages_list ()
+{
 	GtkWidget *options_list;
 	GtkListStore *store;
 	GtkTreeIter iter;
@@ -61,77 +67,79 @@ void initialize_pages_list() {
 	GtkTreeViewColumn *column;
 	GtkTreeSelection *select;
 
-	options_list = glade_xml_get_widget(gui.xml, "settings page list");
+	options_list = glade_xml_get_widget (gui.xml, "settings page list");
 
-	store = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
-	gtk_tree_view_set_model(GTK_TREE_VIEW(options_list), GTK_TREE_MODEL(store));
+	store = gtk_list_store_new (3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
+	gtk_tree_view_set_model (GTK_TREE_VIEW (options_list), GTK_TREE_MODEL (store));
 
-	column = gtk_tree_view_column_new();
-	icon_renderer = gtk_cell_renderer_pixbuf_new();
-	text_renderer = gtk_cell_renderer_text_new();
-	gtk_tree_view_column_pack_start(column, icon_renderer, FALSE);
-	gtk_tree_view_column_set_attributes(column, icon_renderer, "pixbuf", 0, NULL);
-	gtk_tree_view_column_pack_start(column, text_renderer, TRUE);
-	gtk_tree_view_column_set_attributes(column, text_renderer, "text", 1, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(options_list), column);
+	column = gtk_tree_view_column_new ();
+	icon_renderer = gtk_cell_renderer_pixbuf_new ();
+	text_renderer = gtk_cell_renderer_text_new ();
+	gtk_tree_view_column_pack_start (column, icon_renderer, FALSE);
+	gtk_tree_view_column_set_attributes (column, icon_renderer, "pixbuf", 0, NULL);
+	gtk_tree_view_column_pack_start (column, text_renderer, TRUE);
+	gtk_tree_view_column_set_attributes (column, text_renderer, "text", 1, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (options_list), column);
 
-	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(options_list));
-	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
-	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(settings_page_changed), NULL);
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (options_list));
+	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
+	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (settings_page_changed), NULL);
 
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 0, pix_prefs_irc, 1, "IRC Preferences", 2, 0, -1);
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 0, pix_prefs_colors, 1, "Colors", 2, 1, -1);
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 0, pix_prefs_dcc, 1, "File Transfers & DCC", 2, 2, -1);
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 0, pix_prefs_networks, 1, "Networks", 2, 3, -1);
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 0, pix_prefs_plugins, 1, "Scripts and Plugins", 2, 4, -1);
+	gtk_list_store_append (store, &iter);
+	gtk_list_store_set (store, &iter, 0, pix_prefs_irc, 1, "IRC Preferences", 2, 0, -1);
+	gtk_list_store_append (store, &iter);
+	gtk_list_store_set (store, &iter, 0, pix_prefs_colors, 1, "Colors", 2, 1, -1);
+	gtk_list_store_append (store, &iter);
+	gtk_list_store_set (store, &iter, 0, pix_prefs_dcc, 1, "File Transfers & DCC", 2, 2, -1);
+	gtk_list_store_append (store, &iter);
+	gtk_list_store_set (store, &iter, 0, pix_prefs_networks, 1, "Networks", 2, 3, -1);
+	gtk_list_store_append (store, &iter);
+	gtk_list_store_set (store, &iter, 0, pix_prefs_plugins, 1, "Scripts and Plugins", 2, 4, -1);
 }
 
 void initialize_file_transfers_page() {
 	GtkWidget *widget;
 	GtkSizeGroup *group;
 
-	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-	widget = glade_xml_get_widget(gui.xml, "dcc transfer destination");
-	gtk_size_group_add_widget(group, widget);
-	widget = glade_xml_get_widget(gui.xml, "completed dcc destination");
-	gtk_size_group_add_widget(group, widget);
-	g_object_unref(group);
+	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+	widget = glade_xml_get_widget (gui.xml, "dcc transfer destination");
+	gtk_size_group_add_widget (group, widget);
+	widget = glade_xml_get_widget (gui.xml, "completed dcc destination");
+	gtk_size_group_add_widget (group, widget);
+	g_object_unref (group);
 
-	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-	widget = glade_xml_get_widget(gui.xml, "download label");
-	gtk_size_group_add_widget(group, widget);
-	widget = glade_xml_get_widget(gui.xml, "completed label");
-	gtk_size_group_add_widget(group, widget);
-	g_object_unref(group);
+	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+	widget = glade_xml_get_widget (gui.xml, "download label");
+	gtk_size_group_add_widget (group, widget);
+	widget = glade_xml_get_widget (gui.xml, "completed label");
+	gtk_size_group_add_widget (group, widget);
+	g_object_unref (group);
 
-	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-	widget = glade_xml_get_widget(gui.xml, "dcc ip address");
-	gtk_size_group_add_widget(group, widget);
-	widget = glade_xml_get_widget(gui.xml, "individual send throttle");
-	gtk_size_group_add_widget(group, widget);
-	widget = glade_xml_get_widget(gui.xml, "global send throttle");
-	gtk_size_group_add_widget(group, widget);
-	widget = glade_xml_get_widget(gui.xml, "individual receive throttle");
-	gtk_size_group_add_widget(group, widget);
-	widget = glade_xml_get_widget(gui.xml, "global receive throttle");
-	gtk_size_group_add_widget(group, widget);
-	g_object_unref(group);
+	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+	widget = glade_xml_get_widget (gui.xml, "dcc ip address");
+	gtk_size_group_add_widget (group, widget);
+	widget = glade_xml_get_widget (gui.xml, "individual send throttle");
+	gtk_size_group_add_widget (group, widget);
+	widget = glade_xml_get_widget (gui.xml, "global send throttle");
+	gtk_size_group_add_widget (group, widget);
+	widget = glade_xml_get_widget (gui.xml, "individual receive throttle");
+	gtk_size_group_add_widget (group, widget);
+	widget = glade_xml_get_widget (gui.xml, "global receive throttle");
+	gtk_size_group_add_widget (group, widget);
+	g_object_unref (group);
 }
 
-void settings_page_changed(GtkTreeSelection *selection, gpointer data) {
+void
+settings_page_changed (GtkTreeSelection *selection, gpointer data)
+{
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 	GtkWidget *notebook;
 	gint page;
 
-	if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
-		notebook = glade_xml_get_widget(gui.xml, "settings notebook");
-		gtk_tree_model_get(model, &iter, 2, &page, -1);
-		gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page);
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		notebook = glade_xml_get_widget (gui.xml, "settings notebook");
+		gtk_tree_model_get (model, &iter, 2, &page, -1);
+		gtk_notebook_set_current_page (GTK_NOTEBOOK (notebook), page);
 	}
 }
