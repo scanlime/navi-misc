@@ -62,7 +62,7 @@ module n_serial_io_buffer (clk, reset,
 		else begin
 			/* Sync inputs for two cycles */
 			rx_sync[1] <= pad;
-			rx_sync[2] <= sda_in_sync[1];
+			rx_sync[2] <= rx_sync[1];
 			
 			/* Sync output once */
 			tx_sync <= tx;
@@ -123,7 +123,6 @@ module n_serial_tx (clk, reset,
                     serial_out);
 	input clk, reset;
 	output busy;
-	reg busy;
 	input tx_stopbit;
 	input [7:0] tx_data;
 	input strobe;
@@ -134,24 +133,21 @@ module n_serial_tx (clk, reset,
 	wire tick;
 	n_serial_timebase ticker(clk, reset, tick);
 	
-	/* Accept incoming data from our user.
-	 * This stores one byte in 'buffer' when
-	 * the strobe transitions from low to high
-	 * and sets 'busy'. The transmitter itself
-	 * will then clear 'busy' after it has read
-	 * the buffer's contents.
+	/* Buffer the incoming data stream, consisting
+	 * of both the tx_data and the stop bit flag.
 	 */
-	reg [7:0] buffer;
-	reg prev_strobe;
-	always @(posedge clk or posedge reset)
-		if (reset) begin
-			busy <= 0;
-			buffer <= 0;
-			prev_strobe <= 1;
-		end
-		else begin
-			prev_strobe <= strobe;
-			if (
-                    
+	wire buffer_full, buffer_clear;
+	wire buffered_stopbit;
+	wire [7:0] buffered_data;
+	assign busy = buffer_full;
+	shallow_buffer #(9) buffer(
+		clk, reset, buffer_full,
+		{tx_stopbit, tx_data}, strobe,
+		{buffered_stopbit, buffered_data}, buffer_clear);
+
+	
+
+
+endmodule
 
 /* The End */

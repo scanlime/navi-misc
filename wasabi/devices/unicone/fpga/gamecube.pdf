@@ -10,7 +10,7 @@ top_level=VHDL
 HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
-lib_order=133 133 155
+lib_order=155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -18,8 +18,18 @@ lib_order=133 133 155
 oid=0
 lid=0
 format=19
-source=c:\unicone\fpga\gamecube\gamecube.v
-server_hwnd=1180178
+source=C:\unicone\fpga\lib\util.v
+server_hwnd=5439728
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -29,21 +39,20 @@ server_hwnd=1180178
 
 [Top Doc]
 gamecube.v=21
+util.v=21
+n_serial.v=21
+pwm.v=21
+i2c.v=21
 [hdl_sheets]
 gamecube.v=
+util.v= 
+n_serial.v= 
+pwm.v= 
+i2c.v= 
 [OpenDoc]
-hde/gamecube=0,0,231,140,1191,980,gamecube.v
-[OPEN32]
-nMaxFile=10000
-lpstrFile=
-lpstrFilter=HDL (*.VHD;*.VER;*.VE;*.V)|*.vhd;*.ver;*.ve;*.v|Schematic (*.SCH)|*.sch|FSM (*.ASF)|*.asf|Xnf Sources (*.XNF)|*.xnf|Edif Sources (*.EDF;*.EDN;*.EDO)|*.edf;*.edn;*.edo|All Files (*.*)|*.*||
-lpstrInitialDir=C:\UNICONE\FPGA\GAMECUBE
-lpstrTitle=Add Document
-nFilterIndex=0
-Flags=530964
-HelpID=10380
-HelpFileName=C:\FNDTN\ACTIVE\EXE\PCM.HLP
-cmdLine=-h 168 -hp 234 -m PCM_OPEN_32_MESSAGE -f C:\FNDTN\ACTIVE\PROJECTS\current.pdf
+hde/gamecube=0,0,204,264,1164,1104,gamecube.v
+hde/util=0,0,66,66,1026,795,util.v
+hde/n_serial=0,0,88,88,1048,817,n_serial.v
 [netlist]
 external=FALSE
 [Log]
@@ -67,6 +76,9 @@ family=2
 xfam=XC4000XL
 part=4010XLPC84-09
 xilinx=4010XLPC84-09
+functional=ver1
+optimized=ver1-Optimized
+design=serializer,c:\unicone\fpga\gamecube\util.v
 [xilinx]
 family=2
 xfam=XC4000XL
@@ -76,3 +88,18 @@ part=4010XLPC84-09
 xilinx=4010XLPC84-09
 [timings]
 [designs]
+foo=
+[OPEN32]
+nMaxFile=10000
+lpstrFile=
+lpstrFilter=HDL (*.VHD;*.VER;*.VE;*.V)|*.vhd;*.ver;*.ve;*.v|Schematic (*.SCH)|*.sch|FSM (*.ASF)|*.asf|Xnf Sources (*.XNF)|*.xnf|Edif Sources (*.EDF;*.EDN;*.EDO)|*.edf;*.edn;*.edo|All Files (*.*)|*.*||
+lpstrInitialDir=C:\UNICONE\FPGA\GAMECUBE
+lpstrTitle=Add Document
+nFilterIndex=0
+Flags=530964
+HelpID=10380
+HelpFileName=C:\FNDTN\ACTIVE\EXE\PCM.HLP
+cmdLine=-h 240 -hp 194 -m PCM_OPEN_32_MESSAGE -f C:\FNDTN\ACTIVE\PROJECTS\current.pdf
+[implement_XIE]
+version=ver1
+revision=rev1
