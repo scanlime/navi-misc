@@ -133,7 +133,7 @@ public class key
 	return toreturn;
     }
 
-    class keyinfo
+    private static class keyinfo
     {
 	/** The character this bit of the list. */
 	public int code;

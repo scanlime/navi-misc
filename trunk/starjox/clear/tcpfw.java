@@ -93,7 +93,6 @@ public class tcpfw extends Thread
 				new tcppipe(in,out,"Out -> In").start();
 				
 				//tell the world I am happy!
-				System.out.println("Connection from "+sout.getInetAddress().getHostAddress());
 			}
 		}
 		catch(Exception e)
