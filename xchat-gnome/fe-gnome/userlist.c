@@ -19,6 +19,7 @@
  *
  */
 
+#include <gnome.h>
 #include "userlist.h"
 #include "pixmaps.h"
 #include "textgui.h"
@@ -226,19 +227,14 @@ struct User *userlist_get_selected() {
 }
 
 void userlist_context(GtkWidget *treeview, struct User *user) {
-	static GtkItemFactoryEntry entries[] = {
-		{"/User",			NULL, NULL, 0, "<Branch>"},
-		{"/User/Send File",		NULL, NULL, 0, "<Item>"},
-		{"/User/Open Dialog",		NULL, NULL, 0, "<Item>"},
-		{"/User/Kick",			NULL, NULL, 0, "<Item>"},
-		{"/User/Ban",			NULL, NULL, 0, "<Item>"}
+	static GnomeUIInfo userlist_context[] = {
+		GNOMEUIINFO_ITEM_NONE("_Send File", NULL, NULL),
+		GNOMEUIINFO_ITEM_NONE("Open _Dialog", NULL, NULL),
+		GNOMEUIINFO_ITEM_NONE("_Kick", NULL, NULL),
+		GNOMEUIINFO_ITEM_NONE("_Ban", NULL, NULL)
 	};
-	GtkItemFactory *factory;
 	GtkWidget *menu;
 
-	factory = gtk_item_factory_new(GTK_TYPE_MENU, "<XChatGnomeUserlistContext>", NULL);
-	gtk_item_factory_create_items(factory, 5, entries, NULL);
-	menu = gtk_item_factory_get_widget(factory, "/User");
-
-	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 0, 0);
+	menu = gnome_popup_menu_new(userlist_context);
+	gnome_popup_menu_do_popup(menu, NULL, NULL, NULL, NULL, treeview);
 }
