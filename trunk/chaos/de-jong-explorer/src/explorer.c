@@ -27,43 +27,15 @@
 #include <math.h>
 
 
-typedef struct _ToolInput {
-  double delta_x, delta_y;
-  double absolute_x, absolute_y;
-  double click_relative_x, click_relative_y;
-  double delta_time;
-  GdkModifierType state;
-} ToolInput;
-
-typedef void (ToolHandler)(Explorer *self, ToolInput *i);
-
-typedef enum {
-  TOOL_USE_MOTION_EVENTS = 1 << 0,
-  TOOL_USE_IDLE          = 1 << 1,
-} ToolFlags;
-
-typedef struct _ToolInfo {
-  gchar *menu_name;
-  ToolHandler *handler;
-  ToolFlags flags;
-} ToolInfo;
-
-
 static void explorer_class_init(ExplorerClass *klass);
 static void explorer_init(Explorer *self);
 static void explorer_dispose(GObject *gobject);
 
 static int explorer_idle_handler(gpointer user_data);
-static void explorer_set_params(Explorer *self);
 static void explorer_get_params(Explorer *self);
 static void explorer_resize(Explorer *self);
-static void explorer_update_gui(Explorer *self);
-static void explorer_run_iterations(Explorer *self);
 static int explorer_auto_limit_update_rate(Explorer *self);
 static int explorer_limit_update_rate(Explorer *self, float max_rate);
-static const ToolInfo* explorer_get_current_tool(Explorer *self);
-static void explorer_update_idle_tool(Explorer *self);
-static void explorer_fill_toolinput_relative_positions(Explorer *self, ToolInput *ti);
 static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter);
 static void explorer_init_animation(Explorer *self);
 static void explorer_update_animation(Explorer *self);
@@ -82,11 +54,7 @@ static void on_load_from_image(GtkWidget *widget, gpointer user_data);
 static void on_resize(GtkWidget *widget, gpointer user_data);
 static void on_resize_cancel(GtkWidget *widget, gpointer user_data);
 static void on_resize_ok(GtkWidget *widget, gpointer user_data);
-static void on_tool_activate(GtkWidget *widget, gpointer user_data);
 static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
-static gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event, gpointer user_data);
-static gboolean on_button_press(GtkWidget *widget, GdkEvent *event, gpointer user_data);
-static gboolean on_button_release(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 static void on_widget_toggle(GtkWidget *widget, gpointer user_data);
 static void on_color_changed(GtkWidget *widget, gpointer user_data);
 static void on_anim_play_toggled(GtkWidget *widget, gpointer user_data);
@@ -104,41 +72,6 @@ static void on_anim_set_linear(GtkWidget *widget, gpointer user_data);
 static void on_anim_set_smooth(GtkWidget *widget, gpointer user_data);
 static void on_anim_curve_changed(GtkWidget *widget, gpointer user_data);
 static void on_keyframe_duration_change(GtkWidget *widget, gpointer user_data);
-
-static void tool_grab(Explorer *self, ToolInput *i);
-static void tool_blur(Explorer *self, ToolInput *i);
-static void tool_zoom(Explorer *self, ToolInput *i);
-static void tool_rotate(Explorer *self, ToolInput *i);
-static void tool_exposure_gamma(Explorer *self, ToolInput *i);
-static void tool_a_b(Explorer *self, ToolInput *i);
-static void tool_a_c(Explorer *self, ToolInput *i);
-static void tool_a_d(Explorer *self, ToolInput *i);
-static void tool_b_c(Explorer *self, ToolInput *i);
-static void tool_b_d(Explorer *self, ToolInput *i);
-static void tool_c_d(Explorer *self, ToolInput *i);
-static void tool_ab_cd(Explorer *self, ToolInput *i);
-static void tool_ac_bd(Explorer *self, ToolInput *i);
-
-
-/* A table of tool handlers and menu item names */
-static const ToolInfo tool_table[] = {
-
-  {"tool_grab",           tool_grab,           TOOL_USE_MOTION_EVENTS},
-  {"tool_blur",           tool_blur,           TOOL_USE_MOTION_EVENTS},
-  {"tool_zoom",           tool_zoom,           TOOL_USE_IDLE},
-  {"tool_rotate",         tool_rotate,         TOOL_USE_MOTION_EVENTS},
-  {"tool_exposure_gamma", tool_exposure_gamma, TOOL_USE_MOTION_EVENTS},
-  {"tool_a_b",            tool_a_b,            TOOL_USE_MOTION_EVENTS},
-  {"tool_a_c",            tool_a_c,            TOOL_USE_MOTION_EVENTS},
-  {"tool_a_d",            tool_a_d,            TOOL_USE_MOTION_EVENTS},
-  {"tool_b_c",            tool_b_c,            TOOL_USE_MOTION_EVENTS},
-  {"tool_b_d",            tool_b_d,            TOOL_USE_MOTION_EVENTS},
-  {"tool_c_d",            tool_c_d,            TOOL_USE_MOTION_EVENTS},
-  {"tool_ab_cd",          tool_ab_cd,          TOOL_USE_MOTION_EVENTS},
-  {"tool_ac_bd",          tool_ac_bd,          TOOL_USE_MOTION_EVENTS},
-
-  {NULL,},
-};
 
 
 /************************************************************************************/
@@ -192,11 +125,7 @@ static void explorer_init(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_resize",                       G_CALLBACK(on_resize),                       self);
   glade_xml_signal_connect_data(self->xml, "on_resize_cancel",                G_CALLBACK(on_resize_cancel),                self);
   glade_xml_signal_connect_data(self->xml, "on_resize_ok",                    G_CALLBACK(on_resize_ok),                    self);
-  glade_xml_signal_connect_data(self->xml, "on_tool_activate",                G_CALLBACK(on_tool_activate),                self);
   glade_xml_signal_connect_data(self->xml, "on_viewport_expose",              G_CALLBACK(on_viewport_expose),              self);
-  glade_xml_signal_connect_data(self->xml, "on_motion_notify",                G_CALLBACK(on_motion_notify),                self);
-  glade_xml_signal_connect_data(self->xml, "on_button_press",                 G_CALLBACK(on_button_press),                 self);
-  glade_xml_signal_connect_data(self->xml, "on_button_release",               G_CALLBACK(on_button_release),               self);
   glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
   glade_xml_signal_connect_data(self->xml, "on_anim_play_toggled",            G_CALLBACK(on_anim_play_toggled),            self);
   glade_xml_signal_connect_data(self->xml, "on_keyframe_add",                 G_CALLBACK(on_keyframe_add),                 self);
@@ -250,7 +179,8 @@ static void explorer_init(Explorer *self) {
    */
   self->statusbar = GTK_STATUSBAR(glade_xml_get_widget(self->xml, "statusbar"));
   self->render_status_context = gtk_statusbar_get_context_id(self->statusbar, "Rendering status");
-  self->current_tool = "None";
+
+  explorer_init_tools(self);
 }
 
 static void explorer_dispose(GObject *gobject) {
@@ -268,6 +198,8 @@ static void explorer_dispose(GObject *gobject) {
     g_object_unref(self->animation);
     self->animation = NULL;
   }
+
+  explorer_dispose_tools(self);
 }
 
 Explorer* explorer_new(DeJong *dejong, Animation *animation) {
@@ -288,7 +220,7 @@ Explorer* explorer_new(DeJong *dejong, Animation *animation) {
 /*********************************************************************** Parameters */
 /************************************************************************************/
 
-static void explorer_set_params(Explorer *self) {
+void explorer_set_params(Explorer *self) {
   self->setting_params = TRUE;
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_a")), self->dejong->a);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_b")), self->dejong->b);
@@ -499,14 +431,13 @@ static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
 static int explorer_idle_handler(gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
 
-  explorer_update_idle_tool(self);
   explorer_run_iterations(self);
   explorer_update_gui(self);
   explorer_update_animation(self);
   return 1;
 }
 
-static void explorer_run_iterations(Explorer *self) {
+void explorer_run_iterations(Explorer *self) {
   /* Run as many blocks of iterations as we can in 13 milliseconds
    */
   GTimer *timer;
@@ -569,7 +500,7 @@ static int explorer_auto_limit_update_rate(Explorer *self) {
   return explorer_limit_update_rate(self, 200 / (1 + (log(self->dejong->iterations) - 9.21) * 5));
 }
 
-static void explorer_update_gui(Explorer *self) {
+void explorer_update_gui(Explorer *self) {
   /* If the GUI needs updating, update it. This includes limiting the maximum
    * update rate, updating the iteration count display, and actually rendering
    * frames to the drawing area.
@@ -655,226 +586,6 @@ static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer use
     g_free(rects);
   }
   return FALSE;
-}
-
-
-/************************************************************************************/
-/**************************************************************************** Tools */
-/************************************************************************************/
-
-static const ToolInfo* explorer_get_current_tool(Explorer *self) {
-  /* Return the current tool, or NULL if no tool is active
-   */
-  const ToolInfo *current = tool_table;
-
-  for (current=tool_table; current->menu_name; current++) {
-    GtkWidget *w = glade_xml_get_widget(self->xml, current->menu_name);
-    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w)))
-      return current;
-  }
-  return NULL;
-}
-
-static void explorer_fill_toolinput_relative_positions(Explorer *self, ToolInput *ti) {
-  /* Fill in the delta and click-relative positions in a given toolinfo
-   */
-
-  /* Compute delta position */
-  ti->delta_x = ti->absolute_x - self->last_mouse_x;
-  ti->delta_y = ti->absolute_y - self->last_mouse_y;
-  self->last_mouse_x = ti->absolute_x;
-  self->last_mouse_y = ti->absolute_y;
-
-  /* Compute click-relative position */
-  ti->click_relative_x = ti->absolute_x - self->last_click_x;
-  ti->click_relative_y = ti->absolute_y - self->last_click_y;
-}
-
-static gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-  const ToolInfo *tool = explorer_get_current_tool(self);
-  ToolInput ti;
-  memset(&ti, 0, sizeof(ti));
-
-  /* Fill in the absolute position and state for the ToolInput */
-  if (event->motion.is_hint) {
-    gint ix, iy;
-    gdk_window_get_pointer(event->motion.window, &ix, &iy, &ti.state);
-    ti.absolute_x = ix;
-    ti.absolute_y = iy;
-  }
-  else {
-    ti.absolute_x = event->motion.x;
-    ti.absolute_y = event->motion.y;
-    ti.state = event->motion.state;
-  }
-  explorer_fill_toolinput_relative_positions(self, &ti);
-
-  if (tool && (tool->flags & TOOL_USE_MOTION_EVENTS)) {
-    tool->handler(self, &ti);
-
-    /* If we're paused, poke the idle handler manually so we at least get one frame of updates */
-    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "pause_menu"))))
-      explorer_idle_handler(user_data);
-  }
-
-  return FALSE;
-}
-
-static void on_tool_activate(GtkWidget *widget, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-
-  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
-    gtk_label_get(GTK_LABEL(gtk_bin_get_child(GTK_BIN(widget))), &self->current_tool);
-}
-
-static gboolean on_button_press(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-
-  self->tool_active = TRUE;
-  self->last_mouse_x = event->button.x;
-  self->last_mouse_y = event->button.y;
-  self->last_click_x = event->button.x;
-  self->last_click_y = event->button.y;
-  return FALSE;
-}
-
-static gboolean on_button_release(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-
-  self->tool_active = FALSE;
-  explorer_set_params(self);
-}
-
-static void explorer_update_idle_tool(Explorer *self) {
-  /* If we're using a tool that needs to be updated when idle, do it
-   */
-  const ToolInfo *tool = explorer_get_current_tool(self);
-  ToolInput ti;
-  gint ix, iy;
-  GTimeVal now;
-  memset(&ti, 0, sizeof(ti));
-
-  gdk_window_get_pointer(self->drawing_area->window, &ix, &iy, &ti.state);
-  ti.absolute_x = ix;
-  ti.absolute_y = iy;
-  explorer_fill_toolinput_relative_positions(self, &ti);
-
-  /* Compute the delta time */
-  g_get_current_time(&now);
-  ti.delta_time = ((now.tv_usec - self->last_tool_idle_update.tv_usec) / 1000000.0 +
-		   (now.tv_sec  - self->last_tool_idle_update.tv_sec ));
-  self->last_tool_idle_update = now;
-
-  if (tool && self->tool_active && (tool->flags & TOOL_USE_IDLE)) {
-    tool->handler(self, &ti);
-  }
-}
-
-static void tool_grab(Explorer *self, ToolInput *i) {
-  double scale = 5.0 / self->dejong->zoom / self->dejong->width;
-  g_object_set(self->dejong,
-	       "xoffset", self->dejong->xoffset + i->delta_x * scale,
-	       "yoffset", self->dejong->yoffset + i->delta_y * scale,
-	       NULL);
-}
-
-static void tool_blur(Explorer *self, ToolInput *i) {
-  g_object_set(self->dejong,
-	       "blur_ratio",  self->dejong->blur_ratio  + i->delta_x * 0.002,
-	       "blur_radius", self->dejong->blur_radius - i->delta_y * 0.001,
-	       NULL);
-}
-
-static void tool_zoom(Explorer *self, ToolInput *i) {
-  double p, scaled_p;
-  const double exponent = 1.4;
-
-  /* Scale the zooming speed nonlinearly with the distance from click location */
-  p = i->click_relative_y * 0.01;
-  if (p < 0) {
-    scaled_p = -pow(-p, exponent);
-  }
-  else {
-    scaled_p = pow(p, exponent);
-  }
-
-  g_object_set(self->dejong,
-	       "zoom", self->dejong->zoom - scaled_p * i->delta_time,
-	       NULL);
-}
-
-static void tool_rotate(Explorer *self, ToolInput *i) {
-  g_object_set(self->dejong,
-	       "rotation", (gdouble) fmod(self->dejong->rotation - i->delta_x * 0.008, M_PI*2),
-	       NULL);
-}
-
-static void tool_exposure_gamma(Explorer *self, ToolInput *i) {
-  g_object_set(self->dejong,
-	       "exposure", self->dejong->exposure - i->delta_y * 0.001,
-	       "gamma",    self->dejong->gamma    + i->delta_x * 0.001,
-	       NULL);
-}
-
-static void tool_a_b(Explorer *self, ToolInput *i) {
-  g_object_set(self->dejong,
-	       "a", self->dejong->a + i->delta_x * 0.001,
-	       "b", self->dejong->b + i->delta_y * 0.001,
-	       NULL);
-}
-
-static void tool_a_c(Explorer *self, ToolInput *i) {
-  g_object_set(self->dejong,
-	       "a", self->dejong->a + i->delta_x * 0.001,
-	       "c", self->dejong->c + i->delta_y * 0.001,
-	       NULL);
-}
-
-static void tool_a_d(Explorer *self, ToolInput *i) {
-  g_object_set(self->dejong,
-	       "a", self->dejong->a + i->delta_x * 0.001,
-	       "d", self->dejong->d + i->delta_y * 0.001,
-	       NULL);
-}
-
-static void tool_b_c(Explorer *self, ToolInput *i) {
-  g_object_set(self->dejong,
-	       "b", self->dejong->b + i->delta_x * 0.001,
-	       "c", self->dejong->c + i->delta_y * 0.001,
-	       NULL);
-}
-
-static void tool_b_d(Explorer *self, ToolInput *i) {
-  g_object_set(self->dejong,
-	       "b", self->dejong->b + i->delta_x * 0.001,
-	       "d", self->dejong->d + i->delta_y * 0.001,
-	       NULL);
-}
-
-static void tool_c_d(Explorer *self, ToolInput *i) {
-  g_object_set(self->dejong,
-	       "c", self->dejong->c + i->delta_x * 0.001,
-	       "d", self->dejong->d + i->delta_y * 0.001,
-	       NULL);
-}
-
-static void tool_ab_cd(Explorer *self, ToolInput *i) {
-  g_object_set(self->dejong,
-	       "a", self->dejong->a + i->delta_x * 0.001,
-	       "b", self->dejong->b + i->delta_x * 0.001,
-	       "c", self->dejong->c + i->delta_y * 0.001,
-	       "d", self->dejong->d + i->delta_y * 0.001,
-	       NULL);
-}
-
-static void tool_ac_bd(Explorer *self, ToolInput *i) {
-  g_object_set(self->dejong,
-	       "a", self->dejong->a + i->delta_x * 0.001,
-	       "b", self->dejong->b + i->delta_y * 0.001,
-	       "c", self->dejong->c + i->delta_x * 0.001,
-	       "d", self->dejong->d + i->delta_y * 0.001,
-	       NULL);
 }
 
 
