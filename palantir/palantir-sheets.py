@@ -26,8 +26,8 @@ files using those layouts.
 import sys, gtk, gtk.glade
 from random import randint
 from GtkPalantir import SheetElements
-from Palantir.Sheet import Sheet
-from Palantir.Character import Character
+from Common.Sheet import Sheet
+from Common.Character import Character
 
 def init(filename=None):
   ''' Initialize the window and stuff using glade. '''
