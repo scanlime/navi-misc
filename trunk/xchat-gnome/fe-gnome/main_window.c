@@ -34,6 +34,7 @@
 #include "textgui.h"
 #include "palette.h"
 #include "transfers.h"
+#include "error_dialog.h"
 
 #ifdef HAVE_GTKSPELL
 #include <gtkspell/gtkspell.h>
@@ -47,6 +48,8 @@
 #include <gtk/gtkaction.h>
 #include <gtk/gtkactiongroup.h>
 #include <gtk/gtkuimanager.h>
+
+static void *last_search_position = NULL;
 
 static void on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data);
 static void on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
@@ -323,18 +326,26 @@ close_find_button (GtkWidget *button, gpointer data)
 	gtk_widget_grab_focus (widget);
 }
 
-static void
+static gboolean
 close_find_key (GtkWidget *entry, GdkEventKey *event, gpointer data)
 {
 	if (event->keyval != GDK_Escape)
-		return;
+		return FALSE;
 	close_find_button (NULL, NULL);
+	return FALSE;
 }
 
 static void
 find_next (GtkWidget *entry, gpointer data)
 {
-	/* FIXME */
+	const gchar *text = gtk_entry_get_text (GTK_ENTRY (entry));
+	last_search_position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position);
+}
+
+static void
+clear_find (GtkWidget *entry, gpointer data)
+{
+	last_search_position = NULL;
 }
 
 void
@@ -481,6 +492,7 @@ initialize_main_window ()
 	widget = glade_xml_get_widget (gui.xml, "find entry");
 	g_signal_connect (G_OBJECT (widget), "activate", G_CALLBACK (find_next), NULL);
 	g_signal_connect (G_OBJECT (widget), "key-press-event", G_CALLBACK (close_find_key), NULL);
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (clear_find), NULL);
 	widget = glade_xml_get_widget (gui.xml, "find close button");
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (close_find_button), NULL);
 }
@@ -1081,9 +1093,10 @@ on_topic_change (GtkButton *widget, gpointer data)
 	xml = glade_xml_new ("topic-change.glade", NULL, NULL);
 	if (!xml)
 		xml = glade_xml_new (XCHATSHAREDIR "/topic-change.glade", NULL, NULL);
-	if (!xml)
-		/* FIXME - should do some error handling here */
+	if (!xml) {
+		error_dialog (_("Could not load topic-change.glade!"), _("Your installation is broken"));
 		return;
+	}
 
 	dialog = glade_xml_get_widget (xml, "topic change");
 	entry = glade_xml_get_widget (xml, "topic entry box");
