@@ -38,6 +38,7 @@ class FieldSensor {
   void sendSlowly(const char *str);
   void reset(void);
   void boot(void);
+  void waitForData(void);
 };
 
 #endif /* __H_FIELDSENSOR */
