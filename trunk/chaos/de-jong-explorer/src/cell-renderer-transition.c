@@ -268,15 +268,22 @@ static void cell_renderer_transition_render(GtkCellRenderer      *cell,
       state = GTK_STATE_NORMAL;
   }
 
+  /* Calculate width and height for the spline and text */
   pango_layout_get_pixel_extents(layout, NULL, &text_rect);
+  spline_rect.width = self->spline_size;
+  spline_rect.height = self->spline_size;
 
-  spline_rect = *cell_area;
+  /* Center the spline and text, with the text just above the spline */
+  text_rect.x = spline_rect.x = cell_area->x + (cell_area->width - spline_rect.width)/2;
+  text_rect.y = cell_area->y + (cell_area->height - spline_rect.height - text_rect.height)/2;
+  spline_rect.y = text_rect.y + text_rect.height;
 
   gtk_paint_layout(widget->style, window, state, TRUE, cell_area, widget,
-		   "cellrenderertransition", cell_area->x + cell->xpad,
-		   cell_area->y + cell->ypad, layout);
+		   "cellrenderertransition", text_rect.x, text_rect.y, layout);
 
   cell_renderer_transition_render_spline(self, window, widget, state, &spline_rect);
+  gdk_draw_rectangle(window, GTK_WIDGET(widget)->style->dark_gc[state], FALSE,
+		     spline_rect.x, spline_rect.y, spline_rect.width, spline_rect.height);
 
   g_object_unref(layout);
 }
