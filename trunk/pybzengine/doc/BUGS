@@ -1,0 +1,9 @@
+ - The HUD show/hide animation (triggered by the space bar) no longer works,
+   since viewport sizes are evaluated when the parent resizes rather than every frame
+
+ - The HUD show/hide code needs updating to work with the new weakref'ed observers.
+   This means making the GameView into a class rather than just a function.
+
+ - fix resizing: what might be an SDL bug is causing the window to get stuck
+   resizing to its original size when using a WM or equivalent that does
+   opaque resizing. Known to break under sawfish, win32, and OS X.

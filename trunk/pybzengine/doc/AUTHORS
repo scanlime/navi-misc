@@ -1,0 +1,22 @@
+  This AUTHORS file uses mostly the same format as Linux's CREDITS file.
+  It is sorted alphabetically by name, formatted for both machine
+  and human readability. The fields are: name (N), email address (E),
+  web address (W), PGP key ID and fingerprint (P), description (D),
+  snail-mail address (S), instant messaging address (I).
+
+  Feel free to add yourself to this, no matter how large or small your contribution.
+
+-------------------------------------------------------------------------------------
+
+N: Micah Dowty
+E: micah@picogui.org
+D: Original PyBZFlag hacker
+S: Colorado, USA
+I: scanline on irc.freenode.net
+
+N: David Trowbridge
+E: davidtrowbridge@users.sourceforge.net
+D: Wrote the ThreeDView, miscellaneous enhancements
+S: Colorado, USA
+I: captain_proton on irc.freenode.net
+
