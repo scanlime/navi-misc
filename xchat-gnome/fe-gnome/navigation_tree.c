@@ -5,6 +5,10 @@
 
 void navigation_selection_changed(GtkTreeSelection *selection, gpointer data);
 gboolean navigation_click(GtkWidget *treeview, GdkEventButton *event, gpointer data);
+void navigation_context(GtkWidget *treeview, session *selected);
+void server_context(GtkWidget *treeview, session *selected);
+void channel_context(GtkWidget *treeview, session *selected);
+void dialog_context(GtkWidget *treeview, session *selected);
 
 void initialize_navigation_tree() {
 	GtkWidget *navigation_view;
@@ -168,15 +172,72 @@ void navigation_tree_set_hilight(struct session *sess) {
 	gtk_tree_model_foreach(store, navigation_tree_set_hilight_iterate, (gpointer) sess);
 }
 
+static session *navigation_get_selected() {
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		return s;
+	}
+	return NULL;
+}
+
 gboolean navigation_click(GtkWidget *treeview, GdkEventButton *event, gpointer data) {
+	GtkTreePath *path;
+	GtkTreeSelection *select;
 	if(!event)
 		return FALSE;
 	if(event->button == 3) {
-		g_print("pop up navigation context menu...\n");
+		if(gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW(treeview), event->x, event->y, &path, 0, 0, 0)) {
+			select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+			gtk_tree_selection_unselect_all(select);
+			gtk_tree_selection_select_path(select, path);
+			gtk_tree_path_free(path);
+		}
+		session *s = navigation_get_selected();
+		if(s != NULL)
+			navigation_context(treeview, s);
 		return TRUE;
 	}
 	return FALSE;
 }
 
 void navigation_context(GtkWidget *treeview, session *selected) {
+	switch(selected->type) {
+	case SESS_SERVER:	server_context(treeview, selected); return;
+	case SESS_CHANNEL:	channel_context(treeview, selected); return;
+	case SESS_DIALOG:	dialog_context(treeview, selected); return;
+	}
+}
+
+void server_context(GtkWidget *treeview, session *selected) {
+	static GtkItemFactoryEntry entries[] = {
+		{"/Server",			NULL, NULL, 0, "<Branch>"},
+		{"/Server/_Information",	NULL, NULL, 0, "<StockItem>", GTK_STOCK_DIALOG_INFO},
+		{"/Server/Separator1",		NULL, NULL, 0, "<Separator>"},
+		{"/Server/_Reconnect",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_REFRESH},
+		{"/Server/_Disconnect",		NULL, NULL, 0, "<StockItem>", GTK_STOCK_STOP},
+		{"/Server/Separator2",		NULL, NULL, 0, "<Separator>"},
+		{"/Server/_Channels",		NULL, NULL, 0, "<StockItem>", GNOME_STOCK_TEXT_BULLETED_LIST}
+	};
+	GtkItemFactory *factory;
+	GtkWidget *menu;
+
+	factory = gtk_item_factory_new(GTK_TYPE_MENU, "<XChatGnomeNavigationServerContext>", NULL);
+	gtk_item_factory_create_items(factory, 7, entries, NULL);
+	menu = gtk_item_factory_get_widget(factory, "/Server");
+
+	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 0, 0);
+}
+
+void channel_context(GtkWidget *treeview, session *selected) {
+}
+
+void dialog_context(GtkWidget *treeview, session *selected) {
 }
