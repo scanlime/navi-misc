@@ -33,8 +33,8 @@
 
 
 /* Default error handler */
-static void defaultErrorHandler(const char *function, int retValue) {
-  fprintf(stderr, "*** rcpod error in %s: %s\n", function, strerror(-retValue));
+static void defaultErrorHandler(const char *function, int err, const char *message) {
+  fprintf(stderr, "*** rcpod error in %s: %s\n", function, message);
   exit(1);
 }
 
@@ -80,7 +80,7 @@ void rcpod_FindDevices(void) {
 	/* Make a shallow copy and add it to our deviceList */
 	newdev = malloc(sizeof(struct usb_device));
 	if (!newdev) {
-	  handleError("rcpod_FindDevices", -ENOMEM);
+	  handleError("rcpod_FindDevices", ENOMEM, strerror(ENOMEM));
 	  return;
 	}
 	memcpy(newdev, dev, sizeof(struct usb_device));
@@ -112,9 +112,18 @@ struct usb_device* rcpod_GetDevices(void) {
 rcpod_dev* rcpod_Open(struct usb_device *usbdev) {
   rcpod_dev* rcpod;
 
+  if (usbdev->descriptor.bcdDevice != RCPOD_PROTOCOL_VERSION) {
+    static char errorBuffer[256];
+    sprintf(errorBuffer, "Protocol version mismatch, device is version %d.%02x, host is version %d.%02x",
+	    usbdev->descriptor.bcdDevice >> 8, usbdev->descriptor.bcdDevice & 0xFF,
+	    RCPOD_PROTOCOL_VERSION >> 8, RCPOD_PROTOCOL_VERSION & 0xFF);
+    handleError("rcpod_Open", 0, errorBuffer);
+    return NULL;
+  }
+
   rcpod = malloc(sizeof(rcpod_dev));
   if (!rcpod) {
-    handleError("rcpod_GetDevices", -ENOMEM);
+    handleError("rcpod_GetDevices", ENOMEM, strerror(ENOMEM));
     return NULL;
   }
 
@@ -123,7 +132,7 @@ rcpod_dev* rcpod_Open(struct usb_device *usbdev) {
     /* libusb actually has access to a real error code, but from here
      * the best we can do is make one up...
      */
-    handleError("usb_open", -EINVAL);
+    handleError("usb_open", 0, "Error opening the USB device");
     return NULL;
   }
 
@@ -167,7 +176,7 @@ rcpod_dev* rcpod_InitSimple(void) {
 
   /* Give up if there's no rcpod device */
   if (!deviceList) {
-    handleError("rcpod_InitSimple", -ENODEV);
+    handleError("rcpod_InitSimple", ENODEV, "No device found");
     return NULL;
   }
 
@@ -185,7 +194,7 @@ void rcpod_Poke(rcpod_dev* rcpod, int address, unsigned char data) {
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR, RCPOD_CTRL_POKE,
 			   data, address, NULL, 0, RCPOD_TIMEOUT);
   if (retval < 0)
-    handleError("rcpod_Poke", retval);
+    handleError("rcpod_Poke", -retval, strerror(-retval));
 }
 
 
@@ -196,7 +205,7 @@ unsigned char rcpod_Peek(rcpod_dev* rcpod, int address) {
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
 			   RCPOD_CTRL_PEEK, 0, address, (char*) &byte, 1, RCPOD_TIMEOUT);
   if (retval < 0) {
-    handleError("rcpod_Peek", retval);
+    handleError("rcpod_Peek", -retval, strerror(-retval));
     return 0;
   }
   return byte;
@@ -208,7 +217,7 @@ void rcpod_AnalogSampleAll(rcpod_dev* rcpod, unsigned char buffer[8]) {
   retval = usb_control_msg(rcpod->usbdevh, USB_TYPE_VENDOR | USB_ENDPOINT_IN,
 			   RCPOD_CTRL_ANALOG_ALL, 0, 0, (char*) buffer, 8, RCPOD_TIMEOUT);
   if (retval < 0)
-    handleError("rcpod_AnalogSampleAll", retval);
+    handleError("rcpod_AnalogSampleAll", -retval, strerror(-retval));
 }
 
 /* The End */

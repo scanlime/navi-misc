@@ -36,10 +36,11 @@ typedef struct {
 } rcpod_dev;
 
 /* A librcpod error handler function, as passed to rcpod_SetErrorHandler.
- * On error, this is called with the name of the failed function and its
- * return value.
+ *   function: Name of the function where the error was first reported
+ *        err: The C errno value of the failed function if applicable, otherwise zero
+ *    message: A description of the error
  */
-typedef void (rcpod_errorHandler)(const char *function, int retValue);
+typedef void (rcpod_errorHandler)(const char *function, int err, const char *message);
 
 
 /************************************************** Low-level initialization */
