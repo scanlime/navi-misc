@@ -198,8 +198,8 @@ void set_defaults() {
 
   render.exposure = 0.05;
   render.gamma = 1;
-  render.width = 800;
-  render.height = 800;
+  render.width = 600;
+  render.height = 600;
   render.target_density = 10000;
   gdk_color_parse("white", &render.bgcolor);
   gdk_color_parse("black", &render.fgcolor);
