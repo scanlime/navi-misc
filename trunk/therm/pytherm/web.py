@@ -354,7 +354,17 @@ class SourcePage(ModPython.Page):
         ] for name, length, anchor in self.intervals]
 
     def render_description(self, context):
-        return tag('div', _class='description')[ self.source.description ]
+        details = []
+
+        if self.source.sensor_type:
+            details.append("%s sensor" % self.source.sensor_type)
+        if self.source.micro_type:
+            details.append("%s microcontroller" % self.source.micro_type)
+
+        return tag('div', _class='description')[
+            self.source.description,
+            tag('p')[ ", ".join(details) ],
+            ]
 
     def renderInterval(self, length):
         if not length:

@@ -30,15 +30,12 @@ import os, time
 
 class ThermSource:
     """One data source in the therm database"""
-    def __init__(self, db, id, medium=None, protocol=None, station_id=None,
-                 name=None, description=None):
+    def __init__(self, db, id, **properties):
         self.db = db
         self.id = id
-        self.medium = medium
-        self.protocol = protocol
-        self.station_id = station_id
-        self.name = name
-        self.description = description
+        self.name = None
+        self.description = None
+        self.__dict__.update(properties)
 
     def __repr__(self):
         return "<ThermSource %s at %s:%d:%d>" % (
