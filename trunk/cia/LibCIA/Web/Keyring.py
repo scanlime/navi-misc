@@ -26,9 +26,11 @@ a template object for showing login status and logging in.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from twisted.internet import defer
 import Template
 from Nouvelle import tag
 from urllib import quote
+from LibCIA import Security
 
 
 class Keyring:
@@ -123,9 +125,7 @@ class SecuritySection(Template.Section):
             # We have a key, list info about it and give a logout button
             return [
                 "Available capabilities:",
-                tag('ul')[
-                    tag('li')[ "Key Set" ],
-                ],
+                tag('ul')[ self.makeCapabilityList(keyring.key) ],
                 tag('form', method="post", action=getSecureURL(context))[
                     tag('div')[
                         tag('input', _type='hidden', _name='CIA-set-key', value=''),
@@ -147,5 +147,18 @@ class SecuritySection(Template.Section):
                     tag('p')[ tag('input', _type='submit', value="Set key") ],
                 ]
             ]
+
+    def makeCapabilityList(self, key):
+        result = defer.Deferred()
+        Security.caps.getCapabilities(key).addCallback(
+           self._makeCapabilityList, result).addErrback(
+           result.errback)
+        return result
+
+    def _makeCapabilityList(self, caps, result):
+        if caps:
+            result.callback([ tag('li')[ cap ] for cap in caps ])
+        else:
+            result.callback([ tag('li')[ tag('i')[ "None" ]]])
 
 ### The End ###
