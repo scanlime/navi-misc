@@ -12,14 +12,17 @@
 # Free Software Foundation.
 #
 # The master location of this file is
-# http://pasky.or.cz/~pasky/dev/cvs/ciabot.pl.
+#   http://pasky.or.cz/~pasky/dev/cvs/ciabot.pl.
+#
+# This version has been modified a bit, and is available on CIA's web site:
+#   http://cia.navi.cx/clients/cvs/ciabot_cvs.pl
 #
 # This program is designed to run from the loginfo CVS administration file. It
 # takes a log message, massaging it and mailing it to the address given below.
 #
 # Its record in the loginfo file should look like:
 #
-#       ALL        $CVSROOT/CVSROOT/ciabot.pl %{,,,s} $USER project from_email dest_email ignore_regexp
+#       ALL        $CVSROOT/CVSROOT/ciabot_cvs.pl %{,,,s} $USER project from_email dest_email ignore_regexp
 #
 # IMPORTANT: The %{,,,s} in loginfo is new, and is required for proper operation.
 #
@@ -221,7 +224,8 @@ if (-f $syncfile and -w $syncfile) {
 ### Compose the mail message
 
 
-my ($VERSION) = '2.1 (cia.navi.cx)';
+my ($VERSION) = '2.1';
+my ($URL) = 'http://cia.navi.cx/clients/cvs/ciabot_cvs.pl';
 my $ts = time;
 
 $message = <<EM
@@ -229,7 +233,7 @@ $message = <<EM
    <generator>
        <name>CIA Perl client for CVS</name>
        <version>$VERSION</version>
-       <url>http://pasky.or.cz/~pasky/dev/cvs/ciabot.pl</url>
+       <url>$URL</url>
    </generator>
    <source>
        <project>$project</project>
