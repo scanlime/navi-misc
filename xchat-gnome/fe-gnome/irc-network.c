@@ -164,4 +164,6 @@ irc_network_save (IrcNetwork *network)
 	/* FIXME - encoding */
 	/* FIXME - reconnect */
 	/* FIXME - nogiveup */
+
+	servlist_save ();
 }

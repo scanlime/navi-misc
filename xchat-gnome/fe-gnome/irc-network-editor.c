@@ -288,8 +288,14 @@ irc_network_editor_new (IrcNetwork *network)
 }
 
 static void
-apply_changes (IrcNetworkEditor *editor)
+apply_changes (IrcNetworkEditor *e)
 {
+	IrcNetwork *net;
+	if (net->name)
+		g_free (net->name);
+	net->name = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->network_name)));
+
+	irc_network_save (net);
 }
 
 void
