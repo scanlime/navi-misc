@@ -51,27 +51,28 @@ class HubListener(object):
         # This uses an extra level of indirection so that
         # rebuild can replace references to our callbacks correctly.
         self.hub.addClient(lambda msg: self.setIrcRuleset(msg), Message.Filter(
-            '<find path="/message/body/setIrcRuleset">'))
-        self.hub.addClient(lambda msg: self.getIrcRuleset(msg), Message.Filter(
-            '<find path="/message/body/getIrcRuleset">'))
+            '<find path="/message/body/ircRuleset">'))
+        self.hub.addClient(lambda msg: self.queryIrcRulesets(msg), Message.Filter(
+            '<find path="/message/body/queryIrcRulesets">'))
 
     def parseIrcRulesetAttribs(self, element):
-        """Given a setIrcRuleset or getIrcRuleset element, returns a
+        """Given an ircRuleset or queryIrcRulesets element, returns a
            (serverTuple, channel) representing the server and channel
-           it refers to.
+           it refers to. Either may be None if it was not included in the element.
            """
         channel = element.getAttribute('channel')
-        if not channel:
-            raise XML.XMLValidityError("The 'channel' attribute on <setIrcRuleset> and <getIrcRuleset> is required")
-        if channel[0] != '#':
+        if channel and channel[0] != '#':
             channel = '#' + channel
-        server = element.getAttribute('server', self.defaultHost)
 
-        # Split the server into host and port, using our default if we can't
-        if server.find(":") > 0:
-            serverTuple = server.split(":")
+        server = element.getAttribute('server')
+        if server:
+            # Split the server into host and port, using our default if we can't
+            if server.find(":") > 0:
+                serverTuple = server.split(":")
+            else:
+                serverTuple = server, self.defaultPort
         else:
-            serverTuple = server, self.defaultPort
+            serverTuple = None
         return (serverTuple, channel)
 
     def setIrcRuleset(self, message):
@@ -80,7 +81,7 @@ class HubListener(object):
            These messages are of the form:
 
            <message><body>
-               <setIrcRuleset channel="commits" server="irc.foo.net:6667">
+               <ircRuleset channel="commits" server="irc.foo.net:6667">
                    <ruleset>
                        ...
                    </ruleset>
@@ -91,11 +92,16 @@ class HubListener(object):
            also be specified without a port or left off entirely, defaulting
            to the default server for this HubListener.
 
-           An empty <setIrcRuleset> removes the ruleset associated with
+           An empty <ircRuleset> removes the ruleset associated with
            its channel, also causing the bot network to leave it.
            """
-        tag = message.xml.body.setIrcRuleset
+        tag = message.xml.body.ircRuleset
         server, channel = self.parseIrcRulesetAttribs(tag)
+        if not channel:
+            raise XML.XMLValidityError("The 'channel' attribute on <setIrcRuleset> and <getIrcRuleset> is required")
+        if not server:
+            # Default server
+            server = (self.defaultHost, self.defaultPort)
 
         # Make sure the ruleset parses before we do anything permanent
         if tag.ruleset:
@@ -127,12 +133,22 @@ class HubListener(object):
             self.botNet.delChannel(server, channel)
             log.msg("Removed IRC ruleset for channel %r on server %r" % (channel, server))
 
-    def getIrcRuleset(self, message):
-        """Return the current <ircFilters> tag with attributes matching
-           those of the <getIrcFilters> tag.
+    def queryIrcRulesets(self, message):
+        """Handles messages containing a <queryIrcRulesets> tag in its body.
+           We search for all IRCRulesets matching the given server and/or channel,
+           and return a list of matches each as a string of XML.
            """
-        ircRuleset = self.rulesets[self.parseIrcRulesetAttribs(message.xml.body.getIrcRuleset)]
-        return ircRuleset.ruleset.xml.toXml()
+        tag = message.xml.body.queryIrcRulesets
+        server, channel = self.parseIrcRulesetAttribs(tag)
+
+        results = []
+        for (itemServer, itemChannel), ircRuleset in self.rulesets.iteritems():
+            if server is not None and itemServer != server:
+                continue
+            if channel is not None and itemChannel != channel:
+                continue
+            results.append(str(ircRuleset))
+        return results
 
 
 class IRCRuleset(object):
@@ -145,6 +161,11 @@ class IRCRuleset(object):
         self.server = server
         self.channel = channel
         self.ruleset = ruleset
+
+    def __str__(self):
+        """Return an XML representation of this object as an <ircRuleset> tag"""
+        return "<ircRuleset channel='%s' server='%s:%s'>%s</ircRuleset>" % (
+            self.channel, self.server[0], self.server[1], self.ruleset.xml.toXml())
 
     def __call__(self, message):
         """When the IRCRuleset is used as a client to the
