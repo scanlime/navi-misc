@@ -2,6 +2,7 @@
 from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Sequencer, HUD, GLOrtho
 from BZEngine import Event, Animated
 from Wasabi import Logos, Icon
+from math import *
 
 loop = Event.EventLoop()
 viewport = Viewport.OpenGLViewport(loop)
@@ -18,23 +19,30 @@ class IconTest(Sequencer.Page):
                                     "brushed_metal.png",
                                     overlay.size)
 
-        self.icon = Icon.Icon('navi512.png', 'Hello Navi', imageAspect=1.623)
-        overlay.onDrawFrame.observe(self.drawFrame)
+        icon = Icon.Icon('navi512.png', 'Hello Navi', imageAspect=1.623)
 
-        self.size = Animated.Value(Animated.SineFunction(range=(20,30)))
+        self.dock = Icon.Dock(overlay, self.trackFunction, [icon] * 10)
 
-    def drawFrame(self):
-        self.size.integrate(self.time.step())
-
-        GLOrtho.setup()
-        GLOrtho.translate(self.viewport.size[0] * 0.5,
-                          self.viewport.size[1] * 0.5)
-        self.icon.draw(Icon.ListIconStyle, self.size.value)
+    def trackFunction(self, x):
+        """An example track function that moves the icons along a circle in
+           the middle of the screen. The bottom of the circle is at 0,
+           increasing parameters move clockwise. The icon at 0 is the largest.
+           """
+        radius = self.viewport.size[1] * 0.1
+        theta = -x * 2*pi - pi/2
+        size = pow(sin(theta)*0.5+0.5, 2) * 120 + 20
+        center = (self.viewport.size[0] * 0.5,
+                  self.viewport.size[1] * 0.25)
+        return (
+            (cos(theta) * (radius + size) + center[0],
+             sin(theta) * (radius + size) + center[1]),
+            size
+            )
 
 
 mainBook = Sequencer.CyclicBook(view, [
     # Cycle through wasabi logos until user intervention, then fade out
-    Sequencer.FadeOut(0.2, (1,1,1), Sequencer.UserPageInterrupter(Logos.getLogoSubBook())),
+#    Sequencer.FadeOut(0.2, (1,1,1), Sequencer.UserPageInterrupter(Logos.getLogoSubBook())),
 
     # Icon test
     Sequencer.FadeIn(0.2, (1,1,1), Sequencer.FadeOut(1, (0,0,0), Sequencer.UserPageInterrupter(IconTest)))
