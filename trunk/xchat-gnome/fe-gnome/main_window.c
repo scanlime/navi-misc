@@ -55,6 +55,7 @@ void on_network_reconnect_menu_activate(GtkWidget *widget, gpointer data);
 void on_network_disconnect_menu_activate(GtkWidget *widget, gpointer data);
 void on_network_channels_menu_activate(GtkWidget *widget, gpointer data);
 void on_network_users_menu_activate(GtkWidget *widget, gpointer data);
+void on_network_collapse_expand_activate(GtkWidget *widget, gpointer data);
 void on_discussion_save_activate(GtkWidget *widget, gpointer data);
 void on_discussion_save_as_activate(GtkWidget *widget, gpointer data);
 void on_discussion_leave_activate(GtkWidget *widget, gpointer data);
@@ -98,6 +99,7 @@ void initialize_main_window() {
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "disconnect1")), "activate", G_CALLBACK(on_network_disconnect_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "channel_list1")), "activate", G_CALLBACK(on_network_channels_menu_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "users1")), "activate", G_CALLBACK(on_network_users_menu_activate), NULL);
+	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "collapse_expand")), "activate", G_CALLBACK(on_network_collapse_expand_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "save_transcript1")), "activate", G_CALLBACK(on_discussion_save_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "save_as1")), "activate", G_CALLBACK(on_discussion_save_as_activate), NULL);
 	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "leave1")), "activate", G_CALLBACK(on_discussion_leave_activate), NULL);
@@ -263,6 +265,33 @@ void on_network_channels_menu_activate(GtkWidget *widget, gpointer data) {
 
 void on_network_users_menu_activate(GtkWidget *widget, gpointer data) {
 	/* FIXME: implement */
+}
+
+void on_network_collapse_expand_activate(GtkWidget *widget, gpointer data) {
+	GtkTreeView *view;
+	GtkTreeModel *model;
+	GtkTreeSelection *selection;
+	GtkTreeIter current;
+
+	view = GTK_TREE_VIEW(glade_xml_get_widget(gui.xml, "server channel list"));
+	selection = gtk_tree_view_get_selection(view);
+
+	if(gtk_tree_selection_get_selected(selection, &model, &current) &&
+			gui.current_session) {
+		GtkTreePath *path;
+
+		if(!gtk_tree_model_iter_has_child(model, &current)) {
+			GtkTreeIter parent;
+			gtk_tree_model_iter_parent(model, &parent, &current);
+			current = parent;
+		}
+
+		path = gtk_tree_model_get_path(model, &current);
+		if(gtk_tree_view_row_expanded(view, path))
+			gtk_tree_view_collapse_row(view, path);
+		else
+			gtk_tree_view_expand_row(view, path, FALSE);
+	}
 }
 
 void on_discussion_save_activate(GtkWidget *widget, gpointer data) {
