@@ -310,8 +310,6 @@ bit_loop
 	goto	timed_out
 found_bit
 
-	goto	done
-
 	rlf	INDF, f		; 0.4us  Make room for the new bit
 	bcf	INDF, 0		; 0.6us  Assume it's 0 to begin with
 	decfsz	bit_count, f	; 0.8us  Is this the last bit?
