@@ -28,7 +28,8 @@
 
 gboolean preferences_exist();
 void load_preferences();
-char *preferences_nickname(struct ircnet *net);
+char *preferences_nickname();
+char *preferences_realname();
 gboolean preferences_show_timestamp();
 
 #endif

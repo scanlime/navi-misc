@@ -20,10 +20,69 @@
  */
 
 #include "preferences_servers_page.h"
+#include "preferences.h"
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 
 void preferences_servers_selected(GtkTreeSelection *selection, gpointer data);
+
+static void edit_clicked(GtkWidget *button, gpointer data) {
+	GtkWidget *dialog, *password, *nick, *real;
+	GtkWidget *treeview, *widget;
+	GtkSizeGroup *group;
+	GtkTreeSelection *select;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	ircnet *net;
+
+	dialog = glade_xml_get_widget(gui.xml, "server configuration");
+
+	group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+	password = glade_xml_get_widget(gui.xml, "server config password");
+	gtk_size_group_add_widget(group, password);
+	nick = glade_xml_get_widget(gui.xml, "server config nickname");
+	gtk_size_group_add_widget(group, nick);
+	real = glade_xml_get_widget(gui.xml, "server config realname");
+	gtk_size_group_add_widget(group, real);
+	g_object_unref(group);
+
+	treeview = glade_xml_get_widget(gui.xml, "configure server list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+
+	gtk_tree_selection_get_selected(select, &model, &iter);
+	gtk_tree_model_get(model, &iter, 2, &net, -1);
+
+	if(net->pass != NULL)
+		gtk_entry_set_text(GTK_ENTRY(password), net->pass);
+
+	widget = glade_xml_get_widget(gui.xml, "server config usedefaults");
+	if(net->flags & FLAG_USE_GLOBAL) {
+		gtk_entry_set_text(GTK_ENTRY(nick), preferences_nickname());
+		gtk_entry_set_text(GTK_ENTRY(real), preferences_realname());
+		gtk_widget_set_sensitive(nick, FALSE);
+		gtk_widget_set_sensitive(real, FALSE);
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), TRUE);
+	} else {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
+		gtk_widget_set_sensitive(nick, TRUE);
+		gtk_widget_set_sensitive(real, TRUE);
+		if(net->nick != NULL)
+			gtk_entry_set_text(GTK_ENTRY(nick), net->nick);
+		if(net->real != NULL)
+			gtk_entry_set_text(GTK_ENTRY(real), net->real);
+	}
+	
+	widget = glade_xml_get_widget(gui.xml, "server config autoconnect");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), (net->flags & FLAG_AUTO_CONNECT));
+
+	widget = glade_xml_get_widget(gui.xml, "server config ssl");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), (net->flags & FLAG_USE_SSL));
+
+	widget = glade_xml_get_widget(gui.xml, "server config cycle");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), (net->flags & FLAG_CYCLE));
+
+	gtk_widget_show_all(dialog);
+}
 
 void initialize_preferences_servers_page() {
 	GtkWidget *treeview, *edit_button, *remove_button;
@@ -34,7 +93,7 @@ void initialize_preferences_servers_page() {
 
 	treeview = glade_xml_get_widget(gui.xml, "configure server list");
 
-	store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_BOOLEAN);
+	store = gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_POINTER);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(store));
 
 	text_renderer = gtk_cell_renderer_text_new();
@@ -45,6 +104,7 @@ void initialize_preferences_servers_page() {
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), autoconnect_column);
 
 	edit_button = glade_xml_get_widget(gui.xml, "servers edit");
+	g_signal_connect(G_OBJECT(edit_button), "clicked", G_CALLBACK(edit_clicked), NULL);
 	gtk_widget_set_sensitive(edit_button, FALSE);
 	remove_button = glade_xml_get_widget(gui.xml, "servers remove");
 	gtk_widget_set_sensitive(remove_button, FALSE);
@@ -73,7 +133,7 @@ void preferences_servers_page_populate(GtkWidget *treeview, GSList *netlist) {
 	while(netlist) {
 		net = netlist->data;
 		gtk_list_store_append(store, &iter);
-		gtk_list_store_set(store, &iter, 0, net->name, 1, FALSE, -1);
+		gtk_list_store_set(store, &iter, 0, net->name, 1, (net->flags & FLAG_AUTO_CONNECT), 2, net, -1);
 		netlist = netlist->next;
 	}
 }
@@ -82,7 +142,12 @@ void preferences_servers_selected(GtkTreeSelection *selection, gpointer data) {
 	GtkWidget *edit_button, *remove_button;
 
 	edit_button = glade_xml_get_widget(gui.xml, "servers edit");
-	gtk_widget_set_sensitive(edit_button, TRUE);
 	remove_button = glade_xml_get_widget(gui.xml, "servers remove");
-	gtk_widget_set_sensitive(remove_button, TRUE);
+	if(gtk_tree_selection_get_selected(selection, NULL, NULL)) {
+		gtk_widget_set_sensitive(edit_button, TRUE);
+		gtk_widget_set_sensitive(remove_button, TRUE);
+	} else {
+		gtk_widget_set_sensitive(edit_button, FALSE);
+		gtk_widget_set_sensitive(remove_button, FALSE);
+	}
 }
