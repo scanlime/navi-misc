@@ -149,7 +149,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="preferences_menu">
+			<widget class="GtkImageMenuItem" id="preferences menu">
 			  <property name="visible">True</property>
 			  <property name="stock_item">GNOMEUIINFO_MENU_PREFERENCES_ITEM</property>
 			  <signal name="activate" handler="on_preferences_menu_activate" last_modification_time="Thu, 22 Jan 2004 02:18:28 GMT"/>
