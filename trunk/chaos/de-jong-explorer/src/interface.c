@@ -67,7 +67,7 @@ void interactive_main(int argc, char **argv) {
   gtk_init(&argc, &argv);
   glade_init();
 
-  gui.xml = glade_xml_new("explorer-ui.glade", NULL, NULL);
+  gui.xml = glade_xml_new("data/explorer-ui.glade", NULL, NULL);
   glade_xml_signal_autoconnect(gui.xml);
 
   gui.window = glade_xml_get_widget(gui.xml, "explorer_window");
