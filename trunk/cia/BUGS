@@ -40,8 +40,6 @@
   formatter that could instead prepend a module name, for channels that only
   display one project
 
-- Support for deleting and merging stats targets
-
 - documentation
 
 - rrdtool (or similar) for graphing stats target activity
