@@ -43,7 +43,10 @@ class RootPage(resource.Resource):
             # Ignore empty path sections
             return self
         else:
-            return MessagePage(self.statsPage, int(name))
+            try:
+                return MessagePage(self.statsPage, int(name))
+            except ValueError:
+                return error.NoResource("Message IDs must be integers")
 
 
 class EnvelopeSection(Template.Section):
