@@ -750,11 +750,9 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 
 		/* Update current_path. */
 		if (gui.server_tree->current_path) {
-			/* FIXME: Causes crashes. */
 			gtk_tree_path_free (gui.server_tree->current_path);
 		}
 
-		/* FIXME: Causes crashes. */
 		gui.server_tree->current_path = gtk_tree_model_get_path (model, &iter);
 		navigation_model_path_ref (gui.tree_model, gui.server_tree->current_path);
 		gtk_tree_selection_get_selected (treeselection, &model, &iter);
