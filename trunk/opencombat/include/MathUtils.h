@@ -485,5 +485,64 @@ protected:
 	trMatrix		matrix;
 };
 
+// frustum classes
+class ViewPlane
+{
+public:
+	ViewPlane();
+	~ViewPlane();
+
+	bool PointBehind ( float fX, float fY, float fZ );
+	float PointDist ( float fX, float fY, float fZ );
+	void Set ( float fA, float fB, float fC , float fD );
+
+	float GetA ( void ){return m_rNorm.x;}
+	float GetB ( void ){return m_rNorm.y;}
+	float GetC ( void ){return m_rNorm.z;}
+	float GetD ( void ){return m_fODist;}
+
+	trVertex3D	m_rNorm;
+	float		m_fODist;
+
+	void Normalise();
+
+private:
+	bool	m_bSet;
+};
+
+typedef enum 
+{
+	eFrustRight	= 0,
+	eFrustLeft,		
+	eFrustBotom,	
+	eFrustTop,		
+	eFrustBack,		
+	eFrustFront,
+	eLastFrustSide
+}eFrustumSides; 
+
+class BaseFrustum 
+{
+public:
+	BaseFrustum();
+	virtual ~BaseFrustum();
+	
+	// functions to set the frustum
+	void SetPlane ( eFrustumSides side, float a, float b, float c, float d );
+	void Set ( float fovH, float fovV, C3DVertex &pos, C3DVertex & rot );
+
+	// tests
+	virtual bool PointIn(float fX, float fY, float fZ);
+	virtual bool SphereIn(float fX, float fY, float fZ, float fRad);
+	virtual bool CubeIn( float fX, float fY, float fZ, float fSize );
+	virtual bool BoxIn( float fX, float fY, float fZ ,float fXSize, float fYSize, float fZSize );
+
+	virtual bool QuadOut ( float *fp1, float *fp2, float *fp3, float *fp4 );
+
+protected:
+	bool		m_bSet;
+	ViewPlane m_aPlanes[eLastFrustSide];
+};
+
 
 #endif//mathutils
