@@ -91,7 +91,7 @@ static void add_match (char **word, regmatch_t match, gboolean isurl)
 	const char *chan;
 	time_t footime;
 	struct tm *time_struct;
-	char *url_match, *channel, time_str[9];
+	char *url_match, time_str[9];
 	GtkTreeIter iter;
 
 	len = match.rm_eo - match.rm_so;
@@ -101,8 +101,6 @@ static void add_match (char **word, regmatch_t match, gboolean isurl)
 	strncpy (url_match, word[2] + match.rm_so, len);
 
 	chan = xchat_get_info (ph, "channel");
-	channel = malloc (strlen (chan));
-	strncpy (channel, chan+1, strlen (chan));
 
 	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter)) {
 		char *entry;
@@ -130,7 +128,7 @@ static void add_match (char **word, regmatch_t match, gboolean isurl)
 
 	gtk_list_store_append (list_store, &iter);
 	gtk_list_store_set (list_store, &iter,
-			0, time_str, 1, word[1], 2, channel, 3, url_match, 4, isurl, -1);
+			0, time_str, 1, word[1], 2, chan, 3, url_match, 4, isurl, -1);
 }
 
 static int grabURL (char **word, void *userdata)
