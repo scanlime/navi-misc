@@ -64,8 +64,8 @@ class Mapping(object):
             self.map(f,t)
 
     def map(self, fromName, toName):
-        fromActuator = self.fromController[fromName]
-        toActuator = self.toController[toName]
+        fromActuator = self.fromController.actuators[fromName]
+        toActuator = self.toController.actuators[toName]
         def handler(value):
             toActuator.value = value
         self.observers.append(handler)
