@@ -178,23 +178,16 @@ class dice(gtk.Button, sheetElement):
     return newDie
 
   def roll(self, widget=None, data=None):
-    ''' Roll the dice. '''
-    rolls = []
-    times = 0
+    ''' Calls the roll method that should be implemented in the action object to
+        roll the dice.
+	'''
+    self.action.roll(self.data['times'], int(self.attributes['sides']), self.data['mods'])
 
-    # Calculate the total number of times to roll the dice.
-    for time in self.data['times']:
-      times += time
-
-    for i in range(times):
-      roll = randint(1, int(self.attributes['sides']))
-      # Add the modifiers to the roll.
-      for mod in self.data['mods']:
-	roll += mod
-      rolls.append(roll)
-    # For now, just print the results.
-    print rolls
-
+  def addActionObject(self, action):
+    ''' Add the action object to this one so that button presses can be handled appropriately
+        according to the action object passed.
+	'''
+    self.action = action
 
 class times(sheetElement):
   ''' Number of times to roll the dice. '''
