@@ -124,6 +124,7 @@ io_Read
 	movlw	0x07		; Mask off bit number, stick it plus 1 into io_iterator
 	andwf	io_pin, w
 	movwf	io_iterator
+	incf	io_iterator, f
 
 	movf	INDF, w		; Copy the current port value into io_tmp
 	movwf	io_tmp
