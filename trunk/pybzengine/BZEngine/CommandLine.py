@@ -1,10 +1,10 @@
-""" BZFlag.CommandLine
+""" BZEngine.CommandLine
 
 Utilities for processing command line options for different categories
-of BZFlag-related utilities.
+of BZEngine-related utilities.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ of BZFlag-related utilities.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZFlag import optik, Client, Player, Server, Protocol, UI
-from BZFlag.Protocol import Common
+from BZEngine import optik, Client, Player, Server, Protocol, UI
+from BZEngine.Protocol import Common
 import sys
 
 
@@ -66,7 +66,7 @@ class Parser(optik.OptionParser):
 
 
         add("-s", "--server", dest="server", metavar="HOST",
-            help="Sets the BZFlag server to connect to.")
+            help="Sets the BZEngine server to connect to.")
 
         add("-p", "--public", dest="publicTitle", metavar="TITLE",
             help="Publicize the server under the given title.")
@@ -79,7 +79,7 @@ class Parser(optik.OptionParser):
             help="Sets the number of shots a player may fire before reloading.")
 
         add("-w", "--world", dest="world", metavar="NAME",
-            help="Loads a BZFlag world. NAME can be a local file or one of several" +
+            help="Loads a BZEngine world. NAME can be a local file or one of several" +
             " other world specifiers. Try a world name of 'help' for more information.")
 
         add("-i", "--interface", dest="interface", metavar="HOST:PORT",

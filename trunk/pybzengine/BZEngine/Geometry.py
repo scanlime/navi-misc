@@ -1,10 +1,10 @@
-""" BZFlag.Geometry
+""" BZEngine.Geometry
 
 Geometry utilities based on the vector operations provided
 by the Numeric module.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or

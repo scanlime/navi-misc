@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 #
-# Simple viewer for the 3D models PyBZFlag uses, in a subset of the VRML format.
+# Simple viewer for the 3D models PyBZEngine uses, in a subset of the VRML format.
 # Give the file name or URL to a .wrl model on the command line.
 #
-from BZFlag.UI import Viewport, ThreeDRender, ThreeDControl, AnaglyphView, StereoView
-from BZFlag.UI.Drawable import Box, VRML
-from BZFlag import Event, optik
+from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, AnaglyphView, StereoView
+from BZEngine.UI.Drawable import Box, VRML
+from BZEngine import Event, optik
 import sys, os
 
 

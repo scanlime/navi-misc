@@ -1,11 +1,11 @@
-""" BZFlag.UI.ParticleSystem
+""" BZEngine.UI.ParticleSystem
 
 Simulation models and affectors based on arrays of points. This includes
 systems that can be simulated similarly, but aren't traditionally considered
 particle systems, like spring and mass simulations.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -24,9 +24,9 @@ particle systems, like spring and mass simulations.
 
 from __future__ import division
 from Numeric import *
-from BZFlag.Geometry import *
-from BZFlag.World import Scale
-from BZFlag import Noise
+from BZEngine.Geometry import *
+from BZEngine.World import Scale
+from BZEngine import Noise
 import random
 
 

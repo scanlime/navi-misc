@@ -1,11 +1,11 @@
-""" BZFlag.UI.Drawable.Sprite
+""" BZEngine.UI.Drawable.Sprite
 
 This drawable provides a simple interface for drawing textured sprites from
 a Numeric array of points. The underlying implementation can change to support
 acceleration via OpenGL extensions like NV_point_sprite.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -30,9 +30,9 @@ from OpenGL.GL import *
 from OpenGL.GLU import gluProject
 from OpenGL.GL.EXT.point_parameters import *
 from OpenGL.GL.ARB.multitexture import *
-from BZFlag.Geometry import *
+from BZEngine.Geometry import *
 from Numeric import *
-from BZFlag.UI import GLExtension
+from BZEngine.UI import GLExtension
 
 # PyOpenGL doesn't yet have a module for NV_point_sprite
 GL_POINT_SPRITE_NV        = 0x8861

@@ -1,11 +1,11 @@
-""" BZFlag.UI.MovieRecorder
+""" BZEngine.UI.MovieRecorder
 
 A mostly-real-time movie recorder that saves to NuppelVideo files.
 This is based on the recorder I originally wrote for Jetstream and
 later ported to Crystal Space.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ from Numeric import *
 from OpenGL.GL import *
 import os, Image
 from StringIO import StringIO
-from BZFlag import Animated
+from BZEngine import Animated
 
 
 class Recorder:

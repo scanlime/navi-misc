@@ -1,4 +1,4 @@
-""" BZFlag.UI.CubeMap
+""" BZEngine.UI.CubeMap
 
 This module provides support routines for th OpenGL extension
 EXT_TEXTURE_CUBE_MAP. This includes generating cube maps from
@@ -10,7 +10,7 @@ It is fine to import it whether or not cube maps are supported,
 but the CubeMap class should not be instantiated.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ from __future__ import division
 from OpenGL.GL.EXT.texture_cube_map import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from BZFlag.UI import Texture
+from BZEngine.UI import Texture
 
 
 class CubeMap(Texture.DynamicTexture):

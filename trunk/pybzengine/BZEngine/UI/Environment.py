@@ -1,11 +1,11 @@
-""" BZFlag.UI.Environment
+""" BZEngine.UI.Environment
 
 Scene objects and coordination classes for the environment our
-BZFlag world is placed in. This includes the sky, and other possible
+BZEngine world is placed in. This includes the sky, and other possible
 atmospheric effects like rain.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -24,8 +24,8 @@ atmospheric effects like rain.
 #
 
 from __future__ import division
-from BZFlag.UI import Drawable, GLExtension
-from BZFlag import Animated
+from BZEngine.UI import Drawable, GLExtension
+from BZEngine import Animated
 
 
 class Sky:
@@ -53,7 +53,7 @@ class Sky:
         return self.drawables
 
     def getTweakControls(self):
-        from BZFlag.UI import Tweak
+        from BZEngine.UI import Tweak
         return (
             Tweak.Quantity(self, 'unitDayTime'),
             )

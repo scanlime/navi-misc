@@ -4,8 +4,8 @@
 # in-game movie recorder. This requires mencoder to be installed
 # correctly with libavcodec.
 #
-from BZFlag.UI import MovieRecorder
-from BZFlag import optik
+from BZEngine.UI import MovieRecorder
+from BZEngine import optik
 import sys, re
 
 parser = optik.OptionParser(usage = "usage: %prog [options] snapshot.bzm")

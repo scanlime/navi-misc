@@ -1,4 +1,4 @@
-""" BZFlag.UI.Drawable.Array
+""" BZEngine.UI.Drawable.Array
 
 Classes providing glInterleavedArrays and Numeric based drawables
 at varying levels of abstraction. VertexArray is a mix-in class
@@ -7,7 +7,7 @@ The other classes build on it by giving the arrays meaning and drawing
 from them.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -26,10 +26,10 @@ from them.
 #
 from GLDrawable import *
 from OpenGL.GL import *
-from BZFlag.Geometry import *
+from BZEngine.Geometry import *
 from Numeric import *
 from OpenGL.GL.ARB.multitexture import *
-from BZFlag.UI import GLExtension
+from BZEngine.UI import GLExtension
 
 __all__ = ('VertexArray', 'TriangleArray', 'SurfaceArray')
 

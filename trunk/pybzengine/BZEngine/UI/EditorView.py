@@ -1,10 +1,10 @@
-""" BZFlag.UI.EditorView
+""" BZEngine.UI.EditorView
 
-Provides a UI for editing BZFlag worlds, built mostly upon ThreeDView
+Provides a UI for editing BZEngine worlds, built mostly upon ThreeDView
 and ThreeDControl.Editing.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ and ThreeDControl.Editing.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZFlag.UI import Viewport, ThreeDView, ThreeDControl
-from BZFlag.UI.Drawable import TestWidget
+from BZEngine.UI import Viewport, ThreeDView, ThreeDControl
+from BZEngine.UI.Drawable import TestWidget
 
 
 class Widgetness:
@@ -32,7 +32,7 @@ class Widgetness:
 
 
     def getGLDrawables(self, position):
-        from BZFlag.UI import Drawable
+        from BZEngine.UI import Drawable
         if self.drawables == None:
             self.drawables = [TestWidget(position)]
             for drawable in self.drawables:

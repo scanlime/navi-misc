@@ -1,8 +1,8 @@
-""" BZFlag.UI.GLNoise
+""" BZEngine.UI.GLNoise
 
 Noise rendering algorithms, hardware accelerated by OpenGL.
 This module is only for algorithms that require OpenGL. General-purpose
-noise algorithms should go in BZFlag.Noise.
+noise algorithms should go in BZEngine.Noise.
 
 The functions here require an ortho mode viewport to be active, and
 generally assume they have free reign over the OpenGL backbuffer.
@@ -10,7 +10,7 @@ It is assumed that they will be invoked from a dynamic texture class
 that creates its own viewport.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -28,8 +28,8 @@ that creates its own viewport.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from __future__ import division
-from BZFlag.UI import Texture, GLExtension
-from BZFlag import Noise, Animated
+from BZEngine.UI import Texture, GLExtension
+from BZEngine import Noise, Animated
 from Numeric import *
 from OpenGL.GL import *
 

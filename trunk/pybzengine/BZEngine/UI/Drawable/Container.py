@@ -1,11 +1,11 @@
-""" BZFlag.UI.Drawable.Container
+""" BZEngine.UI.Drawable.Container
 
 Basic containers that can be used to group together multiple drawables
 into one, and to perform transformations on other drawables.
 """
 
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ into one, and to perform transformations on other drawables.
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from BZFlag.UI.Drawable.GLDrawable import *
-from BZFlag.UI.Drawable.DisplayList import *
+from BZEngine.UI.Drawable.GLDrawable import *
+from BZEngine.UI.Drawable.DisplayList import *
 from OpenGL.GL import *
 import copy
 

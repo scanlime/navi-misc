@@ -1,9 +1,9 @@
-""" BZFlag.UI.AnaglyphView
+""" BZEngine.UI.AnaglyphView
 
 A 3d scene renderer that does anaglyph stereo
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -22,8 +22,8 @@ A 3d scene renderer that does anaglyph stereo
 #
 
 import math
-from BZFlag.UI.ThreeDRender import View
-from BZFlag.UI import Drawable
+from BZEngine.UI.ThreeDRender import View
+from BZEngine.UI import Drawable
 from OpenGL.GL import *
 
 class AnaglyphView(View):

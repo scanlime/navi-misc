@@ -1,11 +1,11 @@
-""" BZFlag.Network
+""" BZEngine.Network
 
-Network transport layer for BZFlag clients and servers. This
+Network transport layer for BZEngine clients and servers. This
 provides methods for transporting messges across TCP and UDP
 links.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -23,14 +23,14 @@ links.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZFlag.Protocol import Common
-from BZFlag import Protocol, Errors
+from BZEngine.Protocol import Common
+from BZEngine import Protocol, Errors
 import socket, sys
 
 
 class BaseSocket:
     """This is a socket wrapper that can be used for normal socket
-       operations, but also supports sending BZFlag messages.
+       operations, but also supports sending BZEngine messages.
        It is an abstract base class. Use a subclass that defines methods
        specific to UDP or TCP.
        """
@@ -304,7 +304,7 @@ class UDPSocket(BaseSocket):
 
 
 class Endpoint:
-    """Abstract base class for an endpoint in the BZFlag client-server connection.
+    """Abstract base class for an endpoint in the BZEngine client-server connection.
        This is a base class for both BaseClient and BaseServer.
 
        This class provides a system for asynchronously processing messages
@@ -331,7 +331,7 @@ class Endpoint:
         self.udp = None
         self.options = {}
 
-        from BZFlag import Event
+        from BZEngine import Event
         Event.attach(self, 'onAnyMessage', 'onUnhandledMessage')
 
         # Add events for all messages, with onUnhandledMessage as an
@@ -354,7 +354,7 @@ class Endpoint:
         if 'eventLoop' in options.keys():
             self.eventLoop = options['eventLoop']
         else:
-            from BZFlag import Event
+            from BZEngine import Event
             self.eventLoop = Event.EventLoop()
 
     def init(self):

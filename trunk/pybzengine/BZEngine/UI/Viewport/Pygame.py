@@ -1,10 +1,10 @@
-""" BZFlag.UI.Viewport.Pygame
+""" BZEngine.UI.Viewport.Pygame
 
 Viewport implementation using Pygame. On top of the abstract Viewport,
 this provides frame rate control, surface initialization, event dispatch.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@ this provides frame rate control, surface initialization, event dispatch.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZFlag import Event, Animated
+from BZEngine import Event, Animated
 import copy, pygame
 from Base import Viewport
 

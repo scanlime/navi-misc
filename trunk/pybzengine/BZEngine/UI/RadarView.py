@@ -1,10 +1,10 @@
-""" BZFlag.UI.RadarView
+""" BZEngine.UI.RadarView
 
 An overhead view implemented using OpenGL, optionally tracking
 the position and orientation of one player.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -22,12 +22,12 @@ the position and orientation of one player.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import pygame, math, BZFlag
+import pygame, math, BZEngine
 from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from BZFlag import Event
-from BZFlag.UI import Drawable, GLExtension
+from BZEngine import Event
+from BZEngine.UI import Drawable, GLExtension
 
 # Maximum number of radar laysrs per color, trades off Z accuracy for speed
 numRadarLayers = 8
@@ -184,7 +184,7 @@ class RadarView:
         viewport.fov = None
         self.dot = RegularPolygon(8)
 
-        viewport.setCaption("%s Radar View" % BZFlag.name)
+        viewport.setCaption("%s Radar View" % BZEngine.name)
         viewport.onDrawFrame.observe(self.render)
 
     def renderPlayers(self, rstate):
@@ -238,7 +238,7 @@ class RadarView:
 
 class Setup:
     def __init__(self, game, eventLoop):
-        from BZFlag.UI.Viewport import OpenGLViewport
+        from BZEngine.UI.Viewport import OpenGLViewport
         self.viewport = OpenGLViewport(eventLoop, (512,512))
         self.view = RadarView(game, self.viewport)
 

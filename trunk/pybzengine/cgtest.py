@@ -4,8 +4,8 @@
 # this is -not- platform agnostic at the moment
 #
 import sys
-from BZFlag import Event
-from BZFlag.UI import Viewport, HUD, Layout
+from BZEngine import Event
+from BZEngine.UI import Viewport, HUD, Layout
 from Cg import *
 from OpenGL.GL import *
 from OpenGL.GLU import *

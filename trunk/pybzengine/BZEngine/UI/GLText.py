@@ -1,4 +1,4 @@
-""" BZFlag.UI.GLText
+""" BZEngine.UI.GLText
 
 Interface for drawing text in OpenGL. This uses freetype via pygame to
 build texture pages holding glyph images, then it renders individual
@@ -15,7 +15,7 @@ glyph images, it works instead with glyphs padded to include the font
 height and escapement.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -35,8 +35,8 @@ height and escapement.
 from __future__ import division
 import pygame, string, math
 from pygame.locals import *
-from BZFlag import Util
-from BZFlag.UI.Texture import Texture, GLExtension
+from BZEngine import Util
+from BZEngine.UI.Texture import Texture, GLExtension
 from OpenGL.GL import *
 
 

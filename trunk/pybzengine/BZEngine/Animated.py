@@ -1,11 +1,11 @@
-""" BZFlag.Animated
+""" BZEngine.Animated
 
 Classes for implementing values that change over time.
 This includes vectors and values that move according to
 physical models or other formulas.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -290,7 +290,7 @@ class PerlinNoise:
        natural-looking noise in up to 3 dimensions.
        """
     def __init__(self, amplitude=1, frequency=1, offset=0, octaves=3, persistence=0.5, seed=0):
-        from BZFlag import Noise
+        from BZEngine import Noise
         self.amplitude = amplitude
         self.frequency = frequency
         self.offset = offset

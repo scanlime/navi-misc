@@ -1,9 +1,9 @@
-""" BZFlag.UI.ThreeDView
+""" BZEngine.UI.ThreeDView
 
-A 3d scene renderer similar to BZFlag proper
+A 3d scene renderer similar to BZEngine proper
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -21,9 +21,9 @@ A 3d scene renderer similar to BZFlag proper
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import BZFlag
-from BZFlag.UI import ThreeDRender, Drawable, Environment, Viewport
-from BZFlag.Protocol import WorldObjects
+import BZEngine
+from BZEngine.UI import ThreeDRender, Drawable, Environment, Viewport
+from BZEngine.Protocol import WorldObjects
 from OpenGL.GL import *
 
 
@@ -125,13 +125,13 @@ class Scene(ThreeDRender.Scene):
 
 
 class ThreeDView(ThreeDRender.View):
-    """Shows a 3D view of the BZFlag game, renderable to an OpenGLViewport.
+    """Shows a 3D view of the BZEngine game, renderable to an OpenGLViewport.
        This can be used for observer views, 1st person game views, and editing.
        """
     def __init__(self, game, viewport):
         self.game = game
         ThreeDRender.View.__init__(self, viewport, Scene(game))
-        viewport.setCaption("%s 3D View" % BZFlag.name)
+        viewport.setCaption("%s 3D View" % BZEngine.name)
 
         # We don't need the viewport to clear the color buffer for us, since we have the sky
         viewport.mode = Viewport.GL.UnclearedMode()
@@ -145,7 +145,7 @@ class ThreeDView(ThreeDRender.View):
 
 class Setup:
     def __init__(self, game, eventLoop):
-        from BZFlag.UI import Viewport, ThreeDControl
+        from BZEngine.UI import Viewport, ThreeDControl
         self.viewport = Viewport.OpenGLViewport(eventLoop)
         self.view = ThreeDView(game, self.viewport)
         self.control = ThreeDControl.Viewing(self.view, self.viewport)

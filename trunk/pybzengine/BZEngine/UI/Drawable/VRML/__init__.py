@@ -1,4 +1,4 @@
-""" BZFlag.UI.Drawable.VRML
+""" BZEngine.UI.Drawable.VRML
 
 A drawable that can load a very small subset of the VRML model format.
 This module does not make any attempt to resemble a full VRML browser
@@ -29,7 +29,7 @@ This has been tested with VRML files from Blender and Milkshape 3D,
 as well as a few random VRML files found on the 'net.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ from Cache import *
 
 defaultCache = Cache()
 def load(name):
-    from BZFlag import Util
+    from BZEngine import Util
     return defaultCache.load(Util.dataFile(name))
 
 ### The End

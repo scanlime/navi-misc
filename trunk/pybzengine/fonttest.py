@@ -3,9 +3,9 @@
 # Test rig for our GLText module
 #
 
-from BZFlag.UI import Viewport, GLText, Instrument
-from BZFlag.Event import EventLoop
-from BZFlag import Animated
+from BZEngine.UI import Viewport, GLText, Instrument
+from BZEngine.Event import EventLoop
+from BZEngine import Animated
 from OpenGL.GL import *
 from math import floor
 

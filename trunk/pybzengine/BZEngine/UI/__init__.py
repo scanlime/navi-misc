@@ -1,11 +1,11 @@
-""" BZFlag.UI
+""" BZEngine.UI
 
 This is a Python package providing various user interface frontends
 for displaying the game state. This module contains an interface
 for setting up a UI by name.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or

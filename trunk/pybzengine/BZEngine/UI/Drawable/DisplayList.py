@@ -1,9 +1,9 @@
-""" BZFlag.UI.Drawable.DisplayList
+""" BZEngine.UI.Drawable.DisplayList
 
 A drawable that stores itself to a display list before rendering
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@ A drawable that stores itself to a display list before rendering
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-from BZFlag.UI.Drawable.GLDrawable import *
+from BZEngine.UI.Drawable.GLDrawable import *
 from OpenGL.GL import *
 
 __all__ = ['DisplayList']

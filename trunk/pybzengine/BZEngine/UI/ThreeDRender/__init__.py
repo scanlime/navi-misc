@@ -1,11 +1,11 @@
-""" BZFlag.UI.ThreeDRender
+""" BZEngine.UI.ThreeDRender
 
 A simple 3D engine that organizes drawables into rendering passes
 and texture groups, rendering as much as possible via display lists.
 Provides abstractions for the camera, lighting, and other OpenGL state.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or

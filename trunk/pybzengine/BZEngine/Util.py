@@ -1,9 +1,9 @@
-""" BZFlag.Util
+""" BZEngine.Util
 
 Small utilities that don't seem to fit anywhere else :)
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or

@@ -1,4 +1,4 @@
-""" BZFlag.UI.Layout
+""" BZEngine.UI.Layout
 
 A collection of callable classes to provide lazy-evaluating
 layout operators. This is intended to be used along with Viewport's
@@ -13,7 +13,7 @@ or in fractions of the input rectangle's relevant axis, as floats,
 or as a callable that takes the rectangle in question as a parameter.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ or as a callable that takes the rectangle in question as a parameter.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from BZFlag.UI import Viewport
+from BZEngine.UI import Viewport
 from __future__ import nested_scopes
 
 

@@ -1,11 +1,11 @@
-""" BZFlag.UI.Drawable.VRML.Cache
+""" BZEngine.UI.Drawable.VRML.Cache
 
 A simple cache for loaded VRML models. This stores cPickle'd
 dicts associating mesh name to a Mesh instance, keyed by the MD5 hash
 of the raw VRML file.
 """
 #
-# Python BZFlag Package
+# Python BZEngine Package
 # Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
 #
 #  This library is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ of the raw VRML file.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import BZFlag, cPickle, os, md5
+import BZEngine, cPickle, os, md5
 from Parser import Reader
 
 __all__ = ("Cache",)
@@ -31,7 +31,7 @@ __all__ = ("Cache",)
 
 class Cache:
     """This is both an in-memory and on-disk cache for VRML objects."""
-    def __init__(self, path=BZFlag.cachePath):
+    def __init__(self, path=BZEngine.cachePath):
         self.objects = {}
         self.path = os.path.expanduser(path)
         try:
