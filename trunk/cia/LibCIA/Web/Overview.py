@@ -57,7 +57,7 @@ class ActivitySection(Template.Section):
     """
 
     def __init__(self, targetPath, title,
-                 numItems      = 10,
+                 numItems      = 15,
                  counter       = 'today',
                  counterAttrib = 'event_count',
                  sort          = 'DESC',
@@ -109,7 +109,7 @@ class TimestampSection(ActivitySection):
     """A section showing the newest or oldest items within a stats target"""
 
     def __init__(self, targetPath, title,
-                 numItems      = 10,
+                 numItems      = 15,
                  counter       = 'forever',
                  counterAttrib = 'first_time',
                  sort          = 'DESC',
