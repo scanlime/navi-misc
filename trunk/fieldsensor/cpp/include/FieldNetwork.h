@@ -39,6 +39,9 @@ class FieldNetwork : public MultiLayerNetwork {
   FieldNetwork(const char *filename);
 
  private:
+  static real transfer(real x);
+  static real dtransfer(real x);
+
   void initLayers(void);
   void initTransferFunctions(void);
 };

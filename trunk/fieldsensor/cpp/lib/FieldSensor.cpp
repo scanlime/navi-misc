@@ -64,6 +64,7 @@ FieldSensor::FieldSensor(const char *serialPort, const char *netFile)
   x.set(0.5, 0.5, 1.0);              /* Initial estimate */
   P.set(1.0, 1.0, 1.0);              /* Initial variance estimate */
 
+  newData = false;
   pthread_create(&thread_id, NULL, &readerThread, this);
 }
 
