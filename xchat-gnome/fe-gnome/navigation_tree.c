@@ -95,6 +95,7 @@ void navigation_tree_create_new_channel_entry(struct session *sess) {
 	store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
 
 	gtk_tree_model_foreach(store, navigation_tree_create_new_channel_entry_iterate, (gpointer) sess);
+	g_print("creating channel %s, session is 0x%x\n", sess->channel, sess);
 }
 
 static gboolean navigation_tree_remove_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data) {
@@ -133,7 +134,7 @@ static gboolean navigation_tree_set_channel_name_iterate(GtkTreeModel *model, Gt
 	gtk_tree_model_get(model, iter, 2, &s, -1);
 	if(s == data) {
 		struct session *sess = s;
-		gtk_tree_store_set(GTK_TREE_STORE(model), iter, 1, (sess->channel), -1);
+		gtk_tree_store_set(GTK_TREE_STORE(model), iter, 1, (sess->channel), 4, NULL, -1);
 		return TRUE;
 	}
 	return FALSE;
@@ -171,7 +172,7 @@ void navigation_selection_changed(GtkTreeSelection *selection, gpointer data) {
 		userlist_display(tgui);
 		set_nickname(sess->server, NULL);
 		/* remove any icon that exists */
-		gtk_tree_store_set(GTK_TREE_STORE(model), &iter, 0, NULL, 3, 0, 4, NULL, -1);
+		gtk_tree_store_set(GTK_TREE_STORE(model), &iter, 0, NULL, 3, 0, -1);
 	}
 }
 
@@ -321,6 +322,7 @@ static void leave_dialog(gpointer data, guint action, GtkWidget *widget) {
 		}
 		gtk_tree_store_set(GTK_TREE_STORE(model), &iter, 4, &colors[23], -1);
 	}
+	g_print("leaving channel %s, session is 0x%x\n", s->channel, s);
 }
 
 static void close_dialog(gpointer data, guint action, GtkWidget *widget) {
