@@ -45,7 +45,9 @@ staticLib= env.StaticLibrary('rcpod', libSrcPaths)
 # Build the example programs, using the static library
 # (it can be a pain to use shared libs without installing them...)
 for example in examples:
-    env.Program(example, ['examples/%s.c' % example, staticLib], LIBS=libs)
+    env.Program('examples/%s' % example,
+                ['examples/%s.c' % example, staticLib],
+		LIBS=libs)
 
 
 # librcpod installation
