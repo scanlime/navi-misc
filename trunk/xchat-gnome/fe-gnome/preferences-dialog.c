@@ -21,7 +21,6 @@
 
 #include "preferences-dialog.h"
 #include "preferences-servers-page.h"
-#include "preferences-colors-page.h"
 #include "preferences-keybindings-page.h"
 #include "preferences-plugins-page.h"
 #include "pixmaps.h"
@@ -111,7 +110,8 @@ preferences_dialog_init (PreferencesDialog *p)
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (page_selection_changed), p);
 
-	p->irc_page = preferences_page_irc_new (p, xml);
+	p->irc_page    = preferences_page_irc_new    (p, xml);
+	p->colors_page = preferences_page_colors_new (p, xml);
 
 	g_object_unref (xml);
 }
