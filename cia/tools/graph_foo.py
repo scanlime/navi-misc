@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+import sys, os
+sys.path[0] = os.path.join(sys.path[0], '..')
+
 from LibCIA import Database
-from twisted.internet import reactor, defer
-import sys
+from twisted.internet import reactor, defer, protocol, error
 
 
 class Selector:
@@ -104,11 +106,59 @@ class RelationGrapher:
             f.write('\t"%s" -- "%s";\n' % (row[0], row[1]))
 
         f.write("}\n")
+        result.callback(None)
+
+    def render(self, f, format):
+        """Render a graph in the given format to the file-like object 'f'.
+           Returns a deferred that indicates completion or error conditions.
+           """
+        result = defer.Deferred()
+        p = StreamProcessProtocol(self.generateDot, f, result)
+        bin = "neato"
+        reactor.spawnProcess(p, bin, [bin, "-T%s" % format], env=None)
+        return result
+
+
+class StreamProcessProtocol(protocol.ProcessProtocol):
+    """Upon connection to the child process, stdinCallback is called with
+       a file-like object representing the process's stdin. When the
+       stdinCallback returns (possibly via a Deferred) the subprocess'
+       stdin is closed.
+
+       The process' stdout is directed to the provided file-like object
+       stdoutStream. When the process finishes, a None is sent to
+       resultDeferred. Errors are errback()'ed to resultDeferred.
+       """
+    def __init__(self, stdinCallback, stdoutStream, resultDeferred):
+        self.stdinCallback = stdinCallback
+        self.stdoutStream = stdoutStream
+        self.resultDeferred = resultDeferred
+
+    def connectionMade(self):
+        defer.maybeDeferred(self.stdinCallback, self.transport).addCallback(
+            self._finishedWriting).addErrback(self.resultDeferred.errback)
+
+    def _finishedWriting(self, result):
+        self.transport.closeStdin()
+
+    def outReceived(self, data):
+        self.stdoutStream.write(data)
+
+    def processEnded(self, reason):
+        if isinstance(reason.value, error.ProcessDone):
+            self.resultDeferred.callback(None)
+        else:
+            self.resultDeferred.errback(reason)
 
 
 if __name__ == '__main__':
+    def done(result):
+        print "All done"
+    def oops(result):
+        print result
+
     RelationGrapher(
         PrefixSelector('project/', color='#FF0000'),
         PrefixSelector('author/', color='#0000FF'),
-        ).generateDot(sys.stdout)
+        ).render(open("output.svg", 'w'), "svg").addCallback(done).addErrback(oops)
     reactor.run()
