@@ -95,6 +95,7 @@ class RSSFeed(BaseFeed):
     document = tag('rss', version='2.0')[ tag('channel')[
         tag('title')[ place('title') ],
         tag('link')[ place('link') ],
+        tag('ttl')[ 15 ],
         tag('description')[ place('description') ],
         place('photo'),
         place('items'),
