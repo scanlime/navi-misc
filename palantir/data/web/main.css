@@ -62,6 +62,7 @@ div.date {
   font-variant: small-caps;
   font-style: italic;
   text-decoration: underline;
+  padding-left: 2em;
 }
 
 img.header {
