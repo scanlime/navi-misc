@@ -25,11 +25,13 @@
 #include "e-weather-source-ccf.h"
 
 EWeatherSource*
-e_weather_source_ccf_new (const char *station)
+e_weather_source_ccf_new (const char *uri)
 {
+	/* uri is formatted as weather:ccf/SSS where SSS is the 3-letter NWS
+	 * station identifier. Pretty much all we care about here is the station */
 	EWeatherSourceCCF *source = E_WEATHER_SOURCE_CCF (g_object_new (e_weather_source_ccf_get_type (), NULL));
 
-	source->station = g_strdup (station);
+	source->station = g_strdup (strchr(uri, '/') + 1);
 	return E_WEATHER_SOURCE (source);
 }
 
@@ -117,6 +119,18 @@ decodePOP (char data)
 	return ret;
 }
 
+static void
+decodeSnowfall (char *data, int *low, int *high)
+{
+	char num[3];
+	num[2] = '\0';
+
+	num[0] = data[0]; num[1] = data[1];
+	*low = atoi (num);
+	num[0] = data[2]; num[1] = data[3];
+	*high = atoi (num);
+}
+
 static float
 ftoc (char *data)
 {
@@ -126,8 +140,8 @@ ftoc (char *data)
 	return ((float)(fahrenheit-32)) * 5.0f / 9.0f;
 }
 
-static GList*
-e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
+static void
+e_weather_source_ccf_parse (EWeatherSource *source, SourceFinished done)
 {
 	/* CCF gives us either 2 or 7 days of forecast data. IFPS WFO's
 	 * will produce 7 day forecasts, whereas pre-IFPS WFO's are only
@@ -141,6 +155,7 @@ e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 	 */
 	EWeatherSourceCCF *ccfsource = (EWeatherSourceCCF*) source;
 	WeatherForecast *forecasts = g_new0 (WeatherForecast, 7);
+#if 0
 	GSList *tokens = tokenize (buffer);
 	GSList *date;
 	GSList *current = tokens;
@@ -161,6 +176,7 @@ e_weather_source_ccf_parse (EWeatherSource *source, const char *buffer)
 		fc = g_list_append (fc, &forecasts[i]);
 
 	return fc;
+#endif
 }
 
 static void
