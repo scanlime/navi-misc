@@ -136,7 +136,6 @@ static gboolean navigation_tree_set_hilight_iterate(GtkTreeModel *model, GtkTree
 void navigation_tree_set_hilight(struct session *sess) {
 	GtkTreeModel *store;
 	GtkWidget *treeview;
-	GtkTreeIter iter;
 
 	if(sess == gui.current_session)
 		return;
