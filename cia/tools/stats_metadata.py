@@ -14,7 +14,8 @@ import os, xmlrpclib
 
 class Options(Client.Options):
     optFlags = [
-        ['from-file', 'f', 'The value specified is actually a file to read the value from']
+        ['from-file', 'f', 'The value specified is actually a file to read the value from'],
+        ['remove', 'r', 'Remove the specified metadata key']
         ]
 
     optParameters = [
@@ -22,11 +23,14 @@ class Options(Client.Options):
         ]
 
     def getSynopsis(self):
-        return Client.Options.getSynopsis(self) + ' path key value'
+        return Client.Options.getSynopsis(self) + ' path key [value]'
 
     def parseArgs(self, *args):
         if len(args) == 3:
             self['path'], self['dataKey'], self['dataValue'] = args
+        elif len(args) == 2:
+            self['path'], self['dataKey'] = args
+            self['dataValue'] = None
         else:
             self.opt_help()
 
@@ -34,14 +38,24 @@ class MetadataTool(Client.App):
     optionsClass = Options
 
     def main(self):
+        metadata = self.server.stats.metadata
+
         value = self.config['dataValue']
-        if self.config['from-file']:
+        if self.config['from-file'] and value:
             value = xmlrpclib.Binary(open(value, 'rb').read())
 
-        d = [ (self.config['dataKey'], value) ]
+        if self.config['remove']:
+            metadata.delKeys(self.config['path'], [self.config['dataKey']], self.key)
+
+        if self.config['dataValue'] is not None:
+            metadata.setKeyValues(self.config['path'], {
+                self.config['dataKey']: value,
+                }, self.key)
+
         if self.config['type'] is not None:
-            d.append(((self.config['dataKey'], 'type'), self.config['type']))
-        self.server.stats.updateMetadata(self.config['path'], d, self.key)
+            metadata.setKeyTypes(self.config['path'], {
+                self.config['dataKey']: self.config['type'],
+                }, self.key)
 
 if __name__ == '__main__':
     MetadataTool().main()
