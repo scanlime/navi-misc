@@ -6,7 +6,7 @@
 
 import rcpod
 
-class therm():
+class therm:
     def __init__(self, pic):
         self.pic	= pic
         self.busmask	= 0x04	# 0000 0100 - i2c bus on RB2
