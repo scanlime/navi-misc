@@ -294,6 +294,16 @@ static void cell_renderer_bifurcation_render(GtkCellRenderer      *cell,
 		 "bgcolor-gdk", &GTK_WIDGET(widget)->style->base[state],
 		 NULL);
 
+    /* Assume that 5*(cell area) is good enough) */
+    if(HISTOGRAM_IMAGER(bd)->total_points_plotted > 5 * cell_area->width * cell_area->height) {
+        gdk_draw_pixbuf(window, GTK_WIDGET(widget)->style->fg_gc[state],
+		        HISTOGRAM_IMAGER(bd)->image,
+		        0, 0, cell_area->x, cell_area->y, cell_area->width, cell_area->height,
+		        GDK_RGB_DITHER_NONE, 0, 0);
+
+        return;
+    }
+
     /* Render it a bit and update the image */
     bifurcation_diagram_calculate(bd, 10000, 100);
     histogram_imager_update_image(HISTOGRAM_IMAGER(bd));
@@ -302,6 +312,10 @@ static void cell_renderer_bifurcation_render(GtkCellRenderer      *cell,
 		    HISTOGRAM_IMAGER(bd)->image,
 		    0, 0, cell_area->x, cell_area->y, cell_area->width, cell_area->height,
 		    GDK_RGB_DITHER_NONE, 0, 0);
+
+    gtk_widget_queue_draw_area(GTK_WIDGET(self->tree),
+			       cell_area->x, cell_area->y,
+			       cell_area->width, cell_area->height);
 }
 
 /* The End */
