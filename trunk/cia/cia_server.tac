@@ -30,7 +30,7 @@ Security.caps.saveKey('universe', '~/.cia_key')
 # files in 'htdocs' and add dynamic content from there.
 webRoot = static.File("htdocs")
 webRoot.putChild('rulesets', RulesetBrowser.RulesetList(rulesetStorage))
-#webRoot.putChild('stats', StatsBrowser.StatsPage())
+webRoot.putChild('stats', StatsBrowser.StatsPage())
 webRoot.putChild('irc', BotStatus.IRCBotPage(botNet))
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port

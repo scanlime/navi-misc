@@ -26,7 +26,7 @@ I think lowercase makes more sense.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-__all__ = ['place', 'xml', 'Serializer', 'tag', 'quote', 'DocumentOwner']
+__all__ = ['place', 'xml', 'subcontext', 'tag', 'quote', 'Serializer', 'DocumentOwner']
 
 
 class place:
@@ -64,56 +64,6 @@ class quote(object):
        """
     def __init__(self, item):
         self.item = item
-
-
-def escapeToXml(text, isAttrib=0):
-    text = text.replace("&", "&amp;")
-    text = text.replace("<", "&lt;")
-    text = text.replace(">", "&gt;")
-    if isAttrib == 1:
-        text = text.replace("'", "&apos;")
-        text = text.replace("\"", "&quot;")
-    return text
-
-
-class Serializer:
-    """Convert arbitrary objects to xml markers recursively. Renderable objects
-       are allowed to render themselves, other types must have renderers looked
-       up in this class's render_* methods.
-       """
-    def render(self, obj, context):
-        """Look up a render_* function based on the object's type"""
-        if hasattr(obj, 'render'):
-            return self.render_renderable(obj, context)
-        try:
-            f = getattr(self, 'render_' + obj.__class__.__name__)
-        except AttributeError:
-            f = self.render_other
-        return f(obj, context)
-
-    def render_xml(self, obj, context):
-        return obj
-
-    def render_list(self, obj, context):
-        return xml(''.join([self.render(o, context) for o in obj]))
-
-    def render_tuple(self, obj, context):
-        return self.render_list(obj, context)
-
-    def render_quote(self, obj, context):
-        return xml(escapeToXml(str(self.render(obj.item, context))))
-
-    def render_function(self, obj, context):
-        return self.render(obj(context), context)
-
-    def render_instancemethod(self, obj, context):
-        return self.render(obj(context), context)
-
-    def render_renderable(self, obj, context):
-        return self.render(obj.render(context), context)
-
-    def render_other(self, obj, context):
-        return xml(escapeToXml(str(obj)))
 
 
 class tag:
@@ -182,19 +132,93 @@ class tag:
             return [self.renderedOpening, self.content, self.renderedClosing]
 
 
+class subcontext(object):
+    """A wrapper for any serializable object that makes note of a modified
+       context to serialize all content in. This can be used like a tag,
+       with content in [] and context changes in ().
+
+       It is not enforced, but normally subcontexts should be immutable.
+       """
+    def __init__(self, content, **modifications):
+        self.content = content
+        self.modifications = modifications
+
+    def __call__(serf, content=None, **modifications):
+        """Like tags, instances can be used as templates for creating other
+           subcontexts. This returns a new distinct subcontext based on
+           the current one.
+           """
+        if content is None:
+            content = self.content
+        newMods = dict(self.modifications)
+        newMods.update(modifications)
+        return subcontext(content, newMods)
+
+    def __getitem__(self, content):
+        """Returns a new subcontext, like this one but with the indicated content"""
+        return subcontext(content, self.modifications)
+
+
+def escapeToXml(text, isAttrib=0):
+    text = text.replace("&", "&amp;")
+    text = text.replace("<", "&lt;")
+    text = text.replace(">", "&gt;")
+    if isAttrib == 1:
+        text = text.replace("'", "&apos;")
+        text = text.replace("\"", "&quot;")
+    return text
+
+
+class Serializer:
+    """Convert arbitrary objects to xml markers recursively. Renderable objects
+       are allowed to render themselves, other types must have renderers looked
+       up in this class's render_* methods.
+       """
+    def render(self, obj, context):
+        """Look up a render_* function based on the object's type"""
+        if hasattr(obj, 'render'):
+            return self.render_renderable(obj, context)
+        try:
+            f = getattr(self, 'render_' + obj.__class__.__name__)
+        except AttributeError:
+            f = self.render_other
+        return f(obj, context)
+
+    def render_xml(self, obj, context):
+        return obj
+
+    def render_list(self, obj, context):
+        return xml(''.join([self.render(o, context) for o in obj]))
+
+    def render_tuple(self, obj, context):
+        return self.render_list(obj, context)
+
+    def render_quote(self, obj, context):
+        return xml(escapeToXml(str(self.render(obj.item, context))))
+
+    def render_function(self, obj, context):
+        return self.render(obj(context), context)
+
+    def render_instancemethod(self, obj, context):
+        return self.render(obj(context), context)
+
+    def render_renderable(self, obj, context):
+        return self.render(obj.render(context), context)
+
+    def render_subcontext(self, obj, context):
+        newContext = dict(context)
+        newContext.update(obj.modifications)
+        return self.render(obj.content, newContext)
+
+    def render_other(self, obj, context):
+        return xml(escapeToXml(str(obj)))
+
+
 class DocumentOwner(object):
     """A base class defining a 'render' function for objects that own a document"""
     serializerFactory = Serializer
 
-    def isVisible(self, context):
-        """Subclasses can override this to decide whether the entire document should be rendered"""
-        return True
-
     def render(self, context={}):
-        if not self.isVisible(context):
-            return xml('')
-        myContext = dict(context)
-        myContext['owner'] = self
-        return self.serializerFactory().render(self.document, myContext)
+        return subcontext(self.document, owner=self)
 
 ### The End ###
