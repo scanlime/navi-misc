@@ -13,7 +13,7 @@ prologuePianoTreble = \new Voice \notes\relative c' {
   \key d \minor
   << {
     <f a>1\marcato
-    ^\raisePrologueTempo
+    ^\prologueTempo
     <f a>2. (g8 e8)
     <f a>2.\tenuto\marcato a8 b16 c
     \times 2/3 {c16\accent (b a g8.)} r4
