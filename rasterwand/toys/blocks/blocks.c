@@ -105,7 +105,7 @@ int main(int argc, char **argv)
   
   for(i=0;;i++)
   {
-    write(wand,blocks[i%9],80);
+    write(wand,blocks[i%9],i%80);
     sleep(1);
   }
   close(wand);
