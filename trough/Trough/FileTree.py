@@ -3,12 +3,15 @@
     structure.
 '''
 
+__all__=['File','Directory']
+
 import os, os.path
 
-suffices = ['mp3','ogg']    # TODO: Make this less silly
-
+PROPERTY_FILENAME = '.trough'
+SUFFICES = ['mp3','ogg']    # TODO:	There should really be a better way
+			    #		of matching paths in the future..
 def match_path(path):
-	for suffix in suffices:
+	for suffix in SUFFICES:
 	    if path[len(path)-len(suffix):] == suffix:
 		return True
 	return False
@@ -84,12 +87,15 @@ class Directory (File):
 
 	self.dirs = []
         self.files = []
+	properties = ()
 
+	# Temporarily changing the working directory is faster than creating
+	# a full path from the filename, especially for big directories.
 	oldwd = os.getcwd()
-	path = File.getPath(self)
-	entries = os.listdir(path)
+	os.chdir(File.getPath(self))
+
+	entries = os.listdir('.')
 	entries.sort()
-	os.chdir(path)
 
 	for entry in entries:
 	    if os.path.isdir(entry):
@@ -97,8 +103,29 @@ class Directory (File):
 	    else:
 		if match_path(entry) == True:
 		    self.__new_file__(entry)
+		else:
+		    if entry == PROPERTY_FILENAME:
+			try:
+			    f = file(entry)
+			    properties = eval(f.read())
+			    f.close()
+			except:
+			    properties = ()
+			    print '** warning: unable to read',		\
+				  os.path.join(os.getcwd(),entry),	\
+				  'to read directory properties'
+			    continue
+			for p in properties:
+			    try:
+				File.setProperty(self,p[0],p[1])
+			    except:
+				print '** warning: reading tree: invalid key/value pair:', \
+				property, '(skipping) **'
 
 	os.chdir(oldwd)
+
+	# Now that all the little'uns are loaded, we can apply some properties.
+	# Hurray!
 
     def getDirectories(self):
         return self.dirs
@@ -115,6 +142,10 @@ class Directory (File):
         return result
 
     def setProperty(self, key, value):
+        ''' FileTree.Directory.setProperty
+
+	    Recursively set a property on all files inside the directory
+	'''
         File.setProperty(self, key, value)
 	for x in self.dirs:
 	    x.setProperty(key, value)
@@ -125,7 +156,9 @@ class Directory (File):
     	''' FileTree.Directory.find
 		Returns a Directory structure for a file or directory with
 		the given path, if found inside anywhere recursively within
-		the current directory; returns None if the file was not found
+		the current directory; returns None if the file was not found.
+
+		TODO: This is still messy, and probably needs to be rewritten
        	'''
 	path=os.path.abspath(path)
 	p = path.split(self.getPath())

@@ -15,14 +15,11 @@ class Config:
     	try:
 	    file = self.__open_config__('trees','r')
 	except:
-	    try:
-		self.__make_config__('trees')
-	    except:
- 	        print '** warning: couldn\'t open saved directory tree(s) **'
+ 	    print '** warning: couldn\'t open saved directory tree(s) **'
 	    return
 	try:
-		newtrees = pickle.load(file)
-		self.trees = newtrees
+	    newtrees = pickle.load(file)
+	    self.trees = newtrees
 	except:
 		print '** warning: saved directory tree(s) empty or unreadable **'
 	file.close()
@@ -40,7 +37,7 @@ class Config:
 	    file = self.__open_config__('properties','r')
 	except:
 	    try:
-		self.__make_config__('properties')
+		self.__make_default_config__('properties')
 	    except:
  	        print '** warning: couldn\'t open saved tree properties **'
 	    return
@@ -97,5 +94,9 @@ class Config:
 	    os.mkdir(self.confdir)
 	return open(os.path.join(self.confdir,name), mode)
 
-    def __make_config__(self, name):
-    	shutil.copyfile(name,os.path.join(self.confdir,name))
+    def __make_default_config__(self, name):
+    	n = os.path.join('share','trough',name)
+	try:
+	    shutil.copyfile(n,os.path.join(self.confdir,name))
+	except:
+	    shutil.copyfile(os.path.join(sys.exec_prefix,n),os.path.join(self.confdir,name))
