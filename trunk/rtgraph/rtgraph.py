@@ -803,14 +803,15 @@ class ChannelList(gtk.TreeView):
     def fillModel(self):
         """Fills the model with data, must be called after self.window is valid"""
         for channel in self.channels:
-            self.model.append(row=(
-                channel,
-                str(channel),
-                gtk.FALSE,
-                gtk.TRUE,
-                self.makeColorSamplePixbuf(channel),
-                "",
-                ))
+            i = self.model.append()
+	    self.model.set(i,
+                0, channel,
+                1, str(channel),
+                2, gtk.FALSE,
+                3, gtk.TRUE,
+                4, self.makeColorSamplePixbuf(channel),
+                5, "",
+		)
         self.modelFilled = True
 
         # Give all values one initial update, then start a callback for updating them regularly.
@@ -841,7 +842,7 @@ class ChannelList(gtk.TreeView):
            Toggles the value of the checkbox, then updates the graph
            to add or remove this channel.
            """
-        i = model.get_iter(path)
+        i = model.get_iter((int(path,)))
         visible = not cell.get_active()
         model.set_value(i, 2, visible)
         channel = model.get_value(i, 0)

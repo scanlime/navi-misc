@@ -23,7 +23,7 @@ class CPUActivityChannel(rtgraph.Channel):
                 cpu, user, nice, sys, idle = re.split("\s+", line.strip())
                 break
         f.close()
-        return (int(user) + int(nice + sys), int(idle))
+        return (long(user) + long(nice + sys), long(idle))
 
     def getValue(self):
         newStatValues = self.readCpuStat()
