@@ -78,6 +78,7 @@ struct _Explorer {
     AnimationRenderUi *render_window;
 
     GtkListStore *cluster_model;
+    gboolean cluster_running;
 };
 
 struct _ExplorerClass {
@@ -97,18 +98,21 @@ Explorer*  explorer_new(IterativeMap *map, Animation *animation);
 /***************************************************************** Internal methods */
 /************************************************************************************/
 
-void explorer_init_tools(Explorer *self);
-gboolean explorer_update_tools(Explorer *self);
+void      explorer_init_tools            (Explorer *self);
+gboolean  explorer_update_tools          (Explorer *self);
 
-void explorer_init_animation(Explorer *self);
-void explorer_dispose_animation(Explorer *self);
-void explorer_update_animation(Explorer *self);
+void      explorer_init_animation        (Explorer *self);
+void      explorer_dispose_animation     (Explorer *self);
+void      explorer_update_animation      (Explorer *self);
 
-void explorer_init_cluster(Explorer *self);
-void explorer_dispose_cluster(Explorer *self);
+void      explorer_init_cluster          (Explorer *self);
+void      explorer_dispose_cluster       (Explorer *self);
+void      explorer_cluster_start         (Explorer *self);
+void      explorer_cluster_stop          (Explorer *self);
+void      explorer_cluster_merge_results (Explorer *self);
 
-void explorer_run_iterations(Explorer *self);
-void explorer_update_gui(Explorer *self);
+void      explorer_run_iterations        (Explorer *self);
+void      explorer_update_gui            (Explorer *self);
 
 G_END_DECLS
 
