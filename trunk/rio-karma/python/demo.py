@@ -12,9 +12,7 @@ import RioKarma
 
 class RioApp:
     def run(self):
-        # Oh no, the mighty h4><0rz will break into my rio!
-        RioKarma.connect("10.0.0.80", password="orange").addCallback(
-            self.connected).addErrback(self.failed)
+        RioKarma.autoConnect().addCallback(self.connected).addErrback(self.failed)
         reactor.run()
 
     def connected(self, fileManager):
@@ -126,8 +124,8 @@ if __name__ == "__main__":
         Uploader().run()
     else:
         #Downloader().run()
-        #PlaylistDownloader().run()
-        PlaylistUploader().run()
+        PlaylistDownloader().run()
+        #PlaylistUploader().run()
 
 ### The End ###
 

@@ -39,10 +39,10 @@ class AuthenticationError(Exception):
 
 # Most of these errors were guessed based on expected behavior, might be incorrect
 statusExceptionMap = {
-    0x8004005E: (ProtocolError,       "A lock required for this operation is not held or can't be acquired"),
-    0xC0040002: (ProtocolError,       "Nonexistant file ID"),
-    0xC0041002: (ProtocolError,       "File content can't be read"),
-    0x8004005B: (AuthenticationError, "Password is incorrect"),
+    0x8004005EL: (ProtocolError,       "A lock required for this operation is not held or can't be acquired"),
+    0xC0040002L: (ProtocolError,       "Nonexistant file ID"),
+    0xC0041002L: (ProtocolError,       "File content can't be read"),
+    0x8004005BL: (AuthenticationError, "Password is incorrect"),
     }
 
 

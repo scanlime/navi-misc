@@ -118,20 +118,14 @@ def findService(service, timeout=2.0):
     timer = reactor.callLater(timeout, timedOut)
 
     def callback(usn, addr):
-        timer.cancel()
-        p.port.stopListening()
-        result.callback((usn, addr))
+        if not result.called:
+            timer.cancel()
+            p.port.stopListening()
+            result.callback((usn, addr))
 
     p = Discovery(service, callback)
     p.listen()
     p.search()
     return result
-
-
-if __name__ == "__main__":
-    def cb(result):
-        print result
-    findService("urn:empeg-com:protocol2").addCallback(cb)
-    reactor.run()
 
 ### The End ###
