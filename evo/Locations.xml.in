@@ -1,0 +1,735 @@
+<?xml version="1.0"?>
+<evolutionweather format="1.0">
+    <region name="North America">
+	<country name="United States">
+	    <state name="Alabama">
+		<location name="Birmingham" resource="ccf/BMX/BHM"/>
+		<location name="Dothan" resource="ccf/TAE/DHN"/>
+		<location name="Evergreen" resource="ccf/MOB/GZH"/>
+		<location name="Huntsville" resource="ccf/HUN/HSV"/>
+		<location name="Mobile" resource="ccf/MOB/MOB"/>
+		<location name="Montgomery" resource="ccf/BMX/MGM"/>
+		<location name="Muscle Shoals" resource="ccf/HUN/BFL"/>
+	    </state>
+	    <state name="Alaska">
+		<!-- FIXME: AFC/CCFAER : ANC -->
+		<location name="Anchorage" resource="ccf/AER/ANC"/>
+		<location name="Fairbanks" resource="ccf/AFG/FAI"/>
+		<location name="Juneau" resource="ccf/AJK/JNU"/>
+		<location name="Ketchikan" resource="ccf/AJK/KTN"/>
+		<location name="Nome" resource="ccf/AFG/OME"/>
+		<location name="Sitka" resource="ccf/AJK/SIT"/>
+		<location name="Yakutat" resource="ccf/AJK/YAK"/>
+	    </state>
+	    <state name="Arizona">
+		<location name="Flagstaff" resource="ccf/FGZ/FLG"/>
+		<location name="Harrison" resource="ccf/LZK/HRO"/>
+		<location name="Hot Springs" resource="ccf/LZK/HOT"/>
+		<location name="Kingman" resource="ccf/VEF/IGM"/>
+		<location name="Little Rock" resource="ccf/LZK/LIT"/>
+		<location name="Page" resource="ccf/FGZ/PGA"/>
+		<location name="Phoenix" resource="ccf/PSR/PHX"/>
+		<location name="Pine Bluff" resource="ccf/LZK/PBF"/>
+		<location name="Prescott" resource="ccf/FGZ/PRC"/>
+		<location name="Tucson" resource="ccf/TWC/TUS"/>
+		<location name="Winslow" resource="ccf/FGZ/INW"/>
+		<location name="Yuma" resource="ccf/PSR/YUM"/>
+	    </state>
+	    <state name="Arkansas">
+		<location name="Fayetteville" resource="ccf/TSA/FYV"/>
+		<location name="Fort Smith" resource="ccf/TSA/FSM"/>
+		<location name="Jonesboro" resource="ccf/MEG/JBR"/>
+		<location name="Texarkana" resource="ccf/SHV/TXK"/>
+	    </state>
+	    <state name="California">
+		<location name="Arcata" resource="ccf/EKA/ACV"/>
+		<location name="Bakersfield" resource="ccf/HNX/BFL"/>
+		<location name="Bishop" resource="ccf/VEF/BIH"/>
+		<location name="Blue Canyon" resource="ccf/STO/BLU"/>
+		<location name="Blythe" resource="ccf/PQR/SLE"/>
+		<location name="Crescent City" resource="ccf/EKA/CEC"/>
+		<location name="Daggett" resource="ccf/VEF/DAG"/>
+		<location name="Fresno" resource="ccf/HNX/FAT"/>
+		<location name="Imperial" resource="ccf/PSR/IPL"/>
+		<location name="Lake Tahoe" resource="ccf/REV/TVL"/>
+		<location name="Livermore" resource="ccf/MTR/LVK"/>
+		<location name="Monterey" resource="ccf/REV/MMH"/>
+		<location name="Monterey" resource="ccf/MTR/MRY"/>
+		<location name="Red Bluff" resource="ccf/STO/RBL"/>
+		<location name="Sacramento" resource="ccf/STO/SAC"/>
+		<location name="San Diego" resource="ccf/SGX/SAN"/>
+		<location name="San Francisco" resource="ccf/MTR/SFO"/>
+		<location name="San Jose" resource="ccf/MTR/SJC"/>
+		<location name="Santa Clara" resource="ccf/MTR/SJC"/>
+		<location name="Santa Rosa" resource="ccf/MTR/STS"/>
+		<location name="Ukiah" resource="ccf/EKA/UKI"/>
+	    </state>
+	    <state name="Colorado">
+		<location name="Alamosa" resource="ccf/PUB/ALS"/>
+		<location name="Boulder" resource="ccf/BOU/DEN"/>
+		<location name="Colorado Springs" resource="ccf/PUB/COS"/>
+		<location name="Denver" resource="ccf/BOU/DEN"/>
+		<location name="Durango" resource="ccf/GJT/DRO"/>
+		<location name="Eagle" resource="ccf/GJT/ASE"/>
+		<location name="Grand Junction" resource="ccf/GJT/GJT"/>
+		<location name="La Junta" resource="ccf/PUB/LHX"/>
+		<location name="Lamar" resource="ccf/PUB/LAA"/>
+		<location name="Leadville" resource="ccf/PUB/LXV"/>
+		<location name="Montrose" resource="ccf/GJT/MTJ"/>
+		<location name="Pueblo" resource="ccf/PUB/PUB"/>
+		<location name="Trinidad" resource="ccf/PUB/TAD"/>
+	    </state>
+	    <state name="Connecticut">
+		<location name="Bridgeport" resource="ccf/OKX/BDR"/>
+		<location name="Danbury" resource="ccf/OKX/DXR"/>
+		<location name="Groton" resource="ccf/OKX/GON"/>
+		<location name="Meriden" resource="ccf/OKX/MMK"/>
+		<location name="New Haven" resource="ccf/OKX/HVN"/>
+		<location name="Windsor Locks" resource="ccf/BOX/BDL"/>
+		<location name="Willimantic" resource="ccf/BOX/IJD"/>
+	    </state>
+	    <state name="Delaware">
+		<location name="Dover" resource="ccf/PHI/DOV"/>
+		<location name="Georgetown" resource="ccf/PHI/GED"/>
+		<location name="Wilmington" resource="ccf/PHI/ILG"/>
+	    </state>
+	    <state name="Florida">
+		<location name="Brooksville" resource="ccf/TBW/BKV"/>
+		<location name="Cross City" resource="ccf/TAE/CTY"/>
+		<location name="Daytona Beach" resource="ccf/MLB/DAB"/>
+		<location name="Fort Lauderdale" resource="ccf/MFL/FLL"/>
+		<location name="Fort Myers" resource="ccf/TBW/FMY"/>
+		<location name="Gainseville" resource="ccf/JAX/GNV"/>
+		<location name="Jacksonville" resource="ccf/JAX/JAX"/>
+		<location name="Key West" resource="ccf/EYW/MTH"/>
+		<location name="Marathon Key" resource="ccf/EYW/MTH"/>
+		<location name="Melbourne" resource="ccf/MLB/MLB"/>
+		<location name="Miami" resource="ccf/MFL/MIA"/>
+		<location name="Naples" resource="ccf/MFL/APF"/>
+		<location name="Ocala" resource="ccf/JAX/OCF"/>
+		<location name="Orlando" resource="ccf/MLB/MCO"/>
+		<location name="Panama City" resource="ccf/TAE/PFN"/>
+		<location name="Pensacola" resource="ccf/MOB/PNS"/>
+		<location name="Saint Augustine" resource="ccf/JAX/SGJ"/>
+		<location name="Sarasota" resource="ccf/TBW/SRQ"/>
+		<location name="Talahassee" resource="ccf/TAE/TLH"/>
+		<location name="Tampa" resource="ccf/TBW/TPA"/>
+		<location name="Vero Beach" resource="ccf/MLB/VRB"/>
+		<location name="West Palm Beach" resource="ccf/MFL/PBI"/>
+		<location name="Winter Haven" resource="ccf/TBW/GIF"/>
+	    </state>
+	    <state name="Georgia">
+		<location name="Albany" resource="ccf/TAE/ABY"/>
+		<location name="Alma" resource="ccf/JAX/AMG"/>
+		<location name="Athens" resource="ccf/FFC/AHN"/>
+		<location name="Atlanta" resource="ccf/FFC/ATL"/>
+		<location name="Augusta" resource="ccf/CAE/AGS"/>
+		<location name="Brunswick" resource="ccf/JAX/SSI"/>
+		<location name="Columbus" resource="ccf/FFC/CSG"/>
+		<location name="Gainesville" resource="ccf/FFC/GVL"/>
+		<location name="Macon" resource="ccf/FFC/MCN"/>
+		<location name="Rome" resource="ccf/FFC/RMG"/>
+		<location name="Valdosta" resource="ccf/TAE/VLD"/>
+	    </state>
+	    <state name="Idaho">
+		<location name="Boise" resource="ccf/BOI/BOI"/>
+		<location name="Pocatello" resource="ccf/PIH/PIH"/>
+		<location name="McCall" resource="ccf/BOI/MYL"/>
+		<location name="Twin Falls" resource="ccf/BOI/TWF"/>
+	    </state>
+	    <state name="Illinois">
+		<location name="Carbondale" resource="ccf/PAH/MDH"/>
+		<location name="Champaign" resource="ccf/ILX/CMI"/>
+		<location name="Chicago" resource="ccf/LOT/ORD"/>
+		<location name="Decatur" resource="ccf/ILX/DEC"/>
+		<location name="Lawrenceville" resource="ccf/ILX/LWV"/>
+		<location name="Mattoon" resource="ccf/ILX/MTO"/>
+		<location name="Moline" resource="ccf/MLI/MLI"/>
+		<location name="Mount Vernon" resource="ccf/PAH/MVN"/>
+		<location name="Peoria" resource="ccf/ILX/PIA"/>
+		<location name="Quad Cities" resource="ccf/MLI/MLI"/>
+		<location name="Quincy" resource="ccf/LSX/UIN"/>
+		<location name="Rockford" resource="ccf/LOT/RFD"/>
+		<location name="Salem" resource="ccf/LSX/SLO"/>
+		<location name="Springfield" resource="ccf/ILX/SPI"/>
+	    </state>
+	    <state name="Indiana">
+		<location name="Angola" resource="ccf/IWX/ANQ"/>
+		<location name="Bloomington" resource="ccf/IND/BMG"/>
+		<location name="Charles City" resource="ccf/ARX/CCY"/>
+		<location name="Columbus" resource="ccf/IND/BAK"/>
+		<location name="Evansville" resource="ccf/PAH/EVV"/>
+		<location name="Fort Wayne" resource="ccf/IWX/FWA"/>
+		<location name="Indianapolis" resource="ccf/IND/IND"/>
+		<location name="Kokomo" resource="ccf/IND/OKK"/>
+		<location name="Lafayette" resource="ccf/IND/LAF"/>
+		<location name="Michigan City" resource="ccf/IWX/MGC"/>
+		<location name="Muncie" resource="ccf/IND/MIE"/>
+		<location name="Rochester" resource="ccf/IWX/RCR"/>
+		<location name="South Bend" resource="ccf/IWX/SBN"/>
+		<location name="Terre Haute" resource="ccf/IND/HUF"/>
+		<location name="Vincennes" resource="ccf/IND/OEA"/>
+	    </state>
+	    <state name="Iowa">
+		<location name="Ames" resource="ccf/DMX/AMW"/>
+		<location name="Burlington" resource="ccf/MLI/BRL"/>
+		<location name="Cedar Rapids" resource="ccf/MLI/CID"/>
+		<location name="Des Moines" resource="ccf/DMX/DSM"/>
+		<location name="Estherville" resource="ccf/DMX/EST"/>
+		<location name="Fort Dodge" resource="ccf/DMX/FOD"/>
+		<location name="Iowa City" resource="ccf/MLI/IOW"/>
+		<location name="Lamoni" resource="ccf/DMX/LWD"/>
+		<location name="Marshalltown" resource="ccf/DMX/MIW"/>
+		<location name="Mason City" resource="ccf/DMX/MCW"/>
+		<location name="Ottumwa" resource="ccf/DMX/OTM"/>
+		<location name="Quad Cities" resource="ccf/MLI/DVN"/>
+		<location name="Sioux City" resource="ccf/FSD/SUX"/>
+		<location name="Spencer" resource="ccf/FSD/SPW"/>
+		<location name="Waterloo" resource="ccf/DMX/ALO"/>
+	    </state>
+	    <state name="Kansas">
+		<location name="Arkansas City" resource="ccf/ICT/WLD"/>
+		<location name="Chanute" resource="ccf/ICT/CNU"/>
+		<location name="Coffeyville" resource="ccf/ICT/CFV"/>
+		<location name="Colby" resource="ccf/GLD/CBK"/>
+		<location name="Concordia" resource="ccf/TOP/CNK"/>
+		<location name="Dodge City" resource="ccf/DDC/DDC"/>
+		<location name="El Dorado" resource="ccf/ICT/EQA"/>
+		<location name="Elkhart" resource="ccf/DDC/EHA"/>
+		<location name="Emporia" resource="ccf/TOP/EMP"/>
+		<location name="Garden City" resource="ccf/DDC/GCK"/>
+		<location name="Garnett" resource="ccf/TOP/K68"/>
+		<location name="Goodland" resource="ccf/GLD/GLD"/>
+		<location name="Hays" resource="ccf/DDC/HYS"/>
+		<location name="Hiawatha" resource="ccf/TOP/K87"/>
+		<location name="Hill City" resource="ccf/GLD/HLC"/>
+		<location name="Hutchinson" resource="ccf/ICT/HUT"/>
+		<location name="Iola" resource="ccf/ICT/K88"/>
+		<location name="Lawrence" resource="ccf/TOP/LWC"/>
+		<location name="Liberal" resource="ccf/DDC/LBL"/>
+		<location name="Manhattan" resource="ccf/TOP/MHK"/>
+		<location name="Mc Pherson" resource="ccf/ICT/MPR"/>
+		<location name="Medicine Lodge" resource="ccf/DDC/P28"/>
+		<location name="Newton" resource="ccf/ICT/EWK"/>
+		<location name="Olathe" resource="ccf/EAX/OJC"/>
+		<location name="Pittsburg" resource="ccf/SGF/PTS"/>
+		<location name="Russell" resource="ccf/ICT/RSL"/>
+		<location name="Salina" resource="ccf/ICT/SLN"/>
+		<location name="Topeka" resource="ccf/TOP/TOP"/>
+		<location name="Wichita" resource="ccf/ICT/ICT"/>
+		<location name="Winfield" resource="ccf/ICT/WLD"/>
+	    </state>
+	    <state name="Kentucky">
+		<location name="Bowling Green" resource="ccf/LMK/BWG"/>
+		<location name="Covington" resource="ccf/ILN/CVG"/>
+		<location name="Flemingsburg" resource="ccf/ILN/FGX"/>
+		<location name="Fort Campbell" resource="ccf/PAH/HOP"/>
+		<location name="Frankfort" resource="ccf/LMK/FFT"/>
+		<location name="Henderson" resource="ccf/PAH/EHR"/>
+		<location name="Jackson" resource="ccf/JKL/JKL"/>
+		<location name="Lexington" resource="ccf/LMK/LEX"/>
+		<location name="London" resource="ccf/JKL/LOZ"/>
+		<location name="Louisville" resource="ccf/LMK/SDF"/>
+		<location name="Middlesboro" resource="ccf/JKL/1A6"/>
+		<location name="Mount Sterling" resource="ccf/JKL/IOB"/>
+		<location name="Paducah" resource="ccf/PAH/PAH"/>
+		<location name="Prestonsburg" resource="ccf/JKL/K22"/>
+		<location name="Somerset" resource="ccf/JKL/SME"/>
+	    </state>
+	    <state name="Louisiana">
+		<location name="Alexandria" resource="ccf/LCH/AEX"/>
+		<location name="Baton Rouge" resource="ccf/LIX/BTR"/>
+		<location name="Lafayette" resource="ccf/LCH/CFT"/>
+		<location name="Lake Charles" resource="ccf/LCH/LCH"/>
+		<location name="Monroe" resource="ccf/SHV/MLU"/>
+		<location name="New Orleans" resource="ccf/LIX/MSY"/>
+		<location name="Shreveport" resource="ccf/SHV/SHV"/>
+	    </state>
+	    <state name="Maine">
+		<location name="Abbot" resource="ccf/CAR/GNR"/>
+		<location name="Augusta" resource="ccf/GYX/AUG"/>
+		<location name="Bangor" resource="ccf/CAR/BGR"/>
+		<location name="Bar Harbor" resource="ccf/CAR/BHB"/>
+		<location name="Brunswick" resource="ccf/GYX/NHZ"/>
+		<location name="Caribou" resource="ccf/CAR/CAR"/>
+		<location name="Clayton" resource="ccf/CAR/40B"/>
+		<location name="Concord" resource="ccf/GYX/CON"/>
+		<location name="Frenchville" resource="ccf/CAR/FVE"/>
+		<location name="Fryeburg" resource="ccf/GYX/IZG"/>
+		<location name="Houlton" resource="ccf/CAR/HUL"/>
+		<location name="Jackman" resource="ccf/GYX/60B"/>
+		<location name="Lewiston" resource="ccf/GYX/LEW"/>
+		<location name="Millinocket" resource="ccf/CAR/MLT"/>
+		<location name="Portland" resource="ccf/GYX/PWM"/>
+		<location name="Presque Isle" resource="ccf/CAR/PQI"/>
+		<location name="Rangeley" resource="ccf/GYX/8B0"/>
+		<location name="Rockland" resource="ccf/GYX/RKD"/>
+		<location name="Sanford" resource="ccf/GYX/SFM"/>
+		<location name="Waterville" resource="ccf/GYX/WVL"/>
+		<location name="Wiscasset" resource="ccf/GYX/IWI"/>
+	    </state>
+	    <state name="Maryland">
+		<location name="Baltimore" resource="ccf/LWX/BWI"/>
+		<location name="Hagerstown" resource="ccf/LWX/HGR"/>
+		<location name="Ocean City" resource="ccf/AKQ/OXB"/>
+		<location name="Patuxent River" resource="ccf/LWX/NHK"/>
+	    </state>
+	    <state name="Massachusetts">
+		<location name="Boston" resource="ccf/BOX/BOS"/>
+		<location name="Chicopee Falls" resource="ccf/BOX/CEF"/>
+		<location name="Lawrence" resource="ccf/BOX/LWM"/>
+		<location name="Nantucket" resource="ccf/BOX/ACK"/>
+		<location name="Orange" resource="ccf/BOX/ORE"/>
+		<location name="Pittsfield" resource="ccf/ALY/PSF"/>
+		<location name="Taunton" resource="ccf/BOX/TAN"/>
+		<location name="Worcester" resource="ccf/BOX/ORH"/>
+	    </state>
+	    <state name="Michigan">
+		<location name="Adrian" resource="ccf/DTX/ADG"/>
+		<location name="Alpena" resource="ccf/APX/APN"/>
+		<location name="Benton Harbor" resource="ccf/IWX/BEH"/>
+		<location name="Detroit" resource="ccf/DTX/DTW"/>
+		<location name="Flint" resource="ccf/DTX/FNT"/>
+		<location name="Grand Rapids" resource="ccf/GRR/GRR"/>
+		<location name="Harbor Beach" resource="ccf/DTX/P58"/>
+		<location name="Hillsdale" resource="ccf/IWX/JYM"/>
+		<location name="Lansing" resource="ccf/GRR/LAN"/>
+		<location name="Muskegon" resource="ccf/GRR/MKG"/>
+		<location name="Petersburg" resource="ccf/DTX/ADG"/>
+		<location name="Saginaw" resource="ccf/DTX/MBS"/>
+		<location name="Sault Ste Marie" resource="ccf/APX/SSM"/>
+		<location name="Taylor" resource="ccf/DTX/DTW"/>
+		<location name="Traverse City" resource="ccf/APX/TVC"/>
+	    </state>
+	    <state name="Minnesota">
+		<location name="Alexandria" resource="ccf/MPX/AXN"/>
+		<location name="Brainerd" resource="ccf/DLH/BRD"/>
+		<location name="Duluth" resource="ccf/DLH/DLH"/>
+		<location name="International Falls" resource="ccf/DLH/INL"/>
+		<location name="Mankato" resource="ccf/MPX/MKT"/>
+		<location name="Marshall" resource="ccf/FSD/MML"/>
+		<location name="Minnesota" resource="ccf/MPX/MSP"/>
+		<location name="Ortonville" resource="ccf/ABR/VVV"/>
+		<location name="Rochester" resource="ccf/ARX/RST"/>
+		<location name="Saint Cloud" resource="ccf/MPX/STC"/>
+		<location name="Wheaton" resource="ccf/ABR/ETH"/>
+		<location name="Willmar" resource="ccf/MPX/ILL"/>
+		<location name="Worthington" resource="ccf/FSD/OTG"/>
+	    </state>
+	    <state name="Mississippi">
+		<location name="Gulfport" resource="ccf/LIX/GPT"/>
+		<location name="Jackson" resource="ccf/JAN/JAN"/>
+		<location name="McComb" resource="ccf/LIX/MCB"/>
+		<location name="Meridian" resource="ccf/JAN/MEI"/>
+		<location name="Tupelo" resource="ccf/MEG/TUP"/>
+	    </state>
+	    <state name="Missouri">
+		<location name="Cape Girardeau" resource="ccf/PAH/CGI"/>
+		<location name="Farmington" resource="ccf/LSX/FAM"/>
+		<location name="Gladstone" resource="ccf/EAX/MCI"/>
+		<location name="Joplin" resource="ccf/SGF/JLN"/>
+		<location name="Kansas City" resource="ccf/EAX/MKC"/>
+		<location name="Kaiser Lake Ozark" resource="ccf/SGF/AIZ"/>
+		<location name="Kirksville" resource="ccf/EAX/IRK"/>
+		<location name="Columbia" resource="ccf/LSX/COU"/>
+		<location name="Jefferson City" resource="ccf/LSX/JEF"/>
+		<location name="Poplar Bluff" resource="ccf/PAH/POF"/>
+		<location name="Saint Joseph" resource="ccf/EAX/STJ"/>
+		<location name="Saint Louis" resource="ccf/LSX/STL"/>
+		<location name="Sedalia" resource="ccf/EAX/DMO"/>
+		<location name="Springfield" resource="ccf/SGF/SGF"/>
+		<location name="Vichy-Rolla" resource="ccf/SGF/VIH"/>
+		<location name="West Plains" resource="ccf/SGF/UNO"/>
+	    </state>
+	    <state name="Montana">
+		<location name="Billings" resource="ccf/BYZ/BIL"/>
+		<location name="Bozeman" resource="ccf/TFX/BZN"/>
+		<location name="Butte" resource="ccf/MSO/BTM"/>
+		<location name="Cut Bank" resource="ccf/TFX/CTB"/>
+		<location name="Dillon" resource="ccf/TFX/DLN"/>
+		<location name="Great Falls" resource="ccf/TFX/GTF"/>
+		<location name="Havre" resource="ccf/TFX/HVR"/>
+		<location name="Helena" resource="ccf/TFX/HLN"/>
+		<location name="Kalispell" resource="ccf/MSO/FCA"/>
+		<location name="Lewiston" resource="ccf/TFX/LWT"/>
+		<location name="Miles City" resource="ccf/BYZ/MLS"/>
+		<location name="Missoula" resource="ccf/MSO/MSO"/>
+		<location name="West Yellowstone" resource="ccf/TFX/WEY"/>
+	    </state>
+	    <state name="Nebraska">
+		<location name="Aurora" resource="ccf/GID/AUH"/>
+		<location name="Burwell" resource="ccf/JKL/K20"/>
+		<location name="Chadron" resource="ccf/CYS/CDR"/>
+		<location name="Falls City" resource="ccf/OAX/FNB"/>
+		<location name="Grand Island" resource="ccf/GID/GRI"/>
+		<location name="Hastings" resource="ccf/GID/HSI"/>
+		<location name="Hebron" resource="ccf/GID/HJH"/>
+		<location name="Holdrege" resource="ccf/GID/HDE"/>
+		<location name="Kearney" resource="ccf/GID/EAR"/>
+		<location name="Lexington" resource="ccf/GID/LXN"/>
+		<location name="Lincoln" resource="ccf/OAX/LNK"/>
+		<location name="McCook" resource="ccf/GLD/MCK"/>
+		<location name="Norfolk" resource="ccf/OAX/OFK"/>
+		<location name="North Platte" resource="ccf/LBF/LBF"/>
+		<location name="Omaha" resource="ccf/OAX/OMA"/>
+		<location name="Ord-Sharp" resource="ccf/GID/ODX"/>
+		<location name="Scottsbluff" resource="ccf/CYS/BFF"/>
+		<location name="Sidney" resource="ccf/CYS/SNY"/>
+		<location name="Tekamah" resource="ccf/OAX/TQE"/>
+		<location name="Valentine" resource="ccf/LBF/VTN"/>
+		<location name="York" resource="ccf/GID/JYR"/>
+	    </state>
+	    <state name="Nevada">
+		<location name="Elko" resource="ccf/LKN/EKO"/>
+		<location name="Ely" resource="ccf/LKN/ELY"/>
+		<location name="Fallon" resource="ccf/REV/NFL"/>
+		<location name="Las Vegas" resource="ccf/VEF/LAS"/>
+		<location name="Lovelock" resource="ccf/REV/NFL"/>
+		<location name="Reno" resource="ccf/REV/RNO"/>
+		<location name="Tonopah" resource="ccf/LKN/TPH"/>
+		<location name="Winnemucca" resource="ccf/LKN/WMC"/>
+	    </state>
+	    <state name="New Hampshire">
+		<location name="Keene" resource="ccf/BOX/EEN"/>
+		<location name="Laconia" resource="ccf/GYX/LCI"/>
+		<location name="Lebanon" resource="ccf/GYX/LEB"/>
+		<location name="Manchester" resource="ccf/BOX/MHT"/>
+		<location name="Portsmouth" resource="ccf/GYX/PSM"/>
+		<location name="Whitefield" resource="ccf/GYX/HIE"/>
+	    </state>
+	    <state name="New Jersey">
+		<location name="Andover" resource="ccf/PHI/12N"/>
+		<location name="Atlantic City" resource="ccf/PHI/ACY"/>
+		<location name="Millville" resource="ccf/PHI/MIV"/>
+		<location name="Newark" resource="ccf/OKX/EWR"/>
+		<location name="Somerville" resource="ccf/PHI/SMQ"/>
+		<location name="Teterboro" resource="ccf/OKX/TEB"/>
+		<location name="Trenton" resource="ccf/PHI/TTN"/>
+	    </state>
+	    <state name="New Mexico">
+		<location name="Albuquerque" resource="ccf/ABQ/ABQ"/>
+		<location name="Carlsbad" resource="ccf/MAF/CNM"/>
+		<location name="Santa Fe" resource="ccf/ABQ/SAF"/>
+		<location name="Tucumcari" resource="ccf/ABQ/TCC"/>
+	    </state>
+	    <state name="New York">
+		<location name="Albany" resource="ccf/ALY/ALB"/>
+		<location name="Batavia" resource="ccf/BUF/GVQ"/>
+		<location name="Binghamton" resource="ccf/BGM/BGM"/>
+		<location name="Buffalo" resource="ccf/BUF/BUF"/>
+		<location name="Dansville" resource="ccf/BUF/DSV"/>
+		<location name="Dunkirk" resource="ccf/BUF/DKK"/>
+		<location name="Elmira" resource="ccf/BGM/ELM"/>
+		<location name="Farmingdale" resource="ccf/OKX/FRG"/>
+		<location name="Fulton" resource="ccf/BUF/FZY"/>
+		<location name="Glens Falls" resource="ccf/ALY/GFL"/>
+		<location name="Islip" resource="ccf/OKX/ISP"/>
+		<location name="Ithaca" resource="ccf/BGM/ITH"/>
+		<location name="Jamestown" resource="ccf/BUF/JHW"/>
+		<location name="Massena" resource="ccf/BTV/MSS"/>
+		<location name="Montgomery" resource="ccf/OKX/MGJ"/>
+		<location name="Monticello" resource="ccf/BGM/MSV"/>
+		<city name="New York">
+		    <location name="Central Park" resource="ccf/OKX/NYC"/>
+		    <location name="Kennedy Airport" resource="ccf/OKX/JFK"/>
+		    <location name="La Guardia Airport" resource="ccf/OKX/LGA"/>
+		</city>
+		<location name="Niagara Falls" resource="ccf/BUF/IAG"/>
+		<location name="Penn Yan" resource="ccf/BGM/PEO"/>
+		<location name="Poughkeepsie" resource="ccf/ALY/POU"/>
+		<location name="Rochester" resource="ccf/BUF/ROC"/>
+		<location name="Rushfield" resource="ccf/BUF/ELZ"/>
+		<location name="Saranac Lake" resource="ccf/BTV/SLK"/>
+		<location name="Syracuse" resource="ccf/BGM/SYR"/>
+		<location name="Utica" resource="ccf/BGM/UCA"/>
+		<location name="Watertown" resource="ccf/BUF/ART"/>
+		<location name="Westhampton" resource="ccf/OKX/FOK"/>
+		<location name="White Plains" resource="ccf/OKX/HPN"/>
+	    </state>
+	    <state name="North Carolina">
+		<!-- FIXME: RAH/CCFRDU : VUJ -->
+		<location name="Albemarle" resource="ccf/RDU/VUJ"/>
+		<location name="Elizabeth City" resource="ccf/AKQ/ECG"/>
+		<!-- FIXME: RAH/CCFRDU : FAY -->
+		<location name="Fayetteville" resource="ccf/RDU/FAY"/>
+		<!-- FIXME: RAH/CCFRDU : GSB -->
+		<location name="Goldsboro" resource="ccf/RDU/GSB"/>
+		<location name="Greenville" resource="ccf/MHX/PGV"/>
+		<!-- FIXME: RAH/CCFRDU : GSO -->
+		<location name="Greensboro" resource="ccf/RDU/GSO"/>
+		<location name="Hatteras" resource="ccf/MHX/HSE"/>
+		<location name="Lumberton" resource="ccf/ILM/LBT"/>
+		<location name="New Bern" resource="ccf/MHX/EWN"/>
+		<!-- FIXME: RAH/CCFRDU : RDU -->
+		<location name="Raleigh-Durham" resource="ccf/RDU/RDU"/>
+		<!-- FIXME: RAH/CCFRDU : RWI -->
+		<location name="Rocky Mount" resource="ccf/RDU/RWI"/>
+		<location name="Wilmington" resource="ccf/ILM/ILM"/>
+	    </state>
+	    <state name="North Dakota">
+		<location name="Asheville" resource="ccf/GSP/AVL"/>
+		<location name="Bemidji" resource="ccf/FGF/BJI"/>
+		<location name="Bismarck" resource="ccf/BIS/BIS"/>
+		<location name="Charlotte" resource="ccf/GSP/CLT"/>
+		<location name="Devils Lake" resource="ccf/FGF/DVL"/>
+		<location name="Dickinson" resource="ccf/BIS/DIK"/>
+		<location name="Fargo" resource="ccf/FGF/FAR"/>
+		<location name="Grand Forks" resource="ccf/FGF/GFK"/>
+		<location name="Hettinger" resource="ccf/BIS/HEI"/>
+		<location name="Hickory" resource="ccf/GSP/HKY"/>
+		<location name="Jamestown" resource="ccf/BIS/JMS"/>
+		<location name="Minot" resource="ccf/BIS/MOT"/>
+		<location name="Williston" resource="ccf/BIS/ISN"/>
+	    </state>
+	    <state name="Ohio">
+		<location name="Akron" resource="ccf/CLE/CAK"/>
+		<location name="Cleveland" resource="ccf/CLE/CLE"/>
+		<location name="Columbus" resource="ccf/ILN/CMH"/>
+		<location name="Dayton" resource="ccf/ILN/DAY"/>
+		<location name="Findlay" resource="ccf/CLE/FDY"/>
+		<location name="Mansfield" resource="ccf/CLE/MFD"/>
+		<location name="New Philadelphia" resource="ccf/PBZ/PHD"/>
+		<location name="Portsmouth" resource="ccf/ILN/PMH"/>
+		<location name="Sandusky" resource="ccf/CLE/SKY"/>
+		<location name="Toledo" resource="ccf/CLE/TOL"/>
+		<location name="Wilmington" resource="ccf/ILN/ILN"/>
+		<location name="Youngstown" resource="ccf/CLE/YNG"/>
+		<location name="Zanesville" resource="ccf/PBZ/ZZV"/>
+	    </state>
+	    <state name="Oklahoma">
+		<location name="Ada" resource="ccf/OUN/ADH"/>
+		<location name="Altus" resource="ccf/OUN/AXS"/>
+		<location name="Ardmore" resource="ccf/OUN/ADM"/>
+		<location name="Clinton" resource="ccf/OUN/CLK"/>
+		<location name="Durant" resource="ccf/OUN/DUA"/>
+		<location name="Enid" resource="ccf/OUN/WDG"/>
+		<location name="Gage" resource="ccf/OUN/GAG"/>
+		<location name="Henryetta" resource="ccf/TSA/F10"/>
+		<location name="Hobart" resource="ccf/OUN/HBR"/>
+		<location name="Hugo" resource="ccf/TSA/HHW"/>
+		<location name="Lawton" resource="ccf/OUN/LAW"/>
+		<location name="Oklahoma City" resource="ccf/OUN/OKC"/>
+		<location name="McAlester" resource="ccf/TSA/MLC"/>
+		<location name="Miami" resource="ccf/TSA/MIO"/>
+		<location name="Muskogee" resource="ccf/TSA/MKO"/>
+		<location name="Ponca City" resource="ccf/OUN/PNC"/>
+		<location name="Stillwater" resource="ccf/OUN/SWO"/>
+		<location name="Tulsa" resource="ccf/TSA/TUL"/>
+		<location name="Woodring" resource="ccf/OUN/WDG"/>
+		<location name="Woodward" resource="ccf/OUN/WWR"/>
+	    </state>
+	    <state name="Oregon">
+		<location name="Astoria" resource="ccf/PQR/AST"/>
+		<location name="Baker City" resource="ccf/BOI/BKE"/>
+		<location name="Brookings" resource="ccf/MFR/4BK"/>
+		<location name="Burns" resource="ccf/BOI/BNO"/>
+		<location name="Eugene" resource="ccf/PQR/EUG"/>
+		<location name="Klamath Falls" resource="ccf/MFR/LMT"/>
+		<location name="Lakeview" resource="ccf/MFR/LKV"/>
+		<location name="Medford" resource="ccf/MFR/MFR"/>
+		<location name="Mount Shasta" resource="ccf/MFR/MHS"/>
+		<location name="North Bend" resource="ccf/MFR/OTH"/>
+		<location name="Portland" resource="ccf/PQR/PDX"/>
+		<location name="Roseburg" resource="ccf/MFR/RBG"/>
+		<location name="Salem" resource="ccf/PQR/SLE"/>
+	    </state>
+	    <state name="Pennsylvania">
+		<location name="Allentown" resource="ccf/PHI/ABE"/>
+		<location name="Altoona" resource="ccf/CTP/AOO"/>
+		<location name="Bradford" resource="ccf/CTP/BFD"/>
+		<location name="Butler" resource="ccf/PBZ/BTP"/>
+		<location name="Du Bois" resource="ccf/PBZ/DUJ"/>
+		<location name="Erie" resource="ccf/CLE/ERI"/>
+		<location name="Hazelton" resource="ccf/BGM/HZL"/>
+		<location name="Indiana" resource="ccf/PBZ/IDI"/>
+		<location name="Johnstown" resource="ccf/CTP/JST"/>
+		<location name="Lancaster" resource="ccf/CTP/LNS"/>
+		<location name="Latrobe" resource="ccf/PBZ/LBE"/>
+		<location name="Middletown" resource="ccf/CTP/MDT"/>
+		<location name="Mount Pocono" resource="ccf/PHI/MPO"/>
+		<location name="Philadelphia" resource="ccf/PHI/PHL"/>
+		<location name="Pittsburgh" resource="ccf/PBZ/PIT"/>
+		<location name="Reading" resource="ccf/PHI/RDG"/>
+		<location name="Scranton" resource="ccf/BGM/AVP"/>
+		<location name="Selinsgrove" resource="ccf/CTP/SEG"/>
+		<location name="State College" resource="ccf/CTP/UNV"/>
+		<location name="Williamsport" resource="ccf/CTP/IPT"/>
+		<location name="York" resource="ccf/CTP/THV"/>
+	    </state>
+	    <state name="Rhode Island">
+		<location name="Providence" resource="ccf/BOX/PVD"/>
+		<location name="Westerly" resource="ccf/BOX/WST"/>
+	    </state>
+	    <state name="South Carolina">
+		<location name="Anderson" resource="ccf/GSP/AND"/>
+		<location name="Beaufort" resource="ccf/CHS/NBC"/>
+		<location name="Charleston" resource="ccf/CHS/CHS"/>
+		<location name="Columbia" resource="ccf/CAE/CAE"/>
+		<location name="Florence" resource="ccf/ILM/FLO"/>
+		<location name="Greenville" resource="ccf/GSP/GSP"/>
+		<location name="Lancaster" resource="ccf/CAE/LKR"/>
+		<location name="McCormick" resource="ccf/CAE/S19"/>
+		<location name="Myrtle Beach" resource="ccf/ILM/MYR"/>
+		<location name="Newberry" resource="ccf/CAE/27J"/>
+		<location name="Savannah" resource="ccf/CHS/SAV"/>
+		<location name="Spartanburg" resource="ccf/GSP/GSP"/>
+		<location name="Sumter" resource="ccf/CAE/SSC"/>
+		<location name="Walterboro" resource="ccf/CHS/RBW"/>
+	    </state>
+	    <state name="South Dakota">
+		<location name="Aberdeen" resource="ccf/ABR/ABR"/>
+		<location name="Chamberlain" resource="ccf/FSD/9V9"/>
+		<location name="Custer" resource="ccf/RAP/CUT"/>
+		<location name="Faith" resource="ccf/RAP/D07"/>
+		<location name="Huron" resource="ccf/FSD/HON"/>
+		<location name="Mitchell" resource="ccf/FSD/MHE"/>
+		<location name="Mobridge" resource="ccf/ABR/MBG"/>
+		<location name="Philip" resource="ccf/RAP/PHP"/>
+		<location name="Pierre" resource="ccf/ABR/PIR"/>
+		<location name="Pine Ridge" resource="ccf/RAP/IEN"/>
+		<location name="Rapid City" resource="ccf/RAP/RAP"/>
+		<location name="Sesseton" resource="ccf/ABR/8D3"/>
+		<location name="Sioux Falls" resource="ccf/FSD/FSD"/>
+		<location name="Watertown" resource="ccf/ABR/ATY"/>
+		<location name="Winner" resource="ccf/RAP/SFD"/>
+		<location name="Yankton" resource="ccf/FSD/YKN"/>
+	    </state>
+	    <state name="Tennesee">
+		<location name="Bristol" resource="ccf/MRX/TRI"/>
+		<location name="Chattanooga" resource="ccf/MRX/CHA"/>
+		<location name="Clarksville" resource="ccf/OHX/CKV"/>
+		<location name="Crossville" resource="ccf/OHX/CSV"/>
+		<location name="Jackson" resource="ccf/MEG/MKL"/>
+		<location name="Knoxville" resource="ccf/MRX/TYS"/>
+		<location name="Memphis" resource="ccf/MEG/MEM"/>
+		<location name="Nashville" resource="ccf/OHX/BNA"/>
+	    </state>
+	    <state name="Texas">
+		<location name="Abilene" resource="ccf/SJT/ABI"/>
+		<location name="Alice" resource="ccf/CRP/ALI"/>
+		<location name="Amarillo" resource="ccf/AMA/AMA"/>
+		<location name="Austin" resource="ccf/EWX/AUS"/>
+		<location name="Beaumont" resource="ccf/LCH/BPT"/>
+		<location name="Borger" resource="ccf/AMA/BGD"/>
+		<location name="Brownsville" resource="ccf/BRO/BRO"/>
+		<location name="College Station" resource="ccf/HGX/CLL"/>
+		<location name="Corpus Christi" resource="ccf/CRP/CRP"/>
+		<location name="Corsicana" resource="ccf/FWD/CRS"/>
+		<location name="Cotulla" resource="ccf/CRP/COT"/>
+		<location name="Dalhart" resource="ccf/AMA/DHT"/>
+		<location name="Dallas" resource="ccf/FWD/DAL"/>
+		<location name="Dallas / Fort Worth" resource="ccf/FWD/DFW"/>
+		<location name="Del Rio" resource="ccf/EWX/DRT"/>
+		<location name="Denton" resource="ccf/FWD/DTO"/>
+		<location name="El Paso" resource="ccf/EPZ/ELP"/>
+		<location name="Fort Stockton" resource="ccf/MAF/FST"/>
+		<location name="Galveston" resource="ccf/HGX/GLS"/>
+		<location name="Guymon" resource="ccf/AMA/GUY"/>
+		<location name="Houston" resource="ccf/HGX/IAH"/>
+		<location name="Junction" resource="ccf/SJT/JCT"/>
+		<location name="Laredo" resource="ccf/CRP/LRD"/>
+		<location name="Lubbock" resource="ccf/LUB/LBB"/>
+		<location name="Lufkin" resource="ccf/SHV/LFK"/>
+		<location name="Marfa" resource="ccf/MAF/MRF"/>
+		<location name="McAllen" resource="ccf/BRO/MFE"/>
+		<location name="Mc Kinney" resource="ccf/FWD/TKI"/>
+		<location name="Midland" resource="ccf/MAF/MAF"/>
+		<location name="Paris" resource="ccf/FWD/PRX"/>
+		<location name="Port Arthur" resource="ccf/LCH/BPT"/>
+		<location name="Rockport" resource="ccf/CRP/RKP"/>
+		<location name="San Angelo" resource="ccf/SJT/SJT"/>
+		<location name="San Antonio" resource="ccf/EWX/SAT"/>
+		<location name="Temple" resource="ccf/FWD/TPL"/>
+		<location name="Terrell" resource="ccf/FWD/TRL"/>
+		<location name="Tyler" resource="ccf/SHV/TYR"/>
+		<location name="Victoria" resource="ccf/CRP/VCT"/>
+		<location name="Waco" resource="ccf/FWD/ACT"/>
+		<location name="Wichita Falls" resource="ccf/OUN/SPS"/>
+	    </state>
+	    <state name="Utah">
+		<location name="Cedar City" resource="ccf/SLC/CDC"/>
+		<location name="Salt Lake City" resource="ccf/SLC/SLC"/>
+		<location name="Vernal" resource="ccf/GJT/VEL"/>
+	    </state>
+	    <state name="Vermont">
+		<location name="Bennington" resource="ccf/ALY/DDH"/>
+		<location name="Burlington" resource="ccf/BTV/BTV"/>
+		<location name="Montpelier" resource="ccf/BTV/MPV"/>
+		<location name="Rutland" resource="ccf/BTV/RUT"/>
+		<location name="Saint Johnsbury" resource="ccf/BTV/1V4"/>
+		<location name="Springfield" resource="ccf/BTV/VSF"/>
+	    </state>
+	    <state name="Virginia">
+		<location name="Blacksburg" resource="ccf/RNK/BCB"/>
+		<location name="Charlottesville" resource="ccf/LWX/CHO"/>
+		<location name="Danville" resource="ccf/RNK/DAN"/>
+		<location name="Farmville" resource="ccf/AKQ/FVX"/>
+		<location name="Lynchburg" resource="ccf/RNK/LYH"/>
+		<location name="Newport News" resource="ccf/AKQ/PHF"/>
+		<location name="Norfolk" resource="ccf/AKQ/ORF"/>
+		<location name="Roanoke" resource="ccf/RNK/ROA"/>
+		<location name="Richmond" resource="ccf/AKQ/RIC"/>
+		<location name="Salisbury" resource="ccf/AKQ/SBY"/>
+		<location name="Wakefield" resource="ccf/AKQ/AKQ"/>
+	    </state>
+	    <state name="Washington">
+		<location name="Pasco" resource="ccf/PDT/PSC"/>
+		<location name="Seattle" resource="ccf/SEW/SEA"/>
+		<location name="Spokane" resource="ccf/OTX/GEG"/>
+		<location name="Walla Walla" resource="ccf/PDT/ALW">
+		<location name="Yakima" resource="ccf/PDT/YKM"/>
+	    </state>
+	    <state name="West Virginia">
+		<location name="Beckley" resource="ccf/RLX/BKW"/>
+		<location name="Bluefield" resource="ccf/RNK/BLF"/>
+		<location name="Charleston" resource="ccf/RLX/CRW"/>
+		<location name="Clarksburg" resource="ccf/RLX/CKB"/>
+		<location name="Elkins" resource="ccf/RLX/EKN"/>
+		<location name="Huntington" resource="ccf/RLX/HTS"/>
+		<location name="Lewisburg" resource="ccf/RNK/LWB"/>
+		<location name="Martinsburg" resource="ccf/LWX/MRB"/>
+		<location name="Morgantown" resource="ccf/PBZ/MGW"/>
+		<location name="Parkersburg" resource="ccf/RLX/PKB"/>
+		<location name="Petersburg" resource="ccf/LWX/W99"/>
+		<location name="Wheeling" resource="ccf/PBZ/HLG"/>
+	    </state>
+	    <state name="Wisconsin">
+		<location name="Ashland" resource="ccf/DLH/ASX"/>
+		<location name="Boscobel" resource="ccf/ARX/OVS"/>
+		<location name="Dubuque" resource="ccf/MLI/DBQ"/>
+		<location name="Eau Claire" resource="ccf/MPX/EAU"/>
+		<location name="Fond Du Lac" resource="ccf/MKX/FLD"/>
+		<location name="Green Bay" resource="ccf/GRB/GRB"/>
+		<location name="Hayward" resource="ccf/DLH/HYR"/>
+		<location name="Kenosha" resource="ccf/MKX/ENW"/>
+		<location name="La Crosse" resource="ccf/ARX/LSE"/>
+		<location name="Madison" resource="ccf/MKX/MSN"/>
+		<location name="Medford" resource="ccf/ARX/MDZ"/>
+		<location name="Milwaukee" resource="ccf/MKX/MKE"/>
+		<location name="Rhinelander" resource="ccf/GRB/RHI"/>
+		<location name="Sheboygan" resource="ccf/MKX/SBM"/>
+		<location name="Wausau" resource="ccf/GRB/AUW"/>
+	    </state>
+	    <state name="Wyoming">
+		<location name="Big Piney" resource="ccf/RIW/BPI"/>
+		<location name="Buffalo" resource="ccf/RIW/BYG"/>
+		<location name="Casper" resource="ccf/RIW/CPR"/>
+		<location name="Cheyenne" resource="ccf/CYS/CYS"/>
+		<location name="Cody" resource="ccf/RIW/COD"/>
+		<location name="Douglas" resource="ccf/CYS/DGW"/>
+		<location name="Gillette" resource="ccf/RAP/GCC"/>
+		<location name="Greybull" resource="ccf/RIW/GEY"/>
+		<location name="Jackson" resource="ccf/RIW/JAC"/>
+		<location name="Lander" resource="ccf/RIW/LND"/>
+		<location name="Laramie" resource="ccf/CYS/LAR"/>
+		<location name="Rawlins" resource="ccf/CYS/RWL"/>
+		<location name="Riverton" resource="ccf/RIW/RIW"/>
+		<location name="Rock Springs" resource="ccf/RIW/RKS"/>
+		<location name="Sheridan" resource="ccf/BYZ/SHR"/>
+		<location name="Torrington" resource="ccf/CYS/TOR"/>
+		<location name="Worland" resource="ccf/RIW/WRL"/>
+		<location name="Yellowstone" resource="ccf/RIW/P60"/>
+	    </state>
+	</country>
+    </region>
+</evolutionweather>
