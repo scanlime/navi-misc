@@ -198,7 +198,7 @@ static struct server* server_new(const char *host_and_port)
     return NULL;
   }
 
-  self->socket = packet_socket_new(fd);
+  self->socket = packet_socket_new(fd, fd);
   assert(self->socket);
 
   return self;
@@ -458,13 +458,13 @@ static void connection_add_fds(struct connection *self,
 			       fd_set *fd_read)
 {
   if (fd_max) {
-    if (*fd_max <= self->server->socket->fd)
-      *fd_max = self->server->socket->fd + 1;
+    if (*fd_max <= self->server->socket->read_fd)
+      *fd_max = self->server->socket->read_fd + 1;
     if (*fd_max <= self->evdev_fd)
       *fd_max = self->evdev_fd + 1;
   }
   if (fd_read) {
-    FD_SET(self->server->socket->fd, fd_read);
+    FD_SET(self->server->socket->read_fd, fd_read);
     FD_SET(self->evdev_fd, fd_read);
   }
 }
@@ -474,8 +474,8 @@ static int connection_poll(struct connection *self, fd_set *fd_read)
   int retval;
 
   /* Can we read from the server? */
-  if (FD_ISSET(self->server->socket->fd, fd_read)) {
-    if (feof(self->server->socket->file)) {
+  if (FD_ISSET(self->server->socket->read_fd, fd_read)) {
+    if (feof(self->server->socket->read_file)) {
       connection_message(self, "Connection lost");
       return 1;
     }
@@ -518,12 +518,12 @@ static void connection_received_packet (struct connection *self,
 	break;
       }
       ntoh_input_event(&ev, ip_ev);
-      
+
       /* Any event we write to the evdev will get echo'ed back to us.
        * In order to avoid echoes we can't detect, which will lead to
        * infinite loops, we only allow writing event types we know about.
        */
-      if (is_output_event(&ev))      
+      if (is_output_event(&ev))
         write(self->evdev_fd, &ev, sizeof(ev));
     }
     break;
@@ -540,7 +540,7 @@ static void connection_received_packet (struct connection *self,
       }
       response.request_id = ipipe_up->request_id;
       ntoh_ff_effect(&effect, &ipipe_up->effect);
-      
+
       retval = ioctl(self->evdev_fd, EVIOCSFF, &effect);
       if (retval < 0)
 	response.retval = htonl(-errno);
@@ -843,7 +843,7 @@ static int led_name_to_number(unsigned char *name)
       return table[i].number;
   }
 
-  printf("Unknown LED name '%s'\n", name);
+  fprintf(stderr, "Unknown LED name '%s'\n", name);
   exit(1);
 }
 
@@ -961,7 +961,7 @@ int main(int argc, char **argv)
    * polling mode and there aren't any explicitly specified devices.
    */
   if ((!config_hotplug_polling) && !argv[optind]) {
-    printf("Nothing to do; give at least one hotplug option or device name\n\n");
+    fprintf(stderr, "Nothing to do; give at least one hotplug option or device name\n\n");
     usage(argv[0]);
     return 1;
   }
