@@ -40,15 +40,16 @@ typedef struct _NavTreeClass NavTreeClass;
 struct _NavTree
 {
 	GtkTreeView parent;
-	GtkTreePath current_path;
+	GtkTreePath *current_path;
 };
 
 struct _NavTreeClass
 {
-	/* FIXME: Is this right? */
-	GObjectClass parent_class;
+	GtkTreeViewClass parent_class;
 };
 
+GType navigation_tree_get_type (void) G_GNUC_CONST;
+NavTree* navigation_tree_new (void);
 
 /***** NavModel *****/
 #define NAVMODEL_TYPE						 (navigation_model_get_type())
@@ -63,7 +64,7 @@ typedef struct _NavModelClass NavModelClass;
 struct _NavModel
 {
 	GObject parent;
-	GtkTreeModel model;
+	GtkTreeModel *model;
 };
 
 struct _NavModelClass
@@ -71,6 +72,8 @@ struct _NavModelClass
 	GObjectClass parent;
 };
 
+GType navigation_model_get_type (void) G_GNUC_CONST;
+NavModel* navigation_model_new (void); /* XXX: Do we want this here or in the .c? */
 G_END_DECLS
 
 #endif
