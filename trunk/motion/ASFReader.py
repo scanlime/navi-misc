@@ -27,6 +27,19 @@ def asf_BNF():
         comment = Literal('#') + Optional (restOfLine)
 
         axisOrder = oneOf("XYZ XZY YXZ YZX ZXY ZYX")
+        ro = oneOf("TX TY TZ RX RY RZ")
+
+        rootElement = \
+            "order" + ro + ro + ro + ro + ro + ro \
+          | "axis" + axisOrder \
+          | "position" + float + float + float \
+          | "orientation" + float + float + float
+
+        unitElement = \
+            "mass" + float \
+          | "length" + float \
+          | "angle" + oneOf("deg rad")
+
         dof = oneOf("rx ry rz")
         triplet = Literal('(').suppress() + float + float + Literal(')').suppress()
 
@@ -45,9 +58,9 @@ def asf_BNF():
         section = \
             sectstart + "version" + float \
           | sectstart + "name" + Word(printables) \
-          | sectstart + "units" + units \
+          | sectstart + "units" + oneOrMore(unitElement) \
           | sectstart + "documentation" + zeroOrMore(docLines) \
-          | sectstart + "root" + root \
+          | sectstart + "root" + oneOrMore(rootElement) \
           | sectStart + "bonedata" + bonedata \
           | sectStart + "hierarchy" + hierarchy
     return asfbnf
