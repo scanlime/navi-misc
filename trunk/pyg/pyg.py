@@ -64,7 +64,7 @@ class MainWindow:
             ( '/Render/Draw World Axes',       None,                None,             0, '<ToggleItem>' ),
             ( '/Control',                      None,                None,             0, '<Branch>' ),
             ( '/Control/Animate Model',        None,                None,             0, '<ToggleItem>' ),
-            ( '/_Help',                        None,                None,             0, '<LastBranch>' ),
+            ( '/_Help',                        None,                None,             0, '<Branch>' ),
             ( '/_Help/About',                  None,                None,             0, None ),
         )
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
