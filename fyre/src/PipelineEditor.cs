@@ -33,10 +33,10 @@ namespace Fyre
 		[Glade.Widget] Gtk.Window		toplevel;
 		[Glade.Widget] ElementList		element_list;
 		[Glade.Widget] NavigationImage		navigation_image;
+		[Glade.Widget] PipelineDrawing		pipeline_drawing;
 
 		// Editor workspace (right)
 		[Glade.Widget] Gtk.Frame		pipeline_window;
-		PipelineDrawing				pipeline_drawing;
 		[Glade.Widget] Gtk.Scrollbar		drawing_hscroll;
 		[Glade.Widget] Gtk.Scrollbar		drawing_vscroll;
 
@@ -94,21 +94,17 @@ namespace Fyre
 		// Glade custom widget handler
 		static Gtk.Widget GladeCustomHandler (Glade.XML xml, string func_name, string name, string str1, string str2, int int1, int int2)
 		{
-			Gtk.Widget ret = null;
 			if (func_name == "CreateElementList")
-				ret = new ElementList (xml.GetWidget ("toplevel"));
+				return new ElementList (xml.GetWidget ("toplevel"));
 			if (func_name == "CreateNavigationImage")
-				ret = new NavigationImage ();
-			return ret;
+				return new NavigationImage ();
+			if (func_name == "CreatePipelineDrawing")
+				return new PipelineDrawing ();
+			return null;
 		}
 
 		void SetupDrawingCanvas ()
 		{
-			// create the canvas
-			pipeline_drawing = new PipelineDrawing();
-			pipeline_window.Add (pipeline_drawing);
-			pipeline_drawing.Show ();
-
 			pipeline_drawing.SetScrollAdjustments (drawing_hscroll.Adjustment, drawing_vscroll.Adjustment);
 
 			// Set up drag-and-drop for the frame. This looks better than setting it

@@ -29,8 +29,9 @@ namespace Fyre
 		private Gtk.Adjustment		hadj;
 		private Gtk.Adjustment		vadj;
 
-		public PipelineDrawing ()
+		public PipelineDrawing () : base ()
 		{
+			Show ();
 		}
 
 		protected override bool OnExposeEvent (Gdk.EventExpose ev)
