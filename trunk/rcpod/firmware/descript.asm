@@ -108,7 +108,7 @@ StartDevDescr
 	retlw	RCPOD_PROTOCOL_VERSION >> 8
 	retlw	0x01		; iManufacturer
 	retlw	0x02		; iProduct
-	retlw	0x00		; iSerialNumber - 3
+	retlw	0x03		; iSerialNumber
 	retlw	NUM_CONFIGURATIONS	; bNumConfigurations
 
 ; ******************************************************************
@@ -158,10 +158,12 @@ GetStringIndex	; langid in W reg, string offset in EP0_start
 StringIndexTable
 	retlw	low  String0	; LangIDs
 	retlw	high String0
-	retlw	low  String1
+	retlw	low  String1	; Manufacturer
 	retlw	high String1
-	retlw	low  String2
+	retlw	low  String2	; Product
 	retlw	high String2
+	retlw	low  String3	; Serial
+	retlw	high String3
 
 StringDescriptions
 	banksel	EP0_start
@@ -172,12 +174,12 @@ StringDescriptions
 
 String0
 	retlw	low (String1 - String0)	; length of string 
-	retlw	0x03		; descriptor type 3?
+	retlw	0x03		; descriptor type 3
 	retlw	0x09		; language ID (as defined by MS 0x0409)
 	retlw	0x04
 String1
 	retlw	String2-String1	; length of string
-	retlw	0x03		; string descriptor type 3
+	retlw	0x03		; descriptor type 3
 	retlw	'M'
 	retlw	0x00
 	retlw	'i'
@@ -302,6 +304,10 @@ String2
 	retlw	'm'
 	retlw	0x00
 String3
+	retlw	String4-String3
+	retlw	0x03
+	#include "serial.number"
+String4
 	end
 
 ;### The End ###
