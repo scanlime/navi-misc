@@ -22,7 +22,7 @@
 #
 # Its record in the loginfo file should look like:
 #
-#       ALL        $CVSROOT/CVSROOT/ciabot_cvs.pl %{,,,s} $USER project from_email dest_email ignore_regexp
+#     ALL $CVSROOT/CVSROOT/ciabot_cvs.pl %{,,,%s} $USER project from_email dest_email ignore_regexp
 #
 # IMPORTANT: The %{,,,s} in loginfo is new, and is required for proper operation.
 #
