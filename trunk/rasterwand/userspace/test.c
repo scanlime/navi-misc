@@ -77,14 +77,17 @@ void update_coil_driver(usb_dev_handle *d, struct rwand_status *status,
 }
 
 void update_display_timing(usb_dev_handle *d, struct rwand_status *status,
-			   float center, float width) {
-  int col_width = (status->period * (width/2)) / 80;
-  static int fudge_factor = -104;
+			   float center, float width, float duty_cycle) {
+  int col_and_gap_width = (status->period * (width/2)) / 80;
+  int col_width = col_and_gap_width * duty_cycle;
+  int gap_width = col_and_gap_width - col_width;
+  int total_width = 80 * col_width + 79 * gap_width;
+  int fwd_phase = status->period/2 * (center - width/2);
+  int rev_phase = status->period - fwd_phase - total_width;
+  static int fudge_factor = 0;
 
-  control_write(d, RWAND_CTRL_SET_COLUMN_WIDTH, col_width, 0);
-  control_write(d, RWAND_CTRL_SET_DISPLAY_PHASE,
-		status->period * 0.5 * (center - width/2),
-		status->period * 0.5 * (1 + center - width/2) - col_width - fudge_factor);
+  control_write(d, RWAND_CTRL_SET_COLUMN_WIDTH, col_width, gap_width);
+  control_write(d, RWAND_CTRL_SET_DISPLAY_PHASE, fwd_phase, rev_phase + fudge_factor);
 
   if (status->buttons & RWAND_BUTTON_UP)
     fudge_factor += 1;
@@ -105,7 +108,7 @@ void unstall(usb_dev_handle *d) {
   read_rwand_status(d, &last_status);
   status = last_status;
 
-  while (unstall_edges < 100) {
+  while (unstall_edges < 40) {
     /* This part needs a lot of work...
      * We need to use our sole source of feedback (whether we get
      * angle sensor edges or not) to try to zero in on the resonant frequency.
@@ -161,7 +164,7 @@ void read_image(unsigned char *columns, const char *filename) {
 void refresh_display(usb_dev_handle *d, unsigned char *columns) {
   /* Write out an 80x8 frame, given an 80-byte column array */
   int i, b;
-  for (i=0; i<80; i+=3) {
+  for (i=0; i<30; i+=3) {
     if (i+3 >= 80)
       i = 77;
     control_write(d, RWAND_CTRL_RANDOM_WRITE3, i | (columns[i] << 8),
@@ -217,7 +220,7 @@ int main(int argc, char **argv) {
     update_coil_driver(d, &status, 0.25, 0.2);
 
     /* Update display phase and column width */
-    update_display_timing(d, &status, 0.5, 0.75);
+    update_display_timing(d, &status, 0.5, 0.75, 0.75);
 
     /* Was the square just now pushed? */
     if ((status.buttons & RWAND_BUTTON_SQUARE) && !(last_status.buttons & RWAND_BUTTON_SQUARE)) {
