@@ -6,56 +6,57 @@
 
 import rcpod
 
-class therm(rcpod.Device):
-    def __init__(self):
+class therm():
+    def __init__(self, pic):
+        self.pic	= pic
         self.busmask	= 0x04	# 0000 0100 - i2c bus on RB2
 	self.clockmask	= 0x02	# 0000 0010 - i2c clock on RB1
 	self.b		= 0x00
 
     def i2c_readbit(self):
         self.b = self.busmask | ~self.clockmask			# bus high (input), clock low
-	self.TRISB = self.b
+	pic.TRISB = self.b
 	self.b |= self.clockmask				# clock high
-	self.TRISB = self.b
+	pic.TRISB = self.b
 	self.b &= ~self.clockmask				# clock low
-	self.TRISB = self.b
+	pic.TRISB = self.b
 	return self.PORTB
 
     def i2c_start(self):
         self.b = self.busmask | self.clockmask			# bus high, clock high
-	self.TRISB = self.b
+	pic.TRISB = self.b
 	self.b &= ~self.busmask					# bus low
-	self.TRISB = self.b
+	pic.TRISB = self.b
 	self.b &= ~self.clockmask				# clock low
-	self.TRISB = self.b
+	pic.TRISB = self.b
 
     def i2c_stop(self):
         self.b = ~self.busmask | self.clockmask			# bus low, clock high
-	self.TRISB = self.b
+	pic.TRISB = self.b
 	self.b |= self.busmask					# bus high
-	self.TRISB = self.b
+	pic.TRISB = self.b
 	self.b &= ~self.clockmask				# clock low
-	self.TRISB = self.b
+	pic.TRISB = self.b
 
     def i2c_writebit(self, v):
         if v:
 	    self.b = self.busmask | ~self.clockmask		# bus high, clock low
-	    self.TRISB = self.b
+	    pic.TRISB = self.b
 	else:
 	    self.b = ~self.busmask | ~self.clockmask		# bus low, clock low
-	    self.TRISB = self.b
+	    pic.TRISB = self.b
 	self.b |= self.clockmask				# clock high
-	self.TRISB = self.b
+	pic.TRISB = self.b
 	self.b &= ~self.clockmask				# clock low
-	self.TRISB = self.b
+	pic.TRISB = self.b
         pass
 
     def i2c_ack(self):
     	# for now, just do a clock cycle but don't read
 	self.b = self.clockmask					# bus high, clock high
-	self.TRISB = self.b
+	pic.TRISB = self.b
 	self.b &= ~self.clockmask				# bus high, clock low
-	self.TRISB = self.b
+	pic.TRISB = self.b
 
     def i2c_writebyte(self, byte):
         for i in range(7, -1, -1):
