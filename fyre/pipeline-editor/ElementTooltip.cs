@@ -23,12 +23,20 @@
 
 using System;
 using Gtk;
-using GtkSharp;
+using Glade;
 
-public class ElementTooltip : Window
+public class ElementTooltip
 {
-	public ElementTooltip (Element e) : base (WindowType.Popup)
+	[Widget] Gtk.Window	tooltip;
+	[Widget] Gtk.Image	element_icon;
+	[Widget] Gtk.Label	element_name;
+	[Widget] Gtk.Label	element_description;
+	[Widget] Gtk.Box	inputs;
+	[Widget] Gtk.Box	outputs;
+
+	public ElementTooltip (Element e)
 	{
-		this.Resizable = false;
+		Glade.XML gxml = new Glade.XML (null, "element-tooltip.glade", "tooltip", null);
+		gxml.Autoconnect (this);
 	}
 }
