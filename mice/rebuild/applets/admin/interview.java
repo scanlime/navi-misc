@@ -146,7 +146,9 @@ public class interview implements ActionListener
 			if(temp.startsWith("pass")) return false;
 			if(temp.compareTo("") == 0) return false;
 		}
-		// Kick them across the network to the server */
+
+		
+
 		return true;
 	}
 }
