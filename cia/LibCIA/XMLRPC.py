@@ -30,23 +30,29 @@ XML-RPC interface is meant to be universal.
 
 from twisted.web import xmlrpc
 from Message import Message
+import Email
 import sys
 
 
 class SimpleCIAInterface(xmlrpc.XMLRPC):
     """A simple interface to CIA over XML-RPC.
-       Must be constructed with a reference to the current Message.Hub.
+       Must be constructed with a reference to a Server.Backend
        """
-    def __init__(self, hub):
-        self.hub = hub
+    def __init__(self, backend):
+        self.backend = backend
 
     def xmlrpc_deliverMessage(self, xml):
         """Deliver the given message, provided as XML text"""
         try:
-            self.hub.deliver(Message(xml))
+            self.backend.hub.deliver(Message(xml))
         except:
             e = sys.exc_info()[1]
             return xmlrpc.Fault(e.__class__.__name__, str(e))
+        return True
+
+    def xmlrpc_processEmail(self, message):
+        """Given the raw text of an email message, log it and process it if applicable"""
+        Email.process(self.backend, message)
         return True
 
 
@@ -60,7 +66,7 @@ if __name__ == "__main__":
         print msg
     hub.addClient(f)
     r = SimpleCIAInterface(hub)
-    reactor.listenTCP(7080, server.Site(r))
+    reactor.listenTCP(3910, server.Site(r))
     reactor.run()
 
 ### The End ###
