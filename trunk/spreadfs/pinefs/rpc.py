@@ -15,7 +15,7 @@
 import xdrlib as xdr
 import socket
 import os
-import sys
+import sys, select
 import traceback
 
 RPCVERSION = 2
@@ -879,16 +879,20 @@ class UDPServer(Server):
 	def stop (self):
 		self.quitting = 1
 		self.sock.sendto ("", self.sock.getsockname ())
-		
 
 	def loop(self):
 		while not self.quitting:
 			self.session()
 
 	def session(self):
+		while 1:
+			rfds = select.select([self.sock], [], [], 1.0)[0]
+			if self.quitting:
+				return
+			if self.sock in rfds:
+				break
+
 		call, host_port = self.sock.recvfrom(8192)
-		if self.quitting:
-			return
 		host, port = host_port
 		reply = self.handle(call, host)
 		if reply <> None:
