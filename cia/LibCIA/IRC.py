@@ -45,26 +45,26 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
         self.botNet = botNet
         Ruleset.RegexURIHandler.__init__(self)
 
-    def parseURI(self, uri):
+    def uriToTuple(self, uri):
         """On top of the regex matching done by our superclass, separate
            the URI into host, port, and channel.
            We apply the default port number if the URI doesn't have one,
            and prepend a '#' to the channel.
            """
-        d = Ruleset.RegexURIHandler.parseURI(self, uri)
+        d = self.parseURI(uri)
         host, port, channel = d['host'], d['port'], d['channel']
         if not port:
             port = 6667
         return ((host, port), '#' + channel)
 
     def assigned(self, uri, newRuleset):
-        self.botNet.addChannel(*self.parseURI(uri))
+        self.botNet.addChannel(*self.uriToTuple(uri))
 
     def unassigned(self, uri):
-        self.botNet.delChannel(*self.parseURI(uri))
+        self.botNet.delChannel(*self.uriToTuple(uri))
 
     def message(self, uri, message, content):
-        server, channel = self.parseURI(uri)
+        server, channel = self.uriToTuple(uri)
         self.botNet.msg(server, channel, content)
 
 

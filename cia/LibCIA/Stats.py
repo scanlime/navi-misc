@@ -38,9 +38,22 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
     scheme = 'stats'
     regex = r"^stats://(?P<path>[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*)$"
 
-    def __init__(self, statsDirectory):
+    def __init__(self, hub, statsDirectory):
         self.statsDirectory = statsDirectory
         Ruleset.RegexURIHandler.__init__(self)
+        self.addClients(hub)
+
+    def addClients(self, hub):
+        """Add our own clients to the Message.Hub. We use this to listen
+           for queryStats messages. The extra level of indirection here helps
+           rebuild() work its magic without breaking.
+           """
+        self.hub.addClient(lambda msg: self.queryStats(msg),
+                           Message.Filter('<find path="/message/body/queryStats">'))
+
+    def queryStats(self, message):
+        """Handle <queryStats> messages"""
+        return "moo"
 
     def message(self, uri, message, content):
         # Stick the URI's path and the content together into a stats
