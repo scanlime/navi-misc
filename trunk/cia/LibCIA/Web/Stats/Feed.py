@@ -36,20 +36,19 @@ class BaseFeed(Nouvelle.Twisted.Page):
        to render text/xml pages from a list of recent messages.
        """
     defaultLimit = 20
+    mimeType = 'text/xml'
 
-    def __init__(self, statsPage, limit=None, medium='xhtml'):
+    def __init__(self, statsPage, limit=None):
         if not limit:
             limit = self.defaultLimit
         self.limit = limit
-        self.medium = medium
-
         self.statsPage = statsPage
         self.target = statsPage.target
         Nouvelle.Twisted.Page.__init__(self)
 
     def preRender(self, context):
         context['component'] = self.statsPage.component
-        context['request'].setHeader('content-type', 'text/xml')
+        context['request'].setHeader('content-type', self.mimeType)
 
     def render_title(self, context):
         return self.target.getTitle()
@@ -69,7 +68,38 @@ class BaseFeed(Nouvelle.Twisted.Page):
         return result
 
 
-class RSS2Feed(BaseFeed):
+class FormattedFeed(BaseFeed):
+    """Abstract base classes that apply formatters to each message they include"""
+    def __init__(self, statsPage, limit=None, medium='xhtml'):
+        self.medium = medium
+        BaseFeed.__init__(self, statsPage, limit)
+
+    def formatMessage(self, m, medium=None):
+        """Format a message in the requested medium"""
+        if medium is None:
+            medium = self.medium
+
+        # Look for a proper format_* function to handle special feed-only media
+        f = getattr(self, 'format_' + medium, None)
+        try:
+            if f:
+                return f(m)
+            else:
+                # No special formatter, find a normal one
+                return Formatters.factory.findMedium(medium, m).format(m)
+        except Message.NoFormatterError:
+            return self.formatError()
+
+    def formatError(self):
+        """Subclasses should override this to generate error messages for formatMessage"""
+        return "(Unable to format message)"
+
+    def format_unquoted(self, m):
+        """Our 'unquoted' medium is plaintext inside an xml() marker to prevent quoting"""
+        return xml(self.formatMessage(m, 'plaintext'))
+
+
+class RSS2Feed(FormattedFeed):
     """A web resource representing an RSS 2.0 feed for a particular stats target."""
     def render_photo(self, context):
         # First figure out if we have a photo. Actually render it in the Deferred if we do.
@@ -107,11 +137,8 @@ class RSS2Feed(BaseFeed):
         except Message.NoFormatterError:
             pass
 
-        # Put in the description as quoted XHTML, with an error message if we can't format it
-        try:
-            tags.append(tag('description')[ quote(Formatters.factory.findMedium('xhtml', m).format(m)) ])
-        except Message.NoFormatterError:
-            tags.append(tag('description')[ quote(tag('i')["Unable to format message"]) ])
+        # Put in the description as quoted HTML
+        tags.append(tag('description')[ quote(self.formatMessage(m)) ])
 
         return tags
 
