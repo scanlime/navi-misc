@@ -207,6 +207,59 @@ class RequestUsersColumn(Nouvelle.Column):
         return cmp(b.getUserCount(), a.getUserCount())
 
 
+class DateColumn(Nouvelle.AttributeColumn):
+    """An AttributeColumn that formats unix-style timestamps as dates"""
+    def render_data(self, context, message):
+        return TimeUtil.formatDate(self.getValue(message))
+
+
+class MessageBotColumn(Nouvelle.Column):
+    """Shows the name of the bot that received a particular message in the message log"""
+    heading = 'bot'
+
+    def getValue(self, msg):
+        return msg.bot.nickname
+
+
+class MessageServerColumn(Nouvelle.Column):
+    """Shows the name of the server a bot is on"""
+    heading = 'server'
+
+    def getValue(self, msg):
+        return str(msg.bot.factory.server)
+
+
+class MessageParamsColumn(Nouvelle.Column):
+    """Shows the parameters associated with one logged message"""
+    heading = 'parameters'
+
+    def getValue(self, msg):
+        return repr(msg.params)[1:-1]
+
+
+class MessageLogSection(Template.Section):
+    """A section listing recent unknown IRC messages, including errors"""
+    title = 'recent unhandled messages'
+
+    columns = [
+        DateColumn('time', 'timestamp'),
+        MessageBotColumn(),
+        MessageServerColumn(),
+        Nouvelle.AttributeColumn('code', 'command'),
+        MessageParamsColumn(),
+       ]
+
+    def __init__(self, botNet):
+        self.botNet = botNet
+
+    def render_rows(self, context):
+        messages = self.botNet.unknownMessageLog.buffer
+        if messages:
+            return [Template.Table(messages, self.columns, id='msglog')]
+        else:
+            return []
+
+
 class RequestsSection(Template.Section):
     """A section listing all requests being asked of the BotNetwork"""
     title = 'requests'
@@ -264,6 +317,7 @@ class IRCBotPage(Template.Page):
         return [
             BotsSection(self.botNet),
             NewBotsSection(self.botNet),
+            MessageLogSection(self.botNet),
             RequestsSection(self.botNet),
             ]
 
