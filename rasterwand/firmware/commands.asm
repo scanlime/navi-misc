@@ -37,9 +37,9 @@
 
 bank0	udata
 
-        src_ptr                 res     1
-        dest_ptr                res     1
-        byte_iterator   res     1       
+src_ptr                 res     1
+dest_ptr                res     1
+byte_iterator   res     1       
 
 	code
 
@@ -54,7 +54,8 @@ defineRequest	macro	id,	handler
 	endm
 
 CheckVendor
-	defineRequest	RWAND_CTRL_READ_EDGES,	request_readEdges
+	defineRequest	RWAND_CTRL_READ_EDGES,		request_readEdges
+	defineRequest	RWAND_CTRL_READ_PREDICTION,	request_readPrediction
 
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
@@ -122,6 +123,11 @@ request_readEdges
 	extern	edge_buffer
 	clrw
 	returnBuffer edge_buffer, 8
+
+request_readPrediction
+	extern	wand_period
+	clrw
+	returnBuffer wand_period, 4
 
 	end
 
