@@ -309,19 +309,22 @@ on_irc_quit_menu_activate (GtkWidget *widget, gpointer data)
 static void
 on_edit_cut_menu_activate (GtkWidget *widget, gpointer data)
 {
-	/* FIXME: implement */
+	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
+	gtk_editable_cut_clipboard(GTK_EDITABLE(text_entry));
 }
 
 static void
 on_edit_copy_menu_activate (GtkWidget *widget, gpointer data)
 {
-	/* FIXME: implement */
+	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
+	gtk_editable_copy_clipboard(GTK_EDITABLE(text_entry));
 }
 
 static void
 on_edit_paste_menu_activate (GtkWidget *widget, gpointer data)
 {
-	/* FIXME: implement */
+	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
+	gtk_editable_paste_clipboard(GTK_EDITABLE(text_entry));
 }
 
 static void
