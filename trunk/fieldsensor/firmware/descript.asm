@@ -41,7 +41,7 @@
 #include "usb_defs.inc"
 #include "../include/efs_protocol.h"
 
-USBBANK	code
+descr_page	code
 	global	Config_desc_index
 	global	Descriptions
 	global	DeviceDescriptor

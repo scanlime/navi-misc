@@ -140,7 +140,7 @@ COPYBUFFERDESCRIPTOR	macro
 	movf	USTAT,w			; get the status register
 	addlw	0xA0			; add the offset to the beginning of the BD's
 	movwf	FSR			; save in the FSR.
-	bcf 	STATUS, RP0		; back to bank 2
+	banksel	BufferDescriptor
 	movf	INDF,w
 	movwf	BufferDescriptor	; in shared RAM
 	incf	FSR,f
@@ -161,12 +161,11 @@ endinc16
 	endm	
 
 REQUESTERROR	macro
-	bsf	STATUS,RP0	; page 3
+	banksel	USTAT
 	movf	USTAT,w		; get the status register
 	addlw	0xA0		; add the offset to the beginning of the BD's
 	movwf	FSR
 	bsf	INDF,EP_STALL	; set endpoint stall bit
-	bcf	STATUS,RP0	; back to page 2
 	endm	
 
 ; *********************************************************************
@@ -253,7 +252,7 @@ getEPloop
 	goto	getEPloop
 
 exitgetloop
-	bsf 	STATUS,RP0	; bank 3
+	banksel	BD1OST
 	movf	BD1OST,w
 	andlw	0x40		; save only the data 0/1 bit
 	xorlw	0x40		; toggle the data o/1 bit
@@ -262,7 +261,7 @@ exitgetloop
 
 	movlw	0x08		; reset byte counter
 	movwf	BD1OBC
-	bcf 	STATUS,RP0	; bank 2
+	banksel	bytecounter
 	movf	bytecounter,w	; return # of bytes moved in W reg
 	movwf	GPtemp		; move byte counter to temporary ram
 	movf	RP_save,w	; restore bank bits
@@ -348,7 +347,7 @@ getEPloop2
 	goto	getEPloop2
 
 exitgetloop2
-	bsf 	STATUS,RP0	; bank 3
+	banksel	BD2OST
 	movf	BD2OST,w
 	andlw	0x40		; save only the data 0/1 bit
 	xorlw	0x40		; toggle the data o/1 bit
@@ -357,7 +356,7 @@ exitgetloop2
 
 	movlw	0x08		; reset byte counter
 	movwf	BD2OBC
-	bcf 	STATUS,RP0	; bank 2
+	banksel	bytecounter
 	movf	bytecounter,w	; return # of bytes moved in W reg
 	movwf	GPtemp		; move byte counter to temporary ram
 	movf	RP_save,w	; restore bank bits
@@ -418,7 +417,7 @@ PutEP1
 	btfsc	STATUS,Z	; is it a zero length buffer?
 	goto	exitputloop	; yes, bail out now and avoid the rush
 	movf	BD1IAL,w	; get address pointer
-	bcf 	STATUS,RP0	; back to bank 2
+	banksel	dest_ptr
 	movwf	dest_ptr
 
 ; This loop operates with the direct bits set to bank 2, while IRP
@@ -445,7 +444,7 @@ putEPloop
 	goto	putEPloop
 
 exitputloop
-	bsf 	STATUS,RP0	; back to bank 3
+	banksel	BD1IST
 	movf	BD1IST,w
 	andlw	0x40		; save only the data 0/1 bit
 	xorlw	0x40		; toggle the data o/1 bit
@@ -506,7 +505,7 @@ PutEP2
 	btfsc	STATUS,Z	; is it a zero length buffer?
 	goto	exitputloop2	; yes, bail out now and avoid the rush
 	movf	BD2IAL,w	; get address pointer
-	bcf 	STATUS,RP0	; back to bank 2
+	banksel	dest_ptr
 	movwf	dest_ptr
 
 ; This loop operates with the direct bits set to bank 2, while IRP
@@ -533,7 +532,7 @@ putEPloop2
 	goto	putEPloop2
 
 exitputloop2
-	bsf 	STATUS,RP0	; back to bank 3
+	banksel	BD2IST
 	movf	BD2IST,w
 	andlw	0x40		; save only the data 0/1 bit
 	xorlw	0x40		; toggle the data o/1 bit

@@ -93,7 +93,6 @@ request_takeReading
 	movf    temp, w         ;  Write the saved byte to our buffer
 	movwf   INDF
 	banksel BD0IBC
-	bsf     STATUS, RP0
 	movlw   0x01
 	movwf   BD0IBC          ; set byte count to 1
 	movlw   0xc8            ; DATA1 packet, DTS enabled
