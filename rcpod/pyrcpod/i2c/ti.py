@@ -112,8 +112,22 @@ class ADS1112(i2c.Device):
     # Store the most recently configured values
     inputChannel = 0
     singleMode = False
-    dataRate = 3
     gain = 0
+    dataRate = 3
+
+    # Data rate constants
+    dataRateBits = [12, 14, 15, 16]
+    dataRateHz = [240.0, 60.0, 30.0, 15.0]
+
+    def __init__(self, bus, address, dataRate=None):
+        i2c.Device.__init__(self, bus, address)
+
+        # We need an up-to-date copy of the device's configuration.
+        # Its current data rate is crucial to performing reads correctly.
+        self.readConfigRegister()
+
+        if dataRate is not None:
+            self.setDataRate(dataRate)
 
     def readWithStatus(self, channel=None, returnType=float):
         """Read the latest value, returning None if no new value is available.
@@ -145,18 +159,27 @@ class ADS1112(i2c.Device):
                 return result
         raise IOError("Timeout in blocking read from ADS1112 device")
 
-    def read(self, returnType=float):
+    def read(self, channel=None, returnType=float, channelDelayMultiplier=1.5):
         """Read the most recently converted value, without regard to whether
-           it has already been read. This does not support changing input
-           channels, since without reading the status bit we won't know if
-           this data is actually from a different channel or not.
+           it has already been read. If changing input channels, this will wait
+           long enough for the device to take a sample on the new channel, but it
+           will not verify that this sample has actually been performed.
+
+           'channelDelayMultiplier' is multiplied by the nominal sample duration
+           to get the amount of time we wait for a new sample when changing channels.
            """
+        if channel is not None and channel != self.inputChannel:
+            self.setChannel(channel)
+            time.sleep(channelDelayMultiplier / self.dataRateHz[self.dataRate])
+
         high, low = self.busRead(2)
         return self._decode(high, low, returnType)
 
     def _decode(self, high, low, returnType):
         """Given the high and low bytes returned by the ADC,
-           convert them to the required return type.
+           convert them to the required return type. Floating
+           point values are in volts, integers are unconverted
+           codes.
            """
         # Unpack the signed 16-bit integer
         code = (high << 8) | low
@@ -164,9 +187,20 @@ class ADS1112(i2c.Device):
             code -= 0x10000
 
         if returnType is float:
-            return float(code) / 0x7FFF
+            # Convert to volts
+
+            # Full scale depends on the current data rate
+            fullScale = 1 << (self.dataRateBits[self.dataRate] - 1)
+
+            # Two's complement notation is asymmetric
+            if code > 0:
+                fullScale -= 1
+
+            return 2.048 * code / fullScale
+
         elif returnType is int:
             return code
+
         else:
             raise ValueError("Unsupported return type '%r'" % returnType)
 
@@ -181,6 +215,19 @@ class ADS1112(i2c.Device):
            3:  AIN1 - AIN3
            """
         self.writeConfigRegister(inputChannel = channel)
+
+    def setDataRate(self, rate):
+        """Set the data rate code, as defined in the data sheet. This
+           trades off sampling accuracy with sampling rate:
+
+           0:  12 bit resolution, nominal 240Hz sample rate
+           1:  14 bit resolution, nominal 60Hz sample rate
+           2:  15 bit resolution, nominal 30Hz sample rate
+           3:  16 bit resolution, nominal 15Hz sample rate
+
+           The hardware defaults to 3.
+           """
+        self.writeConfigRegister(dataRate = rate)
 
     def enterSingleMode(self):
         """Put the A/D converter in single conversion mode.
@@ -235,5 +282,15 @@ class ADS1112(i2c.Device):
         self.singleMode = singleMode
         self.dataRate = dataRate
         self.gain = gain
+
+    def readConfigRegister(self):
+        """Read the device's current configuration byte back in, setting
+           our locally stored configuration values.
+           """
+        reg = self.busRead(3)[2]
+        self.inputChannel = (reg >> 5) & 3
+        self.singleMode = (reg & 0x10) != 0
+        self.dataRate = (reg & 3) >> 2
+        self.gain = reg & 3
 
 ### The End ###
