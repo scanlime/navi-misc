@@ -84,7 +84,7 @@ class Event:
             # is negative, to be consistent with python indexing.
             self.clients[hash(callback)] = callable
             if index < 0:
-                index += len(self.callables)
+                index += len(self.callables) + 1
             self.callables.insert(index, callable)
 
     def strongObserve(self, callback, index=-1):
@@ -96,7 +96,7 @@ class Event:
             # We don't need to worry with a wrapper class since we don't need a weakref
             self.clients[hash(callback)] = callback
             if index < 0:
-                index += len(self.callables)
+                index += len(self.callables) + 1
             self.callables.insert(index, callback)
 
     def empty(self):
