@@ -73,12 +73,16 @@ public class udpfw extends Thread
 	public void listen()
 	{
 		byte[] buf = new byte[4096*16];
-		
 		try
 		{
+			DatagramPacket temp = new DatagramPacket(buf,0);
+			InetAddress target = InetAddress.getByName(host);
+			
 			while(true)
 			{
-				
+				server.receive(temp);
+				temp.setAddress(target);
+				server.send(temp);
 			}
 		}
 		catch(Exception e)
