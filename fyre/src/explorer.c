@@ -34,7 +34,7 @@ static void explorer_init        (Explorer *self);
 static void explorer_dispose     (GObject *gobject);
 
 static gboolean explorer_auto_limit_update_rate (Explorer *self);
-static gboolean limit_update_rate               (GTimeVal *last_update, float max_rate);
+static gboolean limit_update_rate               (GTimer* timer, float max_rate);
 static gdouble  explorer_get_iter_speed         (Explorer *self);
 static gchar*   explorer_strdup_status          (Explorer *self);
 static gchar*   explorer_strdup_speed           (Explorer *self);
@@ -123,6 +123,7 @@ static void explorer_init(Explorer *self) {
     self->statusbar = GTK_STATUSBAR(glade_xml_get_widget(self->xml, "statusbar"));
     self->render_status_context = gtk_statusbar_get_context_id(self->statusbar, "Rendering status");
     self->speed_timer = g_timer_new();
+    self->update_rate_timer = g_timer_new();
 }
 
 static void explorer_dispose(GObject *gobject) {
@@ -134,6 +135,11 @@ static void explorer_dispose(GObject *gobject) {
     if (self->speed_timer) {
 	g_timer_destroy(self->speed_timer);
 	self->speed_timer = NULL;
+    }
+
+    if (self->update_rate_timer) {
+	g_timer_destroy(self->update_rate_timer);
+	self->update_rate_timer = NULL;
     }
 
     if (self->map) {
@@ -490,26 +496,17 @@ void explorer_run_iterations(Explorer *self) {
     iterative_map_calculate_timed(self->map, self->map->render_time);
 }
 
-static gboolean limit_update_rate(GTimeVal *last_update, float max_rate) {
+static gboolean limit_update_rate(GTimer *timer, float max_rate) {
     /* Limit the frame rate to the given value. This should be called once per
      * frame, and will return FALSE if it's alright to render another frame,
      * or TRUE otherwise.
      */
-    GTimeVal now;
-    gulong diff;
 
-    /* Figure out how much time has passed, in milliseconds */
-    g_get_current_time(&now);
-    diff = ((now.tv_usec - last_update->tv_usec) / 1000 +
-	    (now.tv_sec  - last_update->tv_sec ) * 1000);
-
-    if (diff < (1000 / max_rate)) {
+    if (g_timer_elapsed(timer, NULL) < (1.0 / max_rate))
 	return TRUE;
-    }
-    else {
-	*last_update = now;
-	return FALSE;
-    }
+
+    g_timer_start(timer);
+    return FALSE;
 }
 
 static gboolean explorer_auto_limit_update_rate(Explorer *self) {
@@ -528,7 +525,7 @@ static gboolean explorer_auto_limit_update_rate(Explorer *self) {
     if (rate < final_rate)
 	rate = final_rate;
 
-    return limit_update_rate(&self->last_gui_update, rate);
+    return limit_update_rate(self->update_rate_timer, rate);
 }
 
 void explorer_update_gui(Explorer *self) {
@@ -613,11 +610,11 @@ static void on_about_close(GtkWidget *widget, Explorer *self)
 
 static void on_about_activate(GtkWidget *widget, Explorer *self)
 {
-    static gboolean init = FALSE;
     GtkWidget *dialog;
 
     dialog = glade_xml_get_widget (self->xml, "about_window");
-    if (!init) {
+
+    if (!self->about_box_initialized) {
         GtkWidget *close, *image, *label;
 	GdkPixbuf *pixbuf;
 	gchar *text;
@@ -629,10 +626,12 @@ static void on_about_activate(GtkWidget *widget, Explorer *self)
 	pixbuf = gdk_pixbuf_new_from_file(FYRE_DATADIR "/wicker-shoelace.png", NULL);
 #ifdef ENABLE_BINRELOC
 	if (!pixbuf)
-		pixbuf = gdk_pixbuf_new_from_file(BR_DATADIR("/fyre/wicker-shoelace.png"), NULL);
+	    pixbuf = gdk_pixbuf_new_from_file(BR_DATADIR("/fyre/wicker-shoelace.png"), NULL);
 #endif
-        if (pixbuf)
+	if (pixbuf) {
 	    gtk_image_set_from_pixbuf(GTK_IMAGE (image), pixbuf);
+	    gdk_pixbuf_unref(pixbuf);
+	}
 
 	g_signal_connect(G_OBJECT (dialog), "delete-event", G_CALLBACK(on_about_close), self);
 	g_signal_connect(G_OBJECT (close), "clicked", G_CALLBACK(on_about_close), self);
@@ -640,8 +639,10 @@ static void on_about_activate(GtkWidget *widget, Explorer *self)
 	text = g_strdup_printf("<span size=\"xx-large\" weight=\"bold\">Fyre %s</span>", VERSION);
 	gtk_label_set_markup(GTK_LABEL(label), text);
 	g_free(text);
-	init = TRUE;
+
+	self->about_box_initialized = TRUE;
     }
+
     gtk_widget_show_all(dialog);
 }
 
