@@ -1,6 +1,3 @@
-* List store needs a column to differentiate URLs and e-mails so that
-	we don't try calling gnome_url_show() on an e-mail.
-
 * Ellipsize the URLs.
 
 * When xchat-gnome supports it, add an object for a prefs page that
