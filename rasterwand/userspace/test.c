@@ -219,7 +219,7 @@ int main(int argc, char **argv) {
     /* The STALL_DETECT bit will turn off the coil and display automatically
      * if it's stalled. Run the unstall algorithm.
      */
-    if (!(status.mode & RWAND_MODE_ENABLE_COIL)) {
+    if (!(status.mode & RWAND_MODE_ENABLE_DISPLAY)) {
       control_write(d, RWAND_CTRL_SET_MODES, RWAND_MODE_ENABLE_COIL, 0);
       unstall(d);
       control_write(d, RWAND_CTRL_SET_MODES,
