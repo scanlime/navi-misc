@@ -43,6 +43,10 @@ namespace Fyre
 
 		Gtk.EventBox		event_box;
 
+		// FIXME - so we've got the cursor data here, but it turns out that
+		// Gdk.Pixmap.CreateBitmapFromData isn't implemented yet (&#*^%*&).
+		// Avoid using these custom cursors for now.
+
 		/* String data for our hand cursors. These have been taken pretty much
 		 * verbatim from eog */
 		static string hand_open_data =
@@ -191,13 +195,11 @@ namespace Fyre
 		void
 		ButtonPressHandler (object o, Gtk.ButtonPressEventArgs args)
 		{
-			event_box.GdkWindow.Cursor = HandOpenCursor;
 		}
 
 		void
 		ButtonReleaseHandler (object o, Gtk.ButtonReleaseEventArgs args)
 		{
-			event_box.GdkWindow.Cursor = PointerCursor;
 		}
 
 		void
