@@ -6,6 +6,7 @@ LIBS	+= $(shell pkg-config --libs $(PKGS))
 BIN	= bzedit
 
 OBJS	= 			\
+	src/camera.o		\
 	src/displaylist.o	\
 	src/drawable.o		\
 	src/editor.o		\
@@ -18,7 +19,8 @@ OBJS	= 			\
 	src/renderstate.o	\
 	src/scene.o		\
 	src/sceneobject.o	\
-	src/texturemanager.o
+	src/texturemanager.o	\
+	src/view.o
 
 $(BIN):	$(OBJS)
 	gcc -o $@ $(OBJS) $(LIBS)
