@@ -22,6 +22,7 @@
 
 #include "explorer.h"
 #include "color-button.h"
+#include "curve-editor.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -99,6 +100,8 @@ static void on_anim_open(GtkWidget *widget, gpointer user_data);
 static void on_anim_save(GtkWidget *widget, gpointer user_data);
 static void on_anim_save_as(GtkWidget *widget, gpointer user_data);
 static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data);
+static void on_anim_set_linear(GtkWidget *widget, gpointer user_data);
+static void on_anim_set_smooth(GtkWidget *widget, gpointer user_data);
 
 static void tool_grab(Explorer *self, ToolInput *i);
 static void tool_blur(Explorer *self, ToolInput *i);
@@ -204,6 +207,8 @@ static void explorer_init(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_anim_save",                    G_CALLBACK(on_anim_save),                    self);
   glade_xml_signal_connect_data(self->xml, "on_anim_save_as",                 G_CALLBACK(on_anim_save_as),                 self);
   glade_xml_signal_connect_data(self->xml, "on_anim_scale_changed",           G_CALLBACK(on_anim_scale_changed),           self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_set_linear",              G_CALLBACK(on_anim_set_linear),              self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_set_smooth",              G_CALLBACK(on_anim_set_smooth),              self);
 
   /* Set up the drawing area
    */
@@ -230,6 +235,12 @@ static void explorer_init(Explorer *self) {
 		     self->bgcolor_button, TRUE, TRUE, 0);
   g_signal_connect(self->bgcolor_button, "changed", G_CALLBACK(on_color_changed), self);
   gtk_widget_show_all(self->bgcolor_button);
+
+  /* Add our CurveEditor, a modified GtkCurve widget
+   */
+  self->anim_curve = curve_editor_new();
+  gtk_container_add(GTK_CONTAINER(glade_xml_get_widget(self->xml, "anim_curve_box")), self->anim_curve);
+  gtk_widget_show_all(self->anim_curve);
 
   /* Set up the statusbar
    */
@@ -1098,6 +1109,28 @@ static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
     explorer_run_iterations(self);
     explorer_update_gui(self);
   }
+}
+
+static void on_anim_set_linear(GtkWidget *widget, gpointer user_data) {
+  Explorer *self = EXPLORER(user_data);
+  CurveControlPoint points[] = {
+    {0, 0},
+    {1, 1},
+  };
+  curve_editor_set_control_points(CURVE_EDITOR(self->anim_curve),
+				  points, sizeof(points) / sizeof(points[0]));
+}
+
+static void on_anim_set_smooth(GtkWidget *widget, gpointer user_data) {
+  Explorer *self = EXPLORER(user_data);
+  CurveControlPoint points[] = {
+    {0,     0   },
+    {0.375, 0.25},
+    {0.625, 0.75},
+    {1,     1   },
+  };
+  curve_editor_set_control_points(CURVE_EDITOR(self->anim_curve),
+				  points, sizeof(points) / sizeof(points[0]));
 }
 
 /* The End */
