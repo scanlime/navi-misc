@@ -1,6 +1,12 @@
 Known Bugs
 ==========
 
+- Large messages get truncated somewhere between the client script and the database,
+  causing messages with invalid XML to be present.
+
+- These invalid messages cause XML parsing errors when formatting the RSS feeds.
+  The normal stats summary page explicitly ignores badly formed messages.
+
 - It looks like somehow most DOM Document objects are getting linked to each other,
   resulting in hundreds of ungarbagecollected messages after a week or so of uptime.
   This makes for a pretty icky memory leak.
