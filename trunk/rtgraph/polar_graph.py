@@ -31,7 +31,12 @@ graph.channels = [
     ]
 graph.show()
 
-win.add(graph)
+frame = gtk.AspectFrame()
+frame.add(graph)
+frame.show()
+
+win.add(frame)
+win.set_border_width(8)
 win.show()
 win.connect("destroy", gtk.mainquit)
 gtk.main()
