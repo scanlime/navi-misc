@@ -10,6 +10,7 @@ CLASSFILES=\
 	aupdatei.class\
 	aupdate.class\
 	nbase.class\
+	njavasub.class\
 	njavaint.class\
 	imain.class
 
@@ -20,6 +21,9 @@ pbase.class: pbase.java
 
 nbase.class: nbase.java
 	javac nbase.java
+
+njavasub.class: njavasub.java
+	javac njavasub.java
 
 njavaint.class: njavaint.java
 	javac njavaint.java
