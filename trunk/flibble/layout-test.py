@@ -84,7 +84,12 @@ if __name__ == '__main__':
     rows = cPickle.load(open('cia-dataset.p'))
 
     # Load the edges into a high-level graph object
-    cia = Graph([Edge(a, b) for a, b, s, f in rows])
+    ciaEdges = []
+    for a, b, s, f in rows:
+        if a.startswith('author/') and b in ('project/kde', 'project/gnome'):
+            continue
+        ciaEdges.append(Edge(a,b))
+    cia = Graph(ciaEdges)
 
     testEdges = [
         Edge(1, 2),
