@@ -1,7 +1,7 @@
 /*
  * userlist_gui.c - helpers for the userlist view
  *
- * Copyright (C) 2004 xchat-gnome team
+ * Copyright (C) 2004-2005 xchat-gnome team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

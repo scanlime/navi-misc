@@ -5,7 +5,7 @@
 #             to/from blender objects.
 #
 # Blender-based BZFlag World Editor
-# Copyright (C) 2004 David Trowbridge and Micah Dowty
+# Copyright (C) 2004-2005 David Trowbridge and Micah Dowty
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
