@@ -64,12 +64,16 @@ public class njavamod extends nbase
 			switch(cmd.charAt(0))
 			{
 			case 'a': //Accept the question
+				moder.accept(Integer.parseInt(read()));
 				break;
 			case 'r': //Reject the question
+				moder.reject();
 				break;
 			case 'q': //quit the thing
-				break;
+				closeConnection();
+				return;
 			case 'g': //get a question
+				write(moder.getQuestion());
 				break;
 			}
 		}
