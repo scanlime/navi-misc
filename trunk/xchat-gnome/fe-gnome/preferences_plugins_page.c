@@ -278,7 +278,7 @@ xchat_gnome_plugin_add (char *filename)
 	GtkTreeIter iter;
 
 	void *handle;
-	xchat_plugin_get_info *info_func;
+	gpointer info_func;
 	char *name, *desc, *version;
 
 
@@ -297,7 +297,7 @@ xchat_gnome_plugin_add (char *filename)
 	 * sure the file is even a valid type. Should add some stuff to maybe check the
 	 * extension?
 	 */
-	if (handle != NULL && g_module_symbol (handle, "xchat_plugin_get_info", (gpointer *) (&info_func))) {
+	if (handle != NULL && g_module_symbol (handle, "xchat_plugin_get_info", &info_func)) {
 		/* Create a new plugin instance and add it to our list of known plugins. */
 		/* FIXME: zed added a 'reserved' field, but i'm not sure what it is */
 		((xchat_plugin_get_info*)info_func) (&name, &desc, &version, NULL);
