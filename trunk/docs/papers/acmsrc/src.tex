@@ -92,11 +92,11 @@ each column contains 8 million points.  While this is far beyond what can be dis
 printed statically, the tone-mapping operator can be adjusted to expose different details
 in the image.  The standard plotting technique here does not suffice to show the true structure
 of this image;  one can see several horizontal rows of points with much higher density in
-the histogram rendering, but these are completely hidden in the traditional plot.  In part,
-we get this extra detail because the histogram method is also capable of some sub-pixel
-precision.  The bifurcation diagram shown here is actually rendered with 8 columns per pixel
-column.  While this extra data is not explicitly usable in the image, it visually exposes
-regions of different behavior such as high-density cycles.
+the histogram rendering, but these are completely hidden in the traditional plot.  This extra
+detail is provided, in part, by sub-pixel rendering.  The bifurcation diagram shown here is
+actually rendered with 8 columns of histogram buckets for every single column of pixels.
+While this extra data is not explicitly preserved in the image, it visually exposes details
+too small to see otherwise, such as high-density cycles.
 
 \section{Related Work}
 Tone mapping of high dynamic range images has been studied extensively, primarily in the
