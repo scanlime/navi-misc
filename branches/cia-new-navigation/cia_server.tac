@@ -36,9 +36,7 @@ Security.caps.saveKey('universe', '~/.cia_key')
 # content is written in reStructuredText and processed by Web.Doc. We
 # use a StaticJoiner to provide a doc page as the front page.
 webRoot = Web.Server.StaticJoiner('htdocs', Web.Doc.Page('doc/welcome'))
-webRoot.putChild('rulesets', Web.RulesetBrowser.RulesetList(rulesetStorage))
 webRoot.putChild('stats', Web.Stats.Browser.Page())
-webRoot.putChild('irc', Web.BotStatus.IRCBotPage(botNet))
 webRoot.putChild('doc', Web.Doc.Page('doc'))
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port
@@ -56,6 +54,7 @@ webRoot.putChild('RPC2', rpc)
 
 site = Web.Server.Site(webRoot)
 
+site.putComponent('irc', Web.BotStatus.Component(botNet))
 site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))
 site.putComponent('info', Web.Info.Component())
 
