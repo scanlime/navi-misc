@@ -186,6 +186,8 @@ on_load_toggled (GtkCellRendererToggle *toggle, gchar *pathstr, gpointer user_da
 		 */
 		load_unload (filename, loaded, model, iter);
 	}
+
+	gtk_tree_path_free (path);
 }
 static void
 on_open_plugin_clicked (GtkButton *button, gpointer user_data)
@@ -326,12 +328,6 @@ set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, 
 	return FALSE;
 }
 
-gint
-filename_test (gconstpointer a, gconstpointer b)
-{
-	return strcmp ((char*)a, (char*)b);
-}
-
 static void
 load_unload (char *filename, gboolean loaded, GtkTreeModel *model, GtkTreeIter iter)
 {
@@ -347,13 +343,8 @@ load_unload (char *filename, gboolean loaded, GtkTreeModel *model, GtkTreeIter i
 			sprintf (buf, "UNLOAD %s", filename);
 
 		/* FIXME: Bad to assume that the plugin was successfully unloaded. */
-		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
+		//gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
 
-		/* For some reason the normal find and remove functions don't work with
-		 * strings. I suspect they're comparing the pointers instead of the strings
-		 * themselves. So we just define our own little custom test that uses
-		 * strcmp to remove the plugin filename from the list.
-		 */
 		if ((removed_plugin = g_slist_find_custom (enabled_plugins, filename, &filename_test)) != NULL) {
 			enabled_plugins = g_slist_delete_link (enabled_plugins, removed_plugin);
 		}
@@ -388,4 +379,10 @@ autoload_plugin_cb (gpointer data, gpointer user_data)
 	 * fine.
 	 */
 	plugin_load (gui.current_session, filename, NULL);
+}
+
+gint
+filename_test (gconstpointer a, gconstpointer b)
+{
+	return strcmp ((char*)a, (char*)b);
 }
