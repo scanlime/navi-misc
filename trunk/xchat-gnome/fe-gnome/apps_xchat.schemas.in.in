@@ -181,7 +181,7 @@
       <applyto>/apps/xchat/main_window/font</applyto>
       <owner>xchat</owner>
       <type>string</type>
-      <default>Bitstream Vera Sans 10</default>
+      <default>Bitstream Vera Sans Mono 10</default>
       <locale name="C">
         <short>Font for the main window</short>
       </locale>
