@@ -268,7 +268,8 @@ def escapeToXml(text, isAttrib=0):
 if __name__ == "__main__":
     # Print a usage message when not enough parameters are provided.
     if len(sys.argv) < 3:
-        sys.stderr.write("USAGE: %s REPOS-PATH REVISION [PROJECTNAME]\n")
+        sys.stderr.write("USAGE: %s REPOS-PATH REVISION [PROJECTNAME]\n" %
+                         sys.argv[0])
         sys.exit(1)
 
     # If a project name was provided, override the default project name.
