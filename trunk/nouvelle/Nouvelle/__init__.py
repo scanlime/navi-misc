@@ -116,6 +116,7 @@ about the current web request, for example.
 #
 
 __version__ = "pre-0.92"
+version_info = (0, 92, 1)
 
 # Check the python version here before we proceed further
 requiredPythonVersion = (2,2,1)
