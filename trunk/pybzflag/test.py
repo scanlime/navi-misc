@@ -26,6 +26,9 @@ class TestClient(BZFlag.Client.BaseClient):
         print msg.__class__.__name__,
         if isinstance(msg, BZFlag.Protocol.FromServer.MsgPlayerUpdate):
             print "- Player %d at %s" % (msg.id, msg.position),
+        if isinstance(msg, BZFlag.Protocol.FromServer.MsgMessage):
+            message = msg.message[:msg.message.find(chr(0))]
+            print "- From %d, To %d: '%s'" % (msg.fromId, msg.toId, message),
         print
 
 
