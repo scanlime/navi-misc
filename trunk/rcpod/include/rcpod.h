@@ -25,8 +25,9 @@
 
 #include <usb.h>
 
-
-/************************************************** Data structures */
+/*************************************************************************************/
+/************************************************** Data structures ******************/
+/*************************************************************************************/
 
 /* Represents an open rcpod device. This is returned by rcpod_init_simple
  * or rcpod_open. It must be freed with rcpod_close.
@@ -42,13 +43,29 @@ typedef struct {
  */
 typedef void (rcpod_errorHandler)(const char *function, int err, const char *message);
 
+/* A pin descriptor, used in the low-level commands to specify general purpose
+ * I/O pins in a generic way. Constructed using the RCPOD_PIN macro.
+ */
+typedef unsigned char rcpod_pin;
 
-/************************************************** Low-level initialization */
+/* Construct a pin descriptor, used to describe I/O ports to the low-level commands.
+ *   polarity:  0 = active low, 1 = active high
+ *   tristate:  0 = port bit, 1 = tristate bit
+ *       port:  1 = PORTA ... 5 = PORTE
+ *        bit:  0 = LSB ... 7 = MSB
+ */
+#define RCPOD_PIN(polarity, tristate, port, bit) \
+        ( ((polarity)<<7) | ((tristate)<<6) | ((port)<<3) | (bit))
+
+
+/*************************************************************************************/
+/************************************************** Low-level initialization *********/
+/*************************************************************************************/
 
 /*
- * These functions are intended for applications
- * that also use libusb for their own purposes, or
- * applications that must deal with multiple rcpods.
+ * These functions are intended for applications that also use libusb for their,
+ * own purposes, that must deal with multiple rcpods, or that must open an
+ * rcpod device without resetting it.
  */
 
 /* Initialize the rcpod library, doesn't initialize libusb. The only
@@ -75,6 +92,9 @@ rcpod_dev* rcpod_Open(struct usb_device *usbdev);
 /* Close an rcpod_dev and free all memory associated with it */
 void rcpod_Close(rcpod_dev *rcpod);
 
+/* Put the I/O related registers on the rcpod in their default power-on state */
+void rcpod_Reset(rcpod_dev *rcpod);
+
 /* Set a new error handler, return the previous one. If handler is NULL,
  * the default error handler is restored. The default error handler
  * displays a message on stderr and calls exit(1).
@@ -82,13 +102,26 @@ void rcpod_Close(rcpod_dev *rcpod);
 rcpod_errorHandler *rcpod_SetErrorHandler(rcpod_errorHandler *handler);
 
 
-/************************************************** High-level initialization */
+/*************************************************************************************/
+/************************************************** High-level initialization ********/
+/*************************************************************************************/
 
-/* Initializes libusb and librcpod, finds the first rcpod device, and opens it */
+/* Initializes libusb and librcpod, finds the first rcpod device,
+ * opens it, and resets it. If your application needs finer control
+ * over the initialization steps, it may need to use the above functions directly.
+ */
 rcpod_dev* rcpod_InitSimple(void);
 
+/* Like rcpod_InitSimple, but skip resetting the device. This is useful for programs
+ * that only need to deal with one rcpod device, but need to preserve the previous
+ * state of the device.
+ */
+rcpod_dev* rcpod_InitSimpleWithoutReset(void);
 
-/************************************************** Low-level commands */
+
+/*************************************************************************************/
+/************************************************** Low-level commands ***************/
+/*************************************************************************************/
 
 /*
  * All functions in this section map directly to commands handled by the
@@ -97,19 +130,54 @@ rcpod_dev* rcpod_InitSimple(void);
  */
 
 /* Write one byte to the given 9-bit address in the rcpod's RAM */
-void rcpod_Poke(rcpod_dev* rcpod, int address, unsigned char data);
+void rcpod_CmdPoke(rcpod_dev* rcpod, int address, unsigned char data);
 
 /* Read one byte from the given 9-bit address in the rcpod's RAM */
-unsigned char rcpod_Peek(rcpod_dev* rcpod, int address);
+unsigned char rcpod_CmdPeek(rcpod_dev* rcpod, int address);
+
+/* Write 4 bytes after the last byte poke'd */
+void rcpod_CmdPoke4(rcpod_dev* rcpod, unsigned char data[4]);
+
+/* Read 8 bytes starting at the given 9-bit address in the rcpod's RAM,
+ * into the provided buffer
+ */
+void rcpod_CmdPeek8(rcpod_dev* rcpod, int address, unsigned char data[8]);
 
 /* Sample all 8 of the 8-bit A/D converter channels, fills the provided buffer */
-void rcpod_AnalogSampleAll(rcpod_dev* rcpod, unsigned char buffer[8]);
+void rcpod_CmdAnalogAll(rcpod_dev* rcpod, unsigned char buffer[8]);
+
+/* Using current USART settings, transmit 'txBytes' bytes from the buffer at the
+ * given address in the rcpod's RAM. Then, start listening for up to 'rxBytes'
+ * to be placed in the same buffer. The receive runs in the background until
+ * this byte count has been reached, or CmdUsartRxEnd is called. Either byte
+ * count may be zero to perform only a transmit/receive.
+ */
+void rcpod_CmdUsartTxRx(rcpod_dev* rcpod, int address, int txBytes, int rxBytes);
+
+/* Cancel the current receive started with CmdUsartTxRx, return the number of
+ * bytes actually received
+ */
+int rcpod_CmdUsartRxEnd(rcpod_dev* rcpod);
+
+/* Set the pin descriptor used as a USART transmit enable, for RS-485 or similar
+ * protocols that require enabling a line driver. May be zero (a no-op pin descriptor)
+ * to disable this feature.
+ */
+void rcpod_CmdUsartTxe(rcpod_dev* rcpod, rcpod_pin txe);
+
+/* Assert the given four pin descriptors, setting them to their active state */
+void rcpod_CmdGpioAssert(rcpod_dev* rcpod, rcpod_pin pins[4]);
+
+/* Read the value of the given pin descriptor */
+int rcpod_CmdGpioRead(rcpod_dev* rcpod, rcpod_pin pin);
 
 
-/************************************************** Constants*/
+/*************************************************************************************/
+/************************************************** Constants ************************/
+/*************************************************************************************/
 
-
-#define RCPOD_MEM_SIZE          0x0200    /* Size of the address space reachable via peek and poke */
+/* Size of the address space reachable via peek and poke */
+#define RCPOD_MEM_SIZE          0x0200
 
 /* A subset of the PIC's hardware registers. Those that couldn't possibly
  * be useful to poke at via the rcpod have been omitted.
