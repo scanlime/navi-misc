@@ -77,10 +77,6 @@ typedef struct _TeleporterFieldDrawableClass TeleporterFieldDrawableClass;
 struct _TeleporterFieldDrawable
 {
   DisplayList parent;
-
-  gfloat position[3];
-  gfloat size[2];
-  gfloat rotation;
 };
 
 struct _TeleporterFieldDrawableClass
@@ -89,7 +85,7 @@ struct _TeleporterFieldDrawableClass
 };
 
 GType     teleporter_field_drawable_get_type (void) G_GNUC_CONST;
-Drawable* teleporter_field_drawable_new      (void);
+Drawable* teleporter_field_drawable_new      (SceneObject* parent);
 
 G_END_DECLS
 

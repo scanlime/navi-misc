@@ -106,8 +106,7 @@ static void
 teleporter_init (Teleporter *teleporter)
 {
   teleporter->drawables = NULL;
-  teleporter->field = teleporter_field_drawable_new ();
-  teleporter->field->parent = (SceneObject*) teleporter;
+  teleporter->field = teleporter_field_drawable_new ((SceneObject*) teleporter);
 
   teleporter->drawables = g_list_append (teleporter->drawables, (gpointer) teleporter->field);
 }
@@ -151,62 +150,26 @@ teleporter_set_property (GObject *object, guint prop_id, const GValue *value, GP
   {
     case PROP_POSITION_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[0], 0.09);
-      update_float_if_necessary (g_value_get_double  (value), &DISPLAY_LIST (self->field)->dirty,
-                                 &TELEPORTER_FIELD_DRAWABLE (self->field)->position[0], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->field)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
       break;
 
     case PROP_POSITION_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[1], 0.09);
-      update_float_if_necessary (g_value_get_double  (value), &DISPLAY_LIST (self->field)->dirty,
-                                 &TELEPORTER_FIELD_DRAWABLE (self->field)->position[1], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->field)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
       break;
 
     case PROP_POSITION_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[2], 0.09);
-      update_float_if_necessary (g_value_get_double  (value), &DISPLAY_LIST (self->field)->dirty,
-                                 &TELEPORTER_FIELD_DRAWABLE (self->field)->position[2], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->field)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
       break;
 
     case PROP_ROTATION:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.rotation, 0.09);
-      update_float_if_necessary (g_value_get_double  (value), &DISPLAY_LIST (self->field)->dirty,
-                                 &TELEPORTER_FIELD_DRAWABLE (self->field)->rotation, 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->field)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
       break;
 
     case PROP_SIZE_WIDTH:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.09);
-      update_float_if_necessary (g_value_get_double  (value), &DISPLAY_LIST (self->field)->dirty,
-                                 &TELEPORTER_FIELD_DRAWABLE (self->field)->size[0], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->field)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
       break;
 
     case PROP_SIZE_HEIGHT:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.09);
-      update_float_if_necessary (g_value_get_double  (value), &DISPLAY_LIST (self->field)->dirty,
-                                 &TELEPORTER_FIELD_DRAWABLE (self->field)->size[1], 0.09);
-      if (self->state_dirty)
-	g_signal_emit_by_name (object, "dirty");
-      if (DISPLAY_LIST (self->field)->dirty)
-	g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
       break;
 
     case PROP_BORDER_WIDTH:
@@ -224,6 +187,12 @@ teleporter_set_property (GObject *object, guint prop_id, const GValue *value, GP
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
+  }
+  if (self->state_dirty)
+  {
+    DISPLAY_LIST (self->field)->dirty = TRUE;
+    g_signal_emit_by_name (object, "dirty");
+    g_signal_emit_by_name (G_OBJECT (self->field), "dirty");
   }
 }
 
@@ -462,23 +431,26 @@ teleporter_field_drawable_init (TeleporterFieldDrawable *tfd)
 }
 
 Drawable*
-teleporter_field_drawable_new (void)
+teleporter_field_drawable_new (SceneObject *parent)
 {
-  return DRAWABLE (g_object_new (teleporter_field_drawable_get_type (), NULL));
+  Drawable *d = DRAWABLE (g_object_new (teleporter_field_drawable_get_type (), NULL));
+  d->parent = parent;
+  return d;
 }
 
 static void
 teleporter_field_drawable_draw_to_list (DisplayList *dl)
 {
   TeleporterFieldDrawable *tfd = TELEPORTER_FIELD_DRAWABLE (dl);
+  Teleporter *t = TELEPORTER (DRAWABLE (dl)->parent);
   float width, height;
 
-  width = tfd->size[0];
-  height = tfd->size[1];
+  width = t->param.size[0];
+  height = t->param.size[1];
 
   glPushMatrix ();
-  glTranslatef (tfd->position[0], tfd->position[1], tfd->position[2]);
-  glRotatef (tfd->rotation, 0.0, 0.0, 1.0);
+  glTranslatef (t->param.position[0], t->param.position[1], t->param.position[2]);
+  glRotatef (t->param.rotation, 0.0, 0.0, 1.0);
 
   glColor4f (0.0, 0.0, 0.0, 0.1);
 
