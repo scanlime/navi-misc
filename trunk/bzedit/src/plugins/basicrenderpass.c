@@ -98,6 +98,13 @@ texture_group_draw (Drawable *d, RenderState *rstate)
     display_list_build_list (dl);
   glCallList (dl->list);
 
+  glBegin (GL_QUADS);
+  glVertex3f (-50, -50, 0);
+  glVertex3f (-50,  50, 0);
+  glVertex3f ( 50,  50, 0);
+  glVertex3f ( 50, -50, 0);
+  glEnd ();
+
   for (dr = tg->dynamic_drawables; dr; dr = dr->next)
   {
     drawable_draw (DRAWABLE (dr->data), rstate);

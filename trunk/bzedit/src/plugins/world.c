@@ -310,7 +310,7 @@ ground_drawable_draw_to_list (DisplayList *dl)
   glVertex3f (gd->size[0], -gd->size[1], 0);
 
   glEnd();
-  glEnable (GL_CULL_FACE);
+//  glEnable (GL_CULL_FACE);
   glLightModeli (GL_LIGHT_MODEL_TWO_SIDE, 0);
   glPopMatrix ();
 }
