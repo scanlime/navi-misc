@@ -127,7 +127,7 @@ class Reader:
         self.parse(f)
         f.close()
         for node in self.parseStack:
-            self.extractMeshes(node)
+            self.extractMeshes(node, ())
         del self.parseStack
         del self.namespace
 
@@ -293,7 +293,7 @@ class Reader:
                 return parent.name
         return None
 
-    def extractMeshes(self, node, parents=()):
+    def extractMeshes(self, node, parents):
         """Recursively traverse a tree of parsed nodes, extracting meshes into Drawables"""
         newParents = (node,) + parents
 
