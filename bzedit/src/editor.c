@@ -27,6 +27,7 @@
 #include "plugins.h"
 #include "sceneobject.h"
 #include "bzimporter.h"
+#include "cell-renderer-toggle-image.h"
 
 static void editor_class_init   (EditorClass *klass);
 static void editor_init         (Editor      *editor);
@@ -180,13 +181,44 @@ name_edited (GtkCellRendererText *cellrenderertext, gchar *cpath, gchar *newname
   path = gtk_tree_path_new_from_string (cpath);
   gtk_tree_model_get_iter (GTK_TREE_MODEL (store), &iter, path);
   gtk_tree_store_set (store, &iter, 0, newname, -1);
+  gtk_tree_path_free (path);
+}
+
+static void
+pin_toggled (GtkCellRendererToggle *cell, gchar *cpath, Editor *editor)
+{
+  GtkTreePath *path;
+  GtkTreeIter iter;
+  GtkTreeStore *store = editor->scene->element_store;
+  gboolean toggled;
+
+  path = gtk_tree_path_new_from_string (cpath);
+  gtk_tree_model_get_iter (GTK_TREE_MODEL (store), &iter, path);
+  gtk_tree_model_get (GTK_TREE_MODEL (store), &iter, 4, &toggled, -1);
+  gtk_tree_store_set (store, &iter, 4, !toggled, -1);
+  gtk_tree_path_free (path);
+}
+
+static void
+vis_toggled (GtkCellRendererToggle *cell, gchar *cpath, Editor *editor)
+{
+  GtkTreePath *path;
+  GtkTreeIter iter;
+  GtkTreeStore *store = editor->scene->element_store;
+  gboolean toggled;
+
+  path = gtk_tree_path_new_from_string (cpath);
+  gtk_tree_model_get_iter (GTK_TREE_MODEL (store), &iter, path);
+  gtk_tree_model_get (GTK_TREE_MODEL (store), &iter, 6, &toggled, -1);
+  gtk_tree_store_set (store, &iter, 6, !toggled, -1);
+  gtk_tree_path_free (path);
 }
 
 static void
 editor_init (Editor *editor)
 {
   GdkGLConfig *config;
-  GtkCellRenderer *icon_renderer, *text_renderer;
+  GtkCellRenderer *icon_renderer, *text_renderer, *pin_renderer, *vis_renderer;
   GtkTreeViewColumn *column;
   GtkTreeSelection *select;
   GtkMenuItem *addmenu;
@@ -239,16 +271,26 @@ editor_init (Editor *editor)
   srci->drag_data_get = tree_model_drag_data_get;
   desti->row_drop_possible = tree_model_row_drop_possible;
 
-  icon_renderer = gtk_cell_renderer_pixbuf_new();
-  text_renderer = gtk_cell_renderer_text_new();
-  g_signal_connect (G_OBJECT (text_renderer), "edited", G_CALLBACK (name_edited), (gpointer) editor);
+  icon_renderer = gtk_cell_renderer_pixbuf_new ();
+  text_renderer = gtk_cell_renderer_text_new ();
+  pin_renderer = cell_renderer_toggle_image_new ();
+  vis_renderer = cell_renderer_toggle_image_new ();
   g_object_set (G_OBJECT (text_renderer), "editable", TRUE, NULL);
+  g_object_set (G_OBJECT (pin_renderer), "activatable", TRUE, NULL);
+  g_object_set (G_OBJECT (vis_renderer), "activatable", TRUE, NULL);
+  g_signal_connect (G_OBJECT (text_renderer), "edited", G_CALLBACK (name_edited), (gpointer) editor);
+  g_signal_connect (G_OBJECT (pin_renderer), "toggled", G_CALLBACK (pin_toggled), (gpointer) editor);
+  g_signal_connect (G_OBJECT (vis_renderer), "toggled", G_CALLBACK (vis_toggled), (gpointer) editor);
   column = gtk_tree_view_column_new();
   gtk_tree_view_column_set_spacing (column, 4);
   gtk_tree_view_column_pack_start (column, icon_renderer, FALSE);
   gtk_tree_view_column_set_attributes (column, icon_renderer, "pixbuf", 1, NULL);
-  gtk_tree_view_column_pack_end (column, text_renderer, FALSE);
+  gtk_tree_view_column_pack_start (column, text_renderer, TRUE);
   gtk_tree_view_column_set_attributes (column, text_renderer, "text", 0, NULL);
+  gtk_tree_view_column_pack_start (column, pin_renderer, FALSE);
+  gtk_tree_view_column_set_attributes (column, pin_renderer, "active", 4, "pixbuf", 5, NULL);
+  gtk_tree_view_column_pack_end (column, vis_renderer, FALSE);
+  gtk_tree_view_column_set_attributes (column, vis_renderer, "active", 6, "pixbuf", 7, NULL);
   gtk_tree_view_append_column (editor->element_list, column);
 
   editor->statusbar = GTK_STATUSBAR (glade_xml_get_widget (editor->xml, "statusbar"));
