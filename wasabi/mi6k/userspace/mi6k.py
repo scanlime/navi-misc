@@ -10,7 +10,7 @@ or animation of LED brightness.
 """
 
 from fcntl import ioctl
-import struct
+import struct, glob
 from Numeric import *
 
 
@@ -146,8 +146,14 @@ class Lights(object):
 
 
 class Device:
-    def __init__(self, device="/dev/usb/mi6k0"):
-        self.dev = open(device, "w")
+    """Container for all hardware reachable through the mi6k interface.
+       Device is a pattern to search for the device node with.
+       """
+    def __init__(self, devPattern="/dev/usb/mi6k*"):
+        devs = glob.glob(devPattern)
+        if not devs:
+            raise IOError, "No mi6k device found"
+        self.dev = open(devs[0], "w")
         self.vfd = CenturyVFD(self.dev)
         self.lights = Lights(self.dev)
 
