@@ -83,7 +83,6 @@ tmr1_cur		res	2	; TMR1 value captured at the beginning of the polling loop
 #define FLAG_DISPLAY_REV	display_flags, 3	; Set if we're currently traversing video memory backwards
 #define FLAG_FWD_TRIGGERED	display_flags, 4	; Keep track of whether we've done a forward scan yet this period
 #define FLAG_REV_TRIGGERED	display_flags, 5	; Keep track of whether we've done a reverse scan yet this period
-#define FLAG_NEXT_COLUMN	display_flags, 6	; Temporary flag used in deciding whether to go to the next column	
 
 bank1	udata
 front_buffer	res	NUM_COLUMNS
@@ -163,7 +162,7 @@ try_tmr1_again
 	movwf	tmr1_cur
 	movf	TMR1H, w			; Read the high byte again, in case it rolled over.
 	subwf	tmr1_cur+1, w
-	btfsc	STATUS, Z
+	btfss	STATUS, Z
 	goto	try_tmr1_again		; It rolled over, try again
 	
 	movf	tmr1_cur, w			; Copy to delta_t
@@ -341,25 +340,18 @@ scan_in_progress
 	movwf	LED_PORT					; It's just as fast to invert it while moving as to not invert it,
 										; so we might as well do that here.
 
-	; Subtract our delta-t from the current column width. If we borrow, it's time for a new column.
-	bcf		FLAG_NEXT_COLUMN
+	; Subtract our delta-t from the current column width
+	banksel	remaining_col_width
 	movf	delta_t, w					; Subtract the low byte
 	subwf	remaining_col_width, f
-	pagesel	no_colwidth_borrow
-	btfsc	STATUS, C
-	goto	no_colwidth_borrow			; Skip the next bit if it didn't borrow (B=0, C=1)
-	decf	remaining_col_width+1, f	; Decrement the high byte, for borrowative purposes...
-	movf	remaining_col_width+1, w	; Compare it to 255 to see if we just caused the whole thing to roll over
-	sublw	0xFF
-	btfsc	STATUS, Z
-	bsf		FLAG_NEXT_COLUMN			; Yep, it rolled over. Next column.
-no_colwidth_borrow
+	btfss	STATUS, C
+	decf	remaining_col_width+1, f
 	movf	delta_t+1, w				; Subtract the high byte
 	subwf	remaining_col_width+1, f
-	btfss	STATUS, C
-	bsf		FLAG_NEXT_COLUMN			; C=0, B=1
 
-	btfss	FLAG_NEXT_COLUMN			; Return if we're not moving to the next column
+	; Skip columns until remaining_col_width is positive
+next_column_loop
+	btfss	remaining_col_width+1, 7
 	return
 	
 	btfsc	FLAG_DISPLAY_FWD			; Increment/decrement the current column
@@ -373,7 +365,9 @@ no_colwidth_borrow
 	incf	remaining_col_width+1, f
 	movf	display_column_width+1, w
 	addwf	remaining_col_width+1, f
-	return
+
+	pagesel	next_column_loop	
+	goto	next_column_loop
 
 
 	; Do the things common to starting forward and reverse scans. This
