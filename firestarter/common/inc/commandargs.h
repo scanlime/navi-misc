@@ -32,8 +32,9 @@
 #include <map>
 #include <string>
 #include "osfile.h"
+#include "Singleton.h"
 
-class CCommandLineArgs
+class CCommandLineArgs : public Singleton<CCommandLineArgs>
 {
 public:
 	CCommandLineArgs();

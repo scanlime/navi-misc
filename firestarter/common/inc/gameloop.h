@@ -25,7 +25,6 @@
 
 #include "Ogre.h"
 #include "OgreConfigFile.h"
-#include "commandargs.h"
 
 #include <string>
 
@@ -193,8 +192,6 @@ public:
   SceneManager* GetSceneManager ( void ) {return mSceneMgr;}
   RenderWindow* GetRenderWindow ( void ) {return mWindow;}
 
-  CCommandLineArgs& GetArgs ( void ) {return args;}
-
 	CDrawManager* GetDrawManager ( void ) {return drawManager;}
 
 	// common operations
@@ -227,7 +224,6 @@ protected:
 	void updateStats ( void );
 	void showDebugOverlay(bool show);
 
-  CCommandLineArgs  args;
 	CDrawManager			*drawManager;
 
   Root *mRoot;
