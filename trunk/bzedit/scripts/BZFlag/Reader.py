@@ -161,11 +161,20 @@ class Reader:
               | objectProperty
             waterLevel = Group(CaselessLiteral('waterLevel') + OneOrMore(waterLevelProperty) + end)
 
+            physicsProperty =                                   \
+                Group(CaselessLiteral('linear') + ThreeDPoint)  \
+              | Group(CaselessLiteral('angular') + ThreeDPoint) \
+              | Group(CaselessLiteral('slide') + float)         \
+              | Group(CaselessLiteral('death') + restOfLine)    \
+              | objectProperty
+            physics = Group(CaselessLiteral('physics') + OneOrMore(physicsProperty) + end)
+
             worldObject =  \
                 arc        \
               | box        \
               | base       \
               | link       \
+              | physics    \
               | pyramid    \
               | sphere     \
               | teleporter \
