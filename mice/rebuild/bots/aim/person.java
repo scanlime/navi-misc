@@ -21,8 +21,15 @@ public class person
 {
 	public botmain mybot;
 	
-	public person(botmain bot)
+	public String nick;
+	
+	public String name;
+	
+	public String standmajor;
+	
+	public person(botmain bot, String NICK)
 	{
+		nick = NICK;
 		mybot = bot;
 	}
 }

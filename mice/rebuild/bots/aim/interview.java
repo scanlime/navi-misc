@@ -16,34 +16,18 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
-/**
- * This is a class that handes person lookups to use the person's "get message"
- */
  
-public class personindex
+public class interview
 {
-	public botmain[] bots;
-	public int botcount;
-	public person masshead;
-	public interview inthead;
-	
-	public personindex(int numbots)
+	/** The next interview person in the linked list. */
+	public interview next;
+
+	/** The nickname of the person */
+	public String nick;
+
+	public interivew(interview prev, String NICK)
 	{
-		int botcount = 0;
-		bots = new botmain[numbots];
-	}
-	
-	public registerBot(botmain toadd)
-	{
-		if(bots[bots.length-1] != null)
-			return;
-		bots[botcount++] = toadd;
-	}
-	
-	public void handleMessage(String from, String message)
-	{
-		person temphead = masshead;
-		interview othertemp = inthead;
+		next = prev;
+		nick = NICK;
 	}
 }
