@@ -300,13 +300,13 @@
     <xml:if test="attacker">
       <div class="row">
         <span class="emph">Attacker's Stance: </span>
-        <xsl:value-of select="attacker"/>
+        <xsl:apply-templates select="attacker/stance"/>
       </div>
     </xml:if>
     <xml:if test="defender">
       <div class="row">
         <span class="emph">Defender's Stance: </span>
-        <xsl:value-of select="defender"/>
+        <xsl:apply-templates select="defender/stance"/>
       </div>
     </xml:if>
   </xsl:template>
