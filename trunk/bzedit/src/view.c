@@ -108,8 +108,8 @@ view_click (GLDrawingArea *widget, GdkEventButton *event, View *view)
   if (event->button == 2)
   {
     /* middle button, start roaming */
-    view->mouse[0] = event->x_root;
-    view->mouse[1] = event->y_root;
+    view->mouse[0] = event->x;
+    view->mouse[1] = event->y;
   }
 
   return TRUE;
