@@ -55,6 +55,8 @@ EXTRA_DIST =				\
 	setup_druid.c			\
 	textgui.h			\
 	textgui.c			\
+	topiclabel.h			\
+	topiclabel.c			\
 	transfers.h			\
 	transfers.c			\
 	userlist.h			\
@@ -102,6 +104,8 @@ xchat_gnome_SOURCES =			\
 	setup_druid.c			\
 	textgui.h			\
 	textgui.c			\
+	topiclabel.h			\
+	topiclabel.c			\
 	transfers.h			\
 	transfers.c			\
 	userlist.h			\
