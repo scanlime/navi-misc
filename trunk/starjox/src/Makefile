@@ -1,0 +1,10 @@
+CLASSES =\
+	smain.class
+
+prog: $(CLASSES)
+
+smain.class: smain.java
+	javac smain.java
+
+run: prog
+	java smain
