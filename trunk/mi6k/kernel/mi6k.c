@@ -280,12 +280,10 @@ static int mi6k_open(struct inode *inode, struct file *file)
 			     dev->ir_rx_tbuffer, IR_URB_BUFFER_SIZE,
 			     mi6k_ir_rx_irq, dev, endpoint->bInterval);
 
-		/*
 		dbg("Submitting ir_rx_urb");
 		if (usb_submit_urb(&dev->ir_rx_urb)) {
 			dbg("Error submitting URB");
 		}
-		*/
 	}
 
 	/* unlock this device */
