@@ -32,6 +32,14 @@
 
 #define IPIPE_DEFAULT_PORT    7192
 
+/* All inputpipe-created devices have a physical path
+ * consisting of this prefix, the client and port, and
+ * the original path. For example:
+ *   ipipe://127.0.0.1:32856/usb-0000:00:0f.0-1/input0
+ */
+#define IPIPE_PHYS_PREFIX     "ipipe://"
+
+
 /* Every input event or configuration request is packaged into
  * a packet. The header simply identifies the type of packet and
  * its size. Unknown packets types are typically ignored.
@@ -58,6 +66,7 @@ struct inputpipe_packet {
 #define IPIPE_DEVICE_FF_EFFECTS_MAX  0x0203    /* uint32_t */
 #define IPIPE_DEVICE_ABSINFO         0x0204    /* struct ipipe_absinfo */
 #define IPIPE_DEVICE_BITS            0x0205    /* uint16_t + bit map */
+#define IPIPE_DEVICE_PHYS            0x0206    /* string */
 
 /* After all the IPIPE_DEVICE_* packets you wish to send,
  * this actually creates a new input device on the server machine.

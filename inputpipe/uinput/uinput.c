@@ -20,8 +20,9 @@
  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
  *
  * Changes/Revisions:
- *	0.2	16/10/2004
+ *	0.2	16/10/2004 (Micah Dowty <micah@navi.cx>)
  *		- added force feedback support
+ *              - added UI_SET_PHYS
  *	0.1	20/06/2002
  *		- first public version
  */
@@ -280,8 +281,6 @@ static int uinput_alloc_device(struct file *file, const char __user *buffer, siz
 
 	if (NULL != dev->name)
 		kfree(dev->name);
-	if (NULL != dev->phys)
-		kfree(dev->phys);
 
 	size = strnlen(user_dev->name, UINPUT_MAX_NAME_SIZE) + 1;
 	dev->name = kmalloc(size, GFP_KERNEL);
@@ -488,9 +487,13 @@ static int uinput_ioctl(struct inode *inode, struct file *file, unsigned int cmd
 			break;
 
 		case UI_SET_PHYS:
+			length = strnlen_user(p, 1024);
+			if (length <= 0) {
+				retval = -EFAULT;
+				break;
+			}
 			if (NULL != udev->dev->phys)
 				kfree(udev->dev->phys);
-			length = strnlen_user(p, 1024);
 			udev->dev->phys = kmalloc(length, GFP_KERNEL);
 			if (!udev->dev->phys) {
 				retval = -ENOMEM;
