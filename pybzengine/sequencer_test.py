@@ -87,8 +87,8 @@ class TextureTest(Sequencer.Page):
 # Load a sequence of the above pages into a book
 book = Sequencer.Book(view, [
 
-    # Zoom in on the 'texture_test' model. This page finishes itself when the camera is close enough
-    TextureTest,
+    # Zoom in on the 'texture_test' model. This page finishes itself when the camera is close enough.
+    Sequencer.FadeIn(3, (1,1,1), TextureTest),
 
     # Show some perty particle systems for 5 seconds, using the PageTimer
     Sequencer.PageTimer(5, Sparks),
