@@ -40,17 +40,17 @@ typedef enum
 } NotifStatus;
 
 
-static xchat_plugin *ph;				// Plugin handle.
-static NotifStatus status = NOTIF_NONE;	// Current status level.
-static gboolean window_visible = TRUE;	// Keep track of whether the window is visible.
-//static NavTree *nav_tree;				// A reference to the navigation tree.
+static xchat_plugin *ph;			// Plugin handle.
+//static NotifStatus status = NOTIF_NONE;		// Current status level.
+static gboolean window_visible = TRUE;		// Keep track of whether the window is visible.
+//static NavTree *nav_tree;			// A reference to the navigation tree.
 static EggTrayIcon *notification;		// Notification area icon.
-//static GtkMenu *menu;					// The menu that pops up.
-static GtkWidget *image;				// The image displayed by the icon.
-static GdkPixbuf *logo,					// Pixbufs
-				 *nick_said,
-				 *msg_said,
-				 *new_data;
+//static GtkMenu *menu;				// The menu that pops up.
+static GtkWidget *image;			// The image displayed by the icon.
+static GdkPixbuf *logo,				// Pixbufs
+		 *nick_said,
+		 *msg_said,
+		 *new_data;
 
 static gboolean notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int new_text_cb (char **word, void *data);
@@ -210,5 +210,6 @@ notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data
 static int
 new_text_cb (char **word, void *data)
 {
+	return 0;
 }
 /*** The End ***/
