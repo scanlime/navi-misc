@@ -241,7 +241,7 @@ class Info(Template.Section):
         if self.url:
             rows.append(tag('a', href=self.url)[self.url])
         if self.photo_url:
-            rows.append(Template.photo(src=self.photo_url))
+            rows.append(Template.Photo(self.photo_url))
         if self.description:
             rows.append(self.description)
         return rows
