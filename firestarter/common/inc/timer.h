@@ -27,8 +27,9 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#include "Singleton.h"
 
-class CTimer
+class CTimer: public Singleton<CTimer>
 {
 public:
 	CTimer();

@@ -22,6 +22,7 @@
 
 #include "firestarter.h"
 #include "input.h"
+#include "timer.h"
 
 template <>
 CFirestarterLoop* Singleton<CFirestarterLoop>::_instance = (CFirestarterLoop*)0;
@@ -106,12 +107,12 @@ bool CFirestarterLoop::GameLoop ( void )
 {
 	// check for sreenshot
 	float togleTime = 0.5f;
-	if (CInputManager::instance().KeyDown(KEY_SYSRQ) && (lastScreenShotTime < GetTimer().GetTime()+togleTime))
+	if (CInputManager::instance().KeyDown(KEY_SYSRQ) && (lastScreenShotTime < CTimer::instance().GetTime()+togleTime))
 	{
 		char tmp[20];
 		sprintf(tmp, "screenshot_%d.png", ++numScreenShots);
 		GetRenderWindow()->writeContentsToFile(tmp);
-		lastScreenShotTime = GetTimer().GetTime();
+		lastScreenShotTime = CTimer::instance().GetTime();
 		GetRenderWindow()->setDebugText(String("Wrote ") + tmp);
 	}
 

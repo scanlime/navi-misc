@@ -23,6 +23,9 @@
 #include "timer.h"
 #include <SDL.h>
 
+template <>
+CTimer* Singleton<CTimer>::_instance = (CTimer*)0;
+
 CTimer::CTimer()
 {
 	m_fThisTime = 0.0;
