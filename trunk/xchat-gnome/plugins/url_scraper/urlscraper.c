@@ -8,7 +8,7 @@
 #define VERSION "0.2"
 #define MAXURLS 10
 
-#define URLREGEX "(ht|f)tps?://[^a-zA-z0-9\\.]+"
+#define URLREGEX "(ht|f)tps?://[a-zA-z0-9\.]+"
 #define EMAILREGEX "[\\w\\.\\-\\+]+@([0-9a-z\\-]+\\.)+[a-z]+"
 
 static xchat_plugin *ph;	// Plugin handle.
@@ -72,7 +72,7 @@ static int grabURL (char **word, void *userdata)
 	size_t len = 1;
 	regmatch_t *match = malloc (len * sizeof (regmatch_t));
 
-	if (regexec(url, word[4], len, match, 0) == 0)
+	if (regexec (url, word[4], len, match, 0) == 0)
 	{
 		chan = xchat_get_info (ph, "channel");
 		xchat_print (ph, "URL found.\n");
