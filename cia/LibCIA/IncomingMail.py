@@ -26,6 +26,7 @@ from twisted.web.xmlrpc import XMLRPC
 from twisted.xish import domish
 from Message import Message
 from ColorText import ColorTextParser
+import XML
 import email
 
 
@@ -155,5 +156,10 @@ class IncomingMailParser:
         colorText = ColorTextParser().parse(self.message.get_payload())
         xml.addElement("body").addChild(colorText)
         return xml
+
+    def command_DeliverXML(self):
+        """Deliver a message already formatted in XML"""
+        return XML.parseString(self.message.get_payload())
+
 
 ### The End ###
