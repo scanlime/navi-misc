@@ -32,15 +32,24 @@ def createPool():
     # run queries. This is initialized at the module level, so we can use rebuild
     # to modify the database information if necessary.
     #
-    return ConnectionPool('pyPgSQL.PgSQL',
-                          database   = 'cia',
-                          #host      = 'localhost',
-                          #user      = 'root',
-                          #password  = 'foo',
+    # The database password is retrieved from ~/.mysql_passwd so it isn't stored
+    # in this file. If the file can't be read, an exception is raised.
 
+    passwdFilename = os.path.expanduser("~/.mysql_passwd")
+    try:
+        passwd = open(passwdFilename).read().strip()
+        os.chmod(passwdFilename, 0600)
+    except IOError:
+        raise Exception("Please create a file %r containing the MySQL database password" % passwdFilename)
+
+    return ConnectionPool('MySQLdb',
+                          host   = 'localhost',
+                          db     = 'cia',
+                          user   = 'root',
+                          passwd = passwd,
                           # This is so we don't splurt our password out to twistd.log...
                           cp_noisy = False,
-                          )
+                           )
 
 pool = createPool()
 
