@@ -38,7 +38,7 @@ public class ElementTooltip
 	{
 		Glade.XML gxml = new Glade.XML (null, "element-tooltip.glade", "tooltip", null);
 		gxml.Autoconnect (this);
-		
+
 		element_icon.Pixbuf = e.Icon ();
 		element_name.Markup =
 			"<span weight=\"bold\" size=\"large\">" +
@@ -54,7 +54,7 @@ public class ElementTooltip
 	{
 		tooltip.ShowAll ();
 	}
-	
+
 	public void Hide ()
 	{
 		tooltip.HideAll ();
@@ -67,7 +67,7 @@ public class ElementTooltip
 
 	/* Create a 2xn table from a list of strings */
 	private Gtk.Table CreateDescTable (string[,] s)
-	{	
+	{
 		uint len = (uint) s.Length / 2;
 		Gtk.Table t = new Gtk.Table (len, 2, false);
 		for (uint i = 0; i < len; i++) {
@@ -79,7 +79,7 @@ public class ElementTooltip
 
 			variable.Markup = BuildString (s[i,0]);
 			desc.Markup     = BuildString (s[i,1]);
-		
+
 			t.Attach (variable, 0, 1, i, i+1);
 			t.Attach (desc,     1, 2, i, i+1);
 			t.ColumnSpacing = 12;

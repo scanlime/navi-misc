@@ -58,7 +58,7 @@ class PluginManager
 	{
 		/* Not sure we really want to deal with this */
 	}
-	
+
 	ArrayList FindPluginTypes ()
 	{
 		ArrayList all_plugin_types = new ArrayList ();

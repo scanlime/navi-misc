@@ -23,7 +23,6 @@
 
 using Gdk;
 
-
 class HistogramImager : Element
 {
 	static Gdk.Pixbuf icon;
