@@ -133,7 +133,10 @@ class NouvelleTranslator(nodes.NodeVisitor):
 
     def visit_reference(self, node):
         if node.has_key('refuri'):
-            self.enterTag(tag('a', href=node['refuri']))
+            if node['refuri'].startswith('mailto:'):
+                self.enterTag(Template.EmailLink(node['refuri']))
+            else:
+                self.enterTag(tag('a', href=node['refuri']))
         else:
             # Internal links not supported yet
             self.stack.append(self.stack[-1])
