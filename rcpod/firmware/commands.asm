@@ -339,6 +339,13 @@ AnalogAllRequest
 	movlw	8		; Loop over all 8 A/D inputs
 	movwf	temp
 adChannelLoop
+
+	banksel	ADCON0		; Ignore one ADC sample as a delay to allow for signal aquisition
+	bsf		ADCON0, GO	; (charging time of the holding capacitor)
+aquisitionLoop
+	btfsc	ADCON0, NOT_DONE
+	goto	aquisitionLoop	
+
 	banksel	ADCON0		; Start the ADC
 	bsf	ADCON0, GO
 
