@@ -51,3 +51,15 @@ MapLocation::getLayer() const
 {
 	return layer;
 }
+
+bool
+MapLocation::isEvenRow() const
+{
+	return (getY() % 2 == 0);
+}
+
+bool
+MapLocation::isOddRow() const
+{
+	return !isEvenRow();
+}
