@@ -57,9 +57,13 @@ if options.list:
     sys.exit(0)
 
 if options.refresh:
+    print "finished reading old trees, now refreshing:"
     for x in conf.getTrees():
-	print 'refreshing '+x.getPath()+''
+	print '\t'+x.getPath()
 	x.read()
+    print "writing trees"
+    conf.writeTrees()
+    print "finished successfully"
     sys.exit(0)
 
 if options.add:
