@@ -109,13 +109,20 @@ display_init
 	clrf	edge_buffer+5
 	clrf	edge_buffer+6
 	clrf	edge_buffer+7
+
 	clrf	wand_period
 	clrf	wand_period+1
 	clrf	wand_phase
 	clrf	wand_phase+1
+	clrf	remaining_col_width
+	clrf	remaining_col_width+1
+	clrf	tmr1_prev
+	clrf	tmr1_prev+1
+
 	clrf	mode_flags
 	clrf	display_flags
 	clrf	edge_counter
+	clrf	current_column
 	return
 
 
@@ -307,7 +314,10 @@ scan_in_progress
 	movf	delta_t+1, w				; Subtract the high byte
 	subwf	remaining_col_width+1, f
 
-	; Skip columns until remaining_col_width is positive
+	; Skip columns until remaining_col_width is positive, up to a maximum of NUM_COLUMNS
+	; (to prevent infinite looping of display_column_width is zero)
+	movlw	NUM_COLUMNS
+	movwf	temp
 next_column_loop
 	btfss	remaining_col_width+1, 7
 	return
@@ -325,7 +335,8 @@ next_column_loop
 	addwf	remaining_col_width+1, f
 
 	pagesel	next_column_loop	
-	goto	next_column_loop
+	decfsz	temp
+	return								; We're giving up
 
 
 	; Do the things common to starting forward and reverse scans. This
@@ -486,7 +497,7 @@ display_sync
 	call	sync_detect
 
 	banksel	edge_buffer
-	incf	edge_counter		; Count this edge
+	incf	edge_counter, f		; Count this edge
 	movf	edge_buffer+2, w	; Scroll the edge_buffer
 	movwf	edge_buffer
 	movf	edge_buffer+3, w
