@@ -44,6 +44,16 @@ import Database, RpcServer
 
 class SecurityInterface(RpcServer.Interface):
     """An XML-RPC interface to the global capabilities database"""
+    def protected_createUser(self, fullName, email, loginName=None):
+        """Create a new user with the given identity, returning
+           a dictionary with information about the new user.
+           This is the same info returned by User.getInfo(). Of
+           particular interest will be the 'uid' and 'secret_key'
+           values.
+           """
+        return User(full_name=fullName, email=email,
+                    login_name=loginName, create=True).getInfo()
+
     def protected_grant(self, capability, uid):
         """Grant the given capability to the given user. Note that this means
            that the capability to use this function is effectively equivalent
