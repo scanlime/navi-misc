@@ -62,9 +62,9 @@ protected:
 		float		center[2];
 		float		range;
 		float		scale[2];
-	}trTuftDef;
+	}trFlairDef;
 
-	std::vector<trTuftDef> tufts;
+	std::vector<trFlairDef> flairGroups;
 };
 
 #endif// _TEST_WORLD_H_

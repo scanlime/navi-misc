@@ -49,21 +49,21 @@ void CTestWorld::Load ( CNetworkMessage &message, bool draw )
 	message.ReadV(worldInfo.sunColor);
 	message.ReadV(worldInfo.ambientColor);
 
-	int tuftCount = message.ReadI();
-	trTuftDef	tuft;
+	int flairCount = message.ReadI();
+	trFlairDef	flair;
 
-	tufts.clear();
+	flairGroups.clear();
 
-	for (int i = 0; i < tuftCount; i++)
+	for (int i = 0; i < flairCount; i++)
 	{
-		tuft.mesh = message.ReadStr();
-		tuft.count = message.ReadI();
-		tuft.center[0] = message.ReadF();
-		tuft.center[1] = message.ReadF();
-		tuft.range = message.ReadF();
-		tuft.scale[0] = message.ReadF();
-		tuft.scale[1] = message.ReadF();
-		tufts.push_back(tuft);
+		flair.mesh = message.ReadStr();
+		flair.count = message.ReadI();
+		flair.center[0] = message.ReadF();
+		flair.center[1] = message.ReadF();
+		flair.range = message.ReadF();
+		flair.scale[0] = message.ReadF();
+		flair.scale[1] = message.ReadF();
+		flairGroups.push_back(flair);
 	}
 
 	if (draw)
@@ -79,9 +79,9 @@ void CTestWorld::AddWorldObject ( trObjectInfo &info )
 
 }
 
-void CTestWorld::AddTuft ( trTuftDef &tuft )
+void CTestWorld::AddTuft ( trFlairDef &tuft )
 {	
-		tufts.push_back(tuft);
+	flairGroups.push_back(tuft);
 }
 
 const char* CTestWorld::GetValueS ( const char *item )
@@ -140,8 +140,8 @@ int CTestWorld::GetValueI ( const char *item )
 {
 	std::string label = item;
 
-	if (label == "tufts")
-		return (int)(&tufts);
+	if (label == "flairGroups")
+		return (int)(&flairGroups);
 
 	return 0;
 }

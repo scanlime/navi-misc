@@ -50,7 +50,7 @@ typedef struct
 	float				center[2];
 	float				range;
 	float				scale[2];
-}trTuftDef;
+}trFlairDef;
 
 class CTestWorld : public CBaseObject
 {
@@ -62,7 +62,7 @@ class CTestWorld : public CBaseObject
 		void Load ( CNetworkMessage &message, bool draw );	
 
 		void AddWorldObject ( trObjectInfo &info );
-		void AddTuft ( trTuftDef &tuft );
+		void AddTuft ( trFlairDef &tuft );
 
 		bool Think ( void );
 
@@ -77,8 +77,8 @@ class CTestWorld : public CBaseObject
 
 	protected:
 		int											worldDrawables[3];
-		trWorldInfo							worldInfo;
-		std::vector<trTuftDef>	tufts;
+		trWorldInfo									worldInfo;
+		std::vector<trFlairDef>						flairGroups;
 };
 
 #endif //_TEST_WORLD_H_

@@ -95,14 +95,14 @@ void CGroundObject::Init ( void )
 #endif //_DEBUG
 
 	 // tufts
-	std::vector<trTuftDef> *tufts = (std::vector<trTuftDef>*)parent->GetValueI("tufts");
+	std::vector<trFlairDef> *flairGroups = (std::vector<trFlairDef>*)parent->GetValueI("flairGroups");
 
-	if (tufts)
+	if (flairGroups)
 	{
-		std::vector<trTuftDef>::iterator itr = tufts->begin();
+		std::vector<trFlairDef>::iterator itr = flairGroups->begin();
 
 		int baseName = 0;
-		while (itr != tufts->end())
+		while (itr != flairGroups->end())
 		{
 
 			float xyRange = itr->range;
@@ -119,8 +119,6 @@ void CGroundObject::Init ( void )
 				pos[2] = 0.0f;
 
 				Entity* tuftEnt = CFirestarterLoop::instance().GetSceneManager()->createEntity(name, itr->mesh.c_str());
-				//tuftEnt->getMesh()->getSubMeshIterator().getNext()->setMaterialName("tuft:tuft1");
-				//	tuftEnt->setRenderQueueGroup(RENDER_QUEUE_9);
 				SceneNode* tuftNode = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
 				tuftNode->attachObject(tuftEnt);
 				tuftNode->rotate(Vector3(0,0,1),(((float)rand()/(float)RAND_MAX)*360));
