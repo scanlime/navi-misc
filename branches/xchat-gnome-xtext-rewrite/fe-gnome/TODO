@@ -1,0 +1,42 @@
+before release:
+* add/remove in the server list
+* set unimplemented controls unsensitive
+* split the transfers window into separate send & recieve windows
+* the way it looks up the icon is *really* expensive, and this happens every
+  time a row is updated. Should probably move the icon theme initialization
+  to be "global" and only look up the icon on a new add
+
+  autotools:
+    * check for an adequate version of gnome-icon-theme, etc
+
+-----
+
+* split other dialogs out of xchat-gnome.glade (difficult at this point)
+* make things static where possible
+* hook up pgup/pgdn
+* topic bar should have a tooltip with the entire topic
+* position of panes should be saved
+* double clicking on an item in the server config list should open its edit box
+* need to be able to add new servers
+
+* sort the server/channel list in non-case alphabetical order
+
+* fix the about dialog such that it uses a real copyright symbol (check galeon's source
+  for this)
+* make the connect dialog check existing open networks before creating a new connection
+
+* separate the concepts of leaving & closing. disconnected servers, parted channels, and
+  old dialogs should still have their buffers available. This should probably manifest
+  itself as greying disconnected things out in the navtree
+
+* find a writer to rewrite all the horribly-worded explainations of things!
+
+* migrate all menus (main, context, etc) to use GtkUIManager
+
+context menus:
+* flesh out the userlist context menu
+* make the context menu for navtree stuff actually dependent on context - see above note
+  about leave/close stuff
+
+refactoring:
+* subclass GtkListStore for use in the userlist
