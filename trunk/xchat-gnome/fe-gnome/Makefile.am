@@ -78,8 +78,8 @@ EXTRA_DIST =					\
 	preferences-keybindings-page.h		\
 	preferences-page-networks.c		\
 	preferences-page-networks.h		\
-	preferences-plugins-page.h		\
-	preferences-plugins-page.c		\
+	preferences-page-plugins.h		\
+	preferences-page-plugins.c		\
 	setup-dialog.h				\
 	setup-dialog.c				\
 	textgui.h				\
@@ -138,8 +138,8 @@ xchat_gnome_SOURCES =				\
 	preferences-keybindings-page.h		\
 	preferences-page-networks.c		\
 	preferences-page-networks.h		\
-	preferences-plugins-page.h		\
-	preferences-plugins-page.c		\
+	preferences-page-plugins.h		\
+	preferences-page-plugins.c		\
 	setup-dialog.h				\
 	setup-dialog.c				\
 	textgui.h				\

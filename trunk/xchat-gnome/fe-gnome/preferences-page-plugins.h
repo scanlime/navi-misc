@@ -1,5 +1,5 @@
 /*
- * preferences-plugins-page.h - helpers for the plugins preferences page
+ * preferences-page-plugins.h - helpers for the plugins preferences page
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
@@ -21,8 +21,24 @@
 
 #include "gui.h"
 
-#ifndef XCHAT_GNOME_PREFERENCES_PLUGINS_PAGE_H
-#define XCHAT_GNOME_PREFERENCES_PLUGINS_PAGE_H
+#ifndef XCHAT_GNOME_PREFERENCES_PAGE_PLUGINS_H
+#define XCHAT_GNOME_PREFERENCES_PAGE_PLUGINS_H
+
+typedef struct
+{
+	GtkWidget *plugins_list;
+	GtkWidget *plugins_open;
+	GtkWidget *plugins_remove;
+
+	GtkListStore *plugin_store;
+	GtkCellRenderer *text_renderer, *load_renderer;
+	GtkTreeViewColumn *text_column, *load_column;
+
+	GdkPixbuf *icon;
+} PreferencesPluginsPage;
+
+PreferencesPluginsPage *preferences_page_plugins_new  (gpointer prefs_dialog, GladeXML *xml);
+void                    preferences_page_plugins_free (PreferencesPluginsPage *page);
 
 void initialize_preferences_plugins_page ();
 void preferences_plugins_page_update ();

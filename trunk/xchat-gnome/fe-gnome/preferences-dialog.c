@@ -21,7 +21,6 @@
 
 #include "preferences-dialog.h"
 #include "preferences-keybindings-page.h"
-#include "preferences-plugins-page.h"
 #include "pixmaps.h"
 
 static GtkDialogClass *parent_class;
@@ -31,10 +30,11 @@ preferences_dialog_finalize (GObject *object)
 {
 	PreferencesDialog *p = (PreferencesDialog *) object;
 
-	preferences_page_irc_free (p->irc_page);
-	preferences_page_colors_free (p->colors_page);
-	preferences_page_dcc_free (p->dcc_page);
+	preferences_page_irc_free      (p->irc_page);
+	preferences_page_colors_free   (p->colors_page);
+	preferences_page_dcc_free      (p->dcc_page);
 	preferences_page_networks_free (p->networks_page);
+	preferences_page_plugins_free  (p->plugins_page);
 
 	((GObjectClass *) parent_class)->finalize (object);
 }
@@ -127,6 +127,7 @@ preferences_dialog_init (PreferencesDialog *p)
 	p->colors_page   = preferences_page_colors_new   (p, xml);
 	p->dcc_page      = preferences_page_dcc_new      (p, xml);
 	p->networks_page = preferences_page_networks_new (p, xml);
+	p->plugins_page  = preferences_page_plugins_new  (p, xml);
 
 	g_object_unref (xml);
 }
@@ -163,99 +164,4 @@ preferences_dialog_new ()
 	}
 
 	return p;
-}
-
-/*******************************************************************************
- * CRUFT BARRIER ***************************************************************
- *******************************************************************************/
-
-void initialize_pages_list ();
-void hide_preferences_dialog (GtkWidget *widget, gpointer data);
-void initialize_file_transfers_page ();
-void settings_page_changed (GtkTreeSelection *selection, gpointer data);
-
-static void close_window (GtkWidget *widget, GdkEvent *event, gpointer user_data);
-
-void
-initialize_preferences_dialog ()
-{
-	GtkWidget *close_button;
-
-	gui.preferences_dialog = GTK_DIALOG (glade_xml_get_widget (gui.xml, "preferences"));
-	gtk_window_set_transient_for (GTK_WINDOW (gui.preferences_dialog), GTK_WINDOW (gui.main_window));
-	gtk_widget_hide_all (GTK_WIDGET (gui.preferences_dialog));
-	gtk_notebook_set_show_tabs (GTK_NOTEBOOK (glade_xml_get_widget (gui.xml, "settings notebook")), FALSE);
-	initialize_pages_list ();
-	initialize_preferences_plugins_page ();
-/*	initialize_preferences_keybindings_page ();*/
-
-	close_button = glade_xml_get_widget (gui.xml, "close preferences");
-	g_signal_connect (G_OBJECT (close_button), "clicked", G_CALLBACK (hide_preferences_dialog), NULL);
-
-	/* (>")> Prevent the prefs window from being destroyed when the close button is clicked. */
-	close_button = glade_xml_get_widget (gui.xml, "preferences");
-	g_signal_connect (G_OBJECT (close_button), "delete-event", G_CALLBACK (close_window), NULL);
-}
-
-void
-hide_preferences_dialog (GtkWidget *widget, gpointer data)
-{
-	gtk_widget_hide_all (GTK_WIDGET (gui.preferences_dialog));
-}
-
-static void
-close_window (GtkWidget *widget, GdkEvent *event, gpointer user_data)
-{
-	hide_preferences_dialog (widget, user_data);
-}
-
-void
-initialize_pages_list ()
-{
-	GtkWidget *options_list;
-	GtkListStore *store;
-	GtkTreeIter iter;
-	GtkCellRenderer *icon_renderer, *text_renderer;
-	GtkTreeViewColumn *column;
-	GtkTreeSelection *select;
-
-	options_list = glade_xml_get_widget (gui.xml, "settings page list");
-
-	store = gtk_list_store_new (3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
-	gtk_tree_view_set_model (GTK_TREE_VIEW (options_list), GTK_TREE_MODEL (store));
-
-	column = gtk_tree_view_column_new ();
-	icon_renderer = gtk_cell_renderer_pixbuf_new ();
-	text_renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start (column, icon_renderer, FALSE);
-	gtk_tree_view_column_set_attributes (column, icon_renderer, "pixbuf", 0, NULL);
-	gtk_tree_view_column_pack_start (column, text_renderer, TRUE);
-	gtk_tree_view_column_set_attributes (column, text_renderer, "text", 1, NULL);
-	gtk_tree_view_append_column (GTK_TREE_VIEW (options_list), column);
-
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (options_list));
-	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
-	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (settings_page_changed), NULL);
-
-	gtk_list_store_append (store, &iter);
-	gtk_list_store_set (store, &iter, 0, pix_prefs_plugins, 1, "Scripts and Plugins", 2, 0, -1);
-	/*
-	gtk_list_store_append (store, &iter);
-	gtk_list_store_set (store, &iter, 0, pix_prefs_keybindings, 1, "Keyboard Shortcuts", 2, 1, -1);
-	*/
-}
-
-void
-settings_page_changed (GtkTreeSelection *selection, gpointer data)
-{
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-	GtkWidget *notebook;
-	gint page;
-
-	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		notebook = glade_xml_get_widget (gui.xml, "settings notebook");
-		gtk_tree_model_get (model, &iter, 2, &page, -1);
-		gtk_notebook_set_current_page (GTK_NOTEBOOK (notebook), page);
-	}
 }

@@ -2415,7 +2415,7 @@
 		      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 		      <child>
-			<widget class="GtkTreeView" id="plugins list">
+			<widget class="GtkTreeView" id="plugins_list">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="headers_visible">True</property>
@@ -2439,7 +2439,7 @@
 		      <property name="spacing">6</property>
 
 		      <child>
-			<widget class="GtkButton" id="plugin open">
+			<widget class="GtkButton" id="plugin_open">
 			  <property name="visible">True</property>
 			  <property name="can_default">True</property>
 			  <property name="can_focus">True</property>
@@ -2451,7 +2451,7 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkButton" id="plugin remove">
+			<widget class="GtkButton" id="plugin_remove">
 			  <property name="visible">True</property>
 			  <property name="sensitive">False</property>
 			  <property name="can_default">True</property>

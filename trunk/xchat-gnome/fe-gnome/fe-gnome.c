@@ -34,7 +34,7 @@
 #include "preferences.h"
 #include "setup-dialog.h"
 #include "palette.h"
-#include "preferences-plugins-page.h"
+#include "preferences-page-plugins.h"
 #include "channel-list.h"
 #include "transfers.h"
 #include "util.h"

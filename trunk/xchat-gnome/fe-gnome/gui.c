@@ -54,7 +54,6 @@ initialize_gui_2 ()
 	pixmaps_init ();
 	initialize_main_window ();
 	initialize_text_gui ();
-	initialize_preferences_dialog ();
 	initialize_connection_dialog ();
 	initialize_userlist ();
 	initialize_transfers_window ();
