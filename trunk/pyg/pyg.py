@@ -120,6 +120,7 @@ class GLView(gtk.gl.Area):
 class Editor(vte.Terminal):
     def __init__(self):
         vte.Terminal.__init__(self)
+        self.fork_command('vim', ['vim'], None, '', gtk.FALSE, gtk.FALSE, gtk.FALSE)
 
 main = MainWindow()
 
