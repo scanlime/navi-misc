@@ -29,6 +29,7 @@
 #include "userlist_gui.h"
 #include "setup_druid.h"
 #include "pixmaps.h"
+#include "transfers.h"
 #include "../common/text.h"
 
 XChatGUI gui;
@@ -52,6 +53,7 @@ gboolean initialize_gui_2() {
 	initialize_connection_dialog();
 	initialize_navigation_tree();
 	initialize_userlist();
+	initialize_transfers_window();
 	return TRUE;
 }
 
