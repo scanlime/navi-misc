@@ -166,7 +166,7 @@ static DefaultDBItem	defaultDBItems[] = {
   { "rogueTeamPrefix",	        "rogue_",               true,	StateDatabase::ReadWrite,	NULL },
 
 	// type prefixes
-	{ "superPrefix",	        "super_",               true,	StateDatabase::ReadWrite,	NULL }.
+	{ "superPrefix",	        "super_",               true,	StateDatabase::ReadWrite,	NULL },
 
 	// rendering prefrences
 	{ "useNewRendering",	        "1",               true,	StateDatabase::ReadWrite,	NULL }

@@ -28,10 +28,16 @@ View3D::View3D()
 	lastHither = 0.00001f;
 	lastYon = 10000.0f;
 	pushed = false;
+	inOrtho = false;
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 View3D::~View3D()
 {
+	if (inOrtho)
+		unsetOrtho();
+
 	if (pushed)
 		untransform();
 }
@@ -56,7 +62,10 @@ void View3D::setFOV ( float fov )
 		aspect = (float)lastH/(float)lastV;
 
 	float realFOV = fov/aspect;
+	glMatrixMode (GL_PROJECTION);
+	glLoadIdentity ();
 	gluPerspective(realFOV,aspect,lastHither, lastYon);
+	glMatrixMode(GL_MODELVIEW);
 
 	lastFOV = fov;
 }
@@ -77,7 +86,11 @@ void View3D::setViewDist ( float hither, float yon )
 		aspect = (float)lastH/(float)lastV;
 
 	float realFOV = lastFOV/aspect;
+
+	glMatrixMode (GL_PROJECTION);
+	glLoadIdentity ();
 	gluPerspective(realFOV,aspect,hither, yon);
+	glMatrixMode(GL_MODELVIEW);
 
 	lastHither = hither;
 	lastYon = yon;
@@ -106,14 +119,53 @@ void View3D::transform ( void )
 
 	// set the view matrix to go from the eye point TO the target point;
 	gluLookAt(camera.X(),camera.Y(),camera.Z(),viewTarget.X(),viewTarget.Y(),viewTarget.Z(),0,0,1);
+
+	// save the curent view into the frustum;
+	Get();
 }
 
 void View3D::untransform ( void )
 {
+	if (!pushed)
+		return;
+
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 	glLoadIdentity();
 	pushed = false;
 }
+
+void View3D::setOrtho ( void )
+{
+	if (!pushed)
+		return;
+
+	if (inOrtho)
+		unsetOrtho();
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glOrtho(0,0,lastH,lastV,0,100);
+	glMatrixMode(GL_MODELVIEW);
+
+	inOrtho = true;
+}
+
+void View3D::unsetOrtho ( void )
+{
+	if (!inOrtho || !pushed)
+		return;
+	glMatrixMode(GL_MODELVIEW);
+
+	inOrtho = false;
+}
+
+void View3D::clearFrameBuffer ( void )
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
 
 
