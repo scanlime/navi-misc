@@ -24,6 +24,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include <unistd.h>
 #include <sys/time.h>
 
 struct {
@@ -45,6 +46,8 @@ guint idler;
 void update_gui();
 void clear();
 void resize(int w, int h);
+void set_defaults();
+void interactive_main(int argc, char **argv);
 int interactive_idle_handler(gpointer user_data);
 gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 void param_spinner_changed(GtkWidget *widget, gpointer user_data);
@@ -56,20 +59,50 @@ void randomclick(GtkWidget *widget, gpointer user_data);
 gboolean deletee(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 GtkWidget *build_sidebar();
 
-int main(int argc, char ** argv) {
-  srand(time(NULL));
-  gtk_init(&argc, &argv);
 
+int main(int argc, char ** argv) {
+  enum {INTERACTIVE, RENDER} mode = INTERACTIVE;
+  int c;
+
+  srand(time(NULL));
+  set_defaults();
+
+  while (1) {
+    c = getopt(argc, argv, "a:b:c:d:x:y:z:w:h:");
+    if (c == -1)
+      break;
+
+    switch (c) {
+    case 'a':  a = atof(optarg);  break;
+    case 'b':  b = atof(optarg);  break;
+    case 'c':  c = atof(optarg);  break;
+    case 'd':  d = atof(optarg);  break;
+    case 'x':  xoffset = atof(optarg);  break;
+    case 'y':  yoffset = atof(optarg);  break;
+    case 'w':  width   = atoi(optarg);  break;
+    case 'h':  height  = atoi(optarg);  break;
+    }
+  }
+
+  resize(width, height);
+
+  switch (mode) {
+  case INTERACTIVE:
+    interactive_main(argc, argv);
+    break;
+  }
+
+  return 0;
+}
+
+void interactive_main(int argc, char ** argv) {
+  /* After common initialization code needed whether or not we're running
+   * interactively, this takes over to provide the gtk UI for playing with
+   * the de jong attractor in mostly-real-time. Yay.
+   */
   GtkWidget *hbox, *vsep;
 
-  a = 1.4191403;
-  b = -2.2841323;
-  c = 2.4275403;
-  d = -2.177196;
-  exposure = 0.05;
-  zoom = 1;
-  xoffset = 0;
-  yoffset = 0;
+  gtk_init(&argc, &argv);
 
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(deletee), NULL);
@@ -84,14 +117,24 @@ int main(int argc, char ** argv) {
   gtk_widget_show_all(window);
 
   gc = gdk_gc_new(drawing_area->window);
-
-  resize(800,800);
-  clear();
+  gtk_widget_set_size_request(drawing_area, width, height);
   update_gui();
 
   idler = g_idle_add(interactive_idle_handler, NULL);
-
   gtk_main();
+}
+
+void set_defaults() {
+  a = 1.4191403;
+  b = -2.2841323;
+  c = 2.4275403;
+  d = -2.177196;
+  exposure = 0.05;
+  zoom = 1;
+  xoffset = 0;
+  yoffset = 0;
+  width = 800;
+  height = 800;
 }
 
 GtkWidget *build_sidebar() {
@@ -204,8 +247,6 @@ void resize(int w, int h) {
   width = w;
   height = h;
 
-  gtk_widget_set_size_request(drawing_area, width, height);
-
   if (counts)
     g_free(counts);
   counts = g_malloc(sizeof(counts[0]) * width * height);
@@ -213,6 +254,8 @@ void resize(int w, int h) {
   if (pixels)
     g_free(pixels);
   pixels = g_malloc(4 * width * height);
+
+  clear();
 }
 
 int limit_update_rate(float max_rate) {
@@ -367,8 +410,7 @@ void run_iterations(int count) {
   guint d;
   const double xcenter = width / 2.0;
   const double ycenter = height / 2.0;
-  const double xscale = xcenter / 2.5 * zoom;
-  const double yscale = ycenter / 2.5 * zoom;
+  const double scale = xcenter / 2.5 * zoom;
 
   for(i=count; i; --i) {
     x = sin(a * point.y) - cos(b * point.x);
@@ -376,8 +418,8 @@ void run_iterations(int count) {
     point.x = x;
     point.y = y;
 
-    ix = (int)((x + xoffset) * xscale + xcenter);
-    iy = (int)((y + yoffset) * yscale + ycenter);
+    ix = (int)((x + xoffset) * scale + xcenter);
+    iy = (int)((y + yoffset) * scale + ycenter);
 
     if (ix >= 0 && iy >= 0 && ix < width && iy < height) {
       p = counts + ix + width * iy;
@@ -481,3 +523,5 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
 #warning "If you had gtk 2.3, you'd be able to save images"
 #endif
 }
+
+/* The End */
