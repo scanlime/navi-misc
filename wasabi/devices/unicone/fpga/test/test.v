@@ -17,7 +17,7 @@ module test (clk, reset,
 	                     int_scl, int_sda_in, int_sda_out == 2'b11);
 
 	/* Add an I2C-addressable LED brightness control */
-	pwm16_i2c #(7'h21) led_controller(
+	pwm_i2c #(7'h21) led_controller(
 		clk, reset,
 		int_scl, int_sda_in, int_sda_out[0],
 		led);

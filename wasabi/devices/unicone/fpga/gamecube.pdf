@@ -11,7 +11,7 @@ HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
 library_net=ON
-lib_order=155 155 155 155 155 155 133 155
+lib_order=155 155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -19,8 +19,9 @@ lib_order=155 155 155 155 155 155 133 155
 oid=0
 lid=0
 format=19
-source=c:\unicone\fpga\gamecube\gamecube.v
+source=C:\unicone\fpga\gamecube\gamecube.v
 server_hwnd=3932706
+
 
 
 
@@ -93,7 +94,7 @@ i2c.v=
 hde/util=0,0,66,66,1026,795,util.v
 hde/n_serial=0,0,88,88,1048,817,n_serial.v
 hde/pwm=0,0,132,132,1182,881,pwm.v
-hde/gamecube=8913170,1,108,10,1268,966,gamecube.v
+hde/gamecube=0,0,448,183,1608,1139,gamecube.v
 hde/i2c=0,0,44,44,1094,793,i2c.v
 [netlist]
 external=FALSE
@@ -123,6 +124,8 @@ emu=
 poll=
 ram=
 all_gcc=
+osc=
+hl_sim=
 [Schematic]
 Table01=Project
 Table02=Sheet
