@@ -31,7 +31,7 @@ from twisted.web import xmlrpc
 from twisted.enterprise.util import quote as quoteSQL
 from twisted.internet import defer
 import Ruleset, Message, TimeUtil, RPC, Database
-import string, os, time, types, posixpath, sys
+import string, os, time, posixpath, sys
 
 
 class StatsURIHandler(Ruleset.RegexURIHandler):
@@ -80,7 +80,7 @@ class StatsInterface(RPC.Interface):
            Note that times are returned as UNIX-style seconds since
            the epoch in UTC.
            """
-        return StatsTarget(path).getCounterValues(name)
+        return StatsTarget(path).counters.getCounter(name)
 
     def protected_clearTarget(self, path):
         """Deletes any data stored at a given stats target or in any of its subtargets"""
@@ -94,87 +94,19 @@ class StatsInterface(RPC.Interface):
 
 class MetadataInterface(RPC.Interface):
     """An XML-RPC interface for querying and modifying stats metadata"""
-    def getKeyValue(self, metadata, key):
-        """Return the value of a particular metadata key, enclosing it
-           in a Binary object if its mime type isn't in text/*.
+    def xmlrpc_get(self, path, name, default=False):
+        """Get a (value, type) tuple for the metadata key with the given
+           name, returning 'default' if it isn't found
            """
-        if metadata.getType(key).startswith("text/"):
-            return metadata[key]
-        else:
-            return xmlrpc.Binary(metadata[key])
+        return StatsTarget(path).metadata.get(name, default)
 
-    def xmlrpc_getKeyList(self, path):
-        """Return a list of metadata keys for a particular stats path"""
-        return self.storage.getPathTarget(path).metadata.keys()
+    def xmlrpc_dict(self, path):
+        """Return a mapping of names to (value, type) tuples for the given path"""
+        return StatsTarget(path).metadata.dict()
 
-    def xmlrpc_getKeyValues(self, path, keys=None):
-        """Return a mapping from key to value. If a key list is specified,
-           only keys in that list are returned- otherwise all available keys
-           are returned.
-           """
-        metadata = self.storage.getPathTarget(path).metadata
-        results = {}
-        for key in metadata:
-            if keys is None or key in keys:
-                results[key] = self.getKeyValue(metadata, key)
-        return results
-
-    def xmlrpc_getKeyTypes(self, path, keys=None):
-        """Return a mapping from key to MIME type. If a key list is specified,
-           only keys in that list are returned- otherwise all available keys
-           are returned.
-           """
-        metadata = self.storage.getPathTarget(path).metadata
-        results = {}
-        for key in metadata:
-            if keys is None or key in keys:
-                results[key] = metadata.getType(key)
-        return results
-
-    def xmlrpc_getKeys(self, path, keys=None):
-        """Return a mapping from key to a mapping of all information available
-           for that key. The mapping includes 'value' and 'type' currently.
-           If a key list is specified, only keys in that list are returned-
-           otherwise all available keys are returned.
-           """
-        metadata = self.storage.getPathTarget(path).metadata
-        results = {}
-        for key in metadata:
-            if keys is None or key in keys:
-                results[key] = {
-                    'type': metadata.getType(key),
-                    'value': self.getKeyValue(metadata, key),
-                    }
-        return results
-
-    def protected_setKeyValues(self, path, keyMap):
-        """For each key/value pair in the given map, set the corresponding
-           key in the given path's metadata. Requires a capability key
-           for this module or for the particular path in question.
-           """
-        self.storage.getPathTarget(path).metadata.update(keyMap)
-        self.storage.sync()
-        log.msg("Updating metadata values for stats path %r\n%r" % (path, keyMap))
-
-    def protected_setKeyTypes(self, path, keyMap):
-        """For each key/value pair in the given map, set the corresponding
-           MIME type in the given path's metadata. Requires a capability key
-           for this module or for the particular path in question.
-           """
-        metadata = self.storage.getPathTarget(path).metadata
-        for mdKey, mdType in keyMap.iteritems():
-            metadata.setType(mdKey, mdType)
-        log.msg("Updating metadata types for stats path %r\n%r" % (path, keyMap))
-
-    def protected_delKeys(self, path, metadataKeys, key):
-        """Delete zero or more metadata keys from the given list.
-           Requires a capability key for this module or for the particular
-           path in question.
-           """
-        metadata = self.storage.getPathTarget(path).metadata
-        for mdKey in metadataKeys:
-            del metadata[mdKey]
-            log.msg("Deleted metadata key %r for stats path %r" % (mdKey, path))
+    def protected_set(self, path, name, value, mimeType='text/plain'):
+        """Set a metadata key's value and MIME type"""
+        return StatsTarget(path).metadata.set(name, value, mimeType)
 
 
 class StatsTarget:
@@ -369,16 +301,94 @@ class Messages(object):
 class Metadata:
     """An abstraction for the metadata that may be stored for any stats target.
        Metadata objects consist of a name, a MIME type, and a value. The value
-       can be any binary or text object stored as a string.
+       can be any binary or text object stored as a string. Metadata keys
+       are stored base64-encoded in a LONGBLOB, as it's probably faster than
+       string quoting.
        """
     def __init__(self, target):
         self.target = target
 
     def get(self, name, default=None):
-        return default
+        """Return a Deferred that results in the (value, type) tuple for the the
+           given metadata key, or 'default' if a result can't be found.
+           """
+        return Database.pool.runInteraction(self._get, name, default)
 
-    def __contains__(self, name):
-        return False
+    def set(self, name, value, mimeType='text/plain'):
+        """Set a metadata key, creating it if it doesn't exist"""
+        return Database.pool.runInteraction(self._set, name, value, mimeType)
+
+    def keys(self):
+        """Return (via a Deferred) a list of all valid metadata key names"""
+        return Database.pool.runInteraction(self._keys)
+
+    def dict(self):
+        """Return (via a Deferred) a mapping from names to (value, type) tuples"""
+        return Database.pool.runInteraction(self._dict)
+
+    def clear(self):
+        """Delete all metadata for this target. Returns a Deferred"""
+        return Database.pool.runOperation("DELETE FROM stats_metadata WHERE target_path = %s" %
+                                          quoteSQL(self.target.path, 'varchar'))
+
+    def remove(self, name):
+        """Remove one metadata key, with the given name"""
+        return Database.pool.runOperation("DELETE FROM stats_metadata WHERE target_path = %s AND name = %s" %
+                                          (quoteSQL(self.target.path, 'varchar'),
+                                           quoteSQL(name, 'varchar')))
+
+    def _get(self, cursor, name, default):
+        """Database interaction to return the value and type for a particular key"""
+        cursor.execute("SELECT value, mime_type FROM stats_metadata WHERE target_path = %s AND name = %s" %
+                       (quoteSQL(self.target.path, 'varchar'),
+                        quoteSQL(name, 'varchar')))
+        return cursor.fetchone() or default
+
+    def _dict(self, cursor):
+        """Database interaction to return to implement dict()"""
+        cursor.execute("SELECT name, value, mime_type FROM stats_metadata WHERE target_path = %s" %
+                       quoteSQL(self.target.path, 'varchar'))
+        results = {}
+        while True:
+            row = cursor.fetchone()
+            if row is None:
+                break
+            results[row[0]] = (row[1], row[2])
+        return results
+
+    def _set(self, cursor, name, value, mimeType):
+        """Database interaction implementing set(). This first runs a dummy
+           'insert ignore' to ensure that the row exists in our table, then
+           runs an update to change its value.
+           """
+        # Just to make sure our row exists...
+        cursor.execute("INSERT IGNORE INTO stats_metadata (target_path, name) VALUES(%s, %s)" %
+                       (quoteSQL(self.target.path, 'varchar'),
+                        quoteSQL(name, 'varchar')))
+
+        # Quote the value using the '_mysql' module directly, since twisted's quote() doesn't
+        # understand the way MySQL requires BLOBs to be quoted.
+        import _mysql
+        qValue = _mysql.escape_string(str(value))
+
+        # Now actually set the value
+        cursor.execute("UPDATE stats_metadata SET mime_type = %s, value = '%s' WHERE target_path = %s AND name = %s" %
+                       (quoteSQL(mimeType, 'varchar'),
+                        qValue,
+                        quoteSQL(self.target.path, 'varchar'),
+                        quoteSQL(name, 'varchar')))
+
+    def _keys(self, cursor):
+        """Database interaction implementing keys()"""
+        cursor.execute("SELECT DISTINCT name FROM stats_metadata WHERE target_path = %s" %
+                       (quoteSQL(self.target.path, 'varchar')))
+        results = []
+        while True:
+            row = cursor.fetchone()
+            if row is None:
+                break
+            results.append(row[0])
+        return results
 
 
 class Counters:
@@ -439,85 +449,66 @@ class Counters:
                         quoteSQL(name, 'varchar')))
 
     def getCounter(self, name):
-        """Return the Rack associated with a counter. The Rack
-           is a subclass of the dictionary type, and can
-           include the following keys:
+        """Return a Deferred that eventually results in a dictionary,
+           including the following keys:
 
            firstEventTime : The time, in UTC seconds since the epoch, when the first event occurred
            lastEventTime  : The time when the most recent event occurred
            eventCount     : The number of events that have occurred
            """
-        return {}
-        #return self.rack.child(name)
+        return Database.pool.runInteraction(self._getCounter, name)
 
-    def incrementCounter(self, name, evTime=None):
-        """Increment the counter with the given name.
-           If evTime is provided, that is used as the
-           time at which this event was received. Otherwise,
-           the current time is used.
-           """
-        c = self.getCounter(name)
-        if evTime is None:
-            evTime = int(time.time())
-
-            c.setdefault('firstEventTime', evTime)
-        c['lastEventTime'] = evTime
-        c['eventCount'] = c.setdefault('eventCount', 0) + 1
-
-    def checkOneRollover(self, previous, current):
-        """Check for rollovers in one pair of consecutive time intervals,
-           like yesterday/today or lastMonth/thisMonth.
-           """
-        p = self.getCounter(previous)
-        c = self.getCounter(current)
-        pTime = p.get('firstEventTime', None)
-        cTime = c.get('firstEventTime', None)
-
-        if cTime is not None:
-            if not cTime in TimeUtil.Interval(current):
-                # Our current timer is old, copy it to the previous timer and delete it
-                p.clear()
-                p.update(c)
-                c.clear()
-
-        if pTime is not None:
-            if not pTime in TimeUtil.Interval(previous):
-                # The previous timer is old. Either the current timer rolled over first
-                # and it was really old, or no events occurred in the first timer
-                # (cTime is None) but some had in the previous timer and it's old.
-                p.clear()
-
-    def checkRollovers(self):
-        """If any of the counters were created outside the interval
-           they apply to, transfer its value to another counter
-           if we need to and reset it.
-           """
-        self.checkOneRollover('yesterday', 'today')
-        self.checkOneRollover('lastWeek', 'thisWeek')
-        self.checkOneRollover('lastMonth', 'thisMonth')
-
-    def old_increment(self):
-        """Increments all applicable counters in this list
-           and saves them, after checking for rollovers.
-           """
-        self.checkRollovers()
-        self.incrementCounter('today')
-        self.incrementCounter('thisWeek')
-        self.incrementCounter('thisMonth')
-        self.incrementCounter('forever')
+    def _getCounter(self, cursor, name):
+        """Database interaction implementing _getCounter"""
+        cursor.execute("SELECT first_time, last_time, event_count FROM stats_counters WHERE"
+                       " target_path = %s AND name = %s" %
+                       (quoteSQL(self.target.path, 'varchar'),
+                        quoteSQL(name, 'varchar')))
+        row = cursor.fetchone()
+        return {
+            'firstEventTime': row[0],
+            'lastEventTime':  row[1],
+            'eventCount':     row[2],
+            }
 
     def clear(self):
-        """Delete all counters"""
-        self.rack.clear()
-        for child in self.rack.catalog():
-            self.rack.child(child).clear()
+        """Delete all counters for this target. Returns a Deferred"""
+        return Database.pool.runOperation("DELETE FROM stats_counters WHERE target_path = %s" %
+                                          quoteSQL(self.target.path, 'varchar'))
 
+###### Rollovers are still broke
 
-def _test():
-    import doctest, Stats
-    return doctest.testmod(Stats)
+#     def checkOneRollover(self, previous, current):
+#         """Check for rollovers in one pair of consecutive time intervals,
+#            like yesterday/today or lastMonth/thisMonth.
+#            """
+#         p = self.getCounter(previous)
+#         c = self.getCounter(current)
+#         pTime = p.get('firstEventTime', None)
+#         cTime = c.get('firstEventTime', None)
 
-if __name__ == "__main__":
-    _test()
+#         if cTime is not None:
+#             if not cTime in TimeUtil.Interval(current):
+#                 # Our current timer is old, copy it to the previous timer and delete it
+#                 p.clear()
+#                 p.update(c)
+#                 c.clear()
+
+#         if pTime is not None:
+#             if not pTime in TimeUtil.Interval(previous):
+#                 # The previous timer is old. Either the current timer rolled over first
+#                 # and it was really old, or no events occurred in the first timer
+#                 # (cTime is None) but some had in the previous timer and it's old.
+#                 p.clear()
+
+#     def checkRollovers(self):
+#         """If any of the counters were created outside the interval
+#            they apply to, transfer its value to another counter
+#            if we need to and reset it.
+#            """
+#         self.checkOneRollover('yesterday', 'today')
+#         self.checkOneRollover('lastWeek', 'thisWeek')
+#         self.checkOneRollover('lastMonth', 'thisMonth')
+
 
 ### The End ###

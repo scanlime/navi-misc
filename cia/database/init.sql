@@ -63,8 +63,8 @@ CREATE TABLE IF NOT EXISTS stats_metadata
 (
     target_path  VARCHAR(128),
     name         VARCHAR(32),
-    mime_type    VARCHAR(32) NOT NULL,
-    value        BLOB NOT NULL,
+    mime_type    VARCHAR(32),
+    value        LONGBLOB,
 
     PRIMARY KEY(target_path, name),
     INDEX (target_path),
