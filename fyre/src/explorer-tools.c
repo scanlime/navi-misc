@@ -170,7 +170,6 @@ static gboolean on_motion_notify(GtkWidget *widget, GdkEvent *event, gpointer us
 	 * a lower priority.
 	 */
 	explorer_run_iterations(self);
-	explorer_update_gui(self);
     }
 
     return FALSE;

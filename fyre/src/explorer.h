@@ -57,9 +57,7 @@ struct _Explorer {
     guint render_status_context;
     gboolean status_dirty_flag;
 
-    guint idler;
     GTimeVal last_gui_update;
-    gdouble render_time;       /* In seconds */
 
     gchar* current_tool;
     gboolean tool_active;

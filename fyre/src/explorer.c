@@ -33,7 +33,6 @@ static void explorer_class_init(ExplorerClass *klass);
 static void explorer_init(Explorer *self);
 static void explorer_dispose(GObject *gobject);
 
-static int explorer_idle_handler(gpointer user_data);
 static gboolean explorer_auto_limit_update_rate(Explorer *self);
 static gboolean limit_update_rate(GTimeVal *last_update, float max_rate);
 
@@ -48,6 +47,7 @@ static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data);
 static void on_load_from_image(GtkWidget *widget, gpointer user_data);
 static void on_widget_toggle(GtkWidget *widget, gpointer user_data);
 static void on_render_time_changed(GtkWidget *widget, gpointer user_data);
+static void on_calculation_finished(IterativeMap *map, gpointer user_data);
 static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 
 
@@ -124,10 +124,6 @@ static void explorer_dispose(GObject *gobject) {
 	g_object_unref(self->map);
 	self->map = NULL;
     }
-    if (self->idler) {
-	g_source_remove(self->idler);
-	self->idler = 0;
-    }
 
     explorer_dispose_animation(self);
 }
@@ -156,7 +152,13 @@ Explorer* explorer_new(IterativeMap *map, Animation *animation) {
 
     explorer_init_animation(self);
     explorer_init_tools(self);
-    self->idler = g_idle_add(explorer_idle_handler, self);
+
+    /* Start the iterative map rendering in the background, and get a callback every time a block
+     * of calculations finish so we can update the GUI.
+     */
+    iterative_map_start_calculation(self->map);
+    g_signal_connect(G_OBJECT(self->map), "calculation-finished",
+		     G_CALLBACK(on_calculation_finished), self);
 
     /* Set the window's default size to include our default image size.
      * The cleanest way I know of to do this is to set the scrolled window's scrollbar policies
@@ -275,7 +277,7 @@ static void on_save_exr(GtkWidget *widget, gpointer user_data) {
 static void on_render_time_changed(GtkWidget *widget, gpointer user_data) {
     double v = gtk_range_get_adjustment(GTK_RANGE(widget))->value;
     Explorer *self = EXPLORER(user_data);
-    self->render_time = v / 1000.0;  /* Milliseconds to seconds */
+    self->map->render_time = v / 1000.0;  /* Milliseconds to seconds */
 }
 
 static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
@@ -294,24 +296,21 @@ static gboolean on_interactive_prefs_delete(GtkWidget *widget, GdkEvent *event, 
 static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
     Explorer *self = EXPLORER(user_data);
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)))
-	g_source_remove(self->idler);
+	iterative_map_stop_calculation(self->map);
     else
-	self->idler = g_idle_add(explorer_idle_handler, self);
+	iterative_map_start_calculation(self->map);
 }
 
-static int explorer_idle_handler(gpointer user_data) {
+static void on_calculation_finished(IterativeMap *map, gpointer user_data)
+{
     Explorer *self = EXPLORER(user_data);
-
-    explorer_run_iterations(self);
     explorer_update_gui(self);
     explorer_update_animation(self);
     explorer_update_tools(self);
-    return 1;
 }
 
 void explorer_run_iterations(Explorer *self) {
-    iterative_map_calculate_timed(ITERATIVE_MAP(self->map),
-				  self->render_time);
+    iterative_map_calculate_timed(self->map, self->map->render_time);
 }
 
 static gboolean limit_update_rate(GTimeVal *last_update, float max_rate) {
