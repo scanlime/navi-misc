@@ -8,12 +8,11 @@ Chat buffer:
   * Needs nicer formatting, more xtext like.
   * How about some colors too...
 
+* Command parsing in Common
 * Finish off /who command
 * Finish implementing handlers for IRC protocol (e.g. kicks, bans, motd, etc.)
 * Tweak dice rolling systems to handle critical failures
-* Character sheet builder
-* Change colors in the chat buffer
-* Make chat buffer scroll a little further for niceness of viewing.
 * Replace pyxml stuff with twisted's xml stuff.
 * Make character sheets detachable
 * Colored tabs
+* Character sheet builder
