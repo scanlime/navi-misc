@@ -211,8 +211,6 @@ static void render_main(const char *filename) {
 	       (now.tv_sec  - start_time.tv_sec ));
     remaining = elapsed * render.target_density / render.current_density - elapsed;
 
-    printf("%f\n", elapsed);
-
     /* After each batch of iterations, show the percent completion, number
      * of iterations (in scientific notation), iterations per second,
      * density / target density, and elapsed time / remaining time.
