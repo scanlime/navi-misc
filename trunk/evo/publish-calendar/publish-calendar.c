@@ -19,6 +19,7 @@
  *
  */
 
+#include <string.h>
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 #include <gconf/gconf-client.h>
@@ -53,6 +54,40 @@ typedef struct {
 	GtkWidget   *url_remove;
 	GtkWidget   *url_enable;
 } PublishUIData;
+
+static void
+update_timestamp (EPublishUri *uri)
+{
+	GConfClient *client;
+	GSList *uris, *l;
+	gchar *xml;
+
+	xml = e_publish_uri_to_xml (uri);
+
+	client = gconf_client_get_default ();
+	uris = gconf_client_get_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, NULL);
+	for (l = uris; l; l = g_slist_next (l)) {
+		gchar *d = l->data;
+		if (strcmp (d, xml) == 0) {
+			uris = g_slist_remove (uris, d);
+			g_free (d);
+			break;
+		}
+	}
+	g_free (xml);
+
+	if (uri->last_pub_time)
+		g_free (uri->last_pub_time);
+	uri->last_pub_time = g_strdup_printf ("%d", (int) time (NULL));
+
+	uris = g_slist_prepend (uris, e_publish_uri_to_xml (uri));
+
+	gconf_client_set_list (client, "/apps/evolution/calendar/publish/uris", GCONF_VALUE_STRING, uris, NULL);
+
+	g_slist_foreach (uris, (GFunc) g_free, NULL);
+	g_slist_free (uris);
+	g_object_unref (client);
+}
 
 static void
 publish (EPublishUri *uri)
@@ -103,14 +138,9 @@ publish (EPublishUri *uri)
 */
 		}
 
-		result = gnome_vfs_close (handle);
-		if (result != GNOME_VFS_OK) {
-			fprintf (stderr, "Couldn't close %s: %s\n", uri->location, gnome_vfs_result_to_string (result));
-			/* FIXME: EError */
-			g_free (password);
-			return;
-		}
+		update_timestamp (uri);
 
+		result = gnome_vfs_close (handle);
 		gnome_vfs_uri_unref (vfs_uri);
 		g_free (password);
 	} else {
@@ -233,6 +263,8 @@ url_add_clicked (GtkButton *button, PublishUIData *ui)
 				    URL_LIST_URL_COLUMN, uri, -1);
 		url_list_changed (ui);
 		publish_uris = g_slist_prepend (publish_uris, uri);
+		/* FIXME: timeouts */
+		publish (uri);
 	} else {
 		g_free (uri);
 	}
@@ -266,6 +298,7 @@ url_edit_clicked (GtkButton *button, PublishUIData *ui)
 			g_source_remove (id);
 		add_timeout (uri);
 		url_list_changed (ui);
+		publish (uri);
 	}
 }
 
