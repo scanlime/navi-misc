@@ -113,6 +113,19 @@ class VideoSwitch:
         line =mixer.getLineinVolume()
         return float(line) / (pcm + line)
 
+    def disableMixerReset(self):
+        """Prevent other plugins from resetting the mixer.
+           This can be undone with enableMixerReset().
+           """
+        mixer = plugin.getbyname("MIXER")
+        mixer._reset_original = mixer.reset
+        mixer.reset = lambda: None
+
+    def enableMixerReset(self):
+        """Allow mixer resets again"""
+        mixer = plugin.getbyname("MIXER")
+        mixer.reset = mixer._reset_original
+
     def stepAudioBalance(self, s):
         """Modify the audio balance by the given amount, then
            show the current value on the OSD.
@@ -237,6 +250,7 @@ class VideoInputItem(item.Item):
            """
         self.callHook('start')
         self.switch.setChannel(self.channel, False)
+        self.switch.disableMixerReset()
         self.switch.restoreAudioBalance()
         menuw.hide()
         self.menuw = menuw
@@ -260,5 +274,6 @@ class VideoInputItem(item.Item):
         self.switch.saveAudioBalance()
         self.switch.setAudioBalance(0)
         self.switch.reset()
+        self.switch.enableMixerReset()
 
 ### The End ###
