@@ -4,6 +4,10 @@ import os, os.path, stat
 
 suffices = ['mp3','ogg']
 
+class File:
+	def __init__(self, dir, parent=None):
+		self.parent = parent
+
 class Dir:
 	def __init__(self, dir, parent=None):
 		self.dir = dir
