@@ -75,7 +75,6 @@ void tracker(int n_cameras, CvCalibFilter *calib) {
 
   while (1) {
     images = cv_dc1394_capture_yuv(n_cameras);
-    // calib->Undistort(images, images);
 
     if (!tracker)
       tracker = new MultiCamshiftUI(n_cameras, cvGetSize(images[0]));
@@ -98,7 +97,7 @@ void tracker(int n_cameras, CvCalibFilter *calib) {
 
     cv3dTrackerLocateObjects(n_cameras, 1, cam_info, object2d, &object);
 
-    printf("%f %f %f\n", object.p.x, object.p.y, object.p.z);
+    printf("%6.2f %6.2f %6.2f\n", object.p.x, object.p.y, object.p.z);
   }
 }
 

@@ -85,7 +85,7 @@ CvBox2D *MultiCamshiftUI::track(IplImage **images, bool show_ui, bool show_backp
       /* Use the CAMSHIFT algorithm to search for the object of interest */
       CvConnectedComp comp;
       cvCamShift(backprojection, search_windows[camera],
-		 cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 10, 1),
+		 cvTermCriteria(CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 1, 1),
 		 &comp, &results[camera]);
       search_windows[camera] = comp.rect;
 
