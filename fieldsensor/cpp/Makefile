@@ -3,6 +3,7 @@ BINS = raw_test new_net train_net net_test pong breakout
 LIBSRC = \
 	lib/FieldSensor.o \
 	lib/SimpleGame.o \
+	lib/PongObjects.o \
 	annie/src/Layer.o \
 	annie/src/Exception.o \
 	annie/src/File.o \
