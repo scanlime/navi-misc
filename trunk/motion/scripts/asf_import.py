@@ -54,12 +54,22 @@ def importObjects(reader):
         d = data.direction
         # swizzle Y and Z
         bone.setTail(float(d[0]) * l, float(d[2]) * l, float(d[1]) * l)
-        print name,bone.getRestMatrix().rotationPart().toEuler();
-        print '\n'
 
         bones[name] = bone
 
-        armObj.addProperty('%s-axis' % name, ','.join(data.axis), 'STRING')
+        axis = map(float, data.axis)
+        # swizzle Y and Z
+        axis = [axis[0], axis[2], axis[1]]
+        axis = Blender.Mathutils.Euler(axis).toQuat()
+        a = [axis.w, axis.x, axis.y, axis.z]
+        a = ['%f' % n for n in a]
+
+        boneAxis = bone.getRestMatrix().rotationPart().toQuat();
+        ba = [boneAxis.w, boneAxis.x, boneAxis.y, boneAxis.z]
+        ba = ['%f' % n for n in ba]
+
+        armObj.addProperty('%s-axis' % name, ','.join(a), 'STRING')
+        armObj.addProperty('%s-baxis' % name, ','.join(ba), 'STRING')
         if data.dof is None:
             armObj.addProperty('%s-dof' % name, '', 'STRING')
         else:
