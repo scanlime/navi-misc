@@ -64,6 +64,7 @@ struct _HistogramImager {
    */
   gdouble total_points_plotted;
   gulong peak_density;
+  GTimeVal render_start_time;
 
   guint *histogram;
   gboolean histogram_clear_flag;
@@ -109,6 +110,7 @@ void             histogram_imager_get_hist_size   (HistogramImager *self,
 						   int             *hist_height);
 
 void             histogram_imager_clear           (HistogramImager *self);
+gdouble          histogram_imager_get_elapsed_time (HistogramImager *self);
 
 void             histogram_imager_prepare_plots   (HistogramImager *self,
 						   HistogramPlot   *plot);

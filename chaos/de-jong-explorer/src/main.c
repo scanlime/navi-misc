@@ -219,11 +219,8 @@ static void image_render_main (DeJong     *dejong,
    * current settings until render.current_density reaches target_density. We show helpful
    * progress doodads on stdout while the poor user has to wait.
    */
-  GTimeVal start_time, now;
   float elapsed, remaining;
   double iterations;
-
-  g_get_current_time(&start_time);
 
   while (HISTOGRAM_IMAGER(dejong)->peak_density < target_density) {
     de_jong_calculate(dejong, 1000000);
@@ -232,9 +229,7 @@ static void image_render_main (DeJong     *dejong,
      * current_density increases linearly with the number of iterations performed.
      * Elapsed time and time remaining are in seconds.
      */
-    g_get_current_time(&now);
-    elapsed = ((now.tv_usec - start_time.tv_usec) / 1000000.0 +
-	       (now.tv_sec  - start_time.tv_sec ));
+    elapsed = histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(dejong));
     remaining = elapsed * target_density / HISTOGRAM_IMAGER(dejong)->peak_density - elapsed;
 
     /* After each batch of iterations, show the percent completion, number
