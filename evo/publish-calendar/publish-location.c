@@ -32,7 +32,7 @@ e_publish_uri_from_xml (const gchar *xml)
 	xmlNodePtr root, p;
 	xmlChar *location, *enabled, *frequency;
 	xmlChar *publish_time, *format;
-	GSList *events = NULL, *tasks = NULL;
+	GSList *events = NULL;
 	EPublishUri *uri;
 
 	doc = xmlParseDoc ((char *) xml);
@@ -69,13 +69,10 @@ e_publish_uri_from_xml (const gchar *xml)
 		if (strcmp (p->name, "event") == 0) {
 			events = g_slist_append (events, uid);
 		}
-		else if (strcmp (p->name, "task") == 0)
-			tasks = g_slist_append (tasks, uid);
 		else
 			g_free (uid);
 	}
 	uri->events = events;
-	uri->tasks = tasks;
 
 	xmlFree (enabled);
 	xmlFree (frequency);
@@ -114,11 +111,6 @@ e_publish_uri_to_xml (EPublishUri *uri)
 	for (calendars = uri->events; calendars != NULL; calendars = g_slist_next (calendars)) {
 		xmlNodePtr node;
 		node = xmlNewChild (root, NULL, "event", NULL);
-		xmlSetProp (node, "uid", calendars->data);
-	}
-	for (calendars = uri->tasks; calendars != NULL; calendars = g_slist_next (calendars)) {
-		xmlNodePtr node;
-		node = xmlNewChild (root, NULL, "task", NULL);
 		xmlSetProp (node, "uid", calendars->data);
 	}
 	xmlDocSetRootElement (doc, root);

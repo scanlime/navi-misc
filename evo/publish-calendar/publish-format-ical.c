@@ -103,15 +103,5 @@ publish_calendar_as_ical (GnomeVFSHandle *handle, EPublishUri *uri)
 	}
 	g_object_unref (source_list);
 
-	/* tasks */
-	source_list = e_source_list_new_for_gconf (gconf_client, "/apps/evolution/tasks/sources");
-	l = uri->tasks;
-	while (l) {
-		gchar *uid = l->data;
-		write_calendar (uid, source_list, handle, E_CAL_SOURCE_TYPE_TODO);
-		l = g_slist_next (l);
-	}
-	g_object_unref (source_list);
-
 	g_object_unref (gconf_client);
 }
