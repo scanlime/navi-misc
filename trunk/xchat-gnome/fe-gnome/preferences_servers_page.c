@@ -195,6 +195,26 @@ edit_cancel_clicked (GtkWidget *button, gpointer data)
 }
 
 static void
+populate_servers_list (GtkListStore *store, ircnet *net)
+{
+	GtkTreeIter iter;
+	ircserver *serv;
+	GSList *list = net->servlist;
+
+	while (list) {
+		serv = list->data;
+		gtk_list_store_append (store, &iter);
+		gtk_list_store_set (store, &iter, 0, serv->hostname, -1);
+		list = g_slist_next (list);
+	}
+}
+
+static void
+populate_channels_list (GtkListStore *store, ircnet *net)
+{
+}
+
+static void
 edit_clicked (GtkWidget *button, gpointer data)
 {
 	GtkWidget *dialog, *password, *nick, *real, *encoding;
@@ -203,6 +223,9 @@ edit_clicked (GtkWidget *button, gpointer data)
 	GtkTreeSelection *select;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
+	GtkCellRenderer *renderer;
+	GtkTreeViewColumn *column;
+	GtkListStore *store;
 	GConfClient *client;
 	ircnet *net;
 
@@ -226,6 +249,7 @@ edit_clicked (GtkWidget *button, gpointer data)
 
 		enctoindex = g_hash_table_new (g_str_hash, g_str_equal);
 
+		/* Add encodings to the drop-down */
 		do {
 			gtk_combo_box_append_text (GTK_COMBO_BOX (_(encoding)), *enc);
 			g_hash_table_insert (enctoindex, *enc, GUINT_TO_POINTER (index));
@@ -290,7 +314,9 @@ edit_clicked (GtkWidget *button, gpointer data)
 	widget = glade_xml_get_widget (gui.xml, "server config cancel");
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (edit_cancel_clicked), NULL);
 
-	widget = glade_xml_get_widget (gui.xml, "encoding combo"); {
+	widget = glade_xml_get_widget (gui.xml, "encoding combo");
+	/* Set current encoding */
+	{
 		guint index;
 		if (net->encoding == NULL) {
 			index = 0;
@@ -301,6 +327,30 @@ edit_clicked (GtkWidget *button, gpointer data)
 		gtk_combo_box_set_active (GTK_COMBO_BOX (widget), index);
 	}
 	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (encoding_changed), net);
+
+	/* servers list */
+	widget = glade_xml_get_widget (gui.xml, "server config servers");
+	store = gtk_list_store_new (1, G_TYPE_STRING);
+	gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (store));
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new ();
+	gtk_tree_view_column_pack_start (column, renderer, TRUE);
+	gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
+	g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
+	populate_servers_list (store, net);
+
+	/* channels list */
+	widget = glade_xml_get_widget (gui.xml, "server config channels");
+	store = gtk_list_store_new (1, G_TYPE_STRING);
+	gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (store));
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new ();
+	gtk_tree_view_column_pack_start (column, renderer, TRUE);
+	gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
+	g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
+	populate_channels_list (store, net);
 
 	gtk_widget_show_all (dialog);
 
