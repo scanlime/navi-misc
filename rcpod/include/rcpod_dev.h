@@ -36,7 +36,7 @@ struct rcpod_pair {
 /* Given an rcpod_pair with valid address and data, pokes that data into the PIC */
 #define RCPODIO_POKE         0x3701
 
-/* Given a __u16 with a valid address, retrieves the byte at that address in the PIC and returns it */
+/* Given a valid address, retrieves the byte at that address in the PIC and returns it */
 #define RCPODIO_PEEK         0x3702
 
 #endif /* __RCPOD_DEV_H */
