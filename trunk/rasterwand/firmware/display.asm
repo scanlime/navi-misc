@@ -88,7 +88,7 @@ display_poll
 	xorlw	0xFF
 	xorlw	0x00			; Test and set the Z flag
 	pagesel	handle_angle_edge
-	btfsc	STATUS, Z
+	btfss	STATUS, Z
 	call	handle_angle_edge
 
 	return
