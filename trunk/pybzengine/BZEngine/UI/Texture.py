@@ -421,7 +421,7 @@ class Cache:
                 self.textures[name] = AnimatedTexture(name)
             else:
                 self.textures[name] = Texture(name)
-	return self.textures[name]
+        return self.textures[name]
 
 
 defaultCache = Cache()

@@ -28,10 +28,10 @@ nameMap = {
     'overhead': 'OverheadView',
     '3D':       'ThreeDView',
     'radar':    'RadarView',
-    'anaglyph':	'AnaglyphGame',
+    'anaglyph':        'AnaglyphGame',
     'game':     'GameView',
     'editor':   'EditorView',
-    'stereo':	'StereoGame',
+    'stereo':        'StereoGame',
     }
 
 

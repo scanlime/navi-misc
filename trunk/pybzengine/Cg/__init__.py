@@ -35,7 +35,7 @@ def cgCreateProgramFromFile(context, type, file, profile, entry, args):
                 Cg.stringArray_setitem(pargs, index, arg)
         prog = Cg.cgCreateProgramFromFile(context, type, file, profile, entry, pargs)
         Cg.delete_stringArray(pargs)
-	return prog
+        return prog
 
 # yay for constants
 CG_UNKNOWN_TYPE                   = 0

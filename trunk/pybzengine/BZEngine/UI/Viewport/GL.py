@@ -123,7 +123,7 @@ class StereoGLViewport(OpenGLViewport):
        big expensive hardware designed for stereo rendering :)
        """
     def setGLAttributes(self):
-	pygame.display.gl_set_attribute(pygame.GL_STEREO, 1)
+        pygame.display.gl_set_attribute(pygame.GL_STEREO, 1)
 
 
 class ViewportMode:
