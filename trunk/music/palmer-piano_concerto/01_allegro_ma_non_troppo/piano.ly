@@ -236,6 +236,10 @@ mvmtOnePianoSectThreeLeft = \relative b, {
   | cis1
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section 4, introduction of the pretty "main theme" %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 mvmtOnePianoSectFourRight = \relative cis'' {
   | r2 r4. cis8
 
@@ -326,6 +330,44 @@ mvmtOnePianoSectFourLeft = \relative a {
   | r2.
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Section 5, begin development with first theme %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+mvmtOnePianoSectFiveRight = \relative b' {
+  % 93
+  | b8 d fis b ais gis fis4
+  | g8 fis e fis d cis fis,4
+  | g8 b d g fis e fis4
+  | g,8 e d' b gis' eis fis,4
+  
+  % 97
+  \clef bass
+  | b,,16 d cis d e d cis d b d ees d cis d e d
+  | e b ais b d fis eis fis gis cis, b' eis, cis' gis e' b
+  \clef treble
+  | g' b ais b f' b, ais b a' b, g' b, f' c ees c
+  | e b e, b' e, ais e' ais, d a d, a' c a <f b>8-.->
+  | <ees c'>8-.-> r8 r4 r2
+}
+
+mvmtOnePianoSectFiveLeft = \relative b {
+  % 93
+  \clef treble
+  | b8 d fis b ais gis fis4
+  | g8 fis e fis d cis fis,4
+  | g8 b d g fis e fis4
+  | g,8 e d' b gis' eis fis,4
+  
+  % 97
+  \clef bass
+  | b,,16 d cis d e d cis d b d ees d cis d e d
+  | e b ais b d fis eis fis gis cis, b' eis, cis' gis e' b
+  | g' b ais b f' b, ais b a' b, g' b, f' c ees c
+  | e b e, b' e, ais e' ais, d a d, a' c a <d, g>8-.->
+  | <c g'>8-.-> r8 r4 r2
+}
+
 mvmtOnePianoRight = {
   \clef treble
   \key b \minor
@@ -337,6 +379,9 @@ mvmtOnePianoRight = {
   \mvmtOnePianoSectThreeRight
   R1*8
   \mvmtOnePianoSectFourRight
+  \time 4/4
+  R1*4
+  \mvmtOnePianoSectFiveRight
 }
 
 mvmtOnePianoLeft = {
@@ -350,4 +395,7 @@ mvmtOnePianoLeft = {
   \mvmtOnePianoSectThreeLeft
   R1*8
   \mvmtOnePianoSectFourLeft
+  \time 4/4
+  R1*4
+  \mvmtOnePianoSectFiveLeft
 }
