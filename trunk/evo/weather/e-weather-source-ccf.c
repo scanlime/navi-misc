@@ -313,6 +313,10 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 		fc = g_list_append (fc, &forecasts[i]);
 	}
 	source->done (fc, source->finished_data);
+
+	g_list_free (tokens);
+
+	g_free (buffer);
 }
 
 static void
