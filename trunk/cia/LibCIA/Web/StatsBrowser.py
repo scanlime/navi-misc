@@ -388,8 +388,12 @@ class MetadataValueColumn(Nouvelle.Column):
     heading = 'value'
 
     def getValue(self, item):
+        """This is used for sorting and such, so don't bother
+           returning anything if we're not dealing with text.
+           """
         target, key = item
-        return target.metadata[key]
+        if target.metadata.getType(key).startswith("text/"):
+            return target.metadata[key]
 
     def render_data(self, context, item):
         """Farm this off to an appropriate handler for the data's MIME type"""
