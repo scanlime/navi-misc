@@ -24,6 +24,7 @@
 #define __PYRAMID_H__
 
 #include "sceneobject.h"
+#include "displaylist.h"
 
 G_BEGIN_DECLS
 
@@ -77,9 +78,9 @@ struct _PyramidDrawable
 {
   DisplayList parent;
 
-  gdouble position[3];
-  gdouble size[3];
-  gdouble rotation;
+  gfloat position[3];
+  gfloat size[3];
+  gfloat rotation;
   gboolean inverted;
 };
 

@@ -22,16 +22,20 @@
 
 #include "pyramid.h"
 
-static void       pyramid_class_init           (PyramidClass *klass);
-static void       pyramid_init                 (Pyramid *pyramid);
-static void       pyramid_set_property         (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
-static void       pyramid_get_property         (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void       pyramid_finalize             (GObject *object);
-static void       pyramid_init_position_params (GObjectClass *object_class);
-static void       pyramid_init_size_params     (GObjectClass *object_class);
-static void       pyramid_init_other_params    (GObjectClass *object_class);
-static GdkPixbuf* pyramid_get_icon             (void);
-static GList*     pyramid_get_drawables        (SceneObject *self);
+static void       pyramid_class_init            (PyramidClass *klass);
+static void       pyramid_init                  (Pyramid *pyramid);
+static void       pyramid_set_property          (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
+static void       pyramid_get_property          (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+static void       pyramid_finalize              (GObject *object);
+static void       pyramid_init_position_params  (GObjectClass *object_class);
+static void       pyramid_init_size_params      (GObjectClass *object_class);
+static void       pyramid_init_other_params     (GObjectClass *object_class);
+static GdkPixbuf* pyramid_get_icon              (void);
+static GList*     pyramid_get_drawables         (SceneObject *self);
+
+static void       pyramid_drawable_class_init   (PyramidDrawableClass *klass);
+static void       pyramid_drawable_init         (PyramidDrawable *pd);
+static void       pyramid_drawable_draw_to_list (DisplayList *dl);
 
 enum
 {
@@ -102,7 +106,10 @@ pyramid_class_init (PyramidClass *klass)
 static void
 pyramid_init (Pyramid *pyramid)
 {
+  pyramid->drawable = g_object_ref (pyramid_drawable_new ());
   pyramid->drawables = NULL;
+
+  pyramid->drawables = g_list_append (pyramid->drawables, (gpointer) pyramid->drawable);
 }
 
 static void
@@ -111,6 +118,16 @@ update_double_if_necessary (gdouble new_value, gboolean *dirty, gdouble *param, 
   if (fabs (new_value - *param) > epsilon)
   {
     *param = new_value;
+    *dirty = TRUE;
+  }
+}
+
+static void
+update_float_if_necessary (gdouble new_value, gboolean *dirty, gfloat *param, gfloat epsilon)
+{
+  if (fabs ((gfloat)new_value - *param) > epsilon)
+  {
+    *param = (gfloat) new_value;
     *dirty = TRUE;
   }
 }
@@ -134,34 +151,82 @@ pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GPara
   {
     case PROP_POSITION_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[0], 0.09);
+      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
+                                  &PYRAMID_DRAWABLE (self->drawable)->position[0], 0.9);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->drawable)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_POSITION_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[1], 0.09);
+      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
+                                  &PYRAMID_DRAWABLE (self->drawable)->position[1], 0.9);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->drawable)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_POSITION_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[2], 0.09);
+      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
+                                  &PYRAMID_DRAWABLE (self->drawable)->position[2], 0.9);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->drawable)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_ROTATION:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.rotation, 0.09);
+      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
+                                  &PYRAMID_DRAWABLE (self->drawable)->rotation, 0.9);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->drawable)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_SIZE_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.09);
+      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
+                                  &PYRAMID_DRAWABLE (self->drawable)->size[0], 0.9);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->drawable)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_SIZE_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.09);
+      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
+                                  &PYRAMID_DRAWABLE (self->drawable)->size[1], 0.9);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->drawable)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_SIZE_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[2], 0.09);
+      update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
+                                  &PYRAMID_DRAWABLE (self->drawable)->size[2], 0.9);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->drawable)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_INVERTED:
       update_boolean_if_necessary (g_value_get_boolean (value), &self->state_dirty, &self->param.inverted);
+      update_boolean_if_necessary (g_value_get_boolean (value), &DISPLAY_LIST (self->drawable)->dirty,
+                                   &PYRAMID_DRAWABLE (self->drawable)->inverted);
+      if (self->state_dirty)
+	g_signal_emit_by_name (object, "dirty");
+      if (DISPLAY_LIST (self->drawable)->dirty)
+	g_signal_emit_by_name (G_OBJECT (self->drawable), "dirty");
       break;
 
     case PROP_DRIVE_THROUGH:
@@ -374,4 +439,101 @@ pyramid_get_drawables (SceneObject *self)
 {
   Pyramid *p = PYRAMID (self);
   return p->drawables;
+}
+
+GType
+pyramid_drawable_get_type (void)
+{
+  static GType pd_type = 0;
+  if (!pd_type)
+  {
+    static const GTypeInfo pd_info =
+    {
+      sizeof (PyramidDrawableClass),
+      NULL,               /* base init */
+      NULL,               /* base finalize */
+      (GClassInitFunc)    pyramid_drawable_class_init,
+      NULL,               /* class finalize */
+      NULL,               /* class data */
+      sizeof (PyramidDrawable),
+      0,                  /* n preallocs */
+      (GInstanceInitFunc) pyramid_drawable_init,
+    };
+
+    pd_type = g_type_register_static (DISPLAY_LIST_TYPE, "PyramidDrawable", &pd_info, 0);
+  }
+
+  return pd_type;
+}
+
+static void
+pyramid_drawable_class_init (PyramidDrawableClass *klass)
+{
+  DisplayListClass *dlc;
+
+  dlc = (DisplayListClass*) klass;
+  dlc->draw_to_list = pyramid_drawable_draw_to_list;
+}
+
+static void
+pyramid_drawable_init (PyramidDrawable *pd)
+{
+  Drawable *d = DRAWABLE (pd);
+
+  d->texture = g_strdup ("data/textures/black_marble.jpeg");
+}
+
+Drawable*
+pyramid_drawable_new (void)
+{
+  return DRAWABLE (g_object_new (pyramid_drawable_get_type (), NULL));
+}
+
+static void
+pyramid_drawable_draw_to_list (DisplayList *dl)
+{
+  PyramidDrawable *pd = PYRAMID_DRAWABLE (dl);
+  float width, depth, height;
+  float wrep, drep, hrep;
+
+  width = pd->size[0];
+  depth = pd->size[1];
+  height = pd->size[2];
+
+  wrep = width / 4;
+  drep = depth / 4;
+  hrep = height / 4;
+
+  glPushMatrix ();
+  glTranslatef (pd->position[0], pd->position[1], pd->position[2]);
+  glRotatef (pd->rotation, 0.0, 0.0, 1.0);
+
+  glBegin (GL_QUADS);
+  {
+    /* Z side */
+    if (pd->inverted)
+    {
+      glNormal3f (0.0, 0.0, 1.0);
+    }
+    else
+    {
+      glNormal3f (0.0, 0.0, -1.0);
+      glTexCoord2f ( 0,      0);
+      glVertex3f   (-width, -depth, 0);
+      glTexCoord2f ( 0,      drep);
+      glVertex3f   (-width,  depth, 0);
+      glTexCoord2f ( wrep,   drep);
+      glVertex3f   ( width,  depth, 0);
+      glTexCoord2f ( wrep,   0);
+      glVertex3f   ( width, -depth, 0);
+    }
+  }
+  glEnd ();
+
+  glBegin (GL_TRIANGLES);
+  {
+  };
+  glEnd ();
+
+  glPopMatrix ();
 }

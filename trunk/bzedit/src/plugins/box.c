@@ -110,8 +110,8 @@ static void
 box_init (Box *box)
 {
   box->drawables = NULL;
-  box->sides = box_sides_drawable_new ();
-  box->top = box_top_drawable_new ();
+  box->sides = g_object_ref (box_sides_drawable_new ());
+  box->top = g_object_ref (box_top_drawable_new ());
 
   box->drawables = g_list_append (box->drawables, (gpointer) box->sides);
   box->drawables = g_list_append (box->drawables, (gpointer) box->top);
