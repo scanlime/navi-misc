@@ -24,10 +24,10 @@ A web interface, built using nevow, for viewing and editin CIA's rulesets
 import Base
 
 
-class RulesetPage(Base.Base):
+class RulesetPage(Base.Template):
     def __init__(self, caps, storage):
         self.caps = caps
         self.storage = storage
-        Base.Base.__init__(self)
+        Base.Template.__init__(self)
 
 ### The End ###
