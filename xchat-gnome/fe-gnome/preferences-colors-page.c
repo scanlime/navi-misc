@@ -27,6 +27,25 @@
 #include "xtext.h"
 
 static void
+color_button_changed (GtkColorButton *button, gpointer data)
+{
+	int index = GPOINTER_TO_INT (data);
+	GdkColor c;
+
+	gtk_color_button_get_color (button, &c);
+	if (index < 32) {
+		custom_palette[index].red = c.red;
+		custom_palette[index].green = c.green;
+		custom_palette[index].blue = c.blue;
+	} else {
+		custom_colors[index - 32].red = c.red;
+		custom_colors[index - 32].green = c.green;
+		custom_colors[index - 32].blue = c.blue;
+	}
+	palette_save ();
+}
+
+static void
 set_color_buttons (int selection, GtkWidget **color_buttons)
 {
 	load_colors (selection);
@@ -100,6 +119,8 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	GtkTreeIter iter;
 	gint i, j, scheme;
 
+	palette_init ();
+
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
 	GW(color_label_1);
 	GW(color_label_2);
@@ -127,20 +148,26 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 
 	for (i = 0; i < 4; i++) {
 		page->color_buttons[i] = gtk_color_button_new ();
-		gtk_widget_show (page->color_buttons[i]);
+		gtk_widget_set_sensitive (page->color_buttons[i], FALSE);
 	}
 	for (j = 0; j < 2; j++) {
 		for (i = 0; i < 8; i++) {
 			gint c = j * 8 + i;
 			page->palette_buttons[c] = gtk_color_button_new ();
+			gtk_widget_set_sensitive (page->palette_buttons[c], FALSE);
 			gtk_table_attach_defaults (GTK_TABLE (page->mirc_palette_table), page->palette_buttons[c], i, i+1, j, j+1);
+			gtk_color_button_set_color (GTK_COLOR_BUTTON (page->palette_buttons[c]), &colors[c]);
+			g_signal_connect (G_OBJECT (page->palette_buttons[c]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (c));
 		}
 	}
 	for (j = 0; j < 2; j++) {
 		for (i = 0; i < 8; i++) {
 			gint c = j * 8 + i + 16;
 			page->palette_buttons[c] = gtk_color_button_new ();
+			gtk_widget_set_sensitive (page->palette_buttons[c], FALSE);
 			gtk_table_attach_defaults (GTK_TABLE (page->extra_palette_table), page->palette_buttons[c], i, i+1, j, j+1);
+			gtk_color_button_set_color (GTK_COLOR_BUTTON (page->palette_buttons[c]), &colors[c]);
+			g_signal_connect (G_OBJECT (page->palette_buttons[c]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (c));
 		}
 	}
 
@@ -148,6 +175,21 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_box_pack_start (GTK_BOX (page->background_color_hbox), page->color_buttons[1], FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (page->foreground_mark_hbox),  page->color_buttons[2], FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (page->background_mark_hbox),  page->color_buttons[3], FALSE, TRUE, 0);
+
+	gtk_label_set_mnemonic_widget (GTK_LABEL (page->color_label_2), page->color_buttons[0]);
+	gtk_label_set_mnemonic_widget (GTK_LABEL (page->color_label_3), page->color_buttons[1]);
+	gtk_label_set_mnemonic_widget (GTK_LABEL (page->color_label_4), page->color_buttons[2]);
+	gtk_label_set_mnemonic_widget (GTK_LABEL (page->color_label_5), page->color_buttons[3]);
+
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (page->color_buttons[0]), &colors[34]);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (page->color_buttons[1]), &colors[35]);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (page->color_buttons[2]), &colors[33]);
+	gtk_color_button_set_color (GTK_COLOR_BUTTON (page->color_buttons[3]), &colors[32]);
+
+	g_signal_connect (G_OBJECT (page->color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 0));
+	g_signal_connect (G_OBJECT (page->color_buttons[1]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 1));
+	g_signal_connect (G_OBJECT (page->color_buttons[2]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 2));
+	g_signal_connect (G_OBJECT (page->color_buttons[3]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 3));
 
 	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/color.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
@@ -172,113 +214,4 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 void
 preferences_page_colors_free (PreferencesColorsPage *page)
 {
-}
-
-/*******************************************************************************
- * CRUFT BARRIER ***************************************************************
- *******************************************************************************/
-
-static GtkWidget *palette_buttons[32];
-static GtkWidget *color_buttons[4];
-
-static void
-color_button_changed (GtkColorButton *button, gpointer data)
-{
-	int index = GPOINTER_TO_INT (data);
-	GdkColor c;
-
-	gtk_color_button_get_color (button, &c);
-	if (index < 32) {
-		custom_palette[index].red = c.red;
-		custom_palette[index].green = c.green;
-		custom_palette[index].blue = c.blue;
-	} else {
-		custom_colors[index - 32].red = c.red;
-		custom_colors[index - 32].green = c.green;
-		custom_colors[index - 32].blue = c.blue;
-	}
-	palette_save ();
-}
-
-void
-initialize_preferences_colors_page ()
-{
-	GConfClient *client;
-	GtkWidget *table, *widget;
-	GtkWidget *hbox, *color_schemes;
-	GtkSizeGroup *group;
-	gint scheme, i, j, c;
-
-	client = gconf_client_get_default ();
-
-	/* Set up the palette. */
-	palette_init();
-
-	table = glade_xml_get_widget (gui.xml, "mirc palette table");
-	/* Initialize the palette color buttons. 2 rows of buttons and 8 columns. */
-	for (j = 0; j < 2; j++) {
-		for (i = 0; i < 8; i++) {
-			c = j * 8 + i;
-			palette_buttons[c] = gtk_color_button_new ();
-			gtk_widget_set_sensitive (palette_buttons[c], FALSE);
-			gtk_widget_show (palette_buttons[c]);
-			gtk_color_button_set_color (GTK_COLOR_BUTTON (palette_buttons[c]), &colors[c]);
-			gtk_table_attach_defaults (GTK_TABLE (table), palette_buttons[c], i, i+1, j, j+1);
-			g_signal_connect (G_OBJECT (palette_buttons[c]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (c));
-		}
-	}
-	table = glade_xml_get_widget (gui.xml, "extra palette table");
-	for (j = 0; j < 2; j++) {
-		for (i = 0; i < 8; i++) {
-			c = j * 8 + i + 16;
-			palette_buttons[c] = gtk_color_button_new ();
-			gtk_widget_set_sensitive (palette_buttons[c], FALSE);
-			gtk_widget_show (palette_buttons[c]);
-			gtk_color_button_set_color (GTK_COLOR_BUTTON (palette_buttons[c]), &colors[c]);
-			gtk_table_attach_defaults (GTK_TABLE (table), palette_buttons[c], i, i+1, j, j+1);
-			g_signal_connect (G_OBJECT (palette_buttons[c]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (c));
-		}
-	}
-
-	/* Foreground color */
-	color_buttons[0] = gtk_color_button_new ();
-	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[0]), &colors[34]);
-	gtk_widget_set_sensitive (color_buttons[0], FALSE);
-	hbox = glade_xml_get_widget (gui.xml, "text color hbox");
-	gtk_box_pack_start (GTK_BOX (hbox), color_buttons[0], FALSE, TRUE, 0);
-	widget = glade_xml_get_widget (gui.xml, "color label 2");
-	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), color_buttons[0]);
-	g_signal_connect (G_OBJECT (color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 0));
-
-	/* Background color */
-	color_buttons[1] = gtk_color_button_new ();
-	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[1]), &colors[35]);
-	gtk_widget_set_sensitive (color_buttons[1], FALSE);
-	hbox = glade_xml_get_widget (gui.xml, "background color hbox");
-	gtk_box_pack_start (GTK_BOX(hbox), color_buttons[1], FALSE, TRUE, 0);
-	widget = glade_xml_get_widget (gui.xml, "color label 3");
-	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), color_buttons[0]);
-	g_signal_connect (G_OBJECT (color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 1));
-
-	/* Foreground mark */
-	color_buttons[2] = gtk_color_button_new ();
-	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[2]), &colors[33]);
-	gtk_widget_set_sensitive (color_buttons[2], FALSE);
-	hbox = glade_xml_get_widget (gui.xml, "foreground mark hbox");
-	gtk_box_pack_start (GTK_BOX (hbox), color_buttons[2], FALSE, TRUE, 0);
-	widget = glade_xml_get_widget (gui.xml, "color label 4");
-	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), color_buttons[0]);
-	g_signal_connect (G_OBJECT (color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 2));
-
-	/* Background mark */
-	color_buttons[3] = gtk_color_button_new ();
-	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[3]), &colors[32]);
-	gtk_widget_set_sensitive (color_buttons[3], FALSE);
-	hbox = glade_xml_get_widget (gui.xml, "background mark hbox");
-	gtk_box_pack_start (GTK_BOX (hbox), color_buttons[3], FALSE, TRUE, 0);
-	widget = glade_xml_get_widget (gui.xml, "color label 5");
-	gtk_label_set_mnemonic_widget (GTK_LABEL (widget), color_buttons[0]);
-	g_signal_connect (G_OBJECT (color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 3));
-
-	g_object_unref (client);
 }

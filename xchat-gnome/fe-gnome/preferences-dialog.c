@@ -173,7 +173,6 @@ initialize_preferences_dialog ()
 	initialize_pages_list ();
 	initialize_file_transfers_page ();
 	initialize_preferences_servers_page ();
-	initialize_preferences_colors_page ();
 	initialize_preferences_plugins_page ();
 /*	initialize_preferences_keybindings_page ();*/
 
