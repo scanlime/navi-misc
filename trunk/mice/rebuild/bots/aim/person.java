@@ -75,8 +75,8 @@ public class person
 			status = 2;
 		  break;
 		case 2:
-			standmajor = standmajor + "/" + message;
-			send("You are now registered as: " + name + " (" + standmajor + ").  To ask a question, just send it to me and I'll submit it for you :)");
+			standmajor = " (" standmajor + "/" + message + ")";
+			send("You are now registered as: " + name + standmajor + ".  To ask a question, just send it to me and I'll submit it for you :)");
 			status = 3;
 			break;
 		case 3:
