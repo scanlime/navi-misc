@@ -75,11 +75,11 @@ class CommitFormatter(Message.Formatter):
                 if fileTag.name == 'file':
                     files.append(str(fileTag))
 
-	# If we only have one file, return it as the prefix.
-	# This prevents the below regex from deleting the filename
-	# itself, assuming it was a partial filename.
-	if len(files) == 1:
-	    return files[0], []
+        # If we only have one file, return it as the prefix.
+        # This prevents the below regex from deleting the filename
+        # itself, assuming it was a partial filename.
+        if len(files) == 1:
+            return files[0], []
 
         # Start with the prefix found by commonprefix,
         # then actually make it end with a directory rather than
@@ -384,7 +384,7 @@ class CommitToXHTMLLong(CommitToXHTML):
                 tag('h1')[ "Modified Files" ],
                 self.format_files(message.xml.body.commit.files),
                 ])
-	return content
+        return content
 
     def format_files(self, xmlFiles):
         """Format the contents of our <files> tag as a tree with nested lists"""

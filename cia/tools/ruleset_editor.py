@@ -166,8 +166,8 @@ class NewRulesetDialog(GladeUI):
     def buildAllProjectsRules(self):
         """Return a ruleset for showing commits from all projects in IRC"""
         return ("\t<or>\n"
-		"\t\t<find path='/message/body/commit'/>\n"
-		"\t\t<find path='/message/body/colorText'/>\n"
+                "\t\t<find path='/message/body/commit'/>\n"
+                "\t\t<find path='/message/body/colorText'/>\n"
                 "\t</or>\n"
                 "\n"
                 "\t<formatter medium='irc'/>\n"

@@ -12,12 +12,12 @@ class Options(Client.Options):
         ['type-profile', 't', 'Show a chart profiling which data types have the most instances'],
         ['console', 'c', 'Start an interactive debugging console'],
         ['preserve-namespace', 'p', "Don't reset the remote interpreter namespace"],
-	]
+        ]
 
     optParameters = [
         ['rebuild', 'r', None, 'Rebuild one specific package or module'],
         ['eval', 'e', None, 'Evaluate one statement of arbitrary code, printing the output'],
-	]
+        ]
 
 
 class RemoteConsole(code.InteractiveConsole):
