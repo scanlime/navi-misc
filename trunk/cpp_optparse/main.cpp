@@ -18,7 +18,7 @@ main (int argc, char **argv)
 
 	parser.add_option("-i", "--infile", "infile");
 	parser.add_option("-s", "", "savefile");
-	parser.add_option("","-boo", "boo");
+	parser.add_option("","-boo", "boo", "3");
 
 	parser.parse_args(argc, argv);
 	if (parser.arguments.size() < 1)
