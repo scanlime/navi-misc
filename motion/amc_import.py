@@ -30,8 +30,22 @@ Tip: 'Imports an Acclaim AMC file and applies motion capture data to an armature
 import Blender
 import AMCReader
 
-def importObjects (reader, armature):
-    pass
+def importData (reader, armature):
+    action = Blender.Armature.NLA.NewAction()
+    #action.setActive(armature)
+    scene = Blender.Scene.getCurrent()
+    context = scene.getRenderingContext()
+    b = {}
+
+    bones = armature.getBones()
+    for bone in bones:
+        b[bone.getName()] = bone
+
+    for frame in reader.frames:
+        print frame.number,type(frame.number)
+        context.currentFrame(int(frame.number))
+        loc = frame.bones['root'][0:3]
+        b['root'].setLoc(loc)
 
 def fileSelectedCallback(filename):
     reader = AMCReader.AMCReader()
