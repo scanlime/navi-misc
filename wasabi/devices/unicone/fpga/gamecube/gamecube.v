@@ -29,7 +29,7 @@ module gamecube (clk, reset,
 	input scl;
 	inout sda;
 	inout [0:0] gc_ports;
-	
+
 	/* Buffer between external 2-wire I2C and on-chip 3-wire I2C */
 	wire int_scl, int_sda_in;
 	wire [4:0] int_sda_out;
@@ -48,7 +48,6 @@ module gamecube (clk, reset,
 		clk, reset,
 		int_scl, int_sda_in, int_sda_out[1],
 		gc_ports[0]);
-
 /*
 	gc_i2c #(7'h41) controller_2(
 		clk, reset,
@@ -119,8 +118,10 @@ module gc_controller (clk, reset, tx, rx, controller_state, rumble);
 	 * project's YAGCD:
 	 *
 	 * http://www.gc-linux.org/docs/yagcd/chap9.html
+	 *
+	 * This is the value that standard controllers are observed to return:
 	 */
-	parameter CONTROLLER_ID = 24'h090000;
+	parameter CONTROLLER_ID = 24'h090020;
 
 	input clk, reset;
 	input rx;
