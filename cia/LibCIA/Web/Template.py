@@ -167,11 +167,6 @@ class Page(Nouvelle.Twisted.Page):
                     tag('td', _class="main")[ place("mainColumn") ],
                 ]],
                 tag('div', _class="footer")[
-                    # Navi logo, because we like navi
-                    tag('a', href="http://navi.cx")[
-                        tag('img', _class="footer", src="/images/navi64.png",
-                            width="64", height="39", alt="Navi"),
-                    ],
 
                     # Yep, this should be valid XHTML
                     tag('a', href="http://validator.w3.org/check/referer")[
@@ -179,11 +174,23 @@ class Page(Nouvelle.Twisted.Page):
                             alt="Valid XHTML 1.0!", height=31, width=88, _class="footer"),
                     ],
 
+                    xml(" "),
+
                     # And valid CSS
                     tag('a', href="http://jigsaw.w3.org/css-validator/check/referer")[
                         tag('img', src="http://jigsaw.w3.org/css-validator/images/vcss",
                             alt="Valid CSS!", height=31, width=88, _class="footer"),
                     ],
+
+                    # Legal goop
+                    tag('p', _class='smallprint')[
+                        "The CIA server and this web site are Copyright (C) 2003-2004 ",
+                        tag('a', _href='mailto:micah@picogui.org')["Micah Dowty"],
+                        ", and released under the ",
+                        tag('a', _href='/doc/COPYING')["GNU GPL"], ".", tag('br'),
+                        "All hosted messages and metadata are owned by their respective authors.",
+                    ],
+
                 ],
             ],
         ]]
@@ -246,6 +253,12 @@ class Page(Nouvelle.Twisted.Page):
                     id = 'active'
                 else:
                     id = None
+
+                # Some spacing between tabs. With CSS this won't have any effect,
+                # but in non-CSS browsers it keeps the tabs from all appearing
+                # as one squished together link.
+                if tabs:
+                    tabs.append(xml(" "))
 
                 tabs.append(tag('a', _class='tab', id=id, href=component.url)[ component.name ])
 
