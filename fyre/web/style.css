@@ -95,3 +95,10 @@ h1 {
 	float:			right;
 	padding:		0.5em 0em 0.5em 0.5em;
 }
+
+pre {
+	border:			1px dotted #00497c;
+	background:		#f0f0f0;
+	padding:		0.9em;
+	margin:			1em 2em;
+}

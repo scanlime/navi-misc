@@ -14,9 +14,11 @@
 <p>
     All the images you can create with this program are based on the simple
     Peter de Jong map equations:
-    <br />x' = sin(a * y) - cos(b * x)
-    <br />y' = sin(c * x) - cos(d * y)
 </p>
+<pre>
+x' = sin(a * y) - cos(b * x)
+y' = sin(c * x) - cos(d * y)
+</pre>
 
 <p>
     For most values of a,b,c and d the point (x,y) moves chaotically. The
