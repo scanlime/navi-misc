@@ -100,7 +100,7 @@ class Subscriber(SimpleXMLRPCServer):
        """
     def __init__(self, port):
         self.port = port
-        SimpleXMLRPCServer.__init__(self, ('', port))
+        SimpleXMLRPCServer.__init__(self, ('', port), logRequests=False)
         self.urlToCallbackMap = {}
         self.register_function(self.notify, 'notify')
 
@@ -114,10 +114,6 @@ class Subscriber(SimpleXMLRPCServer):
         """Subscribe to the provided feed, causing the given callback to be called when it changes"""
         self.urlToCallbackMap[feed.url] = callback
         feed.subscribe('notify', self.port, '/RPC2')
-
-    def log_request(self, code='-', size='-'):
-        """Be quiet, we don't want to see all HTTP traffic"""
-	pass
 
 
 def main(c):
