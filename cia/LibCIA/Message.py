@@ -412,7 +412,7 @@ class AutoFormatter(Formatter):
         import Formatters
         self.formatters = []
         for cls in Formatters.__dict__.itervalues():
-            if type(cls) is type and issubclass(cls, Formatter):
+            if type(cls) is type and hasattr(cls, 'format'):
                 if cls.medium == medium and cls.detector is not None:
                     # Load the formatter's detector function
                     # and make a list of (Formatter, Filter) instance
@@ -437,7 +437,7 @@ class NamedFormatter(Formatter):
             cls = Formatters.__dict__[name]
         except KeyError:
             raise KeyError("No such formatter %r" % name)
-        if not issubclass(cls, Formatter):
+        if not hasattr(cls, 'format'):
             raise KeyError("%r is not a formatter" % name)
         self.formatter = cls()
 
