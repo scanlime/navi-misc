@@ -75,7 +75,7 @@ SCL_MASK	equ 0x20
 
 	;; One-time-only setup
 	clrf	packet_seq
-	call	tc74_flush
+	tc74_flush
 	init_low_power
 
 main_loop
@@ -96,20 +96,20 @@ packet_burst_loop			;   This lets the receiver detect resets or battery changes 
 	decfsz	main_iter, f
 	goto	packet_burst_loop
 
-	call	tc74_flush		; Take several therm readings...
+	tc74_flush			; Take several therm readings...
 	movlw	N_THERM_SAMPLES
 	movwf	main_iter
 therm_sample_loop
 
 	init_low_power			; Turn on the TC74
-	call	tc74_init
+	tc74_init
 	init_timer_sleep_288msec	; Take a short nap while it samples
 	sleep
-	call	tc74_read		; Read the sample and shut it down
-	call	tc74_shutdown
+	tc74_read			; Read the sample and shut it down
+	tc74_shutdown
 
 	init_low_power			; Go into low power long-duration sleep between samples
-	init_timer_sleep_2304_msec
+	init_timer_sleep_2304msec
 	sleep_n	SAMPLE_DELAY
 
 	decfsz	main_iter, f		; Next therm sample...
