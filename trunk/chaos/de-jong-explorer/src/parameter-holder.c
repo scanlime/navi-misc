@@ -81,6 +81,14 @@ ParameterHolder* parameter_holder_new() {
   return PARAMETER_HOLDER(g_object_new(parameter_holder_get_type(), NULL));
 }
 
+void parameter_holder_pair_free(ParameterHolderPair *self) {
+  if (self->a)
+    g_object_unref(self->a);
+  if (self->b)
+    g_object_unref(self->b);
+  g_free(self);
+}
+
 
 /************************************************************************************/
 /************************************************************** Transform Functions */

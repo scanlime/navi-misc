@@ -22,8 +22,7 @@
 
 #include "explorer.h"
 #include "color-button.h"
-#include <stdlib.h>
-#include <math.h>
+#include "math-util.h"
 
 
 static void explorer_class_init(ExplorerClass *klass);
@@ -179,10 +178,10 @@ Explorer* explorer_new(DeJong *dejong, Animation *animation) {
 void explorer_set_params(Explorer *self) {
   self->setting_params = TRUE;
 
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_a")), self->dejong->a);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_b")), self->dejong->b);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_c")), self->dejong->c);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_d")), self->dejong->d);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_a")), self->dejong->param.a);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_b")), self->dejong->param.b);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_c")), self->dejong->param.c);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_d")), self->dejong->param.d);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_zoom")), self->dejong->zoom);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_xoffset")), self->dejong->xoffset);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_yoffset")), self->dejong->yoffset);
@@ -253,7 +252,7 @@ static void on_color_changed(GtkWidget *widget, gpointer user_data) {
 }
 
 static gdouble generate_random_param() {
-  return ((double)random())/RAND_MAX * 12 - 6;
+  return uniform_variate() * 12 - 6;
 }
 
 static void on_randomize(GtkWidget *widget, gpointer user_data) {

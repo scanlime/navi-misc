@@ -22,6 +22,7 @@
  */
 
 #include "de-jong.h"
+#include "math-util.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -33,10 +34,6 @@ static void de_jong_reset_calc(DeJong *self);
 
 static void update_double_if_necessary(gdouble new_value, gboolean *dirty_flag, gdouble *param, gdouble epsilon);
 static void update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param);
-
-static float uniform_variate();
-static float normal_variate();
-static int find_upper_pow2(int x);
 
 enum {
   PROP_0,
@@ -220,19 +217,19 @@ static void de_jong_set_property (GObject *object, guint prop_id, const GValue *
   switch (prop_id) {
 
   case PROP_A:
-    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->a, 0.000009);
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.a, 0.000009);
     break;
 
   case PROP_B:
-    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->b, 0.000009);
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.b, 0.000009);
     break;
 
   case PROP_C:
-    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->c, 0.000009);
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.c, 0.000009);
     break;
 
   case PROP_D:
-    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->d, 0.000009);
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.d, 0.000009);
     break;
 
   case PROP_ZOOM:
@@ -275,19 +272,19 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
   switch (prop_id) {
 
   case PROP_A:
-    g_value_set_double(value, self->a);
+    g_value_set_double(value, self->param.a);
     break;
 
   case PROP_B:
-    g_value_set_double(value, self->b);
+    g_value_set_double(value, self->param.b);
     break;
 
   case PROP_C:
-    g_value_set_double(value, self->c);
+    g_value_set_double(value, self->param.c);
     break;
 
   case PROP_D:
-    g_value_set_double(value, self->d);
+    g_value_set_double(value, self->param.d);
     break;
 
   case PROP_ZOOM:
@@ -324,6 +321,7 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
   }
 }
 
+
 /************************************************************************************/
 /********************************************************************** Calculation */
 /************************************************************************************/
@@ -331,10 +329,7 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
 void de_jong_calculate(DeJong *self, guint iterations) {
   /* Copy frequently used parameters to local variables */
   const gboolean tileable = self->tileable;
-  const double a = self->a;
-  const double b = self->b;
-  const double c = self->c;
-  const double d = self->d;
+  const DeJongParams param = self->param;
 
   /* Histogram state */
   HistogramPlot plot;
@@ -407,8 +402,8 @@ void de_jong_calculate(DeJong *self, guint iterations) {
     /* These are the actual Peter de Jong map equations. The new point value
      * gets stored into 'point', then we go on and mess with x and y before plotting.
      */
-    x = sin(a * point_y) - cos(b * point_x);
-    y = sin(c * point_x) - cos(d * point_y);
+    x = sin(param.a * point_y) - cos(param.b * point_x);
+    y = sin(param.c * point_x) - cos(param.d * point_y);
     point_x = x;
     point_y = y;
 
@@ -501,29 +496,6 @@ void de_jong_calculate_motion(DeJong               *self,
     self->calc_dirty_flag = !continuation;
     de_jong_calculate(self, blocksize);
   }
-}
-
-
-/************************************************************************************/
-/************************************************************************ Utilities */
-/************************************************************************************/
-
-static float uniform_variate() {
-  /* A uniform random variate between 0 and 1 */
-  return ((float) rand()) / RAND_MAX;
-}
-
-static float normal_variate() {
-  /* A unit-normal random variate, implemented with the Box-Muller method */
-  return sqrt(-2*log(uniform_variate())) * cos(uniform_variate() * (2*M_PI));
-}
-
-static int find_upper_pow2(int x) {
-  /* Find the smallest power of two greater than or equal to x */
-  int p = 1;
-  while (p < x)
-    p <<= 1;
-  return p;
 }
 
 static void de_jong_reset_calc(DeJong *self) {

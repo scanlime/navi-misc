@@ -24,11 +24,20 @@
  */
 
 #include "bifurcation-diagram.h"
-#include <stdlib.h>
+#include "math-util.h"
+#include <math.h>
 
-static void bifurcation_diagram_class_init(BifurcationDiagramClass *klass);
-static void bifurcation_diagram_init(BifurcationDiagram *self);
-static void bifurcation_diagram_dispose(GObject *gobject);
+static void               bifurcation_diagram_class_init        (BifurcationDiagramClass *klass);
+static void               bifurcation_diagram_init              (BifurcationDiagram      *self);
+static void               bifurcation_diagram_dispose           (GObject                 *gobject);
+
+static void               bifurcation_diagram_init_columns      (BifurcationDiagram      *self);
+static BifurcationColumn* bifurcation_diagram_next_column       (BifurcationDiagram      *self);
+static void               bifurcation_diagram_get_column_params (BifurcationDiagram      *self,
+								 BifurcationColumn       *column,
+								 DeJongParams            *param);
+
+static gpointer parent_class = NULL;
 
 
 /************************************************************************************/
@@ -59,17 +68,34 @@ GType bifurcation_diagram_get_type(void) {
 
 static void bifurcation_diagram_class_init(BifurcationDiagramClass *klass) {
   GObjectClass *object_class;
+  parent_class = g_type_class_ref(G_TYPE_OBJECT);
   object_class = (GObjectClass*) klass;
 
   object_class->dispose      = bifurcation_diagram_dispose;
 }
 
 static void bifurcation_diagram_init(BifurcationDiagram *self) {
-  /* Nothing to do here yet, everything's set up by our G_PARAM_CONSTRUCT properties */
 }
 
 static void bifurcation_diagram_dispose(GObject *gobject) {
   BifurcationDiagram *self = BIFURCATION_DIAGRAM(gobject);
+
+  if (self->columns) {
+    g_free(self->columns);
+    self->columns = NULL;
+  }
+
+  if (self->interpolant) {
+    g_object_unref(self->interpolant);
+    self->interpolant = NULL;
+  }
+
+  if (self->interp_data && self->interp_data_free)
+    self->interp_data_free(self->interp_data);
+  self->interp_data = NULL;
+  self->interp_data_free = NULL;
+
+  G_OBJECT_CLASS(parent_class)->dispose(gobject);
 }
 
 BifurcationDiagram* bifurcation_diagram_new() {
@@ -78,112 +104,176 @@ BifurcationDiagram* bifurcation_diagram_new() {
 
 
 /************************************************************************************/
+/************************************************************************* Settings */
+/************************************************************************************/
+
+void bifurcation_diagram_set_interpolator (BifurcationDiagram    *self,
+					   ParameterInterpolator *interp,
+					   gpointer               interp_data,
+					   GFreeFunc              interp_data_free) {
+  /* Free the old interpolator data */
+  if (self->interp_data && self->interp_data_free)
+    self->interp_data_free(self->interp_data);
+
+  self->interp = interp;
+  self->interp_data = interp_data;
+  self->interp_data_free = interp_data_free;
+
+  self->calc_dirty_flag = TRUE;
+}
+
+void bifurcation_diagram_set_linear_endpoints (BifurcationDiagram     *self,
+					       DeJong                 *first,
+					       DeJong                 *second) {
+  ParameterHolderPair *pair = g_new(ParameterHolderPair, 1);
+
+  pair->a = g_object_ref(first);
+  pair->b = g_object_ref(second);
+
+  bifurcation_diagram_set_interpolator(self, PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear),
+				       pair, (GFreeFunc) parameter_holder_pair_free);
+}
+
+
+/************************************************************************************/
+/************************************************************************** Columns */
+/************************************************************************************/
+
+static void bifurcation_diagram_init_columns (BifurcationDiagram *self) {
+  int hist_width;
+  int i, tmp, j;
+
+  /* Do we need to resize the column array? */
+  histogram_imager_get_hist_size(HISTOGRAM_IMAGER(self), &hist_width, NULL);
+  if (hist_width != self->num_columns) {
+
+    if (self->columns)
+      g_free(self->columns);
+
+    /* Create columns and number them */
+    self->num_columns = hist_width;
+    self->columns = g_new0(BifurcationColumn, self->num_columns);
+    for (i=0; i<self->num_columns; i++)
+      self->columns[i].ix = i;
+
+    /* Shuffle them, so we render in a seemingly-random order */
+    for (i=self->num_columns-1; i>=0; i--) {
+      j = ((int) random() % (i+1));
+      tmp = self->columns[i].ix;
+      self->columns[i].ix = self->columns[j].ix;
+      self->columns[j].ix = tmp;
+    }
+
+    self->calc_dirty_flag = TRUE;
+  }
+
+  /* Should we be resetting the columns, either due to
+   * a change in interpolants or a column array resize?
+   */
+  if (self->calc_dirty_flag || HISTOGRAM_IMAGER(self)->histogram_clear_flag) {
+    for (i=0; i<self->num_columns; i++) {
+
+      /* Invalidate each column and each interpolated parameter set */
+      self->columns[i].point.valid = FALSE;
+      for (j=0; j<(sizeof(self->columns[0].interpolated)/
+		   sizeof(self->columns[0].interpolated[0])); j++) {
+	self->columns[i].interpolated[j].valid = FALSE;
+      }
+    }
+  }
+}
+
+static BifurcationColumn* bifurcation_diagram_next_column (BifurcationDiagram *self) {
+  /* Get the next column, wrapping around when we hit the end */
+  BifurcationColumn *column = &self->columns[self->current_column];
+  if (++self->current_column >= self->num_columns)
+    self->current_column = 0;
+
+  /* Initialize this column's point if it isn't yet */
+  if (!column->point.valid) {
+    column->point.x = uniform_variate();
+    column->point.y = uniform_variate();
+    column->point.valid = TRUE;
+  }
+
+  return column;
+}
+
+static void bifurcation_diagram_get_column_params (BifurcationDiagram *self,
+						   BifurcationColumn  *column,
+						   DeJongParams       *param) {
+  /* Get a random parameter set from the given column, creating it if necessary */
+  int interpIndex = random() % (sizeof(self->columns[0].interpolated)/
+				sizeof(self->columns[0].interpolated[0]));
+
+  if (!column->interpolated[interpIndex].valid) {
+
+    /* Create an interpolant if we don't have one yet */
+    if (!self->interpolant)
+      self->interpolant = de_jong_new();
+
+    /* Pick a random place within the column to perform the interpolation */
+    self->interp(PARAMETER_HOLDER(self->interpolant),
+		 (column->ix + uniform_variate()) / (self->num_columns - 1),
+		 self->interp_data);
+    column->interpolated[interpIndex].param = self->interpolant->param;
+
+    column->interpolated[interpIndex].valid = TRUE;
+  }
+
+  *param = column->interpolated[interpIndex].param;
+}
+
+
+/************************************************************************************/
 /********************************************************************** Calculation */
 /************************************************************************************/
 
-#if 0
-void bifurcation_diagram_calculate(BifurcationDiagram    *self,
-				   ParameterInterpolator *interp,
-				   gpointer               interp_data,
-				   guint                  iterations) {
-  bifurcation_diagram_check_dirty_flags(self);
-  bifurcation_diagram_require_histogram(self);
+void bifurcation_diagram_calculate (BifurcationDiagram *self,
+				    guint               iterations_total,
+				    guint               iterations_per_column) {
+  DeJongParams param;
+  BifurcationColumn *column;
+  HistogramPlot plot;
+  int hist_width, hist_height;
+  double x, y, point_x, point_y;
+  int i, col_i, ix, iy;
 
-  {
-    guint* const histogram = self->histogram;
-    const int hist_width = self->width * self->oversample;
-    const int hist_height = self->height * self->oversample;
-    const gdouble y_min = -5;
-    const gdouble y_max = 5;
+  const float y_min = -5;
+  const float y_max = 5;
 
-    BifurcationColumn *column;
-    double x, y, a, b, c, d, alpha, point_x, point_y;
-    gulong density, bucket;
-    int block, ix, iy, i, j;
-    guint *p;
-    BifurcationDiagram *interpolant;
-    int tmp;
-    interpolant = bifurcation_diagram_new();
+  bifurcation_diagram_init_columns(self);
+  histogram_imager_prepare_plots(HISTOGRAM_IMAGER(self), &plot);
+  histogram_imager_get_hist_size(HISTOGRAM_IMAGER(self), &hist_width, &hist_height);
 
-    density = self->current_density;
+  for (i=iterations_total; i;) {
 
-    if (!self->columns) {
-      /* Create columns and number them */
-      self->columns = g_new0(BifurcationColumn, hist_width);
-      for (i=0; i<hist_width; i++)
-	self->columns[i].ix = i;
+    column = bifurcation_diagram_next_column(self);
+    bifurcation_diagram_get_column_params(self, column, &param);
+    point_x = column->point.x;
+    point_y = column->point.y;
 
-      /* Shuffle them, so we render in a seemingly-random order */
-      for (i=hist_width-1; i>=0; i--) {
-	j = ((int) random() % (i+1));
-	tmp = self->columns[i].ix;
-	self->columns[i].ix = self->columns[j].ix;
-	self->columns[j].ix = tmp;
+    for(col_i=iterations_per_column; i && col_i; --i, --col_i) {
+      /* These are the actual Peter de Jong map equations. The new point value
+       * gets stored into 'point', then we go on and mess with x and y before plotting.
+       */
+      x = sin(param.a * point_y) - cos(param.b * point_x);
+      y = sin(param.c * point_x) - cos(param.d * point_y);
+      point_x = x;
+      point_y = y;
+
+      if (y >= y_min && y < y_max) {
+	iy = (int)( (y - y_min) / (y_max - y_min) * hist_height );
+
+	HISTOGRAM_IMAGER_PLOT(plot, ix, iy);
       }
     }
 
-    for (i=iterations; i;) {
-
-      /* Pick the next column, with a randomly chosen set of interpolated parameters */
-      column = &self->columns[self->current_column++];
-      if (self->current_column >= hist_width)
-	self->current_column = 0;
-
-      ix = column->ix;
-
-      if (!column->initialized) {
-	column->point_x = uniform_variate();
-	column->point_y = uniform_variate();
-	column->initialized = TRUE;
-      }
-      point_x = column->point_x;
-      point_y = column->point_y;
-
-      j = random() % (sizeof(self->columns[0].interpolated) / sizeof(self->columns[0].interpolated[0]));
-      if (!column->interpolated[j].initialized) {
-	interp(interpolant, (column->ix + uniform_variate()) / (hist_width - 1), interp_data);
-	column->interpolated[j].a = interpolant->a;
-	column->interpolated[j].b = interpolant->b;
-	column->interpolated[j].c = interpolant->c;
-	column->interpolated[j].d = interpolant->d;
-	column->interpolated[j].initialized = TRUE;
-      }
-      a = column->interpolated[j].a;
-      b = column->interpolated[j].b;
-      c = column->interpolated[j].c;
-      d = column->interpolated[j].d;
-
-      for(block=50; i && block; --i, --block) {
-	/* These are the actual Peter de Jong map equations. The new point value
-	 * gets stored into 'point', then we go on and mess with x and y before plotting.
-	 */
-	x = sin(a * point_y) - cos(b * point_x);
-	y = sin(c * point_x) - cos(d * point_y);
-	point_x = x;
-	point_y = y;
-
-	if (y >= y_min && y < y_max) {
-	  iy = (int)( (y - y_min) / (y_max - y_min) * hist_height );
-
-	  /* Plot our point in the counts array, updating the peak density */
-	  p = histogram + ix + hist_width * iy;
-	  bucket = *p = *p + 1;
-	  if (bucket > density)
-	    density = bucket;
-
-	  self->iterations++;
-	}
-      }
-
-      /* Update the column */
-      column->point_x = point_x;
-      column->point_y = point_y;
-    }
-
-    self->current_density = density;
-    g_object_unref(interpolant);
+    column->point.x = point_x;
+    column->point.y = point_y;
   }
+
+  histogram_imager_finish_plots(HISTOGRAM_IMAGER(self), &plot);
 }
-#endif
 
 /* The End */

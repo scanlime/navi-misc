@@ -281,61 +281,61 @@ static void tool_exposure_gamma(Explorer *self, ToolInput *i) {
 
 static void tool_a_b(Explorer *self, ToolInput *i) {
   g_object_set(self->dejong,
-	       "a", self->dejong->a + i->delta_x * 0.001,
-	       "b", self->dejong->b + i->delta_y * 0.001,
+	       "a", self->dejong->param.a + i->delta_x * 0.001,
+	       "b", self->dejong->param.b + i->delta_y * 0.001,
 	       NULL);
 }
 
 static void tool_a_c(Explorer *self, ToolInput *i) {
   g_object_set(self->dejong,
-	       "a", self->dejong->a + i->delta_x * 0.001,
-	       "c", self->dejong->c + i->delta_y * 0.001,
+	       "a", self->dejong->param.a + i->delta_x * 0.001,
+	       "c", self->dejong->param.c + i->delta_y * 0.001,
 	       NULL);
 }
 
 static void tool_a_d(Explorer *self, ToolInput *i) {
   g_object_set(self->dejong,
-	       "a", self->dejong->a + i->delta_x * 0.001,
-	       "d", self->dejong->d + i->delta_y * 0.001,
+	       "a", self->dejong->param.a + i->delta_x * 0.001,
+	       "d", self->dejong->param.d + i->delta_y * 0.001,
 	       NULL);
 }
 
 static void tool_b_c(Explorer *self, ToolInput *i) {
   g_object_set(self->dejong,
-	       "b", self->dejong->b + i->delta_x * 0.001,
-	       "c", self->dejong->c + i->delta_y * 0.001,
+	       "b", self->dejong->param.b + i->delta_x * 0.001,
+	       "c", self->dejong->param.c + i->delta_y * 0.001,
 	       NULL);
 }
 
 static void tool_b_d(Explorer *self, ToolInput *i) {
   g_object_set(self->dejong,
-	       "b", self->dejong->b + i->delta_x * 0.001,
-	       "d", self->dejong->d + i->delta_y * 0.001,
+	       "b", self->dejong->param.b + i->delta_x * 0.001,
+	       "d", self->dejong->param.d + i->delta_y * 0.001,
 	       NULL);
 }
 
 static void tool_c_d(Explorer *self, ToolInput *i) {
   g_object_set(self->dejong,
-	       "c", self->dejong->c + i->delta_x * 0.001,
-	       "d", self->dejong->d + i->delta_y * 0.001,
+	       "c", self->dejong->param.c + i->delta_x * 0.001,
+	       "d", self->dejong->param.d + i->delta_y * 0.001,
 	       NULL);
 }
 
 static void tool_ab_cd(Explorer *self, ToolInput *i) {
   g_object_set(self->dejong,
-	       "a", self->dejong->a + i->delta_x * 0.001,
-	       "b", self->dejong->b + i->delta_x * 0.001,
-	       "c", self->dejong->c + i->delta_y * 0.001,
-	       "d", self->dejong->d + i->delta_y * 0.001,
+	       "a", self->dejong->param.a + i->delta_x * 0.001,
+	       "b", self->dejong->param.b + i->delta_x * 0.001,
+	       "c", self->dejong->param.c + i->delta_y * 0.001,
+	       "d", self->dejong->param.d + i->delta_y * 0.001,
 	       NULL);
 }
 
 static void tool_ac_bd(Explorer *self, ToolInput *i) {
   g_object_set(self->dejong,
-	       "a", self->dejong->a + i->delta_x * 0.001,
-	       "b", self->dejong->b + i->delta_y * 0.001,
-	       "c", self->dejong->c + i->delta_x * 0.001,
-	       "d", self->dejong->d + i->delta_y * 0.001,
+	       "a", self->dejong->param.a + i->delta_x * 0.001,
+	       "b", self->dejong->param.b + i->delta_y * 0.001,
+	       "c", self->dejong->param.c + i->delta_x * 0.001,
+	       "d", self->dejong->param.d + i->delta_y * 0.001,
 	       NULL);
 }
 

@@ -19,7 +19,8 @@ OBJS    = \
 	src/cell-renderer-bifurcation.o \
 	src/histogram-imager.o	\
 	src/parameter-holder.o	\
-	src/bifurcation-diagram.o
+	src/bifurcation-diagram.o \
+	src/math-util.o
 
 
 $(BIN): $(OBJS)
