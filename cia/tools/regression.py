@@ -49,6 +49,14 @@ class SourceTree:
     """A CIA source tree. We can start and stop a server using this source,
        and run various benchmarks and database operations on it.
        """
+    rulesets = [
+    """
+    <ruleset uri='stats://project'>
+        <return path='/message/source/project'/>
+    </ruleset>
+    """,
+    ]
+       
     def __init__(self, path):
         self.path = path
         self.pid = None
@@ -102,23 +110,7 @@ class SourceTree:
     def loadRulesets(self, server):
         """Load stats rulesets for benchmarking"""
         key = open(os.path.expanduser("~/.cia_key")).read()
-        for ruleset in (
-            """
-            <ruleset uri='stats://author'>
-            <return path='/message/body/commit/author'/>
-            </ruleset>
-            """,
-            """
-            <ruleset uri='stats://project'>
-            <return path='/message/source/project'/>
-            </ruleset>
-            """,
-            """
-            <ruleset uri='stats://all'>
-            <return>.</return>
-            </ruleset>
-            """
-            ):
+        for ruleset in self.rulesets:
             server.ruleset.store(key, ruleset)
 
     def benchmark(self):
@@ -132,7 +124,7 @@ class SourceTree:
         server = xmlrpclib.ServerProxy("http://localhost:3910", allow_none=True)
         self.loadRulesets(server)
 
-        speed = RandomMessage.benchmark(server)
+        speed = RandomMessage.benchmark(server, 1000)
         memory = getProcRSS(self.pid)
 
         self.stopServer()
@@ -163,6 +155,7 @@ def main(firstRev, lastRev, outFileName):
     outfile = open(outFileName, "w")
     ws = Workspace()
     outfile.write("revision, speed, memory\n")
+    outfile.flush()
 
     for rev in xrange(firstRev, lastRev+1):
         print "Testing revision %d..." % rev
@@ -170,6 +163,7 @@ def main(firstRev, lastRev, outFileName):
             tree = SourceTree(ws.checkout(rev))
             speed, memory = tree.benchmark()
             outfile.write("%r, %r, %r\n" % (rev, speed, memory))
+            outfile.flush()
         finally:
             ws.clear()
             try:
