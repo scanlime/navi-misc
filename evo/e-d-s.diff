@@ -3,16 +3,15 @@
 ? addressbook/libedata-book/libedata-book-1.2.pc
 ? addressbook/libedata-book/libedata-book.pc
 ? calendar/backends/weather
-? calendar/libecal/.e-cal-component.h.swp
 ? calendar/libecal/libecal-1.2.pc
 ? calendar/libecal/libecal.pc
-? calendar/libedata-cal/.e-data-cal-factory.c.swp
 ? calendar/libedata-cal/libedata-cal-1.2.pc
 ? calendar/libedata-cal/libedata-cal.pc
 ? calendar/libical/src/libicalss/icalssyacc.output
 ? libedataserver/libedataserver-1.2.pc
 ? libedataserver/libedataserver.pc
 ? servers/groupwise/libegroupwise.pc
+? src/.server.c.swp
 ? src/GNOME_Evolution_DataServer_1.2.server
 Index: configure.in
 ===================================================================
@@ -20,7 +19,7 @@ RCS file: /cvs/gnome/evolution-data-server/configure.in,v
 retrieving revision 1.69
 diff -u -r1.69 configure.in
 --- configure.in	23 Sep 2004 16:45:27 -0000	1.69
-+++ configure.in	29 Sep 2004 18:35:32 -0000
++++ configure.in	30 Sep 2004 11:09:42 -0000
 @@ -312,6 +312,7 @@
  calendar/backends/groupwise/Makefile
  calendar/backends/http/Makefile
@@ -35,346 +34,17 @@ RCS file: /cvs/gnome/evolution-data-server/calendar/backends/Makefile.am,v
 retrieving revision 1.3
 diff -u -r1.3 Makefile.am
 --- calendar/backends/Makefile.am	9 Jan 2004 20:05:27 -0000	1.3
-+++ calendar/backends/Makefile.am	29 Sep 2004 18:35:32 -0000
++++ calendar/backends/Makefile.am	30 Sep 2004 11:09:43 -0000
 @@ -1 +1 @@
 -SUBDIRS = file groupwise http contacts
 +SUBDIRS = file groupwise http contacts weather
-Index: calendar/idl/Evolution-DataServer-Calendar.idl
-===================================================================
-RCS file: /cvs/gnome/evolution-data-server/calendar/idl/Evolution-DataServer-Calendar.idl,v
-retrieving revision 1.5
-diff -u -r1.5 Evolution-DataServer-Calendar.idl
---- calendar/idl/Evolution-DataServer-Calendar.idl	1 Mar 2004 15:45:57 -0000	1.5
-+++ calendar/idl/Evolution-DataServer-Calendar.idl	29 Sep 2004 18:35:33 -0000
-@@ -51,7 +51,8 @@
- 	const CalObjType TYPE_EVENT   = 1 << 0;
- 	const CalObjType TYPE_TODO    = 1 << 1;
- 	const CalObjType TYPE_JOURNAL = 1 << 2;
--	const CalObjType TYPE_ANY     = 0x07;
-+	const CalObjType TYPE_WEATHER = 1 << 3;
-+	const CalObjType TYPE_ANY     = 0x0f;
- 
- 	/* Flags for getting UID sequences */
- 	typedef long CalObjModType;
-Index: calendar/libecal/e-cal-component.c
-===================================================================
-RCS file: /cvs/gnome/evolution-data-server/calendar/libecal/e-cal-component.c,v
-retrieving revision 1.11
-diff -u -r1.11 e-cal-component.c
---- calendar/libecal/e-cal-component.c	24 Sep 2004 14:24:58 -0000	1.11
-+++ calendar/libecal/e-cal-component.c	29 Sep 2004 18:35:34 -0000
-@@ -1067,7 +1067,8 @@
- 	      || kind == ICAL_VTODO_COMPONENT
- 	      || kind == ICAL_VJOURNAL_COMPONENT
- 	      || kind == ICAL_VFREEBUSY_COMPONENT
--	      || kind == ICAL_VTIMEZONE_COMPONENT))
-+	      || kind == ICAL_VTIMEZONE_COMPONENT
-+	      || kind == ICAL_XWEATHER_COMPONENT))
- 		return FALSE;
- 
- 	priv->icalcomp = icalcomp;
-@@ -1170,6 +1171,9 @@
- 	case ICAL_VTIMEZONE_COMPONENT:
- 		return E_CAL_COMPONENT_TIMEZONE;
- 
-+	case ICAL_XWEATHER_COMPONENT:
-+		return E_CAL_COMPONENT_XWEATHER;
-+
- 	default:
- 		/* We should have been loaded with a supported type! */
- 		g_assert_not_reached ();
-Index: calendar/libecal/e-cal-component.h
-===================================================================
-RCS file: /cvs/gnome/evolution-data-server/calendar/libecal/e-cal-component.h,v
-retrieving revision 1.5
-diff -u -r1.5 e-cal-component.h
---- calendar/libecal/e-cal-component.h	23 Sep 2004 21:06:46 -0000	1.5
-+++ calendar/libecal/e-cal-component.h	29 Sep 2004 18:35:34 -0000
-@@ -48,7 +48,8 @@
- 	E_CAL_COMPONENT_TODO,
- 	E_CAL_COMPONENT_JOURNAL,
- 	E_CAL_COMPONENT_FREEBUSY,
--	E_CAL_COMPONENT_TIMEZONE
-+	E_CAL_COMPONENT_TIMEZONE,
-+	E_CAL_COMPONENT_XWEATHER
- } ECalComponentVType;
- 
- /* Field identifiers for a calendar component; these are used by the data model
-Index: calendar/libecal/e-cal.c
-===================================================================
-RCS file: /cvs/gnome/evolution-data-server/calendar/libecal/e-cal.c,v
-retrieving revision 1.77
-diff -u -r1.77 e-cal.c
---- calendar/libecal/e-cal.c	24 Sep 2004 14:24:58 -0000	1.77
-+++ calendar/libecal/e-cal.c	29 Sep 2004 18:35:34 -0000
-@@ -214,6 +214,8 @@
- 		return GNOME_Evolution_Calendar_TYPE_TODO;
- 	case E_CAL_SOURCE_TYPE_JOURNAL:
- 		return GNOME_Evolution_Calendar_TYPE_JOURNAL;
-+	case E_CAL_SOURCE_TYPE_WEATHER:
-+		return GNOME_Evolution_Calendar_TYPE_WEATHER;
- 	default:
- 		return GNOME_Evolution_Calendar_TYPE_ANY;
- 	}
-@@ -1010,19 +1012,18 @@
- 	char *query;
- 	int i;
- 
--
- 	/* Determine the protocol and query for factory supporting that */
- 	uri = e_uri_new (str_uri);
- 	if (!uri) {
- 		g_warning (G_STRLOC ": Invalid uri string");
--		
-+
- 		return FALSE;
- 	}
- 
- 	query = g_strdup_printf ("repo_ids.has ('IDL:GNOME/Evolution/DataServer/CalFactory:" BASE_VERSION "')"
- 				 " AND calendar:supported_protocols.has ('%s')", uri->protocol);
- 
--	
-+
- 	servers = bonobo_activation_query (query, NULL, NULL);
- 
- 	g_free (query);
-@@ -1030,21 +1031,21 @@
- 
- 	if (!servers) {
- 		g_warning (G_STRLOC ": Unable to query for calendar factories");
--		
-+
- 		return FALSE;
--	}	
--	
-+	}
-+
- 	/* Try to activate the servers for the protocol */
- 	for (i = 0; i < servers->_length; i++) {
- 		const Bonobo_ServerInfo *info;
- 
- 		info = servers->_buffer + i;
- 
--#if 0
-+#if 1
- 		g_message (G_STRLOC ": Activating calendar factory (%s)", info->iid);
- #endif
- 		factory = bonobo_activation_activate_from_id (info->iid, 0, NULL, NULL);
--		
-+
- 		if (factory == CORBA_OBJECT_NIL)
- 			g_warning (G_STRLOC ": Could not activate calendar factory (%s)", info->iid);
- 		else
-@@ -1359,9 +1360,9 @@
- e_cal_new (ESource *source, ECalSourceType type)
- {
- 	ECal *ecal;
--	
-+
- 	e_cal_activate ();
--	
-+
- 	ecal = g_object_new (E_TYPE_CAL, NULL);
- 
- 	if (!fetch_corba_cal (ecal, source, type)) {
-@@ -4495,6 +4496,7 @@
- {
- 	switch (type) {
- 	case E_CAL_SOURCE_TYPE_EVENT:
-+	case E_CAL_SOURCE_TYPE_WEATHER:
- 		return get_sources (sources, "/apps/evolution/calendar/sources", error);		
- 		break;
- 	case E_CAL_SOURCE_TYPE_TODO:
-Index: calendar/libecal/e-cal.h
-===================================================================
-RCS file: /cvs/gnome/evolution-data-server/calendar/libecal/e-cal.h,v
-retrieving revision 1.19
-diff -u -r1.19 e-cal.h
---- calendar/libecal/e-cal.h	2 Jun 2004 16:15:00 -0000	1.19
-+++ calendar/libecal/e-cal.h	29 Sep 2004 18:35:34 -0000
-@@ -52,7 +52,8 @@
- 	E_CAL_SOURCE_TYPE_EVENT,
- 	E_CAL_SOURCE_TYPE_TODO,
- 	E_CAL_SOURCE_TYPE_JOURNAL,
--	E_CAL_SOURCE_TYPE_LAST
-+	E_CAL_SOURCE_TYPE_WEATHER,
-+	E_CAL_SOURCE_TYPE_LAST,
- } ECalSourceType;
- 
- /* Set mode status for the e_cal_set_mode function */
-Index: calendar/libedata-cal/e-cal-backend-cache.c
-===================================================================
-RCS file: /cvs/gnome/evolution-data-server/calendar/libedata-cal/e-cal-backend-cache.c,v
-retrieving revision 1.17
-diff -u -r1.17 e-cal-backend-cache.c
---- calendar/libedata-cal/e-cal-backend-cache.c	22 Sep 2004 16:41:07 -0000	1.17
-+++ calendar/libedata-cal/e-cal-backend-cache.c	29 Sep 2004 18:35:34 -0000
-@@ -400,13 +400,15 @@
- 				icalcomponent_kind kind;
- 
- 				kind = icalcomponent_isa (icalcomp);
--				if (kind == ICAL_VEVENT_COMPONENT || kind == ICAL_VTODO_COMPONENT) {
-+				if (kind == ICAL_VEVENT_COMPONENT || kind == ICAL_VTODO_COMPONENT || kind == ICAL_XWEATHER_COMPONENT) {
- 					comp = e_cal_component_new ();
- 					e_cal_component_set_icalcomponent (comp, icalcomp);
- 					list = g_list_append (list, comp);
- 				} else
- 					icalcomponent_free (icalcomp);
-                         }
-+			else
-+				g_print ("couldn't parse!\n");
-                 }
-                 
-         }
-Index: calendar/libedata-cal/e-cal-backend.c
-===================================================================
-RCS file: /cvs/gnome/evolution-data-server/calendar/libedata-cal/e-cal-backend.c,v
-retrieving revision 1.8
-diff -u -r1.8 e-cal-backend.c
---- calendar/libedata-cal/e-cal-backend.c	11 Jun 2004 15:54:15 -0000	1.8
-+++ calendar/libedata-cal/e-cal-backend.c	29 Sep 2004 18:35:35 -0000
-@@ -226,7 +226,7 @@
- 
- 	g_object_class_install_property (object_class, PROP_KIND, 
- 					 g_param_spec_ulong ("kind", NULL, NULL, 
--							     ICAL_NO_COMPONENT, ICAL_XLICMIMEPART_COMPONENT, 
-+							     ICAL_NO_COMPONENT, ICAL_LAST_COMPONENT - 1, 
- 							     ICAL_NO_COMPONENT,
- 							     G_PARAM_READABLE | G_PARAM_WRITABLE
- 							     | G_PARAM_CONSTRUCT_ONLY));	
-@@ -997,8 +997,10 @@
- 		query = QUERY (e_iterator_get (iter));
- 
- 		bonobo_object_ref (query);
--		if (e_data_cal_view_object_matches (query, calobj))		
-+		if (e_data_cal_view_object_matches (query, calobj))
-+		{
- 			e_data_cal_view_notify_objects_added_1 (query, calobj);
-+		}
- 		bonobo_object_unref (query);
- 
- 		e_iterator_next (iter);
-Index: calendar/libedata-cal/e-data-cal-factory.c
-===================================================================
-RCS file: /cvs/gnome/evolution-data-server/calendar/libedata-cal/e-data-cal-factory.c,v
-retrieving revision 1.9
-diff -u -r1.9 e-data-cal-factory.c
---- calendar/libedata-cal/e-data-cal-factory.c	2 Aug 2004 11:38:08 -0000	1.9
-+++ calendar/libedata-cal/e-data-cal-factory.c	29 Sep 2004 18:35:35 -0000
-@@ -69,6 +69,8 @@
- 		return ICAL_VTODO_COMPONENT;
- 	case GNOME_Evolution_Calendar_TYPE_JOURNAL:
- 		return ICAL_VJOURNAL_COMPONENT;
-+	case GNOME_Evolution_Calendar_TYPE_WEATHER:
-+		return ICAL_XWEATHER_COMPONENT;
- 	}
- 	
- 	return ICAL_NO_COMPONENT;
-@@ -79,7 +81,7 @@
- {
- 	GHashTable *kinds;
- 	GType type;
--	
-+
- 	kinds = g_hash_table_lookup (methods, method);
- 	if (!kinds)
- 		return 0;
-@@ -171,7 +173,7 @@
- 	char *str_uri;
- 	EUri *uri;
- 	char *uri_type_string;
--	
-+
- 	factory = E_DATA_CAL_FACTORY (bonobo_object_from_servant (servant));
- 	priv = factory->priv;
- 
-Index: calendar/libical/src/libical/icalcomponent.c
-===================================================================
-RCS file: /cvs/gnome/libical/src/libical/icalcomponent.c,v
-retrieving revision 1.27
-diff -u -r1.27 icalcomponent.c
---- calendar/libical/src/libical/icalcomponent.c	21 Oct 2003 18:28:29 -0000	1.27
-+++ calendar/libical/src/libical/icalcomponent.c	29 Sep 2004 18:35:35 -0000
-@@ -690,7 +690,8 @@
- 	   kind == ICAL_VFREEBUSY_COMPONENT ||
- 	   kind == ICAL_VQUERY_COMPONENT ||
- 	   kind == ICAL_VREPLY_COMPONENT ||
--	   kind == ICAL_VAGENDA_COMPONENT){
-+	   kind == ICAL_VAGENDA_COMPONENT ||
-+	   kind == ICAL_XWEATHER_COMPONENT){
- 	    return comp;
- 	}
-     }
-@@ -757,8 +758,9 @@
- 
-     if( !( kind == ICAL_VEVENT_COMPONENT ||
- 	   kind == ICAL_VJOURNAL_COMPONENT ||
--	   kind == ICAL_VTODO_COMPONENT ||	   
--	   kind == ICAL_VFREEBUSY_COMPONENT )) {
-+	   kind == ICAL_VTODO_COMPONENT ||
-+	   kind == ICAL_VFREEBUSY_COMPONENT ||
-+	   kind == ICAL_XWEATHER_COMPONENT)) {
- 	icalerror_set_errno(ICAL_MALFORMEDDATA_ERROR);
- 	/*icalerror_warn("icalcomponent_get_span: no component specified, or empty VCALENDAR component");*/
- 	return span; 
-@@ -1254,6 +1256,7 @@
-     { ICAL_XDAYLIGHT_COMPONENT, "DAYLIGHT" }, /*but are not really components*/
-     { ICAL_X_COMPONENT, "X" },
-     { ICAL_VSCHEDULE_COMPONENT, "SCHEDULE" },
-+    { ICAL_XWEATHER_COMPONENT, "X-WEATHER" },
- 
-     /* CAP components */
-     { ICAL_VCAR_COMPONENT, "VCAR" },  
-Index: calendar/libical/src/libical/icalenums.h
-===================================================================
-RCS file: /cvs/gnome/libical/src/libical/icalenums.h,v
-retrieving revision 1.9
-diff -u -r1.9 icalenums.h
---- calendar/libical/src/libical/icalenums.h	11 Sep 2003 22:04:19 -0000	1.9
-+++ calendar/libical/src/libical/icalenums.h	29 Sep 2004 18:35:35 -0000
-@@ -60,8 +60,10 @@
-     ICAL_VCAR_COMPONENT,
-     ICAL_VCOMMAND_COMPONENT,
-     ICAL_XLICINVALID_COMPONENT,
--    ICAL_XLICMIMEPART_COMPONENT /* a non-stardard component that mirrors
--				structure of MIME data */
-+    ICAL_XLICMIMEPART_COMPONENT, /* a non-stardard component that mirrors
-+				 structure of MIME data */
-+    ICAL_XWEATHER_COMPONENT,
-+    ICAL_LAST_COMPONENT
- 
- } icalcomponent_kind;
- 
-Index: calendar/libical/src/libical/vcomponent.cpp
-===================================================================
-RCS file: /cvs/gnome/libical/src/libical/vcomponent.cpp,v
-retrieving revision 1.1
-diff -u -r1.1 vcomponent.cpp
---- calendar/libical/src/libical/vcomponent.cpp	11 Sep 2003 22:04:21 -0000	1.1
-+++ calendar/libical/src/libical/vcomponent.cpp	29 Sep 2004 18:35:36 -0000
-@@ -201,6 +201,7 @@
- 				result = new VCalendar(t);
- 				break;
- 			case ICAL_VEVENT_COMPONENT:
-+			case ICAL_XWEATHER_COMPONENT:
- 				result = new VEvent(t);
- 				break;
- 			case ICAL_VQUERY_COMPONENT:
-@@ -231,6 +232,7 @@
- 				result = new VCalendar(t);
- 				break;
- 			case ICAL_VEVENT_COMPONENT:
-+			case ICAL_XWEATHER_COMPONENT:
- 				result = new VEvent(t);
- 				break;
- 			case ICAL_VQUERY_COMPONENT:
 Index: calendar/libical/src/libicalss/icalssyacc.h
 ===================================================================
 RCS file: /cvs/gnome/libical/src/libicalss/icalssyacc.h,v
 retrieving revision 1.12
 diff -u -r1.12 icalssyacc.h
 --- calendar/libical/src/libicalss/icalssyacc.h	28 May 2004 10:14:24 -0000	1.12
-+++ calendar/libical/src/libicalss/icalssyacc.h	29 Sep 2004 18:35:36 -0000
++++ calendar/libical/src/libicalss/icalssyacc.h	30 Sep 2004 11:09:43 -0000
 @@ -78,7 +78,7 @@
  typedef union YYSTYPE {
  	char* v_string;
@@ -390,7 +60,7 @@ RCS file: /cvs/gnome/evolution-data-server/src/GNOME_Evolution_DataServerLDAP.se
 retrieving revision 1.12
 diff -u -r1.12 GNOME_Evolution_DataServerLDAP.server.in.in
 --- src/GNOME_Evolution_DataServerLDAP.server.in.in	11 Mar 2004 10:23:24 -0000	1.12
-+++ src/GNOME_Evolution_DataServerLDAP.server.in.in	29 Sep 2004 18:35:40 -0000
++++ src/GNOME_Evolution_DataServerLDAP.server.in.in	30 Sep 2004 11:09:45 -0000
 @@ -37,6 +37,7 @@
  		<item value="webcal"/>
  		<item value="groupwise"/>
@@ -405,7 +75,7 @@ RCS file: /cvs/gnome/evolution-data-server/src/GNOME_Evolution_DataServerNOLDAP.
 retrieving revision 1.14
 diff -u -r1.14 GNOME_Evolution_DataServerNOLDAP.server.in.in
 --- src/GNOME_Evolution_DataServerNOLDAP.server.in.in	11 Mar 2004 10:23:24 -0000	1.14
-+++ src/GNOME_Evolution_DataServerNOLDAP.server.in.in	29 Sep 2004 18:35:40 -0000
++++ src/GNOME_Evolution_DataServerNOLDAP.server.in.in	30 Sep 2004 11:09:45 -0000
 @@ -36,6 +36,7 @@
  		<item value="webcal"/>
  		<item value="groupwise"/>
@@ -420,7 +90,7 @@ RCS file: /cvs/gnome/evolution-data-server/src/Makefile.am,v
 retrieving revision 1.16
 diff -u -r1.16 Makefile.am
 --- src/Makefile.am	23 Sep 2004 16:45:29 -0000	1.16
-+++ src/Makefile.am	29 Sep 2004 18:35:40 -0000
++++ src/Makefile.am	30 Sep 2004 11:09:45 -0000
 @@ -67,6 +67,7 @@
  	$(top_builddir)/calendar/backends/http/libecalbackendhttp.la		\
  	$(top_builddir)/addressbook/libebook/libebook-1.2.la			\
@@ -435,7 +105,7 @@ RCS file: /cvs/gnome/evolution-data-server/src/server.c,v
 retrieving revision 1.20
 diff -u -r1.20 server.c
 --- src/server.c	2 Aug 2004 18:26:18 -0000	1.20
-+++ src/server.c	29 Sep 2004 18:35:40 -0000
++++ src/server.c	30 Sep 2004 11:09:45 -0000
 @@ -56,6 +56,7 @@
  #include <backends/groupwise/e-cal-backend-groupwise.h>
  #include <backends/http/e-cal-backend-http.h>
@@ -444,13 +114,11 @@ diff -u -r1.20 server.c
  
  #include "server-interface-check.h"
  #include "server-logging.h"
-@@ -239,6 +240,9 @@
+@@ -239,6 +240,7 @@
  	e_data_cal_factory_register_method (e_data_cal_factory, "webcal", ICAL_VEVENT_COMPONENT, E_TYPE_CAL_BACKEND_HTTP);
  	e_data_cal_factory_register_method (e_data_cal_factory, "webcal", ICAL_VTODO_COMPONENT, E_TYPE_CAL_BACKEND_HTTP);
  	e_data_cal_factory_register_method (e_data_cal_factory, "contacts", ICAL_VEVENT_COMPONENT, E_TYPE_CAL_BACKEND_CONTACTS);
-+	/* We need to provide both VEVENT and X-WEATHER factories for things to work swimmingly */
 +	e_data_cal_factory_register_method (e_data_cal_factory, "weather", ICAL_VEVENT_COMPONENT, E_TYPE_CAL_BACKEND_WEATHER);
-+	e_data_cal_factory_register_method (e_data_cal_factory, "weather", ICAL_XWEATHER_COMPONENT, E_TYPE_CAL_BACKEND_WEATHER);
  
  	if (!e_data_cal_factory_register_storage (e_data_cal_factory, E_DATA_CAL_FACTORY_OAF_ID)) {
  		bonobo_object_unref (BONOBO_OBJECT (e_data_cal_factory));
