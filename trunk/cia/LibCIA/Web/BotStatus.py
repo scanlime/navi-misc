@@ -64,15 +64,17 @@ class TotalsSection(Template.Section):
            ]
 
 
-class BotChannelsColumn(Nouvelle.Column):
-    """A table column listing a bot's channels"""
-    heading = 'channels'
+class ListAttributeColumn(Nouvelle.AttributeColumn):
+    """An AttributeColumn that formats lists nicely, and sorts by list length"""
+    def render_data(self, context, obj):
+        l = getattr(obj, self.attribute)
+        if not l:
+            return "None"
+        else:
+            return ", ".join(l)
 
-    def render_data(self, context, bot):
-        return ", ".join(bot.channels)
-
-    def getValue(self, bot):
-        return len(bot.channels)
+    def getValue(self, obj):
+        return len(getattr(obj, self.attribute))
 
 
 class BotsSection(Template.Section):
@@ -82,7 +84,8 @@ class BotsSection(Template.Section):
     columns = [
         Nouvelle.AttributeColumn('server', 'server'),
         Nouvelle.AttributeColumn('nickname', 'nickname'),
-        BotChannelsColumn(),
+        ListAttributeColumn('channels', 'channels'),
+        ListAttributeColumn('requested channels', 'requestedChannels'),
         ]
 
     def __init__(self, botNet):

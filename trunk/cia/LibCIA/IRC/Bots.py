@@ -35,10 +35,10 @@ class Request:
        which then tries its hardest to keep the request satisfied. The
        bots satisfying this request are available in its 'bots' member.
        """
-    bots = None
-    _active = True
-
     def __init__(self, botNet, server, channel=None, numBots=1):
+        self.bots = []
+        self._active = True
+
         self.botNet = botNet
         self.server = server
         self.channel = channel
@@ -118,9 +118,9 @@ class BotNetwork:
     """A collection of IRC bots that work to satisfy a collection of Request objects.
        Users should interact with the BotNetwork via Request instances.
        """
-    # Every so often we check whether bots are really needed. This is the bot
-    # garbage collection interval, in seconds. This also implicitly gives
-    # each request a chance to recheck itself.
+    # In addition to checking bot status immediately after changes that
+    # are likely to be important, we check bot status periodically, every
+    # botCheckInterval seconds.
     botCheckInterval = 60
 
     # Timeout, in seconds, for creating new bots
@@ -157,20 +157,84 @@ class BotNetwork:
            itself with the botNet it was constructed for.
            """
         self.requests.append(request)
+        self.checkBots()
 
     def removeRequest(self, request):
         """Indicates that a request is no longer needed"""
         self.requests.remove(request)
         self.checkBots()
 
-    def requestNewBot(self, request, server):
-        """Called by a Request to indicate that it needs a new bot created for a given server.
-           Since the Request isn't aware that another Request may have already expressed an
-           interest in the same server, this needs to ensure that only one new bot at a time
-           is created for each server.
+    def checkBots(self):
+        """Search for unfulfilled requests, trying to satisfy them, then search
+           for unused bots and channels, deleting them or scheduling them for deletion.
            """
-        if not server in self.newBotServers:
-            self.createBot(server)
+        # Scan through all requests, trying to satisfy those that aren't.
+        # Make note of which bots and which channels are actually being used.
+        # activeBots is a map from Bot instance to a map of channels that are being used.
+        usedBots = {}
+        for request in self.requests:
+            request.findBots()
+
+            if not request.isFulfilled():
+                # This request isn't fulfilled, try to change that
+                self.tryToFulfill(request)
+
+            for reqBot in request.bots:
+                # Make note of the bots and channels this request needs,
+                # and if the bot is already marked as inactive, cancel that.
+                usedBots.setdefault(reqBot, {})[request.channel] = True
+
+                # Make sure that any referenced bots are no longer marked inactive
+                if reqBot in self.inactiveBots:
+                    timer = self.inactiveBots[reqBot]
+                    if timer.active():
+                        timer.cancel()
+                    del self.inactiveBots[reqBot]
+
+        # Now look for unused bots and/or channels
+        for server in self.servers.itervalues():
+            for bot in server:
+                if bot in usedBots:
+                    usedChannels = usedBots[bot]
+
+                    # We need this bot.. but are all the channels necessary?
+                    for channel in bot.channels:
+                        if channel not in usedChannels:
+                            bot.part(channel)
+
+                else:
+                    # We don't need this bot. If it isn't already, schedule it for deletion
+                    if bot not in self.inactiveBots:
+                        self.inactiveBots[bot] = reactor.callLater(
+                            self.botInactivityTimeout, self.botInactivityCallback, bot)
+
+        # Set up the next round of bot checking
+        if self.botCheckTimer and self.botCheckTimer.active():
+            self.botCheckTimer.cancel()
+        self.botCheckTimer = reactor.callLater(self.botCheckInterval, self.checkBots)
+
+    def tryToFulfill(self, request):
+        """Given an unfulfilled request, try to take actions to fulfill it"""
+        # How many more bots do we need?
+        neededBots = request.numBots - len(request.bots)
+
+        # Do we have any existing bots that can join a channel to fulfill the request?
+        if request.channel and request.server in self.servers:
+            for bot in self.servers[request.server]:
+                # If the bot's already trying to connect to our channel,
+                # decrease the needed bots count so we don't end up asking
+                # all our bots to join this channel before the first one succeeds
+                if request.channel in bot.requestedChannels:
+                    neededBots -= 1
+                elif not bot.isFull():
+                    bot.join(request.channel)
+                    neededBots -= 1
+                if neededBots <= 0:
+                    return
+
+        # Nope... how about asking more bots to join the request's server?
+        if not request.server in self.newBotServers:
+            self.createBot(request.server)
 
     def createBot(self, server):
         """Create a new bot for the given server, retrying if necessary"""
@@ -185,10 +249,14 @@ class BotNetwork:
         log.msg("Timed out waiting for an IRC bot to connect to %s, trying again" % server)
         self.createBot(server)
 
+    def botInactivityCallback(self, bot):
+        """Bots that have been unused for a while eventually end up here, and are disconnected"""
+        log.msg("Disconnecting inactive bot %r" % bot)
+        bot.quit()
+
     def botConnected(self, bot):
         """Called by a bot when it has been successfully connected."""
         self.servers.setdefault(bot.server, []).append(bot)
-        log.msg("Bot %r connected" % bot)
 
         try:
             timer = self.newBotServers[bot.server]
@@ -207,53 +275,15 @@ class BotNetwork:
            run right away to recheck all requests.
            """
         self.servers[bot.server].remove(bot)
-        log.msg("Bot %r disconnected" % bot)
         if not self.servers[bot.server]:
             del self.servers[bot.server]
 
         self.checkBots()
 
-    def checkBots(self):
-        """This gives all requests a chance to recheck themselves, and searches
-           for bots that are no longer being used, eventually disconnecting them.
-           """
-        referencedBots = {}
-        for request in self.requests:
-            request.recheck()
-            for refBot in request.bots:
-                referencedBots[refBot] = True
-
-                # Make sure that any referenced bots are no longer marked inactive
-                if refBot in self.inactiveBots:
-                    timer = self.inactiveBots[refBot]
-                    if timer.active():
-                        timer.cancel()
-                    del self.inactiveBots[refBot]
-
-        # Now find any bots that aren't in referencedBots or inactiveBots already,
-        # and mark them as inactive (setting a fresh inactivity timer)
-        for server in self.servers.itervalues():
-            for bot in server:
-                if bot not in referencedBots and bot not in self.inactiveBots:
-                    self.inactiveBots[bot] = reactor.callLater(
-                        self.botInactivityTimeout, self.botInactivityCallback, bot)
-
-        # Set up the next round of bot checking
-        if self.botCheckTimer and self.botCheckTimer.active():
-            self.botCheckTimer.cancel()
-        self.botCheckTimer = reactor.callLater(self.botCheckInterval, self.checkBots)
-
-    def botInactivityCallback(self, bot):
-        """Bots that have been unused for a while eventually end up here, and are disconnected"""
-        log.msg("Disconnecting inactive bot %r" % bot)
-        bot.quit()
-
     def botJoined(self, bot, channel):
-        log.msg("%r joined %r" % (bot, channel))
         self.checkBots()
 
     def botLeft(self, bot, channel):
-        log.msg("%r left %r" % (bot, channel))
         self.checkBots()
 
     def botKicked(self, bot, channel, kicker, message):
@@ -264,8 +294,21 @@ class BotNetwork:
 class Bot(irc.IRCClient):
     """An IRC bot connected to one server any any number of channels,
        sending messages on behalf of the BotController.
+
+       The Bot class is responsible for keeping track of the timers and
+       limits associated with joining channels, but it doesn't map itself
+       onto Requests, nor does it manage bot connection and disconnection.
        """
     maxChannels = 18
+
+    # Timeout, in seconds, for joining channels
+    joinTimeout = 60
+
+    def __init__(self):
+        self.channels = []
+
+        # a map from channel name to a DelayedCall instance representing its timeout
+        self.requestedChannels = {}
 
     def __repr__(self):
         return "<Bot %r on server %s>" % (self.nickname, self.server)
@@ -288,33 +331,59 @@ class Bot(irc.IRCClient):
            be trying to join any yet.
            """
         self.channels = []
-        self.requestedChannels = []
+
+        for timer in self.requestedChannels.itervalues():
+            if timer.active():
+                timer.cancel()
+        self.requestedChannels = {}
 
     def signedOn(self):
         """IRCClient is notifying us that we've finished connecting to
            the IRC server and can finally start joining channels.
            """
         self.emptyChannels()
+        log.msg("%r connected" % self)
         self.botNet.botConnected(self)
 
     def connectionLost(self, reason):
+        self.emptyChannels()
+        log.msg("%r disconnected" % self)
         self.botNet.botDisconnected(self)
         irc.IRCClient.connectionLost(self)
 
     def join(self, channel):
         """Called by the bot's owner to request that a channel be joined.
-           It's added to our list of pending requests. Eventually we expect
-           to get a call to joined() because of this.
+           If this channel isn't already on our requests list, we send a join
+           command and set up a timeout.
            """
-        self.requestedChannels.append(channel)
-        irc.IRCClient.join(self, channel)
+        if channel not in self.requestedChannels:
+            self.requestedChannels[channel] = reactor.callLater(self.joinTimeout, self.joinTimedOut, channel)
+            irc.IRCClient.join(self, channel)
+
+    def cancelRequest(self, channel):
+        """Cancels a request to join the given channel if we have one"""
+        if channel in self.requestedChannels:
+            timer = self.requestedChannels[channel]
+            if timer.active():
+                timer.cancel()
+            del self.requestedChannels[channel]
+
+    def joinTimedOut(self, channel):
+        """Our join() timed out, remove the channel from our request list"""
+        self.cancelRequest(channel)
+
+    def part(self, channel):
+        """Called to request that a bot leave the given channel.
+           This removes the channel from our requests list if necessary
+           before sending the part command.
+           """
+        self.cancelRequest(channel)
+        irc.IRCClient.part(self, channel)
 
     def joined(self, channel):
         """A channel has successfully been joined"""
-        # Note that if we get a join message for a channel we haven't
-        # requested, this first line will raise an exception and the
-        # message will be effectively ignored.
-        self.requestedChannels.remove(channel)
+        log.msg("%r joined %r" % (self, channel))
+        self.cancelRequest(channel)
         self.channels.append(channel)
         self.factory.botNet.botJoined(self, channel)
 
@@ -322,10 +391,12 @@ class Bot(irc.IRCClient):
         """Called when part() is successful and we've left a channel.
            Implicitly also called when we're kicked via kickedFrom().
            """
+        log.msg("%r left %r" % (self, channel))
         self.channels.remove(channel)
         self.factory.botNet.botLeft(self, channel)
 
     def kickedFrom(self, channel, kicker, message):
+        log.msg("%r was kicked from %r by %r: %r" % (self, channel, kicker, message))
         self.left(channel)
         self.factory.botNet.botKicked(self, channel, kicker, message)
 
