@@ -7,9 +7,15 @@ class Group:
  	A single group of files, i.e.:
 		* One classical, multi-movement work
 		* One jazz or pop album
-		..etc..
-	Group is most useful when used by GroupList, for which it is a
-	container class.
+		* A directory with photos consisting entirely of llamas
+		* ..etc..
+
+	As such, each Group will contain a group of paths to files that somebody
+	decided were related.  Since Group does no analysis of these files
+	whatsoever, being just a container class, the Programmer is free to
+	make the relationships between the "related" files as tenuous as he or
+	she desires (ergo, they don't necessarily need to be in the same
+	directory).
     '''
 
     def __init__ (self, name, where, callback):
