@@ -95,6 +95,31 @@ class FlagStatus(Struct):
         StructEntry(Float,    'initialVelocity'),
         ]
 
+class MessageHeader(Struct):
+    entries = [
+        StructEntry(UInt16,   'length'),
+        StructEntry(UInt16,   'id'),
+        ]
+
+class Message(Struct):
+    """Subclass of Struct that includes a message Id and length in its marshalled form."""
+    headerClass = MessageHeader
+
+    def __init__(self, packed=None):
+        header = headerClass()
+        Struct.__init__(self, packed)
+        
+    def unmarshall(self, packed):
+        packed = self.header.unmarshall(packed)
+        return Struct.unmarshall(self, packed)
+
+    def marshall(self):
+        self.header.length = Struct.getSize()
+        self.header.id = self.messageId
+        return self.header.marshall() + Struct.marshall(self, packed)
+
+    def getSize(self, packed=None):
+        return self.header.getSize() + Struct.getSize(self)
     
 ### The End ###
         

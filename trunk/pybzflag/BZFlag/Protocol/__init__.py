@@ -8,6 +8,9 @@ used to generate the actual wrappers. The wrappers are separated into
 packets from client to server, packets from server to client, and
 common structures used within the packets.
 
+This module should not contain any details specific to the BZFlag
+protocol. All such details should go in Protocol.Common
+
 Conventions for the classes herein:
 
   - A class can be created from a structure's packed representation by
@@ -49,6 +52,10 @@ __all__ = [
     'StructPadding', 'Struct', 'Int8', 'UInt8', 'Int16', 'UInt16', 'Int32',
     'UInt32', 'Float', 'Double'
     ]
+
+
+class ProtocolException(Exception):
+    pass
 
 
 class EntryType:
@@ -173,10 +180,19 @@ class Struct:
        """
     def __init__(self, packed=None):
         if packed:
-            for entry in self.entries:
-                packed = entry.unmarshall(self, packed)
+            self.unmarshall(packed)
       
     def __str__(self):
+        return self.marshall()
+
+    def unmarshall(self, packed):
+        for entry in self.entries:
+            packed = entry.unmarshall(self, packed)
+        self.postUnmarshall()
+        return packed
+        
+    def marshall(self):
+        self.preMarshall()
         packed = ''
         for entry in self.entries:
             packed = entry.marshall(self, packed)
@@ -187,6 +203,14 @@ class Struct:
         for entry in self.entries:
             total += entry.getSize()
         return total
+
+    def preMarshall(self):
+        """This is a hook subclasses can use to add constant fields"""
+        pass
+
+    def postUnmarshall(self):
+        """This is a hook subclasses can use to verify constant fields"""
+        pass
 
 
 #  EntryType instances for scalar types, all in network byte order
