@@ -23,13 +23,29 @@ and selecting items.
 #
 
 from BZEngine.UI import Sequencer, Layout, HUD
+from BZEngine import Event
 from Wasabi import Icon
 from math import *
 import pygame
 
 
+class Item:
+    """A single menu items, used by all Menu subclasses. Specifies
+       an icon for the menu item to be represented by, and an event handler
+       to be called when the item is selected.
+       """
+    def __init__(self, icon):
+        Event.attach(self, 'onSelected')
+        self.icon = icon
+
+
 class Menu(Sequencer.Page):
-    """Abstract base class for menus"""
+    """Abstract base class for menus. All menus have common code for managing
+       backgrounds, and all menus signal selections compatibly. The menu item's
+       onSelected event is called when a selection is made, then the menu's onFinish
+       is called to end this page. Normally the onSelected event would push new pages
+       onto the sequencer book to implement the selection.
+       """
     def __init__(self, book):
         Sequencer.Page.__init__(self, book)
 
@@ -41,19 +57,9 @@ class Menu(Sequencer.Page):
 
 
 class RingMenu(Menu):
-    def __init__(self, book):
+    def __init__(self, book, items):
         Menu.__init__(self, book)
-
-        self.dock = Icon.Dock(self.overlay, self.trackFunction, [
-            Icon.Icon('icon_navi.png', 'Navi', imageAspect=1.623),
-            Icon.Icon('icon_n64.png', 'Nintendo 64', imageAspect=1.04),
-            Icon.Icon('icon_atari.png', 'Atari', imageAspect=1.52),
-            Icon.Icon('icon_ps2.png', 'Playstation 2', imageAspect=0.983),
-            Icon.Icon('icon_dreamcast.png', 'Dreamcast', imageAspect=1.66),
-            Icon.Icon('icon_nes.png', 'Nintendo', imageAspect=1.594),
-	    Icon.Icon('icon_sega.png', 'Genesis', imageAspect=1.679),
-            ])
-
+        self.dock = Icon.Dock(self.overlay, self.trackFunction, [item.icon for item in items])
         self.viewport.onKeyDown.observe(self.keyDown)
 
     def keyDown(self, ev):
@@ -65,7 +71,7 @@ class RingMenu(Menu):
             self.dock.selectionIndex += 1
 
     def trackFunction(self, x):
-        """An example track function that moves the icons along a circle in
+        """A track function that moves the icons along a circle in
            the middle of the screen. The bottom of the circle is at 0,
            increasing parameters move clockwise. The icon at 0 is the largest.
            """

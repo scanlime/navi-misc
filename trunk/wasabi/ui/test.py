@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from BZEngine.UI import Viewport, ThreeDRender, Sequencer
-from BZEngine import Event, Animated
-from Wasabi import Logos, Menu
+from BZEngine import Event
+from Wasabi import Logos, Menu, Icon
 from math import *
 import pygame
 
@@ -18,12 +18,11 @@ def globalKeyDown(ev):
         loop.stop()
 viewport.onKeyDown.observe(globalKeyDown)
 
-mainBook = Sequencer.CyclicBook(view, [
-    # Cycle through wasabi logos until user intervention, then fade out
-    Sequencer.FadeOut(0.2, (1,1,1), Sequencer.UserPageInterrupter(Logos.getLogoSubBook())),
+menuItems = [Menu.Item(Icon.load(name)) for name in Icon.getIconDict().keys()]
 
-    # Icon test
-    Sequencer.FadeIn(0.2, (1,1,1), Sequencer.FadeOut(1, (0,0,0), Menu.RingMenu))
+mainBook = Sequencer.CyclicBook(view, [
+    Sequencer.FadeOut(0.2, (1,1,1), Sequencer.UserPageInterrupter(Logos.getLogoSubBook())),
+    Sequencer.FadeIn(0.2, (1,1,1), Sequencer.FadeOut(1, (0,0,0), lambda book: Menu.RingMenu(book, menuItems)))
     ])
 
 loop.run()
