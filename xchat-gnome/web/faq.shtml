@@ -49,6 +49,9 @@
 	  <br />
 	  <b>Q.</b> You are our slaves! Implement my silly feature requests! Have some drugs!<br />
 	  <b>A.</b> No, and that wasn't a question.<br />
+	  <br />
+	  <b>Q.</b> Can you provide packages for <i>X</i> distro?<br />
+	  <b>A.</b> Probably not. There are some people who contribute packages for their particular distributions, and we're happy to host/provide links to these packages, but it's not really feasable for us to learn how to package things for distributions we don't use.<br />
         </div>
         <div class="section-title">Migrating from X-Chat gtk+</div>
         <div class="section">
