@@ -145,21 +145,15 @@ static void plop(int x, int y) {
 
 static int draw_more(void *data) {
   double x, y;
+  const int iterationsAtOnce = 10000;
 
-  std::vector<twov> points;
-  points.push_back(point);
-
-  for(int i = 0; i < 500; i++) {
-    points.push_back(dejong(a, b, c, d, points[i]));
+  for(int i = iterationsAtOnce; i; --i) {
+    point = dejong(a, b, c, d, point);
+    plop(int(point(0) * 160 + 400), int(point(1) * 160 + 400));
   }
-  point = points[points.size()-1];
 
-  for(std::vector<twov>::iterator i = ++(points.begin()); i != points.end(); i++) {
-
-    plop(int((*i)(0) * 160 + 400), int((*i)(1) * 160 + 400));
-  }
   flip();
-  iterations += 500;
+  iterations += iterationsAtOnce;
   gchar *iters = g_strdup_printf("%d", iterations);
   gtk_label_set_text(GTK_LABEL(iterl), iters);
   g_free(iters);
