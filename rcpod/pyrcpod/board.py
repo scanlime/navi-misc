@@ -83,22 +83,26 @@ class Rcpod485(device.OpenedRcpod):
         time.sleep(timeout)
         retPacket = self.serialRxFinish()
 
+        # Make a string describing both the sent and the received packets,
+        # to be used in case of error.
+        pktInfo = "%s -> %s" % (packet, retPacket)
+
         # Validate the received packet
         if not retPacket:
-            raise MnetError("No response")
+            raise MnetError("No response: %s" % pktInfo)
         if len(retPacket) < 4:
-            raise MnetError("Packet too short: %s" % retPacket)
+            raise MnetError("Packet too short: %s" % pktInfo)
         if retPacket[0] != source or retPacket[1] != destination:
-            raise MnetError("Incorrect source/destination: %s" % retPacket)
+            raise MnetError("Incorrect source/destination: %s" % pktInfo)
         if len(retPacket) > retPacket[2]+4:
-            raise MnetError("Received too many bytes: %s" % retPacket)
+            raise MnetError("Received too many bytes: %s" % pktInfo)
         if len(retPacket) < retPacket[2]+4:
-            raise MnetError("Received too few bytes: %s" % retPacket)
+            raise MnetError("Received too few bytes: %s" % pktInfo)
         csum = 0
         for byte in retPacket:
             csum += byte
         if csum != 255:
-            raise MnetError("Incorrect checksum: %s" % retPacket)
+            raise MnetError("Incorrect checksum: %s" % pktInfo)
 
         # Return only the data portion of the packet
         return retPacket[3:-1]
