@@ -9,5 +9,8 @@ question.class: question.java
 clean:
 	rm -Rf *.jar *.class *~
 
+jar: app
+	jar cvf question.jar *.class
+
 run: app
 	open index.html

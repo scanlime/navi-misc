@@ -34,7 +34,10 @@ quit.class: quit.java
 interview.class: interview.java
 	javac interview.java
 
-run: program
+jar: program
+	jar cvf interview.jar *.class
+
+run: program jar
 	open index.html
 
 clean:
