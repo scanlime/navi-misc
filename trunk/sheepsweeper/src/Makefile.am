@@ -14,6 +14,8 @@ sheepsweeper_SOURCES = \
 	IsoMapObject.h \
 	IsoMapTile.cpp \
 	IsoMapTile.h \
+	List.cpp \
+	List.h \
 	MapData.cpp \
 	MapData.h \
 	MapLocation.cpp \
