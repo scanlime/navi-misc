@@ -104,11 +104,11 @@ class dice(gtk.Button, sheetElement):
       the widget, such as a reference to the dom node that created
       it.
       """
-  def __init__(self, node, data):
+  def __init__(self, node, data, callback=lambda self: dice.roll(self)):
     sheetElement.__init__(self, node)
     gtk.Button.__init__(self, self.attributes.get('label', ''))
     self.node = node
-    self.connect("clicked", self.roll)
+    self.connect("clicked", callback)
     self.data = {'times':[], 'mods':[]}
 
   def packChild(self, child):
@@ -116,14 +116,22 @@ class dice(gtk.Button, sheetElement):
         """
     self.data[child.name].append(child.data)
 
-  def roll(self, widget):
+  def copyWithCallback(self, callback):
+    ''' Return a copy of self but connected to a different callback method. '''
+    newDie = dice(self.node, None, callback)
+    newDie.node = self.node
+    newDie.connect('activate', callback)
+    newDie.data = self.data
+    return newDie
+
+  def roll(self, widget=None):
     """ Roll the dice. """
     rolls = []
     times = 0
 
     for time in self.data['times']:
       times += time
-
+    
     for i in range(times):
       roll = randint(1, int(self.attributes['sides']))
       for mod in self.data['mods']:
@@ -159,23 +167,15 @@ class drop_down(hbox):
     self.items = {}
     self.button = None
     self.menu = gtk.Combo()
-    self.menu.list.connect('selection-changed', self.setButton)
     self.pack_start(self.menu)
     #for i in range(int(self.attributes.get('quantity', "1"))):
       #self.menu.append(gtk.Combo())
       #self.menu[i].connect("activate", self.setButton)
       #self.items.append({})
 
-  def setButton(self, widget):
-    if self.button != None:
-      values = re.search('\[([1-9]*)d([1-9]*)\]', self.menu.entry.get_text())
-      if values is not None:
-        self.button.data['times'].append(int(values.group(1)))
-        self.button.attributes['sides'] = values.group(2)
-
   def packChild(self, child):
     if isinstance(child, dice) and self.button is None:
-      self.button = child
+      self.button = child.copyWithCallback(self.roll)
       self.pack_end(self.button)
     else:
       self.items[child.name] = child.data
@@ -186,6 +186,14 @@ class drop_down(hbox):
     if self.button is not None:
       self.button.show()
     hbox.show(self)
+
+  def roll(self, widget=None):
+    ''' Roll the dice object. '''
+    values = re.search('\[([1-9]*)d([1-9]*)\]', self.menu.entry.get_text())
+    if values is not None:
+      self.button.attributes['sides'] = values.group(2)
+      self.button.data['times'] = [int(values.group(1))]
+      dice.roll(self.button)
 
 class drop_down_item(sheetElement):
   def __init__(self, node, character):
