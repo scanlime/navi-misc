@@ -70,7 +70,7 @@ class ColortextToXHTML(Message.Formatter):
             return "<u>" + self.element_colorText(element) + "</u>"
 
         def element_br(self, element):
-            return "\n"
+            return "<br/>"
 
         def colorQuote(self, color):
             """Make a color name safe for inclusion into a class attribute.
