@@ -8,26 +8,29 @@
   </stances>
   <steps>
     <step>
-      Step back left to 4:30 into a right forward bow. Simultaneously,
-      execute a right outward hand sword to your opponent's left wrist
-      and a left outward hand sword to the side of their neck.
+      Step back left to 4:30 into a <stance side="right">forward bow</stance>.
+      Simultaneously, execute a <strike side="right">outward hand sword</strike> to
+      your opponent's left wrist and a <strike side="left">outward hand sword</strike>
+      to the side of their neck.
     </step>
     <step>
-      Pivot to a right neutral bow as you strike the back of your
-      opponent's neck with a right inward hand sword.
+      Pivot to a <stance side="right">neutral bow</stance> as you strike the back of your
+      opponent's neck with a <strike side="right">inward hand sword</strike>.
     </step>
     <step>
-      Pivot into a left foward bow (facing 4:30) with a right uppercut
-      under the arm (breaking their elbow against your bicep).
+      Pivot into a <stance side="left">foward bow</stance> (facing 4:30) with a
+      <strike side="right">uppercut</strike> under the arm (breaking their elbow
+      against your bicep).
     </step>
     <step>
-      Execute a right back knuckle to the floating ribs and a right
-      scoop kick to the groin.
+      Execute a <strike side="right">back knuckle</strike> to the floating ribs and a
+      <kick side="right">scoop</kick> to the groin.
     </step>
     <step>
-      Plant your right foot back into a left forward bow as you perform
-      a right chopping punch to your opponent's head. Your right leg is
-      kicking out your opponent's leg, causing them to fall as you punch.
+      <!-- FIXME - how to describe kick? -->
+      Plant your right foot back into a <stance side="left">forward bow</stance> as you
+      perform a <strike side="right">chopping punch</strike> to your opponent's head. Your
+      right leg is kicking out your opponent's leg, causing them to fall as you punch.
     </step>
   </steps>
 </technique>
