@@ -76,6 +76,8 @@ void navigation_tree_select_prev_network (NavTree *navtree);
 
 /* Misc. functions. */
 void navigation_tree_set_channel_name (NavTree *navtree, struct session *sess);
+NavTree* get_navigation_tree ();
+
 
 /***** NavModel *****/
 #define NAVMODEL_TYPE            (navigation_model_get_type ())

@@ -627,6 +627,12 @@ navigation_tree_set_channel_name (NavTree *navtree, struct session *sess)
 	gtk_tree_model_foreach (store, navigation_tree_set_channel_name_iterate, sess);
 }
 
+NavTree*
+get_navigation_tree ()
+{
+	return gui.server_tree;
+}
+
 /***** Context Menus *****/
 static void
 navigation_context (GtkWidget *treeview, session *selected)
