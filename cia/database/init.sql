@@ -89,19 +89,28 @@ CREATE TABLE IF NOT EXISTS stats_counters
 
 -- Users can subscribe to changes in stats targets.
 -- Each subscription has an expiration timestamp, so it's not necessary
--- to check foreign key constraints. Subscriptions have an optional 'scope'
--- that indicates what part of the stats target they refer to. The 'trigger'
--- is a pickled (callable, args, kwargs) tuple. callable(*args, **kwargs)
--- is called when the stats target is modified in a way that matches 'scope'.
+-- to check foreign key constraints.
+--
+-- Subscriptions have an optional 'scope' that indicates what part of the
+-- stats target they refer to, or NULL for any part. The 'trigger' is a pickled
+-- (callable, args, kwargs) tuple. callable(*args, **kwargs) is called when the
+-- stats target is modified in a way that matches 'scope'.
+--
+-- 'client' is the IP address of the client who created this subscription. It
+-- is not used in calling the trigger (if it's needed it will be included in
+-- the pickle) but it is used to administer the subscriptions table.
+--
 CREATE TABLE IF NOT EXISTS stats_subscriptions
 (
     target_path  VARCHAR(128) NOT NULL,
     expiration   BIGINT NOT NULL,
-    scope        VARCHAR(32) NOT NULL,
+    scope        VARCHAR(32),
+    client       VARCHAR(64),
     trigger      BLOB NOT NULL,
 
     INDEX (target_path),
     INDEX (expiration),
+    INDEX (client)
 );
 
 --- The End ---
