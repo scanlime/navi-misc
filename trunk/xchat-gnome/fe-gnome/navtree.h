@@ -20,6 +20,7 @@
  */
 
 #include <gnome.h>
+#include "gui.h"
 #include "../common/xchat.h"
 
 #ifndef __XCHAT_GNOME_NAVTREE_H__
