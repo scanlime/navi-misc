@@ -117,14 +117,24 @@ class Interval(object):
 
 formatDuration = Units.TimeUnits().format
 
+
 def formatDate(t):
-    """Format a date, in UTC seconds since the epoch"""
+    """Format a date, in UTC seconds since the epoch.
+       This should use a format that doesn't necessarily adhere to
+       any standard, but is easy to read and fairly universal.
+       """
     return time.strftime("%H:%M on %b %d, %Y", time.gmtime(t))
 
 
 def formatDateRFC822(t):
-    """Format a data, in UTC seconds since the epoch, using RFC822 formatting"""
+    """Format a date, in UTC seconds since the epoch, using RFC822 formatting"""
     return time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime(t))
+
+
+def formatDateISO8601(t):
+    """Format a date, in UTC seconds since the epoch, using ISO 8601 format"""
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(t))
+
 
 def mktime_utc(data):
     t = time.mktime(data[:8] + (0,))
@@ -133,6 +143,7 @@ def mktime_utc(data):
 def datetimeToTimestamp(datetime):
     """Convert a UTC datetime object to a UTC timestamp"""
     return mktime_utc(datetime.utctimetuple())
+
 
 def _test():
     import doctest, TimeUtil

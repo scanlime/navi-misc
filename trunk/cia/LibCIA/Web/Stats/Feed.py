@@ -210,7 +210,7 @@ class RSS1Feed(RSSFeed):
         m = Message.Message(content)
         tags = [
             tag('link')[ url ],
-            tag('dc:date')[ TimeUtil.formatDateRFC822(int(str(m.xml.timestamp))) ],
+            tag('dc:date')[ TimeUtil.formatDateISO8601(int(str(m.xml.timestamp))) ],
             tag('description')[ quote(self.formatMessage(m)) ],
             ]
 
