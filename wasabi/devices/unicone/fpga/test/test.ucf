@@ -1,0 +1,3 @@
+NET "clk" LOC=P13;
+NET "foo" LOC=P19;
+
