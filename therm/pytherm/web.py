@@ -33,8 +33,8 @@ like the following to your apache config:
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-from pytherm import database, units
-import time
+from pytherm import database, units, rrd
+import time, shutil
 import Nouvelle
 from Nouvelle import tag, place, xml, ModPython
 from mod_python import apache
@@ -203,10 +203,48 @@ class IndexPage(ModPython.Page):
         return []
 
 
+def foo(after):
+    yield (after+1, time.time(), 1234)
+
+def packetGrapher(source, key):
+    def f(stamp):
+        for packet in source.iterPacketsAfter(stamp):
+            value = packet.get(key)
+            if value is not None:
+                yield packet['id'], packet['time'].ticks(), packet[key]
+    return f
+
+def renderGraph(req):
+    source = database.open().getSource('outside')
+
+    rrdf = rrd.RrdFile("outside-average")
+    stamp = rrdf.update(packetGrapher(source, 'average'))
+
+    graph = rrd.RrdGraph(rrd.graphDefineSource(rrdf) +
+                         rrd.graphSpan("Foo!"))
+
+    graph.updateToLatest()
+    return graph.getFile(stamp)
+
+
 def handler(req):
-    page = IndexPage()(req=req)
-    req.content_type = "text/html"
-    req.write(page)
+    # Crufty temporary request handler
+
+    pathSegments = [seg for seg in req.path_info.split("/") if seg]
+
+    if not pathSegments:
+        # Index Page
+        page = IndexPage()(req=req)
+        req.content_type = "text/html"
+        req.write(page)
+        return apache.OK
+
+    if pathSegments[0] == 'graph':
+        req.content_type = "image/png"
+        shutil.copyfileobj(open(renderGraph(req)), req)
+        return apache.OK
+
+    req.write(repr(pathSegments))
     return apache.OK
 
 ### The End ###
