@@ -148,12 +148,14 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 
 	for (i = 0; i < 4; i++) {
 		page->color_buttons[i] = gtk_color_button_new ();
+		gtk_widget_show (page->color_buttons[i]);
 		gtk_widget_set_sensitive (page->color_buttons[i], FALSE);
 	}
 	for (j = 0; j < 2; j++) {
 		for (i = 0; i < 8; i++) {
 			gint c = j * 8 + i;
 			page->palette_buttons[c] = gtk_color_button_new ();
+			gtk_widget_show (page->palette_buttons[c]);
 			gtk_widget_set_sensitive (page->palette_buttons[c], FALSE);
 			gtk_table_attach_defaults (GTK_TABLE (page->mirc_palette_table), page->palette_buttons[c], i, i+1, j, j+1);
 			gtk_color_button_set_color (GTK_COLOR_BUTTON (page->palette_buttons[c]), &colors[c]);
@@ -164,6 +166,7 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 		for (i = 0; i < 8; i++) {
 			gint c = j * 8 + i + 16;
 			page->palette_buttons[c] = gtk_color_button_new ();
+			gtk_widget_show (page->palette_buttons[c]);
 			gtk_widget_set_sensitive (page->palette_buttons[c], FALSE);
 			gtk_table_attach_defaults (GTK_TABLE (page->extra_palette_table), page->palette_buttons[c], i, i+1, j, j+1);
 			gtk_color_button_set_color (GTK_COLOR_BUTTON (page->palette_buttons[c]), &colors[c]);
@@ -199,6 +202,7 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), "Black on White");
 	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), "White on Black");
 	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), "Custom");
+	gtk_widget_show (page->combo);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (page->color_label_1), page->combo);
 	gtk_box_pack_start (GTK_BOX (page->foreground_background_hbox), page->combo, FALSE, TRUE, 0);
 	scheme = gconf_client_get_int (p->gconf, "/apps/xchat/irc/color_scheme", NULL);
