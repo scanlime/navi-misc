@@ -30,7 +30,12 @@
 ;// Return an 8-byte packet with the current edge buffer (4 16-bit LE words)
 #define RWAND_CTRL_READ_EDGES		0x01
 
-;// Return a 4-byte packet with the current predicted period and phase (2 16-bit LE words)
+;// Return a 5-byte packet containing:
+;//   * Predicted period as a 16-bit Little Endian value in 16-cycle (2.66us) units
+;//   * Predicted phase, same format as the period
+;//   * Edge counter, 8-bit unsigned int. Increments once for each synchronization edge.
+;//     This can be used to detect a stalled wand or other condition that would give bad
+;//     predictions.
 #define RWAND_CTRL_READ_PREDICTION	0x02
 
 ;// Set the phase to wValue and the period to wIndex

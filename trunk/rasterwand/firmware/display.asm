@@ -32,8 +32,8 @@
 	global	display_request_flip
 
 	global	edge_buffer
-	global	wand_period	; NOTE: It's important that the order of wand_period and wand_phase
-	global	wand_phase	;       be preserved, they're sent in one piece over USB.
+	global	wand_period
+	global	wand_phase
 	global	coil_window_min
 	global	coil_window_max
 	global	mode_flags
@@ -49,15 +49,20 @@ bank0	udata
 edge_buffer		res	8	; Stores 16-bit duration values at the last 4 angle sensor edges.
 						; Units are 16 instruction cycles, or about 2.666us
 
-wand_period		res	2	; The wand oscillation period, 16-bit little endian in 16-cycle units
-wand_phase		res	2	; The current phase angle of the want, ranging from 0 to wand_period-1
-
 coil_window_min	res	2	; Minimum and maximum wand_phase to enable the coil for
 coil_window_max	res	2
 
 display_fwd_phase	res	2	; The wand_phase value to start forward display at
 display_rev_phase	res 2	; The wand_phase value to start reverse display at
 display_column_width res 2	; The wand_phase width of each column of pixels
+
+; The next three variables must stay together, they're sent all at once as a USB packet
+wand_period		res	2	; The wand oscillation period, 16-bit little endian in 16-cycle units
+wand_phase		res	2	; The current phase angle of the want, ranging from 0 to wand_period-1
+edge_counter	res	1	; A counter that increments every time our synchronization algorithm runs at an
+						; edge detected on the angle sensor input. Normally this will increment four times per period.
+						; This can let the host know whether the wand is actually moving, whereas the predictor
+						; is always running.
 
 unbanked	udata_shr
 
@@ -108,6 +113,7 @@ display_init
 	clrf	coil_window_max+1
 	clrf	mode_flags
 	clrf	display_flags
+	clrf	edge_counter
 	return
 
 
@@ -499,6 +505,7 @@ display_sync
 	call	sync_detect
 
 	banksel	edge_buffer
+	incf	edge_counter		; Count this edge
 	movf	edge_buffer+2, w	; Scroll the edge_buffer
 	movwf	edge_buffer
 	movf	edge_buffer+3, w

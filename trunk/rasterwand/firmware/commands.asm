@@ -144,7 +144,7 @@ request_readEdges
 
 	; Return prediction values
 request_readPrediction
-	returnBuffer wand_period, 4
+	returnBuffer wand_period, 5
 
 	; Set prediction balues: wValue -> phase, wIndex -> period
 request_setPrediction
@@ -248,7 +248,7 @@ request_randomWrite3
 	movf	BufferData+(wValue+1), w	; Write 1...
 	movwf	INDF
 	incf	FSR, f
-	movf	BufferData+wIndex, w	; Write 2...
+	movf	BufferData+wIndex, w		; Write 2...
 	movwf	INDF
 	incf	FSR, f
 	movf	BufferData+(wIndex+1), w	; Write 3...
