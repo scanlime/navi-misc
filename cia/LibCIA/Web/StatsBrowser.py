@@ -525,12 +525,40 @@ class RSSFeed(Nouvelle.Twisted.Page):
         if 'description' in self.target.metadata:
             return self.target.metadata['description']
         else:
-            return "CIA stats for %s" % self.render_title(context)
+            return "CIA Stats"
+
+    def render_metadata(self, context):
+        """Renders optional metadata to RSS"""
+        tags = []
+        if 'photo' in self.target.metadata:
+            tags.append(tag('image')[
+                tag('url')[ MetadataLink(self.target, 'photo').getURL(context) ],
+                tag('title')[ place('title') ],
+                tag('link')[ place('link') ],
+                ])
+        return tags
+
+    def render_items(self, context, limit=15):
+        """Renders the most recent commits as items in the RSS feed"""
+        formatter = Message.AutoFormatter('rss')
+        items = []
+        for m in self.target.recentMessages.getLatest(limit):
+            i = formatter.format(Message.Message(m))
+            if i:
+                items.append(xml(i))
+            else:
+                # We can't find a formatter, stick in a placeholder noting this fact
+                items.append(tag('item')[ tag('description')[
+                    "(Unable to format message)"
+                    ]])
+        return items
 
     document = tag('rss', version='2.0')[ tag('channel')[
         tag('title')[ place('title') ],
         tag('link')[ place('link') ],
         tag('description')[ place('description') ],
+        place('metadata'),
+        place('items'),
         ]]
 
 
