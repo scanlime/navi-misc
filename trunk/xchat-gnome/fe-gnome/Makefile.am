@@ -161,4 +161,7 @@ guir.o:		$(srcdir)/guir.c
 main_window.o:	$(srcdir)/main_window.c
 	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/main_window.c
 
+preferences_plugins_page.o: $(srcdir)/preferences_plugins_page.c
+	$(COMPILE) -DXCHATLIBDIR=\"$(xchatlibdir)\" -c $(srcdir)/preferences_plugins_page.c
+
 SUBDIRS = data pixmaps
