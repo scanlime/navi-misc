@@ -52,7 +52,7 @@
 		<p>Well, it's real soon now. All these new features are now available in <a href="http://flapjack.navi.cx/releases/fyre/fyre-0.7.tar.bz2">Fyre 0.7</a>. Windows builds at 11...</p>
 
 		<div class="heading">12 December 2004 - Gallery updated, new release soon</div>
-		<p>The image gallery has been updated, and we have a separate gallery now for screenshots. There are lots of cool new features in the <a href="http://navi.cx/svn/misc/trunk/fyre">Subversion repository</a> that should find their way into a release quite soon now: cluster support, UI improvements, OpenEXR exporting, and more.</p>
+		<p>The image gallery has been updated, and we have a separate gallery now for screenshots. There are lots of cool new features in the <a href="http://navi.cx/svn/misc/branches/fyre-1.0">Subversion repository</a> that should find their way into a release quite soon now: cluster support, UI improvements, OpenEXR exporting, and more.</p>
 
 		<div class="heading">05 August 2004 - Fyre released for Windows</div>
 		<p>In preparation for our trip to SIGGRAPH to show off Fyre, I figured it could be useful to be able to run Fyre under windows. So, thanks to the spiffy portability of Gtk and all the other libraries Fyre is based on, this went pretty quickly. If you haven't been able to try Fyre yet due to lack of Linux, now's your chance to <a href="http://flapjack.navi.cx/releases/fyre/fyre-win32-20040805.exe">grab the installer and give it a try</a>.</p>
