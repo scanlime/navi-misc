@@ -29,6 +29,9 @@ class sheetElement:
 class character_sheet(gtk.VBox, sheetElement):
   ''' Basic tag that's treated as a gtk.Window. '''
   def __init__(self, node, data):
+    # This contains a list of all the objects in the sheet that can become
+    # editable, so when the user toggles editability we just run through
+    # this list.
     self.editables = []
 
     gtk.VBox.__init__(self, gtk.WINDOW_TOPLEVEL)
@@ -89,14 +92,14 @@ class vbox(gtk.VBox, sheetElement):
   ''' Just a normal vertical box for packing. '''
   def __init__(self, node, data):
     sheetElement.__init__(self, node)
-    gtk.VBox.__init__(self, homogeneous=gtk.TRUE)
+    gtk.VBox.__init__(self)
     self.label = gtk.Label(self.attributes.get('label', ''))
 
   def packChild(self, child):
     ''' Just pack children into the vbox using pack_start because this is just
         a gtk.VBox.
 	'''
-    self.pack_start(child, expand=gtk.FALSE, padding=5)
+    self.pack_start(child, *getattr(child, 'packArgs', [gtk.FALSE, gtk.FALSE, 5]))
     child.show()
 
 class tab(vbox, sheetElement):
@@ -334,6 +337,8 @@ class text_box(gtk.Frame, sheetElement):
     # The outer frame should be invisible except for the label.
     self.set_shadow_type(gtk.SHADOW_NONE)
     self.add(scroller)
+
+    self.packArgs = [gtk.TRUE, gtk.TRUE, 5]
 
   def addEditable(self, list):
     ''' Add the text box to the list of editable fields in the sheet. '''
