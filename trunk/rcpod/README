@@ -2,9 +2,12 @@ rcpod - the Remote Controlled PIC of Doom
 -----------------------------------------
 
 This project is centered around firmware for the PIC16C745/765 microcontrollers
-that allows the devices to perform I/O operations on behalf of the USB host.
+that allows the device to perform I/O operations on behalf of the USB host.
 There are PCB designs for projects based on the rcpod firmware, and a C library
 using libusb that allows relatively high-level manipulation of I/O ports.
+
+librcpod is released under the LGPL, the firmware licence is described in it's
+source code comments.
 
 
 -------- Contents of this package:
