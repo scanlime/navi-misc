@@ -7,6 +7,3 @@
   automatically retries. This would make it possible to re-add cluster
   nodes automatically when they restart, which currently isn't possible
   even with cluster autodetection.
-
-- Merge the .desktop files now that we have a uniform way to open
-  any files that fyre can read

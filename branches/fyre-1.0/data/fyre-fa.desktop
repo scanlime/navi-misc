@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Encoding=UTF-8
-Name=Fyre
-Exec=fyre -n %f
-Type=Application
-Terminal=false
-NoDisplay=true
-MimeType=application/x-fyre-animation;
