@@ -556,13 +556,13 @@ box_top_drawable_draw_to_list (DisplayList *dl)
   BoxTopDrawable *btd = BOX_TOP_DRAWABLE (dl);
   Box *b = BOX (DRAWABLE (dl)->parent);
   float width, depth, height;
-  float wrep, hrep;
+  float wrep, drep;
 
   width = b->param.size[0];
   depth = b->param.size[1];
   height = b->param.size[2];
   wrep = width / 20;
-  hrep = height / 20;
+  drep = depth / 20;
 
   glPushMatrix ();
   glTranslatef (b->param.position[0], b->param.position[1], b->param.position[2]);
@@ -575,9 +575,9 @@ box_top_drawable_draw_to_list (DisplayList *dl)
     glNormal3f (0.0, 0.0, 1.0);
     glTexCoord2f ( wrep,   0);
     glVertex3f   ( width, -depth, height);
-    glTexCoord2f ( wrep,   hrep);
+    glTexCoord2f ( wrep,   drep);
     glVertex3f   ( width,  depth, height);
-    glTexCoord2f ( 0,      hrep);
+    glTexCoord2f ( 0,      drep);
     glVertex3f   (-width,  depth, height);
     glTexCoord2f ( 0,      0);
     glVertex3f   (-width, -depth, height);
@@ -586,9 +586,9 @@ box_top_drawable_draw_to_list (DisplayList *dl)
     glNormal3f (0.0, 0.0, -1.0);
     glTexCoord2f ( 0,      0);
     glVertex3f   (-width, -depth, 0);
-    glTexCoord2f ( 0,      hrep);
+    glTexCoord2f ( 0,      drep);
     glVertex3f   (-width,  depth, 0);
-    glTexCoord2f ( wrep,   hrep);
+    glTexCoord2f ( wrep,   drep);
     glVertex3f   ( width,  depth, 0);
     glTexCoord2f ( wrep,   0);
     glVertex3f   ( width, -depth, 0);
