@@ -5,7 +5,7 @@ allegroMaNonTroppo = \markup {
 
 % 60
 menoMosso = \markup {
-    \bold "meno mosso"
+    meno mosso
 }
 
 % 69, 137
@@ -33,7 +33,7 @@ simile = \markup {
 }
 
 oneCello = \markup {
-	\italic "1 cello"
+	\italic "cello solo"
 }
 
 twoCellos = \markup {
@@ -62,4 +62,8 @@ moltoRit = \markup {
 
 aTempo = \markup {
     \italic "a tempo"
+}
+
+divisi = \markup {
+	\italic "div."
 }
