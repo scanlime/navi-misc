@@ -38,6 +38,7 @@
 #include <mi6k_protocol.h>
 #include <mi6k_dev.h>
 #include <lirc.h>
+#include <lirc_dev.h>
 
 #define DRIVER_VERSION "v0.2"
 #define DRIVER_AUTHOR "Micah Dowty <micah@navi.cx>"
@@ -67,8 +68,6 @@ MODULE_DEVICE_TABLE(usb, mi6k_table);
 struct usb_mi6k {
 	/* Device administration */
 	struct usb_device *	udev;			/* save off the usb device pointer */
-	struct usb_interface *	interface;		/* the interface for this device */
-	unsigned char		minor;			/* the starting minor number for this device */
 	int			open_count;		/* number of times this port has been opened */
 	struct semaphore	sem;			/* locks this structure */
 
@@ -102,8 +101,10 @@ struct mi6k_fd_private {
 /* Wait 1/8 second after powering the VFD on or off */
 #define VFD_POWER_DELAY (HZ / 8)
 
-/* Number of minor numbers we use per physical device */
-#define MINORS_PER_DEVICE 2
+/* LIRC buffer sizes, must be powers of two */
+#define RBUF_LEN 256
+
+static struct lirc_buffer rbuf;
 
 /* prevent races between open() and disconnect() */
 static DECLARE_MUTEX (disconnect_sem);
@@ -119,13 +120,6 @@ static void         mi6k_request              (struct usb_mi6k* dev,
 					       unsigned short   wValue,
 					       unsigned short   wIndex);
 
-static int          mi6k_ir_rx_available      (struct usb_mi6k* dev);
-static void         mi6k_ir_rx_push           (struct usb_mi6k* dev,
-					       lirc_t           x);
-static int          mi6k_ir_rx_pop            (struct usb_mi6k* dev);
-static void         mi6k_ir_rx_store          (struct usb_mi6k* dev,
-					       unsigned char*   buffer,
-					       size_t           count);
 static void         mi6k_ir_tx_send           (struct usb_mi6k* dev,
 					       lirc_t           pulse,
 					       lirc_t           space);
@@ -135,6 +129,9 @@ static void         mi6k_ir_tx_send_converted (struct usb_mi6k* dev,
 static void         mi6k_ir_tx_flush          (struct usb_mi6k* dev);
 static void         mi6k_ir_rx_irq            (struct urb*      urb,
 					       struct pt_regs*  regs);
+static void         mi6k_ir_rx_store          (struct usb_mi6k* dev,
+					       unsigned char*   buffer,
+					       size_t           count);
 
 static int          mi6k_open                 (struct inode*   inode,
 					       struct file*    file);
@@ -149,10 +146,6 @@ static int          mi6k_dev_ioctl            (struct inode*   inode,
 					       unsigned int    cmd,
 					       unsigned long   arg);
 
-static ssize_t      mi6k_lirc_read            (struct file*    file,
-					       char*           buffer,
-					       size_t          count,
-					       loff_t*         ppos);
 static ssize_t      mi6k_lirc_write           (struct file*    file,
 					       const char*     buffer,
 					       size_t          count,
@@ -161,8 +154,6 @@ static int          mi6k_lirc_ioctl           (struct inode*   inode,
 					       struct file*    file,
 					       unsigned int    cmd,
 					       unsigned long   arg);
-static unsigned int mi6k_lirc_poll            (struct file*    file,
-					       poll_table*     wait);
 
 static inline void  mi6k_delete               (struct usb_mi6k*            dev);
 static int          mi6k_probe                (struct usb_interface*       interface,
@@ -173,21 +164,27 @@ static void __exit  usb_mi6k_exit             (void);
 
 
 static struct file_operations mi6k_dev_fops = {
-	.owner	  =  THIS_MODULE,
-	.write	  =  mi6k_dev_write,
-	.ioctl	  =  mi6k_dev_ioctl,
-	.open	  =  mi6k_open,
-	.release  =  mi6k_release,
+	.owner   =  THIS_MODULE,
+	.write	 =  mi6k_dev_write,
+	.ioctl	 =  mi6k_dev_ioctl,
+	.open    =  mi6k_open,
+	.release =  mi6k_release,
 };
 
 static struct file_operations mi6k_lirc_fops = {
-	.owner      =  THIS_MODULE,
-	.write      =  mi6k_lirc_write,
-	.read       =  mi6k_lirc_read,
-	.ioctl      =  mi6k_lirc_ioctl,
-	.poll       =  mi6k_lirc_poll,
-	.open       =  mi6k_open,
-	.release    =  mi6k_release,
+	.write   =  mi6k_lirc_write,
+};
+
+static struct lirc_plugin mi6k_lirc_plugin = {
+	.name        =  "mi6k",
+	.features    =  LIRC_CAN_SEND_PULSE | LIRC_CAN_REC_MODE2,
+	.minor       =  -1,
+        .code_length =  1,
+	.rbuf        =  &rbuf,
+	.set_use_inc =  set_use_inc,
+	.set_use_dec =  set_use_dec,
+	.ioctl       =  mi6k_lirc_ioctl,
+        .fops        =  &mi6k_lirc_fops,
 };
 
 static struct usb_class_driver mi6k_class = {
@@ -215,31 +212,6 @@ static void mi6k_request(struct usb_mi6k *dev, unsigned short request,
 	/* Send a control request to the device synchronously */
 	usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
 			request, 0x40, wValue, wIndex, NULL, 0, REQUEST_TIMEOUT);
-}
-
-static int mi6k_ir_rx_available(struct usb_mi6k *dev)
-{
-	/* Return the number of bytes available in the receive ring buffer. */
-	return (dev->ir_rx_head - dev->ir_rx_tail) & (IR_RECV_BUFFER_SIZE - 1);
-}
-
-static void mi6k_ir_rx_push(struct usb_mi6k *dev, lirc_t x)
-{
-	/* Push a value into the receive ring buffer
-	 * This will overwrite data if the ring buffer is full.
-	 */
-	dev->ir_rx_buffer[dev->ir_rx_head] = x;
-	dev->ir_rx_head = (dev->ir_rx_head + 1) & (IR_RECV_BUFFER_SIZE - 1);
-}
-
-static int mi6k_ir_rx_pop(struct usb_mi6k *dev)
-{
-	/* Pop a value out of the receive ring buffer.
-	 * This function will return an undefined value if the ring buffer is empty.
-	 */
-	lirc_t result =	dev->ir_rx_buffer[dev->ir_rx_tail];
-	dev->ir_rx_tail = (dev->ir_rx_tail + 1) & (IR_RECV_BUFFER_SIZE - 1);
-	return result;
 }
 
 static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t count)
@@ -877,7 +849,6 @@ static int mi6k_probe(struct usb_interface *interface, const struct usb_device_i
 
 	init_MUTEX(&dev->sem);
 	dev->udev = udev;
-	dev->interface = interface;
 	init_waitqueue_head(&dev->ir_rx_wait);
 
 	usb_set_intfdata(interface, dev);
@@ -888,23 +859,12 @@ static int mi6k_probe(struct usb_interface *interface, const struct usb_device_i
 		goto error;
 	}
 
-#if 0 /* FIXME */
-	/* Initialize our LIRC-compatible character device */
-	sprintf(name, "lirc%d", dev->minor);
-	dev->lirc_devfs = devfs_register(usb_devfs_handle, name,
-					 DEVFS_FL_DEFAULT, USB_MAJOR,
-					 MI6K_MINOR_BASE + dev->minor*MINORS_PER_DEVICE + 1,
-					 S_IFCHR | S_IRUSR | S_IWUSR |
-					 S_IRGRP | S_IWGRP | S_IROTH,
-					 &mi6k_lirc_fops, NULL);
-
-	/* Automatically add a /dev/lirc symlink if this is the first device */
-	if (dev->minor == 0) {
-	  devfs_handle_t slave;
-	  devfs_mk_symlink(NULL, "lirc", DEVFS_FL_DEFAULT, "usb/lirc0", &slave, NULL);
-	  devfs_auto_unregister(dev->lirc_devfs, slave);
+	/* Initialize our LIRC plugin */
+	lirc_buffer_init(&rbuf, sizeof(lirc_t), RBUF_LEN);
+	if ((mi6k_lirc_plugin.minor = lirc_register_plugin(&mi6k_lirc_plugin)) < 0) {
+		err("lirc_register_plugin failed\n");
+		return -EIO;
 	}
-#endif
 
 	/* Allocate some DMA-friendly memory for URB transfers */
 	dev->ir_rx_tbuffer = usb_buffer_alloc(udev, IR_URB_BUFFER_SIZE,
@@ -941,7 +901,6 @@ error:
 static void mi6k_disconnect(struct usb_interface *interface)
 {
 	struct usb_mi6k *dev;
-	int minor;
 
 	/* prevent races with open() */
 	down (&disconnect_sem);
@@ -951,14 +910,10 @@ static void mi6k_disconnect(struct usb_interface *interface)
 
 	down(&dev->sem);
 
-	minor = dev->minor;
 	usb_deregister_dev(interface, &mi6k_class);
 
-#if 0 /* FIXME */
-	/* remove our devfs node */
-	devfs_unregister(dev->devfs);
-	devfs_unregister(dev->lirc_devfs);
-#endif
+	lirc_buffer_free(&rbuf);
+	lirc_unregister_plugin(mi6k_lirc_plugin.minor);
 
 	/* if the device is not opened, then we clean up right now */
 	if (!dev->open_count) {
@@ -970,12 +925,14 @@ static void mi6k_disconnect(struct usb_interface *interface)
 	}
 
 	up(&disconnect_sem);
-	info("mi6k #%d now disconnected", minor);
+	info("mi6k now disconnected");
 }
 
 static int __init usb_mi6k_init(void)
 {
 	int result;
+
+	request_module("lirc_dev");
 
 	/* register this driver with the USB subsystem */
 	result = usb_register(&mi6k_driver);
@@ -991,7 +948,6 @@ static int __init usb_mi6k_init(void)
 
 static void __exit usb_mi6k_exit(void)
 {
-	/* deregister this driver with the USB subsystem */
 	usb_deregister(&mi6k_driver);
 }
 
