@@ -27,7 +27,7 @@ in Request.py
 import struct
 from cStringIO import StringIO
 from twisted.internet import protocol, defer
-from twisted.python import failure
+from twisted.python import failure, log
 
 
 class ProtocolError(Exception):
@@ -117,7 +117,11 @@ class Protocol(protocol.Protocol):
                 currentRequest.readResponse(bufferFile)
             except:
                 # Any error in this handler belongs to the request, not us
-                currentRequest.result.errback(failure.Failure())
+                if currentRequest.result.called:
+                    log.msg("Request received an error after returning a result:")
+                    log.err(failure.Failure())
+                else:
+                    currentRequest.result.errback(failure.Failure())
 
             if currentRequest.result.called:
                 # This request is done, on to the next
