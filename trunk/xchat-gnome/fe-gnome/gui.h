@@ -40,7 +40,8 @@ typedef struct {
 
 extern XChatGUI gui;
 
-gboolean initialize_gui();
+gboolean initialize_gui_1();
+gboolean initialize_gui_2();
 int xtext_get_stamp_str (time_t tim, char **ret);
 
 #endif

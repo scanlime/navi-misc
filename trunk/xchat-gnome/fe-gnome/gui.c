@@ -33,10 +33,14 @@
 
 XChatGUI gui;
 
-gboolean initialize_gui() {
+gboolean initialize_gui_1() {
 	gui.xml = glade_xml_new("xchat-gnome.glade", NULL, NULL);
 	if(!gui.xml)
 		return FALSE;
+	initialize_setup_druid();
+}
+
+gboolean initialize_gui_2() {
 	gui.current_session = NULL;
 	pixmaps_init();
 	initialize_main_window();
@@ -44,7 +48,6 @@ gboolean initialize_gui() {
 	initialize_preferences_dialog();
 	initialize_connection_dialog();
 	initialize_navigation_tree();
-	initialize_setup_druid();
 	initialize_userlist();
 	return TRUE;
 }
