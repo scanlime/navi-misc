@@ -62,19 +62,13 @@
   <xsd:choice>
     <xsd:element name="and" type="filter-aggregation"/>
     <xsd:element name="or" type="filter-aggregation"/>
+    <xsd:element name="not" type="filter-aggregation"/>
     <xsd:element name="match" type="filter-element"/>
     <xsd:element name="find" type="filter-element"/>
-    <xsd:element name="not" type="filter-container"/>
     <xsd:element name="true" type="empty"/>
     <xsd:element name="false" type="empty"/>
   </xsd:choice>
 </xsd:group>
-
-<xsd:complexType name="filter-container">
-  <xsd:choice>
-    <xsd:group ref="filters"/>
-  </xsd:choice>
-</xsd:complexType>
 
 <xsd:complexType name="filter-aggregation">
   <xsd:choice maxOccurs="unbounded">
@@ -85,9 +79,9 @@
 <!-- ====== top-level filters -->
 <xsd:element name="and" type="filter-aggregation"/>
 <xsd:element name="or" type="filter-aggregation"/>
+<xsd:element name="not" type="filter-aggregation"/>
 <xsd:element name="match" type="filter-element"/>
 <xsd:element name="find" type="filter-element"/>
-<xsd:element name="not" type="filter-container"/>
 <xsd:element name="true" type="empty"/>
 <xsd:element name="false" type="empty"/>
 
