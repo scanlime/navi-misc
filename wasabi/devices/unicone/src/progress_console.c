@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
-#include "progress.h"
+#include "progress_console.h"
 
 static struct progress_operation* console_start      (struct progress_reporter*  self,
 						      const char*                operation_name);

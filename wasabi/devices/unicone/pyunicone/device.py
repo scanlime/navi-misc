@@ -28,11 +28,13 @@ from libunicone import *
 __all__ = ["UniconeDevice"]
 
 
-class UniconeDevice:
+class UniconeDevice(object):
     """Low-level interface for initializing the Unicone device
        and communicating with controller emulators installed in its FPGA.
        """
     _dev = None
+    _progress_py = None
+    _progress_c = None
 
     def __init__(self):
         unicone_usb_init()
@@ -43,15 +45,28 @@ class UniconeDevice:
     def __del__(self):
         if self._dev:
             unicone_device_delete(self._dev)
+        if self._progress_c:
+            progress_reporter_delete(self._progress_c)
 
     def configure(self, bitstream,
-                  firmware = "firmware.bin",
-                  progress = None):
+                  firmware = "firmware.bin"):
         if unicone_device_configure(self._dev, firmware,
-                                    bitstream, progress) < 0:
+                                    bitstream, self._progress_c) < 0:
             raise IOError("Error configuring unicone device")
 
     def setLed(self, brightness, decayRate=0):
         unicone_device_set_led(self._dev, brightness, decayRate)
+
+    def _setProgress(self, progress):
+        self._progress_py = progress
+        if self._progress_c:
+            progress_reporter_delete(self._progress_c)
+        self._progress_c = progress_reporter_python_new(progress)
+
+    def _getProgress(self):
+        return self._progress_py
+
+    progress = property(_getProgress, _setProgress)
+
 
 ### The End ###

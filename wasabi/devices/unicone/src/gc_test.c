@@ -18,7 +18,7 @@
 
 #include <unicone.h>
 #include "unicone_device.h"
-#include "progress.h"
+#include "progress_console.h"
 
 #ifndef EV_SYN
 #define EV_SYN EV_RST
