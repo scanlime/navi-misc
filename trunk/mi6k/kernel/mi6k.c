@@ -414,11 +414,13 @@ static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, lof
 	/* Shuffle values from the ring buffer into the process' provided userspace buffer */
 	available = mi6k_ir_rx_available(dev);
 	while (count >= sizeof(value) && available > 0) {
+		value = mi6k_ir_rx_pop(dev);
 		if (copy_to_user(buffer, &value, sizeof(value))) {
 			retval = -EFAULT;
 			goto exit;
 		}
 		buffer += sizeof(value);
+		retval += sizeof(value);
 		count -= sizeof(value);
 		available--;
 	}
@@ -432,8 +434,8 @@ exit:
 static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t count, loff_t *ppos)
 {
 	struct usb_mi6k *dev;
-	ssize_t bytes_written = 0;
 	int retval = 0;
+	lirc_t value;
 
 	dev =(struct usb_mi6k *)file->private_data;
 
@@ -447,13 +449,21 @@ static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t cou
 	}
 
 	/* verify that we actually have some data to write */
-	if (count == 0) {
-		dbg("write request of 0 bytes");
+	if (count < sizeof(value)) {
+		dbg("write request of %d bytes", count);
+		retval = count;
 		goto exit;
 	}
 
-	bytes_written = 4;
-	retval = bytes_written;
+	/* grab one lirc_t value at a time to write */
+	if (copy_from_user(&value, buffer, sizeof(value))) {
+		retval = -EFAULT;
+		goto exit;
+	}
+	retval = 4;
+
+	mi6k_ir_rx_push(dev, value);
+	wake_up_interruptible(&dev->ir_rx_wait);
 
 exit:
 	/* unlock the device */
