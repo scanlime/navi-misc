@@ -397,10 +397,11 @@ class CommitToXHTMLLong(CommitToXHTML):
             tag('p', _class="messageBody")[ self.format_log(commit.log) ],
             ]
 
-        if message.xml.body.commit.files and message.xml.body.commit.files.firstChildElement():
+        files = XML.dig(message.xml, "message", "body", "commit", "files")
+        if files and XML.hasChildElements(files):
             content.extend([
                 tag('h1')[ "Modified Files" ],
-                self.format_files(message.xml.body.commit.files),
+                self.format_files(files),
                 ])
         return content
 
@@ -409,8 +410,8 @@ class CommitToXHTMLLong(CommitToXHTML):
         # First we organize the files into a tree of nested dictionaries
         fileTree = {}
         if xmlFiles:
-            for fileTag in xmlFiles.elements():
-                if fileTag.name == 'file':
+            for fileTag in XML.getChildElements(xmlFiles):
+                if fileTag.nodeName == 'file':
                     # Separate the file into path segments and walk into our tree
                     node = fileTree
                     for segment in XML.shallowText(fileTag).split('/'):
