@@ -22,8 +22,8 @@
 #include <gconf/gconf-client.h>
 #include "preferences_irc_page.h"
 
-static void gconf_nickname_changed (GConfClient *client, guint cnxn_id, const gchar* key, GConfValue* value, gboolean is_default, gpointer data);
-static void entry_nickname_changed (GtkEntry *entry, gpointer data);
+static void gconf_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkEntry *entry);
+static void entry_changed (GtkEntry *entry, const gchar *key);
 
 void initialize_preferences_irc_page()
 {
@@ -38,34 +38,41 @@ void initialize_preferences_irc_page()
 
 	widget = glade_xml_get_widget (gui.xml, "nick name");
 	text = gconf_client_get_string (client, "/apps/xchat/irc/nickname", NULL);
-	gconf_client_notify_add (client, "/apps/xchat/irc/nickname", (GConfClientNotifyFunc) gconf_nickname_changed, NULL, NULL, NULL);
-	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (entry_nickname_changed), NULL);
+	gconf_client_notify_add (client, "/apps/xchat/irc/nickname", (GConfClientNotifyFunc) gconf_changed, NULL, NULL, NULL);
 	gtk_entry_set_text (GTK_ENTRY (widget), text);
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/nickname");
 	g_free (text);
 	gtk_size_group_add_widget (group, widget);
 
 	widget = glade_xml_get_widget (gui.xml, "real name");
 	text = gconf_client_get_string (client, "/apps/xchat/irc/realname", NULL);
+	gconf_client_notify_add (client, "/apps/xchat/irc/realname", (GConfClientNotifyFunc) gconf_changed, NULL, NULL, NULL);
 	gtk_entry_set_text (GTK_ENTRY (widget), text);
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/realname");
 	g_free (text);
 	gtk_size_group_add_widget (group, widget);
 
 	widget = glade_xml_get_widget (gui.xml, "quit message");
 	text = gconf_client_get_string (client, "/apps/xchat/irc/quitmsg", NULL);
+	gconf_client_notify_add (client, "/apps/xchat/irc/quitmsg", (GConfClientNotifyFunc) gconf_changed, NULL, NULL, NULL);
 	gtk_entry_set_text (GTK_ENTRY (widget), text);
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/quitmsg");
 	g_free (text);
 	gtk_size_group_add_widget (group, widget);
 
 	widget = glade_xml_get_widget (gui.xml, "part message");
 	text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
+	gconf_client_notify_add (client, "/apps/xchat/irc/partmsg", (GConfClientNotifyFunc) gconf_changed, NULL, NULL, NULL);
 	gtk_entry_set_text (GTK_ENTRY (widget), text);
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/partmsg");
 	g_free (text);
 	gtk_size_group_add_widget (group, widget);
 
 	widget = glade_xml_get_widget (gui.xml, "away message");
-	text = preferences_awaymsg ();
 	text = gconf_client_get_string (client, "/apps/xchat/irc/awaymsg", NULL);
+	gconf_client_notify_add (client, "/apps/xchat/irc/partmsg", (GConfClientNotifyFunc) gconf_changed, NULL, NULL, NULL);
 	gtk_entry_set_text (GTK_ENTRY (widget), text);
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/awaymsg");
 	g_free (text);
 	gtk_size_group_add_widget (group, widget);
 
@@ -87,23 +94,19 @@ void initialize_preferences_irc_page()
 }
 
 static void
-gconf_nickname_changed (GConfClient *client, guint cnxn_id, const gchar* key, GConfValue* value, gboolean is_default, gpointer data)
+gconf_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkEntry *entry)
 {
-	GtkWidget *widget;
 	gchar *text;
 
-	g_print ("hello!\n");
-
-	widget = glade_xml_get_widget (gui.xml, "nick name");
-	g_signal_handlers_block_by_func (widget, "changed", entry_nickname_changed);
-	text = gconf_client_get_string (client, "/apps/xchat/irc/nickname", NULL);
-	gtk_entry_set_text (GTK_ENTRY (widget), text);
-	g_signal_handlers_unblock_by_func (widget, "changed", entry_nickname_changed);
+	g_signal_handlers_block_by_func (entry, "changed", entry_changed);
+	text = gconf_client_get_string (client, key, NULL);
+	gtk_entry_set_text (entry, text);
 	g_free (text);
+	g_signal_handlers_block_by_func (entry, "changed", entry_changed);
 }
 
 static void
-entry_nickname_changed (GtkEntry *entry, gpointer data)
+entry_changed (GtkEntry *entry, const gchar *key)
 {
 	GConfClient *client;
 	const gchar *text;
@@ -111,5 +114,5 @@ entry_nickname_changed (GtkEntry *entry, gpointer data)
 	client = gconf_client_get_default ();
 	text = gtk_entry_get_text (entry);
 	if (text)
-		gconf_client_set_string (client, "/apps/xchat/irc/nickname", text, NULL);
+		gconf_client_set_string (client, key, text, NULL);
 }
