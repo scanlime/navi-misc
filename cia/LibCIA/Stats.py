@@ -26,10 +26,41 @@ the actual stats target using part of the message.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from twisted.web import xmlrpc
 import Ruleset, XML, Message
 import string, os
 import time, datetime, calendar
 import anydbm
+
+
+class StatsStorage(object):
+    """A thin abstraction around the directory that acts as a root for all stats:// URIs"""
+    def __init__(self, path):
+        self.path = path
+
+    def getTarget(self, pathSegments):
+        """Return a StatsTarget representing the stats stored at the given
+           path, represented as one or more nested directories. Disallowed
+           characters in each path segment are URI-encoded.
+           """
+        return StatsTarget(os.path.join(self.path, *map(self.uriencode, pathSegments)))
+
+    def getPathTarget(self, path, *extraSegments):
+        """Like getTarget, but split up 'path' into segments and optionall append extraSegments first"""
+        return self.getTarget(list(path.split("/")) + list(extraSegments))
+
+    def uriencode(self, s, allowedChars = string.ascii_letters + string.digits + "-_"):
+        """Return a URI-encoded version of 's', all characters not in the
+        given list will be replaced with their hexadecimal value prefixed
+        with '%'.
+        """
+        chars = []
+        for char in s:
+            if char in allowedChars:
+                chars.append(char)
+            else:
+                chars.append("%%%02X" % ord(char))
+        return "".join(chars)
 
 
 class StatsURIHandler(Ruleset.RegexURIHandler):
@@ -40,107 +71,36 @@ class StatsURIHandler(Ruleset.RegexURIHandler):
     scheme = 'stats'
     regex = r"^stats://(?P<path>([a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*)?)$"
 
-    def __init__(self, hub, statsDirectory):
-        self.statsDirectory = statsDirectory
+    def __init__(self, storage):
+        self.storage = storage
         Ruleset.RegexURIHandler.__init__(self)
-        self.addClients(hub)
-
-    def addClients(self, hub):
-        """Add our own clients to the Message.Hub. We use this to listen
-           for queryStats messages. The extra level of indirection here helps
-           rebuild() work its magic without breaking.
-           """
-        hub.addClient(lambda msg: self.queryStats(msg),
-                      Message.Filter('<find path="/message/body/queryStats"/>'))
-
-    def queryStats(self, message):
-        """Handle <queryStats> messages.
-           A <queryStats> tag includes a 'uri' attribute with the stats:// URI
-           for which stats should be retrieved. An empty <queryStats/> will return
-           no information, only check the validity of the URI. Any number of the
-           following tags may be included inside <queryStats> to retrieve information
-           on the stats URI:
-
-             <catalog>               : Return a list of valid relative URIs under the given URI in the directory tree.
-                                       Each uri in the returned list can be joined to the given URI with a / separating
-                                       them to forma  new valid URI.
-             <messages [count='n']>  : Return the last 'n' messages sent to this stats target,
-                                       or all available messages if a count isn't given.
-             <counters>              : Return the event counters for this stats target
-        """
-        # Get the StatsTarget for this URI
-        query = message.xml.body.queryStats
-        uri = query.getAttribute('uri')
-        if not uri:
-            raise XML.XMLValidityError("A 'uri' attribute for the <queryStats> element is required")
-        uriPath = self.parseURI(uri)['path']
-        target = StatsTarget(os.path.join(self.statsDirectory, uriPath))
-        if not target.exists():
-            raise XML.XMLValidityError("URI is not a valid stats target")
-
-        # Process each element in the query, storing results inside.
-        # Queries are processed by functions in this class of the form query_*
-        for queryItem in query.elements():
-            try:
-                f = getattr(self, 'query_' + queryItem.name)
-            except AttributeError:
-                raise XML.XMLValidityError("Unexpected %r element inside <queryStats>" % queryItem.name)
-            f(queryItem, target)
-
-        # Return the query converted back to XML text, containing the results
-        return query.toXml()
 
     def message(self, uri, message, content):
-        """Combines the path in the given URI with a uri-encoded version
-           of 'content' into an absolute path for a StatsTarget and delivers
-           the given message to it.
+        """Appends 'content' to the path represented by the given URI
+           and delivers a message to its associated stats target.
            """
-        StatsTarget(os.path.join(self.statsDirectory, self.parseURI(uri)['path'],
-                                 uriencode(content))).deliver(message)
+        target = self.storage.getPathTarget(self.parseURI(uri)['path'], content)
+        target.deliver(message)
 
-    def query_catalog(self, element, target):
-        """Implements the <catalog> tag in queryStats. The <catalog> element gets
-           filled with a list of valid <uri>s that are children of the provided target.
+
+class StatsInterface(xmlrpc.XMLRPC):
+    """An XML-RPC interface used to query stats"""
+    def __init__(self, storage):
+        self.storage = storage
+
+    def xmlrpc_catalog(self, path):
+        """Return a list of subdirectories within this stats path"""
+        return self.storage.getPathTarget(path).catalog()
+
+    def xmlrpc_getLatestMessages(self, path, limit=None):
+        """Return 'limit' latest messages delivered to this stats target,
+           or all available recent messages if 'limit' isn't specified.
            """
-        for subdir in target.catalog():
-            element.addElement('uri', content=subdir)
-
-    def query_messages(self, element, target):
-        """Implements the <messages> tag in queryStats, returning the n most
-           recent messages logged to the given stats target.
-           """
-        try:
-            count = int(element['count'])
-        except KeyError:
-            count = None
-        except ValueError:
-            raise XML.XMLValidityError("'count' parameter must be an integer")
-
-        if target.recentMessages:
-            for message in target.recentMessages.getLatest(count):
-                element.addChild(XML.parseString(message))
-
-    def query_counters(self, element, target):
-        """Implements the <counters> tag in queryStats. If the StatsTarget
-           has counters, returns them as-is stuffed into the <counters> tag.
-           """
-        if target.counters:
-            for counter in target.counters.flatten():
-                element.children.append(counter.xml)
-
-
-def uriencode(s, allowedChars = string.ascii_letters + string.digits + "-_"):
-    """Return a URI-encoded version of 's', all characters not in the
-       given list will be replaced with their hexadecimal value prefixed
-       with '%'.
-       """
-    chars = []
-    for char in s:
-        if char in allowedChars:
-            chars.append(char)
+        recentMessages = self.storage.getPathTarget(path).recentMessages
+        if recentMessages:
+            return recentMessages.getLatest(limit)
         else:
-            chars.append("%%%02X" % ord(char))
-    return "".join(chars)
+            return []
 
 
 class StatsTarget(object):
@@ -194,7 +154,11 @@ class StatsTarget(object):
 
     def catalog(self):
         """Return a list of subdirectories of this stats target"""
-        return [dir for dir in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, dir))]
+        try:
+            return [dir for dir in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, dir))]
+        except OSError:
+            # Nonexistant stats targets have no subdirectories
+            return []
 
 
 class TimeInterval(object):
@@ -295,9 +259,15 @@ class CounterList(XML.XMLStorage):
         return self.counters.values()
 
     def getCounter(self, name):
-        """Get a counter with the given name, creating it if it doesn't exist"""
+        """Get a counter with the given name. If 'create' is True, it
+           will be created if necessary. If 'create' is False and the
+           counter doesn't exist, None will be returned.
+           """
         if not self.counters.has_key(name):
-            self.counters[name] = Counter(name=name)
+            if create:
+                self.counters[name] = Counter(name=name)
+            else:
+                return None
         return self.counters[name]
 
 
@@ -463,7 +433,7 @@ class Counter(XML.XMLObject):
         # Store the name
         self.name = self.xml.getAttribute('name')
 
-    def _getValue(self, type, name, default=None, castTo=None):
+    def getValue(self, type, name, default=None, castTo=None):
         """Return the value in this counter stored as the
            given data type using 'name'. If it can't be
            found, the provided default will be returned.
@@ -482,7 +452,7 @@ class Counter(XML.XMLObject):
             return value
         return default
 
-    def _setValue(self, type, name, value):
+    def setValue(self, type, name, value):
         """Set the value in this counter with the given type
            and name, overwriting an old value if there was one.
            """
@@ -504,32 +474,32 @@ class Counter(XML.XMLObject):
         self.xml.children.append("\n")
 
     def getCreationTime(self):
-        return self._getValue('time', 'creation', castTo=int)
+        return self.getValue('time', 'creation', castTo=int)
 
     def getCreationDatetime(self):
         """Like getCreationTime, but cast the result to a UTC datetime object"""
         return datetime.datetime.utcfromtimestamp(self.getCreationTime())
 
     def setCreationTime(self, value):
-        self._setValue('time', 'creation', value)
+        self.setValue('time', 'creation', value)
 
     def getFirstEventTime(self):
-        return self._getValue('time', 'firstEvent', castTo=int)
+        return self.getValue('time', 'firstEvent', castTo=int)
 
     def setFirstEventTime(self, value):
-        self._setValue('time', 'firstEvent', value)
+        self.setValue('time', 'firstEvent', value)
 
     def getLastEventTime(self):
-        return self._getValue('time', 'lastEvent', castTo=int)
+        return self.getValue('time', 'lastEvent', castTo=int)
 
     def setLastEventTime(self, value):
-        self._setValue('time', 'lastEvent', value)
+        self.setValue('time', 'lastEvent', value)
 
     def getEventCount(self):
-        return self._getValue('count', 'events', 0, castTo=int)
+        return self.getValue('count', 'events', 0, castTo=int)
 
     def incrementEventCount(self):
-        self._setValue('count', 'events', self.getEventCount() + 1)
+        self.setValue('count', 'events', self.getEventCount() + 1)
 
     def increment(self, evTime=None):
         """Count an incoming event. This increments our total event count,

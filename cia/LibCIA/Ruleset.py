@@ -368,8 +368,8 @@ class URIRegistry(object):
     """A central authority for storing URIHandler instances and looking up
        one appropriate for a given URI.
        """
-    def __init__(self, handlers=[]):
-        self.handlers = handlers
+    def __init__(self, *handlers):
+        self.handlers = list(handlers)
 
     def register(self, handler):
         self.handlers.append(handler)
