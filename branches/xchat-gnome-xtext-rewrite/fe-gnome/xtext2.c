@@ -29,6 +29,7 @@ static int      backend_get_text_width (XText2 *xtext, char *str, int len, gbool
 static int      backend_draw_text      (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *str, int len, int width, gboolean multibyte);
 
 static void     paint                  (GtkWidget *widget, GdkRectangle *area);
+static void     render_page            (XText2 *xtext);
 static char*    selection_get_text     (XText2 *xtext, int *len);
 static void     set_indent             (XText2 *xtext, gboolean indent);
 static void     set_show_separator     (XText2 *xtext, gboolean show);
@@ -114,6 +115,11 @@ struct _XText2Private
   /* general state */
   gboolean moving_separator:   TRUE; /* currently moving the separator bar? */
   gboolean word_or_line_select:TRUE; /* selecting a word or line? */
+
+  int clip_x;                        /* clip rect left   */
+  int clip_x2;                       /* clip rect right  */
+  int clip_y;                        /* clip rect top    */
+  int clip_y2;                       /* clip rect bottom */
 };
 
 GType
@@ -220,7 +226,7 @@ xtext2_init (XText2 *xtext)
 }
 
 GtkWidget*
-xtext2_new (GdkColor palette[], gboolean separator)
+xtext2_new ()
 {
   return GTK_WIDGET (g_object_new (xtext2_get_type (), NULL));
 }
@@ -426,6 +432,7 @@ xtext2_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
   if (GTK_WIDGET_REALIZED (widget))
   {
     /* FIXME: stuff! */
+    gdk_window_move_resize (widget->window, allocation->x, allocation->y, allocation->width, allocation->height);
   }
 }
 
@@ -681,7 +688,57 @@ backend_draw_text (XText2 *xtext, gboolean fill, GdkGC *gc, int x, int y, char *
 static void
 paint (GtkWidget *widget, GdkRectangle *area)
 {
-  /* FIXME !!! */
+  XText2 *xtext = XTEXT2 (widget);
+  int x, y;
+
+#if defined(USE_XLIB) || defined(WIN32)
+  if (xtext->priv.transparent)
+  {
+    gdk_window_get_origin (widget->window, &x, &y);
+    /* update transparency only if moved */
+    if (xtext->priv->last_win_x != x || xtext->priv->last_win_y != y)
+    {
+      xtext->priv->last_win_x = x;
+      xtext->priv->last_win_y = y;
+      /* FIXME: more stuff */
+    }
+  }
+#endif /* USE_XLIB || WIN32 */
+  if (area->x == 0 && area->y == 0 &&
+      area->height == widget->allocation.height &&
+      area->width == widget->allocation.width)
+  {
+//    dont_scroll ()
+    render_page (xtext);
+  }
+
+  /* FIXME: more stuff */
+  xtext->priv->clip_x  = area->x;
+  xtext->priv->clip_x2 = area->x + area->width;
+  xtext->priv->clip_y  = area->y;
+  xtext->priv->clip_y2 = area->y + area->height;
+
+  /* FIXME: more stuff */
+
+  xtext->priv->clip_x  = 0;
+  xtext->priv->clip_x2 = 1000000;
+  xtext->priv->clip_y  = 0;
+  xtext->priv->clip_y2 = 1000000;
+
+  /* FIXME: more stuff */
+}
+
+static void
+render_page (XText2 *xtext)
+{
+  int width, height;
+
+  if (!GTK_WIDGET_REALIZED (xtext))
+    return;
+
+  /* FIXME: more stuff */
+
+  gdk_drawable_get_size (GTK_WIDGET (xtext)->window, &width, &height);
 }
 
 static char*

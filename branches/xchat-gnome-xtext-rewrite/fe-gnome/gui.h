@@ -21,7 +21,7 @@
 
 #include <glade/glade.h>
 #include <gnome.h>
-#include "../fe-gtk/xtext.h"
+#include "xtext2.h"
 #include "../common/xchat.h"
 #include "userlist.h"
 
@@ -33,7 +33,7 @@ typedef struct {
 	GnomeApp *main_window;
 	GtkDialog *preferences_dialog;
 	GnomeAbout *about;
-	GtkXText *xtext;
+	XText2 *xtext;
 	session *current_session;
 	GnomeDruid *setup_druid;
 	gboolean quit;
