@@ -161,3 +161,29 @@ The rumble pak returns all 0x80 from this read, while
 a memory pak will return 0x00. Why doesn't the memory
 pak return 0xFE?
 
+It looks like the status byte returned from a controller
+pak write is actually a checksum. This would make a lot of
+sense, as when saving a game data integrity is important.
+When generating write commands with a constant 80 01 address
+word and changing data, the checksum byte changes. Several
+messages were tested consisting of 80, 01, 31 zero bytes,
+then a different byte. The byte and the message's checksums
+are recorded below:
+
+byte   message checksum
+-------------------------
+00     FF  1111 1111 <-- seems to indicate that the checksum is only
+01     7A  0111 1010     over the 32 bytes, not the address word
+02     70  0111 0000
+03     F5  1111 0101
+05     E1  1110 0001
+06     14  0001 0100
+07     6E  0110 1110
+C5     EE  1110 1110
+FF     72  0111 0010
+
+01     7A  0111 1010
+02     70  0111 0000
+04     64  0110 0100
+08     4C  0100 1100
+10     1C  0001 1100
