@@ -313,8 +313,8 @@ static void usage(char **argv) {
 	    "                            noninteractively, and store it in FILE.\n"
 	    "\n"
 	    "Clustering:\n"
-	    "  -c LIST, --cluster LIST Use a rendering cluster, specified as a comma-separated\n"
-	    "                            list of hostnames, optionally of the form host:port.\n"
+	    "  -c LIST, --cluster LIST Use a rendering cluster, given as a comma-separated\n"
+	    "                            list of hosts, optionally of the form host:port.\n"
 	    "  -C, --auto-cluster      Automatically search for cluster nodes, adding them\n"
             "                            as they become available.\n"
 	    "  -r, --remote            Remote control mode. Fyre will listen by default on\n"
@@ -341,10 +341,10 @@ static void usage(char **argv) {
 	    "                            quadratically. Recommended values are between 1\n"
 	    "                            (no oversampling) and 4 (heavy oversampling)\n"
 	    "  -q, --quality QUALITY   In noninteractive rendering, set the quality level at\n"
-	    "                            which we stop rendering. Larger numbers give smoother\n"
-	    "                            and more detailed results, but increase running time.\n"
-	    "                            The default of 1.0 gives roughly one histogram sample\n"
-	    "                            for every final image sample.\n",
+	    "                            which we stop rendering. Larger numbers give\n"
+	    "                            smoother and more detailed results, but increase\n"
+	    "                            running time. The default of 1.0 gives roughly one\n"
+	    "                            histogram sample for every final image sample.\n",
 	    argv[0]);
 }
 
