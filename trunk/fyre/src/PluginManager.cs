@@ -73,8 +73,7 @@ namespace Fyre {
 			// Add all the files in the PLUGINSDIR to the list of plugins.
 			if (Directory.Exists (directory)) {
 				foreach (string file in Directory.GetFiles (directory, "*.dll")) {
-					if (!files.Contains (file))
-						files.Add (file);
+					files.Add (file);
 				}
 			}
 
