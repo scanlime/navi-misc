@@ -16,7 +16,11 @@ view.camera.elevation = 0
 view.camera.distance = 7
 view.camera.jump()
 
-title = HUD.Text(viewport.region(viewport.rect), "Wasabi", color=(1,1,1,1), fontSize=70, alignment=(0.5, 0.75))
+title = HUD.Text(viewport.region(viewport.rect), "WASABI",
+                 color     = (1,1,1,1),
+                 fontSize  = 100,
+                 alignment = (0.5, 0.75),
+                 fontName  = "geodesic.ttf")
 
 view.scene.add(cPickle.load(open("data/green_flame.particle")))
 
