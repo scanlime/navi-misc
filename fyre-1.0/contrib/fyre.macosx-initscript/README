@@ -1,0 +1,6 @@
+Place fyre folder into /Library/StartupItems
+
+change permissions to:
+rwxr-xr-x root wheel /Library/StartupItems/fyre/
+rwxr-xr-x root wheel /Library/StartupItems/fyre/fyre
+rw-r--r-- root wheel /Library/StartupItems/fyre/StartupParameters.plist
