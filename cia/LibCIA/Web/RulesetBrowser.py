@@ -89,7 +89,7 @@ class RulesetListSection(Template.Section):
             RulesetURIColumn(),
             RulesetSizeColumn(),
             RulesetSchemeColumn(),
-            ])]
+            ], id='ruleset')]
 
 
 def singleRulesetPageFactory(caps, storage, uri):

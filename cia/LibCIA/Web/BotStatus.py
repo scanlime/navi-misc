@@ -69,10 +69,11 @@ class ServerSection(Template.Section):
         return "%s:%d" % (self.allocator.host, self.allocator.port)
 
     def render_rows(self, context):
+        tableId = self.allocator.host.replace(".", "_") + "_" + str(self.allocator.port)
         return [Template.Table(self.allocator.bots.values(), [
             Nouvelle.AttributeColumn('nickname', 'nickname'),
             BotChannelsColumn(),
-            ])]
+            ], id=tableId)]
 
 
 class IRCBotPage(Template.Page):
