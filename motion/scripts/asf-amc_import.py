@@ -39,37 +39,47 @@ try:
 except:
     pass
 
-armature = None
+armature    = None
 armatureObj = None
+asfReader   = None
+scene       = None
 
-def addVectors(a, b):
+def cleanup ():
+    # Clean up our global data, so we can run multiple times without problems
+    armature    = None
+    armatureObj = None
+    asfReader   = None
+    scene       = None
+
+def addVectors (a, b):
     x = []
     for i in range (len(a)):
         x.append (a[i] + b[i])
     return x
 
 def loadASF (filename):
-    reader = ASFReader.ASFReader ()
+    asfReader = ASFReader.ASFReader ()
     try:
-        reader.parse (filename)
+        asfReader.parse (filename)
     except IOError, s:
         ASFReader.log.err (s)
 
     if ASFReader.log.numErrors:
         # Report any errors we encountered and quit
         ASFReader.log.report ('Errors in loading ASF')
+        cleanup ()
         return
 
 
     # Load our data into an armature.
     scene = Blender.Scene.getCurrent ()
-    armatureObj = Blender.Object.New ('Armature', reader.name)
+    armatureObj = Blender.Object.New ('Armature', asfReader.name)
     armature = Blender.Armature.New ()
 
     bones = {}
 
     # Create all the bones. for now, they're just positioned at the origin.
-    for name, data in reader.bones.iteritems ():
+    for name, data in asfReader.bones.iteritems ():
         bone = Blender.Armature.Bone.New (name)
 
         # Head is at the origin. Tail is direction * length. Scale by 1/10
@@ -95,7 +105,7 @@ def loadASF (filename):
     # Iterate through the hierarchy and position child bones at the tails of
     # their parents. Blender doesn't require a bone and its parent to be
     # touching, but ASF does.
-    for set in reader.hierarchy:
+    for set in asfReader.hierarchy:
         parent = set[0]
         for child in set[1:]:
             bones[child].setTail (addVectors (bones[child].tail, bones[parent].tail))
@@ -103,7 +113,7 @@ def loadASF (filename):
 
     # Iterate through the hierarchy again, linking bones to their parents and
     # adding them to the armature object.
-    for set in reader.hierarchy:
+    for set in asfReader.hierarchy:
         parent = set[0]
         for child in set[1:]:
             bones[child].setParent (bones[parent])
@@ -119,7 +129,52 @@ def loadASF (filename):
     Blender.Window.FileSelector (loadAMC, 'Load AMC Motion Capture')
 
 def loadAMC (filename):
-    armature = None
-    armatureObj = None
+    amcReader = AMCReader.AMCReader ()
+    try:
+        amcReader.parse (filename)
+    except IOError, s:
+        AMCReader.log.err (s)
+
+    if AMCReader.log.numErrors:
+        AMCReader.log.report ('Errors in loading AMC')
+        cleanup ()
+
+    # Create a new action, named after the file
+    action = Blender.Armature.NLA.NewAction (filename.split ('/')[-1])
+    action.setActive (armatureObj)
+
+    context = scene.getRenderingContext ()
+    # Pretty much all of the data we've gotten is at 120Hz. It would be nice
+    # to pull this out of the data file, but for now, just hardcode it - FIXME
+    context.framesPerSec (120)
+
+    for frame in amcReader.frames:
+        context.currentFrame (frame.number)
+
+        # FIXME - importing this data can take a *long* time, so we should provide
+        # some kind of feedback to the user - "frame n/total" progress bar, etc.
+        # Should probably also do some profiling to find out why it takes so freaking
+        # long to create a single frame.
+
+        # Set root position/orientation. We need to and scale this just like we
+        # did for the positions of the individual bones
+        location = [(n * 0.1) for n in frame.bones['root'][0:3]]
+        rotation = Blender.Mathutils.Euler (frame.bones['root'][3:6]).toQuat ()
+
+        # bones['root'].setLoc (location)
+        # bones['root'].setQuat (quat)
+        # bones['root'].setPose ([ROT, LOC])
+
+        # Set orientations for each bone for this frame
+        for name, bone in frame.bones.iteritems ():
+            if name == 'root':
+                continue
+            bone = bones[bname]
+            quat = getRotation (bone)
+            #bones[name].setQuat (quat)
+            #bones[name].setPose ([ROT])
+
+    Blender.Window.RedrawAll ()
+    cleanup ()
 
 Blender.Window.FileSelector (loadASF, 'Load ASF Skeleton File')
