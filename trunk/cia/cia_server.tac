@@ -6,7 +6,16 @@
 from twisted.application import service, internet
 from twisted.web import server, xmlrpc
 from twisted.persisted import sob
+from twisted.python import log
 from LibCIA import Message, Ruleset, IRC, Stats, IncomingMail, Interface
+
+# Use psyco to speed this up if we have it
+try:
+    import psyco
+    psyco.full()
+    log.msg("optimized using psyco")
+except ImportError:
+    log.msg("psyco not found")
 
 application = service.Application("cia_server")
 

@@ -110,10 +110,8 @@ class StatsInterface(xmlrpc.XMLRPC):
             return []
 
     def xmlrpc_getCounters(self, path):
-        """Returns a list of counters for the given path, as a dictionary
-           mapping from counter name to the counter represented as raw XML.
-           """
-        return self.storage.getPathTarget(path).getCounterXml()
+        """Return counters for the given path as XML"""
+        return self.storage.getPathTarget(path).countersToXml()
 
     def xmlrpc_catalogCounters(self, path):
         """Runs 'catalog' on the given path to determine it's subdirectories,
@@ -180,24 +178,22 @@ class StatsTarget(object):
             # Nonexistant stats targets have no subdirectories
             return []
 
-    def getCounterXml(self):
-        """Return a mapping from counter name to the raw XML representing the counter"""
-        results = {}
+    def countersToXml(self):
+        """Return all counters as raw XML"""
         if self.counters:
-            for key, value in self.counters.counters.iteritems():
-                # Convert Counter instances to strings
-                results[key] = str(value)
-        return results
+            return self.counters.toXml()
+        else:
+            return ''
 
     def child(self, name):
         """Return the StatsTarget for the given subdirectory name under this one"""
         return StatsTarget(os.path.join(self.path, name))
 
     def catalogCounters(self):
-        """Return a mapping from subdirectory name to getCounterXml results for each subdirectory"""
+        """Return a mapping from subdirectory name to XML counters"""
         results = {}
         for child in self.catalog():
-            results[child] = self.child(child).getCounterXml()
+            results[child] = self.child(child).countersToXml()
         return results
 
 
@@ -285,7 +281,9 @@ class TimeInterval(object):
 class CounterList(XML.XMLStorage):
     """Several named Counters stored in one file"""
     def __init__(self, fileName):
-        XML.XMLStorage.__init__(self, fileName, 'counters')
+        # Use lazy loading to speed things up if we need to refer to
+        # a counter list without necessarily being able to read its contents.
+        XML.XMLStorage.__init__(self, fileName, 'counters', lazyLoad=True)
 
     def emptyStorage(self):
         # Maps counter name to Counter instance
@@ -300,6 +298,7 @@ class CounterList(XML.XMLStorage):
 
     def getNames(self):
         """Return all currently valid counter names"""
+        self.loadIfNecessary()
         return self.counters.keys()
 
     def getCounter(self, name, create=True):
@@ -307,6 +306,7 @@ class CounterList(XML.XMLStorage):
            will be created if necessary. If 'create' is False and the
            counter doesn't exist, None will be returned.
            """
+        self.loadIfNecessary()
         if not self.counters.has_key(name):
             if create:
                 self.counters[name] = Counter(name=name)
