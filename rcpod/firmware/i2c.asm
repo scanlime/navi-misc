@@ -92,7 +92,7 @@ pin_output macro reg
 	banksel	reg
 	movf	reg, w
 	iorlw	0x40		; Set the TRIS bit
-	andlw	0x7E		; Clear the HIGH bit
+	andlw	0x7F		; Clear the HIGH bit
 	banksel	io_pin
 	movwf	io_pin
 	pscall	io_Assert
