@@ -46,6 +46,7 @@ public class pipe extends Thread
 			{
 				temp = in.read();
 				out.write(temp);
+				out.flush();
 				if(temp == -1) return;
 			}
 		}
