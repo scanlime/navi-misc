@@ -1,6 +1,7 @@
 ? calendar/backends/weather
 ? calendar/backends/contacts/.e-cal-backend-contacts.c.swp
 ? calendar/backends/http/.e-cal-backend-http.c.swp
+? calendar/libecal/.e-cal-component.c.swp
 ? calendar/libecal/.e-cal-component.h.swp
 ? calendar/libical/src/libical/.icalenums.h.swp
 ? calendar/libical/src/libical/.icaltime.h.swp
@@ -12,7 +13,7 @@ RCS file: /cvs/gnome/evolution-data-server/configure.in,v
 retrieving revision 1.66
 diff -u -r1.66 configure.in
 --- configure.in	10 Sep 2004 10:12:43 -0000	1.66
-+++ configure.in	22 Sep 2004 08:34:47 -0000
++++ configure.in	22 Sep 2004 19:00:21 -0000
 @@ -306,6 +306,7 @@
  calendar/backends/groupwise/Makefile
  calendar/backends/http/Makefile
@@ -27,24 +28,41 @@ RCS file: /cvs/gnome/evolution-data-server/calendar/backends/Makefile.am,v
 retrieving revision 1.3
 diff -u -r1.3 Makefile.am
 --- calendar/backends/Makefile.am	9 Jan 2004 20:05:27 -0000	1.3
-+++ calendar/backends/Makefile.am	22 Sep 2004 08:34:49 -0000
++++ calendar/backends/Makefile.am	22 Sep 2004 19:00:23 -0000
 @@ -1 +1 @@
 -SUBDIRS = file groupwise http contacts
 +SUBDIRS = file groupwise http contacts weather
+Index: calendar/libecal/e-cal-component.c
+===================================================================
+RCS file: /cvs/gnome/evolution-data-server/calendar/libecal/e-cal-component.c,v
+retrieving revision 1.9
+diff -u -r1.9 e-cal-component.c
+--- calendar/libecal/e-cal-component.c	16 Jul 2004 14:29:20 -0000	1.9
++++ calendar/libecal/e-cal-component.c	22 Sep 2004 19:00:32 -0000
+@@ -1138,6 +1138,9 @@
+ 	case ICAL_VTIMEZONE_COMPONENT:
+ 		return E_CAL_COMPONENT_TIMEZONE;
+ 
++	case ICAL_XWEATHER_COMPONENT:
++		return E_CAL_COMPONENT_XWEATHER;
++
+ 	default:
+ 		/* We should have been loaded with a supported type! */
+ 		g_assert_not_reached ();
 Index: calendar/libecal/e-cal-component.h
 ===================================================================
 RCS file: /cvs/gnome/evolution-data-server/calendar/libecal/e-cal-component.h,v
 retrieving revision 1.4
 diff -u -r1.4 e-cal-component.h
 --- calendar/libecal/e-cal-component.h	13 Jan 2004 13:14:58 -0000	1.4
-+++ calendar/libecal/e-cal-component.h	22 Sep 2004 08:34:51 -0000
++++ calendar/libecal/e-cal-component.h	22 Sep 2004 19:00:34 -0000
 @@ -48,7 +48,8 @@
  	E_CAL_COMPONENT_TODO,
  	E_CAL_COMPONENT_JOURNAL,
  	E_CAL_COMPONENT_FREEBUSY,
 -	E_CAL_COMPONENT_TIMEZONE
 +	E_CAL_COMPONENT_TIMEZONE,
-+	E_CAL_COMPONENT_X_WEATHER
++	E_CAL_COMPONENT_XWEATHER
  } ECalComponentVType;
  
  /* Field identifiers for a calendar component; these are used by the data model
@@ -54,7 +72,7 @@ RCS file: /cvs/gnome/libical/src/libical/icalenums.h,v
 retrieving revision 1.9
 diff -u -r1.9 icalenums.h
 --- calendar/libical/src/libical/icalenums.h	11 Sep 2003 22:04:19 -0000	1.9
-+++ calendar/libical/src/libical/icalenums.h	22 Sep 2004 08:34:52 -0000
++++ calendar/libical/src/libical/icalenums.h	22 Sep 2004 19:00:35 -0000
 @@ -60,8 +60,9 @@
      ICAL_VCAR_COMPONENT,
      ICAL_VCOMMAND_COMPONENT,
@@ -73,7 +91,7 @@ RCS file: /cvs/gnome/libical/src/libicalss/icalssyacc.h,v
 retrieving revision 1.12
 diff -u -r1.12 icalssyacc.h
 --- calendar/libical/src/libicalss/icalssyacc.h	28 May 2004 10:14:24 -0000	1.12
-+++ calendar/libical/src/libicalss/icalssyacc.h	22 Sep 2004 08:34:56 -0000
++++ calendar/libical/src/libicalss/icalssyacc.h	22 Sep 2004 19:00:35 -0000
 @@ -78,7 +78,7 @@
  typedef union YYSTYPE {
  	char* v_string;
@@ -89,7 +107,7 @@ RCS file: /cvs/gnome/evolution-data-server/src/Makefile.am,v
 retrieving revision 1.15
 diff -u -r1.15 Makefile.am
 --- src/Makefile.am	19 Mar 2004 18:43:52 -0000	1.15
-+++ src/Makefile.am	22 Sep 2004 08:35:30 -0000
++++ src/Makefile.am	22 Sep 2004 19:00:51 -0000
 @@ -67,6 +67,7 @@
  	$(top_builddir)/calendar/backends/http/libecalbackendhttp.la		\
  	$(top_builddir)/addressbook/libebook/libebook.la			\
@@ -104,7 +122,7 @@ RCS file: /cvs/gnome/evolution-data-server/src/server.c,v
 retrieving revision 1.20
 diff -u -r1.20 server.c
 --- src/server.c	2 Aug 2004 18:26:18 -0000	1.20
-+++ src/server.c	22 Sep 2004 08:35:34 -0000
++++ src/server.c	22 Sep 2004 19:00:51 -0000
 @@ -56,6 +56,7 @@
  #include <backends/groupwise/e-cal-backend-groupwise.h>
  #include <backends/http/e-cal-backend-http.h>
