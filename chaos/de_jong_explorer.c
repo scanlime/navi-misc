@@ -290,7 +290,7 @@ void set_defaults() {
   params.yoffset = 0;
   params.rotation = 0;
   params.blur_radius = 0;
-  params.blur_ratio = 0;
+  params.blur_ratio = 1;
 
   render.exposure = 0.05;
   render.gamma = 1;
