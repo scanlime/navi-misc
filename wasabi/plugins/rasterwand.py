@@ -145,12 +145,15 @@ class SDLBargraph:
 
 class Visualizer:
     def __init__(self):
-        self.inputVolume = 8e4
-        self.bars = None
+        self.reset()
 
         # Frequency tap indices for each bar
         s = 20
         self.taps = (exp(arange(0, 1, 0.07)) * s - s).astype(Int)
+
+    def reset(self):
+        self.inputVolume = 8e4
+        self.bars = None
 
     def transform(self, inputSignal):
         # Automatic gain control
@@ -162,7 +165,7 @@ class Visualizer:
 
         # Track the input volume, for automatic gain control
         total = abs(add.reduce(audio))
-        alpha = 0.001
+        alpha = 0.0025
         self.inputVolume = (1-alpha)*self.inputVolume + alpha*total
 
         # Scale down the frequency axis nicely by integrating,
@@ -186,19 +189,23 @@ class PluginThread(threading.Thread):
 
     def run(self):
         self.mpav = MPAVClient()
-        rw = RasterBargraph()
-        self.mpav.onIdle = rw.clear
+        self.rw = RasterBargraph()
+        self.mpav.onIdle = self.onIdle
         delayed = Delay(30, self.mpav.waitForBuffer)
-        viz = Visualizer()
+        self.viz = Visualizer()
         while not self.stop:
-            rw.writeBars(viz.transform(delayed()))
-        rw.clear()
+            self.rw.writeBars(self.viz.transform(delayed()))
+        self.rw.clear()
+
+    def onIdle(self):
+        self.rw.clear()
+        self.viz.reset()
 
     def waitForCompletion(self):
         self.stop = True
-	self.mpav.stop = True
-	while self.isAlive():
-	    time.sleep(0.1)
+        self.mpav.stop = True
+        while self.isAlive():
+            time.sleep(0.1)
 
 
 class PluginInterface(plugin.DaemonPlugin):
@@ -206,7 +213,7 @@ class PluginInterface(plugin.DaemonPlugin):
         self.thread = PluginThread()
         self.thread.setDaemon(1)
         self.thread.start()
-	plugin.DaemonPlugin.__init__(self)
+        plugin.DaemonPlugin.__init__(self)
 
     def shutdown(self):
         self.thread.waitForCompletion()
