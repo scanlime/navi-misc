@@ -26,11 +26,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/time.h>
-
-#if (GTK_MAJOR_VERSION < 2) || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 3)
-#error Sorry, this requires GTK 2.3 or later
-#endif
-
+#include "color_button.h"
 
 struct {
   double x,y;
@@ -102,7 +98,6 @@ gboolean set_parameter(const char *key, const char *value);
 void load_parameters(const gchar *params);
 void load_parameters_from_file(const char *name);
 void save_to_file(const char *name);
-void update_save_preview(GtkFileChooser *chooser, gpointer data);
 void saveclick(GtkWidget *widget, gpointer user_data);
 
 
@@ -466,13 +461,13 @@ GtkWidget *build_sidebar() {
     add_to_sidebar(table, &row, 1, 2, gui.gamma);
     g_signal_connect(G_OBJECT(gui.gamma), "changed", G_CALLBACK(rendering_param_changed), NULL);
 
-    gui.fgcolor = gtk_color_button_new_with_color(&render.fgcolor);
+    gui.fgcolor = color_button_new_with_color(&render.fgcolor);
     add_to_sidebar(table, &row, 1, 2, gui.fgcolor);
-    g_signal_connect(G_OBJECT(gui.fgcolor), "color-set", G_CALLBACK(rendering_param_changed), NULL);
+    g_signal_connect(G_OBJECT(gui.fgcolor), "changed", G_CALLBACK(rendering_param_changed), NULL);
 
-    gui.bgcolor = gtk_color_button_new_with_color(&render.bgcolor);
+    gui.bgcolor = color_button_new_with_color(&render.bgcolor);
     add_to_sidebar(table, &row, 1, 2, gui.bgcolor);
-    g_signal_connect(G_OBJECT(gui.bgcolor), "color-set", G_CALLBACK(rendering_param_changed), NULL);
+    g_signal_connect(G_OBJECT(gui.bgcolor), "changed", G_CALLBACK(rendering_param_changed), NULL);
 
     /* Skip separator */
     row++;
@@ -804,8 +799,8 @@ void param_spinner_changed(GtkWidget *widget, gpointer user_data) {
 void rendering_param_changed(GtkWidget *widget, gpointer user_data) {
   render.exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.exposure));
   render.gamma = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.gamma));
-  gtk_color_button_get_color(GTK_COLOR_BUTTON(gui.fgcolor), &render.fgcolor);
-  gtk_color_button_get_color(GTK_COLOR_BUTTON(gui.bgcolor), &render.bgcolor);
+  color_button_get_color(COLOR_BUTTON(gui.fgcolor), &render.fgcolor);
+  color_button_get_color(COLOR_BUTTON(gui.bgcolor), &render.bgcolor);
   render.dirty_flag = TRUE;
 }
 
@@ -965,6 +960,7 @@ void save_to_file(const char *name) {
   gdk_pixbuf_unref(pixbuf);
 }
 
+#if (GTK_MAJOR_VERSION > 2) || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 3)
 void update_save_preview(GtkFileChooser *chooser, gpointer data) {
   GtkWidget *preview;
   char *filename;
@@ -1008,5 +1004,6 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
   g_object_unref(filter);
   gtk_widget_destroy(dialog);
 }
+#endif
 
 /* The End */
