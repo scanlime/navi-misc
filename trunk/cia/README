@@ -1,5 +1,6 @@
 CIA open source notification system
 -----------------------------------
+Version pre-0.80
 
 CIA is at its heart a system for distributing commit messages from the
 version control systems used by open source projects worldwide. It started
@@ -84,7 +85,7 @@ with web, IRC, XML-RPC, and email interfaces.
  - Twisted 1.1.1 or later
  - pygtk 2.0 or later for the GUI tools
  - MySQL with support for the InnoDB table type
- - Nouvelle (http://navi.cx/svn/misc/trunk/nouvelle/)
+ - Nouvelle 0.90 or later (http://navi.cx/svn/misc/trunk/nouvelle/)
 
 
 -------- Contacts
