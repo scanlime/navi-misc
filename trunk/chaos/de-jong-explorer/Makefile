@@ -32,7 +32,7 @@ OBJS    = \
 $(BIN): $(OBJS)
 	gcc -o $@ $(OBJS) $(LIBS)
 
-.c.o: $(HEADERS)
+%.o: %.c $(HEADERS)
 	gcc -c -o $@ $< $(CFLAGS)
 
 clean:

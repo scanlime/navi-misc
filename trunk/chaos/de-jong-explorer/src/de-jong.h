@@ -80,7 +80,8 @@ struct _DeJong {
 
   GdkPixbuf *image;
 
-  guint color_table_size;
+  guint color_table_allocated_size;
+  guint color_table_filled_size;
   guint32 *color_table;
 };
 
