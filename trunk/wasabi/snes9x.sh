@@ -21,4 +21,4 @@ JOYMAP1='0 1 2 3 5 6 7 4'
 JOYMAP2='0 1 2 3 5 6 7 4'
 
 # Yay, run snes9x
-exec $SNES9X_BIN -joydev1 /dev/input/$JOYDEV1 -joydev2 /dev/input/$JOYDEV2 -joymap1 $JOYMAP1 -joymap2 $JOYMAP2 $*
+exec $SNES9X_BIN -joydev1 /dev/input/$JOYDEV1 -joydev2 /dev/input/$JOYDEV2 -joymap1 $JOYMAP1 -joymap2 $JOYMAP2 "$1"
