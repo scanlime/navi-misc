@@ -77,8 +77,10 @@ endmodule
  *
  * It's a little unclear whether the protocol was designed to use fixed bit
  * widths, or to measure the relative times between high and low periods.
- * We assume fixed 5us-wide bits. Note that the GC controllers and the N64
- * seem to use 4us bits, while the GC console uses 5us bits.
+ * We assume fixed 4us-wide bits. Note that the GC controllers and the N64
+ * seem to use 4us bits, while the GC console uses 5us bits. Our receiver
+ * resync's its timebase frequently, so this shouldn't be a problem. I suspect
+ * the Nintendo hardware does something similar.
  *
  * Two synchronous resets are provided- sync_begin resets to the beginning of
  * one tick cycle, sync_middle resets close to the center of a cycle. The 
@@ -159,12 +161,16 @@ module n_serial_rx (clk, reset, serial_in,
 		S_WAIT_FOR_Q4 = 4,
 		S_DECODE_QBITS = 5;
 
-	/* 1/4 bit serial timebase. Keep it in reset halfway through a tick
-	 * as long as we're idle.
+	/* 1/4 bit serial timebase. Every time we get a high->low transition
+	 * on the input, resynchronize to its halfway point. This keeps us
+	 * sampling in the middle of each 1/4-bit, even if our peer's data
+	 * rate is a little different.
 	 */
 	wire tick;
 	wire tick_sync_reset = 1'b0;
-	wire tick_sync_center = state == S_IDLE;
+	wire tick_sync_center;
+	falling_edge_detector rx_timebase_syncdet(
+		clk, reset, serial_in, tick_sync_center);
 	n_serial_timebase #(BIT_WIDTH_US) rx_timebase(
 		clk, reset, tick, tick_sync_reset, tick_sync_center);
 
