@@ -53,6 +53,7 @@ struct _Pyramid
 
   PyramidParams param;
   gboolean state_dirty;
+  gboolean selected;
   GList *drawables;
   Drawable *drawable;
 };
