@@ -138,23 +138,15 @@ class Page(resource.Resource):
             'request': request,
             'args': request.args,  # For compatibility across systems utilizing Nouvelle
             }
-        self.preRender(context)
+        defer.maybeDeferred(self.preRender, context).addCallback(
+            self._afterPreRender, context).addErrback(self.pageErrorCallback, context)
+        return server.NOT_DONE_YET
 
-        # Render the page. This may return a complete serialization
-        # of the page, or it may return a Deferred if we're still waiting
-        # on data. If it's complete, we can go ahead and return it.
-        # Otherwise, set up some callbacks and return NOT_DONE_YET.
-        result = self.serializer.render(self.document, context)
-
-        if isinstance(result, defer.Deferred):
-            result.addCallbacks(self.pageFinishedCallback,
-                                self.pageErrorCallback,
-                                callbackArgs = (context,),
-                                errbackArgs = (context,),
-                                )
-            return server.NOT_DONE_YET
-        else:
-            return str(result)
+    def _afterPreRender(self, preRenderResult, context):
+        request = context['request']
+        defer.maybeDeferred(self.serializer.render, self.document, context).addCallback(
+            self.pageFinishedCallback, context).addErrback(self.pageErrorCallback, context)
+        return server.NOT_DONE_YET
 
     def pageFinishedCallback(self, obj, context):
         """Callback for asynchronous page rendering from a Deferred object"""
@@ -168,6 +160,7 @@ class Page(resource.Resource):
     def preRender(self, context):
         """Called prior to rendering each request, subclasses can use this to annotate
            'context' with extra information or perform other important setup tasks.
+           If this returns a Deferred, rendering will be delayed until it is resolved.
            """
         pass
 
