@@ -210,7 +210,7 @@ void run_iterations(int count) {
   const double scale = xcenter / 2.5 * params.zoom;
   const gboolean rotation_enabled = params.rotation > 0.0001 || params.rotation < -0.0001;
   const gboolean blur_enabled = params.blur_ratio > 0.0001 && params.blur_radius > 0.00001;
-  const int blur_table_size = 128; /* Must be a power of two */
+  const int blur_table_size = 1024; /* Must be a power of two */
 
   double x, y, sine_rotation, cosine_rotation;
   unsigned int i, ix, iy;
