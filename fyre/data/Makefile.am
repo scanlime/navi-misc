@@ -9,6 +9,7 @@ fyredata_DATA = 		\
         fyre-16x16.png		\
 	x-fyre-animation.png
 
+if ENABLE_FDODESKTOP
 desktopdir = $(datadir)/applications
 %.desktop:	%.desktop.in
 	sed 's|\@DATADIR\@|$(datadir)/fyre/|' $< > $@
@@ -16,17 +17,26 @@ desktop_DATA =			\
 	fyre.desktop		\
 	fyre-fa.desktop		\
 	fyre-png.desktop
+update_fdodesktop = update-desktop-database
+else
+update_fdodesktop = /bin/true
+endif
 
+if ENABLE_XDGMIME
 xdgmimedir = $(datadir)/mime/packages
 xdgmime_DATA = fyre.xml
+update_xdgmime = update-mime-database $(datadir)/mime
+else
+update_xdgmime = /bin/true
+endif
 
 install-data-hook:
-	update-mime-database $(datadir)/mime
-	update-desktop-database
+	$(update_xdgmime)
+	$(update_fdodesktop)
 
 uninstall-hook:
-	update-mime-database $(datadir)/mime
-	update-desktop-database
+	$(update_xdgmime)
+	$(update_fdodesktop)
 
 EXTRA_DIST =			\
 	$(fyredata_DATA)	\

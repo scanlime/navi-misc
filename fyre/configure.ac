@@ -34,6 +34,22 @@ AC_FUNC_FORK
 AM_BINRELOC
 AM_CONDITIONAL([HAVE_BINRELOC], [ test "x$br_cv_binreloc" = "xyes" ])
 
+AC_PATH_PROG(XDGMIME, update-mime-database, no)
+if test "x$XDGMIME" = "xno"; then
+	enable_xdgmime="no"
+else
+	enable_xdgmime="yes"
+fi
+AM_CONDITIONAL(ENABLE_XDGMIME, test "x$enable_xdgmime" = "xyes")
+
+AC_PATH_PROG(FDODESKTOP, update-desktop-database, no)
+if test "x$FDODESKTOP" = "xno"; then
+	enable_fdodesktop="no"
+else
+	enable_fdodesktop="yes"
+fi
+AM_CONDITIONAL(ENABLE_FDODESKTOP, test "x$enable_fdodesktop" = "xyes")
+
 pkg_modules="glib-2.0 >= 2.0.0, gtk+-2.0 >= 2.0.0, libglade-2.0 >= 2.0"
 PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
 AC_SUBST(PACKAGE_CFLAGS)
