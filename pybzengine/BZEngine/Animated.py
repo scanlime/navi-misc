@@ -187,7 +187,7 @@ class Approach:
 
 class LogApproach(Approach):
     """Approaches a target, fast at first but exponentially slowing down."""
-    def __init__(self, target, speed, epsilon=0.001):
+    def __init__(self, target, speed, epsilon=0.00001):
         Approach.__init__(self, target)
         self.speed = speed
         self.epsilon = epsilon
