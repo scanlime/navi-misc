@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Sequencer, HUD
-from BZEngine import Event
-from Wasabi import Logos
+from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Sequencer, HUD, GLOrtho
+from BZEngine import Event, Animated
+from Wasabi import Logos, Icon
 
 loop = Event.EventLoop()
 viewport = Viewport.OpenGLViewport(loop)
@@ -18,11 +18,18 @@ class IconTest(Sequencer.Page):
                                     "brushed_metal.png",
                                     overlay.size)
 
-        height = self.viewport.size[1] / 2
-        self.icon = HUD.Image(overlay,
-                              "navi512.png",
-                              (1.623 * height, height),
-                              alignment = (0.5, 0.5))
+        self.icon = Icon.Icon('navi512.png', 'Hello Navi', imageAspect=1.623)
+        overlay.onDrawFrame.observe(self.drawFrame)
+
+        self.size = Animated.Value(Animated.SineFunction(range=(200,300)))
+
+    def drawFrame(self):
+        self.size.integrate(self.time.step())
+
+        GLOrtho.setup()
+        GLOrtho.translate(self.viewport.size[0] * 0.5,
+                          self.viewport.size[1] * 0.5)
+        self.icon.draw(Icon.LargeIconStyle, self.size.value)
 
 
 mainBook = Sequencer.CyclicBook(view, [
