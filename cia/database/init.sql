@@ -71,7 +71,7 @@ CREATE TABLE stats_counters
     name         VARCHAR(32),
     event_count  INT NOT NULL DEFAULT 0,
     first_time   BIGINT,
-    last_time    BIGINT,,
+    last_time    BIGINT,
     PRIMARY KEY(target_path, name)
 );
 
