@@ -190,14 +190,13 @@ static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t
 
 	while (count >= 2) {
 		value = ((lirc_t)buffer[0]) + (((lirc_t)buffer[1]) << 8);
-		if (value == 0xFFFF) {
+		if (value == 0xFFFF)
 			value = PULSE_MASK;
-		}
-		else {
+		else
 			value = value * 4 / 3;
-			value |= dev->pulse_flag;
-			dev->pulse_flag ^= PULSE_BIT;
-		}
+
+		value |= dev->pulse_flag;
+		dev->pulse_flag ^= PULSE_BIT;
 
 		mi6k_ir_rx_push(dev, value);
 		buffer += 2;
@@ -230,9 +229,9 @@ static void mi6k_ir_rx_irq(struct urb *urb)
 
 	if (dev && urb->status == 0 && urb->actual_length > 0) {
 		dbg("ir_rx_irq, length %d, buffer: %02X%02X %02X%02X %02X%02X %02X%02X",
-		    urb->actual_length, dev->ir_rx_tbuffer[0], dev->ir_rx_tbuffer[1], dev->ir_rx_tbuffer[2],
-		    dev->ir_rx_tbuffer[3], dev->ir_rx_tbuffer[4], dev->ir_rx_tbuffer[5], dev->ir_rx_tbuffer[6],
-		    dev->ir_rx_tbuffer[7]);
+		    urb->actual_length, dev->ir_rx_tbuffer[1], dev->ir_rx_tbuffer[0], dev->ir_rx_tbuffer[3],
+		    dev->ir_rx_tbuffer[2], dev->ir_rx_tbuffer[5], dev->ir_rx_tbuffer[4], dev->ir_rx_tbuffer[7],
+		    dev->ir_rx_tbuffer[6]);
 
 		down(&dev->sem);
 		mi6k_ir_rx_store(dev, dev->ir_rx_tbuffer, urb->actual_length);
@@ -762,7 +761,7 @@ static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const stru
 	FILL_INT_URB(&dev->ir_rx_urb, dev->udev,
 		     usb_rcvintpipe(dev->udev, endpoint->bEndpointAddress),
 		     dev->ir_rx_tbuffer, IR_URB_BUFFER_SIZE,
-		     mi6k_ir_rx_irq, dev, endpoint->bInterval);
+		     mi6k_ir_rx_irq, dev, 1); //endpoint->bInterval);
 	dbg("Submitting ir_rx_urb, interval %d", endpoint->bInterval);
 	if (usb_submit_urb(&dev->ir_rx_urb)) {
 		dbg("Error submitting URB");
