@@ -44,18 +44,16 @@ def importObjects(reader):
 
     bones = {}
 
-    # import each bone. the head is always at the origin
-    for k in reader.bones.keys():
-        b = reader.bones[k]
-        bone = Blender.Armature.Bone.New(k)
+    # import each bone. for now, just position it at the origin
+    for name, data in reader.bones.iteritems():
+        bone = Blender.Armature.Bone.New(name)
 
         bone.setHead(0.0, 0.0, 0.0)
-
-        l = b.length
-        d = b.direction
+        l = data.length
+        d = data.direction
         bone.setTail(float(d[0]) * l, float(d[1]) * l, float(d[2]) * l)
 
-        bones[k] = bone
+        bones[name] = bone
 
     # add root
     bone = Blender.Armature.Bone.New('root')
@@ -64,6 +62,7 @@ def importObjects(reader):
     armData.addBone(bone)
     bones['root'] = bone
 
+    # run through the hierarchy: for each, parent and add to the armature
     for set in reader.hierarchy:
         parent = set[0]
         children = set[1:]
