@@ -27,14 +27,14 @@ class AnalogUpdaterThread(threading.Thread):
         self.channels = channels
         self.rcpod = pyrcpod.devices[0].open()
         self.bus = pyrcpod.i2c.Bus(self.rcpod.rd0, self.rcpod.rd1)
-        self.adc = pyrcpod.i2c.ti.ADS1112(self.bus, 0)
+        self.adc = pyrcpod.i2c.ti.ADS1112(self.bus, address=0, dataRate=0)
         self.running = True
         self.start()
 
     def run(self):
         while self.running:
             for channel in range(4):
-                self.channels[channel].value = self.adc.blockingRead(channel)
+                 self.channels[channel].value = self.adc.read(channel)
 
 def main():
     channels = [
@@ -45,7 +45,7 @@ def main():
         ]
     analogThread = AnalogUpdaterThread(channels)
 
-    graph = rtgraph.HScrollLineGraph(range=(-1.0, 1.0), scrollRate=10)
+    graph = rtgraph.HScrollLineGraph(range=(-2.5, 2.5), scrollRate=10)
     win = rtgraph.GraphUIWindow(channels, graph, valueUpdateInterval=500)
     win.connect("destroy", gtk.mainquit)
 
