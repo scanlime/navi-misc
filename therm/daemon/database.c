@@ -123,13 +123,18 @@ int db_packet_new(MYSQL* mysql, int source_id)
   return mysql_insert_id(mysql);
 }
 
-int db_packet_new_full(MYSQL* mysql, int source_id, int sequence, float strength)
+int    db_packet_new_full        (MYSQL*                mysql,
+				  int                   source_id,
+				  int                   sequence,
+                                  struct fraction*      strength)
 {
   /* Create a new packet in the database, specifying all parameters */
   if (db_query_printf(mysql,
 		      "INSERT INTO packets (time, source, sequence, "
-		      "signal_strength) VALUES (CURRENT_TIMESTAMP, %d, %d, %f)",
-		      source_id, sequence, strength))
+		      "signal_strength) VALUES (CURRENT_TIMESTAMP, "
+		      "%d, %d, %d/%d)",
+		      source_id, sequence, strength->numerator,
+		      strength->denominator))
     return  -1;
   return mysql_insert_id(mysql);
 }
@@ -142,20 +147,28 @@ void db_packet_mark_duplicate(MYSQL* mysql, int packet_id)
 		  packet_id);
 }
 
-void db_packet_add_batt_volts  (MYSQL* mysql, int packet_id, float volts)
+void   db_packet_add_batt_volts  (MYSQL*                mysql,
+				  int                   packet_id,
+				  struct fraction*      volts)
 {
   /* Store a battery voltage for an existing packet */
   db_query_printf(mysql,
-		  "INSERT INTO battery_voltage (packet, voltage) VALUES(%d, %f)",
-		  packet_id, volts);
+		  "INSERT INTO battery_voltage (packet, voltage) "
+		  "VALUES(%d, %d/%d)",
+		  packet_id, volts->numerator, volts->denominator);
 }
 
-void db_packet_add_temperature (MYSQL* mysql, int packet_id, float average, int num_samples)
+void   db_packet_add_temperature (MYSQL*                mysql,
+				  int                   packet_id,
+				  struct fraction*      average,
+				  int                   num_samples)
 {
   /* Store a temperature for an existing packet */
   db_query_printf(mysql,
-		  "INSERT INTO temperatures (packet, average, num_samples) VALUES(%d, %f, %d)",
-		  packet_id, average, num_samples);
+		  "INSERT INTO temperatures (packet, average, num_samples) "
+		  "VALUES(%d, %d/%d, %d)",
+		  packet_id, average->numerator, average->denominator,
+		  num_samples);
 }
 
 /* The End */

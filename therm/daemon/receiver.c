@@ -203,14 +203,17 @@ struct rx_packet* receiver_read(usb_dev_handle* self, int timeout)
   noise = buffer[2] | (buffer[3] << 8);
   total = buffer[4] | (buffer[5] << 8);
 
-  /* Calculate signal strength, a floating point number between 0 and 1.
+  /* Calculate signal strength, a fraction between 0 and 1.
    * Without any sub-bit errors, the signal strength is 1. If we're getting
    * random noise, the signal strength should be about zero. Currently this
-   * is scaled so an average of 4 sub-bit errors per bit brings the signal to 0.
+   * is scaled so an average of 4 sub-bit errors per bit brings the
+   * signal to 0.
    */
-  packet->signal_strength = 1.0f - (noise / 4.0f / total);
-  if (packet->signal_strength < 0.0f)
-    packet->signal_strength = 0.0f;
+  packet->signal_strength.numerator = noise;
+  packet->signal_strength.denominator = total * 4;
+  packet->signal_strength.numerator -= packet->signal_strength.denominator;
+  if (packet->signal_strength.numerator < 0)
+    packet->signal_strength.numerator = 0;
 
   return packet;
 }
