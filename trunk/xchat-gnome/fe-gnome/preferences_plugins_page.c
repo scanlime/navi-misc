@@ -74,10 +74,10 @@ initialize_preferences_plugins_page ()
 
 	load_renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT (load_renderer), "activatable", TRUE, NULL);
-	load_column = gtk_tree_view_column_new_with_attributes ("Loaded", load_renderer, "active", 4, NULL);
+	load_column = gtk_tree_view_column_new_with_attributes (_("Loaded"), load_renderer, "active", 4, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), load_column);
 	text_renderer = gtk_cell_renderer_text_new ();
-	text_column = gtk_tree_view_column_new_with_attributes ("Plugin", text_renderer, "text", 0, NULL);
+	text_column = gtk_tree_view_column_new_with_attributes (_("Plugin"), text_renderer, "text", 0, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), text_column);
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
@@ -88,7 +88,7 @@ initialize_preferences_plugins_page ()
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (on_selection_changed), NULL);
 	g_signal_connect (G_OBJECT (treeview), "row-activated", G_CALLBACK (on_row_activated), NULL);
 
-	file_selector = gtk_file_chooser_dialog_new ("Open Plugin",
+	file_selector = gtk_file_chooser_dialog_new (_("Open Plugin"),
 			GTK_WINDOW (glade_xml_get_widget (gui.xml, "preferences")),
 			GTK_FILE_CHOOSER_ACTION_OPEN,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -137,11 +137,9 @@ preferences_plugins_page_update()
 	 * them to our list of known plugins.
 	 */
 	list = plugin_list;
-	while (list)
-	{
+	while (list) {
 		plugin = list->data;
-		if (plugin->version[0] != 0)
-		{
+		if (plugin->version[0] != 0) {
 			gtk_tree_model_foreach (model, set_loaded_if_match, plugin->filename);
 		}
 		list = list->next;
@@ -245,8 +243,7 @@ static void on_row_activated (GtkTreeView *treeview, GtkTreePath *path,
 	model = gtk_tree_view_get_model (treeview);
 	selection = gtk_tree_view_get_selection (treeview);
 
-	if (gtk_tree_selection_get_selected (selection, &model, &iter))
-	{
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
 		gtk_tree_model_get (model, &iter, 3, &file, 4, &loaded, -1);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter, 4, !loaded, -1);
 		load_unload (file, loaded, model, iter);
@@ -283,14 +280,12 @@ xchat_gnome_plugin_add (char *filename)
 	if (handle != NULL && g_module_symbol (handle, "xchat_plugin_get_info", (gpointer *) (&info_func))) {
 		/* Create a new plugin instance and add it to our list of known plugins. */
 		((xchat_plugin_get_info*)info_func) (&name, &desc, &version);
-	}
-	/* In the event that this foolish plugin has no get_info function we'll just use
-	 * the file name.
-	 */
-	else {
+	} else {
+		/* In the event that this foolish plugin has no get_info function we'll just use
+		 * the file name. */
 		name = rindex (filename, '/') + 1;
-		version = "unknown";
-		desc = "unkown";
+		version = _("unknown");
+		desc = _("unkown");
 	}
 
 	gtk_list_store_set (store, &iter, 0, name, 1, version, 2, desc, 3, filename, 5, handle, -1);
@@ -325,8 +320,7 @@ static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
 
 		/* FIXME: Bad to assume that the plugin was successfully unloaded. */
 		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
-	}
-	else {
+	} else {
 		buf = malloc (strlen (filename) + 9);
 		if (strchr (filename, ' '))
 			sprintf (buf, "LOAD \"%s\"", filename);

@@ -38,10 +38,10 @@ static void user_kick_activate (GtkAction *action, gpointer data);
 static void user_ban_activate (GtkAction *action, gpointer data);
 
 static GtkActionEntry popup_action_entries [] = {
-	{ "UserlistSendFile", NULL, N_("_Send File"), "", NULL, G_CALLBACK (user_send_file_activate) },
-	{ "UserlistOpenDialog", NULL, N_("Open _Dialog"), "", NULL, G_CALLBACK (user_open_dialog_activate) },
-	{ "UserlistKick", NULL, N_("_Kick"), "", NULL, G_CALLBACK (user_kick_activate) },
-	{ "UserlistBan", NULL, N_("_Ban"), "", NULL, G_CALLBACK (user_ban_activate) }
+	{ "UserlistSendFile", NULL, _("_Send File"), "", NULL, G_CALLBACK (user_send_file_activate) },
+	{ "UserlistOpenDialog", NULL, _("Open _Dialog"), "", NULL, G_CALLBACK (user_open_dialog_activate) },
+	{ "UserlistKick", NULL, _("_Kick"), "", NULL, G_CALLBACK (user_kick_activate) },
+	{ "UserlistBan", NULL, _("_Ban"), "", NULL, G_CALLBACK (user_ban_activate) }
 };
 
 GtkTooltips *tooltips;
@@ -84,8 +84,7 @@ userlist_get_selected ()
 
 	treeview = glade_xml_get_widget (gui.xml, "userlist");
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
-	if (gtk_tree_selection_get_selected (select, &model, &iter))
-	{
+	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
 		gtk_tree_model_get (model, &iter, 2, &u, -1);
 		return u;
 	}
@@ -100,10 +99,8 @@ userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data)
 	if (!event)
 		return FALSE;
 
-	if (event->type == GDK_2BUTTON_PRESS)
-	{
-		if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (view), event->x, event->y, &path, 0, 0, 0))
-		{
+	if (event->type == GDK_2BUTTON_PRESS) {
+		if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (view), event->x, event->y, &path, 0, 0, 0)) {
 			g_print ("double click!\n");
 	    		gtk_tooltips_set_tip (GTK_TOOLTIPS (tooltips), view, "hi", "woof");
 			gtk_tooltips_enable (GTK_TOOLTIPS (tooltips));
@@ -111,10 +108,8 @@ userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data)
 		}
 	}
 
-	if (event->button == 3)
-	{
-		if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (view), event->x, event->y, &path, 0, 0, 0))
-		{
+	if (event->button == 3) {
+		if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (view), event->x, event->y, &path, 0, 0, 0)) {
 			select = gtk_tree_view_get_selection (GTK_TREE_VIEW (view));
 			gtk_tree_selection_unselect_all (select);
 			gtk_tree_selection_select_path (select, path);
