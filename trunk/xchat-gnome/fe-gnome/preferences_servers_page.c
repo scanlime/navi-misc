@@ -47,11 +47,12 @@ static void edit_ok_clicked(GtkWidget *button, gpointer data) {
 	GtkTreeModel *model;
 	ircnet *net;
 	char *realname, *text;
-	int position;
+	int position, newflags;
 
 	treeview = glade_xml_get_widget(gui.xml, "configure server list");
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-	gtk_tree_selection_get_selected(select, &model, &iter);
+	if(!gtk_tree_selection_get_selected(select, &model, &iter))
+		return;
 	gtk_tree_model_get(model, &iter, 0, &realname, 2, &net, -1);
 
 	widget = glade_xml_get_widget(gui.xml, "server config network name");
@@ -67,31 +68,23 @@ static void edit_ok_clicked(GtkWidget *button, gpointer data) {
 
 	/* FIXME: check validity of everything before filling the ircnet struct */
 
+	newflags = 0;
+
 	widget = glade_xml_get_widget(gui.xml, "server config autoconnect");
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
-		net->flags &= FLAG_AUTO_CONNECT;
-	} else {
-		net->flags &= (!FLAG_AUTO_CONNECT);
-	}
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
+		newflags |= FLAG_AUTO_CONNECT;
 	widget = glade_xml_get_widget(gui.xml, "server config ssl");
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
-		net->flags &= FLAG_USE_SSL;
-	} else {
-		net->flags &= (!FLAG_USE_SSL);
-	}
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
+		newflags |= FLAG_USE_SSL;
 	widget = glade_xml_get_widget(gui.xml, "server config cycle");
-	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
-		net->flags &= FLAG_CYCLE;
-	} else {
-		net->flags &= (!FLAG_CYCLE);
-	}
+	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
+		newflags |= FLAG_CYCLE;
 	widget = glade_xml_get_widget(gui.xml, "server config password");
 	net->pass = g_strdup(gtk_entry_get_text(GTK_ENTRY(widget)));
 	widget = glade_xml_get_widget(gui.xml, "server config usedefaults");
 	if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
-		net->flags &= FLAG_USE_GLOBAL;
+		newflags |= FLAG_USE_GLOBAL;
 	} else {
-		net->flags &= (!FLAG_USE_GLOBAL);
 		widget = glade_xml_get_widget(gui.xml, "server config nickname");
 		text = (char *) gtk_entry_get_text(GTK_ENTRY(widget));
 		if(strlen(text) == 0) {
@@ -107,6 +100,8 @@ static void edit_ok_clicked(GtkWidget *button, gpointer data) {
 		}
 		net->real = g_strdup(text);
 	}
+
+	net->flags = newflags;
 
 	servlist_save();
 	preferences_servers_page_populate(treeview, network_list);
@@ -231,10 +226,7 @@ void preferences_servers_page_populate(GtkWidget *treeview, GSList *netlist) {
 	GtkTreeIter iter;
 	ircnet *net;
 
-	/* FIXME: get a custom list? */
 	if(!netlist) {
-//		net = servlist_net_add(_("New Network"), "");
-//		servlist_server_add(net, "newserver/6667");
 		netlist = network_list;
 	}
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
