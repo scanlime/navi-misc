@@ -564,7 +564,7 @@ void de_jong_calculate_bifurcation(DeJong             *self,
       /* Pick the next column */
       ix = self->current_column++;
       column = &self->columns[ix];
-      if (self->current_column > hist_width)
+      if (self->current_column >= hist_width)
 	self->current_column = 0;
 
       /* At each iteration block, we pick a new interpolated set of points
@@ -581,7 +581,7 @@ void de_jong_calculate_bifurcation(DeJong             *self,
       c = interpolant->c;
       d = interpolant->d;
 
-      for(block=5000; i && block; --i, --block) {
+      for(block=500; i && block; --i, --block) {
 	/* These are the actual Peter de Jong map equations. The new point value
 	 * gets stored into 'point', then we go on and mess with x and y before plotting.
 	 */
