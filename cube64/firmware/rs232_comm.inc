@@ -18,7 +18,7 @@
 
 
 	;; *******************************************************************************
-	;; ****************************************************************  Receive *****
+	;; **************************************************************** Receive ******
 	;; *******************************************************************************
 
 	;; Receives one byte into the given file register.
@@ -48,7 +48,7 @@ wait_for_start			; Wait for a start bit to begin
 
 	clrf	TMR0		; Init the timer, fudge the initial
 	bcf	INTCON, T0IF	; value so we end up in the middle of the first bit.
-	movlw	speed - (.256 - speed)/2
+	movlw	speed - (.256 - speed)/3
 	movwf	TMR0
 
 	movlw	8		; Loop over 8 bits
@@ -89,3 +89,86 @@ wait_for_stop			; Now look for a stop bit...
 	endif
 	goto	wait_for_start	; Start all over again if there's no stop bit
 	endm
+
+
+	;; *******************************************************************************
+	;; **************************************************************** Transmit *****
+	;; *******************************************************************************
+
+	;; Transmits one byte from the given register, whose value is not preserved.
+	;; The macro needs a port and bit for the pin to receive on,
+	;; a speed selected from the #defines above, and a polarity
+	;; also from the defines above.
+	;;
+	;; Requires a 'temp' register.
+	;;
+rs232_tx_byte	macro	pin_port, pin_bit, speed, polarity, reg
+	local	wait_for_start
+	local	wait_for_stop
+	local	bit_loop
+	local	output_zero
+	local	output_done
+
+	banksel	OPTION_REG	; Run TMR0 from the instruction clock
+	bcf	OPTION_REG, T0CS
+	banksel	pin_port
+
+	if	polarity	; Begin a start bit
+	bsf	pin_port, pin_bit
+	else
+	bcf	pin_port, pin_bit
+	endif
+
+	clrf	TMR0		; Init the timer
+	bcf	INTCON, T0IF
+	movlw	speed
+	movwf	TMR0
+
+	movlw	8		; Loop over 8 bits
+	movwf	temp
+
+bit_loop
+	clrwdt
+	btfss	INTCON, T0IF	; Wait for TMR0 to overflow
+	goto	bit_loop
+
+	rrf	reg, f		; Shift out a bit, LSB first
+	btfss	STATUS, C
+	goto	output_zero
+
+	if	polarity	; Output a one
+	bcf	pin_port, pin_bit
+	else
+	bsf	pin_port, pin_bit
+	endif
+	goto	output_done
+
+output_zero
+	if	polarity	; Output a zero
+	bsf	pin_port, pin_bit
+	else
+	bcf	pin_port, pin_bit
+	endif
+output_done
+
+	bcf	INTCON, T0IF	; Clear the overflow
+	movlw	speed		; Adjust TMR0's speed
+	addwf	TMR0, f
+
+	decfsz	temp, f		; Next bit...
+	goto	bit_loop
+
+wait_for_stop			; Wait until it's time to start the stop bit
+	clrwdt
+	btfss	INTCON, T0IF
+	goto	wait_for_stop
+	bcf	INTCON, T0IF
+
+	if	polarity
+	bcf	pin_port, pin_bit
+	else
+	bsf	pin_port, pin_bit
+	endif
+	endm
+
+	;;; The End ;;;

@@ -50,7 +50,9 @@
 		bit_count
 		byte_count
 		serial_byte
-		buffer:40
+		cmd_tx_count
+		cmd_rx_count
+		buffer:.40
 	endc
 
 startup
@@ -68,12 +70,53 @@ startup
 
 main_loop
 	call	serial_rx
-	movwf	buffer
+	xorlw	0x7E
+	btfss	STATUS, Z
+	goto	main_loop	; Wait for the beginning of command marker, 0x7E
 
-	movlw	buffer
+	call	serial_rx	; Save the transmit and receive counts
+	movwf	cmd_tx_count
+	call	serial_rx
+	movwf	cmd_rx_count
+
+	movf	cmd_tx_count, w	; Do we have any data to transmit?
+	btfsc	STATUS, Z
+	goto	nothing_to_transmit
+
+	movlw	buffer		; Read in the data to transmit
 	movwf	FSR
-	movlw	1
+	movf	cmd_tx_count, w
+	movwf	byte_count
+tx_read_loop
+	call	serial_rx
+	movwf	INDF
+	incf	FSR, f
+	decfsz	byte_count, f
+	goto	tx_read_loop
+
+	movlw	buffer		; Transmit to the Nintendo bus...
+	movwf	FSR
+	movf	cmd_tx_count, w
 	call	nintendo_tx
+nothing_to_transmit
+
+	movlw	buffer		; ..then immediately receive
+	movwf	FSR
+	movf	cmd_rx_count, w
+	btfsc	STATUS, Z	; but not if we have nothing to receive
+	goto	main_loop
+	call	nintendo_rx
+
+	movlw	buffer		; Send the data we received
+	movwf	FSR
+	movf	cmd_rx_count, w
+	movwf	byte_count
+rx_read_loop
+	movf	INDF, w
+	call	serial_tx
+	incf	FSR, f
+	decfsz	byte_count, f
+	goto	rx_read_loop
 
 	goto	main_loop
 
@@ -81,6 +124,11 @@ main_loop
 serial_rx
 	rs232_rx_byte	RX232_PIN, B38400, POLARITY_INVERTED, serial_byte
 	movf	serial_byte, w
+	return
+
+serial_tx
+	movwf	serial_byte
+	rs232_tx_byte	TX232_PIN, B38400, POLARITY_INVERTED, serial_byte
 	return
 
 nintendo_tx
