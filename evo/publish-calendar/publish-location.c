@@ -31,7 +31,7 @@ e_publish_uri_from_xml (const gchar *xml)
 	xmlDocPtr doc;
 	xmlNodePtr root, p;
 	xmlChar *location, *enabled, *frequency;
-	xmlChar *username, *publish_time;
+	xmlChar *username, *publish_time, *format;
 	GSList *events = NULL, *tasks = NULL;
 	EPublishUri *uri;
 
@@ -48,6 +48,7 @@ e_publish_uri_from_xml (const gchar *xml)
 	location = xmlGetProp (root, "location");
 	enabled = xmlGetProp (root, "enabled");
 	frequency = xmlGetProp (root, "frequency");
+	format = xmlGetProp (root, "format");
 	username = xmlGetProp (root, "username");
 	publish_time = xmlGetProp (root, "publish_time");
 
@@ -57,6 +58,8 @@ e_publish_uri_from_xml (const gchar *xml)
 		uri->enabled = atoi (enabled);
 	if (frequency != NULL)
 		uri->publish_frequency = atoi (frequency);
+	if (format != NULL)
+		uri->publish_format = atoi (format);
 	if (username != NULL)
 		uri->username = username;
 	if (publish_time != NULL)
@@ -78,6 +81,7 @@ e_publish_uri_from_xml (const gchar *xml)
 
 	xmlFree (enabled);
 	xmlFree (frequency);
+	xmlFree (format);
 	xmlFreeDoc (doc);
 
 	return uri;
@@ -88,7 +92,7 @@ e_publish_uri_to_xml (EPublishUri *uri)
 {
 	xmlDocPtr doc;
 	xmlNodePtr root;
-	gchar *enabled, *frequency;
+	gchar *enabled, *frequency, *format;
 	GSList *calendars = NULL;
 	xmlChar *xml_buffer;
 	char *returned_buffer;
@@ -102,9 +106,11 @@ e_publish_uri_to_xml (EPublishUri *uri)
 	root = xmlNewDocNode (doc, NULL, "uri", NULL);
 	enabled = g_strdup_printf ("%d", uri->enabled);
 	frequency = g_strdup_printf ("%d", uri->publish_frequency);
+	format = g_strdup_printf ("%d", uri->publish_format);
 	xmlSetProp (root, "location", uri->location);
 	xmlSetProp (root, "enabled", enabled);
 	xmlSetProp (root, "frequency", frequency);
+	xmlSetProp (root, "format", format);
 	xmlSetProp (root, "username", uri->username);
 	xmlSetProp (root, "publish_time", uri->last_pub_time);
 
@@ -129,6 +135,7 @@ e_publish_uri_to_xml (EPublishUri *uri)
 	xmlFree (xml_buffer);
 	g_free (enabled);
 	g_free (frequency);
+	g_free (format);
 
 	return returned_buffer;
 }
