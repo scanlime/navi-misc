@@ -149,7 +149,6 @@ namespace Fyre
 			drawing_extents.X = 0;
 			drawing_extents.Y = 0;
 
-
 			// Get a handle to our event box and set event handlers
 			event_box = (Gtk.EventBox) xml.GetWidget ("pipeline_window");
 			event_box.ButtonPressEvent   += new Gtk.ButtonPressEventHandler   (ButtonPressHandler);
@@ -216,7 +215,7 @@ namespace Fyre
 			hadj.Upper = size.X + size.Width;
 			vadj.Upper = size.Y + size.Height;
 
-			hadj.PageIncrement = drawing_extents.Width / 2;
+			hadj.PageIncrement = drawing_extents.Width  / 2;
 			vadj.PageIncrement = drawing_extents.Height / 2;
 			hadj.PageSize = drawing_extents.Width;
 			vadj.PageSize = drawing_extents.Height;

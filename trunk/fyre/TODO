@@ -1,25 +1,25 @@
 CanvasElement.cs:
   * Design & implement the internal layout algorithm
-  * Add drawing.  This needs to be able to work both on pixmaps and bitmaps,
+  * Add drawing.  This needs to be able to work both on gdk pixmaps and
+	System.Drawing.Graphics surfaces (for clean-looking AA diagrams)
 	so we can use the same code both for drawing on the canvas and
 	creating a drag icon.
 
 Element.cs:
   * Implement XML serialization
+  * Implement edge tracking - guid + pad#
 
 Pipeline.cs:
   * This needs lots of design work before implementation can go forward.
 
 PipelineDrawing.cs:
-  * Add document extents tracking.  This needs to be able to take feedback
-	from the global layout algorithm and the scrollbars, to allow the
-	drawing to grow as needed.
-  * Add drawing code
-
-PipelineEditor.cs:
+  * Add the ability to track document extents from other classes - for
+	example, the navigation image needs to be able to interact with
+	the extents in various ways.
   * There's currently some code to set up custom cursors (for the open and
 	closed hands that people use for dragging. Unfortunately, they just
 	show up as garbage.  It may not be possible to do this with Gtk#
 	right now, but it would be nice to get these working.
+  * Add drawing code
 
 Plugins all need element-specific implementation
