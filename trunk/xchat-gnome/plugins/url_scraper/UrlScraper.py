@@ -54,9 +54,12 @@ class URLScraper:
         view = gtk.TreeView( self.store )
         nick_col =  gtk.TreeViewColumn( 'Nick', gtk.CellRendererText(), text=0 )
         nick_col.set_sort_column_id( 0 )
+        nick_col.set_resizable( gtk.TRUE )
         chan_col = gtk.TreeViewColumn( 'Channel', gtk.CellRendererText(), text=1)
         chan_col.set_sort_column_id( 1 )
+        chan_col.set_resizable( gtk.TRUE )
         url_col =  gtk.TreeViewColumn( 'URL', gtk.CellRendererText(), text=2 )
+        url_col.set_resizable( gtk.TRUE )
 
         view.append_column( nick_col )
         view.append_column( chan_col )
