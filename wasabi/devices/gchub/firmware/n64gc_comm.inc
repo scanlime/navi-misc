@@ -348,7 +348,6 @@ n64gc_rx_buffer macro port, bit, timeout
 	;; The overhead from sampling to the beginning of the next poll needs to
 	;; be less than 2us (10 cycles)
 bit_loop
-	microsecond_pad
 
 	timeout_10us	port, bit, found_bit
 	goto	timeout
@@ -376,7 +375,6 @@ not_last_byte
 	bsf	INDF, 0		; 2.2us
 	incf	FSR, f		; 2.4us  Next byte...
 	movwf	bit_count	; 2.6us  Reset bit count
-	microsecond_pad
 	btfsc	port, bit	; 2.8us  Wait for the data line to go back high
 	goto	bit_loop	; 3.0us
 	goto	$-2		; 3.2us
@@ -387,7 +385,6 @@ not_last_bit
 	goto	$+1		; 1.6us
 	btfsc	port, bit	; 2.0us  Sample the incoming bit
 	bsf	INDF, 0		; 2.2us
-	microsecond_pad
 	btfsc	port, bit	; 2.4us  Wait for the data line to go back high
 	goto	bit_loop	; 2.6us
 	goto	$-2		; 2.8us

@@ -109,7 +109,7 @@ poll_controller	macro	port_number
 	movwf	FSR
 	movlw	8
 	bcf	STATUS, RP0		; Back to bank 0
-	;; n64gc_rx_buffer	PORTA, port_number, timeout
+	n64gc_rx_buffer	PORTA, port_number, timeout
 
 	;; Send back analog status
 	movlw	GCHUB_PACKET_ANALOG | port_number
@@ -117,7 +117,13 @@ poll_controller	macro	port_number
 	movwf	controller_buffer
 	fpsleep	poll_state
 
-	;; Send a timeout packet for this controller
+	;; Then send button status
+	movlw	GCHUB_PACKET_BUTTONS | port_number
+	banksel	controller_buffer
+	movwf	controller_buffer
+	fpsleep	poll_state
+
+	;; Send a disconnect packet for this controller if it timed out
 	pagesel	done
 	goto	done
 timeout
