@@ -16,9 +16,6 @@
 
 ######## Noncritical
 
-- The commit formatter should differentiate between files in multiple
-  directories: "(2 files in 2 dirs)"
-
 - The XML parser (somewhat hacked up domish) breaks when messages specify
   a namespace.
 
