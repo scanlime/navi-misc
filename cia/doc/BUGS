@@ -5,6 +5,12 @@ Known Bugs
 Important
 ---------
 
+- On an ircd that potentially sends back JOIN responses with different
+  capitalization than the JOIN request, CIA will think it's been put in
+  a channel it doesn't want to be in, and it will leave. Then it will
+  rejoin. And that goes on... The channel lists in CIA are all supposed
+  to be case insensitive, but apparently something's not.
+
 - Bots need rate limiting and load balancing to prevent them from flooding off
 
 - Some of the stats catalogs are getting rather big and it would be good
