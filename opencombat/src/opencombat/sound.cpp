@@ -76,7 +76,7 @@ static int		resampleAudio(const float* in,
  */
 
 static int		usingAudio = 0;
-/*static const char*	soundFiles[] = {
+static const char*	soundFiles[] = {
 				"fire",
 				"explosion",
 				"ricochet",
@@ -107,17 +107,17 @@ static int		usingAudio = 0;
 				"message_private",
 				"message_team"
 			};
-//#define	SFX_COUNT	((int)(countof(soundFiles)))
-*/
+#define	SFX_COUNT	((int)(countof(soundFiles)))
+
 
 /*
  * producer/consumer shared arena
  */
 
-std::vector<AudioSamples>	soundSamples;
-std::map<std::string,int> soundNameMap;
+//std::vector<AudioSamples>	soundSamples;
+//std::map<std::string,int> soundNameMap;
 
-//static AudioSamples	soundSamples[SFX_COUNT];
+static AudioSamples	soundSamples[SFX_COUNT];
 static long		audioBufferSize;
 static int		soundLevel;
 

@@ -84,7 +84,7 @@ std::vector<OSFile> BzfMedia::scanResourceDir ( const char * resName, bool recur
 {
 	std::vector<OSFile> files;
 	return files;
-}www
+}
 
 unsigned char*		BzfMedia::readImage(const std::string& filename,
 				int& width, int& height, int& depth) const
