@@ -13,6 +13,16 @@ static void append_entry            (XTextBuffer *buffer, textentry *ent);
 static int  lines_taken             (XTextBuffer *buffer, textentry *ent);
 static void remove_top              (XTextBuffer *buffer);
 
+enum
+{
+  APPEND,
+  CLEAR,
+  REMOVE,
+  LAST_SIGNAL,
+};
+
+static gint buffer_signals[LAST_SIGNAL];
+
 struct _textentry
 {
   textentry *next;
@@ -62,6 +72,22 @@ xtext_buffer_class_init (XTextBufferClass *klass)
   object_class = (GObjectClass*) klass;
 
   object_class->finalize = xtext_buffer_finalize;
+
+  buffer_signals[APPEND] = g_signal_new ("append",
+    G_TYPE_FROM_CLASS (object_class), G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+    G_STRUCT_OFFSET (XTextBufferClass, append), NULL, NULL,
+    gtk_marshal_VOID__POINTER, G_TYPE_NONE,
+    1, G_TYPE_POINTER);
+  buffer_signals[CLEAR] = g_signal_new ("clear",
+    G_TYPE_FROM_CLASS (object_class), G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+    G_STRUCT_OFFSET (XTextBufferClass, clear), NULL, NULL,
+    gtk_marshal_VOID__VOID, G_TYPE_NONE,
+    0, NULL);
+  buffer_signals[REMOVE] = g_signal_new ("remove",
+    G_TYPE_FROM_CLASS (object_class), G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+    G_STRUCT_OFFSET (XTextBufferClass, remove), NULL, NULL,
+    gtk_marshal_VOID__VOID, G_TYPE_NONE,
+    0, NULL);
 }
 
 static void
