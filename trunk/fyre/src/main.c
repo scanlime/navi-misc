@@ -316,7 +316,7 @@ static void usage(char **argv) {
 	    "  -c LIST, --cluster LIST Use a rendering cluster, specified as a comma-separated\n"
 	    "                            list of hostnames, optionally of the form host:port.\n"
 	    "  -C, --auto-cluster      Automatically search for cluster nodes, adding them\n"
-            "                            as they become available."
+            "                            as they become available.\n"
 	    "  -r, --remote            Remote control mode. Fyre will listen by default on\n"
 	    "                            port 7931 for commands, and can act as a rendering\n"
 	    "                            server in a cluster.\n"
