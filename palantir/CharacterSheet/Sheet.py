@@ -6,15 +6,15 @@ widgets for a usable interface.
 Copyright (C) 2003 W. Evan Sheehan <evan@navi.picogui.org>
 '''
 
-import GtkSheetElements, xml.dom, xml.dom.minidom, string
+import xml.dom, xml.dom.minidom, string
 from Character import Character
 
 
-class GtkSheet:
+class Sheet:
   ''' Assemble the character sheet from the specified XML file using the
       objects in GtkSheetElements.
       '''
-  def __init__(self, characterData, actionObject):
+  def __init__(self, characterData, actionObject, elementModule):
     # Record the data for the character.
     self.character = characterData
 
@@ -23,6 +23,7 @@ class GtkSheet:
     # is opened.
     self.actionObject = actionObject
 
+    self.elements = elementModule
     # Read the layout file and build the sheet.
     self.readSheet(self.character.getLayoutFile())
 
@@ -36,7 +37,7 @@ class GtkSheet:
       print 'Tag Error: no <character_sheet>'
     else:
       node = self.dom.getElementsByTagName('character_sheet')[0]
-      self.root = GtkSheetElements.character_sheet(node, self.character)
+      self.root = self.elements.character_sheet(node, self.character)
       # This list keeps a reference to all the objects in the sheet that can be edited.
       self.root.editables = []
 
@@ -48,7 +49,7 @@ class GtkSheet:
     ''' Make objects out of the node passed. '''
     # Tag represents a layout object.
     #try:
-    newObject = GtkSheetElements.__dict__[newNode.tagName](newNode, self.character)
+    newObject = self.elements.__dict__[newNode.tagName](newNode, self.character)
 
     # Should do better error handling
     #except KeyError:
