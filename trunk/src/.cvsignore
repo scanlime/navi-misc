@@ -1,0 +1,11 @@
+Makefile
+Makefile.in
+core
+tvbuggy
+*.la
+*.o
+*.lo
+.*.swp
+.*.swo
+.deps
+.libs
