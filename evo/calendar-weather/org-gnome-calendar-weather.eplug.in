@@ -30,8 +30,8 @@
 		 factory="e_calendar_weather_refresh"/>
 	    </group>
 	</hook>
-	<hook class="org.gnome.evolution.calendar.events:1.0">
-	    <event target="component" id="component.initialized" handle="e_calendar_weather_migrate"/>
+	<hook class="org.gnome.evolution.shell.events:1.0">
+	    <event target="state" id="state.changed" handle="state_changed_stub"/>
 	</hook>
     </e-plugin>
 </e-plugin-list>
