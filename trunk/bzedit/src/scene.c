@@ -104,12 +104,11 @@ scene_add (Scene *self, SceneObject *object)
 {
   GList *drawables, *view;
   SceneObjectClass *klass = SCENE_OBJECT_CLASS (G_OBJECT_GET_CLASS (object));
-  GtkTreeIter iter;
 
   drawables = scene_object_get_drawables (object);
 
-  gtk_tree_store_append (self->element_store, &iter, NULL);
-  gtk_tree_store_set (self->element_store, &iter, 0, g_type_name (G_TYPE_FROM_INSTANCE (object)), 1, klass->get_icon (), 2, self, 3, object, -1);
+  gtk_tree_store_append (self->element_store, &object->iter, NULL);
+  gtk_tree_store_set (self->element_store, &object->iter, 0, g_type_name (G_TYPE_FROM_INSTANCE (object)), 1, klass->get_icon (), 2, self, 3, object, -1);
 
   g_hash_table_insert (self->objects, g_object_ref(object), (gpointer) drawables);
   self->dirty = TRUE;

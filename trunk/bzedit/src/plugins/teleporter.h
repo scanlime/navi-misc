@@ -27,7 +27,7 @@
 
 G_BEGIN_DECLS
 
-#define TELEPORTER_TYPE            (teleporter_get_type())
+#define TELEPORTER_TYPE            (teleporter_get_type ())
 #define TELEPORTER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), TELEPORTER_TYPE, Teleporter))
 #define TELEPORTER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), TELEPORTER_TYPE, TeleporterClass))
 #define IS_TELEPORTER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TELEPORTER_TYPE))
