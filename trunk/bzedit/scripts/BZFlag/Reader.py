@@ -416,6 +416,7 @@ class Reader:
         return self.grammar
 
     def parse(self, filename):
+        self.objects = []
         g = self.getGrammar()
         a = g.parseFile(filename)
         return a
