@@ -185,7 +185,7 @@ class StaticSection(Section):
 
 class SiteSearch(Section):
     """A renderable that provides a Google search of this site"""
-    title = "search this site"
+    title = "site search"
 
     def __init__(self, width=31):
         self.width = width
