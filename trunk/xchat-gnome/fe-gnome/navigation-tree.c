@@ -622,7 +622,7 @@ navigation_tree_set_channel_name (NavTree *navtree, struct session *sess)
 }
 
 gboolean
-navigation_tree_server_connected (NavTree *navtree, gchar *name)
+navigation_tree_server_is_connected (NavTree *navtree, gchar *name)
 {
 	GtkTreeModel *model, *store;
 	GtkTreeIter iter;

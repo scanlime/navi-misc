@@ -65,7 +65,7 @@ dialog_response (ConnectDialog *dialog, gint response, gpointer data)
 		select = gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->server_list));
 		if (gtk_tree_selection_get_selected (select, &model, &iter)) {
 			gtk_tree_model_get (model, &iter, 0, &network, -1);
-			if (!navigation_tree_server_connected (gui.server_tree, network))
+			if (!navigation_tree_server_is_connected (gui.server_tree, network))
 				servlist_connect_by_netname (NULL, network);
 			g_free (network);
 			gtk_widget_destroy (dialog);
