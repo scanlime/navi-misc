@@ -21,9 +21,9 @@
 
     <menuset label="main menu">
         <screen layout="screen watermark" x="0" y="0" width="640" height="480"/>
-        <listing layout="main listing" x="80" y="80" width="480" height="320">
-            <image x="90" y="40" width="32" height="32" label="uparrow" filename="wasabi/up.png"/>
-            <image x="90" y="400" width="32" height="32" label="downarrow" filename="wasabi/down.png"/>
+        <listing layout="main listing" x="70" y="80" width="480" height="320">
+            <image x="80" y="40" width="32" height="32" label="uparrow" filename="wasabi/up.png"/>
+            <image x="80" y="400" width="32" height="32" label="downarrow" filename="wasabi/down.png"/>
 	</listing>
 
         <view  visible="no"/>
