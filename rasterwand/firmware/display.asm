@@ -65,7 +65,9 @@ back_buffer		res	.80
 	code
 
 
-;********************************************* Initialization
+;*****************************************************************************************
+;************************************************************************ Initialization *
+;*****************************************************************************************
 
 display_init
 	pagesel	edge_buffer
@@ -87,7 +89,10 @@ display_init
 	clrf	coil_window_max+1
 	return
 
-;********************************************* Polling handler
+
+;*****************************************************************************************
+;*********************************************************************** Polling handler *
+;*****************************************************************************************
 
 display_poll
 
@@ -96,6 +101,24 @@ display_poll
 	movf	TMR1H, w
 	btfsc	STATUS, Z
 	return
+
+	pagesel	display_keep_time
+	call	display_keep_time
+
+	pagesel	display_drive_coil
+	call	display_drive_coil
+
+	pagesel	display_sync
+	call	display_sync
+
+
+;*****************************************************************************************
+;**************************************************************************** Timekeeper *
+;*****************************************************************************************
+
+	; Measure the delta-t since the last poll using TMR1, and update our wand predictor.
+	; The period and phase of this wand predictor is corrected by the synchronization code.
+display_keep_time
 
 	; Calculate delta_t while resetting the timer. This loses about 8 cycles,
 	; but that's still within the precision that we're cutting off anyway.
@@ -147,6 +170,16 @@ phase_rollover
 	movf	wand_period+1, w
 	subwf	wand_phase+1, f
 no_phase_rollover
+	return
+
+
+;*****************************************************************************************
+;*************************************************************************** Coil Driver *
+;*****************************************************************************************
+
+	; Using the current wand phase and coil window, determine whether the coil should
+	; be driven or not and update its state.
+display_drive_coil
 
 	; Are we within the window in which the coil driver should be on?
 	movf	coil_window_min+1, w	; Test high byte of wand_phase - coil_window_min
@@ -187,12 +220,24 @@ coil_max_neq
 
 	banksel	PORTC					; Turn the coil on
 	bsf		COIL_DRIVER
-	pagesel	end_coil_test
-	goto	end_coil_test
+	clrf	LED_PORT
+	return
+
 coil_off
 	banksel	PORTC					; Turn the coil off
 	bcf		COIL_DRIVER
-end_coil_test
+	movlw	0xFF
+	movwf	LED_PORT
+	return
+
+
+;*****************************************************************************************
+;*********************************************************************** Synchronization *
+;*****************************************************************************************
+
+	; Using this poll cycle's delta-t, update our edge_buffer and synchronize our period
+	; and phase to what we're detecting on the wand's angle sensor.
+display_sync
 
 	; Add our current delta-t to the latest slot on the edge buffer
 	banksel	edge_buffer
@@ -221,8 +266,8 @@ end_coil_test
 	bsf		FLAG_ASENSOR_TEMP
 
 	; Attempt to synchronize using our current edge_buffer data
-	pagesel	sync
-	call	sync
+	pagesel	sync_detect
+	call	sync_detect
 
 	banksel	edge_buffer
 	movf	edge_buffer+2, w	; Scroll the edge_buffer
@@ -242,14 +287,12 @@ end_coil_test
 	return
 
 
-;********************************************* Synchronization
-
 	; This uses the current contents of edge_buffer to try to synchronize
 	; our angle predictor with the wand's actual angle. edge_buffer records
 	; the time (in 16 clock cycle units) between edge detections on the
 	; angle sensor. We take advantage of the asymmetry of the angle sensor
 	; pulses to uniquely identify the want's period and phase.
-sync
+sync_detect
 
 	; if edge[0] > edge[1] or edge[2] > edge[3], we're outside the sync
 	; pulse and we'll wait until we aren't any more.
