@@ -22,21 +22,27 @@
  */
 
 // A simple 16-bit pulse width modulation module
-module pwm16 (clk, duty_cycle, out);
-	input clk;
+module pwm16 (clk, reset,
+	      duty_cycle, out);
+
+	input clk, reset;
 	input [15:0] duty_cycle;
 	output out;
 	reg out;
 	reg [16:0] pwmreg;
 
 	always @(posedge clk)
-		if (pwmreg < 17'h10000)
-			pwmreg <= pwmreg + 1;
-		else
+		if (reset) begin
 			pwmreg <= 0;
-
-	always @(posedge clk)
-		out <= ( {1'b0, duty_cycle} >= pwmreg );
+			out <= 0;
+		end
+		else begin
+			if (pwmreg < 17'h10000)
+				pwmreg <= pwmreg + 1;
+			else
+				pwmreg <= 0;
+			out <= ( {1'b0, duty_cycle} >= pwmreg );
+		end			
 endmodule
 
 /* The End */

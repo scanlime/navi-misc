@@ -10,7 +10,7 @@ top_level=VHDL
 HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
-lib_order=155 155 155 155 155 155 155 155 155 155 155 155 155 133 155
+lib_order=155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -19,24 +19,82 @@ oid=0
 lid=0
 format=19
 source=c:\unicone\fpga\test\test.v
-server_hwnd=655922
+server_hwnd=1442340
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [Top Doc]
 test.v=21
 [hdl_sheets]
 test.v=
 [OpenDoc]
-hde/test=983338,1,154,154,1114,883,test.v
-[OPEN32]
-nMaxFile=10000
-lpstrFile=
-lpstrFilter=HDL (*.VHD;*.VER;*.VE;*.V)|*.vhd;*.ver;*.ve;*.v|Schematic (*.SCH)|*.sch|FSM (*.ASF)|*.asf|Xnf Sources (*.XNF)|*.xnf|Edif Sources (*.EDF;*.EDN;*.EDO)|*.edf;*.edn;*.edo|All Files (*.*)|*.*||
-lpstrInitialDir=C:\UNICONE\FPGA\TEST
-lpstrTitle=Add Document
-nFilterIndex=0
-Flags=530964
-HelpID=10380
-HelpFileName=C:\FNDTN\ACTIVE\EXE\PCM.HLP
-cmdLine=-h 168 -hp 234 -m PCM_OPEN_32_MESSAGE -f C:\FNDTN\ACTIVE\PROJECTS\current.pdf
+hde/test=852458,1,43,452,1003,956,test.v
 [netlist]
 external=FALSE
 [Log]
@@ -55,6 +113,19 @@ Execute Preset=Off
 Models Stabilization=On
 Pulse Global Reset Net Enabled=On
 Pulse Global Reset Net=1000
+[timings]
+[designs]
+[OPEN32]
+nMaxFile=10000
+lpstrFile=
+lpstrFilter=HDL (*.VHD;*.VER;*.VE;*.V)|*.vhd;*.ver;*.ve;*.v|Xnf Sources (*.XNF)|*.xnf|Edif Sources (*.EDF;*.EDN;*.EDO)|*.edf;*.edn;*.edo|All Files (*.*)|*.*||
+lpstrInitialDir=C:\UNICONE\FPGA\TEST
+lpstrTitle=Add Document
+nFilterIndex=0
+Flags=530964
+HelpID=10380
+HelpFileName=C:\FNDTN\ACTIVE\EXE\PCM.HLP
+cmdLine=-h 482 -hp 144 -m PCM_OPEN_32_MESSAGE -f C:\FNDTN\ACTIVE\PROJECTS\current.pdf
 [implement_HDL]
 family=2
 xfam=XC4000XL
@@ -70,8 +141,6 @@ xact9=On
 [device]
 part=4010XLPC84-09
 xilinx=4010XLPC84-09
-[timings]
-[designs]
 [implement_XIE]
 version=ver1
 revision=rev1
