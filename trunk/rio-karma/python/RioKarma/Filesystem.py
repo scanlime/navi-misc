@@ -33,10 +33,6 @@ from twisted.internet import defer, reactor
 from RioKarma import Request, Metadata
 
 
-class PlaylistError(Exception):
-    pass
-
-
 class AllocationTree:
     """This is a data structure for keeping track of unused areas of an
        abstract address space, marking areas as used, and looking for unused
@@ -357,12 +353,12 @@ class FileManager:
        """
     def __init__(self, protocol, cachePath=None):
         if cachePath is None:
-            cachePath = "~/.riokarma-py/cache.db"
+            cachePath = "~/.riokarma-py"
+        self.cachePath = os.path.expanduser(cachePath)
 
         self.protocol = protocol
         self.locksHeld = ()
-        self.cache = Cache(cachePath)
-        self.cache.open()
+        self.cache = None
 
         # Make sure that we get a chance to sync our cache and release
         # any I/O locks before we exit- otherwise the Rio might get stuck
@@ -499,7 +495,20 @@ class FileManager:
         return result
 
     def _getStamp(self, deviceSettings, result):
+        # Since we have deviceSettings and this always happens
+        # before a synchronize, it's a good opportunity to open
+        # the right cache according to our device serial number.
+        self._openCache(deviceSettings['serial'])
+
         result.callback(int(deviceSettings['device_generation']))
+
+    def _openCache(self, serial):
+        """Ensure that our cache is open. If it isn't open yet, this opens
+           one for our device given its unique serial number.
+           """
+        if not self.cache:
+            self.cache = Cache(os.path.join(self.cachePath, "device-%s.cache" % serial))
+            self.cache.open()
 
     def updateFileDetails(self, f):
         """Update our cache and the device itself with the latest details dictionary
@@ -662,6 +671,14 @@ class File:
                 self.id,
                 self.details.get('title'),
                 )
+
+    def __str__(self):
+        artist = self.details.get('artist')
+        if artist:
+            name = "%s (%s)" % (self.details.get('title'), artist)
+        else:
+            name = self.details.get('title')
+        return name.encode('ascii', 'replace')
 
 
 class ContentTransfer:

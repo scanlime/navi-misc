@@ -8,6 +8,7 @@ import sys, time
 
 import RioKarma
 
+defer.Deferred.debug = True
 
 class RioApp:
     def run(self):
@@ -71,11 +72,11 @@ class PlaylistDownloader(RioApp):
 
     def showPlaylist(self, f, memo, indentIncrement='    ', indent=''):
         if memo.get(f.id):
-            print "%s%r *Already Visited*" % (indent, f)
+            print "%s%s *Already Visited*" % (indent, f)
             return
 
         memo[f.id] = 1
-        print "%s%r:" % (indent, f)
+        print "%s%s:" % (indent, f)
         indent += indentIncrement
 
         for child in self.fileManager.getPlaylistFiles(f):
@@ -83,7 +84,7 @@ class PlaylistDownloader(RioApp):
             if child.details['type'] == 'playlist':
                 self.showPlaylist(child, memo, indentIncrement, indent)
             else:
-                print "%s%r" % (indent, child)
+                print "%s%s" % (indent, child)
 
 
 class PlaylistUploader(RioApp):
@@ -99,10 +100,10 @@ class PlaylistUploader(RioApp):
         foo = self.fileManager.createFile("Foo")
         yield self.fileManager.setPlaylistFiles(foo, [wobble])
 
-        boing = self.fileManager.createFile("Boing")
+        boing = self.fileManager.createFile("[Boing]")
         yield self.fileManager.setPlaylistFiles(boing, self.fileManager.cache.findFiles(artist="Pink Floyd"))
 
-        zop = self.fileManager.createFile("Zop")
+        zop = self.fileManager.createFile("/Zop/Pow")
         yield self.fileManager.setPlaylistFiles(zop, self.fileManager.cache.findFiles(artist="Air"))
 
         yield self.fileManager.setPlaylistFiles(root, [foo, boing, zop])
@@ -113,8 +114,8 @@ if __name__ == "__main__":
         Uploader().run()
     else:
         #Downloader().run()
-        #PlaylistDownloader().run()
-        PlaylistUploader().run()
+        PlaylistDownloader().run()
+        #PlaylistUploader().run()
 
 ### The End ###
 
