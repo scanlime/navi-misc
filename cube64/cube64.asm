@@ -27,7 +27,7 @@
 	#include p16f84a.inc
 	errorlevel -302
 
-	__CONFIG   _CP_OFF & _PWRTE_ON & _WDT_OFF & _HS_OSC
+	__CONFIG   _CP_OFF & _PWRTE_ON & _WDT_ON & _HS_OSC
 
 	;; Hardware declarations
 	#define N64_PIN		PORTB, 0 ; Also acts as an interrupt source
@@ -39,33 +39,131 @@
 	org 0
 	goto	startup
 	org 4
-	goto	startup
+	retfie
 
 	;; Variables
 	cblock	0x0C
 		temp
-		tx_byte_count
-		tx_bit_count
-		gc_buffer:8
+		byte_count
+		bit_count
+		gamecube_buffer:8
 	endc
 
-	;; *****************************************************************************
-	;; ******************************************************  Comm Macros *********
-	;; *****************************************************************************
+	;; *******************************************************************************
+	;; ******************************************************  Initialization  *******
+	;; *******************************************************************************
+
+startup
+	;; Initialize I/O ports- all unused pins output low, the two controller
+	;; data pins initially tristated (they simulate open-collector outputs).
+	bcf	STATUS, RP0
+	clrf	PORTA
+	clrf	PORTB
+	bsf	STATUS, RP0
+	clrf	TRISA
+	movlw	0x03
+	movwf	TRISB
+
+	;; Put us back in bank 0 with a bit_count of 8, preconditions for rx_buffer
+	bcf	STATUS, RP0
+	movlw	8
+	movwf	bit_count
+
+main_loop
+
+	call	gamecube_poll_id
+
+	bcf	PORTA, 0
+	btfsc	gamecube_buffer+1, 0
+	bsf	PORTA, 0
+
+	movlw	0xFF
+	movwf	temp
+delay_loop
+	clrwdt
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	goto	$+1
+	decfsz	temp, f
+	goto	delay_loop
+
+	goto	main_loop
+
+
+	;; *******************************************************************************
+	;; ******************************************************  Gamecube Interface  ***
+	;; *******************************************************************************
+
+	;; Poll the gamecube controller's state by transmitting a magical
+	;; poll command (0x400300) then receiving 8 bytes of status.
+gamecube_poll_status
+	movlw	0x40			; Put 0x400300 in the gamecube_buffer
+	movwf	gamecube_buffer+0
+	movlw	0x03
+	movwf	gamecube_buffer+1
+	movlw	0x00
+	movwf	gamecube_buffer+2
+
+	movlw	gamecube_buffer		; Transmit the gamecube_buffer
+	movwf	FSR
+	movlw	3
+	call	gamecube_tx_buffer
+
+	movlw	gamecube_buffer		; Receive 8 status bytes
+	movwf	FSR
+	movlw	8
+	call	gamecube_rx_buffer
+	return
+
+
+	;; Poll for the type of controller attached to the gamecube.
+	;; Sends the poll command 0x00 and receives a 3 byte ID.
+gamecube_poll_id
+	movlw	0x00			; Transmit 0x00
+	movwf	gamecube_buffer+0
+	movlw	gamecube_buffer
+	movwf	FSR
+	movlw	1
+	call	gamecube_tx_buffer
+
+	movlw	gamecube_buffer		; Receive 3 bytes
+	movwf	FSR
+	movlw	3
+	call	gamecube_rx_buffer
+	return
+
+
+	;; *******************************************************************************
+	;; ******************************************************  Low-level Comm  *******
+	;; *******************************************************************************
 
 	;; Transmit 'w' bytes of data over the indicated pin, starting at IRP:FSR.
 	;; The data is modified as it is transmitted, as we don't have enough time
-	;; to copy each byte to a temporary location. Returns when done.
+	;; to copy each byte to a temporary location. Returns when done. This macro
+	;; works with the gamecube or N64, as they both use the same low-level protocol.
 tx_buffer macro port, bit
 	local	bit_loop
 	local	not_last_byte
 	local	not_last_bit
 
-	banksel	TRISA		; Stow our count and start looping over bytes
-	movwf	tx_byte_count
+	bsf	STATUS, RP0	; Stow our count and start looping over bytes
+	movwf	byte_count
 
 	movlw	8		; Set the bit count for the first time. Subsequently
-	movwf	tx_bit_count	;   it gets set in the spare cycles below.
+	movwf	bit_count	;   it gets set in the spare cycles below.
 
 	;; Each bit always takes 4us, but there are several possible control paths...
 	;; Every line has been numbered with the number of microseconds since the
@@ -80,10 +178,10 @@ bit_loop
 	nop			; 0.6us
 	btfsc	STATUS, C	; 0.8us  Our bit is in the C flag...
 	bsf	port, bit	; 1.0us  Rising edge for 1 bits
-	decfsz	tx_bit_count, f	; 1.2us  Is this the last bit?
+	decfsz	bit_count, f	; 1.2us  Is this the last bit?
 	goto	not_last_bit	; 1.4us  We have an alternate ending for the last bit...
 
-	decfsz	tx_byte_count,f	; 1.6us  Is this the last byte?
+	decfsz	byte_count,f	; 1.6us  Is this the last byte?
 	goto	not_last_byte	; 1.8us	 Yet another alternate ending for the last byte...
 
 	goto	$+1		; 2.0us
@@ -93,17 +191,19 @@ bit_loop
 	goto	$+1		; 3.2us
 	goto	$+1		; 3.6us
 	bcf	port, bit	; 0.0us  Begin a stop bit
-	goto	$+1		; 0.2us
-	goto	$+1		; 0.6us
-	bsf	port, bit	; 1.0us  Rising edge for 1 bits
-	goto	finished	; 1.2us  Done for now. The first instruction after the
+	bcf	STATUS, RP0	; 0.2us  Always leave in bank 0
+	nop			; 0.4us
+	movlw	8		; 0.6us  Setup for the next receive
+	movwf	bit_count	; 0.8us
+	bsf	port, bit	; 1.0us  Rising edge for the stop bit
+	return			; 1.2us  Done for now. The first instruction after the
 				;        macro is at 1.6us after the beginning of the
-				;        stop bit, so it ends 2.4us after the macro does.
+				;        stop bit, so it ends 2.4us after we return.
 
 not_last_byte
 	incf	FSR, f		; 2.2us  Point at the next byte
 	movlw	8		; 2.4us  Reinitialize the bit counter
-	movwf	tx_bit_count	; 2.6us
+	movwf	bit_count	; 2.6us
 	btfss	STATUS, C	; 2.8us
 	bsf	port, bit	; 3.0us  Rising edge for 0 bits
 	nop			; 3.2us
@@ -117,58 +217,58 @@ not_last_bit
 	bsf	port, bit	; 3.0us  Rising edge for 0 bits
 	nop			; 3.2us
 	goto	bit_loop	; 3.4us  Next bit...
-
-finished
 	endm
 
 
-	;; *****************************************************************************
-	;; ******************************************************  Initialization  *****
-	;; *****************************************************************************
+	;; Receive 'w' bytes of data over the indicated pin, starting at IRP:FSR.
+	;; Again, this macro works with the GC or the N64. This could block indefinitely
+	;; waiting for data. If this happens, the watchdog will reset us.
+	;;
+	;; Since receives often have to be started extremely quickly after a transmit
+	;; ends, some of the setup work for this loop occurs inside tx_buffer above,
+	;; during otherwise wasted cycles.
+rx_buffer macro port, bit
+	local	bit_loop
+	movwf	byte_count	; Stow our byte count
 
-startup
-	;; Initialize I/O ports- all unused pins output low, the two controller
-	;; data pins initially tristated (they simulate open-collector outputs).
-	banksel	PORTA
-	clrf	PORTA
-	clrf	PORTB
-	banksel	TRISA
-	clrf	TRISA
-	movlw	0x03
-	movwf	TRISB
-	banksel	PORTA
+	;; We can use a far more conventional and less crazy loop for receiving,
+	;; since we have enough time to do the checks at the end. We poll for
+	;; the low state signalling the beginning of a bit, time out 2us (putting
+	;; us right in the middle of the bit) and then sample. This probably isn't
+	;; how the GC/N64 hardware decodes the received data, but it's close enough.
+	;;
+	;; The overhead from sampling to the beginning of the next poll needs to
+	;; be less than 2us (10 cycles)
+bit_loop
+	btfsc	port, bit	; 0.0us  Poll for the beginning of the bit, max 0.6us jitter
+	nop
+	;; goto	bit_loop	; 0.2us
+	rlf	INDF, f		; 0.4us  Make room for the new bit
+	bcf	INDF, 0		; 0.6us  Assume it's 0 to begin with
+	goto	$+1		; 0.8us
+	goto	$+1		; 1.2us
+	goto	$+1		; 1.6us
+	btfsc	port, bit	; 2.0us  Sample the incoming bit
+	bsf	INDF, 0		; 2.2us
+	decfsz	bit_count, f	; 2.4us
+	goto	bit_loop	; 2.6us  Next bit...
+	incf	FSR, f		; 2.8us  Next byte...
+	movlw	8		; 3.0us
+	movwf	bit_count	; 3.2us
+	decfsz	byte_count, f	; 3.4us
+	goto	bit_loop	; 3.6us
+	return
+	endm
 
-loop_foo
 
-	;; 0x400300
-	movlw	0x40
-	movwf	gc_buffer+0
-	movlw	0x03
-	movwf	gc_buffer+1
-	movlw	0x00
-	movwf	gc_buffer+2
-
-	bankisel gc_buffer
-	movlw	gc_buffer
-	movwf	FSR
-	movlw	3
+	;; Implementations of the above macros for particular devices
+gamecube_tx_buffer
 	tx_buffer GAMECUBE_TRIS
-
-	movlw	0xFF
-	banksel temp
-	movwf	temp
-delay_loop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	decfsz	temp, f
-	goto	delay_loop
-
-	goto	loop_foo
+gamecube_rx_buffer
+	rx_buffer GAMECUBE_PIN
+n64_tx_buffer
+	tx_buffer N64_TRIS
+n64_rx_buffer
+	rx_buffer N64_PIN
 
 	end
