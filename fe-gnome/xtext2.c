@@ -1144,7 +1144,7 @@ static void
 buffer_append (XTextBuffer *buffer, textentry *ent, XText2 *xtext)
 {
   XTextFormat *f;
-  g_print ("appending to buffer\n");
+  g_print ("%s\n", ent->str);
   f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
   f->wrapped_first = buffer->text_first;
   f->wrapped_last  = buffer->text_last;

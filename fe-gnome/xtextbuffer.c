@@ -231,10 +231,8 @@ append_entry (XTextBuffer *buffer, textentry *ent)
   if (buffer->max_lines > 2 && buffer->max_lines < buffer->num_lines)
     remove_top (buffer);
 
-  g_print ("append_entry\n");
-
   /* notify viewers */
-  g_signal_emit_by_name (G_OBJECT (buffer), "append");
+  g_signal_emit_by_name (G_OBJECT (buffer), "append", ent);
 }
 
 static int
