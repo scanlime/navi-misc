@@ -67,6 +67,9 @@ protected:
 
 	// list server
 	CListServerClientConnection	listServer;
+
+	// defaults
+	void verifyDefaults ( void );
 };
 
 #endif //_FIRESTARTER_LOOP_H_
