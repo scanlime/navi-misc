@@ -1,6 +1,13 @@
-""" Hangman.py
+""" Hangman
 
-Hangman class, functions for controlling a game of hangman.
+A python package containing classes for running a game of hangman.
+
+The Hangman class contains information about the game state: a list
+of possible words to use in the game; a single word selected from the
+list as answer; lists for the incorrect and correct guesses and a counter
+keeping track of the number of misses.
+
+The HangmanGUI class acts as a view and controller for the game.
 """
 
 #
@@ -12,21 +19,28 @@ import sys, os, gtk, string
 from Menu import menu
 from random import seed, choice
 
+__all__ = ["Hangman", "HangmanGUI"]
+
 class Hangman:
 	""" Functions and data for running a game of Hangman. """
 	def __init__(self):
 		seed()
+		# List of words to select an answer from.
 		self.words = []
+		# Answer for the current game.
 		self.answer = None
+		# List of incorrectly guessed characters.
 		self.guesses = []
+		# Number of incorrect guesses.
 		self.numMissed = 0
+		# List of correctly guessed characters.
 		self.correct = []
 
 	def Guess(self, guess):
-		""" Checks the guess against the correct answer.  If it's correct: guess
+		""" Checks the guess against the correct answer.  If it's correct guess
 				gets added to self.correct in all of the appropriate spots in the word.
 				If it's incorrect it gets appended to self.guesses.  correct and guesses
-				are returned in a list, correct first. 
+				are returned in a tuple, correct first. 
 				"""
 		# If the answer is correct insert it into the correct places in the
 		# 'correct' list.
@@ -44,21 +58,24 @@ class Hangman:
 
 	def NewGame(self):
 		""" Create a new game. """
-		# Most of this is probably temporary.  It will hopefully be replaced with
-		# something more useful.
 		# Clear the guesses and correct lists.
 		self.guesses = []
 		self.correct = []
 		# Set a new word.
 		self.answer = choice(self.words)
+		
 		# Fill the correct list with '_'.
 		for i in range(len(self.answer)):
 			self.correct.append('_')
-		# Temporary	
+		# For debugging ease.  Should be removed.
 		print self.answer
 
 	def gameStat(self):
-		""" Check the status of the current game. """
+		""" Check the status of the current game. Return strings created from the
+				correct and guesses lists in a tuple for the purpose of printing.
+				In the event that the game has been won or lost an appropriate string
+				is appeneded to the correct string before returning.
+				"""
 		correctStr = " ".join(self.correct)
 		guessedStr = " ".join(self.guesses)
 
@@ -76,6 +93,10 @@ class Hangman:
 				letter there has been guessed correctly before, it is returned.  If 
 				guess does not go there a '_' is returned.  If the guess belongs in
 				the list at index return the guess.
+				For Example:
+						
+					self.correct = [self.TestEntry(i, guess) 
+													for i in range(len(self.correct))]
 				"""
 		# If the item at correct[index] has been guessed, return the already correct
 		# letter.
@@ -89,9 +110,9 @@ class Hangman:
 			return entry
 
 class HangmanGUI:
-	""" A class for creating and controlling a GUI for Hangman. __init__ creates
-			all the necessary widgets and connects them to the appropriate Hangman 
-			functions. 
+	""" Acts as a view and controller for the Hangman class.  __init__ creates
+			all the necessary widgets for the main window.  By creating an 
+			instance of HangmanGUI and starting gtk.main the game is all set up.
 			"""
 	def __init__(self):
 		# Game controller.
@@ -100,9 +121,8 @@ class HangmanGUI:
 		# Set up the window.
 		self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 		self.window.set_title("Hangman")
-		self.window.set_border_width(10)
-		# Minimum window size.
-		self.window.set_size_request(600, 400)
+		# Default window size.
+		self.window.set_default_size(640, 480)
 
 		self.window.connect("delete_event", self.destroy)
 
@@ -123,15 +143,15 @@ class HangmanGUI:
 		self.guessedText.show()
 
 		# New game button.
-		self.newGame = gtk.Button("New Game")
+		self.newGame = gtk.Button(stock=gtk.STOCK_NEW)
 		self.newGame.connect("clicked", self.NewGame)
 
 		# Open new file button.
-		self.openButton = gtk.Button("Open File")
+		self.openButton = gtk.Button(stock=gtk.STOCK_OPEN)
 		self.openButton.connect("clicked", self.openFile)
 
 		# Quit button.
-		self.quit = gtk.Button("Quit")
+		self.quit = gtk.Button(stock=gtk.STOCK_QUIT)
 		self.quit.connect("clicked", self.Quit)
 
 		# Gallows.
@@ -162,20 +182,57 @@ class HangmanGUI:
 				packArgs=[gtk.TRUE, gtk.TRUE, 20])
 		textBox.show()
 
-		# box2: Pack the gallows above textBox, which is above the buttons and
-		# text field for entering guesses.
-		box2 = gtk.VBox(spacing=20)
+		# Pack the textBox, gallowsFrame and box1 into a box with a 15 pixel
+		# border around it.
+		box2 = gtk.VBox()
+		box2.set_border_width(15)
 		box2.pack_start(textBox, gtk.FALSE, gtk.FALSE, 5)
 		box2.pack_start(gallowsFrame, gtk.TRUE, gtk.TRUE, 5)
 		box2.pack_start(box1, gtk.FALSE, gtk.FALSE)
-		self.window.add(box2)
 		box2.show()
+
+		# Create a menu bar.
+		self.makeMenu()
+		self.menuBar.show()
+
+		# Final box.  Pack the menubar into the top, so it spans the entire width
+		# of the window.  Pack box2 underneath it.
+		box3 = gtk.VBox()
+		box3.pack_start(self.menuBar, gtk.FALSE, gtk.TRUE, 0)
+		box3.pack_start(box2, gtk.TRUE, gtk.TRUE, 0)
+		box3.show()
+
+		# Add the outer box to the window.
+		self.window.add(box3)
 
 		# Last thing, show the window.
 		self.window.show()
 
+	def makeMenu(self):
+		""" Creates a menu bar and saves it to self.menuBar. """
+		accelGroup = gtk.AccelGroup()
+
+		menuItems = (
+				("/_File", None, None, 0, "<Branch>"),
+				("/File/_New Game", "<control>N", self.NewGame, 0, None),
+				("/File/_Open", "<control>O", self.openFile, 0, None),
+				("/File/sep", None, None, 0, "<Separator>"),
+				("/File/_Quit", "<control>Q", self.Quit, 0, None),
+				("/_Options", None, None, 0, "<Branch>"),
+				("/Options/Preferences", None, None, 0, None),
+				("/_Help", None, None, 0, "<Branch>"),
+				("/Help/_About Hangman", None, None, 0, None))
+
+		itemFactory = gtk.ItemFactory(gtk.MenuBar, "<main>", accelGroup)
+		itemFactory.create_items(menuItems)
+		self.window.add_accel_group(accelGroup)
+		self.menuBar = itemFactory.get_widget("<main>")
+
 	def GuessCheck(self, widget, guessField):
-		""" Grab the guess entered by the user."""
+		""" Grab the guess entered by the user and then call update the window
+				with the new information.  If the game is over make the text entry
+				field uneditable.
+				"""
 		entry = guessField.get_text()
 		guessField.select_region(0,1)
 		# Check the guess.
@@ -189,32 +246,23 @@ class HangmanGUI:
 	def Quit(self, widget, data=None):
 		""" Quit. """
 		# Create a dialog to check if the user really wants to quit.
-		dialog = gtk.Dialog("Quit", 
-				flags=gtk.DIALOG_DESTROY_WITH_PARENT|gtk.DIALOG_NO_SEPARATOR)
+		dialog = gtk.MessageDialog(self.window,
+												gtk.DIALOG_DESTROY_WITH_PARENT|
+												gtk.DIALOG_MODAL,
+												gtk.MESSAGE_QUESTION,
+												gtk.BUTTONS_YES_NO,
+												"Are you sure you want to quit?")
+		dialog.set_title("Quit")
+		dialog.set_resizable(gtk.FALSE)
 		
-		# Yes button, they really want to quit.
-		yes = gtk.Button("Yes")
-		yes.connect("clicked", self.destroy)
-		yes.show()
-
-		# No button, they don't actually want to quit.
-		no = gtk.Button("No")
-		no.connect("clicked", lambda w: dialog.destroy())
-		no.show()
-
-		# Pose the question.
-		label = gtk.Label("Are you sure you want to quit?")
-		label.show()
-
-		# Pack the dialog box and show, give focus to the 'no' button.
-		dialog.vbox.pack_start(label)
-		dialog.action_area.pack_start(yes, gtk.TRUE, gtk.TRUE)
-		dialog.action_area.pack_start(no, gtk.TRUE, gtk.TRUE)
-
-		no.grab_focus()
 		dialog.show()
+		response = dialog.run()
+		if response == gtk.RESPONSE_YES:
+			self.destroy()
+		else:
+			dialog.destroy()
 
-	def destroy(self, widget, event=None):
+	def destroy(self, widget=None, event=None):
 		""" Quit gtk.main. """
 		gtk.main_quit()
 		return gtk.FALSE
@@ -259,6 +307,7 @@ class HangmanGUI:
 
 	def NewGame(self, widget=None, data=None):
 		""" Begin a new game. """
+		# If there is nothing loaded bring up the file selection widget.
 		if self.controller.words == []:
 			self.openFile()
 			return
@@ -275,6 +324,7 @@ class HangmanGUI:
 		""" Load the contents of a file into the game. """
 		# File selector.
 		fileWindow = gtk.FileSelection("Hangman")
+		fileWindow.set_transient_for(self.window)
 
 		# Set up buttons.
 		fileWindow.ok_button.connect("clicked", self.read, fileWindow)
@@ -285,35 +335,32 @@ class HangmanGUI:
 		# Show.
 		fileWindow.show()
 
-	def read(self, widget, event=None):
-		filename = event.get_filename()
-		if filename.find(".hmn") == -1:
-			self.error(data="Please choose a .hmn file.")
+	def read(self, widget, data=None):
+		""" Callback for file selection from openFile().  Get the file name
+				and test it to make sure it has the right extension.
+				"""
+		filename = data.get_filename()
+		if filename.find(".txt") == -1:
+			self.error(data, "Please choose a .txt file.")
 			return gtk.TRUE
 		else:
 			self.controller.words = open(filename, 'r').readlines()
 			self.controller.words = [word.strip() for word in self.controller.words]
 
-	def error(self, widget=None, data=None):
+	def error(self, parent=None, data=None):
 		""" General error message generator.  data is the text to be printed in
 				the dialog box.
 				"""
 		# Create the dialog box.
-		errorBox = gtk.Dialog("Error", flags=gtk.DIALOG_NO_SEPARATOR)
+		errorBox = gtk.MessageDialog(parent, gtk.DIALOG_MODAL,
+																	gtk.MESSAGE_WARNING,
+																	gtk.BUTTONS_OK,
+																	data)
 
-		# Create the label.
-		message = gtk.Label(data)
-		message.show()
-
-		# Ok button.
-		okButton = gtk.Button("Ok")
-		okButton.connect("clicked", lambda w: errorBox.destroy())
-		okButton.show()
-
-		# Pack everything and show.
-		errorBox.vbox.pack_start(message, gtk.TRUE, gtk.TRUE)
-		errorBox.vbox.pack_end(okButton)
+		errorBox.set_resizable(gtk.FALSE)
 		errorBox.show()
+		if errorBox.run() == gtk.RESPONSE_OK:
+			errorBox.destroy()
 
 class Gallows(gtk.DrawingArea):
 	""" gtk.DrawingArea subclass for drawing the gallows and hanged man. """
@@ -330,9 +377,33 @@ class Gallows(gtk.DrawingArea):
 		# Get a color map and set the foreground to white in the graphics context.
 		colormap = self.get_colormap()
 		fgColor = colormap.alloc_color('white')
-		self.gc = self.window.new_gc(foreground=fgColor)
+		self.bg_gc = self.window.new_gc(foreground=fgColor)
+		self.fg_gc = self.window.new_gc()
 
 	def redraw(self, widget, event):
 		""" Redraw the screen because of an expose_event. """
 		x , y, width, height = event.area
-		widget.window.draw_rectangle(self.gc, gtk.TRUE, x, y, width, height)
+		widget.window.draw_rectangle(self.bg_gc, gtk.TRUE, x, y, width, height)
+
+		x, y, width, height = self.drawingArea(event)
+		widget.window.draw_rectangle(self.fg_gc, gtk.FALSE, x, y, width, height)
+
+	def drawingArea(self, data):
+		""" Calculate a square area within the gtk.DrawingArea in which to draw
+				the gallows, data must be a list or tuple of x, y, height and width.
+				Return a tuple contianing the x, y coordinates of the top left corner 
+				and the width and height.  Allows for rescalable images.
+				"""
+		x, y, width, height = data.area
+
+		# Width is limiting factor.
+		if width < height:
+			self.area = (x, height/2 - width/2, width, width)
+		# Height is limiting factor.
+		elif height < width:
+			self.area = (width/2 - height/2, y, height, height)
+		# Square drawing area.
+		else:
+			self.area = (x, y, width, height)
+
+		return self.area
