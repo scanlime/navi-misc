@@ -151,4 +151,181 @@ int                      packet_socket_read   (struct packet_socket* self,
   }
 }
 
+void                   ntoh_ff_envelope     (struct ff_envelope*       host,
+					     struct ipipe_ff_envelope* net)
+{
+  host->attack_length = ntohs(net->attack_length);
+  host->attack_level = ntohs(net->attack_level);
+  host->fade_length = ntohs(net->fade_length);
+  host->fade_level = ntohs(net->fade_level);
+}
+
+void                   hton_ff_envelope     (struct ipipe_ff_envelope* net,
+					     struct ff_envelope*       host)
+{
+  net->attack_length = htons(host->attack_length);
+  net->attack_level = htons(host->attack_level);
+  net->fade_length = htons(host->fade_length);
+  net->fade_level = htons(host->fade_level);
+}
+
+void                   ntoh_ff_effect       (struct ff_effect*         host,
+					     struct ipipe_ff_effect*   net)
+{
+  int i;
+
+  host->type = ntohs(net->type);
+  host->id = ntohs(net->id);
+  host->direction = ntohs(net->direction);
+  host->trigger.button = ntohs(net->trigger_button);
+  host->trigger.interval = ntohs(net->trigger_interval);
+  host->replay.length = ntohs(net->replay_length);
+  host->replay.delay = ntohs(net->replay_delay);
+
+  switch (host->type) {
+
+  case FF_CONSTANT:
+    host->u.constant.level = ntohs(net->u.constant.level);
+    ntoh_ff_envelope(&host->u.constant.envelope, &net->u.constant.envelope);
+    break;
+
+  case FF_RAMP:
+    host->u.ramp.start_level = ntohs(net->u.ramp.start_level);
+    host->u.ramp.end_level = ntohs(net->u.ramp.end_level);
+    ntoh_ff_envelope(&host->u.ramp.envelope, &net->u.ramp.envelope);
+    break;
+
+  case FF_PERIODIC:
+    host->u.periodic.waveform = ntohs(net->u.periodic.waveform);
+    host->u.periodic.period = ntohs(net->u.periodic.period);
+    host->u.periodic.magnitude = ntohs(net->u.periodic.magnitude);
+    host->u.periodic.offset = ntohs(net->u.periodic.offset);
+    host->u.periodic.phase = ntohs(net->u.periodic.phase);
+    ntoh_ff_envelope(&host->u.periodic.envelope, &net->u.periodic.envelope);
+    break;
+
+
+  case FF_SPRING:
+  case FF_FRICTION:
+    for (i=0; i<2; i++) {
+      host->u.condition[i].right_saturation = ntohs(net->u.condition[i].right_saturation);
+      host->u.condition[i].left_saturation = ntohs(net->u.condition[i].left_saturation);
+      host->u.condition[i].right_coeff = ntohs(net->u.condition[i].right_coeff);
+      host->u.condition[i].left_coeff = ntohs(net->u.condition[i].left_coeff);
+      host->u.condition[i].deadband = ntohs(net->u.condition[i].deadband);
+      host->u.condition[i].center = ntohs(net->u.condition[i].center);
+    }
+    break;
+
+  case FF_RUMBLE:
+    host->u.rumble.strong_magnitude = ntohs(net->u.rumble.strong_magnitude);
+    host->u.rumble.weak_magnitude = ntohs(net->u.rumble.weak_magnitude);
+    break;
+  }
+}
+
+void                   hton_ff_effect       (struct ipipe_ff_effect*   net,
+					     struct ff_effect*         host)
+{
+  int i;
+
+  net->type = htons(host->type);
+  net->id = htons(host->id);
+  net->direction = htons(host->direction);
+  net->trigger_button = htons(host->trigger.button);
+  net->trigger_interval = htons(host->trigger.interval);
+  net->replay_length = htons(host->replay.length);
+  net->replay_delay = htons(host->replay.delay);
+
+  switch (host->type) {
+
+  case FF_CONSTANT:
+    net->u.constant.level = htons(host->u.constant.level);
+    hton_ff_envelope(&net->u.constant.envelope, &host->u.constant.envelope);
+    break;
+
+  case FF_RAMP:
+    net->u.ramp.start_level = htons(host->u.ramp.start_level);
+    net->u.ramp.end_level = htons(host->u.ramp.end_level);
+    hton_ff_envelope(&net->u.ramp.envelope, &host->u.ramp.envelope);
+    break;
+
+  case FF_PERIODIC:
+    net->u.periodic.waveform = htons(host->u.periodic.waveform);
+    net->u.periodic.period = htons(host->u.periodic.period);
+    net->u.periodic.magnitude = htons(host->u.periodic.magnitude);
+    net->u.periodic.offset = htons(host->u.periodic.offset);
+    net->u.periodic.phase = htons(host->u.periodic.phase);
+    hton_ff_envelope(&net->u.periodic.envelope, &host->u.periodic.envelope);
+    break;
+
+
+  case FF_SPRING:
+  case FF_FRICTION:
+    for (i=0; i<2; i++) {
+      net->u.condition[i].right_saturation = htons(host->u.condition[i].right_saturation);
+      net->u.condition[i].left_saturation = htons(host->u.condition[i].left_saturation);
+      net->u.condition[i].right_coeff = htons(host->u.condition[i].right_coeff);
+      net->u.condition[i].left_coeff = htons(host->u.condition[i].left_coeff);
+      net->u.condition[i].deadband = htons(host->u.condition[i].deadband);
+      net->u.condition[i].center = htons(host->u.condition[i].center);
+    }
+    break;
+
+  case FF_RUMBLE:
+    net->u.rumble.strong_magnitude = htons(host->u.rumble.strong_magnitude);
+    net->u.rumble.weak_magnitude = htons(host->u.rumble.weak_magnitude);
+    break;
+  }
+}
+
+void                   ntoh_input_event     (struct input_event*       host,
+					     struct ipipe_event*       net)
+{
+  host->time.tv_sec = ntohl(net->tv_sec);
+  host->time.tv_usec = ntohl(net->tv_usec);
+  host->type = ntohs(net->type);
+  host->code = ntohs(net->code);
+  host->value = ntohl(net->value);
+}
+
+void                   hton_input_event     (struct ipipe_event*       net,
+					     struct input_event*       host)
+{
+  net->tv_sec = htonl(host->time.tv_sec);
+  net->tv_usec = htonl(host->time.tv_usec);
+  net->value = htonl(host->value);
+  net->type = htons(host->type);
+  net->code = htons(host->code);
+}
+
+void                   ntoh_input_id        (struct input_id*          host,
+					     struct ipipe_input_id*    net)
+{
+  host->bustype = ntohs(net->bustype);
+  host->vendor = ntohs(net->vendor);
+  host->product = ntohs(net->product);
+  host->version = ntohs(net->version);
+}
+
+void                   hton_input_id        (struct ipipe_input_id*    net,
+					     short                     host[4])
+{
+  net->bustype = htons(host[0]);
+  net->vendor  = htons(host[1]);
+  net->product = htons(host[2]);
+  net->version = htons(host[3]);
+}
+
+void                   hton_input_absinfo   (struct ipipe_absinfo*     net,
+					     struct input_absinfo*     host,
+					     int                       axis)
+{
+  net->axis = htonl(axis);
+  net->max = htonl(host->maximum);
+  net->min = htonl(host->minimum);
+  net->fuzz = htonl(host->fuzz);
+  net->flat = htonl(host->flat);
+}
+
 /* The End */

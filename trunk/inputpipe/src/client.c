@@ -261,10 +261,7 @@ static int evdev_send_metadata(int evdev, struct server *svr)
 
   /* Send device ID */
   ioctl(evdev, EVIOCGID, id);
-  ip_id.bustype = htons(id[0]);
-  ip_id.vendor  = htons(id[1]);
-  ip_id.product = htons(id[2]);
-  ip_id.version = htons(id[3]);
+  hton_input_id(&ip_id, id);
   packet_socket_write(svr->socket, IPIPE_DEVICE_ID, sizeof(ip_id), &ip_id);
 
   /* Send bits */
@@ -294,12 +291,7 @@ static int evdev_send_metadata(int evdev, struct server *svr)
 	  struct input_absinfo absinfo;
 	  struct ipipe_absinfo ip_abs;
 	  ioctl(evdev, EVIOCGABS(axis), &absinfo);
-
-	  ip_abs.axis = htonl(axis);
-	  ip_abs.max = htonl(absinfo.maximum);
-	  ip_abs.min = htonl(absinfo.minimum);
-	  ip_abs.fuzz = htonl(absinfo.fuzz);
-	  ip_abs.flat = htonl(absinfo.flat);
+	  hton_input_absinfo(&ip_abs, &absinfo, axis);
 	  packet_socket_write(svr->socket, IPIPE_DEVICE_ABSINFO, sizeof(ip_abs), &ip_abs);
 	}
       }
@@ -341,11 +333,7 @@ static int evdev_send_event(int evdev, struct server *svr)
   }
 
   /* Translate and send this event */
-  ip_ev.tv_sec = htonl(ev.time.tv_sec);
-  ip_ev.tv_usec = htonl(ev.time.tv_usec);
-  ip_ev.value = htonl(ev.value);
-  ip_ev.type = htons(ev.type);
-  ip_ev.code = htons(ev.code);
+  hton_input_event(&ip_ev, &ev);
   packet_socket_write(svr->socket, IPIPE_EVENT, sizeof(ip_ev), &ip_ev);
 
 #ifdef EV_SYN

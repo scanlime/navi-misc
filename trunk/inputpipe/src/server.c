@@ -241,11 +241,7 @@ static void client_received_packet(struct client* self,
 	client_message(self, "Received IPIPE_EVENT before IPIPE_CREATE");
 	break;
       }
-      ev.time.tv_sec = ntohl(ip_ev->tv_sec);
-      ev.time.tv_usec = ntohl(ip_ev->tv_usec);
-      ev.type = ntohs(ip_ev->type);
-      ev.code = ntohs(ip_ev->code);
-      ev.value = ntohl(ip_ev->value);
+      ntoh_input_event(&ev, ip_ev);
       write(self->uinput_fd, &ev, sizeof(ev));
     }
     break;
@@ -265,10 +261,7 @@ static void client_received_packet(struct client* self,
 	client_message(self, "Received IPIPE_DEVICE_ID with incorrect length");
 	break;
       }
-      self->dev_info.id.bustype = ntohs(ip_id->bustype);
-      self->dev_info.id.vendor = ntohs(ip_id->vendor);
-      self->dev_info.id.product = ntohs(ip_id->product);
-      self->dev_info.id.version = ntohs(ip_id->version);
+      ntoh_input_id(&self->dev_info.id, ip_id);
     }
     break;
 
@@ -389,6 +382,38 @@ static void client_received_packet(struct client* self,
     }
     break;
 
+  case IPIPE_UPLOAD_EFFECT_RESPONSE:
+    {
+      struct ipipe_upload_effect_response* ipipe_up = (struct ipipe_upload_effect_response*) content;
+      struct uinput_ff_upload ff_up;
+      if (length != sizeof(struct ipipe_upload_effect_response)) {
+	client_message(self, "Received IPIPE_UPLOAD_EFFECT_RESPONSE with incorrect length");
+	break;
+      }
+      ff_up.request_id = ntohl(ipipe_up->request_id);
+      ff_up.retval = ntohl(ipipe_up->retval);
+      ntoh_ff_effect(&ff_up.effect, &ipipe_up->effect);
+      if (ioctl(self->uinput_fd, UI_END_FF_UPLOAD, &ff_up) < 0)
+	perror("ioctl UI_END_FF_UPLOAD");
+    }
+    break;
+
+  case IPIPE_ERASE_EFFECT_RESPONSE:
+    {
+      struct ipipe_erase_effect_response* ipipe_erase = (struct ipipe_erase_effect_response*) content;
+      struct uinput_ff_erase ff_erase;
+      if (length != sizeof(struct ipipe_erase_effect_response)) {
+	client_message(self, "Received IPIPE_ERASE_EFFECT_RESPONSE with incorrect length");
+	break;
+      }
+      ff_erase.request_id = ntohl(ipipe_erase->request_id);
+      ff_erase.retval = ntohl(ipipe_erase->retval);
+      ff_erase.effect_id = -1;
+      if (ioctl(self->uinput_fd, UI_END_FF_ERASE, &ff_erase) < 0)
+	perror("ioctl UI_END_FF_ERASE");
+    }
+    break;
+
   default:
     client_message(self, "Received unknown packet type 0x%04X", type);
   }
@@ -399,17 +424,53 @@ static void client_received_event(struct client* self,
 {
   /* We got an app to device input event from uinput. In most
    * cases we forward these to the corresponding client, but
-   * we process EV_UINPUT events here.
+   * we process EV_UINPUT events here. For EV_UINPUT events,
+   * we issue an ioctl to get the rest of the necessary
+   * data, then we form a packet with that.
    */
-  if (ev->type == EV_UINPUT) {
 
+  struct uinput_ff_upload ff_up;
+  struct uinput_ff_erase ff_erase;
+  struct ipipe_upload_effect ipipe_up;
+  struct ipipe_erase_effect ipipe_erase;
+
+  if (ev->type == EV_UINPUT) {
     switch (ev->code) {
 
+    case UI_FF_UPLOAD:
+      /* Upload a force feedback effect */
+      ff_up.request_id = ev->value;
+      if (ioctl(self->uinput_fd, UI_BEGIN_FF_UPLOAD, &ff_up) < 0) {
+	perror("ioctl UI_BEGIN_FF_UPLOAD");
+	return;
+      }
+      ipipe_up.request_id = htonl(ff_up.request_id);
+      hton_ff_effect(&ipipe_up.effect, &ff_up.effect);
+      packet_socket_write(self->socket, IPIPE_UPLOAD_EFFECT, sizeof(ipipe_up), &ipipe_up);
+      break;
+
+    case UI_FF_ERASE:
+      /* Erase a force feedback effect */
+      ff_erase.request_id = ev->value;
+      if (ioctl(self->uinput_fd, UI_BEGIN_FF_ERASE, &ff_erase) < 0) {
+	perror("ioctl UI_BEGIN_FF_ERASE");
+	return;
+      }
+      ipipe_erase.request_id = htonl(ff_erase.request_id);
+      ipipe_erase.effect_id = htons(ff_erase.effect_id);
+      packet_socket_write(self->socket, IPIPE_ERASE_EFFECT, sizeof(ipipe_erase), &ipipe_erase);
+      break;
+
     }
-    return;
+  }
+  else {
+    /* Send a normal event to the client */
+    struct ipipe_event ip_ev;
+    hton_input_event(&ip_ev, ev);
+    packet_socket_write(self->socket, IPIPE_EVENT, sizeof(ip_ev), &ip_ev);
   }
 
-  printf("0x%04X 0x%04X 0x%04X\n", ev->type, ev->code, ev->value);
+  packet_socket_flush(self->socket);
 }
 
 
@@ -484,16 +545,6 @@ static struct listener* listener_new(int sock_type, int port)
     return NULL;
   }
 
-  /* Try disabling the "Nagle algorithm" or "tinygram prevention".
-   * This will keep our latency low, and we do our own write buffering.
-   */
-  opt = 1;
-  if (setsockopt(self->fd, 6 /*PROTO_TCP*/, TCP_NODELAY, (void *)&opt, sizeof(opt))) {
-    perror("Setting TCP_NODELAY");
-    listener_delete(self);
-    return NULL;
-  }
-
   memset(&in_addr, 0, sizeof(in_addr));
   in_addr.sin_family = AF_INET;
   in_addr.sin_addr.s_addr = INADDR_ANY;
@@ -509,11 +560,6 @@ static struct listener* listener_new(int sock_type, int port)
     return NULL;
   }
 
-  if (fcntl(self->fd, F_SETFL, fcntl(self->fd, F_GETFL, 0) | O_NONBLOCK) < 0) {
-    perror("fcntl");
-    listener_delete(self);
-    return NULL;
-  }
   FD_SET(self->fd, &fd_request_read);
   if (self->fd >= fd_count)
     fd_count = self->fd + 1;
