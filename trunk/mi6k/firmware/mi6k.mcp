@@ -19,9 +19,9 @@ filter_lkr=*.lkr
 file_000=descript.asm
 file_001=usb_ch9.asm
 file_002=usb_main.asm
-file_003=usb_defs.inc
-file_004=hardware.inc
-file_005=C:\pic\mi6k\include\mi6k_protocol.h
+file_003=hardware.inc
+file_004=usb_defs.inc
+file_005=C:\navi-misc\mi6k\include\mi6k_protocol.h
 file_006=16c745.lkr
 [SUITE_INFO]
 suite_guid={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}

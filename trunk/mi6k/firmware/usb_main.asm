@@ -108,6 +108,10 @@ ir_tx_Mask		res 1
 	extern	USB_dev_req
 	extern	finish_set_address
 
+	global	VFD_SendByte
+	global	IR_SendByte
+	global	IR_Flush
+
 STARTUP	code
 	pagesel	Main
 	goto	Main
@@ -144,7 +148,8 @@ TEST_TMR0
 	decfsz	ir_tx_Cycles, f	; If we finished this batch of transmit cycles, get some more from
 	goto	EndISR			; the buffer. If not, return from the interrupt now.
 
-	; Code to execute after each transmitted pulse or space	
+	; Code to execute after each transmitted pulse or space
+txNextCycle
 	movf	ir_tx_Mask, w	; We just finished one pulse or space. Flip the tx mask so we do the opposite now
 	xorlw	IR_TX_MASK
 	movwf	ir_tx_Mask
@@ -170,6 +175,12 @@ txNextByte					; If the buffer was not empty, pop the next ir_tx_Cycles off of i
 	incf	ir_tx_Tail, f	; Increment the buffer tail, modulo BUFFER_SIZE
 	movlw	BUFFER_SIZE-1
 	andwf	ir_tx_Tail, f
+
+	banksel	ir_tx_Cycles	; If this cycle count is zero, get the next value immediately
+	movf	ir_tx_Cycles, w
+	btfsc	STATUS, Z
+	goto	txNextCycle
+
 	goto	EndISR			; ...and exit the ISR
 
 
@@ -466,13 +477,12 @@ epCopyLoop
 ;******************************************************************* Peripherals
 
 	; Send a byte to the VFD from 'w', return once it's done
-VFD_SendByte:
-	global	VFD_SendByte
+VFD_SendByte
 	banksel	TXREG
 	movwf	TXREG
 	pagesel	sendLoop
 	banksel	PIR1
-sendLoop:
+sendLoop
 	btfss	PIR1, TXIF
 	goto	sendLoop
 	return
@@ -486,6 +496,7 @@ IR_SendByte:
 	banksel	SendTemp
 	movwf	SendTemp	; Save our argument
 
+blockingLoop
 	; We want to block until there's enough room in the buffer. Since the
 	; buffer can't ever be full (it would appear empty) we wait if it has
 	; BUFFER_SIZE - 2 bytes in it.
@@ -494,28 +505,18 @@ IR_SendByte:
 	subwf	ir_tx_Head, w
 	andlw	BUFFER_SIZE-1 ; Wrap to the buffer size
 	xorlw	BUFFER_SIZE-2 ; Test for BUFFER_SIZE-2 bytes
-	btfsc	STATUS, Z	 ; Loop if it passes
-	goto	IR_SendByte
+	pagesel	noBlocking
+	btfss	STATUS, Z	 ; Loop if it passes
+	goto	noBlocking
 
-	global	IR_SendByte
-	banksel	INTCON			; If the TMR0 interrupt is already running, we have to enqueue our value
-	btfsc	INTCON, T0IE
-	goto	enqueueTxByte
+	pagesel	IR_Flush	; Make sure the transmitter is running
+	call	IR_Flush
 
-	; Send the value immediately, starting the interrupt handler
-	banksel	SendTemp
-	movf	SendTemp, w
-	banksel	ir_tx_Cycles	; Store this value in ir_tx_Cycles for immediate transmission
-	movwf	ir_tx_Cycles
-	clrf	TMR0			; Reset TMR0 so we don't actually start for 258 cycles
-	banksel	INTCON			; Enable the TMR0 interrupt, making sure the interrupt flag starts out clear
-	bcf		INTCON, T0IF
-	bsf		INTCON, T0IE
-	return
+	pagesel	blockingLoop ; Keep waiting until there's space in the buffer
+	goto	blockingLoop
 
-	; Push the value into our transmit ring buffer
-enqueueTxByte
-	banksel	ir_tx_Buffer	
+noBlocking
+	banksel	ir_tx_Buffer	; Push the value into our transmit ring buffer
 	bankisel ir_tx_Buffer
 	movf	ir_tx_Head, w
 	addlw	ir_tx_Buffer
@@ -525,6 +526,42 @@ enqueueTxByte
 	incf	ir_tx_Head, f	; Increment the buffer head, modulo BUFFER_SIZE
 	movlw	BUFFER_SIZE-1
 	andwf	ir_tx_Head, f
+	return
+
+	; Start the transmitter interrupt if there is data in the buffer
+	; and the interrupt is not already running. This is called by IR_SendByte
+	; when the transmit buffer becomes full, and it can be triggered by the host
+	; using MI6K_CTRL_IR_FLUSH.
+IR_Flush
+	banksel	ir_tx_Buffer ; Calculate the number of bytes in the ir_tx buffer
+	movf	ir_tx_Tail, w
+	subwf	ir_tx_Head, w
+	andlw	BUFFER_SIZE-1 ; Wrap to the buffer size
+	btfsc	STATUS, Z	 ; Return if the buffer is empty
+	return
+	
+	banksel	INTCON			; Return if the TMR0 interrupt is already running
+	btfsc	INTCON, T0IE
+	return
+
+	bankisel ir_tx_Buffer	; Pop the first byte off the ir_tx_buffer
+	banksel	ir_tx_Tail
+	movf	ir_tx_Tail, w
+	addlw	ir_tx_Buffer
+	movwf	FSR				; ir_tx_Buffer[ir_tx_Tail]
+	movf	INDF, w
+	banksel	ir_tx_Cycles
+	movwf	ir_tx_Cycles
+	banksel	ir_tx_Buffer
+	incf	ir_tx_Tail, f	; Increment the buffer tail, modulo BUFFER_SIZE
+	movlw	BUFFER_SIZE-1
+	andwf	ir_tx_Tail, f
+
+	banksel	TMR0
+	clrf	TMR0			; Reset TMR0 so we don't actually start for 258 cycles
+	banksel	INTCON			; Enable the TMR0 interrupt, making sure the interrupt flag starts out clear
+	bcf		INTCON, T0IF
+	bsf		INTCON, T0IE
 	return
 
 	end
