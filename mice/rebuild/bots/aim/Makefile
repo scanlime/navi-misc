@@ -1,3 +1,7 @@
+
+
+test: JaimTest.class
+
 JaimTest.class: JaimTest.java
 	javac JaimTest.java
 

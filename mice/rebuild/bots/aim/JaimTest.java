@@ -65,7 +65,7 @@ public class JaimTest implements JaimEventListener {
             c.connect();
             
             c.addEventListener(this);
-            c.watchBuddy("unknownbuddy1212");         // Must watch at least one buddy or you will not appear on buddy listings
+            c.watchBuddy("gonkulator");         // Must watch at least one buddy or you will not appear on buddy listings
             
             c.logIn(username,password,50000);
             c.addBlock("");     // Set Deny None
@@ -123,29 +123,24 @@ public class JaimTest implements JaimEventListener {
         else if (responseType.equalsIgnoreCase(EvilTocResponse.RESPONSE_TYPE)) {
             receiveEvil((EvilTocResponse)tr);
         }
-                else
-                    if (responseType.equalsIgnoreCase(GotoTocResponse.RESPONSE_TYPE)) {
-                        receiveGoto((GotoTocResponse)tr);
-                    }
-                    else
-                        if (responseType.equalsIgnoreCase(ConfigTocResponse.RESPONSE_TYPE)) {
-                            receiveConfig();
-                        }
-                        else
-                            if (responseType.equalsIgnoreCase(ErrorTocResponse.RESPONSE_TYPE)) {
-                                receiveError((ErrorTocResponse)tr);
-                            }
-                            else
-                                if (responseType.equalsIgnoreCase(LoginCompleteTocResponse.RESPONSE_TYPE)) {
-                                    System.out.println("Login is complete");
-                                }
-                                else
-                                    if (responseType.equalsIgnoreCase(ConnectionLostTocResponse.RESPONSE_TYPE)) {
-                                        System.out.println("Connection lost!");
-                                    }
-                                    else {
-                                        System.out.println("Unknown TOC Response:"+tr.toString());
-                                    }
+	else if (responseType.equalsIgnoreCase(GotoTocResponse.RESPONSE_TYPE)) {
+	    receiveGoto((GotoTocResponse)tr);
+	}
+	else if (responseType.equalsIgnoreCase(ConfigTocResponse.RESPONSE_TYPE)) {
+	    receiveConfig();
+	}
+	else if (responseType.equalsIgnoreCase(ErrorTocResponse.RESPONSE_TYPE)) {
+	    receiveError((ErrorTocResponse)tr);
+	}
+	else if (responseType.equalsIgnoreCase(LoginCompleteTocResponse.RESPONSE_TYPE)) {
+	    System.out.println("Login is complete");
+	}
+	else if (responseType.equalsIgnoreCase(ConnectionLostTocResponse.RESPONSE_TYPE)) {
+	    System.out.println("Connection lost!");
+	}
+	else {
+	    System.out.println("Unknown TOC Response:"+tr.toString());
+	}
     }
     
     private void receiveError(ErrorTocResponse et) {
