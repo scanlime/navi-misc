@@ -325,7 +325,7 @@ class Filter(XML.XMLFunction):
         childFunctions = list(self.childParser(element))
         def filterAnd(msg):
             for child in childFunctions:
-                if not child(msg):
+                if child and not child(msg):
                     return False
             return True
         return filterAnd
@@ -335,7 +335,7 @@ class Filter(XML.XMLFunction):
         childFunctions = list(self.childParser(element))
         def filterOr(msg):
             for child in childFunctions:
-                if child(msg):
+                if child and child(msg):
                     return True
             return False
         return filterOr
@@ -347,7 +347,7 @@ class Filter(XML.XMLFunction):
         childFunctions = list(self.childParser(element))
         def filterNot(msg):
             for child in childFunctions:
-                if child(msg):
+                if child and child(msg):
                     return False
             return True
         return filterNot
