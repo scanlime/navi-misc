@@ -30,7 +30,7 @@ class IconTest(Sequencer.Page):
             Icon.Icon('icon_ps2.png', 'Playstation 2', imageAspect=0.983),
             Icon.Icon('icon_dreamcast.png', 'Dreamcast', imageAspect=1.66),
             Icon.Icon('icon_nes.png', 'Nintendo', imageAspect=1.594),
-	    Icon.Icon('icon_sega.png', 'Genesis', imageAspect=3.44),
+	    Icon.Icon('icon_sega.png', 'Genesis', imageAspect=2.756),
             ])
 
         self.viewport.onKeyDown.observe(self.keyDown)
