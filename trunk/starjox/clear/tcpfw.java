@@ -51,7 +51,6 @@ public class tcpfw extends Thread
 		host = remotehost;
 		eport = externalport;
 		iport = internalport;
-		System.out.println("Set to forward tcp: localhost:"+eport+" to "+host+":"+iport);
 	}
 	
 	/**
@@ -116,31 +115,7 @@ public class tcpfw extends Thread
 		}
 		catch(Exception e)
 		{
-			System.out.println("Java says\n" + e + "\nThat probably means something is wrong");
-			System.exit(1);
-		}
-	}
-	
-	/**
-	 * This method is responsible for argument parsing and variable init stuff.
-	 * @param args The raw command line arguments.
-	 * @author Brandon Smith
-	 * @version 1.0
-	 */
-	public void argparse(String[] args)
-	{
-		try
-		{
-			host = args[0];
-			eport = Integer.parseInt(args[1]);
-			if(args.length > 2)
-				iport = Integer.parseInt(args[2]);
-			else
-				iport = eport;
-		}
-		catch(Exception e)
-		{
-			System.out.println("Usage: java <host to proxy to> <port to proxy on>");
+			System.out.println(e);
 			System.exit(1);
 		}
 	}
