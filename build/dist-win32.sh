@@ -166,7 +166,7 @@ $NSIS - <<EOF
     !define MUI_FINISHPAGE_LINK "Visit the Fyre web site for the latest news and updates"
     !define MUI_FINISHPAGE_LINK_LOCATION "http://fyre.navi.cx"
 
-    !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\\README.txt"
+    !define MUI_FINISHPAGE_SHOWREADME "\$INSTDIR\\README.txt"
 
     !insertmacro MUI_PAGE_FINISH
 
