@@ -23,8 +23,9 @@ CIA is running.
 #
 
 from twisted.web import xmlrpc
-from twisted.python.rebuild import rebuild
+from twisted.python import rebuild, log
 import gc
+import sys, traceback
 
 
 class DebugInterface(xmlrpc.XMLRPC):
@@ -34,25 +35,57 @@ class DebugInterface(xmlrpc.XMLRPC):
         self.caps = caps
         self.putSubHandler('gc', GcInterface(caps))
 
-    def xmlrpc_rebuild(self, package, key):
+    def xmlrpc_rebuild(self, packageName, key):
         """Use twisted.python.rebuild to reload the given package or module
            and all loaded packages or modules within it.
            """
         self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.rebuild')
-        rebuildPackage(__import__(package))
-        return True
+        try:
+            log.msg("Starting a rebuild at the package %r" % packageName)
+            # The non-empty fromlist tells __import__ we want the module referred
+            # to by the given path, not just its top-level module.
+            package = __import__(packageName, globals(), locals(), [''])
+            rebuildPackage(package)
+            return True
+        except:
+            catchFault()
+
+
+def catchFault(message="Exception occurred"):
+    """Put this in the 'except' section of a try block to convert the exception
+       that just occurred to an XMLRPC Fault and log it.
+       Not related to Messages, but this is as good a place as any for it right now...
+       """
+    e = sys.exc_info()[1]
+    if isinstance(e, xmlrpc.Fault):
+        raise
+    else:
+        log.msg(message + "\n" + "".join(traceback.format_exception(*sys.exc_info())))
+        raise xmlrpc.Fault(e.__class__.__name__, str(e))
 
 
 def rebuildPackage(package):
     """Recursively rebuild all loaded modules in the given package"""
-    rebuild(package)
-    for item in package.__dict__.itervalues():
-        # Is it a module?
-        if type(item) == type(package):
-            rebuild(item)
-            # Is it also a package?
-            if item.__file__.find("__init__") >= 0:
+    rebuild.rebuild(package)
+    # If this is really a package instead of a module, look for children
+    if package.__file__.find("__init__") >= 0:
+        for item in package.__dict__.itervalues():
+            # Is it a module?
+            if type(item) == type(package):
                 rebuildPackage(item)
+
+def getTypeName(obj):
+    """Try as hard and as generically as we can to get a useful type/class name"""
+    try:
+        t = obj.__class__
+    except:
+        t = type(obj)
+    try:
+        t = t.__name__
+    except:
+        pass
+    t = str(t)
+    return t
 
 
 class GcInterface(xmlrpc.XMLRPC):
@@ -61,55 +94,43 @@ class GcInterface(xmlrpc.XMLRPC):
         xmlrpc.XMLRPC.__init__(self)
         self.caps = caps
 
-    def xmlrpc_gcGarbageInfo(self, key):
+    def xmlrpc_garbageInfo(self, key):
         """Return a string representation of the items in gc.garbage"""
-        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.rebuild')
+        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.gc', 'debug.gc.garbageInfo')
         return map(repr, gc.garbage)
 
-    def xmlrpc_gcObjectsInfo(self, key):
+    def xmlrpc_objectsInfo(self, key):
         """Return a string representation of the items in gc.get_objects().
            This can take a while and be very big!
            """
-        self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.gc', 'sys.gcObjectsInfo')
+        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.gc', 'debug.gc.objectsInfo')
         return map(repr, gc.get_objects())
 
-    def getTypeName(self, obj):
-        # Try as hard and as generically as we can to get a useful type/class name
-        try:
-            t = obj.__class__
-        except:
-            t = type(obj)
-        try:
-            t = t.__name__
-        except:
-            pass
-        t = str(t)
-        return t
-
-    def xmlrpc_getTypeObjects(self, t, key):
-        """Return all objects of any one type, using the same type names as gcObjectProfile"""
-        self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.gc', 'sys.gcTypeObjects')
+    def xmlrpc_typeInstances(self, t, key):
+        """Return all objects of any one type, using the same type names as typeProfile"""
+        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.gc', 'debug.gc.typeInstances')
         results = []
         for object in gc.get_objects():
-            if self.getTypeName(object) == t:
+            if getTypeName(object) == t:
                 results.append(repr(object))
         return results
 
-    def xmlrpc_gcCollect(self, key):
-        self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.gc', 'sys.gcCollect')
+    def xmlrpc_collect(self, key):
+        """Force the garbage collector to run"""
+        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.gc', 'debug.gc.collect')
         gc.collect()
         return True
 
-    def xmlrpc_gcObjectProfile(self, key):
+    def xmlrpc_typeProfile(self, key):
         """Print a chart showing the most frequently occurring types in memory"""
-        self.caps.faultIfMissing(key, 'universe', 'sys', 'sys.gc', 'sys.gcObjectProfile')
+        self.caps.faultIfMissing(key, 'universe', 'debug', 'debug.gc', 'debug.gc.typeProfile')
 
         # Create a mapping from type name to frequency,
         # and a mapping from type name to example instances
         typeFreq = {}
         typeInstances = {}
         for object in gc.get_objects():
-            t = self.getTypeName(object)
+            t = getTypeName(object)
             # Increment the frequency
             typeFreq[t] = typeFreq.setdefault(t, 0) + 1
 
