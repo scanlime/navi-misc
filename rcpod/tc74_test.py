@@ -2,11 +2,14 @@
 #
 # Simple I2C demo. Expects a TC74 temperature sensor to
 # be connected with clock on RB0, and data+pullup on RB1.
+# The TC74 address should be given on the command line.
 #
 
-import pyrcpod
+import pyrcpod, sys
 rcpod = pyrcpod.devices[0].open()
-io = pyrcpod.I2CDevice(rcpod.rb0, rcpod.rb1, 0x48 | 7)
+
+addr = int(sys.argv[1])
+io = pyrcpod.I2CDevice(rcpod.rb0, rcpod.rb1, 0x48 | addr)
 
 # Out of shutdown
 io.write([0x01, 0x00])

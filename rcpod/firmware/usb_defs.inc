@@ -470,7 +470,7 @@ PUTEP2	macro
 ; Tests the UOWNs bit for the IN side of the specified Endpoint.
 ; If we own the buffer, the buffer pointed to by the FSR is copied
 ; to the EPn IN buffer, then the UOWNs bit is set so the data will be
-; TX'd next time polled.  
+; TX'd next time polled. 
 ;
 ; Returns the status in the carry bit as follows:
 ; 1 - buffer available and copied.
@@ -481,7 +481,7 @@ PutEP2
 	local	putEPloop2
 	local	exitputloop2
 	local	nobufferputep2
-	
+
 	movwf	GPtemp		; save Bytecount temporarily in common RAM
 
 	movf	STATUS,w	; save bank bits before we trash them
@@ -548,4 +548,15 @@ exitputloop2
 nobufferputep2
 	bcf 	STATUS,C
 	return
+	endm
+
+	;; pagesel + call, since lcall is buggy in gpasm
+pscall	macro	lbl
+	pagesel	lbl
+	call	lbl
+	endm
+
+psgoto	macro	lbl
+	pagesel	lbl
+	goto	lbl
 	endm

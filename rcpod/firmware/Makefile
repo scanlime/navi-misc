@@ -7,10 +7,10 @@ $(BIN): $(OBJ)
 	gplink -s $(LKR) -o $@ $^
 
 install-765: $(BIN)
-	picp /dev/ttyS0 16C765 -s 80 -wp $(BIN)
+	pista < pista-765.conf
 
 install-745: $(BIN)
-	picp /dev/ttyS0 16C745 -s 80 -wp $(BIN)
+	pista < pista-745.conf
 
 %.o: %.asm
 	gpasm $(ASMFLAGS) -c $<
