@@ -3750,7 +3750,7 @@ networks later inside the &quot;Networks&quot; portion of the setup dialog.</pro
 		      </child>
 
 		      <child>
-			<widget class="GtkEntry" id="entry3">
+			<widget class="GtkEntry" id="setup druid nickname">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="editable">True</property>
@@ -3805,7 +3805,7 @@ networks later inside the &quot;Networks&quot; portion of the setup dialog.</pro
 		      </child>
 
 		      <child>
-			<widget class="GtkEntry" id="entry4">
+			<widget class="GtkEntry" id="setup druid realname">
 			  <property name="visible">True</property>
 			  <property name="can_focus">True</property>
 			  <property name="editable">True</property>
