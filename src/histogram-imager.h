@@ -78,7 +78,7 @@ struct _HistogramImager {
 	guint allocated_size;
 	guint filled_size;
 	guint32 *table;      /* RGBA colors */
-	float *distances;    /* Cumulative distance travelled in the RGBA hypercube */
+	float *quality;      /* Current quality parameters for every color entry */
     } color_table;
 
     /* Oversampling gamma tables. For particular values of 'oversample',
