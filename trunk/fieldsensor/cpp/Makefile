@@ -17,11 +17,11 @@ LIBSRC = \
 	annie/src/TwoLayerNetwork.o \
 
 
-CPPFLAGS += -Iinclude -Iannie/include -g -pg
+CPPFLAGS += -Iinclude -Iannie/include -g
 CPPFLAGS += -O3 -fschedule-insns -falign-functions=4 -ffast-math -fforce-addr
 CPPFLAGS += -march=athlon-xp -fprefetch-loop-arrays -mfpmath=sse
 INCLUDES = include/*.h annie/include/*.h
-LDFLAGS += -g -pg
+LDFLAGS += -g
 LIBS = lib/libfield.a
 
 all: $(BINS)
