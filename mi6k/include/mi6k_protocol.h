@@ -48,7 +48,10 @@
 
 ;// Queue one pulse and space to be sent via the IR transmitter.
 ;// Pulse length is in wValue and space length is in wIndex.
-;// Both are specified in number of 38khz cycles.
+;// Both are specified in number of 38khz half-cycles. (13.16us units)
+;// Note that the current firmware implementation ignores the high
+;// byte of both values, limiting the maximum pulse length to
+;// 3.35ms. This may be changed in a future firmware revision.
 #define MI6K_CTRL_IR_SEND		0x05
 
 ;//************************************************** Status bits
