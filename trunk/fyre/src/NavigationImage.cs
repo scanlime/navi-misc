@@ -30,7 +30,8 @@ namespace Fyre
 		Gdk.GC		white, black;
 		int[]		size, visible, mouse;
 
-		public NavigationWindow (int w, int h, int vw, int vh) : base (Gtk.WindowType.Popup)
+		public
+		NavigationWindow (int w, int h, int vw, int vh) : base (Gtk.WindowType.Popup)
 		{
 			size = new int[2];
 			visible = new int[2];
@@ -60,7 +61,8 @@ namespace Fyre
 			DrawBackground ();
 		}
 
-		void AllocGCs ()
+		void
+		AllocGCs ()
 		{
 			Gdk.Color wc = new Gdk.Color (0xff, 0xff, 0xff);
 			Gdk.Color bc = new Gdk.Color (0x00, 0x00, 0x00);
@@ -72,7 +74,8 @@ namespace Fyre
 			black.Foreground = bc;
 		}
 
-		void DrawBackground ()
+		void
+		DrawBackground ()
 		{
 			if (white == null)
 				AllocGCs ();
@@ -83,7 +86,8 @@ namespace Fyre
 			// FIXME - we want to draw our pipeline onto this window
 		}
 
-		void DrawArea (Gdk.Rectangle area)
+		void
+		DrawArea (Gdk.Rectangle area)
 		{
 			int vx =  visible[0] / 2;
 			int vy =  visible[1] / 2;
@@ -102,7 +106,8 @@ namespace Fyre
 				backing.DrawRectangle (black, false, mouse_r);
 		}
 
-		protected override bool OnExposeEvent (Gdk.EventExpose ev)
+		protected override bool
+		OnExposeEvent (Gdk.EventExpose ev)
 		{
 			Gdk.Rectangle r = ev.Area;
 
@@ -113,7 +118,8 @@ namespace Fyre
 			return true;
 		}
 
-		public void SetMouse (int mx, int my)
+		public void
+		SetMouse (int mx, int my)
 		{
 			// If the mouse hasn't actually moved (usually triggered by moving
 			// it around outside the window), don't do anything.
@@ -152,7 +158,8 @@ namespace Fyre
 		Gdk.Rectangle		position;
 		int[]			visible;
 
-		public NavigationImage()
+		public
+		NavigationImage()
 		{
 			position = new Gdk.Rectangle ();
 			visible = new int[2];
@@ -164,7 +171,8 @@ namespace Fyre
 			ShowAll ();
 		}
 
-		int GetWindowPosition (int mouse, int winsize, int screensize)
+		int
+		GetWindowPosition (int mouse, int winsize, int screensize)
 		{
 			if (mouse - (winsize / 2) < 0)
 				return 0;
@@ -173,7 +181,8 @@ namespace Fyre
 			return mouse - (winsize / 2);
 		}
 
-		protected override bool OnButtonPressEvent (Gdk.EventButton ev)
+		protected override bool
+		OnButtonPressEvent (Gdk.EventButton ev)
 		{
 			Gdk.Screen screen = GdkWindow.Screen;
 
@@ -206,7 +215,8 @@ namespace Fyre
 			return true;
 		}
 
-		protected override bool OnButtonReleaseEvent (Gdk.EventButton ev)
+		protected override bool
+		OnButtonReleaseEvent (Gdk.EventButton ev)
 		{
 			window.Hide ();
 			window = null;
@@ -214,7 +224,8 @@ namespace Fyre
 			return true;
 		}
 
-		void ClampMouse (ref int mouse, int size, int visible)
+		void
+		ClampMouse (ref int mouse, int size, int visible)
 		{
 			int v = visible / 2;
 			if (mouse < v)
@@ -223,7 +234,8 @@ namespace Fyre
 				mouse = size - v - 2;
 		}
 
-		protected override bool OnMotionNotifyEvent (Gdk.EventMotion ev)
+		protected override bool
+		OnMotionNotifyEvent (Gdk.EventMotion ev)
 		{
 			int mx = ((int) ev.XRoot) - position.X;
 			int my = ((int) ev.YRoot) - position.Y;

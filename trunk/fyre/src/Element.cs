@@ -46,17 +46,20 @@ namespace Fyre
 		private System.Guid		id;
 		public CanvasElement		canvas_element;
 
-		protected void NewID ()
+		protected void
+		NewID ()
 		{
 			id = System.Guid.NewGuid ();
 		}
 
-		public virtual void Serialize (XmlWriter writer)
+		public virtual void
+		Serialize (XmlWriter writer)
 		{
 			// FIXME - serialize guid
 		}
 
-		public virtual void DeSerialize (XmlReader reader)
+		public virtual void
+		DeSerialize (XmlReader reader)
 		{
 			// FIXME - serialize guid
 		}

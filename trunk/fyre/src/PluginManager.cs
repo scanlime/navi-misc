@@ -4,8 +4,6 @@
  * Fyre - rendering and interactive exploration of chaotic functions
  * Copyright (C) 2004-2005 David Trowbridge and Micah Dowty
  *
- * Some code borrowed from Tomboy, Copyright Alex Gravely
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -34,14 +32,16 @@ namespace Fyre {
 		string directory;
 		public ArrayList plugin_types;
 
-		public PluginManager (string directory)
+		public
+		PluginManager (string directory)
 		{
 			this.directory = directory;
 
 			plugin_types = FindPluginTypes ();
 		}
 
-		ArrayList FindPluginTypes ()
+		ArrayList
+		FindPluginTypes ()
 		{
 			ArrayList all_plugin_types = new ArrayList ();
 
@@ -61,13 +61,15 @@ namespace Fyre {
 			return all_plugin_types;
 		}
 
-		static ArrayList FindPluginTypesInFile (string filepath)
+		static ArrayList
+		FindPluginTypesInFile (string filepath)
 		{
 			Assembly asm = Assembly.LoadFrom (filepath);
 			return FindPluginTypesInAssembly (asm);
 		}
 
-		static ArrayList FindPluginTypesInAssembly (Assembly asm)
+		static ArrayList
+		FindPluginTypesInAssembly (Assembly asm)
 		{
 			Type [] types = asm.GetTypes ();
 			ArrayList plugin_types = new ArrayList ();
