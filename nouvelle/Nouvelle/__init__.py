@@ -115,6 +115,8 @@ about the current web request, for example.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+__version__ = "pre-0.10"
+
 # Check the python version here before we proceed further
 requiredPythonVersion = (2,2,1)
 import sys, string

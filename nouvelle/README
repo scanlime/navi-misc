@@ -9,6 +9,10 @@ Examples are included in this directory, see the doc string in
 Nouvelle/__init__.py for more information about the theory of
 operation.
 
+- Installation:
+
+  python ./setup.py install
+
 -------- Contacts
 
 Micah Dowty <micah@picogui.org>
