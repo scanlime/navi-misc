@@ -69,25 +69,35 @@ scene_class_init (SceneClass *klass)
 static void
 tree_store_reordered (GtkTreeModel *treemodel, GtkTreePath *arg1, GtkTreeIter *arg2, gpointer arg3, Scene *scene)
 {
-  g_print ("reordered!\n");
 }
 
 static void
 tree_store_row_inserted (GtkTreeModel *treemodel, GtkTreePath *arg1, GtkTreeIter *arg2, Scene *scene)
 {
-  g_print ("row inserted!\n");
 }
 
 static void
 tree_store_row_deleted (GtkTreeModel *treemodel, GtkTreePath *arg1, Scene *scene)
 {
-  g_print ("row deleted!\n");
 }
 
 static void
-tree_store_row_changed (GtkTreeModel *treemodel, GtkTreePath *arg1, GtkTreeIter *arg2, Scene *scene)
+tree_store_row_changed (GtkTreeModel *treemodel, GtkTreePath *path, GtkTreeIter *iter, Scene *scene)
 {
-  g_print ("row changed!\n");
+  SceneObject *so;
+
+  gtk_tree_model_get (treemodel, iter, 3, &so, -1);
+  if (so->path == NULL)
+  {
+    so->path = gtk_tree_path_copy (path);
+  }
+  else
+  {
+    if (gtk_tree_path_compare (path, so->path) != 0)
+    {
+      g_print ("reparenting!\n");
+    }
+  }
 }
 
 static void

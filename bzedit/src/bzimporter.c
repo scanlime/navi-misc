@@ -380,6 +380,8 @@ import_bz (gchar *filename, Editor *editor)
   g_scanner_input_file (scanner, fd);
   scanner->input_name = g_strdup (filename);
 
+  scene_freeze (editor->scene);
+
   do
   {
     g_scanner_set_scope (scanner, BZ_SCOPE_DEFAULT);
@@ -408,11 +410,13 @@ import_bz (gchar *filename, Editor *editor)
     }
   } while (token != G_TOKEN_EOF);
   g_free ((gchar*) scanner->input_name);
+  scene_thaw (editor->scene);
   close (fd);
   return TRUE;
 
   fail:
   g_free ((gchar*) scanner->input_name);
+  scene_thaw (editor->scene);
   close (fd);
   return FALSE;
 }

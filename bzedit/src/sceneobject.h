@@ -52,6 +52,7 @@ struct _SceneObject
   gboolean selected;
   GtkTreeIter iter;
   SceneObject *parent;
+  GtkTreePath *path;
   Drawable *selection;
 
   BoundingBox bb;

@@ -100,6 +100,8 @@ scene_object_init (SceneObject *self)
   self->name = NULL;
   self->selection = selection_drawable_new (self);
 
+  self->path = NULL;
+
   self->bb.position[0] = 0.0; self->bb.position[1] = 0.0; self->bb.position[2] = 0.0;
   self->bb.rotation = 0.0;
   self->bb.size[0] = 0.0; self->bb.size[1] = 0.0; self->bb.size[2] = 0.0;
