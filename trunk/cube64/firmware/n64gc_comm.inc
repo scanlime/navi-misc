@@ -240,6 +240,9 @@ not_last_bit
 	;; Since receives often have to be started extremely quickly after a transmit
 	;; ends, some of the setup work for this loop occurs inside tx_buffer above,
 	;; during otherwise wasted cycles.
+	;;
+	;; This leaves FSR pointing at the last byte received.
+	;;
 n64gc_rx_buffer macro port, bit, clear_watchdog
 	local	bit_loop
 	local	not_last_bit
@@ -274,7 +277,6 @@ bit_loop
 	movwf	bit_count	; 1.8us
 	btfsc	port, bit	; 2.0us  Sample the incoming bit
 	bsf	INDF, 0		; 2.2us
-	incf	FSR, f		; 2.4us  Leave FSR pointing after the end of our buffer, for further receiving
 	return
 
 not_last_byte
