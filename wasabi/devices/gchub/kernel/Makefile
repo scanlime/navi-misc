@@ -21,7 +21,7 @@ ifdef CONFIG_SMP
 endif
 
 gchub.ver: gchub.c
-	$(CC) $(INCLUDES) $(CFLAGS) -E -D__GENKSYMS__ $^ | \
+	$(CC) $(INCLUDES) $(CFLAGS) $(EXTRA_CFLAGS) -E -D__GENKSYMS__ $^ | \
 		$(GENKSYMS) -k $(VERSION).$(PATCHLEVEL).$(SUBLEVEL) > $@
 
 endif # CONFIG_MODVERSIONS
