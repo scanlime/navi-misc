@@ -48,10 +48,10 @@ boneElement = \
   | "axis" + float + float + float + axisOrder \
   | "dof" + OneOrMore(dof) \
   | "limits" + OneOrMore(triplet)
-bone = "begin" + OneOrMore(boneElement) + "end"
+bone = Group("begin" + OneOrMore(boneElement) + "end")
 bonedata = ZeroOrMore(bone)
 
-hierElement = LineStart() + ZeroOrMore(Literal(' ')).suppress() + Word(alphanums) + OneOrMore(Word(alphanums))
+hierElement = Word(alphanums) + OneOrMore(Word(alphanums))
 hierarchy = Group("begin" + OneOrMore(hierElement) + "end")
 
 docLine = OneOrMore(Word('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\\\'()*+,-./;<=>?@[\\]^_`{|}~'))
@@ -59,12 +59,12 @@ docLine = OneOrMore(Word('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQR
 sectstart = LineStart() + Literal(':').suppress()
 section = \
     sectstart + "version" + float \
-  | sectstart + "name" + Word(printables).setResultsName('name') \
+  | sectstart + "name" + Word(printables) \
   | sectstart + "units" + OneOrMore(unitElement) \
   | sectstart + "documentation" + ZeroOrMore(docLine) \
   | sectstart + "root" + OneOrMore(rootElement) \
   | sectstart + "bonedata" + bonedata \
-  | sectstart + "hierarchy" + hierarchy
+  | sectstart + "hierarchy" + hierarchy \
 
 part = Group(section) | Suppress(comment)
 
