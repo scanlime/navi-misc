@@ -34,8 +34,10 @@ blockquote {
   padding: 0em;
 }
 
-ul.catalog {
+ul {
   list-style-image: url(/images/bullet.png);
+  padding: 0em;
+  margin: 0em;
 }
 
 div.headingTabs {
