@@ -54,10 +54,9 @@ struct _UrlEditorDialog2 {
 
 	GladeXML *gui;
 
-	GtkWidget *url_entry;
 	GtkWidget *publish_frequency;
-
 	GtkWidget *type_selector;
+
 	GtkWidget *events_swin;
 	GtkWidget *tasks_swin;
 
@@ -66,6 +65,11 @@ struct _UrlEditorDialog2 {
 	GtkWidget *events_selector;
 	GtkWidget *tasks_selector;
 
+	GtkWidget *publish_service;
+	GtkWidget *server_entry;
+	GtkWidget *file_entry;
+
+	GtkWidget *port_entry;
 	GtkWidget *username_entry;
 	GtkWidget *password_entry;
 	GtkWidget *remember_pw;

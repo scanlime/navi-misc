@@ -32,8 +32,7 @@ check_input (UrlEditorDialog2 *dialog)
 	gint n = 0;
 	GSList *sources;
 
-	if (strlen (gtk_entry_get_text (GTK_ENTRY (dialog->url_entry))) == 0)
-		goto fail;
+	/* FIXME - url */
 	if (GTK_WIDGET_IS_SENSITIVE (dialog->events_selector)) {
 		sources = e_source_selector_get_selection (E_SOURCE_SELECTOR (dialog->events_selector));
 		n += g_slist_length (sources);
@@ -49,12 +48,6 @@ check_input (UrlEditorDialog2 *dialog)
 	return;
 fail:
 	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
-}
-
-static void
-url_entry_changed (GtkEntry *entry, UrlEditorDialog2 *dialog)
-{
-	check_input (dialog);
 }
 
 static void
@@ -92,13 +85,17 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	dialog->gui = gui;
 
 #define GW(name) ((dialog->name) = glade_xml_get_widget (dialog->gui, #name))
-	GW(url_entry);
 	GW(publish_frequency);
-
 	GW(type_selector);
+
 	GW(events_swin);
 	GW(tasks_swin);
 
+	GW(publish_service);
+	GW(server_entry);
+	GW(file_entry);
+
+	GW(port_entry);
 	GW(username_entry);
 	GW(password_entry);
 	GW(remember_pw);
@@ -112,6 +109,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), toplevel);
 
 	gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
+	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
 
 	dialog->cancel = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
 	dialog->ok = gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK, GTK_RESPONSE_OK);
@@ -130,9 +128,15 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	gtk_container_add (GTK_CONTAINER (dialog->tasks_swin), dialog->tasks_selector);
 
 	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	gtk_size_group_add_widget (group, dialog->url_entry);
-	gtk_size_group_add_widget (group, dialog->publish_frequency);
 	gtk_size_group_add_widget (group, dialog->type_selector);
+	gtk_size_group_add_widget (group, dialog->publish_frequency);
+	g_object_unref (group);
+
+	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+	gtk_size_group_add_widget (group, dialog->publish_service);
+	gtk_size_group_add_widget (group, dialog->server_entry);
+	gtk_size_group_add_widget (group, dialog->file_entry);
+	gtk_size_group_add_widget (group, dialog->port_entry);
 	gtk_size_group_add_widget (group, dialog->username_entry);
 	gtk_size_group_add_widget (group, dialog->password_entry);
 	g_object_unref (group);
@@ -162,7 +166,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 		}
 
 		if (uri->location && strlen (uri->location)) {
-			gtk_entry_set_text (GTK_ENTRY (dialog->url_entry), uri->location);
+			/* FIXME - url */
 			if (uri->username && strlen (uri->username))
 				gtk_entry_set_text (GTK_ENTRY (dialog->username_entry), uri->username);
 		}
@@ -180,7 +184,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 		}
 	}
 
-	g_signal_connect (G_OBJECT (dialog->url_entry), "changed", G_CALLBACK (url_entry_changed), dialog);
+	/* FIXME - url */
 	g_signal_connect (G_OBJECT (dialog->type_selector), "changed", G_CALLBACK (type_selector_changed), dialog);
 	g_signal_connect (G_OBJECT (dialog->events_selector), "selection_changed", G_CALLBACK (source_selection_changed), dialog);
 	g_signal_connect (G_OBJECT (dialog->tasks_selector), "selection_changed", G_CALLBACK (source_selection_changed), dialog);
@@ -281,7 +285,7 @@ url_editor_dialog_run2 (UrlEditorDialog2 *dialog)
 			dialog->uri->tasks = NULL;
 		}
 
-		dialog->uri->location = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->url_entry)));
+		/* FIXME - url */
 		dialog->uri->username = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->username_entry)));
 		dialog->uri->password = g_strdup (gtk_entry_get_text (GTK_ENTRY (dialog->password_entry)));
 
