@@ -64,7 +64,7 @@ static GtkActionEntry action_entries [] = {
 	{ "ServerInformation", GTK_STOCK_DIALOG_INFO, N_("_Information"), "", NULL, G_CALLBACK (on_server_information)},
 	{ "ServerReconnect", GTK_STOCK_REFRESH, N_("_Reconnect"), "", NULL, G_CALLBACK (on_server_reconnect)},
 	{ "ServerDisconnect", GTK_STOCK_STOP, N_("_Disconnect"), "", NULL, G_CALLBACK (on_server_disconnect)},
-	{ "ServerChannels", GNOME_STOCK_TEXT_BULLETED_LIST, N_("_Channels..."), "", NULL, G_CALLBACK (on_server_channel_list)},
+	{ "ServerChannels", GTK_STOCK_INDEX, N_("_Channels..."), "", NULL, G_CALLBACK (on_server_channel_list)},
 
 	/* Channel context menu */
 	{ "ChannelSave", GTK_STOCK_SAVE, N_("_Save"), "", NULL, G_CALLBACK (on_save)},
