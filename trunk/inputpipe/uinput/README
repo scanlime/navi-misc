@@ -1,0 +1,4 @@
+This is a modified version of the uinput module,
+required for force-feedback support in inputpipe-server.
+See the new comments in uinput.h for details on implementing
+force feedback devices.
