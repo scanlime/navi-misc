@@ -818,10 +818,10 @@ static int hotplug_detect(int fd)
    * one we're interested in automatically connecting.
    * This uses the config_detect_* criteria.
    */
-  unsigned char evbits[32];
-  unsigned char keybits[32];
-  unsigned char absbits[32];
-  unsigned char relbits[32];
+  unsigned char evbits[64];
+  unsigned char keybits[64];
+  unsigned char absbits[64];
+  unsigned char relbits[64];
 
   if (config_detect_all)
     return 1;
