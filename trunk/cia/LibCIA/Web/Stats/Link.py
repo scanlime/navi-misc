@@ -91,4 +91,19 @@ class RSSLink(TargetRelativeLink):
             text = "RSS 2.0 Feed"
         return self.tagFactory(href=self.getURL(context))[text]
 
+
+class XMLLink(TargetRelativeLink):
+    """An anchor tag linking to the XML feed for a given stats target"""
+    def __init__(self, target, tagFactory=tag('a'), text=None):
+        TargetRelativeLink.__init__(self, target, ('.xml',))
+        self.tagFactory = tagFactory
+        self.text = text
+
+    def render(self, context):
+        text = self.text
+        if text is None:
+            text = "Unformatted XML"
+        return self.tagFactory(href=self.getURL(context))[text]
+
+
 ### The End ###

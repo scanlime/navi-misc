@@ -28,7 +28,7 @@ from LibCIA.Web import Template
 from LibCIA import Stats, Message, TimeUtil
 from Nouvelle import tag, place
 import Nouvelle, time
-import Metadata, Link, Catalog, RSS
+import Metadata, Link, Catalog, Feed
 
 
 class Page(Template.Page):
@@ -37,6 +37,12 @@ class Page(Template.Page):
        capabilities database and StatsStorage. Children will
        be automatically created with child targets.
        """
+    childFactories = {
+        '.metadata': Metadata.MetadataPage,
+        '.rss':      Feed.RSSFeed,
+        '.xml':      Feed.XMLFeed,
+        }
+
     def __init__(self, target=None):
         if target is None:
             target = Stats.StatsTarget()
@@ -50,12 +56,8 @@ class Page(Template.Page):
         if not name:
             # Ignore empty path sections
             return self
-        elif name == '.metadata':
-            # Return a special page that accesses this stats target's metadata
-            return Metadata.MetadataPage(self)
-        elif name == '.rss':
-            # Return an RSS feed with this stats target's most recent commits in XML
-            return RSS.RSSFeed(self)
+        elif name in self.childFactories:
+            return self.childFactories[name](self)
         else:
             # Return the stats page for a child
             return self.__class__(self.target.child(name))
@@ -309,6 +311,7 @@ class LinksSection(Template.Section):
         return [
             Link.MetadataLink(self.target),
             Link.RSSLink(self.target),
+            Link.XMLLink(self.target),
             ]
 
 ### The End ###
