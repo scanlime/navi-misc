@@ -26,6 +26,7 @@
 #include "gldrawingarea.h"
 #include "plugins.h"
 #include "sceneobject.h"
+#include "bzimporter.h"
 
 static void editor_class_init   (EditorClass *klass);
 static void editor_init         (Editor      *editor);
@@ -155,6 +156,22 @@ tree_model_row_drop_possible (GtkTreeDragDest *drag_dest, GtkTreePath *dest, Gtk
 }
 
 static void
+import_activate (GtkMenuItem *item, Editor *editor)
+{
+  GtkWidget *dialog;
+
+  dialog = gtk_file_chooser_dialog_new ("Import File", GTK_WINDOW (editor->window), GTK_FILE_CHOOSER_ACTION_OPEN,
+                                        GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, NULL);
+  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+  {
+    gchar *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+    import_bz (filename, editor->scene);
+    g_free (filename);
+  }
+  gtk_widget_destroy (dialog);
+}
+
+static void
 editor_init (Editor *editor)
 {
   GdkGLConfig *config;
@@ -165,7 +182,7 @@ editor_init (Editor *editor)
   GtkMenu *am;
   GtkToolbar *tbar;
   ParameterHolder *p;
-  GtkWidget *e, *v, *l;
+  GtkWidget *e, *v, *l, *m;
   GList *types, *t;
   GtkTreeDragDestIface *desti;
   GtkTreeDragSourceIface *srci;
@@ -189,6 +206,9 @@ editor_init (Editor *editor)
   editor->eventbox = glade_xml_get_widget (editor->xml, "event box");
 
   editor->scene = scene_new ();
+
+  m = glade_xml_get_widget (editor->xml, "import1");
+  g_signal_connect (G_OBJECT (m), "activate", G_CALLBACK(import_activate), editor);
 
   editor->view = VIEW (view_new (editor->scene, GL_DRAWING_AREA (editor->glarea)));
   gtk_container_add (GTK_CONTAINER (editor->eventbox), GTK_WIDGET (editor->view));
