@@ -213,7 +213,7 @@ class DependentResource(CachedResource):
                 elements.append(item.name)
             else:
                 elements.append(str(item))
-        CachedResource.__init__(self, ".".join(elements))
+        CachedResource.__init__(self, ".".join(elements)[:128])
 
     def updateToLatest(self):
         """Commit a new stamp to this resource generated from the latest versions of
@@ -459,13 +459,13 @@ class RrdFile(CachedResource):
         rrd(*params)
 
 
-def graphDefineSource(rrd):
+def graphDefineSource(rrd, name='data'):
     """Define variables for the minimum, maximum, average, and span on an RRD"""
     return [
-        RrdDef('data_min', rrd, 'MIN'),
-        RrdDef('data_max', rrd, 'MAX'),
-        RrdDef('data_average', rrd),
-        "CDEF:data_span=data_max,data_min,-",
+        RrdDef('%s_min' % name, rrd, 'MIN'),
+        RrdDef('%s_max' % name, rrd, 'MAX'),
+        RrdDef('%s_average' % name, rrd),
+        "CDEF:%s_span=%s_max,%s_min,-" % (name, name, name),
         ]
 
 def graphUnknownData(title="No data",
@@ -480,18 +480,18 @@ def graphUnknownData(title="No data",
 def graphHorizontalRule(value, title, color=Color(0,0,0)):
     return ["HRULE:%f%s:%s" % (value, color, title)]
 
-def graphSpan(description, color=Color(0,0,1), alpha=0.7, background=Color(1,1,1)):
+def graphSpan(description, color=Color(0,0,1), alpha=0.7, background=Color(1,1,1), name='data'):
     """Graph a line along the average, and a translucent band between its min and max"""
     return [
         # Thick line to separate the minimum from fills
-        "LINE3:data_min%s" % background,
+        "LINE3:%s_min%s" % (name, background),
 
         # Min/max range
-        "AREA:data_min",
-        "STACK:data_span%s" % color.blend(background, alpha),
+        "AREA:%s_min" % name,
+        "STACK:%s_span%s" % (name, color.blend(background, alpha)),
 
         # Average
-        "LINE1:data_average%s:%s" % (color, description),
+        "LINE1:%s_average%s:%s" % (name, color, description),
         ]
 
 def graphColorSlice(min, max, color, id=[0]):
