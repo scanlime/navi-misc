@@ -27,6 +27,7 @@
 #include "palette.h"
 #include "channel_list.h"
 #include "main_window.h"
+#include "topiclabel.h"
 
 /***** NavTree *****/
 static void navigation_tree_init         (NavTree *navtree);
@@ -839,7 +840,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
 
 		/* Set the topic. */
-		topic_label_set_text(GTK_LABEL(gui.topic), tgui->topic);
+		topic_label_set_text (TOPIC_LABEL (gui.topic), tgui->topic);
 
 		/* Set the text entry field to whatever is in the text entry of this session. */
 		entry = glade_xml_get_widget(gui.xml, "text entry");
