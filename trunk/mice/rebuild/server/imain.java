@@ -18,7 +18,6 @@ public class imain
 	 */
 	public static void main(String[] args)
 	{
-		System.out.println("Hello World");
 		imain listener = new imain(8080);
 		listener.handle();
 	}
@@ -37,8 +36,6 @@ public class imain
 	 */
 	public imain(int port)
 	{
-//		BufferedReader in;
-//		OutputStreamWriter out;
 		try 
 		{
 			server = new ServerSocket(port);
@@ -48,8 +45,6 @@ public class imain
 			System.out.println(exception);
 			System.exit(0);
 		}
-//		database = new qbase(1,1);
-//		asubmit.init(database);
 	}
 	
 	/**
@@ -84,8 +79,17 @@ public class imain
 				case 2:
 					nperlsub.go(link,in,out);
 					break;
+				case 3:
+					new nchatsub(link,in,out).start();
+					break;
+				case 4:
+					new njavamod(link,in,out).start();
+					break;
 				case 5:
 					new njavaint(link,in,out).start();
+					break;
+				case 6:
+					new nchatint(link,in,out).start();
 					break;
 				}
 			}
@@ -105,9 +109,13 @@ public class imain
 	{
 		System.out.println(it);
 		if(it == null) return -1;
-		if(it.compareTo("jsub") == 0) return 1;
-		if(it.compareTo("psub") == 0) return 2;
-		if(it.compareTo("jint") == 0) return 5;
+		if(it.compareTo("jsub") == 0) return 1; //Java Submission
+		if(it.compareTo("psub") == 0) return 2; //Perl Submission (CGI)
+		if(it.compareTo("asub") == 0) return 3; //Chat Submission
+		if(it.compareTo("jmod") == 0) return 4; //Java Moderation
+		if(it.compareTo("jint") == 0) return 5; //Java Interview
+		if(it.compareTo("amod") == 0) return 6; //Chat Interview
+		
 		if(it.compareTo("admin") == 0) return -10;
 		return -1;
 	}

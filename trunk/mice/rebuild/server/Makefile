@@ -10,11 +10,14 @@ CLASSFILES=\
 	aupdatei.class\
 	aupdate.class\
 	nbase.class\
-	njavaadmin.class\
 	njavasub.class\
 	nperlsub.class\
+	nchatsub.class\
+	njavamod.class\
 	njavaint.class\
-	imain.class
+	nchatint.class\
+	imain.class\
+	njavaadmin.class
 
 program: $(CLASSFILES)
 
@@ -30,8 +33,17 @@ njavasub.class: njavasub.java
 nperlsub.class: nperlsub.java
 	javac nperlsub.java
 
+nchatsub.class:	nchatsub.java
+	javac nchatsub.java
+
+njavamod.class: njavamod.java
+	javac njavamod.java
+
 njavaint.class: njavaint.java
 	javac njavaint.java
+
+nchatint.class: nchatint.java
+	javac nchatint.java
 
 njavaadmin.class: njavaadmin.java
 	javac njavaadmin.java
