@@ -30,6 +30,7 @@
 #include "osfile.h"
 
 #include "input.h"
+#include "timer.h"
 
 // C RunTime Header Files
 #include <stdlib.h>
@@ -115,7 +116,7 @@ bool CBaseGameLoop::Run ( void )
   TextureManager::getSingleton().setDefaultNumMipMaps(5);
 
 	CInputManager::instance().Init(GetRenderWindow());
-  timer.Init();
+	CTimer::instance().Init();
 	
 	// set up the draw manager
 	drawManager = new CDrawManager();
@@ -240,7 +241,7 @@ bool CBaseGameLoop::Process ( void )
   bool bDone = false;
 
   CInputManager::instance().Process();
-  timer.Update();
+	CTimer::instance().Update();
 	
   if (!bDone)
     bDone = GameLoop();

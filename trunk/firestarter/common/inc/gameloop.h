@@ -27,7 +27,6 @@
 #include "OgreConfigFile.h"
 #include "commandargs.h"
 #include "prefs.h"
-#include "timer.h"
 
 #include <string>
 
@@ -200,8 +199,7 @@ public:
   CCommandLineArgs& GetArgs ( void ) {return args;}
   CPrefsManager& GetPrefs ( void ) {return prefs;}
 
-  CTimer& GetTimer ( void ) {return timer;}
-  CDrawManager* GetDrawManager ( void ) {return drawManager;}
+	CDrawManager* GetDrawManager ( void ) {return drawManager;}
 
 	// common operations
 	void ClearScene ( void );
@@ -235,14 +233,12 @@ protected:
 
   CCommandLineArgs  args;
   CPrefsManager     prefs;
-  CTimer            timer;
 	CDrawManager			*drawManager;
 
   Root *mRoot;
   Camera* mCamera;
   SceneManager* mSceneMgr;
   RenderWindow* mWindow;
-
 
 	bool				quit;
 	std::string	gameName;
