@@ -91,7 +91,7 @@ static void animation_render_ui_class_init(AnimationRenderUiClass *klass) {
 }
 
 static void animation_render_ui_init(AnimationRenderUi *self) {
-    self->xml = glade_xml_new(GLADEDIR "/animation-render.glade", NULL, NULL);
+    self->xml = glade_xml_new(FYRE_DATADIR "/animation-render.glade", NULL, NULL);
 #ifdef ENABLE_BINRELOC
     if (!self->xml)
 	self->xml = glade_xml_new(BR_DATADIR("/fyre/animation-render.glade"), NULL, NULL);
