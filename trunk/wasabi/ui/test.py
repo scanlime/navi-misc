@@ -13,6 +13,7 @@ view = ThreeDRender.View(viewport)
 viewport.display.toggle_fullscreen()
 pygame.mouse.set_visible(False)
 
+
 class IconTest(Sequencer.Page):
     def __init__(self, book):
         Sequencer.Page.__init__(self, book)
