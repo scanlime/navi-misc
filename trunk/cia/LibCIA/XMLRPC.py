@@ -30,6 +30,7 @@ XML-RPC interface is meant to be universal.
 
 from twisted.web import xmlrpc
 from Message import Message
+from twisted.python.rebuild import rebuild
 from IncomingMail import IncomingMailParser
 import sys
 
@@ -57,5 +58,21 @@ class SimpleCIAInterface(xmlrpc.XMLRPC):
             self.hub.deliver(xmlMessage)
         return True
 
+    def xmlrpc_rebuild(self):
+        """Use twisted.python.rebuild to reload all applicable modules"""
+        # Rebuild our package to make sure we have the latest module list
+        import LibCIA
+        rebuild(LibCIA)
+
+        # Always rebuild this module, so in case the code below fails
+        # we can edit this function to fix it without restarting :)
+        import XMLRPC
+        rebuild(XMLRPC)
+
+        # Now rebuild all loaded modules inside the LibCIA package
+        for item in LibCIA.__dict__.itervalues():
+            if type(item) == type(LibCIA):
+                rebuild(item)
+        return True
 
 ### The End ###

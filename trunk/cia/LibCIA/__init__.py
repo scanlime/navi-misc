@@ -40,4 +40,9 @@ if sys.version_info < requiredPythonVersion:
         string.join(map(str, requiredPythonVersion), "."),
         string.join(map(str, sys.version_info), ".")))
 
+# It's important to keep this namespace clean, since our rebuild()
+# support will look here for loaded modules in the LibCIA package.
+del sys
+del string
+
 ### The End ###
