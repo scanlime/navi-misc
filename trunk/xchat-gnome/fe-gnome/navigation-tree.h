@@ -65,6 +65,7 @@ NavTree* navigation_tree_new   (NavModel *model);
 void navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess);
 void navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess);
 void navigation_tree_remove                   (NavTree *navtree, struct session *sess);
+void navigation_tree_server_rm_chans          (NavTree *navtree, GtkTreeIter *parent);
 
 /* Channel/server selection functions. */
 void navigation_tree_select_nth_channel  (NavTree *navtree, gint chan_num);

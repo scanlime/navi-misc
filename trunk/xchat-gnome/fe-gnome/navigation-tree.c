@@ -271,8 +271,25 @@ navigation_tree_remove (NavTree *navtree, struct session *sess)
 	if (!gtk_tree_path_prev (path)) {
 		if (!gtk_tree_path_up (path)) {
 			/* At this point we know we're at the root. */
-			gtk_tree_path_free (path);
-			path = gtk_tree_path_new_first ();
+			GtkTreeIter iter;
+			GtkTreeModel *sorted = gtk_tree_view_get_model (GTK_TREE_VIEW (navtree));
+
+			gtk_tree_model_get_iter_first (sorted, &iter);
+
+			if (gtk_tree_model_iter_next (sorted, &iter)) {
+				gtk_tree_path_free (path);
+				path = gtk_tree_model_get_path (sorted, &iter);
+			} else {
+				GtkTreeModel *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (sorted));
+
+				gtk_tree_model_get_iter_first (store, &iter);
+				navigation_tree_server_rm_chans (navtree, &iter);
+				gtk_tree_model_get_iter_first (store, &iter);
+				gtk_tree_store_set (GTK_TREE_STORE (store), &iter, 1, _("<none>"), -1);
+				gtk_tree_selection_select_path (select, path);
+				gtk_tree_path_free (path);
+				return;
+			}
 		}
 	}
 
@@ -283,6 +300,23 @@ navigation_tree_remove (NavTree *navtree, struct session *sess)
 	navigation_model_remove (navtree->model, sess);
 
 	gtk_tree_path_free (path);
+}
+
+void
+navigation_tree_server_rm_chans (NavTree *navtree, GtkTreeIter *parent)
+{
+	GtkTreeModel *sorted = gtk_tree_view_get_model (GTK_TREE_VIEW (navtree)),
+				 *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (sorted));
+	GtkTreeIter child;
+
+	if (gtk_tree_model_iter_children (store, &child, parent)) {
+		session *s;
+		do {
+			gtk_tree_model_get (store, &child, 2, &s, -1);
+			fe_close_window (s);
+			text_gui_remove_text_buffer (s);
+		} while (gtk_tree_model_iter_next (store, &child));
+	}
 }
 
 /* Channel/server selection functions. */
