@@ -71,14 +71,146 @@ endmodule
 
 
 /*
- * A simple I2C slave that lets the host write to a single N-byte register.
- * reg_out will always hold the current contents of the register.
- * reg_out_strobe goes high for one clock cycle after reg_out has been updated
- * by the I2C master.
+ * An I2C-accessable dual port 32-byte SRAM. The I2C host can write to the SRAM,
+ * other entities can only read from it. The reader will not be interrupted
+ * by I2C access to the SRAM.
+ *
+ * The I2C interface works like most EEPROM memories: the first byte in a
+ * write sets an address pointer, all subsequent bytes write to that address
+ * then increment it.
+ *
+ * Currently the host can only write- this interface could be logically extended
+ * to also allow readback.
+ *
+ * Other entities can asynchronously read the contents of our SRAM using the
+ * supplied address input and data output.
+ */
+module i2c_slave_32byte_sram (clk, reset,
+                              scl, sda_in, sda_out,
+                              user_addr, user_data);
+
+	parameter I2C_ADDRESS = 0;
+
+	input clk, reset;
+	input scl, sda_in;
+	output sda_out;
+	input [4:0] user_addr;
+	output [7:0] user_data;
+	
+	wire start, stop, wr;
+	reg wr_ack;
+	wire [7:0] write_data;
+	i2c_slave_serializer i2cs(clk, reset,
+	                          scl, sda_in, sda_out,
+	                          start, stop,
+	                          write_data, wr, wr_ack);
+
+	reg [4:0] current_addr;
+	reg ram_write;
+	wire [7:0] current_ram_contents;
+	sram_32byte_dualport ram(clk, ram_write, write_data,
+	                         current_addr, current_ram_contents,
+	                         user_addr, user_data);
+	
+	reg [2:0] state;
+	parameter
+		S_IDLE = 0,
+		S_WAIT_FOR_I2C_ADDRESS = 1,
+		S_WAIT_FOR_MEM_ADDRESS = 2,
+		S_WAIT_FOR_BYTE = 3,
+		S_NEXT_ADDRESS = 4;
+
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+			
+			current_addr <= 0;
+			ram_write <= 0;
+			state <= S_IDLE;
+			wr_ack <= 0;
+		
+		end
+		else case (state)
+
+			S_IDLE: begin
+				// Wait for a start condition
+				if (start)
+					state <= S_WAIT_FOR_I2C_ADDRESS;
+			end
+
+			S_WAIT_FOR_I2C_ADDRESS: begin
+				// Wait for our i2c address byte
+				if (start)
+					state <= S_WAIT_FOR_I2C_ADDRESS;
+				else if (stop)
+					state <= S_IDLE;
+				else if (wr) begin
+					// Is this our address?
+					if (write_data[7:1] == I2C_ADDRESS) begin
+						state <= S_WAIT_FOR_MEM_ADDRESS;
+						wr_ack <= 1;
+					end
+					else begin
+						state <= S_IDLE;
+						wr_ack <= 0;
+					end	
+				end
+			end
+			
+			S_WAIT_FOR_MEM_ADDRESS: begin
+				// Wait for our current memory address
+				if (start)
+					state <= S_WAIT_FOR_I2C_ADDRESS;
+				else if (stop)
+					state <= S_IDLE;
+				else if (wr) begin
+					current_addr <= write_data[4:0];
+					wr_ack <= 1;
+					state <= S_WAIT_FOR_BYTE;
+				end
+			end
+
+
+			S_WAIT_FOR_BYTE: begin
+				// Wait for a byte to write.
+				if (start)
+					state <= S_WAIT_FOR_I2C_ADDRESS;
+				else if (stop)
+					state <= S_IDLE;
+				else if (wr) begin
+					ram_write <= 1;
+					wr_ack <= 1;
+					state <= S_NEXT_ADDRESS;
+				end
+			end
+
+			S_NEXT_ADDRESS: begin
+				// Increment our write address safely after the byte has been
+				// written, then go back to looking for another byte
+				if (start)
+					state <= S_WAIT_FOR_I2C_ADDRESS;
+				else if (stop)
+					state <= S_IDLE;
+				else
+					state <= S_WAIT_FOR_BYTE;
+				ram_write <= 0;
+				current_addr <= current_addr + 1;
+			end
+
+		endcase
+endmodule
+
+
+/*
+ * An I2C slave that lets the host write to a single N-byte register. There is
+ * no address pointer, as with I2C memories- all data addressed to this device
+ * will be stored in the output register.
+ *
+ * reg_out will always be valid with the current contents of the register. New
+ * data is latched into reg_out simultaneously after the I2C stop condition.
  */
 module i2c_slave_reg (clk, reset,
                       scl, sda_in, sda_out,
-                      reg_out, reg_out_strobe);
+                      reg_out);
 
 	parameter I2C_ADDRESS = 0;
 	parameter BYTES_WIDE = 1;
@@ -91,12 +223,10 @@ module i2c_slave_reg (clk, reset,
 	input scl, sda_in;
 	output sda_out;
 	output [BITS_WIDE-1:0] reg_out;
-	output reg_out_strobe;
 
 	reg [BITS_WIDE-1:0] reg_out;
 	reg [BITS_WIDE-1:0] out_buffer;
 	reg [COUNT_WIDTH-1:0] byte_count;
-	reg reg_out_strobe;
 
 	wire start, stop, wr;
 	reg wr_ack;
@@ -121,7 +251,6 @@ module i2c_slave_reg (clk, reset,
 			byte_count <= 0;
 			state <= S_IDLE;
 			wr_ack <= 0;
-			reg_out_strobe <= 0;
 		
 		end
 		else case (state)
@@ -131,7 +260,6 @@ module i2c_slave_reg (clk, reset,
 				if (start)
 					state <= S_WAIT_FOR_ADDRESS;
 				byte_count <= 0;
-				reg_out_strobe <= 0;
 			end
 
 			S_WAIT_FOR_ADDRESS: begin
@@ -149,7 +277,6 @@ module i2c_slave_reg (clk, reset,
 						wr_ack <= 0;
 					end	
 				end
-				reg_out_strobe <= 0;
 			end
 
 			S_WAIT_FOR_BYTE: begin
@@ -173,27 +300,22 @@ module i2c_slave_reg (clk, reset,
 						byte_count <= byte_count + 1;
 					end
 				end
-				reg_out_strobe <= 0;
 			end
 
 			S_WAIT_FOR_STOP: begin
 				// We have everything. If we get a stop condition, latch it all
 				if (start) begin
 					state <= S_WAIT_FOR_ADDRESS;
-					reg_out_strobe <= 0;
 				end
 				else if (stop) begin
 					reg_out <= out_buffer;
-					reg_out_strobe <= 1;
 					state <= S_IDLE;
-				end
-				else begin
-					reg_out_strobe <= 0;
 				end
 				byte_count <= 0;
 			end
 		endcase
 endmodule
+
 
 /*
  * Convert I2C to a parallel protocol consisting of strobed 8-bit bytes,

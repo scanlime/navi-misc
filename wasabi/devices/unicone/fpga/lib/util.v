@@ -64,6 +64,68 @@ endmodule
 
 
 /*
+ * Wrappers around platform-specific embedded SRAM.
+ */
+module sram_32byte_dualport (clk, we, d1_in, a1, d1_out, a2, d2_out);
+	input clk, we;
+	input [7:0] d1_in;
+	input [4:0] a1;
+	input [4:0] a2;
+	output [7:0] d1_out;
+	output [7:0] d2_out;
+
+	wire low_we = a1[4] ? 0 : we;
+	wire high_we = a1[4] ? we : 0;
+	wire [7:0] high_d1_out;
+	wire [7:0] high_d2_out;
+	wire [7:0] low_d1_out;
+	wire [7:0] low_d2_out;
+	assign d1_out = a1[4] ? high_d1_out : low_d1_out;
+	assign d2_out = a2[4] ? high_d2_out : low_d2_out;
+
+	sram_16byte_dualport low_half(clk, low_we, d1_in, a1[3:0],
+	                              low_d1_out, a2[3:0], low_d2_out);
+	sram_16byte_dualport high_half(clk, high_we, d1_in, a1[3:0],
+	                               high_d1_out, a2[3:0], high_d2_out);
+
+endmodule
+ 
+module sram_16byte_dualport (clk, we, d1_in, a1, d1_out, a2, d2_out);
+	input clk, we;
+	input [7:0] d1_in;
+	input [3:0] a1;
+	input [3:0] a2;
+	output [7:0] d1_out;
+	output [7:0] d2_out;
+
+	RAM16X1D bit0(.DPO(d2_out[0]), .SPO(d1_out[0]), .A0(a1[0]), .A1(a1[1]), .A2(a1[2]), .A3(a1[3]),
+	              .D(d1_in[0]), .DPRA0(a2[0]), .DPRA1(a2[1]), .DPRA2(a2[2]), .DPRA3(a2[3]),
+	              .WCLK(clk), .WE(we));
+	RAM16X1D bit1(.DPO(d2_out[1]), .SPO(d1_out[1]), .A0(a1[0]), .A1(a1[1]), .A2(a1[2]), .A3(a1[3]),
+	              .D(d1_in[1]), .DPRA0(a2[0]), .DPRA1(a2[1]), .DPRA2(a2[2]), .DPRA3(a2[3]),
+	              .WCLK(clk), .WE(we));
+	RAM16X1D bit2(.DPO(d2_out[2]), .SPO(d1_out[2]), .A0(a1[0]), .A1(a1[1]), .A2(a1[2]), .A3(a1[3]),
+	              .D(d1_in[2]), .DPRA0(a2[0]), .DPRA1(a2[1]), .DPRA2(a2[2]), .DPRA3(a2[3]),
+	              .WCLK(clk), .WE(we));
+	RAM16X1D bit3(.DPO(d2_out[3]), .SPO(d1_out[3]), .A0(a1[0]), .A1(a1[1]), .A2(a1[2]), .A3(a1[3]),
+	              .D(d1_in[3]), .DPRA0(a2[0]), .DPRA1(a2[1]), .DPRA2(a2[2]), .DPRA3(a2[3]),
+	              .WCLK(clk), .WE(we));
+	RAM16X1D bit4(.DPO(d2_out[4]), .SPO(d1_out[4]), .A0(a1[0]), .A1(a1[1]), .A2(a1[2]), .A3(a1[3]),
+	              .D(d1_in[4]), .DPRA0(a2[0]), .DPRA1(a2[1]), .DPRA2(a2[2]), .DPRA3(a2[3]),
+	              .WCLK(clk), .WE(we));
+	RAM16X1D bit5(.DPO(d2_out[5]), .SPO(d1_out[5]), .A0(a1[0]), .A1(a1[1]), .A2(a1[2]), .A3(a1[3]),
+	              .D(d1_in[5]), .DPRA0(a2[0]), .DPRA1(a2[1]), .DPRA2(a2[2]), .DPRA3(a2[3]),
+	              .WCLK(clk), .WE(we));
+	RAM16X1D bit6(.DPO(d2_out[6]), .SPO(d1_out[6]), .A0(a1[0]), .A1(a1[1]), .A2(a1[2]), .A3(a1[3]),
+	              .D(d1_in[6]), .DPRA0(a2[0]), .DPRA1(a2[1]), .DPRA2(a2[2]), .DPRA3(a2[3]),
+	              .WCLK(clk), .WE(we));
+	RAM16X1D bit7(.DPO(d2_out[7]), .SPO(d1_out[7]), .A0(a1[0]), .A1(a1[1]), .A2(a1[2]), .A3(a1[3]),
+	              .D(d1_in[7]), .DPRA0(a2[0]), .DPRA1(a2[1]), .DPRA2(a2[2]), .DPRA3(a2[3]),
+	              .WCLK(clk), .WE(we));
+endmodule
+
+
+/*
  * An MSB-first parallel to serial shift register with flow
  * control. This can be used with shallow_buffer or other
  * modules with similar interfaces.
