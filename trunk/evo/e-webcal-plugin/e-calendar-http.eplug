@@ -9,7 +9,8 @@
             <group
 	     target="source"
 	     id="com.novell.evolution.calendar.calendarProperties"
-	     commit="e_calendar_http_commit">
+	     commit="e_calendar_http_commit"
+	     check="e_calendar_http_check">
                 <item
 		 type="item_table"
 		 path="00.general/00.source/30.url"

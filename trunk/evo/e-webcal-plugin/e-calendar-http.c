@@ -70,7 +70,7 @@ e_calendar_http_url (EPlugin *epl, EConfigHookItemFactoryData *data)
 	gtk_table_attach (GTK_TABLE (parent), entry, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
 
-	g_object_set_data (G_OBJECT (epl), "calendar.http.uri", entry);
+	g_object_set_data (G_OBJECT (source), "calendar.http.uri", entry);
 
 	return entry;
 }
@@ -155,8 +155,8 @@ e_calendar_http_refresh (EPlugin *epl, EConfigHookItemFactoryData *data)
 
 	gtk_table_attach (GTK_TABLE (parent), hbox, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
-	g_object_set_data (G_OBJECT (epl), "calendar.http.refresh.spin", spin);
-	g_object_set_data (G_OBJECT (epl), "calendar.http.refresh.option", option);
+	g_object_set_data (G_OBJECT (source), "calendar.http.refresh.spin", spin);
+	g_object_set_data (G_OBJECT (source), "calendar.http.refresh.option", option);
 
 	return hbox;
 }
@@ -237,9 +237,9 @@ e_calendar_http_commit (EPlugin *epl, ECConfigTargetSource *t)
 	if (strcmp (e_source_group_peek_name (group), _("On The Web")))
 		return;
 
-	entry = g_object_get_data (G_OBJECT (epl), "calendar.http.uri");
-	spin = g_object_get_data (G_OBJECT (epl), "calendar.http.refresh.spin");
-	option = g_object_get_data (G_OBJECT (epl), "calendar.http.refresh.option");
+	entry = g_object_get_data (G_OBJECT (source), "calendar.http.uri");
+	spin = g_object_get_data (G_OBJECT (source), "calendar.http.refresh.spin");
+	option = g_object_get_data (G_OBJECT (source), "calendar.http.refresh.option");
 
 	uri = e_uri_new (gtk_entry_get_text (GTK_ENTRY (entry)));
 	relative_uri = print_uri_noproto (uri);
@@ -250,4 +250,19 @@ e_calendar_http_commit (EPlugin *epl, ECConfigTargetSource *t)
 	refresh_str = get_refresh_minutes (spin, option);
 	e_source_set_property (source, "refresh", refresh_str);
 	g_free (refresh_str);
+}
+
+gboolean
+e_calendar_http_check (EPlugin *epl, EConfigHookPageCheckData *data)
+{
+	ECConfigTargetSource *t = (ECConfigTargetSource *) data->target;
+	ESource *source = t->source;
+	GtkWidget *entry = g_object_get_data (G_OBJECT (source), "calendar.http.uri");
+	EUri *uri;
+	gboolean ok = FALSE;
+
+	uri = e_uri_new (gtk_entry_get_text (GTK_ENTRY (entry)));
+	ok = ((!strcmp (uri->protocol, "webcal")) || (!strcmp (uri->protocol, "http")));
+	e_uri_free (uri);
+	return ok;
 }
