@@ -103,6 +103,7 @@ poll_controller	macro	port_number
 	bsf	gamecube_buffer+2, 0
 
 	call	controller_io_reset	; Transmit the gamecube_buffer
+	bankisel gamecube_buffer
 	movlw	gamecube_buffer
 	movwf	FSR
 	movlw	3
