@@ -23,17 +23,20 @@ void CTestGameServer::init ( void )
 	bool mapLoaded = false;
 
 	if (args.Exists("map"))
+	{
 		mapLoaded = world.init(args.GetDataS("map"));
-	else
-		logOut("worldfile load failed","CTestGameServer::init",eLogLevel1);
+		if (!mapLoaded)
+			logOut("worldfile load failed","CTestGameServer::init",eLogLevel1);
+		else
+			logOut("loaded worldfile","CTestGameServer::init",eLogLevel1);
+
+	}
 	
 	if (!mapLoaded)
 	{
 		logOut("loading default world","CTestGameServer::init",eLogLevel1);
 		world.initDefaultWorld();
 	}
-	else
-		logOut("loaded worldfile","CTestGameServer::init",eLogLevel1);
 }
 
 bool CTestGameServer::think ( void )

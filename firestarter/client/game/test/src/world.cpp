@@ -33,9 +33,50 @@ void CTestWorld::Load ( trWorldInfo &info, bool draw )
 	}
 }
 
+void CTestWorld::Load ( CNetworkMessage &message, bool draw )
+{
+
+	worldInfo.name = message.ReadStr(); 
+	worldInfo.skybox = message.ReadStr(); 
+	worldInfo.groundTexture = message.ReadStr(); 
+	worldInfo.wallSize = message.ReadF();
+	worldInfo.groundTextureRepeat = message.ReadF();
+	worldInfo.groundSize[0] = message.ReadF();
+	worldInfo.groundSize[1] = message.ReadF();
+	message.ReadV(worldInfo.sunPos);
+	message.ReadV(worldInfo.sunColor);
+	message.ReadV(worldInfo.ambientColor);
+
+	int tuftCount = message.ReadI();
+	trTuftDef	tuft;
+
+	tufts.clear();
+
+	for (int i = 0; i < tuftCount; i++)
+	{
+		tuft.mesh = message.ReadStr();
+		tuft.count = message.ReadI();
+		tuft.center[0] = message.ReadF();
+		tuft.center[1] = message.ReadF();
+		tuft.range = message.ReadF();
+		tufts.push_back(tuft);
+	}
+
+	if (draw)
+	{
+		worldDrawables[0] = CDrawManager::instance().New("sky",this);
+		worldDrawables[1] = CDrawManager::instance().New("ground",this);
+	}
+}
+
 void CTestWorld::AddWorldObject ( trObjectInfo &info )
 {
 
+}
+
+void CTestWorld::AddTuft ( trTuftDef &tuft )
+{	
+		tufts.push_back(tuft);
 }
 
 const char* CTestWorld::GetValueS ( const char *item )
@@ -54,8 +95,10 @@ float CTestWorld::GetValueF ( const char *item )
 {
 	std::string label = item;
 
-	if (label == "groundSize")
-		return worldInfo.groundSize;
+	if (label == "groundSizeX")
+		return worldInfo.groundSize[0];
+	if (label == "groundSizeY")
+		return worldInfo.groundSize[1];
 	if (label == "groundTextureRepeat")
 		return worldInfo.groundTextureRepeat;
 
@@ -85,6 +128,11 @@ float CTestWorld::GetValueF ( const char *item )
 
 int CTestWorld::GetValueI ( const char *item )
 {
+	std::string label = item;
+
+	if (label == "tufts")
+		return (int)(&tufts);
+
 	return 0;
 }
 

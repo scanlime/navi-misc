@@ -77,13 +77,14 @@ void CTestGame::Attach ( void )
 	info.ambientColor[0] = info.ambientColor[1] = info.ambientColor[2] = 0.5f;
 	info.sunPos[0] = info.sunPos[1] = info.sunPos[2] = 100;
 	info.sunColor[0] = info.sunColor[1] = info.sunColor[2] = 0.75f;
-	info.groundSize = 800;
+	info.groundSize[0] = 800;
+	info.groundSize[1] = 800;
 	info.groundTextureRepeat = 60;
 
 	info.groundTexture = "ground_mat";
 	info.skybox = "grassland_skybox";
 
-	world.Load(info,true);
+//	world.Load(info,true);
 
 	// build up the local player
 	localPlayer = new CPlayerObject;
@@ -99,8 +100,6 @@ void CTestGame::Attach ( void )
 		localPlayer->mesh = prefs.GetItemS("PlayerMesh");
 	else
 		localPlayer->mesh = "MK3.model";
-
-	camera = CDrawManager::instance().New("camera",this);
 }
 
 void CTestGame::Release ( void )
@@ -132,7 +131,10 @@ bool CTestGame::Think ( void )
 	if (localPlayer && localPlayer->active)
 	{
 		if (processPlayerInput())
+		{
+			localPlayer->active = false;
 			exit = true;
+		}
 	}
 	
 	if (!exit)
@@ -148,7 +150,7 @@ bool CTestGame::Think ( void )
 		}
 
 		// do some game like things here, logic and stuff like that
-		if (localPlayer && localPlayer->active)
+		if (network.Connected() && localPlayer && localPlayer->active)
 		{
 		// if we haven't done an update in a while then send
 			float updateTime = 1.0f/10.0f;
@@ -204,18 +206,25 @@ void CTestGame::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 
 	switch(message.GetType())
 	{
+		case _MESSAGE_WORLD_INFO:			// the server has sent us the world
+				world.Load(message,true);
+
+				camera = CDrawManager::instance().New("camera",this);
+
+				// now that we have the info, lets go add ourseves
+				// send back a client info
+				outMessage.SetType(_MESSAGE_CLIENT_INFO);
+				outMessage.AddStr(localPlayer->name.c_str());
+				outMessage.AddStr(localPlayer->material.c_str());
+				outMessage.AddStr(localPlayer->mesh.c_str());
+				outMessage.Send(peer,true);
+		break;
+
 		case _MESSAGE_SERVER_INFO:	// the server is telling us our ID and wants us to send back our info
 			// get our ID
 			localPlayer->idNumber = message.ReadI();
 			players[localPlayer->idNumber] = localPlayer;
 			localPlayer->active = false;
-
-			// send back a client info
-			outMessage.SetType(_MESSAGE_CLIENT_INFO);
-			outMessage.AddStr(localPlayer->name.c_str());
-			outMessage.AddStr(localPlayer->material.c_str());
-			outMessage.AddStr(localPlayer->mesh.c_str());
-			outMessage.Send(peer,true);
 			break;
 
 		case _MESSAGE_USER_ADD: // here comes a new chalenger
@@ -355,7 +364,7 @@ bool CTestGame::processPlayerInput ( void )
 	float rotspeed = 60.0f;
 	float linspeed = 100.0f;
 	float reversemod = -0.5f;
-	float	friction = 0.95f;
+	float	friction = 0.85f;
 	float stoptol = 1.0f;
 	float grav = -10.0f;
 
@@ -390,8 +399,8 @@ bool CTestGame::processPlayerInput ( void )
 	}
 	else
 	{
-		localPlayer->vec[0] *= friction;
-		localPlayer->vec[1] *= friction;
+		localPlayer->vec[0] -= localPlayer->vec[0]*friction*frameTime;
+		localPlayer->vec[1] -= localPlayer->vec[1]*friction*frameTime;
 
 		if (localPlayer->vec[0]*localPlayer->vec[0] + localPlayer->vec[1]*localPlayer->vec[1] < stoptol*stoptol)
 			localPlayer->vec[0] = localPlayer->vec[1] = 0;
