@@ -43,7 +43,7 @@ Several projects are connected to CIA using scripts that read
 mailing lists and convert the messages therein to CIA's format. Projects
 that have been connected to CIA for a while and haven't upgraded their
 clients might also be using an older non-XML format that has been
-retroactively named colorText.
+retrospectively named colorText.
 
 Once these messages arrive at the CIA server's message hub, they are
 then filtered and formatted using rulesets_ and dispatched via URIs.
