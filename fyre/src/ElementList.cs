@@ -106,6 +106,8 @@ namespace Fyre
 			}
 
 			if (GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
+				// FIXME - use element image here
+
 				Gdk.Pixmap pixmap = new Gdk.Pixmap (null, 200, 150, 24);
 
 				Gdk.GC gc = new Gdk.GC (pixmap);

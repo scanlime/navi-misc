@@ -53,12 +53,12 @@ namespace Fyre
 
 		public virtual void Serialize (XmlWriter writer)
 		{
-			// guid
+			// FIXME - serialize guid
 		}
 
 		public virtual void DeSerialize (XmlReader reader)
 		{
-			// guid
+			// FIXME - serialize guid
 		}
 	}
 
