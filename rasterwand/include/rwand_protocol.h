@@ -39,6 +39,32 @@
 ;// Set the coil driver to switch on when the predicted phase is between wValue and wIndex
 #define RWAND_CTRL_SET_COIL_PHASE	0x04
 
+;// Set the mode flags from the low byte of wValue
+#define RWAND_CTRL_SET_MODES		0x05
+
+
+;//************************************************** Mode bits
+
+;// When this bit is on, coil phase and period are set automatically.
+;// When this is off, edges aren't detected and no synchronization parameters will be updated.
+#define RWAND_MODE_ENABLE_SYNC_BIT	0
+#define RWAND_MODE_ENABLE_SYNC		0x01
+
+;// When this bit is on, the coil drivers are run according to
+;// the current angle predictor and coil drive window.
+#define RWAND_MODE_ENABLE_COIL_BIT	1
+#define RWAND_MODE_ENABLE_COIL		0x02
+
+;// When this bit is on, the LEDs are driven from video memory
+;// using the currently set display timings. When unset, the display is blanked.
+#define RWAND_MODE_ENABLE_DISPLAY_BIT 2
+#define RWAND_MODE_ENABLE_DISPLAY	0x04
+
+;// When this bit is on, show the current coil driver status on the LEDs.
+;// This must be off for normal display.
+#define RWAND_MODE_COIL_DEBUG_BIT	3
+#define RWAND_MODE_COIL_DEBUG		0x08
+
 #endif
 
 ;//### The End ###

@@ -72,7 +72,6 @@ USB_status_device	res	1	; status of device
 USB_dev_req		res	1
 USB_address_pending	res	1
 USB_Protocol		res	1
-USBMaskedErrors		res	1
 PIDs 			res	1
 EP0_start		res	2	; pointer to first byte of data to send
 EP0_end			res	1	; pointer to last byte of data to send
@@ -450,50 +449,7 @@ USBError
 	movf	UEIR,w		; get the error register
 	andwf	UEIE,w		; mask with the enables
 	clrf	UEIR
-	banksel	USBMaskedErrors ; switch to bank 2
-	movwf	USBMaskedErrors	; save the masked errors
-#ifdef COUNTERRORS
-	pagesel CRC5Error
-	btfss	USBMaskedErrors,PID_ERR
-	goto	CRC5Error
-	INCREMENT16 USB_PID_ERR
-CRC5Error
-	pagesel CRC16Error
-	btfss	USBMaskedErrors,CRC5
-	goto	CRC16Error
-	INCREMENT16 USB_CRC5_ERR
-CRC16Error
-	pagesel DFN8Error
-	btfss	USBMaskedErrors,CRC16
-	goto	DFN8Error
-	INCREMENT16 USB_CRC16_ERR
-DFN8Error
-	pagesel BTOError
-	btfss	USBMaskedErrors,DFN8
-	goto	BTOError
-	INCREMENT16 USB_DFN8_ERR
-BTOError
-	pagesel WRTError
-	btfss	USBMaskedErrors,BTO_ERR
-	goto	WRTError
-	INCREMENT16 USB_BTO_ERR
-WRTError
-	pagesel OWNError
-	btfss	USBMaskedErrors,WRT_ERR
-	goto	OWNError
-	INCREMENT16 USB_WRT_ERR
-OWNError
-	pagesel BTSError
-	btfss	USBMaskedErrors,OWN_ERR
-	goto	BTSError
-	INCREMENT16 USB_OWN_ERR
-BTSError
-	pagesel	EndError
-	btfss	USBMaskedErrors,BTS_ERR
-	goto	EndError
-	INCREMENT16 USB_BTS_ERR
-EndError
-#endif
+	; Errors are in 'w' now, but we ignore them
 	return
 
 ; ******************************************************************

@@ -23,17 +23,19 @@
 
 #include <p16C745.inc>
 #include "hardware.inc"
+#include "../include/rwand_protocol.h"
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message
 
 	global	display_poll
 	global	display_init
-	global	edge_buffer
 
+	global	edge_buffer
 	global	wand_period	; NOTE: It's important that the order of wand_period and wand_phase
 	global	wand_phase	;       be preserved, they're sent in one piece over USB.
 	global	coil_window_min
 	global	coil_window_max
+	global	mode_flags
 
 bank0	udata
 
@@ -46,21 +48,31 @@ wand_phase		res	2	; The current phase angle of the want, ranging from 0 to wand_
 coil_window_min	res	2	; Minimum and maximum wand_phase to enable the coil for
 coil_window_max	res	2
 
+display_fwd_phase	res	2	; The wand_phase value to start forward display at
+display_rev_phase	res 2	; The wand_phase value to start reverse display at
+display_column_width res 2	; The wand_phase width of each column of pixels
+
 unbanked	udata_shr
 
+current_column		res	1	; The current display column, starting at zero
+remaining_col_width	res 2	; Remaining width in this column
+
+mode_flags		res	1	; Holds the mode flags, settable by the USB host. These are defined in rwand_protocol.h
 display_flags	res	1
 delta_t			res	2	; 16-bit time delta, in cycles, since the last poll
 
-#define FLAG_DIR_RIGHT	display_flags, 0	; Flag indicating that the wand is moving right,
-											; unset when the wand is moving left.
-
-#define FLAG_ASENSOR_TEMP display_flags, 1	; The previous sample recorded from the angle sensor
-
+#define FLAG_ASENSOR_TEMP 	display_flags, 0	; The previous sample recorded from the angle sensor
+#define FLAG_FLIP_REQUEST 	display_flags, 1	; At the beginning of the next display scan, copy the backbuffer
+												; to the fontbuffer and clear this flag.
+#define FLAG_DISPLAY_FWD	display_flags, 2	; Set if we're currently traversing video memory forward
+#define FLAG_DISPLAY_REV	display_flags, 3	; Set if we're currently traversing video memory backwards
+#define FLAG_FWD_TRIGGERED	display_flags, 4	; Keep track of whether we've done a forward scan yet this period
+#define FLAG_REV_TRIGGERED	display_flags, 5	; Keep track of whether we've done a reverse scan yet this period
+	
 bank1	udata
-front_buffer	res	.80
-
+front_buffer	res	NUM_COLUMNS
 bank2	udata
-back_buffer		res	.80
+back_buffer		res	NUM_COLUMNS
 
 	code
 
@@ -87,6 +99,8 @@ display_init
 	clrf	coil_window_min+1
 	clrf	coil_window_max
 	clrf	coil_window_max+1
+	clrf	mode_flags
+	clrf	display_flags
 	return
 
 
@@ -102,14 +116,19 @@ display_poll
 	btfsc	STATUS, Z
 	return
 
-	pagesel	display_keep_time
+	pagesel	display_keep_time		; Must be done first, so we have valid angle predictions below
 	call	display_keep_time
+
+	pagesel	display_led_scan		; Must be done before drive_coil or sync, so they have
+	call	display_led_scan		;   minimum impact on display timing.
 
 	pagesel	display_drive_coil
 	call	display_drive_coil
 
 	pagesel	display_sync
 	call	display_sync
+
+	return
 
 
 ;*****************************************************************************************
@@ -169,8 +188,119 @@ phase_rollover
 	decf	wand_phase+1, f
 	movf	wand_period+1, w
 	subwf	wand_phase+1, f
+
+	bcf		FLAG_FWD_TRIGGERED	; Clear status flags used last period
+	bcf		FLAG_REV_TRIGGERED
+
 no_phase_rollover
 	return
+
+
+;*****************************************************************************************
+;************************************************************************** LED Scanning *
+;*****************************************************************************************
+
+	; Update the state of our LED column scanning, and update the
+	; LED_PORT from video memory.
+display_led_scan
+
+	; Is the display disabled?
+	pagesel	led_scan_disabled
+	btfss	mode_flags, RWAND_MODE_ENABLE_DISPLAY_BIT
+	goto	led_scan_disabled
+
+	; Check for the beginning of a forward scan
+	pagesel	no_forward_scan
+	btfsc	FLAG_FWD_TRIGGERED		; If we've already started, don't bother
+	goto	no_forward_scan
+	movf	display_fwd_phase+1, w	; Test high byte of wand_phase - display_fwd_phase
+	subwf	wand_phase+1, w
+	pagesel	no_forward_scan
+	btfss	STATUS, C
+	goto	no_forward_scan			; C=0, B=1, wand_phase < display_fwd_phase
+	pagesel	start_forward_scan		; If the high bytes aren't equal, no further testing needed...
+	btfss	STATUS, Z
+	goto	start_forward_scan
+	movf	display_fwd_phase, w	; Test low byte of wand_phase - display_fwd_phase
+	subwf	wand_phase, w
+	pagesel	no_forward_scan
+	btfss	STATUS, C
+	goto	no_forward_scan			; C=0, B=1, wand_phase < display_fwd_phase
+
+	; Yay, start a forward display scan
+start_forward_scan
+	bsf		FLAG_DISPLAY_FWD			; Set flags
+	bsf		FLAG_FWD_TRIGGERED
+	clrf	current_column				; Start at the beginning
+	movf	display_column_width, w		; Give this column all its allocated width
+	movwf	remaining_col_width	
+	movf	display_column_width+1, w
+	movwf	remaining_col_width+1
+no_forward_scan
+
+	; Check for the beginning of a reverse scan
+	pagesel	no_reverse_scan
+	btfsc	FLAG_REV_TRIGGERED		; If we've already started, don't bother
+	goto	no_reverse_scan
+	movf	display_rev_phase+1, w	; Test high byte of wand_phase - display_rev_phase
+	subwf	wand_phase+1, w
+	pagesel	no_reverse_scan
+	btfss	STATUS, C
+	goto	no_reverse_scan			; C=0, B=1, wand_phase < display_rev_phase
+	pagesel	start_reverse_scan		; If the high bytes aren't equal, no further testing needed...
+	btfss	STATUS, Z
+	goto	start_reverse_scan
+	movf	display_rev_phase, w	; Test low byte of wand_phase - display_rev_phase
+	subwf	wand_phase, w
+	pagesel	no_reverse_scan
+	btfss	STATUS, C
+	goto	no_reverse_scan			; C=0, B=1, wand_phase < display_rev_phase
+
+	; Yay, start a reverse display scan
+start_reverse_scan
+	bsf		FLAG_DISPLAY_REV			; Set flags
+	bsf		FLAG_REV_TRIGGERED
+	movlw	NUM_COLUMNS-1				; Start at the end
+	movwf	current_column
+	movf	display_column_width, w		; Give this column all its allocated width
+	movwf	remaining_col_width	
+	movf	display_column_width+1, w
+	movwf	remaining_col_width+1
+no_reverse_scan
+
+	; Bounds check the current column. If it's out of range, disable current scans
+	movlw	NUM_COLUMNS-1			; Test current_column - (NUM_COLUMNS-1)
+	subwf	current_column, w
+	pagesel	led_scan_disabled
+	btfss	STATUS, C
+	goto	led_scan_disabled		; C=0, B=1, (NUM_COLUMNS-1) > display_fwd_phase
+
+	; Is there any scan in progress? If not...
+	pagesel	scan_in_progress
+	btfsc	FLAG_DISPLAY_FWD
+	goto	scan_in_progress
+	btfsc	FLAG_DISPLAY_REV
+	goto	scan_in_progress
+
+	; Blank the LEDs, clear the scan bits, and return.
+	; This is invoked at the end of a scan, (once current_column is out of bounds)
+	; if no scan has been started, or if the LED scanner has been disabled entirely.
+led_scan_disabled
+	movlw	0xFF
+	banksel	LED_PORT
+	movwf	LED_PORT
+	bcf		FLAG_DISPLAY_FWD
+	bcf		FLAG_DISPLAY_REV
+	return
+
+	; We have a scan (forward or reverse) in progress
+scan_in_progress
+	
+	
+
+
+	return
+
 
 
 ;*****************************************************************************************
@@ -180,6 +310,11 @@ no_phase_rollover
 	; Using the current wand phase and coil window, determine whether the coil should
 	; be driven or not and update its state.
 display_drive_coil
+
+	; Is the coil disabled?
+	pagesel	coil_disabled
+	btfss	mode_flags, RWAND_MODE_ENABLE_COIL_BIT
+	goto	coil_disabled
 
 	; Are we within the window in which the coil driver should be on?
 	movf	coil_window_min+1, w	; Test high byte of wand_phase - coil_window_min
@@ -220,14 +355,19 @@ coil_max_neq
 
 	banksel	PORTC					; Turn the coil on
 	bsf		COIL_DRIVER
+	btfsc	mode_flags, RWAND_MODE_COIL_DEBUG_BIT	; In debug mode, turn on the LEDs
 	clrf	LED_PORT
 	return
 
 coil_off
+	movlw	0xFF
+	btfsc	mode_flags, RWAND_MODE_COIL_DEBUG_BIT	; In debug mode, turn off the LEDs
+	movwf	LED_PORT
+	; ...fall through to coil_disabled
+
+coil_disabled
 	banksel	PORTC					; Turn the coil off
 	bcf		COIL_DRIVER
-	movlw	0xFF
-	movwf	LED_PORT
 	return
 
 
@@ -238,6 +378,10 @@ coil_off
 	; Using this poll cycle's delta-t, update our edge_buffer and synchronize our period
 	; and phase to what we're detecting on the wand's angle sensor.
 display_sync
+
+	; Is synchronization disabled?
+	btfss	mode_flags, RWAND_MODE_ENABLE_SYNC_BIT
+	return
 
 	; Add our current delta-t to the latest slot on the edge buffer
 	banksel	edge_buffer
