@@ -1,6 +1,7 @@
 CLASSES=\
 	person.class\
 	personindex.class\
+	interview.class\
 	botmain.class\
 	aimup.class
 
@@ -11,6 +12,9 @@ person.class: person.java
 
 personindex.class: personindex.java
 	javac personindex.java
+
+interview.class: interview.java
+	javac interview.java
 
 botmain.class: botmain.java
 	javac botmain.java
