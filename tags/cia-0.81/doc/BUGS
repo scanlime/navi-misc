@@ -1,0 +1,37 @@
+==========
+Known Bugs
+==========
+
+Important
+---------
+
+- Bots need rate limiting and load balancing to prevent them from flooding off
+
+- Some of the stats catalogs are getting rather big and it would be good
+  to make the full message list accessable and searchable. An SQL-aware table
+  widget for this has been started in the cia-data-driven-tables branch.
+
+- Bots need to remove or disable their irc:// ruleset when kicked from a
+  channel.
+
+  This will become important once the web interface for IRC ruleset editing
+  is written- if someone invites a CIA bot into a channel where it isn't
+  wanted, the channel's ops need to be able to ask it to leave. As it is
+  now, the botnet tries a little too hard and the bot will
+  just immediately rejoin.
+
+Not that important
+------------------
+
+- The web server needs to be smarter about HTTP caching, mostly for static
+  documents and for metadata value pages. (photos, for example) File-based
+  documents could be stat'ed to determine the last modification. The
+  stats_metadata table should probably acquire a modification time column,
+  since that would also be useful for a thumbnail cache.
+
+- The MIME types the web server gives out are a bit weird in the client
+  scripts directory. Everything except HTML and images should probably be
+  given out as text/plain.
+
+- The XML parser (somewhat hacked up domish) breaks when messages specify
+  a namespace.
