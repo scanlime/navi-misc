@@ -72,11 +72,11 @@ endmodule
 
 /*
  * Generates the serial timebase used for the transmit and receive modules.
- * The resulting 'tick' signal is high for one clock cycle every 1us.
+ * The resulting 'tick' signal is high for one clock cycle every 1/4 bit (1.25us).
  * This should be adjusted depending on the oscillator in use.
  *
- * Our hardware currently uses a 20MHz clock, therefore this implementation
- * is effectively a 1/20 clock divider.
+ * Our hardware currently uses a 25MHz clock. 25MHz / 800KHz = 31.25. We use
+ * a 1/31 divider for now, which should be close enough.
  *
  * Two synchronous resets are provided- sync_begin resets to the beginning of
  * one tick cycle, sync_middle resets close to the center of a cycle. The 
@@ -99,9 +99,9 @@ module n_serial_timebase (clk, reset, tick, sync_begin, sync_middle);
 		end
 		else if (sync_middle) begin
 			tick <= 0;
-			counter <= 10;
+			counter <= 15;
 		end
-		else if (counter == 19) begin
+		else if (counter == 30) begin
 			tick <= 1;
 			counter <= 0;
 		end
@@ -141,6 +141,7 @@ module n_serial_rx (clk, reset, serial_in,
 	reg [7:0] shifter;
 	reg [3:0] qbits;
 	reg [2:0] state;
+
 	parameter
 		S_IDLE = 0,
 		S_WAIT_FOR_Q1 = 1,
@@ -149,7 +150,7 @@ module n_serial_rx (clk, reset, serial_in,
 		S_WAIT_FOR_Q4 = 4,
 		S_DECODE_QBITS = 5;
 
-	/* 1us serial timebase. Keep it in reset halfway through a tick
+	/* 1/4 bit serial timebase. Keep it in reset halfway through a tick
 	 * as long as we're idle.
 	 */
 	wire tick;
@@ -340,7 +341,7 @@ module n_serial_tx (clk, reset,
 	output serial_out;
 	reg serial_out;
 	
-	/* 1us serial timebase, without the sync resets hooked up */
+	/* 1/4 bit serial timebase, without the sync resets hooked up */
 	wire tick;
 	wire tick_sync_reset = 1'b0;
 	wire tick_sync_center = 1'b0;
