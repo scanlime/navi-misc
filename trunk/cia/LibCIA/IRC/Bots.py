@@ -203,7 +203,10 @@ class BotNetwork:
                             bot.part(channel)
 
                 else:
-                    # We don't need this bot. If it isn't already, schedule it for deletion
+                    # We don't need this bot. Tell it to part all of its channels,
+                    # and if it isn't already, schedule it for deletion.
+                    for channel in bot.channels:
+                        bot.part(channel)
                     if bot not in self.inactiveBots:
                         self.inactiveBots[bot] = reactor.callLater(
                             self.botInactivityTimeout, self.botInactivityCallback, bot)
@@ -271,12 +274,17 @@ class BotNetwork:
 
     def botDisconnected(self, bot):
         """Called by a bot when it has been disconnected for any reason. Since
-           this might have been a disconnection we didn't intend, do another bot CHECK
-           run right away to recheck all requests.
+           this might have been a disconnection we didn't intend, do another bot
+           check right away.
            """
-        self.servers[bot.server].remove(bot)
-        if not self.servers[bot.server]:
-            del self.servers[bot.server]
+        try:
+            self.servers[bot.server].remove(bot)
+            if not self.servers[bot.server]:
+                del self.servers[bot.server]
+        except:
+            # The bot might have not been in our server list in the first
+            # place, if it got disconnected before becoming fully connected.
+            pass
 
         self.checkBots()
 

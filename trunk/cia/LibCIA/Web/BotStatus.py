@@ -77,6 +77,18 @@ class ListAttributeColumn(Nouvelle.AttributeColumn):
         return len(getattr(obj, self.attribute))
 
 
+class BotStatusColumn(Nouvelle.Column):
+    """Show the fullness status of the bot"""
+    heading = 'status'
+
+    def getValue(self, bot):
+        if bot.isFull():
+            return 'full'
+        elif (not bot.channels) and (not bot.requestedChannels):
+            return 'empty'
+        return ''
+
+
 class BotsSection(Template.Section):
     """A section holding a table listing all bots"""
     title = 'bots'
@@ -85,7 +97,8 @@ class BotsSection(Template.Section):
         Nouvelle.AttributeColumn('server', 'server'),
         Nouvelle.AttributeColumn('nickname', 'nickname'),
         ListAttributeColumn('channels', 'channels'),
-        ListAttributeColumn('requested channels', 'requestedChannels'),
+        ListAttributeColumn('requested', 'requestedChannels'),
+        BotStatusColumn(),
         ]
 
     def __init__(self, botNet):
@@ -117,7 +130,7 @@ class RequestBotsColumn(Nouvelle.Column):
         return req.bots
 
     def render_data(self, context, req):
-        return [ bot.nickname for bot in req.bots ]
+        return ", ".join([ bot.nickname for bot in req.bots ])
 
 
 class RequestStatusColumn(Nouvelle.Column):
