@@ -159,29 +159,6 @@ class Bot(SingleServerIRCBot):
         self.logfile.write(str + "\n")
         print str
 
-        
-def Train(as, corpus):
-    corpus = corpus.lower()
-    corpus = re.sub("[^a-zA-Z0-9,\?\.!' ]","",corpus,0)
-    corpus = re.sub("u\. *n\. *","UN ",corpus,0)
-    corpus = re.sub("u\. *s\. *","US ",corpus,0)
-    corpus = re.sub("mr\.","mr",corpus,0)
-    corpus = re.sub("\.",". ",corpus,0)
-    corpus = re.sub("\?","? ",corpus,0)
-    corpus = re.sub("!.","! ",corpus,0)
-    wordPat = re.compile("(\S+)")
-    sentencePat = re.compile("[!\.\?]")
-    matches = wordPat.findall(corpus)
-    sentence = ''
-    for word in matches:
-        sentence += word + ' '
-        if sentencePat.search(sentence):
-            if len(sentence) > 10 and re.search("[a-zA-Z0-9]",sentence[0]):
-                sentence = re.sub("\.","",sentence)
-                print sentence
-                as.learn(sentence)
-            sentence = ''
-
 
 if __name__ == "__main__":
 
@@ -223,7 +200,10 @@ usage: %s [-ch] [-t file]
     try:
         if trainingMode:
             print "Training mode"
-            Train(as, open(trainingFile).read())
+            for line in open(trainingFile).xreadlines():
+                line = line.strip()
+                print line
+                as.learn(line)
         else:
             print "Bot mode"
             Bot(as)
