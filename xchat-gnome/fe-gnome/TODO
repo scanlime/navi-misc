@@ -1,10 +1,4 @@
 * Fix schema install
-* Hook up apply button in network configuration
-* Change server username preferences to be HIG-style:
-	o use global user settings
-	o use these user settings:
-		nick ...
-		real ...
 * Several options in the 'Discussion' menu don't make sense for servers
 * Connect dialog should have a "connect in new ???" option. Maybe just do
   that as the default and let users close other connections, since replacing
