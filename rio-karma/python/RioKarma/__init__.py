@@ -102,7 +102,10 @@ def autoConnect(keychain=None, service="urn:empeg-com:protocol2"):
 
     result = Progress.Deferred()
 
-    def foundService((usn, (host, port))):
+    def foundService(result):
+        if result is None:
+            raise Exception("No Rio Karma device could be found automatically")
+        usn, (host, port) = result
         keychain.lookup(usn).addCallback(
             gotPassword, host, port, usn).addErrback(
             result.errback)
