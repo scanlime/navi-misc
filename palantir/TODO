@@ -5,6 +5,7 @@ Before release:
 ------
 
 Chat buffer:
+  * Custom widget?
   * Needs nicer formatting, more xtext like.
   * How about some colors too...
 
