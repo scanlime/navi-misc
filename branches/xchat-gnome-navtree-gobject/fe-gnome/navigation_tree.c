@@ -321,28 +321,64 @@ navigation_tree_select_prev_channel (NavTree *navtree)
   GtkTreePath *path;
 	GtkTreeIter iter;
 
+	/* Get the GtkTreeSelection. */
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
 
-  if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+	/* Try to get the currently selected item. */
+  if (gtk_tree_selection_get_selected(selection, &model, &iter))
     path = gtk_tree_model_get_path(model, &iter);
-    if (gtk_tree_path_get_depth(path) <= 1)
-      gtk_tree_view_expand_row(GTK_TREE_VIEW(navtree),path,TRUE);
-    if (gtk_tree_model_has_child(model, &iter))
+	/* If nothing is selected... */
+  else {
+		model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
+		/* If we have a current path stored set path to that. */
+		if (navtree->current_path)
+		  path = gtk_tree_path_copy(navtree->current_path);
+		/* Otherwise make path point to the root of the tree. */
+    else
+		  path = gtk_tree_path_new_from_string("0");
+	}
+
+	/* If the path is a server... */
+  if (gtk_tree_path_get_depth(path) <= 1) {
+		/* Expand it, just in case. */
+    gtk_tree_view_expand_row(GTK_TREE_VIEW(navtree),path,TRUE);
+
+		/* If it has children move it down. */
+    if (gtk_tree_model_iter_has_child(model, &iter))
       gtk_tree_path_down(path);
-    else {
+		/* If there are no children then we can't go to the previous channel on this server
+		 * so we make path NULL.
+		 */
+	  else {
       gtk_tree_path_free(path);
       path = NULL; /* FIXME: extraneous? */
-    }
-  }
-  else if (navtree->current_path) {
-  }
-  else {
-  }
+	  }
+	}
+	/* If the path isn't a server expande it's parent, just in case. */
+	else {
+		GtkTreePath *parent;
+		parent = gtk_tree_path_copy(path);
+		gtk_tree_path_up(parent);
+		gtk_tree_view_expand_row(GTK_TREE_VIEW(navtree),parent,TRUE);
+	}
 
-	if (navtree->current_path == NULL)
-		return;
-
-	gtk_tree_selection_select_path(selection, navtree->current_path);
+	/* As long as path isn't NULL move it back one. If it's the first channel in the list
+	 * wrap around to the last one.
+	 */
+	if (path) {
+		if (!gtk_tree_path_prev(path)) {
+			GtkTreeIter current, previous;
+			gtk_tree_model_get_iter(model, &current, path);
+			previous = current;
+			/* After this loop previous is an iter for the last channel in the list. */
+			while (gtk_tree_model_iter_next(model, &current))
+				previous = current;
+			gtk_tree_path_free(path);
+			path = gtk_tree_model_get_path(model, &previous);
+		}
+		/* Select the new path. */
+	  gtk_tree_selection_select_path(selection, path);
+  }
 }
 
 void
@@ -673,7 +709,6 @@ static gboolean declick(GtkWidget *treeview, GdkEventButton *e, gpointer data) {
 	return FALSE;
 }
 
-/* FIXME: Mixing models and iters. */
 static void
 navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data)
 {
