@@ -1,4 +1,4 @@
-/* Display a hex dump of the rcpod's entire address space (512 bytes) */
+/* Display a hex dump of the rcpod's entire address space */
 
 #include <rcpod.h>
 #include <stdio.h>
@@ -12,7 +12,7 @@ int main() {
   /* Simple hex dump, hardcoded to 16 bytes per line
    * and without support for partial lines.
    */
-  for (lineAddr=0; lineAddr < 0x200; lineAddr+=16) {
+  for (lineAddr=0; lineAddr < RCPOD_MEM_SIZE; lineAddr+=16) {
     printf("%04X:  ", lineAddr);
 
     /* Fill the line buffer */
