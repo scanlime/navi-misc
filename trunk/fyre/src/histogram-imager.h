@@ -125,7 +125,8 @@ void             histogram_imager_save_image_file (HistogramImager *self,
 						   const gchar     *filename,
 						   GError          **error);
 void             exr_save_image_file              (HistogramImager *hi,
-						   const gchar     *filename);
+						   const gchar     *filename,
+						   GError          **error);
 
 void             histogram_imager_get_hist_size   (HistogramImager *self,
 						   int             *hist_width,

@@ -408,8 +408,7 @@ static void on_save (GtkWidget *widget, gpointer user_data) {
     gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog), "rendering.png");
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
-	const gchar *filename;
-	filename = gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog));
+	filename = g_strdup (gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog)));
 	histogram_imager_save_image_file (HISTOGRAM_IMAGER (self->map), filename, &error);
     }
 #endif
@@ -428,7 +427,7 @@ static void on_save (GtkWidget *widget, gpointer user_data) {
 	g_error_free (error);
 
 	gtk_dialog_run (GTK_DIALOG (dialog));
-	gtk_widget_hide_all (dialog);
+	gtk_widget_hide (dialog);
     }
 
     if (filename)
@@ -439,6 +438,8 @@ static void on_save_exr (GtkWidget *widget, gpointer user_data) {
 #ifdef HAVE_EXR
     Explorer *self = EXPLORER (user_data);
     GtkWidget *dialog;
+    GError *error = NULL;
+    gchar *filename = NULL;
 
 #if (GTK_CHECK_VERSION(2, 4, 0))
     dialog = gtk_file_chooser_dialog_new ("Save OpenEXR Image",
@@ -453,10 +454,8 @@ static void on_save_exr (GtkWidget *widget, gpointer user_data) {
     gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (dialog), "rendering.exr");
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
-        gchar *filename;
 	filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-	exr_save_image_file (HISTOGRAM_IMAGER (self->map), filename);
-	g_free (filename);
+	exr_save_image_file (HISTOGRAM_IMAGER (self->map), filename, &error);
 
 	if (file_location)
 	    g_free (file_location);
@@ -468,11 +467,30 @@ static void on_save_exr (GtkWidget *widget, gpointer user_data) {
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
 	const gchar *filename;
-	filename = gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog));
-	exr_save_image_file (HISTOGRAM_IMAGER (self->map), filename);
+	filename = g_strdup (gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog)));
+	exr_save_image_file (HISTOGRAM_IMAGER (self->map), filename, &error);
     }
 #endif /* GTK_CHECK_VERSION */
     gtk_widget_destroy (dialog);
+
+    if (error) {
+	GtkWidget *dialog, *label;
+	gchar *text;
+
+	dialog = glade_xml_get_widget (self->xml, "error dialog");
+	label = glade_xml_get_widget (self->xml, "error label");
+
+	text = g_strdup_printf ("<span weight=\"bold\" size=\"larger\">Could not save \"%s\"</span>\n\n%s", filename, error->message);
+	gtk_label_set_markup (GTK_LABEL (label), text);
+	g_free (text);
+	g_error_free (error);
+
+	gtk_dialog_run (GTK_DIALOG (dialog));
+	gtk_widget_hide (dialog);
+    }
+
+    if (filename)
+	g_free (filename);
 #endif /* HAVE_EXR */
 }
 
