@@ -5,6 +5,7 @@ CLASSES=\
 	person.class\
 	personindex.class\
 	interview.class\
+	sleeper.class\
 	botmain.class\
 	aimup.class
 
@@ -27,6 +28,9 @@ personindex.class: personindex.java
 
 interview.class: interview.java
 	javac interview.java
+
+sleeper.class: sleeper.java
+	javac sleeper.java
 
 botmain.class: botmain.java
 	javac botmain.java

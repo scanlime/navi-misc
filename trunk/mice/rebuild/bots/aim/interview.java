@@ -52,7 +52,7 @@ public class interview extends Thread
 	public int state;
 	
 	/** A semaphore for stuff. */
-	private boolean listening = true;
+	public boolean listening = true;
 	
 	/**
 	 * This method constructs a new interview person
@@ -121,7 +121,8 @@ public class interview extends Thread
 			if(tname.charAt(0) == '-')
 			{
 				send("No questions right now, I'll send you a question when it comes.");
-				this.start();
+				new sleeper(this).start();
+				state = 2;
 				return;
 			}
 			tname = com.read();
@@ -141,47 +142,5 @@ public class interview extends Thread
 	public void send(String message)
 	{
 		mybot.sendMessage(nick,message);
-	}
-	
-	/**
-	 * This method is the thread that gets spawned off if there aren't any questions available
-	 * @author Brandon Smith
-	 * @version 2.1
-	 */
-	public void run()
-	{
-		boolean happy = false;
-		String in,tname,tques;
-		listening = false;
-		while(!happy)
-		{
-			sleep(1);
-			com.write("get");
-			in = com.read();
-			happy = !(in.charAt(0) == '-');
-		}
-		tname = com.read();
-		tques = com.read();
-		send(tname + " Asks: " + tques);
-		listening = true;
-	}
-		
-	/**
-	 * This method makes this thread sleep.
-	 * @param miliseconds The duration of the nap in seconds.
-	 * @author Brandon Smith
-	 * @version 2.0
-	 */
-	public void sleep(int miliseconds)
-	{
-		System.out.println("Sleeping for " + miliseconds);
-		try
-		{
-			Thread.sleep((long) miliseconds);
-		}
-		catch (Exception ie)
-		{
-			System.out.println("Exception in Interview sleep\n" + ie);
-		}
 	}
 }

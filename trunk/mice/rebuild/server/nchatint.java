@@ -24,7 +24,7 @@ public class nchatint extends nbase
 	public nchatint(Socket gonnection, BufferedReader IN, OutputStreamWriter OUT)
 	{
 		super(gonnection,IN,OUT);
-		netdebug = true;
+		//netdebug = true;
 	}
 	
 	/**
