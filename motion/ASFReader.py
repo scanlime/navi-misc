@@ -46,11 +46,12 @@ boneElement = Group(
   | "dof" + OneOrMore(dof) \
   | "limits" + OneOrMore(triplet)
   )
-bone = Group("begin" + OneOrMore(boneElement) + "end")
+bone = Suppress("begin") + Group(OneOrMore(boneElement)) + Suppress("end")
 bonedata = ZeroOrMore(bone)
 
-hierElement = Word(alphanums) + OneOrMore(Word(alphanums))
-hierarchy = Group("begin" + OneOrMore(hierElement) + "end")
+hierElement = Group(OneOrMore(Word(alphanums)))
+#hierarchy = Group("begin" + OneOrMore(hierElement) + "end")
+hierarchy = Suppress("begin") + OneOrMore(hierElement)
 
 docLine = OneOrMore(Word(alphanums + '!"#$%&\'()*+,-./;<=>?@[\\]^_`{|}~'))
 
