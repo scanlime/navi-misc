@@ -182,16 +182,17 @@ class GraphController:
     def handleMotion(self, event, minDistance=70):
         self.mousePosition = event.pos
 
-        # Find the closest node
-        closestNode = None
-        closestDist = minDistance ** 2
-        for node in self.graph.nodes:
-            v = node.position - event.pos
-            d2 = Numeric.dot(v,v)
-            if d2 < closestDist:
-                closestDist = d2
-                closestNode = node
-        self.selectNode(closestNode)
+        # Find the closest node if a drag isn't active yet
+        if not self.dragActive:
+            closestNode = None
+            closestDist = minDistance ** 2
+            for node in self.graph.nodes:
+                v = node.position - event.pos
+                d2 = Numeric.dot(v,v)
+                if d2 < closestDist:
+                    closestDist = d2
+                    closestNode = node
+            self.selectNode(closestNode)
 
     def animate(self):
         if self.dragActive and self.selectedNode:
