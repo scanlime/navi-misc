@@ -95,7 +95,8 @@ to least important:
     should be at least 250 pixels wide.
 
     The original image can be in any format supported by the Python Imaging Library, which includes
-    GIF, JPEG, and PNG. The metadata key's value must be the image itself, not a path or URI.
+    GIF, JPEG, and PNG. Note that PIL doesn't seem to support interlaced PNGs yet, so please use
+    uninterlaced images. The metadata key's value must be the image itself, not a path or URI.
     This means that, with stats_metadata.py, you must use the -f and -t options, with a valid mime
     type supplied to the -t option.
 
