@@ -7,6 +7,10 @@
 ; in tx-protocol.inc. This version supports a single sensor, and uses
 ; protocol 0.
 ;
+; The DS18B20 sensor is recommended, but this will also work with other
+; 1-wire sensors that use 12-bit readings, like the DS1822. For 9-bit sensors,
+; such as the DS18S20, the SAMPLE_DIVISOR must be changed as noted below.
+;
 ; Hardware description:
 ;      GP0: Battery voltage sensor (470Kohms to battery+, 470K to ground)
 ;      GP1: Transmitter data
@@ -30,17 +34,20 @@
 
 ;----------------------------------------------------- Device configuration
 
-STATION_ID	equ	4	; A unique ID between 0 and 63
+STATION_ID	equ	7	; A unique ID between 0 and 63
 
 SAMPLE_DELAY	equ	.5	; Delay between temperature readings, in 2.3-second units
-N_THERM_SAMPLES	equ	.10	; Number of temperature readings per RF burst.
+N_THERM_SAMPLES	equ	.11	; Number of temperature readings per RF burst.
 
 N_PACKETS	equ	.5	; Number of duplicate packets sent in a burst
 
+SAMPLE_DIVISOR	equ	0x10	; The number to divide samples by to get degrees C.
+				;   This is 0x10 for 12-bit sensors, and 0x02 for 9-bit
+				;   sensors.
 
 ;-----------------------------------------------------
 
-include "hardware_p12f683.inc"
+include "hardware_p12f675.inc"
 
 include "tx-protocol.inc"
 include "power.inc"

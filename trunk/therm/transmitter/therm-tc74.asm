@@ -27,18 +27,18 @@
 
 ;----------------------------------------------------- Device configuration
 
-STATION_ID	equ	1	; A unique ID between 0 and 63
-TC74_ADDR	equ	7	; The address marked on this station's TC74
+STATION_ID	equ	3	; A unique ID between 0 and 63
+TC74_ADDR	equ	5	; The address marked on this station's TC74
 
 SAMPLE_DELAY	equ	.4	; Delay between temperature readings, in 2.3-second units
-N_THERM_SAMPLES	equ	.15	; Number of temperature readings per RF burst.
+N_THERM_SAMPLES	equ	.14	; Number of temperature readings per RF burst.
 
 N_PACKETS	equ	.5	; Number of duplicate packets sent in a burst
 
 
 ;-----------------------------------------------------
 
-include "hardware_p12f683.inc"
+include "hardware_p12f675.inc"
 
 include "tx-protocol.inc"
 include "power.inc"
