@@ -21,9 +21,9 @@ def getTherms(file="therms.conf"):
             continue
         if line[0] == '#':
             continue
-        location, description = re.split("\s+", line, 1)
+        location, id, description = re.split("\s+", line, 2)
         bus, address = location.split(":")
-        therms.append(Therm(int(bus), int(address), description))
+        therms.append(Therm(int(bus), int(address), id, description))
     return therms
 
 
@@ -33,13 +33,17 @@ class Therm:
        here is not the full I2C address, it is the number from 0 to 7
        printed on the TC74's package.
 
+       'id' is a short identifier string used to uniquely identify
+       this sensor, even if the address or description changes.
+
        The current temperature at this therm is stored in the 'value'
        attribute as degrees celsius. It will be None if no reading has
        been taken or this therm is disconnected.
        """
-    def __init__(self, bus, address, description=None):
+    def __init__(self, bus, address, id, description=None):
         self.bus = bus
         self.address = address
+	self.id = id
         self.description = description
         self.value = None
         self.avgTotal = 0
@@ -50,8 +54,8 @@ class Therm:
             data = "no reading"
         else:
             data = "%.02f F" % toFahrenheit(self.value)
-        return '<Therm %r at %s:%s, %s>' % (
-            self.description, self.bus, self.address, data)
+        return '<Therm %r (%r) at %s:%s, %s>' % (
+            self.id, self.description, self.bus, self.address, data)
 
     def update(self, newValue):
         """Set a new current reading for this therm. newValue may be None to indicate
