@@ -76,6 +76,14 @@ dialog_response (ConnectDialog *dialog, gint response, gpointer data)
 }
 
 static void
+row_activated (GtkTreeView *widget, GtkTreePath *path, GtkTreeViewColumn *column, ConnectDialog *dialog)
+{
+	GtkTreeIter iter;
+	if (gtk_tree_model_get_iter (dialog->server_store, &iter, path))
+		gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
+}
+
+static void
 connect_dialog_init (ConnectDialog *dialog)
 {
 	GtkCellRenderer *renderer;
@@ -117,6 +125,8 @@ connect_dialog_init (ConnectDialog *dialog)
 	gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), dialog->toplevel);
 	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
+
+	g_signal_connect (G_OBJECT (dialog->server_list), "row-activated", G_CALLBACK (row_activated), dialog);
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->server_list));
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (selection_changed), dialog);
