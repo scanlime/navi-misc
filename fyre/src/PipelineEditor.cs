@@ -109,7 +109,7 @@ namespace Fyre
 		void
 		SetupDrawingCanvas ()
 		{
-			pipeline_drawing.SetScrollbars (drawing_hscroll, drawing_vscroll);
+			pipeline_drawing.SetScrollAdjustments (drawing_hscroll.Adjustment, drawing_vscroll.Adjustment);
 
 			// Set up drag-and-drop for the frame. This looks better than setting it
 			// up for the drawing area, but it doesn't really affect structure, since

@@ -28,8 +28,6 @@ namespace Fyre
 	{
 		Gtk.Adjustment		hadj;
 		Gtk.Adjustment		vadj;
-		Gtk.Scrollbar		hscroll;
-		Gtk.Scrollbar		vscroll;
 
 		/* The drawing extents are the size of our current drawing area. The
 		 * position depends on the scrollbars, and the size is always the pixel
@@ -50,11 +48,11 @@ namespace Fyre
 			drawing_extents = new Gdk.Rectangle ();
 			layout_extents = new Gdk.Rectangle ();
 
-			// For now, initialize the layout extents to 300x300 at the origin
-			layout_extents.X = 0;
-			layout_extents.Y = 0;
-			layout_extents.Width  = 300;
-			layout_extents.Height = 300;
+			// For now, initialize the layout extents to 400x400, centered at the origin
+			layout_extents.X = -200;
+			layout_extents.Y = -200;
+			layout_extents.Width  = 400;
+			layout_extents.Height = 400;
 
 			drawing_extents.X = 0;
 			drawing_extents.Y = 0;
@@ -92,14 +90,6 @@ namespace Fyre
 			drawing_extents.Height = ev.Height;
 
 			return base.OnConfigureEvent (ev);
-		}
-
-		public void
-		SetScrollbars (Gtk.Scrollbar h, Gtk.Scrollbar v)
-		{
-			hscroll = h;
-			vscroll = v;
-			SetScrollAdjustments (h.Adjustment, v.Adjustment);
 		}
 
 		protected override void
