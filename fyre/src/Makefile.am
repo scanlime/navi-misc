@@ -31,6 +31,8 @@ if HAVE_GNET
 GNET_SRC = \
 	remote-server.c			\
 	remote-client.c			\
+	discovery-server.c		\
+	discovery-client.c		\
 	explorer-cluster.c		\
 	cluster-model.c
 else
@@ -110,4 +112,7 @@ noinst_HEADERS =			\
 	var-int.h			\
 	remote-server.h			\
 	remote-client.h			\
-	probability-map.h
+	probability-map.h		\
+	discovery-server.h		\
+	discovery-client.h
+
