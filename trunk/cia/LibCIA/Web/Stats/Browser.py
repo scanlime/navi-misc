@@ -24,7 +24,7 @@ to metadata or RSS pages.
 #
 
 from twisted.internet import defer
-from LibCIA.Web import Template
+from LibCIA.Web import Template, Info
 from LibCIA import Stats, Message, TimeUtil
 from Nouvelle import tag, place
 import Nouvelle, time
@@ -106,7 +106,7 @@ class Page(Template.Page):
         return [
             Metadata.Info(self.target),
             LinksSection(self.target),
-            Clock(),
+            Info.Clock(),
             ]
 
     def render_headingTabs(self, context):
@@ -118,13 +118,6 @@ class Page(Template.Page):
             node = node.parent()
         tabs.insert(0, Template.headingTab(href='/')['CIA'])
         return tabs
-
-
-class Clock(Template.Section):
-    title = "UTC clock"
-
-    def render_rows(self, context):
-        return [TimeUtil.formatDate(time.time())]
 
 
 class Counters(Template.Section):
