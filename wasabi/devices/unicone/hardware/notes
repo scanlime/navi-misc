@@ -1,0 +1,28 @@
+Universal controller emulator
+-----------------------------
+
+TUSB3410 (Keyspan HS-19US, firmware removed):
+
+ 5v power       - USB port
+ USB data       - USB port
+
+ RS-232 1 (DCD) -
+ RS-232 2 (RxD) -
+ RS-232 3 (TxD) -
+ RS-232 4 (DTR) - White status LED, via 330 ohm resistor
+ RS-232 6 (DSR) -
+ RS-232 7 (RTS) - FPGA 'PROGRAM' (pin 55), via 1k resistor
+ RS-232 8 (CTS) - FPGA 'DONE' (pin 53)
+ RS-232 9 (RI)  -
+
+ GPIO P3.0      - FPGA 'CCLK' (pin 73)
+ GPIO P3.1      - RS-232 driver power
+ GPIO P3.2      - FPGA 'DIN' (pin 71)
+ GPIO P3.3      -
+
+XC4010XL (Xess XS40, everything except FPGA, oscillator, and SRAM removed):
+
+ 5v power       - USB port
+ 3.3v power     - LM317 regulator, powered by USB port
+
+
