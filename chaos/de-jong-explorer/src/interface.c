@@ -176,6 +176,15 @@ static void update_gui() {
 
   update_pixels();
   update_drawing_area();
+
+  /* This keeps our memory from growing without bound if the user just hit a
+   * stable oscillation, or left this running unattended for a long time...
+   * Memory grows linearly with the size of the color lookup table. This should
+   * force the user to pause at 1.5 million density, which would give
+   * a table size of between 6 and 12 megabytes.
+   */
+  if (render.current_density > 1500000)
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(gui.xml, "pause_menu")), TRUE);
 }
 
 static void update_drawing_area() {
