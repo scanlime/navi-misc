@@ -52,10 +52,10 @@ static IplImage* camera_images[MAX_CAMERAS];
 
 static void init_camera(int port, nodeid_t node);
 static void fatal_error(const char *description);
-static IplImage* create_image();
 static void cleanup();
 
 static void convert_yuv411_to_yuv24(IplImage *img, unsigned char *src);
+static void convert_yuv411_to_gray(IplImage *img, unsigned char *src);
 
 
 /************************************************************************************/
@@ -111,7 +111,7 @@ IplImage** cv_dc1394_capture_yuv(int num_images) {
   /* Copy, convert, and free buffers from each camera. */
   for (cam_p=cameras, img_p=camera_images; num_images>0; cam_p++, img_p++, num_images--) {
     if (!img_p[0])
-      img_p[0] = create_image();
+      img_p[0] = cvCreateImage(cvSize(640, 480), IPL_DEPTH_8U, 3);
     convert_yuv411_to_yuv24(img_p[0], (unsigned char*) cam_p[0]->capture->capture_buffer);
     dc1394_dma_done_with_buffer(cam_p[0]->capture);
   }
@@ -126,6 +126,24 @@ IplImage** cv_dc1394_capture_rgb(int num_images) {
   for (i=0; i<num_images; i++) {
     cvCvtColor(camera_images[i], camera_images[i], CV_YCrCb2RGB);
   }
+  return camera_images;
+}
+
+IplImage** cv_dc1394_capture_gray(int num_images) {
+  cv_dc1394_camera **cam_p;
+  IplImage **img_p;
+
+  /* Wait for all cameras to have a frame available */
+  dc1394_dma_multi_capture(camera_captures, num_images);
+
+  /* Copy, convert, and free buffers from each camera. */
+  for (cam_p=cameras, img_p=camera_images; num_images>0; cam_p++, img_p++, num_images--) {
+    if (!img_p[0])
+      img_p[0] = cvCreateImage(cvSize(640, 480), IPL_DEPTH_8U, 1);
+    convert_yuv411_to_gray(img_p[0], (unsigned char*) cam_p[0]->capture->capture_buffer);
+    dc1394_dma_done_with_buffer(cam_p[0]->capture);
+  }
+
   return camera_images;
 }
 
@@ -182,11 +200,6 @@ static void init_camera(int port, nodeid_t node) {
   cameras[num_opened_cameras] = NULL;
 }
 
-static IplImage* create_image() {
-  /* FIXME: hardcoded size and depth */
-  return cvCreateImage(cvSize(640, 480), IPL_DEPTH_8U, 3);
-}
-
 static void convert_yuv411_to_yuv24(IplImage *img, unsigned char *src) {
   int x,y;
   unsigned char y0, y1, y2, y3, u, v;
@@ -213,6 +226,27 @@ static void convert_yuv411_to_yuv24(IplImage *img, unsigned char *src) {
       *(dest++) = y3;
       *(dest++) = u;
       *(dest++) = v;
+    }
+}
+
+static void convert_yuv411_to_gray(IplImage *img, unsigned char *src) {
+  int x,y;
+  unsigned char y0, y1, y2, y3, u, v;
+  unsigned char *dest = (unsigned char*) img->imageData;
+
+  for (y=0; y<img->height; y++)
+    for (x=0; x<img->width; x+=4) {
+      u  = *(src++);
+      y0 = *(src++);
+      y1 = *(src++);
+      v  = *(src++);
+      y2 = *(src++);
+      y3 = *(src++);
+
+      *(dest++) = y0;
+      *(dest++) = y1;
+      *(dest++) = y2;
+      *(dest++) = y3;
     }
 }
 
