@@ -1,5 +1,5 @@
 /*
- * core.c - Interface for the base plugin
+ * group.h - Definition for the group object
  *
  * BZEdit
  * Copyright (C) 2004 David Trowbridge
@@ -20,28 +20,35 @@
  *
  */
 
-#include <gmodule.h>
-#include "box.h"
-#include "teleporter.h"
-#include "pyramid.h"
-#include "world.h"
-#include "group.h"
-#include "plugins.h"
+#ifndef __GROUP_H__
+#define __GROUP_H__
 
-const gchar*
-g_module_check_init (GModule *module)
+#include "sceneobject.h"
+
+G_BEGIN_DECLS
+
+#define GROUP_TYPE            (group_get_type ())
+#define GROUP(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GROUP_TYPE, Group))
+#define GROUP_CLASS(obj)      (G_TYPE_CHECK_CLASS_CAST ((klass), GROUP_TYPE, GroupClass))
+#define IS_GROUP(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GROUP_TYPE))
+#define IS_GROUP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), GROUP_TYPE))
+
+typedef struct _Group      Group;
+typedef struct _GroupClass GroupClass;
+
+struct _Group
 {
-  static GType box, group, pyramid, teleporter, world;
+  SceneObject parent;
+};
 
-  /* permanently insert ourself */
-  g_module_make_resident (module);
+struct _GroupClass
+{
+  SceneObjectClass parent_class;
+};
 
-  /* and register our types */
-  box = BOX_TYPE;
-  group = GROUP_TYPE;
-  pyramid = PYRAMID_TYPE;
-  teleporter = TELEPORTER_TYPE;
-  world = WORLD_TYPE;
+GType  group_get_type (void) G_GNUC_CONST;
+Group* group_new      (void);
 
-  return NULL;
-}
+G_END_DECLS
+
+#endif

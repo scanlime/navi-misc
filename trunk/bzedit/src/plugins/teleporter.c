@@ -81,7 +81,7 @@ teleporter_class_init (TeleporterClass *klass)
   GObjectClass *object_class;
   SceneObjectClass *so_class;
 
-  parent_class = g_type_class_ref (G_TYPE_OBJECT);
+  parent_class = g_type_class_ref (SCENE_OBJECT_TYPE);
   object_class = (GObjectClass*) klass;
   so_class = (SceneObjectClass*) klass;
 
