@@ -22,16 +22,25 @@
 #include "navtree.h"
 #include "userlist_gui.h"
 #include "userlist.h"
+#include "textgui.h"
+#include "pixmaps.h"
+#include "palette.h"
+#include "channel_list.h"
+#include "main_window.h"
 
 /***** NavTree *****/
-static void navigation_tree_init       (NavTree *navtree);
-static void navigation_tree_class_init (NavTreeClass *klass);
-static void navigation_tree_dispose    (GObject *object);
-static void navigation_tree_finalize   (GObject *object);
-
-/* Callback. */
-static gboolean click             (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
-static gboolean declick           (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+static void navigation_tree_init         (NavTree *navtree);
+static void navigation_tree_class_init   (NavTreeClass *klass);
+static void navigation_tree_dispose      (GObject *object);
+static void navigation_tree_finalize     (GObject *object);
+/* Context menus. */
+static void navigation_context           (GtkWidget *treeview, session *selected);
+static void server_context               (GtkWidget *treeview, session *selected);
+static void channel_context              (GtkWidget *treeview, session *selected);
+static void dialog_context               (GtkWidget *treeview, session *selected);
+/* Callbacks. */
+static gboolean click                    (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+static gboolean declick                  (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
 static void navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data);
 
 GType
@@ -88,8 +97,12 @@ navigation_tree_init (NavTree *navtree)
   select = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
   gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 
+	/* FIXME: Should insert navtree into the window here when we replace the existing
+	 * navigation tree stuff with this.
+	 */
+
 	/* Connect the callbacks. */
-  /*g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);*/
+  g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);
   g_signal_connect(G_OBJECT(navtree), "button_press_event", G_CALLBACK(click), NULL);
   g_signal_connect(G_OBJECT(navtree), "button_release_event", G_CALLBACK(declick), NULL);
 }
@@ -118,6 +131,175 @@ navigation_tree_finalize (GObject *object)
 {
 	NavTree *navtree = (NavTree*) object;
 	gtk_tree_path_free(navtree->current_path);
+}
+
+/***** Context Menus *****/
+static void
+navigation_context(GtkWidget *treeview, session *selected)
+{
+	switch(selected->type) {
+	case SESS_SERVER:	server_context(treeview, selected); return;
+	case SESS_CHANNEL:	channel_context(treeview, selected); return;
+	case SESS_DIALOG:	dialog_context(treeview, selected); return;
+	}
+}
+
+/*** Server Context Menu ***/
+static void
+clear_dialog(gpointer data, guint action, GtkWidget *widget)
+{
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		clear_buffer(s);
+	}
+}
+
+static void
+disconnect_server(gpointer data, guint action, GtkWidget *widget)
+{
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		s->server->disconnect(s, TRUE, -1);
+	}
+}
+
+static void
+show_channel_list(gpointer data, guint action, GtkWidget *widget)
+{
+	g_print("channel list!\n");
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		create_channel_list(s);
+	}
+}
+
+static void
+server_context(GtkWidget *treeview, session *selected)
+{
+	static GnomeUIInfo server_context[] = {
+		GNOMEUIINFO_ITEM_STOCK("_Information", NULL, NULL, GTK_STOCK_DIALOG_INFO),
+		GNOMEUIINFO_SEPARATOR,
+		GNOMEUIINFO_ITEM_STOCK("_Reconnect", NULL, NULL, GTK_STOCK_REFRESH),
+		GNOMEUIINFO_ITEM_STOCK("_Disconnect", disconnect_server, NULL, GTK_STOCK_STOP),
+		GNOMEUIINFO_SEPARATOR,
+		GNOMEUIINFO_ITEM_STOCK("_Channels", show_channel_list, NULL, GNOME_STOCK_TEXT_BULLETED_LIST)
+	};
+	GtkWidget *menu;
+
+	menu = gnome_popup_menu_new(server_context);
+	gnome_popup_menu_do_popup(menu, NULL, NULL, NULL, NULL, treeview);
+}
+
+/*** Channel Context Menu ***/
+static void
+leave_dialog(gpointer data, guint action, GtkWidget *widget)
+{
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model, *store;
+	GtkTreeIter iter, newiter;
+	session *s;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	select= gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
+		if(s->type == SESS_CHANNEL) {
+			s->server->p_part(s->server, s->channel, "ex-chat");
+			/* FIXME: part reason */
+		}
+		gtk_tree_model_sort_convert_iter_to_child_iter(GTK_TREE_MODEL_SORT(model), &newiter, &iter);
+		gtk_tree_store_set(GTK_TREE_STORE(store), &newiter, 4, &colors[23], -1);
+	}
+}
+
+static void
+close_dialog(gpointer data, guint action, GtkWidget *widget)
+{
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		if(s->type == SESS_CHANNEL) {
+			s->server->p_part(s->server, s->channel, "ex-chat");
+			/* FIXME: part reason */
+		}
+		navigation_tree_remove(s);
+		text_gui_remove_text_buffer(s);
+	}
+}
+
+static void
+channel_context(GtkWidget *treeview, session *selected)
+{
+	static GnomeUIInfo channel_context[] = {
+		GNOMEUIINFO_MENU_SAVE_ITEM(NULL, NULL),
+		GNOMEUIINFO_MENU_SAVE_AS_ITEM(NULL, NULL),
+		GNOMEUIINFO_SEPARATOR,
+		GNOMEUIINFO_ITEM_STOCK("_Leave", leave_dialog, NULL, GTK_STOCK_QUIT),
+		GNOMEUIINFO_MENU_CLOSE_ITEM(close_dialog, NULL),
+		GNOMEUIINFO_SEPARATOR,
+		GNOMEUIINFO_MENU_FIND_ITEM(NULL, NULL),
+		GNOMEUIINFO_MENU_FIND_AGAIN_ITEM(NULL, NULL),
+		GNOMEUIINFO_MENU_CLEAR_ITEM(clear_dialog, NULL),
+		GNOMEUIINFO_SEPARATOR,
+		GNOMEUIINFO_ITEM_STOCK("_Bans", NULL, NULL, GTK_STOCK_DIALOG_WARNING)
+	};
+	GtkWidget *menu;
+
+	menu = gnome_popup_menu_new(channel_context);
+	gnome_popup_menu_do_popup(menu, NULL, NULL, NULL, NULL, treeview);
+}
+
+/*** Dialog Context Menu ***/
+static void
+dialog_context(GtkWidget *treeview, session *selected)
+{
+	static GnomeUIInfo dialog_context[] = {
+		GNOMEUIINFO_MENU_SAVE_ITEM(NULL, NULL),
+		GNOMEUIINFO_MENU_SAVE_AS_ITEM(NULL, NULL),
+		GNOMEUIINFO_SEPARATOR,
+		GNOMEUIINFO_MENU_CLOSE_ITEM(close_dialog, NULL),
+		GNOMEUIINFO_SEPARATOR,
+		GNOMEUIINFO_MENU_FIND_ITEM(NULL, NULL),
+		GNOMEUIINFO_MENU_FIND_AGAIN_ITEM(NULL, NULL),
+		GNOMEUIINFO_MENU_CLEAR_ITEM(clear_dialog, NULL)
+	};
+	GtkWidget *menu;
+
+	menu = gnome_popup_menu_new(dialog_context);
+	gnome_popup_menu_do_popup(menu, NULL, NULL, NULL, NULL, treeview);
 }
 
 /***** Callbacks *****/
