@@ -43,41 +43,52 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <gtk/gtkstock.h>
+#include <gtk/gtkaction.h>
+#include <gtk/gtkactiongroup.h>
+#include <gtk/gtkuimanager.h>
+
 static void on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data);
-static void on_irc_quit_menu_activate (GtkWidget *widget, gpointer data);
-static void on_irc_file_transfers_menu_activate (GtkWidget *widget, gpointer data);
-static void on_irc_connect_menu_activate (GtkWidget *widget, gpointer data);
-static void on_edit_cut_menu_activate (GtkWidget *widget, gpointer data);
-static void on_edit_copy_menu_activate (GtkWidget *widget, gpointer data);
-static void on_edit_paste_menu_activate (GtkWidget *widget, gpointer data);
-static void on_edit_clear_menu_activate (GtkWidget *widget, gpointer data);
-static void on_edit_preferences_menu_activate (GtkWidget *widget, gpointer data);
-static void on_insert_color_code_menu_activate (GtkWidget *widget, gpointer data);
-static void on_network_information_menu_activate (GtkWidget *widget, gpointer data);
-static void on_network_reconnect_menu_activate (GtkWidget *widget, gpointer data);
-static void on_network_disconnect_menu_activate (GtkWidget *widget, gpointer data);
-static void on_network_channels_menu_activate (GtkWidget *widget, gpointer data);
-static void on_network_users_menu_activate (GtkWidget *widget, gpointer data);
-static void on_network_collapse_expand_activate (GtkWidget *widget, gpointer data);
-static void on_discussion_save_activate (GtkWidget *widget, gpointer data);
-static void on_discussion_save_as_activate (GtkWidget *widget, gpointer data);
-static void on_discussion_leave_activate (GtkWidget *widget, gpointer data);
-static void on_discussion_close_activate (GtkWidget *widget, gpointer data);
-static void on_discussion_find_activate (GtkWidget *widget, gpointer data);
-static void on_discussion_find_next_activate (GtkWidget *widget, gpointer data);
-static void on_discussion_clear_window_activate (GtkWidget *widget, gpointer data);
-static void on_discussion_bans_activate (GtkWidget *widget, gpointer data);
-static void on_go_previous_network_activate (GtkWidget *widget, gpointer data);
-static void on_go_next_network_activate (GtkWidget *widget, gpointer data);
-static void on_go_previous_discussion_activate (GtkWidget *widget, gpointer data);
-static void on_go_next_discussion_activate (GtkWidget *widget, gpointer data);
 static void on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void on_discussion_plus_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void on_discussion_minus_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void on_pgup (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
-static void on_help_about_menu_activate (GtkWidget *widget, gpointer data);
 static void on_topic_change (GtkButton *widget, gpointer data);
+
+/* action callbacks */
+static void on_irc_connect_activate (GtkAction *action, gpointer data);
+static void on_irc_downloads_activate (GtkAction *action, gpointer data);
+static void on_irc_monkey_bubble_mode_activate (GtkAction *action, gpointer data);
+static void on_irc_quit_activate (GtkAction *action, gpointer data);
+static void on_edit_undo_activate (GtkAction *action, gpointer data);
+static void on_edit_cut_activate (GtkAction *action, gpointer data);
+static void on_edit_copy_activate (GtkAction *action, gpointer data);
+static void on_edit_paste_activate (GtkAction *action, gpointer data);
+static void on_edit_clear_activate (GtkAction *action, gpointer data);
+static void on_edit_preferences_activate (GtkAction *action, gpointer data);
+static void on_insert_color_code_activate (GtkAction *action, gpointer data);
+static void on_network_information_activate (GtkAction *action, gpointer data);
+static void on_network_reconnect_activate (GtkAction *action, gpointer data);
+static void on_network_disconnect_activate (GtkAction *action, gpointer data);
+static void on_network_channels_activate (GtkAction *action, gpointer data);
+static void on_network_users_activate (GtkAction *action, gpointer data);
+static void on_network_collapse_expand_activate (GtkAction *action, gpointer data);
+static void on_discussion_save_activate (GtkAction *action, gpointer data);
+static void on_discussion_save_as_activate (GtkAction *action, gpointer data);
+static void on_discussion_leave_activate (GtkAction *action, gpointer data);
+static void on_discussion_close_activate (GtkAction *action, gpointer data);
+static void on_discussion_find_activate (GtkAction *action, gpointer data);
+static void on_discussion_find_next_activate (GtkAction *action, gpointer data);
+static void on_discussion_clear_window_activate (GtkAction *action, gpointer data);
+static void on_discussion_bans_activate (GtkAction *action, gpointer data);
+static void on_go_previous_network_activate (GtkAction *action, gpointer data);
+static void on_go_next_network_activate (GtkAction *action, gpointer data);
+static void on_go_previous_discussion_activate (GtkAction *action, gpointer data);
+static void on_go_next_discussion_activate (GtkAction *action, gpointer data);
+static void on_help_about_activate (GtkAction *action, gpointer data);
+
+static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *menu_vbox);
 
 #if (GTK_CHECK_VERSION(2,5,0))
 static void on_expand_topic (GtkExpander *expander, gpointer data);
@@ -94,42 +105,103 @@ static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointe
 
 static void entry_context (GtkEntry *entry, GtkMenu *menu, gpointer user_data);
 
+static GtkActionEntry action_entries [] = {
+
+	/* Toplevel */
+	{ "IRC", NULL, N_("_IRC") },
+	{ "Edit", NULL, N_("_Edit") },
+	{ "Insert", NULL, N_("_Insert") },
+	{ "Network", NULL, N_("_Network") },
+	{ "Discussion", NULL, N_("_Discussion") },
+	{ "Go", NULL, N_("_Go") },
+	{ "Help", NULL, N_("_Help") },
+	{ "PopupAction", NULL, "" },
+
+	/* IRC menu */
+	{ "IRCConnect", GTK_STOCK_CONNECT, N_("_Connect"), "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
+	{ "IRCDownloads", NULL, N_("_File Transfers"), "<alt>F", NULL, G_CALLBACK (on_irc_downloads_activate) },
+	{ "IRCQuit", GTK_STOCK_QUIT, N_("_Quit"), "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
+
+	/* Edit menu */
+	{ "EditUndo", GTK_STOCK_UNDO, N_("_Undo"), "<control>Z", NULL, G_CALLBACK (on_edit_undo_activate) },
+	{ "EditCut", GTK_STOCK_CUT, N_("Cu_t"), "<control>X", NULL, G_CALLBACK (on_edit_cut_activate) },
+	{ "EditCopy", GTK_STOCK_COPY, N_("_Copy"), "<control>C", NULL, G_CALLBACK (on_edit_copy_activate) },
+	{ "EditPaste", GTK_STOCK_PASTE, N_("_Paste"), "<control>V", NULL, G_CALLBACK (on_edit_paste_activate) },
+	{ "EditClear", GTK_STOCK_CLEAR, N_("C_lear"), "", NULL, G_CALLBACK (on_edit_clear_activate) },
+	{ "EditPreferences", GTK_STOCK_PREFERENCES, N_("Prefere_nces"), "", NULL, G_CALLBACK (on_edit_preferences_activate) },
+
+	/* Insert menu */
+	{ "InsertColorCode", GTK_STOCK_SELECT_COLOR, N_("Color Code..."), "", NULL, G_CALLBACK (on_insert_color_code_activate) },
+
+	/* Network menu */
+	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, N_("_Information"), "", NULL, G_CALLBACK (on_network_information_activate) },
+	{ "NetworkReconnect", GTK_STOCK_REFRESH, N_("_Reconnect"), "<control>R", NULL, G_CALLBACK (on_network_reconnect_activate) },
+	{ "NetworkDisconnect", GTK_STOCK_STOP, N_("_Disconnect"), "", NULL, G_CALLBACK (on_network_disconnect_activate) },
+	{ "NetworkChannels", GTK_STOCK_INDEX, N_("_Channels"), "<alt>C", NULL, G_CALLBACK (on_network_channels_activate) },
+	{ "NetworkUsers", NULL, N_("_Users"), "<alt>U", NULL, G_CALLBACK (on_network_users_activate) },
+	{ "NetworkCollapseExpand", NULL, N_("Collapse/Expand"), "<control>space", NULL, G_CALLBACK (on_network_collapse_expand_activate) },
+
+	/* Discussion menu */
+	{ "DiscussionSave", GTK_STOCK_SAVE, N_("_Save"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
+	{ "DiscussionSaveAs", GTK_STOCK_SAVE_AS, N_("Save _As..."), "<control><shift>S", NULL, G_CALLBACK (on_discussion_save_as_activate) },
+	{ "DiscussionLeave", GTK_STOCK_QUIT, N_("_Leave"), "", NULL, G_CALLBACK (on_discussion_leave_activate) },
+	{ "DiscussionClose", GTK_STOCK_CLOSE, N_("Cl_ose"), "<control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
+	{ "DiscussionFind", GTK_STOCK_FIND, N_("_Find"), "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
+	{ "DiscussionFindNext", NULL, N_("Find Ne_xt"), "<control>G", NULL, G_CALLBACK (on_discussion_find_next_activate) },
+	{ "DiscussionClearWindow", GTK_STOCK_CLEAR, N_("_Clear Window"), "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
+	{ "DiscussionBans", GTK_STOCK_DIALOG_WARNING, N_("_Bans"), "<alt>B", NULL, G_CALLBACK (on_discussion_bans_activate) },
+
+	/* Go menu */
+	{ "GoPreviousNetwork", GTK_STOCK_GOTO_FIRST, N_("Pre_vious Network"), "<control>Up", NULL, G_CALLBACK (on_go_previous_network_activate) },
+	{ "GoNextNetwork", GTK_STOCK_GOTO_LAST, N_("Nex_t Network"), "<control>Down", NULL, G_CALLBACK (on_go_next_network_activate) },
+	{ "GoPreviousDiscussion", GTK_STOCK_GO_BACK, N_("_Previous Discussion"), "<alt>Up", NULL, G_CALLBACK (on_go_previous_discussion_activate) },
+	{ "GoNextDiscussion", GTK_STOCK_GO_FORWARD, N_("_Next Discussion"), "<alt>Down", NULL, G_CALLBACK (on_go_next_discussion_activate) },
+
+	/* Help menu */
+	{ "HelpAbout", GTK_STOCK_ABOUT, N_("_About"), "", NULL, G_CALLBACK (on_help_about_activate) },
+};
+
+static GtkToggleActionEntry toggle_action_entries [] = {
+	/* IRC Menu */
+	{ "IRCMonkeyBubbleMode", NULL, N_("Monkey Bubble Mode"), "<control>M", NULL, G_CALLBACK (on_irc_monkey_bubble_mode_activate) },
+};
+
 void
 initialize_main_window ()
 {
-	GtkWidget *entry, *topicbox, *topicchange;
+	GtkWidget *entry, *topicbox, *topicchange, *menu_vbox;
+	GError *error = NULL;
 
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
 	g_signal_connect (G_OBJECT (gui.main_window), "delete-event", G_CALLBACK (on_main_window_close), NULL);
 	/* hook up the menus */
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "connect1")), "activate", G_CALLBACK (on_irc_connect_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "downloads1")), "activate", G_CALLBACK (on_irc_file_transfers_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "quit1")), "activate", G_CALLBACK (on_irc_quit_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "cut1")), "activate", G_CALLBACK (on_edit_cut_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "copy1")), "activate", G_CALLBACK (on_edit_copy_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "paste1")), "activate", G_CALLBACK (on_edit_paste_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "clear2")), "activate", G_CALLBACK (on_edit_clear_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "settings1")), "activate", G_CALLBACK (on_edit_preferences_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "insert_color_code1")), "activate", G_CALLBACK (on_insert_color_code_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "information1")), "activate", G_CALLBACK (on_network_information_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "reconnect1")), "activate", G_CALLBACK (on_network_reconnect_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "disconnect1")), "activate", G_CALLBACK (on_network_disconnect_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "channel_list1")), "activate", G_CALLBACK (on_network_channels_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "users1")), "activate", G_CALLBACK (on_network_users_menu_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "collapse_expand")), "activate", G_CALLBACK (on_network_collapse_expand_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "save_transcript1")), "activate", G_CALLBACK (on_discussion_save_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "save_as1")), "activate", G_CALLBACK (on_discussion_save_as_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "leave1")), "activate", G_CALLBACK (on_discussion_leave_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "close1")), "activate", G_CALLBACK (on_discussion_close_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "find1")), "activate", G_CALLBACK (on_discussion_find_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "find_next1")), "activate", G_CALLBACK (on_discussion_find_next_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "clear_window1")), "activate", G_CALLBACK (on_discussion_clear_window_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "ban_list1")), "activate", G_CALLBACK (on_discussion_bans_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "previous_network1")), "activate", G_CALLBACK (on_go_previous_network_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "next_network1")), "activate", G_CALLBACK (on_go_next_network_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "previous1")), "activate", G_CALLBACK (on_go_previous_discussion_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "next1")), "activate", G_CALLBACK (on_go_next_discussion_activate), NULL);
-	g_signal_connect (G_OBJECT (glade_xml_get_widget (gui.xml, "about1")), "activate", G_CALLBACK (on_help_about_menu_activate), NULL);
+
+	gui.action_group = gtk_action_group_new ("MenuAction");
+	gtk_action_group_add_actions (gui.action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
+	gtk_action_group_add_toggle_actions (gui.action_group, toggle_action_entries, G_N_ELEMENTS (toggle_action_entries), NULL);
+
+	gui.manager = gtk_ui_manager_new ();
+	gtk_ui_manager_insert_action_group (gui.manager, gui.action_group, 0);
+	g_object_unref (gui.action_group);
+
+	menu_vbox = glade_xml_get_widget (gui.xml, "menu_vbox");
+	g_signal_connect (gui.manager, "add-widget", G_CALLBACK (on_add_widget), menu_vbox);
+
+	/* load the menus */
+	gtk_ui_manager_add_ui_from_file (gui.manager, "xchat-gnome-ui.xml", &error);
+	if (error != NULL)
+	{
+		g_clear_error (&error);
+		gtk_ui_manager_add_ui_from_file (gui.manager, XCHATSHAREDIR "/xchat-gnome-ui.xml", &error);
+		if (error != NULL)
+		{
+			g_clear_error (&error);
+			g_warning ("Couldn't load the UI!\n");
+		}
+	}
+
+	/* hook up accelerators */
+	gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), gtk_ui_manager_get_accel_group (gui.manager));
 
 	entry = glade_xml_get_widget (gui.xml, "text entry");
 	g_signal_connect (G_OBJECT (entry), "activate", G_CALLBACK (on_text_entry_activate), NULL);
@@ -283,8 +355,13 @@ rename_main_window (gchar *server, gchar *channel)
 	g_free (new_title);
 }
 
+static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *menu_vbox)
+{
+	gtk_box_pack_start (GTK_BOX (menu_vbox), menu, FALSE, FALSE, 0);
+}
+
 static void
-on_irc_connect_menu_activate (GtkWidget *widget, gpointer data)
+on_irc_connect_activate (GtkAction *action, gpointer data)
 {
 	display_connection_dialog ();
 }
@@ -298,7 +375,7 @@ on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data)
 }
 
 static void
-on_irc_quit_menu_activate (GtkWidget *widget, gpointer data)
+on_irc_quit_activate (GtkAction *action, gpointer data)
 {
 	hide_transfers_window ();
 	gtk_widget_hide (GTK_WIDGET (gui.main_window));
@@ -307,84 +384,95 @@ on_irc_quit_menu_activate (GtkWidget *widget, gpointer data)
 }
 
 static void
-on_edit_cut_menu_activate (GtkWidget *widget, gpointer data)
+on_edit_undo_activate (GtkAction *action, gpointer data)
+{
+	/* FIXME */
+}
+
+static void
+on_edit_cut_activate (GtkAction *action, gpointer data)
 {
 	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
 	gtk_editable_cut_clipboard(GTK_EDITABLE(text_entry));
 }
 
 static void
-on_edit_copy_menu_activate (GtkWidget *widget, gpointer data)
+on_edit_copy_activate (GtkAction *action, gpointer data)
 {
 	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
 	gtk_editable_copy_clipboard(GTK_EDITABLE(text_entry));
 }
 
 static void
-on_edit_paste_menu_activate (GtkWidget *widget, gpointer data)
+on_edit_paste_activate (GtkAction *action, gpointer data)
 {
 	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
 	gtk_editable_paste_clipboard(GTK_EDITABLE(text_entry));
 }
 
 static void
-on_edit_clear_menu_activate (GtkWidget *widget, gpointer data)
+on_edit_clear_activate (GtkAction *action, gpointer data)
 {
 	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
 	gtk_editable_delete_selection(GTK_EDITABLE(text_entry));
 }
 
 static void
-on_edit_preferences_menu_activate (GtkWidget *widget, gpointer data)
+on_edit_preferences_activate (GtkAction *action, gpointer data)
 {
 	gtk_widget_show_all (GTK_WIDGET (gui.preferences_dialog));
 }
 
 static void
-on_insert_color_code_menu_activate (GtkWidget *widget, gpointer data)
+on_insert_color_code_activate (GtkAction *action, gpointer data)
 {
 	/* FIXME: implement */
 }
 
 static void
-on_network_information_menu_activate (GtkWidget *widget, gpointer data)
+on_network_information_activate (GtkAction *action, gpointer data)
 {
 	/* FIXME: implement */
 }
 
 static void
-on_network_reconnect_menu_activate (GtkWidget *widget, gpointer data)
+on_network_reconnect_activate (GtkAction *action, gpointer data)
 {
 	handle_command (gui.current_session, "reconnect", FALSE);
 }
 
 static void
-on_network_disconnect_menu_activate (GtkWidget *widget, gpointer data)
+on_network_disconnect_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
 	s->server->disconnect (s, TRUE, -1);
 }
 
 static void
-on_irc_file_transfers_menu_activate (GtkWidget *widget, gpointer data)
+on_irc_downloads_activate (GtkAction *action, gpointer data)
 {
 	show_transfers_window ();
 }
 
 static void
-on_network_channels_menu_activate (GtkWidget *widget, gpointer data)
+on_irc_monkey_bubble_mode_activate (GtkAction *action, gpointer data)
+{
+}
+
+static void
+on_network_channels_activate (GtkAction *action, gpointer data)
 {
 	create_channel_list (gui.current_session);
 }
 
 static void
-on_network_users_menu_activate (GtkWidget *widget, gpointer data)
+on_network_users_activate (GtkAction *action, gpointer data)
 {
 	/* FIXME: implement */
 }
 
 static void
-on_network_collapse_expand_activate (GtkWidget *widget, gpointer data)
+on_network_collapse_expand_activate (GtkAction *action, gpointer data)
 {
 	GtkTreeView *view;
 	GtkTreeModel *model;
@@ -414,19 +502,19 @@ on_network_collapse_expand_activate (GtkWidget *widget, gpointer data)
 }
 
 static void
-on_discussion_save_activate (GtkWidget *widget, gpointer data)
+on_discussion_save_activate (GtkAction *action, gpointer data)
 {
 	/* FIXME: implement */
 }
 
 static void
-on_discussion_save_as_activate (GtkWidget *widget, gpointer data)
+on_discussion_save_as_activate (GtkAction *action, gpointer data)
 {
 	/* FIXME: implement */
 }
 
 static void
-on_discussion_leave_activate (GtkWidget *widget, gpointer data)
+on_discussion_leave_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
 	if (s->type == SESS_CHANNEL)
@@ -442,7 +530,7 @@ on_discussion_leave_activate (GtkWidget *widget, gpointer data)
 }
 
 static void
-on_discussion_close_activate (GtkWidget *widget, gpointer data)
+on_discussion_close_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
 /*	navigation_tree_select_next_channel (gui.server_tree, TRUE);*/
@@ -461,50 +549,50 @@ on_discussion_close_activate (GtkWidget *widget, gpointer data)
 }
 
 static void
-on_discussion_find_activate (GtkWidget *widget, gpointer data)
+on_discussion_find_activate (GtkAction *action, gpointer data)
 {
 	/* FIXME: implement */
 }
 
 static void
-on_discussion_find_next_activate (GtkWidget *widget, gpointer data)
+on_discussion_find_next_activate (GtkAction *action, gpointer data)
 {
 	/* FIXME: implement */
 }
 
 static void
-on_discussion_clear_window_activate (GtkWidget *widget, gpointer data)
+on_discussion_clear_window_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
 	clear_buffer (s);
 }
 
 static void
-on_discussion_bans_activate (GtkWidget *widget, gpointer data)
+on_discussion_bans_activate (GtkAction *action, gpointer data)
 {
 	/* FIXME: implement */
 }
 
 static void
-on_go_previous_network_activate (GtkWidget *widget, gpointer data)
+on_go_previous_network_activate (GtkAction *action, gpointer data)
 {
 	navigation_tree_select_prev_network (gui.server_tree);
 }
 
 static void
-on_go_next_network_activate(GtkWidget *widget, gpointer data)
+on_go_next_network_activate(GtkAction *action, gpointer data)
 {
 	navigation_tree_select_next_network (gui.server_tree);
 }
 
 static void
-on_go_previous_discussion_activate (GtkWidget *widget, gpointer data)
+on_go_previous_discussion_activate (GtkAction *action, gpointer data)
 {
 	navigation_tree_select_prev_channel (gui.server_tree, TRUE);
 }
 
 static void
-on_go_next_discussion_activate (GtkWidget *widget, gpointer data)
+on_go_next_discussion_activate (GtkAction *action, gpointer data)
 {
 	navigation_tree_select_next_channel (gui.server_tree, TRUE);
 }
@@ -564,7 +652,7 @@ on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType a
 }
 
 static void
-on_help_about_menu_activate (GtkWidget *widget, gpointer data)
+on_help_about_activate (GtkAction *action, gpointer data)
 {
 	show_about_dialog ();
 }
