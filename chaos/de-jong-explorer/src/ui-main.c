@@ -208,6 +208,8 @@ static int interactive_idle_handler(gpointer user_data) {
   /* An idle handler used for interactively rendering. This runs a relatively
    * small number of iterations, then calls update_gui() to update our visible image.
    */
+  GTimer *timer;
+  gulong elapsed;
 
   if (gui.update_calc_params_when_convenient || gui.update_render_params_when_convenient) {
     write_gui_params();
@@ -223,7 +225,15 @@ static int interactive_idle_handler(gpointer user_data) {
     gui.update_render_params_when_convenient = FALSE;
   }
 
-  run_iterations(10000);
+  /* Run as many blocks of iterations as we can in 12 milliseconds */
+  timer = g_timer_new();
+  g_timer_start(timer);
+  do {
+    run_iterations(5000);
+    g_timer_elapsed(timer, &elapsed);
+  } while (elapsed < 12000);
+  g_timer_destroy(timer);
+
   update_gui();
   return 1;
 }
