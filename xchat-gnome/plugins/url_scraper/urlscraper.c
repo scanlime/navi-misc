@@ -89,16 +89,16 @@ static void add_match (char **word, regmatch_t match)
 	channel = malloc (strlen (chan));
 	strncpy (channel, chan+1, strlen (chan));
 
-	/*if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter)) {
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter)) {
 		char *entry;
 		do {
-			gtk_tree_model_get (GTK_TREE_MODEL(list_store), &iter, 2, entry, -1);
-			if (strcmp (entry, url_match)) {
+			gtk_tree_model_get (GTK_TREE_MODEL(list_store), &iter, 2, &entry, -1);
+			if (strcmp (entry, url_match) == 0) {
 				free (url_match);
 				return;
 			}
 		} while (gtk_tree_model_iter_next (GTK_TREE_MODEL(list_store), &iter));
-	}*/
+	}
 
 	if (urls >= MAXURLS) {
 		gtk_tree_model_get_iter_first (GTK_TREE_MODEL(list_store), &iter);
