@@ -37,6 +37,7 @@ class Filter:
     project = None
     server = "http://localhost:3910"
     debug = False
+    deliverable = False
 
     def pullLine(self):
         """Read one line from the message, with support for lookahead"""
@@ -82,13 +83,17 @@ class Filter:
         pass
 
     def addModule(self, module):
+        self.deliverable = True
         self.xml.source.addElement('module', content=module)
 
     def addBranch(self, branch):
+        self.deliverable = True
         self.xml.source.addElement('branch', content=branch)
 
     def deliver(self):
         """Deliver the message in self.xml"""
+        if not self.deliverable:
+            return
         if self.debug:
             print self.xml.toXml()
         else:
@@ -102,17 +107,21 @@ class CommitFilter(Filter):
         self.xml.body.addElement('commit')
 
     def addAuthor(self, author):
+        self.deliverable = True
         self.xml.body.commit.addElement('author', content=author)
 
     def addURL(self, url):
+        self.deliverable = True
         self.xml.body.commit.addElement('url', content=url)
 
     def addFile(self, file):
+        self.deliverable = True
         if not self.xml.body.commit.files:
             self.xml.body.commit.addElement('files')
         self.xml.body.commit.files.addElement('file', content=file)
 
     def addLog(self, log):
+        self.deliverable = True
         self.xml.body.commit.addElement('log', content=log)
 
 ### The End ###
