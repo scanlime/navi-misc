@@ -47,6 +47,9 @@ static gint xtext_signals[LAST_SIGNAL];
 
 struct _XText2Private
 {
+  /* This structure contains all the private data of the XText.
+     Most of this is internal state needed to draw */
+
   /* view settings */
   gboolean     indent;               /* indent text? */
   gboolean     show_separator;       /* show the separator bar? */
@@ -68,6 +71,21 @@ struct _XText2Private
 
   /* state data */
   int          pixel_offset;         /* number of pixels the top line is chopped by */
+
+  /* state associated with rendering specific buffers */
+  GHashTable  *buffer_info;          /* stores an XTextFormat for each buffer we observe */
+};
+
+typedef struct _XTextFormat XTextFormat;
+struct _XTextFormat
+{
+  int   window_width;  /* window size when */
+  int   window_height; /* last rendered */
+
+  /* handlers */
+  guint append_handler;
+  guint clear_handler;
+  guint remove_handler;
 };
 
 GType
@@ -164,6 +182,9 @@ static void
 xtext2_init (XText2 *xtext)
 {
   xtext->priv = g_new0 (XText2Private, 1);
+
+  xtext->priv->buffer_info = g_hash_table_new (g_direct_hash, g_direct_equal);
+
   gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
 }
 
@@ -470,4 +491,18 @@ set_bg (XText2 *xtext, GdkGC *gc, int index)
 #ifdef USE_XFT
   xtext->xft_bg = &xtext->color[index];
 #endif
+}
+
+void
+xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
+{
+  XTextFormat *f;
+
+  f = g_hash_table_lookup (xtext->priv->buffer_info, buffer);
+  if (f == NULL)
+  {
+    /* this isn't a buffer we've seen before */
+    f = g_new0 (XTextFormat, 1);
+    g_hash_table_insert (xtext->priv->buffer_info, buffer, f);
+  }
 }
