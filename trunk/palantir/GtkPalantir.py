@@ -10,12 +10,12 @@ for the IRC stuff.
 from twisted.internet import gtk2reactor
 gtk2reactor.portableInstall()
 
-import string, re, gtk, gtk.glade, gobject, palantirIRC
+import string, re, gtk, gtk.glade, gobject, palantirIRC, CharacterSheet.GtkSheetElements
 from GtkChatBuffer import GtkChatBuffer
 from time import localtime
 from dieRoller import DieRoller
 from CharacterSheet.Character import Character
-from CharacterSheet.GtkSheet import GtkSheet
+from CharacterSheet.Sheet import Sheet
 from twisted.internet import reactor
 
 class PalantirWindow:
@@ -366,7 +366,7 @@ class PalantirWindow:
     if hasattr(self, 'sheet'):
       self.tree.get_widget('CharacterViewPort').remove(self.sheet.root)
     # Create a new sheet.
-    self.sheet = GtkSheet(self.data, self.dieRoller)
+    self.sheet = Sheet(self.data, self.dieRoller, CharacterSheet.GtkSheetElements)
     # Store the filename the sheet was read from... (why did I do this?)
     self.sheet.filename = self.tree.dialog.get_widget('SheetSelection').get_filename()
     # Add the sheet to the CharacterViewPort and show it.
