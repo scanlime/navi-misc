@@ -101,6 +101,8 @@ connect_dialog_init (ConnectDialog *dialog)
 	g_object_unref (xml);
 
 	dialog->server_store = gtk_list_store_new (1, G_TYPE_STRING);
+	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->server_list), GTK_TREE_MODEL (dialog->server_store));
+
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("name", renderer, "text", 0, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (dialog->server_list), column);
@@ -123,6 +125,7 @@ connect_dialog_init (ConnectDialog *dialog)
 		netlist = g_slist_next (netlist);
 	}
 
+	gtk_window_set_default_size (GTK_WINDOW (dialog), 320, 240);
 	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
 	g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (dialog_response), NULL);
 }
