@@ -228,8 +228,8 @@ class RulesetEditor:
 
 
 if __name__ == "__main__":
-    # Locate our glade file by looking in the 'data' directory wherever our source file is located.
-    gladeFile = os.path.join(os.path.dirname(sys.argv[0]), "data", "ruleset_editor.glade")
+    # Locate our glade file by looking in the same directory as our source
+    gladeFile = os.path.join(os.path.dirname(sys.argv[0]), "ruleset_editor.glade")
 
     # Default to connecting to navi, but let the user override that on the command line
     server = "http://navi.picogui.org:3910"
