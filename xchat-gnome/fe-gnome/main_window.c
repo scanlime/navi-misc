@@ -62,7 +62,6 @@ static void on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkMo
 static void on_irc_connect_activate (GtkAction *action, gpointer data);
 static void on_irc_downloads_activate (GtkAction *action, gpointer data);
 static void on_irc_quit_activate (GtkAction *action, gpointer data);
-static void on_edit_undo_activate (GtkAction *action, gpointer data);
 static void on_edit_cut_activate (GtkAction *action, gpointer data);
 static void on_edit_copy_activate (GtkAction *action, gpointer data);
 static void on_edit_paste_activate (GtkAction *action, gpointer data);
@@ -126,7 +125,6 @@ static GtkActionEntry action_entries [] = {
 	{ "IRCQuit", GTK_STOCK_QUIT, _("_Quit"), "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
 
 	/* Edit menu */
-	{ "EditUndo", GTK_STOCK_UNDO, _("_Undo"), "<control>Z", NULL, G_CALLBACK (on_edit_undo_activate) },
 	{ "EditCut", GTK_STOCK_CUT, _("Cu_t"), "<control>X", NULL, G_CALLBACK (on_edit_cut_activate) },
 	{ "EditCopy", GTK_STOCK_COPY, _("_Copy"), "<control>C", NULL, G_CALLBACK (on_edit_copy_activate) },
 	{ "EditPaste", GTK_STOCK_PASTE, _("_Paste"), "<control>V", NULL, G_CALLBACK (on_edit_paste_activate) },
@@ -573,12 +571,6 @@ on_irc_quit_activate (GtkAction *action, gpointer data)
 	gtk_widget_hide (GTK_WIDGET (gui.main_window));
 	gui.quit = TRUE;
 	xchat_exit ();
-}
-
-static void
-on_edit_undo_activate (GtkAction *action, gpointer data)
-{
-	/* FIXME */
 }
 
 static void

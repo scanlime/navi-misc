@@ -9,13 +9,11 @@
 		</menu>
 
 		<menu name="EditMenu" action="Edit">
-			<menuitem name="EditUndoItem" action="EditUndo"/>
-			<separator name="EditSep0"/>
 			<menuitem name="EditCutItem" action="EditCut"/>
 			<menuitem name="EditCopyItem" action="EditCopy"/>
 			<menuitem name="EditPasteItem" action="EditPaste"/>
 			<menuitem name="EditClearItem" action="EditClear"/>
-			<separator name="EditSep1"/>
+			<separator name="EditSep0"/>
 			<menuitem name="EditPreferencesItem" action="EditPreferences"/>
 		</menu>
 
