@@ -21,11 +21,15 @@ Abstraction for the BZFlag server list server.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
 # 
 
+listServerURL = None
 
 def getListServerURL():
     """Looks up the current list server URL from bzflag.org"""
-    import urllib2
-    return urllib2.urlopen("http://bzflag.org/list-server.txt").read().strip()
+    global listServerURL
+    if not listServerURL:
+        import urllib2
+        return urllib2.urlopen("http://bzflag.org/list-server.txt").read().strip()
+    return listServerURL
 
 
 class ServerInfo:
