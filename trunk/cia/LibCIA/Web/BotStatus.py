@@ -21,7 +21,7 @@ A web interface showing the current status of the BotNetwork
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import Template, Server
+import Template, Server, Info
 from LibCIA import TimeUtil
 from Nouvelle import tag, place
 import Nouvelle
@@ -324,6 +324,7 @@ class IRCBotPage(Template.Page):
     def render_leftColumn(self, context):
         return [
             TotalsSection(self.botNet),
+            Info.Clock(),
             ]
 
 ### The End ###
