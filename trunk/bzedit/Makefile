@@ -6,13 +6,15 @@ LIBS	+= $(shell pkg-config --libs $(PKGS))
 BIN	= bzedit
 
 OBJS	= 			\
+	src/drawable.o		\
 	src/editor.o		\
 	src/gldrawingarea.o	\
 	src/main.o		\
 	src/parameter-editor.o	\
 	src/parameter-holder.o	\
 	src/plugins.o		\
-	src/sceneobject.o
+	src/sceneobject.o	\
+	src/texturemanager.o
 
 $(BIN):	$(OBJS)
 	gcc -o $@ $(OBJS) $(LIBS)
