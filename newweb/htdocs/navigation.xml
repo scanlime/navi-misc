@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<pages>
+  <link name="cia" href="/cgi-bin/cia_stats.cgi"/>
+  <link name="therm" href="/therm"/>
+  <link name="disks" href="/cgi-bin/disks.cgi"/>
+  <link name="images" href="/images"/>
+  <link name="monitor" href="/monitor"/>
+  <link name="stats" href="/webalizer"/>
+  <link name="misc" href="/svn/misc/trunk"/>
+  <link name="picogui" href="/svn/picogui/trunk"/>
+</pages>
