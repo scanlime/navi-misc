@@ -32,10 +32,22 @@ as both our web site and our package's standalone documentation.
 
 from docutils import core, writers, nodes
 from Nouvelle import tag, place
-import Template
-import os
+import Template, Server
+import os, posixpath
 from twisted.web import error
 from twisted.web.woven import dirlist
+
+
+class Component(Server.Component):
+    """A component representing the on-disk documentation tree"""
+    name = "Documentation"
+
+    def __init__(self, basePath):
+        self.basePath = basePath
+        self.resource = Page(self)
+
+    def __contains__(self, page):
+        return isinstance(page, Page)
 
 
 class NouvelleTranslator(nodes.NodeVisitor):
@@ -201,21 +213,23 @@ class NullFile:
 
 class Page(Template.Page):
     """A web page holding a docutils-formatted document"""
-
-    # Our title isn't set until render-time. We still need a title to
-    # use for linking and such however. For now, this isn't terribly
-    # important- we just use a static and rather generic title.
-    mainTitle = "Docmentation"
-
-    def __init__(self, path):
+    def __init__(self, component, path=''):
+        self.component = component
         self.path = path
         Template.Page.__init__(self)
 
     def getChild(self, path, request):
         if path and path[0] != '.':
-            return self.__class__(os.path.join(self.path, path))
+            return self.__class__(self.component, os.path.join(self.path, path))
         else:
             return self
+
+    def getURL(self, context):
+        return posixpath.join(self.component.url, self.path)
+
+    def parent(self):
+        if self.path:
+            return Page(self.component, posixpath.split(self.path)[0])
 
     def render(self, request):
         """Overrides the default render() function for pages. This checks
@@ -224,7 +238,7 @@ class Page(Template.Page):
            this formats our document and passes control on to the usual
            rendering processes.
            """
-        path = self.path
+        path = os.path.join(self.component.basePath, *self.path.split("/"))
 
         # Is this actually a directory?
         if os.path.isdir(path):

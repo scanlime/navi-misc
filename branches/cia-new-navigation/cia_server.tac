@@ -31,13 +31,16 @@ rulesetStorage = Ruleset.RulesetStorage(hub, uriRegistry)
 # Save the 'universe' capability key so it can be used later by the administrative tools
 Security.caps.saveKey('universe', '~/.cia_key')
 
+# Create our documentation component a bit early, since we use it
+# both as a normal component and for our site's front page
+doc = Web.Doc.Component('doc')
+
 # Create the web interface. We start with all the static files in
 # 'htdocs' and add dynamic content from there.  Most of the web site's
 # content is written in reStructuredText and processed by Web.Doc. We
 # use a StaticJoiner to provide a doc page as the front page.
-webRoot = Web.Server.StaticJoiner('htdocs', Web.Doc.Page('doc/welcome'))
+webRoot = Web.Server.StaticJoiner('htdocs', Web.Doc.Page(doc, 'welcome'))
 webRoot.putChild('stats', Web.Stats.Browser.Page())
-webRoot.putChild('doc', Web.Doc.Page('doc'))
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port
 webRoot.putChild('vhost', vhost.VHostMonsterResource())
@@ -54,6 +57,8 @@ webRoot.putChild('RPC2', rpc)
 
 site = Web.Server.Site(webRoot)
 
+# The user-navigable areas of our site are all Component instances
+site.putComponent('doc', doc)
 site.putComponent('irc', Web.BotStatus.Component(botNet))
 site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))
 site.putComponent('info', Web.Info.Component())
