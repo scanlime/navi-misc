@@ -51,6 +51,22 @@
  */
 #define UNICONE_EP_FPGA_CONFIG  1
 
+/* Endpoint for sending arbitrary data to the FPGA over I2C.
+ * Send one or more packets consisting of:
+ *  1. The I2C address (defined by the FPGA) to write to (one byte)
+ *  2. The length of the write (one byte)
+ *  3. An appropriate number of data bytes
+ */
+#define UNICONE_EP_FPGA_WRITE   2
+
+
+/**************************************************************************/
+/******************************************************** I2C Devices *****/
+/**************************************************************************/
+
+/* Write 16-bit big-endian values to change the LED brightness */
+#define UNICONE_I2C_LED         0x21
+
 
 /**************************************************************************/
 /**************************************************** Vendor Requests *****/
@@ -73,9 +89,6 @@
  * configured.
  */
 #define UNICONE_REQ_FPGA_STATUS          0x13
-
-/* Set the status LED brightness, from wValue, in the range [0x0000, 0xFFFF] */
-#define UNICONE_REQ_LED_BRIGHTNESS       0x23
 
 /* Force us to reboot back into the TUSB bootloader */
 #define UNICONE_REQ_REBOOT               0x34

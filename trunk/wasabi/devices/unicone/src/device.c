@@ -360,4 +360,25 @@ int                       unicone_device_upload_bitstream (struct unicone_device
   return bytes_uploaded;
 }
 
+int                       unicone_device_i2c_write        (struct unicone_device*    self,
+							   int                       i2c_addr,
+							   const unsigned char*      data,
+							   int                       length)
+{
+  unsigned char packet[64];
+
+  if (length > sizeof(packet)+2)
+    return -1;
+
+  packet[0] = i2c_addr;
+  packet[1] = length;
+  memcpy(packet+2, data, length);
+
+  if (usb_bulk_write(self->usbdev, UNICONE_EP_FPGA_WRITE, packet, length + 2, TIMEOUT) <= 0)
+    return -1;
+
+  return 0;
+}
+
+
 /* The End */

@@ -49,6 +49,7 @@ const static struct {
   struct usb_config_descriptor config;
   struct usb_interface_descriptor if0;
   struct usb_endpoint_descriptor if0_ep0;
+  struct usb_endpoint_descriptor if0_ep1;
 } config_descript = {
   /* Configuration */
   {
@@ -67,17 +68,26 @@ const static struct {
     /* bDescriptorType     */  USB_DT_INTERFACE,
     /* bInterfaceNumber    */  0,
     /* bAlternateSetting   */  0,
-    /* bNumEndpoints       */  1,
+    /* bNumEndpoints       */  2,
     /* bInterfaceClass     */  USB_CLASS_VENDOR_SPEC,
     /* bInterfaceSubClass  */  USB_CLASS_VENDOR_SPEC,
     /* bInterfaceProtocol  */  USB_CLASS_VENDOR_SPEC,
     /* iInterface          */  0,
   },
-  /* First interface's first endpoint */
+  /* First endpoint: FPGA configuration input */
   {
     /* bLength             */  sizeof(struct usb_endpoint_descriptor),
     /* bDescriptorType     */  USB_DT_ENDPOINT,
-    /* bEndpointAddress    */  1 | USB_DIR_OUT,
+    /* bEndpointAddress    */  UNICONE_EP_FPGA_CONFIG | USB_DIR_OUT,
+    /* bmAttributes        */  USB_ENDPOINT_XFER_BULK,
+    /* wMaxPacketSize      */  64,
+    /* bInterval           */  0,
+  },
+  /* Second endpoint: General-purpose FPGA data input */
+  {
+    /* bLength             */  sizeof(struct usb_endpoint_descriptor),
+    /* bDescriptorType     */  USB_DT_ENDPOINT,
+    /* bEndpointAddress    */  UNICONE_EP_FPGA_WRITE | USB_DIR_OUT,
     /* bmAttributes        */  USB_ENDPOINT_XFER_BULK,
     /* wMaxPacketSize      */  64,
     /* bInterval           */  0,
