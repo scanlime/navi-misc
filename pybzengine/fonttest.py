@@ -66,5 +66,3 @@ def drawFrame():
 viewport.onDrawFrame.observe(drawFrame)
 frameRateInstrument = Instrument.FrameRate(viewport)
 loop.run()
-
-
