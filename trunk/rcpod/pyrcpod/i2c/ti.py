@@ -114,7 +114,7 @@ class ADS1112(i2c.Device):
     dataRate = 3
     gain = 0
 
-    def readWithStatus(self, channel=None):
+    def readWithStatus(self, channel=None, returnType=float):
         """Read the latest value, returning None if no new value is available.
            Optionally changes the input channel before reading.
            """
@@ -124,16 +124,32 @@ class ADS1112(i2c.Device):
         if status & 0x80:
             return None
         else:
-            return (high << 8) | low
+            return self._decode(high, low, returnType)
 
-    def read(self, channel=None):
+    def read(self, channel=None, returnType=float):
         """Read the most recently converted value, without regard to whether
            it has already been read. Optionally changes the input channel first.
            """
         if channel is not None:
             self.setChannel(channel)
         high, low = self.busRead(2)
-        return (high << 8) | low
+        return self._decode(high, low, returnType)
+
+    def _decode(self, high, low, returnType):
+        """Given the high and low bytes returned by the ADC,
+           convert them to the required return type.
+           """
+        # Unpack the signed 16-bit integer
+        code = (high << 8) | low
+        if code & 0x8000:
+            code -= 0x10000
+
+        if returnType is float:
+            return float(code) / 0x7FFF
+        elif returnType is int:
+            return code
+        else:
+            raise ValueError("Unsupported return type '%r'" % returnType)
 
     def setChannel(self, channel):
         """Set the input channel number, as defined in the data sheet.
