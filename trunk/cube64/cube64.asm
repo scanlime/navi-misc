@@ -18,7 +18,7 @@
 	;; poured into reverse engineering the N64 and Gamecube by others.
 	;; The author found these resources particularly helpful:
 	;;
-	;;   http://www.int03.co.uk/crema/hardware/gamecube/gcpad1.cpp
+	;;   http://www.int03.co.uk/crema/hardware/gamecube/gc-control.htm
 	;;   http://www.gc-linux.org/docs/yagcd/chap8.html
 	;;   http://instruct1.cit.cornell.edu/courses/ee476/FinalProjects/s2002/jew17/lld.html
 	;;   http://www.mixdown.ca/n64dev/
@@ -93,6 +93,92 @@ main_loop
 
 
 	;; *******************************************************************************
+	;; ******************************************************  Button/Axis mapping ***
+	;; *******************************************************************************
+
+map_button macro src_byte, src_bit, dest_byte, dest_bit
+	btfsc	gamecube_buffer+src_byte, src_bit
+	bsf	n64_status_buffer+dest_byte, dest_bit
+	endm
+
+map_axis macro src_byte, dest_byte
+	movf	gamecube_buffer+src_byte, w
+	movwf	n64_status_buffer+dest_byte
+	endm
+
+map_start macro
+	clrf	n64_status_buffer+0	; Start out with everything zeroed...
+	clrf	n64_status_buffer+1
+	clrf	n64_status_buffer+2
+	clrf	n64_status_buffer+3
+	endm
+
+	;; Gamecube buttons
+	#define	GC_A		0, 0
+	#define	GC_B		0, 1
+	#define	GC_X		0, 2
+	#define	GC_Y		0, 3
+	#define	GC_START	0, 4
+	#define	GC_D_LEFT	1, 0
+	#define	GC_D_RIGHT	1, 1
+	#define	GC_D_DOWN	1, 2
+	#define	GC_D_UP		1, 3
+	#define	GC_Z		1, 4
+	#define	GC_R		1, 5
+	#define	GC_L		1, 6
+
+	;; Gamecube axes
+	#define GC_JOYSTICK_X	2
+	#define GC_JOYSTICK_Y	3
+	#define GC_CSTICK_X	4
+	#define GC_CSTICK_Y	5
+	#define GC_L_ANALOG	6
+	#define GC_R_ANALOG	7
+
+	;; N64 buttons
+	#define	N64_D_RIGHT	0, 0
+	#define	N64_D_LEFT	0, 1
+	#define	N64_D_DOWN	0, 2
+	#define	N64_D_UP	0, 3
+	#define	N64_START	0, 4
+	#define	N64_Z		0, 5
+	#define	N64_B		0, 6
+	#define	N64_A		0, 7
+	#define	N64_C_RIGHT	1, 0
+	#define	N64_C_LEFT	1, 1
+	#define	N64_C_DOWN	1, 2
+	#define	N64_C_UP	1, 3
+	#define	N64_R		1, 4
+	#define	N64_L		1, 5
+
+	;; N64 axes
+	#define N64_JOYSTICK_X	2
+	#define N64_JOYSTICK_Y	3
+
+
+	;; Copy status from the gamecube buffer to the N64 buffer, The mapping is defined
+	;; as a normal subroutine using the above macros.
+n64_translate_status
+	map_start
+	map_button	GC_A,		N64_A
+	map_button	GC_B,		N64_B
+	map_button	GC_X,		N64_B
+	map_button	GC_Y,		N64_B
+	map_button	GC_Z,		N64_Z
+	map_button	GC_R,		N64_R
+	map_button	GC_L,		N64_L
+	map_button	GC_START,	N64_START
+	map_button	GC_D_LEFT,	N64_D_LEFT
+	map_button	GC_D_RIGHT,	N64_D_RIGHT
+	map_button	GC_D_UP,	N64_D_UP
+	map_button	GC_D_DOWN,	N64_D_DOWN
+	map_axis	GC_JOYSTICK_X,	N64_JOYSTICK_X
+	map_axis	GC_JOYSTICK_Y,	N64_JOYSTICK_Y
+	return
+
+
+
+	;; *******************************************************************************
 	;; ******************************************************  N64 Interface *********
 	;; *******************************************************************************
 
@@ -123,11 +209,6 @@ n64_send_id
 	movwf	FSR
 	movlw	3
 	goto	n64_tx_buffer
-
-
-	;; Copy status from the gamecube buffer to the N64 buffer
-n64_translate_status
-	return
 
 
 	;; *******************************************************************************
