@@ -30,6 +30,7 @@
 
 
 static xchat_plugin *ph;			// Plugin handle.
+static gboolean window_visible = TRUE;
 static EggTrayIcon *notification;	// Notification area icon.
 static GtkWidget *image;			// The image displayed by the icon.
 static GdkPixbuf *logo,				// Pixbufs for the notification area.
@@ -111,7 +112,14 @@ notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data
 	switch (event->button) {
 		/* Left click. */
 		case 1:
-			xchat_print (ph, "left click\n");
+			if (window_visible) {
+				window_visible = FALSE;
+				xchat_command (ph, "GUI HIDE");
+			}
+			else {
+				window_visible = TRUE;
+				xchat_command (ph, "GUI SHOW");
+			}
 			break;
 
 		/* Right click. */
