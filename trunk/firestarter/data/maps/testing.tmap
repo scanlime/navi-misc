@@ -13,13 +13,13 @@ mesh: tuft1.mesh
 count: 800
 center: 0 0
 range: 325
-scale: 1 5
+scale: 1 1.2
 flair: 2
 mesh: tuft1.mesh
 count: 250
 center: 200 200
 range: 200
-scale: 0.5 2
+scale: 0.5 1.75
 flair: 3
 mesh: tuft2.mesh
 count: 250
