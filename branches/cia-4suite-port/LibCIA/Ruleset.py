@@ -202,6 +202,12 @@ class Ruleset(XML.XMLFunction):
         # If not, this will be None.
         self.uri = element.getAttributeNS(None, 'uri') or None
 
+        # URIs are always encoded if necessary, since just about everywhere we'd need to
+        # use a URI we can't support Unicode yet. Specific examples are IRC servers/channels
+        # and as dict keys in an XML-RPC response.
+        if type(self.uri) is unicode:
+            self.uri = self.uri.encode()
+
         # Create a function to evaluate this element as a <rule> would be evaluated
         ruleFunc = self.element_rule(element)
 
@@ -492,7 +498,7 @@ class RulesetStorage:
     def _insertRuleset(self, none, result, ruleset):
         """Callback used by store() to insert a new or modified ruleset into the SQL database"""
         d = Database.pool.runOperation("INSERT INTO rulesets (uri, xml) values(%s, %s)" % (
-            Database.quote(ruleset.uri, 'text'), Database.quote(ruleset.xml.toXml(), 'text')))
+            Database.quote(ruleset.uri, 'text'), Database.quote(XML.toString(ruleset.xml), 'text')))
         d.addCallback(result.callback)
         d.addErrback(result.errback)
 

@@ -59,9 +59,6 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
 
     def createQueueFromURI(self, uri):
         """Convert a URI to a new message queue instance"""
-        if type(uri) is unicode:
-            uri = uri.encode()
-
         d = self.parseURI(uri)
         server = Bots.Server(d['host'], d['port'])
 
