@@ -147,6 +147,11 @@ static struct client* client_new(int tcp_fd, struct sockaddr_in *addr)
   if (addr)
     memcpy(&self->addr, addr, sizeof(*addr));
 
+  if (fcntl(tcp_fd, F_SETFL, fcntl(tcp_fd, F_GETFL, 0) | O_NONBLOCK) < 0) {
+    perror("fcntl");
+    listener_delete(self);
+    return NULL;
+  }
   self->tcp_fd = tcp_fd;
   self->tcp_file = fdopen(self->tcp_fd, "rw");
   assert(self->tcp_file);
@@ -449,6 +454,7 @@ static void client_list_insert(struct client* client)
   assert(client->next == NULL);
   if (client_list_tail) {
     client->prev = client_list_tail;
+    client_list_tail->next = client;
   }
   else {
     assert(client_list_head == NULL);
@@ -514,7 +520,11 @@ static struct listener* listener_new(int sock_type, int port)
     return NULL;
   }
 
-  fcntl(self->fd, F_SETFL, fcntl(self->fd, F_GETFL, 0) | O_NONBLOCK);
+  if (fcntl(self->fd, F_SETFL, fcntl(self->fd, F_GETFL, 0) | O_NONBLOCK) < 0) {
+    perror("fcntl");
+    listener_delete(self);
+    return NULL;
+  }
   FD_SET(self->fd, &fd_request_read);
   if (self->fd >= fd_count)
     fd_count = self->fd + 1;
