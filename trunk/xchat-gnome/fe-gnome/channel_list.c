@@ -3,13 +3,13 @@
 
 static GSList *chanlists = NULL;
 
-void initialize_channel_lists() {
-	chanlists = g_slist_alloc();
-}
-
-static gint chanlist_compare(gconstpointer a, gconstpointer b, gpointer data) {
+static gint chanlist_compare_p(gconstpointer a, gconstpointer b, gpointer data) {
 	channel_list_window *as = (channel_list_window *) a;
 
+	if(a == NULL)
+		return 1;
+
+	g_print("testing 0x%x against 0x%x\n", a, b);
 	if(as->server == b)
 		return 0;
 	else return 1;
@@ -28,8 +28,7 @@ static gboolean chanlist_delete(GtkWidget *widget, GdkEvent *event, channel_list
 }
 
 static void chanlist_refresh(GtkWidget *button, channel_list_window *win) {
-//	win->server->p_list_channels(win->server, "");
-	handle_command(win->server->server_session, "list", FALSE);
+	win->server->p_list_channels(win->server, "");
 }
 
 static void chanlist_save(GtkWidget *button, channel_list_window *win) {
@@ -56,13 +55,17 @@ void create_channel_list(session *sess) {
 	if(sess == NULL)
 		return;
 
+	if(chanlists == NULL)
+		chanlists = g_slist_alloc();
+
 	/* check to see if we already have a channel list GUI available */
-	if(g_slist_find_custom(chanlists, sess, (GCompareFunc) chanlist_compare) != NULL)
+	if(g_slist_find_custom(chanlists, sess->server, (GCompareFunc) chanlist_compare_p) != NULL)
 		return;
 
 	win = g_malloc(sizeof(channel_list_window));
 
 	win->server = sess->server;
+	g_print("creating channel list for 0x%x\n", win->server);
 
 	win->xml = glade_xml_new("channel-list.glade", NULL, NULL);
 	if(!win->xml) {
@@ -113,7 +116,12 @@ void create_channel_list(session *sess) {
 	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(chanlist_selected), win);
 
 	g_slist_append(chanlists, win);
+	g_print("chanlists is now %d long\n", g_slist_length(chanlists));
 }
 
 void repopulate_channel_list(channel_list_window *win) {
+}
+
+gboolean channel_list_exists(server *serv) {
+	return (g_slist_find_custom(chanlists, serv, (GCompareFunc) chanlist_compare_p) != NULL);
 }

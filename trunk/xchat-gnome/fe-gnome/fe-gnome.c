@@ -155,11 +155,11 @@ void fe_update_channel_limit(struct session *sess) {
 }
 
 int fe_is_chanwindow(struct server *serv) {
-	/* FIXME: implement */
-	return FALSE;
+	return channel_list_exists(serv);
 }
 
 void fe_add_chan_list(struct server *serv, char *chan, char *users, char *topic) {
+	g_print("fe_add_chan_list() - \"%s\", %d, \"%s\"\n", chan, users, topic);
 	/* FIXME: implement */
 }
 
