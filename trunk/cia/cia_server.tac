@@ -12,7 +12,7 @@ hub = Message.Hub()
 
 uriRegistry = Ruleset.URIRegistry([
     IRC.IrcURIHandler(IRC.BotNetwork("CIA-%d")),
-    Stats.StatsURIHandler('data/stats'),
+    Stats.StatsURIHandler(hub, 'data/stats'),
     ])
 
 storage = Ruleset.RulesetStorage("data/rulesets.xml", hub, uriRegistry)
