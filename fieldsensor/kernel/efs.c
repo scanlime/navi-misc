@@ -43,6 +43,8 @@ struct field_sensor {
 	unsigned char *         irq_data;
 	dma_addr_t              irq_dma;
 
+	struct efs_results      results;
+
 	int                     open_count;
 	struct semaphore	sem;			/* locks this structure */
 };
@@ -58,8 +60,8 @@ static DECLARE_MUTEX (disconnect_sem);
 /* 1 second timeout for control requests */
 #define REQUEST_TIMEOUT HZ
 
-#define IRQ_SIZE     8   /* Size of interrupt transfers, in bytes */
-#define IRQ_INTERVAL 1   /* Polling interval, in milliseconds */
+#define IRQ_SIZE     EFS_NUM_PARAM_BLOCKS   /* Size of interrupt transfers, in bytes */
+#define IRQ_INTERVAL 1                      /* Polling interval, in milliseconds */
 
 
 /******************************************************************************/
@@ -123,6 +125,7 @@ static void efs_irq (struct urb *urb, struct pt_regs *regs)
 {
 	/* Callback for processing incoming interrupt transfers from the IR receiver */
 	struct field_sensor *dev = (struct field_sensor*)urb->context;
+	int i;
 
 	switch (urb->status) {
 	case -ECONNRESET:
@@ -136,16 +139,13 @@ static void efs_irq (struct urb *urb, struct pt_regs *regs)
 		return;
 	}
 
-	dbg("Wibbly %d %d %d %d %d %d %d %d",
-	    dev->irq_data[0],
-	    dev->irq_data[1],
-	    dev->irq_data[2],
-	    dev->irq_data[3],
-	    dev->irq_data[4],
-	    dev->irq_data[5],
-	    dev->irq_data[6],
-	    dev->irq_data[7]);
+	/* Store this batch of results in the accumulators */
+	for (i=0; i < EFS_NUM_PARAM_BLOCKS; i++) {
+		dev->results.accumulators[i] += dev->irq_data[i];
+	}
+	dev->results.num_samples++;
 
+	/* Resubmit the URB to get another interrupt transfer going */
 	usb_submit_urb(urb, SLAB_ATOMIC);
 }
 
@@ -348,7 +348,14 @@ static ssize_t efs_read(struct file *file, char *buffer, size_t count, loff_t *p
 		goto exit;
 	}
 
-	retval = 0;
+	if (count >= sizeof(struct efs_results)) {
+		if (copy_to_user(buffer, &dev->results, sizeof(struct efs_results))) {
+			retval = -EFAULT;
+			goto exit;
+		}
+		memset(&dev->results, 0, sizeof(struct efs_results));
+		retval = sizeof(struct efs_results);
+	}
 
 exit:
 	/* unlock the device */
