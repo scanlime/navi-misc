@@ -202,14 +202,12 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 	current = g_slist_next (current);
 	if (tms.tm_hour < 12)
 	{
-		forecasts[0].high = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[0].low  = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[1].high = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[1].low  = ftoc (current->data);
-		current = g_slist_next (current);
+		for (i = 0; i < 2; i++) {
+			forecasts[i].high = ftoc (current->data);
+			current = g_slist_next (current);
+			forecasts[i].low  = ftoc (current->data);
+			current = g_slist_next (current);
+		}
 		forecasts[2].high = ftoc (current->data);
 		current = g_slist_next (current);
 		forecasts[0].pop = decodePOP (((char*)(current->data))[2]);
@@ -217,14 +215,12 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 	}
 	else
 	{
-		current = g_slist_next (current);
-		forecasts[0].high = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[0].low  = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[1].high = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[1].low  = ftoc (current->data);
+		for (i = 0; i < 2; i++) {
+			current = g_slist_next (current);
+			forecasts[i].high = ftoc (current->data);
+			current = g_slist_next (current);
+			forecasts[i].low  = ftoc (current->data);
+		}
 		current = g_slist_next (current);
 		forecasts[0].pop = decodePOP (((char*)(current->data))[3]);
 	}
@@ -277,18 +273,12 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 	if (tms.tm_hour < 12)
 	{
 		forecasts[2].low  = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[3].high = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[3].low  = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[4].high = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[4].low  = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[5].high = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[5].low  = ftoc (current->data);
+		for  (i = 3; i < 6; i++) {
+			current = g_slist_next (current);
+			forecasts[i].high = ftoc (current->data);
+			current = g_slist_next (current);
+			forecasts[i].low  = ftoc (current->data);
+		}
 		current = g_slist_next (current);
 		forecasts[6].high = ftoc (current->data);
 		forecasts[6].low  = forecasts[6].high;
@@ -301,22 +291,12 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 	}
 	else
 	{
-		forecasts[2].high = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[2].low  = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[3].high = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[3].low  = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[4].high = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[4].low  = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[5].high = ftoc (current->data);
-		current = g_slist_next (current);
-		forecasts[5].low  = ftoc (current->data);
-		current = g_slist_next (current);
+		for (i = 2; i < 6; i++) {
+			forecasts[i].high = ftoc (current->data);
+			current = g_slist_next (current);
+			forecasts[i].low  = ftoc (current->data);
+			current = g_slist_next (current);
+		}
 		forecasts[6].high = ftoc (current->data);
 		forecasts[6].low  = forecasts[6].high;
 		current = g_slist_next (current);
