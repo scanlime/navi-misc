@@ -125,8 +125,18 @@ void bifurcation_diagram_set_interpolator (BifurcationDiagram    *self,
 void bifurcation_diagram_set_linear_endpoints (BifurcationDiagram     *self,
 					       DeJong                 *first,
 					       DeJong                 *second) {
-  ParameterHolderPair *pair = g_new(ParameterHolderPair, 1);
+  ParameterHolderPair *pair, *oldpair;
 
+  /* If the old interpolator was also linear, see if we can avoid this update... */
+  if (self->interp == PARAMETER_INTERPOLATOR(parameter_holder_interpolate_linear)) {
+    oldpair = (ParameterHolderPair*) self->interp_data;
+
+    if ((!memcmp(&DE_JONG(oldpair->a)->param, &first->param, sizeof(first->param))) &&
+	(!memcmp(&DE_JONG(oldpair->b)->param, &second->param, sizeof(second->param))))
+      return;
+  }
+
+  pair = g_new(ParameterHolderPair, 1);
   pair->a = g_object_ref(first);
   pair->b = g_object_ref(second);
 
@@ -171,8 +181,11 @@ static void bifurcation_diagram_init_columns (BifurcationDiagram *self) {
    * a change in interpolants or a column array resize?
    */
   if (self->calc_dirty_flag || HISTOGRAM_IMAGER(self)->histogram_clear_flag) {
-    for (i=0; i<self->num_columns; i++) {
+    /* Clear the histogram if it isn't already */
+    if (!HISTOGRAM_IMAGER(self)->histogram_clear_flag)
+      histogram_imager_clear(HISTOGRAM_IMAGER(self));
 
+    for (i=0; i<self->num_columns; i++) {
       /* Invalidate each column and each interpolated parameter set */
       self->columns[i].point.valid = FALSE;
       for (j=0; j<(sizeof(self->columns[0].interpolated)/
@@ -180,6 +193,9 @@ static void bifurcation_diagram_init_columns (BifurcationDiagram *self) {
 	self->columns[i].interpolated[j].valid = FALSE;
       }
     }
+
+    HISTOGRAM_IMAGER(self)->histogram_clear_flag = FALSE;
+    self->calc_dirty_flag = FALSE;
   }
 }
 
