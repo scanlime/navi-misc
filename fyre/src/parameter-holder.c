@@ -339,7 +339,7 @@ void parameter_holder_load_string(ParameterHolder *self, const gchar *params) {
   g_free(copy);
 }
 
-GList* parameter_holder_get_tools(ParameterHolder *self) {
+ToolInfoPH* parameter_holder_get_tools(ParameterHolder *self) {
   ParameterHolderClass *class = PARAMETER_HOLDER_CLASS(G_OBJECT_GET_CLASS(self));
   return class->get_tools();
 }
