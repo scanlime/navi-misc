@@ -1,4 +1,12 @@
-import gtk, gtk.glade
+''' GTKpalantir.py
+
+This module creates a UI for a Palantir client using GTK, it uses palantirIRC
+for the IRC stuff.
+
+  Copyright (C) 2004 W. Evan Sheehan
+'''
+
+import gtk, gtk.glade, palantirIRC
 from CharacterSheet.Character import Character
 from CharacterSheet.GTKsheet import GTKsheet
 
@@ -9,6 +17,12 @@ def Init():
   for func in globals().iterkeys():
     if func.startswith('on_'):
       tree.signal_connect(func, globals()[func])
+
+  global client
+  client = palantirIRC.PalantirClientFactory('Silme')
+
+def on_new_connection_activate(widget, data=None):
+  palantirIRC.Connect(client)
 
 def on_character_sheet_activate(widget, data=None):
   if tree.get_widget('character_sheet').get_active():
@@ -32,8 +46,12 @@ def OpenSheet(widget, data=None):
   tree.sheet.root.show()
   tree.dialog.get_widget('SheetSelection').destroy()
 
+def on_SendButton_clicked(widget, data=None):
+  client.Send(tree.get_widget('SendField').get_text())
+
 def on_Main_destroy(widget, data=None):
   gtk.main_quit()
 
 def on_quit_activate(widget, data=None):
+  palantirIRC.Disconnect()
   gtk.main_quit()
