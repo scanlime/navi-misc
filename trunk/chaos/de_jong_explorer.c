@@ -66,25 +66,26 @@ GtkWidget *build_sidebar();
 int main(int argc, char ** argv) {
   enum {INTERACTIVE, RENDER} mode = INTERACTIVE;
   const char *outputFile;
-  int c;
+  int opt;
 
   srand(time(NULL));
   g_type_init();
   set_defaults();
 
   while (1) {
-    c = getopt(argc, argv, "a:b:c:d:x:y:z:w:h:e:o:");
-    if (c == -1)
+    opt = getopt(argc, argv, "a:b:c:d:x:y:z:w:h:e:o:");
+    if (opt == -1)
       break;
 
-    switch (c) {
-    case 'a':  a = atof(optarg);  break;
-    case 'b':  b = atof(optarg);  break;
-    case 'c':  c = atof(optarg);  break;
-    case 'd':  d = atof(optarg);  break;
+    switch (opt) {
+    case 'a':  a        = atof(optarg);  break;
+    case 'b':  b        = atof(optarg);  break;
+    case 'c':  c        = atof(optarg);  break;
+    case 'd':  d        = atof(optarg);  break;
     case 'e':  exposure = atof(optarg);  break;
     case 'x':  xoffset  = atof(optarg);  break;
     case 'y':  yoffset  = atof(optarg);  break;
+    case 'z':  zoom     = atof(optarg);  break;
     case 'w':  width    = atoi(optarg);  break;
     case 'h':  height   = atoi(optarg);  break;
 
@@ -105,7 +106,7 @@ int main(int argc, char ** argv) {
 
   case RENDER:
     while (countsMax < 5000) {
-      run_iterations(100000);
+      run_iterations(1000000);
       printf("Iterations: %.3e\tmax density: %d\n", iterations, countsMax);
     }
     printf("Creating image...\n");
