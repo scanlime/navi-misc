@@ -29,7 +29,7 @@ count: 250
 center: 0 0
 range: 400
 tuft: 5
-mesh: tuft2.mesh
+mesh: rock1.mesh
 count: 400
 center: 0 0
 range: 400
