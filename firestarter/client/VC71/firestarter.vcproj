@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc;../game/test/inc;../drawing/inc;../game/test/gfx/inc;../../common/curl/include/"
+				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc;../game/test/inc;../drawing/inc;../game/test/gfx/inc;../../common/curl/include/;../../network/enet/inc;../../network/inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_STLP_USE_DYNAMIC_LIB;OGRE_LIBRARY_IMPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ogremain.lib sdl.lib sdlmain.lib"
+				AdditionalDependencies="WSOCK32.LIB Ws2_32.lib libcurl.lib ogremain.lib sdl.lib sdlmain.lib"
 				OutputFile="$(OutDir)/Firestarter.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../../../ogrenew/ogremain/lib/debug/"
+				AdditionalLibraryDirectories="../../../ogrenew/ogremain/lib/debug/;../../common/curl/lib/Debug"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Firestarter.pdb"
 				SubSystem="2"
@@ -203,6 +203,38 @@
 				Name="drawing"
 				Filter="">
 			</Filter>
+			<Filter
+				Name="network"
+				Filter="">
+				<File
+					RelativePath="..\..\network\src\networking.cpp">
+				</File>
+				<Filter
+					Name="enet"
+					Filter="">
+					<File
+						RelativePath="..\..\network\enet\src\host.cpp">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\src\list.cpp">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\src\memory.cpp">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\src\packet.cpp">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\src\peer.cpp">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\src\protocol.cpp">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\src\win32.cpp">
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -299,6 +331,44 @@
 				<File
 					RelativePath="..\..\common\inc\timer.h">
 				</File>
+			</Filter>
+			<Filter
+				Name="network"
+				Filter="">
+				<File
+					RelativePath="..\..\network\inc\networking.h">
+				</File>
+				<Filter
+					Name="enet"
+					Filter="">
+					<File
+						RelativePath="..\..\network\enet\inc\enet\enet.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\list.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\memory.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\protocol.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\time.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\types.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\unix.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\utility.h">
+					</File>
+					<File
+						RelativePath="..\..\network\enet\inc\enet\win32.h">
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
