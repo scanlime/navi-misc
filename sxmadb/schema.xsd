@@ -259,6 +259,7 @@
     <xsd:enumeration value="inward finger slice"/>
     <xsd:enumeration value="outward finger slice"/>
     <xsd:enumeration value="horse-bite pinch"/>
+    <xsd:enumeration value="double thrusting thumb"/>
   </xsd:restriction>
 </xsd:simpleType>
 <xsd:complexType name="fingerTechnique">

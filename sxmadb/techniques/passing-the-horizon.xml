@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="passing the horizon" category="chokes-and-locks"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>rear right-arm hammer lock with a left hand wrist grab</attack>
+  <stances>
+    <attacker><stance>natural</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      Regrab your opponent's right wrist with your right hand.
+      <footManeuver side="left">step back</footManeuver> toward 6:00 into a
+      <stance side="right">forward bow</stance> as you thrust your left hand forward
+      releasing from the wrist grab.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a <stance side="right">neutral bow</stance>
+      as you execute a <strike side="left">outward elbow</strike> to your opponent's face.
+    </step>
+    <step>
+      <footManeuver side="left">step</footManeuver> toward 1:30 into a
+      <stance side="right">neutral bow</stance> as you rotate your opponent's right wrist
+      to the right (clockwise), bending him forward.
+    </step>
+    <step>
+      Execute a <kick side="left">front snap</kick> to your opponent's ribs.
+    </step>
+  </steps>
+</technique>
