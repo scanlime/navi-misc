@@ -9,5 +9,6 @@
 	<technique category="grab" href="broken-ram.xml" level="blue" name="broken ram"/>
 	<technique category="punch" href="shield-and-mace.xml" level="blue" name="shield and mace"/>
 	<technique category="grab" href="lone-kimono.xml" level="orange" name="lone kimono"/>
+	<technique category="grab" href="sword-and-hammer.xml" level="yellow" name="sword and hammer"/>
 	<technique category="push" href="alternating-maces.xml" level="yellow" name="alternating maces"/>
 </techniques>
