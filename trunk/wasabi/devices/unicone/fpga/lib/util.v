@@ -43,6 +43,83 @@ endmodule
 
 
 /*
+ * An MSB-first serial to parallel shift register with flow
+ * control. This can be used with shallow_buffer or other
+ * modules with similar interfaces.
+ *
+ * On the serial side:
+ *  1. The user, if possible, waits until ser_ready is high
+ *  2. A serial bit is placed on ser_data, and a rising
+ *     edge is applied to ser_strobe.
+ *
+ * On the parallel side:
+ *  1. If par_ready is not asserted, the busy state is
+ *     propagated as necessary.
+ *  2. A completed word is placed on par_data
+ *  3. par_strobe goes high for one clock cycle
+ */
+ module deserializer (clk, reset,
+                      ser_data, ser_ready, ser_strobe,
+                      par_data, par_ready, par_strobe);
+	parameter WIDTH = 8;
+	parameter COUNT_WIDTH = 4;
+	
+	input clk, reset;
+	input ser_data, ser_strobe;
+	output ser_ready;
+	output [WIDTH-1:0] par_data;
+	input par_ready;
+	output par_strobe;
+
+	reg [WIDTH-1:0] par_data;
+	reg [WIDTH-1:0] shifter;
+	reg par_strobe;
+	reg [COUNT_WIDTH-1:0] bit_count;
+
+	wire ser_strobe_edge;
+	rising_edge_detector ser_strobe_edgedet(clk, reset, ser_strobe, ser_strobe_edge);
+			
+	/* Generate flow control with combinational logic,
+	 * don't lag it by one clock cycle. If our shift register
+	 * is full, make them wait for our parallel interface to
+	 * become ready- the next serial bit will cause output
+	 * on the parallel interface.
+	 */
+	assign ser_ready = (bit_count == WIDTH) ? par_ready : 1;
+	
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+			par_data <= 0;
+			par_strobe <= 1;
+			bit_count <= 1;	
+			shifter <= 0;
+		end
+		else begin
+		
+			/* Shift in new bits, and output completed bytes */
+			if (ser_strobe_edge) begin
+				/* We just got another bit */
+				if (bit_count == WIDTH) begin
+					/* The last bit just came in, output and reset the byte */
+					par_strobe <= 1;
+					bit_count <= 0;
+					par_data <= {shifter[WIDTH-2:0], ser_data};
+					shifter <= 0;
+				end
+				else begin
+					par_strobe <= 0;
+					bit_count <= bit_count + 1;
+					shifter <= {shifter[WIDTH-2:0], ser_data};
+				end
+			end
+			else begin
+				par_strobe <= 0;
+			end		
+		end
+endmodule			
+
+
+/*
  * An MSB-first parallel to serial shift register with flow
  * control. This can be used with shallow_buffer or other
  * modules with similar interfaces.
@@ -52,7 +129,6 @@ endmodule
  *  2. If a bit is available, ser_strobe is high
  *     and at the same clock cycle ser_data contains the
  *     new bit. At all other times ser_available is low.
- *  3. The process repeats
  *
  * If ser_ready is held high continuously, one bit is output
  * per clock cycle as long as they are available. Single
