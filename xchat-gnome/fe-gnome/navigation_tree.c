@@ -220,13 +220,14 @@ navigation_tree_select_nth_channel (NavTree *navtree, gint chan_num)
 			 	 * for select it and return.
 			 	 */
 				if(chan_num < kids) {
-					GtkTreeIter new_iter;
+					GtkTreeIter new_iter,tmp;
+
 					gtk_tree_model_iter_nth_child(model, &new_iter, &server, chan_num);
 
-	        if (gtk_tree_selection_get_selected(selection, NULL, &server))
-		        navigation_model_sorted_iter_unref(navtree->model, &server);
+	        /*if (gtk_tree_selection_get_selected(selection, NULL, &tmp))
+		        navigation_model_sorted_iter_unref(navtree->model, &tmp);
 	        else if (navtree->current_path)
-		        navigation_model_path_deref(navtree->model, navtree->current_path);
+		        navigation_model_path_deref(navtree->model, navtree->current_path);*/
 
 					gtk_tree_selection_select_iter(selection, &new_iter);
 					return;
@@ -269,7 +270,6 @@ navigation_tree_select_session (NavTree *navtree, struct session *sess)
 			gtk_tree_path_up(path);
 			gtk_tree_view_expand_row(GTK_TREE_VIEW(navtree), path, TRUE);
 		}
-
 
     gtk_tree_selection_select_iter(selection, &sorted_iter);
 	}
@@ -435,6 +435,7 @@ navigation_tree_select_next_network (NavTree *navtree)
 
 	/* Unref the current path. */
 	navigation_model_path_deref(navtree->model, path);
+	gtk_tree_model_get_iter(model, &iter, path);
 
 	/* If our path is at a depth greater than one it's not a server, make it one. */
 	if (gtk_tree_path_get_depth(path) > 1) {
@@ -1098,6 +1099,7 @@ navigation_model_sorted_iter_unref (NavModel *model, GtkTreeIter *iter)
 {
 	gint ref_count;
 	GtkTreeIter unsorted;
+
 	gtk_tree_model_sort_convert_iter_to_child_iter(GTK_TREE_MODEL_SORT(model->sorted),
 			                                           &unsorted,
 																								 iter);
