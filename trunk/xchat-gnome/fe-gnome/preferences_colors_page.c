@@ -29,7 +29,6 @@ static void set_color_buttons(int selection, GtkWidget **color_buttons) {
 	load_colors(selection);
 	palette_alloc(GTK_WIDGET(gui.xtext));
 	gtk_xtext_set_palette(gui.xtext, colors);
-	gtk_xtext_set_tint(gui.xtext, colors[19].red, colors[19].green, colors[19].blue);
 	gtk_xtext_set_background(gui.xtext, NULL, FALSE, FALSE);
 	gtk_xtext_refresh(gui.xtext, FALSE);
 	gtk_color_button_set_color(GTK_COLOR_BUTTON(color_buttons[0]), &colors[18]);
