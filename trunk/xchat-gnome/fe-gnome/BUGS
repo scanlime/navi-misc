@@ -12,4 +12,3 @@
   and add all the results to the tree. Should probably set the refresh button inactive
   until at least some results come in.
 * doesn't save paned positions properly
-* if there's nothing to complete in the text entry, tab should toggle focus
