@@ -40,9 +40,12 @@ AC_SUBST(PACKAGE_LIBS)
 PKG_CHECK_MODULES(EXR, OpenEXR, have_exr=yes)
 AC_SUBST(EXR_CFLAGS)
 AC_SUBST(EXR_LIBS)
+EXR_SOURCES=
 if test "x$have_exr" = "xyes"; then
 	AC_DEFINE(HAVE_EXR, 1,[compile in OpenEXR support])
+	EXR_SOURCES="exr.cpp"
 fi
+AC_SUBST(EXR_SOURCES)
 
 dnl # Use wall if we have GCC
 dnl # Also disable glibc versions of functions that have faster versions
