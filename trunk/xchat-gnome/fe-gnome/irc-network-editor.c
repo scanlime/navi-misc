@@ -55,7 +55,8 @@ irc_network_editor_get_type (void)
 IrcNetworkEditor *
 irc_network_editor_new (IrcNetwork *network)
 {
-	IrcNetworkEditor *e = IRC_NETWORK_EDITOR (g_object_new (irc_network_editor_get_type (), 0));
+	//IrcNetworkEditor *e = IRC_NETWORK_EDITOR (g_object_new (irc_network_editor_get_type (), 0));
+	IrcNetworkEditor *e = g_object_new (irc_network_editor_get_type (), 0);
 
 	e->network = network;
 }
