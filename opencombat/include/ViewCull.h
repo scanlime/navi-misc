@@ -13,6 +13,7 @@
 #define _FCULL_H_
 
 #include "3dTypes.h"
+#include "MathUtils.h"
 #include <stdio.h>
 
 // This is a horibly modified versiuon of the View Frustum tutorial by:
@@ -56,22 +57,12 @@ typedef enum
 	eLastFrustSide
 }eFrustumSides; 
 
-class ViewFrustum 
+class ViewFrustum : public BaseFrustum
 {
 public:
 	ViewFrustum();
-	~ViewFrustum();
+	virtual ~ViewFrustum();
 	void Get();/// load frustum from GL
-	bool PointIn(float fX, float fY, float fZ);
-	bool SphereIn(float fX, float fY, float fZ, float fRad);
-	bool CubeIn( float fX, float fY, float fZ, float fSize );
-	bool BoxIn( float fX, float fY, float fZ ,float fXSize, float fYSize, float fZSize );
-
-	bool QuadOut ( float *fp1, float *fp2, float *fp3, float *fp4 );
-
-private:
-	bool		m_bSet;
-	ViewPlane m_aPlanes[eLastFrustSide];
 };
 
 #endif //_FCULL_H_
