@@ -24,6 +24,7 @@ Template classes for building web pages using our particular style
 import Nouvelle.Twisted
 from twisted.internet import defer
 from Nouvelle import tag, place, xml, subcontext
+import types
 
 
 # Tag templates
@@ -228,9 +229,29 @@ class Page(Nouvelle.Twisted.Page):
         ]]
 
     def render_pageTitle(self, context):
-        return [self.render_mainTitle,
-                ' - ',
-                self.render_siteName]
+        # Wait for the title and site name to resolve into strings so we can mess with them a bit more
+        result = defer.Deferred()
+        defer.gatherResults([
+            defer.maybeDeferred(self.render_mainTitle, context),
+            defer.maybeDeferred(self.render_siteName, context),
+            ]).addCallback(
+            self._render_pageTitle, context, result
+            ).addErrback(result.errback)
+        return result
+
+    def _render_pageTitle(self, titleAndSite, context, result):
+        # Now that the title and site name have fully resolved, we can apply some heuristics...
+        title, siteName = titleAndSite
+
+        if type(title) in types.StringTypes and type(siteName) in types.StringTypes:
+            # The title and site are plain strings. If it starts with or ends with the site name,
+            # just use it as-is to avoid being overly redundant.
+            if title == siteName or title.startswith(siteName + " ") or title.endswith(" " + siteName):
+                result.callback(title)
+                return
+
+        # Otherwise, stick the title and site name together
+        result.callback([title, ' - ', siteName])
 
     def render_siteName(self, context):
         return self.siteName
