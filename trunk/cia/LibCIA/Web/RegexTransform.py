@@ -29,6 +29,7 @@ probably much more.
 #
 
 import re, types, Nouvelle
+import Template
 
 
 class RegexTransformBase(object):
@@ -145,10 +146,8 @@ class AutoHyperlink(RegexTransformBase):
        >>> serial.render(tree)
        'Visit <a href="http://foo.bar">http://foo.bar</a> today for a free toothbrush'
 
-       >>> tree = linker.apply(Nouvelle.tag('b')[ 'Email me at bob@hyperwidgets.example.com' ])
-       >>> serial.render(tree)
-       '<b>Email me at <a href="mailto:bob@hyperwidgets.example.com">bob@hyperwidgets.example.com</a></b>'
-
+       (This works for email addresses as well, but they aren't demonstrated here because
+       the automatic email address obfuscation is not deterministic)
        """
     def link_url(self, match):
         url = match.group()
@@ -156,7 +155,7 @@ class AutoHyperlink(RegexTransformBase):
 
     def link_email(self, match):
         address = match.group()
-        return Nouvelle.tag('a', href="mailto:"+address)[ address ]
+        return Template.EmailLink("mailto:"+address)[ address ]
 
     regexes = {
         '(ht|f)tps?://[^\s\>\]\)]+':                    link_url,

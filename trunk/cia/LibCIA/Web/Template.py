@@ -25,7 +25,7 @@ import Nouvelle
 import Nouvelle.Twisted
 from twisted.internet import defer
 from Nouvelle import tag, place, xml, subcontext
-import types
+import types, random
 
 # Verify we have a new enough Nouvelle
 if (not hasattr(Nouvelle, "version_info")) or Nouvelle.version_info < (0, 92, 1):
@@ -76,6 +76,56 @@ def MessageHeaders(d):
         ]
         for name, value in d.iteritems()
     ]]
+
+
+def randomlySubdivide(string, minLength, maxLength):
+    """Randomly break a string into pieces not smaller than minLength
+       or longer than maxLength.
+       """
+    parts = []
+    while string:
+        l = random.randint(minLength, maxLength)
+        parts.append(string[:l])
+        string = string[l:]
+    return parts
+
+
+def treeReplace(tree, a, b):
+    """Replace any occurrance of 'a' with 'b' recursively in a tree of strings"""
+    if type(tree) in (list, tuple):
+        return [treeReplace(i, a, b) for i in tree]
+    elif type(tree) in (str, unicode):
+        return tree.replace(a, b)
+    else:
+        return tree
+
+
+class EmailLink:
+    """This is a tag-like class for generating obfuscated links to email addresses,
+       using the javascript-based technique described by Kieth Bell at:
+          http://www.december14.net/ways/js/nospam.shtml
+       """
+    def __init__(self, href):
+        self.href = href
+        self.content = []
+
+    def __getitem__(self, content):
+        self.content = content
+        return self
+
+    def render(self, context):
+        # Obfuscate the content
+        content = treeReplace(self.content, "@", " at ")
+        content = treeReplace(content, ".", " dot ")
+
+        # Create an 'onmouseover' script that will replace our link's
+        # href with the correct one. We start by randomly dividing the
+        # email address into small chunks.
+        parts = randomlySubdivide(self.href, 1, 5)
+        script = "this.href=" + "+".join(["'%s'" % part for part in parts])
+
+        # Assemble and render the final link
+        return tag('a', href="/doc/mail", onmouseover=script)[ content ].render(context)
 
 
 def FileTree(tree):
@@ -283,7 +333,7 @@ class Page(Nouvelle.Twisted.Page):
                     # Legal goop
                     tag('p', _class='smallprint')[
                         xml("The CIA server is Copyright &copy; 2003-2004 "),
-                        tag('a', _href='mailto:micah@navi.cx')["Micah Dowty"],
+                        EmailLink('mailto:micah@navi.cx')["Micah Dowty"],
                         ", and released under the ",
                         tag('a', _href='/doc/COPYING')["GNU GPL"], ".", tag('br'),
                         "All hosted messages and metadata are owned by their respective authors.",
