@@ -24,9 +24,10 @@
 #ifndef __H_PACKET
 #define __H_PACKET
 
-#include "inputpipe.h"
-#include <linux/input.h>
 #include <stdio.h>
+
+#include <input.h>
+#include "inputpipe.h"
 
 struct packet_socket {
   int read_fd, write_fd;

@@ -39,21 +39,10 @@
 #include <netdb.h>
 #include <errno.h>
 #include <getopt.h>
-#include <linux/input.h>
 
+#include <input.h>
 #include "inputpipe.h"
 #include "packet.h"
-
-/* Linux 2.4 compatibility */
-#ifndef EV_SYN
-struct input_absinfo {
-  __s32 value;
-  __s32 minimum;
-  __s32 maximum;
-  __s32 fuzz;
-  __s32 flat;
-};
-#endif
 
 #define test_bit(nr, addr) \
         (((1UL << ((nr) & 31)) & (((const unsigned int *) addr)[(nr) >> 5])) != 0)
