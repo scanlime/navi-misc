@@ -336,14 +336,27 @@ void on_param_spinner_changed(GtkWidget *widget, gpointer user_data) {
   if (gui.writing_params)
     return;
 
-  /* It's worth it to make sure the parameters really changed. The
-   * spin buttons seem to like sending out changed signals even when
-   * nothing actually changed, and this could be really frustrating
-   * if the image has been rendering for a while.
-   */
   old_params = params;
   read_gui_params();
-  if (!memcmp(&params, &old_params, sizeof(params)))
+
+  /* Make sure at least one parameter has changed enough that the
+   * difference would show up on the GUI. This prevents rounding
+   * done by the spinners from causing a rendering restart.
+   * The epsilon values were chosen carefully so they should always
+   * catch modifications at the finest spinner resolution but ignore
+   * modifications that it wouldn't show.
+   */
+  if (fabs(params.a           - old_params.a)           < 0.000009 &&
+      fabs(params.b           - old_params.b)           < 0.000009 &&
+      fabs(params.c           - old_params.c)           < 0.000009 &&
+      fabs(params.d           - old_params.d)           < 0.000009 &&
+      fabs(params.zoom        - old_params.zoom)        < 0.0009 &&
+      fabs(params.xoffset     - old_params.xoffset)     < 0.0009 &&
+      fabs(params.yoffset     - old_params.yoffset)     < 0.0009 &&
+      fabs(params.rotation    - old_params.rotation)    < 0.0009 &&
+      fabs(params.blur_radius - old_params.blur_radius) < 0.00009 &&
+      fabs(params.blur_ratio  - old_params.blur_ratio)  < 0.00009 &&
+      params.tileable == old_params.tileable)
     return;
 
   restart_rendering();
