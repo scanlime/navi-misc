@@ -5,26 +5,26 @@ mvmtOneBassoon = \relative fis, {
   \key b \minor
   
   r1
-  | r8\p fis r8 fis r8 fis r8 fis
+  | r8\p\< fis r8 fis r8 fis r8 fis\!\mf
   | R1*29
   \clef alto
-  | fis'2( g) 
+  | fis'2\p( g) 
   | gis( ais)
   | b r
   | R1*3
-  | f2 e 
+  | f2\p e 
   | ees d
   | cis4 r4 r2
   | R1*3
-  | << { r8 cis' r cis r b r b } \\
+  | << { r8\mp cis' r cis r b r b } \\
        { r8 a   r a   r e r e } >>
   | << { r8 b' r b r a r a } \\
        { r8 eis r eis r fis r fis } >>
   | d8-.\f r4. r2
   | R1*5
   \clef bass
-  | r2 r16 e,-. a-. e'-. a-. cis-. e-. r
-  | r8 cis, r a r gis r cis
+  | r2 r16 e,-.\mp a-. e'-. a-. cis-. e-. r
+  | r8 cis,\mf r a r gis r cis
   | << cis \\ cis, >> r4. r2
   | cis'8\p\< cis b a gis fis e d\!
   | << cis' \\ cis, >> r4. r2
@@ -34,21 +34,21 @@ mvmtOneBassoon = \relative fis, {
   | gis'4.\mf cis
   \time 4/4
   | R1*3
-  | r8 fis, r fis r fis r fis
+  | r8\p\< fis, r fis r fis r fis\!\mf
   | R1*8
-  | c'16 ees d ees f ees d ees c ees fes ees d ees f ees
+  | c'16\mf ees d ees f ees d ees c ees fes ees d ees f ees
   | c8-. r4. r2
   | R1*3
-  | r2. f4(
+  | r2. f4\mp(
   | ees f) cis( fis)
   | R1*21
-  | cis2 b
+  | cis2\f b
   | gis a4 cis4
   | fis2. gis4
   | eis2 r
   | R1*4
   \time 6/8
-  | cis'4. cis4( b8
+  | cis'4.\mp cis4( b8
   | cis4.)~ cis4 b8(
   | a4.) a4( b8
   | a2.)
