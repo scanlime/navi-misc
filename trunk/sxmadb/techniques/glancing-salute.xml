@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<technique name="glancing salute" level="orange" category="push">
+<technique name="glancing salute" level="orange" category="push"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
   <attack>front right cross shoulder push</attack>
   <stances>
     <attacker>left neutral bow</attacker>
@@ -26,7 +28,7 @@
       opponent's right year
     </step>
     <step>
-      Execute a <footManeuver side="right">step through</footManeuver>
+      Execute a <footManeuver side="right">step-through</footManeuver>
       <knee side="right">vertical</knee> to your opponent's groin.
     </step>
     <step>

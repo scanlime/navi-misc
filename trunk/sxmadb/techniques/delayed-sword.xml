@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<technique name="delayed sword" level="yellow" category="grabs-and-tackles">
+<technique name="delayed sword" level="yellow" category="grabs-and-tackles"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
   <attack>right hand lapel grab</attack>
   <stances>
     <attacker><stance side="right">neutral bow</stance></attacker>

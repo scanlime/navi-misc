@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<technique name="broken ram" level="first-brown" category="grabs-and-tackles">
+<technique name="broken ram" level="first-brown" category="grabs-and-tackles"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
   <attack>front tackle</attack>
   <stances>
     <defender><stance>natural</stance>, hands up</defender>
@@ -21,7 +23,7 @@
     </step>
     <step>
       <footManeuver>pivot</footManeuver> into a
-      <stance side="left">foward bow</stance> (facing 4:30) with a
+      <stance side="left">forward bow</stance> (facing 4:30) with a
       <strike side="right">uppercut</strike> under the arm (breaking their
       elbow against your bicep).
     </step>

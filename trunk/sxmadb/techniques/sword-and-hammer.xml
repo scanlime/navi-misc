@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../style.xsl"?>
 
-<technique name="sword and hammer" category="grabs-and-tackles">
+<technique name="sword and hammer" category="grabs-and-tackles"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
   <attack>left hand grab to right shoulder from the right flank</attack>
   <stances>
     <attacker>left neutral bow</attacker>

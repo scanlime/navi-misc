@@ -40,11 +40,11 @@
     <xsd:enumeration value="upward"/>
     <xsd:enumeration value="downward"/>
     <xsd:enumeration value="palm heel"/>
-    <xsd:enumeration value="inside downward palm up"/>
-    <xsd:enumeration value="inside downward palm down"/>
+    <xsd:enumeration value="inward downward palm up"/>
+    <xsd:enumeration value="inward downward palm down"/>
     <xsd:enumeration value="cross"/>
     <xsd:enumeration value="universal"/>
-    <xsd:enumeration value="outside downward diagonal"/>
+    <xsd:enumeration value="outward downward diagonal"/>
     <xsd:enumeration value="downward horizontal forearm"/>
     <xsd:enumeration value="inward vertical forearm"/>
     <xsd:enumeration value="outward vertical forearm"/>
@@ -67,6 +67,66 @@
     <xsd:enumeration value="step"/>
     <xsd:enumeration value="step back"/>
     <xsd:enumeration value="pivot"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="movement-kick">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="front snap"/>
+    <xsd:enumeration value="side thrust"/>
+    <xsd:enumeration value="back snapping heel"/>
+    <xsd:enumeration value="roundhouse"/>
+    <xsd:enumeration value="knife-edge side"/>
+    <xsd:enumeration value="back thrust"/>
+    <xsd:enumeration value="jump front"/>
+    <xsd:enumeration value="hop front"/>
+    <xsd:enumeration value="wheel"/>
+    <xsd:enumeration value="downward looping roundhouse"/>
+    <xsd:enumeration value="jump roundhouse"/>
+    <xsd:enumeration value="hop roundhouse"/>
+    <xsd:enumeration value="inward crescent"/>
+    <xsd:enumeration value="outward crescent"/>
+    <xsd:enumeration value="spin hook"/>
+    <xsd:enumeration value="spin roundhouse"/>
+    <xsd:enumeration value="jump spin side"/>
+    <xsd:enumeration value="jump spin hook"/>
+    <xsd:enumeration value="spin crescent"/>
+    <xsd:enumeration value="inward axe"/>
+    <xsd:enumeration value="outward axe"/>
+    <xsd:enumeration value="jump side"/>
+    <xsd:enumeration value="hook"/>
+    <xsd:enumeration value="twist"/>
+    <xsd:enumeration value="scoop"/>
+    <xsd:enumeration value="linear axe"/>
+    <xsd:enumeration value="front stomp"/>
+    <xsd:enumeration value="side stomp"/>
+    <xsd:enumeration value="rear stomp"/>
+    <xsd:enumeration value="front chicken"/>
+    <xsd:enumeration value="back chicken"/>
+    <xsd:enumeration value="spin side"/>
+    <xsd:enumeration value="tornado roundhouse"/>
+    <xsd:enumeration value="ball roundhouse"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="movement-parry">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="inward"/>
+    <xsd:enumeration value="outward"/>
+    <xsd:enumeration value="inward downward"/>
+    <xsd:enumeration value="outward downward"/>
+    <xsd:enumeration value="inward horizontal palm heel"/>
+    <xsd:enumeration value="outward horizontal palm heel"/>
+    <xsd:enumeration value="upward"/>
+    <xsd:enumeration value="inward knee"/>
+    <xsd:enumeration value="outward knee"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="movement-knee">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="vertical"/>
+    <xsd:enumeration value="hop vertical"/>
   </xsd:restriction>
 </xsd:simpleType>
 
@@ -103,18 +163,21 @@
 
 <xsd:complexType name="technique-stances">
   <xsd:sequence>
-    <xsd:element name="attacker"/>
-    <xsd:element name="defender"/>
+    <xsd:element name="attacker" minOccurs="0"/>
+    <xsd:element name="defender" minOccurs="0"/>
   </xsd:sequence>
 </xsd:complexType>
 
 <xsd:complexType name="technique-step" mixed="true">
-  <xsd:all>
+  <xsd:choice maxOccurs="unbounded" minOccurs="0">
     <xsd:element name="footManeuver" type="movement-footManeuver"/>
     <xsd:element name="stance" type="movement-stance"/>
     <xsd:element name="block" type="movement-block"/>
+    <xsd:element name="kick" type="movement-kick"/>
+    <xsd:element name="parry" type="movement-parry"/>
+    <xsd:element name="knee" type="movement-knee"/>
     <xsd:element name="strike"/>
-  </xsd:all>
+  </xsd:choice>
 </xsd:complexType>
 
 <xsd:complexType name="technique-steps">
@@ -123,15 +186,23 @@
   </xsd:sequence>
 </xsd:complexType>
 
+<xsd:complexType name="technique-notes">
+  <xsd:sequence>
+    <xsd:element name="note" type="xsd:string"/>
+  </xsd:sequence>
+</xsd:complexType>
+
 <!-- =============== top-level technique -->
 <xsd:element name="technique">
   <xsd:complexType>
     <xsd:all>
       <xsd:element name="attack" type="xsd:string"/>
-      <xsd:element name="stances" type="technique-stances"/>
+      <xsd:element name="stances" type="technique-stances" minOccurs="0"/>
       <xsd:element name="steps" type="technique-steps"/>
+      <xsd:element name="notes" type="technique-notes" minOccurs="0"/>
     </xsd:all>
     <xsd:attribute name="name" type="xsd:string"/>
+    <xsd:attribute name="level" type="technique-level"/>
     <xsd:attribute name="category" type="technique-category"/>
   </xsd:complexType>
 </xsd:element>
