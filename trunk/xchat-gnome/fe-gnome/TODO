@@ -1,8 +1,3 @@
-pre-release:
-  * come up with a tagline (maybe "it's called ex-chat for a reason" ??)
-
-----
-
 autotools:
   * check for an adequate version of gnome-icon-theme, etc
   * autogenerate inline pngs during build
@@ -20,8 +15,7 @@ autotools:
 * make things static where possible
 * hook up pgup/pgdn
 * hook up ctrl+u, ctrl+e, ctrl+a, etc
-* topic bar should have a tooltip with the entire topic
-* position of panes should be saved
+* topic bar should be a label with a (sometimes insensitive) "change" button
 * double clicking on an item in the server config list should open its edit box
 * need to be able to add new servers
 
@@ -39,8 +33,6 @@ autotools:
 
 * Figure out what causes the TreeIters to become invalid after a call to
   navigation_model_*_ref/unref
-
-* Add charset selection support in server prefs
 
 context menus:
 * flesh out the userlist context menu
