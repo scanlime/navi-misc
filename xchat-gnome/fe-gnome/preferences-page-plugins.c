@@ -87,7 +87,12 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 {
 	GConfClient *client;
 
+	/* FIXME: Now that we're handling these things in such a way that
+	 * we check for successful a load/unload we should maybe do something
+	 * with any errors we receive.
+	 */
 	if (loaded) {
+		/* Unload the plugin. */
 		GSList *removed_plugin;
 
 		if (plugin_kill (filename, 1) == 1) {
@@ -99,6 +104,7 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 		}
 
 	} else {
+		/* Load the plugin. */
 		if (plugin_load (gui.current_session, filename, NULL) == NULL) {
 			gtk_list_store_set (page->plugin_store, &iter, 4, TRUE, -1);
 			enabled_plugins = g_slist_append (enabled_plugins, filename);
