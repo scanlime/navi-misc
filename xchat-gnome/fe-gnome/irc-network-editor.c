@@ -404,7 +404,8 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 	gtk_widget_set_sensitive (e->edit_autojoin, FALSE);
 	gtk_widget_set_sensitive (e->remove_autojoin, FALSE);
 
-	gtk_entry_set_text (GTK_ENTRY (e->password), e->network->password);
+	if (e->network->password)
+		gtk_entry_set_text (GTK_ENTRY (e->password), e->network->password);
 
 	gtk_combo_box_set_active (GTK_COMBO_BOX (e->encoding), e->network->encoding);
 
