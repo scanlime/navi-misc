@@ -29,6 +29,7 @@
 #include <glade/glade.h>
 #include "animation.h"
 #include "animation-render-ui.h"
+#include "screensaver.h"
 
 #ifdef HAVE_GNET
 #include "cluster-model.h"
@@ -58,7 +59,7 @@ struct _Explorer {
     GtkWidget*           fgcolor_button;
     GtkWidget*           bgcolor_button;
 
-    gboolean             about_box_initialized;
+    ScreenSaver*         about_image;
 
     GtkStatusbar*        statusbar;
     guint                render_status_message_id;
@@ -121,6 +122,9 @@ void      explorer_dispose_cluster       (Explorer *self);
 
 void      explorer_run_iterations        (Explorer *self);
 void      explorer_update_gui            (Explorer *self);
+
+void      explorer_init_about            (Explorer *self);
+
 
 G_END_DECLS
 
