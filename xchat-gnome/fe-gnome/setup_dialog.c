@@ -26,7 +26,7 @@
 #include <config.h>
 #include "setup_dialog.h"
 
-static GladeXML *xml;
+static GladeXML *xml = NULL;
 static gboolean done;
 
 static void ok_clicked (GtkButton *button, gpointer data);

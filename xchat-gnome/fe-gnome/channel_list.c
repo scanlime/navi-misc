@@ -133,6 +133,7 @@ create_channel_list (session *sess)
 	win = g_malloc (sizeof (channel_list_window));
 
 	win->server = sess->server;
+	win->xml = NULL;
 
 	if (g_file_test ("channel-list.glade", G_FILE_TEST_EXISTS))
 		win->xml = glade_xml_new ("channel-list.glade", NULL, NULL);

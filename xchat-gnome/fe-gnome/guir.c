@@ -68,6 +68,7 @@ gui_init (Gui *gui)
 	GConfClient *client;
 	gchar *font;
 
+	gui.xml = NULL;
 	if (g_file_test ("xchat-gnome.glade", G_FILE_TEST_EXISTS))
 		gui.xml = glade_xml_new ("xchat-gnome.glade", NULL, NULL);
 	if (!gui.xml)
