@@ -388,7 +388,7 @@ static int                arith_checksum_8bit             (const unsigned char* 
 {
   /* Perform a simple 8-bit arithmetic checksum, as used by the TUSB3410 bootloader */
   int i;
-  unsigned char sum;
+  unsigned char sum = 0;
   for (i=0; i<length; i++)
     sum += buffer[i];
   return sum;
