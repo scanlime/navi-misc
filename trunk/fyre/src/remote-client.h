@@ -58,6 +58,11 @@ typedef void   (*RemoteStatusCallback)        (RemoteClient*     self,
 					       const gchar*      status,
 					       gpointer          user_data);
 
+typedef void   (*RemoteSpeedCallback)         (RemoteClient*     self,
+					       double            iters_per_sec,
+					       double            bytes_per_sec,
+					       gpointer          user_data);
+
 struct _RemoteClosure {
     RemoteCallback callback;
     gpointer       user_data;
@@ -66,14 +71,26 @@ struct _RemoteClosure {
 struct _RemoteClient {
     GObject               object;
 
+    /* Private */
+
     const gchar*          host;
     gint                  port;
     GConn*                gconn;
 
     RemoteStatusCallback  status_callback;
     gpointer              status_callback_user_data;
+
+    RemoteSpeedCallback   speed_callback;
+    gpointer              speed_callback_user_data;
+
     gboolean              is_ready;
     int                   pending_param_changes;
+
+    double                prev_iterations;
+    GTimer*               status_timer;
+    GTimer*               stream_timer;
+    double                iters_per_sec;
+    double                bytes_per_sec;
 
     GQueue*               response_queue;
     RemoteResponse*       current_binary_response;
@@ -101,6 +118,9 @@ RemoteClient*  remote_client_new              (const gchar*          hostname,
 void           remote_client_set_status_cb    (RemoteClient*         self,
 					       RemoteStatusCallback  status_cb,
 					       gpointer              user_data);
+void           remote_client_set_speed_cb     (RemoteClient*         self,
+					       RemoteSpeedCallback   speed_cb,
+					       gpointer              user_data);
 void           remote_client_connect          (RemoteClient*         self);
 gboolean       remote_client_is_ready         (RemoteClient*         self);
 
@@ -119,8 +139,8 @@ void           remote_client_send_param       (RemoteClient*     self,
 					       const gchar*      name);
 void           remote_client_send_all_params  (RemoteClient*     self,
 					       ParameterHolder*  ph);
-void           remote_client_merge_histogram  (RemoteClient*     self,
-					       HistogramImager*  dest);
+void           remote_client_merge_results    (RemoteClient*     self,
+					       IterativeMap*     dest);
 
 G_END_DECLS
 

@@ -32,6 +32,10 @@ static gboolean  explorer_validate_host_and_port (Explorer *self);
 static void      explorer_set_port               (Explorer *self,
 						  int       port);
 
+static void      explorer_get_client_iter        (Explorer      *self,
+						  RemoteClient  *client,
+						  GtkTreeIter   *iter);
+
 static void      cluster_foreach_ready_node      (Explorer    *self,
 						  void       (*callback)(Explorer *, RemoteClient*, gpointer),
 						  gpointer     user_data);
@@ -54,6 +58,14 @@ static void      cluster_node_merge_results      (Explorer      *self,
 						  RemoteClient  *client,
 						  gpointer       user_data);
 
+static void      client_status_callback          (RemoteClient*  client,
+						  const gchar*   status,
+						  gpointer       user_data);
+static void      client_speed_callback           (RemoteClient*  client,
+						  double         iters_per_sec,
+						  double         bytes_per_sec,
+						  gpointer       user_data);
+
 static void      on_cluster_list_cursor_changed  (GtkWidget *widget, gpointer user_data);
 static void      on_cluster_add_host             (GtkWidget *widget, gpointer user_data);
 static void      on_cluster_remove_host          (GtkWidget *widget, gpointer user_data);
@@ -68,6 +80,8 @@ enum {
     CLUSTER_MODEL_PORT,
     CLUSTER_MODEL_STATUS,
     CLUSTER_MODEL_CLIENT,
+    CLUSTER_MODEL_SPEED,
+    CLUSTER_MODEL_BANDWIDTH,
 };
 
 
@@ -102,12 +116,14 @@ static void explorer_init_cluster_view(Explorer *self) {
     GtkTreeView *tv = GTK_TREE_VIEW(glade_xml_get_widget(self->xml, "cluster_list"));
     GtkCellRenderer *renderer;
 
-    self->cluster_model = gtk_list_store_new(5,
+    self->cluster_model = gtk_list_store_new(7,
 					     G_TYPE_BOOLEAN,     /* CLUSTER_MODEL_ENABLED    */
 					     G_TYPE_STRING,      /* CLUSTER_MODEL_HOSTNAME   */
 					     G_TYPE_INT,         /* CLUSTER_MODEL_PORT       */
 					     G_TYPE_STRING,      /* CLUSTER_MODEL_STATUS     */
-					     G_TYPE_OBJECT);     /* CLUSTER_MODEL_CLIENT     */
+					     G_TYPE_OBJECT,      /* CLUSTER_MODEL_CLIENT     */
+					     G_TYPE_STRING,      /* CLUSTER_MODEL_SPEED      */
+					     G_TYPE_STRING);     /* CLUSTER_MODEL_BANDWIDTH  */
 
     gtk_tree_view_set_model(tv, GTK_TREE_MODEL(self->cluster_model));
 
@@ -131,6 +147,16 @@ static void explorer_init_cluster_view(Explorer *self) {
     gtk_tree_view_insert_column_with_attributes(tv, -1, "Status",
 						gtk_cell_renderer_text_new(),
 						"text", CLUSTER_MODEL_STATUS,
+						NULL);
+
+    gtk_tree_view_insert_column_with_attributes(tv, -1, "Speed",
+						gtk_cell_renderer_text_new(),
+						"text", CLUSTER_MODEL_SPEED,
+						NULL);
+
+    gtk_tree_view_insert_column_with_attributes(tv, -1, "Bandwidth",
+						gtk_cell_renderer_text_new(),
+						"text", CLUSTER_MODEL_BANDWIDTH,
 						NULL);
 }
 
@@ -210,7 +236,7 @@ static void      cluster_node_merge_results      (Explorer      *self,
 						  RemoteClient  *client,
 						  gpointer       user_data)
 {
-    remote_client_merge_histogram(client, HISTOGRAM_IMAGER(self->map));
+    remote_client_merge_results(client, self->map);
 }
 
 
@@ -224,13 +250,33 @@ static void on_cluster_list_cursor_changed(GtkWidget *widget, gpointer user_data
     gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "cluster_remove_host"), TRUE);
 }
 
+static void      explorer_get_client_iter        (Explorer      *self,
+						  RemoteClient  *client,
+						  GtkTreeIter   *iter)
+{
+    RemoteClient* iter_client;
+
+    if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(self->cluster_model), iter)) {
+	do {
+	    gtk_tree_model_get(GTK_TREE_MODEL(self->cluster_model), iter,
+			       CLUSTER_MODEL_CLIENT, &iter_client,
+			       -1);
+	    if (iter_client)
+		g_object_unref(iter_client);
+	    if (iter_client == client)
+		return;
+	} while (gtk_tree_model_iter_next(GTK_TREE_MODEL(self->cluster_model), iter));
+    }
+    g_assert_not_reached();
+}
+
+
 static void      client_status_callback          (RemoteClient*  client,
 						  const gchar*   status,
 						  gpointer       user_data)
 {
     Explorer *self = EXPLORER(user_data);
     GtkTreeIter iter;
-    RemoteClient* iter_client;
 
     /* This node might have just become ready. If our cluster is supposed to
      * be running, make sure this node is running too.
@@ -240,28 +286,34 @@ static void      client_status_callback          (RemoteClient*  client,
 	cluster_node_start(self, client, NULL);
     }
 
-    /* Find the list item for this client */
-    if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(self->cluster_model), &iter)) {
-	do {
-	    gtk_tree_model_get(GTK_TREE_MODEL(self->cluster_model), &iter,
-			       CLUSTER_MODEL_CLIENT, &iter_client,
-			       -1);
+    explorer_get_client_iter(self, client, &iter);
 
-	    if (iter_client == client) {
-		/* Found it, set the new status */
-		gtk_list_store_set(self->cluster_model, &iter,
-				   CLUSTER_MODEL_STATUS, status,
-				   -1);
-		g_object_unref(iter_client);
-		return;
-	    }
-	    else if (iter_client)
-		g_object_unref(iter_client);
+    gtk_list_store_set(self->cluster_model, &iter,
+		       CLUSTER_MODEL_STATUS, status,
+		       -1);
+}
 
-	} while (gtk_tree_model_iter_next(GTK_TREE_MODEL(self->cluster_model), &iter));
-    }
+static void      client_speed_callback           (RemoteClient*  client,
+						  double         iters_per_sec,
+						  double         bytes_per_sec,
+						  gpointer       user_data)
+{
+    Explorer *self = EXPLORER(user_data);
+    GtkTreeIter iter;
+    gchar* speed_str;
+    gchar* bandwidth_str;
 
-    g_assert_not_reached();
+    explorer_get_client_iter(self, client, &iter);
+
+    speed_str = g_strdup_printf("%.3e iter/s", iters_per_sec);
+    bandwidth_str = g_strdup_printf("%.2f KB/s", bytes_per_sec / 1000);
+
+    gtk_list_store_set(self->cluster_model, &iter,
+		       CLUSTER_MODEL_SPEED, speed_str,
+		       CLUSTER_MODEL_BANDWIDTH, bandwidth_str,
+		       -1);
+    g_free(speed_str);
+    g_free(bandwidth_str);
 }
 
 static void      cluster_node_enable             (Explorer    *self,
@@ -278,6 +330,7 @@ static void      cluster_node_enable             (Explorer    *self,
 
     client = remote_client_new(host, port);
     remote_client_set_status_cb(client, client_status_callback, self);
+    remote_client_set_speed_cb(client, client_speed_callback, self);
 
     gtk_list_store_set(self->cluster_model, iter,
 		       CLUSTER_MODEL_CLIENT, client,
@@ -300,6 +353,8 @@ static void      cluster_node_disable            (Explorer    *self,
 		       CLUSTER_MODEL_CLIENT, NULL,
 		       CLUSTER_MODEL_ENABLED, FALSE,
 		       CLUSTER_MODEL_STATUS, "",
+		       CLUSTER_MODEL_SPEED, "",
+		       CLUSTER_MODEL_BANDWIDTH, "",
 		       -1);
 }
 

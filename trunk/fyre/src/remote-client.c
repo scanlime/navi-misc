@@ -102,11 +102,22 @@ static void remote_client_dispose(GObject *gobject)
 	g_queue_free(self->response_queue);
 	self->response_queue = NULL;
     }
+
+    if (self->status_timer) {
+	g_timer_destroy(self->status_timer);
+	self->status_timer = NULL;
+    }
+    if (self->stream_timer) {
+	g_timer_destroy(self->stream_timer);
+	self->stream_timer = NULL;
+    }
 }
 
 static void remote_client_init(RemoteClient *self)
 {
     self->response_queue = g_queue_new();
+    self->status_timer = g_timer_new();
+    self->stream_timer = g_timer_new();
 }
 
 RemoteClient*  remote_client_new              (const gchar*          hostname,
@@ -126,6 +137,14 @@ void           remote_client_set_status_cb    (RemoteClient*         self,
 {
     self->status_callback = status_cb;
     self->status_callback_user_data = user_data;
+}
+
+void           remote_client_set_speed_cb     (RemoteClient*         self,
+					       RemoteSpeedCallback   speed_cb,
+					       gpointer              user_data)
+{
+    self->speed_callback = speed_cb;
+    self->speed_callback_user_data = user_data;
 }
 
 void           remote_client_connect          (RemoteClient*         self)
@@ -370,6 +389,7 @@ static void    histogram_merge_callback       (RemoteClient*     self,
 					       gpointer          user_data)
 {
     HistogramImager *dest = HISTOGRAM_IMAGER(user_data);
+    double elapsed;
 
     if (self->pending_param_changes) {
 	/* This data is for an old parameter set, ignore it.
@@ -380,13 +400,66 @@ static void    histogram_merge_callback       (RemoteClient*     self,
 	return;
     }
 
-    printf("merging %d bytes\n", response->data_length);
+    if (!response->data_length)
+	return;
+
     histogram_imager_merge_stream(dest, response->data, response->data_length);
+
+    /* Update our download speed */
+    elapsed = g_timer_elapsed(self->stream_timer, NULL);
+    g_timer_start(self->stream_timer);
+    if (elapsed > 0)
+	self->bytes_per_sec = response->data_length / elapsed;
 }
 
-void           remote_client_merge_histogram  (RemoteClient*     self,
-					       HistogramImager*  dest)
+static void    status_merge_callback          (RemoteClient*     self,
+					       RemoteResponse*   response,
+					       gpointer          user_data)
 {
+    IterativeMap *dest = ITERATIVE_MAP(user_data);
+    double iters, iter_delta;
+    long density;
+    double elapsed;
+
+    sscanf(response->message, "iterations=%lf density=%ld", &iters, &density);
+
+    /* FIXME: Since we don't know which parameters affect calculation, we don't
+     *        know when the node's iteration counter gets reset. We currently
+     *        assume that if it's value decreases, it's been reset.
+     */
+    if (iters >= self->prev_iterations) {
+	iter_delta = iters - self->prev_iterations;
+    }
+    else {
+	/* Assume it started at zero */
+	iter_delta = iters;
+    }
+    self->prev_iterations = iters;
+
+    if (self->pending_param_changes)
+	return;
+    if (!iter_delta)
+	return;
+
+    /* Merge this iteration count in */
+    dest->iterations += iter_delta;
+
+    /* Update our iteration speed */
+    elapsed = g_timer_elapsed(self->status_timer, NULL);
+    g_timer_start(self->status_timer);
+    if (elapsed > 0)
+	self->iters_per_sec = iter_delta / elapsed;
+
+    if (self->speed_callback)
+	self->speed_callback(self, self->iters_per_sec, self->bytes_per_sec,
+			     self->speed_callback_user_data);
+}
+
+void           remote_client_merge_results    (RemoteClient*     self,
+					       IterativeMap*     dest)
+{
+    remote_client_command(self, status_merge_callback, dest,
+			  "calc_status");
     remote_client_command(self, histogram_merge_callback, dest,
 			  "get_histogram_stream");
 }
