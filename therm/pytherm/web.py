@@ -275,8 +275,6 @@ class SourcePage(ModPython.Page):
             graph=SourceGraphs(source),
             latest=SourceLatestPage(source))
 
-        self.latest = source.getLatestPacket()
-
     def showDetails(self, context):
         """Should we show extra details on battery level, signal strength, and such?"""
         return bool(int(context['args'].get('details', (0,))[0]))
@@ -339,6 +337,7 @@ class SourcePage(ModPython.Page):
                  for name in graphs]
 
     def renderLatest(self):
+        self.latest = self.source.getLatestPacket()
         if self.latest:
             info = []
 
