@@ -183,7 +183,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 }
 
 static void de_jong_init_calc_params(GObjectClass *object_class) {
-  GParamSpec *spec, *emphasize_transient;
+  GParamSpec *spec;
   const gchar *current_group = "Computation";
 
   spec = g_param_spec_string       ("function",
@@ -320,7 +320,6 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 				    PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
   g_object_class_install_property  (object_class, PROP_EMPHASIZE_TRANSIENT, spec);
-  emphasize_transient = spec;
 
   spec = g_param_spec_uint         ("transient_iterations",
 				    "Transient iterations",
@@ -330,7 +329,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 				    PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
   param_spec_set_increments        (spec, 1, 10, 0);
-  param_spec_set_dependency        (spec, emphasize_transient);
+  param_spec_set_dependency        (spec, "emphasize-transient");
   g_object_class_install_property  (object_class, PROP_TRANSIENT_ITERATIONS, spec);
 
   spec = g_param_spec_enum         ("initial_conditions",
@@ -341,7 +340,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
-  param_spec_set_dependency        (spec, emphasize_transient);
+  param_spec_set_dependency        (spec, "emphasize-transient");
   g_object_class_install_property  (object_class, PROP_INITIAL_CONDITIONS, spec);
 
   spec = g_param_spec_double       ("initial_xscale",
@@ -352,7 +351,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
   param_spec_set_increments        (spec, 0.001, 0.01, 3);
-  param_spec_set_dependency        (spec, emphasize_transient);
+  param_spec_set_dependency        (spec, "emphasize-transient");
   g_object_class_install_property  (object_class, PROP_INITIAL_XSCALE, spec);
 
   spec = g_param_spec_double       ("initial_yscale",
@@ -363,7 +362,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
   param_spec_set_increments        (spec, 0.001, 0.01, 3);
-  param_spec_set_dependency        (spec, emphasize_transient);
+  param_spec_set_dependency        (spec, "emphasize-transient");
   g_object_class_install_property  (object_class, PROP_INITIAL_YSCALE, spec);
 
   spec = g_param_spec_double       ("initial_xoffset",
@@ -374,7 +373,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
   param_spec_set_increments        (spec, 0.001, 0.01, 3);
-  param_spec_set_dependency        (spec, emphasize_transient);
+  param_spec_set_dependency        (spec, "emphasize-transient");
   g_object_class_install_property  (object_class, PROP_INITIAL_XOFFSET, spec);
 
   spec = g_param_spec_double       ("initial_yoffset",
@@ -385,7 +384,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
   param_spec_set_increments        (spec, 0.001, 0.01, 3);
-  param_spec_set_dependency        (spec, emphasize_transient);
+  param_spec_set_dependency        (spec, "emphasize-transient");
   g_object_class_install_property  (object_class, PROP_INITIAL_YOFFSET, spec);
 }
 
