@@ -91,7 +91,7 @@ viewport = Viewport.OpenGLViewport(loop)
 context = cgCreateContext()
 CheckCGError()
 
-program = cgCreateProgramFromFile(context, CG_SOURCE, 'extra_media/cgGL_vertex_example.cg', CG_PROFILE_VP20, 'main', None)
+program = cgCreateProgramFromFile(context, CG_SOURCE, 'data/cgGL_vertex_example.cg', CG_PROFILE_VP20, 'main', None)
 CheckCGError()
 
 print 'LAST LISTING----%s----' % cgGetLastListing(context)
