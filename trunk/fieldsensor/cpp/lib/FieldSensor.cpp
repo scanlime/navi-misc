@@ -136,7 +136,7 @@ void FieldSensor::sendSlowly(const char *str) {
   }
 }
 
-VECTOR FieldSensor::rawPosition(bool blocking) {
+Vector3 FieldSensor::rawPosition(bool blocking) {
   VECTOR packet = readPacket(blocking);
   VECTOR netOutput = net.getOutput(packet);
   return Vector3(netOutput[0], netOutput[1], netOutput[2]);
@@ -144,8 +144,12 @@ VECTOR FieldSensor::rawPosition(bool blocking) {
 
 Vector3 FieldSensor::readPosition(bool blocking) {
   Vector3 inPosition = rawPosition(blocking);
+  Vector3 direction = inPosition - filterPosition;
+  direction.normalize();
 
-  return filterPosition;
+  //  filterPosition += direction * 0.5;
+
+  return inPosition;
 }
 
 /* The End */
