@@ -91,6 +91,7 @@ world_class_init (WorldClass *klass)
   so_class->get_icon = world_get_icon;
   so_class->creatable = FALSE;
   so_class->autocreate = TRUE;
+  so_class->parentable = FALSE;
   so_class->get_drawables = world_get_drawables;
 
   world_init_params (object_class);

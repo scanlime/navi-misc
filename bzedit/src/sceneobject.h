@@ -52,6 +52,7 @@ struct _SceneObjectClass
   gboolean creatable;
   gboolean autocreate;
   gboolean canparent;
+  gboolean parentable;
 
   /* signal handlers */
   void       (*dirty)          (SceneObject *self);
