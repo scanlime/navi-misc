@@ -31,15 +31,15 @@ defaultPort = 5155
 # An IP address, as defined by struct in_addr in netinet/in.h
 InAddr = VectorType("!BBBB")
 
-# A vector in 3D space
+Vector2 = VectorType("!ff")
 Vector3 = VectorType("!fff")
 
-# A player identifier is now a single unsigned byte, with several special meanings.
 PlayerId = Enum(UInt8, {
     255: None,
     254: 'all',
     253: 'server',
     244: 'lastRealPlayer',
+    # All other values are client IDs
     })
 
 TeamColor = Enum(UInt16, {
