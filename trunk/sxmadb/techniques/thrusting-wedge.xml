@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../style.xsl"?>
+
+<technique name="thrusting wedge" level="green" category="push"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="schema.xsd">
+  <attack>front two-hand high push</attack>
+  <stances>
+    <attacker><stance side="left">neutral bow</stance></attacker>
+    <defender><stance>natural</stance></defender>
+  </stances>
+  <steps>
+    <step>
+      <footManeuver side="right">step</footManeuver> toward 12:00 into a
+      <stance side="right">forward bow</stance> while executing a double
+      <fingerTechnique>horizontal finger thrust</fingerTechnique> to your
+      opponent's eyes.
+    </step>
+    <step>
+      <footManeuver>pivot</footManeuver> into a
+      <stance side="right">neutral bow</stance> as you execute a left crane
+      hook grab to your opponent's right wrist, pulling his hand to your left
+      hip. Simultaneously execute a <strike side="right">upward elbow</strike>
+      to your opponent's chin.
+    </step>
+    <step>
+      Settle into your <stance side="right">neutral bow</stance> as you execute
+      a <strike side="right">overhead palm heel claw</strike> to your opponent's
+      face. Simultaneously execute a <strike side="left">thrusting palm heel</strike>
+      to your opponent's solar plexus.
+    </step>
+  </steps>
+</technique>

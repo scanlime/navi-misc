@@ -200,6 +200,7 @@
     <xsd:enumeration value="downward palm heel"/>
     <xsd:enumeration value="downward hand sword"/>
     <xsd:enumeration value="obscure hand sword"/>
+    <xsd:enumeration value="overhead palm heel claw"/>
   </xsd:restriction>
 </xsd:simpleType>
 <xsd:complexType name="strike">
