@@ -34,21 +34,53 @@ public class aimup
 
 	public static void main(String[] args)
 	{
-		botmain interviewbot = initbots(1,"password");
+		botmain interviewbot = initbots(1,"passphrase");
 		startServer(8082);
-		configureServer();
+		sleep(2);
+		configureServer(interviewbot);
 		updateLoop();
 		link.closeConnection();
 	}
 	
 	public static void updateLoop()
 	{
+		String cmd;
+		String qn, qt, an, at;
+		while(true)
+		{
+			cmd = link.read();
+			switch(cmd.charAt(0))
+			{
+			case 'a':
+				qn = link.read();
+				qt = link.read();
+				an = link.read();
+				at = link.read();
+				index.broadcast(qn + " Askes: " + qt + " To which " + an + " replies: " + at);
+				break;
+			case 'n':
+				index.broadcast(link.read());
+				break;
+			case 'q':
+				return
+			}
+		}
 	}
 	
-	public static void configureServer()
+	public static void configureServer(botmain bot)
 	{
+		int interviews, i;
+		String nick, pass;
 		String mykey = key.keygen();
+		System.out.println(mykey);
 		link.write(mykey);
+		interviews = Integer.parseInt(link.read());
+		for(i=0;i<interviews;i++)
+		{
+			nick = link.read();
+			pass = key.decrypt(mykey,link.read());
+			index.addinterview(bot,nick,pass);
+		}
 	}
 	
 	public static void startServer(int port)
