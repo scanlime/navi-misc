@@ -211,6 +211,10 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
   				       GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				       NULL);
+  GtkFileFilter *filter = gtk_file_filter_new();
+  gtk_file_filter_add_pattern(filter, "*.png");
+  gtk_file_filter_set_name(filter, "PNG Image");
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
   if(gtk_dialog_run(GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename;
     filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
@@ -218,5 +222,6 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
     gdk_pixbuf_save(buf, filename, "png", NULL, NULL);
     g_free(filename);
   }
+  g_object_unref(filter);
   gtk_widget_destroy(dialog);
 }
