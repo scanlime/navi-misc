@@ -31,6 +31,20 @@ url_entry_changed (GtkEntry *entry, UrlEditorDialog2 *dialog)
 {
 }
 
+static void
+type_selector_changed (GtkComboBox *combo, UrlEditorDialog2 *dialog)
+{
+	gint selected = gtk_combo_box_get_active (combo);
+
+	if (selected == URI_PUBLISH_AS_FB) {
+		gtk_widget_set_sensitive (dialog->events_selector, TRUE);
+		gtk_widget_set_sensitive (dialog->tasks_selector, FALSE);
+	} else {
+		gtk_widget_set_sensitive (dialog->events_selector, TRUE);
+		gtk_widget_set_sensitive (dialog->tasks_selector, TRUE);
+	}
+}
+
 static gboolean
 url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 {
@@ -132,6 +146,7 @@ url_editor_dialog_construct2 (UrlEditorDialog2 *dialog)
 	}
 
 	g_signal_connect (G_OBJECT (dialog->url_entry), "changed", G_CALLBACK (url_entry_changed), dialog);
+	g_signal_connect (G_OBJECT (dialog->type_selector), "changed", G_CALLBACK (type_selector_changed), dialog);
 
 	g_object_unref (gconf);
 
