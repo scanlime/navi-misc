@@ -53,6 +53,7 @@ class StatsInterface(RpcServer.Interface):
     def __init__(self):
         RpcServer.Interface.__init__(self)
         self.putSubHandler('metadata', MetadataInterface())
+        self.putSubHandler('subscribe', SubscriptionInterface())
 
     def xmlrpc_catalog(self, path=''):
         """Return a list of subdirectories within this stats path"""
@@ -140,6 +141,21 @@ class MetadataInterface(RpcServer.Interface):
     def protected_remove(self, path, name):
         """Remove one metadata key for this target, if it exists"""
         return StatsTarget(path).metadata.remove(name)
+
+
+class SubscriptionInterface(RpcServer.Interface):
+    """An XML-RPC interface for subscribing to be notified when changes
+       occur to a stats target. This provides multiple ways of subscribing,
+       for compatibility with multiple existing standards.
+       """
+    def xmlrpc_rss2(self, procedureName, clientPort, responderPath, protocol, urls):
+        """This is the flavor of subscription required for the RSS 2.0 <cloud>
+           tag. The client IP should be determined from this request. 'urls'
+           is a list of URLs the client is interested in monitoring- we have
+           to convert those into stats targets.
+           """
+        log.msg("RSS 2.0 subscription request: %r" %
+                ((procedureName, clientPort, responderPath, protocol, urls),))
 
 
 class StatsTarget:

@@ -147,6 +147,19 @@ class RSS2Feed(RSSFeed):
 
         return tags
 
+    def render_cloud(self, context):
+        """Implements the first step of supporting the RSS 2.0 <cloud> tag.
+           This element describes how the RSS aggregator can subscribe for instant
+           notification of changes to this resource.
+           """
+        return tag('cloud',
+                   domain            = context['request'].host[1],
+                   port              = context['request'].host[2],
+                   path              = '/RPC2',
+                   protocol          = 'xml-rpc',
+                   registerProcedure = 'stats.subscribe.rss2',
+                   )
+
     document = [
         xml('<?xml version="1.0"?>\n'),
         tag('rss', version='2.0')[
@@ -155,6 +168,7 @@ class RSS2Feed(RSSFeed):
                 tag('link')[ place('link') ],
                 tag('description')[ place('description') ],
                 place('photo'),
+                place('cloud'),
                 place('items'),
             ],
         ],
