@@ -3,6 +3,18 @@ To do list for BZFlag:Next
 
 THESE MUST HAPPEN BEFORE THE ANY RELEASE: (in no particular order)
 
+* Get a fix for ogre clear scene methods
+
+* Implment drawables manager
+
+* implment world with object list for test world
+
+* implement players, shots, effects, and goodies in test world.
+
+* implement some sort of fake input
+
+* implement saome basic DR.
+
 * Implement CInputManager in a device unspecific manner, using classes and listeners for axis and button functions that can map to any device.
 
 * Port/re-implement CSoundManger to work properly. It must play MP3,OOG and wav files, if possible streaming from standard shoutcast/icecast sources is a bonus. It should use 3d sound hardware on any OS that supports it (FMOD, OPENAL, SDLMixer, or any other suggestions). The ability to read sounds from a zip file would be very nice as well.
