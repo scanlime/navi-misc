@@ -2,8 +2,10 @@
 
 from twisted.internet import reactor
 from twisted.python import log
-import RioKarma
 import sys, time
+
+import RioKarma
+from RioKarma import Filesystem, Metadata
 
 
 class RioApp:
@@ -15,7 +17,7 @@ class RioApp:
 
     def connected(self, protocol):
         print "Connected successfully"
-        self.fs = RioKarma.Filesystem(protocol)
+        self.fs = Filesystem.Filesystem(protocol)
         self.fs.synchronize().addCallback(self.synchronized).addErrback(log.err)
 
     def synchronized(self, retval):
@@ -29,8 +31,8 @@ class Downloader(RioApp):
         self.nextFile()
 
     def nextFile(self, retval=None):
-        f = RioKarma.File(self.fs, self.fileIter.next())
-        destName = RioKarma.MetadataConverter().filenameFromDetails(f.details)
+        f = Filesystem.File(self.fs, self.fileIter.next())
+        destName = Metadata.Converter().filenameFromDetails(f.details)
 
         print "\n"
         print "          FID: 0x%05X" % f.details.get('fid')
@@ -63,7 +65,7 @@ class Uploader(RioApp):
             self.fs.unlock().addCallback(self.finished).addErrback(log.err)
             return
 
-        f = RioKarma.File(self.fs)
+        f = Filesystem.File(self.fs)
         print "\n\nUploading: %s" % filename
         f.loadFromDisk(filename).addCallback(
             self.nextFile).addCallback(
