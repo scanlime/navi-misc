@@ -19,7 +19,7 @@ run.class: run.java
 	javac run.java
 
 run: prog
-	java tcpfw localhost 6112
+	java run
 
 jar: prog
 	jar cvmf .manifest starjox.jar *.class
