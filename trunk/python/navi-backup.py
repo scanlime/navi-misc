@@ -20,6 +20,10 @@ This uses growisofs, and assumes your burner is at /dev/dvd.
     them, and fit as many as possible onto the remaining space
     on the current DVD.
 
+  * navi-backup pending <paths>
+    Show status of only those files that need to be backed up.
+    They are listed in the same order 'auto' would back them up in.
+
   * navi-backup md5 <paths>
     Update the MD5 cache for the given paths. This is not necessary,
     but may be run ahead of time to give a speed boost later on.
@@ -477,6 +481,13 @@ def cmd_auto(paths, assumedOverhead = 0.01, safetyTimer = 3):
         print "Starting burn in %d seconds..." % safetyTimer
         time.sleep(safetyTimer)
         backup(burnPaths, burner)
+
+
+def cmd_pending(paths):
+    index = CatalogIndex()
+    for path in flattenPaths(paths):
+        if index.needsBackup(path):
+            index.fileStatus(path)
 
 
 def cmd_md5(paths, filesPerCommand=8):
