@@ -292,11 +292,11 @@ class CommitToXHTML(CommitFormatter):
                          "border: 1px solid #888; "
                          "background-color: #DDD; "
                          "padding: 0.25em 0.5em;"
-                         "margin: 0.5em 0em; "
+                         "margin: 0;"
                          )[ metadata ],
             Nouvelle.tag('p', style=
                          "padding: 0em; "
-                         "margin: 0em; "
+                         "margin: 0.5em 0em; "
                          )[ log ],
             ]
 

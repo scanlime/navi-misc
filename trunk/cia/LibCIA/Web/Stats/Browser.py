@@ -269,6 +269,7 @@ class MessageList(Template.Section):
         MessageDateColumn(),
         MessageProjectColumn(),
         MessageContentColumn(),
+        Nouvelle.AttributeColumn('link', 'hyperlink'),
         ]
 
     def renderMessages(self, context, messages):
@@ -296,7 +297,13 @@ class RecentMessages(MessageList):
     def _render_rows(self, messages, context, result):
         """Actually render the rows, called after the message list has been retrieved"""
         if messages:
-            result.callback(self.renderMessages(context, [Message.Message(m) for id, m in messages]))
+            # Parse the messages and attach URLs to them
+            parsed = []
+            for id, xml in messages:
+                m = Message.Message(xml)
+                m.hyperlink = Link.MessageLink(self.target, id, text="#%d" % id)
+                parsed.append(m)
+            result.callback(self.renderMessages(context, parsed))
         else:
             result.callback(None)
 
