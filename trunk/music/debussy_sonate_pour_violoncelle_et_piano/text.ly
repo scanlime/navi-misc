@@ -1,5 +1,7 @@
-prologueTempo = \markup {\large\bold "Lent (" 48 à 54 \large\bold "="
-%  \note #2 #0 #1
+prologueTempo = \markup {
+  \large\bold "Lent ("
+  48 à 54
+  \large\bold "="
   \note #"4" #1
   \large\bold ")"
   Sostenuto e molto resoluto
@@ -24,4 +26,12 @@ pocoAnimando = \markup {
 auMouvt = \markup {
   \large\bold "au Mouv"
   \raise #0.5 t
+}
+
+serenadeTempo = \markup {
+  \large\bold "Modérément animé ("
+  72
+  \large\bold "="
+  \note #"4" #1
+  \large \bold ")"
 }
