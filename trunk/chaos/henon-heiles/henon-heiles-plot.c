@@ -120,7 +120,7 @@ int main (int argc, char **argv)
 
 	py (point);
 
-	fprintf (stderr, "running integration for point (%f, %f, %f, %f)\n    ", point[0], point[1], point[2], point[3]);
+	fprintf (stderr, "running integration for point (%f, %f, %f, %f)\n", point[0], point[1], point[2], point[3]);
 	while (1) {
 		iterations += hhrun (point);
 
