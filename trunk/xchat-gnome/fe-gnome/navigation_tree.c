@@ -293,7 +293,7 @@ navigation_tree_select_session (NavTree *navtree, struct session *sess)
 }
 
 void
-navigation_tree_select_next_channel (NavTree *navtree)
+navigation_tree_select_next_channel (NavTree *navtree, gboolean wrap)
 {
 	GtkTreeIter iter;
 	GtkTreeModel *model;
@@ -338,17 +338,30 @@ navigation_tree_select_next_channel (NavTree *navtree)
 
 	/* Try to move forward, otherwise select the first channel on this network. */
 	if (!gtk_tree_model_iter_next(model, &iter)) {
-		gtk_tree_path_up(path);
-		gtk_tree_path_down(path);
-		gtk_tree_model_get_iter(model, &iter, path);
-	}
+    if (wrap) {
+		  gtk_tree_path_up(path);
+		  gtk_tree_path_down(path);
+		  gtk_tree_model_get_iter(model, &iter, path);
+    }
+    else {
+      GtkTreeIter parent;
+      gtk_tree_path_up(path);
+      gtk_tree_model_get_iter(model, &parent, path);
+
+      if (!gtk_tree_model_iter_next(model, &parent))
+        return;
+
+      if (!gtk_tree_model_iter_children(model, &iter, &parent))
+        return;
+    }
+  }
 
 	/* Select the channel. */
 	gtk_tree_selection_select_iter(selection, &iter);
 }
 
 void
-navigation_tree_select_prev_channel (NavTree *navtree)
+navigation_tree_select_prev_channel (NavTree *navtree, gboolean wrap)
 {
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
@@ -403,14 +416,26 @@ navigation_tree_select_prev_channel (NavTree *navtree)
 	 */
 	if (path) {
 		if (!gtk_tree_path_prev(path)) {
-			GtkTreeIter current, previous;
-			gtk_tree_model_get_iter(model, &current, path);
-			previous = current;
-			/* After this loop previous is an iter for the last channel in the list. */
-			while (gtk_tree_model_iter_next(model, &current))
-				previous = current;
-			gtk_tree_path_free(path);
-			path = gtk_tree_model_get_path(model, &previous);
+      if (wrap) {
+			  GtkTreeIter current, previous;
+			  gtk_tree_model_get_iter(model, &current, path);
+			  previous = current;
+
+        /* After this loop previous is an iter for the last channel in the list. */
+			  while (gtk_tree_model_iter_next(model, &current))
+				  previous = current;
+			  gtk_tree_path_free(path);
+			  path = gtk_tree_model_get_path(model, &previous);
+      }
+      else {
+        GtkTreeIter temp;
+        gtk_tree_path_up(path);
+        if (!gtk_tree_path_prev(path))
+          return;
+
+        gtk_tree_model_get_iter(model, &iter, path);
+        gtk_tree_path_append_index(path, gtk_tree_model_iter_n_children(model, &iter)-1);
+      }
 		}
 		/* Select the new path. */
 	  gtk_tree_selection_select_path(selection, path);
