@@ -92,6 +92,8 @@ ROM_DRIVES = [
 # Perform a whole system shutdown at SHUTDOWN! Useful for standalone boxes.
 #
 ENABLE_SHUTDOWN_SYS = 1
+SHUTDOWN_SYS_CMD = 'sudo shutdown -h now'
+RESTART_SYS_CMD  = 'sudo shutdown -r now'
 
 #
 # You can add more keybindings by adding them to the correct hash. 
@@ -101,6 +103,10 @@ ENABLE_SHUTDOWN_SYS = 1
 # EVENTS['video']['1'] = Event(VIDEO_SEND_MPLAYER_CMD, arg='contrast -100')
 #
 # See src/event.py for a list of all possible events.
+
+# Our remote has a pretty high repeat rate, make these more sensitive
+EVENTS['global']['VOL+'] = Event('MIXER_VOLUP', arg=2)
+EVENTS['global']['VOL-'] = Event('MIXER_VOLDOWN', arg=2)
 
 #
 # Use arrow keys for back and select (alternate way of navigating)
@@ -128,6 +134,21 @@ ENABLE_SHUTDOWN_SYS = 1
 # Freevo can write to.
 #
 # OVERLAY_DIR = os.path.join(FREEVO_CACHEDIR, 'vfs')
+
+# Make freevo knowful of Navi
+common_items = [
+    ('Wasabi', '/'),
+    ('Navi', '/navi'),
+    ]
+VIDEO_ITEMS = [
+    ('Navi Video', '/navi/media/video'),
+    ] + common_items
+AUDIO_ITEMS = [
+    ('Navi Audio', '/navi/media/audio'),
+    ] + common_items
+IMAGE_ITEMS = [
+    ('Navi Images', '/navi/media/images'),
+    ] + common_items
 
 #
 # Umask setting for all files.
@@ -629,7 +650,7 @@ LIRCRC = 'lircrc'
 
 # Priority of mplayer process. 0 is unchanged, <0 is higher prio, >0 lower prio.
 # prio <0 has no effect unless run as root.
-# MPLAYER_NICE         = -20             
+# MPLAYER_NICE         = -20
 
 #
 # Mplayer options to use the software scaler. If your CPU is fast enough, you
@@ -676,7 +697,7 @@ LIRCRC = 'lircrc'
 
 #
 # Try to set correct 'delay' and 'mc' values for mplayer based on the delay
-# from mmpython. 
+# from mmpython.
 #
 # This should correct av sync problems with mplayer for some files, but 
 # may also break things. (I don't know, that's why it's disabled by default). 
