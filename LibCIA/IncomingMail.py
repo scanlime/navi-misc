@@ -22,7 +22,6 @@ and delivers them to the Message.Hub.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.xish import domish
 from Message import Message
 from ColorText import ColorTextParser
 import XML, RpcServer
