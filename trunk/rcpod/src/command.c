@@ -417,7 +417,7 @@ int rcpod_SerialRxRead(rcpod_dev* rcpod, unsigned char* buffer, int count) {
     retval += blockSize;
     rcpod->rx.unread -= blockSize;
     rcpod->rx.tail_index += blockSize;
-    rcpod->rx.tail_index &= rcpod->rx.size;
+    rcpod->rx.tail_index %= rcpod->rx.size;
   }
 
   return retval;
