@@ -157,26 +157,51 @@ class HangmanGUI:
     itemFactory = gtk.ItemFactory(gtk.MenuBar, "<main>", accelGroup)
     # Create menu items from menuItems.
     itemFactory.create_items(menuItems)
-    # Create style menu items.
-    itemFactory.create_items(styles)
 
     self.window.add_accel_group(accelGroup)
     self.menuBar = itemFactory.get_widget("<main>")
+
+    # Now add all the of the style menu items to the menu.
+    gameStyle = itemFactory.get_widget("<main>/Options/Game Style")
+
+    for style in styles:
+      gameStyle.append(style)
+      style.show()
+
+    # Show the menu bar.
     self.menuBar.show()
 
   def getStyles(self):
     """ Get a list of all the available style directories and create a tuple for the
         menu items from the list, using directory names as the style name.
         """
-    styleMenu = [("/Options/Game Style/"+style, None, self.setStyle,
-                  self.gallows.styleList.index(style), "<RadioItem>")
-                  for style in self.gallows.styleList]
-    return styleMenu
+    # Get the first style so that we'll have a group to assign all of the other
+    # RadioMenuItems to.
+    styles = [gtk.RadioMenuItem(label=self.gallows.styleList[0])]
 
-  def setStyle(self, data, widget):
-    """ Set the style from the menu check item selected. """
-    self.gallows.setStyle(data)
-    self.gallowsFrame.set(0.5, ratio=self.gallows.imageAspect, obey_child=gtk.FALSE)
+    # Create the other RadioMenuItems in the group of the first one.
+    for i in range(len(self.gallows.styleList)-1):
+      styles.append(gtk.RadioMenuItem(styles[0], self.gallows.styleList[i+1]))
+
+    # Connect, the style's index in the list is passed to setStyle in order to determine
+    # which style needs to be set, since the list of menu widgets is created from the
+    # list of styles in the Gallows class.
+    for style in styles:
+      style.connect_object("toggled", self.setStyle, style, styles.index(style))
+
+    self.currentStyle = styles[0]
+
+    return styles
+
+  def setStyle(self, widget, data):
+    """ Set the style from the menu check item selected, only if the newly selected
+        style isn't the same as the current style.
+	"""
+    if widget is not self.currentStyle:
+      print "Changing style"
+      self.currentStyle = widget
+      self.gallows.setStyle(data)
+      self.gallowsFrame.set(0.5, ratio=self.gallows.imageAspect, obey_child=gtk.FALSE)
 
   def GuessCheck(self, widget, guessField):
     """ Grab the guess entered by the user and then call update the window
@@ -278,6 +303,7 @@ class HangmanGUI:
     self.clue.set_text(self.controller.words[self.controller.answer])
     self.Update(self.controller.gameStat())
     self.gallows.update(0)
+
     # Clear text entry field, make editable again, and give it focus.
     self.guessField.set_text("")
     self.guessField.set_editable(gtk.TRUE)
@@ -331,6 +357,7 @@ class Gallows(gtk.DrawingArea):
     # Set up the style.
     self.styleFile = "graphics/styles/Burton"
     self.styleList = os.listdir("graphics/styles")
+
     # Remove any hidden directories from styleList, specifically: .svn/ .
     for style in self.styleList:
       if style[:1] == '.':
