@@ -284,9 +284,9 @@ histogram_imager_dispose (GObject *gobject)
 	g_free (self->color_table.table);
 	self->color_table.table = NULL;
     }
-    if (self->color_table.distances) {
-	g_free (self->color_table.distances);
-	self->color_table.distances = NULL;
+    if (self->color_table.quality) {
+	g_free (self->color_table.quality);
+	self->color_table.quality = NULL;
     }
     if (self->oversample_tables.linearize) {
 	g_free (self->oversample_tables.linearize);
@@ -774,15 +774,15 @@ histogram_imager_resize_color_table (HistogramImager *self, gulong size)
 	(self->color_table.allocated_size > 10 * size)) {
 	if (self->color_table.table)
 	    g_free (self->color_table.table);
-	if (self->color_table.distances)
-	    g_free (self->color_table.distances);
+	if (self->color_table.quality)
+	    g_free (self->color_table.quality);
 
 	/* Allocate it to double the size we need now, as we expect our needs to grow. */
 	self->color_table.allocated_size = size * 2;
 	self->color_table.table = g_malloc (self->color_table.allocated_size *
 					    sizeof(self->color_table.table[0]));
-	self->color_table.distances = g_malloc (self->color_table.allocated_size *
-						sizeof(self->color_table.distances[0]));
+	self->color_table.quality = g_malloc (self->color_table.allocated_size *
+						sizeof(self->color_table.quality[0]));
     }
 }
 
@@ -891,11 +891,20 @@ histogram_imager_generate_color_table (HistogramImager *self, gboolean force)
 	}
 	previous = current;
 
-	/* The distances table records the cumulative elapsed distance, in the color
-	 * hypercube, at this point. It can be used to compute distance between any two
-	 * table entries very quickly.
+	/* "distance" is the distance we've traveled from the background to this
+	 * point in the color hypercube. Our quality metric is based on the number
+	 * of histogram samples per color cube samples: our 'quality' table stores
+	 * the current count divided by its corresponding distance.
 	 */
-	self->color_table.distances[count] = distance;
+	if (distance > 0) {
+	    self->color_table.quality[count] = count / distance;
+	}
+	else {
+	    /* We shouldn't ever use quality entries where the distance
+	     * is zero- this value is pretty arbitrary.
+	     */
+	    self->color_table.quality[count] = 0;
+	}
     }
 }
 
@@ -996,7 +1005,7 @@ histogram_imager_compute_quality (HistogramImager *self)
     histogram_imager_generate_color_table (self, FALSE);
     {
 	guint *hist_p = self->histogram;
-	float *dist_p = self->color_table.distances;
+	float *qual_p = self->color_table.quality;
 	float dist;
 	guint count;
 	guint hist_clamp = self->color_table.filled_size - 1;
@@ -1016,11 +1025,8 @@ histogram_imager_compute_quality (HistogramImager *self)
 
 		/* We average only those buckets that aren't empty or satuated */
 		if (count <= hist_clamp && count > 0) {
-		    dist = dist_p[count];
-		    if (dist > 0) {
-			numerator += count / dist_p[count];		
-			denominator++;
-		    }
+		    numerator += qual_p[count];
+		    denominator++;
 		}
 	    }
 
