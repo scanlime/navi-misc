@@ -10,17 +10,17 @@ What is CIA?
 
 CIA is one of the more innovative projects to come to open source. What CIA does is amazing, it keeps track of projects. A lot of them. It keeps stats, keeps a list of who commits to source code repositories, and even has meta data regarding projects.
 
-CIA also provides you an rss feed of commits, a web page to provide information about a projects recent commits, and a bot that will sit in your projects irc channel displaying new commits, if you have a channel.
+CIA also provides you an RSS feed of commits, a web page to provide information about a projects recent commits, and a bot that will sit in your projects IRC channel displaying new commits, if you have a channel.
 
 The CIA project started in June of 2003 by Micah. Many other projects quickly adopted CIA, and use it within their projects, in order to provide services to all of their developers and users. CIA keeps you informed, and that is what matters.
 
-How CIA works is simple. When you commit something, it runs a script, and then emails CIA. CIA then does all of it's work, and posts to the rss feed, the website, and the irc channel. It formats this information to include file names modified, comment, and developer id.
+How CIA works is simple. When you commit something, it runs a script, and then emails CIA. CIA then does all of it's work, and posts to the RSS feed, the web site, and the IRC channel. It formats this information to include file names modified, comment, and developer id.
 
 
 Focus of this How-To:
 ---------------------
 
-Most of the issues with CIA, up to this point, have been with Sourceforge projects. Perhaps this is because, as of this writing, 99% of all activity has occured from Sourceforge. Hence, this will be the focused on setting up CIA for Sourceforge projects.
+Most of the issues with CIA, up to this point, have been with Sourceforge projects. Perhaps this is because, as of this writing, 99% of all activity has occurred from Sourceforge. Hence, this will be the focused on setting up CIA for Sourceforge projects.
 
 
 
@@ -81,7 +81,7 @@ The last file to modify is ciabot_cvs.pl itself. You have to tell it where to se
 
 * $project = "projectname";
 	
-	Replace projectname with your project's unix name assigned by Sourceforge, or whatever name you are going by. This name should be fairly short, and shoudln't contain any whitespace or odd characters. It will be used in your project's URL on CIA, and it will be used on IRC. You can use metadata_ later to assign a longer name for use in the web interface.
+	Replace projectname with your project's UNIX name assigned by Sourceforge, or whatever name you are going by. This name should be fairly short, and shouldn't contain any whitespace or odd characters. It will be used in your project's URL on CIA, and it will be used on IRC. You can use metadata_ later to assign a longer name for use in the web interface.
 
 * $from_email = "leader@example.org";
 	
@@ -92,7 +92,7 @@ That's it. You can configure other options as you like, but these are the requir
 	
 	cvs commit
 
-You should now be setup. If all went well, the next commit you make should show up in #commits and on the web. If you would like to have a bot in your irc channel or edit your project's metadata_, contact
+You should now be setup. If all went well, the next commit you make should show up in #commits and on the web. If you would like to have a bot in your IRC channel or edit your project's metadata_, contact
 `Micah via email`_, or as 'scanline' on irc.freenode.net. Everything else should be ready to go. Congratulations on setting up CIA to work with your project.
 
 .. _metadata: /doc/metadata
