@@ -78,7 +78,7 @@ guchar* spline_serialize(Spline *spline, gsize *size) {
   return buffer;
 }
 
-Spline* spline_unserialize(guchar *data, gsize size) {
+Spline* spline_unserialize(const guchar *data, gsize size) {
   Spline *n = g_malloc(sizeof(Spline));
   n->num_points = size / sizeof(SplineControlPoint);
   n->points = g_malloc(n->num_points * sizeof(SplineControlPoint));

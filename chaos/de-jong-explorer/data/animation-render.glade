@@ -12,6 +12,7 @@
   <property name="modal">False</property>
   <property name="resizable">False</property>
   <property name="destroy_with_parent">False</property>
+  <signal name="delete_event" handler="on_delete_event" last_modification_time="Mon, 01 Mar 2004 02:59:22 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox11">

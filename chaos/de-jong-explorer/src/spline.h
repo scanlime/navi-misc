@@ -54,7 +54,7 @@ Spline*  spline_copy(const Spline *spline);
 void     spline_free(Spline *spline);
 
 guchar* spline_serialize(Spline *spline, gsize *size);
-Spline* spline_unserialize(guchar *data, gsize size);
+Spline* spline_unserialize(const guchar *data, gsize size);
 
 Spline* spline_find_active_points(Spline *spline);
 

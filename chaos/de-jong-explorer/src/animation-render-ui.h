@@ -68,6 +68,8 @@ struct _AnimationRenderUi {
 
 struct _AnimationRenderUiClass {
   GObjectClass parent_class;
+
+  void (* animation_render_ui) (AnimationRenderUi *self);
 };
 
 
