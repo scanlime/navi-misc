@@ -262,6 +262,10 @@ class Ruleset(XML.XMLFunction):
            returns a function that applies the formatter against the current
            message and result.
            """
+        # Evaluate this once at parse-time so any silly errors
+        # like unknown formatters or mediums can be detected.
+        Formatters.factory.fromXml(element)
+
         def rulesetFormatter(msg):
             self.result = Formatters.factory.fromXml(element, msg).format(msg, self.result)
             return True

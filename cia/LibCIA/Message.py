@@ -407,11 +407,13 @@ class Formatter:
            extra parameters for the formatter to process and store.
            Any problems should be signalled with an XML.XMLValidityError.
 
-           By default all parameters are ignored. It's probably a good
-           idea to ignore top-level tags you don't understand, so
-           parameters are useful when picking formatters automatically.
+           By default, this tries to find a param_* handler for each
+           element it comes across.
            """
-        pass
+        for tag in xml.elements():
+            f = getattr(self, 'param_'+tag.name, None)
+            if f:
+                f(tag)
 
 
 class NoFormatterError(Exception):
@@ -445,28 +447,36 @@ class FormatterFactory:
             raise NoFormatterError("No such formatter %r" % name)
         return cls()
 
-    def findMedium(self, medium, message):
-        """Find a formatter for the given medium and matching the given message."""
+    def findMedium(self, medium, message=None):
+        """Find a formatter for the given medium and matching the given message.
+           If None is given as the message, this will only validate the medium
+           and return None if the medium itself is fine.
+           """
         try:
             l = self.mediumMap[medium]
         except KeyError:
             raise NoFormatterError("No formatters for the %r medium" % medium)
-        for cls in l:
-            if cls.detector(message):
-                return cls()
-        raise NoFormatterError("No matching formatters for the %r medium" % medium)
+        if message:
+            for cls in l:
+                if cls.detector(message):
+                    return cls()
+            raise NoFormatterError("No matching formatters for the %r medium" % medium)
 
-    def fromXml(self, xml, message):
-        """Create a formatter to match the given <formatter> element"""
+    def fromXml(self, xml, message=None):
+        """Create a formatter to match the given <formatter> element.
+           If 'message' is None and a medium is requested rather than a particular
+           formatter, this will return None after validating the medium.
+           """
         name = xml.getAttribute('name')
         medium = xml.getAttribute('medium')
         if (name and medium) or not (name or medium):
             raise XML.XMLValidityError("<formatter> must have exactly one 'name' or 'medium' attribute")
         if name:
-            f = self.findName(xml)
+            f = self.findName(name)
         else:
             f = self.findMedium(medium, message)
-        f.loadParametersFrom(xml)
+        if f:
+            f.loadParametersFrom(xml)
         return f
 
 
