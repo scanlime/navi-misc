@@ -237,7 +237,8 @@ on_selection_changed (GtkTreeSelection *selection, gpointer user_data)
 	gtk_widget_set_sensitive (GTK_WIDGET (button), sensitive);
 }
 
-static void on_plugin_filechooser (GtkDialog *dialog, gint response, gpointer user_data)
+static void
+on_plugin_filechooser (GtkDialog *dialog, gint response, gpointer user_data)
 {
 	char *filename;
 
@@ -249,8 +250,8 @@ static void on_plugin_filechooser (GtkDialog *dialog, gint response, gpointer us
 	gtk_widget_hide (file_selector);
 }
 
-static void on_row_activated (GtkTreeView *treeview, GtkTreePath *path,
-		GtkTreeViewColumn *col, gpointer user_data)
+static void
+on_row_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *col, gpointer user_data)
 {
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
@@ -324,13 +325,14 @@ set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, 
 	return FALSE;
 }
 
-gint filename_test (gconstpointer a, gconstpointer b)
+gint
+filename_test (gconstpointer a, gconstpointer b)
 {
 	return strcmp ((char*)a, (char*)b);
 }
 
-static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
-		GtkTreeIter iter)
+static void
+load_unload (char *filename, gboolean loaded, GtkTreeModel *model, GtkTreeIter iter)
 {
 	char *buf;
 	GError *err = NULL;
@@ -346,7 +348,11 @@ static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
 		/* FIXME: Bad to assume that the plugin was successfully unloaded. */
 		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
 
-		//enabled_plugins = g_slist_remove (enabled_plugins, filename);
+		/* For some reason the normal find and remove functions don't work with
+		 * strings. I suspect they're comparing the pointers instead of the strings
+		 * themselves. So we just define our own little custom test that uses
+		 * strcmp to remove the plugin filename from the list.
+		 */
 		if ((removed_plugin = g_slist_find_custom (enabled_plugins, filename, &filename_test)) != NULL) {
 			enabled_plugins = g_slist_delete_link (enabled_plugins, removed_plugin);
 		}
@@ -370,10 +376,15 @@ static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
 	free (buf);
 }
 
-static void autoload_plugin_cb (gpointer data, gpointer user_data)
+static void
+autoload_plugin_cb (gpointer data, gpointer user_data)
 {
 	char *filename;
 	filename = (char*) data;
 
+	/* We can't use handle_command to run LOAD <filename> here; not sure
+	 * why. But loading the plugin with plugin_load seems to work just
+	 * fine.
+	 */
 	plugin_load (gui.current_session, filename, NULL);
 }
