@@ -145,11 +145,11 @@ static DECLARE_MUTEX (disconnect_sem);
 				 */
 
 /* Mapping between rwand buttons and linux input system buttons */
-#define MAPPED_BTN_SQUARE    BTN_TASK
-#define MAPPED_BTN_RIGHT     BTN_RIGHT
-#define MAPPED_BTN_LEFT      BTN_LEFT
-#define MAPPED_BTN_UP        BTN_FORWARD
-#define MAPPED_BTN_DOWN      BTN_BACK
+#define MAPPED_BTN_SQUARE    BTN_1
+#define MAPPED_BTN_RIGHT     BTN_2
+#define MAPPED_BTN_LEFT      BTN_3
+#define MAPPED_BTN_UP        BTN_4
+#define MAPPED_BTN_DOWN      BTN_5
 
 
 /******************************************************************************/
