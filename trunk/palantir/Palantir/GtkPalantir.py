@@ -66,8 +66,12 @@ class PalantirWindow:
 
     # Create a chat buffer from our custom widget.
     self.chatWindow = GtkChatBuffer()
-    self.tree.get_widget('ChatPane').add2(self.chatWindow)
+    self.tree.get_widget('ChatBox').pack_end(self.chatWindow, padding=5)
     self.chatWindow.show()
+
+    self.characterSheetWindow = gtk.ScrolledWindow()
+    self.characterSheetWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+    self.tree.get_widget('InputBox').pack_start(self.characterSheetWindow)
 
     # Client factory.
     self.factory = palantirIRC.PalantirClientFactory('nuku-nuku', ui=self)
@@ -451,18 +455,18 @@ class PalantirWindow:
 
     # If we've already loaded a sheet it needs to be removed.
     if hasattr(self, 'sheet'):
-      self.tree.get_widget('CharacterViewPort').remove(self.sheet.root)
+      self.characterSheetWindow.remove(self.sheet.root)
     # Create a new sheet.
     self.sheet = Sheet(self.data, self.dieRoller, CharacterSheet.GtkSheetElements)
     # Store the filename the sheet was read from... (why did I do this?)
     self.sheet.filename = self.tree.dialog.get_widget('SheetSelection').get_filename()
     # Add the sheet to the CharacterViewPort and show it.
-    self.tree.get_widget('CharacterViewPort').add(self.sheet.root)
+    self.characterSheetWindow.add_with_viewport(self.sheet.root)
     self.sheet.root.show()
 
     # Kill the file selector.
     self.tree.dialog.get_widget('SheetSelection').destroy()
-    self.tree.get_widget('CharacterSheetPane').show()
+    self.characterSheetWindow.show()
 
   def AddUserToList(self, nick, channel):
     ''' Add nick the userlist. '''

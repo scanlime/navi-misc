@@ -1,12 +1,10 @@
-* File names are all relative to /home/evan/navi-misc/palantir -- that's BAD =P
 * Some commands like /close don't seem to work
 * Separate buffers for private chat windows
 * Tweak dice rolling systems to handle critical failures
-* Store user preferences in the chat client
+* Store user preferences for the chat client
 * Character sheet builder
 * Change colors in the chat buffer
 * Remove extraneous functions in the factory and have the UI access the client via
   the factory instead of adding unnecessary function calls.
-* Move the character sheets out from under the userlist over to the right of the
-  chat buffer.
 * Make chat buffer scroll a little further for niceness of viewing.
+* Replace pyxml stuff with twisted's xml stuff.
