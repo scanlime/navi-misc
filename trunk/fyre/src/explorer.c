@@ -104,7 +104,7 @@ static void explorer_init(Explorer *self) {
   /* If we don't have OpenEXR support, gray out the menu item
    * so it sits there taunting the user and not breaking HIG
    */
-  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "on_save_exr"), FALSE);
+  gtk_widget_set_sensitive(glade_xml_get_widget(self->xml, "save_image_as_exr"), FALSE);
 #endif
 
   /* Set up the statusbar */
