@@ -114,6 +114,10 @@ namespace Fyre
 		{
 			pipeline_drawing.SetScrollAdjustments (drawing_hscroll.Adjustment, drawing_vscroll.Adjustment);
 
+			// Give the navigation image knowledge of the drawing, so it can
+			// track canvas/window extents
+			navigation_image.drawing = pipeline_drawing;
+
 			// Set up drag-and-drop for the frame. This looks better than setting it
 			// up for the drawing area, and we delegate the event back into the
 			// PipelineDrawing object when we drop.

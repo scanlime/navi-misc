@@ -25,10 +25,10 @@ namespace Fyre
 
 	class NavigationWindow : Gtk.Window
 	{
-		Gdk.Pixmap	background;
-		Gdk.Pixmap	backing;
-		Gdk.GC		white, black;
-		int[]		size, visible, mouse;
+		Gdk.Pixmap		background;
+		Gdk.Pixmap		backing;
+		Gdk.GC			white, black;
+		int[]			size, visible, mouse;
 
 		public
 		NavigationWindow (int w, int h, int vw, int vh) : base (Gtk.WindowType.Popup)
@@ -178,6 +178,7 @@ namespace Fyre
 		NavigationWindow	window;
 		Gdk.Rectangle		position;
 		int[]			visible;
+		public PipelineDrawing	drawing;
 
 		public
 		NavigationImage()
@@ -205,6 +206,9 @@ namespace Fyre
 		protected override bool
 		OnButtonPressEvent (Gdk.EventButton ev)
 		{
+			if (drawing == null)
+				return true;
+
 			Gdk.Screen screen = GdkWindow.Screen;
 
 			int mouse_x = (int) ev.XRoot;

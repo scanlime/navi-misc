@@ -40,7 +40,25 @@ namespace Fyre
 		 * it easier to drag the document for a bigger size.
 		 */
 		Gdk.Rectangle		drawing_extents;
+		public Gdk.Rectangle	DrawingExtents
+		{
+			// This is an RW value, but we want to update our scroll positions
+			// when another object sets the value.
+			get {
+				return drawing_extents;
+			}
+			set {
+				hadj.Value = (int) drawing_extents.X;
+				vadj.Value = (int) drawing_extents.Y;
+			}
+		}
 		Gdk.Rectangle		layout_extents;
+		public Gdk.Rectangle	CanvasExtents
+		{
+			get {
+				return ExpandRect (layout_extents, layout_buffer).Union (drawing_extents);
+			}
+		}
 
 		static int		layout_buffer = 50;
 
