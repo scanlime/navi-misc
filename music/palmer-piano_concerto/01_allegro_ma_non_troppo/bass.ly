@@ -70,4 +70,42 @@ mvmtOneBass = \relative c {
 
 	\time 6/8
 	R1*6/8*14
+	r4. r8 dis16 e dis8->
+	gis,8-> r4 r4.
+
+	% 85
+	r4. r8 cis16 d cis8->
+	b8-> r4 r8 a'16 b a8->
+	d,8 r4 r8 c16 b a8->
+	\setTextDecresc
+	gis8-> r4 cis16-> \> cis \! cis-. cis-. cis-. cis-.
+	\time 4/4
+	\once \override TextScript #'extra-offset = #'(0 . 1.0)
+	\times 4/6 {cis8->^\tempoI cis8 cis-. cis-. cis-. cis-.}
+	\times 4/6 {d8-> d8 d-. d-. d-. d-.}
+
+	% 90
+	c4\pp <aes aes'>->\mf^\pizz r <a a'>4->
+	<fis fis'>4-> r r2
+	R1
+	b4\f r r2
+	b4 r fis r
+
+	% 95
+	e r r2
+	e4 r b' fis
+	R1*5
+	c'16\ff (ees d ees a, ees' d ees) d (a bes ees d c bes a)
+	aes8 r8 r4 r2
+	R1
+
+	% 105
+	r4^\oneBass b\mp ees a,
+	f'4 r r2
+	R1
+	fis,1\p \trill
+	\> fis1 \trill \!
+
+	% 110
+	R1*10 | R1*9
 }
