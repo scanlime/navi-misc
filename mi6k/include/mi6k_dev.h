@@ -20,8 +20,8 @@
 
 /************************************************** Device node ***************/
 
-/* Information about the MI6K's device node in /dev/usb/ */
-#define MI6K_DEV_NAMEFORMAT   "mi6k%d"
+/* Information about the MI6K's device node in /dev */
+#define MI6K_DEV_NAMEFORMAT   "usb/mi6k%d"
 #define MI6K_MINOR_BASE       230
 
 

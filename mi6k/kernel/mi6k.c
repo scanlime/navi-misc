@@ -105,6 +105,8 @@ struct mi6k_fd_private {
 /* prevent races between open() and disconnect() */
 static DECLARE_MUTEX (disconnect_sem);
 
+static struct usb_mi6k* current_transmitter;
+
 
 /******************************************************************************/
 /************************************************** Function Prototypes *******/
@@ -585,18 +587,15 @@ static int mi6k_dev_ioctl(struct inode *inode, struct file *file, unsigned int c
 
 static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t count, loff_t *ppos)
 {
-	struct mi6k_fd_private *prv;
-	struct usb_mi6k *dev;
+	struct usb_mi6k *dev = current_transmitter;
 	int retval = 0;
 	lirc_t value = 0, pulse = 0;
 	int pulse_flag = 1;
 
-	prv = (struct mi6k_fd_private *) file->private_data;
-	if (prv == NULL) {
-		dbg("object is NULL");
+	if (!dev) {
+		dbg("No device to transmit with");
 		return -ENODEV;
 	}
-	dev = prv->dev;
 
 	/* lock this object */
 	down(&dev->sem);
@@ -653,26 +652,8 @@ exit:
 
 static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
-	struct mi6k_fd_private *prv;
-	struct usb_mi6k *dev;
 	int retval=0;
 	unsigned long value;
-
-	prv = (struct mi6k_fd_private *) file->private_data;
-	if (prv == NULL) {
-		dbg("object is NULL");
-		return -ENODEV;
-	}
-	dev = prv->dev;
-
-	/* lock this object */
-	down(&dev->sem);
-
-	/* verify that the device wasn't unplugged */
-	if (dev->udev == NULL) {
-		up(&dev->sem);
-		return -ENODEV;
-	}
 
 	switch(cmd) {
 
@@ -710,21 +691,29 @@ static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int 
 		retval = -ENOIOCTLCMD;
 	}
 
-	/* unlock the device */
-	up(&dev->sem);
-
 	return retval;
 }
 
 static int mi6k_lirc_use_inc(void *data)
 {
-	dbg("use_inc");
+	struct usb_mi6k* dev = (struct usb_mi6k*) data;
+	try_module_get(THIS_MODULE);
+
+	/* This is an UGLY UGLY hack to get a pointer to
+	 * some sort of mi6k device in mi6k_lirc_write().
+	 * Ideally we'd just store our device in the file's
+	 * private data, but there's no way to do this! This
+	 * function never sees the file pointer, and overriding
+	 * open() also overrides a lot of lirc_dev's internal
+	 * bookkeeping that we can't replicate here.
+	 */
+	current_transmitter = dev;
 	return 0;
 }
 
 static void mi6k_lirc_use_dec(void *data)
 {
-	dbg("use_dec");
+	module_put(THIS_MODULE);
 }
 
 
@@ -781,6 +770,8 @@ static int mi6k_probe(struct usb_interface *interface, const struct usb_device_i
 	lirc_buffer_init(&dev->ir_rx_buffer, sizeof(lirc_t), RBUF_LEN);
 	memcpy(&dev->ir_plugin, &mi6k_lirc_plugin, sizeof(struct lirc_plugin));
 	dev->ir_plugin.rbuf = &dev->ir_rx_buffer;
+	dev->ir_plugin.data = dev;
+
 	if ((dev->ir_plugin.minor = lirc_register_plugin(&dev->ir_plugin)) < 0) {
 		err("lirc_register_plugin failed\n");
 		return -EIO;
