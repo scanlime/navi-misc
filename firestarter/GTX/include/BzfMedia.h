@@ -14,6 +14,8 @@
 #define	__BZFMEDIA_H__
 
 #include "common.h"
+#include "OSFile.h"
+#include <vector>
 
 static const std::string	DEFAULT_MEDIA_DIR = "data";
 
@@ -147,6 +149,26 @@ class BzfMedia {
     // it cannot be found.
     virtual int		findExtension(const std::string& pathname) const;
 
+		// path search stuff
+		virtual std::vector<std::string> getResourcePaths ( void );
+	///ResourceManager stuff
+	public:
+		typedef enum
+		{
+			noResPref = 0,
+			imageRes,
+			soundRes,
+			fontRes,
+			textRes
+		}resourceType;
+
+		void initResourceManager ( void );
+		OSFile getResource ( const char * resName, resourceType prefType = noResPref );
+		std::vector<OSFile> scanResourceDir ( const char * resName, bool recursive = false, resourceType prefType = noResPref );
+	protected:
+		std::string	resourceBaseDir;
+		OSDir				baseDir;	
+
   private:
     static int16_t	getShort(const void*);
     static uint16_t	getUShort(const void*);
@@ -156,7 +178,7 @@ class BzfMedia {
     static bool		doReadRLE(FILE*, int, int, int,
 				unsigned char*);
 
-  private:
+  protected:
     std::string		mediaDir;
 };
 

@@ -43,6 +43,49 @@ void			BzfMedia::setMediaDirectory(const std::string& _dir)
   mediaDir = _dir;
 }
 
+std::vector<std::string> BzfMedia::getResourcePaths ( void )
+{
+	std::vector<std::string> paths;
+
+	paths.push_back(makePath(mediaDir, ""));
+
+#if defined(INSTALL_DATA_DIR)
+	paths.push_back(makePath(INSTALL_DATA_DIR, ""));
+#endif
+
+	paths.push_back(makePath(DEFAULT_MEDIA_DIR, ""));
+
+	std::string name = "../";
+	name += DEFAULT_MEDIA_DIR;
+	paths.push_back(makePath(name, ""));
+
+	name = "../../";
+	name += DEFAULT_MEDIA_DIR;
+	paths.push_back(makePath(name, ""));
+
+	return paths;
+}
+
+void BzfMedia::initResourceManager ( void )
+{
+	//std::string	resourceBaseDir;
+	//OSDir				baseDir;	
+}
+
+OSFile BzfMedia::getResource ( const char * resName, resourceType prefType )
+{	
+	OSFile	file;
+
+	std::vector<std::string> paths = getResourcePaths();
+	return file;
+}
+
+std::vector<OSFile> BzfMedia::scanResourceDir ( const char * resName, bool recursive, resourceType prefType )
+{
+	std::vector<OSFile> files;
+	return files;
+}www
+
 unsigned char*		BzfMedia::readImage(const std::string& filename,
 				int& width, int& height, int& depth) const
 {
