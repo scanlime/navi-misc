@@ -22,7 +22,7 @@ hardware components, then uses Sequencer to start the menu.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import os, pygame
+import os, pygame, threading
 from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Sequencer, Input
 from BZEngine import Event
 from Wasabi import Hardware, Logos, Menu, IR, Icon, VideoSwitch, Settings
@@ -83,7 +83,17 @@ class Main:
 
     def run(self):
         """Run the main loop, doesn't return until the program exits"""
-        self.loop.run()
+        try:
+            self.loop.run()
+        finally:
+            # Get all our threads to stop gracefully
+            for thread in threading.enumerate():
+                if thread != threading.currentThread():
+                    thread.running = False
+                    thread.join()
+
+            # Shut down hardware gracefully
+            self.hardware.shutdown()
 
 
 class VideoChannelPage(Sequencer.Page):
