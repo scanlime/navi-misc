@@ -42,6 +42,10 @@ int fe_args(int argc, char *argv[]) {
 		}
 	}
 	gnome_program_init("xchat test", "0.1", LIBGNOMEUI_MODULE, argc, argv, NULL);
+
+	/* FIXME: this is kind of a silly place to put this, but it seems to want to
+		  follow gnome_program_init */
+	gnome_window_icon_set_default_from_file ("data/xchat-gnome-small.png");
 	return 1;
 }
 
