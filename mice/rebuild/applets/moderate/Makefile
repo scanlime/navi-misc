@@ -41,6 +41,10 @@ net.class: net.java
 
 authenticate.class: authenticate.java
 	javac authenticate.java
+
+jar: app
+	jar cvf moderate.jar *.class
+
 run: app
 	open index.html
 

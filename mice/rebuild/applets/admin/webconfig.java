@@ -62,6 +62,7 @@ public class webconfig implements ActionListener
 		myadmin.rm(submit);
 		myadmin.rm(port);
 		myadmin.rm(host);
+		myadmin.rm(filename);
 		new aimconfig(myadmin);
 	}
 }
