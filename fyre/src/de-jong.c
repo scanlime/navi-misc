@@ -46,6 +46,14 @@ enum {
   PROP_B,
   PROP_C,
   PROP_D,
+  PROP_E,
+  PROP_F,
+  PROP_G,
+  PROP_H,
+  PROP_I,
+  PROP_J,
+  PROP_K,
+  PROP_L,
   PROP_ZOOM,
   PROP_XOFFSET,
   PROP_YOFFSET,
@@ -145,45 +153,30 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 				    G_PARAM_READABLE);
   g_object_class_install_property  (object_class, PROP_FUNCTION, spec);
 
-  spec = g_param_spec_double       ("a",
-				    "A",
-				    "de Jong parameter A",
-				    -100, 100, 1.41914,
-				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
-				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
-  param_spec_set_group             (spec, current_group);
-  param_spec_set_increments        (spec, 0.001, 0.01, 5);
-  g_object_class_install_property  (object_class, PROP_A, spec);
+#define INSTALL_DE_JONG_PARAM(x, X, s, d) \
+  spec = g_param_spec_double       (x, \
+				    X, \
+				    "de Jong parameter " X, \
+				    -100, 100, d, \
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED | \
+				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI); \
+  param_spec_set_group             (spec, current_group); \
+  param_spec_set_increments        (spec, 0.001, 0.01, 5); \
+  g_object_class_install_property  (object_class, PROP_##s, spec);
 
-  spec = g_param_spec_double       ("b",
-				    "B",
-				    "de Jong parameter B",
-				    -100, 100, -2.28413,
-				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
-				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
-  param_spec_set_group             (spec, current_group);
-  param_spec_set_increments        (spec, 0.001, 0.01, 5);
-  g_object_class_install_property  (object_class, PROP_B, spec);
 
-  spec = g_param_spec_double       ("c",
-				    "C",
-				    "de Jong parameter C",
-				    -100, 100, 2.42754,
-				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
-				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
-  param_spec_set_group             (spec, current_group);
-  param_spec_set_increments        (spec, 0.001, 0.01, 5);
-  g_object_class_install_property  (object_class, PROP_C, spec);
-
-  spec = g_param_spec_double       ("d",
-				    "D",
-				    "de Jong parameter D",
-				    -100, 100, -2.17719,
-				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
-				    G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
-  param_spec_set_group             (spec, current_group);
-  param_spec_set_increments        (spec, 0.001, 0.01, 5);
-  g_object_class_install_property  (object_class, PROP_D, spec);
+  INSTALL_DE_JONG_PARAM("c", "C", C, 1.41914);
+  INSTALL_DE_JONG_PARAM("e", "E", E, -2.28413);
+  INSTALL_DE_JONG_PARAM("h", "H", H, 2.42754);
+  INSTALL_DE_JONG_PARAM("l", "L", L, -2.17719);
+  INSTALL_DE_JONG_PARAM("a", "A", A, 1);
+  INSTALL_DE_JONG_PARAM("b", "B", B, 0);
+  INSTALL_DE_JONG_PARAM("d", "D", D, -1)
+  INSTALL_DE_JONG_PARAM("f", "F", F, 0);
+  INSTALL_DE_JONG_PARAM("g", "G", G, 1);
+  INSTALL_DE_JONG_PARAM("i", "I", I, 0);
+  INSTALL_DE_JONG_PARAM("j", "J", J, -1);
+  INSTALL_DE_JONG_PARAM("k", "K", K, 0);
 
   spec = g_param_spec_double       ("zoom",
 				    "Zoom",
@@ -303,6 +296,38 @@ static void de_jong_set_property (GObject *object, guint prop_id, const GValue *
     update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.d, 0.000009);
     break;
 
+  case PROP_E:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.e, 0.000009);
+    break;
+
+  case PROP_F:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.f, 0.000009);
+    break;
+
+  case PROP_G:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.g, 0.000009);
+    break;
+
+  case PROP_H:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.h, 0.000009);
+    break;
+
+  case PROP_I:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.i, 0.000009);
+    break;
+
+  case PROP_J:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.j, 0.000009);
+    break;
+
+  case PROP_K:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.k, 0.000009);
+    break;
+
+  case PROP_L:
+    update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->param.l, 0.000009);
+    break;
+
   case PROP_ZOOM:
     update_double_if_necessary(g_value_get_double(value), &self->calc_dirty_flag, &self->zoom, 0.0009);
     break;
@@ -356,6 +381,38 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
 
   case PROP_D:
     g_value_set_double(value, self->param.d);
+    break;
+
+  case PROP_E:
+    g_value_set_double(value, self->param.e);
+    break;
+
+  case PROP_F:
+    g_value_set_double(value, self->param.f);
+    break;
+
+  case PROP_G:
+    g_value_set_double(value, self->param.g);
+    break;
+
+  case PROP_H:
+    g_value_set_double(value, self->param.h);
+    break;
+
+  case PROP_I:
+    g_value_set_double(value, self->param.i);
+    break;
+
+  case PROP_J:
+    g_value_set_double(value, self->param.j);
+    break;
+
+  case PROP_K:
+    g_value_set_double(value, self->param.k);
+    break;
+
+  case PROP_L:
+    g_value_set_double(value, self->param.l);
     break;
 
   case PROP_ZOOM:
@@ -474,8 +531,8 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
     /* These are the actual Peter de Jong map equations. The new point value
      * gets stored into 'point', then we go on and mess with x and y before plotting.
      */
-    x = sin(param.a * point_y) - cos(param.b * point_x);
-    y = sin(param.c * point_x) - cos(param.d * point_y);
+    x = param.a * tanh(param.b * point_x + param.c * point_y) + param.d * cos(param.e * point_x + param.f * point_y);
+    y = param.g * tanh(param.h * point_x + param.i * point_y) + param.j * cos(param.k * point_x + param.l * point_y);
     point_x = x;
     point_y = y;
 
