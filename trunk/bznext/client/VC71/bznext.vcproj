@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc"
+				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_STLP_USE_DYNAMIC_LIB;OGRE_LIBRARY_IMPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -70,8 +70,9 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
-				RuntimeLibrary="4"
+				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_STLP_USE_DYNAMIC_LIB;OGRE_LIBRARY_IMPORTS"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
@@ -80,8 +81,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="ogremain.lib sdl.lib sdlmain.lib"
 				OutputFile="$(OutDir)/BZNext.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="../../../ogrenew/ogremain/lib/release/"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -90,7 +93,8 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="copy release\*.exe ..\..\bin\*.exe"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -154,6 +158,13 @@
 					RelativePath="..\ui\src\ui.cpp">
 				</File>
 			</Filter>
+			<Filter
+				Name="game"
+				Filter="">
+				<File
+					RelativePath="..\game\src\gameManager.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -192,6 +203,13 @@
 				Filter="">
 				<File
 					RelativePath="..\ui\inc\ui.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="game"
+				Filter="">
+				<File
+					RelativePath="..\game\inc\gameManager.h">
 				</File>
 			</Filter>
 		</Filter>

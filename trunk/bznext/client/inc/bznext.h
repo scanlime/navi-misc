@@ -20,6 +20,7 @@
 
 #include "gameloop.h"
 #include "ui.h"
+#include "gameManager.h"
 
 class  CBZNextLoop : public CBaseGameLoop
 {
@@ -36,20 +37,24 @@ public:
   virtual bool GameLoop ( void );
   virtual void OnFrameEnd ( void );
 
-  virtual SceneType GetSceneType ( void );
+	virtual const char* GetWindowName ( void );
+	virtual SceneType GetSceneType ( void );
   virtual const char* GetCameraName ( void );
   virtual const char* GetRootResDir ( void );
 	virtual const char* GetPrefsName ( void );
 
+	virtual const char* GetGameName ( void );
 protected:
   void ProcessInput ( void );
   void CreateGroundPlane ( void );
   void updateStats ( void );
   void showDebugOverlay(bool show);
 
-  bool        quit;
+	// global flags
 	bool				inUI;
-  int         excapeID;
+
+	// game manager
+	CGameManger			game;
 
 	// UI core
 	CUserInterface	ui;

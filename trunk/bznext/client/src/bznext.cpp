@@ -14,7 +14,7 @@
 
 CBZNextLoop::CBZNextLoop()
 {
-  quit = false;
+	SetQuit(false);
 	inUI = true;
 }
 
@@ -28,32 +28,25 @@ bool CBZNextLoop::OnInit ( void )
 	ui.Set(this);
 	ui.Init();
 
+	game.Set(this);
+	game.Init();
+
 	if (inUI)
 		ui.Attach();
 	else
-	{
-		showDebugOverlay(true);
+		game.Attach();
 
-		GetSceneManager()->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+	bool showDebug = args.Exists("showDebug");
 
-		// use the ogre input for now
-		mInputDevice = PlatformManager::getSingleton().createInputReader();
-		mInputDevice->initialise(GetRenderWindow(),true, false);
-
-		mSceneMgr->setSkyBox(true, "grassland_skybox",5000,true,Quaternion(1.57079632f,Vector3(1,0,0)));
-
-		float height = 1.25f;
-
-		ViewPoint vp = GetSceneManager()->getSuggestedViewpoint(true);
-		GetCamera()->setPosition(Vector3(0,-50,height));
-		GetCamera()->setOrientation(Quaternion(1.57079632f,Vector3(1,0,0)));
-	}
+#ifdef _SHOW_FRAME_OVERLAY
+		showDebug = true;
+#endif
+		showDebugOverlay(showDebug);
   return false;
 }
 
 bool CBZNextLoop::OnKill( void )
 {
- // delete(mInputDevice);
   return false;
 }
 
@@ -85,6 +78,16 @@ const char*  CBZNextLoop::GetRootResDir ( void )
 const char* CBZNextLoop::GetPrefsName ( void )
 {
 	 return "bznext/client.prefs";
+}
+
+const char* CBZNextLoop:: GetWindowName ( void )
+{
+	return "BZFlag::Next();";
+}
+
+const char* CBZNextLoop:: GetGameName ( void )
+{
+	return "bzflag";
 }
 
 void CBZNextLoop::ProcessInput ( void )
@@ -132,12 +135,17 @@ bool CBZNextLoop::GameLoop ( void )
 		{
 			ui.Release();
 			inUI = false;
-			// do some sort of game init here
+			game.Attach();
 		}
 	}
 	else
 	{
-		ProcessInput();
+		if (game.Think())
+		{
+			game.Release();
+			inUI = true;
+			ui.Attach();
+		}
 	}
   return quit;
 }

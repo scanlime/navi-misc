@@ -47,11 +47,14 @@ public:
   virtual bool GameLoop ( void );
   virtual void OnFrameEnd ( void );
 
+	virtual const char* GetWindowName ( void );
   virtual SceneType GetSceneType ( void );
   virtual const char* GetCameraName ( void );
   virtual const char* GetRootResDir ( void );
 	virtual const char* GetPluginsDir ( void );
 	virtual const char* GetPrefsName ( void );
+
+	virtual const char* GetGameName ( void );
 
  // info methods.
 
@@ -70,6 +73,9 @@ public:
   // OGRE frame listener
   bool frameStarted(const FrameEvent& evt);
   bool frameEnded(const FrameEvent& evt);
+
+	// global quit handaler
+	void SetQuit ( bool set ) {quit = set;}
 
 protected:
 	bool LoadPlugins ( void );
@@ -93,6 +99,8 @@ protected:
   RenderWindow* mWindow;
 
   std::string typedData;
+
+	bool				quit;
 };
 
 #endif //_GAME_LOOP_H_

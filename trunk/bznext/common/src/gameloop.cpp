@@ -128,7 +128,7 @@ bool CBaseGameLoop::LoadPlugins ( void )
 
 bool CBaseGameLoop::SetupConfigure ( void )
 {
-    prefs.Init(GetPrefsName());
+    prefs.Init((char*)GetPrefsName());
 
     bool bNew = !prefs.ItemExists("VERSION");
     bool configed = false;
@@ -143,7 +143,7 @@ bool CBaseGameLoop::SetupConfigure ( void )
     if (configed)
     {
       mRoot->saveConfig();
-      mWindow = mRoot->initialise(true);
+			mWindow = mRoot->initialise(true,	GetWindowName());
     }
     if (configed && bNew)
     {
@@ -289,6 +289,15 @@ const char* CBaseGameLoop::GetPrefsName ( void )
 	return "std.prefs";
 }
 
+const char*CBaseGameLoop:: GetWindowName ( void )
+{
+	return "A Game Window";
+}
+
+const char*CBaseGameLoop:: GetGameName ( void )
+{
+	return "SomeGame";
+}
 
 bool	CBaseGameLoop::OnInit ( void )
 {
