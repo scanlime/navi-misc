@@ -28,19 +28,6 @@ from BZFlag import Network, Protocol, Errors
 from BZFlag.Protocol import FromServer, ToServer, Common
 
 
-class PlayerIdentity:
-    """A simple container for basic player information"""
-    def __init__(self, callSign, team=0, emailAddress="PyBZFlag"):
-        # FIXME: Player type and callsign need to be converted from strings
-        #        to enumerations... should probably add a system like
-        #        PicoGUI's python client has to convert between enumerated
-        #        values and strings.
-        self.type = 0
-        self.callSign = callSign
-        self.team = team
-        self.emailAddress = emailAddress
-
-
 class BaseClient:
     """Implements a very simple BZFlag client. Subclasses can build
        on this with functionality to implement a player or a UI.
