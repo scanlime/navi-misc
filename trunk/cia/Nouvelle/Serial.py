@@ -26,7 +26,7 @@ I think lowercase makes more sense.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-__all__ = ['place', 'xml', 'Serializer', 'tag', 'DocumentOwner']
+__all__ = ['place', 'xml', 'Serializer', 'tag', 'quote', 'DocumentOwner']
 
 
 class place:
@@ -53,6 +53,17 @@ class xml(str):
        needs no further processing.
        """
     __slots__ = []
+
+
+class quote(object):
+    """A wrapper for any serializable object that fully serializes it then
+       leaves the result as a string rather than an xml() object, so it is quoted.
+       This is useful for rendering HTML as quoted text inside of other XML
+       documents, for example. If this is used on normal text, note that the
+       text will be quoted twice.
+       """
+    def __init__(self, item):
+        self.item = item
 
 
 def escapeToXml(text, isAttrib=0):
@@ -88,6 +99,9 @@ class Serializer:
 
     def render_tuple(self, obj, context):
         return xml(''.join([self.render(o, context) for o in obj]))
+
+    def render_quote(self, obj, context):
+        return str(self.render(obj.item, context))
 
     def render_function(self, obj, context):
         return self.render(obj(context), context)
