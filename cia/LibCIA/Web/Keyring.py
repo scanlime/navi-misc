@@ -124,8 +124,8 @@ class SecuritySection(Template.Section):
         if keyring.hasKey:
             # We have a key, list info about it and give a logout button
             return [
-                "Available capabilities:",
-                tag('ul')[ self.makeCapabilityList(keyring.key) ],
+                "Logged in",
+                self.makeCapabilityList(keyring.key),
                 tag('form', method="post", action=getSecureURL(context))[
                     tag('div')[
                         tag('input', _type='hidden', _name='CIA-set-key', value=''),
@@ -157,8 +157,13 @@ class SecuritySection(Template.Section):
 
     def _makeCapabilityList(self, caps, result):
         if caps:
-            result.callback([ tag('li')[ cap ] for cap in caps ])
+            result.callback([
+                "Available capabilities:",
+                tag('ul')[[
+                    tag('li')[ cap ] for cap in caps
+                ]],
+            ])
         else:
-            result.callback([ tag('li')[ tag('i')[ "None" ]]])
+            result.callback([])
 
 ### The End ###
