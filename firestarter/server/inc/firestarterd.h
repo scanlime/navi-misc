@@ -32,5 +32,6 @@ extern bool registerAsPublic;
 
 // functions
 int errorOut ( const char * error, const char* place = NULL, int ret = 1 );
+void logOut ( const char * error, const char* place );
 
 #endif //_FIRESTARTERD_H_
