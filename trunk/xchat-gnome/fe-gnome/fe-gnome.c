@@ -143,7 +143,7 @@ void fe_set_topic(struct session *sess, char *topic) {
 }
 
 void fe_set_hilight(struct session *sess) {
-	navigation_tree_set_hilight(gui.server_tree, sess);
+	navigation_model_set_hilight(gui.tree_model, sess);
 }
 
 void fe_set_tab_color(struct session *sess, int col, int flash) {
@@ -214,7 +214,7 @@ void fe_print_text(struct session *sess, char *text) {
 		return;
 	text_gui_print(tgui->buffer, text, TRUE);
 	sess->new_data = TRUE;
-	navigation_tree_set_hilight(gui.server_tree, sess);
+	navigation_model_set_hilight(gui.tree_model, sess);
 }
 
 void fe_userlist_insert(struct session *sess, struct User *newuser, int row, int sel) {
@@ -288,7 +288,7 @@ int fe_dcc_open_chat_win(int passive) {
 }
 
 void fe_clear_channel(struct session *sess) {
-	navigation_tree_set_disconn(gui.server_tree, sess);
+	navigation_model_set_disconn(gui.tree_model, sess);
 }
 
 void fe_session_callback(struct session *sess) {
