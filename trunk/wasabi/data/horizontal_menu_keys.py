@@ -19,6 +19,7 @@ from Wasabi import IR
 bindings.add(IR.ButtonPress, 'left').observe(command.spinLeft)
 bindings.add(IR.ButtonPress, 'right').observe(command.spinRight)
 bindings.add(IR.ButtonPress, 'enter').observe(command.selectCurrent)
+bindings.add(IR.ButtonPress, 'play').observe(command.selectCurrent)
 bindings.add(IR.ButtonPress, 'up').observe(command.selectCurrent)
 bindings.add(IR.ButtonPress, 'down').observe(command.cancel)
-bindings.add(IR.ButtonPress, 'exit').observe(command.cancel)
+bindings.add(IR.ButtonPress, 'x').observe(command.cancel)

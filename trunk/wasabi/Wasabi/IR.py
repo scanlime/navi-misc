@@ -104,15 +104,22 @@ def initDefaultClient(eventLoop):
 
 class ButtonPress(Event.Event):
     """An event that fires when a specified IR remote button
-       is pressed. The button name, remote, and repeat number
-       are all optional. None is treated as a wildcard.
-       This uses the default IR client. If an IR device has not
-       been successfully initialized, this event never fires.
+       is pressed. The button name and remote are all optional-
+       None is treated as a wildcard. This uses the default IR
+       client. If an IR device has not been successfully
+       initialized, this event never fires.
 
        Note that the 'viewport' parameter is not required, but is
        accepted for compatibility with events in the Input module.
+
+       The 'repeat' parameter can take on several types of values:
+          - If it is None, this event only fires on the first press of the button
+          - If it is an integer, this event only fires every n'th codes received
+          - If it is a 2-tuple (m,n), the first code received always generates an event,
+            then the next 'm' codes generate no event, then every n'th code generates
+            an event. This is similar to normal keyboard repeat.
        """
-    def __init__(self, viewport=None, name=None, remote=None, repeat=0):
+    def __init__(self, viewport=None, name=None, remote="wasabi", repeat=(7,2)):
         global defaultClient
         Event.Event.__init__(self)
         self.name = name
@@ -126,8 +133,19 @@ class ButtonPress(Event.Event):
             return
         if self.remote is not None and self.remote != code.remote:
             return
-        if self.repeat is not None and self.repeat != code.repeat:
-            return
+        if self.repeat is None:
+            # only trigger on the first received code
+            if code.repeat != 0:
+                return
+        elif type(self.repeat) == type(()) or type(self.repeat) == type([]):
+            # keyboard-style repeat
+            if code.repeat != 0 and (code.repeat < self.repeat[0] or code.repeat % self.repeat[1]):
+                return
+        else:
+            # repeat rate divisor
+            if code.repeat % self.repeat:
+                return
+
         self()
 
 
