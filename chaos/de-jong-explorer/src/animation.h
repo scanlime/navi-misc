@@ -86,6 +86,7 @@ void         animation_iter_get_first(Animation *self, AnimationIter *iter);
 void         animation_iter_seek(Animation *self, AnimationIter *iter, gdouble absolute_time);
 void         animation_iter_seek_relative(Animation *self, AnimationIter *iter, gdouble delta_time);
 void         animation_iter_load_dejong(Animation *self, AnimationIter *iter, DeJong *dejong);
+gboolean     animation_iter_read_frame(Animation *self, AnimationIter *iter, DeJongPair *frame, double frame_rate);
 
 G_END_DECLS
 

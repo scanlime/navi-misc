@@ -761,11 +761,9 @@ void de_jong_reset_to_defaults(DeJong *self) {
   g_free(properties);
 }
 
-void de_jong_interpolate_linear(DeJong *self, DeJong *a, DeJong *b, double alpha) {
-  /* Set all of this object's serializable parameters to values in between
-   * those of the 'a' and 'b' objects. When alpha=0, this object's parameters
-   * will be the same as a's parameters. When alpha=1, this object's parameters
-   * will be the same as b's.
+void de_jong_interpolate_linear(DeJong *self, double alpha, DeJongPair *p) {
+  /* A DeJongInterpolator function that takes a DeJongPair as its parameter.
+   * Linearly interpolates between the points 'a' and 'b' in the pair.
    */
   GParamSpec** properties;
   guint n_properties;
@@ -785,8 +783,8 @@ void de_jong_interpolate_linear(DeJong *self, DeJong *a, DeJong *b, double alpha
       g_value_init(&self_val, properties[i]->value_type);
 
       /* Get a and b's current values for this parameter */
-      g_object_get_property(G_OBJECT(a), properties[i]->name, &a_val);
-      g_object_get_property(G_OBJECT(b), properties[i]->name, &b_val);
+      g_object_get_property(G_OBJECT(p->a), properties[i]->name, &a_val);
+      g_object_get_property(G_OBJECT(p->b), properties[i]->name, &b_val);
 
       /* Now pick a type-dependent interpolation procedure...
        */
@@ -837,7 +835,6 @@ void de_jong_interpolate_linear(DeJong *self, DeJong *a, DeJong *b, double alpha
     }
   }
   g_free(properties);
-
 }
 
 gchar* de_jong_save_string(DeJong *self) {

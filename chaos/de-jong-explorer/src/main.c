@@ -237,34 +237,31 @@ static void image_render_main(DeJong *dejong, const char *filename) {
 static void animation_render_main(DeJong *dejong, Animation *animation, const gchar *filename) {
   const double frame_rate = 24;
   AnimationIter iter;
-  DeJong *a, *b;
-  guint frame = 0;
+  DeJongPair frame;
+  guint frame_count = 0;
   gboolean continuation;
   gchar *f;
 
   animation_iter_get_first(animation, &iter);
-  a = de_jong_new();
-  b = de_jong_new();
+  frame.a = de_jong_new();
+  frame.b = de_jong_new();
 
-  while (iter.valid) {
-    animation_iter_load_dejong(animation, &iter, a);
-    animation_iter_seek_relative(animation, &iter, 1/frame_rate);
-    if (!iter.valid)
-      break;
-    animation_iter_load_dejong(animation, &iter, b);
+  while (animation_iter_read_frame(animation, &iter, &frame, frame_rate)) {
 
     continuation = FALSE;
     do {
-      de_jong_calculate_motion(dejong, a, b, 100000, continuation);
-      printf("Frame %d, %e iterations, %d density\n", frame, dejong->iterations, dejong->current_density);
+      de_jong_calculate_motion(dejong, 100000, continuation,
+			       DE_JONG_INTERPOLATOR(de_jong_interpolate_linear),
+			       &frame);
+      printf("Frame %d, %e iterations, %d density\n", frame_count, dejong->iterations, dejong->current_density);
       continuation = TRUE;
     } while (dejong->current_density < dejong->target_density);
 
-    f = g_strdup_printf("frame%05d.png", frame);
+    f = g_strdup_printf("frame%05d.png", frame_count);
     de_jong_save_image_file(dejong, f);
     g_free(f);
 
-    frame++;
+    frame_count++;
   }
 }
 
