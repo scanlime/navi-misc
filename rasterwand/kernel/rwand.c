@@ -54,12 +54,14 @@ struct rwand_timings {
 
 /* Settings peculiar to each model of rasterwand clock */
 struct model_intrinsics {
-	int          model;
-	const char * name;
-	int          coil_center;
-	int          coil_width;
-	int          fine_adjust;
+	int                  model;
+	const char *         name;
+	int                  coil_center;
+	int                  coil_width;
+	int                  fine_adjust;
+	struct rwand_startup startup;
 };
+
 
 #define FILTER_SIZE      256    /* Increasing this will smooth out display jitter
 				 * at the expense of responding more slowly to real changes
@@ -72,12 +74,6 @@ struct model_intrinsics {
 #define STARTING_EDGES   20     /* Number of edges to successfully exit startup */
 #define STABILIZER_EDGES 8      /* Number of edges to successfully exit stabilization */
 #define STABILIZER_TIME  HZ     /* Number of jiffies to unsuccessfully exit stabilization */
-
-#define PERIOD_CLIMB_RATE 700/HZ  /* Rate, in 2.66-us period units per jiffy, that the period
-				   * should climb while in the startup phase. This is given
-				   * as a fraction, with periods/sec on the top and
-				   * jiffies/sec (HZ) on the bottom.
-				   */
 
 /* A simple averaging low-pass filter, O(1) */
 struct filter {
@@ -115,6 +111,9 @@ struct rwand_dev {
 							 */
 
 	struct model_intrinsics*intrinsics;             /* Values intrinsic to this model of rasterwand */
+	struct rwand_startup    startup;                /* Startup timings. Normally these are just copied
+							 * from the intrinsics, but they may be tweaked from userspace.
+							 */
 
 	unsigned char           fb[RWAND_FB_BYTES+4];   /* Our local copy of the device framebuffer. The 4 here gives
 							 * us some slack for reading past the end of the framebuffer
@@ -255,13 +254,23 @@ static struct model_intrinsics model_table[] = {
 		.coil_center   = 0x4000,
 		.coil_width    = 0x7000,
 		.fine_adjust   = -185,
+		.startup       = {
+			.min_period = 45000,
+			.max_period = 50000,
+			.climb_rate = 700/HZ,
+		},
 	},
 	{
 		.model         = 2,
 		.name          = "Fascinations XP3",
 		.coil_center   = 0x4000,
-		.coil_width    = 0x6300,
-		.fine_adjust   = -36,
+		.coil_width    = 0x6200,
+		.fine_adjust   = -80,
+		.startup       = {
+			.min_period = 45000,
+			.max_period = 50000,
+			.climb_rate = 700/HZ,
+		},
 	},
 	{ }
 };
@@ -344,9 +353,10 @@ static void rwand_update_state_starting(struct rwand_dev *dev, struct rwand_stat
 
 	/* Cycle through different frequencies trying to get our wand to start up */
 	new_period = new_status->period;
-	if (new_period > 50000 || new_period < 45000)
-		new_period = 45000;
-	new_period += dt * PERIOD_CLIMB_RATE;
+	if (new_period > dev->startup.max_period ||
+	    new_period < dev->startup.min_period)
+		new_period = dev->startup.min_period;
+	new_period += dt * dev->startup.climb_rate;
 	rwand_nb_request(dev, RWAND_CTRL_SET_PERIOD, new_period, 0);
 
 	if (dev->edge_count > STARTING_EDGES)
@@ -726,6 +736,7 @@ static void rwand_reset_settings(struct rwand_dev *dev)
 	dev->settings.duty_cycle     = 0xA000;
 	dev->settings.fine_adjust    = dev->intrinsics->fine_adjust;
 	dev->settings.power_mode     = RWAND_POWER_SWITCH;
+	dev->startup                 = dev->intrinsics->startup;
 }
 
 /* Calculate all the fun little timing parameters needed by the hardware */
@@ -921,6 +932,20 @@ static int rwand_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
 			break;
 		}
 		dev->settings_dirty = 1;
+		break;
+
+	case RWANDIO_GET_STARTUP:
+		if (copy_to_user((struct rwand_startup*) arg, &dev->startup, sizeof(dev->startup))) {
+			retval = -EFAULT;
+			break;
+		}
+		break;
+
+	case RWANDIO_PUT_STARTUP:
+		if (copy_from_user(&dev->startup, (struct rwand_startup*) arg, sizeof(dev->startup))) {
+			retval = -EFAULT;
+			break;
+		}
 		break;
 
 	default:

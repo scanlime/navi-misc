@@ -32,7 +32,27 @@ powerModes = {
     }
 
 
-class Params:
+class _ioctlStruct:
+    """A structure that is read and written via ioctl()s"""
+    def __init__(self, fd):
+        self.__dict__['fd'] = fd
+        self.get()
+
+    def get(self):
+        buffer = chr(0)*struct.calcsize(self._struct)
+        f = struct.unpack(self._struct, fcntl.ioctl(self.fd, self._read_ioctl, buffer))
+        self.__dict__.update(dict(zip(self._fields, f)))
+
+    def put(self):
+        f = [int(self.__dict__[n]) for n in self._fields]
+        fcntl.ioctl(self.fd, self._write_ioctl, struct.pack(self._struct, *f))
+
+    def __setattr__(self, key, value):
+        self.__dict__[key] = value
+        self.put()
+
+
+class Params(_ioctlStruct):
     """Encapsulates the rwand driver's tweakable parameters. Writing
        to the corresponding python attribute updates the driver's parameter.
        """
@@ -46,25 +66,21 @@ class Params:
         'power_mode',
         'num_columns',
         ]
-
     _struct = "i" * 8
+    _read_ioctl  = 0x3B01
+    _write_ioctl = 0x3B02
 
-    def __init__(self, fd):
-        self.__dict__['fd'] = fd
-        self.get()
 
-    def get(self):
-        buffer = chr(0)*struct.calcsize(self._struct)
-        f = struct.unpack(self._struct, fcntl.ioctl(self.fd, 0x3B01, buffer))
-        self.__dict__.update(dict(zip(self._fields, f)))
-
-    def put(self):
-        f = [int(self.__dict__[n]) for n in self._fields]
-        fcntl.ioctl(self.fd, 0x3B02, struct.pack(self._struct, *f))
-
-    def __setattr__(self, key, value):
-        self.__dict__[key] = value
-        self.put()
+class Startup(_ioctlStruct):
+    """Encapsulates parameters that control the wand's startup state"""
+    _fields = [
+        'min_period',
+        'max_period',
+        'climb_rate',
+        ]
+    _struct = "i" * 3
+    _read_ioctl  = 0x3B04
+    _write_ioctl = 0x3B05
 
 
 class Status:
@@ -97,6 +113,7 @@ class Device:
         self.fd = os.open(name, os.O_RDWR)
         self.params = Params(self.fd)
         self.status = Status(self.fd)
+        self.startup = Startup(self.fd)
 
     def writeRaw(self, frame):
         """Write a raw framebuffer to the device"""
