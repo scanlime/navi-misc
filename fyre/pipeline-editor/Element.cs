@@ -28,6 +28,10 @@ public class Element
 	public string		Category;
 	public string		Description;
 	public Gdk.Pixbuf	Icon;
-	public string[]		InputDesc;
-	public string[]		OuputDesc;
+	
+	/* These are expected to be in pango markup, for any
+	 * necessary subscripts, UTF-8 trickery, etc
+	 */
+	public string		InputDesc;
+	public string		OutputDesc;
 }
