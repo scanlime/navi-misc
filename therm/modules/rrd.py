@@ -25,6 +25,7 @@ A simple Python interface to rrdtool
 from Nouvelle import tag
 import os, time, popen2, sys, re, colorsys, sha
 import Image
+import units
 
 
 def shellEscape(s):
@@ -214,15 +215,20 @@ class ImageBuildTarget(BuildTarget):
        """
     cssClass = None
     alt = None
-    size = (None, None)
+    size = None
 
     def getUrl(self, context):
         req = context['request']
         return pathToURL(req, self.filename)
 
     def render(self, context):
+        if self.size is None:
+            self.determineSize()
         return tag('img', src=self.getUrl(context), width=self.size[0], height=self.size[1],
                    _class=self.cssClass, alt=self.alt)
+
+    def determineSize(self):
+        self.size = Image.open(self.filename).size
 
 
 class ScaledImage(ImageBuildTarget):
@@ -272,8 +278,15 @@ class RrdGraph(ImageBuildTarget):
        """
     fileExtension = 'png'
 
-    def __init__(self, *params):
-        BuildTarget.__init__(self, None, *params)
+    def __init__(self, params, size=(600,150), yLabel=None, interval="day"):
+        prepend = [
+            "--width", size[0],
+            "--height", size[1],
+            "--start", -units.time.lookupName(interval),
+            ]
+        if yLabel:
+            prepend.extend(["--vertical-label", yLabel])
+        BuildTarget.__init__(self, None, *(prepend + list(params)))
 
     def buildRule(self):
         self.size = rrd('graph', self.filename, *map(str, self.dependencies))
@@ -281,8 +294,11 @@ class RrdGraph(ImageBuildTarget):
 
 class RrdDef(BuildTarget):
     """A DEF parameter for rrdtool, linking an RrdFile with a particular variable."""
-    def __init__(self, varName, rrd, dsName, cf):
+    def __init__(self, varName, rrd, cf='AVERAGE', dsName='x'):
         BuildTarget.__init__(self, None, varName, rrd, dsName, cf)
+
+    def __repr__(self):
+        return "<RrdDef %s>" % self
 
     def __str__(self):
         return "DEF:%s=%s:%s:%s" % (self.dependencies[0],
@@ -292,7 +308,7 @@ class RrdDef(BuildTarget):
 
 
 class RrdFile(BuildTarget):
-    """An RRD file, built from a DataSource object"""
+    """An RRD file, usable as a dependency to RrdDef"""
     fileExtension = 'rrd'
 
     def buildRule(self):
@@ -305,10 +321,10 @@ class RrdFile(BuildTarget):
 
         # Define the steps and rows for each RRA in each CF (see the rrdcreate manpage)
         rraList = [
-            (1, 60*60*24*2 / stepSize),             # Store every sample for the last 2 days
-            (7, 60*60*24*7*2 / stepSize / 7),       # Every 7th sample for the last 2 weeks
-            (31, 60*60*24*31*2 / stepSize / 31),    # Every 31st sample for the last 2 months
-            (365, 60*60*24*365*2 / stepSize / 365), # Every 365th sample for the last 2 years
+            (1,   60*60*24*2 / stepSize),        # Store every sample for the last 2 days
+            (7,   60*60*24*2 / stepSize / 7),    # Every 7th sample for the last 2 weeks
+            (31,  60*60*24*2 / stepSize / 31),   # Every 31st sample for the last 2 months
+            (365, 60*60*24*2 / stepSize / 365),  # Every 365th sample for the last 2 years
             ]
 
         # Start out with the parameters to define our RRD file and data source
@@ -328,212 +344,62 @@ class RrdFile(BuildTarget):
         """Update with new data, provided as a list of time/value pairs"""
         rrd("update", self.filename, *["%d:%.04f" % (int(time), value) for time, value in pairs])
 
+def graphDefineSource(rrd):
+    """Define variables for the minimum, maximum, average, and span on an RRD"""
+    return [
+        RrdDef('data_min', rrd, 'MIN'),
+        RrdDef('data_max', rrd, 'MAX'),
+        RrdDef('data_average', rrd),
+        "CDEF:data_span=data_max,data_min,-",
+        ]
 
-#     def graph(self, interval):
-#         """Create a graph of this therm over the given interval.
-#            Intervals are specified as (name, seconds) tuples, as in the config.
-#            """
-#         lineColor = Color(0,0,1)
-#         noDataColor = Color(1,1,0).blend(Color(1,1,1), 0.8)
-#         freezingColor = Color(0,0,0)
+def graphUnknownData(title="No data",
+                     color=Color(1,1,0).blend(Color(1,1,1), 0.8)):
+    return [
+        "CDEF:no_data=data_min,data_max,+,UN,INF,UNKN,IF",
+        "AREA:no_data%s:%s" % (color, title),
+        ]
 
-#         params = [
-#             # Graph options
-#             "--start", "-%d" % interval[1],
-#             "--vertical-label", "Degrees Fahrenheit",
-#             "--width", str(self.config['graphSize'][0]),
-#             "--height", str(self.config['graphSize'][1]),
+def graphFreezingPoint(color=Color(0,0,0)):
+    return ["HRULE:0%s" % color]
 
-#             # Data sources
-#             "DEF:temp_min=%s:temp:MIN" % self.rrdFile,
-#             "DEF:temp_max=%s:temp:MAX" % self.rrdFile,
-#             "CDEF:temp_span=temp_max,temp_min,-",
-#             "DEF:temp_average=%s:temp:AVERAGE" % self.rrdFile,
-#             ]
+def graphSpan(description, color=Color(0,0,1), alpha=0.7, background=Color(1,1,1)):
+    """Graph a line along the average, and a translucent band between its min and max"""
+    return [
+        # Thick line to separate the minimum from fills
+        "LINE3:data_min%s" % background,
 
-#         # Create a color gradient indicating the hot/coldness of the current temperature.
-#         warmthMin = 0
-#         warmthMax = 0.02
-#         sliceNum = 0
-#         while warmthMin < 1:
-#             # Convert the current 'warmth' values to a color and a temperature range
-#             if warmthMin > 0:
-#                 tempMin = warmthMin * 100
-#             else:
-#                 tempMin = "-INF"
-#             if warmthMax < 1:
-#                 tempMax = warmthMax * 100
-#             else:
-#                 tempMax = "INF"
+        # Min/max range
+        "AREA:data_min",
+        "STACK:data_span%s" % color.blend(background, alpha),
 
-#             warmthAvg = (warmthMin + warmthMax)/2.0
-#             color = Color(0, 0, 1).hsvBlend(Color(1, 0.5, 0), warmthAvg)
+        # Average
+        "LINE1:data_average%s:%s" % (color, description),
+        ]
 
-#             params.extend([
-#                 "CDEF:s%d=temp_average,%s,%s,LIMIT" % (sliceNum, tempMin, tempMax),
-#                 "AREA:s%d%s" % (sliceNum, color),
-#                 ])
+def graphColorSlice(min, max, color, id=[0]):
+    """If the average is between 'min' and 'max', fill the area with 'color'."""
+    id[0] += 1
+    return [
+        "CDEF:s%d=data_average,%s,%s,LIMIT" % (id[0], min, max),
+        "AREA:s%d%s" % (id[0], color),
+        ]
 
-#             # Next slice...
-#             warmthMin, warmthMax = warmthMax, warmthMax + (warmthMax - warmthMin)
-#             sliceNum += 1
-
-#         params.extend([
-#             # Thick white line at the minimum to separate it from the gradient
-#             "LINE3:temp_min%s" % Color(1,1,1),
-
-#             # Min/max ranges for each therm
-#             "AREA:temp_min",
-#             "STACK:temp_span%s" % lineColor.blend(Color(1,1,1), 0.7),
-
-#             # Average line
-#             "LINE1:temp_average%s:%s" % (lineColor, self.description),
-
-#             # Unknown data
-#             "CDEF:no_data=temp_max,temp_min,+,UN,INF,UNKN,IF",
-#             "AREA:no_data%s:No data" % noDataColor,
-
-#             # Freezing point
-#             "HRULE:32%s" % freezingColor,
-#             ])
-
-#         return Graph(self.config, "%s-%s" % (self.id, interval[0]), *params)
-
-
-# class ThermGrapher:
-#     """Collects data from a set of thermometers,
-#        generating graphs and a web page.
-#        """
-#     def __init__(self, config={}):
-#         # Store the default configuration, then update with anything overridden by the caller
-#         self.config = {
-#             "server":  "http://navi.picogui.org:4510",    # Server URL
-#             "webDir":  "/home/httpd/htdocs/therm",        # Directory for web page
-#             "rrdDir":  "rrd",                             # Directory for RRD files
-#             "webUpdatePeriod": 10*60,                     # Number of seconds between web page and graph updates
-#             "webRefreshPeriod": 5*60,                     # Number of seconds between browser refreshes
-#             'averagePeriod': 60,                          # Number of seconds the thermserver should average samples for
-#             "graphSize": (600,150),                       # Size of the graphs' drawing area (not of the final image)
-#             'graphIntervals': [                           # Intervals to make graphs at: (name,seconds) tuples
-#                ('6 hours', 60*60*6),
-#                ("day", 60*60*24),
-#                ("week", 60*60*24*7),
-#                ("month", 60*60*24*30),
-#                ("year", 60*60*24*365),
-#                ],
-#             'defaultIntervalName': 'day',                 # Name of the graph interval to show by default
-#             'graphFormat': "%s.png",                      # Image format string for graphs
-#             }
-#         self.config.update(config)
-
-#         # Create a proxy object we use to make XML-RPC calls to the server,
-#         # and make sure its averaging period is set correctly
-#         self.server = xmlrpclib.ServerProxy(self.config['server'])
-#         self.server.setAveragePeriod(self.config['averagePeriod'])
-
-#         self.running = False
-#         self.lastWebUpdate = 0
-
-#         self.loadTherms()
-
-#     def loadTherms(self):
-#         """From the server, get a mapping from therm IDs to descriptions, use it to create Therm instances
-#            which will store data needed to graph each sensor's readings. We store a map
-#            from therm IDs to instances to easily update them with new data, and a list
-#            of therms sorted by description, for easy display.
-#            """
-#         self.thermMap = {}
-#         self.sortedTherms = []
-#         for id, description in self.server.getDescriptions().items():
-#             t = Therm(self.config, id, description)
-#             self.thermMap[id] = t
-#             self.sortedTherms.append(t)
-#         self.sortedTherms.sort(lambda a,b: cmp(a.description, b.description))
-
-#     def run(self):
-#         """Enter a loop collecting temperature data and updating the graphs and web page"""
-#         self.running = True
-#         while self.running:
-#             self.updateTherms()
-#             self.webUpdate()
-#             self.waitForAveragePeriod()
-
-#     def waitForAveragePeriod(self):
-#         """Wait until the next averaging period on the server has started"""
-#         remaining = (self.serverTimes['averagePeriod'] +
-#                      self.serverTimes['periodStart'] -
-#                      self.serverTimes['time'])
-#         time.sleep(remaining + 5)
-
-#     def webUpdate(self):
-#         """If it's time for an update, generate the graphs and web page"""
-#         now = time.time()
-#         if now > (self.lastWebUpdate + self.config['webUpdatePeriod']):
-#             self.createWebPages()
-#             self.lastWebUpdate = now
-
-#     def updateTherms(self):
-#         """Get a new list of temperature averages from the server and update our Therm objects"""
-#         self.serverTimes = self.server.getTimes()
-#         avg = self.server.getAverages()
-#         for id, value in avg.iteritems():
-#             if value is not None:
-#                 self.thermMap[id].update(self.serverTimes['periodStart'], value)
-
-#     def createWebPages(self):
-#         """Generate web pages for each interval, with graphs and current temperatures"""
-#         # Create a map from web page name to interval.
-#         # Our default interval (the first one in our config)
-#         # will be renamed to index.html
-#         pageMap = {}
-#         for interval in self.config['graphIntervals']:
-#             if interval[0] == self.config['defaultIntervalName']:
-#                 pageMap[interval] = "index.html"
-#             else:
-#                 pageMap[interval] = "%s.html" % alphaNum(interval[0])
-
-#         # Write each HTML file...
-#         # Write to a temporary file then move it to its final location,
-#         # so the web server never sees any half-updated pages.
-#         for interval, fileName in pageMap.iteritems():
-#             tempFilePath = os.path.join(self.config['webDir'], "temp-" + fileName)
-#             filePath = os.path.join(self.config['webDir'], fileName)
-
-#             f = open(os.path.join(self.config['webDir'], tempFilePath), "w")
-#             f.write("<html>\n")
-#             f.write('<meta HTTP-EQUIV="Refresh" CONTENT="%d">' % self.config['webRefreshPeriod'])
-#             f.write('<meta HTTP-EQUIV="Pragma" CONTENT="no-cache">')
-#             f.write("<head><title>Temperatures - last %s</title></head></body>\n\n" % interval[0])
-
-#             # Links to the other interval pages
-#             for linkInterval in self.config['graphIntervals']:
-#                 if linkInterval == interval:
-#                     f.write('[%s] ' % linkInterval[0])
-#                 else:
-#                     f.write('[<a href="%s">%s</a>] ' % (pageMap[linkInterval], linkInterval[0]))
-#             f.write("\n<hr>\n")
-#             f.write("Last updated %s\n\n" % time.strftime("%c", time.localtime()))
-
-#             # A table, with a row for each therm. Shows a graph on the left, current temperature on the right
-#             f.write("<table>\n")
-#             for therm in self.sortedTherms:
-#                 f.write("<tr>\n")
-#                 f.write("\t<td>%s</td>\n" % therm.graph(interval).tag())
-#                 f.write('\t<td><table cellspacing="10"><tr><td><font size="+1">\n')
-#                 f.write("\t\t<p>%s</p><p>%.01f &deg;F</p>\n" % (therm.description, therm.value))
-#                 f.write("\t</font></td></tr></table></td>\n")
-#                 f.write("</tr>\n")
-#             f.write("</table>\n")
-
-#             # Footer with some info on us
-#             f.write("\n<hr><center>\n")
-#             f.write('<a href="http://navi.picogui.org/svn/misc/trunk/therm/">rrdtherm</a>,\n')
-#             f.write('built with <a href="http://navi.picogui.org/svn/misc/trunk/rcpod/">rcpod</a>\n')
-#             f.write('and <a href="http://ee-staff.ethz.ch/~oetiker/webtools/rrdtool/">rrdtool</a>\n')
-#             f.write('</center></body></html>\n')
-
-#             # Close the file, move the temp file to the final location
-#             f.close()
-#             os.rename(tempFilePath, filePath)
+def graphColorRange(min, minColor, max, maxColor, numSlices=64, id=[0]):
+    """Graph a linearly interpolated color range, given the minimum and maximum
+       data values with their corresponding color. Data outside the minimum and maximum
+       gets clamped.
+       """
+    l = (graphColorSlice("-INF", min, minColor, id=id) +
+         graphColorSlice(max, "INF", maxColor, id=id))
+    prevAlpha = 0
+    while prevAlpha < 1:
+        alpha = prevAlpha + 1.0 / numSlices
+        l += graphColorSlice(prevAlpha*(max-min)+min,
+                             alpha*(max-min)+min,
+                             minColor.hsvBlend(maxColor, (alpha + prevAlpha) * 0.5),
+                             id=id)
+        prevAlpha = alpha
+    return l
 
 ### The End ###

@@ -26,7 +26,7 @@ and an XML/RPC interface for remote access via other programs.
 
 import sys, os
 _thisPath = os.path.realpath(os.path.split(__file__)[0])
-_modulesPath = os.path.join(_thisPath, "..", "modules")
+_modulesPath = os.path.realpath(os.path.join(_thisPath, "..", "modules"))
 sys.path.insert(0, _modulesPath)
 
 import therm_db, units, rrd
@@ -44,6 +44,10 @@ class ThermRRD(rrd.RrdFile):
 
     def needsBuilding(self):
         return self.source.getLatestPacket()['id'] > self.getStamp()
+
+    def isEmpty(self):
+        # This only checks the most recent packet.. but it's good enough for us
+        return self.source.getLatestPacket().get(self.key) is None
 
     def buildRule(self):
         rrd.RrdFile.buildRule(self)
@@ -83,87 +87,124 @@ class ThermRRD(rrd.RrdFile):
         open(self.getStampFilename(), "w").write("%d\n" % s)
 
 
+def graphTemperature(source, intervals=("day", "week", "month", "year")):
+    name = therm_db.prettifyName(source.name)
+    temperatures = ThermRRD(source, 'average')
+    images = []
+    if not temperatures.isEmpty():
+        for interval in intervals:
+            images.append(rrd.RrdGraph(
+                rrd.graphDefineSource(temperatures) +
+                rrd.graphUnknownData() +
+                rrd.graphColorRange(-20.0, rrd.Color(0.5, 0.5, 1),
+                                    40.0, rrd.Color(1, 1, 0),
+                                    id=[0]) +
+                rrd.graphSpan("%s - Temperature" % name) +
+                rrd.graphFreezingPoint(),
+                interval=interval,
+                yLabel="Degrees Celsius"))
+    return images
+
+def graphVoltage(source, intervals=("week", "month", "year")):
+    name = therm_db.prettifyName(source.name)
+    images = []
+    voltages = ThermRRD(source, 'voltage')
+    if not voltages.isEmpty():
+        for interval in intervals:
+            images.append(rrd.RrdGraph(
+                rrd.graphDefineSource(voltages) +
+                rrd.graphUnknownData() +
+                rrd.graphColorRange(6.0, rrd.Color(1, 1, 1),
+                                    9.0, rrd.Color(0, 0, 1),
+                                    id=[0]) +
+                rrd.graphSpan("%s - Battery Voltage" % name, rrd.Color(1,0,0)),
+                interval=interval,
+                yLabel="Volts"))
+    return images
+
+
+css = """
+.footer {
+    text-align: center;
+    border-top: 1px solid #777;
+    color: #777;
+    font: 80% normal;
+    padding: 0.5em 0.5em 1em 0.5em;
+}
+
+.source {
+    background: #DDD;
+    border: 1px solid #777;
+    margin: 2em 2em;
+    padding: 0.5em;
+}
+.name {
+    font: 100% sans-serif;
+    font-weight: bold;
+    color: #333;
+}
+.description {
+    font: 80% normal;
+    color: #666;
+    margin: 0.25em 1em;
+}
+
+.temperatures {
+    float: right;
+    margin: 0em 0.5em;
+}
+.mainTemperature {
+    font: 180% sans-serif;
+    vertical-align: middle;
+}
+.temperatureSeparator {
+    font: 180% sans-serif;
+    font-weight: bold;
+    color: #666;
+    vertical-align: middle;
+}
+.altTemperature {
+    font: 120% sans-serif;
+    color: #666;
+    vertical-align: middle;
+}
+
+.thumbnails {
+    margin: 0.8em 0em 0em 0.25em;
+    padding: 0em;
+}
+img.thumbnail {
+    border: 1px solid #777;
+    margin: 0em 0.6em 0em 0em;
+}
+
+.extraInfo {
+    margin: 0.75em 0em 0em 0em;
+    font: 80% sans-serif;
+}
+span.bargraph {
+    font: 5px sans-serif;
+    margin: 0em 2em 0em 1em;
+    background: #FFF;
+    border: 1px solid #777;
+    padding: 3px 1px 3px 0px;
+    vertical-align: middle;
+}
+span.filledBar {
+    background: #338;
+    margin: 1px 0px 1px 1px;
+    vertical-align: middle;
+    padding: 2px;
+}
+span.emptyBar {
+    margin: 1px 0px 1px 1px;
+    vertical-align: middle;
+    padding: 2px;
+}
+"""
+
+
 class IndexPage(ModPython.Page):
-    css = """
-        .footer {
-            text-align: center;
-            border-top: 1px solid #777;
-            color: #777;
-            font: 80% normal;
-            padding: 0.5em 0.5em 1em 0.5em;
-        }
-
-        .source {
-            background: #DDD;
-            border: 1px solid #777;
-            margin: 2em 2em;
-            padding: 0.5em;
-        }
-        .name {
-            font: 100% sans-serif;
-            font-weight: bold;
-            color: #333;
-        }
-        .description {
-            font: 80% normal;
-            color: #666;
-            margin: 0.25em 1em;
-        }
-
-        .temperatures {
-            float: right;
-            margin: 0em 0.5em;
-        }
-        .mainTemperature {
-            font: 180% sans-serif;
-            vertical-align: middle;
-        }
-        .temperatureSeparator {
-            font: 180% sans-serif;
-            font-weight: bold;
-            color: #666;
-            vertical-align: middle;
-        }
-        .altTemperature {
-            font: 120% sans-serif;
-            color: #666;
-            vertical-align: middle;
-        }
-
-        .thumbnails {
-            margin: 0.8em 0em 0em 0.25em;
-            padding: 0em;
-        }
-        img.thumbnail {
-            border: 1px solid #777;
-            margin: 0em 0.6em 0em 0em;
-        }
-
-        .extraInfo {
-            margin: 0.75em 0em 0em 0em;
-            font: 80% sans-serif;
-        }
-        span.bargraph {
-            font: 5px sans-serif;
-            margin: 0em 2em 0em 1em;
-            background: #FFF;
-            border: 1px solid #777;
-            padding: 3px 1px 3px 0px;
-            vertical-align: middle;
-        }
-        span.filledBar {
-            background: #338;
-            margin: 1px 0px 1px 1px;
-            vertical-align: middle;
-            padding: 2px;
-        }
-        span.emptyBar {
-            margin: 1px 0px 1px 1px;
-            vertical-align: middle;
-            padding: 2px;
-        }
-    """
-
     document = [
         xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"'
             ' "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n'),
@@ -208,7 +249,7 @@ class IndexPage(ModPython.Page):
         info.extend([
             tag('div', _class='name')[ therm_db.prettifyName(source.name) ],
             tag('div', _class='description')[ source.description ],
-            tag('div', _class='thumbnails')[ self.getThumbnails(context, source) ],
+            self.getThumbnails(context, source),
             ])
 
         if latest.get('voltage'):
@@ -224,7 +265,7 @@ class IndexPage(ModPython.Page):
             delta = time.time() - latest['time'].ticks()
             info.append(tag('div', _class='extraInfo')[
                 "Last reading received ",
-                tag('strong')[ units.formatTime(delta) ], " ago",
+                tag('strong')[ units.time.format(delta) ], " ago",
             ])
 
         return tag('div', _class='source')[info]
@@ -241,30 +282,29 @@ class IndexPage(ModPython.Page):
         return tag('span', _class="bargraph")[ bars ]
 
     def getThumbnails(self, context, source):
-        temperatures = ThermRRD(source, 'average')
-        voltages = ThermRRD(source, 'voltage')
-        images = []
+        results = []
 
-        images.append(rrd.RrdGraph("--width", 640, "--height", 200,
-                                   "--start", -60*60*24*7,
-                                   rrd.RrdDef('temps', temperatures, 'x', 'AVERAGE'),
-                                   "LINE1:temps#800000:Average Temperature"))
+        tempGraphs = graphTemperature(source)
+        if tempGraphs:
+            results.append(tag('div', _class='thumbnails')[[
+                self.makeThumbnailLink(context, i) for i in tempGraphs
+            ]])
 
-        images.append(rrd.RrdGraph("--width", 640, "--height", 200,
-                                   "--start", -60*60*24*7,
-                                   rrd.RrdDef('volts', voltages, 'x', 'AVERAGE'),
-                                   "LINE1:volts#000080:Average Voltage"))
+        voltGraphs = graphVoltage(source)
+        if voltGraphs:
+            results.append(tag('div', _class='thumbnails')[[
+                self.makeThumbnailLink(context, i) for i in voltGraphs
+            ]])
 
-        return [self.makeThumbnailLink(context, i) for i in images]
+        return results
 
     def makeThumbnailLink(self, context, image):
         """Make a hyperlinked thumbnail to an image"""
-        thumb = rrd.ScaledImage(image, height=64)
+        thumb = rrd.ScaledImage(image, height=48)
         thumb.cssClass = 'thumbnail'
         thumb.alt = "Graph Thumbnail"
         thumb.make()
         return tag('a', href=image.getUrl(context))[ thumb ]
-
 
 index = IndexPage()
 
