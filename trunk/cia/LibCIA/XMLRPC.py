@@ -56,7 +56,6 @@ class SimpleCIAInterface(xmlrpc.XMLRPC):
                     "--- Original message\n%s\n--- Exception\n%s" %
                     (xml, "".join(traceback.format_exception(*sys.exc_info()))))
             return xmlrpc.Fault(e.__class__.__name__, str(e))
-        result = self.hub.deliver(Message(xml))
         if result is not None:
             return result
         return True
