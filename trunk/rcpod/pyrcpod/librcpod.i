@@ -39,9 +39,15 @@
 
 /*************************************** Functions with exception handling */
 
-/* Include all rcpod.h functions, wrapping them with a proper exception handler */
+/* Include all rcpod.h functions, wrapping them with a proper exception handler.
+ * We also release the python global lock, so other python threads can run while
+ * we do our blocking I/O.
+ */
 %exception {
+  Py_BEGIN_ALLOW_THREADS
   $action
+  Py_END_ALLOW_THREADS
+
   if (pyrcpod_errorOccurred) {
     pyrcpod_errorOccurred = 0;
     SWIG_exception(SWIG_IOError, pyrcpod_errorBuffer);
