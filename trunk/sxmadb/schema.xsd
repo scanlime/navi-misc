@@ -3,13 +3,72 @@
  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
  xmlns:xi="http://www.w3.org/2003/XInclude">
 
-<xsd:simpleType name="sides">
+<xsd:simpleType name="side">
   <xsd:restriction base="xsd:string">
     <xsd:enumeration value="right"/>
     <xsd:enumeration value="left"/>
   </xsd:restriction>
 </xsd:simpleType>
 
+<!-- =============== movement -->
+<xsd:simpleType name="movement-stance">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="attention"/>
+    <xsd:enumeration value="natural"/>
+    <xsd:enumeration value="horse"/>
+    <xsd:enumeration value="neutral bow"/>
+    <xsd:enumeration value="forward bow"/>
+    <xsd:enumeration value="cat"/>
+    <xsd:enumeration value="reverse bow"/>
+    <xsd:enumeration value="close kneel"/>
+    <xsd:enumeration value="wide kneel"/>
+    <xsd:enumeration value="front twist"/>
+    <xsd:enumeration value="rear twist"/>
+    <xsd:enumeration value="reverse close kneel"/>
+    <xsd:enumeration value="reverse wide kneel"/>
+    <xsd:enumeration value="concave"/>
+    <xsd:enumeration value="diamond"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="movement-block">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="hammering inward"/>
+    <xsd:enumeration value="thrusting inward"/>
+    <xsd:enumeration value="vertical outward"/>
+    <xsd:enumeration value="extended outward"/>
+    <xsd:enumeration value="upward"/>
+    <xsd:enumeration value="downward"/>
+    <xsd:enumeration value="palm heel"/>
+    <xsd:enumeration value="inside downward palm up"/>
+    <xsd:enumeration value="inside downward palm down"/>
+    <xsd:enumeration value="cross"/>
+    <xsd:enumeration value="universal"/>
+    <xsd:enumeration value="outside downward diagonal"/>
+    <xsd:enumeration value="downward horizontal forearm"/>
+    <xsd:enumeration value="inward vertical forearm"/>
+    <xsd:enumeration value="outward vertical forearm"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="movement-footManeuver">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="drag-step"/>
+    <xsd:enumeration value="step-drag"/>
+    <xsd:enumeration value="step-through"/>
+    <xsd:enumeration value="rear cover"/>
+    <xsd:enumeration value="side cover"/>
+    <xsd:enumeration value="push step-drag"/>
+    <xsd:enumeration value="front crossover"/>
+    <xsd:enumeration value="rear crossover"/>
+    <xsd:enumeration value="hop"/>
+    <xsd:enumeration value="pull-drag"/>
+    <xsd:enumeration value="leap"/>
+    <xsd:enumeration value="step"/>
+    <xsd:enumeration value="step back"/>
+    <xsd:enumeration value="pivot"/>
+  </xsd:restriction>
+</xsd:simpleType>
 
 <!-- =============== types for technique -->
 <xsd:simpleType name="technique-category">
@@ -49,13 +108,28 @@
   </xsd:sequence>
 </xsd:complexType>
 
+<xsd:complexType name="technique-step" mixed="true">
+  <xsd:all>
+    <xsd:element name="footManeuver" type="movement-footManeuver"/>
+    <xsd:element name="stance" type="movement-stance"/>
+    <xsd:element name="block" type="movement-block"/>
+    <xsd:element name="strike"/>
+  </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="technique-steps">
+  <xsd:sequence>
+    <xsd:element name="step" type="technique-step" maxOccurs="200"/>
+  </xsd:sequence>
+</xsd:complexType>
+
 <!-- =============== top-level technique -->
 <xsd:element name="technique">
   <xsd:complexType>
     <xsd:all>
       <xsd:element name="attack" type="xsd:string"/>
       <xsd:element name="stances" type="technique-stances"/>
-      <xsd:element name="steps"/>
+      <xsd:element name="steps" type="technique-steps"/>
     </xsd:all>
     <xsd:attribute name="name" type="xsd:string"/>
     <xsd:attribute name="category" type="technique-category"/>
