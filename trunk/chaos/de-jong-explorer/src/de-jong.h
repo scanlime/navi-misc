@@ -33,6 +33,7 @@ struct computation_params {
   double a, b, c, d;
   double zoom, xoffset, yoffset, rotation;
   double blur_radius, blur_ratio;
+  gboolean tileable;
 };
 
 struct render_params {

@@ -297,6 +297,7 @@ static void read_gui_params() {
   render.exposure = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_exposure")));
   render.gamma = gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_gamma")));
   render.clamped = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(gui.xml, "param_clamped")));
+  params.tileable = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(gui.xml, "param_tileable")));
   color_button_get_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_fgcolor")), &render.fgcolor);
   color_button_get_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_bgcolor")), &render.bgcolor);
 }
@@ -316,6 +317,7 @@ static void write_gui_params() {
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_exposure")), render.exposure);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(gui.xml, "param_gamma")), render.gamma);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(gui.xml, "param_clamped")), render.clamped);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(gui.xml, "param_tileable")), params.tileable);
   color_button_set_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_fgcolor")), &render.fgcolor);
   color_button_set_color(COLOR_BUTTON(glade_xml_get_widget(gui.xml, "param_bgcolor")), &render.bgcolor);
   gui.writing_params = FALSE;
