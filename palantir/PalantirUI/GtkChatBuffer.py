@@ -24,6 +24,7 @@ class GtkChatBuffer(gtk.ScrolledWindow):
     self.text_view.get_buffer().create_tag('highlight', foreground='yellow')
     self.text_view.get_buffer().create_tag('nickends', foreground='purple')
     self.text_view.set_editable(gtk.FALSE)
+    self.text_view.set_cursor_visible(gtk.FALSE)
 
     # Add the text view to the scrolled window.
     self.add(self.text_view)

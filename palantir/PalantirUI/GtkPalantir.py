@@ -200,7 +200,7 @@ class PalantirWindow:
       self.tree.get_widget('SendField').set_position(-1)
 
       if len(matched) > 1:
-	self.messageReceive(None, self.factory.channels[0], string.join(nicks[1:]))
+	self.messageReceive(None, self.factory.channels[0], string.join(matched[1:]))
 
       return gtk.TRUE
 
