@@ -25,7 +25,7 @@
 #include <dlfcn.h>
 
 #include "xchat-plugin.h"
-#include "navigation_tree.h"
+//#include "navigation_tree.h"
 #include "eggtrayicon.h"
 
 #define NOTIFICATION_VERSION "0.1"
@@ -33,9 +33,9 @@
 
 static xchat_plugin *ph;				// Plugin handle.
 static gboolean window_visible = TRUE;	// Keep track of whether the window is visible.
-static NavTree *nav_tree;				// A reference to the navigation tree.
+//static NavTree *nav_tree;				// A reference to the navigation tree.
 static EggTrayIcon *notification;		// Notification area icon.
-static GtkMenu *menu;					// The menu that pops up.
+//static GtkMenu *menu;					// The menu that pops up.
 static GtkWidget *image;				// The image displayed by the icon.
 static GdkPixbuf *logo;					// Pixbufs for the notification area.
 
@@ -53,7 +53,7 @@ xchat_plugin_get_info (char **plugin_name, char **plugin_desc,
 	if (reserved)
 		*reserved = NULL;
 }
-
+/*
 gboolean
 notification_menu_add_channel (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
 {
@@ -61,30 +61,30 @@ notification_menu_add_channel (GtkTreeModel *model, GtkTreePath *path, GtkTreeIt
 	GdkPixbuf *image = NULL;
 	gchar *channel;
 
-	/* Create a new menu item with a perdy picture. */
+	/* Create a new menu item with a perdy picture. 
 	gtk_tree_model_get (model, iter, 0, &image, 1, &channel, -1);
 	item = gtk_image_menu_item_new_with_label (channel);
 
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), gtk_image_new_from_pixbuf (image));
 
-	/* Shove it in the menu. */
+	/* Shove it in the menu. 
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
 	gtk_widget_show (item);
 
 	return FALSE;
 }
-
+*/
 int
 xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 		char **plugin_desc, char **plugin_version, char *arg)
 {
 	GtkWidget *box;
 	GdkPixbuf *p;
-	void *mp;
-	NavTree *(*get_nt)(void);
-	char *error;
+	//void *mp;
+	//NavTree *(*get_nt)(void);
+	//char *error;
 
-	mp = dlopen (NULL, RTLD_NOW);
+	/*mp = dlopen (NULL, RTLD_NOW);
 	dlerror ();
 	get_nt = dlsym (mp, "get_navigation_tree");
 	error = dlerror ();
@@ -92,7 +92,7 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 		g_print ("%s\n\n", error);
 		return FALSE;
 	}
-
+	*/
 	ph = plugin_handle;
 
 	/* Set the plugin info. */
@@ -120,12 +120,13 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 	g_object_ref (G_OBJECT (notification));
 
 	/* Create the menu. */
+	/*
 	menu = GTK_MENU (gtk_menu_new ());
 	nav_tree = get_nt ();
 	gtk_tree_model_foreach (nav_tree->model->sorted,
 			(GtkTreeModelForeachFunc)notification_menu_add_channel, NULL);
 	gtk_widget_show (GTK_WIDGET (menu));
-
+	*/
 	xchat_print (ph, "Notification plugin loaded.\n");
 
 	return TRUE;
@@ -141,13 +142,13 @@ xchat_plugin_deinit ()
 
 	return 1;
 }
-
+/*
 static void
 notification_menu_show (GdkEventButton *event)
 {
 	gtk_menu_popup (menu, NULL, NULL, NULL, NULL, event->button, event->time);
 }
-
+*/
 static gboolean
 notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
@@ -166,7 +167,7 @@ notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data
 
 		/* Right click. */
 		case 3:
-			notification_menu_show (event);
+			//notification_menu_show (event);
 			break;
 
 		default:
