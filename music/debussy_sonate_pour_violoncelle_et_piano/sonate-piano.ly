@@ -25,6 +25,7 @@
       \set PianoStaff.instrument = \markup {
         \large PIANO
       }
+      \override PianoStaff.VerticalAlignment #'forced-distance = #13
       \context Staff=prologuePianoTreble << \prologuePianoTreble >>
 %      \new Dynamics                      << \prologueMiddleDynamics >>
       \context Staff=prologuePianoBass   << \prologuePianoBass >>
