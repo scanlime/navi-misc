@@ -152,7 +152,7 @@ pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GPara
     case PROP_POSITION_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[0], 0.09);
       update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->position[0], 0.9);
+                                  &PYRAMID_DRAWABLE (self->drawable)->position[0], 0.09);
       if (self->state_dirty)
 	g_signal_emit_by_name (object, "dirty");
       if (DISPLAY_LIST (self->drawable)->dirty)
@@ -162,7 +162,7 @@ pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GPara
     case PROP_POSITION_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[1], 0.09);
       update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->position[1], 0.9);
+                                  &PYRAMID_DRAWABLE (self->drawable)->position[1], 0.09);
       if (self->state_dirty)
 	g_signal_emit_by_name (object, "dirty");
       if (DISPLAY_LIST (self->drawable)->dirty)
@@ -172,7 +172,7 @@ pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GPara
     case PROP_POSITION_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.position[2], 0.09);
       update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->position[2], 0.9);
+                                  &PYRAMID_DRAWABLE (self->drawable)->position[2], 0.09);
       if (self->state_dirty)
 	g_signal_emit_by_name (object, "dirty");
       if (DISPLAY_LIST (self->drawable)->dirty)
@@ -182,7 +182,7 @@ pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GPara
     case PROP_ROTATION:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.rotation, 0.09);
       update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->rotation, 0.9);
+                                  &PYRAMID_DRAWABLE (self->drawable)->rotation, 0.09);
       if (self->state_dirty)
 	g_signal_emit_by_name (object, "dirty");
       if (DISPLAY_LIST (self->drawable)->dirty)
@@ -192,7 +192,7 @@ pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GPara
     case PROP_SIZE_X:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[0], 0.09);
       update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->size[0], 0.9);
+                                  &PYRAMID_DRAWABLE (self->drawable)->size[0], 0.09);
       if (self->state_dirty)
 	g_signal_emit_by_name (object, "dirty");
       if (DISPLAY_LIST (self->drawable)->dirty)
@@ -202,7 +202,7 @@ pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GPara
     case PROP_SIZE_Y:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[1], 0.09);
       update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->size[1], 0.9);
+                                  &PYRAMID_DRAWABLE (self->drawable)->size[1], 0.09);
       if (self->state_dirty)
 	g_signal_emit_by_name (object, "dirty");
       if (DISPLAY_LIST (self->drawable)->dirty)
@@ -212,7 +212,7 @@ pyramid_set_property (GObject *object, guint prop_id, const GValue *value, GPara
     case PROP_SIZE_Z:
       update_double_if_necessary (g_value_get_double (value), &self->state_dirty, &self->param.size[2], 0.09);
       update_float_if_necessary  (g_value_get_double (value), &DISPLAY_LIST (self->drawable)->dirty,
-                                  &PYRAMID_DRAWABLE (self->drawable)->size[2], 0.9);
+                                  &PYRAMID_DRAWABLE (self->drawable)->size[2], 0.09);
       if (self->state_dirty)
 	g_signal_emit_by_name (object, "dirty");
       if (DISPLAY_LIST (self->drawable)->dirty)
