@@ -1,6 +1,7 @@
 ;
 ; Utilities for sampling the TC74 temperature sensor
 ; Copyright 2004, Micah Dowty <micah@navi.cx>
+;
 
 TC74_ADDR_READ	equ (0x91 | (TC74_ADDR << 1))
 TC74_ADDR_WRITE	equ (0x90 | (TC74_ADDR << 1))
