@@ -23,6 +23,7 @@
 #include "firestarter.h"
 #include "input.h"
 #include "timer.h"
+#include "prefs.h"
 
 template <>
 CFirestarterLoop* Singleton<CFirestarterLoop>::_instance = (CFirestarterLoop*)0;
@@ -88,8 +89,8 @@ const char* CFirestarterLoop::GetCameraName ( void )
 
 const char*  CFirestarterLoop::GetRootResDir ( void )
 {
-	if (prefs.ItemExists("dataDir"))
-		return prefs.GetItemS("dataDir");
+	if (CPrefsManager::instance().ItemExists("dataDir"))
+		return CPrefsManager::instance().GetItemS("dataDir");
   return "../data";
 }
 

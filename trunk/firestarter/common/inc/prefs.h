@@ -30,10 +30,11 @@
 #include <string>
 #include <map>
 #include "osfile.h"
+#include "Singleton.h"
 
 typedef std::map<std::string,std::string>	tmPrefsMap;
 
-class CPrefsManager
+class CPrefsManager  : public Singleton<CPrefsManager>
 {
 public:
 	CPrefsManager();
@@ -58,9 +59,6 @@ protected:
 	tmPrefsMap		itemMap;
 	COSFile			file;
 };
-
-void SetPrefs ( CPrefsManager *prefs );
-CPrefsManager* GetPrefs ( void );
 #endif//_PREFS_H_
 
 
