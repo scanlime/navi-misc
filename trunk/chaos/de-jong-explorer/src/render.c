@@ -30,6 +30,7 @@ struct vector2 point;
 
 static float get_pixel_scale();
 static void update_color_table();
+static int find_upper_pow2(int x);
 
 
 void resize(int w, int h, int oversample) {
@@ -221,23 +222,39 @@ float normal_variate() {
   return sqrt(-2*log(uniform_variate())) * cos(uniform_variate() * (2*M_PI));
 }
 
+static int find_upper_pow2(int x) {
+  /* Find the smallest power of two greater than or equal to x */
+  int p = 1;
+  while (p < x)
+    p <<= 1;
+  return p;
+}
+
 void run_iterations(int count) {
+  /* Constants used in mapping rendering coordinates to image coordinates */
   const int count_width = render.width * render.oversample;
   const int count_height = render.height * render.oversample;
   const double xcenter = count_width / 2.0;
   const double ycenter = count_height / 2.0;
   const double scale = xcenter / 2.5 * params.zoom;
+
+  /* Toggles to disable features that aren't needed */
   const gboolean rotation_enabled = params.rotation > 0.0001 || params.rotation < -0.0001;
   const gboolean blur_enabled = params.blur_ratio > 0.0001 && params.blur_radius > 0.00001;
-  const int blur_table_size = 1024;   /* Must be a power of two */
-  const int blur_ratio_period = 1024; /* Must be a power of two */
 
-  double x, y, sine_rotation, cosine_rotation;
+  /* Blurring variables */
+  int blur_table_size;
+  int blur_ratio_period;
+  int blur_index, blur_ratio_index, blur_ratio_threshold;
+  float *blur_table;
+
+  /* Rotation variables */
+  double sine_rotation, cosine_rotation;
+
+  double x, y;
   int i, ix, iy;
   guint *p;
   guint d;
-  int blur_index, blur_ratio_index, blur_ratio_threshold;
-  float blur_table[blur_table_size];
 
   /* Precalculate the sine and cosine of the rotation angle, if we'll need it */
   if (rotation_enabled) {
@@ -251,10 +268,20 @@ void run_iterations(int count) {
    * at infinity the image still has the same effect, but each iteration runs much faster.
    */
   if (blur_enabled) {
+    /* Find a good size for the blur table. Our current heuristic finds
+     * the smallest power of two that's still larger than 1/50 our iteration count.
+     */
+    blur_table_size = find_upper_pow2(count / 50);
+
+    /* Allocate and fill the blur table */
+    blur_table = alloca(blur_table_size * sizeof(blur_table[0]));
     for (i=0; i<blur_table_size; i++)
       blur_table[i] = normal_variate() * params.blur_radius;
     blur_index = 0;
+
+    /* Initialize the blur ratio counter and threshold */
     blur_ratio_index = 0;
+    blur_ratio_period = 1024;
     blur_ratio_threshold = params.blur_ratio * blur_ratio_period;
   }
 
