@@ -38,7 +38,8 @@ struct {
 
 struct {
   double a, b, c, d;
-  double zoom, xoffset, yoffset;
+  double zoom, xoffset, yoffset, rotation;
+  double blur_radius, blur_ratio;
 } params;
 
 struct {
@@ -61,7 +62,8 @@ struct {
 
 struct {
   GtkWidget *window, *drawing_area, *iterations;
-  GtkWidget *as, *bs, *cs, *ds, *zs, *xos, *yos;
+  GtkWidget *a, *b, *c, *d, *zoom, *xoffset, *yoffset;
+  GtkWidget *rotation, *blur_radius, *blur_ratio;
   GtkWidget *gamma, *exposure, *fgcolor, *bgcolor;
   GtkWidget *start, *stop, *save, *randbutton;
   GdkGC *gc;
@@ -78,6 +80,8 @@ void resize(int w, int h);
 int limit_update_rate(float max_rate);
 int auto_limit_update_rate(void);
 float get_pixel_scale();
+float uniform_variate();
+float normal_variate();
 void update_color_table();
 void update_pixels();
 void update_gui();
@@ -284,6 +288,9 @@ void set_defaults() {
   params.zoom = 1;
   params.xoffset = 0;
   params.yoffset = 0;
+  params.rotation = 0;
+  params.blur_radius = 0;
+  params.blur_ratio = 0;
 
   render.exposure = 0.05;
   render.gamma = 1;
@@ -303,7 +310,7 @@ GtkWidget *build_sidebar() {
   GtkWidget *table;
   int row;
 
-  table = gtk_table_new(15, 2, FALSE);
+  table = gtk_table_new(18, 2, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE(table), 6);
   gtk_table_set_col_spacings(GTK_TABLE(table), 6);
 
@@ -340,6 +347,18 @@ GtkWidget *build_sidebar() {
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
     add_to_sidebar(table, &row, 0, 1, label);
 
+    label = gtk_label_new("Rotation:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
+
+    label = gtk_label_new("Blur radius:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
+
+    label = gtk_label_new("Blur ratio:");
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    add_to_sidebar(table, &row, 0, 1, label);
+
     hsep = gtk_hseparator_new();
     add_to_sidebar(table, &row, 0, 2, hsep);
 
@@ -367,40 +386,55 @@ GtkWidget *build_sidebar() {
   {
     row = 0;
 
-    gui.as = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.as), params.a);
-    add_to_sidebar(table, &row, 1, 2, gui.as);
-    g_signal_connect(G_OBJECT(gui.as), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.a = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.a), params.a);
+    add_to_sidebar(table, &row, 1, 2, gui.a);
+    g_signal_connect(G_OBJECT(gui.a), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    gui.bs = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.bs), params.b);
-    add_to_sidebar(table, &row, 1, 2, gui.bs);
-    g_signal_connect(G_OBJECT(gui.bs), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.b = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.b), params.b);
+    add_to_sidebar(table, &row, 1, 2, gui.b);
+    g_signal_connect(G_OBJECT(gui.b), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    gui.cs = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.cs), params.c);
-    add_to_sidebar(table, &row, 1, 2, gui.cs);
-    g_signal_connect(G_OBJECT(gui.cs), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.c = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.c), params.c);
+    add_to_sidebar(table, &row, 1, 2, gui.c);
+    g_signal_connect(G_OBJECT(gui.c), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    gui.ds = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.ds), params.d);
-    add_to_sidebar(table, &row, 1, 2, gui.ds);
-    g_signal_connect(G_OBJECT(gui.ds), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.d = gtk_spin_button_new_with_range(-9.999, 9.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.d), params.d);
+    add_to_sidebar(table, &row, 1, 2, gui.d);
+    g_signal_connect(G_OBJECT(gui.d), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    gui.zs = gtk_spin_button_new_with_range(0.20, 100, 0.01);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.zs), params.zoom);
-    add_to_sidebar(table, &row, 1, 2, gui.zs);
-    g_signal_connect(G_OBJECT(gui.zs), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.zoom = gtk_spin_button_new_with_range(0.20, 100, 0.01);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.zoom), params.zoom);
+    add_to_sidebar(table, &row, 1, 2, gui.zoom);
+    g_signal_connect(G_OBJECT(gui.zoom), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    gui.xos = gtk_spin_button_new_with_range(-1.999, 1.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.xos), params.xoffset);
-    add_to_sidebar(table, &row, 1, 2, gui.xos);
-    g_signal_connect(G_OBJECT(gui.xos), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.xoffset = gtk_spin_button_new_with_range(-1.999, 1.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.xoffset), params.xoffset);
+    add_to_sidebar(table, &row, 1, 2, gui.xoffset);
+    g_signal_connect(G_OBJECT(gui.xoffset), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
-    gui.yos = gtk_spin_button_new_with_range(-1.999, 1.999, 0.001);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.yos), params.yoffset);
-    add_to_sidebar(table, &row, 1, 2, gui.yos);
-    g_signal_connect(G_OBJECT(gui.yos), "changed", G_CALLBACK(param_spinner_changed), NULL);
+    gui.yoffset = gtk_spin_button_new_with_range(-1.999, 1.999, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.yoffset), params.yoffset);
+    add_to_sidebar(table, &row, 1, 2, gui.yoffset);
+    g_signal_connect(G_OBJECT(gui.yoffset), "changed", G_CALLBACK(param_spinner_changed), NULL);
+
+    gui.rotation = gtk_spin_button_new_with_range(-9, 9, 0.002);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.rotation), params.rotation);
+    add_to_sidebar(table, &row, 1, 2, gui.rotation);
+    g_signal_connect(G_OBJECT(gui.rotation), "changed", G_CALLBACK(param_spinner_changed), NULL);
+
+    gui.blur_radius = gtk_spin_button_new_with_range(0, 1, 0.0001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.blur_radius), params.blur_radius);
+    add_to_sidebar(table, &row, 1, 2, gui.blur_radius);
+    g_signal_connect(G_OBJECT(gui.blur_radius), "changed", G_CALLBACK(param_spinner_changed), NULL);
+
+    gui.blur_ratio = gtk_spin_button_new_with_range(0, 1, 0.001);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.blur_ratio), params.blur_ratio);
+    add_to_sidebar(table, &row, 1, 2, gui.blur_ratio);
+    g_signal_connect(G_OBJECT(gui.blur_ratio), "changed", G_CALLBACK(param_spinner_changed), NULL);
 
     /* Skip separator */
     row++;
@@ -633,8 +667,18 @@ void clear() {
   memset(render.counts, 0, render.width * render.height * sizeof(int));
   render.current_density = 0;
   render.iterations = 0;
-  point.x = ((float) rand()) / RAND_MAX;
-  point.y = ((float) rand()) / RAND_MAX;
+  point.x = uniform_variate();
+  point.y = uniform_variate();
+}
+
+float uniform_variate() {
+  /* A uniform random variate between 0 and 1 */
+  return ((float) rand()) / RAND_MAX;
+}
+
+float normal_variate() {
+  /* A unit-normal random variate, implemented with the Box-Muller method */
+  return sqrt(-2*log(uniform_variate())) * cos(uniform_variate() * (2*M_PI));
 }
 
 void run_iterations(int count) {
@@ -648,11 +692,35 @@ void run_iterations(int count) {
   const double scale = xcenter / 2.5 * params.zoom;
 
   for(i=count; i; --i) {
+    /* These are the actual Peter de Jong map equations. The new point value
+     * gets stored into 'point', then we go on and mess with x and y before plotting.
+     */
     x = sin(params.a * point.y) - cos(params.b * point.x);
     y = sin(params.c * point.x) - cos(params.c * point.y);
     point.x = x;
     point.y = y;
 
+    /* If rotation is enabled, rotate each point around
+     * the origin by params.rotation radians.
+     */
+    if (params.rotation) {
+      x =  cos(params.rotation)*point.x + sin(params.rotation)*point.y;
+      y = -sin(params.rotation)*point.x + cos(params.rotation)*point.y;
+    }
+
+    /* If blurring is enabled, use blur_ratio to decide how often to perturb
+     * the apparent point position, and blur_radius to determine how much.
+     * By perturbing the point using a normal variate, we create a true gaussian
+     * blur as the number of iterations approaches infinity.
+     */
+    if (params.blur_ratio && params.blur_radius) {
+      if (uniform_variate() < params.blur_ratio) {
+	x += normal_variate() * params.blur_radius;
+	y += normal_variate() * params.blur_radius;
+      }
+    }
+
+    /* Scale and translate our (x,y) coordinates into pixel coordinates */
     ix = (int)((x + params.xoffset) * scale + xcenter);
     iy = (int)((y + params.yoffset) * scale + ycenter);
 
@@ -692,13 +760,16 @@ void startclick(GtkWidget *widget, gpointer user_data) {
   gtk_widget_set_sensitive(gui.stop, TRUE);
   gtk_widget_set_sensitive(gui.start, FALSE);
   clear();
-  params.a = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.as));
-  params.b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.bs));
-  params.c = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.cs));
-  params.d = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.ds));
-  params.zoom = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.zs));
-  params.xoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.xos));
-  params.yoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.yos));
+  params.a = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.a));
+  params.b = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.b));
+  params.c = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.c));
+  params.d = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.d));
+  params.zoom = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.zoom));
+  params.xoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.xoffset));
+  params.yoffset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.yoffset));
+  params.rotation = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.rotation));
+  params.blur_radius = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.blur_radius));
+  params.blur_ratio = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gui.blur_ratio));
   gui.idler = g_idle_add(interactive_idle_handler, NULL);
 }
 
@@ -722,14 +793,14 @@ void rendering_param_changed(GtkWidget *widget, gpointer user_data) {
 }
 
 float generate_random_param() {
-  return ((float) rand()) / RAND_MAX * 12 - 6;
+  return uniform_variate() * 12 - 6;
 }
 
 void randomclick(GtkWidget *widget, gpointer user_data) {
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.as), generate_random_param());
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.bs), generate_random_param());
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.cs), generate_random_param());
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.ds), generate_random_param());
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.a), generate_random_param());
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.b), generate_random_param());
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.c), generate_random_param());
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(gui.d), generate_random_param());
 
   stopclick(widget, user_data);
   startclick(widget, user_data);
@@ -744,12 +815,16 @@ gchar* save_parameters() {
 			 "zoom = %f\n"
 			 "xoffset = %f\n"
 			 "yoffset = %f\n"
+			 "rotation = %f\n"
+			 "blur_radius = %f\n"
+			 "blur_ratio = %f\n"
 			 "exposure = %f\n"
 			 "gamma = %f\n"
 			 "bgcolor = #%02X%02X%02X\n"
 			 "fgcolor = #%02X%02X%02X\n",
 			 params.a, params.b, params.c, params.d,
-			 params.zoom, params.xoffset, params.yoffset,
+			 params.zoom, params.xoffset, params.yoffset, params.rotation,
+			 params.blur_radius, params.blur_ratio,
 			 render.exposure, render.gamma,
 			 render.bgcolor.red >> 8, render.bgcolor.green >> 8, render.bgcolor.blue >> 8,
 			 render.fgcolor.red >> 8, render.fgcolor.green >> 8, render.fgcolor.blue >> 8);
@@ -762,29 +837,48 @@ gboolean set_parameter(const char *key, const char *value) {
 
   if (!strcmp(key, "a"))
     params.a = atof(value);
+
   else if (!strcmp(key, "b"))
     params.b = atof(value);
+
   else if (!strcmp(key, "c"))
     params.c = atof(value);
+
   else if (!strcmp(key, "d"))
     params.d = atof(value);
+
   else if (!strcmp(key, "zoom"))
     params.zoom = atof(value);
+
   else if (!strcmp(key, "xoffset"))
     params.xoffset = atof(value);
+
   else if (!strcmp(key, "yoffset"))
     params.yoffset = atof(value);
+
+  else if (!strcmp(key, "rotation"))
+    params.rotation = atof(value);
+
+  else if (!strcmp(key, "blur_radius"))
+    params.blur_radius = atof(value);
+
+  else if (!strcmp(key, "blur_ratio"))
+    params.blur_ratio = atof(value);
+
   else if (!strcmp(key, "exposure"))
     render.exposure = atof(value);
+
   else if (!strcmp(key, "gamma"))
     render.gamma = atof(value);
+
   else if (!strcmp(key, "fgcolor"))
     gdk_color_parse(value, &render.fgcolor);
+
   else if (!strcmp(key, "bgcolor"))
     gdk_color_parse(value, &render.bgcolor);
+
   else
     return TRUE;
-
   return FALSE;
 }
 
