@@ -54,9 +54,12 @@ def importObjects(reader):
         d = data.direction
         # swizzle Y and Z
         bone.setTail(float(d[0]) * l, float(d[2]) * l, float(d[1]) * l)
+        print name,bone.getRestMatrix().rotationPart().toEuler();
+        print '\n'
 
         bones[name] = bone
 
+        armObj.addProperty('%s-axis' % name, ','.join(data.axis), 'STRING')
         if data.dof is None:
             armObj.addProperty('%s-dof' % name, '', 'STRING')
         else:
