@@ -20,7 +20,7 @@ struct _GLDrawingArea
 
   GdkGLConfig *config;
   GdkGLContext *context;
-  GdkGLDrawable *drawable;
+  GdkGLDrawable *gldrawable;
 };
 
 struct _GLDrawingAreaClass
@@ -32,5 +32,6 @@ GType      gl_drawing_area_get_type     (void) G_GNUC_CONST;
 GtkWidget* gl_drawing_area_new          (GdkGLConfig *config);
 GtkWidget* gl_drawing_area_new_shared   (GLDrawingArea *base);
 void       gl_drawing_area_make_current (GLDrawingArea *glarea);
+void       gl_drawing_area_swap_buffers (GLDrawingArea *glarea);
 
 #endif /* __GL_DRAWING_AREA_H__ */
