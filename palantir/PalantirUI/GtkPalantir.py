@@ -197,7 +197,7 @@ class PalantirWindow:
     else:
       notebook = self.tree.get_widget('Tabs')
       key = notebook.get_tab_label(notebook.get_nth_page(notebook.get_current_page())).get_text()
-      self.factory.Send(self.tabs[key], text)
+      self.factory.client.msg(key, text)
       self.messageReceive(self.factory.nickname, key, text)
 
     # Reset the text in the text field.
@@ -343,15 +343,15 @@ class PalantirWindow:
       time = None
 
     if channel == self.factory.nickname and user:
-      channel = nick
-      if not self.tabs.has_key(nick):
+      channel = palantir.getNick(user)
+      if not self.tabs.has_key(channel):
         notebook = self.tree.get_widget('Tabs')
 	label = gtk.Label()
 	label.set_text(nick)
-        self.tabs[nick] = GtkChatBuffer()
-	notebook.append_page(self.tabs[nick], label)
-	self.tabs[nick].show()
-    else:
+        self.tabs[channel] = GtkChatBuffer()
+	notebook.append_page(self.tabs[channel], label)
+	self.tabs[channel].show()
+    elif not self.tabs.has_key(channel):
       channel = 'None'
     self.tabs[channel].DisplayText(time, nick, text, addressed)
 

@@ -129,10 +129,6 @@ class PalantirClientFactory(protocol.ClientFactory):
     self.client = protocol.ClientFactory.buildProtocol(self, addr)
     return self.client
 
-  def Send(self, channel, msg):
-    ''' Interface between client and UI, sends a message to a channel. '''
-    self.client.msg(channel, msg)
-
   def SendCTCP(self, channel, messages):
     ''' Send a CTCP query. '''
     self.client.ctcpMakeQuery(channel, messages)
