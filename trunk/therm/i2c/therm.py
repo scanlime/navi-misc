@@ -1,6 +1,24 @@
 #!/usr/bin/env python
 
-import time
+import time, re
+
+
+def getTherms(file="therms.conf"):
+    """Reads a config file with lines of the form "bus:address description"
+       and returns a list of Therm instances.
+       Supports extra whitespace and comment lines starting with '#'
+       """
+    therms = []
+    for line in open(file).xreadlines():
+        line = line.strip()
+        if not line:
+            continue
+        if line[0] == '#':
+            continue
+        location, description = re.split("\s+", line, 1)
+        bus, address = location.split(":")
+        therms.append(Therm(int(bus), int(address), description))
+    return therms
 
 
 class Therm:
