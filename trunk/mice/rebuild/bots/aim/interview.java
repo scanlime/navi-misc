@@ -28,7 +28,7 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-public class interview
+public class interview extends Thread
 {
 	/** The next interview person in the linked list. */
 	public interview next;
@@ -50,6 +50,9 @@ public class interview
 
 	/** State based conversations need to know what state they're in. */
 	public int state;
+	
+	/** A semaphore for stuff. */
+	private boolean listening = true;
 	
 	/**
 	 * This method constructs a new interview person
@@ -76,6 +79,7 @@ public class interview
 	 */
 	public void handle(String message)
 	{
+		if(!listening) return;
 		switch(state)
 		{
 		case 0:
@@ -116,8 +120,8 @@ public class interview
 			tname = com.read();
 			if(tname.charAt(0) == '-')
 			{
-				send("No questions right now, message me in a bit to see if I have one for you.");
-				state = 3;
+				send("No questions right now, I'll send you a question when it comes.");
+				this.start();
 				return;
 			}
 			tname = com.read();
@@ -139,6 +143,27 @@ public class interview
 		mybot.sendMessage(nick,message);
 	}
 	
+	/**
+	 * This method is the thread that gets spawned off if there aren't any questions available
+	 * @author Brandon Smith
+	 * @version 2.1
+	 */
+	public void run()
+	{
+		boolean happy = false;
+		String in,tname,tques;
+		listening = false;
+		while(!happy)
+		{
+			sleep(1);
+			in = com.read();
+			happy = !(in.charAt(0) == '-');
+		}
+		tname = com.read();
+		tques = com.read();
+		send(tname + " Asks: " + tques);
+		listening = true;
+	}
 		
 	/**
 	 * This method makes this thread sleep.
