@@ -20,6 +20,7 @@
  *
  */
 
+#include "de-jong.h"
 #include "main.h"
 #include "color-button.h"
 
@@ -70,7 +71,7 @@ gboolean on_button_press(GtkWidget *widget, GdkEvent *event);
 void on_widget_toggle(GtkWidget *widget, gpointer user_data);
 
 
-void interactive_main(int argc, char **argv) {
+void interactive_main(DeJong *dejong, int argc, char **argv) {
   /* After common initialization code needed whether or not we're running
    * interactively, this takes over to provide the gtk UI for playing with
    * the de jong attractor in mostly-real-time. Yay.

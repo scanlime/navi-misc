@@ -12,10 +12,11 @@ HEADERS = \
 OBJS    = \
 	src/main.o		\
 	src/de-jong.o		\
-	src/ui-main.o		\
-	src/ui-animation.o	\
-	src/color-button.o	\
-	src/render.o
+	src/de-jong-render.o
+#	src/ui-main.o		\
+#	src/ui-animation.o	\
+#	src/color-button.o
+
 
 $(BIN): $(OBJS)
 	gcc -o $@ $(OBJS) $(LIBS)

@@ -24,6 +24,7 @@
  */
 
 #include "de-jong.h"
+#include <stdlib.h>
 
 static GObjectClass *parent_class = NULL;
 
@@ -39,6 +40,12 @@ static void update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guin
 static void update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param);
 static void update_color_if_necessary(const gchar* new_value, gboolean *dirty_flag, GdkColor *param);
 static gchar* describe_color(GdkColor *c);
+
+static void value_transform_string_uint(const GValue *src_value, GValue *dest_value);
+static void value_transform_string_double(const GValue *src_value, GValue *dest_value);
+static void value_transform_string_boolean(const GValue *src_value, GValue *dest_value);
+static void value_transform_string_ulong(const GValue *src_value, GValue *dest_value);
+
 
 enum {
   PROP_0,
@@ -65,6 +72,8 @@ enum {
   PROP_BGALPHA,
   PROP_CLAMPED,
   PROP_TARGET_DENSITY,
+  PROP_DENSITY,
+  PROP_ITERATIONS,
 };
 
 
@@ -104,6 +113,14 @@ static void de_jong_class_init(DeJongClass *klass) {
   object_class->get_property = de_jong_get_property;
   object_class->dispose      = de_jong_dispose;
 
+  /* Register a few custom GValueTransforms, since glib doesn't have
+   * built-in transforms from strings to other types.
+   */
+  g_value_register_transform_func(G_TYPE_STRING, G_TYPE_UINT,    value_transform_string_uint);
+  g_value_register_transform_func(G_TYPE_STRING, G_TYPE_DOUBLE,  value_transform_string_double);
+  g_value_register_transform_func(G_TYPE_STRING, G_TYPE_BOOLEAN, value_transform_string_boolean);
+  g_value_register_transform_func(G_TYPE_STRING, G_TYPE_ULONG,   value_transform_string_ulong);
+
   g_object_class_install_property(object_class,
 				  PROP_WIDTH,
 				  g_param_spec_uint("width",
@@ -134,7 +151,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 						      "Size",
 						      "Image size as a WIDTH or WIDTHxHEIGHT string",
 						      NULL,
-						      G_PARAM_READWRITE));
+						      G_PARAM_WRITABLE));
 
   g_object_class_install_property(object_class,
 				  PROP_A,
@@ -237,7 +254,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 				  g_param_spec_string("fgcolor",
 						      "Foreground Color",
 						      "The foreground color, as a color name or #RRGGBB hex triple",
-						      "black",
+						      "#000000",
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
   g_object_class_install_property(object_class,
@@ -245,7 +262,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 				  g_param_spec_string("bgcolor",
 						      "Background Color",
 						      "The background color, as a color name or #RRGGBB hex triple",
-						      "white",
+						      "#FFFFFF",
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
   g_object_class_install_property(object_class,
@@ -282,13 +299,27 @@ static void de_jong_class_init(DeJongClass *klass) {
 
   g_object_class_install_property(object_class,
 				  PROP_TARGET_DENSITY,
-				  g_param_spec_uint("target_density",
-						    "Target Density",
-						    "The peak image density to stop calculation at",
-						    0, 10000000, 10000,
-						    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+				  g_param_spec_ulong("target_density",
+						     "Target Density",
+						     "The peak image density to stop calculation at",
+						     0, G_MAXULONG, 10000,
+						     G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
+  g_object_class_install_property(object_class,
+				  PROP_DENSITY,
+				  g_param_spec_ulong("density",
+						     "Density",
+						     "The current peak histogram density, a rough measure of the image's quality",
+						     0, G_MAXULONG, 0,
+						     G_PARAM_READABLE));
 
+  g_object_class_install_property(object_class,
+				  PROP_ITERATIONS,
+				  g_param_spec_double("iterations",
+						      "Iterations",
+						      "The number of calculation iterations completed so far",
+						      0, G_MAXDOUBLE, 0,
+						      G_PARAM_READABLE));
 }
 
 static void de_jong_init(DeJong *self) {
@@ -313,6 +344,22 @@ static void de_jong_dispose(GObject *gobject) {
 
 DeJong* de_jong_new() {
   return DE_JONG(g_object_new(de_jong_get_type(), NULL));
+}
+
+static void value_transform_string_uint(const GValue *src_value, GValue *dest_value) {
+  dest_value->data[0].v_uint = strtoul(src_value->data[0].v_pointer, NULL, 10);
+}
+
+static void value_transform_string_double(const GValue *src_value, GValue *dest_value) {
+  dest_value->data[0].v_double = strtod(src_value->data[0].v_pointer, NULL);
+}
+
+static void value_transform_string_boolean(const GValue *src_value, GValue *dest_value) {
+  dest_value->data[0].v_int = strtoul(src_value->data[0].v_pointer, NULL, 10) != 0;
+}
+
+static void value_transform_string_ulong(const GValue *src_value, GValue *dest_value) {
+  dest_value->data[0].v_ulong = strtoul(src_value->data[0].v_pointer, NULL, 10);
 }
 
 
@@ -474,15 +521,202 @@ static void de_jong_set_property (GObject *object, guint prop_id, const GValue *
 
 static void de_jong_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec) {
   DeJong *self = DE_JONG(object);
+
+  switch (prop_id) {
+
+  case PROP_WIDTH:
+    g_value_set_uint(value, self->width);
+    break;
+
+  case PROP_HEIGHT:
+    g_value_set_uint(value, self->height);
+    break;
+
+  case PROP_OVERSAMPLE:
+    g_value_set_uint(value, self->oversample);
+    break;
+
+  case PROP_A:
+    g_value_set_double(value, self->a);
+    break;
+
+  case PROP_B:
+    g_value_set_double(value, self->b);
+    break;
+
+  case PROP_C:
+    g_value_set_double(value, self->c);
+    break;
+
+  case PROP_D:
+    g_value_set_double(value, self->d);
+    break;
+
+  case PROP_ZOOM:
+    g_value_set_double(value, self->zoom);
+    break;
+
+  case PROP_XOFFSET:
+    g_value_set_double(value, self->xoffset);
+    break;
+
+  case PROP_YOFFSET:
+    g_value_set_double(value, self->yoffset);
+    break;
+
+  case PROP_ROTATION:
+    g_value_set_double(value, self->rotation);
+    break;
+
+  case PROP_BLUR_RADIUS:
+    g_value_set_double(value, self->blur_radius);
+    break;
+
+  case PROP_BLUR_RATIO:
+    g_value_set_double(value, self->blur_ratio);
+    break;
+
+  case PROP_TILEABLE:
+    g_value_set_boolean(value, self->tileable);
+    break;
+
+  case PROP_CLAMPED:
+    g_value_set_boolean(value, self->clamped);
+    break;
+
+  case PROP_EXPOSURE:
+    g_value_set_double(value, self->exposure);
+    break;
+
+  case PROP_GAMMA:
+    g_value_set_double(value, self->gamma);
+    break;
+
+  case PROP_FGALPHA:
+    g_value_set_uint(value, self->fgalpha);
+    break;
+
+  case PROP_BGALPHA:
+    g_value_set_uint(value, self->bgalpha);
+    break;
+
+  case PROP_TARGET_DENSITY:
+    g_value_set_ulong(value, self->target_density);
+    break;
+
+  case PROP_FGCOLOR:
+    g_value_set_string_take_ownership(value, describe_color(&self->fgcolor));
+    break;
+
+  case PROP_BGCOLOR:
+    g_value_set_string_take_ownership(value, describe_color(&self->bgcolor));
+    break;
+
+  case PROP_DENSITY:
+    g_value_set_ulong(value, self->current_density);
+    break;
+
+  case PROP_ITERATIONS:
+    g_value_set_double(value, self->iterations);
+    break;
+
+  default:
+    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    break;
+  }
 }
+
+void de_jong_set(DeJong *self, const gchar* property, const gchar* value) {
+  /* Set a property, casting a string value to whatever type the property expects */
+  GValue strval, converted;
+  GParamSpec *spec;
+
+  /* Look up the GParamSpec for this property */
+  spec = g_object_class_find_property(G_OBJECT_GET_CLASS(self), property);
+  if (!spec) {
+    g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+	  "Ignoring attempt to set undefined property '%s' to '%s'",
+	  property, value);
+    return;
+  }
+
+  memset(&strval, 0, sizeof(GValue));
+  memset(&converted, 0, sizeof(GValue));
+  g_value_init(&strval, G_TYPE_STRING);
+  g_value_init(&converted, spec->value_type);
+  g_value_set_string(&strval, value);
+
+  //  if (g_param_value_convert(spec, &strval, &converted, FALSE)) {
+  if (g_value_transform(&strval, &converted)) {
+    g_object_set_property(G_OBJECT(self), property, &converted);
+  }
+  else {
+    g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+	  "Couldn't convert value '%s' for property '%s'",
+	  value, property);
+  }
+
+  g_value_unset(&strval);
+  g_value_unset(&converted);
+}
+
 
 void de_jong_reset_to_defaults(DeJong *self) {
 }
 
-gchar* de_jong_save_parameters(DeJong *self) {
+gchar* de_jong_save_string(DeJong *self) {
+  /* Create a new string consisting of key-value pairs, one per line,
+   * listing the value of all parameters that are no longer set to
+   * their default value. This string can be loaded back into
+   * de_jong_load_string to recreate the same property values.
+   */
+  gchar* joined;
+  gchar** lines;
+  guint n_properties;
+  GParamSpec** properties;
+  int i, n_lines;
+  GValue val, strval;
+
+  /* Get a list of all properties, and use that to allocate an array of lines
+   * large enough to handle the worst case, where each property has a non-default value
+   */
+  properties = g_object_class_list_properties(G_OBJECT_GET_CLASS(self), &n_properties);
+  lines = g_malloc0(sizeof(lines[0]) * (n_properties+1));
+
+  /* Search for non-default properties, creating lines for each */
+  n_lines = 0;
+  for (i=0; i<n_properties; i++) {
+    if ((properties[i]->flags & G_PARAM_READABLE) &&
+	(properties[i]->flags & G_PARAM_WRITABLE)) {
+
+      memset(&val, 0, sizeof(val));
+      g_value_init(&val, properties[i]->value_type);
+      g_object_get_property(G_OBJECT(self), properties[i]->name, &val);
+
+      if (!g_param_value_defaults(properties[i], &val)) {
+
+	/* Yay, we have a readable and writeable non-default value. Convert it to a string */
+	memset(&strval, 0, sizeof(strval));
+	g_value_init(&strval, G_TYPE_STRING);
+	g_value_transform(&val, &strval);
+	lines[n_lines++] = g_strdup_printf("%s = %s", properties[i]->name, g_value_get_string(&strval));
+	g_value_unset(&strval);
+
+      }
+      g_value_unset(&val);
+    }
+  }
+
+  lines[n_lines] = NULL;
+  joined = g_strjoinv("\n", lines);
+
+  g_free(properties);
+  g_strfreev(lines);
+
+  return joined;
 }
 
-void de_jong_load_parameters(DeJong *self, const gchar *params) {
+void de_jong_load_string(DeJong *self, const gchar *params) {
   /* Load all recognized parameters from a string given in the same
    * format as the one produced by save_parameters()
    */
@@ -490,7 +724,7 @@ void de_jong_load_parameters(DeJong *self, const gchar *params) {
   gchar *key, *value;
 
   /* Always start with defaults */
-  set_defaults();
+  de_jong_reset_to_defaults(self);
 
   /* Make a copy of the parameters, since we'll be modifying it */
   copy = g_strdup(params);
@@ -507,9 +741,8 @@ void de_jong_load_parameters(DeJong *self, const gchar *params) {
     /* Separate it into key and value */
     key = g_malloc(strlen(line)+1);
     value = g_malloc(strlen(line)+1);
-    if (sscanf(line, " %s = %s", key, value) == 2) {
-      set_parameter(key, value);
-    }
+    if (sscanf(line, " %s = %s", key, value) == 2)
+      de_jong_set(self, key, value);
     g_free(key);
     line = nextline;
   }
@@ -527,7 +760,7 @@ void de_jong_load_image_file(DeJong *self, const gchar *filename) {
   GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
   params = gdk_pixbuf_get_option(pixbuf, "tEXt::de_jong_params");
   if (params)
-    de_jong_load_parameters(self, params);
+    de_jong_load_string(self, params);
   else
     printf("No parameters chunk found\n");
   gdk_pixbuf_unref(pixbuf);
@@ -537,31 +770,14 @@ void de_jong_save_image_file(DeJong *self, const gchar *filename) {
   /* Save our current image to a .PNG file */
   gchar *params;
 
-  /* Get a higher quality rendering */
-  update_pixels();
+  de_jong_update_image(self);
 
   /* Save our current parameters in a tEXt chunk, using a format that
    * is both human-readable and easy to load parameters from automatically.
    */
-  params = de_jong_save_parameters(self);
+  params = de_jong_save_string(self);
   gdk_pixbuf_save(self->image, filename, "png", NULL, "tEXt::de_jong_params", params, NULL);
   g_free(params);
-}
-
-
-/************************************************************************************/
-/********************************************************************** Calculation */
-/************************************************************************************/
-
-void de_jong_calculate(DeJong *self, guint iterations) {
-}
-
-
-/************************************************************************************/
-/****************************************************************** Image Rendering */
-/************************************************************************************/
-
-void de_jong_update_image(DeJong *self) {
 }
 
 /* The End */
