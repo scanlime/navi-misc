@@ -1,11 +1,4 @@
 /*
- * RtgChannel - The channel object retrieves and stores (x,y) pairs,
- *              where X is an independent variable (usually time).
- *              One or more channels may supply the content in a
- *              graph. Each channel maintains its own history buffer,
- *              as each channel can have an independent sampling rate
- *              and history length.
- *
  * rtgraph real-time graphing package
  * Copyright (C) 2004 Micah Dowty <micah@navi.cx>
  *
@@ -25,44 +18,6 @@
  *
  */
 
-static void rtg_channel_class_init(RtgChannelClass *klass);
-static void rtg_channel_init(RtgChannel *self);
-
-/************************************************************************************/
-/**************************************************** Initialization / Finalization */
-/************************************************************************************/
-
-GType rtg_channel_get_type(void) {
-  static GType im_type = 0;
-  if (!im_type) {
-    static const GTypeInfo im_info = {
-      sizeof(RtgChannelClass),
-      NULL, /* base init */
-      NULL, /* base finalize */
-      (GClassInitFunc) rtg_channel_class_init,
-      NULL, /* class finalize */
-      NULL, /* class data */
-      sizeof(RtgChannel),
-      0,
-      (GInstanceInitFunc) rtg_channel_init,
-    };
-
-    im_type = g_type_register_static(RTG_CHANNEL_TYPE, "RtgChannel", &im_info, 0);
-  }
-
-  return im_type;
-}
-
-static void rtg_channel_class_init(RtgChannelClass *klass) {
-  /* Nothing to do here */
-}
-
-static void rtg_channel_init(RtgChannel *self) {
-  /* Nothing to do here */
-}
-
-RtgChannel* animation_new() {
-  return RTG_CHANNEL(g_object_new(rtg_channel_get_type(), NULL));
-}
+#include "bptree.h"
 
 /* The End */
