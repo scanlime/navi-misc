@@ -511,9 +511,15 @@ def cmd_auto(paths, assumedOverhead = 0.01, safetyTimer = 3):
 
 def cmd_pending(paths):
     index = CatalogIndex()
+    totalCount = 0
+    totalSize = 0
     for path in flattenBackupPaths(paths):
         if index.needsBackup(path):
             index.fileStatus(path)
+            totalSize += os.stat(path).st_size
+            totalCount += 1
+    print "%d files pending backup, totalling %.1f MB" % (
+        totalCount, totalSize / (1024.0**2))
 
 
 def cmd_md5(paths, filesPerCommand=8):
