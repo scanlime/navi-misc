@@ -238,6 +238,7 @@ static void mi6k_ir_rx_irq(struct urb *urb)
 	    dev->ir_rx_tbuffer[6],
 	    dev->ir_rx_tbuffer[7]);
 
+	return;
 	if (urb->status == 0 && urb->actual_length > 0) {
 		down(&dev->sem);
 		mi6k_ir_rx_store(dev, dev->ir_rx_tbuffer, urb->actual_length);
@@ -282,23 +283,6 @@ static int mi6k_open(struct inode *inode, struct file *file)
 	/* save our object in the file's private structure */
 	file->private_data = dev;
 
-	/* If this is the first process opening our device, submit the IR receive URB */
-	if (dev->open_count == 1) {
-		struct usb_interface_descriptor *interface =
-			&dev->interface->altsetting[dev->interface->act_altsetting];
-		struct usb_endpoint_descriptor *endpoint = &interface->endpoint[0];
-
-		FILL_INT_URB(&dev->ir_rx_urb, dev->udev,
-			     usb_rcvintpipe(dev->udev, endpoint->bEndpointAddress),
-			     dev->ir_rx_tbuffer, IR_URB_BUFFER_SIZE,
-			     mi6k_ir_rx_irq, dev, endpoint->bInterval);
-
-		dbg("Submitting ir_rx_urb, interval %d", endpoint->bInterval);
-		if (usb_submit_urb(&dev->ir_rx_urb)) {
-			dbg("Error submitting URB");
-		}
-	}
-
 	/* unlock this device */
 	up(&dev->sem);
 
@@ -339,8 +323,6 @@ static int mi6k_release(struct inode *inode, struct file *file)
 	/* decrement our usage count for the device */
 	--dev->open_count;
 	if (dev->open_count <= 0) {
-		dbg("unlinking URBs");
-		usb_unlink_urb(&dev->ir_rx_urb);
 		dev->open_count = 0;
 	}
 
@@ -718,6 +700,7 @@ static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const stru
 	int buffer_size;
 	int i;
 	char name[10];
+	struct usb_interface_descriptor *iface_desc;
 
 	/* See if the device offered us matches what we can accept */
 	if ((udev->descriptor.idVendor != MI6K_VENDOR_ID) ||
@@ -746,6 +729,8 @@ static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const stru
 	minor_table[minor] = dev;
 
 	interface = &udev->actconfig->interface[ifnum];
+	iface_desc = &interface->altsetting[interface->act_altsetting];
+	endpoint = &iface_desc->endpoint[0];
 
 	init_MUTEX(&dev->sem);
 	dev->udev = udev;
@@ -777,6 +762,16 @@ static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const stru
 	  devfs_handle_t slave;
 	  devfs_mk_symlink(NULL, "lirc", DEVFS_FL_DEFAULT, "usb/lirc0", &slave, NULL);
 	  devfs_auto_unregister(dev->lirc_devfs, slave);
+	}
+
+	/* Begin our interrupt transfer polling for received IR data */
+	FILL_INT_URB(&dev->ir_rx_urb, dev->udev,
+		     usb_rcvintpipe(dev->udev, endpoint->bEndpointAddress),
+		     dev->ir_rx_tbuffer, IR_URB_BUFFER_SIZE,
+		     mi6k_ir_rx_irq, dev, endpoint->bInterval);
+	dbg("Submitting ir_rx_urb, interval %d", endpoint->bInterval);
+	if (usb_submit_urb(&dev->ir_rx_urb)) {
+		dbg("Error submitting URB");
 	}
 
 	goto exit;
