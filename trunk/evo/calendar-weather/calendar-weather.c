@@ -36,24 +36,14 @@ GtkWidget *e_calendar_weather_refresh (EPlugin *epl, EConfigHookItemFactoryData 
 GtkWidget *e_calendar_weather_temperature (EPlugin *epl, EConfigHookItemFactoryData *data);
 GtkWidget *e_calendar_weather_snowfall (EPlugin *epl, EConfigHookItemFactoryData *data);
 gboolean   e_calendar_weather_check (EPlugin *epl, EConfigHookPageCheckData *data);
-void       state_changed_stub (EPlugin *epl, EEventTarget *data);
-int        e_plugin_lib_enable (EPluginLib *ep, int enable);
+void       e_calendar_weather_migrate (EPlugin *epl, ECalEventTargetComponent *data);
 
 static GtkTreeStore *store = NULL;
 
 #define WEATHER_BASE_URI "weather://"
 
 void
-state_changed_stub (EPlugin *epl, EEventTarget *data)
-{
-	/* This is a bit of a hack. We want e_plugin_lib_enable to be called before
-	 * the user starts interacting with evolution, but after the components are
-	 * initialized. Since the shell will always fire off a state.changed event
-	 * on startup, the plugin will be enabled at the right time. */
-}
-
-int
-e_plugin_lib_enable (EPluginLib *ep, int enable)
+e_calendar_weather_migrate (EPlugin *epl, ECalEventTargetComponent *data)
 {
 	/* Perform a migration step here. This allows us to keep the weather calendar completely
 	 * separate from evolution. If the plugin isn't built, the weather source group won't
@@ -66,7 +56,7 @@ e_plugin_lib_enable (EPluginLib *ep, int enable)
 
 	g_print ("migration!\n");
 
-	component = calendar_component_peek ();
+	component = data->component;
 	source_list = calendar_component_peek_source_list (component);
 
 	groups = e_source_list_peek_groups (source_list);
