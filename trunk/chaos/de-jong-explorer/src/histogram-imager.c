@@ -869,6 +869,14 @@ void histogram_imager_clear(HistogramImager *self) {
   self->render_dirty_flag = TRUE;
   self->total_points_plotted = 0;
   self->peak_density = 0;
+  g_get_current_time(&self->render_start_time);
+}
+
+gdouble histogram_imager_get_elapsed_time (HistogramImager *self) {
+  GTimeVal now;
+  g_get_current_time(&now);
+  return ((now.tv_usec - self->render_start_time.tv_usec) / 1000000.0 +
+	  (now.tv_sec  - self->render_start_time.tv_sec ));
 }
 
 static void histogram_imager_require_image(HistogramImager *self) {

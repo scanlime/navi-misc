@@ -306,16 +306,17 @@ static gboolean limit_update_rate(GTimeVal *last_update, float max_rate) {
 
 static gboolean explorer_auto_limit_update_rate(Explorer *self) {
   /* Automatically determine a good maximum frame rate based on the current
-   * number of iterations, and use limit_update_rate() to limit us to that.
+   * elapsed time, and use limit_update_rate() to limit us to that.
    * Returns 1 if a frame should not be rendered.
    */
 
   const float initial_rate = 60;
   const float final_rate = 1;
-  const float ramp_down_iterations = 2e6;
-  float rate;
+  const float ramp_down_seconds = 3;
+  float rate, elapsed;
 
-  rate = initial_rate + (final_rate - initial_rate) * (self->dejong->iterations / ramp_down_iterations);
+  elapsed = histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(self->dejong));
+  rate = initial_rate + (final_rate - initial_rate) * (elapsed / ramp_down_seconds);
   if (rate < final_rate)
     rate = final_rate;
 
