@@ -1113,24 +1113,12 @@ static void on_anim_scale_changed(GtkWidget *widget, gpointer user_data) {
 
 static void on_anim_set_linear(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
-  static SplineControlPoint points[] = {
-    {0, 0},
-    {1, 1},
-  };
-  const Spline s = {points, sizeof(points)/sizeof(points[0])};
-  curve_editor_set_spline(CURVE_EDITOR(self->anim_curve), &s);
+  curve_editor_set_spline(CURVE_EDITOR(self->anim_curve), &spline_template_linear);
 }
 
 static void on_anim_set_smooth(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
-  static SplineControlPoint points[] = {
-    {0,     0   },
-    {0.375, 0.25},
-    {0.625, 0.75},
-    {1,     1   },
-  };
-  const Spline s = {points, sizeof(points)/sizeof(points[0])};
-  curve_editor_set_spline(CURVE_EDITOR(self->anim_curve), &s);
+  curve_editor_set_spline(CURVE_EDITOR(self->anim_curve), &spline_template_smooth);
 }
 
 /* The End */

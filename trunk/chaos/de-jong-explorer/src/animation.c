@@ -22,6 +22,7 @@
 
 #include "animation.h"
 #include "chunked-file.h"
+#include "spline.h"
 
 static void animation_class_init(AnimationClass *klass);
 static void animation_init(Animation *self);
@@ -36,6 +37,8 @@ static void animation_set_default_transition(Animation *self, GtkTreeIter *iter)
 #define CHUNK_KEYFRAME_END    CHUNK_TYPE('K','f','r','E')   /* End a keyframe definition */
 #define CHUNK_DE_JONG_PARAMS  CHUNK_TYPE('d','j','P','R')   /* Set de-jong parameters, represented as a string */
 #define CHUNK_THUMBNAIL       CHUNK_TYPE('d','j','T','H')   /* Set a thumbnail, represented as a PNG image */
+#define CHUNK_SPLINE          CHUNK_TYPE('s','p','l','C')   /* Spline control points */
+#define CHUNK_DURATION        CHUNK_TYPE('d','u','r','a')   /* Transition duration, as a double */
 
 
 /************************************************************************************/
@@ -72,10 +75,11 @@ static void animation_class_init(AnimationClass *klass) {
 }
 
 static void animation_init(Animation *self) {
-  self->model = gtk_list_store_new(3,
+  self->model = gtk_list_store_new(4,
 				   GDK_TYPE_PIXBUF,   /* ANIMATION_MODEL_THUMBNAIL */
 				   G_TYPE_STRING,     /* ANIMATION_MODEL_PARAMS    */
-				   G_TYPE_DOUBLE);    /* ANIMATION_MODEL_DURATION  */
+				   G_TYPE_DOUBLE,     /* ANIMATION_MODEL_DURATION  */
+				   SPLINE_TYPE);      /* ANIMATION_MODEL_SPLINE    */
 }
 
 static void animation_dispose(GObject *gobject) {
@@ -137,6 +141,7 @@ void animation_clear(Animation *self) {
 static void animation_set_default_transition(Animation *self, GtkTreeIter *iter) {
   gtk_list_store_set(self->model, iter,
 		     ANIMATION_MODEL_DURATION, (gdouble) 5.0,
+		     ANIMATION_MODEL_SPLINE,   &spline_template_smooth,
 		     -1);
 }
 
@@ -179,6 +184,7 @@ void animation_load_file(Animation *self, const gchar *filename) {
   GtkTreeIter iter;
   GdkPixbufLoader *pixbuf_loader;
   gchar *tempstring;
+  Spline *spline;
 
   g_return_if_fail(f = fopen(filename, "rb"));
   g_return_if_fail(chunked_file_read_signature(f, FILE_SIGNATURE));
@@ -223,6 +229,29 @@ void animation_load_file(Animation *self, const gchar *filename) {
       g_object_unref(pixbuf_loader);
       break;
 
+    case CHUNK_DURATION:
+      /* The transition duration, as a double */
+      if (length == sizeof(gdouble)) {
+	gtk_list_store_set(self->model, &iter,
+			   ANIMATION_MODEL_DURATION, *(gdouble*)data,
+			   -1);
+      }
+      else {
+	g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+	      "Duration chunk is incorrectly sized, %d bytes instead of %d",
+	      length, sizeof(gdouble));
+      }
+      break;
+
+    case CHUNK_SPLINE:
+      /* Spline control points */
+      spline = spline_unserialize(data, length);
+      gtk_list_store_set(self->model, &iter,
+			 ANIMATION_MODEL_SPLINE, spline,
+			 -1);
+      g_boxed_free(SPLINE_TYPE, spline);
+      break;
+
     default:
       chunked_file_warn_unknown_type(type);
     }
@@ -239,8 +268,10 @@ void animation_save_file(Animation *self, const gchar *filename) {
   gboolean valid;
   gchar *params;
   GdkPixbuf *thumb_pixbuf;
-  gchar *thumb_buffer;
-  gsize thumb_buffer_len;
+  gchar *buffer;
+  gsize buffer_len;
+  gdouble duration;
+  Spline *spline;
 
   /* Start a new chunked file */
   g_return_if_fail(f = fopen(filename, "wb"));
@@ -253,6 +284,8 @@ void animation_save_file(Animation *self, const gchar *filename) {
     gtk_tree_model_get(model, &iter,
 		       ANIMATION_MODEL_PARAMS,    &params,
 		       ANIMATION_MODEL_THUMBNAIL, &thumb_pixbuf,
+		       ANIMATION_MODEL_DURATION,  &duration,
+		       ANIMATION_MODEL_SPLINE,    &spline,
 		       -1);
 
     chunked_file_write_chunk(f, CHUNK_KEYFRAME_START, 0, NULL);
@@ -263,11 +296,20 @@ void animation_save_file(Animation *self, const gchar *filename) {
     }
 
     if (thumb_pixbuf) {
-      if (gdk_pixbuf_save_to_buffer(thumb_pixbuf, &thumb_buffer, &thumb_buffer_len, "png", NULL, NULL)) {
-	chunked_file_write_chunk(f, CHUNK_THUMBNAIL, thumb_buffer_len, thumb_buffer);
-	g_free(thumb_buffer);
+      if (gdk_pixbuf_save_to_buffer(thumb_pixbuf, &buffer, &buffer_len, "png", NULL, NULL)) {
+	chunked_file_write_chunk(f, CHUNK_THUMBNAIL, buffer_len, buffer);
+	g_free(buffer);
 	gdk_pixbuf_unref(thumb_pixbuf);
       }
+    }
+
+    chunked_file_write_chunk(f, CHUNK_DURATION, sizeof(duration), (guchar*) &duration);
+
+    if (spline) {
+      buffer = spline_serialize(spline, &buffer_len);
+      chunked_file_write_chunk(f, CHUNK_SPLINE, buffer_len, buffer);
+      g_free(buffer);
+      g_boxed_free(SPLINE_TYPE, spline);
     }
 
     chunked_file_write_chunk(f, CHUNK_KEYFRAME_END, 0, NULL);
