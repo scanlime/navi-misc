@@ -25,10 +25,11 @@
 #     ALL /usr/bin/perl $CVSROOT/CVSROOT/ciabot_cvs.pl %p %{s} %n $USER project from_email dest_email ignore_regexp
 #
 # IMPORTANT: The loginfo line has been changed to bring it into compliance
-# with the new 'common format' used in CVS administrative files.
+#            with the new 'common format' used in CVS administrative files.
 #
-#            Make sure that you add the script to 'checkoutlist' and give it
-#            0755 permissions -before- committing it or adding it.
+#            Make sure that you add the script to 'checkoutlist' before
+#            committing it. You may need to change /usr/bin/perl to point to your
+#            system's perl binary.
 #
 #            Note that the last four parameters are optional, you can alternatively
 #            change the defaults below in the configuration section.
