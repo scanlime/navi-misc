@@ -106,6 +106,11 @@ void              param_spec_set_increments (GParamSpec  *pspec,
 					     gdouble      page,
 					     int          digits);
 
+const gchar*      param_spec_get_group      (GParamSpec  *pspec);
+
+const ParameterIncrements* param_spec_get_increments (GParamSpec  *pspec);
+
+
 G_END_DECLS
 
 #endif /* __PARAMETER_HOLDER_H__ */

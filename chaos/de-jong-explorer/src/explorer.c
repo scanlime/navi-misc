@@ -21,7 +21,7 @@
  */
 
 #include "explorer.h"
-#include "color-button.h"
+#include "parameter-editor.h"
 #include "math-util.h"
 
 
@@ -39,19 +39,14 @@ static gboolean limit_update_rate(GTimeVal *last_update, float max_rate);
 static gdouble generate_random_param();
 
 static gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
-static void on_param_changed(GtkWidget *widget, gpointer user_data);
 static void on_randomize(GtkWidget *widget, gpointer user_data);
 static void on_load_defaults(GtkWidget *widget, gpointer user_data);
 static void on_save(GtkWidget *widget, gpointer user_data);
 static void on_quit(GtkWidget *widget, gpointer user_data);
 static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data);
 static void on_load_from_image(GtkWidget *widget, gpointer user_data);
-static void on_resize(GtkWidget *widget, gpointer user_data);
-static void on_resize_cancel(GtkWidget *widget, gpointer user_data);
-static void on_resize_ok(GtkWidget *widget, gpointer user_data);
 static gboolean on_viewport_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
 static void on_widget_toggle(GtkWidget *widget, gpointer user_data);
-static void on_color_changed(GtkWidget *widget, gpointer user_data);
 
 
 /************************************************************************************/
@@ -92,24 +87,18 @@ static void explorer_init(Explorer *self) {
   self->xml = glade_xml_new("data/de-jong-explorer.glade", NULL, NULL);
   self->window = glade_xml_get_widget(self->xml, "explorer_window");
 
-  /* Connect signal handlers
-   */
+  /* Connect signal handlers */
   glade_xml_signal_connect_data(self->xml, "on_expose",                       G_CALLBACK(on_expose),                       self);
-  glade_xml_signal_connect_data(self->xml, "on_param_changed",                G_CALLBACK(on_param_changed),                self);
   glade_xml_signal_connect_data(self->xml, "on_randomize",                    G_CALLBACK(on_randomize),                    self);
   glade_xml_signal_connect_data(self->xml, "on_load_defaults",                G_CALLBACK(on_load_defaults),                self);
   glade_xml_signal_connect_data(self->xml, "on_save",                         G_CALLBACK(on_save),                         self);
   glade_xml_signal_connect_data(self->xml, "on_quit",                         G_CALLBACK(on_quit),                         self);
   glade_xml_signal_connect_data(self->xml, "on_pause_rendering_toggle",       G_CALLBACK(on_pause_rendering_toggle),       self);
   glade_xml_signal_connect_data(self->xml, "on_load_from_image",              G_CALLBACK(on_load_from_image),              self);
-  glade_xml_signal_connect_data(self->xml, "on_resize",                       G_CALLBACK(on_resize),                       self);
-  glade_xml_signal_connect_data(self->xml, "on_resize_cancel",                G_CALLBACK(on_resize_cancel),                self);
-  glade_xml_signal_connect_data(self->xml, "on_resize_ok",                    G_CALLBACK(on_resize_ok),                    self);
   glade_xml_signal_connect_data(self->xml, "on_viewport_expose",              G_CALLBACK(on_viewport_expose),              self);
   glade_xml_signal_connect_data(self->xml, "on_widget_toggle",                G_CALLBACK(on_widget_toggle),                self);
 
-  /* Set up the drawing area
-   */
+  /* Set up the drawing area */
   self->drawing_area = glade_xml_get_widget(self->xml, "main_drawingarea");
   gtk_widget_add_events(self->drawing_area,
 			GDK_BUTTON_PRESS_MASK |
@@ -118,24 +107,7 @@ static void explorer_init(Explorer *self) {
 			GDK_POINTER_MOTION_HINT_MASK);
   self->gc = gdk_gc_new(self->drawing_area->window);
 
-  /* Add our custom foreground button
-   */
-  self->fgcolor_button = color_button_new("Foreground Color");
-  gtk_box_pack_start(GTK_BOX(glade_xml_get_widget(self->xml, "fgcolor_box")),
-		     self->fgcolor_button, TRUE, TRUE, 0);
-  g_signal_connect(self->fgcolor_button, "changed", G_CALLBACK(on_color_changed), self);
-  gtk_widget_show_all(self->fgcolor_button);
-
-  /* Add our custom background button
-   */
-  self->bgcolor_button = color_button_new("Background Color");
-  gtk_box_pack_start(GTK_BOX(glade_xml_get_widget(self->xml, "bgcolor_box")),
-		     self->bgcolor_button, TRUE, TRUE, 0);
-  g_signal_connect(self->bgcolor_button, "changed", G_CALLBACK(on_color_changed), self);
-  gtk_widget_show_all(self->bgcolor_button);
-
-  /* Set up the statusbar
-   */
+  /* Set up the statusbar */
   self->statusbar = GTK_STATUSBAR(glade_xml_get_widget(self->xml, "statusbar"));
   self->render_status_context = gtk_statusbar_get_context_id(self->statusbar, "Rendering status");
 
@@ -159,12 +131,18 @@ static void explorer_dispose(GObject *gobject) {
 
 Explorer* explorer_new(DeJong *dejong, Animation *animation) {
   Explorer *self = EXPLORER(g_object_new(explorer_get_type(), NULL));
+  GtkWidget *editor;
 
   self->animation = ANIMATION(g_object_ref(animation));
   self->dejong = DE_JONG(g_object_ref(dejong));
 
+  /* Create the parameter editor */
+  editor = parameter_editor_new(PARAMETER_HOLDER(dejong));
+  gtk_box_pack_start(GTK_BOX(glade_xml_get_widget(self->xml, "parameter_editor_box")),
+		     editor, FALSE, FALSE, 0);
+  gtk_widget_show_all(editor);
+
   explorer_init_animation(self);
-  explorer_set_params(self);
   explorer_resize(self);
 
   self->idler = g_idle_add(explorer_idle_handler, self);
@@ -174,82 +152,6 @@ Explorer* explorer_new(DeJong *dejong, Animation *animation) {
 /************************************************************************************/
 /*********************************************************************** Parameters */
 /************************************************************************************/
-
-void explorer_set_params(Explorer *self) {
-  self->setting_params = TRUE;
-
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_a")), self->dejong->param.a);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_b")), self->dejong->param.b);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_c")), self->dejong->param.c);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_d")), self->dejong->param.d);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_zoom")), self->dejong->zoom);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_xoffset")), self->dejong->xoffset);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_yoffset")), self->dejong->yoffset);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_rotation")), self->dejong->rotation);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_blur_radius")), self->dejong->blur_radius);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_blur_ratio")), self->dejong->blur_ratio);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_exposure")), HISTOGRAM_IMAGER(self->dejong)->exposure);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_gamma")), HISTOGRAM_IMAGER(self->dejong)->gamma);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "param_clamped")), HISTOGRAM_IMAGER(self->dejong)->clamped);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "param_tileable")), self->dejong->tileable);
-  color_button_set_alpha(COLOR_BUTTON(self->fgcolor_button), HISTOGRAM_IMAGER(self->dejong)->fgalpha);
-  color_button_set_alpha(COLOR_BUTTON(self->bgcolor_button), HISTOGRAM_IMAGER(self->dejong)->bgalpha);
-  color_button_set_color(COLOR_BUTTON(self->fgcolor_button), &HISTOGRAM_IMAGER(self->dejong)->fgcolor);
-  color_button_set_color(COLOR_BUTTON(self->bgcolor_button), &HISTOGRAM_IMAGER(self->dejong)->bgcolor);
-  self->setting_params = FALSE;
-}
-
-static void explorer_get_params(Explorer *self) {
-  GdkColor fg, bg;
-
-  if (self->setting_params)
-    return;
-
-  color_button_get_color(COLOR_BUTTON(self->fgcolor_button), &fg);
-  color_button_get_color(COLOR_BUTTON(self->bgcolor_button), &bg);
-
-  g_object_set(self->dejong,
-	       "a",           (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_a"))),
-	       "b",           (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_b"))),
-	       "c",           (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_c"))),
-	       "d",           (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_d"))),
-	       "zoom",        (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_zoom"))),
-	       "xoffset",     (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_xoffset"))),
-	       "yoffset",     (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_yoffset"))),
-	       "rotation",    (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_rotation"))),
-	       "blur_radius", (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_blur_radius"))),
-	       "blur_ratio",  (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_blur_ratio"))),
-	       "exposure",    (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_exposure"))),
-	       "gamma",       (gdouble) gtk_spin_button_get_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "param_gamma"))),
-	       "clamped",     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "param_clamped"))),
-	       "tileable",    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "param_tileable"))),
-	       "fgalpha",     (guint) color_button_get_alpha(COLOR_BUTTON(self->fgcolor_button)),
-	       "bgalpha",     (guint) color_button_get_alpha(COLOR_BUTTON(self->bgcolor_button)),
-	       "fgcolor_gdk", &fg,
-	       "bgcolor_gdk", &bg,
-	       NULL);
-}
-
-static void on_param_changed(GtkWidget *widget, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-  explorer_get_params(self);
-
-  /* If we're paused, poke the idle handler manually so we at least get one frame of updates */
-  if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "pause_menu"))))
-    explorer_idle_handler(user_data);
-}
-
-static void on_color_changed(GtkWidget *widget, gpointer user_data) {
-  /* This is a dirty trick that makes color updates run much more smoothly
-   */
-  Explorer *self = EXPLORER(user_data);
-  if (self->setting_params)
-    return;
-
-  explorer_get_params(self);
-  gtk_main_iteration();
-  explorer_update_gui(self);
-}
 
 static gdouble generate_random_param() {
   return uniform_variate() * 12 - 6;
@@ -264,54 +166,11 @@ static void on_randomize(GtkWidget *widget, gpointer user_data) {
 	       "c", generate_random_param(),
 	       "d", generate_random_param(),
 	       NULL);
-  explorer_set_params(self);
 }
 
 static void on_load_defaults(GtkWidget *widget, gpointer user_data) {
   Explorer *self = EXPLORER(user_data);
   parameter_holder_reset_to_defaults(PARAMETER_HOLDER(self->dejong));
-  explorer_set_params(self);
-}
-
-static void on_resize(GtkWidget *widget, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_width")), HISTOGRAM_IMAGER(self->dejong)->width);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_height")), HISTOGRAM_IMAGER(self->dejong)->height);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_oversample")), HISTOGRAM_IMAGER(self->dejong)->oversample);
-
-  gtk_widget_grab_focus(glade_xml_get_widget(self->xml, "resize_width"));
-  gtk_widget_show(glade_xml_get_widget(self->xml, "resize_window"));
-}
-
-static void on_resize_cancel(GtkWidget *widget, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-  gtk_widget_hide(glade_xml_get_widget(self->xml, "resize_window"));
-}
-
-static void on_resize_ok(GtkWidget *widget, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-  guint new_width, new_height, new_oversample;
-  GtkSpinButton *width_widget, *height_widget, *oversample_widget;
-
-  width_widget = GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_width"));
-  height_widget = GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_height"));
-  oversample_widget = GTK_SPIN_BUTTON(glade_xml_get_widget(self->xml, "resize_oversample"));
-
-  gtk_spin_button_update(width_widget);
-  gtk_spin_button_update(height_widget);
-  gtk_spin_button_update(oversample_widget);
-
-  new_width = gtk_spin_button_get_value(width_widget);
-  new_height = gtk_spin_button_get_value(height_widget);
-  new_oversample = gtk_spin_button_get_value(oversample_widget);
-  gtk_widget_hide(glade_xml_get_widget(self->xml, "resize_window"));
-
-  g_object_set(self->dejong,
-	       "width", new_width,
-	       "height", new_height,
-	       "oversample", new_oversample,
-	       NULL);
-  explorer_resize(self);
 }
 
 
@@ -351,7 +210,6 @@ static void on_load_from_image(GtkWidget *widget, gpointer user_data) {
     const gchar *filename;
     filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
     histogram_imager_load_image_file(HISTOGRAM_IMAGER(self->dejong), filename);
-    explorer_set_params(self);
     explorer_resize(self);
   }
   gtk_widget_destroy(dialog);

@@ -104,7 +104,6 @@ void explorer_update_animation(Explorer *self);
 
 void explorer_run_iterations(Explorer *self);
 void explorer_update_gui(Explorer *self);
-void explorer_set_params(Explorer *self);
 
 
 G_END_DECLS

@@ -21,7 +21,8 @@ OBJS    = \
 	src/parameter-holder.o	\
 	src/bifurcation-diagram.o \
 	src/math-util.o		\
-	src/avi-writer.o
+	src/avi-writer.o	\
+	src/parameter-editor.o
 
 
 $(BIN): $(OBJS)
