@@ -46,7 +46,7 @@ initialize_preferences_dialog ()
 	initialize_file_transfers_page ();
 	initialize_preferences_servers_page ();
 	initialize_preferences_colors_page ();
-	initialize_preferences_keybindings_page ();
+/*	initialize_preferences_keybindings_page ();*/
 	initialize_preferences_plugins_page ();
 
 	close_button = glade_xml_get_widget (gui.xml, "close preferences");
@@ -98,7 +98,7 @@ initialize_pages_list ()
 	gtk_list_store_append (store, &iter);
 	gtk_list_store_set (store, &iter, 0, pix_prefs_plugins, 1, "Scripts and Plugins", 2, 4, -1);
 	gtk_list_store_append (store, &iter);
-	gtk_list_store_set (store, &iter, 0, pix_prefs_keybindings, 1, "Keyboard Shortcuts", 2, 5, -1);
+/*	gtk_list_store_set (store, &iter, 0, pix_prefs_keybindings, 1, "Keyboard Shortcuts", 2, 5, -1);*/
 }
 
 void initialize_file_transfers_page() {
