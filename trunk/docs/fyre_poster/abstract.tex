@@ -83,19 +83,19 @@ full precision. By clamping each color component as late as possible in the
 rendering process, the color can provide a visual hint at the higher
 dynamic range of the image.
 
-A histogram of infinitely small points can not be antialiased, but aliasing
-artifacts can be reduced by oversampling- using multiple histogram buckets
-per pixel.
+A histogram of infinitely small points can not be antialiased using standard
+frequency filtering techniques, but aliasing artifacts can be reduced by
+oversampling- using multiple histogram buckets per pixel.
 
 \section{Conclusion}
 Treating histograms as high-dynamic-range images creates the opportunity to
-convey far more information in a single image than traditional techniques.
+convey far more information in a single image than conventional techniques.
 Simple greyscale images containing only a few thousand points can only begin
 to hint at the true complexity of systems such as chaotic maps. This technique
 is applicable to any large, geometrically constrained data set that can be
 represented as a density field. It has shown to work particularly well in
 the visualization of chaotic attractors and bifurcation diagrams of chaotic
-systems due to the layers of order within chaotic areas.
+systems.
 
 The possibility of interactivity enables this technique to be used not only
 for data visualization but as an artists tool. In particular, the ability
