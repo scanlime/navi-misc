@@ -324,6 +324,11 @@ set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, 
 	return FALSE;
 }
 
+gint filename_test (gconstpointer a, gconstpointer b)
+{
+	return strcmp ((char*)a, (char*)b);
+}
+
 static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
 		GtkTreeIter iter)
 {
@@ -331,6 +336,7 @@ static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
 	GError *err = NULL;
 
 	if (loaded) {
+		GSList *removed_plugin;
 		buf = malloc (strlen (filename) + 10);
 		if (strchr (filename, ' '))
 			sprintf (buf, "UNLOAD \"%s\"", filename);
@@ -340,7 +346,11 @@ static void load_unload (char *filename, gboolean loaded, GtkTreeModel *model,
 		/* FIXME: Bad to assume that the plugin was successfully unloaded. */
 		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 4, FALSE, -1);
 
-		enabled_plugins = g_slist_remove (enabled_plugins, (gconstpointer)filename);
+		//enabled_plugins = g_slist_remove (enabled_plugins, filename);
+		if ((removed_plugin = g_slist_find_custom (enabled_plugins, filename, &filename_test)) != NULL) {
+			enabled_plugins = g_slist_delete_link (enabled_plugins, removed_plugin);
+		}
+
 	} else {
 		buf = malloc (strlen (filename) + 9);
 		if (strchr (filename, ' '))
