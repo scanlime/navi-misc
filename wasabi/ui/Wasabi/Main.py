@@ -25,7 +25,7 @@ hardware components, then uses Sequencer to start the menu.
 import os, pygame
 from BZEngine.UI import Viewport, ThreeDRender, ThreeDControl, Sequencer, Input
 from BZEngine import Event
-from Wasabi import Hardware, Logos, Menu, IR, Icon
+from Wasabi import Hardware, Logos, Menu, IR, Icon, VideoSwitch
 
 
 class Main:
@@ -96,9 +96,15 @@ class MainMenu(Menu.RingMenu):
     def __init__(self, book, hardware):
         self.hardware = hardware
 
-        # For now this just shows all icons we have.
-        # Construct a list of Menu.Item instances for each loaded icon.
-        menuItems = [Menu.Item(Icon.load(name)) for name in Icon.getIconDict().keys()]
+        # Add items that always appear on the menu
+        menuItems = [
+            Menu.Item(Icon.load('navi')),
+            ]
+
+        # Add items for video devices that are already active
+        for channel in self.hardware.uvswitch.activeChannels:
+            menuItems.append(Menu.Item(VideoSwitch.getInputDict()[channel]))
+
         Menu.RingMenu.__init__(self, book, menuItems)
 
     def onSelected(self, item):
