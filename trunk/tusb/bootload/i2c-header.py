@@ -62,7 +62,7 @@ device = BootDevice("TUSB3210")[
 """
 #
 # TUSB3410 Utilities
-# Copyright (C) 2004 Micah Dowty <micah@navi.cx>
+# Copyright (C) 2004-2005 Micah Dowty <micah@navi.cx>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
