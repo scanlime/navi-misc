@@ -12,7 +12,6 @@
 from __future__ import division
 import gtk, rtgraph, threading, pyrcpod, time
 
-
 class AdcChannel(rtgraph.Channel):
     def strValue(self):
         """Represent this channel's value as a voltage"""
@@ -34,11 +33,6 @@ class AnalogUpdaterThread(threading.Thread):
             for i in xrange(len(readings)):
                 self.channels[i].value = readings[i]
 
-            # Very tiny delay, just so the scheduler doesn't
-            # let this thread hog all the CPU.
-            time.sleep(0.0001)
-
-
 def main():
     channels = [AdcChannel(name="Analog channel %d" % i) for i in xrange(8)]
     graph = rtgraph.HScrollLineGraph(range=(0.0, 255.0))
@@ -51,7 +45,6 @@ def main():
         gtk.main()
     finally:
         analogThread.running = False
-
 
 if __name__ == "__main__":
     main()

@@ -15,13 +15,11 @@
 from __future__ import division
 import gtk, rtgraph, threading, pyrcpod, time
 
-
 class AdcChannel(rtgraph.Channel):
     def strValue(self):
         """Represent this channel's value as a voltage"""
         if self.value is not None:
             return "%.02f V" % self.value
-
 
 class AnalogUpdaterThread(threading.Thread):
     def __init__(self, channels):
@@ -47,11 +45,6 @@ class AnalogUpdaterThread(threading.Thread):
                     self.channels.append(c)
                 c.value = value
 
-            # Very tiny delay, just so the scheduler doesn't
-            # let this thread hog all the CPU.
-            time.sleep(0.0001)
-
-
 def main():
     channels = []
     analogThread = AnalogUpdaterThread(channels)
@@ -69,7 +62,6 @@ def main():
         gtk.main()
     finally:
         analogThread.running = False
-
 
 if __name__ == "__main__":
     main()
