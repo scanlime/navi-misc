@@ -148,9 +148,21 @@ class System(Template.Section):
             return ["This system has been up for ",
                     Template.value[ TimeUtil.formatDuration(seconds) ]]
 
+    def render_load(self, context):
+        # Also only works on linux now
+        try:
+            load = map(float, open("/proc/loadavg").read().split()[:3])
+        except:
+            return "Load average unknown"
+        else:
+            return ["Load average: ",
+                    Template.value[ load[0] ],
+                    " ", load[1], " ", load[2]]
+
     rows = [
-               [ place('pyInfo') ],
-               [ place('sysUptime') ],
+               place('pyInfo'),
+               place('sysUptime'),
+               place('load'),
            ]
 
 
