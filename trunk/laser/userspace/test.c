@@ -77,26 +77,24 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  control_write(d, LASER_CTRL_SET_TIMEBASE, 55000, 0);
+  control_write(d, LASER_CTRL_SET_TIMEBASE, 65000, 0);
 
   while (1) {
-    int l = 1;
-    for (theta=0; theta < M_PI; theta += 0.2) {
-      const float r = 0.2;
-      const int s = 2;
+    const float r = 0.01;
+    const int steps = 8;
+    const int stepsize = 15;
 
-      line(d, -r, -r,  r, -r, s, 10, 1);
-      line(d,  r, -r,  r, -r, 1, 1, 0);
+    line(d, -r, -r,  r, -r, steps, stepsize, 1);
+    line(d,  r, -r,  r, -r, 1, 1, 0);
 
-      line(d,  r, -r,  r,  r, s, 10, 1);
-      line(d,  r,  r,  r,  r, 1, 1, 0);
+    line(d,  r, -r,  r,  r, steps, stepsize, 1);
+    line(d,  r,  r,  r,  r, 1, 1, 0);
 
-      line(d,  r,  r, -r,  r, s, 10, 1);
-      line(d, -r,  r, -r,  r, 1, 1, 0);
+    line(d,  r,  r, -r,  r, steps, stepsize, 1);
+    line(d, -r,  r, -r,  r, 1, 1, 0);
 
-      line(d, -r,  r, -r, -r, s, 10, 1);
-      line(d, -r, -r, -r, -r, 1, 1, 0);
-    }
+    line(d, -r,  r, -r, -r, steps, stepsize, 1);
+    line(d, -r, -r, -r, -r, 1, 1, 0);
   }
 
   return 0;
