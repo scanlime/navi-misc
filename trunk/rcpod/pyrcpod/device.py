@@ -118,7 +118,11 @@ class OpenedRcpod:
         availableDevice.opened = True
 
     def __repr__(self):
-        return "<OpenedRcpod model %s, serial %s>" % (self.model, self.serial)
+        if self.serial:
+            s = " serial %s" % self.serial
+        else:
+            s = ''
+        return "<OpenedRcpod model %s%s>" % (self.model, s)
 
     def close(self):
         """Terminate our connection to the rcpod. No attributes
@@ -445,10 +449,13 @@ class AvailableDevice:
         self.filename = "%s/%s" % (usbdev_getDirname(usbdev), usbdev_getFilename(usbdev))
 
     def __del__(self):
-        pyrcpod_deleteDevice(self.usbdev)
+        try:
+            pyrcpod_deleteDevice(self.usbdev)
+        except TypeError, AttributeError:
+            pass
 
     def __repr__(self):
-        return "<pyrcpod.AvailableDevice version %s at %r>" % (self.version, self.filename)
+        return "<pyrcpod.AvailableDevice version %s at %s>" % (self.version, self.filename)
 
     def __cmp__(self, other):
         return cmp(self.filename, other.filename)
