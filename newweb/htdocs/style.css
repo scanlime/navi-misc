@@ -32,10 +32,13 @@ a:hover {
 
 ul {
   line-height: 1.5em;
-  list-style-image: url(bullet.png);
   margin-left: 2.0em;
   padding: 0em;
   margin: 0em 0em 0em 1.5em;
+}
+
+ul.catalog {
+  list-style-image: url(/images/bullet.png);
 }
 
 div.headingTabs {
@@ -70,7 +73,7 @@ div.heading {
   margin: 0em 0em 2.0em 0em;
 }
 
-.majorTitle {
+div.majorTitle {
   text-align: center;
   font: 30pt sans-serif;
   margin: 0em;
@@ -121,6 +124,18 @@ div.row {
   padding: 0.5em;
 }
 
+div.terminalBox {
+  font-family: monospace;
+  background: Black;
+  color: #dbdbdb;
+  padding: 1em;
+}
+
+div.monoBox {
+  font-family: monospace;
+  padding: 1em;
+}
+
 table {
   margin: 0em 0em 1em 0em;
   font: 9pt Verdana, Helvetical, Arial, sans-serif;
@@ -163,3 +178,48 @@ table.columns td.right {
   margin: 0em;
   padding: 0em 1.5em 0em 0em;
 }
+
+span.bargraph {
+  background: #DEECE7;
+  border: 1px solid #8CBBAC;
+}
+
+.fgColor-black       { color: #000000; }
+.fgColor-dark-blue   { color: #0000cc; }
+.fgColor-dark-green  { color: #00cc00; }
+.fgColor-green       { color: #00cc00; }
+.fgColor-red         { color: #cc0000; }
+.fgColor-brown       { color: #aa0000; }
+.fgColor-purple      { color: #bb00bb; }
+.fgColor-orange      { color: #ffaa00; }
+.fgColor-yellow      { color: #eedd22; }
+.fgColor-light-green { color: #33d355; }
+.fgColor-aqua        { color: #00cccc; }
+.fgColor-light-blue  { color: #33eeff; }
+.fgColor-blue        { color: #0000ff; }
+.fgColor-violet      { color: #ee22ee; }
+.fgColor-grey        { color: #777777; }
+.fgColor-gray        { color: #777777; }
+.fgColor-light-grey  { color: #999999; }
+.fgColor-light-gray  { color: #999999; }
+.fgColor-white       { color: #FFFFFF; }
+
+.bgColor-black       { background: #000000; }
+.bgColor-dark-blue   { background: #0000cc; }
+.bgColor-dark-green  { background: #00cc00; }
+.bgColor-green       { background: #00cc00; }
+.bgColor-red         { background: #cc0000; }
+.bgColor-brown       { background: #aa0000; }
+.bgColor-purple      { background: #bb00bb; }
+.bgColor-orange      { background: #ffaa00; }
+.bgColor-yellow      { background: #eedd22; }
+.bgColor-light-green { background: #33d355; }
+.bgColor-aqua        { background: #00cccc; }
+.bgColor-light-blue  { background: #33eeff; }
+.bgColor-blue        { background: #0000ff; }
+.bgColor-violet      { background: #ee22ee; }
+.bgColor-grey        { background: #777777; }
+.bgColor-gray        { background: #777777; }
+.bgColor-light-grey  { background: #999999; }
+.bgColor-light-gray  { background: #999999; }
+.bgColor-white       { background: #FFFFFF; }
