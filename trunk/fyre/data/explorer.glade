@@ -416,18 +416,18 @@
 	  <property name="spacing">0</property>
 
 	  <child>
-	    <widget class="GtkHandleBox" id="parameters_panel">
+	    <widget class="GtkScrolledWindow" id="parameters_panel">
 	      <property name="visible">True</property>
-	      <property name="shadow_type">GTK_SHADOW_OUT</property>
-	      <property name="handle_position">GTK_POS_TOP</property>
-	      <property name="snap_edge">GTK_POS_TOP</property>
+	      <property name="can_focus">True</property>
+	      <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
+	      <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+	      <property name="shadow_type">GTK_SHADOW_NONE</property>
+	      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	      <child>
-		<widget class="GtkToolbar" id="toolbar1">
+		<widget class="GtkViewport" id="viewport1">
 		  <property name="visible">True</property>
-		  <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
-		  <property name="toolbar_style">GTK_TOOLBAR_BOTH</property>
-		  <property name="tooltips">True</property>
+		  <property name="shadow_type">GTK_SHADOW_NONE</property>
 
 		  <child>
 		    <widget class="GtkVBox" id="parameter_editor_box">
