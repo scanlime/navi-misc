@@ -28,13 +28,15 @@ public:
 	virtual ~CBaseDrawable(){return;}
 
 	virtual void Set ( CBaseObject* pParent ) = 0;
+	void Set ( CBaseGameLoop *pGameLoop ){gameLoop = pGameLoop;}
 
 	// name stuff
 	void SetName ( const char* name ){className = name;}
 	const char* GetName ( void ){return className.c_str();}
 protected:
-	CBaseObject*	parent;
-	std::string		className;
+	CBaseGameLoop		*gameLoop;
+	CBaseObject			*parent;
+	std::string			className;
 };
 
 class CBaseDrawableFactory

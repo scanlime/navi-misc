@@ -62,6 +62,7 @@ int CDrawManager::New ( const char* name, CBaseObject* parent )
 	lastID++;
 
 	object->SetName(name);
+	object->Set(gameLoop);
 	drawables[lastID] = object;
 
 	return lastID;
