@@ -215,6 +215,12 @@ ctof (float c)
 	return ((c * 9.0f / 5.0f) + 32.0f);
 }
 
+static float
+cmtoin (float cm)
+{
+	return cm / 2.54f;
+}
+
 static ECalComponent*
 create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 {
@@ -229,19 +235,24 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	char *pop, *snow;
 	ESource *source;
 	gboolean fahrenheit;
+	gboolean inches;
 	const char *format;
 
 	g_return_val_if_fail (E_IS_CAL_BACKEND_WEATHER (cbw), NULL);
 
 	source = e_cal_backend_get_source (E_CAL_BACKEND (cbw));
-	format = e_source_get_property (source, "units");
+	format = e_source_get_property (source, "temperature");
 	if (format == NULL) {
 		fahrenheit = FALSE;
 	} else {
 		fahrenheit = (strcmp (format, "fahrenheit") == 0);
 	}
-	g_print ("ESource is 0x%x\n", source);
-	g_print ("creating weather entry, fahrenheit is %d\n", fahrenheit);
+	format = e_source_get_property (source, "snowfall");
+	if (format == NULL) {
+		inches = FALSE;
+	} else {
+		inches = (strcmp (format, "inches") == 0);
+	}
 
 	/* create the component and event object */
 	ical_comp = icalcomponent_new (ICAL_VEVENT_COMPONENT);
@@ -270,30 +281,37 @@ create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 	if (report->high == report->low)
 	{
 		if (fahrenheit)
-			comp_summary.value = g_strdup_printf ("%.1f°F", ctof (report->high));
+			comp_summary.value = g_strdup_printf (_("%.1f°F"), ctof (report->high));
 		else
-			comp_summary.value = g_strdup_printf ("%.1f°C", report->high);
+			comp_summary.value = g_strdup_printf (_("%.1f°C"), report->high);
 	}
 	else
 	{
 		if (fahrenheit)
-			comp_summary.value = g_strdup_printf ("%.1f/%.1f°F", ctof (report->high), ctof (report->low));
+			comp_summary.value = g_strdup_printf (_("%.1f/%.1f°F"), ctof (report->high), ctof (report->low));
 		else
-			comp_summary.value = g_strdup_printf ("%.1f/%.1f°C", report->high, report->low);
+			comp_summary.value = g_strdup_printf (_("%.1f/%.1f°C"), report->high, report->low);
 	}
 	comp_summary.altrep = NULL;
 	e_cal_component_set_summary (cal_comp, &comp_summary);
 
 	if (report->pop != 0)
-		pop = g_strdup_printf ("%d%% chance of precipitation\n", report->pop);
+		pop = g_strdup_printf (_("%d%% chance of precipitation\n"), report->pop);
 	else
 		pop = "";
 	if (report->snowhigh == 0)
 		snow = "";
-	else if (report->snowhigh == report->snowlow)
-		snow = g_strdup_printf ("%d\" snowfall\n", (int) report->snowhigh);
-	else
-		snow = g_strdup_printf ("%d-%d\" snowfall\n", (int) report->snowlow, (int) report->snowhigh);
+	else if (report->snowhigh == report->snowlow) {
+		if (inches)
+			snow = g_strdup_printf (_("%.1fin snow\n"), cmtoin(report->snowhigh));
+		else
+			snow = g_strdup_printf (_("%.1fcm snow\n"), report->snowhigh);
+	} else {
+		if (inches)
+			snow = g_strdup_printf (_("%.1f-%.1fin snow\n"), cmtoin(report->snowlow), cmtoin(report->snowhigh));
+		else
+			snow = g_strdup_printf (_("%.1f-%.1fcm snow\n"), report->snowlow, report->snowhigh);
+	}
 	description = g_new0 (ECalComponentText, 1);
 	description->value = g_strdup_printf ("%s\n%s%s", getConditions (report), pop, snow);
 	description->altrep = "";
