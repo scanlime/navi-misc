@@ -3,14 +3,14 @@
 
 OUTPUTDIR := ./build/bin
 
-all: depcheck __init Makefile.pipeline-editor.all Makefile.basic.all 
+all: depcheck __init Makefile.pipeline-editor.all Makefile.basic.all Makefile.histogram-imager.all 
 
 __init:
 	mkdir -p $(OUTPUTDIR)
 
-clean: Makefile.pipeline-editor.clean Makefile.basic.clean 
+clean: Makefile.pipeline-editor.clean Makefile.basic.clean Makefile.histogram-imager.clean 
 
-depcheck: Makefile.pipeline-editor.depcheck Makefile.basic.depcheck 
+depcheck: Makefile.pipeline-editor.depcheck Makefile.basic.depcheck Makefile.histogram-imager.depcheck 
 
 run: all
 	cd $(OUTPUTDIR) && mono pipeline-editor.exe
@@ -20,4 +20,7 @@ Makefile.pipeline-editor.%:
 
 Makefile.basic.%:
 	@cd ./plugins/basic && $(MAKE) -f $(subst .$*,,$@) $*
+
+Makefile.histogram-imager.%:
+	@cd ./plugins/histogram-imager && $(MAKE) -f $(subst .$*,,$@) $*
 
