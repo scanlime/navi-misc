@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Put the display on all workspaces, always below everything else. -->
+<display id="window" anchor="ne"
+	window-flags="sticky, below">
+
+</display>
