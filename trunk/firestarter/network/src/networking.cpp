@@ -1194,6 +1194,8 @@ void CNetworkServer::ProcessMessages ( void )
 				{	
 					if (info->messageProcessor)
 						info->messageProcessor->OnDisconnect(itr->second);
+
+					info->peerMap.erase(itr);
 				}
 
 				CNetworkPeer peer;
@@ -1220,6 +1222,13 @@ void CNetworkServer::ProcessMessages ( void )
 			case ENET_EVENT_TYPE_DISCONNECT:
 				if (info->messageProcessor)
 					info->messageProcessor->OnDisconnect(info->peerMap[event.peer]);
+
+				// remove us from the peer map
+				tvPeerMap::iterator itr = info->peerMap.find(event.peer);
+
+				if (itr != info->peerMap.end())
+					info->peerMap.erase(itr);
+
 			break;
 		}
 	}
