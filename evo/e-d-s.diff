@@ -8,7 +8,6 @@
 ? addressbook/libedata-book/libedata-book.pc
 ? calendar/backends/weather
 ? calendar/backends/http/.e-cal-backend-http.c.swp
-? calendar/libecal/.e-cal-component.c.swp
 ? calendar/libecal/.e-cal.c.swp
 ? calendar/libecal/libecal-1.2.pc
 ? calendar/libecal/libecal-1.2.pc.in
@@ -16,7 +15,6 @@
 ? calendar/libedata-cal/libedata-cal-1.2.pc
 ? calendar/libedata-cal/libedata-cal-1.2.pc.in
 ? calendar/libedata-cal/libedata-cal.pc
-? calendar/libical/src/libical/.icalcomponent.c.swp
 ? calendar/libical/src/libical/.icalenums.h.swp
 ? calendar/libical/src/libicalss/icalssyacc.output
 ? libedataserver/libedataserver-1.2.pc
@@ -31,7 +29,7 @@ RCS file: /cvs/gnome/evolution-data-server/configure.in,v
 retrieving revision 1.69
 diff -u -r1.69 configure.in
 --- configure.in	23 Sep 2004 16:45:27 -0000	1.69
-+++ configure.in	25 Sep 2004 07:14:07 -0000
++++ configure.in	25 Sep 2004 09:12:59 -0000
 @@ -312,6 +312,7 @@
  calendar/backends/groupwise/Makefile
  calendar/backends/http/Makefile
@@ -46,7 +44,7 @@ RCS file: /cvs/gnome/evolution-data-server/calendar/backends/Makefile.am,v
 retrieving revision 1.3
 diff -u -r1.3 Makefile.am
 --- calendar/backends/Makefile.am	9 Jan 2004 20:05:27 -0000	1.3
-+++ calendar/backends/Makefile.am	25 Sep 2004 07:14:08 -0000
++++ calendar/backends/Makefile.am	25 Sep 2004 09:12:59 -0000
 @@ -1 +1 @@
 -SUBDIRS = file groupwise http contacts
 +SUBDIRS = file groupwise http contacts weather
@@ -56,7 +54,7 @@ RCS file: /cvs/gnome/evolution-data-server/calendar/libecal/e-cal-component.c,v
 retrieving revision 1.10
 diff -u -r1.10 e-cal-component.c
 --- calendar/libecal/e-cal-component.c	23 Sep 2004 21:06:46 -0000	1.10
-+++ calendar/libecal/e-cal-component.c	25 Sep 2004 07:14:10 -0000
++++ calendar/libecal/e-cal-component.c	25 Sep 2004 09:13:00 -0000
 @@ -1067,7 +1067,8 @@
  	      || kind == ICAL_VTODO_COMPONENT
  	      || kind == ICAL_VJOURNAL_COMPONENT
@@ -67,23 +65,23 @@ diff -u -r1.10 e-cal-component.c
  		return FALSE;
  
  	priv->icalcomp = icalcomp;
-@@ -1169,6 +1170,9 @@
- 
+@@ -1170,6 +1171,9 @@
  	case ICAL_VTIMEZONE_COMPONENT:
  		return E_CAL_COMPONENT_TIMEZONE;
-+
+ 
 +	case ICAL_XWEATHER_COMPONENT:
 +		return E_CAL_COMPONENT_XWEATHER;
- 
++
  	default:
  		/* We should have been loaded with a supported type! */
+ 		g_assert_not_reached ();
 Index: calendar/libecal/e-cal-component.h
 ===================================================================
 RCS file: /cvs/gnome/evolution-data-server/calendar/libecal/e-cal-component.h,v
 retrieving revision 1.5
 diff -u -r1.5 e-cal-component.h
 --- calendar/libecal/e-cal-component.h	23 Sep 2004 21:06:46 -0000	1.5
-+++ calendar/libecal/e-cal-component.h	25 Sep 2004 07:14:11 -0000
++++ calendar/libecal/e-cal-component.h	25 Sep 2004 09:13:00 -0000
 @@ -48,7 +48,8 @@
  	E_CAL_COMPONENT_TODO,
  	E_CAL_COMPONENT_JOURNAL,
@@ -100,29 +98,17 @@ RCS file: /cvs/gnome/evolution-data-server/calendar/libecal/e-cal.c,v
 retrieving revision 1.75
 diff -u -r1.75 e-cal.c
 --- calendar/libecal/e-cal.c	27 Aug 2004 18:09:59 -0000	1.75
-+++ calendar/libecal/e-cal.c	25 Sep 2004 07:14:15 -0000
-@@ -207,13 +207,20 @@
- static GNOME_Evolution_Calendar_CalObjType
- convert_type (ECalSourceType type) 
- {
-+	g_print ("convert_type()\n");
- 	switch (type){
- 	case E_CAL_SOURCE_TYPE_EVENT:
-+	  	g_print ("EVENT\n");
- 		return GNOME_Evolution_Calendar_TYPE_EVENT;
- 	case E_CAL_SOURCE_TYPE_TODO:
-+	  	g_print ("TODO\n");
++++ calendar/libecal/e-cal.c	25 Sep 2004 09:13:01 -0000
+@@ -214,6 +214,8 @@
  		return GNOME_Evolution_Calendar_TYPE_TODO;
  	case E_CAL_SOURCE_TYPE_JOURNAL:
-+	  	g_print ("JOURNAL\n");
  		return GNOME_Evolution_Calendar_TYPE_JOURNAL;
 +	case E_CAL_SOURCE_TYPE_WEATHER:
-+	  	g_print ("WEATHER\n");
 +		return GNOME_Evolution_Calendar_TYPE_WEATHER;
  	default:
  		return GNOME_Evolution_Calendar_TYPE_ANY;
  	}
-@@ -1010,19 +1017,18 @@
+@@ -1010,19 +1012,18 @@
  	char *query;
  	int i;
  
@@ -144,7 +130,7 @@ diff -u -r1.75 e-cal.c
  	servers = bonobo_activation_query (query, NULL, NULL);
  
  	g_free (query);
-@@ -1030,21 +1036,21 @@
+@@ -1030,21 +1031,21 @@
  
  	if (!servers) {
  		g_warning (G_STRLOC ": Unable to query for calendar factories");
@@ -171,25 +157,7 @@ diff -u -r1.75 e-cal.c
  		if (factory == CORBA_OBJECT_NIL)
  			g_warning (G_STRLOC ": Could not activate calendar factory (%s)", info->iid);
  		else
-@@ -1307,6 +1313,7 @@
- 	source_xml = e_source_to_standalone_xml (source);
- 
- 	for (f = priv->factories; f; f = f->next) {
-+		g_print ("inner loop!\n");
- 		GNOME_Evolution_Calendar_Cal cal;
- 
- 		CORBA_exception_init (&ev);
-@@ -1322,6 +1329,9 @@
- 		break;
- 	}
- 
-+	g_print ("cal is %p\n", priv->cal);
-+	g_print ("result is %d\n", result);
-+
- 	g_free (str_uri);
- 	g_free (source_xml);
- 	return result;
-@@ -1359,9 +1369,9 @@
+@@ -1359,9 +1360,9 @@
  e_cal_new (ESource *source, ECalSourceType type)
  {
  	ECal *ecal;
@@ -201,7 +169,7 @@ diff -u -r1.75 e-cal.c
  	ecal = g_object_new (E_TYPE_CAL, NULL);
  
  	if (!fetch_corba_cal (ecal, source, type)) {
-@@ -4495,6 +4505,7 @@
+@@ -4495,6 +4496,7 @@
  {
  	switch (type) {
  	case E_CAL_SOURCE_TYPE_EVENT:
@@ -215,7 +183,7 @@ RCS file: /cvs/gnome/evolution-data-server/calendar/libecal/e-cal.h,v
 retrieving revision 1.19
 diff -u -r1.19 e-cal.h
 --- calendar/libecal/e-cal.h	2 Jun 2004 16:15:00 -0000	1.19
-+++ calendar/libecal/e-cal.h	25 Sep 2004 07:14:16 -0000
++++ calendar/libecal/e-cal.h	25 Sep 2004 09:13:01 -0000
 @@ -52,7 +52,8 @@
  	E_CAL_SOURCE_TYPE_EVENT,
  	E_CAL_SOURCE_TYPE_TODO,
@@ -232,7 +200,7 @@ RCS file: /cvs/gnome/evolution-data-server/calendar/libedata-cal/e-data-cal-fact
 retrieving revision 1.9
 diff -u -r1.9 e-data-cal-factory.c
 --- calendar/libedata-cal/e-data-cal-factory.c	2 Aug 2004 11:38:08 -0000	1.9
-+++ calendar/libedata-cal/e-data-cal-factory.c	25 Sep 2004 07:14:16 -0000
++++ calendar/libedata-cal/e-data-cal-factory.c	25 Sep 2004 09:13:02 -0000
 @@ -69,6 +69,8 @@
  		return ICAL_VTODO_COMPONENT;
  	case GNOME_Evolution_Calendar_TYPE_JOURNAL:
@@ -248,7 +216,7 @@ RCS file: /cvs/gnome/libical/src/libical/icalcomponent.c,v
 retrieving revision 1.27
 diff -u -r1.27 icalcomponent.c
 --- calendar/libical/src/libical/icalcomponent.c	21 Oct 2003 18:28:29 -0000	1.27
-+++ calendar/libical/src/libical/icalcomponent.c	25 Sep 2004 07:14:19 -0000
++++ calendar/libical/src/libical/icalcomponent.c	25 Sep 2004 09:13:03 -0000
 @@ -1254,6 +1254,7 @@
      { ICAL_XDAYLIGHT_COMPONENT, "DAYLIGHT" }, /*but are not really components*/
      { ICAL_X_COMPONENT, "X" },
@@ -263,7 +231,7 @@ RCS file: /cvs/gnome/libical/src/libical/icalenums.h,v
 retrieving revision 1.9
 diff -u -r1.9 icalenums.h
 --- calendar/libical/src/libical/icalenums.h	11 Sep 2003 22:04:19 -0000	1.9
-+++ calendar/libical/src/libical/icalenums.h	25 Sep 2004 07:14:20 -0000
++++ calendar/libical/src/libical/icalenums.h	25 Sep 2004 09:13:03 -0000
 @@ -60,8 +60,9 @@
      ICAL_VCAR_COMPONENT,
      ICAL_VCOMMAND_COMPONENT,
@@ -282,7 +250,7 @@ RCS file: /cvs/gnome/libical/src/libicalss/icalssyacc.h,v
 retrieving revision 1.12
 diff -u -r1.12 icalssyacc.h
 --- calendar/libical/src/libicalss/icalssyacc.h	28 May 2004 10:14:24 -0000	1.12
-+++ calendar/libical/src/libicalss/icalssyacc.h	25 Sep 2004 07:14:20 -0000
++++ calendar/libical/src/libicalss/icalssyacc.h	25 Sep 2004 09:13:03 -0000
 @@ -78,7 +78,7 @@
  typedef union YYSTYPE {
  	char* v_string;
@@ -298,7 +266,7 @@ RCS file: /cvs/gnome/evolution-data-server/libedataserver/Makefile.am,v
 retrieving revision 1.16
 diff -u -r1.16 Makefile.am
 --- libedataserver/Makefile.am	23 Sep 2004 16:45:29 -0000	1.16
-+++ libedataserver/Makefile.am	25 Sep 2004 07:14:38 -0000
++++ libedataserver/Makefile.am	25 Sep 2004 09:13:19 -0000
 @@ -75,4 +75,4 @@
  EXTRA_DIST = 						\
  	$(pkgconfig_DATA:-$(BASE_VERSION).pc=.pc.in)
@@ -312,7 +280,7 @@ RCS file: /cvs/gnome/evolution-data-server/servers/groupwise/Makefile.am,v
 retrieving revision 1.10
 diff -u -r1.10 Makefile.am
 --- servers/groupwise/Makefile.am	23 Sep 2004 16:45:29 -0000	1.10
-+++ servers/groupwise/Makefile.am	25 Sep 2004 07:14:39 -0000
++++ servers/groupwise/Makefile.am	25 Sep 2004 09:13:19 -0000
 @@ -58,4 +58,4 @@
  
  EXTRA_DIST = $(pkgconfig_DATA:-$(BASE_VERSION).pc=.pc.in)
@@ -326,7 +294,7 @@ RCS file: /cvs/gnome/evolution-data-server/src/GNOME_Evolution_DataServerLDAP.se
 retrieving revision 1.12
 diff -u -r1.12 GNOME_Evolution_DataServerLDAP.server.in.in
 --- src/GNOME_Evolution_DataServerLDAP.server.in.in	11 Mar 2004 10:23:24 -0000	1.12
-+++ src/GNOME_Evolution_DataServerLDAP.server.in.in	25 Sep 2004 07:14:39 -0000
++++ src/GNOME_Evolution_DataServerLDAP.server.in.in	25 Sep 2004 09:13:19 -0000
 @@ -37,6 +37,7 @@
  		<item value="webcal"/>
  		<item value="groupwise"/>
@@ -341,7 +309,7 @@ RCS file: /cvs/gnome/evolution-data-server/src/GNOME_Evolution_DataServerNOLDAP.
 retrieving revision 1.14
 diff -u -r1.14 GNOME_Evolution_DataServerNOLDAP.server.in.in
 --- src/GNOME_Evolution_DataServerNOLDAP.server.in.in	11 Mar 2004 10:23:24 -0000	1.14
-+++ src/GNOME_Evolution_DataServerNOLDAP.server.in.in	25 Sep 2004 07:14:39 -0000
++++ src/GNOME_Evolution_DataServerNOLDAP.server.in.in	25 Sep 2004 09:13:19 -0000
 @@ -36,6 +36,7 @@
  		<item value="webcal"/>
  		<item value="groupwise"/>
@@ -356,7 +324,7 @@ RCS file: /cvs/gnome/evolution-data-server/src/Makefile.am,v
 retrieving revision 1.16
 diff -u -r1.16 Makefile.am
 --- src/Makefile.am	23 Sep 2004 16:45:29 -0000	1.16
-+++ src/Makefile.am	25 Sep 2004 07:14:39 -0000
++++ src/Makefile.am	25 Sep 2004 09:13:19 -0000
 @@ -67,6 +67,7 @@
  	$(top_builddir)/calendar/backends/http/libecalbackendhttp.la		\
  	$(top_builddir)/addressbook/libebook/libebook-1.2.la			\
@@ -371,7 +339,7 @@ RCS file: /cvs/gnome/evolution-data-server/src/server.c,v
 retrieving revision 1.20
 diff -u -r1.20 server.c
 --- src/server.c	2 Aug 2004 18:26:18 -0000	1.20
-+++ src/server.c	25 Sep 2004 07:14:39 -0000
++++ src/server.c	25 Sep 2004 09:13:19 -0000
 @@ -56,6 +56,7 @@
  #include <backends/groupwise/e-cal-backend-groupwise.h>
  #include <backends/http/e-cal-backend-http.h>
