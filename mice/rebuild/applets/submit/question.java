@@ -79,7 +79,7 @@ public class question extends java.applet.Applet implements ActionListener
 		ques.setText("");
 		position.setText("");
 
-		if(!openConnection("ion.picogui.org",8080))
+		if(!openConnection("studentactivities.mscd.edu",8080))
 		{
 			name.setText("connection failure");
 			submit.removeActionListener(this);

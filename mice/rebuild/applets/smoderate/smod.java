@@ -70,7 +70,7 @@ public class smod extends java.applet.Applet implements ActionListener
 		int i, j;
 		String mykey;
 		/* Authenticate the client. */
-		if(!net.openConnection("ion.picogui.org",8080)) return;
+		if(!net.openConnection("studentactivities.mscd.edu",8080)) return;
 		net.write("jmod");
 		mykey = net.read();
 		net.write(key.encrypt(mykey,uname.getText()));
