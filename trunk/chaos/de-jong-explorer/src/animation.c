@@ -152,6 +152,7 @@ void animation_load_file(Animation *self, const gchar *filename) {
   guchar* data;
   GtkTreeIter iter;
   GdkPixbufLoader *pixbuf_loader;
+  gchar *tempstring;
 
   g_return_if_fail(f = fopen(filename, "rb"));
   g_return_if_fail(chunked_file_read_signature(f, FILE_SIGNATURE));
@@ -171,10 +172,17 @@ void animation_load_file(Animation *self, const gchar *filename) {
       break;
 
     case CHUNK_DE_JONG_PARAMS:
-      /* Set the de Jong parameters for this keyframe */
+      /* Set the de Jong parameters for this keyframe. Note that the
+       * data in the file is not null terminated, hence the need to
+       * copy it into a string we can null-terminate.
+       */
+      tempstring = g_malloc(length+1);
+      tempstring[length] = '\0';
+      memcpy(tempstring, data, length);
       gtk_list_store_set(self->model, &iter,
-			 ANIMATION_MODEL_PARAMS, data,
+			 ANIMATION_MODEL_PARAMS, tempstring,
 			 -1);
+      g_free(tempstring);
       break;
 
     case CHUNK_THUMBNAIL:
