@@ -53,6 +53,8 @@ enum {
   PROP_BLUR_RADIUS,
   PROP_BLUR_RATIO,
   PROP_TILEABLE,
+  PROP_EMPHASIZE_TRANSIENT,
+  PROP_TRANSIENT_ITERATIONS,
 };
 
 static void tool_grab(ParameterHolder *self, ToolInput *i);
@@ -135,7 +137,7 @@ static void de_jong_class_init(DeJongClass *klass) {
 }
 
 static void de_jong_init_calc_params(GObjectClass *object_class) {
-  GParamSpec *spec;
+  GParamSpec *spec, *emphasize_transient;
   const gchar *current_group = "Computation";
 
   spec = g_param_spec_string       ("function",
@@ -253,6 +255,27 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 				    PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
   g_object_class_install_property  (object_class, PROP_TILEABLE, spec);
+
+  spec = g_param_spec_boolean      ("emphasize_transient",
+				    "Emphasize transient",
+				    "Re-randomize the point periodically to emphasize transients",
+				    FALSE,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  g_object_class_install_property  (object_class, PROP_EMPHASIZE_TRANSIENT, spec);
+  emphasize_transient = spec;
+
+  spec = g_param_spec_uint         ("transient_iterations",
+				    "Transient iterations",
+				    "Number of iterations between re-randomization, when 'Emphasize transient' is enabled",
+				    1, 100000, 100,
+				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
+				    PARAM_INTERPOLATE | PARAM_IN_GUI);
+  param_spec_set_group             (spec, current_group);
+  param_spec_set_increments        (spec, 1, 10, 0);
+  param_spec_set_dependency        (spec, emphasize_transient);
+  g_object_class_install_property  (object_class, PROP_TRANSIENT_ITERATIONS, spec);
 }
 
 static void de_jong_init(DeJong *self) {
@@ -276,6 +299,13 @@ static void update_double_if_necessary(double new_value, gboolean *dirty_flag, d
 }
 
 static void update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param) {
+  if (new_value != *param) {
+    *param = new_value;
+    *dirty_flag = TRUE;
+  }
+}
+
+static void update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param) {
   if (new_value != *param) {
     *param = new_value;
     *dirty_flag = TRUE;
@@ -329,6 +359,14 @@ static void de_jong_set_property (GObject *object, guint prop_id, const GValue *
 
   case PROP_TILEABLE:
     update_boolean_if_necessary(g_value_get_boolean(value), &self->calc_dirty_flag, &self->tileable);
+    break;
+
+  case PROP_EMPHASIZE_TRANSIENT:
+    update_boolean_if_necessary(g_value_get_boolean(value), &self->calc_dirty_flag, &self->emphasize_transient);
+    break;
+
+  case PROP_TRANSIENT_ITERATIONS:
+    update_uint_if_necessary(g_value_get_uint(value), &self->calc_dirty_flag, &self->transient_iterations);
     break;
 
   default:
@@ -386,6 +424,14 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
     g_value_set_boolean(value, self->tileable);
     break;
 
+  case PROP_EMPHASIZE_TRANSIENT:
+    g_value_set_boolean(value, self->emphasize_transient);
+    break;
+
+  case PROP_TRANSIENT_ITERATIONS:
+    g_value_set_uint(value, self->transient_iterations);
+    break;
+
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     break;
@@ -410,6 +456,7 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
   /* Toggles to disable features that aren't needed */
   const gboolean rotation_enabled = self->rotation > 0.0001 || self->rotation < -0.0001;
   const gboolean blur_enabled = self->blur_ratio > 0.0001 && self->blur_radius > 0.00001;
+  const gboolean emphasize_transient = self->emphasize_transient;
 
   /* Blurring variables */
   int blur_table_size;
@@ -424,6 +471,7 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
   double x, y, point_x, point_y;
   double scale, xcenter, ycenter;
   int i, ix, iy;
+  guint remaining_transient_iterations;
 
   /* Reset calculation if we need to */
   if (self->calc_dirty_flag || HISTOGRAM_IMAGER(self)->histogram_clear_flag)
@@ -469,8 +517,26 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
 
   point_x = self->point_x;
   point_y = self->point_y;
+  remaining_transient_iterations = self->remaining_transient_iterations;
 
   for(i=iterations; i; --i) {
+
+    /* If transient emphasis is enabled, we periodically re-randomize
+     * the point. When remaining_transient_iterations hits zero, we
+     * re-randomize and set it back to the transient iteration count
+     * set by the user.
+     */
+    if (emphasize_transient) {
+      if (remaining_transient_iterations) {
+	remaining_transient_iterations--;
+      }
+      else {
+	remaining_transient_iterations = self->transient_iterations;
+	point_x = uniform_variate();
+	point_y = uniform_variate();
+      }
+    }
+
     /* These are the actual Peter de Jong map equations. The new point value
      * gets stored into 'point', then we go on and mess with x and y before plotting.
      */
@@ -544,6 +610,7 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
   ITERATIVE_MAP(self)->iterations += iterations;
   self->point_x = point_x;
   self->point_y = point_y;
+  self->remaining_transient_iterations = remaining_transient_iterations;
 }
 
 void de_jong_calculate_motion(IterativeMap         *self,
@@ -574,6 +641,7 @@ static void de_jong_reset_calc(DeJong *self) {
   /* Reset the histogram and calculation state */
   histogram_imager_clear(HISTOGRAM_IMAGER(self));
   ITERATIVE_MAP(self)->iterations = 0;
+  self->remaining_transient_iterations = 0;
 
   /* Random starting point */
   self->point_x = uniform_variate();
