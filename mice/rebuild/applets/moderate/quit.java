@@ -15,12 +15,16 @@ import java.io.*;
 
 public class quit implements ActionListener
 {
+	private TextArea quest;
 	/**
 	 * This constructs the quit object handler
 	 * @author Brandon Smith
 	 * @version 2.0
 	 */
-	public quit(){}
+	public quit(TextArea questio)
+	{
+		quest = questio;
+	}
 	
 	/**
 	 * This just sends the quit message when called
@@ -32,5 +36,6 @@ public class quit implements ActionListener
 	{
 		net.write("quit");
 		net.closeConnection();
+		quest.setText("");
 	}
 }

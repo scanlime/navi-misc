@@ -4,8 +4,8 @@
 
 public class amoderate
 {
-	//the current question that this person is dealing with
-	private question current;
+	/** the current question that this person is dealing with. */
+	public question current;
 	
 	//the question queues that the moderator has access to
 	private qqueue input;

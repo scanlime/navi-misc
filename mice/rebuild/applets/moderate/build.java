@@ -55,9 +55,9 @@ public class build
 		getb = new Button("Get Question");
 		getb.addActionListener(new get(question));
 		rejectb = new Button("Reject");
-		rejectb.addActionListener(new reject());
+		rejectb.addActionListener(new reject(question));
 		quitb = new Button("Quit");
-		quitb.addActionListener(new quit());
+		quitb.addActionListener(new quit(question));
 
 		mymod.ad(question);
 		mymod.ad(getb);
