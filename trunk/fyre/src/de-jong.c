@@ -269,7 +269,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
   spec = g_param_spec_uint         ("transient_iterations",
 				    "Transient iterations",
 				    "Number of iterations between re-randomization, when 'Emphasize transient' is enabled",
-				    1, 100000, 100,
+				    1, 100000, 50,
 				    G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				    PARAM_INTERPOLATE | PARAM_IN_GUI);
   param_spec_set_group             (spec, current_group);
@@ -531,7 +531,7 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
 	remaining_transient_iterations--;
       }
       else {
-	remaining_transient_iterations = self->transient_iterations;
+	remaining_transient_iterations = self->transient_iterations-1;
 	point_x = uniform_variate();
 	point_y = uniform_variate();
       }
