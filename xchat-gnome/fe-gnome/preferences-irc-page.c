@@ -39,6 +39,30 @@ entry_changed (GtkEntry *entry, const gchar *key)
 }
 
 static void
+bool_changed (GtkToggleButton *button, const gchar *key)
+{
+	GConfClient *client;
+	gboolean value;
+
+	client = gconf_client_get_default ();
+	value = gtk_toggle_button_get_active (button);
+	gconf_client_set_bool (client, key, value, NULL);
+	g_object_unref (client);
+}
+
+static void
+font_changed (GtkFontButton *button, const gchar *key)
+{
+	GConfClient *client;
+	const gchar *text;
+
+	client = gconf_client_get_default ();
+	text = gtk_font_button_get_font_name (button);
+	gconf_client_set_string (client, key, text, NULL);
+	g_object_unref (client);
+}
+
+static void
 gconf_entry_changed (GConfClient *client, guint cnxn_id,  GConfEntry *entry, GtkEntry *gtkentry)
 {
 	gchar *text;
@@ -48,6 +72,35 @@ gconf_entry_changed (GConfClient *client, guint cnxn_id,  GConfEntry *entry, Gtk
 	gtk_entry_set_text (gtkentry, text);
 	g_free (text);
 	g_signal_handlers_unblock_by_func (gtkentry, "changed", entry_changed);
+}
+
+static void
+gconf_bool_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkToggleButton *button)
+{
+	gboolean toggle;
+
+	g_signal_handlers_block_by_func (button, "toggled", bool_changed);
+	toggle = gconf_client_get_bool (client, entry->key, NULL);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), toggle);
+	g_signal_handlers_unblock_by_func (button, "toggled", bool_changed);
+}
+
+static void
+gconf_font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkFontButton *button)
+{
+	gchar *text;
+
+	g_signal_handlers_block_by_func (button, "font-set", font_changed);
+	text = gconf_client_get_string (client, entry->key, NULL);
+	gtk_font_button_set_font_name (button, text);
+	g_free (text);
+	g_signal_handlers_unblock_by_func (button, "font-set", font_changed);
+}
+
+static void
+sysfonts_changed (GtkToggleButton *toggle, GtkWidget *font)
+{
+	gtk_widget_set_sensitive (font, !gtk_toggle_button_get_active (toggle));
 }
 
 static void
@@ -62,6 +115,29 @@ highlight_selection_changed (GtkTreeSelection *select, PreferencesIrcPage *page)
 	}
 }
 
+static void
+save_highlight ()
+{
+	GtkTreeIter iter;
+	gchar *hilight, *tmp, *tmp2;
+
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (hilight_store), &iter)) {
+		gtk_tree_model_get (GTK_TREE_MODEL (hilight_store), &iter, 0, &tmp, -1);
+		hilight = g_strdup (tmp);
+	} else {
+		return;
+	}
+	while (gtk_tree_model_iter_next (GTK_TREE_MODEL (hilight_store), &iter)) {
+		tmp2 = hilight;
+		gtk_tree_model_get (GTK_TREE_MODEL (hilight_store), &iter, 0, &tmp, -1);
+		hilight = g_strdup_printf ("%s,%s", tmp2, tmp);
+		g_free (tmp2);
+	}
+	strncpy (prefs.bluestring, hilight, 300);
+	g_free (hilight);
+}
+
+static void
 PreferencesIrcPage *
 preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 {
@@ -109,17 +185,26 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_size_group_add_widget (group, page->font_selection);
 	g_object_unref (group);
 
-	g_signal_connect (G_OBJECT (page->nick_name),    "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/nickname");
-	g_signal_connect (G_OBJECT (page->real_name),    "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/realname");
-	g_signal_connect (G_OBJECT (page->quit_message), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/quitmsg");
-	g_signal_connect (G_OBJECT (page->part_message), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/partmsg");
-	g_signal_connect (G_OBJECT (page->away_message), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/awaymsg");
+	g_signal_connect (G_OBJECT (page->nick_name),       "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/nickname");
+	g_signal_connect (G_OBJECT (page->real_name),       "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/realname");
+	g_signal_connect (G_OBJECT (page->quit_message),    "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/quitmsg");
+	g_signal_connect (G_OBJECT (page->part_message),    "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/partmsg");
+	g_signal_connect (G_OBJECT (page->away_message),    "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/awaymsg");
+	g_signal_connect (G_OBJECT (page->usesysfonts),     "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/main_window/use_sys_fonts");
+	g_signal_connect (G_OBJECT (page->usesysfonts),     "toggled",  G_CALLBACK (sysfonts_changed), NULL);
+	g_signal_connect (G_OBJECT (page->font_selection),  "font-set", G_CALLBACK (font_changed),     "/apps/xchat/main_window/font");
+	g_signal_connect (G_OBJECT (page->show_colors),     "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/irc/showcolors");
+	g_signal_connect (G_OBJECT (page->show_timestamps), "toggled",  G_CALLBACK (bool_changed),     "/apps/xchat/irc/showtimestamps");
 
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/nickname", (GConfClientNotifyFunc) gconf_entry_changed, page->nick_name,    NULL, NULL);
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/realname", (GConfClientNotifyFunc) gconf_entry_changed, page->real_name,    NULL, NULL);
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/quitmsg",  (GConfClientNotifyFunc) gconf_entry_changed, page->quit_message, NULL, NULL);
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/partmsg",  (GConfClientNotifyFunc) gconf_entry_changed, page->part_message, NULL, NULL);
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/awaymsg",  (GConfClientNotifyFunc) gconf_entry_changed, page->away_message, NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/nickname",              (GConfClientNotifyFunc) gconf_entry_changed, page->nick_name,       NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/realname",              (GConfClientNotifyFunc) gconf_entry_changed, page->real_name,       NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/quitmsg",               (GConfClientNotifyFunc) gconf_entry_changed, page->quit_message,    NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/partmsg",               (GConfClientNotifyFunc) gconf_entry_changed, page->part_message,    NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/awaymsg",               (GConfClientNotifyFunc) gconf_entry_changed, page->away_message,    NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) gconf_bool_changed,  page->usesysfonts,     NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/main-window/font",          (GConfClientNotifyFunc) gconf_font_changed,  page->font_selection,  NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/showcolors",            (GConfClientNotifyFunc) gconf_bool_changed,  page->show_colors,     NULL, NULL);
+	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/showtimestamps",        (GConfClientNotifyFunc) gconf_bool_changed,  page->show_timestamps, NULL, NULL);
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/nickname", NULL);
 	gtk_entry_set_text (GTK_ENTRY (page->nick_name), text);
@@ -148,6 +233,12 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/main_window/font", NULL);
 	gtk_font_button_set_font_name (GTK_FONT_BUTTON (page->font_selection), text);
 	g_free (text);
+
+	toggle = gconf_client_get_bool (p->gconf, "/apps/xchat/irc/showcolors", NULL);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->show_colors), toggle);
+
+	toggle = gconf_client_get_bool (p->gconf, "/apps/xchat/irc/showtimestamps", NULL);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->show_timestamps), toggle);
 
 	/* highlight list */
 	page->highlight_store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -181,220 +272,14 @@ preferences_page_irc_free (PreferencesIrcPage *page)
 
 static GtkListStore *hilight_store;
 
-static void gconf_entry_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkEntry *gtkentry);
-static void gconf_bool_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkToggleButton *button);
-static void gconf_font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkFontButton *button);
-
-static void entry_changed (GtkEntry *entry, const gchar *key);
-static void bool_changed (GtkToggleButton *button, const gchar *key);
-static void font_changed (GtkFontButton *button, const gchar *key);
-static void sysfonts_changed (GtkToggleButton *toggle, GtkWidget *font);
-static void populate_hilight ();
-static void save_hilight ();
 static void hilight_add_clicked (GtkButton *button, gpointer data);
 static void hilight_remove_clicked (GtkButton *button, GtkTreeView *view);
 static void hilight_selection (GtkTreeSelection *selection, gpointer data);
 
 void initialize_preferences_irc_page()
 {
-	GtkWidget *widget, *radiobtn;
-	GtkSizeGroup *group;
-	char *text;
-	gboolean toggle;
-	GConfClient *client;
-	GtkTreeViewColumn *column;
-	GtkCellRenderer *renderer;
-	GtkTreeSelection *selection;
-
-	client = gconf_client_get_default ();
-
-	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-
-	widget = glade_xml_get_widget (gui.xml, "nick name");
-	text = gconf_client_get_string (client, "/apps/xchat/irc/nickname", NULL);
-	gconf_client_notify_add (client, "/apps/xchat/irc/nickname", (GConfClientNotifyFunc) gconf_entry_changed, NULL, NULL, NULL);
-	gtk_entry_set_text (GTK_ENTRY (widget), text);
-	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/nickname");
-	g_free (text);
-	gtk_size_group_add_widget (group, widget);
-
-	widget = glade_xml_get_widget (gui.xml, "real name");
-	text = gconf_client_get_string (client, "/apps/xchat/irc/realname", NULL);
-	gconf_client_notify_add (client, "/apps/xchat/irc/realname", (GConfClientNotifyFunc) gconf_entry_changed, NULL, NULL, NULL);
-	gtk_entry_set_text (GTK_ENTRY (widget), text);
-	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/realname");
-	g_free (text);
-	gtk_size_group_add_widget (group, widget);
-
-	widget = glade_xml_get_widget (gui.xml, "quit message");
-	text = gconf_client_get_string (client, "/apps/xchat/irc/quitmsg", NULL);
-	gconf_client_notify_add (client, "/apps/xchat/irc/quitmsg", (GConfClientNotifyFunc) gconf_entry_changed, NULL, NULL, NULL);
-	gtk_entry_set_text (GTK_ENTRY (widget), text);
-	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/quitmsg");
-	g_free (text);
-	gtk_size_group_add_widget (group, widget);
-
-	widget = glade_xml_get_widget (gui.xml, "part message");
-	text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
-	gconf_client_notify_add (client, "/apps/xchat/irc/partmsg", (GConfClientNotifyFunc) gconf_entry_changed, NULL, NULL, NULL);
-	gtk_entry_set_text (GTK_ENTRY (widget), text);
-	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/partmsg");
-	g_free (text);
-	gtk_size_group_add_widget (group, widget);
-
-	widget = glade_xml_get_widget (gui.xml, "away message");
-	text = gconf_client_get_string (client, "/apps/xchat/irc/awaymsg", NULL);
-	gconf_client_notify_add (client, "/apps/xchat/irc/partmsg", (GConfClientNotifyFunc) gconf_entry_changed, NULL, NULL, NULL);
-	gtk_entry_set_text (GTK_ENTRY (widget), text);
-	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (entry_changed), "/apps/xchat/irc/awaymsg");
-	g_free (text);
-	gtk_size_group_add_widget (group, widget);
-
-	widget = glade_xml_get_widget (gui.xml, "highlight list container");
-	gtk_size_group_add_widget (group, widget);
-	widget = glade_xml_get_widget (gui.xml, "highlight list");
-	hilight_store = gtk_list_store_new (1, G_TYPE_STRING);
-	gtk_tree_view_set_model (GTK_TREE_VIEW (widget), GTK_TREE_MODEL (hilight_store));
-	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new ();
-	gtk_tree_view_column_pack_start (column, renderer, TRUE);
-	gtk_tree_view_column_set_attributes (column, renderer, "text", 0, NULL);
-	gtk_tree_view_append_column (GTK_TREE_VIEW (widget), column);
-	populate_hilight ();
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
-	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (hilight_selection), NULL);
-
-	widget = glade_xml_get_widget (gui.xml, "hilight add");
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (hilight_add_clicked), NULL);
-	widget = glade_xml_get_widget (gui.xml, "hilight remove");
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (hilight_remove_clicked), glade_xml_get_widget (gui.xml, "highlight list"));
-
-	g_object_unref (group);
-
-	widget = glade_xml_get_widget (gui.xml, "show colors");
-	toggle = gconf_client_get_bool (client, "/apps/xchat/irc/showcolors", NULL);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggle);
-	gconf_client_notify_add (client, "/apps/xchat/irc/showcolors", (GConfClientNotifyFunc) gconf_bool_changed, widget, NULL, NULL);
-	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (bool_changed), "/apps/xchat/irc/showcolors");
-
-	widget = glade_xml_get_widget (gui.xml, "show timestamps");
-	toggle = gconf_client_get_bool (client, "/apps/xchat/irc/showtimestamps", NULL);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), toggle);
-	gconf_client_notify_add (client, "/apps/xchat/irc/showtimestamps", (GConfClientNotifyFunc) gconf_bool_changed, widget, NULL, NULL);
-	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (bool_changed), "/apps/xchat/irc/showtimestamps");
-
-	/* Create a radio button group for the font radio buttons. */
-	widget = glade_xml_get_widget (gui.xml, "usesysfonts");
-	radiobtn = glade_xml_get_widget (gui.xml, "usethisfont");
-	gtk_radio_button_set_group (GTK_RADIO_BUTTON(radiobtn), gtk_radio_button_get_group (GTK_RADIO_BUTTON(widget)));
-	toggle = gconf_client_get_bool (client, "/apps/xchat/main_window/use_sys_fonts", NULL);
-	/* Toggle the second button if necessary. */
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radiobtn), !toggle);
-	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) gconf_bool_changed, widget, NULL, NULL);
-	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (bool_changed), "/apps/xchat/main_window/use_sys_fonts");
-	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (sysfonts_changed), glade_xml_get_widget (gui.xml, "font selection"));
-
-	widget = glade_xml_get_widget (gui.xml, "font selection");
-	text = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
-	gtk_font_button_set_font_name (GTK_FONT_BUTTON (widget), text);
-	gtk_widget_set_sensitive (widget, !toggle);
-	gconf_client_notify_add (client, "/apps/xchat/main-window/font", (GConfClientNotifyFunc) gconf_font_changed, NULL, NULL, NULL);
-	g_signal_connect (G_OBJECT (widget), "font-set", G_CALLBACK (font_changed), "/apps/xchat/main_window/font");
-
-	g_object_unref (client);
 }
 
-static void
-gconf_bool_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkToggleButton *button)
-{
-	gboolean toggle;
-
-	g_signal_handlers_block_by_func (button, "toggled", bool_changed);
-	toggle = gconf_client_get_bool (client, entry->key, NULL);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), toggle);
-	g_signal_handlers_unblock_by_func (button, "toggled", bool_changed);
-}
-
-static void
-gconf_font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, GtkFontButton *button)
-{
-	gchar *text;
-
-	g_signal_handlers_block_by_func (button, "font-set", font_changed);
-	text = gconf_client_get_string (client, entry->key, NULL);
-	gtk_font_button_set_font_name (button, text);
-	g_free (text);
-	g_signal_handlers_unblock_by_func (button, "font-set", font_changed);
-}
-
-static void
-bool_changed (GtkToggleButton *button, const gchar *key)
-{
-	GConfClient *client;
-	gboolean value;
-
-	client = gconf_client_get_default ();
-	value = gtk_toggle_button_get_active (button);
-	gconf_client_set_bool (client, key, value, NULL);
-	g_object_unref (client);
-}
-
-static void
-font_changed (GtkFontButton *button, const gchar *key)
-{
-	GConfClient *client;
-	const gchar *text;
-
-	client = gconf_client_get_default ();
-	text = gtk_font_button_get_font_name (button);
-	gconf_client_set_string (client, key, text, NULL);
-	g_object_unref (client);
-}
-
-static void
-sysfonts_changed (GtkToggleButton *toggle, GtkWidget *font)
-{
-	gtk_widget_set_sensitive (font, !gtk_toggle_button_get_active (toggle));
-}
-
-static void
-populate_hilight ()
-{
-	gchar **tokens = g_strsplit (prefs.bluestring, ",", 0);
-	int i;
-	GtkTreeIter iter;
-
-	for (i = 0; tokens[i]; i++) {
-		gtk_list_store_append (hilight_store, &iter);
-		gtk_list_store_set (hilight_store, &iter, 0, tokens[i], -1);
-	}
-
-	g_strfreev (tokens);
-}
-
-static void
-save_hilight ()
-{
-	GtkTreeIter iter;
-	gchar *hilight, *tmp, *tmp2;
-
-	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (hilight_store), &iter)) {
-		gtk_tree_model_get (GTK_TREE_MODEL (hilight_store), &iter, 0, &tmp, -1);
-		hilight = g_strdup (tmp);
-	} else {
-		return;
-	}
-	while (gtk_tree_model_iter_next (GTK_TREE_MODEL (hilight_store), &iter)) {
-		tmp2 = hilight;
-		gtk_tree_model_get (GTK_TREE_MODEL (hilight_store), &iter, 0, &tmp, -1);
-		hilight = g_strdup_printf ("%s,%s", tmp2, tmp);
-		g_free (tmp2);
-	}
-	strncpy (prefs.bluestring, hilight, 300);
-	g_free (hilight);
-}
-
-static void
 hilight_add_clicked (GtkButton *button, gpointer data)
 {
 	GtkDialog *dialog;
@@ -434,13 +319,4 @@ hilight_remove_clicked (GtkButton *button, GtkTreeView *view)
 		gtk_list_store_remove (hilight_store, &iter);
 		save_hilight ();
 	}
-}
-
-static void
-hilight_selection (GtkTreeSelection *selection, gpointer data)
-{
-	GtkWidget *remove = glade_xml_get_widget (gui.xml, "hilight remove");
-	GtkTreeModel *model = GTK_TREE_MODEL (hilight_store);
-
-	gtk_widget_set_sensitive (remove, gtk_tree_selection_get_selected (selection, &model, NULL));
 }
