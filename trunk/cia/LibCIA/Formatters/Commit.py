@@ -200,7 +200,10 @@ class CommitFormatter(Message.ModularFormatter):
 
         endings = []
         for file in files:
-            endings.append(file[len(prefix):])
+            ending = file[len(prefix):].strip()
+            if ending == '':
+                    ending = '.'
+            endings.append(ending)
         return prefix, endings
 
 
