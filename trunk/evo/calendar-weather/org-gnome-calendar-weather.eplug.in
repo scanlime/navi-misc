@@ -19,10 +19,14 @@
 		<item
 		 type="item_table"
 		 path="00.general/00.source/50.tempFormat"
-		 factory="e_calendar_weather_format"/>
+		 factory="e_calendar_weather_temperature"/>
 		<item
 		 type="item_table"
-		 path="00.general/00.source/60.refresh"
+		 path="00.general/00.source/60.snowfallFormat"
+		 factory="e_calendar_weather_snowfall"/>
+		<item
+		 type="item_table"
+		 path="00.general/00.source/70.refresh"
 		 factory="e_calendar_weather_refresh"/>
 	    </group>
 	</hook>

@@ -31,7 +31,8 @@
 
 GtkWidget *e_calendar_weather_location (EPlugin *epl, EConfigHookItemFactoryData *data);
 GtkWidget *e_calendar_weather_refresh (EPlugin *epl, EConfigHookItemFactoryData *data);
-GtkWidget *e_calendar_weather_format (EPlugin *epl, EConfigHookItemFactoryData *data);
+GtkWidget *e_calendar_weather_temperature (EPlugin *epl, EConfigHookItemFactoryData *data);
+GtkWidget *e_calendar_weather_snowfall (EPlugin *epl, EConfigHookItemFactoryData *data);
 gboolean   e_calendar_weather_check (EPlugin *epl, EConfigHookPageCheckData *data);
 
 static GtkTreeStore *store = NULL;
@@ -466,9 +467,9 @@ e_calendar_weather_refresh (EPlugin *epl, EConfigHookItemFactoryData *data)
 }
 
 static void
-set_format (ESource *source, GtkWidget *option)
+set_temperature_units (ESource *source, GtkWidget *option)
 {
-	const char *format = e_source_get_property (source, "units");
+	const char *format = e_source_get_property (source, "temperature");
 	if (format == NULL)
 		gtk_option_menu_set_history (GTK_OPTION_MENU (option), 0);
 	else if (strcmp (format, "fahrenheit") == 0)
@@ -478,17 +479,17 @@ set_format (ESource *source, GtkWidget *option)
 }
 
 static void
-format_changed (GtkOptionMenu *option, ECalConfigTargetSource *t)
+temperature_units_changed (GtkOptionMenu *option, ECalConfigTargetSource *t)
 {
 	int choice = gtk_option_menu_get_history (GTK_OPTION_MENU (option));
 	if (choice == 0)
-		e_source_set_property (t->source, "units", "celcius");
+		e_source_set_property (t->source, "temperature", "celcius");
 	else
-		e_source_set_property (t->source, "units", "fahrenheit");
+		e_source_set_property (t->source, "temperature", "fahrenheit");
 }
 
 GtkWidget *
-e_calendar_weather_format (EPlugin *epl, EConfigHookItemFactoryData *data)
+e_calendar_weather_temperature (EPlugin *epl, EConfigHookItemFactoryData *data)
 {
 	static GtkWidget *label;
 	GtkWidget *option, *menu, *parent;
@@ -519,7 +520,7 @@ e_calendar_weather_format (EPlugin *epl, EConfigHookItemFactoryData *data)
 
 	row = ((GtkTable*)parent)->nrows;
 
-	label = gtk_label_new_with_mnemonic (_("Temperature _Units:"));
+	label = gtk_label_new_with_mnemonic (_("_Temperature Units:"));
 	gtk_widget_show (label);
 	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 	gtk_table_attach (GTK_TABLE (parent), label, 0, 1, row, row+1, GTK_FILL, 0, 0, 0);
@@ -535,8 +536,87 @@ e_calendar_weather_format (EPlugin *epl, EConfigHookItemFactoryData *data)
 		gtk_menu_shell_append (GTK_MENU_SHELL (menu), formats[i]);
 	}
 	gtk_option_menu_set_menu (GTK_OPTION_MENU (option), menu);
-	set_format (source, option);
-	g_signal_connect (G_OBJECT (option), "changed", G_CALLBACK (format_changed), t);
+	set_temperature_units (source, option);
+	gtk_label_set_mnemonic_widget (GTK_LABEL (label), option);
+	g_signal_connect (G_OBJECT (option), "changed", G_CALLBACK (temperature_units_changed), t);
+	gtk_table_attach (GTK_TABLE (parent), option, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+	return option;
+}
+
+static void
+set_snowfall_units (ESource *source, GtkWidget *option)
+{
+	const char *format = e_source_get_property (source, "snowfall");
+	if (format == NULL)
+		gtk_option_menu_set_history (GTK_OPTION_MENU (option), 0);
+	else if (strcmp (format, "inches") == 0)
+		gtk_option_menu_set_history (GTK_OPTION_MENU (option), 1);
+	else
+		gtk_option_menu_set_history (GTK_OPTION_MENU (option), 0);
+}
+
+static void
+snowfall_units_changed (GtkOptionMenu *option, ECalConfigTargetSource *t)
+{
+	int choice = gtk_option_menu_get_history (GTK_OPTION_MENU (option));
+	if (choice == 0)
+		e_source_set_property (t->source, "snowfall", "centimeters");
+	else
+		e_source_set_property (t->source, "snowfall", "inches");
+}
+
+GtkWidget *
+e_calendar_weather_snowfall (EPlugin *epl, EConfigHookItemFactoryData *data)
+{
+	static GtkWidget *label;
+	GtkWidget *option, *menu, *parent;
+	GtkWidget *formats[2];
+	int row, i;
+	ECalConfigTargetSource *t = (ECalConfigTargetSource *) data->target;
+	ESource *source = t->source;
+	EUri *uri;
+	char *uri_text;
+	static GtkWidget *hidden = NULL;
+
+	if (!hidden)
+		hidden = gtk_label_new ("");
+
+	if (data->old)
+		gtk_widget_destroy (label);
+
+	uri_text = e_source_get_uri (t->source);
+	uri = e_uri_new (uri_text);
+	g_free (uri_text);
+	if (strcmp (uri->protocol, "weather")) {
+		e_uri_free (uri);
+		return hidden;
+	}
+	e_uri_free (uri);
+
+	parent = data->parent;
+
+	row = ((GtkTable*)parent)->nrows;
+
+	label = gtk_label_new_with_mnemonic (_("_Snowfall Units:"));
+	gtk_widget_show (label);
+	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+	gtk_table_attach (GTK_TABLE (parent), label, 0, 1, row, row+1, GTK_FILL, 0, 0, 0);
+
+	option = gtk_option_menu_new ();
+	gtk_widget_show (option);
+	formats[0] = gtk_menu_item_new_with_label (_("Centimeters"));
+	formats[1] = gtk_menu_item_new_with_label (_("Inches"));
+	menu = gtk_menu_new ();
+	gtk_widget_show (menu);
+	for (i = 0; i < 2; i++) {
+		gtk_widget_show (formats[i]);
+		gtk_menu_shell_append (GTK_MENU_SHELL (menu), formats[i]);
+	}
+	gtk_option_menu_set_menu (GTK_OPTION_MENU (option), menu);
+	set_snowfall_units (source, option);
+	gtk_label_set_mnemonic_widget (GTK_LABEL (label), option);
+	g_signal_connect (G_OBJECT (option), "changed", G_CALLBACK (snowfall_units_changed), t);
 	gtk_table_attach (GTK_TABLE (parent), option, 1, 2, row, row+1, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
 	return option;
