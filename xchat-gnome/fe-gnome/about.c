@@ -1,7 +1,7 @@
 /*
  * about.c - utilities for displaying and hiding the about dialog
  *
- * Copyright (C) 2004 David Trowbridge and Dan Kuester
+ * Copyright (C) 2004 xchat-gnome team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
