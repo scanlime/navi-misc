@@ -6,6 +6,9 @@ ASMFLAGS = -p p16c745
 $(BIN): $(OBJ)
 	gplink -s $(LKR) -o $@ $^
 
+install: $(BIN)
+	picp /dev/ttyS1 16C745 -s 80 -wp $(BIN)
+
 %.o: %.asm
 	gpasm $(ASMFLAGS) -c $<
 
