@@ -122,7 +122,11 @@ class BootDevice(Container):
        Its header includes the device signature, and each object contained
        within this is a 'descriptor block' processed by the bootloader.
        """
-    signature = 0x3410
+    def __init__(self, product="TUSB3410"):
+        assert len(product) == 8
+        assert product[0:4] == "TUSB"
+        self.signature = int(product[4:8], 16)
+
     def attachHeader(self, joined):
         return ''.join(map(str, [
             Int16(self.signature),
