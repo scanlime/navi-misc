@@ -131,8 +131,29 @@ def loadASF (filename):
     # Blender.Window.FileSelector (loadAMC, 'Load AMC Motion Capture')
     loadAMC ('/home/david/projects/motion/data/07_02.amc', d)
 
-def getRotation (bone):
-    pass
+def getRotation (bone, rotation, d):
+    """Retrieves the rotation for a bone, correcting for the difference between
+       ASF angles and blender's orientation system.
+       """
+    name = bone.getName ()
+
+    # Retrieve the axis as stored in the ASF file from the ASFReader, and the blender
+    # axes from the rest matrix of the bone.
+    axis = Blender.Mathutils.Euler (map (float, d.asfReader.bones[name].axis[0:3]))
+    baxis = bone.getRestMatrix ('worldspace').rotationPart ().toEuler ()
+
+    # Find the degrees of freedom supported by this joint and map our rotation
+    # parameter onto a 3-tuple based on this
+    dof = d.asfReader.bones[name].dof
+    euler = [0.0, 0.0, 0.0]
+    for i in range (len (dof)):
+        if dof[i] == 'rx':
+            euler[0] = rotation[i]
+        if dof[i] == 'ry':
+            euler[1] = rotation[i]
+        if dof[i] == 'rz':
+            euler[2] = rotation[i]
+    print name,euler
 
 def loadAMC (filename, d):
     amcReader = AMCReader.AMCReader ()
@@ -177,11 +198,11 @@ def loadAMC (filename, d):
         d.bones['root'].setPose ([ROT, LOC])
 
         # Set orientations for each bone for this frame
-        for name, bone in frame.bones.iteritems ():
+        for name, rotation in frame.bones.iteritems ():
             if name == 'root':
                 continue
             bone = d.bones[name]
-            quat = getRotation (bone)
+            quat = getRotation (bone, rotation, d)
             #d.bones[name].setQuat (quat)
             #d.bones[name].setPose ([ROT])
 
