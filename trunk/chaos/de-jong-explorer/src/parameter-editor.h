@@ -46,6 +46,8 @@ struct _ParameterEditor {
   ParameterHolder *holder;
   GtkSizeGroup *label_sizegroup;
   gchar *previous_group;
+
+  gboolean suppress_notify;
 };
 
 struct _ParameterEditorClass {
