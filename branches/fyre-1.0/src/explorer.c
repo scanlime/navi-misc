@@ -724,10 +724,10 @@ static gchar*   explorer_strdup_status (Explorer *self)
     gchar *speed = explorer_strdup_speed(self);
     gchar *quality = explorer_strdup_quality(self);
 
-    status = g_strdup_printf("Elapsed time:    %s    \t"
-			     "Iterations:    %.3e    \t"
-			     "Speed:    %s    \t"
-			     "Quality:    %s    \t"
+    status = g_strdup_printf("Elapsed time: %s\t\t"
+			     "Iterations: %.3e\t\t"
+			     "Speed: %s\t\t"
+			     "Quality: %s\t\t"
 			     "Current tool: %s",
 			     elapsed,
 			     self->map->iterations,
@@ -744,7 +744,7 @@ static gchar*   explorer_strdup_status (Explorer *self)
 static gchar*   explorer_strdup_elapsed (Explorer *self)
 {
     gulong elapsed = (gulong) histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(self->map));
-    return g_strdup_printf("%02d:%02d:%02d",
+    return g_strdup_printf("%02ld:%02ld:%02ld",
 			   elapsed / (60*60),
 			   (elapsed / 60) % 60,
 			   elapsed % 60);
