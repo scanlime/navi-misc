@@ -23,7 +23,7 @@ stats:// namespace.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import xmlrpclib, BaseHTTPServer, urllib
+import xmlrpclib, BaseHTTPServer, urllib, os
 from LibCIA import Message, XML, Stats
 
 
@@ -41,7 +41,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         children = stats.catalog(self.path)
         children.sort()
         for child in children:
-            self.wfile.write("<li><a href=%r>%s</a></li>\n" % (self.path + '/' + child, urllib.unquote(child)))
+            self.wfile.write("<li><a href=%r>%s</a></li>\n" % (os.path.join(self.path, child), urllib.unquote(child)))
         self.wfile.write("</ul>\n")
 
         # Recent messages
@@ -52,12 +52,13 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.wfile.write("</ol>\n")
 
         # Event counters
-        self.wfile.write("<ul>\n")
         xml = XML.parseString(stats.getCounters(self.path))
-        for element in xml.elements():
-            counter = Stats.Counter(element)
-            self.wfile.write("<li>%s: %s</li>" % (counter.name, counter.getEventCount()))
-        self.wfile.write("</ul>\n")
+        if xml:
+            self.wfile.write("<ul>\n")
+            for element in xml.elements():
+                counter = Stats.Counter(element)
+                self.wfile.write("<li>%s: %s</li>" % (counter.name, counter.getEventCount()))
+            self.wfile.write("</ul>\n")
 
         self.wfile.write("</body></html>\n")
 
