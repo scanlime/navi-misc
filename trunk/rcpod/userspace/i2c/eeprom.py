@@ -7,7 +7,7 @@ class eeprom:
 
     def write_byte(self, address, byte):
         self.i2c.start()
-	i2c.writebyte(0xa0)					# device address + write
+	self.i2c.writebyte(0xa0)					# device address + write
 	self.i2c.writebyte((address >> 8) & 0xff)			# high byte
 	self.i2c.writebyte(address & 0xff)				# low byte
 	self.i2c.writebyte(byte)					# data
