@@ -33,6 +33,7 @@ class PseudoGimpy(ImageCaptcha):
             Backgrounds.TiledImage(),
             Text.TextLayer(word, borderSize=1),
             Distortions.WigglyBlocks(),
+            #Backgrounds.RandomDots(),
             ]
 
 ### The End ###
