@@ -28,20 +28,37 @@ using GLib;
 
 class PipelineDrawing : Gtk.DrawingArea
 {
+	private int			size_x, size_y;
+	private int			drawing_x, drawing_y;
+	private Gtk.Adjustment		hadj;
+	private Gtk.Adjustment		vadj;
+
 	public PipelineDrawing ()
 	{
+		drawing_x = 0;
+		drawing_y = 0;
 	}
 
 	protected override bool OnConfigureEvent (Gdk.EventConfigure ev)
 	{
-		System.Console.WriteLine("configure: {0}x{1}\n", ev.Width, ev.Height);
+		size_x = ev.Width;
+		size_y = ev.Height;
+
+		if (drawing_x == 0)
+			drawing_x = size_x;
+		if (drawing_y == 0)
+			drawing_y = size_y;
+
+		if (hadj != null) {
+			hadj.Upper = (float) ev.Width;
+			vadj.Upper = (float) ev.Height;
+		}
+
 		return base.OnConfigureEvent (ev);
 	}
 
 	protected override void OnSetScrollAdjustments (Adjustment hadj, Adjustment vadj)
 	{
-		System.Console.WriteLine("scroll adjustments set\n");
-
 		hadj.Value         = 0.0f;
 		hadj.Upper         = 0.0f;
 		hadj.Lower         = 0.0f;
@@ -55,5 +72,8 @@ class PipelineDrawing : Gtk.DrawingArea
 		vadj.StepIncrement = 0.0f;
 		vadj.PageIncrement = 0.0f;
 		vadj.PageSize      = 0.0f;
+
+		this.hadj = hadj;
+		this.vadj = vadj;
 	}
 };
