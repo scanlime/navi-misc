@@ -20,10 +20,6 @@ Important
   now, the botnet tries a little too hard and the bot will
   just immediately rejoin.
 
-- Bots don't notice when they're on a dead server until they try to say
-  something on it. Bots need to periodically ping the server and disconnect
-  if the connection is dead.
-
 
 Not that important
 ------------------
