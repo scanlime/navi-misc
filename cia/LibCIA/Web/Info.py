@@ -21,8 +21,9 @@ Just a cute little page with informational doodads on it.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from __future__ import division
 import Template, Server
-from LibCIA import TimeUtil, XML, Database, Units
+from LibCIA import TimeUtil, XML, Database, Units, Cache
 from Nouvelle import place, tag
 import LibCIA, Nouvelle
 from twisted.internet import defer
@@ -85,7 +86,10 @@ class WebServer(Template.Section):
 
     def render_mtbr(self, context):
         site = context['request'].site
-        return TimeUtil.formatDuration((time.time() - site.serverStartTime) / site.requestCount)
+        if site.requestCount > 0:
+            return TimeUtil.formatDuration((time.time() - site.serverStartTime) / site.requestCount)
+        else:
+            return Template.error["unknown"]
 
     rows = [
                [
@@ -109,6 +113,41 @@ class IndexedStorageColumn(Nouvelle.IndexedColumn):
        """
     def render_data(self, context, row):
         return Units.StorageUnits().format(self.getValue(row))
+
+
+class HitRatioColumn(Nouvelle.Column):
+    """Show the ratio of hits to total cache accesses, as a percentage"""
+    heading = 'hit ratio'
+
+    def getValue(self, perf):
+        total = perf.hits + perf.misses
+        if total > 0:
+            return perf.hits / total * 100
+
+    def render_data(self, context, perf):
+        value = self.getValue(perf)
+        if value is None:
+            return Template.error["unknown"]
+        else:
+            return "%.02f %%" % value
+
+
+class CachePerformance(Template.Section):
+    title = 'cache performance'
+
+    columns = [
+        Nouvelle.AttributeColumn('name', 'name'),
+        Nouvelle.AttributeColumn('hits', 'hits'),
+        Nouvelle.AttributeColumn('misses', 'misses'),
+        HitRatioColumn(),
+        ]
+
+    def render_rows(self, context):
+        perfList = list(Cache.getCachePerformanceList())
+        if perfList:
+            return [Template.Table(perfList, self.columns, id='cachePerf')]
+        else:
+            return []
 
 
 class DbTables(Template.Section):
@@ -187,6 +226,7 @@ class Page(Template.Page):
     mainColumn = [
         WebServer(),
         System(),
+        CachePerformance(),
         DbTables(),
         ]
 
