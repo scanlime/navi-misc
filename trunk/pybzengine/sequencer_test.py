@@ -11,8 +11,8 @@ control = ThreeDControl.Viewing(view, viewport)
 
 
 class Monkey(Sequencer.Page):
-    def __init__(self, view):
-        Sequencer.Page.__init__(self, view)
+    def __init__(self, book):
+        Sequencer.Page.__init__(self, book)
 
         self.meshes = tuple(Drawable.VRML.load("monkey.wrl").values())
         self.view.scene.add(self.meshes)
@@ -34,8 +34,8 @@ class Monkey(Sequencer.Page):
 
 
 class Sparks(Sequencer.Page):
-    def __init__(self, view):
-        Sequencer.Page.__init__(self, view)
+    def __init__(self, book):
+        Sequencer.Page.__init__(self, book)
 
         self.drawables = tuple([cPickle.load(open(Util.dataFile(name))) for name in
                                 ('smoke.particle', 'welding_sparks.particle')])
@@ -55,8 +55,8 @@ class TextureTest(Sequencer.Page):
     """A scene featuring the texture_test model. The camera zooms in toward one
        of the crates, then the scene ends
        """
-    def __init__(self, view):
-        Sequencer.Page.__init__(self, view)
+    def __init__(self, book):
+        Sequencer.Page.__init__(self, book)
 
         # Load the 'texture_test' model into the scene
         self.meshes = tuple(Drawable.VRML.load("texture_test.wrl").values())
@@ -97,7 +97,7 @@ book = Sequencer.Book(view, [
 
     # Spin the 'monkey' model until any key or mouse button is pressed.
     # Also fade in from white quickly, fade out to black slowly.
-    Sequencer.FadeIn(0.1, (1,1,1), Sequencer.FadeOut(3, (0,0,0), Sequencer.PageInterrupter([
+    Sequencer.FadeIn(0.1, (1,1,1), Sequencer.FadeOut(1, (0,0,0), Sequencer.PageInterrupter([
     viewport.onKeyDown, viewport.onMouseButtonDown], Monkey))),
     ])
 
