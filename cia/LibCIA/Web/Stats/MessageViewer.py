@@ -26,6 +26,7 @@ from twisted.internet import defer
 from LibCIA.Web import Template
 from Nouvelle import tag, place
 from LibCIA import Formatters, Message, XML
+import Link
 
 
 class RootPage(resource.Resource):
@@ -45,6 +46,31 @@ class RootPage(resource.Resource):
             return MessagePage(self.statsPage, int(name))
 
 
+class LinksSection(Template.Section):
+    """A section displaying useful links for a particular message"""
+    title = 'links'
+
+    def __init__(self, target, messageId):
+        self.target = target
+        self.messageId = messageId
+
+    def render_rows(self, context):
+        return [
+            Link.MessageLink(self.target, self.messageId,
+                             extraSegments = ('printable',),
+                             text = 'Printable',
+                             ),
+            Link.MessageLink(self.target, self.messageId,
+                             extraSegments = ('pretty-xml',),
+                             text = 'Pretty-printed XML',
+                             ),
+            Link.MessageLink(self.target, self.messageId,
+                             extraSegments = ('xml',),
+                             text = 'Raw XML',
+                             ),
+            ]
+
+
 class MessagePage(Template.Page):
     """A page that views one message from the stats database"""
     isLeaf = 1
@@ -55,6 +81,9 @@ class MessagePage(Template.Page):
 
     def parent(self):
         return self.statsPage
+
+    def preRender(self, context):
+        context['component'] = self.statsPage.component
 
     def render_mainTitle(self, context):
         return "Message #%d" % self.id
@@ -95,6 +124,11 @@ class MessagePage(Template.Page):
             tag('h1')[ "No formatter available" ],
             XML.htmlPrettyPrint(m.xml),
             ])
+
+    def render_leftColumn(self, context):
+        return [
+            LinksSection(self.statsPage.target, self.id),
+            ]
 
     notFoundMessage = [
         tag('h1')[ "Not Found" ],

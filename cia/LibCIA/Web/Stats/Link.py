@@ -62,8 +62,13 @@ class StatsLink(TargetRelativeLink):
 
 class MessageLink(TargetRelativeLink):
     """A link to a particular message delivered to a stats target"""
-    def __init__(self, target, id):
-        TargetRelativeLink.__init__(self, target, ('.message', str(id)))
+    def __init__(self, target, id, extraSegments=(), tagFactory=tag('a'), text=None):
+        TargetRelativeLink.__init__(self, target, ('.message', str(id)) + extraSegments)
+        self.tagFactory = tagFactory
+        self.text = text
+
+    def render(self, context):
+        return self.tagFactory(href=self.getURL(context))[self.text]
 
 
 class MetadataLink(TargetRelativeLink):
