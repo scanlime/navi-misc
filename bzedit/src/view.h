@@ -28,6 +28,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "light.h"
+#include "gldrawingarea.h"
 
 G_BEGIN_DECLS
 
@@ -48,6 +49,7 @@ struct _View
   Scene *scene;
   Light **lights;
   guint nlights;
+  GLDrawingArea *context;
 };
 
 struct _ViewClass
@@ -56,7 +58,7 @@ struct _ViewClass
 };
 
 GType        view_get_type (void) G_GNUC_CONST;
-View*        view_new      (Scene *scene);
+View*        view_new      (Scene *scene, GLDrawingArea *context);
 void         view_render   (View *view);
 SceneObject* view_pick     (View *view, guint pos[2]);
 

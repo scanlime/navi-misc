@@ -65,15 +65,46 @@ view_init (View *view)
   view->camera = camera_new ();
 }
 
+static void
+view_configure (GLDrawingArea *widget, GdkEventConfigure *event, View *view)
+{
+  gl_drawing_area_make_current (widget);
+
+  glViewport(0, 0, event->width, event->height);
+  glMatrixMode (GL_PROJECTION);
+  glLoadIdentity ();
+  gluPerspective (45.0, (float)event->width / (float)event->height, 0.1, 2500.0);
+  glMatrixMode (GL_MODELVIEW);
+  glLoadIdentity ();
+  glDepthRange (0.1, 2000.0);
+
+  view_render (view);
+}
+
+static void
+view_expose (GLDrawingArea *widget, GdkEventExpose *event, View *view)
+{
+  view_render (view);
+}
+
 View*
-view_new (Scene *scene)
+view_new (Scene *scene, GLDrawingArea *context)
 {
   View *view = VIEW (g_object_new (view_get_type (), NULL));
 
   if (scene == NULL)
     scene = scene_new ();
 
+  scene_add_view (scene, (gpointer) view);
+
   view->scene = scene;
+  view->context = context;
+
+  gl_drawing_area_make_current (context);
+
+  g_signal_connect (G_OBJECT (context), "configure-event", G_CALLBACK (view_configure), (gpointer) view);
+  g_signal_connect (G_OBJECT (context), "expose-event", G_CALLBACK (view_expose), (gpointer) view);
+
   init_lighting (view);
   return view;
 }
@@ -84,10 +115,16 @@ view_render (View *view)
   RenderState *rstate = render_state_new ();
   gint i;
 
+  gl_drawing_area_make_current (view->context);
+  glClearColor (0.0, 0.0, 0.0, 0.0);
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
   camera_load (view->camera);
   for (i = 0; i < view->nlights; i++)
     light_set (view->lights[i]);
   scene_render (view->scene, rstate);
+
+  gl_drawing_area_swap_buffers (view->context);
 }
 
 SceneObject*

@@ -63,7 +63,8 @@ struct _DrawableClass
 {
   GObjectClass parent_class;
 
-  void (*draw) (Drawable *drawable, RenderState *rstate);
+  void (*draw)  (Drawable *drawable, RenderState *rstate);
+  void (*dirty) (Drawable *drawable);
 };
 
 GType drawable_get_type (void) G_GNUC_CONST;

@@ -26,9 +26,11 @@
 #include "scene.h"
 #include "renderpass.h"
 #include "plugins.h"
+#include "view.h"
 
-static void   scene_class_init    (SceneClass *klass);
-static void   scene_init          (Scene *self);
+static void   scene_class_init  (SceneClass *klass);
+static void   scene_init        (Scene *self);
+static void   scene_view_redraw (SceneObject *object, View *view);
 
 GType
 scene_get_type (void)
@@ -75,17 +77,14 @@ scene_init (Scene *self)
     RenderPass *pass = RENDER_PASS (g_object_new (GPOINTER_TO_UINT (type->data), NULL));
     self->render_passes = g_list_append (self->render_passes, (gpointer) pass);
   }
+
+  self->views = NULL;
 }
 
 Scene*
 scene_new ()
 {
   return SCENE (g_object_new (scene_get_type (), NULL));
-}
-
-gboolean
-scene_has_main_view (Scene *self)
-{
 }
 
 void
@@ -99,12 +98,17 @@ scene_erase (Scene *self)
 void
 scene_add (Scene *self, SceneObject *object)
 {
-  GList *drawables;
+  GList *drawables, *view;
 
   drawables = scene_object_get_drawables (object);
 
   g_hash_table_insert (self->objects, (gpointer) object, (gpointer) drawables);
   self->dirty = TRUE;
+
+  for (view = self->views; view; view = view->next)
+  {
+    g_signal_connect (object, "dirty", G_CALLBACK (scene_view_redraw), view->data);
+  }
 }
 
 static gint
@@ -195,6 +199,25 @@ scene_render (Scene *self, RenderState *rstate)
     if (!render_pass_is_empty (rpass))
       render_pass_render (rpass, rstate);
   }
+}
+
+static void
+scene_view_redraw (SceneObject *object, View *view)
+{
+  view_render (view);
+}
+
+static void
+scene_add_view_iterate (GObject *object, GList *drawables, View *view)
+{
+  g_signal_connect (object, "dirty", G_CALLBACK (scene_view_redraw), (gpointer) view);
+}
+
+void
+scene_add_view (Scene *self, gpointer view)
+{
+  self->views = g_list_append (self->views, view);
+  g_hash_table_foreach (self->objects, (GHFunc) scene_add_view_iterate, view);
 }
 
 SceneObject*

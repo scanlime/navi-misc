@@ -45,6 +45,9 @@ struct _SceneObjectClass
 {
   ParameterHolderClass parent_class;
 
+  /* signal handlers */
+  void       (*dirty)          (SceneObject *self);
+
   void       (*render)         (SceneObject *self, guint name);
   void       (*serialize)      (SceneObject *self, GIOChannel *out);
   gboolean   (*creatable)      (void);

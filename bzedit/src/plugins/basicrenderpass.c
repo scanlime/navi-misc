@@ -132,9 +132,17 @@ texture_group_draw_to_list (DisplayList *dl)
 }
 
 static void
+texture_group_member_dirty (Drawable *drawable, DisplayList *dl)
+{
+  dl->dirty = TRUE;
+}
+
+static void
 texture_group_add (TextureGroup *tg, Drawable *drawable)
 {
   DisplayList *dl = DISPLAY_LIST (tg);
+
+  g_signal_connect (G_OBJECT (drawable), "dirty", G_CALLBACK (texture_group_member_dirty), (gpointer) tg);
 
   if (drawable->render.statico)
     tg->static_drawables = g_list_append (tg->static_drawables, (gpointer) g_object_ref (drawable));

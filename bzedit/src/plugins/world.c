@@ -130,6 +130,9 @@ world_set_property (GObject *object, guint prop_id, const GValue *value, GParamS
       WALL_SIDES_DRAWABLE (self->wallsides)->size[0] = self->param.size[0];
       DISPLAY_LIST (self->ground)->dirty = TRUE;
       DISPLAY_LIST (self->wallsides)->dirty = TRUE;
+      g_signal_emit_by_name (object, "dirty");
+      g_signal_emit_by_name (G_OBJECT (self->ground), "dirty");
+      g_signal_emit_by_name (G_OBJECT (self->wallsides), "dirty");
       break;
 
     case PROP_Y:
@@ -138,6 +141,9 @@ world_set_property (GObject *object, guint prop_id, const GValue *value, GParamS
       WALL_SIDES_DRAWABLE (self->wallsides)->size[1] = self->param.size[1];
       DISPLAY_LIST (self->ground)->dirty = TRUE;
       DISPLAY_LIST (self->wallsides)->dirty = TRUE;
+      g_signal_emit_by_name (object, "dirty");
+      g_signal_emit_by_name (G_OBJECT (self->ground), "dirty");
+      g_signal_emit_by_name (G_OBJECT (self->wallsides), "dirty");
       break;
 
     case PROP_GRAVITY:
