@@ -207,7 +207,7 @@ class ArcMenu(DockMenu):
             self.dock.selectionIndex -= 1
 
     def spinDown(self):
-        """Spin to the next icon upwardsly"""
+        """Spin to the next icon downwardsly"""
         if self.dock.selectionIndex < len(self.items) - 1:
             self.dock.selectionIndex += 1
 
@@ -219,6 +219,61 @@ class ArcMenu(DockMenu):
         self.onSelected(item)
         self.onFinish()
 
+
+class VerticalMenu(DockMenu):
+    """A menu that displays vertically"""
+    horz = 0.5
+    keyFile = 'vertical_menu_keys.py'
+    def __init__(self, book, items=[]):
+        DockMenu.__init__(self, book, items,
+                          iconSpacing = 1
+                          )
+
+    def trackFunction(self, x):
+        """A track function that moves the icons along a vertical path according to the
+           horizontal position set by self.horz
+           """
+        thetaExp = 1
+        thetaCoeff = 0.3
+        sizeExp = 2.5
+        maxSize = self.viewport.size[0] * 0.15
+        radius = self.viewport.size[0] * 0.7
+        vCenter = self.viewport.size[1] * 0.5
+        hCenter = 0
+
+        if x>0:
+            theta = pow(thetaCoeff * x, thetaExp)
+        else:
+            theta = -pow(-thetaCoeff * x, thetaExp)
+
+        if theta > pi:
+            theta = pi
+        if theta < -pi:
+            theta = -pi
+
+        return (
+            (hCenter + self.horz * self.viewport.size[0],
+             vCenter + x * maxSize * 1.5),
+            maxSize / pow(abs(sin(theta))+1, sizeExp)
+            )
+
+    def spinUp(self):
+        """Spin to the next icon upwardsly"""
+        if self.dock.selectionIndex > 0:
+            self.dock.selectionIndex -= 1
+
+    def spinDown(self):
+        """Spin to the next icon downwardsly"""
+        if self.dock.selectionIndex < len(self.items) - 1:
+            self.dock.selectionIndex += 1
+
+    def selectCurrent(self):
+        index = int(floor(self.dock.selectionIndex + 0.5))
+        item = self.items[index]
+
+        item.onSelected(self)
+        self.onSelected(item)
+        self.onFinish()
 
 def defaultFades(page):
     """A page wrapper that applies a default fade in from and out to black"""
