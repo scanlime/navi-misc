@@ -624,6 +624,7 @@ navigation_tree_set_channel_name (NavTree *navtree, struct session *sess)
 NavTree*
 get_navigation_tree ()
 {
+	error_dialog ("get nav tree", "returning server tree");
 	return gui.server_tree;
 }
 
