@@ -38,6 +38,7 @@ static void      on_cluster_add_host             (GtkWidget *widget, gpointer us
 static void      on_cluster_remove_host          (GtkWidget *widget, gpointer user_data);
 static void      on_cluster_host_or_port_changed (GtkWidget *widget, gpointer user_data);
 static void      on_cluster_merge_time_changed   (GtkWidget *widget, gpointer user_data);
+static void      on_cluster_discovery_toggled    (GtkWidget *widget, gpointer user_data);
 static void      on_node_enabled_toggled         (GtkCellRendererToggle *cell_renderer,
 						  gchar *path, gpointer user_data);
 static gboolean  on_cluster_window_delete        (GtkWidget *widget, GdkEvent *event,
@@ -59,12 +60,17 @@ void explorer_init_cluster(Explorer *self)
     glade_xml_signal_connect_data(self->xml, "on_cluster_host_or_port_changed",  G_CALLBACK(on_cluster_host_or_port_changed), self);
     glade_xml_signal_connect_data(self->xml, "on_cluster_merge_time_changed",    G_CALLBACK(on_cluster_merge_time_changed),   self);
     glade_xml_signal_connect_data(self->xml, "on_cluster_window_delete",         G_CALLBACK(on_cluster_window_delete),        self);
+    glade_xml_signal_connect_data(self->xml, "on_cluster_discovery_toggled",     G_CALLBACK(on_cluster_discovery_toggled),    self);
 
     self->cluster_model = cluster_model_get(self->map, TRUE);
     explorer_init_cluster_view(self);
 
     /* Set the initial merge time */
     on_cluster_merge_time_changed(glade_xml_get_widget(self->xml, "cluster_merge_time"), self);
+
+    /* Set the initial status of node autodiscovery */
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(self->xml, "cluster_discovery")),
+				 self->cluster_model->discovery != NULL ? TRUE : FALSE);
 
     explorer_set_port(self, FYRE_DEFAULT_PORT);
 }
@@ -230,6 +236,16 @@ static void on_cluster_merge_time_changed(GtkWidget *widget, gpointer user_data)
     Explorer *self = EXPLORER(user_data);
     cluster_model_set_min_stream_interval(self->cluster_model,
 					  gtk_range_get_adjustment(GTK_RANGE(widget))->value);
+}
+
+static void on_cluster_discovery_toggled(GtkWidget *widget, gpointer user_data)
+{
+    Explorer *self = EXPLORER(user_data);
+
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
+	cluster_model_enable_discovery(self->cluster_model);
+    else
+	cluster_model_disable_discovery(self->cluster_model);
 }
 
 /* The End */

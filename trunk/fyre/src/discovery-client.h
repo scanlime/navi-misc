@@ -57,6 +57,7 @@ struct _DiscoveryClient {
     guint              broadcast_timer;
     GInetAddr*         broadcast;
     GUdpSocket*        socket;
+    guint              socket_reader;
     guchar*            buffer;
     gsize              buffer_size;
 };

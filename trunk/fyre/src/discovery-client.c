@@ -82,13 +82,17 @@ static void discovery_client_dispose(GObject *gobject)
 	g_source_remove(self->broadcast_timer);
 	self->broadcast_timer = 0;
     }
-    if (self->service_name) {
-	g_free(self->service_name);
-	self->service_name = NULL;
+    if (self->socket_reader) {
+	g_source_remove(self->socket_reader);
+	self->socket_reader = 0;
     }
     if (self->socket) {
 	gnet_udp_socket_delete(self->socket);
 	self->socket = NULL;
+    }
+    if (self->service_name) {
+	g_free(self->service_name);
+	self->service_name = NULL;
     }
     if (self->buffer) {
 	g_free(self->buffer);
@@ -122,8 +126,8 @@ DiscoveryClient*  discovery_client_new(const gchar*       service_name,
     self->buffer = g_malloc(self->buffer_size);
 
     /* Sign up to get notified when new packets arrive */
-    g_io_add_watch(gnet_udp_socket_get_io_channel(self->socket),
-		   G_IO_IN,  discovery_client_read, self);
+    self->socket_reader = g_io_add_watch(gnet_udp_socket_get_io_channel(self->socket),
+					 G_IO_IN,  discovery_client_read, self);
 
     /* Send the first broadcast */
     discovery_client_broadcast(self);
