@@ -35,37 +35,29 @@ public class aimup
 		bot[0] = new botmain("MICEBot","password");
 		for(i=1;i<6;i++)
 		{
-			try
-			{
-				Thread.sleep(3000);       //Wait for 5 minutes
-			}
-			catch (InterruptedException ie) {}
+			sleep(3);
 			bot[i] = new botmain("MICEBot"+i,"password");
 		}
-		try
-		{
-			Thread.sleep(8000);       //Wait for 5 minutes
-		}
-		catch (InterruptedException ie) {}
 		
+		sleep(6);
 		for(j=0;j<10;j++)
-		for(i=0;i<6;i++)
-		{
-			//bot[i].sendMessage("Joshonthinkpad","Hi Josh, this is from bot number:"+i);
-			bot[i].sendMessage("haighthd7000","ding " + i);
-			//bot[i].sendMessage("gonkulator2","ding " + i);
-			//bot[i].sendMessage("kittikins5","Hi Katie!");
-			try
+			for(i=0;i<6;i++)
 			{
-				Thread.sleep(4000);       //Wait for 5 minutes
+				//bot[i].sendMessage("Joshonthinkpad","Hi Josh, this is from bot number:"+i);
+				//bot[i].sendMessage("haighthd7000","ding " + i);
+				bot[i].sendMessage("gonkulator3","ding " + i);
+				//bot[i].sendMessage("kittikins5","Hi Katie!");
+				sleep(4);
 			}
-			catch (InterruptedException ie) {}
-		}
-		
+		sleep(600);
+	}
+	
+	public static void sleep(int seconds)
+	{
 		try
 		{
-			Thread.sleep(300000);       //Wait for 5 minutes
+			Thread.sleep(seconds * 1000);
 		}
-		catch (InterruptedException ie) {}
+		catch (Exception ie) {}
 	}
 }

@@ -29,6 +29,8 @@ public class botmain implements JaimEventListener
 	/** The connection for the bot, hence b. */
 	public JaimConnection b;
 	
+	/** */
+	
 	public botmain(String username, String password)
 	{
 		try
