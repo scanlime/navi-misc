@@ -196,7 +196,7 @@ unsigned char rcpod_AnalogReadChannel(rcpod_dev* rcpod, int channel);
 /* The PIC's 3rd memory bank is designated as a scratchpad area.
  * Note that this is used in librcpod for serial I/O.
  */
-#define RCPOD_MEM_SCRATCHPAD    0x0120
+#define RCPOD_REG_SCRATCHPAD    0x0120
 #define RCPOD_SCRATCHPAD_SIZE   0x0050
 
 /* A subset of the PIC's hardware registers. Those that couldn't possibly

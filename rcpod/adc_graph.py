@@ -9,11 +9,6 @@
 
 import gtk, time, threading, pyrcpod
 
-rcpod = pyrcpod.devices[0].open()
-
-while True:
-    rcpod.poke(pyrcpod.device.RCPOD_MEM_SCRATCHPAD, 5)
-
 
 class ScrollingLineGraph(gtk.DrawingArea):
     """A graph that shows time on the horizontal axis, multiple channels

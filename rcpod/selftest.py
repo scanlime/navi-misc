@@ -37,13 +37,34 @@
 import pyrcpod, unittest, sys
 
 
-class safe(unittest.TestCase):
+# A set of byte values used to test several things.
+# This pattern includes all bits off, all bits on, the two
+# 'checkerboard' bit patterns, and tests for MSB/LSB alignment.
+testBytes = (0x00, 0xFF, 0xAA, 0x55, 0x01, 0x02, 0x80, 0x40)
 
-    def setUp(self):
-        self.seq = range(10)
 
-    def testFoo(self):
-        self.assertEqual(5, 3)
+class SimpleRcpodTestCase(unittest.TestCase):
+    """A TestCase subclass that, for each available rcpod device, opens
+       the device, runs the test case, and closes the device.
+       """
+    def __call__(self, result=None):
+        for dev in pyrcpod.devices:
+            self.rcpod = dev.open()
+            unittest.TestCase.__call__(self, result)
+            self.rcpod.close()
+
+
+class safe(SimpleRcpodTestCase):
+    """Tests that verify the firmware and API consistency
+       without actually using any of the I/O hardware.
+       """
+
+    def testPokePeek(self):
+        """Tests whether poke and peek work on 1 byte, using the scratchpad"""
+        for byte in testBytes:
+            self.rcpod.poke('scratchpad', byte)
+            result = self.rcpod.peek('scratchpad')
+            self.assertEqual(byte, result)
 
 
 if __name__ == '__main__':
@@ -55,3 +76,4 @@ if __name__ == '__main__':
         unittest.main()
     else:
         print __doc__
+

@@ -28,8 +28,32 @@ from librcpod import *
 
 # These are the symbols that will be pulled from this module
 # into the 'pyrcpod' package.
-__all__ = ['scanForDevices', 'devices']
+__all__ = ['scanForDevices', 'devices', 'mapAddress']
 
+
+def mapAddress(name):
+    """Given a register name, return the address of that register.
+       Passes integers through unaffected.
+       """
+    if type(name) == type(''):
+        return globals()['RCPOD_REG_' + name.upper()]
+    return name
+
+
+def to_ucharArray(list):
+    """Converts a python list to a malloc'ed C unsigned char array.
+       The resulting array must be freed with delete_ucharArray.
+       """
+    n = len(list)
+    a = new_ucharArray(n)
+    for i in xrange(n):
+        ucharArray_setitem(a, i, list[i])
+    return a
+
+
+def from_ucharArray(a, n):
+    """Converts a C unsigned character array with 'n' entries to a python list"""
+    return [ucharArray_getitem(a, i) for i in xrange(n)]
 
 
 class OpenedDevice:
@@ -38,6 +62,17 @@ class OpenedDevice:
        """
     def __init__(self, dev):
         self.dev = dev
+
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        """Terminate our connection to the rcpod. No attributes
+           on this class may be called afterwards.
+           """
+        if self.dev:
+            rcpod_Close(self.dev)
+            self.dev = None
 
     def reset(self):
         """Reset I/O-related registers to their power-on state.
@@ -60,6 +95,8 @@ class OpenedDevice:
            If data is a list, tuple, or string, this function will poke
            multiple bytes starting at the given address.
            """
+        address = mapAddress(address)
+
         # Convert strings and characters to lists and scalars
         if type(data) == type(''):
             if len(data) > 1:
@@ -70,10 +107,47 @@ class OpenedDevice:
         # If we have a scalar value, use rcpod_Poke. If we have
         # multiple bytes, use rcpod_PokeBuffer.
         if type(data) == type(()) or type(data) == type([]):
-            # Create a C array with these values
-            pass
+            try:
+                arr = to_ucharArray(data)
+                rcpod_PokeBuffer(self.dev, address, arr, len(data))
+            finally:
+                delete_ucharArray(arr)
         else:
             rcpod_Poke(self.dev, address, data)
+
+    def peek(self, address, length=1, retType=int):
+        """Read 'length' bytes from the given address in the PIC's RAM.
+           'address' can either be a numerical address or the name
+           of a register (any RCPOD_REG_* or RCPOD_MEM_* constant).
+           Data will be returned in the given type, which may be:
+
+             int  : Single bytes will be returned as integers,
+                    multiple bytes will be returned as lists of integers
+             list : Always returns a list of integers
+             str  : Returns a string with the peek'ed bytes
+           """
+        address = mapAddress(address)
+
+        if length > 1:
+            # Use PeekBuffer, converting from a C array
+            try:
+                arr = new_ucharArray(length)
+                rcpod_PeekBuffer(self.dev, address, arr, length)
+                data = from_ucharArray(arr, length)
+            finally:
+                delete_ucharArray(arr)
+        else:
+            data = [rcpod_Peek(self.dev, address)]
+
+        # data is now a list, convert it if necessary
+        if retType == str:
+            s = ""
+            for value in data:
+                s += chr(value)
+            return s
+        if retType == int and length == 1:
+            return data[0]
+        return data
 
 
 class AvailableDevice:
