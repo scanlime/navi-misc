@@ -103,6 +103,10 @@ editor_init (Editor *editor)
   GtkTreeViewColumn *column;
   GtkMenuItem *addmenu;
   GtkMenu *am;
+  GtkScrolledWindow *swin;
+  GtkBox *box;
+  ParameterHolder *p;
+  GtkWidget *e, *v, *l;
   GList *types, *t;
 
   load_plugins();
@@ -138,6 +142,9 @@ editor_init (Editor *editor)
   types = find_leaves (PARAMETER_HOLDER_TYPE);
   addmenu = GTK_MENU_ITEM (glade_xml_get_widget (editor->xml, "addmenu"));
   am = GTK_MENU (gtk_menu_new ());
+  box = GTK_BOX (gtk_vbox_new (0, 6));
+  swin = GTK_SCROLLED_WINDOW (glade_xml_get_widget (editor->xml, "property editor swin"));
+  gtk_scrolled_window_add_with_viewport (swin, GTK_WIDGET (box));
   for (t = types; t; t = t->next)
   {
     GType type = GPOINTER_TO_UINT (t->data);
@@ -148,6 +155,15 @@ editor_init (Editor *editor)
       GtkWidget *image = gtk_image_new_from_pixbuf (((SceneObjectClass*) klass)->get_icon ());
       gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
       gtk_menu_shell_append (GTK_MENU_SHELL (am), item);
+      v = gtk_hseparator_new();
+      gtk_box_pack_start (box, v, FALSE, TRUE, 0);
+      l = gtk_label_new (g_type_name (type));
+      gtk_box_pack_start (box, l, FALSE, TRUE, 0);
+      v = gtk_hseparator_new();
+      gtk_box_pack_start (box, v, FALSE, TRUE, 0);
+      p = PARAMETER_HOLDER (g_object_new (type, NULL));
+      e = parameter_editor_new (p);
+      gtk_box_pack_start (box, e, FALSE, TRUE, 0);
       g_type_class_unref (klass);
     }
   }

@@ -22,18 +22,20 @@
 
 #include <gmodule.h>
 #include "box.h"
+#include "teleporter.h"
 #include "world.h"
 
 const gchar*
 g_module_check_init (GModule *module)
 {
-  static GType box, world;
+  static GType box, teleporter, world;
 
   /* permanently insert ourself */
   g_module_make_resident (module);
 
   /* and register our types */
   box = BOX_TYPE;
+  teleporter = TELEPORTER_TYPE;
   world = WORLD_TYPE;
 
   return NULL;
