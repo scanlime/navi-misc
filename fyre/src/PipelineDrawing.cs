@@ -205,6 +205,25 @@ namespace Fyre
 			this.hadj = hadj;
 			this.vadj = vadj;
 
+			hadj.ValueChanged += new System.EventHandler (HValueChanged);
+			vadj.ValueChanged += new System.EventHandler (VValueChanged);
+
+			SetScrollbars ();
+		}
+
+		void
+		HValueChanged (object o, System.EventArgs e)
+		{
+			Gtk.Adjustment a = (Gtk.Adjustment) o;
+			drawing_extents.X = (int) a.Value;
+			SetScrollbars ();
+		}
+
+		void
+		VValueChanged (object o, System.EventArgs e)
+		{
+			Gtk.Adjustment a = (Gtk.Adjustment) o;
+			drawing_extents.Y = (int) a.Value;
 			SetScrollbars ();
 		}
 
