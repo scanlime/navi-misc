@@ -50,14 +50,14 @@ class ColortextToXHTML(Message.Formatter):
     medium = 'xhtml'
 
     def format(self, message, input=None):
-        return self.Parser(message.xml.body.colorText)
+        return self.Parser(message.xml.body.colorText).result
 
     class Parser(XML.XMLObjectParser):
         requiredRootElement = 'colorText'
 
         def element_colorText(self, element):
             """Parse all child elements and glue together the resulting strings"""
-            return ''.join([self.parse(e) for e in element.elements()])
+            return ''.join([self.parse(e) for e in element.children])
 
         def parseString(self, s):
             """Quote strings and pass them straight through"""
@@ -85,7 +85,6 @@ class ColortextToXHTML(Message.Formatter):
                 s = '<span class="fgColor-%s">%s</span>' % (self.colorQuote(element['fg']), s)
             if element.hasAttribute('bg'):
                 s = '<span class="bgColor-%s">%s</span>' % (self.colorQuote(element['bg']), s)
-            print s
             return s
 
 
