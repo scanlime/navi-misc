@@ -674,4 +674,6 @@ count_lines_taken (XText2 *xtext, textentry *ent)
 static int
 find_next_wrap (XText2 *xtext, textentry *ent, unsigned char *str, int win_width, int indent)
 {
+  unsigned char *last_space = str;
+  unsigned char *orig_str = str;
 }
