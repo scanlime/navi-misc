@@ -79,7 +79,7 @@ pinnumber=12
 T 2050 2550 5 8 0 0 0 0 1
 pinseq=5
 T 1950 2550 9 10 1 1 0 6 1
-pinlabel=B
+pinlabel=A
 }
 P 2000 2100 2300 2100 1 0 1
 {
@@ -88,7 +88,7 @@ pinnumber=11
 T 2050 2150 5 8 0 0 0 0 1
 pinseq=5
 T 1950 2150 9 10 1 1 0 6 1
-pinlabel=A
+pinlabel=B
 }
 P 2000 1500 2300 1500 1 0 1
 {
@@ -97,7 +97,7 @@ pinnumber=10
 T 2050 1550 5 8 0 0 0 0 1
 pinseq=5
 T 1950 1550 9 10 1 1 0 6 1
-pinlabel=B
+pinlabel=Z
 }
 P 2000 1100 2300 1100 1 0 1
 {
@@ -106,7 +106,7 @@ pinnumber=9
 T 2050 1150 5 8 0 0 0 0 1
 pinseq=5
 T 1950 1150 9 10 1 1 0 6 1
-pinlabel=A
+pinlabel=Y
 }
 L 1400 2100 1400 2300 3 0 0 0 -1 -1
 L 2000 2100 1400 2100 3 0 0 0 -1 -1
