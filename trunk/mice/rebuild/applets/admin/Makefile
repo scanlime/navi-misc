@@ -1,5 +1,6 @@
 CLASSES=\
-	info.java\
+	info.class\
+	net.class\
 	authenticate.class\
 	interview.class\
 	moderator.class\
@@ -9,6 +10,9 @@ app: $(CLASSES)
 
 info.class: info.java
 	javac info.java
+
+net.class: net.java
+	javac net.java
 
 authenticate.class: authenticate.java
 	javac authenticate.java
