@@ -26,6 +26,7 @@
 #include "config.h"
 #include "cluster-model.h"
 #include <stdlib.h>
+#include <string.h>
 
 typedef void      (*ClusterForeachCallback)   (ClusterModel*         self,
 					       RemoteClient*         client,

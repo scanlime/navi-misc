@@ -437,7 +437,7 @@ static void       gui_init_simple     (RemoteServerConn*     self)
     gtk_container_add(GTK_CONTAINER(window), view);
     gtk_widget_show_all(window);
 
-    connect_map_to_view(self->map, view);
+    connect_map_to_view(self->map, HISTOGRAM_VIEW(view));
 
     self->gui = window;
 }
