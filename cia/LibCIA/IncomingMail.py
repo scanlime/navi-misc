@@ -70,9 +70,12 @@ class IncomingMailParser:
            (if any) and passes control to it.
            """
         self.message = message
-        subject = message['Subject'].strip()
+        subject = message['Subject']
+        # No subject, ignore this mail
         if not subject:
-            # No subject, ignore this mail
+            return None
+        subject = subject.strip()
+        if not subject:
             return None
 
         # The subject line is formatted like a simple command line
