@@ -562,6 +562,8 @@
 		<match path='/message/source/project'>gnue</match>
 		<match path='/message/source/project'>gnupdate</match>
 		<match path='/message/source/project'>gcc</match>
+		<match path='/message/source/project'>mono</match>
+		<match path='/message/source/project'>rhythmbox</match>
 	</or>
 
 	<formatter medium='irc'/>
