@@ -339,10 +339,6 @@ xtext2_init (XText2 *xtext)
   g_object_ref (G_OBJECT (xtext->adj));
   gtk_object_sink (GTK_OBJECT (xtext->adj));
 
-  /* each XText owns an empty buffer */
-  xtext->priv->original_buffer = xtext_buffer_new ();
-  xtext2_show_buffer (xtext, xtext->priv->original_buffer);
-
   gtk_widget_set_double_buffered (GTK_WIDGET (xtext), FALSE);
 
   xtext->priv->indent = TRUE;
@@ -518,6 +514,10 @@ xtext2_realize (GtkWidget *widget)
   xtext->priv->draw_buffer = widget->window;
 
   gdk_window_set_back_pixmap (widget->window, NULL, FALSE);
+
+  /* each XText owns an empty buffer */
+  xtext->priv->original_buffer = xtext_buffer_new ();
+  xtext2_show_buffer (xtext, xtext->priv->original_buffer);
 
   backend_init (xtext);
   xtext2_refresh (xtext);
@@ -2379,9 +2379,18 @@ xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer)
 
   if (f == NULL)
   {
+    textentry *ent;
     /* this isn't a buffer we've seen before */
     f = allocate_buffer (xtext, buffer);
+
+    ent = buffer->text_first;
+    while (ent)
+    {
+      buffer_append (buffer, ent, xtext);
+      ent = ent->next;
+    }
   }
+
 
   /* FIXME: recalc stuff! */
   xtext->priv->current_buffer = buffer;
@@ -2689,6 +2698,12 @@ recalc_widths (XText2 *xtext, gboolean do_str_width)
     if (ent->left_len != -1)
     {
       ent->indent = (f->indent - text_width (xtext, ent->str, ent->left_len, NULL)) - xtext->priv->spacewidth;
+      if (ent->indent < MARGIN)
+	ent->indent = MARGIN;
+    }
+    else
+    {
+      ent->indent = f->indent - xtext->priv->spacewidth;
       if (ent->indent < MARGIN)
 	ent->indent = MARGIN;
     }
