@@ -48,7 +48,7 @@ void fe_init(void) {
 	if(!preferences_exist()) {
 		run_setup_druid();
 	}
-	strcpy(prefs.nick1, preferences_nickname(NULL));
+	load_preferences();
 	run_main_window();
 	prefs.use_server_tab = TRUE;
 }

@@ -59,7 +59,8 @@ void text_gui_add_text_buffer(struct session *sess) {
 	sess->gui = tgui;
 
 	gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
-	gtk_xtext_set_time_stamp(tgui->buffer, TRUE);
+	if(preferences_show_timestamp())
+		gtk_xtext_set_time_stamp(tgui->buffer, TRUE);
 	gui.current_session = sess;
 
 	tgui->topic_buffer = gtk_text_buffer_new(NULL);

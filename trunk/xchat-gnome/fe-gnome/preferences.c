@@ -19,8 +19,9 @@
  *
  */
 
-#include "preferences.h"
 #include <gconf/gconf-client.h>
+#include "preferences.h"
+#include "../common/xchatc.h"
 
 gboolean preferences_exist() {
 	GConfClient *client;
@@ -35,6 +36,18 @@ gboolean preferences_exist() {
 	return TRUE;
 }
 
+void load_preferences() {
+	GConfClient *client;
+
+	client = gconf_client_get_default();
+
+	strcpy(prefs.nick1, gconf_client_get_string(client, "/apps/xchat/irc/nickname", NULL));
+	strcpy(prefs.realname, gconf_client_get_string(client, "/apps/xchat/irc/realname", NULL));
+	strcpy(prefs.awayreason, gconf_client_get_string(client, "/apps/xchat/irc/awaymsg", NULL));
+	strcpy(prefs.quitreason, gconf_client_get_string(client, "/apps/xchat/irc/quitmsg", NULL));
+	strcpy(prefs.partreason, gconf_client_get_string(client, "/apps/xchat/irc/partmsg", NULL));
+}
+
 char *preferences_nickname(struct ircnet *net) {
 	GConfClient *client;
 
@@ -45,4 +58,12 @@ char *preferences_nickname(struct ircnet *net) {
 	}
 	/* FIXME: check to see if there's a per-server pref for this */
 	return gconf_client_get_string(client, "/apps/xchat/irc/nickname", NULL);
+}
+
+gboolean preferences_show_timestamp() {
+	GConfClient *client;
+
+	client = gconf_client_get_default();
+
+	return gconf_client_get_bool(client, "/apps/xchat/irc/showtimestamps", NULL);
 }
