@@ -44,12 +44,21 @@
 
 /* Timing calculated from the current status and settings */
 struct rwand_timings {
-	int                     column_width;
-	int                     gap_width;
-	int                     fwd_phase;
-	int                     rev_phase;
-	int                     coil_begin;
-	int                     coil_end;
+	int    column_width;
+	int    gap_width;
+	int    fwd_phase;
+	int    rev_phase;
+	int    coil_begin;
+	int    coil_end;
+};
+
+/* Settings peculiar to each model of rasterwand clock */
+struct model_intrinsics {
+	int          model;
+	const char * name;
+	int          coil_center;
+	int          coil_width;
+	int          fine_adjust;
 };
 
 #define FILTER_SIZE      256    /* Increasing this will smooth out display jitter
@@ -104,6 +113,8 @@ struct rwand_dev {
 	int                     settings_dirty;         /* Set whenever the settings have changed but
 							 * timing has not been updated to reflect them.
 							 */
+
+	struct model_intrinsics*intrinsics;             /* Values intrinsic to this model of rasterwand */
 
 	unsigned char           fb[RWAND_FB_BYTES+4];   /* Our local copy of the device framebuffer. The 4 here gives
 							 * us some slack for reading past the end of the framebuffer
@@ -171,7 +182,7 @@ static void    rwand_nb_irq      (struct urb *urb, struct pt_regs *regs);
 
 static void    rwand_delete      (struct rwand_dev *dev);
 
-static void    rwand_request     (struct rwand_dev *dev, unsigned short request,
+static int     rwand_read_byte   (struct rwand_dev *dev, unsigned short request,
 				  unsigned short wValue, unsigned short wIndex);
 static void    rwand_nb_request  (struct rwand_dev *dev, unsigned short request,
 				  unsigned short wValue, unsigned short wIndex);
@@ -180,11 +191,12 @@ static int     rwand_wait_for_fb (struct rwand_dev *dev);
 static void    rwand_update_fb   (struct rwand_dev *dev, int bytes, unsigned char *fb);
 static void    rwand_request_flip(struct rwand_dev *dev);
 
-static void    rwand_decode_status (const unsigned char *in, struct rwand_status *out);
-static void    rwand_process_status(struct rwand_dev *dev, const unsigned char *packet);
-static void    rwand_reset_settings(struct rwand_dev *dev);
-static void    rwand_calc_timings(struct rwand_settings *settings, int period,
-				  struct rwand_timings *timings);
+static void    rwand_decode_status  (const unsigned char *in, struct rwand_status *out);
+static void    rwand_process_status (struct rwand_dev *dev, const unsigned char *packet);
+static void    rwand_set_model      (struct rwand_dev *dev);
+static void    rwand_reset_settings (struct rwand_dev *dev);
+static void    rwand_calc_timings   (struct rwand_settings *settings, int period,
+				     struct rwand_timings *timings);
 
 static void    rwand_update_state_off         (struct rwand_dev *dev, struct rwand_status *new_status);
 static void    rwand_update_state_starting    (struct rwand_dev *dev, struct rwand_status *new_status);
@@ -234,6 +246,24 @@ static struct usb_driver rwand_driver = {
 	.probe      =  rwand_probe,
 	.disconnect =  rwand_disconnect,
 	.id_table   =  rwand_table,
+};
+
+static struct model_intrinsics model_table[] = {
+	{
+		.model         = 1,
+		.name          = "Original Ravinia",
+		.coil_center   = 0x4000,
+		.coil_width    = 0x7000,
+		.fine_adjust   = -185,
+	},
+	{
+		.model         = 2,
+		.name          = "Fascinations XP3",
+		.coil_center   = 0x4000,
+		.coil_width    = 0x6300,
+		.fine_adjust   = -36,
+	},
+	{ }
 };
 
 
@@ -533,16 +563,19 @@ static void rwand_process_status(struct rwand_dev *dev, const unsigned char *pac
 }
 
 
-/* Send a generic blocking control request */
-static void rwand_request(struct rwand_dev *dev, unsigned short request,
-			  unsigned short wValue, unsigned short wIndex)
+/* Send a blocking control request, read one byte of data back */
+static int rwand_read_byte(struct rwand_dev *dev, unsigned short request,
+			   unsigned short wValue, unsigned short wIndex)
 {
 	int retval;
+	unsigned char byte;
 	retval = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
-				 request, USB_TYPE_VENDOR, wValue, wIndex, NULL, 0, REQUEST_TIMEOUT);
+				 request, USB_TYPE_VENDOR | USB_DIR_IN,
+				 wValue, wIndex, &byte, 1, REQUEST_TIMEOUT);
 	if (retval) {
 		err("Error in rwand_request, retval=%d", retval);
 	}
+	return byte;
 }
 
 
@@ -648,11 +681,38 @@ static void rwand_update_fb(struct rwand_dev *dev, int bytes, unsigned char *fb)
 
 /* Request a page flip. No display writes should be made until the
  * page flip completes. This can be checked for using rwand_wait_for_fb().
+ * This issues a nonblocking control request, since it's assumed the caller
+ * will use rwand_wait_for_fb().
  */
 static void rwand_request_flip(struct rwand_dev *dev)
 {
 	dev->page_flip_pending = 1;
-	rwand_request(dev, RWAND_CTRL_FLIP, 0, 0);
+	rwand_nb_request(dev, RWAND_CTRL_FLIP, 0, 0);
+}
+
+
+/* Look up the device's model and find it in our table */
+static void rwand_set_model(struct rwand_dev *dev)
+{
+	int model;
+	struct model_intrinsics *intrinsics;
+
+	model = rwand_read_byte(dev, RWAND_CTRL_GET_HW_MODEL, 0, 0);
+
+	for (intrinsics=model_table; intrinsics->model; intrinsics++) {
+		if (intrinsics->model == model) {
+			/* Found it */
+			dbg("Found model %d hardware", model);
+			dev->intrinsics = intrinsics;
+			return;
+		}
+	}
+
+	/* Oops, can't find it. Generate an error, and use the first
+	 * model in the table whether it's right or not.
+	 */
+	dev->intrinsics = model_table;
+	err("Found unknown hardware model %d", model);
 }
 
 
@@ -661,10 +721,10 @@ static void rwand_reset_settings(struct rwand_dev *dev)
 {
 	dev->settings.display_center = 0x8000;
 	dev->settings.display_width  = 0x6000;
-	dev->settings.coil_center    = 0x4000;
-	dev->settings.coil_width     = 0x7000;
+	dev->settings.coil_center    = dev->intrinsics->coil_center;
+	dev->settings.coil_width     = dev->intrinsics->coil_width;
 	dev->settings.duty_cycle     = 0xA000;
-	dev->settings.fine_adjust    = 0;
+	dev->settings.fine_adjust    = dev->intrinsics->fine_adjust;
 	dev->settings.power_mode     = RWAND_POWER_SWITCH;
 }
 
@@ -672,12 +732,7 @@ static void rwand_reset_settings(struct rwand_dev *dev)
 static void rwand_calc_timings(struct rwand_settings *settings, int period,
 			       struct rwand_timings *timings)
 {
-  int col_and_gap_width, total_width;
-
-	/* I'm not sure why this is necessary yet, but this formula was experimentally determined
-	 * according to the necessary fine_adjust settings before it was added.
-	 */
-	const int fudge_factor = -185;
+	int col_and_gap_width, total_width;
 
 	/* The coil driver just needs to have its relative timings
 	 * multiplied by our predictor's current period. This is fixed
@@ -703,10 +758,11 @@ static void rwand_calc_timings(struct rwand_settings *settings, int period,
 		 * two phase timings. These indicate when it starts the forward scan and the
 		 * backward scan, relative to the left position. The alignment between
 		 * the forward and backward scans should be calculated correctly, but it
-		 * can be tweaked using settings->fine_adjust.
+		 * can be tweaked using settings->fine_adjust. This value is set per-model
+		 * to account for latency in the interruption sensor and LED drive hardware.
 		 */
 		timings->fwd_phase = ((period * settings->display_center) >> 17) - total_width/2;
-		timings->rev_phase = period - timings->fwd_phase - total_width + fudge_factor + settings->fine_adjust;
+		timings->rev_phase = period - timings->fwd_phase - total_width + settings->fine_adjust;
 	}
 	else {
 		/* We can't calculate timings for a zero-width display without dividing by
@@ -974,6 +1030,7 @@ static int rwand_probe(struct usb_interface *interface, const struct usb_device_
 		return -ENOMEM;
 	}
 	memset(dev, 0, sizeof(*dev));
+	rwand_set_model(dev);
 	rwand_reset_settings(dev);
 
 	init_MUTEX(&dev->sem);
