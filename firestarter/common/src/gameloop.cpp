@@ -31,6 +31,7 @@
 
 #include "input.h"
 #include "timer.h"
+#include "prefs.h"
 
 // C RunTime Header Files
 #include <stdlib.h>
@@ -161,9 +162,9 @@ bool CBaseGameLoop::LoadPlugins ( void )
 
 bool CBaseGameLoop::SetupConfigure ( void )
 {
-    prefs.Init((char*)GetPrefsName());
+		CPrefsManager::instance().Init((char*)GetPrefsName());
 
-    bool bNew = !prefs.ItemExists("VERSION");
+    bool bNew = !CPrefsManager::instance().ItemExists("VERSION");
     bool configed = false;
     bool force = args.Exists("ForceConfig");
 
@@ -180,8 +181,8 @@ bool CBaseGameLoop::SetupConfigure ( void )
     }
     if (configed && bNew)
     {
-      prefs.SetItem("VERSION",1);
-      prefs.Update();
+      CPrefsManager::instance().SetItem("VERSION",1);
+      CPrefsManager::instance().Update();
     }
     return configed;
 }

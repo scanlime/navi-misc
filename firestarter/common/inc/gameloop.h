@@ -26,15 +26,12 @@
 #include "Ogre.h"
 #include "OgreConfigFile.h"
 #include "commandargs.h"
-#include "prefs.h"
 
 #include <string>
 
 using namespace Ogre;
 
 class CDrawManager;
-
-
 
 /** BaseGameLoop to provide interface and initalisation to ogre
 	@note
@@ -197,7 +194,6 @@ public:
   RenderWindow* GetRenderWindow ( void ) {return mWindow;}
 
   CCommandLineArgs& GetArgs ( void ) {return args;}
-  CPrefsManager& GetPrefs ( void ) {return prefs;}
 
 	CDrawManager* GetDrawManager ( void ) {return drawManager;}
 
@@ -232,7 +228,6 @@ protected:
 	void showDebugOverlay(bool show);
 
   CCommandLineArgs  args;
-  CPrefsManager     prefs;
 	CDrawManager			*drawManager;
 
   Root *mRoot;

@@ -32,18 +32,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// global "keeper"
-CPrefsManager *gPrefs = NULL;
-
-void SetPrefs ( CPrefsManager *prefs )
-{
-	gPrefs = prefs;
-}
-
-CPrefsManager* GetPrefs ( void )
-{
-	return gPrefs;
-}
+template <>
+CPrefsManager* Singleton<CPrefsManager>::_instance = (CPrefsManager*)0;
 
 // prefs class
 CPrefsManager::CPrefsManager()

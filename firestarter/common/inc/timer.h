@@ -29,7 +29,7 @@
 #endif
 #include "Singleton.h"
 
-class CTimer: public Singleton<CTimer>
+class CTimer : public Singleton<CTimer>
 {
 public:
 	CTimer();
