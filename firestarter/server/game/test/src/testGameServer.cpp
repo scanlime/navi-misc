@@ -29,7 +29,6 @@ void CTestGameServer::init ( void )
 			logOut("worldfile load failed","CTestGameServer::init",eLogLevel1);
 		else
 			logOut("loaded worldfile","CTestGameServer::init",eLogLevel1);
-
 	}
 	
 	if (!mapLoaded)
@@ -55,6 +54,7 @@ bool CTestGameServer::think ( void )
 				message.AddV(players->second.pos);
 				message.AddV(players->second.rot);
 				message.AddV(players->second.vec);
+				message.AddF(players->second.lastStamp);
 				sendToAllBut(message,players->first,false);
 
 				char temp[512];
@@ -98,6 +98,7 @@ void CTestGameServer::sendClientInfo ( int playerID )
 	message.AddV(itr->second.pos);
 	message.AddV(itr->second.rot);
 	message.AddV(itr->second.vec);
+	message.AddF(itr->second.lastStamp);
 
 	sendToAllBut(message,playerID,true);
 }
@@ -115,6 +116,7 @@ void CTestGameServer::sendUpdate ( int playerID )
 	message.AddV(itr->second.pos);
 	message.AddV(itr->second.rot);
 	message.AddV(itr->second.vec);
+	message.AddF(itr->second.lastStamp);
 
 	sendToAllBut(message,playerID,false);
 }
@@ -183,6 +185,8 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 				message.ReadV(itr->second.pos);
 				message.ReadV(itr->second.rot);
 				message.ReadV(itr->second.vec);
+				message.ReadV(itr->second.vec);
+				itr->second.lastStamp = message.ReadF();
 
 				char temp[512];
 				sprintf(temp,"update from ID %d for %f %f %f",playerID,itr->second.pos[0],itr->second.pos[1],itr->second.pos[2]);
@@ -213,6 +217,7 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 		newMessage.AddV(itr->second.pos);
 		newMessage.AddV(itr->second.rot);
 		newMessage.AddV(itr->second.vec);
+		newMessage.AddF(itr->second.lastStamp);
 
 		logOut("send spawn","CTestGameServer::message",eLogLevel3);
 
@@ -239,6 +244,7 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	info.rot[0] = info.rot[1] = info.rot[2] = 0;
 	info.vec[0] = info.vec[1] = info.vec[2] = 0;
 	info.bot = NULL;
+	info.lastStamp = CTimer::instance().GetTime();
 	users[playerID] = info;
 
 	CNetworkMessage	message;
@@ -266,6 +272,7 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 			message.AddV(itr->second.pos);// throw in the last pos too
 			message.AddV(itr->second.rot);
 			message.AddV(itr->second.vec);
+			message.AddF(itr->second.lastStamp);
 			message.Send(peer,true);
 			message.ClearData();
 		}
@@ -310,7 +317,7 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 	info.rot[0] = info.rot[1] = info.rot[2] = 0;
 	info.vec[0] = info.vec[1] = info.vec[2] = 0;
 	info.bot = new CRobotPlayer;
-
+	info.lastStamp = CTimer::instance().GetTime();
 	users[playerID] = info;
 
 	info.bot->init(name,config,&users[playerID]);
@@ -334,6 +341,7 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 	message.AddV(info.pos);
 	message.AddV(info.rot);
 	message.AddV(info.vec);
+	message.AddF(info.lastStamp);
 	sendToAllBut(message,playerID);
 	message.ClearData();
 
@@ -342,9 +350,10 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 
 	message.SetType(_MESSAGE_SPAWN);
 	message.AddI(playerID);
-	message.AddV(itr->second.pos);
-	message.AddV(itr->second.rot);
-	message.AddV(itr->second.vec);
+	message.AddV(users[playerID].pos);
+	message.AddV(users[playerID]rot);
+	message.AddV(users[playerID].vec);
+	message.AddF(users[playerID].lastStamp);
 
 	// send spawn to everyone 
 	logOut("send _MESSAGE_SPAWN","CTestGameServer::addBot::everyone",eLogLevel4);
@@ -428,6 +437,8 @@ void CTestGameServer::spawnPlayer ( int playerID )
 
 	itr->second.vec[0] = itr->second.vec[1] = 0;
 	itr->second.vec[2] = grav;
+
+	itr->second.lastStamp = CTime::instance().GetTime();
 }
 
 // bots
@@ -479,6 +490,7 @@ bool CRobotPlayer::think ( void )
 	playerInfo->pos[1] += playerInfo->vec[1]*updateTime;
 	playerInfo->pos[2] += playerInfo->vec[2]*updateTime;
 
+	playerInfo->lastStamp = CTimer::instance().GetTime();
 	if (playerInfo->pos[2] < 0 )
 		playerInfo->pos[2] = 0;
 

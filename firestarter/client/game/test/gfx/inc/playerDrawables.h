@@ -17,6 +17,7 @@
 #include "baseObject.h"
 #include "drawManager.h"
 
+// player drawables
 class CPlayerObjectFactory : public CBaseDrawableFactory
 {
 public:
@@ -36,6 +37,27 @@ protected:
 	SceneNode*	node;
 	bool				vis;
 	float			lastRot;
+};
+
+// shot drawables
+class CShotObjectFactory : public CBaseDrawableFactory
+{
+public:
+	virtual CBaseDrawable* New ( CBaseObject* parent );
+	virtual void Delete ( CBaseDrawable* object );
+};
+
+class CShotDrawObject : public CBaseDrawable
+{
+public:
+	CShotDrawObject();
+	virtual ~CShotDrawObject();
+	virtual void Init ( void );
+	virtual void Think ( void );
+
+protected:
+	SceneNode*	node;
+	float				lastRot;
 };
 
 // camera

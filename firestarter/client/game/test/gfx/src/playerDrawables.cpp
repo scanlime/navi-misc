@@ -14,7 +14,7 @@
 #include "playerDrawables.h"
 #include "firestarter.h"
 
-// skybox factory
+// player factory
 CBaseDrawable* CPlayerObjectFactory::New ( CBaseObject* parent )
 {
 	CBaseDrawable* obj = new CPlayerDrawObject;
@@ -33,7 +33,6 @@ CPlayerDrawObject::CPlayerDrawObject()
 	vis = false;
 	node = NULL;
 	lastRot = 0;
-
 }
 
 CPlayerDrawObject::~CPlayerDrawObject()
@@ -136,6 +135,76 @@ void CPlayerDrawObject::Think ( void )
 
 		lastRot = rot[2];
 	}
+}
+
+// shot drawables
+CBaseDrawable* CShotObjectFactory::New ( CBaseObject* parent )
+{
+	CBaseDrawable* obj = new CShotDrawObject;
+	obj->Set(parent);
+	return obj;
+}
+
+void CShotObjectFactory::Delete ( CBaseDrawable* object )
+{
+	delete(object);
+}
+
+CShotDrawObject::CShotDrawObject()
+{
+	node = NULL;
+}
+
+CShotDrawObject::~CShotDrawObject()
+{
+	if (node)
+		CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->removeAndDestroyChild(node->getName());
+}
+
+void CShotDrawObject::Init ( void )
+{
+	char	temp[512];
+
+	std::string	mesh = parent->GetValueS("mesh");
+	if (!mesh.size())
+		mesh = "shot.mesh";
+
+	std::string name = parent->GetValueS("name");
+
+	Entity* shot = CFirestarterLoop::instance().GetSceneManager()->createEntity(name.c_str(), mesh.c_str());
+	parent->GetMaterial(NULL,temp);
+	node = static_cast<SceneNode*>(CFirestarterLoop::instance().GetSceneManager()->getRootSceneNode()->createChild());
+
+	if (!node)
+		return;
+	node->attachObject(shot);
+
+	lastRot = 0;
+	float rot[3];
+	parent->GetRot(rot);
+	rot[2] += 90.0f;
+
+	float pos[3];
+	parent->GetPos(pos);
+	//pos[2] += 1.5f;
+
+	node->rotate(Vector3(0,0,1),rot[2]-lastRot);
+	node->translate(pos[0],pos[1],pos[2]); 
+	lastRot = rot[2];
+}
+
+void CShotDrawObject::Think ( void )
+{
+	float rot[3];
+	parent->GetRot(rot);
+	rot[2] += 90.0f;
+
+	float pos[3];
+	parent->GetPos(pos);
+
+	node->rotate(Vector3(0,0,1),rot[2]-lastRot);
+	node->setPosition(pos[0],pos[1],pos[2]); 
+	lastRot = rot[2];
 }
 
 // camera drawables
