@@ -287,7 +287,8 @@ class Messages(object):
             limitClause = ''
         else:
             limitClause = " LIMIT %d" % limit
-        cursor.execute("SELECT id, xml FROM stats_messages WHERE target_path = %s ORDER BY id DESC%s" %
+        cursor.execute("SELECT id, xml FROM stats_messages FORCE INDEX (target_path_2, id) "
+                       "WHERE target_path = %s ORDER BY id DESC%s" %
                             (Database.quote(self.target.path, 'varchar'),
                              limitClause))
         return cursor.fetchall()
