@@ -1,0 +1,12 @@
+* When xchat-gnome and the python plugin support it add an object for
+	a prefs page that can be sent to xchat-gnome and displayed in the
+	preferences window.
+
+* There is a bug in the python plugin preventing you from reloading
+	a script that uses extension modules. Add a workaround here until
+	the plugin is fixed(?).
+
+* Find a better way of displaying emails in the window when email
+	scraping is turned on. Maybe something as simple as being able
+	to sort the URL/email column by whether something is an email
+	or URL, so that they'll be grouped together.

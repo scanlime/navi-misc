@@ -1,6 +1,6 @@
 ''' UrlScraper.py
 
-xchat-gnome script for pulling URLs out of chat rooms
+xchat-gnome script for pulling URLs out of channels
 and displaying them in a separate window.
 '''
 # Copyright (C) 2004 W. Evan Sheehan <evan@navi.cx>
