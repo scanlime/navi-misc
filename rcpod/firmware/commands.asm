@@ -27,7 +27,7 @@
 #include "usb_defs.inc"
 #include "../include/rcpod_protocol.h"
 
-	errorlevel -302		; supress "register not in bank0, check page bits" message
+	errorlevel -302			; supress "register not in bank0, check page bits" message
 
 	global	CheckVendor
 
@@ -36,10 +36,10 @@
 	extern	temp
 	extern	Send_0Len_pkt
 
-	extern	rx_fsr_initial	; Initial buffer pointer, rx_fsr is reset to this when rx_remaining runs out
+	extern	rx_fsr_initial		; Initial buffer pointer, rx_fsr is reset to this when rx_remaining runs out
 	extern	rx_fsr			; Pointer into the buffer where the next received byte will be stored
 	extern	rx_status		; STATUS byte containing an IRP bit pointing to our buffer
-	extern	rx_remaining	; Number of bytes until the buffer must roll over
+	extern	rx_remaining		; Number of bytes until the buffer must roll over
 	extern	rx_size			; Initial rx_remaining, and the value it is reset to when it hits zero
 	extern	rx_count		; Total number of received bytes, modulo 256
 	extern	rx_Reset		; Resets the above values to the receiver's idle state
@@ -49,14 +49,25 @@
 	extern	io_Read
 	extern	io_pin
 
+	extern	i2c_speed
+	extern	i2c_clock_pin
+	extern	i2c_data_pin
+	extern	i2c_address
+	extern	i2c_ack_count
+
+	extern	i2c_Reset
+	extern	i2c_Write
+	extern	i2c_Read
+
 	global	txe_pin
 
 bank1	udata
-txe_pin	res	1		 ; Pin number for transmit enable
-last_poke_addr res 2 ; Address of the last byte of the most recently completed 'poke'
-byte_iterator res 1
-buffer_ptr	res 1
-acq_iterator res 1	 ; Iterator for analog aquisition
+
+txe_pin		res	1		 ; Pin number for transmit enable
+last_poke_addr	res	2		 ; Address of the last byte of the most recently completed 'poke'
+byte_count	res	1
+buffer_ptr	res	1
+acq_iterator	res	1		 ; Iterator for analog aquisition
 
 	code
 
@@ -96,11 +107,40 @@ CheckVendor
 	pagesel	wrongstate		; Not a recognized request
 	goto	wrongstate
 
-	;********************* Request to write a byte to RAM
+
+;; **********************************************************************************
+;; *************************************************************** Utilities ********
+;; **********************************************************************************
+
+	;; Send a 1-byte packet holding 'w', similar to Send_0Len_pkt.
+Send_Byte_pkt
+	movwf	temp
+
+	banksel	BD0IAL
+	movf	low BD0IAL,w	; get address of buffer
+	movwf	FSR
+	bsf 	STATUS,IRP	; indirectly to banks 2-3
+
+	movf	temp, w		;  Write the saved byte to our buffer
+	movwf	INDF
+	banksel	BD0IBC
+	bsf 	STATUS, RP0
+	movlw	0x01
+	movwf	BD0IBC		; set byte count to 1
+	movlw	0xc8		; DATA1 packet, DTS enabled
+	movwf	BD0IST		; give buffer back to SIE
+	return
+
+
+;; **********************************************************************************
+;; *************************************************************** Memory Access ****
+;; **********************************************************************************
+
+	;**** Request to write a byte to RAM
 	; A 9-bit address in wIndex, 8-bit data in wValue
 request_Poke
 	banksel BufferData
-	movf	BufferData+wIndex, w	; Save this poke address
+	movf	BufferData+wIndex, w		; Save this poke address
 	banksel	last_poke_addr
 	movwf	last_poke_addr
 	banksel	BufferData
@@ -109,23 +149,19 @@ request_Poke
 	movwf	last_poke_addr+1
 
 	banksel	BufferData
-	bcf	STATUS, IRP	; Transfer bit 8 of wIndex into IRP
+	bcf	STATUS, IRP			; Transfer bit 8 of wIndex into IRP
 	btfsc	BufferData+wIndexHigh, 0
 	bsf	STATUS, IRP
 
-	movf	BufferData+wIndex, w ; And bits 0-7 into FSR
+	movf	BufferData+wIndex, w		; And bits 0-7 into FSR
 	movwf	FSR
 
-	movf	BufferData+wValue, w ; Now write bits 0-7 of wValue to [IRP:FSR]
+	movf	BufferData+wValue, w		; Now write bits 0-7 of wValue to [IRP:FSR]
 	movwf	INDF
 
 	; Acknowledge the request
 	psgoto	Send_0Len_pkt
 
-
-;; **********************************************************************************
-;; *************************************************************** Memory Access ****
-;; **********************************************************************************
 
 	; **** Request to write 4 bytes after the last one poked
 request_Poke4
@@ -179,23 +215,8 @@ request_Peek
 
 	movlw	8
 
-	movf	INDF, w		; Save the referenced byte in temp
-	movwf	temp
-
-	banksel	BD0IAL
-	movf	low BD0IAL,w	; get address of buffer
-	movwf	FSR
-	bsf 	STATUS,IRP	; indirectly to banks 2-3
-
-	movf	temp, w		;  Write the saved byte to our buffer
-	movwf	INDF
-	banksel	BD0IBC
-	bsf 	STATUS, RP0
-	movlw	0x01
-	movwf	BD0IBC		; set byte count to 1
-	movlw	0xc8		; DATA1 packet, DTS enabled
-	movwf	BD0IST		; give buffer back to SIE
-	return
+	movf	INDF, w
+	psgoto	Send_Byte_pkt
 
 
 	;**** Request to read a 8 contiguous bytes from RAM
@@ -206,9 +227,9 @@ request_Peek8
 	banksel	buffer_ptr
 	movwf	buffer_ptr		; Start a buffer pointer we'll increment...
 
-	banksel	byte_iterator
+	banksel	byte_count
 	movlw	8				; We're peeking 8 bytes
-	movwf	byte_iterator
+	movwf	byte_count
 peek8Loop
 
 	banksel BufferData
@@ -238,8 +259,8 @@ peek8Loop
 	btfsc	STATUS, C		; If we get a carry, increment the high byte
 	incf	BufferData+wIndexHigh, f
 
-	banksel	byte_iterator	; Loop over all 8 bytes...
-	decfsz	byte_iterator, f
+	banksel	byte_count	; Loop over all 8 bytes...
+	decfsz	byte_count, f
 	goto	peek8Loop
 
 	banksel	BD0IBC
@@ -298,23 +319,7 @@ request_GpioRead
 	movwf	io_pin
 	pagesel	io_Read
 	call	io_Read
-
-	movwf	temp		; Save the return value in temp
-
-	banksel	BD0IAL
-	movf	low BD0IAL,w	; get address of buffer
-	movwf	FSR
-	bsf 	STATUS,IRP	; indirectly to banks 2-3
-
-	movf	temp, w		;  Write the saved byte to our buffer
-	movwf	INDF
-	banksel	BD0IBC
-	bsf 	STATUS, RP0
-	movlw	0x01
-	movwf	BD0IBC		; set byte count to 1
-	movlw	0xc8		; DATA1 packet, DTS enabled
-	movwf	BD0IST		; give buffer back to SIE
-	return
+	psgoto	Send_Byte_pkt
 
 
 	;**** Request to read all A/D converters
@@ -481,22 +486,9 @@ skipTx
 	;**** Request to get USART reception progress
 	; Returns the number of bytes received without cancelling the reception
 request_UsartRxProgress
-	banksel	BD0IAL
-	movf	low BD0IAL,w	; get address of buffer
-	movwf	FSR
-	bsf 	STATUS,IRP		; indirectly to banks 2-3
-
 	banksel	rx_count
-	movf	rx_count, w		;  Write the received byte count to our buffer
-	movwf	INDF
-
-	banksel	BD0IBC
-	bsf 	STATUS, RP0
-	movlw	0x01
-	movwf	BD0IBC			; set byte count to 1
-	movlw	0xc8			; DATA1 packet, DTS enabled
-	movwf	BD0IST			; give buffer back to SIE
-	return
+	movf	rx_count, w
+	psgoto	Send_Byte_pkt
 
 
 	;**** Set the USART transmit enable pin
@@ -515,32 +507,178 @@ request_UsartTxe
 ;; **********************************************************************************
 
 
+	;; **** Set the current I2C bus, address, and speed
 request_I2CSet
+	banksel	BufferData
+	movf	BufferData+(wIndex+1), w
+	banksel	i2c_speed
+	movwf	i2c_speed
+
+	banksel	BufferData
+	movf	BufferData+wIndex, w
+	banksel	i2c_address
+	movwf	i2c_address
+
+	banksel	BufferData
+	movf	BufferData+(wValue+1), w
+	banksel	i2c_clock_pin
+	movwf	i2c_clock_pin
+
+	banksel	BufferData
+	movf	BufferData+wValue, w
+	banksel	i2c_data_pin
+	movwf	i2c_data_pin
+
+	pscall	i2c_Reset
 	psgoto	Send_0Len_pkt
 
+
+	;; **** These commands all write up to 4 bytes stored in the setup packet
 request_I2CWrite0
-	psgoto	Send_0Len_pkt
-
+	movlw	0
+	psgoto	write4_common
 request_I2CWrite1
-	psgoto	Send_0Len_pkt
-
+	movlw	1
+	psgoto	write4_common
 request_I2CWrite2
-	psgoto	Send_0Len_pkt
-
+	movlw	2
+	psgoto	write4_common
 request_I2CWrite3
-	psgoto	Send_0Len_pkt
-
+	movlw	3
+	psgoto	write4_common
 request_I2CWrite4
-	psgoto	Send_0Len_pkt
+	movlw	4
+write4_common
+	banksel	byte_count
+	movwf	byte_count		; Our write size is in byte_count now
 
+	banksel	i2c_ack_count		; Clear the ACK counter
+	clrf	i2c_ack_count
+
+	bankisel BufferData		; Point IRP:FSR at our setup packet
+	movlw	BufferData+wValue
+	movwf	FSR
+
+	banksel	byte_count		; Perform the write
+	movf	byte_count, w
+	pscall	i2c_Write
+
+	banksel	i2c_ack_count
+	movf	i2c_ack_count, w	; Send back the ACK count
+	psgoto	Send_Byte_pkt
+
+
+	;; *** Just read wValue bytes
 request_I2CRead8
-	psgoto	Send_0Len_pkt
+	banksel	i2c_ack_count
+	clrf	i2c_ack_count
 
+	banksel	BD0IAL			; Point IRP:FSR at the EP0 IN buffer
+	movf	low BD0IAL,w
+	movwf	FSR
+	bsf 	STATUS,IRP
+
+	banksel BufferData		; Get the number of bytes to receive
+	movf	BufferData+wValue, w
+	banksel	BD0IBC
+	movwf	BD0IBC			; Save this as the EP0 IN byte count too
+
+	pscall	i2c_Read		; Receive...
+
+	banksel	i2c_ack_count
+	movf	i2c_ack_count, w	; We should have 1 ACK by now
+	xorlw	0x01
+	pagesel	Send_0Len_pkt
+	btfss	STATUS, Z
+	goto	Send_0Len_pkt
+
+	movlw	0xc8			; DATA1 packet, DTS enabled
+	movwf	BD0IST			; give buffer back to SIE
+	return
+
+
+	;; **** Write one byte from wValue, read and return wIndex bytes of data
 request_I2CW1Read8
-	psgoto	Send_0Len_pkt
+	banksel	i2c_ack_count
+	clrf	i2c_ack_count
 
+	bankisel BufferData		; Point IRP:FSR at our one byte to transmit
+	movlw	BufferData+wValue
+	movwf	FSR
+
+	movlw	1			; Write one byte
+	pscall	i2c_Write
+
+	banksel	i2c_ack_count
+	movf	i2c_ack_count, w	; If it didn't ACK twice, quit now
+	xorlw	0x02
+	pagesel	Send_0Len_pkt
+	btfss	STATUS, Z
+	goto	Send_0Len_pkt
+
+	banksel	BD0IAL			; Point IRP:FSR at the EP0 IN buffer
+	movf	low BD0IAL,w
+	movwf	FSR
+	bsf 	STATUS,IRP
+
+	banksel BufferData		; Get the number of bytes to receive
+	movf	BufferData+wIndex, w
+	banksel	BD0IBC
+	movwf	BD0IBC			; Save this as the EP0 IN byte count too
+
+	pscall	i2c_Read		; Receive...
+
+	banksel	i2c_ack_count
+	movf	i2c_ack_count, w	; We should have 3 ACKs total by now
+	xorlw	0x03
+	pagesel	Send_0Len_pkt
+	btfss	STATUS, Z
+	goto	Send_0Len_pkt
+
+	movlw	0xc8			; DATA1 packet, DTS enabled
+	movwf	BD0IST			; give buffer back to SIE
+	return
+
+
+	;; **** Write and/or read any number of bytes to the buffer at wIndex.
+	;; Bytes to transmit are in wValue low, bytes to receive are in wValue high.
+	;; Returns the ACK count.
 request_I2CTxRx
-	psgoto	Send_0Len_pkt
+	banksel	i2c_ack_count
+	clrf	i2c_ack_count
+
+	banksel	BufferData
+	bcf	STATUS, IRP			; Transfer bit 8 of wIndex into IRP
+	btfsc	BufferData+wIndexHigh, 0
+	bsf	STATUS, IRP
+
+	movf	BufferData+wIndex, w		; Load write address
+	movwf	FSR
+	movf	BufferData+wValue, w		; Load write count
+	pagesel	i2c_Write
+	btfss	STATUS, Z			; Skip if the write count is zero
+	call	i2c_Write			; Perform the write
+
+	banksel	i2c_ack_count			; If the write was successful, we got write_count+1 ACKs
+	decf	i2c_ack_count, w
+	banksel	BufferData
+	xorwf	BufferData+wValue, w
+	pagesel	i2c_txrx_write_failed
+	btfss	STATUS, Z
+	goto	i2c_txrx_write_failed
+
+	banksel	BufferData
+	movf	BufferData+wIndex, w		; Load read address
+	movwf	FSR
+	movf	BufferData+(wValue+1), w	; Load read count
+	pagesel	i2c_Read
+	btfss	STATUS, Z			; Skip if the read count is zero
+	call	i2c_Read			; Perform the read
+
+i2c_txrx_write_failed
+	banksel	i2c_ack_count
+	movf	i2c_ack_count, w		; Send back the ACK count
+	psgoto	Send_Byte_pkt
 
 	end
 

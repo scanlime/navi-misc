@@ -33,8 +33,15 @@
 	global	i2c_data_pin
 	global	i2c_address
 
-	global	i2c_Write	; Write 'w' bytes from the buffer at IRP:FSR to the current address
-	global	i2c_Read	; Write 'w' bytes into the buffer at IRP:FSR from the current address
+	global	i2c_ack_count
+
+	;; Put the bus in its idle state, resetting pin directions
+	global	i2c_Reset
+
+	;; Write/read 'w' bytes using the buffer at IRP:FSR and the current bus
+	;; pins, speed, and address. Accumulates successful acks in i2c_ack_count.
+	global	i2c_Write
+	global	i2c_Read
 
 
 bank1	udata
@@ -43,12 +50,16 @@ i2c_speed	res	1
 i2c_clock_pin	res	1
 i2c_data_pin	res	1
 i2c_address	res	1
+i2c_ack_count	res	1
 
 	code
 
 ;; **********************************************************************************
 ;; *************************************************************** Public Methods ***
 ;; **********************************************************************************
+
+i2c_Reset
+	return
 
 i2c_Write
 	return
