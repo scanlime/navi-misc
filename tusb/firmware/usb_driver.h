@@ -5,16 +5,6 @@
 #ifndef __USB_DRIVER_H
 #define __USB_DRIVER_H
 
-/* Main entry points */
-void usb_init();
-void usb_poll();
-
-/* Reply functions */
-void usb_write_ep0_buffer(unsigned char *data, int length);
-
-/* Application-defined functions */
-void usb_handle_vendor_request();
-
 struct usb_ctrlrequest {
   unsigned char bRequestType;
   unsigned char bRequest;
@@ -40,11 +30,53 @@ struct usb_device_descriptor {
   unsigned char  bNumConfigurations;
 };
 
+struct usb_config_descriptor {
+  unsigned char  bLength;
+  unsigned char  bDescriptorType;
+  unsigned short wTotalLength;
+  unsigned char  bNumInterfaces;
+  unsigned char  bConfigurationValue;
+  unsigned char  iConfiguration;
+  unsigned char  bmAttributes;
+  unsigned char  MaxPower;
+};
+
+struct usb_interface_descriptor {
+  unsigned char  bLength;
+  unsigned char  bDescriptorType;
+  unsigned char  bInterfaceNumber;
+  unsigned char  bAlternateSetting;
+  unsigned char  bNumEndpoints;
+  unsigned char  bInterfaceClass;
+  unsigned char  bInterfaceSubClass;
+  unsigned char  bInterfaceProtocol;
+  unsigned char  iInterface;
+};
+
+struct usb_endpoint_descriptor {
+  unsigned char  bLength;
+  unsigned char  bDescriptorType;
+  unsigned char  bEndpointAddress;
+  unsigned char  bmAttributes;
+  unsigned short wMaxPacketSize;
+  unsigned char  bInterval;
+};
+
+struct usb_descriptor_entry {
+  unsigned char type;
+  unsigned char index;
+  unsigned short language;
+  void *buffer;
+  int length;
+};
+
+typedef struct usb_descriptor_entry* usb_descriptor_table;
+
 
 /* The setup and EP0 buffers are in fixed locations in RAM */
-xdata at 0xFEF0 unsigned char usb_ep0out_buffer[8];
-xdata at 0xFEF8 unsigned char usb_ep0in_buffer[8];
-xdata at 0xFF00 struct usb_ctrlrequest usb_setup_buffer;
+volatile xdata at 0xFEF0 unsigned char usb_ep0out_buffer[8];
+volatile xdata at 0xFEF8 unsigned char usb_ep0in_buffer[8];
+volatile xdata at 0xFF00 struct usb_ctrlrequest usb_setup_buffer;
 
 /*
  * Device and/or Interface Class codes
@@ -170,6 +202,18 @@ xdata at 0xFF00 struct usb_ctrlrequest usb_setup_buffer;
 #define USB_REQ_SET_REPORT		0x09
 #define USB_REQ_SET_IDLE		0x0A
 #define USB_REQ_SET_PROTOCOL		0x0B
+
+
+/* Main entry points */
+void usb_init();
+void usb_poll();
+
+/* Reply functions */
+void usb_write_ep0_buffer(void *buffer, int length);
+
+/* Application-defined functions */
+void usb_handle_vendor_request();
+
 
 #endif /* __USB_DRIVER_H */
 

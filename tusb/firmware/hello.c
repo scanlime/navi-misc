@@ -30,7 +30,7 @@ void main() {
   uart_init();
   puts("\n---- Startup ----");
 
-#if 0
+#if 1
   usb_init();
   puts("USB initialized");
 #else
@@ -40,7 +40,7 @@ void main() {
   while (1) {
     watchdog_reset();
     usb_poll();
-    show_differences();
+    //show_differences();
   }
 }
 
