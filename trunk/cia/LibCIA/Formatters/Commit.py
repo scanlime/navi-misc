@@ -33,12 +33,20 @@ __all__ = ['CommitToIRC', 'CommitToPlaintext', 'CommitToXHTML',
            'CommitTitle', 'CommitToXHTMLLong']
 
 
-class CommitFormatter(Message.Formatter):
+class CommitFormatter(Message.ModularFormatter):
     """Base class for formatters that operate on commit messages.
        Includes a filter for commit messages, and utilities for
        extracting useful information from the commits.
        """
     filter = '<find path="/message/body/commit"/>'
+    defaultComponentTree = """
+    <format>
+        <author/> <branch/> *
+        <version/><autoHide>r<revision/></autoHide>
+        <module/>/<files/>:
+        <log/>
+    </format>
+    """
 
     # Subclasses can set this to limit the length of log messages, in lines
     lineLimit = None
@@ -64,90 +72,32 @@ class CommitFormatter(Message.Formatter):
     def param_filesWidthLimit(self, tag):
         self.filesWidthLimit = int(XML.shallowText(tag))
 
-    def consolidateFiles(self, xmlFiles):
-        """Given a <files> element, find the directory common to all files
-           and return a 2-tuple with that directory followed by
-           a list of files within that directory.
-           """
-        files = []
-        if xmlFiles:
-            for fileTag in XML.getChildElements(xmlFiles):
-                if fileTag.nodeName == 'file':
-                    files.append(XML.shallowText(fileTag))
+    def component_author(self, element, args):
+        return self.textComponent(element, args, "message", "body", "commit", "author")
 
-        # If we only have one file, return it as the prefix.
-        # This prevents the below regex from deleting the filename
-        # itself, assuming it was a partial filename.
-        if len(files) == 1:
-            return files[0], []
+    def component_version(self, element, args):
+        return self.textComponent(element, args, "message", "body", "commit", "version")
 
-        # Start with the prefix found by commonprefix,
-        # then actually make it end with a directory rather than
-        # possibly ending with part of a filename.
-        prefix = re.sub("[^/]*$", "", posixpath.commonprefix(files))
+    def component_revision(self, element, args):
+        return self.textComponent(element, args, "message", "body", "commit", "revision")
 
-        endings = []
-        for file in files:
-            endings.append(file[len(prefix):])
-        return prefix, endings
+    def component_branch(self, element, args):
+        return self.textComponent(element, args, "message", "source", "branch")
 
-    def format(self, args):
-        """Break the commit message up into pieces that are each formatted with
-           one of our format_* member functions.
-           """
-        message = args.message
-        metadata = []
-        commit   = XML.dig(message.xml, "message", "body", "commit")
-        source   = XML.dig(message.xml, "message", "source")
-        author   = XML.dig(commit, "author")
-        version  = XML.dig(commit, "version")
-        revision = XML.dig(commit, "revision")
-        log      = XML.dig(commit, "log")
-        branch   = XML.dig(source, "branch")
+    def component_module(self, element, args):
+        return self.textComponent(element, args, "message", "source", "module")
 
-        if author:
-            metadata.append(self.format_author(author))
-        if branch:
-            metadata.append(self.format_branch(branch))
-        metadata.append(self.format_separator())
-        if version:
-            metadata.append(self.format_version(version))
-        if revision:
-            metadata.append(self.format_revision(revision))
-        metadata.append(self.format_moduleAndFiles(message))
-        return self.joinMessage(metadata, self.format_log(log))
+    def component_project(self, element, args):
+        return self.textComponent(element, args, "message", "source", "project")
 
-    def joinMessage(self, metadata, log):
-        """Join a list of formatted metadata and a formatted log message
-           to form a final formatted commit.
-           """
-        return "%s: %s" % (" ".join(metadata), log)
-
-    def format_separator(self):
-        """Format an separator that goes between the author + branch and the
-           rest of the message, to enhance the message visually.
-           """
-        return "*"
-
-    def format_moduleAndFiles(self, message):
-        """Format the module name and files, joined together if they are both present."""
-        files = XML.dig(message.xml, "message", "body", "commit", "files")
-        if files:
-            formattedFiles = self.format_files(files)
-        else:
-            formattedFiles = ""
-
-        module = XML.dig(message.xml, "message", "source", "module")
-        if module:
-            formattedModule = self.format_module(module)
-        else:
-            formattedModule = ""
-        return formattedModule + '/' + formattedFiles
-
-    def format_files(self, files):
+    def component_files(self, element, args):
         """Break up our list of files into a common prefix and a sensibly-sized
-           list of filenames after that prefix. Prepend the module name if we have one.
+           list of filenames after that prefix.
            """
+        files = XML.dig(args.message.xml, "message", "body", "commit", "files")
+        if not (files and XML.hasChildElements(files)):
+            return []
+
         prefix, endings = self.consolidateFiles(files)
         endingStr = " ".join(endings)
         if len(endingStr) > self.filesWidthLimit:
@@ -155,27 +105,17 @@ class CommitFormatter(Message.Formatter):
             endingStr = self.summarizeFiles(endings)
         if prefix.startswith('/'):
             prefix = prefix[1:]
+
         if endingStr:
-            return "%s (%s)" % (prefix, endingStr)
+            return ["%s (%s)" % (prefix, endingStr)]
         else:
-            return prefix
+            return [prefix]
 
-    def summarizeFiles(self, files):
-        """Given a list of strings representing file paths, return
-           a summary of those files and/or directories. This is used
-           in place of a full file list when that would be too long.
-           """
-        # Count the number of distinct directories we have
-        dirs = {}
-        for file in files:
-            dirs[posixpath.split(file)[0]] = True
+    def component_log(self, element, args):
+        log = XML.dig(args.message.xml, "message", "body", "commit", "log")
+        if not log:
+            return []
 
-        if len(dirs) <= 1:
-            return "%d files" % len(files)
-        else:
-            return "%d files in %d dirs" % (len(files), len(dirs))
-
-    def format_log(self, log):
         # Break the log string into wrapped lines
         lines = []
         for line in Util.getNormalizedLog(log):
@@ -207,61 +147,100 @@ class CommitFormatter(Message.Formatter):
                 del lines[self.lineLimit + 1:]
 
         # Reassemble the log message and send it to the default formatter
-        return "\n".join(lines)
+        return ["\n".join(lines)]
 
-    def format_module(self, module):
-        return XML.shallowText(module).strip()
+    def summarizeFiles(self, files):
+        """Given a list of strings representing file paths, return
+           a summary of those files and/or directories. This is used
+           in place of a full file list when that would be too long.
+           """
+        # Count the number of distinct directories we have
+        dirs = {}
+        for file in files:
+            dirs[posixpath.split(file)[0]] = True
 
-    def format_author(self, author):
-        return XML.shallowText(author).strip()
+        if len(dirs) <= 1:
+            return "%d files" % len(files)
+        else:
+            return "%d files in %d dirs" % (len(files), len(dirs))
 
-    def format_branch(self, branch):
-        return XML.shallowText(branch).strip()
+    def consolidateFiles(self, xmlFiles):
+        """Given a <files> element, find the directory common to all files
+           and return a 2-tuple with that directory followed by
+           a list of files within that directory.
+           """
+        files = []
+        if xmlFiles:
+            for fileTag in XML.getChildElements(xmlFiles):
+                if fileTag.nodeName == 'file':
+                    files.append(XML.shallowText(fileTag))
 
-    def format_version(self, version):
-        return XML.shallowText(rev).strip()
+        # If we only have one file, return it as the prefix.
+        # This prevents the below regex from deleting the filename
+        # itself, assuming it was a partial filename.
+        if len(files) == 1:
+            return files[0], []
 
-    def format_revision(self, rev):
-        return 'r' + XML.shallowText(rev).strip()
+        # Start with the prefix found by commonprefix,
+        # then actually make it end with a directory rather than
+        # possibly ending with part of a filename.
+        prefix = re.sub("[^/]*$", "", posixpath.commonprefix(files))
+
+        endings = []
+        for file in files:
+            endings.append(file[len(prefix):])
+        return prefix, endings
 
 
 class CommitToIRC(CommitFormatter):
-    """Converts commit messages to plain text with IRC color tags"""
+    """Converts commit messages to plain text with IRC color tags.
+       This adds colorText elements to the component vocabulary defined by CommitFormatter.
+       """
     medium = 'irc'
     lineLimit = 6
     widthLimit = 220
     wrapWidth = 80
 
-    def __init__(self):
-        """By default, use the IRC color formatter"""
-        from LibCIA.IRC.Formatting import format
-        self.colorFormatter = format
+    defaultComponentTree = """
+    <format>
+        <autoHide><color fg='green'><author/></color></autoHide>
+        <autoHide><color fg='orange'><branch/></color></autoHide>
+        *
+        <autoHide><b><version/></b></autoHide>
+        <autoHide>r<b><revision/></b></autoHide>
+        <color fg='aqua'><module/></color>/<files/><b>:</b>
+        <log/>
+    </format>
+    """
 
-    def noColorFormatter(self, text, *tags):
-        """A replacement formatter that ignores colors"""
-        return text
+    def __init__(self):
+        # Blah, we have to do this to avoid circular dependency
+        from LibCIA.IRC import Formatting
+        self.Formatting = Formatting
+
+    def format(self, args):
+        self.colorStack = self.Formatting.ColorStack()
+        return CommitFormatter.format(self, args)
 
     def param_noColor(self, tag):
-        """The <noColor> tag disables colors, naturally"""
-        self.colorFormatter = self.noColorFormatter
+        """The <noColor> parameter disables colors.
+           This is equivalent to a <format> parameter with CommitFormatter's
+           default component tree.
+           """
+        self.componentTree = XML.parseString(CommitFormatter.defaultComponentTree
+                                             ).documentElement
 
-    def format_author(self, author):
-        return self.colorFormatter(CommitFormatter.format_author(self, author), 'green')
+    def component_b(self, element, args):
+        self.colorStack.push("bold")
+        return self.colorStack.wrap(self.walkComponents(element.childNodes, args))
 
-    def format_version(self, version):
-        return self.colorFormatter(XML.shallowText(version).strip(), 'bold')
+    def component_u(self, element, args):
+        self.colorStack.push("underline")
+        return self.colorStack.wrap(self.walkComponents(element.childNodes, args))
 
-    def format_revision(self, rev):
-        return 'r' + self.colorFormatter(XML.shallowText(rev).strip(), 'bold')
-
-    def format_module(self, module):
-        return self.colorFormatter(CommitFormatter.format_module(self, module), 'aqua')
-
-    def format_branch(self, branch):
-        return self.colorFormatter(CommitFormatter.format_branch(self, branch), 'orange')
-
-    def joinMessage(self, metadata, log):
-        return "%s%s %s" % (" ".join(metadata), self.colorFormatter(':', 'bold'), log)
+    def component_color(self, element, args):
+        self.colorStack.push(*self.Formatting.parseColorElement(element))
+        return self.colorStack.wrap(self.walkComponents(element.childNodes, args))
 
 
 class CommitToPlaintext(CommitFormatter):
@@ -284,32 +263,82 @@ class CommitTitle(CommitFormatter):
 class CommitToXHTML(CommitFormatter):
     """Converts commit messages to XHTML, represented as a Nouvelle tag tree."""
     medium = 'xhtml'
+    defaultComponentTree = """
+    <format>
+        <n:div style='border: 1px solid #888; background-color: #DDD; padding: 0.25em 0.5em; margin: 0em;'>
+            <autoHide> Commit by <n:strong><author/></n:strong></autoHide>
+            <autoHide> on <branch/></autoHide>
+            <n:span style='color: #888;'> :: </n:span>
+            <autoHide><n:b><version/></n:b></autoHide>
+            <autoHide>r<n:b><revision/></n:b></autoHide>
+            <n:b><module/></n:b>/<files/>:
+        </n:div>
+        <n:p style='padding: 0em; margin: 0.5em 0em;'>
+            <log/>
+        </n:p>
+    </format>
+    """
 
     def __init__(self):
         from LibCIA.Web import RegexTransform
         self.hyperlinker = RegexTransform.AutoHyperlink()
 
-    def joinMessage(self, metadata, log):
-        """Join the metadata and log message into a CSS-happy box"""
-        return [
-            tag('div', style=
-                         "border: 1px solid #888; "
-                         "background-color: #DDD; "
-                         "padding: 0.25em 0.5em;"
-                         "margin: 0em;"
-                         )[ metadata ],
-            tag('p', style=
-                         "padding: 0em; "
-                         "margin: 0.5em 0em; "
-                         )[ log ],
-            ]
+    def joinComponents(self, results):
+        """Nouvelle is just fine dealing with lists, don't join anything"""
+        return results
 
-    def format_log(self, log):
+    def walkComponents(self, nodes, args):
+        """Instead of concatenating lists, this implementation of walkComponents
+           nests them. This is more efficient with nouvelle, and lets us detect
+           empty results for <autoHide>.
+           """
+        results = []
+        for node in nodes:
+            results.append(self.evalComponent(node, args))
+        return results
+
+    def component_autoHide(self, element, args):
+        """The standard autoHide component is rewritten to properly recurse
+           into the contents of Nouvelle tags.
+           """
+        results = self.walkComponents(element.childNodes, args)
+        if self._checkVisibility(results):
+            return results
+        else:
+            return []
+
+    def _checkVisibility(self, nodes):
+        """Recursively check visibility for autoHide. Empty lists cause
+           us to return 0, and Nouvelle tags are recursed into.
+           """
+        for node in nodes:
+            if not node:
+                return 0
+            if isinstance(node[0], tag):
+                if not self._checkVisibility(node[0].content):
+                    return 0
+        return 1
+
+    def evalComponent(self, node, args):
+        """Here we convert all components starting with 'n:' into Novuelle tags.
+           FIXME: This should really be using proper DOM namespace manipulation and such
+           """
+        if node.nodeType == node.ELEMENT_NODE and node.nodeName.startswith("n:"):
+            attrs = {}
+            for attr in node.attributes.itervalues():
+                attrs[str(attr.name)] = attr.value
+            return [tag(node.nodeName[2:], **attrs)[ self.walkComponents(node.childNodes, args) ]]
+        return CommitFormatter.evalComponent(self, node, args)
+
+    def component_log(self, element, args):
         """Convert the log message to HTML. If the message seems to be preformatted
            (it has some lines with indentation) it is stuck into a <pre>. Otherwise
            it is converted to HTML by replacing newlines with <br> tags and converting
            bulletted lists.
            """
+        log = XML.dig(args.message.xml, "message", "body", "commit", "log")
+        if not log:
+            return []
         content = []
         lines = Util.getNormalizedLog(log)
         nonListItemLines = []
@@ -363,50 +392,23 @@ class CommitToXHTML(CommitFormatter):
 
         return self.hyperlinker.apply(content)
 
-    def format_author(self, author):
-        return [
-            " Commit by ",
-            tag('strong')[ XML.shallowText(author) ],
-            " ",
-            ]
-
-    def format_separator(self):
-        return tag('span', style="color: #888;")[" :: "]
-
-    def format_revision(self, rev):
-        return [' r', tag('b')[XML.shallowText(rev).strip()], ' ']
-
-    def format_version(self, ver):
-        return [' ', tag('b')[XML.shallowText(ver)], ' ']
-
-    def format_branch(self, branch):
-        return [' on ', XML.shallowText(branch), ' ']
-
-    def format_module(self, module):
-        return tag('b')[XML.shallowText(module).strip()]
-
-    def format_moduleAndFiles(self, message):
-        """Format the module name and files, joined together if they are both present."""
-        items = [' ']
-        module = XML.dig(message.xml, "message", "source", "module")
-        if module:
-            items.append(self.format_module(module))
-        files = XML.dig(message.xml, "message", "body", "commit", "files")
-        if files:
-            if items:
-                items.append("/")
-            items.append(self.format_files(files))
-        items.append(' ')
-        return items
-
 
 class CommitToXHTMLLong(CommitToXHTML):
     """Builds on the xhtml formatter to generate a longer representation of the commit,
        suitable for a full page rather than just an item in a listing.
        """
     medium = 'xhtml-long'
+    defaultComponentTree = """
+    <format>
+        <n:h1>Commit Message</n:h1>
+        <headers/>
+        <n:p class='messageBody'><log/></n:p>
+        <autoHide><n:h1>Modified Files</n:h1><files/></autoHide>
+    </format>
+    """
 
-    def format(self, args):
+    def component_headers(self, element, args):
+        """Format all relevant commit metadata in an email-style header box"""
         from LibCIA.Web import Template
 
         message   = args.message
@@ -440,23 +442,15 @@ class CommitToXHTMLLong(CommitToXHTML):
         if url:
             headers['URL'] = tag('a', href=XML.shallowText(url))[ Util.extractSummary(url) ]
 
-        content = [
-            tag('h1')[ "Commit Message" ],
-            Template.MessageHeaders(headers),
-            tag('p', _class="messageBody")[ self.format_log(log) ],
-            ]
+        return [Template.MessageHeaders(headers)]
 
-        files = XML.dig(message.xml, "message", "body", "commit", "files")
-        if files and XML.hasChildElements(files):
-            content.extend([
-                tag('h1')[ "Modified Files" ],
-                self.format_files(files),
-                ])
-        return content
-
-    def format_files(self, xmlFiles):
+    def component_files(self, element, args):
         """Format the contents of our <files> tag as a tree with nested lists"""
         from LibCIA.Web import Template
+
+        files = XML.dig(args.message.xml, "message", "body", "commit", "files")
+        if not (files and XML.hasChildElements(files)):
+            return []
 
         # First we organize the files into a tree of nested dictionaries.
         # The dictionary we ultimately have FileTree render maps each node
@@ -478,7 +472,7 @@ class CommitToXHTMLLong(CommitToXHTML):
                     # The leaf node owns this fileTag
                     node[0] = fileTag
 
-        return Template.FileTree(self.format_file_tree(fileTree))
+        return [Template.FileTree(self.format_file_tree(fileTree))]
 
     def format_file_tree(self, fileTree):
         """This is the second half of format_files- it recursively
@@ -497,12 +491,12 @@ class CommitToXHTMLLong(CommitToXHTML):
            return a Nouvelle-serializable representation.
            """
         if fileTag:
-            
+
             # If we have a 'uri' attribute, make this file a hyperlink
             uri = fileTag.getAttributeNS(None, 'uri')
             if uri:
                 return tag('a', href=uri)[ name ]
-              
+
         return name
 
 ### The End ###
