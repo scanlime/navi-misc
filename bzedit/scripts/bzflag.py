@@ -228,6 +228,10 @@ class BZObject(object):
     materials = []
     materialIndex = []
 
+    # If this BZObject has been associated with its Blender object,
+    # that object should be accessable here.
+    blendObject = None
+
     # If a world is associated with this object, it will be used
     # in computing transformations between blender coordinates
     # and bzflag coordinates such that all other objects are sized
@@ -276,6 +280,7 @@ class BZObject(object):
         obj = self.createBlenderObject()
         self.transformBlenderObject(obj)
         self.setBlenderProperties(obj)
+        self.blendObject = obj
         return obj
 
     def fromBlender(self, object):
@@ -284,6 +289,7 @@ class BZObject(object):
            information from the object's location and loadBlenderProperties
            to retrieve property info.
            """
+        self.blendObject = object
         self.loadBlenderTransform(object)
         self.loadBlenderProperties(object)
 
@@ -353,13 +359,14 @@ class ObjectTypeRegistry:
                 if type(value) == type and issubclass(value, BZObject):
                     self.register(value)
 
-    def fromBlender(self, object):
+    def fromBlender(self, object, world=None):
         """Find the proper BZObject subclass for the given Blender object,
            and load its parameters from the blender object. Returns a new
            BZObject instance.
            """
         bztype = object.getProperty('bztype').getData()
         bzo = self.dict[bztype]()
+        bzo.world = world
         bzo.fromBlender(object)
         return bzo
 
@@ -383,9 +390,7 @@ class World(BZObject):
              ( 1, -1, 0),
              ]
 
-    faces = [(0, 1, 2, 3), # Floor top
-             (3, 2, 1, 0), # Floor bottom
-             ]
+    faces = [(0, 1, 2, 3)]
 
     def __init__(self):
         self.set_size()
@@ -398,10 +403,44 @@ class World(BZObject):
         writer(("size", self.size))
 
     def transformBlenderObject(self, world):
-        world.setSize(self.size / 10.0,
-                      self.size / 10.0,
-                      1)
+        # The world always appears to be a constant size in Blender, and other objects
+        # are measured relative to it. The world's actual size in bzflag units
+        # comes from its 'size' property. This default size matches Blender's grid.
+        world.setSize(16, 16, 16)
         world.setLocation(0,0,0)
+
+    def setBlenderProperties(self, object):
+        BZObject.setBlenderProperties(self, object)
+        object.addProperty('size', float(self.size), 'FLOAT')
+
+    def loadBlenderProperties(self, object):
+        BZObject.loadBlenderProperties(self, object)
+        try:
+            self.size = object.getProperty('size').getData()
+        except AttributeError:
+            # No property, use the default size
+            self.set_size()
+
+    def getBzToBlendMatrix(self):
+        """Get a matrix that converts BZFlag coordinates to Blender coordinates
+           relative to this world. Requires that the world have an associated
+           Blender object.
+           """
+        scale = 1.0 / self.size
+        return self.blendObject.mat * Blender.Mathutils.Matrix(
+            [scale, 0,     0    , 0],
+            [0,     scale, 0    , 0],
+            [0,     0,     scale, 0],
+            [0,     0,     0,     1])
+
+    def getBlendToBzMatrix(self):
+        """Get a matrix that converts Blender coordintes back to BZFlag coordinates,
+           relative to this world. Requires that the world have an associated
+           Blender object.
+           """
+        inv = self.getBzToBlendMatrix()
+        inv.invert()
+        return inv
 
 
 class Box(BZObject):
@@ -455,17 +494,31 @@ class Box(BZObject):
            be used both by the Box object and by other objects
            with similar interfaces that subclass Box.
            """
-        obj.setSize(
-            self.size[0] / 10.0,
-            self.size[1] / 10.0,
-            self.size[2] / 10.0
-            )
-        obj.setLocation(
-            self.position[0] / 10.0,
-            self.position[1] / 10.0,
-            self.position[2] / 10.0
-            )
-        obj.setEuler((0, 0, self.rotation / 180.0 * math.pi))
+        mat = Blender.Mathutils.Matrix(
+            [self.size[0], 0,            0,            0],
+            [0,            self.size[1], 0,            0],
+            [0,            0,            self.size[2], 0],
+            [0,            0,            0,            1])
+
+        cos = math.cos(self.rotation * math.pi / 180.0)
+        sin = math.sin(self.rotation * math.pi / 180.0)
+        mat *= Blender.Mathutils.Matrix(
+            [ cos, sin, 0, 0],
+            [-sin, cos, 0, 0],
+            [ 0,   0,   1, 0],
+            [ 0,   0,   0, 1])
+
+        mat *= Blender.Mathutils.TranslationMatrix(
+            Blender.Mathutils.Vector(self.position))
+        mat *= self.world.getBzToBlendMatrix()
+        obj.setMatrix(mat)
+
+    def loadBlenderTransform(self, obj):
+        """Retrieves the object's position, size, and rotation
+           from a Blender object- the inverse of transformBlenderObject().
+           """
+        mat = obj.mat * self.world.getBlendToBzMatrix()
+        print mat
 
 
 class Pyramid(Box):

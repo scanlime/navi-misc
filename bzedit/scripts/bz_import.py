@@ -46,12 +46,15 @@ def importObjects(reader):
     world = None
     objects = []
     for object in reader:
-        objects.append(object)
         if isinstance(object, bzflag.World):
             world = object
+        else:
+            objects.append(object)
     if not world:
         world = bzflag.World()
-        objects.append(world)
+
+    # Create the Blender object for the world first
+    world.toBlender()
 
     # Create Blender objects for each BZFlag object
     for object in objects:

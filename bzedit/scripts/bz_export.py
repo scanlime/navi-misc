@@ -48,30 +48,34 @@ def collectObjects():
        BZObject instances.
        """
     world = None
-    objects = []
+    blendObjects = []
     typeReg = bzflag.getTypeRegistry()
 
     for object in Blender.Object.Get():
         try:
-            bztype = object.getProperty("bztype")
+            bztype = object.getProperty("bztype").getData()
         except AttributeError:
             pass
         else:
-            # Create a BZObject using the TypeRegistry
-            bzo = typeReg.fromBlender(object)
-            objects.append(bzo)
-
-            if isinstance(bzo, bzflag.World):
+            if bztype == 'world':
+                # Create the world object first, and save it
                 if world:
                     bzflag.log.err("Multiple 'world' objects are not allowed")
                     return
                 else:
-                    world = bzo
+                    world = typeReg.fromBlender(object)
+            else:
+                # Store the blender object for now
+                blendObjects.append(object)
 
     if not world:
         bzflag.log.err("A 'world' object is required")
-    for object in objects:
-        object.world = world
+
+    # Create the BZObjects only after we have established our world object
+    objects = [world]
+    for object in blendObjects:
+        bzo = typeReg.fromBlender(object, world)
+        objects.append(bzo)
     return objects
 
 def saveObjects(objects, filename):
