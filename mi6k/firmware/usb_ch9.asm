@@ -40,7 +40,7 @@
 
 #include <p16C745.inc>
 #include "usb_defs.inc"
-#include "protocol.h"
+#include "../include/protocol.h"
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message
 
