@@ -65,6 +65,7 @@ dialog_response (ConnectDialog *dialog, gint response, gpointer data)
 			gtk_tree_model_get (model, &iter, 0, &network, -1);
 			servlist_connect_by_netname (NULL, network);
 			g_free (network);
+			gtk_widget_destroy (dialog);
 		}
 	} else {
 		gtk_widget_destroy (GTK_WIDGET (dialog));
@@ -126,6 +127,7 @@ connect_dialog_init (ConnectDialog *dialog)
 	}
 
 	gtk_window_set_default_size (GTK_WINDOW (dialog), 320, 240);
+	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
 	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
 	g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (dialog_response), NULL);
 }
