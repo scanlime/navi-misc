@@ -31,6 +31,24 @@ class PalantirWindow:
       if func.startswith('on_'):
         self.tree.signal_connect(func, getattr(self, func))
 
+    # Connect up the dice buttons separately.
+    self.tree.get_widget('d4').connect('clicked',
+	lambda w,d: self.on_dice_button_clicked(w,d), 4)
+    self.tree.get_widget('d6').connect('clicked',
+	lambda w,d: self.on_dice_button_clicked(w,d), 6)
+    self.tree.get_widget('d8').connect('clicked',
+	lambda w,d: self.on_dice_button_clicked(w,d), 8)
+    self.tree.get_widget('d10').connect('clicked',
+	lambda w: self.on_dice_button_clicked(w))
+    self.tree.get_widget('d12').connect('clicked',
+	lambda w,d: self.on_dice_button_clicked(w,d), 12)
+    self.tree.get_widget('d20').connect('clicked',
+	lambda w,d: self.on_dice_button_clicked(w,d), 20)
+    self.tree.get_widget('d100').connect('clicked',
+	lambda w,d: self.on_dice_button_clicked(w,d), 100)
+    self.tree.get_widget('wwd10').connect('clicked',
+	lambda w: self.on_dice_button_clicked(w))
+
     # Set up our user list with a column for pixbufs and a column for text.
     list = self.tree.get_widget('UserList')
     list.set_model(model=gtk.ListStore(gtk.gdk.Pixbuf, gobject.TYPE_STRING))
@@ -48,6 +66,9 @@ class PalantirWindow:
 
     # Client factory.
     self.factory = palantirIRC.PalantirClientFactory('nuku-nuku', ui=self)
+
+    # Create an object to handle die rolls.
+    self.dieRoller = DieRoller(self)
 
   def GetFormattedTime(self):
     hour, min, sec = self.GetTime()
@@ -167,10 +188,16 @@ class PalantirWindow:
   def on_dd_dice_activate(self, widget, data=None):
     ''' Set the dice system for Dungeons & Dragons. '''
     self.tree.get_widget('DiffBox').hide()
+    self.tree.get_widget('wwd10').hide()
+    self.tree.get_widget('DiceButtons').show()
+    self.dieRoller.system = 'D&D'
 
   def on_white_wolf_dice_activate(self, widget, data=None):
     ''' Set the dice system for White Wolf games. '''
     self.tree.get_widget('DiffBox').show()
+    self.tree.get_widget('DiceButtons').hide()
+    self.tree.get_widget('wwd10').show()
+    self.dieRoller.system = 'WW'
 
   ### Color Selection Dialog ###
   def on_color_ok_button_clicked(self, widget, data=None):
@@ -228,6 +255,16 @@ class PalantirWindow:
   def on_quit_activate(self, widget, data=None):
     gtk.main_quit()
     reactor.stop()
+
+  def on_dice_button_clicked(self, widget, data=10):
+    time = int(self.tree.get_widget('times').get_text())
+    mods = int(self.tree.get_widget('mods').get_text())
+    if self.tree.get_widget('white_wolf_dice').get_active():
+      diff = int(self.tree.get_widget('diff').get_text())
+    else:
+      diff = 0
+
+    self.dieRoller.roll([time], data, mods, diff)
 
   ### Misc. Necessary Functions ###
   def ConnectionDialog(self):
@@ -296,7 +333,7 @@ class PalantirWindow:
     if hasattr(self, 'sheet'):
       self.tree.get_widget('CharacterViewPort').remove(self.sheet.root)
     # Create a new sheet.
-    self.sheet = GTKsheet(self.data, DieRoller(self))
+    self.sheet = GTKsheet(self.data, self.dieRoller)
     # Store the filename the sheet was read from... (why did I do this?)
     self.sheet.filename = self.tree.dialog.get_widget('SheetSelection').get_filename()
     # Add the sheet to the CharacterViewPort and show it.

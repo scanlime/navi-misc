@@ -18,9 +18,10 @@ class DieRoller:
         of the dice rolls.
 	'''
     self.ui = ui
+    self.system = 'D&D'
 
   # All action objects for the character sheet are required to have this function.
-  def roll(self, times, sides, mods):
+  def roll(self, times, sides, mods=0, diff=0):
     ''' Roll the dice. '''
     total = 0
     totalTimes = 0
@@ -30,13 +31,22 @@ class DieRoller:
     for time in times:
       totalTimes += time
 
-    for roll in range(totalTimes):
-	rolls.append(randint(1, sides))
-	total += rolls[len(rolls) - 1]
+    # Use the dice system from D&D.
+    if self.system is 'D&D':
+      for roll in range(totalTimes):
+        rolls.append(randint(1, sides))
+        total += rolls[len(rolls) - 1]
 
-    # Add the modifiers to the total.
-    for mod in mods:
-      total += mod
+      # Add the modifiers to the total.
+      for mod in mods:
+        total += mod
+
+    # Use the dice system from the White Wolf games.
+    else:
+      for roll in range(totalTimes):
+	rolls.append(randint(1, sides) + mods)
+	if rolls[len(rolls) - 1] >= diff:
+	  total += 1
 
     # Send the results to the channel.
     self.ui.SendRoll(totalTimes, sides, rolls, total)
