@@ -134,16 +134,19 @@ class MainMenu(Menu.RingMenu):
             Menu.Item(Icon.load('navi')),
             ]
 
-        # Add items for video devices that are already active
-        self.channelItems = {}
-        for channel in self.hardware.uvswitch.activeChannels:
-            item = VideoInput(channel)
-            self.channelItems[channel] = item
-            menuItems.append(item)
+        # If we have a video switch device, integrate it with the main menu
+        if self.hardware.uvswitch:
 
-        # Observe the video detection events, so icons can be dynamically added and removed
-        self.hardware.uvswitch.onChannelActive.observe(self.addChannel)
-        self.hardware.uvswitch.onChannelInactive.observe(self.removeChannel)
+            # Add items for video devices that are already active
+            self.channelItems = {}
+            for channel in self.hardware.uvswitch.activeChannels:
+                item = VideoInput(channel)
+                self.channelItems[channel] = item
+                menuItems.append(item)
+
+                # Observe the video detection events, so icons can be dynamically added and removed
+                self.hardware.uvswitch.onChannelActive.observe(self.addChannel)
+                self.hardware.uvswitch.onChannelInactive.observe(self.removeChannel)
 
         Menu.RingMenu.__init__(self, book, menuItems)
 

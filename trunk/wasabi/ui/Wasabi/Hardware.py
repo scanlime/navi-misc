@@ -60,8 +60,9 @@ class Devices:
         # Open the sound mixer (it should always be present)
         self.mixer = Mixer.Device()
 
-        # Now that the hardware is connected, switch to wasabi's video and audio
-        self.selectWasabiVideo()
+        # Now that the hardware is connected (if it's connected) switch to wasabi's video and audio
+        if self.uvswitch:
+            self.selectWasabiVideo()
 
     def warn(self, msg):
         """Issue a warning related to hardware initialization"""
