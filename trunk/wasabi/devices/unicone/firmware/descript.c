@@ -24,6 +24,10 @@
 
 #include <unicone.h>
 
+/* The USB descriptors measure current in 2ma units */
+#define MA / 2
+
+
 const static struct usb_device_descriptor dev_descript = {
   /* bLength            */  sizeof(struct usb_device_descriptor),
   /* bDescriptorType    */  USB_DT_DEVICE,
@@ -55,7 +59,7 @@ const static struct {
     /* bConfigurationValue */  1,
     /* iConfiguration      */  0,
     /* bmAttributes        */  0x80,
-    /* MaxPower            */  100,
+    /* MaxPower            */  300 MA,
   },
   /* First interface */
   {
