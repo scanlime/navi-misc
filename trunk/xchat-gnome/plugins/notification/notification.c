@@ -101,6 +101,9 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 
 	gtk_widget_show_all (GTK_WIDGET (notification));
 
+	/* FIXME: Saw this in Gaim's notification plugin. Not sure it's necessary,
+	 * will require investigation at a later date.
+	 */
 	g_object_ref (G_OBJECT (notification));
 
 	/* Create the menu. */
@@ -125,9 +128,9 @@ xchat_plugin_deinit ()
 }
 
 static void
-notification_menu_show ()
+notification_menu_show (GdkEventButton *event)
 {
-
+	gtk_menu_popup (menu, NULL, NULL, NULL, NULL, event->button, event->time);
 }
 
 static gboolean
@@ -148,7 +151,7 @@ notification_clicked_cb (GtkWidget *widget, GdkEventButton *event, gpointer data
 
 		/* Right click. */
 		case 3:
-			notification_menu_show();
+			notification_menu_show (event);
 			break;
 
 		default:
