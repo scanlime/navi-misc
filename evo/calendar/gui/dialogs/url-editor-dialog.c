@@ -332,5 +332,5 @@ url_editor_dialog_run (UrlEditorDialog *dialog)
 		}
 	}
 
-	gtk_widget_hide (dialog);
+	gtk_widget_hide_all (dialog);
 }

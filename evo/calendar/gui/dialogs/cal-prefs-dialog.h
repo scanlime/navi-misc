@@ -75,10 +75,8 @@ struct _CalendarPrefsDialog {
 	GtkWidget *url_enable_label;
 	GtkWidget *url_enable_image;
 	GtkWidget *url_list;
-	GtkWidget *url_editor_dlg;
 	GtkWidget *template_url;
 	guint destroyed : 1;
-	gboolean url_editor;
 };
 
 struct _CalendarPrefsDialogClass {
