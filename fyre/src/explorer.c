@@ -21,7 +21,7 @@
  *
  */
 
-#include "config.h"
+#include <config.h>
 #include <string.h>
 #include <math.h>
 #include "explorer.h"
@@ -101,10 +101,8 @@ static void explorer_init(Explorer *self) {
 
     if (g_file_test (FYRE_DATADIR "/explorer.glade", G_FILE_TEST_EXISTS))
         self->xml = glade_xml_new (FYRE_DATADIR "/explorer.glade", NULL, NULL);
-#ifdef ENABLE_BINRELOC
     if (!self->xml)
 	self->xml = glade_xml_new(BR_DATADIR("/fyre/explorer.glade"), NULL, NULL);
-#endif
 
     self->paused = FALSE;
 
@@ -320,10 +318,8 @@ update_image_preview (GtkFileChooser *chooser, GtkImage *image) {
 
     if (emblem_pixbuf == NULL) {
 	emblem_pixbuf = gdk_pixbuf_new_from_file (FYRE_DATADIR "/metadata-emblem.png", NULL);
-#ifdef ENABLE_BINRELOC
 	if (!emblem_pixbuf)
 	    emblem_pixbuf = gdk_pixbuf_new_from_file (BR_DATADIR ("/fyre/metadata-emblem.png"), NULL);
-#endif
     }
 
     filename = gtk_file_chooser_get_filename (chooser);

@@ -21,7 +21,7 @@
  *
  */
 
-#include "config.h"
+#include <config.h>
 #include "gui-util.h"
 #include "prefix.h"
 
@@ -44,12 +44,12 @@ void fyre_set_icon(GtkWidget* window)
 	LOAD_ICON(FYRE_DATADIR "/fyre-48x48.png");
 	LOAD_ICON(FYRE_DATADIR "/fyre-32x32.png");
 	LOAD_ICON(FYRE_DATADIR "/fyre-16x16.png");
+    }
 
-#ifdef ENABLE_BINRELOC
+    if (!icons) {
 	LOAD_ICON(BR_DATADIR( "/fyre-48x48.png" ));
 	LOAD_ICON(BR_DATADIR( "/fyre-32x32.png" ));
 	LOAD_ICON(BR_DATADIR( "/fyre-16x16.png" ));
-#endif
     }
 #undef LOAD_ICON
 

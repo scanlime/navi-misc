@@ -23,7 +23,7 @@
  *
  */
 
-#include "config.h"
+#include <config.h>
 #include "explorer.h"
 #include "de-jong.h"
 #include "animation.h"
@@ -111,10 +111,8 @@ static void on_about_activate(GtkWidget *widget, Explorer *self)
 
 	/* Load the animation from our datadir, possibly using binreloc */
 	animation_load_file(animation, FYRE_DATADIR "/about-box.fa");
-#ifdef ENABLE_BINRELOC
 	if (!animation_get_length(animation))
 	    animation_load_file(animation, BR_DATADIR("/fyre/about-box.fa"));
-#endif
 
 	if (animation_get_length(animation)) {
 	    self->about_image = screensaver_new(map, animation);

@@ -5,7 +5,8 @@ INCLUDES = \
 	$(PACKAGE_CFLAGS)		\
 	$(EXR_CFLAGS)			\
 	$(GNET_CFLAGS)			\
-	'-DFYRE_DATADIR="data"'
+	'-DFYRE_DATADIR="data"'		\
+	'-DDATADIR="$(prefix)/share"'
 
 fyre_LDADD = \
 	$(BINRELOC_LIBS)		\
@@ -37,13 +38,6 @@ GNET_SRC = \
 	cluster-model.c
 else
 GNET_SRC =
-endif
-
-if HAVE_BINRELOC
-BINRELOC_SRC = \
-	prefix.c
-else
-BINRELOC_SRC =
 endif
 
 if HAVE_GETOPT
@@ -81,8 +75,8 @@ fyre_SOURCES = 				\
 	screensaver.c			\
 	batch-image-render.c		\
 	probability-map.c		\
+	prefix.c			\
 	$(EXR_SRC)			\
-	$(BINRELOC_SRC)			\
 	$(GETOPT_SRC)			\
 	$(GNET_SRC)
 
