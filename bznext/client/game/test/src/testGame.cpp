@@ -11,7 +11,6 @@
 */
 #include "testGame.h"
 
-
 void CTestGame::Init ( void )
 {
 	// do one time init stuff here
