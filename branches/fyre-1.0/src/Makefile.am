@@ -109,5 +109,6 @@ noinst_HEADERS =			\
 	remote-client.h			\
 	probability-map.h		\
 	discovery-server.h		\
-	discovery-client.h
+	discovery-client.h              \
+        platform.h
 

@@ -29,6 +29,9 @@
  *
  */
 
+#include "config.h"
+#include "platform.h"
+
 #include "discovery-server.h"
 #include <string.h>
 

@@ -32,6 +32,7 @@
 #ifndef __DISCOVERY_SERVER_H__
 #define __DISCOVERY_SERVER_H__
 
+#include "platform.h"
 #include <gtk/gtk.h>
 #include <gnet.h>
 

@@ -24,6 +24,9 @@
  *
  */
 
+#include "config.h"
+#include "platform.h"
+
 #include <string.h>
 #include "discovery-server.h"
 #include "discovery-client.h"
