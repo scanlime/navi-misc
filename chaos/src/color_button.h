@@ -47,6 +47,8 @@ struct _ColorButton {
   GtkWidget *drawing_area;
   GtkWidget *dialog;
 
+  gchar *title;
+  GdkColor previous_color;
   GdkColor color;
 };
 
@@ -57,8 +59,7 @@ struct _ColorButtonClass {
 };
 
 GType      color_button_get_type(void);
-GtkWidget* color_button_new(void);
-GtkWidget* color_button_new_with_color(GdkColor *c);
+GtkWidget* color_button_new(const char *title, GdkColor *defaultColor);
 void       color_button_set_color(ColorButton *cb, GdkColor *c);
 void       color_button_get_color(ColorButton *cb, GdkColor *c);
 
