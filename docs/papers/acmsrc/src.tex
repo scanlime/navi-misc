@@ -1,6 +1,7 @@
 \documentclass[letterpaper, 11pt]{article}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{subfig}
 \setlength{\parskip}{5pt}
 
 \title{Real-Time Histogram Imaging}
@@ -59,11 +60,22 @@ a particular value in the image.  There are several different operators for this
 allows the user some control over the final image via parameters such as exposure, gamma
 correction and color interpolation.
 
+\begin{subfigures}
+\label{logistic}
+
 \begin{figure}[htb]
 \centering
-\includegraphics[width=3in]{figures/logistic-combined.png}
-\caption{Comparison of histogram-based rendering with traditional 1-bit point plotting\label{logistic}}
+\includegraphics[width=3in]{figures/logistic-traditional-200.png}
+\caption{The Logistic Map, rendered with 200 iterations and traditional 1-bit point plotting.}
 \end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=3in]{figures/logistic-histogram-8m.png}
+\caption{At the same image resolution, histogram-based rendering shows the extra detail obtained by running 8 million iterations.}
+\end{figure}
+
+\end{subfigures}
 
 As can be seen in figure \ref{logistic}, using a histogram exposes an enormous amount of
 detail.  The image here is one of the canonical examples in nonlinear dynamics: a bifurcation
