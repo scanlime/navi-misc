@@ -13,14 +13,8 @@ class KdeFilter(CommitFilter):
         self.addAuthor(self.body.readline().strip().split(" ")[-1][:-1])
 
         # The body is the set of non-blank lines starting on the third line
-        lines = []
         self.body.readline()
-        while True:
-            line = self.body.readline().strip()
-            if not line:
-                break
-            lines.append(line)
-        self.addLog("\n".join(lines))
+        self.slurpLog()
 
         # Slurp up the rest of the message looking for files
         while True:
