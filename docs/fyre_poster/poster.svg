@@ -151,16 +151,120 @@
      borderopacity="1.0"
      inkscape:pageopacity="1.0000000"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.21707918"
-     inkscape:cx="1465.7896"
-     inkscape:cy="2486.5577"
-     inkscape:window-width="1230"
-     inkscape:window-height="1166"
+     inkscape:zoom="0.15349816"
+     inkscape:cx="1626.8108"
+     inkscape:cy="278.58926"
+     inkscape:window-width="1394"
+     inkscape:window-height="1113"
      showgrid="false"
      snaptogrid="false"
-     inkscape:window-x="47"
+     inkscape:window-x="188"
      inkscape:window-y="0"
-     showborder="true" />
+     showborder="true"
+     showguides="true"
+     snaptoguides="true">
+    <sodipodi:guide
+       orientation="vertical"
+       position="2457.6286"
+       id="guide2637" />
+    <sodipodi:guide
+       orientation="vertical"
+       position="140.50173"
+       id="guide2641" />
+  </sodipodi:namedview>
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:50.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="179.50000"
+     y="903.06309"
+     id="text1669"
+     sodipodi:linespacing="120%"><tspan
+       id="tspan1670"
+       style="letter-spacing:3.6528194e-10;"
+       dx="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.7384434e-08 -2.7384434e-08 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0">Techniques for visualizing chaotic maps and similar systems are typically very simple- the system's states are mapped to pixels on</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1717"
+       x="179.50000"
+       y="963.06311"
+       style="letter-spacing:0.48858014;">an image, and at each iteration the current state's pixel is darkened partially or completely. With this method, either the resulting</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1719"
+       x="179.50000"
+       y="1023.0631"
+       style="letter-spacing:0.60707343;">image is very low quality, or the system must run for a long time before any usable image is generated. This makes it difficult to</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1721"
+       x="179.50000"
+       y="1083.0631">experiment with a system's parameters and render high quality images from them.</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1682"
+       x="179.50000"
+       y="1143.0631"></tspan><tspan
+       sodipodi:role="line"
+       id="tspan1684"
+       x="179.50000"
+       y="1203.0631"
+       style="letter-spacing:-0.28568152;">Our method treats the image as a two dimensional histogram, and divides the rendering process into two steps: collecting histogram</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2604"
+       x="179.50000"
+       y="1263.0631"
+       style="letter-spacing:0.49751425;">samples, and generating an image from the histogram. Like pixels in the traditional technique, each histogram bucket maps to a</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2608"
+       x="179.50000"
+       y="1323.0631"
+       style="letter-spacing:-0.19194221;">range of states in the chaotic system. As the system iterates, the histogram buckets sample the probability that the chaotic system's</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2614"
+       x="179.50000"
+       y="1383.0631"
+       style="letter-spacing:-0.15586288;">state falls within its region. To create an image in the second step, the histogram buckets are mapped to pixels and the probabilities</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2616"
+       x="179.50000"
+       y="1443.0631">are mapped to colors. Normally each bucket corresponds to one pixel, but oversampling may be implemented by mapping multiple</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2635"
+       x="179.50000"
+       y="1503.0631">buckets to one pixel.</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2610"
+       x="179.50000"
+       y="1563.0631"></tspan><tspan
+       sodipodi:role="line"
+       id="tspan2620"
+       x="179.50000"
+       y="1623.0631"
+       style="letter-spacing:0.48967928;">Unlike the traditional technique's images, these histograms will converge over time rather than diverge. This means that a crude</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2622"
+       x="179.50000"
+       y="1683.0631">rendering can be generated very quickly, then progressively refined. As the histogram is refined, the relatively fast conversion from</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2624"
+       x="179.50000"
+       y="1743.0631"
+       style="letter-spacing:0.35989168;">histogram to image can be repeated, showing this refinement in real-time. The ability to show a complete but possibly low quality</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2626"
+       x="179.50000"
+       y="1803.0631"
+       style="letter-spacing:-0.034377716;">image at any time gives this technique excellent interactivity, making it suitable as a tool for artists and everyday computer users to</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2628"
+       x="179.50000"
+       y="1863.0631"
+       style="letter-spacing:0.58311778;">explore chaotic maps. Current desktop computers can achieve very smooth interactivity in our implementation at modest image</tspan><tspan
+       sodipodi:role="line"
+       id="tspan2630"
+       x="179.50000"
+       y="1923.0632">sizes.</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1712"
+       x="179.50000"
+       y="1983.0632"
+       style="letter-spacing:13.819841;"></tspan></text>
   <rect
      style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke-width:13.875000;stroke:#000000;stroke-opacity:1.0000000;stroke-dasharray:none;"
      id="rect836"
@@ -229,7 +333,7 @@
   </g>
   <g
      id="g1440"
-     transform="translate(0.000000,1066.118)">
+     transform="translate(0.000000,5654.370)">
     <image
        xlink:href="images/base-larger.png"
        sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/base-larger.png"
@@ -311,7 +415,8 @@
          style="fill:#000000;fill-opacity:1.0000000;">Increased Gamma</tspan></text>
   </g>
   <g
-     id="g1475">
+     id="g1475"
+     transform="translate(0.000000,4738.905)">
     <image
        xlink:href="images/goodbif-large.png"
        sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/goodbif-large.png"
@@ -374,7 +479,7 @@
   </g>
   <g
      id="g1578"
-     transform="translate(0.000000,400.0155)">
+     transform="translate(0.000000,4988.267)">
     <image
        xlink:href="images/clamped-pre-interp.png"
        sodipodi:absref="/home/micah/navi-misc/docs/fyre_poster/images/clamped-pre-interp.png"
@@ -560,7 +665,7 @@
      xml:space="preserve"
      style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
      x="240.36008"
-     y="3771.3159"
+     y="8359.5679"
      id="text1619"
      sodipodi:linespacing="120%"><tspan
        id="tspan1620"
@@ -568,23 +673,23 @@
        sodipodi:role="line"
        id="tspan1622"
        x="240.36008"
-       y="3843.3159"
+       y="8431.5684"
        style="fill:#000000;fill-opacity:1.0000000;">of color. We take an approach that mirrors the way natural objects appear in photography. Very bright</tspan><tspan
        sodipodi:role="line"
        id="tspan1624"
        x="240.36008"
-       y="3915.3159"
+       y="8503.5684"
        style="fill:#000000;fill-opacity:1.0000000;">objects, for example, saturate the image and always appear white. By clamping each color component</tspan><tspan
        sodipodi:role="line"
        id="tspan1626"
        x="240.36008"
-       y="3987.3159"
+       y="8575.5684"
        style="fill:#000000;fill-opacity:1.0000000;">as late as possible in the rendering process, a similar saturation effect can be achieved:</tspan></text>
   <text
      xml:space="preserve"
      style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
      x="240.36008"
-     y="2366.5759"
+     y="6954.8282"
      id="text1628"
      sodipodi:linespacing="120%"><tspan
        id="tspan1629"
@@ -592,21 +697,34 @@
        sodipodi:role="line"
        id="tspan1639"
        x="240.36008"
-       y="2438.5759">image. As is common with high dynamic range image processing, we can perform gamma and exposure</tspan><tspan
+       y="7026.8281">image. As is common with high dynamic range image processing, we can perform gamma and exposure</tspan><tspan
        sodipodi:role="line"
        id="tspan1641"
        x="240.36008"
-       y="2510.5759">adjustment at the original image's full precision, and use various settings to bring out different details</tspan><tspan
+       y="7098.8281">adjustment at the original image's full precision, and use various settings to bring out different details</tspan><tspan
        sodipodi:role="line"
        id="tspan1643"
        x="240.36008"
-       y="2582.5759">in the image. This step is computationally cheap and performed separately from the chaotic system</tspan><tspan
+       y="7170.8281">in the image. This step is computationally cheap and performed separately from the chaotic system</tspan><tspan
        sodipodi:role="line"
        id="tspan1645"
        x="240.36008"
-       y="2654.5759">calculations. The exposure, gamma adjustment, and colorization parameters can all be adjusted in</tspan><tspan
+       y="7242.8281">calculations. The exposure, gamma adjustment, and colorization parameters can all be adjusted in</tspan><tspan
        sodipodi:role="line"
        id="tspan1647"
        x="240.36008"
-       y="2726.5759">real-time without restarting any calculations, making it easy to explore the hidden details in a histogram:</tspan></text>
+       y="7314.8281">real-time without restarting any calculations, making it easy to explore the hidden details in a histogram:</tspan></text>
+  <text
+     xml:space="preserve"
+     style="fill:#000000;stroke:none;font-family:Luxi Sans;font-style:normal;font-weight:normal;font-size:60.000000;font-stretch:normal;font-variant:normal;text-anchor:start;writing-mode:lr;fill-opacity:1.0000000;stroke-opacity:1;stroke-width:3pt;stroke-linejoin:miter;stroke-linecap:butt;"
+     x="240.36008"
+     y="6046.8365"
+     id="text1651"
+     sodipodi:linespacing="120%"><tspan
+       id="tspan1652"
+       style="fill:#000000;fill-opacity:1.0000000;">The logistic map bifurcation diagram is an omnipresent image in the study of chaotic maps. By using a</tspan><tspan
+       sodipodi:role="line"
+       id="tspan1664"
+       x="240.36008"
+       y="6118.8364">histogram-based imaging technique to render it, a striking amount of additional detail is uncovered:</tspan></text>
 </svg>
