@@ -54,8 +54,6 @@ e_calendar_weather_migrate (EPlugin *epl, ECalEventTargetComponent *data)
 	GSList *groups;
 	ESourceGroup *weather = NULL;
 
-	g_print ("migration!\n");
-
 	component = data->component;
 	source_list = calendar_component_peek_source_list (component);
 
