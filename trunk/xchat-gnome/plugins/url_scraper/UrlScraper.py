@@ -19,11 +19,15 @@ and displaying them in a separate window.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import xchat, string, pygtk, gtk, gobject, re
+import xchat, string, re, gconf
+import pygtk
+import gtk
+import gobject
 
 __module_name__ = 'URL Scraper'
 __module_version__ = '0.1-pre'
 __module_description__ = 'Collect URLs said and display them in a separate window'
+
 
 def close( window, event=None, user_data=None ):
     ''' Unload the module when you close the window. '''
@@ -34,11 +38,21 @@ def close( window, event=None, user_data=None ):
 
 def grabbedURL( nick, match ):
     ''' Handler for a URL. Append the URL to the store. '''
-    # FIXME: We'll eventually want a configurable history length here.
+    if urls >= history:
+        iter = store.get_iter_first()
+        store.remove( iter )
+    else:
+        urls += 1
     store.set( store.append(), 0, nick, 1, xchat.get_info('channel'), 2, match.group())
 
 def grabbedEmail( nick, match ):
-    print '%s said an email address: %s' % (nick, match.group())
+    ''' Handler for email addresses. Since the behaviour is the same
+        as the URL handler we might as well just pass this on to it.
+        The only difference is you can disable this one, so we check
+        first.
+        '''
+    if scrape_email:
+        grabbedURL( nick, match )
 
 regexes = {
     re.compile('(ht|f)tps?://[^\s\>\]\)]+'):                 grabbedURL,
@@ -59,6 +73,25 @@ def unload( user_data ):
     window.destroy()
     print 'URL Scraper unloaded.'
 
+# Track the number of URLs in the store
+urls = 0
+
+# Set up gconf stuff.
+client = gconf.client_get_default()
+
+# If our gconf keys don't exist...
+if not client.dir_exists( '/apps/xchat/url_scraper' ):
+    client.add_dir( '/apps/xchat/url_scraper', gconf.CLIENT_PRELOAD_NONE )
+    history = 10
+    scrape_email = False
+    client.set_int( '/apps/xchat/url_scraper/history', history )
+    client.set_bool( '/apps/xchat/url_scraper/scrape_email', scrape_email )
+# If our gconf keys exist...
+else:
+    history = client.get_int( '/apps/xchat/url_scraper/history' )
+    scrape_email = client.get_bool( '/apps/xchat/url_scraper/scrape_email' )
+
+# Create the window.
 window = gtk.Window( gtk.WINDOW_TOPLEVEL )
 window.set_default_size( 300, 350 )
 window.set_title( 'URL Scraper' )
