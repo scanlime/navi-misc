@@ -57,6 +57,9 @@ class PalantirClient(irc.IRCClient):
     if hasattr(self.factory.ui, 'nameReply'):
       self.factory.ui.nameReply(params)
 
+  def irc_RPL_YOURHOST(self, prefix, params):
+    self.host = prefix
+
   def noticed(self, user, channel, message):
     self.factory.ui.messageReceive(user, channel, message)
 
@@ -82,6 +85,10 @@ class PalantirClient(irc.IRCClient):
   def userLeft(self, user, channel):
     if hasattr(self.factory.ui, 'userLeft'):
       self.factory.ui.userLeft(user, channel)
+
+  def pong(self, user, secs):
+    if hasattr(self.factory.ui, 'pong'):
+      self.factory.ui.pong(user, secs)
 
 class PalantirClientFactory(protocol.ClientFactory):
   ''' Factory to create the IRC client.  The factory will be used as an interface
