@@ -1,8 +1,7 @@
 /*
  * FieldSensor.h - Header for electric field sensor interface
  *
- * PicoGUI small and efficient client/server GUI
- * Copyright (C) 2000-2003 Micah Dowty <micahjd@users.sourceforge.net>
+ * Copyright (C) 2003 Micah Dowty <micahjd@users.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,9 +30,10 @@
 
 class FieldSensor {
  public:
-  void FieldSensor(const char *serialPort="/dev/ttyS0");
+  FieldSensor(const char *serialPort="/dev/ttyS0");
   ~FieldSensor(void);
 
+  void reset(void);
   std::vector<float> read(void);
 
  private:
