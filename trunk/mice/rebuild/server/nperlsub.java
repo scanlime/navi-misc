@@ -20,7 +20,7 @@ public class nperlsub extends nbase
 	public nperlsub(Socket ink, BufferedReader IN, OutputStreamWriter OUT)
 	{
 		super(ink,IN,OUT);
-		netdebug = true;
+		//netdebug = true;
 	}
 	
 	/**
@@ -50,7 +50,6 @@ public class nperlsub extends nbase
 		name = name + " (" + postn + ")";
 		name = hexwash(name);
 		question = hexwash(question);
-		System.out.println(question);
 		asubmit.submit(name,question);
 		closeConnection();
 	}
