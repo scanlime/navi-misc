@@ -2,8 +2,11 @@
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 
+void connection_dialog_close(GtkWidget *widget, gpointer data);
+void connection_dialog_connect(GtkWidget *widget, gpointer data);
+
 void initialize_connection_dialog() {
-	GtkWidget *treeview;
+	GtkWidget *treeview, *close_button, *connect_button;
 	GtkListStore *store;
 	GtkCellRenderer *text_renderer;
 	GtkTreeViewColumn *text_column;
@@ -21,6 +24,11 @@ void initialize_connection_dialog() {
 
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
+
+	close_button = glade_xml_get_widget(gui.xml, "close server connect");
+	g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(connection_dialog_close), NULL);
+	connect_button = glade_xml_get_widget(gui.xml, "connect to server");
+	g_signal_connect(G_OBJECT(connect_button), "clicked", G_CALLBACK(connection_dialog_connect), NULL);
 }
 
 void display_connection_dialog() {
@@ -46,4 +54,26 @@ void display_connection_dialog() {
 
 	dialog = glade_xml_get_widget(gui.xml, "connect to network");
 	gtk_widget_show_all(dialog);
+}
+
+void connection_dialog_close(GtkWidget *widget, gpointer data) {
+	GtkWidget *dialog = glade_xml_get_widget(gui.xml, "connect to network");
+	gtk_widget_hide_all(dialog);
+}
+
+void connection_dialog_connect(GtkWidget *widget, gpointer data) {
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	gchar *network;
+
+	treeview = glade_xml_get_widget(gui.xml, "connect server list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 0, &network, -1);
+		g_print("want to connect to \"%s\"\n", network);
+		g_free(network);
+	}
 }

@@ -15,8 +15,8 @@ void initialize_main_window() {
 	GtkBox *box;
 
 	gui.main_window = GNOME_APP(glade_xml_get_widget(gui.xml, "xchat-gnome"));
-	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "preferences menu")), "activate", (GCallback) on_preferences_menu_activate, NULL);
-	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "connect1")), "activate", (GCallback) on_connect_menu_activate, NULL);
+	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "preferences menu")), "activate", G_CALLBACK(on_preferences_menu_activate), NULL);
+	g_signal_connect(G_OBJECT(glade_xml_get_widget(gui.xml, "connect1")), "activate", G_CALLBACK(on_connect_menu_activate), NULL);
 	gtk_widget_show_all(GTK_WIDGET(gui.main_window));
 
 	text = gtk_xtext_new(colors, TRUE);
