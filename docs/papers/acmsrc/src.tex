@@ -1,4 +1,6 @@
 \documentclass[letterpaper, 11pt]{article}
+\usepackage{graphicx}
+\usepackage{hyperref}
 \setlength{\parskip}{5pt}
 
 \title{Real-Time Histogram Imaging}
@@ -49,12 +51,20 @@ $10^8:1$.  Clearly 8 bits is not sufficient to represent this, so recently a lot
 and research has been put into storing images using floating- and fixed-point logarithmic
 representation.
 
+\begin{figure}[htb]
+\centering
+\includegraphics[width=3in]{logistic-combined.png}
+\caption{Comparison of histogram-based rendering with traditional 1-bit point plotting}
+\end{figure}
+
 Unfortunately, there is currently very little capability to display and print these
 representations.  To present such an image to a person, a procedure known as
 \emph{tone-mapping} is performed.  This process consists of choosing a displayable color for
 a particular value in the image.  There are several different operators for this, which
 allows the user some control over the final image via parameters such as exposure, gamma
 correction and color interpolation.
+
+
 
 \section{Related Work}
 Tone mapping of high dynamic range images has been studied extensively, primarily in the
