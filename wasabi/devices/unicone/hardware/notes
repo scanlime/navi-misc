@@ -34,30 +34,30 @@ XC4010XL (Xess XS40, everything except FPGA and oscillator removed):
  P69            - General purpose output to DSR (6) on the TUSB3410
 
  External I/O:
-  P6            - DB-25 pin 2
-  P7            - DB-25 pin 3
-  P8            - DB-25 pin 4
-  P9            - DB-25 pin 5
-  P14           - DB-25 pin 6
-  P20           - DB-25 pin 7
-  P24           - DB-25 pin 8
-  P25           - DB-25 pin 9
-  P26           - DB-25 pin 10
-  P27           - DB-25 pin 11
-  P29           - DB-25 pin 12
-  P32           - DB-25 pin 13
-  P34           - DB-25 pin 14
-  P36           - DB-25 pin 15
-  P37           - DB-25 pin 16
-  P44           - DB-25 pin 17
-  P45           - DB-25 pin 18
-  P46           - DB-25 pin 19
-  P47           - DB-25 pin 20
-  P48           - DB-25 pin 21
-  P49           - DB-25 pin 22
-  P66           - DB-25 pin 23
-  P67           - DB-25 pin 24
-  P68           - DB-25 pin 25
+  P6            - DB-25 pin 14
+  P7            - DB-25 pin 2
+  P8            - DB-25 pin 15
+  P9            - DB-25 pin 3
+  P14           - DB-25 pin 16
+  P20           - DB-25 pin 4
+  P24           - DB-25 pin 17
+  P25           - DB-25 pin 5
+  P26           - DB-25 pin 18
+  P27           - DB-25 pin 6
+  P29           - DB-25 pin 19
+  P32           - DB-25 pin 7
+  P34           - DB-25 pin 20
+  P36           - DB-25 pin 8
+  P37           - DB-25 pin 21
+  P44           - DB-25 pin 9
+  P45           - DB-25 pin 22
+  P46           - DB-25 pin 10
+  P47           - DB-25 pin 23
+  P48           - DB-25 pin 11
+  P49           - DB-25 pin 24
+  P66           - DB-25 pin 12
+  P67           - DB-25 pin 25
+  P68           - DB-25 pin 13
 
  Unused, connected to 3.3v:
   P70
