@@ -39,28 +39,34 @@
 #define EFS_PRODUCT_ID  0x0004
 
 
+;//************************************************** Sampling parameters
+
+;// This section defines the offsets describing the parameters
+;// we use for sampling. Several of these parameter blocks can be
+;// stored in RAM for automatic sampling.
+
+#define EFS_PARAM_ACCUMULATOR_NUM	0		;// Number of the accumulator to store the result in
+#define EFS_PARAM_LC_PORT_XOR		1		;// Value to XOR LC outputs with in every excitation half-period
+#define EFS_PARAM_ADCON_INIT		2		;// Value to initialize the A/D converter control register to
+#define EFS_PARAM_PERIOD			3		;// Jump table value defining the excitation period length
+#define EFS_PARAM_PHASE				4		;// Jump table value defining the sampling phase
+#define	EFS_PARAM_NUM_HALF_PERIODS	5		;// Number of excitation half-periods
+#define EFS_PARAM_LC_TRIS_INIT		6		;// Value to initialize LC tristate register to
+#define EFS_PARAM_LC_PORT_INIT		7		;// Value to initialize LC outputs to
+
+#define EFS_PARAMCOUNT				8
+
+
 ;//************************************************** Control requests
 
-;// Set the modulation frequency for the channel given in wIndex.
-;// wValue = 3.0e6 / frequency
-;// 0 <= wValue <= 255
-#define EFS_CTRL_SET_FREQUENCY		0x10
+;// So far these are all just for debugging
 
+;// Set a parameter byte. Address in wIndex, value in wValue
+#define EFS_CTRL_SET_PARAM_BYTE		0x01
 
-;//************************************************** Endpoints
+;// Take a sensor reading using the current parameters, returns one byte
+#define EFS_CTRL_TAKE_READING		0x02
 
-;// The EP1 IN endpoint receives packets of the form:
-;//
-;//   bytes   description
-;//  --------------------------
-;//     1     Channel number
-;//     1     Number of samples integrated
-;//     1     DC signal level
-;//     1     Noise level
-;//     2     In-phase accumulator
-;//     2     Quadrature accumulator
-;//
-;// Multibyte values are in little endian, to match the USB spec.
 
 #endif
 
