@@ -22,6 +22,7 @@ Subclass of BZFlag.Object implementing a Box.
 
 from Object import Object
 import math
+import Blender
 
 class Box(Object):
     type = 'box'
@@ -50,7 +51,6 @@ class Box(Object):
         self.set_position()
         self.set_size()
         self.set_rotation()
-        print list
         self.set_scale()
         self.set_shear()
         self.set_spin()
@@ -83,7 +83,7 @@ class Box(Object):
         self.spin = [float(n) for n in spin]
 
     def setBlenderProperties(self, object):
-        Blender.setProperties(self, object)
+        Object.setBlenderProperties(self, object)
         object.addProperty('drivethrough', self.drivethrough, 'INT')
         object.addProperty('shootthrough', self.shootthrough, 'INT')
 

@@ -20,12 +20,39 @@ can serialize itself and be converted to/from blender objects.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
+from Blender import NMesh, Material, Image, Texture
+
+def meshify(vertex, face, material, name=None):
+    mesh = NMesh.GetRaw()
+    verts = []
+    for v in vertex:
+        v = NMesh.Vert(v[0], v[1], v[2])
+        mesh.verts.append(v)
+        verts.append(v)
+    for f in face:
+        face = NMesh.Face()
+        for v in f:
+            face.v.append(verts[v])
+            if len(material) > v:
+                face.materialIndex = material[v]
+        mesh.faces.append(face)
+    object = NMesh.PutRaw(mesh)
+    for i in range(len(material)):
+        object.colbits |= 1 << i
+    if name:
+        object.setName(name)
+    return object
 
 class Object:
     type = None
     comment = None
     name = None
-    blendObj = None
+    blendObject = None
+
+    verts = []
+    faces = []
+    materials = []
+    materialIndex = []
 
     # If a world is associated with this object, it will be used
     # in computing transformations between blender coordinates
@@ -41,7 +68,7 @@ class Object:
         obj = self.createBlenderObject()
         self.transformBlenderObject(obj)
         self.setBlenderProperties(obj)
-        self.blendObj = obj
+        self.blendObject = obj
         return obj
 
     def fromBlender(self, object):
@@ -50,7 +77,7 @@ class Object:
            information from the object's location and loadBlenderProperties
            to retrieve property info.
            """
-        self.blendObj = object
+        self.blendObject = object
         self.loadBlenderTransform(object)
         self.loadBlenderProperties(object)
 

@@ -19,6 +19,7 @@ Subclass of BZFlag.Object implementing the world.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
+from Object import Object
 
 class World(Object):
     """Represents the size of the bzflag world and other global attributes"""
@@ -36,7 +37,7 @@ class World(Object):
         self.set_size()
         self.name = ''
 
-    def set_size(self, size=400)
+    def set_size(self, size=400):
         self.size = size
 
     def transformBlenderObject(self, world):
@@ -53,7 +54,7 @@ class World(Object):
             object.setName(self.name)
 
     def loadBlenderProperties(self, object):
-        Object.loadBlenderProperties(self, object):
+        Object.loadBlenderProperties(self, object)
         try:
             self.size = object.getProperty('size').getData()
         except AttributeError:
