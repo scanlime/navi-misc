@@ -58,6 +58,8 @@ class template:
 
 def renderTemperature(latest, _class='temperatures'):
     degC = latest['average']
+    if degC is None:
+        return "No data"
     degF = units.degCtoF(degC)
     return tag('div', _class=_class)[
         tag('span', _class='mainTemperature')[ "%.01f" % degF, xml("&deg;"), "F" ],
