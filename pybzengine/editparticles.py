@@ -3,9 +3,14 @@
 # A very simple particle system editor. If a filename is specified on the command
 # line, the particle system will be loaded and/or saved to that file.
 #
-from BZEngine.UI import Drawable, Viewport, ThreeDRender, ThreeDControl, Environment, Tweak
+from BZEngine.UI import Drawable, Viewport, ThreeDRender, ThreeDControl, Environment
 from BZEngine import Event
 import sys, cPickle
+try:
+    import Tweak
+except ImportError:
+    print "This program requires the Tweak module, part of the rtgraph project"
+    sys.exit(1)
 
 loop = Event.EventLoop()
 viewport = Viewport.OpenGLViewport(loop)

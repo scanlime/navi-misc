@@ -53,7 +53,7 @@ class Sky:
         return self.drawables
 
     def getTweakControls(self):
-        from BZEngine.UI import Tweak
+        import Tweak
         return (
             Tweak.Quantity(self, 'unitDayTime'),
             )
