@@ -511,6 +511,9 @@ class Ruleset(XML.XMLFunction):
         >>> r(msg)
         '\x02robo-hamster:\x0f \x02Hello\x0fWorld'
 
+        >>> r = Ruleset('<ruleset><return/></ruleset>')
+        >>> r(msg) is None
+        True
         """
     requiredRootElement = "ruleset"
 
