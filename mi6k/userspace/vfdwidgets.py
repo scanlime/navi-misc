@@ -32,6 +32,7 @@ to, and a priority that controls which widgets are hidden if space becomes scarc
 #
 
 from __future__ import division
+import time
 
 
 class Widget(object):
@@ -78,47 +79,131 @@ class Widget(object):
 
 
 class Text(Widget):
-    """A simple fixed-size text widget, with no scrolling, aligned somehow
+    """A fixed-size text widget with no animation, aligned somehow
        in its allocated rectangle. The default is for it to be centered.
        """
-    def __init__(self, text='', gravity=(-1, -1), align=(0.5, 0.5), priority=1):
+    def __init__(self, text='', gravity=(-1, -1), align=(0.5, 0.5),
+                 priority=1, background=' '):
         Widget.__init__(self)
         self.text = text
         self.align = align
         self.gravity = gravity
         self.priority = priority
+        self.background = background
+        self.offset = (0, 0)
+        self.ellipses = ""
 
     def setText(self, text):
         self._text = text
-        self.textChanged()
+        self.textChanged(text.split('\n'))
 
     def getText(self):
         return self._text
 
     text = property(getText, setText)
 
-    def textChanged(self):
-        self._lines = self._text.split("\n")
+    def textChanged(self, lines):
+        self._lines = lines
         w = 0
-        for line in self._lines:
+        for line in lines:
             w = max(w, len(line))
         self.minWidth = w
-        self.height = len(self._lines)
+        self.height = len(lines)
+
+    def getDrawableLines(self, width, height):
+        """Return the actual line buffer used in draw(). Subclasses may override
+           this to do layout specific to the actual size we're drawing at.
+           """
+        return self._lines
 
     def draw(self, width, height):
         buffer = []
-        x = int((width - self.minWidth) * self.align[0] + 0.5)
-        y = int((height - self.height) * self.align[1] + 0.5)
+        lines = self.getDrawableLines(width, height)
 
-        buffer.extend([" "*width] * y)
-        for line in self._lines[:height]:
+        # Offset our text according to its alignment and our current scrolling offset
+        x = int((width - self.minWidth) * self.align[0] + 0.5) + self.offset[0]
+        y = int((height - self.height) * self.align[1] + 0.5) + self.offset[1]
+
+        # Pad the top
+        if y > 0:
+            buffer.extend([self.background*width] * y)
+        for line in lines[:height]:
+            # Truncate the top
+            if y < 0:
+                y += 1
+                continue
+
+            # Apply the horizontal offset
+            if x > 0:
+                line = self.background*x + line
+            elif x < 0:
+                line = self.ellipses + line[len(self.ellipses) - x:]
+
+            # Truncate or pad each line horizontally
             if len(line) > width:
-                buffer.append(line[:width])
+                line = line[:width - len(self.ellipses)] + self.ellipses
+                buffer.append(line)
             else:
-                buffer.append(" "*x + line + " "*(width-len(line)-x))
+                buffer.append(line + self.background*(width-len(line)))
+	    assert len(buffer[-1]) == width
+
+        # Truncate the bottom
+        buffer = buffer[:height]
+
+        # Pad the bottom
         while len(buffer) < height:
-            buffer.append(" "*width)
+            buffer.append(self.background*width)
+
+	assert len(buffer) == height
         return buffer
+
+
+class LoopingScroller(Text):
+    """Text which scrolls forward automatically, looping around on itself"""
+    def __init__(self,
+                 text          = '',
+                 gravity       = (0, -1),
+                 align         = (0,0),
+                 priority      = 1,
+                 background    = ' ',
+                 padding       = ' '*5,
+                 pauseDuration = 1,
+                 scrollRate    = 10,
+                 ):
+        Text.__init__(self, text, gravity, align, priority, background)
+        self.padding = padding
+        self.pauseDuration = pauseDuration
+        self.scrollRate = scrollRate
+
+        self.offset = (0,0)
+        self.scroll = 0
+        self.pauseRemaining = self.pauseDuration
+
+    def textChanged(self, lines):
+        Text.textChanged(self, lines)
+        self.fullWidth = self.minWidth
+        self.minWidth = 0
+
+    def getDrawableLines(self, width, height):
+        if self.fullWidth > width:
+            self.offset = (int(-self.scroll), 0)
+            return [line + self.padding + line for line in self._lines]
+        else:
+            self.offset = (0,0)
+            return self._lines
+
+    def update(self, dt):
+        self.pauseRemaining -= dt
+        if self.pauseRemaining > 0:
+            return
+        dt = -self.pauseRemaining
+        self.pauseRemaining = 0
+
+        self.scroll += dt * self.scrollRate
+        wrapPoint = self.fullWidth + len(self.padding)
+        if self.scroll >= wrapPoint:
+            self.scroll -= wrapPoint
+            self.pauseRemaining += self.pauseDuration
 
 
 class Rect:
@@ -190,7 +275,7 @@ class LayoutLine:
            already contain the initial rectangle for this line.
            """
         remaining = self.rect
-        self.widgets.sort(lambda a,b: cmp(a.gravity[0], a.gravity[1]))
+        self.widgets.sort(lambda a,b: cmp(a.gravity[0], b.gravity[0]))
 
         # Lay out all left-biased widgets
         lNeighbour = None
@@ -225,14 +310,18 @@ class LayoutLine:
 
         # Account for padding
         extraWidth -= len(unbiased)-1
+	if lNeighbour:
+	    extraWidth -= 1
+	if rNeighbour:
+	    extraWidth -= 1
 
         # Lay out the unbiased widgets using this extra space
-        if rNeighbour:
+	if rNeighbour:
             pad, remaining = remaining.splitRight(1)
         for widget in unbiased:
             if lNeighbour:
                 pad, remaining = remaining.splitLeft(1)
-            width = widget.minWidth + extraWidth * widget.sizeWeight // totalWeight
+            width = widget.minWidth + int(extraWidth * widget.sizeWeight / totalWeight)
             wrect, remaining = remaining.splitLeft(width)
             lNeighbour = widget
             widgetRects[widget] = wrect
@@ -246,6 +335,22 @@ class Surface(object):
         self.widgets = list(widgets)
         self.background = background
         self.widgetRects = {}
+        self.lastTime = None
+
+    def update(self, dt=None):
+        """Update all widgets with the given time step. This calculates
+           its own time step if one isn't provided.
+           """
+        if dt is None:
+            now = time.time()
+            if self.lastTime is None:
+                self.lastTime = now
+                return
+            else:
+                dt = now - self.lastTime
+                self.lastTime = now
+        for widget in self.widgets:
+            widget.update(dt)
 
     def draw(self):
         """Ask each widget to draw itself and copy them into their
