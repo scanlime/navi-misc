@@ -38,10 +38,6 @@ class HubInterface(xmlrpc.XMLRPC):
         self.caps = caps
         self.hub = hub
 
-    def deliverXml(self, xml):
-        """Internal function to deliver a message in raw XML"""
-        return
-
     def xmlrpc_deliver(self, xml, key=None):
         """Deliver an XML message, returning its result on success or a Fault on failure.
            This does not yet require a capability key, but it might eventually.
