@@ -276,10 +276,21 @@ class SubscriptionDelivery:
 
     def triggerFailure(self, failure, id):
         """Record an unsuccessful trigger run for the given subscription id"""
+        Database.pool.runInteraction(self._triggerFailure, failure, id)
+
+    def _triggerFailure(self, cursor, failure, id, maxFailures=3):
         # Increment the consecutive failure count
         log.msg("Failed to notify subscriber %d for %r: %r" % (id, self.target, failure))
-        Database.pool.runOperation("UPDATE stats_subscriptions SET failures = failures + 1 WHERE id = %s" %
-                                   Database.quote(id, 'bigint'))
+        cursor.execute("UPDATE stats_subscriptions SET failures = failures + 1 WHERE id = %s" %
+                       Database.quote(id, 'bigint'))
+
+        # Cancel the subscription if we've had too many failures
+        cursor.execute("DELETE FROM stats_subscriptions WHERE id = %s AND failures > %s" %
+                       (Database.quote(id, 'bigint'),
+                        Database.quote(maxFailures, 'int')))
+        if cursor.rowcount:
+            log.msg("Unsubscribing subscriber %d for %r, more than %d consecutive failures" %
+                    (id, self.target, maxFailures))
 
 
 class StatsTarget:
@@ -788,10 +799,8 @@ class Maintenance:
                            (Database.quote(path, 'varchar'), id))
 
     def pruneSubscriptions(self, cursor, maxFailures=3):
-        """Delete subscriptions that have expired or have too many consecutive failures"""
-        cursor.execute("DELETE FROM stats_subscriptions "
-                       "WHERE expiration < %s OR failures > %s" %
-                       (Database.quote(int(time.time()), 'bigint'),
-                        Database.quote(maxFailures, 'int')))
+        """Delete subscriptions that have expired"""
+        cursor.execute("DELETE FROM stats_subscriptions WHERE expiration < %s" %
+                       Database.quote(int(time.time()), 'bigint'))
 
 ### The End ###
