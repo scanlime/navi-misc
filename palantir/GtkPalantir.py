@@ -160,6 +160,19 @@ class PalantirWindow:
     self.tree.dialog.signal_autoconnect({ 'on_ok_button_clicked':self.OpenSheet,
       'on_cancel_button_clicked':lambda w: self.tree.dialog.get_widget('SheetSelection').destroy()})
 
+  def on_preferences_activate(self, widget, data=None):
+    ''' Open the color selection dialog. '''
+    self.tree.get_widget('colorselectiondialog').show()
+   
+  ### Color Selection Dialog ###
+  def on_color_ok_button_clicked(self, widget, data=None):
+    dialog = self.tree.get_widget('color_selection')
+    self.chatWindow.background.modify_bg(gtk.STATE_NORMAL, dialog.get_current_color())
+    self.tree.get_widget('colorselectiondialog').hide()
+
+  def on_color_cancel_button_clicked(self, widget, data=None):
+    self.tree.get_widget('colorselectiondicalog').hide()
+
   # Not Menu Items.
   def on_SendButton_clicked(self, widget, data=None):
     self.on_SendField_activate(self.tree.get_widget('SendField'))
