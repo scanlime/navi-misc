@@ -46,7 +46,7 @@ class Reader:
             localReference = Word(alphanums + '/_')
             flagShortName = Word(alphas, min=1, max=2)
 
-            rgbColor = Group(float + float + float) | Word(alphanums)
+            rgbColor = (float + float + float) | Word(alphanums)
             rgbaColor = rgbColor + Optional(float)
 
             phydrv = Group(CaselessLiteral('phydrv') + localReference)
