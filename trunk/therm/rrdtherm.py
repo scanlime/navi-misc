@@ -181,8 +181,15 @@ class ThermGrapher:
             size = self.actualGraphSizes[name]
             index.write('<p><img src="%s" width="%d" height="%d" alt="last %s"></p>\n' %
                         (file, size[0], size[1], name))
-        
-        index.write("\n</body></html>\n")
+
+        # A little info about us
+        index.write("""
+<hr><center>
+<a href="http://navi.picogui.org/svn/misc/trunk/therm/">therm</a> package,
+built with <a href="http://navi.picogui.org/svn/misc/trunk/rcpod/">rcpod</a>
+and <a href="http://ee-staff.ethz.ch/~oetiker/webtools/rrdtool/">rrdtool</a>
+</center></body></html>
+""")
 
     def createGraphs(self):
         """Generate graph images for the web page"""
