@@ -13,6 +13,11 @@
 	to sort the URL/email column by whether something is an email
 	or URL, so that they'll be grouped together.
 
+* It would be very cool to have drag-and-drop between various parts of the desktop:
+	drag a line to the desktop, creates a shortcut
+	drag an email address to evolution's address book - adds it?
+	etc
+
 Python script related:
 
 * There is a bug in the python plugin preventing you from reloading
