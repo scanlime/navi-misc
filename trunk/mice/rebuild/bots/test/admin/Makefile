@@ -4,5 +4,5 @@ admin.class: admin.java
 clean:
 	rm -Rf *.jar *.class *~
 
-run:
+run: admin.class
 	java admin

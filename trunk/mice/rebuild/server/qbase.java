@@ -37,7 +37,10 @@ public class qbase
 		rejected = new qqueue();
 		waiting = new qqueue[interviews];
 		for(i=0;i<interviews;i++)
+		{
 			waiting[i] = new qqueue();
+			System.out.println(interviews + " waiting qqueue created... #" + i);
+		}
 		answered = new qqueue();
 	
 		interviewuser = new String[interviews];

@@ -5,7 +5,7 @@ CLASSES =\
 	moderate.class\
 	authenticate.class\
 	build.class\
-	accept.class\
+	accepted.class\
 	quit.class\
 	get.class\
 	reject.class
@@ -24,8 +24,8 @@ get.class: get.java
 reject.class: reject.java
 	javac reject.java
 
-accept.class: accept.java
-	javac accept.java
+accepted.class: accepted.java
+	javac accepted.java
 
 build.class: build.java
 	javac build.java

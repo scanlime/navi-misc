@@ -106,7 +106,7 @@ public class njavaadmin extends nbase
 	 */
 	public void dbaseinit()
 	{
-		imain.database = new qbase(aadmin.muns.length, aadmin.iuns.length);
+		imain.database = new qbase(aadmin.iuns.length, aadmin.muns.length);
 		imain.database.moduser = aadmin.muns;
 		imain.database.modpass = aadmin.mpas;
 		imain.database.interviewuser = aadmin.iuns;

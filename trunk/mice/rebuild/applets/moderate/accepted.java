@@ -11,23 +11,23 @@ import java.io.*;
  * @author Brandon Smith
  * @version 2.0
  */
-public class accept implements ActionListener
+public class accepted implements ActionListener
 {
 	private int ID;
 	
-	private TextArea question;
+	public TextArea quest;
 	
 	/**
 	 * This method sets the ID as its the constructor.
 	 * @param ident The ID of the person that this will be approved for
-	 * @param quest The TextArea that has the question in it.
+	 * @param questio The TextArea that has the question in it.
 	 * @author Brandon Smith
 	 * @version 2.0
 	 */
-	public accept(int ident, TextArea quest)
+	public accepted(int ident, TextArea questio)
 	{
 		ID = ident;
-		question = quest;
+		quest = questio;
 	}
 	
 	/**
@@ -39,8 +39,8 @@ public class accept implements ActionListener
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
+		quest.setText("");
 		net.write("accept");
-		net.write("" + ID);
-		question.setText("");
+		net.write(""+ID);
 	}
 }

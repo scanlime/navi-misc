@@ -59,6 +59,8 @@ public class njavaint extends nbase
 				break;
 			case 's': //submit
 				view.answer(read());
+				break;
+			case 'g': //get a question
 				write(view.getQuestion());//this generates TWO read()s for the client
 				break;
 			}

@@ -10,7 +10,7 @@ public class interview extends java.applet.Applet implements ActionListener
 {
 	public TextField username, password, realname;
 	public TextArea question, answer;
-	public Button button1, button2, button3;
+	public Button button1, button2, button3, button4;
 
 	/**
 	 * This initializes the applet
@@ -26,8 +26,9 @@ public class interview extends java.applet.Applet implements ActionListener
 		question = new TextArea("",6,50,TextArea.SCROLLBARS_VERTICAL_ONLY);
 		answer = new TextArea("",10,50,TextArea.SCROLLBARS_VERTICAL_ONLY);
 		button1 = new Button("Sign In");
-		button2 = new Button("Reject");
-		button3 = new Button("Quit");
+		button2 = new Button("Get Question");
+		button3 = new Button("Reject");
+		button4 = new Button("Quit");
         
 		//add the various objects to the applet
 		add(realname);
@@ -58,9 +59,6 @@ public class interview extends java.applet.Applet implements ActionListener
 			realname.setText("Try again, authentication failed");
 			return;
 		}
-		mykey = net.read();
-		mykey = mykey + " Asks: " + net.read();
-		question.setText(mykey);
 		buttonconfig();
 	}
 	
@@ -82,9 +80,11 @@ public class interview extends java.applet.Applet implements ActionListener
 		add(button1);
 		button1.addActionListener(new submit(this));
 		add(button2);
-		button2.addActionListener(new reject(this));
+		button2.addActionListener(new get(this));
 		add(button3);
-		button3.addActionListener(new quit(this));
+		button3.addActionListener(new reject(this));
+		add(button4);
+		button4.addActionListener(new quit(this));
 	}
 	
 	/**
@@ -99,5 +99,6 @@ public class interview extends java.applet.Applet implements ActionListener
 		remove(button1);
 		remove(button2);
 		remove(button3);
+		remove(button4);
 	}
 }

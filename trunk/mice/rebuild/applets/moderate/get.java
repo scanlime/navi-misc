@@ -40,6 +40,6 @@ public class get implements ActionListener
 		net.write("get");
 		name = net.read();
 		ques = net.read();
-		question.setText(name + " Asked " + ques);
+		question.setText(name + " Asked: " + ques);
 	}
 }
