@@ -28,6 +28,22 @@ source code comments.
  test : Small test programs to demonstrate librcpod
 
 
+-------- Installation
+
+The latest sources for librcpod can be obtained using Subversion
+(http://subversion.tigris.org/) from the repository at
+http://navi.picogui.org/svn/misc/trunk/rcpod
+
+rcpod uses SCons (http://www.scons.org), a quite spiffy python-based portable
+build system. Assuming you have SCons and libusb installed:
+
+ - running 'scons' should build librcpod and the test programs
+
+ - 'scons install' will install librcpod
+
+ - 'scons -c' cleans out temporary files
+
+
 -------- USB permissions
 
 Though libusb supports many operating systems, the information in this section
@@ -48,7 +64,7 @@ are multiple solutions to this...
  - Find the device node being used, and change its permissions each time the
    rcpod is plugged in. This is tedious, but not bad if you hardly ever expect
    to unplug the rcpod.
-   
+
    Use 'lsusb' to find the bus and device number the rcpod has been assigned.
    This should be the line containing "ID e461:0002". Look for a file in the
    path /proc/bus/usb/<bus number>/<device number>, and change its permissions

@@ -1,0 +1,22 @@
+#
+# Build script for SCons (http://www.scons.org)
+#
+
+env = Environment()
+
+# Building librcpod
+libSrc = [
+    'src/device.c'
+    ]
+librcpod = env.SharedLibrary('rcpod', libSrc, LIBS=['usb'])
+
+# Building the test programs
+for testName in [
+    'blinkytest'
+    ]:
+    env.Program(testName, 'test/%s.c' % testName, LIBS=['rcpod'])
+
+# Installing librcpod
+libDir = '/usr/lib'
+env.Alias('install', libDir)
+env.Install(dir=libDir, source=librcpod)
