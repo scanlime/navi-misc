@@ -621,36 +621,40 @@ class RSSFeed(Nouvelle.Twisted.Page):
         return self.target.getTitle()
 
     def render_link(self, context):
-        if 'url' in self.target.metadata:
-            return self.target.metadata['url']
-        else:
-            return StatsLink(self.target).getURL(context)
+        return self.target.metadata.get('url', StatsLink(self.target).getURL(context))
 
     def render_description(self, context):
-        if 'description' in self.target.metadata:
-            return self.target.metadata['description']
-        else:
-            return "CIA Stats"
+        return self.target.metadata.get('description', 'CIA Stats')
 
-    def render_metadata(self, context):
-        """Renders optional metadata to RSS"""
-        tags = []
-        if 'photo' in self.target.metadata:
-            tags.append(tag('image')[
+    def render_photo(self, context):
+        # First figure out if we have a photo. Actually render it in the Deferred if we do.
+        result = defer.Deferred()
+        self.target.metadata.has_key('photo').addCallback(
+            self._render_photo, context, result).addErrback(result.errback)
+        return result
+
+    def _render_photo(self, hasPhoto, context, result):
+        if hasPhoto:
+            result.callback(tag('image')[
                 tag('url')[ MetadataLink(self.target, 'photo').getURL(context) ],
                 tag('title')[ place('title') ],
                 tag('link')[ place('link') ],
                 ])
-        return tags
+        else:
+            result.callback([])
 
     def render_items(self, context, limit=15):
         """Renders the most recent commits as items in the RSS feed"""
+        # Get the messages, render them in our Deferred
+        result = defer.Deferred()
+        self.target.messages.getLatest(limit).addCallback(
+            self._render_items, context, result).addErrback(result.errback)
+        return result
+
+    def _render_items(self, messages, context, result):
         formatter = Message.AutoFormatter('rss')
         items = []
-        # Get the latest message, in reverse chronological order
-        latest = self.target.messages.getLatest(limit)
-        latest.reverse()
-        for m in latest:
+        for m in messages:
             i = formatter.format(Message.Message(m))
             if i:
                 items.append(i)
@@ -659,13 +663,13 @@ class RSSFeed(Nouvelle.Twisted.Page):
                 items.append(tag('item')[ tag('description')[
                     "(Unable to format message)"
                     ]])
-        return items
+        result.callback(items)
 
     document = tag('rss', version='2.0')[ tag('channel')[
         tag('title')[ place('title') ],
         tag('link')[ place('link') ],
         tag('description')[ place('description') ],
-        place('metadata'),
+        place('photo'),
         place('items'),
         ]]
 
