@@ -5,6 +5,24 @@ import re, posixpath
 class KdeFilter(CommitFilter):
     project = 'kde'
 
+    def extractModule(self, dirname):
+        # Extract the CVS module from the given directory
+        # name, addModule'ing the module and returning the
+        # remainder of the directory name.
+        # Since lots of the KDE CVS modules are gigantic,
+        # this also returns the first subdirectory as
+        # the 'submodule'.
+
+        if dirname.find('/') < 0:
+            return dirname
+
+        sections = dirname.split('/')
+        module = sections[0]
+        del sections[0]
+        self.addModule(module)
+        self.xml.source.addElement('submodule', content=sections[0])
+        return '/'.join(sections)
+
     def parse(self):
         subjectTokens = self.message['subject'].split(" ")
 
@@ -17,10 +35,7 @@ class KdeFilter(CommitFilter):
             dirName = subjectTokens[0]
 
         # Extract the first directory in the subject as the module name
-        if dirName.find('/'):
-            sections = dirName.split('/')
-            self.addModule(sections[0])
-            dirName = '/'.join(sections[1:])
+        dirName = self.extractModule(dirName)
 
         # Author is the last token of the first line, with a trailing colon
         self.addAuthor(self.body.readline().strip().split(" ")[-1][:-1])

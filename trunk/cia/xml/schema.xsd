@@ -93,6 +93,12 @@
     <xsd:element name="project" type="xsd:string"/>
     <xsd:element name="module" type="xsd:string"/>
     <xsd:element name="branch" type="xsd:string"/>
+
+    <!-- The 'submodule' is just used in cases where the actual modules
+         are important, but not sufficient for filtering. It is currently
+         not used by any formatters, but may be used by rulesets.
+         -->
+    <xsd:element name="submodule" type="xsd:string"/>
   </xsd:choice>
 </xsd:complexType>
 
