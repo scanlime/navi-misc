@@ -1,1 +1,1 @@
-* Install the icon into the xdg icon theme (hicolor/NxN/apps)
+* Install the icons into the xdg icon theme (hicolor/NxN/apps) and get rid of the sed @DATADIR@
