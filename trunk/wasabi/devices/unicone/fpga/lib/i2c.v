@@ -331,12 +331,11 @@ module i2c_slave_256bit_sram (clk, reset, i2c_interface_tx, i2c_interface_rx,
 	
 	// Use vendor-specific on-chip SRAM primitives to build a 256x1 memory.
 	// Dedicate the secondary port to our user's read operations.
-	wire int_ram_write;
-	wire [7:0] int_ram_addr;
-	wire int_ram_data;
+	reg int_ram_write, int_ram_wr_data;
+	reg [7:0] int_ram_addr;
 	sram_256bit_dualport i2c_ram(
 		clk, int_ram_write,
-		rx_content, int_ram_addr, int_ram_data,
+		int_ram_wr_data, int_ram_addr, int_ram_data,
 		ram_addr, ram_data);
 	
 	// Match our device address
@@ -348,7 +347,40 @@ module i2c_slave_256bit_sram (clk, reset, i2c_interface_tx, i2c_interface_rx,
 	assign ack = dev_addressed && (!pkt_read_wr);
 	
 	// Write to SRAM if we've been addressed successfully and the address is within range
-	assign int_ram_addr = bit_count - 8;
-	assign int_ram_write = dev_addressed && (!pkt_read_wr) && bit_count >= (0+8) && bit_count <= (255+8);
+	always @(posedge clk or posedge reset)
+		if (reset) begin
+			int_ram_write <= 0;
+			int_ram_wr_data <= 0;
+			int_ram_addr <= 0;
+		end
+		else if (content_strobe && ack && bit_count >= (0+8) && bit_count <= (255+8)) begin
+			int_ram_write <= 1;
+			int_ram_wr_data <= rx_content;
+			int_ram_addr <= bit_count - 8;
+		end
+		else begin
+			int_ram_write <= 0;
+		end
 endmodule
+
+
+/* A variation on i2c_slave_256bit_sram that incudes a builtin i2c_frontend,
+ * mostly for convnience during testing.
+ */
+module i2c_slave_256bit_sram_with_frontend (clk, reset, scl, sda, ram_addr, ram_data);
+	parameter I2C_ADDRESS = 8'h40;
+
+	input clk, reset;
+	input scl;
+	inout sda;
+	input [7:0] ram_addr;
+	output ram_data;
+	
+	wire [1:0] i2c_interface_tx;
+	wire [20:0] i2c_interface_rx;
+	i2c_frontend i2c_fe(clk, reset, scl, sda, i2c_interface_tx, i2c_interface_rx);
+	i2c_slave_256bit_sram #(I2C_ADDRESS) core(clk, reset, 
+		i2c_interface_tx, i2c_interface_rx, ram_addr, ram_data);
+endmodule
+
 /* The End */
