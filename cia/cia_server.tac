@@ -32,8 +32,10 @@ uriRegistry = Ruleset.URIRegistry(
 # Use a persistent set of rulesets to filter and format messages
 rulesetStorage = Ruleset.RulesetStorage(hub, uriRegistry)
 
-# Save the 'universe' capability key so it can be used later by the administrative tools
-Security.caps.saveKey('universe', '~/.cia_key')
+# Give the default user a 'universe' capability and save its key,
+# so it can be used later by the administrative tools. This effectively
+# bootstraps our security system by creating a powerful user.
+Security.User().saveKey('~/.cia_key', 'universe')
 
 # Our front page renders the documentation root, but unless otherwise specified
 # we load other pages from the 'htdocs' directory, as static files.
