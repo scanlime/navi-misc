@@ -112,7 +112,6 @@ class SelfTest(RcpodTestCase):
     def testPinResetDirections(self):
         """verify, using pin descriptors, that all pins are initialized as inputs"""
         for pin in self.rcpod.pins.itervalues():
-            print pin
             self.assertEqual(pin.input().test(), 1, "%s is not True" % pin.input())
             self.assertEqual(pin.output().test(), 0, "%s is an False" % pin.output())
 
