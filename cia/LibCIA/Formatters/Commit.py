@@ -178,16 +178,10 @@ class CommitFormatter(Message.Formatter):
     def format_log(self, log):
         # Break the log string into wrapped lines
         lines = []
-        if not log:
-            return ""	
-
-        for line in XML.shallowText(log).strip().split("\n"):
+        for line in Util.getNormalizedLog(log):
             # Ignore blank lines
-            if not line.strip():
+            if not line:
                 continue
-
-            # Expand tabs before we try wrapping
-            line = line.replace("\t", " "*8)
 
             # Wrap long lines
             if self.widthLimit and len(line) > self.widthLimit:
@@ -307,16 +301,26 @@ class CommitToXHTML(CommitFormatter):
             ]
 
     def format_log(self, log):
-        """Convert the log message to HTML by replacing newlines with <br> tags.
-           Remember that Nouvelle handles quoting automagically for us.
+        """Convert the log message to HTML. If the message seems to be preformatted
+           (it has some lines with indentation) it is stuck into a <pre>. Otherwise
+           it is converted to HTML by replacing newlines with <br> tags.
            """
         content = []
-        log = XML.shallowText(log).strip()
-        if log:
-            for line in log.split("\n"):
-                if content:
-                    content.append(tag('br'))
-                content.append(line)
+        lines = Util.getNormalizedLog(log)
+        if lines:
+            # Determine if we think it's preformatted
+            isPreFormatted = False
+            for line in lines:
+                if line and line[0] == ' ':
+                    isPreFormatted = True
+
+            if isPreFormatted:
+                content.append(tag('pre')[ "\n".join(lines) ])
+            else:
+                for line in lines:
+                    if content:
+                        content.append(tag('br'))
+                    content.append(line)
         else:
             content.append(tag('i')["No log message"])
         return content
@@ -411,6 +415,8 @@ class CommitToXHTMLLong(CommitToXHTML):
 
     def format_files(self, xmlFiles):
         """Format the contents of our <files> tag as a tree with nested lists"""
+        from LibCIA.Web import Template
+
         # First we organize the files into a tree of nested dictionaries
         fileTree = {}
         if xmlFiles:
