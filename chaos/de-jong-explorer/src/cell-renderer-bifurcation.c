@@ -286,8 +286,8 @@ static void cell_renderer_bifurcation_render(GtkCellRenderer      *cell,
   g_object_set(bd,
 	       "width",  cell_area->width,
 	       "height", cell_area->height,
-	       "fgcolor_gdk", &GTK_WIDGET(widget)->style->fg[state],
-	       "bgcolor_gdk", &GTK_WIDGET(widget)->style->base[state],
+	       "fgcolor-gdk", &GTK_WIDGET(widget)->style->fg[state],
+	       "bgcolor-gdk", &GTK_WIDGET(widget)->style->base[state],
 	       NULL);
 
   /* Render it a bit and update the image */

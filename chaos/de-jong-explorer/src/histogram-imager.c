@@ -45,7 +45,6 @@ static void update_double_if_necessary(gdouble new_value, gboolean *dirty_flag, 
 static void update_uint_if_necessary(guint new_value, gboolean *dirty_flag, guint *param);
 static void update_boolean_if_necessary(gboolean new_value, gboolean *dirty_flag, gboolean *param);
 static void update_color_if_necessary(const GdkColor* new_value, gboolean *dirty_flag, GdkColor *param);
-static void update_color_string_if_necessary(const gchar* new_value, gboolean *dirty_flag, GdkColor *param);
 static gchar* describe_color(GdkColor *c);
 
 enum {
@@ -305,17 +304,9 @@ static void update_color_if_necessary(const GdkColor* new_value, gboolean *dirty
   }
 }
 
-static void update_color_string_if_necessary(const gchar* new_value, gboolean *dirty_flag, GdkColor *param) {
-  GdkColor new;
-  gdk_color_parse(new_value, &new);
-  if (new.red != param->red || new.green != param->green || new.blue != param->blue) {
-    *param = new;
-    *dirty_flag = TRUE;
-  }
-}
-
 static void histogram_imager_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec) {
   HistogramImager *self = HISTOGRAM_IMAGER(object);
+  GdkColor gdkc;
 
   switch (prop_id) {
 
@@ -344,11 +335,18 @@ static void histogram_imager_set_property (GObject *object, guint prop_id, const
     break;
 
   case PROP_FGCOLOR:
-    update_color_string_if_necessary(g_value_get_string(value), &self->render_dirty_flag, &self->fgcolor);
+    /* Convert to a GdkColor and set the fgcolor-gdk property. This is necessary
+     * so that notify signals attached to fgcolor-gdk are sent properly, and in
+     * general makes it cleaner.
+     */
+    gdk_color_parse(g_value_get_string(value), &gdkc);
+    g_object_set(self, "fgcolor-gdk", &gdkc, NULL);
     break;
 
   case PROP_BGCOLOR:
-    update_color_string_if_necessary(g_value_get_string(value), &self->render_dirty_flag, &self->bgcolor);
+    /* And the same goes for background... */
+    gdk_color_parse(g_value_get_string(value), &gdkc);
+    g_object_set(self, "bgcolor-gdk", &gdkc, NULL);
     break;
 
   case PROP_FGCOLOR_GDK:
