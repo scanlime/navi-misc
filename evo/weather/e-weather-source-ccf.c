@@ -196,9 +196,9 @@ decodeSnowfall (char *data, float *low, float *high)
 	num[2] = '\0';
 
 	num[0] = data[0]; num[1] = data[1];
-	*low = atof (num);
+	*low = atof (num) * 2.54f;
 	num[0] = data[2]; num[1] = data[3];
-	*high = atof (num);
+	*high = atof (num) * 2.54f;
 }
 
 static float
