@@ -6,8 +6,7 @@ fyredata_DATA = 		\
 	about-box.fa		\
 	fyre-48x48.png          \
         fyre-32x32.png          \
-        fyre-16x16.png		\
-	x-fyre-animation.png
+        fyre-16x16.png
 
 if ENABLE_FDODESKTOP
 desktopdir = $(datadir)/applications
@@ -26,6 +25,9 @@ if ENABLE_XDGMIME
 xdgmimedir = $(datadir)/mime/packages
 xdgmime_DATA = fyre.xml
 update_xdgmime = update-mime-database $(datadir)/mime
+
+xdgicondir = $(datadir)/icons/hicolor/48x48/mimetypes
+xdgicon_DATA = application-x-fyre-animation.png
 else
 update_xdgmime = /bin/true
 endif
@@ -48,4 +50,4 @@ EXTRA_DIST =			\
 	fyre-fa.desktop.in	\
 	fyre-png.desktop.in	\
 	fyre.xml		\
-	x-fyre-animation.png
+	application-x-fyre-animation.png

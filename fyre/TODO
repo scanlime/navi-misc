@@ -10,5 +10,3 @@
   parameter that's proportional to samples per bucket.
 
 * Undo/redo
-
-* Get .fa document icon working in linux
