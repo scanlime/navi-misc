@@ -7,8 +7,9 @@ BIN	= bzedit
 
 OBJS	= 			\
 	src/bzimporter.o	\
-	src/camera.o		\
 	src/displaylist.o	\
+	src/camera.o		\
+	src/cell-renderer-toggle-image.o	\
 	src/drawable.o		\
 	src/editor.o		\
 	src/gldrawingarea.o	\

@@ -32,6 +32,8 @@ static void   scene_class_init  (SceneClass *klass);
 static void   scene_init        (Scene *self);
 static void   scene_view_redraw (SceneObject *object, View *view);
 
+static GdkPixbuf *pin, *vis;
+
 GType
 scene_get_type (void)
 {
@@ -52,6 +54,8 @@ scene_get_type (void)
     };
 
     scene_type = g_type_register_static (G_TYPE_OBJECT, "Scene", &scene_info, 0);
+    pin = gdk_pixbuf_new_from_file ("data/pin.png", NULL);
+    vis = gdk_pixbuf_new_from_file ("data/eye.png", NULL);
   }
 
   return scene_type;
@@ -88,7 +92,9 @@ scene_init (Scene *self)
   self->views = NULL;
 
   /* ----------------------------------------- object name -- object icon ---- scene pointer - object pointer */
-  self->element_store = gtk_tree_store_new (4, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_POINTER, G_TYPE_POINTER);
+  self->element_store = gtk_tree_store_new (8, G_TYPE_STRING, GDK_TYPE_PIXBUF, G_TYPE_POINTER, G_TYPE_POINTER,
+  /* ----------------------------------------- object pin----- pin icon ------- obj visible --- visible icon */
+                                               G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF);
   g_signal_connect (G_OBJECT (self->element_store), "rows-reordered", G_CALLBACK (tree_store_reordered), self);
 }
 
@@ -116,7 +122,8 @@ scene_add (Scene *self, SceneObject *object)
   drawables = scene_object_get_drawables (object);
 
   gtk_tree_store_append (self->element_store, &object->iter, NULL);
-  gtk_tree_store_set (self->element_store, &object->iter, 0, g_type_name (G_TYPE_FROM_INSTANCE (object)), 1, klass->get_icon (), 2, self, 3, object, -1);
+  gtk_tree_store_set (self->element_store, &object->iter, 0, g_type_name (G_TYPE_FROM_INSTANCE (object)),
+                      1, klass->get_icon (), 2, self, 3, object, 4, FALSE, 5, pin, 6, TRUE, 7, vis, -1);
 
   g_hash_table_insert (self->objects, g_object_ref(object), (gpointer) drawables);
   self->dirty = TRUE;
