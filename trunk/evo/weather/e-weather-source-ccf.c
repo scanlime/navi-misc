@@ -188,11 +188,42 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, const char *buffer)
 	current = g_slist_nth (tokens, 5);
 	while (strcmp(current->data, source->substation))
 		current = g_slist_next (current);
+	current = g_slist_next (current);
+	/* pick up the first two conditions reports */
+	forecasts[0].conditions = decodeConditions (((char*)(current->data))[0]);
+	forecasts[1].conditions = decodeConditions (((char*)(current->data))[1]);
 
-	g_print ("%s\n", current->data);
+	current = g_slist_next (current);
+	if (tms.tm_hour < 12)
+	{
+		forecasts[0].high = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[0].low  = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[1].high = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[1].low  = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[2].high = ftoc (current->data);
+	}
+	else
+	{
+		current = g_slist_next (current);
+		forecasts[0].high = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[0].low  = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[1].high = ftoc (current->data);
+		current = g_slist_next (current);
+		forecasts[1].low  = ftoc (current->data);
+	}
 
 	for (i = 0; i < 7; i++)
+	{
+		WeatherForecast *f = &forecasts[i];
+		g_print ("%s:\n\t%f/%f\n\t%d\n%d%%\n\n", ctime (&f->curtime), f->high, f->low, f->conditions, f->pop);
 		fc = g_list_append (fc, &forecasts[i]);
+	}
 }
 
 static void
