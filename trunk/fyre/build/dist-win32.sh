@@ -25,12 +25,21 @@ NSIS=$HOME/bin/nsis
 rm -Rf $OUTPUTDIR $STAGINGDIR
 
 
-################ Fyre itself
+################ Versioning
 
 # Check the current version number
 VERSION=`./extract-var.py $FYREDIR/configure.ac VERSION`
 TARGET_NAME=fyre-$VERSION
+
+# If this is a svn version, not a release, add a date stamp
+if (echo $VERSION | grep -q svn); then
+    TARGET_NAME=$TARGET_NAME-`date +%Y%m%d`
+fi
+
 TARGETDIR=$STAGINGDIR/$TARGET_NAME
+
+
+################ Fyre itself
 
 # Copy data files, as marked in Makefile.am
 DATAFILES=`./extract-var.py $FYREDIR/data/Makefile.am fyredata_DATA`
