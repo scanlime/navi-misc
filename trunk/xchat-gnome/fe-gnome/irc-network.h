@@ -57,6 +57,8 @@ struct _IrcNetwork
 	gchar *nick;
 	gchar *real;
 	GSList *autojoin;
+
+	ircnet *net;
 };
 
 struct _IrcNetworkClass
@@ -66,6 +68,7 @@ struct _IrcNetworkClass
 
 GType       irc_network_get_type (void) G_GNUC_CONST;
 IrcNetwork *irc_network_new (ircnet *net);
+void        irc_network_save (IrcNetwork *net);
 
 G_END_DECLS
 
