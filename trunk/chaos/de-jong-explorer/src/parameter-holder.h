@@ -58,8 +58,15 @@ typedef struct {
 
 
 /* Custom G_PARAM flags */
-#define G_PARAM_SERIALIZED   (1 << (G_PARAM_USER_SHIFT + 0))    /* Parameters we're interested in serializing */
-#define G_PARAM_INTERPOLATE  (1 << (G_PARAM_USER_SHIFT + 1))    /* Parameters we're interested in interpolating */
+#define PARAM_SERIALIZED   (1 << (G_PARAM_USER_SHIFT + 0))    /* Parameters we're interested in serializing */
+#define PARAM_INTERPOLATE  (1 << (G_PARAM_USER_SHIFT + 1))    /* Parameters we're interested in interpolating */
+#define PARAM_IN_GUI       (1 << (G_PARAM_USER_SHIFT + 2))    /* Parameters that should be visible in the GUI */
+
+/* This is attached to the "increments" quark using param_spec_set_increments */
+typedef struct {
+  gdouble step, page;
+  int digits;
+} ParameterIncrements;
 
 
 /************************************************************************************/
@@ -85,6 +92,19 @@ gchar*            parameter_holder_save_string        (ParameterHolder *self);
 void              parameter_holder_interpolate_linear (ParameterHolder     *self,
 						       gdouble              alpha,
 						       ParameterHolderPair *p);
+
+/*
+ * These functions make it easy to assign extra metadata to GParamSpecs
+ * that can be used when automatically builting GUIs for ParameterHolder instances.
+ */
+
+void              param_spec_set_group      (GParamSpec  *pspec,
+					     const gchar *group_name);
+
+void              param_spec_set_increments (GParamSpec  *pspec,
+					     gdouble      step,
+					     gdouble      page,
+					     int          digits);
 
 G_END_DECLS
 

@@ -26,7 +26,6 @@
 #include <stdlib.h>
 
 static void parameter_holder_class_init(ParameterHolderClass *klass);
-static void parameter_holder_init(ParameterHolder *self);
 
 static void value_transform_string_uint(const GValue *src_value, GValue *dest_value);
 static void value_transform_string_double(const GValue *src_value, GValue *dest_value);
@@ -51,7 +50,7 @@ GType parameter_holder_get_type(void) {
       NULL, /* class_data */
       sizeof(ParameterHolder),
       0,
-      (GInstanceInitFunc) parameter_holder_init,
+      NULL, /* instance init */
     };
 
     dj_type = g_type_register_static(G_TYPE_OBJECT, "ParameterHolder", &dj_info, 0);
@@ -71,10 +70,6 @@ static void parameter_holder_class_init(ParameterHolderClass *klass) {
   g_value_register_transform_func(G_TYPE_STRING, G_TYPE_DOUBLE,  value_transform_string_double);
   g_value_register_transform_func(G_TYPE_STRING, G_TYPE_BOOLEAN, value_transform_string_boolean);
   g_value_register_transform_func(G_TYPE_STRING, G_TYPE_ULONG,   value_transform_string_ulong);
-}
-
-static void parameter_holder_init(ParameterHolder *self) {
-  /* Nothing to do here yet, everything's set up by our G_PARAM_CONSTRUCT properties */
 }
 
 ParameterHolder* parameter_holder_new() {
@@ -168,7 +163,6 @@ void parameter_holder_reset_to_defaults(ParameterHolder *self) {
 
   properties = g_object_class_list_properties(G_OBJECT_GET_CLASS(self), &n_properties);
   for (i=0; i<n_properties; i++) {
-
     if (properties[i]->flags & G_PARAM_CONSTRUCT) {
       /* Make a GValue with the default in it */
       memset(&val, 0, sizeof(val));
@@ -195,7 +189,7 @@ void parameter_holder_interpolate_linear(ParameterHolder *self, double alpha, Pa
 
   properties = g_object_class_list_properties(G_OBJECT_GET_CLASS(self), &n_properties);
   for (i=0; i<n_properties; i++) {
-    if (properties[i]->flags & G_PARAM_INTERPOLATE) {
+    if (properties[i]->flags & PARAM_INTERPOLATE) {
 
       /* Initialize a place to put our source and destination values */
       memset(&a_val, 0, sizeof(a_val));
@@ -284,7 +278,7 @@ gchar* parameter_holder_save_string(ParameterHolder *self) {
   for (i=0; i<n_properties; i++) {
 
     /* We have our own GParamFlag indicating whether a parameter should be serialized */
-    if (properties[i]->flags & G_PARAM_SERIALIZED) {
+    if (properties[i]->flags & PARAM_SERIALIZED) {
 
       memset(&val, 0, sizeof(val));
       g_value_init(&val, properties[i]->value_type);
@@ -344,6 +338,22 @@ void parameter_holder_load_string(ParameterHolder *self, const gchar *params) {
     line = nextline;
   }
   g_free(copy);
+}
+
+void param_spec_set_group (GParamSpec  *pspec,
+			   const gchar *group_name) {
+  g_param_spec_set_qdata(pspec, g_quark_from_static_string("group-name"), (gpointer) group_name);
+}
+
+void param_spec_set_increments (GParamSpec  *pspec,
+				gdouble      step,
+				gdouble      page,
+				int          digits) {
+  ParameterIncrements *pi = g_new(ParameterIncrements, 1);
+  pi->step = step;
+  pi->page = page;
+  pi->digits = digits;
+  g_param_spec_set_qdata_full(pspec, g_quark_from_static_string("increments"), pi, g_free);
 }
 
 /* The End */
