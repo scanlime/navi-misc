@@ -1,44 +1,51 @@
 <?xml version="1.0" ?>
 <freevo>
-<skin include="blurr" geometry="640x480">
+<skin include="basic" geometry="640x480">
 
-    <font label="default" name="VeraBd.ttf" size="16" color="0x000000"/>
-    <color label="default0" value="0x000000"/>
-    <color label="default1" value="0x444444"/>
-    <color label="default2" value="0xcccccc"/>
+    <!-- *********************************************************** Common -->
 
     <image label="background" filename="wasabi/background.png"/>
     <image label="logo" filename="wasabi/logo.png"/>
 
+    <!-- *********************************************************** Main Menu -->
+
+    <font label="main" name="VeraBd.ttf" size="18" color="0xeeeeee"/>
+    <font label="main selected" name="VeraBd.ttf" size="18" color="0xffffff"/>
+
     <main imagedir="wasabi">
-        <item label="video" name="Play a Video" image="wasabi/playstation.png"/>
-        <item label="audio" name="Listen to Music" image="wasabi/nes.png"/>
-        <item label="image" name="Browse Images"/>
+        <item label="video" name="Play a Video" image="wasabi/paint_roller.png"/>
+        <item label="audio" name="Listen to Music" image="wasabi/paint_roller.png"/>
+        <item label="image" name="Browse Images" image="wasabi/paint_roller.png"/>
+        <item label="n64" image="wasabi/n64.png"/>
     </main>
 
     <menuset label="main menu">
-        <screen layout="screen watermark" visible="yes">
-            <area x="0" y="0" width="640" height="480"/>
-        </screen>
-        <listing layout="main listing" visible="yes">
-            <area x="230" y="280" width="360" height="240"/>
-        </listing>
-        <listing layout="list_main" x="230" y="180" width="380" height="390"/>
-        <view visible="no"/>
+        <screen layout="screen watermark" x="0" y="0" width="640" height="480"/>
+        <listing layout="main listing" x="80" y="80" width="480" height="320">
+            <image x="90" y="40" width="32" height="32" label="uparrow" filename="wasabi/up.png"/>
+            <image x="90" y="400" width="32" height="32" label="downarrow" filename="wasabi/down.png"/>
+	</listing>
+
+        <view  visible="no"/>
+        <info  visible="no"/>
+        <title visible="no"/>
     </menuset>
 
     <layout label="screen watermark">
         <background>
             <image image="background" x="0" y="0" label="background"/>
-            <image x="80" y="112" width="256" height="256" label="watermark"/>
+            <image x="300" y="112" width="256" height="256" label="watermark"/>
         </background>
     </layout>
 
-    <layout label="title">
-        <background>
-            <image visible="not idlebar" image="logo" x="10" y="5" width="135" height="45"/>
-        </background>
-        <content x="150" y="0" type="menu" font="title area" align="center" valign="center"/>
+    <layout label="main listing">
+        <content type="text" spacing="9" align="left">
+	    <item type="default" font="main"/>
+            <item type="selected" font="main selected">
+                <rectangle bgcolor="selection" size="0" y="-5" x="-10"
+		    width="max+20" height="max+10" radius="10"/>
+            </item>
+	</content>
     </layout>
 
 </skin>
