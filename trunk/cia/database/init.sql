@@ -64,8 +64,8 @@ CREATE TABLE stats_counters
     target_path  VARCHAR(128) REFERENCES stats_catalog ON DELETE CASCADE,
     name         VARCHAR(32),
     event_count  INT NOT NULL DEFAULT 0,
-    first_time   BIGINT,
-    last_time    BIGINT,
+    first_time   timestamp DEFAULT NOW(),
+    last_time    timestamp,
     PRIMARY KEY(target_path, name)
 );
 
@@ -77,8 +77,9 @@ CREATE FUNCTION statsParent(VARCHAR) RETURNS VARCHAR AS '
 -- A function that creates a target_path in our stats_catalog if it doesn't
 -- exist, including creating parent entries recursively if necessary.
 -- Really ugly... hopefully there's a better way to do this.
-CREATE FUNCTION createTarget(VARCHAR) RETURNS VARCHAR AS '
-    SELECT createTarget(statsParent($1));
+--
+CREATE FUNCTION statsCreateTarget(VARCHAR) RETURNS VARCHAR AS '
+    SELECT statsCreateTarget(statsParent($1));
     INSERT INTO stats_catalog (
        parent_path,
        target_path)
@@ -94,10 +95,42 @@ CREATE FUNCTION createTarget(VARCHAR) RETURNS VARCHAR AS '
 -- we try to insert new keys elsewhere for a stats target that
 -- doesn't yet exist.
 CREATE RULE stats_messages_autocreate AS ON INSERT TO stats_messages
-    DO SELECT createTarget(NEW.target_path);
+    DO SELECT statsCreateTarget(NEW.target_path);
 CREATE RULE stats_metadata_autocreate AS ON INSERT TO stats_metadata
-    DO SELECT createTarget(NEW.target_path);
+    DO SELECT statsCreateTarget(NEW.target_path);
 CREATE RULE stats_counters_autocreate AS ON INSERT TO stats_counters
-    DO SELECT createTarget(NEW.target_path);
+    DO SELECT statsCreateTarget(NEW.target_path);
+
+-- A function to increment one stats counter, creating it if necessary
+-- usage: statsIncrementCounter(stats_target, counter_name)
+--
+-- Note the statsCreateTarget call: this should be done automatically
+-- on insert by the stats_counters_autocreate rule, but it looks like
+-- rules might not work from inside functions?
+--
+CREATE FUNCTION statsIncrementCounter(VARCHAR, VARCHAR) RETURNS VARCHAR AS '
+    SELECT statsCreateTarget($1);
+    INSERT INTO stats_counters (
+       target_path,
+       name)
+    (
+       SELECT $1, $2 WHERE NOT EXISTS (
+           SELECT 1 FROM stats_counters WHERE target_path = $1 AND name = $2
+       )
+    );
+    UPDATE stats_counters SET
+       event_count = event_count + 1,
+       last_time = NOW()
+    WHERE target_path = $1 and name = $2;
+    SELECT $1;
+' LANGUAGE SQL STRICT;
+
+-- Increment all applicable stats counters for a given path
+CREATE FUNCTION statsIncrement(VARCHAR) RETURNS VARCHAR AS '
+    SELECT statsIncrementCounter($1, ''today'');
+    SELECT statsIncrementCounter($1, ''thisWeek'');
+    SELECT statsIncrementCounter($1, ''thisMonth'');
+    SELECT statsIncrementCounter($1, ''forever'');
+' LANGUAGE SQL STRICT;
 
 --- The End ---

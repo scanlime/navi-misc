@@ -217,7 +217,6 @@ class StatsTarget(object):
        """
     def __init__(self, path):
         self.path = self.normalizePath(path)
-        self.recentMessages = RecentMessages(self)
 
     def normalizePath(self, path):
         """Remove leading and trailing slashes, remove duplicate
@@ -239,21 +238,22 @@ class StatsTarget(object):
 
     def deliver(self, message):
         """A message has been received which should be logged by this stats target"""
-        self.recentMessages.push(message)
+        # Store the message in our stats_messages table.
+        # Our database has rules that automatically maintain the
+        # stats_catalog table as necessary here.
+        return Database.pool.runOperation("INSERT INTO stats_messages (target_path, xml) VALUES(%s, %s)" % (
+            quoteSQL(self.path, 'varchar'),
+            quoteSQL(message, 'text'),
+            ))
 
     def catalog(self):
         """Return a list of subdirectories of this stats target"""
-        # This is just a list of strings from the rack's subnamespace catalog
-        return [item for item in self.rack.catalog() if type(item) == str]
 
     def child(self, name):
         """Return the StatsTarget for the given sub-target name under this one"""
-        return StatsTarget(self.storage, tuple(self.pathSegments) + (str(name),))
 
     def parent(self):
         """Return the parent StatsTarget of this one, or None if we're the root"""
-        if self.pathSegments:
-            return StatsTarget(self.storage, self.pathSegments[:-1])
 
     def getTitle(self):
         """Return the human-readable title of this stats target-
@@ -269,35 +269,9 @@ class StatsTarget(object):
         return 'Stats'
 
     def clear(self):
-        """Effectively delete this stats target- delete all of its counters,
-           clear its recent messages, clear all of its metadata.
-           """
-        self.counters.clear()
-        self.recentMessages.clear()
-        self.metadata.clear()
-
-
-class RecentMessages:
-    """Represents the recent messages FIFO for this stats target.
-       Messages for all stats targets are stored in the stats_messages
-       table, which assigns each message an increasing ID number.
-       """
-    maxMessages = 500
-
-    def __init__(self, target):
-        self.target = target
-
-    def push(self, message):
-        """Add a new message to the recent messages list"""
-        return Database.pool.runOperation("INSERT INTO stats_messages (target_path, xml) VALUES(%s, %s)" % (
-            quoteSQL(self.target.path, 'varchar'),
-            quoteSQL(message, 'text'),
-            ))
-
-    def clear(self):
-        """Delete all the recent messages for this stats target"""
-        return Database.pool.runOperation("DELETE FROM stats_messages WHERE target_path = %s;" %
-                                          quoteSQL(self.target.path, 'text'))
+        """Delete everything associated with this stats target"""
+        return Database.pool.runOperation("DELETE FROM stats_messages WHERE target_path = %s" %
+                                          quoteSQL(self.path, 'varchar'))
 
 
 class MetadataRack:
