@@ -1,16 +1,20 @@
 <Combine fileversion="1.0" name="pipeline-editor" description="">
   <StartMode startupentry="pipeline-editor" single="True">
     <Execute entry="pipeline-editor" type="None" />
+    <Execute entry="basic" type="None" />
   </StartMode>
   <Entries>
     <Entry filename="./pipeline-editor.prjx" />
+    <Entry filename="./plugins/basic/basic.prjx" />
   </Entries>
   <Configurations active="Debug">
     <Configuration name="Release">
       <Entry name="pipeline-editor" configurationname="Debug" build="False" />
+      <Entry name="basic" configurationname="Debug" build="False" />
     </Configuration>
     <Configuration name="Debug">
       <Entry name="pipeline-editor" configurationname="Debug" build="False" />
+      <Entry name="basic" configurationname="Debug" build="False" />
     </Configuration>
   </Configurations>
 </Combine>
