@@ -54,6 +54,15 @@
 ;// Set if the VFD is powered on
 #define MI6K_STATUS_VFDPOWER	0x02
 
+;//************************************************** Endpoints
+
+;// The EP1 IN endpoint is used for receiving IR timings.
+;// It will send packets of either 4 or 8 bytes in length.
+;// Each timer value is 16 bits, stored in little endian format.
+;// The timing units are 4/3 microseconds. A value of 0xFFFF means
+;// the timer overflowed. The first timer value in a packet is always
+;// a pulse, pulses and spaces alternate.
+
 #endif
 
 ;//### The End ###

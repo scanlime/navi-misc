@@ -69,6 +69,7 @@ struct usb_mi6k {
 	int			ir_rx_head;		/* empty slot for the next received value */
 	int			ir_rx_tail;		/* slot for the oldest value in the buffer */
 	wait_queue_head_t	ir_rx_wait;		/* wait queue for processes reading IR data */
+	int			ir_rx_clients;		/* number of processes reading from the IR device */
 	struct semaphore	sem;			/* locks this structure */
 };
 
@@ -103,6 +104,7 @@ static void mi6k_request(struct usb_mi6k *dev, unsigned short request,
 static int mi6k_ir_rx_available(struct usb_mi6k *dev);
 static void mi6k_ir_rx_push(struct usb_mi6k *dev, lirc_t x);
 static int mi6k_ir_rx_pop(struct usb_mi6k *dev);
+static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t count);
 static int mi6k_open(struct inode *inode, struct file *file);
 static int mi6k_release(struct inode *inode, struct file *file);
 static ssize_t mi6k_dev_write(struct file *file, const char *buffer, size_t count, loff_t *ppos);
@@ -157,6 +159,36 @@ static int mi6k_ir_rx_pop(struct usb_mi6k *dev)
 	lirc_t result =	dev->ir_rx_buffer[dev->ir_rx_tail];
 	dev->ir_rx_tail = (dev->ir_rx_tail + 1) & (IR_RECV_BUFFER_SIZE - 1);
 	return result;
+}
+
+static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t count)
+{
+	/* Store a buffer full of raw IR receiver responses in the ring buffer
+	 * and notify any waiting processes that new data is available.
+	 * This converts from raw received values to lirc_t values in microseconds.
+	 * This involves converting from the receiver's 4/3us unit to microseconds,
+	 * and setting the pulse/space flag appropriately. It also extends overflowed
+	 * timers to the highest value lirc_t supports.
+	 */
+	lirc_t pulse_flag = PULSE_BIT;
+	lirc_t value;
+
+	while (count >= sizeof(lirc_t)) {
+		value = (*(lirc_t *)buffer);
+		if (value == 0xFFFF) {
+			value = PULSE_MASK;
+		}
+		else {
+			value = value * 4 / 3;
+			value |= pulse_flag;
+			pulse_flag ^= PULSE_BIT;
+		}
+
+		mi6k_ir_rx_push(dev, value);
+		buffer += sizeof(lirc_t);
+		count -= sizeof(lirc_t);
+	}
+	wake_up_interruptible(&dev->ir_rx_wait);
 }
 
 
@@ -462,9 +494,6 @@ static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t cou
 	}
 	retval = 4;
 
-	mi6k_ir_rx_push(dev, value);
-	wake_up_interruptible(&dev->ir_rx_wait);
-
 exit:
 	/* unlock the device */
 	up(&dev->sem);
@@ -708,7 +737,7 @@ static int __init usb_mi6k_init(void)
 		return -1;
 	}
 
-	info(DRIVER_DESC " " DRIVER_VERSION);
+	info(DRIVER_DESC " " DRIVER_VERSION " - " DRIVER_AUTHOR);
 	return 0;
 }
 
