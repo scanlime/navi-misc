@@ -18,7 +18,7 @@ class Device:
                        integrationPackets,
                        threshold
                        ):
-	ioctl(self.dev, 0x3901, struct.pack("iiiii",
+        ioctl(self.dev, 0x3901, struct.pack("iiiii",
                                             prechargeReads,
                                             integrationReads,
                                             interval,
@@ -31,7 +31,7 @@ class Device:
 d = Device()
 
 if len(sys.argv) > 1:
-	d.setCalibration(*map(int, sys.argv[1:]))
+        d.setCalibration(*map(int, sys.argv[1:]))
 
 while True:
     print d.adcReadRaw()
