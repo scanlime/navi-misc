@@ -1,6 +1,6 @@
 bin_PROGRAMS = fyre
 
-INCLUDES = $(BINRELOC_CFLAGS) $(PACKAGE_CFLAGS) '-DGLADEDIR="data"'
+INCLUDES = $(BINRELOC_CFLAGS) $(PACKAGE_CFLAGS) $(EXR_CFLAGS) '-DGLADEDIR="data"'
 
 fyre_SOURCES = 				\
 	main.c				\
@@ -25,7 +25,8 @@ fyre_SOURCES = 				\
 	histogram-view.c		\
 	animation-render-ui.c		\
 	screensaver.c			\
-	prefix.c
+	prefix.c			\
+	exr.cpp
 
 noinst_HEADERS =			\
 	animation.h			\
@@ -49,4 +50,8 @@ noinst_HEADERS =			\
 	screensaver.h			\
 	spline.h
 
-fyre_LDADD = $(BINRELOC_LIBS) $(PACKAGE_LIBS)
+fyre_LDADD = \
+	$(BINRELOC_LIBS)		\
+	$(PACKAGE_LIBS)			\
+	$(EXR_LIBS)
+
