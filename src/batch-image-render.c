@@ -31,7 +31,7 @@
 #endif
 
 typedef struct {
-    gulong      target_density;
+    double      quality;
     GMainLoop*  main_loop;
     GTimer*     status_timer;
 } BatchImageRender;
@@ -41,7 +41,7 @@ static void       on_calc_finished            (IterativeMap*      map,
 
 void batch_image_render(IterativeMap*  map,
 			const char*    filename,
-			gulong         target_density)
+			double         quality)
 {
     BatchImageRender self;
 
@@ -56,7 +56,7 @@ void batch_image_render(IterativeMap*  map,
     }
 #endif
 
-    self.target_density = target_density;
+    self.quality = quality;
     self.main_loop = g_main_loop_new(NULL, FALSE);
     self.status_timer = g_timer_new();
 
@@ -102,8 +102,9 @@ static void       on_calc_finished            (IterativeMap*       map,
 					       BatchImageRender*   self)
 {
     double elapsed, remaining;
+    double current_quality = histogram_imager_compute_quality(HISTOGRAM_IMAGER(map));
 
-    if (HISTOGRAM_IMAGER(map)->peak_density >= self->target_density)
+    if (current_quality >= self->quality)
 	g_main_loop_quit(self->main_loop);
 
     /* Limit the update rate of this status message independently
@@ -113,21 +114,18 @@ static void       on_calc_finished            (IterativeMap*       map,
         return;
     g_timer_start(self->status_timer);
 
-    /* This should be a fairly accurate time estimate, since (asymptotically at least)
-     * current_density increases linearly with the number of iterations performed.
-     * Elapsed time and time remaining are in seconds.
-     */
+    /* Compute a somewhat bogus time estimate using a linear approximation */
     elapsed = histogram_imager_get_elapsed_time(HISTOGRAM_IMAGER(map));
-    remaining = elapsed * self->target_density / HISTOGRAM_IMAGER(map)->peak_density - elapsed;
+    remaining = elapsed * self->quality / current_quality - elapsed;
 
     /* After each batch of iterations, show the percent completion, number
      * of iterations (in scientific notation), iterations per second,
-     * density / target density, and elapsed time / remaining time.
+     * current quality / target quality, and elapsed time / remaining time.
      */
-    printf("%6.02f%%   %.3e   %.2e/sec   %6ld / %ld   %02d:%02d:%02d / %02d:%02d:%02d\n",
-	   100.0 * HISTOGRAM_IMAGER(map)->peak_density / self->target_density,
+    printf("%6.02f%%   %.3e   %.2e/sec  %8.04f / %.01f   %02d:%02d:%02d / %02d:%02d:%02d\n",
+	   100.0 * current_quality / self->quality,
 	   map->iterations, map->iterations / elapsed,
-	   HISTOGRAM_IMAGER(map)->peak_density, self->target_density,
+	   current_quality, self->quality,
 	   ((int)elapsed) / (60*60), (((int)elapsed) / 60) % 60, ((int)elapsed)%60,
 	   ((int)remaining) / (60*60), (((int)remaining) / 60) % 60, ((int)remaining)%60);
 
