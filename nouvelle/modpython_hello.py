@@ -28,7 +28,6 @@ class Hello(ModPython.Page):
         ]
 
     def render_dataTable(self, context):
-        return context['args']
         return MyTable(self.data, [
             Nouvelle.IndexedColumn('name', 0),
             Nouvelle.IndexedColumn('absorbency', 1),
