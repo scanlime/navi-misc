@@ -26,17 +26,18 @@
 #include "events.h"
 #include "timer.h"
 #include "serverGameManager.h"
+#include "serverlistener.h"
 
 trServerInfo		serverInfo;
 CListServerServerConnection	serverListServerConnection;
 
-#include "serverlistener.h"
 CServerListener		serverListener;
 
 float	lastListServerUpdate;
 float	listServerUpdateTime = 120;
 
 bool registerAsPublic = true;
+eLogLevel	eCurrentLogLevel = eLogLevel1;
 
 bool eventCycle ( void );
 
@@ -47,9 +48,10 @@ int errorOut ( const char * error, const char* place, int ret )
 	return ret;
 }
 
-void logOut ( const char * error, const char* place )
+void logOut ( const char * error, const char* place, eLogLevel level )
 {
-	printf("log: %s at %s\n",error,place);
+	if (level <= eCurrentLogLevel )
+		printf("log: %s at %s\n",error,place);
 }
 
 bool getServerInfo ( void )
@@ -124,14 +126,14 @@ bool updateListServ ( void )
 	
 	if (lastListServerUpdate + listServerUpdateTime < CTimer::instance().GetTime())
 	{
-		logOut("list server update sent","updateListServ");
+		logOut("list server update sent","updateListServ",eLogLevel1);
 
 		serverInfo.currentPlayers = serverListener.getCurrentPlayers();
 
 		if (!serverListServerConnection.update(serverInfo))
 			return errorOut("list server connection error","serverListServerConnection.Update(serverInfo)") != 0;
 
-		logOut("list server update complete","updateListServ");
+		logOut("list server update complete","updateListServ",eLogLevel2);
 
 		lastListServerUpdate = (float)CTimer::instance().GetTime();
 	}
@@ -140,7 +142,7 @@ bool updateListServ ( void )
 
 int main (int argc, char **argv)
 {
-	logOut("Firestarterd: starting fires","main");
+	logOut("Firestarterd: starting fires","main",eLogLevel1);
 	CTimer::instance().Init();
 	CServerGameManger::instance().init();
 
@@ -152,7 +154,7 @@ int main (int argc, char **argv)
 	else
 		CPrefsManager::instance().Init("firestarterd");
 
-	logOut("Prefs loaded","main");
+	logOut("Prefs loaded","main",eLogLevel2);
 
 	// randdom generateor
 	if (args.Exists("srand"))
@@ -166,6 +168,8 @@ int main (int argc, char **argv)
 #endif
 	}
 
+	if (args.Exists("loglevel"))
+		eCurrentLogLevel = (eLogLevel)args.GetDataI("loglevel");
 
 	registerAsPublic = args.GetDataB("public");
 
@@ -176,20 +180,20 @@ int main (int argc, char **argv)
 
 	getServerInfo();
 
-	logOut("setings loaded","main");
+	logOut("setings loaded","main",eLogLevel2);
 
 	std::string temp1= "loaded game: " + serverInfo.game;
-	logOut(temp1.c_str(),"main");
+	logOut(temp1.c_str(),"main",eLogLevel3);
 
 	if (!serverListener.init(serverInfo.game.c_str(),serverInfo.port,serverInfo.maxPlayers))
 		return errorOut("server listener init error","serverListener.init(serverInfo.game.c_str(),serverInfo.port)");
 
 	if (registerAsPublic)
 	{
-		logOut("Contacting list server","main");
+		logOut("Contacting list server","main",eLogLevel2);
 		if (!serverListServerConnection.add(serverInfo))
 			return errorOut("list server connection error","serverListServerConnection.Add(serverInfo)");
-		logOut("List server add processed","main");
+		logOut("List server add processed","main",eLogLevel3);
 	}
 	bool	done = false;
 	while (!done)
@@ -200,14 +204,14 @@ int main (int argc, char **argv)
 			updateListServ();
 		OSSleep(0.001f);
 	}
-	logOut("Server shutdown comencing","main");
+	logOut("Server shutdown comencing","main",eLogLevel1);
 
 	if (registerAsPublic)
 	{
-		logOut("list server remove sent","main");
+		logOut("list server remove sent","main",eLogLevel2);
 		if (!serverListServerConnection.remove(serverInfo))
 			return errorOut("list server connection error","serverListServerConnection.Add(serverInfo)");
-		logOut("list server remove completed","main");
+		logOut("list server remove completed","main",eLogLevel3);
 	}
 
 	serverListener.kill();

@@ -100,7 +100,7 @@ void CServerListener::OnConnect ( CNetworkPeer &peer )
 
 	game->add(lastID-1,peer);
 
-	logOut("client connect","CServerListener::OnConnect");
+	logOut("client connect","CServerListener::OnConnect",eLogLevel5);
 }
 
 void CServerListener::OnDisconnect ( CNetworkPeer &peer )
@@ -114,7 +114,7 @@ void CServerListener::OnDisconnect ( CNetworkPeer &peer )
 
 	game->remove(itr->second,peer);
 
-	logOut("client disconnect","CServerListener::OnDisconnect");
+	logOut("client disconnect","CServerListener::OnDisconnect",eLogLevel5);
 }
 
 void CServerListener::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
@@ -128,6 +128,6 @@ void CServerListener::OnMessage ( CNetworkPeer &peer, CNetworkMessage &message )
 
 	game->message(itr->second,peer,message);
 
-	logOut("client message","CServerListener::OnMessage");
+	logOut("client message","CServerListener::OnMessage",eLogLevel5);
 
 }

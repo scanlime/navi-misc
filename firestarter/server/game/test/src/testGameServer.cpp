@@ -47,7 +47,7 @@ bool CTestGameServer::think ( void )
 
 				char temp[512];
 				sprintf(temp,"update for bot ID %d for %f %f %f",players->first,players->second.pos[0],players->second.pos[1],players->second.pos[2]);
-				logOut(temp,"CTestGameServer::think ");
+				logOut(temp,"CTestGameServer::think ",eLogLevel5);
 			}
 		}
 		players++;
@@ -119,11 +119,11 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 	switch (message.GetType())
 	{
 		case _MESSAGE_SERVER_INFO:	// SI 
-			logOut("receve _MESSAGE_SERVER_INFO","CTestGameServer::message");
+			logOut("receve _MESSAGE_SERVER_INFO","CTestGameServer::message",eLogLevel4);
 			break;
 
 		case _MESSAGE_CLIENT_INFO:	// CI 
-			logOut("receve _MESSAGE_CLIENT_INFO","CTestGameServer::message");
+			logOut("receve _MESSAGE_CLIENT_INFO","CTestGameServer::message",eLogLevel4);
 			spawn = true;
 			itr->second.player = true;
 			itr->second.name = message.ReadStr();
@@ -132,23 +132,23 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 			break;
 
 		case _MESSAGE_USER_PART:		// UP
-			logOut("receve _MESSAGE_USER_PART","CTestGameServer::message");
+			logOut("receve _MESSAGE_USER_PART","CTestGameServer::message",eLogLevel4);
 			remove(playerID,peer);
 			break;
 
 		// this we should never get
 		case _MESSAGE_USER_ADD:	// UA
 		case _MESSAGE_KICK:			// KK
-			logOut("receve _MESSAGE_USER_ADD OR KICK","CTestGameServer::message");
+			logOut("receve _MESSAGE_USER_ADD OR KICK","CTestGameServer::message",eLogLevel4);
 			break;
 
 		// don't care about this one
 		case _MESSAGE_ACKNOWLEDGE:
-			logOut("receve _MESSAGE_ACKNOWLEDGE","CTestGameServer::message");
+			logOut("receve _MESSAGE_ACKNOWLEDGE","CTestGameServer::message",eLogLevel4);
 			break;
 
 		case _MESSAGE_UPDATE: //UD
-			logOut("receve _MESSAGE_UPDATE","CTestGameServer::message");
+			logOut("receve _MESSAGE_UPDATE","CTestGameServer::message",eLogLevel5);
 			if (itr->second.player)
 			{
 				message.ReadV(itr->second.pos);
@@ -157,14 +157,14 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 
 				char temp[512];
 				sprintf(temp,"update from ID %d for %f %f %f",playerID,itr->second.pos[0],itr->second.pos[1],itr->second.pos[2]);
-				logOut(temp,"CTestGameServer::message");
+				logOut(temp,"CTestGameServer::message",eLogLevel5);
 				
 				sendUpdate(playerID);
 			}
 			break;
 
 		default:
-			logOut("receve unknown message","CTestGameServer::message");
+			logOut("receve unknown message","CTestGameServer::message",eLogLevel4);
 			break;
 	}
 
@@ -180,7 +180,7 @@ bool CTestGameServer::message ( int playerID, CNetworkPeer &peer, CNetworkMessag
 		newMessage.AddV(itr->second.rot);
 		newMessage.AddV(itr->second.vec);
 
-		logOut("send spawn","CTestGameServer::message");
+		logOut("send spawn","CTestGameServer::message",eLogLevel3);
 
 		// send spawn to everyone 
 		sendToAllBut(newMessage,-1);
@@ -192,7 +192,7 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 {
 	char temp[512];
 	sprintf(temp,"add player with ID %d",playerID);
-	logOut(temp,"CTestGameServer::add");
+	logOut(temp,"CTestGameServer::add",eLogLevel3);
 
 	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
 	if (itr != users.end())
@@ -216,14 +216,14 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	{
 		if (itr->first !=playerID)
 		{
-			logOut("send _MESSAGE_USER_ADD","CTestGameServer::add");
+			logOut("send _MESSAGE_USER_ADD","CTestGameServer::add",eLogLevel4);
 
 			message.SetType(_MESSAGE_USER_ADD);
 			message.AddI(itr->first);
 			message.Send(peer,true);
 			message.ClearData();
 
-			logOut("send _MESSAGE_CLIENT_INFO","CTestGameServer::add");
+			logOut("send _MESSAGE_CLIENT_INFO","CTestGameServer::add",eLogLevel4);
 			message.SetType(_MESSAGE_CLIENT_INFO);	
 			message.AddI(itr->first);
 			message.AddStr(itr->second.name.c_str());
@@ -237,9 +237,9 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 		itr++;
 	}
 
-	logOut("send _MESSAGE_SERVER_INFO","CTestGameServer::add");
+	logOut("send _MESSAGE_SERVER_INFO","CTestGameServer::add",eLogLevel4);
 	sprintf(temp,"player ID: %d",playerID);
-	logOut(temp,"CTestGameServer::add");
+	logOut(temp,"CTestGameServer::add",eLogLevel4);
 
 	message.ClearData();
 	message.SetType(_MESSAGE_SERVER_INFO);	// ServerInfo
@@ -247,7 +247,7 @@ bool CTestGameServer::add ( int playerID, CNetworkPeer &peer )
 	message.Send(peer,true);
 
 	// send an add to everyone else
-	logOut("send _MESSAGE_USER_ADD","CTestGameServer::add::everyone else");
+	logOut("send _MESSAGE_USER_ADD","CTestGameServer::add::everyone else",eLogLevel4);
 	message.SetType(_MESSAGE_USER_ADD);	// UserAdd
 	message.AddI(playerID);
 	sendToAllBut(message,playerID);
@@ -262,7 +262,7 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 
 	char temp[512];
 	sprintf(temp,"add bot with ID %d",playerID);
-	logOut(temp,"CTestGameServer::addBot");
+	logOut(temp,"CTestGameServer::addBot",eLogLevel4);
 
 	trPlayerInfo info;
 	info.name = name;
@@ -280,7 +280,7 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 
 	CNetworkMessage	message;
 
-	logOut("send _MESSAGE_USER_ADD","CTestGameServer::addBot::everyone else");
+	logOut("send _MESSAGE_USER_ADD","CTestGameServer::addBot::everyone else",eLogLevel4);
 
 	// send an add to everyone else
 	message.SetType(_MESSAGE_USER_ADD);
@@ -289,7 +289,7 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 	message.ClearData();
 
 	// it's a bot so it won't send stuff like server info so just send the info now
-	logOut("send _MESSAGE_CLIENT_INFO","CTestGameServer::addBot::everyone else");
+	logOut("send _MESSAGE_CLIENT_INFO","CTestGameServer::addBot::everyone else",eLogLevel4);
 	message.SetType(_MESSAGE_CLIENT_INFO);	//
 	message.AddI(playerID);
 	message.AddStr(info.name.c_str());
@@ -310,7 +310,7 @@ void CTestGameServer::addBot (int playerID, const char* name, const char* config
 	message.AddV(itr->second.vec);
 
 	// send spawn to everyone 
-	logOut("send _MESSAGE_SPAWN","CTestGameServer::addBot::everyone");
+	logOut("send _MESSAGE_SPAWN","CTestGameServer::addBot::everyone",eLogLevel4);
 	sendToAllBut(message,-1);
 }
 
@@ -371,7 +371,7 @@ void CTestGameServer::spawnPlayer ( int playerID )
 {
 	char temp[512];
 	sprintf(temp,"generate gpawn for ID %d",playerID);
-	logOut(temp,"CTestGameServer::spawnPlayer");
+	logOut(temp,"CTestGameServer::spawnPlayer",eLogLevel2);
 
 	std::map<int,trPlayerInfo>::iterator itr = users.find(playerID);
 	if (itr == users.end())
