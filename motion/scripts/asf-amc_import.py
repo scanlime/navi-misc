@@ -47,6 +47,7 @@ class dataStorage:
     asfReader   = None
     scene       = None
     bones       = {}
+    static      = []
 
 def cleanup (d):
     # Clean up our global data, so we can run multiple times without problems
@@ -55,6 +56,7 @@ def cleanup (d):
     d.asfReader   = None
     d.scene       = None
     d.bones       = {}
+    d.static      = []
 
 def addVectors (a, b):
     x = []
@@ -97,6 +99,8 @@ def loadASF (filename):
         bone.setTail ([tail[0], tail[2], tail[1]])
 
         d.bones[name] = bone
+        if data.dof is None:
+            d.static.append (name)
 
     # Create the root and add it to the armature.
     bone = Blender.Armature.Bone.New ('root')
@@ -129,7 +133,7 @@ def loadASF (filename):
 
     # Finally, pop up a file selector for importing the AMC
     # Blender.Window.FileSelector (loadAMC, 'Load AMC Motion Capture')
-    loadAMC ('/home/david/projects/motion/data/07_02.amc', d)
+    loadAMC ('/home/david/projects/motion/data/mc-small.amc', d)
 
 def getRotation (bone, rotation, d):
     """Retrieves the rotation for a bone, correcting for the difference between
@@ -152,6 +156,11 @@ def getRotation (bone, rotation, d):
     # Find the degrees of freedom supported by this joint and map our rotation
     # parameter onto a 3-tuple based on this
     dof = d.asfReader.bones[name].dof
+
+    # Some bones have no DOF, so just use an empty list.
+    if dof is None:
+        dof = []
+
     euler = [0.0, 0.0, 0.0]
     for i in range (len (dof)):
         if dof[i] == 'rx':
@@ -217,6 +226,13 @@ def loadAMC (filename, d):
         #d.bones['root'].setLoc (location)
         #d.bones['root'].setQuat (rotation)
         #d.bones['root'].setPose ([ROT, LOC])
+
+        # Perform axis corrections on the static items
+        for name in d.static:
+            bone = d.bones[name]
+            quat = getRotation (bone, [0.0, 0.0, 0.0], d)
+            d.bones[name].setQuat (quat)
+            d.bones[name].setPose ([ROT])
 
         # Set orientations for each bone for this frame
         for name, rotation in frame.bones.iteritems ():
