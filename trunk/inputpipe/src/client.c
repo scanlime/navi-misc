@@ -613,12 +613,16 @@ static void connection_set_status_led (struct connection *self, int connected)
 {
   if (config_connect_led_number >= 0) {
     struct input_event ev;
+
+    memset(&ev, 0, sizeof(ev));
     ev.type = EV_LED;
     ev.code = config_connect_led_number;
+
     if (connected)
-      ev.value = config_connect_led_polarity;
+      ev.value = !!config_connect_led_polarity;
     else
       ev.value = !config_connect_led_polarity;
+
     write(self->evdev_fd, &ev, sizeof(ev));
   }
 }
@@ -843,6 +847,7 @@ static int hotplug_detect(int fd)
 	test_bit(ABS_Y, absbits) &&
 	(test_bit(BTN_TRIGGER, keybits) ||
 	 test_bit(BTN_A, keybits) ||
+	 test_bit(BTN_0, keybits) ||
 	 test_bit(BTN_1, keybits)))
       return 1;
   }
