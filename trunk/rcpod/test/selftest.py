@@ -251,6 +251,45 @@ class SelfTest(RcpodTestCase):
 
                     self.assert_(pin.test(), str(pin))
 
+    def testPinDescPortRead(self):
+        """test reading port values using pin descriptors"""
+        # Make PORTA and PORTE pins digital rather than the default of analog
+        self.rcpod.poke('adcon1', 0xFF)
+
+        for name, originalPin in self.rcpod.pins.iteritems():
+
+            # Test with all ports initially set to 0 and to 1
+            for initialValue in (0x00, 0xFF):
+
+                # Test regular and negated descriptors
+                for pin, polarity in (
+                    (originalPin, 1),
+                    (originalPin.negate(), 0),
+                    ):
+
+                    # We can't drive pin RA4 high, it's open-drain
+                    if name == 'ra4' and polarity == 1:
+                        continue
+
+                    # Make all ports outputs
+                    for reg in ('trisa', 'trisb', 'trisc', 'trisd', 'trise'):
+                        self.rcpod.poke(reg, 0x00)
+
+                    # Set ports to the initial value, turning on/off
+                    # the one we're testing.
+                    bit = int(name[2])
+                    for reg in ('porta', 'portb', 'portc', 'portd', 'porte'):
+                        if reg[-1] == name[1]:
+                            # This is the port we're testing, flip a bit
+                            if polarity:
+                                self.rcpod.poke(reg, initialValue | (1<<bit))
+                            else:
+                                self.rcpod.poke(reg, initialValue & ~(1<<bit))
+                        else:
+                            self.rcpod.poke(reg, initialValue)
+
+                    self.assert_(pin.test(), str(pin))
+
     def testAnalogAllSanity(self):
         """show that analogReadAll returns the right number of values and that they are all within range"""
         values = self.rcpod.analogReadAll()
