@@ -550,7 +550,7 @@ void de_jong_calculate_bifurcation(DeJong             *self,
 
     density = self->current_density;
     interpolant = de_jong_new();
-    points = g_malloc(count_width * sizeof(points[0]));
+    points = g_malloc0(count_width * sizeof(points[0]));
 
     for (i=iterations; i;) {
 
@@ -559,7 +559,6 @@ void de_jong_calculate_bifurcation(DeJong             *self,
        */
       alpha = uniform_variate();
       interp(interpolant, alpha, interp_data);
-      self->calc_dirty_flag = FALSE;
       ix = alpha * (count_width - 1);
 
       a = interpolant->a;
