@@ -211,7 +211,7 @@ void tracker(int n_cameras, CvCalibFilter *calib) {
     printf("%6.2f %6.2f %6.2f\n", transformed.x, transformed.y, transformed.z);
 
 #ifdef FIELDSENSOR_KLUDGE
-    {
+    if (efs_output) {
       int efs_packet[9];
       float n_samples;
       fread(efs_packet, 9, sizeof(int), efs_dev);
