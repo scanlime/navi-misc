@@ -3337,7 +3337,6 @@
 
 <widget class="GnomeAbout" id="about1">
   <property name="border_width">5</property>
-  <property name="visible">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="logo">soap.png</property>
   <property name="copyright" translatable="yes">Copyright © 2004
@@ -3351,7 +3350,6 @@ Daniel Kuester</property>
 </widget>
 
 <widget class="GtkWindow" id="setup druid">
-  <property name="visible">True</property>
   <property name="title" translatable="yes">Xchat-gnome Setup Assistant</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
