@@ -54,9 +54,10 @@ typedef RtgAddress RtgPageAddress;
 typedef struct _RtgPageStorage  RtgPageStorage;
 
 struct _RtgPageStorage {
-    gpointer  base_address;
-    gsize     page_size;
-    gsize     num_pages;
+    gpointer        base_address;
+    gsize           page_size;
+    gsize           num_pages;
+    RtgPageAddress  page_addr_max;
 
     /* Extra amount to allocate, relative to what's absolutely necessary,
      * when we need to grow the size of the storage. This is initialized
@@ -85,7 +86,7 @@ struct _RtgPageStorage {
  * during page allocation.
  */
 #define           rtg_page_storage_lookup(self, page) \
-    (((page) < (self)->num_pages) ? ((self)->base_address + (page)) : NULL)
+    (((page) <= (self)->page_addr_max) ? ((self)->base_address + (page)) : NULL)
 
 /* Page allocation */
 RtgPageAddress    rtg_page_storage_alloc         (RtgPageStorage*   self);
@@ -146,6 +147,20 @@ void              rtg_page_storage_init            (RtgPageStorage* self);
  */
 void              rtg_page_storage_resize          (RtgPageStorage* self,
 						    gsize           new_num_pages);
+
+/* Used by implementation constructors and resize backends.
+ * This doesn't resize anything, it just changes the stored
+ * size and maximum address.
+ */
+void              rtg_page_storage_set_num_pages   (RtgPageStorage* self,
+						    gsize           new_num_pages);
+
+static inline
+RtgPageAddress    rtg_page_num_to_address          (RtgPageStorage* self,
+						    gsize           page_num)
+{
+  return page_num * self->page_size;
+}
 
 G_END_DECLS
 
