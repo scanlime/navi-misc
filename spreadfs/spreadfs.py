@@ -290,8 +290,21 @@ class SpreadFilesystem:
         raise NotImplementedError
 
 
+class SpreadMountServer(pinefs.srv.MntSrv):
+    prog = 100015
+    def check_host_ok (self, host, cred, verf):
+        return True
+
+
 class SpreadNfsServer(pinefs.srv.NfsSrv):
     """A subclass of Pinefs's NFS server, with some extras for SpreadFilesystem"""
+    prog = 100013
+
+    def check_host_ok (self, host, cred, verf):
+        # FIXME: Before read-write support, we should at least restrict
+        #        this to hosts on the local submet.
+        return True
+
     def NFSPROC_STATFS(self, fh):
         """Use the DiskSet's statvfs() implementation"""
         vfstat = self.fs.diskSet.statvfs()
@@ -320,22 +333,28 @@ if __name__ == "__main__":
     serverClass = pinefs.rpc.UDPServer
 
     # Create the mount daemon, in a separate thread
-    mountServer = pinefs.srv.MntSrv(fs)
-    mountRpc = mountServer.create_transport_server(5555, serverClass, lock=lock)
+    mountServer = SpreadMountServer(fs)
+    mountRpc = mountServer.create_transport_server(5565, serverClass, lock=lock)
     mountServer.register(mountRpc)
     mountThread = threading.Thread(target=mountRpc.loop)
     mountThread.start()
 
     # Create the NFS server itself, in the main thread
     nfsServer = SpreadNfsServer(fs)
-    nfsRpc = nfsServer.create_transport_server(2049, serverClass, lock=lock)
+    nfsRpc = nfsServer.create_transport_server(2059, serverClass, lock=lock)
     nfsServer.register(nfsRpc)
+
+    # We might listen on a nonstandard program number to avoid interfering
+    # with an existing NFS server, but we need to also know about the
+    # standard number in order to accept calls to that program after connection.
+    nfsRpc.progs[100003] = nfsRpc.progs[nfsServer.prog]
+
     try:
         nfsRpc.loop()
     finally:
         mountRpc.stop()
         nfsRpc.stop()
-        mntRpc.unregister()
+        mountRpc.unregister()
         nfsRpc.unregister()
 
 ### The End ###
