@@ -103,11 +103,32 @@ Because total histogram density is maintained during the computation run, the ac
 tone-mapping step can be performed at any time.  This allows a low quality image to
 be produced almost immediately, while further iterations merely add more detail.  Like
 other techniques which progressively refine an image, this method performs particularly
-well in interactive applications.  The parameter space of some nonlinear systems can be
-explored interactively in a visual way; instead of waiting for an entire computation run
-to complete, frames can be rendered at preset time intervals, allowing a user to explore
-through input parameters until the desired image is seen.  As soon as the parameters
-stop changing, the image quality will start to improve.
+well in interactive applications.  Iterations can be performed continuously in the
+background while the tone-mapping stage is run repeatedly according to the rate at which
+the histogram is changing.  It becomes computationally very cheap to change the system's
+parameters, reset the histogram, and quickly obtain a low-quality rendering with the
+new parameters.
+
+This real-time potential has a profound impact on the way an artist or other user can
+interact with the chaotic map's parameter space. \emph{Apophysis}\footnote{http://www.apophysis.org/}
+is a tool for rendering fractal flames using the same histogram-based engine used by \emph{Electric Sheep}.
+Despite this, its user interface fails to provide real-time feedback. Like other more traditional
+fractal applications, it provides indirect ways to manipulate the parameter space. Perhaps the most
+powerful of these indirect methods are \emph{mutations}, where the computer creates several versions
+of an image, each with randomly perturbed parameters, then the user selects the one that most appeals
+to them. The user closes a feedback loop which performs a hill-climbing optimization in order
+to locally find the most pleasing parameter set for a fractal.
+
+In order to take advantage of histogram-based rendering's real-time capabilities, our
+\emph{Fyre}\footnote{http://fyre.navi.cx/} software takes this optimization strategy one step
+further. The image updates in real-time, and various ``tools'' are provided that map mouse movements
+to different aspects of the high-dimensional parameter space. This creates a strong coupling
+between the user's hand movements and the perceived changes in rendering output. Rather than
+selecting mutations at discrete intervals, the chaotic map becomes part of the user's motor control
+feedback loop. With current input devices this restricts the user to explore two dimensions of the
+parameter space at a time, but they have much better control over these dimensions. It is as if the
+user can just grab hold of the parameters and move them in a solid way, making this hill-climbing
+optimization process very intuitive.
 
 This approach makes the algorithm particularly suitable to parallel processing.  If the
 system being visualized converges toward a single attractor, many iteraton or integration
