@@ -7,23 +7,23 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  */
 
 #include "JetCOWRegistry.h"
 JetCOWRegistry *JetCOWRegistry::instance = NULL;
 
 #include "JetCOW.h"
-#include "Lightmap.h"
+// #include "Lightmap.h"
 #include "Surface.h"
 #include "SphereGenerator.h"
 #include "SuperquadricGenerator.h"
@@ -31,7 +31,7 @@ JetCOWRegistry *JetCOWRegistry::instance = NULL;
 #include "QuadGenerator.h"
 #include "Scene.h"
 #include "ParticleSystem.h"
-#include "Skybox.h"
+// #include "Skybox.h"
 #include "PerlinDisplacement.h"
 #include "SceneLights.h"
 #include "ColorModulator.h"
@@ -51,7 +51,8 @@ JetCOWRegistry::JetCOWRegistry() {
   add<JetCOWDictionary>("JetCOWDictionary" ,"JetCOWObject");
   add<JetCOWVector>("JetCOWVector" ,"JetCOWObject");
 
-  add<Lightmap>("Lightmap", "JetCOWObject");
+// FIXME
+//  add<Lightmap>("Lightmap", "JetCOWObject");
 
   add<SceneNode>("SceneNode", "JetCOWDictionary");
   add<Scene>("Scene", "SceneNode");
@@ -72,12 +73,13 @@ JetCOWRegistry::JetCOWRegistry() {
   add<SuperellipsoidGenerator>("SuperellipsoidGenerator", "SurfaceGenerator");
   add<TriangleGenerator>("TriangleGenerator", "SurfaceGenerator");
   add<QuadGenerator>("QuadGenerator", "SurfaceGenerator");
-  
+
   add<ParticleSystem>("ParticleSystem", "SceneNode");
-  add<Skybox>("Skybox", "SceneNode");
+// FIXME
+//  add<Skybox>("Skybox", "SceneNode");
   add<SplineSceneNode>("Spline", "SceneNode");
 }
- 
+
 bool JetCOWRegistry::isSubclass(const std::string &a, const std::string &b) {
   std::vector<std::string> s = typeMap[b]->subclasses;
   bool result = find(s.begin(), s.end(), a) != s.end();
