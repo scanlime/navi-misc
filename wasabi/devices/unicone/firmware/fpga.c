@@ -112,6 +112,13 @@ unsigned char fpga_config_end()
     /* Give it a few more CCLKs after the bitstream to release user I/Os */
     fpga_config_write_byte(0x00);
 
+    /* After configuration, our hardware uses DIN as a reset. Hold the chip
+     * in reset momentarily before continuing.
+     */
+    fpga_din_on();
+    delay(100);
+    fpga_din_off();
+
     printf(" Done\n");
     return UNICONE_STATUS_OK;
   }
