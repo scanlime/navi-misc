@@ -87,6 +87,18 @@ server_selection_changed (GtkTreeSelection *selection, IrcNetworkEditor *e)
 }
 
 static void
+server_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, IrcNetworkEditor *e)
+{
+	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->servers));
+	if (gtk_tree_selection_get_selected (selection, &model, &iter))
+		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, newtext, -1);
+}
+
+static void
 irc_network_editor_init (IrcNetworkEditor *dialog)
 {
 	GtkSizeGroup *group;
@@ -167,12 +179,12 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
 	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
 
-	g_signal_connect (G_OBJECT (dialog->use_globals), "toggled", G_CALLBACK (use_globals_set),     dialog);
-	g_signal_connect (G_OBJECT (dialog->use_custom),  "toggled", G_CALLBACK (use_custom_set),      dialog);
-	g_signal_connect (G_OBJECT (dialog->edit_server), "clicked", G_CALLBACK (edit_server_clicked), dialog);
-
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (dialog->servers));
-	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK(server_selection_changed), dialog);
+	g_signal_connect (G_OBJECT (dialog->use_globals),     "toggled", G_CALLBACK (use_globals_set),          dialog);
+	g_signal_connect (G_OBJECT (dialog->use_custom),      "toggled", G_CALLBACK (use_custom_set),           dialog);
+	g_signal_connect (G_OBJECT (dialog->edit_server),     "clicked", G_CALLBACK (edit_server_clicked),      dialog);
+	g_signal_connect (G_OBJECT (selection),               "changed", G_CALLBACK (server_selection_changed), dialog);
+	g_signal_connect (G_OBJECT (dialog->server_renderer), "edited",  G_CALLBACK (server_edited),            dialog);
 }
 
 GType
