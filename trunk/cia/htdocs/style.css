@@ -1,13 +1,20 @@
+/*
+ * CSS2 Stylesheet for the CIA web interface.
+ * This CSS is a tweaked and enhanced version of what
+ * runs most of the CGI scripts and such on navi, and
+ * borrows a lot of ideas from picogui.org's tweaked
+ * Plone CSS. Plone's CSS was written by Alexander Limi.
+ *
+ * --Micah Dowty <micah@picogui.org>
+ *
+ */
+
 body {
   font: 9pt Verdana, Helvetica, Arial, sans-serif;
-  background: #eef4eb;
   color: Black;
   margin: 0;
   padding: 0;
-}
-
-body.white {
-  background: #ffffff;
+  background: #eef4eb;
 }
 
 .centered {
@@ -16,7 +23,7 @@ body.white {
 }
 
 a {
-  color: #000080;
+  color: #008;
   text-decoration: none;
 }
 
@@ -44,59 +51,63 @@ li {
   padding: 0.25em;
 }
 
-div.headingTabs {
-  margin: 1em 0em 0em 0em;
-}
-
-div.siteName {
-  float: right;
-  margin: 0em 0.5em;
-  font: 350% Verdana, Helvetical, Arial, sans-serif;
-  color: #D0D0D0;
-}
-
-a.headingTab {
-  background: #eef4eb;
-  border: 1px solid black;
-  border-bottom: #eef4eb 1px solid;
-  color: #000080;
-  margin: 1.5em 0.5em 0em 0.5em;
-  padding: 0em 0.5em;
-  text-decoration: none;
-}
-
-a.headingTab:hover {
-  text-decoration: underline;
-}
-
 div.heading {
-  background: White;
-  border-bottom: 1px solid Black;
-  padding: 0.5em 0.5em 0em 0.5em;
-  margin: 0em 0em 2.0em 0em;
+  padding: 0em;
+  margin: 0em;
+  background-color: white;
 }
 
-div.majorTitle {
-  text-align: center;
-  font: 30pt sans-serif;
+table.heading {
+  width: 100%;
+  padding: 0em;
   margin: 0em;
 }
 
-div.title {
-  font: 250% bold;
+tr.heading {
+  padding: 0em;
+  margin: 0em;
 }
 
-div.subtitle {
+td.sitename {
+  vertical-align: bottom;
+  text-align: right;
+  width: 15em;
+  padding: 0em;
+  margin: 0em;
+}
+
+a.sitename {
+  padding: 0em 0.75em;
+  margin: 0em;
+  font: 350% Verdana, Helvetical, Arial, sans-serif;
+  color: #DDD;
+  text-decoration: none;
+}
+
+td.title {
+  vertical-align: bottom;
+  margin: 0em;
+  padding: 0.5em 0em 0.5em 1em;
+}
+
+div.mainTitle {
+  font: 250% bold;
+  padding: 0em;
+  margin: 0em;
+}
+
+div.subTitle {
   font: 100% sans-serif;
   font-style: italic;
-  margin: 0em 3em;
+  padding: 0em 2em;
+  margin: 0em;
 }
 
 div.footer {
   background: white;
-  border-top: 1px solid black;
-  border-bottom: 1px solid black;
-  margin: 0em;
+  border-top: 1px solid #8CACBB;
+  border-bottom: 1px solid #8CACBB;
+  margin: 0em 0em 2em 0em;
   padding: 1em;
   text-align: center;
 }
@@ -114,29 +125,54 @@ span.section {
 div.sectionTop {
   background: #dee7ec;
   padding: 0.4em;
-  margin: 0em 0em 0em 0em;
+  margin: 0em;
 }
 
 div.section {
-  background: White;
   border: 1px solid #8CACBB;
   margin: 0em 0em 2em 0em;
+  background-color: white;
+  background-image: url(/images/dots.png);
+  background-repeat: repeat-y;
+  background-position: right;
+}
+
+div.tabs {
+  margin: 0em;
+  padding: 0em 3em;
+  text-align: center;
+}
+
+a.tab {
+  background: white;
+  border: 1px solid #8CACBB;
+  color: #436976;
+  font: 110% Bold;
+  padding: 0em 1.5em;
+  margin: 0em 0.5em;
+  text-decoration: none;
+}
+
+a.tab#active {
+  background: #dee7ec;
+  border-bottom: #dee7ec 1px solid;
+}
+
+a.tab:hover {
+  background: #dee7ec;
+}
+
+div.tabBar {
+  color: #436976;
+  background: #dee7ec;
+  padding: 0em 1.5em;
+  margin: 0em 0em 1.5em 0em;
+  border-top: 1px solid #8CACBB;
+  border-bottom: 1px solid #8CACBB;
 }
 
 div.row {
   padding: 0.5em;
-}
-
-div.terminalBox {
-  font-family: monospace;
-  background: Black;
-  color: #dbdbdb;
-  padding: 1em;
-}
-
-div.monoBox {
-  font-family: monospace;
-  padding: 1em;
 }
 
 table {
@@ -159,6 +195,7 @@ table td {
 
 table.columns {
   width: 100%;
+  padding: 0em;
   margin: 0em;
 }
 
@@ -203,7 +240,7 @@ img.photo {
 
 span.error {
   padding: 0em 0.3em;
-  border: 1px dashed #FF0000;
+  border: 1px dashed #F00;
 }
 
 img.footer {

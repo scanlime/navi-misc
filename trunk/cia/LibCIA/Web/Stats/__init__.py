@@ -23,5 +23,6 @@ Implements the web interface to CIA's stats subsystem
 
 # Convenience imports
 import Browser
+from Browser import Component
 
 ### The End ###

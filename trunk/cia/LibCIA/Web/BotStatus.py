@@ -21,11 +21,22 @@ A web interface showing the current status of the BotNetwork
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import Template
+import Template, Server
 from LibCIA import TimeUtil
 from Nouvelle import tag, place
 import Nouvelle
 import time
+
+
+class Component(Server.Component):
+    """A server component for the IRC bot status section"""
+    name = 'IRC Bots'
+
+    def __init__(self, botNet):
+        self.resource = IRCBotPage(botNet)
+
+    def __contains__(self, page):
+        return isinstance(page, IRCBotPage)
 
 
 class TotalsSection(Template.Section):
@@ -197,6 +208,9 @@ class NewBotsSection(Template.Section):
 
 class IRCBotPage(Template.Page):
     """A web page showing the status of the BotNetwork"""
+    mainTitle = "IRC Bot Status"
+    subTitle = "what's that blue thing doing there?"
+
     def __init__(self, botNet):
         self.botNet = botNet
 
@@ -211,11 +225,5 @@ class IRCBotPage(Template.Page):
         return [
             TotalsSection(self.botNet),
             ]
-
-    mainTitle = "IRC Bot Status"
-    subTitle = "what's that blue thing doing there?"
-    headingTabs = [
-        Template.headingTab(href='/')['CIA'],
-        ]
 
 ### The End ###

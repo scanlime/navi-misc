@@ -31,16 +31,11 @@ rulesetStorage = Ruleset.RulesetStorage(hub, uriRegistry)
 # Save the 'universe' capability key so it can be used later by the administrative tools
 Security.caps.saveKey('universe', '~/.cia_key')
 
-# Create the web interface. We start with all the static files in
-# 'htdocs' and add dynamic content from there.  Most of the web site's
-# content is written in reStructuredText and processed by Web.Doc. We
-# use a StaticJoiner to provide a doc page as the front page.
-webRoot = Web.Server.StaticJoiner('htdocs', Web.Doc.Page('doc/welcome'))
-webRoot.putChild('rulesets', Web.RulesetBrowser.RulesetList(rulesetStorage))
-webRoot.putChild('stats', Web.Stats.Browser.Page())
-webRoot.putChild('info', Web.Info.Page())
-webRoot.putChild('irc', Web.BotStatus.IRCBotPage(botNet))
-webRoot.putChild('doc', Web.Doc.Page('doc'))
+# Our front page is the 'welcome' document, but unless otherwise specified we load
+# other pages form the 'htdocs' directory, as static files.
+doc = Web.Doc.Component('doc')
+webRoot = Web.Server.StaticJoiner('htdocs', Web.Doc.Page(doc, 'welcome'))
+site = Web.Server.Site(webRoot)
 
 # Add a VHostMonster we can use to safely proxy requests from Apache running on a different port
 webRoot.putChild('vhost', vhost.VHostMonsterResource())
@@ -55,5 +50,12 @@ rpc.putSubHandler('security', Security.SecurityInterface())
 rpc.putSubHandler('debug', Debug.DebugInterface())
 webRoot.putChild('RPC2', rpc)
 
+# The user-navigable areas of our site are all Component instances
+site.putComponent('stats', Web.Stats.Component())
+site.putComponent('doc', doc)
+site.putComponent('irc', Web.BotStatus.Component(botNet))
+site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))
+site.putComponent('info', Web.Info.Component())
+
 # Now create an HTTP server holding both our XML-RPC and web interfaces
-internet.TCPServer(3910, Web.Server.Site(webRoot)).setServiceParent(application)
+internet.TCPServer(3910, site).setServiceParent(application)
