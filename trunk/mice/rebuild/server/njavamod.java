@@ -57,7 +57,22 @@ public class njavamod extends nbase
 	
 	public void modloop()
 	{
-		
+		String cmd;
+		while(true)
+		{
+			cmd = read();
+			switch(cmd.charAt(0))
+			{
+			case 'a': //Accept the question
+				break;
+			case 'r': //Reject the question
+				break;
+			case 'q': //quit the thing
+				break;
+			case 'g': //get a question
+				break;
+			}
+		}
 	}
 	
 	/**
