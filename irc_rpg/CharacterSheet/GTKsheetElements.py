@@ -202,10 +202,9 @@ class drop_down(hbox):
     if isinstance(child, dice) and self.button is None:
       self.button = child.copyWithCallback(self.roll)
       self.pack_end(self.button)
-    else:
+    elif isinstance(child, drop_down_item):
       print len(self.items), child.data
-      if len(self.items) is 0: self.items = child.data
-      else: self.items.extend(child.data)
+      self.items.append(child.data)
       self.menu.set_popdown_strings(self.items)
 
   def show(self):
@@ -241,9 +240,6 @@ class drop_down_item(sheetElement):
     sheetElement.__init__(self, node)
 
     if node.childNodes[0].data.count('/') > 0:
-      try:
-        self.data = int(character.getData(node.childNodes[0].data))
-      except ValueError:
-	self.data = character.getData(node.childNodes[0].data).split('\n')
+      self.data = character.getData(node.childNodes[0].data).split('\n')
     else:
       self.data = node.childNodes[0].data
