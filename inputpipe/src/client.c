@@ -114,8 +114,13 @@ static void               connection_add_fds  (struct connection *self,
 static int                connection_poll     (struct connection *self,
 					       fd_set *fd_read);
 
-static void               connection_set_status_led (struct connection *self,
-						     int connected);
+static void               connection_received_packet (struct connection *self,
+						      int type,
+						      int length,
+						      void *content);
+
+static void               connection_set_status_led  (struct connection *self,
+						      int connected);
 
 static void               connection_list_add_fds   (int *fd_max,
 						     fd_set *fd_read);
@@ -446,7 +451,16 @@ static int connection_poll(struct connection *self, fd_set *fd_read)
       connection_message(self, "Connection lost");
       return 1;
     }
-    event_from_server(self->server, self->evdev_fd);
+
+    while (1) {
+      int length;
+      void* content;
+      int type = packet_socket_read(self->server->socket, &length, &content);
+      if (!type)
+	break;
+      connection_received_packet(self, type, length, content);
+      free(content);
+    }
   }
 
   /* Can we read from the event device?
@@ -460,6 +474,78 @@ static int connection_poll(struct connection *self, fd_set *fd_read)
   }
 
   return 0;
+}
+
+static void connection_received_packet (struct connection *self,
+					int type, int length, void *content)
+{
+  switch (type) {
+
+  case IPIPE_EVENT:
+    {
+      struct ipipe_event* ip_ev = (struct ipipe_event*) content;
+      struct input_event ev;
+      if (length != sizeof(struct ipipe_event)) {
+	connection_message(self, "Received IPIPE_EVENT with incorrect length");
+	break;
+      }
+      ntoh_input_event(&ev, ip_ev);
+
+      printf("Writing event: type=%d code=%d value=%d\n", ev.type, ev.code, ev.value);
+      write(self->evdev_fd, &ev, sizeof(ev));
+    }
+    break;
+
+  case IPIPE_UPLOAD_EFFECT:
+    {
+      struct ipipe_upload_effect* ipipe_up = (struct ipipe_upload_effect*) content;
+      struct ipipe_upload_effect_response response;
+      struct ff_effect effect;
+      int retval;
+      if (length != sizeof(struct ipipe_upload_effect)) {
+	connection_message(self, "Received IPIPE_UPLOAD_EFFECT with incorrect length");
+	break;
+      }
+      response.request_id = ipipe_up->request_id;
+      ntoh_ff_effect(&effect, &ipipe_up->effect);
+
+      printf("upload effect: request=%d effect=%d type=%d\n",
+	     htonl(ipipe_up->request_id), effect.id, effect.type);
+      retval = ioctl(self->evdev_fd, EVIOCSFF, &effect);
+
+      if (retval < 0)
+	response.retval = htonl(-errno);
+      else
+	response.retval = htonl(retval);
+
+      printf("retval=%d effect=%d\n", ntohl(response.retval), effect.id);
+
+      hton_ff_effect(&response.effect, &effect);
+      packet_socket_write(self->server->socket, IPIPE_UPLOAD_EFFECT_RESPONSE,
+			  sizeof(response), &response);
+      packet_socket_flush(self->server->socket);
+    }
+    break;
+
+  case IPIPE_ERASE_EFFECT:
+    {
+      struct ipipe_erase_effect* ipipe_erase = (struct ipipe_erase_effect*) content;
+      struct ipipe_erase_effect_response response;
+      if (length != sizeof(struct ipipe_erase_effect)) {
+	connection_message(self, "Received IPIPE_ERASE_EFFECT with incorrect length");
+	break;
+      }
+      response.request_id = ipipe_erase->request_id;
+      response.retval = htonl(ioctl(self->evdev_fd, EVIOCRMFF, ntohs(ipipe_erase->effect_id)));
+      packet_socket_write(self->server->socket, IPIPE_ERASE_EFFECT_RESPONSE,
+			  sizeof(response), &response);
+      packet_socket_flush(self->server->socket);
+    }
+    break;
+
+  default:
+    connection_message(self, "Received unknown packet type 0x%04X", type);
+  }
 }
 
 static void connection_set_status_led (struct connection *self, int connected)
@@ -557,26 +643,6 @@ static struct connection* connection_list_find_path (const char *path)
 /***********************************************************************/
 /******************************************************* Event Loop ****/
 /***********************************************************************/
-
-/* Process incoming data from the server */
-static void event_from_server(struct server *svr, int evdev)
-{
-  int length;
-  void* content;
-
-  /* Read packets from the server while they're available */
-  while (1) {
-    switch (packet_socket_read(svr->socket, &length, &content)) {
-
-    case 0:
-      return;
-
-    default:
-      printf("Unknown packet received from server\n");
-    }
-    free(content);
-  }
-}
 
 static int event_loop(void) {
   fd_set fd_read;
