@@ -162,6 +162,7 @@ static void bifurcation_diagram_init_columns (BifurcationDiagram *self) {
 
     /* Create columns and number them */
     self->num_columns = hist_width;
+    self->current_column = 0;
     self->columns = g_new0(BifurcationColumn, self->num_columns);
     for (i=0; i<self->num_columns; i++)
       self->columns[i].ix = i;
@@ -255,8 +256,8 @@ void bifurcation_diagram_calculate (BifurcationDiagram *self,
   double x, y, point_x, point_y;
   int i, col_i, ix, iy;
 
-  const float y_min = -5;
-  const float y_max = 5;
+  const float y_min = -3;
+  const float y_max = 3;
 
   bifurcation_diagram_init_columns(self);
   histogram_imager_prepare_plots(HISTOGRAM_IMAGER(self), &plot);
