@@ -56,6 +56,26 @@ xchat_plugin_get_info (char **plugin_name, char **plugin_desc,
 		*reserved = NULL;
 }
 
+gboolean
+notification_menu_add_channel (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+	GtkWidget *item;
+	GdkPixbuf *image = NULL;
+	gchar *channel;
+
+	/* Create a new menu item with a perdy picture. */
+	gtk_tree_model_get (model, iter, 0, &image, 1, &channel, -1);
+	item = gtk_image_menu_item_new_with_label (channel);
+
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), gtk_image_new_from_pixbuf (image));
+
+	/* Shove it in the menu. */
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+	gtk_widget_show (item);
+
+	return FALSE;
+}
+
 void
 xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 		char **plugin_desc, char **plugin_version, char *arg)
@@ -64,8 +84,6 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 	GdkPixbuf *p;
 
 	ph = plugin_handle;
-
-	nav_tree = get_navigation_tree();
 
 	/* Set the plugin info. */
 	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version, NULL);
@@ -98,12 +116,20 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name,
 
 	g_object_ref (G_OBJECT (notification));
 
+	/* Create the menu. */
+	menu = GTK_MENU (gtk_menu_new ());
+	nav_tree = get_navigation_tree();
+	gtk_tree_model_foreach (nav_tree->model->sorted,
+			(GtkTreeModelForeachFunc)notification_menu_add_channel, NULL);
+	gtk_widget_show (GTK_WIDGET (menu));
+
 	xchat_print (ph, "Notification plugin loaded.\n");
 }
 
 int
 xchat_plugin_deinit ()
 {
+	g_object_unref (G_OBJECT (notification));
 	gtk_widget_destroy (GTK_WIDGET (notification));
 
 	xchat_print (ph, "Notification plugin unloaded.\n");
@@ -111,31 +137,10 @@ xchat_plugin_deinit ()
 	return 1;
 }
 
-gboolean
-notification_menu_add_channel (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
-{
-	GtkWidget *item;
-	GdkPixbuf *image;
-	gchar *channel;
-
-	/* Create a new menu item with a perdy picture. */
-	gtk_tree_model_get (model, iter, 0, &image, 1, &channel, -1);
-	item = gtk_image_menu_item_new_with_label (channel);
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), gtk_image_new_from_pixbuf (item));
-
-	/* Shove it in the menu. */
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	gtk_widget_show (item);
-
-	return FALSE;
-}
-
 static void
 notification_menu_show ()
 {
-	menu = gtk_menu_new ();
-	gtk_tree_model_foreach (GTK_TREE_MODEL (nav_tree->model->sorted),
-			(GtkTreeModelForeachFunc) notification_menu_add_channel, NULL);
+
 }
 
 static gboolean
