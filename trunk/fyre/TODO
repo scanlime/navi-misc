@@ -54,6 +54,6 @@ General things:
 	seems like it would be handy for this case.
   * We need to figure out some way to serialize things for use in the
 	clipboard.  This will probably require finagling the Guid stuff
-	a bit.
+	a bit (maybe just creating a new Guid on paste).
 
 

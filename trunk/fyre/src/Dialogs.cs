@@ -1,6 +1,6 @@
 /*
- * ErrorDialog.cs - Simple HIG-compliant dialog for reporting errors
- *	to the user
+ * Dialogs.cs - Simple HIG-compliant dialogs for reporting errors and
+ *	asking questions
  *
  * Copyright (C) 2005 David Trowbridge
  *
