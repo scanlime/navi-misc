@@ -25,7 +25,7 @@
 #include "gui.h"
 #include "xtext.h"
 
-static void gconf_color_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkEntry *entry);
+static void gconf_color_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkComboBox *combo);
 static GtkWidget *palette_buttons[32];
 static GtkWidget *color_buttons[4];
 
@@ -194,7 +194,7 @@ initialize_preferences_colors_page ()
 	gtk_combo_box_append_text (GTK_COMBO_BOX (color_schemes), "Custom");
 	g_signal_connect (G_OBJECT (color_schemes), "changed", G_CALLBACK (colors_changed), (gpointer) color_buttons);
 	scheme = gconf_client_get_int (client, "/apps/xchat/irc/color_scheme", NULL);
-	gconf_client_notify_add (client, "/apps/xchat/irc/color_scheme", (GConfClientNotifyFunc) gconf_color_changed, NULL, NULL, NULL);
+	gconf_client_notify_add (client, "/apps/xchat/irc/color_scheme", (GConfClientNotifyFunc) gconf_color_changed, color_schemes, NULL, NULL);
 	gtk_combo_box_set_active (GTK_COMBO_BOX(color_schemes), scheme);
 
 	hbox = glade_xml_get_widget (gui.xml, "foreground background hbox");
@@ -202,6 +202,12 @@ initialize_preferences_colors_page ()
 }
 
 static void
-gconf_color_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkEntry *entry)
+gconf_color_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, GtkComboBox *combo)
 {
+	int selection;
+	selection = gconf_client_get_int (client, key, NULL);
+
+	gtk_combo_box_set_active (combo, selection);
+	set_color_buttons (selection, color_buttons);
+	set_palette_buttons (selection, palette_buttons);
 }
