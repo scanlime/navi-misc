@@ -27,14 +27,14 @@ AnnotateSuffix=
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 [Document3]
-DocumentPath=PCB1.PcbDoc
+DocumentPath=parts.PcbLib
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotateSuffix=
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 [Document4]
-DocumentPath=parts.PcbLib
+DocumentPath=PCB1.PcbDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotateSuffix=
