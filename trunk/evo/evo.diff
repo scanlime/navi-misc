@@ -1,0 +1,269 @@
+? calendar/gui/apps_evolution_calendar-2.2.schemas
+? calendar/gui/dialogs/.calendar-setup.c.swp
+? help/C/evolution-2.2-C.omf
+? help/C/evolution-2.2.xml
+? mail/evolution-mail-2.2.schemas
+Index: calendar/gui/migration.c
+===================================================================
+RCS file: /cvs/gnome/evolution/calendar/gui/migration.c,v
+retrieving revision 1.30
+diff -u -r1.30 migration.c
+--- calendar/gui/migration.c	22 Jul 2004 03:02:08 -0000	1.30
++++ calendar/gui/migration.c	24 Sep 2004 08:08:47 -0000
+@@ -365,6 +365,7 @@
+ #define WEBCAL_BASE_URI "webcal://"
+ #define CONTACTS_BASE_URI "contacts://"
+ #define BAD_CONTACTS_BASE_URI "contact://"
++#define WEATHER_BASE_URI "weather:"
+ #define PERSONAL_RELATIVE_URI "system"
+ 
+ static ESourceGroup *
+@@ -392,7 +393,8 @@
+ 			 ESourceGroup **on_this_computer,
+ 			 ESource **personal_source,
+ 			 ESourceGroup **on_the_web,
+-			 ESourceGroup **contacts)
++			 ESourceGroup **contacts,
++			 ESourceGroup **weather)
+ {
+ 	GSList *groups;
+ 	ESourceGroup *group;
+@@ -401,6 +403,7 @@
+ 	*on_this_computer = NULL;
+ 	*on_the_web = NULL;
+ 	*contacts = NULL;
++	*weather = NULL;
+ 	*personal_source = NULL;
+ 
+ 	base_uri = g_build_filename (calendar_component_peek_base_directory (component),
+@@ -474,7 +477,14 @@
+ 
+ 		*contacts = group;
+ 	}
+-	
++
++	if (!*weather) {
++		group = e_source_group_new (_("Weather"), WEATHER_BASE_URI);
++		e_source_list_add_group (source_list, group, -1);
++
++		*weather = group;
++	}
++
+ 	g_free (base_uri_proto);
+ 	g_free (base_uri);
+ }
+@@ -659,30 +669,30 @@
+ 				unlink (filename);
+ 			xmlhash = e_xmlhash_new (filename);
+ 			g_free (filename);
+-			
++
+ 			e_dbhash_foreach_key (dbhash, migrate_pilot_db_key, xmlhash);
+-			
++
+ 			e_dbhash_destroy (dbhash);
+-			
++
+ 			e_xmlhash_write (xmlhash);
+ 			e_xmlhash_destroy (xmlhash);
+ 		}
+ 	}
+-	
++
+ 	closedir (dir);
+ }
+ 
+ gboolean
+ migrate_calendars (CalendarComponent *component, int major, int minor, int revision, GError **err)
+ {
+-	ESourceGroup *on_this_computer = NULL, *on_the_web = NULL, *contacts = NULL;
++	ESourceGroup *on_this_computer = NULL, *on_the_web = NULL, *contacts = NULL, *weather = NULL;
+ 	ESource *personal_source = NULL;
+ 	gboolean retval = FALSE;
+ 
+ 	/* we call this unconditionally now - create_groups either
+ 	   creates the groups/sources or it finds the necessary
+ 	   groups/sources. */
+-	create_calendar_sources (component, calendar_component_peek_source_list (component), &on_this_computer, &personal_source, &on_the_web, &contacts);
++	create_calendar_sources (component, calendar_component_peek_source_list (component), &on_this_computer, &personal_source, &on_the_web, &contacts, &weather);
+ 
+ 	if (major == 1) {
+ 		xmlDocPtr config_doc = NULL;
+@@ -693,18 +703,18 @@
+ 		if (lstat (conf_file, &st) == 0 && S_ISREG (st.st_mode)) 
+ 			config_doc = xmlParseFile (conf_file);
+ 		g_free (conf_file);
+-		
++
+ 		if (config_doc && minor <= 2) {
+ 			GConfClient *gconf;	
+ 			int res = 0;
+-			
++
+ 			/* move bonobo config to gconf */
+ 			gconf = gconf_client_get_default ();
+-			
++
+ 			res = e_bconf_import (gconf, config_doc, calendar_remap_list);
+-			
++
+ 			g_object_unref (gconf);
+-			
++
+ 			xmlFreeDoc(config_doc);
+ 
+ 			if (res != 0) {
+Index: calendar/gui/dialogs/calendar-setup.c
+===================================================================
+RCS file: /cvs/gnome/evolution/calendar/gui/dialogs/calendar-setup.c,v
+retrieving revision 1.29
+diff -u -r1.29 calendar-setup.c
+--- calendar/gui/dialogs/calendar-setup.c	30 Jul 2004 07:37:02 -0000	1.29
++++ calendar/gui/dialogs/calendar-setup.c	24 Sep 2004 08:08:47 -0000
+@@ -122,7 +122,7 @@
+ {
+ 	EUri     *uri;
+ 	gboolean  is_remote = FALSE;
+-	
++
+ 	if (!group)
+ 		return FALSE;
+ 
+@@ -138,6 +138,26 @@
+ }
+ 
+ static gboolean
++source_group_is_weather (ESourceGroup *group)
++{
++	EUri	*uri;
++	gboolean is_weather = FALSE;
++
++	if (!group)
++		return FALSE;
++
++	uri = e_uri_new (e_source_group_peek_base_uri (group));
++	if (!uri)
++		return FALSE;
++
++	if (uri->protocol && uri->protocol[0] && !strcmp (uri->protocol, "weather"))
++		is_weather = TRUE;
++
++	e_uri_free (uri);
++	return is_weather;
++}
++
++static gboolean
+ source_is_remote (ESource *source)
+ {
+ 	gchar    *uri_str;
+@@ -277,9 +297,13 @@
+ 		return NULL;
+ 	}
+ 
+-	if (source_group_is_remote (group)) {
++	if (source_group_is_weather (group)) {
++		g_print ("weather group!\n");
++		source = e_source_new (source_name, source_location);
++	} else if (source_group_is_remote (group)) {
+ 		EUri  *uri;
+ 		gchar *relative_uri;
++		g_print ("remote group!\n");
+ 
+ 		/* Remote source */
+ 
+@@ -358,7 +382,7 @@
+ 
+ 	sensitive = sensitive && (source_dialog->source_group != NULL);
+ 
+-	if (source_group_is_remote (source_dialog->source_group) && source_group_is_mutable (source_dialog->source_group)) {
++	if (source_group_is_weather (source_dialog->source_group) || source_group_is_remote (source_dialog->source_group) && source_group_is_mutable (source_dialog->source_group)) {
+ 		sensitive = sensitive && remote_page_verify (source_dialog);
+ 	}
+ 
+Index: mail/em-filter-i18n.h
+===================================================================
+RCS file: /cvs/gnome/evolution/mail/em-filter-i18n.h,v
+retrieving revision 1.1
+diff -u -r1.1 em-filter-i18n.h
+--- mail/em-filter-i18n.h	17 Jun 2004 07:34:49 -0000	1.1
++++ mail/em-filter-i18n.h	24 Sep 2004 08:08:47 -0000
+@@ -4,36 +4,19 @@
+ char *s = N_("Assign Score");
+ char *s = N_("Attachments");
+ char *s = N_("Beep");
+-char *s = N_("contains");
+ char *s = N_("Copy to Folder");
+ char *s = N_("Date received");
+ char *s = N_("Date sent");
+ char *s = N_("Delete");
+ char *s = N_("Deleted");
+-char *s = N_("does not contain");
+-char *s = N_("does not end with");
+-char *s = N_("does not exist");
+-char *s = N_("does not return");
+-char *s = N_("does not sound like");
+-char *s = N_("does not start with");
+ char *s = N_("Do Not Exist");
+ char *s = N_("Draft");
+-char *s = N_("ends with");
+ char *s = N_("Exist");
+-char *s = N_("exists");
+ char *s = N_("Expression");
+ char *s = N_("Follow Up");
+ char *s = N_("Important");
+-char *s = N_("is");
+-char *s = N_("is after");
+-char *s = N_("is before");
+-char *s = N_("is Flagged");
+-char *s = N_("is greater than");
+-char *s = N_("is less than");
+-char *s = N_("is not");
+-char *s = N_("is not Flagged");
+-char *s = N_("Junk");
+ char *s = N_("Junk Test");
++char *s = N_("Junk");
+ char *s = N_("Label");
+ char *s = N_("Mailing list");
+ char *s = N_("Message Body");
+@@ -47,19 +30,36 @@
+ char *s = N_("Recipients");
+ char *s = N_("Regex Match");
+ char *s = N_("Replied to");
+-char *s = N_("returns");
+-char *s = N_("returns greater than");
+-char *s = N_("returns less than");
+ char *s = N_("Run Program");
+ char *s = N_("Score");
+ char *s = N_("Sender");
+ char *s = N_("Set Status");
+ char *s = N_("Size (kB)");
+-char *s = N_("sounds like");
+ char *s = N_("Source Account");
+ char *s = N_("Specific header");
+-char *s = N_("starts with");
+ char *s = N_("Status");
+ char *s = N_("Stop Processing");
+ char *s = N_("Subject");
+ char *s = N_("Unset Status");
++char *s = N_("contains");
++char *s = N_("does not contain");
++char *s = N_("does not end with");
++char *s = N_("does not exist");
++char *s = N_("does not return");
++char *s = N_("does not sound like");
++char *s = N_("does not start with");
++char *s = N_("ends with");
++char *s = N_("exists");
++char *s = N_("is Flagged");
++char *s = N_("is after");
++char *s = N_("is before");
++char *s = N_("is greater than");
++char *s = N_("is less than");
++char *s = N_("is not Flagged");
++char *s = N_("is not");
++char *s = N_("is");
++char *s = N_("returns greater than");
++char *s = N_("returns less than");
++char *s = N_("returns");
++char *s = N_("sounds like");
++char *s = N_("starts with");
