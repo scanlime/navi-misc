@@ -26,9 +26,9 @@ import time, math
 import Template, Nouvelle
 import Nouvelle.Twisted
 from LibCIA import TimeUtil, Message, Stats
-from twisted.web import resource, error
+from twisted.web import resource, error, server
 from twisted.internet import defer
-from Nouvelle import tag, place
+from Nouvelle import tag, place, subcontext
 
 
 class Clock(Template.Section):
@@ -298,6 +298,7 @@ class Catalog(Template.Section):
         return len(self.names) != 0
 
     def render_rows(self, context):
+        return ["Boing"]
         # We can't actually render anything without querying the database
         result = defer.Deferred()
         self.target.catalog().addCallback(self._render_rows, context, result).addErrback(result.errback)
@@ -325,22 +326,27 @@ class Info(Template.Section):
     def __init__(self, target):
         self.target = target
         self.metadata = target.metadata
-        self.url = self.metadata.get('url')
-        self.description = self.metadata.get('description')
-        self.hasPhoto = 'photo' in self.metadata
-
-    def isVisible(self, context):
-        return self.url or self.description or self.hasPhoto
 
     def render_rows(self, context):
+        # Grab the metadata keys we'll need and wait for them to become available
+        result = defer.Deferred()
+        defer.gatherResults([
+            self.metadata.getValue('url'),
+            self.metadata.getValue('description'),
+            self.metadata.has_key('photo'),
+            ]).addCallback(self._render_rows, context, result).addErrback(result.errback)
+        return result
+
+    def _render_rows(self, metadata, context, result):
+        url, description, hasPhoto = metadata
         rows = []
-        if self.url:
-            rows.append(tag('a', href=self.url)[self.url])
-        if self.hasPhoto:
+        if url:
+            rows.append(tag('a', href=url)[url])
+        if hasPhoto:
             rows.append(Template.Photo(MetadataLink(self.target, 'photo').getURL(context)))
-        if self.description:
-            rows.append(self.description)
-        return rows
+        if description:
+            rows.append(description)
+        result.callback(rows)
 
 
 class MessageDateColumn(Nouvelle.Column):
@@ -418,23 +424,20 @@ class RecentMessages(MessageList):
 
 class MetadataKeyColumn(Nouvelle.Column):
     """A column that displays a metadata key as a hyperlink to the proper MetadataValuePage.
-       Rows are expected to be (target, key) tuples.
+       Rows are expected to be (name, (value, type)) tuples.
        """
     heading = 'key'
 
     def getValue(self, item):
-        return item[1]
+        return item[0]
 
     def render_data(self, context, item):
-        if type(item[1]) == str:
-            return MetadataLink(item[0], item[1])
-        else:
-            return repr(item[1])
+        return MetadataLink(context['target'], item[0])
 
 
 class MetadataValueColumn(Nouvelle.Column):
     """A column that displays a metadata key's associated value, formatted appropriately.
-       Rows are expected to be (target, key) tuples.
+       Rows are expected to be (name, (value, type)) tuples.
        """
     heading = 'value'
 
@@ -442,14 +445,13 @@ class MetadataValueColumn(Nouvelle.Column):
         """This is used for sorting and such, so don't bother
            returning anything if we're not dealing with text.
            """
-        target, key = item
-        if target.getType(key).startswith("text/"):
-            return target.metadata[key]
+        value, mime = item[1]
+        if mime.startswith("text/"):
+            return value
 
     def render_data(self, context, item):
         """Farm this off to an appropriate handler for the data's MIME type"""
-        target, key = item
-        mime = target.metadata.getType(key)
+        value, mime = item[1]
         try:
             # First look for a handler for one particular MIME type after
             # replacing the / with an underscore
@@ -462,46 +464,56 @@ class MetadataValueColumn(Nouvelle.Column):
             except AttributeError:
                 # Nothing, use a generic handler
                 f = self.renderData_other
-        return f(context, mime, target, key)
+        return f(context, item[0], value, mime)
 
-    def renderData_text(self, context, mimeType, target, key):
-        return target.metadata[key]
+    def renderData_text(self, context, name, value, mime):
+        return value
 
-    def renderData_image(self, context, mimeType, target, key):
+    def renderData_image(self, context, name, value, mime):
         """Return an <img> tag linking to the key's value"""
-        return tag('img', src=MetadataLink(target, key).getURL(context))
+        return tag('img', src=MetadataLink(context['target'], name).getURL(context))
 
-    def renderData_other(self, context, mimeType, target, key):
-        return "Unable to format data of type %r" % mimeType
+    def renderData_other(self, context, name, value, mime):
+        return tag('i')[ "Unable to format data" ]
 
 
 class MetadataTypeColumn(Nouvelle.Column):
     """A column that displays a metadata key's MIME type.
-       Rows are expected to be (target, key) tuples.
+       Rows are expected to be (name, (value, type)) tuples.
        """
     heading = 'type'
 
     def getValue(self, item):
-        target, key = item
-        return target.metadata.getType(key)
+        return item[1][1]
 
 
 class MetadataSection(Template.Section):
     """A section displaying a table of metadata keys for one stats target"""
     title = "metadata"
 
+    columns = [
+        MetadataKeyColumn(),
+        MetadataTypeColumn(),
+        MetadataValueColumn(),
+        ]
+
     def __init__(self, target):
         self.target = target
 
     def render_rows(self, context):
-        # Each 'row' in our table is actually a (target, key) tuple.
-        # Values and types are looked up lazily.
-        rows = [(self.target, key) for key in self.target.metadata.keys()]
-        return [Template.Table(rows, [
-            MetadataKeyColumn(),
-            MetadataTypeColumn(),
-            MetadataValueColumn(),
-            ], id='metadata')]
+        # Look up all the metadata first
+        result = defer.Deferred()
+        self.target.metadata.dict().addCallback(
+            self._render_rows, context, result).addErrback(result.errback)
+        return result
+
+    def _render_rows(self, metadict, context, result):
+        # Each 'row' in our table is a (name, (value, type)) tuple
+        rows = metadict.items()
+        result.callback([
+            subcontext(target=self.target)[
+                Template.Table(rows, self.columns, id='metadata')
+            ]])
 
 
 class MetadataValuePage(resource.Resource):
@@ -512,13 +524,19 @@ class MetadataValuePage(resource.Resource):
         resource.Resource.__init__(self)
 
     def render(self, request):
-        try:
-            value = self.target.metadata[self.key]
-        except KeyError:
-            return error.NoResource("No such metadata key %r" % self.key).render(request)
+        # Retrieve the metadata value, rendering the page once it arrives
+        self.target.metadata.get(self.key).addCallback(self._render, request).addErrback(request.processingFailed)
+        return server.NOT_DONE_YET
 
-        request.setHeader('content-type', self.target.metadata.getType(self.key))
-        return str(value)
+    def _render(self, t, request):
+        if t:
+            value, mimeType = t
+            request.setHeader('content-type', mimeType)
+            request.write(value)
+            request.finish()
+        else:
+            request.write(error.NoResource("No such metadata key %r" % self.key).render(request))
+            request.finish()
 
 
 class RSSFeed(Nouvelle.Twisted.Page):

@@ -34,15 +34,16 @@ class DebugInterface(RPC.Interface):
         RPC.Interface.__init__(self)
         self.putSubHandler('gc', GcInterface())
 
-    def protected_rebuild(self, packageName):
+    def protected_rebuild(self, *packageNames):
         """Use twisted.python.rebuild to reload the given package or module
            and all loaded packages or modules within it.
            """
-        log.msg("Starting a rebuild at the package %r" % packageName)
-        # The non-empty fromlist tells __import__ we want the module referred
-        # to by the given path, not just its top-level module.
-        package = __import__(packageName, globals(), locals(), [''])
-        rebuildPackage(package)
+        for packageName in packageNames:
+            log.msg("Starting a rebuild at the package %r" % packageName)
+            # The non-empty fromlist tells __import__ we want the module referred
+            # to by the given path, not just its top-level module.
+            package = __import__(packageName, globals(), locals(), [''])
+            rebuildPackage(package)
 
     def protected_eval(self, code):
         """Evaluate arbitrary code in the context of this module.
