@@ -1,27 +1,18 @@
-Index: ChangeLog
-===================================================================
-RCS file: /cvs/gnome/evolution-data-server/ChangeLog,v
-retrieving revision 1.205
-diff -u -r1.205 ChangeLog
---- ChangeLog	27 Dec 2004 14:30:28 -0000	1.205
-+++ ChangeLog	30 Dec 2004 05:23:05 -0000
-@@ -1,3 +1,8 @@
-+2004-12-29  David Trowbridge <trowbrds@cs.colorado.edu>
-+
-+	* libedataserver/e-source.c: Add logic for emitting a "changed" signal
-+	if any of the properties change
-+
- 2004-12-27  Rodrigo Moya <rodrigo@novell.com>
- 
- 	* src/server.c (gnome_segv_handler): use the correct binary name (ie,
+? .swp
+? iconv-detect.h
+? calendar/backends/weather
+? camel/camel-mime-tables.c
+? libedataserverui/test-contact-store
+? libedataserverui/test-name-selector
+? src/GNOME_Evolution_DataServer_1.2.server
 Index: configure.in
 ===================================================================
 RCS file: /cvs/gnome/evolution-data-server/configure.in,v
-retrieving revision 1.82
-diff -u -r1.82 configure.in
---- configure.in	21 Dec 2004 06:52:15 -0000	1.82
-+++ configure.in	30 Dec 2004 05:23:05 -0000
-@@ -1134,6 +1134,9 @@
+retrieving revision 1.83
+diff -u -r1.83 configure.in
+--- configure.in	4 Jan 2005 18:47:47 -0000	1.83
++++ configure.in	7 Jan 2005 00:10:00 -0000
+@@ -1137,6 +1137,9 @@
  gladedir="$privdatadir/glade"
  AC_SUBST(gladedir)
  
@@ -31,7 +22,7 @@ diff -u -r1.82 configure.in
  dnl separate camel from e-d-s?  or should it be under the same spot?  same for now.
  camel_providerdir="${privlibdir}/camel-providers"
  AC_SUBST(camel_providerdir)
-@@ -1200,6 +1203,7 @@
+@@ -1204,6 +1207,7 @@
  calendar/backends/groupwise/Makefile
  calendar/backends/http/Makefile
  calendar/backends/contacts/Makefile
@@ -45,7 +36,7 @@ RCS file: /cvs/gnome/evolution-data-server/evolution-data-server.pc.in,v
 retrieving revision 1.2
 diff -u -r1.2 evolution-data-server.pc.in
 --- evolution-data-server.pc.in	30 Sep 2004 16:53:54 -0000	1.2
-+++ evolution-data-server.pc.in	30 Dec 2004 05:23:05 -0000
++++ evolution-data-server.pc.in	7 Jan 2005 00:10:00 -0000
 @@ -4,6 +4,8 @@
  includedir=@includedir@
  privlibdir=@privlibdir@
@@ -55,13 +46,28 @@ diff -u -r1.2 evolution-data-server.pc.in
  
  idldir=@idldir@
  IDL_INCLUDES=-I ${idldir} @IDL_INCLUDES@
+Index: calendar/ChangeLog
+===================================================================
+RCS file: /cvs/gnome/evolution-data-server/calendar/ChangeLog,v
+retrieving revision 1.368
+diff -u -r1.368 ChangeLog
+--- calendar/ChangeLog	6 Jan 2005 07:33:54 -0000	1.368
++++ calendar/ChangeLog	7 Jan 2005 00:10:00 -0000
+@@ -1,3 +1,7 @@
++2005-01-06  David Trowbridge <trowbrds@cs.colorado.edu>
++
++	* backends/weather/*: Import weather calendar backend
++
+ 2005-01-06 Chenthill Palanisamy <pchenthill@novell.com>
+ 	
+ 	* backends/groupwise/e-cal-backends-groupwise-utils.[ch]:
 Index: calendar/backends/Makefile.am
 ===================================================================
 RCS file: /cvs/gnome/evolution-data-server/calendar/backends/Makefile.am,v
 retrieving revision 1.3
 diff -u -r1.3 Makefile.am
 --- calendar/backends/Makefile.am	9 Jan 2004 20:05:27 -0000	1.3
-+++ calendar/backends/Makefile.am	30 Dec 2004 05:23:06 -0000
++++ calendar/backends/Makefile.am	7 Jan 2005 00:10:00 -0000
 @@ -1 +1 @@
 -SUBDIRS = file groupwise http contacts
 +SUBDIRS = file groupwise http contacts weather
