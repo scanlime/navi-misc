@@ -151,6 +151,13 @@ class BaseRack(object):
         pass
 
 
+class UnlistedRack(BaseRack):
+    """A BaseRack subclass that doesn't support iteration over its contents,
+       and doesn't show up in the parent namespace's catalog.
+       """
+    pass
+
+
 class InternalRack(BaseRack):
     """A BaseRack subclass used to store metadata in a namespace orthogonal
        to the normal user-accessable namespaces.
@@ -241,6 +248,12 @@ class Rack(BaseRack):
            level deep in the Rack's namespace hierarchy.
            """
         return Rack(self.db, self.path + ns, self.serializer)
+
+    def unlistedChild(self, *ns):
+        """Like Child, but the child doesn't show up in this rack's list of
+           namespaces and doesn't keep its own list of keys. It isn't iterable.
+           """
+        return UnlistedRack(self.db, self.path + ns, self.serializer)
 
     def parent(self):
         """Retrieve the parent namespace of this one"""
@@ -680,22 +693,33 @@ class RingBuffer(object):
        """
     def __init__(self, db, size):
         self.db = db
+        self.newSize = size
+        self._loaded = False
 
+    def _load(self, create):
+        """Load important database keys, optionally creating them if necessary.
+           This is called lazily rather than in __init__, so that ringbuffers
+           that are never used don't take up any space.
+           """
         if not self.db.has_key('size'):
-            # It's a new database, initialize the special keys
-            self.db['head'] = 0
-            self.db['count'] = 0
-            self.db['size'] = size
+            if create:
+                # It's a new database, initialize the special keys
+                self.db['head'] = 0
+                self.db['count'] = 0
+                self.db['size'] = self.newSize
 
         # Cache the special keys
         self.head = self.db['head']
         self.count = self.db['count']
         self.size = self.db['size']
+        self._loaded = True
 
     def push(self, node):
         """Add the given node to the FIFO, overwriting
            the oldest entries if the buffer is full.
            """
+        self._load(True)
+
         # Stow the new node at our head and increment it
         self.db[self.head] = node
         self.head = self.head + 1
@@ -714,6 +738,11 @@ class RingBuffer(object):
            not return the items first, this should be done with the
            iterators and other functions below.
            """
+        try:
+            self._load(False)
+        except KeyError:
+            return
+
         # Delete the items we no longer need,
         # and most importantly decrease self.count
         key = (self.head - self.count) % self.size
@@ -724,6 +753,7 @@ class RingBuffer(object):
                 key = 0
             n -= 1
             self.count -= 1
+        self.db['count'] = self.count
 
     def _iter(self, key, count, increment=1):
         """A general iterator for the RingBuffer that starts
@@ -741,12 +771,19 @@ class RingBuffer(object):
         """Forward-iterate over every item in the ring buffer,
            oldest to newest
            """
+        try:
+            self._load(False)
+        except KeyError:
+            return iter([])
+
         return self._iter(self.head - self.count, self.count)
 
     def __getitem__(self, i):
         """Implements Numeric-style slicing for iterating forward
            or backward over any portion of the RingBuffer.
            """
+        self._load(False)
+
         if type(i) == slice:
             # Normalize the slice a bit such that it doesn't
             # have any negative or None values
@@ -775,10 +812,10 @@ class RingBuffer(object):
             return self.db[(self.head - self.count + i) % self.size]
 
 
-def open(filename, flags='c', mode=0666, rootNamespace=(), pickleProtocol=-1):
+def open(filename, flags='c', mode=0666, rootNamespace=(), serializer=None):
     """Create a Rack instance from an anydbm-compatible database file"""
     import anydbm
-    return Rack(anydbm.open(filename, flags, mode), rootNamespace, pickleProtocol)
+    return Rack(anydbm.open(filename, flags, mode), rootNamespace, serializer)
 
 
 def _test():
