@@ -21,8 +21,7 @@ vary.<br/><br/>
 <div class="code">
 $ cvs -d :pserver:anonymous@cvs.sf.net:/cvsroot/xchat co xchat2<br/>
 $ cd xchat2<br/>
-xchat2$ svn co <a href="http://navi.cx/svn/misc/trunk/xchat-gnome/buildsystem.diff">http://navi.cx/svn/misc/trunk/xchat-gnome/buildsystem.diff</a><br/>
-xchat2$ patch -p1 &lt; buildsystem.diff<br/>
+xchat2$ svn cat <a href="http://navi.cx/svn/misc/trunk/xchat-gnome/buildsystem.diff">http://navi.cx/svn/misc/trunk/xchat-gnome/buildsystem.diff</a> | patch -p0<br/>
 xchat2$ pushd src<br/>
 src$ svn co <a href="http://navi.cx/svn/misc/trunk/xchat-gnome/fe-gnome/">http://navi.cx/svn/misc/trunk/xchat-gnome/fe-gnome/</a><br/>
 src$ popd<br/>
