@@ -112,18 +112,17 @@ class Text:
         if text:
             glLoadIdentity()
             if self.alignment:
-                size = GLText.size(text, self.fontSize, self.fontName)
-                glTranslatef(self.viewport.size[0] * self.alignment[0] - size[0] * self.alignment[0],
-                             self.viewport.size[1] * self.alignment[1] - size[1] * self.alignment[1],
+                glTranslatef(self.viewport.size[0] * self.alignment[0],
+                             self.viewport.size[1] * self.alignment[1],
                              0)
             if self.shadow:
                 glPushMatrix()
                 glTranslatef(self.shadowOffset, self.shadowOffset, 0)
                 glColor4f(*self.shadowColor)
-                GLText.draw(text, self.fontSize, self.fontName)
+                GLText.draw(text, self.fontSize, self.fontName, self.alignment)
                 glPopMatrix()
             glColor4f(*self.color)
-            GLText.draw(text, self.fontSize, self.fontName)
+            GLText.draw(text, self.fontSize, self.fontName, self.alignment)
 
 
 class ScrolledText(Text):
