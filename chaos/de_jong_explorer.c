@@ -26,8 +26,6 @@
 #include <time.h>
 #include <sys/time.h>
 
-#define PROGRESSIVE_MASK 3
-
 struct {
   double x,y;
 } point;
@@ -44,7 +42,7 @@ guchar *pixels;
 double a, b, c, d, exposure, zoom, xoffset, yoffset;
 guint idler;
 
-void flip();
+void update_gui();
 void clear();
 void resize(int w, int h);
 int interactive_idle_handler(gpointer user_data);
@@ -89,7 +87,7 @@ int main(int argc, char ** argv) {
 
   resize(800,800);
   clear();
-  flip();
+  update_gui();
 
   idler = g_idle_add(interactive_idle_handler, NULL);
 
@@ -217,46 +215,60 @@ void resize(int w, int h) {
   pixels = g_malloc(4 * width * height);
 }
 
-void flip() {
-  /* Using the current point density, scale counts[] appropriately,
-   * color it, and copy it to the screen.
+int limit_update_rate(float max_rate) {
+  /* Limit the frame rate to the given value. This should be called once per
+   * frame, and will return 0 if it's alright to render another frame, or 1
+   * otherwise.
    */
+  static struct timeval last_update;
+  struct timeval now;
+  gulong diff;
 
+  /* Figure out how much time has passed, in milliseconds */
+  gettimeofday(&now, NULL);
+  diff = ((now.tv_usec - last_update.tv_usec) / 1000 +
+	  (now.tv_sec  - last_update.tv_sec ) * 1000);
+
+  if (diff < (1000 / max_rate)) {
+    return 1;
+  }
+  else {
+    last_update = now;
+    return 0;
+  }
+}
+
+int auto_limit_update_rate(void) {
+  /* Automatically determine a good maximum frame rate based on the current
+   * number of iterations, and use limit_update_rate() to limit us to that.
+   * Returns 1 if a frame should not be rendered.
+   *
+   * When we just start rendering an image, we want a quite high frame rate
+   * (but not high enough we bog down the GUI) so the user can interactively
+   * set parameters. After the rendering has been running for a while though,
+   * the image changes much less and a very slow frame rate will leave more
+   * CPU for calculations.
+   */
+  return limit_update_rate(200 / (1 + (log(iterations) - 9.21) * 4));
+}
+
+void progressive_update_pixels(int steps) {
+  /* Progressively update the pixels[] with RGBA values corresponding to the
+   * raw point counts in counts[]. This uses an interlacing method where only
+   * 1/steps of the image is updated each call. The entire image will be updated
+   * if steps == 1.
+   *
+   * 'steps' MUST be a power of two!
+   */
   const int rowstride = width * 4;
+  const int progressive_mask = steps - 1;
   guchar *row;
   guint32 *p;
   guint32 gray, iscale;
   guint countsclamp, dval, *count_p, *count_row;
   int x, y;
-  float density, luma, fscale, max_frame_rate;
-  struct timeval now;
-  suseconds_t diff;
-  static struct timeval last_flip;
-  static int progressiveRow = 0;
-
-  /* Figure out a good maximum frame rate. When we just start rendering an image,
-   * we want a quite high frame rate (but not high enough we bog down the GUI)
-   * so the user can interactively set initial conditions. After the rendering has
-   * been running for a while though, the image changes much less and a very slow
-   * frame rate will suffice.
-   */
-  max_frame_rate = 200 / (1 + (log(iterations) - 9.21) * 4);
-
-  /* Limit the maximum frame rate, so we're more responsive when dragging parameters */
-  gettimeofday(&now, NULL);
-  if (now.tv_sec - last_flip.tv_sec < 2) {
-    diff = now.tv_usec - last_flip.tv_usec;
-    if (now.tv_sec != last_flip.tv_sec)
-      diff += 1000000;
-    if (diff < 1000000 / max_frame_rate)
-      return;
-  }
-  last_flip = now;
-
-  /* Update the iteration counter */
-  gchar *iters = g_strdup_printf("Iterations:\n%.3e\n\nmax density:\n%d", iterations, countsMax);
-  gtk_label_set_text(GTK_LABEL(iterl), iters);
-  g_free(iters);
+  float density, luma, fscale;
+  static int progressive_row = 0;
 
   /* Scale our counts to a luminance between 0 and 1 that gets fed through our
    * colormap[] to generate an actual gdk color. 'p' contains the number of
@@ -290,7 +302,7 @@ void flip() {
   row = pixels;
   count_row = counts;
   for (y=0; y<height; y++) {
-    if ((y & PROGRESSIVE_MASK) == progressiveRow) {
+    if ((y & progressive_mask) == progressive_row) {
       p = (guint32*) row;
       count_p = count_row;
       for (x=0; x<width; x++) {
@@ -308,11 +320,36 @@ void flip() {
     count_row += width;
   }
 
-  progressiveRow = (progressiveRow + 1) & PROGRESSIVE_MASK;
+  progressive_row = (progressive_row + 1) & progressive_mask;
+}
 
+void update_pixels() {
+  /* Update all pixels, no progressive rendering */
+  progressive_update_pixels(1);
+}
+
+void update_gui() {
+  /* If the GUI needs updating, update it. This includes limiting the maximum
+   * update rate, updating the iteration count display, and actually rendering
+   * frames to the drawing area.
+   */
+  gchar *iters;
+
+  if (auto_limit_update_rate())
+    return;
+
+  /* Update the iteration counter */
+  iters = g_strdup_printf("Iterations:\n%.3e\n\nmax density:\n%d", iterations, countsMax);
+  gtk_label_set_text(GTK_LABEL(iterl), iters);
+  g_free(iters);
+
+  /* Update our pixels[] from counts[], 1/4 of the rows at a time */
+  progressive_update_pixels(4);
+
+  /* Update our drawing area */
   gdk_draw_rgb_32_image(drawing_area->window, gc,
 			0, 0, width, height, GDK_RGB_DITHER_NORMAL,
-			pixels, rowstride);
+			pixels, width * 4);
 }
 
 void clear() {
@@ -354,15 +391,15 @@ void run_iterations(int count) {
 
 int interactive_idle_handler(gpointer user_data) {
   /* An idle handler used for interactively rendering. This runs a relatively
-   * small number of iterations, then calls flip() to update our visible image.
+   * small number of iterations, then calls update_gui() to update our visible image.
    */
   run_iterations(10000);
-  flip();
+  update_gui();
   return 1;
 }
 
 gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data) {
-  flip();
+  update_gui();
   return TRUE;
 }
 
