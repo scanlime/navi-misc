@@ -51,6 +51,10 @@ struct _AviWriter {
     /* A stack of RIFF chunks that need their sizes fixed */
     GSList *chunk_stack;
 
+    /* A FIFO of index chunks to write later */
+    GQueue *index_queue;
+    long index_origin_offset;
+
     /* Offsets of particular things we need to fix later */
     long frame_count_offset;
     long length_offset;
