@@ -82,6 +82,7 @@ class StatsPage(page.Page):
 
     def wvfactory_statsLink(self, request, node, data):
         """Create a widget for viewing a StatsPage instance as a hyperlink"""
+        print dir(request)
         a = widgets.Anchor()
         a.setLink(data.path.split('/')[-1] + '/')
         a.setText(data.wmfactory_title(request))
