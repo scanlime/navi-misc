@@ -62,10 +62,6 @@ struct _BoxClass
 GType box_get_type (void) G_GNUC_CONST;
 Box*  box_new      (void);
 
-#define BOX_SIDES_DRAWABLE_TYPE
-#define BOX_SIDES_DRAWABLE(obj)
-#define BOX_SIDES_DRAWABLE_CLASS(klass)
-
 G_END_DECLS
 
 #endif
