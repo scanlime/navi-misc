@@ -45,6 +45,8 @@ class TotalsSection(Template.Section):
         self.totalNetworks = 0
         self.totalBots = 0
         self.totalChannels = 0
+        self.totalUsers = 0
+        
         for network in botNet.networks.iterkeys():
             self.totalNetworks += 1
             for bot in botNet.networks[network]:
@@ -55,6 +57,7 @@ class TotalsSection(Template.Section):
         self.numUnfulfilled = 0
         for request in botNet.requests:
             self.numRequests += 1
+	    self.totalUsers += request.getUserCount() or 0
             if not request.isFulfilled():
                 self.numUnfulfilled += 1
 
@@ -66,7 +69,9 @@ class TotalsSection(Template.Section):
                    Template.value[ place('totalNetworks') ],
                    ' networks, inhabiting ',
                    Template.value[ place('totalChannels') ],
-                   ' channels.',
+                   ' channels with a total of ',
+		   Template.value[ place('totalUsers') ],
+		   ' users.',
                ],
                [
                    Template.value[ place('numRequests') ],
