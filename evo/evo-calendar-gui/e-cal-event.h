@@ -35,27 +35,15 @@ typedef struct _ECalEvent ECalEvent;
 typedef struct _ECalEventClass ECalEventClass;
 
 enum _e_cal_event_target_t {
-	E_CAL_EVENT_TARGET_SOURCE,
 	E_CAL_EVENT_TARGET_COMPONENT,
 };
 
-/* Flags that describe TARGET_SOURCE */
-enum {
-	E_CAL_EVENT_SOURCE_CALENDAR_CHANGED = 1 << 0,
-};
-
+/* Flags that describe TARGET_COMPONENT */
 enum {
 	E_CAL_EVENT_COMPONENT_MIGRATION = 1 << 0,
 };
 
-typedef struct _ECalEventTargetSource    ECalEventTargetSource;
 typedef struct _ECalEventTargetComponent ECalEventTargetComponent;
-
-struct _ECalEventTargetSource {
-	EEventTarget target;
-
-	struct _ESource *source;
-};
 
 struct _ECalEventTargetComponent {
 	EEventTarget target;
@@ -75,7 +63,6 @@ struct _ECalEventClass {
 
 GType                     e_cal_event_get_type (void);
 ECalEvent*                e_cal_event_peek (void);
-ECalEventTargetSource*    e_cal_event_target_new_source (ECalEvent *ece, struct _ESource *source, guint32 flags);
 ECalEventTargetComponent* e_cal_event_target_new_component (ECalEvent *ece, struct _CalendarComponent *component, guint32 flags);
 
 /* ********************************************************************** */
