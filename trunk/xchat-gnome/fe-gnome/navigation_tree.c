@@ -167,7 +167,7 @@ navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess
 	 * so we update it.
 	 */
 	iter = navigation_model_get_sorted_iter(navtree->model, gui.current_session);
-	if (iter)s
+	if (iter)
 	{
 		navtree->current_path = gtk_tree_model_get_path(GTK_TREE_MODEL(navtree->model->sorted),iter);
 		gtk_tree_iter_free(iter);
