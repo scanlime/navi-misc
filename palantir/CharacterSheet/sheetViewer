@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.3
+#!/usr/bin/env python
 
 ''' sheetViewer
 
@@ -9,103 +9,34 @@ files using those layouts.
   Copyright 2003, W. Evan Sheehan <evan@navi.cx>
 '''
 
-import sys, gtk
+import sys, gtk, gtk.glade
 from GTKsheet import GTKsheet
 from Character import Character
 
-def InitWindow(sheet=None):
-  ''' Initialize and show the window. '''
-  # Set up the window.
-  window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-  window.connect('delete_event', lambda w, d: gtk.main_quit())
-  window.set_title('Character Sheet')
-  window.set_default_size(300, 200)
+def init():
+  ''' Initialize the window and stuff using glade. '''
+  global tree
+  tree = gtk.glade.XML('sheetviewer.glade')
 
-  # Save a reference to the sheet.
-  window.characterSheet = sheet
+  for func in globals().iterkeys():
+    if func.startswith('on_'):
+      tree.signal_connect(func, globals()[func])
 
-  window.characterSheetBox = gtk.VBox()
-  window.add(window.characterSheetBox)
+def on_window_destroy(widget=None, data=None):
+  gtk.main_quit()
 
-  menubar, accelGroup = Menu()
-  window.add_accel_group(accelGroup)
+def on_quit_activate(widget=None, data=None):
+  gtk.main_quit()
 
-  # If a sheet was passed add it to the window.
-  if window.characterSheet:
-    window.characterSheetBox.pack_end(window.characterSheet.root)
-    window.characterSheet.root.show()
-
-  window.characterSheetBox.pack_start(menubar, gtk.FALSE)
-  window.characterSheetBox.show()
-  window.show()
-
-  return window
-
-def Menu():
-  ''' Return a menu with accelerators. '''
-  items = (('/_File', None, None, 0, '<Branch>'),
-	   ('/File/_New', '<control>N', NewSheet, 0, None),
-	   ('/File/_Open', '<control>O', OpenSheet, 0, None),
-	   ('/File/ ',None, None, 0, None),
-	   ('/File/separator', None, None, 0, '<Separator>'),
-	   ('/File/_Quit', '<control>Q', lambda w, d: gtk.main_quit(), 0, None),
-	   ('/Help', None, None, 0, '<Branch>'),
-	   ('/Help/About', None, None, 0, None))
-
-  accelerator = gtk.AccelGroup()
-  itemFactory = gtk.ItemFactory(gtk.MenuBar, '<main>', accelerator)
-  itemFactory.create_items(items)
-  menubar = itemFactory.get_widget('<main>')
-  menubar.show()
-
-  return (menubar, accelerator)
-
-def NewSheet(data, widget):
-  ''' Create a new character. '''
+def on_new_activate(widget, data=None):
   print 'Not implemented.'
 
-def OpenSheet(data, widget):
-  ''' Open a sheet. '''
-  # Create the file selector.
-  fileWindow = gtk.FileSelection('Character Sheet')
-  fileWindow.set_filename('data/')
+def on_open_activate(widget, data=None):
+  print 'Not implemented.'
 
-  # OK button.
-  fileWindow.ok_button.connect('clicked', lambda w: readNewData(fileWindow.get_filename(),
-                                                                window.characterSheetBox))
-  fileWindow.ok_button.connect('clicked', lambda w: fileWindow.destroy())
-
-  # Cancel button.
-  fileWindow.cancel_button.connect('clicked', lambda w: fileWindow.destroy())
-
-  fileWindow.show()
-
-def readNewData(characterFile, box):
-  ''' Get new data from the file and redraw the window. '''
-  # sheet and box need to refer to the global objects.
-  global window
-
-  # Remove old sheet.
-  window.characterSheetBox.remove(window.characterSheet.root)
-
-  # New character's data.
-  character = Character()
-  character.readCharacter(characterFile)
-
-  # New sheet.
-  del window.characterSheet
-  window.characterSheet = GTKsheet(character)
-  window.characterSheetBox.pack_start(window.characterSheet.root)
-  window.characterSheet.root.show()
-  
-
+def on_cancel_button_clicked(widget, data=None):
+  print widget
+  print data
 if __name__ == '__main__':
-  # If a file was passed on the command line create the sheet.
-  if len(sys.argv) > 1:
-    character = Character()
-    character.readCharacter(sys.argv[1])
-    sheet = GTKsheet(character)
-
-  # Store a reference to the box for later packing.
-  window = InitWindow(sheet)
+  init()
   gtk.main()
