@@ -14,7 +14,8 @@ desktopdir = $(datadir)/applications
 	sed 's|\@DATADIR\@|$(datadir)/fyre/|' $< > $@
 desktop_DATA =			\
 	fyre.desktop		\
-	fyre-fa.desktop
+	fyre-fa.desktop		\
+	fyre-png.desktop
 
 mimedir = $(datadir)/mime/packages
 mime_DATA = fyre.xml
@@ -27,5 +28,6 @@ EXTRA_DIST =			\
         fyre-win32-icons.xcf.gz	\
 	fyre.desktop.in		\
 	fyre-fa.desktop.in	\
+	fyre-png.desktop.in	\
 	x-fyre-animation.xml	\
 	x-fyre-animation.png
