@@ -81,10 +81,21 @@ url_add_clicked (GtkButton *button, PublishUIData *ui)
 	GtkTreeIter iter;
 	GtkTreeSelection *selection;
 	GtkWidget *url_editor;
+	EPublishUri *uri;
 
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW (ui->treeview));
 	url_editor = url_editor_dialog_new2 (model, NULL);
 	url_editor_dialog_run2 ((UrlEditorDialog2 *) url_editor);
+
+	uri = URL_EDITOR_DIALOG (url_editor)->uri;
+	if (uri->location) {
+		gtk_list_store_append (GTK_LIST_STORE (model), &iter);
+		gtk_list_store_set (GTK_LIST_STORE (model), &iter,
+				    URL_LIST_ENABLED_COLUMN, uri->enabled,
+				    URL_LIST_LOCATION_COLUMN, uri->location,
+				    URL_LIST_URL_COLUMN, uri, -1);
+	}
+	gtk_widget_destroy (url_editor);
 }
 
 static void
