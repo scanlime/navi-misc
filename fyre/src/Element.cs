@@ -43,7 +43,7 @@ namespace Fyre
 		abstract public string[,]	OutputDesc ();
 
 		// private element-specific data
-		private System.Guid		id;
+		public System.Guid		id;
 		public CanvasElement		canvas_element;
 
 		protected void
