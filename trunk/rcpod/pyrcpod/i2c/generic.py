@@ -61,12 +61,13 @@ class Memory(i2c.Device):
         buffer = []
         remaining = count
 
+        # We only have to write the address once to perform sequential reads
+        self.busWrite(struct.pack(self.memAddressFormat, address))
+
         while remaining > 0:
             blockSize = min(remaining, self.readBlockSize)
-            packedAddr = struct.pack(self.memAddressFormat, address)
-            buffer.append(self.busWriteRead(packedAddr, blockSize, str))
+            buffer.append(self.busRead(blockSize, str))
             remaining -= blockSize
-            address += blockSize
 
             if progressCallback:
                 progressCallback((count - remaining) / count)
