@@ -161,6 +161,11 @@ void flip() {
   }
   last_flip = now;
 
+  /* Update the iteration counter */
+  gchar *iters = g_strdup_printf("%d", iterations);
+  gtk_label_set_text(GTK_LABEL(iterl), iters);
+  g_free(iters);
+
   rowstride = gdk_pixbuf_get_rowstride(pixbuf);
   pixelstride = gdk_pixbuf_get_n_channels(pixbuf);
   pixels = gdk_pixbuf_get_pixels(pixbuf);
@@ -240,10 +245,6 @@ static int draw_more(void *extra) {
   iterations += iterationsAtOnce;
 
   flip();
-
-  gchar *iters = g_strdup_printf("%d", iterations);
-  gtk_label_set_text(GTK_LABEL(iterl), iters);
-  g_free(iters);
   return 1;
 }
 
