@@ -42,7 +42,8 @@
 	extern	display_request_flip
 	extern	display_seek
 	extern	display_seq_write_byte
-	extern	back_buffer
+	extern	back_fsr
+	extern	back_status
 
 	extern	pwm_cycles
 	extern	pwm_table
@@ -197,23 +198,24 @@ request_randomWrite3
 	; and write out wIndex bytes copied from the column address
 	; at the low byte of wValue.
 request_blit
-	banksel	BufferData					; Put the pointer at wValue+1
+	banksel	BufferData			; Put the pointer at wValue+1
 	movf	BufferData+(wValue+1), w
 	pagesel	display_seek
 	call	display_seek
 
 blit_loop
-	banksel	BufferData					; Get the backbuffer data at the low byte of wValue
+	movf	back_status, w
+	movwf	STATUS
+	banksel	BufferData			; Get the backbuffer data at the low byte of wValue
 	movf	BufferData+wValue, w
 	incf	BufferData+wValue, f		; (and increment it)
-	bankisel back_buffer
-	addlw	back_buffer
+	addwf	back_fsr, w
 	movwf	FSR
-	movf	INDF, w						; Copy to w and write it
+	movf	INDF, w				; Copy to w and write it
 	pagesel	display_seq_write_byte
 	call	display_seq_write_byte
 
-	banksel	BufferData					; Loop, counting bytes with wIndex
+	banksel	BufferData			; Loop, counting bytes with wIndex
 	pagesel	blit_loop
 	decfsz	BufferData+wIndex, f
 	goto	blit_loop

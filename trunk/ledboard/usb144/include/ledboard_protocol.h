@@ -35,7 +35,6 @@
 #define LEDBOARD_CTRL_RANDOM_WRITE3	0x01
 
 ;// Request a back->front page flip immediately preceeding the next display scan.
-;// This doesn't return an ACK until a flip has completed successfully.
 #define LEDBOARD_CTRL_FLIP              0x02
 
 ;// Starting at the current write pointer (reset on page flip) write the given
@@ -58,6 +57,26 @@
 ;// pointer at the first byte after the end of the destination area.
 ;// wIndex must be nonzero.
 #define LEDBOARD_CTRL_BLIT		0x06
+
+;// Set the 16-bit scan rate adjustment, from wValue. Larger numbers scan
+;// faster, reducing flicker but increasing the chance of glitches
+;// caused by servicing USB requests.
+#define LEDBOARD_CTRL_SET_SCAN_RATE     0x07
+
+;// Set the PWM period. This determines how many scan cycles are run per row,
+;// and sets the maximum value of each PWM table entry.
+#define LEDBOARD_CTRL_SET_PWM_CYCLES    0x08
+
+;// Set one PWM table entry. wIndex is the LED brightness index, from 0 to 15,
+;// and wValue is the corresponding PWM duty cycle value.
+#define LEDBOARD_CTRL_SET_PWM_ENTRY     0x09
+
+;// Return a 1-byte packet with the LED supply voltage. 0=0V, 255=10V
+#define LEDBOARD_CTRL_GET_LED_VOLTAGE   0x0A
+
+;// Set the intensity of our status LED. wValue=0 is off, wValue=0xFFFF is
+;// full brightness. The low 6 bits are ignored.
+#define LEDBOARD_CTRL_STATUS_INTENSITY  0x10
 
 #endif
 
