@@ -16,7 +16,7 @@
 #define BUFFER_SIZE 64
 
 #define DRIVER_VERSION "v0.1"
-#define DRIVER_AUTHOR "The Unknown Tribble"
+#define DRIVER_AUTHOR "Micah Dowty <micah@picogui.org>"
 #define DRIVER_DESC "USB Widget Driver"
 
 MODULE_AUTHOR( DRIVER_AUTHOR );
