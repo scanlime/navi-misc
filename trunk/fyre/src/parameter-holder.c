@@ -373,8 +373,7 @@ const ParameterIncrements* param_spec_get_increments (GParamSpec  *pspec) {
   return g_param_spec_get_qdata(pspec, g_quark_from_static_string("increments"));
 }
 
-GParamSpec* param_spec_get_dependency (GParamSpec  *pspec,
-				       GParamSpec  *dependency) {
+GParamSpec* param_spec_get_dependency (GParamSpec  *pspec) {
   return g_param_spec_get_qdata(pspec, g_quark_from_static_string("dependency"));
 }
 

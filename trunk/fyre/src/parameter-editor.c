@@ -32,7 +32,8 @@ static void parameter_editor_finalize(GObject *object);
 static void parameter_editor_attach(ParameterEditor *self, ParameterHolder *holder);
 static void parameter_editor_add_paramspec(ParameterEditor *self, GParamSpec *spec);
 static void parameter_editor_add_group_heading(ParameterEditor *self, const gchar *group);
-static void parameter_editor_add_row(ParameterEditor *self, GtkWidget *row);
+static void parameter_editor_add_row(ParameterEditor *self, GParamSpec *spec, GtkWidget *row);
+static void parameter_editor_add_dependency(ParameterEditor *self, GtkWidget *widget, GParamSpec *dependency);
 static void parameter_editor_add_labeled_row(ParameterEditor *self, GParamSpec *spec, GtkWidget *row);
 
 static void parameter_editor_connect_notify(ParameterEditor *self,
@@ -52,6 +53,7 @@ static void on_notify_numeric(ParameterHolder *holder, GParamSpec *spec, GtkWidg
 static void on_notify_color(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
 static void on_notify_opacity(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
 static void on_notify_boolean(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
+static void on_notify_dependency(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget);
 
 
 /************************************************************************************/
@@ -187,8 +189,14 @@ static void parameter_editor_add_group_heading(ParameterEditor *self, const gcha
   gtk_box_pack_start(GTK_BOX(self), label, FALSE, FALSE, 4);
 }
 
-static void parameter_editor_add_row(ParameterEditor *self, GtkWidget *row) {
+static void parameter_editor_add_row(ParameterEditor *self, GParamSpec *spec, GtkWidget *row) {
+  GParamSpec *dep;
+
   gtk_box_pack_start(GTK_BOX(self), row, FALSE, FALSE, 2);
+
+  dep = param_spec_get_dependency(spec);
+  if (dep)
+    parameter_editor_add_dependency(self, row, dep);
 }
 
 static void parameter_editor_add_labeled_row(ParameterEditor *self, GParamSpec *spec, GtkWidget *row) {
@@ -204,7 +212,18 @@ static void parameter_editor_add_labeled_row(ParameterEditor *self, GParamSpec *
   gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 6);
   gtk_box_pack_start(GTK_BOX(hbox), row, TRUE, TRUE, 6);
 
-  parameter_editor_add_row(self, hbox);
+  parameter_editor_add_row(self, spec, hbox);
+}
+
+static void parameter_editor_add_dependency(ParameterEditor *self, GtkWidget *widget, GParamSpec *dependency) {
+  /* Add a notify callback to our dependency that enables or disables the given widget.
+   * Call the notify callback once right away to set up our initial sensitivity.
+   */
+  gchar *signal_name;
+  signal_name = g_strdup_printf("notify::%s", dependency->name);
+  g_signal_connect(self->holder, signal_name, G_CALLBACK(on_notify_dependency), widget);
+  g_free(signal_name);
+  on_notify_dependency(self->holder, dependency, widget);
 }
 
 
@@ -489,6 +508,12 @@ static void on_notify_boolean(ParameterHolder *holder, GParamSpec *spec, GtkWidg
   self->suppress_changed = TRUE;
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), active);
   self->suppress_changed = FALSE;
+}
+
+static void on_notify_dependency(ParameterHolder *holder, GParamSpec *spec, GtkWidget *widget) {
+  gboolean active;
+  g_object_get(holder, spec->name, &active, NULL);
+  gtk_widget_set_sensitive(widget, active);
 }
 
 /* The End */
