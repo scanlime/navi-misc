@@ -54,6 +54,14 @@
 		flags
 		virtual_button
 
+		;; Stored calibration for each gamecube axis
+		joystick_x_calibration
+		joystick_y_calibration
+		cstick_x_calibration
+		cstick_y_calibration
+		left_calibration
+		right_calibration
+
 		;; These four items must be contiguous.
 		;; Note that n64_command and n64_bus_address point to the same memory.
 		;; This is explained in the bus write receive code near n64_wait_for_command.
@@ -108,6 +116,14 @@ startup
 	bsf	STATUS, RP0
 	movwf	OPTION_REG
 	bcf	STATUS, RP0
+
+	;; Calibrate as soon as the N64 is powered up and the controller is plugged in.
+	;; Note that we have to continue on with n64_translate_status and n64_wait_for_command
+	;; because the gamecube controller won't be ready for another poll immediately.
+	call	gamecube_poll_status
+	call	gamecube_reset_calibration
+	call	n64_translate_status
+	call	n64_wait_for_command
 
 main_loop
 	call	gamecube_poll_status	; The gamecube poll takes place during the dead period
@@ -193,10 +209,54 @@ map_start macro
 	clrf	n64_status_buffer+3
 	endm
 
+
+	;; Store calibration values for one gamecube axis. This takes its
+	;; actual neutral position from the gamecube_buffer, and is given
+	;; its ideal neutral position as a parameter. The resulting calibration
+	;; is added to the axis later, with clamping to prevent rollover.
+store_calibration macro axis_byte, calibration, ideal_neutral
+	movf	gamecube_buffer + axis_byte, w
+	sublw	ideal_neutral
+	movwf	calibration
+	endm
+
+
+	;; Add the stored neutral values to an axis to calibrate it, clamping
+	;; it in the event of an overflow.
+apply_calibration macro axis_byte, calibration
+	local	negative
+	local	done
+
+	movf	calibration, w		; Add the calibration
+	addwf	gamecube_buffer + axis_byte, f
+	btfsc	calibration, 7		; Test whether the value we just added was negative
+	goto	negative
+
+	movlw	0xFF			; It was positive, clamp to 0xFF if we carried
+	btfsc	STATUS, C
+	movwf	gamecube_buffer + axis_byte
+	goto	done
+
+negative
+	btfss	STATUS, C		; It was negative, clamp to 0 if we borrowed (C=0)
+	clrf	gamecube_buffer + axis_byte
+
+done
+	endm
+
+
 	;; Copy status from the gamecube buffer to the N64 buffer. This first
 	;; stage maps all axes, and maps gamecube buttons to virtual buttons.
 n64_translate_status
 	map_start
+
+	apply_calibration	GC_JOYSTICK_X,	joystick_x_calibration
+	apply_calibration	GC_JOYSTICK_Y,	joystick_y_calibration
+	apply_calibration	GC_CSTICK_X,	cstick_x_calibration
+	apply_calibration	GC_CSTICK_Y,	cstick_y_calibration
+	apply_calibration	GC_L_ANALOG,	left_calibration
+	apply_calibration	GC_R_ANALOG,	right_calibration
+
 	map_button_from	GC_A,		BTN_A
 	map_button_from	GC_B,		BTN_B
 	map_button_from	GC_Z,		BTN_Z
@@ -217,6 +277,20 @@ n64_translate_status
 
 	map_button_axis	GC_CSTICK_X,    BTN_C_LEFT,	BTN_C_RIGHT,	0x50, 0xB0
 	map_button_axis	GC_CSTICK_Y,    BTN_C_DOWN,	BTN_C_UP,	0x50, 0xB0
+	return
+
+
+	;; Store calibration values for each axis. The controller's joysticks should
+	;; be centered and the L and R buttons should be released when this is called.
+	;; We assume this is true at startup, and it should be true when the user invokes
+	;; it by holding down X, Y, and Start.
+gamecube_reset_calibration
+	store_calibration	GC_JOYSTICK_X,	joystick_x_calibration,	0x80
+	store_calibration	GC_JOYSTICK_Y,	joystick_y_calibration,	0x80
+	store_calibration	GC_CSTICK_X,	cstick_x_calibration,	0x80
+	store_calibration	GC_CSTICK_Y,	cstick_y_calibration,	0x80
+	store_calibration	GC_L_ANALOG,	left_calibration,	0x00
+	store_calibration	GC_R_ANALOG,	right_calibration,	0x00
 	return
 
 
