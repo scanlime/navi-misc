@@ -8,7 +8,6 @@ Status:
 We have two MI6K prototypes running quite smoothly here.
 There was talk of offering them commercially to people that
 can't build their own or would rather not, but there wasn't
-enough interest. The kernel module still needs porting to
-Linux 2.6
+enough interest.
 
---Micah <micah@picogui.org>
+--Micah <micah@navi.cx>

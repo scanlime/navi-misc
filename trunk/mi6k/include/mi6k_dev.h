@@ -4,7 +4,7 @@
  * This header describes the interface between the MI6K kernel module and
  * any userspace applications wishing to use the device.
  *
- * Copyright(c) 2003 Micah Dowty <micah@picogui.org>
+ * Copyright(c) 2003 Micah Dowty <micah@navi.cx>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by

@@ -1,11 +1,11 @@
 ;//################################################################################
 ;//
 ;// mi6k_protocol.h - Definitions describing the host to device protocol used by the
-;//                   MI6K This file is both valid C and assembly source, so it can be 
+;//                   MI6K This file is both valid C and assembly source, so it can be
 ;//                   shared by host and device code.
 ;//
 ;// This file is part of the MI6K project.
-;// Micah Dowty <micah@picogui.org>
+;// Micah Dowty <micah@navi.cx>
 ;//
 ;//###############################################################################
 

@@ -3,7 +3,7 @@
 ; hardware.inc - Definitions related to the hardware present in the MI6K
 ;
 ; This file is part of the MI6K project.
-; Micah Dowty <micah@picogui.org>
+; Micah Dowty <micah@navi.cx>
 ;
 ;###############################################################################
 
