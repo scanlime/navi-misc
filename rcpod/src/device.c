@@ -233,7 +233,8 @@ rcpod_dev* rcpod_InitSimpleWithoutReset(void) {
 
 rcpod_dev* rcpod_InitSimple(void) {
   rcpod_dev* rcpod = rcpod_InitSimpleWithoutReset();
-  rcpod_Reset(rcpod);
+  if (rcpod)
+    rcpod_Reset(rcpod);
   return rcpod;
 }
 
