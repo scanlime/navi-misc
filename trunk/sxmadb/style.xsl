@@ -325,7 +325,7 @@
     </div>
   </xsl:template>
 
-  <xsl:template match="stance">
+  <xsl:template match="stance|strike">
     <xsl:value-of select="@side"/>
     <xsl:text> </xsl:text>
     <xsl:value-of select="."/>
@@ -336,15 +336,16 @@
     <xsl:value-of select="."/>
     block
   </xsl:template>
-  <xsl:template match="strike">
-    <xsl:value-of select="@side"/>
-    <xsl:text> </xsl:text>
-    <xsl:value-of select="."/>
-  </xsl:template>
   <xsl:template match="kick">
     <xsl:value-of select="@side"/>
     <xsl:text> </xsl:text>
     <xsl:value-of select="."/>
     kick
+  </xsl:template>
+  <xsl:template match="knee">
+    <xsl:value-of select="@side"/>
+    <xsl:text> </xsl:text>
+    <xsl:value-of select="."/>
+    knee
   </xsl:template>
 </xsl:stylesheet>
