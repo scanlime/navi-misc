@@ -74,23 +74,17 @@ class URLScraper:
             client.add_dir( '/apps/xchat/url_scraper', gconf.CLIENT_PRELOAD_NONE )
             self.history = 10
             self.scrape_email = False
-            self.new_url_in_title = False
             client.set_int( '/apps/xchat/url_scraper/history', self.history )
             client.set_bool( '/apps/xchat/url_scraper/scrape_email', self.scrape_email )
-            client.set_bool( '/apps/xchat/url_scraper/new_url_in_title',
-                             self.new_url_in_title )
         # If our gconf keys exist...
         else:
             self.history = client.get_int( '/apps/xchat/url_scraper/history' )
             self.scrape_email = client.get_bool( '/apps/xchat/url_scraper/scrape_email' )
-            self.new_url_in_title = \
-                    client.get_bool( '/apps/xchat/url_scraper/new_url_in_title' )
 
 
     def windowFocused( self, widget, direction, user_data=None ):
-        if self.new_url_in_title:
-            self.window.set_title( 'URL Scraper' )
-            self.new_urls = 0
+        self.window.set_title( 'URL Scraper' )
+        self.new_urls = 0
 
         return gtk.FALSE
 
@@ -105,7 +99,7 @@ class URLScraper:
 
         # FIXME: Commented out because removing the change to the title causes
         #        a crash.
-        #if not self.window.has_focus and self.new_url_in_title:
+        #if not self.window.has_focus:
         #    self.new_urls += 1
         #    self.window.set_title( '[' + str(self.new_urls) + '] URL Scraper' )
 
