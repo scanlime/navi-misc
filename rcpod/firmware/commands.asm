@@ -251,6 +251,12 @@ txLoop
 	decfsz	BufferData+wValue, f ; Count down the number of bytes to send...
 	goto	txLoop
 
+	banksel	TXSTA		; Wait for the transmit shift register to empty
+	pagesel	txFinish
+txFinish
+	btfss	TXSTA, TRMT
+	goto	txFinish
+
 	banksel	txe_pin		; turn off the transmit enable pin (0 will have no effect)
 	movf	txe_pin, w
 	banksel	io_pin
