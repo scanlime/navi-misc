@@ -23,10 +23,10 @@
 #include "e-weather-source-ccf.h"
 
 void
-e_weather_source_parse (EWeatherSource *source, SourceFinished done)
+e_weather_source_parse (EWeatherSource *source, EWeatherSourceFinished done, gpointer data)
 {
 	EWeatherSourceClass *class = (EWeatherSourceClass*) G_OBJECT_GET_CLASS (source);
-	return class->parse (source, done);
+	return class->parse (source, done, data);
 }
 
 static void

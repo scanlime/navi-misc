@@ -263,7 +263,7 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 		g_free (forecasts);
 		fc = g_list_append (fc, &f[0]);
 		fc = g_list_append (fc, &f[1]);
-		source->done (fc);
+		source->done (fc, source->finished_data);
 	}
 
 	/* Grab the conditions for the next 5 days */
@@ -333,7 +333,7 @@ e_weather_source_ccf_do_parse (EWeatherSourceCCF *source, char *buffer)
 	{
 		fc = g_list_append (fc, &forecasts[i]);
 	}
-	source->done (fc);
+	source->done (fc, source->finished_data);
 }
 
 static void
@@ -361,7 +361,7 @@ retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 		}
 		else
 		{
-			source->done (NULL);
+			source->done (NULL, source->finished_data);
 		}
 
 		return;
@@ -370,7 +370,7 @@ retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 	/* check status code */
 	if (!SOUP_STATUS_IS_SUCCESSFUL (message->status_code))
 	{
-		source->done (NULL);
+		source->done (NULL, source->finished_data);
 	}
 
 	str = g_malloc0 (message->response.length + 1);
@@ -380,11 +380,13 @@ retrieval_done (SoupMessage *message, EWeatherSourceCCF *source)
 }
 
 static void
-e_weather_source_ccf_parse (EWeatherSource *source, SourceFinished done)
+e_weather_source_ccf_parse (EWeatherSource *source, EWeatherSourceFinished done, gpointer data)
 {
 	EWeatherSourceCCF *ccfsource = (EWeatherSourceCCF*) source;
 	SoupMessage *soup_message;
 	char *url;
+
+	ccfsource->finished_data = data;
 
 	g_print ("e_weather_source_ccf_parse ()\n");
 	url = g_strdup_printf ("http://www.crh.noaa.gov/data/%s/CCF%s", ccfsource->station, ccfsource->station);
