@@ -26,15 +26,17 @@ class SerialBridge:
        and such (38400 8-N-1)
        """
     def __init__(self, dev="/dev/ttyS0"):
-        self.fd = os.open(dev, os.O_RDWR)
+        self.fd = open(dev, "wb+")
 
     def write(self, data, replyBytes=0):
         """Write the start-of-command identifier, the tramsmit length,
            receive length, then the data. Reads the proper number of reply
-           bytes and returns them.
+           bytes and returns a (edges_detected, reply) tuple
            """
-        os.write(self.fd, struct.pack("BBB", 0x7E, len(data), replyBytes) + data)
-        return os.read(self.fd, replyBytes)
+        self.fd.write(struct.pack("BBB", 0x7E, len(data), replyBytes) + data)
+        r = self.fd.read(replyBytes+1)
+        print ord(r[0])
+        return (ord(r[0]), r[1:])
 
     def refCRC(self, packet, address=0x8001):
         """Write the given packet to the controller bus at the given (encoded)
@@ -42,7 +44,7 @@ class SerialBridge:
            I've verified that the address has no effect on the returned CRC.
            """
         return ord(self.write(struct.pack(">BH", 3, address) +
-                              ''.join([chr(i) for i in packet]), 1))
+                              ''.join([chr(i) for i in packet]), 1)[1])
 
     def genVectors(self, seq):
         """Given a sequence of test packets, returns a dictionary mapping the packets to CRCs"""
