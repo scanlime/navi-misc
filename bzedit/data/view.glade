@@ -27,109 +27,113 @@
       </child>
 
       <child>
-	<widget class="GtkMenuBar" id="menubar1">
+	<widget class="GtkHBox" id="hbox1">
 	  <property name="visible">True</property>
+	  <property name="homogeneous">False</property>
+	  <property name="spacing">0</property>
 
 	  <child>
-	    <widget class="GtkImageMenuItem" id="views1">
+	    <widget class="GtkMenuBar" id="menubar1">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Perspective</property>
-	      <property name="use_underline">True</property>
-	      <signal name="activate" handler="on_views1_activate" last_modification_time="Wed, 24 Mar 2004 05:01:36 GMT"/>
-
-	      <child internal-child="image">
-		<widget class="GtkImage" id="image30">
-		  <property name="visible">True</property>
-		  <property name="pixbuf">perspective.png</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		</widget>
-	      </child>
 
 	      <child>
-		<widget class="GtkMenu" id="views1_menu">
+		<widget class="GtkImageMenuItem" id="menuitem1">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">Perspective</property>
+		  <property name="use_underline">True</property>
+		  <signal name="activate" handler="on_views1_activate" last_modification_time="Wed, 24 Mar 2004 05:01:36 GMT"/>
 
-		  <child>
-		    <widget class="GtkImageMenuItem" id="top1">
+		  <child internal-child="image">
+		    <widget class="GtkImage" id="image62">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Top</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_top1_activate" last_modification_time="Wed, 24 Mar 2004 05:01:36 GMT"/>
-		      <accelerator key="KP_7" modifiers="0" signal="activate"/>
-
-		      <child internal-child="image">
-			<widget class="GtkImage" id="image31">
-			  <property name="visible">True</property>
-			  <property name="pixbuf">top.png</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-		      </child>
+		      <property name="pixbuf">perspective.png</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
 		    </widget>
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="front1">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Front</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_front1_activate" last_modification_time="Wed, 24 Mar 2004 05:02:01 GMT"/>
-		      <accelerator key="KP_1" modifiers="0" signal="activate"/>
+		    <widget class="GtkMenu" id="menuitem1_menu">
 
-		      <child internal-child="image">
-			<widget class="GtkImage" id="image32">
+		      <child>
+			<widget class="GtkImageMenuItem" id="imagemenuitem1">
 			  <property name="visible">True</property>
-			  <property name="pixbuf">front.png</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
+			  <property name="label" translatable="yes">Top</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_top1_activate" last_modification_time="Wed, 24 Mar 2004 05:01:36 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image63">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">top.png</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
-		    </widget>
-		  </child>
 
-		  <child>
-		    <widget class="GtkImageMenuItem" id="side1">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Side</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_side1_activate" last_modification_time="Wed, 24 Mar 2004 05:02:12 GMT"/>
-		      <accelerator key="KP_3" modifiers="0" signal="activate"/>
-
-		      <child internal-child="image">
-			<widget class="GtkImage" id="image33">
+		      <child>
+			<widget class="GtkImageMenuItem" id="imagemenuitem2">
 			  <property name="visible">True</property>
-			  <property name="pixbuf">side.png</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
+			  <property name="label" translatable="yes">Front</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_front1_activate" last_modification_time="Wed, 24 Mar 2004 05:02:01 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image64">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">front.png</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
-		    </widget>
-		  </child>
 
-		  <child>
-		    <widget class="GtkImageMenuItem" id="perspective1">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Perspective</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_perspective1_activate" last_modification_time="Wed, 24 Mar 2004 05:09:09 GMT"/>
-		      <accelerator key="KP_5" modifiers="0" signal="activate"/>
-
-		      <child internal-child="image">
-			<widget class="GtkImage" id="image34">
+		      <child>
+			<widget class="GtkImageMenuItem" id="imagemenuitem3">
 			  <property name="visible">True</property>
-			  <property name="pixbuf">perspective.png</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
+			  <property name="label" translatable="yes">Side</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_side1_activate" last_modification_time="Wed, 24 Mar 2004 05:02:12 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image65">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">side.png</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkImageMenuItem" id="perspective1">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">Perspective</property>
+			  <property name="use_underline">True</property>
+			  <signal name="activate" handler="on_perspective1_activate" last_modification_time="Wed, 24 Mar 2004 10:36:49 GMT"/>
+
+			  <child internal-child="image">
+			    <widget class="GtkImage" id="image66">
+			      <property name="visible">True</property>
+			      <property name="pixbuf">perspective.png</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			    </widget>
+			  </child>
 			</widget>
 		      </child>
 		    </widget>
@@ -137,6 +141,43 @@
 		</widget>
 	      </child>
 	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkToolbar" id="toolbar1">
+	      <property name="visible">True</property>
+	      <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
+	      <property name="toolbar_style">GTK_TOOLBAR_ICONS</property>
+	      <property name="tooltips">True</property>
+	      <property name="show_arrow">False</property>
+
+	      <child>
+		<widget class="GtkToolButton" id="toolbutton1">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes"></property>
+		  <property name="use_underline">True</property>
+		  <property name="icon">close.png</property>
+		  <property name="visible_horizontal">True</property>
+		  <property name="visible_vertical">True</property>
+		  <property name="is_important">False</property>
+		</widget>
+		<packing>
+		  <property name="expand">False</property>
+		  <property name="homogeneous">True</property>
+		</packing>
+	      </child>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	      <property name="pack_type">GTK_PACK_END</property>
+	    </packing>
 	  </child>
 	</widget>
 	<packing>
