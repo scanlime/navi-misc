@@ -53,7 +53,48 @@ class IncomingMailParser:
             return None
 
         # Pass on control to the command_* function...
-        return f(*args)
+        xml = f(*args)
+
+        # If the command generated a message, perform some common postprocessing
+        if xml:
+            return Message(self.postprocessMessage(xml))
+
+    def postprocessMessage(self, xml):
+        """Gets a chance to modify all XML messages before they're loaded
+           and dispatched to the Hub. This does the following:
+             - If there is no <generator> at all, adds a generic one
+             - Removes any <mailHeaders> tag that may already exist in <generator>
+             - Adds a correct <mailHeaders> tag to the <generator>
+           """
+        # Create the <generator> tag if it doesn't exist
+        if not xml.generator:
+            xml.addChild(self.getLocalGenerator())
+        generator = xml.generator
+
+        # Delete an existing <mailHeaders>
+        for i in xrange(len(generator.children)):
+            if generator.children[i].name == "mailHeaders":
+                del generator.children[i]
+
+        # Add a new <mailHeaders>
+        generator.addChild(self.getXMLMailHeaders())
+        return xml
+
+    def getLocalGenerator(self):
+        """Return a <generator> tag for messages produced locally"""
+        xml = domish.Element((None, "generator"))
+        xml.addElement("name", content="CIA IncomingMailParser")
+        return xml
+
+    def getXMLMailHeaders(self):
+        """Return a <mailHeaders> tag representing the headers for this message.
+           This is placed in the <generator> tag of any message passing through
+           this module, to document and log the message's true source.
+           """
+        xml = domish.Element((None, "mailHeaders"))
+        for name, value in self.message.items():
+            xml.addElement("header", content=str(value))['name'] = name
+        return xml
 
     def command_Announce(self, project):
         """Old-style announcements: Announce <project> in the subject line.
@@ -74,7 +115,6 @@ class IncomingMailParser:
         # is to represent the log in a <colorText> element
         colorText = ColorTextParser().parse(self.message.get_payload())
         xml.addElement("body").addChild(colorText)
-
-        return Message(xml)
+        return xml
 
 ### The End ###
