@@ -39,7 +39,9 @@
                 <div class="section">
                   <div class="sectionTop"/>
                   <div class="row">
-                    <xsl:apply-templates select="document('navigation.xml')//pages/link"/>
+                    <ul>
+                      <xsl:apply-templates select="document('navigation.xml')//pages/link"/>
+                    </ul>
                   </div>
                 </div>
               </td>
