@@ -66,8 +66,9 @@ e_publish_uri_from_xml (const gchar *xml)
 
 	for (p = root->children; p != NULL; p = p->next) {
 		xmlChar *uid = xmlGetProp (p, "uid");
-		if (strcmp (p->name, "event") == 0)
+		if (strcmp (p->name, "event") == 0) {
 			events = g_slist_append (events, uid);
+		}
 		else if (strcmp (p->name, "task") == 0)
 			tasks = g_slist_append (tasks, uid);
 		else
