@@ -32,6 +32,12 @@ import ASFReader
 import math
 import string
 
+# make it faster?
+try:
+    import psyco
+except:
+    pass
+
 def addVectors(a, b):
     x = []
     for i in range(len(a)):
@@ -57,19 +63,9 @@ def importObjects(reader):
 
         bones[name] = bone
 
-        axis = map(float, data.axis)
-        # swizzle Y and Z
-        axis = [axis[0], axis[2], axis[1]]
-        axis = Blender.Mathutils.Euler(axis).toQuat()
-        a = [axis.w, axis.x, axis.y, axis.z]
-        a = ['%f' % n for n in a]
-
-        boneAxis = bone.getRestMatrix().rotationPart().toQuat();
-        ba = [boneAxis.w, boneAxis.x, boneAxis.y, boneAxis.z]
-        ba = ['%f' % n for n in ba]
-
-        armObj.addProperty('%s-axis' % name, ','.join(a), 'STRING')
-        armObj.addProperty('%s-baxis' % name, ','.join(ba), 'STRING')
+        # Set properties for axis & dof as given in the ASF. We'll use these
+        # values later on in parsing the AMC
+        armObj.addProperty('%s-axis' % name, ','.join(data.axis[:3]), 'STRING')
         if data.dof is None:
             armObj.addProperty('%s-dof' % name, '', 'STRING')
         else:
@@ -95,6 +91,12 @@ def importObjects(reader):
         for bone in children:
             bones[bone].setParent(bones[parent])
             armData.addBone(bones[bone])
+
+            # now that we're linked, set the bonespace axis transformation
+            # as a property on the object
+            ba = bones[bone].getRestMatrix ('bonespace').rotationPart ().toEuler ()
+            ba = map(str, [ba.x, ba.y, ba.z])
+            armObj.addProperty('%s-baxis' % bone, ','.join(ba), 'STRING')
 
     armObj.link(armData)
     scene.link(armObj)
