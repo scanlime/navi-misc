@@ -446,18 +446,40 @@ static gboolean tab_complete_nickname(GtkEntry *entry, int start) {
 		/* one match */
 		if (length - cursor == 0)
 		{
-			/* at the end of the entry, just append */
+			/* at the end of the entry, just insert */
 			int pos;
 
-			text[start] = '\0';
 			if (start != 0)
 			{
-				npt = g_strdup_printf ("%s%s%s", text, (char *) options->data, &text[start]);
+				npt = g_strdup_printf ("%s%s", text, (char *) options->data);
 				pos = strlen ((char *) options->data) + start;
 			}
 			else
 			{
-				npt = g_strdup_printf ("%s: %s", (char *) options->data, text);
+				npt = g_strdup_printf ("%s: ", (char *) options->data);
+				pos = strlen ((char *) options->data) + 2;
+			}
+			gtk_entry_set_text (entry, npt);
+			gtk_editable_set_position (GTK_EDITABLE (entry), pos);
+			g_free (npt);
+			g_free (text);
+			g_free (prefix);
+			return TRUE;
+		}
+		else
+		{
+			/* somewhere in the middle of the entry */
+			int pos;
+
+			if (start != 0)
+			{
+				text[start] = '\0';
+				npt = g_strdup_printf ("%s%s%s", text, (char *) options->data, &text[cursor]);
+				pos = strlen ((char *) options->data) + start;
+			}
+			else
+			{
+				npt = g_strdup_printf ("%s: %s", (char *) options->data, &text[cursor]);
 				pos = strlen ((char *) options->data) + 2;
 			}
 			gtk_entry_set_text (entry, npt);
