@@ -11,7 +11,7 @@
 
 begin remote
 
-  name  RM-873
+  name  sony_tv
   bits            7
   flags SPACE_ENC|CONST_LENGTH
   eps            30

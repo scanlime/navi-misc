@@ -14,7 +14,7 @@
 
 begin remote
 
-  name   K12B-C2
+  name   apex_tv
   flags CONST_LENGTH|RAW_CODES
   eps            30
   aeps          100

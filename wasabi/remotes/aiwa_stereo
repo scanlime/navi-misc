@@ -14,7 +14,7 @@
 
 begin remote
 
-  name   RC-T516
+  name   aiwa_stereo
   flags RAW_CODES
   eps            30
   aeps          100
