@@ -38,6 +38,8 @@ const char *encodings[] =
 	NULL
 };
 
+static GHashTable *enctoindex = NULL;
+
 static void
 irc_network_finalize (GObject *object)
 {
@@ -66,6 +68,16 @@ irc_network_class_init (IrcNetworkClass *klass)
 static void
 irc_network_init (IrcNetwork *obj)
 {
+	if (!enctoindex) {
+		gchar **enc = (gchar **) encodings;
+		gint index = 0;
+
+		enctoindex = g_hash_table_new (g_str_hash, g_str_equal);
+		do {
+			g_hash_table_insert (enctoindex, *enc, GUINT_TO_POINTER (index));
+			enc++; index++;
+		} while (*enc);
+	}
 }
 
 GType
@@ -92,6 +104,7 @@ irc_network_get_type (void)
 IrcNetwork *
 irc_network_new (ircnet *net)
 {
+	GSList *s1, *s2 = NULL;
 	IrcNetwork *n = IRC_NETWORK (g_object_new (irc_network_get_type (), 0));
 
 	n->name        = g_strdup (net->name);
@@ -104,7 +117,9 @@ irc_network_new (ircnet *net)
 	n->novegiveup  = net->flags & FLAG_;
 	*/
 
-	n->servers = net->servlist;
+	for (s1 = n->servers; s1; s1 = g_slist_next (s1))
+		s2 = g_slist_prepend (s2, g_strdup (s1->data));
+	n->servers = s2;
 
 	n->password    = g_strdup(net->pass);
 	/* FIXME */
@@ -113,8 +128,7 @@ irc_network_new (ircnet *net)
 	n->use_global  = net->flags & FLAG_USE_GLOBAL;
 	n->nick        = g_strdup (net->nick);
 	n->real        = g_strdup (net->real);
-	/* FIXME */
-	n->autojoin    = NULL;
+	n->autojoin    = g_strdup (net->autojoin);
 
 	n->net = net;
 

@@ -70,7 +70,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	GW(giveup_reconnect);
 
 	GW(password);
-	GW(encoding);
+	GW(encoding_hbox);
 
 	GW(servers);
 	GW(add_server);
@@ -93,6 +93,10 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->servers), GTK_TREE_MODEL (dialog->store));
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->servers), 0, "Server", renderer, "text", 0, NULL);
+
+	dialog->encoding = gtk_combo_box_new_text ();
+	gtk_widget_show (dialog->encoding);
+	gtk_box_pack_start (GTK_BOX (dialog->encoding_hbox), dialog->encoding, FALSE, TRUE, 0);
 }
 
 GType
@@ -158,6 +162,7 @@ populate_server_list (IrcNetworkEditor *e)
 static void
 populate_autojoin_list (IrcNetworkEditor *e)
 {
+	g_print ("autojoin = %s\n", e->network->autojoin);
 }
 
 static void
@@ -185,6 +190,14 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 	}
 
 	gtk_entry_set_text (GTK_ENTRY (e->password), e->network->password);
+
+	{
+		gchar **enc = (gchar **) encodings;
+		do {
+			gtk_combo_box_append_text (GTK_COMBO_BOX (e->encoding), _(*enc));
+			enc++;
+		} while (*enc);
+	}
 	gtk_combo_box_set_active (GTK_COMBO_BOX (e->encoding), e->network->encoding);
 
 	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_APPLY,  GTK_RESPONSE_APPLY);
