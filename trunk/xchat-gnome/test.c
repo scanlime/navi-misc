@@ -1,19 +1,20 @@
 #include <glade/glade.h>
 #include <gnome.h>
 
+GladeXML *xml;
+
 void settings_page_changed(GtkTreeSelection *selection, gpointer data);
-void init_settings(GladeXML *xml);
-void init_userlist(GladeXML *xml);
+void init_settings();
+void init_userlist();
 
 int main(int argc, char **argv) {
-  GladeXML *xml;
   GtkWidget *topic_bar, *user_list, *server_list, *text_box;
 
   gnome_program_init("xchat test", "0.1", LIBGNOMEUI_MODULE, argc, argv, NULL);
   xml = glade_xml_new("xchat-gnome.glade", NULL, NULL);
 
-  init_settings(xml);
-  init_userlist(xml);
+  init_settings();
+  init_userlist();
 
   topic_bar = glade_xml_get_widget(xml, "topic entry");
   gtk_entry_set_text(GTK_ENTRY(topic_bar), "this is a topic");
@@ -25,16 +26,17 @@ int main(int argc, char **argv) {
 void settings_page_changed(GtkTreeSelection *selection, gpointer data) {
   GtkTreeIter iter;
   GtkTreeModel *model;
-  gchar *page;
+  GtkWidget *notebook;
+  gint page;
 
   if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
-    gtk_tree_model_get(model, &iter, 1, &page, -1);
-    g_print("Selected settings page %s\n", page);
-    g_free(page);
+    notebook = glade_xml_get_widget(xml, "settings notebook");
+    gtk_tree_model_get(model, &iter, 2, &page, -1);
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page);
   }
 }
 
-void init_settings(GladeXML *xml) {
+void init_settings() {
   GtkWidget *widget, *options_list;
   GtkSizeGroup *group;
   GtkListStore *store;
@@ -51,7 +53,6 @@ void init_settings(GladeXML *xml) {
   gtk_size_group_add_widget(group, widget);
   widget = glade_xml_get_widget(xml, "dcc ip address");
   gtk_size_group_add_widget(group, widget);
-
   widget = glade_xml_get_widget(xml, "individual send throttle");
   gtk_size_group_add_widget(group, widget);
   widget = glade_xml_get_widget(xml, "global send throttle");
@@ -62,8 +63,17 @@ void init_settings(GladeXML *xml) {
   gtk_size_group_add_widget(group, widget);
   g_object_unref(group);
 
+  group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+  widget = glade_xml_get_widget(xml, "quit message");
+  gtk_size_group_add_widget(group, widget);
+  widget = glade_xml_get_widget(xml, "part message");
+  gtk_size_group_add_widget(group, widget);
+  widget = glade_xml_get_widget(xml, "away message");
+  gtk_size_group_add_widget(group, widget);
+  g_object_unref(group);
+
   options_list = glade_xml_get_widget(xml, "settings page list");
-  store = gtk_list_store_new(2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
+  store = gtk_list_store_new(3, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
   icon = gtk_cell_renderer_pixbuf_new();
   text = gtk_cell_renderer_text_new();
   icon_column = gtk_tree_view_column_new_with_attributes("icon", icon, "pixbuf", 0, NULL);
@@ -81,14 +91,14 @@ void init_settings(GladeXML *xml) {
   user_interface = gdk_pixbuf_scale_simple(gdk_pixbuf_new_from_file("data/ui.png", NULL), 24, 24, GDK_INTERP_BILINEAR);
 
   gtk_list_store_append(store, &iter);
-  gtk_list_store_set(store, &iter, 0, file_transfers, 1, "File Transfers", -1);
+  gtk_list_store_set(store, &iter, 0, irc_prefs, 1, "IRC Preferences", 2, 0, -1);
   gtk_list_store_append(store, &iter);
-  gtk_list_store_set(store, &iter, 0, irc_prefs, 1, "IRC Preferences", -1);
+  gtk_list_store_set(store, &iter, 0, user_interface, 1, "User Interface", 2, 1, -1);
   gtk_list_store_append(store, &iter);
-  gtk_list_store_set(store, &iter, 0, user_interface, 1, "User Interface", -1);
+  gtk_list_store_set(store, &iter, 0, file_transfers, 1, "File Transfers", 2, 2, -1);
 }
 
-void init_userlist(GladeXML *xml) {
+void init_userlist() {
   GtkWidget *user_list;
   GtkListStore *store;
   GtkTreeIter iter;
