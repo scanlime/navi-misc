@@ -34,7 +34,7 @@ to, and a priority that controls which widgets are hidden if space becomes scarc
 from __future__ import division
 import time
 
-__all__ = ["Widget", "Surface", "Text", "LoopingScroller"]
+__all__ = ["Widget", "Surface", "Text", "LoopingScroller", "Clock"]
 
 
 class Widget(object):
@@ -218,6 +218,37 @@ class LoopingScroller(Text):
             self.pauseRemaining += self.pauseDuration
 
 
+class Clock(Text):
+    """A VFD widget that displays the current time. By default this
+       shows the current time, though it may be subclassed to show
+       other time values.
+
+       Any colons in the strftime-formatted string will toggle
+       every 'blinkTime' seconds, if blinkTime isn't None.
+       """
+    def __init__(self, format="%H:%M", blinkTime=0.5, **kwargs):
+        Text.__init__(self, **kwargs)
+        self.format = format
+        self.blinkTime = blinkTime
+        self.blinkRemaining = blinkTime
+        self.blinkState = False
+
+    def update(self, dt):
+        format = self.format
+        if self.blinkTime:
+            if self.blinkState:
+                format = format.replace(":", " ")
+            self.blinkRemaining -= dt
+            if self.blinkRemaining < 0:
+                self.blinkState = not self.blinkState
+                self.blinkRemaining += self.blinkTime
+        self.text = time.strftime(format, time.localtime(self.getTime()))
+
+    def getTime(self):
+        """Subclasses may override this to provide an alternate time to display"""
+        return time.time()
+
+
 class Rect:
     """Represents a rectangle by the location of its top-left corner and its size"""
     def __init__(self, x, y, width, height):
@@ -349,7 +380,7 @@ class Surface(object):
         self.widgetRects = {}
         self.lastTime = None
 
-        self.lifetimes = []
+        self.lifetimes = {}
         self.layoutRequired = True
 
     def add(self, widget, lifetime=None):
@@ -358,11 +389,13 @@ class Surface(object):
            """
         self.widgets.append(widget)
         if lifetime is not None:
-            self.lifetimes.append([lifetime, widget])
+            self.lifetimes[widget] = lifetime
         self.layoutRequired = True
 
     def remove(self, widget):
         self.widgets.remove(widget)
+        if widget in self.lifetimes:
+            del self.lifetimes[widget]
         self.layoutRequired = True
 
     def update(self, dt=None):
@@ -379,18 +412,14 @@ class Surface(object):
                 self.lastTime = now
 
         # Update the lifetimes of widgets that can expire
-        i = 0
-        while i < len(self.lifetimes):
-            self.lifetimes[i][0] -= dt
-            if self.lifetimes[i][0] > 0:
-                i += 1
-            else:
+        for widget in self.lifetimes.keys():
+            self.lifetimes[widget] -= dt
+            if self.lifetimes[widget] <= 0:
                 try:
-                    self.widgets.remove(self.lifetimes[i][1])
+                    self.widgets.remove(widget)
                     self.layoutRequired = True
                 except ValueError:
                     pass
-                del self.lifetimes[i]
 
         # Perform individual widget updates
         for widget in self.widgets:

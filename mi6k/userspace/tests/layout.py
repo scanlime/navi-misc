@@ -16,7 +16,7 @@ surface = Surface(20, 2)
 
 surface.add(LoopingScroller("Wibble wibble wibble wibble splat", priority=10))
 surface.add(LoopingScroller("Whee", (0, 1)))
-surface.add(Text("Boingski", (2, 1)))
+surface.add(Clock(gravity=(2, 1)))
 surface.add(Text("*", (1, 1), background='~'))
 
 surface.add(Text('OSD Message goes here, or something',
