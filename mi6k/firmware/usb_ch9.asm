@@ -114,6 +114,7 @@ USB_BTS_ERR		res	2
 	extern  GetStringIndex
 	extern	VFD_SendByte
 	extern	IR_SendByte
+	extern	IR_Flush
 
 ; **********************************************************************
 ; This section contains the functions to interface with the main 
@@ -1749,6 +1750,12 @@ CheckVendor
 	btfsc	STATUS,Z
 	goto	IRSendRequest
 
+	movf	BufferData+bRequest,w ; Is it an IR flush request?
+	xorlw	MI6K_CTRL_IR_FLUSH
+	pagesel	IRFlushRequest
+	btfsc	STATUS,Z
+	goto	IRFlushRequest
+
 	movf	BufferData+bRequest,w ; Is it a status request?
 	xorlw	MI6K_CTRL_STATUS
 	pagesel	VendorStatusRequest
@@ -1790,15 +1797,35 @@ VFDWriteRequest
 
 	;********************* Request to send IR pulses
 IRSendRequest
+	banksel BufferData			; Send the low byte of wIndex (pulse)
+	pagesel	IR_SendByte
+	movf	BufferData+wIndex, w
+	call	IR_SendByte
+	
+	banksel BufferData			; Send the high byte of wIndex (space)
+	pagesel	IR_SendByte
+	movf	BufferData+(wIndex+1), w
+	call	IR_SendByte
+
 	banksel BufferData			; Send the low byte of wValue (pulse)
 	pagesel	IR_SendByte
 	movf	BufferData+wValue, w
 	call	IR_SendByte
 	
-	banksel BufferData			; Send the low byte of wIndex (space)
+	banksel BufferData			; Send the high byte of wValue (space)
 	pagesel	IR_SendByte
-	movf	BufferData+wIndex, w
+	movf	BufferData+(wValue+1), w
 	call	IR_SendByte
+
+	; Acknowledge the request
+	pagesel	Send_0Len_pkt
+	call	Send_0Len_pkt
+	return
+
+	;********************* Request to flush IR pulse buffer
+IRFlushRequest
+	pagesel	IR_Flush
+	call	IR_Flush
 
 	; Acknowledge the request
 	pagesel	Send_0Len_pkt
