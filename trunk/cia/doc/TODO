@@ -11,6 +11,8 @@ Messages
   <version style="cvs">1.1.23</version> inside each <file>. BitKeeper would probably
   use something similar to svn's revisions.
 
+- Make it possible for modular formatters to treat the files prefix and the rest
+  of the file summary differently
 
 Documentation
 -------------
