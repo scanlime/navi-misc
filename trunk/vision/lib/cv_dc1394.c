@@ -225,11 +225,11 @@ static void init_camera(int port, nodeid_t node) {
 
 static void convert_yuv411_to_yuv24(IplImage *img, unsigned char *src) {
   int x,y;
-  unsigned char y0, y1, y2, y3, u, v;
+  register unsigned char y0, y1, y2, y3, u, v;
   unsigned char *dest = (unsigned char*) img->imageData;
 
-  for (y=0; y<img->height; y++)
-    for (x=0; x<img->width; x+=4) {
+  for (y=img->height; y; y--)
+    for (x=img->width >> 2; x; x--) {
       u  = *(src++);
       y0 = *(src++);
       *(dest++) = y0;
@@ -255,8 +255,8 @@ static void convert_yuv411_to_gray(IplImage *img, unsigned char *src) {
   int x,y;
   unsigned char *dest = (unsigned char*) img->imageData;
 
-  for (y=0; y<img->height; y++)
-    for (x=0; x<img->width; x+=4) {
+  for (y=img->height; y; y--)
+    for (x=img->width >> 2; x; x--) {
       src++;
       *(dest++) = *(src++);
       *(dest++) = *(src++);
