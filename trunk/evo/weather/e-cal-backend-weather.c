@@ -23,7 +23,11 @@
 #include <libedata-cal/e-cal-backend-cache.h>
 #include <libedata-cal/e-cal-backend-util.h>
 #include <libedata-cal/e-cal-backend-sexp.h>
+#include <libgnome/gnome-i18n.h>
 #include "e-cal-backend-weather.h"
+#include "e-weather-source.h"
+
+#define WEATHER_UID_EXT "-weather"
 
 
 
@@ -48,6 +52,31 @@ struct _ECalBackendWeatherPrivate {
 static ECalBackendSyncClass *parent_class;
 
 
+
+static ECalComponent*
+create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
+{
+	ECalComponent *cal_comp;
+	char *summary;
+	const char *name, *uid;
+	char *temperature;
+	char *snowfall;
+	char *conditions;
+	char *pop;
+
+	uid = g_strdup_printf ("%s%s", (char *) /* FIXME */ "BLARG!", WEATHER_UID_EXT);
+	if (report->high == report->low)
+		temperature = g_strdup_printf("%f °F", report->high);
+	else
+		temperature = g_strdup_printf("%s: %f °F\n%s: %f °F", _("High"), report->high, _("Low"), report->low);
+	summary = g_strdup_printf ("%s\n", temperature);
+	g_free (temperature);
+
+	//cal_comp = create_component (cbw, uid, /* FIXME */ date, summary);
+	g_free (summary);
+
+	return cal_comp;
+}
 
 static ECalBackendSyncStatus
 e_cal_backend_weather_is_read_only (ECalBackendSync *backend, EDataCal *cal, gboolean *read_only)
@@ -135,9 +164,33 @@ e_cal_backend_weather_get_default_object (ECalBackendSync *backend, EDataCal *ca
 	return GNOME_Evolution_Calendar_UnsupportedMethod;
 }
 
-/* FIXME e_cal_backend_weather_get_object */
+static ECalBackendSyncStatus
+e_cal_backend_weather_get_object (ECalBackendSync *backend, EDataCal *cal, const char *uid, const char *rid, char **object)
+{
+	ECalBackendWeather *cbw = E_CAL_BACKEND_WEATHER (backend);
+	ECalBackendWeatherPrivate *priv = cbw->priv;
 
-/* FIXME e_cal_backend_weather_get_object_list */
+	if (!uid)
+		return GNOME_Evolution_Calendar_ObjectNotFound;
+
+	/* FIXME */
+
+	return GNOME_Evolution_Calendar_ObjectNotFound;
+}
+
+static ECalBackendSyncStatus
+e_cal_backend_weather_get_object_list (ECalBackendSync *backend, EDataCal *cal, const char *sexp_string, GList **objects)
+{
+	ECalBackendWeather *cbw = E_CAL_BACKEND_WEATHER (backend);
+	ECalBackendWeatherPrivate *priv = cbw->priv;
+	ECalBackendSExp *sexp = e_cal_backend_sexp_new (sexp_string);
+
+	if (!sexp)
+		return GNOME_Evolution_Calendar_InvalidQuery;
+
+	/* FIXME */
+	return GNOME_Evolution_Calendar_Success;
+}
 
 static ECalBackendSyncStatus
 e_cal_backend_weather_get_timezone (ECalBackendSync *backend, EDataCal *cal, const char *tzid, char **object)
@@ -225,7 +278,30 @@ e_cal_backend_weather_is_loaded (ECalBackend *backend)
 	return TRUE;
 }
 
-/* FIXME e_cal_backend_weather_start_query */
+static void e_cal_backend_weather_start_query (ECalBackend *backend, EDataCalView *query)
+{
+	ECalBackendWeather *cbw;
+	ECalBackendWeatherPrivate *priv;
+	ECalBackendSExp *sexp;
+
+	cbw = E_CAL_BACKEND_WEATHER (backend);
+	priv = cbw->priv;
+
+	g_print (G_STRLOC ": Starting query (%s)", e_data_cal_view_get_text (query));
+
+	if (!priv->cache) {
+		e_data_cal_view_notify_done (query, GNOME_Evolution_Calendar_NoSuchCal);
+		return;
+	}
+
+	sexp = e_data_cal_view_get_object_sexp (query);
+	if (!sexp) {
+		e_data_cal_view_notify_done (query, GNOME_Evolution_Calendar_InvalidQuery);
+		return;
+	}
+
+	/* FIXME */
+}
 
 static CalMode
 e_cal_backend_weather_get_mode (ECalBackend *backend)
@@ -358,7 +434,7 @@ e_cal_backend_weather_class_init (ECalBackendWeatherClass *class)
 	sync_class->get_freebusy_sync = e_cal_backend_weather_get_free_busy;
 	sync_class->get_changes_sync = e_cal_backend_weather_get_changes;
 	backend_class->is_loaded = e_cal_backend_weather_is_loaded;
-//	backend_class->start_query = e_cal_backend_weather_start_query;
+	backend_class->start_query = e_cal_backend_weather_start_query;
 	backend_class->get_mode = e_cal_backend_weather_get_mode;
 	backend_class->set_mode = e_cal_backend_weather_set_mode;
 
