@@ -1,6 +1,6 @@
-""" LibCIA.RulesetBrowser
+""" LibCIA.Web.RulesetBrowser
 
-A web interface using Woven for browsing and editing CIA's rulesets
+A web interface, built using nevow, for viewing and editin CIA's rulesets
 """
 #
 # CIA open source notification system
@@ -21,12 +21,13 @@ A web interface using Woven for browsing and editing CIA's rulesets
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-from twisted.web.woven import page
-import os
+import Base
 
 
-class RulesetPage(page.Page):
-    templateFile = "stats_browser.xhtml"
-    templateDirectory = os.path.split(os.path.abspath(__file__))[0]
+class RulesetPage(Base.Base):
+    def __init__(self, caps, storage):
+        self.caps = caps
+        self.storage = storage
+        Base.Base.__init__(self)
 
 ### The End ###

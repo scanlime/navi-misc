@@ -77,6 +77,12 @@ with web, IRC, XML-RPC, and email interfaces.
 
  - Twisted (1.1.1 isn't new enough, get the latest CVS)
 
+ - nevow, a web framework currently part of Quotient (http://divmod.org/Quotient/)
+   Unlike twisted.web.woven, doesn't make one want to bang their head against a
+   sharp pointy wall. To run it however, you'll need to grab at least Quotient,
+   Lupy, and spambayes. This might have changed by the time you read this, as
+   the developers are working on cleaning up the dependency mess.
+
  - pygtk 2.0 or later for the GUI tools
 
 
