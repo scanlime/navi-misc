@@ -12,13 +12,6 @@
 # You could place this script anywhere in your web space to see
 # the demo.
 #
-# IMPORTANT: The default Captcha.Factory() stores its state in
-#            memory rather than on disk, so this example won't
-#            work properly if you are using multiple server
-#            processes. If you mysteriously get 404 errors when
-#            loading the solution page, this is probably what's
-#            happening.
-#
 # --Micah <micah@navi.cx>
 #
 
