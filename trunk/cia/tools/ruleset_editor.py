@@ -338,7 +338,7 @@ class App(Client.App):
         # Put our server name in the window title
         ui.window.set_title(ui.window.get_title() + " - " + self.config['server'])
 
-        ui.window.connect("destroy", gtk.mainquit)
+        ui.window.connect("destroy", gtk.main_quit)
         gtk.main()
 
 if __name__ == "__main__":
