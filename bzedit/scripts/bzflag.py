@@ -22,6 +22,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+from Blender import NMesh
+import math
 
 class CommentLine(str):
     """Placeholder for a comment line, loaded or saved in a BZFlag world"""
@@ -258,6 +260,83 @@ class Box(BZObject):
     def set_size(self, x=1, y=1, z=1):
         self.size = [x,y,z]
 
+    def toBlender(self):
+        mesh = NMesh.GetRaw()
+        face = NMesh.Face()
+
+        v = range(8)
+        v[0] = NMesh.Vert( 1.0,  1.0, 1.0) # X+, Y+, Z+
+        v[1] = NMesh.Vert( 1.0,  1.0, 0.0) # X+, Y+, Z-
+        v[2] = NMesh.Vert( 1.0, -1.0, 1.0) # X+, Y-, Z+
+        v[3] = NMesh.Vert( 1.0, -1.0, 0.0) # X+, Y-, Z-
+        v[4] = NMesh.Vert(-1.0,  1.0, 1.0) # X-, Y+, Z+
+        v[5] = NMesh.Vert(-1.0,  1.0, 0.0) # X-, Y+, Z-
+        v[6] = NMesh.Vert(-1.0, -1.0, 1.0) # X-, Y-, Z+
+        v[7] = NMesh.Vert(-1.0, -1.0, 0.0) # X-, Y-, Z-
+
+        for vert in v:
+            mesh.verts.append(vert)
+
+        # X+ side
+        px = NMesh.Face()
+        px.v.append(v[0]) # X+, Y+, Z+
+        px.v.append(v[1]) # X+, Y+, Z-
+        px.v.append(v[3]) # X+, Y-, Z-
+        px.v.append(v[2]) # X+, Y-, Z+
+        mesh.faces.append(px)
+
+        # X- side
+        nx = NMesh.Face()
+        nx.v.append(v[6]) # X-, Y-, Z+
+        nx.v.append(v[7]) # X-, Y-, Z-
+        nx.v.append(v[5]) # X-, Y+, Z-
+        nx.v.append(v[4]) # X-, Y+, Z+
+        mesh.faces.append(nx)
+
+        # Y+ side
+        py = NMesh.Face()
+        py.v.append(v[0]) # X+, Y+, Z+
+        py.v.append(v[4]) # X-, Y+, Z+
+        py.v.append(v[5]) # X-, Y+, Z-
+        py.v.append(v[1]) # X+, Y+, Z-
+        mesh.faces.append(py)
+
+        # Y- side
+        ny = NMesh.Face()
+        ny.v.append(v[6]) # X-, Y-, Z+
+        ny.v.append(v[2]) # X+, Y-, Z+
+        ny.v.append(v[3]) # X+, Y-, Z-
+        ny.v.append(v[7]) # X-, Y-, Z-
+        mesh.faces.append(ny)
+
+        # Z+ side
+        pz = NMesh.Face()
+        pz.v.append(v[0]) # X+, Y+, Z+
+        pz.v.append(v[2]) # X+, Y-, Z+
+        pz.v.append(v[6]) # X-, Y-, Z+
+        pz.v.append(v[4]) # X-, Y+, Z+
+        mesh.faces.append(pz)
+
+        # Z- side
+        nz = NMesh.Face()
+        nz.v.append(v[1]) # X+, Y+, Z-
+        nz.v.append(v[5]) # X-, Y+, Z-
+        nz.v.append(v[7]) # X-, Y-, Z-
+        nz.v.append(v[3]) # X+, Y-, Z-
+        mesh.faces.append(nz)
+
+        box = NMesh.PutRaw(mesh)
+        box.setSize(
+            self.size[0] / 10.0,
+            self.size[1] / 10.0,
+            self.size[2] / 10.0
+            )
+        box.setLocation(
+            self.position[0] / 10.0,
+            self.position[1] / 10.0,
+            self.position[2] / 10.0
+            )
+        box.setEuler((0, 0, self.rotation / 180.0 * math.pi))
 
 class Pyramid(Box):
     """A tetrahedron, pointing straight up or down, with rotation in the Z axis"""
