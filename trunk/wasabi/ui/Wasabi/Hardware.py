@@ -23,7 +23,7 @@ the mi6k (both through the mi6k module and through lircd) and the uvswitch
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import IR
+import IR, Mixer
 
 
 class Devices:
@@ -57,8 +57,40 @@ class Devices:
             self.warn("Can't connect to the uvswitch, %s" % sys.exc_info()[1])
             self.uvswitch= None
 
+        # Open the sound mixer (it should always be present)
+        self.mixer = Mixer.Device()
+
+        # Now that the hardware is connected, switch to wasabi's video and audio
+        self.selectWasabiVideo()
+
     def warn(self, msg):
         """Issue a warning related to hardware initialization"""
         print "*** Warning: %s" % msg
+
+    def selectWasabiVideo(self):
+        """Show video from wasabi on the TV, with no external input connected"""
+        self.setMixerDefaults()
+        self.uvswitch.bypassSwitch = 1
+        self.uvswitch.channel = 0
+
+    def selectDirectVideo(self, channel):
+        """Connect a video channel directly to the TV"""
+        self.setMixerDefaults()
+        self.uvswitch.channel = channel
+        self.uvswitch.bypassSwitch = 0
+        self.mixer.line = Mixer.onVolume
+
+    def selectIndirectVideo(self, channel):
+        """Connect a video channel to our capture card, and video from wasabi to the TV"""
+        self.setMixerDefaults()
+        self.uvswitch.channel = channel
+        self.uvswitch.bypassSwitch = 1
+        self.mixer.line = Mixer.onVolume
+
+    def setMixerDefaults(self):
+        """Set our mixer device with default volumes"""
+        self.mixer.reset()
+        self.mixer.volume = Mixer.onVolume
+        self.mixer.pcm = Mixer.onVolume
 
 ### The End ###
