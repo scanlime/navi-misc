@@ -1,4 +1,4 @@
-CFLAGS = `opencv-config --cflags` -g -O3 -Ilib `sdl-config --cflags` -I/usr/src/linux/include
+CFLAGS = `opencv-config --cflags` -g -Ilib `sdl-config --cflags` -I/usr/src/linux/include
 LDFLAGS = `opencv-config --libs` -lraw1394 -ldc1394_control `sdl-config --libs`
 LD = g++
 CC = g++
