@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-import sheetLayout
+import GTKsheet, gtk
 
-sheet = sheetLayout.sheetLayout()
+sheet = GTKsheet.GTKsheet()
 sheet.readSheet('sheet.xml')
-print sheet.root.attributes['data']
+gtk.main()
