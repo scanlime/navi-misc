@@ -50,13 +50,20 @@ class ServerInfo:
         return self.name
 
     def info(self):
-        s  = "%s\n" % self.name
+        s  = "        Name: %s\n" % self.name
         s += "       Title: %s\n" % self.title
         s += "     Version: %s\n" % self.version
         s += "          IP: %s\n" % self.ip
-        s += "   Game Info:\n"
-        for key in self.gameinfo.__dict__:
-            s += "  %s = %s\n" % (key, self.gameinfo.__dict__[key])
+        s += "   Game Info: "
+        firstKey = 1
+        keys = self.gameinfo.__dict__.keys()
+        keys.sort()
+        for key in keys:
+            if firstKey:
+                firstKey = 0
+            else:
+                s += "              "
+            s += "%s = %s\n" % (key, self.gameinfo.__dict__[key])
         return s
     
 
