@@ -26,7 +26,7 @@
 
 GstElementDetails gst_openglsink_details = {
   "OpenGLSink",
-  "Sink/Video/OpenGLSink",
+  "Sink/Video",
   "LGPL",
   "Black hole for data",
   VERSION,
