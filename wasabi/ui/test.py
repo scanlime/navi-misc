@@ -10,8 +10,8 @@ viewport = Viewport.OpenGLViewport(loop)
 viewport.setCaption("Wasabi Test")
 view = ThreeDRender.View(viewport)
 
-viewport.display.toggle_fullscreen()
-pygame.mouse.set_visible(False)
+#viewport.display.toggle_fullscreen()
+#pygame.mouse.set_visible(False)
 
 
 class IconTest(Sequencer.Page):
