@@ -412,10 +412,10 @@ void explorer_run_iterations(Explorer *self) {
 
 #ifdef BIFURCATION_TOY
     de_jong_calculate_bifurcation(self->dejong, DE_JONG_INTERPOLATOR(de_jong_interpolate_linear),
-				  &pair, 500000);
-#endif
-
+				  &pair, 50000);
+#else
     de_jong_calculate(self->dejong, 5000);
+#endif
 
     g_timer_elapsed(timer, &elapsed);
   } while (elapsed < 13000);
