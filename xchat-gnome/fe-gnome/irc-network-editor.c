@@ -389,6 +389,7 @@ apply_changes (IrcNetworkEditor *e)
 	IrcNetwork *net;
 	GSList *s;
 	GtkTreeIter iter;
+	gchar *t1, *t2, *t3;
 
 	net = e->network;
 
@@ -426,6 +427,18 @@ apply_changes (IrcNetworkEditor *e)
 			serv->hostname = g_strdup (text);
 		} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (e->server_store), &iter));
 	}
+
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (e->autojoin_store), &iter)) {
+		gtk_tree_model_get (GTK_TREE_MODEL (e->autojoin_store), &iter, 0, &t1, -1);
+		t1 = g_strdup (t1);
+		while (gtk_tree_model_iter_next (GTK_TREE_MODEL (e->autojoin_store), &iter)) {
+			gtk_tree_model_get (GTK_TREE_MODEL (e->autojoin_store), &iter, 0, &t2, -1);
+			t3 = g_strdup_printf ("%s,%s", t1, t2);
+			g_free (t1);
+			t1 = t3;
+		}
+	}
+	net->autojoin = t1;
 
 	irc_network_save (net);
 }
