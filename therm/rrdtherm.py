@@ -149,6 +149,10 @@ class Therm:
                      # Average line
                      "DEF:temp_average=%s:temperature:AVERAGE" % self.rrdFile,
                      "LINE1:temp_average%s:%s" % (self.color, self.description),
+
+                     # Unknown data
+                     "CDEF:no_data=temp_max,temp_min,+,UN,INF,UNKN,IF",
+                     "AREA:no_data%s:No data" % Color(1,1,0).blend(Color(1,1,1), 0.8),
                      )
 
 
@@ -164,7 +168,7 @@ class ThermGrapher:
             "rrdDir":  "rrd",                             # Directory for RRD files
             "webUpdatePeriod": 10*60,                     # Number of seconds between web page and graph updates
             "webRefreshPeriod": 5*60,                     # Number of seconds between browser refreshes
-            "graphSize": (600,200),                       # Size of the graphs' drawing area (not of the final image)
+            "graphSize": (600,150),                       # Size of the graphs' drawing area (not of the final image)
             'graphIntervals': [                           # Intervals to make graphs at: (name,seconds) tuples
                ('6 hours', 60*60*6),
                ("day", 60*60*24),
@@ -204,6 +208,13 @@ class ThermGrapher:
             self.updateTherms()
             self.webUpdate()
             self.waitForAveragePeriod()
+
+    def waitForAveragePeriod(self):
+        """Wait until the next averaging period on the server has started"""
+        remaining = (self.serverTimes['averagePeriod'] +
+                     self.serverTimes['periodStart'] -
+                     self.serverTimes['time'])
+        time.sleep(remaining + 5)
 
     def webUpdate(self):
         """If it's time for an update, generate the graphs and web page"""
@@ -258,7 +269,7 @@ class ThermGrapher:
             for therm in self.sortedTherms:
                 f.write("<tr>\n")
                 f.write("\t<td>%s</td>\n" % therm.graph(interval).tag())
-                f.write('\t<td><table padding="10"><tr><td><font size="+1">\n')
+                f.write('\t<td><table cellspacing="10"><tr><td><font size="+1">\n')
                 f.write("\t\t<p>%s</p><p>%.01f &deg;F</p>\n" % (therm.description, therm.value))
                 f.write("\t</font></td></tr></table></td>\n")
                 f.write("</tr>\n")
