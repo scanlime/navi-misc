@@ -90,23 +90,24 @@ int main(int argc, char ** argv) {
 
     while (1) {
 	static struct option long_options[] = {
-	    {"help",        0, NULL, 'h'},
-	    {"read",        1, NULL, 'i'},
-	    {"animate",     1, NULL, 'n'},
-	    {"output",      1, NULL, 'o'},
-	    {"param",       1, NULL, 'p'},
-	    {"size",        1, NULL, 's'},
-	    {"oversample",  1, NULL, 'S'},
-	    {"density",     1, NULL, 't'},
-	    {"remote",      0, NULL, 'r'},
-	    {"verbose",     0, NULL, 'v'},
-	    {"port",        1, NULL, 'P'},
-	    {"cluster",     1, NULL, 'c'},
-	    {"screensaver", 0, NULL, 1000},   /* Undocumented, still experimental */
-	    {"hidden",      0, NULL, 1001},
+	    {"help",         0, NULL, 'h'},
+	    {"read",         1, NULL, 'i'},
+	    {"animate",      1, NULL, 'n'},
+	    {"output",       1, NULL, 'o'},
+	    {"param",        1, NULL, 'p'},
+	    {"size",         1, NULL, 's'},
+	    {"oversample",   1, NULL, 'S'},
+	    {"density",      1, NULL, 't'},
+	    {"remote",       0, NULL, 'r'},
+	    {"verbose",      0, NULL, 'v'},
+	    {"port",         1, NULL, 'P'},
+	    {"cluster",      1, NULL, 'c'},
+	    {"auto-cluster", 0, NULL, 'C'},
+	    {"screensaver",  0, NULL, 1000},   /* Undocumented, still experimental */
+	    {"hidden",       0, NULL, 1001},
 	    {NULL},
 	};
-	c = getopt_long(argc, argv, "hi:n:o:p:s:S:t:rvP:c:",
+	c = getopt_long(argc, argv, "hi:n:o:p:s:S:t:rvP:c:C",
 			long_options, &option_index);
 	if (c == -1)
 	    break;
@@ -157,18 +158,27 @@ int main(int argc, char ** argv) {
 	    port_number = atol(optarg);
 	    break;
 
-	case 'c':
 #ifdef HAVE_GNET
+	case 'c':
 	    {
 		ClusterModel *cluster = cluster_model_get(map, TRUE);
 		cluster_model_add_nodes(cluster, optarg);
 	    }
+	    break;
+	case 'C':
+	    {
+		ClusterModel *cluster = cluster_model_get(map, TRUE);
+		cluster_model_enable_discovery(cluster);
+	    }
+	    break;
 #else
+	case 'c':
+	case 'C':
 	    fprintf(stderr,
 		    "This Fyre binary was compiled without gnet support.\n"
 		    "Cluster support is not available.\n");
-#endif
 	    break;
+#endif
 
 	case 1000: /* --screensaver */
 	    mode = SCREENSAVER;
@@ -299,14 +309,16 @@ static void usage(char **argv) {
 	    "Clustering:\n"
 	    "  -c LIST, --cluster LIST Use a rendering cluster, specified as a comma-separated\n"
 	    "                            list of hostnames, optionally of the form host:port.\n"
+	    "  -C, --auto-cluster      Automatically search for cluster nodes, adding them\n"
+            "                            as they become available."
 	    "  -r, --remote            Remote control mode. Fyre will listen by default on\n"
 	    "                            port 7931 for commands, and can act as a rendering\n"
 	    "                            server in a cluster.\n"
 	    "  -P N, --port N          Set the TCP port number used for remote control mode.\n"
 	    "  -v, --verbose           In remote control mode, display status messages on the\n"
 	    "                            console and don't run as a daemon.\n"
-	    "  --hidden                In remote control mode, don't reply to broadcast requests\n"
-	    "                            for detecting available Fyre servers.\n"
+	    "  --hidden                In remote control mode, don't reply to broadcast\n"
+	    "                            requests for detecting available Fyre servers.\n"
 	    "\n"
 	    "Parameters:\n"
 	    "  -p, --param KEY=VALUE   Set a calculation or rendering parameter, using the\n"

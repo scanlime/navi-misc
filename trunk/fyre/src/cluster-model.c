@@ -72,6 +72,10 @@ static void       cluster_node_merge_results  (ClusterModel  *self,
 static void       cluster_node_set_min_stream_interval (ClusterModel  *self,
 							RemoteClient  *client,
 							gpointer       user_data);
+static void       cluster_model_discovery_callback     (DiscoveryClient* self,
+							const gchar*     host,
+							int              port,
+							gpointer         user_data);
 
 
 /************************************************************************************/
@@ -112,6 +116,8 @@ static void cluster_model_class_init(ClusterModelClass *klass)
 static void cluster_model_dispose(GObject *gobject)
 {
     ClusterModel *self = CLUSTER_MODEL(gobject);
+
+    cluster_model_disable_discovery(self);
 
     if (self->master_map) {
 	g_object_set_data(G_OBJECT(self->master_map), "ClusterModel", NULL);
@@ -355,6 +361,23 @@ void           cluster_model_set_min_stream_interval (ClusterModel*  self,
     cluster_foreach_node(self, cluster_node_set_min_stream_interval, NULL, FALSE);
 }
 
+void           cluster_model_enable_discovery (ClusterModel* self)
+{
+    /* Currently, our scanning interval is hardcoded at 5 minutes */
+    if (!self->discovery)
+	self->discovery = discovery_client_new(FYRE_DEFAULT_SERVICE, 60*5,
+					       cluster_model_discovery_callback,
+					       self);
+}
+
+void           cluster_model_disable_discovery(ClusterModel* self)
+{
+    if (self->discovery) {
+	g_object_unref(self->discovery);
+	self->discovery = NULL;
+    }
+}
+
 
 /************************************************************************************/
 /************************************************************************ Callbacks */
@@ -430,6 +453,21 @@ static void       on_calc_stop                (IterativeMap*  map,
 {
     self->is_running = FALSE;
     cluster_foreach_node(self, cluster_node_stop, NULL, TRUE);
+}
+
+static void       cluster_model_discovery_callback (DiscoveryClient* client,
+						    const gchar*     host,
+						    int              port,
+						    gpointer         user_data)
+{
+    /* This is called by our DiscoveryClient when it's found a cluster
+     * node. We may or may not already have this node- if we don't,
+     * it gets added.
+     */
+    ClusterModel* self = CLUSTER_MODEL(user_data);
+    g_return_if_fail(client == self->discovery);
+
+    printf("Discovery on %s:%d\n", host, port);
 }
 
 

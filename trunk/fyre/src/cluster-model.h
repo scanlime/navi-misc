@@ -28,6 +28,7 @@
 
 #include <gtk/gtk.h>
 #include "remote-client.h"
+#include "discovery-client.h"
 #include "iterative-map.h"
 
 G_BEGIN_DECLS
@@ -49,6 +50,8 @@ struct _ClusterModel {
 
     gdouble       min_stream_interval;  /* Default for new clients */
     gboolean      set_min_stream_interval;
+
+    DiscoveryClient* discovery;
 };
 
 struct _ClusterModelClass {
@@ -92,6 +95,10 @@ void           cluster_model_show_status      (ClusterModel*         self);
 /* Add a comma-separated list of host[:port] specifiers */
 void           cluster_model_add_nodes        (ClusterModel*         self,
 					       const gchar*          hosts);
+
+/* Enable/disable automatic autodiscovery of cluster nodes */
+void           cluster_model_enable_discovery (ClusterModel*         self);
+void           cluster_model_disable_discovery(ClusterModel*         self);
 
 gboolean       cluster_model_find_client      (ClusterModel*         self,
 					       RemoteClient*         client,

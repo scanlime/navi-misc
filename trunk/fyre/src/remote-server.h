@@ -49,6 +49,7 @@ void              remote_server_main_loop     (int        port_number,
 /************************************************************************************/
 
 #define FYRE_DEFAULT_PORT           7931
+#define FYRE_DEFAULT_SERVICE        "Fyre Server 1"
 
 
 #define FYRE_RESPONSE_READY         220  /* Server is ready for commands */
