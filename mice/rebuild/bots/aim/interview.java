@@ -16,6 +16,12 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+ 
+/**
+ * This class represents the conversation with a person being interviewed.
+ * @author Brandon Smith
+ * @version 2.0
+ */
 
 import jaim.*;
 import java.net.*;
@@ -42,8 +48,16 @@ public class interview
 	/** The network connection to the server. */
 	public net com;
 
+	/** State based conversations need to know what state they're in. */
 	public int state;
 	
+	/**
+	 * This method constructs a new interview person
+	 * @param prev The previous person in the linked list.
+	 * @param bot The bot that this person gets spoken to from.
+	 * @param NICK The nickname of the person being interviewed.
+	 * @param PASS The password of the person being interviewed.
+	 */
 	public interview(interview prev, botmain bot, String NICK, String PASS)
 	{
 		next = prev;
@@ -52,6 +66,12 @@ public class interview
 		state = 0;
 	}
 	
+	/**
+	 * This method is called when a message is sent to the program to this nick.
+	 * @param message The message that was sent to this person
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void handle(String message)
 	{
 		switch(state)
@@ -107,6 +127,12 @@ public class interview
 		}
 	}
 	
+	/**
+	 * This method handles sending something to this particular interviewee.
+	 * @param message The message to send to the person
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public void send(String message)
 	{
 		mybot.sendMessage(nick,message);

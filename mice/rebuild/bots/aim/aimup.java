@@ -24,16 +24,32 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
+/**
+ * This class is the main class for the AIM bot.  This code may be integrated
+ * into the server at a later date, but who knows...
+ * @author Brandon Smith
+ * @version 2.0
+ */
 public class aimup
 {
+	/** An array that points to the bots. */
 	public static botmain[] bot;
 	
+	/** The magic button that makes it a server. */
 	public static ServerSocket server;
 
+	/** I guess a link is necessary for after the server connects. */
 	public static net link;
 	
+	/** An index of all the people. */
 	public static personindex index;
 
+	/**
+	 * This is where it all starts.  The Function of Functions!
+	 * @param args The command line arguments
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public static void main(String[] args)
 	{
 		botmain interviewbot = initbots(1,"passverd");
@@ -44,6 +60,11 @@ public class aimup
 		link.closeConnection();
 	}
 	
+	/**
+	 * This is for the connection to the main question server, to handle it.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public static void updateLoop()
 	{
 		String cmd;
@@ -69,6 +90,12 @@ public class aimup
 		}
 	}
 	
+	/**
+	 * This method configures the server for the interviews.
+	 * @param bot The bot object that interviewees will get messaged from.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public static void configureServer(botmain bot)
 	{
 		int interviews, i;
@@ -85,6 +112,12 @@ public class aimup
 		}
 	}
 	
+	/**
+	 * This method starts a server, and accepts the connection.
+	 * @param port The port to run the server on.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public static void startServer(int port)
 	{
 		try 
@@ -100,6 +133,14 @@ public class aimup
 		}
 	}
 	
+	/**
+	 * This method initializes the bots themselves.
+	 * @param count The number of bots to start (1-6)
+	 * @param password The password for the bots.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 * @return The bot that will be used for the intervieweees.
+	 */
 	public static botmain initbots(int count, String password)
 	{
 		int i,j;
@@ -117,6 +158,12 @@ public class aimup
 		return bot[0];
 	}
 	
+	/**
+	 * This method makes this thread sleep.
+	 * @param seconds The duration of the nap in seconds.
+	 * @author Brandon Smith
+	 * @version 2.0
+	 */
 	public static void sleep(int seconds)
 	{
 		try
