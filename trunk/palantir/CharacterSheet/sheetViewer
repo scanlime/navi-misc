@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.3
 
 ''' sheetViewer
 
@@ -86,17 +86,18 @@ def readNewData(characterFile, box):
   global window
 
   # Remove old sheet.
-  box.remove(window.characterSheet.root)
+  window.characterSheetBox.remove(window.characterSheet.root)
 
   # New character's data.
   character = Character()
   character.readCharacter(characterFile)
 
   # New sheet.
-  window.characterSheet.readSheet(character.getLayoutFile())
-  box.pack_start(window.characterSheet.root)
+  del window.characterSheet
+  window.characterSheet = GTKsheet(character)
+  window.characterSheetBox.pack_start(window.characterSheet.root)
   window.characterSheet.root.show()
-
+  
 
 if __name__ == '__main__':
   # If a file was passed on the command line create the sheet.
