@@ -45,6 +45,9 @@ import cPickle
 
 
 def addrEncode(addr):
+    if addr & 0x1F:
+        raise ValueError("Address must be 32-byte aligned")
+
     # Mask off the lower 5 bits, they're used as check bits
     encoded = addr & 0xFFE0
 
