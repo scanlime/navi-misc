@@ -44,10 +44,10 @@
                 <ul>
                   <xsl:if test="/concept"><xsl:apply-templates select="document('concepts.xml')//concepts/concept"/></xsl:if>
                   <xsl:if test="/technique">
-                    <span class="emph">orange</span>
-                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@level='orange']"/>
-                    <span class="emph">blue</span>
-                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@level='blue']"/>
+                    <span class="emph">punch</span>
+                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='punch']"/>
+                    <span class="emph">grab</span>
+                    <xsl:apply-templates select="document('techniques.xml')//techniques/technique[@category='grab']"/>
                   </xsl:if>
                   <xsl:if test="/form"><xsl:apply-templates select="document('forms.xml')//forms/form"/></xsl:if>
                   <xsl:if test="/set">
