@@ -25,8 +25,11 @@
 typedef struct session xchat_context;
 #include "../common/xchat-plugin.h"
 #include "../common/plugin.h"
+#include "../common/outbound.h"
 
 extern GSList *plugin_list;
+extern XChatGUI gui;
+static GSList *known_plugins;
 
 static void
 on_load_plugin_clicked (GtkButton *button, gpointer user_data);
@@ -107,8 +110,19 @@ on_load_plugin_clicked (GtkButton *button, gpointer user_data)
   selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 
   if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+    char *buf;
+
     gtk_tree_model_get (model, &iter, 3, &filename, -1);
-    printf("%s\n", filename);
+    buf = malloc (strlen (filename) + 9);
+
+    if (strchr (filename, ' '))
+      snprintf (buf, strlen (filename) + 9, "LOAD \"%s\"", filename);
+    else
+      snprintf (buf, strlen (filename) + 9, "LOAD %s", filename);
+
+    handle_command (gui.current_session, buf, FALSE);
+    printf("%s\n", buf);
+    free (buf);
   }
 }
 
@@ -126,8 +140,20 @@ on_unload_plugin_clicked (GtkButton *button, gpointer user_data)
   selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
 
   if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+    char *buf;
+
     gtk_tree_model_get (model, &iter, 3, &filename, -1);
-    printf("%s\n", filename);
+    buf = malloc (strlen (filename) + 10);
+
+    if (strchr (filename, ' '))
+      snprintf (buf, strlen (filename) + 10, "UNLOAD \"%s\"", filename);
+    else
+      snprintf (buf, strlen (filename) + 10, "UNLOAD %s", filename);
+
+    handle_command (gui.current_session, buf, FALSE);
+    printf("%s\n", buf);
+    free (buf);
+
   }
 }
 
