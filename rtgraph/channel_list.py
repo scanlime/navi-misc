@@ -23,18 +23,13 @@ class FunctionChannel(rtgraph.Channel):
 
 
 channels = [
-    FunctionChannel("sin(t) * 0.5 + 0.5"),
-    FunctionChannel("tan(t)"),
+    FunctionChannel("0"),
     FunctionChannel("sin(t)"),
-    FunctionChannel("random()"),
-    FunctionChannel("random() * 0.2 + 0.4"),
-    FunctionChannel("0.5"),
+    FunctionChannel("sin(5*t) * 0.5"),
+    FunctionChannel("random() - 0.5"),
+    FunctionChannel("t % 1"),
     ]
 
-win = gtk.Window(gtk.WINDOW_TOPLEVEL)
-cg = rtgraph.ChannelGraph(channels)
-cg.show()
-win.add(cg)
-win.set_border_width(8)
-win.show()
+win = rtgraph.GraphUIWindow(channels, rtgraph.HScrollLineGraph(range=(-1,1)))
 gtk.main()
+

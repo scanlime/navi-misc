@@ -25,6 +25,7 @@ new data on the right edge, with a grid background.
 from __future__ import division
 from Graph import *
 import gtk
+import Tweak
 
 __all__ = ["HScrollGraph"]
 
@@ -37,7 +38,12 @@ class HScrollGraph(Graph):
            gridSize: grid size, in pixels
          scrollRate: Graph scrolling rate, in pixels per second
        """
-    def __init__(self, size=(384,128), channels=[], gridSize=32, scrollRate=80):
+    def __init__(self,
+                 size       = (384,128),
+                 channels   = [],
+                 gridSize   = 32,
+                 scrollRate = 80,
+                 ):
         Graph.__init__(self, size, channels)
         self.gridSize = gridSize
         self.scrollRate = scrollRate
@@ -135,16 +141,20 @@ class HScrollGraph(Graph):
             # Even if we're not scrolling, we should update the graph if the channel
             # values have changed. This is especially necessary when the channels
             # are being updated much more often than the graph is scrolled.
-            # Don't bother actually blitting this to the screen, since without a
-            # scroll it should only affect the rightmost column of the graph.
             for channel in self.channels:
                 if channel.hasChanged(self):
                     self.graphChannel(channel)
+            self.queue_draw_area(self.width-1, 0, 1, self.height)
 
     def exposedPixels(self, nPixels):
         """Called when the graph scrolls, with the number of pixels it has scrolled by.
            Used as a hook for updating drawing coordinates in subclasses.
            """
         pass
+
+    def getTweakControls(self):
+        return Graph.getTweakControls(self) + [
+            Tweak.Quantity(self, 'scrollRate', range=(0,200), name="Scroll Rate")
+            ]
 
 ### The End ###
