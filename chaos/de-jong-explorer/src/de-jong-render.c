@@ -442,7 +442,7 @@ static gulong de_jong_get_max_usable_density(DeJong *self) {
    * function, mapping the most exposed color possible back to
    * a count value.
    */
-  double max_luma;
+  double max_luma, max_usable;
 
   if (self->clamped) {
     /* If clamping is on, the maximum useful luminance will always be 1. easy! */
@@ -504,7 +504,15 @@ static gulong de_jong_get_max_usable_density(DeJong *self) {
   max_luma = pow(max_luma, self->gamma);
 
   /* And now we can finally get the count value by dividing out our pixel scale */
-  return max_luma / de_jong_get_pixel_scale(self);
+  max_usable = max_luma / de_jong_get_pixel_scale(self);
+
+  /* For some input values, it's possible for this to generate really
+   * truly gigantic numbers. We clamp these to something a bit more
+   * reasonable, to avoid arithmetic overflow later on.
+   */
+  if (max_usable > G_MAXINT/2)
+    max_usable = G_MAXINT/2;
+  return (gulong) max_usable;
 }
 
 

@@ -118,6 +118,8 @@ static void explorer_init_keyframe_view(Explorer *self) {
 				      "pixbuf", ANIMATION_MODEL_THUMBNAIL,
 				      NULL);
 
+  gtk_tree_view_append_column(tv, col);
+
   /* The second column uses a custom cell renderer to show the curve and duration
    */
   col = gtk_tree_view_column_new();
@@ -137,7 +139,6 @@ static void explorer_init_keyframe_view(Explorer *self) {
 				      NULL);
 
   gtk_tree_view_append_column(tv, col);
-
 }
 
 static void explorer_get_current_keyframe(Explorer *self, GtkTreeIter *iter) {

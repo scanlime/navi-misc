@@ -321,6 +321,7 @@ curve_editor_graph_events (GtkWidget *widget, GdkEvent *event, CurveEditor *c)
       curve_editor_interpolate (c, width, height);
 
       curve_editor_draw (c, width, height);
+      g_signal_emit(G_OBJECT(c), curve_editor_signals[CHANGED_SIGNAL], 0);
       retval = TRUE;
       break;
 
