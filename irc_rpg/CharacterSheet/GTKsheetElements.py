@@ -181,7 +181,7 @@ class drop_down(hbox):
     hbox.__init__(self, node, character)
     #self.menu = []
 
-    self.items = {}
+    self.items = []
     self.button = None
     self.menu = gtk.Combo()
     self.pack_start(self.menu)
@@ -203,8 +203,10 @@ class drop_down(hbox):
       self.button = child.copyWithCallback(self.roll)
       self.pack_end(self.button)
     else:
-      self.items[child.name] = child.data
-      self.menu.set_popdown_strings(self.items.keys())
+      print len(self.items), child.data
+      if len(self.items) is 0: self.items = child.data
+      else: self.items.extend(child.data)
+      self.menu.set_popdown_strings(self.items)
 
   def show(self):
     self.menu.show()
@@ -239,8 +241,9 @@ class drop_down_item(sheetElement):
     sheetElement.__init__(self, node)
 
     if node.childNodes[0].data.count('/') > 0:
-      self.data = int(character.getData(node.childNodes[0].data))
+      try:
+        self.data = int(character.getData(node.childNodes[0].data))
+      except ValueError:
+	self.data = character.getData(node.childNodes[0].data).split('\n')
     else:
       self.data = node.childNodes[0].data
-
-    self.name = self.attributes.get('label', self.data)

@@ -8,4 +8,9 @@
 
 	<strength>12</strength>
 	<dexterity>20</dexterity>
+
+	<weapons>
+		Sword [1d8]
+		Dagger [1d4+1]
+	</weapons>
 </character>
