@@ -128,16 +128,10 @@ void       de_jong_calculate_motion(DeJong             *self,
 				    DeJongInterpolator *interp,
 				    gpointer            interp_data);
 
-GdkPixbuf* de_jong_make_bifurcation_diagram(DeJongInterpolator *interp,
-					    gpointer            interp_data,
-					    gdouble             x_projection,
-					    gdouble             y_projection,
-					    gdouble             y_min,
-					    gdouble             y_max,
-					    guint               width,
-					    guint               height,
-					    gulong              transient_iterations,
-					    gulong              rendered_iterations);
+void       de_jong_calculate_bifurcation(DeJong             *self,
+					 DeJongInterpolator *interp,
+					 gpointer            interp_data,
+					 guint               iterations);
 
 G_END_DECLS
 
