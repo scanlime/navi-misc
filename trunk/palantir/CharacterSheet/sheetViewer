@@ -19,15 +19,11 @@ def init(filename=None):
   global tree
   tree = gtk.glade.XML('sheetviewer.glade')
   tree.OpenSheetDialog = tree.get_widget('OpenSheetDialog')
+  tree.SaveSheetDialog = tree.get_widget('SaveSheetDialog')
   tree.ViewPort = tree.get_widget('SheetViewPort')
   # Create the window with a sheet already loaded.
   if filename:
-    tree.sheet = GTKsheet(Character(filename))
-    tree.ViewPort.add(tree.sheet.root)
-    tree.sheet.root.show()
-  # Create the window without a sheet.
-  else:
-    tree.sheet = None
+    OpenSheet(filename)
 
   for func in globals().iterkeys():
     if func.startswith('on_'):
@@ -35,16 +31,18 @@ def init(filename=None):
 
 def OpenSheet(filename):
   ''' Open a new character sheet. '''
-  if tree.sheet:
+  if hasattr(tree, 'sheet'):
     tree.ViewPort.remove(tree.sheet.root)
 
-  if tree.characterData:
+  if hasattr(tree, 'characterData'):
     tree.characterData.setNodeAttr('/character', {'layout':filename})
   else:
     tree.characterData = Character(filename)
 
   tree.sheet = GTKsheet(tree.characterData)
   tree.ViewPort.add(tree.sheet.root)
+  tree.sheet.root.edit.set_active(gtk.TRUE)
+  tree.sheet.root.editable()
   tree.sheet.root.show()
 
 ##### Signal handlers #####
@@ -61,19 +59,31 @@ def on_New_activate(widget, data=None):
   tree.OpenSheetDialog.show()
 
 def on_Open_activate(widget, data=None):
-  tree.characterData = None
+  del tree.characterData
   tree.OpenSheetDialog.set_filename('data/')
   tree.OpenSheetDialog.show()
 
-def on_cancel_button_clicked(widget, data=None):
+def on_Save_activate(widget, data=None):
+  tree.SaveSheetDialog.set_filename('data/')
+  tree.SaveSheetDialog.show()
+
+def on_cancel_open_button_clicked(widget, data=None):
   tree.OpenSheetDialog.hide()
   tree.OpenSheetDialog.set_filename('..')
 
-def on_ok_button_clicked(widget, data=None):
+def on_ok_open_button_clicked(widget, data=None):
   OpenSheet(tree.OpenSheetDialog.get_filename())
   tree.OpenSheetDialog.hide()
   tree.OpenSheetDialog.set_filename('..')
 
+def on_cancel_save_button_clicked(widget, data=None):
+  tree.SaveSheetDialog.hide()
+
+def on_ok_save_button_clicked(widget, data=None):
+  tree.characterData.filename = tree.SaveSheetDialog.get_filename()
+  tree.sheet.root.applyChanges()
+  tree.characterData.writeOut()
+  tree.SaveSheetDialog.hide()
 
 if __name__ == '__main__':
   if len(sys.argv) > 1:
