@@ -52,6 +52,10 @@ pizz = \markup {
 	\italic "pizz."
 }
 
+arco = \markup {
+	\italic "arco"
+}
+
 tuttiPizz = \markup {
 	\italic "tutti pizz."
 }

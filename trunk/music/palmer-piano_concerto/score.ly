@@ -1,3 +1,4 @@
+\include "01_allegro_ma_non_troppo/bass.ly"
 \include "01_allegro_ma_non_troppo/bassoon.ly"
 \include "01_allegro_ma_non_troppo/cello.ly"
 \include "01_allegro_ma_non_troppo/flute.ly"
@@ -46,10 +47,18 @@
 					\set Staff.instr = "Vc."
 					\mvmtOneCello
 				}
+				\context Staff = "bass" {
+					\set Staff.instrument = "Bass"
+					\set Staff.instr = "Cb."
+					\mvmtOneBass
+				}
 			>>
 		>>
 		\layout {
 %			\context { \RemoveEmptyStaffContext }
 		}
+	}
+	\paper {
+		#(set-paper-size "letter")
 	}
 }

@@ -23,7 +23,7 @@ flute.pdf: flute.ly $(FLUTE) $(TEXT)
 piano.pdf: piano.ly $(PIANO) $(TEXT)
 	lilypond piano.ly
 
-score.pdf: score.ly $(BASSOON) $(CELLO) $(FLUTE) $(PIANO) $(TEXT) $(TIMPANI)
+score.pdf: score.ly $(BASS) $(BASSOON) $(CELLO) $(FLUTE) $(PIANO) $(TEXT) $(TIMPANI)
 	lilypond score.ly
 
 timpani.pdf: timpani.ly $(TIMPANI) $(TEXT)
