@@ -1,3 +1,7 @@
+* if a topic contains something that pango thinks might be markup but is invalid,
+  it'll just not set it while spitting out a silly warning. An example:
+  ["'()`!,&:=@] banned on bb.
+
 * gconf schemas aren't being installed properly
 
 * completion does not properly replace the common base (capitalization-wise)
