@@ -51,18 +51,18 @@ static float generate_random_param();
 static void read_gui_params();
 static void write_gui_params();
 static void gui_resize(int width, int height);
+static void start_rendering();
+static void stop_rendering();
+static void restart_rendering();
 
 gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
-gboolean on_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
-void on_start_activate(GtkWidget *widget, gpointer user_data);
-void on_stop_activate(GtkWidget *widget, gpointer user_data);
 void on_param_spinner_changed(GtkWidget *widget, gpointer user_data);
 void on_render_spinner_changed(GtkWidget *widget, gpointer user_data);
 void on_color_changed(GtkWidget *widget, gpointer user_data);
-void on_randomize_activate(GtkWidget *widget, gpointer user_data);
-void on_load_defaults_activate(GtkWidget *widget, gpointer user_data);
-void on_save_activate(GtkWidget *widget, gpointer user_data);
-void on_quit_activate(GtkWidget *widget, gpointer user_data);
+void on_randomize(GtkWidget *widget, gpointer user_data);
+void on_load_defaults(GtkWidget *widget, gpointer user_data);
+void on_save(GtkWidget *widget, gpointer user_data);
+void on_quit(GtkWidget *widget, gpointer user_data);
 gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data);
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1, gchar *string2, gint int1, gint int2);
 
@@ -219,12 +219,7 @@ gboolean on_expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
   return FALSE;
 }
 
-gboolean on_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-  g_source_remove(gui.idler);
-  gtk_main_quit();
-}
-
-void on_quit_activate(GtkWidget *widget, gpointer user_data) {
+void on_quit(GtkWidget *widget, gpointer user_data) {
   g_source_remove(gui.idler);
   gtk_main_quit();
 }
@@ -268,22 +263,21 @@ static void write_gui_params() {
   gui.writing_params = FALSE;
 }
 
-void on_start_activate(GtkWidget *widget, gpointer user_data) {
-  /*
-  gtk_widget_set_sensitive(gui.stop, TRUE);
-  gtk_widget_set_sensitive(gui.start, FALSE);
-  */
+static void start_rendering() {
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(gui.xml, "pause_menu")), FALSE);
   clear();
   read_gui_params();
   gui.idler = g_idle_add(interactive_idle_handler, NULL);
 }
 
-void on_stop_activate(GtkWidget *widget, gpointer user_data) {
-  /*
-  gtk_widget_set_sensitive(gui.stop, FALSE);
-  gtk_widget_set_sensitive(gui.start, TRUE);
-  */
+static void stop_rendering() {
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(glade_xml_get_widget(gui.xml, "pause_menu")), TRUE);
   g_source_remove(gui.idler);
+}
+
+static void restart_rendering() {
+  stop_rendering();
+  start_rendering();
 }
 
 void on_param_spinner_changed(GtkWidget *widget, gpointer user_data) {
@@ -302,8 +296,7 @@ void on_param_spinner_changed(GtkWidget *widget, gpointer user_data) {
   if (!memcmp(&params, &old_params, sizeof(params)))
     return;
 
-  on_stop_activate(widget, user_data);
-  on_start_activate(widget, user_data);
+  restart_rendering();
 }
 
 void on_render_spinner_changed(GtkWidget *widget, gpointer user_data) {
@@ -335,22 +328,20 @@ static float generate_random_param() {
   return uniform_variate() * 12 - 6;
 }
 
-void on_randomize_activate(GtkWidget *widget, gpointer user_data) {
+void on_randomize(GtkWidget *widget, gpointer user_data) {
   params.a = generate_random_param();
   params.b = generate_random_param();
   params.c = generate_random_param();
   params.d = generate_random_param();
   write_gui_params();
 
-  on_stop_activate(widget, user_data);
-  on_start_activate(widget, user_data);
+  restart_rendering();
 }
 
-void on_load_defaults_activate(GtkWidget *widget, gpointer user_data) {
+void on_load_defaults(GtkWidget *widget, gpointer user_data) {
   set_defaults();
   write_gui_params();
-  on_stop_activate(widget, user_data);
-  on_start_activate(widget, user_data);
+  restart_rendering();
 }
 
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1,
@@ -361,7 +352,7 @@ GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1,
   return w;
 }
 
-void on_save_activate(GtkWidget *widget, gpointer user_data) {
+void on_save(GtkWidget *widget, gpointer user_data) {
   GtkWidget *dialog;
 
   dialog = gtk_file_selection_new("Save");
