@@ -30,8 +30,8 @@
 \copyrightspace
 Iterated Function Systems are a celebrated class of dynamical systems in the
 computer graphics world. By defining a constrictive set of functions and
-recursing, beautiful fractal images can be created. Classically, these
-systems use a set of affine transformations, such as Sierpinski's Gasket.
+recursing, beautiful fractal images can be created. Classically these
+systems use a set of affine transformations, such as in Sierpinski's Gasket.
 More complex versions of these can be seen in the popular ``flame'' fractals
 and single-orbit chaotic maps. When any of these systems is computed the
 result is a density field which can then be rendered in any number of ways.
@@ -50,7 +50,7 @@ a sound basis for the use of the map as an artistic entity. The structure
 of the attractor is only minimally visible using such techniques, because
 a long iteration run will quickly result in a completely black image.
 
-\begin{figure}[ht]
+\begin{figure}[htb]
 \centering
 \includegraphics[width=2.5in]{1.png}
 \caption{A complex attractor rendered as a two-dimensional histogram.
@@ -59,10 +59,10 @@ contains approximately 100 million data points.}
 \end{figure}
 
 Instead, our technique treats the entire image region as a two dimensional
-histogram. Unlike previous techniques, where each iteration is plotted by
-darkening a a pixel directly, this histogram technique maintains total image
+histogram. Unlike previous techniques where each iteration is plotted by
+darkening a a pixel directly this histogram technique maintains total image
 intensity as more iterations are performed. As more samples accumulate in the
-histogram, the image simply gets more detailed. Instead of an image containing
+histogram the image simply gets more detailed. Instead of an image containing
 only a few thousand iterations of the map, millions or billions of points can
 be plotted with no loss of detail.
 
@@ -81,7 +81,8 @@ high-dynamic-range image processing techniques can be applied. This includes
 gamma correction, exposure control, and color interpolation at the histogram's
 full precision. By clamping each color component as late as possible in the
 rendering process, the color can provide a visual hint at the higher
-dynamic range of the image.
+dynamic range of the image. This can be seen as a convergence towards either
+black or white depending on the color chosen.
 
 A histogram of infinitely small points can not be antialiased using standard
 frequency filtering techniques, but aliasing artifacts can be reduced by
