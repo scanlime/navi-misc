@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc;../game/test/inc;../drawing/inc;../game/test/gfx/inc;../../common/curl/include/;../../network/enet/inc;../../network/inc"
+				AdditionalIncludeDirectories="../inc;../../common/inc;../../../ogrenew/ogremain/include;../ui/inc;../game/inc;../game/test/inc;../drawing/inc;../game/test/gfx/inc;../../common/curl/include/;../../network/enet/inc;../../network/inc;../../common/sound/inc/;../../common/sound/fmod/api/inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_STLP_USE_DYNAMIC_LIB;OGRE_LIBRARY_IMPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -247,6 +247,13 @@
 					</File>
 				</Filter>
 			</Filter>
+			<Filter
+				Name="sound"
+				Filter="">
+				<File
+					RelativePath="..\..\common\sound\src\soundManager.cpp">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -385,6 +392,29 @@
 					</File>
 					<File
 						RelativePath="..\..\network\enet\inc\enet\win32.h">
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="sound"
+				Filter="">
+				<File
+					RelativePath="..\..\common\sound\inc\soundManager.h">
+				</File>
+				<Filter
+					Name="fmod"
+					Filter="">
+					<File
+						RelativePath="..\..\common\sound\fmod\api\inc\fmod.h">
+					</File>
+					<File
+						RelativePath="..\..\common\sound\fmod\api\inc\fmod_errors.h">
+					</File>
+					<File
+						RelativePath="..\..\common\sound\fmod\api\inc\fmoddyn.h">
+					</File>
+					<File
+						RelativePath="..\..\common\sound\fmod\api\inc\wincompat.h">
 					</File>
 				</Filter>
 			</Filter>
