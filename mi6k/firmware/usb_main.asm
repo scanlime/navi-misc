@@ -234,7 +234,7 @@ Main
 	pagesel	InitUSB
 	call	InitUSB
 
-	movlw	.155		; Set UART to 19200 baud 
+	movlw	.77			; Set UART to 19200 baud 
 	banksel	SPBRG
 	movwf	SPBRG
 	banksel	RCSTA
