@@ -62,7 +62,7 @@ void *refresh_thread(void *foo) {
       /* Decay our original column values linearly, giving an exponential
        * decay in the displayed values after the log() above.
        */
-      columns[i] -= dt * 14285;;
+      columns[i] -= dt * 14285;
       if (columns[i] < 0)
 	columns[i] = 0;
     }
