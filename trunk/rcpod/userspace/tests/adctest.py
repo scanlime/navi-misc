@@ -10,8 +10,9 @@ from pygame.locals import *
 
 
 class AnalogSampler:
-    def __init__(self):
-        pic = rcpod.Device()
+    def __init__(self, pic=None):
+        if not pic:
+            pic = rcpod.Device()
         self.pic = pic
 
         # Initialize the ADC speed and turn it on
