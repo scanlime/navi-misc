@@ -65,7 +65,12 @@ class XMLObject(object):
 
     def loadFromDom(self, root):
         """Set the contents of the Message from a parsed DOM tree"""
-        self.xml = root
+        if hasattr(root, "documentElement"):
+            self.xml = root
+        else:
+            # Encase the given tree fragment in a Document
+            self.xml = createRootNode()
+            self.xml.appendChild(self.xml.importNode(root, True))
         self.preprocess()
 
     def preprocess(self):
@@ -264,6 +269,11 @@ def addElement(node, name, content=None, attributes={}):
 def parseString(s, uri=defaultURI):
     """A parseString wrapper that doesn't require a URI"""
     return Domlette.NonvalidatingReader.parseString(s, uri)
+
+
+def parseStream(s, uri=defaultURI):
+    """A parseStream wrapper that doesn't require a URI"""
+    return Domlette.NonvalidatingReader.parseStream(s, uri)
 
 
 def createRootNode(uri=defaultURI):
