@@ -54,8 +54,8 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Desc=Touching buildDate.cxx...
-PostBuild_Cmds=type ..\..\src\date\buildDate.cxx > __bd.cxx	type __bd.cxx > ..\..\src\date\buildDate.cxx	del __bd.cxx
+PostBuild_Desc=Touching buildDate.cpp...
+PostBuild_Cmds=type ..\..\src\date\buildDate.cpp > __bd.cpp	type __bd.cpp > ..\..\src\date\buildDate.cpp	del __bd.cpp
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "date - Win32 Debug"
@@ -105,8 +105,8 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Desc=Touching buildDate.cxx...
-PostBuild_Cmds=type ..\..\src\date\buildDate.cxx > __bd.cxx	type __bd.cxx > ..\..\src\date\buildDate.cxx	del __bd.cxx
+PostBuild_Desc=Touching buildDate.cpp...
+PostBuild_Cmds=type ..\..\src\date\buildDate.cpp > __bd.cpp	type __bd.cpp > ..\..\src\date\buildDate.cpp	del __bd.cpp
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "date - Win32 SDL_Debug"
@@ -145,7 +145,7 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\..\src\date\buildDate.cxx
+SOURCE=..\..\src\date\buildDate.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

@@ -141,59 +141,59 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\BaseBuilding.cxx
+SOURCE=..\..\src\obstacle\BaseBuilding.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\BaseSceneNodeGenerator.cxx
+SOURCE=..\..\src\obstacle\BaseSceneNodeGenerator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\BoxBuilding.cxx
+SOURCE=..\..\src\obstacle\BoxBuilding.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\BoxSceneNodeGenerator.cxx
+SOURCE=..\..\src\obstacle\BoxSceneNodeGenerator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\EmptySceneNodeGenerator.cxx
+SOURCE=..\..\src\obstacle\EmptySceneNodeGenerator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\Intersect.cxx
+SOURCE=..\..\src\obstacle\Intersect.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\Obstacle.cxx
+SOURCE=..\..\src\obstacle\Obstacle.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\ObstacleSceneNodeGenerator.cxx
+SOURCE=..\..\src\obstacle\ObstacleSceneNodeGenerator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\PyramidBuilding.cxx
+SOURCE=..\..\src\obstacle\PyramidBuilding.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\PyramidSceneNodeGenerator.cxx
+SOURCE=..\..\src\obstacle\PyramidSceneNodeGenerator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\Teleporter.cxx
+SOURCE=..\..\src\obstacle\Teleporter.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\TeleporterSceneNodeGenerator.cxx
+SOURCE=..\..\src\obstacle\TeleporterSceneNodeGenerator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\WallObstacle.cxx
+SOURCE=..\..\src\obstacle\WallObstacle.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\obstacle\WallSceneNodeGenerator.cxx
+SOURCE=..\..\src\obstacle\WallSceneNodeGenerator.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

@@ -143,27 +143,27 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\..\src\ogl\OpenGLDisplayList.cxx
+SOURCE=..\..\src\ogl\OpenGLDisplayList,cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\ogl\OpenGLGState.cxx
+SOURCE=..\..\src\ogl\OpenGLGState,cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\ogl\OpenGLLight.cxx
+SOURCE=..\..\src\ogl\OpenGLLight,cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\ogl\OpenGLMaterial.cxx
+SOURCE=..\..\src\ogl\OpenGLMaterial,cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\ogl\OpenGLTexture.cxx
+SOURCE=..\..\src\ogl\OpenGLTexture,cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\ogl\RenderNode.cxx
+SOURCE=..\..\src\ogl\RenderNode,cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

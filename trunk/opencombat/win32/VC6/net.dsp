@@ -141,27 +141,27 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\..\src\net\Address.cxx
+SOURCE=..\..\src\net\Address.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\net\AdnsHandler.cxx
+SOURCE=..\..\src\net\AdnsHandler.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\net\multicast.cxx
+SOURCE=..\..\src\net\multicast.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\net\network.cxx
+SOURCE=..\..\src\net\network.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\net\Pack.cxx
+SOURCE=..\..\src\net\Pack.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\net\Ping.cxx
+SOURCE=..\..\src\net\Ping.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

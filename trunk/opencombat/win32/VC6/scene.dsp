@@ -141,15 +141,15 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\..\src\scene\BSPSceneDatabase.cxx
+SOURCE=..\..\src\scene\BSPSceneDatabase.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\scene\SceneDatabase.cxx
+SOURCE=..\..\src\scene\SceneDatabase.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\scene\ZSceneDatabase.cxx
+SOURCE=..\..\src\scene\ZSceneDatabase.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

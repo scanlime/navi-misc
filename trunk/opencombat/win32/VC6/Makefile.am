@@ -1,11 +1,9 @@
 EXTRA_DIST =	\
 	3D.dsp		\
-	bzadmin.dsp	\
-	bzflag.dsw	\
-	bzflag.dsp	\
-	bzfrelay.dsp	\
-	bzfs.dsp	\
-	bzwtransform.dsp	\
+	ocadmin.dsp	\
+	opencombat.dsw	\
+	opencombat.dsp	\
+	opencombatd.dsp	\
 	common.dsp	\
 	config.h	\
 	date.dsp	\

@@ -22,12 +22,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\win32,..\..\include,..\..\src\bzflag,.\"
+				AdditionalIncludeDirectories="..\..\win32,..\..\include,..\..\src\opencombatd,.\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\..\..\src\ocadmin\Debug/bzadmin.pch"
+				PrecompiledHeaderFile=".\..\..\src\ocadmin\Debug/ocadmin.pch"
 				AssemblerListingLocation=".\..\..\src\ocadmin\Debug/"
 				ObjectFile=".\..\..\src\ocadmin\Debug/"
 				ProgramDataBaseFileName=".\..\..\src\ocadmin\Debug/"
@@ -44,12 +44,12 @@
 				LinkIncremental="0"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\..\..\src\ocadmin\Debug/bzadmin.pdb"
+				ProgramDatabaseFile=".\..\..\src\ocadmin\Debug/ocadmin.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\..\..\src\ocadmin\Debug/bzadmin.tlb"
+				TypeLibraryName=".\..\..\src\ocadmin\Debug/ocadmin.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -84,13 +84,13 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\win32,..\..\include,..\..\src\bzflag,.\"
+				AdditionalIncludeDirectories="..\..\win32,..\..\include,..\..\src\opencombatd,.\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\..\..\src\ocadmin/bzadmin.pch"
+				PrecompiledHeaderFile=".\..\..\src\ocadmin/ocadmin.pch"
 				AssemblerListingLocation=".\..\..\src\ocadmin/"
 				ObjectFile=".\..\..\src\ocadmin/"
 				ProgramDataBaseFileName=".\..\..\src\ocadmin/"
@@ -105,12 +105,12 @@
 				OutputFile=".\..\..\src\ocadmin/GTXadmin.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				ProgramDatabaseFile=".\..\..\src\ocadmin/bzadmin.pdb"
+				ProgramDatabaseFile=".\..\..\src\ocadmin/ocadmin.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\..\..\src\ocadmin/bzadmin.tlb"
+				TypeLibraryName=".\..\..\src\ocadmin/ocadmin.tlb"
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
@@ -224,7 +224,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\bzflag\ServerLink.cpp">
+				RelativePath="..\..\src\opencombatd\ServerLink.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool

@@ -135,19 +135,19 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\..\src\mediafile\ImageFile.cxx
+SOURCE=..\..\src\mediafile\ImageFile.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\mediafile\MediaFile.cxx
+SOURCE=..\..\src\mediafile\MediaFile.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\mediafile\PNGImageFile.cxx
+SOURCE=..\..\src\mediafile\PNGImageFile.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\mediafile\SGIImageFile.cxx
+SOURCE=..\..\src\mediafile\SGIImageFile.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
