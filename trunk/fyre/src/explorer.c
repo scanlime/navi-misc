@@ -29,13 +29,15 @@
 #include "histogram-view.h"
 #include "prefix.h"
 
-static void explorer_class_init(ExplorerClass *klass);
-static void explorer_init(Explorer *self);
-static void explorer_dispose(GObject *gobject);
+static void explorer_class_init  (ExplorerClass *klass);
+static void explorer_init        (Explorer *self);
+static void explorer_dispose     (GObject *gobject);
 
-static gboolean explorer_auto_limit_update_rate(Explorer *self);
-static gboolean limit_update_rate(GTimeVal *last_update, float max_rate);
-static gdouble  explorer_get_iter_speed(Explorer *self);
+static gboolean explorer_auto_limit_update_rate (Explorer *self);
+static gboolean limit_update_rate               (GTimeVal *last_update, float max_rate);
+static gdouble  explorer_get_iter_speed         (Explorer *self);
+static gchar*   explorer_strdup_status          (Explorer *self);
+static gchar*   explorer_strdup_speed           (Explorer *self);
 
 static gdouble generate_random_param();
 
@@ -470,6 +472,10 @@ static void on_pause_rendering_toggle(GtkWidget *widget, gpointer user_data) {
 	iterative_map_stop_calculation(self->map);
     else
 	iterative_map_start_calculation(self->map);
+
+    /* Update the speed shown in the status bar */
+    self->status_dirty_flag = TRUE;
+    explorer_update_gui(self);
 }
 
 static void on_calculation_finished(IterativeMap *map, gpointer user_data)
@@ -539,19 +545,41 @@ void explorer_update_gui(Explorer *self) {
 
     /* We don't want to update the status bar if we're trying to show rendering changes quickly */
     if (!HISTOGRAM_IMAGER(self->map)->render_dirty_flag) {
-	gchar *iters = g_strdup_printf("Iterations:    %.3e    \tSpeed:    %.3e/sec    \t"
-				       "Peak density:    %ld    \tCurrent tool: %s",
-				       self->map->iterations, explorer_get_iter_speed(self),
-				       HISTOGRAM_IMAGER(self->map)->peak_density, self->current_tool);
-
+	gchar *status = explorer_strdup_status(self);
 	if (self->render_status_message_id)
 	    gtk_statusbar_remove(self->statusbar, self->render_status_context, self->render_status_message_id);
-	self->render_status_message_id = gtk_statusbar_push(self->statusbar, self->render_status_context, iters);
-	g_free(iters);
+	self->render_status_message_id = gtk_statusbar_push(self->statusbar, self->render_status_context, status);
+	g_free(status);
 	self->status_dirty_flag = FALSE;
     }
 
     histogram_view_update(HISTOGRAM_VIEW(self->view));
+}
+
+static gchar*   explorer_strdup_status (Explorer *self)
+{
+    gchar *status;
+    gchar *speed = explorer_strdup_speed(self);
+
+    status = g_strdup_printf("Iterations:    %.3e    \t"
+			     "Speed:    %s    \t"
+			     "Peak density:    %ld    \t"
+			     "Current tool: %s",
+			     self->map->iterations,
+			     speed,
+			     HISTOGRAM_IMAGER(self->map)->peak_density,
+			     self->current_tool);
+
+    g_free(speed);
+    return status;
+}
+
+static gchar*   explorer_strdup_speed (Explorer *self)
+{
+    if (iterative_map_is_calculation_running(self->map))
+	return g_strdup_printf("%.3e/sec", explorer_get_iter_speed(self));
+    else
+	return g_strdup("Paused");
 }
 
 static gdouble  explorer_get_iter_speed(Explorer *self)

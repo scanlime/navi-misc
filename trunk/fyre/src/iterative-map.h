@@ -110,6 +110,7 @@ void          iterative_map_calculate_motion_timed (IterativeMap          *self,
  */
 void          iterative_map_start_calculation      (IterativeMap          *self);
 void          iterative_map_stop_calculation       (IterativeMap          *self);
+gboolean      iterative_map_is_calculation_running (IterativeMap          *self);
 
 G_END_DECLS
 
