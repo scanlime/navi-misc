@@ -54,6 +54,9 @@ void rcpod_Init(void) {
 void rcpod_FindDevices(void) {
   struct usb_device *dev, *newdev;
   struct usb_bus *bus;
+  int devNumber = 0;
+  int ignoreDevice = 0;
+  char *arg;
 
   /* Free any devices already in the list */
   while (deviceList_head) {
@@ -70,29 +73,43 @@ void rcpod_FindDevices(void) {
       /* Have we found an rcpod? */
       if (dev->descriptor.idVendor == RCPOD_VENDOR_ID &&
 	  dev->descriptor.idProduct == RCPOD_PRODUCT_ID) {
+	ignoreDevice = 0;
 
-	/* Make a shallow copy and add it to our deviceList */
-	newdev = malloc(sizeof(struct usb_device));
-	if (!newdev) {
-	  rcpod_HandleError("rcpod_FindDevices", ENOMEM, strerror(ENOMEM));
-	  return;
+	/* The RCPOD_FORCE_DEV environment variable causes us to ignore
+	 * all devices except for the one with the indicated number.
+	 */
+	arg = getenv("RCPOD_FORCE_DEV");
+	if (arg) {
+	  if (atoi(arg) != devNumber)
+	    ignoreDevice = 1;
 	}
-	memcpy(newdev, dev, sizeof(struct usb_device));
 
-	/* Append it to the list */
-	if (deviceList_tail) {
-	  newdev->prev = deviceList_tail;
-	  newdev->next = NULL;
-	  deviceList_tail->next = newdev;
-	  deviceList_tail = newdev;
+	if (!ignoreDevice) {
+	  /* Make a shallow copy and add it to our deviceList */
+	  newdev = malloc(sizeof(struct usb_device));
+	  if (!newdev) {
+	    rcpod_HandleError("rcpod_FindDevices", ENOMEM, strerror(ENOMEM));
+	    return;
+	  }
+	  memcpy(newdev, dev, sizeof(struct usb_device));
+
+	  /* Append it to the list */
+	  if (deviceList_tail) {
+	    newdev->prev = deviceList_tail;
+	    newdev->next = NULL;
+	    deviceList_tail->next = newdev;
+	    deviceList_tail = newdev;
+	  }
+	  else {
+	    /* First item inserted into an empty list */
+	    newdev->next = NULL;
+	    newdev->prev = NULL;
+	    deviceList_head = newdev;
+	    deviceList_tail = newdev;
+	  }
 	}
-	else {
-	  /* First item inserted into an empty list */
-	  newdev->next = NULL;
-	  newdev->prev = NULL;
-	  deviceList_head = newdev;
-	  deviceList_tail = newdev;
-	}
+
+	devNumber++;
       }
     }
   }
