@@ -90,6 +90,11 @@ static void on_keyframe_add(GtkWidget *widget, gpointer user_data);
 static void on_keyframe_replace(GtkWidget *widget, gpointer user_data);
 static void on_keyframe_delete(GtkWidget *widget, gpointer user_data);
 static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_data);
+static gboolean on_anim_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+static void on_anim_new(GtkWidget *widget, gpointer user_data);
+static void on_anim_open(GtkWidget *widget, gpointer user_data);
+static void on_anim_save(GtkWidget *widget, gpointer user_data);
+static void on_anim_save_as(GtkWidget *widget, gpointer user_data);
 
 static void tool_grab(Explorer *self, ToolInput *i);
 static void tool_blur(Explorer *self, ToolInput *i);
@@ -189,6 +194,11 @@ static void explorer_init(Explorer *self) {
   glade_xml_signal_connect_data(self->xml, "on_keyframe_replace",             G_CALLBACK(on_keyframe_replace),             self);
   glade_xml_signal_connect_data(self->xml, "on_keyframe_delete",              G_CALLBACK(on_keyframe_delete),              self);
   glade_xml_signal_connect_data(self->xml, "on_keyframe_view_cursor_changed", G_CALLBACK(on_keyframe_view_cursor_changed), self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_window_delete",           G_CALLBACK(on_anim_window_delete),           self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_new",                     G_CALLBACK(on_anim_new),                     self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_open",                    G_CALLBACK(on_anim_open),                    self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_save",                    G_CALLBACK(on_anim_save),                    self);
+  glade_xml_signal_connect_data(self->xml, "on_anim_save_as",                 G_CALLBACK(on_anim_save_as),                 self);
 
   /* Set up the drawing area
    */
@@ -397,14 +407,11 @@ static void on_resize_ok(GtkWidget *widget, gpointer user_data) {
 }
 
 
-
 /************************************************************************************/
 /******************************************************************** Misc GUI goop */
 /************************************************************************************/
 
 static void on_quit(GtkWidget *widget, gpointer user_data) {
-  Explorer *self = EXPLORER(user_data);
-  g_source_remove(self->idler);
   gtk_main_quit();
 }
 
@@ -923,5 +930,24 @@ static void on_keyframe_view_cursor_changed(GtkWidget *widget, gpointer user_dat
   explorer_set_params(self);
 }
 
+static gboolean on_anim_window_delete(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+  /* Just hide the window when the user tries to close it
+   */
+  Explorer *self = EXPLORER(user_data);
+  gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(glade_xml_get_widget(self->xml, "toggle_animation_window")), FALSE);
+  return TRUE;
+}
+
+static void on_anim_new(GtkWidget *widget, gpointer user_data) {
+}
+
+static void on_anim_open(GtkWidget *widget, gpointer user_data) {
+}
+
+static void on_anim_save(GtkWidget *widget, gpointer user_data) {
+}
+
+static void on_anim_save_as(GtkWidget *widget, gpointer user_data) {
+}
 
 /* The End */
