@@ -30,7 +30,6 @@
 typedef struct session xchat_context;
 #include "../common/xchat-plugin.h"
 #include "../common/plugin.h"
-#include "../common/outbound.h"
 #include "../common/util.h"
 
 typedef int (xchat_init_func) (xchat_plugin *, char **, char **, char **, char *);
