@@ -260,10 +260,6 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 		g_warning ("can't access topic change menu item");
 	else
 		gtk_widget_set_sensitive (menuitem, sess->type == SESS_CHANNEL);
-/*		if (sess->type == SESS_CHANNEL)
-			gtk_widget_set_sensitive (menuitem, TRUE);
-		else
-			gtk_widget_set_sensitive (menuitem, FALSE);*/
 }
 
 void
@@ -1238,7 +1234,7 @@ on_close (GtkAction *action, gpointer data)
 
 			client = gconf_client_get_default ();
 			text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
-			if(text == NULL)
+			if (text == NULL)
 				text = "Ex-Chat";
 			s->server->p_part(s->server, s->channel, text);
 			g_object_unref (client);
@@ -1297,6 +1293,8 @@ on_channel_leave (GtkAction *action, gpointer data)
 
 			client = gconf_client_get_default ();
 			text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
+			if (text == NULL)
+				text = "Ex-Chat";
 			s->server->p_part(s->server, s->channel, text);
 			g_object_unref (client);
 			g_free (text);
