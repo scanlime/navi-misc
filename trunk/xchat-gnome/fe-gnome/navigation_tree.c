@@ -28,11 +28,47 @@
 #include "main_window.h"
 
 void navigation_selection_changed(GtkTreeSelection *selection, gpointer data);
-gboolean navigation_click(GtkWidget *treeview, GdkEventButton *event, gpointer data);
 void navigation_context(GtkWidget *treeview, session *selected);
 void server_context(GtkWidget *treeview, session *selected);
 void channel_context(GtkWidget *treeview, session *selected);
 void dialog_context(GtkWidget *treeview, session *selected);
+
+static session *navigation_get_selected() {
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = glade_xml_get_widget(gui.xml, "server channel list");
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 2, &s, -1);
+		return s;
+	}
+	return NULL;
+}
+
+static gboolean click(GtkWidget *treeview, GdkEventButton *event, gpointer data) {
+	GtkTreePath *path;
+	GtkTreeSelection *select;
+	if(!event)
+		return FALSE;
+	if(event->button == 3) {
+		if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview), event->x, event->y, &path, 0, 0, 0)) {
+			select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+			gtk_tree_selection_unselect_all(select);
+			gtk_tree_selection_select_path(select, path);
+			gtk_tree_path_free(path);
+		}
+		session *s = navigation_get_selected();
+		if(s != NULL)
+			navigation_context(treeview, s);
+		return TRUE;
+	}
+	g_object_set(G_OBJECT(treeview), "can-focus", FALSE, NULL);
+	return FALSE;
+}
 
 static gboolean declick(GtkWidget *treeview, GdkEventButton *e, gpointer data) {
 	GtkWidget *entry;
@@ -40,6 +76,7 @@ static gboolean declick(GtkWidget *treeview, GdkEventButton *e, gpointer data) {
 	entry = glade_xml_get_widget(gui.xml, "text entry");
 	gtk_widget_grab_focus(entry);
 	gtk_editable_set_position(GTK_EDITABLE(entry), -1);
+	g_object_set(G_OBJECT(treeview), "can-focus", TRUE, NULL);
 	return FALSE;
 }
 
@@ -70,9 +107,8 @@ void initialize_navigation_tree() {
 	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(navigation_view));
 	gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
 	g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(navigation_selection_changed), NULL);
-	g_signal_connect(G_OBJECT(navigation_view), "button_press_event", G_CALLBACK(navigation_click), NULL);
+	g_signal_connect(G_OBJECT(navigation_view), "button_press_event", G_CALLBACK(click), NULL);
 	g_signal_connect(G_OBJECT(navigation_view), "button_release_event", G_CALLBACK(declick), NULL);
-	g_object_set(G_OBJECT(navigation_view), "can-focus", FALSE, NULL);
 }
 
 void navigation_tree_create_new_network_entry(struct session *sess) {
@@ -287,42 +323,6 @@ void navigation_tree_set_disconn(struct session *sess) {
 	store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
 
 	gtk_tree_model_foreach(store, navigation_tree_set_disconn_iterate, (gpointer) sess);
-}
-
-static session *navigation_get_selected() {
-	GtkWidget *treeview;
-	GtkTreeSelection *select;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-	session *s;
-
-	treeview = glade_xml_get_widget(gui.xml, "server channel list");
-	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-	if(gtk_tree_selection_get_selected(select, &model, &iter)) {
-		gtk_tree_model_get(model, &iter, 2, &s, -1);
-		return s;
-	}
-	return NULL;
-}
-
-gboolean navigation_click(GtkWidget *treeview, GdkEventButton *event, gpointer data) {
-	GtkTreePath *path;
-	GtkTreeSelection *select;
-	if(!event)
-		return FALSE;
-	if(event->button == 3) {
-		if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview), event->x, event->y, &path, 0, 0, 0)) {
-			select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-			gtk_tree_selection_unselect_all(select);
-			gtk_tree_selection_select_path(select, path);
-			gtk_tree_path_free(path);
-		}
-		session *s = navigation_get_selected();
-		if(s != NULL)
-			navigation_context(treeview, s);
-		return TRUE;
-	}
-	return FALSE;
 }
 
 void navigation_context(GtkWidget *treeview, session *selected) {
