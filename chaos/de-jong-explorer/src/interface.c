@@ -67,6 +67,7 @@ void on_resize(GtkWidget *widget, gpointer user_data);
 void on_resize_cancel(GtkWidget *widget, gpointer user_data);
 void on_resize_ok(GtkWidget *widget, gpointer user_data);
 gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data);
+gboolean on_motion_notify(GtkWidget *widget, GdkEventMotion *event);
 GtkWidget *custom_color_button_new(gchar *widget_name, gchar *string1, gchar *string2, gint int1, gint int2);
 
 
@@ -110,7 +111,7 @@ gboolean on_viewport_expose(GtkWidget *widget, gpointer user_data) {
     gtk_widget_set_size_request(widget, -1, -1);
     gui.just_resized = FALSE;
   }
-  return TRUE;
+  return FALSE;
 }
 
 static int limit_update_rate(float max_rate) {
@@ -426,6 +427,11 @@ void on_save(GtkWidget *widget, gpointer user_data) {
     save_to_file(filename);
   }
   gtk_widget_destroy(dialog);
+}
+
+gboolean on_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
+  printf("foo %d %f %f %d\n", event->is_hint, event->x, event->y, event->state);
+  return TRUE;
 }
 
 /* The End */
