@@ -21,6 +21,7 @@
 
 #include "irc-network-editor.h"
 #include <gtk/gtk.h>
+#include <string.h>
 
 static void
 irc_network_editor_dispose (GObject *object)
@@ -72,15 +73,27 @@ static void
 add_server_clicked (GtkButton *button, IrcNetworkEditor *e)
 {
 	GtkTreeIter iter;
+	GtkTreePath *path;
 
 	gtk_list_store_append (e->server_store, &iter);
-	/* FIXME - start editing */
+	path = gtk_tree_model_get_path (GTK_TREE_MODEL (e->server_store), &iter);
+	gtk_tree_view_set_cursor (GTK_TREE_VIEW (e->servers), path, e->server_column, TRUE);
+	gtk_tree_path_free (path);
 }
 
 static void
 edit_server_clicked (GtkButton *button, IrcNetworkEditor *e)
 {
-	/* FIXME - start editing */
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	GtkTreePath *path;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->servers));
+	if (gtk_tree_selection_get_selected (selection, NULL, &iter)) {
+		path = gtk_tree_model_get_path (GTK_TREE_MODEL (e->server_store), &iter);
+		gtk_tree_view_set_cursor (GTK_TREE_VIEW (e->servers), path, e->server_column, TRUE);
+		gtk_tree_path_free (path);
+	}
 }
 
 static void
@@ -114,23 +127,39 @@ server_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, IrcNe
 	GtkTreeIter iter;
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->servers));
-	if (gtk_tree_selection_get_selected (selection, &model, &iter))
-		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, newtext, -1);
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		if (strlen (newtext))
+			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, newtext, -1);
+		else
+			gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+	}
 }
 
 static void
 add_autojoin_clicked (GtkButton *button, IrcNetworkEditor *e)
 {
 	GtkTreeIter iter;
+	GtkTreePath *path;
 
 	gtk_list_store_append (e->autojoin_store, &iter);
-	/* FIXME - start editing */
+	path = gtk_tree_model_get_path (GTK_TREE_MODEL (e->autojoin_store), &iter);
+	gtk_tree_view_set_cursor (GTK_TREE_VIEW (e->autojoin_channels), path, e->autojoin_column, TRUE);
+	gtk_tree_path_free (path);
 }
 
 static void
 edit_autojoin_clicked (GtkButton *button, IrcNetworkEditor *e)
 {
-	/* FIXME - start editing */
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	GtkTreePath *path;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->autojoin_channels));
+	if (gtk_tree_selection_get_selected (selection, NULL, &iter)) {
+		path = gtk_tree_model_get_path (GTK_TREE_MODEL (e->autojoin_store), &iter);
+		gtk_tree_view_set_cursor (GTK_TREE_VIEW (e->autojoin_channels), path, e->autojoin_column, TRUE);
+		gtk_tree_path_free (path);
+	}
 }
 
 static void
@@ -164,8 +193,12 @@ autojoin_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, Irc
 	GtkTreeIter iter;
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (e->autojoin_channels));
-	if (gtk_tree_selection_get_selected (selection, &model, &iter))
-		gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, newtext, -1);
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		if (strlen (newtext))
+			gtk_list_store_set (GTK_LIST_STORE (model), &iter, 0, newtext, -1);
+		else
+			gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+	}
 }
 
 static void
@@ -174,6 +207,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	GtkSizeGroup *group;
 	gchar **enc;
 	GtkTreeSelection *server_selection, *autojoin_selection;
+	gint id;
 
 	dialog->gconf = NULL;
 	dialog->network = NULL;
@@ -224,10 +258,12 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->servers), GTK_TREE_MODEL (dialog->server_store));
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->servers), 0, "Server", dialog->server_renderer, "text", 0, NULL);
 	g_object_set (G_OBJECT (dialog->server_renderer), "editable", TRUE, NULL);
+	dialog->server_column = gtk_tree_view_get_column (GTK_TREE_VIEW (dialog->servers), 0);
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->autojoin_channels), GTK_TREE_MODEL (dialog->autojoin_store));
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->autojoin_channels), 0, "Channel", dialog->autojoin_renderer, "text", 0, NULL);
 	g_object_set (G_OBJECT (dialog->autojoin_renderer), "editable", TRUE, NULL);
+	dialog->autojoin_column = gtk_tree_view_get_column (GTK_TREE_VIEW (dialog->autojoin_channels), 0);
 
 	dialog->encoding = gtk_combo_box_new_text ();
 	gtk_widget_show (dialog->encoding);
