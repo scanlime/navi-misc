@@ -8,7 +8,7 @@
 
 OUTPUTDIR=output
 RELEASE_BASE=flapjack:/var/www/localhost/htdocs/releases/fyre
-SVN_RELEASE_BASE=$RELEASE_BASE/win32-beta
+SVN_RELEASE_BASE=$RELEASE_BASE/snapshots
 
 for filename in `cd $OUTPUTDIR; ls`; do
 
