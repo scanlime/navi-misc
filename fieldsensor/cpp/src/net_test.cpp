@@ -8,21 +8,11 @@ int main(void) {
   FieldSensor s;
   annie::VECTOR position;
 
-  float colors[][4] = {
-    {1.0,0.8,0.6,0.9},
-    {1.0,0.7,0.6,0.9},
-    {1.0,0.6,0.6,0.9},
-    {1.0,0.5,0.6,0.9},
-    {0.6,0.8,1.0,0.9},
-    {0.6,0.7,1.0,0.9},
-    {0.6,0.6,1.0,0.9},
-    {0.6,0.5,1.0,0.9},
-  };
-
   SDL_Init(SDL_INIT_VIDEO);
   SDL_Surface *surface = SDL_SetVideoMode(1024,768,0,SDL_OPENGL);
 
   glEnable(GL_BLEND);
+  glEnable(GL_LINE_SMOOTH);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glShadeModel(GL_SMOOTH);
   glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -57,48 +47,26 @@ int main(void) {
     glTranslatef(-0.5,-0.2,-0.2);
     
     /* Base cube */
-    glColor4f(1,1,1,0.2);
-    glBegin(GL_LINE_LOOP);
-    glVertex3f(0,0,0);
-    glVertex3f(1,0,0);
-    glVertex3f(1,1,0);
-    glVertex3f(0,1,0);
-    glEnd();
-    glBegin(GL_LINE_LOOP);
-    glVertex3f(0,0,1);
-    glVertex3f(1,0,1);
-    glVertex3f(1,1,1);
-    glVertex3f(0,1,1);
-    glEnd();
-    glBegin(GL_LINE_LOOP);
-    glVertex3f(0,0,0);
-    glVertex3f(1,0,0);
-    glVertex3f(1,0,1);
-    glVertex3f(0,0,1);
-    glEnd();
-    glBegin(GL_LINE_LOOP);
-    glVertex3f(0,1,0);
-    glVertex3f(1,1,0);
-    glVertex3f(1,1,1);
-    glVertex3f(0,1,1);
-    glEnd();
-    glBegin(GL_LINE_LOOP);
-    glVertex3f(0,0,0);
-    glVertex3f(0,1,0);
-    glVertex3f(0,1,1);
-    glVertex3f(0,0,1);
-    glEnd();
-    glBegin(GL_LINE_LOOP);
-    glVertex3f(1,0,0);
-    glVertex3f(1,1,0);
-    glVertex3f(1,1,1);
-    glVertex3f(1,0,1);
+    glColor4f(1,1,1,0.5);
+    glBegin(GL_LINES);
+    glVertex3f(0,0,0); glVertex3f(1,0,0);
+    glVertex3f(0,0,0); glVertex3f(0,1,0);
+    glVertex3f(0,0,1); glVertex3f(0,0,0);
+    glVertex3f(0,1,0); glVertex3f(0,1,1);
+    glVertex3f(0,1,1); glVertex3f(0,0,1);
+    glVertex3f(1,0,0); glVertex3f(1,1,0);
+    glVertex3f(1,0,1); glVertex3f(1,1,1);
+    glVertex3f(1,0,1); glVertex3f(0,0,1);
+    glVertex3f(1,0,1); glVertex3f(1,0,0);
+    glVertex3f(1,1,0); glVertex3f(0,1,0);
+    glVertex3f(1,1,0); glVertex3f(1,1,1);
+    glVertex3f(1,1,1); glVertex3f(0,1,1);
     glEnd();
     
     /* Position indicator cube */
-    glColor4f(0.9,0.9,1,1);
+    glColor4f(1,1,0.5,1);
     glPushMatrix();
-    glTranslatef(position[0],position[1],position[2]+0.01);
+    glTranslatef(position[0],position[1],position[2]);
     glScalef(0.01,0.01,0.01);
     glBegin(GL_QUADS);
     glVertex3f(-1,-1,-1);

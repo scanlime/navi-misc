@@ -28,16 +28,18 @@
 #include <fcntl.h>
 #include <sys/termios.h>
 #include <sys/ioctl.h>
-#include <netinet/in.h>
+#include <netinet/in.h>    /* For ntohs() */
 
 #include <FieldSensor.h>
 
 
-FieldSensor::FieldSensor(const char *serialPort, const char *netFile) : net(netFile) {
+FieldSensor::FieldSensor(const char *serialPort, const char *netFile) 
+  : net(netFile), resultBuffer(8) {
+
   struct termios options;
 
+  /* Initialize the serial port */
   fd = open(serialPort, O_NOCTTY | O_RDWR);
-
   tcgetattr(fd, &options);
   cfsetspeed(&options, B19200);                /* 19200 baud rate */
   options.c_cflag |= (CLOCAL | CREAD);         /* Enable receiver and set the local mode */
@@ -51,12 +53,17 @@ FieldSensor::FieldSensor(const char *serialPort, const char *netFile) : net(netF
   options.c_oflag &= ~OPOST;
   tcsetattr(fd, TCSANOW, &options);
 
+  /* Boot up our firmware on the board */
   reset();
   boot();
 }
 
 FieldSensor::~FieldSensor(void) {
+  /* Use this to turn off the front panel lights, until 
+   * we have full control of them from this software.
+   */
   reset();
+
   close(fd);
 }
 
@@ -84,20 +91,22 @@ void FieldSensor::waitForData(void) {
   select(fd+1, &rfds, NULL, NULL, NULL);
 }
 
-VECTOR FieldSensor::readPacket(void) {
+VECTOR FieldSensor::readPacket(bool blocking) {
   unsigned char c, theirChecksum, ourChecksum;
   union {
     unsigned short shorts[8];
     unsigned char bytes[16];
   } rawPacket;
   int i;
-  VECTOR results;
 
   while (1) {
     /* Synchronize to 0x80 synchronization byte */
     do {
-      waitForData();
-      read(fd, &c, 1);
+      if (blocking)
+	waitForData();
+      /* No data available? return the old data */
+      if (read(fd, &c, 1) != 1)
+	return resultBuffer;
     } while (c != 0x80);
     
     waitForData();
@@ -114,8 +123,8 @@ VECTOR FieldSensor::readPacket(void) {
 
     /* Convert the received big-endian integers to floating point */
     for (i=0;i<8;i++)
-      results.push_back(ntohs(rawPacket.shorts[i]) / 65535.0);
-    return results;
+      resultBuffer[i] = ntohs(rawPacket.shorts[i]) / 65535.0;
+    return resultBuffer;
   }
 }
 
@@ -127,9 +136,16 @@ void FieldSensor::sendSlowly(const char *str) {
   }
 }
 
-VECTOR FieldSensor::readPosition(void) {
-  VECTOR packet = readPacket();
-  return net.getOutput(packet);
+VECTOR FieldSensor::rawPosition(bool blocking) {
+  VECTOR packet = readPacket(blocking);
+  VECTOR netOutput = net.getOutput(packet);
+  return Vector3(netOutput[0], netOutput[1], netOutput[2]);
+}
+
+Vector3 FieldSensor::readPosition(bool blocking) {
+  Vector3 inPosition = rawPosition(blocking);
+
+  return filterPosition;
 }
 
 /* The End */
