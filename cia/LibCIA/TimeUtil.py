@@ -125,6 +125,14 @@ def formatDate(t):
        """
     return time.strftime("%H:%M on %b %d, %Y", time.gmtime(t))
 
+def formatLogDate(t):
+    """Format a date in the format they should be in our log file.
+       This should look just like the date Twisted puts in automatically,
+       in the local time zone.
+       """
+    y,mon,d,h,min, iigg,nnoo,rree,daylight = time.localtime(t)
+    return "%0.4d/%0.2d/%0.2d %0.2d:%0.2d %s" % (
+        y, mon, d, h, min, time.tzname[daylight])
 
 def formatDateRFC822(t):
     """Format a date, in UTC seconds since the epoch, using RFC822 formatting"""
