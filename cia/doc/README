@@ -99,7 +99,7 @@ Requirements
 - Twisted 1.1.1 or later
 - pygtk 2.0 or later for the GUI tools
 - MySQL with support for the InnoDB table type
-- Nouvelle 0.90 or later <http://freshmeat.net/projects/nouvelle/>
+- Nouvelle 0.91 or later <http://freshmeat.net/projects/nouvelle/>
 - Docutils <http://docutils.sourceforge.net/>
 
 
