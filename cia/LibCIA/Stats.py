@@ -30,7 +30,7 @@ from twisted.python import log
 from twisted.web import xmlrpc
 from twisted.enterprise.util import quote as quoteSQL
 import Ruleset, Message, TimeUtil, RPC, Database
-import string, os, time, types, posixpath
+import string, os, time, types, posixpath, sys
 
 
 class StatsURIHandler(Ruleset.RegexURIHandler):
@@ -210,7 +210,7 @@ class StatsPathException(Exception):
     pass
 
 
-class StatsTarget(object):
+class StatsTarget:
     """Encapsulates all the stats-logging features used for one particular
        target. This can be one project, one class of messages, etc.
        Every StatsTarget is identified by a UNIX-style pathname.
@@ -227,7 +227,7 @@ class StatsTarget(object):
             if segment == '..':
                 if segments:
                     del segments[-1]
-            if segment and segment != '.':
+            elif segment and segment != '.':
                 segments.append(segment)
         path = '/'.join(segments)
 
@@ -236,28 +236,24 @@ class StatsTarget(object):
             raise StatsPathException("Stats paths are currently limited to 128 characters")
         return path
 
-    def deliver(self, message=None):
-        """A message has been received which should be logged by this stats target"""
-        if message:
-            # Store the message in our stats_messages table.
-            # Our database has rules that automatically maintain the
-            # stats_catalog table as necessary here.
-            Database.pool.runOperation("INSERT INTO stats_messages (target_path, xml) VALUES(%s, %s)" % (
-                quoteSQL(self.path, 'varchar'),
-                quoteSQL(message, 'text'),
-                ))
+    def __repr__(self):
+        return "<StarsTarget %r>" % self.path
 
-        # Increment the stats target
-        return Database.pool.runOperation("SELECT statsIncrement(%s)" % quoteSQL(self.path, 'varchar'))
+    def deliver(self, message=None):
+        """An event has occurred which should be logged by this stats target"""
+        return Database.pool.runInteraction(self._deliver, message)
 
     def catalog(self):
         """Return a list of subdirectories of this stats target"""
 
     def child(self, name):
         """Return the StatsTarget for the given sub-target name under this one"""
+        return StatsTarget(posixpath.join(self.path, name))
 
     def parent(self):
         """Return the parent StatsTarget of this one, or None if we're the root"""
+        if self.path:
+            return self.child('..')
 
     def getTitle(self):
         """Return the human-readable title of this stats target-
@@ -274,8 +270,70 @@ class StatsTarget(object):
 
     def clear(self):
         """Delete everything associated with this stats target"""
-        return Database.pool.runOperation("DELETE FROM stats_messages WHERE target_path = %s" %
+        # Delete the item in stats_target- the other tables will be
+        # deleted due to cascading foreign keys
+        return Database.pool.runOperation("DELETE FROM stats_catalog WHERE target_path = %s" %
                                           quoteSQL(self.path, 'varchar'))
+
+    def _create(self, transaction):
+        """Internal function to create a new stats target, meant to be run from
+           inside a database interaction. This is actually a recursive operation
+           that tries to create parent stats targets if necessary.
+
+           NOTE: this -must- ignore duplicate keys to avoid a race condition in which
+                 one thread, in _autoCreateTargetFor, decides to create a new target
+                 but before that target is fully created another thread also decides
+                 it needs a new target.
+           """
+        parent = self.parent()
+        try:
+            if parent.path:
+                # If we have a parent, we have to worry about creating it
+                # if it doesn't exist and generating the proper parent path.
+                parent._autoCreateTargetFor(transaction, transaction.execute,
+                                            "INSERT INTO stats_catalog (parent_path, target_path) VALUES(%s, %s)" %
+                                            (quoteSQL(parent.path, 'varchar'),
+                                             quoteSQL(self.path, 'varchar')))
+            else:
+                # If we have no parent target, this is simpler
+                transaction.execute("INSERT INTO stats_catalog (target_path) VALUES(%s)" %
+                                    quoteSQL(self.path, 'varchar'))
+        except:
+            # Ignore duplicate key errors
+            if str(sys.exc_info()[1]).find("duplicate key") < 0:
+                raise
+
+    def _autoCreateTargetFor(self, transaction, func, *args, **kwargs):
+        """Run the given function. If an exception occurs that looks like a violated
+           foreign key constraint, add our path to the database and try
+           again (without attempting to catch any exceptions).
+           This is fast way to create stats targets that don't exist without
+           a noticeable performance penalty when executing operations on
+           existing stats targets.
+
+           NOTE: This is meant to be run inside a database interaction, hence
+                 a transaction is required. This transaction will be used to
+                 create the new stats target if one is required.
+           """
+        try:
+            func(*args, **kwargs)
+        except:
+            if str(sys.exc_info()[1]).find("foreign key") >= 0:
+                self._create(transaction)
+                func(*args, **kwargs)
+            else:
+                raise
+
+    def _deliver(self, transaction, message):
+        """A database interaction implementing deliver(), runs in a separate thread
+           and can access the database without a mess of deferreds :)
+           """
+        if message:
+            # Store the message in our stats_messages table.
+            self._autoCreateTargetFor(transaction, transaction.execute,
+                                      "INSERT INTO stats_messages (target_path, xml) VALUES(%s, %s)" %
+                                      (quoteSQL(self.path, 'varchar'),
+                                       quoteSQL(message, 'text')))
 
 
 class Counters(object):
