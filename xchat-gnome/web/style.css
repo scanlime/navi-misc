@@ -70,3 +70,11 @@ p {
   margin: 0em 1em;
   text-indent: 3em;
 }
+
+div.screenshots {
+  text-align: center;
+}
+
+img.screenshot {
+  border: none;
+}
