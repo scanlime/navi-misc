@@ -67,6 +67,7 @@ struct _Explorer {
   GTimeVal last_tool_idle_update;
 
   GtkWidget *fgcolor_button, *bgcolor_button;
+  GtkWidget *anim_curve;
 
   gboolean seeking_animation;
   gboolean playing_animation;

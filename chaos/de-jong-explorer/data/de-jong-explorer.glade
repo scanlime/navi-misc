@@ -1985,7 +1985,7 @@ Settings&lt;/b&gt;</property>
 	      <property name="visible">True</property>
 	      <property name="sensitive">False</property>
 	      <property name="homogeneous">False</property>
-	      <property name="spacing">6</property>
+	      <property name="spacing">8</property>
 
 	      <child>
 		<widget class="GtkLabel" id="label33">
@@ -2047,7 +2047,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="n_rows">3</property>
 			  <property name="n_columns">3</property>
 			  <property name="homogeneous">False</property>
-			  <property name="row_spacing">6</property>
+			  <property name="row_spacing">8</property>
 			  <property name="column_spacing">6</property>
 
 			  <child>
@@ -2078,13 +2078,13 @@ Settings&lt;/b&gt;</property>
 			    <widget class="GtkSpinButton" id="keyframe_duration">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
-			      <property name="climb_rate">1</property>
+			      <property name="climb_rate">0.01</property>
 			      <property name="digits">2</property>
 			      <property name="numeric">True</property>
 			      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
 			      <property name="snap_to_ticks">False</property>
 			      <property name="wrap">False</property>
-			      <property name="adjustment">0 0 1000 1 10 10</property>
+			      <property name="adjustment">0 0 1000 0.01 1 0</property>
 			    </widget>
 			    <packing>
 			      <property name="left_attach">1</property>
@@ -2120,12 +2120,13 @@ Settings&lt;/b&gt;</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkButton" id="button1">
+			    <widget class="GtkButton" id="anim_curve_linear_button">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="label" translatable="yes">Linear</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <signal name="clicked" handler="on_anim_set_linear" last_modification_time="Sun, 22 Feb 2004 17:43:32 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="left_attach">1</property>
@@ -2138,12 +2139,13 @@ Settings&lt;/b&gt;</property>
 			  </child>
 
 			  <child>
-			    <widget class="GtkButton" id="button2">
+			    <widget class="GtkButton" id="anim_curve_smooth_button">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="label" translatable="yes">Smooth</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <signal name="clicked" handler="on_anim_set_smooth" last_modification_time="Sun, 22 Feb 2004 17:43:40 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="left_attach">1</property>
@@ -2211,7 +2213,7 @@ Settings&lt;/b&gt;</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkAspectFrame" id="aspectframe1">
+			<widget class="GtkAspectFrame" id="anim_curve_box">
 			  <property name="height_request">160</property>
 			  <property name="visible">True</property>
 			  <property name="label_xalign">0</property>
@@ -2223,13 +2225,7 @@ Settings&lt;/b&gt;</property>
 			  <property name="obey_child">True</property>
 
 			  <child>
-			    <widget class="GtkCurve" id="transition_curve">
-			      <property name="visible">True</property>
-			      <property name="min_x">0</property>
-			      <property name="max_x">1</property>
-			      <property name="min_y">0</property>
-			      <property name="max_y">1</property>
-			    </widget>
+			    <placeholder/>
 			  </child>
 			</widget>
 			<packing>
