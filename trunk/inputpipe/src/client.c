@@ -36,6 +36,7 @@
 #include <sys/select.h>
 #include <linux/tcp.h>
 #include <netdb.h>
+#include <errno.h>
 
 #include <linux/input.h>
 #include "inputpipe.h"
@@ -383,8 +384,23 @@ static int evdev_send_event(int evdev, struct server *svr)
 {
   struct input_event ev;
   struct ipipe_event ip_ev;
+  int retval;
 
-  read(evdev, &ev, sizeof(ev));
+  retval = read(evdev, &ev, sizeof(ev));
+  if (retval < 0) {
+    if (errno == EAGAIN) {
+      return 0;
+    }
+    perror("read from evdev");
+    return 1;
+  }
+  else if (retval == 0) {
+    fprintf(stderr, "Event device EOF\n");
+    return 1;
+  }
+  else if (retval < sizeof(ev)) {
+    return 0;
+  }
 
   /* Translate and send this event */
   ip_ev.tv_sec = htonl(ev.time.tv_sec);
@@ -449,6 +465,7 @@ static int event_loop(struct server *svr, int evdev) {
   fd_set fd_read;
   int fd_count;
   int n;
+  struct timeval timeout;
 
   fd_count = svr->tcp_fd + 1;
   if (evdev >= fd_count)
@@ -459,30 +476,31 @@ static int event_loop(struct server *svr, int evdev) {
     FD_SET(svr->tcp_fd, &fd_read);
     FD_SET(evdev, &fd_read);
 
-    n = select(fd_count, &fd_read, NULL, NULL, NULL);
+    timeout.tv_sec = 2;
+    timeout.tv_usec = 0;
+
+    n = select(fd_count, &fd_read, NULL, NULL, &timeout);
     if (n<0) {
       perror("select");
       return 1;
     }
-    else if (n>0) {
 
-      /* Can we read from the server? */
-      if (FD_ISSET(svr->tcp_fd, &fd_read)) {
-	if (feof(svr->tcp_file)) {
-	  fprintf(stderr, "Connection lost\n");
-	  return 1;
-	}
-	event_from_server(svr, evdev);
+    /* Can we read from the server? */
+    if (FD_ISSET(svr->tcp_fd, &fd_read)) {
+      if (feof(svr->tcp_file)) {
+        fprintf(stderr, "Connection lost\n");
+	return 1;
       }
-
-      /* Can we read from the event device? */
-      if (FD_ISSET(evdev, &fd_read)) {
-	n = evdev_send_event(evdev, svr);
-	if (n)
-	  return n;
-      }
-
+      event_from_server(svr, evdev);
     }
+
+    /* Can we read from the event device? 
+     * Poll it whether or not we see any read
+     * activity, to detect device disconnects.
+     */
+    n = evdev_send_event(evdev, svr);
+    if (n)
+      return n;
   }
   return 0;
 }
