@@ -30,6 +30,7 @@ Tip: 'Imports an Acclaim ASF file and builds a set of armatures'
 import Blender
 import ASFReader
 import math
+import string
 
 def addVectors(a, b):
     x = []
@@ -55,6 +56,11 @@ def importObjects(reader):
         bone.setTail(float(d[0]) * l, float(d[2]) * l, float(d[1]) * l)
 
         bones[name] = bone
+
+        if data.dof is None:
+            armObj.addProperty('%s-dof' % name, '', 'STRING')
+        else:
+            armObj.addProperty('%s-dof' % name, ','.join(data.dof), 'STRING')
 
     # add root
     bone = Blender.Armature.Bone.New('root')
