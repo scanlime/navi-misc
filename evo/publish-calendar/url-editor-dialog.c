@@ -31,8 +31,10 @@ check_input (UrlEditorDialog *dialog)
 {
 	gint n = 0;
 	GSList *sources;
+	EPublishUri *uri;
 
-	/* FIXME - url */
+	uri = dialog->uri;
+
 	if (GTK_WIDGET_IS_SENSITIVE (dialog->events_selector)) {
 		sources = e_source_selector_get_selection (E_SOURCE_SELECTOR (dialog->events_selector));
 		n += g_slist_length (sources);
@@ -43,6 +45,22 @@ check_input (UrlEditorDialog *dialog)
 	}
 	if (n == 0)
 		goto fail;
+
+	/* This should probably be more complex, since ' ' isn't a valid server name */
+	switch (uri->service_type) {
+	case TYPE_SMB:
+	case TYPE_SSH:
+	case TYPE_FTP:
+	case TYPE_DAV:
+	case TYPE_DAVS:
+	case TYPE_ANON_FTP:
+		if (!strlen (gtk_entry_get_text (GTK_ENTRY (dialog->server_entry)))) goto fail;
+		if (!strlen (gtk_entry_get_text (GTK_ENTRY (dialog->file_entry))))   goto fail;
+		break;
+	case TYPE_URI:
+		if (!strlen (gtk_entry_get_text (GTK_ENTRY (dialog->server_entry)))) goto fail;
+		break;
+	}
 
 	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, TRUE);
 	return;
@@ -68,8 +86,16 @@ publish_service_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 	 * the user has selected. Tries to keep field contents where possible */
 	switch (selected) {
 	case TYPE_SMB:
+		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->server_label), "_Server:");
+		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->port_label), "_Port:");
 		gtk_label_set_text_with_mnemonic (GTK_LABEL (dialog->port_label), "S_hare:");
 		gtk_entry_set_text (GTK_ENTRY (dialog->port_entry), "");
+		gtk_widget_show (dialog->file_hbox);
+		gtk_widget_show (dialog->optional_label);
+		gtk_widget_show (dialog->port_hbox);
+		gtk_widget_show (dialog->username_hbox);
+		gtk_widget_show (dialog->password_hbox);
+		gtk_widget_show (dialog->remember_pw);
 		break;
 	case TYPE_SSH:
 	case TYPE_FTP:
@@ -113,6 +139,7 @@ publish_service_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 		gtk_widget_hide (dialog->remember_pw);
 	}
 	uri->service_type = selected;
+	check_input (dialog);
 }
 
 static void
@@ -127,6 +154,39 @@ type_selector_changed (GtkComboBox *combo, UrlEditorDialog *dialog)
 		gtk_widget_set_sensitive (dialog->events_selector, TRUE);
 		gtk_widget_set_sensitive (dialog->tasks_selector, TRUE);
 	}
+	check_input (dialog);
+}
+
+static void
+server_entry_changed (GtkEntry *entry, UrlEditorDialog *dialog)
+{
+	check_input (dialog);
+}
+
+static void
+file_entry_changed (GtkEntry *entry, UrlEditorDialog *dialog)
+{
+	check_input (dialog);
+}
+
+static void
+port_entry_changed (GtkEntry *entry, UrlEditorDialog *dialog)
+{
+}
+
+static void
+username_entry_changed (GtkEntry *entry, UrlEditorDialog *dialog)
+{
+}
+
+static void
+password_entry_changed (GtkEntry *entry, UrlEditorDialog *dialog)
+{
+}
+
+static void
+remember_pw_toggled (GtkToggleButton *toggle, UrlEditorDialog *dialog)
+{
 }
 
 static gboolean
@@ -261,10 +321,17 @@ url_editor_dialog_construct (UrlEditorDialog *dialog)
 	}
 
 	/* FIXME - url */
-	g_signal_connect (G_OBJECT (dialog->publish_service), "changed", G_CALLBACK(publish_service_changed), dialog);
-	g_signal_connect (G_OBJECT (dialog->type_selector), "changed", G_CALLBACK (type_selector_changed), dialog);
+	g_signal_connect (G_OBJECT (dialog->publish_service), "changed",           G_CALLBACK (publish_service_changed),  dialog);
+	g_signal_connect (G_OBJECT (dialog->type_selector),   "changed",           G_CALLBACK (type_selector_changed),    dialog);
 	g_signal_connect (G_OBJECT (dialog->events_selector), "selection_changed", G_CALLBACK (source_selection_changed), dialog);
-	g_signal_connect (G_OBJECT (dialog->tasks_selector), "selection_changed", G_CALLBACK (source_selection_changed), dialog);
+	g_signal_connect (G_OBJECT (dialog->tasks_selector),  "selection_changed", G_CALLBACK (source_selection_changed), dialog);
+
+	g_signal_connect (G_OBJECT (dialog->server_entry),    "changed",           G_CALLBACK (server_entry_changed),     dialog);
+	g_signal_connect (G_OBJECT (dialog->file_entry),      "changed",           G_CALLBACK (file_entry_changed),       dialog);
+	g_signal_connect (G_OBJECT (dialog->port_entry),      "changed",           G_CALLBACK (port_entry_changed),       dialog);
+	g_signal_connect (G_OBJECT (dialog->username_entry),  "changed",           G_CALLBACK (username_entry_changed),   dialog);
+	g_signal_connect (G_OBJECT (dialog->password_entry),  "changed",           G_CALLBACK (password_entry_changed),   dialog);
+	g_signal_connect (G_OBJECT (dialog->remember_pw),     "toggled",           G_CALLBACK (remember_pw_toggled),      dialog);
 
 	g_object_unref (gconf);
 
