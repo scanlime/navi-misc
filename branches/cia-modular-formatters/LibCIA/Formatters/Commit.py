@@ -263,32 +263,85 @@ class CommitTitle(CommitFormatter):
 class CommitToXHTML(CommitFormatter):
     """Converts commit messages to XHTML, represented as a Nouvelle tag tree."""
     medium = 'xhtml'
+    defaultComponentTree = """
+    <format>
+        <n:div style='border: 1px solid #888; background-color: #DDD; padding: 0.25em 0.5em; margin: 0em;'>
+            <autoHide> Commit by <n:strong><author/></n:strong></autoHide>
+            <autoHide> on <branch/></autoHide>
+            <n:span style='color: #888;'> :: </n:span>
+            <autoHide><n:b><version/></n:b></autoHide>
+            <autoHide>r<n:b><revision/></n:b></autoHide>
+            <n:b><module/></n:b>/<files/>:
+        </n:div>
+        <n:p style='padding: 0em; margin: 0.5em 0em;'>
+            <log/>
+        </n:p>
+    </format>
+    """
 
     def __init__(self):
         from LibCIA.Web import RegexTransform
         self.hyperlinker = RegexTransform.AutoHyperlink()
 
-    def joinMessage(self, metadata, log):
-        """Join the metadata and log message into a CSS-happy box"""
-        return [
-            tag('div', style=
-                         "border: 1px solid #888; "
-                         "background-color: #DDD; "
-                         "padding: 0.25em 0.5em;"
-                         "margin: 0em;"
-                         )[ metadata ],
-            tag('p', style=
-                         "padding: 0em; "
-                         "margin: 0.5em 0em; "
-                         )[ log ],
-            ]
+    def joinComponents(self, results):
+        """Nouvelle is just fine dealing with lists, don't join anything"""
+        return results
 
-    def format_log(self, log):
+    def walkComponents(self, nodes, args):
+        """Instead of concatenating lists, this implementation of walkComponents
+           nests them. This is more efficient with nouvelle, and lets us detect
+           empty results for <autoHide>.
+           """
+        results = []
+        for node in nodes:
+            results.append(self.evalComponent(node, args))
+        return results
+
+    def component_autoHide(self, element, args):
+        """The standard autoHide component is rewritten to properly recurse
+           into the contents of Nouvelle tags.
+           """
+        results = self.walkComponents(element.childNodes, args)
+        if self._checkVisibility(results):
+            print 'Visible'
+            return results
+        else:
+            print 'Hidden!'
+            return []
+
+    def _checkVisibility(self, nodes):
+        """Recursively check visibility for autoHide. Empty lists cause
+           us to return 0, and Nouvelle tags are recursed into.
+           """
+        print nodes
+        for node in nodes:
+            if not node:
+                return 0
+            if isinstance(node[0], tag):
+                if not self._checkVisibility(node[0].content):
+                    return 0
+        return 1
+
+    def evalComponent(self, node, args):
+        """Here we convert all components starting with 'n:' into Novuelle tags.
+           FIXME: This should really be using proper DOM namespace manipulation and such
+           """
+        if node.nodeType == node.ELEMENT_NODE and node.nodeName.startswith("n:"):
+            attrs = {}
+            for attr in node.attributes.itervalues():
+                attrs[str(attr.name)] = attr.value
+            return [tag(node.nodeName[2:], **attrs)[ self.walkComponents(node.childNodes, args) ]]
+        return CommitFormatter.evalComponent(self, node, args)
+
+    def component_log(self, element, args):
         """Convert the log message to HTML. If the message seems to be preformatted
            (it has some lines with indentation) it is stuck into a <pre>. Otherwise
            it is converted to HTML by replacing newlines with <br> tags and converting
            bulletted lists.
            """
+        log = XML.dig(args.message.xml, "message", "body", "commit", "log")
+        if not log:
+            return []
         content = []
         lines = Util.getNormalizedLog(log)
         nonListItemLines = []
@@ -341,42 +394,6 @@ class CommitToXHTML(CommitFormatter):
             content.append(tag('i')["No log message"])
 
         return self.hyperlinker.apply(content)
-
-    def format_author(self, author):
-        return [
-            " Commit by ",
-            tag('strong')[ XML.shallowText(author) ],
-            " ",
-            ]
-
-    def format_separator(self):
-        return tag('span', style="color: #888;")[" :: "]
-
-    def format_revision(self, rev):
-        return [' r', tag('b')[XML.shallowText(rev).strip()], ' ']
-
-    def format_version(self, ver):
-        return [' ', tag('b')[XML.shallowText(ver)], ' ']
-
-    def format_branch(self, branch):
-        return [' on ', XML.shallowText(branch), ' ']
-
-    def format_module(self, module):
-        return tag('b')[XML.shallowText(module).strip()]
-
-    def format_moduleAndFiles(self, message):
-        """Format the module name and files, joined together if they are both present."""
-        items = [' ']
-        module = XML.dig(message.xml, "message", "source", "module")
-        if module:
-            items.append(self.format_module(module))
-        files = XML.dig(message.xml, "message", "body", "commit", "files")
-        if files:
-            if items:
-                items.append("/")
-            items.append(self.format_files(files))
-        items.append(' ')
-        return items
 
 
 class CommitToXHTMLLong(CommitToXHTML):
