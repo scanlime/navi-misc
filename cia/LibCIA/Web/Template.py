@@ -221,8 +221,8 @@ class Page(Nouvelle.Twisted.Page):
     extraHeaders = []
 
     document = [
-        xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '
-            '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n'),
+        xml('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" '
+            '"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n'),
 
         tag('html', xmlns="http://www.w3.org/1999/xhtml")[
             tag('head')[
@@ -267,8 +267,8 @@ class Page(Nouvelle.Twisted.Page):
 
                     # Yep, this should be valid XHTML
                     tag('a', href="http://validator.w3.org/check/referer")[
-                        tag('img', src="http://www.w3.org/Icons/valid-xhtml10",
-                            alt="Valid XHTML 1.0!", height=31, width=88, _class="footer"),
+                        tag('img', src="http://www.w3.org/Icons/valid-xhtml11",
+                            alt="Valid XHTML 1.1!", height=31, width=88, _class="footer"),
                     ],
 
                     xml(" "),
