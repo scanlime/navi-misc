@@ -38,7 +38,28 @@ def rrd(*args):
     if child.wait():
         raise Exception("Error in rrdtool")
     return size
-    
+
+
+class Color:
+    """Represents an RGB color. When converted to a string, a hex color in #RRGGBB form
+       results. Component values are floating point, between 0 and 1.
+       """
+    def __init__(self, red, green, blue):
+        self.rgb = (red, green, blue)
+
+    def __str__(self):
+        bytes = [int(component * 255 + 0.49) for component in self.rgb]
+        return "#%02X%02X%02X" % tuple(bytes)
+
+    def blend(self, color, alpha):
+        """Blend this color with the given color according to the given alpha value.
+           When alpha==0, returns this color. When alpha==1, returns the given color.
+           """
+        newRgb = []
+        for i in xrange(3):
+            newRgb.append(self.rgb[i] * (1-alpha) + color.rgb[i] * alpha)
+        return Color(*newRgb)
+
 
 class ThermGrapher:
     """Collects data from a set of thermometers,
@@ -81,9 +102,8 @@ class ThermGrapher:
         # Set available colors for the therms to use- these
         # are removed as they're allocated by rrdInit
         self.thermColors = [
-            '#00A000',
-            '#0000FF',
-            '#FF0000',
+            Color(0,0,1),
+            Color(1,0,0),
             ]
 
         # Initialize RRD data for each therm
@@ -128,6 +148,11 @@ class ThermGrapher:
 
     def run(self):
         """Enter a loop collecting temperature data and updating the graphs and web page"""
+        # Go ahead and update the graphs once before taking readings, so
+        # it's easier to debug the graph code.
+        self.createGraphs()
+        self.createWebPage()
+
         self.running = True
         while self.running:
             self.collectSamples()
@@ -169,8 +194,9 @@ class ThermGrapher:
         index.write('<p>Current Temperatures:')
         index.write('<table border="1" cellspacing="1" cellpadding="4">\n')
         for therm in self.therms:
-            index.write("<tr><td>%s</td><td>%.01f &deg;F</td></tr>\n" %
-                        (therm.description, self.averages[therm]))
+            if self.averages.has_key(therm):
+                index.write("<tr><td>%s</td><td>%.01f &deg;F</td></tr>\n" %
+                            (therm.description, self.averages[therm]))
         index.write("</table>\n")
         index.write("updated %s\n" % time.strftime("%c", time.localtime()))
         index.write("</p>\n\n")
@@ -212,11 +238,21 @@ and <a href="http://ee-staff.ethz.ch/~oetiker/webtools/rrdtool/">rrdtool</a>
                     "--title", "temperatures - last %s (%s)" % (name, timestamp),
                     ]
 
-            # Add options for each therm
+            # Draw min/max ranges for each therm
             for therm in self.therms:
                 args.extend([
-                    "DEF:%s=%s:temperature:AVERAGE" % (therm.vname, therm.rrdfile),
-                    "LINE2:%s%s:%s" % (therm.vname, therm.color, therm.description),
+                    "DEF:%s_min=%s:temperature:MIN" % (therm.vname, therm.rrdfile),
+                    "DEF:%s_max=%s:temperature:MAX" % (therm.vname, therm.rrdfile),
+                    "CDEF:%s_span=%s_max,%s_min,-" % (therm.vname, therm.vname, therm.vname),
+                    "AREA:%s_min" % therm.vname,
+                    "STACK:%s_span%s" % (therm.vname, therm.color.blend(Color(1,1,1), 0.6)),
+                    ])
+
+            # Draw averages for each therm
+            for therm in self.therms:
+                args.extend([
+                    "DEF:%s_average=%s:temperature:AVERAGE" % (therm.vname, therm.rrdfile),
+                    "LINE1:%s_average%s:%s" % (therm.vname, therm.color, therm.description),
                     ])
 
             # Make the graph, save its size
