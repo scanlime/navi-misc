@@ -451,7 +451,9 @@ class CatalogIndex:
         catalogs = os.listdir(CatalogWriter.catalogDir)
         catalogs.sort()
         for catalog in catalogs:
-            yield os.path.join(CatalogWriter.catalogDir, catalog)
+            path = os.path.join(CatalogWriter.catalogDir, catalog)
+            if os.path.isfile(path):
+	        yield path
 
     def reindexAll(self):
         """Reindex all catalog files, in order, skipping those that
