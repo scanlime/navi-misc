@@ -9,6 +9,8 @@
 ;
 ;###############################################################################
 
+	errorlevel -226		; suppress the crazy include file warnings on gpasm
+
 #include <p16C765.inc>
 
 	errorlevel -302		; supress "register not in bank0, check page bits" message

@@ -38,11 +38,13 @@
 ;
 ;################################################################################
 
+	errorlevel -226		; suppress the crazy include file warnings on gpasm
+
 #include <p16C765.inc>
 #include "usb_defs.inc"
 #include "../include/rcpod_protocol.h"
 
-	errorlevel -302		; supress "register not in bank0, check page bits" message
+	errorlevel -302		; suppress "register not in bank0, check page bits" message
 
 ;#define	SHOW_ENUM_STATUS
 ;#define COUNTERRORS
