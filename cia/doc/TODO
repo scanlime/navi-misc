@@ -96,10 +96,3 @@ IRC
   the bots by rearranging requests among them, and it would make a nice indicator
   for the IRC status page
 
-Internals
----------
-
-- Port all XML code from twisted's domish to 4Suite's Domlette. This will give
-  CIA a better XPath implementation, faster XML in general, working namespaces,
-  a more stable XML API, and the ability to use XSLT in formatters if appropriate.
-

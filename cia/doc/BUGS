@@ -24,6 +24,3 @@ Known Bugs
 - The MIME types the web server gives out are a bit weird in the client
   scripts directory. Everything except HTML and images should probably be
   given out as text/plain.
-
-- The XML parser (somewhat hacked up domish) breaks when messages specify
-  a namespace. This should be fixed by porting from domish to 4Suite.
