@@ -26,6 +26,7 @@ struct _XTextBuffer
   textentry *text_last;
   guint num_lines;
   guint max_lines;
+  guint indent;
 };
 
 struct _XTextBufferClass

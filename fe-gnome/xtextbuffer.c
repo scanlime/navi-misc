@@ -3,6 +3,7 @@
 #include <string.h>
 
 #define SCRATCH_BUFFER_SIZE 4096
+#define MARGIN 2
 #define charlen(str) g_utf8_skip[*(guchar *)(str)]
 
 static void xtext_buffer_class_init (XTextBufferClass *klass);
@@ -130,9 +131,6 @@ xtext_buffer_append_indent (XTextBuffer *buffer, unsigned char *left, int llen, 
 {
   textentry *ent;
   unsigned char *str;
-  int space;
-  int tempindent;
-  int left_width;
 
   if (llen == -1)
     llen = strlen (left);
@@ -152,6 +150,14 @@ xtext_buffer_append_indent (XTextBuffer *buffer, unsigned char *left, int llen, 
   str[llen] = ' ';
   memcpy (str + llen + 1, right, rlen);
 
+  ent->left_len = llen;
+  ent->str = str;
+  ent->str_len = llen + 1 + rlen;
+  ent->indent = (buffer->indent - llen);
+
+  /* stamp? */
+
+  append_entry (buffer, ent);
 }
 
 void
@@ -204,13 +210,13 @@ append_entry (XTextBuffer *buffer, textentry *ent)
   }
 
   ent->stamp = 0;
-//  ent->str_width = text_width ();
   ent->multibyte = multibyte;
   ent->mark_start = -1;
   ent->mark_end = -1;
   ent->next = NULL;
 
-  // margin?
+  if (ent->indent < MARGIN)
+    ent->indent = MARGIN;
 
   /* append to our linked list */
   if (buffer->text_last)
@@ -219,15 +225,13 @@ append_entry (XTextBuffer *buffer, textentry *ent)
     buffer->text_first = ent;
   ent->prev = buffer->text_last;
 
-  /*
   ent->lines_taken = lines_taken (buffer, ent);
   buffer->num_lines += ent->lines_taken;
-  */
 
   if (buffer->max_lines > 2 && buffer->max_lines < buffer->num_lines)
-  {
     remove_top (buffer);
-  }
+
+  g_print ("append_entry\n");
 
   /* notify viewers */
   g_signal_emit_by_name (G_OBJECT (buffer), "append");
