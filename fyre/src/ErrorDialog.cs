@@ -20,6 +20,8 @@
  *
  */
 
+using System;
+
 namespace Fyre
 {
 	class ErrorDialog : Gtk.Dialog
@@ -44,6 +46,17 @@ namespace Fyre
 			VBox.PackStart (toplevel, true, true, 0);
 
 			AddButton (Gtk.Stock.Ok, Gtk.ResponseType.Ok);
+		}
+	}
+
+	class WarningDialog : ErrorDialog
+	{
+		[Glade.Widget] Gtk.Image	image;
+
+		public
+		WarningDialog (string summary, string description) : base (summary, description)
+		{
+			image.SetFromStock (Gtk.Stock.DialogWarning, Gtk.IconSize.Dialog);
 		}
 	}
 }
