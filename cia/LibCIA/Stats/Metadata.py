@@ -220,7 +220,7 @@ class MetadataThumbnailCache(Cache.AbstractStringCache):
         bg = Image.new("RGBA",
                        (i.size[0] + margins[0],
                         i.size[1] + margins[1]),
-                       (0, 0, 0, 0))
+                       (255, 255, 255, 0))
         bg.paste(i, (0,0))
        
         bg.thumbnail(size, Image.ANTIALIAS)
