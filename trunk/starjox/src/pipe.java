@@ -20,6 +20,7 @@
 /**
  * This class is for handling each connection made, and tunneling it.
  * @author Brandon Smith
+ * @version 1.0
  */
 
 import java.net.*;
@@ -28,15 +29,29 @@ import java.util.*;
 
 public class pipe extends Thread
 {
+	/** The input stream this pipe reads from. */
 	public InputStream in;
+	/** The output stream this pipe writes to. */
 	public OutputStream out;
 	
+	/**
+	 * A constructor for the pipe object
+	 * @param from The input stream to read 'from'
+	 * @param to The output stream to write 'to'
+	 * @author Brandon Smith
+	 * @version 1.0
+	 */
 	public pipe(InputStream from, OutputStream to)
 	{
 		in = from;
 		out = to;
 	}
 	
+	/**
+	 * This method implements the run method for Threaded stuff.
+	 * @author Brandon Smith
+	 * @version 1.0
+	 */
 	public void run()
 	{
 		int temp;

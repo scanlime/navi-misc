@@ -20,6 +20,7 @@
 /**
  * This class is for setting up the proxy server and creating new connections.
  * @author Brandon Smith
+ * @version 1.0
  */
 
 import java.net.*;
@@ -28,11 +29,21 @@ import java.util.*;
 
 public class smain
 {
+	/** This holds the string that describes the host getting proxied to. */
 	public static String host;
-	public static int eport; //external port (for the server)
-	public static int iport; //internal port (for what it forwards to)
+	/** The external port (open to the rest of the world). */
+	public static int eport;
+	/** The port on the internal network (what it gets forwarded to). */
+	public static int iport;
+	/** The proxy server's listening socket. */
 	public static ServerSocket server;
 	
+	/**
+	 * This is the main function, starts everything going.
+	 * @param args The command line arguments to this program.
+	 * @author Brandon Smith
+	 * @version 1.0
+	 */
 	public static void main(String[] args)
 	{
 		argparse(args);
@@ -41,6 +52,11 @@ public class smain
 		listen();
 	}
 	
+	/**
+	 * This method is what handles the listening and initializing connections
+	 * @author Brandon Smith
+	 * @version 1.0
+	 */
 	public static void listen()
 	{
 		Socket sout = null;
@@ -63,6 +79,8 @@ public class smain
 				out = sin.getOutputStream();
 				in = sout.getInputStream();
 				new pipe(in,out).start();
+				
+				//tell the world I am happy!
 				System.out.println("Connection from "+sout.getInetAddress().getHostAddress());
 			}
 		}
@@ -72,6 +90,11 @@ public class smain
 		}
 	}
 	
+	/**
+	 * This method starts the server.
+	 * @author Brandon Smith
+	 * @version 1.0
+	 */
 	public static void startserver()
 	{
 		try
@@ -85,6 +108,12 @@ public class smain
 		}
 	}
 	
+	/**
+	 * This method is responsible for argument parsing and variable init stuff.
+	 * @param args The raw command line arguments.
+	 * @author Brandon Smith
+	 * @version 1.0
+	 */
 	public static void argparse(String[] args)
 	{
 		try
