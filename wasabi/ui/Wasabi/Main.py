@@ -63,7 +63,8 @@ class Main:
             Sequencer.FadeOut(0.2, (1,1,1), logoInterrupter),
 
             # Run the device menu, with fade in and out
-            Sequencer.FadeIn(0.5, (1,1,1), Sequencer.FadeOut(0.25, (0,0,0), DeviceMenu))
+            Sequencer.FadeIn(0.5, (1,1,1), Sequencer.FadeOut(0.25, (0,0,0), lambda book:
+                                                             DeviceMenu(book, self.hardware)))
 
             # The device menu will insert additional pages at the end,
             # depending on the selection made.
@@ -92,7 +93,9 @@ class DeviceMenu(Menu.RingMenu):
        Devices can be made available and unavailable during the operation of the menu, with
        the menu properly reflecting this.
        """
-    def __init__(self, book):
+    def __init__(self, book, hardware):
+        self.hardware = hardware
+
         # For now this just shows all icons we have.
         # Construct a list of Menu.Item instances for each loaded icon.
         menuItems = [Menu.Item(Icon.load(name)) for name in Icon.getIconDict().keys()]
@@ -100,6 +103,9 @@ class DeviceMenu(Menu.RingMenu):
 
     def onSelected(self, item):
         # Debuggative cruft
+        if self.hardware.mi6k:
+            self.hardware.mi6k.vfd.powerOn()
+            self.hardware.mi6k.vfd.writeScreen(item.icon.text)
         print item.icon.text
 
 ### The End ###
