@@ -51,7 +51,8 @@ a real capabilities system.
 #
 
 from twisted.web import xmlrpc
-import anydbm, pickle, binascii, struct, os
+import binascii, os
+import Rack
 
 
 class SecurityInterface(xmlrpc.XMLRPC):
@@ -109,69 +110,32 @@ def encodeKey(key):
     return binascii.b2a_base64(key)
 
 
-def serializeCap(obj):
-    r"""Serialize an arbitrary python object used as a capability identifier.
-        Capabilities are serialized to the format used by the 'pickle' module,
-        but we write our own pickler in order to guarantee that a particular input
-        always generates the same serialized output. (This is not true in the standard
-        pickler)
-
-        This pickler is quite simple, and currently only supports data structures composed
-        of tuples and strings. It will pickle lists as tuples.
-        It may be extended to support other types as long as the serialized representation
-        of all supported objects stays constant.
-
-        >>> p = serializeCap('boing')
-        >>> p
-        'T\x05\x00\x00\x00boing.'
-        >>> pickle.loads(p)
-        'boing'
-
-        >>> p = serializeCap(('boing', ['x', 'squeegie']))
-        >>> p
-        '(T\x05\x00\x00\x00boing(T\x01\x00\x00\x00xT\x08\x00\x00\x00squeegiett.'
-        >>> pickle.loads(p)
-        ('boing', ('x', 'squeegie'))
-        """
-    # Most of the work is done in _serializeCap, but we have to tack on
-    # the stop instruction after it all.
-    return _serializeCap(obj) + '.'
-
-
-def _serializeCap(obj):
-    """Recursive innards of serializeCap()"""
-    if type(obj) == type(()) or type(obj) == type([]):
-        return '(' + ''.join([_serializeCap(i) for i in obj]) + 't'
-    elif type(obj) == str:
-        return 'T' + struct.pack('<I', len(obj)) + obj
-    else:
-        raise TypeError("Unsupported type %r in serializeCap()" % type(obj))
-
-
-def deserializeCap(obj):
-    """Since a serialized capability is just a pickle with some added restrictions,
-       we can use python's standard unpickler for this.
-       """
-    return pickle.loads(obj)
-
-
 class CapabilityDB(object):
     """A simple capability database- capabilities are mapped from a
        short identifier to an actual capability key taking the form of
-       an 'unguessable' random number. Capability identifiers are anything
-       that can be handled by serializeCap/deserializeCap-
-       currently this includes data structures composed of sequences,
-       strings, and numbers.
+       an 'unguessable' random number. Capability identifiers are any
+       python object compatible with Rack.KeyPickler.
 
        This database provides the ability to test a key for some particular
        capability, retrieve the key for a particular capability, and revoke
        capabilities. Revoking a capability invalidates the key assigned to it.
 
-       We use an anydbm database to map from serialized Capabilities to raw
-       capability keys.
+       We use a rack to map from serialized Capabilities to raw capability keys.
+
+          >>> caps = CapabilityDB('/tmp/capability_test.db')
+          >>> bunny_key = caps.grant('fuzzyBunny')
+          >>> banana_key = caps.grant(('banana', None))
+          >>> caps.test(bunny_key, 'fuzzyBunny')
+          True
+          >>> caps.test(banana_key, ('banana', None))
+          True
+          >>> caps.test(bunny_key, ('banana', None))
+          False
+          >>> caps.test(banana_key, ('banana', 4))
+          False
        """
     def __init__(self, fileName, flags='c', mode=0600):
-        self.db = anydbm.open(fileName, flags, mode)
+        self.rack = Rack.open(fileName, flags, mode)
 
     def saveKey(self, capability, file):
         """Save the key for a capability to the given filename.
@@ -186,13 +150,13 @@ class CapabilityDB(object):
         f.close()
 
     def close(self):
-        self.db.close()
+        self.rack.close()
 
     def test(self, key, capability):
         """Test the given key for some capability"""
         decoded = decodeKey(key)
         try:
-            return self.db[serializeCap(capability)] == decoded
+            return self.rack[capability] == decoded
         except KeyError:
             return False
 
@@ -212,7 +176,7 @@ class CapabilityDB(object):
            returns None.
            """
         try:
-            return encodeKey(self.db[serializeCap(capability)])
+            return encodeKey(self.rack[capability])
         except KeyError:
             if create:
                 return self.create(capability)
@@ -220,19 +184,19 @@ class CapabilityDB(object):
     def create(self, capability):
         """Create a new key for the given capability, returning it"""
         key = createRandomKey()
-        self.db[serializeCap(capability)] = key
+        self.rack[capability] = key
         return encodeKey(key)
 
     def revoke(self, capability):
         """Delete the current key for the given capability if one exists"""
         try:
-            del self.db[serializeCap(capability)]
+            del self.rack[capability]
         except KeyError:
             pass
 
     def list(self):
         """Return all capabilities we have in the database"""
-        return map(deserializeCap, self.db.keys())
+        return self.rack.keys()
 
 
 def _test():
