@@ -8,6 +8,8 @@
 void usb_init();
 void usb_poll();
 
+void usb_handle_vendor_request();   /* Application-defined */
+
 struct usb_ctrlrequest {
   unsigned char bRequestType;
   unsigned char bRequest;
