@@ -185,4 +185,8 @@ class Device:
         self.ADCON0 = 0x00
         self.ADCON1 = 0x00
 
+    def analogAll(self):
+        """Scan all analog to digital converters, return their values"""
+        return struct.unpack("BBBBBBBB", ioctl(self.dev, 0x3703, struct.pack("xxxxxxxx")))
+
 ### The End ###
