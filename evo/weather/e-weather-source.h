@@ -67,7 +67,11 @@ typedef struct {
 	float high, low;
 	/* probability of precipitation */
 	int pop;
+	/* snowfall forecast - internal storage in cm */
+	float snowhigh, snowlow;
 } WeatherForecast;
+
+typedef void (*SourceFinished)(GList *results);
 
 #define E_TYPE_WEATHER_SOURCE            (e_weather_source_get_type ())
 #define E_WEATHER_SOURCE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), E_TYPE_WEATHER_SOURCE, EWeatherSource))
@@ -88,15 +92,13 @@ struct _EWeatherSource {
 struct _EWeatherSourceClass {
 	GObjectClass parent_class;
 
-	/* Overrideable methods */
-
 	/* Returns a list of WeatherForecast objects containing the
 	 * data for the forecast. */
-	GList* (*parse)	(EWeatherSource *source, const char *buffer);
+	void (*parse)	(EWeatherSource *source, SourceFinished done);
 };
 
 GType	e_weather_source_get_type (void);
-GList*	e_weather_source_parse (EWeatherSource *source, const char *buffer);
+void	e_weather_source_parse (EWeatherSource *source, SourceFinished done);
 
 
 

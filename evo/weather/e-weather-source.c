@@ -21,11 +21,11 @@
 
 #include "e-weather-source.h"
 
-GList*
-e_weather_source_parse (EWeatherSource *source, const char *buffer)
+void
+e_weather_source_parse (EWeatherSource *source, SourceFinished done)
 {
 	EWeatherSourceClass *class = (EWeatherSourceClass*) G_OBJECT_GET_CLASS (source);
-	return class->parse (source, buffer);
+	return class->parse (source, done);
 }
 
 static void
