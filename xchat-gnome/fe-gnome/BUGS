@@ -1,5 +1,8 @@
 * gconf schemas aren't being installed properly
 
+* completion does not properly replace the common base (capitalization-wise)
+  when there are multiple matches
+
 * high-speed DCC transfers tend to make the whole application crap out. Other
   DCCs die, lag becomes astronomical. This is almost certainly a real xchat
   bug
