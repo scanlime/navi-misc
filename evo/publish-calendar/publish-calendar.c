@@ -24,14 +24,17 @@
 #include <gconf/gconf-client.h>
 #include <calendar/gui/e-cal-popup.h>
 #include <calendar/gui/e-cal-config.h>
+#include <shell/es-event.h>
 #include <libgnome/gnome-i18n.h>
 #include "url-editor-dialog.h"
 
 static GtkListStore *store = NULL;
 static GHashTable *uri_timeouts = NULL;
 static GSList *publish_uris = NULL;
+static gint online = 0;
 
 int        e_plugin_lib_enable (EPlugin *ep, int enable);
+void       online_state_changed (EPlugin *ep, ESEventTargetState *target);
 void       publish_calendar_context_activate (EPlugin *ep, ECalPopupTargetSource *target);
 GtkWidget *publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data);
 
@@ -47,6 +50,8 @@ typedef struct {
 static void
 publish (EPublishUri *uri)
 {
+	if (online) {
+	}
 }
 
 static void
@@ -54,6 +59,7 @@ add_timeout (EPublishUri *uri)
 {
 	guint id;
 
+	/* We set the timeout for now+frequency and trigger an immediate publish */
 	switch (uri->publish_frequency) {
 	case URI_PUBLISH_DAILY:
 		id = g_timeout_add (24 * 60 * 60 * 1000, (GSourceFunc) publish, uri);
@@ -64,6 +70,9 @@ add_timeout (EPublishUri *uri)
 		g_hash_table_insert (uri_timeouts, uri, GUINT_TO_POINTER (id));
 		break;
 	}
+
+	publish (uri);
+
 }
 
 static void
@@ -278,6 +287,12 @@ publish_calendar_context_activate (EPlugin *ep, ECalPopupTargetSource *target)
 	/* FIXME: implement */
 }
 
+void
+online_state_changed (EPlugin *ep, ESEventTargetState *target)
+{
+	online = target->state;
+}
+
 GtkWidget *
 publish_calendar_locations (EPlugin *epl, EConfigHookItemFactoryData *data)
 {
@@ -375,8 +390,6 @@ int e_plugin_lib_enable (EPlugin *ep, int enable)
 			/* Add a timeout - we always set it for now+frequency, since we
 			 * publish later on in this function */
 			add_timeout (uri);
-
-			publish (uri);
 
 			l = g_slist_next (l);
 		}
