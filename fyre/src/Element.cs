@@ -34,6 +34,13 @@ namespace Fyre
 		// necessary subscripts, UTF-8 trickery, etc
 		abstract public string[,]	InputDesc ();
 		abstract public string[,]	OutputDesc ();
+
+		private System.Guid id;
+
+		protected void NewID ()
+		{
+			id = System.Guid.NewGuid ();
+		}
 	}
 
 }
