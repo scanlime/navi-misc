@@ -1,0 +1,23 @@
+-- MySQL dump 9.09
+--
+-- Host: localhost    Database: fslistdb
+-- ------------------------------------------------------
+-- Server version	4.0.16-log
+
+--
+-- Table structure for table `servers`
+--
+
+CREATE TABLE servers2 (
+  id int(10) unsigned NOT NULL auto_increment,
+  servername varchar(255) NOT NULL default '',
+  address varchar(255) NOT NULL default '',
+  port int(1) unsigned NOT NULL default '0',
+  game varchar(255) NOT NULL default '',
+  version float(4,2) unsigned NOT NULL default '0.00',
+  os varchar(255) NOT NULL default '',
+  maxplayers int(10) unsigned NOT NULL default '0',
+  currentplayers int(10) unsigned NOT NULL default '0',
+  lastupdate int(1) unsigned NOT NULL default '0',
+  PRIMARY KEY  (id)
+) TYPE=MyISAM COMMENT='the list of servers';
