@@ -15,6 +15,27 @@
 #define _GAME_MANAGER_H_
 
 #include "gameloop.h"
+#include <vector>
+#include <map>
+#include <string>
+
+class CBaseGame
+{
+public:
+	CBaseGame(){gameLoop = NULL;}
+	CBaseGame ( CBaseGameLoop * pGameLoop ){Set(pGameLoop);}
+	virtual	~CBaseGame(){return;}
+	virtual void Set ( CBaseGameLoop * pGameLoop ){gameLoop = pGameLoop;}
+
+	virtual void Init ( void ) = 0;
+	virtual void Attach ( void ) = 0;
+	virtual void Release ( void ) = 0;
+
+	virtual bool Think ( void ) = 0;
+
+protected:
+	CBaseGameLoop	*gameLoop;
+};
 
 class CGameManger
 {
@@ -35,6 +56,10 @@ public:
 
 protected:
 	CBaseGameLoop * gameLoop;
+	bool						activeGame;
+
+	typedef std::map<std::string,CBaseGame*>	gameModules;
+	CBaseGame*	theGame;
 };
 
 #endif //_GAME_MANAGER_H_
