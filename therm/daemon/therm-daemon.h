@@ -76,6 +76,10 @@ char*  db_strdup_escape          (MYSQL*                mysql,
 int    db_query_printf           (MYSQL*                mysql,
 				  const char*           format,
 				  ...);
+
+void   db_begin_transaction      (MYSQL*                mysql);
+void   db_commit_transaction     (MYSQL*                mysql);
+
 int    db_find_source            (MYSQL*                mysql,
 				  const char*           medium,
 				  int                   protocol,
