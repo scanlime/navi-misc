@@ -166,6 +166,7 @@ void fe_progressbar_end(struct server *serv) {
 }
 
 void fe_print_text(struct session *sess, char *text) {
+	g_print("fe_print_text() \"%s\"\n", text);
 	/* FIXME: implement */
 }
 
@@ -278,7 +279,7 @@ void fe_ignore_update(int level) {
 }
 
 void fe_beep(void) {
-	/* FIXME: implement */
+	gdk_beep();
 }
 
 void fe_lastlog(session *sess, session *lastlog_sess, char *sstr) {

@@ -44,8 +44,6 @@ void initialize_main_window() {
 
 	gtk_xtext_refresh(text, FALSE);
 	gtk_xtext_buffer_show(text, text->buffer, TRUE);
-	gtk_xtext_append_indent(text->buffer, "<hello>", 7, "yyyyyyep", 8);
-	gtk_xtext_append_indent(text->buffer, "<hello world>", 13, "yyyyyyep again", 14);
 
 	gtk_widget_show_all(GTK_WIDGET(text));
 	gtk_widget_show_all(GTK_WIDGET(gui.main_window));
