@@ -911,11 +911,15 @@ class Relation:
 
     def _reinforce(self, cursor):
         """Database interaction implementing reinforce()"""
-        # First touch the edge to make sure it exists
-        cursor.execute("INSERT IGNORE INTO stats_relations "
-                       "(target_a_path, target_b_path) VALUES(%s, %s)" %
-                       (Database.quote(self.a.path, 'varchar'),
-                        Database.quote(self.b.path, 'varchar')))
+        # First touch the edge to make sure it exists. We have to do this
+        # inside two autoCreateTargetFor levels, to create both stats targets
+        # if they don't yet exist.
+        self.a._autoCreateTargetFor(cursor, self.b._autoCreateTargetFor,
+                                    cursor, cursor.execute,
+                                    "INSERT IGNORE INTO stats_relations "
+                                    "(target_a_path, target_b_path) VALUES(%s, %s)" %
+                                    (Database.quote(self.a.path, 'varchar'),
+                                     Database.quote(self.b.path, 'varchar')))
 
         cursor.execute("UPDATE stats_relations "
                        "SET strength = strength + 1, freshness = %s "
