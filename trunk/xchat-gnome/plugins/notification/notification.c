@@ -24,17 +24,17 @@
 #include <gconf/gconf-client.h>
 
 #include "xchat-plugin.h"
-#include "navigation_tree.h"
+//#include "navigation_tree.h"
 #include "eggtrayicon.h"
 
-#define VERSION "0.1"
+#define NOTIFICATION_VERSION "0.1"
 
 
-static xchat_plugin *ph;			// Plugin handle.
-static gboolean window_visible = TRUE;
-static EggTrayIcon *notification;	// Notification area icon.
-static GtkWidget *image;			// The image displayed by the icon.
-static GdkPixbuf *logo,				// Pixbufs for the notification area.
+static xchat_plugin *ph;				// Plugin handle.
+static gboolean window_visible = TRUE;	// Keep track of whether the window is visible.
+static EggTrayIcon *notification;		// Notification area icon.
+static GtkWidget *image;				// The image displayed by the icon.
+static GdkPixbuf *logo,					// Pixbufs for the notification area.
 				 *new_data,
 				 *msg_said,
 				 *nick_said;
@@ -48,7 +48,7 @@ xchat_plugin_get_info (char **plugin_name, char **plugin_desc,
 {
 	*plugin_name = "Notification";
 	*plugin_desc = "A notification area plugin.";
-	*plugin_version = VERSION;
+	*plugin_version = NOTIFICATION_VERSION;
 
 	if (reserved)
 		*reserved = NULL;
