@@ -49,6 +49,7 @@ class Bus:
 
 
 def rumbleDemo(b):
+    print "Testing rumble pak"
     # Rumble motor on...
     b.write(0xC000, chr(1) * 32)
     time.sleep(0.2)
@@ -57,7 +58,12 @@ def rumbleDemo(b):
 
 
 def memoryDemo(b):
-    print "boing"
+    print "Reading back RAM"
+    addr = 0x0000
+    while addr < 0x10000:
+        print "0x%04X:  %s" % (addr, " ".join(["%02X" % ord(byte) for byte in b.read(addr)]))
+        addr += 32
+
 
 def demo():
     b = Bus()
