@@ -78,7 +78,7 @@ class BotFactory(protocol.ClientFactory):
 
 class BotAllocator:
     """Manages bot allocation for one IRC server"""
-    def __init__(self, server, nickFormat="CIA-%d", channelsPerBot=15):
+    def __init__(self, server, nickFormat, channelsPerBot=15):
         self.nickFormat = nickFormat
         self.channelsPerBot = channelsPerBot
         self.host, self.port = server
@@ -228,8 +228,13 @@ class BotAllocator:
 class BotNetwork:
     """A system of any number of bots on any number of IRC messages
        capable of announcing messages.
+
+       nickFormat is a format string containing a %d, used to generate
+       nicknames for the bots.
        """
-    def __init__(self):
+    def __init__(self, nickFormat):
+        self.nickFormat = nickFormat
+
         # A map from (host, port) to BotAllocator instances
         self.servers = {}
 
@@ -259,7 +264,7 @@ class BotNetwork:
            """
         server = tuple(server)
         if not self.servers.has_key(server):
-            allocator = BotAllocator(server)
+            allocator = BotAllocator(server, nickFormat=self.nickFormat)
             allocator.kickCallback = self.kickCallback
             self.servers[server] = allocator
         self.servers[server].addChannel(channel)
