@@ -25,8 +25,10 @@ class RcpodTestCase(unittest.TestCase):
     """A TestCase subclass that opens the first available
        rcpod device and closes it afterwards.
        """
+    devClass = pyrcpod.OpenedRcpod
+
     def setUp(self):
-        self.rcpod = pyrcpod.devices[0].open()
+        self.rcpod = pyrcpod.devices[0].open(self.devClass)
 
     def tearDown(self):
         # Reset the rcpod before closing it, in case the test
