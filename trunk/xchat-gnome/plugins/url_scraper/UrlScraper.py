@@ -119,7 +119,7 @@ class URLScraper:
             first.
             '''
         if self.scrape_email:
-            grabbedURL( nick, match )
+            self.grabbedURL( nick, match )
 
     regexes = {
         re.compile('(ht|f)tps?://[^\s\>\]\)]+'):                 grabbedURL,
