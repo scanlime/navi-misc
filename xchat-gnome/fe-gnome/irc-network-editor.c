@@ -45,10 +45,35 @@ irc_network_editor_class_init (IrcNetworkEditorClass *klass)
 }
 
 static void
+use_globals_set (GtkRadioButton *button, IrcNetworkEditor *e)
+{
+	gchar *text;
+
+	text = gconf_client_get_string (e->gconf, "/apps/xchat/irc/nickname", NULL);
+	gtk_entry_set_text (GTK_ENTRY (e->nickname), text);
+	g_free (text);
+
+	text = gconf_client_get_string (e->gconf, "/apps/xchat/irc/realname", NULL);
+	gtk_entry_set_text (GTK_ENTRY (e->realname), text);
+	g_free (text);
+
+	gtk_widget_set_sensitive (e->nickname, FALSE);
+	gtk_widget_set_sensitive (e->realname, FALSE);
+}
+
+static void
+use_custom_set (GtkRadioButton *button, IrcNetworkEditor *e)
+{
+	gtk_widget_set_sensitive (e->nickname, TRUE);
+	gtk_widget_set_sensitive (e->realname, TRUE);
+}
+
+static void
 irc_network_editor_init (IrcNetworkEditor *dialog)
 {
 	GtkCellRenderer *renderer;
 	GtkSizeGroup *group;
+	gchar **enc;
 
 	dialog->gconf = NULL;
 	dialog->network = NULL;
@@ -96,6 +121,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->servers), GTK_TREE_MODEL (dialog->store));
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->servers), 0, "Server", renderer, "text", 0, NULL);
+	g_object_set (G_OBJECT (renderer), "editable", TRUE, NULL);
 
 	dialog->encoding = gtk_combo_box_new_text ();
 	gtk_widget_show (dialog->encoding);
@@ -106,6 +132,25 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	gtk_size_group_add_widget (group, dialog->encoding);
 	gtk_size_group_add_widget (group, dialog->password);
 	g_object_unref (group);
+
+	enc = encodings;
+	do {
+		gtk_combo_box_append_text (GTK_COMBO_BOX (dialog->encoding), _(*enc));
+		enc++;
+	} while (*enc);
+
+	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_APPLY,  GTK_RESPONSE_APPLY);
+	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK,     GTK_RESPONSE_OK);
+	gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
+
+	gtk_container_set_border_width (GTK_CONTAINER (dialog), 6);
+	gtk_container_add (GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), dialog->toplevel);
+	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
+	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+
+	g_signal_connect (G_OBJECT (dialog->use_globals), "toggled", G_CALLBACK (use_globals_set), dialog);
+	g_signal_connect (G_OBJECT (dialog->use_custom),  "toggled", G_CALLBACK (use_custom_set),  dialog);
 }
 
 GType
@@ -127,30 +172,6 @@ irc_network_editor_get_type (void)
 	}
 
 	return irc_network_editor_type;
-}
-
-static void
-use_globals_set (GtkRadioButton *button, IrcNetworkEditor *e)
-{
-	gchar *text;
-
-	text = gconf_client_get_string (e->gconf, "/apps/xchat/irc/nickname", NULL);
-	gtk_entry_set_text (GTK_ENTRY (e->nickname), text);
-	g_free (text);
-
-	text = gconf_client_get_string (e->gconf, "/apps/xchat/irc/realname", NULL);
-	gtk_entry_set_text (GTK_ENTRY (e->realname), text);
-	g_free (text);
-
-	gtk_widget_set_sensitive (e->nickname, FALSE);
-	gtk_widget_set_sensitive (e->realname, FALSE);
-}
-
-static void
-use_custom_set (GtkRadioButton *button, IrcNetworkEditor *e)
-{
-	gtk_widget_set_sensitive (e->nickname, TRUE);
-	gtk_widget_set_sensitive (e->realname, TRUE);
 }
 
 static void
@@ -200,30 +221,10 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 
 	gtk_entry_set_text (GTK_ENTRY (e->password), e->network->password);
 
-	{
-		gchar **enc = (gchar **) encodings;
-		do {
-			gtk_combo_box_append_text (GTK_COMBO_BOX (e->encoding), _(*enc));
-			enc++;
-		} while (*enc);
-	}
 	gtk_combo_box_set_active (GTK_COMBO_BOX (e->encoding), e->network->encoding);
-
-	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_APPLY,  GTK_RESPONSE_APPLY);
-	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
-	gtk_dialog_add_button (GTK_DIALOG (e), GTK_STOCK_OK,     GTK_RESPONSE_OK);
-	gtk_dialog_set_default_response (GTK_DIALOG (e), GTK_RESPONSE_OK);
-
-	gtk_container_set_border_width (GTK_CONTAINER (e), 6);
-	gtk_container_add (GTK_CONTAINER(GTK_DIALOG(e)->vbox), e->toplevel);
-	gtk_dialog_set_has_separator (GTK_DIALOG (e), FALSE);
-	gtk_window_set_modal (GTK_WINDOW (e), TRUE);
 
 	populate_server_list (e);
 	populate_autojoin_list (e);
-
-	g_signal_connect (G_OBJECT (e->use_globals), "toggled", G_CALLBACK (use_globals_set), e);
-	g_signal_connect (G_OBJECT (e->use_custom),  "toggled", G_CALLBACK (use_custom_set),  e);
 }
 
 IrcNetworkEditor *
