@@ -220,8 +220,8 @@ on_glarea_realize (GtkWidget *widget, gpointer data)
   editor->view = view_new (editor->scene);
 
   editor->view->camera->azimuth = 45;
-  editor->view->camera->elevation = -25;
-  editor->view->camera->distance = 750;
+  editor->view->camera->elevation = 25;
+  editor->view->camera->distance = 900;
   editor->view->camera->position[2] = 4;
 
   g_signal_connect(G_OBJECT(widget), "configure-event", G_CALLBACK(on_glarea_configure), data);

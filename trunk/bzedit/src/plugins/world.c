@@ -276,7 +276,8 @@ ground_drawable_init (GroundDrawable *gd)
   Drawable *d = DRAWABLE (gd);
 
   d->texture = g_strdup ("data/textures/ground.png");
-  gd->base_texture_repeat = 90;
+  d->render.statico = FALSE;
+  gd->base_texture_repeat = 4.5;
   gd->overlay_texture_repeat = 1;
 }
 
@@ -284,8 +285,13 @@ static void
 ground_drawable_draw_to_list (DisplayList *dl)
 {
   GroundDrawable *gd = GROUND_DRAWABLE (dl);
+  float width, height;
+  float wrep, hrep;
 
-  g_print ("ground_drawable_draw_to_list ()\n");
+  width = gd->size[0];
+  height = gd->size[1];
+  wrep = width * 2 / gd->base_texture_repeat;
+  hrep = height * 2 / gd->base_texture_repeat;
 
   glPushMatrix ();
 
@@ -297,20 +303,20 @@ ground_drawable_draw_to_list (DisplayList *dl)
   glBegin(GL_QUADS);
   glNormal3f (0, 0, 1);
 
-  glTexCoord2f (gd->base_texture_repeat, gd->base_texture_repeat);
-  glVertex3f (gd->size[0], gd->size[1], 0);
+  glTexCoord2f ( wrep,   hrep);
+  glVertex3f   ( width,  height, 0);
 
-  glTexCoord2f (0, gd->base_texture_repeat);
-  glVertex3f (-gd->size[0], gd->size[1], 0);
+  glTexCoord2f ( 0,      hrep);
+  glVertex3f   (-width,  height, 0);
 
-  glTexCoord2f (0, 0);
-  glVertex3f (-gd->size[0], -gd->size[1], 0);
+  glTexCoord2f ( 0,      0);
+  glVertex3f   (-width, -height, 0);
 
-  glTexCoord2f (gd->base_texture_repeat, 0);
-  glVertex3f (gd->size[0], -gd->size[1], 0);
+  glTexCoord2f ( wrep,   0);
+  glVertex3f   ( width, -height, 0);
 
   glEnd();
-//  glEnable (GL_CULL_FACE);
+  glEnable (GL_CULL_FACE);
   glLightModeli (GL_LIGHT_MODEL_TWO_SIDE, 0);
   glPopMatrix ();
 }

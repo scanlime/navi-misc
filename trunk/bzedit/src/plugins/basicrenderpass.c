@@ -91,19 +91,11 @@ texture_group_draw (Drawable *d, RenderState *rstate)
 {
   DisplayList *dl = DISPLAY_LIST (d);
   TextureGroup *tg = TEXTURE_GROUP (d);
-  g_print("texture_group_draw()\n");
   GList *dr;
 
   if (dl->dirty)
     display_list_build_list (dl);
   glCallList (dl->list);
-
-  glBegin (GL_QUADS);
-  glVertex3f (-50, -50, 0);
-  glVertex3f (-50,  50, 0);
-  glVertex3f ( 50,  50, 0);
-  glVertex3f ( 50, -50, 0);
-  glEnd ();
 
   for (dr = tg->dynamic_drawables; dr; dr = dr->next)
   {
@@ -135,13 +127,8 @@ texture_group_draw_to_list (DisplayList *dl)
   GList *d;
   TextureGroup *tg = TEXTURE_GROUP (dl);
 
-  g_print ("texture_group_draw_to_list()\n");
-
   for (d = tg->static_drawables; d; d = d->next)
-  {
-    g_print ("iterating static drawables, drawable = '%s'\n", g_type_name (G_TYPE_FROM_INSTANCE (d->data)));
     display_list_build_list (DISPLAY_LIST (d->data));
-  }
 }
 
 static void
@@ -218,6 +205,8 @@ brp_render_iterate (gchar *texture, TextureGroup *group, RenderState *rstate)
   static TextureManager *tman = NULL;
   if (!tman)
     tman = texture_manager_new ();
+
+  glEnable (GL_TEXTURE_2D);
 
   texture_manager_bind (tman, texture);
   texture_group_draw (DRAWABLE (group), rstate);
