@@ -28,7 +28,7 @@ import psyco
 psyco.full()
 
 def log(msg):
-    msg = "[%s] %s" % (time.ctime, msg)
+    msg = "[%s] %s" % (time.ctime(), msg)
     print msg
     open("spreadfs.log", "a").write(msg + "\n")
 
