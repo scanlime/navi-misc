@@ -205,15 +205,26 @@ void i2c_write_packets(unsigned char *packets, int length)
 
 void led_update()
 {
+  static int prev_brightness = 0;
+
+  /* Decay the LED brightness linearly each time through
+   * the infrequent updates loop. This is crappy, but we
+   * don't have any timer hardware on chip.
+   */
   if (led_brightness > led_decay_rate)
     led_brightness -= led_decay_rate;
   else
     led_brightness = 0;
 
-  if (fpga_done()) {
+  /* Update the LED brightness over I2C, but only if the FPGA
+   * might be listening and the brightness actually changed.
+   */
+  if (fpga_done() && led_brightness != prev_brightness) {
     i2c_start(UNICONE_I2C_LED);
     i2c_write_byte(led_brightness >> 8, 0);
     i2c_write_byte(led_brightness & 0xFF, 1);
+
+    prev_brightness = led_brightness;
   }
 }
 
