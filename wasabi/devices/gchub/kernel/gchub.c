@@ -83,15 +83,9 @@
 
 /* Compatibility with Linux 2.4's task queues. Makes them look just like 2.6 work queues */
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,5,44))
-#define work_struct tq_struct
-#define schedule_work(q) \
-        MOD_INC_USE_COUNT; \
-        if (schedule_task((q)) == 0) \
-                MOD_DEC_USE_COUNT;
-static inline void flush_scheduled_work(void)
-{
-        flush_scheduled_tasks();
-}
+#define work_struct            tq_struct
+#define flush_scheduled_work   flush_scheduled_tasks
+#define schedule_work          schedule_task
 static inline void INIT_WORK(struct tq_struct *tq,
                              void (*routine)(void *), void *data)
 {
@@ -100,9 +94,6 @@ static inline void INIT_WORK(struct tq_struct *tq,
         tq->routine = routine;
         tq->data = data;
 }
-#define FINISH_WORK MOD_DEC_USE_COUNT
-#else
-#define FINISH_WORK
 #endif
 
 /* Version checks for other major differences betwen 2.4 and 2.6 */
@@ -562,8 +553,6 @@ static void controller_attach(void *data)
 	controller_set_led(ctl, LED_GREEN);
 	controller_set_rumble(ctl, 0);
 	gchub_sync_output_status(ctl->hub);
-
-	FINISH_WORK;
 }
 
 static void controller_detach(void *data)
@@ -583,8 +572,6 @@ static void controller_detach(void *data)
 	controller_set_rumble(ctl, 0);
 	controller_set_led(ctl, LED_OFF);
 	gchub_sync_output_status(ctl->hub);
-
-	FINISH_WORK;
 }
 
 static void controller_set_rumble(struct gchub_controller* ctl,
@@ -776,16 +763,17 @@ static void gchub_irq(struct urb *urb)
 	switch (urb->status) {
 	case -ECONNRESET:
 	case -ESHUTDOWN:
+	case -ETIMEDOUT:
 		/* This is normal at rmmod or device disconnection time */
-		return;
+		goto cancel_urb;
 	case -ENOENT:
 		err("ENOENT in gchub_irq");
-		return;
+		goto cancel_urb;
 	}
 
 	if (urb->status != 0 || urb->actual_length != STATUS_PACKET_SIZE) {
 		err("Bad URB status/size: status=%d, length=%d", urb->status, urb->actual_length);
-		return;
+		goto cancel_urb;
 	}
 
 	gchub_process_status(dev, dev->irq_data);
@@ -793,9 +781,17 @@ static void gchub_irq(struct urb *urb)
 #ifdef NEW_USB_SUBSYSTEM
 	/* Resubmit the URB to get another interrupt transfer going.
 	 * In Linux 2.4, the URBs get automagically resubmitted (good for us,
-	 * but bad for a lot of other things)
+	 * but bad for a lot of other things). cancel_urb just returns
+	 * without doing this.
 	 */
 	gchub_submit_urb(urb, SLAB_ATOMIC);
+ cancel_urb:
+	return;
+#else
+	/* The URB auto-resubmits, we have to cancel it explicitly */
+	return;
+ cancel_urb:
+	usb_unlink_urb(urb);
 #endif
 }
 
@@ -848,7 +844,6 @@ static void gchub_process_status(struct gchub_dev *dev, const unsigned char *pac
 		}
 		else if (port->attached > 0) {
 			port->attached--;
-			dbg("Disconnect on '%s', %d retries left\n", port->dev.name, port->attached);
 		}
 		else {
 			port->attached = 0;
