@@ -1192,7 +1192,7 @@
 			    <widget class="GtkSpinButton" id="keyframe_duration">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
-			      <property name="climb_rate">0.01</property>
+			      <property name="climb_rate">0.00999999977648</property>
 			      <property name="digits">2</property>
 			      <property name="numeric">True</property>
 			      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
@@ -1696,7 +1696,7 @@ to balance interactive response with image quality.</property>
 		      <property name="max_length">0</property>
 		      <property name="text" translatable="yes"></property>
 		      <property name="has_frame">True</property>
-		      <property name="invisible_char" translatable="yes">*</property>
+		      <property name="invisible_char">*</property>
 		      <property name="activates_default">True</property>
 		      <signal name="changed" handler="on_cluster_host_or_port_changed" last_modification_time="Sat, 27 Nov 2004 02:42:01 GMT"/>
 		    </widget>
@@ -1737,7 +1737,7 @@ to balance interactive response with image quality.</property>
 		      <property name="max_length">0</property>
 		      <property name="text" translatable="yes"></property>
 		      <property name="has_frame">True</property>
-		      <property name="invisible_char" translatable="yes">*</property>
+		      <property name="invisible_char">*</property>
 		      <property name="activates_default">True</property>
 		      <property name="width_chars">6</property>
 		      <signal name="changed" handler="on_cluster_host_or_port_changed" last_modification_time="Sat, 27 Nov 2004 02:42:08 GMT"/>
@@ -1931,7 +1931,6 @@ to balance interactive response with image quality.</property>
   <property name="skip_pager_hint">False</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <signal name="delete-event" handler="on_about_close" last_modification_time="Fri, 04 Feb 2005 04:31:29 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox17">

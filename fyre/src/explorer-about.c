@@ -31,6 +31,7 @@
 
 static void on_about_activate(GtkWidget *widget, Explorer *self);
 static void on_about_close(GtkWidget *widget, Explorer *self);
+static void on_about_close_window(GtkWidget *window, GdkEvent *event, Explorer *self);
 
 
 /************************************************************************************/
@@ -40,11 +41,13 @@ static void on_about_close(GtkWidget *widget, Explorer *self);
 void explorer_init_about(Explorer *self)
 {
     gchar* text;
+    GtkWidget *dialog = glade_xml_get_widget (self->xml, "about_window");
 
     /* Connect signal handlers
      */
-    glade_xml_signal_connect_data(self->xml, "on_about_activate",               G_CALLBACK(on_about_activate),               self);
-    glade_xml_signal_connect_data(self->xml, "on_about_close",                  G_CALLBACK(on_about_close),                  self);
+    glade_xml_signal_connect_data(self->xml, "on_about_activate", G_CALLBACK(on_about_activate),     self);
+    glade_xml_signal_connect_data(self->xml, "on_about_close",    G_CALLBACK(on_about_close),        self);
+    g_signal_connect (G_OBJECT (dialog),     "delete_event",      G_CALLBACK(on_about_close_window), self);
 
     /* Poke our current version number into the about box */
     text = g_strdup_printf("<span size=\"xx-large\" weight=\"bold\">Fyre %s</span>", VERSION);
@@ -74,6 +77,11 @@ static void on_about_close(GtkWidget *widget, Explorer *self)
     /* Restart the main animation. */
     if(!self->paused)
         iterative_map_start_calculation(self->map);
+}
+
+static void on_about_close_window(GtkWidget *window, GdkEvent *event, Explorer *self)
+{
+	on_about_close(window, self);
 }
 
 static void on_about_activate(GtkWidget *widget, Explorer *self)
