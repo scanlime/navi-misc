@@ -4,6 +4,6 @@
 -->
 
 <tabs>
-  <headingTab name="introduction" href="index.xml"/>
+  <headingTab name="index" href="index.xml"/>
   <headingTab name="repository" href="/svn/misc"/>
 </tabs>
