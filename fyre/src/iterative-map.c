@@ -197,4 +197,9 @@ void          iterative_map_stop_calculation       (IterativeMap          *self)
     g_signal_emit(G_OBJECT(self), iterative_map_signals[CALCULATION_STOP_SIGNAL], 0);
 }
 
+gboolean      iterative_map_is_calculation_running (IterativeMap          *self)
+{
+    return (self->idle_handler != 0);
+}
+
 /* The End */
