@@ -810,12 +810,12 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		if(tgui == NULL)
 			return;
 
+		/* Set the topic. */
+		topic = glade_xml_get_widget(gui.xml, "topic label");
+		gtk_label_set_text(GTK_LABEL(topic), tgui->topic);
+
 		/* Show the xtext buffer for the session. */
 		gtk_xtext_buffer_show(gui.xtext, tgui->buffer, TRUE);
-
-		/* Set the topic. */
-		topic = glade_xml_get_widget(gui.xml, "topic entry");
-		gtk_entry_set_text(GTK_ENTRY(topic), tgui->topic);
 
 		/* Set the text entry field to whatever is in the text entry of this session. */
 		entry = glade_xml_get_widget(gui.xml, "text entry");

@@ -164,8 +164,8 @@ void set_gui_topic(session *sess, char *topic) {
 	if(sess == gui.current_session) {
 		GtkWidget *topicbar;
 
-		topicbar = glade_xml_get_widget(gui.xml, "topic entry");
-		gtk_entry_set_text(topicbar, tgui->topic);
+		topicbar = glade_xml_get_widget(gui.xml, "topic label");
+		gtk_label_set_text(topicbar, tgui->topic);
 	}
 }
 
