@@ -19,6 +19,11 @@ Web
 - Clean up the CSS. It still uses tables to position the heading and the columns,
   where it should be using CSS positioning.
 
+- Detect URLs in commit messages in the XHTML formatters and automatically generate links.
+  Gnome commits often contain bug tracker URLs.
+
+- Detect changelog entries in commits and represent them as unordered lists. In HTML,
+  the asterisks look rather ugly.
 
 Code
 -----
