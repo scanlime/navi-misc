@@ -6,23 +6,9 @@ from Numeric import *
 
 loop = Event.EventLoop()
 viewport = Viewport.OpenGLViewport(loop)
+viewport.setCaption("Wasabi")
 view = ThreeDRender.View(viewport)
 control = ThreeDControl.Viewing(view, viewport)
-viewport.setCaption("Wasabi")
-
-viewport.mode = Viewport.GL.ClearedMode(clearColor=(0, 0, 0, 1))
-
-view.camera.position = (0.0314, -3, 0)
-view.camera.distance = 4.49
-view.camera.azimuth = 3
-view.camera.elevation = 2.4
-view.camera.jump()
-
-title = HUD.Text(viewport.region(viewport.rect), "wasabi",
-                 color     = (0, 0, 0, 1),
-                 fontSize  = viewport.size[1] / 5,
-                 alignment = (0.5, 0.5),
-                 fontName  = "geodesic.ttf")
 
 
 class OrbitingParticles:
@@ -48,16 +34,41 @@ class OrbitingParticles:
         self.particle.emitter.position = (cos(self.angle.value)*v1 + sin(self.angle.value)*v2) * self.radius
 
 
-orbitParticles = ("green_flame.particle", "green_nebula.particle")
-orbits = [OrbitingParticles(cPickle.load(open(Util.dataFile(name)))) for name in orbitParticles]
-for orbit in orbits:
-    view.scene.add(orbit)
+class Scene:
+    """A collection of scene objects and stuff"""
 
-time = Animated.Timekeeper()
-def setupFrame():
-    dt = time.step()
-    for orbit in orbits:
-        orbit.integrate(dt)
+class WasabiTitle:
+    def __init__(self, view):
+        self.viewport = view.viewport
+        self.view = view
+        self.time = Animated.Timekeeper()
 
-viewport.onSetupFrame.observe(setupFrame)
+        self.viewport.mode = Viewport.GL.ClearedMode(clearColor=(0, 0, 0, 1))
+
+        self.view.camera.position = (0.0314, -3, 0)
+        self.view.camera.distance = 4.49
+        self.view.camera.azimuth = 3
+        self.view.camera.elevation = 2.4
+        self.view.camera.jump()
+
+        self.title = HUD.Text(self.viewport.region(self.viewport.rect),
+                              "wasabi",
+                              color     = (0, 0, 0, 1),
+                              fontSize  = self.viewport.size[1] / 5,
+                              alignment = (0.5, 0.5),
+                              fontName  = "geodesic.ttf")
+
+        orbitParticles = ("green_flame.particle", "green_nebula.particle")
+        self.orbits = [OrbitingParticles(cPickle.load(open(Util.dataFile(name)))) for name in orbitParticles]
+        for orbit in self.orbits:
+            self.view.scene.add(orbit)
+        self.viewport.onSetupFrame.observe(self.setupFrame)
+
+    def setupFrame(self):
+        dt = self.time.step()
+        for orbit in self.orbits:
+            orbit.integrate(dt)
+
+
+foo = WasabiTitle(view)
 loop.run()
