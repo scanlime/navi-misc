@@ -61,6 +61,7 @@ class CatalogSection(Template.Section):
         C_YESTERDAY.event_count,
         C_FOREVER.event_count,
         C_FOREVER.last_time
+    ORDER BY NULL
     """
 
     columns = [
