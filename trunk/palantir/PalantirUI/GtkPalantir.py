@@ -316,6 +316,12 @@ class PalantirWindow:
     tabpage.append_page(self.tabs[nick], label)
     tabpage.set_current_page(tabpage.page_num(self.tabs[nick]))
 
+  def msg(self, args):
+    ''' Send a private message. '''
+    nick = args.split()[0]
+    msg = string.join(args.split()[1:])
+    self.factory.client.msg(nick, msg)
+
   def ping(self, args=''):
     ''' Ping the server. '''
     self.tree.get_widget('SendField').set_text('')
