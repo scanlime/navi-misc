@@ -31,7 +31,7 @@ $CIADIR/mail.log
 | $CIADIR/mail/filter_gnome.py
 
 :0
-* ^To: mono-cvs-list@lists.ximian.com
+* ^To: mono-cvs-list@ximian.com
 | $CIADIR/mail/filter_mono.py
 
 :0
