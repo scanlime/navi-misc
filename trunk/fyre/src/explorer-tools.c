@@ -54,6 +54,8 @@ static void tool_b_d(Explorer *self, ToolInput *i);
 static void tool_c_d(Explorer *self, ToolInput *i);
 static void tool_ab_cd(Explorer *self, ToolInput *i);
 static void tool_ac_bd(Explorer *self, ToolInput *i);
+static void tool_initial_offset(Explorer *self, ToolInput *i);
+static void tool_initial_scale(Explorer *self, ToolInput *i);
 
 
 /* A table of tool handlers and menu item names */
@@ -72,6 +74,8 @@ static const ToolInfo tool_table[] = {
   {"tool_c_d",            tool_c_d,            TOOL_USE_MOTION_EVENTS},
   {"tool_ab_cd",          tool_ab_cd,          TOOL_USE_MOTION_EVENTS},
   {"tool_ac_bd",          tool_ac_bd,          TOOL_USE_MOTION_EVENTS},
+  {"tool_initial_offset", tool_initial_offset, TOOL_USE_MOTION_EVENTS},
+  {"tool_initial_scale",  tool_initial_scale,  TOOL_USE_MOTION_EVENTS},
 
   {NULL,},
 };
@@ -335,6 +339,20 @@ static void tool_ac_bd(Explorer *self, ToolInput *i) {
 	       "b", DE_JONG(self->map)->param.b + i->delta_y * 0.001,
 	       "c", DE_JONG(self->map)->param.c + i->delta_x * 0.001,
 	       "d", DE_JONG(self->map)->param.d + i->delta_y * 0.001,
+	       NULL);
+}
+
+static void tool_initial_offset(Explorer *self, ToolInput *i) {
+  g_object_set(self->map,
+	       "initial_xoffset", DE_JONG(self->map)->initial_xoffset + i->delta_x * 0.001,
+	       "initial_yoffset", DE_JONG(self->map)->initial_yoffset + i->delta_y * 0.001,
+	       NULL);
+}
+
+static void tool_initial_scale(Explorer *self, ToolInput *i) {
+  g_object_set(self->map,
+	       "initial_xscale", DE_JONG(self->map)->initial_xscale + i->delta_x * 0.001,
+	       "initial_yscale", DE_JONG(self->map)->initial_yscale + i->delta_y * 0.001,
 	       NULL);
 }
 
