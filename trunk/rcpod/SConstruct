@@ -99,6 +99,7 @@ if 'swig' in env['TOOLS']:
             env.Install(dir=i2cModPath, source='pyrcpod/i2c/generic.py')
             env.Install(dir=i2cModPath, source='pyrcpod/i2c/maxim.py')
             env.Install(dir=i2cModPath, source='pyrcpod/i2c/microchip.py')
+            env.Install(dir=i2cModPath, source='pyrcpod/i2c/ti.py')
 
     else:
         print " - Can't guess the path to Python.h, not building the Python package"
