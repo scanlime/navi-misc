@@ -258,7 +258,7 @@ class MessageContentColumn(Nouvelle.Column):
 
     def getValue(self, message):
         try:
-            return Formatters.factory.findMedium('xhtml', message).formatMessage(message)
+            return Formatters.getFactory().findMedium('xhtml', message).formatMessage(message)
         except Message.NoFormatterError:
             return Template.error[str(sys.exc_info()[1])]
 
