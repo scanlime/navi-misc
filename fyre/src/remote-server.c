@@ -140,6 +140,7 @@ static void       remote_server_callback      (GConn*                gconn,
 	break;
 
     default:
+	break;
     }
 }
 
