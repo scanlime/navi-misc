@@ -25,7 +25,7 @@ from __future__ import division
 import time, math
 import Template, Nouvelle
 import Nouvelle.Twisted
-from LibCIA import TimeUtil, Message, Stats
+from LibCIA import TimeUtil, Message, Stats, Database
 from twisted.web import resource, error, server
 from twisted.internet import defer
 from Nouvelle import tag, place, subcontext
@@ -185,64 +185,98 @@ class RSSLink(TargetRelativeLink):
 
 
 class TargetTitleColumn(Nouvelle.Column):
-    """A Column displaying a target's title as a StatsLink"""
+    """A Column displaying a target's title as a StatsLink. To avoid having to make
+       a query for every row in the table, this looks for the title to use in the
+       indicated SQL query column number.
+       """
     heading = 'title'
+    def __init__(self, pathIndex, titleIndex):
+        self.pathIndex = pathIndex
+        self.titleIndex = titleIndex
 
-    def getValue(self, target):
-        # For case-insensitive sorting by title
-        return target.getTitle().lower()
-
-    def render_data(self, context, target):
-        return StatsLink(target)
-
-
-class TargetCounterColumn(Nouvelle.Column):
-    """A Column displaying a counter value from each target"""
-    def __init__(self, heading, counterName):
-        self.heading = heading
-        self.counterName = counterName
-
-    def getValue(self, target):
-        return target.counters.getCounter(self.counterName).get('eventCount', 0)
-
-    def cmp(self, a, b):
-        # Reverse the default sort, show larger counters first
-        return -Nouvelle.Column.cmp(self, a, b)
-
-    def isVisible(self, context):
-        return context['table'].reduceColumn(self, max) > 0
-
-
-class TargetLastEventColumn(Nouvelle.Column):
-    """A Column displaying the amount of time since the last message was delivered to each target"""
-    heading = "last event"
-
-    def __init__(self):
-        # We only want one of these, so reduceColumn can be cached effectively
-        self.visibilityColumn = TargetCounterColumn(None, 'forever')
-
-    def getValue(self, target):
-        """Returns the number of seconds since the last event"""
-        lastTime = target.counters.getCounter('forever').get('lastEventTime')
-        if lastTime:
-            return time.time() - lastTime
-
-    def isVisible(self, context):
-        # Hide this column if none of the targets have had any messages
-        return context['table'].reduceColumn(self.visibilityColumn, max) > 0
-
-    def render_data(self, context, target):
-        value = self.getValue(target)
-        if value is None:
-            return ''
+    def _findTitle(self, row):
+        """Use our titleIndex to return the title according to the metadata if that
+           exists, otherwise make up a title based on the path.
+           """
+        title = row[self.titleIndex]
+        if title is None:
+            return Stats.StatsTarget(row[self.pathIndex]).name
         else:
-            return "%s ago" % TimeUtil.formatDuration(self.getValue(target))
+            return title
+        # Note that we don't have to worry about the case (name is None)
+        # because this is only used for listing children of some target,
+        # and the root target has no parent.
+
+    def getValue(self, row):
+        # For case-insensitive sorting by title
+        return self._findTitle(row).lower()
+
+    def render_data(self, context, row):
+        # Create a StatsLink. Note that we could leave it up to the StatsLink
+        # to look up the title, but that would end up creating an SQL query
+        # for each row in the table- not good when we're trying to view a page
+        # with 1000 projects without making our server explode.
+        target = Stats.StatsTarget(row[self.pathIndex])
+        return StatsLink(target, text=self._findTitle(row))
 
 
-class TargetBargraphColumn(TargetCounterColumn):
-    """A Column that renders a counter value as a logarithmic bar chart"""
-    def render_data(self, context, target):
-        value = self.getValue(target)
+class IndexedUnitColumn(Nouvelle.IndexedColumn):
+    """A Nouvelle.IndexedColumn that appends a fixed unit qualifier to each rendered item.
+       Hides individual cells when zero, hides the column when all cells are zero.
+       """
+    def __init__(self, heading, index, singularUnit='item', pluralUnit='items'):
+        self.singularUnit = singularUnit
+        self.pluralUnit = pluralUnit
+        Nouvelle.IndexedColumn.__init__(self, heading, index)
+
+    def isVisible(self, context):
+        return context['table'].reduceColumn(self, self._visibilityTest)
+
+    def _visibilityTest(self, seq):
+        """Visibility testing operator for this column's data"""
+        for item in seq:
+            if item != 0:
+                return True
+        return False
+
+    def render_data(self, context, row):
+        value = row[self.index]
+        if value == 0:
+            return ''
+        elif value == 1:
+            unit = self.singularUnit
+        else:
+            unit = self.pluralUnit
+        return "%s %s" % (row[self.index], unit)
+
+
+class RankIndexedColumn(Nouvelle.IndexedColumn):
+    """An IndexedColumn tweaked for numeric rankings.
+       None is treated as zero, sorting is reversed, the column
+       is hidden if all values are zero or less.
+       """
+    def cmp(self, a, b):
+        """Reverse sort"""
+        return -cmp(a[self.index],b[self.index])
+
+    def getValue(self, row):
+        return row[self.index] or 0
+
+    def isVisible(self, context):
+        return context['table'].reduceColumn(self, self._visibilityTest)
+
+    def _visibilityTest(self, seq):
+        """Visibility testing operator for this column's data"""
+        for item in seq:
+            if item != 0:
+                return True
+        return False
+
+
+class IndexedBargraphColumn(RankIndexedColumn):
+    """An IndexedColumn that renders as a logarithmic bar chart"""
+    def render_data(self, context, row):
+        value = row[self.index]
         if not value:
             return ''
         logMax = math.log(context['table'].reduceColumn(self, max))
@@ -253,36 +287,42 @@ class TargetBargraphColumn(TargetCounterColumn):
         return Template.Bargraph(fraction)[ value ]
 
 
-class TargetPercentColumn(TargetCounterColumn):
-    """A Column that renders a counter value as a percent of the column's total"""
-    def render_data(self, context, target):
-        value = self.getValue(target)
+class IndexedPercentColumn(RankIndexedColumn):
+    """An IndexedColumn that renders itself as a percent of the column's total"""
+    def render_data(self, context, row):
+        value = row[self.index]
         if not value:
             return ''
         total = context['table'].reduceColumn(self, sum)
         return "%.03f" % (value / total * 100)
 
 
-class TargetSubTargetsColumn(Nouvelle.Column):
-    """A Column displaying the number of subtargets within a particular target"""
-    heading = "contents"
-
-    def getValue(self, target):
-        #return len(target.catalog())
-        return 12345
+class TargetLastEventColumn(Nouvelle.IndexedColumn):
+    """A Column displaying the amount of time since the last message was delivered to
+       each target, given a column containing the last event timestamp.
+       """
+    def getValue(self, row):
+        """Returns the number of seconds since the last event"""
+        lastTime = row[self.index]
+        if lastTime:
+            return time.time() - lastTime
 
     def isVisible(self, context):
-        # Hide this column if none of the targets have children
-        return context['table'].reduceColumn(self, max) > 0
+        return context['table'].reduceColumn(self, self._visibilityTest)
+
+    def _visibilityTest(self, seq):
+        """Visibility testing operator for this column's data"""
+        for item in seq:
+            if item:
+                return True
+        return False
 
     def render_data(self, context, target):
         value = self.getValue(target)
-        if value > 1:
-            return "%d items" % value
-        elif value == 1:
-            return "1 item"
-        else:
+        if value is None:
             return ''
+        else:
+            return "%s ago" % TimeUtil.formatDuration(self.getValue(target))
 
 
 class Catalog(Template.Section):
@@ -291,30 +331,58 @@ class Catalog(Template.Section):
        """
     title = "catalog"
 
+    query = """
+    SELECT
+        T.target_path,
+        M_TITLE.value,
+        C_TODAY.event_count,
+        C_YESTERDAY.event_count,
+        C_FOREVER.event_count,
+        C_FOREVER.last_time,
+        COUNT(CHILD.target_path)
+    FROM stats_catalog T
+        LEFT OUTER JOIN stats_catalog  CHILD       ON (CHILD.parent_path = T.target_path)
+        LEFT OUTER JOIN stats_metadata M_TITLE     ON (T.target_path = M_TITLE.target_path     AND M_TITLE.name     = 'title')
+        LEFT OUTER JOIN stats_counters C_TODAY     ON (T.target_path = C_TODAY.target_path     AND C_TODAY.name     = 'today')
+        LEFT OUTER JOIN stats_counters C_YESTERDAY ON (T.target_path = C_YESTERDAY.target_path AND C_YESTERDAY.name = 'yesterday')
+        LEFT OUTER JOIN stats_counters C_FOREVER   ON (T.target_path = C_FOREVER.target_path   AND C_FOREVER.name   = 'forever')
+        WHERE T.parent_path = %(path)s
+    GROUP BY
+        T.target_path,
+        M_TITLE.value,
+        C_TODAY.event_count,
+        C_YESTERDAY.event_count,
+        C_FOREVER.event_count,
+        C_FOREVER.last_time
+    """
+
+    columns = [
+        TargetTitleColumn(pathIndex=0, titleIndex=1),
+        IndexedBargraphColumn('events today', 2),
+        IndexedBargraphColumn('events yesterday', 3),
+        IndexedBargraphColumn('total events', 4),
+        IndexedPercentColumn('% total', 4),
+        TargetLastEventColumn('last event', 5),
+        IndexedUnitColumn('contents', 6),
+        ]
+
     def __init__(self, target):
         self.target = target
 
-    def isVisible(self, context):
-        return len(self.names) != 0
-
     def render_rows(self, context):
-        return ["Boing"]
-        # We can't actually render anything without querying the database
+        # First we run a big SQL query to gather all the data for this catalog.
+        # Control is passed to _render_rows once we have the query results.
         result = defer.Deferred()
-        self.target.catalog().addCallback(self._render_rows, context, result).addErrback(result.errback)
+        Database.pool.runQuery(self.query % {
+            'path': Database.quote(self.target.path, 'varchar'),
+            }).addCallback(
+            self._render_rows, context, result
+            ).addErrback(result.errback)
         return result
 
-    def _render_rows(self, childTargets, context, result):
-        if childTargets:
-            result.callback([Template.Table(childTargets, [
-                TargetTitleColumn(),
-                TargetBargraphColumn('events today', 'today'),
-                TargetBargraphColumn('events yesterday', 'yesterday'),
-                TargetBargraphColumn('total events', 'forever'),
-                TargetPercentColumn('% total', 'forever'),
-                TargetLastEventColumn(),
-                TargetSubTargetsColumn(),
-                ], id='catalog')])
+    def _render_rows(self, queryResults, context, result):
+        if queryResults:
+            result.callback([Template.Table(list(queryResults), self.columns, id='catalog')])
         else:
             result.callback(None)
 
@@ -404,9 +472,6 @@ class RecentMessages(MessageList):
     def __init__(self, target, limit=20):
         self.target = target
         self.limit = limit
-
-    def isVisible(self, context):
-        return len(self.messages) != 0
 
     def render_rows(self, context):
         result = defer.Deferred()
