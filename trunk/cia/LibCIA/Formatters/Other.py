@@ -53,7 +53,7 @@ class IRCFormat(Message.Formatter):
             return format(args.input, self.formattingCode)
 
     def loadParametersFrom(self, xml):
-        self.formattingCode = str(xml)
+        self.formattingCode = str(xml).strip()
 
 
 ### The End ###

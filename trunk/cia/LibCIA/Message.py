@@ -389,7 +389,7 @@ class FormatterArgs:
     def __init__(self, message, input=None, preferences={}):
         self.message = message
         self.input = input
-        self.preferences = preferences
+        self.preferences = dict(preferences)
 
     def copy(self, **kwargs):
         """Make a copy of the arguments, optionally overriding attributes at the same time"""
@@ -454,7 +454,11 @@ class CompositeFormatter(Formatter):
         <formatter *>         : Chooses and applies another formatter, according
                                 to the rules in FormatterFactory.fromXml.
 
+        <join [sep=...]>      : Explicitly join the contents, optionally using a separator string
+
         <value path=...>      : Evaluate an XPath from the message being formatted
+
+        <value preference=...> : Evaluate a preference, using the element's contents as a default.
 
         <value>text</value>   : Literal text. (<value> is very similar to a ruleset's <return>)
                                 Text may be included anywhere, but it is usually stripped of leading
@@ -484,9 +488,10 @@ class CompositeFormatter(Formatter):
 
 class CompositeFormatterParser(XML.XMLObjectParser):
     """Parses CompositeFormatter's arguments into a format() function"""
-    def join(self, l, args):
+    def join(self, l, args, separator=""):
         """Given a list of literals and functions, reduces them to a
-           single string or list as appropriate.
+           single string or list as appropriate, optionally inserting
+           a separator string between each.
            """
         results = []
         allStrings = True
@@ -511,9 +516,14 @@ class CompositeFormatterParser(XML.XMLObjectParser):
         # This might not be the case if, for example, we're generating
         # a Nouvelle document tree.
         if allStrings:
-            return "".join(results)
+            return separator.join(results)
         else:
-            return results
+            joinedResultList = []
+            for result in results:
+                if joinedResultList:
+                    joinedResultList.append(separator)
+                joinedResultList.append(result)
+            return joinedResultList
 
     def element_formatter(self, element):
         """Another formatter, or possibly our root element. If it has any
@@ -542,8 +552,15 @@ class CompositeFormatterParser(XML.XMLObjectParser):
                 return self.join(children, args)
             return joinChildren
 
+    def element_join(self, element):
+        children = [self.parse(child) for child in element.children]
+        sep = element.attributes.get("sep", "")
+        def explicitJoin(args):
+            return self.join(children, args, sep)
+        return explicitJoin
+
     def element_value(self, element):
-        """Include a value obtained from an XPath or from this element's contents"""
+        """Include a value obtained from an XPath, a preference, or from this element's contents"""
         if element.hasAttribute('path'):
             xp = XPathQuery(element['path'])
             def formatXPathValue(args):
@@ -551,6 +568,13 @@ class CompositeFormatterParser(XML.XMLObjectParser):
                 if nodes:
                     return XML.allText(nodes[0]).strip()
             return formatXPathValue
+
+        elif element.hasAttribute('preference'):
+            name = element['preference']
+            default = str(element)
+            def evaluatePref(args):
+                return args.getPreference(name, default)
+            return evaluatePref
 
         else:
             # No path, return this node's contents
@@ -561,7 +585,8 @@ class CompositeFormatterParser(XML.XMLObjectParser):
         name = element['name']
         value = str(element)
         def setPreference(args):
-            args.preferences[name] = value
+            args.preferences.setdefault(name, value)
+        return setPreference
 
     def element_input(self, element):
         """Returns the formatter's input"""
