@@ -11,7 +11,7 @@ HDL netlist format=Auto
 generics=MAX
 sim_mode=FUNC
 library_net=ON
-lib_order=155 155 155 155 133 155
+lib_order=155 155 155 155 155 155 133 155
 [libraries]
 133=c:\fndtn\active\syslib\simprims
 155=c:\fndtn\active\syslib\xc4000x
@@ -19,8 +19,14 @@ lib_order=155 155 155 155 133 155
 oid=0
 lid=0
 format=19
-source=C:\unicone\fpga\lib\n_serial.v
+source=c:\unicone\fpga\gamecube\gamecube.v
 server_hwnd=5505528
+
+
+
+
+
+
 
 
 
@@ -54,9 +60,10 @@ n_serial.v=
 pwm.v= 
 i2c.v= 
 [OpenDoc]
-hde/gamecube=11141360,1,204,264,1164,1104,gamecube.v
 hde/util=0,0,66,66,1026,795,util.v
 hde/n_serial=0,0,88,88,1048,817,n_serial.v
+hde/gamecube=0,0,85,244,1135,986,gamecube.v
+hde/pwm=0,0,132,132,1182,881,pwm.v
 [netlist]
 external=FALSE
 [Log]
@@ -75,21 +82,6 @@ Execute Preset=Off
 Models Stabilization=On
 Pulse Global Reset Net Enabled=On
 Pulse Global Reset Net=1000
-[implement_HDL]
-family=2
-xfam=XC4000XL
-part=4010XLPC84-09
-xilinx=4010XLPC84-09
-functional=ver1
-optimized=ver1-Optimized
-design=gc_controller,c:\unicone\fpga\gamecube\gamecube.v
-[xilinx]
-family=2
-xfam=XC4000XL
-xact9=On
-[device]
-part=4010XLPC84-09
-xilinx=4010XLPC84-09
 [timings]
 gamecube=
 [designs]
@@ -116,6 +108,21 @@ Table03=Date
 Table04=Date Last Modified
 [sc_desk]
 desk00=C:\UNICONE\FPGA\GAMECUBE\gamecub1.SCH, 0, 0, 818, 479, 1
+[implement_HDL]
+family=2
+xfam=XC4000XL
+part=4010XLPC84-09
+xilinx=4010XLPC84-09
+functional=ver1
+optimized=ver1-Optimized
+design=gamecube,c:\unicone\fpga\gamecube\gamecube.v
+[xilinx]
+family=2
+xfam=XC4000XL
+xact9=On
+[device]
+part=4010XLPC84-09
+xilinx=4010XLPC84-09
 [implement_XIE]
 version=ver1
 revision=rev1

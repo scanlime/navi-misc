@@ -28,7 +28,7 @@ module gamecube (clk, reset,
 	output led;
 	input scl;
 	inout sda;
-	inout [3:0] gc_ports;
+	inout [0:0] gc_ports;
 	
 	/* Buffer between external 2-wire I2C and on-chip 3-wire I2C */
 	wire int_scl, int_sda_in;
@@ -48,6 +48,8 @@ module gamecube (clk, reset,
 		clk, reset,
 		int_scl, int_sda_in, int_sda_out[1],
 		gc_ports[0]);
+
+/*
 	gc_i2c #(7'h41) controller_2(
 		clk, reset,
 		int_scl, int_sda_in, int_sda_out[2],
@@ -60,6 +62,11 @@ module gamecube (clk, reset,
 		clk, reset,
 		int_scl, int_sda_in, int_sda_out[4],
 		gc_ports[3]);
+*/
+
+	assign int_sda_out[2] = 1'b1;
+	assign int_sda_out[3] = 1'b1;
+	assign int_sda_out[4] = 1'b1;
 endmodule
 
 
@@ -70,10 +77,12 @@ endmodule
 module gc_i2c (clk, reset,
                scl, sda_in, sda_out,
                gc_port);
+        parameter I2C_ADDRESS = 0;
+               
 	input clk, reset;
 	input scl, sda_in;
 	output sda_out;
-	input gc_port;
+	inout gc_port;
 	
 	/* The I/O buffer gives us clean synchronized unidirectional
 	 * tx and rx signals for controlling and monitoring the GC port
@@ -81,7 +90,19 @@ module gc_i2c (clk, reset,
 	wire tx, rx;
 	n_serial_io_buffer iobuffer(clk, reset, gc_port, tx, rx);
 
-	assign tx = 1'b1;
+	/* The controller simulator core. It expects a 64-bit controller
+	 * status word to send out on request, and gives us a rumble bit
+	 * that updates whenever the GC polls.
+	 */
+	wire [63:0] controller_state;
+	wire rumble;
+	gc_controller controller(clk, reset, tx, rx, controller_state, rumble);
+
+	// Big 64-bit-wide I2C-accessable register to hold the current controller state
+	i2c_slave_reg #(I2C_ADDRESS, 8) i2creg64(
+		clk, reset,
+		scl, sda_in, sda_out,
+		controller_state);
 endmodule
 
 
