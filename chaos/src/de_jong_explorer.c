@@ -974,7 +974,9 @@ void save_to_file(const char *name) {
   gdk_pixbuf_unref(pixbuf);
 }
 
+/* File picker for GTK 2.3 and above */
 #if (GTK_MAJOR_VERSION > 2) || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 3)
+
 void update_save_preview(GtkFileChooser *chooser, gpointer data) {
   GtkWidget *preview;
   char *filename;
@@ -1018,6 +1020,23 @@ void saveclick(GtkWidget *widget, gpointer user_data) {
   g_object_unref(filter);
   gtk_widget_destroy(dialog);
 }
-#endif
+
+#else /* GTK < 2.3 */
+
+/* File picker for GTK versions before 2.3 */
+void saveclick(GtkWidget *widget, gpointer user_data) {
+  GtkWidget *dialog;
+
+  dialog = gtk_file_selection_new("Save");
+
+  if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+    const gchar *filename;
+    filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog));
+    save_to_file(filename);
+  }
+  gtk_widget_destroy(dialog);
+}
+
+#endif /* GTK version */
 
 /* The End */
