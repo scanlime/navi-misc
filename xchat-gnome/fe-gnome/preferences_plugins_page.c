@@ -276,6 +276,10 @@ xchat_gnome_plugin_add (char *filename)
 
 	gtk_list_store_append (store, &iter);
 
+	/* FIXME: The problem with all of this is that it doesn't do any checking to make
+	 * sure the file is even a valid type. Should add some stuff to maybe check the
+	 * extension?
+	 */
 	if (handle != NULL && g_module_symbol (handle, "xchat_plugin_get_info", (gpointer *)&info_func)) {
 		/* Create a new plugin instance and add it to our list of known plugins. */
 		((xchat_plugin_get_info*)info_func) (&name, &desc, &version);
