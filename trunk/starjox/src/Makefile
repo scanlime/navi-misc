@@ -12,3 +12,6 @@ smain.class: smain.java
 
 run: prog
 	java smain localhost 6112
+
+jar: prog
+	jar cvmf .manifest starjox.jar *.class

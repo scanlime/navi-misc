@@ -29,13 +29,14 @@ import java.util.*;
 public class smain
 {
 	public static String host;
-	public static int port;
+	public static int eport; //external port (for the server)
+	public static int iport; //internal port (for what it forwards to)
 	public static ServerSocket server;
 	
 	public static void main(String[] args)
 	{
 		argparse(args);
-		System.out.println("proxy for " + host + " on port " + port);
+		System.out.println("Forwarding localhost:"+eport+" to "+host+":"+iport);
 		startserver();
 		listen();
 	}
@@ -52,7 +53,7 @@ public class smain
 			{
 				// get the sockets
 				sout = server.accept();
-				sin = new Socket(host,port);
+				sin = new Socket(host,iport);
 				//slot a into tab a
 				out = sout.getOutputStream();
 				in = sin.getInputStream();
@@ -73,7 +74,7 @@ public class smain
 	{
 		try
 		{
-			server = new ServerSocket(port);
+			server = new ServerSocket(eport);
 		}
 		catch(Exception e)
 		{
@@ -87,7 +88,11 @@ public class smain
 		try
 		{
 			host = args[0];
-			port = Integer.parseInt(args[1]);
+			eport = Integer.parseInt(args[1]);
+			if(args.length > 2)
+				iport = Integer.parseInt(args[2]);
+			else
+				iport = eport;
 		}
 		catch(Exception e)
 		{
