@@ -245,27 +245,20 @@ class SpreadDirectory(SpreadFileBase):
     def updateStat(self):
         """Unlike SpreadFile objects, SpreadDirectories may have their stat()
            info updated dynamically due to FAM events. This is necessary to get
-           clients to update themselves when a directory changes. Most stat info
-           comes from an arbitrary directory, but all timestamps are the newest
-           of all directories.
+           clients to update themselves when a directory changes.
+
+           stat() semantics here are a little odd. The mode, uid, and gid come
+           from the first copy of this directory on the diskset. All timestamps
+           are regenerated every time updateStat() is called, since just using
+           the most recent mtime isn't enough to detect all changes.
            """
-        for path in self.fs.diskSet.findIter(self.path):
-            st = os.stat(path)
+        path = self.fs.diskSet.find(self.path)
+        st = os.stat(path)
+        self.mode = st.st_mode | pinefs.fsbase.typ_to_mode[self.type]
+        self.uid = st.st_uid
+        self.gid = st.st_gid
 
-            self.mode = st.st_mode | pinefs.fsbase.typ_to_mode[self.type]
-            self.uid = st.st_uid
-            self.gid = st.st_gid
-
-            self.mtime = pinefs.fsbase.mk_time(max(
-                self.mtime.seconds, st.st_mtime), 0)
-            self.atime = pinefs.fsbase.mk_time(max(
-                self.atime.seconds, st.st_atime), 0)
-            self.ctime = pinefs.fsbase.mk_time(max(
-                self.ctime.seconds, st.st_ctime), 0)
-
-        # The client may rely in nlink to detect changes in the number of children
-        if self.dirCache is not None:
-            self.nlink = len(self.dirCache) + 1
+        self.mtime = self.atime = self.ctime = pinefs.fsbase.mk_now()
 
     def getChild(self, name):
         """Get either a SpreadFile or SpreadDirectory for a child of this object"""
@@ -281,8 +274,14 @@ class SpreadDirectory(SpreadFileBase):
     def onMonitorEvent(self, event):
         code = event.code2str()
 
+        # Transform deletion events into changed events when the underlying
+        # path still exists on at least one other disk.
+        fullPath = os.path.join(self.path, event.filename)
+        if code == 'deleted' and self.fs.diskSet.find(fullPath) is not None:
+            code = 'changed'
+
         # Do we have a cached object this affects?
-        obj = self.fs.mapper.objectCache.get(os.path.join(self.path, event.filename))
+        obj = self.fs.mapper.objectCache.get(fullPath)
         if obj:
 
             # Always invalidate if it was deleted
