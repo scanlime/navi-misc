@@ -73,7 +73,7 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	gboolean toggle;
 	GtkSizeGroup *group;
 	GtkTreeSelection *select;
-	gchar **tokens;
+	gchar **highlight_entries;
 	gint i;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
@@ -159,12 +159,12 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->highlight_list));
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (highlight_selection_changed), page);
 
-	tokens = g_strsplit (prefs.bluestring, ",", 0);
-	for (i = 0; tokens[i]; i++) {
+	highlight_entries = g_strsplit (prefs.bluestring, ",", 0);
+	for (i = 0; highlight_entries[i]; i++) {
 		gtk_list_store_append (page->highlight_store, &iter);
-		gtk_list_store_set (page->highlight_store, &iter, 0, tokens[i], -1);
+		gtk_list_store_set (page->highlight_store, &iter, 0, highlight_entries[i], -1);
 	}
-	g_strfreev (tokens);
+	g_strfreev (highlight_entries);
 
 	return page;
 }
