@@ -331,22 +331,30 @@ class FileManager:
         # Make sure that we get a chance to sync our cache and release
         # any I/O locks before we exit- otherwise the Rio might get stuck
         # on the data transfer screen, and our db might be out of sync.
-        reactor.addSystemEventTrigger('before', 'shutdown', self.shutdown)
+        self._shutdownTrigger = reactor.addSystemEventTrigger('before', 'shutdown', self.close)
 
-    def shutdown(self):
-        """Cleanly shut down the file manager. This will block waiting for a write
-           lock to be released, if one was held. If you'd rather not block, release
-           the lock before calling this.
+    def close(self):
+        """Cleanly shut down the file manager and the connection. This will block
+           waiting for a write lock to be released, if one was held. If you'd rather
+           not block, release the lock before calling this.
            """
         if self.cache:
             self.cache.close()
             self.cache = None
 
-        if self.writeLockHeld:
-            sys.stderr.write("\n\nReleasing write lock...\n")
-            d = self.unlock()
-            while not d.called:
-                reactor.iterate(0.1)
+        if self.protocol:
+
+            if self.writeLockHeld:
+                sys.stderr.write("\n\nReleasing write lock, please wait...\n")
+                d = self.unlock()
+                while not d.called:
+                    reactor.iterate(0.1)
+
+            self.protocol.sendRequest(Request.Hangup())
+            self.protocol = None
+
+        # We only needed this once.. don't want this object to leak
+        reactor.removeSystemEventTrigger(self._shutdownTrigger)
 
     def readLock(self):
         """Acquire a read-only lock on this filesystem- necessary for most
