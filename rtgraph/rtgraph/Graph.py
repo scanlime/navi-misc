@@ -95,7 +95,7 @@ class PolledGraph(Graph):
     def __init__(self,
                  size           = None,
                  channels       = [],
-                 pollInterval = 10,
+                 pollInterval   = 10,
                  bgColor        = None,
                  gridColor      = None,
                  ):
@@ -131,3 +131,15 @@ class PolledGraph(Graph):
         # Keep calling this handler, rather than treating it as a one-shot timer
         return gtk.TRUE
 
+class NotifiedGraph(Graph):
+    """An abstract animated graph that is notified by its channels when there is new information."""
+    def __init__(self,
+                 size           = None,
+                 channels       = [],
+                 bgColor        = None,
+                 gridColor      = None,
+                 ):
+        Graph.__init__(self, size, channels, bgColor, gridColor)
+
+    def notifyData(self):
+        self.integrate(1) #hrm, this is...tricky
