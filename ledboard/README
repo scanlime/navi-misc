@@ -1,0 +1,14 @@
+Blinkenlights release,
+July 2, 2002
+---------------------
+
+This release contains fully working (as far as I know) firmware for the
+clock and LED board projects, as well as simple test programs for both.
+
+This is _not_ the final PC software. I plan on writing a daemon to allow
+multiple programs to control hardware connected to the same serial bus, and
+an API for easy access to the LEDs and LCDs. This hasn't happened yet, so
+there are just a few simple test programs and a very preliminary XMMS plugin.
+
+Have fun with what's here.
+--Micah <micahjd@users.sourceforge.net>
