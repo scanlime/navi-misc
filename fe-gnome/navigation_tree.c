@@ -501,14 +501,69 @@ navigation_tree_set_channel_name(NavTree *navtree, struct session *sess)
 	gtk_tree_model_foreach(store, navigation_tree_set_channel_name_iterate, sess);
 }
 
+static gboolean
+navigation_tree_set_disconn_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+  gpointer s;
+	gtk_tree_model_get(model, iter, 2, &s, -1);
+	if(s == data) {
+		gtk_tree_store_set(GTK_TREE_STORE(model), iter, 4, &colors[23], -1);
+		return TRUE;
+	}
+	return FALSE;
+}
+
 void
 navigation_tree_set_disconn (NavTree *navtree, struct session *sess)
-{ /* FIXME: Implement. */
+{
+	GtkTreeModel *store, *model;
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
+	store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
+
+	gtk_tree_model_foreach(store, navigation_tree_set_disconn_iterate, (gpointer) sess);
+}
+
+static gboolean
+navigation_tree_set_hilight_iterate(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+	gpointer s;
+	gint e;
+	gtk_tree_model_get(model, iter, 2, &s, 3, &e, -1);
+	if(s == data) {
+		struct session *sess = s;
+		if(sess->nick_said) {
+			gtk_tree_store_set(GTK_TREE_STORE(model), iter, 0, pix_nicksaid, 3, 3, -1);
+			return TRUE;
+		}
+		if(sess->msg_said && e < 2) {
+			gtk_tree_store_set(GTK_TREE_STORE(model), iter, 0, pix_msgsaid, 3, 2, -1);
+			return TRUE;
+		}
+		if(sess->new_data && e < 1) {
+			gtk_tree_store_set(GTK_TREE_STORE(model), iter, 0, pix_newdata, 3, 1, -1);
+			return TRUE;
+		}
+	}
+	return FALSE;
 }
 
 void
 navigation_tree_set_hilight (NavTree *navtree, struct session *sess)
-{ /* FIXME: Implement. */
+{
+	GtkTreeModel *store, *model;
+
+	if(sess == gui.current_session) {
+		sess->nick_said = FALSE;
+		sess->msg_said = FALSE;
+		sess->new_data = FALSE;
+		return;
+	}
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
+	store = gtk_tree_model_sort_get_model(GTK_TREE_MODEL_SORT(model));
+
+	gtk_tree_model_foreach(store, navigation_tree_set_hilight_iterate, (gpointer) sess);
+
 }
 
 /***** Context Menus *****/

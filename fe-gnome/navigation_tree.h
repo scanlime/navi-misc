@@ -63,10 +63,10 @@ void navigation_tree_create_new_channel_entry (NavTree *navtree, struct session 
 void navigation_tree_remove                   (NavTree *navtree, struct session *sess);
 
 /* Channel/server selection functions. */
-/* FIXME: broken. */
 void navigation_tree_select_nth_channel  (NavTree *navtree, gint chan_num);
+/* FIXME: Not done. */
 void navigation_tree_select_session      (NavTree *navtree, struct session *sess);
-void navigation_tree_select_next_channel (NavTree *navtree); /* Fixed. */
+void navigation_tree_select_next_channel (NavTree *navtree);
 void navigation_tree_select_prev_channel (NavTree *navtree);
 void navigation_tree_select_next_network (NavTree *navtree);
 void navigation_tree_select_prev_network (NavTree *navtree);
