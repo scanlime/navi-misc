@@ -37,34 +37,57 @@ class ChannelList(gtk.TreeView):
        """
     def __init__(self, graph, availableChannels, autoColor=True):
         self.graph = graph
+        self.availableChannels = availableChannels
 
         if autoColor:
             i = None
             for channel in availableChannels:
                 i = channel.autoColor(i)
 
-        # Create the model behind our TreeView:
-        model = gtk.ListStore(gobject.TYPE_PYOBJECT,  # (0) Channel instance
-                              gobject.TYPE_STRING,    # (1) Channel name
-                              gobject.TYPE_BOOLEAN,   # (2) Visibility flag
-                              gobject.TYPE_BOOLEAN,   # (3) Activatable flag
-                              gobject.TYPE_OBJECT,    # (4) Color sample
-                              )
-        for channel in availableChannels:
-            i = model.append(row=(
+        self.initModel()
+        gtk.TreeView.__init__(self, self.model)
+        self.initView()
+
+        # Filling the model requires creating pixmaps for the color samples,
+        # which needs a valid self.window. Delay filling the model until after
+        # this widget has been realized.
+        self.modelFilled = False
+        self.connect_after("realize", self.gtkRealizeSignal)
+
+    def gtkRealizeSignal(self, widget=None, event=None):
+        """Called after this widget has been realized (its gdk resources created)
+           so that self.fillModel can be run with a valid window.
+           """
+        if not self.modelFilled:
+            self.fillModel()
+        return gtk.TRUE
+
+    def initModel(self):
+        """Create the model representing the data in this list"""
+        self.model = gtk.ListStore(gobject.TYPE_PYOBJECT,  # (0) Channel instance
+                                   gobject.TYPE_STRING,    # (1) Channel name
+                                   gobject.TYPE_BOOLEAN,   # (2) Visibility flag
+                                   gobject.TYPE_BOOLEAN,   # (3) Activatable flag
+                                   gobject.TYPE_OBJECT,    # (4) Color sample pixbuf
+                                   )
+
+    def fillModel(self):
+        """Fills the model with data, must be called after self.window is valid"""
+        for channel in self.availableChannels:
+            self.model.append(row=(
                 channel,
                 str(channel),
                 gtk.FALSE,
                 gtk.TRUE,
                 self.makeColorSamplePixbuf(channel),
                 ))
+        self.modelFilled = True
 
-        # Now we can initialize this class, the view
-        gtk.TreeView.__init__(self, model)
-
+    def initView(self):
+        """Initializes all columns in the model viewed by this class"""
         # Read/write toggle for channel visibility
         renderer = gtk.CellRendererToggle()
-        renderer.connect('toggled', self.visibilityToggleCallback, model)
+        renderer.connect('toggled', self.visibilityToggleCallback, self.model)
         self.append_column(gtk.TreeViewColumn("Visible", renderer, active=2, activatable=3))
 
         # Show the channel color
@@ -90,15 +113,21 @@ class ChannelList(gtk.TreeView):
 
     def makeColorSamplePixbuf(self, channel, width=24, height=12):
         """Create a small pixbuf giving a color sample for the given channel"""
-        # Convert the channel's color to 8-bit RGBA
-        r,g,b = channel.color
-        rgba = ((int(r * 255) << 24)|
-                (int(g * 255) << 16)|
-                (int(b * 255) <<  8))
+        # Create a pixmap first, since they're much easier to draw on
+        pixmap = gtk.gdk.Pixmap(self.window, width, height)
 
-        # Fill a properly sized blank pixbuf with it
+        # Fill it with our channel color, and give it black and white borders
+        # so it shows up on all backgrounds.
+        # Note that due to some boneheaded decisions made in xlib near the dawn of time,
+        # unfilled rectangles are actually 1 pixel wider in each dimension than the width
+        # and height we give draw_rectangle.
+        pixmap.draw_rectangle(channel.getGC(self), gtk.TRUE, 2, 2, width-4, height-4)
+        pixmap.draw_rectangle(self.get_style().white_gc, gtk.FALSE, 1, 1, width-3, height-3)
+        pixmap.draw_rectangle(self.get_style().black_gc, gtk.FALSE, 0, 0, width-1, height-1)
+
+        # Convert it to a pixbuf
         pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8, width, height)
-        pixbuf.fill(rgba)
+        pixbuf.get_from_drawable(pixmap, self.window.get_colormap(), 0,0, 0,0, width, height)
         return pixbuf
 
 
@@ -153,10 +182,12 @@ class GraphUI(gtk.VPaned):
         self.channelList = ChannelList(self.graph, self.availableChannels)
         self.channelList.set_size_request(256, 128)
         self.channelList.show()
+
         scroll = gtk.ScrolledWindow()
         scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         scroll.add(self.channelList)
         scroll.show()
+
         frame = gtk.Frame()
         frame.add(scroll)
         frame.show()
