@@ -22,7 +22,10 @@ An interface for viewing the individual messages stored by the stats subsystem
 #
 
 from twisted.web import resource, error
+from twisted.internet import defer
 from LibCIA.Web import Template
+from Nouvelle import tag, place
+from LibCIA import Formatters, Message, XML
 
 
 class RootPage(resource.Resource):
@@ -50,8 +53,60 @@ class MessagePage(Template.Page):
         self.statsPage = statsPage
         self.id = id
 
+    def parent(self):
+        return self.statsPage
+
     def render_mainTitle(self, context):
         return [self.statsPage.render_mainTitle(context),
                 " message #%d" % self.id]
+
+    def render_message(self, context):
+        # Grab the message from our database first
+        result = defer.Deferred()
+        self.statsPage.target.messages.getMessageById(self.id).addCallback(
+            self._render_message, context, result).addErrback(result.errback)
+        return result
+
+    def _render_message(self, xml, context, result):
+        # No message?
+        if not xml:
+            result.callback(self.notFoundMessage)
+            return
+        m = Message.Message(xml)
+
+        # Try to format it using several media, in order of decreasing preference.
+        # The 'xhtml-long' formatter lets messages define a special formatter to
+        # use when an entire page is devoted to their one message, possibly showing
+        # it in greater detail. 'xhtml' is the formatter most messages should have.
+        # 'plaintext' is a nice fallback.
+        for medium in ('xhtml-long', 'xhtml', 'plaintext'):
+            try:
+                formatted = Formatters.factory.findMedium(medium, m).format(m)
+            except Message.NoFormatterError:
+                continue
+            result.callback(formatted)
+            return
+
+        # Still no luck? Display a warning message and a pretty-printed XML tree
+        result.callback([
+            tag('h1')[ "No formatter available" ],
+            XML.htmlPrettyPrint(m.xml),
+            ])
+
+    notFoundMessage = [
+        tag('h1')[ "Not Found" ],
+        tag('p')[
+            "This message was not found in our database. The number could be "
+            "incorrect, or the message may be old enough that it was deleted "
+            "from the database. Each stats target archives a fixed number of messages, "
+            "so you might be able to find another copy of it on a different stats "
+            "target with less traffic."
+        ]
+    ]
+
+    mainColumn = [
+        Template.pageBody[ place('message') ],
+        ]
+
 
 ### The End ###

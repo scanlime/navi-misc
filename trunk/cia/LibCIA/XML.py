@@ -23,6 +23,7 @@ Utilities for dealing with objects built on top of XML trees
 
 from twisted.xish import domish
 import types, os, shutil
+import Nouvelle
 
 
 class XMLObject(object):
@@ -191,5 +192,42 @@ def allText(xml):
         return xml
     else:
         return "".join([allText(child) for child in xml.children])
+
+
+class HTMLPrettyPrinter(XMLObjectParser):
+    """An object parser that converts arbitrary XML to pretty-printed
+       representations in the form of Nouvelle-serializable tag trees.
+       """
+    def parseString(self, s):
+        return Nouvelle.tag('p')[ s ]
+
+    def unknownElement(self, element):
+        # Format the element name and attributes
+        elementName = Nouvelle.tag('span', _class="xml-element-name")[ element.name ]
+        elementContent = [ elementName ]
+        for key, value in element.attributes.iteritems():
+            elementContent.extend([
+                ' ',
+                Nouvelle.tag('span', _class='xml-attribute-name')[ key ],
+                '="',
+                Nouvelle.tag('span', _class='xml-attribute-value')[ value ],
+                '"',
+                ])
+
+        # Now the contents...
+        if element.children:
+            completeElement = [
+                "<", elementContent, ">",
+                Nouvelle.tag('blockquote', _class='xml-element-content')[
+                    [self.parse(e) for e in element.children],
+                ],
+                "</", elementName, ">",
+                ]
+        else:
+            completeElement = ["<", elementContent, "/>"]
+
+        return Nouvelle.tag('div', _class='xml-element')[ completeElement ]
+
+htmlPrettyPrint = HTMLPrettyPrinter().parse
 
 ### The End ###
