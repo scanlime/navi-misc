@@ -24,7 +24,10 @@ User-defined exception classes used by the BZFlag package
 class NonfatalException(Exception):
     pass
 
-class ProtocolException(NonfatalException):
+class ProtocolError(Exception):
+    pass
+
+class ProtocolWarning(NonfatalException):
     pass
 
 class NetworkException(Exception):

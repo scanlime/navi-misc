@@ -110,7 +110,7 @@ class BaseClient:
         # the server version and our client ID.
         hello = socket.readStruct(FromServer.HelloPacket)
         if hello.version != BZFlag.protocolVersion:
-            raise Errors.ProtocolException(
+            raise Errors.ProtocolError(
                 "Protocol version mismatch: The server is version " +
                 "'%s', this client is version '%s'." % (
                 hello.version, BZFlag.protocolVersion))
@@ -157,7 +157,7 @@ class BaseClient:
         return None
 
     def onUnhandledMessage(self, msg):
-        raise Errors.ProtocolException("Unhandled message %s" % msg.__class__.__name__)
+        raise Errors.ProtocolWarning("Unhandled message %s" % msg.__class__.__name__)
     
     def onMsgSuperKill(self, msg):
         """The server wants us to die immediately"""

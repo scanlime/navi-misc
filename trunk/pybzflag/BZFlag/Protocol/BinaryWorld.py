@@ -47,7 +47,7 @@ class Style(Block):
     entries = [
         # This first field is the size, but since this is the only
         # block that has it, we'll just treat it as a magical constant.
-        ConstStructEntry(UInt16, 28,  Errors.ProtocolException("Bad size in world style block")),
+        ConstStructEntry(UInt16, 28,  Errors.ProtocolError("Bad size in world style block")),
         StructEntry(Float,            'worldSize'),
         StructEntry(Common.GameStyle, 'gameStyle'),
         StructEntry(UInt16,           'players'),
