@@ -23,6 +23,11 @@
 #ifndef __PLUGINS_H__
 #define __PLUGINS_H__
 
-void load_plugins(void);
+#include <gmodule.h>
+#include <glib.h>
+#include <glib-object.h>
+
+void   load_plugins (void);
+GList* find_type_leaves (GType base);
 
 #endif

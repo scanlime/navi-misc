@@ -21,11 +21,9 @@
  */
 
 #include "plugins.h"
-#include <gmodule.h>
-#include <glib.h>
 
 void
-load_plugins(void)
+load_plugins (void)
 {
   GDir *dir;
   const gchar *file;
@@ -53,4 +51,27 @@ load_plugins(void)
   g_print ("\n");
 
   g_dir_close (dir);
+}
+
+GList*
+find_leaves (GType base)
+{
+  GType *children, *t;
+  guint n, i, c;
+  GList *ret = g_list_alloc();
+
+  children = g_type_children (base, &n);
+  for (i = 0; i < n; i++)
+  {
+    t = g_type_children (children[i], &c);
+    if (c != 0)
+      g_list_concat (ret, find_leaves (children[i]));
+    else {
+      g_list_append (ret, GUINT_TO_POINTER (children[i]));
+    }
+    g_free (t);
+  }
+  g_free (children);
+
+  return ret;
 }
