@@ -20,7 +20,7 @@
  *
  */
 
-#include "de-jong.h"
+#include "main.h"
 #include "color-button.h"
 
 struct gui_state gui;
