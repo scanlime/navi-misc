@@ -27,4 +27,8 @@ THESE MUST HAPPEN BEFORE THE ANY RELEASE: (in no particular order)
 
 * Implement the client stuff in a game module. Moving common items into a game module base class for ease of use in other game types.
 
+* Implement a model scaning system to determine what models are incuded on the client system.
+
+* Implement some sort of content management system.
+
 * Many other things
