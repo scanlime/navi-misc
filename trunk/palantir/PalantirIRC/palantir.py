@@ -65,10 +65,27 @@ def nickComplete(text, nicks):
       complete match the tuple have only the matching item in it.
       '''
   match = [text]
+
+  # Insert any nicks containing the substring text into the matched list.
   for nick in nicks:
     if nick.find(text) != -1:
       match.append(nick)
 
+  # If there's only one match in the list replace the search string with the
+  # match.
   if len(match) == 2:
     match.remove(match[0])
+  else:
+    match[0] = findCommonSubstring(match[1:])
+
+  # Return the list of matches.
   return match
+
+def findCommonSubstring(strings):
+  substr = strings[0]
+  for string in strings:
+    for index in range(len(string)):
+      if substr[index] != string[index]:
+	substr = string[:index]
+	break
+  return substr
