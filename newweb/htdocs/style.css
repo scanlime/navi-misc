@@ -12,6 +12,10 @@ img {
   padding: 0em 1em;
 }
 
+img.centered {
+  float: center;
+}
+
 a {
   color: #000080;
   text-decoration: none;

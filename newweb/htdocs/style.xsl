@@ -41,7 +41,7 @@
 
   <!--================================== Images -->
   <xsl:template match="img">
-    <img>
+    <img class="centered">
       <xsl:attribute name="src"><xsl:value-of select="@src"/></xsl:attribute>
       <xsl:attribute name="alt"><xsl:value-of select="@alt"/></xsl:attribute>
     </img>
