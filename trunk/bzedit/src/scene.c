@@ -182,10 +182,10 @@ scene_render (Scene *self, RenderState *rstate)
     scene_preprocess (self);
 
   glDisable (GL_BLEND);
-  glDisable (GL_DEPTH_TEST);
-  glDisable (GL_CULL_FACE);
+  glEnable (GL_DEPTH_TEST);
+  glEnable (GL_CULL_FACE);
   glEnable (GL_COLOR_MATERIAL);
-  glDisable (GL_LIGHTING);
+  glEnable (GL_LIGHTING);
   glDisable (GL_LINE_SMOOTH);
   glColor4f (1.0, 1.0, 1.0, 1.0);
 
