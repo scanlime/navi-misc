@@ -41,6 +41,13 @@ div.headingTabs {
   margin: 1em 0em 0em 0em;
 }
 
+div.siteName {
+  float: right;
+  margin: 0em 0.5em;
+  font: 350% Verdana, Helvetical, Arial, sans-serif;
+  color: #D0D0D0;
+}
+
 a.headingTab {
   background: #eef4eb;
   border: 1px solid black;
@@ -49,6 +56,10 @@ a.headingTab {
   margin: 1.5em 0.5em 0em 0.5em;
   padding: 0em 0.5em;
   text-decoration: none;
+}
+
+a.headingTab:hover {
+  text-decoration: underline;
 }
 
 div.heading {

@@ -26,10 +26,11 @@
           <xsl:otherwise>
             <!--========== Normal Page -->
             <div class="heading">
+              <div class="siteName">whoopie</div>
               <div class="title"><xsl:value-of select="@title"/></div>
               <div class="subtitle"><xsl:value-of select="@subtitle"/></div>
               <div class="headingTabs">
-                <xsl:apply-templates select="document('tabs.xml')//headingTab"/>
+<!--                <xsl:apply-templates select="document('tabs.xml')//headingTab"/>-->
               </div>
             </div>
             <table class="columns">
