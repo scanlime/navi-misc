@@ -28,7 +28,7 @@ XC4010XL (Xess XS40, everything except FPGA, oscillator, and SRAM removed):
  3.3v power     - LM317 regulator, powered by USB port
 
  P13            - Clock, set to 20 MHz
- P19            - White status LED, via NPN transistor and appropriate resistors
+ P19            - cathode of white status LED via 330 ohm resistor, anode to +5V
  P18            - I2C Clock (TUSB3410 header pin 4)
  P23            - I2C Data (TUSB3410 header pin 5)
  P69            - General purpose output to DSR (6) on the TUSB3410
