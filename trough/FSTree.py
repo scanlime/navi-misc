@@ -79,7 +79,8 @@ class Directory (File):
 		entries.sort()
 
 		for i in xrange(0,len(entries)):
-			print entries[i]
+#
+#			print entries[i]
 			if os.path.isdir(os.path.join(path,entries[i])):
 				self.subdirs.append(Directory(entries[i], self))
 			else:

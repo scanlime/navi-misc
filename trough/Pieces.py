@@ -45,7 +45,7 @@ class Pieces:
 			if not subdirs:
 				files.sort()
 				if files[len(files)-1].getName()[0].isdigit():
-					print dir.getFiles().getPath()
+#					print dir.getFiles().getPath()
 					self.addFilesGrouped (dir.getName(),dir.getFiles())
 				else:
 					self.addFilesSeparate (dir.getName(),dir.getFiles())
