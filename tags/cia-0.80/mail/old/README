@@ -1,0 +1,6 @@
+This directory holds filter scripts and procmail rules
+that aren't currently active- they haven't received
+a commit in a while and needed updating. To fix these
+filters, you may need to resubscribe to the mailing
+lists they scrape and you probably need to update the
+scripts.
