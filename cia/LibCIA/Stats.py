@@ -236,15 +236,19 @@ class StatsTarget(object):
             raise StatsPathException("Stats paths are currently limited to 128 characters")
         return path
 
-    def deliver(self, message):
+    def deliver(self, message=None):
         """A message has been received which should be logged by this stats target"""
-        # Store the message in our stats_messages table.
-        # Our database has rules that automatically maintain the
-        # stats_catalog table as necessary here.
-        return Database.pool.runOperation("INSERT INTO stats_messages (target_path, xml) VALUES(%s, %s)" % (
-            quoteSQL(self.path, 'varchar'),
-            quoteSQL(message, 'text'),
-            ))
+        if message:
+            # Store the message in our stats_messages table.
+            # Our database has rules that automatically maintain the
+            # stats_catalog table as necessary here.
+            Database.pool.runOperation("INSERT INTO stats_messages (target_path, xml) VALUES(%s, %s)" % (
+                quoteSQL(self.path, 'varchar'),
+                quoteSQL(message, 'text'),
+                ))
+
+        # Increment the stats target
+        return Database.pool.runOperation("SELECT statsIncrement(%s)" % quoteSQL(self.path, 'varchar'))
 
     def catalog(self):
         """Return a list of subdirectories of this stats target"""
@@ -272,47 +276,6 @@ class StatsTarget(object):
         """Delete everything associated with this stats target"""
         return Database.pool.runOperation("DELETE FROM stats_messages WHERE target_path = %s" %
                                           quoteSQL(self.path, 'varchar'))
-
-
-class MetadataRack:
-    """A Rack subclass that only stores strings, but allows retrieval
-       and specification of meta-metadata such as a value's MIME type.
-       """
-    def __setitem__(self, key, value):
-        """Wrap the usual __setitem__ to enforce that keys must be strings"""
-        if type(key) not in types.StringTypes:
-            raise TypeError("MetadataRack's keys must be strings")
-        Rack.Rack.__setitem__(self, key, value)
-
-    def setType(self, key, mimeType):
-        """Set a key's MIME type. None can be used to restore the default."""
-        # This stores the type at (key, 'type'), which can't normally be reached
-        # from outside because our __setitem__ only allows strings.
-        if mimeType is None:
-            try:
-                del self[(key, 'type')]
-            except KeyError:
-                pass
-        else:
-            Rack.Rack.__setitem__(self, (key, 'type'), mimeType)
-
-    def getType(self, key, default="text/plain"):
-        """Get a key's MIME type, returning 'default' if it hasn't been set"""
-        return self.get((key, 'type'), default)
-
-    def __iter__(self):
-        """Return only the string items, so when iterating the metadata our
-           caller doesn't see the internal keys we use to store MIME types.
-           """
-        for item in Rack.Rack.__iter__(self):
-            if type(item) in types.StringTypes:
-                yield item
-
-    def __delitem__(self, key):
-        # After deleting an item, unset its MIME type
-        Rack.Rack.__delitem__(self, key)
-        self.setType(key, None)
-
 
 
 class Counters(object):
