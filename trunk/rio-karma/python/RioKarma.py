@@ -30,7 +30,7 @@ work done by the Karmalib and libkarma projects:
 #
 
 import struct, md5, os, random
-import anydbm, shelve
+import shelve, cPickle
 from cStringIO import StringIO
 from twisted.internet import protocol, defer, reactor
 from twisted.python import failure, log
@@ -713,7 +713,7 @@ class AllocationTree:
        unavailable space very quickly. This is very similar to the Karnaugh
        maps used to optimize simple digital logic circuits.
        """
-    def __init__(self, bits=32):
+    def __init__(self, bits):
         self.mask = 1 << (bits - 1)
         self.data = False
 
@@ -733,7 +733,6 @@ class AllocationTree:
         return self._findFirst(self.data, self.mask, 0)
 
     def _findFirst(self, data, mask, address):
-        print "findfirst: %r %r %r" % (data, mask, address)
         if type(data) is list:
             # A node- if the zero child isn't True, we can always follow
             # it and find a free address.
@@ -796,15 +795,104 @@ class AllocationTree:
                 setNode(True)
 
 
+class FileIdAllocator:
+    """File IDs, from experimentation, seem to be multiples of 0x10 between 0x110 and
+       0xFFFF0. This uses a 16-bit-deep AllocationTree, with bit shifting to hide the
+       requirement that IDs be multiples of 0x10. Additionally, we pre-mark IDs below
+       0x110 as unusable.
+       """
+    def __init__(self):
+        self.tree = AllocationTree(16)
+        for i in xrange(0x11):
+            self.tree.allocate(i)
+
+    def isAllocated(self, address):
+        return self.tree.isAllocated(address >> 4)
+
+    def allocate(self, address):
+        return self.tree.allocate(address >> 4)
+
+    def findFirst(self):
+        return self.tree.findFirst() << 4
+
+    def next(self):
+        i = self.findFirst()
+        if i is not None:
+            self.allocate(i)
+        return i
+
+
+class Cache:
+    """This is a container for the several individual databases that make up
+       our cache of the Rio's file database. It is responsible for opening,
+       closing, synchronizing, and resetting all caches in unison.
+       """
+    def __init__(self, path):
+        self.path = os.path.expanduser(path)
+
+    def _openShelve(self, name, mode):
+        """This is a convenience function for opening shelve databases using
+           a common naming convention and parent directory.
+           """
+        return shelve.open(os.path.join(self.path, name + '.db'), mode)
+
+    def _openPickle(self, name, mode, factory, *args, **kwargs):
+        """This is a convenience function for opening pickled objects in the same
+           fashion as an anydbm database.
+           """
+        filename = os.path.join(self.path, name + '.p')
+        if mode == 'n' or not os.path.isfile(filename):
+            return factory(*args, **kwargs)
+        else:
+            return cPickle.load(open(filename, "rb"))
+
+    def _savePickle(self, obj, name):
+        """A convenience function for saving pickled objects using
+           our common naming convention
+           """
+        filename = os.path.join(self.path, name + '.p')
+        cPickle.dump(obj, open(filename, "wb"), cPickle.HIGHEST_PROTOCOL)
+
+    def open(self, mode='c'):
+        """Open all cache components, creating them if necessary"""
+        if not os.path.isdir(self.path):
+            os.makedirs(self.path)
+
+        self.fileDetails     = self._openShelve('file-details', mode)
+        self.fileIdAllocator = self._openPickle('file-id-allocator', mode, FileIdAllocator)
+
+    def close(self):
+        self.sync()
+        self.quickClose()
+
+    def sync(self):
+        """Synchronize in-memory parts of the cache with disk"""
+        self.fileDetails.sync()
+        self._savePickle(self.fileIdAllocator, 'file-id-allocator')
+
+    def quickClose(self):
+        """Close without regard to data integrity! This will close our
+           databases, but does not flush in-memory caches to disk.
+           This should only be used when we're throwing the cache
+           away soon anyway.
+           """
+        self.fileDetails.close()
+
+    def empty(self):
+        """Discard the contents of the cache"""
+        self.quickClose()
+        self.open('n')
+
+
 class Filesystem:
     """The Filesystem is a high-level abstraction for the Rio's file database.
        This includes a local cache of the device's database, and interfaces
        for obtaining and storing File objects.
        """
-    def __init__(self, protocol, storageDir="~/.python-riokarma"):
+    def __init__(self, protocol, cacheDir="~/.riokarma-py/cache"):
         self.protocol = protocol
-        self.storageDir = os.path.expanduser(storageDir)
-        self._openCache()
+        self.cache = Cache(cacheDir)
+        self.cache.open()
 
     def synchronize(self):
         """Update our local database if necessary. Returns a Deferred
@@ -813,50 +901,30 @@ class Filesystem:
            """
         d = defer.Deferred()
         self.protocol.sendRequest(Request_RequestIOLock('read')).addCallback(
-            self._synchronize, d).addErrback(d.errback)
+            self._startSynchronize, d).addErrback(d.errback)
         return d
 
-    def _synchronize(self, _, d):
-        if self.isDatabaseDirty():
+    def _startSynchronize(self, retval, d):
+        if self.isCacheDirty():
             # Empty and rebuild all database files
-            self._flushCache()
+            self.cache.empty()
             self.protocol.sendRequest(Request_GetAllFileDetails(
-                self._storeFileDetails)).chainDeferred(d)
+                self._storeFileDetails)).addCallback(
+                self._finishSynchronize, d).addErrback(d.errback)
         else:
             d.callback(None)
 
-    def _openCache(self, mode="c"):
-        """Open all database files used for our local cache"""
-        s = self.storageDir
-        if not os.path.isdir(s):
-            os.makedirs(s)
+    def _finishSynchronize(self, retval, d):
+        # Before signalling completion, sync the cache
+        self.cache.sync()
+        d.callback(None)
 
-        self.fileDetails  = shelve.open(os.path.join(s, 'file-details.db'), mode)
-        self.availableIds = shelve.open(os.path.join(s, 'available-ids.db'), mode)
-
-    def _closeCache(self):
-        """Close all cache database files"""
-        self.fileDetails.close()
-        self.availableIds.close()
-
-    def _flushCache(self):
-        """Empty all cache database files"""
-        self._closeCache()
-        self._openCache("n")
-
-        # Populate availableIds with all valid file IDs. This seems to be all multiples
-        # of 0x10 between 0x110 and 0xFFFFFFF0. We use a nifty data structureWe store this as a dictionary of ranges-
-        # keys are start addresses, values are lengths. Everything is shifted 4 bits over,
-        # to account for the requirement that they be multiples of 0x10. We begin with
-        # one key indicating the entire address space. This is then split as individual
-        # keys are allocated, eventually giving us a tree.
-
-    def isDatabaseDirty(self):
+    def isCacheDirty(self):
         """This function determines whether our local cache of the database
            is still valid. If not, we should retrieve a new copy.
            """
         # FIXME
-        if len(self.fileDetails) == 0:
+        if len(self.cache.fileDetails) == 0:
             return True
         else:
             return False
@@ -865,23 +933,10 @@ class Filesystem:
         """Add a file details dictionary to our database cache. This is used to populate
            the database when synchronizing from the device.
            """
-        print hex(int(details['fid']))
+        self.cache.fileIdAllocator.allocate(int(details['fid']))
+        self.cache.fileDetails[details['fid']] = details
 
-    def newFileID(self):
-        """Search for a new valid file ID. This means a multiple of 16, greater than 256,
-           less than 65536, that isn't already used by another file. This searches
-           stochastically, using hash lookups to find collisions. Note that this adds
-           an empty entry to self.db immediately, to avoid a race between creating IDs
-           and populating files with metadata.
-           """
-        # FIXME: This is better than a linear search, but it would be better yet to maintain
-        #        a list of free IDs
-        while 1:
-            fid = 256 + (random.randint(1, 4079) << 4)
-            strFid = str(fid)
-            if strFid not in self.db:
-                self.db[strFid] = {}
-                return fid
+        print hex(int(details['fid']))
 
 
 class File:

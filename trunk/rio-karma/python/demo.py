@@ -15,8 +15,10 @@ def show(result):
     print "Result: %r" % (result,)
 
 def synchronized(retval):
-    print "Synchronized database, %d entries" % len(fs.fileDetails)
-    print "new id: %d" % fs.newFileID()
+    print "Synchronized database, %d entries" % len(fs.cache.fileDetails)
+    i = fs.cache.fileIdAllocator.next()
+    print "new id: %d" % i
+    print "details: %r" % fs.cache.fileDetails.get(str(i))
 
 
 # Oh no, the mighty h4><0rz will break into my rio!
