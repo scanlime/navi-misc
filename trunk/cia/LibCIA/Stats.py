@@ -557,8 +557,10 @@ class Metadata:
                                           Database.quote(name, 'varchar')))
 
         # Now actually set the value
-        cursor.execute("UPDATE stats_metadata SET mime_type = %s, value = '%s' WHERE target_path = %s AND name = %s" %
+        cursor.execute("UPDATE stats_metadata SET mime_type = %s, mtime = %s, value = '%s' "
+                       "WHERE target_path = %s AND name = %s" %
                        (Database.quote(mimeType, 'varchar'),
+                        Database.quote(time.time(), 'bigint'),
                         Database.quoteBlob(value),
                         Database.quote(self.target.path, 'varchar'),
                         Database.quote(name, 'varchar')))
