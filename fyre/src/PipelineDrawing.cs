@@ -26,11 +26,30 @@ namespace Fyre
 
 	class PipelineDrawing : Gtk.DrawingArea
 	{
-		private Gtk.Adjustment		hadj;
-		private Gtk.Adjustment		vadj;
+		Gtk.Adjustment		hadj;
+		Gtk.Adjustment		vadj;
+
+		// The drawing extents are the size of our current drawing area. This
+		// can be modified via the arrows on the scrollbars. It is always a
+		// superset of the layout extents, which are the size of the pipeline
+		// itself. When scrolling around, the drawing extents shrink to the
+		// layout extents when the area isn't visible.
+		Gdk.Rectangle		drawing_extents;
+		Gdk.Rectangle		layout_extents;
 
 		public PipelineDrawing () : base ()
 		{
+			drawing_extents = new Gdk.Rectangle ();
+			layout_extents = new Gdk.Rectangle ();
+
+			// For now, initialize the layout extents to 300x300 at the origin
+			layout_extents.X = 0;
+			layout_extents.Y = 0;
+			layout_extents.Width  = 300;
+			layout_extents.Height = 300;
+
+			drawing_extents = layout_extents;
+
 			Show ();
 		}
 
