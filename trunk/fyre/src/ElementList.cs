@@ -23,10 +23,9 @@
 namespace Fyre
 {
 
-	class ElementList : Gtk.EventBox
+	class ElementList : Gtk.TreeView
 	{
 		// Widget data
-		private Gtk.TreeView		element_view;
 		private Gtk.TreeViewColumn	column;
 		private Gtk.TreeStore		element_store;
 		private Gtk.TreeModelSort	sorted_store;
@@ -53,14 +52,14 @@ namespace Fyre
 			tooltip_timeout = 0;
 
 			toplevel = (Gtk.Window) window;
+
+			ShowAll ();
 		}
 
 		void SetupWidgets ()
 		{
-			// Tree View
-			element_view = new Gtk.TreeView ();
-			element_view.Show ();
-			Add (element_view);
+			// Tree View data
+			HeadersVisible = false;
 
 			// Create the column and the renderers
 			column = new Gtk.TreeViewColumn ();
@@ -80,7 +79,7 @@ namespace Fyre
 			sorted_store.SetSortColumnId (1, Gtk.SortType.Ascending);
 
 			// Use the sorted proxy as our model
-			element_view.Model = sorted_store;
+			Model = sorted_store;
 
 			// Icon
 			Gtk.CellRenderer pixbuf_renderer = new Gtk.CellRendererPixbuf ();
@@ -92,20 +91,20 @@ namespace Fyre
 			column.PackStart (text_renderer, true);
 			column.AddAttribute (text_renderer, "text", 1);
 
-			element_view.AppendColumn (column);
+			AppendColumn (column);
 
 			// Set up drag-and-drop
 			Gtk.TargetEntry[] targets = PipelineEditor.DragTargets;
-			Gtk.Drag.SourceSet (element_view, Gdk.ModifierType.Button1Mask, targets, Gdk.DragAction.Copy);
+			Gtk.Drag.SourceSet (this, Gdk.ModifierType.Button1Mask, targets, Gdk.DragAction.Copy);
 		}
 
-		void ViewDragBegin (object o, Gtk.DragBeginArgs args)
+		protected override void OnDragBegin (Gdk.DragContext context)
 		{
 			Gtk.TreePath		path;
 			Gtk.TreeViewColumn	column;
 			int			cell_x, cell_y;
 
-			if (element_view.GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
+			if (GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
 				Gdk.Pixmap pixmap = new Gdk.Pixmap (null, 200, 150, 24);
 
 				Gdk.GC gc = new Gdk.GC (pixmap);
@@ -116,11 +115,11 @@ namespace Fyre
 				pixmap.DrawRectangle (gc, true, 0, 0, 200, 150);
 				Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, 200, 150);
 				icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, 200, 150);
-				Gtk.Drag.SetIconPixbuf (args.Context, icon, click_x + 1, cell_y);
+				Gtk.Drag.SetIconPixbuf (context, icon, click_x + 1, cell_y);
 			}
 		}
 
-		void ViewDragEnd (object o, Gtk.DragEndArgs args)
+		protected override void OnDragEnd (Gdk.DragContext context)
 		{
 			dragging = false;
 			click_x = -1;
@@ -174,7 +173,7 @@ namespace Fyre
 				if (check_drag)
 					return true;
 				// Check that we have a path
-				if (element_view.GetPathAtPos ((int) ev.X, (int) ev.Y, out path) == false) {
+				if (GetPathAtPos ((int) ev.X, (int) ev.Y, out path) == false) {
 					check_drag = true;
 					return true;
 				}
@@ -192,12 +191,12 @@ namespace Fyre
 				}
 				// Start a drag
 				dragging = true;
-				Gtk.Drag.Begin (element_view, PipelineEditor.TargetList, Gdk.DragAction.Copy, 1, ev);
+				Gtk.Drag.Begin (this, PipelineEditor.TargetList, Gdk.DragAction.Copy, 1, ev);
 				return true;
 			}
 
-			if (element_view.GetPathAtPos ((int) ev.X, (int) ev.Y, out path)) {
-				tip_rect = element_view.GetCellArea (path, column);
+			if (GetPathAtPos ((int) ev.X, (int) ev.Y, out path)) {
+				tip_rect = GetCellArea (path, column);
 				tooltip_timeout = GLib.Timeout.Add (200, new GLib.TimeoutHandler(TooltipTimeout));
 			}
 			return true;
@@ -222,7 +221,7 @@ namespace Fyre
 			Gtk.TreeIter iter;
 
 			// Check that we've got a valid path to show a tip on
-			if (!element_view.GetPathAtPos (tip_rect.X, tip_rect.Y, out path))
+			if (!GetPathAtPos (tip_rect.X, tip_rect.Y, out path))
 				return false;
 			sorted_store.GetIter (out iter, path);
 			if (current_tooltip != null)
@@ -240,6 +239,35 @@ namespace Fyre
 			current_tooltip.Show ();
 			tooltip_timeout = 0;
 			return false;
+		}
+
+		public void AddType (System.Type t)
+		{
+			object[] i = {};
+			Element e = (Element) t.GetConstructor(System.Type.EmptyTypes).Invoke(i);
+			ElementTooltip tt = new ElementTooltip (e);
+
+			string name       = e.Name ();
+			string category   = e.Category ();
+			Gdk.Pixbuf pixbuf = e.Icon ();
+
+			bool found = false;
+			Gtk.TreeIter iter;
+
+			if (element_store.GetIterFirst (out iter)) {
+				do {
+					string cat = (string) element_store.GetValue (iter, 1);
+					if (cat.Equals (category)) {
+						found = true;
+						element_store.AppendValues (iter, pixbuf, name, t, tt);
+					}
+				} while (element_store.IterNext (ref iter));
+			}
+			if (!found) {
+				iter = element_store.AppendValues (null, category);
+				element_store.AppendValues (iter, pixbuf, name, t, tt);
+				ExpandAll ();
+			}
 		}
 	}
 
