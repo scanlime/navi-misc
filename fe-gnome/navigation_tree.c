@@ -318,40 +318,26 @@ navigation_tree_select_prev_channel (NavTree *navtree)
 {
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
+  GtkTreePath *path;
 	GtkTreeIter iter;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(navtree));
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(navtree));
 
-	if (!navtree->current_path) {
-		gtk_tree_model_get_iter_first(model, &iter);
-		gtk_tree_path_free(navtree->current_path);
-		navtree->current_path = gtk_tree_model_get_path(model, &iter);
-	}
-
-	gtk_tree_model_get_iter(model, &iter, navtree->current_path);
-	if (gtk_tree_model_iter_has_child(model, &iter))
-		gtk_tree_path_down(navtree->current_path);
-
-	if (gtk_tree_path_get_depth(navtree->current_path) > 1 &&
-			!gtk_tree_path_prev(navtree->current_path)) {
-		GtkTreeIter parent;
-		gint children;
-
-		/* Get the parent (server) of our current channel. */
-		gtk_tree_model_iter_parent(model, &parent, &iter);
-
-		/* Move iter to the last child of parent. */
-		children = gtk_tree_model_iter_n_children(model, &parent);
-		gtk_tree_model_iter_nth_child(model, &iter, &parent, children-1);
-
-		/* Set path to the last child. */
-		gtk_tree_path_free(navtree->current_path);
-		navtree->current_path = gtk_tree_model_get_path(model, &iter);
-	}
-
-	if (!gtk_tree_view_row_expanded(GTK_TREE_VIEW(navtree), navtree->current_path))
-		gtk_tree_view_expand_row(GTK_TREE_VIEW(navtree), navtree->current_path, TRUE);
+  if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+    path = gtk_tree_model_get_path(model, &iter);
+    if (gtk_tree_path_get_depth(path) <= 1)
+      gtk_tree_view_expand_row(GTK_TREE_VIEW(navtree),path,TRUE);
+    if (gtk_tree_model_has_child(model, &iter))
+      gtk_tree_path_down(path);
+    else {
+      gtk_tree_path_free(path);
+      path = NULL; /* FIXME: extraneous? */
+    }
+  }
+  else if (navtree->current_path) {
+  }
+  else {
+  }
 
 	if (navtree->current_path == NULL)
 		return;
