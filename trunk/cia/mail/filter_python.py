@@ -1,44 +1,64 @@
 #!/usr/bin/env python
-import sys, email, smtplib
-from StringIO import StringIO
+from filterlib import CommitFilter
+import re, posixpath
 
-returnAddress = "python_commits@picogui.org"
-toAddress = "commits@picogui.org"
-projectName = "python"
-logFile = "/home/commits/mail.log"
+class PythonFilter(CommitFilter):
+    project = 'python'
 
-message = email.message_from_file(sys.stdin)
-body = StringIO(message.get_payload())
+    def readFiles(self, directory):
+        # We're in an added, removed, or modified files section. Split the space-separated
+        # list of files up and add them to the message, stopping when we hit a line that
+        # doesn't begin with whitespace.
+        while True:
+            line = self.body.readline()
+            if not (line.startswith('\t') or line.startswith(' ')):
+                break
+            line = line.strip()
 
-# If this appears to be a reply, ignore it
-if message['subject'].strip().lower().find("re") == 0:
-    sys.exit(0)
+            # Is this line setting the tag/branch?
+            if line.startswith("Tag: "):
+                self.addBranch(line.split(" ", 1)[1])
+                continue
 
-# Directory name is the second token in the subject
-dirName = message['subject'].split(" ")[1]
+            for file in line.split(' '):
+                self.addFile(posixpath.join(directory, file))
 
-# Use the from address as the author
-author = message['from']
+    def readLog(self):
+        # Read the log message, until we hit the beginning of the diffs
+        # if the message has them.
+        lines = []
+        while True:
+            line = self.body.readline()
+            if not line:
+                break
+            if line.startswith("Index:"):
+                break
+            line = line.strip()
+            if line:
+                lines.append(line)
+        self.addLog("\n".join(lines))
 
-# The body is the set of non-blank lines starting after "Log Message:"
-log = ""
-while True:
-    line = body.readline()
-    if not line:
-        sys.exit(0)
-    if line.strip() == "Log Message:":
-        break
-while True:
-    line = body.readline().strip()
-    if not line:
-        break
-    log += line + "\n"
+    def parse(self):
+        # Directory name is the second token in the subject. Only the part
+        # after the first slash is the actual directory name, the first part
+        # is the module.
+        module, dirName = self.message['subject'].strip().split(" ")[1].split('/', 1)
+        self.addModule(module)
 
-ciaMessage = "%s {green}%s{normal}: %s" % (dirName, author, log)
+        # Author is the first token of the from address
+        self.addAuthor(self.message['from'].split(' ')[0])
 
-s = smtplib.SMTP()
-s.connect()
-s.sendmail(returnAddress, toAddress,
-           "From: %s\nTo: %s\nSubject: Announce %s\n\n%s" % \
-           (returnAddress, toAddress, projectName, ciaMessage))
-s.close()
+        # Skip lines until we get to a section we can process
+        while True:
+            line = self.body.readline()
+            if not line:
+                break
+
+            if line.endswith(' Files:\n'):
+                self.readFiles(dirName)
+            elif line == 'Log Message:\n':
+                self.readLog()
+                break
+
+if __name__ == '__main__':
+    PythonFilter().main()
