@@ -55,6 +55,7 @@ fyre_SOURCES = 				\
 	screensaver.c			\
 	prefix.c			\
 	batch-image-render.c		\
+	probability-map.c		\
 	$(EXR_SRC)			\
 	$(GNET_SRC)
 
@@ -81,4 +82,5 @@ noinst_HEADERS =			\
 	spline.h			\
 	var-int.h			\
 	remote-server.h			\
-	remote-client.h
+	remote-client.h			\
+	probability-map.h
