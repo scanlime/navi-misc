@@ -216,6 +216,30 @@ class OpenedDevice:
             raise ValueError("Channel number out of range")
         return rcpod_AnalogReadChannel(self.dev, c)
 
+    def assertPin(self, pin):
+        """Assert the given pin descriptor, putting it in its active state"""
+        rcpod_GpioAssert(self.dev, pin.value)
+
+    def deassertPin(self, pin):
+        """Deassert the given pin, putting it in its inactive state"""
+        rcpod_GpioDeassert(self.dev, pin.value)
+
+    def testPin(self, pin):
+        """Return a True value if the given pin is asserted"""
+        return rcpod_GpioTest(self.dev, pin.value)
+
+    def assertPins(self, pins):
+        """Assert every pin in the given list, in order"""
+        arr = to_ucharArray([pin.value for pin in pins])
+        rcpod_GpioAssertBuffer(self.dev, arr, len(pins))
+        delete_ucharArray(arr)
+
+    def deassertPins(self, pins):
+        """Deassert every pin in the given list, in order"""
+        arr = to_ucharArray([pin.value for pin in pins])
+        rcpod_GpioDeassertBuffer(self.dev, arr, len(pins))
+        delete_ucharArray(arr)
+
 
 class Pin:
     """Encapsulates an rcpod pin descriptor, a value which describes
@@ -258,15 +282,15 @@ class Pin:
         """Place this pin descriptor in its active state, setting the pin
            high if it is active-high, or low if it is active-low.
            """
-        rcpod_GpioAssert(self.rcpod.dev, self.value)
+        self.rcpod.assertPin(self)
 
     def deassert(self):
         """Place this pin descriptor in its inactive state (same as pin.negate().assert_())"""
-        rcpod_GpioDeassert(self.rcpod.dev, self.value)
+        self.rcpod.deassertPin(self)
 
     def test(self):
         """Return a boolean indicating whether this pin is currently asserted or not"""
-        return rcpod_GpioTest(self.rcpod.dev, self.value)
+        return self.rcpod.testPin(self)
 
     def negate(self):
         """Return a new pin descriptor equivalent to this one except with
