@@ -65,7 +65,10 @@ void text_gui_add_text_buffer(struct session *sess) {
 		gtk_xtext_set_time_stamp(tgui->buffer, TRUE);
 	gui.current_session = sess;
 
-	tgui->topic = g_strdup("");
+	if(sess->topic == NULL)
+		tgui->topic = g_strdup("");
+	else
+		tgui->topic = g_strdup(sess->topic);
 	tgui->entry = g_strdup("");
 }
 
