@@ -21,6 +21,7 @@
 
 #include "irc-network.h"
 #include <gtk/gtkdialog.h>
+#include <gtk/gtkliststore.h>
 #include <glade/glade.h>
 #include <gconf/gconf-client.h>
 
@@ -70,6 +71,8 @@ struct _IrcNetworkEditor
 	GtkWidget *remove_autojoin;
 
 	GtkWidget *toplevel;
+
+	GtkListStore *store;
 };
 
 struct _IrcNetworkEditorClass

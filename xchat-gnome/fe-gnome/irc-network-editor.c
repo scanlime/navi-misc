@@ -47,6 +47,8 @@ irc_network_editor_class_init (IrcNetworkEditorClass *klass)
 static void
 irc_network_editor_init (IrcNetworkEditor *dialog)
 {
+	GtkCellRenderer *renderer;
+
 	dialog->gconf = NULL;
 	dialog->network = NULL;
 
@@ -85,6 +87,12 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 
 	GW(toplevel);
 #undef GW
+
+	dialog->store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
+	renderer = gtk_cell_renderer_text_new ();
+
+	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->servers), GTK_TREE_MODEL (dialog->store));
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->servers), 0, "Server", renderer, "text", 0, NULL);
 }
 
 GType
@@ -133,6 +141,26 @@ use_custom_set (GtkRadioButton *button, IrcNetworkEditor *e)
 }
 
 static void
+populate_server_list (IrcNetworkEditor *e)
+{
+	GSList *s;
+	GtkTreeIter iter;
+	ircserver *serv;
+
+	for (s = e->network->servers; s; s = g_slist_next (s)) {
+		serv = s->data;
+
+		gtk_list_store_append (e->store, &iter);
+		gtk_list_store_set (e->store, &iter, 0, serv->hostname, 1, serv, -1);
+	}
+}
+
+static void
+populate_autojoin_list (IrcNetworkEditor *e)
+{
+}
+
+static void
 irc_network_editor_populate (IrcNetworkEditor *e)
 {
 	e->gconf = gconf_client_get_default ();
@@ -167,6 +195,9 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 	gtk_container_add (GTK_CONTAINER(GTK_DIALOG(e)->vbox), e->toplevel);
 	gtk_dialog_set_has_separator (GTK_DIALOG (e), FALSE);
 	gtk_window_set_modal (GTK_WINDOW (e), TRUE);
+
+	populate_server_list (e);
+	populate_autojoin_list (e);
 
 	g_signal_connect (G_OBJECT (e->use_globals), "toggled", G_CALLBACK (use_globals_set), e);
 	g_signal_connect (G_OBJECT (e->use_custom),  "toggled", G_CALLBACK (use_custom_set),  e);

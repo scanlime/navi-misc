@@ -104,6 +104,8 @@ irc_network_new (ircnet *net)
 	n->novegiveup  = net->flags & FLAG_;
 	*/
 
+	n->servers = net->servlist;
+
 	n->password    = g_strdup(net->pass);
 	/* FIXME */
 	n->encoding    = 0;
