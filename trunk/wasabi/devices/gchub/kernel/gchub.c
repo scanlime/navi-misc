@@ -1,7 +1,7 @@
 /*
  * Gamecube Controller Hub driver
  *
- * This is a Linux 2.6 kernel module that exposes linux input devices corresponding
+ * This is a Linux kernel module that exposes linux input devices corresponding
  * to all controllers attached to the gchub. It handles basic calibration, and rumble
  * support is provided using the linux force feedback interface's FF_RUMBLE effect.
  * Every port has an LED that by default glows green when a controller is connected.
@@ -105,6 +105,12 @@ static inline void INIT_WORK(struct tq_struct *tq,
 #define FINISH_WORK
 #endif
 
+/* Version checks for other major differences betwen 2.4 and 2.6 */
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+#define NEW_USB_SUBSYSTEM
+#define NEW_INPUT_SUBSYSTEM
+#endif
+
 struct gchub_controller_status {
 	int buttons;
 	int joystick[2];
@@ -162,7 +168,9 @@ struct gchub_dev {
 
 	struct urb *		irq;		        /* URB for interrupt transfers*/
 	unsigned char *         irq_data;
+#ifdef NEW_USB_SUBSYSTEM
 	dma_addr_t              irq_dma;
+#endif
 
 	struct urb *            out_status;             /* URB for output status updates (LEDs, rumble) */
 	struct usb_ctrlrequest  out_status_request;
@@ -290,6 +298,7 @@ static int controller_init(struct gchub_controller* ctl,
 		return -ENOMEM;
 	strcpy(ctl->dev.name, name_buf);
 
+#ifdef NEW_INPUT_SUBSYSTEM
 	/* Like the name, create a physical path naming the controller port */
 	usb_make_path(usb, name_buf, sizeof(name_buf));
 	snprintf(name_buf, sizeof(name_buf)-1, "%s/port%d", name_buf, port_number);
@@ -298,20 +307,25 @@ static int controller_init(struct gchub_controller* ctl,
 	if (!ctl->dev.phys)
 		return -ENOMEM;
 	strcpy(ctl->dev.phys, name_buf);
+#endif
 
+#ifdef NEW_INPUT_SUBSYSTEM
 	/* Copy USB bus info to our input device */
 	ctl->dev.id.bustype = BUS_USB;
 	ctl->dev.id.vendor  = usb->descriptor.idVendor;
 	ctl->dev.id.product = usb->descriptor.idProduct;
 	ctl->dev.id.version = usb->descriptor.bcdDevice;
 	ctl->dev.dev = &interface->dev;
+#endif
 
 	/* Set up callbacks */
 	ctl->dev.private = ctl;
 	ctl->dev.event = controller_event;
 	ctl->dev.upload_effect = controller_upload_effect;
 	ctl->dev.erase_effect = controller_erase_effect;
+#ifdef NEW_INPUT_SUBSYSTEM
 	ctl->dev.flush = controller_flush;
+#endif
 
 	/* Set up work structures for queueing attach/detach operations */
 	INIT_WORK(&ctl->reg_work, controller_attach, ctl);
@@ -393,10 +407,12 @@ static void controller_delete(struct gchub_controller* ctl)
 		kfree(ctl->dev.name);
 		ctl->dev.name = NULL;
 	}
+#ifdef NEW_INPUT_SUBSYSTEM
 	if (ctl->dev.phys) {
 		kfree(ctl->dev.phys);
 		ctl->dev.phys = NULL;
 	}
+#endif
 }
 
 static int buttons_to_axis(int buttons, int neg_mask, int pos_mask)
@@ -491,7 +507,7 @@ static void controller_report_status(struct gchub_controller* ctl,
 							       GCHUB_BUTTON_DPAD_UP,
 							       GCHUB_BUTTON_DPAD_DOWN));
 
-#ifdef EV_SYN  	/* Linux 2.4's input system didn't sync :( */
+#ifdef NEW_INPUT_SUBSYSTEM
 	input_sync(&ctl->dev);
 #endif
 }
@@ -681,6 +697,7 @@ static int controller_erase_effect(struct input_dev* dev, int id)
 	return 0;
 }
 
+#ifdef NEW_INPUT_SUBSYSTEM
 /* Erase all effects owned by the current process */
 static int controller_flush(struct input_dev* dev, struct file* file)
 {
@@ -705,6 +722,7 @@ static int controller_flush(struct input_dev* dev, struct file* file)
 	spin_unlock_irqrestore(&ctl->ff_lock, flags);
 	return 0;
 }
+#endif
 
 
 /******************************************************************************/
@@ -938,7 +956,11 @@ static void gchub_delete(struct gchub_dev *dev)
 		usb_free_urb(dev->irq);
 	}
 	if (dev->irq_data) {
+#ifdef NEW_USB_SUBSYSTEM
 		usb_buffer_free(dev->udev, STATUS_PACKET_SIZE, dev->irq_data, dev->irq_dma);
+#else
+		kfree(dev->irq_data);
+#endif
 	}
 	if (dev->out_status) {
 		usb_unlink_urb(dev->out_status);
@@ -984,7 +1006,11 @@ static int gchub_probe(struct usb_interface *interface, const struct usb_device_
 	}
 
 	/* Prepere the irq URB */
+#ifdef NEW_USB_SUBSYSTEM
 	dev->irq_data = usb_buffer_alloc(udev, 8, SLAB_ATOMIC, &dev->irq_dma);
+#else
+	dev->irq_data = kmalloc(8, GFP_KERNEL);
+#endif
 	if (!dev->irq_data) {
 		retval = -ENOMEM;
 		goto error;
