@@ -3,10 +3,13 @@
 #include <rwand_protocol.h>
 #include <time.h>
 
-struct prediction_status {
+struct rwand_status {
   unsigned short period;
   unsigned short phase;
   unsigned char edge_count;
+  unsigned char mode;
+  unsigned char flip_pending;
+  unsigned char buttons;
 };
 
 usb_dev_handle *open_rwand(void) {
@@ -55,40 +58,52 @@ unsigned char control_read_byte(usb_dev_handle *d, int request) {
 }
 
 
-void read_prediction_status(usb_dev_handle *d, struct prediction_status *status) {
-  unsigned char packet[5];
-  control_read(d, RWAND_CTRL_READ_PREDICTION, packet, sizeof(packet));
+void read_rwand_status(usb_dev_handle *d, struct rwand_status *status) {
+  unsigned char packet[8];
+  control_read(d, RWAND_CTRL_READ_STATUS, packet, sizeof(packet));
   status->period = packet[0] + (packet[1] << 8);
   status->phase = packet[2] + (packet[3] << 8);
   status->edge_count = packet[4];
+  status->mode = packet[5];
+  status->flip_pending = packet[6];
+  status->buttons = packet[7];
 }
 
-void update_coil_driver(usb_dev_handle *d, struct prediction_status *status,
+void update_coil_driver(usb_dev_handle *d, struct rwand_status *status,
 			float pulse_center, float pulse_width) {
   control_write(d, RWAND_CTRL_SET_COIL_PHASE,
 		status->period * (pulse_center - pulse_width),
 		status->period * (pulse_center + pulse_width));
 }
 
-void update_display_timing(usb_dev_handle *d, struct prediction_status *status,
+void update_display_timing(usb_dev_handle *d, struct rwand_status *status,
 			   float center, float width) {
   int col_width = (status->period * (width/2)) / 80;
+  static int fudge_factor = 0;
 
   control_write(d, RWAND_CTRL_SET_COLUMN_WIDTH, col_width, 0);
   control_write(d, RWAND_CTRL_SET_DISPLAY_PHASE,
 		status->period * 0.5 * (center - width/2),
-		status->period * 0.5 * (1 + center - width/2) - col_width*0.96);
+		status->period * 0.5 * (1 + center - width/2) - col_width - fudge_factor);
+
+  if (status->buttons & RWAND_BUTTON_UP)
+    fudge_factor += 1;
+  else if (status->buttons & RWAND_BUTTON_DOWN)
+    fudge_factor -= 1;
+  else
+    return;
+  printf("Fudge factor = %d\n", fudge_factor);
 }
 
 void unstall(usb_dev_handle *d) {
   unsigned period = -1;
   int unstall_edges = 0;
-  struct prediction_status predicted, last_predicted;
+  struct rwand_status status, last_status;
 
   printf("Possibly stalled, trying to restart...\n");
 
-  read_prediction_status(d, &last_predicted);
-  predicted = last_predicted;
+  read_rwand_status(d, &last_status);
+  status = last_status;
 
   while (unstall_edges < 100) {
     /* This part needs a lot of work...
@@ -106,14 +121,15 @@ void unstall(usb_dev_handle *d) {
 
     printf("period = %d, edges = %d\n", period, unstall_edges);
     control_write(d, RWAND_CTRL_SET_PREDICTION, 0, period);
-    update_coil_driver(d, &predicted, 0.25, 0.25);
+    update_coil_driver(d, &status, 0.25, 0.25);
 
     usleep(1000000);
 
-    last_predicted = predicted;
-    read_prediction_status(d, &predicted);
-    unstall_edges += (predicted.edge_count - last_predicted.edge_count) & 0xFF;
+    last_status = status;
+    read_rwand_status(d, &status);
+    unstall_edges += (status.edge_count - last_status.edge_count) & 0xFF;
   }
+  printf("Non-stall verified\n");
 }
 
 void read_image(unsigned char *columns, const char *filename) {
@@ -156,8 +172,7 @@ void refresh_display(usb_dev_handle *d, unsigned char *columns) {
 
 int main(int argc, char **argv) {
   usb_dev_handle *d;
-  struct prediction_status predicted, last_predicted;
-  int last_period = 0;
+  struct rwand_status status, last_status;
   time_t last_edge_timestamp;
   unsigned char frame[80];
 
@@ -169,20 +184,22 @@ int main(int argc, char **argv) {
 
   /* start out stalled, so we can verify our current status */
   last_edge_timestamp = 0;
-  read_prediction_status(d, &predicted);
+  read_rwand_status(d, &status);
 
   while (1) {
     /* Read the current period prediction, calculate the frequency.
      * (the period is in units of 16 CPU cycles on a 6 MIPS processor)
      */
-    last_predicted = predicted;
-    read_prediction_status(d, &predicted);
-    printf("%.02f Hz    Buttons: 0x%02X\n",
-	   1/(predicted.period * 16 / 6000000.0),
-	   control_read_byte(d, RWAND_CTRL_CHECK_BUTTONS));
+    last_status = status;
+    read_rwand_status(d, &status);
+
+    if (status.buttons & RWAND_BUTTON_POWER)
+      printf("%.02f Hz    Buttons: 0x%02X\n",
+	     1/(status.period * 16 / 6000000.0),
+	     status.buttons);
 
     /* Have we had any synchronization edges this time? */
-    if (predicted.edge_count != last_predicted.edge_count)
+    if (status.edge_count != last_status.edge_count)
       last_edge_timestamp = time(NULL);
 
     /* If it's been a while since we've seen a sync edge, conclude we're stalled */
@@ -199,23 +216,30 @@ int main(int argc, char **argv) {
     }
 
     /* update coil driver phase */
-    update_coil_driver(d, &predicted, 0.25, 0.2);
+    update_coil_driver(d, &status, 0.25, 0.2);
 
     /* Update display phase and column width */
-    update_display_timing(d, &predicted, 0.5, 0.75);
+    update_display_timing(d, &status, 0.5, 0.75);
 
     /* If our last page flip has finished, write another frame */
-    if (!control_read_byte(d, RWAND_CTRL_CHECK_FLIP)) {
+    if (!status.flip_pending) {
       static float t = 0;
       int i, y;
       for (i=0; i<80; i++) {
 	y = sin(t + i * 0.2) * 3.99 + 4;
 	frame[i] = 1<<y;
       }
-      t+=0.4;
+
+      if (status.buttons & RWAND_BUTTON_LEFT)
+	t-=0.4;
+      else if (status.buttons & RWAND_BUTTON_RIGHT)
+	t+=0.4;
+
       refresh_display(d, frame);
       control_write(d, RWAND_CTRL_FLIP, 0, 0);
     }
+
+    usleep(1000);
   }
 
   return 0;
