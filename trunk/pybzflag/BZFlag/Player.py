@@ -27,12 +27,12 @@ from BZFlag import Util
 
 class Identity:
     """A simple container for basic player information"""
-    def __init__(self, callSign=None, team='rogue', emailAddress="PyBZFlag", type='tank', playerId=None):
-        self.playerId = playerId
+    def __init__(self, callSign=None, team='rogue', emailAddress="PyBZFlag", type='tank', **kw):
         self.type = type
         self.callSign = callSign
         self.team = team
         self.emailAddress = emailAddress
+        self.__dict__.update(kw)
 
     def __str__(self):
         return "%s (%s)" % (self.callSign, self.emailAddress)
@@ -71,11 +71,10 @@ class Player:
     """Container for information about a player, divided into subclasses
        for the player's identity, scoring, and movement.
        """
-    def __init__(self, identity=None):
-        if identity:
-            self.identity = identity
-        else:
-            self.identity = Identity()
+    def __init__(self):
+        self.id = None
+        self.status = []
+        self.identity = Identity()
         self.motion = Motion()
         self.score = Score()
 

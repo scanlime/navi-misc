@@ -52,7 +52,7 @@ TeamColor = Enum(UInt16, {
     5: 'rabbit',
     })
 
-PlayerType = Enum(UInt16, ['tank', 'JAFO', 'computer'])
+PlayerType = Enum(UInt16, ['tank', 'observer', 'computer'])
 
 PlayerStatus = Bitfield(UInt16, {
     'dead':         0x0000,
