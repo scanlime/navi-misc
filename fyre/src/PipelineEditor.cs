@@ -54,6 +54,7 @@ public class PipelineEditor
 	// D-n-D private data
 	private int			click_x, click_y;
 	private bool			dragging;
+	private bool			check_drag;
 	private TargetEntry[]		targets;
 	private TargetList		target_list;
 
@@ -174,12 +175,14 @@ public class PipelineEditor
 		}
 		click_x = (int) args.Event.X;
 		click_y = (int) args.Event.Y;
+		check_drag = false;
 	}
 
 	void ElementListButtonReleaseEvent (object o, ButtonReleaseEventArgs args)
 	{
 		click_x = -1;
 		click_y = -1;
+		check_drag = false;
 	}
 
 	void ElementListMotionNotifyEvent (object o, MotionNotifyEventArgs args)
@@ -199,17 +202,26 @@ public class PipelineEditor
 			// If we're just continuing a drag, don't do anything
 			if (dragging)
 				return;
-			// Check that we have a path
-			if (element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path) == false)
+			// If we've already checked this drag, don't do anything either
+			if (check_drag)
 				return;
+			// Check that we have a path
+			if (element_list.GetPathAtPos ((int) ev.X, (int) ev.Y, out path) == false) {
+				check_drag = true;
+				return;
+			}
 
 			// Check that the path exists
 			Gtk.TreeIter iter;
-			if (sorted_store.GetIter (out iter, path) == false)
+			if (sorted_store.GetIter (out iter, path) == false) {
+				check_drag = true;
 				return;
-			// Check that the currently selected tree entry is an Element
-			if (sorted_store.GetValue (iter, 2) == null)
+			}
+			// Check that we're in a leaf node
+			if (!sorted_store.IterParent (out iter, iter)) {
+				check_drag = true;
 				return;
+			}
 			// Start a drag
 			dragging = true;
 			Gtk.Drag.Begin (element_list, target_list, Gdk.DragAction.Copy, 1, ev);
