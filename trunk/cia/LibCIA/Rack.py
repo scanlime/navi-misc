@@ -411,6 +411,9 @@ class KeyPickler(object):
         Also don't be surprised if the above doctest fails, since the output of cPickle isn't
         guaranteed to be constant.
         """
+    def __init__(self):
+        self.typeCache = {}
+
     def dumps(self, obj):
         """Return a string holding a pickled representation of 'obj'.
            Lists will be coerced to tuples, unsupported types will raise
@@ -423,9 +426,16 @@ class KeyPickler(object):
     def serialize(self, obj):
         """Look up the data type of 'obj' and call the appropriate serializer"""
         try:
-            f = getattr(self, 'serialize_' + type(obj).__name__)
-        except AttributeError:
-            raise TypeError("KeyPickler does not support %r" % type(obj))
+            # First try our type cache
+            f = self.typeCache[type(obj)]
+        except KeyError:
+            try:
+                # Try looking it up the old fashioned way
+                t = type(obj)
+                f = getattr(self, 'serialize_' + t.__name__)
+                self.typeCache[t] = f
+            except AttributeError:
+                raise TypeError("KeyPickler does not support %r" % type(obj))
         return f(obj)
 
     def serialize_tuple(self, obj):
