@@ -5,8 +5,11 @@
 #include "uart_driver.h"
 #include "util.h"
 
-volatile xdata at 0xF800 unsigned char ep1_out_buffer[64];
-int c;
+/* We give SDCC from 0xF800 to 0xFCFF as general-purpose xdata,
+ * the rest is available for buffers. Start at 0xFD00.
+ */
+volatile xdata at 0xFD00 unsigned char ep1_out_x[64];
+unsigned char c;
 
 void main() {
   EA = 0;     /* Global interrupt disable */
@@ -19,20 +22,21 @@ void main() {
 
   /* Set up extra endpoints */
   OEPCNF_1 = UBME;
-  OEPBBAX_1 = 0;  /* Point to our buffer at 0xF800 */
-  OEPBCTX_1 = 1;
+  OEPBBAX_1 = (0xFD00 >> 3) & 0xFF;
+  OEPSIZXY_1 = sizeof(ep1_out_x);
+  OEPBCTX_1 = 0;
 
   while (1) {
     watchdog_reset();
     usb_poll();
 
     c = OEPBCTX_1;
-    if (c & 0x80) {
+    if (c) {
       c &= ~0x80;
-      printf("ep1: %d bytes, %02X %02X %02X %02x...\n", c,
-	     ep1_out_buffer[0], ep1_out_buffer[1], ep1_out_buffer[2], ep1_out_buffer[3]);
+      printf("Received %d bytes on EP1 OUT: %02X %02X %02X %02x...\n", c,
+	     ep1_out_x[0], ep1_out_x[1], ep1_out_x[2], ep1_out_x[3]);
+      OEPBCTX_1 = 0;
     }
-    OEPBCTX_1 = 1;
   }
 }
 
