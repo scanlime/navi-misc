@@ -166,12 +166,11 @@ def main(firstRev, lastRev, outFileName):
             outfile.flush()
         except:
             print sys.exc_info()
-        finally:
-            ws.clear()
-            try:
-                tree.stopServer()
-            except:
-                pass
+        ws.clear()
+        try:
+            tree.stopServer()
+        except:
+            pass
 
 
 if __name__ == "__main__":
