@@ -899,7 +899,11 @@ class GraphUI(gtk.VPaned):
        If valueUpdateInterval is specified, the channel values are displayed
        in the list and updated every valueUpdateInterval milliseconds.
        """
-    def __init__(self, channels, graph=None, autoColor=True, valueUpdateInterval=None):
+    def __init__(self, channels,
+                 graph               = None,
+                 autoColor           = True,
+                 valueUpdateInterval = None,
+                 ):
         self.autoColor = autoColor
         self.valueUpdateInterval = valueUpdateInterval
         if not graph:
@@ -961,10 +965,18 @@ class GraphUI(gtk.VPaned):
         return frame
 
 
-def GraphUIWindow(channels, graph=None, title=None, defaultSize=(400,400)):
+def GraphUIWindow(channels,
+                  graph=None,
+                  title               = None,
+                  defaultSize         = (400,400),
+                  autoColor           = True,
+                  valueUpdateInterval = None,
+                  ):
     """Creates a window containing a GraphUI widget"""
     win = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    ui = GraphUI(channels, graph)
+    ui = GraphUI(channels, graph,
+                 autoColor=autoColor,
+                 valueUpdateInterval=valueUpdateInterval)
     if title:
         win.set_title(title)
     win.set_border_width(8)
