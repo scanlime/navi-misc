@@ -36,7 +36,8 @@
 	global	display_seq_write_byte
 	global	display_seek
 
-	global	back_buffer
+	global	back_fsr
+	global	back_status
 	global	scan_rate
 	global	pwm_cycles
 	global	pwm_table
@@ -78,13 +79,18 @@ unbanked udata_shr
 display_flags	res	1
 pwm_iter	res	1	; Iterates from pwm_cycles down to 1
 
+front_fsr	 res	1	; FSR pointing to the current front buffer
+front_status	 res	1	; STATUS pointing to the current front buffer
+back_fsr	 res	1	; FSR pointing to the current back buffer
+back_status	 res	1	; STATUS pointing to the current back buffer
+
 #define FLAG_FLIP_REQUEST	display_flags, 0
 
 bank1	udata
-front_buffer	res	LEDBOARD_VRAM_SIZE
+vram_buffer_1	res	LEDBOARD_VRAM_SIZE
 
 bank2	udata
-back_buffer	res	LEDBOARD_VRAM_SIZE
+vram_buffer_2	res	LEDBOARD_VRAM_SIZE
 
 prog3	code
 
@@ -96,46 +102,25 @@ prog3	code
 display_init
 	fpset	scan_state, scanner_thread
 
+	bankisel vram_buffer_1	; Start the front buffer out at vram_buffer_1
+	movf	STATUS, w
+	movwf	front_status
+	movlw	vram_buffer_1
+	movwf	front_fsr
+
+	bankisel vram_buffer_2	; ...and the back buffer at vram_buffer_2
+	movf	STATUS, w
+	movwf	back_status
+	movlw	vram_buffer_2
+	movwf	back_fsr
+
 	banksel	scan_rate
-	movlw	0xF0		; Default scan rate is 0xF000
+	movlw	0xFD		; Default scan rate is 0xFD00
 	movwf	scan_rate
 	clrf	scan_rate+1
 	clrf	display_flags	; Clear all display flags
 	movlw	0x10		; 16 PWM cycles by default
 	movwf	pwm_cycles
-
-	movlw	0x00		; Default pwm_table just goes from 0 to 16
-	movwf	pwm_table+0x00
-	movlw	0x01
-	movwf	pwm_table+0x01
-	movlw	0x02
-	movwf	pwm_table+0x02
-	movlw	0x03
-	movwf	pwm_table+0x03
-	movlw	0x04
-	movwf	pwm_table+0x04
-	movlw	0x05
-	movwf	pwm_table+0x05
-	movlw	0x06
-	movwf	pwm_table+0x06
-	movlw	0x07
-	movwf	pwm_table+0x07
-	movlw	0x08
-	movwf	pwm_table+0x08
-	movlw	0x09
-	movwf	pwm_table+0x09
-	movlw	0x0A
-	movwf	pwm_table+0x0A
-	movlw	0x0B
-	movwf	pwm_table+0x0B
-	movlw	0x0C
-	movwf	pwm_table+0x0C
-	movlw	0x0D
-	movwf	pwm_table+0x0D
-	movlw	0x0E
-	movwf	pwm_table+0x0E
-	movlw	0x0F
-	movwf	pwm_table+0x0F
 
 	banksel	T1CON		; Start TMR1 running off the instruction clock
 	movlw	0x01
@@ -180,7 +165,8 @@ display_seek
 display_seq_write_byte
 	movwf	temp
 	banksel	write_pointer
-	bankisel back_buffer
+	movf	back_status, w
+	movwf	STATUS
 
 	movlw	LEDBOARD_VRAM_SIZE	; Test write_pointer - LEDBOARD_VRAM_SIZE
 	subwf	write_pointer, w
@@ -188,7 +174,7 @@ display_seq_write_byte
 	return				; C=1, B=0, LEDBOARD_VRAM_SIZE <= write_pointer
 
 	movf	write_pointer, w	; Write and increment
-	addlw	back_buffer
+	addwf	back_fsr, w
 	movwf	FSR
 	movf	temp, w
 	movwf	INDF
@@ -204,14 +190,21 @@ display_seq_write_byte
 
 	;; Prepare the pwm_row entry for one column
 prepare_pwm_row macro address, column_number, high_nybble
-	banksel	front_buffer	; Get this LED's nybble
+	movf	front_status, w	; Get this LED's nybble
+	movwf	STATUS
+	movf	front_fsr, w
+	addlw	address
+	movwf	FSR
+
 	if high_nybble
-	swapf	front_buffer + address, w
+	swapf	INDF, w
 	else
-	movf	front_buffer + address, w
+	movf	INDF, w
 	endif
+
 	andlw	0x0F		; Index into pwm_table
 	addlw	pwm_table
+	bankisel	pwm_table
 	movwf	FSR
 	movf	INDF, w		; Store the result in this LED's pwm_row byte
 	banksel	pwm_row
@@ -223,8 +216,8 @@ prepare_pwm_row macro address, column_number, high_nybble
 	;; for its column driver into 'temp'.
 	;; Everything in here stays in bank0.
 shift_pwm_column macro column_number
-	movf	pwm_row + column_number, w
-	subwf	pwm_iter, w
+	movf	pwm_iter, w
+	subwf	pwm_row + column_number, w
 	rrf	temp, f
 	endm
 
@@ -262,7 +255,6 @@ scan_row macro prev_port, prev_bit, current_port, current_bit, address
 	;; Prepare the pwm_row buffer for the current row.
 	;; We do this before changing row drivers, to reduce the time
 	;; when all LEDs are off
-	bankisel	pwm_table
 	prepare_pwm_row address + 0x00, 0x00, 1
 	prepare_pwm_row address + 0x00, 0x01, 0
 	prepare_pwm_row address + 0x01, 0x02, 1
@@ -314,31 +306,10 @@ pwm_cycle_loop
 	;; Page flip handler
 page_flip
 	bcf	FLAG_FLIP_REQUEST
-	banksel	temp2
-	clrf	temp2				; Start the blit at the first column
-	pagesel	flip_blit_loop
-flip_blit_loop
-	bankisel back_buffer			; Point IRP:FSR at the back buffer's current column
-	movlw	back_buffer
-	addwf	temp2, w
-	movwf	FSR
-	movf	INDF, w				; Copy to temp
-	movwf	temp
-	bankisel front_buffer			; Point IRP:FSR at the front buffer's current column
-	movlw	front_buffer
-	addwf	temp2, w
-	movwf	FSR
-	movf	temp, w				; Copy from temp
-	movwf	INDF
-	incf	temp2, f			; Next column...
-	movf	temp2, w			; Are we done yet?
-	sublw	LEDBOARD_VRAM_SIZE
-	btfss	STATUS, Z
-	goto	flip_blit_loop
+	swapff	front_fsr, back_fsr
+	swapff	front_status, back_status
 	return
 
-
-prog4 code
 
 	;; This is a cooperatively-multitasked thread that scans through the LED matrix.
 	;; It's invoked by display_poll each time TMR1 rolls over, and runs until the
@@ -349,6 +320,12 @@ scanner_thread
 	scan_row ROW_DRIVE_0, ROW_DRIVE_1, 0x08
 	scan_row ROW_DRIVE_1, ROW_DRIVE_2, 0x10
 	scan_row ROW_DRIVE_2, ROW_DRIVE_3, 0x18
+
+	;; This gets big, switch banks...
+	psgoto	scanner_second_half
+prog4 code
+scanner_second_half
+
 	scan_row ROW_DRIVE_3, ROW_DRIVE_4, 0x20
 	scan_row ROW_DRIVE_4, ROW_DRIVE_5, 0x28
 	scan_row ROW_DRIVE_5, ROW_DRIVE_6, 0x30

@@ -14,6 +14,16 @@ movlf	macro	literal, register
 	movwf	register
 	endm
 
+	;; Swap two file registers (in the current bank) with no temp variable
+swapff	macro	reg1, reg2
+	movf	reg1, w
+	xorwf	reg2, f
+	movf	reg2, w
+	xorwf	reg1, f
+	movf	reg1, w
+	xorwf	reg2, f
+	endm
+
 	;; Store a new value to a 2-byte function pointer
 fpset	macro	ptr, lbl
 	banksel	ptr
