@@ -92,9 +92,6 @@ struct usb_mi6k {
 	unsigned char		ir_tx_space;		/* Corresponds with ir_tx_pulse */
 };
 
-/* the global devfs handle for the USB subsystem */
-extern devfs_handle_t usb_devfs_handle;
-
 /* we can have up to this number of device plugged in at once */
 #define MAX_DEVICES 16
 
@@ -118,29 +115,63 @@ static DECLARE_MUTEX(minor_table_mutex);
 /************************************************** Function Prototypes *******/
 /******************************************************************************/
 
-static void mi6k_request(struct usb_mi6k *dev, unsigned short request,
-			 unsigned short wValue, unsigned short wIndex);
-static int mi6k_ir_rx_available(struct usb_mi6k *dev);
-static void mi6k_ir_rx_push(struct usb_mi6k *dev, lirc_t x);
-static int mi6k_ir_rx_pop(struct usb_mi6k *dev);
-static void mi6k_ir_rx_store(struct usb_mi6k *dev, unsigned char *buffer, size_t count);
-static void mi6k_ir_tx_send(struct usb_mi6k *dev, lirc_t pulse, lirc_t space);
-static void mi6k_ir_tx_send_converted(struct usb_mi6k *dev, lirc_t pulse, lirc_t space);
-static void mi6k_ir_tx_flush(struct usb_mi6k *dev);
-static int mi6k_status(struct usb_mi6k *dev);
-static int mi6k_open(struct inode *inode, struct file *file);
-static int mi6k_release(struct inode *inode, struct file *file);
-static ssize_t mi6k_dev_write(struct file *file, const char *buffer, size_t count, loff_t *ppos);
-static int mi6k_dev_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
-static ssize_t mi6k_lirc_read(struct file *file, char *buffer, size_t count, loff_t *ppos);
-static ssize_t mi6k_lirc_write(struct file *file, const char *buffer, size_t count, loff_t *ppos);
-static int mi6k_lirc_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg);
-static unsigned int mi6k_lirc_poll(struct file *file, poll_table *wait);
-static inline void mi6k_delete(struct usb_mi6k *dev);
-static void * mi6k_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id);
-static void mi6k_disconnect(struct usb_device *udev, void *ptr);
-static int __init usb_mi6k_init(void);
-static void __exit usb_mi6k_exit(void);
+static int          mi6k_status               (struct usb_mi6k* dev);
+static void         mi6k_request              (struct usb_mi6k* dev,
+					       unsigned short   request,
+					       unsigned short   wValue,
+					       unsigned short   wIndex);
+
+static int          mi6k_ir_rx_available      (struct usb_mi6k* dev);
+static void         mi6k_ir_rx_push           (struct usb_mi6k* dev,
+					       lirc_t           x);
+static int          mi6k_ir_rx_pop            (struct usb_mi6k* dev);
+static void         mi6k_ir_rx_store          (struct usb_mi6k* dev,
+					       unsigned char*   buffer,
+					       size_t           count);
+static void         mi6k_ir_tx_send           (struct usb_mi6k* dev,
+					       lirc_t           pulse,
+					       lirc_t           space);
+static void         mi6k_ir_tx_send_converted (struct usb_mi6k* dev,
+					       lirc_t           pulse,
+					       lirc_t           space);
+static void         mi6k_ir_tx_flush          (struct usb_mi6k* dev);
+
+static int          mi6k_open                 (struct inode*   inode,
+					       struct file*    file);
+static int          mi6k_release              (struct inode*   inode,
+					       struct file*    file);
+static ssize_t      mi6k_dev_write            (struct file*    file,
+					       const char*     buffer,
+					       size_t          count,
+					       loff_t*         ppos);
+static int          mi6k_dev_ioctl            (struct inode*   inode,
+					       struct file*    file,
+					       unsigned int    cmd,
+					       unsigned long   arg);
+
+static ssize_t      mi6k_lirc_read            (struct file*    file,
+					       char*           buffer,
+					       size_t          count,
+					       loff_t*         ppos);
+static ssize_t      mi6k_lirc_write           (struct file*    file,
+					       const char*     buffer,
+					       size_t          count,
+					       loff_t*         ppos);
+static int          mi6k_lirc_ioctl           (struct inode*   inode,
+					       struct file*    file,
+					       unsigned int    cmd,
+					       unsigned long   arg);
+static unsigned int mi6k_lirc_poll            (struct file*    file,
+					       poll_table*     wait);
+
+static inline void  mi6k_delete               (struct usb_mi6k            *dev);
+static void *       mi6k_probe                (struct usb_device          *udev,
+					       unsigned int                ifnum,
+					       const struct usb_device_id *id);
+static void         mi6k_disconnect           (struct usb_device          *udev,
+					       void                       *ptr);
+static int __init   usb_mi6k_init             (void);
+static void __exit  usb_mi6k_exit             (void);
 
 
 /******************************************************************************/
