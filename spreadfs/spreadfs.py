@@ -16,7 +16,7 @@
 #
 
 import os, sys, stat, statvfs, random
-import threading, time, shelve
+import threading, time, anydbm
 import pinefs.srv
 import pinefs.rpc
 import pinefs.memfs
@@ -253,7 +253,7 @@ class SpreadMapper:
         self.fs = fs
         self.lastId = random.randint(0, 0x7FFFFFFF)
         self.handleFactory = pinefs.fsbase.Ctr()
-        self.db = shelve.open(filename)
+        self.db = anydbm.open(filename, 'c')
         self.objectCache = {}
 
     def newHandle(self):
@@ -285,7 +285,6 @@ class SpreadMapper:
 
             self.db[self.DB_PATH + path] = handle
             self.db[self.DB_HANDLE + handle] = path
-            self.db.sync()
             return handle
 
     def getObjectFromPath(self, path):
