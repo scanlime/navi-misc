@@ -163,6 +163,38 @@ begin_retrieval_cb (ECalBackendWeather *cbw)
 	return FALSE;
 }
 
+static const char*
+getConditions (WeatherForecast *report)
+{
+	switch (report->conditions) {
+		case WEATHER_FAIR:			return _("Fair");
+		case WEATHER_SNOW_SHOWERS:		return _("Snow showers");
+		case WEATHER_SNOW:			return _("Snow");
+		case WEATHER_PARTLY_CLOUDY:		return _("Partly cloudy");
+		case WEATHER_SMOKE:			return _("Smoke");
+		case WEATHER_THUNDERSTORMS:		return _("Thunderstorms");
+		case WEATHER_CLOUDY:			return _("Cloudy");
+		case WEATHER_DRIZZLE:			return _("Drizzle");
+		case WEATHER_SUNNY:			return _("Sunny");
+		case WEATHER_DUST:			return _("Dust");
+		case WEATHER_CLEAR:			return _("Clear");
+		case WEATHER_MOSTLY_CLOUDY:		return _("Mostly cloudy");
+		case WEATHER_WINDY:			return _("Windy");
+		case WEATHER_RAIN_SHOWERS:		return _("Rain showers");
+		case WEATHER_FOGGY:			return _("Foggy");
+		case WEATHER_RAIN_OR_SNOW_MIXED:	return _("Rain/snow mixed");
+		case WEATHER_SLEET:			return _("Sleet");
+		case WEATHER_VERY_HOT_OR_HOT_HUMID:	return _("Very hot/humid");
+		case WEATHER_BLIZZARD:			return _("Blizzard");
+		case WEATHER_FREEZING_RAIN:		return _("Freezing rain");
+		case WEATHER_HAZE:			return _("Haze");
+		case WEATHER_BLOWING_SNOW:		return _("Blowing snow");
+		case WEATHER_FREEZING_DRIZZLE:		return _("Freezing drizzle");
+		case WEATHER_VERY_COLD_WIND_CHILL:	return _("Very cold/wind chill");
+		case WEATHER_RAIN:			return _("Rain");
+	}
+}
+
 static ECalComponent*
 create_weather (ECalBackendWeather *cbw, WeatherForecast *report)
 {
