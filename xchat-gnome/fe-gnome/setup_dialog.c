@@ -23,6 +23,7 @@
 #include <glade/glade-xml.h>
 #include <gtk/gtk.h>
 #include <string.h>
+#include <config.h>
 #include "setup_dialog.h"
 
 static GladeXML *xml;
@@ -90,7 +91,7 @@ ok_clicked (GtkButton *button, gpointer data)
 	gconf_client_set_string (client, "/apps/xchat/irc/nickname", nick, NULL);
 	gconf_client_set_string (client, "/apps/xchat/irc/realname", real, NULL);
 
-	gconf_client_set_string (client, "/apps/xchat/version", "0.3", NULL);
+	gconf_client_set_string (client, "/apps/xchat/version", VERSION, NULL);
 
 	g_object_unref (client);
 

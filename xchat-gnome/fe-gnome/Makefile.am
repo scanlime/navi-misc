@@ -175,7 +175,7 @@ guir.o:		$(srcdir)/guir.c
 	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/guir.c
 
 setup_dialog.o:		$(srcdir)/setup_dialog.c
-	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/setup_dialog.c
+	$(COMPILE) $(CFLAGS) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/setup_dialog.c
 
 main_window.o:	$(srcdir)/main_window.c
 	$(COMPILE) -DXCHATSHAREDIR=\"$(xchat_gnomedir)\" -c $(srcdir)/main_window.c

@@ -1,4 +1,6 @@
-0.3pre
+0.3
+	* Fixed and implemented network configuration - David Trowbridge
+	* Added firefox-style search bar - David Trowbridge
 	* Conversion to GtkUIManager - Christian Persch / David Trowbridge
 	* Implemented Hilight List editing - David Trowbridge
 	* Color Configuration (schemes, custom) - David Trowbridge

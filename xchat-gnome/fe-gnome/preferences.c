@@ -20,6 +20,7 @@
  */
 
 #include <gconf/gconf-client.h>
+#include <config.h>
 #include "preferences.h"
 #include "palette.h"
 #include "../common/xchatc.h"
@@ -93,6 +94,6 @@ void set_version ()
 
 	client = gconf_client_get_default ();
 
-	gconf_client_set_string (client, "/apps/xchat/version", "0.3", NULL);
+	gconf_client_set_string (client, "/apps/xchat/version", VERSION, NULL);
 	g_object_unref (client);
 }
