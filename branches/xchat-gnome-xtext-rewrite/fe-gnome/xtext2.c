@@ -17,6 +17,7 @@ static gboolean   xtext2_expose          (GtkWidget *widget, GdkEventExpose *eve
 
 static void       backend_init           (XText2 *xtext);
 static void       backend_deinit         (XText2 *xtext);
+inline static int backend_get_char_width (XText2 *xtext, unsigned char *str, int *mbl_ret);
 
 static void       paint                  (GtkWidget *widget, GdkRectangle *area);
 static void       draw_bg                (XText2 *xtext, int x, int y, int width, int height);
@@ -32,6 +33,14 @@ static int        find_next_wrap         (XText2 *xtext, textentry *ent, unsigne
 static gpointer parent_class;
 
 #define MARGIN 2 /* left margin (in pixels) */
+#define WORDWRAP_LIMIT 24
+
+/* is delimiter */
+#define is_del(c) \
+	(c == ' ' || c == '\n' || c == ')' || c == '(' || \
+	 c == '>' || c == '<'  || c == ATTR_RESET || c == ATTR_BOLD || c == '\0')
+
+#define charlen(str) g_utf8_skip[*(guchar *)(str)]
 
 /* properties */
 enum
@@ -88,6 +97,7 @@ struct _XText2Private
   XTextBuffer *selection_buffer;
 
   /* backend state */
+  guint16 fontwidth[128];            /* pixel width for the ASCII chars */
 #ifdef USE_XFT
   XftColor     color[20];
   XftColor    *xft_fg;               /* both of these point into */
@@ -449,6 +459,22 @@ backend_deinit (XText2 *xtext)
   }
 }
 
+inline static int
+backend_get_char_width (XText2 *xtext, unsigned char *str, int *mbl_ret)
+{
+  XGlyphInfo ext;
+
+  if (*str < 128)
+  {
+    *mbl_ret = 1;
+    return xtext->priv->fontwidth[*str];
+  }
+  mbl_ret = charlen (str);
+  XftTextExtentsUtf8 (GDK_WINDOW_XDISPLAY (xtext->priv->draw_buffer), xtext->priv->font, str, *mbl_ret, &ext);
+
+  return ext.xOff;
+}
+
 #else
 /* ======================================= */
 /* ============ PANGO BACKEND ============ */
@@ -474,6 +500,22 @@ backend_deinit (XText2 *xtext)
   }
 }
 
+inline static int
+backend_get_char_width (XText2 *xtext, unsigned char *str, int *mbl_ret)
+{
+  int width;
+  if (*str < 128)
+  {
+    *mbl_ret = 1;
+    return xtext->priv->fontwidth[*str];
+  }
+
+  *mbl_ret = charlen (str);
+  pango_layout_set_text (xtext->priv->layout, str, *mbl_ret);
+  pango_layout_get_pixel_size (xtext->priv->layout, &width, NULL);
+
+  return width;
+}
 #endif
 
 static void
@@ -676,4 +718,99 @@ find_next_wrap (XText2 *xtext, textentry *ent, unsigned char *str, int win_width
 {
   unsigned char *last_space = str;
   unsigned char *orig_str = str;
+  int str_width = indent;
+  gboolean col = FALSE;
+  int nc = 0;
+  int mbl;
+  int ret;
+  int limit_offset = 0;
+
+  /* single liners */
+  if (win_width > ent->str_width + ent->indent)
+    return ent->str_len;
+
+  /* it does happen! */
+  if (win_width < 1)
+  {
+    ret = ent->str_len - (str - ent->str);
+    goto done;
+  }
+
+  while (1)
+  {
+    if ((col && isdigit (*str) && nc < 2) ||
+        (col && *str == ',' && isdigit (*(str+1)) && nc < 3))
+    {
+      nc++;
+      if (*str == ',')
+	nc = 0;
+      limit_offset++;
+      str++;
+    }
+    else
+    {
+      col = FALSE;
+      switch (*str)
+      {
+	case ATTR_COLOR:
+	  col = TRUE;
+	  nc = 0;
+	case ATTR_BEEP:
+	case ATTR_RESET:
+	case ATTR_REVERSE:
+	case ATTR_BOLD:
+	case ATTR_UNDERLINE:
+	  limit_offset++;
+	  str++;
+	  break;
+	default:
+	  str_width += backend_get_char_width (xtext, str, &mbl);
+	  if (str_width > win_width)
+	  {
+	    if (xtext->priv->word_wrap)
+	    {
+	      if (str - last_space > WORDWRAP_LIMIT + limit_offset)
+	      {
+		/* fall back to character wrap */
+		ret = str - orig_str;
+	      }
+	      else
+	      {
+		if (*last_space == ' ')
+		  last_space++;
+		ret = last_space - orig_str;
+		if (ret == 0) /* fall back to character wrap */
+		  ret = str - orig_str;
+	      }
+	      goto done;
+	    }
+	    ret = str - orig_str;
+	    goto done;
+	  }
+
+	  /* keep a record of the last space, for word wrapping */
+	  if (is_del (*str))
+	  {
+	    last_space = str;
+	    limit_offset = 0;
+	  }
+
+	  /* progress to the next character */
+	  str += mbl;
+      }
+    }
+
+    if (str >= ent->str + ent->str_len)
+    {
+      ret = str - orig_str;
+      goto done;
+    }
+  }
+
+done:
+  /* must make progress */
+  if (ret < 1)
+    ret = 1;
+
+  return ret;
 }

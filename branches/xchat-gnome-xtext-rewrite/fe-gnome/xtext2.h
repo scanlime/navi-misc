@@ -37,6 +37,13 @@ GtkWidget* xtext2_new         (void);
 void       xtext2_set_palette (XText2 *xtext, GdkColor palette[]);
 void       xtext2_show_buffer (XText2 *xtext, XTextBuffer *buffer);
 
+#define ATTR_BOLD      '\002'
+#define ATTR_COLOR     '\003'
+#define ATTR_BEEP      '\007'
+#define ATTR_RESET     '\017'
+#define ATTR_REVERSE   '\026'
+#define ATTR_UNDERLINE '\037'
+
 G_END_DECLS
 
 #endif
