@@ -31,6 +31,11 @@ protected:
 	int	fieldTexture;
 	int baseListID;
 	int fieldListID;
+
+	C3DVertex	size;
+	C3DVertex pos;
+	C3DVertex rot;
+	float			border;
 };
 
 class TeleporterDrawableFactory : public BaseVisualElementFactory

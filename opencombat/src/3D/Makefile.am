@@ -6,6 +6,7 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 lib3D_a_SOURCES =		\
+	3DView.cpp			\
 	3DOptionsManager.cpp	\
 	DisplayListManager.cpp	\
 	DrawablesManager.cpp	\

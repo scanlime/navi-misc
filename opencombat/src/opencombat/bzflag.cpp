@@ -65,6 +65,7 @@
 #include "ActionBinding.h"
 #include "ServerStartMenu.h"
 #include "FontManager.h"
+#include "MainDrawables.h"
 
 // invoke incessant rebuilding for build versioning
 #include "version.h"
@@ -164,8 +165,11 @@ static DefaultDBItem	defaultDBItems[] = {
   { "hunterTeamPrefix",	        "hunter_",              true,	StateDatabase::ReadWrite,	NULL },
   { "rogueTeamPrefix",	        "rogue_",               true,	StateDatabase::ReadWrite,	NULL },
 
-  // type prefixes
-  { "superPrefix",	        "super_",               true,	StateDatabase::ReadWrite,	NULL }
+	// type prefixes
+	{ "superPrefix",	        "super_",               true,	StateDatabase::ReadWrite,	NULL }.
+
+	// rendering prefrences
+	{ "useNewRendering",	        "1",               true,	StateDatabase::ReadWrite,	NULL }
 
 };
 
@@ -1067,6 +1071,8 @@ int			main(int argc, char** argv)
     return 1;
   }
 
+	// register the 
+	registerVisualElements();
   // initialize locale system
 
   BundleMgr *bm = new BundleMgr(PlatformFactory::getMedia()->getMediaDirectory(), "bzflag");
@@ -1222,17 +1228,6 @@ int			main(int argc, char** argv)
     BZDB.set("_texturereplace", (!BZDB.isTrue("lighting") &&
 	      renderer.useQuality() < 2) ? "1" : "0");
     BZDB.setPersistent("_texturereplace", false);
-    if (BZDB.isSet("view")) {
-      renderer.setViewType(SceneRenderer::Normal);
-      std::string value = BZDB.get("view");
-      for (int i = 0; i < (int)(sizeof(configViewValues) /
-				sizeof(configViewValues[0])); i++)
-	if (value == configViewValues[i]) {
-	  renderer.setViewType((SceneRenderer::ViewType)i);
-	  break;
-	}
-    }
-
     if (BZDB.isSet("startcode"))
       ServerStartMenu::setSettings(BZDB.get("startcode").c_str());
 
@@ -1251,16 +1246,6 @@ int			main(int argc, char** argv)
   } else {
     mainWindow.enableGrabMouse(true);
   }
-
-  // set window quadrant
-  if (renderer.getViewType() == SceneRenderer::ThreeChannel)
-    mainWindow.setQuadrant(MainWindow::UpperRight);
-  else if (renderer.getViewType() == SceneRenderer::Stacked)
-    mainWindow.setQuadrant(MainWindow::LowerHalf);
-#ifndef USE_GL_STEREO
-  else if (renderer.getViewType() == SceneRenderer::Stereo)
-    mainWindow.setQuadrant(MainWindow::UpperRight);
-#endif
 
   // set server list URL
   if (BZDB.isSet("list"))

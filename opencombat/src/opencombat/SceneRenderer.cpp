@@ -40,6 +40,8 @@
 #include "HUDRenderer.h"
 #include "LocalPlayer.h"
 #include "daylight.h"
+#include "VisualElementManager.h"
+#include "DrawablesManager.h"
 
 
 const GLint		SceneRenderer::SunLight = 0;	// also for the moon
@@ -98,7 +100,6 @@ SceneRenderer::SceneRenderer(MainWindow& _window) :
 				radarSize(4),
 				maxMotionFactor(5),
 				useFogHack(false),
-				viewType(Normal),
 				inOrder(false),
 				style(0),
 				sceneIterator(NULL),
@@ -206,11 +207,6 @@ bool			SceneRenderer::useStencil() const
 int			SceneRenderer::useQuality() const
 {
   return useQualityValue;
-}
-
-SceneRenderer::ViewType	SceneRenderer::getViewType() const
-{
-  return viewType;
 }
 
 void			SceneRenderer::setZBufferSplit(bool on)
@@ -363,11 +359,6 @@ int			SceneRenderer::getMaxMotionFactor() const
 void			SceneRenderer::setDim(bool on)
 {
   useDimming = on;
-}
-
-void			SceneRenderer::setViewType(ViewType _viewType)
-{
-  viewType = _viewType;
 }
 
 void			SceneRenderer::setExposed()
@@ -617,7 +608,7 @@ void			SceneRenderer::render(
     glEnable(GL_STENCIL_TEST);
     glClear(GL_STENCIL_BUFFER_BIT);
     glStencilFunc(GL_ALWAYS, 0, 0xf);
-    glStencilOp(GL_KEEP, GL_INCR, GL_INCR);
+		glStencilOp(GL_KEEP, GL_INCR, GL_INCR);
   }
   if (useHiddenLineOn) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -685,8 +676,8 @@ void			SceneRenderer::render(
       glEnable(GL_POLYGON_OFFSET_EXT);
 #endif
     }
-
-    doRender();
+		// render the normal stuff
+   doRender();
 
     if (useHiddenLineOn) {
 #if defined(GL_VERSION_1_1)

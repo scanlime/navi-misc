@@ -11,7 +11,8 @@
 */
 
 #include "TeleporterDrawable.h"
-
+#include "DrawablesManager.h"
+#include "3dTypes.h"
 
 TeleporterDrawable::TeleporterDrawable()
 {
@@ -29,21 +30,31 @@ TeleporterDrawable::~TeleporterDrawable()
 // for the visual element
 bool TeleporterDrawable::init ( void )
 {
+	parent->getPos(pos);
+	parent->getPos(rot);
+	parent->getPos(size);
+	parent->getInfoF("BORDER",border);
 	return true;
 }
 
 bool TeleporterDrawable::visible ( BaseFrustum *frustum )
 {
-	return false;
+	return true;
 }
 
 void TeleporterDrawable::draw ( void )
 {
+	DrawablesManager::instance().add(this);
 }
 
 // or the drawables
 bool TeleporterDrawable::draw ( int texture, int pass, int priority, void* param )
 {
-	return false;
+	glPushMatrix();
+	CGLPoint	glPos(pos);
+	glPos.glTranslate();
+	gluSphere(gluNewQuadric(),100,12,12);
+	glPopMatrix();
+	return true;
 }
 
