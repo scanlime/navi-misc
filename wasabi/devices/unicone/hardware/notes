@@ -22,7 +22,7 @@ TUSB3410 (Keyspan HS-19US, firmware removed):
  RS-232 CTS (8) - FPGA 'DONE' (pin 53)
  RS-232 RI  (9) -
 
-XC4010XL (Xess XS40, everything except FPGA, oscillator, and SRAM removed):
+XC4010XL (Xess XS40, everything except FPGA and oscillator removed):
 
  5v power       - USB port
  3.3v power     - LM317 regulator, powered by USB port
@@ -64,7 +64,11 @@ XC4010XL (Xess XS40, everything except FPGA, oscillator, and SRAM removed):
   P75
   P77
 
- SRAM connected as originally wired on the XS40 board.
+ Empty SRAM pads connected as originally wired on the XS40 board.
+ If we don't end up needing any memory, these can contribute to our
+ unused pin count. If we do need RAM, a new chip will have to be installed-
+ the original one on the XS40 board was damaged long before I pulled it
+ apart for this project.
 
 
 24xx-series I2C configuration memory:

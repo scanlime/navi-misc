@@ -59,7 +59,7 @@ const static struct {
     /* bConfigurationValue */  1,
     /* iConfiguration      */  0,
     /* bmAttributes        */  0x80,
-    /* MaxPower            */  300 MA,
+    /* MaxPower            */  150 MA,
   },
   /* First interface */
   {
