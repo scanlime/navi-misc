@@ -18,6 +18,9 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 from pyparsing import *
+import Log
+
+log = Log.Logger()
 
 class AMCFrame:
     number = None
