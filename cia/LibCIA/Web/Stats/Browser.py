@@ -23,6 +23,7 @@ to metadata or RSS pages.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+from twisted.python import log
 from twisted.internet import defer
 from twisted.protocols import http
 from twisted.web import resource, server
@@ -303,9 +304,12 @@ class RecentMessages(MessageList):
             # Parse the messages and attach URLs to them
             parsed = []
             for id, xml in messages:
-                m = Message.Message(xml)
-                m.hyperlink = Link.MessageLink(self.target, id, text="#%d" % id)
-                parsed.append(m)
+                try:
+                    m = Message.Message(xml)
+                    m.hyperlink = Link.MessageLink(self.target, id, text="#%d" % id)
+                    parsed.append(m)
+                except:
+                    log.err()
             result.callback(self.renderMessages(context, parsed))
         else:
             result.callback(None)

@@ -25,6 +25,7 @@ import types, weakref
 import Nouvelle
 from Ft.Xml import Domlette
 from cStringIO import StringIO
+from twisted.python import log
 
 # 4Suite requires a URI for everything, but it doesn't make sense for most of our XML snippets
 defaultURI = "cia://anonymous-xml"
@@ -51,7 +52,12 @@ class XMLObject(object):
 
     def loadFromString(self, string, uri=None):
         """Parse the given string as XML and set the contents of the message"""
-        self.loadFromDom(Domlette.NonvalidatingReader.parseString(string, uri or defaultURI))
+        try:
+            dom = Domlette.NonvalidatingReader.parseString(string, uri or defaultURI)
+        except:
+            log.msg("Error loading the following XML string:\n%s" % string)
+            raise
+        self.loadFromDom(dom)
 
     def loadFromStream(self, stream, uri=None):
         """Parse the given stream as XML and set the contents of the message"""
