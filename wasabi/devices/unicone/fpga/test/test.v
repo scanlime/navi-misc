@@ -189,7 +189,9 @@ module i2c_slave_serializer (clk, scl, sda, start, stop, write_data, wr);
 				// and pull SDA low now, to ensure our ACK
 				// bit is valid once SCL goes back high.
 				if (bit_count == 8)
-					sda_out <= 0;	
+					sda_out <= 0;
+				else
+					sda_out <= 1;	
 			end
 			else if (sda_sync && (!prev_sda)) begin
 				// Stop condition
@@ -223,7 +225,6 @@ module i2c_slave_serializer (clk, scl, sda, start, stop, write_data, wr);
 				state <= S_WAIT_FOR_SCL_LOW;
 			end
 			else begin
-				sda_out <= 1;
 				wr <= 0;
 			end
 		end
