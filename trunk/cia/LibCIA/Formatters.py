@@ -48,7 +48,7 @@ class CommitFormatter(Message.Formatter):
     detector = Message.Filter('<find path="/message/body/commit"/>')
 
     def consolidateFiles(self, xmlFiles):
-        """Given a commit, find the directory common to all files
+        """Given a <files> element, find the directory common to all files
            and return a 2-tuple with that directory followed by
            a list of files within that directory.
            """
