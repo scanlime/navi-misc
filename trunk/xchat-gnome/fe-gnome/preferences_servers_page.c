@@ -26,6 +26,10 @@
 
 void preferences_servers_selected(GtkTreeSelection *selection, gpointer data);
 
+static void add_clicked (GtkWidget *button, gpointer data) {
+	g_print("add clicked\n");
+}
+
 static void edit_global_changed(GtkToggleButton *togglebutton, gpointer data) {
 	GtkWidget *nick, *real;
 
@@ -185,8 +189,25 @@ static void edit_clicked(GtkWidget *button, gpointer data) {
 	gtk_widget_show_all(dialog);
 }
 
+static void remove_clicked(GtkWidget *button, gpointer data) {
+	GtkWidget *treeview;
+	GtkTreeSelection *select;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	ircnet *net;
+
+	treeview = glade_xml_get_widget(gui.xml, "configure server list");
+
+	select = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	
+	gtk_tree_selection_get_selected(select, &model, &iter);
+/*	gtk_tree_model_get(model, &iter, 2, &net, -1);*/
+
+	gtk_tree_store_remove(GTK_LIST_STORE(model), &iter);
+}
+
 void initialize_preferences_servers_page() {
-	GtkWidget *treeview, *edit_button, *remove_button;
+	GtkWidget *treeview, *edit_button, *remove_button, *add_button;
 	GtkListStore *store;
 	GtkCellRenderer *text_renderer, *autoconnect_renderer;
 	GtkTreeViewColumn *text_column, *autoconnect_column;
@@ -208,7 +229,11 @@ void initialize_preferences_servers_page() {
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), autoconnect_column);
 
 	edit_button = glade_xml_get_widget(gui.xml, "servers edit");
+	remove_button = glade_xml_get_widget(gui.xml, "servers remove");
+	add_button = glade_xml_get_widget(gui.xml, "servers add");
 	g_signal_connect(G_OBJECT(edit_button), "clicked", G_CALLBACK(edit_clicked), NULL);
+	g_signal_connect(G_OBJECT(remove_button), "clicked", G_CALLBACK(remove_clicked), NULL);
+	g_signal_connect(G_OBJECT(add_button), "clicked", G_CALLBACK(add_clicked), NULL);
 	gtk_widget_set_sensitive(edit_button, FALSE);
 	remove_button = glade_xml_get_widget(gui.xml, "servers remove");
 	gtk_widget_set_sensitive(remove_button, FALSE);
