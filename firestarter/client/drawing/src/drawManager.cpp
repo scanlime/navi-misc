@@ -22,6 +22,9 @@
 
 #include "drawManager.h"
 
+template <>
+CDrawManager* Singleton<CDrawManager>::_instance = (CDrawManager*)0;
+
 CDrawManager::CDrawManager()
 {
 	gameLoop = NULL;
