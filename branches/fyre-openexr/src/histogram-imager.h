@@ -125,6 +125,7 @@ void             histogram_imager_save_image_file (HistogramImager *self,
 void             histogram_imager_get_hist_size   (HistogramImager *self,
 						   int             *hist_width,
 						   int             *hist_height);
+gulong           histogram_imager_get_max_usable_density (HistogramImager *self);
 
 void             histogram_imager_clear           (HistogramImager *self);
 gdouble          histogram_imager_get_elapsed_time (HistogramImager *self);
