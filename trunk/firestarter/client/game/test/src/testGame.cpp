@@ -36,6 +36,7 @@ void CTestGame::Init ( void )
 	registerFactory("walls",new CWallObjectFactory);
 	registerFactory("playerTank",new CPlayerObjectFactory);
 	registerFactory("camera",new CCameraObjectFactory);
+	registerFactory("shot",new CShotObjectFactory);
 
 	lastSyncPingTime = -1;
 	syncPingInterval = CPrefsManager::instance().GetItemF("syncUpdateTime");
@@ -173,15 +174,17 @@ bool CTestGame::Think ( void )
 
 			bool still = false; //localPlayer->vec[0] == 0 && localPlayer->vec[1] == 0 && localPlayer->vec[2] ==0;
 
-			if (!still && CSyncedClock::instance().GetTime() - lastNetUpdateTime > updateTime)
+			if (!still && CTimer::instance().GetTime() - lastNetUpdateTime > updateTime)
 			{
 				CNetworkMessage message;
 				message.SetType(_MESSAGE_UPDATE);
 				message.AddV(localPlayer->pos);
 				message.AddV(localPlayer->rot);
 				message.AddV(localPlayer->vec);
+				message.AddF(CSyncedClock::instance().GetTime());
+
 				message.Send(network.GetServerPeer(),false);
-				lastNetUpdateTime = CSyncedClock::instance().GetTime();
+				lastNetUpdateTime = CTimer::instance().GetTime();
 			}	
 			// let the drawables update themseves ( if they exist )
 			CDrawManager::instance().ThinkAll();

@@ -31,6 +31,7 @@ typedef struct
 	float							pos[3];
 	float							rot[3];
 	float							vec[3];
+	float							lastStamp;
 	CRobotPlayer			*bot;
 }trPlayerInfo;
 
