@@ -38,9 +38,9 @@ g_module_check_init (GModule *module)
 
   /* and register our types */
   box = BOX_TYPE;
-  group = GROUP_TYPE;
   pyramid = PYRAMID_TYPE;
   teleporter = TELEPORTER_TYPE;
+  group = GROUP_TYPE;
   world = WORLD_TYPE;
 
   return NULL;

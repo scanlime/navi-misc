@@ -67,6 +67,7 @@ group_class_init (GroupClass *klass)
 
   so_class->get_icon = group_get_icon;
   so_class->creatable = TRUE;
+  so_class->canparent = TRUE;
   so_class->get_drawables = group_get_drawables;
 
   object_class->finalize = group_finalize;
