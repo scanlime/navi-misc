@@ -19,6 +19,7 @@ GtkWidget *start, *stop, *save, *randbutton;
 double iterations;
 GdkGC *gc;
 guint data[WIDTH][HEIGHT];
+guint dataMax;
 guchar pixels[WIDTH * HEIGHT * 4];
 double a, b, c, d, exposure, zoom, xoffset, yoffset;
 guint idler;
@@ -217,7 +218,7 @@ void flip() {
   last_flip = now;
 
   /* Update the iteration counter */
-  gchar *iters = g_strdup_printf("Iterations:\n%.3e", iterations);
+  gchar *iters = g_strdup_printf("Iterations:\n%.3e\n\nmax density:\n%d", iterations, dataMax);
   gtk_label_set_text(GTK_LABEL(iterl), iters);
   g_free(iters);
 
@@ -277,6 +278,7 @@ void flip() {
 
 void clear() {
   memset(data, 0, WIDTH * HEIGHT * sizeof(int));
+  dataMax = 0;
   iterations = 0;
   point.x = ((float) rand()) / RAND_MAX;
   point.y = ((float) rand()) / RAND_MAX;
@@ -285,6 +287,7 @@ void clear() {
 static int draw_more(void *extra) {
   double x, y;
   int i, ix, iy;
+  guint d;
   const int iterationsAtOnce = 10000;
   const double xcenter = WIDTH / 2.0;
   const double ycenter = HEIGHT / 2.0;
@@ -300,8 +303,12 @@ static int draw_more(void *extra) {
     ix = (int)((x + xoffset) * xscale + xcenter);
     iy = (int)((y + yoffset) * yscale + ycenter);
 
-    if (ix >= 0 && iy >= 0 && ix < WIDTH && iy < HEIGHT)
-      data[ix][iy]++;
+    if (ix >= 0 && iy >= 0 && ix < WIDTH && iy < HEIGHT) {
+      d = data[ix][iy] + 1;
+      data[ix][iy] = d;
+      if (d > dataMax)
+	dataMax = d;
+    }
   }
   iterations += iterationsAtOnce;
 
