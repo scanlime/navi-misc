@@ -91,6 +91,7 @@ class MD5Cache:
             self.cache[filename] = (sum, st.st_size, st.st_mtime)
 
         sys.stderr.write("\r" + " "*30 + "\r")
+        self.cache.sync()
 
     def isCacheValid(self, filename):
         """Determine if we have a valid cache entry for the given filename"""
@@ -490,7 +491,7 @@ def cmd_md5(paths, filesPerCommand=20):
 
         md5cache.calc(*calcFiles)
         for file in allFiles:
-            print "%s\t%s" % (md5sum(file), file)
+            print "%s\t%s" % (md5cache.get(file), file)
 
         if not allFiles:
             break
