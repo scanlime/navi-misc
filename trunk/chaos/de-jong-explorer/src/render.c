@@ -91,6 +91,12 @@ static void update_color_table() {
   /* Reallocate the color table if necessary, then regenerate its contents
    * to match the current_density, exposure, gamma, and other rendering parameters.
    * The color tabls is what maps counts[] values to pixels[] values quickly.
+   *
+   * Note that the target_density doesn't include oversampling. Since the
+   * final accumulated count value can range to the current density times
+   * oversample^2, we need that much of a larger array. Yay. We don't however
+   * have to account for this when computing fscale, since it uses the
+   * non-oversampled size in calculating image density.
    */
   guint oversampled_density = render.current_density * render.oversample * render.oversample;
   guint required_size = oversampled_density + 1;
@@ -153,23 +159,34 @@ void update_pixels() {
   pixel_p = render.pixels;
   count_p = render.counts;
 
-  for (y=render.height; y; y--) {
-    for (x=render.width; x; x--) {
+  if (oversample > 1) {
+    /* Nice ugly loop that downsamples from counts[] to pixels[] */
 
-      /* For each output pixel, accumulate an oversample^2 region of point counts */
-      sample = 0;
-      sample_p = count_p;
-      for (sample_y=oversample; sample_y; sample_y--) {
-	for (sample_x=oversample; sample_x; sample_x--) {
-	  sample += *(sample_p++);
+    for (y=render.height; y; y--) {
+      for (x=render.width; x; x--) {
+
+	/* For each output pixel, accumulate an oversample^2 region of point counts */
+	sample = 0;
+	sample_p = count_p;
+	for (sample_y=oversample; sample_y; sample_y--) {
+	  for (sample_x=oversample; sample_x; sample_x--) {
+	    sample += *(sample_p++);
+	  }
+	  sample_p += sample_stride;
 	}
-	sample_p += sample_stride;
-      }
 
-      count_p += oversample;
-      *(pixel_p++) = render.color_table[sample];
+	count_p += oversample;
+	*(pixel_p++) = render.color_table[sample];
+      }
+      count_p += sample_y_stride;
     }
-    count_p += sample_y_stride;
+  }
+  else {
+    /* A much simpler and faster loop to use when oversampling is disabled */
+
+    for (y=render.height; y; y--)
+      for (x=render.width; x; x--)
+	*(pixel_p++) = render.color_table[*(count_p++)];
   }
 
   render.dirty_flag = FALSE;
