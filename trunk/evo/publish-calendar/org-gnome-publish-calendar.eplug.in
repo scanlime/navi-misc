@@ -8,8 +8,8 @@
         <description>Allows calendars to be published to the web</description>
 	<author name="David Trowbridge" email="trowbrds@cs.colorado.edu"/>
 	<!-- calendar main menu -->
-	<hook class="org.gnome.evolution.calendar.bonobomenu:1.0">
-	    <menu id="org.gnome.evolution.calendar" target="shell">
+	<hook class="org.gnome.evolution.shell.bonobomenu:1.0">
+	    <menu id="org.gnome.evolution.shell" target="shell">
 	        <ui file="@PLUGINDIR@/org-gnome-publish-calendar.xml" />
 	        <item
 	         type="item"
