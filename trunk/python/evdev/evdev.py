@@ -64,7 +64,7 @@ class BaseDevice:
         self.axes[event.code] = event.value
 
     def update_EV_REL(self, event):
-        self.axes[event.code] += event.value
+        self.axes[event.code] = self.axes.get(event.code, 0) + event.value
 
     def __getitem__(self, name):
         """Retrieve the current value of an axis or button,
