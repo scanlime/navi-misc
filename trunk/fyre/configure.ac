@@ -32,11 +32,16 @@ AC_EXEEXT
 AC_FUNC_FORK
 
 AM_BINRELOC
+AM_CONDITIONAL([HAVE_BINRELOC], [ test "x$br_cv_binreloc" = "xyes" ])
 
 pkg_modules="glib-2.0 >= 2.0.0, gtk+-2.0 >= 2.0.0, libglade-2.0 >= 2.0"
 PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
+
+# Check for getopt. If we're missing it, include our own version
+AC_CHECK_FUNC(getopt_long, have_getopt=yes)
+AM_CONDITIONAL([HAVE_GETOPT], [test "x$have_getopt" = "xyes"])
 
 # Check for OpenEXR- we support saving OpenEXR files if the library is available
 PKG_CHECK_MODULES(EXR, OpenEXR, have_exr=yes, have_exr=no)
