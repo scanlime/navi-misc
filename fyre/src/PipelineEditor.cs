@@ -176,10 +176,10 @@ namespace Fyre
 			ErrorDialog e = new ErrorDialog ("Whoops!", "Someone left a stinker on the lawn");
 			e.Run ();
 
-			if (pipeline.saved == false) {
+			if (true) { //pipeline.saved == false) {
 				// FIXME - ask the user for confirmation
-				ConfirmDialog confirm = new ConfirmDialog ("Pipeline Not Saved",
-						"Save changes to the pipeline before closing?");
+				ConfirmCloseDialog confirm = new ConfirmCloseDialog("Save pipeline before closing?",
+						"There are unsaved changes. Save before quitting?");
 				confirm.Run();
 				confirm.Destroy();
 			}
