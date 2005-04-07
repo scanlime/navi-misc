@@ -56,7 +56,7 @@ namespace Fyre
 			get {
 				if (targets == null) {
 					targets = new Gtk.TargetEntry[1];
-					targets[0] = new Gtk.TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 0);
+					targets[0] = new Gtk.TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 1);
 				}
 				return targets;
 			}
@@ -144,7 +144,7 @@ namespace Fyre
 		void
 		DrawingReceivedDrag (object o, Gtk.DragDataReceivedArgs args)
 		{
-			System.Console.WriteLine ("drop: {0}", args.SelectionData.Text);
+			System.Console.WriteLine ("drop: {0}", System.Text.Encoding.UTF8.GetString (args.SelectionData.Data));
 		}
 
 		public Gtk.Window
