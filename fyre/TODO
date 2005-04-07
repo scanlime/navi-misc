@@ -35,6 +35,9 @@ PluginManager.cs:
 Dialogs.cs:
   * The ConfirmCloseDialog needs to actually do something when the
 	different buttons are clicked.
+		David adds: well, maybe not. Gtk.Dialog.Run() will return
+		a ResponseType - the calling code can then act upon this
+		however it wants.
 
 Plugins all need element-specific implementation
   * serialization

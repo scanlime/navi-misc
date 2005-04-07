@@ -22,11 +22,9 @@
 
 namespace Fyre
 {
+	// An abstract dialog class. It sets up the labels with whatever text is going in
+	// the dialog and makes the dialog window transient and modal for the main window.
 	abstract class Dialog : Gtk.Dialog
-	/* An abstract dialog class. It sets up the labels with whatever text is going in
-	 * the dialog and makes the dialog window transient and modal for the main
-	 * window.
-	 */
 	{
 		[Glade.Widget] Gtk.HBox		toplevel;
 		[Glade.Widget] Gtk.Label	label1, label2;
@@ -92,9 +90,8 @@ namespace Fyre
 		}
 	}
 
+	// This dialog is shown when the user attempts to quit and has unsaved changes.
 	class ConfirmCloseDialog : Dialog
-	/* This dialog is shown when the user attempts to quit and has unsaved changes.
-	 */
 	{
 		[Glade.Widget] Gtk.Image	image;
 
@@ -103,11 +100,8 @@ namespace Fyre
 		{
 			image.SetFromStock (Gtk.Stock.DialogWarning, Gtk.IconSize.Dialog);
 
-			// Close Without Saving.
 			AddButton ("Close Without Saving", Gtk.ResponseType.No);
-			// Cancel.
 			AddButton (Gtk.Stock.Cancel, Gtk.ResponseType.Cancel);
-			// Save.
 			AddButton (Gtk.Stock.Save, Gtk.ResponseType.Yes);
 		}
 	}
