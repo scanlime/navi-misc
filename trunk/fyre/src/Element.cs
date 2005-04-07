@@ -32,6 +32,9 @@ namespace Fyre
 
 	public abstract class Pad
 	{
+		System.Guid		id;		// Does this need to be globally unique?
+		string			type,
+			  			description;
 		// FIXME
 	}
 
@@ -42,6 +45,7 @@ namespace Fyre
 
 	public class OutputPad : Pad
 	{
+		PadConnection connection;
 		// FIXME
 	}
 
