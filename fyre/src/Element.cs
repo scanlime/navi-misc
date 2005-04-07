@@ -33,20 +33,37 @@ namespace Fyre
 	public abstract class Pad
 	{
 		System.Guid	id;		// Does this need to be globally unique?
-		string		type;
+		string		name;
 		string		description;
-		// FIXME
+		string		type;	// FIXME: Is a string the best way to store this?
+
+		// Properties.
+		public string
+		Name
+		{
+			get { return name; }
+		}
+
+		public string
+		Description
+		{
+			get { return description; }
+		}
+
+		public string
+		Type
+		{
+			get { return type; }
+		}
 	}
 
 	public class InputPad : Pad
 	{
-		// FIXME
 	}
 
 	public class OutputPad : Pad
 	{
-		PadConnection connection;
-		// FIXME
+		PadConnection [] connections;
 	}
 
 	public abstract class Element
