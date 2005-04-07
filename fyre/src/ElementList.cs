@@ -136,14 +136,14 @@ namespace Fyre
 		protected override bool
 		OnDragDrop (Gdk.DragContext context, int x, int y, uint time_)
 		{
-			System.Console.WriteLine ("drag+drop!");
+			System.Console.WriteLine ("DragDrop");
 			return true;
 		}
 
 		protected override void
 		OnDragDataGet (Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
 		{
-			System.Console.WriteLine ("DragDataGet");
+			System.Console.Write ("DragDataGet\n\tinfo = {0}\n\ttime = {1}\n", info, time_);
 			data.Text = "hi!";
 		}
 
