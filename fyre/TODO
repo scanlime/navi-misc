@@ -32,6 +32,10 @@ PluginManager.cs:
 	allow the user to turn off display of these errors, but that
 	would require introducing preferences of some sort.
 
+Dialogs.cs:
+  * The ConfirmCloseDialog needs to actually do something when the
+	different buttons are clicked.
+
 Plugins all need element-specific implementation
   * serialization
   * custom drawing
