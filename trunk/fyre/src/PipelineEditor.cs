@@ -176,7 +176,9 @@ namespace Fyre
 			ErrorDialog e = new ErrorDialog ("Whoops!", "Someone left a stinker on the lawn");
 			e.Run ();
 
-			// FIXME - check to make sure the pipeline is saved
+			if (pipeline.saved == false) {
+				// FIXME - ask the user for confirmation
+			}
 
 			Gtk.Application.Quit ();
 			args.RetVal = true;
@@ -229,7 +231,9 @@ namespace Fyre
 		public void
 		OnMenuFileQuit (object o, System.EventArgs args)
 		{
-			// FIXME - check to make sure the pipeline is saved
+			if (pipeline.saved == false) {
+				// FIXME - ask the user for confirmation
+			}
 			Gtk.Application.Quit ();
 		}
 
