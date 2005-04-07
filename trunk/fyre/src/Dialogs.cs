@@ -35,7 +35,8 @@ namespace Fyre
 		Dialog (string summary, string description)
 		{
 			Title = "";
-			BorderWidth = 6;
+			BorderWidth = 0;
+			ActionArea.BorderWidth = 12;
 			Resizable = false;
 			HasSeparator = false;
 
