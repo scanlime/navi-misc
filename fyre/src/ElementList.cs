@@ -133,21 +133,11 @@ namespace Fyre
 			click_y = -1;
 		}
 
-		protected override bool
-		OnDragDrop (Gdk.DragContext context, int x, int y, uint time_)
-		{
-			System.Console.WriteLine ("DragDrop");
-			return true;
-		}
-
 		protected override void
 		OnDragDataGet (Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
 		{
-			System.Console.Write ("DragDataGet\n");
-			System.Console.Write ("\tinfo      = {0}\n", info);
-			System.Console.Write ("\ttime      = {0}\n", time_);
-			System.Console.Write ("\tselection = {0}\n", data.Selection.Name);
-			System.Console.Write ("\ttarget    = {0}\n", data.Target.Name);
+			// FIXME - store some kind of identifier here that will let us
+			// get the Type we need to create
 			data.Set (data.Target, 8, System.Text.Encoding.UTF8.GetBytes ("hi!"));
 		}
 
