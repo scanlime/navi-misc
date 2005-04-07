@@ -156,10 +156,16 @@ namespace Fyre
 		void
 		SetTitle ()
 		{
+			string filename;
 			if (pipeline.filename == null)
-				toplevel.Title = "Untitled";
+				filename = "Untitled";
 			else
-				toplevel.Title = pipeline.filename;
+				filename = pipeline.filename;
+
+			if (pipeline.saved)
+				toplevel.Title = filename;
+			else
+				toplevel.Title = filename + "*";
 		}
 
 		// Event handlers - most of these come from the glade file
