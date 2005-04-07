@@ -30,6 +30,21 @@ namespace Fyre
 		int		pad;
 	}
 
+	public abstract class Pad
+	{
+		// FIXME
+	}
+
+	public class InputPad : Pad
+	{
+		// FIXME
+	}
+
+	public class OutputPad : Pad
+	{
+		// FIXME
+	}
+
 	public abstract class Element
 	{
 		abstract public string		Name ();
