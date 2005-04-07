@@ -22,7 +22,7 @@
 
 namespace Fyre
 {
-	class Dialog : Gtk.Dialog
+	abstract class Dialog : Gtk.Dialog
 	{
 		[Glade.Widget] Gtk.HBox		toplevel;
 		[Glade.Widget] Gtk.Label	label1, label2;
