@@ -32,9 +32,9 @@ namespace Fyre
 
 	public abstract class Pad
 	{
-		System.Guid		id;		// Does this need to be globally unique?
-		string			type,
-			  			description;
+		System.Guid	id;		// Does this need to be globally unique?
+		string		type;
+		string		description;
 		// FIXME
 	}
 
