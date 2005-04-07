@@ -42,14 +42,22 @@ namespace Fyre
 
 	class Pipeline
 	{
-		private Hashtable	element_store;
-		private UidComparer	comparer;
+		Hashtable		element_store;
+		UidComparer		comparer;
+		public bool		saved;
+		public string		filename;
 
 		public
 		Pipeline ()
 		{
 			comparer = new UidComparer ();
 			element_store = new Hashtable (null, comparer);
+
+			// We start out with saved = true, since it doesn't make sense to
+			// force the user to save something they haven't made any changes
+			// to. As soon as they start messing with things, this toggles.
+			saved = true;
+			filename = null;
 		}
 
 		public void
@@ -57,6 +65,11 @@ namespace Fyre
 		{
 			element_store.Add (e.id, e);
 			System.Console.WriteLine ("Adding {0} to the pipeline", e.id.ToString ("d"));
+		}
+
+		public void
+		Save (string filename)
+		{
 		}
 	}
 

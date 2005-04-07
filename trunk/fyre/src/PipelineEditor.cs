@@ -99,6 +99,11 @@ namespace Fyre
 			foreach (System.Type t in plugin_manager.plugin_types)
 				element_list.AddType (t);
 
+			// Set the window title
+			SetTitle ();
+
+			// Show the window
+			toplevel.Show ();
 
 			// Finally, run the application
 			Gtk.Application.Run();
@@ -136,7 +141,8 @@ namespace Fyre
 			pipeline_frame.DragDataReceived += new Gtk.DragDataReceivedHandler (DrawingReceivedDrag);
 		}
 
-		void DrawingReceivedDrag (object o, Gtk.DragDataReceivedArgs args)
+		void
+		DrawingReceivedDrag (object o, Gtk.DragDataReceivedArgs args)
 		{
 			System.Console.WriteLine ("drop: {0}", args.SelectionData.Text);
 		}
@@ -145,6 +151,15 @@ namespace Fyre
 		GetWindow ()
 		{
 			return toplevel;
+		}
+
+		void
+		SetTitle ()
+		{
+			if (pipeline.filename == null)
+				toplevel.Title = "Untitled";
+			else
+				toplevel.Title = pipeline.filename;
 		}
 
 		// Event handlers - most of these come from the glade file
