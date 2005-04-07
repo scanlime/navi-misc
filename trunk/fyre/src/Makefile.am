@@ -30,13 +30,21 @@ RESOURCES =							\
 	-resource:$(top_srcdir)/data/pipeline-editor.glade	\
 	-resource:$(top_srcdir)/data/element-tooltip.glade	\
 	-resource:$(top_srcdir)/data/alert-dialog.glade		\
-	-resource:$(top_srcdir)/data/navigation.png
+	-resource:$(top_srcdir)/data/navigation.png		\
+	-resource:$(top_srcdir)/data/hand-closed-data.png	\
+	-resource:$(top_srcdir)/data/hand-closed-mask.png	\
+	-resource:$(top_srcdir)/data/hand-open-data.png		\
+	-resource:$(top_srcdir)/data/hand-open-mask.png
 
 RESOURCEFILES =						\
 	$(top_srcdir)/data/pipeline-editor.glade	\
 	$(top_srcdir)/data/element-tooltip.glade	\
 	$(top_srcdir)/data/alert-dialog.glade		\
-	$(top_srcdir)/data/navigation.png
+	$(top_srcdir)/data/navigation.png		\
+	$(top_srcdir)/data/hand-closed-data.png		\
+	$(top_srcdir)/data/hand-closed-mask.png		\
+	$(top_srcdir)/data/hand-open-data.png		\
+	$(top_srcdir)/data/hand-open-mask.png
 
 $(TARGET): $(CSFILES) $(srcdir)/Defines.cs $(RESOURCEFILES)
 	$(CSC) -o $@ $(CSFLAGS) $(CSFILES) $(srcdir)/Defines.cs $(ASSEMBLIES) $(RESOURCES)
