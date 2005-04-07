@@ -82,6 +82,8 @@ namespace Fyre
 		ConfirmDialog (string summary, string description) : base (summary, description)
 		{
 			image.SetFromStock (Gtk.Stock.DialogQuestion, Gtk.IconSize.Dialog);
+			AddButton (Gtk.Stock.No, Gtk.ResponseType.No);
+			AddButton (Gtk.Stock.Yes, Gtk.ResponseType.Yes);
 		}
 	}
 }
