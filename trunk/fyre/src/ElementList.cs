@@ -143,8 +143,12 @@ namespace Fyre
 		protected override void
 		OnDragDataGet (Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
 		{
-			System.Console.Write ("DragDataGet\n\tinfo = {0}\n\ttime = {1}\n", info, time_);
-			data.Text = "hi!";
+			System.Console.Write ("DragDataGet\n");
+			System.Console.Write ("\tinfo      = {0}\n", info);
+			System.Console.Write ("\ttime      = {0}\n", time_);
+			System.Console.Write ("\tselection = {0}\n", data.Selection.Name);
+			System.Console.Write ("\ttarget    = {0}\n", data.Target.Name);
+			data.Set (data.Target, 8, System.Text.Encoding.UTF8.GetBytes ("hi!"));
 		}
 
 		protected override bool
