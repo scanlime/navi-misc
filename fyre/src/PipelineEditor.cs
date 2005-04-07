@@ -178,6 +178,10 @@ namespace Fyre
 
 			if (pipeline.saved == false) {
 				// FIXME - ask the user for confirmation
+				ConfirmDialog confirm = new ConfirmDialog ("Pipeline Not Saved",
+						"Save changes to the pipeline before closing?");
+				confirm.Run();
+				confirm.Destroy();
 			}
 
 			Gtk.Application.Quit ();
