@@ -13,6 +13,7 @@ CSFILES =			\
 	CanvasElement.cs	\
 	Dialogs.cs		\
 	Element.cs		\
+	ElementFactory.cs	\
 	ElementList.cs		\
 	ElementTooltip.cs	\
 	NavigationImage.cs	\
