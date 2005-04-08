@@ -185,11 +185,16 @@ namespace Fyre
 			e.Run ();
 
 			if (pipeline.saved == false) {
-				// FIXME - ask the user for confirmation
-				ConfirmCloseDialog confirm = new ConfirmCloseDialog("Save pipeline before closing?",
+				ConfirmCloseDialog confirm = new ConfirmCloseDialog ("Save pipeline before closing?",
 						"There are unsaved changes to the pipeline. Save before quitting?");
-				confirm.Run();
-				confirm.Destroy();
+				int response = confirm.Run ();
+				if (response == (int) Gtk.ResponseType.Cancel) {
+					confirm.Destroy ();
+					return;
+				}
+				if (response == (int) Gtk.ResponseType.Yes) {
+					// FIXME - save document
+				}
 			}
 
 			Gtk.Application.Quit ();
@@ -244,7 +249,16 @@ namespace Fyre
 		OnMenuFileQuit (object o, System.EventArgs args)
 		{
 			if (pipeline.saved == false) {
-				// FIXME - ask the user for confirmation
+				ConfirmCloseDialog confirm = new ConfirmCloseDialog ("Save pipeline before closing?",
+						"There are unsaved changes to the pipeline. Save before quitting?");
+				int response = confirm.Run ();
+				if (response == (int) Gtk.ResponseType.Cancel) {
+					confirm.Destroy ();
+					return;
+				}
+				if (response == (int) Gtk.ResponseType.Yes) {
+					// FIXME - save document
+				}
 			}
 			Gtk.Application.Quit ();
 		}
