@@ -26,12 +26,20 @@ using System.Xml;
 class HistogramImager : Fyre.Element
 {
 	static Gdk.Pixbuf icon;
-	static string[,] inputs;
-	static string[,] outputs;
+	static Fyre.InputPad [] inputs;
+	static Fyre.OutputPad [] outputs;
 
 	public
 	HistogramImager ()
 	{
+		inputs = new Fyre.InputPad[3];
+		inputs[0] = new Fyre.InputPad ("v", "point", "dunno");
+		inputs[1] = new Fyre.InputPad ("w", "width", "float");
+		inputs[2] = new Fyre.InputPad ("h", "height", "float");
+
+		outputs = new Fyre.OutputPad[1];
+		outputs[0] = new Fyre.OutputPad ("M", "image", "image");
+
 		NewID ();
 	}
 
@@ -64,23 +72,25 @@ class HistogramImager : Fyre.Element
 	public override string[,]
 	InputDesc ()
 	{
-		if (inputs == null) {
-			inputs = new string[3,2];
-			inputs[0,0] = "<i>v</i>";	inputs[0,1] = "point";
-			inputs[1,0] = "<i>w</i>";	inputs[1,1] = "width";
-			inputs[2,0] = "<i>h</i>";	inputs[2,1] = "height";
+		string [,]desc = new string[3,2];
+
+		for (int i = 0; i < 3; i++) {
+			desc[i,0] = "<i>" + inputs[i].Name + "</i>";
+			desc[i,1] = inputs[i].Description;
 		}
-		return inputs;
+
+		return desc;
 	}
 
 	public override string[,]
 	OutputDesc ()
 	{
-		if (outputs == null) {
-			outputs = new string[1,2];
-			outputs[0,0] = "<b>M</b>";	outputs[0,1] = "image";
-		}
-		return outputs;
+		string [,]desc = new string[1,2];
+
+		desc[0,0] = "<b>" + outputs[0].Name + "</b>";
+		desc[0,1] = outputs[0].Description;
+
+		return desc;
 	}
 
 	public override void
