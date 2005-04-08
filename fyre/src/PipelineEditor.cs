@@ -144,7 +144,12 @@ namespace Fyre
 		void
 		DrawingReceivedDrag (object o, Gtk.DragDataReceivedArgs args)
 		{
-			System.Console.WriteLine ("drop: {0}", System.Text.Encoding.UTF8.GetString (args.SelectionData.Data));
+			string name = System.Text.Encoding.UTF8.GetString (args.SelectionData.Data);
+
+			ElementFactory factory = ElementFactory.Instance;
+			Element e = factory.Create (name);
+
+			pipeline.AddElement (e);
 		}
 
 		public Gtk.Window
