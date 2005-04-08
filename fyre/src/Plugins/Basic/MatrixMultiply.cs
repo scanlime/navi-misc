@@ -26,12 +26,17 @@ using System.Xml;
 class MatrixMultiply : Fyre.Element
 {
 	static Gdk.Pixbuf icon;
-	static string[,] inputs;
-	static string[,] outputs;
 
 	public
 	MatrixMultiply ()
 	{
+		inputs = new Fyre.InputPad[2];
+		inputs[0] = new Fyre.InputPad ("<i>v<sub>0</sub></i>", "point", "float");
+		inputs[1] = new Fyre.InputPad ("<b>M</b>", "matrix", "matrix");
+
+		outputs = new Fyre.OutputPad[1];
+		outputs[0] = new Fyre.OutputPad ("<i>v<sub>1</sub></i>", "new point", "none");
+
 		NewCanvasElement ();
 		NewID ();
 	}
@@ -65,22 +70,25 @@ class MatrixMultiply : Fyre.Element
 	public override string[,]
 	InputDesc ()
 	{
-		if (inputs == null) {
-			inputs = new string[2,2];
-			inputs[0,0] = "<i>v<sub>0</sub></i>";	inputs[0,1] = "point";
-			inputs[1,0] = "<b>M</b>";		inputs[1,1] = "matrix";
+		string [,] desc = new string[2,2];
+
+		for (int i = 0; i < inputs.Length; i++) {
+			desc[i,0] = inputs[i].Name;
+			desc[i,1] = inputs[i].Description;
 		}
-		return inputs;
+
+		return desc;
 	}
 
 	public override string[,]
 	OutputDesc ()
 	{
-		if (outputs == null) {
-			outputs = new string[1,2];
-			outputs[0,0] = "<i>v<sub>1</sub></i>";	outputs[0,1] = "new point";
-		}
-		return outputs;
+		string [,] desc = new string[1,2];
+
+		desc[0,0] = outputs[0].Name;
+		desc[0,1] = outputs[0].Description;
+
+		return desc;
 	}
 
 	public override void
