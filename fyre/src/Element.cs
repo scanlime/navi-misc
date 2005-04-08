@@ -37,6 +37,14 @@ namespace Fyre
 		string	description;
 		string	type;	// FIXME: Is a string the best way to store this?
 
+		public
+		Pad (string pad_name, string pad_desc, string pad_type)
+		{
+			name = pad_name;
+			description = pad_desc;
+			type = pad_type;
+		}
+
 		// Properties.
 		public string
 		Name
@@ -66,7 +74,7 @@ namespace Fyre
 		System.Collections.ArrayList connections;
 
 		public
-		OutputPad ()
+		OutputPad (string pad_name, string pad_desc, string pad_type) : base (pad_name, pad_desc, pad_type)
 		{
 			connections = new System.Collections.ArrayList();
 		}
