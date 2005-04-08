@@ -82,6 +82,12 @@ namespace Fyre
 		{
 			connections.Remove (pad);
 		}
+
+		public void
+		DisconnectAll ()
+		{
+			connections.Clear ();
+		}
 	}
 
 	public abstract class Element
