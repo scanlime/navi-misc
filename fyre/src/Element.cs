@@ -32,10 +32,10 @@ namespace Fyre
 
 	public abstract class Pad
 	{
-		System.Guid	id;		// Does this need to be globally unique?
-		string		name;
-		string		description;
-		string		type;	// FIXME: Is a string the best way to store this?
+		int	id;
+		string	name;
+		string	description;
+		string	type;	// FIXME: Is a string the best way to store this?
 
 		// Properties.
 		public string
@@ -63,7 +63,25 @@ namespace Fyre
 
 	public class OutputPad : Pad
 	{
-		PadConnection [] connections;
+		System.Collections.ArrayList connections;
+
+		public
+		OutputPad ()
+		{
+			connections = new System.Collections.ArrayList();
+		}
+
+		public void
+		Connect (InputPad pad)
+		{
+			connections.Add (pad);
+		}
+
+		public void
+		Disconnect (InputPad pad)
+		{
+			connections.Remove (pad);
+		}
 	}
 
 	public abstract class Element
