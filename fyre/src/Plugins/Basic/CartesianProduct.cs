@@ -28,12 +28,17 @@ using System.Xml;
 class CartesianProduct : Fyre.Element
 {
 	static Gdk.Pixbuf icon;
-	static string[,] inputs;
-	static string[,] outputs;
 
 	public
 	CartesianProduct ()
 	{
+		inputs = new Fyre.InputPad[2];
+		inputs[0] = new Fyre.InputPad ("<i>(x<sub>0</sub>,x<sub>1</sub>)</i>", "X range", "integer-pair");
+		inputs[1] = new Fyre.InputPad ("<i>(y<sub>0</sub>,y<sub>1</sub>)</i>", "Y range", "integer-pair");
+
+		outputs = new Fyre.OutputPad[1];
+		outputs[0] = new Fyre.OutputPad ("<b>M</b>", "matrix", "matrix");
+
 		NewCanvasElement ();
 		NewID ();
 	}
@@ -67,22 +72,25 @@ class CartesianProduct : Fyre.Element
 	public override string[,]
 	InputDesc ()
 	{
-		if (inputs == null) {
-			inputs = new string[2,2];
-			inputs[0,0] = "<i>(x<sub>0</sub>,x<sub>1</sub>)</i>";	inputs[0,1] = "X range";
-			inputs[1,0] = "<i>(y<sub>0</sub>,y<sub>1</sub>)</i>";	inputs[1,1] = "Y range";
+		string[,] desc = new string[2,2];
+
+		for (int i = 0; i < inputs.Length; i++) {
+			desc[i,0] = inputs[i].Name;
+			desc[i,1] = inputs[i].Description;
 		}
-		return inputs;
+
+		return desc;
 	}
 
 	public override string[,]
 	OutputDesc ()
 	{
-		if (outputs == null) {
-			outputs = new string[1,2];
-			outputs[0,0] = "<b>M</b>";	outputs[0,1] = "matrix";
-		}
-		return outputs;
+		string [,] desc = new string[1,2];
+
+		desc[0,0] = outputs[0].Name;
+		desc[0,1] = outputs[0].Description;
+
+		return desc;
 	}
 
 	public override void
