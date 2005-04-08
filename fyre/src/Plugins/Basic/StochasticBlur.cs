@@ -33,6 +33,7 @@ class StochasticBlur : Fyre.Element
 	public
 	StochasticBlur ()
 	{
+		NewCanvasElement ();
 		NewID ();
 	}
 

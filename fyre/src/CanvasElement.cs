@@ -52,7 +52,18 @@ namespace Fyre
 		// Width and height are maintained by the internal layout system.
 		// X & Y are maintained by the global layout system. We'll probably
 		// want get/set operators on this to trigger redraws, etc.
-		public Rectangle position;
+		public Rectangle	position;
+		private Pen		pen;
+
+		public
+		CanvasElement ()
+		{
+			// FIXME - hardcode 200x150 for now
+			position.Width  = 200;
+			position.Height = 150;
+
+			pen = new Pen (Color.Azure);
+		}
 
 		// When we're drawing on the main canvas, we render at full size.
 		// However, we also want to be able to render smaller for the
@@ -67,6 +78,7 @@ namespace Fyre
 		Draw (System.Drawing.Graphics context)
 		{
 			// FIXME
+			context.DrawRectangle (pen, position);
 		}
 	}
 
