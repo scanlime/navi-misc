@@ -80,7 +80,7 @@ namespace Fyre
 		public
 		OutputPad (string pad_name, string pad_desc, string pad_type) : base (pad_name, pad_desc, pad_type)
 		{
-			connections = new System.Collections.ArrayList();
+			connections = new System.Collections.ArrayList ();
 		}
 
 		public void
