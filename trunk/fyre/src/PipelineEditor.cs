@@ -132,7 +132,7 @@ namespace Fyre
 
 			// Give the navigation image knowledge of the drawing, so it can
 			// track canvas/window extents
-			navigation_image.drawing = pipeline_drawing;
+			navigation_image.Drawing = pipeline_drawing;
 
 			// Set up drag-and-drop for the frame. This looks better than setting it
 			// up for the drawing area, and we delegate the event back into the

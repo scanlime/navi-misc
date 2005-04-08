@@ -36,7 +36,12 @@ namespace Fyre
 	{
 		Gtk.Image		image;
 		NavigationWindow	window;
-		public PipelineDrawing	drawing;
+		PipelineDrawing		drawing;
+		public PipelineDrawing	Drawing
+		{
+			get { return drawing; }
+			set { }
+		}
 
 		public
 		NavigationImage ()
@@ -51,12 +56,21 @@ namespace Fyre
 		protected override bool
 		OnButtonPressEvent (Gdk.EventButton ev)
 		{
+			if (drawing == null)
+				return true;
+
+			window = new NavigationWindow ();
+
 			return true;
 		}
 
 		protected override bool
 		OnButtonReleaseEvent (Gdk.EventButton ev)
 		{
+			// Hide and destroy our window
+			window.Hide ();
+			window = null;
+
 			return true;
 		}
 
