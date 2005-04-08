@@ -268,8 +268,8 @@ namespace Fyre
 		public void
 		AddType (System.Type t)
 		{
-			object[] i = {};
-			Element e = (Element) t.GetConstructor(System.Type.EmptyTypes).Invoke(i);
+			ElementFactory factory = ElementFactory.Instance;
+			Element e = factory.Create (t);
 			ElementTooltip tt = new ElementTooltip (e);
 
 			string name       = e.Name ();
