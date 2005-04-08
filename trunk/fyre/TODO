@@ -17,20 +17,11 @@ Pipeline.cs:
   * This will need to be responsible for controlling serialization
 
 PipelineDrawing.cs:
-  * Add the ability to track document extents from other classes - for
-	example, the navigation image needs to be able to interact with
-	the extents in various ways.
-  * There's currently some code to set up custom cursors (for the open and
-	closed hands that people use for dragging. Unfortunately, they just
-	show up as garbage.  It may not be possible to do this with Gtk#
-	right now, but it would be nice to get these working.
+  * Make sure we trigger redraws/scrollbar fixes when necessary
   * Add drawing code
 
 PluginManager.cs:
-  * Use the ErrorDialog to display any errors that occur when loading
-	plugins. It might be handy to do something like inkscape and
-	allow the user to turn off display of these errors, but that
-	would require introducing preferences of some sort.
+  * Make the warning dialog a little more sensible to people who aren't us.
 
 Dialogs.cs:
   * The ConfirmCloseDialog needs to actually do something when the

@@ -93,7 +93,9 @@ namespace Fyre {
 							all_plugin_types.Add (type);
 				} catch (Exception e) {
 					// FIXME - aggregate all exceptions that get caught here into a single
-					// message and show the user an ErrorDialog.
+					// message, rather than using separate dialogs for each warning. We
+					// should probably also try to humanize this a little, rather than just
+					// using the exception text.
 					WarningDialog err = new WarningDialog ("Load Error", String.Format ("Error loading plugin: {0}", e.ToString()));
 					err.Run();
 					err.Destroy();
