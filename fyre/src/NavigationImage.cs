@@ -26,13 +26,60 @@ namespace Fyre
 
 	class NavigationWindow : Gtk.Window
 	{
+		public
+		NavigationWindow () : base (Gtk.WindowType.Popup)
+		{
+		}
+	}
+
+	class NavigationImage : Gtk.EventBox
+	{
+		Gtk.Image		image;
+		NavigationWindow	window;
+		public PipelineDrawing	drawing;
+
+		public
+		NavigationImage ()
+		{
+			Gdk.Pixbuf pixbuf = new Gdk.Pixbuf (null, "navigation.png");
+			image = new Gtk.Image (pixbuf);
+			Add (image);
+
+			ShowAll ();
+		}
+
+		protected override bool
+		OnButtonPressEvent (Gdk.EventButton ev)
+		{
+			return true;
+		}
+
+		protected override bool
+		OnButtonReleaseEvent (Gdk.EventButton ev)
+		{
+			return true;
+		}
+
+		protected override bool
+		OnMotionNotifyEvent (Gdk.EventMotion ev)
+		{
+			return true;
+		}
+	}
+
+	/************************************************************************
+	 *******************          CRUFT BARRIER          ********************
+	 ***********************************************************************/
+
+	class NavigationWindow2 : Gtk.Window
+	{
 		Gdk.Pixmap		background;
 		Gdk.Pixmap		backing;
 		Gdk.GC			white, black;
 		int[]			size, visible, mouse;
 
 		public
-		NavigationWindow (int w, int h, int vw, int vh) : base (Gtk.WindowType.Popup)
+		NavigationWindow2 (int w, int h, int vw, int vh) : base (Gtk.WindowType.Popup)
 		{
 			size = new int[2];
 			visible = new int[2];
@@ -161,10 +208,10 @@ namespace Fyre
 		}
 	}
 
-	class NavigationImage : Gtk.EventBox
+	class NavigationImage2 : Gtk.EventBox
 	{
 		Gtk.Image		image;
-		NavigationWindow	window;
+		NavigationWindow2	window;
 		public PipelineDrawing	drawing;
 
 		// Position and size of the NavigationWindow
@@ -177,7 +224,7 @@ namespace Fyre
 		float			scale;
 
 		public
-		NavigationImage()
+		NavigationImage2 ()
 		{
 			position = new Gdk.Rectangle ();
 			visible = new int[2];
@@ -231,7 +278,7 @@ namespace Fyre
 				visible[1] = position.Height - 3;
 
 			// Create our window
-			window = new NavigationWindow (position.Width, position.Height, visible[0], visible[1]);
+			window = new NavigationWindow2 (position.Width, position.Height, visible[0], visible[1]);
 
 			position.X = GetWindowPosition (mouse_x, position.Width,  screen.Width);
 			position.Y = GetWindowPosition (mouse_y, position.Height, screen.Height);
@@ -281,5 +328,4 @@ namespace Fyre
 			return true;
 		}
 	}
-
 }
