@@ -119,6 +119,12 @@ namespace Fyre
 		public CanvasElement		canvas_element;
 
 		protected void
+		NewCanvasElement ()
+		{
+			canvas_element = new CanvasElement ();
+		}
+
+		protected void
 		NewID ()
 		{
 			id = System.Guid.NewGuid ();

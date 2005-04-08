@@ -32,6 +32,7 @@ class MatrixMultiply : Fyre.Element
 	public
 	MatrixMultiply ()
 	{
+		NewCanvasElement ();
 		NewID ();
 	}
 

@@ -150,6 +150,9 @@ namespace Fyre
 			Element e = factory.Create (name);
 
 			pipeline.AddElement (e);
+
+			// FIXME - give something to the Drawing, using args.X and
+			// args.Y for placement
 		}
 
 		public Gtk.Window

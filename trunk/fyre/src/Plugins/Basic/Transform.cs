@@ -33,6 +33,7 @@ class TwoDTransform : Fyre.Element
 	public
 	TwoDTransform ()
 	{
+		NewCanvasElement ();
 		NewID ();
 	}
 

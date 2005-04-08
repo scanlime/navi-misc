@@ -40,6 +40,7 @@ class HistogramImager : Fyre.Element
 		outputs = new Fyre.OutputPad[1];
 		outputs[0] = new Fyre.OutputPad ("M", "image", "image");
 
+		NewCanvasElement ();
 		NewID ();
 	}
 
