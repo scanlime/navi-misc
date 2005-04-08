@@ -111,6 +111,8 @@ namespace Fyre
 			}
 
 			if (GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
+				// Set the drag data to be the name of the Element type. This allows
+				// the element to be created by the factory when we drop.
 				Gtk.TreeIter iter;
 				sorted_store.GetIter (out iter, path);
 				drag_type = (string) sorted_store.GetValue (iter, 1);
@@ -143,8 +145,7 @@ namespace Fyre
 		protected override void
 		OnDragDataGet (Gdk.DragContext context, Gtk.SelectionData data, uint info, uint time_)
 		{
-			// FIXME - store some kind of identifier here that will let us
-			// get the Type we need to create
+			// Copy the string we set in DragBegin into the drag data
 			data.Set (data.Target, 8, System.Text.Encoding.UTF8.GetBytes (drag_type));
 		}
 
