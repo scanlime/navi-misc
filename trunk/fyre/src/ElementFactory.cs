@@ -31,9 +31,9 @@ namespace Fyre
 	{
 		// This maps name->Type, so we can create Elements when deserializing
 		// XML or dragging from the ElementList
-		Hashtable		elements;
-		static ElementFactory	instance;
-		public ElementFactory	Instance
+		Hashtable			elements;
+		static ElementFactory		instance;
+		public static ElementFactory	Instance
 		{
 			get {
 				if (instance == null)

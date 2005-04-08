@@ -38,6 +38,10 @@ namespace Fyre {
 			this.directory = directory;
 
 			plugin_types = FindPluginTypes ();
+
+			ElementFactory factory = ElementFactory.Instance;
+			foreach (Type t in plugin_types)
+				factory.AddType (t);
 		}
 
 		ArrayList
