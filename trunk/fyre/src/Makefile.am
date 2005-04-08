@@ -7,6 +7,7 @@ WRAPPER = fyre
 
 pluginsdir = $(pkglibdir)/Plugins
 CSFLAGS =		\
+	-debug		\
 	-target:exe
 
 CSFILES =			\

@@ -3,6 +3,7 @@ SUBDIRS = data .
 CSC = mcs -g
 
 CSFLAGS =					\
+	-debug					\
 	-target:library
 
 ASSEMBLIES =					\
