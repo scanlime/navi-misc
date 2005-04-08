@@ -67,6 +67,10 @@ namespace Fyre
 
 	public class InputPad : Pad
 	{
+		public
+		InputPad (string pad_name, string pad_desc, string pad_type) : base (pad_name, pad_desc, pad_type)
+		{
+		}
 	}
 
 	public class OutputPad : Pad
