@@ -10,6 +10,9 @@ CanvasElement.cs:
 Element.cs:
   * Implement XML serialization
   * Implement edge tracking - guid + pad#
+  * Pads should store an unadorned string for name and description. Then
+	somewhere between getting those strings from the Pad and the
+	tooltip some Pango should be added for formatting.
 
 Pipeline.cs:
   * This needs lots of design work before implementation can go forward.
