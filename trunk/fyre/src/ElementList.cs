@@ -35,6 +35,7 @@ namespace Fyre
 		int				click_x, click_y;
 		bool				dragging;
 		bool				check_drag;
+		string				drag_type;
 
 		// Tooltip data
 		ElementTooltip			current_tooltip;
@@ -110,6 +111,10 @@ namespace Fyre
 			}
 
 			if (GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
+				Gtk.TreeIter iter;
+				sorted_store.GetIter (out iter, path);
+				drag_type = (string) sorted_store.GetValue (iter, 1);
+
 				// FIXME - use element image here
 
 				Gdk.Pixmap pixmap = new Gdk.Pixmap (null, 200, 150, 24);
@@ -132,6 +137,7 @@ namespace Fyre
 			dragging = false;
 			click_x = -1;
 			click_y = -1;
+			drag_type = null;
 		}
 
 		protected override void
@@ -139,7 +145,7 @@ namespace Fyre
 		{
 			// FIXME - store some kind of identifier here that will let us
 			// get the Type we need to create
-			data.Set (data.Target, 8, System.Text.Encoding.UTF8.GetBytes ("hi!"));
+			data.Set (data.Target, 8, System.Text.Encoding.UTF8.GetBytes (drag_type));
 		}
 
 		protected override bool
