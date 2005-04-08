@@ -2,7 +2,8 @@
  * Dialogs.cs - Simple HIG-compliant dialogs for reporting errors and
  *	asking questions
  *
- * Copyright (C) 2005 David Trowbridge
+ * Fyre - a generic framework for computational art
+ * Copyright (C) 2004-2005 Fyre Team (see AUTHORS)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
