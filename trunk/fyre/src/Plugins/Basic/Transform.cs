@@ -27,12 +27,19 @@ using System.Xml;
 class TwoDTransform : Fyre.Element
 {
 	static Gdk.Pixbuf icon;
-	static string[,] inputs;
-	static string[,] outputs;
 
 	public
 	TwoDTransform ()
 	{
+		inputs = new Fyre.InputPad[4];
+		inputs[0] = new Fyre.InputPad ("<i>r</i>", "rotation", "value");
+		inputs[1] = new Fyre.InputPad ("<i>a</i>", "aspect ratio", "value");
+		inputs[2] = new Fyre.InputPad ("<i>z</i>", "zoom", "value");
+		inputs[3] = new Fyre.InputPad ("<i>t</i>", "translation", "value");
+
+		outputs = new Fyre.OutputPad[1];
+		outputs[0] = new Fyre.OutputPad ("<b>M</b>", "matrix", "matrix");
+
 		NewCanvasElement ();
 		NewID ();
 	}
@@ -66,24 +73,25 @@ class TwoDTransform : Fyre.Element
 	public override string[,]
 	InputDesc ()
 	{
-		if (inputs == null) {
-			inputs = new string[4,2];
-			inputs[0,0] = "<i>r</i>";	inputs[0,1] = "rotation";
-			inputs[1,0] = "<i>a</i>";	inputs[1,1] = "aspect ratio";
-			inputs[2,0] = "<i>z</i>";	inputs[2,1] = "zoom";
-			inputs[3,0] = "<i>t</i>";	inputs[3,1] = "translation";
+		string [,] desc = new string[4,2];
+
+		for (int i = 0; i < inputs.Length; i++) {
+			desc[i,0] = inputs[i].Name;
+			desc[i,1] = inputs[i].Description;
 		}
-		return inputs;
+
+		return desc;
 	}
 
 	public override string[,]
 	OutputDesc ()
 	{
-		if (outputs == null) {
-			outputs = new string[1,2];
-			outputs[0,0] = "<b>M</b>";	outputs[0,1] = "matrix";
-		}
-		return outputs;
+		string [,] desc = new string[1,2];
+
+		desc[0,0] = outputs[0].Name;
+		desc[0,1] = outputs[0].Description;
+
+		return desc;
 	}
 
 	public override void

@@ -118,6 +118,9 @@ namespace Fyre
 		public System.Guid		id;
 		public CanvasElement		canvas_element;
 
+		protected InputPad [] 		inputs;
+		protected OutputPad [] 		outputs;
+
 		protected void
 		NewCanvasElement ()
 		{

@@ -26,8 +26,6 @@ using System.Xml;
 class HistogramImager : Fyre.Element
 {
 	static Gdk.Pixbuf icon;
-	static Fyre.InputPad [] inputs;
-	static Fyre.OutputPad [] outputs;
 
 	public
 	HistogramImager ()
