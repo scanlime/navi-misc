@@ -15,11 +15,13 @@ TARGET = Basic.dll
 TARGET_CSFILES = 				\
 	CartesianProduct.cs			\
 	MatrixMultiply.cs			\
+	Pixmap.cs				\
 	StochasticBlur.cs			\
 	Transform.cs
 TARGET_RESOURCES =				\
 	-resource:data/CartesianProduct.png	\
 	-resource:data/MatrixMultiply.png	\
+	-resource:data/Pixmap.png		\
 	-resource:data/StochasticBlur.png	\
 	-resource:data/TwoDTransform.png
 
