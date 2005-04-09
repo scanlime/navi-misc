@@ -31,7 +31,7 @@ namespace Fyre
 	}
 
 	// FString is our formatable string class.
-	public class FString
+	public class FString :
 	{
 		string str;
 
@@ -42,7 +42,13 @@ namespace Fyre
 		}
 
 		public string
-		ToString ()
+		Plain
+		{
+			get { return str; }
+		}
+
+		public string
+		ToString () // This should take a formatter.
 		{
 			// Formatting nonsense goes here.
 			return "";
@@ -60,8 +66,8 @@ namespace Fyre
 		public
 		Pad (string pad_name, string pad_desc, string pad_type)
 		{
-			name = pad_name;
-			description = pad_desc;
+			name = new FString (pad_name);
+			description = new FString (pad_desc);
 			type = pad_type;
 		}
 
