@@ -30,13 +30,12 @@ namespace Fyre
 		int		pad;
 	}
 
-	// FString is our formatable string class.
-	public class FString :
+	public class FString
 	{
 		string str;
 
 		public
-		FormatableString (string new_str)
+		FString (string new_str)
 		{
 			str = new_str;
 		}
@@ -47,10 +46,17 @@ namespace Fyre
 			get { return str; }
 		}
 
-		public string
+		public override string
 		ToString () // This should take a formatter.
 		{
 			// Formatting nonsense goes here.
+			return "";
+		}
+
+		// Implicit conversion to string
+		public static implicit operator
+		string (FString s)
+		{
 			return "";
 		}
 	}
