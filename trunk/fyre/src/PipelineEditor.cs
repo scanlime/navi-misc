@@ -81,6 +81,9 @@ namespace Fyre
 		public static void
 		Main (string[] args)
 		{
+			// Setup the new GTK application
+			Gtk.Application.Init ();
+
 			// Set up plugins directory
 			PluginManager plugin_manager = new PluginManager (Defines.PLUGINSDIR);
 			ElementFactory factory = ElementFactory.Instance;
@@ -88,9 +91,6 @@ namespace Fyre
 
 			// Setup the array of windows
 			editors = new ArrayList ();
-
-			// Setup the new GTK application
-			Gtk.Application.Init ();
 
 			// Create a new main window
 			new PipelineEditor (args);
