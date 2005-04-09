@@ -105,7 +105,7 @@ namespace Fyre
 			enumerator.Reset();
 			while (enumerator.MoveNext())
 				element_list.AddType ((System.Type)enumerator.Value);
-				
+
 			// Set the window title
 			SetTitle ();
 
