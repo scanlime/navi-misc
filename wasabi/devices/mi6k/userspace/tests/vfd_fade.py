@@ -12,4 +12,4 @@ try:
         vfd.flush()
         time.sleep(0.01)
 finally:
-    vfd.setBrightness(1)
+    vfd.setBrightness(0)
