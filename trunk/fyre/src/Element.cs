@@ -30,12 +30,32 @@ namespace Fyre
 		int		pad;
 	}
 
+	// FString is our formatable string class.
+	public class FString
+	{
+		string str;
+
+		public
+		FormatableString (string new_str)
+		{
+			str = new_str;
+		}
+
+		public string
+		ToString ()
+		{
+			// Formatting nonsense goes here.
+			return "";
+		}
+	}
+
 	public abstract class Pad
 	{
 		int	id;
-		string	name;
-		string	description;
+		FString	name;
+		FString	description;
 		string	type;	// FIXME: Is a string the best way to store this?
+				// No, it isn't.
 
 		public
 		Pad (string pad_name, string pad_desc, string pad_type)
