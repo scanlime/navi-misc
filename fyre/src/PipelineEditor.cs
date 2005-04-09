@@ -22,7 +22,6 @@
  */
 
 using System.Collections;
-using Gtk;
 
 namespace Fyre
 {
@@ -226,11 +225,16 @@ namespace Fyre
 		OnSave (object o, System.EventArgs args)
 		{
 			if (pipeline.filename == null) {
-				FileSelection fs = new FileSelection ("Save As...");
-				fs.Run();
+				object[] responses = { "Cancel", Gtk.ResponseType.Reject, "Save", Gtk.ResponseType.Accept };
+				Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ( "Save As...", null, Gtk.FileChooserAction.Save, responses );
+				//fs.Action = Gtk.FileChooserAction.Save;
+				Gtk.ResponseType response = (Gtk.ResponseType)fs.Run();
 				fs.Hide();
-				string filename = fs.Filename;
-				pipeline.Save (filename);
+
+				if (response == Gtk.ResponseType.Accept) {
+					string filename = fs.Filename;
+					pipeline.Save (filename);
+				}
 			}
 			else
 				pipeline.Save (pipeline.filename);
