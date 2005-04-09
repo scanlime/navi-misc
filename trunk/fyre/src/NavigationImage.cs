@@ -244,13 +244,16 @@ namespace Fyre
 		OnButtonReleaseEvent (Gdk.EventButton ev)
 		{
 			// Hide and destroy our window
-			window.Hide ();
+			window.Destroy ();
 			window = null;
 
 			// Reset the size of the document, now that the user has finished
 			// moving the document around.
 			Drawing.SetScrollbars ();
 
+			// This is a complete hack, but for some reason the scrollbars
+			// weren't redrawing after we close the navigation window.
+			Drawing.RedrawScrollbars ();
 			return true;
 		}
 

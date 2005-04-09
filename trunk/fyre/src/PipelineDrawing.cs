@@ -25,6 +25,8 @@ namespace Fyre
 {
 	class PipelineDrawing : Gtk.DrawingArea
 	{
+		Gtk.Scrollbar		hscroll;
+		Gtk.Scrollbar		vscroll;
 		Gtk.Adjustment		hadj;
 		Gtk.Adjustment		vadj;
 
@@ -210,14 +212,16 @@ namespace Fyre
 			vadj.PageSize = drawing_extents.Height;
 		}
 
-		protected override void
-		OnSetScrollAdjustments (Gtk.Adjustment hadj, Gtk.Adjustment vadj)
+		public void
+		AddScrollbars (Gtk.Scrollbar hscroll, Gtk.Scrollbar vscroll)
 		{
+			this.hscroll = hscroll;
+			this.vscroll = vscroll;
+			hadj = hscroll.Adjustment;
+			vadj = vscroll.Adjustment;
+
 			hadj.StepIncrement = 10.0;
 			vadj.StepIncrement = 10.0;
-
-			this.hadj = hadj;
-			this.vadj = vadj;
 
 			hadj.ValueChanged += new System.EventHandler (HValueChanged);
 			vadj.ValueChanged += new System.EventHandler (VValueChanged);
@@ -302,6 +306,15 @@ namespace Fyre
 			hadj.Value = x;
 			vadj.Value = y;
 			update_sizes = true;
+		}
+
+		public void
+		RedrawScrollbars ()
+		{
+			hscroll.GdkWindow.InvalidateRect (hscroll.Allocation, true);
+			vscroll.GdkWindow.InvalidateRect (hscroll.Allocation, true);
+			hscroll.GdkWindow.ProcessUpdates (true);
+			vscroll.GdkWindow.ProcessUpdates (true);
 		}
 	}
 
