@@ -26,7 +26,11 @@ namespace Fyre
 
 	class NavigationWindow : Gtk.Window
 	{
-		public int Width, Height;
+		Gdk.Pixmap		background;
+		Gdk.Pixmap		backing;
+		Gdk.GC			white, black;
+
+		public int		Width, Height;
 
 		public
 		NavigationWindow (PipelineDrawing drawing) : base (Gtk.WindowType.Popup)
@@ -42,7 +46,62 @@ namespace Fyre
 			// We need to realize before we can access any of the gdk internals,
 			// like setting size/position
 			Realize ();
-			Resize (Width, Height);
+
+			// We set the actual Gtk.Window to be our size + 2 in each dimension,
+			// for the black border around the edges.
+			Resize (Width + 2, Height + 2);
+
+			// Create our background and backing store
+			background = new Gdk.Pixmap (GdkWindow, Width + 2, Height + 2, -1);
+			backing    = new Gdk.Pixmap (GdkWindow, Width + 2, Height + 2, -1);
+
+			AllocGCs ();
+			DrawBackground ();
+		}
+
+		void
+		AllocGCs ()
+		{
+			Gdk.Color wc = new Gdk.Color (0xff, 0xff, 0xff);
+			Gdk.Color bc = new Gdk.Color (0x00, 0x00, 0x00);
+			Gdk.Colormap.System.AllocColor (ref wc, true, true);
+			Gdk.Colormap.System.AllocColor (ref bc, true, true);
+			white = new Gdk.GC (this.GdkWindow);
+			black = new Gdk.GC (this.GdkWindow);
+			white.Foreground = wc;
+			black.Foreground = bc;
+		}
+
+		void
+		DrawBackground ()
+		{
+			background.DrawRectangle (black, false, 0, 0, Width + 2, Height + 2);
+			background.DrawRectangle (white, true,  1, 1, Width,     Height);
+			// FIXME - we want to draw our pipeline into this window at reduced size.
+		}
+
+		void
+		DrawArea (Gdk.Rectangle area)
+		{
+			// Update the backing store
+			backing.DrawDrawable (white, background, area.X, area.Y, area.X, area.Y, area.Width, area.Height);
+			// FIXME - draw mouse box
+		}
+
+		protected override bool
+		OnExposeEvent (Gdk.EventExpose ev)
+		{
+			Gdk.Rectangle r = ev.Area;
+
+			// Update the backing store for the part of the image we need
+			// to expose, then copy it to the window.
+			// FIXME - we might as well just kill this step once mouse-box
+			// drawing is done and optimized.
+			DrawArea (r);
+
+			GdkWindow.DrawDrawable (white, backing, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
+
+			return true;
 		}
 	}
 
@@ -50,7 +109,7 @@ namespace Fyre
 	{
 		Gtk.Image		image;
 		NavigationWindow	window;
-		Gdk.Rectangle		window_rect;
+		int			win_x, win_y;
 		public PipelineDrawing	Drawing;
 
 		public
@@ -85,8 +144,14 @@ namespace Fyre
 			int mouse_y = (int) ev.YRoot;
 
 			window = new NavigationWindow (Drawing);
-			window.Move (GetWindowPosition (mouse_x, window.Width,  screen.Width),
-				     GetWindowPosition (mouse_y, window.Height, screen.Height));
+
+			// Position the window such that the entire thing is always visible
+			// on the screen, even if the navigation image is right next to
+			// one of the edges of the screen. If possible, we stick the center
+			// of the window on the mouse pointer.
+			win_x = GetWindowPosition (mouse_x, window.Width,  screen.Width);
+			win_y = GetWindowPosition (mouse_y, window.Height, screen.Height);
+			window.Move (win_x, win_y);
 
 			window.Show ();
 
@@ -155,26 +220,11 @@ namespace Fyre
 		void
 		AllocGCs ()
 		{
-			Gdk.Color wc = new Gdk.Color (0xff, 0xff, 0xff);
-			Gdk.Color bc = new Gdk.Color (0x00, 0x00, 0x00);
-			Gdk.Colormap.System.AllocColor (ref wc, true, true);
-			Gdk.Colormap.System.AllocColor (ref bc, true, true);
-			white = new Gdk.GC (this.GdkWindow);
-			black = new Gdk.GC (this.GdkWindow);
-			white.Foreground = wc;
-			black.Foreground = bc;
 		}
 
 		void
 		DrawBackground ()
 		{
-			if (white == null)
-				AllocGCs ();
-
-			background.DrawRectangle (white, true, 0, 0, size[0] - 1, size[1] - 1);
-			background.DrawRectangle (black, false, 0, 0, size[0] - 1, size[1] - 1);
-
-			// FIXME - we want to draw our pipeline onto this window at reduced size
 		}
 
 		void
