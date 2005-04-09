@@ -21,6 +21,8 @@
  *
  */
 
+using System.Collections;
+
 namespace Fyre
 {
 
@@ -96,8 +98,16 @@ namespace Fyre
 
 			// Set up plugins directory
 			plugin_manager = new PluginManager (Defines.PLUGINSDIR);
-			foreach (System.Type t in plugin_manager.plugin_types)
-				element_list.AddType (t);
+			ElementFactory factory = ElementFactory.Instance;
+			IDictionaryEnumerator enumerator = factory.GetEnumerator();
+
+			// Iterate through each element in the elements list
+			enumerator.Reset();
+			while (enumerator.MoveNext())
+				element_list.AddType ((System.Type)enumerator.Value);
+				
+			//foreach (System.Type t in plugin_manager.plugin_types)
+			//	element_list.AddType (t);
 
 			// Set the window title
 			SetTitle ();
