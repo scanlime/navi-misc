@@ -96,7 +96,7 @@ namespace Fyre {
 					// message, rather than using separate dialogs for each warning. We
 					// should probably also try to humanize this a little, rather than just
 					// using the exception text.
-					WarningDialog err = new WarningDialog ("Load Error", String.Format ("Error loading plugin: {0}", e.ToString()));
+					WarningDialog err = new WarningDialog (null, "Load Error", String.Format ("Error loading plugin: {0}", e.ToString()));
 					err.Run();
 					err.Destroy();
 				}
