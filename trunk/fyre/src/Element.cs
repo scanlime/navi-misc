@@ -31,6 +31,11 @@ namespace Fyre
 		public int		pad;
 	}
 
+	public class TypeFormatter
+	{
+		// FIXME
+	}
+
 	public class FString
 	{
 		string str;
@@ -48,7 +53,7 @@ namespace Fyre
 		}
 
 		public override string
-		ToString () // This should take a formatter.
+		ToString (TypeFormatter format)
 		{
 			// Formatting nonsense goes here.
 			return "";
