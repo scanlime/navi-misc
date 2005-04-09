@@ -31,7 +31,7 @@ namespace Fyre
 		[Glade.Widget] Gtk.Label	label1, label2;
 
 		public
-		Dialog (string summary, string description)
+		Dialog (Gtk.Window transient, string summary, string description)
 		{
 			Title = "";
 			BorderWidth = 0;
@@ -49,7 +49,7 @@ namespace Fyre
 			VBox.PackStart (toplevel, true, true, 0);
 
 			// Get the main window and set the dialog transient and modal for that window.
-			TransientFor = PipelineEditor.instance.GetWindow();
+			TransientFor = transient;
 			Modal = true;
 		}
 	}
@@ -59,7 +59,7 @@ namespace Fyre
 		[Glade.Widget] Gtk.Image	image;
 
 		public
-		ErrorDialog (string summary, string description) : base (summary, description)
+		ErrorDialog (Gtk.Window transient, string summary, string description) : base (transient, summary, description)
 		{
 			image.SetFromStock (Gtk.Stock.DialogError, Gtk.IconSize.Dialog);
 			AddButton (Gtk.Stock.Ok, Gtk.ResponseType.Ok);
@@ -71,7 +71,7 @@ namespace Fyre
 		[Glade.Widget] Gtk.Image	image;
 
 		public
-		WarningDialog (string summary, string description) : base (summary, description)
+		WarningDialog (Gtk.Window transient, string summary, string description) : base (transient, summary, description)
 		{
 			image.SetFromStock (Gtk.Stock.DialogWarning, Gtk.IconSize.Dialog);
 			AddButton (Gtk.Stock.Ok, Gtk.ResponseType.Ok);
@@ -83,7 +83,7 @@ namespace Fyre
 		[Glade.Widget] Gtk.Image	image;
 
 		public
-		ConfirmDialog (string summary, string description) : base (summary, description)
+		ConfirmDialog (Gtk.Window transient, string summary, string description) : base (transient, summary, description)
 		{
 			image.SetFromStock (Gtk.Stock.DialogQuestion, Gtk.IconSize.Dialog);
 			AddButton (Gtk.Stock.No, Gtk.ResponseType.No);
@@ -97,7 +97,7 @@ namespace Fyre
 		[Glade.Widget] Gtk.Image	image;
 
 		public
-		ConfirmCloseDialog (string summary, string description) : base (summary, description)
+		ConfirmCloseDialog (Gtk.Window transient, string summary, string description) : base (transient, summary, description)
 		{
 			image.SetFromStock (Gtk.Stock.DialogWarning, Gtk.IconSize.Dialog);
 

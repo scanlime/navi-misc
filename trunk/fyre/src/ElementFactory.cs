@@ -61,7 +61,7 @@ namespace Fyre
 			Element e = Create (t);
 			string name = e.Name ();
 			if (elements.Contains (name)) {
-				WarningDialog err = new WarningDialog ("Load Error", String.Format( "Error loading plugin:\nA plugin named {0} already exists.", name));
+				WarningDialog err = new WarningDialog (null, "Load Error", String.Format( "Error loading plugin:\nA plugin named {0} already exists.", name));
 				err.Run();
 				err.Destroy();
 			}

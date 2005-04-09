@@ -29,7 +29,7 @@ namespace Fyre
 	public class PipelineEditor
 	{
 		// Plugin stuff
-		PluginManager				plugin_manager;
+		static IDictionaryEnumerator		plugin_enumerator;
 
 		// Document
 		Pipeline				pipeline;
@@ -50,10 +50,10 @@ namespace Fyre
 
 		// Menu and toolbar widgets (for sensitivity)
 		[Glade.Widget] Gtk.ToolButton		toolbar_save;
-		[Glade.Widget] Gtk.ImageMenuItem	menu_save;
+		[Glade.Widget] Gtk.ImageMenuItem	save1;
 
-		// Static copy, for singleton-like behavior
-		public static PipelineEditor		instance;
+		// Static counter for keeping track of the open windows
+		static ArrayList			editors;
 
 		// D-n-D target data
 		static Gtk.TargetEntry[]		targets;
@@ -81,15 +81,29 @@ namespace Fyre
 		public static void
 		Main (string[] args)
 		{
+			// Set up plugins directory
+			PluginManager plugin_manager = new PluginManager (Defines.PLUGINSDIR);
+			ElementFactory factory = ElementFactory.Instance;
+			plugin_enumerator = factory.GetEnumerator();
+
+			// Setup the array of windows
+			editors = new ArrayList();
+
+			// Setup the new GTK application
+			Gtk.Application.Init();
+
+			// Create a new main window, passing the enumerator to the window for building
+			// the treeview
 			new PipelineEditor (args);
+
+			// Finally, run the application
+			Gtk.Application.Run();
 		}
 
 		private
 		PipelineEditor (string[] args)
 		{
-			instance = this;
-
-			Gtk.Application.Init();
+			editors.Add (this);
 
 			Glade.XML.SetCustomHandler (new Glade.XMLCustomWidgetHandler (GladeCustomHandler));
 
@@ -101,15 +115,10 @@ namespace Fyre
 			// Set up our drawing canvas
 			SetupDrawingCanvas ();
 
-			// Set up plugins directory
-			plugin_manager = new PluginManager (Defines.PLUGINSDIR);
-			ElementFactory factory = ElementFactory.Instance;
-			IDictionaryEnumerator enumerator = factory.GetEnumerator();
-
 			// Iterate through each element in the elements list
-			enumerator.Reset();
-			while (enumerator.MoveNext())
-				element_list.AddType ((System.Type)enumerator.Value);
+			plugin_enumerator.Reset();
+			while (plugin_enumerator.MoveNext())
+				element_list.AddType ((System.Type)plugin_enumerator.Value);
 
 			// Set the window title and update the save iteems
 			SetTitle ();
@@ -117,9 +126,6 @@ namespace Fyre
 
 			// Show the window
 			toplevel.Show ();
-
-			// Finally, run the application
-			Gtk.Application.Run();
 		}
 
 		// Glade custom widget handler
@@ -196,11 +202,45 @@ namespace Fyre
 		{
 			if (pipeline.saved) {
 				toolbar_save.Sensitive = false;
-				menu_save.Sensitive = false;
+				save1.Sensitive = false;
 			} else {
 				toolbar_save.Sensitive = true;
-				menu_save.Sensitive = true;
+				save1.Sensitive = true;
 			}
+		}
+
+		public bool
+		CloseWindow ()
+		{
+			if (pipeline.saved == false) {
+				string filename;
+				if (pipeline.filename == null)
+					filename = "Untitled";
+				else
+					filename = pipeline.filename;
+
+				ConfirmCloseDialog confirm = new ConfirmCloseDialog (toplevel,
+						System.String.Format( "Save changes to \"{0}\" before closing?", filename ),
+						"There are unsaved changes to the pipeline. Save before quitting?");
+
+				int response = confirm.Run ();
+				confirm.Hide();
+
+				if (response == (int) Gtk.ResponseType.Cancel) {
+					confirm.Destroy ();
+					return true;
+				}
+				if (response == (int) Gtk.ResponseType.Yes) {
+					confirm.Destroy ();
+					OnSave (null, null);
+				}
+			}
+			// Hide the window from view.  It'll later be destroyed by the DeleteEvent handler, or by the
+			// quit menu option handler.
+			toplevel.Hide();
+
+			// The window was closed, so return false indicating it needs to be destroyed.
+			return false;
 		}
 
 		// Event handlers - most of these come from the glade file
@@ -208,34 +248,24 @@ namespace Fyre
 		public void
 		OnDeleteEvent (object o, Gtk.DeleteEventArgs args)
 		{
-			if (pipeline.saved == false) {
-				ConfirmCloseDialog confirm = new ConfirmCloseDialog ("Save pipeline before closing?",
-						"There are unsaved changes to the pipeline. Save before quitting?");
-				int response = confirm.Run ();
-				confirm.Hide();
+			//ErrorDialog e = new ErrorDialog ("Whoops!", "Someone left a stinker on the lawn");
+			//e.Run ();
 
-				if (response == (int) Gtk.ResponseType.Cancel) {
-					confirm.Destroy ();
-					args.RetVal = true;
-					return;
-				}
-				if (response == (int) Gtk.ResponseType.Yes) {
-					confirm.Destroy ();
-					OnSave (o, args);
-				}
-			}
-
-			Gtk.Application.Quit ();
-			args.RetVal = true;
+			bool result = CloseWindow();
+			if (!result) {
+				editors.Remove (this);
+				if (editors.Count == 0)
+					Gtk.Application.Quit ();
+				args.RetVal = false;
+			} else
+				args.RetVal = true;
 		}
 
 		// Shared events - menus/toolbars
 		public void
 		OnNew (object o, System.EventArgs args)
 		{
-			pipeline.Clear ();
-			SetTitle ();
-			UpdateToolbarSensitivity ();
+			new PipelineEditor (null);
 		}
 
 		public void
@@ -262,6 +292,7 @@ namespace Fyre
 					pipeline.Save (filename);
 					SetTitle ();
 					UpdateToolbarSensitivity ();
+					fs.Destroy ();
 				}
 				fs.Destroy ();
 			}
@@ -302,6 +333,7 @@ namespace Fyre
 			fs.DefaultResponse = Gtk.ResponseType.Accept;
 
 			Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
+			fs.Hide ();
 
 			if (response == Gtk.ResponseType.Accept) {
 				string filename = fs.Filename;
@@ -313,21 +345,30 @@ namespace Fyre
 			fs.Destroy ();
 		}
 
-		public void
+		public static void
 		OnMenuFileQuit (object o, System.EventArgs args)
 		{
-			if (pipeline.saved == false) {
-				ConfirmCloseDialog confirm = new ConfirmCloseDialog ("Save pipeline before closing?",
-						"There are unsaved changes to the pipeline. Save before quitting?");
-				int response = confirm.Run ();
-				confirm.Destroy ();
-
-				if (response == (int) Gtk.ResponseType.Cancel)
-					return;
-				if (response == (int) Gtk.ResponseType.Yes)
-					OnSave (o, args);
+			ArrayList removeList = new ArrayList();
+			IEnumerator e = editors.GetEnumerator();
+			e.Reset();
+			while (e.MoveNext ()) {
+				PipelineEditor win = (PipelineEditor)e.Current;
+				win.toplevel.Present();
+				bool result = win.CloseWindow();
+				if (result)
+					break;
+				else
+					removeList.Add (win);
 			}
-			Gtk.Application.Quit ();
+			e = removeList.GetEnumerator();
+			e.Reset();
+			while (e.MoveNext ()) {
+				PipelineEditor win = (PipelineEditor)e.Current;
+				win.toplevel.Destroy ();
+				editors.Remove (win);
+			}
+			if (editors.Count == 0)
+				Gtk.Application.Quit ();
 		}
 
 		// 'Edit' Menu events
