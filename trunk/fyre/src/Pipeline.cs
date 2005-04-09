@@ -98,7 +98,7 @@ namespace Fyre
 		{
 			saved = true;
 			filename = null;
-			element_store.Clear();
+			element_store.Clear ();
 		}
 	}
 
