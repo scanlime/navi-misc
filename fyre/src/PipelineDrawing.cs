@@ -28,6 +28,9 @@ namespace Fyre
 		Gtk.Adjustment		hadj;
 		Gtk.Adjustment		vadj;
 
+		// Whether or not we should update the canvas sizes
+		bool			update_sizes;
+
 		/* The drawing extents are the size of our current drawing area. The
 		 * position depends on the scrollbars, and the size is always the pixel
 		 * size of the drawing area.
@@ -42,24 +45,16 @@ namespace Fyre
 		Gdk.Rectangle		drawing_extents;
 		public Gdk.Rectangle	DrawingExtents
 		{
-			// This is an RW value, but we want to update our scroll positions
-			// when another object sets the value.
-			get {
-				return drawing_extents;
-			}
-			set {
-				hadj.Value = (int) drawing_extents.X;
-				vadj.Value = (int) drawing_extents.Y;
-			}
+			get { return drawing_extents; }
 		}
 		Gdk.Rectangle		layout_extents;
 		public Gdk.Rectangle	CanvasExtents
 		{
-			get {
-				return ExpandRect (layout_extents, layout_buffer).Union (drawing_extents);
-			}
+			get { return ExpandRect (layout_extents, layout_buffer).Union (drawing_extents); }
 		}
 
+		// Size of the buffer of pixels around the items on the canvas, giving
+		// the user something to grab on to if they want to move the diagram.
 		static int		layout_buffer = 50;
 
 		// We can't get events on a drawing area, so we have an event box on top
@@ -139,6 +134,8 @@ namespace Fyre
 			event_box.MotionNotifyEvent  += new Gtk.MotionNotifyEventHandler  (MotionNotifyHandler);
 			event_box.LeaveNotifyEvent   += new Gtk.LeaveNotifyEventHandler   (LeaveNotifyHandler);
 
+			update_sizes = true;
+
 			Show ();
 		}
 
@@ -195,7 +192,7 @@ namespace Fyre
 			return base.OnConfigureEvent (ev);
 		}
 
-		void
+		public void
 		SetScrollbars ()
 		{
 			Gdk.Rectangle exp_layout = ExpandRect (layout_extents, layout_buffer);
@@ -236,7 +233,8 @@ namespace Fyre
 		{
 			Gtk.Adjustment a = (Gtk.Adjustment) o;
 			drawing_extents.X = (int) a.Value;
-			SetScrollbars ();
+			if (update_sizes)
+				SetScrollbars ();
 		}
 
 		void
@@ -244,7 +242,8 @@ namespace Fyre
 		{
 			Gtk.Adjustment a = (Gtk.Adjustment) o;
 			drawing_extents.Y = (int) a.Value;
-			SetScrollbars ();
+			if (update_sizes)
+				SetScrollbars ();
 		}
 
 		void
@@ -294,6 +293,15 @@ namespace Fyre
 		void
 		LeaveNotifyHandler (object o, Gtk.LeaveNotifyEventArgs args)
 		{
+		}
+
+		public void
+		SetViewPosition (float x, float y)
+		{
+			update_sizes = false;
+			hadj.Value = x;
+			vadj.Value = y;
+			update_sizes = true;
 		}
 	}
 
