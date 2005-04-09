@@ -20,6 +20,8 @@ NavigationImage.cs:
 	with a navigation window that's too tall to fit on the screen. It
 	should probably have a maximum of n pixels in either dimension,
 	scaling things to fit.
+  * After moving around, the scrollbars are set really strange until it gets
+	some events (for some reason). Dunno why.
 
 Pipeline.cs:
   * This needs lots of design work before implementation can go forward.

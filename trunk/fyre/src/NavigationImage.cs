@@ -34,11 +34,15 @@ namespace Fyre
 		public int		Width, Height;
 		float			ratio;
 		Gdk.Rectangle		mouse_box;
+		Gdk.Rectangle		canvas;
+
+		PipelineDrawing		drawing;
 
 		public
 		NavigationWindow (PipelineDrawing drawing) : base (Gtk.WindowType.Popup)
 		{
-			Gdk.Rectangle canvas = drawing.CanvasExtents;
+			this.drawing = drawing;
+			canvas = drawing.CanvasExtents;
 
 			// We always use a 200px box for our navigation window. Height varies
 			// depending on the aspect ratio of the current drawing.
@@ -63,10 +67,14 @@ namespace Fyre
 			ratio = ((float) vwin.Width) / ((float) canvas.Width);
 			aspect = ((float) vwin.Width) / ((float) vwin.Height);
 			visible.Width  = (int) (200 * ratio);
-			visible.Height = (int) (visible.Width * aspect);
+			visible.Height = (int) (visible.Width / aspect);
 			// Clamp height
 			if (visible.Height > Height)
 				visible.Height = Height;
+
+			// Set this to the ratio between the navigation window and the real
+			// canvas, for turning mouse movement back into scrollbar position.
+			ratio = ((float) canvas.Width) / 200;
 
 			AllocGCs ();
 			DrawBackground ();
@@ -158,6 +166,11 @@ namespace Fyre
 			if (new_mouse.Y + new_mouse.Height > Height)
 				new_mouse.Y = Height - new_mouse.Height;
 
+			// Move the visible window to the place indicated by the mouse.
+			float mouse_x = new_mouse.X * ratio + canvas.X;
+			float mouse_y = new_mouse.Y * ratio + canvas.Y;
+			drawing.SetViewPosition (mouse_x, mouse_y);
+
 			// Take a union of the old and new mouse boxes, so we can redraw only
 			// what's necessary. This is probably a silly optimization given the
 			// size of the navigation window, but it's not hard.
@@ -232,6 +245,10 @@ namespace Fyre
 			window.Hide ();
 			window = null;
 
+			// Reset the size of the document, now that the user has finished
+			// moving the document around
+			Drawing.SetScrollbars ();
+
 			return true;
 		}
 
@@ -246,240 +263,4 @@ namespace Fyre
 		}
 	}
 
-	/************************************************************************
-	 *******************          CRUFT BARRIER          ********************
-	 ***********************************************************************/
-
-	class NavigationWindow2 : Gtk.Window
-	{
-		Gdk.Pixmap		background;
-		Gdk.Pixmap		backing;
-		Gdk.GC			white, black;
-		int[]			size, visible, mouse;
-
-		public
-		NavigationWindow2 (int w, int h, int vw, int vh) : base (Gtk.WindowType.Popup)
-		{
-			size = new int[2];
-			visible = new int[2];
-			mouse = new int[2];
-
-			// Set window size
-			size[0] = w;
-			size[1] = h;
-
-			// Set visible size
-			visible[0] = vw;
-			visible[1] = vh;
-
-			// Initialize mouse to nothing
-			mouse[0] = -1;
-			mouse[1] = -1;
-
-			// Before we can access any gdk internals, we need
-			// to realize the window.
-			Realize ();
-
-			Resize (w, h);
-
-			background = new Gdk.Pixmap (GdkWindow, w, h, -1);
-			backing = new Gdk.Pixmap (GdkWindow, w, h, -1);
-
-			DrawBackground ();
-		}
-
-		void
-		AllocGCs ()
-		{
-		}
-
-		void
-		DrawBackground ()
-		{
-		}
-
-		void
-		DrawArea (Gdk.Rectangle area)
-		{
-			// Update the backing store
-			int vx = visible[0] / 2;
-			int vy = visible[1] / 2;
-			backing.DrawDrawable (white, background, area.X, area.Y, area.X, area.Y, area.Width, area.Height);
-			if (mouse[0] == -1)
-				return;
-
-			Gdk.Rectangle mouse_r = new Gdk.Rectangle ();
-			mouse_r.X = mouse[0] - vx;
-			mouse_r.Y = mouse[1] - vy;
-			mouse_r.Width = visible[0];
-			mouse_r.Height = visible[1];
-
-			Gdk.Rectangle i;
-			if (area.Intersect (mouse_r, out i))
-				DrawMouseBox (mouse_r);
-		}
-
-		void
-		DrawMouseBox (Gdk.Rectangle mouse)
-		{
-			backing.DrawRectangle (black, false, mouse);
-		}
-
-		protected override bool
-		OnExposeEvent (Gdk.EventExpose ev)
-		{
-			Gdk.Rectangle r = ev.Area;
-
-			// Update the backing store for the part of the image we need
-			// to redraw, then copy it to the window.
-			DrawArea (r);
-
-			GdkWindow.DrawDrawable (white, backing, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
-
-			return true;
-		}
-
-		public void
-		SetMouse (int mx, int my)
-		{
-			// If the mouse hasn't actually moved (usually triggered by moving
-			// it around outside the window), don't do anything.
-			if (mouse[0] == mx && mouse[1] == my)
-				return;
-
-			// We want to only redraw what we have to, so take a union of the
-			// old and new mouse boxes, and use that for our redraw area
-			Gdk.Rectangle oldMouse = new Gdk.Rectangle ();
-			Gdk.Rectangle newMouse = new Gdk.Rectangle ();
-			Gdk.Rectangle area;
-
-			int vx = visible[0] / 2;
-			int vy = visible[1] / 2;
-
-			oldMouse.X = mouse[0] - vx - 1;
-			oldMouse.Y = mouse[1] - vy - 1;
-			newMouse.X = mx - vx - 1;
-			newMouse.Y = my - vy - 1;
-
-			oldMouse.Width  = newMouse.Width  = visible[0] + 2;
-			oldMouse.Height = newMouse.Height = visible[1] + 2;
-
-			mouse[0] = mx;
-			mouse[1] = my;
-
-			area = oldMouse.Union (newMouse);
-			GdkWindow.InvalidateRect (area, true);
-		}
-	}
-
-	class NavigationImage2 : Gtk.EventBox
-	{
-		Gtk.Image		image;
-		NavigationWindow2	window;
-		public PipelineDrawing	drawing;
-
-		// Position and size of the NavigationWindow
-		Gdk.Rectangle		position;
-
-		// Size of the visible region within the NavigationWindow
-		int[]			visible;
-
-		// The ratio between navigation-window pixels and document pixels.
-		float			scale;
-
-		public
-		NavigationImage2 ()
-		{
-			position = new Gdk.Rectangle ();
-			visible = new int[2];
-
-			Gdk.Pixbuf pixbuf = new Gdk.Pixbuf (null, "navigation.png");
-			image = new Gtk.Image (pixbuf);
-			Add (image);
-
-			ShowAll ();
-		}
-
-		protected override bool
-		OnButtonPressEvent (Gdk.EventButton ev)
-		{
-			if (drawing == null)
-				return true;
-
-			Gdk.Screen screen = GdkWindow.Screen;
-
-			int mouse_x = (int) ev.XRoot;
-			int mouse_y = (int) ev.YRoot;
-
-			Gdk.Rectangle canvas = drawing.CanvasExtents;
-
-			// Always use a 200px box for our navigation window
-			float aspect = ((float) canvas.Height) / ((float) canvas.Width);
-			position.Width  = 200;
-			position.Height = (int) (200 * aspect);
-
-			// Determine visible window extents
-			Gdk.Rectangle vwin = drawing.DrawingExtents;
-			float ratio = ((float) vwin.Width) / ((float) canvas.Width);
-			aspect = ((float) vwin.Height) / ((float) vwin.Width);
-			visible[0] = (int) (198 * ratio);
-			visible[1] = (int) (visible[0] * aspect);
-
-			// Clamp visible box size to be completely within our window
-			if (visible[0] > position.Width - 3)
-				visible[0] = position.Width - 3;
-			if (visible[1] > position.Height - 3)
-				visible[1] = position.Height - 3;
-
-			// Create our window
-			window = new NavigationWindow2 (position.Width, position.Height, visible[0], visible[1]);
-
-			//position.X = GetWindowPosition (mouse_x, position.Width,  screen.Width);
-			//position.Y = GetWindowPosition (mouse_y, position.Height, screen.Height);
-
-			window.Move (position.X, position.Y);
-
-			mouse_x -= position.X;
-			mouse_y -= position.Y;
-			ClampMouse (ref mouse_x, position.Width,  visible[0]);
-			ClampMouse (ref mouse_y, position.Height, visible[1]);
-			window.SetMouse (mouse_x, mouse_y);
-
-			window.Show ();
-
-			return true;
-		}
-
-		protected override bool
-		OnButtonReleaseEvent (Gdk.EventButton ev)
-		{
-			window.Hide ();
-			window = null;
-
-			return true;
-		}
-
-		void
-		ClampMouse (ref int mouse, int size, int visible)
-		{
-			int v = visible / 2;
-			if (mouse < v)
-				mouse = v + 1;
-			else if (mouse + v >= size - 1)
-				mouse = size - v - 2;
-		}
-
-		protected override bool
-		OnMotionNotifyEvent (Gdk.EventMotion ev)
-		{
-			int mx = ((int) ev.XRoot) - position.X;
-			int my = ((int) ev.YRoot) - position.Y;
-
-			ClampMouse (ref mx, position.Width,  visible[0]);
-			ClampMouse (ref my, position.Height, visible[1]);
-
-			window.SetMouse (mx, my);
-			return true;
-		}
-	}
 }
