@@ -259,7 +259,7 @@ namespace Fyre
 			// Write out a new element with this name
 			writer.WriteStartElement (null, convName, null);
 			writer.WriteStartAttribute (null, "id", null);
-			writer.WriteString( id.ToString() );
+			writer.WriteString (id.ToString ());
 
 			// Serialize the element's CanvasElement to store positioning information
 			canvas_element.Serialize (writer);
