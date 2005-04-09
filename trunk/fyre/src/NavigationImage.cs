@@ -26,9 +26,23 @@ namespace Fyre
 
 	class NavigationWindow : Gtk.Window
 	{
+		public int Width, Height;
+
 		public
-		NavigationWindow () : base (Gtk.WindowType.Popup)
+		NavigationWindow (PipelineDrawing drawing) : base (Gtk.WindowType.Popup)
 		{
+			Gdk.Rectangle canvas = drawing.CanvasExtents;
+
+			// We always use a 200px box for our navigation window. Height varies
+			// depending on the aspect ratio of the current drawing.
+			float aspect = ((float) canvas.Width) / ((float) canvas.Height);
+			Width = 200;
+			Height = (int) (Width / aspect);
+
+			// We need to realize before we can access any of the gdk internals,
+			// like setting size/position
+			Realize ();
+			Resize (Width, Height);
 		}
 	}
 
@@ -36,12 +50,8 @@ namespace Fyre
 	{
 		Gtk.Image		image;
 		NavigationWindow	window;
-		PipelineDrawing		drawing;
-		public PipelineDrawing	Drawing
-		{
-			get { return drawing; }
-			set { }
-		}
+		Gdk.Rectangle		window_rect;
+		public PipelineDrawing	Drawing;
 
 		public
 		NavigationImage ()
@@ -53,13 +63,32 @@ namespace Fyre
 			ShowAll ();
 		}
 
+		int
+		GetWindowPosition (int mouse, int winsize, int screensize)
+		{
+			if (mouse - (winsize / 2) < 0)
+				return 0;
+			if (mouse + (winsize / 2) > screensize)
+				return screensize - winsize;
+			return mouse - (winsize / 2);
+		}
+
 		protected override bool
 		OnButtonPressEvent (Gdk.EventButton ev)
 		{
-			if (drawing == null)
+			if (Drawing == null)
 				return true;
 
-			window = new NavigationWindow ();
+			Gdk.Screen screen = GdkWindow.Screen;
+
+			int mouse_x = (int) ev.XRoot;
+			int mouse_y = (int) ev.YRoot;
+
+			window = new NavigationWindow (Drawing);
+			window.Move (GetWindowPosition (mouse_x, window.Width,  screen.Width),
+				     GetWindowPosition (mouse_y, window.Height, screen.Height));
+
+			window.Show ();
 
 			return true;
 		}
@@ -250,16 +279,6 @@ namespace Fyre
 			ShowAll ();
 		}
 
-		int
-		GetWindowPosition (int mouse, int winsize, int screensize)
-		{
-			if (mouse - (winsize / 2) < 0)
-				return 0;
-			if (mouse + (winsize / 2) > screensize)
-				return screensize - winsize;
-			return mouse - (winsize / 2);
-		}
-
 		protected override bool
 		OnButtonPressEvent (Gdk.EventButton ev)
 		{
@@ -294,8 +313,8 @@ namespace Fyre
 			// Create our window
 			window = new NavigationWindow2 (position.Width, position.Height, visible[0], visible[1]);
 
-			position.X = GetWindowPosition (mouse_x, position.Width,  screen.Width);
-			position.Y = GetWindowPosition (mouse_y, position.Height, screen.Height);
+			//position.X = GetWindowPosition (mouse_x, position.Width,  screen.Width);
+			//position.Y = GetWindowPosition (mouse_y, position.Height, screen.Height);
 
 			window.Move (position.X, position.Y);
 
