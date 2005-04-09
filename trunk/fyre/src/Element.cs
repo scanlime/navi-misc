@@ -58,7 +58,7 @@ namespace Fyre
 		public static implicit operator
 		string (FString s)
 		{
-			return "";
+			return s.str;
 		}
 	}
 
