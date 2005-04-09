@@ -135,7 +135,7 @@ namespace Fyre
 		void
 		SetupDrawingCanvas ()
 		{
-			pipeline_drawing.SetScrollAdjustments (drawing_hscroll.Adjustment, drawing_vscroll.Adjustment);
+			pipeline_drawing.AddScrollbars (drawing_hscroll, drawing_vscroll);
 
 			// Give the navigation image knowledge of the drawing, so it can
 			// track canvas/window extents
