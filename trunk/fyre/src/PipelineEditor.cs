@@ -22,6 +22,7 @@
  */
 
 using System.Collections;
+using Gtk;
 
 namespace Fyre
 {
@@ -225,7 +226,11 @@ namespace Fyre
 		OnSave (object o, System.EventArgs args)
 		{
 			if (pipeline.filename == null) {
-				// FIXME - Show Save As... dialog
+				FileSelection fs = new FileSelection ("Save As...");
+				fs.Run();
+				fs.Hide();
+				string filename = fs.Filename;
+				pipeline.Save (filename);
 			}
 			else
 				pipeline.Save (pipeline.filename);
