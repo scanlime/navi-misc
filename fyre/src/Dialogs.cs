@@ -50,6 +50,7 @@ namespace Fyre
 
 			// Get the main window and set the dialog transient and modal for that window.
 			TransientFor = transient;
+
 			Modal = true;
 		}
 	}
