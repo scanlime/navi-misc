@@ -106,9 +106,6 @@ namespace Fyre
 			while (enumerator.MoveNext())
 				element_list.AddType ((System.Type)enumerator.Value);
 				
-			//foreach (System.Type t in plugin_manager.plugin_types)
-			//	element_list.AddType (t);
-
 			// Set the window title
 			SetTitle ();
 
