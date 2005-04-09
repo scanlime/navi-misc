@@ -50,7 +50,7 @@ namespace Fyre
 
 		// Menu and toolbar widgets (for sensitivity)
 		[Glade.Widget] Gtk.ToolButton		toolbar_save;
-		[Glade.Widget] Gtk.ImageMenuItem	save1;
+		[Glade.Widget] Gtk.ImageMenuItem	menu_save;
 
 		// Static counter for keeping track of the open windows
 		static ArrayList			editors;
@@ -202,10 +202,10 @@ namespace Fyre
 		{
 			if (pipeline.saved) {
 				toolbar_save.Sensitive = false;
-				save1.Sensitive = false;
+				menu_save.Sensitive = false;
 			} else {
 				toolbar_save.Sensitive = true;
-				save1.Sensitive = true;
+				menu_save.Sensitive = true;
 			}
 		}
 
@@ -343,6 +343,17 @@ namespace Fyre
 				UpdateToolbarSensitivity ();
 			}
 			fs.Destroy ();
+		}
+
+		public void
+		OnMenuFileClose (object o, System.EventArgs args)
+		{
+			bool result = CloseWindow();
+			if (!result) {
+				editors.Remove (this);
+				if (editors.Count == 0)
+					Gtk.Application.Quit ();
+			}
 		}
 
 		public static void
