@@ -47,7 +47,7 @@ General things:
 	and generally be really slick.  In terms of code structure, it
 	would be handy to have this as a completely separate library
 	(Flibble#)
-  * We'll need something to manage the editing process.  The command stuff
+  * We'll need something to manage the editing process.  The command pattern
 	seems like it would be handy for this case.
   * We need to figure out some way to serialize things for use in the
 	clipboard.  This will probably require finagling the Guid stuff
