@@ -29,8 +29,11 @@ namespace Fyre
 		Gdk.Pixmap		background;
 		Gdk.Pixmap		backing;
 		Gdk.GC			white, black;
+		Gdk.Rectangle		visible;
 
 		public int		Width, Height;
+		float			ratio;
+		Gdk.Rectangle		mouse_box;
 
 		public
 		NavigationWindow (PipelineDrawing drawing) : base (Gtk.WindowType.Popup)
@@ -55,8 +58,20 @@ namespace Fyre
 			background = new Gdk.Pixmap (GdkWindow, Width + 2, Height + 2, -1);
 			backing    = new Gdk.Pixmap (GdkWindow, Width + 2, Height + 2, -1);
 
+			// Determine the size of the visible window
+			Gdk.Rectangle vwin = drawing.DrawingExtents;
+			ratio = ((float) vwin.Width) / ((float) canvas.Width);
+			aspect = ((float) vwin.Width) / ((float) vwin.Height);
+			visible.Width  = (int) (200 * ratio);
+			visible.Height = (int) (visible.Width * aspect);
+			// Clamp height
+			if (visible.Height > Height)
+				visible.Height = Height;
+
 			AllocGCs ();
 			DrawBackground ();
+
+			mouse_box.X = -1;
 		}
 
 		void
@@ -84,8 +99,26 @@ namespace Fyre
 		DrawArea (Gdk.Rectangle area)
 		{
 			// Update the backing store
-			backing.DrawDrawable (white, background, area.X, area.Y, area.X, area.Y, area.Width, area.Height);
-			// FIXME - draw mouse box
+			backing.DrawDrawable (white, background, area.X, area.Y, area.X, area.Y, area.Width + 1, area.Height + 1);
+
+			if (mouse_box.X == -1)
+				return;
+
+			Gdk.Rectangle mouse = mouse_box;
+			mouse.X += 1;
+			mouse.Y += 1;
+
+			Gdk.Rectangle i;
+			if (area.Intersect (mouse, out i))
+				DrawMouseBox ();
+		}
+
+		void
+		DrawMouseBox ()
+		{
+			backing.DrawRectangle (black, false,
+					mouse_box.X     + 1, mouse_box.Y      + 1,
+					mouse_box.Width - 1, mouse_box.Height - 1);
 		}
 
 		protected override bool
@@ -93,15 +126,49 @@ namespace Fyre
 		{
 			Gdk.Rectangle r = ev.Area;
 
-			// Update the backing store for the part of the image we need
-			// to expose, then copy it to the window.
-			// FIXME - we might as well just kill this step once mouse-box
-			// drawing is done and optimized.
+			// Copy the relevant area of the backing store onto the screen
 			DrawArea (r);
-
-			GdkWindow.DrawDrawable (white, backing, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
+			GdkWindow.DrawDrawable (white, backing, r.X, r.Y, r.X, r.Y, r.Width + 1, r.Height + 1);
 
 			return true;
+		}
+
+		public void
+		SetMouse (int x, int y)
+		{
+			// These values have been transformed into window-space by the NavigationImage,
+			// but we still need to clamp the visible box to be within our window.
+			int hvx = visible.Width  / 2;
+			int hvy = visible.Height / 2;
+
+			if (x - hvx < 0)
+				x = hvx;
+			if (y - hvy < 0)
+				y = hvy;
+
+			if (x + hvx > Width - 1)
+				x = Width - hvx;
+			if (y + hvy > Height - 1)
+				y = Height - hvy;
+
+			Gdk.Rectangle new_mouse = visible;
+			new_mouse.X = x - hvx;
+			new_mouse.Y = y - hvy;
+
+			if (new_mouse.X + new_mouse.Width > Width)
+				new_mouse.X = Width - new_mouse.Width;
+			if (new_mouse.Y + new_mouse.Height > Height)
+				new_mouse.Y = Height - new_mouse.Height;
+
+			// Take a union of the old and new mouse boxes, so we can redraw only
+			// what's necessary. This is probably a silly optimization given the
+			// size of the navigation window, but it's not hard.
+			Gdk.Rectangle area = mouse_box.Union (new_mouse);
+			area.X -= 1;     area.Y -= 1;
+			area.Width += 2; area.Height += 2;
+
+			mouse_box = new_mouse;
+			GdkWindow.InvalidateRect (area, true);
 		}
 	}
 
@@ -153,6 +220,8 @@ namespace Fyre
 			win_y = GetWindowPosition (mouse_y, window.Height, screen.Height);
 			window.Move (win_x, win_y);
 
+			window.SetMouse (mouse_x - win_x, mouse_y - win_y);
+
 			window.Show ();
 
 			return true;
@@ -171,6 +240,10 @@ namespace Fyre
 		protected override bool
 		OnMotionNotifyEvent (Gdk.EventMotion ev)
 		{
+			int mouse_x = (int) ev.XRoot;
+			int mouse_y = (int) ev.YRoot;
+
+			window.SetMouse (mouse_x - win_x, mouse_y - win_y);
 			return true;
 		}
 	}
