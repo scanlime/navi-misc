@@ -248,10 +248,14 @@ namespace Fyre
 		OnSave (object o, System.EventArgs args)
 		{
 			if (pipeline.filename == null) {
-				object[] responses = { "Cancel", Gtk.ResponseType.Reject, "Save", Gtk.ResponseType.Accept };
-				Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ( "Save As...", null, Gtk.FileChooserAction.Save, responses );
+				object[] responses = {
+					Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
+					Gtk.Stock.Save,   Gtk.ResponseType.Accept
+				};
+				Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save As...", null, Gtk.FileChooserAction.Save, responses);
+				fs.DefaultResponse = Gtk.ResponseType.Accept;
+
 				Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
-				fs.Destroy ();
 
 				if (response == Gtk.ResponseType.Accept) {
 					string filename = fs.Filename;
@@ -259,6 +263,7 @@ namespace Fyre
 					SetTitle ();
 					UpdateToolbarSensitivity ();
 				}
+				fs.Destroy ();
 			}
 			else {
 				pipeline.Save (pipeline.filename);
@@ -289,10 +294,14 @@ namespace Fyre
 		public void
 		OnMenuFileSaveAs (object o, System.EventArgs args)
 		{
-			object[] responses = { "Cancel", Gtk.ResponseType.Reject, "Save", Gtk.ResponseType.Accept };
-			Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ( "Save As...", null, Gtk.FileChooserAction.Save, responses );
-			Gtk.ResponseType response = (Gtk.ResponseType)fs.Run();
-			fs.Destroy ();
+			object[] responses = {
+				Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
+				Gtk.Stock.Save,   Gtk.ResponseType.Accept
+			};
+			Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save As...", null, Gtk.FileChooserAction.Save, responses);
+			fs.DefaultResponse = Gtk.ResponseType.Accept;
+
+			Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
 
 			if (response == Gtk.ResponseType.Accept) {
 				string filename = fs.Filename;
@@ -301,6 +310,7 @@ namespace Fyre
 				SetTitle ();
 				UpdateToolbarSensitivity ();
 			}
+			fs.Destroy ();
 		}
 
 		public void
