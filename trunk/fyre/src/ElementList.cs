@@ -119,6 +119,10 @@ namespace Fyre
 
 				// FIXME - use element image here
 
+				// FIXME - This line assumes everyone runs at 24 bit depth.  But
+				// on computers running 16-bit, this causes a crash during dragging.
+				// Replacing 24 with 16 fixes that.  We need a way to find this number
+				// from the X server's visuals, instead of hard-coding it.
 				Gdk.Pixmap pixmap = new Gdk.Pixmap (null, 200, 150, 24);
 
 				Gdk.GC gc = new Gdk.GC (pixmap);
