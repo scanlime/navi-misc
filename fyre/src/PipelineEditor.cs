@@ -157,6 +157,7 @@ namespace Fyre
 			Element e = factory.Create (name);
 
 			pipeline.AddElement (e);
+			SetTitle();
 
 			// FIXME - give something to the Drawing, using args.X and
 			// args.Y for placement
@@ -227,17 +228,19 @@ namespace Fyre
 			if (pipeline.filename == null) {
 				object[] responses = { "Cancel", Gtk.ResponseType.Reject, "Save", Gtk.ResponseType.Accept };
 				Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ( "Save As...", null, Gtk.FileChooserAction.Save, responses );
-				//fs.Action = Gtk.FileChooserAction.Save;
 				Gtk.ResponseType response = (Gtk.ResponseType)fs.Run();
 				fs.Hide();
 
 				if (response == Gtk.ResponseType.Accept) {
 					string filename = fs.Filename;
 					pipeline.Save (filename);
+					SetTitle();
 				}
 			}
-			else
+			else {
 				pipeline.Save (pipeline.filename);
+				SetTitle();
+			}
 		}
 
 		public void
@@ -262,7 +265,17 @@ namespace Fyre
 		public void
 		OnMenuFileSaveAs (object o, System.EventArgs args)
 		{
-			// FIXME - implement
+			object[] responses = { "Cancel", Gtk.ResponseType.Reject, "Save", Gtk.ResponseType.Accept };
+			Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ( "Save As...", null, Gtk.FileChooserAction.Save, responses );
+			Gtk.ResponseType response = (Gtk.ResponseType)fs.Run();
+			fs.Hide();
+
+			if (response == Gtk.ResponseType.Accept) {
+				string filename = fs.Filename;
+				pipeline.saved = false;
+				pipeline.Save (filename);
+				SetTitle();
+			}
 		}
 
 		public void

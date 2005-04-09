@@ -67,13 +67,14 @@ namespace Fyre
 		{
 			element_store.Add (e.id, e);
 			System.Console.WriteLine ("Adding {0} {1} to the pipeline", e.Name (), e.id.ToString ("d"));
+			saved = false;
 		}
 
 		public void
 		Save (string filename)
 		{
-			//if (saved)
-			//	return;
+			if (saved)
+				return;
 
 			XmlTextWriter writer = new XmlTextWriter (filename, null);
 			writer.Formatting = Formatting.Indented;
@@ -87,6 +88,9 @@ namespace Fyre
 
 			writer.WriteEndDocument ();
 			writer.Close ();
+
+			this.filename = filename;
+			saved = true;
 		}
 	}
 
