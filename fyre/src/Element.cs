@@ -33,7 +33,10 @@ namespace Fyre
 
 	public class TypeFormatter
 	{
-		// FIXME
+		public
+		TypeFormatter (string type)
+		{
+		}
 	}
 
 	public class FString
@@ -52,11 +55,18 @@ namespace Fyre
 			get { return str; }
 		}
 
-		public override string
+		public string
 		ToString (TypeFormatter format)
 		{
 			// Formatting nonsense goes here.
 			return "";
+		}
+
+		// Just for completeness' sake.
+		public override string
+		ToString ()
+		{
+			return str;
 		}
 
 		// Implicit conversion to string
