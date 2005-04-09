@@ -84,20 +84,19 @@ namespace Fyre
 			// Set up plugins directory
 			PluginManager plugin_manager = new PluginManager (Defines.PLUGINSDIR);
 			ElementFactory factory = ElementFactory.Instance;
-			plugin_enumerator = factory.GetEnumerator();
+			plugin_enumerator = factory.GetEnumerator ();
 
 			// Setup the array of windows
-			editors = new ArrayList();
+			editors = new ArrayList ();
 
 			// Setup the new GTK application
-			Gtk.Application.Init();
+			Gtk.Application.Init ();
 
-			// Create a new main window, passing the enumerator to the window for building
-			// the treeview
+			// Create a new main window
 			new PipelineEditor (args);
 
 			// Finally, run the application
-			Gtk.Application.Run();
+			Gtk.Application.Run ();
 		}
 
 		private
@@ -116,9 +115,9 @@ namespace Fyre
 			SetupDrawingCanvas ();
 
 			// Iterate through each element in the elements list
-			plugin_enumerator.Reset();
-			while (plugin_enumerator.MoveNext())
-				element_list.AddType ((System.Type)plugin_enumerator.Value);
+			plugin_enumerator.Reset ();
+			while (plugin_enumerator.MoveNext ())
+				element_list.AddType ((System.Type) plugin_enumerator.Value);
 
 			// Set the window title and update the save iteems
 			SetTitle ();
@@ -200,13 +199,8 @@ namespace Fyre
 		void
 		UpdateToolbarSensitivity ()
 		{
-			if (pipeline.saved) {
-				toolbar_save.Sensitive = false;
-				menu_save.Sensitive = false;
-			} else {
-				toolbar_save.Sensitive = true;
-				menu_save.Sensitive = true;
-			}
+			toolbar_save.Sensitive = !pipeline.saved;
+			menu_save.Sensitive = !pipeline.saved;
 		}
 
 		public bool
@@ -220,20 +214,16 @@ namespace Fyre
 					filename = pipeline.filename;
 
 				ConfirmCloseDialog confirm = new ConfirmCloseDialog (toplevel,
-						System.String.Format( "Save changes to \"{0}\" before closing?", filename ),
+						System.String.Format ("Save changes to \"{0}\" before closing?", filename),
 						"There are unsaved changes to the pipeline. Save before quitting?");
 
 				int response = confirm.Run ();
-				confirm.Hide();
+				confirm.Destroy ();
 
-				if (response == (int) Gtk.ResponseType.Cancel) {
-					confirm.Destroy ();
+				if (response == (int) Gtk.ResponseType.Cancel)
 					return true;
-				}
-				if (response == (int) Gtk.ResponseType.Yes) {
-					confirm.Destroy ();
+				if (response == (int) Gtk.ResponseType.Yes)
 					OnSave (null, null);
-				}
 			}
 			// Hide the window from view.  It'll later be destroyed by the DeleteEvent handler, or by the
 			// quit menu option handler.
@@ -248,9 +238,6 @@ namespace Fyre
 		public void
 		OnDeleteEvent (object o, Gtk.DeleteEventArgs args)
 		{
-			//ErrorDialog e = new ErrorDialog ("Whoops!", "Someone left a stinker on the lawn");
-			//e.Run ();
-
 			bool result = CloseWindow();
 			if (!result) {
 				editors.Remove (this);
@@ -359,22 +346,22 @@ namespace Fyre
 		public static void
 		OnMenuFileQuit (object o, System.EventArgs args)
 		{
-			ArrayList removeList = new ArrayList();
-			IEnumerator e = editors.GetEnumerator();
-			e.Reset();
+			ArrayList removeList = new ArrayList ();
+			IEnumerator e = editors.GetEnumerator ();
+			e.Reset ();
 			while (e.MoveNext ()) {
-				PipelineEditor win = (PipelineEditor)e.Current;
-				win.toplevel.Present();
-				bool result = win.CloseWindow();
+				PipelineEditor win = (PipelineEditor) e.Current;
+				win.toplevel.Present ();
+				bool result = win.CloseWindow ();
 				if (result)
 					break;
 				else
 					removeList.Add (win);
 			}
-			e = removeList.GetEnumerator();
-			e.Reset();
+			e = removeList.GetEnumerator ();
+			e.Reset ();
 			while (e.MoveNext ()) {
-				PipelineEditor win = (PipelineEditor)e.Current;
+				PipelineEditor win = (PipelineEditor) e.Current;
 				win.toplevel.Destroy ();
 				editors.Remove (win);
 			}
