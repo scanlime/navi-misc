@@ -70,30 +70,6 @@ class TwoDTransform : Fyre.Element
 		return "Creates an 3x3 matrix out\nof a set of 2D\ntransformations";
 	}
 
-	public override string[,]
-	InputDesc ()
-	{
-		string [,] desc = new string[4,2];
-
-		for (int i = 0; i < inputs.Length; i++) {
-			desc[i,0] = inputs[i].Name;
-			desc[i,1] = inputs[i].Description;
-		}
-
-		return desc;
-	}
-
-	public override string[,]
-	OutputDesc ()
-	{
-		string [,] desc = new string[1,2];
-
-		desc[0,0] = outputs[0].Name;
-		desc[0,1] = outputs[0].Description;
-
-		return desc;
-	}
-
 	public override void
 	Serialize (XmlTextWriter writer)
 	{

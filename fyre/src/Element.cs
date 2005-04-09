@@ -189,11 +189,6 @@ namespace Fyre
 		abstract public string		Description ();
 		abstract public Gdk.Pixbuf	Icon ();
 
-		// These are expected to be in pango markup, for any
-		// necessary subscripts, UTF-8 trickery, etc
-		abstract public string[,]	InputDesc ();
-		abstract public string[,]	OutputDesc ();
-
 		// private element-specific data
 		public System.Guid		id;
 		public CanvasElement		canvas_element;
@@ -211,6 +206,32 @@ namespace Fyre
 		NewID ()
 		{
 			id = System.Guid.NewGuid ();
+		}
+
+		public string[,]
+		InputDesc ()
+		{
+			string[,] desc = new string[inputs.Length,2];
+
+			for (int i = 0; i < inputs.Length; i++) {
+				desc[i,0] = inputs[i].Name;
+				desc[i,1] = inputs[i].Description;
+			}
+
+			return desc;
+		}
+
+		public string[,]
+		OutputDesc ()
+		{
+			string [,] desc = new string[outputs.Length,2];
+
+			for (int i = 0; i < outputs.Length; i++) {
+				desc[i,0] = outputs[i].Name;
+				desc[i,1] = outputs[i].Description;
+			}
+
+			return desc;
 		}
 
 		public virtual void
