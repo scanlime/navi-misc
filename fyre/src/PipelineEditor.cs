@@ -48,8 +48,9 @@ namespace Fyre
 		// Status bar
 		[Glade.Widget] Gtk.Statusbar		statusbar;
 
-		// Keep a pointer to the Glade XML
-		Glade.XML				gxml;
+		// Menu and toolbar widgets (for sensitivity)
+		[Glade.Widget] Gtk.ToolButton		toolbar_save;
+		[Glade.Widget] Gtk.ImageMenuItem	menu_save;
 
 		// Static copy, for singleton-like behavior
 		public static PipelineEditor		instance;
@@ -92,7 +93,7 @@ namespace Fyre
 
 			Glade.XML.SetCustomHandler (new Glade.XMLCustomWidgetHandler (GladeCustomHandler));
 
-			gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
+			Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
 			gxml.Autoconnect (this);
 
 			pipeline = new Pipeline ();
@@ -193,15 +194,12 @@ namespace Fyre
 		void
 		UpdateToolbarSensitivity ()
 		{
-			Gtk.ToolButton save = (Gtk.ToolButton)gxml.GetWidget ("toolbar_save");
-			Gtk.ImageMenuItem save_menu = (Gtk.ImageMenuItem)gxml.GetWidget ("save1");
-
 			if (pipeline.saved) {
-				save.Sensitive = false;
-				save_menu.Sensitive = false;
+				toolbar_save.Sensitive = false;
+				menu_save.Sensitive = false;
 			} else {
-				save.Sensitive = true;
-				save_menu.Sensitive = true;
+				toolbar_save.Sensitive = true;
+				menu_save.Sensitive = true;
 			}
 		}
 
@@ -210,9 +208,6 @@ namespace Fyre
 		public void
 		OnDeleteEvent (object o, Gtk.DeleteEventArgs args)
 		{
-			//ErrorDialog e = new ErrorDialog ("Whoops!", "Someone left a stinker on the lawn");
-			//e.Run ();
-
 			if (pipeline.saved == false) {
 				ConfirmCloseDialog confirm = new ConfirmCloseDialog ("Save pipeline before closing?",
 						"There are unsaved changes to the pipeline. Save before quitting?");
@@ -238,9 +233,9 @@ namespace Fyre
 		public void
 		OnNew (object o, System.EventArgs args)
 		{
-			pipeline.Clear();
-			SetTitle();
-			UpdateToolbarSensitivity();
+			pipeline.Clear ();
+			SetTitle ();
+			UpdateToolbarSensitivity ();
 		}
 
 		public void
@@ -255,7 +250,7 @@ namespace Fyre
 			if (pipeline.filename == null) {
 				object[] responses = { "Cancel", Gtk.ResponseType.Reject, "Save", Gtk.ResponseType.Accept };
 				Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ( "Save As...", null, Gtk.FileChooserAction.Save, responses );
-				Gtk.ResponseType response = (Gtk.ResponseType)fs.Run();
+				Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
 				fs.Destroy ();
 
 				if (response == Gtk.ResponseType.Accept) {
@@ -315,16 +310,12 @@ namespace Fyre
 				ConfirmCloseDialog confirm = new ConfirmCloseDialog ("Save pipeline before closing?",
 						"There are unsaved changes to the pipeline. Save before quitting?");
 				int response = confirm.Run ();
-				confirm.Hide();
+				confirm.Destroy ();
 
-				if (response == (int) Gtk.ResponseType.Cancel) {
-					confirm.Destroy ();
+				if (response == (int) Gtk.ResponseType.Cancel)
 					return;
-				}
-				if (response == (int) Gtk.ResponseType.Yes) {
-					confirm.Destroy ();
+				if (response == (int) Gtk.ResponseType.Yes)
 					OnSave (o, args);
-				}
 			}
 			Gtk.Application.Quit ();
 		}
