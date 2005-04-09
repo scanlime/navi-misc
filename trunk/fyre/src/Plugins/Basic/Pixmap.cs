@@ -69,30 +69,6 @@ class Pixmap : Fyre.Element
 		return "Simple pixmap image";
 	}
 
-	public override string[,]
-	InputDesc ()
-	{
-		string [,]desc = new string[4,2];
-
-		for (int i = 0; i < 4; i++) {
-			desc[i,0] = "<i>" + inputs[i].Name + "</i>";
-			desc[i,1] = inputs[i].Description;
-		}
-
-		return desc;
-	}
-
-	public override string[,]
-	OutputDesc ()
-	{
-		string [,]desc = new string[1,2];
-
-		desc[0,0] = "<b>" + outputs[0].Name + "</b>";
-		desc[0,1] = outputs[0].Description;
-
-		return desc;
-	}
-
 	public override void
 	Serialize (XmlTextWriter writer)
 	{
