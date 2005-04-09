@@ -137,11 +137,13 @@ begin
     prog = freevo
     button = up
     config = UP
+    repeat = 2
 end
 begin
     prog = freevo
     button = down
     config = DOWN
+    repeat = 2
 end
 begin
     prog = freevo
@@ -162,6 +164,7 @@ begin
     prog = freevo
     button = right
     config = RIGHT
+    repeat = 2
 end
 begin
     prog = freevo
@@ -172,16 +175,19 @@ begin
     prog = freevo
     button = left
     config = LEFT
+    repeat = 2
 end
 begin
     prog = freevo
     button = vol+
     config = VOL+
+    repeat = 2
 end
 begin
     prog = freevo
     button = vol-
     config = VOL-
+    repeat = 2
 end
 begin
     prog = freevo
