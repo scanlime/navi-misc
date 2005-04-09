@@ -72,10 +72,11 @@ namespace Fyre
 		public void
 		Save (string filename)
 		{
-			if (saved)
-				return;
+			//if (saved)
+			//	return;
 
 			XmlTextWriter writer = new XmlTextWriter (filename, null);
+			writer.Formatting = Formatting.Indented;
 			writer.WriteStartDocument ();
 			writer.WriteStartElement (null, "fyre-pipeline", null);
 
