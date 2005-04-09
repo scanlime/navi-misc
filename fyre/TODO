@@ -14,6 +14,13 @@ Element.cs:
 	somewhere between getting those strings from the Pad and the
 	tooltip some Pango should be added for formatting.
 
+NavigationImage.cs:
+  * Right now, it creates the navigation window with a fixed width of 200px.
+	This means if you make the canvas really tall and skinny, you end up
+	with a navigation window that's too tall to fit on the screen. It
+	should probably have a maximum of n pixels in either dimension,
+	scaling things to fit.
+
 Pipeline.cs:
   * This needs lots of design work before implementation can go forward.
   * We'll need some way to keep track of annotations (maybe composite).

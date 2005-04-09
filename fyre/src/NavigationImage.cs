@@ -90,8 +90,8 @@ namespace Fyre
 		void
 		DrawBackground ()
 		{
-			background.DrawRectangle (black, false, 0, 0, Width + 2, Height + 2);
-			background.DrawRectangle (white, true,  1, 1, Width,     Height);
+			background.DrawRectangle (black, false, 0, 0, Width + 1, Height + 1);
+			background.DrawRectangle (white, true,  1, 1, Width, Height);
 			// FIXME - we want to draw our pipeline into this window at reduced size.
 		}
 
@@ -116,9 +116,7 @@ namespace Fyre
 		void
 		DrawMouseBox ()
 		{
-			backing.DrawRectangle (black, false,
-					mouse_box.X     + 1, mouse_box.Y      + 1,
-					mouse_box.Width - 1, mouse_box.Height - 1);
+			backing.DrawRectangle (black, false, mouse_box.X + 1, mouse_box.Y + 1, mouse_box.Width - 1, mouse_box.Height - 1);
 		}
 
 		protected override bool
@@ -128,7 +126,7 @@ namespace Fyre
 
 			// Copy the relevant area of the backing store onto the screen
 			DrawArea (r);
-			GdkWindow.DrawDrawable (white, backing, r.X, r.Y, r.X, r.Y, r.Width + 1, r.Height + 1);
+			GdkWindow.DrawDrawable (white, backing, r.X, r.Y, r.X, r.Y, r.Width + 2, r.Height + 2);
 
 			return true;
 		}
