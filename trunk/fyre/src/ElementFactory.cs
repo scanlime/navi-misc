@@ -23,6 +23,7 @@
 
 using System.Collections;
 using System.Reflection;
+using System;
 
 namespace Fyre
 {
@@ -48,12 +49,24 @@ namespace Fyre
 			elements = new Hashtable ();
 		}
 
+		public IDictionaryEnumerator
+		GetEnumerator ()
+		{
+			return elements.GetEnumerator();
+		}
+
 		public void
 		AddType (System.Type t)
 		{
 			Element e = Create (t);
 			string name = e.Name ();
-			elements.Add (name, t);
+			if (elements.Contains (name)) {
+				WarningDialog err = new WarningDialog ("Load Error", String.Format( "Error loading plugin:\nA plugin named {0} already exists.", name));
+				err.Run();
+				err.Destroy();
+			}
+			else
+				elements.Add (name, t);
 		}
 
 		public Element
