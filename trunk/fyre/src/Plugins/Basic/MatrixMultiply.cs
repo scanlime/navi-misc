@@ -92,13 +92,13 @@ class MatrixMultiply : Fyre.Element
 	}
 
 	public override void
-	Serialize (XmlWriter writer)
+	Serialize (XmlTextWriter writer)
 	{
 		base.Serialize (writer);
 	}
 
 	public override void
-	DeSerialize (XmlReader reader)
+	DeSerialize (XmlTextReader reader)
 	{
 		base.DeSerialize (reader);
 	}

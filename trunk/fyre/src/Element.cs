@@ -21,13 +21,14 @@
  */
 
 using System.Xml;
+using System;
 
 namespace Fyre
 {
 	public struct PadConnection
 	{
-		System.Guid	element;
-		int		pad;
+		public System.Guid	element;
+		public int		pad;
 	}
 
 	public class FString
@@ -77,7 +78,24 @@ namespace Fyre
 			type = pad_type;
 		}
 
+		// Serialization / Deserialization
+		public void
+		Serialize (XmlWriter writer)
+		{
+		}
+
+		public void
+		Deserialize (XmlReader reader)
+		{
+		}
+
 		// Properties.
+		public int
+		Id
+		{
+			get { return id; }
+		}
+
 		public string
 		Name
 		{
@@ -116,21 +134,51 @@ namespace Fyre
 		}
 
 		public void
-		Connect (InputPad pad)
+		Connect (PadConnection connection)
 		{
-			connections.Add (pad);
+			connections.Add (connection);
 		}
 
 		public void
-		Disconnect (InputPad pad)
+		Disconnect (PadConnection connection)
 		{
-			connections.Remove (pad);
+			connections.Remove (connection);
 		}
 
 		public void
 		DisconnectAll ()
 		{
 			connections.Clear ();
+		}
+
+		public void
+		Serialize (XmlTextWriter writer)
+		{
+
+			// Write the source and destination tags for each connection in this pad
+			foreach (PadConnection conn in connections) {
+				// Create a new element for this edge
+				writer.WriteStartElement( null, "edge", null );
+
+				// Write the source pad
+				writer.WriteStartAttribute( null, "source", null );
+				writer.WriteString( Id.ToString() );
+				writer.WriteEndAttribute ();
+
+				// Write the destination pad
+				writer.WriteStartAttribute( null, "dest", null );
+				writer.WriteString( String.Format( "{0}:{1}", conn.element.ToString(), conn.pad ) );
+				writer.WriteEndAttribute ();
+
+				// End the element
+				writer.WriteEndElement();
+			}
+		}
+
+		public void
+		DeSerialize (XmlTextReader reader)
+		{
+			// TODO: Implement
 		}
 	}
 
@@ -166,13 +214,29 @@ namespace Fyre
 		}
 
 		public virtual void
-		Serialize (XmlWriter writer)
+		Serialize (XmlTextWriter writer)
 		{
-			// FIXME - serialize guid
+			// Convert the name to something a little more XML friendly
+			// (instead of "Matrix Multiply", we'd have "matrix-multiply")
+			string convName = Name().ToLower().Replace(" ", "-");
+
+			// Write out a new element with this name
+			writer.WriteStartElement (null, convName, null);
+
+			// Serialize the element's CanvasElement to store positioning information
+			canvas_element.Serialize (writer);
+
+			// Write out each of the output pads of the element
+			foreach (OutputPad pad in outputs) {
+				pad.Serialize (writer);
+			}
+
+			// Close the element
+			writer.WriteEndElement ();
 		}
 
 		public virtual void
-		DeSerialize (XmlReader reader)
+		DeSerialize (XmlTextReader reader)
 		{
 			// FIXME - serialize guid
 		}

@@ -21,6 +21,7 @@
  */
 
 using System.Drawing;
+using System.Xml;
 
 namespace Fyre
 {
@@ -79,6 +80,12 @@ namespace Fyre
 		{
 			// FIXME
 			context.DrawRectangle (pen, position);
+		}
+
+		public virtual void
+		Serialize (XmlTextWriter writer)
+		{
+			// TODO: Implement
 		}
 	}
 
