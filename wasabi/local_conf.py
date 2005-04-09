@@ -2,7 +2,7 @@
 # Freevo configuration for Wasabi
 #
 
-CONFIG_VERSION = 5.14
+CONFIG_VERSION = 5.15
 
 # Decide whether we're actually running on wasabi by looking for the uvswitch
 import os.path
@@ -44,7 +44,7 @@ if have_wasabi_hardware:
         (2, 'Playstation 2', 'playstation'),
         (3, 'Sega Dreamcast', 'dreamcast'),
         (4, 'NES', 'nes'),
-        (5, 'Nintendo Gamecube', 'gamecube', UniconeHooks(GamecubeEmulator)),
+        (5, 'Nintendo Gamecube', 'gamecube'), #, UniconeHooks(GamecubeEmulator)),
         (6, 'Sega Genesis', 'sega', UniconeHooks(GenesisEmulator)),
         (7, 'Atari', 'atari'),
         (8, 'Video Input', 'video_input'),
@@ -97,6 +97,9 @@ plugin.remove('tv')
 plugin.activate('audio.mplayervis')
 
 LIRCRC = '/home/freevo/wasabi/lircrc'
+
+# Recognize navi's naming scheme for covers
+AUDIO_COVER_REGEXP = 'cover'
 
 # Always start up with the wasabi skin
 SKIN_XML_FILE = 'wasabi-calm'
