@@ -34,6 +34,10 @@ namespace Fyre
 		// Document
 		Pipeline				pipeline;
 
+		// Indexes to store which new document this is
+		int					new_index;
+		static int				new_documents;
+
 		// High-level Widgets
 		[Glade.Widget] Gtk.Window		toplevel;
 		[Glade.Widget] ElementList		element_list;
@@ -103,6 +107,8 @@ namespace Fyre
 		PipelineEditor (string[] args)
 		{
 			editors.Add (this);
+			new_documents += 1;
+			new_index = new_documents;
 
 			Glade.XML.SetCustomHandler (new Glade.XMLCustomWidgetHandler (GladeCustomHandler));
 
@@ -125,6 +131,17 @@ namespace Fyre
 
 			// Show the window
 			toplevel.Show ();
+		}
+
+		// Convenience function for getting a formatted filename string
+		public string			Filename
+		{
+			get {
+				if (pipeline.filename == null)
+					return System.String.Format( "Untitiled{0}", new_index );
+				else
+					return pipeline.filename;
+			}
 		}
 
 		// Glade custom widget handler
@@ -184,16 +201,10 @@ namespace Fyre
 		void
 		SetTitle ()
 		{
-			string filename;
-			if (pipeline.filename == null)
-				filename = "Untitled";
-			else
-				filename = pipeline.filename;
-
 			if (pipeline.saved)
-				toplevel.Title = filename;
+				toplevel.Title = Filename;
 			else
-				toplevel.Title = filename + "*";
+				toplevel.Title = Filename + "*";
 		}
 
 		void
@@ -207,14 +218,8 @@ namespace Fyre
 		CloseWindow ()
 		{
 			if (pipeline.saved == false) {
-				string filename;
-				if (pipeline.filename == null)
-					filename = "Untitled";
-				else
-					filename = pipeline.filename;
-
 				ConfirmCloseDialog confirm = new ConfirmCloseDialog (toplevel,
-						System.String.Format ("Save changes to \"{0}\" before closing?", filename),
+						System.String.Format ("Save changes to \"{0}\" before closing?", Filename),
 						"There are unsaved changes to the pipeline. Save before quitting?");
 
 				int response = confirm.Run ();
@@ -271,6 +276,7 @@ namespace Fyre
 				};
 				Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save As...", null, Gtk.FileChooserAction.Save, responses);
 				fs.DefaultResponse = Gtk.ResponseType.Accept;
+				fs.CurrentName = Filename;
 
 				Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
 
@@ -318,6 +324,8 @@ namespace Fyre
 			};
 			Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save As...", null, Gtk.FileChooserAction.Save, responses);
 			fs.DefaultResponse = Gtk.ResponseType.Accept;
+			if (!fs.SetFilename (Filename))
+				fs.CurrentName = Filename;
 
 			Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
 			fs.Hide ();
