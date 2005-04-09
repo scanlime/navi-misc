@@ -21,6 +21,7 @@
  */
 
 using System.Collections;
+using System.Xml;
 
 namespace Fyre
 {
@@ -71,6 +72,20 @@ namespace Fyre
 		public void
 		Save (string filename)
 		{
+			if (saved)
+				return;
+
+			XmlTextWriter writer = new XmlTextWriter (filename, null);
+			writer.WriteStartDocument ();
+			writer.WriteStartElement( null, "fyre-pipeline", null );
+
+			foreach (DictionaryEntry entry in element_store) {
+				Element e = (Element)entry.Value;
+				e.Serialize (writer);
+			}
+
+			writer.WriteEndDocument ();
+			writer.Close();
 		}
 	}
 

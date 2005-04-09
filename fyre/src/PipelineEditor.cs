@@ -224,7 +224,11 @@ namespace Fyre
 		public void
 		OnSave (object o, System.EventArgs args)
 		{
-			// FIXME - implement
+			if (pipeline.filename == null) {
+				// Show Save As... dialog
+			}
+			else
+				pipeline.Save( pipeline.filename );
 		}
 
 		public void
