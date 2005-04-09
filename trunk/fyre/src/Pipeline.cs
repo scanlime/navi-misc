@@ -92,6 +92,14 @@ namespace Fyre
 			this.filename = filename;
 			saved = true;
 		}
+
+		public void
+		Clear ()
+		{
+			saved = true;
+			filename = null;
+			element_store.Clear();
+		}
 	}
 
 }
