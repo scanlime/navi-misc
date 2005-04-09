@@ -51,7 +51,7 @@ namespace Fyre
 			Height = (int) (Width / aspect);
 
 			// We need to realize before we can access any of the gdk internals,
-			// like setting size/position
+			// like setting size/position.
 			Realize ();
 
 			// We set the actual Gtk.Window to be our size + 2 in each dimension,
@@ -62,13 +62,13 @@ namespace Fyre
 			background = new Gdk.Pixmap (GdkWindow, Width + 2, Height + 2, -1);
 			backing    = new Gdk.Pixmap (GdkWindow, Width + 2, Height + 2, -1);
 
-			// Determine the size of the visible window
+			// Determine the size of the visible window.
 			Gdk.Rectangle vwin = drawing.DrawingExtents;
 			ratio = ((float) vwin.Width) / ((float) canvas.Width);
 			aspect = ((float) vwin.Width) / ((float) vwin.Height);
 			visible.Width  = (int) (200 * ratio);
 			visible.Height = (int) (visible.Width / aspect);
-			// Clamp height
+			// Clamp height.
 			if (visible.Height > Height)
 				visible.Height = Height;
 
@@ -112,6 +112,7 @@ namespace Fyre
 			if (mouse_box.X == -1)
 				return;
 
+			// If the area we want to redraw intersects with the mouse box, draw that.
 			Gdk.Rectangle mouse = mouse_box;
 			mouse.X += 1;
 			mouse.Y += 1;
@@ -132,7 +133,7 @@ namespace Fyre
 		{
 			Gdk.Rectangle r = ev.Area;
 
-			// Copy the relevant area of the backing store onto the screen
+			// Copy the relevant area of the backing store onto the screen.
 			DrawArea (r);
 			GdkWindow.DrawDrawable (white, backing, r.X, r.Y, r.X, r.Y, r.Width + 2, r.Height + 2);
 
@@ -161,6 +162,7 @@ namespace Fyre
 			new_mouse.X = x - hvx;
 			new_mouse.Y = y - hvy;
 
+			// Make sure we don't go too far.
 			if (new_mouse.X + new_mouse.Width > Width)
 				new_mouse.X = Width - new_mouse.Width;
 			if (new_mouse.Y + new_mouse.Height > Height)
@@ -173,7 +175,7 @@ namespace Fyre
 
 			// Take a union of the old and new mouse boxes, so we can redraw only
 			// what's necessary. This is probably a silly optimization given the
-			// size of the navigation window, but it's not hard.
+			// size of the navigation window, but it's not hard to do.
 			Gdk.Rectangle area = mouse_box.Union (new_mouse);
 			area.X -= 1;     area.Y -= 1;
 			area.Width += 2; area.Height += 2;
@@ -246,7 +248,7 @@ namespace Fyre
 			window = null;
 
 			// Reset the size of the document, now that the user has finished
-			// moving the document around
+			// moving the document around.
 			Drawing.SetScrollbars ();
 
 			return true;
