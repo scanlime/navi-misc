@@ -158,20 +158,20 @@ namespace Fyre
 			// Write the source and destination tags for each connection in this pad
 			foreach (PadConnection conn in connections) {
 				// Create a new element for this edge
-				writer.WriteStartElement( null, "edge", null );
+				writer.WriteStartElement (null, "edge", null);
 
 				// Write the source pad
-				writer.WriteStartAttribute( null, "source", null );
-				writer.WriteString( Id.ToString() );
+				writer.WriteStartAttribute (null, "source", null);
+				writer.WriteString (Id.ToString());
 				writer.WriteEndAttribute ();
 
 				// Write the destination pad
-				writer.WriteStartAttribute( null, "dest", null );
-				writer.WriteString( String.Format( "{0}:{1}", conn.element.ToString(), conn.pad ) );
+				writer.WriteStartAttribute (null, "dest", null);
+				writer.WriteString (String.Format ("{0}:{1}", conn.element.ToString (), conn.pad));
 				writer.WriteEndAttribute ();
 
 				// End the element
-				writer.WriteEndElement();
+				writer.WriteEndElement ();
 			}
 		}
 
@@ -218,7 +218,7 @@ namespace Fyre
 		{
 			// Convert the name to something a little more XML friendly
 			// (instead of "Matrix Multiply", we'd have "matrix-multiply")
-			string convName = Name().ToLower().Replace(" ", "-");
+			string convName = Name ().ToLower ().Replace (" ", "-");
 
 			// Write out a new element with this name
 			writer.WriteStartElement (null, convName, null);

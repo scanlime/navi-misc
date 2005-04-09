@@ -77,15 +77,15 @@ namespace Fyre
 
 			XmlTextWriter writer = new XmlTextWriter (filename, null);
 			writer.WriteStartDocument ();
-			writer.WriteStartElement( null, "fyre-pipeline", null );
+			writer.WriteStartElement (null, "fyre-pipeline", null);
 
 			foreach (DictionaryEntry entry in element_store) {
-				Element e = (Element)entry.Value;
+				Element e = (Element) entry.Value;
 				e.Serialize (writer);
 			}
 
 			writer.WriteEndDocument ();
-			writer.Close();
+			writer.Close ();
 		}
 	}
 

@@ -225,10 +225,10 @@ namespace Fyre
 		OnSave (object o, System.EventArgs args)
 		{
 			if (pipeline.filename == null) {
-				// Show Save As... dialog
+				// FIXME - Show Save As... dialog
 			}
 			else
-				pipeline.Save( pipeline.filename );
+				pipeline.Save (pipeline.filename);
 		}
 
 		public void
