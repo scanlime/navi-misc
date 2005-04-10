@@ -90,6 +90,10 @@ namespace Fyre
 
 			// Set up plugins directory
 			PluginManager plugin_manager = new PluginManager (Defines.PLUGINSDIR);
+			plugin_manager.Load ();
+
+			// The plugin manager has inserted all of the elements in plugins
+			// into the element factory, so we only have to deal with this now.
 			ElementFactory factory = ElementFactory.Instance;
 			plugin_enumerator = factory.GetEnumerator ();
 

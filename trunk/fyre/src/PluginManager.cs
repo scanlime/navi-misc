@@ -36,7 +36,11 @@ namespace Fyre {
 		PluginManager (string directory)
 		{
 			this.directory = directory;
+		}
 
+		public void
+		Load ()
+		{
 			plugin_types = FindPluginTypes ();
 
 			ElementFactory factory = ElementFactory.Instance;
