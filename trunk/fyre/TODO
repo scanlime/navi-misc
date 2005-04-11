@@ -13,11 +13,6 @@ Element.cs:
 	tooltip some Pango should be added for formatting.
 
 NavigationImage.cs:
-  * Right now, it creates the navigation window with a fixed width of 200px.
-	This means if you make the canvas really tall and skinny, you end up
-	with a navigation window that's too tall to fit on the screen. It
-	should probably have a maximum of n pixels in either dimension,
-	scaling things to fit.
   * After moving around, the scrollbars look really weird until you mouse
 	over them (for some reason). Dunno why.
 
