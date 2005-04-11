@@ -12,7 +12,19 @@ equivalent to color
 
 The kinds of type coercions we can do will be influenced by the
 kinds of optimizations that the compiler is capable of -
-converting a matrix->parallelized float opration, for instance
+converting a matrix->parallelized float opration, for instance.
+
+We should probably construct a graph search to allow us to detect
+when types can be coerced through a common base - for example,
+if we have these replacement rules:
+	matrix -> vector (vector (float))
+	color -> vector (3, float)
+we should be able to determine that a matrix with width 3 and rank
+2 can be converted into a vector of colors. We should just be able
+to create an undirected graph and then do a breadth-first search
+to find the best coercion - this may involve giving edges weights
+in proportion to the computational complexity of any given
+coercion, since some of these may be significant.
 
 A pad will need to define its type at any level of specificity -
 can just be "type", "type" decorated somehow (for something like
