@@ -20,7 +20,6 @@
  *
  */
 
-using System;
 using System.Collections;
 using System.IO;
 using System.Reflection;
@@ -44,7 +43,7 @@ namespace Fyre {
 			plugin_types = FindPluginTypes ();
 
 			ElementFactory factory = ElementFactory.Instance;
-			foreach (Type t in plugin_types)
+			foreach (System.Type t in plugin_types)
 				factory.AddType (t);
 		}
 
@@ -62,8 +61,8 @@ namespace Fyre {
 				// Fyre to be run straight from the toplevel directory or the src directory,
 				// and it will still find the plugins
 
-				string plugins     = String.Concat (current_dir, "/Plugins");
-				string src_plugins = String.Concat (current_dir, "/src/Plugins");
+				string plugins     = System.String.Concat (current_dir, "/Plugins");
+				string src_plugins = System.String.Concat (current_dir, "/src/Plugins");
 
 				if (Directory.Exists (plugins)) {
 					foreach (string dir in Directory.GetDirectories (plugins)) {
@@ -92,15 +91,15 @@ namespace Fyre {
 					// Since we try multiple plugin directories, it's concievable we'll get
 					// duplicates. Don't add a plugin type unless we can't already find it
 					// in our store.
-					foreach (Type type in asm_types)
+					foreach (System.Type type in asm_types)
 						if (!all_plugin_types.Contains (type))
 							all_plugin_types.Add (type);
-				} catch (Exception e) {
+				} catch (System.Exception e) {
 					// FIXME - aggregate all exceptions that get caught here into a single
 					// message, rather than using separate dialogs for each warning. We
 					// should probably also try to humanize this a little, rather than just
 					// using the exception text.
-					WarningDialog err = new WarningDialog (null, "Load Error", String.Format ("Error loading plugin: {0}", e.ToString()));
+					WarningDialog err = new WarningDialog (null, "Load Error", System.String.Format ("Error loading plugin: {0}", e.ToString()));
 					err.Run();
 					err.Destroy();
 				}
@@ -119,13 +118,13 @@ namespace Fyre {
 		static ArrayList
 		FindPluginTypesInAssembly (Assembly asm)
 		{
-			Type [] types = asm.GetTypes ();
+			System.Type [] types = asm.GetTypes ();
 			ArrayList plugin_types = new ArrayList ();
 
 			// Grab Element types. Eventually, we might want to convert this
 			// to just load everything and keep a hash of base class->type for
 			// different plugin hooks.
-			foreach (Type type in types)
+			foreach (System.Type type in types)
 				if (type.BaseType == typeof (Element))
 					plugin_types.Add (type);
 
