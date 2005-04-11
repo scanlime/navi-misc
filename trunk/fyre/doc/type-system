@@ -1,0 +1,21 @@
+There are two kinds of types - primitives and composites
+Primitives are things like float, int, color
+Composites are things like matrix, vector, etc
+
+Composites will have an identity based both on the types of their
+children and on things like rank, size
+
+There will be a base class 'type' which can represent any type
+Types need to have some sort of equivalence model - for instance,
+vector(3, float([0,1])) and vector(3, int([0,255])) are both
+equivalent to color
+
+The kinds of type coercions we can do will be influenced by the
+kinds of optimizations that the compiler is capable of -
+converting a matrix->parallelized float opration, for instance
+
+A pad will need to define its type at any level of specificity -
+can just be "type", "type" decorated somehow (for something like
+iterative, where the only requirement is that the input is the same
+as the output), specific types, like float, or something in between
+(such as a matrix where the rank is important but not the size)
