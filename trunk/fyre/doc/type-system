@@ -38,3 +38,17 @@ data. However, if we do this, we'll probably want to still provide
 separate implementations for int vs. float, etc, just to keep things
 efficient (we don't want to do int->float conversions at 15 different
 places just because some pads list int and some float).
+
+We'll need some way to define type-specific operations, for things
+like swizzle. Probably the simplest thing to do is just represent
+these as additional elements.
+
+Types we'll have:
+Primitives
+	int
+	float
+	color (uses float internally)
+Composites
+	vector (primitive, size)
+	matrix (primitive, rank, size[rank])
+
