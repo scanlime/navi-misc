@@ -43,12 +43,15 @@ We'll need some way to define type-specific operations, for things
 like swizzle. Probably the simplest thing to do is just represent
 these as additional elements.
 
-Types we'll have:
+Types we'll probably want:
 Primitives
 	int
 	float
+	char
+	boolean
 	color (uses float internally)
 Composites
+	string
 	vector (primitive, size)
 	matrix (primitive, rank, size[rank])
 
