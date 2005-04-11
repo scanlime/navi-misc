@@ -222,6 +222,15 @@ namespace Fyre
 			id = System.Guid.NewGuid ();
 		}
 
+		protected void
+		SetPadNumbers ()
+		{
+			for (int i = 0; i < inputs.Length; i++)
+				inputs[i].id = i;
+			for (int i = 0; i < outputs.Length; i++)
+				outputs[i].id = i;
+		}
+
 		public string[,]
 		InputDesc ()
 		{
