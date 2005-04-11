@@ -85,11 +85,11 @@ namespace Fyre
 		string		type;	// FIXME: Is a string the best way to store this? No, it isn't.
 
 		public
-		Pad (string pad_name, string pad_desc, string pad_type)
+		Pad (string name, string desc, string type)
 		{
-			name = new FString (pad_name);
-			description = new FString (pad_desc);
-			type = pad_type;
+			this.name        = new FString (name);
+			this.description = new FString (desc);
+			this.type = type;
 		}
 
 		// Serialization / Deserialization
@@ -132,7 +132,7 @@ namespace Fyre
 	public class InputPad : Pad
 	{
 		public
-		InputPad (string pad_name, string pad_desc, string pad_type) : base (pad_name, pad_desc, pad_type)
+		InputPad (string name, string desc, string type) : base (name, desc, type)
 		{
 		}
 	}
@@ -142,7 +142,7 @@ namespace Fyre
 		System.Collections.ArrayList connections;
 
 		public
-		OutputPad (string pad_name, string pad_desc, string pad_type) : base (pad_name, pad_desc, pad_type)
+		OutputPad (string name, string desc, string type) : base (name, desc, type)
 		{
 			connections = new System.Collections.ArrayList ();
 		}
