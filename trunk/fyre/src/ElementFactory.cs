@@ -52,7 +52,7 @@ namespace Fyre
 		public IDictionaryEnumerator
 		GetEnumerator ()
 		{
-			return elements.GetEnumerator();
+			return elements.GetEnumerator ();
 		}
 
 		public void
@@ -61,9 +61,10 @@ namespace Fyre
 			Element e = Create (t);
 			string name = e.Name ();
 			if (elements.Contains (name)) {
-				WarningDialog err = new WarningDialog (null, "Load Error", String.Format( "Error loading plugin:\nA plugin named {0} already exists.", name));
-				err.Run();
-				err.Destroy();
+				WarningDialog err = new WarningDialog (null, "Load Error",
+						String.Format ("Error loading plugin:\nA plugin named {0} already exists.", name));
+				err.Run ();
+				err.Destroy ();
 			}
 			else
 				elements.Add (name, t);
@@ -80,7 +81,7 @@ namespace Fyre
 		Create (System.Type t)
 		{
 			object[] i = {};
-			Element e = (Element) t.GetConstructor(System.Type.EmptyTypes).Invoke(i);
+			Element e = (Element) t.GetConstructor (System.Type.EmptyTypes).Invoke (i);
 
 			return e;
 		}
