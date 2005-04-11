@@ -79,11 +79,10 @@ namespace Fyre
 
 	public abstract class Pad
 	{
-		int	id;
-		FString	name;
-		FString	description;
-		string	type;	// FIXME: Is a string the best way to store this?
-				// No, it isn't.
+		public int	id;
+		FString		name;
+		FString		description;
+		string		type;	// FIXME: Is a string the best way to store this? No, it isn't.
 
 		public
 		Pad (string pad_name, string pad_desc, string pad_type)

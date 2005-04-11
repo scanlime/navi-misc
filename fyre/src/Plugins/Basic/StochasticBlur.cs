@@ -39,6 +39,12 @@ class StochasticBlur : Fyre.Element
 		outputs = new Fyre.OutputPad[1];
 		outputs[0] = new Fyre.OutputPad ("<i>v<sub>1</sub></i>", "new point", "float");
 
+		// set pad IDs
+		for (int i = 0; i < inputs.Length; i++)
+			inputs[i].id = i;
+		for (int i = 0; i < outputs.Length; i++)
+			outputs[i].id = i;
+
 		NewCanvasElement ();
 		NewID ();
 	}
