@@ -44,8 +44,26 @@ namespace Fyre
 			this.drawing = drawing;
 			canvas = drawing.CanvasExtents;
 
-			// We always use a 200px box for our navigation window. Height varies
-			// depending on the aspect ratio of the current drawing.
+			// We want the navigation window to have a maximum of 200px in either
+			// dimension, but still represent a scaled version of the document.
+			// Since this is a complicated setup, split it into two functions here.
+			if (canvas.Width > canvas.Height)
+				CreateWithWidth ();
+			else
+				CreateWithHeight ();
+
+			// Create our background and backing store
+			background = new Gdk.Pixmap (GdkWindow, Width + 2, Height + 2, -1);
+			backing    = new Gdk.Pixmap (GdkWindow, Width + 2, Height + 2, -1);
+
+			AllocGCs ();
+			DrawBackground ();
+
+			mouse_box.X = -1;
+		}
+
+		void CreateWithWidth ()
+		{
 			float aspect = ((float) canvas.Width) / ((float) canvas.Height);
 			Width = 200;
 			Height = (int) (Width / aspect);
@@ -57,10 +75,6 @@ namespace Fyre
 			// We set the actual Gtk.Window to be our size + 2 in each dimension,
 			// for the black border around the edges.
 			Resize (Width + 2, Height + 2);
-
-			// Create our background and backing store
-			background = new Gdk.Pixmap (GdkWindow, Width + 2, Height + 2, -1);
-			backing    = new Gdk.Pixmap (GdkWindow, Width + 2, Height + 2, -1);
 
 			// Determine the size of the visible window.
 			Gdk.Rectangle vwin = drawing.DrawingExtents;
@@ -75,11 +89,35 @@ namespace Fyre
 			// Set this to the ratio between the navigation window and the real
 			// canvas, for turning mouse movement back into scrollbar position.
 			ratio = ((float) canvas.Width) / 200;
+		}
 
-			AllocGCs ();
-			DrawBackground ();
+		void CreateWithHeight ()
+		{
+			float aspect = ((float) canvas.Height) / ((float) canvas.Width);
+			Height = 200;
+			Width = (int) (Height / aspect);
 
-			mouse_box.X = -1;
+			// We need to realize before we can access any of the gdk internals,
+			// like setting size/position.
+			Realize ();
+
+			// We set the actual Gtk.Window to be our size + 2 in each dimension,
+			// for the black border around the edges.
+			Resize (Width + 2, Height + 2);
+
+			// Determine the size of the visible window.
+			Gdk.Rectangle vwin = drawing.DrawingExtents;
+			ratio = ((float) vwin.Height) / ((float) canvas.Height);
+			aspect = ((float) vwin.Height) / ((float) vwin.Width);
+			visible.Height  = (int) (200 * ratio);
+			visible.Width = (int) (visible.Height / aspect);
+			// Clamp width.
+			if (visible.Width > Width)
+				visible.Width = Width;
+
+			// Set this to the ratio between the navigation window and the real
+			// canvas, for turning mouse movement back into scrollbar position.
+			ratio = ((float) canvas.Height) / 200;
 		}
 
 		void
