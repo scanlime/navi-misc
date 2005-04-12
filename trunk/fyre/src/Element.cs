@@ -244,10 +244,32 @@ namespace Fyre
 		{
 			// Every element has at least a "comments" field in this dialog. Subclasses
 			// can override AddEditWidgets in order to add their own settings.
-			Gtk.Dialog d = new Gtk.Dialog (
-					System.String.Format ("Edit {0} Properties", Name ()),
-					transient,
-					Gtk.DialogFlags.Modal | Gtk.DialogFlags.DestroyWithParent);
+			Gtk.Dialog d = new Gtk.Dialog ();
+
+			d.Title = System.String.Format ("Edit {0} Properties", Name ());
+			d.TransientFor = transient;
+			d.Modal = true;
+			d.HasSeparator = false;
+
+			// Set the default size of the dialog to be 640x480
+			d.DefaultWidth = 640;
+			d.DefaultHeight = 480;
+
+			// Stick everything inside of a scrolled window.
+			Gtk.ScrolledWindow s = new Gtk.ScrolledWindow ();
+			Gtk.VBox v = new Gtk.VBox (false, 6);
+			s.AddWithViewport (v);
+			d.VBox.PackStart (s, true, true, 0);
+
+			// Add everything to the dialog
+			AddEditWidgets (v);
+			d.AddButton (Gtk.Stock.Ok, Gtk.ResponseType.Ok);
+
+			// Show everything and run
+			s.Show ();
+			v.Show ();
+			d.Run ();
+			d.Destroy ();
 		}
 
 		protected virtual void

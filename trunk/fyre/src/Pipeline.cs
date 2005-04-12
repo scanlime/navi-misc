@@ -67,6 +67,7 @@ namespace Fyre
 		{
 			element_store.Add (e.id, e);
 			System.Console.WriteLine ("Adding {0} {1} to the pipeline", e.Name (), e.id.ToString ("d"));
+			e.Edit (null);
 			saved = false;
 		}
 
