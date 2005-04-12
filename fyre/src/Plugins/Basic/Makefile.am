@@ -17,6 +17,7 @@ TARGET_CSFILES = 				\
 	CartesianProduct.cs			\
 	Gradient.cs				\
 	Input.cs				\
+	Iterative.cs				\
 	MatrixMultiply.cs			\
 	Pixmap.cs				\
 	StochasticBlur.cs			\
@@ -25,6 +26,7 @@ TARGET_RESOURCES =				\
 	-resource:data/CartesianProduct.png	\
 	-resource:data/Gradient.png		\
 	-resource:data/Input.png		\
+	-resource:data/Iterative.png		\
 	-resource:data/MatrixMultiply.png	\
 	-resource:data/Pixmap.png		\
 	-resource:data/StochasticBlur.png	\
