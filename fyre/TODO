@@ -8,9 +8,9 @@ CanvasElement.cs:
 	opacity masks.
 
 Element.cs:
-  * Pads should store an unadorned string for name and description. Then
-	somewhere between getting those strings from the Pad and the
-	tooltip some Pango should be added for formatting.
+  * Check will return the validity of the pad types, but we also need to
+	provide a set of types for our output pads based on the types we
+	check. This should probably just be an out Fyre.Type[].
 
 ElementTooltip.cs:
   * Right now, we have two separate tables for inputs and outputs.  What we
