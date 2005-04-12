@@ -15,6 +15,7 @@ ASSEMBLIES =					\
 TARGET = Basic.dll
 TARGET_CSFILES = 				\
 	CartesianProduct.cs			\
+	Gradient.cs				\
 	Input.cs				\
 	MatrixMultiply.cs			\
 	Pixmap.cs				\
@@ -22,6 +23,7 @@ TARGET_CSFILES = 				\
 	Transform.cs
 TARGET_RESOURCES =				\
 	-resource:data/CartesianProduct.png	\
+	-resource:data/Gradient.png		\
 	-resource:data/Input.png		\
 	-resource:data/MatrixMultiply.png	\
 	-resource:data/Pixmap.png		\
