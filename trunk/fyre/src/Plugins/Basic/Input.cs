@@ -24,7 +24,8 @@ using System.Xml;
 
 class Input : Fyre.Element
 {
-	static Gdk.Pixbuf icon;
+	static Gdk.Pixbuf	icon;
+	int			type;
 
 	public
 	Input ()
@@ -32,6 +33,8 @@ class Input : Fyre.Element
 		outputs = new Fyre.OutputPad[] {
 			new Fyre.OutputPad ("d", "data"),
 		};
+
+		type = 0;
 
 		SetPadNumbers ();
 		NewCanvasElement ();
@@ -68,12 +71,14 @@ class Input : Fyre.Element
 	Serialize (XmlTextWriter writer)
 	{
 		base.Serialize (writer);
+		// FIXME - serialize type
 	}
 
 	public override void
 	DeSerialize (XmlTextReader reader)
 	{
 		base.DeSerialize (reader);
+		// FIXME - deserialize type
 	}
 
 	protected override void
@@ -91,7 +96,6 @@ class Input : Fyre.Element
 		b.AppendText ("Boolean");
 		b.AppendText ("Color");
 		// FIXME - add some typical matrix inputs?
-		b.Active = 0;
 		Gtk.HBox h = new Gtk.HBox (false, 12);
 		Gtk.Label l = new Gtk.Label ();
 		h.PackStart (l, false, false, 0);
@@ -99,6 +103,19 @@ class Input : Fyre.Element
 		box.PackStart (h, false, true, 0);
 		h.ShowAll ();
 
+		// FIXME - add type-specific information.
+
+		b.Changed += new System.EventHandler (TypeComboChanged);
+		b.Active = type;
+
 		base.AddEditWidgets (box);
+	}
+
+	void
+	TypeComboChanged (object o, System.EventArgs e)
+	{
+		Gtk.ComboBox combo = (Gtk.ComboBox) o;
+		type = combo.Active;
+		// FIXME - change visibility on type-specific widgets
 	}
 }
