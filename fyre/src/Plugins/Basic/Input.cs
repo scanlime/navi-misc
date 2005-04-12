@@ -82,6 +82,7 @@ class Input : Fyre.Element
 		Gtk.Label category = new Gtk.Label();
 		category.Xalign = 0.0f;
 		category.Markup = "<b>Type</b>";
+		category.Show ();
 		box.PackStart (category, false, true, 0);
 
 		Gtk.ComboBox b = Gtk.ComboBox.NewText ();
@@ -96,6 +97,7 @@ class Input : Fyre.Element
 		h.PackStart (l, false, false, 0);
 		h.PackStart (b, false, true, 0);
 		box.PackStart (h, false, true, 0);
+		h.ShowAll ();
 
 		base.AddEditWidgets (box);
 	}

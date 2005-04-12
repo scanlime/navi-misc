@@ -263,7 +263,6 @@ namespace Fyre
 
 			// Stick everything inside of a scrolled window.
 			Gtk.ScrolledWindow s = new Gtk.ScrolledWindow ();
-			s.ShadowType = Gtk.ShadowType.None;
 			Gtk.VBox v = new Gtk.VBox (false, 6);
 			v.BorderWidth = 6;
 			s.AddWithViewport (v);
@@ -277,7 +276,9 @@ namespace Fyre
 			d.AddButton (Gtk.Stock.Ok, Gtk.ResponseType.Ok);
 
 			// Show everything and run
-			s.ShowAll ();
+			s.ShadowType = Gtk.ShadowType.None;
+			s.Show ();
+			v.Show ();
 			d.Run ();
 			d.Destroy ();
 		}
@@ -292,6 +293,7 @@ namespace Fyre
 			Gtk.Label name = new Gtk.Label ();
 			name.Markup = "<b>Comments</b>";
 			name.Xalign = 0.0f;
+			name.Show ();
 			box.PackStart (name, false, true, 0);
 
 			Gtk.HBox h = new Gtk.HBox (false, 12);
@@ -307,6 +309,7 @@ namespace Fyre
 
 			Gtk.TextView v = new Gtk.TextView ();
 			s.Add (v);
+			h.ShowAll ();
 			// FIXME - set up callbacks on the buffer
 		}
 
