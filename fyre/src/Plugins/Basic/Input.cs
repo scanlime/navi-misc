@@ -70,14 +70,14 @@ class Input : Fyre.Element
 	public override void
 	Serialize (XmlTextWriter writer)
 	{
-		base.Serialize (writer);
-		// FIXME - serialize type
+		writer.WriteStartAttribute (null, "type", null);
+		writer.WriteString (System.String.Format ("{0}", type));
+		writer.WriteEndAttribute ();
 	}
 
 	public override void
 	DeSerialize (XmlTextReader reader)
 	{
-		base.DeSerialize (reader);
 		// FIXME - deserialize type
 	}
 
