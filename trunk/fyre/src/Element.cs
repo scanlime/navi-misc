@@ -288,7 +288,7 @@ namespace Fyre
 		}
 
 		public virtual void
-		Edit (GdkWindow transient)
+		Edit (Gtk.Window transient)
 		{
 			// Subclasses will override this to pop up a modal editing
 			// dialog. This should be used whenever an element has some
