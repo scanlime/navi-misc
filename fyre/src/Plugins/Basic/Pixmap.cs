@@ -36,10 +36,6 @@ class Pixmap : Fyre.Element
 			new Fyre.InputPad ("c", "color"),
 		};
 
-		outputs = new Fyre.OutputPad[] {
-			new Fyre.OutputPad ("M", "image"),
-		};
-
 		SetPadNumbers ();
 		NewCanvasElement ();
 		NewID ();
