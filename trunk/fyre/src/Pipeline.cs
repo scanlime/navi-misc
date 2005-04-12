@@ -84,7 +84,7 @@ namespace Fyre
 
 			foreach (DictionaryEntry entry in element_store) {
 				Element e = (Element) entry.Value;
-				e.Serialize (writer);
+				e.Write (writer);
 			}
 
 			writer.WriteEndDocument ();

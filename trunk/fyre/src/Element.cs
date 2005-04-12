@@ -216,6 +216,11 @@ namespace Fyre
 		public virtual void
 		Serialize (XmlTextWriter writer)
 		{
+		}
+
+		public void
+		Write (XmlTextWriter writer)
+		{
 			// Convert the name to something a little more XML friendly
 			// (instead of "Matrix Multiply", we'd have "matrix-multiply")
 			string convName = Name ().ToLower ().Replace (" ", "-");
@@ -224,6 +229,7 @@ namespace Fyre
 			writer.WriteStartElement (null, convName, null);
 			writer.WriteStartAttribute (null, "id", null);
 			writer.WriteString (id.ToString ());
+			writer.WriteEndAttribute ();
 
 			// FIXME - serialize comment
 
@@ -234,6 +240,9 @@ namespace Fyre
 			foreach (OutputPad pad in outputs) {
 				pad.Serialize (writer);
 			}
+
+			// Hand the writer off to the subclass to serialize any extra data we've got
+			Serialize (writer);
 
 			// Close the element
 			writer.WriteEndElement ();
