@@ -81,8 +81,8 @@ class Gradient : Fyre.Element
 	}
 
 	public override bool
-	Check (int pad, Fyre.Data d)
+	Check (Fyre.Type[] t)
 	{
-		return (d.type is Fyre.Float);
+		return (t[0] is Fyre.Float);
 	}
 }

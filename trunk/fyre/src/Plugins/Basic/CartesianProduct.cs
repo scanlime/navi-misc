@@ -85,9 +85,16 @@ class CartesianProduct : Fyre.Element
 	}
 
 	public override bool
-	Check (int pad, Fyre.Data d)
+	Check (Fyre.Type[] t)
 	{
-		// FIXME - check that the type is Matrix(Float, 1, 2), for either pad
-		return true;
+		if (t[0] is Fyre.Matrix && t[1] is Fyre.Matrix) {
+			Fyre.Matrix m = (Fyre.Matrix) t[0];
+			// Make sure we've got 2-vectors for both parameters
+			if (!(m.Rank == 1 && m.Size[0] == 2))
+				return false;
+			if (m.Rank == 1 && m.Size[0] == 2)
+				return true;
+		}
+		return false;
 	}
 }
