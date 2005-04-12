@@ -32,12 +32,14 @@ class CartesianProduct : Fyre.Element
 	public
 	CartesianProduct ()
 	{
-		inputs = new Fyre.InputPad[2];
-		inputs[0] = new Fyre.InputPad ("(x<sub>0</sub>,x<sub>1</sub>)", "X range");
-		inputs[1] = new Fyre.InputPad ("(y<sub>0</sub>,y<sub>1</sub>)", "Y range");
+		inputs = new Fyre.InputPad[] {
+			new Fyre.InputPad ("(x<sub>0</sub>,x<sub>1</sub>)", "X range"),
+			new Fyre.InputPad ("(y<sub>0</sub>,y<sub>1</sub>)", "Y range"),
+		};
 
-		outputs = new Fyre.OutputPad[1];
-		outputs[0] = new Fyre.OutputPad ("M", "matrix");
+		outputs = new Fyre.OutputPad[] {
+			new Fyre.OutputPad ("M", "matrix"),
+		};
 
 		SetPadNumbers ();
 		NewCanvasElement ();
