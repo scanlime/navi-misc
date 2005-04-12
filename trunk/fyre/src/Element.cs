@@ -142,6 +142,11 @@ namespace Fyre
 		}
 	}
 
+	public enum ElementFlags {
+		Input  = 1 << 0,
+		Output = 1 << 1,
+	};
+
 	public abstract class Element
 	{
 		abstract public string		Name ();
@@ -159,6 +164,9 @@ namespace Fyre
 		// User-defined comment. This is really only here for the user's sake - they
 		// can use it for whatever they want, and it will show up in the tooltip.
 		public string			comment;
+
+		// Flags associated with this element
+		public ElementFlags		flags;
 
 		protected void
 		NewCanvasElement ()
