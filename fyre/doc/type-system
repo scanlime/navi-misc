@@ -1,57 +1,26 @@
 There are two kinds of types - primitives and composites
-	Primitives are things like float, int, color
-	Composites are things like matrix, vector, etc
+	Primitives are things like float, int
+	Composites are things like matrix
 
 Composites will have an identity based both on the types of their
 children and on things like rank, size
 
-There will be a base class 'type' which can represent any type
-Types need to have some sort of equivalence model - for instance,
-vector(3, float([0,1])) and vector(3, int([0,255])) are both
-equivalent to color
+There will be a base class 'type' which can represent any type.
+'matrix' is a class, 'matrix(float(), 1, {3})' is an instance
+representing a 3-vector.
 
-The kinds of type coercions we can do will be influenced by the
-kinds of optimizations that the compiler is capable of: for instance,
-converting a matrix->parallelized float operation.
+For checking validity, we start at the outputs of the initial pads
+(constants, inputs, etc) and propagate.  Elements have a negotation
+function which gets called asking if they can accept a certain
+type on a pad.  If so, the connection is valid.  If not, the
+pipeline will not compile and the relevant connection is drawn
+differently (red, grey stipple, etc).
 
-We should probably construct a graph search to allow us to detect
-when types can be coerced through a common base - for example,
-if we have these replacement rules:
-	matrix -> vector (vector (float))
-	color -> vector (3, float)
-we should be able to determine that a matrix with width 3 and rank
-2 can be converted into a vector of colors. We should just be able
-to create an undirected graph and then do a breadth-first search
-to find the best coercion - this may involve giving edges weights
-in proportion to the computational complexity of any given
-coercion, since some of these may be significant.
-
-A pad will need to define its type at any level of specificity -
-can just be "type", "type" decorated somehow (for something like
-iterative, where the only requirement is that the input is the same
-as the output), specific types, like float, or something in between
-(such as a matrix where the rank is important but not the size).
-
-If we can get the equivalence model right, we can maybe just list
-a single type for pads that can deal with a few different kinds of
-data. However, if we do this, we'll probably want to still provide
-separate implementations for int vs. float, etc, just to keep things
-efficient (we don't want to do int->float conversions at 15 different
-places just because some pads list int and some float).
-
-We'll need some way to define type-specific operations, for things
-like swizzle. Probably the simplest thing to do is just represent
-these as additional elements.
 
 Types we'll probably want:
 Primitives
 	int
 	float
-	char
-	boolean
-	color (uses float internally)
 Composites
-	string
-	vector (primitive, size)
-	matrix (primitive, rank, size[rank])
+	matrix(primitive, rank, size[rank])
 
