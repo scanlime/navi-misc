@@ -30,6 +30,28 @@ namespace Fyre
 	{
 	}
 
+	public class Int : Type
+	{
+		int	Value;
+	}
+
+	public class Float : Type
+	{
+		double	Value;
+	}
+
+	public class Matrix : Type
+	{
+		Type[]	Value;
+		int	Rank;
+		int[]	Size;
+
+		public
+		Matrix (Type t, int rank, int[] size)
+		{
+		}
+	}
+
 	public class Data
 	{
 		public Type type;
