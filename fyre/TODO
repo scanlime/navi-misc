@@ -12,6 +12,16 @@ Element.cs:
 	somewhere between getting those strings from the Pad and the
 	tooltip some Pango should be added for formatting.
 
+ElementTooltip.cs:
+  * Right now, we have two separate tables for inputs and outputs.  What we
+	really ought to be doing is have a single table that contains
+	both the category labels and entries, so that alignment is the same:
+		[inputs        ]
+		[][x][blah     ]
+		[outputs       ]
+		[][y][blah     ]
+		[][z][blah     ]
+
 NavigationImage.cs:
   * After moving around, the scrollbars look really weird until you mouse
 	over them (for some reason). Dunno why.
