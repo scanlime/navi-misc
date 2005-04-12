@@ -54,7 +54,7 @@ class TwoDTransform : Fyre.Element
 	public override string
 	Category()
 	{
-		return "Arithmetic";
+		return "Geometry";
 	}
 
 	public override Gdk.Pixbuf
