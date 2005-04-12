@@ -97,7 +97,7 @@ namespace Fyre
 			Gtk.Label category = new Gtk.Label ();
 			category.Justify = Gtk.Justification.Left;
 			category.Markup = "<b>Inputs</b>";
-			t.Attach (category, 0, 1, 0, 1);
+			t.Attach (category, 0, 3, 0, 1, Gtk.AttachOptions.Fill, Gtk.AttachOptions.Expand, 0, 0);
 
 			for (uint i = 0; i < (uint) input_len; i++) {
 				Gtk.Label variable = new Gtk.Label ();
@@ -119,7 +119,7 @@ namespace Fyre
 			category = new Gtk.Label ();
 			category.Justify = Gtk.Justification.Left;
 			category.Markup = "<b>Outputs</b>";
-			t.Attach (category, 0, 1, input_len+1, input_len+2);
+			t.Attach (category, 0, 3, input_len+1, input_len+2);
 
 			for (uint i = 0; i < output_len; i++) {
 				Gtk.Label variable = new Gtk.Label ();
