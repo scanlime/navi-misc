@@ -156,6 +156,10 @@ namespace Fyre
 		public InputPad [] 		inputs;
 		public OutputPad [] 		outputs;
 
+		// User-defined comment. This is really only here for the user's sake - they
+		// can use it for whatever they want, and it will show up in the tooltip.
+		public string			comment;
+
 		protected void
 		NewCanvasElement ()
 		{
@@ -221,6 +225,8 @@ namespace Fyre
 			writer.WriteStartAttribute (null, "id", null);
 			writer.WriteString (id.ToString ());
 
+			// FIXME - serialize comment
+
 			// Serialize the element's CanvasElement to store positioning information
 			canvas_element.Serialize (writer);
 
@@ -236,7 +242,7 @@ namespace Fyre
 		public virtual void
 		DeSerialize (XmlTextReader reader)
 		{
-			// FIXME - serialize guid
+			// FIXME - deserialize everything
 		}
 
 		public void
