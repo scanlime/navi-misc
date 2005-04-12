@@ -82,4 +82,21 @@ class Pixmap : Fyre.Element
 	{
 		base.DeSerialize (reader);
 	}
+
+	public override bool
+	Check (int pad, Fyre.Data d)
+	{
+		switch (pad) {
+		case 0:
+		case 1:
+			return (d.type is Fyre.Int);
+		case 2:
+			// FIXME - check for Matrix(Int, 1, 2)
+			return true;
+		case 3:
+			// FIXME - check for various color representations
+			return true;
+		}
+		return true;
+	}
 }

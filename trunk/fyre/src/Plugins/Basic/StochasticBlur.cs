@@ -83,4 +83,18 @@ class StochasticBlur : Fyre.Element
 	{
 		base.DeSerialize (reader);
 	}
+
+	public override bool
+	Check (int pad, Fyre.Data d)
+	{
+		switch (pad) {
+		case 0:
+			// FIXME - check for vector
+			return true;
+		case 1:
+		case 2:
+			return (d.type is Fyre.Float);
+		}
+		return true;
+	}
 }

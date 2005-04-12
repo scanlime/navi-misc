@@ -83,4 +83,11 @@ class CartesianProduct : Fyre.Element
 	{
 		base.DeSerialize (reader);
 	}
+
+	public override bool
+	Check (int pad, Fyre.Data d)
+	{
+		// FIXME - check that the type is Matrix(Float, 1, 2), for either pad
+		return true;
+	}
 }
