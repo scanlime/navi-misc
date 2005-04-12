@@ -250,8 +250,9 @@ namespace Fyre
 		}
 
 		public virtual bool
-		Check (Type[] t)
+		Check (Type[] t, out Type[] to)
 		{
+			to = new Type[] {};
 			return true;
 		}
 	}

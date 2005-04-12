@@ -85,8 +85,10 @@ class CartesianProduct : Fyre.Element
 	}
 
 	public override bool
-	Check (Fyre.Type[] t)
+	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
+		// FIXME - set type
+		to = new Fyre.Type[] {};
 		if (t[0] is Fyre.Matrix && t[1] is Fyre.Matrix) {
 			Fyre.Matrix m = (Fyre.Matrix) t[0];
 			// Make sure we've got 2-vectors for both parameters

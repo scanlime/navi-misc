@@ -83,8 +83,9 @@ class Iterative : Fyre.Element
 	}
 
 	public override bool
-	Check (Fyre.Type[] t)
+	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
+		to = new Fyre.Type[1];
 		if (!(t[1] is Fyre.Bool))
 			return false;
 		return true;

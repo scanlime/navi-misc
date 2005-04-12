@@ -81,8 +81,10 @@ class Gradient : Fyre.Element
 	}
 
 	public override bool
-	Check (Fyre.Type[] t)
+	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
+		// FIXME - set type
+		to = new Fyre.Type[] {};
 		return (t[0] is Fyre.Float);
 	}
 }
