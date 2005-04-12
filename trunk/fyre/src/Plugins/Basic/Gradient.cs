@@ -68,23 +68,11 @@ class Gradient : Fyre.Element
 		return "Transforms a number into\na color, based on a user-\nset gradient";
 	}
 
-	public override void
-	Serialize (XmlTextWriter writer)
-	{
-		base.Serialize (writer);
-	}
-
-	public override void
-	DeSerialize (XmlTextReader reader)
-	{
-		base.DeSerialize (reader);
-	}
-
 	public override bool
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
+		to = null;
 		// FIXME - set type
-		to = new Fyre.Type[] {};
 		return (t[0] is Fyre.Float);
 	}
 }

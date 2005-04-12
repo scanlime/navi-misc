@@ -72,22 +72,10 @@ class StochasticBlur : Fyre.Element
 		return "Creates a blur by\nstochastically perturbing\na point within the\ngiven radius";
 	}
 
-	public override void
-	Serialize (XmlTextWriter writer)
-	{
-		base.Serialize (writer);
-	}
-
-	public override void
-	DeSerialize (XmlTextReader reader)
-	{
-		base.DeSerialize (reader);
-	}
-
 	public override bool
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
-		to = new Fyre.Type[1];
+		to = null;
 		// FIXME - implement
 		return true;
 	}

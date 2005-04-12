@@ -67,18 +67,6 @@ class Pixmap : Fyre.Element
 		return "Simple pixmap image";
 	}
 
-	public override void
-	Serialize (XmlTextWriter writer)
-	{
-		base.Serialize (writer);
-	}
-
-	public override void
-	DeSerialize (XmlTextReader reader)
-	{
-		base.DeSerialize (reader);
-	}
-
 	public override bool
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
