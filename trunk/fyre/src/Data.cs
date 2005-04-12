@@ -40,6 +40,11 @@ namespace Fyre
 		double	Value;
 	}
 
+	public class Bool : Type
+	{
+		bool	Value;
+	}
+
 	public class Matrix : Type
 	{
 		public Type[]	Value;

@@ -21,6 +21,7 @@ Types we'll probably want:
 Primitives
 	int
 	float
+	bool
 Composites
 	matrix(primitive, rank, size[rank])
 
