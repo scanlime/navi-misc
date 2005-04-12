@@ -79,4 +79,10 @@ class Gradient : Fyre.Element
 	{
 		base.DeSerialize (reader);
 	}
+
+	public override bool
+	Check (int pad, Fyre.Data d)
+	{
+		return (d.type is Fyre.Float);
+	}
 }
