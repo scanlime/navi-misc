@@ -53,7 +53,7 @@ class StochasticBlur : Fyre.Element
 	public override string
 	Category()
 	{
-		return "Arithmetic";
+		return "Miscellaneous";
 	}
 
 	public override Gdk.Pixbuf
