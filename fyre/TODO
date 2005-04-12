@@ -31,15 +31,17 @@ Pipeline.cs:
   * We'll need some way to keep track of annotations (maybe composite).
 
 PipelineDrawing.cs:
-  * Make sure we trigger redraws/scrollbar fixes when necessary
+  * Make sure we trigger redraws when necessary
   * Add drawing code
 
 PluginManager.cs:
   * Make the warning dialog a little more sensible to people who aren't us.
 
 Plugins all need element-specific implementation
-  * serialization
-  * custom drawing
+  * Serialize()
+  * DeSerialize()
+  * Check()
+  * any custom drawing
   * ...
 
 General things:
