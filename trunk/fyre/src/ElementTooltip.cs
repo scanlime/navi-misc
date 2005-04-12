@@ -30,8 +30,7 @@ namespace Fyre
 		[Glade.Widget] Gtk.Image		element_icon;
 		[Glade.Widget] Gtk.Label		element_name;
 		[Glade.Widget] Gtk.Label		element_description;
-		[Glade.Widget] Gtk.Box			inputs;
-		[Glade.Widget] Gtk.Box			outputs;
+		[Glade.Widget] Gtk.Box			pads;
 
 		public
 		ElementTooltip (Element e)
@@ -46,8 +45,7 @@ namespace Fyre
 				"</span>";
 			element_description.Markup = BuildString (e.Description ());
 
-			this.inputs.PackStart  (CreateDescTable (e.InputDesc  ()), false, true, 0);
-			this.outputs.PackStart (CreateDescTable (e.OutputDesc ()), false, true, 0);
+			this.pads.PackStart  (CreateDescTable (e), false, true, 0);
 		}
 
 		public void
@@ -69,30 +67,75 @@ namespace Fyre
 		}
 
 		private Gtk.Table
-		CreateDescTable (string[,] s)
+		CreateDescTable (Element e)
 		{
-			if (s == null)
+			if (e == null)
 				return new Gtk.Table (0, 0, false);
+
+			string [,] inputs = e.InputDesc ();
+			string [,] outputs = e.OutputDesc ();
+
 			// Create a 2xn table from a list of strings. We expect
 			// that any special syntax we need here is encoded in
 			// pango markup or unicode.
-			uint len = (uint) s.Length / 2;
+			uint input_len;
+			if (inputs == null)
+				input_len = 0;
+			else
+				input_len = (uint) inputs.Length / 2;
+
+			uint output_len;
+			if (outputs == null)
+				output_len = 0;
+			else
+				output_len = (uint) outputs.Length / 2;
+
+			uint len = (uint) (input_len + output_len + 2);
 			Gtk.Table t = new Gtk.Table (len, 2, false);
-			for (uint i = 0; i < len; i++) {
+
+			// Input category.
+			Gtk.Label category = new Gtk.Label ();
+			category.Markup = "<b>Inputs</b>";
+			t.Attach (category, 0, 1, 0, 1);
+
+			for (uint i = 0; i < (uint) input_len; i++) {
 				Gtk.Label variable = new Gtk.Label ();
 				Gtk.Label desc     = new Gtk.Label ();
 
 				variable.Xalign = 0.0f;
 				desc.Xalign     = 0.0f;
 
-				variable.Markup = BuildString (s[i,0]);
-				desc.Markup     = BuildString (s[i,1]);
+				variable.Markup = BuildString (inputs[i,0]);
+				desc.Markup     = BuildString (inputs[i,1]);
 
-				t.Attach (variable, 0, 1, i, i+1);
-				t.Attach (desc,     1, 2, i, i+1);
+				t.Attach (variable, 0, 1, i+1, i+2);
+				t.Attach (desc,     1, 2, i+1, i+2);
 				t.ColumnSpacing = 12;
 				t.RowSpacing = 3;
 			}
+
+			// Output category.
+			category = new Gtk.Label ();
+			category.Markup = "<b>Outputs</b>";
+			t.Attach (category, 0, 1, input_len+1, input_len+2);
+
+			for (uint i = 0; i < output_len; i++) {
+				Gtk.Label variable = new Gtk.Label ();
+				Gtk.Label desc     = new Gtk.Label ();
+
+				variable.Xalign = 0.0f;
+				desc.Xalign     = 0.0f;
+
+				variable.Markup = BuildString (outputs[i,0]);
+				desc.Markup     = BuildString (outputs[i,1]);
+
+				uint pos = i + input_len + 2;
+				t.Attach (variable, 0, 1, pos, pos+1);
+				t.Attach (desc,     1, 2, pos, pos+1);
+				t.ColumnSpacing = 12;
+				t.RowSpacing = 3;
+			}
+
 			return t;
 		}
 
