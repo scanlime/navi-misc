@@ -31,65 +31,17 @@ namespace Fyre
 		public int		pad;
 	}
 
-	public class TypeFormatter
-	{
-		public
-		TypeFormatter (string type)
-		{
-		}
-	}
-
-	public class FString
-	{
-		string str;
-
-		public
-		FString (string new_str)
-		{
-			str = new_str;
-		}
-
-		public string
-		Plain
-		{
-			get { return str; }
-		}
-
-		public string
-		ToString (TypeFormatter format)
-		{
-			// Formatting nonsense goes here.
-			return "";
-		}
-
-		// Just for completeness' sake.
-		public override string
-		ToString ()
-		{
-			return str;
-		}
-
-		// Implicit conversion to string
-		public static implicit operator
-		string (FString s)
-		{
-			return s.str;
-		}
-	}
-
 	public abstract class Pad
 	{
 		public int	id;
-		FString		name;
-		FString		description;
-		string		type;	// FIXME: Is a string the best way to store this? No, it isn't.
+		string		name;
+		string		description;
 
 		public
-		Pad (string name, string desc, string type)
+		Pad (string name, string desc)
 		{
-			this.name        = new FString (name);
-			this.description = new FString (desc);
-			this.type = type;
+			this.name        = name;
+			this.description = desc;
 		}
 
 		// Serialization / Deserialization
@@ -121,18 +73,12 @@ namespace Fyre
 		{
 			get { return description; }
 		}
-
-		public string
-		Type
-		{
-			get { return type; }
-		}
 	}
 
 	public class InputPad : Pad
 	{
 		public
-		InputPad (string name, string desc, string type) : base (name, desc, type)
+		InputPad (string name, string desc) : base (name, desc)
 		{
 		}
 	}
@@ -142,7 +88,7 @@ namespace Fyre
 		System.Collections.ArrayList connections;
 
 		public
-		OutputPad (string name, string desc, string type) : base (name, desc, type)
+		OutputPad (string name, string desc) : base (name, desc)
 		{
 			connections = new System.Collections.ArrayList ();
 		}
@@ -225,15 +171,19 @@ namespace Fyre
 		protected void
 		SetPadNumbers ()
 		{
-			for (int i = 0; i < inputs.Length; i++)
-				inputs[i].id = i;
-			for (int i = 0; i < outputs.Length; i++)
-				outputs[i].id = i;
+			if (inputs != null)
+				for (int i = 0; i < inputs.Length; i++)
+					inputs[i].id = i;
+			if (outputs != null)
+				for (int i = 0; i < outputs.Length; i++)
+					outputs[i].id = i;
 		}
 
 		public string[,]
 		InputDesc ()
 		{
+			if (inputs == null)
+				return null;
 			string[,] desc = new string[inputs.Length,2];
 
 			for (int i = 0; i < inputs.Length; i++) {
@@ -247,6 +197,8 @@ namespace Fyre
 		public string[,]
 		OutputDesc ()
 		{
+			if (outputs == null)
+				return null;
 			string [,] desc = new string[outputs.Length,2];
 
 			for (int i = 0; i < outputs.Length; i++) {

@@ -32,13 +32,13 @@ class TwoDTransform : Fyre.Element
 	TwoDTransform ()
 	{
 		inputs = new Fyre.InputPad[4];
-		inputs[0] = new Fyre.InputPad ("<i>r</i>", "rotation", "value");
-		inputs[1] = new Fyre.InputPad ("<i>a</i>", "aspect ratio", "value");
-		inputs[2] = new Fyre.InputPad ("<i>z</i>", "zoom", "value");
-		inputs[3] = new Fyre.InputPad ("<i>t</i>", "translation", "value");
+		inputs[0] = new Fyre.InputPad ("r", "rotation");
+		inputs[1] = new Fyre.InputPad ("a", "aspect ratio");
+		inputs[2] = new Fyre.InputPad ("z", "zoom");
+		inputs[3] = new Fyre.InputPad ("t", "translation");
 
 		outputs = new Fyre.OutputPad[1];
-		outputs[0] = new Fyre.OutputPad ("<b>M</b>", "matrix", "matrix");
+		outputs[0] = new Fyre.OutputPad ("M", "matrix");
 
 		SetPadNumbers ();
 		NewCanvasElement ();
