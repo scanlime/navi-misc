@@ -286,6 +286,16 @@ namespace Fyre
 		{
 			// FIXME - serialize guid
 		}
+
+		public virtual void
+		Edit (GdkWindow transient)
+		{
+			// Subclasses will override this to pop up a modal editing
+			// dialog. This should be used whenever an element has some
+			// kind of internal state that isn't really affected by the
+			// pipeline, such as color space for a Pixmap or the C# code
+			// in a CodeSnippet
+		}
 	}
 
 }
