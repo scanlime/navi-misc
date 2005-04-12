@@ -239,14 +239,22 @@ namespace Fyre
 			// FIXME - serialize guid
 		}
 
-		public virtual void
+		public void
 		Edit (Gtk.Window transient)
 		{
-			// Subclasses will override this to pop up a modal editing
-			// dialog. This should be used whenever an element has some
-			// kind of internal state that isn't really affected by the
-			// pipeline, such as color space for a Pixmap or the C# code
-			// in a CodeSnippet
+			// Every element has at least a "comments" field in this dialog. Subclasses
+			// can override AddEditWidgets in order to add their own settings.
+			Gtk.Dialog d = new Gtk.Dialog (
+					System.String.Format ("Edit {0} Properties", Name ()),
+					transient,
+					Gtk.DialogFlags.Modal | Gtk.DialogFlags.DestroyWithParent);
+		}
+
+		protected virtual void
+		AddEditWidgets (Gtk.VBox box)
+		{
+			// Subclasses will override this in order to add their own widgets to
+			// the edit dialog. These widgets appear *before* the Element widgetry.
 		}
 
 		public virtual bool
