@@ -30,13 +30,15 @@ class HistogramImager : Fyre.Element
 	public
 	HistogramImager ()
 	{
-		inputs = new Fyre.InputPad[3];
-		inputs[0] = new Fyre.InputPad ("v", "point");
-		inputs[1] = new Fyre.InputPad ("w", "width");
-		inputs[2] = new Fyre.InputPad ("h", "height");
+		inputs = new Fyre.InputPad[] {
+			new Fyre.InputPad ("v", "point"),
+			new Fyre.InputPad ("w", "width"),
+			new Fyre.InputPad ("h", "height"),
+		};
 
-		outputs = new Fyre.OutputPad[1];
-		outputs[0] = new Fyre.OutputPad ("M", "image");
+		outputs = new Fyre.OutputPad[] {
+			new Fyre.OutputPad ("M", "image"),
+		};
 
 		SetPadNumbers ();
 		NewCanvasElement ();
