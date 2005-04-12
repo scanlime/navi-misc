@@ -23,14 +23,6 @@ ElementTooltip.cs:
 	to show those descriptions elsewhere. I'm not sure how possible this
 	is without height-for-width sizing, so the solution may just be
 	word-wrapping ourselves using some pre-set character width.
-  * Right now, we have two separate tables for inputs and outputs.  What we
-	really ought to be doing is have a single table that contains
-	both the category labels and entries, so that alignment is the same:
-		[inputs        ]
-		[][x][blah     ]
-		[outputs       ]
-		[][y][blah     ]
-		[][z][blah     ]
 
 NavigationImage.cs:
   * After moving around, the scrollbars look really weird until you mouse
