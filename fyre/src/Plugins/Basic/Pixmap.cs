@@ -82,8 +82,21 @@ class Pixmap : Fyre.Element
 	public override bool
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
-		to = new Fyre.Type[1];
-		// FIXME - implement
+		to = null;
+		// Check that w & h are int
+		if (!(t[0] is Fyre.Int))
+			return false;
+		if (!(t[1] is Fyre.Int))
+			return false;
+
+		// Check that the point is an int pair
+		if (!(t[2] is Fyre.Matrix))
+			return false;
+		Fyre.Matrix m = (Fyre.Matrix) t[2];
+		if (!(m.Rank == 1 && m.Size[0] == 2))
+			return false;
+
+		// FIXME - check color
 		return true;
 	}
 }
