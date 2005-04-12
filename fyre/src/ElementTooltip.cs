@@ -91,10 +91,11 @@ namespace Fyre
 				output_len = (uint) outputs.Length / 2;
 
 			uint len = (uint) (input_len + output_len + 2);
-			Gtk.Table t = new Gtk.Table (len, 2, false);
+			Gtk.Table t = new Gtk.Table (len, 3, false);
 
 			// Input category.
 			Gtk.Label category = new Gtk.Label ();
+			category.Justify = Gtk.Justification.Left;
 			category.Markup = "<b>Inputs</b>";
 			t.Attach (category, 0, 1, 0, 1);
 
@@ -108,14 +109,15 @@ namespace Fyre
 				variable.Markup = BuildString (inputs[i,0]);
 				desc.Markup     = BuildString (inputs[i,1]);
 
-				t.Attach (variable, 0, 1, i+1, i+2);
-				t.Attach (desc,     1, 2, i+1, i+2);
+				t.Attach (variable, 1, 2, i+1, i+2);
+				t.Attach (desc,     2, 3, i+1, i+2);
 				t.ColumnSpacing = 12;
 				t.RowSpacing = 3;
 			}
 
 			// Output category.
 			category = new Gtk.Label ();
+			category.Justify = Gtk.Justification.Left;
 			category.Markup = "<b>Outputs</b>";
 			t.Attach (category, 0, 1, input_len+1, input_len+2);
 
@@ -130,8 +132,8 @@ namespace Fyre
 				desc.Markup     = BuildString (outputs[i,1]);
 
 				uint pos = i + input_len + 2;
-				t.Attach (variable, 0, 1, pos, pos+1);
-				t.Attach (desc,     1, 2, pos, pos+1);
+				t.Attach (variable, 1, 2, pos, pos+1);
+				t.Attach (desc,     2, 3, pos, pos+1);
 				t.ColumnSpacing = 12;
 				t.RowSpacing = 3;
 			}
