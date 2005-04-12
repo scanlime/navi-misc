@@ -257,17 +257,21 @@ namespace Fyre
 
 			// Stick everything inside of a scrolled window.
 			Gtk.ScrolledWindow s = new Gtk.ScrolledWindow ();
+			s.ShadowType = Gtk.ShadowType.None;
 			Gtk.VBox v = new Gtk.VBox (false, 6);
+			v.BorderWidth = 6;
 			s.AddWithViewport (v);
 			d.VBox.PackStart (s, true, true, 0);
+
+			// FIXME - we should include some information about the Element here,
+			// before any of the settings.
 
 			// Add everything to the dialog
 			AddEditWidgets (v);
 			d.AddButton (Gtk.Stock.Ok, Gtk.ResponseType.Ok);
 
 			// Show everything and run
-			s.Show ();
-			v.Show ();
+			s.ShowAll ();
 			d.Run ();
 			d.Destroy ();
 		}
@@ -276,7 +280,28 @@ namespace Fyre
 		AddEditWidgets (Gtk.VBox box)
 		{
 			// Subclasses will override this in order to add their own widgets to
-			// the edit dialog. These widgets appear *before* the Element widgetry.
+			// the edit dialog.  We expect these subclasses to call
+			// base.AddEditWidgets() at whatever point they want the Element stuff
+			// to appear. Generally, this should be after all of the useful stuff.
+			Gtk.Label name = new Gtk.Label ();
+			name.Markup = "<b>Comments</b>";
+			name.Xalign = 0.0f;
+			box.PackStart (name, false, true, 0);
+
+			Gtk.HBox h = new Gtk.HBox (false, 12);
+			box.PackStart (h, true, true, 0);
+
+			Gtk.Label spacer = new Gtk.Label ();
+			h.PackStart (spacer, false, false, 0);
+
+			Gtk.ScrolledWindow s = new Gtk.ScrolledWindow ();
+			s.ShadowType = Gtk.ShadowType.In;
+			s.HeightRequest = 300;
+			h.PackStart (s, true, true, 0);
+
+			Gtk.TextView v = new Gtk.TextView ();
+			s.Add (v);
+			// FIXME - set up callbacks on the buffer
 		}
 
 		public virtual bool

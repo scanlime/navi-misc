@@ -79,5 +79,6 @@ class Input : Fyre.Element
 	protected override void
 	AddEditWidgets (Gtk.VBox box)
 	{
+		base.AddEditWidgets (box);
 	}
 }
