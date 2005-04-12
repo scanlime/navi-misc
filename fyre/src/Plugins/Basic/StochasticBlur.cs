@@ -32,12 +32,12 @@ class StochasticBlur : Fyre.Element
 	StochasticBlur ()
 	{
 		inputs = new Fyre.InputPad[3];
-		inputs[0] = new Fyre.InputPad ("<i>v<sub>0</sub></i>", "point", "float");
-		inputs[1] = new Fyre.InputPad ("<i>p</i>", "ratio", "ratio");
-		inputs[2] = new Fyre.InputPad ("<i>r</i>", "radius", "float");
+		inputs[0] = new Fyre.InputPad ("v<sub>0</sub>", "point");
+		inputs[1] = new Fyre.InputPad ("p", "ratio");
+		inputs[2] = new Fyre.InputPad ("r", "radius");
 
 		outputs = new Fyre.OutputPad[1];
-		outputs[0] = new Fyre.OutputPad ("<i>v<sub>1</sub></i>", "new point", "float");
+		outputs[0] = new Fyre.OutputPad ("v<sub>1</sub>", "new point");
 
 		SetPadNumbers ();
 		NewCanvasElement ();

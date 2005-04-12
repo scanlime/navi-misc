@@ -30,13 +30,13 @@ class Pixmap : Fyre.Element
 	Pixmap ()
 	{
 		inputs = new Fyre.InputPad[4];
-		inputs[0] = new Fyre.InputPad ("w", "width", "int");
-		inputs[1] = new Fyre.InputPad ("h", "height", "int");
-		inputs[2] = new Fyre.InputPad ("v", "point", "pair(int)");
-		inputs[3] = new Fyre.InputPad ("c", "color", "color");
+		inputs[0] = new Fyre.InputPad ("w", "width");
+		inputs[1] = new Fyre.InputPad ("h", "height");
+		inputs[2] = new Fyre.InputPad ("(x,y)", "point");
+		inputs[3] = new Fyre.InputPad ("c", "color");
 
 		outputs = new Fyre.OutputPad[1];
-		outputs[0] = new Fyre.OutputPad ("M", "image", "image");
+		outputs[0] = new Fyre.OutputPad ("M", "image");
 
 		SetPadNumbers ();
 		NewCanvasElement ();
