@@ -81,4 +81,19 @@ class MatrixMultiply : Fyre.Element
 	{
 		base.DeSerialize (reader);
 	}
+
+	public override bool
+	Check (int pad, Fyre.Data d)
+	{
+		// FIXME - hmm, not sure how to handle this. we need to check that
+		// 0 has rank 1, but we also need to enforce that the size of v is
+		// the same as the height of M.
+		switch (pad) {
+		case 0:
+			return true;
+		case 1:
+			return true;
+		}
+		return true;
+	}
 }
