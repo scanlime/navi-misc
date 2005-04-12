@@ -249,9 +249,10 @@ namespace Fyre
 			// in a CodeSnippet
 		}
 
-		public virtual void
+		public virtual bool
 		Check (int pad, Data d)
 		{
+			return false;
 		}
 	}
 
