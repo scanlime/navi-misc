@@ -46,6 +46,10 @@ Plugins all need element-specific implementation
   * any custom drawing
   * ...
 
+Plugins to add:
+  * Tee
+  * Aggregator
+
 General things:
   * Internal layout needs to be designed.
   * Global layout needs to be designed.  This will have hooks back into
