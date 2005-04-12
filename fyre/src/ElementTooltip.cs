@@ -95,7 +95,7 @@ namespace Fyre
 
 			// Input category.
 			Gtk.Label category = new Gtk.Label ();
-			category.Justify = Gtk.Justification.Left;
+			category.Xalign = 0.0f;
 			category.Markup = "<b>Inputs</b>";
 			t.Attach (category, 0, 3, 0, 1, Gtk.AttachOptions.Fill, Gtk.AttachOptions.Expand, 0, 0);
 
@@ -117,7 +117,7 @@ namespace Fyre
 
 			// Output category.
 			category = new Gtk.Label ();
-			category.Justify = Gtk.Justification.Left;
+			category.Xalign = 0.0f;
 			category.Markup = "<b>Outputs</b>";
 			t.Attach (category, 0, 3, input_len+1, input_len+2);
 
