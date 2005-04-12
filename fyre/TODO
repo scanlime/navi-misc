@@ -7,7 +7,20 @@ CanvasElement.cs:
 	for everything, but I don't know how well that works for GdkBitmap
 	opacity masks.
 
+Element.cs:
+  * Attach to TextView.Buffer.Changed for the comment field, store it inside
+	the Element class as a member and serialize it. We'll probably have
+	to do some kind of escaping -- I don't know what facilities the .NET
+	class library has for this, but I'm sure there's something.
+  * Add some element information to the edit window. Probably at least name,
+	icon and description.
+
 ElementTooltip.cs:
+  * It would be nice if the "description" field wrapped automatically without
+	having to hardcode newlines, especially since we will probably want
+	to show those descriptions elsewhere. I'm not sure how possible this
+	is without height-for-width sizing, so the solution may just be
+	word-wrapping ourselves using some pre-set character width.
   * Right now, we have two separate tables for inputs and outputs.  What we
 	really ought to be doing is have a single table that contains
 	both the category labels and entries, so that alignment is the same:
