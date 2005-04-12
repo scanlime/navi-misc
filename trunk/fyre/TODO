@@ -7,11 +7,6 @@ CanvasElement.cs:
 	for everything, but I don't know how well that works for GdkBitmap
 	opacity masks.
 
-Element.cs:
-  * Check will return the validity of the pad types, but we also need to
-	provide a set of types for our output pads based on the types we
-	check. This should probably just be an out Fyre.Type[].
-
 ElementTooltip.cs:
   * Right now, we have two separate tables for inputs and outputs.  What we
 	really ought to be doing is have a single table that contains
