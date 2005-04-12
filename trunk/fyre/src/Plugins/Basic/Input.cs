@@ -76,8 +76,8 @@ class Input : Fyre.Element
 		base.DeSerialize (reader);
 	}
 
-	public override void
-	Edit (Gtk.Window transient)
+	protected override void
+	AddEditWidgets (Gtk.VBox box)
 	{
 	}
 }
