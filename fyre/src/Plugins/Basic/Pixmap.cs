@@ -84,19 +84,9 @@ class Pixmap : Fyre.Element
 	}
 
 	public override bool
-	Check (int pad, Fyre.Data d)
+	Check (Fyre.Type[] t)
 	{
-		switch (pad) {
-		case 0:
-		case 1:
-			return (d.type is Fyre.Int);
-		case 2:
-			// FIXME - check for Matrix(Int, 1, 2)
-			return true;
-		case 3:
-			// FIXME - check for various color representations
-			return true;
-		}
+		// FIXME - implement
 		return true;
 	}
 }

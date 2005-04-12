@@ -42,19 +42,15 @@ namespace Fyre
 
 	public class Matrix : Type
 	{
-		Type[]	Value;
-		int	Rank;
-		int[]	Size;
+		public Type[]	Value;
+		public int	Rank;
+		public int[]	Size;
 
 		public
 		Matrix (Type t, int rank, int[] size)
 		{
+			Rank = rank;
+			Size = size;
 		}
 	}
-
-	public class Data
-	{
-		public Type type;
-	}
-
 }

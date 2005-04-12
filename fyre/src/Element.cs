@@ -250,9 +250,9 @@ namespace Fyre
 		}
 
 		public virtual bool
-		Check (int pad, Data d)
+		Check (Type[] t)
 		{
-			return false;
+			return true;
 		}
 	}
 

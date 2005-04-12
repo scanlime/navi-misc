@@ -85,16 +85,9 @@ class StochasticBlur : Fyre.Element
 	}
 
 	public override bool
-	Check (int pad, Fyre.Data d)
+	Check (Fyre.Type[] t)
 	{
-		switch (pad) {
-		case 0:
-			// FIXME - check for vector
-			return true;
-		case 1:
-		case 2:
-			return (d.type is Fyre.Float);
-		}
+		// FIXME - implement
 		return true;
 	}
 }
