@@ -79,6 +79,24 @@ class Input : Fyre.Element
 	protected override void
 	AddEditWidgets (Gtk.VBox box)
 	{
+		Gtk.Label category = new Gtk.Label();
+		category.Xalign = 0.0f;
+		category.Markup = "<b>Type</b>";
+		box.PackStart (category, false, true, 0);
+
+		Gtk.ComboBox b = Gtk.ComboBox.NewText ();
+		b.AppendText ("Int");
+		b.AppendText ("Float");
+		b.AppendText ("Boolean");
+		b.AppendText ("Color");
+		// FIXME - add some typical matrix inputs?
+		b.Active = 0;
+		Gtk.HBox h = new Gtk.HBox (false, 12);
+		Gtk.Label l = new Gtk.Label ();
+		h.PackStart (l, false, false, 0);
+		h.PackStart (b, false, true, 0);
+		box.PackStart (h, false, true, 0);
+
 		base.AddEditWidgets (box);
 	}
 }
