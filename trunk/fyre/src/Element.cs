@@ -248,6 +248,11 @@ namespace Fyre
 			// pipeline, such as color space for a Pixmap or the C# code
 			// in a CodeSnippet
 		}
+
+		public virtual void
+		Check (int pad, Data d)
+		{
+		}
 	}
 
 }
