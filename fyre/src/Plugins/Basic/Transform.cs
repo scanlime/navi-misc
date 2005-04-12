@@ -73,22 +73,10 @@ class TwoDTransform : Fyre.Element
 		return "Creates an 3x3 matrix out\nof a set of 2D\ntransformations";
 	}
 
-	public override void
-	Serialize (XmlTextWriter writer)
-	{
-		base.Serialize (writer);
-	}
-
-	public override void
-	DeSerialize (XmlTextReader reader)
-	{
-		base.DeSerialize (reader);
-	}
-
 	public override bool
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
-		to = new Fyre.Type[1];
+		to = null;
 		return (t[0] is Fyre.Float);
 	}
 }

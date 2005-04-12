@@ -72,23 +72,11 @@ class CartesianProduct : Fyre.Element
 		return "Computes the cartesian product\nof two integer ranges";
 	}
 
-	public override void
-	Serialize (XmlTextWriter writer)
-	{
-		base.Serialize (writer);
-	}
-
-	public override void
-	DeSerialize (XmlTextReader reader)
-	{
-		base.DeSerialize (reader);
-	}
-
 	public override bool
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
 		// FIXME - set type
-		to = new Fyre.Type[] {};
+		to = null;
 		if (t[0] is Fyre.Matrix && t[1] is Fyre.Matrix) {
 			Fyre.Matrix m = (Fyre.Matrix) t[0];
 			// Make sure we've got 2-vectors for both parameters

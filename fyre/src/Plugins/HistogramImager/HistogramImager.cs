@@ -71,15 +71,11 @@ class HistogramImager : Fyre.Element
 		return "Maintains a histogram of the\npoints given to it, suitable\nfor tone-mapping.";
 	}
 
-	public override void
-	Serialize (XmlTextWriter writer)
+	public override bool
+	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
-		base.Serialize (writer);
-	}
-
-	public override void
-	DeSerialize (XmlTextReader reader)
-	{
-		base.DeSerialize (reader);
+		to = null;
+		// FIXME - implement
+		return true;
 	}
 }
