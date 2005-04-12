@@ -82,60 +82,64 @@ namespace Fyre
 			if (inputs == null)
 				input_len = 0;
 			else
-				input_len = (uint) inputs.Length / 2;
+				input_len = (uint) inputs.Length / 2 + 1;
 
 			uint output_len;
 			if (outputs == null)
 				output_len = 0;
 			else
-				output_len = (uint) outputs.Length / 2;
+				output_len = (uint) outputs.Length / 2 + 1;
 
-			uint len = (uint) (input_len + output_len + 2);
+			uint len = input_len + output_len;
 			Gtk.Table t = new Gtk.Table (len, 3, false);
 
-			// Input category.
-			Gtk.Label category = new Gtk.Label ();
-			category.Xalign = 0.0f;
-			category.Markup = "<b>Inputs</b>";
-			t.Attach (category, 0, 3, 0, 1, Gtk.AttachOptions.Fill, Gtk.AttachOptions.Expand, 0, 0);
+			if (input_len > 0) {
+				// Input category.
+				Gtk.Label category = new Gtk.Label ();
+				category.Xalign = 0.0f;
+				category.Markup = "<b>Inputs</b>";
+				t.Attach (category, 0, 3, 0, 1, Gtk.AttachOptions.Fill, Gtk.AttachOptions.Expand, 0, 0);
 
-			for (uint i = 0; i < (uint) input_len; i++) {
-				Gtk.Label variable = new Gtk.Label ();
-				Gtk.Label desc     = new Gtk.Label ();
+				for (uint i = 0; i < (uint) input_len - 1; i++) {
+					Gtk.Label variable = new Gtk.Label ();
+					Gtk.Label desc     = new Gtk.Label ();
 
-				variable.Xalign = 0.0f;
-				desc.Xalign     = 0.0f;
+					variable.Xalign = 0.0f;
+					desc.Xalign     = 0.0f;
 
-				variable.Markup = BuildString (inputs[i,0]);
-				desc.Markup     = BuildString (inputs[i,1]);
+					variable.Markup = BuildString (inputs[i,0]);
+					desc.Markup     = BuildString (inputs[i,1]);
 
-				t.Attach (variable, 1, 2, i+1, i+2);
-				t.Attach (desc,     2, 3, i+1, i+2);
-				t.ColumnSpacing = 12;
-				t.RowSpacing = 3;
+					t.Attach (variable, 1, 2, i+1, i+2);
+					t.Attach (desc,     2, 3, i+1, i+2);
+					t.ColumnSpacing = 12;
+					t.RowSpacing = 3;
+				}
 			}
 
-			// Output category.
-			category = new Gtk.Label ();
-			category.Xalign = 0.0f;
-			category.Markup = "<b>Outputs</b>";
-			t.Attach (category, 0, 3, input_len+1, input_len+2);
+			if (output_len > 0) {
+				// Output category.
+				Gtk.Label category = new Gtk.Label ();
+				category.Xalign = 0.0f;
+				category.Markup = "<b>Outputs</b>";
+				t.Attach (category, 0, 3, input_len, input_len+1);
 
-			for (uint i = 0; i < output_len; i++) {
-				Gtk.Label variable = new Gtk.Label ();
-				Gtk.Label desc     = new Gtk.Label ();
+				for (uint i = 0; i < output_len - 1; i++) {
+					Gtk.Label variable = new Gtk.Label ();
+					Gtk.Label desc     = new Gtk.Label ();
 
-				variable.Xalign = 0.0f;
-				desc.Xalign     = 0.0f;
+					variable.Xalign = 0.0f;
+					desc.Xalign     = 0.0f;
 
-				variable.Markup = BuildString (outputs[i,0]);
-				desc.Markup     = BuildString (outputs[i,1]);
+					variable.Markup = BuildString (outputs[i,0]);
+					desc.Markup     = BuildString (outputs[i,1]);
 
-				uint pos = i + input_len + 2;
-				t.Attach (variable, 1, 2, pos, pos+1);
-				t.Attach (desc,     2, 3, pos, pos+1);
-				t.ColumnSpacing = 12;
-				t.RowSpacing = 3;
+					uint pos = i + input_len + 1;
+					t.Attach (variable, 1, 2, pos, pos+1);
+					t.Attach (desc,     2, 3, pos, pos+1);
+					t.ColumnSpacing = 12;
+					t.RowSpacing = 3;
+				}
 			}
 
 			return t;
