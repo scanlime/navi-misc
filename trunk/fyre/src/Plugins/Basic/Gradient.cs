@@ -72,7 +72,9 @@ class Gradient : Fyre.Element
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
 		to = null;
-		// FIXME - set type
-		return (t[0] is Fyre.Float);
+		if (!(t[0] is Fyre.Float))
+			return false;
+		// FIXME - set type to whatever we use for color
+		return true;
 	}
 }

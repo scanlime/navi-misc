@@ -87,6 +87,7 @@ class Pixmap : Fyre.Element
 			return false;
 
 		// FIXME - check color
+
 		return true;
 	}
 }

@@ -74,9 +74,11 @@ class Iterative : Fyre.Element
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
 		to = null;
-		// FIXME - set type
 		if (!(t[1] is Fyre.Bool))
 			return false;
+		to = new Fyre.Type[] {
+			t[0],
+		};
 		return true;
 	}
 }
