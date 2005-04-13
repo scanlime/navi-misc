@@ -75,16 +75,39 @@ class CartesianProduct : Fyre.Element
 	public override bool
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
-		// FIXME - set type
+		int x, y;
+
 		to = null;
-		if (t[0] is Fyre.Matrix && t[1] is Fyre.Matrix) {
-			Fyre.Matrix m = (Fyre.Matrix) t[0];
-			// Make sure we've got 2-vectors for both parameters
-			if (!(m.Rank == 1 && m.Size[0] == 2))
-				return false;
-			if (m.Rank == 1 && m.Size[0] == 2)
-				return true;
-		}
+
+		// Check first input
+		if (!(t[0] is Fyre.Matrix))
+			return false;
+		Fyre.Matrix m = (Fyre.Matrix) t[0];
+		if (m.Rank == 1 && m.Size[0] == 2)
+			return false;
+
+		// Check second input
+		if (!(t[0] is Fyre.Matrix))
+			return false;
+		m = (Fyre.Matrix) t[0];
+		if (m.Rank == 1 && m.Size[0] == 2)
+			return false;
+
+		// FIXME - we should set the output size of our matrix based on the data
+		// contained in the pairs we get, but we don't actually have that capability
+		// inside the Matrix class yet, since it's not really implemented at all.
+		// Just hardcode some sizes for now.
+		x = 20;
+		y = 20;
+
+		// Create output types
+		int[] pdim = {2};
+		int[] mdim = new int[] {x, y};
+		to = new Fyre.Type[] {
+			new Fyre.Matrix (
+				new Fyre.Matrix (new Fyre.Int (), 1, pdim),
+				2, mdim),
+		};
 		return false;
 	}
 }
