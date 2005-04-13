@@ -65,5 +65,8 @@ General things:
   * We need to figure out some way to serialize things for use in the
 	clipboard.  This will probably require finagling the Guid stuff
 	a bit (maybe just creating a new Guid on paste).
-
+  * Some convenience functions for the various Check() implementations would
+	be very useful. In particular, we'll want things like IsInt, IsFloat,
+	etc. It would probably also be nice to have some functions for
+	extracting values and checking matrix rank/size.
 
