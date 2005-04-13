@@ -74,7 +74,27 @@ class MatrixMultiply : Fyre.Element
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
 		to = null;
-		// FIXME - implement
+
+		// Check pad 1
+		if (!(t[0] is Fyre.Matrix))
+			return false;
+		Fyre.Matrix v = (Fyre.Matrix) t[0];
+		if (v.Rank != 1)
+			return false;
+
+		// Check pad 2
+		if (!(t[1] is Fyre.Matrix))
+			return false;
+		Fyre.Matrix m = (Fyre.Matrix) t[1];
+		if (m.Rank != 2)
+			return false;
+
+		// FIXME - check that sizes match
+
+		to = new Fyre.Type[] {
+			t[0],
+		};
+
 		return true;
 	}
 }

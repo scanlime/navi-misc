@@ -77,6 +77,16 @@ class TwoDTransform : Fyre.Element
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
 		to = null;
-		return (t[0] is Fyre.Float);
+
+		// All our pads are floats
+		for (int i = 0; i < 4; i++)
+			if (!(t[0] is Fyre.Float))
+				return false;
+
+		int[] mdim = {3, 3};
+		to = new Fyre.Type[] {
+			new Fyre.Matrix (new Fyre.Float (), 2, mdim),
+		};
+		return true;
 	}
 }

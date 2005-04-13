@@ -76,7 +76,24 @@ class StochasticBlur : Fyre.Element
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
 		to = null;
-		// FIXME - implement
+		// Check pad 1
+		if (!(t[0] is Fyre.Matrix))
+			return false;
+		Fyre.Matrix v = (Fyre.Matrix) t[0];
+		if (!(v.Rank == 1 && v.Size[0] == 2))
+			return false;
+
+		// Check pad 2
+		if (!(t[1] is Fyre.Float))
+			return false;
+
+		// Check pad 3
+		if (!(t[2] is Fyre.Float))
+			return false;
+
+		to = new Fyre.Type[] {
+			v,
+		};
 		return true;
 	}
 }
