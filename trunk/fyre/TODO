@@ -8,8 +8,8 @@ CanvasElement.cs:
 	opacity masks.
 
 Element.cs:
-  * Attach to TextView.Buffer.Changed for the comment field.  We'll want to
-	show this in the tooltip, and it needs to be serialized/deserialized
+  * Attach to TextBuffer.Changed for the comment field.  We'll want to show
+	this in the tooltip, and it needs to be serialized/deserialized
 	along with the Element.  We'll probably have to do some kind of
 	escaping -- I don't know what facilities the .NET class library has
 	for this, but I'm sure there's something.  Might also want to set
