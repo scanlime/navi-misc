@@ -28,7 +28,7 @@ class HistogramImager : Fyre.Element
 	static Gdk.Pixbuf icon;
 
 	public
-	HistogramImager ()
+	HistogramImager () : base ()
 	{
 		inputs = new Fyre.InputPad[] {
 			new Fyre.InputPad ("v", "point"),

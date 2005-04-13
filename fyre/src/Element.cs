@@ -168,6 +168,12 @@ namespace Fyre
 		// Flags associated with this element
 		public ElementFlags		flags;
 
+		protected
+		Element ()
+		{
+			flags = 0;
+		}
+
 		protected void
 		NewCanvasElement ()
 		{

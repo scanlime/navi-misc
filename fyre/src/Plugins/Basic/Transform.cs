@@ -29,7 +29,7 @@ class TwoDTransform : Fyre.Element
 	static Gdk.Pixbuf icon;
 
 	public
-	TwoDTransform ()
+	TwoDTransform () : base ()
 	{
 		inputs = new Fyre.InputPad[] {
 			new Fyre.InputPad ("r", "rotation"),

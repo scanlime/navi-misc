@@ -27,7 +27,7 @@ class Gradient : Fyre.Element
 	static Gdk.Pixbuf icon;
 
 	public
-	Gradient ()
+	Gradient () : base ()
 	{
 		inputs = new Fyre.InputPad[] {
 			new Fyre.InputPad ("p", "point"),
