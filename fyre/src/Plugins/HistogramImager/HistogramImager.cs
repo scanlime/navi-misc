@@ -75,7 +75,31 @@ class HistogramImager : Fyre.Element
 	Check (Fyre.Type[] t, out Fyre.Type[] to)
 	{
 		to = null;
-		// FIXME - implement
+		int[] dim = new int[2];
+
+		// Check pad 1
+		if (!(t[0] is Fyre.Matrix))
+			return false;
+		Fyre.Matrix m = (Fyre.Matrix) t[0];
+		if (!(m.Rank == 1 && m.Size[0] == 2))
+			return false;
+
+		// Check pad 2
+		if (!(t[1] is Fyre.Int))
+			return false;
+		Fyre.Int i = (Fyre.Int) t[1];
+		dim[0] = i.Value;
+
+		// Check pad 3
+		if (!(t[2] is Fyre.Int))
+			return false;
+		i = (Fyre.Int) t[2];
+		dim[1] = i.Value;
+
+
+		to = new Fyre.Type[] {
+			new Fyre.Matrix (new Fyre.Float (), 2, dim),
+		};
 		return true;
 	}
 }

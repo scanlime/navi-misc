@@ -32,17 +32,17 @@ namespace Fyre
 
 	public class Int : Type
 	{
-		int	Value;
+		public int	Value;
 	}
 
 	public class Float : Type
 	{
-		double	Value;
+		public double	Value;
 	}
 
 	public class Bool : Type
 	{
-		bool	Value;
+		public bool	Value;
 	}
 
 	public class Matrix : Type
