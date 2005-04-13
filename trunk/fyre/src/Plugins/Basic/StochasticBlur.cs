@@ -29,7 +29,7 @@ class StochasticBlur : Fyre.Element
 	static Gdk.Pixbuf icon;
 
 	public
-	StochasticBlur ()
+	StochasticBlur () : base ()
 	{
 		inputs = new Fyre.InputPad[] {
 			new Fyre.InputPad ("v<sub>0</sub>", "point"),

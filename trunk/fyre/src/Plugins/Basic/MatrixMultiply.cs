@@ -28,7 +28,7 @@ class MatrixMultiply : Fyre.Element
 	static Gdk.Pixbuf icon;
 
 	public
-	MatrixMultiply ()
+	MatrixMultiply () : base ()
 	{
 		inputs = new Fyre.InputPad[] {
 			new Fyre.InputPad ("v<sub>0</sub>", "point"),

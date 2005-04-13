@@ -30,7 +30,7 @@ class CartesianProduct : Fyre.Element
 	static Gdk.Pixbuf icon;
 
 	public
-	CartesianProduct ()
+	CartesianProduct () : base ()
 	{
 		inputs = new Fyre.InputPad[] {
 			new Fyre.InputPad ("(x<sub>0</sub>,x<sub>1</sub>)", "X range"),

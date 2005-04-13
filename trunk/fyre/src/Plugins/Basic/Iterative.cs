@@ -28,7 +28,7 @@ class Iterative : Fyre.Element
 	static Gdk.Pixbuf icon;
 
 	public
-	Iterative ()
+	Iterative () : base ()
 	{
 		inputs = new Fyre.InputPad[] {
 			new Fyre.InputPad ("d<sub>0</sub>", "data"),

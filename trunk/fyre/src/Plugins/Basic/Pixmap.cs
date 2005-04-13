@@ -27,7 +27,7 @@ class Pixmap : Fyre.Element
 	static Gdk.Pixbuf icon;
 
 	public
-	Pixmap ()
+	Pixmap () : base ()
 	{
 		inputs = new Fyre.InputPad[] {
 			new Fyre.InputPad ("w", "width"),
@@ -35,6 +35,8 @@ class Pixmap : Fyre.Element
 			new Fyre.InputPad ("(x,y)", "point"),
 			new Fyre.InputPad ("c", "color"),
 		};
+
+		flags = Fyre.ElementFlags.Output;
 
 		SetPadNumbers ();
 		NewCanvasElement ();

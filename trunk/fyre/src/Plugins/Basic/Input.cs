@@ -28,13 +28,15 @@ class Input : Fyre.Element
 	int			type;
 
 	public
-	Input ()
+	Input () : base ()
 	{
 		outputs = new Fyre.OutputPad[] {
 			new Fyre.OutputPad ("d", "data"),
 		};
 
 		type = 0;
+
+		flags = Fyre.ElementFlags.Input;
 
 		SetPadNumbers ();
 		NewCanvasElement ();
