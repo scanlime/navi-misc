@@ -26,22 +26,6 @@ using System.Xml;
 namespace Fyre
 {
 
-	class UidComparer : IComparer
-	{
-		public int
-		Compare (object x, object y)
-		{
-			byte[] xb = (byte[]) x;
-			byte[] yb = (byte[]) y;
-
-			for (int i = 0; i < 16; i++) {
-				if (xb[i] < yb[i]) return -1;
-				if (xb[i] > yb[i]) return 1;
-			}
-			return 0;
-		}
-	}
-
 	class PipelineCommand
 	{
 		// We store this for use in the menu - we want to show "undo <blah>", etc.
@@ -61,7 +45,6 @@ namespace Fyre
 	class Pipeline
 	{
 		Hashtable		element_store;
-		UidComparer		comparer;
 		public bool		saved;
 		public string		filename;
 
@@ -71,8 +54,7 @@ namespace Fyre
 		public
 		Pipeline ()
 		{
-			comparer = new UidComparer ();
-			element_store = new Hashtable (null, comparer);
+			element_store = new Hashtable ();
 
 			// We start out with saved = true, since it doesn't make sense to
 			// force the user to save something they haven't made any changes
@@ -127,8 +109,7 @@ namespace Fyre
 					e.Read (reader);
 
 					// Just add directly to the store
-					// FIXME - how do we handle drawing?
-					element_store.Add (e.id, e);
+					element_store.Add (e.id.ToString ("d"), e);
 				}
 			}
 
@@ -161,7 +142,7 @@ namespace Fyre
 		Undo ()
 		{
 			PipelineCommand command = (PipelineCommand) undo_stack[undo_stack.Count - 1];
-			undo_stack.Remove (undo_stack.Count - 1);
+			undo_stack.RemoveAt (undo_stack.Count - 1);
 
 			command.Undo (element_store);
 
@@ -177,7 +158,7 @@ namespace Fyre
 		Redo ()
 		{
 			PipelineCommand command = (PipelineCommand) redo_stack[redo_stack.Count - 1];
-			redo_stack.Remove (redo_stack.Count - 1);
+			redo_stack.RemoveAt (redo_stack.Count - 1);
 
 			command.Do (element_store);
 
@@ -215,14 +196,15 @@ namespace Fyre
 			public override void
 			Do (Hashtable element_store)
 			{
-				element_store.Add (id, e);
+				element_store.Add (id.ToString ("d"), e);
 				System.Console.WriteLine ("Adding {0} {1} to the pipeline", e.Name (), e.id.ToString ("d"));
 			}
 
 			public override void
 			Undo (Hashtable element_store)
 			{
-				element_store.Remove (id);
+				element_store.Remove (id.ToString ("d"));
+				System.Console.WriteLine ("Removing {0} {1} from the pipeline", e.Name (), e.id.ToString ("d"));
 			}
 		}
 	}
