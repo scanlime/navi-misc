@@ -245,11 +245,16 @@ namespace Fyre
 		{
 			// Write out a new element with this name
 			writer.WriteStartElement (null, XmlName (), null);
+
+			// Write out ID
 			writer.WriteStartAttribute (null, "id", null);
 			writer.WriteString (id.ToString ());
 			writer.WriteEndAttribute ();
 
-			// FIXME - serialize comment
+			// Write out comment
+			writer.WriteStartAttribute (null, "comment", null);
+			writer.WriteString (comment);
+			writer.WriteEndAttribute ();
 
 			// Serialize the element's CanvasElement to store positioning information
 			canvas_element.Serialize (writer);
@@ -343,9 +348,19 @@ namespace Fyre
 			h.PackStart (s, true, true, 0);
 
 			Gtk.TextView v = new Gtk.TextView ();
+			if (comment != null)
+				v.Buffer.Text = comment;
 			s.Add (v);
 			h.ShowAll ();
-			// FIXME - set up callbacks on the buffer
+
+			v.Buffer.Changed += new System.EventHandler (CommentsBufferChanged);
+		}
+
+		void
+		CommentsBufferChanged (object o, System.EventArgs args)
+		{
+			Gtk.TextBuffer buffer = (Gtk.TextBuffer) o;
+			comment = buffer.Text;
 		}
 
 		public virtual bool
