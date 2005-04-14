@@ -42,6 +42,22 @@ namespace Fyre
 		}
 	}
 
+	class PipelineCommand
+	{
+		// We store this for use in the menu - we want to show "undo <blah>", etc.
+		public string Name;
+
+		public virtual void
+		Do ()
+		{
+		}
+
+		public virtual void
+		Undo ()
+		{
+		}
+	};
+
 	class Pipeline
 	{
 		Hashtable		element_store;
@@ -49,11 +65,8 @@ namespace Fyre
 		public bool		saved;
 		public string		filename;
 
-		public bool
-		Empty
-		{
-			get { return (element_store.Count == 0); }
-		}
+		ArrayList		undo_stack;
+		ArrayList		redo_stack;
 
 		public
 		Pipeline ()
@@ -66,6 +79,16 @@ namespace Fyre
 			// to. As soon as they start messing with things, this toggles.
 			saved = true;
 			filename = null;
+
+			// Create our undo and redo stacks
+			undo_stack = new ArrayList ();
+			redo_stack = new ArrayList ();
+		}
+
+		public bool
+		Empty
+		{
+			get { return (element_store.Count == 0); }
 		}
 
 		public void
