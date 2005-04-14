@@ -273,6 +273,14 @@ namespace Fyre
 		}
 
 		public void
+		Read (XmlTextReader reader)
+		{
+			// Hand the reader off to the subclass to deserialize any
+			// extra data we've got
+			DeSerialize (reader);
+		}
+
+		public void
 		Edit (Gtk.Window transient)
 		{
 			// Every element has at least a "comments" field in this dialog. Subclasses
