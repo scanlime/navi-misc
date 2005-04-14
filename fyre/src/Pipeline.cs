@@ -65,8 +65,8 @@ namespace Fyre
 		public bool		saved;
 		public string		filename;
 
-		ArrayList		undo_stack;
-		ArrayList		redo_stack;
+		public ArrayList	undo_stack;
+		public ArrayList	redo_stack;
 
 		public
 		Pipeline ()
