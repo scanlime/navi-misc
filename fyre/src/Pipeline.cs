@@ -160,12 +160,25 @@ namespace Fyre
 			PipelineCommand command = (PipelineCommand) undo_stack[undo_stack.Count - 1];
 			undo_stack.Remove (undo_stack.Count - 1);
 
-			if (undo_stack.Count == 0)
-				saved = true;
-
 			command.Undo ();
 
 			redo_stack.Add (command);
+
+			if (undo_stack.Count == 0)
+				saved = true;
+		}
+
+		public void
+		Redo ()
+		{
+			PipelineCommand command = (PipelineCommand) redo_stack[redo_stack.Count - 1];
+			redo_stack.Remove (redo_stack.Count - 1);
+
+			command.Do ();
+
+			undo_stack.Add (command);
+
+			saved = false;
 		}
 	}
 
