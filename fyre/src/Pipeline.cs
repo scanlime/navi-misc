@@ -48,12 +48,12 @@ namespace Fyre
 		public string	Name;
 
 		public virtual void
-		Do ()
+		Do (Hashtable element_store)
 		{
 		}
 
 		public virtual void
-		Undo ()
+		Undo (Hashtable element_store)
 		{
 		}
 	};
@@ -150,8 +150,12 @@ namespace Fyre
 		public void
 		Do (PipelineCommand command)
 		{
-			command.Do ();
+			command.Do (element_store);
 			undo_stack.Add (command);
+
+			saved = false;
+
+			OnChanged (new System.EventArgs ());
 		}
 
 		public void
@@ -160,12 +164,14 @@ namespace Fyre
 			PipelineCommand command = (PipelineCommand) undo_stack[undo_stack.Count - 1];
 			undo_stack.Remove (undo_stack.Count - 1);
 
-			command.Undo ();
+			command.Undo (element_store);
 
 			redo_stack.Add (command);
 
 			if (undo_stack.Count == 0)
 				saved = true;
+
+			OnChanged (new System.EventArgs ());
 		}
 
 		public void
@@ -174,11 +180,21 @@ namespace Fyre
 			PipelineCommand command = (PipelineCommand) redo_stack[redo_stack.Count - 1];
 			redo_stack.Remove (redo_stack.Count - 1);
 
-			command.Do ();
+			command.Do (element_store);
 
 			undo_stack.Add (command);
 
 			saved = false;
+
+			OnChanged (new System.EventArgs ());
+		}
+
+		public event System.EventHandler Changed;
+		protected void
+		OnChanged (System.EventArgs e)
+		{
+			if (Changed != null)
+				Changed (this, e);
 		}
 	}
 
