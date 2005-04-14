@@ -197,36 +197,6 @@ namespace Fyre
 					outputs[i].id = i;
 		}
 
-		public string[,]
-		InputDesc ()
-		{
-			if (inputs == null)
-				return null;
-			string[,] desc = new string[inputs.Length,2];
-
-			for (int i = 0; i < inputs.Length; i++) {
-				desc[i,0] = inputs[i].Name;
-				desc[i,1] = inputs[i].Description;
-			}
-
-			return desc;
-		}
-
-		public string[,]
-		OutputDesc ()
-		{
-			if (outputs == null)
-				return null;
-			string [,] desc = new string[outputs.Length,2];
-
-			for (int i = 0; i < outputs.Length; i++) {
-				desc[i,0] = outputs[i].Name;
-				desc[i,1] = outputs[i].Description;
-			}
-
-			return desc;
-		}
-
 		public virtual void
 		Serialize (XmlTextWriter writer)
 		{
