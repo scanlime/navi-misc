@@ -66,6 +66,37 @@ namespace Fyre
 			tooltip.Move ((int) x, (int) y);
 		}
 
+		private void
+		AddPadTable (Gtk.Table t, ref Pad[] pads, string category, ref uint row)
+		{
+			if (pads == null)
+				return;
+			t.Resize ((uint) (t.NRows + pads.Length + 1), 3);
+
+			// Add the category label
+			Gtk.Label cat = new Gtk.Label ();
+			cat.Xalign = 0.0f;
+			cat.Markup = "<b>" + category + "</b>";
+			t.Attach (cat, 0, 3, row, row+1, Gtk.AttachOptions.Fill, Gtk.AttachOptions.Expand, 0, 0);
+			row++;
+
+			for (int i = 0; i < pads.Length; i++) {
+				Gtk.Label name = new Gtk.Label ();
+				Gtk.Label desc = new Gtk.Label ();
+
+				name.Markup = BuildString (pads[i].Name);
+				desc.Markup = BuildString (pads[i].Description);
+
+				name.Xalign = 0.0f;
+				desc.Xalign = 0.0f;
+
+				t.Attach (name, 1, 2, row, row+1);
+				t.Attach (desc, 2, 3, row, row+1);
+
+				row++;
+			}
+		}
+
 		private Gtk.Table
 		CreateDescTable (Element e)
 		{
@@ -78,63 +109,11 @@ namespace Fyre
 			t.ColumnSpacing = 12;
 			t.RowSpacing = 3;
 
-			if (e.inputs != null) {
-				// Resize the table to fit the inputs
-				t.Resize ((uint) (e.inputs.Length + 1), 3);
+			Fyre.Pad[] inputs  = (Fyre.Pad[]) e.inputs;
+			Fyre.Pad[] outputs = (Fyre.Pad[]) e.outputs;
 
-				// Add the category label
-				Gtk.Label category = new Gtk.Label ();
-				category.Xalign = 0.0f;
-				category.Markup = "<b>Inputs</b>";
-				t.Attach (category, 0, 3, row, row+1, Gtk.AttachOptions.Fill, Gtk.AttachOptions.Expand, 0, 0);
-				row++;
-
-				// Add each of the inputs
-				for (int i = 0; i < e.inputs.Length; i++) {
-					Gtk.Label name = new Gtk.Label ();
-					Gtk.Label desc = new Gtk.Label ();
-
-					name.Markup = BuildString (e.inputs[i].Name);
-					desc.Markup = BuildString (e.inputs[i].Description);
-
-					name.Xalign = 0.0f;
-					desc.Xalign = 0.0f;
-
-					t.Attach (name, 1, 2, row, row+1);
-					t.Attach (desc, 2, 3, row, row+1);
-
-					row++;
-				}
-			}
-
-			if (e.outputs != null) {
-				// Resize the table to fit the outputs
-				t.Resize ((uint) (t.NRows + e.outputs.Length + 1), 3);
-
-				// Add the category label
-				Gtk.Label category = new Gtk.Label ();
-				category.Xalign = 0.0f;
-				category.Markup = "<b>Outputs</b>";
-				t.Attach (category, 0, 3, row, row+1, Gtk.AttachOptions.Fill, Gtk.AttachOptions.Expand, 0, 0);
-				row++;
-
-				// Add each of the outputs
-				for (int i = 0; i < e.outputs.Length; i++) {
-					Gtk.Label name = new Gtk.Label ();
-					Gtk.Label desc = new Gtk.Label ();
-
-					name.Markup = BuildString (e.outputs[i].Name);
-					desc.Markup = BuildString (e.outputs[i].Description);
-
-					name.Xalign = 0.0f;
-					desc.Xalign = 0.0f;
-
-					t.Attach (name, 1, 2, row, row+1);
-					t.Attach (desc, 2, 3, row, row+1);
-
-					row++;
-				}
-			}
+			AddPadTable (t, ref inputs,  "Inputs",  ref row);
+			AddPadTable (t, ref outputs, "Outputs", ref row);
 
 			return t;
 		}
