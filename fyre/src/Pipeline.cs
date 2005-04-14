@@ -104,9 +104,10 @@ namespace Fyre
 		Load (string filename)
 		{
 			XmlTextReader reader = new XmlTextReader (filename);
-			reader.Read ();
-
-			System.Console.WriteLine ("read: {0}", reader.Name);
+			while (reader.Read ()) {
+				if (reader.NodeType == XmlNodeType.Element && reader.Depth == 1)
+					System.Console.WriteLine ("read: {0}", reader.Name);
+			}
 
 			this.filename = filename;
 			saved = true;
