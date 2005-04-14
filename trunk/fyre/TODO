@@ -8,12 +8,6 @@ CanvasElement.cs:
 	opacity masks.
 
 Element.cs:
-  * Attach to TextBuffer.Changed for the comment field.  We'll want to show
-	this in the tooltip, and it needs to be serialized/deserialized
-	along with the Element.  We'll probably have to do some kind of
-	escaping -- I don't know what facilities the .NET class library has
-	for this, but I'm sure there's something.  Might also want to set
-	a maximum length on this.
   * Add some element information to the edit window. Probably at least name,
 	icon and description.
 
@@ -58,8 +52,6 @@ General things:
 	and generally be really slick.  In terms of code structure, it
 	would be handy to have this as a completely separate library
 	(Flibble#)
-  * We'll need something to manage the editing process.  The command pattern
-	seems like it would be handy for this case.
   * We need to figure out some way to serialize things for use in the
 	clipboard.  This will probably require finagling the Guid stuff
 	a bit (maybe just creating a new Guid on paste).
