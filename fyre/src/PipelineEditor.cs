@@ -120,6 +120,7 @@ namespace Fyre
 			gxml.Autoconnect (this);
 
 			pipeline = new Pipeline ();
+			pipeline.Changed += new System.EventHandler (PipelineChanged);
 
 			// Set up our drawing canvas
 			SetupDrawingCanvas ();
@@ -129,12 +130,18 @@ namespace Fyre
 			while (plugin_enumerator.MoveNext ())
 				element_list.AddType ((System.Type) plugin_enumerator.Value);
 
-			// Set the window title and update the save iteems
+			// Set the window title and update the save items
 			SetTitle ();
-			UpdateToolbarSensitivity ();
 
 			// Show the window
 			toplevel.Show ();
+		}
+
+		void
+		PipelineChanged (object o, System.EventArgs args)
+		{
+			SetTitle ();
+			UpdateToolbarSensitivity ();
 		}
 
 		// Convenience function for getting a formatted filename string
@@ -190,7 +197,6 @@ namespace Fyre
 
 			pipeline.AddElement (e);
 			e.Edit (toplevel);
-			SetTitle ();
 			UpdateToolbarSensitivity ();
 
 			// FIXME - give something to the Drawing, using args.X and
@@ -308,7 +314,6 @@ namespace Fyre
 				if (response == Gtk.ResponseType.Accept) {
 					string filename = fs.Filename;
 					pipeline.Save (filename);
-					SetTitle ();
 					UpdateToolbarSensitivity ();
 					fs.Destroy ();
 				}
@@ -316,7 +321,6 @@ namespace Fyre
 			}
 			else {
 				pipeline.Save (pipeline.filename);
-				SetTitle ();
 				UpdateToolbarSensitivity ();
 			}
 		}
@@ -359,7 +363,6 @@ namespace Fyre
 				string filename = fs.Filename;
 				pipeline.saved = false;
 				pipeline.Save (filename);
-				SetTitle ();
 				UpdateToolbarSensitivity ();
 			}
 			fs.Destroy ();
@@ -428,7 +431,6 @@ namespace Fyre
 		{
 			try {
 				pipeline.Load (filename);
-				SetTitle ();
 			} catch (System.Exception e) {
 				// FIXME - pop up an error dialog. if the pipeline is
 				// empty, destroy the window.
