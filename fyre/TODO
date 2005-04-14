@@ -16,8 +16,6 @@ Element.cs:
 	a maximum length on this.
   * Add some element information to the edit window. Probably at least name,
 	icon and description.
-  * We'll need some kind of way of attaching semantics to elements - for example,
-	Input/Output, Accumulator, etc.
 
 ElementTooltip.cs:
   * It would be nice if the "description" field wrapped automatically without
@@ -73,4 +71,5 @@ General things:
 	be very useful. In particular, we'll want things like IsInt, IsFloat,
 	etc. It would probably also be nice to have some functions for
 	extracting values and checking matrix rank/size.
+  * We need to work out parallelization semantics.
 
