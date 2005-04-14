@@ -232,24 +232,26 @@ namespace Fyre
 		void
 		UpdateUndoRedo ()
 		{
+			Gtk.Label undo_label = (Gtk.Label) menu_undo.Child;
+			Gtk.Label redo_label = (Gtk.Label) menu_redo.Child;
+
+
 			if (pipeline.undo_stack.Count == 0) {
 				menu_undo.Sensitive = false;
+				undo_label.TextWithMnemonic = "_Undo";
 			} else {
 				menu_undo.Sensitive = true;
-				Gtk.Label label = (Gtk.Label) menu_undo.Child;
-
 				PipelineCommand command = (PipelineCommand) pipeline.undo_stack[pipeline.undo_stack.Count - 1];
-				label.TextWithMnemonic = "_Undo \"" + command.Name + "\"";
+				undo_label.TextWithMnemonic = "_Undo \"" + command.Name + "\"";
 			}
 
 			if (pipeline.redo_stack.Count == 0) {
 				menu_redo.Sensitive = false;
+				redo_label.TextWithMnemonic = "_Redo";
 			} else {
 				menu_redo.Sensitive = true;
-				Gtk.Label label = (Gtk.Label) menu_redo.Child;
-
 				PipelineCommand command = (PipelineCommand) pipeline.redo_stack[pipeline.redo_stack.Count - 1];
-				label.TextWithMnemonic = "_Redo \"" + command.Name + "\"";
+				redo_label.TextWithMnemonic = "_Redo \"" + command.Name + "\"";
 			}
 		}
 
