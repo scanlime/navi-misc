@@ -35,7 +35,7 @@ namespace Fyre
 	 * custom drawings (such as equations, etc), it will subclass
 	 * CanvasElement.
 	 *
-	 * At the lowest zoom level, y-dimensions are:
+	 * y-dimensions:
 	 * 	name:			20px
 	 * 	pad:			20px
 	 * 	inter-pad distance:	10px
