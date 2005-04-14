@@ -198,7 +198,7 @@ namespace Fyre
 			ElementFactory factory = ElementFactory.Instance;
 			Element e = factory.Create (name);
 
-			Commands.AddElement adde = new Commands.AddElement (e);
+			Commands.Add adde = new Commands.Add (e);
 
 			pipeline.Do (adde);
 			e.Edit (toplevel);
