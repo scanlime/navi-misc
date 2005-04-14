@@ -73,7 +73,7 @@ namespace Fyre
 		{
 			element_store.Add (e.id, e);
 			System.Console.WriteLine ("Adding {0} {1} to the pipeline", e.Name (), e.id.ToString ("d"));
-			e.Edit (null);
+			//e.Edit (null);
 			saved = false;
 		}
 
@@ -105,8 +105,12 @@ namespace Fyre
 		{
 			XmlTextReader reader = new XmlTextReader (filename);
 			while (reader.Read ()) {
-				if (reader.NodeType == XmlNodeType.Element && reader.Depth == 1)
-					System.Console.WriteLine ("read: {0}", reader.Name);
+				if (reader.NodeType == XmlNodeType.Element && reader.Depth == 1) {
+					System.Console.WriteLine ("found: {0}", reader.Name);
+					Element e = ElementFactory.Instance.CreateFromXml (reader.Name);
+					e.Read (reader);
+					AddElement (e);
+				}
 			}
 
 			this.filename = filename;
