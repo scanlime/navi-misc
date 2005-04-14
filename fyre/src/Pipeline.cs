@@ -92,16 +92,6 @@ namespace Fyre
 		}
 
 		public void
-		AddElement (Element e)
-		{
-			element_store.Add (e.id, e);
-			System.Console.WriteLine ("Adding {0} {1} to the pipeline", e.Name (), e.id.ToString ("d"));
-			saved = false;
-
-			OnChanged (new System.EventArgs ());
-		}
-
-		public void
 		Save (string filename)
 		{
 			if (saved)
@@ -135,7 +125,10 @@ namespace Fyre
 					System.Console.WriteLine ("found: {0}", reader.Name);
 					Element e = ElementFactory.Instance.CreateFromXml (reader.Name);
 					e.Read (reader);
-					AddElement (e);
+
+					// Just add directly to the store
+					// FIXME - how do we handle drawing?
+					element_store.Add (e.id, e);
 				}
 			}
 
@@ -201,6 +194,36 @@ namespace Fyre
 		{
 			if (Changed != null)
 				Changed (this, e);
+		}
+	}
+
+	namespace Commands
+	{
+		class AddElement : PipelineCommand
+		{
+			System.Guid		id;
+			Element			e;
+
+			public
+			AddElement (Element e)
+			{
+				Name = "Add " + e.Name ();
+				id = e.id;
+				this.e = e;
+			}
+
+			public override void
+			Do (Hashtable element_store)
+			{
+				element_store.Add (id, e);
+				System.Console.WriteLine ("Adding {0} {1} to the pipeline", e.Name (), e.id.ToString ("d"));
+			}
+
+			public override void
+			Undo (Hashtable element_store)
+			{
+				element_store.Remove (id);
+			}
 		}
 	}
 

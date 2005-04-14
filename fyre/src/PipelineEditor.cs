@@ -142,6 +142,7 @@ namespace Fyre
 		{
 			SetTitle ();
 			UpdateToolbarSensitivity ();
+			UpdateUndoRedo ();
 		}
 
 		// Convenience function for getting a formatted filename string
@@ -195,12 +196,12 @@ namespace Fyre
 			ElementFactory factory = ElementFactory.Instance;
 			Element e = factory.Create (name);
 
-			pipeline.AddElement (e);
-			e.Edit (toplevel);
-			UpdateToolbarSensitivity ();
+			Commands.AddElement adde = new Commands.AddElement (e);
 
-			// FIXME - give something to the Drawing, using args.X and
-			// args.Y for placement
+			pipeline.Do (adde);
+			e.Edit (toplevel);
+
+			// FIXME - create drawing stuff
 		}
 
 		public Gtk.Window
@@ -224,6 +225,12 @@ namespace Fyre
 		{
 			toolbar_save.Sensitive = !pipeline.saved;
 			menu_save.Sensitive = !pipeline.saved;
+		}
+
+		void
+		UpdateUndoRedo ()
+		{
+			// FIXME - set item names
 		}
 
 		public bool
