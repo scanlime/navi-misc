@@ -33,6 +33,7 @@ namespace Fyre
 		// This maps name->Type, so we can create Elements when deserializing
 		// XML or dragging from the ElementList
 		Hashtable			elements;
+		Hashtable			elements_xml;
 		static ElementFactory		instance;
 		public static ElementFactory	Instance
 		{
@@ -47,6 +48,7 @@ namespace Fyre
 		ElementFactory ()
 		{
 			elements = new Hashtable ();
+			elements_xml = new Hashtable ();
 		}
 
 		public IDictionaryEnumerator
@@ -65,9 +67,12 @@ namespace Fyre
 						String.Format ("Error loading plugin:\nA plugin named {0} already exists.", name));
 				err.Run ();
 				err.Destroy ();
-			}
-			else
+			} else {
 				elements.Add (name, t);
+				string xml_name = e.XmlName ();
+				elements_xml.Add (xml_name, t);
+			}
+
 		}
 
 		public Element
@@ -84,6 +89,13 @@ namespace Fyre
 			Element e = (Element) t.GetConstructor (System.Type.EmptyTypes).Invoke (i);
 
 			return e;
+		}
+
+		public Element
+		CreateFromXml (string name)
+		{
+			System.Type t = (System.Type) elements_xml[name];
+			return Create (t);
 		}
 	}
 }
