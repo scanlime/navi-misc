@@ -97,6 +97,8 @@ namespace Fyre
 			element_store.Add (e.id, e);
 			System.Console.WriteLine ("Adding {0} {1} to the pipeline", e.Name (), e.id.ToString ("d"));
 			saved = false;
+
+			OnChanged (new System.EventArgs ());
 		}
 
 		public void
@@ -120,6 +122,8 @@ namespace Fyre
 
 			this.filename = filename;
 			saved = true;
+
+			OnChanged (new System.EventArgs ());
 		}
 
 		public void
@@ -137,6 +141,8 @@ namespace Fyre
 
 			this.filename = filename;
 			saved = true;
+
+			OnChanged (new System.EventArgs ());
 		}
 
 		public void
