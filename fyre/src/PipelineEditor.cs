@@ -189,6 +189,7 @@ namespace Fyre
 			Element e = factory.Create (name);
 
 			pipeline.AddElement (e);
+			e.Edit (toplevel);
 			SetTitle ();
 			UpdateToolbarSensitivity ();
 
