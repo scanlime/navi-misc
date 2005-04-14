@@ -242,7 +242,7 @@ namespace Fyre
 			if (pipeline.redo_stack.Count == 0) {
 				menu_redo.Sensitive = false;
 			} else {
-				menu_redo.Sensitive = false;
+				menu_redo.Sensitive = true;
 				// FIXME - set text
 			}
 		}
