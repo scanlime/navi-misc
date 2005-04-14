@@ -45,7 +45,7 @@ namespace Fyre
 	class PipelineCommand
 	{
 		// We store this for use in the menu - we want to show "undo <blah>", etc.
-		public string Name;
+		public string	Name;
 
 		public virtual void
 		Do ()
@@ -145,6 +145,27 @@ namespace Fyre
 			saved = true;
 			filename = null;
 			element_store.Clear ();
+		}
+
+		public void
+		Do (PipelineCommand command)
+		{
+			command.Do ();
+			undo_stack.Add (command);
+		}
+
+		public void
+		Undo ()
+		{
+			PipelineCommand command = (PipelineCommand) undo_stack[undo_stack.Count - 1];
+			undo_stack.Remove (undo_stack.Count - 1);
+
+			if (undo_stack.Count == 0)
+				saved = true;
+
+			command.Undo ();
+
+			redo_stack.Add (command);
 		}
 	}
 
