@@ -180,13 +180,13 @@ namespace Fyre
 
 	namespace Commands
 	{
-		class AddElement : PipelineCommand
+		class Add : PipelineCommand
 		{
 			System.Guid		id;
 			Element			e;
 
 			public
-			AddElement (Element e)
+			Add (Element e)
 			{
 				Name = "Add " + e.Name ();
 				id = e.id;
@@ -205,6 +205,60 @@ namespace Fyre
 			{
 				element_store.Remove (id.ToString ("d"));
 				System.Console.WriteLine ("Removing {0} {1} from the pipeline", e.Name (), e.id.ToString ("d"));
+			}
+		}
+
+		class Cut : PipelineCommand
+		{
+			public Cut (Element e)
+			{
+				Name = "Cut " + e.Name ();
+			}
+
+			public override void
+			Do (Hashtable element_store)
+			{
+			}
+
+			public override void
+			Undo (Hashtable element_store)
+			{
+			}
+		}
+
+		class Paste : PipelineCommand
+		{
+			public Paste (Element e)
+			{
+				Name = "Paste " + e.Name ();
+			}
+
+			public override void
+			Do (Hashtable element_store)
+			{
+			}
+
+			public override void
+			Undo (Hashtable element_store)
+			{
+			}
+		}
+
+		class Delete : PipelineCommand
+		{
+			public Delete (Element e)
+			{
+				Name = "Delete " + e.Name ();
+			}
+
+			public override void
+			Do (Hashtable element_store)
+			{
+			}
+
+			public override void
+			Undo (Hashtable element_store)
+			{
 			}
 		}
 	}
