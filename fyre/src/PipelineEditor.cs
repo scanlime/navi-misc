@@ -236,14 +236,20 @@ namespace Fyre
 				menu_undo.Sensitive = false;
 			} else {
 				menu_undo.Sensitive = true;
-				// FIXME - set text
+				Gtk.Label label = (Gtk.Label) menu_undo.Child;
+
+				PipelineCommand command = (PipelineCommand) pipeline.undo_stack[pipeline.undo_stack.Count - 1];
+				label.TextWithMnemonic = "_Undo \"" + command.Name + "\"";
 			}
 
 			if (pipeline.redo_stack.Count == 0) {
 				menu_redo.Sensitive = false;
 			} else {
 				menu_redo.Sensitive = true;
-				// FIXME - set text
+				Gtk.Label label = (Gtk.Label) menu_redo.Child;
+
+				PipelineCommand command = (PipelineCommand) pipeline.redo_stack[pipeline.redo_stack.Count - 1];
+				label.TextWithMnemonic = "_Redo \"" + command.Name + "\"";
 			}
 		}
 
