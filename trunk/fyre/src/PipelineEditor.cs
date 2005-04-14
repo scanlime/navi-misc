@@ -424,7 +424,12 @@ namespace Fyre
 		public void
 		Load (string filename)
 		{
-			pipeline.Load (filename);
+			try {
+				pipeline.Load (filename);
+			} catch (System.Exception e) {
+				// FIXME - pop up an error dialog. if the pipeline is
+				// empty, destroy the window.
+			}
 		}
 	}
 
