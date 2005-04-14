@@ -428,6 +428,7 @@ namespace Fyre
 		{
 			try {
 				pipeline.Load (filename);
+				SetTitle ();
 			} catch (System.Exception e) {
 				// FIXME - pop up an error dialog. if the pipeline is
 				// empty, destroy the window.
