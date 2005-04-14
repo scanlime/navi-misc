@@ -232,15 +232,19 @@ namespace Fyre
 		{
 		}
 
-		public void
-		Write (XmlTextWriter writer)
+		public string
+		XmlName ()
 		{
 			// Convert the name to something a little more XML friendly
 			// (instead of "Matrix Multiply", we'd have "matrix-multiply")
-			string convName = Name ().ToLower ().Replace (" ", "-");
+			return Name().ToLower().Replace(" ", "-");
+		}
 
+		public void
+		Write (XmlTextWriter writer)
+		{
 			// Write out a new element with this name
-			writer.WriteStartElement (null, convName, null);
+			writer.WriteStartElement (null, XmlName (), null);
 			writer.WriteStartAttribute (null, "id", null);
 			writer.WriteString (id.ToString ());
 			writer.WriteEndAttribute ();
