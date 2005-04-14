@@ -223,8 +223,9 @@ namespace Fyre
 		CloseWindow ()
 		{
 			if (pipeline.saved == false) {
+				string filename = System.IO.Path.GetFileName (Filename);
 				ConfirmCloseDialog confirm = new ConfirmCloseDialog (toplevel,
-						System.String.Format ("Save changes to \"{0}\" before closing?", Filename),
+						System.String.Format ("Save changes to \"{0}\" before closing?", filename),
 						"There are unsaved changes to the pipeline. Save before quitting?");
 
 				int response = confirm.Run ();
