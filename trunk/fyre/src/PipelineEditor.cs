@@ -55,6 +55,8 @@ namespace Fyre
 		// Menu and toolbar widgets (for sensitivity)
 		[Glade.Widget] Gtk.ToolButton		toolbar_save;
 		[Glade.Widget] Gtk.ImageMenuItem	menu_save;
+		[Glade.Widget] Gtk.ImageMenuItem	menu_undo;
+		[Glade.Widget] Gtk.ImageMenuItem	menu_redo;
 
 		// Static counter for keeping track of the open windows
 		static ArrayList			editors;
@@ -130,8 +132,8 @@ namespace Fyre
 			while (plugin_enumerator.MoveNext ())
 				element_list.AddType ((System.Type) plugin_enumerator.Value);
 
-			// Set the window title and update the save items
-			SetTitle ();
+			// Call update to set our title, etc.
+			PipelineChanged (null, null);
 
 			// Show the window
 			toplevel.Show ();
@@ -230,7 +232,19 @@ namespace Fyre
 		void
 		UpdateUndoRedo ()
 		{
-			// FIXME - set item names
+			if (pipeline.undo_stack.Count == 0) {
+				menu_undo.Sensitive = false;
+			} else {
+				menu_undo.Sensitive = true;
+				// FIXME - set text
+			}
+
+			if (pipeline.redo_stack.Count == 0) {
+				menu_redo.Sensitive = false;
+			} else {
+				menu_redo.Sensitive = false;
+				// FIXME - set text
+			}
 		}
 
 		public bool
@@ -413,6 +427,18 @@ namespace Fyre
 		}
 
 		// 'Edit' Menu events
+		public void
+		OnMenuEditUndo (object o, System.EventArgs args)
+		{
+			pipeline.Undo ();
+		}
+
+		public void
+		OnMenuEditRedo (object o, System.EventArgs args)
+		{
+			pipeline.Redo ();
+		}
+
 		public void
 		OnMenuEditDelete (object o, System.EventArgs args)
 		{
