@@ -26,6 +26,7 @@ import Blender
 def listToDict(list):
     s = {}
     for item in list:
+        # If we've only got one item, use the item rather than a list
         if (len(item) == 2):
             s[item[0]] = item[1]
         else:

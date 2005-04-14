@@ -141,15 +141,9 @@ def getRotation (bone, rotation, d):
     # axes from the rest matrix of the bone. Create a correction euler to convert
     # between these two reference frames
     axis = Blender.Mathutils.Euler (map (float, d.asfReader.bones[name].axis[0:3]))
-    baxis = bone.getRestMatrix ('worldspace').rotationPart ().toEuler ()
-    print name,'[',baxis.x,',',baxis.y,',',baxis.z,']'
+
 
     baxis = bone.getRestMatrix ('bonespace').rotationPart ().toEuler ()
-    correction = Blender.Mathutils.Euler ([
-        axis.x - baxis.x,
-        axis.y - baxis.y,
-        axis.z - baxis.z,
-        ])
 
     # Find the degrees of freedom supported by this joint and map our rotation
     # parameter onto a 3-tuple based on this
@@ -159,27 +153,25 @@ def getRotation (bone, rotation, d):
     if dof is None:
         dof = []
 
+    # Create a worldspace representation of this bone's position
     euler = [0.0, 0.0, 0.0]
     for i in range (len (dof)):
         if dof[i] == 'rx':
-            euler[0] = rotation[i] + correction.x
+            euler[0] = rotation[i] + axis.x
         if dof[i] == 'ry':
-            euler[1] = rotation[i] + correction.y
+            euler[1] = rotation[i] + axis.y
         if dof[i] == 'rz':
-            euler[2] = rotation[i] + correction.z
-
-    euler[0] = -baxis.x
-    euler[1] = -baxis.y
-    euler[2] = -baxis.z
+            euler[2] = rotation[i] + axis.z
     euler = Blender.Mathutils.Euler (euler)
 
-    #parent = bone
-    #while parent.hasParent ():
-        #parent = parent.getParent ()
-        #parentRotation = parent.getQuat ().toEuler ()
-        #euler.x = euler.x - parentRotation.x
-        #euler.y = euler.y - parentRotation.y
-        #euler.z = euler.z - parentRotation.z
+    # Subtract away all our parent's transformations
+    parent = bone
+    while parent.hasParent ():
+        parent = parent.getParent ()
+        parentRotation = parent.getQuat().toEuler ()
+        euler.x = euler.x - parentRotation.x
+        euler.y = euler.y - parentRotation.y
+        euler.z = euler.z - parentRotation.z
 
     return euler.toQuat ()
 
@@ -200,8 +192,10 @@ def loadAMC (filename, d):
     action.setActive (d.armatureObj)
 
     context = d.scene.getRenderingContext ()
-    # FIXME - Pretty much all of the data we've gotten is at 120Hz. It would
-    # be nice to pull this out of the data file, but for now, just hardcode it.
+    # FIXME - All of the data we've got from CMU is at 120Hz, but capture rate
+    # can vary. There's no place that this is stored in either file, so it would
+    # be nice to let the user enter this. It would also be nice to be able to drop
+    # frames, since 120Hz is a little excessive
     context.framesPerSec (120)
 
     totalFrames = len (amcReader.frames)
@@ -213,6 +207,7 @@ def loadAMC (filename, d):
         # FIXME - a progress bar is nice, but profiling this to find out why it's so
         # freaking slow would be nicer
         Blender.Window.DrawProgressBar (float (frame.number) / totalFrames, 'Frame %d of %d' % (frame.number, totalFrames))
+        print 'Frame %d of %d' % (frame.number, totalFrames)
 
         # Set root position/orientation. We need to swizzle and scale this just
         # like we did for the positions of the individual bones, but we also need
@@ -231,7 +226,6 @@ def loadAMC (filename, d):
         # However, blender does things based on the transformation of the parent,
         # so we need to be careful to start at the root and work our way out to the
         # terminals.
-        print '\n\n'
         for set in d.asfReader.hierarchy:
             for child in set[1:]:
                 bone = d.bones[child]
