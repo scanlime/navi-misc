@@ -206,10 +206,11 @@ namespace Fyre
 		void
 		SetTitle ()
 		{
+			string filename = System.IO.Path.GetFileName (Filename);
 			if (pipeline.saved)
-				toplevel.Title = Filename;
+				toplevel.Title = filename;
 			else
-				toplevel.Title = Filename + "*";
+				toplevel.Title = filename + "*";
 		}
 
 		void
