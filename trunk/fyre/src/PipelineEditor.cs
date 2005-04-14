@@ -267,7 +267,25 @@ namespace Fyre
 		public void
 		OnOpen (object o, System.EventArgs args)
 		{
-			// FIXME - implement
+			object[] responses = {
+				Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
+				Gtk.Stock.Open,   Gtk.ResponseType.Accept,
+			};
+			Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Open...", null, Gtk.FileChooserAction.Open, responses);
+			fs.DefaultResponse = Gtk.ResponseType.Accept;
+
+			Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
+
+			if (response == Gtk.ResponseType.Accept) {
+				string filename = fs.Filename;
+				if (pipeline.Empty) {
+					Load (filename);
+				} else {
+					PipelineEditor p = new PipelineEditor (null);
+					p.Load (filename);
+				}
+			}
+			fs.Destroy ();
 		}
 
 		public void
@@ -276,7 +294,7 @@ namespace Fyre
 			if (pipeline.filename == null) {
 				object[] responses = {
 					Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
-					Gtk.Stock.Save,   Gtk.ResponseType.Accept
+					Gtk.Stock.Save,   Gtk.ResponseType.Accept,
 				};
 				Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save As...", null, Gtk.FileChooserAction.Save, responses);
 				fs.DefaultResponse = Gtk.ResponseType.Accept;
@@ -400,6 +418,12 @@ namespace Fyre
 		OnMenuHelpContents (object o, System.EventArgs args)
 		{
 			// FIXME - implement
+		}
+
+		public void
+		Load (string filename)
+		{
+			pipeline.Load (filename);
 		}
 	}
 

@@ -49,6 +49,12 @@ namespace Fyre
 		public bool		saved;
 		public string		filename;
 
+		public bool
+		Empty
+		{
+			get { return (element_store.Count == 0); }
+		}
+
 		public
 		Pipeline ()
 		{
@@ -89,6 +95,18 @@ namespace Fyre
 
 			writer.WriteEndDocument ();
 			writer.Close ();
+
+			this.filename = filename;
+			saved = true;
+		}
+
+		public void
+		Load (string filename)
+		{
+			XmlTextReader reader = new XmlTextReader (filename);
+			reader.Read ();
+
+			System.Console.WriteLine ("read: {0}", reader.Name);
 
 			this.filename = filename;
 			saved = true;
