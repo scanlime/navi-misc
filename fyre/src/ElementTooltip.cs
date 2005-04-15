@@ -80,6 +80,7 @@ namespace Fyre
 			t.Attach (cat, 0, 3, row, row+1, Gtk.AttachOptions.Fill, Gtk.AttachOptions.Expand, 0, 0);
 			row++;
 
+			// Add each of the pads
 			for (int i = 0; i < pads.Length; i++) {
 				Gtk.Label name = new Gtk.Label ();
 				Gtk.Label desc = new Gtk.Label ();
