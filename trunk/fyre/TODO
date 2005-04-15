@@ -6,6 +6,8 @@ CanvasElement.cs:
 	creating a drag icon.  We might be able to just use System.Drawing
 	for everything, but I don't know how well that works for GdkBitmap
 	opacity masks.
+  * This will also need to be able to handle mouseovers - we'll want a prelight
+	on various parts of the element - main body, pads...
 
 Element.cs:
   * Add some element information to the edit window. Probably at least name,
@@ -29,6 +31,8 @@ Pipeline.cs:
 PipelineDrawing.cs:
   * Make sure we trigger redraws when necessary
   * Add drawing code
+  * We'll need a way of managing a selection - not sure if this should be in
+	here or PipelineEditor
 
 PluginManager.cs:
   * Make the warning dialog a little more sensible to people who aren't us.
@@ -37,6 +41,7 @@ Plugins all need element-specific implementation
   * Serialize()
   * DeSerialize()
   * Check()
+  * Edit widgetry
   * any custom drawing
   * ...
 
@@ -53,8 +58,8 @@ General things:
 	would be handy to have this as a completely separate library
 	(Flibble#)
   * We need to figure out some way to serialize things for use in the
-	clipboard.  This will probably require finagling the Guid stuff
-	a bit (maybe just creating a new Guid on paste).
+	clipboard.  We can probably just use the XML writer, and have it
+	compute a new Guid on paste.
   * Pipeline checking. This should be done by getting a list of all the elements
 	with the "Input" flag, propagating types through the pipeline until
 	we've finished with all the "Output" flagged elements or we've
@@ -63,5 +68,21 @@ General things:
 	be very useful. In particular, we'll want things like IsInt, IsFloat,
 	etc. It would probably also be nice to have some functions for
 	extracting values and checking matrix rank/size.
-  * We need to work out parallelization semantics.
+  * We need to work out parallelization semantics. Right now i'm thinking
+	that we'll parallelize on any operation from matrix->element type,
+	and require that there be an aggregation flag on any element connected
+	to the outside of a parallelizable.
+
+Documentation:
+  * Use cases
+  * CRC cards - we should probably just do these on real paper. We don't need
+	to do everything, but the major types would be good.
+  * Relationship diagrams:
+	- Probably split up into a few different pieces to show specific
+	"subsystems" rather than have one big mess. No reason we can't
+	duplicate things within these diagrams.
+  * Sequence diagrams:
+	- NavigationWindow interaction
+	- Creating an element (+ other operations? show command pattern)
+	- Loading plugins
 
