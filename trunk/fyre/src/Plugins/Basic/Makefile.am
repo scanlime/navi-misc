@@ -15,6 +15,7 @@ ASSEMBLIES =					\
 TARGET = Basic.dll
 TARGET_CSFILES = 				\
 	CartesianProduct.cs			\
+	Equation.cs				\
 	Gradient.cs				\
 	Input.cs				\
 	Iterative.cs				\
@@ -24,6 +25,7 @@ TARGET_CSFILES = 				\
 	Transform.cs
 TARGET_RESOURCES =				\
 	-resource:data/CartesianProduct.png	\
+	-resource:data/Equation.png		\
 	-resource:data/Gradient.png		\
 	-resource:data/Input.png		\
 	-resource:data/Iterative.png		\
