@@ -129,7 +129,7 @@ def loadASF (filename):
 
     # Finally, pop up a file selector for importing the AMC
     # Blender.Window.FileSelector (loadAMC, 'Load AMC Motion Capture')
-    loadAMC ('/home/david/projects/motion/data/1a_5.amc', d)
+    loadAMC ('/home/david/projects/motion/data/1a_5_small.amc', d)
 
 def getRotation (bone, rotation, d):
     """Retrieves the rotation for a bone, correcting for the difference between
@@ -162,7 +162,6 @@ def getRotation (bone, rotation, d):
             euler[1] = rotation[i] + axis.y
         if dof[i] == 'rz':
             euler[2] = rotation[i] + axis.z
-    euler = [euler[1], euler[0], euler[2]]
     euler = Blender.Mathutils.Euler (euler)
 
     # Subtract away all our parent's transformations
@@ -173,6 +172,12 @@ def getRotation (bone, rotation, d):
         euler.x = euler.x - parentRotation.x
         euler.y = euler.y - parentRotation.y
         euler.z = euler.z - parentRotation.z
+
+    # finally, subtract away our rest position
+    rest = bone.getRestMatrix('bonespace').rotationPart().toEuler ()
+    euler.x = euler.x - rest.x
+    euler.y = euler.y - rest.y
+    euler.z = euler.z - rest.z
 
     return euler.toQuat ()
 
