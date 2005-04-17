@@ -78,6 +78,8 @@ Documentation:
   * Use cases
   * CRC cards - we should probably just do these on real paper. We don't need
 	to do everything, but the major types would be good.
+	-- David's got a preliminary set of these.  If you want to work on this,
+	bug him.
   * Relationship diagrams:
 	- Probably split up into a few different pieces to show specific
 	"subsystems" rather than have one big mess. No reason we can't
