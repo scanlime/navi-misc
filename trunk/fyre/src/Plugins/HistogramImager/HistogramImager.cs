@@ -84,15 +84,13 @@ class HistogramImager : Fyre.Element
 		if (!(m.Rank == 1 && m.Size[0] == 2))
 			return false;
 
-		// Check pad 2
-		if (!(t[1] is Fyre.Int))
+		// Check pads 2 & 3
+		if (!(Fyre.Type.IsInt (t[1]) && Fyre.Type.IsInt (t[2])))
 			return false;
+
+		// Extract dimensions
 		Fyre.Int i = (Fyre.Int) t[1];
 		dim[0] = i.Value;
-
-		// Check pad 3
-		if (!(t[2] is Fyre.Int))
-			return false;
 		i = (Fyre.Int) t[2];
 		dim[1] = i.Value;
 

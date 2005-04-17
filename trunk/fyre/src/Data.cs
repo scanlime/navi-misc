@@ -28,6 +28,24 @@ namespace Fyre
 
 	public class Type
 	{
+		// Type-checker helper functions. These make Element.Check() much cleaner
+		public static bool
+		IsInt (Type t)
+		{
+			return (t is Fyre.Int);
+		}
+
+		public static bool
+		IsFloat (Type t)
+		{
+			return (t is Fyre.Float);
+		}
+
+		public static bool
+		IsBool (Type t)
+		{
+			return (t is Fyre.Bool);
+		}
 	}
 
 	public class Int : Type

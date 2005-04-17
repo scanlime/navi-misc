@@ -74,9 +74,7 @@ class Pixmap : Fyre.Element
 	{
 		to = null;
 		// Check that w & h are int
-		if (!(t[0] is Fyre.Int))
-			return false;
-		if (!(t[1] is Fyre.Int))
+		if (!(Fyre.Type.IsInt (t[0]) && Fyre.Type.IsInt (t[1])))
 			return false;
 
 		// Check that the point is an int pair

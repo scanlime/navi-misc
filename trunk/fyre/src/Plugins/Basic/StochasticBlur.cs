@@ -83,12 +83,8 @@ class StochasticBlur : Fyre.Element
 		if (!(v.Rank == 1 && v.Size[0] == 2))
 			return false;
 
-		// Check pad 2
-		if (!(t[1] is Fyre.Float))
-			return false;
-
-		// Check pad 3
-		if (!(t[2] is Fyre.Float))
+		// Check pads 2 and 3
+		if (!(Fyre.Type.IsFloat (t[1]) && Fyre.Type.IsFloat (t[2])))
 			return false;
 
 		to = new Fyre.Type[] {

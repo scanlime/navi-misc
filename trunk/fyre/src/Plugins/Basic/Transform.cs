@@ -80,7 +80,7 @@ class TwoDTransform : Fyre.Element
 
 		// All our pads are floats
 		for (int i = 0; i < 4; i++)
-			if (!(t[0] is Fyre.Float))
+			if (!Fyre.Type.IsFloat (t[i]))
 				return false;
 
 		int[] mdim = {3, 3};
