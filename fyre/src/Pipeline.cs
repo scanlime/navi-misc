@@ -104,7 +104,6 @@ namespace Fyre
 			XmlTextReader reader = new XmlTextReader (filename);
 			while (reader.Read ()) {
 				if (reader.NodeType == XmlNodeType.Element && reader.Depth == 1) {
-					System.Console.WriteLine ("found: {0}", reader.Name);
 					Element e = ElementFactory.Instance.CreateFromXml (reader.Name);
 					e.Read (reader);
 
