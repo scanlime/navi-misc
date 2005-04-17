@@ -205,7 +205,6 @@ namespace Fyre
 			e.Edit (toplevel);
 
 			// FIXME - create drawing stuff
-			e.canvas_element.Draw (Gtk.DotNet.Graphics.FromDrawable (pixmap));
 		}
 
 		public Gtk.Window

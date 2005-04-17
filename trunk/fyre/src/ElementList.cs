@@ -114,9 +114,12 @@ namespace Fyre
 			if (GetPathAtPos (click_x, click_y, out path, out column, out cell_x, out cell_y)) {
 				// Set the drag data to be the name of the Element type. This allows
 				// the element to be created by the factory when we drop.
-				Gtk.TreeIter iter;
+				Gtk.TreeIter	iter;
+				Element		e;
+
 				sorted_store.GetIter (out iter, path);
 				drag_type = (string) sorted_store.GetValue (iter, 1);
+				e = (Element) sorted_store.GetValue (iter, 4);
 
 				// FIXME - use element image here
 
