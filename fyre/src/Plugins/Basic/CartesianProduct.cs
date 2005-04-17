@@ -42,7 +42,6 @@ class CartesianProduct : Fyre.Element
 		};
 
 		SetPadNumbers ();
-		NewCanvasElement ();
 		NewID ();
 	}
 

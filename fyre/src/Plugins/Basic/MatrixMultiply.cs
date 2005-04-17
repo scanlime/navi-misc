@@ -40,7 +40,6 @@ class MatrixMultiply : Fyre.Element
 		};
 
 		SetPadNumbers ();
-		NewCanvasElement ();
 		NewID ();
 	}
 

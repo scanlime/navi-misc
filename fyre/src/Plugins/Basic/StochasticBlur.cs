@@ -42,7 +42,6 @@ class StochasticBlur : Fyre.Element
 		};
 
 		SetPadNumbers ();
-		NewCanvasElement ();
 		NewID ();
 	}
 

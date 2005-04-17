@@ -29,7 +29,6 @@ class Equation : Fyre.Element
 	public
 	Equation () : base ()
 	{
-		NewCanvasElement ();
 		NewID ();
 	}
 

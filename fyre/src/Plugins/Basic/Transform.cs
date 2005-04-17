@@ -43,7 +43,6 @@ class TwoDTransform : Fyre.Element
 		};
 
 		SetPadNumbers ();
-		NewCanvasElement ();
 		NewID ();
 	}
 

@@ -39,7 +39,6 @@ class Pixmap : Fyre.Element
 		flags = Fyre.ElementFlags.Output;
 
 		SetPadNumbers ();
-		NewCanvasElement ();
 		NewID ();
 	}
 
