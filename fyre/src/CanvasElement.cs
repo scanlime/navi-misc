@@ -69,6 +69,9 @@ namespace Fyre
 			else
 				numpads = e.outputs.Length;
 
+			// FIXME - font.Height is the line spacing of the font, but we probably
+			// just want the vertical extents. Guess we'll just have to see how it
+			// works out, for now.
 			position.Height = 14 + (numpads - 1)*font.Height + numpads*20;
 
 			position.Width  = 14;
