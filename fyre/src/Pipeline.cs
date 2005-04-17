@@ -168,6 +168,27 @@ namespace Fyre
 			OnChanged (new System.EventArgs ());
 		}
 
+		public void
+		Check ()
+		{
+			/* Here's how the checking algorithm will work:
+			 *
+			 * We keep two lists of elements: those classified as "inputs" and "outputs"
+			 * We start with all the elements listed as inputs. For each of these, we
+			 * assign PadConnections the types that the inputs produce. We create a list
+			 * with all of those elements which now have things at their inputs.
+			 *
+			 * For each of these elements which now have all their input pads fulfilled,
+			 * we run Check(). These pad types are stored and we refill the list with all
+			 * of the elements which are connected to those we just checked. If we check
+			 * an "output" pad, we remove it from its list.
+			 *
+			 * We're done when either the outputs list or our intermediate list is empty.
+			 * If it's the latter, we know that our pipeline isn't fully connected.
+			 * Any pad connections left over in this case are listed as having no type.
+			 */
+		}
+
 		public event System.EventHandler Changed;
 		protected void
 		OnChanged (System.EventArgs e)
