@@ -38,7 +38,6 @@ class Gradient : Fyre.Element
 		};
 
 		SetPadNumbers ();
-		NewCanvasElement ();
 		NewID ();
 	}
 

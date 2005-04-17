@@ -40,7 +40,6 @@ class Iterative : Fyre.Element
 		};
 
 		SetPadNumbers ();
-		NewCanvasElement ();
 		NewID ();
 	}
 

@@ -41,7 +41,6 @@ class HistogramImager : Fyre.Element
 		};
 
 		SetPadNumbers ();
-		NewCanvasElement ();
 		NewID ();
 	}
 

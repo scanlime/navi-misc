@@ -39,7 +39,6 @@ class Input : Fyre.Element
 		flags = Fyre.ElementFlags.Input;
 
 		SetPadNumbers ();
-		NewCanvasElement ();
 		NewID ();
 	}
 

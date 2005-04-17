@@ -156,7 +156,6 @@ namespace Fyre
 
 		// private element-specific data
 		public System.Guid		id;
-		public CanvasElement		canvas_element;
 
 		public InputPad [] 		inputs;
 		public OutputPad [] 		outputs;
