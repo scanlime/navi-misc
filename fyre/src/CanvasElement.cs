@@ -53,22 +53,27 @@ namespace Fyre
 		// Width and height are maintained by the internal layout system.
 		// X & Y are maintained by the global layout system. We'll probably
 		// want get/set operators on this to trigger redraws, etc.
-		public Rectangle	position;
-		private Pen		pen;
+		public Rectangle		position;
+		private Pen			pen;
+		static private Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,16);
 
 		public
 		CanvasElement (Element e)
 		{
-			Font	font = new Font ("Bitstream Vera Sans", 10.0);
-			int 	numpads;
+			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (pm);
+			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+			int 		numpads;
 
 			if (e.inputs.Length > e.outputs.Length)
 				numpads = e.inputs.Length;
 			else
 				numpads = e.outputs.Length;
 
-			position.Width  = 200;
 			position.Height = 14 + (numpads - 1)*10 + numpads*20;
+
+			position.Width  = 14;
+			position.Width += graphics.MeasureString (e.LongestInputPadName (), font).Width;
+			position.Width += graphics.MeasureString (e.LongestOutputPadName (), font).Width;
 
 			pen = new Pen (Color.Azure);
 		}
