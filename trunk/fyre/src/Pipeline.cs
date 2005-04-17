@@ -196,14 +196,12 @@ namespace Fyre
 			Do (Hashtable element_store)
 			{
 				element_store.Add (id.ToString ("d"), e);
-				System.Console.WriteLine ("Adding {0} {1} to the pipeline", e.Name (), e.id.ToString ("d"));
 			}
 
 			public override void
 			Undo (Hashtable element_store)
 			{
 				element_store.Remove (id.ToString ("d"));
-				System.Console.WriteLine ("Removing {0} {1} from the pipeline", e.Name (), e.id.ToString ("d"));
 			}
 		}
 
@@ -217,11 +215,13 @@ namespace Fyre
 			public override void
 			Do (Hashtable element_store)
 			{
+				// FIXME - implement
 			}
 
 			public override void
 			Undo (Hashtable element_store)
 			{
+				// FIXME - implement
 			}
 		}
 
@@ -235,11 +235,13 @@ namespace Fyre
 			public override void
 			Do (Hashtable element_store)
 			{
+				// FIXME - implement
 			}
 
 			public override void
 			Undo (Hashtable element_store)
 			{
+				// FIXME - implement
 			}
 		}
 
@@ -253,11 +255,13 @@ namespace Fyre
 			public override void
 			Do (Hashtable element_store)
 			{
+				// FIXME - implement
 			}
 
 			public override void
 			Undo (Hashtable element_store)
 			{
+				// FIXME - implement
 			}
 		}
 	}
