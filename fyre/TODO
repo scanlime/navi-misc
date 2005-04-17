@@ -85,7 +85,8 @@ Documentation:
 	"subsystems" rather than have one big mess. No reason we can't
 	duplicate things within these diagrams.
   * Sequence diagrams:
-	- NavigationWindow interaction
 	- Creating an element (+ other operations? show command pattern)
 	- Loading plugins
+	-- David's got one of these so far (NavigationWindow) on paper. If anyone
+	wants to transcribe it into inkscape...
 
