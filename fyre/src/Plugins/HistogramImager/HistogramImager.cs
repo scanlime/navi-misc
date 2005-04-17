@@ -70,22 +70,23 @@ class HistogramImager : Fyre.Element
 		return "Maintains a histogram of the\npoints given to it, suitable\nfor tone-mapping.";
 	}
 
-	public override bool
-	Check (Fyre.Type[] t, out Fyre.Type[] to)
+	public override Fyre.Type[]
+	Check (Fyre.Type[] t)
 	{
-		to = null;
 		int[] dim = new int[2];
 
 		// Check pad 1
-		if (!(t[0] is Fyre.Matrix))
-			return false;
-		Fyre.Matrix m = (Fyre.Matrix) t[0];
-		if (!(m.Rank == 1 && m.Size[0] == 2))
-			return false;
+		if (!((Fyre.Type.IsMatrix (t[0])) &&
+		      (Fyre.Type.GetMatrixRank (t[0]) == 1) &&
+		      (Fyre.Type.GetMatrixSize (t[0])[0] == 2) &&
+		      (Fyre.Type.IsInt (Fyre.Type.GetMatrixType (t[0])))))
+			throw new Fyre.PadError (0, System.String.Format ("Pad type must be Matrix(Int, 1, [2]): got {0}", t[0]));
 
 		// Check pads 2 & 3
-		if (!(Fyre.Type.IsInt (t[1]) && Fyre.Type.IsInt (t[2])))
-			return false;
+		if (!(Fyre.Type.IsInt (t[1])))
+			throw new Fyre.PadError (1, System.String.Format ("Pad type must be Int: got {0}", t[1]));
+		if (!(Fyre.Type.IsInt (t[2])))
+			throw new Fyre.PadError (2, System.String.Format ("Pad type must be Int: got {0}", t[2]));
 
 		// Extract dimensions
 		Fyre.Int i = (Fyre.Int) t[1];
@@ -93,10 +94,8 @@ class HistogramImager : Fyre.Element
 		i = (Fyre.Int) t[2];
 		dim[1] = i.Value;
 
-
-		to = new Fyre.Type[] {
+		return new Fyre.Type[] {
 			new Fyre.Matrix (new Fyre.Float (), 2, dim),
 		};
-		return true;
 	}
 }

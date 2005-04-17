@@ -67,13 +67,13 @@ class Gradient : Fyre.Element
 		return "Transforms a number into\na color, based on a user-\nset gradient";
 	}
 
-	public override bool
-	Check (Fyre.Type[] t, out Fyre.Type[] to)
+	public override Fyre.Type[]
+	Check (Fyre.Type[] t)
 	{
-		to = null;
 		if (!Fyre.Type.IsFloat (t[0]))
-			return false;
-		// FIXME - set type to whatever we use for color
-		return true;
+			throw new Fyre.PadError (0, System.String.Format ("Pad type must be Float: got {0}", t[0]));
+
+		// FIXME - return whatever we use for color
+		return null;
 	}
 }

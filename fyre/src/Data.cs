@@ -78,16 +78,34 @@ namespace Fyre
 	public class Int : Type
 	{
 		public int	Value;
+
+		public override string
+		ToString ()
+		{
+			return "Int";
+		}
 	}
 
 	public class Float : Type
 	{
 		public double	Value;
+
+		public override string
+		ToString ()
+		{
+			return "Float";
+		}
 	}
 
 	public class Bool : Type
 	{
 		public bool	Value;
+
+		public override string
+		ToString ()
+		{
+			return "Bool";
+		}
 	}
 
 	public class Matrix : Type
@@ -102,6 +120,23 @@ namespace Fyre
 			ChildType = t;
 			Rank = rank;
 			Size = size;
+		}
+
+		public override string
+		ToString ()
+		{
+			return System.String.Format ("Matrix({0}, {1}, [{2}])", ChildType.ToString (), Rank, Size);
+		}
+	}
+
+	public class PadError : System.Exception
+	{
+		public int pad;
+
+		public
+		PadError (int pad, string text) : base (text)
+		{
+			this.pad = pad;
 		}
 	}
 }

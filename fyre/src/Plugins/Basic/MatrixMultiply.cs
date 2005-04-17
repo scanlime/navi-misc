@@ -31,8 +31,8 @@ class MatrixMultiply : Fyre.Element
 	MatrixMultiply () : base ()
 	{
 		inputs = new Fyre.InputPad[] {
-			new Fyre.InputPad ("v<sub>0</sub>", "point"),
 			new Fyre.InputPad ("M", "matrix"),
+			new Fyre.InputPad ("v<sub>0</sub>", "point"),
 		};
 
 		outputs = new Fyre.OutputPad[] {
@@ -69,21 +69,19 @@ class MatrixMultiply : Fyre.Element
 		return "Multiplies a vector\nand a matrix";
 	}
 
-	public override bool
-	Check (Fyre.Type[] t, out Fyre.Type[] to)
+	public override Fyre.Type[]
+	Check (Fyre.Type[] t)
 	{
-		to = null;
-
-		// Check that pad 1 is a rank 1 matrix
+		// Check that pad 1 is a rank 2 matrix
 		if (!((Fyre.Type.IsMatrix (t[0])) &&
-		      (Fyre.Type.GetMatrixRank (t[0]) == 1)))
-			return false;
+		      (Fyre.Type.GetMatrixRank (t[0]) == 2)))
+			throw new Fyre.PadError (0, System.String.Format ("Pad type must be Matrix (Int, 2, [*]): got {0}", t[0]));
 		Fyre.Type mt1 = Fyre.Type.GetMatrixType (t[0]);
 
-		// Check that pad 2 is a rank 2 matrix
+		// Check that pad 2 is a rank 1 matrix
 		if (!((Fyre.Type.IsMatrix (t[1])) &&
-		      (Fyre.Type.GetMatrixRank (t[0]) == 2)))
-			return false;
+		      (Fyre.Type.GetMatrixRank (t[1]) == 1)))
+			throw new Fyre.PadError (1, System.String.Format ("Pad type must be Matrix (Int, 1, [*]): got {0}", t[1]));
 		Fyre.Type mt2 = Fyre.Type.GetMatrixType (t[1]);
 
 		// Make sure that the types match and we're either int or float
@@ -93,18 +91,17 @@ class MatrixMultiply : Fyre.Element
 		if (Fyre.Type.IsFloat (mt1) && Fyre.Type.IsFloat (mt2))
 			oktype = true;
 		if (!oktype)
-			return false;
+			throw new Fyre.PadError (1, System.String.Format ("Subtypes must match and be either int or float: got {0} and {1}", mt1, mt2));
 
-		int size1 = Fyre.Type.GetMatrixSize (t[0])[0];
-		int size2 = Fyre.Type.GetMatrixSize (t[1])[1];
+		int size1 = Fyre.Type.GetMatrixSize (t[0])[1];
+		int size2 = Fyre.Type.GetMatrixSize (t[1])[0];
 
 		if (size1 != size2)
-			return false;
+			throw new Fyre.PadError (1, System.String.Format ("Size error: matrix width and vector height must match: got {0}x{1}", size1, size2));
 
-		to = new Fyre.Type[] {
-			t[0],
+		// Just return the type of the vector
+		return new Fyre.Type[] {
+			t[1],
 		};
-
-		return true;
 	}
 }
