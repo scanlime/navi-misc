@@ -473,6 +473,9 @@ namespace Fyre
 			try {
 				pipeline.Load (filename);
 			} catch (System.Exception e) {
+				// Pop up an error dialog.
+				// FIXME - it would be nice to automatically close this window if it was
+				// created from OnOpen, but it's not really simple to do that right now.
 				string file = System.IO.Path.GetFileName (filename);
 				ErrorDialog ed = new ErrorDialog (toplevel,
 						System.String.Format ("Error loading \"{0}\"", file),
