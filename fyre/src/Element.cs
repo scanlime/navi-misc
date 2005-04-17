@@ -247,7 +247,8 @@ namespace Fyre
 			writer.WriteEndAttribute ();
 
 			// Serialize the element's CanvasElement to store positioning information
-			canvas_element.Serialize (writer);
+			// FIXME: we don't keep the CanvasElement here anymore.
+			//canvas_element.Serialize (writer);
 
 			// Write out each of the output pads of the element
 			foreach (OutputPad pad in outputs) {
