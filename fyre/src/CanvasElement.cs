@@ -72,8 +72,8 @@ namespace Fyre
 			position.Height = 14 + (numpads - 1)*10 + numpads*20;
 
 			position.Width  = 14;
-			position.Width += graphics.MeasureString (e.LongestInputPadName (), font).Width;
-			position.Width += graphics.MeasureString (e.LongestOutputPadName (), font).Width;
+			position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestInputPadName (), font).Width);
+			position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestOutputPadName (), font).Width);
 
 			pen = new Pen (Color.Azure);
 		}
