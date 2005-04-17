@@ -123,10 +123,12 @@ namespace Fyre
 
 				// FIXME - use element image here
 				// Create a new CanvasElement for this Element.
-				CanvasElement canvas_element = new CanvasElement (e);
+				CanvasElement canvas_element = new CanvasElement (e, GdkWindow);
 
 				int w = canvas_element.Width;
 				int h = canvas_element.Height;
+
+				//System.Console.WriteLine ("{0}\t{1}\n", w, h);
 
 				Gdk.Pixmap pixmap = new Gdk.Pixmap (GdkWindow, w, h, -1);
 
@@ -137,8 +139,8 @@ namespace Fyre
 
 				pixmap.DrawRectangle (gc, true, 0, 0, w, h);
 
-				Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, w, h);
-				icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, -1, -1);
+				Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, w, w);
+				icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, w, w);
 				Gtk.Drag.SetIconPixbuf (context, icon, click_x + 1, cell_y);
 			}
 		}

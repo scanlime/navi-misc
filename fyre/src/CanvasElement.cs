@@ -56,7 +56,7 @@ namespace Fyre
 		public Rectangle		position;
 		private Pen			pen;
 		private Element			element;
-		static private Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,16);
+		static private Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
 
 		public int
 		Width
@@ -71,9 +71,9 @@ namespace Fyre
 		}
 
 		public
-		CanvasElement (Element e)
+		CanvasElement (Element e, Gdk.Drawable drawable)
 		{
-			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (pm);
+			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (drawable);
 			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
 			int 		numpads;
 
