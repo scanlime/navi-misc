@@ -74,7 +74,8 @@ namespace Fyre
 					typeof (Gdk.Pixbuf),		// Icon
 					typeof (string),		// Name
 					typeof (System.Type),		// Type
-					typeof (ElementTooltip));	// Tooltip Window
+					typeof (ElementTooltip),	// Tooltip Window
+					typeof (Element));		// Element
 
 			// We sort the element list in alphabetical order, since we have
 			// no foreknowledge of what order the plugins will be loaded in,
@@ -293,13 +294,13 @@ namespace Fyre
 					string cat = (string) element_store.GetValue (iter, 1);
 					if (cat.Equals (category)) {
 						found = true;
-						element_store.AppendValues (iter, pixbuf, name, t, tt);
+						element_store.AppendValues (iter, pixbuf, name, t, tt, e);
 					}
 				} while (element_store.IterNext (ref iter));
 			}
 			if (!found) {
 				iter = element_store.AppendValues (null, category, null, null);
-				element_store.AppendValues (iter, pixbuf, name, t, tt);
+				element_store.AppendValues (iter, pixbuf, name, t, tt, e);
 				ExpandAll ();
 			}
 		}
