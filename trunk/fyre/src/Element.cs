@@ -244,7 +244,6 @@ namespace Fyre
 		public virtual void
 		DeSerialize (XmlTextReader reader)
 		{
-			// FIXME - deserialize everything
 		}
 
 		public void
@@ -253,6 +252,16 @@ namespace Fyre
 			// Hand the reader off to the subclass to deserialize any
 			// extra data we've got
 			DeSerialize (reader);
+
+			if (!reader.MoveToFirstAttribute ())
+				return;
+
+			do {
+				if (reader.Name == "id")
+					id = new System.Guid (reader.Value);
+				else if (reader.Name == "comment")
+					comment = reader.Value;
+			} while (reader.MoveToNextAttribute ());
 		}
 
 		public void
