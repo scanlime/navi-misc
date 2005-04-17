@@ -55,7 +55,20 @@ namespace Fyre
 		// want get/set operators on this to trigger redraws, etc.
 		public Rectangle		position;
 		private Pen			pen;
+		private Element			element;
 		static private Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,16);
+
+		public int
+		Width
+		{
+			get { return position.Width; }
+		}
+
+		public int
+		Height
+		{
+			get { return position.Height; }
+		}
 
 		public
 		CanvasElement (Element e)
@@ -69,16 +82,23 @@ namespace Fyre
 			else
 				numpads = e.outputs.Length;
 
+			// FIXME: These height and width calculations may be overestimating the necessary size of an element.
+
+			// Height = top-to-pad + pad-to-bottom + inter-pad-distnace*(numpads-1) + pad*(numpads)
+
 			// FIXME - font.Height is the line spacing of the font, but we probably
 			// just want the vertical extents. Guess we'll just have to see how it
 			// works out, for now.
 			position.Height = 14 + (numpads - 1)*font.Height + numpads*20;
 
-			position.Width  = 14;
+			// Width = 2*pad-to-name + between-names + width-of-longest-input-name + width-of-longest-output-name
+			position.Width  = 39;
 			position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestInputPadName (), font).Width);
 			position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestOutputPadName (), font).Width);
 
 			pen = new Pen (Color.Azure);
+
+			element = e;
 		}
 
 		// When we're drawing on the main canvas, we render at full size.
