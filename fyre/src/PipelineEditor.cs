@@ -473,8 +473,12 @@ namespace Fyre
 			try {
 				pipeline.Load (filename);
 			} catch (System.Exception e) {
-				// FIXME - pop up an error dialog. if the pipeline is
-				// empty, destroy the window.
+				string file = System.IO.Path.GetFileName (filename);
+				ErrorDialog ed = new ErrorDialog (toplevel,
+						System.String.Format ("Error loading \"{0}\"", file),
+						"Fyre was unable to load the pipeline. Either this is not a Fyre\npipeline file or it is corrupted.");
+				ed.Run ();
+				ed.Destroy ();
 			}
 		}
 	}
