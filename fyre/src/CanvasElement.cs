@@ -69,7 +69,7 @@ namespace Fyre
 			else
 				numpads = e.outputs.Length;
 
-			position.Height = 14 + (numpads - 1)*10 + numpads*20;
+			position.Height = 14 + (numpads - 1)*font.Height + numpads*20;
 
 			position.Width  = 14;
 			position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestInputPadName (), font).Width);
