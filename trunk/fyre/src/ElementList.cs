@@ -134,9 +134,9 @@ namespace Fyre
 				Gdk.Color white = new Gdk.Color (0xff, 0xff, 0xff);
 				Gdk.Colormap.System.AllocColor (ref white, true, true);
 				gc.Foreground = white;
-				
+
 				pixmap.DrawRectangle (gc, true, 0, 0, w, h);
-				
+
 				Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, w, h);
 				icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, -1, -1);
 				Gtk.Drag.SetIconPixbuf (context, icon, click_x + 1, cell_y);
