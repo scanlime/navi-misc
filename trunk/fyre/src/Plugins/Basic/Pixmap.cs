@@ -78,10 +78,10 @@ class Pixmap : Fyre.Element
 			return false;
 
 		// Check that the point is an int pair
-		if (!(t[2] is Fyre.Matrix))
-			return false;
-		Fyre.Matrix m = (Fyre.Matrix) t[2];
-		if (!(m.Rank == 1 && m.Size[0] == 2))
+		if (!((Fyre.Type.IsMatrix (t[2])) &&
+		      (Fyre.Type.GetMatrixRank (t[2]) == 1) &&
+		      (Fyre.Type.GetMatrixSize (t[2])[0] == 2) &&
+		      (Fyre.Type.IsInt (Fyre.Type.GetMatrixType (t[2])))))
 			return false;
 
 		// FIXME - check color

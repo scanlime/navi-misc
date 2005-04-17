@@ -77,10 +77,10 @@ class StochasticBlur : Fyre.Element
 	{
 		to = null;
 		// Check pad 1
-		if (!(t[0] is Fyre.Matrix))
-			return false;
-		Fyre.Matrix v = (Fyre.Matrix) t[0];
-		if (!(v.Rank == 1 && v.Size[0] == 2))
+		if (!((Fyre.Type.IsMatrix (t[0])) &&
+		      (Fyre.Type.GetMatrixRank (t[0]) == 1) &&
+		      (Fyre.Type.GetMatrixSize (t[0])[0] == 2) &&
+		      (Fyre.Type.IsFloat (Fyre.Type.GetMatrixType (t[0])))))
 			return false;
 
 		// Check pads 2 and 3
@@ -88,7 +88,7 @@ class StochasticBlur : Fyre.Element
 			return false;
 
 		to = new Fyre.Type[] {
-			v,
+			t[0],
 		};
 		return true;
 	}

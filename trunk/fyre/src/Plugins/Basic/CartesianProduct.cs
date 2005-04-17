@@ -79,18 +79,18 @@ class CartesianProduct : Fyre.Element
 
 		to = null;
 
-		// Check first input
-		if (!(t[0] is Fyre.Matrix))
-			return false;
-		Fyre.Matrix m = (Fyre.Matrix) t[0];
-		if (m.Rank == 1 && m.Size[0] == 2)
+		// Check first input - 1x2 matrix of ints
+		if (!((Fyre.Type.IsMatrix (t[0])) &&
+		      (Fyre.Type.IsInt (Fyre.Type.GetMatrixType (t[0]))) &&
+		      (Fyre.Type.GetMatrixRank (t[0]) == 1) &&
+		      (Fyre.Type.GetMatrixSize (t[0])[0] == 2)))
 			return false;
 
-		// Check second input
-		if (!(t[0] is Fyre.Matrix))
-			return false;
-		m = (Fyre.Matrix) t[0];
-		if (m.Rank == 1 && m.Size[0] == 2)
+		// Check second input - 1x2 matrix of ints
+		if (!((Fyre.Type.IsMatrix (t[1])) &&
+		      (Fyre.Type.IsInt (Fyre.Type.GetMatrixType (t[1]))) &&
+		      (Fyre.Type.GetMatrixRank (t[1]) == 1) &&
+		      (Fyre.Type.GetMatrixSize (t[1])[0] == 2)))
 			return false;
 
 		// FIXME - we should set the output size of our matrix based on the data
