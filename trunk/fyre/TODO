@@ -65,10 +65,6 @@ General things:
 	with the "Input" flag, propagating types through the pipeline until
 	we've finished with all the "Output" flagged elements or we've
 	exhausted all the possible connections.
-  * Some convenience functions for the various Check() implementations would
-	be very useful. In particular, we'll want things like IsInt, IsFloat,
-	etc. It would probably also be nice to have some functions for
-	extracting values and checking matrix rank/size.
   * We need to work out parallelization semantics. Right now i'm thinking
 	that we'll parallelize on any operation from matrix->element type,
 	and require that there be an aggregation flag on any element connected
