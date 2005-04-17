@@ -57,11 +57,18 @@ namespace Fyre
 		private Pen		pen;
 
 		public
-		CanvasElement ()
+		CanvasElement (Element e)
 		{
-			// FIXME - hardcode 200x150 for now
+			Font	font = new Font ("Bitstream Vera Sans", 10.0);
+			int 	numpads;
+
+			if (e.inputs.Length > e.outputs.Length)
+				numpads = e.inputs.Length;
+			else
+				numpads = e.outputs.Length;
+
 			position.Width  = 200;
-			position.Height = 150;
+			position.Height = 14 + (numpads - 1)*10 + numpads*20;
 
 			pen = new Pen (Color.Azure);
 		}

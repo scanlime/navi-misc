@@ -177,7 +177,7 @@ namespace Fyre
 		protected void
 		NewCanvasElement ()
 		{
-			canvas_element = new CanvasElement ();
+			canvas_element = new CanvasElement (this);
 		}
 
 		protected void
@@ -195,6 +195,33 @@ namespace Fyre
 			if (outputs != null)
 				for (int i = 0; i < outputs.Length; i++)
 					outputs[i].id = i;
+		}
+
+		// Convenience functions for gettin the longest name for input and output pads.
+		public string
+		LongestInputPadName ()
+		{
+			string name = "";
+
+			foreach (InputPad pad in inputs) {
+				if (pad.Name.Length > name.Length)
+					name = pad.Name;
+			}
+
+			return name;
+		}
+
+		public string
+		LongestOutputPadName ()
+		{
+			string name = "";
+
+			foreach (OutputPad pad in outputs) {
+				if (pad.Name.Length > name.Length)
+					name = pad.Name;
+			}
+
+			return name;
 		}
 
 		public virtual void
