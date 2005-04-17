@@ -255,6 +255,12 @@ namespace Fyre
 		{
 			Gdk.EventButton ev = args.Event;
 
+			// FIXME - check whether we're clicking on an element. If so, select
+			// it/begin drag/etc.  We also need behavior for right- and double-clicks.
+			// Right click should pop up a context menu (appropriate for whatever the
+			// user's mouse is hovering over).  Double clicking on an element should
+			// pop up an edit dialog for it.
+
 			drag_x = (int) ev.X;
 			drag_y = (int) ev.Y;
 
@@ -275,6 +281,9 @@ namespace Fyre
 		{
 			Gdk.EventMotion ev = args.Event;
 
+			// FIXME - we'll want to check whether we're moused over an element here
+			// and change cursors/draw prelights appropriately
+
 			if (dragging && ev.State == Gdk.ModifierType.Button1Mask) {
 				// Compute the offset from the last event we got, and move
 				// our view appropriately.
@@ -287,8 +296,7 @@ namespace Fyre
 				hadj.Value = drawing_extents.X;
 				vadj.Value = drawing_extents.Y;
 
-				// Set these so we'll get proper offsets next time there's
-				// an event.
+				// Set these so we'll get proper offsets next time there's an event.
 				drag_x = (int) ev.X;
 				drag_y = (int) ev.Y;
 			}
@@ -297,6 +305,7 @@ namespace Fyre
 		void
 		LeaveNotifyHandler (object o, Gtk.LeaveNotifyEventArgs args)
 		{
+			// FIXME - not sure this is needed
 		}
 
 		public void
