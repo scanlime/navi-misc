@@ -31,12 +31,12 @@ class Iterative : Fyre.Element
 	Iterative () : base ()
 	{
 		inputs = new Fyre.InputPad[] {
-			new Fyre.InputPad ("d<sub>0</sub>", "data"),
+			new Fyre.InputPad ("d0", "data"),
 			new Fyre.InputPad ("e", "enable"),
 		};
 
 		outputs = new Fyre.OutputPad[] {
-			new Fyre.OutputPad ("d<sub>1</sub>", "data"),
+			new Fyre.OutputPad ("d1", "data"),
 		};
 
 		SetPadNumbers ();

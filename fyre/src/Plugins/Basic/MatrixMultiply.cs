@@ -32,11 +32,11 @@ class MatrixMultiply : Fyre.Element
 	{
 		inputs = new Fyre.InputPad[] {
 			new Fyre.InputPad ("M", "matrix"),
-			new Fyre.InputPad ("v<sub>0</sub>", "point"),
+			new Fyre.InputPad ("v0", "point"),
 		};
 
 		outputs = new Fyre.OutputPad[] {
-			new Fyre.OutputPad ("v<sub>1</sub>", "new point"),
+			new Fyre.OutputPad ("v1", "new point"),
 		};
 
 		SetPadNumbers ();
