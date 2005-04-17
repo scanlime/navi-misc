@@ -69,15 +69,15 @@ class Iterative : Fyre.Element
 		return "Creates a feedback loop\nwhile enable is true";
 	}
 
-	public override bool
-	Check (Fyre.Type[] t, out Fyre.Type[] to)
+	public override Fyre.Type[]
+	Check (Fyre.Type[] t)
 	{
-		to = null;
 		if (!Fyre.Type.IsBool (t[1]))
-			return false;
-		to = new Fyre.Type[] {
-			new Fyre.Bool (),
+			throw new Fyre.PadError (0, System.String.Format ("Pad type must be Bool: got {0}", t[0]));
+
+		// return whatever we got on our input
+		return new Fyre.Type[] {
+			t[0],
 		};
-		return true;
 	}
 }

@@ -363,11 +363,10 @@ namespace Fyre
 			comment = buffer.Text;
 		}
 
-		public virtual bool
-		Check (Type[] t, out Type[] to)
+		public virtual Type[]
+		Check (Type[] t)
 		{
-			to = new Type[] {};
-			return true;
+			return null;
 		}
 	}
 

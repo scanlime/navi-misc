@@ -72,20 +72,17 @@ class TwoDTransform : Fyre.Element
 		return "Creates an 3x3 matrix out\nof a set of 2D\ntransformations";
 	}
 
-	public override bool
-	Check (Fyre.Type[] t, out Fyre.Type[] to)
+	public override Fyre.Type[]
+	Check (Fyre.Type[] t)
 	{
-		to = null;
-
 		// All our pads are floats
 		for (int i = 0; i < 4; i++)
 			if (!Fyre.Type.IsFloat (t[i]))
-				return false;
+				throw new Fyre.PadError (i, System.String.Format ("Pad type must be Float: got {0}", t[i]));
 
 		int[] mdim = {3, 3};
-		to = new Fyre.Type[] {
+		return new Fyre.Type[] {
 			new Fyre.Matrix (new Fyre.Float (), 2, mdim),
 		};
-		return true;
 	}
 }

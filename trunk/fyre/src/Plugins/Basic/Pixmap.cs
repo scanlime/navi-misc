@@ -68,23 +68,24 @@ class Pixmap : Fyre.Element
 		return "Simple pixmap image";
 	}
 
-	public override bool
-	Check (Fyre.Type[] t, out Fyre.Type[] to)
+	public override Fyre.Type[]
+	Check (Fyre.Type[] t)
 	{
-		to = null;
 		// Check that w & h are int
-		if (!(Fyre.Type.IsInt (t[0]) && Fyre.Type.IsInt (t[1])))
-			return false;
+		if (!(Fyre.Type.IsInt (t[0])))
+			throw new Fyre.PadError (0, System.String.Format ("Pad type must be Int: got {0}", t[0]));
+		if (!(Fyre.Type.IsInt (t[1])))
+			throw new Fyre.PadError (1, System.String.Format ("Pad type must be Int: got {0}", t[1]));
 
 		// Check that the point is an int pair
 		if (!((Fyre.Type.IsMatrix (t[2])) &&
 		      (Fyre.Type.GetMatrixRank (t[2]) == 1) &&
 		      (Fyre.Type.GetMatrixSize (t[2])[0] == 2) &&
 		      (Fyre.Type.IsInt (Fyre.Type.GetMatrixType (t[2])))))
-			return false;
+			throw new Fyre.PadError (2, System.String.Format ("Pad type must be Matrix(Int, 1, [2]): got {0}", t[2]));
 
 		// FIXME - check color
 
-		return true;
+		return null;
 	}
 }

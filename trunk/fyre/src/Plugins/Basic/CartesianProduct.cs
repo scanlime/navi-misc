@@ -71,26 +71,24 @@ class CartesianProduct : Fyre.Element
 		return "Computes the cartesian product\nof two integer ranges";
 	}
 
-	public override bool
-	Check (Fyre.Type[] t, out Fyre.Type[] to)
+	public override Fyre.Type[]
+	Check (Fyre.Type[] t)
 	{
 		int x, y;
-
-		to = null;
 
 		// Check first input - 1x2 matrix of ints
 		if (!((Fyre.Type.IsMatrix (t[0])) &&
 		      (Fyre.Type.IsInt (Fyre.Type.GetMatrixType (t[0]))) &&
 		      (Fyre.Type.GetMatrixRank (t[0]) == 1) &&
 		      (Fyre.Type.GetMatrixSize (t[0])[0] == 2)))
-			return false;
+			throw new Fyre.PadError (0, System.String.Format ("Pad type must be Matrix(Int, 1, [2]): got {0}", t[0]));
 
 		// Check second input - 1x2 matrix of ints
 		if (!((Fyre.Type.IsMatrix (t[1])) &&
 		      (Fyre.Type.IsInt (Fyre.Type.GetMatrixType (t[1]))) &&
 		      (Fyre.Type.GetMatrixRank (t[1]) == 1) &&
 		      (Fyre.Type.GetMatrixSize (t[1])[0] == 2)))
-			return false;
+			throw new Fyre.PadError (1, System.String.Format ("Pad type must be Matrix(Int, 1, [2]): got {0}", t[1]));
 
 		// FIXME - we should set the output size of our matrix based on the data
 		// contained in the pairs we get, but we don't actually have that capability
@@ -102,11 +100,11 @@ class CartesianProduct : Fyre.Element
 		// Create output types
 		int[] pdim = {2};
 		int[] mdim = new int[] {x, y};
-		to = new Fyre.Type[] {
+		return new Fyre.Type[] {
 			new Fyre.Matrix (
 				new Fyre.Matrix (new Fyre.Int (), 1, pdim),
-				2, mdim),
+				2, mdim
+			),
 		};
-		return false;
 	}
 }

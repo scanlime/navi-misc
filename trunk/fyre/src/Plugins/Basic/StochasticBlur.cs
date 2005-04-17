@@ -71,24 +71,24 @@ class StochasticBlur : Fyre.Element
 		return "Creates a blur by\nstochastically perturbing\na point within the\ngiven radius";
 	}
 
-	public override bool
-	Check (Fyre.Type[] t, out Fyre.Type[] to)
+	public override Fyre.Type[]
+	Check (Fyre.Type[] t)
 	{
-		to = null;
 		// Check pad 1
 		if (!((Fyre.Type.IsMatrix (t[0])) &&
 		      (Fyre.Type.GetMatrixRank (t[0]) == 1) &&
 		      (Fyre.Type.GetMatrixSize (t[0])[0] == 2) &&
 		      (Fyre.Type.IsFloat (Fyre.Type.GetMatrixType (t[0])))))
-			return false;
+			throw new Fyre.PadError (0, System.String.Format ("Pad type must be Matrix(Float, 1, [2]): got {0}", t[0]));
 
 		// Check pads 2 and 3
-		if (!(Fyre.Type.IsFloat (t[1]) && Fyre.Type.IsFloat (t[2])))
-			return false;
+		if (!(Fyre.Type.IsFloat (t[1])))
+			throw new Fyre.PadError (1, System.String.Format ("Pad type must be Float: got {0}", t[1]));
+		if (!(Fyre.Type.IsFloat (t[2])))
+			throw new Fyre.PadError (2, System.String.Format ("Pad type must be Float: got {0}", t[2]));
 
-		to = new Fyre.Type[] {
+		return new Fyre.Type[] {
 			t[0],
 		};
-		return true;
 	}
 }

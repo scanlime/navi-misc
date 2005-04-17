@@ -58,11 +58,9 @@ class Equation : Fyre.Element
 		return "Computes an equation";
 	}
 
-	public override bool
-	Check (Fyre.Type[] t, out Fyre.Type[] to)
+	public override Fyre.Type[]
+	Check (Fyre.Type[] t)
 	{
-		to = null;
-		// FIXME
-		return true;
+		return null;
 	}
 }
