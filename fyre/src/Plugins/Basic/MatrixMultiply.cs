@@ -75,21 +75,32 @@ class MatrixMultiply : Fyre.Element
 	{
 		to = null;
 
-		// Check pad 1
-		if (!(t[0] is Fyre.Matrix))
+		// Check that pad 1 is a rank 1 matrix
+		if (!((Fyre.Type.IsMatrix (t[0])) &&
+		      (Fyre.Type.GetMatrixRank (t[0]) == 1)))
 			return false;
-		Fyre.Matrix v = (Fyre.Matrix) t[0];
-		if (v.Rank != 1)
+		Fyre.Type mt1 = Fyre.Type.GetMatrixType (t[0]);
+
+		// Check that pad 2 is a rank 2 matrix
+		if (!((Fyre.Type.IsMatrix (t[1])) &&
+		      (Fyre.Type.GetMatrixRank (t[0]) == 2)))
+			return false;
+		Fyre.Type mt2 = Fyre.Type.GetMatrixType (t[1]);
+
+		// Make sure that the types match and we're either int or float
+		bool oktype = false;
+		if (Fyre.Type.IsInt (mt1) && Fyre.Type.IsInt (mt2))
+			oktype = true;
+		if (Fyre.Type.IsFloat (mt1) && Fyre.Type.IsFloat (mt2))
+			oktype = true;
+		if (!oktype)
 			return false;
 
-		// Check pad 2
-		if (!(t[1] is Fyre.Matrix))
-			return false;
-		Fyre.Matrix m = (Fyre.Matrix) t[1];
-		if (m.Rank != 2)
-			return false;
+		int size1 = Fyre.Type.GetMatrixSize (t[0])[0];
+		int size2 = Fyre.Type.GetMatrixSize (t[1])[1];
 
-		// FIXME - check that sizes match
+		if (size1 != size2)
+			return false;
 
 		to = new Fyre.Type[] {
 			t[0],

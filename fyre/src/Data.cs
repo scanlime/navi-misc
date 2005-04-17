@@ -46,6 +46,33 @@ namespace Fyre
 		{
 			return (t is Fyre.Bool);
 		}
+
+		public static bool
+		IsMatrix (Type t)
+		{
+			return (t is Fyre.Matrix);
+		}
+
+		public static int
+		GetMatrixRank (Type t)
+		{
+			Fyre.Matrix m = (Fyre.Matrix) t;
+			return m.Rank;
+		}
+
+		public static int[]
+		GetMatrixSize (Type t)
+		{
+			Fyre.Matrix m = (Fyre.Matrix) t;
+			return m.Size;
+		}
+
+		public static Fyre.Type
+		GetMatrixType (Type t)
+		{
+			Fyre.Matrix m = (Fyre.Matrix) t;
+			return m.ChildType;
+		}
 	}
 
 	public class Int : Type
@@ -65,13 +92,14 @@ namespace Fyre
 
 	public class Matrix : Type
 	{
-		public Type[]	Value;
+		public Type	ChildType;
 		public int	Rank;
 		public int[]	Size;
 
 		public
 		Matrix (Type t, int rank, int[] size)
 		{
+			ChildType = t;
 			Rank = rank;
 			Size = size;
 		}
