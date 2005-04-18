@@ -121,7 +121,7 @@ namespace Fyre
 		Draw (System.Drawing.Graphics context)
 		{
 			// FIXME
-			System.Drawing.Pen border = new System.Drawing.Pen (Color.DarkCyan);
+			System.Drawing.Pen border = new System.Drawing.Pen (Color.Chocolate);
 			System.Drawing.Brush background = new System.Drawing.SolidBrush (Color.BlanchedAlmond);
 			context.DrawRectangle (border, 0, 0, position.Width - 1, position.Height - 1);
 			context.FillRectangle (background, 1, 1, position.Width - 2, position.Height - 2);
