@@ -34,6 +34,9 @@ namespace Fyre
 		public Gdk.Rectangle	Extents
 		{
 			get {
+				// FIXME - We should probably cache this. This will only change
+				// when elements are added/removed/moved.
+
 				// Compute the layout extents. We do this by taking a union of all
 				// the rectangles of each element.
 				IDictionaryEnumerator e = elements.GetEnumerator ();
@@ -43,18 +46,31 @@ namespace Fyre
 				// If we don't have anything on that layout, just return 0x0+0+0
 				extents.Width = extents.Height = 0;
 				extents.X = extents.Y = 0;
-				if (e.MoveNext ())
-					extents = (Gdk.Rectangle) e.Current;
-				else
+				if (e.MoveNext ()) {
+					CanvasElement ce = (CanvasElement) e.Current;
+					extents = ConvertRect (ce.position);
+				} else {
 					return extents;
+				}
 
 				while (e.MoveNext ()) {
-					Gdk.Rectangle r = (Gdk.Rectangle) e.Current;
-					extents = extents.Union (r);
+					CanvasElement ce = (CanvasElement) e.Current;
+					extents = extents.Union (ConvertRect (ce.position));
 				}
 
 				return extents;
 			}
+		}
+
+		Gdk.Rectangle
+		ConvertRect (System.Drawing.Rectangle r)
+		{
+			Gdk.Rectangle ret;
+			ret.X      = r.X;
+			ret.Y      = r.Y;
+			ret.Width  = r.Width;
+			ret.Height = r.Height;
+			return ret;
 		}
 
 		public
