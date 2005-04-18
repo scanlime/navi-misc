@@ -121,7 +121,6 @@ namespace Fyre
 				drag_type = (string) sorted_store.GetValue (iter, 1);
 				e = (Element) sorted_store.GetValue (iter, 4);
 
-				// FIXME - use element image here
 				// Create a new CanvasElement for this Element.
 				CanvasElement canvas_element = new CanvasElement (e, GdkWindow);
 
@@ -141,7 +140,8 @@ namespace Fyre
 
 				Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, w, h);
 				icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, w, h);
-				Gtk.Drag.SetIconPixbuf (context, icon, click_x + 1, cell_y);
+				//Gtk.Drag.SetIconPixbuf (context, icon, click_x + 1, cell_y);
+				Gtk.Drag.SetIconPixbuf (context, icon, 0, 0);
 			}
 		}
 
