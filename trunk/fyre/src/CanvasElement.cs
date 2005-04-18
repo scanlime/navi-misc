@@ -54,7 +54,6 @@ namespace Fyre
 		// X & Y are maintained by the global layout system. We'll probably
 		// want get/set operators on this to trigger redraws, etc.
 		public Rectangle		position;
-		private Pen			pen;
 		private Element			element;
 		static private Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
 
@@ -106,8 +105,6 @@ namespace Fyre
 			if (e.outputs != null)
 				position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestOutputPadName (), font).Width);
 
-			pen = new Pen (Color.Azure);
-
 			element = e;
 		}
 
@@ -124,7 +121,10 @@ namespace Fyre
 		Draw (System.Drawing.Graphics context)
 		{
 			// FIXME
-			context.DrawRectangle (pen, position);
+			System.Drawing.Pen border = new System.Drawing.Pen (Color.DarkCyan);
+			System.Drawing.Brush background = new System.Drawing.SolidBrush (Color.BlanchedAlmond);
+			context.DrawRectangle (border, 0, 0, position.Width - 1, position.Height - 1);
+			context.FillRectangle (background, 1, 1, position.Width - 2, position.Height - 2);
 		}
 
 		public virtual void
