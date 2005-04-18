@@ -33,26 +33,26 @@ namespace Fyre
 		// Whether or not we should update the canvas sizes
 		bool			update_sizes;
 
+		// This is the main layout. Yep.
+		Layout			layout;
+
 		/* The drawing extents are the size of our current drawing area. The
 		 * position depends on the scrollbars, and the size is always the pixel
 		 * size of the drawing area.
-		 *
-		 * The layout extents are the size of the drawing itself. This is
-		 * maintained via the graph layout algorithms.
 		 *
 		 * Scrollbars are determined by the union of the drawing and the layout
 		 * boxes, plus some buffer around the layout (maybe 50px?) size to make
 		 * it easier to drag the document for a bigger size.
 		 */
+
 		Gdk.Rectangle		drawing_extents;
 		public Gdk.Rectangle	DrawingExtents
 		{
 			get { return drawing_extents; }
 		}
-		Gdk.Rectangle		layout_extents;
 		public Gdk.Rectangle	CanvasExtents
 		{
-			get { return ExpandRect (layout_extents, layout_buffer).Union (drawing_extents); }
+			get { return ExpandRect (layout.Extents, layout_buffer).Union (drawing_extents); }
 		}
 
 		// Size of the buffer of pixels around the items on the canvas, giving
@@ -118,13 +118,8 @@ namespace Fyre
 		PipelineDrawing (Glade.XML xml) : base ()
 		{
 			drawing_extents = new Gdk.Rectangle ();
-			layout_extents = new Gdk.Rectangle ();
 
-			// For now, initialize the layout extents to 300x300, centered at the origin
-			layout_extents.X = -150;
-			layout_extents.Y = -150;
-			layout_extents.Width  = 300;
-			layout_extents.Height = 300;
+			layout = new Layout ();
 
 			drawing_extents.X = 0;
 			drawing_extents.Y = 0;
@@ -197,7 +192,7 @@ namespace Fyre
 		public void
 		SetScrollbars ()
 		{
-			Gdk.Rectangle exp_layout = ExpandRect (layout_extents, layout_buffer);
+			Gdk.Rectangle exp_layout = ExpandRect (layout.Extents, layout_buffer);
 			Gdk.Rectangle size = exp_layout.Union (drawing_extents);
 
 			hadj.Lower = size.X;
@@ -228,8 +223,8 @@ namespace Fyre
 
 			SetScrollbars ();
 
-			hadj.Value = layout_extents.X - layout_buffer;
-			vadj.Value = layout_extents.Y - layout_buffer;
+			hadj.Value = layout.Extents.X - layout_buffer;
+			vadj.Value = layout.Extents.Y - layout_buffer;
 		}
 
 		void
