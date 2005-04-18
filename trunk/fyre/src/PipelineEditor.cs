@@ -194,7 +194,6 @@ namespace Fyre
 		DrawingReceivedDrag (object o, Gtk.DragDataReceivedArgs args)
 		{
 			string		name = System.Text.Encoding.UTF8.GetString (args.SelectionData.Data);
-			Gdk.Pixmap	pixmap = new Gdk.Pixmap (pipeline_drawing.GdkWindow, 200, 150, -1);
 
 			ElementFactory factory = ElementFactory.Instance;
 			Element e = factory.Create (name);
