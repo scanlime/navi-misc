@@ -18,6 +18,7 @@ CSFILES =			\
 	ElementFactory.cs	\
 	ElementList.cs		\
 	ElementTooltip.cs	\
+	Layout.cs		\
 	NavigationImage.cs	\
 	Pipeline.cs		\
 	PipelineDrawing.cs	\
