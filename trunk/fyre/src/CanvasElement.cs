@@ -45,7 +45,7 @@ namespace Fyre
 	 * x-dimensions:
 	 * 	minimum size is either name, extra-data or pads
 	 * 	pad-to-name:		7px
-	 * 	between-names:		25px
+	 * 	between-names:		50px
 	 */
 
 	public class CanvasElement
@@ -77,10 +77,18 @@ namespace Fyre
 			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
 			int 		numpads;
 
-			if (e.inputs.Length > e.outputs.Length)
-				numpads = e.inputs.Length;
-			else
+			if (e.inputs == null && e.outputs == null) {
+				numpads = 0;
+			} else if (e.inputs == null) {
 				numpads = e.outputs.Length;
+			} else if (e.outputs == null) {
+				numpads = e.inputs.Length;
+			} else {
+				if (e.inputs.Length > e.outputs.Length)
+					numpads = e.inputs.Length;
+				else
+					numpads = e.outputs.Length;
+			}
 
 			// FIXME: These height and width calculations may be overestimating the necessary size of an element.
 
@@ -89,12 +97,14 @@ namespace Fyre
 			// FIXME - font.Height is the line spacing of the font, but we probably
 			// just want the vertical extents. Guess we'll just have to see how it
 			// works out, for now.
-			position.Height = 14 + (numpads - 1)*font.Height + numpads*20;
+			position.Height = font.Height + 14 + (numpads - 1)*font.Height + numpads*20;
 
 			// Width = 2*pad-to-name + between-names + width-of-longest-input-name + width-of-longest-output-name
-			position.Width  = 39;
-			position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestInputPadName (), font).Width);
-			position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestOutputPadName (), font).Width);
+			position.Width = 64;
+			if (e.inputs != null)
+				position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestInputPadName (), font).Width);
+			if (e.outputs != null)
+				position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestOutputPadName (), font).Width);
 
 			pen = new Pen (Color.Azure);
 
