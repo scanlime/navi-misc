@@ -127,8 +127,6 @@ namespace Fyre
 				int w = canvas_element.Width;
 				int h = canvas_element.Height;
 
-				//System.Console.WriteLine ("{0}\t{1}\n", w, h);
-
 				Gdk.Pixmap pixmap = new Gdk.Pixmap (GdkWindow, w, h, -1);
 
 				Gdk.GC gc = new Gdk.GC (pixmap);
@@ -140,7 +138,6 @@ namespace Fyre
 
 				Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, w, h);
 				icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, w, h);
-				//Gtk.Drag.SetIconPixbuf (context, icon, click_x + 1, cell_y);
 				Gtk.Drag.SetIconPixbuf (context, icon, 0, 0);
 			}
 		}
