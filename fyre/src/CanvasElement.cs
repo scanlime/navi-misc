@@ -187,12 +187,15 @@ namespace Fyre
 		public virtual void
 		DrawOutputPad (Pad pad, System.Drawing.Graphics context, float x, float y)
 		{
-			Font	font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
-			Brush	text = new System.Drawing.SolidBrush (Color.Black);
+			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+			Brush		text = new SolidBrush (Color.Black);
+			SizeF		name_len = context.MeasureString (pad.Name, font);
+			PointF		name_pos = new PointF (x - name_len.Width - 7, y);
+			RectangleF	name_box = new RectangleF (name_pos, name_len);
 
 			DrawPad (context, x, y);
 
-			context.DrawString (pad.Name, font, text, x-(float)System.Math.Ceiling (context.MeasureString (pad.Name, font).Width)-7, y+2);
+			context.DrawString (pad.Name, font, text, name_box);
 		}
 
 		public virtual void
