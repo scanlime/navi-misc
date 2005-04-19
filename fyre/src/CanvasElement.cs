@@ -125,6 +125,19 @@ namespace Fyre
 			System.Drawing.Brush background = new System.Drawing.SolidBrush (Color.BlanchedAlmond);
 			context.DrawRectangle (border, 0, 0, position.Width - 1, position.Height - 1);
 			context.FillRectangle (background, 1, 1, position.Width - 2, position.Height - 2);
+
+			int x = 0;
+			int y = 8;
+			for (int i = 0; i < element.inputs.Length; i++) {
+				DrawPad (border, context, x, y);
+				y += 30;
+			}
+		}
+
+		public virtual void
+		DrawPad (System.Drawing.Pen pen, System.Drawing.Graphics context, int x, int y)
+		{
+			context.DrawEllipse (pen, x, y, 20, 20);
 		}
 
 		public virtual void
