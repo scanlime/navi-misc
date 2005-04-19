@@ -129,14 +129,14 @@ namespace Fyre
 			context.DrawRectangle (border, 10, 0, position.Width - 21, position.Height - 1);
 			context.FillRectangle (background, 11, 1, position.Width - 22, position.Height - 2);
 
-			int x;
-			int y;
+			float x;
+			float y;
 
 			if (element.inputs != null) {
 				x = 0;
 				y = 8;
-				for (int i = 0; i < element.inputs.Length; i++) {
-					DrawPad (border, context, x, y);
+				foreach (InputPad pad in element.inputs) {
+					DrawPad (pad, context, x, y);
 					y += 30;
 				}
 			}
@@ -144,26 +144,37 @@ namespace Fyre
 			if (element.outputs != null) {
 				x = position.Width - 21;
 				y = 8;
-				for (int i = 0; i < element.outputs.Length; i++) {
-					DrawPad (border, context, x, y);
+				foreach (OutputPad pad in element.outputs) {
+					DrawPad (pad, context, x, y);
 					y += 30;
 				}
 			}
 		}
 
 		public virtual void
-		DrawPad (System.Drawing.Pen pen, System.Drawing.Graphics context, int x, int y)
+		DrawPad (Pad pad, System.Drawing.Graphics context, float x, float y)
 		{
-			System.Drawing.Point []	triangle = new System.Drawing.Point[3];
-			System.Drawing.Brush	brush = new System.Drawing.SolidBrush (Color.White);
+			System.Drawing.PointF []	triangle = new System.Drawing.PointF[3];
+			System.Drawing.Pen		pen = new System.Drawing.Pen (Color.Chocolate);
+			System.Drawing.Brush		brush = new System.Drawing.SolidBrush (Color.White);
 
-			triangle[0] = new System.Drawing.Point (x+8,y+5);
-			triangle[1] = new System.Drawing.Point (x+8,y+15);
-			triangle[2] = new System.Drawing.Point (x+13, y+10);
+			// FIXME: This hard coded nonsense bothers me.
+			// The corners of the triangle.
+			triangle[0] = new System.Drawing.PointF (x+8,y+5);
+			triangle[1] = new System.Drawing.PointF (x+8,y+15);
+			triangle[2] = new System.Drawing.PointF (x+13, y+10);
 
+			// Draw a white circle with a "Chocolate" border
 			context.FillEllipse (brush, x, y, 20, 20);
 			context.DrawEllipse (pen, x, y, 20, 20);
+
+			// Draw the triangle.
 			context.DrawPolygon (pen, triangle);
+
+			// Draw the text.
+			Font 			font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+			System.Drawing.Brush	text = new System.Drawing.SolidBrush (Color.Black);
+			context.DrawString (pad.Name, font, text, x+27, y);
 		}
 
 		public virtual void
