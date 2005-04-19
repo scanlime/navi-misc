@@ -127,19 +127,29 @@ namespace Fyre
 				int w = canvas_element.Width;
 				int h = canvas_element.Height;
 
+				// Create a pixmap for the element.
 				Gdk.Pixmap pixmap = new Gdk.Pixmap (GdkWindow, w, h, -1);
 
+				// FIXME: what is this?
 				Gdk.GC gc = new Gdk.GC (pixmap);
 				Gdk.Color white = new Gdk.Color (0xff, 0xff, 0xff);
 				Gdk.Colormap.System.AllocColor (ref white, true, true);
 				gc.Foreground = white;
 
+				// Get a C# Graphics object from the pixmap and draw the element on it.
 				System.Drawing.Graphics graphics = Gtk.DotNet.Graphics.FromDrawable (pixmap);
 				canvas_element.Draw (graphics);
 
-				Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, w, h);
-				icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, w, h);
-				Gtk.Drag.SetIconPixbuf (context, icon, 0, 0);
+				// Create a pixmap for the transparency mask.
+				Gdk.Pixmap mask = new Gdk.Pixmap (GdkWindow, w, h, -1);
+
+				// Get a C# Graphics object from the pixmap and draw the mask on it.
+				System.Drawing.Graphics mask_context = Gtk.DotNet.Graphics.FromDrawable (mask);
+				canvas_element.DrawMask (mask_context);
+
+				//Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, w, h);
+				//icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, w, h);
+				Gtk.Drag.SetIconPixmap (context, pixmap.Colormap, pixmap, mask, 0, 0);
 			}
 		}
 
