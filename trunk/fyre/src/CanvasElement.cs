@@ -125,9 +125,9 @@ namespace Fyre
 			System.Drawing.Brush 	background = new System.Drawing.SolidBrush (Color.BlanchedAlmond);
 			System.Drawing.Brush	white = new System.Drawing.SolidBrush (Color.White);
 
-			context.FillRectangle (white, 0, 0, position.Width - 1, position.Height - 1);
-			context.DrawRectangle (border, 10, 0, position.Width - 11, position.Height - 1);
-			context.FillRectangle (background, 11, 1, position.Width - 12, position.Height - 2);
+			context.FillRectangle (white, 0, 0, position.Width, position.Height);
+			context.DrawRectangle (border, 10, 0, position.Width - 21, position.Height - 1);
+			context.FillRectangle (background, 11, 1, position.Width - 22, position.Height - 2);
 
 			int x = 0;
 			int y = 8;
