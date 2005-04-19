@@ -99,7 +99,7 @@ namespace Fyre
 
 
 			// Width = 2*pad-to-name + between-names + width-of-longest-input-name + width-of-longest-output-name
-			// The pads stick out by 10 px on either side, so we'll add 20 to account for this.
+			// The pads stick out by 10 px on either side, so we'll add 20px to account for this.
 			position.Width = 64 + 20;
 			if (e.inputs != null)
 				position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestInputPadName (), font).Width);
@@ -121,18 +121,20 @@ namespace Fyre
 		public virtual void
 		Draw (System.Drawing.Graphics context)
 		{
-			// FIXME
 			Pen	border = new System.Drawing.Pen (Color.Black);
 			Brush 	background = new System.Drawing.SolidBrush (Color.PapayaWhip);
 			Brush	white = new System.Drawing.SolidBrush (Color.White);
 
+			// For the time being draw the element against a white background.
 			context.FillRectangle (white, 0, 0, position.Width, position.Height);
 			context.DrawRectangle (border, 10, 0, position.Width - 21, position.Height - 1);
 			context.FillRectangle (background, 11, 1, position.Width - 22, position.Height - 2);
 
+			// Coordinates of the pads.
 			float x;
 			float y;
 
+			// Draw input pads.
 			if (element.inputs != null) {
 				x = 0;
 				y = 8;
@@ -142,6 +144,7 @@ namespace Fyre
 				}
 			}
 
+			// Draw output pads.
 			if (element.outputs != null) {
 				x = position.Width - 21;
 				y = 8;
