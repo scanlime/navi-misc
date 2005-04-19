@@ -144,7 +144,15 @@ namespace Fyre
 		public virtual void
 		DrawPad (System.Drawing.Pen pen, System.Drawing.Graphics context, int x, int y)
 		{
+			System.Drawing.Point []	triangle = new System.Drawing.Point[3];
+			System.Drawing.Brush	brush = new System.Drawing.SolidBrush (Color.BlanchedAlmond);
+
+			triangle[0] = new System.Drawing.Point (x+8,y+5);
+			triangle[1] = new System.Drawing.Point (x+8,y+15);
+			triangle[2] = new System.Drawing.Point (x+13, y+10);
+
 			context.DrawEllipse (pen, x, y, 20, 20);
+			context.DrawPolygon (pen, triangle);
 		}
 
 		public virtual void
