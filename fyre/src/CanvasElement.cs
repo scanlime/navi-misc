@@ -122,8 +122,8 @@ namespace Fyre
 		Draw (System.Drawing.Graphics context)
 		{
 			// FIXME
-			Pen	border = new System.Drawing.Pen (Color.Chocolate);
-			Brush 	background = new System.Drawing.SolidBrush (Color.BlanchedAlmond);
+			Pen	border = new System.Drawing.Pen (Color.Black);
+			Brush 	background = new System.Drawing.SolidBrush (Color.PapayaWhip);
 			Brush	white = new System.Drawing.SolidBrush (Color.White);
 
 			context.FillRectangle (white, 0, 0, position.Width, position.Height);
@@ -156,9 +156,9 @@ namespace Fyre
 		DrawPad (System.Drawing.Graphics context, float x, float y)
 		{
 			PointF []	triangle = new PointF[3];
-			Pen		pen = new Pen (Color.Chocolate);
+			Pen		pen = new Pen (Color.Black);
 			Brush		brush = new SolidBrush (Color.White);
-			Brush		fill = new SolidBrush (Color.Chocolate);
+			Brush		fill = new SolidBrush (Color.Black);
 
 			// FIXME: This hard coded nonsense bothers me.
 			// The corners of the triangle.
@@ -166,7 +166,7 @@ namespace Fyre
 			triangle[1] = new System.Drawing.PointF (x+8,y+15);
 			triangle[2] = new System.Drawing.PointF (x+13, y+10);
 
-			// Draw a white circle with a "Chocolate" border
+			// Draw a white circle with a black border
 			context.FillEllipse (brush, x, y, 20, 20);
 			context.DrawEllipse (pen, x, y, 20, 20);
 
