@@ -132,6 +132,13 @@ namespace Fyre
 				DrawPad (border, context, x, y);
 				y += 30;
 			}
+
+			x = position.Width - 21;
+			y = 8;
+			for (int i = 0; i < element.outputs.Length; i++) {
+				DrawPad (border, context, x, y);
+				y += 30;
+			}
 		}
 
 		public virtual void
