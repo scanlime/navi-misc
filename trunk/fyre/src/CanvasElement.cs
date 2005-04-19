@@ -123,8 +123,8 @@ namespace Fyre
 			// FIXME
 			System.Drawing.Pen border = new System.Drawing.Pen (Color.Chocolate);
 			System.Drawing.Brush background = new System.Drawing.SolidBrush (Color.BlanchedAlmond);
-			context.DrawRectangle (border, 0, 0, position.Width - 1, position.Height - 1);
-			context.FillRectangle (background, 1, 1, position.Width - 2, position.Height - 2);
+			context.DrawRectangle (border, 10, 0, position.Width - 11, position.Height - 1);
+			context.FillRectangle (background, 11, 1, position.Width - 12, position.Height - 2);
 
 			int x = 0;
 			int y = 8;
@@ -145,13 +145,14 @@ namespace Fyre
 		DrawPad (System.Drawing.Pen pen, System.Drawing.Graphics context, int x, int y)
 		{
 			System.Drawing.Point []	triangle = new System.Drawing.Point[3];
-			System.Drawing.Brush	brush = new System.Drawing.SolidBrush (Color.BlanchedAlmond);
+			System.Drawing.Brush	brush = new System.Drawing.SolidBrush (Color.White);
 
 			triangle[0] = new System.Drawing.Point (x+8,y+5);
 			triangle[1] = new System.Drawing.Point (x+8,y+15);
 			triangle[2] = new System.Drawing.Point (x+13, y+10);
 
 			context.DrawEllipse (pen, x, y, 20, 20);
+			context.FillEllipse (brush, x+1, y+1, 19, 19);
 			context.DrawPolygon (pen, triangle);
 		}
 
