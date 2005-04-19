@@ -175,7 +175,7 @@ namespace Fyre
 
 			System.Drawing.Graphics g = Gtk.DotNet.Graphics.FromDrawable (backing);
 			g.ResetTransform ();
-			g.TranslateTransform ((float) drawing_extents.X, (float) drawing_extents.Y);
+			g.TranslateTransform ((float) -drawing_extents.X, (float) -drawing_extents.Y);
 
 			layout.Draw (g);
 
