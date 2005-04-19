@@ -209,11 +209,11 @@ namespace Fyre
 		public virtual void
 		DrawMask (Graphics context)
 		{
-			Brush bg = new SolidBrush (Color.Transparent);
-			Brush fg = new SolidBrush (Color.Black);
+			Brush bg = new SolidBrush (Color.Black);
+			Brush fg = new SolidBrush (Color.White);
 
 			context.FillRectangle (bg, 0, 0, position.Width, position.Height);
-			context.FillRectangle (fg, 10, 0, position.Width, position.Height);
+			context.FillRectangle (fg, 10, 0, position.Width-21, position.Height);
 
 			float x;
 			float y;
