@@ -129,18 +129,25 @@ namespace Fyre
 			context.DrawRectangle (border, 10, 0, position.Width - 21, position.Height - 1);
 			context.FillRectangle (background, 11, 1, position.Width - 22, position.Height - 2);
 
-			int x = 0;
-			int y = 8;
-			for (int i = 0; i < element.inputs.Length; i++) {
-				DrawPad (border, context, x, y);
-				y += 30;
+			int x;
+			int y;
+
+			if (element.inputs != null) {
+				x = 0;
+				y = 8;
+				for (int i = 0; i < element.inputs.Length; i++) {
+					DrawPad (border, context, x, y);
+					y += 30;
+				}
 			}
 
-			x = position.Width - 21;
-			y = 8;
-			for (int i = 0; i < element.outputs.Length; i++) {
-				DrawPad (border, context, x, y);
-				y += 30;
+			if (element.outputs != null) {
+				x = position.Width - 21;
+				y = 8;
+				for (int i = 0; i < element.outputs.Length; i++) {
+					DrawPad (border, context, x, y);
+					y += 30;
+				}
 			}
 		}
 
