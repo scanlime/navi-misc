@@ -207,6 +207,36 @@ namespace Fyre
 		}
 
 		public virtual void
+		DrawMask (Graphics context)
+		{
+			Brush bg = new SolidBrush (Color.Transparent);
+			Brush fg = new SolidBrush (Color.Black);
+
+			context.FillRectangle (bg, 0, 0, position.Width, position.Height);
+			context.FillRectangle (fg, 10, 0, position.Width, position.Height);
+
+			float x;
+			float y;
+			if (element.inputs != null) {
+				x = 0;
+				y = 8;
+				for (int i = 0; i < element.inputs.Length; i++) {
+					context.FillEllipse (fg, x, y, 20, 20);
+					y += 30;
+				}
+			}
+
+			if (element.outputs != null) {
+				x = position.Width - 21;
+				y = 8;
+				for (int i = 0; i < element.outputs.Length; i++) {
+					context.FillEllipse (fg, x, y, 20, 20);
+					y += 30;
+				}
+			}
+		}
+
+		public virtual void
 		Serialize (XmlTextWriter writer)
 		{
 			// TODO: Implement
