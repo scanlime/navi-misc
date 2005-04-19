@@ -99,7 +99,8 @@ namespace Fyre
 
 
 			// Width = 2*pad-to-name + between-names + width-of-longest-input-name + width-of-longest-output-name
-			position.Width = 64;
+			// The pads stick out by 10 px on either side, so we'll add 20 to account for this.
+			position.Width = 64 + 20;
 			if (e.inputs != null)
 				position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestInputPadName (), font).Width);
 			if (e.outputs != null)
@@ -154,9 +155,10 @@ namespace Fyre
 		public virtual void
 		DrawPad (System.Drawing.Graphics context, float x, float y)
 		{
-			PointF []	triangle = new System.Drawing.PointF[3];
-			Pen		pen = new System.Drawing.Pen (Color.Chocolate);
-			Brush		brush = new System.Drawing.SolidBrush (Color.White);
+			PointF []	triangle = new PointF[3];
+			Pen		pen = new Pen (Color.Chocolate);
+			Brush		brush = new SolidBrush (Color.White);
+			Brush		fill = new SolidBrush (Color.Chocolate);
 
 			// FIXME: This hard coded nonsense bothers me.
 			// The corners of the triangle.
@@ -169,7 +171,7 @@ namespace Fyre
 			context.DrawEllipse (pen, x, y, 20, 20);
 
 			// Draw the triangle.
-			context.DrawPolygon (pen, triangle);
+			context.FillPolygon (fill, triangle);
 
 		}
 
