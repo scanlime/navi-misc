@@ -96,7 +96,12 @@ namespace Fyre
 			// FIXME - font.Height is the line spacing of the font, but we probably
 			// just want the vertical extents. Guess we'll just have to see how it
 			// works out, for now.
-			position.Height = 14 + (numpads - 1)*10 + numpads*20;
+			position.Height = 14;
+			if (numpads > 0)
+				position.Height += (numpads - 1)*10 + numpads*20;
+			else
+				position.Height += 10;
+
 
 			// Width = 2*pad-to-name + between-names + width-of-longest-input-name + width-of-longest-output-name
 			position.Width = 64;
