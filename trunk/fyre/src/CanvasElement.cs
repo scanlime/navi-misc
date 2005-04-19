@@ -136,7 +136,7 @@ namespace Fyre
 				x = 0;
 				y = 8;
 				foreach (InputPad pad in element.inputs) {
-					DrawPad (pad, context, x, y);
+					DrawInputPad (pad, context, x, y);
 					y += 30;
 				}
 			}
@@ -145,14 +145,14 @@ namespace Fyre
 				x = position.Width - 21;
 				y = 8;
 				foreach (OutputPad pad in element.outputs) {
-					DrawPad (pad, context, x, y);
+					DrawOutputPad (pad, context, x, y);
 					y += 30;
 				}
 			}
 		}
 
 		public virtual void
-		DrawPad (Pad pad, System.Drawing.Graphics context, float x, float y)
+		DrawPad (System.Drawing.Graphics context, float x, float y)
 		{
 			System.Drawing.PointF []	triangle = new System.Drawing.PointF[3];
 			System.Drawing.Pen		pen = new System.Drawing.Pen (Color.Chocolate);
@@ -171,10 +171,28 @@ namespace Fyre
 			// Draw the triangle.
 			context.DrawPolygon (pen, triangle);
 
-			// Draw the text.
-			Font 			font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
-			System.Drawing.Brush	text = new System.Drawing.SolidBrush (Color.Black);
+		}
+
+		public virtual void
+		DrawInputPad (Pad pad, System.Drawing.Graphics context, float x, float y)
+		{
+			Font font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+			System.Drawing.Brush text = new System.Drawing.SolidBrush (Color.Black);
+
+			DrawPad (context, x, y);
+
 			context.DrawString (pad.Name, font, text, x+27, y);
+		}
+
+		public virtual void
+		DrawOutputPad (Pad pad, System.Drawing.Graphics context, float x, float y)
+		{
+			Font font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+			System.Drawing.Brush text = new System.Drawing.SolidBrush (Color.Black);
+
+			DrawPad (context, x, y);
+
+			context.DrawString (pad.Name, font, text, x-(float)System.Math.Ceiling (context.MeasureString (pad.Name, font).Width)-7, y);
 		}
 
 		public virtual void
