@@ -170,6 +170,13 @@ namespace Fyre
 			Gdk.GC gc = Style.BackgroundGC (Gtk.StateType.Prelight);
 
 			d.DrawRectangle (gc, true, ev.Area);
+
+			System.Drawing.Graphics g = Gtk.DotNet.Graphics.FromDrawable (GdkWindow);
+			g.ResetTransform ();
+			g.TranslateTransform ((float) drawing_extents.X, (float) drawing_extents.Y);
+
+			layout.Draw (g);
+
 			return true;
 		}
 
@@ -319,6 +326,16 @@ namespace Fyre
 			vscroll.GdkWindow.InvalidateRect (hscroll.Allocation, true);
 			hscroll.GdkWindow.ProcessUpdates (true);
 			vscroll.GdkWindow.ProcessUpdates (true);
+		}
+
+		public void
+		AddElement (Element e, int x, int y)
+		{
+			CanvasElement ce = new CanvasElement (e, GdkWindow);
+			ce.position.X = drawing_extents.X + x;
+			ce.position.Y = drawing_extents.Y + y;
+
+			layout.Add (e, ce);
 		}
 	}
 

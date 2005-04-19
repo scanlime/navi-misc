@@ -201,9 +201,9 @@ namespace Fyre
 			Commands.Add adde = new Commands.Add (e);
 
 			pipeline.Do (adde);
-			e.Edit (toplevel);
+			pipeline_drawing.AddElement (e, args.X, args.Y);
 
-			// FIXME - create drawing stuff
+			e.Edit (toplevel);
 		}
 
 		public Gtk.Window

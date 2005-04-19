@@ -47,14 +47,14 @@ namespace Fyre
 				extents.Width = extents.Height = 0;
 				extents.X = extents.Y = 0;
 				if (e.MoveNext ()) {
-					CanvasElement ce = (CanvasElement) e.Current;
+					CanvasElement ce = (CanvasElement) e.Value;
 					extents = ConvertRect (ce.position);
 				} else {
 					return extents;
 				}
 
 				while (e.MoveNext ()) {
-					CanvasElement ce = (CanvasElement) e.Current;
+					CanvasElement ce = (CanvasElement) e.Value;
 					extents = extents.Union (ConvertRect (ce.position));
 				}
 
@@ -80,8 +80,20 @@ namespace Fyre
 		}
 
 		public void
+		Add (Element e, CanvasElement ce)
+		{
+			elements.Add (e.id.ToString ("d"), ce);
+		}
+
+		public void
 		Draw (System.Drawing.Graphics context)
 		{
+			IDictionaryEnumerator e = elements.GetEnumerator ();
+			e.Reset ();
+			while (e.MoveNext ()) {
+				CanvasElement ce = (CanvasElement) e.Value;
+				ce.Draw (context);
+			}
 		}
 	}
 }
