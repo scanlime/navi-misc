@@ -89,14 +89,9 @@ namespace Fyre
 					numpads = e.outputs.Length;
 			}
 
-			// FIXME: These height and width calculations may be overestimating the necessary size of an element.
-
 			// Height = top-to-pad + pad-to-bottom + inter-pad-distnace*(numpads-1) + pad*(numpads)
-
-			// FIXME - font.Height is the line spacing of the font, but we probably
-			// just want the vertical extents. Guess we'll just have to see how it
-			// works out, for now.
 			position.Height = 14;
+
 			if (numpads > 0)
 				position.Height += (numpads - 1)*10 + numpads*20;
 			else
