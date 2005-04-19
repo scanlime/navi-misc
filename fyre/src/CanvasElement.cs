@@ -161,8 +161,8 @@ namespace Fyre
 			triangle[1] = new System.Drawing.Point (x+8,y+15);
 			triangle[2] = new System.Drawing.Point (x+13, y+10);
 
+			context.FillEllipse (brush, x, y, 20, 20);
 			context.DrawEllipse (pen, x, y, 20, 20);
-			context.FillEllipse (brush, x+1, y+1, 19, 19);
 			context.DrawPolygon (pen, triangle);
 		}
 
