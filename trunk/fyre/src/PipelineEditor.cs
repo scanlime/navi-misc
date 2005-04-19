@@ -202,8 +202,6 @@ namespace Fyre
 
 			pipeline.Do (adde);
 			pipeline_drawing.AddElement (e, args.X, args.Y);
-
-			e.Edit (toplevel);
 		}
 
 		public Gtk.Window
