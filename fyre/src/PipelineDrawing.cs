@@ -30,6 +30,9 @@ namespace Fyre
 		Gtk.Adjustment		hadj;
 		Gtk.Adjustment		vadj;
 
+		// Back buffer
+		Gdk.Pixmap		backing;
+
 		// Whether or not we should update the canvas sizes
 		bool			update_sizes;
 
@@ -166,16 +169,18 @@ namespace Fyre
 		protected override bool
 		OnExposeEvent (Gdk.EventExpose ev)
 		{
-			Gdk.Drawable d = GdkWindow;
 			Gdk.GC gc = Style.BackgroundGC (Gtk.StateType.Prelight);
 
-			d.DrawRectangle (gc, true, ev.Area);
+			backing.DrawRectangle (gc, true, ev.Area);
 
-			System.Drawing.Graphics g = Gtk.DotNet.Graphics.FromDrawable (GdkWindow);
+			System.Drawing.Graphics g = Gtk.DotNet.Graphics.FromDrawable (backing);
 			g.ResetTransform ();
 			g.TranslateTransform ((float) drawing_extents.X, (float) drawing_extents.Y);
 
 			layout.Draw (g);
+
+			Gdk.Rectangle r = ev.Area;
+			GdkWindow.DrawDrawable (gc, backing, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
 
 			return true;
 		}
@@ -192,6 +197,8 @@ namespace Fyre
 			// Make sure our cursor is set
 			event_box.GdkWindow.Cursor = HandOpenCursor;
 
+			// Create the backing store
+			backing = new Gdk.Pixmap (GdkWindow, ev.Width, ev.Height, -1);
 
 			return base.OnConfigureEvent (ev);
 		}
