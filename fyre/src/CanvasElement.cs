@@ -121,9 +121,9 @@ namespace Fyre
 		Draw (System.Drawing.Graphics context)
 		{
 			// FIXME
-			System.Drawing.Pen	border = new System.Drawing.Pen (Color.Chocolate);
-			System.Drawing.Brush 	background = new System.Drawing.SolidBrush (Color.BlanchedAlmond);
-			System.Drawing.Brush	white = new System.Drawing.SolidBrush (Color.White);
+			Pen	border = new System.Drawing.Pen (Color.Chocolate);
+			Brush 	background = new System.Drawing.SolidBrush (Color.BlanchedAlmond);
+			Brush	white = new System.Drawing.SolidBrush (Color.White);
 
 			context.FillRectangle (white, 0, 0, position.Width, position.Height);
 			context.DrawRectangle (border, 10, 0, position.Width - 21, position.Height - 1);
@@ -154,9 +154,9 @@ namespace Fyre
 		public virtual void
 		DrawPad (System.Drawing.Graphics context, float x, float y)
 		{
-			System.Drawing.PointF []	triangle = new System.Drawing.PointF[3];
-			System.Drawing.Pen		pen = new System.Drawing.Pen (Color.Chocolate);
-			System.Drawing.Brush		brush = new System.Drawing.SolidBrush (Color.White);
+			PointF []	triangle = new System.Drawing.PointF[3];
+			Pen		pen = new System.Drawing.Pen (Color.Chocolate);
+			Brush		brush = new System.Drawing.SolidBrush (Color.White);
 
 			// FIXME: This hard coded nonsense bothers me.
 			// The corners of the triangle.
@@ -176,23 +176,23 @@ namespace Fyre
 		public virtual void
 		DrawInputPad (Pad pad, System.Drawing.Graphics context, float x, float y)
 		{
-			Font font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
-			System.Drawing.Brush text = new System.Drawing.SolidBrush (Color.Black);
+			Font	font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+			Brush	text = new System.Drawing.SolidBrush (Color.Black);
 
 			DrawPad (context, x, y);
 
-			context.DrawString (pad.Name, font, text, x+27, y);
+			context.DrawString (pad.Name, font, text, x+27, y+2);
 		}
 
 		public virtual void
 		DrawOutputPad (Pad pad, System.Drawing.Graphics context, float x, float y)
 		{
-			Font font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
-			System.Drawing.Brush text = new System.Drawing.SolidBrush (Color.Black);
+			Font	font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+			Brush	text = new System.Drawing.SolidBrush (Color.Black);
 
 			DrawPad (context, x, y);
 
-			context.DrawString (pad.Name, font, text, x-(float)System.Math.Ceiling (context.MeasureString (pad.Name, font).Width)-7, y);
+			context.DrawString (pad.Name, font, text, x-(float)System.Math.Ceiling (context.MeasureString (pad.Name, font).Width)-7, y+2);
 		}
 
 		public virtual void
