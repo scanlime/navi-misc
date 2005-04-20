@@ -54,6 +54,9 @@ namespace Fyre
 		// X & Y are maintained by the global layout system. We'll probably
 		// want get/set operators on this to trigger redraws, etc.
 		public Rectangle		position;
+
+		// Maintain information about the location of all the pads.
+		private RectangleF []		pads;
 		private Element			element;
 		static private Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
 
@@ -73,36 +76,60 @@ namespace Fyre
 		CanvasElement (Element e, Gdk.Drawable drawable)
 		{
 			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (drawable);
+
 			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
 			Font		bold = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
+
+			// Size of the element name in bold.
+			SizeF		name_sz = graphics.MeasureString (e.Name (), bold);
 			int 		numpads;
 
+			// Determine if there are more inputs or outputs in the element and allocate
+			// RectangleFs for all pads.
 			if (e.inputs == null && e.outputs == null) {
 				numpads = 0;
 			} else if (e.inputs == null) {
 				numpads = e.outputs.Length;
+				pads = new RectangleF[e.outputs.Length];
 			} else if (e.outputs == null) {
 				numpads = e.inputs.Length;
+				pads = new RectangleF[e.inputs.Length];
 			} else {
 				if (e.inputs.Length > e.outputs.Length)
 					numpads = e.inputs.Length;
 				else
 					numpads = e.outputs.Length;
+				pads = new RectangleF[e.inputs.Length + e.outputs.Length];
 			}
 
-			// Height = top-to-pad + pad-to-bottom + inter-pad-distnace*(numpads-1) + pad*(numpads)
-			position.Height = 14 + (int) System.Math.Ceiling (graphics.MeasureString (e.Name (), bold).Height);
+			// Calculate height.
+			position.Height = 14 + (int) System.Math.Ceiling (name_sz.Height);
 
 			if (numpads > 0)
 				position.Height += (numpads - 1)*10 + numpads*20;
 
-			// Width = 2*pad-to-name + between-names + width-of-longest-input-name + width-of-longest-output-name
-			// The pads stick out by 10 px on either side, so we'll add 20px to account for this.
-			position.Width = 64 + 20 + (int) System.Math.Ceiling (graphics.MeasureString (e.Name (), bold).Width);
+			// Calculate width.
+
+			SizeF in_name_sz;
+			SizeF out_name_sz;
+
 			if (e.inputs != null)
-				position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestInputPadName (), font).Width);
+				in_name_sz = graphics.MeasureString (e.LongestInputPadName (), font);
+			else
+				in_name_sz = new SizeF (0,0);
+
 			if (e.outputs != null)
-				position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestOutputPadName (), font).Width);
+				out_name_sz = graphics.MeasureString (e.LongestOutputPadName (), font);
+			else
+				out_name_sz = new SizeF (0,0);
+
+			position.Width = 64 + 20 + (int) System.Math.Ceiling (in_name_sz.Width) +
+				(int) System.Math.Ceiling (out_name_sz.Width);
+
+			// If there isn't enough space horizontally for the element name, we'll set the
+			// width based on the width of the element name.
+			if (position.Width < 28 + (int) System.Math.Ceiling (name_sz.Width))
+				position.Width = 28 + (int) System.Math.Ceiling (name_sz.Width);
 
 			element = e;
 		}
