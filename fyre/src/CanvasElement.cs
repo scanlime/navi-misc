@@ -69,6 +69,8 @@ namespace Fyre
 		static 				System.Drawing.Color fg_color;
 		static 				System.Drawing.Color bg_color_prelight;
 		static 				System.Drawing.Color fg_color_prelight;
+		static				System.Drawing.Color element_bg_color;
+		static				System.Drawing.Color element_fg_color;
 
 		SizeF				name_sz;
 
@@ -184,8 +186,8 @@ namespace Fyre
 		Draw (System.Drawing.Graphics context)
 		{
 			Pen	border = new System.Drawing.Pen (fg_color);
-			Brush 	background = new System.Drawing.SolidBrush (Color.PapayaWhip);
-			Brush	white = new System.Drawing.SolidBrush (bg_color);
+			Brush 	background = new System.Drawing.SolidBrush (element_bg_color);
+			Brush	white = new System.Drawing.SolidBrush (Color.White);
 
 			// For the time being draw the element against a white background.
 			context.FillRectangle (white, 0, 0, position.Width, position.Height);
@@ -195,7 +197,7 @@ namespace Fyre
 			// Element name.
 			PointF		name_pos = new PointF (10+(position.Width-21-name_sz.Width)/2, 2);
 			RectangleF	name_box = new RectangleF (name_pos, name_sz);
-			Brush		text = new SolidBrush (Color.Black);
+			Brush		text = new SolidBrush (fg_color);
 
 			context.DrawString (element.Name (), bold, text, name_box);
 
@@ -221,9 +223,10 @@ namespace Fyre
 		DrawPad (System.Drawing.Graphics context, RectangleF box)
 		{
 			PointF []	triangle = new PointF[3];
-			Pen		pen = new Pen (Color.Black);
-			Brush		brush = new SolidBrush (Color.White);
-			Brush		fill = new SolidBrush (Color.Black);
+			Pen		pen = new Pen (fg_color);
+			Brush		brush = new SolidBrush (element_bg_color);
+			Brush		fill = new SolidBrush (fg_color);
+			Brush		trifill = new SolidBrush (element_fg_color);
 
 			// FIXME: This hard coded nonsense bothers me. Something more dynamic would
 			// probably help when we want to draw these things backwards
@@ -238,13 +241,13 @@ namespace Fyre
 			context.DrawEllipse (pen, box);
 
 			// Draw the triangle.
-			context.FillPolygon (fill, triangle);
+			context.FillPolygon (trifill, triangle);
 		}
 
 		public virtual void
 		DrawInputPad (Pad pad, System.Drawing.Graphics context, RectangleF box)
 		{
-			Brush		text = new SolidBrush (Color.Black);
+			Brush		text = new SolidBrush (fg_color);
 			SizeF		name_len = context.MeasureString (pad.Name, plain);
 			PointF		name_pos = new PointF (box.Left+27, box.Top);
 			RectangleF	name_box = new RectangleF (name_pos, name_len);
@@ -257,7 +260,7 @@ namespace Fyre
 		public virtual void
 		DrawOutputPad (Pad pad, System.Drawing.Graphics context, RectangleF box)
 		{
-			Brush		text = new SolidBrush (Color.Black);
+			Brush		text = new SolidBrush (fg_color);
 			SizeF		name_len = context.MeasureString (pad.Name, plain);
 			PointF		name_pos = new PointF (box.Left - name_len.Width - 7, box.Top);
 			RectangleF	name_box = new RectangleF (name_pos, name_len);
@@ -316,6 +319,12 @@ namespace Fyre
 
 			c = style.Foreground (Gtk.StateType.Prelight);
 			fg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+
+			c = style.Background (Gtk.StateType.Insensitive);
+			element_bg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+
+			c = style.Dark (Gtk.StateType.Selected);
+			element_fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
 		}
 	}
 
