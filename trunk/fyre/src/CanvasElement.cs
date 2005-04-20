@@ -60,6 +60,10 @@ namespace Fyre
 		private Element			element;
 		static private Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
 
+		// We use these fonts so frequently that we may as well store them permanently.
+		static private Font		plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+		static private Font		bold = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
+
 		SizeF				name_sz;
 
 		public int
@@ -78,9 +82,6 @@ namespace Fyre
 		CanvasElement (Element e, Gdk.Drawable drawable)
 		{
 			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (drawable);
-
-			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
-			Font		bold = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
 
 			// Size of the element name in bold.
 			int 		numpads;
@@ -117,12 +118,12 @@ namespace Fyre
 			SizeF out_name_sz;
 
 			if (e.inputs != null)
-				in_name_sz = graphics.MeasureString (e.LongestInputPadName (), font);
+				in_name_sz = graphics.MeasureString (e.LongestInputPadName (), plain);
 			else
 				in_name_sz = new SizeF (0,0);
 
 			if (e.outputs != null)
-				out_name_sz = graphics.MeasureString (e.LongestOutputPadName (), font);
+				out_name_sz = graphics.MeasureString (e.LongestOutputPadName (), plain);
 			else
 				out_name_sz = new SizeF (0,0);
 
@@ -186,13 +187,12 @@ namespace Fyre
 			context.FillRectangle (background, 11, 1, position.Width - 22, position.Height - 2);
 
 			// Element name.
-			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
-			SizeF		name_len = context.MeasureString (element.Name (), font);
+			SizeF		name_len = context.MeasureString (element.Name (), plain);
 			PointF		name_pos = new PointF (10+(position.Width-21-name_len.Width)/2, 2);
 			RectangleF	name_box = new RectangleF (name_pos, name_len);
 			Brush		text = new SolidBrush (Color.Black);
 
-			context.DrawString (element.Name (), font, text, name_box);
+			context.DrawString (element.Name (), bold, text, name_box);
 
 			int	i = 0;
 
@@ -238,29 +238,27 @@ namespace Fyre
 		public virtual void
 		DrawInputPad (Pad pad, System.Drawing.Graphics context, RectangleF box)
 		{
-			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
 			Brush		text = new SolidBrush (Color.Black);
-			SizeF		name_len = context.MeasureString (pad.Name, font);
+			SizeF		name_len = context.MeasureString (pad.Name, plain);
 			PointF		name_pos = new PointF (box.Left+27, box.Top);
 			RectangleF	name_box = new RectangleF (name_pos, name_len);
 
 			DrawPad (context, box);
 
-			context.DrawString (pad.Name, font, text, name_box);
+			context.DrawString (pad.Name, plain, text, name_box);
 		}
 
 		public virtual void
 		DrawOutputPad (Pad pad, System.Drawing.Graphics context, RectangleF box)
 		{
-			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
 			Brush		text = new SolidBrush (Color.Black);
-			SizeF		name_len = context.MeasureString (pad.Name, font);
+			SizeF		name_len = context.MeasureString (pad.Name, plain);
 			PointF		name_pos = new PointF (box.Left - name_len.Width - 7, box.Top);
 			RectangleF	name_box = new RectangleF (name_pos, name_len);
 
 			DrawPad (context, box);
 
-			context.DrawString (pad.Name, font, text, name_box);
+			context.DrawString (pad.Name, plain, text, name_box);
 		}
 
 		public virtual void
