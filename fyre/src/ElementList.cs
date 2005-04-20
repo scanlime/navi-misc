@@ -135,17 +135,17 @@ namespace Fyre
 				canvas_element.Draw (graphics);
 
 				// Create a pixmap for the transparency mask.
-				//Gdk.Pixmap mask = new Gdk.Pixmap (GdkWindow, w, h, 1);
+				Gdk.Pixmap mask = new Gdk.Pixmap (null, w, h, 1);
 
 				// Get a C# Graphics object from the pixmap and draw the mask on it.
 				// FIXME: Getting the Graphics object is causing crashes.
 				//System.Drawing.Graphics mask_context = Gtk.DotNet.Graphics.FromDrawable (mask);
-				//canvas_element.DrawMask (mask_context);
+				canvas_element.DrawMask (mask);
 
-				Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, w, h);
-				icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, w, h);
-				Gtk.Drag.SetIconPixbuf (context, icon, 0, 0);
-				//Gtk.Drag.SetIconPixmap (context, pixmap.Colormap, pixmap, mask, 0, 0);
+				//Gdk.Pixbuf icon = new Gdk.Pixbuf (Gdk.Colorspace.Rgb, false, 8, w, h);
+				//icon.GetFromDrawable (pixmap, pixmap.Colormap, 0, 0, 0, 0, w, h);
+				//Gtk.Drag.SetIconPixbuf (context, icon, 0, 0);
+				Gtk.Drag.SetIconPixmap (context, pixmap.Colormap, pixmap, mask, 0, 0);
 			}
 		}
 

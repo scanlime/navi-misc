@@ -207,21 +207,25 @@ namespace Fyre
 		}
 
 		public virtual void
-		DrawMask (Graphics context)
+		DrawMask (Gdk.Pixmap mask)
 		{
-			Brush bg = new SolidBrush (Color.Black);
-			Brush fg = new SolidBrush (Color.White);
+			Gdk.GC fg = new Gdk.GC (mask);
+			Gdk.GC bg = new Gdk.GC (mask);
 
-			context.FillRectangle (bg, 0, 0, position.Width, position.Height);
-			context.FillRectangle (fg, 10, 0, position.Width-21, position.Height);
+			fg.Foreground = new Gdk.Color (0xff, 0xff, 0xff);
+			bg.Foreground = new Gdk.Color (0, 0, 0);
 
-			float x;
-			float y;
+			mask.DrawRectangle (bg, true, 0, 0, position.Width, position.Height);
+			mask.DrawRectangle (fg, true, 10, 0, position.Width-21, position.Height);
+
+			int x;
+			int y;
+
 			if (element.inputs != null) {
 				x = 0;
 				y = 8;
 				for (int i = 0; i < element.inputs.Length; i++) {
-					context.FillEllipse (fg, x, y, 20, 20);
+					mask.DrawArc (fg, true, x, y, 20, 20, 90*64, 180*64);
 					y += 30;
 				}
 			}
@@ -230,7 +234,7 @@ namespace Fyre
 				x = position.Width - 21;
 				y = 8;
 				for (int i = 0; i < element.outputs.Length; i++) {
-					context.FillEllipse (fg, x, y, 20, 20);
+					mask.DrawArc (fg, true, x, y, 20, 20, 90*64, 180*64);
 					y += 30;
 				}
 			}
