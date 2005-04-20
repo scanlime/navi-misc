@@ -332,6 +332,11 @@ namespace Fyre
 				int offset_x = ((int) ev.X) - drag_x;
 				int offset_y = ((int) ev.Y) - drag_y;
 
+				if (offset_x > 0 && hadj.Value == hadj.Lower)
+					hadj.Lower -= offset_x;
+				if (offset_y > 0 && vadj.Value == vadj.Lower)
+					vadj.Lower -= offset_y;
+
 				SetViewPosition ((float) (drawing_extents.X - offset_x), (float) (drawing_extents.Y - offset_y));
 				SetScrollbars ();
 
