@@ -87,6 +87,12 @@ namespace Fyre
 		}
 
 		public void
+		Remove (Element e)
+		{
+			elements.Remove (e.id.ToString ("d"));
+		}
+
+		public void
 		Draw (System.Drawing.Graphics context, System.Drawing.Rectangle area)
 		{
 			IDictionaryEnumerator e = elements.GetEnumerator ();

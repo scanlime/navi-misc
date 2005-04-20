@@ -204,24 +204,32 @@ namespace Fyre
 		{
 			System.Guid		id;
 			Element			e;
+			int			x;
+			int			y;
+			PipelineDrawing		drawing;
 
 			public
-			Add (Element e)
+			Add (Element e, PipelineDrawing drawing, int x, int y)
 			{
 				Name = "Add " + e.Name ();
 				id = e.id;
 				this.e = e;
+				this.x = x;
+				this.y = y;
+				this.drawing = drawing;
 			}
 
 			public override void
 			Do (Hashtable element_store)
 			{
 				element_store.Add (id.ToString ("d"), e);
+				drawing.AddElement (e, x, y);
 			}
 
 			public override void
 			Undo (Hashtable element_store)
 			{
+				drawing.RemoveElement (e);
 				element_store.Remove (id.ToString ("d"));
 			}
 		}
