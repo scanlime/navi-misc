@@ -209,14 +209,19 @@ namespace Fyre
 		public virtual void
 		DrawMask (Gdk.Pixmap mask)
 		{
-			Gdk.GC fg = new Gdk.GC (mask);
-			Gdk.GC bg = new Gdk.GC (mask);
+			Gdk.GC		fg = new Gdk.GC (mask);
+			Gdk.GC		bg = new Gdk.GC (mask);
+			Gdk.Color	white = new Gdk.Color (1,1,1);
+			Gdk.Color	black = new Gdk.Color (0,0,0);
 
-			fg.Foreground = new Gdk.Color (0xff, 0xff, 0xff);
-			bg.Foreground = new Gdk.Color (0, 0, 0);
+			Gdk.Colormap.System.AllocColor (ref white, true, true);
+			Gdk.Colormap.System.AllocColor (ref black, true, true);
+
+			fg.Foreground = white;
+			bg.Foreground = black;
 
 			mask.DrawRectangle (bg, true, 0, 0, position.Width, position.Height);
-			mask.DrawRectangle (fg, true, 10, 0, position.Width-21, position.Height);
+			mask.DrawRectangle (fg, true, 10, 0, position.Width-20, position.Height);
 
 			int x;
 			int y;
