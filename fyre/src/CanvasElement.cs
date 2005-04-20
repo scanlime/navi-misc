@@ -56,7 +56,7 @@ namespace Fyre
 		public Rectangle		position;
 
 		// Maintain information about the location of all the pads.
-		private RectangleF []		pads;
+		private Rectangle []		pads;
 		private Element			element;
 		static private Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
 
@@ -93,16 +93,16 @@ namespace Fyre
 				numpads = 0;
 			} else if (e.inputs == null) {
 				numpads = e.outputs.Length;
-				pads = new RectangleF[e.outputs.Length];
+				pads = new Rectangle[e.outputs.Length];
 			} else if (e.outputs == null) {
 				numpads = e.inputs.Length;
-				pads = new RectangleF[e.inputs.Length];
+				pads = new Rectangle[e.inputs.Length];
 			} else {
 				if (e.inputs.Length > e.outputs.Length)
 					numpads = e.inputs.Length;
 				else
 					numpads = e.outputs.Length;
-				pads = new RectangleF[e.inputs.Length + e.outputs.Length];
+				pads = new Rectangle[e.inputs.Length + e.outputs.Length];
 			}
 
 			// Calculate height.
@@ -135,16 +135,16 @@ namespace Fyre
 				position.Width = 28 + (int) System.Math.Ceiling (name_sz.Width);
 
 			// Create a RectangleF for each pad representing its position.
-			float	x;
-			float	y;
-			int	i = 0;
+			int x;
+			int y;
+			int i = 0;
 
 			// Inputs.
 			if (e.inputs != null) {
 				x = 0;
-				y = 8 + name_sz.Height;
+				y = 8 + (int) name_sz.Height;
 				for (i = 0; i < e.inputs.Length; i++) {
-					pads[i] = new RectangleF (x, y, 20, 20);
+					pads[i] = new Rectangle (x, y, 20, 20);
 					y += 30;
 				}
 			}
@@ -152,9 +152,9 @@ namespace Fyre
 			// Outputs.
 			if (e.outputs != null) {
 				x = position.Width - 21;
-				y = 8 + name_sz.Height;
+				y = 8 + (int) name_sz.Height;
 				for (int j = 0; j < e.outputs.Length; j++) {
-					pads[i] = new RectangleF (x, y, 20, 20);
+					pads[i] = new Rectangle (x, y, 20, 20);
 					y += 30;
 					i++;
 				}
@@ -280,24 +280,9 @@ namespace Fyre
 			mask.DrawRectangle (bg, true, 0, 0, position.Width, position.Height);
 			mask.DrawRectangle (fg, true, 10, 0, position.Width-20, position.Height);
 
-			int x;
-			int y;
-
-			if (element.inputs != null) {
-				x = 0;
-				y = 8 + (int) name_sz.Height;
-				for (int i = 0; i < element.inputs.Length; i++) {
-					mask.DrawArc (fg, true, x-1, y-1, 21, 21, 0, 360*64);
-					y += 30;
-				}
-			}
-
-			if (element.outputs != null) {
-				x = position.Width - 21;
-				y = 8 + (int) name_sz.Height;
-				for (int i = 0; i < element.outputs.Length; i++) {
-					mask.DrawArc (fg, true, x-1, y-1, 21, 21, 0, 360*64);
-					y += 30;
+			if (pads != null) {
+				foreach (Rectangle pad in pads) {
+					mask.DrawArc (fg, true, pad.Left-1, pad.Top-1, 21, 21, 0, 360*64);
 				}
 			}
 		}
