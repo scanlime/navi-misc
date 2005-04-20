@@ -92,7 +92,11 @@ namespace Fyre
 			e.Reset ();
 			while (e.MoveNext ()) {
 				CanvasElement ce = (CanvasElement) e.Value;
+
+				System.Drawing.Drawing2D.GraphicsState state = context.Save ();
+				context.TranslateTransform (ce.position.X, ce.position.Y);
 				ce.Draw (context);
+				context.Restore (state);
 			}
 		}
 	}
