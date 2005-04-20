@@ -56,13 +56,19 @@ namespace Fyre
 		public Rectangle		position;
 
 		// Maintain information about the location of all the pads.
-		private Rectangle []		pads;
-		private Element			element;
-		static private Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
+		Rectangle []			pads;
+		Element				element;
+		static Gdk.Pixmap		pm = new Gdk.Pixmap (null,1,1,8);
 
 		// We use these fonts so frequently that we may as well store them permanently.
-		static private Font	plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
-		static private Font	bold = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
+		static Font			plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+		static Font			bold  = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
+
+		// Colors
+		static 				System.Drawing.Color bg_color;
+		static 				System.Drawing.Color fg_color;
+		static 				System.Drawing.Color bg_color_prelight;
+		static 				System.Drawing.Color fg_color_prelight;
 
 		SizeF				name_sz;
 
@@ -177,9 +183,9 @@ namespace Fyre
 		public virtual void
 		Draw (System.Drawing.Graphics context)
 		{
-			Pen	border = new System.Drawing.Pen (Color.Black);
+			Pen	border = new System.Drawing.Pen (fg_color);
 			Brush 	background = new System.Drawing.SolidBrush (Color.PapayaWhip);
-			Brush	white = new System.Drawing.SolidBrush (Color.White);
+			Brush	white = new System.Drawing.SolidBrush (bg_color);
 
 			// For the time being draw the element against a white background.
 			context.FillRectangle (white, 0, 0, position.Width, position.Height);
@@ -292,6 +298,24 @@ namespace Fyre
 		Serialize (XmlTextWriter writer)
 		{
 			// TODO: Implement
+		}
+
+		public static void
+		SetColors (Gtk.Style style)
+		{
+			Gdk.Color c;
+
+			c = style.Background (Gtk.StateType.Normal);
+			bg_color = System.Drawing.Color.FromArgb (c.Red / 255, c.Green / 255, c.Blue / 255);
+
+			c = style.Foreground (Gtk.StateType.Normal);
+			fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+
+			c = style.Background (Gtk.StateType.Prelight);
+			bg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+
+			c = style.Foreground (Gtk.StateType.Prelight);
+			fg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
 		}
 	}
 
