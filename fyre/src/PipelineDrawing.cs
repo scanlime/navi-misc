@@ -35,6 +35,7 @@ namespace Fyre
 
 		// We use a 50ms timeout when we to redraw
 		uint			redraw_timeout;
+		uint			scrollbars_timeout;
 
 		// Whether or not we should update the canvas sizes
 		bool			update_sizes;
@@ -139,6 +140,9 @@ namespace Fyre
 
 			update_sizes = true;
 
+			redraw_timeout = 0;
+			scrollbars_timeout = 0;
+
 			Show ();
 		}
 
@@ -217,6 +221,13 @@ namespace Fyre
 		public void
 		SetScrollbars ()
 		{
+			if (scrollbars_timeout == 0)
+				scrollbars_timeout = GLib.Timeout.Add (50, new GLib.TimeoutHandler (SetScrollbarsTimeout));
+		}
+
+		bool
+		SetScrollbarsTimeout ()
+		{
 			Gdk.Rectangle exp_layout = ExpandRect (layout.Extents, layout_buffer);
 			Gdk.Rectangle size = exp_layout.Union (drawing_extents);
 
@@ -230,6 +241,10 @@ namespace Fyre
 			vadj.PageIncrement = drawing_extents.Height / 2;
 			hadj.PageSize = drawing_extents.Width;
 			vadj.PageSize = drawing_extents.Height;
+
+			scrollbars_timeout = 0;
+
+			return false;
 		}
 
 		public void
