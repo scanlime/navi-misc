@@ -343,6 +343,20 @@ namespace Fyre
 				// Set these so we'll get proper offsets next time there's an event.
 				drag_x = (int) ev.X;
 				drag_y = (int) ev.Y;
+				return;
+			}
+
+			int layout_x = ((int) ev.X) + drawing_extents.X;
+			int layout_y = ((int) ev.Y) + drawing_extents.Y;
+			LayoutHover h = layout.GetHoverType (layout_x, layout_y);
+
+			switch (h) {
+			case LayoutHover.None:
+				event_box.GdkWindow.Cursor = HandOpenCursor;
+				break;
+			case LayoutHover.Element:
+				event_box.GdkWindow.Cursor = PointerCursor;
+				break;
 			}
 		}
 
@@ -393,27 +407,22 @@ namespace Fyre
 			ce.position.Y = drawing_extents.Y + y;
 
 			layout.Add (e, ce);
-			GdkWindow.InvalidateRect( drawing_extents, true );
 
-			// Force a redraw of the whole window...For some reason, this is needed
-			// here and not in RemoveElement...oh well, it works.
-			System.Drawing.Graphics g = Gtk.DotNet.Graphics.FromDrawable (backing);
-			g.ResetTransform ();
-			g.TranslateTransform ((float) -drawing_extents.X, (float) -drawing_extents.Y);
-
-			System.Drawing.Rectangle re = new System.Drawing.Rectangle();
-			re.X      = drawing_extents.X;
-			re.Y      = drawing_extents.Y;
-			re.Width  = drawing_extents.Width;
-			re.Height = drawing_extents.Height;
-			layout.Draw (g, re);
+			// Force a redraw of our window
+			Gdk.Rectangle r = drawing_extents;
+			r.X = 0; r.Y = 0;
+			GdkWindow.InvalidateRect (r, true);
 		}
 
 		public void
 		RemoveElement (Element e)
 		{
 			layout.Remove (e);
-			GdkWindow.InvalidateRect( drawing_extents, true );
+
+			// Force a redraw
+			Gdk.Rectangle r = drawing_extents;
+			r.X = 0; r.Y = 0;
+			GdkWindow.InvalidateRect (r, true);
 		}
 	}
 
