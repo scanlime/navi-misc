@@ -176,7 +176,11 @@ namespace Fyre
 		protected override bool
 		OnExposeEvent (Gdk.EventExpose ev)
 		{
-			Gdk.GC gc = Style.BackgroundGC (Gtk.StateType.Normal);
+			Gdk.Color white = new Gdk.Color (0xff, 0xff, 0xff);
+			Gdk.Colormap.System.AllocColor (ref white, true, true);
+			Gdk.GC gc = new Gdk.GC (backing);
+			gc.Foreground = white;
+
 			backing.DrawRectangle (gc, true, ev.Area);
 
 			System.Drawing.Graphics g = Gtk.DotNet.Graphics.FromDrawable (backing);
