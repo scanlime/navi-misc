@@ -33,6 +33,9 @@ namespace Fyre
 		// Back buffer
 		Gdk.Pixmap		backing;
 
+		// We use a 50ms timeout when we to redraw
+		uint			redraw_timeout;
+
 		// Whether or not we should update the canvas sizes
 		bool			update_sizes;
 
@@ -330,9 +333,20 @@ namespace Fyre
 			vadj.Value = y;
 			update_sizes = true;
 
+			if (redraw_timeout == 0)
+				redraw_timeout = GLib.Timeout.Add (50, new GLib.TimeoutHandler (RedrawTimeout));
+		}
+
+		bool
+		RedrawTimeout ()
+		{
 			Gdk.Rectangle r = drawing_extents;
 			r.X = 0; r.Y = 0;
 			GdkWindow.InvalidateRect (r, false);
+
+			redraw_timeout = 0;
+
+			return false;
 		}
 
 		public void
