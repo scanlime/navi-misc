@@ -201,7 +201,7 @@ namespace Fyre
 			Commands.Add adde = new Commands.Add (e);
 
 			pipeline.Do (adde);
-			pipeline_drawing.AddElement (e, args.X, args.Y);
+			pipeline_drawing.AddElement (e, args.X - 2, args.Y - 2);
 		}
 
 		public Gtk.Window
