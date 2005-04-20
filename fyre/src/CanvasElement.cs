@@ -225,7 +225,6 @@ namespace Fyre
 			PointF []	triangle = new PointF[3];
 			Pen		pen = new Pen (fg_color);
 			Brush		brush = new SolidBrush (element_bg_color);
-			Brush		fill = new SolidBrush (fg_color);
 			Brush		trifill = new SolidBrush (element_fg_color);
 
 			// FIXME: This hard coded nonsense bothers me. Something more dynamic would

@@ -37,11 +37,13 @@ namespace Fyre
 		Gdk.Rectangle		canvas;
 
 		PipelineDrawing		drawing;
+		Layout			layout;
 
 		public
-		NavigationWindow (PipelineDrawing drawing) : base (Gtk.WindowType.Popup)
+		NavigationWindow (PipelineDrawing drawing, Layout layout) : base (Gtk.WindowType.Popup)
 		{
 			this.drawing = drawing;
+			this.layout = layout;
 			canvas = drawing.CanvasExtents;
 
 			// We want the navigation window to have a maximum of 200px in either
@@ -136,9 +138,17 @@ namespace Fyre
 		void
 		DrawBackground ()
 		{
-			background.DrawRectangle (black, false, 0, 0, Width + 1, Height + 1);
 			background.DrawRectangle (white, true,  1, 1, Width, Height);
-			// FIXME - we want to draw our pipeline into this window at reduced size.
+
+			System.Drawing.Graphics g = Gtk.DotNet.Graphics.FromDrawable (background);
+			g.TranslateTransform ((float) canvas.X, (float) canvas.Y);
+			g.ScaleTransform (1 / ratio, 1 / ratio);
+
+			System.Drawing.Rectangle r = new System.Drawing.Rectangle ();
+			r.Width = 0;
+			layout.Draw (g, r);
+
+			background.DrawRectangle (black, false, 0, 0, Width + 1, Height + 1);
 		}
 
 		void
@@ -229,6 +239,7 @@ namespace Fyre
 		NavigationWindow	window;
 		int			win_x, win_y;
 		public PipelineDrawing	Drawing;
+		public Layout		layout;
 
 		public
 		NavigationImage ()
@@ -261,7 +272,7 @@ namespace Fyre
 			int mouse_x = (int) ev.XRoot;
 			int mouse_y = (int) ev.YRoot;
 
-			window = new NavigationWindow (Drawing);
+			window = new NavigationWindow (Drawing, layout);
 
 			// Position the window such that the entire thing is always visible
 			// on the screen, even if the navigation image is right next to

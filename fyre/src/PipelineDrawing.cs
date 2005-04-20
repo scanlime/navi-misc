@@ -40,8 +40,7 @@ namespace Fyre
 		// Whether or not we should update the canvas sizes
 		bool			update_sizes;
 
-		// This is the main layout. Yep.
-		Layout			layout;
+		public Layout		layout;
 
 		/* The drawing extents are the size of our current drawing area. The
 		 * position depends on the scrollbars, and the size is always the pixel
@@ -125,8 +124,6 @@ namespace Fyre
 		PipelineDrawing (Glade.XML xml) : base ()
 		{
 			drawing_extents = new Gdk.Rectangle ();
-
-			layout = new Layout ();
 
 			drawing_extents.X = 0;
 			drawing_extents.Y = 0;
