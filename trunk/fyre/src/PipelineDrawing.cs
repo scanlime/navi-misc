@@ -169,7 +169,10 @@ namespace Fyre
 		protected override bool
 		OnExposeEvent (Gdk.EventExpose ev)
 		{
-			Gdk.GC gc = Style.BackgroundGC (Gtk.StateType.Prelight);
+			Gdk.Color white = new Gdk.Color (0xff, 0xff, 0xff);
+			Gdk.Colormap.System.AllocColor (ref white, true, true);
+			Gdk.GC gc = new Gdk.GC (backing);
+			gc.Foreground = white;
 
 			backing.DrawRectangle (gc, true, ev.Area);
 
@@ -177,7 +180,12 @@ namespace Fyre
 			g.ResetTransform ();
 			g.TranslateTransform ((float) -drawing_extents.X, (float) -drawing_extents.Y);
 
-			layout.Draw (g);
+			System.Drawing.Rectangle re = new System.Drawing.Rectangle();
+			re.X      = drawing_extents.X;
+			re.Y      = drawing_extents.Y;
+			re.Width  = drawing_extents.Width;
+			re.Height = drawing_extents.Height;
+			layout.Draw (g, re);
 
 			Gdk.Rectangle r = ev.Area;
 			GdkWindow.DrawDrawable (gc, backing, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
@@ -299,11 +307,8 @@ namespace Fyre
 				int offset_x = ((int) ev.X) - drag_x;
 				int offset_y = ((int) ev.Y) - drag_y;
 
-				drawing_extents.X -= offset_x;
-				drawing_extents.Y -= offset_y;
+				SetViewPosition ((float) (drawing_extents.X - offset_x), (float) (drawing_extents.Y - offset_y));
 				SetScrollbars ();
-				hadj.Value = drawing_extents.X;
-				vadj.Value = drawing_extents.Y;
 
 				// Set these so we'll get proper offsets next time there's an event.
 				drag_x = (int) ev.X;
@@ -324,6 +329,10 @@ namespace Fyre
 			hadj.Value = x;
 			vadj.Value = y;
 			update_sizes = true;
+
+			Gdk.Rectangle r = drawing_extents;
+			r.X = 0; r.Y = 0;
+			GdkWindow.InvalidateRect (r, false);
 		}
 
 		public void
