@@ -41,11 +41,12 @@ namespace Fyre
 				// the rectangles of each element.
 				IDictionaryEnumerator e = elements.GetEnumerator ();
 				e.Reset ();
-				Gdk.Rectangle extents;
+				Gdk.Rectangle extents = new Gdk.Rectangle ();
+
+				extents.Width = 0;
+				extents.Height = 0;
 
 				// If we don't have anything on that layout, just return 0x0+0+0
-				extents.Width = extents.Height = 0;
-				extents.X = extents.Y = 0;
 				if (e.MoveNext ()) {
 					CanvasElement ce = (CanvasElement) e.Value;
 					extents = ConvertRect (ce.position);
