@@ -206,7 +206,7 @@ namespace Fyre
 			// Draw output pads.
 			if (element.outputs != null) {
 				for (int j = 0; j < element.outputs.Length; j++) {
-					DrawOutputPad (element.outputs[i], context, pads[i]);
+					DrawOutputPad (element.outputs[j], context, pads[i]);
 					i++;
 				}
 			}
