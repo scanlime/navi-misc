@@ -74,6 +74,7 @@ namespace Fyre
 		{
 			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (drawable);
 			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+			Font		bold = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
 			int 		numpads;
 
 			if (e.inputs == null && e.outputs == null) {
@@ -90,17 +91,14 @@ namespace Fyre
 			}
 
 			// Height = top-to-pad + pad-to-bottom + inter-pad-distnace*(numpads-1) + pad*(numpads)
-			position.Height = 14;
+			position.Height = 14 + (int) System.Math.Ceiling (graphics.MeasureString (e.Name (), bold).Height);
 
 			if (numpads > 0)
 				position.Height += (numpads - 1)*10 + numpads*20;
-			else
-				position.Height += 10;
-
 
 			// Width = 2*pad-to-name + between-names + width-of-longest-input-name + width-of-longest-output-name
 			// The pads stick out by 10 px on either side, so we'll add 20px to account for this.
-			position.Width = 64 + 20;
+			position.Width = 64 + 20 + (int) System.Math.Ceiling (graphics.MeasureString (e.Name (), bold).Width);
 			if (e.inputs != null)
 				position.Width += (int) System.Math.Ceiling (graphics.MeasureString (e.LongestInputPadName (), font).Width);
 			if (e.outputs != null)
@@ -130,6 +128,15 @@ namespace Fyre
 			context.DrawRectangle (border, 10, 0, position.Width - 21, position.Height - 1);
 			context.FillRectangle (background, 11, 1, position.Width - 22, position.Height - 2);
 
+			// Element name.
+			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
+			SizeF		name_len = context.MeasureString (element.Name (), font);
+			PointF		name_pos = new PointF (10+(position.Width-21-name_len.Width)/2, 2);
+			RectangleF	name_box = new RectangleF (name_pos, name_len);
+			Brush		text = new SolidBrush (Color.Black);
+
+			context.DrawString (element.Name (), font, text, name_box);
+
 			// Coordinates of the pads.
 			float x;
 			float y;
@@ -137,7 +144,7 @@ namespace Fyre
 			// Draw input pads.
 			if (element.inputs != null) {
 				x = 0;
-				y = 8;
+				y = 8 + name_len.Height;
 				foreach (InputPad pad in element.inputs) {
 					DrawInputPad (pad, context, x, y);
 					y += 30;
@@ -147,7 +154,7 @@ namespace Fyre
 			// Draw output pads.
 			if (element.outputs != null) {
 				x = position.Width - 21;
-				y = 8;
+				y = 8 + name_len.Height;
 				foreach (OutputPad pad in element.outputs) {
 					DrawOutputPad (pad, context, x, y);
 					y += 30;
