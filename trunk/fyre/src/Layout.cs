@@ -27,6 +27,14 @@ using System.Collections;
 namespace Fyre
 {
 
+	public enum
+	LayoutHover
+	{
+		None,
+		Element,
+		Pad,
+	};
+
 	class Layout
 	{
 		Hashtable		elements;
@@ -107,6 +115,23 @@ namespace Fyre
 					context.Restore (state);
 				}
 			}
+		}
+
+		public LayoutHover
+		GetHoverType (int x, int y)
+		{
+			IDictionaryEnumerator e = elements.GetEnumerator ();
+			e.Reset ();
+			while (e.MoveNext ()) {
+				CanvasElement ce = (CanvasElement) e.Value;
+
+				if ((x > ce.position.X) &&
+				    (y > ce.position.Y) &&
+				    (x < ce.position.X + ce.position.Width) &&
+				    (y < ce.position.Y + ce.position.Height))
+					return LayoutHover.Element;
+			}
+			return LayoutHover.None;
 		}
 	}
 }
