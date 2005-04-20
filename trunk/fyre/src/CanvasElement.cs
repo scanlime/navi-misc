@@ -187,9 +187,8 @@ namespace Fyre
 			context.FillRectangle (background, 11, 1, position.Width - 22, position.Height - 2);
 
 			// Element name.
-			SizeF		name_len = context.MeasureString (element.Name (), plain);
-			PointF		name_pos = new PointF (10+(position.Width-21-name_len.Width)/2, 2);
-			RectangleF	name_box = new RectangleF (name_pos, name_len);
+			PointF		name_pos = new PointF (10+(position.Width-21-name_sz.Width)/2, 2);
+			RectangleF	name_box = new RectangleF (name_pos, name_sz);
 			Brush		text = new SolidBrush (Color.Black);
 
 			context.DrawString (element.Name (), bold, text, name_box);
