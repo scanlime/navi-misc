@@ -108,7 +108,7 @@ namespace Fyre
 			while (e.MoveNext ()) {
 				CanvasElement ce = (CanvasElement) e.Value;
 
-				if (ce.position.IntersectsWith (area)) {
+				if (area.Width == 0 || ce.position.IntersectsWith (area)) {
 					System.Drawing.Drawing2D.GraphicsState state = context.Save ();
 					context.TranslateTransform (ce.position.X, ce.position.Y);
 					ce.Draw (context);

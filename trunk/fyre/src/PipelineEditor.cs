@@ -33,6 +33,7 @@ namespace Fyre
 
 		// Document
 		Pipeline				pipeline;
+		Layout					layout;
 
 		// Indexes to store which new document this is
 		int					new_index;
@@ -124,6 +125,11 @@ namespace Fyre
 			pipeline = new Pipeline ();
 			pipeline.Changed += new System.EventHandler (PipelineChanged);
 
+			// Create the layout and give it to our child widgets
+			layout = new Layout ();
+			pipeline_drawing.layout  = layout;
+			navigation_image.layout = layout;
+
 			// Set up our drawing canvas
 			SetupDrawingCanvas ();
 
@@ -140,6 +146,7 @@ namespace Fyre
 
 			// Give CanvasElement knowledge of our colors
 			CanvasElement.SetColors (toplevel.Style);
+
 		}
 
 		void
