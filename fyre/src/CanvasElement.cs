@@ -61,8 +61,8 @@ namespace Fyre
 		static private Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
 
 		// We use these fonts so frequently that we may as well store them permanently.
-		static private Font		plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
-		static private Font		bold = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
+		static private Font	plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+		static private Font	bold = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
 
 		SizeF				name_sz;
 
