@@ -219,7 +219,9 @@ namespace Fyre
 			Brush		brush = new SolidBrush (Color.White);
 			Brush		fill = new SolidBrush (Color.Black);
 
-			// FIXME: This hard coded nonsense bothers me.
+			// FIXME: This hard coded nonsense bothers me. Something more dynamic would
+			// probably help when we want to draw these things backwards
+
 			// The corners of the triangle.
 			triangle[0] = new System.Drawing.PointF (box.Left+8,box.Top+5);
 			triangle[1] = new System.Drawing.PointF (box.Left+8,box.Top+15);
@@ -231,7 +233,6 @@ namespace Fyre
 
 			// Draw the triangle.
 			context.FillPolygon (fill, triangle);
-
 		}
 
 		public virtual void
@@ -263,6 +264,7 @@ namespace Fyre
 		public virtual void
 		DrawMask (Gdk.Pixmap mask)
 		{
+			// Fore- and background colours.
 			Gdk.GC		fg = new Gdk.GC (mask);
 			Gdk.GC		bg = new Gdk.GC (mask);
 			Gdk.Color	white = new Gdk.Color (1,1,1);
@@ -274,9 +276,11 @@ namespace Fyre
 			fg.Foreground = white;
 			bg.Foreground = black;
 
+			// Main body.
 			mask.DrawRectangle (bg, true, 0, 0, position.Width, position.Height);
 			mask.DrawRectangle (fg, true, 10, 0, position.Width-20, position.Height);
 
+			// Pads.
 			if (pads != null) {
 				foreach (Rectangle pad in pads) {
 					mask.DrawArc (fg, true, pad.Left-1, pad.Top-1, 21, 21, 0, 360*64);
