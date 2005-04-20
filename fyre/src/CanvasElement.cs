@@ -230,7 +230,7 @@ namespace Fyre
 				x = 0;
 				y = 8;
 				for (int i = 0; i < element.inputs.Length; i++) {
-					mask.DrawArc (fg, true, x, y, 20, 20, 90*64, 180*64);
+					mask.DrawArc (fg, true, x-1, y-1, 20, 20, 90*64, 180*64);
 					y += 30;
 				}
 			}
@@ -239,7 +239,7 @@ namespace Fyre
 				x = position.Width - 21;
 				y = 8;
 				for (int i = 0; i < element.outputs.Length; i++) {
-					mask.DrawArc (fg, true, x, y, 20, 20, 90*64, 180*64);
+					mask.DrawArc (fg, true, x-1, y-1, 20, 20, 270*64, 180*64);
 					y += 30;
 				}
 			}
