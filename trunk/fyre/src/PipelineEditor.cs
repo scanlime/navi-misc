@@ -198,12 +198,14 @@ namespace Fyre
 			ElementFactory factory = ElementFactory.Instance;
 			Element e = factory.Create (name);
 
-			Commands.Add adde = new Commands.Add (e);
-
-			pipeline.Do (adde);
 			// FIXME - we should find out the frame's child offset rather than
 			// hardcoding +2x2 here
-			pipeline_drawing.AddElement (e, args.X - 2, args.Y - 2);
+
+			// FIXME - This is definitely not the most elegant way to do this, but it does
+			// give the command the information it needs to undo an operation.
+			Commands.Add adde = new Commands.Add (e, pipeline_drawing, args.X - 2, args.Y -2);
+
+			pipeline.Do (adde);
 		}
 
 		public Gtk.Window

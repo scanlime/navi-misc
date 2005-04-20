@@ -393,6 +393,27 @@ namespace Fyre
 			ce.position.Y = drawing_extents.Y + y;
 
 			layout.Add (e, ce);
+			GdkWindow.InvalidateRect( drawing_extents, true );
+
+			// Force a redraw of the whole window...For some reason, this is needed
+			// here and not in RemoveElement...oh well, it works.
+			System.Drawing.Graphics g = Gtk.DotNet.Graphics.FromDrawable (backing);
+			g.ResetTransform ();
+			g.TranslateTransform ((float) -drawing_extents.X, (float) -drawing_extents.Y);
+
+			System.Drawing.Rectangle re = new System.Drawing.Rectangle();
+			re.X      = drawing_extents.X;
+			re.Y      = drawing_extents.Y;
+			re.Width  = drawing_extents.Width;
+			re.Height = drawing_extents.Height;
+			layout.Draw (g, re);
+		}
+
+		public void
+		RemoveElement (Element e)
+		{
+			layout.Remove (e);
+			GdkWindow.InvalidateRect( drawing_extents, true );
 		}
 	}
 
