@@ -228,8 +228,15 @@ namespace Fyre
 		bool
 		SetScrollbarsTimeout ()
 		{
-			Gdk.Rectangle exp_layout = ExpandRect (layout.Extents, layout_buffer);
-			Gdk.Rectangle size = exp_layout.Union (drawing_extents);
+			Gdk.Rectangle r = layout.Extents;
+			Gdk.Rectangle size;
+
+			if (r.Width == 0 && r.Height == 0) {
+				size = drawing_extents;
+			} else {
+				Gdk.Rectangle exp_layout = ExpandRect (r, layout_buffer);
+				size = exp_layout.Union (drawing_extents);
+			}
 
 			hadj.Lower = size.X;
 			vadj.Lower = size.Y;
