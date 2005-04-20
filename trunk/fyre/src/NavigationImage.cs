@@ -141,7 +141,7 @@ namespace Fyre
 			background.DrawRectangle (white, true,  1, 1, Width, Height);
 
 			System.Drawing.Graphics g = Gtk.DotNet.Graphics.FromDrawable (background);
-			g.TranslateTransform ((float) canvas.X, (float) canvas.Y);
+			g.TranslateTransform ((float) -canvas.X, (float) -canvas.Y);
 			g.ScaleTransform (1 / ratio, 1 / ratio);
 
 			System.Drawing.Rectangle r = new System.Drawing.Rectangle ();
