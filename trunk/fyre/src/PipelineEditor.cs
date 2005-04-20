@@ -201,6 +201,8 @@ namespace Fyre
 			Commands.Add adde = new Commands.Add (e);
 
 			pipeline.Do (adde);
+			// FIXME - we should find out the frame's child offset rather than
+			// hardcoding +2x2 here
 			pipeline_drawing.AddElement (e, args.X - 2, args.Y - 2);
 		}
 
