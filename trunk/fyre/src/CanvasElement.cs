@@ -60,6 +60,8 @@ namespace Fyre
 		private Element			element;
 		static private Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
 
+		SizeF				name_sz;
+
 		public int
 		Width
 		{
@@ -81,8 +83,9 @@ namespace Fyre
 			Font		bold = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
 
 			// Size of the element name in bold.
-			SizeF		name_sz = graphics.MeasureString (e.Name (), bold);
 			int 		numpads;
+
+			name_sz = graphics.MeasureString (e.Name (), bold);
 
 			// Determine if there are more inputs or outputs in the element and allocate
 			// RectangleFs for all pads.
@@ -262,7 +265,7 @@ namespace Fyre
 
 			if (element.inputs != null) {
 				x = 0;
-				y = 8;
+				y = 8 + (int) name_sz.Height;
 				for (int i = 0; i < element.inputs.Length; i++) {
 					mask.DrawArc (fg, true, x-1, y-1, 21, 21, 0, 360*64);
 					y += 30;
@@ -271,7 +274,7 @@ namespace Fyre
 
 			if (element.outputs != null) {
 				x = position.Width - 21;
-				y = 8;
+				y = 8 + (int) name_sz.Height;
 				for (int i = 0; i < element.outputs.Length; i++) {
 					mask.DrawArc (fg, true, x-1, y-1, 21, 21, 0, 360*64);
 					y += 30;
