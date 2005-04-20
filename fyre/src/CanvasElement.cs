@@ -134,6 +134,33 @@ namespace Fyre
 			if (position.Width < 28 + (int) System.Math.Ceiling (name_sz.Width))
 				position.Width = 28 + (int) System.Math.Ceiling (name_sz.Width);
 
+			// Create a RectangleF for each pad representing its position.
+			float	x;
+			float	y;
+			int	i = 0;
+
+			// Inputs.
+			if (e.inputs != null) {
+				x = 0;
+				y = 8 + name_sz.Height;
+				for (i = 0; i < e.inputs.Length; i++) {
+					pads[i] = new RectangleF (x, y, 20, 20);
+					y += 30;
+				}
+			}
+
+			// Outputs.
+			if (e.outputs != null) {
+				x = position.Width - 21;
+				y = 8 + name_sz.Height;
+				for (int j = 0; j < e.outputs.Length; j++) {
+					pads[i] = new RectangleF (x, y, 20, 20);
+					y += 30;
+					i++;
+				}
+			}
+
+			// Store a reference to the element we're drawing.
 			element = e;
 		}
 
@@ -167,33 +194,26 @@ namespace Fyre
 
 			context.DrawString (element.Name (), font, text, name_box);
 
-			// Coordinates of the pads.
-			float x;
-			float y;
+			int	i = 0;
 
 			// Draw input pads.
 			if (element.inputs != null) {
-				x = 0;
-				y = 8 + name_len.Height;
-				foreach (InputPad pad in element.inputs) {
-					DrawInputPad (pad, context, x, y);
-					y += 30;
+				for (i = 0; i < element.inputs.Length; i++) {
+					DrawInputPad (element.inputs[i], context, pads[i]);
 				}
 			}
 
 			// Draw output pads.
 			if (element.outputs != null) {
-				x = position.Width - 21;
-				y = 8 + name_len.Height;
-				foreach (OutputPad pad in element.outputs) {
-					DrawOutputPad (pad, context, x, y);
-					y += 30;
+				for (int j = 0; j < element.outputs.Length; j++) {
+					DrawOutputPad (element.outputs[i], context, pads[i]);
+					i++;
 				}
 			}
 		}
 
 		public virtual void
-		DrawPad (System.Drawing.Graphics context, float x, float y)
+		DrawPad (System.Drawing.Graphics context, RectangleF box)
 		{
 			PointF []	triangle = new PointF[3];
 			Pen		pen = new Pen (Color.Black);
@@ -202,13 +222,13 @@ namespace Fyre
 
 			// FIXME: This hard coded nonsense bothers me.
 			// The corners of the triangle.
-			triangle[0] = new System.Drawing.PointF (x+8,y+5);
-			triangle[1] = new System.Drawing.PointF (x+8,y+15);
-			triangle[2] = new System.Drawing.PointF (x+13, y+10);
+			triangle[0] = new System.Drawing.PointF (box.Left+8,box.Top+5);
+			triangle[1] = new System.Drawing.PointF (box.Left+8,box.Top+15);
+			triangle[2] = new System.Drawing.PointF (box.Left+13, box.Top+10);
 
 			// Draw a white circle with a black border
-			context.FillEllipse (brush, x, y, 20, 20);
-			context.DrawEllipse (pen, x, y, 20, 20);
+			context.FillEllipse (brush, box);
+			context.DrawEllipse (pen, box);
 
 			// Draw the triangle.
 			context.FillPolygon (fill, triangle);
@@ -216,29 +236,29 @@ namespace Fyre
 		}
 
 		public virtual void
-		DrawInputPad (Pad pad, System.Drawing.Graphics context, float x, float y)
+		DrawInputPad (Pad pad, System.Drawing.Graphics context, RectangleF box)
 		{
 			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
 			Brush		text = new SolidBrush (Color.Black);
 			SizeF		name_len = context.MeasureString (pad.Name, font);
-			PointF		name_pos = new PointF (x+27, y);
+			PointF		name_pos = new PointF (box.Left+27, box.Top);
 			RectangleF	name_box = new RectangleF (name_pos, name_len);
 
-			DrawPad (context, x, y);
+			DrawPad (context, box);
 
 			context.DrawString (pad.Name, font, text, name_box);
 		}
 
 		public virtual void
-		DrawOutputPad (Pad pad, System.Drawing.Graphics context, float x, float y)
+		DrawOutputPad (Pad pad, System.Drawing.Graphics context, RectangleF box)
 		{
 			Font		font = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
 			Brush		text = new SolidBrush (Color.Black);
 			SizeF		name_len = context.MeasureString (pad.Name, font);
-			PointF		name_pos = new PointF (x - name_len.Width - 7, y);
+			PointF		name_pos = new PointF (box.Left - name_len.Width - 7, box.Top);
 			RectangleF	name_box = new RectangleF (name_pos, name_len);
 
-			DrawPad (context, x, y);
+			DrawPad (context, box);
 
 			context.DrawString (pad.Name, font, text, name_box);
 		}
