@@ -367,7 +367,7 @@ namespace Fyre
 				    (y <= pad.Y + pad.Height))
 					return ElementHover.OutputPad;
 			}
-			if (x > 10 && x < Position.Width - 20)
+			if (x >= 10 && x <= Position.Width - 10)
 				return ElementHover.Body;
 			return ElementHover.None;
 		}

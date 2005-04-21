@@ -121,6 +121,7 @@ namespace Fyre
 		public LayoutHover
 		GetHoverType (int x, int y)
 		{
+			System.Console.WriteLine ("testing point {0}x{1}", x, y);
 			IDictionaryEnumerator e = elements.GetEnumerator ();
 			e.Reset ();
 			while (e.MoveNext ()) {
@@ -128,7 +129,10 @@ namespace Fyre
 
 				System.Drawing.Point p = new System.Drawing.Point (x, y);
 
+				System.Console.WriteLine ("    testing against box: {0}x{1}+{2}+{3}", ce.Width, ce.Height, ce.X, ce.Y);
+
 				if (ce.Position.Contains (p)) {
+					System.Console.WriteLine ("        yes!");
 					int local_x = x - ce.X;
 					int local_y = y - ce.Y;
 					ElementHover eh = ce.GetHover (local_x, local_y);
