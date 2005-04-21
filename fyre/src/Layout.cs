@@ -58,14 +58,14 @@ namespace Fyre
 				// If we don't have anything on that layout, just return 0x0+0+0
 				if (e.MoveNext ()) {
 					CanvasElement ce = (CanvasElement) e.Value;
-					extents = ConvertRect (ce.position);
+					extents = ConvertRect (ce.Position);
 				} else {
 					return extents;
 				}
 
 				while (e.MoveNext ()) {
 					CanvasElement ce = (CanvasElement) e.Value;
-					extents = extents.Union (ConvertRect (ce.position));
+					extents = extents.Union (ConvertRect (ce.Position));
 				}
 
 				return extents;
@@ -109,9 +109,9 @@ namespace Fyre
 			while (e.MoveNext ()) {
 				CanvasElement ce = (CanvasElement) e.Value;
 
-				if (area.Width == 0 || ce.position.IntersectsWith (area)) {
+				if (area.Width == 0 || ce.Position.IntersectsWith (area)) {
 					System.Drawing.Drawing2D.GraphicsState state = context.Save ();
-					context.TranslateTransform (ce.position.X, ce.position.Y);
+					context.TranslateTransform (ce.Position.X, ce.Position.Y);
 					ce.Draw (context);
 					context.Restore (state);
 				}
@@ -126,10 +126,9 @@ namespace Fyre
 			while (e.MoveNext ()) {
 				CanvasElement ce = (CanvasElement) e.Value;
 
-				if ((x >= ce.X) &&
-				    (x <= ce.X + ce.Width) &&
-				    (y >= ce.Y) &&
-				    (y <= ce.Y + ce.Height)) {
+				System.Drawing.Point p = new System.Drawing.Point (x, y);
+
+				if (ce.Position.Contains (p)) {
 					int local_x = x - ce.X;
 					int local_y = y - ce.Y;
 					ElementHover eh = ce.GetHover (local_x, local_y);
