@@ -345,9 +345,6 @@ namespace Fyre
 		{
 			Gdk.EventMotion ev = args.Event;
 
-			// FIXME - we'll want to check whether we're moused over an element here
-			// and change cursors/draw prelights appropriately
-
 			if (dragging && ev.State == Gdk.ModifierType.Button1Mask) {
 				// Compute the offset from the last event we got, and move
 				// our view appropriately.
