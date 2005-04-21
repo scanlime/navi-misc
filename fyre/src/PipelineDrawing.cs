@@ -80,7 +80,7 @@ namespace Fyre
 		 * Closed hand: used when dragging the document canvas around
 		 * Pointer: cursor when the mouse is hovering over an element
 		 * Fleur: cursor when moving an element
-		 * FIXME: cursor when hovering over a pad
+		 * Plus: cursor when hovering over a pad
 		 * FIXME: cursor when dragging out a new edge
 		 */
 		Gdk.Cursor hand_open_cursor;
@@ -117,6 +117,15 @@ namespace Fyre
 				if (fleur_cursor == null)
 					fleur_cursor = new Gdk.Cursor (Gdk.CursorType.Fleur);
 				return fleur_cursor;
+			}
+		}
+		Gdk.Cursor plus_cursor;
+		Gdk.Cursor PlusCursor
+		{
+			get {
+				if (plus_cursor == null)
+					plus_cursor = new Gdk.Cursor (Gdk.CursorType.Plus);
+				return plus_cursor;
 			}
 		}
 
@@ -294,18 +303,19 @@ namespace Fyre
 		{
 			Gdk.EventButton ev = args.Event;
 
-			// FIXME - check whether we're clicking on an element. If so, select
-			// it/begin drag/etc.  We also need behavior for right- and double-clicks.
-			// Right click should pop up a context menu (appropriate for whatever the
-			// user's mouse is hovering over).  Double clicking on an element should
-			// pop up an edit dialog for it.
+			int layout_x = ((int) ev.X) + drawing_extents.X;
+			int layout_y = ((int) ev.Y) + drawing_extents.Y;
+			LayoutHover h = layout.GetHoverType (layout_x, layout_y);
 
-			drag_x = (int) ev.X;
-			drag_y = (int) ev.Y;
+			if (h == LayoutHover.None && ev.Button == 1) {
+				// We're not mousing over anything. Drag the document around.
+				drag_x = (int) ev.X;
+				drag_y = (int) ev.Y;
 
-			dragging = true;
+				dragging = true;
 
-			event_box.GdkWindow.Cursor = HandClosedCursor;
+				event_box.GdkWindow.Cursor = HandClosedCursor;
+			}
 		}
 
 		void

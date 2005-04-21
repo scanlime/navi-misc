@@ -127,8 +127,8 @@ namespace Fyre
 
 				if ((x > ce.position.X) &&
 				    (y > ce.position.Y) &&
-				    (x < ce.position.X + ce.position.Width) &&
-				    (y < ce.position.Y + ce.position.Height))
+				    (x < ce.position.X + ce.Width) &&
+				    (y < ce.position.Y + ce.Height))
 					return LayoutHover.Element;
 			}
 			return LayoutHover.None;
