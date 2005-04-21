@@ -344,6 +344,13 @@ namespace Fyre
 		MotionNotifyHandler (object o, Gtk.MotionNotifyEventArgs args)
 		{
 			Gdk.EventMotion ev = args.Event;
+			Gtk.Widget widget = (Gtk.Widget) o;
+
+			int win_x, win_y;
+			widget.GdkWindow.GetOrigin (out win_x, out win_y);
+
+			int evX = ((int) ev.XRoot) - win_x;
+			int evY = ((int) ev.YRoot) - win_y;
 
 			if (dragging && ev.State == Gdk.ModifierType.Button1Mask) {
 				// Compute the offset from the last event we got, and move
@@ -365,8 +372,8 @@ namespace Fyre
 				return;
 			}
 
-			int layout_x = ((int) ev.X) + drawing_extents.X;
-			int layout_y = ((int) ev.Y) + drawing_extents.Y;
+			int layout_x = evX + drawing_extents.X;
+			int layout_y = evY + drawing_extents.Y;
 			LayoutHover h = layout.GetHoverType (layout_x, layout_y);
 
 			switch (h) {
