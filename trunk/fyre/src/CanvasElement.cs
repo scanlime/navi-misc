@@ -47,6 +47,14 @@ namespace Fyre
 	 * 	pad-to-name:		7px
 	 * 	between-names:		50px
 	 */
+	public enum
+	ElementHover
+	{
+		None,
+		Body,
+		InputPad,
+		OutputPad,
+	};
 
 	public class CanvasElement
 	{
@@ -56,7 +64,8 @@ namespace Fyre
 		public Rectangle		position;
 
 		// Maintain information about the location of all the pads.
-		Rectangle []			pads;
+		Rectangle []			input_pads;
+		Rectangle []			output_pads;
 		Element				element;
 		static Gdk.Pixmap		pm = new Gdk.Pixmap (null,1,1,8);
 
@@ -114,16 +123,17 @@ namespace Fyre
 				numpads = 0;
 			} else if (e.inputs == null) {
 				numpads = e.outputs.Length;
-				pads = new Rectangle[e.outputs.Length];
+				output_pads = new Rectangle[e.outputs.Length];
 			} else if (e.outputs == null) {
 				numpads = e.inputs.Length;
-				pads = new Rectangle[e.inputs.Length];
+				input_pads = new Rectangle[e.inputs.Length];
 			} else {
 				if (e.inputs.Length > e.outputs.Length)
 					numpads = e.inputs.Length;
 				else
 					numpads = e.outputs.Length;
-				pads = new Rectangle[e.inputs.Length + e.outputs.Length];
+				input_pads  = new Rectangle[e.inputs.Length];
+				output_pads = new Rectangle[e.outputs.Length];
 			}
 
 			// Calculate height.
@@ -165,7 +175,7 @@ namespace Fyre
 				x = 0;
 				y = 8 + (int) name_sz.Height;
 				for (i = 0; i < e.inputs.Length; i++) {
-					pads[i] = new Rectangle (x, y, 20, 20);
+					input_pads[i] = new Rectangle (x, y, 20, 20);
 					y += 30;
 				}
 			}
@@ -175,7 +185,7 @@ namespace Fyre
 				x = position.Width - 21;
 				y = 8 + (int) name_sz.Height;
 				for (int j = 0; j < e.outputs.Length; j++) {
-					pads[i] = new Rectangle (x, y, 20, 20);
+					output_pads[j] = new Rectangle (x, y, 20, 20);
 					y += 30;
 					i++;
 				}
@@ -213,20 +223,17 @@ namespace Fyre
 
 			context.DrawString (element.Name (), bold, text, name_box);
 
-			int	i = 0;
-
 			// Draw input pads.
 			if (element.inputs != null) {
-				for (i = 0; i < element.inputs.Length; i++) {
-					DrawInputPad (element.inputs[i], context, pads[i]);
+				for (int i = 0; i < element.inputs.Length; i++) {
+					DrawInputPad (element.inputs[i], context, input_pads[i]);
 				}
 			}
 
 			// Draw output pads.
 			if (element.outputs != null) {
-				for (int j = 0; j < element.outputs.Length; j++) {
-					DrawOutputPad (element.outputs[j], context, pads[i]);
-					i++;
+				for (int i = 0; i < element.outputs.Length; i++) {
+					DrawOutputPad (element.outputs[i], context, output_pads[i]);
 				}
 			}
 		}
@@ -301,8 +308,13 @@ namespace Fyre
 			mask.DrawRectangle (fg, true, 10, 0, position.Width-20, position.Height);
 
 			// Pads.
-			if (pads != null) {
-				foreach (Rectangle pad in pads) {
+			if (input_pads != null) {
+				foreach (Rectangle pad in input_pads) {
+					mask.DrawArc (fg, true, pad.Left-1, pad.Top-1, 21, 21, 0, 360*64);
+				}
+			}
+			if (output_pads != null) {
+				foreach (Rectangle pad in output_pads) {
 					mask.DrawArc (fg, true, pad.Left-1, pad.Top-1, 21, 21, 0, 360*64);
 				}
 			}
@@ -336,6 +348,28 @@ namespace Fyre
 
 			c = style.Dark (Gtk.StateType.Selected);
 			element_fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+		}
+
+		public ElementHover
+		GetHover (int x, int y)
+		{
+			foreach (Rectangle pad in input_pads) {
+				if ((x >= pad.X) &&
+				    (x <= pad.X + pad.Width) &&
+				    (y >= pad.Y) &&
+				    (y <= pad.Y + pad.Height))
+					return ElementHover.InputPad;
+			}
+			foreach (Rectangle pad in output_pads) {
+				if ((x >= pad.X) &&
+				    (x <= pad.X + pad.Width) &&
+				    (y >= pad.Y) &&
+				    (y <= pad.Y + pad.Height))
+					return ElementHover.OutputPad;
+			}
+			if (x > 10 && x < position.Width - 20)
+				return ElementHover.Body;
+			return ElementHover.None;
 		}
 	}
 

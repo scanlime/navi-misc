@@ -377,7 +377,11 @@ namespace Fyre
 				event_box.GdkWindow.Cursor = HandOpenCursor;
 				break;
 			case LayoutHover.Element:
+			case LayoutHover.InputPad:
 				event_box.GdkWindow.Cursor = PointerCursor;
+				break;
+			case LayoutHover.OutputPad:
+				event_box.GdkWindow.Cursor = PlusCursor;
 				break;
 			}
 		}

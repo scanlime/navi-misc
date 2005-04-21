@@ -32,7 +32,8 @@ namespace Fyre
 	{
 		None,
 		Element,
-		Pad,
+		InputPad,
+		OutputPad,
 	};
 
 	class Layout
@@ -128,8 +129,14 @@ namespace Fyre
 				if ((x >= ce.X) &&
 				    (x <= ce.X + ce.Width) &&
 				    (y >= ce.Y) &&
-				    (y <= ce.Y + ce.Height))
-					return LayoutHover.Element;
+				    (y <= ce.Y + ce.Height)) {
+					int local_x = x - ce.X;
+					int local_y = y - ce.Y;
+					ElementHover eh = ce.GetHover (local_x, local_y);
+					if (eh == ElementHover.Body)      return LayoutHover.Element;
+					if (eh == ElementHover.InputPad)  return LayoutHover.InputPad;
+					if (eh == ElementHover.OutputPad) return LayoutHover.OutputPad;
+				}
 			}
 			return LayoutHover.None;
 		}
