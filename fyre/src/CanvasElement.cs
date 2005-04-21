@@ -75,6 +75,18 @@ namespace Fyre
 		SizeF				name_sz;
 
 		public int
+		X
+		{
+			get { return position.X; }
+		}
+
+		public int
+		Y
+		{
+			get { return position.Y; }
+		}
+
+		public int
 		Width
 		{
 			get { return position.Width; }
