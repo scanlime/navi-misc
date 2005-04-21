@@ -29,6 +29,7 @@ namespace Fyre
 		None,
 		Document,
 		Element,
+		PadConnection,
 	};
 
 	class PipelineDrawing : Gtk.DrawingArea
@@ -356,6 +357,10 @@ namespace Fyre
 					context.Popup (null, null, null, System.IntPtr.Zero, ev.Button, ev.Time);
 				}
 			}
+
+			if (h == LayoutHover.OutputPad && ev.Button == 1) {
+				dragging = DrawingDragType.PadConnection;
+			}
 		}
 
 		void
@@ -427,21 +432,23 @@ namespace Fyre
 				return;
 			}
 
-			int layout_x = evX + drawing_extents.X;
-			int layout_y = evY + drawing_extents.Y;
-			LayoutHover h = layout.GetHoverType (layout_x, layout_y);
+			if (dragging == DrawingDragType.None) {
+				int layout_x = evX + drawing_extents.X;
+				int layout_y = evY + drawing_extents.Y;
+				LayoutHover h = layout.GetHoverType (layout_x, layout_y);
 
-			switch (h) {
-			case LayoutHover.Element:
-			case LayoutHover.InputPad:
-				event_box.GdkWindow.Cursor = PointerCursor;
-				break;
-			case LayoutHover.OutputPad:
-				event_box.GdkWindow.Cursor = PlusCursor;
-				break;
-			case LayoutHover.None:
-				event_box.GdkWindow.Cursor = HandOpenCursor;
-				break;
+				switch (h) {
+				case LayoutHover.Element:
+				case LayoutHover.InputPad:
+					event_box.GdkWindow.Cursor = PointerCursor;
+					break;
+				case LayoutHover.OutputPad:
+					event_box.GdkWindow.Cursor = PlusCursor;
+					break;
+				case LayoutHover.None:
+					event_box.GdkWindow.Cursor = HandOpenCursor;
+					break;
+				}
 			}
 		}
 
