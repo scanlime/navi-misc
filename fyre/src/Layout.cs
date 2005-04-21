@@ -39,6 +39,7 @@ namespace Fyre
 	class Layout
 	{
 		Hashtable		elements;
+		string			hover_element;
 
 		public Gdk.Rectangle	Extents
 		{
@@ -131,6 +132,7 @@ namespace Fyre
 				if (ce.Position.Contains (p)) {
 					int local_x = x - ce.X;
 					int local_y = y - ce.Y;
+					hover_element = (string) e.Key;
 					ElementHover eh = ce.GetHover (local_x, local_y);
 					if (eh == ElementHover.Body)      return LayoutHover.Element;
 					if (eh == ElementHover.InputPad)  return LayoutHover.InputPad;
@@ -138,6 +140,12 @@ namespace Fyre
 				}
 			}
 			return LayoutHover.None;
+		}
+
+		public System.Guid
+		GetHoverElement ()
+		{
+			return new System.Guid (hover_element);
 		}
 	}
 }
