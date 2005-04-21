@@ -373,15 +373,15 @@ namespace Fyre
 			LayoutHover h = layout.GetHoverType (layout_x, layout_y);
 
 			switch (h) {
-			case LayoutHover.None:
-				event_box.GdkWindow.Cursor = HandOpenCursor;
-				break;
 			case LayoutHover.Element:
 			case LayoutHover.InputPad:
 				event_box.GdkWindow.Cursor = PointerCursor;
 				break;
 			case LayoutHover.OutputPad:
 				event_box.GdkWindow.Cursor = PlusCursor;
+				break;
+			case LayoutHover.None:
+				event_box.GdkWindow.Cursor = HandOpenCursor;
 				break;
 			}
 		}
@@ -429,8 +429,8 @@ namespace Fyre
 		AddElement (Element e, int x, int y)
 		{
 			CanvasElement ce = new CanvasElement (e, GdkWindow);
-			ce.position.X = drawing_extents.X + x;
-			ce.position.Y = drawing_extents.Y + y;
+			ce.Position.X = drawing_extents.X + x;
+			ce.Position.Y = drawing_extents.Y + y;
 
 			layout.Add (e, ce);
 

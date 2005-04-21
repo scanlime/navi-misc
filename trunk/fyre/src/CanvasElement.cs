@@ -61,7 +61,7 @@ namespace Fyre
 		// Width and height are maintained by the internal layout system.
 		// X & Y are maintained by the global layout system. We'll probably
 		// want get/set operators on this to trigger redraws, etc.
-		public Rectangle		position;
+		public Rectangle		Position;
 
 		// Maintain information about the location of all the pads.
 		Rectangle []			input_pads;
@@ -86,25 +86,25 @@ namespace Fyre
 		public int
 		X
 		{
-			get { return position.X; }
+			get { return Position.X; }
 		}
 
 		public int
 		Y
 		{
-			get { return position.Y; }
+			get { return Position.Y; }
 		}
 
 		public int
 		Width
 		{
-			get { return position.Width; }
+			get { return Position.Width; }
 		}
 
 		public int
 		Height
 		{
-			get { return position.Height; }
+			get { return Position.Height; }
 		}
 
 		public
@@ -137,10 +137,10 @@ namespace Fyre
 			}
 
 			// Calculate height.
-			position.Height = 14 + (int) System.Math.Ceiling (name_sz.Height);
+			Position.Height = 14 + (int) System.Math.Ceiling (name_sz.Height);
 
 			if (numpads > 0)
-				position.Height += (numpads - 1)*10 + numpads*20;
+				Position.Height += (numpads - 1)*10 + numpads*20;
 
 			// Calculate width.
 
@@ -157,13 +157,13 @@ namespace Fyre
 			else
 				out_name_sz = new SizeF (0,0);
 
-			position.Width = 64 + 20 + (int) System.Math.Ceiling (in_name_sz.Width) +
+			Position.Width = 64 + 20 + (int) System.Math.Ceiling (in_name_sz.Width) +
 				(int) System.Math.Ceiling (out_name_sz.Width);
 
 			// If there isn't enough space horizontally for the element name, we'll set the
 			// width based on the width of the element name.
-			if (position.Width < 28 + (int) System.Math.Ceiling (name_sz.Width))
-				position.Width = 28 + (int) System.Math.Ceiling (name_sz.Width);
+			if (Position.Width < 28 + (int) System.Math.Ceiling (name_sz.Width))
+				Position.Width = 28 + (int) System.Math.Ceiling (name_sz.Width);
 
 			// Create a RectangleF for each pad representing its position.
 			int x;
@@ -182,7 +182,7 @@ namespace Fyre
 
 			// Outputs.
 			if (e.outputs != null) {
-				x = position.Width - 21;
+				x = Position.Width - 21;
 				y = 8 + (int) name_sz.Height;
 				for (int j = 0; j < e.outputs.Length; j++) {
 					output_pads[j] = new Rectangle (x, y, 20, 20);
@@ -212,12 +212,12 @@ namespace Fyre
 			Brush	white = new System.Drawing.SolidBrush (Color.White);
 
 			// For the time being draw the element against a white background.
-			context.FillRectangle (white, 0, 0, position.Width, position.Height);
-			context.DrawRectangle (border, 10, 0, position.Width - 21, position.Height - 1);
-			context.FillRectangle (background, 11, 1, position.Width - 22, position.Height - 2);
+			context.FillRectangle (white, 0, 0, Position.Width, Position.Height);
+			context.DrawRectangle (border, 10, 0, Position.Width - 21, Position.Height - 1);
+			context.FillRectangle (background, 11, 1, Position.Width - 22, Position.Height - 2);
 
 			// Element name.
-			PointF		name_pos = new PointF (10+(position.Width-21-name_sz.Width)/2, 2);
+			PointF		name_pos = new PointF (10+(Position.Width-21-name_sz.Width)/2, 2);
 			RectangleF	name_box = new RectangleF (name_pos, name_sz);
 			Brush		text = new SolidBrush (fg_color);
 
@@ -304,8 +304,8 @@ namespace Fyre
 			bg.Foreground = black;
 
 			// Main body.
-			mask.DrawRectangle (bg, true, 0, 0, position.Width, position.Height);
-			mask.DrawRectangle (fg, true, 10, 0, position.Width-20, position.Height);
+			mask.DrawRectangle (bg, true, 0, 0, Position.Width, Position.Height);
+			mask.DrawRectangle (fg, true, 10, 0, Position.Width-20, Position.Height);
 
 			// Pads.
 			if (input_pads != null) {
@@ -367,7 +367,7 @@ namespace Fyre
 				    (y <= pad.Y + pad.Height))
 					return ElementHover.OutputPad;
 			}
-			if (x > 10 && x < position.Width - 20)
+			if (x > 10 && x < Position.Width - 20)
 				return ElementHover.Body;
 			return ElementHover.None;
 		}
