@@ -323,6 +323,8 @@ namespace Fyre
 			int layout_y = ((int) ev.YRoot) - win_y + drawing_extents.Y;
 			LayoutHover h = layout.GetHoverType (layout_x, layout_y);
 
+			layout.DeselectAll ();
+
 			if (h == LayoutHover.None && ev.Button == 1) {
 				// We're not mousing over anything. Drag the document around.
 				drag_x = (int) ev.X;
@@ -337,7 +339,8 @@ namespace Fyre
 				if (ev.Button == 1) {
 					dragging = DrawingDragType.Element;
 
-					// FIXME - select the element
+					// Select the element
+					layout.SelectHoverElement ();
 
 					drag_x = (int) ev.X;
 					drag_y = (int) ev.Y;
@@ -361,6 +364,11 @@ namespace Fyre
 			if (h == LayoutHover.OutputPad && ev.Button == 1) {
 				dragging = DrawingDragType.PadConnection;
 			}
+
+			// Trigger a redraw
+			Gdk.Rectangle r = drawing_extents;
+			r.X = 0; r.Y = 0;
+			GdkWindow.InvalidateRect (r, true);
 		}
 
 		void

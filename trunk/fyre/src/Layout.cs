@@ -155,5 +155,23 @@ namespace Fyre
 			ce.Position.X += x_offset;
 			ce.Position.Y += y_offset;
 		}
+
+		public void
+		SelectHoverElement ()
+		{
+			CanvasElement ce = (CanvasElement) elements[hover_element];
+			ce.Selected = true;
+		}
+
+		public void
+		DeselectAll ()
+		{
+			IDictionaryEnumerator e = elements.GetEnumerator ();
+			e.Reset ();
+			while (e.MoveNext ()) {
+				CanvasElement ce = (CanvasElement) e.Value;
+				ce.Selected = false;
+			}
+		}
 	}
 }
