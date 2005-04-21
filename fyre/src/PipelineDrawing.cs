@@ -346,6 +346,11 @@ namespace Fyre
 			Gdk.EventMotion ev = args.Event;
 			Gtk.Widget widget = (Gtk.Widget) o;
 
+			// For some reason, the numbers we get from ev.X & ev.Y when a butotn isn't
+			// pressed act really strangely. I'm not sure if this is a problem with
+			// gentoo's gtk/gtk-sharp packages or something upstream, but the root-based
+			// numbers are right. Get the window-local values by subtracting the window's
+			// origin.
 			int win_x, win_y;
 			widget.GdkWindow.GetOrigin (out win_x, out win_y);
 
