@@ -23,6 +23,14 @@
 
 namespace Fyre
 {
+	public enum
+	DrawingDragType
+	{
+		None,
+		Document,
+		Element,
+	};
+
 	class PipelineDrawing : Gtk.DrawingArea
 	{
 		Gtk.Scrollbar		hscroll;
@@ -70,7 +78,7 @@ namespace Fyre
 		Gtk.EventBox		event_box;
 
 		// Internal data to keep track of dragging
-		bool			dragging;
+		DrawingDragType		dragging;
 		int			drag_x, drag_y;
 
 		/*
@@ -136,6 +144,8 @@ namespace Fyre
 
 			drawing_extents.X = 0;
 			drawing_extents.Y = 0;
+
+			dragging = DrawingDragType.None;
 
 			// Get a handle to our event box and set event handlers
 			event_box = (Gtk.EventBox) xml.GetWidget ("pipeline_window");
@@ -302,9 +312,14 @@ namespace Fyre
 		ButtonPressHandler (object o, Gtk.ButtonPressEventArgs args)
 		{
 			Gdk.EventButton ev = args.Event;
+			Gtk.Widget widget = (Gtk.Widget) o;
 
-			int layout_x = ((int) ev.X) + drawing_extents.X;
-			int layout_y = ((int) ev.Y) + drawing_extents.Y;
+			// See MotionNotifyHandler for an explaination of this
+			int win_x, win_y;
+			widget.GdkWindow.GetOrigin (out win_x, out win_y);
+
+			int layout_x = ((int) ev.XRoot) - win_x + drawing_extents.X;
+			int layout_y = ((int) ev.YRoot) - win_y + drawing_extents.Y;
 			LayoutHover h = layout.GetHoverType (layout_x, layout_y);
 
 			if (h == LayoutHover.None && ev.Button == 1) {
@@ -312,31 +327,66 @@ namespace Fyre
 				drag_x = (int) ev.X;
 				drag_y = (int) ev.Y;
 
-				dragging = true;
+				dragging = DrawingDragType.Document;
 
 				event_box.GdkWindow.Cursor = HandClosedCursor;
 			}
 
-			if (h == LayoutHover.Element && ev.Button == 3) {
-				Gtk.Menu context = new Gtk.Menu ();
+			if (h == LayoutHover.Element) {
+				if (ev.Button == 1) {
+					dragging = DrawingDragType.Element;
 
-				context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Cut, null));
-				context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Copy, null));
-				context.Append (new Gtk.SeparatorMenuItem ());
-				context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Delete, null));
-				context.Append (new Gtk.SeparatorMenuItem ());
-				context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Properties, null));
-				context.ShowAll ();
-				context.Popup (null, null, null, System.IntPtr.Zero, ev.Button, ev.Time);
+					// FIXME - select the element
+
+					drag_x = (int) ev.X;
+					drag_y = (int) ev.Y;
+
+					event_box.GdkWindow.Cursor = FleurCursor;
+				}
+				if (ev.Button == 3) {
+					Gtk.Menu context = new Gtk.Menu ();
+
+					context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Cut, null));
+					context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Copy, null));
+					context.Append (new Gtk.SeparatorMenuItem ());
+					context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Delete, null));
+					context.Append (new Gtk.SeparatorMenuItem ());
+					context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Properties, null));
+					context.ShowAll ();
+					context.Popup (null, null, null, System.IntPtr.Zero, ev.Button, ev.Time);
+				}
 			}
 		}
 
 		void
 		ButtonReleaseHandler (object o, Gtk.ButtonReleaseEventArgs args)
 		{
-			if (dragging) {
-				dragging = false;
-				event_box.GdkWindow.Cursor = HandOpenCursor;
+			Gdk.EventButton ev = args.Event;
+			Gtk.Widget widget = (Gtk.Widget) o;
+
+			// See MotionNotifyHandler for an explaination of this
+			int win_x, win_y;
+			widget.GdkWindow.GetOrigin (out win_x, out win_y);
+
+			int layout_x = ((int) ev.XRoot) - win_x + drawing_extents.X;
+			int layout_y = ((int) ev.YRoot) - win_y + drawing_extents.Y;
+			LayoutHover h = layout.GetHoverType (layout_x, layout_y);
+
+			if (dragging != DrawingDragType.None) {
+				dragging = DrawingDragType.None;
+
+				switch (h) {
+				case LayoutHover.Element:
+				case LayoutHover.InputPad:
+					event_box.GdkWindow.Cursor = PointerCursor;
+					break;
+				case LayoutHover.OutputPad:
+					event_box.GdkWindow.Cursor = PlusCursor;
+					break;
+				case LayoutHover.None:
+					event_box.GdkWindow.Cursor = HandOpenCursor;
+					break;
+				}
 			}
 		}
 
@@ -357,7 +407,7 @@ namespace Fyre
 			int evX = ((int) ev.XRoot) - win_x;
 			int evY = ((int) ev.YRoot) - win_y;
 
-			if (dragging && ev.State == Gdk.ModifierType.Button1Mask) {
+			if (dragging == DrawingDragType.Document && ev.State == Gdk.ModifierType.Button1Mask) {
 				// Compute the offset from the last event we got, and move
 				// our view appropriately.
 				int offset_x = ((int) ev.X) - drag_x;
