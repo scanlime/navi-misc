@@ -316,13 +316,28 @@ namespace Fyre
 
 				event_box.GdkWindow.Cursor = HandClosedCursor;
 			}
+
+			if (h == LayoutHover.Element && ev.Button == 3) {
+				Gtk.Menu context = new Gtk.Menu ();
+
+				context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Cut, null));
+				context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Copy, null));
+				context.Append (new Gtk.SeparatorMenuItem ());
+				context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Delete, null));
+				context.Append (new Gtk.SeparatorMenuItem ());
+				context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Properties, null));
+				context.ShowAll ();
+				context.Popup (null, null, null, System.IntPtr.Zero, ev.Button, ev.Time);
+			}
 		}
 
 		void
 		ButtonReleaseHandler (object o, Gtk.ButtonReleaseEventArgs args)
 		{
-			dragging = false;
-			event_box.GdkWindow.Cursor = HandOpenCursor;
+			if (dragging) {
+				dragging = false;
+				event_box.GdkWindow.Cursor = HandOpenCursor;
+			}
 		}
 
 		void
