@@ -125,10 +125,10 @@ namespace Fyre
 			while (e.MoveNext ()) {
 				CanvasElement ce = (CanvasElement) e.Value;
 
-				if ((x > ce.position.X) &&
-				    (y > ce.position.Y) &&
-				    (x < ce.position.X + ce.Width) &&
-				    (y < ce.position.Y + ce.Height))
+				if ((x >= ce.X) &&
+				    (x <= ce.X + ce.Width) &&
+				    (y >= ce.Y) &&
+				    (y <= ce.Y + ce.Height))
 					return LayoutHover.Element;
 			}
 			return LayoutHover.None;
