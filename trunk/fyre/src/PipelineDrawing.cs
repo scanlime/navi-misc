@@ -412,7 +412,7 @@ namespace Fyre
 			int evX = ((int) ev.XRoot) - win_x;
 			int evY = ((int) ev.YRoot) - win_y;
 
-			if (dragging == DrawingDragType.Document && ev.State == Gdk.ModifierType.Button1Mask) {
+			if (dragging == DrawingDragType.Document) {
 				// Compute the offset from the last event we got, and move
 				// our view appropriately.
 				int offset_x = ((int) ev.X) - drag_x;
@@ -427,6 +427,24 @@ namespace Fyre
 				SetScrollbars ();
 
 				// Set these so we'll get proper offsets next time there's an event.
+				drag_x = (int) ev.X;
+				drag_y = (int) ev.Y;
+				return;
+			}
+
+			if (dragging == DrawingDragType.Element) {
+				// Compute the offset from the last event we got, move the element
+				int offset_x = ((int) ev.X) - drag_x;
+				int offset_y = ((int) ev.Y) - drag_y;
+
+				layout.MoveHoverElement (offset_x, offset_y);
+
+				// Trigger a redraw
+				Gdk.Rectangle r = drawing_extents;
+				r.X = 0; r.Y = 0;
+				GdkWindow.InvalidateRect (r, true);
+
+				// Set these for the next event
 				drag_x = (int) ev.X;
 				drag_y = (int) ev.Y;
 				return;
