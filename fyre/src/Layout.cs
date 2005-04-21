@@ -147,5 +147,13 @@ namespace Fyre
 		{
 			return new System.Guid (hover_element);
 		}
+
+		public void
+		MoveHoverElement (int x_offset, int y_offset)
+		{
+			CanvasElement ce = (CanvasElement) elements[hover_element];
+			ce.Position.X += x_offset;
+			ce.Position.Y += y_offset;
+		}
 	}
 }
