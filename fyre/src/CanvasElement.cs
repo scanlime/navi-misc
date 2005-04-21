@@ -81,7 +81,11 @@ namespace Fyre
 		static				System.Drawing.Color element_bg_color;
 		static				System.Drawing.Color element_fg_color;
 
+		// Size of the name of this element
 		SizeF				name_sz;
+
+		// Selection state
+		public bool			Selected;
 
 		public int
 		X
@@ -208,20 +212,27 @@ namespace Fyre
 		Draw (System.Drawing.Graphics context)
 		{
 			Pen	border = new System.Drawing.Pen (fg_color);
+			Pen	sborder = new System.Drawing.Pen (element_fg_color);
 			Brush 	background = new System.Drawing.SolidBrush (element_bg_color);
-			Brush	white = new System.Drawing.SolidBrush (Color.White);
 
-			// For the time being draw the element against a white background.
-			context.FillRectangle (white, 0, 0, Position.Width, Position.Height);
-			context.DrawRectangle (border, 10, 0, Position.Width - 21, Position.Height - 1);
 			context.FillRectangle (background, 11, 1, Position.Width - 22, Position.Height - 2);
+			if (Selected) {
+				context.DrawRectangle (sborder, 10, 0, Position.Width - 21, Position.Height - 1);
+				context.DrawRectangle (sborder, 11, 1, Position.Width - 23, Position.Height - 3);
+			} else {
+				context.DrawRectangle (border, 10, 0, Position.Width - 21, Position.Height - 1);
+			}
 
 			// Element name.
 			PointF		name_pos = new PointF (10+(Position.Width-21-name_sz.Width)/2, 2);
 			RectangleF	name_box = new RectangleF (name_pos, name_sz);
 			Brush		text = new SolidBrush (fg_color);
+			Brush		stext = new SolidBrush (element_fg_color);
 
-			context.DrawString (element.Name (), bold, text, name_box);
+			if (Selected)
+				context.DrawString (element.Name (), bold, stext, name_box);
+			else
+				context.DrawString (element.Name (), bold, text, name_box);
 
 			// Draw input pads.
 			if (element.inputs != null) {
