@@ -364,19 +364,23 @@ namespace Fyre
 		public ElementHover
 		GetHover (int x, int y)
 		{
-			foreach (Rectangle pad in input_pads) {
-				if ((x >= pad.X) &&
-				    (x <= pad.X + pad.Width) &&
-				    (y >= pad.Y) &&
-				    (y <= pad.Y + pad.Height))
-					return ElementHover.InputPad;
+			if (input_pads != null) {
+				foreach (Rectangle pad in input_pads) {
+					if ((x >= pad.X) &&
+					    (x <= pad.X + pad.Width) &&
+				    	    (y >= pad.Y) &&
+				    	    (y <= pad.Y + pad.Height))
+						return ElementHover.InputPad;
+				}
 			}
-			foreach (Rectangle pad in output_pads) {
-				if ((x >= pad.X) &&
-				    (x <= pad.X + pad.Width) &&
-				    (y >= pad.Y) &&
-				    (y <= pad.Y + pad.Height))
-					return ElementHover.OutputPad;
+			if (output_pads != null) {
+				foreach (Rectangle pad in output_pads) {
+					if ((x >= pad.X) &&
+				    	    (x <= pad.X + pad.Width) &&
+				    	    (y >= pad.Y) &&
+				    	    (y <= pad.Y + pad.Height))
+						return ElementHover.OutputPad;
+				}
 			}
 			if (x >= 10 && x <= Position.Width - 10)
 				return ElementHover.Body;
