@@ -22,6 +22,40 @@
 
 class CellRendererColor : Gtk.CellRenderer
 {
+	public override void
+	GetSize (Gtk.Widget widget, ref Gdk.Rectangle cell_area, out int x_offset, out int y_offset, out int width, out int height)
+	{
+		x_offset = 0;
+		y_offset = 0;
+		width    = 20;
+		height   = 20;
+	}
+
+	protected override void
+	Render (Gdk.Drawable drawable,
+		Gtk.Widget widget,
+		Gdk.Rectangle background_area,
+		Gdk.Rectangle cell_area,
+		Gdk.Rectangle expose_area,
+		Gtk.CellRendererState flags)
+	{
+		Gdk.Color color = (Gdk.Color) (GetProperty ("color").Val);
+		Gdk.Color border = new Gdk.Color (0x00, 0x00, 0x00);
+
+		Gdk.GC gc = new Gdk.GC (drawable);
+
+		// Draw a 1px black border
+		gc.Foreground = border;
+		drawable.DrawRectangle (gc, false, cell_area);
+
+		// Draw the color
+		gc.Foreground = color;
+		cell_area.X      += 1;
+		cell_area.Y      += 1;
+		cell_area.Width  -= 2;
+		cell_area.Height -= 2;
+		drawable.DrawRectangle (gc, false, cell_area);
+	}
 }
 
 class AMCEditor
@@ -66,7 +100,12 @@ class AMCEditor
 		Gtk.CellRenderer color_renderer = new CellRendererColor ();
 		color_column.PackStart (color_renderer, false);
 		color_column.AddAttribute (color_renderer, "color",   1);
-		color_column.AddAttribute (color_renderer, "enabled", 2);
+
+		// Create our visible column
+		Gtk.TreeViewColumn visible_column = new Gtk.TreeViewColumn ();
+		Gtk.CellRenderer visible_renderer = new Gtk.CellRendererToggle ();
+		visible_column.PackStart (visible_renderer, false);
+		visible_column.AddAttribute (visible_renderer, "active", 2);
 	}
 
 	static Gtk.Widget
