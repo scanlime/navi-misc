@@ -21,7 +21,6 @@ Pipeline.cs:
   * We'll need some way to keep track of annotations (maybe composite).
 
 PipelineDrawing.cs:
-  * Double-click on an element should pop up the edit dialog
   * Click+drag on an output pad should drag out a pad connection
   * Scrollbars should be updated after dragging an element.  Ideally, we'd
 	do this in real time, so the document can be expanded by dragging
