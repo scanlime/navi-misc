@@ -20,6 +20,9 @@ NavigationImage.cs:
 Pipeline.cs:
   * We'll need some way to keep track of annotations (maybe composite).
 
+PipelineDrawing.cs:
+  * Double-click on an element should pop up the edit dialog
+
 PluginManager.cs:
   * Make the warning dialog a little more sensible to people who aren't us.
 
