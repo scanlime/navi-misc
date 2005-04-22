@@ -338,15 +338,25 @@ namespace Fyre
 
 			if (h == LayoutHover.Element) {
 				if (ev.Button == 1) {
-					dragging = DrawingDragType.Element;
+					if (ev.Type == Gdk.EventType.ButtonPress) {
+						dragging = DrawingDragType.Element;
 
-					// Select the element
-					layout.SelectHoverElement ();
+						// Select the element
+						layout.SelectHoverElement ();
 
-					drag_x = (int) ev.X;
-					drag_y = (int) ev.Y;
+						drag_x = (int) ev.X;
+						drag_y = (int) ev.Y;
 
-					event_box.GdkWindow.Cursor = FleurCursor;
+						event_box.GdkWindow.Cursor = FleurCursor;
+					} else if (ev.Type == Gdk.EventType.TwoButtonPress) {
+						layout.SelectHoverElement ();
+
+						System.Guid id = layout.GetHoverElement ();
+						Element e = (Element) pipeline.element_store[id.ToString ()];
+
+						e.Edit (null);
+
+					}
 				}
 				if (ev.Button == 3) {
 					Gtk.Menu context = new Gtk.Menu ();
