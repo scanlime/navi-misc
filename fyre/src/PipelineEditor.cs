@@ -122,8 +122,10 @@ namespace Fyre
 			Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
 			gxml.Autoconnect (this);
 
+			// Create the pipeline
 			pipeline = new Pipeline ();
 			pipeline.Changed += new System.EventHandler (PipelineChanged);
+			pipeline_drawing.pipeline = pipeline;
 
 			// Create the layout and give it to our child widgets
 			layout = new Layout ();

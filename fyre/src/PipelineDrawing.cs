@@ -50,6 +50,7 @@ namespace Fyre
 		bool			update_sizes;
 
 		public Layout		layout;
+		public Pipeline		pipeline;
 
 		/* The drawing extents are the size of our current drawing area. The
 		 * position depends on the scrollbars, and the size is always the pixel
@@ -355,6 +356,8 @@ namespace Fyre
 					Gtk.MenuItem delete_item     = new Gtk.ImageMenuItem (Gtk.Stock.Delete,     null);
 					Gtk.MenuItem properties_item = new Gtk.ImageMenuItem (Gtk.Stock.Properties, null);
 
+					properties_item.Activated += new System.EventHandler (ContextProperties);
+
 					context.Append (cut_item);
 					context.Append (copy_item);
 					context.Append (new Gtk.SeparatorMenuItem ());
@@ -374,6 +377,15 @@ namespace Fyre
 			Gdk.Rectangle r = drawing_extents;
 			r.X = 0; r.Y = 0;
 			GdkWindow.InvalidateRect (r, true);
+		}
+
+		void
+		ContextProperties (object o, System.EventArgs args)
+		{
+			System.Guid id = layout.GetHoverElement ();
+			Element e = (Element) pipeline.element_store[id.ToString ()];
+
+			e.Edit (null);
 		}
 
 		void

@@ -44,7 +44,7 @@ namespace Fyre
 
 	class Pipeline
 	{
-		Hashtable		element_store;
+		public Hashtable	element_store;
 		public bool		saved;
 		public string		filename;
 
