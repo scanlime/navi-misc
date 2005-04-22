@@ -22,6 +22,10 @@ Pipeline.cs:
 
 PipelineDrawing.cs:
   * Double-click on an element should pop up the edit dialog
+  * Click+drag on an output pad should drag out a pad connection
+  * Scrollbars should be updated after dragging an element.  Ideally, we'd
+	do this in real time, so the document can be expanded by dragging
+	an element around, but I'd settle for after.
 
 PluginManager.cs:
   * Make the warning dialog a little more sensible to people who aren't us.
@@ -36,24 +40,28 @@ Plugins all need element-specific implementation
 
 Layout:
   * Serialization/deserialization
+  * Drawing pad connections
 
 Plugins to add:
   * Aggregator
   * Constant
-  * Equation
   * Tee
 
 General things:
   * Dragging an element around on the canvas needs to be made into a
-	command that can be undone.  We may need to move the command
-	stuff out of Pipeline for this into something a little wider
-	reaching, like a CommandManager that can give the individual
-	commands handles to things like the Layout or the Pipeline.
+	command that can be undone.  Basically, when the drag is finished,
+	we should push a command onto the stack that has before/after the
+	move (we don't care about the intermediate positions).  We may
+	need to move the command stuff out of Pipeline for this into
+	something a little wider reaching, like a CommandManager that
+	can give the individual commands handles to things like the
+	Layout or the Pipeline.
   * Global layout needs to be designed.  This will have hooks back into
 	PipelineDrawing to manage layout extents, serialize itself,
 	and generally be really slick.  In terms of code structure, it
 	would be handy to have this as a completely separate library
-	(Flibble#)
+	(Flibble#).  This is probably unnecessary for the demo -- static
+	placement works well enough to show off.
   * We need to figure out some way to serialize things for use in the
 	clipboard.  We can probably just use the XML writer, and have it
 	compute a new Guid on paste.
