@@ -350,12 +350,17 @@ namespace Fyre
 				if (ev.Button == 3) {
 					Gtk.Menu context = new Gtk.Menu ();
 
-					context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Cut, null));
-					context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Copy, null));
+					Gtk.MenuItem cut_item        = new Gtk.ImageMenuItem (Gtk.Stock.Cut,        null);
+					Gtk.MenuItem copy_item       = new Gtk.ImageMenuItem (Gtk.Stock.Copy,       null);
+					Gtk.MenuItem delete_item     = new Gtk.ImageMenuItem (Gtk.Stock.Delete,     null);
+					Gtk.MenuItem properties_item = new Gtk.ImageMenuItem (Gtk.Stock.Properties, null);
+
+					context.Append (cut_item);
+					context.Append (copy_item);
 					context.Append (new Gtk.SeparatorMenuItem ());
-					context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Delete, null));
+					context.Append (delete_item);
 					context.Append (new Gtk.SeparatorMenuItem ());
-					context.Append (new Gtk.ImageMenuItem (Gtk.Stock.Properties, null));
+					context.Append (properties_item);
 					context.ShowAll ();
 					context.Popup (null, null, null, System.IntPtr.Zero, ev.Button, ev.Time);
 				}
