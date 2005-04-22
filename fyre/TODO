@@ -1,13 +1,6 @@
 CanvasElement.cs:
-  * Add drawing.  This depends on the internal layout system being designed.
-	This needs to be able to work both on gdk pixmaps and
-	System.Drawing.Graphics surfaces (for clean-looking AA diagrams)
-	so we can use the same code both for drawing on the canvas and
-	creating a drag icon.  We might be able to just use System.Drawing
-	for everything, but I don't know how well that works for GdkBitmap
-	opacity masks.
-  * This will also need to be able to handle mouseovers - we'll want a prelight
-	on various parts of the element - main body, pads...
+  * mouseovers - we'll want a prelight on various parts of the element -
+	main body, pads...
 
 Element.cs:
   * Add some element information to the edit window. Probably at least name,
@@ -25,14 +18,7 @@ NavigationImage.cs:
 	over them (for some reason). Dunno why.
 
 Pipeline.cs:
-  * This needs lots of design work before implementation can go forward.
   * We'll need some way to keep track of annotations (maybe composite).
-
-PipelineDrawing.cs:
-  * Make sure we trigger redraws when necessary
-  * Add drawing code
-  * We'll need a way of managing a selection - not sure if this should be in
-	here or PipelineEditor
 
 PluginManager.cs:
   * Make the warning dialog a little more sensible to people who aren't us.
@@ -45,6 +31,9 @@ Plugins all need element-specific implementation
   * any custom drawing
   * ...
 
+Layout:
+  * Serialization/deserialization
+
 Plugins to add:
   * Aggregator
   * Constant
@@ -52,7 +41,11 @@ Plugins to add:
   * Tee
 
 General things:
-  * Internal layout needs to be designed.
+  * Dragging an element around on the canvas needs to be made into a
+	command that can be undone.  We may need to move the command
+	stuff out of Pipeline for this into something a little wider
+	reaching, like a CommandManager that can give the individual
+	commands handles to things like the Layout or the Pipeline.
   * Global layout needs to be designed.  This will have hooks back into
 	PipelineDrawing to manage layout extents, serialize itself,
 	and generally be really slick.  In terms of code structure, it
