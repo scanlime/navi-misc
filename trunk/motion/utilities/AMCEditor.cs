@@ -20,6 +20,22 @@
  *
  */
 
+class AMCFile
+{
+	protected
+	AMCFile ()
+	{
+	}
+
+	public static AMCFile
+	Load (string filename)
+	{
+		AMCFile f = new AMCFile ();
+
+		return f;
+	}
+}
+
 class CellRendererColor : Gtk.CellRenderer
 {
 	public override void
@@ -65,6 +81,10 @@ class AMCEditor
 	[Glade.Widget] Gtk.TreeView		bone_list;
 
 	Gtk.TreeStore				bone_store;
+	AMCFile					AMCData;
+	string					Filename;
+
+	bool					modified;
 
 	public static void
 	Main (string[] args)
@@ -106,6 +126,9 @@ class AMCEditor
 		Gtk.CellRenderer visible_renderer = new Gtk.CellRendererToggle ();
 		visible_column.PackStart (visible_renderer, false);
 		visible_column.AddAttribute (visible_renderer, "active", 2);
+
+		Filename = null;
+		modified = false;
 	}
 
 	static Gtk.Widget
@@ -118,6 +141,20 @@ class AMCEditor
 	public void
 	OnOpen (object o, System.EventArgs args)
 	{
+		object[] responses = {
+			Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
+			Gtk.Stock.Open,   Gtk.ResponseType.Accept,
+		};
+		Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Open AMC...", null, Gtk.FileChooserAction.Open, responses);
+
+		Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
+
+		if (response == Gtk.ResponseType.Accept) {
+			Filename = fs.Filename;
+			AMCData = AMCFile.Load (Filename);
+			SetTitle ();
+		}
+		fs.Destroy ();
 	}
 
 	public void
@@ -134,5 +171,18 @@ class AMCEditor
 	OnQuit (object o, System.EventArgs args)
 	{
 		Gtk.Application.Quit ();
+	}
+
+	void
+	SetTitle ()
+	{
+		if (Filename == null) {
+			toplevel.Title = "AMC Editor - None";
+		} else {
+			if (modified)
+				toplevel.Title = "AMC Editor - " + System.IO.Path.GetFileName (Filename) + "*";
+			else
+				toplevel.Title = "AMC Editor - " + System.IO.Path.GetFileName (Filename);
+		}
 	}
 }
