@@ -349,13 +349,16 @@ namespace Fyre
 
 						event_box.GdkWindow.Cursor = FleurCursor;
 					} else if (ev.Type == Gdk.EventType.TwoButtonPress) {
+						// Make sure the element stays selected.
 						layout.SelectHoverElement ();
+						
+						// Don't continue dragging.
+						dragging = DrawingDragType.None;
 
 						System.Guid id = layout.GetHoverElement ();
 						Element e = (Element) pipeline.element_store[id.ToString ()];
 
 						e.Edit (null);
-
 					}
 				}
 				if (ev.Button == 3) {
