@@ -74,12 +74,12 @@ namespace Fyre
 		static Font			bold  = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
 
 		// Colors
-		static 				System.Drawing.Color bg_color;
-		static 				System.Drawing.Color fg_color;
-		static 				System.Drawing.Color bg_color_prelight;
-		static 				System.Drawing.Color fg_color_prelight;
-		static				System.Drawing.Color element_bg_color;
-		static				System.Drawing.Color element_fg_color;
+		static System.Drawing.Color	bg_color;
+		static System.Drawing.Color 	fg_color;
+		static System.Drawing.Color 	bg_color_prelight;
+		static System.Drawing.Color 	fg_color_prelight;
+		static System.Drawing.Color 	element_bg_color;
+		static System.Drawing.Color 	element_fg_color;
 
 		// Size of the name of this element
 		SizeF				name_sz;
