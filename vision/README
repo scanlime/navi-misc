@@ -1,8 +1,0 @@
-Random experiments in computer vision, based on Intel's OpenCV
-library, the libdc1394 library for capturing video from Firewire
-cameras, and the SDL multimedia library for displaying video
-signals quickly.
-
-Don't expect anything here to work.
-
--- Micah Dowty <micah@navi.cx>
