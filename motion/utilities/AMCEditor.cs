@@ -123,6 +123,10 @@ class CurveEditor : Gtk.DrawingArea
 
 			hadj.Upper = nframes * 40;
 			hadj.StepIncrement = 40;
+
+			Gdk.Rectangle r = Allocation;
+			r.X = 0; r.Y = 0;
+			GdkWindow.InvalidateRect (r, true);
 		}
 	}
 
@@ -134,7 +138,7 @@ class CurveEditor : Gtk.DrawingArea
 	void
 	CreateGCs ()
 	{
-		Gdk.Color grey  = new Gdk.Color (0xaa, 0xaa, 0xaa);
+		Gdk.Color grey  = new Gdk.Color (0xcc, 0xcc, 0xcc);
 		Gdk.Color black = new Gdk.Color (0x00, 0x00, 0x00);
 
 		grey_gc  = new Gdk.GC (GdkWindow);
@@ -167,8 +171,22 @@ class CurveEditor : Gtk.DrawingArea
 		if (amc == null)
 			return;
 
+		Pango.Layout layout = CreatePangoLayout (null);
+
 		// Draw frame lines
 		for (int i = 0; i < amc.frames.Count; i++) {
+			int pos = i * 40 + 20;
+			if (pos > hadj.Value && pos < hadj.Value + Allocation.Width) {
+				back_buffer.DrawLine (black_gc,
+					(int) (pos - hadj.Value), 0,
+					(int) (pos - hadj.Value), Allocation.Height - 20);
+
+				layout.SetText (i.ToString ());
+				int lw, lh;
+				layout.GetPixelSize (out lw, out lh);
+
+				back_buffer.DrawLayout (black_gc, pos - (lw / 2), Allocation.Height - 18, layout);
+			}
 		}
 	}
 
