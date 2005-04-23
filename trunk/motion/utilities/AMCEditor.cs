@@ -66,11 +66,12 @@ class AMCFile
 				continue;
 			}
 
-			string[] tokens = line.Split (new char[] {' '}, -1);
+			string[] tokens = line.Split (' ');
 		}
+		if (frame != null)
+			f.frames.Add (frame);
 
-		foreach (string l in f.comments)
-			System.Console.WriteLine ("{0}", l);
+		file.Close ();
 
 		return f;
 	}
@@ -78,6 +79,68 @@ class AMCFile
 	public void
 	Save (string filename)
 	{
+		System.IO.StreamWriter file = System.IO.File.CreateText (filename);
+		if (file == null)
+			return;
+
+		foreach (string line in comments)
+			file.Write (System.String.Format ("{0}\n", line));
+
+		file.Close ();
+	}
+}
+
+class CurveEditor : Gtk.DrawingArea
+{
+	// Drawing data
+	Gdk.GC			grey_gc;
+	Gdk.GC			black_gc;
+
+	// Information about the AMC data
+	int 			nframes;
+
+	// Window information
+	int			width;
+	int			height;
+
+	// The AMC file
+	AMCFile			amc;
+	public AMCFile		AMC
+	{
+		set
+		{
+			amc = value;
+			nframes = amc.frames.Count;
+			System.Console.WriteLine ("{0}", nframes);
+
+			WidthRequest = nframes * 20;
+		}
+	}
+
+	public
+	CurveEditor ()
+	{
+	}
+
+	protected override bool
+	OnExposeEvent (Gdk.EventExpose ev)
+	{
+		if (grey_gc == null) {
+			Gdk.Color grey  = new Gdk.Color (0xaa, 0xaa, 0xaa);
+			Gdk.Color black = new Gdk.Color (0x00, 0x00, 0x00);
+
+			grey_gc  = new Gdk.GC (GdkWindow);
+			black_gc = new Gdk.GC (GdkWindow);
+
+			GdkWindow.Colormap.AllocColor (ref grey, true, true);
+			GdkWindow.Colormap.AllocColor (ref grey, true, true);
+
+			grey_gc.Foreground  = grey;
+			black_gc.Foreground = black;
+		}
+
+		GdkWindow.DrawRectangle (grey_gc, true, ev.Area);
+		return true;
 	}
 }
 
@@ -124,6 +187,7 @@ class AMCEditor
 	[Glade.Widget] Gtk.Window		toplevel;
 	[Glade.Widget] Gtk.ScrolledWindow	editor_swin;
 	[Glade.Widget] Gtk.TreeView		bone_list;
+	[Glade.Widget] CurveEditor		curve_editor;
 
 	Gtk.TreeStore				bone_store;
 	AMCFile					AMCData;
@@ -150,7 +214,8 @@ class AMCEditor
 		bone_store = new Gtk.TreeStore (
 				typeof (string),	// name
 				typeof (Gdk.Color),	// color
-				typeof (bool));		// shown
+				typeof (bool),		// shown on curve window
+				typeof (bool));		// whether toggle is visible
 		bone_list.Model = bone_store;
 
 		// Create our text column
@@ -165,20 +230,26 @@ class AMCEditor
 		Gtk.CellRenderer color_renderer = new CellRendererColor ();
 		color_column.PackStart (color_renderer, false);
 		color_column.AddAttribute (color_renderer, "color",   1);
+		color_column.AddAttribute (color_renderer, "visible", 3);
 
 		// Create our visible column
 		Gtk.TreeViewColumn visible_column = new Gtk.TreeViewColumn ();
 		Gtk.CellRenderer visible_renderer = new Gtk.CellRendererToggle ();
 		visible_column.PackStart (visible_renderer, false);
 		visible_column.AddAttribute (visible_renderer, "active", 2);
+		visible_column.AddAttribute (visible_renderer, "visible", 3);
 
 		Filename = null;
 		modified = false;
+
+		toplevel.ShowAll ();
 	}
 
 	static Gtk.Widget
 	GladeCustomHandler (Glade.XML xml, string func_name, string name, string str1, string str2, int int1, int int2)
 	{
+		if (func_name == "CurveEditor")
+			return new CurveEditor ();
 		return null;
 	}
 
@@ -193,6 +264,7 @@ class AMCEditor
 		Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Open AMC...", null, Gtk.FileChooserAction.Open, responses);
 
 		Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
+		fs.Hide ();
 
 		if (response == Gtk.ResponseType.Accept) {
 			Filename = fs.Filename;
@@ -202,8 +274,10 @@ class AMCEditor
 				// FIXME - pop up an error dialog
 				System.Console.WriteLine ("Error loading {0}", Filename);
 				Filename = null;
+			} else {
+				curve_editor.AMC = AMCData;
+				SetTitle ();
 			}
-			SetTitle ();
 		}
 		fs.Destroy ();
 	}
