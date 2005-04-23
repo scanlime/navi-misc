@@ -22,6 +22,8 @@
 
 class AMCFrame
 {
+	System.Collections.Hashtable		data;
+
 	public
 	AMCFrame ()
 	{
@@ -114,8 +116,6 @@ class CurveEditor : Gtk.DrawingArea
 			nframes = amc.frames.Count;
 			System.Console.WriteLine ("{0}", nframes);
 
-			WidthRequest = nframes * 40;
-
 			CreateBackBuffer ();
 		}
 	}
@@ -179,6 +179,11 @@ class CurveEditor : Gtk.DrawingArea
 		GdkWindow.DrawDrawable (grey_gc, back_buffer, ev.Area.X, ev.Area.Y, ev.Area.X, ev.Area.Y, ev.Area.Width, ev.Area.Height);
 
 		return true;
+	}
+
+	protected override void
+	OnSetScrollAdjustments (Gtk.Adjustment hadj, Gtk.Adjustment vadj)
+	{
 	}
 }
 
