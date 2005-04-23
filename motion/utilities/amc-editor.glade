@@ -136,7 +136,20 @@
 	      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	      <child>
-		<placeholder/>
+		<widget class="GtkViewport" id="viewport1">
+		  <property name="visible">True</property>
+		  <property name="shadow_type">GTK_SHADOW_IN</property>
+
+		  <child>
+		    <widget class="Custom" id="curve_editor">
+		      <property name="visible">True</property>
+		      <property name="creation_function">CurveEditor</property>
+		      <property name="int1">0</property>
+		      <property name="int2">0</property>
+		      <property name="last_modification_time">Sat, 23 Apr 2005 00:23:19 GMT</property>
+		    </widget>
+		  </child>
+		</widget>
 	      </child>
 	    </widget>
 	    <packing>
