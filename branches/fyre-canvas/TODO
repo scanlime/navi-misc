@@ -1,0 +1,91 @@
+CanvasElement.cs:
+  * mouseovers - we'll want a prelight on various parts of the element -
+	main body, pads...
+
+Element.cs:
+  * Add some element information to the edit window. Probably at least name,
+	icon and description.
+
+ElementTooltip.cs:
+  * It would be nice if the "description" field wrapped automatically without
+	having to hardcode newlines, especially since we will probably want
+	to show those descriptions elsewhere. I'm not sure how possible this
+	is without height-for-width sizing, so the solution may just be
+	word-wrapping ourselves using some pre-set character width.
+
+NavigationImage.cs:
+  * After moving around, the scrollbars look really weird until you mouse
+	over them (for some reason). Dunno why.
+
+Pipeline.cs:
+  * We'll need some way to keep track of annotations (maybe composite).
+
+PipelineDrawing.cs:
+  * Click+drag on an output pad should drag out a pad connection
+  * Scrollbars should be updated after dragging an element.  Ideally, we'd
+	do this in real time, so the document can be expanded by dragging
+	an element around, but I'd settle for after.
+
+PluginManager.cs:
+  * Make the warning dialog a little more sensible to people who aren't us.
+
+Plugins all need element-specific implementation
+  * Serialize()
+  * DeSerialize()
+  * Check()
+  * Edit widgetry
+  * any custom drawing
+  * ...
+
+Layout:
+  * Serialization/deserialization
+  * Drawing pad connections
+
+Plugins to add:
+  * Aggregator
+  * Constant
+  * Tee
+
+General things:
+  * Dragging an element around on the canvas needs to be made into a
+	command that can be undone.  Basically, when the drag is finished,
+	we should push a command onto the stack that has before/after the
+	move (we don't care about the intermediate positions).  We may
+	need to move the command stuff out of Pipeline for this into
+	something a little wider reaching, like a CommandManager that
+	can give the individual commands handles to things like the
+	Layout or the Pipeline.
+  * Global layout needs to be designed.  This will have hooks back into
+	PipelineDrawing to manage layout extents, serialize itself,
+	and generally be really slick.  In terms of code structure, it
+	would be handy to have this as a completely separate library
+	(Flibble#).  This is probably unnecessary for the demo -- static
+	placement works well enough to show off.
+  * We need to figure out some way to serialize things for use in the
+	clipboard.  We can probably just use the XML writer, and have it
+	compute a new Guid on paste.
+  * Pipeline checking. This should be done by getting a list of all the elements
+	with the "Input" flag, propagating types through the pipeline until
+	we've finished with all the "Output" flagged elements or we've
+	exhausted all the possible connections.
+  * We need to work out parallelization semantics. Right now i'm thinking
+	that we'll parallelize on any operation from matrix->element type,
+	and require that there be an aggregation flag on any element connected
+	to the outside of a parallelizable.
+
+Documentation:
+  * Use cases
+  * CRC cards - we should probably just do these on real paper. We don't need
+	to do everything, but the major types would be good.
+	-- David's got a preliminary set of these.  If you want to work on this,
+	bug him.
+  * Relationship diagrams:
+	- Probably split up into a few different pieces to show specific
+	"subsystems" rather than have one big mess. No reason we can't
+	duplicate things within these diagrams.
+  * Sequence diagrams:
+	- Creating an element (+ other operations? show command pattern)
+	- Loading plugins
+	-- David's got one of these so far (NavigationWindow) on paper. If anyone
+	wants to transcribe it into inkscape...
+
