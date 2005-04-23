@@ -173,7 +173,7 @@ class CurveEditor : Gtk.DrawingArea
 
 		Pango.Layout layout = CreatePangoLayout (null);
 
-		// Draw frame lines
+		// Draw frame lines and numbers
 		for (int i = 0; i < amc.frames.Count; i++) {
 			int pos = i * 40 + 20;
 			if (pos > hadj.Value && pos < hadj.Value + Allocation.Width) {
@@ -185,9 +185,12 @@ class CurveEditor : Gtk.DrawingArea
 				int lw, lh;
 				layout.GetPixelSize (out lw, out lh);
 
-				back_buffer.DrawLayout (black_gc, pos - (lw / 2), Allocation.Height - 18, layout);
+				back_buffer.DrawLayout (black_gc, (int) (pos - (lw / 2) - hadj.Value), Allocation.Height - 18, layout);
 			}
 		}
+
+		// Draw border between frame # and edit region
+		back_buffer.DrawLine (black_gc, 0, Allocation.Height - 20, Allocation.Width, Allocation.Height - 20);
 	}
 
 	protected override bool
@@ -229,7 +232,7 @@ class CurveEditor : Gtk.DrawingArea
 		vadj.PageIncrement = 0;
 		vadj.Value         = 0;
 
-		hadj.Changed += new System.EventHandler (HAdjustmentChanged);
+		hadj.ValueChanged += new System.EventHandler (HAdjustmentChanged);
 	}
 
 	void
