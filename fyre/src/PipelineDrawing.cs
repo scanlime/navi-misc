@@ -326,14 +326,24 @@ namespace Fyre
 
 			layout.DeselectAll ();
 
-			if (h == LayoutHover.None && ev.Button == 1) {
-				// We're not mousing over anything. Drag the document around.
-				drag_x = (int) ev.X;
-				drag_y = (int) ev.Y;
+			if (h == LayoutHover.None) {
+				if (ev.Button == 1) {
+					// We're not mousing over anything. Drag the document around.
+					drag_x = (int) ev.X;
+					drag_y = (int) ev.Y;
 
-				dragging = DrawingDragType.Document;
+					dragging = DrawingDragType.Document;
 
-				event_box.GdkWindow.Cursor = HandClosedCursor;
+					event_box.GdkWindow.Cursor = HandClosedCursor;
+				}
+				if (ev.Button == 3) {
+					Gtk.Menu context = new Gtk.Menu ();
+
+					Gtk.MenuItem paste_item = new Gtk.ImageMenuItem (Gtk.Stock.Paste, null);
+					context.Append (paste_item);
+					context.ShowAll ();
+					context.Popup (null, null, null, System.IntPtr.Zero, ev.Button, ev.Time);
+				}
 			}
 
 			if (h == LayoutHover.Element) {
@@ -351,7 +361,7 @@ namespace Fyre
 					} else if (ev.Type == Gdk.EventType.TwoButtonPress) {
 						// Make sure the element stays selected.
 						layout.SelectHoverElement ();
-						
+
 						// Don't continue dragging.
 						dragging = DrawingDragType.None;
 
