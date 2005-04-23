@@ -95,6 +95,7 @@ class CurveEditor : Gtk.DrawingArea
 	// Drawing data
 	Gdk.GC			grey_gc;
 	Gdk.GC			black_gc;
+	Gdk.Pixmap		back_buffer;
 
 	// Information about the AMC data
 	int 			nframes;
@@ -113,7 +114,9 @@ class CurveEditor : Gtk.DrawingArea
 			nframes = amc.frames.Count;
 			System.Console.WriteLine ("{0}", nframes);
 
-			WidthRequest = nframes * 20;
+			WidthRequest = nframes * 40;
+
+			CreateBackBuffer ();
 		}
 	}
 
@@ -122,24 +125,59 @@ class CurveEditor : Gtk.DrawingArea
 	{
 	}
 
+	void
+	CreateGCs ()
+	{
+		Gdk.Color grey  = new Gdk.Color (0xaa, 0xaa, 0xaa);
+		Gdk.Color black = new Gdk.Color (0x00, 0x00, 0x00);
+
+		grey_gc  = new Gdk.GC (GdkWindow);
+		black_gc = new Gdk.GC (GdkWindow);
+
+		GdkWindow.Colormap.AllocColor (ref grey, true, true);
+		GdkWindow.Colormap.AllocColor (ref grey, true, true);
+
+		grey_gc.Foreground  = grey;
+		black_gc.Foreground = black;
+	}
+
+	void
+	CreateBackBuffer ()
+	{
+		back_buffer = new Gdk.Pixmap (GdkWindow, Allocation.Width, Allocation.Height);
+	}
+
+	void Draw ()
+	{
+		if (grey_gc == null)
+			CreateGCs ();
+
+		// Draw background
+		back_buffer.DrawRectangle (grey_gc, true, Allocation);
+
+		if (amc == null)
+			return;
+
+		// Draw frame lines
+		for (int i = 0; i < amc.frames.Count; i++) {
+			int pos = i * 40 + 20;
+			back_buffer.DrawLine (black_gc, pos, 0, pos, Allocation.Height - 20);
+		}
+	}
+
+	protected override bool
+	OnConfigureEvent (Gdk.EventConfigure ev)
+	{
+		CreateBackBuffer ();
+		Draw ();
+		return true;
+	}
+
 	protected override bool
 	OnExposeEvent (Gdk.EventExpose ev)
 	{
-		if (grey_gc == null) {
-			Gdk.Color grey  = new Gdk.Color (0xaa, 0xaa, 0xaa);
-			Gdk.Color black = new Gdk.Color (0x00, 0x00, 0x00);
+		GdkWindow.DrawDrawable (grey_gc, back_buffer, ev.Area.X, ev.Area.Y, ev.Area.X, ev.Area.Y, ev.Area.Width, ev.Area.Height);
 
-			grey_gc  = new Gdk.GC (GdkWindow);
-			black_gc = new Gdk.GC (GdkWindow);
-
-			GdkWindow.Colormap.AllocColor (ref grey, true, true);
-			GdkWindow.Colormap.AllocColor (ref grey, true, true);
-
-			grey_gc.Foreground  = grey;
-			black_gc.Foreground = black;
-		}
-
-		GdkWindow.DrawRectangle (grey_gc, true, ev.Area);
 		return true;
 	}
 }
