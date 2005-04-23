@@ -27,6 +27,23 @@ class AMCFrame
 	public
 	AMCFrame ()
 	{
+		data = new System.Collections.Hashtable ();
+	}
+
+	public void
+	AddBone (string[] tokens)
+	{
+		string name = tokens[0];
+		string[] values = new string[tokens.Length - 1];
+
+		System.Array.Copy (tokens, 1, values, 0, values.Length);
+		data.Add (name, values);
+	}
+
+	public System.Collections.IDictionaryEnumerator
+	GetEnumerator ()
+	{
+		return data.GetEnumerator ();
 	}
 };
 
@@ -69,6 +86,7 @@ class AMCFile
 			}
 
 			string[] tokens = line.Split (' ');
+			frame.AddBone (tokens);
 		}
 		if (frame != null)
 			f.frames.Add (frame);
@@ -332,18 +350,31 @@ class AMCEditor
 		color_column.PackStart (color_renderer, false);
 		color_column.AddAttribute (color_renderer, "color",   1);
 		color_column.AddAttribute (color_renderer, "visible", 3);
+		//bone_list.AppendColumn (color_column);
 
 		// Create our visible column
 		Gtk.TreeViewColumn visible_column = new Gtk.TreeViewColumn ();
-		Gtk.CellRenderer visible_renderer = new Gtk.CellRendererToggle ();
+		Gtk.CellRendererToggle visible_renderer = new Gtk.CellRendererToggle ();
 		visible_column.PackStart (visible_renderer, false);
 		visible_column.AddAttribute (visible_renderer, "active", 2);
 		visible_column.AddAttribute (visible_renderer, "visible", 3);
+		visible_renderer.Activatable = true;
+		visible_renderer.Toggled += new Gtk.ToggledHandler (RowToggled);
+		bone_list.AppendColumn (visible_column);
 
 		Filename = null;
 		modified = false;
 
 		toplevel.ShowAll ();
+	}
+
+	void
+	RowToggled (object o, Gtk.ToggledArgs args)
+	{
+		Gtk.TreeIter iter;
+		bone_store.GetIter (out iter, new Gtk.TreePath (args.Path));
+		bool t = (bool) bone_store.GetValue (iter, 2);
+		bone_store.SetValue (iter, 2, !t);
 	}
 
 	static Gtk.Widget
@@ -371,6 +402,8 @@ class AMCEditor
 			Filename = fs.Filename;
 			AMCData = AMCFile.Load (Filename);
 
+			bone_store.Clear ();
+
 			if (AMCData == null) {
 				// FIXME - pop up an error dialog
 				System.Console.WriteLine ("Error loading {0}", Filename);
@@ -378,6 +411,23 @@ class AMCEditor
 			} else {
 				curve_editor.AMC = AMCData;
 				SetTitle ();
+
+				AMCFrame f = (AMCFrame) AMCData.frames[0];
+
+				System.Collections.IDictionaryEnumerator e = f.GetEnumerator ();
+				e.Reset ();
+				while (e.MoveNext ()) {
+					Gtk.TreeIter iter;
+					iter = bone_store.AppendNode ();
+					bone_store.SetValue (iter, 0, e.Key);
+
+					string[] s = (string[]) e.Value;
+					for (int i = 0; i < s.Length; i++) {
+						Gtk.TreeIter citer = bone_store.AppendNode (iter);
+						bone_store.SetValue (citer, 0, i.ToString ());
+						bone_store.SetValue (citer, 3, true);
+					}
+				}
 			}
 		}
 		fs.Destroy ();
