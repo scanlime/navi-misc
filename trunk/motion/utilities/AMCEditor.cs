@@ -94,6 +94,10 @@ class AMCFile
 
 class CurveEditor : Gtk.DrawingArea
 {
+	// Widget data
+	Gtk.Adjustment		hadj;
+	Gtk.Adjustment		vadj;
+
 	// Drawing data
 	Gdk.GC			grey_gc;
 	Gdk.GC			black_gc;
@@ -114,9 +118,11 @@ class CurveEditor : Gtk.DrawingArea
 		{
 			amc = value;
 			nframes = amc.frames.Count;
-			System.Console.WriteLine ("{0}", nframes);
-
 			CreateBackBuffer ();
+			Draw ();
+
+			hadj.Upper = nframes * 40;
+			hadj.StepIncrement = 40;
 		}
 	}
 
@@ -134,8 +140,8 @@ class CurveEditor : Gtk.DrawingArea
 		grey_gc  = new Gdk.GC (GdkWindow);
 		black_gc = new Gdk.GC (GdkWindow);
 
-		GdkWindow.Colormap.AllocColor (ref grey, true, true);
-		GdkWindow.Colormap.AllocColor (ref grey, true, true);
+		GdkWindow.Colormap.AllocColor (ref grey,  true, true);
+		GdkWindow.Colormap.AllocColor (ref black, true, true);
 
 		grey_gc.Foreground  = grey;
 		black_gc.Foreground = black;
@@ -152,22 +158,26 @@ class CurveEditor : Gtk.DrawingArea
 		if (grey_gc == null)
 			CreateGCs ();
 
+		Gdk.Rectangle area = Allocation;
+		area.X = 0; area.Y = 0;
+
 		// Draw background
-		back_buffer.DrawRectangle (grey_gc, true, Allocation);
+		back_buffer.DrawRectangle (grey_gc, true, area);
 
 		if (amc == null)
 			return;
 
 		// Draw frame lines
 		for (int i = 0; i < amc.frames.Count; i++) {
-			int pos = i * 40 + 20;
-			back_buffer.DrawLine (black_gc, pos, 0, pos, Allocation.Height - 20);
 		}
 	}
 
 	protected override bool
 	OnConfigureEvent (Gdk.EventConfigure ev)
 	{
+		hadj.PageSize = ev.Width;
+		hadj.PageIncrement = ev.Width / 2;
+
 		CreateBackBuffer ();
 		Draw ();
 		return true;
@@ -184,6 +194,33 @@ class CurveEditor : Gtk.DrawingArea
 	protected override void
 	OnSetScrollAdjustments (Gtk.Adjustment hadj, Gtk.Adjustment vadj)
 	{
+		this.hadj = hadj;
+		this.vadj = vadj;
+
+		hadj.Lower         = 0;
+		hadj.Upper         = 1;
+		hadj.StepIncrement = 0;
+		hadj.PageSize      = 1;
+		hadj.PageIncrement = 0;
+		hadj.Value         = 0;
+
+		vadj.Lower         = 0;
+		vadj.Upper         = 1;
+		vadj.StepIncrement = 0;
+		vadj.PageSize      = 1;
+		vadj.PageIncrement = 0;
+		vadj.Value         = 0;
+
+		hadj.Changed += new System.EventHandler (HAdjustmentChanged);
+	}
+
+	void
+	HAdjustmentChanged (object o, System.EventArgs e)
+	{
+		Gdk.Rectangle area = Allocation;
+		area.X = 0; area.Y = 0;
+		Draw ();
+		GdkWindow.InvalidateRect (area, true);
 	}
 }
 
