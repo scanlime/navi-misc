@@ -20,19 +20,64 @@
  *
  */
 
+class AMCFrame
+{
+	public
+	AMCFrame ()
+	{
+	}
+};
+
 class AMCFile
 {
+	System.Collections.ArrayList		comments;
+	public System.Collections.ArrayList	frames;
+
 	protected
 	AMCFile ()
 	{
+		comments = new System.Collections.ArrayList ();
+		frames = new System.Collections.ArrayList ();
 	}
 
 	public static AMCFile
 	Load (string filename)
 	{
 		AMCFile f = new AMCFile ();
+		AMCFrame frame = null;
+
+		System.IO.StreamReader file = System.IO.File.OpenText (filename);
+		if (file == null)
+			return null;
+
+		string line;
+		while ((line = file.ReadLine ()) != null) {
+			// comments
+			if (line[0] == '#' || line[0] == ':') {
+				f.comments.Add (line);
+				continue;
+			}
+
+			// are we starting a new frame?
+			if (line.IndexOf (' ') == -1) {
+				if (frame != null)
+					f.frames.Add (frame);
+				frame = new AMCFrame ();
+				continue;
+			}
+
+			string[] tokens = line.Split (new char[] {' '}, -1);
+		}
+
+		foreach (string l in f.comments)
+			System.Console.WriteLine ("{0}", l);
 
 		return f;
+	}
+
+	public void
+	Save (string filename)
+	{
 	}
 }
 
@@ -152,6 +197,12 @@ class AMCEditor
 		if (response == Gtk.ResponseType.Accept) {
 			Filename = fs.Filename;
 			AMCData = AMCFile.Load (Filename);
+
+			if (AMCData == null) {
+				// FIXME - pop up an error dialog
+				System.Console.WriteLine ("Error loading {0}", Filename);
+				Filename = null;
+			}
 			SetTitle ();
 		}
 		fs.Destroy ();
