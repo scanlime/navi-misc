@@ -34,183 +34,6 @@ namespace Fyre.Canvas
 		OutputPad,
 	};
 
-	// Our fonts.
-	// FIXME Might be a good idea to have something to fall back on if they don't have Bitstream Vera fonts.
-	public sealed struct
-	Font
-	{
-		static public Font plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
-		static public Font bold  = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
-	}
-
-	// Colors for drawing.
-	// FIXME Need to rename these members to something more sensible.
-	public sealed struct 
-	Color
-	{
-		static public System.Drawing.Color bg_color;
-		static public System.Drawing.Color fg_color;
-		static public System.Drawing.Color bg_color_prelight;
-		static public System.Drawing.Color fg_color_prelight;
-		static public System.Drawing.Color element_bg_color;
-		static public System.Drawing.Color element_fg_color;
-
-		// Set the colors from the Gtk theme.
-		public static void
-		Set (Gtk.Style style)
-		{
-			Gdk.Color c;
-
-			c = style.Background (Gtk.StateType.Normal);
-			bg_color = System.Drawing.Color.FromArgb (c.Red / 255, c.Green / 255, c.Blue / 255);
-
-			c = style.Foreground (Gtk.StateType.Normal);
-			fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-
-			c = style.Background (Gtk.StateType.Prelight);
-			bg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-
-			c = style.Foreground (Gtk.StateType.Prelight);
-			fg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-
-			c = style.Background (Gtk.StateType.Insensitive);
-			element_bg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-
-			c = style.Dark (Gtk.StateType.Selected);
-			element_fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-		}
-	}
-
-
-	// Abstract base class for everything drawn on a Fyre Canvas.
-	public abstract class Widget
-	{
-		Rectangle	position;
-
-		bool		selected;
-		bool		hover;
-	
-		/*** Properties ***/
-		public int
-		X
-		{
-			get { return position.X; }
-			set { position.X = value; } 
-		}
-
-		public int
-		Y
-		{
-			get { return position.Y; }
-			set { position.Y = value; }
-		}
-
-		// FIXME Not sure if these properties need to be r/w, might be ok
-		// with just read access.
-		public int
-		Width
-		{
-			get { return position.Width; }
-			set { position.Width = value; }
-		}
-
-		public int
-		Height
-		{
-			get { return position.Height; }
-			set { position.Height = value; }
-		}
-
-		/*** Methods ***/
-		public
-		Widget ()
-		{
-		}
-
-		// All of these objects should provide a method for drawing themselves.
-		public virtual void
-		Draw (Graphics context)
-		{
-		}
-
-		// All of these objects should provide a method for drawing themselves backwards.
-		public virtual void
-		RDraw (Graphics context)
-		{
-		}
-	}
-
-	// Represents a single pad on the canvas.
-	public class Pad : Widget
-	{
-		public
-		Pad ()
-		{
-		}
-
-		public void
-		Draw (Graphics context)
-		{
-			PointF []	triangle = new PointF[3];
-			Pen		pen = new Pen (Color.fg_color);
-			Brush		brush = new SolidBrush (Color.element_bg_color);
-			Brush		trifill = new SolidBrush (Color.element_fg_color);
-
-			// The corners of the triangle.
-			triangle[0] = new System.Drawing.PointF (position.X+8,position.Y+5);
-			triangle[1] = new System.Drawing.PointF (position.X+8,position.Y+15);
-			triangle[2] = new System.Drawing.PointF (position.X+13,position.Y+10);
-			
-			// Draw a white circle with a black border
-			context.FillEllipse (brush, box);
-			context.DrawEllipse (pen, box);
-
-			// Draw the triangle.
-			context.FillPolygon (trifill, triangle);
-		}
-
-		public void
-		RDraw (Graphics context)
-		{
-			PointF []	triangle = new PointF[3];
-			Pen		pen = new Pen (Color.fg_color);
-			Brush		brush = new SolidBrush (Color.element_bg_color);
-			Brush		trifill = new SolidBrush (Color.element_fg_color);
-
-			// The corners of the triangle.
-			triangle[0] = new System.Drawing.PointF (position.X+position.Width-8,position.Y+5);
-			triangle[1] = new System.Drawing.PointF (position.X+position.Width-8,position.Y+15);
-			triangle[2] = new System.Drawing.PointF (position.X+position.Width-13,position.Y+10);
-			
-			// Draw a white circle with a black border
-			context.FillEllipse (brush, box);
-			context.DrawEllipse (pen, box);
-
-			// Draw the triangle.
-			context.FillPolygon (trifill, triangle);
-
-		}
-	}
-
-	// Represents a string drawn on the canvas.
-	public class Label : Widget
-	{
-		public
-		Label ()
-		{
-		}
-
-		public void
-		Draw (Graphics context)
-		{
-		}
-
-		public void
-		RDraw (Graphics context)
-		{
-		}
-	}
-
 	/*
 	 * The basic structure of an element on the canvas has 3 pieces:
 	 * 	name
@@ -233,7 +56,7 @@ namespace Fyre.Canvas
 	 * 	pad-to-name:		7px
 	 * 	between-names:		50px
 	 */
-	public class Element : Widget
+	public class Element
 	{
 		// Width and height are maintained by the internal layout system.
 		// X & Y are maintained by the global layout system. We'll probably
@@ -479,6 +302,189 @@ namespace Fyre.Canvas
 			if (x >= 10 && x <= position.Width - 10)
 				return ElementHover.Body;
 			return ElementHover.None;
+		}
+	}
+
+	/*** Element Drawing Primitives ***/
+
+	// FIXME Should these two structs maybe be private? Do we need them outside
+	// of drawing stuff on the canvas?
+
+	// Our fonts.
+	// FIXME Might be a good idea to have something to fall back on if they
+	// don't have Bitstream Vera fonts.
+	public sealed struct
+	Font
+	{
+		static public Font plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+		static public Font bold  = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
+	}
+
+	// Colors for drawing.
+	// FIXME Need to rename these members to something more sensible.
+	public sealed struct 
+	Color
+	{
+		static public System.Drawing.Color bg_color;
+		static public System.Drawing.Color fg_color;
+		static public System.Drawing.Color bg_color_prelight;
+		static public System.Drawing.Color fg_color_prelight;
+		static public System.Drawing.Color element_bg_color;
+		static public System.Drawing.Color element_fg_color;
+
+		// Set the colors from the Gtk theme.
+		public static void
+		Set (Gtk.Style style)
+		{
+			Gdk.Color c;
+
+			c = style.Background (Gtk.StateType.Normal);
+			bg_color = System.Drawing.Color.FromArgb (c.Red / 255, c.Green / 255, c.Blue / 255);
+
+			c = style.Foreground (Gtk.StateType.Normal);
+			fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+
+			c = style.Background (Gtk.StateType.Prelight);
+			bg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+
+			c = style.Foreground (Gtk.StateType.Prelight);
+			fg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+
+			c = style.Background (Gtk.StateType.Insensitive);
+			element_bg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+
+			c = style.Dark (Gtk.StateType.Selected);
+			element_fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+		}
+	}
+
+
+	// Abstract base class for everything drawn on a Fyre Canvas.
+	internal abstract class Widget
+	{
+		Rectangle	position;
+
+		bool		selected;
+		bool		hover;
+	
+		/*** Properties ***/
+		public int
+		X
+		{
+			get { return position.X; }
+			set { position.X = value; } 
+		}
+
+		public int
+		Y
+		{
+			get { return position.Y; }
+			set { position.Y = value; }
+		}
+
+		// FIXME Not sure if these properties need to be r/w, might be ok
+		// with just read access.
+		public int
+		Width
+		{
+			get { return position.Width; }
+			set { position.Width = value; }
+		}
+
+		public int
+		Height
+		{
+			get { return position.Height; }
+			set { position.Height = value; }
+		}
+
+		/*** Methods ***/
+		public
+		Widget ()
+		{
+		}
+
+		// All of these objects should provide a method for drawing themselves.
+		public virtual void
+		Draw (Graphics context)
+		{
+		}
+
+		// All of these objects should provide a method for drawing themselves backwards.
+		public virtual void
+		RDraw (Graphics context)
+		{
+		}
+	}
+
+	// Represents a single pad on the canvas.
+	internal class Pad : Widget
+	{
+		public
+		Pad ()
+		{
+		}
+
+		public void
+		Draw (Graphics context)
+		{
+			PointF []	triangle = new PointF[3];
+			Pen		pen = new Pen (Color.fg_color);
+			Brush		brush = new SolidBrush (Color.element_bg_color);
+			Brush		trifill = new SolidBrush (Color.element_fg_color);
+
+			// The corners of the triangle.
+			triangle[0] = new System.Drawing.PointF (position.X+8,position.Y+5);
+			triangle[1] = new System.Drawing.PointF (position.X+8,position.Y+15);
+			triangle[2] = new System.Drawing.PointF (position.X+13,position.Y+10);
+			
+			// Draw a white circle with a black border
+			context.FillEllipse (brush, box);
+			context.DrawEllipse (pen, box);
+
+			// Draw the triangle.
+			context.FillPolygon (trifill, triangle);
+		}
+
+		public void
+		RDraw (Graphics context)
+		{
+			PointF []	triangle = new PointF[3];
+			Pen		pen = new Pen (Color.fg_color);
+			Brush		brush = new SolidBrush (Color.element_bg_color);
+			Brush		trifill = new SolidBrush (Color.element_fg_color);
+
+			// The corners of the triangle.
+			triangle[0] = new System.Drawing.PointF (position.X+position.Width-8,position.Y+5);
+			triangle[1] = new System.Drawing.PointF (position.X+position.Width-8,position.Y+15);
+			triangle[2] = new System.Drawing.PointF (position.X+position.Width-13,position.Y+10);
+			
+			// Draw a white circle with a black border
+			context.FillEllipse (brush, box);
+			context.DrawEllipse (pen, box);
+
+			// Draw the triangle.
+			context.FillPolygon (trifill, triangle);
+
+		}
+	}
+
+	// Represents a string drawn on the canvas.
+	internal class Label : Widget
+	{
+		public
+		Label ()
+		{
+		}
+
+		public void
+		Draw (Graphics context)
+		{
+		}
+
+		public void
+		RDraw (Graphics context)
+		{
 		}
 	}
 
