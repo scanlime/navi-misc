@@ -409,8 +409,7 @@ namespace Fyre.Canvas
 	{
 		int				x_pad;
 		int				y_pad;
-		int				x_spacing;
-		int				y_spacing;
+		int				spacing;
 
 		System.Collections.ArrayList	start;
 		System.Collections.ArrayList	end;
@@ -422,12 +421,11 @@ namespace Fyre.Canvas
 		}
 
 		public
-		Container (int xpad, int ypad, int xspace, int yspace) : base (0, 0, 0, 0)
+		Container (int xpad, int ypad, int space) : base (0, 0, 0, 0)
 		{
 			x_pad     = xpad;
 			y_pad     = ypad;
-			x_spacing = xspace;
-			y_spacing = yspace;
+			spacing = space;
 
 			position.Width = 2*xpad;
 			position.Height = 2*ypad;
@@ -452,13 +450,14 @@ namespace Fyre.Canvas
 			int x;
 			int y;
 
-			position.Width -= child.Width;
-			position.Height -= child.Height;
-
 			if (start.Contains (child)) {
+				position.Width -= child.Width;
+				position.Height -= child.Height;
 				RemoveStart (child);
 				return true;
 			if (end.Contains (child)) {
+				position.Width -= child.Width;
+				position.Height -= child.Height;
 				RemoveEnd (child);
 				return true;
 			}
@@ -515,7 +514,7 @@ namespace Fyre.Canvas
 
 			if (start.Count > 0) {
 				foreach (Widget w in start)
-					child.Y += w.Height + y_spacing;
+					child.Y += w.Height + spacing;
 			}
 
 			start.Add (child);
@@ -530,7 +529,7 @@ namespace Fyre.Canvas
 		
 			if (end.Count > 0) {
 				foreach (Widget w in end)
-					child.Y -= w.Height - y_spacing;
+					child.Y -= w.Height - spacing;
 			}
 
 			end.Add (child);
@@ -546,7 +545,7 @@ namespace Fyre.Canvas
 
 			foreach (Widget w in start) {
 				w.Y = y;
-				y += w.Height + y_spacing;
+				y += w.Height + spacing;
 			}
 		}
 
@@ -559,7 +558,7 @@ namespace Fyre.Canvas
 
 			foreach (Widget w in end) {
 				w.Y = y - w.Height;
-				y -= w.Height - y_spacing;
+				y -= w.Height - spacing;
 			}
 		}
 	}
@@ -574,7 +573,7 @@ namespace Fyre.Canvas
 
 			if (start.Count > 0) {
 				foreach (Widget w in start)
-					child.X += w.Width + x_spacing;
+					child.X += w.Width + spacing;
 			}
 
 			start.Add (child);
@@ -589,7 +588,7 @@ namespace Fyre.Canvas
 
 			if (end.Count > 0) {
 				foreach (Widget w in end)
-					child.X -= w.Width - x_spacing;
+					child.X -= w.Width - spacing;
 			}
 
 			end.Add (child);
@@ -605,7 +604,7 @@ namespace Fyre.Canvas
 
 			foreach (Widget w in start) {
 				w.X = x;
-				x += w.Width + x_spacing;
+				x += w.Width + spacing;
 			}
 		}
 
@@ -618,7 +617,7 @@ namespace Fyre.Canvas
 
 			foreach (Widget w in end) {
 				w.X = x - w.Width;
-				x -= w.Width - x_spacing;
+				x -= w.Width - spacing;
 			}
 		}
 	}
