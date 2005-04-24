@@ -91,6 +91,14 @@ namespace Fyre
 			elements = new Hashtable ();
 		}
 
+		public event System.EventHandler Selected;
+		protected void
+		OnSelected (System.EventArgs e)
+		{
+			if (Selected != null)
+				Selected (this, e);
+		}
+
 		public void
 		Add (Element e, CanvasElement ce)
 		{
@@ -169,6 +177,13 @@ namespace Fyre
 			CanvasElement ce = (CanvasElement) elements[hover_element];
 			ce.Selected = true;
 			selected_element = hover_element;
+			OnSelected (new System.EventArgs ());
+		}
+
+		public bool
+		HasSelection ()
+		{
+			return (selected_element != null);
 		}
 
 		public System.Guid
@@ -187,6 +202,7 @@ namespace Fyre
 				ce.Selected = false;
 			}
 			selected_element = null;
+			OnSelected (new System.EventArgs ());
 		}
 	}
 }
