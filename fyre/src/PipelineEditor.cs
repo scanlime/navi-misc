@@ -70,20 +70,20 @@ namespace Fyre
 		static ArrayList			editors;
 
 		// D-n-D target data
-		static Gtk.TargetEntry[]		targets;
-		public static Gtk.TargetEntry[]		DragTargets
+		Gtk.TargetEntry[]			targets;
+		public Gtk.TargetEntry[]		DragTargets
 		{
 			get {
 				if (targets == null) {
 					targets = new Gtk.TargetEntry[1];
-					targets[0] = new Gtk.TargetEntry ("fyre element drag", Gtk.TargetFlags.App, 1);
+					targets[0] = new Gtk.TargetEntry (System.String.Format( "fyre element drag {0}", new_index ), Gtk.TargetFlags.App, 1);
 				}
 				return targets;
 			}
 		}
 
-		static Gtk.TargetList			target_list;
-		public static Gtk.TargetList		TargetList
+		Gtk.TargetList				target_list;
+		public Gtk.TargetList			TargetList
 		{
 			get {
 				if (target_list == null)
@@ -128,6 +128,9 @@ namespace Fyre
 
 			Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
 			gxml.Autoconnect (this);
+
+			// Make sure the element list knows which window it can accept events from.
+			element_list.window = this;
 
 			// Create the pipeline
 			pipeline = new Pipeline ();

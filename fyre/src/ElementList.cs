@@ -32,6 +32,7 @@ namespace Fyre
 		private Gtk.TreeModelSort	sorted_store;
 
 		// D-n-D data
+		public PipelineEditor		window;
 		int				click_x, click_y;
 		bool				dragging;
 		bool				check_drag;
@@ -230,7 +231,7 @@ namespace Fyre
 
 				// Start a drag
 				dragging = true;
-				Gtk.Drag.Begin (this, PipelineEditor.TargetList, Gdk.DragAction.Copy, 1, ev);
+				Gtk.Drag.Begin (this, window.TargetList, Gdk.DragAction.Copy, 1, ev);
 				return true;
 			}
 
