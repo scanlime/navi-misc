@@ -45,13 +45,13 @@ class AMCFrame
 		// hack to take care of trailing space
 		if (tokens[tokens.Length - 1].Length == 0) {
 			string[] values = new string[tokens.Length - 2];
-
-			System.Array.Copy (tokens, 1, values, 0, values.Length - 1);
+			for (int i = 0; i < tokens.Length - 2; i++)
+				values[i] = tokens[i + 1];
 			data.Add (name, values);
 		} else {
 			string[] values = new string[tokens.Length - 1];
-
-			System.Array.Copy (tokens, 1, values, 0, values.Length);
+			for (int i = 0; i < tokens.Length - 1; i++)
+				values[i] = tokens[i + 1];
 			data.Add (name, values);
 		}
 	}
