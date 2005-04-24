@@ -32,6 +32,86 @@ namespace Fyre
 		PadConnection,
 	};
 
+	class Cursor
+	{
+		/*
+		 * We use a bunch of different cursors here:
+		 *
+		 * Open hand: normal cursor when the mouse is just over the background
+		 * Closed hand: used when dragging the document canvas around
+		 * Pointer: cursor when the mouse is hovering over an element
+		 * Fleur: cursor when moving an element
+		 * Plus: cursor when hovering over a pad
+		 * FIXME: cursor when dragging out a new edge
+		 */
+		static Gdk.Cursor		hand_open_cursor;
+		static Gdk.Cursor		hand_closed_cursor;
+		static Gdk.Cursor		pointer_cursor;
+		static Gdk.Cursor		fleur_cursor;
+		static Gdk.Cursor		plus_cursor;
+
+		public static Gdk.Cursor	HandOpenCursor
+		{
+			get {
+				if (hand_open_cursor == null)
+					hand_open_cursor = CreateCursor ("hand-open-data.png", "hand-open-mask.png", 20, 20, 10, 10);
+				return hand_open_cursor;
+			}
+		}
+
+		public static Gdk.Cursor	HandClosedCursor
+		{
+			get {
+				if (hand_closed_cursor == null)
+					hand_closed_cursor = CreateCursor ("hand-closed-data.png", "hand-closed-mask.png", 20, 20, 10, 10);
+				return hand_closed_cursor;
+			}
+		}
+
+		public static Gdk.Cursor	PointerCursor
+		{
+			get {
+				if (pointer_cursor == null)
+					pointer_cursor = new Gdk.Cursor (Gdk.CursorType.LeftPtr);
+				return pointer_cursor;
+			}
+		}
+
+		public static Gdk.Cursor	FleurCursor
+		{
+			get {
+				if (fleur_cursor == null)
+					fleur_cursor = new Gdk.Cursor (Gdk.CursorType.Fleur);
+				return fleur_cursor;
+			}
+		}
+
+		public static Gdk.Cursor	PlusCursor
+		{
+			get {
+				if (plus_cursor == null)
+					plus_cursor = new Gdk.Cursor (Gdk.CursorType.Plus);
+				return plus_cursor;
+			}
+		}
+
+		static Gdk.Cursor
+		CreateCursor (string data, string mask, int width, int height, int x_hotspot, int y_hotspot)
+		{
+			Gdk.Pixbuf data_pixbuf = new Gdk.Pixbuf (null, data);
+			Gdk.Pixbuf mask_pixbuf = new Gdk.Pixbuf (null, mask);
+			Gdk.Pixmap data_pixmap = new Gdk.Pixmap (null, width, height, 1);
+			Gdk.Pixmap mask_pixmap = new Gdk.Pixmap (null, width, height, 1);
+			data_pixbuf.RenderThresholdAlpha (data_pixmap, 0, 0, 0, 0, width, height, 1);
+			mask_pixbuf.RenderThresholdAlpha (mask_pixmap, 0, 0, 0, 0, width, height, 1);
+
+			Gdk.Color fore = new Gdk.Color (0xff, 0xff, 0xff);
+			Gdk.Color back = new Gdk.Color (0x00, 0x00, 0x00);
+
+			return new Gdk.Cursor (data_pixmap, mask_pixmap, fore, back, x_hotspot, y_hotspot);
+		}
+	};
+
 	class PipelineDrawing : Gtk.DrawingArea
 	{
 		Gtk.Scrollbar		hscroll;
@@ -86,62 +166,6 @@ namespace Fyre
 		int			drag_x, drag_y;
 		int			old_x, old_y;
 
-		/*
-		 * We use a bunch of different cursors here:
-		 *
-		 * Open hand: normal cursor when the mouse is just over the background
-		 * Closed hand: used when dragging the document canvas around
-		 * Pointer: cursor when the mouse is hovering over an element
-		 * Fleur: cursor when moving an element
-		 * Plus: cursor when hovering over a pad
-		 * FIXME: cursor when dragging out a new edge
-		 */
-		Gdk.Cursor hand_open_cursor;
-		Gdk.Cursor HandOpenCursor
-		{
-			get {
-				if (hand_open_cursor == null)
-					hand_open_cursor = CreateCursor ("hand-open-data.png", "hand-open-mask.png", 20, 20, 10, 10);
-				return hand_open_cursor;
-			}
-		}
-		Gdk.Cursor hand_closed_cursor;
-		Gdk.Cursor HandClosedCursor
-		{
-			get {
-				if (hand_closed_cursor == null)
-					hand_closed_cursor = CreateCursor ("hand-closed-data.png", "hand-closed-mask.png", 20, 20, 10, 10);
-				return hand_closed_cursor;
-			}
-		}
-		Gdk.Cursor pointer_cursor;
-		Gdk.Cursor PointerCursor
-		{
-			get {
-				if (pointer_cursor == null)
-					pointer_cursor = new Gdk.Cursor (Gdk.CursorType.LeftPtr);
-				return pointer_cursor;
-			}
-		}
-		Gdk.Cursor fleur_cursor;
-		Gdk.Cursor FleurCursor
-		{
-			get {
-				if (fleur_cursor == null)
-					fleur_cursor = new Gdk.Cursor (Gdk.CursorType.Fleur);
-				return fleur_cursor;
-			}
-		}
-		Gdk.Cursor plus_cursor;
-		Gdk.Cursor PlusCursor
-		{
-			get {
-				if (plus_cursor == null)
-					plus_cursor = new Gdk.Cursor (Gdk.CursorType.Plus);
-				return plus_cursor;
-			}
-		}
-
 		public
 		PipelineDrawing (Glade.XML xml) : base ()
 		{
@@ -176,22 +200,6 @@ namespace Fyre
 			ret.Width  = source.Width  + pixels*2;
 			ret.Height = source.Height + pixels*2;
 			return ret;
-		}
-
-		Gdk.Cursor
-		CreateCursor (string data, string mask, int width, int height, int x_hotspot, int y_hotspot)
-		{
-			Gdk.Pixbuf data_pixbuf = new Gdk.Pixbuf (null, data);
-			Gdk.Pixbuf mask_pixbuf = new Gdk.Pixbuf (null, mask);
-			Gdk.Pixmap data_pixmap = new Gdk.Pixmap (null, width, height, 1);
-			Gdk.Pixmap mask_pixmap = new Gdk.Pixmap (null, width, height, 1);
-			data_pixbuf.RenderThresholdAlpha (data_pixmap, 0, 0, 0, 0, width, height, 1);
-			mask_pixbuf.RenderThresholdAlpha (mask_pixmap, 0, 0, 0, 0, width, height, 1);
-
-			Gdk.Color fore = new Gdk.Color (0xff, 0xff, 0xff);
-			Gdk.Color back = new Gdk.Color (0x00, 0x00, 0x00);
-
-			return new Gdk.Cursor (data_pixmap, mask_pixmap, fore, back, x_hotspot, y_hotspot);
 		}
 
 		protected override bool
@@ -233,7 +241,7 @@ namespace Fyre
 				SetScrollbars ();
 
 			// Make sure our cursor is set
-			event_box.GdkWindow.Cursor = HandOpenCursor;
+			event_box.GdkWindow.Cursor = Cursor.HandOpenCursor;
 
 			// Create the backing store
 			backing = new Gdk.Pixmap (GdkWindow, ev.Width, ev.Height, -1);
@@ -339,7 +347,7 @@ namespace Fyre
 
 					dragging = DrawingDragType.Document;
 
-					event_box.GdkWindow.Cursor = HandClosedCursor;
+					event_box.GdkWindow.Cursor = Cursor.HandClosedCursor;
 				}
 				if (ev.Button == 3) {
 					// Pop up a context menu. This one is pretty simple, since there aren't
@@ -374,7 +382,7 @@ namespace Fyre
 						old_x = ce.Position.X;
 						old_y = ce.Position.Y;
 
-						event_box.GdkWindow.Cursor = FleurCursor;
+						event_box.GdkWindow.Cursor = Cursor.FleurCursor;
 					} else if (ev.Type == Gdk.EventType.TwoButtonPress) {
 						// Make sure the element stays selected.
 						layout.SelectHoverElement ();
@@ -492,13 +500,13 @@ namespace Fyre
 				switch (h) {
 				case LayoutHover.Element:
 				case LayoutHover.InputPad:
-					event_box.GdkWindow.Cursor = PointerCursor;
+					event_box.GdkWindow.Cursor = Cursor.PointerCursor;
 					break;
 				case LayoutHover.OutputPad:
-					event_box.GdkWindow.Cursor = PlusCursor;
+					event_box.GdkWindow.Cursor = Cursor.PlusCursor;
 					break;
 				case LayoutHover.None:
-					event_box.GdkWindow.Cursor = HandOpenCursor;
+					event_box.GdkWindow.Cursor = Cursor.HandOpenCursor;
 					break;
 				}
 			}
@@ -565,13 +573,13 @@ namespace Fyre
 				switch (h) {
 				case LayoutHover.Element:
 				case LayoutHover.InputPad:
-					event_box.GdkWindow.Cursor = PointerCursor;
+					event_box.GdkWindow.Cursor = Cursor.PointerCursor;
 					break;
 				case LayoutHover.OutputPad:
-					event_box.GdkWindow.Cursor = PlusCursor;
+					event_box.GdkWindow.Cursor = Cursor.PlusCursor;
 					break;
 				case LayoutHover.None:
-					event_box.GdkWindow.Cursor = HandOpenCursor;
+					event_box.GdkWindow.Cursor = Cursor.HandOpenCursor;
 					break;
 				}
 			}
