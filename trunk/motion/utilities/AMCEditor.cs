@@ -20,19 +20,21 @@
  *
  */
 
+using System.Collections;
+
 class ColorMap
 {
-	System.Collections.Hashtable		data;
+	Hashtable		data;
 }
 
 class AMCFrame
 {
-	System.Collections.Hashtable		data;
+	Hashtable		data;
 
 	public
 	AMCFrame ()
 	{
-		data = new System.Collections.Hashtable ();
+		data = new Hashtable ();
 	}
 
 	public void
@@ -45,7 +47,7 @@ class AMCFrame
 		data.Add (name, values);
 	}
 
-	public System.Collections.IDictionaryEnumerator
+	public IDictionaryEnumerator
 	GetEnumerator ()
 	{
 		return data.GetEnumerator ();
@@ -54,14 +56,14 @@ class AMCFrame
 
 class AMCFile
 {
-	System.Collections.ArrayList		comments;
-	public System.Collections.ArrayList	frames;
+	ArrayList		comments;
+	public ArrayList	frames;
 
 	protected
 	AMCFile ()
 	{
-		comments = new System.Collections.ArrayList ();
-		frames = new System.Collections.ArrayList ();
+		comments = new ArrayList ();
+		frames = new ArrayList ();
 	}
 
 	public static AMCFile
@@ -129,6 +131,8 @@ class CurveEditor : Gtk.DrawingArea
 
 	// Information about the AMC data
 	int 			nframes;
+	public Gtk.TreeStore	bone_store;
+	public ArrayList	enabled_bones;
 
 	// Window information
 	int			width;
@@ -157,6 +161,7 @@ class CurveEditor : Gtk.DrawingArea
 	public
 	CurveEditor ()
 	{
+		enabled_bones = new ArrayList ();
 	}
 
 	void
@@ -201,7 +206,7 @@ class CurveEditor : Gtk.DrawingArea
 		// Draw frame lines and numbers
 		for (int i = 0; i < amc.frames.Count; i++) {
 			int pos = i * 40 + 20;
-			if (pos > hadj.Value && pos < hadj.Value + Allocation.Width) {
+			if (IsVisible (pos)) {
 				back_buffer.DrawLine (black_gc,
 					(int) (pos - hadj.Value), 0,
 					(int) (pos - hadj.Value), Allocation.Height - 20);
@@ -212,10 +217,32 @@ class CurveEditor : Gtk.DrawingArea
 
 				back_buffer.DrawLayout (black_gc, (int) (pos - (lw / 2) - hadj.Value), Allocation.Height - 18, layout);
 			}
+
+			if (IsVisible (pos + 40)) {
+				// Iterate through all the bones, draw those that are active.
+				foreach (string p in enabled_bones) {
+					Gtk.TreePath path = new Gtk.TreePath (p);
+					Gtk.TreeIter iter;
+
+					bone_store.GetIter (out iter, path);
+
+					if (i + 1 != amc.frames.Count) {
+						// draw box at current position and line to next position
+					} else {
+						// last position, just draw a box
+					}
+				}
+			}
 		}
 
 		// Draw border between frame # and edit region
 		back_buffer.DrawLine (black_gc, 0, Allocation.Height - 20, Allocation.Width, Allocation.Height - 20);
+	}
+
+	bool
+	IsVisible (int x)
+	{
+		return ((x > hadj.Value) && (x < (hadj.Value + Allocation.Width)));
 	}
 
 	protected override bool
@@ -327,6 +354,8 @@ class AMCEditor
 		Filename = null;
 		modified = false;
 
+		curve_editor.bone_store = bone_store;
+
 		toplevel.ShowAll ();
 	}
 
@@ -337,6 +366,11 @@ class AMCEditor
 		bone_store.GetIter (out iter, new Gtk.TreePath (args.Path));
 		bool t = (bool) bone_store.GetValue (iter, 2);
 		bone_store.SetValue (iter, 2, !t);
+
+		if (!t)
+			curve_editor.enabled_bones.Add (args.Path);
+		else
+			curve_editor.enabled_bones.Remove (args.Path);
 	}
 
 	static Gtk.Widget
@@ -376,7 +410,7 @@ class AMCEditor
 
 				AMCFrame f = (AMCFrame) AMCData.frames[0];
 
-				System.Collections.IDictionaryEnumerator e = f.GetEnumerator ();
+				IDictionaryEnumerator e = f.GetEnumerator ();
 				e.Reset ();
 				while (e.MoveNext ()) {
 					Gtk.TreeIter iter;
