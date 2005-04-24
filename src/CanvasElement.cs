@@ -212,16 +212,6 @@ namespace Fyre.Canvas
 		Element			element;
 		static Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
 
-		// We use these fonts so frequently that we may as well store them permanently.
-
-		// Colors
-		static Color		bg_color;
-		static Color 		fg_color;
-		static Color 		bg_color_prelight;
-		static Color 		fg_color_prelight;
-		static Color 		element_bg_color;
-		static Color 		element_fg_color;
-
 		// Size of the name of this element
 		SizeF				name_sz;
 
