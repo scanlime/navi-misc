@@ -26,45 +26,26 @@ using System.Xml;
 namespace Fyre
 {
 
-	class PipelineCommand
-	{
-		// We store this for use in the menu - we want to show "undo <blah>", etc.
-		public string	Name;
-
-		public virtual void
-		Do (Hashtable element_store)
-		{
-		}
-
-		public virtual void
-		Undo (Hashtable element_store)
-		{
-		}
-	};
-
 	class Pipeline
 	{
 		public Hashtable	element_store;
 		public bool		saved;
 		public string		filename;
 
-		public ArrayList	undo_stack;
-		public ArrayList	redo_stack;
+		public CommandManager	command_manager;
 
 		public
 		Pipeline ()
 		{
 			element_store = new Hashtable ();
 
+			command_manager = new CommandManager ();
+
 			// We start out with saved = true, since it doesn't make sense to
 			// force the user to save something they haven't made any changes
 			// to. As soon as they start messing with things, this toggles.
 			saved = true;
 			filename = null;
-
-			// Create our undo and redo stacks
-			undo_stack = new ArrayList ();
-			redo_stack = new ArrayList ();
 		}
 
 		public bool
@@ -127,48 +108,6 @@ namespace Fyre
 		}
 
 		public void
-		Do (PipelineCommand command)
-		{
-			command.Do (element_store);
-			undo_stack.Add (command);
-
-			saved = false;
-
-			OnChanged (new System.EventArgs ());
-		}
-
-		public void
-		Undo ()
-		{
-			PipelineCommand command = (PipelineCommand) undo_stack[undo_stack.Count - 1];
-			undo_stack.RemoveAt (undo_stack.Count - 1);
-
-			command.Undo (element_store);
-
-			redo_stack.Add (command);
-
-			if (undo_stack.Count == 0)
-				saved = true;
-
-			OnChanged (new System.EventArgs ());
-		}
-
-		public void
-		Redo ()
-		{
-			PipelineCommand command = (PipelineCommand) redo_stack[redo_stack.Count - 1];
-			redo_stack.RemoveAt (redo_stack.Count - 1);
-
-			command.Do (element_store);
-
-			undo_stack.Add (command);
-
-			saved = false;
-
-			OnChanged (new System.EventArgs ());
-		}
-
-		public void
 		Check ()
 		{
 			/* Here's how the checking algorithm will work:
@@ -190,169 +129,11 @@ namespace Fyre
 		}
 
 		public event System.EventHandler Changed;
-		protected void
+		public void
 		OnChanged (System.EventArgs e)
 		{
 			if (Changed != null)
 				Changed (this, e);
 		}
 	}
-
-	namespace Commands
-	{
-		class Add : PipelineCommand
-		{
-			System.Guid		id;
-			Element			e;
-			int			x;
-			int			y;
-			PipelineDrawing		drawing;
-
-			public
-			Add (Element e, PipelineDrawing drawing, int x, int y)
-			{
-				Name = "Add " + e.Name ();
-				id = e.id;
-				this.e = e;
-				this.x = x;
-				this.y = y;
-				this.drawing = drawing;
-			}
-
-			public override void
-			Do (Hashtable element_store)
-			{
-				element_store.Add (id.ToString ("d"), e);
-				drawing.AddElement (e, x, y);
-			}
-
-			public override void
-			Undo (Hashtable element_store)
-			{
-				drawing.RemoveElement (e);
-				element_store.Remove (id.ToString ("d"));
-			}
-		}
-
-		class Cut : PipelineCommand
-		{
-			public Cut (Element e)
-			{
-				Name = "Cut " + e.Name ();
-			}
-
-			public override void
-			Do (Hashtable element_store)
-			{
-				// FIXME - implement
-			}
-
-			public override void
-			Undo (Hashtable element_store)
-			{
-				// FIXME - implement
-			}
-		}
-
-		class Paste : PipelineCommand
-		{
-			public Paste (Element e)
-			{
-				Name = "Paste " + e.Name ();
-			}
-
-			public override void
-			Do (Hashtable element_store)
-			{
-				// FIXME - implement
-			}
-
-			public override void
-			Undo (Hashtable element_store)
-			{
-				// FIXME - implement
-			}
-		}
-
-		class Delete : PipelineCommand
-		{
-			System.Guid		id;
-			Element			e;
-			int			x;
-			int			y;
-			PipelineDrawing		drawing;
-
-			public Delete (Element e, PipelineDrawing drawing, int x, int y)
-			{
-				Name = "Delete " + e.Name ();
-				this.e = e;
-				this.drawing = drawing;
-				this.x = x;
-				this.y = y;
-				id = e.id;
-			}
-
-			public override void
-			Do (Hashtable element_store)
-			{
-				drawing.RemoveElement (e);
-				element_store.Remove (id.ToString ("d"));
-			}
-
-			public override void
-			Undo (Hashtable element_store)
-			{
-				element_store.Add (id.ToString ("d"), e);
-				drawing.AddElement (e, x, y);
-			}
-		}
-
-		class Move : PipelineCommand
-		{
-			System.Guid		id;
-			Element			e;
-			int			old_x, old_y;
-			int			new_x, new_y;
-			PipelineDrawing		drawing;
-			Layout			layout;
-
-			public Move (Element e, PipelineDrawing drawing, Layout layout, int old_x, int old_y, int new_x, int new_y)
-			{
-				Name = "Move " + e.Name ();
-				this.e = e;
-				this.old_x = old_x;
-				this.old_y = old_y;
-				this.new_x = new_x;
-				this.new_y = new_y;
-				this.drawing = drawing;
-				this.layout = layout;
-				id = e.id;
-			}
-
-			public override void
-			Do (Hashtable element_store)
-			{
-				layout.SetElementPosition (e, new_x, new_y);
-				drawing.Redraw();
-
-				// Trigger a redaw
-				// Gdk.Rectangle r = drawing.DrawingExtents;
-				// r.X = 0; r.Y = 0;
-				// GdkWindow.InvalidateRect (r, true);
-			}
-
-			public override void
-			Undo (Hashtable element_store)
-			{
-				layout.SetElementPosition (e, old_x, old_y);
-				drawing.Redraw();
-
-				// Trigger a redaw
-				// Gdk.Rectangle r = drawing.DrawingExtents;
-				// r.X = 0; r.Y = 0;
-				// GdkWindow.InvalidateRect (r, true);
-			}
-		}
-	}
-
 }

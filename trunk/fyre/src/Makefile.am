@@ -12,6 +12,7 @@ CSFLAGS =		\
 
 CSFILES =			\
 	CanvasElement.cs	\
+	CommandManager.cs	\
 	Data.cs			\
 	Dialogs.cs		\
 	Element.cs		\

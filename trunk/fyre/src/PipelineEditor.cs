@@ -145,6 +145,12 @@ namespace Fyre
 			while (plugin_enumerator.MoveNext ())
 				element_list.AddType ((System.Type) plugin_enumerator.Value);
 
+			// Add in the pipeline, layout, and drawing into the pipeline's command
+			// manager
+			pipeline.command_manager.pipeline = pipeline;
+			pipeline.command_manager.layout = layout;
+			pipeline.command_manager.drawing = pipeline_drawing;
+
 			// Call update to set our title, etc.
 			PipelineChanged (null, null);
 
@@ -234,9 +240,9 @@ namespace Fyre
 
 			// FIXME - This is definitely not the most elegant way to do this, but it does
 			// give the command the information it needs to undo an operation.
-			Commands.Add adde = new Commands.Add (e, pipeline_drawing, args.X - 2, args.Y -2);
+			Commands.Add adde = new Commands.Add (e, args.X - 2, args.Y -2);
 
-			pipeline.Do (adde);
+			pipeline.command_manager.Do (adde);
 		}
 
 		public Gtk.Window
@@ -269,21 +275,21 @@ namespace Fyre
 			Gtk.Label redo_label = (Gtk.Label) menu_redo.Child;
 
 
-			if (pipeline.undo_stack.Count == 0) {
+			if (pipeline.command_manager.undo_stack.Count == 0) {
 				menu_undo.Sensitive = false;
 				undo_label.TextWithMnemonic = "_Undo";
 			} else {
 				menu_undo.Sensitive = true;
-				PipelineCommand command = (PipelineCommand) pipeline.undo_stack[pipeline.undo_stack.Count - 1];
+				Command command = (Command) pipeline.command_manager.undo_stack[pipeline.command_manager.undo_stack.Count - 1];
 				undo_label.TextWithMnemonic = "_Undo \"" + command.Name + "\"";
 			}
 
-			if (pipeline.redo_stack.Count == 0) {
+			if (pipeline.command_manager.redo_stack.Count == 0) {
 				menu_redo.Sensitive = false;
 				redo_label.TextWithMnemonic = "_Redo";
 			} else {
 				menu_redo.Sensitive = true;
-				PipelineCommand command = (PipelineCommand) pipeline.redo_stack[pipeline.redo_stack.Count - 1];
+				Command command = (Command) pipeline.command_manager.redo_stack[pipeline.command_manager.redo_stack.Count - 1];
 				redo_label.TextWithMnemonic = "_Redo \"" + command.Name + "\"";
 			}
 		}
@@ -471,13 +477,13 @@ namespace Fyre
 		public void
 		OnMenuEditUndo (object o, System.EventArgs args)
 		{
-			pipeline.Undo ();
+			pipeline.command_manager.Undo ();
 		}
 
 		public void
 		OnMenuEditRedo (object o, System.EventArgs args)
 		{
-			pipeline.Redo ();
+			pipeline.command_manager.Redo ();
 		}
 
 		public void
@@ -493,9 +499,9 @@ namespace Fyre
 			int y = ce.Position.Y;
 
 			// Pass the element name to the new command, and execute it
-			Commands.Delete deletee = new Commands.Delete (e, pipeline_drawing, x, y);
+			Commands.Delete deletee = new Commands.Delete (e, x, y);
 
-			pipeline.Do (deletee);
+			pipeline.command_manager.Do (deletee);
 			layout.DeselectAll ();
 		}
 
