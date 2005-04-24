@@ -348,6 +348,7 @@ namespace Fyre
 
 			if (h == LayoutHover.Element) {
 				if (ev.Button == 1) {
+
 					if (ev.Type == Gdk.EventType.ButtonPress) {
 						dragging = DrawingDragType.Element;
 
@@ -372,6 +373,9 @@ namespace Fyre
 					}
 				}
 				if (ev.Button == 3) {
+					// Select the element
+					layout.SelectHoverElement ();
+
 					Gtk.Menu context = new Gtk.Menu ();
 
 					Gtk.MenuItem cut_item        = new Gtk.ImageMenuItem (Gtk.Stock.Cut,        null);
@@ -382,6 +386,7 @@ namespace Fyre
 					Gtk.ImageMenuItem flip_item = new Gtk.ImageMenuItem ("Flip");
 					flip_item.Image = new Gtk.Image (new Gdk.Pixbuf (null, "flip.png"));
 
+					delete_item.Activated += new System.EventHandler (ContextDelete);
 					properties_item.Activated += new System.EventHandler (ContextProperties);
 
 					context.Append (flip_item);
@@ -414,6 +419,24 @@ namespace Fyre
 			Element e = (Element) pipeline.element_store[id.ToString ()];
 
 			e.Edit (null);
+		}
+
+		void
+		ContextDelete (object o, System.EventArgs args)
+		{
+			// Figure out which element is selected
+			System.Guid id = layout.GetSelectedElement ();
+			Element e = (Element) pipeline.element_store[id.ToString ()];
+			CanvasElement ce = layout.Get (e);
+
+			// Grab the X and Y coordinates of it
+			int x = ce.Position.X;
+			int y = ce.Position.Y;
+
+			// Pass the element name to the new command, and execute it
+			Commands.Delete deletee = new Commands.Delete (e, this, x, y);
+
+			pipeline.Do (deletee);
 		}
 
 		void
