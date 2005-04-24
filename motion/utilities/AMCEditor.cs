@@ -29,7 +29,7 @@ class ColorMap
 
 class AMCFrame
 {
-	Hashtable		data;
+	public Hashtable		data;
 
 	public
 	AMCFrame ()
@@ -203,6 +203,24 @@ class CurveEditor : Gtk.DrawingArea
 		if (amc == null)
 			return;
 
+		ArrayList bones = new ArrayList ();
+		foreach (string p in enabled_bones) {
+			Gtk.TreePath path = new Gtk.TreePath (p);
+			Gtk.TreeIter iter;
+
+			bone_store.GetIter (out iter, path);
+			int num = System.Int32.Parse ((string) bone_store.GetValue (iter, 0));
+
+			Gtk.TreeIter parent;
+			bone_store.IterParent (out parent, iter);
+			string s = (string) bone_store.GetValue (parent, 0);
+
+			object[] pair = {
+				num, s
+			};
+			bones.Add (pair);
+		}
+
 		// Draw frame lines and numbers
 		for (int i = 0; i < amc.frames.Count; i++) {
 			int pos = i * 40 + 20;
@@ -220,13 +238,15 @@ class CurveEditor : Gtk.DrawingArea
 
 			if (IsVisible (pos + 40)) {
 				// Iterate through all the bones, draw those that are active.
-				foreach (string p in enabled_bones) {
-					Gtk.TreePath path = new Gtk.TreePath (p);
-					Gtk.TreeIter iter;
-
-					bone_store.GetIter (out iter, path);
+				foreach (object[] pair in bones) {
+					string name = (string) pair[0];
+					int angle = (int) pair[1];
 
 					if (i + 1 != amc.frames.Count) {
+						AMCFrame frame1 = (AMCFrame) amc.frames[i];
+						AMCFrame frame2 = (AMCFrame) amc.frames[i + 1];
+						float val1 = ((float[]) (frame1.data[name]))[angle];
+						float val2 = ((float[]) (frame2.data[name]))[angle];
 						// draw box at current position and line to next position
 					} else {
 						// last position, just draw a box
