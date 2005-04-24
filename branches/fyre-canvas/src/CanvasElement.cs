@@ -67,7 +67,6 @@ namespace Fyre.Canvas
 		Pad []			input_pads;
 		Pad []			output_pads;
 		Element			element;
-		static Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
 
 		// Size of the name of this element
 		SizeF			name_sz;
@@ -356,8 +355,6 @@ namespace Fyre.Canvas
 			set { position.Y = value; }
 		}
 
-		// FIXME Not sure if these properties need to be r/w, might be ok
-		// with just read access.
 		public int
 		Width
 		{
@@ -372,7 +369,7 @@ namespace Fyre.Canvas
 			set { position.Height = value; }
 		}
 
-		/*** Methods ***/
+		/*** Constructors ***/
 		public
 		Widget (int x, int y, int w, int h)
 		{
@@ -385,6 +382,7 @@ namespace Fyre.Canvas
 			position = pos;
 		}
 
+		/*** Methods ***/
 		public bool
 		Remove (Widget child)
 		{
@@ -543,6 +541,9 @@ namespace Fyre.Canvas
 
 			start.Remove (child);
 
+			if (start.Count > 0)
+				position.Width -= spacing;
+
 			foreach (Widget w in start) {
 				w.Y = y;
 				y += w.Height + spacing;
@@ -555,6 +556,9 @@ namespace Fyre.Canvas
 			int y = position.Y + position.Height - y_pad;
 
 			end.Remove (child);
+
+			if (end.Count > 0)
+				position.Width -= spacing;
 
 			foreach (Widget w in end) {
 				w.Y = y - w.Height;
@@ -602,6 +606,9 @@ namespace Fyre.Canvas
 
 			start.Remove (child);
 
+			if (start.Count > 0)
+				position.Height -= spacing;
+
 			foreach (Widget w in start) {
 				w.X = x;
 				x += w.Width + spacing;
@@ -614,6 +621,9 @@ namespace Fyre.Canvas
 			int x = position.X + position.Width - x_pad;
 
 			end.Remove (child);
+
+			if (end.Count > )
+				position.Height -= spacing;
 
 			foreach (Widget w in end) {
 				w.X = x - w.Width;
@@ -632,6 +642,7 @@ namespace Fyre.Canvas
 		public
 		ElementRoot ()
 		{
+			box = new VBox();
 		}
 
 		public void
@@ -700,9 +711,12 @@ namespace Fyre.Canvas
 	// Represents a string drawn on the canvas.
 	internal class Label : Widget
 	{
+		string text;
+
 		public
-		Label ()
+		Label (string s, Graphics context)
 		{
+			text = s;
 		}
 
 		public void
