@@ -446,7 +446,7 @@ namespace Fyre.Canvas
 		{
 		}
 
-		public void
+		public override bool
 		Remove (Widget child)
 		{
 			int x;
