@@ -38,7 +38,8 @@ RESOURCES =							\
 	-resource:$(top_srcdir)/data/hand-closed-data.png	\
 	-resource:$(top_srcdir)/data/hand-closed-mask.png	\
 	-resource:$(top_srcdir)/data/hand-open-data.png		\
-	-resource:$(top_srcdir)/data/hand-open-mask.png
+	-resource:$(top_srcdir)/data/hand-open-mask.png		\
+	-resource:$(top_srcdir)/data/flip.png
 
 RESOURCEFILES =						\
 	$(top_srcdir)/data/pipeline-editor.glade	\
@@ -48,7 +49,8 @@ RESOURCEFILES =						\
 	$(top_srcdir)/data/hand-closed-data.png		\
 	$(top_srcdir)/data/hand-closed-mask.png		\
 	$(top_srcdir)/data/hand-open-data.png		\
-	$(top_srcdir)/data/hand-open-mask.png
+	$(top_srcdir)/data/hand-open-mask.png		\
+	$(top_srcdir)/data/flip.png
 
 $(TARGET): $(CSFILES) $(srcdir)/Defines.cs $(RESOURCEFILES)
 	$(CSC) -o $@ $(CSFLAGS) $(CSFILES) $(srcdir)/Defines.cs $(ASSEMBLIES) $(RESOURCES)

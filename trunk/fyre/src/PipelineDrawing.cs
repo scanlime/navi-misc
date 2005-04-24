@@ -379,8 +379,13 @@ namespace Fyre
 					Gtk.MenuItem delete_item     = new Gtk.ImageMenuItem (Gtk.Stock.Delete,     null);
 					Gtk.MenuItem properties_item = new Gtk.ImageMenuItem (Gtk.Stock.Properties, null);
 
+					Gtk.ImageMenuItem flip_item = new Gtk.ImageMenuItem ("Flip");
+					flip_item.Image = new Gtk.Image (new Gdk.Pixbuf (null, "flip.png"));
+
 					properties_item.Activated += new System.EventHandler (ContextProperties);
 
+					context.Append (flip_item);
+					context.Append (new Gtk.SeparatorMenuItem ());
 					context.Append (cut_item);
 					context.Append (copy_item);
 					context.Append (new Gtk.SeparatorMenuItem ());
