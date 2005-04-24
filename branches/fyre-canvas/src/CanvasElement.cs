@@ -374,8 +374,15 @@ namespace Fyre.Canvas
 
 		/*** Methods ***/
 		public
-		Widget ()
+		Widget (int x, int y, int w, int h)
 		{
+			position = new Rectangle (x, y, w, h);
+		}
+
+		public
+		Widget (Rectangle pos)
+		{
+			position = pos;
 		}
 
 		// All of these objects should provide a method for drawing themselves.
@@ -394,12 +401,13 @@ namespace Fyre.Canvas
 	// A container for other Widgets. Similar to a Gtk.Container.
 	internal abstract class Container : Widget
 	{
-		int		x_pad;
-		int		y_pad;
-		int		x_spacing;
-		int		y_spacing;
+		int				x_pad;
+		int				y_pad;
+		int				x_spacing;
+		int				y_spacing;
 
-		Widget []	children;
+		System.Collections.ArrayList	start;
+		System.Collections.ArrayList	end;
 
 		// Default Container has no padding and no spacing.
 		public
@@ -408,12 +416,18 @@ namespace Fyre.Canvas
 		}
 
 		public
-		Container (int xpad, ypad, xspace, yspace)
+		Container (int xpad, int ypad, int xspace, int yspace) : base (0, 0, 0, 0)
 		{
 			x_pad     = xpad;
 			y_pad     = ypad;
 			x_spacing = xspace;
 			y_spacing = yspace;
+
+			position.Width = 2*xpad;
+			position.Height = 2*ypad;
+
+			start = new System.Collections.ArrayList ();
+			end = new System.Collections.ArrayList ();
 		}
 
 		public void
@@ -427,23 +441,65 @@ namespace Fyre.Canvas
 		}
 
 		public virtual void
-		Pack (Widget child)
+		PackStart (Widget child)
 		{
+		}
+
+		public virtual void
+		PackEnd (Widget child)
+		{
+		}
+
+		protected void
+		Add (Widget child)
+		{
+			position.Width += child.Width + x_spacing;
+			position.Height += child.Height + y_spacing;
 		}
 	}
 
 	internal class HBox : Container
 	{
-		public override void
-		Pack (Widget child)
+		public void
+		PackStart (Widget child)
 		{
+			child.X = position.X + x_pad;
+			child.Y = position.Y + y_pad;
+
+			if (start.Count > 0) {
+				foreach (Widget w in start)
+					child.Y += w.Height + y_spacing;
+			}
+
+			start.Add (child);
+			Add (child);
+		}
+
+		public void
+		PackEnd (Widget child)
+		{
+			child.X = position.X + position.Width - x_pad - child.Width;
+			child.Y = position.Y + y_pad;
+		
+			if (end.Count > 0) {
+				foreach (Widget w in end)
+					child.Y += w.Height + y_spacing;
+			}
+
+			end.Add (child);
+			Add (child);
 		}
 	}
 
 	internal class VBox : Container
 	{
-		public override void
-		Pack (Widget child)
+		public void
+		PackStart (Widget child)
+		{
+		}
+
+		public void
+		PackEnd (Widget child)
 		{
 		}
 	}
