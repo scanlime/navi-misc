@@ -64,6 +64,7 @@ namespace Fyre
 		{
 			command.Do (layout, drawing, pipeline);
 			undo_stack.Add (command);
+			redo_stack.Clear ();
 
 			pipeline.saved = false;
 
