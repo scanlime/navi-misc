@@ -585,12 +585,6 @@ namespace Fyre
 			}
 		}
 
-		void
-		LeaveNotifyHandler (object o, Gtk.LeaveNotifyEventArgs args)
-		{
-			// FIXME - not sure this is needed
-		}
-
 		public void
 		SetViewPosition (float x, float y)
 		{
