@@ -117,6 +117,12 @@ namespace Fyre
 			return (CanvasElement) elements[e.id.ToString ("d")];
 		}
 
+		public CanvasElement
+		Get (System.Guid id)
+		{
+			return (CanvasElement) elements[id.ToString ("d")];
+		}
+
 		public void
 		Draw (System.Drawing.Graphics context, System.Drawing.Rectangle area)
 		{
@@ -169,6 +175,14 @@ namespace Fyre
 			CanvasElement ce = (CanvasElement) elements[hover_element];
 			ce.Position.X += x_offset;
 			ce.Position.Y += y_offset;
+		}
+
+		public void
+		SetElementPosition (Element e, int x, int y)
+		{
+			CanvasElement ce = (CanvasElement) elements[e.id.ToString ("d")];
+			ce.Position.X = x;
+			ce.Position.Y = y;
 		}
 
 		public void

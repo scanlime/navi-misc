@@ -82,6 +82,7 @@ namespace Fyre
 		// Internal data to keep track of dragging
 		DrawingDragType		dragging;
 		int			drag_x, drag_y;
+		int			old_x, old_y;
 
 		/*
 		 * We use a bunch of different cursors here:
@@ -355,8 +356,17 @@ namespace Fyre
 						// Select the element
 						layout.SelectHoverElement ();
 
+						// Grab the canvas element to get the start position if we
+						// decide to start moving things
+						System.Guid id = layout.GetHoverElement ();
+						Element e = (Element) pipeline.element_store[id.ToString ()];
+						CanvasElement ce = layout.Get (e);
+
+						// Setup drag coordinates
 						drag_x = (int) ev.X;
 						drag_y = (int) ev.Y;
+						old_x = ce.Position.X;
+						old_y = ce.Position.Y;
 
 						event_box.GdkWindow.Cursor = FleurCursor;
 					} else if (ev.Type == Gdk.EventType.TwoButtonPress) {
@@ -407,9 +417,7 @@ namespace Fyre
 			}
 
 			// Trigger a redraw
-			Gdk.Rectangle r = drawing_extents;
-			r.X = 0; r.Y = 0;
-			GdkWindow.InvalidateRect (r, true);
+			Redraw();
 		}
 
 		void
@@ -453,6 +461,17 @@ namespace Fyre
 			int layout_x = ((int) ev.XRoot) - win_x + drawing_extents.X;
 			int layout_y = ((int) ev.YRoot) - win_y + drawing_extents.Y;
 			LayoutHover h = layout.GetHoverType (layout_x, layout_y);
+
+			if (dragging == DrawingDragType.Element) {
+				// To facilitate undo/redo, we turn the drag movements into a command
+				// and execute it.  This makes the move official and undoable.
+				System.Guid id = layout.GetHoverElement ();
+				Element e = (Element)pipeline.element_store[id.ToString ()];
+				CanvasElement ce = layout.Get (e);
+
+				Commands.Move movee = new Commands.Move (e, this, layout, old_x, old_y, ce.Position.X, ce.Position.Y);
+				pipeline.Do (movee);
+			}
 
 			if (dragging != DrawingDragType.None) {
 				dragging = DrawingDragType.None;
@@ -517,9 +536,7 @@ namespace Fyre
 				layout.MoveHoverElement (offset_x, offset_y);
 
 				// Trigger a redraw
-				Gdk.Rectangle r = drawing_extents;
-				r.X = 0; r.Y = 0;
-				GdkWindow.InvalidateRect (r, true);
+				Redraw();
 
 				// Set these for the next event
 				drag_x = (int) ev.X;
@@ -565,6 +582,14 @@ namespace Fyre
 				redraw_timeout = GLib.Timeout.Add (50, new GLib.TimeoutHandler (RedrawTimeout));
 		}
 
+		public void
+		Redraw ()
+		{
+			Gdk.Rectangle r = drawing_extents;
+			r.X = 0; r.Y = 0;
+			GdkWindow.InvalidateRect (r, true);
+		}
+
 		bool
 		RedrawTimeout ()
 		{
@@ -596,9 +621,7 @@ namespace Fyre
 			layout.Add (e, ce);
 
 			// Force a redraw of our window
-			Gdk.Rectangle r = drawing_extents;
-			r.X = 0; r.Y = 0;
-			GdkWindow.InvalidateRect (r, true);
+			Redraw ();
 		}
 
 		public void
@@ -607,9 +630,7 @@ namespace Fyre
 			layout.Remove (e);
 
 			// Force a redraw
-			Gdk.Rectangle r = drawing_extents;
-			r.X = 0; r.Y = 0;
-			GdkWindow.InvalidateRect (r, true);
+			Redraw ();
 		}
 	}
 

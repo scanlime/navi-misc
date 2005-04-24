@@ -306,6 +306,53 @@ namespace Fyre
 				drawing.AddElement (e, x, y);
 			}
 		}
+
+		class Move : PipelineCommand
+		{
+			System.Guid		id;
+			Element			e;
+			int			old_x, old_y;
+			int			new_x, new_y;
+			PipelineDrawing		drawing;
+			Layout			layout;
+
+			public Move (Element e, PipelineDrawing drawing, Layout layout, int old_x, int old_y, int new_x, int new_y)
+			{
+				Name = "Move " + e.Name ();
+				this.e = e;
+				this.old_x = old_x;
+				this.old_y = old_y;
+				this.new_x = new_x;
+				this.new_y = new_y;
+				this.drawing = drawing;
+				this.layout = layout;
+				id = e.id;
+			}
+
+			public override void
+			Do (Hashtable element_store)
+			{
+				layout.SetElementPosition (e, new_x, new_y);
+				drawing.Redraw();
+
+				// Trigger a redaw
+				// Gdk.Rectangle r = drawing.DrawingExtents;
+				// r.X = 0; r.Y = 0;
+				// GdkWindow.InvalidateRect (r, true);
+			}
+
+			public override void
+			Undo (Hashtable element_store)
+			{
+				layout.SetElementPosition (e, old_x, old_y);
+				drawing.Redraw();
+
+				// Trigger a redaw
+				// Gdk.Rectangle r = drawing.DrawingExtents;
+				// r.X = 0; r.Y = 0;
+				// GdkWindow.InvalidateRect (r, true);
+			}
+		}
 	}
 
 }
