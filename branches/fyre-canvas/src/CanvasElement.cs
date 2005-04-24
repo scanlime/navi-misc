@@ -450,6 +450,32 @@ namespace Fyre.Canvas
 		{
 		}
 
+		protected virtual void
+		RemoveStart (Widget child)
+		{
+		}
+
+		protected virtual void
+		RemoveEnd (Widget child)
+		{
+		}
+
+		public void
+		Remove (Widget child)
+		{
+			int x;
+			int y;
+
+			position.Width -= child.Width;
+			position.Height -= child.Height;
+
+			if (start.Contains (child)) {
+				RemoveStart (child);
+			} else {
+				RemoveEnd (child);
+			}
+		}
+
 		protected void
 		Add (Widget child)
 		{
@@ -488,6 +514,32 @@ namespace Fyre.Canvas
 
 			end.Add (child);
 			Add (child);
+		}
+
+		protected void
+		RemoveStart (Widget child)
+		{
+			int y = position.Y + y_pad;
+
+			start.Remove (child);
+
+			foreach (Widget w in start) {
+				w.Y = y;
+				y += w.Height + y_spacing;
+			}
+		}
+
+		protected void
+		RemoveEnd (Widget child)
+		{
+			int y = position.Y + position.Height - y_pad;
+
+			end.Remove (child);
+
+			foreach (Widget w in end) {
+				w.Y = y;
+				y -= w.Height + y_spacing;
+			}
 		}
 	}
 
