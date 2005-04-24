@@ -52,6 +52,8 @@ namespace Fyre
 		public Layout		layout;
 		public Pipeline		pipeline;
 
+		public CommandManager	command_manager;
+
 		/* The drawing extents are the size of our current drawing area. The
 		 * position depends on the scrollbars, and the size is always the pixel
 		 * size of the drawing area.
@@ -444,7 +446,7 @@ namespace Fyre
 			// Pass the element name to the new command, and execute it
 			Commands.Delete deletee = new Commands.Delete (e, x, y);
 
-			pipeline.command_manager.Do (deletee);
+			command_manager.Do (deletee);
 			layout.DeselectAll ();
 		}
 
@@ -470,7 +472,7 @@ namespace Fyre
 				CanvasElement ce = layout.Get (e);
 
 				Commands.Move movee = new Commands.Move (e, old_x, old_y, ce.Position.X, ce.Position.Y);
-				pipeline.command_manager.Do (movee);
+				command_manager.Do (movee);
 			}
 
 			if (dragging != DrawingDragType.None) {
