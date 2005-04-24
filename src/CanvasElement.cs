@@ -34,6 +34,44 @@ namespace Fyre.Canvas
 		OutputPad,
 	};
 
+	// Colors for drawing.
+	public sealed struct 
+	Color
+	{
+		static public System.Drawing.Color	bg_color;
+		static public System.Drawing.Color	fg_color;
+		static public System.Drawing.Color	bg_color_prelight;
+		static public System.Drawing.Color	fg_color_prelight;
+		static public System.Drawing.Color	element_bg_color;
+		static public System.Drawing.Color	element_fg_color;
+
+		// Set the colors from the Gtk theme.
+		public static void
+		Set (Gtk.Style style)
+		{
+			Gdk.Color c;
+
+			c = style.Background (Gtk.StateType.Normal);
+			bg_color = System.Drawing.Color.FromArgb (c.Red / 255, c.Green / 255, c.Blue / 255);
+
+			c = style.Foreground (Gtk.StateType.Normal);
+			fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+
+			c = style.Background (Gtk.StateType.Prelight);
+			bg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+
+			c = style.Foreground (Gtk.StateType.Prelight);
+			fg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+
+			c = style.Background (Gtk.StateType.Insensitive);
+			element_bg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+
+			c = style.Dark (Gtk.StateType.Selected);
+			element_fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+		}
+	}
+
+
 	// Abstract base class for everything drawn on a Fyre Canvas.
 	public abstract class Widget
 	{
@@ -408,30 +446,6 @@ namespace Fyre.Canvas
 		Serialize (XmlTextWriter writer)
 		{
 			// TODO: Implement
-		}
-
-		public static void
-		SetColors (Gtk.Style style)
-		{
-			Gdk.Color c;
-
-			c = style.Background (Gtk.StateType.Normal);
-			bg_color = System.Drawing.Color.FromArgb (c.Red / 255, c.Green / 255, c.Blue / 255);
-
-			c = style.Foreground (Gtk.StateType.Normal);
-			fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-
-			c = style.Background (Gtk.StateType.Prelight);
-			bg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-
-			c = style.Foreground (Gtk.StateType.Prelight);
-			fg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-
-			c = style.Background (Gtk.StateType.Insensitive);
-			element_bg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-
-			c = style.Dark (Gtk.StateType.Selected);
-			element_fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
 		}
 
 		public ElementHover
