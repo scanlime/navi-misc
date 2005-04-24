@@ -471,8 +471,14 @@ namespace Fyre
 				Element e = (Element)pipeline.element_store[id.ToString ()];
 				CanvasElement ce = layout.Get (e);
 
-				Commands.Move movee = new Commands.Move (e, old_x, old_y, ce.Position.X, ce.Position.Y);
-				command_manager.Do (movee);
+				// We want to execute this command only if we actually moved the element.  Otherwise,
+				// this is completely pointless, and only adds an unnecessary entry into the undo/redo
+				// stack.
+				if (!(old_x == ce.Position.X && old_y == ce.Position.Y))
+				{
+					Commands.Move movee = new Commands.Move (e, old_x, old_y, ce.Position.X, ce.Position.Y);
+					command_manager.Do (movee);
+				}
 			}
 
 			if (dragging != DrawingDragType.None) {

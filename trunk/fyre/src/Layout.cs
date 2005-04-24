@@ -108,6 +108,14 @@ namespace Fyre
 		public void
 		Remove (Element e)
 		{
+			if (e.id.ToString ("d") == selected_element)
+			{
+				CanvasElement ce = Get (e);
+				ce.Selected = false;
+				selected_element = null;
+				OnSelected (new System.EventArgs ());
+			}
+
 			elements.Remove (e.id.ToString ("d"));
 		}
 
