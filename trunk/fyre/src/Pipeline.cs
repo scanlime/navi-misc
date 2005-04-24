@@ -32,14 +32,10 @@ namespace Fyre
 		public bool		saved;
 		public string		filename;
 
-		public CommandManager	command_manager;
-
 		public
 		Pipeline ()
 		{
 			element_store = new Hashtable ();
-
-			command_manager = new CommandManager ();
 
 			// We start out with saved = true, since it doesn't make sense to
 			// force the user to save something they haven't made any changes

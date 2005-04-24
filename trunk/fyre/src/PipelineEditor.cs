@@ -39,6 +39,9 @@ namespace Fyre
 		int					new_index;
 		static int				new_documents;
 
+		// Command manager
+		CommandManager				command_manager;
+
 		// High-level Widgets
 		[Glade.Widget] Gtk.Window		toplevel;
 		[Glade.Widget] ElementList		element_list;
@@ -145,11 +148,12 @@ namespace Fyre
 			while (plugin_enumerator.MoveNext ())
 				element_list.AddType ((System.Type) plugin_enumerator.Value);
 
-			// Add in the pipeline, layout, and drawing into the pipeline's command
-			// manager
-			pipeline.command_manager.pipeline = pipeline;
-			pipeline.command_manager.layout = layout;
-			pipeline.command_manager.drawing = pipeline_drawing;
+			// Create the command manager for this editor, and add in the pipeline, layout, and
+			// drawing into it
+			command_manager = new CommandManager( layout, pipeline_drawing, pipeline );
+
+			// Distribute the manager out to the pipeline drawing, as it uses it
+			pipeline_drawing.command_manager = command_manager;
 
 			// Call update to set our title, etc.
 			PipelineChanged (null, null);
@@ -242,7 +246,7 @@ namespace Fyre
 			// give the command the information it needs to undo an operation.
 			Commands.Add adde = new Commands.Add (e, args.X - 2, args.Y -2);
 
-			pipeline.command_manager.Do (adde);
+			command_manager.Do (adde);
 		}
 
 		public Gtk.Window
@@ -275,21 +279,21 @@ namespace Fyre
 			Gtk.Label redo_label = (Gtk.Label) menu_redo.Child;
 
 
-			if (pipeline.command_manager.undo_stack.Count == 0) {
+			if (command_manager.undo_stack.Count == 0) {
 				menu_undo.Sensitive = false;
 				undo_label.TextWithMnemonic = "_Undo";
 			} else {
 				menu_undo.Sensitive = true;
-				Command command = (Command) pipeline.command_manager.undo_stack[pipeline.command_manager.undo_stack.Count - 1];
+				Command command = (Command) command_manager.undo_stack[command_manager.undo_stack.Count - 1];
 				undo_label.TextWithMnemonic = "_Undo \"" + command.Name + "\"";
 			}
 
-			if (pipeline.command_manager.redo_stack.Count == 0) {
+			if (command_manager.redo_stack.Count == 0) {
 				menu_redo.Sensitive = false;
 				redo_label.TextWithMnemonic = "_Redo";
 			} else {
 				menu_redo.Sensitive = true;
-				Command command = (Command) pipeline.command_manager.redo_stack[pipeline.command_manager.redo_stack.Count - 1];
+				Command command = (Command) command_manager.redo_stack[command_manager.redo_stack.Count - 1];
 				redo_label.TextWithMnemonic = "_Redo \"" + command.Name + "\"";
 			}
 		}
@@ -477,13 +481,13 @@ namespace Fyre
 		public void
 		OnMenuEditUndo (object o, System.EventArgs args)
 		{
-			pipeline.command_manager.Undo ();
+			command_manager.Undo ();
 		}
 
 		public void
 		OnMenuEditRedo (object o, System.EventArgs args)
 		{
-			pipeline.command_manager.Redo ();
+			command_manager.Redo ();
 		}
 
 		public void
@@ -501,7 +505,7 @@ namespace Fyre
 			// Pass the element name to the new command, and execute it
 			Commands.Delete deletee = new Commands.Delete (e, x, y);
 
-			pipeline.command_manager.Do (deletee);
+			command_manager.Do (deletee);
 			layout.DeselectAll ();
 		}
 

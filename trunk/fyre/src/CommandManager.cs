@@ -52,11 +52,16 @@ namespace Fyre
 		public Pipeline		pipeline;
 
 		public
-		CommandManager ()
+		CommandManager (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
 		{
 			// Create the new undo and redo stack
 			undo_stack = new ArrayList ();
 			redo_stack = new ArrayList ();
+
+			// Add in all the important stuff
+			this.layout = layout;
+			this.drawing = drawing;
+			this.pipeline = pipeline;
 		}
 
 		public void
