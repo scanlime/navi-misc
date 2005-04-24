@@ -47,14 +47,10 @@ Plugins to add:
   * Tee
 
 General things:
-  * Dragging an element around on the canvas needs to be made into a
-	command that can be undone.  Basically, when the drag is finished,
-	we should push a command onto the stack that has before/after the
-	move (we don't care about the intermediate positions).  We may
-	need to move the command stuff out of Pipeline for this into
-	something a little wider reaching, like a CommandManager that
-	can give the individual commands handles to things like the
-	Layout or the Pipeline.
+  * Refactor the commands to be in a more global scope.  Many of the commands
+	are given instances of the layout and drawing, and it's kinda messy to
+	have to pass those in every time.  Instead, we could have a CommandManager
+	that passes in the necessary handles each time.
   * Global layout needs to be designed.  This will have hooks back into
 	PipelineDrawing to manage layout extents, serialize itself,
 	and generally be really slick.  In terms of code structure, it
