@@ -58,14 +58,14 @@ namespace Fyre
 
 				// If we don't have anything on that layout, just return 0x0+0+0
 				if (e.MoveNext ()) {
-					CanvasElement ce = (CanvasElement) e.Value;
+					Canvas.Element ce = (Canvas.Element) e.Value;
 					extents = ConvertRect (ce.Position);
 				} else {
 					return extents;
 				}
 
 				while (e.MoveNext ()) {
-					CanvasElement ce = (CanvasElement) e.Value;
+					Canvas.Element ce = (Canvas.Element) e.Value;
 					extents = extents.Union (ConvertRect (ce.Position));
 				}
 
@@ -91,7 +91,7 @@ namespace Fyre
 		}
 
 		public void
-		Add (Element e, CanvasElement ce)
+		Add (Element e, Canvas.Element ce)
 		{
 			elements.Add (e.id.ToString ("d"), ce);
 		}
@@ -108,7 +108,7 @@ namespace Fyre
 			IDictionaryEnumerator e = elements.GetEnumerator ();
 			e.Reset ();
 			while (e.MoveNext ()) {
-				CanvasElement ce = (CanvasElement) e.Value;
+				Canvas.Element ce = (Canvas.Element) e.Value;
 
 				if (area.Width == 0 || ce.Position.IntersectsWith (area)) {
 					System.Drawing.Drawing2D.GraphicsState state = context.Save ();
@@ -125,7 +125,7 @@ namespace Fyre
 			IDictionaryEnumerator e = elements.GetEnumerator ();
 			e.Reset ();
 			while (e.MoveNext ()) {
-				CanvasElement ce = (CanvasElement) e.Value;
+				Canvas.Element ce = (Canvas.Element) e.Value;
 
 				System.Drawing.Point p = new System.Drawing.Point (x, y);
 
@@ -133,10 +133,10 @@ namespace Fyre
 					int local_x = x - ce.X;
 					int local_y = y - ce.Y;
 					hover_element = (string) e.Key;
-					ElementHover eh = ce.GetHover (local_x, local_y);
-					if (eh == ElementHover.Body)      return LayoutHover.Element;
-					if (eh == ElementHover.InputPad)  return LayoutHover.InputPad;
-					if (eh == ElementHover.OutputPad) return LayoutHover.OutputPad;
+					Canvas.ElementHover eh = ce.GetHover (local_x, local_y);
+					if (eh == Canvas.ElementHover.Body)      return LayoutHover.Element;
+					if (eh == Canvas.ElementHover.InputPad)  return LayoutHover.InputPad;
+					if (eh == Canvas.ElementHover.OutputPad) return LayoutHover.OutputPad;
 				}
 			}
 			return LayoutHover.None;
@@ -151,7 +151,7 @@ namespace Fyre
 		public void
 		MoveHoverElement (int x_offset, int y_offset)
 		{
-			CanvasElement ce = (CanvasElement) elements[hover_element];
+			Canvas.Element ce = (Canvas.Element) elements[hover_element];
 			ce.Position.X += x_offset;
 			ce.Position.Y += y_offset;
 		}
@@ -159,7 +159,7 @@ namespace Fyre
 		public void
 		SelectHoverElement ()
 		{
-			CanvasElement ce = (CanvasElement) elements[hover_element];
+			Canvas.Element ce = (Canvas.Element) elements[hover_element];
 			ce.Selected = true;
 		}
 
@@ -169,7 +169,7 @@ namespace Fyre
 			IDictionaryEnumerator e = elements.GetEnumerator ();
 			e.Reset ();
 			while (e.MoveNext ()) {
-				CanvasElement ce = (CanvasElement) e.Value;
+				Canvas.Element ce = (Canvas.Element) e.Value;
 				ce.Selected = false;
 			}
 		}

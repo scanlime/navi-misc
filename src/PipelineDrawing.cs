@@ -560,7 +560,7 @@ namespace Fyre
 		public void
 		AddElement (Element e, int x, int y)
 		{
-			CanvasElement ce = new CanvasElement (e, GdkWindow);
+			Canvas.Element ce = new Canvas.Element (e, GdkWindow);
 			ce.Position.X = drawing_extents.X + x;
 			ce.Position.Y = drawing_extents.Y + y;
 

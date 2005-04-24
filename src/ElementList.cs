@@ -121,11 +121,15 @@ namespace Fyre
 				drag_type = (string) sorted_store.GetValue (iter, 1);
 				e = (Element) sorted_store.GetValue (iter, 4);
 
-				// Create a new CanvasElement for this Element.
-				CanvasElement canvas_element = new CanvasElement (e, GdkWindow);
+				// Create a new Canvas.Element for this Element.
+				Canvas.Element canvas_element = new Canvas.Element (e, GdkWindow);
 
 				int w = canvas_element.Width;
 				int h = canvas_element.Height;
+
+				if (w == 0 || h == 0) {
+					System.Console.WriteLine ("uhoh\n");
+				}
 
 				// Create a pixmap for the element.
 				Gdk.Pixmap pixmap = new Gdk.Pixmap (GdkWindow, w, h, -1);

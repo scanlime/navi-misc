@@ -146,8 +146,8 @@ namespace Fyre
 			// Show the window
 			toplevel.Show ();
 
-			// Give CanvasElement knowledge of our colors
-			CanvasElement.SetColors (toplevel.Style);
+			// Give Canvas.Element knowledge of our colors
+			Canvas.Color.Set (toplevel.Style);
 
 		}
 

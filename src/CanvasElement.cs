@@ -58,16 +58,42 @@ namespace Fyre.Canvas
 	 */
 	public class Element
 	{
-		// Width and height are maintained by the internal layout system.
+		// Width and height are maintained by the public layout system.
 		// X & Y are maintained by the global layout system. We'll probably
 		// want get/set operators on this to trigger redraws, etc.
 		public Rectangle	Position;
+		ElementRoot		root;
 
-		Element			element;
+		Fyre.Element		element;
 
 		// Selection state
 		public bool		Selected;
 		bool			flipped;
+
+		/*** Properties ***/
+		public int
+		Width
+		{
+			get { return root.Width; }
+		}
+
+		public int
+		Height
+		{
+			get { return root.Height; }
+		}
+
+		public int
+		X
+		{
+			get { return root.X; }
+		}
+
+		public int
+		Y
+		{
+			get { return root.Y; }
+		}
 
 		/*** Constructors ***/
 		public
@@ -103,7 +129,7 @@ namespace Fyre.Canvas
 
 			Label	name = new Label (e.Name (), Font.bold, graphics);
 
-			ElementRoot	root = new ElementRoot (name);
+			root = new ElementRoot (name);
 			root.box.PackStart (pad_box);
 
 			// Store a reference to the element we're drawing.
@@ -142,6 +168,7 @@ namespace Fyre.Canvas
 		GetHover (int x, int y)
 		{
 			// FIXME
+			return ElementHover.None;
 		}
 	}
 
@@ -157,8 +184,8 @@ namespace Fyre.Canvas
 	public struct
 	Font
 	{
-		static public Font plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
-		static public Font bold  = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
+		static public System.Drawing.Font plain = new System.Drawing.Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+		static public System.Drawing.Font bold  = new System.Drawing.Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
 	}
 
 	// Colors for drawing.
@@ -201,12 +228,12 @@ namespace Fyre.Canvas
 
 
 	// Abstract base class for everything drawn on a Fyre Canvas.
-	internal abstract class Widget
+	public abstract class Widget
 	{
-		Rectangle	position;
+		protected Rectangle	position;
 
-		bool		selected;
-		bool		hover;
+		bool			selected;
+		bool			hover;
 
 		/*** Properties ***/
 		public int
@@ -277,14 +304,14 @@ namespace Fyre.Canvas
 	}
 
 	// A container for other Widgets. Similar to a Gtk.Container.
-	internal abstract class Container : Widget
+	public abstract class Container : Widget
 	{
-		int				x_pad;
-		int				y_pad;
-		int				spacing;
+		protected int				x_pad;
+		protected int				y_pad;
+		protected int				spacing;
 
-		System.Collections.ArrayList	start;
-		System.Collections.ArrayList	end;
+		protected System.Collections.ArrayList	start;
+		protected System.Collections.ArrayList	end;
 
 		/*** Constructors ***/
 		// Default Container has no padding and no spacing.
@@ -339,9 +366,6 @@ namespace Fyre.Canvas
 		public override bool
 		Remove (Widget child)
 		{
-			int x;
-			int y;
-
 			if (start.Contains (child)) {
 				position.Width -= child.Width;
 				position.Height -= child.Height;
@@ -392,15 +416,26 @@ namespace Fyre.Canvas
 		protected void
 		Add (Widget child)
 		{
-			position.Width += child.Width + x_spacing;
-			position.Height += child.Height + y_spacing;
+			position.Width += child.Width + spacing;
+			position.Height += child.Height + spacing;
 		}
 
 
 	}
 
-	internal class VBox : Container
+	public class VBox : Container
 	{
+		/*** Constructors ***/
+		public
+		VBox () : base ()
+		{
+		}
+
+		public
+		VBox (int x, int y, int space) : base (x, y, space)
+		{
+		}
+
 		/*** Public Methods ***/
 		public override void
 		PackStart (Widget child)
@@ -466,8 +501,19 @@ namespace Fyre.Canvas
 		}
 	}
 
-	internal class HBox : Container
+	public class HBox : Container
 	{
+		/*** Constructors ***/
+		public
+		HBox () : base ()
+		{
+		}
+
+		public
+		HBox (int x, int y, int space) : base (x, y, space)
+		{
+		}
+
 		/*** Public Methods ***/
 		public override void
 		PackStart (Widget child)
@@ -536,7 +582,7 @@ namespace Fyre.Canvas
 	// Element Root is the base Widget for all Elements drawn on the canvas.
 	// It contains a VBox for packing labels, pads, and other boxes into and 
 	// handles drawing the background of the Element.
-	internal class ElementRoot : Widget
+	public class ElementRoot : Widget
 	{
 		public VBox box;
 
@@ -560,6 +606,7 @@ namespace Fyre.Canvas
 			Pen	border = new System.Drawing.Pen (Color.fg_color);
 			Brush	background = new System.Drawing.SolidBrush (Color.element_bg_color);
 
+			context.FillRectangle (background, 10, 0, position.Width-21, position.Height-1);
 			context.DrawRectangle (border, 10, 0, position.Width-21, position.Height-1);
 
 			box.Draw (context);
@@ -571,6 +618,7 @@ namespace Fyre.Canvas
 			Pen	border = new System.Drawing.Pen (Color.fg_color);
 			Brush	background = new System.Drawing.SolidBrush (Color.element_bg_color);
 
+			context.FillRectangle (background, 10, 0, position.Width-21, position.Height-1);
 			context.DrawRectangle (border, 10, 0, position.Width-21, position.Height-1);
 
 			box.RDraw (context);
@@ -578,7 +626,7 @@ namespace Fyre.Canvas
 	}
 
 	// Represents a single pad on the canvas.
-	internal class Pad : Widget
+	public class Pad : Widget
 	{
 		/*** Public Methods ***/
 		public override void
@@ -595,8 +643,8 @@ namespace Fyre.Canvas
 			triangle[2] = new System.Drawing.PointF (position.X+13,position.Y+10);
 
 			// Draw a white circle with a black border
-			context.FillEllipse (brush, box);
-			context.DrawEllipse (pen, box);
+			context.FillEllipse (brush, position);
+			context.DrawEllipse (pen, position);
 
 			// Draw the triangle.
 			context.FillPolygon (trifill, triangle);
@@ -616,8 +664,8 @@ namespace Fyre.Canvas
 			triangle[2] = new System.Drawing.PointF (position.X+position.Width-13,position.Y+10);
 
 			// Draw a white circle with a black border
-			context.FillEllipse (brush, box);
-			context.DrawEllipse (pen, box);
+			context.FillEllipse (brush, position);
+			context.DrawEllipse (pen, position);
 
 			// Draw the triangle.
 			context.FillPolygon (trifill, triangle);
@@ -626,15 +674,15 @@ namespace Fyre.Canvas
 	}
 
 	// Represents a string drawn on the canvas.
-	internal class Label : Widget
+	public class Label : Widget
 	{
-		new RectangleF	position;
-		string		text;
-		Font		style;
+		new RectangleF		position;
+		string			text;
+		System.Drawing.Font	style;
 
 		/*** Constructors ***/
 		public
-		Label (string s, Font style, Graphics context)
+		Label (string s, System.Drawing.Font style, Graphics context)
 		{
 			SizeF	sz = context.MeasureString (s, style);
 			PointF	pt = new PointF (0, 0);
@@ -648,9 +696,9 @@ namespace Fyre.Canvas
 		public override void
 		Draw (Graphics context)
 		{
-			Brush	text = new SolidBrush (Color.fg_color);
+			Brush	brush = new SolidBrush (Color.fg_color);
 
-			context.DrawString (text, style, text, position);
+			context.DrawString (text, style, brush, position);
 		}
 
 		// Labels don't change when drawn backwards.
