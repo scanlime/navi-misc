@@ -69,15 +69,48 @@ namespace Fyre.Canvas
 		public bool		Selected;
 		bool			flipped;
 
+		/*** Constructors ***/
 		public
 		Element (Fyre.Element e, Gdk.Drawable drawable)
 		{
 			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (drawable);
 
+			VBox		in_box = new VBox (0, 0, 10);
+			VBox		out_box = new VBox (0, 0, 10);
+			HBox		box;
+
+			if (e.inputs != null) {
+				foreach (Fyre.InputPad i in e.inputs) {
+					box = new HBox (0, 0, 7);
+					box.PackStart (new Pad ());
+					box.PackStart (new Label (i.Name, Font.plain, graphics));
+					in_box.PackStart (box);
+				}
+			}
+
+			if (e.outputs != null) {
+				foreach (Fyre.OutputPad o in e.outputs) {
+					box = new HBox (0, 0, 7);
+					box.PackStart (new Label (o.Name, Font.plain, graphics));
+					box.PackStart (new Pad ());
+					out_box.PackStart (box);
+				}
+			}
+
+			HBox	pad_box = new HBox (0, 0, 50);
+			pad_box.PackStart (in_box);
+			pad_box.PackStart (out_box);
+
+			Label	name = new Label (e.Name (), Font.bold, graphics);
+
+			ElementRoot	root = new ElementRoot (name);
+			root.box.PackStart (pad_box);
+
 			// Store a reference to the element we're drawing.
 			element = e;
 		}
 
+		/*** Public Methods ***/
 		// When we're drawing on the main canvas, we render at full size.
 		// However, we also want to be able to render smaller for the
 		// navigation box, so there are two versions.
@@ -90,74 +123,13 @@ namespace Fyre.Canvas
 		public virtual void
 		Draw (System.Drawing.Graphics context)
 		{
-			Pen	border = new System.Drawing.Pen (fg_color);
-			Pen	sborder = new System.Drawing.Pen (element_fg_color);
-			Brush 	background = new System.Drawing.SolidBrush (element_bg_color);
-
-			context.FillRectangle (background, 11, 1, position.Width - 22, position.Height - 2);
-			if (Selected) {
-				context.DrawRectangle (sborder, 10, 0, position.Width - 21, position.Height - 1);
-				context.DrawRectangle (sborder, 11, 1, position.Width - 23, position.Height - 3);
-			} else {
-				context.DrawRectangle (border, 10, 0, position.Width - 21, position.Height - 1);
-			}
-
-			// Element name.
-			PointF		name_pos = new PointF (10+(position.Width-21-name_sz.Width)/2, 2);
-			RectangleF	name_box = new RectangleF (name_pos, name_sz);
-			Brush		text = new SolidBrush (fg_color);
-			Brush		stext = new SolidBrush (element_fg_color);
-
-			if (Selected)
-				context.DrawString (element.Name (), bold, stext, name_box);
-			else
-				context.DrawString (element.Name (), bold, text, name_box);
-
-			// Draw input pads.
-			if (element.inputs != null) {
-				for (int i = 0; i < element.inputs.Length; i++) {
-					DrawInputPad (element.inputs[i], context, input_pads[i]);
-				}
-			}
-
-			// Draw output pads.
-			if (element.outputs != null) {
-				for (int i = 0; i < element.outputs.Length; i++) {
-					DrawOutputPad (element.outputs[i], context, output_pads[i]);
-				}
-			}
+			root.Draw (context);
 		}
 
 		public virtual void
 		DrawMask (Gdk.Pixmap mask)
 		{
-			// Fore- and background colours.
-			Gdk.GC		fg = new Gdk.GC (mask);
-			Gdk.GC		bg = new Gdk.GC (mask);
-			Gdk.Color	white = new Gdk.Color (1,1,1);
-			Gdk.Color	black = new Gdk.Color (0,0,0);
-
-			Gdk.Colormap.System.AllocColor (ref white, true, true);
-			Gdk.Colormap.System.AllocColor (ref black, true, true);
-
-			fg.Foreground = white;
-			bg.Foreground = black;
-
-			// Main body.
-			mask.DrawRectangle (bg, true, 0, 0, position.Width, position.Height);
-			mask.DrawRectangle (fg, true, 10, 0, position.Width-20, position.Height);
-
-			// Pads.
-			if (input_pads != null) {
-				foreach (Rectangle pad in input_pads) {
-					mask.DrawArc (fg, true, pad.Left-1, pad.Top-1, 21, 21, 0, 360*64);
-				}
-			}
-			if (output_pads != null) {
-				foreach (Rectangle pad in output_pads) {
-					mask.DrawArc (fg, true, pad.Left-1, pad.Top-1, 21, 21, 0, 360*64);
-				}
-			}
+			// FIXME
 		}
 
 		public virtual void
@@ -169,29 +141,10 @@ namespace Fyre.Canvas
 		public ElementHover
 		GetHover (int x, int y)
 		{
-			if (input_pads != null) {
-				foreach (Rectangle pad in input_pads) {
-					if ((x >= pad.X) &&
-					    (x <= pad.X + pad.Width) &&
-				    	    (y >= pad.Y) &&
-				    	    (y <= pad.Y + pad.Height))
-						return ElementHover.InputPad;
-				}
-			}
-			if (output_pads != null) {
-				foreach (Rectangle pad in output_pads) {
-					if ((x >= pad.X) &&
-				    	    (x <= pad.X + pad.Width) &&
-				    	    (y >= pad.Y) &&
-				    	    (y <= pad.Y + pad.Height))
-						return ElementHover.OutputPad;
-				}
-			}
-			if (x >= 10 && x <= position.Width - 10)
-				return ElementHover.Body;
-			return ElementHover.None;
+			// FIXME
 		}
 	}
+
 
 	/*** Element Drawing Primitives ***/
 
@@ -286,6 +239,12 @@ namespace Fyre.Canvas
 
 		/*** Constructors ***/
 		public
+		Widget ()
+		{
+			position = new Rectangle (0, 0, 0, 0);
+		}
+
+		public
 		Widget (int x, int y, int w, int h)
 		{
 			position = new Rectangle (x, y, w, h);
@@ -297,7 +256,7 @@ namespace Fyre.Canvas
 			position = pos;
 		}
 
-		/*** Methods ***/
+		/*** Public Methods ***/
 		public virtual bool
 		Remove (Widget child)
 		{
@@ -327,14 +286,15 @@ namespace Fyre.Canvas
 		System.Collections.ArrayList	start;
 		System.Collections.ArrayList	end;
 
+		/*** Constructors ***/
 		// Default Container has no padding and no spacing.
 		public
-		Container () : this (0, 0, 0, 0)
+		Container () : this (0, 0, 0)
 		{
 		}
 
 		public
-		Container (int xpad, int ypad, int space) : base (0, 0, 0, 0)
+		Container (int xpad, int ypad, int space) : base ()
 		{
 			x_pad     = xpad;
 			y_pad     = ypad;
@@ -347,6 +307,7 @@ namespace Fyre.Canvas
 			end = new System.Collections.ArrayList ();
 		}
 
+		/*** Public Methods ***/
 		public override void
 		Draw (Graphics context)
 		{
@@ -407,14 +368,6 @@ namespace Fyre.Canvas
 			return false;
 		}
 
-		protected void
-		Add (Widget child)
-		{
-			position.Width += child.Width + x_spacing;
-			position.Height += child.Height + y_spacing;
-		}
-
-		/*** Virtual Functions ***/
 		public virtual void
 		PackStart (Widget child)
 		{
@@ -425,6 +378,7 @@ namespace Fyre.Canvas
 		{
 		}
 
+		/*** Protected Methods ***/
 		protected virtual void
 		RemoveStart (Widget child)
 		{
@@ -434,10 +388,20 @@ namespace Fyre.Canvas
 		RemoveEnd (Widget child)
 		{
 		}
+
+		protected void
+		Add (Widget child)
+		{
+			position.Width += child.Width + x_spacing;
+			position.Height += child.Height + y_spacing;
+		}
+
+
 	}
 
 	internal class VBox : Container
 	{
+		/*** Public Methods ***/
 		public override void
 		PackStart (Widget child)
 		{
@@ -468,6 +432,7 @@ namespace Fyre.Canvas
 			Add (child);
 		}
 
+		/*** Protected Methods ***/
 		protected override void
 		RemoveStart (Widget child)
 		{
@@ -503,6 +468,7 @@ namespace Fyre.Canvas
 
 	internal class HBox : Container
 	{
+		/*** Public Methods ***/
 		public override void
 		PackStart (Widget child)
 		{
@@ -533,6 +499,7 @@ namespace Fyre.Canvas
 			Add (child);
 		}
 
+		/*** Protected Methods ***/
 		protected override void
 		RemoveStart (Widget child)
 		{
@@ -573,12 +540,20 @@ namespace Fyre.Canvas
 	{
 		public VBox box;
 
+		/*** Constructors ***/
 		public
 		ElementRoot ()
 		{
 			box = new VBox();
 		}
 
+		public
+		ElementRoot (Label name) : this ()
+		{
+			box.PackStart (name);
+		}
+
+		/*** Public Methods ***/
 		public override void
 		Draw (Graphics context)
 		{
@@ -605,11 +580,7 @@ namespace Fyre.Canvas
 	// Represents a single pad on the canvas.
 	internal class Pad : Widget
 	{
-		public
-		Pad ()
-		{
-		}
-
+		/*** Public Methods ***/
 		public override void
 		Draw (Graphics context)
 		{
@@ -661,6 +632,7 @@ namespace Fyre.Canvas
 		string		text;
 		Font		style;
 
+		/*** Constructors ***/
 		public
 		Label (string s, Font style, Graphics context)
 		{
@@ -672,6 +644,7 @@ namespace Fyre.Canvas
 			text = s;
 		}
 
+		/*** Public Methods ***/
 		public override void
 		Draw (Graphics context)
 		{
