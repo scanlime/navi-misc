@@ -440,26 +440,6 @@ namespace Fyre.Canvas
 		{
 		}
 
-		public virtual void
-		PackStart (Widget child)
-		{
-		}
-
-		public virtual void
-		PackEnd (Widget child)
-		{
-		}
-
-		protected virtual void
-		RemoveStart (Widget child)
-		{
-		}
-
-		protected virtual void
-		RemoveEnd (Widget child)
-		{
-		}
-
 		public void
 		Remove (Widget child)
 		{
@@ -482,6 +462,34 @@ namespace Fyre.Canvas
 			position.Width += child.Width + x_spacing;
 			position.Height += child.Height + y_spacing;
 		}
+	
+		/*** Virtual Functions ***/
+		public virtual void
+		PackStart (Widget child)
+		{
+		}
+
+		public virtual void
+		PackEnd (Widget child)
+		{
+		}
+
+		protected virtual void
+		RemoveStart (Widget child)
+		{
+		}
+
+		protected virtual void
+		RemoveEnd (Widget child)
+		{
+		}
+
+		protected virtual void
+		Recalculate ()
+		{
+		}
+
+
 	}
 
 	internal class VBox : Container
@@ -509,7 +517,7 @@ namespace Fyre.Canvas
 		
 			if (end.Count > 0) {
 				foreach (Widget w in end)
-					child.Y -= w.Height + y_spacing;
+					child.Y -= w.Height - y_spacing;
 			}
 
 			end.Add (child);
@@ -538,7 +546,27 @@ namespace Fyre.Canvas
 
 			foreach (Widget w in end) {
 				w.Y = y - w.Height;
-				y -= w.Height + y_spacing;
+				y -= w.Height - y_spacing;
+			}
+		}
+
+		public void
+		Recalculate ()
+		{
+			int x = position.X + x_pad;
+			int y = position.Y + y_pad;
+
+			foreach (Widget w in start) {
+				w.X = x;
+				w.Y = y;
+				y += w.Height + y_spacing;
+			}
+
+			y = position.Y + position.Height - y_pad;
+			foreach (Widget w in end) {
+				w.X = x;
+				w.Y = y - w.Height;
+				y -= w.Height - y_spacing;
 			}
 		}
 	}
@@ -568,7 +596,7 @@ namespace Fyre.Canvas
 
 			if (end.Count > 0) {
 				foreach (Widget w in end)
-					child.X -= w.Width + x_spacing;
+					child.X -= w.Width - x_spacing;
 			}
 
 			end.Add (child);
@@ -600,11 +628,31 @@ namespace Fyre.Canvas
 				x -= w.Width - x_spacing;
 			}
 		}
+
+		public void
+		Recalculate ()
+		{
+			int x = position.X + x_pad;
+			int y = position.Y + y_pad;
+
+			foreach (Widget w in start) {
+				w.X = x;
+				w.Y = y;
+				x += w.Width + x_spacing;
+			}
+
+			x = position.X + position.Width - x_pad;
+			foreach (Widget w in start) {
+				w.X = x - w.Width;
+				w.Y = y;
+				x -= w.Width - x_spacing;
+			}
+		}
 	}
 
 	// Element Root is the base Widget for all Elements drawn on the canvas.
-	// It contains a VBox for packing labels and pads into and handles drawing
-	// the background of the Element.
+	// It contains a VBox for packing labels, pads, and other boxes into and 
+	// handles drawing the background of the Element.
 	internal class ElementRoot : Widget
 	{
 		public VBox box;
