@@ -34,16 +34,25 @@ namespace Fyre.Canvas
 		OutputPad,
 	};
 
+	// Our fonts.
+	// FIXME Might be a good idea to have something to fall back on if they don't have Bitstream Vera fonts.
+	public sealed struct
+	Font
+	{
+		static public Font plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+		static public Font bold  = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
+	}
+
 	// Colors for drawing.
 	public sealed struct 
 	Color
 	{
-		static public System.Drawing.Color	bg_color;
-		static public System.Drawing.Color	fg_color;
-		static public System.Drawing.Color	bg_color_prelight;
-		static public System.Drawing.Color	fg_color_prelight;
-		static public System.Drawing.Color	element_bg_color;
-		static public System.Drawing.Color	element_fg_color;
+		static public System.Drawing.Color bg_color;
+		static public System.Drawing.Color fg_color;
+		static public System.Drawing.Color bg_color_prelight;
+		static public System.Drawing.Color fg_color_prelight;
+		static public System.Drawing.Color element_bg_color;
+		static public System.Drawing.Color element_fg_color;
 
 		// Set the colors from the Gtk theme.
 		public static void
@@ -204,8 +213,6 @@ namespace Fyre.Canvas
 		static Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
 
 		// We use these fonts so frequently that we may as well store them permanently.
-		static Font		plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
-		static Font		bold  = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
 
 		// Colors
 		static Color		bg_color;
