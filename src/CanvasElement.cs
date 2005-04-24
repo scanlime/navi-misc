@@ -537,7 +537,7 @@ namespace Fyre.Canvas
 			end.Remove (child);
 
 			foreach (Widget w in end) {
-				w.Y = y;
+				w.Y = y - w.Height;
 				y -= w.Height + y_spacing;
 			}
 		}
@@ -573,6 +573,32 @@ namespace Fyre.Canvas
 
 			end.Add (child);
 			Add (child);
+		}
+
+		protected void
+		RemoveStart (Widget child)
+		{
+			int x = position.X + x_pad;
+
+			start.Remove (child);
+
+			foreach (Widget w in start) {
+				w.X = x;
+				x += w.Width + x_spacing;
+			}
+		}
+
+		protected void
+		RemoveEnd (Widget child)
+		{
+			int x = position.X + position.Width - x_pad;
+
+			end.Remove (child);
+
+			foreach (Widget w in end) {
+				w.X = x - w.Width;
+				x -= w.Width - x_spacing;
+			}
 		}
 	}
 
