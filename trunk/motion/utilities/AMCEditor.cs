@@ -125,6 +125,7 @@ class CurveEditor : Gtk.DrawingArea
 	Gdk.GC			grey_gc;
 	Gdk.GC			black_gc;
 	Gdk.Pixmap		back_buffer;
+	Pango.Layout		layout;
 
 	// Information about the AMC data
 	int 			nframes;
@@ -161,7 +162,7 @@ class CurveEditor : Gtk.DrawingArea
 	void
 	CreateGCs ()
 	{
-		Gdk.Color grey  = new Gdk.Color (0xcc, 0xcc, 0xcc);
+		Gdk.Color grey  = new Gdk.Color (0xde, 0xde, 0xde);
 		Gdk.Color black = new Gdk.Color (0x00, 0x00, 0x00);
 
 		grey_gc  = new Gdk.GC (GdkWindow);
@@ -172,6 +173,9 @@ class CurveEditor : Gtk.DrawingArea
 
 		grey_gc.Foreground  = grey;
 		black_gc.Foreground = black;
+
+		layout = CreatePangoLayout (null);
+		layout.FontDescription = Pango.FontDescription.FromString ("Bitstream Vera Sans 7");
 	}
 
 	void
@@ -193,8 +197,6 @@ class CurveEditor : Gtk.DrawingArea
 
 		if (amc == null)
 			return;
-
-		Pango.Layout layout = CreatePangoLayout (null);
 
 		// Draw frame lines and numbers
 		for (int i = 0; i < amc.frames.Count; i++) {
