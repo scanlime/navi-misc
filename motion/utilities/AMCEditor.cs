@@ -136,7 +136,9 @@ class CurveEditor : Gtk.DrawingArea
 	Gdk.GC			grey_gc;
 	Gdk.GC			black_gc;
 	Gdk.Pixmap		back_buffer;
-	Pango.Layout		layout;
+	Pango.Layout		biglayout;
+	Pango.Layout		smalllayout;
+	int			redraw_timeout;
 
 	// Information about the AMC data
 	int 			nframes;
@@ -161,9 +163,7 @@ class CurveEditor : Gtk.DrawingArea
 			hadj.Upper = nframes * 40;
 			hadj.StepIncrement = 40;
 
-			Gdk.Rectangle r = Allocation;
-			r.X = 0; r.Y = 0;
-			GdkWindow.InvalidateRect (r, true);
+			QueueRedraw ();
 		}
 	}
 
@@ -171,6 +171,7 @@ class CurveEditor : Gtk.DrawingArea
 	CurveEditor ()
 	{
 		enabled_bones = new ArrayList ();
+		redraw_timeout = 0;
 	}
 
 	void
@@ -188,8 +189,10 @@ class CurveEditor : Gtk.DrawingArea
 		grey_gc.Foreground  = grey;
 		black_gc.Foreground = black;
 
-		layout = CreatePangoLayout (null);
-		layout.FontDescription = Pango.FontDescription.FromString ("Bitstream Vera Sans 7");
+		biglayout = CreatePangoLayout (null);
+		biglayout.FontDescription = Pango.FontDescription.FromString ("Bitstream Vera Sans 8");
+		smalllayout = CreatePangoLayout (null);
+		smalllayout.FontDescription = Pango.FontDescription.FromString ("Bitstream Vera Sans 6");
 	}
 
 	void
@@ -236,13 +239,19 @@ class CurveEditor : Gtk.DrawingArea
 			if (IsVisible (pos)) {
 				back_buffer.DrawLine (black_gc,
 					(int) (pos - hadj.Value), 0,
-					(int) (pos - hadj.Value), Allocation.Height - 20);
+					(int) (pos - hadj.Value), Allocation.Height - 30);
 
-				layout.SetText (i.ToString ());
+				biglayout.SetText (i.ToString ());
 				int lw, lh;
-				layout.GetPixelSize (out lw, out lh);
+				biglayout.GetPixelSize (out lw, out lh);
 
-				back_buffer.DrawLayout (black_gc, (int) (pos - (lw / 2) - hadj.Value), Allocation.Height - 18, layout);
+				back_buffer.DrawLayout (black_gc, (int) (pos - (lw / 2) - hadj.Value), Allocation.Height - 28, biglayout);
+
+				float seconds = i / 120.0f;
+
+				smalllayout.SetText (System.String.Format ("{0:00.000}", seconds));
+				smalllayout.GetPixelSize (out lw, out lh);
+				back_buffer.DrawLayout (black_gc, (int) (pos - (lw / 2) - hadj.Value), Allocation.Height - 10, smalllayout);
 			}
 
 			if (IsVisible (pos) || IsVisible (pos + 40)) {
@@ -298,7 +307,7 @@ class CurveEditor : Gtk.DrawingArea
 		}
 
 		// Draw border between frame # and edit region
-		back_buffer.DrawLine (black_gc, 0, Allocation.Height - 20, Allocation.Width, Allocation.Height - 20);
+		back_buffer.DrawLine (black_gc, 0, Allocation.Height - 30, Allocation.Width, Allocation.Height - 30);
 	}
 
 	bool
@@ -310,8 +319,8 @@ class CurveEditor : Gtk.DrawingArea
 	int FindValueHeight (float f)
 	{
 		float pc = f / 360.0f;
-		float height = (Allocation.Height - 21) * pc;
-		return (int) ((Allocation.Height - 21) - height);
+		float height = (Allocation.Height - 31) * pc;
+		return (int) ((Allocation.Height - 31) - height);
 	}
 
 	protected override bool
@@ -359,10 +368,32 @@ class CurveEditor : Gtk.DrawingArea
 	void
 	HAdjustmentChanged (object o, System.EventArgs e)
 	{
+		QueueRedraw ();
+	}
+
+	public void
+	VisibilityChanged ()
+	{
+		QueueRedraw ();
+	}
+
+	void
+	QueueRedraw ()
+	{
+		if (redraw_timeout == 0)
+			GLib.Timeout.Add (20, new GLib.TimeoutHandler (Redraw));
+	}
+
+	bool
+	Redraw ()
+	{
 		Gdk.Rectangle area = Allocation;
 		area.X = 0; area.Y = 0;
 		Draw ();
 		GdkWindow.InvalidateRect (area, true);
+
+		redraw_timeout = 0;
+		return false;
 	}
 }
 
@@ -440,6 +471,8 @@ class AMCEditor
 			curve_editor.enabled_bones.Add (args.Path);
 		else
 			curve_editor.enabled_bones.Remove (args.Path);
+
+		curve_editor.VisibilityChanged ();
 	}
 
 	static Gtk.Widget
