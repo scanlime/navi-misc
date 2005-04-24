@@ -23,30 +23,8 @@
 using System.Drawing;
 using System.Xml;
 
-namespace Fyre
+namespace Fyre.Canvas
 {
-	/*
-	 * The basic structure of an element on the canvas has 3 pieces:
-	 * 	name
-	 * 	pads
-	 * 	element-specific data
-	 *
-	 * Name and pads are provided by this class. If an element requires
-	 * custom drawings (such as equations, etc), it will subclass
-	 * CanvasElement.
-	 *
-	 * y-dimensions:
-	 * 	name:			20px
-	 * 	pad:			20px
-	 * 	inter-pad distance:	10px
-	 * 	top-to-pad:		8px
-	 * 	pad-to-bottom:		6px
-	 *
-	 * x-dimensions:
-	 * 	minimum size is either name, extra-data or pads
-	 * 	pad-to-name:		7px
-	 * 	between-names:		50px
-	 */
 	public enum
 	ElementHover
 	{
@@ -56,37 +34,15 @@ namespace Fyre
 		OutputPad,
 	};
 
-	public class CanvasElement
+	// Abstract base class for everything drawn on a Fyre Canvas.
+	public abstract class Widget
 	{
-		// Width and height are maintained by the internal layout system.
-		// X & Y are maintained by the global layout system. We'll probably
-		// want get/set operators on this to trigger redraws, etc.
-		public Rectangle		Position;
+		public Rectangle	Position;
 
-		// Maintain information about the location of all the pads.
-		Rectangle []			input_pads;
-		Rectangle []			output_pads;
-		Element				element;
-		static Gdk.Pixmap		pm = new Gdk.Pixmap (null,1,1,8);
-
-		// We use these fonts so frequently that we may as well store them permanently.
-		static Font			plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
-		static Font			bold  = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
-
-		// Colors
-		static System.Drawing.Color	bg_color;
-		static System.Drawing.Color 	fg_color;
-		static System.Drawing.Color 	bg_color_prelight;
-		static System.Drawing.Color 	fg_color_prelight;
-		static System.Drawing.Color 	element_bg_color;
-		static System.Drawing.Color 	element_fg_color;
-
-		// Size of the name of this element
-		SizeF				name_sz;
-
-		// Selection state
-		public bool			Selected;
-
+		bool			selected;
+		bool			hover;
+	
+		/*** Properties ***/
 		public int
 		X
 		{
@@ -111,8 +67,119 @@ namespace Fyre
 			get { return Position.Height; }
 		}
 
+		/*** Methods ***/
 		public
-		CanvasElement (Element e, Gdk.Drawable drawable)
+		Widget ()
+		{
+		}
+
+		// All of these objects should provide a method for drawing themselves.
+		public virtual void
+		Draw (Graphics context)
+		{
+		}
+
+		// All of these objects should provide a method for drawing themselves backwards.
+		public virtual void
+		RDraw (Graphics context)
+		{
+		}
+	}
+
+	// Represents a single pad on the canvas.
+	public class Pad : Widget
+	{
+		public
+		Pad ()
+		{
+		}
+
+		public void
+		Draw (Graphics context)
+		{
+		}
+
+		public void
+		RDraw (Graphics context)
+		{
+		}
+	}
+
+	// Represents a string drawn on the canvas.
+	public class Label : Widget
+	{
+		public
+		Label ()
+		{
+		}
+
+		public void
+		Draw (Graphics context)
+		{
+		}
+
+		public void
+		RDraw (Graphics context)
+		{
+		}
+	}
+
+	/*
+	 * The basic structure of an element on the canvas has 3 pieces:
+	 * 	name
+	 * 	pads
+	 * 	element-specific data
+	 *
+	 * Name and pads are provided by this class. If an element requires
+	 * custom drawings (such as equations, etc), it will subclass
+	 * CanvasElement.
+	 *
+	 * y-dimensions:
+	 * 	name:			20px
+	 * 	pad:			20px
+	 * 	inter-pad distance:	10px
+	 * 	top-to-pad:		8px
+	 * 	pad-to-bottom:		6px
+	 *
+	 * x-dimensions:
+	 * 	minimum size is either name, extra-data or pads
+	 * 	pad-to-name:		7px
+	 * 	between-names:		50px
+	 */
+	public class Element : Widget
+	{
+		// Width and height are maintained by the internal layout system.
+		// X & Y are maintained by the global layout system. We'll probably
+		// want get/set operators on this to trigger redraws, etc.
+		public Rectangle		Position;
+
+		// Maintain information about the location of all the pads.
+		Rectangle []		input_pads;
+		Rectangle []		output_pads;
+		Element			element;
+		static Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
+
+		// We use these fonts so frequently that we may as well store them permanently.
+		static Font		plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
+		static Font		bold  = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Bold);
+
+		// Colors
+		static Color		bg_color;
+		static Color 		fg_color;
+		static Color 		bg_color_prelight;
+		static Color 		fg_color_prelight;
+		static Color 		element_bg_color;
+		static Color 		element_fg_color;
+
+		// Size of the name of this element
+		SizeF				name_sz;
+
+		// Selection state
+		public bool			Selected;
+
+
+		public
+		Element (Fyre.Element e, Gdk.Drawable drawable)
 		{
 			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (drawable);
 
