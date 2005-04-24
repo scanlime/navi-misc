@@ -204,6 +204,8 @@ namespace Fyre
 
 			backing.DrawRectangle (gc, true, ev.Area);
 
+			// Set the transform the graphics surface to reflect the window position.
+			// Clipping is handled automatically by System.Drawing
 			System.Drawing.Graphics g = Gtk.DotNet.Graphics.FromDrawable (backing);
 			g.ResetTransform ();
 			g.TranslateTransform ((float) -drawing_extents.X, (float) -drawing_extents.Y);
@@ -340,6 +342,8 @@ namespace Fyre
 					event_box.GdkWindow.Cursor = HandClosedCursor;
 				}
 				if (ev.Button == 3) {
+					// Pop up a context menu. This one is pretty simple, since there aren't
+					// many actions you can perform in the general document context.
 					Gtk.Menu context = new Gtk.Menu ();
 
 					Gtk.MenuItem paste_item = new Gtk.ImageMenuItem (Gtk.Stock.Paste, null);
@@ -388,6 +392,7 @@ namespace Fyre
 					// Select the element
 					layout.SelectHoverElement ();
 
+					// Create a context menu for this element
 					Gtk.Menu context = new Gtk.Menu ();
 
 					Gtk.MenuItem cut_item        = new Gtk.ImageMenuItem (Gtk.Stock.Cut,        null);
