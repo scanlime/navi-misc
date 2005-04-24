@@ -442,9 +442,9 @@ namespace Fyre
 			int y = ce.Position.Y;
 
 			// Pass the element name to the new command, and execute it
-			Commands.Delete deletee = new Commands.Delete (e, this, x, y);
+			Commands.Delete deletee = new Commands.Delete (e, x, y);
 
-			pipeline.Do (deletee);
+			pipeline.command_manager.Do (deletee);
 			layout.DeselectAll ();
 		}
 
@@ -469,8 +469,8 @@ namespace Fyre
 				Element e = (Element)pipeline.element_store[id.ToString ()];
 				CanvasElement ce = layout.Get (e);
 
-				Commands.Move movee = new Commands.Move (e, this, layout, old_x, old_y, ce.Position.X, ce.Position.Y);
-				pipeline.Do (movee);
+				Commands.Move movee = new Commands.Move (e, old_x, old_y, ce.Position.X, ce.Position.Y);
+				pipeline.command_manager.Do (movee);
 			}
 
 			if (dragging != DrawingDragType.None) {
