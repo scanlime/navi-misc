@@ -464,7 +464,19 @@ namespace Fyre
 		public void
 		OnMenuEditDelete (object o, System.EventArgs args)
 		{
-			// FIXME - implement
+			// Figure out which element is selected
+			System.Guid id = layout.GetSelectedElement ();
+			Element e = (Element) pipeline.element_store[id.ToString ()];
+			CanvasElement ce = layout.Get (e);
+
+			// Grab the X and Y coordinates of it
+			int x = ce.Position.X;
+			int y = ce.Position.Y;
+
+			// Pass the element name to the new command, and execute it
+			Commands.Delete deletee = new Commands.Delete (e, pipeline_drawing, x, y);
+
+			pipeline.Do (deletee);
 		}
 
 		// 'View' Menu events

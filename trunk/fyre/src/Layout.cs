@@ -40,6 +40,7 @@ namespace Fyre
 	{
 		Hashtable		elements;
 		string			hover_element;
+		string			selected_element;
 
 		public Gdk.Rectangle	Extents
 		{
@@ -102,6 +103,12 @@ namespace Fyre
 			elements.Remove (e.id.ToString ("d"));
 		}
 
+		public CanvasElement
+		Get (Element e)
+		{
+			return (CanvasElement) elements[e.id.ToString ("d")];
+		}
+
 		public void
 		Draw (System.Drawing.Graphics context, System.Drawing.Rectangle area)
 		{
@@ -161,6 +168,13 @@ namespace Fyre
 		{
 			CanvasElement ce = (CanvasElement) elements[hover_element];
 			ce.Selected = true;
+			selected_element = hover_element;
+		}
+
+		public System.Guid
+		GetSelectedElement ()
+		{
+			return new System.Guid (selected_element);
 		}
 
 		public void
@@ -172,6 +186,7 @@ namespace Fyre
 				CanvasElement ce = (CanvasElement) e.Value;
 				ce.Selected = false;
 			}
+			selected_element = null;
 		}
 	}
 }
