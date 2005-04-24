@@ -276,21 +276,34 @@ namespace Fyre
 
 		class Delete : PipelineCommand
 		{
-			public Delete (Element e)
+			System.Guid		id;
+			Element			e;
+			int			x;
+			int			y;
+			PipelineDrawing		drawing;
+
+			public Delete (Element e, PipelineDrawing drawing, int x, int y)
 			{
 				Name = "Delete " + e.Name ();
+				this.e = e;
+				this.drawing = drawing;
+				this.x = x;
+				this.y = y;
+				id = e.id;
 			}
 
 			public override void
 			Do (Hashtable element_store)
 			{
-				// FIXME - implement
+				drawing.RemoveElement (e);
+				element_store.Remove (id.ToString ("d"));
 			}
 
 			public override void
 			Undo (Hashtable element_store)
 			{
-				// FIXME - implement
+				element_store.Add (id.ToString ("d"), e);
+				drawing.AddElement (e, x, y);
 			}
 		}
 	}
