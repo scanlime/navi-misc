@@ -385,6 +385,12 @@ namespace Fyre.Canvas
 			position = pos;
 		}
 
+		public bool
+		Remove (Widget child)
+		{
+			return false;
+		}
+
 		// All of these objects should provide a method for drawing themselves.
 		public virtual void
 		Draw (Graphics context)
@@ -451,9 +457,23 @@ namespace Fyre.Canvas
 
 			if (start.Contains (child)) {
 				RemoveStart (child);
-			} else {
+				return true;
+			if (end.Contains (child)) {
 				RemoveEnd (child);
+				return true;
 			}
+
+			foreach (Widget w in start) {
+				if (w.Remove (child))
+					return true;
+			}
+
+			foreach (Widget w in end) {
+				if (w.Remove (child))
+					return true;
+			}
+
+			return false;
 		}
 
 		protected void
