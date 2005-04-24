@@ -41,10 +41,19 @@ class AMCFrame
 	AddBone (string[] tokens)
 	{
 		string name = tokens[0];
-		string[] values = new string[tokens.Length - 1];
 
-		System.Array.Copy (tokens, 1, values, 0, values.Length);
-		data.Add (name, values);
+		// hack to take care of trailing space
+		if (tokens[tokens.Length - 1].Length == 0) {
+			string[] values = new string[tokens.Length - 2];
+
+			System.Array.Copy (tokens, 1, values, 0, values.Length - 1);
+			data.Add (name, values);
+		} else {
+			string[] values = new string[tokens.Length - 1];
+
+			System.Array.Copy (tokens, 1, values, 0, values.Length);
+			data.Add (name, values);
+		}
 	}
 
 	public IDictionaryEnumerator
@@ -236,20 +245,53 @@ class CurveEditor : Gtk.DrawingArea
 				back_buffer.DrawLayout (black_gc, (int) (pos - (lw / 2) - hadj.Value), Allocation.Height - 18, layout);
 			}
 
-			if (IsVisible (pos + 40)) {
+			if (IsVisible (pos) || IsVisible (pos + 40)) {
 				// Iterate through all the bones, draw those that are active.
 				foreach (object[] pair in bones) {
-					string name = (string) pair[0];
-					int angle = (int) pair[1];
+					int angle = (int) pair[0];
+					string name = (string) pair[1];
 
 					if (i + 1 != amc.frames.Count) {
 						AMCFrame frame1 = (AMCFrame) amc.frames[i];
 						AMCFrame frame2 = (AMCFrame) amc.frames[i + 1];
-						float val1 = ((float[]) (frame1.data[name]))[angle];
-						float val2 = ((float[]) (frame2.data[name]))[angle];
+						string s1 = ((string[]) (frame1.data[name]))[angle];
+						string s2 = ((string[]) (frame2.data[name]))[angle];
+						float val1 = (float) System.Double.Parse (s1);
+						float val2 = (float) System.Double.Parse (s2);
+
+						if (val1 < 0) val1 = 360.0f - val1;
+						if (val2 < 0) val2 = 360.0f - val2;
+						if (val1 > 360) val1 = val1 - 360.0f;
+						if (val2 > 360) val2 = val2 - 360.0f;
+
 						// draw box at current position and line to next position
+						int height1 = FindValueHeight (val1);
+						int height2 = FindValueHeight (val2);
+
+						Gdk.Rectangle r = new Gdk.Rectangle ();
+						r.X = (int) (pos - hadj.Value - 2);
+						r.Y = height1 - 2;
+						r.Width = 5;
+						r.Height = 5;
+						back_buffer.DrawRectangle (black_gc, true, r);
+
+						// FIXME - color
+						back_buffer.DrawLine (black_gc, (int) (pos - hadj.Value), height1, (int) (pos + 40 - hadj.Value), height2);
 					} else {
-						// last position, just draw a box
+						AMCFrame frame = (AMCFrame) amc.frames[i];
+						string s = ((string[]) (frame.data[name]))[angle];
+						float val = (float) System.Double.Parse (s);
+
+						if (val < 0) val = 360.0f - val;
+						if (val > 360) val = val - 360.0f;
+
+						int height = FindValueHeight (val);
+						Gdk.Rectangle r = new Gdk.Rectangle ();
+						r.X = (int) (pos - hadj.Value - 2);
+						r.Y = height - 2;
+						r.Width = 5;
+						r.Height = 5;
+						back_buffer.DrawRectangle (black_gc, true, r);
 					}
 				}
 			}
@@ -263,6 +305,13 @@ class CurveEditor : Gtk.DrawingArea
 	IsVisible (int x)
 	{
 		return ((x > hadj.Value) && (x < (hadj.Value + Allocation.Width)));
+	}
+
+	int FindValueHeight (float f)
+	{
+		float pc = f / 360.0f;
+		float height = (Allocation.Height - 21) * pc;
+		return (int) ((Allocation.Height - 21) - height);
 	}
 
 	protected override bool
