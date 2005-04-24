@@ -58,6 +58,10 @@ namespace Fyre
 		[Glade.Widget] Gtk.ImageMenuItem	menu_save;
 		[Glade.Widget] Gtk.ImageMenuItem	menu_undo;
 		[Glade.Widget] Gtk.ImageMenuItem	menu_redo;
+		[Glade.Widget] Gtk.ImageMenuItem	menu_cut;
+		[Glade.Widget] Gtk.ImageMenuItem	menu_copy;
+		[Glade.Widget] Gtk.ImageMenuItem	menu_paste;
+		[Glade.Widget] Gtk.ImageMenuItem	menu_delete;
 
 		// Static counter for keeping track of the open windows
 		static ArrayList			editors;
@@ -129,6 +133,7 @@ namespace Fyre
 
 			// Create the layout and give it to our child widgets
 			layout = new Layout ();
+			layout.Selected += new System.EventHandler (ElementSelected);
 			pipeline_drawing.layout  = layout;
 			navigation_image.layout = layout;
 
@@ -157,6 +162,20 @@ namespace Fyre
 			SetTitle ();
 			UpdateToolbarSensitivity ();
 			UpdateUndoRedo ();
+		}
+
+		void
+		ElementSelected (object o, System.EventArgs args)
+		{
+			if (layout.HasSelection ()) {
+				menu_cut.Sensitive = true;
+				menu_copy.Sensitive = true;
+				menu_delete.Sensitive = true;
+			} else {
+				menu_cut.Sensitive = false;
+				menu_copy.Sensitive = false;
+				menu_delete.Sensitive = false;
+			}
 		}
 
 		// Convenience function for getting a formatted filename string
@@ -477,6 +496,7 @@ namespace Fyre
 			Commands.Delete deletee = new Commands.Delete (e, pipeline_drawing, x, y);
 
 			pipeline.Do (deletee);
+			layout.DeselectAll ();
 		}
 
 		// 'View' Menu events

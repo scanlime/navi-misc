@@ -437,6 +437,7 @@ namespace Fyre
 			Commands.Delete deletee = new Commands.Delete (e, this, x, y);
 
 			pipeline.Do (deletee);
+			layout.DeselectAll ();
 		}
 
 		void
