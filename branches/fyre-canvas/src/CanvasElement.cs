@@ -435,11 +435,29 @@ namespace Fyre.Canvas
 		public void
 		Draw (Graphics context)
 		{
+			if (start.Count > 0) {
+				foreach (Widget w in start)
+					w.Draw (context);
+			}
+
+			if (end.Count > 0) {
+				foreach (Widget w in start)
+					w.Draw (context);
+			}
 		}
 
 		public void
 		RDraw (Graphics context)
 		{
+			if (start.Count > 0) {
+				foreach (Widget w in start)
+					w.RDraw (context);
+			}
+
+			if (end.Count > 0) {
+				foreach (Widget w in start)
+					w.RDraw (context);
+			}
 		}
 
 		public override bool
@@ -479,7 +497,7 @@ namespace Fyre.Canvas
 			position.Width += child.Width + x_spacing;
 			position.Height += child.Height + y_spacing;
 		}
-	
+
 		/*** Virtual Functions ***/
 		public virtual void
 		PackStart (Widget child)
@@ -524,7 +542,7 @@ namespace Fyre.Canvas
 		{
 			child.X = position.X + x_pad;
 			child.Y = position.Y + position.Height - y_pad - child.Height;
-		
+
 			if (end.Count > 0) {
 				foreach (Widget w in end)
 					child.Y -= w.Height - spacing;
