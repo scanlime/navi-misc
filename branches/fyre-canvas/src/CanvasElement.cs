@@ -44,6 +44,7 @@ namespace Fyre.Canvas
 	}
 
 	// Colors for drawing.
+	// FIXME Need to rename these members to something more sensible.
 	public sealed struct 
 	Color
 	{
@@ -150,11 +151,44 @@ namespace Fyre.Canvas
 		public void
 		Draw (Graphics context)
 		{
+			PointF []	triangle = new PointF[3];
+			Pen		pen = new Pen (Color.fg_color);
+			Brush		brush = new SolidBrush (Color.element_bg_color);
+			Brush		trifill = new SolidBrush (Color.element_fg_color);
+
+			// The corners of the triangle.
+			triangle[0] = new System.Drawing.PointF (position.X+8,position.Y+5);
+			triangle[1] = new System.Drawing.PointF (position.X+8,position.Y+15);
+			triangle[2] = new System.Drawing.PointF (position.X+13,position.Y+10);
+			
+			// Draw a white circle with a black border
+			context.FillEllipse (brush, box);
+			context.DrawEllipse (pen, box);
+
+			// Draw the triangle.
+			context.FillPolygon (trifill, triangle);
 		}
 
 		public void
 		RDraw (Graphics context)
 		{
+			PointF []	triangle = new PointF[3];
+			Pen		pen = new Pen (Color.fg_color);
+			Brush		brush = new SolidBrush (Color.element_bg_color);
+			Brush		trifill = new SolidBrush (Color.element_fg_color);
+
+			// The corners of the triangle.
+			triangle[0] = new System.Drawing.PointF (position.X+position.Width-8,position.Y+5);
+			triangle[1] = new System.Drawing.PointF (position.X+position.Width-8,position.Y+15);
+			triangle[2] = new System.Drawing.PointF (position.X+position.Width-13,position.Y+10);
+			
+			// Draw a white circle with a black border
+			context.FillEllipse (brush, box);
+			context.DrawEllipse (pen, box);
+
+			// Draw the triangle.
+			context.FillPolygon (trifill, triangle);
+
 		}
 	}
 
@@ -355,30 +389,6 @@ namespace Fyre.Canvas
 					DrawOutputPad (element.outputs[i], context, output_pads[i]);
 				}
 			}
-		}
-
-		public virtual void
-		DrawPad (System.Drawing.Graphics context, RectangleF box)
-		{
-			PointF []	triangle = new PointF[3];
-			Pen		pen = new Pen (fg_color);
-			Brush		brush = new SolidBrush (element_bg_color);
-			Brush		trifill = new SolidBrush (element_fg_color);
-
-			// FIXME: This hard coded nonsense bothers me. Something more dynamic would
-			// probably help when we want to draw these things backwards
-
-			// The corners of the triangle.
-			triangle[0] = new System.Drawing.PointF (box.Left+8,box.Top+5);
-			triangle[1] = new System.Drawing.PointF (box.Left+8,box.Top+15);
-			triangle[2] = new System.Drawing.PointF (box.Left+13, box.Top+10);
-
-			// Draw a white circle with a black border
-			context.FillEllipse (brush, box);
-			context.DrawEllipse (pen, box);
-
-			// Draw the triangle.
-			context.FillPolygon (trifill, triangle);
 		}
 
 		public virtual void
