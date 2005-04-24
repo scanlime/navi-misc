@@ -496,12 +496,31 @@ namespace Fyre.Canvas
 		public void
 		PackStart (Widget child)
 		{
-			child.X = position.X + 
+			child.X = position.X + x_pad;
+			child.Y = position.Y + y_pad;
+
+			if (start.Count > 0) {
+				foreach (Widget w in start)
+					child.X += w.Width + x_spacing;
+			}
+
+			start.Add (child);
+			Add (child);
 		}
 
 		public void
 		PackEnd (Widget child)
 		{
+			child.X = position.X + position.Width - x_pad - child.Width;
+			child.Y = position.Y + y_pad;
+
+			if (end.Count > 0) {
+				foreach (Widget w in end)
+					child.X -= w.Width + x_spacing;
+			}
+
+			end.Add (child);
+			Add (child);
 		}
 	}
 
