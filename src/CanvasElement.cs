@@ -61,19 +61,19 @@ namespace Fyre.Canvas
 		// Width and height are maintained by the internal layout system.
 		// X & Y are maintained by the global layout system. We'll probably
 		// want get/set operators on this to trigger redraws, etc.
-		public Rectangle		position;
+		public Rectangle	Position;
 
 		// Maintain information about the location of all the pads.
-		Rectangle []		input_pads;
-		Rectangle []		output_pads;
+		Pad []			input_pads;
+		Pad []			output_pads;
 		Element			element;
 		static Gdk.Pixmap	pm = new Gdk.Pixmap (null,1,1,8);
 
 		// Size of the name of this element
-		SizeF				name_sz;
+		SizeF			name_sz;
 
 		// Selection state
-		public bool			Selected;
+		public bool		Selected;
 
 
 		public
@@ -212,32 +212,6 @@ namespace Fyre.Canvas
 					DrawOutputPad (element.outputs[i], context, output_pads[i]);
 				}
 			}
-		}
-
-		public virtual void
-		DrawInputPad (Pad pad, System.Drawing.Graphics context, RectangleF box)
-		{
-			Brush		text = new SolidBrush (fg_color);
-			SizeF		name_len = context.MeasureString (pad.Name, plain);
-			PointF		name_pos = new PointF (box.Left+27, box.Top);
-			RectangleF	name_box = new RectangleF (name_pos, name_len);
-
-			DrawPad (context, box);
-
-			context.DrawString (pad.Name, plain, text, name_box);
-		}
-
-		public virtual void
-		DrawOutputPad (Pad pad, System.Drawing.Graphics context, RectangleF box)
-		{
-			Brush		text = new SolidBrush (fg_color);
-			SizeF		name_len = context.MeasureString (pad.Name, plain);
-			PointF		name_pos = new PointF (box.Left - name_len.Width - 7, box.Top);
-			RectangleF	name_box = new RectangleF (name_pos, name_len);
-
-			DrawPad (context, box);
-
-			context.DrawString (pad.Name, plain, text, name_box);
 		}
 
 		public virtual void
@@ -413,6 +387,63 @@ namespace Fyre.Canvas
 		// All of these objects should provide a method for drawing themselves backwards.
 		public virtual void
 		RDraw (Graphics context)
+		{
+		}
+	}
+
+	// A container for other Widgets. Similar to a Gtk.Container.
+	internal abstract class Container : Widget
+	{
+		int		x_pad;
+		int		y_pad;
+		int		x_spacing;
+		int		y_spacing;
+
+		Widget []	children;
+
+		// Default Container has no padding and no spacing.
+		public
+		Container () : this (0, 0, 0, 0)
+		{
+		}
+
+		public
+		Container (int xpad, ypad, xspace, yspace)
+		{
+			x_pad     = xpad;
+			y_pad     = ypad;
+			x_spacing = xspace;
+			y_spacing = yspace;
+		}
+
+		public void
+		Draw (Graphics context)
+		{
+		}
+
+		public void
+		RDraw (Graphics context)
+		{
+		}
+
+		public void
+		Pack (Widget child)
+		{
+		}
+	}
+
+	internal class HBox : Container
+	{
+		public void
+		Pack (Widget child)
+		{
+		}
+	}
+
+	internal class VBox : Container
+	{
+		public void
+		Pack (Widget child)
 		{
 		}
 	}
