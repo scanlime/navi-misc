@@ -47,10 +47,6 @@ Plugins to add:
   * Tee
 
 General things:
-  * Refactor the commands to be in a more global scope.  Many of the commands
-	are given instances of the layout and drawing, and it's kinda messy to
-	have to pass those in every time.  Instead, we could have a CommandManager
-	that passes in the necessary handles each time.
   * Global layout needs to be designed.  This will have hooks back into
 	PipelineDrawing to manage layout extents, serialize itself,
 	and generally be really slick.  In terms of code structure, it
