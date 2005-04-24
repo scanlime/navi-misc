@@ -63,101 +63,16 @@ namespace Fyre.Canvas
 		// want get/set operators on this to trigger redraws, etc.
 		public Rectangle	Position;
 
-		// Maintain information about the location of all the pads.
-		Pad []			input_pads;
-		Pad []			output_pads;
 		Element			element;
-
-		// Size of the name of this element
-		SizeF			name_sz;
 
 		// Selection state
 		public bool		Selected;
-
+		bool			flipped;
 
 		public
 		Element (Fyre.Element e, Gdk.Drawable drawable)
 		{
 			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (drawable);
-
-			// Size of the element name in bold.
-			int 		numpads;
-
-			name_sz = graphics.MeasureString (e.Name (), bold);
-
-			// Determine if there are more inputs or outputs in the element and allocate
-			// RectangleFs for all pads.
-			if (e.inputs == null && e.outputs == null) {
-				numpads = 0;
-			} else if (e.inputs == null) {
-				numpads = e.outputs.Length;
-				output_pads = new Rectangle[e.outputs.Length];
-			} else if (e.outputs == null) {
-				numpads = e.inputs.Length;
-				input_pads = new Rectangle[e.inputs.Length];
-			} else {
-				if (e.inputs.Length > e.outputs.Length)
-					numpads = e.inputs.Length;
-				else
-					numpads = e.outputs.Length;
-				input_pads  = new Rectangle[e.inputs.Length];
-				output_pads = new Rectangle[e.outputs.Length];
-			}
-
-			// Calculate height.
-			position.Height = 14 + (int) System.Math.Ceiling (name_sz.Height);
-
-			if (numpads > 0)
-				position.Height += (numpads - 1)*10 + numpads*20;
-
-			// Calculate width.
-
-			SizeF in_name_sz;
-			SizeF out_name_sz;
-
-			if (e.inputs != null)
-				in_name_sz = graphics.MeasureString (e.LongestInputPadName (), plain);
-			else
-				in_name_sz = new SizeF (0,0);
-
-			if (e.outputs != null)
-				out_name_sz = graphics.MeasureString (e.LongestOutputPadName (), plain);
-			else
-				out_name_sz = new SizeF (0,0);
-
-			position.Width = 64 + 20 + (int) System.Math.Ceiling (in_name_sz.Width) +
-				(int) System.Math.Ceiling (out_name_sz.Width);
-
-			// If there isn't enough space horizontally for the element name, we'll set the
-			// width based on the width of the element name.
-			if (position.Width < 28 + (int) System.Math.Ceiling (name_sz.Width))
-				position.Width = 28 + (int) System.Math.Ceiling (name_sz.Width);
-
-			// Create a RectangleF for each pad representing its position.
-			int x;
-			int y;
-			int i = 0;
-
-			// Inputs.
-			if (e.inputs != null) {
-				x = 0;
-				y = 8 + (int) name_sz.Height;
-				for (i = 0; i < e.inputs.Length; i++) {
-					input_pads[i] = new Rectangle (x, y, 20, 20);
-					y += 30;
-				}
-			}
-
-			// Outputs.
-			if (e.outputs != null) {
-				x = position.Width - 21;
-				y = 8 + (int) name_sz.Height;
-				for (int j = 0; j < e.outputs.Length; j++) {
-					output_pads[j] = new Rectangle (x, y, 20, 20);
-					y += 30;
-					i++;
-				}
-			}
 
 			// Store a reference to the element we're drawing.
 			element = e;
@@ -286,7 +201,7 @@ namespace Fyre.Canvas
 	// Our fonts.
 	// FIXME Might be a good idea to have something to fall back on if they
 	// don't have Bitstream Vera fonts.
-	public sealed struct
+	public struct
 	Font
 	{
 		static public Font plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
@@ -295,7 +210,7 @@ namespace Fyre.Canvas
 
 	// Colors for drawing.
 	// FIXME Need to rename these members to something more sensible.
-	public sealed struct 
+	public struct 
 	Color
 	{
 		static public System.Drawing.Color bg_color;
@@ -383,7 +298,7 @@ namespace Fyre.Canvas
 		}
 
 		/*** Methods ***/
-		public bool
+		public virtual bool
 		Remove (Widget child)
 		{
 			return false;
@@ -432,7 +347,7 @@ namespace Fyre.Canvas
 			end = new System.Collections.ArrayList ();
 		}
 
-		public void
+		public override void
 		Draw (Graphics context)
 		{
 			if (start.Count > 0) {
@@ -446,7 +361,7 @@ namespace Fyre.Canvas
 			}
 		}
 
-		public void
+		public override void
 		RDraw (Graphics context)
 		{
 			if (start.Count > 0) {
@@ -471,6 +386,7 @@ namespace Fyre.Canvas
 				position.Height -= child.Height;
 				RemoveStart (child);
 				return true;
+			}
 			if (end.Contains (child)) {
 				position.Width -= child.Width;
 				position.Height -= child.Height;
@@ -522,7 +438,7 @@ namespace Fyre.Canvas
 
 	internal class VBox : Container
 	{
-		public void
+		public override void
 		PackStart (Widget child)
 		{
 			child.X = position.X + x_pad;
@@ -537,7 +453,7 @@ namespace Fyre.Canvas
 			Add (child);
 		}
 
-		public void
+		public override void
 		PackEnd (Widget child)
 		{
 			child.X = position.X + x_pad;
@@ -552,7 +468,7 @@ namespace Fyre.Canvas
 			Add (child);
 		}
 
-		protected void
+		protected override void
 		RemoveStart (Widget child)
 		{
 			int y = position.Y + y_pad;
@@ -568,7 +484,7 @@ namespace Fyre.Canvas
 			}
 		}
 
-		protected void
+		protected override void
 		RemoveEnd (Widget child)
 		{
 			int y = position.Y + position.Height - y_pad;
@@ -587,7 +503,7 @@ namespace Fyre.Canvas
 
 	internal class HBox : Container
 	{
-		public void
+		public override void
 		PackStart (Widget child)
 		{
 			child.X = position.X + x_pad;
@@ -602,7 +518,7 @@ namespace Fyre.Canvas
 			Add (child);
 		}
 
-		public void
+		public override void
 		PackEnd (Widget child)
 		{
 			child.X = position.X + position.Width - x_pad - child.Width;
@@ -617,7 +533,7 @@ namespace Fyre.Canvas
 			Add (child);
 		}
 
-		protected void
+		protected override void
 		RemoveStart (Widget child)
 		{
 			int x = position.X + x_pad;
@@ -633,14 +549,14 @@ namespace Fyre.Canvas
 			}
 		}
 
-		protected void
+		protected override void
 		RemoveEnd (Widget child)
 		{
 			int x = position.X + position.Width - x_pad;
 
 			end.Remove (child);
 
-			if (end.Count > )
+			if (end.Count > 0 )
 				position.Height -= spacing;
 
 			foreach (Widget w in end) {
@@ -663,7 +579,7 @@ namespace Fyre.Canvas
 			box = new VBox();
 		}
 
-		public void
+		public override void
 		Draw (Graphics context)
 		{
 			Pen	border = new System.Drawing.Pen (Color.fg_color);
@@ -674,7 +590,7 @@ namespace Fyre.Canvas
 			box.Draw (context);
 		}
 
-		public void
+		public override void
 		RDraw (Graphics context)
 		{
 			Pen	border = new System.Drawing.Pen (Color.fg_color);
@@ -694,7 +610,7 @@ namespace Fyre.Canvas
 		{
 		}
 
-		public void
+		public override void
 		Draw (Graphics context)
 		{
 			PointF []	triangle = new PointF[3];
@@ -715,7 +631,7 @@ namespace Fyre.Canvas
 			context.FillPolygon (trifill, triangle);
 		}
 
-		public void
+		public override void
 		RDraw (Graphics context)
 		{
 			PointF []	triangle = new PointF[3];
@@ -741,22 +657,34 @@ namespace Fyre.Canvas
 	// Represents a string drawn on the canvas.
 	internal class Label : Widget
 	{
-		string text;
+		new RectangleF	position;
+		string		text;
+		Font		style;
 
 		public
-		Label (string s, Graphics context)
+		Label (string s, Font style, Graphics context)
 		{
+			SizeF	sz = context.MeasureString (s, style);
+			PointF	pt = new PointF (0, 0);
+			position = new RectangleF (pt, sz);
+
+			this.style = style;
 			text = s;
 		}
 
-		public void
+		public override void
 		Draw (Graphics context)
 		{
+			Brush	text = new SolidBrush (Color.fg_color);
+
+			context.DrawString (text, style, text, position);
 		}
 
-		public void
+		// Labels don't change when drawn backwards.
+		public override void
 		RDraw (Graphics context)
 		{
+			Draw (context);
 		}
 	}
 
