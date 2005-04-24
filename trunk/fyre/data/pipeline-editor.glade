@@ -162,8 +162,9 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="cut1">
+		    <widget class="GtkImageMenuItem" id="menu_cut">
 		      <property name="visible">True</property>
+		      <property name="sensitive">False</property>
 		      <property name="label">gtk-cut</property>
 		      <property name="use_stock">True</property>
 		      <signal name="activate" handler="OnCut" last_modification_time="Thu, 17 Mar 2005 22:43:56 GMT"/>
@@ -171,8 +172,9 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="copy1">
+		    <widget class="GtkImageMenuItem" id="menu_copy">
 		      <property name="visible">True</property>
+		      <property name="sensitive">False</property>
 		      <property name="label">gtk-copy</property>
 		      <property name="use_stock">True</property>
 		      <signal name="activate" handler="OnCopy" last_modification_time="Thu, 17 Mar 2005 22:43:56 GMT"/>
@@ -180,8 +182,9 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="paste1">
+		    <widget class="GtkImageMenuItem" id="menu_paste">
 		      <property name="visible">True</property>
+		      <property name="sensitive">False</property>
 		      <property name="label">gtk-paste</property>
 		      <property name="use_stock">True</property>
 		      <signal name="activate" handler="OnPaste" last_modification_time="Thu, 17 Mar 2005 22:43:56 GMT"/>
@@ -189,8 +192,9 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="delete1">
+		    <widget class="GtkImageMenuItem" id="menu_delete">
 		      <property name="visible">True</property>
+		      <property name="sensitive">False</property>
 		      <property name="label">gtk-delete</property>
 		      <property name="use_stock">True</property>
 		      <signal name="activate" handler="OnMenuEditDelete" last_modification_time="Thu, 17 Mar 2005 22:28:22 GMT"/>
