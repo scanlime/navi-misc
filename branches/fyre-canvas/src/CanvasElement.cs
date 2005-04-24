@@ -340,13 +340,13 @@ namespace Fyre.Canvas
 
 		bool		selected;
 		bool		hover;
-	
+
 		/*** Properties ***/
 		public int
 		X
 		{
 			get { return position.X; }
-			set { position.X = value; } 
+			set { position.X = value; }
 		}
 
 		public int
@@ -426,7 +426,7 @@ namespace Fyre.Canvas
 		{
 		}
 
-		public void
+		public virtual void
 		Pack (Widget child)
 		{
 		}
@@ -434,7 +434,7 @@ namespace Fyre.Canvas
 
 	internal class HBox : Container
 	{
-		public void
+		public override void
 		Pack (Widget child)
 		{
 		}
@@ -442,8 +442,31 @@ namespace Fyre.Canvas
 
 	internal class VBox : Container
 	{
-		public void
+		public override void
 		Pack (Widget child)
+		{
+		}
+	}
+
+	// Element Root is the base Widget for all Elements drawn on the canvas.
+	// It contains a VBox for packing labels and pads into and handles drawing
+	// the background of the Element.
+	internal class ElementRoot : Widget
+	{
+		public VBox box;
+
+		public
+		ElementRoot ()
+		{
+		}
+
+		public void
+		Draw (Graphics context)
+		{
+		}
+
+		public void
+		RDraw (Graphics context)
 		{
 		}
 	}
@@ -468,7 +491,7 @@ namespace Fyre.Canvas
 			triangle[0] = new System.Drawing.PointF (position.X+8,position.Y+5);
 			triangle[1] = new System.Drawing.PointF (position.X+8,position.Y+15);
 			triangle[2] = new System.Drawing.PointF (position.X+13,position.Y+10);
-			
+
 			// Draw a white circle with a black border
 			context.FillEllipse (brush, box);
 			context.DrawEllipse (pen, box);
@@ -489,7 +512,7 @@ namespace Fyre.Canvas
 			triangle[0] = new System.Drawing.PointF (position.X+position.Width-8,position.Y+5);
 			triangle[1] = new System.Drawing.PointF (position.X+position.Width-8,position.Y+15);
 			triangle[2] = new System.Drawing.PointF (position.X+position.Width-13,position.Y+10);
-			
+
 			// Draw a white circle with a black border
 			context.FillEllipse (brush, box);
 			context.DrawEllipse (pen, box);
