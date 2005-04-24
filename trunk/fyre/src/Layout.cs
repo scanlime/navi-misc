@@ -57,7 +57,8 @@ namespace Fyre
 				extents.Width = 0;
 				extents.Height = 0;
 
-				// If we don't have anything on that layout, just return 0x0+0+0
+				// If we don't have anything on that layout, just return 0x0+0+0.  We
+				// recognize that width=0 means there's no document.
 				if (e.MoveNext ()) {
 					CanvasElement ce = (CanvasElement) e.Value;
 					extents = ConvertRect (ce.Position);
@@ -139,6 +140,8 @@ namespace Fyre
 			while (e.MoveNext ()) {
 				CanvasElement ce = (CanvasElement) e.Value;
 
+				// Perform visibility culling.  This significantly speeds up drawing.
+				// Not sure why System.Drawing doesn't do this internally, but oh well.
 				if (area.Width == 0 || ce.Position.IntersectsWith (area)) {
 					System.Drawing.Drawing2D.GraphicsState state = context.Save ();
 					context.TranslateTransform (ce.Position.X, ce.Position.Y);
@@ -163,6 +166,10 @@ namespace Fyre
 					int local_y = y - ce.Y;
 					hover_element = (string) e.Key;
 					ElementHover eh = ce.GetHover (local_x, local_y);
+
+					// Translate element hovers into layout hovers.
+					// FIXME - This seems a little icky -- might want to just have a
+					// single hover enum.
 					if (eh == ElementHover.Body)      return LayoutHover.Element;
 					if (eh == ElementHover.InputPad)  return LayoutHover.InputPad;
 					if (eh == ElementHover.OutputPad) return LayoutHover.OutputPad;
