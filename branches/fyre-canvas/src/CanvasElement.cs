@@ -483,13 +483,6 @@ namespace Fyre.Canvas
 		RemoveEnd (Widget child)
 		{
 		}
-
-		protected virtual void
-		Recalculate ()
-		{
-		}
-
-
 	}
 
 	internal class VBox : Container
@@ -545,26 +538,6 @@ namespace Fyre.Canvas
 			end.Remove (child);
 
 			foreach (Widget w in end) {
-				w.Y = y - w.Height;
-				y -= w.Height - y_spacing;
-			}
-		}
-
-		public void
-		Recalculate ()
-		{
-			int x = position.X + x_pad;
-			int y = position.Y + y_pad;
-
-			foreach (Widget w in start) {
-				w.X = x;
-				w.Y = y;
-				y += w.Height + y_spacing;
-			}
-
-			y = position.Y + position.Height - y_pad;
-			foreach (Widget w in end) {
-				w.X = x;
 				w.Y = y - w.Height;
 				y -= w.Height - y_spacing;
 			}
@@ -625,26 +598,6 @@ namespace Fyre.Canvas
 
 			foreach (Widget w in end) {
 				w.X = x - w.Width;
-				x -= w.Width - x_spacing;
-			}
-		}
-
-		public void
-		Recalculate ()
-		{
-			int x = position.X + x_pad;
-			int y = position.Y + y_pad;
-
-			foreach (Widget w in start) {
-				w.X = x;
-				w.Y = y;
-				x += w.Width + x_spacing;
-			}
-
-			x = position.X + position.Width - x_pad;
-			foreach (Widget w in start) {
-				w.X = x - w.Width;
-				w.Y = y;
 				x -= w.Width - x_spacing;
 			}
 		}
