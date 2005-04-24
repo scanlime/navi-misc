@@ -666,11 +666,23 @@ namespace Fyre.Canvas
 		public void
 		Draw (Graphics context)
 		{
+			Pen	border = new System.Drawing.Pen (Color.fg_color);
+			Brush	background = new System.Drawing.SolidBrush (Color.element_bg_color);
+
+			context.DrawRectangle (border, 10, 0, position.Width-21, position.Height-1);
+
+			box.Draw (context);
 		}
 
 		public void
 		RDraw (Graphics context)
 		{
+			Pen	border = new System.Drawing.Pen (Color.fg_color);
+			Brush	background = new System.Drawing.SolidBrush (Color.element_bg_color);
+
+			context.DrawRectangle (border, 10, 0, position.Width-21, position.Height-1);
+
+			box.RDraw (context);
 		}
 	}
 
