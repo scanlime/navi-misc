@@ -458,7 +458,7 @@ namespace Fyre.Canvas
 		}
 	}
 
-	internal class HBox : Container
+	internal class VBox : Container
 	{
 		public void
 		PackStart (Widget child)
@@ -478,12 +478,12 @@ namespace Fyre.Canvas
 		public void
 		PackEnd (Widget child)
 		{
-			child.X = position.X + position.Width - x_pad - child.Width;
-			child.Y = position.Y + y_pad;
+			child.X = position.X + x_pad;
+			child.Y = position.Y + position.Height - y_pad - child.Height;
 		
 			if (end.Count > 0) {
 				foreach (Widget w in end)
-					child.Y += w.Height + y_spacing;
+					child.Y -= w.Height + y_spacing;
 			}
 
 			end.Add (child);
@@ -491,11 +491,12 @@ namespace Fyre.Canvas
 		}
 	}
 
-	internal class VBox : Container
+	internal class HBox : Container
 	{
 		public void
 		PackStart (Widget child)
 		{
+			child.X = position.X + 
 		}
 
 		public void
