@@ -24,7 +24,184 @@ using System.Collections;
 
 class ColorMap
 {
-	Hashtable		data;
+	static int			position = 0;
+	// wow this is terrible.
+	public static Gdk.Color[]	Colors = {
+		new Gdk.Color (  8,   8,   8),
+		new Gdk.Color ( 68,  44,  44),
+		new Gdk.Color ( 80,   8,  12),
+		new Gdk.Color ( 72,  56,  56),
+		new Gdk.Color (104,  84,  68),
+		new Gdk.Color (128, 116,  96),
+		new Gdk.Color (116,  96,  80),
+		new Gdk.Color ( 84,  56,  44),
+		new Gdk.Color (140, 104,  88),
+		new Gdk.Color (172, 116,  92),
+		new Gdk.Color ( 68,  44,  56),
+		new Gdk.Color ( 88,  72,  68),
+		new Gdk.Color (112,  84,  76),
+		new Gdk.Color (  8,   8,  28),
+		new Gdk.Color (120, 116, 116),
+		new Gdk.Color (104, 100, 108),
+		new Gdk.Color (128, 124, 140),
+		new Gdk.Color (132, 144, 164),
+		new Gdk.Color (144, 152, 168),
+		new Gdk.Color (136, 152, 172),
+		new Gdk.Color (144, 156, 176),
+		new Gdk.Color (148, 164, 184),
+		new Gdk.Color ( 96,   8,   8),
+		new Gdk.Color (116, 112, 128),
+		new Gdk.Color (144, 116,  96),
+		new Gdk.Color (128, 132, 152),
+		new Gdk.Color (132, 132, 124),
+		new Gdk.Color (128, 104,  84),
+		new Gdk.Color ( 56,  40,  40),
+		new Gdk.Color ( 84,  56,  56),
+		new Gdk.Color (104,  96,  84),
+		new Gdk.Color (196, 144, 108),
+		new Gdk.Color (160, 124, 100),
+		new Gdk.Color (136, 128, 108),
+		new Gdk.Color ( 96,  80,  76),
+ 		new Gdk.Color ( 56,  24,  24),
+		new Gdk.Color (148,  96,  80),
+		new Gdk.Color (140,  56,  16),
+ 		new Gdk.Color ( 60,   8,  12),
+		new Gdk.Color (160, 168, 184),
+ 		new Gdk.Color ( 60 , 52,  52),
+		new Gdk.Color (152, 152, 160),
+		new Gdk.Color (184, 152, 112),
+ 		new Gdk.Color ( 88,   8,  32),
+ 		new Gdk.Color ( 92,  56,  68),
+		new Gdk.Color (120, 116, 140),
+ 		new Gdk.Color ( 68,  12,  44),
+ 		new Gdk.Color ( 24,   8,   8),
+		new Gdk.Color (128,  84,  76),
+		new Gdk.Color (192, 120,  20),
+ 		new Gdk.Color ( 24,  12,  28),
+		new Gdk.Color (148, 148, 128),
+		new Gdk.Color (148, 136, 112),
+		new Gdk.Color (112, 108,  96),
+		new Gdk.Color (140,  40,  44),
+ 		new Gdk.Color ( 80,  12,  48),
+		new Gdk.Color (136, 100,  72),
+		new Gdk.Color (164, 136, 104),
+ 		new Gdk.Color ( 80,  44,  48),
+		new Gdk.Color (112, 104, 116),
+ 		new Gdk.Color ( 72,  12,  36),
+		new Gdk.Color (124,  36,  32),
+ 		new Gdk.Color ( 44,  20,  40),
+		new Gdk.Color (104,  72,  68),
+ 		new Gdk.Color ( 56,  40,  24),
+		new Gdk.Color (132,  92,  80),
+		new Gdk.Color (140, 132, 148),
+		new Gdk.Color (104,  68,  56),
+		new Gdk.Color (184,  64,   8),
+ 		new Gdk.Color ( 44,   8,   8),
+ 		new Gdk.Color ( 68,  44,  28),
+		new Gdk.Color (112,   8,  12),
+ 		new Gdk.Color ( 28,  24,  40),
+ 		new Gdk.Color ( 92,  40,  44),
+ 		new Gdk.Color ( 40,   8,  24),
+		new Gdk.Color (112,  68,  68),
+ 		new Gdk.Color ( 56,   8,  36),
+		new Gdk.Color (128,  84,  56),
+		new Gdk.Color (144, 104,  72),
+		new Gdk.Color (100,  32,  12),
+		new Gdk.Color (176,  28,   8),
+		new Gdk.Color ( 68,  36,  44),
+		new Gdk.Color (152, 108,  80),
+		new Gdk.Color (120,  96,  64),
+		new Gdk.Color (116,   8,  36),
+		new Gdk.Color ( 88,  44,  56),
+		new Gdk.Color ( 92,  68,  56),
+		new Gdk.Color (228, 228, 204),
+ 		new Gdk.Color ( 56,  24,  40),
+		new Gdk.Color (124,  56,  44),
+		new Gdk.Color (180, 136, 104),
+		new Gdk.Color (152,  96,  72),
+		new Gdk.Color ( 80,  40,   8),
+		new Gdk.Color ( 88,  12,  60),
+		new Gdk.Color ( 80,  60,  68),
+		new Gdk.Color (172, 172, 172),
+		new Gdk.Color (164, 116,  84),
+		new Gdk.Color (140, 140, 156),
+		new Gdk.Color (124,  88,  68),
+		new Gdk.Color (156, 112,  92),
+		new Gdk.Color (124, 120, 132),
+		new Gdk.Color ( 76,  44,  56),
+		new Gdk.Color (124,  36,   8),
+		new Gdk.Color (120,  72,  44),
+		new Gdk.Color ( 72,  56,  64),
+		new Gdk.Color (172, 128,  92),
+		new Gdk.Color (176,  92,  12),
+		new Gdk.Color ( 92,  56,  56),
+		new Gdk.Color ( 44,  24,  24),
+		new Gdk.Color (136,  76,  64),
+		new Gdk.Color (116,  68,  56),
+		new Gdk.Color ( 44,  40,  40),
+		new Gdk.Color ( 96,  60,  48),
+		new Gdk.Color (168, 116,  72),
+		new Gdk.Color (124,  60,  20),
+		new Gdk.Color (100,  40,  56),
+		new Gdk.Color (112,  76,  60),
+		new Gdk.Color ( 24,   8,  40),
+		new Gdk.Color ( 72,  56,  44),
+		new Gdk.Color (192, 168, 132),
+		new Gdk.Color (152, 160, 172),
+		new Gdk.Color (156,  56,   8),
+		new Gdk.Color (160, 100,  84),
+		new Gdk.Color (140, 116,  84),
+		new Gdk.Color (  8,   8,  48),
+		new Gdk.Color (136,  68,  44),
+		new Gdk.Color (104,  12,  48),
+		new Gdk.Color (120,  76,  68),
+		new Gdk.Color (176, 172, 156),
+		new Gdk.Color (188, 140,  96),
+		new Gdk.Color (172,  80,  40),
+		new Gdk.Color ( 44,  28,  40),
+		new Gdk.Color (124,  36,  60),
+		new Gdk.Color (140,  28,  76),
+		new Gdk.Color ( 88,  72,  80),
+		new Gdk.Color ( 44,   8,  40),
+		new Gdk.Color (184, 104,  60),
+		new Gdk.Color (132,  88,  64),
+		new Gdk.Color (160, 104,  72),
+		new Gdk.Color (124,  76,  64),
+		new Gdk.Color ( 92,  12,  48),
+		new Gdk.Color (184, 180, 180),
+		new Gdk.Color (104,  72,  48),
+		new Gdk.Color ( 44,  40,  28),
+		new Gdk.Color ( 56,  44,  56),
+		new Gdk.Color ( 36,  12,  48),
+		new Gdk.Color ( 96,  44,  36),
+		new Gdk.Color (192, 192, 192),
+		new Gdk.Color (164, 176, 192),
+		new Gdk.Color (188, 128,  96),
+		new Gdk.Color (160,  84,  72),
+		new Gdk.Color (108,  56,  52),
+		new Gdk.Color (172, 156, 128),
+		new Gdk.Color (148,  72,  24),
+		new Gdk.Color (164, 160, 164),
+		new Gdk.Color ( 80,  36,  56),
+		new Gdk.Color (156,  84,   8),
+		new Gdk.Color (152, 128,  92),
+		new Gdk.Color (144,  16,  48),
+		new Gdk.Color (152,   8,   8),
+		new Gdk.Color ( 76,  52,  28),
+		new Gdk.Color (148,  40,  12),
+		new Gdk.Color (104,  56,  60),
+		new Gdk.Color (128,  64,  64),
+		new Gdk.Color ( 68,  28,  56),
+		new Gdk.Color (136, 136, 140),
+	};
+
+	public static int
+	AllocColor ()
+	{
+		int ret = position;
+		position++;
+		return ret;
+	}
 }
 
 class AMCFrame
@@ -221,16 +398,21 @@ class CurveEditor : Gtk.DrawingArea
 			Gtk.TreeIter iter;
 
 			bone_store.GetIter (out iter, path);
-			int num = System.Int32.Parse ((string) bone_store.GetValue (iter, 0));
+			int num = (int) bone_store.GetValue (iter, 5);
+			Gdk.Color color = (Gdk.Color) ColorMap.Colors[(int) bone_store.GetValue (iter, 4)];
 
 			Gtk.TreeIter parent;
 			bone_store.IterParent (out parent, iter);
 			string s = (string) bone_store.GetValue (parent, 0);
 
-			object[] pair = {
-				num, s
+			Gdk.GC gc = new Gdk.GC (back_buffer);
+			back_buffer.Colormap.AllocColor (ref color, true, true);
+			gc.Foreground = color;
+
+			object[] data = {
+				num, s, gc
 			};
-			bones.Add (pair);
+			bones.Add (data);
 		}
 
 		// Draw frame lines and numbers
@@ -256,9 +438,10 @@ class CurveEditor : Gtk.DrawingArea
 
 			if (IsVisible (pos) || IsVisible (pos + 40)) {
 				// Iterate through all the bones, draw those that are active.
-				foreach (object[] pair in bones) {
-					int angle = (int) pair[0];
-					string name = (string) pair[1];
+				foreach (object[] data in bones) {
+					int angle = (int) data[0];
+					string name = (string) data[1];
+					Gdk.GC gc = (Gdk.GC) data[2];
 
 					if (i + 1 != amc.frames.Count) {
 						AMCFrame frame1 = (AMCFrame) amc.frames[i];
@@ -277,15 +460,16 @@ class CurveEditor : Gtk.DrawingArea
 						int height1 = FindValueHeight (val1);
 						int height2 = FindValueHeight (val2);
 
+						back_buffer.DrawLine (gc,
+							(int) (pos - hadj.Value),      height1,
+							(int) (pos + 40 - hadj.Value), height2);
+
 						Gdk.Rectangle r = new Gdk.Rectangle ();
 						r.X = (int) (pos - hadj.Value - 2);
 						r.Y = height1 - 2;
 						r.Width = 5;
 						r.Height = 5;
 						back_buffer.DrawRectangle (black_gc, true, r);
-
-						// FIXME - color
-						back_buffer.DrawLine (black_gc, (int) (pos - hadj.Value), height1, (int) (pos + 40 - hadj.Value), height2);
 					} else {
 						AMCFrame frame = (AMCFrame) amc.frames[i];
 						string s = ((string[]) (frame.data[name]))[angle];
@@ -430,14 +614,16 @@ class AMCEditor
 				typeof (string),	// name
 				typeof (Gdk.Color),	// color
 				typeof (bool),		// shown on curve window
-				typeof (bool));		// whether toggle is visible
+				typeof (bool),		// whether toggle is visible
+				typeof (int),		// data index
+				typeof (int));		// color index
 		bone_list.Model = bone_store;
 
 		// Create our text column
 		Gtk.TreeViewColumn text_column  = new Gtk.TreeViewColumn ();
-		Gtk.CellRenderer text_renderer = new Gtk.CellRendererText ();
+		Gtk.CellRendererText text_renderer = new Gtk.CellRendererText ();
 		text_column.PackStart (text_renderer, true);
-		text_column.AddAttribute (text_renderer, "text",           0);
+		text_column.AddAttribute (text_renderer, "markup",         0);
 		text_column.AddAttribute (text_renderer, "foreground-gdk", 1);
 		bone_list.AppendColumn (text_column);
 
@@ -522,10 +708,13 @@ class AMCEditor
 
 					string[] s = (string[]) e.Value;
 					for (int i = 0; i < s.Length; i++) {
+						int color = ColorMap.AllocColor ();
 						Gtk.TreeIter citer = bone_store.AppendNode (iter);
-						bone_store.SetValue (citer, 0, i.ToString ());
-						bone_store.SetValue (citer, 1, new Gdk.Color (0x00, 0x00, 0x00));
+						bone_store.SetValue (citer, 0, System.String.Format ("<b>{0}</b>", i.ToString ()));
+						bone_store.SetValue (citer, 1, ColorMap.Colors[color]);
 						bone_store.SetValue (citer, 3, true);
+						bone_store.SetValue (citer, 4, color);
+						bone_store.SetValue (citer, 5, i);
 					}
 				}
 			}
