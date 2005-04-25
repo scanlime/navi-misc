@@ -337,11 +337,13 @@ class CurveEditor : Gtk.DrawingArea
 		{
 			amc = value;
 			nframes = amc.frames.Count;
+			enabled_bones = new ArrayList ();
+			bones = new ArrayList ();
 			CreateBackBuffer ();
 			Draw ();
 
 			hadj.Upper = nframes * 40;
-			hadj.StepIncrement = 40;
+			hadj.StepIncrement = 120;
 
 			QueueRedraw ();
 		}
@@ -492,7 +494,7 @@ class CurveEditor : Gtk.DrawingArea
 	OnConfigureEvent (Gdk.EventConfigure ev)
 	{
 		hadj.PageSize = ev.Width;
-		hadj.PageIncrement = ev.Width / 2;
+		hadj.PageIncrement = ev.Width;
 
 		CreateBackBuffer ();
 		Draw ();
