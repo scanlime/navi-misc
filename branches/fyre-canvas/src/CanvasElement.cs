@@ -305,9 +305,10 @@ namespace Fyre.Canvas
 		}
 
 		/*** Protected Methods ***/
-		protected virtual void
+		protected void
 		OnSizeChanged (System.EventArgs e)
 		{
+			System.Console.WriteLine ("{0} Size Changed\n", this);
 			if (SizeChanged != null)
 				SizeChanged (this, e);
 		}
@@ -399,6 +400,7 @@ namespace Fyre.Canvas
 					return true;
 			}
 
+			OnSizeChanged (new System.EventArgs ());
 			return false;
 		}
 
@@ -434,6 +436,10 @@ namespace Fyre.Canvas
 		{
 			position.Width += child.Width + spacing;
 			position.Height += child.Height + spacing;
+
+			child.SizeChanged += new System.EventHandler (Resize);
+
+			OnSizeChanged (new System.EventArgs ());
 		}
 
 
@@ -519,6 +525,10 @@ namespace Fyre.Canvas
 		protected override void
 		Resize (object o, System.EventArgs args)
 		{
+			// If this object isn't a direct child, we ignore the signal.
+			if (!start.Contains (o) && !end.Contains (o))
+				return;
+
 			position.Width = 2*x_pad;
 			position.Height = 2*y_pad;
 
@@ -627,6 +637,10 @@ namespace Fyre.Canvas
 		protected override void
 		Resize (object o, System.EventArgs args)
 		{
+			// If the object isn't a direct child, ignore the signal.
+			if (!start.Contains (o) && !end.Contains (o))
+				return;
+
 			position.Width = 2*x_pad;
 			position.Height = 2*y_pad;
 
@@ -668,6 +682,7 @@ namespace Fyre.Canvas
 		ElementRoot ()
 		{
 			box = new VBox();
+			box.SizeChanged += new System.EventHandler (Resize);
 		}
 
 		public
@@ -699,6 +714,15 @@ namespace Fyre.Canvas
 			context.DrawRectangle (border, 10, 0, position.Width-21, position.Height-1);
 
 			box.RDraw (context);
+		}
+
+		/*** Protected Methods ***/
+		protected void
+		Resize (object o, System.EventArgs args)
+		{
+			System.Console.WriteLine ("element root size changed\n");
+			position.Width = box.Width;
+			position.Height = box.Height;
 		}
 	}
 
