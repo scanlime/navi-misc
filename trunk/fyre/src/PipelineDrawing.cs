@@ -32,7 +32,7 @@ namespace Fyre
 		PadConnection,
 	};
 
-	class Cursor
+	static class Cursor
 	{
 		/*
 		 * We use a bunch of different cursors here:
