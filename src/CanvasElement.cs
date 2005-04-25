@@ -104,33 +104,32 @@ namespace Fyre.Canvas
 			VBox		in_box = new VBox (0, 0, 10);
 			VBox		out_box = new VBox (0, 0, 10);
 			HBox		box;
+			HBox		pad_box = new HBox (0, 0, 50);
+			Label		name = new Label (e.Name (), Font.bold, graphics);
+
+			root = new ElementRoot (name);
+			root.box.PackStart (pad_box);
+
+			pad_box.PackStart (in_box);
+			pad_box.PackStart (out_box);
 
 			if (e.inputs != null) {
 				foreach (Fyre.InputPad i in e.inputs) {
 					box = new HBox (0, 0, 7);
+					in_box.PackStart (box);
 					box.PackStart (new Pad ());
 					box.PackStart (new Label (i.Name, Font.plain, graphics));
-					in_box.PackStart (box);
 				}
 			}
 
 			if (e.outputs != null) {
 				foreach (Fyre.OutputPad o in e.outputs) {
 					box = new HBox (0, 0, 7);
+					out_box.PackStart (box);
 					box.PackStart (new Label (o.Name, Font.plain, graphics));
 					box.PackStart (new Pad ());
-					out_box.PackStart (box);
 				}
 			}
-
-			HBox	pad_box = new HBox (0, 0, 50);
-			pad_box.PackStart (in_box);
-			pad_box.PackStart (out_box);
-
-			Label	name = new Label (e.Name (), Font.bold, graphics);
-
-			root = new ElementRoot (name);
-			root.box.PackStart (pad_box);
 
 			// Store a reference to the element we're drawing.
 			element = e;
@@ -308,7 +307,6 @@ namespace Fyre.Canvas
 		protected void
 		OnSizeChanged (System.EventArgs e)
 		{
-			System.Console.WriteLine ("{0} Size Changed\n", this);
 			if (SizeChanged != null)
 				SizeChanged (this, e);
 		}
@@ -720,7 +718,6 @@ namespace Fyre.Canvas
 		protected void
 		Resize (object o, System.EventArgs args)
 		{
-			System.Console.WriteLine ("element root size changed\n");
 			position.Width = box.Width;
 			position.Height = box.Height;
 		}
