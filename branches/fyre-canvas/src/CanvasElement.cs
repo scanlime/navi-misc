@@ -230,10 +230,12 @@ namespace Fyre.Canvas
 	// Abstract base class for everything drawn on a Fyre Canvas.
 	public abstract class Widget
 	{
-		protected Rectangle	position;
+		protected Rectangle			position;
 
-		bool			selected;
-		bool			hover;
+		bool					selected;
+		bool					hover;
+
+		public event System.EventHandler	SizeChanged;
 
 		/*** Properties ***/
 		public int
@@ -300,6 +302,14 @@ namespace Fyre.Canvas
 		public virtual void
 		RDraw (Graphics context)
 		{
+		}
+
+		/*** Protected Methods ***/
+		protected virtual void
+		OnSizeChanged (System.EventArgs e)
+		{
+			if (SizeChanged != null)
+				SizeChanged (this, e);
 		}
 	}
 
@@ -413,6 +423,12 @@ namespace Fyre.Canvas
 		{
 		}
 
+		protected virtual void
+		Resize (object o, System.EventArgs args)
+		{
+			OnSizeChanged (args);
+		}
+
 		protected void
 		Add (Widget child)
 		{
@@ -499,6 +515,36 @@ namespace Fyre.Canvas
 				y -= w.Height - spacing;
 			}
 		}
+
+		protected override void
+		Resize (object o, System.EventArgs args)
+		{
+			position.Width = 2*x_pad;
+			position.Height = 2*y_pad;
+
+			if (start != null) {
+				foreach (Widget w in start) {
+					if (2*x_pad+w.Width > position.Width)
+						position.Width = 2*x_pad + w.Width;
+					position.Height += w.Height + spacing;
+				}
+				// The previous loop always adds spacing one more time than we need.
+				position.Height -= spacing;
+			}
+
+			if (end != null) {
+				foreach (Widget w in end) {
+					if (2*x_pad+w.Width > position.Width)
+						position.Width = 2*x_pad + w.Width;
+					position.Height += w.Height + spacing;
+				}
+				// The previous loop always adds spacing one more time than we need.
+				position.Height -= spacing;
+			}
+
+			// Propogate the change.
+			OnSizeChanged (args);
+		}
 	}
 
 	public class HBox : Container
@@ -577,6 +623,37 @@ namespace Fyre.Canvas
 				x -= w.Width - spacing;
 			}
 		}
+		
+		protected override void
+		Resize (object o, System.EventArgs args)
+		{
+			position.Width = 2*x_pad;
+			position.Height = 2*y_pad;
+
+			if (start != null) {
+				foreach (Widget w in start) {
+					if (2*y_pad+w.Height > position.Height)
+						position.Height = 2*y_pad + w.Height;
+					position.Width += w.Width + spacing;
+				}
+				// The previous loop always adds spacing one more time than we need.
+				position.Width -= spacing;
+			}
+
+			if (end != null) {
+				foreach (Widget w in end) {
+					if (2*y_pad+w.Height > position.Height)
+						position.Height = 2*y_pad + w.Height;
+					position.Width += w.Width + spacing;
+				}
+				// The previous loop always adds spacing one more time than we need.
+				position.Width -= spacing;
+			}
+
+			// Propogate the change.
+			OnSizeChanged (args);
+		}
+
 	}
 
 	// Element Root is the base Widget for all Elements drawn on the canvas.
