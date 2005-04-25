@@ -299,6 +299,8 @@ class AMCFile
 		foreach (string line in comments)
 			file.Write (System.String.Format ("{0}\n", line));
 
+		// FIXME - write out frames
+
 		file.Close ();
 	}
 }
@@ -316,6 +318,7 @@ class CurveEditor : Gtk.DrawingArea
 	Pango.Layout		biglayout;
 	Pango.Layout		smalllayout;
 	int			redraw_timeout;
+	ArrayList		bones;
 
 	// Information about the AMC data
 	int 			nframes;
@@ -348,6 +351,7 @@ class CurveEditor : Gtk.DrawingArea
 	CurveEditor ()
 	{
 		enabled_bones = new ArrayList ();
+		bones = new ArrayList ();
 		redraw_timeout = 0;
 	}
 
@@ -391,29 +395,6 @@ class CurveEditor : Gtk.DrawingArea
 
 		if (amc == null)
 			return;
-
-		ArrayList bones = new ArrayList ();
-		foreach (string p in enabled_bones) {
-			Gtk.TreePath path = new Gtk.TreePath (p);
-			Gtk.TreeIter iter;
-
-			bone_store.GetIter (out iter, path);
-			int num = (int) bone_store.GetValue (iter, 5);
-			Gdk.Color color = (Gdk.Color) ColorMap.Colors[(int) bone_store.GetValue (iter, 4)];
-
-			Gtk.TreeIter parent;
-			bone_store.IterParent (out parent, iter);
-			string s = (string) bone_store.GetValue (parent, 0);
-
-			Gdk.GC gc = new Gdk.GC (back_buffer);
-			back_buffer.Colormap.AllocColor (ref color, true, true);
-			gc.Foreground = color;
-
-			object[] data = {
-				num, s, gc
-			};
-			bones.Add (data);
-		}
 
 		// Draw frame lines and numbers
 		for (int i = 0; i < amc.frames.Count; i++) {
@@ -558,6 +539,29 @@ class CurveEditor : Gtk.DrawingArea
 	public void
 	VisibilityChanged ()
 	{
+		bones = new ArrayList ();
+		foreach (string p in enabled_bones) {
+			Gtk.TreePath path = new Gtk.TreePath (p);
+			Gtk.TreeIter iter;
+
+			bone_store.GetIter (out iter, path);
+			int num = (int) bone_store.GetValue (iter, 5);
+			Gdk.Color color = (Gdk.Color) ColorMap.Colors[(int) bone_store.GetValue (iter, 4)];
+
+			Gtk.TreeIter parent;
+			bone_store.IterParent (out parent, iter);
+			string s = (string) bone_store.GetValue (parent, 0);
+
+			Gdk.GC gc = new Gdk.GC (back_buffer);
+			back_buffer.Colormap.AllocColor (ref color, true, true);
+			gc.Foreground = color;
+
+			object[] data = {
+				num, s, gc
+			};
+			bones.Add (data);
+		}
+
 		QueueRedraw ();
 	}
 
