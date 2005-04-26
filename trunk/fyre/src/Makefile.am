@@ -24,7 +24,8 @@ CSFILES =			\
 	Pipeline.cs		\
 	PipelineDrawing.cs	\
 	PipelineEditor.cs	\
-	PluginManager.cs
+	PluginManager.cs	\
+	Util.cs
 
 ASSEMBLIES =			\
 	$(FYRE_LIBS)		\

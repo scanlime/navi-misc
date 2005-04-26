@@ -80,6 +80,8 @@ namespace Fyre
 
 			// Determine the size of the visible window.
 			Gdk.Rectangle vwin = drawing.DrawingExtents;
+
+			// Ratio between visible window and entire canvas
 			ratio = ((float) vwin.Width) / ((float) canvas.Width);
 			aspect = ((float) vwin.Width) / ((float) vwin.Height);
 			visible.Width  = (int) (200 * ratio);
@@ -88,9 +90,8 @@ namespace Fyre
 			if (visible.Height > Height)
 				visible.Height = Height;
 
-			// Set this to the ratio between the navigation window and the real
-			// canvas, for turning mouse movement back into scrollbar position.
-			ratio = ((float) canvas.Width) / 200;
+			// Set this to the ratio between window size and canvas size
+			ratio = ((float) canvas.Width) / 200.0f;
 		}
 
 		void CreateWithHeight ()
@@ -109,6 +110,8 @@ namespace Fyre
 
 			// Determine the size of the visible window.
 			Gdk.Rectangle vwin = drawing.DrawingExtents;
+
+			// Ratio between visible window and entire canvas
 			ratio = ((float) vwin.Height) / ((float) canvas.Height);
 			aspect = ((float) vwin.Height) / ((float) vwin.Width);
 			visible.Height  = (int) (200 * ratio);
@@ -117,9 +120,8 @@ namespace Fyre
 			if (visible.Width > Width)
 				visible.Width = Width;
 
-			// Set this to the ratio between the navigation window and the real
-			// canvas, for turning mouse movement back into scrollbar position.
-			ratio = ((float) canvas.Height) / 200;
+			// Set this to the ratio between window size and canvas size
+			ratio = ((float) canvas.Height) / 200.0f;
 		}
 
 		void
@@ -140,14 +142,17 @@ namespace Fyre
 		{
 			background.DrawRectangle (white, true,  1, 1, Width, Height);
 
+			// Translate to our document origin, scale down
 			System.Drawing.Graphics g = Gtk.DotNet.Graphics.FromDrawable (background);
-			g.TranslateTransform ((float) -canvas.X, (float) -canvas.Y);
+			g.ResetTransform ();
 			g.ScaleTransform (1 / ratio, 1 / ratio);
+			g.TranslateTransform (-canvas.X, -canvas.Y);
 
-			System.Drawing.Rectangle r = new System.Drawing.Rectangle ();
-			r.Width = 0;
+			// Pipeline
+			System.Drawing.Rectangle r = Util.GdkRectToSD (canvas);
 			layout.Draw (g, r);
 
+			// Border
 			background.DrawRectangle (black, false, 0, 0, Width + 1, Height + 1);
 		}
 
