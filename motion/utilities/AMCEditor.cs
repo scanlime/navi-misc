@@ -311,6 +311,9 @@ class CurveEditor : Gtk.DrawingArea
 	Gtk.Adjustment		hadj;
 	Gtk.Adjustment		vadj;
 
+	// Picking data
+	ArrayList		pad_positions;
+
 	// Drawing data
 	Gdk.GC			grey_gc;
 	Gdk.GC			black_gc;
@@ -353,6 +356,7 @@ class CurveEditor : Gtk.DrawingArea
 	CurveEditor ()
 	{
 		enabled_bones = new ArrayList ();
+		pad_positions = new ArrayList ();
 		bones = new ArrayList ();
 		redraw_timeout = 0;
 	}
@@ -397,6 +401,8 @@ class CurveEditor : Gtk.DrawingArea
 
 		if (amc == null)
 			return;
+
+		pad_positions.Clear ();
 
 		// Draw frame lines and numbers
 		for (int i = 0; i < amc.frames.Count; i++) {
@@ -453,6 +459,12 @@ class CurveEditor : Gtk.DrawingArea
 						r.Width = 5;
 						r.Height = 5;
 						back_buffer.DrawRectangle (black_gc, true, r);
+
+						// Add the rect to the pick list
+						object[] pick_data = {
+							r, i, name, angle
+						};
+						pad_positions.Add (pick_data);
 					} else {
 						AMCFrame frame = (AMCFrame) amc.frames[i];
 						string s = ((string[]) (frame.data[name]))[angle];
@@ -468,6 +480,12 @@ class CurveEditor : Gtk.DrawingArea
 						r.Width = 5;
 						r.Height = 5;
 						back_buffer.DrawRectangle (black_gc, true, r);
+
+						// Add the rect to the pick list
+						object[] pick_data = {
+							r, i, name, angle
+						};
+						pad_positions.Add (pick_data);
 					}
 				}
 			}
@@ -684,6 +702,18 @@ class AMCEditor
 			Gtk.Stock.Open,   Gtk.ResponseType.Accept,
 		};
 		Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Open AMC...", null, Gtk.FileChooserAction.Open, responses);
+
+		// File filter - *.amc
+		Gtk.FileFilter ff1 = new Gtk.FileFilter ();
+		ff1.AddPattern ("*.amc");
+		ff1.Name = "Acclaim Motion Capture (*.amc)";
+		fs.AddFilter (ff1);
+
+		// File filter - all files
+		Gtk.FileFilter ff2 = new Gtk.FileFilter ();
+		ff2.AddPattern ("*");
+		ff2.Name = "All Files";
+		fs.AddFilter (ff2);
 
 		Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
 		fs.Hide ();
