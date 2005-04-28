@@ -145,7 +145,7 @@ create_channel_list (session *sess)
 	}
 
 	widget = glade_xml_get_widget (win->xml, "window 1");
-	gchar *title = g_strdup_printf ("%s Channel List", get_network (sess, FALSE));
+	gchar *title = g_strdup_printf ("%s Channel List", server_get_network (sess->server, FALSE));
 	gtk_window_set_title (GTK_WINDOW (widget), title);
 	g_free (title);
 	g_signal_connect (G_OBJECT (widget), "delete-event", G_CALLBACK (chanlist_delete), win);
