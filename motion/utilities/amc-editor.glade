@@ -137,6 +137,7 @@
 	      <child>
 		<widget class="Custom" id="curve_editor">
 		  <property name="visible">True</property>
+		  <property name="events">GDK_BUTTON1_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
 		  <property name="creation_function">CurveEditor</property>
 		  <property name="int1">0</property>
 		  <property name="int2">0</property>
