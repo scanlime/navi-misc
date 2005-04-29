@@ -61,29 +61,18 @@ namespace Fyre
 				// recognize that width=0 means there's no document.
 				if (e.MoveNext ()) {
 					CanvasElement ce = (CanvasElement) e.Value;
-					extents = ConvertRect (ce.Position);
+					extents = Util.SDRectToGdk (ce.Position);
 				} else {
 					return extents;
 				}
 
 				while (e.MoveNext ()) {
 					CanvasElement ce = (CanvasElement) e.Value;
-					extents = extents.Union (ConvertRect (ce.Position));
+					extents = extents.Union (Util.SDRectToGdk (ce.Position));
 				}
 
 				return extents;
 			}
-		}
-
-		Gdk.Rectangle
-		ConvertRect (System.Drawing.Rectangle r)
-		{
-			Gdk.Rectangle ret;
-			ret.X      = r.X;
-			ret.Y      = r.Y;
-			ret.Width  = r.Width;
-			ret.Height = r.Height;
-			return ret;
 		}
 
 		public
