@@ -204,107 +204,6 @@ class ColorMap
 	}
 }
 
-class AMCFrame
-{
-	public Hashtable		data;
-
-	public
-	AMCFrame ()
-	{
-		data = new Hashtable ();
-	}
-
-	public void
-	AddBone (string[] tokens)
-	{
-		string name = tokens[0];
-
-		// hack to take care of trailing space
-		if (tokens[tokens.Length - 1].Length == 0) {
-			string[] values = new string[tokens.Length - 2];
-			for (int i = 0; i < tokens.Length - 2; i++)
-				values[i] = tokens[i + 1];
-			data.Add (name, values);
-		} else {
-			string[] values = new string[tokens.Length - 1];
-			for (int i = 0; i < tokens.Length - 1; i++)
-				values[i] = tokens[i + 1];
-			data.Add (name, values);
-		}
-	}
-
-	public IDictionaryEnumerator
-	GetEnumerator ()
-	{
-		return data.GetEnumerator ();
-	}
-};
-
-class AMCFile
-{
-	ArrayList		comments;
-	public ArrayList	frames;
-
-	protected
-	AMCFile ()
-	{
-		comments = new ArrayList ();
-		frames = new ArrayList ();
-	}
-
-	public static AMCFile
-	Load (string filename)
-	{
-		AMCFile f = new AMCFile ();
-		AMCFrame frame = null;
-
-		System.IO.StreamReader file = System.IO.File.OpenText (filename);
-		if (file == null)
-			return null;
-
-		string line;
-		while ((line = file.ReadLine ()) != null) {
-			// comments
-			if (line[0] == '#' || line[0] == ':') {
-				f.comments.Add (line);
-				continue;
-			}
-
-			// are we starting a new frame?
-			if (line.IndexOf (' ') == -1) {
-				if (frame != null)
-					f.frames.Add (frame);
-				frame = new AMCFrame ();
-				continue;
-			}
-
-			string[] tokens = line.Split (' ');
-			frame.AddBone (tokens);
-		}
-		if (frame != null)
-			f.frames.Add (frame);
-
-		file.Close ();
-
-		return f;
-	}
-
-	public void
-	Save (string filename)
-	{
-		System.IO.StreamWriter file = System.IO.File.CreateText (filename);
-		if (file == null)
-			return;
-
-		foreach (string line in comments)
-			file.Write (System.String.Format ("{0}\n", line));
-
-		// FIXME - write out frames
-
-		file.Close ();
-	}
-}
-
 class CurveEditor : Gtk.DrawingArea
 {
 	// Widget data
@@ -333,8 +232,8 @@ class CurveEditor : Gtk.DrawingArea
 	int			height;
 
 	// The AMC file
-	AMCFile			amc;
-	public AMCFile		AMC
+	AMC.File		amc;
+	public AMC.File		AMC
 	{
 		set
 		{
@@ -433,12 +332,10 @@ class CurveEditor : Gtk.DrawingArea
 					Gdk.GC gc = (Gdk.GC) data[2];
 
 					if (i + 1 != amc.frames.Count) {
-						AMCFrame frame1 = (AMCFrame) amc.frames[i];
-						AMCFrame frame2 = (AMCFrame) amc.frames[i + 1];
-						string s1 = ((string[]) (frame1.data[name]))[angle];
-						string s2 = ((string[]) (frame2.data[name]))[angle];
-						float val1 = (float) System.Double.Parse (s1);
-						float val2 = (float) System.Double.Parse (s2);
+						AMC.Frame frame1 = (AMC.Frame) amc.frames[i];
+						AMC.Frame frame2 = (AMC.Frame) amc.frames[i + 1];
+						float val1 = ((float[]) (frame1.data[name]))[angle];
+						float val2 = ((float[]) (frame2.data[name]))[angle];
 
 						if (val1 < 0) val1 = 360.0f - val1;
 						if (val2 < 0) val2 = 360.0f - val2;
@@ -466,9 +363,8 @@ class CurveEditor : Gtk.DrawingArea
 						};
 						pad_positions.Add (pick_data);
 					} else {
-						AMCFrame frame = (AMCFrame) amc.frames[i];
-						string s = ((string[]) (frame.data[name]))[angle];
-						float val = (float) System.Double.Parse (s);
+						AMC.Frame frame = (AMC.Frame) amc.frames[i];
+						float val = ((float[]) (frame.data[name]))[angle];
 
 						if (val < 0) val = 360.0f - val;
 						if (val > 360) val = val - 360.0f;
@@ -550,6 +446,19 @@ class CurveEditor : Gtk.DrawingArea
 		hadj.ValueChanged += new System.EventHandler (HAdjustmentChanged);
 	}
 
+	protected override bool
+	OnButtonPressEvent (Gdk.EventButton ev)
+	{
+		System.Console.WriteLine ("button press!");
+		return true;
+	}
+
+	protected override bool
+	OnMotionNotifyEvent (Gdk.EventMotion ev)
+	{
+		return true;
+	}
+
 	void
 	HAdjustmentChanged (object o, System.EventArgs e)
 	{
@@ -613,7 +522,7 @@ class AMCEditor
 	[Glade.Widget] CurveEditor		curve_editor;
 
 	Gtk.TreeStore				bone_store;
-	AMCFile					AMCData;
+	AMC.File				AMCData;
 	string					Filename;
 
 	bool					modified;
@@ -720,7 +629,7 @@ class AMCEditor
 
 		if (response == Gtk.ResponseType.Accept) {
 			Filename = fs.Filename;
-			AMCData = AMCFile.Load (Filename);
+			AMCData = AMC.File.Load (Filename);
 
 			bone_store.Clear ();
 
@@ -732,7 +641,7 @@ class AMCEditor
 				curve_editor.AMC = AMCData;
 				SetTitle ();
 
-				AMCFrame f = (AMCFrame) AMCData.frames[0];
+				AMC.Frame f = (AMC.Frame) AMCData.frames[0];
 
 				IDictionaryEnumerator e = f.GetEnumerator ();
 				e.Reset ();
@@ -742,7 +651,7 @@ class AMCEditor
 					bone_store.SetValue (iter, 0, e.Key);
 					bone_store.SetValue (iter, 1, new Gdk.Color (0x00, 0x00, 0x00));
 
-					string[] s = (string[]) e.Value;
+					float[] s = (float[]) e.Value;
 					for (int i = 0; i < s.Length; i++) {
 						int color = ColorMap.AllocColor ();
 						Gtk.TreeIter citer = bone_store.AppendNode (iter);
