@@ -13,10 +13,6 @@ ElementTooltip.cs:
 	is without height-for-width sizing, so the solution may just be
 	word-wrapping ourselves using some pre-set character width.
 
-NavigationImage.cs:
-  * After moving around, the scrollbars look really weird until you mouse
-	over them (for some reason). Dunno why.
-
 Pipeline.cs:
   * We'll need some way to keep track of annotations (maybe composite).
 
