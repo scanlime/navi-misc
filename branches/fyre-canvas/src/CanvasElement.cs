@@ -362,44 +362,34 @@ namespace Fyre.Canvas
 		public
 		Container (int xpad, int ypad, int space) : base ()
 		{
-			x_pad     = xpad;
-			y_pad     = ypad;
+			x_pad   = xpad;
+			y_pad   = ypad;
 			spacing = space;
 
-			position.Width = 0;
+			position.Width  = 0;
 			position.Height = 0;
 
 			start = new System.Collections.ArrayList ();
-			end = new System.Collections.ArrayList ();
+			end   = new System.Collections.ArrayList ();
 		}
 
 		/*** Public Methods ***/
 		public override void
 		Draw (Graphics context)
 		{
-			if (start.Count > 0) {
-				foreach (Widget w in start)
+			foreach (Widget w in start)
+				w.Draw (context);
+			foreach (Widget w in end)
 					w.Draw (context);
-			}
-
-			if (end.Count > 0) {
-				foreach (Widget w in start)
-					w.Draw (context);
-			}
 		}
 
 		public override void
 		RDraw (Graphics context)
 		{
-			if (start.Count > 0) {
-				foreach (Widget w in start)
-					w.RDraw (context);
-			}
-
-			if (end.Count > 0) {
-				foreach (Widget w in start)
-					w.RDraw (context);
-			}
+			foreach (Widget w in start)
+				w.RDraw (context);
+			foreach (Widget w in end)
+				w.RDraw (context);
 		}
 
 		public override bool
@@ -713,7 +703,7 @@ namespace Fyre.Canvas
 		public
 		ElementRoot ()
 		{
-			box = new VBox (10, 8, 0);
+			box = new VBox (15, 5, 6);
 			box.SizeChanged += new System.EventHandler (Resize);
 		}
 
@@ -754,7 +744,7 @@ namespace Fyre.Canvas
 		protected void
 		Resize (object o, System.EventArgs args)
 		{
-			position.Width = box.Width;
+			position.Width = box.Width + 20;
 			position.Height = box.Height;
 		}
 	}
