@@ -19,6 +19,8 @@
  *
  */
 
+using System.Xml;
+
 namespace Fyre.Editor
 {
 
@@ -104,6 +106,53 @@ namespace Fyre.Editor
 
 			count++;
 			Number = count;
+		}
+
+		public void
+		Save (string filename)
+		{
+			XmlTextWriter writer = new XmlTextWriter (filename, null);
+			writer.Formatting = Formatting.Indented;
+			writer.WriteStartDocument ();
+			writer.WriteStartElement (null, "fyre-pipeline", null);
+
+			// serialize pipeline graph
+			writer.WriteStartElement (null, "pipeline", null);
+			Pipeline.Serialize (writer);
+			writer.WriteEndElement ();
+
+			// serialize layout
+			writer.WriteStartElement (null, "layout", null);
+			Layout.Serialize (writer);
+			writer.WriteEndElement ();
+
+			Saved = true;
+			Filename = filename;
+
+			writer.WriteEndDocument ();
+			writer.Close ();
+		}
+
+		public void
+		Load (string filename)
+		{
+			XmlTextReader reader = new XmlTextReader (filename);
+			try {
+				while (reader.Read ()) {
+					if (reader.NodeType == XmlNodeType.Element && reader.Depth == 1) {
+						if (reader.Name == "pipeline")
+							Pipeline.DeSerialize (reader);
+						else if (reader.Name == "layout")
+							Layout.DeSerialize (reader);
+					}
+				}
+
+				Filename = filename;
+				Saved = true;
+			} catch (System.Exception e) {
+				// FIXME - show error
+			}
+			reader.Close ();
 		}
 	}
 }
