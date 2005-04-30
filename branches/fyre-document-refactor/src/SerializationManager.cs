@@ -58,10 +58,17 @@ namespace Fyre.Editor
 			XmlTextReader reader = new XmlTextReader (filename);
 			try {
 				while (reader.Read ()) {
-					if (reader.NodeType == XmlNodeType.Element) {
+					if (reader.NodeType == XmlNodeType.Element && reader.Depth == 1) {
+						if (reader.Name == "pipeline")
+							document.Pipeline.DeSerialize (reader);
+						else if (reader.Name == "layout")
+							document.Layout.DeSerialize (reader);
 					}
 				}
 				reader.Close ();
+
+				document.Filename = filename;
+				document.Saved = true;
 			} catch (System.Exception e) {
 				// FIXME - show error
 				return;

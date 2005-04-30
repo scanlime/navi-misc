@@ -514,7 +514,7 @@ namespace Fyre.Editor
 		Load (string filename)
 		{
 			try {
-				document.Pipeline.Load (filename);
+				serialization_manager.Load (filename);
 			} catch (System.Exception e) {
 				// Pop up an error dialog.
 				// FIXME - it would be nice to automatically close this window if it was
