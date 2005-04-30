@@ -36,10 +36,6 @@ namespace Fyre.Editor
 		SerializationManager			serialization_manager;
 		bool					saved;
 
-		// Indexes to store which new document this is
-		int					new_index;
-		static int				new_documents;
-
 		// Command manager
 		CommandManager				command_manager;
 
@@ -77,7 +73,7 @@ namespace Fyre.Editor
 			get {
 				if (targets == null) {
 					targets = new Gtk.TargetEntry[1];
-					targets[0] = new Gtk.TargetEntry (System.String.Format ("fyre element drag {0}", new_index), Gtk.TargetFlags.App, 1);
+					targets[0] = new Gtk.TargetEntry (System.String.Format ("fyre element drag {0}", document.Number), Gtk.TargetFlags.App, 1);
 				}
 				return targets;
 			}
@@ -122,8 +118,6 @@ namespace Fyre.Editor
 		PipelineEditor (string[] args)
 		{
 			editors.Add (this);
-			new_documents += 1;
-			new_index = new_documents;
 
 			Glade.XML.SetCustomHandler (new Glade.XMLCustomWidgetHandler (GladeCustomHandler));
 
@@ -170,11 +164,6 @@ namespace Fyre.Editor
 
 			// Give CanvasElement knowledge of our colors
 			CanvasElement.SetColors (toplevel.Style);
-
-			// We start out with saved = true, since it doesn't make sense to force (or
-			// even allow) our user to save an empty document.
-			saved = true;
-			filename = null;
 		}
 
 		void
@@ -196,19 +185,6 @@ namespace Fyre.Editor
 				menu_cut.Sensitive = false;
 				menu_copy.Sensitive = false;
 				menu_delete.Sensitive = false;
-			}
-		}
-
-		string				filename;
-
-		// Convenience function for getting a formatted filename string
-		public string			Filename
-		{
-			get {
-				if (filename == null)
-					return System.String.Format( "Untitiled{0}", new_index );
-				else
-					return filename;
 			}
 		}
 
@@ -271,7 +247,7 @@ namespace Fyre.Editor
 		void
 		SetTitle ()
 		{
-			string filename = System.IO.Path.GetFileName (Filename);
+			string filename = System.IO.Path.GetFileName (document.Filename);
 			if (saved)
 				toplevel.Title = filename;
 			else
@@ -315,7 +291,7 @@ namespace Fyre.Editor
 		CloseWindow ()
 		{
 			if (saved == false) {
-				string filename = System.IO.Path.GetFileName (Filename);
+				string filename = System.IO.Path.GetFileName (document.Filename);
 				ConfirmCloseDialog confirm = new ConfirmCloseDialog (toplevel,
 						System.String.Format ("Save changes to \"{0}\" before closing?", filename),
 						"There are unsaved changes to the pipeline. Save before quitting?");
@@ -386,26 +362,24 @@ namespace Fyre.Editor
 		public void
 		OnSave (object o, System.EventArgs args)
 		{
-			if (filename == null) {
+			if (!document.HasRealFilename) {
 				object[] responses = {
 					Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
 					Gtk.Stock.Save,   Gtk.ResponseType.Accept,
 				};
 				Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save As...", null, Gtk.FileChooserAction.Save, responses);
 				fs.DefaultResponse = Gtk.ResponseType.Accept;
-				fs.CurrentName = Filename;
+				fs.CurrentName = document.Filename;
 
 				Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
 
 				if (response == Gtk.ResponseType.Accept) {
-					filename = fs.Filename;
-					serialization_manager.Save (filename);
+					serialization_manager.Save (document.Filename);
 					UpdateToolbarSensitivity ();
-					fs.Destroy ();
 				}
 				fs.Destroy ();
 			} else {
-				serialization_manager.Save (filename);
+				serialization_manager.Save (document.Filename);
 				UpdateToolbarSensitivity ();
 			}
 		}
@@ -438,16 +412,14 @@ namespace Fyre.Editor
 			};
 			Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save As...", null, Gtk.FileChooserAction.Save, responses);
 			fs.DefaultResponse = Gtk.ResponseType.Accept;
-			if (!fs.SetFilename (Filename))
-				fs.CurrentName = Filename;
+			if (!fs.SetFilename (document.Filename))
+				fs.CurrentName = document.Filename;
 
 			Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
 			fs.Hide ();
 
 			if (response == Gtk.ResponseType.Accept) {
-				filename = fs.Filename;
-				saved = false;
-				serialization_manager.Save (filename);
+				serialization_manager.Save (document.Filename);
 				UpdateToolbarSensitivity ();
 			}
 			fs.Destroy ();

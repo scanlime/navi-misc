@@ -21,12 +21,19 @@
 
 namespace Fyre.Editor
 {
+
 	class Document
 	{
 		Fyre.Pipeline			pipeline;
 		Layout				layout;
 		string				filename;
 		bool				saved;
+
+		// Count to know how many documents we've created. We use this for
+		// the default filename (Untitled%d), and DnD data descriptors (so
+		// we can't drag from one element list to another window).
+		static int			count;
+		public int			Number;
 
 		public Fyre.Pipeline
 		Pipeline
@@ -54,6 +61,8 @@ namespace Fyre.Editor
 		Filename
 		{
 			get {
+				if (filename == null)
+					return System.String.Format ("Untitiled{0}", Number);
 				return filename;
 			}
 			set {
@@ -74,11 +83,27 @@ namespace Fyre.Editor
 			}
 		}
 
+		public bool
+		HasRealFilename
+		{
+			get {
+				return (filename != null);
+			}
+		}
+
 		public
 		Document ()
 		{
 			Pipeline = new Fyre.Pipeline ();
 			Layout = new Layout ();
+
+			// We start out with saved = true, since it doesn't make sense to force (or
+			// even allow) our user to save an empty document.
+			saved = true;
+			filename = null;
+
+			count++;
+			Number = count;
 		}
 	}
 }
