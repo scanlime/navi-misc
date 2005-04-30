@@ -251,8 +251,10 @@ namespace Fyre
 			//canvas_element.Serialize (writer);
 
 			// Write out each of the output pads of the element
-			foreach (OutputPad pad in outputs) {
-				pad.Serialize (writer);
+			if (outputs != null) {
+				foreach (OutputPad pad in outputs) {
+					pad.Serialize (writer);
+				}
 			}
 
 			// Hand the writer off to the subclass to serialize any extra data we've got
