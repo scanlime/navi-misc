@@ -29,11 +29,15 @@ namespace Fyre
 	class Pipeline
 	{
 		public Hashtable	element_store;
+		ArrayList		connections;
+		Hashtable		input_connections;
 
 		public
 		Pipeline ()
 		{
 			element_store = new Hashtable ();
+			connections = new ArrayList ();
+			input_connections = new Hashtable ();
 		}
 
 		public bool
@@ -48,6 +52,11 @@ namespace Fyre
 			// run through all the elements, adding them to the XML
 			foreach (DictionaryEntry entry in element_store) {
 				Element e = (Element) entry.Value;
+				e.Write (writer);
+			}
+
+			foreach (DictionaryEntry entry in connections) {
+				PadConnection e = (PadConnection) entry.Value;
 				e.Write (writer);
 			}
 		}

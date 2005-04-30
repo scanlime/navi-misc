@@ -25,13 +25,31 @@ using System;
 
 namespace Fyre
 {
-	public struct PadConnection
+	public class PadConnection
 	{
 		public System.Guid	source_element;
 		public int		source_pad;
 
 		public System.Guid	sink_element;
 		public int		sink_pad;
+
+		public void
+		Write (XmlTextWriter writer)
+		{
+			writer.WriteStartElement (null, "connection", null);
+
+			// source
+			writer.WriteStartAttribute (null, "from", null);
+			writer.WriteString (System.String.Format ("{0}:{1}", source_element.ToString ("d"), source_pad));
+			writer.WriteEndAttribute ();
+
+			// sink
+			writer.WriteStartAttribute (null, "to", null);
+			writer.WriteString (System.String.Format ("{0}:{1}", sink_element.ToString ("d"), sink_pad));
+			writer.WriteEndAttribute ();
+
+			writer.WriteEndElement ();
+		}
 	}
 
 	public abstract class Pad
