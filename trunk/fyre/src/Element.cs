@@ -27,8 +27,11 @@ namespace Fyre
 {
 	public struct PadConnection
 	{
-		public System.Guid	element;
-		public int		pad;
+		public System.Guid	source_element;
+		public int		source_pad;
+
+		public System.Guid	sink_element;
+		public int		sink_pad;
 	}
 
 	public abstract class Pad
@@ -85,60 +88,9 @@ namespace Fyre
 
 	public class OutputPad : Pad
 	{
-		System.Collections.ArrayList connections;
-
 		public
 		OutputPad (string name, string desc) : base (name, desc)
 		{
-			connections = new System.Collections.ArrayList ();
-		}
-
-		public void
-		Connect (PadConnection connection)
-		{
-			connections.Add (connection);
-		}
-
-		public void
-		Disconnect (PadConnection connection)
-		{
-			connections.Remove (connection);
-		}
-
-		public void
-		DisconnectAll ()
-		{
-			connections.Clear ();
-		}
-
-		public void
-		Serialize (XmlTextWriter writer)
-		{
-
-			// Write the source and destination tags for each connection in this pad
-			foreach (PadConnection conn in connections) {
-				// Create a new element for this edge
-				writer.WriteStartElement (null, "edge", null);
-
-				// Write the source pad
-				writer.WriteStartAttribute (null, "source", null);
-				writer.WriteString (Id.ToString());
-				writer.WriteEndAttribute ();
-
-				// Write the destination pad
-				writer.WriteStartAttribute (null, "dest", null);
-				writer.WriteString (String.Format ("{0}:{1}", conn.element.ToString (), conn.pad));
-				writer.WriteEndAttribute ();
-
-				// End the element
-				writer.WriteEndElement ();
-			}
-		}
-
-		public void
-		DeSerialize (XmlTextReader reader)
-		{
-			// TODO: Implement
 		}
 	}
 
@@ -245,13 +197,6 @@ namespace Fyre
 			writer.WriteStartAttribute (null, "comment", null);
 			writer.WriteString (comment);
 			writer.WriteEndAttribute ();
-
-			// Write out each of the output pads of the element
-			if (outputs != null) {
-				foreach (OutputPad pad in outputs) {
-					pad.Serialize (writer);
-				}
-			}
 
 			// Hand the writer off to the subclass to serialize any extra data we've got
 			Serialize (writer);
