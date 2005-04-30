@@ -462,7 +462,7 @@ namespace Fyre.Canvas
 		protected void
 		Add (Widget child)
 		{
-			if (start.Count + end.Count == 1) {
+			if (start.Count + end.Count == 0) {
 				position.Width = 2*x_pad + child.Width;
 				position.Height = 2*y_pad + child.Height;
 				child.SizeChanged += new System.EventHandler (Resize);
@@ -729,9 +729,7 @@ namespace Fyre.Canvas
 		{
 			Pen	border = new System.Drawing.Pen (Color.fg_color);
 			Brush	background = new System.Drawing.SolidBrush (Color.element_bg_color);
-			Brush	black = new SolidBrush (System.Drawing.Color.Black);
 
-			context.FillRectangle (black, 0, 0, position.Width, position.Height);
 			context.FillRectangle (background, 10, 0, position.Width-21, position.Height-1);
 			context.DrawRectangle (border, 10, 0, position.Width-21, position.Height-1);
 
@@ -812,7 +810,6 @@ namespace Fyre.Canvas
 	// Represents a string drawn on the canvas.
 	public class Label : Widget
 	{
-		new RectangleF		position;
 		string			text;
 		System.Drawing.Font	style;
 
@@ -821,8 +818,9 @@ namespace Fyre.Canvas
 		Label (string s, System.Drawing.Font style, Graphics context)
 		{
 			SizeF	sz = context.MeasureString (s, style);
-			PointF	pt = new PointF (0, 0);
-			position = new RectangleF (pt, sz);
+			position.X = 0; position.Y = 0;
+			position.Width = (int) sz.Width;
+			position.Height = (int) sz.Height;
 
 			this.style = style;
 			text = s;
