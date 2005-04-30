@@ -22,7 +22,7 @@
 
 using System.Collections;
 
-namespace Fyre
+namespace Fyre.Editor
 {
 	class Command
 	{
@@ -30,12 +30,12 @@ namespace Fyre
 		public string 	Name;
 
 		public virtual void
-		Do (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+		Do (Widgets.PipelineDrawing drawing, Document document)
 		{
 		}
 
 		public virtual void
-		Undo (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+		Undo (Widgets.PipelineDrawing drawing, Document document)
 		{
 		}
 	};
@@ -43,37 +43,35 @@ namespace Fyre
 	class CommandManager
 	{
 		// Undo and redo stacks
-		public ArrayList	undo_stack;
-		public ArrayList	redo_stack;
+		public ArrayList		undo_stack;
+		public ArrayList		redo_stack;
 
 		// Handles to the pipeline editor that contains stuff commands might need
-		public Layout		layout;
-		public PipelineDrawing	drawing;
-		public Pipeline		pipeline;
+		public Document			document;
+		public Widgets.PipelineDrawing	drawing;
 
 		public
-		CommandManager (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+		CommandManager (Widgets.PipelineDrawing drawing, Document document)
 		{
 			// Create the new undo and redo stack
 			undo_stack = new ArrayList ();
 			redo_stack = new ArrayList ();
 
 			// Add in all the important stuff
-			this.layout = layout;
-			this.drawing = drawing;
-			this.pipeline = pipeline;
+			this.drawing  = drawing;
+			this.document = document;
 		}
 
 		public void
 		Do (Command command)
 		{
-			command.Do (layout, drawing, pipeline);
+			command.Do (drawing, document);
 			undo_stack.Add (command);
 			redo_stack.Clear ();
 
-			pipeline.saved = false;
+			document.Saved = false;
 
-			pipeline.OnChanged (new System.EventArgs());
+			document.Pipeline.OnChanged (new System.EventArgs());
 		}
 
 		public void
@@ -82,14 +80,14 @@ namespace Fyre
 			Command command = (Command) undo_stack[undo_stack.Count - 1];
 			undo_stack.RemoveAt (undo_stack.Count - 1);
 
-			command.Undo (layout, drawing, pipeline);
+			command.Undo (drawing, document);
 
 			redo_stack.Add (command);
 
 			if (undo_stack.Count == 0)
-				pipeline.saved = true;
+				document.Saved = true;
 
-			pipeline.OnChanged (new System.EventArgs ());
+			document.Pipeline.OnChanged (new System.EventArgs ());
 		}
 
 		public void
@@ -98,13 +96,13 @@ namespace Fyre
 			Command command = (Command) redo_stack[redo_stack.Count - 1];
 			redo_stack.RemoveAt (redo_stack.Count - 1);
 
-			command.Do (layout, drawing, pipeline);
+			command.Do (drawing, document);
 
 			undo_stack.Add (command);
 
-			pipeline.saved = false;
+			document.Saved = false;
 
-			pipeline.OnChanged (new System.EventArgs ());
+			document.Pipeline.OnChanged (new System.EventArgs ());
 		}
 	}
 
@@ -128,17 +126,17 @@ namespace Fyre
 			}
 
 			public override void
-			Do (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+			Do (Widgets.PipelineDrawing drawing, Document document)
 			{
-				pipeline.element_store.Add (id.ToString ("d"), e);
+				document.Pipeline.element_store.Add (id.ToString ("d"), e);
 				drawing.AddElement (e, x, y);
 			}
 
 			public override void
-			Undo (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+			Undo (Widgets.PipelineDrawing drawing, Document document)
 			{
 				drawing.RemoveElement (e);
-				pipeline.element_store.Remove (id.ToString ("d"));
+				document.Pipeline.element_store.Remove (id.ToString ("d"));
 			}
 		}
 
@@ -150,13 +148,13 @@ namespace Fyre
 			}
 
 			public override void
-			Do (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+			Do (Widgets.PipelineDrawing drawing, Document document)
 			{
 				// FIXME - implement
 			}
 
 			public override void
-			Undo (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+			Undo (Widgets.PipelineDrawing drawing, Document document)
 			{
 				// FIXME - implement
 			}
@@ -170,13 +168,13 @@ namespace Fyre
 			}
 
 			public override void
-			Do (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+			Do (Widgets.PipelineDrawing drawing, Document document)
 			{
 				// FIXME - implement
 			}
 
 			public override void
-			Undo (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+			Undo (Widgets.PipelineDrawing drawing, Document document)
 			{
 				// FIXME - implement
 			}
@@ -199,16 +197,16 @@ namespace Fyre
 			}
 
 			public override void
-			Do (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+			Do (Widgets.PipelineDrawing drawing, Document document)
 			{
 				drawing.RemoveElement (e);
-				pipeline.element_store.Remove (id.ToString ("d"));
+				document.Pipeline.element_store.Remove (id.ToString ("d"));
 			}
 
 			public override void
-			Undo (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+			Undo (Widgets.PipelineDrawing drawing, Document document)
 			{
-				pipeline.element_store.Add (id.ToString ("d"), e);
+				document.Pipeline.element_store.Add (id.ToString ("d"), e);
 				drawing.AddElement (e, x, y);
 			}
 		}
@@ -232,16 +230,16 @@ namespace Fyre
 			}
 
 			public override void
-			Do (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+			Do (Widgets.PipelineDrawing drawing, Document document)
 			{
-				layout.SetElementPosition (e, new_x, new_y);
+				document.Layout.SetElementPosition (e, new_x, new_y);
 				drawing.Redraw();
 			}
 
 			public override void
-			Undo (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+			Undo (Widgets.PipelineDrawing drawing, Document document)
 			{
-				layout.SetElementPosition (e, old_x, old_y);
+				document.Layout.SetElementPosition (e, old_x, old_y);
 				drawing.Redraw();
 			}
 		}

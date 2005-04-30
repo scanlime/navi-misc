@@ -29,19 +29,11 @@ namespace Fyre
 	class Pipeline
 	{
 		public Hashtable	element_store;
-		public bool		saved;
-		public string		filename;
 
 		public
 		Pipeline ()
 		{
 			element_store = new Hashtable ();
-
-			// We start out with saved = true, since it doesn't make sense to
-			// force the user to save something they haven't made any changes
-			// to. As soon as they start messing with things, this toggles.
-			saved = true;
-			filename = null;
 		}
 
 		public bool
@@ -51,46 +43,25 @@ namespace Fyre
 		}
 
 		public void
-		Save (string filename)
+		Serialize (XmlTextWriter writer)
 		{
-			if (saved)
-				return;
-
-			XmlTextWriter writer = new XmlTextWriter (filename, null);
-			writer.Formatting = Formatting.Indented;
-			writer.WriteStartDocument ();
-			writer.WriteStartElement (null, "fyre-pipeline", null);
-
+			// run through all the elements, adding them to the XML
 			foreach (DictionaryEntry entry in element_store) {
 				Element e = (Element) entry.Value;
 				e.Write (writer);
 			}
-
-			writer.WriteEndDocument ();
-			writer.Close ();
-
-			this.filename = filename;
-			saved = true;
-
-			OnChanged (new System.EventArgs ());
 		}
 
 		public void
-		Load (string filename)
+		DeSerialize (XmlTextReader reader)
 		{
-			XmlTextReader reader = new XmlTextReader (filename);
-			while (reader.Read ()) {
-				if (reader.NodeType == XmlNodeType.Element && reader.Depth == 1) {
-					Element e = ElementFactory.Instance.CreateFromXml (reader.Name);
-					e.Read (reader);
+			while (reader.Read () && reader.NodeType == XmlNodeType.Element && reader.Depth == 2) {
+				Element e = ElementFactory.Instance.CreateFromXml (reader.Name);
+				e.Read (reader);
 
-					// Just add directly to the store
-					element_store.Add (e.id.ToString ("d"), e);
-				}
+				// Just add directly to the store
+				element_store.Add (e.id.ToString ("d"), e);
 			}
-
-			this.filename = filename;
-			saved = true;
 
 			OnChanged (new System.EventArgs ());
 		}
@@ -98,8 +69,6 @@ namespace Fyre
 		public void
 		Clear ()
 		{
-			saved = true;
-			filename = null;
 			element_store.Clear ();
 		}
 

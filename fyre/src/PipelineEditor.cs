@@ -23,7 +23,7 @@
 
 using System.Collections;
 
-namespace Fyre
+namespace Fyre.Editor
 {
 
 	public class PipelineEditor
@@ -32,21 +32,17 @@ namespace Fyre
 		static IDictionaryEnumerator		plugin_enumerator;
 
 		// Document
-		Pipeline				pipeline;
-		Layout					layout;
-
-		// Indexes to store which new document this is
-		int					new_index;
-		static int				new_documents;
+		Document				document;
+		SerializationManager			serialization_manager;
 
 		// Command manager
 		CommandManager				command_manager;
 
 		// High-level Widgets
 		[Glade.Widget] Gtk.Window		toplevel;
-		[Glade.Widget] ElementList		element_list;
-		[Glade.Widget] NavigationImage		navigation_image;
-		[Glade.Widget] PipelineDrawing		pipeline_drawing;
+		[Glade.Widget] Widgets.ElementList	element_list;
+		[Glade.Widget] Widgets.NavigationImage	navigation_image;
+		[Glade.Widget] Widgets.PipelineDrawing	pipeline_drawing;
 
 		// Editor workspace (right)
 		[Glade.Widget] Gtk.Frame		pipeline_frame;
@@ -76,7 +72,7 @@ namespace Fyre
 			get {
 				if (targets == null) {
 					targets = new Gtk.TargetEntry[1];
-					targets[0] = new Gtk.TargetEntry (System.String.Format( "fyre element drag {0}", new_index ), Gtk.TargetFlags.App, 1);
+					targets[0] = new Gtk.TargetEntry (System.String.Format ("fyre element drag {0}", document.Number), Gtk.TargetFlags.App, 1);
 				}
 				return targets;
 			}
@@ -121,8 +117,6 @@ namespace Fyre
 		PipelineEditor (string[] args)
 		{
 			editors.Add (this);
-			new_documents += 1;
-			new_index = new_documents;
 
 			Glade.XML.SetCustomHandler (new Glade.XMLCustomWidgetHandler (GladeCustomHandler));
 
@@ -132,16 +126,16 @@ namespace Fyre
 			// Make sure the element list knows which window it can accept events from.
 			element_list.window = this;
 
-			// Create the pipeline
-			pipeline = new Pipeline ();
-			pipeline.Changed += new System.EventHandler (PipelineChanged);
-			pipeline_drawing.pipeline = pipeline;
+			// Create the document
+			document = new Document ();
 
-			// Create the layout and give it to our child widgets
-			layout = new Layout ();
-			layout.Selected += new System.EventHandler (ElementSelected);
-			pipeline_drawing.layout  = layout;
-			navigation_image.layout = layout;
+			// Hook up handlers to parts of the document so we can update our GUI appropriately
+			document.Pipeline.Changed += new System.EventHandler (PipelineChanged);
+			document.Layout.Selected += new System.EventHandler (ElementSelected);
+
+			// Give child widgets a handle to the document
+			pipeline_drawing.Document = document;
+			navigation_image.Document = document;
 
 			// Set up our drawing canvas
 			SetupDrawingCanvas ();
@@ -153,7 +147,10 @@ namespace Fyre
 
 			// Create the command manager for this editor, and add in the pipeline, layout, and
 			// drawing into it
-			command_manager = new CommandManager( layout, pipeline_drawing, pipeline );
+			command_manager = new CommandManager (pipeline_drawing, document);
+
+			// Create the serialization manager for this editor, adding pipeline and layout
+			serialization_manager = new SerializationManager (document);
 
 			// Distribute the manager out to the pipeline drawing, as it uses it
 			pipeline_drawing.command_manager = command_manager;
@@ -166,7 +163,6 @@ namespace Fyre
 
 			// Give CanvasElement knowledge of our colors
 			CanvasElement.SetColors (toplevel.Style);
-
 		}
 
 		void
@@ -180,7 +176,7 @@ namespace Fyre
 		void
 		ElementSelected (object o, System.EventArgs args)
 		{
-			if (layout.HasSelection ()) {
+			if (document.Layout.HasSelection ()) {
 				menu_cut.Sensitive = true;
 				menu_copy.Sensitive = true;
 				menu_delete.Sensitive = true;
@@ -188,17 +184,6 @@ namespace Fyre
 				menu_cut.Sensitive = false;
 				menu_copy.Sensitive = false;
 				menu_delete.Sensitive = false;
-			}
-		}
-
-		// Convenience function for getting a formatted filename string
-		public string			Filename
-		{
-			get {
-				if (pipeline.filename == null)
-					return System.String.Format( "Untitiled{0}", new_index );
-				else
-					return pipeline.filename;
 			}
 		}
 
@@ -210,11 +195,11 @@ namespace Fyre
 			// isn't elegant yet for Glade#. Get around that by creating
 			// the custom widgets here based on the strings that glade knows.
 			if (func_name == "CreateElementList")
-				return new ElementList (xml.GetWidget ("toplevel"));
+				return new Widgets.ElementList (xml.GetWidget ("toplevel"));
 			if (func_name == "CreateNavigationImage")
-				return new NavigationImage ();
+				return new Widgets.NavigationImage ();
 			if (func_name == "CreatePipelineDrawing")
-				return new PipelineDrawing (xml);
+				return new Widgets.PipelineDrawing (xml);
 			return null;
 		}
 
@@ -261,8 +246,8 @@ namespace Fyre
 		void
 		SetTitle ()
 		{
-			string filename = System.IO.Path.GetFileName (Filename);
-			if (pipeline.saved)
+			string filename = System.IO.Path.GetFileName (document.Filename);
+			if (document.Saved)
 				toplevel.Title = filename;
 			else
 				toplevel.Title = filename + "*";
@@ -271,8 +256,8 @@ namespace Fyre
 		void
 		UpdateToolbarSensitivity ()
 		{
-			toolbar_save.Sensitive = !pipeline.saved;
-			menu_save.Sensitive = !pipeline.saved;
+			toolbar_save.Sensitive = !document.Saved;
+			menu_save.Sensitive    = !document.Saved;
 		}
 
 		void
@@ -304,8 +289,8 @@ namespace Fyre
 		public bool
 		CloseWindow ()
 		{
-			if (pipeline.saved == false) {
-				string filename = System.IO.Path.GetFileName (Filename);
+			if (document.Saved == false) {
+				string filename = System.IO.Path.GetFileName (document.Filename);
 				ConfirmCloseDialog confirm = new ConfirmCloseDialog (toplevel,
 						System.String.Format ("Save changes to \"{0}\" before closing?", filename),
 						"There are unsaved changes to the pipeline. Save before quitting?");
@@ -314,7 +299,7 @@ namespace Fyre
 				confirm.Destroy ();
 
 				if (response == (int) Gtk.ResponseType.Cancel)
-					return true;
+					return false;
 				if (response == (int) Gtk.ResponseType.Yes)
 					OnSave (null, null);
 			}
@@ -323,7 +308,7 @@ namespace Fyre
 			toplevel.Hide();
 
 			// The window was closed, so return false indicating it needs to be destroyed.
-			return false;
+			return true;
 		}
 
 		// Event handlers - most of these come from the glade file
@@ -331,14 +316,15 @@ namespace Fyre
 		public void
 		OnDeleteEvent (object o, Gtk.DeleteEventArgs args)
 		{
-			bool result = CloseWindow();
-			if (!result) {
+			bool close = CloseWindow();
+			if (close) {
 				editors.Remove (this);
 				if (editors.Count == 0)
 					Gtk.Application.Quit ();
 				args.RetVal = false;
-			} else
+			} else {
 				args.RetVal = true;
+			}
 		}
 
 		// Shared events - menus/toolbars
@@ -362,7 +348,7 @@ namespace Fyre
 
 			if (response == Gtk.ResponseType.Accept) {
 				string filename = fs.Filename;
-				if (pipeline.Empty) {
+				if (document.Pipeline.Empty) {
 					Load (filename);
 				} else {
 					PipelineEditor p = new PipelineEditor (null);
@@ -375,27 +361,25 @@ namespace Fyre
 		public void
 		OnSave (object o, System.EventArgs args)
 		{
-			if (pipeline.filename == null) {
+			if (!document.HasRealFilename) {
 				object[] responses = {
 					Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
 					Gtk.Stock.Save,   Gtk.ResponseType.Accept,
 				};
 				Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save As...", null, Gtk.FileChooserAction.Save, responses);
 				fs.DefaultResponse = Gtk.ResponseType.Accept;
-				fs.CurrentName = Filename;
+				fs.CurrentName = document.Filename;
 
 				Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
 
 				if (response == Gtk.ResponseType.Accept) {
 					string filename = fs.Filename;
-					pipeline.Save (filename);
+					serialization_manager.Save (filename);
 					UpdateToolbarSensitivity ();
-					fs.Destroy ();
 				}
 				fs.Destroy ();
-			}
-			else {
-				pipeline.Save (pipeline.filename);
+			} else {
+				serialization_manager.Save (document.Filename);
 				UpdateToolbarSensitivity ();
 			}
 		}
@@ -428,16 +412,15 @@ namespace Fyre
 			};
 			Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save As...", null, Gtk.FileChooserAction.Save, responses);
 			fs.DefaultResponse = Gtk.ResponseType.Accept;
-			if (!fs.SetFilename (Filename))
-				fs.CurrentName = Filename;
+			if (!fs.SetFilename (document.Filename))
+				fs.CurrentName = document.Filename;
 
 			Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
 			fs.Hide ();
 
 			if (response == Gtk.ResponseType.Accept) {
 				string filename = fs.Filename;
-				pipeline.saved = false;
-				pipeline.Save (filename);
+				serialization_manager.Save (filename);
 				UpdateToolbarSensitivity ();
 			}
 			fs.Destroy ();
@@ -446,8 +429,8 @@ namespace Fyre
 		public void
 		OnMenuFileClose (object o, System.EventArgs args)
 		{
-			bool result = CloseWindow();
-			if (!result) {
+			bool close = CloseWindow();
+			if (close) {
 				editors.Remove (this);
 				if (editors.Count == 0)
 					Gtk.Application.Quit ();
@@ -463,11 +446,11 @@ namespace Fyre
 			while (e.MoveNext ()) {
 				PipelineEditor win = (PipelineEditor) e.Current;
 				win.toplevel.Present ();
-				bool result = win.CloseWindow ();
-				if (result)
-					break;
-				else
+				bool close = win.CloseWindow ();
+				if (close)
 					removeList.Add (win);
+				else
+					break;
 			}
 			e = removeList.GetEnumerator ();
 			e.Reset ();
@@ -497,9 +480,9 @@ namespace Fyre
 		OnMenuEditDelete (object o, System.EventArgs args)
 		{
 			// Figure out which element is selected
-			System.Guid id = layout.GetSelectedElement ();
-			Element e = (Element) pipeline.element_store[id.ToString ()];
-			CanvasElement ce = layout.Get (e);
+			System.Guid id = document.Layout.GetSelectedElement ();
+			Element e = (Element) document.Pipeline.element_store[id.ToString ()];
+			CanvasElement ce = document.Layout.Get (e);
 
 			// Grab the X and Y coordinates of it
 			int x = ce.Position.X;
@@ -509,7 +492,7 @@ namespace Fyre
 			Commands.Delete deletee = new Commands.Delete (e, x, y);
 
 			command_manager.Do (deletee);
-			layout.DeselectAll ();
+			document.Layout.DeselectAll ();
 		}
 
 		// 'View' Menu events
@@ -530,7 +513,7 @@ namespace Fyre
 		Load (string filename)
 		{
 			try {
-				pipeline.Load (filename);
+				serialization_manager.Load (filename);
 			} catch (System.Exception e) {
 				// Pop up an error dialog.
 				// FIXME - it would be nice to automatically close this window if it was
