@@ -41,9 +41,9 @@ namespace Fyre.Editor
 
 		// High-level Widgets
 		[Glade.Widget] Gtk.Window		toplevel;
-		[Glade.Widget] ElementList		element_list;
-		[Glade.Widget] NavigationImage		navigation_image;
-		[Glade.Widget] PipelineDrawing		pipeline_drawing;
+		[Glade.Widget] Widgets.ElementList	element_list;
+		[Glade.Widget] Widgets.NavigationImage	navigation_image;
+		[Glade.Widget] Widgets.PipelineDrawing	pipeline_drawing;
 
 		// Editor workspace (right)
 		[Glade.Widget] Gtk.Frame		pipeline_frame;
@@ -196,11 +196,11 @@ namespace Fyre.Editor
 			// isn't elegant yet for Glade#. Get around that by creating
 			// the custom widgets here based on the strings that glade knows.
 			if (func_name == "CreateElementList")
-				return new ElementList (xml.GetWidget ("toplevel"));
+				return new Widgets.ElementList (xml.GetWidget ("toplevel"));
 			if (func_name == "CreateNavigationImage")
-				return new NavigationImage ();
+				return new Widgets.NavigationImage ();
 			if (func_name == "CreatePipelineDrawing")
-				return new PipelineDrawing (xml);
+				return new Widgets.PipelineDrawing (xml);
 			return null;
 		}
 
