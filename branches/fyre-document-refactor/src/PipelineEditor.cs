@@ -374,7 +374,8 @@ namespace Fyre.Editor
 				Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
 
 				if (response == Gtk.ResponseType.Accept) {
-					serialization_manager.Save (document.Filename);
+					string filename = fs.Filename;
+					serialization_manager.Save (filename);
 					UpdateToolbarSensitivity ();
 				}
 				fs.Destroy ();
@@ -419,7 +420,8 @@ namespace Fyre.Editor
 			fs.Hide ();
 
 			if (response == Gtk.ResponseType.Accept) {
-				serialization_manager.Save (document.Filename);
+				string filename = fs.Filename;
+				serialization_manager.Save (filename);
 				UpdateToolbarSensitivity ();
 			}
 			fs.Destroy ();
