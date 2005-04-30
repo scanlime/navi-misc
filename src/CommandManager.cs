@@ -22,7 +22,7 @@
 
 using System.Collections;
 
-namespace Fyre
+namespace Fyre.Editor
 {
 	class Command
 	{
@@ -47,33 +47,31 @@ namespace Fyre
 		public ArrayList	redo_stack;
 
 		// Handles to the pipeline editor that contains stuff commands might need
-		public Layout		layout;
+		public Document		document;
 		public PipelineDrawing	drawing;
-		public Pipeline		pipeline;
 
 		public
-		CommandManager (Layout layout, PipelineDrawing drawing, Pipeline pipeline)
+		CommandManager (PipelineDrawing drawing, Document document)
 		{
 			// Create the new undo and redo stack
 			undo_stack = new ArrayList ();
 			redo_stack = new ArrayList ();
 
 			// Add in all the important stuff
-			this.layout = layout;
-			this.drawing = drawing;
-			this.pipeline = pipeline;
+			this.drawing  = drawing;
+			this.document = document;
 		}
 
 		public void
 		Do (Command command)
 		{
-			command.Do (layout, drawing, pipeline);
+			command.Do (document.Layout, drawing, document.Pipeline);
 			undo_stack.Add (command);
 			redo_stack.Clear ();
 
-			pipeline.saved = false;
+			document.Saved = false;
 
-			pipeline.OnChanged (new System.EventArgs());
+			document.Pipeline.OnChanged (new System.EventArgs());
 		}
 
 		public void
@@ -82,14 +80,14 @@ namespace Fyre
 			Command command = (Command) undo_stack[undo_stack.Count - 1];
 			undo_stack.RemoveAt (undo_stack.Count - 1);
 
-			command.Undo (layout, drawing, pipeline);
+			command.Undo (document.Layout, drawing, document.Pipeline);
 
 			redo_stack.Add (command);
 
 			if (undo_stack.Count == 0)
-				pipeline.saved = true;
+				document.Saved = true;
 
-			pipeline.OnChanged (new System.EventArgs ());
+			document.Pipeline.OnChanged (new System.EventArgs ());
 		}
 
 		public void
@@ -98,13 +96,13 @@ namespace Fyre
 			Command command = (Command) redo_stack[redo_stack.Count - 1];
 			redo_stack.RemoveAt (redo_stack.Count - 1);
 
-			command.Do (layout, drawing, pipeline);
+			command.Do (document.Layout, drawing, document.Pipeline);
 
 			undo_stack.Add (command);
 
-			pipeline.saved = false;
+			document.Saved = false;
 
-			pipeline.OnChanged (new System.EventArgs ());
+			document.Pipeline.OnChanged (new System.EventArgs ());
 		}
 	}
 

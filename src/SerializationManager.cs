@@ -22,18 +22,16 @@
 
 using System.Xml;
 
-namespace Fyre
+namespace Fyre.Editor
 {
 	class SerializationManager
 	{
-		Pipeline		pipeline;
-		Layout			layout;
+		Document		document;
 
 		public
-		SerializationManager (Pipeline pipeline, Layout layout)
+		SerializationManager (Document document)
 		{
-			this.pipeline = pipeline;
-			this.layout   = layout;
+			this.document = document;
 		}
 
 		public void
@@ -44,8 +42,11 @@ namespace Fyre
 			writer.WriteStartDocument ();
 			writer.WriteStartElement (null, "fyre-pipeline", null);
 
-			pipeline.Serialize (writer);
-			// serialize layout
+			document.Pipeline.Serialize (writer);
+			document.Layout.Serialize (writer);
+
+			document.Saved = true;
+			document.Filename = filename;
 
 			writer.WriteEndDocument ();
 			writer.Close ();
