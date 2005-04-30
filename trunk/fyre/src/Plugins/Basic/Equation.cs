@@ -63,4 +63,37 @@ class Equation : Fyre.Element
 	{
 		return null;
 	}
+
+	protected override void
+	AddEditWidgets (Gtk.VBox box)
+	{
+		Gtk.Label category = new Gtk.Label ();
+		category.Xalign = 0.0f;
+		category.Markup = "<b>Equation</b>";
+		category.Show ();
+		box.PackStart (category, false, true, 0);
+
+		Gtk.HBox hbox = new Gtk.HBox (false, 12);
+		Gtk.VBox vbox = new Gtk.VBox (false, 6);
+
+		Gtk.Label help = new Gtk.Label ();
+		help.Xalign = 0.0f;
+		help.Text = "Enter an equation. If you are entering a system, put one equation per line.";
+		vbox.PackStart (help, false, true, 0);
+
+		Gtk.ScrolledWindow swin = new Gtk.ScrolledWindow ();
+		Gtk.TextView text = new Gtk.TextView ();
+		swin.Add (text);
+		swin.ShadowType = Gtk.ShadowType.In;
+		vbox.PackStart (swin, true, true, 0);
+
+		Gtk.Label l = new Gtk.Label ();
+		hbox.PackStart (l, false, false, 0);
+		hbox.PackStart (vbox, true, true, 0);
+		hbox.ShowAll ();
+
+		box.PackStart (hbox, true, true, 0);
+
+		base.AddEditWidgets (box);
+	}
 }
