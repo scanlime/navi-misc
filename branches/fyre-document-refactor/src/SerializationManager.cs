@@ -26,20 +26,14 @@ namespace Fyre
 {
 	class SerializationManager
 	{
-		static SerializationManager		instance;
-		public static SerializationManager	Instance
-		{
-			get
-			{
-				if (instance == null)
-					instance = new SerializationManager ();
-				return instance;
-			}
-		}
+		Pipeline		pipeline;
+		Layout			layout;
 
-		protected
-		SerializationManager ()
+		public
+		SerializationManager (Pipeline pipeline, Layout layout)
 		{
+			this.pipeline = pipeline;
+			this.layout   = layout;
 		}
 
 		public void
@@ -50,7 +44,7 @@ namespace Fyre
 			writer.WriteStartDocument ();
 			writer.WriteStartElement (null, "fyre-pipeline", null);
 
-			// serialize pipeline
+			pipeline.Serialize (writer);
 			// serialize layout
 
 			writer.WriteEndDocument ();
