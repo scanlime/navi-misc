@@ -42,8 +42,15 @@ namespace Fyre.Editor
 			writer.WriteStartDocument ();
 			writer.WriteStartElement (null, "fyre-pipeline", null);
 
+			// serialize pipeline graph
+			writer.WriteStartElement (null, "pipeline", null);
 			document.Pipeline.Serialize (writer);
+			writer.WriteEndElement ();
+
+			// serialize layout
+			writer.WriteStartElement (null, "layout", null);
 			document.Layout.Serialize (writer);
+			writer.WriteEndElement ();
 
 			document.Saved = true;
 			document.Filename = filename;
