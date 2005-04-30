@@ -21,7 +21,7 @@
  *
  */
 
-namespace Fyre.Editor
+namespace Fyre.Editor.Widgets
 {
 	public enum
 	DrawingDragType

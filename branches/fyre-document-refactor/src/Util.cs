@@ -20,7 +20,7 @@
  *
  */
 
-namespace Fyre
+namespace Fyre.Editor
 {
 	static class Util
 	{
