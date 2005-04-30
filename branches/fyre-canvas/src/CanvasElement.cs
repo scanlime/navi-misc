@@ -174,13 +174,10 @@ namespace Fyre.Canvas
 
 	/*** Element Drawing Primitives ***/
 
-	// FIXME Should these two structs maybe be private? Do we need them outside
-	// of drawing stuff on the canvas?
-
 	// Our fonts.
 	// FIXME Might be a good idea to have something to fall back on if they
 	// don't have Bitstream Vera fonts.
-	public struct
+	static class
 	Font
 	{
 		static public System.Drawing.Font plain = new System.Drawing.Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
@@ -189,7 +186,7 @@ namespace Fyre.Canvas
 
 	// Colors for drawing.
 	// FIXME Need to rename these members to something more sensible.
-	public struct 
+	static class
 	Color
 	{
 		static public System.Drawing.Color bg_color;
@@ -203,25 +200,18 @@ namespace Fyre.Canvas
 		public static void
 		Set (Gtk.Style style)
 		{
-			Gdk.Color c;
+			bg_color          = SDColorFromGdk (style.Background (Gtk.StateType.Normal));
+			fg_color          = SDColorFromGdk (style.Foreground (Gtk.StateType.Normal));
+			bg_color_prelight = SDColorFromGdk (style.Background (Gtk.StateType.Prelight));
+			fg_color_prelight = SDColorFromGdk (style.Foreground (Gtk.StateType.Prelight));
+			element_bg_color  = SDColorFromGdk (style.Background (Gtk.StateType.Insensitive));
+			element_fg_color  = SDColorFromGdk (style.Dark (Gtk.StateType.Selected));
+		}
 
-			c = style.Background (Gtk.StateType.Normal);
-			bg_color = System.Drawing.Color.FromArgb (c.Red / 255, c.Green / 255, c.Blue / 255);
-
-			c = style.Foreground (Gtk.StateType.Normal);
-			fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-
-			c = style.Background (Gtk.StateType.Prelight);
-			bg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-
-			c = style.Foreground (Gtk.StateType.Prelight);
-			fg_color_prelight = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-
-			c = style.Background (Gtk.StateType.Insensitive);
-			element_bg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
-
-			c = style.Dark (Gtk.StateType.Selected);
-			element_fg_color = System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
+		static System.Drawing.Color
+		SDColorFromGdk (Gdk.Color c)
+		{
+			return System.Drawing.Color.FromArgb (c.Red / 256, c.Green / 256, c.Blue / 256);
 		}
 	}
 
