@@ -34,6 +34,8 @@ namespace Fyre
 		// Document
 		Pipeline				pipeline;
 		Layout					layout;
+		SerializationManager			serialization_manager;
+		bool					saved;
 
 		// Indexes to store which new document this is
 		int					new_index;
@@ -76,7 +78,7 @@ namespace Fyre
 			get {
 				if (targets == null) {
 					targets = new Gtk.TargetEntry[1];
-					targets[0] = new Gtk.TargetEntry (System.String.Format( "fyre element drag {0}", new_index ), Gtk.TargetFlags.App, 1);
+					targets[0] = new Gtk.TargetEntry (System.String.Format ("fyre element drag {0}", new_index), Gtk.TargetFlags.App, 1);
 				}
 				return targets;
 			}
@@ -153,7 +155,10 @@ namespace Fyre
 
 			// Create the command manager for this editor, and add in the pipeline, layout, and
 			// drawing into it
-			command_manager = new CommandManager( layout, pipeline_drawing, pipeline );
+			command_manager = new CommandManager (layout, pipeline_drawing, pipeline);
+
+			// Create the serialization manager for this editor, adding pipeline and layout
+			serialization_manager = new SerializationManager (pipeline, layout);
 
 			// Distribute the manager out to the pipeline drawing, as it uses it
 			pipeline_drawing.command_manager = command_manager;
@@ -167,6 +172,10 @@ namespace Fyre
 			// Give CanvasElement knowledge of our colors
 			CanvasElement.SetColors (toplevel.Style);
 
+			// We start out with saved = true, since it doesn't make sense to force (or
+			// even allow) our user to save an empty document.
+			saved = true;
+			filename = null;
 		}
 
 		void
@@ -191,14 +200,16 @@ namespace Fyre
 			}
 		}
 
+		string				filename;
+
 		// Convenience function for getting a formatted filename string
 		public string			Filename
 		{
 			get {
-				if (pipeline.filename == null)
+				if (filename == null)
 					return System.String.Format( "Untitiled{0}", new_index );
 				else
-					return pipeline.filename;
+					return filename;
 			}
 		}
 
@@ -262,7 +273,7 @@ namespace Fyre
 		SetTitle ()
 		{
 			string filename = System.IO.Path.GetFileName (Filename);
-			if (pipeline.saved)
+			if (saved)
 				toplevel.Title = filename;
 			else
 				toplevel.Title = filename + "*";
@@ -271,8 +282,8 @@ namespace Fyre
 		void
 		UpdateToolbarSensitivity ()
 		{
-			toolbar_save.Sensitive = !pipeline.saved;
-			menu_save.Sensitive = !pipeline.saved;
+			toolbar_save.Sensitive = !saved;
+			menu_save.Sensitive    = !saved;
 		}
 
 		void
@@ -304,7 +315,7 @@ namespace Fyre
 		public bool
 		CloseWindow ()
 		{
-			if (pipeline.saved == false) {
+			if (saved == false) {
 				string filename = System.IO.Path.GetFileName (Filename);
 				ConfirmCloseDialog confirm = new ConfirmCloseDialog (toplevel,
 						System.String.Format ("Save changes to \"{0}\" before closing?", filename),
@@ -314,7 +325,7 @@ namespace Fyre
 				confirm.Destroy ();
 
 				if (response == (int) Gtk.ResponseType.Cancel)
-					return true;
+					return false;
 				if (response == (int) Gtk.ResponseType.Yes)
 					OnSave (null, null);
 			}
@@ -323,7 +334,7 @@ namespace Fyre
 			toplevel.Hide();
 
 			// The window was closed, so return false indicating it needs to be destroyed.
-			return false;
+			return true;
 		}
 
 		// Event handlers - most of these come from the glade file
@@ -331,14 +342,15 @@ namespace Fyre
 		public void
 		OnDeleteEvent (object o, Gtk.DeleteEventArgs args)
 		{
-			bool result = CloseWindow();
-			if (!result) {
+			bool close = CloseWindow();
+			if (close) {
 				editors.Remove (this);
 				if (editors.Count == 0)
 					Gtk.Application.Quit ();
 				args.RetVal = false;
-			} else
+			} else {
 				args.RetVal = true;
+			}
 		}
 
 		// Shared events - menus/toolbars
@@ -375,7 +387,7 @@ namespace Fyre
 		public void
 		OnSave (object o, System.EventArgs args)
 		{
-			if (pipeline.filename == null) {
+			if (filename == null) {
 				object[] responses = {
 					Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
 					Gtk.Stock.Save,   Gtk.ResponseType.Accept,
@@ -387,15 +399,14 @@ namespace Fyre
 				Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
 
 				if (response == Gtk.ResponseType.Accept) {
-					string filename = fs.Filename;
-					pipeline.Save (filename);
+					filename = fs.Filename;
+					serialization_manager.Save (filename);
 					UpdateToolbarSensitivity ();
 					fs.Destroy ();
 				}
 				fs.Destroy ();
-			}
-			else {
-				pipeline.Save (pipeline.filename);
+			} else {
+				serialization_manager.Save (filename);
 				UpdateToolbarSensitivity ();
 			}
 		}
@@ -435,9 +446,9 @@ namespace Fyre
 			fs.Hide ();
 
 			if (response == Gtk.ResponseType.Accept) {
-				string filename = fs.Filename;
-				pipeline.saved = false;
-				pipeline.Save (filename);
+				filename = fs.Filename;
+				saved = false;
+				serialization_manager.Save (filename);
 				UpdateToolbarSensitivity ();
 			}
 			fs.Destroy ();
@@ -446,8 +457,8 @@ namespace Fyre
 		public void
 		OnMenuFileClose (object o, System.EventArgs args)
 		{
-			bool result = CloseWindow();
-			if (!result) {
+			bool close = CloseWindow();
+			if (close) {
 				editors.Remove (this);
 				if (editors.Count == 0)
 					Gtk.Application.Quit ();
@@ -463,11 +474,11 @@ namespace Fyre
 			while (e.MoveNext ()) {
 				PipelineEditor win = (PipelineEditor) e.Current;
 				win.toplevel.Present ();
-				bool result = win.CloseWindow ();
-				if (result)
-					break;
-				else
+				bool close = win.CloseWindow ();
+				if (close)
 					removeList.Add (win);
+				else
+					break;
 			}
 			e = removeList.GetEnumerator ();
 			e.Reset ();

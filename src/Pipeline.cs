@@ -29,19 +29,11 @@ namespace Fyre
 	class Pipeline
 	{
 		public Hashtable	element_store;
-		public bool		saved;
-		public string		filename;
 
 		public
 		Pipeline ()
 		{
 			element_store = new Hashtable ();
-
-			// We start out with saved = true, since it doesn't make sense to
-			// force the user to save something they haven't made any changes
-			// to. As soon as they start messing with things, this toggles.
-			saved = true;
-			filename = null;
 		}
 
 		public bool
@@ -51,28 +43,17 @@ namespace Fyre
 		}
 
 		public void
-		Save (string filename)
+		Serialize (XmlTextWriter writer)
 		{
-			if (saved)
-				return;
+			writer.WriteStartElement (null, "pipeline", null);
 
-			XmlTextWriter writer = new XmlTextWriter (filename, null);
-			writer.Formatting = Formatting.Indented;
-			writer.WriteStartDocument ();
-			writer.WriteStartElement (null, "fyre-pipeline", null);
-
+			// run through all the elements, adding them to the XML
 			foreach (DictionaryEntry entry in element_store) {
 				Element e = (Element) entry.Value;
 				e.Write (writer);
 			}
 
-			writer.WriteEndDocument ();
-			writer.Close ();
-
-			this.filename = filename;
-			saved = true;
-
-			OnChanged (new System.EventArgs ());
+			writer.WriteEndElement ();
 		}
 
 		public void
@@ -89,17 +70,12 @@ namespace Fyre
 				}
 			}
 
-			this.filename = filename;
-			saved = true;
-
 			OnChanged (new System.EventArgs ());
 		}
 
 		public void
 		Clear ()
 		{
-			saved = true;
-			filename = null;
 			element_store.Clear ();
 		}
 
