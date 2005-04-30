@@ -57,17 +57,14 @@ namespace Fyre
 		}
 
 		public void
-		Load (string filename)
+		DeSerialize (XmlTextReader reader)
 		{
-			XmlTextReader reader = new XmlTextReader (filename);
-			while (reader.Read ()) {
-				if (reader.NodeType == XmlNodeType.Element && reader.Depth == 1) {
-					Element e = ElementFactory.Instance.CreateFromXml (reader.Name);
-					e.Read (reader);
+			while (reader.Read () && reader.NodeType == XmlNodeType.Element && reader.Depth == 2) {
+				Element e = ElementFactory.Instance.CreateFromXml (reader.Name);
+				e.Read (reader);
 
-					// Just add directly to the store
-					element_store.Add (e.id.ToString ("d"), e);
-				}
+				// Just add directly to the store
+				element_store.Add (e.id.ToString ("d"), e);
 			}
 
 			OnChanged (new System.EventArgs ());

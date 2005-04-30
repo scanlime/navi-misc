@@ -228,5 +228,10 @@ namespace Fyre.Editor
 		Serialize (XmlTextWriter writer)
 		{
 		}
+
+		public void
+		DeSerialize (XmlTextReader reader)
+		{
+		}
 	}
 }
