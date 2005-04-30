@@ -26,7 +26,6 @@ CSFILES =			\
 	PipelineDrawing.cs	\
 	PipelineEditor.cs	\
 	PluginManager.cs	\
-	SerializationManager.cs	\
 	Util.cs
 
 ASSEMBLIES =			\

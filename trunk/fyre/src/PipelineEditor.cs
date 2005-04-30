@@ -33,7 +33,6 @@ namespace Fyre.Editor
 
 		// Document
 		Document				document;
-		SerializationManager			serialization_manager;
 
 		// Command manager
 		CommandManager				command_manager;
@@ -148,9 +147,6 @@ namespace Fyre.Editor
 			// Create the command manager for this editor, and add in the pipeline, layout, and
 			// drawing into it
 			command_manager = new CommandManager (pipeline_drawing, document);
-
-			// Create the serialization manager for this editor, adding pipeline and layout
-			serialization_manager = new SerializationManager (document);
 
 			// Distribute the manager out to the pipeline drawing, as it uses it
 			pipeline_drawing.command_manager = command_manager;
@@ -374,12 +370,12 @@ namespace Fyre.Editor
 
 				if (response == Gtk.ResponseType.Accept) {
 					string filename = fs.Filename;
-					serialization_manager.Save (filename);
+					document.Save (filename);
 					UpdateToolbarSensitivity ();
 				}
 				fs.Destroy ();
 			} else {
-				serialization_manager.Save (document.Filename);
+				document.Save (document.Filename);
 				UpdateToolbarSensitivity ();
 			}
 		}
@@ -420,7 +416,7 @@ namespace Fyre.Editor
 
 			if (response == Gtk.ResponseType.Accept) {
 				string filename = fs.Filename;
-				serialization_manager.Save (filename);
+				document.Save (filename);
 				UpdateToolbarSensitivity ();
 			}
 			fs.Destroy ();
@@ -513,7 +509,7 @@ namespace Fyre.Editor
 		Load (string filename)
 		{
 			try {
-				serialization_manager.Load (filename);
+				document.Load (filename);
 			} catch (System.Exception e) {
 				// Pop up an error dialog.
 				// FIXME - it would be nice to automatically close this window if it was
