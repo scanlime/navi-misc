@@ -21,7 +21,7 @@
  *
  */
 
-namespace Fyre
+namespace Fyre.Editor.Widgets
 {
 
 	public class ElementTooltip

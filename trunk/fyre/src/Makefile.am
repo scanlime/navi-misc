@@ -15,6 +15,7 @@ CSFILES =			\
 	CommandManager.cs	\
 	Data.cs			\
 	Dialogs.cs		\
+	Document.cs		\
 	Element.cs		\
 	ElementFactory.cs	\
 	ElementList.cs		\

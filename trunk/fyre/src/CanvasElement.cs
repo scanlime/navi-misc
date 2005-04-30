@@ -23,7 +23,7 @@
 using System.Drawing;
 using System.Xml;
 
-namespace Fyre
+namespace Fyre.Editor
 {
 	/*
 	 * The basic structure of an element on the canvas has 3 pieces:
@@ -385,6 +385,29 @@ namespace Fyre
 			if (x >= 10 && x <= Position.Width - 10)
 				return ElementHover.Body;
 			return ElementHover.None;
+		}
+
+		public void
+		Write (XmlTextWriter writer)
+		{
+			writer.WriteStartElement (null, "element", null);
+
+			// element Guid
+			writer.WriteStartAttribute (null, "id", null);
+			writer.WriteString (element.id.ToString ());
+			writer.WriteEndAttribute ();
+
+			// X position
+			writer.WriteStartAttribute (null, "x", null);
+			writer.WriteString (X.ToString ());
+			writer.WriteEndAttribute ();
+
+			// Y position
+			writer.WriteStartAttribute (null, "y", null);
+			writer.WriteString (Y.ToString ());
+			writer.WriteEndAttribute ();
+
+			writer.WriteEndElement ();
 		}
 	}
 

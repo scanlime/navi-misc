@@ -23,8 +23,9 @@
  */
 
 using System.Collections;
+using System.Xml;
 
-namespace Fyre
+namespace Fyre.Editor
 {
 
 	public enum
@@ -124,10 +125,8 @@ namespace Fyre
 		public void
 		Draw (System.Drawing.Graphics context, System.Drawing.Rectangle area)
 		{
-			IDictionaryEnumerator e = elements.GetEnumerator ();
-			e.Reset ();
-			while (e.MoveNext ()) {
-				CanvasElement ce = (CanvasElement) e.Value;
+			foreach (DictionaryEntry entry in elements) {
+				CanvasElement ce = (CanvasElement) entry.Value;
 
 				// Perform visibility culling.  This significantly speeds up drawing.
 				// Not sure why System.Drawing doesn't do this internally, but oh well.
@@ -143,17 +142,15 @@ namespace Fyre
 		public LayoutHover
 		GetHoverType (int x, int y)
 		{
-			IDictionaryEnumerator e = elements.GetEnumerator ();
-			e.Reset ();
-			while (e.MoveNext ()) {
-				CanvasElement ce = (CanvasElement) e.Value;
+			foreach (DictionaryEntry entry in elements) {
+				CanvasElement ce = (CanvasElement) entry.Value;
 
 				System.Drawing.Point p = new System.Drawing.Point (x, y);
 
 				if (ce.Position.Contains (p)) {
 					int local_x = x - ce.X;
 					int local_y = y - ce.Y;
-					hover_element = (string) e.Key;
+					hover_element = (string) entry.Key;
 					ElementHover eh = ce.GetHover (local_x, local_y);
 
 					// Translate element hovers into layout hovers.
@@ -213,14 +210,30 @@ namespace Fyre
 		public void
 		DeselectAll ()
 		{
-			IDictionaryEnumerator e = elements.GetEnumerator ();
-			e.Reset ();
-			while (e.MoveNext ()) {
-				CanvasElement ce = (CanvasElement) e.Value;
+			foreach (DictionaryEntry entry in elements) {
+				CanvasElement ce = (CanvasElement) entry.Value;
 				ce.Selected = false;
 			}
 			selected_element = null;
 			OnSelected (new System.EventArgs ());
+		}
+
+		public void
+		Serialize (XmlTextWriter writer)
+		{
+			// run through all the CanvasElements, serializing them
+			foreach (DictionaryEntry entry in elements) {
+				CanvasElement e = (CanvasElement) entry.Value;
+				e.Write (writer);
+			}
+		}
+
+		public void
+		DeSerialize (XmlTextReader reader)
+		{
+			while (reader.Read () && reader.NodeType == XmlNodeType.Element && reader.Depth == 2) {
+			}
+		//	OnChanged (new System.EventArgs ());
 		}
 	}
 }

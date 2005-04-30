@@ -22,24 +22,16 @@
 
 using System.Xml;
 
-namespace Fyre
+namespace Fyre.Editor
 {
 	class SerializationManager
 	{
-		static SerializationManager		instance;
-		public static SerializationManager	Instance
-		{
-			get
-			{
-				if (instance == null)
-					instance = new SerializationManager ();
-				return instance;
-			}
-		}
+		Document		document;
 
-		protected
-		SerializationManager ()
+		public
+		SerializationManager (Document document)
 		{
+			this.document = document;
 		}
 
 		public void
@@ -50,8 +42,18 @@ namespace Fyre
 			writer.WriteStartDocument ();
 			writer.WriteStartElement (null, "fyre-pipeline", null);
 
-			// serialize pipeline
+			// serialize pipeline graph
+			writer.WriteStartElement (null, "pipeline", null);
+			document.Pipeline.Serialize (writer);
+			writer.WriteEndElement ();
+
 			// serialize layout
+			writer.WriteStartElement (null, "layout", null);
+			document.Layout.Serialize (writer);
+			writer.WriteEndElement ();
+
+			document.Saved = true;
+			document.Filename = filename;
 
 			writer.WriteEndDocument ();
 			writer.Close ();
@@ -63,10 +65,17 @@ namespace Fyre
 			XmlTextReader reader = new XmlTextReader (filename);
 			try {
 				while (reader.Read ()) {
-					if (reader.NodeType == XmlNodeType.Element) {
+					if (reader.NodeType == XmlNodeType.Element && reader.Depth == 1) {
+						if (reader.Name == "pipeline")
+							document.Pipeline.DeSerialize (reader);
+						else if (reader.Name == "layout")
+							document.Layout.DeSerialize (reader);
 					}
 				}
 				reader.Close ();
+
+				document.Filename = filename;
+				document.Saved = true;
 			} catch (System.Exception e) {
 				// FIXME - show error
 				return;

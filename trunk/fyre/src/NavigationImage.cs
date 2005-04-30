@@ -21,7 +21,7 @@
  *
  */
 
-namespace Fyre
+namespace Fyre.Editor.Widgets
 {
 
 	class NavigationWindow : Gtk.Window
@@ -244,7 +244,7 @@ namespace Fyre
 		NavigationWindow	window;
 		int			win_x, win_y;
 		public PipelineDrawing	Drawing;
-		public Layout		layout;
+		public Document		Document;
 
 		public
 		NavigationImage ()
@@ -277,7 +277,7 @@ namespace Fyre
 			int mouse_x = (int) ev.XRoot;
 			int mouse_y = (int) ev.YRoot;
 
-			window = new NavigationWindow (Drawing, layout);
+			window = new NavigationWindow (Drawing, Document.Layout);
 
 			// Position the window such that the entire thing is always visible
 			// on the screen, even if the navigation image is right next to
