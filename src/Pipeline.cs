@@ -45,15 +45,11 @@ namespace Fyre
 		public void
 		Serialize (XmlTextWriter writer)
 		{
-			writer.WriteStartElement (null, "pipeline", null);
-
 			// run through all the elements, adding them to the XML
 			foreach (DictionaryEntry entry in element_store) {
 				Element e = (Element) entry.Value;
 				e.Write (writer);
 			}
-
-			writer.WriteEndElement ();
 		}
 
 		public void

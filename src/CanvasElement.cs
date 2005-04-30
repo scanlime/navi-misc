@@ -386,6 +386,29 @@ namespace Fyre.Editor
 				return ElementHover.Body;
 			return ElementHover.None;
 		}
+
+		public void
+		Write (XmlTextWriter writer)
+		{
+			writer.WriteStartElement (null, "element", null);
+
+			// element Guid
+			writer.WriteStartAttribute (null, "id", null);
+			writer.WriteString (element.id.ToString ());
+			writer.WriteEndAttribute ();
+
+			// X position
+			writer.WriteStartAttribute (null, "x", null);
+			writer.WriteString (X.ToString ());
+			writer.WriteEndAttribute ();
+
+			// Y position
+			writer.WriteStartAttribute (null, "y", null);
+			writer.WriteString (Y.ToString ());
+			writer.WriteEndAttribute ();
+
+			writer.WriteEndElement ();
+		}
 	}
 
 }

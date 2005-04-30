@@ -34,7 +34,6 @@ namespace Fyre.Editor
 		// Document
 		Document				document;
 		SerializationManager			serialization_manager;
-		bool					saved;
 
 		// Command manager
 		CommandManager				command_manager;
@@ -248,7 +247,7 @@ namespace Fyre.Editor
 		SetTitle ()
 		{
 			string filename = System.IO.Path.GetFileName (document.Filename);
-			if (saved)
+			if (document.Saved)
 				toplevel.Title = filename;
 			else
 				toplevel.Title = filename + "*";
@@ -257,8 +256,8 @@ namespace Fyre.Editor
 		void
 		UpdateToolbarSensitivity ()
 		{
-			toolbar_save.Sensitive = !saved;
-			menu_save.Sensitive    = !saved;
+			toolbar_save.Sensitive = !document.Saved;
+			menu_save.Sensitive    = !document.Saved;
 		}
 
 		void
@@ -290,7 +289,7 @@ namespace Fyre.Editor
 		public bool
 		CloseWindow ()
 		{
-			if (saved == false) {
+			if (document.Saved == false) {
 				string filename = System.IO.Path.GetFileName (document.Filename);
 				ConfirmCloseDialog confirm = new ConfirmCloseDialog (toplevel,
 						System.String.Format ("Save changes to \"{0}\" before closing?", filename),
