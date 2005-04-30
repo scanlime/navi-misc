@@ -21,7 +21,7 @@
  *
  */
 
-namespace Fyre
+namespace Fyre.Editor
 {
 
 	class ElementList : Gtk.TreeView

@@ -23,7 +23,7 @@
 
 using System.Collections;
 
-namespace Fyre
+namespace Fyre.Editor
 {
 
 	public class PipelineEditor
@@ -32,8 +32,7 @@ namespace Fyre
 		static IDictionaryEnumerator		plugin_enumerator;
 
 		// Document
-		Pipeline				pipeline;
-		Layout					layout;
+		Document				document;
 		SerializationManager			serialization_manager;
 		bool					saved;
 
@@ -134,16 +133,16 @@ namespace Fyre
 			// Make sure the element list knows which window it can accept events from.
 			element_list.window = this;
 
-			// Create the pipeline
-			pipeline = new Pipeline ();
-			pipeline.Changed += new System.EventHandler (PipelineChanged);
-			pipeline_drawing.pipeline = pipeline;
+			// Create the document
+			document = new Document ();
 
-			// Create the layout and give it to our child widgets
-			layout = new Layout ();
-			layout.Selected += new System.EventHandler (ElementSelected);
-			pipeline_drawing.layout  = layout;
-			navigation_image.layout = layout;
+			// Hook up handlers to parts of the document so we can update our GUI appropriately
+			document.Pipeline.Changed += new System.EventHandler (PipelineChanged);
+			document.Layout.Selected += new System.EventHandler (ElementSelected);
+
+			// Give child widgets a handle to the document
+			pipeline_drawing.Document = document;
+			navigation_image.Document = document;
 
 			// Set up our drawing canvas
 			SetupDrawingCanvas ();
@@ -155,10 +154,10 @@ namespace Fyre
 
 			// Create the command manager for this editor, and add in the pipeline, layout, and
 			// drawing into it
-			command_manager = new CommandManager (layout, pipeline_drawing, pipeline);
+			command_manager = new CommandManager (pipeline_drawing, document);
 
 			// Create the serialization manager for this editor, adding pipeline and layout
-			serialization_manager = new SerializationManager (pipeline, layout);
+			serialization_manager = new SerializationManager (document);
 
 			// Distribute the manager out to the pipeline drawing, as it uses it
 			pipeline_drawing.command_manager = command_manager;
@@ -189,7 +188,7 @@ namespace Fyre
 		void
 		ElementSelected (object o, System.EventArgs args)
 		{
-			if (layout.HasSelection ()) {
+			if (document.Layout.HasSelection ()) {
 				menu_cut.Sensitive = true;
 				menu_copy.Sensitive = true;
 				menu_delete.Sensitive = true;
@@ -374,7 +373,7 @@ namespace Fyre
 
 			if (response == Gtk.ResponseType.Accept) {
 				string filename = fs.Filename;
-				if (pipeline.Empty) {
+				if (document.Pipeline.Empty) {
 					Load (filename);
 				} else {
 					PipelineEditor p = new PipelineEditor (null);
@@ -508,9 +507,9 @@ namespace Fyre
 		OnMenuEditDelete (object o, System.EventArgs args)
 		{
 			// Figure out which element is selected
-			System.Guid id = layout.GetSelectedElement ();
-			Element e = (Element) pipeline.element_store[id.ToString ()];
-			CanvasElement ce = layout.Get (e);
+			System.Guid id = document.Layout.GetSelectedElement ();
+			Element e = (Element) document.Pipeline.element_store[id.ToString ()];
+			CanvasElement ce = document.Layout.Get (e);
 
 			// Grab the X and Y coordinates of it
 			int x = ce.Position.X;
@@ -520,7 +519,7 @@ namespace Fyre
 			Commands.Delete deletee = new Commands.Delete (e, x, y);
 
 			command_manager.Do (deletee);
-			layout.DeselectAll ();
+			document.Layout.DeselectAll ();
 		}
 
 		// 'View' Menu events
@@ -541,7 +540,7 @@ namespace Fyre
 		Load (string filename)
 		{
 			try {
-				pipeline.Load (filename);
+				document.Pipeline.Load (filename);
 			} catch (System.Exception e) {
 				// Pop up an error dialog.
 				// FIXME - it would be nice to automatically close this window if it was

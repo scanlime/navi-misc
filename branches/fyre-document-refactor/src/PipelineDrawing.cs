@@ -21,7 +21,7 @@
  *
  */
 
-namespace Fyre
+namespace Fyre.Editor
 {
 	public enum
 	DrawingDragType
@@ -129,9 +129,7 @@ namespace Fyre
 		// Whether or not we should update the canvas sizes
 		bool			update_sizes;
 
-		public Layout		layout;
-		public Pipeline		pipeline;
-
+		public Document		Document;
 		public CommandManager	command_manager;
 
 		/* The drawing extents are the size of our current drawing area. The
@@ -150,7 +148,7 @@ namespace Fyre
 		}
 		public Gdk.Rectangle	CanvasExtents
 		{
-			get { return ExpandRect (layout.Extents, layout_buffer).Union (drawing_extents); }
+			get { return ExpandRect (Document.Layout.Extents, layout_buffer).Union (drawing_extents); }
 		}
 
 		// Size of the buffer of pixels around the items on the canvas, giving
@@ -222,7 +220,7 @@ namespace Fyre
 			re.Y      = drawing_extents.Y;
 			re.Width  = drawing_extents.Width;
 			re.Height = drawing_extents.Height;
-			layout.Draw (g, re);
+			Document.Layout.Draw (g, re);
 
 			Gdk.Rectangle r = ev.Area;
 			GdkWindow.DrawDrawable (gc, backing, r.X, r.Y, r.X, r.Y, r.Width, r.Height);
@@ -258,7 +256,7 @@ namespace Fyre
 		bool
 		SetScrollbarsTimeout ()
 		{
-			Gdk.Rectangle r = layout.Extents;
+			Gdk.Rectangle r = Document.Layout.Extents;
 			Gdk.Rectangle size;
 
 			if (r.Width == 0 && r.Height == 0) {
@@ -300,8 +298,8 @@ namespace Fyre
 
 			SetScrollbars ();
 
-			hadj.Value = layout.Extents.X - layout_buffer;
-			vadj.Value = layout.Extents.Y - layout_buffer;
+			hadj.Value = Document.Layout.Extents.X - layout_buffer;
+			vadj.Value = Document.Layout.Extents.Y - layout_buffer;
 		}
 
 		void
@@ -334,9 +332,9 @@ namespace Fyre
 
 			int layout_x = ((int) ev.XRoot) - win_x + drawing_extents.X;
 			int layout_y = ((int) ev.YRoot) - win_y + drawing_extents.Y;
-			LayoutHover h = layout.GetHoverType (layout_x, layout_y);
+			LayoutHover h = Document.Layout.GetHoverType (layout_x, layout_y);
 
-			layout.DeselectAll ();
+			Document.Layout.DeselectAll ();
 
 			if (h == LayoutHover.None) {
 				if (ev.Button == 1) {
@@ -367,13 +365,13 @@ namespace Fyre
 						dragging = DrawingDragType.Element;
 
 						// Select the element
-						layout.SelectHoverElement ();
+						Document.Layout.SelectHoverElement ();
 
 						// Grab the canvas element to get the start position if we
 						// decide to start moving things
-						System.Guid id = layout.GetHoverElement ();
-						Element e = (Element) pipeline.element_store[id.ToString ()];
-						CanvasElement ce = layout.Get (e);
+						System.Guid id = Document.Layout.GetHoverElement ();
+						Element e = (Element) Document.Pipeline.element_store[id.ToString ()];
+						CanvasElement ce = Document.Layout.Get (e);
 
 						// Setup drag coordinates
 						drag_x = (int) ev.X;
@@ -384,20 +382,20 @@ namespace Fyre
 						event_box.GdkWindow.Cursor = Cursor.FleurCursor;
 					} else if (ev.Type == Gdk.EventType.TwoButtonPress) {
 						// Make sure the element stays selected.
-						layout.SelectHoverElement ();
+						Document.Layout.SelectHoverElement ();
 
 						// Don't continue dragging.
 						dragging = DrawingDragType.None;
 
-						System.Guid id = layout.GetHoverElement ();
-						Element e = (Element) pipeline.element_store[id.ToString ()];
+						System.Guid id = Document.Layout.GetHoverElement ();
+						Element e = (Element) Document.Pipeline.element_store[id.ToString ()];
 
 						e.Edit (null);
 					}
 				}
 				if (ev.Button == 3) {
 					// Select the element
-					layout.SelectHoverElement ();
+					Document.Layout.SelectHoverElement ();
 
 					// Create a context menu for this element
 					Gtk.Menu context = new Gtk.Menu ();
@@ -437,8 +435,8 @@ namespace Fyre
 		void
 		ContextProperties (object o, System.EventArgs args)
 		{
-			System.Guid id = layout.GetHoverElement ();
-			Element e = (Element) pipeline.element_store[id.ToString ()];
+			System.Guid id = Document.Layout.GetHoverElement ();
+			Element e = (Element) Document.Pipeline.element_store[id.ToString ()];
 
 			e.Edit (null);
 		}
@@ -447,9 +445,9 @@ namespace Fyre
 		ContextDelete (object o, System.EventArgs args)
 		{
 			// Figure out which element is selected
-			System.Guid id = layout.GetSelectedElement ();
-			Element e = (Element) pipeline.element_store[id.ToString ()];
-			CanvasElement ce = layout.Get (e);
+			System.Guid id = Document.Layout.GetSelectedElement ();
+			Element e = (Element) Document.Pipeline.element_store[id.ToString ()];
+			CanvasElement ce = Document.Layout.Get (e);
 
 			// Grab the X and Y coordinates of it
 			int x = ce.Position.X;
@@ -459,7 +457,7 @@ namespace Fyre
 			Commands.Delete deletee = new Commands.Delete (e, x, y);
 
 			command_manager.Do (deletee);
-			layout.DeselectAll ();
+			Document.Layout.DeselectAll ();
 		}
 
 		void
@@ -474,14 +472,14 @@ namespace Fyre
 
 			int layout_x = ((int) ev.XRoot) - win_x + drawing_extents.X;
 			int layout_y = ((int) ev.YRoot) - win_y + drawing_extents.Y;
-			LayoutHover h = layout.GetHoverType (layout_x, layout_y);
+			LayoutHover h = Document.Layout.GetHoverType (layout_x, layout_y);
 
 			if (dragging == DrawingDragType.Element) {
 				// To facilitate undo/redo, we turn the drag movements into a command
 				// and execute it.  This makes the move official and undoable.
-				System.Guid id = layout.GetHoverElement ();
-				Element e = (Element)pipeline.element_store[id.ToString ()];
-				CanvasElement ce = layout.Get (e);
+				System.Guid id = Document.Layout.GetHoverElement ();
+				Element e = (Element) Document.Pipeline.element_store[id.ToString ()];
+				CanvasElement ce = Document.Layout.Get (e);
 
 				// We want to execute this command only if we actually moved the element.  Otherwise,
 				// this is completely pointless, and only adds an unnecessary entry into the undo/redo
@@ -553,7 +551,7 @@ namespace Fyre
 				int offset_x = ((int) ev.X) - drag_x;
 				int offset_y = ((int) ev.Y) - drag_y;
 
-				layout.MoveHoverElement (offset_x, offset_y);
+				Document.Layout.MoveHoverElement (offset_x, offset_y);
 
 				// Trigger a redraw
 				Redraw();
@@ -567,7 +565,7 @@ namespace Fyre
 			if (dragging == DrawingDragType.None) {
 				int layout_x = evX + drawing_extents.X;
 				int layout_y = evY + drawing_extents.Y;
-				LayoutHover h = layout.GetHoverType (layout_x, layout_y);
+				LayoutHover h = Document.Layout.GetHoverType (layout_x, layout_y);
 
 				switch (h) {
 				case LayoutHover.Element:
@@ -632,7 +630,7 @@ namespace Fyre
 			ce.Position.X = drawing_extents.X + x;
 			ce.Position.Y = drawing_extents.Y + y;
 
-			layout.Add (e, ce);
+			Document.Layout.Add (e, ce);
 
 			// Force a redraw of our window
 			Redraw ();
@@ -641,7 +639,7 @@ namespace Fyre
 		public void
 		RemoveElement (Element e)
 		{
-			layout.Remove (e);
+			Document.Layout.Remove (e);
 
 			// Force a redraw
 			Redraw ();

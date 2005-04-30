@@ -23,8 +23,9 @@
  */
 
 using System.Collections;
+using System.Xml;
 
-namespace Fyre
+namespace Fyre.Editor
 {
 
 	public enum
@@ -221,6 +222,11 @@ namespace Fyre
 			}
 			selected_element = null;
 			OnSelected (new System.EventArgs ());
+		}
+
+		public void
+		Serialize (XmlTextWriter writer)
+		{
 		}
 	}
 }
