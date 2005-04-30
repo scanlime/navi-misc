@@ -313,7 +313,7 @@ namespace Fyre.Canvas
 		protected System.Collections.ArrayList	end;
 
 		/*** Properties ***/
-		// Containers need to propogate changes to their coordinates.
+		// Containers need to propagate changes to their coordinates.
 		new public int
 		X
 		{
@@ -665,7 +665,7 @@ namespace Fyre.Canvas
 				x -= w.Width - spacing;
 			}
 		}
-		
+
 		protected override void
 		Resize (object o, System.EventArgs args)
 		{
@@ -703,7 +703,7 @@ namespace Fyre.Canvas
 	}
 
 	// Element Root is the base Widget for all Elements drawn on the canvas.
-	// It contains a VBox for packing labels, pads, and other boxes into and 
+	// It contains a VBox for packing labels, pads, and other boxes into and
 	// handles drawing the background of the Element.
 	public class ElementRoot : Widget
 	{
