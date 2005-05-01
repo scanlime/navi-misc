@@ -45,6 +45,8 @@ namespace Fyre.Editor
 			}
 			set {
 				pipeline = value;
+				if (layout != null)
+					layout.pipeline = pipeline;
 			}
 		}
 
@@ -56,6 +58,8 @@ namespace Fyre.Editor
 			}
 			set {
 				layout = value;
+				if (pipeline != null)
+					layout.pipeline = pipeline;
 			}
 		}
 
@@ -148,7 +152,7 @@ namespace Fyre.Editor
 						if (reader.Name == "pipeline")
 							Pipeline.DeSerialize (reader);
 						else if (reader.Name == "layout")
-							Layout.DeSerialize (reader, Pipeline);
+							Layout.DeSerialize (reader);
 					}
 				}
 

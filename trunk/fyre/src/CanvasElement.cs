@@ -433,6 +433,24 @@ namespace Fyre.Editor
 
 			return ce;
 		}
+
+		// These functions are used by the Layout to draw PadConnections.
+		// They return the position of the pad in global space
+		public void
+		GetInputPosition (int pad, out int x, out int y)
+		{
+			Rectangle r = input_pads[pad];
+			x = Position.X + r.X + (r.Width  / 2);
+			y = Position.Y + r.Y + (r.Height / 2);
+		}
+
+		public void
+		GetOutputPosition (int pad, out int x, out int y)
+		{
+			Rectangle r = output_pads[pad];
+			x = Position.X + r.X + (r.Width  / 2);
+			y = Position.Y + r.Y + (r.Height / 2);
+		}
 	}
 
 }
