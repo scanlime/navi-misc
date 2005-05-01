@@ -473,38 +473,6 @@ namespace Fyre.Canvas
 
 		/*** Protected Methods ***/
 		protected override void
-		RemoveStart (Widget child)
-		{
-			int y = position.Y + y_pad;
-
-			start.Remove (child);
-
-			if (start.Count > 0)
-				position.Width -= spacing;
-
-			foreach (Widget w in start) {
-				w.Y = y;
-				y += w.Height + spacing;
-			}
-		}
-
-		protected override void
-		RemoveEnd (Widget child)
-		{
-			int y = position.Y + position.Height - y_pad;
-
-			end.Remove (child);
-
-			if (end.Count > 0)
-				position.Width -= spacing;
-
-			foreach (Widget w in end) {
-				w.Y = y - w.Height;
-				y -= w.Height - spacing;
-			}
-		}
-
-		protected override void
 		Resize (object o, System.EventArgs args)
 		{
 			// If this object isn't a direct child, we ignore the signal.
@@ -584,38 +552,6 @@ namespace Fyre.Canvas
 		}
 
 		/*** Protected Methods ***/
-		protected override void
-		RemoveStart (Widget child)
-		{
-			int x = position.X + x_pad;
-
-			start.Remove (child);
-
-			if (start.Count > 0)
-				position.Height -= spacing;
-
-			foreach (Widget w in start) {
-				w.X = x;
-				x += w.Width + spacing;
-			}
-		}
-
-		protected override void
-		RemoveEnd (Widget child)
-		{
-			int x = position.X + position.Width - x_pad;
-
-			end.Remove (child);
-
-			if (end.Count > 0 )
-				position.Height -= spacing;
-
-			foreach (Widget w in end) {
-				w.X = x - w.Width;
-				x -= w.Width - spacing;
-			}
-		}
-
 		protected override void
 		Resize (object o, System.EventArgs args)
 		{
