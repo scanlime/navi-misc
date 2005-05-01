@@ -121,6 +121,7 @@ namespace Fyre.Editor.Widgets
 
 		// Back buffer
 		Gdk.Pixmap		backing;
+		Gdk.Rectangle		visible_rect;
 
 		// We use a 50ms timeout when we to redraw
 		uint			redraw_timeout;
@@ -129,7 +130,19 @@ namespace Fyre.Editor.Widgets
 		// Whether or not we should update the canvas sizes
 		bool			update_sizes;
 
-		public Document		Document;
+		Document		document;
+		public Document		Document
+		{
+			get {
+				return document;
+			}
+			set {
+				document = value;
+
+				// Attach our event handler - this queues redraws
+				document.Layout.Changed += new System.EventHandler (LayoutChanged);
+			}
+		}
 		public CommandManager	command_manager;
 
 		/* The drawing extents are the size of our current drawing area. The
@@ -168,9 +181,13 @@ namespace Fyre.Editor.Widgets
 		PipelineDrawing (Glade.XML xml) : base ()
 		{
 			drawing_extents = new Gdk.Rectangle ();
+			visible_rect = new Gdk.Rectangle ();
 
 			drawing_extents.X = 0;
 			drawing_extents.Y = 0;
+
+			visible_rect.X = 0;
+			visible_rect.Y = 0;
 
 			dragging = DrawingDragType.None;
 
@@ -242,6 +259,9 @@ namespace Fyre.Editor.Widgets
 
 			// Create the backing store
 			backing = new Gdk.Pixmap (GdkWindow, ev.Width, ev.Height, -1);
+
+			visible_rect.Width  = ev.Width;
+			visible_rect.Height = ev.Height;
 
 			return base.OnConfigureEvent (ev);
 		}
@@ -427,9 +447,6 @@ namespace Fyre.Editor.Widgets
 			if (h == LayoutHover.OutputPad && ev.Button == 1) {
 				dragging = DrawingDragType.PadConnection;
 			}
-
-			// Trigger a redraw
-			Redraw();
 		}
 
 		void
@@ -553,9 +570,6 @@ namespace Fyre.Editor.Widgets
 
 				Document.Layout.MoveHoverElement (offset_x, offset_y);
 
-				// Trigger a redraw
-				Redraw();
-
 				// Set these for the next event
 				drag_x = (int) ev.X;
 				drag_y = (int) ev.Y;
@@ -597,21 +611,23 @@ namespace Fyre.Editor.Widgets
 		public void
 		Redraw ()
 		{
-			Gdk.Rectangle r = drawing_extents;
-			r.X = 0; r.Y = 0;
-			GdkWindow.InvalidateRect (r, true);
+			GdkWindow.InvalidateRect (visible_rect, false);
 		}
 
 		bool
 		RedrawTimeout ()
 		{
-			Gdk.Rectangle r = drawing_extents;
-			r.X = 0; r.Y = 0;
-			GdkWindow.InvalidateRect (r, false);
+			GdkWindow.InvalidateRect (visible_rect, false);
 
 			redraw_timeout = 0;
 
 			return false;
+		}
+
+		void
+		LayoutChanged (object o, System.EventArgs e)
+		{
+			Redraw ();
 		}
 
 		public void

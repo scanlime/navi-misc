@@ -90,6 +90,14 @@ namespace Fyre.Editor
 				Selected (this, e);
 		}
 
+		public event System.EventHandler Changed;
+		protected void
+		OnChanged (System.EventArgs e)
+		{
+			if (Changed != null)
+				Changed (this, e);
+		}
+
 		public void
 		Add (Element e, CanvasElement ce)
 		{
@@ -176,6 +184,8 @@ namespace Fyre.Editor
 			CanvasElement ce = (CanvasElement) elements[hover_element];
 			ce.Position.X += x_offset;
 			ce.Position.Y += y_offset;
+
+			OnChanged (new System.EventArgs ());
 		}
 
 		public void
@@ -184,6 +194,8 @@ namespace Fyre.Editor
 			CanvasElement ce = (CanvasElement) elements[e.id.ToString ("d")];
 			ce.Position.X = x;
 			ce.Position.Y = y;
+
+			OnChanged (new System.EventArgs ());
 		}
 
 		public void
@@ -192,7 +204,9 @@ namespace Fyre.Editor
 			CanvasElement ce = (CanvasElement) elements[hover_element];
 			ce.Selected = true;
 			selected_element = hover_element;
+
 			OnSelected (new System.EventArgs ());
+			OnChanged (new System.EventArgs ());
 		}
 
 		public bool
@@ -215,7 +229,9 @@ namespace Fyre.Editor
 				ce.Selected = false;
 			}
 			selected_element = null;
+
 			OnSelected (new System.EventArgs ());
+			OnChanged (new System.EventArgs ());
 		}
 
 		public void
@@ -233,7 +249,7 @@ namespace Fyre.Editor
 		{
 			while (reader.Read () && reader.NodeType == XmlNodeType.Element && reader.Depth == 2) {
 			}
-		//	OnChanged (new System.EventArgs ());
+			OnChanged (new System.EventArgs ());
 		}
 	}
 }
