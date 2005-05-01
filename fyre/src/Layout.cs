@@ -42,6 +42,7 @@ namespace Fyre.Editor
 		Hashtable		elements;
 		string			hover_element;
 		string			selected_element;
+		public Pipeline		pipeline;
 
 		public Gdk.Rectangle	Extents
 		{
@@ -249,7 +250,7 @@ namespace Fyre.Editor
 		}
 
 		public void
-		DeSerialize (XmlTextReader reader, Pipeline pipeline)
+		DeSerialize (XmlTextReader reader)
 		{
 			while (reader.Read () && reader.NodeType == XmlNodeType.Element && reader.Depth == 2) {
 				CanvasElement ce = CanvasElement.CreateFromXml (reader, pipeline);
