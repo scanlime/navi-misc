@@ -66,8 +66,8 @@ namespace Fyre.Editor
 		// Maintain information about the location of all the pads.
 		Rectangle []			input_pads;
 		Rectangle []			output_pads;
-		Element				element;
-		static Gdk.Pixmap		pm = new Gdk.Pixmap (null,1,1,8);
+		public Element			element;
+		static public Gdk.Drawable	Drawable;
 
 		// We use these fonts so frequently that we may as well store them permanently.
 		static Font			plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
@@ -112,9 +112,9 @@ namespace Fyre.Editor
 		}
 
 		public
-		CanvasElement (Element e, Gdk.Drawable drawable)
+		CanvasElement (Element e)
 		{
-			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (drawable);
+			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (Drawable);
 
 			// Size of the element name in bold.
 			int 		numpads;
@@ -408,6 +408,12 @@ namespace Fyre.Editor
 			writer.WriteEndAttribute ();
 
 			writer.WriteEndElement ();
+		}
+
+		public static CanvasElement
+		CreateFromXml (XmlTextReader reader)
+		{
+			return null;
 		}
 	}
 

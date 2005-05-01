@@ -141,6 +141,7 @@ namespace Fyre.Editor
 		Load (string filename)
 		{
 			XmlTextReader reader = new XmlTextReader (filename);
+			reader.WhitespaceHandling = WhitespaceHandling.None;
 			try {
 				while (reader.Read ()) {
 					if (reader.NodeType == XmlNodeType.Element && reader.Depth == 1) {

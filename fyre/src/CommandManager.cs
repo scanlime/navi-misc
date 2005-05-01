@@ -130,7 +130,7 @@ namespace Fyre.Editor
 			{
 				document.Pipeline.element_store.Add (id.ToString ("d"), e);
 
-				CanvasElement ce = new CanvasElement (e, drawing.GdkWindow);
+				CanvasElement ce = new CanvasElement (e);
 				ce.Position.X = drawing.DrawingExtents.X + x;
 				ce.Position.Y = drawing.DrawingExtents.Y + y;
 				document.Layout.Add (e, ce);
@@ -211,7 +211,7 @@ namespace Fyre.Editor
 			Undo (Widgets.PipelineDrawing drawing, Document document)
 			{
 				document.Pipeline.element_store.Add (id.ToString ("d"), e);
-				CanvasElement ce = new CanvasElement (e, drawing.GdkWindow);
+				CanvasElement ce = new CanvasElement (e);
 				ce.Position.X = drawing.DrawingExtents.X + x;
 				ce.Position.Y = drawing.DrawingExtents.Y + y;
 				document.Layout.Add (e, ce);

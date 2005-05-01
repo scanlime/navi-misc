@@ -123,7 +123,7 @@ namespace Fyre.Editor.Widgets
 				e = (Element) sorted_store.GetValue (iter, 4);
 
 				// Create a new CanvasElement for this Element.
-				CanvasElement canvas_element = new CanvasElement (e, GdkWindow);
+				CanvasElement canvas_element = new CanvasElement (e);
 
 				int w = canvas_element.Width;
 				int h = canvas_element.Height;
