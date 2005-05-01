@@ -29,7 +29,7 @@ namespace Fyre
 	public class Pipeline
 	{
 		public Hashtable	element_store;
-		ArrayList		connections;
+		public ArrayList	connections;
 		Hashtable		input_connections;
 
 		public

@@ -138,6 +138,28 @@ namespace Fyre.Editor
 		public void
 		Draw (System.Drawing.Graphics context, System.Drawing.Rectangle area)
 		{
+			System.Drawing.Pen pen = new System.Drawing.Pen (System.Drawing.Color.Black);
+
+			foreach (PadConnection connection in pipeline.connections) {
+				CanvasElement source = (CanvasElement) elements[connection.source_element.ToString ("d")];
+				CanvasElement sink   = (CanvasElement) elements[connection.sink_element.ToString ("d")];
+
+				System.Drawing.Rectangle conn_rect = new System.Drawing.Rectangle ();
+
+				int x1, x2, y1, y2;
+
+				source.GetInputPosition (connection.source_pad, out x1, out y1);
+				sink.GetInputPosition   (connection.sink_pad,   out x2, out y2);
+
+				conn_rect.X      = x1;
+				conn_rect.Y      = y1;
+				conn_rect.Width  = x2 - x1;
+				conn_rect.Height = y2 - y1;
+
+				if (area.IntersectsWith (conn_rect))
+					context.DrawLine (pen, x1, y1, x2, y2);
+			}
+
 			foreach (DictionaryEntry entry in elements) {
 				CanvasElement ce = (CanvasElement) entry.Value;
 
