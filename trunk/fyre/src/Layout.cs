@@ -252,6 +252,10 @@ namespace Fyre.Editor
 		DeSerialize (XmlTextReader reader)
 		{
 			while (reader.Read () && reader.NodeType == XmlNodeType.Element && reader.Depth == 2) {
+				CanvasElement ce = CanvasElement.CreateFromXml (reader);
+
+				if (ce != null)
+					elements.Add (ce.element.id.ToString ("d"), ce);
 			}
 			OnChanged (new System.EventArgs ());
 		}

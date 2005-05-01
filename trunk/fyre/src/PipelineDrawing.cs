@@ -263,6 +263,8 @@ namespace Fyre.Editor.Widgets
 			visible_rect.Width  = ev.Width;
 			visible_rect.Height = ev.Height;
 
+			CanvasElement.Drawable = GdkWindow;
+
 			return base.OnConfigureEvent (ev);
 		}
 
