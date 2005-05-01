@@ -359,7 +359,7 @@ namespace Fyre.Canvas
 		}
 
 		public
-		Container (int size, int xpad, int ypad, int space) : base ()
+		Container (int size, int xpad, int ypad, int space) : base (size)
 		{
 			children = new Widget[size];
 
@@ -429,12 +429,12 @@ namespace Fyre.Canvas
 	{
 		/*** Constructors ***/
 		public
-		VBox () : base ()
+		VBox (int size) : base (size)
 		{
 		}
 
 		public
-		VBox (int x, int y, int space) : base (x, y, space)
+		VBox (int size, int xpad, int ypad, int space) : base (size, xpad, ypad, space)
 		{
 		}
 
@@ -451,6 +451,10 @@ namespace Fyre.Canvas
 
 				position.Height += child.Y + spacing;
 			}
+
+			int w = 2 * x_pad + child.Width;
+			if (w > position.Width)
+				position.Width = w;
 
 			base.PackStart (child);
 		}
@@ -481,12 +485,12 @@ namespace Fyre.Canvas
 	{
 		/*** Constructors ***/
 		public
-		HBox () : base ()
+		HBox (int space) : base (space)
 		{
 		}
 
 		public
-		HBox (int x, int y, int space) : base (x, y, space)
+		HBox (int size, int xpad, int ypad, int space) : base (size, xpad, ypad, space)
 		{
 		}
 
