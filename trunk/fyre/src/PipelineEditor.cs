@@ -130,7 +130,9 @@ namespace Fyre.Editor
 
 			// Hook up handlers to parts of the document so we can update our GUI appropriately
 			document.Pipeline.Changed += new System.EventHandler (PipelineChanged);
-			document.Layout.Selected += new System.EventHandler (ElementSelected);
+			document.Layout.Selected  += new System.EventHandler (ElementSelected);
+			document.FilenameChanged  += new System.EventHandler (TitleDataChanged);
+			document.DocumentSaved    += new System.EventHandler (TitleDataChanged);
 
 			// Give child widgets a handle to the document
 			pipeline_drawing.Document = document;
@@ -151,7 +153,8 @@ namespace Fyre.Editor
 			// Distribute the manager out to the pipeline drawing, as it uses it
 			pipeline_drawing.command_manager = command_manager;
 
-			// Call update to set our title, etc.
+			// Set our title, etc.
+			SetTitle ();
 			PipelineChanged (null, null);
 
 			// Show the window
@@ -164,7 +167,6 @@ namespace Fyre.Editor
 		void
 		PipelineChanged (object o, System.EventArgs args)
 		{
-			SetTitle ();
 			UpdateToolbarSensitivity ();
 			UpdateUndoRedo ();
 		}
@@ -237,6 +239,12 @@ namespace Fyre.Editor
 		GetWindow ()
 		{
 			return toplevel;
+		}
+
+		void
+		TitleDataChanged (object o, System.EventArgs e)
+		{
+			SetTitle ();
 		}
 
 		void

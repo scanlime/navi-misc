@@ -59,6 +59,7 @@ namespace Fyre.Editor
 			}
 		}
 
+		public event System.EventHandler FilenameChanged;
 		public string
 		Filename
 		{
@@ -69,10 +70,12 @@ namespace Fyre.Editor
 			}
 			set {
 				filename = value;
-				// FIXME - trigger event
+				if (FilenameChanged != null)
+					FilenameChanged (this, new System.EventArgs ());
 			}
 		}
 
+		public event System.EventHandler DocumentSaved;
 		public bool
 		Saved
 		{
@@ -81,7 +84,8 @@ namespace Fyre.Editor
 			}
 			set {
 				saved = value;
-				// FIXME - trigger event
+				if (DocumentSaved != null)
+					DocumentSaved (this, new System.EventArgs ());
 			}
 		}
 
