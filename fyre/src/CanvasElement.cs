@@ -68,6 +68,7 @@ namespace Fyre.Editor
 		Rectangle []			output_pads;
 		public Element			element;
 		static public Gdk.Drawable	Drawable;
+		public int			HoverPad;
 
 		// We use these fonts so frequently that we may as well store them permanently.
 		static Font			plain = new Font (new FontFamily ("Bitstream Vera Sans"), 10, FontStyle.Regular);
@@ -365,21 +366,27 @@ namespace Fyre.Editor
 		GetHover (int x, int y)
 		{
 			if (input_pads != null) {
-				foreach (Rectangle pad in input_pads) {
+				for (int i = 0; i < input_pads.Length; i++) {
+					Rectangle pad = input_pads[i];
 					if ((x >= pad.X) &&
 					    (x <= pad.X + pad.Width) &&
 				    	    (y >= pad.Y) &&
-				    	    (y <= pad.Y + pad.Height))
+				    	    (y <= pad.Y + pad.Height)) {
+						HoverPad = i;
 						return ElementHover.InputPad;
+					}
 				}
 			}
 			if (output_pads != null) {
-				foreach (Rectangle pad in output_pads) {
+				for (int i = 0; i < output_pads.Length; i++) {
+					Rectangle pad = output_pads[i];
 					if ((x >= pad.X) &&
 				    	    (x <= pad.X + pad.Width) &&
 				    	    (y >= pad.Y) &&
-				    	    (y <= pad.Y + pad.Height))
+				    	    (y <= pad.Y + pad.Height)) {
+						HoverPad = i;
 						return ElementHover.OutputPad;
+					}
 				}
 			}
 			if (x >= 10 && x <= Position.Width - 10)
