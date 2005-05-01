@@ -207,7 +207,6 @@ class DocumentCache(Cache.AbstractObjectCache):
                           settings_overrides = {'output_encoding': 'unicode'}
                           )
         w.mtime = mtime
-        print dir(w)
         del w.document
         return w
 
@@ -270,7 +269,6 @@ class Page(Template.Page):
             self.subTitle = self.mainDoc.docSubtitle
         self.leftColumn = self.loadSidebar(self.findSidebarPath(self.fsPath))
 
-        print "_load finished"
         result.callback(None)
 
     def getChild(self, path, request):
@@ -300,8 +298,6 @@ class Page(Template.Page):
         return result
 
     def _checkRender(self, loaded, result, context):
-        print "in _checkRender"
-
         # Is this actually a directory we need to list?
         if os.path.isdir(self.fsPath):
             result.callback(dirlist.DirectoryLister(self.fsPath).render(context['request']))
