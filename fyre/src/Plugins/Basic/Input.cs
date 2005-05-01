@@ -79,7 +79,8 @@ class Input : Fyre.Element
 	public override void
 	DeSerialize (XmlTextReader reader)
 	{
-		// FIXME - deserialize type
+		reader.MoveToAttribute ("type");
+		type = System.Int32.Parse (reader.Value);
 	}
 
 	protected override void

@@ -50,6 +50,25 @@ namespace Fyre
 
 			writer.WriteEndElement ();
 		}
+
+		public static PadConnection
+		CreateFromXml (XmlTextReader reader)
+		{
+			PadConnection connection = new PadConnection ();
+			string[] s;
+
+			reader.MoveToAttribute ("from");
+			s = reader.Value.Split(':');
+			connection.source_element = new System.Guid (s[0]);
+			connection.source_pad = System.Int32.Parse (s[1]);
+
+			reader.MoveToAttribute ("to");
+			s = reader.Value.Split(':');
+			connection.sink_element = new System.Guid (s[0]);
+			connection.sink_pad = System.Int32.Parse (s[1]);
+
+			return connection;
+		}
 	}
 
 	public abstract class Pad
