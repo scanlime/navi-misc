@@ -183,6 +183,13 @@ namespace Fyre.Editor
 			return new System.Guid (hover_element);
 		}
 
+		public int
+		GetHoverPad ()
+		{
+			CanvasElement ce = (CanvasElement) elements[hover_element];
+			return ce.HoverPad;
+		}
+
 		public void
 		MoveHoverElement (int x_offset, int y_offset)
 		{
