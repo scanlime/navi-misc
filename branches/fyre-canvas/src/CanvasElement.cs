@@ -101,10 +101,10 @@ namespace Fyre.Canvas
 		{
 			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (drawable);
 
-			VBox		in_box = new VBox (0, 0, 10);
-			VBox		out_box = new VBox (0, 0, 10);
+			VBox		in_box = new VBox (e.inputs.Length, 0, 0, 10);
+			VBox		out_box = new VBox (e.outputs.Length, 0, 0, 10);
 			HBox		box;
-			HBox		pad_box = new HBox (0, 0, 50);
+			HBox		pad_box = new HBox (2, 0, 0, 50);
 			Label		name = new Label (e.Name (), Font.bold, graphics);
 
 			root = new ElementRoot (name);
@@ -115,7 +115,7 @@ namespace Fyre.Canvas
 
 			if (e.inputs != null) {
 				foreach (Fyre.InputPad i in e.inputs) {
-					box = new HBox (0, 0, 7);
+					box = new HBox (2, 0, 0, 7);
 					in_box.PackStart (box);
 					box.PackStart (new Pad ());
 					box.PackStart (new Label (i.Name, Font.plain, graphics));
@@ -124,7 +124,7 @@ namespace Fyre.Canvas
 
 			if (e.outputs != null) {
 				foreach (Fyre.OutputPad o in e.outputs) {
-					box = new HBox (0, 0, 7);
+					box = new HBox (2, 0, 0, 7);
 					out_box.PackStart (box);
 					box.PackStart (new Label (o.Name, Font.plain, graphics));
 					box.PackStart (new Pad ());
@@ -320,14 +320,10 @@ namespace Fyre.Canvas
 			set
 			{
 				int dx = value - position.X;
-				if (start != null) {
-					foreach (Widget w in start)
-						w.X += dx;
-				}
-				if (end != null) {
-					foreach (Widget w in end)
-						w.X += dx;
-				}
+
+				foreach (Widget w in children)
+					w.X += dx;
+
 				position.X = value;
 			}
 		}
@@ -339,14 +335,10 @@ namespace Fyre.Canvas
 			set
 			{
 				int dy = value - position.Y;
-				if (start != null) {
-					foreach (Widget w in start)
-						w.Y += dy;
-				}
-				if (end != null) {
-					foreach (Widget w in end)
-						w.Y += dy;
-				}
+
+				foreach (Widget w in children)
+					w.Y += dy;
+
 				position.Y = value;
 			}
 		}
@@ -359,7 +351,7 @@ namespace Fyre.Canvas
 		}
 
 		public
-		Container (int size, int xpad, int ypad, int space) : base (size)
+		Container (int size, int xpad, int ypad, int space) : this (size)
 		{
 			children = new Widget[size];
 
@@ -388,9 +380,10 @@ namespace Fyre.Canvas
 				w.RDraw (context);
 		}
 
-		public virtual bool
+		public override bool
 		Remove (Widget child)
 		{
+			return false;
 		}
 
 		public virtual void
@@ -402,7 +395,7 @@ namespace Fyre.Canvas
 
 			// If this is the only widget in the container, the container's height and width
 			// are deteremined only by X and Y padding, and the height and width of the child.
-			if (index == 0) {
+			if (num_children == 1) {
 				position.Width = 2*x_pad + child.Width;
 				position.Height = 2*y_pad + child.Height;
 			}
@@ -452,9 +445,9 @@ namespace Fyre.Canvas
 				position.Height += child.Y + spacing;
 			}
 
-			int w = 2 * x_pad + child.Width;
-			if (w > position.Width)
-				position.Width = w;
+			int W = 2 * x_pad + child.Width;
+			if (W > position.Width)
+				position.Width = W;
 
 			base.PackStart (child);
 		}
@@ -508,7 +501,7 @@ namespace Fyre.Canvas
 				position.Width += child.Width + spacing;
 			}
 
-			int h = 2 * y_pad + child.Height
+			int h = 2 * y_pad + child.Height;
 			if (h > position.Height)
 				position.Height = h;
 
@@ -547,7 +540,7 @@ namespace Fyre.Canvas
 		public
 		ElementRoot ()
 		{
-			box = new VBox (15, 5, 6);
+			box = new VBox (2, 15, 5, 6);
 			box.SizeChanged += new System.EventHandler (Resize);
 		}
 
