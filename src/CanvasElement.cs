@@ -101,8 +101,8 @@ namespace Fyre.Canvas
 		{
 			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (drawable);
 
-			VBox		in_box = new VBox (e.inputs.Length, 0, 0, 10);
-			VBox		out_box = new VBox (e.outputs.Length, 0, 0, 10);
+			VBox		in_box;
+			VBox		out_box;
 			HBox		box;
 			HBox		pad_box = new HBox (2, 0, 0, 50);
 			Label		name = new Label (e.Name (), Font.bold, graphics);
@@ -110,26 +110,34 @@ namespace Fyre.Canvas
 			root = new ElementRoot (name);
 			root.box.PackStart (pad_box);
 
-			pad_box.PackStart (in_box);
-			pad_box.PackStart (out_box);
-
 			if (e.inputs != null) {
+				in_box = new VBox (e.inputs.Length, 0, 0, 10);
+
 				foreach (Fyre.InputPad i in e.inputs) {
 					box = new HBox (2, 0, 0, 7);
 					in_box.PackStart (box);
 					box.PackStart (new Pad ());
 					box.PackStart (new Label (i.Name, Font.plain, graphics));
 				}
+			} else {
+				in_box = new VBox (0, 0, 0, 10);
 			}
 
 			if (e.outputs != null) {
+				out_box = new VBox (e.outputs.Length, 0, 0, 10);
+
 				foreach (Fyre.OutputPad o in e.outputs) {
 					box = new HBox (2, 0, 0, 7);
 					out_box.PackStart (box);
 					box.PackStart (new Label (o.Name, Font.plain, graphics));
 					box.PackStart (new Pad ());
 				}
+			} else {
+				out_box = new VBox (0, 0, 0, 10);
 			}
+
+			pad_box.PackStart (in_box);
+			pad_box.PackStart (out_box);
 
 			// Store a reference to the element we're drawing.
 			element = e;
@@ -351,8 +359,9 @@ namespace Fyre.Canvas
 		}
 
 		public
-		Container (int size, int xpad, int ypad, int space) : this (size)
+		Container (int size, int xpad, int ypad, int space) : base ()
 		{
+			System.Console.WriteLine ("2");
 			children = new Widget[size];
 
 			x_pad   = xpad;
@@ -360,9 +369,6 @@ namespace Fyre.Canvas
 			spacing = space;
 
 			num_children = 0;
-
-			position.Width  = 0;
-			position.Height = 0;
 		}
 
 		/*** Public Methods ***/
@@ -389,6 +395,7 @@ namespace Fyre.Canvas
 		public virtual void
 		PackStart (Widget child)
 		{
+			System.Console.WriteLine ("1");
 			// Append the widget.
 			children[num_children] = child;
 			num_children++;
@@ -478,7 +485,7 @@ namespace Fyre.Canvas
 	{
 		/*** Constructors ***/
 		public
-		HBox (int space) : base (space)
+		HBox (int size) : base (size)
 		{
 		}
 
