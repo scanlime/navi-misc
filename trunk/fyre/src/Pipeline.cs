@@ -59,8 +59,7 @@ namespace Fyre
 				e.Write (writer);
 			}
 
-			foreach (DictionaryEntry entry in connections) {
-				PadConnection e = (PadConnection) entry.Value;
+			foreach (PadConnection e in connections) {
 				e.Write (writer);
 			}
 		}
@@ -69,11 +68,16 @@ namespace Fyre
 		DeSerialize (XmlTextReader reader)
 		{
 			while (reader.Read () && reader.NodeType == XmlNodeType.Element && reader.Depth == 2) {
-				Element e = ElementFactory.Instance.CreateFromXml (reader.Name);
-				e.Read (reader);
+				if (reader.Name == "connection") {
+					PadConnection connection = PadConnection.CreateFromXml (reader);
+					connections.Add (connection);
+				} else {
+					Element e = ElementFactory.Instance.CreateFromXml (reader.Name);
+					e.Read (reader);
 
-				// Just add directly to the store
-				element_store.Add (e.id.ToString ("d"), e);
+					// Just add directly to the store
+					element_store.Add (e.id.ToString ("d"), e);
+				}
 			}
 
 			OnChanged (new System.EventArgs ());

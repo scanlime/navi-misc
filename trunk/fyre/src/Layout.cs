@@ -148,8 +148,8 @@ namespace Fyre.Editor
 
 				int x1, x2, y1, y2;
 
-				source.GetInputPosition (connection.source_pad, out x1, out y1);
-				sink.GetInputPosition   (connection.sink_pad,   out x2, out y2);
+				source.GetOutputPosition (connection.source_pad, out x1, out y1);
+				sink.GetInputPosition    (connection.sink_pad,   out x2, out y2);
 
 				conn_rect.X      = x1;
 				conn_rect.Y      = y1;
