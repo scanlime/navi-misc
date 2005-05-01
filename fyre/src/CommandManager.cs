@@ -129,14 +129,18 @@ namespace Fyre.Editor
 			Do (Widgets.PipelineDrawing drawing, Document document)
 			{
 				document.Pipeline.element_store.Add (id.ToString ("d"), e);
-				drawing.AddElement (e, x, y);
+
+				CanvasElement ce = new CanvasElement (e, drawing.GdkWindow);
+				ce.Position.X = drawing.DrawingExtents.X + x;
+				ce.Position.Y = drawing.DrawingExtents.Y + y;
+				document.Layout.Add (e, ce);
 			}
 
 			public override void
 			Undo (Widgets.PipelineDrawing drawing, Document document)
 			{
-				drawing.RemoveElement (e);
 				document.Pipeline.element_store.Remove (id.ToString ("d"));
+				document.Layout.Remove (e);
 			}
 		}
 
@@ -199,15 +203,18 @@ namespace Fyre.Editor
 			public override void
 			Do (Widgets.PipelineDrawing drawing, Document document)
 			{
-				drawing.RemoveElement (e);
 				document.Pipeline.element_store.Remove (id.ToString ("d"));
+				document.Layout.Remove (e);
 			}
 
 			public override void
 			Undo (Widgets.PipelineDrawing drawing, Document document)
 			{
 				document.Pipeline.element_store.Add (id.ToString ("d"), e);
-				drawing.AddElement (e, x, y);
+				CanvasElement ce = new CanvasElement (e, drawing.GdkWindow);
+				ce.Position.X = drawing.DrawingExtents.X + x;
+				ce.Position.Y = drawing.DrawingExtents.Y + y;
+				document.Layout.Add (e, ce);
 			}
 		}
 
@@ -233,14 +240,12 @@ namespace Fyre.Editor
 			Do (Widgets.PipelineDrawing drawing, Document document)
 			{
 				document.Layout.SetElementPosition (e, new_x, new_y);
-				drawing.Redraw();
 			}
 
 			public override void
 			Undo (Widgets.PipelineDrawing drawing, Document document)
 			{
 				document.Layout.SetElementPosition (e, old_x, old_y);
-				drawing.Redraw();
 			}
 		}
 	}
