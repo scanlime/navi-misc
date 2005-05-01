@@ -400,6 +400,15 @@ namespace Fyre.Canvas
 			int index = children.Length;
 			if (index < size)
 				children[index] = child;
+
+			if (index == 0) {
+				position.Width = 2*x_pad + child.Width;
+				position.Height = 2*y_pad + child.Height;
+				child.SizeChanged += new System.EventHandler (Resize);
+			} else {
+				position.Width += child.Width + spacing;
+				position.Height += child.Height + spacing;
+			}
 		}
 
 		/* FIXME For right now, it seems we aren't using this. We might not actually need it.
@@ -415,23 +424,6 @@ namespace Fyre.Canvas
 		{
 			OnSizeChanged (args);
 		}
-
-		protected void
-		Add (Widget child)
-		{
-			if (start.Count + end.Count == 0) {
-				position.Width = 2*x_pad + child.Width;
-				position.Height = 2*y_pad + child.Height;
-				child.SizeChanged += new System.EventHandler (Resize);
-			} else {
-				position.Width += child.Width + spacing;
-				position.Height += child.Height + spacing;
-			}
-
-			OnSizeChanged (new System.EventArgs ());
-		}
-
-
 	}
 
 	public class VBox : Container
@@ -524,8 +516,6 @@ namespace Fyre.Canvas
 					child.X += w.Width + spacing;
 			}
 
-			start.Add (child);
-			Add (child);
 		}
 
 		/*** Protected Methods ***/
