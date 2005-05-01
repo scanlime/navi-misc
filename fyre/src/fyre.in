@@ -6,6 +6,12 @@ if [ -e ./@target@ ] && [ -e ./Makefile.am ] ; then
     export FYRE_WRAPPER_PATH="$PWD/@wrapper@"
 
     THIS_EXE="./@target@"
+elif [ -e ./src/@target@ ] && [ -e ./src/Makefile.am ] ; then
+    echo "*** Running uninstalled @target@ ***"
+
+    export FYRE_WRAPPER_PATH="$PWD/src/@wrapper@"
+
+    THIS_EXE="./src/@target@"
 else
     export FYRE_WRAPPER_PATH="@bindir@/@wrapper@"
 
