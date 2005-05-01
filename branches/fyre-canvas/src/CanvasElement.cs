@@ -305,13 +305,11 @@ namespace Fyre.Canvas
 	// A container for other Widgets. Similar to a Gtk.Container.
 	public abstract class Container : Widget
 	{
-		protected int				size;
-		protected int				x_pad;
-		protected int				y_pad;
-		protected int				spacing;
-
-		protected System.Collections.ArrayList	start;
-		protected System.Collections.ArrayList	end;
+		protected int		num_children;
+		protected int		x_pad;
+		protected int		y_pad;
+		protected int		spacing;
+		protected Widget []	children;
 
 		/*** Properties ***/
 		// Containers need to propagate changes to their coordinates.
@@ -363,12 +361,13 @@ namespace Fyre.Canvas
 		public
 		Container (int size, int xpad, int ypad, int space) : base ()
 		{
-			Widget	children[size] = new Widget[size];
-			this.size = size;
+			children = new Widget[size];
 
 			x_pad   = xpad;
 			y_pad   = ypad;
 			spacing = space;
+
+			num_children = 0;
 
 			position.Width  = 0;
 			position.Height = 0;
@@ -397,18 +396,18 @@ namespace Fyre.Canvas
 		public virtual void
 		PackStart (Widget child)
 		{
-			int index = children.Length;
-			if (index < size)
-				children[index] = child;
+			// Append the widget.
+			children[num_children] = child;
+			num_children++;
 
+			// If this is the only widget in the container, the container's height and width
+			// are deteremined only by X and Y padding, and the height and width of the child.
 			if (index == 0) {
 				position.Width = 2*x_pad + child.Width;
 				position.Height = 2*y_pad + child.Height;
-				child.SizeChanged += new System.EventHandler (Resize);
-			} else {
-				position.Width += child.Width + spacing;
-				position.Height += child.Height + spacing;
 			}
+
+			child.SizeChanged += new System.EventHandler (Resize);
 		}
 
 		/* FIXME For right now, it seems we aren't using this. We might not actually need it.
@@ -446,45 +445,32 @@ namespace Fyre.Canvas
 			child.X = position.X + x_pad;
 			child.Y = position.Y + y_pad;
 
-			if (start.Count > 0) {
-				foreach (Widget w in start)
+			if (num_children > 0) {
+				foreach (Widget w in children)
 					child.Y += w.Height + spacing;
+
+				position.Height += child.Y + spacing;
 			}
 
-			start.Add (child);
-			Add (child);
+			base.PackStart (child);
 		}
 
 		/*** Protected Methods ***/
 		protected override void
 		Resize (object o, System.EventArgs args)
 		{
-			// If this object isn't a direct child, we ignore the signal.
-			if (!start.Contains (o) && !end.Contains (o))
-				return;
-
 			position.Width = 2*x_pad;
 			position.Height = 2*y_pad;
 
-			if (start != null) {
-				foreach (Widget w in start) {
-					if (2*x_pad+w.Width > position.Width)
-						position.Width = 2*x_pad + w.Width;
-					position.Height += w.Height + spacing;
-				}
-				// The previous loop always adds spacing one more time than we need.
-				position.Height -= spacing;
+			foreach (Widget w in children) {
+				if (2*x_pad+w.Width > position.Width)
+					position.Width = 2*x_pad + w.Width;
+
+				position.Height += w.Height + spacing;
 			}
 
-			if (end != null) {
-				foreach (Widget w in end) {
-					if (2*x_pad+w.Width > position.Width)
-						position.Width = 2*x_pad + w.Width;
-					position.Height += w.Height + spacing;
-				}
-				// The previous loop always adds spacing one more time than we need.
-				position.Height -= spacing;
-			}
+			// The previous loop always adds spacing one more time than we need.
+			position.Height -= spacing;
 
 			// Propogate the change.
 			OnSizeChanged (args);
@@ -511,48 +497,39 @@ namespace Fyre.Canvas
 			child.X = position.X + x_pad;
 			child.Y = position.Y + y_pad;
 
-			if (start.Count > 0) {
-				foreach (Widget w in start)
+			if (num_children > 0) {
+				foreach (Widget w in children)
 					child.X += w.Width + spacing;
+
+				position.Width += child.Width + spacing;
 			}
 
+			int h = 2 * y_pad + child.Height
+			if (h > position.Height)
+				position.Height = h;
+
+			base.PackStart (child);
 		}
 
 		/*** Protected Methods ***/
 		protected override void
 		Resize (object o, System.EventArgs args)
 		{
-			// If the object isn't a direct child, ignore the signal.
-			if (!start.Contains (o) && !end.Contains (o))
-				return;
-
 			position.Width = 2*x_pad;
 			position.Height = 2*y_pad;
 
-			if (start != null) {
-				foreach (Widget w in start) {
-					if (2*y_pad+w.Height > position.Height)
-						position.Height = 2*y_pad + w.Height;
-					position.Width += w.Width + spacing;
-				}
-				// The previous loop always adds spacing one more time than we need.
-				position.Width -= spacing;
-			}
+			foreach (Widget w in children) {
+				if (2*y_pad+w.Height > position.Height)
+					position.Height = 2*y_pad + w.Height;
 
-			if (end != null) {
-				foreach (Widget w in end) {
-					if (2*y_pad+w.Height > position.Height)
-						position.Height = 2*y_pad + w.Height;
-					position.Width += w.Width + spacing;
-				}
-				// The previous loop always adds spacing one more time than we need.
-				position.Width -= spacing;
+				position.Width += w.Width + spacing;
 			}
+			// The previous loop always adds spacing one more time than we need.
+			position.Width -= spacing;
 
 			// Propogate the change.
 			OnSizeChanged (args);
 		}
-
 	}
 
 	// Element Root is the base Widget for all Elements drawn on the canvas.
