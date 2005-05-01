@@ -26,7 +26,7 @@ using System.Xml;
 namespace Fyre
 {
 
-	class Pipeline
+	public class Pipeline
 	{
 		public Hashtable	element_store;
 		ArrayList		connections;
