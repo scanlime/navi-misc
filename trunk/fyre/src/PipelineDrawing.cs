@@ -638,28 +638,6 @@ namespace Fyre.Editor.Widgets
 			hscroll.GdkWindow.ProcessUpdates (true);
 			vscroll.GdkWindow.ProcessUpdates (true);
 		}
-
-		public void
-		AddElement (Element e, int x, int y)
-		{
-			CanvasElement ce = new CanvasElement (e, GdkWindow);
-			ce.Position.X = drawing_extents.X + x;
-			ce.Position.Y = drawing_extents.Y + y;
-
-			Document.Layout.Add (e, ce);
-
-			// Force a redraw of our window
-			Redraw ();
-		}
-
-		public void
-		RemoveElement (Element e)
-		{
-			Document.Layout.Remove (e);
-
-			// Force a redraw
-			Redraw ();
-		}
 	}
 
 }

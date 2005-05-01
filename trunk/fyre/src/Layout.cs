@@ -102,6 +102,8 @@ namespace Fyre.Editor
 		Add (Element e, CanvasElement ce)
 		{
 			elements.Add (e.id.ToString ("d"), ce);
+
+			OnChanged (new System.EventArgs ());
 		}
 
 		public void
@@ -116,6 +118,8 @@ namespace Fyre.Editor
 			}
 
 			elements.Remove (e.id.ToString ("d"));
+
+			OnChanged (new System.EventArgs ());
 		}
 
 		public CanvasElement
