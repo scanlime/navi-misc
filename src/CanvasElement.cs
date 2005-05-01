@@ -305,6 +305,7 @@ namespace Fyre.Canvas
 	// A container for other Widgets. Similar to a Gtk.Container.
 	public abstract class Container : Widget
 	{
+		protected int				size;
 		protected int				x_pad;
 		protected int				y_pad;
 		protected int				spacing;
@@ -363,6 +364,7 @@ namespace Fyre.Canvas
 		Container (int size, int xpad, int ypad, int space) : base ()
 		{
 			Widget	children[size] = new Widget[size];
+			this.size = size;
 
 			x_pad   = xpad;
 			y_pad   = ypad;
@@ -395,12 +397,17 @@ namespace Fyre.Canvas
 		public virtual void
 		PackStart (Widget child)
 		{
+			int index = children.Length;
+			if (index < size)
+				children[index] = child;
 		}
 
+		/* FIXME For right now, it seems we aren't using this. We might not actually need it.
 		public virtual void
 		PackEnd (Widget child)
 		{
 		}
+		*/
 
 		/*** Protected Methods ***/
 		protected virtual void
@@ -453,21 +460,6 @@ namespace Fyre.Canvas
 			}
 
 			start.Add (child);
-			Add (child);
-		}
-
-		public override void
-		PackEnd (Widget child)
-		{
-			child.X = position.X + x_pad;
-			child.Y = position.Y + position.Height - y_pad - child.Height;
-
-			if (end.Count > 0) {
-				foreach (Widget w in end)
-					child.Y -= w.Height - spacing;
-			}
-
-			end.Add (child);
 			Add (child);
 		}
 
@@ -533,21 +525,6 @@ namespace Fyre.Canvas
 			}
 
 			start.Add (child);
-			Add (child);
-		}
-
-		public override void
-		PackEnd (Widget child)
-		{
-			child.X = position.X + position.Width - x_pad - child.Width;
-			child.Y = position.Y + y_pad;
-
-			if (end.Count > 0) {
-				foreach (Widget w in end)
-					child.X -= w.Width - spacing;
-			}
-
-			end.Add (child);
 			Add (child);
 		}
 
