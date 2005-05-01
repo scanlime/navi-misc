@@ -507,7 +507,7 @@ class Maintenance:
 
                 fetchCount += 1
                 cursor.execute("SELECT target_path FROM stats_catalog")
-                self.targetQueue = list(cursor.fetchall())
+                self.targetQueue = [row[0] for row in cursor.fetchall()]
                 random.shuffle(self.targetQueue)
 
                 # Optimize the table after every complete cycle
