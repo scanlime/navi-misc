@@ -1,3 +1,9 @@
+<div class="heading">1 May 2005 - Another package</div>
+<p>Curtis S. Netterville contributed a x86_64 fedora package for y'all. Thanks Curtis!</p>
+<ul>
+    <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0-2.x86_64.rpm">fyre-1.0.0-2.x86_64.rpm</a></li>
+</ul>
+
 <div class="heading">15 March 2005 - Future Plans</div>
 <p>
     We've started to think seriously about where we go from here. A short discussion on how 2.0 will
