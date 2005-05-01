@@ -148,7 +148,7 @@ namespace Fyre.Editor
 						if (reader.Name == "pipeline")
 							Pipeline.DeSerialize (reader);
 						else if (reader.Name == "layout")
-							Layout.DeSerialize (reader);
+							Layout.DeSerialize (reader, Pipeline);
 					}
 				}
 

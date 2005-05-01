@@ -249,13 +249,12 @@ namespace Fyre.Editor
 		}
 
 		public void
-		DeSerialize (XmlTextReader reader)
+		DeSerialize (XmlTextReader reader, Pipeline pipeline)
 		{
 			while (reader.Read () && reader.NodeType == XmlNodeType.Element && reader.Depth == 2) {
-				CanvasElement ce = CanvasElement.CreateFromXml (reader);
+				CanvasElement ce = CanvasElement.CreateFromXml (reader, pipeline);
 
-				if (ce != null)
-					elements.Add (ce.element.id.ToString ("d"), ce);
+				elements.Add (ce.element.id.ToString ("d"), ce);
 			}
 			OnChanged (new System.EventArgs ());
 		}

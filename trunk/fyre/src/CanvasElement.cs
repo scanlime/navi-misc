@@ -411,9 +411,27 @@ namespace Fyre.Editor
 		}
 
 		public static CanvasElement
-		CreateFromXml (XmlTextReader reader)
+		CreateFromXml (XmlTextReader reader, Pipeline pipeline)
 		{
-			return null;
+			string id;
+			int x, y;
+
+			reader.MoveToAttribute ("id");
+			id = reader.Value;
+
+			reader.MoveToAttribute ("x");
+			x = System.Int32.Parse (reader.Value);
+
+			reader.MoveToAttribute ("y");
+			y = System.Int32.Parse (reader.Value);
+
+			Element e = (Element) pipeline.element_store[id];
+
+			CanvasElement ce = new CanvasElement (e);
+			ce.Position.X = x;
+			ce.Position.Y = y;
+
+			return ce;
 		}
 	}
 
