@@ -11,17 +11,22 @@ Database.init()
 cursor = Database.pool.connect().cursor()
 m = Stats.Target.Maintenance()
 
+def waitForIO(limit=350000):
+    # Make sure we don't drain the I/O bucket too much
+    while 1:
+       ioStatus = dict([t.split("=") for t in open("/proc/io_status").read().split()])
+       if int(ioStatus['io_tokens']) > limit:
+           break
+       print "Waiting for I/O tokens to refill..."
+       time.sleep(10)
+
 # Prime the targetQueue
+waitForIO()
+print "Pruning the first target"
 m.pruneTargets(cursor, 1)
 
 while m.targetQueue:
-    # Make sure we don't drain the I/O bucket too much
-    ioStatus = dict([t.split("=") for t in open("/proc/io_status").read().split()])
-    while int(ioStatus['io_tokens']) < 100000:
-        print "Waiting for I/O tokens to refill..."
-        time.sleep(10)
-    
-    # Prune the next target
+    waitForIO()
     print m.targetQueue[-1]
     m.pruneTargets(cursor, 1)
 
