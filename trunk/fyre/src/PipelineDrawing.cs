@@ -42,56 +42,66 @@ namespace Fyre.Editor.Widgets
 		 * Pointer: cursor when the mouse is hovering over an element
 		 * Fleur: cursor when moving an element
 		 * Plus: cursor when hovering over a pad
-		 * FIXME: cursor when dragging out a new edge
+		 * Cross: cursor when dragging out a new edge
 		 */
-		static Gdk.Cursor		hand_open_cursor;
-		static Gdk.Cursor		hand_closed_cursor;
-		static Gdk.Cursor		pointer_cursor;
-		static Gdk.Cursor		fleur_cursor;
-		static Gdk.Cursor		plus_cursor;
+		static Gdk.Cursor		hand_open;
+		static Gdk.Cursor		hand_closed;
+		static Gdk.Cursor		pointer;
+		static Gdk.Cursor		fleur;
+		static Gdk.Cursor		plus;
+		static Gdk.Cursor		cross;
 
-		public static Gdk.Cursor	HandOpenCursor
+		public static Gdk.Cursor	HandOpen
 		{
 			get {
-				if (hand_open_cursor == null)
-					hand_open_cursor = CreateCursor ("hand-open-data.png", "hand-open-mask.png", 20, 20, 10, 10);
-				return hand_open_cursor;
+				if (hand_open == null)
+					hand_open = CreateCursor ("hand-open-data.png", "hand-open-mask.png", 20, 20, 10, 10);
+				return hand_open;
 			}
 		}
 
-		public static Gdk.Cursor	HandClosedCursor
+		public static Gdk.Cursor	HandClosed
 		{
 			get {
-				if (hand_closed_cursor == null)
-					hand_closed_cursor = CreateCursor ("hand-closed-data.png", "hand-closed-mask.png", 20, 20, 10, 10);
-				return hand_closed_cursor;
+				if (hand_closed == null)
+					hand_closed = CreateCursor ("hand-closed-data.png", "hand-closed-mask.png", 20, 20, 10, 10);
+				return hand_closed;
 			}
 		}
 
-		public static Gdk.Cursor	PointerCursor
+		public static Gdk.Cursor	Pointer
 		{
 			get {
-				if (pointer_cursor == null)
-					pointer_cursor = new Gdk.Cursor (Gdk.CursorType.LeftPtr);
-				return pointer_cursor;
+				if (pointer == null)
+					pointer = new Gdk.Cursor (Gdk.CursorType.LeftPtr);
+				return pointer;
 			}
 		}
 
-		public static Gdk.Cursor	FleurCursor
+		public static Gdk.Cursor	Fleur
 		{
 			get {
-				if (fleur_cursor == null)
-					fleur_cursor = new Gdk.Cursor (Gdk.CursorType.Fleur);
-				return fleur_cursor;
+				if (fleur == null)
+					fleur = new Gdk.Cursor (Gdk.CursorType.Fleur);
+				return fleur;
 			}
 		}
 
-		public static Gdk.Cursor	PlusCursor
+		public static Gdk.Cursor	Plus
 		{
 			get {
-				if (plus_cursor == null)
-					plus_cursor = new Gdk.Cursor (Gdk.CursorType.Plus);
-				return plus_cursor;
+				if (plus == null)
+					plus = new Gdk.Cursor (Gdk.CursorType.Plus);
+				return plus;
+			}
+		}
+
+		public static Gdk.Cursor	Cross
+		{
+			get {
+				if (cross == null)
+					cross = new Gdk.Cursor (Gdk.CursorType.Cross);
+				return cross;
 			}
 		}
 
@@ -255,7 +265,7 @@ namespace Fyre.Editor.Widgets
 				SetScrollbars ();
 
 			// Make sure our cursor is set
-			event_box.GdkWindow.Cursor = Cursor.HandOpenCursor;
+			event_box.GdkWindow.Cursor = Cursor.HandOpen;
 
 			// Create the backing store
 			backing = new Gdk.Pixmap (GdkWindow, ev.Width, ev.Height, -1);
@@ -366,7 +376,7 @@ namespace Fyre.Editor.Widgets
 
 					dragging = DrawingDragType.Document;
 
-					event_box.GdkWindow.Cursor = Cursor.HandClosedCursor;
+					event_box.GdkWindow.Cursor = Cursor.HandClosed;
 				}
 				if (ev.Button == 3) {
 					// Pop up a context menu. This one is pretty simple, since there aren't
@@ -401,7 +411,7 @@ namespace Fyre.Editor.Widgets
 						old_x = ce.Position.X;
 						old_y = ce.Position.Y;
 
-						event_box.GdkWindow.Cursor = Cursor.FleurCursor;
+						event_box.GdkWindow.Cursor = Cursor.Fleur;
 					} else if (ev.Type == Gdk.EventType.TwoButtonPress) {
 						// Make sure the element stays selected.
 						Document.Layout.SelectHoverElement ();
@@ -528,13 +538,13 @@ namespace Fyre.Editor.Widgets
 				switch (h) {
 				case LayoutHover.Element:
 				case LayoutHover.InputPad:
-					event_box.GdkWindow.Cursor = Cursor.PointerCursor;
+					event_box.GdkWindow.Cursor = Cursor.Pointer;
 					break;
 				case LayoutHover.OutputPad:
-					event_box.GdkWindow.Cursor = Cursor.PlusCursor;
+					event_box.GdkWindow.Cursor = Cursor.Plus;
 					break;
 				case LayoutHover.None:
-					event_box.GdkWindow.Cursor = Cursor.HandOpenCursor;
+					event_box.GdkWindow.Cursor = Cursor.HandOpen;
 					break;
 				}
 			}
@@ -594,6 +604,12 @@ namespace Fyre.Editor.Widgets
 				int layout_x = evX + drawing_extents.X;
 				int layout_y = evY + drawing_extents.Y;
 				Document.Layout.MoveConnection (layout_x, layout_y);
+				LayoutHover h = Document.Layout.GetHoverType (layout_x, layout_y);
+
+				if (h == LayoutHover.InputPad)
+					event_box.GdkWindow.Cursor = Cursor.Cross;
+				else
+					event_box.GdkWindow.Cursor = Cursor.Plus;
 			}
 
 			if (dragging == DrawingDragType.None) {
@@ -604,13 +620,13 @@ namespace Fyre.Editor.Widgets
 				switch (h) {
 				case LayoutHover.Element:
 				case LayoutHover.InputPad:
-					event_box.GdkWindow.Cursor = Cursor.PointerCursor;
+					event_box.GdkWindow.Cursor = Cursor.Pointer;
 					break;
 				case LayoutHover.OutputPad:
-					event_box.GdkWindow.Cursor = Cursor.PlusCursor;
+					event_box.GdkWindow.Cursor = Cursor.Plus;
 					break;
 				case LayoutHover.None:
-					event_box.GdkWindow.Cursor = Cursor.HandOpenCursor;
+					event_box.GdkWindow.Cursor = Cursor.HandOpen;
 					break;
 				}
 			}
