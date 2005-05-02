@@ -63,10 +63,6 @@ General things:
 
 Documentation:
   * Use cases
-  * CRC cards - we should probably just do these on real paper. We don't need
-	to do everything, but the major types would be good.
-	-- David's got a preliminary set of these.  If you want to work on this,
-	bug him.
   * Sequence diagrams:
 	- Drag start **
 	- Drag drop (Creating an element)
