@@ -32,7 +32,7 @@ class Pixmap : Fyre.Element
 		inputs = new Fyre.InputPad[] {
 			new Fyre.InputPad ("w", "width"),
 			new Fyre.InputPad ("h", "height"),
-			new Fyre.InputPad ("(x,y)", "point"),
+			new Fyre.InputPad ("p", "point"),
 			new Fyre.InputPad ("c", "color"),
 		};
 
