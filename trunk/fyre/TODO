@@ -63,6 +63,9 @@ General things:
 
 Documentation:
   * Use cases
+	- Basic editing operations (creating elements, creating connections)
+	- Dragging document (bigger-izing the document)
+	- Navigation Image
   * Sequence diagrams:
 	- Drag start **
 	- Drag drop (Creating an element)
