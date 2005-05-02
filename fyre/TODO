@@ -67,16 +67,13 @@ Documentation:
 	to do everything, but the major types would be good.
 	-- David's got a preliminary set of these.  If you want to work on this,
 	bug him.
-  * Relationship diagrams:
-	- Probably split up into a few different pieces to show specific
-	"subsystems" rather than have one big mess. No reason we can't
-	duplicate things within these diagrams.
   * Sequence diagrams:
-	- Creating an element
-	- Drawing the layout
+	- Drag start **
+	- Drag drop (Creating an element)
+	- Drawing the layout **
 	- Moving an element
 	- Dragging the document
-	- Saving a document
+	- Saving a document **
 	- Loading a document
 	- Loading plugins
 	- Undo **
