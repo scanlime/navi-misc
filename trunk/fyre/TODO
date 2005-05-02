@@ -72,10 +72,14 @@ Documentation:
 	"subsystems" rather than have one big mess. No reason we can't
 	duplicate things within these diagrams.
   * Sequence diagrams:
-	- Creating an element (+ other operations? show command pattern)
+	- Creating an element
+	- Drawing the layout
+	- Moving an element
+	- Dragging the document
 	- Saving a document
 	- Loading a document
 	- Loading plugins
+	- Undo/redo
 	-- David's got one of these so far (NavigationWindow) on paper. If anyone
 	wants to transcribe it into inkscape...
 
