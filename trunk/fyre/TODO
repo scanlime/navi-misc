@@ -66,15 +66,4 @@ Documentation:
 	- Basic editing operations (creating elements, creating connections)
 	- Dragging document (bigger-izing the document)
 	- Navigation Image
-  * Sequence diagrams:
-	- Drag start **
-	- Drag drop (Creating an element)
-	- Drawing the layout **
-	- Moving an element **
-	- Dragging the document **
-	- Saving a document **
-	- Loading a document
-	- Loading plugins **
-	- Undo **
-	- Navigation Image **
 
