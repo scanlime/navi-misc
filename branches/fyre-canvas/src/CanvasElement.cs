@@ -361,7 +361,6 @@ namespace Fyre.Canvas
 		public
 		Container (int size, int xpad, int ypad, int space) : base ()
 		{
-			System.Console.WriteLine ("2");
 			children = new Widget[size];
 
 			x_pad   = xpad;
@@ -395,7 +394,6 @@ namespace Fyre.Canvas
 		public virtual void
 		PackStart (Widget child)
 		{
-			System.Console.WriteLine ("1");
 			// Append the widget.
 			children[num_children] = child;
 			num_children++;
@@ -407,7 +405,10 @@ namespace Fyre.Canvas
 				position.Height = 2*y_pad + child.Height;
 			}
 
+			// Notify the container when the child's size changes.
 			child.SizeChanged += new System.EventHandler (Resize);
+
+			OnSizeChanged (new System.EventArgs ());
 		}
 
 		/* FIXME For right now, it seems we aren't using this. We might not actually need it.
@@ -442,17 +443,22 @@ namespace Fyre.Canvas
 		public override void
 		PackStart (Widget child)
 		{
+			if (child == null) {
+				System.Console.WriteLine ("VBox");
+				return;
+			}
+
 			child.X = position.X + x_pad;
 			child.Y = position.Y + y_pad;
 
-			if (num_children > 0) {
-				foreach (Widget w in children)
-					child.Y += w.Height + spacing;
+			for (int i = 0; i < num_children; i++)
+				child.Y += children[i].Height + spacing;
 
-				position.Height += child.Y + spacing;
-			}
+			if (num_children > 0)
+				position.Height += child.Height + spacing;
 
 			int W = 2 * x_pad + child.Width;
+
 			if (W > position.Width)
 				position.Width = W;
 
@@ -466,11 +472,12 @@ namespace Fyre.Canvas
 			position.Width = 2*x_pad;
 			position.Height = 2*y_pad;
 
-			foreach (Widget w in children) {
-				if (2*x_pad+w.Width > position.Width)
-					position.Width = 2*x_pad + w.Width;
+			for (int i = 0; i < num_children; i++) {
+				int w = 2 * x_pad + children[i].Width;
+				if (w > position.Width)
+					position.Width = w;
 
-				position.Height += w.Height + spacing;
+				position.Height += children[i].Height + spacing;
 			}
 
 			// The previous loop always adds spacing one more time than we need.
@@ -498,17 +505,22 @@ namespace Fyre.Canvas
 		public override void
 		PackStart (Widget child)
 		{
+			if (child == null) {
+				System.Console.WriteLine ("HBox");
+				return;
+			}
+
 			child.X = position.X + x_pad;
 			child.Y = position.Y + y_pad;
 
-			if (num_children > 0) {
-				foreach (Widget w in children)
-					child.X += w.Width + spacing;
+			for (int i = 0; i < num_children; i++)
+				child.X += children[i].Width + spacing;
 
+			if (num_children > 0)
 				position.Width += child.Width + spacing;
-			}
 
 			int h = 2 * y_pad + child.Height;
+
 			if (h > position.Height)
 				position.Height = h;
 
@@ -522,12 +534,14 @@ namespace Fyre.Canvas
 			position.Width = 2*x_pad;
 			position.Height = 2*y_pad;
 
-			foreach (Widget w in children) {
-				if (2*y_pad+w.Height > position.Height)
-					position.Height = 2*y_pad + w.Height;
+			for (int i = 0; i < num_children; i++) {
+				int h = 2 * y_pad + children[i].Height;
+				if (h > position.Height)
+					position.Height = h;
 
-				position.Width += w.Width + spacing;
+				position.Width += children[i].Width + spacing;
 			}
+
 			// The previous loop always adds spacing one more time than we need.
 			position.Width -= spacing;
 
