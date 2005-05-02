@@ -44,6 +44,12 @@ namespace Fyre.Editor
 		string			selected_element;
 		public Pipeline		pipeline;
 
+		// "open" connection
+		string			source_element;
+		int			source_pad;
+		int			conn_x;
+		int			conn_y;
+
 		public Gdk.Rectangle	Extents
 		{
 			get {
@@ -92,7 +98,7 @@ namespace Fyre.Editor
 		}
 
 		public event System.EventHandler Changed;
-		protected void
+		public void
 		OnChanged (System.EventArgs e)
 		{
 			if (Changed != null)
@@ -140,6 +146,7 @@ namespace Fyre.Editor
 		{
 			System.Drawing.Pen pen = new System.Drawing.Pen (System.Drawing.Color.Black);
 
+			// Draw connections before elements, so the lines appear under elements
 			foreach (PadConnection connection in pipeline.connections) {
 				CanvasElement source = (CanvasElement) elements[connection.source_element.ToString ("d")];
 				CanvasElement sink   = (CanvasElement) elements[connection.sink_element.ToString ("d")];
@@ -160,6 +167,17 @@ namespace Fyre.Editor
 					context.DrawLine (pen, x1, y1, x2, y2);
 			}
 
+			// In-progress connection
+			if (source_element != null) {
+				CanvasElement source = (CanvasElement) elements[source_element];
+
+				int x1, y1;
+				source.GetOutputPosition (source_pad, out x1, out y1);
+
+				context.DrawLine (pen, x1, y1, conn_x, conn_y);
+			}
+
+			// Finally, draw elements
 			foreach (DictionaryEntry entry in elements) {
 				CanvasElement ce = (CanvasElement) entry.Value;
 
@@ -286,6 +304,45 @@ namespace Fyre.Editor
 
 				elements.Add (ce.element.id.ToString ("d"), ce);
 			}
+			OnChanged (new System.EventArgs ());
+		}
+
+		public void
+		BeginConnection ()
+		{
+			source_element = hover_element;
+			CanvasElement ce = (CanvasElement) elements[hover_element];
+			source_pad = ce.HoverPad;
+
+			ce.GetOutputPosition (source_pad, out conn_x, out conn_y);
+		}
+
+		public void
+		MoveConnection (int x, int y)
+		{
+			conn_x = x;
+			conn_y = y;
+			OnChanged (new System.EventArgs ());
+		}
+
+		public PadConnection
+		GetConnection ()
+		{
+			PadConnection pc = new PadConnection ();
+			pc.source_element = new System.Guid (source_element);
+			pc.source_pad = source_pad;
+
+			pc.sink_element = new System.Guid (hover_element);
+			CanvasElement ce = (CanvasElement) elements[hover_element];
+			pc.sink_pad = ce.HoverPad;
+
+			return pc;
+		}
+
+		public void
+		EndConnection ()
+		{
+			source_element = null;
 			OnChanged (new System.EventArgs ());
 		}
 	}

@@ -448,6 +448,8 @@ namespace Fyre.Editor.Widgets
 
 			if (h == LayoutHover.OutputPad && ev.Button == 1) {
 				dragging = DrawingDragType.PadConnection;
+
+				Document.Layout.BeginConnection ();
 			}
 		}
 
@@ -510,6 +512,16 @@ namespace Fyre.Editor.Widgets
 				}
 			}
 
+			if (dragging == DrawingDragType.PadConnection) {
+				if (h == LayoutHover.InputPad) {
+					// FIXME - we need to check if we already have a connection for this input
+					Commands.Connect connecte = new Commands.Connect (Document.Layout.GetConnection ());
+					command_manager.Do (connecte);
+				}
+
+				Document.Layout.EndConnection ();
+			}
+
 			if (dragging != DrawingDragType.None) {
 				dragging = DrawingDragType.None;
 
@@ -534,7 +546,7 @@ namespace Fyre.Editor.Widgets
 			Gdk.EventMotion ev = args.Event;
 			Gtk.Widget widget = (Gtk.Widget) o;
 
-			// For some reason, the numbers we get from ev.X & ev.Y when a butotn isn't
+			// For some reason, the numbers we get from ev.X & ev.Y when a button isn't
 			// pressed act really strangely. I'm not sure if this is a problem with
 			// gentoo's gtk/gtk-sharp packages or something upstream, but the root-based
 			// numbers are right. Get the window-local values by subtracting the window's
@@ -576,6 +588,12 @@ namespace Fyre.Editor.Widgets
 				drag_x = (int) ev.X;
 				drag_y = (int) ev.Y;
 				return;
+			}
+
+			if (dragging == DrawingDragType.PadConnection) {
+				int layout_x = evX + drawing_extents.X;
+				int layout_y = evY + drawing_extents.Y;
+				Document.Layout.MoveConnection (layout_x, layout_y);
 			}
 
 			if (dragging == DrawingDragType.None) {
