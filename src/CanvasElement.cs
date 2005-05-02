@@ -115,7 +115,7 @@ namespace Fyre.Canvas
 					box = new HBox (0, 0, 7);
 					in_box.PackStart (box);
 					box.PackStart (new Pad ());
-					//box.PackStart (new Label (i.Name, Font.plain, graphics));
+					box.PackStart (new Label (i.Name, Font.plain, graphics));
 				}
 			}
 
@@ -123,7 +123,7 @@ namespace Fyre.Canvas
 				foreach (Fyre.OutputPad o in e.outputs) {
 					box = new HBox (0, 0, 7);
 					out_box.PackStart (box);
-					//box.PackStart (new Label (o.Name, Font.plain, graphics));
+					box.PackStart (new Label (o.Name, Font.plain, graphics));
 					box.PackStart (new Pad ());
 				}
 			}
