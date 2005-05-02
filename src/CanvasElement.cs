@@ -101,39 +101,31 @@ namespace Fyre.Canvas
 		{
 			Graphics	graphics = Gtk.DotNet.Graphics.FromDrawable (drawable);
 
-			VBox		in_box;
-			VBox		out_box;
-			HBox		box;
-			HBox		pad_box = new HBox (2, 0, 0, 50);
 			Label		name = new Label (e.Name (), Font.bold, graphics);
+			VBox		in_box = new VBox (0, 0, 10);
+			VBox		out_box = new VBox (0, 0, 10);
+			HBox		pad_box = new HBox (0, 0, 50);
+			HBox		box;
 
 			root = new ElementRoot (name);
 			root.box.PackStart (pad_box);
 
 			if (e.inputs != null) {
-				in_box = new VBox (e.inputs.Length, 0, 0, 10);
-
 				foreach (Fyre.InputPad i in e.inputs) {
-					box = new HBox (2, 0, 0, 7);
+					box = new HBox (0, 0, 7);
 					in_box.PackStart (box);
 					box.PackStart (new Pad ());
-					box.PackStart (new Label (i.Name, Font.plain, graphics));
+					//box.PackStart (new Label (i.Name, Font.plain, graphics));
 				}
-			} else {
-				in_box = new VBox (0, 0, 0, 10);
 			}
 
 			if (e.outputs != null) {
-				out_box = new VBox (e.outputs.Length, 0, 0, 10);
-
 				foreach (Fyre.OutputPad o in e.outputs) {
-					box = new HBox (2, 0, 0, 7);
+					box = new HBox (0, 0, 7);
 					out_box.PackStart (box);
-					box.PackStart (new Label (o.Name, Font.plain, graphics));
+					//box.PackStart (new Label (o.Name, Font.plain, graphics));
 					box.PackStart (new Pad ());
 				}
-			} else {
-				out_box = new VBox (0, 0, 0, 10);
 			}
 
 			pad_box.PackStart (in_box);
@@ -360,12 +352,12 @@ namespace Fyre.Canvas
 		/*** Constructors ***/
 		// Default Container has no padding and no spacing.
 		public
-		Container (int size) : this (size, 0, 0, 0)
+		Container () : this (0, 0, 0)
 		{
 		}
 
 		public
-		Container (int size, int xpad, int ypad, int space) : base ()
+		Container (int xpad, int ypad, int space) : base ()
 		{
 			children = new System.Collections.ArrayList ();
 
@@ -426,12 +418,12 @@ namespace Fyre.Canvas
 	{
 		/*** Constructors ***/
 		public
-		VBox (int size) : base (size)
+		VBox () : base ()
 		{
 		}
 
 		public
-		VBox (int size, int xpad, int ypad, int space) : base (size, xpad, ypad, space)
+		VBox (int xpad, int ypad, int space) : base (xpad, ypad, space)
 		{
 		}
 
@@ -483,12 +475,12 @@ namespace Fyre.Canvas
 	{
 		/*** Constructors ***/
 		public
-		HBox (int size) : base (size)
+		HBox () : base ()
 		{
 		}
 
 		public
-		HBox (int size, int xpad, int ypad, int space) : base (size, xpad, ypad, space)
+		HBox (int xpad, int ypad, int space) : base (xpad, ypad, space)
 		{
 		}
 
@@ -547,7 +539,7 @@ namespace Fyre.Canvas
 		public
 		ElementRoot ()
 		{
-			box = new VBox (2, 15, 5, 6);
+			box = new VBox (15, 5, 6);
 			box.SizeChanged += new System.EventHandler (Resize);
 		}
 
@@ -596,6 +588,11 @@ namespace Fyre.Canvas
 	// Represents a single pad on the canvas.
 	public class Pad : Widget
 	{
+		public
+		Pad () : base (0, 0, 20, 20)
+		{
+		}
+
 		/*** Public Methods ***/
 		public override void
 		Draw (Graphics context)
