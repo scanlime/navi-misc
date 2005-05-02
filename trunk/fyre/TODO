@@ -79,7 +79,6 @@ Documentation:
 	- Saving a document
 	- Loading a document
 	- Loading plugins
-	- Undo/redo
-	-- David's got one of these so far (NavigationWindow) on paper. If anyone
-	wants to transcribe it into inkscape...
+	- Undo **
+	- Navigation Image **
 
