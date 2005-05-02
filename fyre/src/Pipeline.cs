@@ -30,18 +30,12 @@ namespace Fyre
 	{
 		public Hashtable	element_store;
 		public ArrayList	connections;
-		Hashtable		input_connections;
 
 		public
 		Pipeline ()
 		{
 			element_store = new Hashtable ();
 			connections = new ArrayList ();
-
-			// This just contains the same data as 'connections', but hashed on
-			// InputPad. Any input can only have a single connection, so the hash
-			// lets us enforce this efficiently.
-			input_connections = new Hashtable ();
 		}
 
 		public bool

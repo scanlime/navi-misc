@@ -248,6 +248,31 @@ namespace Fyre.Editor
 				document.Layout.SetElementPosition (e, old_x, old_y);
 			}
 		}
+
+		class Connect : Command
+		{
+			PadConnection		pc;
+
+			public Connect (PadConnection pc)
+			{
+				Name = "Create Connection";
+				this.pc = pc;
+			}
+
+			public override void
+			Do (Widgets.PipelineDrawing drawing, Document document)
+			{
+				document.Pipeline.connections.Add (pc);
+				document.Layout.OnChanged (new System.EventArgs ());
+			}
+
+			public override void
+			Undo (Widgets.PipelineDrawing drawing, Document document)
+			{
+				document.Pipeline.connections.Remove (pc);
+				document.Layout.OnChanged (new System.EventArgs ());
+			}
+		}
 	}
 }
 
