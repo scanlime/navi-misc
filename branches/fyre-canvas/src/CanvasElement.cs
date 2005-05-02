@@ -372,8 +372,6 @@ namespace Fyre.Canvas
 			x_pad   = xpad;
 			y_pad   = ypad;
 			spacing = space;
-
-			num_children = 0;
 		}
 
 		/*** Public Methods ***/
@@ -401,12 +399,11 @@ namespace Fyre.Canvas
 		PackStart (Widget child)
 		{
 			// Append the widget.
-			children[num_children] = child;
-			num_children++;
+			children.Add (child);
 
 			// If this is the only widget in the container, the container's height and width
 			// are deteremined only by X and Y padding, and the height and width of the child.
-			if (num_children == 1) {
+			if (children.Count == 1) {
 				position.Width = 2*x_pad + child.Width;
 				position.Height = 2*y_pad + child.Height;
 			}
@@ -442,18 +439,13 @@ namespace Fyre.Canvas
 		public override void
 		PackStart (Widget child)
 		{
-			if (child == null) {
-				System.Console.WriteLine ("VBox");
-				return;
-			}
-
 			child.X = position.X + x_pad;
 			child.Y = position.Y + y_pad;
 
 			foreach (Widget w in children)
 				child.Y += w.Height + spacing;
 
-			if (num_children > 0)
+			if (children.Count > 0)
 				position.Height += child.Height + spacing;
 
 			int W = 2 * x_pad + child.Width;
@@ -471,12 +463,12 @@ namespace Fyre.Canvas
 			position.Width = 2*x_pad;
 			position.Height = 2*y_pad;
 
-			for (int i = 0; i < num_children; i++) {
-				int w = 2 * x_pad + children[i].Width;
-				if (w > position.Width)
-					position.Width = w;
+			foreach (Widget w in children) {
+				int W = 2 * x_pad + w.Width;
+				if (W > position.Width)
+					position.Width = W;
 
-				position.Height += children[i].Height + spacing;
+				position.Height += w.Height + spacing;
 			}
 
 			// The previous loop always adds spacing one more time than we need.
@@ -504,18 +496,13 @@ namespace Fyre.Canvas
 		public override void
 		PackStart (Widget child)
 		{
-			if (child == null) {
-				System.Console.WriteLine ("HBox");
-				return;
-			}
-
 			child.X = position.X + x_pad;
 			child.Y = position.Y + y_pad;
 
-			for (int i = 0; i < num_children; i++)
-				child.X += children[i].Width + spacing;
+			foreach (Widget w in children)
+				child.X += w.Width + spacing;
 
-			if (num_children > 0)
+			if (children.Count > 0)
 				position.Width += child.Width + spacing;
 
 			int h = 2 * y_pad + child.Height;
@@ -533,12 +520,12 @@ namespace Fyre.Canvas
 			position.Width = 2*x_pad;
 			position.Height = 2*y_pad;
 
-			for (int i = 0; i < num_children; i++) {
-				int h = 2 * y_pad + children[i].Height;
+			foreach (Widget w in children) {
+				int h = 2 * y_pad + w.Height;
 				if (h > position.Height)
 					position.Height = h;
 
-				position.Width += children[i].Width + spacing;
+				position.Width += w.Width + spacing;
 			}
 
 			// The previous loop always adds spacing one more time than we need.
