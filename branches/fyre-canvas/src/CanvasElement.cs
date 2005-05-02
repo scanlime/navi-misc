@@ -301,6 +301,13 @@ namespace Fyre.Canvas
 		{
 		}
 
+		// All widgets should be able to draw themselves on a 1-bit drawable for a
+		// transparency mask.
+		public virtual void
+		Mask (Gdk.Drawable drawable)
+		{
+		}
+
 		/*** Protected Methods ***/
 		protected void
 		OnSizeChanged (System.EventArgs e)
@@ -313,11 +320,10 @@ namespace Fyre.Canvas
 	// A container for other Widgets. Similar to a Gtk.Container.
 	public abstract class Container : Widget
 	{
-		protected int		num_children;
-		protected int		x_pad;
-		protected int		y_pad;
-		protected int		spacing;
-		protected Widget []	children;
+		protected int				x_pad;
+		protected int				y_pad;
+		protected int				spacing;
+		protected System.Collections.ArrayList	children;
 
 		/*** Properties ***/
 		// Containers need to propagate changes to their coordinates.
@@ -361,7 +367,7 @@ namespace Fyre.Canvas
 		public
 		Container (int size, int xpad, int ypad, int space) : base ()
 		{
-			children = new Widget[size];
+			children = new System.Collections.ArrayList ();
 
 			x_pad   = xpad;
 			y_pad   = ypad;
@@ -411,13 +417,6 @@ namespace Fyre.Canvas
 			OnSizeChanged (new System.EventArgs ());
 		}
 
-		/* FIXME For right now, it seems we aren't using this. We might not actually need it.
-		public virtual void
-		PackEnd (Widget child)
-		{
-		}
-		*/
-
 		/*** Protected Methods ***/
 		protected virtual void
 		Resize (object o, System.EventArgs args)
@@ -451,8 +450,8 @@ namespace Fyre.Canvas
 			child.X = position.X + x_pad;
 			child.Y = position.Y + y_pad;
 
-			for (int i = 0; i < num_children; i++)
-				child.Y += children[i].Height + spacing;
+			foreach (Widget w in children)
+				child.Y += w.Height + spacing;
 
 			if (num_children > 0)
 				position.Height += child.Height + spacing;
