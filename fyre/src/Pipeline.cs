@@ -59,7 +59,8 @@ namespace Fyre
 				e.Write (writer);
 			}
 
-			foreach (PadConnection e in connections) {
+			for (int i = 0; i < connections.Count; i++) {
+				PadConnection e = (PadConnection) connections[i];
 				e.Write (writer);
 			}
 		}
