@@ -136,6 +136,9 @@ class BugFilter(Filter):
         self.deliverable = True
         self.xml.body.bug.addElement('url', content=url)
 
+    def addComponent(self, component):
+        self.xml.body.bug.addElement('component', content=component)
+
     def addReporter(self, reporter):
         self.deliverable = True
         self.xml.body.bug.addElement('reporter', content=reporter)
@@ -143,5 +146,8 @@ class BugFilter(Filter):
     def addID(self, id):
         self.deliverable = True
         self.xml.body.bug.addElement('id', content=id)
+
+    def addType(self, type):
+        self.xml.body.bug.addElement('type', content=type)
 
 ### The End ###

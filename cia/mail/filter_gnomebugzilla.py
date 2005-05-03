@@ -12,8 +12,16 @@ class GnomeBugzillaFilter(BugFilter):
         status    = self.message['X-Bugzilla-Status']
         version   = self.message['X-Bugzilla-Version']
 
-        self.addModule(module)
+        state = 'old'
+        if self.message['Subject'].split(' ')[2] == 'New:':
+            state = 'new'
+        self.addType(state)
 
+        self.addModule(module)
+        if component != 'general':
+            self.addComponent(component)
+
+        # grab info out of the body
         while True:
             line = self.pullLine()
             if not line:
