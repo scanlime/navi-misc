@@ -140,7 +140,7 @@ namespace Fyre.Editor.Widgets
 
 				canvas_element.DrawMask (mask);
 
-				Gtk.Drag.SetIconPixmap (context, pixmap.Colormap, pixmap, mask, 0, 0);
+				Gtk.Drag.SetIconPixmap (context, GdkWindow.Colormap, pixmap, mask, 0, 0);
 			}
 		}
 

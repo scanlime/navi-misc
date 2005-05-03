@@ -309,8 +309,15 @@ namespace Fyre.Editor
 			Gdk.Color	white = new Gdk.Color (1,1,1);
 			Gdk.Color	black = new Gdk.Color (0,0,0);
 
-			Gdk.Colormap.System.AllocColor (ref white, true, true);
-			Gdk.Colormap.System.AllocColor (ref black, true, true);
+			// Assign pixel values for the colors statically-
+			// we're drawing on a 1bpp mask image, so this is easy.
+			// In fact, allocating these from the colormap is incorrect
+			// because this mask image isn't at the same depth as our
+			// window. Allocating these from the colormap happens to work
+			// at some depths, but that isn't reliable. In particular, it
+			// would break at 16bpp.
+			white.Pixel = 1;
+			black.Pixel = 0;
 
 			fg.Foreground = white;
 			bg.Foreground = black;
