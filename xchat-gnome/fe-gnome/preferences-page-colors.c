@@ -189,10 +189,10 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (page->color_buttons[2]), &colors[33]);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (page->color_buttons[3]), &colors[32]);
 
-	g_signal_connect (G_OBJECT (page->color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 0));
-	g_signal_connect (G_OBJECT (page->color_buttons[1]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 1));
-	g_signal_connect (G_OBJECT (page->color_buttons[2]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 2));
-	g_signal_connect (G_OBJECT (page->color_buttons[3]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32 + 3));
+	g_signal_connect (G_OBJECT (page->color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32));
+	g_signal_connect (G_OBJECT (page->color_buttons[1]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (33));
+	g_signal_connect (G_OBJECT (page->color_buttons[2]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (34));
+	g_signal_connect (G_OBJECT (page->color_buttons[3]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (35));
 
 	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/color.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);

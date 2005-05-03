@@ -293,10 +293,10 @@ palette_save ()
 			cfg_put_color (f, custom_palette[i].red, custom_palette[i].green, custom_palette[i].blue, prefname);
 		}
 
-		strcpy (prefname, "color_259");
+		strcpy (prefname, "color_258");
 		cfg_put_color (f, custom_colors[0].red, custom_colors[0].green, custom_colors[0].blue, prefname);
 
-		strcpy (prefname, "color_258");
+		strcpy (prefname, "color_259");
 		cfg_put_color (f, custom_colors[1].red, custom_colors[1].green, custom_colors[1].blue, prefname);
 
 		strcpy (prefname, "color_256");
