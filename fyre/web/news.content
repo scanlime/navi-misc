@@ -1,3 +1,13 @@
+<div class="heading">3 May 2005 - Cool stuff</div>
+<p>
+For those of you who are still confused about what fyre2 is going to be all about, you may
+want to look at Apple's new
+<a href="http://developer.apple.com/documentation/GraphicsImaging/Conceptual/QuartzComposer/index.html">Quartz Composer</a>
+application.  This is, in a general sense, what we're aiming for -- a visual language that
+lets you build new algorithms for fyre.  I haven't actually tried it, since I don't use Apple
+stuff personally, but it's cool to see that we're not the only ones who think this is a good idea :)
+</p>
+
 <div class="heading">1 May 2005 - Another package</div>
 <p>Curtis S. Netterville contributed a x86_64 fedora package for y'all. Thanks Curtis!</p>
 <ul>
