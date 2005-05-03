@@ -19,7 +19,16 @@ class GnomeBugzillaFilter(BugFilter):
             if not line:
                 break
 
-            cline = line.lower().strip()
+            cline = line.strip()
+
+            if cline.startswith("http://bugzilla.gnome.org/"):
+                self.addURL(cline)
+
+            if cline.endswith("changed:"):
+                self.readReporter(cline)
+
+    def readReporter(self, line):
+        self.addReporter(' '.join(line.split(' ')[:-1]))
 
 if __name__ == '__main__':
     GnomeBugzillaFilter().main()
