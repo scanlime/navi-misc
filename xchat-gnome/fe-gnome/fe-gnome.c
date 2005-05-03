@@ -100,7 +100,11 @@ fe_init (void)
 	load_preferences ();
 	initialize_gui_2 ();
 	run_main_window ();
+
+	/* Force various window-related options to match our interaction model */
 	prefs.use_server_tab = TRUE;
+	prefs.notices_tabs = FALSE;
+
 	/* Don't allow the core to autoload plugins. We use our own
 	 * method for autoloading.
 	 */
