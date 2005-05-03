@@ -159,7 +159,11 @@ namespace Fyre.Editor
 				Filename = filename;
 				Saved = true;
 			} catch (System.Exception e) {
-				// FIXME - show error
+				ErrorDialog ed = new ErrorDialog (null,
+					System.String.Format ("Error loading '{0}'", filename),
+					e.ToString ());
+				ed.Run ();
+				ed.Destroy ();
 			}
 			reader.Close ();
 		}
