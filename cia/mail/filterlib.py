@@ -36,7 +36,7 @@ class Filter:
        """
     project = None
     server = "http://localhost:3910"
-    debug = False
+    debug = True
     deliverable = False
 
     def pullLine(self):
@@ -125,5 +125,23 @@ class CommitFilter(Filter):
     def addLog(self, log):
         self.deliverable = True
         self.xml.body.commit.addElement('log', content=log)
+
+class BugFilter(Filter):
+    """A filter with extra methods for creating bug reports"""
+    def initMessage(self):
+        Filter.initMessage(self)
+        self.xml.body.addElement('bug')
+
+    def addURL(self, url):
+        self.deliverable = True
+        self.xml.body.bug.addElement('url', content=url)
+
+    def addReporter(self, reporter):
+        self.deliverable = True
+        self.xml.body.bug.addElement('reporter', content=reporter)
+
+    def addID(self, id):
+        self.deliverable = True
+        self.xml.body.bug.addElement('id', content=id)
 
 ### The End ###
