@@ -216,7 +216,21 @@ namespace Fyre
 		{
 			// Convert the name to something a little more XML friendly
 			// (instead of "Matrix Multiply", we'd have "matrix-multiply")
-			return Name().ToLower().Replace(" ", "-");
+			string name = Name ().ToLower ().Replace (" ", "-");
+
+			// XML doesn't like things starting with numbers. since the XML name
+			// doesn't really matter much, just replace all numbers with text
+			name = name.Replace ("0", "zero");
+			name = name.Replace ("1", "one");
+			name = name.Replace ("2", "two");
+			name = name.Replace ("3", "three");
+			name = name.Replace ("4", "four");
+			name = name.Replace ("5", "five");
+			name = name.Replace ("6", "six");
+			name = name.Replace ("7", "seven");
+			name = name.Replace ("8", "eight");
+			name = name.Replace ("9", "nine");
+			return name;
 		}
 
 		public void
