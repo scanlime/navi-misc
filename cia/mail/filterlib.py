@@ -36,7 +36,7 @@ class Filter:
        """
     project = None
     server = "http://localhost:3910"
-    debug = True
+    debug = False
     deliverable = False
 
     def pullLine(self):
