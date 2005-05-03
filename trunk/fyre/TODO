@@ -60,10 +60,3 @@ General things:
 	that we'll parallelize on any operation from matrix->element type,
 	and require that there be an aggregation flag on any element connected
 	to the outside of a parallelizable.
-
-Documentation:
-  * Use cases
-	- Basic editing operations (creating elements, creating connections)
-	- Dragging document (bigger-izing the document)
-	- Navigation Image
-
