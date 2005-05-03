@@ -26,6 +26,8 @@
 #include "gui.h"
 #include "xtext.h"
 
+static int scheme;
+
 static void
 color_button_changed (GtkColorButton *button, gpointer data)
 {
@@ -43,6 +45,13 @@ color_button_changed (GtkColorButton *button, gpointer data)
 		custom_colors[index - 32].blue = c.blue;
 	}
 	palette_save ();
+
+	load_colors (scheme);
+	load_palette (scheme);
+
+	palette_alloc (GTK_WIDGET (gui.xtext));
+	gtk_xtext_set_palette (gui.xtext, colors);
+	gtk_xtext_refresh (gui.xtext, FALSE);
 }
 
 static void
@@ -81,6 +90,7 @@ colors_changed (GtkComboBox *combo_box, PreferencesColorsPage *page)
 	client = gconf_client_get_default ();
 
 	selection = gtk_combo_box_get_active (combo_box);
+	scheme = selection;
 	if (selection == 2) {
 		for (i = 0; i < 4; i++)
 			gtk_widget_set_sensitive (page->color_buttons[i], TRUE);
@@ -104,6 +114,7 @@ gconf_color_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConf
 {
 	int selection;
 	selection = gconf_client_get_int (client, key, NULL);
+	scheme = selection;
 
 	gtk_combo_box_set_active (GTK_COMBO_BOX (page->combo), selection);
 	set_color_buttons (selection, page->color_buttons);
@@ -117,7 +128,7 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 	GtkSizeGroup *group;
 	GtkTreeIter iter;
-	gint i, j, scheme;
+	gint i, j;
 
 	palette_init ();
 
@@ -189,8 +200,8 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (page->color_buttons[2]), &colors[33]);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (page->color_buttons[3]), &colors[32]);
 
-	g_signal_connect (G_OBJECT (page->color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32));
-	g_signal_connect (G_OBJECT (page->color_buttons[1]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (33));
+	g_signal_connect (G_OBJECT (page->color_buttons[0]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (33));
+	g_signal_connect (G_OBJECT (page->color_buttons[1]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (32));
 	g_signal_connect (G_OBJECT (page->color_buttons[2]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (34));
 	g_signal_connect (G_OBJECT (page->color_buttons[3]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (35));
 
