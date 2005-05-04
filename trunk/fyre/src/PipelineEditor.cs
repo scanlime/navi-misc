@@ -254,7 +254,7 @@ namespace Fyre.Editor
 			if (document.Saved)
 				toplevel.Title = filename;
 			else
-				toplevel.Title = filename + "*";
+				toplevel.Title = "*" + filename;
 		}
 
 		void
