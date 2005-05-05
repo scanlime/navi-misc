@@ -710,7 +710,7 @@ on_discussion_close_activate (GtkAction *action, gpointer data)
 		g_object_unref (client);
 		g_free (text);
 	}
-	navigation_tree_remove (gui.server_tree, s);
+	navigation_tree_remove_channel (gui.server_tree, s);
 	text_gui_remove_text_buffer (s);
 }
 

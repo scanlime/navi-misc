@@ -50,7 +50,6 @@ static void row_expanded (GtkTreeView * treeview, GtkTreeIter * iter, GtkTreePat
 static void on_server_information (GtkAction * action, gpointer data);
 static void on_server_reconnect (GtkAction * action, gpointer data);
 static void on_server_disconnect (GtkAction * action, gpointer data);
-static void on_server_close (GtkAction * action, gpointer data);
 static void on_server_channel_list (GtkAction * action, gpointer data);
 static void on_save (GtkAction * action, gpointer data);
 static void on_close (GtkAction * action, gpointer data);
@@ -280,25 +279,44 @@ navigation_tree_create_new_channel_entry (NavTree * navtree, struct session *ses
 }
 
 void
-navigation_tree_remove (NavTree * navtree, struct session *sess)
+navigation_tree_remove_channel (NavTree * navtree, struct session *sess)
 {
+    /* Copy the current path to manipulate it. */
     GtkTreePath *path = gtk_tree_path_copy (navtree->current_path);
-    GtkTreePath *root_path = gtk_tree_path_new_first ();
     GtkTreeSelection *select = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
 
-    if (gtk_tree_path_compare (root_path, path) == 0) {
-	/* Removing the first server. */
-	GtkTreeIter iter;
+    /* Try to move back a channel, otherwise move up to the server. */
+    if (!gtk_tree_path_prev (path))
+	gtk_tree_path_up (path);
+
+    /* Change the selection and remove the channel. The selection has to be changed
+     * first to ensure that the deref'ing and ref'ing work properly.
+     */
+    gtk_tree_selection_select_path (select, path);
+    navigation_model_remove (navtree->model, sess);
+
+    gtk_tree_path_free (path);
+}
+
+void
+navigation_tree_remove_server (NavTree * navtree, struct session *sess)
+{
+    GtkTreePath *path = gtk_tree_path_copy (navtree->current_path);
+    GtkTreeSelection *select = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
+
+    if (!gtk_tree_path_prev (path)) {
+	/* Removing the first server in the navigation tree. */
 	GtkTreeModel *sorted = gtk_tree_view_get_model (GTK_TREE_VIEW (navtree));
+	GtkTreeIter  iter;
 
 	gtk_tree_model_get_iter_first (sorted, &iter);
 
 	if (gtk_tree_model_iter_next (sorted, &iter)) {
-	    gtk_tree_path_free (path);
-	    path = gtk_tree_model_get_path (sorted, &iter);
-	    gtk_tree_selection_select_path (select, path);
+	    /* There's another server after the first one. */
+	    gtk_tree_selection_select_iter (select, &iter);
 	    navigation_model_remove (navtree->model, sess);
 	} else {
+	    /* The first server is the only server. */
 	    GtkTreeModel *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (sorted));
 
 	    gtk_tree_model_get_iter_first (store, &iter);
@@ -307,17 +325,12 @@ navigation_tree_remove (NavTree * navtree, struct session *sess)
 	    gtk_tree_store_set (GTK_TREE_STORE (store), &iter, 1, _("<none>"), -1);
 	}
     } else {
-	/* Not the first server. */
-	if (!gtk_tree_path_prev (path))
-	    gtk_tree_path_up (path);
-
+	/* This isn't the first server. Select the server above it and remove it. */
 	gtk_tree_selection_select_path (select, path);
 	navigation_model_remove (navtree->model, sess);
     }
 
-
     gtk_tree_path_free (path);
-    gtk_tree_path_free (root_path);
 }
 
 void
@@ -1198,6 +1211,14 @@ navigation_model_path_deref (NavModel * model, GtkTreePath * path)
     GtkTreePath *unsorted = gtk_tree_model_sort_convert_path_to_child_path (GTK_TREE_MODEL_SORT (model->sorted),
 									    path);
 
+    /* FIXME This is an ugly hack. Somehow, after you close the first server in the list
+     *       path is apparently not in the child model of the sorted model. For now we
+     *       assume that that means we're at the first server, but this is likely to cause
+     *       problems. And even if it doesn't, it's ugly.
+     */
+    if (unsorted == NULL)
+	unsorted = gtk_tree_path_new_first ();
+
     gtk_tree_model_get_iter (GTK_TREE_MODEL (model->store), &iter, unsorted);
     gtk_tree_model_get (GTK_TREE_MODEL (model->store), &iter, 5, &ref_count, -1);
 
@@ -1271,27 +1292,6 @@ on_server_disconnect (GtkAction * action, gpointer data)
 }
 
 static void
-on_server_close (GtkAction * action, gpointer data)
-{
-    GtkTreeView *treeview;
-    GtkTreeSelection *select;
-    GtkTreeModel *model;
-    GtkTreeIter iter;
-    session *sess;
-
-    treeview = GTK_TREE_VIEW (gui.server_tree);
-    select = gtk_tree_view_get_selection (treeview);
-
-    if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-	gtk_tree_model_get (model, &iter, 2, &sess, -1);
-	/* Close the server. */
-	navigation_tree_remove (gui.server_tree, sess);
-	/* Disconnect the server. */
-	sess->server->disconnect (sess, TRUE, -1);
-    }
-}
-
-static void
 on_server_channel_list (GtkAction * action, gpointer data)
 {
     GtkTreeView *treeview;
@@ -1333,7 +1333,6 @@ on_close (GtkAction * action, gpointer data)
 	    GConfClient *client;
 	    gchar *text;
 
-	    printf ("removing a channel.\n");
 	    client = gconf_client_get_default ();
 	    text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
 	    if (text == NULL)
@@ -1341,6 +1340,8 @@ on_close (GtkAction * action, gpointer data)
 	    s->server->p_part (s->server, s->channel, text);
 	    g_object_unref (client);
 	    g_free (text);
+	} else if (s->type == SESS_SERVER && joined) {
+	    s->server->disconnect (s, TRUE, -1);
 	}
 
 	fe_close_window (s);
