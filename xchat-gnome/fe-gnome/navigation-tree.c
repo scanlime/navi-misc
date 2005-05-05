@@ -315,6 +315,12 @@ navigation_tree_remove_server (NavTree * navtree, struct session *sess)
 	    /* There's another server after the first one. */
 	    gtk_tree_selection_select_iter (select, &iter);
 	    navigation_model_remove (navtree->model, sess);
+
+	    /* After removing the first server the navtree's current_path is invalid
+	     * so we set it to the root of the tree.
+	     */
+	    gtk_tree_path_free (navtree->current_path);
+	    navtree->current_path = gtk_tree_path_new_first ();
 	} else {
 	    /* The first server is the only server. */
 	    GtkTreeModel *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (sorted));
@@ -1210,14 +1216,6 @@ navigation_model_path_deref (NavModel * model, GtkTreePath * path)
     GtkTreeIter iter;
     GtkTreePath *unsorted = gtk_tree_model_sort_convert_path_to_child_path (GTK_TREE_MODEL_SORT (model->sorted),
 									    path);
-
-    /* FIXME This is an ugly hack. Somehow, after you close the first server in the list
-     *       path is apparently not in the child model of the sorted model. For now we
-     *       assume that that means we're at the first server, but this is likely to cause
-     *       problems. And even if it doesn't, it's ugly.
-     */
-    if (unsorted == NULL)
-	unsorted = gtk_tree_path_new_first ();
 
     gtk_tree_model_get_iter (GTK_TREE_MODEL (model->store), &iter, unsorted);
     gtk_tree_model_get (GTK_TREE_MODEL (model->store), &iter, 5, &ref_count, -1);
