@@ -296,8 +296,13 @@ fe_text_clear (struct session *sess)
 void
 fe_close_window (struct session *sess)
 {
-    if (!gui.quit)
-	navigation_tree_remove (gui.server_tree, sess);
+    if (!gui.quit) {
+	if (sess->type == SESS_CHANNEL)
+	    navigation_tree_remove_channel (gui.server_tree, sess);
+	else
+	    navigation_tree_remove_server (gui.server_tree, sess);
+    }
+
     kill_session_callback (sess);
 }
 
