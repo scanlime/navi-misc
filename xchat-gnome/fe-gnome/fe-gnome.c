@@ -296,7 +296,6 @@ fe_text_clear (struct session *sess)
 void
 fe_close_window (struct session *sess)
 {
-    printf ("fe_close_window\n");
     if (!gui.quit)
 	navigation_tree_remove (gui.server_tree, sess);
     kill_session_callback (sess);
