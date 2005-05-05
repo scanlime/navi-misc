@@ -33,10 +33,21 @@ if test "x$PKG_CONFIG" = "xno"; then
         AC_MSG_ERROR([You need to install pkg-config])
 fi
 
+dnl mono C# compiler
 AC_PATH_PROG(MCS, mcs)
 if test "x$MCS" = "x" ; then
         AC_MSG_ERROR([Can't find "mcs" in your PATH])
 fi
+
+dnl check for the NUnit testing framework
+have_nunit="yes"
+AC_PATH_PROG(NUNIT, nunit-console.exe)
+AC_PATH_PROG(XSLTPROC, xsltproc)
+if test "x$NUNIT" = "x" || test "x$XSLTPROC" = "x"; then
+	AC_MSG_WARN([Can't find NUnit and xsltproc; will not be able to run unit tests])
+	have_nunit="no"
+fi
+AM_CONDITIONAL(HAVE_NUNIT, test "$have_nunit" = "yes")
 
 PKG_CHECK_MODULES(FYRE, gtk-sharp-2.0 glade-sharp-2.0 gtk-dotnet-2.0)
 AC_SUBST(FYRE_LIBS)
