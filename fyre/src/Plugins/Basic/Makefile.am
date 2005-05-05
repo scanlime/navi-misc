@@ -1,6 +1,6 @@
 SUBDIRS = data .
 
-CSC = mcs -g
+CSC = mcs
 
 CSFLAGS =					\
 	-debug					\
@@ -35,7 +35,7 @@ TARGET_RESOURCES =				\
 	-resource:data/TwoDTransform.png
 
 $(TARGET): $(TARGET_CSFILES) $(top_builddir)/src/Fyre.exe
-	$(CSC) -o $@ $(CSFLAGS) $(ASSEMBLIES) $(TARGET_CSFILES) $(TARGET_RESOURCES)
+	$(CSC) -out:$@ $(CSFLAGS) $(ASSEMBLIES) $(TARGET_CSFILES) $(TARGET_RESOURCES)
 
 pluginsdir = $(pkglibdir)/Plugins
 plugins_DATA =					\
