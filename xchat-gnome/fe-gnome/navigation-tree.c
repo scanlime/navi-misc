@@ -281,19 +281,36 @@ navigation_tree_create_new_channel_entry (NavTree * navtree, struct session *ses
 void
 navigation_tree_remove_channel (NavTree * navtree, struct session *sess)
 {
-    /* Copy the current path to manipulate it. */
-    GtkTreePath *path = gtk_tree_path_copy (navtree->current_path);
-    GtkTreeSelection *select = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
+    GtkTreePath		*path = gtk_tree_path_copy (navtree->current_path);
+    GtkTreeSelection	*select = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
+    GtkTreeIter		iter;
+    GtkTreeModel	*sorted;
 
     /* Try to move back a channel, otherwise move up to the server. */
-    if (!gtk_tree_path_prev (path))
-	gtk_tree_path_up (path);
+    if (!gtk_tree_path_prev (path)) {
+	sorted = gtk_tree_view_get_model (GTK_TREE_VIEW (navtree));
+	gtk_tree_model_get_iter (sorted, &iter, path);
+	if (gtk_tree_model_iter_next (sorted, &iter)) {
+	    gtk_tree_path_free (path);
+	    path = gtk_tree_model_get_path (sorted, &iter);
+	} else {
+	    gtk_tree_path_up (path);
+	}
+    }
 
     /* Change the selection and remove the channel. The selection has to be changed
      * first to ensure that the deref'ing and ref'ing work properly.
      */
     gtk_tree_selection_select_path (select, path);
     navigation_model_remove (navtree->model, sess);
+
+    /* Make sure that the navtree's current_path is valid. If it selected the next channel
+     * in the list because there was no previous channel, current_path will be one item
+     * too high. In all other cases this is extraneous.
+     */
+    gtk_tree_path_free (navtree->current_path);
+    gtk_tree_selection_get_selected (select, &sorted, &iter);
+    navtree->current_path = gtk_tree_model_get_path (sorted, &iter);
 
     gtk_tree_path_free (path);
 }
@@ -522,7 +539,7 @@ navigation_tree_select_prev_channel (NavTree * navtree, gboolean wrap)
 	    path = gtk_tree_path_copy (navtree->current_path);
 	else
 	    /* Otherwise make path point to the root of the tree. */
-	    path = gtk_tree_path_new_from_string ("0");
+	    path = gtk_tree_path_new_first ();
     }
 
     /* If the path is a server... */
