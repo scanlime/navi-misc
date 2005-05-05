@@ -150,4 +150,8 @@ class BugFilter(Filter):
     def addType(self, type):
         self.xml.body.bug.addElement('type', content=type)
 
+    def addLog(self, log):
+        self.deliverable = True
+        self.xml.body.bug.addElement('comment', content=log)
+
 ### The End ###
