@@ -190,6 +190,7 @@ namespace Fyre.Editor
 			Element			e;
 			int			x;
 			int			y;
+			ArrayList		connections;
 
 			public Delete (Element e, int x, int y)
 			{
@@ -198,11 +199,21 @@ namespace Fyre.Editor
 				this.x = x;
 				this.y = y;
 				id = e.id;
+
+				connections = new ArrayList ();
 			}
 
 			public override void
 			Do (Widgets.PipelineDrawing drawing, Document document)
 			{
+				foreach (PadConnection connection in document.Pipeline.connections) {
+					if (connection.source_element == id || connection.sink_element == id) {
+						connections.Add (connection);
+					}
+				}
+				foreach (PadConnection connection in connections) {
+					document.Pipeline.connections.Remove (connection);
+				}
 				document.Pipeline.element_store.Remove (id.ToString ("d"));
 				document.Layout.Remove (e);
 			}
@@ -214,6 +225,9 @@ namespace Fyre.Editor
 				CanvasElement ce = new CanvasElement (e);
 				ce.Position.X = drawing.DrawingExtents.X + x;
 				ce.Position.Y = drawing.DrawingExtents.Y + y;
+				foreach (PadConnection connection in connections) {
+					document.Pipeline.connections.Add (connection);
+				}
 				document.Layout.Add (e, ce);
 			}
 		}

@@ -1,6 +1,6 @@
 SUBDIRS = . Plugins
 
-CSC = mcs -g
+CSC = mcs
 
 TARGET = Fyre.exe
 WRAPPER = fyre
@@ -56,7 +56,7 @@ RESOURCEFILES =						\
 	$(top_srcdir)/data/flip.png
 
 $(TARGET): $(CSFILES) $(srcdir)/Defines.cs $(RESOURCEFILES)
-	$(CSC) -o $@ $(CSFLAGS) $(CSFILES) $(srcdir)/Defines.cs $(ASSEMBLIES) $(RESOURCES)
+	$(CSC) -out:$@ $(CSFLAGS) $(CSFILES) $(srcdir)/Defines.cs $(ASSEMBLIES) $(RESOURCES)
 
 tomboylibdir = $(pkglibdir)
 tomboylib_DATA = $(TARGET)
