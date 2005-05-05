@@ -69,7 +69,7 @@ static GtkActionEntry action_entries[] = {
     {"ServerDisconnect", GTK_STOCK_STOP, _("_Disconnect"), "", NULL,
      G_CALLBACK (on_server_disconnect)},
     {"ServerClose", GTK_STOCK_CLOSE, _("_Close"), "", NULL,
-     G_CALLBACK (on_server_close)},
+     G_CALLBACK (on_close)},
     {"ServerChannels", GTK_STOCK_INDEX, _("_Channels..."), "", NULL,
      G_CALLBACK (on_server_channel_list)},
 
@@ -296,6 +296,8 @@ navigation_tree_remove (NavTree * navtree, struct session *sess)
 	if (gtk_tree_model_iter_next (sorted, &iter)) {
 	    gtk_tree_path_free (path);
 	    path = gtk_tree_model_get_path (sorted, &iter);
+	    gtk_tree_selection_select_path (select, path);
+	    navigation_model_remove (navtree->model, sess);
 	} else {
 	    GtkTreeModel *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (sorted));
 
@@ -325,7 +327,9 @@ navigation_tree_server_rm_chans (NavTree * navtree, GtkTreeIter * parent)
     GtkTreeModel *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (sorted));
     GtkTreeIter child;
 
+    printf ("rm chans\n");
     if (gtk_tree_model_iter_children (store, &child, parent)) {
+	printf ("has chans\n");
 	session *s;
 	do {
 	    gtk_tree_model_get (store, &child, 2, &s, -1);
@@ -1329,6 +1333,7 @@ on_close (GtkAction * action, gpointer data)
 	    GConfClient *client;
 	    gchar *text;
 
+	    printf ("removing a channel.\n");
 	    client = gconf_client_get_default ();
 	    text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
 	    if (text == NULL)
