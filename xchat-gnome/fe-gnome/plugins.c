@@ -23,11 +23,16 @@
 #include <gmodule.h>
 #include <libgnome/gnome-i18n.h>
 #include <string.h>
-#include "plugins.h"
 #include "gui.h"
+#include "../common/util.h"
 #include "../common/xchat-plugin.h"
 #include "../common/plugin.h"
-#include "../common/util.h"
+
+#ifndef PLUGIN_C
+#define PLUGIN_C
+#endif
+
+#include "plugins.h"
 
 typedef int (xchat_init_func) (xchat_plugin *, char **, char **, char **, char *);
 typedef int (xchat_deinit_func) (xchat_plugin *);
