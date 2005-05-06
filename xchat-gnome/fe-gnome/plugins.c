@@ -37,57 +37,61 @@ typedef int (xchat_gnome_plugin_init) (xchat_gnome_plugin *);
 GSList *enabled_plugins;
 
 static void
-autoload_plugin_cb (gchar *filename, gpointer data)
+autoload_plugin_cb (gchar * filename, gpointer data)
 {
-	plugin_load (gui.current_session, filename, NULL);
+    plugin_load (gui.current_session, filename, NULL);
 }
 
 void
 autoload_plugins ()
 {
-	g_slist_foreach (enabled_plugins, (GFunc) &autoload_plugin_cb, NULL);
+    g_slist_foreach (enabled_plugins, (GFunc) & autoload_plugin_cb, NULL);
 }
 
 void
 plugins_initialize ()
 {
-	GConfClient *client;
+    GConfClient *client;
 
-	client = gconf_client_get_default ();
-	enabled_plugins = gconf_client_get_list (client, "/apps/xchat/plugins/enabled", GCONF_VALUE_STRING, NULL);
+    client = gconf_client_get_default ();
+    enabled_plugins = gconf_client_get_list (client, "/apps/xchat/plugins/enabled", GCONF_VALUE_STRING, NULL);
 }
 
 int
 unload_plugin (char *filename)
 {
-	return plugin_kill (filename, 1);
+    return plugin_kill (filename, 1);
 }
 
 xchat_gnome_plugin *
 new_xg_plugin ()
 {
-	xchat_gnome_plugin *plugin = malloc (sizeof (xchat_gnome_plugin));
-	plugin->xg_get_nav_tree = get_navigation_tree;
+    xchat_gnome_plugin *plugin = malloc (sizeof (xchat_gnome_plugin));
+    plugin->xg_get_nav_tree = get_navigation_tree;
 
-	return plugin;
+    return plugin;
 }
 
 char *
-load_plugin (session *sess, char *filename, char *arg)
+load_plugin (session * sess, char *filename, char *arg)
 {
-	void *handle;
-	gpointer xg_init_func;
-	xchat_gnome_plugin *pl;
-	char *err = plugin_load (sess, filename, arg);
+    void *handle;
+    gpointer xg_init_func;
+    xchat_gnome_plugin *pl;
+    char *err = plugin_load (sess, filename, arg);
 
-	if (!err)
-		return err;
+    if (!err)
+	return err;
 
-	handle = g_module_open (filename, 0);
-	if (handle != NULL && g_module_symbol (handle, "xchat_gnome_plugin_init", &xg_init_func)) {
-		pl = new_xg_plugin();
-		((xchat_gnome_plugin_init*) xg_init_func) (pl);
-	}
+    handle = g_module_open (filename, 0);
+    if (handle != NULL && g_module_symbol (handle, "xchat_gnome_plugin_init", &xg_init_func)) {
+	pl = new_xg_plugin ();
+	((xchat_gnome_plugin_init *) xg_init_func) (pl);
+    }
 
-	return NULL;
+    return NULL;
 }
+
+/*** The End ***/
+/* vim:ts=8:sw=4:softtabstop=4
+ */
