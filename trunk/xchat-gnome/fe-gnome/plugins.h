@@ -25,6 +25,7 @@
 #ifndef XCHAT_GNOME_PLUGINS_H
 #define XCHAT_GNOME_PLUGINS_H
 
+#ifdef PLUGIN_C
 typedef struct _xchat_gnome_plugin xchat_gnome_plugin;
 /* This is our own plugin struct that we use for passing in function
  * pointers specific to our GUI.
@@ -33,6 +34,7 @@ struct _xchat_gnome_plugin
 {
     NavTree *(*xg_get_nav_tree) ();
 };
+#endif
 
 extern GSList *enabled_plugins;
 
@@ -42,7 +44,6 @@ int unload_plugin	(char *filename);
 char *load_plugin	(session * sess, char *filename, char *arg);
 
 #endif
-
 /*** The End ***/
 /* vim:ts=8:sw=4:softtabstop=4
  */

@@ -1,5 +1,5 @@
 /*
- * plugins.h - handle (auto)loading and unloading of plugins
+ * xg-plugin.h - handle (auto)loading and unloading of plugins
  *
  * Copyright (C) 2005 David Trowbridge
  *
@@ -22,10 +22,12 @@
 #include "../common/xchat.h"
 #include "navigation-tree.h"
 
-#ifndef XCHAT_GNOME_PLUGINS_H
-#define XCHAT_GNOME_PLUGINS_H
+#ifndef XG_PLUGIN_H
+#define XG_PLUGIN_H
 
+#ifndef PLUGIN_C
 typedef struct _xchat_gnome_plugin xchat_gnome_plugin;
+
 /* This is our own plugin struct that we use for passing in function
  * pointers specific to our GUI.
  */
@@ -33,15 +35,21 @@ struct _xchat_gnome_plugin
 {
     NavTree *(*xg_get_nav_tree) ();
 };
+#endif
 
-extern GSList *enabled_plugins;
+NavTree *
+xg_get_nav_tree ();
 
-void plugins_initialize	();
-void autoload_plugins	();
-int unload_plugin	(char *filename);
-char *load_plugin	(session * sess, char *filename, char *arg);
+#ifndef PLUGIN_C
+
+#ifndef XG_PLUGIN_HANDLE
+#define XG_PLUGIN_HANDLE (xgph)
+#endif
+
+#define xg_get_nav_tree ((XG_PLUGIN_HANDLE)->xg_get_nav_tree)
 
 #endif
+
 
 /*** The End ***/
 /* vim:ts=8:sw=4:softtabstop=4
