@@ -40,7 +40,7 @@ struct _xchat_gnome_plugin
 NavTree *
 xg_get_nav_tree ();
 
-#ifndef PLUGIN_C
+#ifdef PLUGIN_C
 
 #ifndef XG_PLUGIN_HANDLE
 #define XG_PLUGIN_HANDLE (xgph)
@@ -49,7 +49,7 @@ xg_get_nav_tree ();
 #define xg_get_nav_tree ((XG_PLUGIN_HANDLE)->xg_get_nav_tree)
 
 #endif
-
+#endif
 
 /*** The End ***/
 /* vim:ts=8:sw=4:softtabstop=4
