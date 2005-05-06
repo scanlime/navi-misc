@@ -25,7 +25,7 @@
 #ifndef XG_PLUGIN_H
 #define XG_PLUGIN_H
 
-#ifdef PLUGIN_C
+#ifndef PLUGIN_C
 typedef struct _xchat_gnome_plugin xchat_gnome_plugin;
 
 /* This is our own plugin struct that we use for passing in function
