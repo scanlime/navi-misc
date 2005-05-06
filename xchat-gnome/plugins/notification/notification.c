@@ -100,6 +100,10 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
     /* Set the plugin info. */
     xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version, NULL);
 
+    /* FIXME It would be nice to determine the size of the panel and load these
+     *       images at that size.
+     */
+
     /* Load the pixbufs. */
     /* xchat-gnome logo. */
     p = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", 0);
@@ -130,18 +134,18 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
     gtk_widget_show_all (GTK_WIDGET (notification));
 
     /* FIXME: Saw this in Gaim's notification plugin. Not sure it's necessary,
-     * will require investigation at a later date.
+     *        will require investigation at a later date.
      */
     g_object_ref (G_OBJECT (notification));
 
     /* Create the menu. */
-    /*
+#if 0
        menu = GTK_MENU (gtk_menu_new ());
        nav_tree = get_nt ();
        gtk_tree_model_foreach (nav_tree->model->sorted,
        (GtkTreeModelForeachFunc)notification_menu_add_channel, NULL);
        gtk_widget_show (GTK_WIDGET (menu));
-     */
+#endif
 
     /* Hook up our callbacks. */
     xchat_hook_print (ph, "Channel Message", XCHAT_PRI_NORM, new_text_cb, 0);
@@ -155,7 +159,8 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 int
 xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
 {
-    nav_tree = xg_get_nav_tree ();
+    /* FIXME This is breaking stuff somehow... */
+    //nav_tree = xg_get_nav_tree ();
 
     return 1;
 }
@@ -238,10 +243,11 @@ new_text_cb (char **word, void *data)
 	xchat_print (ph, "no nav tree");
     else
 	xchat_print (ph, "yay! navtree");
-
+#if 0
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (nav_tree));
     store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
     gtk_tree_model_foreach (store, check_channel, (gpointer) chan);
+#endif
 
     return 0;
 }
