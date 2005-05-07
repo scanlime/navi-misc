@@ -65,17 +65,18 @@ GdkColor colors[] =
 	{0, 0x7f7f, 0x7f7f, 0x7f7f}, /* 30 grey */
 	{0, 0x9595, 0x9595, 0x9595}, /* 31 light grey */
 
-	{0, 0x0000, 0x0000, 0x0000}, /* 32 marktext Fore (black) */
-	{0, 0xa4a4, 0xdfdf, 0xffff}, /* 33 marktext Back (blue) */
-	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* 34 foreground (white) */
-	{0, 0x0000, 0x0000, 0x0000}, /* 35 background (black) */
-	{0, 0xcccc, 0x0000, 0x0000}, /* 36 marker line (red) */
+	{0, 0x0000, 0x0000, 0x0000}, /* 32 marktext Fore (black) - 256 */
+	{0, 0xa4a4, 0xdfdf, 0xffff}, /* 33 marktext Back (blue)  - 257 */
+	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* 34 foreground (white)    - 258 */
+	{0, 0x0000, 0x0000, 0x0000}, /* 35 background (black)    - 259 */
+	{0, 0x9999, 0x9999, 0x9999}, /* 40 away user (grey)      - 264 */
 
-	/* colors for GUI */
-	{0, 0x8c8c, 0x1010, 0x1010}, /* 37 tab New Data (dark red) */
-	{0, 0x0000, 0x0000, 0xffff}, /* 38 tab Nick Mentioned (blue) */
-	{0, 0xf5f5, 0x0000, 0x0000}, /* 39 tab New Message (red) */
-	{0, 0x9999, 0x9999, 0x9999}, /* 40 away user (grey) */
+	/* colors for GUI - we have to keep these here so we don't stomp
+	 * on xchat's settings when we save :( */
+	{0, 0x8c8c, 0x1010, 0x1010}, /* 37 tab New Data (dark red)   - 261 */
+	{0, 0x0000, 0x0000, 0xffff}, /* 38 tab Nick Mentioned (blue) - 262 */
+	{0, 0xf5f5, 0x0000, 0x0000}, /* 39 tab New Message (red)     - 263 */
+	{0, 0xcccc, 0x0000, 0x0000}, /* 36 marker line (red)         - 260 */
 };
 
 #define MAX_COL 40
@@ -98,7 +99,7 @@ const GdkColor colors_black_on_white[] =
 	{0, 0x9999, 0x9999, 0x9999}, /* away user (grey) */
 };
 
-GdkColor custom_colors[5];
+GdkColor custom_colors[9];
 
 const GdkColor *color_schemes[] =
 {
@@ -274,6 +275,30 @@ palette_init ()
 		custom_colors[4].green = green;
 		custom_colors[4].blue = blue;
 
+		strcpy (prefname, "color_261");
+		cfg_get_color (cfg, prefname, &red, &green, &blue);
+		custom_colors[5].red = red;
+		custom_colors[5].green = green;
+		custom_colors[5].blue = blue;
+
+		strcpy (prefname, "color_262");
+		cfg_get_color (cfg, prefname, &red, &green, &blue);
+		custom_colors[6].red = red;
+		custom_colors[6].green = green;
+		custom_colors[6].blue = blue;
+
+		strcpy (prefname, "color_263");
+		cfg_get_color (cfg, prefname, &red, &green, &blue);
+		custom_colors[7].red = red;
+		custom_colors[7].green = green;
+		custom_colors[7].blue = blue;
+
+		strcpy (prefname, "color_260");
+		cfg_get_color (cfg, prefname, &red, &green, &blue);
+		custom_colors[8].red = red;
+		custom_colors[8].green = green;
+		custom_colors[8].blue = blue;
+
 		free (cfg);
 	}
 	close (f);
@@ -293,20 +318,15 @@ palette_save ()
 			cfg_put_color (f, custom_palette[i].red, custom_palette[i].green, custom_palette[i].blue, prefname);
 		}
 
-		strcpy (prefname, "color_258");
-		cfg_put_color (f, custom_colors[0].red, custom_colors[0].green, custom_colors[0].blue, prefname);
-
-		strcpy (prefname, "color_259");
-		cfg_put_color (f, custom_colors[1].red, custom_colors[1].green, custom_colors[1].blue, prefname);
-
-		strcpy (prefname, "color_256");
-		cfg_put_color (f, custom_colors[2].red, custom_colors[2].green, custom_colors[2].blue, prefname);
-
-		strcpy (prefname, "color_257");
-		cfg_put_color (f, custom_colors[3].red, custom_colors[3].green, custom_colors[3].blue, prefname);
-
-		strcpy (prefname, "color_264");
-		cfg_put_color (f, custom_colors[4].red, custom_colors[4].green, custom_colors[4].blue, prefname);
+		cfg_put_color (f, custom_colors[0].red, custom_colors[0].green, custom_colors[0].blue, "color_258");
+		cfg_put_color (f, custom_colors[1].red, custom_colors[1].green, custom_colors[1].blue, "color_259");
+		cfg_put_color (f, custom_colors[2].red, custom_colors[2].green, custom_colors[2].blue, "color_256");
+		cfg_put_color (f, custom_colors[3].red, custom_colors[3].green, custom_colors[3].blue, "color_257");
+		cfg_put_color (f, custom_colors[4].red, custom_colors[4].green, custom_colors[4].blue, "color_264");
+		cfg_put_color (f, custom_colors[5].red, custom_colors[5].green, custom_colors[5].blue, "color_261");
+		cfg_put_color (f, custom_colors[6].red, custom_colors[6].green, custom_colors[6].blue, "color_262");
+		cfg_put_color (f, custom_colors[7].red, custom_colors[7].green, custom_colors[7].blue, "color_263");
+		cfg_put_color (f, custom_colors[8].red, custom_colors[8].green, custom_colors[8].blue, "color_260");
 
 		close (f);
 	}
