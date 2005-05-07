@@ -742,12 +742,6 @@ navigation_tree_server_is_connected (NavTree * navtree, gchar * name)
     return FALSE;
 }
 
-NavTree *
-get_navigation_tree ()
-{
-    error_dialog ("get nav tree", "returning server tree");
-    return gui.server_tree;
-}
 
 /***** Context Menus *****/
 static void
