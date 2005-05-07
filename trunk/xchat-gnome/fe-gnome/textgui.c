@@ -38,7 +38,7 @@ static void copy_text (GtkAction *action, gpointer data);
 static void send_email (GtkAction *action, gpointer data);
 
 static GHashTable *notify_table;
-static gchar *selected_word;
+static gchar *selected_word = NULL;
 
 static GtkActionEntry action_entries[] = {
 	/* URL Popup */
@@ -281,7 +281,9 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 			return;
 		case WORD_URL:
 		case WORD_HOST:
-			selected_word = word;
+			if (selected_word)
+				g_free (selected_word);
+			selected_word = g_strdup (word);
 			open_url (NULL, NULL);
 			break;
 		}
@@ -302,7 +304,9 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 				GtkWidget *menu;
 				menu = gtk_ui_manager_get_widget (gui.manager, "/TextURLPopup");
 				g_return_if_fail (menu != NULL);
-				selected_word = word;
+				if (selected_word)
+					g_free (selected_word);
+				selected_word = g_strdup (word);
 				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 				return;
 			}
@@ -317,7 +321,9 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 				GtkWidget *menu;
 				menu = gtk_ui_manager_get_widget (gui.manager, "/TextEmailPopup");
 				g_return_if_fail (menu != NULL);
-				selected_word = word;
+				if (selected_word)
+					g_free (selected_word);
+				selected_word = g_strdup (word);
 				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 				return;
 			}
