@@ -44,7 +44,7 @@ GSList *enabled_plugins;
 static void
 autoload_plugin_cb (gchar * filename, gpointer data)
 {
-    plugin_load (gui.current_session, filename, NULL);
+    load_plugin (gui.current_session, filename, NULL);
 }
 
 void
@@ -83,10 +83,6 @@ load_plugin (session * sess, char *filename, char *arg)
     void *handle;
     gpointer xg_init_func;
     xchat_gnome_plugin *pl;
-    char *err = plugin_load (sess, filename, arg);
-
-    if (!err)
-	return err;
 
     handle = g_module_open (filename, 0);
     if (handle != NULL && g_module_symbol (handle, "xchat_gnome_plugin_init", &xg_init_func)) {
@@ -94,7 +90,21 @@ load_plugin (session * sess, char *filename, char *arg)
 	((xchat_gnome_plugin_init *) xg_init_func) (pl);
     }
 
+    char *err = plugin_load (sess, filename, arg);
+
+    if (!err)
+	return err;
+
     return NULL;
+}
+
+
+/*** Functions called by plugins ***/
+NavTree *
+get_navigation_tree (xchat_gnome_plugin *pl)
+{
+    error_dialog ("get nav tree", "returning server tree");
+    return gui.server_tree;
 }
 
 /*** The End ***/

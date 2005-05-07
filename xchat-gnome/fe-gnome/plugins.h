@@ -33,7 +33,7 @@ typedef struct _xchat_gnome_plugin xchat_gnome_plugin;
  */
 struct _xchat_gnome_plugin
 {
-    NavTree *(*xg_get_nav_tree) ();
+    NavTree *(*xg_get_nav_tree) (xchat_gnome_plugin *pl);
 };
 #endif
 
