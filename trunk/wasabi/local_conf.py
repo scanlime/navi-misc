@@ -99,7 +99,7 @@ plugin.activate('audio.mplayervis')
 LIRCRC = '/home/freevo/wasabi/lircrc'
 
 # Recognize navi's naming scheme for covers
-AUDIO_COVER_REGEXP = 'cover'
+AUDIO_COVER_REGEXP = 'folder.jpeg'
 
 # Always start up with the wasabi skin
 SKIN_XML_FILE = 'wasabi-calm'
