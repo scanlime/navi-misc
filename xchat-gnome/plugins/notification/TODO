@@ -1,1 +1,3 @@
-* Add libnotify support
+- The context menu does not gracefully handle channels with the same name
+  on different servers.
+- Add libnotify support
