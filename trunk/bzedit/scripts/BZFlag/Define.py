@@ -67,6 +67,7 @@ class Define(Object):
         return Blender.Object.New('Empty')
 
     def transformBlenderObject(self, obj):
+        # FIXME - do we need this?
         transform = self.world.getBzToBlendMatrix()
         transform.resize4x4()
         obj.setMatrix(transform)
