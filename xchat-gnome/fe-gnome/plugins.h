@@ -32,7 +32,7 @@
  */
 struct _xchat_gnome_plugin
 {
-    NavTree *(*xg_get_nav_tree) (xchat_gnome_plugin *pl);
+    GtkTreeModel *(*xg_get_chan_list) ();
 };
 #endif
 

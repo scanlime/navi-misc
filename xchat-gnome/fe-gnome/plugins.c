@@ -73,7 +73,7 @@ xchat_gnome_plugin *
 new_xg_plugin ()
 {
     xchat_gnome_plugin *plugin = malloc (sizeof (xchat_gnome_plugin));
-    plugin->xg_get_nav_tree = get_navigation_tree;
+    plugin->xg_get_chan_list = xg_get_chan_list;
 
     return plugin;
 }
@@ -101,10 +101,10 @@ load_plugin (session * sess, char *filename, char *arg)
 
 
 /*** Functions called by plugins ***/
-NavTree *
-get_navigation_tree (xchat_gnome_plugin *pl)
+GtkTreeModel *
+xg_get_chan_list ()
 {
-    return gui.server_tree;
+    return gtk_tree_view_get_model (GTK_TREE_VIEW (gui.server_tree));
 }
 
 /*** The End ***/
