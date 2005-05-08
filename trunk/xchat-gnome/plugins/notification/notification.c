@@ -69,12 +69,17 @@ xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_ver
 }
 
 gboolean
-focus_changed_cb (GtkWidget *widget, GtkDirectionType arg1, gpointer data)
+got_focus_cb (GtkWidget *widget, GdkEventFocus *event, gpointer data)
 {
-    if (GTK_WIDGET_HAS_FOCUS (widget))
-	gtk_widget_hide_all (GTK_WIDGET (notification));
-    else
-	gtk_widget_show_all (GTK_WIDGET (notification));
+    gtk_widget_hide_all (GTK_WIDGET (notification));
+    return FALSE;
+}
+
+gboolean
+lost_focus_cb (GtkWidget *widget, GdkEventFocus *event, gpointer data)
+{
+    gtk_widget_show_all (GTK_WIDGET (notification));
+    return FALSE;
 }
 
 #if 0
@@ -174,8 +179,8 @@ xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
     channels = xg_get_chan_list ();
 
     main_window = xg_get_main_window ();
-    g_signal_connect (main_window, "focus-in-event", G_CALLBACK (focus_changed_cb), NULL);
-    g_signal_connect (main_window, "focus-out-event", G_CALLBACK (focus_changed_cb), NULL);
+    g_signal_connect (main_window, "focus-in-event", G_CALLBACK (got_focus_cb), NULL);
+    g_signal_connect (main_window, "focus-out-event", G_CALLBACK (lost_focus_cb), NULL);
 
     return 1;
 }
