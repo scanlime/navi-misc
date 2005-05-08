@@ -31,15 +31,16 @@ class Zone(Box):
         self.set_flag()
         self.set_team()
         self.set_safety()
+        Box.__init__(self, list)
 
     def set_mode(self, mode='flag'):
-        pass
+        self.mode = mode
 
     def set_flag(self, flag=['']):
-        pass
+        self.flag = flag
 
     def set_team(self, team=['']):
-        pass
+        self.team = team
 
     def set_safety(self, safety=['']):
-        pass
+        self.safety = safety

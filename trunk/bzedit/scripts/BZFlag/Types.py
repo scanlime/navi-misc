@@ -22,6 +22,7 @@ from Mesh import Mesh
 from Pyramid import Pyramid
 from Teleporter import Teleporter
 from World import World
+from Zone import Zone
 
 typeMap = {
     'arc'           : None,
@@ -46,7 +47,7 @@ typeMap = {
     'waterLevel'    : None,
     'weapon'        : None,
     'world'         : World,
-    'zone'          : None,
+    'zone'          : Zone,
 }
 
 def fromBlender(object, world=None):
