@@ -276,9 +276,9 @@ class Reader:
               | flagShortName
               )
             zoneProperty = (
-                CaselessLiteral('flag') + OneOrMore(flagSpec)
-              | CaselessLiteral('team') + OneOrMore(int)
-              | CaselessLiteral('safety') + OneOrMore(int)
+                Group(CaselessLiteral('flag') + OneOrMore(flagSpec))
+              | Group(CaselessLiteral('team') + OneOrMore(int))
+              | Group(CaselessLiteral('safety') + OneOrMore(int))
               | locationProperty
               )
             zone = Group(CaselessLiteral('zone') + OneOrMore(zoneProperty) + end)
