@@ -32,7 +32,7 @@
 
 #define NOTIFICATION_VERSION "0.1"
 
-
+/* Enumerated type of different status levels. */
 typedef enum
 {
 	NOTIF_NONE = 0,
@@ -41,33 +41,25 @@ typedef enum
 	NOTIF_NICK
 } NotifStatus;
 
+struct MenuChannel
+{
+	NotifStatus	status;
+	GtkWidget*	menu_item;
+};
 
-static xchat_plugin			*ph;							/* Plugin handle. */
-static xchat_gnome_plugin	*xgph;						/* xchat gnome plugin handle. */
+static xchat_plugin*			ph;							/* Plugin handle. */
+static xchat_gnome_plugin*	xgph;							/* xchat gnome plugin handle. */
 static NotifStatus			status = NOTIF_NONE;		/* Current status level. */
 static gboolean				window_visible = TRUE;	/* Keep track of whether the window is visible. */
-static GtkWidget				*main_window;				/* xchat-gnome's main window. */
-static GHashTable				*channels;					/* A reference to the navigation tree. */
-static EggTrayIcon			*notification;				/* Notification area icon. */
-//static GtkMenu				*menu;						/* The menu that pops up. */
-static GtkWidget				*image;						/* The image displayed by the icon. */
-static GdkPixbuf				*pixbufs[4];				/* Pixbufs */
-
-static gboolean notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer data);
-static int new_text_cb (char **word, void *data);
+static GtkWidget*				main_window;				/* xchat-gnome's main window. */
+static GHashTable*			channels;					/* A reference to the navigation tree. */
+static EggTrayIcon*			notification;				/* Notification area icon. */
+static GtkMenu*				menu;							/* The menu that pops up. */
+static GtkWidget*				image;						/* The image displayed by the icon. */
+static GdkPixbuf*				pixbufs[4];					/* Pixbufs */
 
 
-void
-xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved)
-{
-	*plugin_name = "Notification";
-	*plugin_desc = "A notification area plugin.";
-	*plugin_version = NOTIFICATION_VERSION;
-
-	if (reserved)
-		*reserved = NULL;
-}
-
+/*** Callbacks ***/
 static gboolean
 got_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 {
@@ -93,6 +85,16 @@ lost_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 static int
 new_msg_cb (char **word, void *msg_lvl)
 {
+	gchar*	chan_name = (gchar*) xchat_get_info (ph, "channel");
+	struct MenuChannel*	chan = (struct MenuChannel*) g_hash_table_lookup (channels, (gconstpointer) chan_name);
+
+	if (chan->status < (NotifStatus) msg_lvl) {
+		chan->status = (NotifStatus) msg_lvl;
+		/* FIXME memory leak? */
+		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (chan->menu_item),
+				gtk_image_new_from_pixbuf (pixbufs[(int) chan->status]));
+	}
+
 	if (status < (NotifStatus) msg_lvl && !GTK_WIDGET_HAS_FOCUS (main_window)) {
 		status = (NotifStatus) msg_lvl;
 		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
@@ -101,28 +103,114 @@ new_msg_cb (char **word, void *msg_lvl)
 	return 0;
 }
 
-#if 0
-gboolean
-notification_menu_add_channel (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpointer data)
+static int
+join_chan_cb (char **word, void *data)
 {
-	GtkWidget *item;
-	GdkPixbuf *image = NULL;
-	gchar *channel;
+	struct MenuChannel* item = (struct MenuChannel*) malloc (sizeof (struct MenuChannel));
 
-	/* Create a new menu item with a perdy picture. */
-	gtk_tree_model_get (model, iter, 0, &image, 1, &channel, -1);
-	item = gtk_image_menu_item_new_with_label (channel);
+	item->status = NOTIF_NONE;
+	item->menu_item = gtk_menu_item_new_with_label ((gchar*) word[1]);
+	g_hash_table_insert (channels, (gpointer) word[1], (gpointer) item);
 
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), gtk_image_new_from_pixbuf (image));
+	return 0;
+}
 
-	/* Shove it in the menu. */
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	gtk_widget_show (item);
+static int
+part_chan_cb (char **word, void *data)
+{
+	struct MenuChannel*	chan = (struct MenuChannel*) g_hash_table_lookup (channels, word[2]);
 
-	return FALSE;
+	gtk_container_remove (GTK_CONTAINER (menu), GTK_WIDGET (chan->menu_item));
+	g_hash_table_remove (channels, (gconstpointer) word[2]);
+	return 0;
+}
+
+#if 0
+static void
+notification_menu_show (GdkEventButton *event)
+{
+	gtk_menu_popup (menu, NULL, NULL, NULL, NULL, event->button, event->time);
 }
 #endif
 
+static gboolean
+notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer data)
+{
+	switch (event->button) {
+		/* Left click. */
+	case 1:
+		if (window_visible) {
+			window_visible = FALSE;
+			xchat_command (ph, "GUI HIDE");
+		} else {
+			window_visible = TRUE;
+			xchat_command (ph, "GUI SHOW");
+		}
+		break;
+
+		/* Right click. */
+	case 3:
+		//notification_menu_show (event);
+		break;
+
+	default:
+		break;
+	}
+
+	return TRUE;
+}
+
+
+/*** Utility Functions ***/
+gboolean
+add_channels_foreach_cb (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpointer data)
+{
+	struct MenuChannel*	item = (struct MenuChannel*) malloc (sizeof (struct MenuChannel));
+	gchar*					channel;
+
+	gtk_tree_model_get (model, iter, 1, &channel, -1);
+	item->status = NOTIF_NONE;
+	item->menu_item = gtk_menu_item_new_with_label (channel);
+	g_hash_table_insert (channels, (gpointer) channel, (gpointer) item);
+
+	gtk_menu_append (menu, item->menu_item);
+
+	return FALSE;
+}
+
+
+/*** xchat-gnome plugin functions ***/
+void
+xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved)
+{
+	*plugin_name = "Notification";
+	*plugin_desc = "A notification area plugin.";
+	*plugin_version = NOTIFICATION_VERSION;
+
+	if (reserved)
+		*reserved = NULL;
+}
+
+int
+xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
+{
+	GtkTreeModel *chan_model = xg_get_chan_list ();
+
+	xgph = xg_plugin;
+
+	/* Hook up callbacks for changing focus on the main window. */
+	main_window = xg_get_main_window ();
+	g_signal_connect (main_window, "focus-in-event", G_CALLBACK (got_focus_cb), NULL);
+	g_signal_connect (main_window, "focus-out-event", G_CALLBACK (lost_focus_cb), NULL);
+
+	channels = g_hash_table_new (g_str_hash , g_str_equal);
+	gtk_tree_model_foreach (chan_model, add_channels_foreach_cb, NULL);
+
+	return 1;
+}
+
+
+/*** xchat plugin functions ***/
 int
 xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg)
 {
@@ -185,23 +273,12 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	xchat_hook_print (ph, "Channel Message", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_MSG);
 	xchat_hook_print (ph, "Channel Msg Hilight", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_NICK);
 	xchat_hook_print (ph, "Private Message to Dialog", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_MSG);
+	xchat_hook_print (ph, "You Join", XCHAT_PRI_NORM, join_chan_cb, 0);
+	xchat_hook_print (ph, "You Part", XCHAT_PRI_NORM, part_chan_cb, 0);
 
 	xchat_print (ph, "Notification plugin loaded.\n");
 
 	return TRUE;
-}
-
-int
-xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
-{
-	xgph = xg_plugin;
-
-	/* Hook up callbacks for changing focus on the main window. */
-	main_window = xg_get_main_window ();
-	g_signal_connect (main_window, "focus-in-event", G_CALLBACK (got_focus_cb), NULL);
-	g_signal_connect (main_window, "focus-out-event", G_CALLBACK (lost_focus_cb), NULL);
-
-	return 1;
 }
 
 int
@@ -214,63 +291,6 @@ xchat_plugin_deinit ()
 
 	return 1;
 }
-
-/*
-static void
-notification_menu_show (GdkEventButton *event)
-{
-	gtk_menu_popup (menu, NULL, NULL, NULL, NULL, event->button, event->time);
-}
-*/
-
-static gboolean
-notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer data)
-{
-	switch (event->button) {
-		/* Left click. */
-	case 1:
-		if (window_visible) {
-			window_visible = FALSE;
-			xchat_command (ph, "GUI HIDE");
-		} else {
-			window_visible = TRUE;
-			xchat_command (ph, "GUI SHOW");
-		}
-		break;
-
-		/* Right click. */
-	case 3:
-		//notification_menu_show (event);
-		break;
-
-	default:
-		break;
-	}
-
-	return TRUE;
-}
-
-gboolean
-check_channel (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpointer channel)
-{
-	gchar *chan;
-	gint stat;
-
-	gtk_tree_model_get (model, iter, 1, &chan, 3, &stat, -1);
-	if (strcmp ((char *) channel, chan) == 0) {
-		if (stat > status) {
-			gtk_widget_hide (image);
-			gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[stat]);
-			gtk_widget_show (image);
-			status = stat;
-		}
-
-		return TRUE;
-	}
-	return FALSE;
-}
-
-
 
 
 /*** The End ***/
