@@ -64,6 +64,7 @@ class Box(Object):
         self.set_scale()
         self.set_shear()
         self.set_spin()
+        self.set_shift()
         if list is not None:
             for property in list[1:]:
                 getattr(self, "set_%s" % property[0])(property[1:])
@@ -105,6 +106,9 @@ class Box(Object):
     def set_spin(self, spin=[0, 0, 0, 0]):
         self.spin = [float(n) for n in spin]
 
+    def set_shift(self, shift=[0, 0, 0]):
+        self.shift = [float(n) for n in shift]
+
     def setBlenderProperties(self, object):
         Object.setBlenderProperties(self, object)
         object.addProperty('drivethrough', self.drivethrough, 'INT')
@@ -135,6 +139,7 @@ class Box(Object):
 
         size = list(self.size)
         position = list(self.position)
+        shift = list(self.shift)
 
         # Fix-up objects with negative scales - upside-down objects
         # are represented in blender with a positive scale and a rotation
@@ -172,6 +177,20 @@ class Box(Object):
         mat *= transform
 
         mat *= Blender.Mathutils.TranslationMatrix(self.world.blendObject.mat.translationPart())
+
+        # spin
+        mat *= Blender.Mathutils.RotationMatrix(self.spin[3], 4, 'r', Blender.Mathutils.Vector(list(self.spin[:3])))
+
+        # shear
+        # mat *= Blender.Mathutils.ShearMatrix(Blender.Mathutils.Vector(shear))
+
+        # shift
+        mat *= Blender.Mathutils.TranslationMatrix(Blender.Mathutils.Vector(shift))
+
+        # scale
+        mat *= Blender.Mathutils.ScaleMatrix(self.scale[0], 4, Blender.Mathutils.Vector([1, 0, 0]))
+        mat *= Blender.Mathutils.ScaleMatrix(self.scale[1], 4, Blender.Mathutils.Vector([0, 1, 0]))
+        mat *= Blender.Mathutils.ScaleMatrix(self.scale[2], 4, Blender.Mathutils.Vector([0, 0, 1]))
 
         obj.setMatrix(mat)
 
