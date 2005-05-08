@@ -90,6 +90,39 @@ lost_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 	return FALSE;
 }
 
+static int
+chan_notice_cb (char **word, void *data)
+{
+	if (status < NOTIF_DATA && !GTK_WIDGET_HAS_FOCUS (main_window)) {
+		status = NOTIF_DATA;
+		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
+	}
+
+	return 0;
+}
+
+static int
+chan_msg_cb (char **word, void *data)
+{
+	if (status < NOTIF_MSG && !GTK_WIDGET_HAS_FOCUS (main_window)) {
+		status = NOTIF_MSG;
+		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
+	}
+
+	return 0;
+}
+
+static int
+chan_msg_hilight_cb (char **word, void *data)
+{
+	if (status < NOTIF_NICK && !GTK_WIDGET_HAS_FOCUS (main_window)) {
+		status = NOTIF_NICK;
+		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
+	}
+
+	return 0;
+}
+
 #if 0
 gboolean
 notification_menu_add_channel (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpointer data)
@@ -173,7 +206,7 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	xchat_hook_print (ph, "Channle Notice", XCHAT_PRI_NORM, chan_notice_cb, 0);
 	xchat_hook_print (ph, "Channel Message", XCHAT_PRI_NORM, chan_msg_cb, 0);
 	xchat_hook_print (ph, "Channel Msg Hilight", XCHAT_PRI_NORM, chan_msg_hilight_cb, 0);
-	xchat_hook_print (ph, "Private Message to Dialog", XCHAT_PRI_NORM, priv_msg_cb, 0);
+	xchat_hook_print (ph, "Private Message to Dialog", XCHAT_PRI_NORM, chan_msg_cb, 0);
 
 	xchat_print (ph, "Notification plugin loaded.\n");
 
@@ -261,17 +294,7 @@ check_channel (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpo
 	return FALSE;
 }
 
-static int
-new_text_cb (char **word, void *data)
-{
-	const char *chan;
 
-	chan = xchat_get_info (ph, "channel");
-
-	gtk_tree_model_foreach (channels, check_channel, (gpointer) chan);
-
-	return 0;
-}
 
 
 /*** The End ***/
