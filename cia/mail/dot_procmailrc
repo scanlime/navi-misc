@@ -45,6 +45,12 @@ $CIADIR/mail.log
 | $CIADIR/mail/filter_xfree86.py
 
 
+###### Blackhole bugzilla stuff for now
+:0
+* ^From: bugzilla-daemon@bugzilla.gnome.org
+/dev/null
+
+
 ###### Find messages that the server can probably handle, and pass them on via XML-RPC
 
 :0
