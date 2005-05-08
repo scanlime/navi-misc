@@ -237,15 +237,10 @@ static int
 new_text_cb (char **word, void *data)
 {
     const char *chan;
-    GtkTreeModel *model, *store;
 
     chan = xchat_get_info (ph, "channel");
 
-#if 0
-    model = gtk_tree_view_get_model (GTK_TREE_VIEW (nav_tree));
-    store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
-    gtk_tree_model_foreach (store, check_channel, (gpointer) chan);
-#endif
+    gtk_tree_model_foreach (channels, check_channel, (gpointer) chan);
 
     return 0;
 }
