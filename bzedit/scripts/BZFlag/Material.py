@@ -59,3 +59,15 @@ class Material(Object.Object):
 
     def set_shininess(self, shininess):
         self.material.setSpec(float(shininess[0]) / 128)
+
+    def set_texmat(self, texmat):
+        pass
+
+    def set_notexalpha(self, notexalpha):
+        pass
+
+    def set_color(self, color):
+        pass
+
+    def set_notextures(self, notextures):
+        pass

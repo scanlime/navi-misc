@@ -31,6 +31,7 @@ typeMap = {
     'cone'          : None,
     'define'        : None,
     'dynamicColor'  : None,
+    'group'         : None,
     'link'          : None,
     'material'      : Material,
     'mesh'          : Mesh,

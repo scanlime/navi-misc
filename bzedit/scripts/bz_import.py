@@ -49,7 +49,6 @@ def importObjects(reader):
 
     # Create Blender objects for each BZFlag object
     for object in objects:
-        print 'creating object',object
         object.world = world
         object.toBlender()
 
@@ -58,9 +57,9 @@ def fileSelectedCallback(filename):
     try:
         reader = BZFlag.Reader()
         reader.parse(filename)
-    except e:
+    except StandardError, e:
         print 'error!',e
-        bzflag.log.err(e)
+        BZFlag.log.err(e)
     else:
         importObjects(reader)
 
