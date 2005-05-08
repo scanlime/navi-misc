@@ -55,6 +55,9 @@ class Mesh(Object):
                 except Exception, e:
                     print 'error!',property[0],e
 
+    def serialize(self, writer):
+        Object.serialize(self, writer)
+
     def set_face(self, face):
         f = Face(face)
         self.faces.append(f.vertices)

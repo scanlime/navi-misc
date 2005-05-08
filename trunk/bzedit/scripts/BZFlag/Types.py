@@ -16,6 +16,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 from Box import Box
+from Base import Base
 from Material import Material
 from Mesh import Mesh
 from Pyramid import Pyramid
@@ -24,7 +25,7 @@ from World import World
 
 typeMap = {
     'arc'           : None,
-    'base'          : None,
+    'base'          : Base,
     'box'           : Box,
     'cone'          : None,
     'define'        : None,
