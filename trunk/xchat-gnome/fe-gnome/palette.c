@@ -65,18 +65,15 @@ GdkColor colors[] =
 	{0, 0x7f7f, 0x7f7f, 0x7f7f}, /* 30 grey */
 	{0, 0x9595, 0x9595, 0x9595}, /* 31 light grey */
 
-	{0, 0x0000, 0x0000, 0x0000}, /* 32 marktext Fore (black) - 256 */
-	{0, 0xa4a4, 0xdfdf, 0xffff}, /* 33 marktext Back (blue)  - 257 */
-	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* 34 foreground (white)    - 258 */
-	{0, 0x0000, 0x0000, 0x0000}, /* 35 background (black)    - 259 */
-	{0, 0x9999, 0x9999, 0x9999}, /* 40 away user (grey)      - 264 */
-
-	/* colors for GUI - we have to keep these here so we don't stomp
-	 * on xchat's settings when we save :( */
+	{0, 0x0000, 0x0000, 0x0000}, /* 32 marktext Fore (black)     - 256 */
+	{0, 0xa4a4, 0xdfdf, 0xffff}, /* 33 marktext Back (blue)      - 257 */
+	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* 34 foreground (white)        - 258 */
+	{0, 0x0000, 0x0000, 0x0000}, /* 35 background (black)        - 259 */
+	{0, 0xcccc, 0x0000, 0x0000}, /* 36 marker line (red)         - 260 */
 	{0, 0x8c8c, 0x1010, 0x1010}, /* 37 tab New Data (dark red)   - 261 */
 	{0, 0x0000, 0x0000, 0xffff}, /* 38 tab Nick Mentioned (blue) - 262 */
 	{0, 0xf5f5, 0x0000, 0x0000}, /* 39 tab New Message (red)     - 263 */
-	{0, 0xcccc, 0x0000, 0x0000}, /* 36 marker line (red)         - 260 */
+	{0, 0x9999, 0x9999, 0x9999}, /* 40 away user (grey)          - 264 */
 };
 
 #define MAX_COL 40
