@@ -54,5 +54,5 @@ GtkTreeModel *xg_get_chan_list ();
 #endif
 
 /*** The End ***/
-/* vim:ts=8:sw=4:softtabstop=4
+/* vim:ts=3:sw=3
  */
