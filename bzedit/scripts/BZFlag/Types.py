@@ -17,6 +17,7 @@
 #
 from Box import Box
 from Base import Base
+from Define import Define
 from Material import Material
 from Mesh import Mesh
 from Pyramid import Pyramid
@@ -29,7 +30,7 @@ typeMap = {
     'base'          : Base,
     'box'           : Box,
     'cone'          : None,
-    'define'        : None,
+    'define'        : Define,
     'dynamicColor'  : None,
     'group'         : None,
     'link'          : None,
