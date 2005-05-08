@@ -49,7 +49,10 @@ class Material(Object.Object):
 
     def set_emission(self, emission):
         # FIXME - need to set emission color
-        self.material.setEmit(float(emission[4]))
+        if len(emission) == 3:
+            self.material.setEmit(1.0)
+        else:
+            self.material.setEmit(float(emission[3]))
 
     def set_specular(self, specular):
         if (len(specular) == 4):
