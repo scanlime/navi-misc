@@ -91,32 +91,10 @@ lost_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 }
 
 static int
-chan_notice_cb (char **word, void *data)
+new_msg_cb (char **word, void *msg_lvl)
 {
-	if (status < NOTIF_DATA && !GTK_WIDGET_HAS_FOCUS (main_window)) {
-		status = NOTIF_DATA;
-		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
-	}
-
-	return 0;
-}
-
-static int
-chan_msg_cb (char **word, void *data)
-{
-	if (status < NOTIF_MSG && !GTK_WIDGET_HAS_FOCUS (main_window)) {
-		status = NOTIF_MSG;
-		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
-	}
-
-	return 0;
-}
-
-static int
-chan_msg_hilight_cb (char **word, void *data)
-{
-	if (status < NOTIF_NICK && !GTK_WIDGET_HAS_FOCUS (main_window)) {
-		status = NOTIF_NICK;
+	if (status < (NotifStatus) msg_lvl && !GTK_WIDGET_HAS_FOCUS (main_window)) {
+		status = (NotifStatus) msg_lvl;
 		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
 	}
 
@@ -203,10 +181,10 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 #endif
 
 	/* Hook up our callbacks. */
-	xchat_hook_print (ph, "Channle Notice", XCHAT_PRI_NORM, chan_notice_cb, 0);
-	xchat_hook_print (ph, "Channel Message", XCHAT_PRI_NORM, chan_msg_cb, 0);
-	xchat_hook_print (ph, "Channel Msg Hilight", XCHAT_PRI_NORM, chan_msg_hilight_cb, 0);
-	xchat_hook_print (ph, "Private Message to Dialog", XCHAT_PRI_NORM, chan_msg_cb, 0);
+	xchat_hook_print (ph, "Channle Notice", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_DATA);
+	xchat_hook_print (ph, "Channel Message", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_MSG);
+	xchat_hook_print (ph, "Channel Msg Hilight", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_NICK);
+	xchat_hook_print (ph, "Private Message to Dialog", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_MSG);
 
 	xchat_print (ph, "Notification plugin loaded.\n");
 
