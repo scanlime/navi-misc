@@ -25,8 +25,8 @@
 #ifndef XG_PLUGIN_H
 #define XG_PLUGIN_H
 
-#ifndef PLUGIN_C
 typedef struct _xchat_gnome_plugin xchat_gnome_plugin;
+#ifndef PLUGIN_C
 
 /* This is our own plugin struct that we use for passing in function
  * pointers specific to our GUI.
@@ -39,7 +39,7 @@ struct _xchat_gnome_plugin
 
 NavTree *xg_get_nav_tree (xchat_gnome_plugin *pl);
 
-#ifdef PLUGIN_C
+#ifndef PLUGIN_C
 
 #ifndef XG_PLUGIN_HANDLE
 #define XG_PLUGIN_HANDLE (xgph)
