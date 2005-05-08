@@ -39,6 +39,7 @@ class Reader:
             comment = Literal('#') + Optional (restOfLine)
             float = Combine(Word('+-'+nums, nums) +
                             Optional(Literal('.') + Optional(Word(nums))) +
+                            Optional(CaselessLiteral('E') + Word('+-'+nums, nums))) | Combine(Literal('.') + Word(nums) +
                             Optional(CaselessLiteral('E') + Word('+-'+nums, nums)))
             int = Word('+-'+nums, nums)
             TwoDPoint = float + float
