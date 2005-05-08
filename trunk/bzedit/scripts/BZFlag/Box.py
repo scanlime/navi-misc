@@ -103,7 +103,7 @@ class Box(Object):
     def set_shear(self, shear=[0, 0, 0]):
         self.shear = [float(n) for n in shear]
 
-    def set_spin(self, spin=[0, 0, 0, 0]):
+    def set_spin(self, spin=[1, 0, 0, 0]):
         self.spin = [float(n) for n in spin]
 
     def set_shift(self, shift=[0, 0, 0]):

@@ -67,6 +67,8 @@ class World(Object):
         object.addProperty('size', float(self.size), 'FLOAT')
         if self.name != '':
             object.setName(self.name)
+        else:
+            object.setName('World')
 
     def loadBlenderProperties(self, object):
         Object.loadBlenderProperties(self, object)
