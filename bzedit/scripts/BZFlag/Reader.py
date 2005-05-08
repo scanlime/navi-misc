@@ -29,6 +29,7 @@ class Reader:
 
     def gotElement(self, s, loc, toks):
         object = toks[0]
+        print 'object is',object
         objtype = typeMap[object[0]]
         if objtype is not None:
             self.objects.append(objtype(object))
@@ -113,7 +114,7 @@ class Reader:
             pyramid = Group(CaselessLiteral('pyramid') + OneOrMore(pyramidProperty) + end)
 
             baseProperty = (
-                CaselessLiteral('color') + int
+                Group(CaselessLiteral('color') + int)
               | obstacleProperty
               )
             base = Group(CaselessLiteral('base') + OneOrMore(baseProperty) + end)
