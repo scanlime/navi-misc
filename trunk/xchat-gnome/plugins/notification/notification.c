@@ -42,15 +42,16 @@ typedef enum
 } NotifStatus;
 
 
-static xchat_plugin	    *ph;			// Plugin handle.
-static xchat_gnome_plugin   *xgph;			// xchat gnome plugin handle.
-static NotifStatus	    status = NOTIF_NONE;	// Current status level.
-static gboolean		    window_visible = TRUE;	// Keep track of whether the window is visible.
-static GtkTreeModel	    *channels;			// A reference to the navigation tree.
-static EggTrayIcon	    *notification;		// Notification area icon.
-//static GtkMenu	    *menu;			// The menu that pops up.
-static GtkWidget	    *image;			// The image displayed by the icon.
-static GdkPixbuf	    *pixbufs[4];		// Pixbufs
+static xchat_plugin	    *ph;			/* Plugin handle. */
+static xchat_gnome_plugin   *xgph;			/* xchat gnome plugin handle. */
+static NotifStatus	    status = NOTIF_NONE;	/* Current status level. */
+static gboolean		    window_visible = TRUE;	/* Keep track of whether the window is visible. */
+static GtkWidget	    *main_window;		/* xchat-gnome's main window. */
+static GtkTreeModel	    *channels;			/* A reference to the navigation tree. */
+static EggTrayIcon	    *notification;		/* Notification area icon. */
+//static GtkMenu	    *menu;			/* The menu that pops up. */
+static GtkWidget	    *image;			/* The image displayed by the icon. */
+static GdkPixbuf	    *pixbufs[4];		/* Pixbufs */
 
 static gboolean notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer data);
 static int new_text_cb                  (char **word, void *data);
@@ -65,6 +66,15 @@ xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_ver
 
     if (reserved)
 	*reserved = NULL;
+}
+
+gboolean
+focus_changed_cb (GtkWidget *widget, GtkDirectionType arg1, gpointer data)
+{
+    if (GTK_WIDGET_HAS_FOCUS (widget))
+	gtk_widget_hide_all (GTK_WIDGET (notification));
+    else
+	gtk_widget_show_all (GTK_WIDGET (notification));
 }
 
 #if 0
@@ -161,8 +171,11 @@ xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
 {
     xgph = xg_plugin;
 
-    /* FIXME This is breaking stuff somehow... */
     channels = xg_get_chan_list ();
+
+    main_window = xg_get_main_window ();
+    g_signal_connect (main_window, "focus-in-event", G_CALLBACK (focus_changed_cb), NULL);
+    g_signal_connect (main_window, "focus-out-event", G_CALLBACK (focus_changed_cb), NULL);
 
     return 1;
 }
