@@ -33,11 +33,11 @@ typedef struct _xchat_gnome_plugin xchat_gnome_plugin;
  */
 struct _xchat_gnome_plugin
 {
-    NavTree *(*xg_get_nav_tree) (xchat_gnome_plugin *pl);
+    GtkTreeModel *(*xg_get_chan_list) ();
 };
 #endif
 
-NavTree *xg_get_nav_tree (xchat_gnome_plugin *pl);
+GtkTreeModel *xg_get_chan_list ();
 
 #ifndef PLUGIN_C
 
@@ -45,7 +45,7 @@ NavTree *xg_get_nav_tree (xchat_gnome_plugin *pl);
 #define XG_PLUGIN_HANDLE (xgph)
 #endif
 
-#define xg_get_nav_tree ((XG_PLUGIN_HANDLE)->xg_get_nav_tree)
+#define xg_get_chan_list ((XG_PLUGIN_HANDLE)->xg_get_chan_list)
 
 #endif
 #endif
