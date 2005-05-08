@@ -1,7 +1,6 @@
 """ BZFlag.Define
 
 Subclass of BZFlag.Object implementing group definitions.
-Right now this just creates an instance of the objects.
 """
 #
 # Copyright (C) 2005 David Trowbridge
@@ -41,14 +40,22 @@ class Define(Object):
                 else:
                     print 'unable to create object "%s"' % child[0]
 
+    def set_name(self, name):
+        self.name = name
+
     def toBlender(self):
         obj = Object.toBlender(self)
         self.children = [x.toBlender() for x in self.objects]
         obj.makeParent(self.children, 0, 0)
 
+        obj.setName(self.name)
+
+        scene = Blender.Scene.GetCurrent()
+
         # move this object and all its children to layer 20
         for child in self.children:
             child.Layer = 1 << 19
+        scene.link(obj)
         obj.Layer = 1 << 19
         return obj
 
