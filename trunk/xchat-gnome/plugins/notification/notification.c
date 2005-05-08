@@ -42,16 +42,16 @@ typedef enum
 } NotifStatus;
 
 
-static xchat_plugin *ph;		  /* Plugin handle. */
-static xchat_gnome_plugin *xgph;	/* xchat gnome plugin handle. */
-static NotifStatus status = NOTIF_NONE;	/* Current status level. */
-static gboolean window_visible = TRUE;	/* Keep track of whether the window is visible. */
-static GtkWidget *main_window;  /* xchat-gnome's main window. */
-static GtkTreeModel *channels;  /* A reference to the navigation tree. */
-static EggTrayIcon *notification;	/* Notification area icon. */
-//static GtkMenu            *menu;                      /* The menu that pops up. */
-static GtkWidget *image;		  /* The image displayed by the icon. */
-static GdkPixbuf *pixbufs[4];	  /* Pixbufs */
+static xchat_plugin			*ph;							/* Plugin handle. */
+static xchat_gnome_plugin	*xgph;						/* xchat gnome plugin handle. */
+static NotifStatus			status = NOTIF_NONE;		/* Current status level. */
+static gboolean				window_visible = TRUE;	/* Keep track of whether the window is visible. */
+static GtkWidget				*main_window;				/* xchat-gnome's main window. */
+static GHashTable				*channels;					/* A reference to the navigation tree. */
+static EggTrayIcon			*notification;				/* Notification area icon. */
+//static GtkMenu				*menu;						/* The menu that pops up. */
+static GtkWidget				*image;						/* The image displayed by the icon. */
+static GdkPixbuf				*pixbufs[4];				/* Pixbufs */
 
 static gboolean notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer data);
 static int new_text_cb (char **word, void *data);
@@ -74,16 +74,16 @@ got_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 	/* Hide the notification icon. */
 	gtk_widget_hide_all (GTK_WIDGET (notification));
 
-	/* Reset the status. */
-	status = NOTIF_NONE;
-	gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[0]);
-
 	return FALSE;
 }
 
 static gboolean
 lost_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 {
+	/* Reset the status. */
+	status = NOTIF_NONE;
+	gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[0]);
+
 	/* Show the notification icon. */
 	gtk_widget_show_all (GTK_WIDGET (notification));
 
@@ -195,8 +195,6 @@ int
 xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
 {
 	xgph = xg_plugin;
-
-	channels = xg_get_chan_list ();
 
 	/* Hook up callbacks for changing focus on the main window. */
 	main_window = xg_get_main_window ();
