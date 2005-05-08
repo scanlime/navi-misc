@@ -29,10 +29,11 @@ class Reader:
 
     def gotElement(self, s, loc, toks):
         object = toks[0]
-        print 'object is',object
         objtype = typeMap[object[0]]
         if objtype is not None:
             self.objects.append(objtype(object))
+        else:
+            print 'unable to create object "%s"' % object[0]
 
     def getGrammar(self):
         if self.grammar is None:
@@ -369,7 +370,7 @@ class Reader:
               | phydrv
               | obstacleProperty
               )
-            group = Group(CaselessLiteral('group') + OneOrMore(groupProperty) + end)
+            group = Group(CaselessLiteral('group') + Word(alphanums) + ZeroOrMore(groupProperty) + end)
 
             groupMember = (
                 arc
