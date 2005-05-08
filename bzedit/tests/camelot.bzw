@@ -27040,8 +27040,8 @@ enddef
 
 # Map Build ------------------------------------------------------
 
-group castlelandscape
-end
+#group castlelandscape
+#end
 group castlelandscape
 	spin 180 0 0 1
 end
