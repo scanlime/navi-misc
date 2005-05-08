@@ -45,12 +45,16 @@ class Define(Object):
 
     def toBlender(self):
         obj = Object.toBlender(self)
+        for object in self.objects:
+            object.world = self.world
         self.children = [x.toBlender() for x in self.objects]
         obj.makeParent(self.children, 0, 0)
 
         obj.setName(self.name)
 
         scene = Blender.Scene.GetCurrent()
+        transform = self.world.getBzToBlendMatrix()
+        transform.resize4x4()
 
         # move this object and all its children to layer 20
         for child in self.children:
@@ -61,3 +65,8 @@ class Define(Object):
 
     def createBlenderObject(self):
         return Blender.Object.New('Empty')
+
+    def transformBlenderObject(self, obj):
+        transform = self.world.getBzToBlendMatrix()
+        transform.resize4x4()
+        obj.setMatrix(transform)
