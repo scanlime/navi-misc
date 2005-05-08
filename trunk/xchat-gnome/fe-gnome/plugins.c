@@ -73,6 +73,7 @@ xchat_gnome_plugin *
 new_xg_plugin ()
 {
     xchat_gnome_plugin *plugin = malloc (sizeof (xchat_gnome_plugin));
+    plugin->xg_get_main_window = xg_get_main_window;
     plugin->xg_get_chan_list = xg_get_chan_list;
 
     return plugin;
@@ -101,6 +102,12 @@ load_plugin (session * sess, char *filename, char *arg)
 
 
 /*** Functions called by plugins ***/
+GtkWidget *
+xg_get_main_window ()
+{
+    return (GTK_WIDGET (gui.main_window));
+}
+
 GtkTreeModel *
 xg_get_chan_list ()
 {
