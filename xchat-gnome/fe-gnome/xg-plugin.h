@@ -33,10 +33,12 @@ typedef struct _xchat_gnome_plugin xchat_gnome_plugin;
  */
 struct _xchat_gnome_plugin
 {
+    GtkWidget *(*xg_get_main_window) ();
     GtkTreeModel *(*xg_get_chan_list) ();
 };
 #endif
 
+GtkWidget *xg_get_main_window ();
 GtkTreeModel *xg_get_chan_list ();
 
 #ifndef PLUGIN_C
@@ -45,6 +47,7 @@ GtkTreeModel *xg_get_chan_list ();
 #define XG_PLUGIN_HANDLE (xgph)
 #endif
 
+#define xg_get_main_window ((XG_PLUGIN_HANDLE)->xg_get_main_window)
 #define xg_get_chan_list ((XG_PLUGIN_HANDLE)->xg_get_chan_list)
 
 #endif
