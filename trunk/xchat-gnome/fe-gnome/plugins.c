@@ -32,6 +32,7 @@
 #define PLUGIN_C
 #endif
 
+#include "xg-plugin.h"
 #include "plugins.h"
 
 typedef int (xchat_init_func) (xchat_plugin *, char **, char **, char **, char *);

@@ -26,7 +26,6 @@
 #define XCHAT_GNOME_PLUGINS_H
 
 #ifdef PLUGIN_C
-typedef struct _xchat_gnome_plugin xchat_gnome_plugin;
 
 /* This is our own plugin struct that we use for passing in function
  * pointers specific to our GUI. It must be kept identical to xg-plugin.h.
