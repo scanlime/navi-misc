@@ -42,6 +42,12 @@ class Face:
     def set_texcoords(self, texcoords):
         self.texcoords = [int(n) for n in texcoords]
 
+    def set_matref(self, matref):
+        pass
+
+    def set_phydrv(self, phydrv):
+        pass
+
 class Mesh(Object):
     type = 'mesh'
 
@@ -84,6 +90,15 @@ class Mesh(Object):
         pass
 
     def set_matref(self, matref):
+        pass
+
+    def set_noclusters(self, noclusters):
+        pass
+
+    def set_phydrv(self, phydrv):
+        pass
+
+    def set_drivethrough(self, drivethrough):
         pass
 
     def transformBlenderObject(self, obj):

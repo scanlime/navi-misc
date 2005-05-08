@@ -21,13 +21,36 @@ Right now this just creates an instance of the objects.
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 from Object import Object
+import Blender
 
 class Define(Object):
     type = 'define'
 
     def __init__(self, list=None):
         self.set_name(list[1])
+        self.objects = []
+
+        from Types import typeMap
+
         children = list[2:len(list) - 1]
         if len(children):
             for child in children:
-                print 'found child',child[0]
+                objtype = typeMap[child[0]]
+                if objtype is not None:
+                    self.objects.append(objtype(child))
+                else:
+                    print 'unable to create object "%s"' % child[0]
+
+    def toBlender(self):
+        obj = Object.toBlender(self)
+        self.children = [x.toBlender() for x in self.objects]
+        obj.makeParent(self.children, 0, 0)
+
+        # move this object and all its children to layer 20
+        for child in self.children:
+            child.Layer = 1 << 19
+        obj.Layer = 1 << 19
+        return obj
+
+    def createBlenderObject(self):
+        return Blender.Object.New('Empty')

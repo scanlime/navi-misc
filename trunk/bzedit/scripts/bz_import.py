@@ -52,6 +52,9 @@ def importObjects(reader):
         object.world = world
         object.toBlender()
 
+    # Set all layers except 20 visible. Layer 20 is reserved for defined groups
+    Blender.Window.ViewLayer([(i + 1) for i in range(19)])
+
 
 def fileSelectedCallback(filename):
     try:
