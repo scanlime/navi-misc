@@ -83,18 +83,18 @@ GdkColor colors[] =
 
 const GdkColor colors_white_on_black[] =
 {
-	{0, 0xffff, 0xffff, 0xffff}, /* background (white) */
-	{0, 0x0000, 0x0000, 0x0000}, /* foreground (black) */
-	{0, 0x0000, 0x0000, 0x0000}, /* marktext fore (black) */
+	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* foreground (white) */
+	{0, 0x0000, 0x0000, 0x0000}, /* background (black) */
+	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* marktext fore (white) */
 	{0, 0xa4a4, 0xdfdf, 0xffff}, /* marktext back (blue) */
 	{0, 0x9999, 0x9999, 0x9999}, /* away user (grey) */
 };
 
 const GdkColor colors_black_on_white[] =
 {
-	{0, 0x0000, 0x0000, 0x0000}, /* background (black) */
-	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* foreground (white) */
-	{0, 0xdf3c, 0xdf3c, 0xdf3c}, /* marktext fore (white) */
+	{0, 0x0000, 0x0000, 0x0000}, /* foreground (black) */
+	{0, 0xffff, 0xffff, 0xffff}, /* background (white) */
+	{0, 0x0000, 0x0000, 0x0000}, /* marktext fore (black) */
 	{0, 0xa4a4, 0xdfdf, 0xffff}, /* marktext back (blue) */
 	{0, 0x9999, 0x9999, 0x9999}, /* away user (grey) */
 };
@@ -103,8 +103,8 @@ GdkColor custom_colors[9];
 
 const GdkColor *color_schemes[] =
 {
-	colors_white_on_black,
 	colors_black_on_white,
+	colors_white_on_black,
 	custom_colors,
 };
 
@@ -194,8 +194,8 @@ const GdkColor *palette_schemes[] =
 void
 load_colors (int selection)
 {
-	colors[35] = color_schemes[selection][0];
-	colors[34] = color_schemes[selection][1];
+	colors[34] = color_schemes[selection][0];
+	colors[35] = color_schemes[selection][1];
 	colors[32] = color_schemes[selection][2];
 	colors[33] = color_schemes[selection][3];
 	colors[40] = color_schemes[selection][4];
