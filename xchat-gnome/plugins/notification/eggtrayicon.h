@@ -36,22 +36,22 @@ typedef struct _EggTrayIconClass EggTrayIconClass;
 
 struct _EggTrayIcon
 {
-    GtkPlug parent_instance;
+	GtkPlug parent_instance;
 
-    guint stamp;
+	guint stamp;
 
-    Atom selection_atom;
-    Atom manager_atom;
-    Atom system_tray_opcode_atom;
-    Atom orientation_atom;
-    Window manager_window;
+	Atom selection_atom;
+	Atom manager_atom;
+	Atom system_tray_opcode_atom;
+	Atom orientation_atom;
+	Window manager_window;
 
-    GtkOrientation orientation;
+	GtkOrientation orientation;
 };
 
 struct _EggTrayIconClass
 {
-    GtkPlugClass parent_class;
+	GtkPlugClass parent_class;
 };
 
 GType egg_tray_icon_get_type (void);
