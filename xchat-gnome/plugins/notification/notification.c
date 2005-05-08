@@ -162,7 +162,7 @@ xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
     xgph = xg_plugin;
 
     /* FIXME This is breaking stuff somehow... */
-    //nav_tree = xg_get_nav_tree (xgph);
+    nav_tree = xg_get_nav_tree (xgph);
 
     return 1;
 }
