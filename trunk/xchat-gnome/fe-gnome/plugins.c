@@ -104,7 +104,6 @@ load_plugin (session * sess, char *filename, char *arg)
 NavTree *
 get_navigation_tree (xchat_gnome_plugin *pl)
 {
-    error_dialog ("get nav tree", "returning server tree");
     return gui.server_tree;
 }
 
