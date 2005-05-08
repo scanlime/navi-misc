@@ -46,7 +46,7 @@ static xchat_plugin	    *ph;			// Plugin handle.
 static xchat_gnome_plugin   *xgph;			// xchat gnome plugin handle.
 static NotifStatus	    status = NOTIF_NONE;	// Current status level.
 static gboolean		    window_visible = TRUE;	// Keep track of whether the window is visible.
-static NavTree		    *nav_tree;			// A reference to the navigation tree.
+static GtkTreeModel	    *channels;			// A reference to the navigation tree.
 static EggTrayIcon	    *notification;		// Notification area icon.
 //static GtkMenu	    *menu;			// The menu that pops up.
 static GtkWidget	    *image;			// The image displayed by the icon.
@@ -162,7 +162,7 @@ xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
     xgph = xg_plugin;
 
     /* FIXME This is breaking stuff somehow... */
-    nav_tree = xg_get_nav_tree (xgph);
+    channels = xg_get_chan_list ();
 
     return 1;
 }
@@ -241,10 +241,6 @@ new_text_cb (char **word, void *data)
 
     chan = xchat_get_info (ph, "channel");
 
-    if (nav_tree == NULL)
-	xchat_print (ph, "no nav tree");
-    else
-	xchat_print (ph, "yay! navtree");
 #if 0
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (nav_tree));
     store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
