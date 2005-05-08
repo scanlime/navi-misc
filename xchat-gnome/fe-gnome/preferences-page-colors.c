@@ -61,15 +61,26 @@ static void
 set_color_buttons (int selection, GtkWidget **color_buttons)
 {
 	load_colors (selection);
-	palette_alloc (GTK_WIDGET (gui.xtext));
-	gtk_xtext_set_palette (gui.xtext, colors);
-	gtk_xtext_set_background (gui.xtext, NULL, FALSE, FALSE);
-	gtk_xtext_refresh (gui.xtext, FALSE);
+
+	g_signal_handlers_block_by_func (G_OBJECT (color_buttons[0]), G_CALLBACK (color_button_changed), GINT_TO_POINTER (32));
+	g_signal_handlers_block_by_func (G_OBJECT (color_buttons[1]), G_CALLBACK (color_button_changed), GINT_TO_POINTER (33));
+	g_signal_handlers_block_by_func (G_OBJECT (color_buttons[2]), G_CALLBACK (color_button_changed), GINT_TO_POINTER (34));
+	g_signal_handlers_block_by_func (G_OBJECT (color_buttons[3]), G_CALLBACK (color_button_changed), GINT_TO_POINTER (35));
 
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[0]), &colors[34]);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[1]), &colors[35]);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[2]), &colors[32]);
 	gtk_color_button_set_color (GTK_COLOR_BUTTON (color_buttons[3]), &colors[33]);
+
+	g_signal_handlers_unblock_by_func (G_OBJECT (color_buttons[0]), G_CALLBACK (color_button_changed), GINT_TO_POINTER (32));
+	g_signal_handlers_unblock_by_func (G_OBJECT (color_buttons[1]), G_CALLBACK (color_button_changed), GINT_TO_POINTER (33));
+	g_signal_handlers_unblock_by_func (G_OBJECT (color_buttons[2]), G_CALLBACK (color_button_changed), GINT_TO_POINTER (34));
+	g_signal_handlers_unblock_by_func (G_OBJECT (color_buttons[3]), G_CALLBACK (color_button_changed), GINT_TO_POINTER (35));
+
+	palette_alloc (GTK_WIDGET (gui.xtext));
+	gtk_xtext_set_palette (gui.xtext, colors);
+	gtk_xtext_set_background (gui.xtext, NULL, FALSE, FALSE);
+	gtk_xtext_refresh (gui.xtext, FALSE);
 }
 
 static void

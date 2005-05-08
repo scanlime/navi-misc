@@ -242,13 +242,13 @@ palette_init ()
 			custom_palette[i].blue = blue;
 		}
 
-		strcpy (prefname, "color_259");
+		strcpy (prefname, "color_258");
 		cfg_get_color (cfg, prefname, &red, &green, &blue);
 		custom_colors[0].red = red;
 		custom_colors[0].green = green;
 		custom_colors[0].blue = blue;
 
-		strcpy (prefname, "color_258");
+		strcpy (prefname, "color_259");
 		cfg_get_color (cfg, prefname, &red, &green, &blue);
 		custom_colors[1].red = red;
 		custom_colors[1].green = green;
