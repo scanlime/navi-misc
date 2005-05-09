@@ -1,10 +1,10 @@
 Index: configure.in
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/configure.in,v
-retrieving revision 1.77
-diff -u -r1.77 configure.in
---- configure.in	1 Apr 2005 03:10:06 -0000	1.77
-+++ configure.in	13 Apr 2005 21:10:05 -0000
+retrieving revision 1.78
+diff -u -r1.78 configure.in
+--- configure.in	5 May 2005 12:22:08 -0000	1.78
++++ configure.in	9 May 2005 03:17:24 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
@@ -181,7 +181,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.4
 diff -u -r1.4 Makefile.am
 --- plugins/Makefile.am	13 Jan 2003 07:29:36 -0000	1.4
-+++ plugins/Makefile.am	13 Apr 2005 21:10:05 -0000
++++ plugins/Makefile.am	9 May 2005 03:17:24 -0000
 @@ -1,10 +1,10 @@
  # temp. solution while mailcheck & xdcc arn't in SUBDIRS
 -EXTRA_DIST = plugin20.html Make.plugin plugin-conf.in \
@@ -220,7 +220,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/mailcheck/Makefile.am,v
 retrieving revision 1.1
 diff -u -r1.1 Makefile.am
 --- plugins/mailcheck/Makefile.am	17 Dec 2002 15:36:39 -0000	1.1
-+++ plugins/mailcheck/Makefile.am	13 Apr 2005 21:10:05 -0000
++++ plugins/mailcheck/Makefile.am	9 May 2005 03:17:24 -0000
 @@ -10,7 +10,6 @@
  
  # This file must be in the form PLUGIN-config.h.in, it can be empty but
@@ -235,7 +235,7 @@ RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	13 Apr 2005 21:10:09 -0000
++++ src/Makefile.am	9 May 2005 03:19:04 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
@@ -252,7 +252,7 @@ RCS file: /cvsroot/xchat/xchat2/src/pixmaps/Makefile.am,v
 retrieving revision 1.8
 diff -u -r1.8 Makefile.am
 --- src/pixmaps/Makefile.am	9 Jan 2003 06:22:30 -0000	1.8
-+++ src/pixmaps/Makefile.am	13 Apr 2005 21:10:09 -0000
++++ src/pixmaps/Makefile.am	9 May 2005 03:19:05 -0000
 @@ -14,5 +14,8 @@
  CLEANFILES = $(noinst_HEADERS)
  EXTRA_DIST = $(PNGS) makefile.msc
