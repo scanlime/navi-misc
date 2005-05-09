@@ -36,6 +36,39 @@ class Group(Box):
         self.name = name+'_instance'
 
     def createBlenderObject(self):
+        scene = Blender.Scene.GetCurrent()
+
         obj = Blender.Object.New('Empty')
-        Blender.Scene.GetCurrent().link(obj)
+        scene.link(obj)
+        obj.setName(self.name)
+
+        # hrm, this is gonna be ugly
+        world_objects = Blender.Object.Get()
+        print world_objects
+
         return obj
+
+    def transformBlenderObject(self, obj):
+        # WorldFileLocation applies transformations in the order shift, scale, shear, spin
+        # Technically old stuff like position, rotation are supported here, but for now I'm
+        # not doing them, 'cuz they suck
+        mat = Blender.Mathutils.Matrix(
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+                )
+
+        # apply the world's size transformation
+        transform = self.world.getBzToBlendMatrix()
+        transform.resize4x4()
+        mat *= transform
+
+        mat *= Blender.Mathutils.TranslationMatrix(Blender.Mathutils.Vector(list(self.shift)))
+        mat *= Blender.Mathutils.ScaleMatrix(self.scale[0], 4, Blender.Mathutils.Vector([1, 0, 0]))
+        mat *= Blender.Mathutils.ScaleMatrix(self.scale[1], 4, Blender.Mathutils.Vector([0, 1, 0]))
+        mat *= Blender.Mathutils.ScaleMatrix(self.scale[2], 4, Blender.Mathutils.Vector([0, 0, 1]))
+        # mat *= Blender.Mathutils.ShearMatrix(Blender.Mathutils.Vector(shear))
+        mat *= Blender.Mathutils.RotationMatrix(self.spin[3], 4, 'r', Blender.Mathutils.Vector(list(self.spin[:3])))
+
+        obj.setMatrix(mat)
