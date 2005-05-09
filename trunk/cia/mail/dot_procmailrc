@@ -20,11 +20,6 @@ $CIADIR/mail.log
 ###### Filters for mailing list commit messages
 
 :0
-* ^To: kde-cvs@kde.org
-* ^X-Commit-Directories:
-| $CIADIR/mail/filter_kde.py
-
-:0
 * ^To: plone-cvs@lists.sourceforge.net
 | $CIADIR/mail/filter_plone.py
 
