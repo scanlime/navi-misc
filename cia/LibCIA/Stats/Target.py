@@ -487,7 +487,7 @@ class Maintenance:
         self.checkOneRollover(cursor, 'lastWeek', 'thisWeek')
         self.checkOneRollover(cursor, 'lastMonth', 'thisMonth')
 
-    def pruneTargets(self, cursor, quantity=500):
+    def pruneTargets(self, cursor, quantity=200):
         """Eventually prune all stats targets. To avoid a huge database load
            all at once, this randomly queues all stats targets then prunes them
            just a few at a time.
@@ -517,6 +517,7 @@ class Maintenance:
                     return
 
             self.pruneTarget(cursor, self.targetQueue.pop())
+        print "%d targets remaining in pruning queue" % len(self.targetQueue)
 
     def pruneTarget(self, cursor, path):
         """Delete messages that are too old, from one particular stats target"""

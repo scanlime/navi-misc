@@ -18,7 +18,7 @@ def waitForIO(limit=350000):
        if int(ioStatus['io_tokens']) > limit:
            break
        print "Waiting for I/O tokens to refill..."
-       time.sleep(10)
+       time.sleep(30)
 
 # Prime the targetQueue
 waitForIO()
@@ -27,6 +27,6 @@ m.pruneTargets(cursor, 1)
 
 while m.targetQueue:
     waitForIO()
-    print m.targetQueue[-1]
+    print "[%d] %s" % (len(m.targetQueue), m.targetQueue[-1])
     m.pruneTargets(cursor, 1)
 
