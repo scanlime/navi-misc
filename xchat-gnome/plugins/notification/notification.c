@@ -91,8 +91,8 @@ new_msg_cb (char **word, void *msg_lvl)
 	if (chan->status < (NotifStatus) msg_lvl) {
 		chan->status = (NotifStatus) msg_lvl;
 		/* FIXME memory leak? */
-		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (chan->menu_item),
-				gtk_image_new_from_pixbuf (pixbufs[(int) chan->status]));
+		//gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (chan->menu_item),
+				//gtk_image_new_from_pixbuf (pixbufs[(int) chan->status]));
 	}
 
 	if (status < (NotifStatus) msg_lvl && !GTK_WIDGET_HAS_FOCUS (main_window)) {
@@ -120,18 +120,19 @@ part_chan_cb (char **word, void *data)
 {
 	struct MenuChannel*	chan = (struct MenuChannel*) g_hash_table_lookup (channels, word[2]);
 
-	gtk_container_remove (GTK_CONTAINER (menu), GTK_WIDGET (chan->menu_item));
+	//gtk_container_remove (GTK_CONTAINER (menu), GTK_WIDGET (chan->menu_item));
 	g_hash_table_remove (channels, (gconstpointer) word[2]);
+
+	free (chan);
+
 	return 0;
 }
 
-#if 0
 static void
 notification_menu_show (GdkEventButton *event)
 {
 	gtk_menu_popup (menu, NULL, NULL, NULL, NULL, event->button, event->time);
 }
-#endif
 
 static gboolean
 notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer data)
@@ -173,7 +174,7 @@ add_channels_foreach_cb (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter *
 	item->menu_item = gtk_menu_item_new_with_label (channel);
 	g_hash_table_insert (channels, (gpointer) channel, (gpointer) item);
 
-	gtk_menu_append (menu, item->menu_item);
+	//gtk_menu_append (menu, item->menu_item);
 
 	return FALSE;
 }
@@ -194,17 +195,22 @@ xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_ver
 int
 xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
 {
-	GtkTreeModel *chan_model = xg_get_chan_list ();
-
 	xgph = xg_plugin;
+
+	GtkTreeModel *chan_model = xg_get_chan_list ();
 
 	/* Hook up callbacks for changing focus on the main window. */
 	main_window = xg_get_main_window ();
 	g_signal_connect (main_window, "focus-in-event", G_CALLBACK (got_focus_cb), NULL);
 	g_signal_connect (main_window, "focus-out-event", G_CALLBACK (lost_focus_cb), NULL);
 
-	channels = g_hash_table_new (g_str_hash , g_str_equal);
-	gtk_tree_model_foreach (chan_model, add_channels_foreach_cb, NULL);
+	/* Create the menu. */
+	//menu = GTK_MENU (gtk_menu_new ());
+
+	//channels = g_hash_table_new (g_str_hash , g_str_equal);
+	//gtk_tree_model_foreach (chan_model, add_channels_foreach_cb, NULL);
+
+	//gtk_widget_show (GTK_WIDGET (menu));
 
 	return 1;
 }
@@ -260,13 +266,6 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	 */
 	g_object_ref (G_OBJECT (notification));
 
-	/* Create the menu. */
-#if 0
-	menu = GTK_MENU (gtk_menu_new ());
-	nav_tree = get_nt ();
-	gtk_tree_model_foreach (nav_tree->model->sorted, (GtkTreeModelForeachFunc) notification_menu_add_channel, NULL);
-	gtk_widget_show (GTK_WIDGET (menu));
-#endif
 
 	/* Hook up our callbacks. */
 	xchat_hook_print (ph, "Channle Notice", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_DATA);
