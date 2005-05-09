@@ -32,6 +32,8 @@ import Blender
 import math
 import BZFlag
 
+debug = True
+
 def importObjects(reader):
     # First determine if we have a world. If not, we'll need to create a default one.
     world = None
@@ -55,8 +57,7 @@ def importObjects(reader):
     # Set all layers except 20 visible. Layer 20 is reserved for defined groups
     Blender.Window.ViewLayer([(i + 1) for i in range(19)])
 
-
-def fileSelectedCallback(filename):
+def loadNormal(filename):
     try:
         reader = BZFlag.Reader()
         reader.parse(filename)
@@ -74,6 +75,22 @@ def fileSelectedCallback(filename):
 
     if BZFlag.log.numErrors:
         BZFlag.log.report("Errors in loading world file")
+
+def loadDebug(filename):
+    reader = BZFlag.Reader()
+    reader.parse(filename)
+    importObjects(reader)
+    try:
+        Blender.Scene.GetCurrent().unlink(Blender.Object.Get("Cube"))
+    except AttributeError:
+        pass
+
+def fileSelectedCallback(filename):
+    if debug:
+        loadDebug(filename)
+    else:
+        loadNormal(filename)
+
 
 if BZFlag:
     Blender.Window.FileSelector(fileSelectedCallback, "Load BZFlag World")

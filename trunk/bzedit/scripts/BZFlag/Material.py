@@ -35,8 +35,14 @@ class Material(Object.Object):
                 except Exception, e:
                     print e
 
+    def toBlender(self):
+        pass
+
     def set_name(self, name):
-        self.material.setName(string.join(name, ' '))
+        if type(name) is str:
+            self.material.setName(name)
+        else:
+            self.material.setName(string.join(name, ' '))
 
     def set_texture(self, texture):
         pass
@@ -73,4 +79,10 @@ class Material(Object.Object):
         pass
 
     def set_notextures(self, notextures):
+        pass
+
+    def set_addTexture(self, addtexture):
+        pass
+
+    def set_dyncol(self, dyncol):
         pass

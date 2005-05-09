@@ -76,7 +76,10 @@ class Object:
             writer(('name', self.name))
 
     def set_name(self, name):
-        self.name = string.join(name, ' ')
+        if type(self.name) is str:
+            self.name = name
+        else:
+            self.name = string.join(name, ' ')
 
     def toBlender(self):
         """Create a new blender object representing this one and return it."""
