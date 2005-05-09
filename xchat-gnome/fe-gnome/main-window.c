@@ -349,6 +349,7 @@ initialize_main_window ()
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
 	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",
 			  G_CALLBACK (on_main_window_close), NULL);
+
 	/* hook up the menus */
 	gui.action_group = gtk_action_group_new ("MenuAction");
 //	gtk_action_group_add_actions (gui.action_group, action_entries,
@@ -1232,3 +1233,7 @@ on_expand_topic (GtkExpander *expander, gpointer data)
 	}
 }
 #endif
+
+/*** The End ***/
+/* vim: ts=3:sw=3
+ */
