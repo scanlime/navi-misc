@@ -32,6 +32,8 @@ class Face:
         if list is not None:
             for property in list:
                 getattr(self, "set_%s" % property[0])(property[1:])
+        if not self.name:
+            self.name = "Mesh"
 
     def set_vertices(self, vertices):
         self.vertices = [int(n) for n in vertices]

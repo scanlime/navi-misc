@@ -50,7 +50,7 @@ class Teleporter(Box):
         self.set_border()
         if list:
             if type(list[1]) is str:
-                Box.__init__(self, list[0] + list[2:])
+                Box.__init__(self, [list[0]] + list[2:])
                 self.set_name(list[1])
             else:
                 Box.__init__(self, list)

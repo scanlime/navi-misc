@@ -68,6 +68,8 @@ class Box(Object):
         if list is not None:
             for property in list[1:]:
                 getattr(self, "set_%s" % property[0])(property[1:])
+        if not self.name:
+            self.name = 'Box'
 
     def serialize(self, writer):
         Object.serialize(self, writer)

@@ -43,10 +43,11 @@ class World(Object):
 
     def __init__(self, list=None):
         self.set_size()
-        self.name = ''
         if list is not None:
             for property in list[1:]:
                 getattr(self, "set_%s" % property[0])(property[1:])
+        if not self.name:
+            self.name = 'World'
 
     def serialize(self, writer):
         Object.serialize(self, writer)
@@ -65,10 +66,7 @@ class World(Object):
     def setBlenderProperties(self, object):
         Object.setBlenderProperties(self, object)
         object.addProperty('size', float(self.size), 'FLOAT')
-        if self.name != '':
-            object.setName(self.name)
-        else:
-            object.setName('World')
+        object.setName(self.name)
 
     def loadBlenderProperties(self, object):
         Object.loadBlenderProperties(self, object)

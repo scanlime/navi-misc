@@ -40,9 +40,6 @@ class Define(Object):
                 else:
                     print 'unable to create object "%s"' % child[0]
 
-    def set_name(self, name):
-        self.name = name
-
     def toBlender(self):
         obj = Object.toBlender(self)
         for object in self.objects:
