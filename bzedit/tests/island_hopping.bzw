@@ -11752,7 +11752,7 @@ end
 group island
 	spin 30 0 0 1
 	scale .2 .2 .5
-	shift -480 540 30 0
+	shift -480 540 30
 end
 
 group island
