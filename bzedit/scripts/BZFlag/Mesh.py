@@ -42,6 +42,21 @@ class Face:
     def set_texcoords(self, texcoords):
         self.texcoords = [int(n) for n in texcoords]
 
+    def set_drivethrough(self, drivethrough):
+        pass
+
+    def set_shootthrough(self, shootthrough):
+        pass
+
+    def set_smoothbounce(self, smoothbounce):
+        pass
+
+    def set_noclusters(self, noclusters):
+        pass
+
+    def set_passable(self, passable):
+        pass
+
     def set_matref(self, matref):
         pass
 
@@ -56,10 +71,7 @@ class Mesh(Object):
         self.faces = []
         if list is not None:
             for property in list[1:]:
-                try:
                     getattr(self, "set_%s" % property[0])(property[1:])
-                except Exception, e:
-                    print 'error!',property[0],e
         if not self.name:
             self.name = "Mesh"
 

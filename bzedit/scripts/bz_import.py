@@ -85,11 +85,7 @@ def loadDebug(filename):
         pass
 
 def fileSelectedCallback(filename):
-    debugTrace = True
-    if debugTrace:
-        loadDebug(filename)
-    else:
-        loadNormal(filename)
+    loadDebug(filename)
 
 
 if BZFlag:
