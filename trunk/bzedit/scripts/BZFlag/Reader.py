@@ -338,11 +338,11 @@ class Reader:
               | Group(CaselessLiteral('texcoords') + int + int + OneOrMore(int))
               | materialProperty
               | phydrv
-              | smoothbounce
-              | noclusters
-              | drivethrough
-              | shootthrough
-              | passable
+              | Group(smoothbounce)
+              | Group(noclusters)
+              | Group(drivethrough)
+              | Group(shootthrough)
+              | Group(passable)
               )
             face = Group(CaselessLiteral('face') + OneOrMore(faceProperty) + CaselessLiteral('endface').suppress())
 
