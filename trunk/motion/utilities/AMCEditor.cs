@@ -632,7 +632,7 @@ class AMCEditor
 	OnOpen (object o, System.EventArgs args)
 	{
 		object[] responses = {
-			Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
+			Gtk.Stock.Cancel, Gtk.ResponseType.Cancel,
 			Gtk.Stock.Open,   Gtk.ResponseType.Accept,
 		};
 		Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Open AMC...", null, Gtk.FileChooserAction.Open, responses);
@@ -700,7 +700,7 @@ class AMCEditor
 	{
 		if (Filename == null) {
 			object[] responses = {
-				Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
+				Gtk.Stock.Cancel, Gtk.ResponseType.Cancel,
 				Gtk.Stock.Save,   Gtk.ResponseType.Accept,
 			};
 
@@ -726,7 +726,7 @@ class AMCEditor
 	OnSaveAs (object o, System.EventArgs args)
 	{
 		object[] responses = {
-			Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
+			Gtk.Stock.Cancel, Gtk.ResponseType.Cancel,
 			Gtk.Stock.Save,   Gtk.ResponseType.Accept,
 		};
 
