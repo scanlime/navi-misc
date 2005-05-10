@@ -268,7 +268,7 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 
 
 	/* Hook up our callbacks. */
-	xchat_hook_print (ph, "Channle Notice", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_DATA);
+	xchat_hook_print (ph, "Channel Notice", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_DATA);
 	xchat_hook_print (ph, "Channel Message", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_MSG);
 	xchat_hook_print (ph, "Channel Msg Hilight", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_NICK);
 	xchat_hook_print (ph, "Private Message to Dialog", XCHAT_PRI_NORM, new_msg_cb, (void*) NOTIF_MSG);
