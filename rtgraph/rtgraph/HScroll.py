@@ -53,15 +53,15 @@ class HScrollGraph(PolledGraph):
 
     def initGrid(self, drawable, width, height):
         """Draw our grid on the given drawable"""
-        drawable.draw_rectangle(self.bgGc, gtk.TRUE, 0, 0, width, height)
+        drawable.draw_rectangle(self.bgGc, True, 0, 0, width, height)
 
         # Horizontal grid lines
         for y in range(0, height, self.gridSize):
-            drawable.draw_rectangle(self.gridGc, gtk.TRUE, 0, y, width, 1)
+            drawable.draw_rectangle(self.gridGc, True, 0, y, width, 1)
 
         # Vertical grid lines
         for x in range(0, width, self.gridSize):
-            drawable.draw_rectangle(self.gridGc, gtk.TRUE, x, 0, 1, height)
+            drawable.draw_rectangle(self.gridGc, True, x, 0, 1, height)
 
     def drawGrid(self, x, width):
         """Draw grid lines on our backing store, using the current gridPhase,
@@ -222,7 +222,7 @@ class HScrollLineGraph(HScrollGraph):
 class HScrollAreaGraph(HScrollLineGraph):
     """A horizontally scrolling real-time filled area plot."""
     def graphChannelLine(self, channel, oldPenVector, penVector):
-        self.backingPixmap.draw_polygon(channel.getGC(self), gtk.TRUE, (
+        self.backingPixmap.draw_polygon(channel.getGC(self), True, (
             (oldPenVector[0], oldPenVector[1]),
             (penVector[0], penVector[1]),
             (penVector[0], self.height-1),

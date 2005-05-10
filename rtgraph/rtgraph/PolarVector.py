@@ -32,7 +32,7 @@ class PolarVectorGraph(StaticGridGraph):
 
     def initGrid(self, drawable, width, height):
         """Draw a grid to the given drawable at the given size"""
-        drawable.draw_rectangle(self.bgGc, gtk.TRUE, 0, 0, width, height)
+        drawable.draw_rectangle(self.bgGc, True, 0, 0, width, height)
 
         # Calculate a center and radius for our new size
         self.pixelRadius = min(width, height)/2 - 4
@@ -42,7 +42,7 @@ class PolarVectorGraph(StaticGridGraph):
             # Draw a circle at this radius.
             # The calculations for this are a bit weird since gtk positions
             # circles by bounding box rather than center and radius.
-            drawable.draw_arc(self.gridGc, gtk.FALSE,
+            drawable.draw_arc(self.gridGc, False,
                               int(self.center[0] - radius * self.pixelRadius),
                               int(self.center[1] - radius * self.pixelRadius),
                               int(2 * radius * self.pixelRadius),

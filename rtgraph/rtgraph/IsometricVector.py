@@ -35,7 +35,7 @@ class IsometricVectorGraph(StaticGridGraph):
 
         # The vector itself
         v = self.mapVector(value)
-        self.backingPixmap.draw_rectangle(gc, gtk.TRUE,
+        self.backingPixmap.draw_rectangle(gc, True,
                                           int(v[0] - radius), int(v[1] - radius),
                                           radius*2, radius*2)
 
@@ -46,7 +46,7 @@ class IsometricVectorGraph(StaticGridGraph):
 
     def initGrid(self, drawable, width, height):
         """Draw a grid to the given drawable at the given size"""
-        drawable.draw_rectangle(self.bgGc, gtk.TRUE, 0, 0, width, height)
+        drawable.draw_rectangle(self.bgGc, True, 0, 0, width, height)
 
         # Determine the center of the graph and a reasonable size for it
         self.center = (self.width * 0.5, self.height * 0.5)

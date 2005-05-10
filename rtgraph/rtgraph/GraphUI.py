@@ -38,7 +38,7 @@ class ChannelList(gtk.TreeView):
            """
         if not self.modelFilled:
             self.fillModel()
-        return gtk.TRUE
+        return True
 
     def initModel(self):
         """Create the model representing the data in this list"""
@@ -58,7 +58,7 @@ class ChannelList(gtk.TreeView):
                 0, channel,
                 1, str(channel),
                 2, self.visibilityDefault,
-                3, gtk.TRUE,
+                3, True,
                 4, self.makeColorSamplePixbuf(channel),
                 5, "",
         	)
@@ -101,7 +101,7 @@ class ChannelList(gtk.TreeView):
         model.set_value(i, 2, visible)
         channel = model.get_value(i, 0)
 
-        if visible == gtk.TRUE:
+        if visible == True:
             self.graph.channels.append(channel)
         else:
             self.graph.channels.remove(channel)
@@ -116,9 +116,9 @@ class ChannelList(gtk.TreeView):
         # Note that due to some boneheaded decisions made in xlib near the dawn of time,
         # unfilled rectangles are actually 1 pixel wider in each dimension than the width
         # and height we give draw_rectangle.
-        pixmap.draw_rectangle(channel.getGC(self), gtk.TRUE, 2, 2, width-4, height-4)
-        pixmap.draw_rectangle(self.get_style().black_gc, gtk.FALSE, 1, 1, width-3, height-3)
-        pixmap.draw_rectangle(self.get_style().white_gc, gtk.FALSE, 0, 0, width-1, height-1)
+        pixmap.draw_rectangle(channel.getGC(self), True, 2, 2, width-4, height-4)
+        pixmap.draw_rectangle(self.get_style().black_gc, False, 1, 1, width-3, height-3)
+        pixmap.draw_rectangle(self.get_style().white_gc, False, 0, 0, width-1, height-1)
 
         # Convert it to a pixbuf
         pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8, width, height)
@@ -136,7 +136,7 @@ class ChannelList(gtk.TreeView):
                 self.model.set_value(i, 5, s)
                 self.oldValueStr[channel] = s
             row += 1
-        return gtk.TRUE
+        return True
 
 
 class GraphUI(gtk.VPaned):
@@ -176,8 +176,8 @@ class GraphUI(gtk.VPaned):
            By default, this is the tweak controls on top
            of the channel list.
            """
-        box = gtk.VBox(gtk.FALSE, 5)
-        box.pack_start(self.createTweakList(), gtk.FALSE)
+        box = gtk.VBox(False, 5)
+        box.pack_start(self.createTweakList(), False)
         box.pack_start(self.createChannelList())
         box.show()
         return box
