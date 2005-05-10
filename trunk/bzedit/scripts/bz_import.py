@@ -31,8 +31,7 @@ Tip: 'Imports a BZFlag world file into specially tagged Blender objects'
 import Blender
 import math
 import BZFlag
-
-debug = True
+import psyco
 
 def importObjects(reader):
     # First determine if we have a world. If not, we'll need to create a default one.
@@ -86,13 +85,15 @@ def loadDebug(filename):
         pass
 
 def fileSelectedCallback(filename):
-    if debug:
+    debugTrace = True
+    if debugTrace:
         loadDebug(filename)
     else:
         loadNormal(filename)
 
 
 if BZFlag:
+    psyco.full()
     Blender.Window.FileSelector(fileSelectedCallback, "Load BZFlag World")
 
 ### The End ###
