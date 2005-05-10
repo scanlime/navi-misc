@@ -255,6 +255,7 @@ class Messages(object):
 
     def __init__(self, target):
         self.target = target
+        self.lastPruned = 0
 
     def push(self, message):
         """Store a new message for this stats target"""
@@ -281,7 +282,10 @@ class Messages(object):
                                           timestamp))
 
         # Delete old messages as we go
-        self._prune(cursor)
+        now = time.time()
+        if now > (self.lastPruned + 60*30):
+            self.lastPruned = now
+            self._prune(cursor)
 
     def _prune(self, cursor):
         """Delete messages that are too old"""
