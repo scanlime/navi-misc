@@ -249,6 +249,10 @@ class SubscriptionDelivery:
 
 class Messages(object):
     """Represents the set of stored messages associated with one stats target"""
+
+    # Maximum number of messages to keep around for each stats target
+    maxMessages = 200
+
     def __init__(self, target):
         self.target = target
 
@@ -275,6 +279,23 @@ class Messages(object):
                                          (Database.quote(self.target.path, 'varchar'),
                                           Database.quote(message, 'text'),
                                           timestamp))
+
+        # Delete old messages as we go
+        self._prune(cursor)
+
+    def _prune(self, cursor):
+        """Delete messages that are too old"""
+        # Find the ID of the oldest message we want to keep
+        cursor.execute("SELECT id FROM stats_messages WHERE target_path = %s "
+                       "ORDER BY id DESC LIMIT 1 OFFSET %d" %
+                       (Database.quote(self.target.path, 'varchar'),
+                        self.maxMessages))
+        row = cursor.fetchone()
+        if row:
+            id = row[0]
+            print "Pruning from %r up to ID %d" % (self.target.path, id)
+            cursor.execute("DELETE FROM stats_messages WHERE target_path = %s AND id <= %d" %
+                           (Database.quote(self.target.path, 'varchar'), id))
 
     def getLatest(self, limit=None):
         """Return the most recent messages as (id, xml) tuples, optionally up to a provided
@@ -435,9 +456,6 @@ class Maintenance:
     """This class performs periodic maintenance of the stats database, including
        counter rollover and removing old messages.
        """
-    # Maximum number of messages to keep around for each stats target
-    maxTargetMessages = 200
-
     def __init__(self):
         self.targetQueue = []
 
@@ -451,7 +469,6 @@ class Maintenance:
         """Database interaction implementing the maintenance cycle"""
         self.checkRollovers(cursor)
         self.pruneSubscriptions(cursor)
-        self.pruneTargets(cursor)
 
     def checkOneRollover(self, cursor, previous, current):
         """Check for rollovers in one pair of consecutive time intervals,
@@ -486,51 +503,6 @@ class Maintenance:
         self.checkOneRollover(cursor, 'yesterday', 'today')
         self.checkOneRollover(cursor, 'lastWeek', 'thisWeek')
         self.checkOneRollover(cursor, 'lastMonth', 'thisMonth')
-
-    def pruneTargets(self, cursor, quantity=100):
-        """Eventually prune all stats targets. To avoid a huge database load
-           all at once, this randomly queues all stats targets then prunes them
-           just a few at a time.
-           """
-        fetchCount = 0
-        for i in xrange(quantity):
-
-            if not self.targetQueue:
-
-                # If our queue is empty, fill it up with new targets
-                # to prune. We can't do this more than once in a particular
-                # pruneTargets call: this keeps us from looping over the
-                # same items if 'quantity' is more than the number of
-                # total stats targets.
-                if fetchCount > 0:
-                    return
-
-                fetchCount += 1
-                cursor.execute("SELECT target_path FROM stats_catalog")
-                self.targetQueue = [row[0] for row in cursor.fetchall()]
-                random.shuffle(self.targetQueue)
-
-                # Optimize the table after every complete cycle
-                cursor.execute("OPTIMIZE TABLE stats_messages")
-
-                if not self.targetQueue:
-                    return
-
-            self.pruneTarget(cursor, self.targetQueue.pop())
-        print "%d targets remaining in pruning queue" % len(self.targetQueue)
-
-    def pruneTarget(self, cursor, path):
-        """Delete messages that are too old, from one particular stats target"""
-        # Find the ID of the oldest message we want to keep
-        cursor.execute("SELECT id FROM stats_messages WHERE target_path = %s "
-                       "ORDER BY id DESC LIMIT 1 OFFSET %d" %
-                       (Database.quote(path, 'varchar'),
-                        self.maxTargetMessages))
-        row = cursor.fetchone()
-        if row:
-            id = row[0]
-            cursor.execute("DELETE FROM stats_messages WHERE target_path = %s AND id < %d" %
-                           (Database.quote(path, 'varchar'), id))
 
     def pruneSubscriptions(self, cursor, maxFailures=3):
         """Delete subscriptions that have expired"""
