@@ -451,19 +451,6 @@ class CurveEditor : Gtk.DrawingArea
 		hadj.ValueChanged += new System.EventHandler (HAdjustmentChanged);
 	}
 
-	protected override bool
-	OnButtonPressEvent (Gdk.EventButton ev)
-	{
-		System.Console.WriteLine ("button press!");
-		return true;
-	}
-
-	protected override bool
-	OnMotionNotifyEvent (Gdk.EventMotion ev)
-	{
-		return true;
-	}
-
 	void
 	HAdjustmentChanged (object o, System.EventArgs e)
 	{
@@ -533,6 +520,21 @@ class CurveEditor : Gtk.DrawingArea
 
 		redraw_timeout = 0;
 		return false;
+	}
+
+	public void
+	ButtonPress (Gdk.EventButton ev)
+	{
+	}
+
+	public void
+	ButtonRelease (Gdk.EventButton ev)
+	{
+	}
+
+	public void
+	MotionNotify (Gdk.EventMotion ev)
+	{
 	}
 }
 
@@ -768,5 +770,23 @@ class AMCEditor
 	{
 		menu_save.Sensitive = modified;
 		menu_saveas.Sensitive = (Filename != null);
+	}
+
+	void
+	CurveButtonPressEvent (object o, Gtk.ButtonPressEventArgs args)
+	{
+		curve_editor.ButtonPress (args.Event);
+	}
+
+	void
+	CurveButtonReleaseEvent (object o, Gtk.ButtonReleaseEventArgs args)
+	{
+		curve_editor.ButtonRelease (args.Event);
+	}
+
+	void
+	CurveMotionNotifyEvent (object o, Gtk.MotionNotifyEventArgs args)
+	{
+		curve_editor.MotionNotify (args.Event);
 	}
 }

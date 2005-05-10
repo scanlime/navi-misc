@@ -126,22 +126,34 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkScrolledWindow" id="editor_swin">
+	    <widget class="GtkEventBox" id="eventbox1">
 	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="hscrollbar_policy">GTK_POLICY_ALWAYS</property>
-	      <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
-	      <property name="shadow_type">GTK_SHADOW_IN</property>
-	      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
+	      <property name="events">GDK_POINTER_MOTION_MASK | GDK_BUTTON_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+	      <property name="visible_window">True</property>
+	      <property name="above_child">False</property>
+	      <signal name="button_press_event" handler="CurveButtonPressEvent" last_modification_time="Tue, 10 May 2005 22:04:38 GMT"/>
+	      <signal name="button_release_event" handler="CurveButtonReleaseEvent" last_modification_time="Tue, 10 May 2005 22:04:48 GMT"/>
+	      <signal name="motion_notify_event" handler="CurveMotionNotifyEvent" last_modification_time="Tue, 10 May 2005 22:05:04 GMT"/>
 
 	      <child>
-		<widget class="Custom" id="curve_editor">
+		<widget class="GtkScrolledWindow" id="editor_swin">
 		  <property name="visible">True</property>
-		  <property name="events">GDK_BUTTON1_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-		  <property name="creation_function">CurveEditor</property>
-		  <property name="int1">0</property>
-		  <property name="int2">0</property>
-		  <property name="last_modification_time">Sat, 23 Apr 2005 00:23:19 GMT</property>
+		  <property name="can_focus">True</property>
+		  <property name="hscrollbar_policy">GTK_POLICY_ALWAYS</property>
+		  <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
+		  <property name="shadow_type">GTK_SHADOW_IN</property>
+		  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
+
+		  <child>
+		    <widget class="Custom" id="curve_editor">
+		      <property name="visible">True</property>
+		      <property name="events">GDK_POINTER_MOTION_MASK | GDK_BUTTON_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+		      <property name="creation_function">CurveEditor</property>
+		      <property name="int1">0</property>
+		      <property name="int2">0</property>
+		      <property name="last_modification_time">Sat, 23 Apr 2005 00:23:19 GMT</property>
+		    </widget>
+		  </child>
 		</widget>
 	      </child>
 	    </widget>
