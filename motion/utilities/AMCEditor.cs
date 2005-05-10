@@ -219,7 +219,7 @@ class CurveEditor : Gtk.DrawingArea
 	Gdk.Pixmap		back_buffer;
 	Pango.Layout		biglayout;
 	Pango.Layout		smalllayout;
-	int			redraw_timeout;
+	uint			redraw_timeout;
 	ArrayList		bones;
 	int[]			visible_range;
 
@@ -246,7 +246,9 @@ class CurveEditor : Gtk.DrawingArea
 			Draw ();
 
 			hadj.Upper = nframes * 40;
+			hadj.Value = 0;
 			hadj.StepIncrement = 120;
+			RecomputeRange ();
 
 			QueueRedraw ();
 		}
@@ -309,7 +311,7 @@ class CurveEditor : Gtk.DrawingArea
 		pad_positions.Clear ();
 
 		// Draw frame lines and numbers
-		for (int i = 0; i < amc.frames.Count; i++) {
+		for (int i = visible_range[0]; i < visible_range[1]; i++) {
 			int pos = i * 40 + 20;
 			if (IsVisible (pos)) {
 				back_buffer.DrawLine (black_gc,
@@ -467,7 +469,24 @@ class CurveEditor : Gtk.DrawingArea
 	void
 	HAdjustmentChanged (object o, System.EventArgs e)
 	{
+		RecomputeRange ();
 		QueueRedraw ();
+	}
+
+	void
+	RecomputeRange ()
+	{
+		visible_range[0] = (int) (hadj.Value / 40) - 1;
+		int i = visible_range[0] + 40;
+		while (IsVisible (i * 40 + 20) && i < amc.frames.Count)
+			i++;
+		visible_range[1] = i;
+
+		// clamp ranges
+		if (visible_range[0] < 0)
+			visible_range[0] = 0;
+		if (visible_range[1] > amc.frames.Count)
+			visible_range[0] = amc.frames.Count;
 	}
 
 	public void
@@ -503,7 +522,7 @@ class CurveEditor : Gtk.DrawingArea
 	QueueRedraw ()
 	{
 		if (redraw_timeout == 0)
-			GLib.Timeout.Add (20, new GLib.TimeoutHandler (Redraw));
+			redraw_timeout = GLib.Timeout.Add (20, new GLib.TimeoutHandler (Redraw));
 	}
 
 	bool
