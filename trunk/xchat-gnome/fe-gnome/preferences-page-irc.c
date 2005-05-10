@@ -124,7 +124,7 @@ save_highlight (PreferencesIrcPage *page)
 		gtk_tree_model_get (GTK_TREE_MODEL (page->highlight_store), &iter, 0, &tmp1, -1);
 		highlight = g_strdup (tmp1);
 	} else {
-		prefs.bluestring[0] = '\0';
+		prefs.irc_nick_hilight[0] = '\0';
 		return;
 	}
 	while (gtk_tree_model_iter_next (GTK_TREE_MODEL (page->highlight_store), &iter)) {
@@ -133,7 +133,7 @@ save_highlight (PreferencesIrcPage *page)
 		highlight = g_strdup_printf ("%s,%s", tmp2, tmp1);
 		g_free (tmp2);
 	}
-	strncpy (prefs.bluestring, highlight, 300);
+	strncpy (prefs.irc_nick_hilight, highlight, 300);
 	g_free (highlight);
 }
 
@@ -317,7 +317,7 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (highlight_selection_changed), page);
 	g_signal_connect (G_OBJECT (renderer), "edited", G_CALLBACK (highlight_edited), page);
 
-	highlight_entries = g_strsplit (prefs.bluestring, ",", 0);
+	highlight_entries = g_strsplit (prefs.irc_nick_hilight, ",", 0);
 	for (i = 0; highlight_entries[i]; i++) {
 		gtk_list_store_append (page->highlight_store, &iter);
 		gtk_list_store_set (page->highlight_store, &iter, 0, highlight_entries[i], -1);
