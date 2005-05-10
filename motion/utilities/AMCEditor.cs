@@ -331,65 +331,63 @@ class CurveEditor : Gtk.DrawingArea
 				back_buffer.DrawLayout (black_gc, (int) (pos - (lw / 2) - hadj.Value), Allocation.Height - 10, smalllayout);
 			}
 
-			if (IsVisible (pos) || IsVisible (pos + 40)) {
-				// Iterate through all the bones, draw those that are active.
-				foreach (object[] data in bones) {
-					int angle = (int) data[0];
-					string name = (string) data[1];
-					Gdk.GC gc = (Gdk.GC) data[2];
+			// Iterate through all the bones, draw those that are active.
+			foreach (object[] data in bones) {
+				int angle = (int) data[0];
+				string name = (string) data[1];
+				Gdk.GC gc = (Gdk.GC) data[2];
 
-					if (i + 1 != amc.frames.Count) {
-						AMC.Frame frame1 = (AMC.Frame) amc.frames[i];
-						AMC.Frame frame2 = (AMC.Frame) amc.frames[i + 1];
-						float val1 = ((float[]) (frame1.data[name]))[angle];
-						float val2 = ((float[]) (frame2.data[name]))[angle];
+				if (i + 1 != amc.frames.Count) {
+					AMC.Frame frame1 = (AMC.Frame) amc.frames[i];
+					AMC.Frame frame2 = (AMC.Frame) amc.frames[i + 1];
+					float val1 = ((float[]) (frame1.data[name]))[angle];
+					float val2 = ((float[]) (frame2.data[name]))[angle];
 
-						if (val1 < 0) val1 = 360.0f - val1;
-						if (val2 < 0) val2 = 360.0f - val2;
-						if (val1 > 360) val1 = val1 - 360.0f;
-						if (val2 > 360) val2 = val2 - 360.0f;
+					if (val1 < 0) val1 = 360.0f - val1;
+					if (val2 < 0) val2 = 360.0f - val2;
+					if (val1 > 360) val1 = val1 - 360.0f;
+					if (val2 > 360) val2 = val2 - 360.0f;
 
-						// draw box at current position and line to next position
-						int height1 = FindValueHeight (val1);
-						int height2 = FindValueHeight (val2);
+					// draw box at current position and line to next position
+					int height1 = FindValueHeight (val1);
+					int height2 = FindValueHeight (val2);
 
-						back_buffer.DrawLine (gc,
-							(int) (pos - hadj.Value),      height1,
-							(int) (pos + 40 - hadj.Value), height2);
+					back_buffer.DrawLine (gc,
+						(int) (pos - hadj.Value),      height1,
+						(int) (pos + 40 - hadj.Value), height2);
 
-						Gdk.Rectangle r = new Gdk.Rectangle ();
-						r.X = (int) (pos - hadj.Value - 2);
-						r.Y = height1 - 2;
-						r.Width = 5;
-						r.Height = 5;
-						back_buffer.DrawRectangle (black_gc, true, r);
+					Gdk.Rectangle r = new Gdk.Rectangle ();
+					r.X = (int) (pos - hadj.Value - 2);
+					r.Y = height1 - 2;
+					r.Width = 5;
+					r.Height = 5;
+					back_buffer.DrawRectangle (black_gc, true, r);
 
-						// Add the rect to the pick list
-						object[] pick_data = {
-							r, i, name, angle
-						};
-						pad_positions.Add (pick_data);
-					} else {
-						AMC.Frame frame = (AMC.Frame) amc.frames[i];
-						float val = ((float[]) (frame.data[name]))[angle];
+					// Add the rect to the pick list
+					object[] pick_data = {
+						r, i, name, angle
+					};
+					pad_positions.Add (pick_data);
+				} else {
+					AMC.Frame frame = (AMC.Frame) amc.frames[i];
+					float val = ((float[]) (frame.data[name]))[angle];
 
-						if (val < 0) val = 360.0f - val;
-						if (val > 360) val = val - 360.0f;
+					if (val < 0) val = 360.0f - val;
+					if (val > 360) val = val - 360.0f;
 
-						int height = FindValueHeight (val);
-						Gdk.Rectangle r = new Gdk.Rectangle ();
-						r.X = (int) (pos - hadj.Value - 2);
-						r.Y = height - 2;
-						r.Width = 5;
-						r.Height = 5;
-						back_buffer.DrawRectangle (black_gc, true, r);
+					int height = FindValueHeight (val);
+					Gdk.Rectangle r = new Gdk.Rectangle ();
+					r.X = (int) (pos - hadj.Value - 2);
+					r.Y = height - 2;
+					r.Width = 5;
+					r.Height = 5;
+					back_buffer.DrawRectangle (black_gc, true, r);
 
-						// Add the rect to the pick list
-						object[] pick_data = {
-							r, i, name, angle
-						};
-						pad_positions.Add (pick_data);
-					}
+					// Add the rect to the pick list
+					object[] pick_data = {
+						r, i, name, angle
+					};
+					pad_positions.Add (pick_data);
 				}
 			}
 		}
@@ -486,7 +484,7 @@ class CurveEditor : Gtk.DrawingArea
 		if (visible_range[0] < 0)
 			visible_range[0] = 0;
 		if (visible_range[1] > amc.frames.Count)
-			visible_range[0] = amc.frames.Count;
+			visible_range[1] = amc.frames.Count;
 	}
 
 	public void
