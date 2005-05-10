@@ -221,6 +221,7 @@ class CurveEditor : Gtk.DrawingArea
 	Pango.Layout		smalllayout;
 	int			redraw_timeout;
 	ArrayList		bones;
+	int[]			visible_range;
 
 	// Information about the AMC data
 	int 			nframes;
@@ -258,6 +259,10 @@ class CurveEditor : Gtk.DrawingArea
 		pad_positions = new ArrayList ();
 		bones = new ArrayList ();
 		redraw_timeout = 0;
+
+		visible_range = new int[2];
+		visible_range[0] = 0;
+		visible_range[1] = 0;
 	}
 
 	void
@@ -517,7 +522,6 @@ class CurveEditor : Gtk.DrawingArea
 class AMCEditor
 {
 	[Glade.Widget] Gtk.Window		toplevel;
-	[Glade.Widget] Gtk.ScrolledWindow	editor_swin;
 	[Glade.Widget] Gtk.TreeView		bone_list;
 	[Glade.Widget] CurveEditor		curve_editor;
 
