@@ -55,6 +55,18 @@ namespace AMC
 		{
 			return data.GetEnumerator ();
 		}
+
+		public void
+		Write (System.IO.StreamWriter stream)
+		{
+			foreach (System.Collections.DictionaryEntry entry in data) {
+				stream.Write (System.String.Format ("{0} ", entry.Key));
+				float[] values = (float[]) entry.Value;
+				for (int i = 0; i + 1 < values.Length; i++)
+					stream.Write (System.String.Format ("{0} ", values[i]));
+				stream.Write (System.String.Format ("{0}\n", values[values.Length - 1]));
+			}
+		}
 	}
 
 	class File
@@ -115,7 +127,11 @@ namespace AMC
 			foreach (string line in comments)
 				stream.Write (System.String.Format ("{0}\n", line));
 
-			// FIXME - write out frames
+			for (int i = 0; i < frames.Count; i++) {
+				stream.Write (System.String.Format ("{0}\n", i));
+				Frame frame = (Frame) frames[i];
+				frame.Write (stream);
+			}
 
 			stream.Close ();
 		}
