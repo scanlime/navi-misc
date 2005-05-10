@@ -33,7 +33,7 @@ tweaker = Tweak.List([
     Tweak.Quantity(graph.channels[2], 'value', name="Blue"),
     ])
 tweaker.show()
-vbox.pack_start(tweaker, gtk.FALSE)
+vbox.pack_start(tweaker, False)
 
 win.show()
 win.connect("destroy", gtk.mainquit)

@@ -65,14 +65,14 @@ class Graph(gtk.DrawingArea):
 
         # Any extra resize handling the subclass needs
         self.resized()
-        return gtk.TRUE
+        return True
 
     def gtkExposeEvent(self, widget, event):
         """Redraw the damaged area of our widget using the backing store"""
         x , y, width, height = event.area
         widget.window.draw_drawable(widget.get_style().fg_gc[gtk.STATE_NORMAL],
                                     self.backingPixmap, x, y, x, y, width, height)
-        return gtk.FALSE
+        return False
 
     def drawBackground(self):
         """Hook for subclasses to initialize backingPixmap after a resize"""
@@ -129,7 +129,7 @@ class PolledGraph(Graph):
         self.lastUpdateTime = now
 
         # Keep calling this handler, rather than treating it as a one-shot timer
-        return gtk.TRUE
+        return True
 
 class NotifiedGraph(Graph):
     """An abstract animated graph that is notified by its channels when there is new information."""

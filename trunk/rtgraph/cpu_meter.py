@@ -55,7 +55,7 @@ frame.show()
 
 win = gtk.Window(gtk.WINDOW_TOPLEVEL)
 win.set_title("CPU Load")
-win.set_decorated(gtk.FALSE)
+win.set_decorated(False)
 win.stick()
 win.add(frame)
 win.show()
