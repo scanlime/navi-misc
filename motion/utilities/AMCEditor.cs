@@ -212,8 +212,10 @@ class CurveEditor : Gtk.DrawingArea
 
 	// Picking data
 	ArrayList		pad_positions;
+	ArrayList		selected_pads;
 
 	// Drawing data
+	Gdk.GC			white_gc;
 	Gdk.GC			grey_gc;
 	Gdk.GC			black_gc;
 	Gdk.Pixmap		back_buffer;
@@ -259,6 +261,7 @@ class CurveEditor : Gtk.DrawingArea
 	{
 		enabled_bones = new ArrayList ();
 		pad_positions = new ArrayList ();
+		selected_pads = new ArrayList ();
 		bones = new ArrayList ();
 		redraw_timeout = 0;
 
@@ -270,15 +273,19 @@ class CurveEditor : Gtk.DrawingArea
 	void
 	CreateGCs ()
 	{
+		Gdk.Color white = new Gdk.Color (0xff, 0xff, 0xff);
 		Gdk.Color grey  = new Gdk.Color (0xde, 0xde, 0xde);
 		Gdk.Color black = new Gdk.Color (0x00, 0x00, 0x00);
 
+		white_gc = new Gdk.GC (GdkWindow);
 		grey_gc  = new Gdk.GC (GdkWindow);
 		black_gc = new Gdk.GC (GdkWindow);
 
+		GdkWindow.Colormap.AllocColor (ref white, true, true);
 		GdkWindow.Colormap.AllocColor (ref grey,  true, true);
 		GdkWindow.Colormap.AllocColor (ref black, true, true);
 
+		white_gc.Foreground = white;
 		grey_gc.Foreground  = grey;
 		black_gc.Foreground = black;
 
@@ -390,6 +397,11 @@ class CurveEditor : Gtk.DrawingArea
 					pad_positions.Add (pick_data);
 				}
 			}
+		}
+
+		foreach (object[] pick_data in selected_pads) {
+			Gdk.Rectangle rect = (Gdk.Rectangle) pick_data[0];
+			back_buffer.DrawRectangle (white_gc, true, rect);
 		}
 
 		// Draw border between frame # and edit region
@@ -528,6 +540,14 @@ class CurveEditor : Gtk.DrawingArea
 		Gdk.Point p = new Gdk.Point ();
 		p.X = (int) ev.X;
 		p.Y = (int) ev.Y;
+		bool changed = false;
+
+		if ((ev.State & Gdk.ModifierType.ShiftMask) == 0) {
+			if (selected_pads.Count != 0) {
+				selected_pads.Clear ();
+				changed = true;
+			}
+		}
 
 		for (int i = 0; i < pad_positions.Count; i++) {
 			object[] pick_data = (object[]) pad_positions[i];
@@ -537,8 +557,14 @@ class CurveEditor : Gtk.DrawingArea
 				string name = (string) pick_data[2];
 				int angle   = (int)    pick_data[3];
 				System.Console.WriteLine ("picked {0}:{1} at frame {2}", name, angle, frame);
+				selected_pads.Add (pick_data);
+				changed = true;
+				break;
 			}
 		}
+
+		if (changed)
+			QueueRedraw ();
 	}
 
 	public void
