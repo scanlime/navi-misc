@@ -525,6 +525,20 @@ class CurveEditor : Gtk.DrawingArea
 	public void
 	ButtonPress (Gdk.EventButton ev)
 	{
+		Gdk.Point p = new Gdk.Point ();
+		p.X = (int) ev.X;
+		p.Y = (int) ev.Y;
+
+		for (int i = 0; i < pad_positions.Count; i++) {
+			object[] pick_data = (object[]) pad_positions[i];
+			Gdk.Rectangle rect = (Gdk.Rectangle) pick_data[0];
+			if (rect.Contains (p)) {
+				int frame   = (int)    pick_data[1];
+				string name = (string) pick_data[2];
+				int angle   = (int)    pick_data[3];
+				System.Console.WriteLine ("picked {0}:{1} at frame {2}", name, angle, frame);
+			}
+		}
 	}
 
 	public void
