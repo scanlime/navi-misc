@@ -541,6 +541,8 @@ class AMCEditor
 	[Glade.Widget] Gtk.Window		toplevel;
 	[Glade.Widget] Gtk.TreeView		bone_list;
 	[Glade.Widget] CurveEditor		curve_editor;
+	[Glade.Widget] Gtk.ImageMenuItem	menu_save;
+	[Glade.Widget] Gtk.ImageMenuItem	menu_saveas;
 
 	Gtk.TreeStore				bone_store;
 	AMC.File				AMCData;
@@ -595,6 +597,8 @@ class AMCEditor
 		modified = false;
 
 		curve_editor.bone_store = bone_store;
+
+		UpdateToolbarSensitivity ();
 
 		toplevel.ShowAll ();
 	}
@@ -683,6 +687,9 @@ class AMCEditor
 						bone_store.SetValue (citer, 5, i);
 					}
 				}
+
+				modified = false;
+				UpdateToolbarSensitivity ();
 			}
 		}
 		fs.Destroy ();
@@ -691,11 +698,50 @@ class AMCEditor
 	public void
 	OnSave (object o, System.EventArgs args)
 	{
+		if (Filename == null) {
+			object[] responses = {
+				Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
+				Gtk.Stock.Save,   Gtk.ResponseType.Accept,
+			};
+
+			Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save As...", null, Gtk.FileChooserAction.Save, responses);
+			fs.DefaultResponse = Gtk.ResponseType.Accept;
+			fs.CurrentName = Filename;
+
+			Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
+
+			if (response == Gtk.ResponseType.Accept) {
+				Filename = fs.Filename;
+				AMCData.Save (Filename);
+				UpdateToolbarSensitivity ();
+			}
+			fs.Destroy ();
+		} else {
+			AMCData.Save (Filename);
+			modified = false;
+		}
 	}
 
 	public void
 	OnSaveAs (object o, System.EventArgs args)
 	{
+		object[] responses = {
+			Gtk.Stock.Cancel, Gtk.ResponseType.Reject,
+			Gtk.Stock.Save,   Gtk.ResponseType.Accept,
+		};
+
+		Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save As...", null, Gtk.FileChooserAction.Save, responses);
+		fs.DefaultResponse = Gtk.ResponseType.Accept;
+		fs.CurrentName = Filename;
+
+		Gtk.ResponseType response = (Gtk.ResponseType) fs.Run ();
+
+		if (response == Gtk.ResponseType.Accept) {
+			Filename = fs.Filename;
+			AMCData.Save (Filename);
+			UpdateToolbarSensitivity ();
+		}
+		fs.Destroy ();
 	}
 
 	public void
@@ -715,5 +761,12 @@ class AMCEditor
 			else
 				toplevel.Title = "AMC Editor - " + System.IO.Path.GetFileName (Filename);
 		}
+	}
+
+	void
+	UpdateToolbarSensitivity ()
+	{
+		menu_save.Sensitive = modified;
+		menu_saveas.Sensitive = (Filename != null);
 	}
 }
