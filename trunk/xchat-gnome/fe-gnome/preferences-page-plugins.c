@@ -74,7 +74,9 @@ fe_plugin_add (char *filename)
 		desc = _("unkown");
 	}
 
-	gtk_list_store_set (pageref->plugin_store, &iter, 0, name, 1, version, 2, desc, 3, filename, 5, handle, -1);
+	gtk_list_store_set (pageref->plugin_store, &iter, 0, name, 1, version, 2, desc, 3, filename, -1);
+
+	g_module_close (handle);
 }
 
 static gint
@@ -250,8 +252,8 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "Scripts and Plugins", 2, 4, -1);
 
-	/*                                          name,          version,       description,   file,          loaded,         file handle */
-	page->plugin_store = gtk_list_store_new (6, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_POINTER);
+	/*                                          name,          version,       description,   file,          loaded*/
+	page->plugin_store = gtk_list_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (page->plugins_list), GTK_TREE_MODEL (page->plugin_store));
 
 	page->load_renderer = gtk_cell_renderer_toggle_new ();
