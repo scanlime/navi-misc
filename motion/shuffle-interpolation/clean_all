@@ -1,4 +1,4 @@
-#!/bin/tcsh -f
+#!/bin/bash
 
 
 
@@ -22,4 +22,4 @@ cd motion;
 make clean;
 cd ../;
 
-rm -frv ./bin;
+rm bin/*

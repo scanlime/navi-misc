@@ -1,6 +1,6 @@
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
-#include <fstream.h>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <math.h>

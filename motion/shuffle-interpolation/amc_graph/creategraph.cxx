@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
 #include <vector>
 #include "amc_graph.h"

@@ -12,7 +12,7 @@
 using namespace std;
 
 #include <stdlib.h>
-#include <iostream.h>
+#include <iostream>
 #include <vector>
 #include "../graph_node/graph_node.h"
 #include "../graph_edge/graph_edge.h"
