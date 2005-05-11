@@ -10,8 +10,8 @@
 using namespace std;
 
 #include <stdlib.h>
-#include <iostream.h>
-#include <fstream.h>
+#include <iostream>
+#include <fstream>
 #include <vector>
 #include "amc.h"
 
