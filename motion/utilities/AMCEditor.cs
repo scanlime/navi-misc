@@ -541,13 +541,8 @@ class CurveEditor : Gtk.DrawingArea
 		p.X = (int) ev.X;
 		p.Y = (int) ev.Y;
 		bool changed = false;
-
-		if ((ev.State & Gdk.ModifierType.ShiftMask) == 0) {
-			if (selected_pads.Count != 0) {
-				selected_pads.Clear ();
-				changed = true;
-			}
-		}
+		bool foundold = false;
+		ArrayList new_selected = new ArrayList ();
 
 		for (int i = 0; i < pad_positions.Count; i++) {
 			object[] pick_data = (object[]) pad_positions[i];
@@ -557,9 +552,23 @@ class CurveEditor : Gtk.DrawingArea
 				string name = (string) pick_data[2];
 				int angle   = (int)    pick_data[3];
 				System.Console.WriteLine ("picked {0}:{1} at frame {2}", name, angle, frame);
-				selected_pads.Add (pick_data);
-				changed = true;
+				if (selected_pads.Contains (pick_data)) {
+					foundold = true;
+				} else {
+					new_selected.Add (pick_data);
+					changed = true;
+				}
 				break;
+			}
+		}
+
+		if (!foundold) {
+			if ((ev.State & Gdk.ModifierType.ShiftMask) == 0) {
+				selected_pads = new_selected;
+				changed = true;
+			} else {
+				selected_pads.AddRange (new_selected);
+				changed = true;
 			}
 		}
 
