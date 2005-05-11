@@ -362,8 +362,6 @@ class CurveEditor : Gtk.DrawingArea
 		bool foundold = false;
 		ArrayList new_selected = new ArrayList ();
 
-		GrabFocus ();
-
 		for (int i = 0; i < pad_positions.Count; i++) {
 			object[] pick_data = (object[]) pad_positions[i];
 			Gdk.Rectangle rect = (Gdk.Rectangle) pick_data[0];
@@ -371,7 +369,6 @@ class CurveEditor : Gtk.DrawingArea
 				int frame   = (int)    pick_data[1];
 				string name = (string) pick_data[2];
 				int angle   = (int)    pick_data[3];
-				System.Console.WriteLine ("picked {0}:{1} at frame {2}", name, angle, frame);
 				if (selected_pads.Contains (pick_data)) {
 					foundold = true;
 				} else {
@@ -418,6 +415,7 @@ class AMCEditor
 	[Glade.Widget] Gtk.Window		toplevel;
 	[Glade.Widget] Gtk.TreeView		bone_list;
 	[Glade.Widget] CurveEditor		curve_editor;
+	[Glade.Widget] Gtk.EventBox		eventbox;
 	[Glade.Widget] Gtk.ImageMenuItem	menu_save;
 	[Glade.Widget] Gtk.ImageMenuItem	menu_saveas;
 
@@ -650,6 +648,7 @@ class AMCEditor
 	void
 	CurveButtonPressEvent (object o, Gtk.ButtonPressEventArgs args)
 	{
+		eventbox.GrabFocus ();
 		curve_editor.ButtonPress (args.Event);
 	}
 
