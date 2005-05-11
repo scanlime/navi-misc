@@ -1,0 +1,83 @@
+#!/bin/tcsh -f
+
+mkdir ./bin;
+
+echo "**** BUILDING AND INSTALLING AMC MODULE ****";
+cd amc;
+make install;
+if ( $? != 0 ) then
+    echo "MAKE ERROR, EXITING";
+    exit;
+endif
+cd ..;
+echo;  
+
+echo "**** BUILDING AND INSTALLING MOTION MODULE ****";
+cd motion;
+make install;
+if ( $? != 0 ) then
+    echo "MAKE ERROR, EXITING";
+    exit;
+endif
+cd ..;
+echo;  
+
+echo "**** BUILDING GRAPH_NODE MODULE ****";
+cd graph_node;
+make;
+if ( $? != 0 ) then
+    echo "MAKE ERROR, EXITING";
+    exit;
+endif
+cd ..;
+echo;
+
+echo "**** GENERATING GRAPH_INTERP/CONVERSION.H FILE ****";
+cd graph_interp;
+./build_convert.pl > conversion.h;
+cd ..;
+echo;
+
+echo "**** BUILDING AND INSTALLING AMC_GRAPH MODULE ****";
+cd amc_graph;
+make install;
+if ( $? != 0 ) then
+    echo "MAKE ERROR, EXITING";
+    exit;
+endif
+cd ..;
+echo;
+
+echo "**** BUILDING AND INSTALLING GRAPH_INTERP MODULE ****";
+cd graph_interp;
+make install;
+if ( $? != 0 ) then
+    echo "MAKE ERROR, EXITING";
+    exit;
+endif
+cd ..;
+echo;  
+
+echo "**** INSTALLING COMBINE TOOL ****";
+cd combine;
+make install;
+if ( $? != 0 ) then
+    echo "MAKE ERROR, EXITING";
+    exit;
+endif
+cd ..;
+echo;  
+
+echo "**** INSTALLING ROOTSTRIP TOOL ****";
+cd rootstrip;
+make install;
+if ( $? != 0 ) then
+    echo "MAKE ERROR, EXITING";
+    exit;
+endif
+cd ..;
+echo;  
+
+echo "**** BUILD SUCCESSFUL ****";
+
+
