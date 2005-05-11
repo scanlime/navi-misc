@@ -89,7 +89,9 @@ int main(int argc, char **argv)
     int n = atoi(argv[3]);
     int dim = atoi(argv[4]);
 
-    vect *data = new vect [n] (dim);
+    vect *data = new vect [n];
+    for (int i = 0; i < n; i++)
+	    data[i] = vect(dim);
 
     vect x(atoi(argv[4]));
     for(int i = 0; i < x.size(); i++)
@@ -140,7 +142,9 @@ int main(int argc, char **argv)
     //    if(i%(int)(n/q.size()) == 0)
    //         words[p++] = data[i];
    // }
-    vect *words = new vect [inter_data.index()] (dim);
+    vect *words = new vect [inter_data.index()];
+    for(int i = 0; i < inter_data.index(); i++)
+	    words[i] = vect(dim);
     for(int i = 0; i < (int)inter_data.index() * (int)(n/inter_data.index());i++)
     {
        if(i%(int)(n/inter_data.index()) == 0)

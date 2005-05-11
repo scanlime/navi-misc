@@ -6,12 +6,13 @@
 class vect
 {
 public:
+    vect();
     vect(int size);
     
 
     // constant member functions
-    int size();
-    double value(int loc);
+    int size() const;
+    double value(int loc) const;
     void print();
     double mag();  // euclidean length
 

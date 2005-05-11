@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <iostream.h>
+#include <iostream>
 #include "vect.h"
 #include "runge.h"
 #include "function.h"

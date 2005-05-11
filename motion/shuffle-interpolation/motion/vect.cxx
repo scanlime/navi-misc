@@ -1,9 +1,12 @@
-#include <iostream.h>
+#include <iostream>
 #include <math.h>
 #include <assert.h>
 #include <climits>
 #include "vect.h"
 
+vect::vect()
+{
+}
 
 vect::vect(int size)
 {
@@ -15,21 +18,21 @@ vect::vect(int size)
 
 
     // constant member functions
-int vect::size()
+int vect::size() const
 {
     return dim;
 }
 
-double vect::value(int loc)
+double vect::value(int loc) const
 {
     return x[loc];
 }
 
 void vect::print()
 {
-    cout << x[0] << "\t";
-    cout << x[1] << "\t";
-    cout << x[2] << endl;
+	std::cout << x[0] << "\t";
+	std::cout << x[1] << "\t";
+	std::cout << x[2] << std::endl;
 }
 
 double vect::mag() // euclidean length
