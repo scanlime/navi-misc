@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
-#include <iostream.h>
+#include <iostream>
 #include "vect.h"
 
 vect f(const vect &x,double t)
