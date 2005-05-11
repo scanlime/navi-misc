@@ -31,6 +31,8 @@ class CurveEditor : Gtk.DrawingArea
 	// Picking data
 	ArrayList		pad_positions;
 	ArrayList		selected_pads;
+	bool			grabbed;
+	int			mouse_x, mouse_y;
 
 	// Drawing data
 	Gdk.GC			white_gc;
@@ -86,6 +88,8 @@ class CurveEditor : Gtk.DrawingArea
 		visible_range = new int[2];
 		visible_range[0] = 0;
 		visible_range[1] = 0;
+
+		grabbed = false;
 	}
 
 	void
@@ -401,12 +405,31 @@ class CurveEditor : Gtk.DrawingArea
 	public void
 	MotionNotify (Gdk.EventMotion ev)
 	{
+		if (grabbed) {
+			int new_x, new_y;
+			GetPointer (out new_x, out new_y);
+			int offset_y = new_y - mouse_y;
+			System.Console.WriteLine("mouse moved {0}", offset_y);
+
+			mouse_x = new_x;
+			mouse_y = new_y;
+		}
 	}
 
 	public void
 	KeyPress (Gdk.EventKey ev)
 	{
-		System.Console.WriteLine ("key press!");
+		if (grabbed && (ev.Key == Gdk.Key.Escape)) {
+			// FIXME - restore original positions
+			grabbed = false;
+			QueueRedraw ();
+			return;
+		}
+
+		if ((selected_pads.Count > 0) && (ev.Key == Gdk.Key.g)) {
+			GetPointer (out mouse_x, out mouse_y);
+			grabbed = true;
+		}
 	}
 }
 
