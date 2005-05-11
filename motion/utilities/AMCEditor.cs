@@ -362,6 +362,8 @@ class CurveEditor : Gtk.DrawingArea
 		bool foundold = false;
 		ArrayList new_selected = new ArrayList ();
 
+		GrabFocus ();
+
 		for (int i = 0; i < pad_positions.Count; i++) {
 			object[] pick_data = (object[]) pad_positions[i];
 			Gdk.Rectangle rect = (Gdk.Rectangle) pick_data[0];
@@ -402,6 +404,12 @@ class CurveEditor : Gtk.DrawingArea
 	public void
 	MotionNotify (Gdk.EventMotion ev)
 	{
+	}
+
+	public void
+	KeyPress (Gdk.EventKey ev)
+	{
+		System.Console.WriteLine ("key press!");
 	}
 }
 
@@ -655,5 +663,11 @@ class AMCEditor
 	CurveMotionNotifyEvent (object o, Gtk.MotionNotifyEventArgs args)
 	{
 		curve_editor.MotionNotify (args.Event);
+	}
+
+	void
+	CurveKeyPressEvent (object o, Gtk.KeyPressEventArgs args)
+	{
+		curve_editor.KeyPress (args.Event);
 	}
 }
