@@ -22,6 +22,23 @@
 
 using System.Collections;
 
+struct PickData
+{
+	public Gdk.Rectangle	rect;
+	public int		frame;
+	public string		bone;
+	public int		angle;
+
+	public
+	PickData (Gdk.Rectangle rect, int frame, string bone, int angle)
+	{
+		this.rect  = rect;
+		this.frame = frame;
+		this.bone  = bone;
+		this.angle = angle;
+	}
+}
+
 class CurveEditor : Gtk.DrawingArea
 {
 	// Widget data
@@ -193,10 +210,7 @@ class CurveEditor : Gtk.DrawingArea
 					back_buffer.DrawRectangle (black_gc, true, r);
 
 					// Add the rect to the pick list
-					object[] pick_data = {
-						r, i, name, angle
-					};
-					pad_positions.Add (pick_data);
+					pad_positions.Add (new PickData (r, i, name, angle));
 				} else {
 					AMC.Frame frame = (AMC.Frame) amc.frames[i];
 					float val = ((float[]) (frame.data[name]))[angle];
@@ -213,17 +227,13 @@ class CurveEditor : Gtk.DrawingArea
 					back_buffer.DrawRectangle (black_gc, true, r);
 
 					// Add the rect to the pick list
-					object[] pick_data = {
-						r, i, name, angle
-					};
-					pad_positions.Add (pick_data);
+					pad_positions.Add (new PickData (r, i, name, angle));
 				}
 			}
 		}
 
-		foreach (object[] pick_data in selected_pads) {
-			Gdk.Rectangle rect = (Gdk.Rectangle) pick_data[0];
-			back_buffer.DrawRectangle (white_gc, true, rect);
+		foreach (PickData pick_data in selected_pads) {
+			back_buffer.DrawRectangle (white_gc, true, pick_data.rect);
 		}
 
 		// Draw border between frame # and edit region
@@ -359,42 +369,42 @@ class CurveEditor : Gtk.DrawingArea
 	public void
 	ButtonPress (Gdk.EventButton ev)
 	{
-		Gdk.Point p = new Gdk.Point ();
-		p.X = (int) ev.X;
-		p.Y = (int) ev.Y;
-		bool changed = false;
-		bool foundold = false;
-		ArrayList new_selected = new ArrayList ();
+		if (grabbed) {
+			grabbed = false;
+		} else {
+			Gdk.Point p = new Gdk.Point ();
+			p.X = (int) ev.X;
+			p.Y = (int) ev.Y;
+			bool changed = false;
+			bool foundold = false;
+			ArrayList new_selected = new ArrayList ();
 
-		for (int i = 0; i < pad_positions.Count; i++) {
-			object[] pick_data = (object[]) pad_positions[i];
-			Gdk.Rectangle rect = (Gdk.Rectangle) pick_data[0];
-			if (rect.Contains (p)) {
-				int frame   = (int)    pick_data[1];
-				string name = (string) pick_data[2];
-				int angle   = (int)    pick_data[3];
-				if (selected_pads.Contains (pick_data)) {
-					foundold = true;
+			for (int i = 0; i < pad_positions.Count; i++) {
+				PickData pick_data = (PickData) pad_positions[i];
+				if (pick_data.rect.Contains (p)) {
+					if (selected_pads.Contains (pick_data)) {
+						foundold = true;
+					} else {
+						new_selected.Add (pick_data);
+						changed = true;
+					}
+					break;
+				}
+			}
+
+			if (!foundold) {
+				if ((ev.State & Gdk.ModifierType.ShiftMask) == 0) {
+					selected_pads = new_selected;
+					changed = true;
 				} else {
-					new_selected.Add (pick_data);
+					selected_pads.AddRange (new_selected);
 					changed = true;
 				}
-				break;
 			}
-		}
 
-		if (!foundold) {
-			if ((ev.State & Gdk.ModifierType.ShiftMask) == 0) {
-				selected_pads = new_selected;
-				changed = true;
-			} else {
-				selected_pads.AddRange (new_selected);
-				changed = true;
-			}
+			if (changed)
+				QueueRedraw ();
 		}
-
-		if (changed)
-			QueueRedraw ();
 	}
 
 	public void
@@ -411,8 +421,14 @@ class CurveEditor : Gtk.DrawingArea
 			int offset_y = new_y - mouse_y;
 			System.Console.WriteLine("mouse moved {0}", offset_y);
 
+			for (int i = 0; i < selected_pads.Count; i++) {
+				((PickData)selected_pads[i]).rect.Y += offset_y;
+			}
+
 			mouse_x = new_x;
 			mouse_y = new_y;
+
+			Redraw ();
 		}
 	}
 
