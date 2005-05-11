@@ -9,7 +9,7 @@ using namespace std;
 
 #include <stdlib.h>
 #include <iomanip>
-#include <iostream.h>
+#include <iostream>
 #include "amc_graph.h"
 #include "../graph_node/graph_node.h"
 
