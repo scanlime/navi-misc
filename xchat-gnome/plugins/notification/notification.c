@@ -88,6 +88,9 @@ new_msg_cb (char **word, void *msg_lvl)
 	gchar*	chan_name = (gchar*) xchat_get_info (ph, "channel");
 	struct MenuChannel*	chan = (struct MenuChannel*) g_hash_table_lookup (channels, (gconstpointer) chan_name);
 
+	if (chan == NULL)
+		return 0;
+
 	if (chan->status < (NotifStatus) msg_lvl) {
 		chan->status = (NotifStatus) msg_lvl;
 		/* FIXME memory leak? */
@@ -207,7 +210,7 @@ xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
 	/* Create the menu. */
 	//menu = GTK_MENU (gtk_menu_new ());
 
-	//channels = g_hash_table_new (g_str_hash , g_str_equal);
+	channels = g_hash_table_new (g_str_hash , g_str_equal);
 	//gtk_tree_model_foreach (chan_model, add_channels_foreach_cb, NULL);
 
 	//gtk_widget_show (GTK_WIDGET (menu));
