@@ -1,10 +1,11 @@
 0.4
+	* Basic functionality in notification area plugin - Evan Sheehan
 	* Connect dialog will only connect once to any particular server - Evan Sheehan
 	* Closing entire servers in the navigation list - Evan Sheehan
 	* Variety of internal reorganization to optimize speed and memory - David Trowbridge
 	* Sort lists in the orders which make sense for them - David Trowbridge
 	* Various UI tweaking
-	* lots of bugfixes
+	* lots and lots of bugfixes
 
 0.3 "You be the horse, and I'll be the buggy" (03 March 2005)
 	* Plugin autoloading - Evan Sheehan
