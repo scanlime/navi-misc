@@ -233,7 +233,11 @@ class CurveEditor : Gtk.DrawingArea
 		}
 
 		foreach (PickData pick_data in selected_pads) {
-			back_buffer.DrawRectangle (white_gc, true, pick_data.rect);
+			Gdk.Rectangle rect = pick_data.rect;
+			if (IsVisible (rect.X)) {
+				rect.X -= (int) hadj.Value;
+				back_buffer.DrawRectangle (white_gc, true, rect);
+			}
 		}
 
 		// Draw border between frame # and edit region
