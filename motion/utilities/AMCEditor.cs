@@ -22,7 +22,7 @@
 
 using System.Collections;
 
-struct PickData
+class PickData : System.ICloneable
 {
 	public Gdk.Rectangle	rect;
 	public int		frame;
@@ -37,6 +37,12 @@ struct PickData
 		this.bone  = bone;
 		this.angle = angle;
 	}
+
+	public object
+	Clone ()
+	{
+		return new PickData (rect, frame, bone, angle);
+	}
 }
 
 class CurveEditor : Gtk.DrawingArea
@@ -48,6 +54,7 @@ class CurveEditor : Gtk.DrawingArea
 	// Picking data
 	ArrayList		pad_positions;
 	ArrayList		selected_pads;
+	ArrayList		saved_pads;
 	bool			grabbed;
 	int			mouse_x, mouse_y;
 
@@ -159,77 +166,11 @@ class CurveEditor : Gtk.DrawingArea
 		// Draw frame lines and numbers
 		for (int i = visible_range[0]; i < visible_range[1]; i++) {
 			int pos = i * 40 + 20;
-			if (IsVisible (pos)) {
-				back_buffer.DrawLine (black_gc,
-					(int) (pos - hadj.Value), 0,
-					(int) (pos - hadj.Value), Allocation.Height - 30);
-
-				biglayout.SetText (i.ToString ());
-				int lw, lh;
-				biglayout.GetPixelSize (out lw, out lh);
-
-				back_buffer.DrawLayout (black_gc, (int) (pos - (lw / 2) - hadj.Value), Allocation.Height - 28, biglayout);
-
-				float seconds = i / 120.0f;
-
-				smalllayout.SetText (System.String.Format ("{0:00.000}", seconds));
-				smalllayout.GetPixelSize (out lw, out lh);
-				back_buffer.DrawLayout (black_gc, (int) (pos - (lw / 2) - hadj.Value), Allocation.Height - 10, smalllayout);
-			}
+			DrawFrameLine (i, pos);
 
 			// Iterate through all the bones, draw those that are active.
-			foreach (object[] data in bones) {
-				int angle = (int) data[0];
-				string name = (string) data[1];
-				Gdk.GC gc = (Gdk.GC) data[2];
-
-				if (i + 1 != amc.frames.Count) {
-					AMC.Frame frame1 = (AMC.Frame) amc.frames[i];
-					AMC.Frame frame2 = (AMC.Frame) amc.frames[i + 1];
-					float val1 = ((float[]) (frame1.data[name]))[angle];
-					float val2 = ((float[]) (frame2.data[name]))[angle];
-
-					if (val1 < 0) val1 = 360.0f - val1;
-					if (val2 < 0) val2 = 360.0f - val2;
-					if (val1 > 360) val1 = val1 - 360.0f;
-					if (val2 > 360) val2 = val2 - 360.0f;
-
-					// draw box at current position and line to next position
-					int height1 = FindValueHeight (val1);
-					int height2 = FindValueHeight (val2);
-
-					back_buffer.DrawLine (gc,
-						(int) (pos - hadj.Value),      height1,
-						(int) (pos + 40 - hadj.Value), height2);
-
-					Gdk.Rectangle r = new Gdk.Rectangle ();
-					r.X = (int) (pos - hadj.Value - 2);
-					r.Y = height1 - 2;
-					r.Width = 5;
-					r.Height = 5;
-					back_buffer.DrawRectangle (black_gc, true, r);
-
-					// Add the rect to the pick list
-					pad_positions.Add (new PickData (r, i, name, angle));
-				} else {
-					AMC.Frame frame = (AMC.Frame) amc.frames[i];
-					float val = ((float[]) (frame.data[name]))[angle];
-
-					if (val < 0) val = 360.0f - val;
-					if (val > 360) val = val - 360.0f;
-
-					int height = FindValueHeight (val);
-					Gdk.Rectangle r = new Gdk.Rectangle ();
-					r.X = (int) (pos - hadj.Value - 2);
-					r.Y = height - 2;
-					r.Width = 5;
-					r.Height = 5;
-					back_buffer.DrawRectangle (black_gc, true, r);
-
-					// Add the rect to the pick list
-					pad_positions.Add (new PickData (r, i, name, angle));
-				}
-			}
+			foreach (object[] data in bones)
+				DrawBone (i, pos, data);
 		}
 
 		foreach (PickData pick_data in selected_pads) {
@@ -244,17 +185,118 @@ class CurveEditor : Gtk.DrawingArea
 		back_buffer.DrawLine (black_gc, 0, Allocation.Height - 30, Allocation.Width, Allocation.Height - 30);
 	}
 
+	void
+	DrawFrameLine (int frame, int position) {
+		if (IsVisible (position)) {
+			back_buffer.DrawLine (black_gc,
+				(int) (position - hadj.Value), 0,
+				(int) (position - hadj.Value), Allocation.Height - 30);
+
+			biglayout.SetText (frame.ToString ());
+			int lw, lh;
+			biglayout.GetPixelSize (out lw, out lh);
+
+			back_buffer.DrawLayout (black_gc,
+				(int) (position - (lw / 2) - hadj.Value),
+				Allocation.Height - 28,
+				biglayout);
+
+			// FIXME - this really shouldn't be hardcoded, but it's not in
+			// any of the data files
+			float seconds = frame / 120.0f;
+
+			smalllayout.SetText (System.String.Format ("{0:00.000}", seconds));
+			smalllayout.GetPixelSize (out lw, out lh);
+			back_buffer.DrawLayout (black_gc,
+				(int) (position - (lw / 2) - hadj.Value),
+				Allocation.Height - 10,
+				smalllayout);
+		}
+	}
+
+	void
+	DrawBone (int frame, int pos, object[] bone) {
+		int angle   = (int)    bone[0];
+		string name = (string) bone[1];
+		Gdk.GC gc   = (Gdk.GC) bone[2];
+
+		if (frame + 1 != amc.frames.Count) {
+			// If we're not on the last frame, draw a pad for the value
+			// and a line going to the next frame's value
+			AMC.Frame frame1 = (AMC.Frame) amc.frames[frame];
+			AMC.Frame frame2 = (AMC.Frame) amc.frames[frame + 1];
+
+			float val1 = ((float[]) (frame1.data[name]))[angle];
+			float val2 = ((float[]) (frame2.data[name]))[angle];
+
+			// FIXME - this completely screws up root position and negative
+			// angles, which might come back later to bite us if we're looking
+			// for gaps or jumps in the data
+			if (val1 < 0) val1 = 360.0f - val1;
+			if (val2 < 0) val2 = 360.0f - val2;
+			if (val1 > 360) val1 = val1 - 360.0f;
+			if (val2 > 360) val2 = val2 - 360.0f;
+
+			int height1 = FindValueHeight (val1);
+			int height2 = FindValueHeight (val2);
+
+			// Draw the curve line
+			back_buffer.DrawLine (gc,
+				(int) (pos - hadj.Value),      height1,
+				(int) (pos - hadj.Value + 40), height2);
+
+			// Draw and store the pad
+			Gdk.Rectangle r = new Gdk.Rectangle ();
+			r.X = (int) (pos - hadj.Value - 2);
+			r.Y = height1 - 2;
+			r.Width = 5;
+			r.Height = 5;
+			back_buffer.DrawRectangle (black_gc, true, r);
+
+			pad_positions.Add (new PickData (r, frame, name, angle));
+		} else {
+			AMC.Frame frame1 = (AMC.Frame) amc.frames[frame];
+			float val = ((float[]) (frame1.data[name]))[angle];
+
+			// FIXME - this completely screws up root position and negative
+			// angles, which might come back later to bite us if we're looking
+			// for gaps or jumps in the data
+			if (val < 0) val = 360.0f - val;
+			if (val > 360) val = val - 360.0f;
+
+			// Draw and store the pad
+			int height = FindValueHeight (val);
+			Gdk.Rectangle r = new Gdk.Rectangle ();
+			r.X = (int) (pos - hadj.Value - 2);
+			r.Y = height - 2;
+			r.Width  = 5;
+			r.Height = 5;
+			back_buffer.DrawRectangle (black_gc, true, r);
+
+			pad_positions.Add (new PickData (r, frame, name, angle));
+		}
+	}
+
 	bool
 	IsVisible (int x)
 	{
 		return ((x > hadj.Value) && (x < (hadj.Value + Allocation.Width)));
 	}
 
-	int FindValueHeight (float f)
+	int
+	FindValueHeight (float f)
 	{
 		float pc = f / 360.0f;
-		float height = (Allocation.Height - 31) * pc;
-		return (int) ((Allocation.Height - 31) - height);
+		float height = (Allocation.Height - 30) * pc;
+		return (int) ((Allocation.Height - 30) - height);
+	}
+
+	float
+	FindHeightValue (int h)
+	{
+		float inv = (float) ((Allocation.Height - 30) - h);
+		float pc = inv / (Allocation.Height - 30);
+		return (pc * 360.0f);
 	}
 
 	protected override bool
@@ -326,6 +368,7 @@ class CurveEditor : Gtk.DrawingArea
 	VisibilityChanged ()
 	{
 		bones = new ArrayList ();
+		selected_pads.Clear ();
 		foreach (string p in enabled_bones) {
 			Gtk.TreePath path = new Gtk.TreePath (p);
 			Gtk.TreeIter iter;
@@ -380,30 +423,23 @@ class CurveEditor : Gtk.DrawingArea
 			p.X = (int) ev.X;
 			p.Y = (int) ev.Y;
 			bool changed = false;
-			bool foundold = false;
 			ArrayList new_selected = new ArrayList ();
 
 			for (int i = 0; i < pad_positions.Count; i++) {
 				PickData pick_data = (PickData) pad_positions[i];
 				if (pick_data.rect.Contains (p)) {
-					if (selected_pads.Contains (pick_data)) {
-						foundold = true;
-					} else {
-						new_selected.Add (pick_data);
-						changed = true;
-					}
+					new_selected.Add (pick_data);
+					changed = true;
 					break;
 				}
 			}
 
-			if (!foundold) {
-				if ((ev.State & Gdk.ModifierType.ShiftMask) == 0) {
-					selected_pads = new_selected;
-					changed = true;
-				} else {
-					selected_pads.AddRange (new_selected);
-					changed = true;
-				}
+			if ((ev.State & Gdk.ModifierType.ShiftMask) == 0) {
+				selected_pads = new_selected;
+				changed = true;
+			} else {
+				selected_pads.AddRange (new_selected);
+				changed = true;
 			}
 
 			if (changed)
@@ -423,10 +459,13 @@ class CurveEditor : Gtk.DrawingArea
 			int new_x, new_y;
 			GetPointer (out new_x, out new_y);
 			int offset_y = new_y - mouse_y;
-			System.Console.WriteLine("mouse moved {0}", offset_y);
 
-			for (int i = 0; i < selected_pads.Count; i++) {
-				((PickData)selected_pads[i]).rect.Y += offset_y;
+			foreach (PickData pick_data in selected_pads) {
+				pick_data.rect.Y += offset_y;
+
+				AMC.Frame frame = (AMC.Frame) amc.frames[pick_data.frame];
+				float val = FindHeightValue (pick_data.rect.Y + 2);
+				((float[]) frame.data[pick_data.bone])[pick_data.angle] = val;
 			}
 
 			mouse_x = new_x;
@@ -440,13 +479,24 @@ class CurveEditor : Gtk.DrawingArea
 	KeyPress (Gdk.EventKey ev)
 	{
 		if (grabbed && (ev.Key == Gdk.Key.Escape)) {
-			// FIXME - restore original positions
+			// Restore the state that we saved when we began the drag
+			foreach (PickData pick_data in saved_pads) {
+				AMC.Frame frame = (AMC.Frame) amc.frames[pick_data.frame];
+				float val = FindHeightValue (pick_data.rect.Y + 3);
+				((float[]) frame.data[pick_data.bone])[pick_data.angle] = val;
+			}
+			selected_pads = saved_pads;
 			grabbed = false;
 			QueueRedraw ();
 			return;
 		}
 
 		if ((selected_pads.Count > 0) && (ev.Key == Gdk.Key.g)) {
+			// Copy selected_pads so we can restore that state later
+			saved_pads = new ArrayList ();
+			foreach (PickData pick_data in selected_pads) {
+				saved_pads.Add (pick_data.Clone ());
+			}
 			GetPointer (out mouse_x, out mouse_y);
 			grabbed = true;
 		}
@@ -622,7 +672,7 @@ class AMCEditor
 				Gtk.Stock.Save,   Gtk.ResponseType.Accept,
 			};
 
-			Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save As...", null, Gtk.FileChooserAction.Save, responses);
+			Gtk.FileChooserDialog fs = new Gtk.FileChooserDialog ("Save...", null, Gtk.FileChooserAction.Save, responses);
 			fs.DefaultResponse = Gtk.ResponseType.Accept;
 			fs.CurrentName = Filename;
 
@@ -672,12 +722,12 @@ class AMCEditor
 	SetTitle ()
 	{
 		if (Filename == null) {
-			toplevel.Title = "AMC Editor - None";
+			toplevel.Title = "AMC Editor";
 		} else {
 			if (modified)
-				toplevel.Title = "AMC Editor - " + System.IO.Path.GetFileName (Filename) + "*";
+				toplevel.Title = System.IO.Path.GetFileName (Filename) + "*";
 			else
-				toplevel.Title = "AMC Editor - " + System.IO.Path.GetFileName (Filename);
+				toplevel.Title = System.IO.Path.GetFileName (Filename);
 		}
 	}
 
@@ -688,26 +738,26 @@ class AMCEditor
 		menu_saveas.Sensitive = (Filename != null);
 	}
 
-	void
+	public void
 	CurveButtonPressEvent (object o, Gtk.ButtonPressEventArgs args)
 	{
 		eventbox.GrabFocus ();
 		curve_editor.ButtonPress (args.Event);
 	}
 
-	void
+	public void
 	CurveButtonReleaseEvent (object o, Gtk.ButtonReleaseEventArgs args)
 	{
 		curve_editor.ButtonRelease (args.Event);
 	}
 
-	void
+	public void
 	CurveMotionNotifyEvent (object o, Gtk.MotionNotifyEventArgs args)
 	{
 		curve_editor.MotionNotify (args.Event);
 	}
 
-	void
+	public void
 	CurveKeyPressEvent (object o, Gtk.KeyPressEventArgs args)
 	{
 		curve_editor.KeyPress (args.Event);
