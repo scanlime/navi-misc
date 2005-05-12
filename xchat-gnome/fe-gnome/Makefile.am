@@ -92,6 +92,7 @@ EXTRA_DIST =					\
 	userlist-gui.c				\
 	util.h					\
 	util.c					\
+	xg-plugin.h				\
 	$(xchat_gnome_DATA)			\
 	$(desktop_DATA)				\
 	apps_xchat.schemas
@@ -152,6 +153,7 @@ xchat_gnome_SOURCES =				\
 	userlist-gui.c				\
 	util.h					\
 	util.c					\
+	xg-plugin.h				\
 	xtext.h					\
 	xtext.c
 
