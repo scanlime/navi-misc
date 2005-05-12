@@ -1,7 +1,11 @@
 libdir = $(xchatlibdir)/plugins
 
 lib_LTLIBRARIES = notification.la
-notification_la_SOURCES = eggtrayicon.h eggtrayicon.c notification.c
+notification_la_SOURCES =	\
+	eggtrayicon.h		\
+	eggtrayicon.c		\
+	notification.c		\
+	xg-plugin.h
 notification_la_LDFLAGS = -avoid-version -module
 
 INCLUDES = $(COMMON_CFLAGS) \
