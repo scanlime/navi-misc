@@ -50,3 +50,6 @@ void preferences_plugins_page_update ();
  */
 void autoload_plugins ();
 #endif
+
+/* vim:ts=3:sw=3
+ */

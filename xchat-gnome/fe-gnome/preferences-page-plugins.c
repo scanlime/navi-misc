@@ -76,7 +76,8 @@ fe_plugin_add (char *filename)
 
 	gtk_list_store_set (pageref->plugin_store, &iter, 0, name, 1, version, 2, desc, 3, filename, -1);
 
-	g_module_close (handle);
+	if (handle != NULL)
+		g_module_close (handle);
 }
 
 static gint
@@ -98,12 +99,14 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 		/* Unload the plugin. */
 		GSList *removed_plugin;
 		int err = unload_plugin (filename);
-		if ( err == 1) {
+
+		if (err == 1) {
 			gtk_list_store_set (page->plugin_store, &iter, 4, FALSE, -1);
 
 			if ((removed_plugin = g_slist_find_custom (enabled_plugins, filename, &filename_test)) != NULL) {
 				enabled_plugins = g_slist_delete_link (enabled_plugins, removed_plugin);
 			}
+
 		} else {
 			gchar *errmsg = g_strdup_printf (_("An error occured unloading %s"), filename);
 			error_dialog (_("Plugin Unload Failed"), errmsg);
@@ -112,9 +115,10 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 	} else {
 		/* Load the plugin. */
 		gchar *err = load_plugin (gui.current_session, filename, NULL);
-		if ( err == NULL) {
+		if (err == NULL) {
 			gtk_list_store_set (page->plugin_store, &iter, 4, TRUE, -1);
 			enabled_plugins = g_slist_append (enabled_plugins, filename);
+
 		} else {
 			error_dialog (_("Plugin Load Failed"), err);
 		}
@@ -312,3 +316,6 @@ preferences_page_plugins_free (PreferencesPluginsPage *page)
 	g_object_unref (page->plugin_store);
 	g_free (page);
 }
+
+/* vim:ts=3:sw=3
+ */

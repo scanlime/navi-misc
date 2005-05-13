@@ -35,69 +35,71 @@
 #include "xg-plugin.h"
 #include "plugins.h"
 
-typedef int (xchat_init_func) (xchat_plugin *, char **, char **, char **, char *);
-typedef int (xchat_deinit_func) (xchat_plugin *);
-typedef void (xchat_plugin_get_info) (char **, char **, char **, char **);
-typedef int (xchat_gnome_plugin_init) (xchat_gnome_plugin *);
+typedef int		(xchat_init_func)				(xchat_plugin *, char **, char **, char **, char *);
+typedef int		(xchat_deinit_func)			(xchat_plugin *);
+typedef void	(xchat_plugin_get_info)		(char **, char **, char **, char **);
+typedef int		(xchat_gnome_plugin_init)	(xchat_gnome_plugin *);
 
 GSList *enabled_plugins;
 
 static void
 autoload_plugin_cb (gchar * filename, gpointer data)
 {
-    load_plugin (gui.current_session, filename, NULL);
+	load_plugin (gui.current_session, filename, NULL);
 }
 
 void
 autoload_plugins ()
 {
-    g_slist_foreach (enabled_plugins, (GFunc) & autoload_plugin_cb, NULL);
+	g_slist_foreach (enabled_plugins, (GFunc) & autoload_plugin_cb, NULL);
 }
 
 void
 plugins_initialize ()
 {
-    GConfClient *client;
+	GConfClient *client;
 
-    client = gconf_client_get_default ();
-    enabled_plugins = gconf_client_get_list (client, "/apps/xchat/plugins/enabled", GCONF_VALUE_STRING, NULL);
+	client = gconf_client_get_default ();
+	enabled_plugins = gconf_client_get_list (client, "/apps/xchat/plugins/enabled", GCONF_VALUE_STRING, NULL);
 }
 
 int
 unload_plugin (char *filename)
 {
-    return plugin_kill (filename, 1);
+	return plugin_kill (filename, 1);
 }
 
 xchat_gnome_plugin *
 new_xg_plugin ()
 {
-    xchat_gnome_plugin *plugin = malloc (sizeof (xchat_gnome_plugin));
-    plugin->xg_get_main_window = xg_get_main_window;
-    plugin->xg_get_chan_list = xg_get_chan_list;
+	xchat_gnome_plugin *plugin = malloc (sizeof (xchat_gnome_plugin));
+	plugin->xg_get_main_window = xg_get_main_window;
+	plugin->xg_get_chan_list = xg_get_chan_list;
 
-    return plugin;
+	return plugin;
 }
 
 char *
 load_plugin (session * sess, char *filename, char *arg)
 {
-    void *handle;
-    gpointer xg_init_func;
-    xchat_gnome_plugin *pl;
+	void *handle;
+	gpointer xg_init_func;
+	xchat_gnome_plugin *pl;
 
-    handle = g_module_open (filename, 0);
-    if (handle != NULL && g_module_symbol (handle, "xchat_gnome_plugin_init", &xg_init_func)) {
-	pl = new_xg_plugin ();
-	((xchat_gnome_plugin_init *) xg_init_func) (pl);
-    }
+	handle = g_module_open (filename, 0);
 
-    char *err = plugin_load (sess, filename, arg);
+	if (handle != NULL && g_module_symbol (handle, "xchat_gnome_plugin_init", &xg_init_func)) {
+		pl = new_xg_plugin ();
+		((xchat_gnome_plugin_init *) xg_init_func) (pl);
+	}
 
-    if (!err)
-	return err;
+	char *err = NULL;
+	err = plugin_load (sess, filename, arg);
 
-    return NULL;
+	if (err != NULL)
+		return err;
+
+	return NULL;
 }
 
 
@@ -105,15 +107,15 @@ load_plugin (session * sess, char *filename, char *arg)
 GtkWidget *
 xg_get_main_window ()
 {
-    return (GTK_WIDGET (gui.main_window));
+	return (GTK_WIDGET (gui.main_window));
 }
 
 GtkTreeModel *
 xg_get_chan_list ()
 {
-    return gtk_tree_view_get_model (GTK_TREE_VIEW (gui.server_tree));
+	return gtk_tree_view_get_model (GTK_TREE_VIEW (gui.server_tree));
 }
 
 /*** The End ***/
-/* vim:ts=8:sw=4:softtabstop=4
+/* vim:ts=3:sw=3
  */
