@@ -211,7 +211,7 @@ xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
 	//menu = GTK_MENU (gtk_menu_new ());
 
 	channels = g_hash_table_new (g_str_hash , g_str_equal);
-	//gtk_tree_model_foreach (chan_model, add_channels_foreach_cb, NULL);
+	gtk_tree_model_foreach (chan_model, add_channels_foreach_cb, NULL);
 
 	//gtk_widget_show (GTK_WIDGET (menu));
 
@@ -286,6 +286,7 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 int
 xchat_plugin_deinit ()
 {
+	/* Disconnect the signal handlers. */
 	g_signal_handlers_disconnect_by_func (main_window, G_CALLBACK (got_focus_cb), NULL);
 	g_signal_handlers_disconnect_by_func (main_window, G_CALLBACK (lost_focus_cb), NULL);
 
