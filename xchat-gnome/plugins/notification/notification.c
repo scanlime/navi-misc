@@ -286,6 +286,9 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 int
 xchat_plugin_deinit ()
 {
+	g_signal_handlers_disconnect_by_func (main_window, G_CALLBACK (got_focus_cb), NULL);
+	g_signal_handlers_disconnect_by_func (main_window, G_CALLBACK (lost_focus_cb), NULL);
+
 	g_object_unref (G_OBJECT (notification));
 	gtk_widget_destroy (GTK_WIDGET (notification));
 
