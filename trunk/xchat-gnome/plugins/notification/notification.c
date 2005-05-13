@@ -88,8 +88,17 @@ new_msg_cb (char **word, void *msg_lvl)
 	gchar*					chan_name = (gchar*) xchat_get_info (ph, "channel");
 	struct MenuChannel*	chan = (struct MenuChannel*) g_hash_table_lookup (channels, (gconstpointer) chan_name);
 
-	if (chan == NULL)
-		return 0;
+	if (chan == NULL) {
+		/* If we get a message for a channel we're not already in, add it.
+		 * This takes care of the problems David and I were seeing with our proxies
+		 * and the hash table not being populated if the plugin is loaded when x-g
+		 * starts.
+		 */
+		chan = (struct MenuChannel*) malloc (sizeof (struct MenuChannel));
+		chan->status = (NotifStatus) msg_lvl;
+		chan->menu_item = gtk_menu_item_new_with_label (chan_name);
+		g_hash_table_insert (channels, (gpointer) chan_name, (gpointer) chan);
+	}
 
 	if (chan->status < (NotifStatus) msg_lvl) {
 		chan->status = (NotifStatus) msg_lvl;
