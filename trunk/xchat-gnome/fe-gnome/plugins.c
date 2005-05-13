@@ -27,6 +27,7 @@
 #include "../common/util.h"
 #include "../common/xchat-plugin.h"
 #include "../common/plugin.h"
+#include "../common/outbound.h"
 
 #ifndef PLUGIN_C
 #define PLUGIN_C
@@ -82,22 +83,39 @@ new_xg_plugin ()
 char *
 load_plugin (session * sess, char *filename, char *arg)
 {
+	int len;
+	char *buf;
 	void *handle;
 	gpointer xg_init_func;
 	xchat_gnome_plugin *pl;
 
-	handle = g_module_open (filename, 0);
+	len = strlen (filename);
 
-	if (handle != NULL && g_module_symbol (handle, "xchat_gnome_plugin_init", &xg_init_func)) {
-		pl = new_xg_plugin ();
-		((xchat_gnome_plugin_init *) xg_init_func) (pl);
+	if (len > 3 && strcasecmp (filename + len - 3, ".so") == 0) {
+		/* Plugin */
+		handle = g_module_open (filename, 0);
+
+		if (handle != NULL && g_module_symbol (handle, "xchat_gnome_plugin_init", &xg_init_func)) {
+			pl = new_xg_plugin ();
+			((xchat_gnome_plugin_init *) xg_init_func) (pl);
+		}
+
+		char *err = NULL;
+		err = plugin_load (sess, filename, arg);
+
+		if (err != NULL)
+			return err;
+	} else {
+		/* Script */
+		buf = (char*) malloc (len + 8);
+		if (strchr (filename, ' '))
+			sprintf (buf, "LOAD \"%s\"", filename);
+		else
+			sprintf (buf, "LOAD %s", filename);
+
+		handle_command (gui.current_session, buf, FALSE);
+		free (buf);
 	}
-
-	char *err = NULL;
-	err = plugin_load (sess, filename, arg);
-
-	if (err != NULL)
-		return err;
 
 	return NULL;
 }
