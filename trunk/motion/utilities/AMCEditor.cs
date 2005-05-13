@@ -56,12 +56,15 @@ class CurveEditor : Gtk.DrawingArea
 	ArrayList		selected_pads;
 	ArrayList		saved_pads;
 	bool			grabbed;
+	bool			lasso;
+	int			lasso_x, lasso_y;
 	int			mouse_x, mouse_y;
 
 	// Drawing data
 	Gdk.GC			white_gc;
 	Gdk.GC			grey_gc;
 	Gdk.GC			black_gc;
+	Gdk.GC			lasso_gc;
 	Gdk.Pixmap		back_buffer;
 	Pango.Layout		biglayout;
 	Pango.Layout		smalllayout;
@@ -114,6 +117,7 @@ class CurveEditor : Gtk.DrawingArea
 		visible_range[1] = 0;
 
 		grabbed = false;
+		lasso = false;
 	}
 
 	void
@@ -122,18 +126,22 @@ class CurveEditor : Gtk.DrawingArea
 		Gdk.Color white = new Gdk.Color (0xff, 0xff, 0xff);
 		Gdk.Color grey  = new Gdk.Color (0xde, 0xde, 0xde);
 		Gdk.Color black = new Gdk.Color (0x00, 0x00, 0x00);
+		Gdk.Color lasso = new Gdk.Color (0xa0, 0xa0, 0xa0);
 
 		white_gc = new Gdk.GC (GdkWindow);
 		grey_gc  = new Gdk.GC (GdkWindow);
 		black_gc = new Gdk.GC (GdkWindow);
+		lasso_gc = new Gdk.GC (GdkWindow);
 
 		GdkWindow.Colormap.AllocColor (ref white, true, true);
 		GdkWindow.Colormap.AllocColor (ref grey,  true, true);
 		GdkWindow.Colormap.AllocColor (ref black, true, true);
+		GdkWindow.Colormap.AllocColor (ref lasso, true, true);
 
 		white_gc.Foreground = white;
 		grey_gc.Foreground  = grey;
 		black_gc.Foreground = black;
+		lasso_gc.Foreground = lasso;
 
 		biglayout = CreatePangoLayout (null);
 		biglayout.FontDescription = Pango.FontDescription.FromString ("Bitstream Vera Sans 8");
@@ -183,6 +191,11 @@ class CurveEditor : Gtk.DrawingArea
 
 		// Draw border between frame # and edit region
 		back_buffer.DrawLine (black_gc, 0, Allocation.Height - 30, Allocation.Width, Allocation.Height - 30);
+
+		if (lasso) {
+			// Draw selection box
+			DrawLasso ();
+		}
 	}
 
 	void
@@ -281,6 +294,32 @@ class CurveEditor : Gtk.DrawingArea
 	IsVisible (int x)
 	{
 		return ((x > hadj.Value) && (x < (hadj.Value + Allocation.Width)));
+	}
+
+	void
+	DrawLasso ()
+	{
+		Gdk.Rectangle lasso_rect = new Gdk.Rectangle ();
+
+		int mx, my;
+		GetPointer (out mx, out my);
+		if (mx < lasso_x) {
+			lasso_rect.X = mx;
+			lasso_rect.Width = lasso_x - mx;
+		} else {
+			lasso_rect.X = lasso_x;
+			lasso_rect.Width = mx - lasso_x;
+		}
+
+		if (my < lasso_y) {
+			lasso_rect.Y = my;
+			lasso_rect.Height = lasso_y - my;
+		} else {
+			lasso_rect.Y = lasso_y;
+			lasso_rect.Height = my - lasso_y;
+		}
+
+		back_buffer.DrawRectangle (lasso_gc, false, lasso_rect);
 	}
 
 	int
@@ -418,6 +457,45 @@ class CurveEditor : Gtk.DrawingArea
 	{
 		if (grabbed) {
 			grabbed = false;
+		} else if (lasso) {
+			Gdk.Rectangle r = new Gdk.Rectangle ();
+			int mx, my;
+
+			GetPointer (out mx, out my);
+			if (mx < lasso_x) {
+				r.X = mx;
+				r.Width = lasso_x - mx;
+			} else {
+				r.X = lasso_x;
+				r.Width = mx - lasso_x;
+			}
+
+			if (my < lasso_y) {
+				r.Y = my;
+				r.Height = lasso_y - my;
+			} else {
+				r.Y = lasso_y;
+				r.Height = my - lasso_y;
+			}
+
+			ArrayList new_selected = new ArrayList ();
+			foreach (PickData pick_data in pad_positions) {
+				Gdk.Rectangle r2;
+				if (r.Intersect (pick_data.rect, out r2)) {
+					PickData newd = (PickData) pick_data.Clone ();
+					newd.rect.X += (int) hadj.Value;
+					new_selected.Add (newd);
+				}
+			}
+
+			if ((ev.State & Gdk.ModifierType.ShiftMask) == 0) {
+				selected_pads = new_selected;
+			} else {
+				selected_pads.AddRange (new_selected);
+			}
+
+			lasso = false;
+			Redraw ();
 		} else {
 			Gdk.Point p = new Gdk.Point ();
 			p.X = (int) ev.X;
@@ -428,7 +506,9 @@ class CurveEditor : Gtk.DrawingArea
 			for (int i = 0; i < pad_positions.Count; i++) {
 				PickData pick_data = (PickData) pad_positions[i];
 				if (pick_data.rect.Contains (p)) {
-					new_selected.Add (pick_data);
+					PickData newd = (PickData) pick_data.Clone ();
+					newd.rect.X += (int) hadj.Value;
+					new_selected.Add (newd);
 					changed = true;
 					break;
 				}
@@ -471,7 +551,9 @@ class CurveEditor : Gtk.DrawingArea
 			mouse_x = new_x;
 			mouse_y = new_y;
 
-			Redraw ();
+			QueueRedraw ();
+		} else if (lasso) {
+			QueueRedraw ();
 		}
 	}
 
@@ -499,6 +581,13 @@ class CurveEditor : Gtk.DrawingArea
 			}
 			GetPointer (out mouse_x, out mouse_y);
 			grabbed = true;
+			return;
+		}
+
+		if (ev.Key == Gdk.Key.b) {
+			GetPointer (out lasso_x, out lasso_y);
+			lasso = true;
+			return;
 		}
 	}
 }
@@ -585,6 +674,7 @@ class AMCEditor
 			curve_editor.enabled_bones.Remove (args.Path);
 
 		curve_editor.VisibilityChanged ();
+		eventbox.GrabFocus ();
 	}
 
 	static Gtk.Widget
