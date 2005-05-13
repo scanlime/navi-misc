@@ -32,19 +32,19 @@
  */
 struct _xchat_gnome_plugin
 {
-    GtkWidget *(*xg_get_main_window) ();
-    GtkTreeModel *(*xg_get_chan_list) ();
+	GtkWidget *(*xg_get_main_window) ();
+	GtkTreeModel *(*xg_get_chan_list) ();
 };
 #endif
 
 extern GSList *enabled_plugins;
 
-void plugins_initialize	();
-void autoload_plugins	();
-int unload_plugin	(char *filename);
-char *load_plugin	(session * sess, char *filename, char *arg);
+void plugins_initialize ();
+void autoload_plugins ();
+int unload_plugin (char *filename);
+char *load_plugin (session * sess, char *filename, char *arg);
 
 #endif
 /*** The End ***/
-/* vim:ts=8:sw=4:softtabstop=4
+/* vim:ts=3:sw=3
  */
