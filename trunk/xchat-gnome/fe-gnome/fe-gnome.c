@@ -620,12 +620,10 @@ fe_ctrl_gui (session * sess, int action, int arg)
 
     switch (action) {
     case 0:
-	gtk_window_iconify (GTK_WINDOW (window));
 	gtk_widget_hide (window);
 	break;
 
     case 1:
-	gtk_window_deiconify (GTK_WINDOW (window));
 	gtk_widget_show (window);
 	gtk_window_present (GTK_WINDOW (window));
 	break;
