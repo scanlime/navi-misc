@@ -70,8 +70,10 @@ unload_plugin (char *filename)
 	int len = strlen (filename);
 
 	if (len > 3 && strcasecmp (filename + len - 3, ".so") == 0) {
+		/* Plugin. */
 		return plugin_kill (filename, 1);
 	} else {
+		/* Script. */
 		char *buf = (char*) malloc (len + 10);
 
 		if (strchr (filename, ' '))
