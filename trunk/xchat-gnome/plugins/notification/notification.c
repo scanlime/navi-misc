@@ -85,7 +85,7 @@ lost_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 static int
 new_msg_cb (char **word, void *msg_lvl)
 {
-	gchar*	chan_name = (gchar*) xchat_get_info (ph, "channel");
+	gchar*					chan_name = (gchar*) xchat_get_info (ph, "channel");
 	struct MenuChannel*	chan = (struct MenuChannel*) g_hash_table_lookup (channels, (gconstpointer) chan_name);
 
 	if (chan == NULL)
