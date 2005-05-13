@@ -67,7 +67,23 @@ plugins_initialize ()
 int
 unload_plugin (char *filename)
 {
-	return plugin_kill (filename, 1);
+	int len = strlen (filename);
+
+	if (len > 3 && strcasecmp (filename + len - 3, ".so") == 0) {
+		return plugin_kill (filename, 1);
+	} else {
+		char *buf = (char*) malloc (len + 10);
+
+		if (strchr (filename, ' '))
+			sprintf (buf, "UNLOAD \"%s\"", filename);
+		else
+			sprintf (buf, "UNLOAD %s", filename);
+
+		handle_command (gui.current_session, buf, FALSE);
+		free (buf);
+	}
+
+	return 1;
 }
 
 xchat_gnome_plugin *
@@ -107,7 +123,7 @@ load_plugin (session * sess, char *filename, char *arg)
 			return err;
 	} else {
 		/* Script */
-		buf = (char*) malloc (len + 8);
+		buf = (char*) malloc (len + 9);
 		if (strchr (filename, ' '))
 			sprintf (buf, "LOAD \"%s\"", filename);
 		else
