@@ -943,6 +943,9 @@ navigation_selection_changed (GtkTreeSelection * treeselection, gpointer user_da
 	    entry = glade_xml_get_widget (gui.xml, "text entry");
 	    gtk_entry_set_text (GTK_ENTRY (entry), "");
 	}
+
+	/* Emit "focus tab" event */
+	plugin_emit_dummy_print (sess, "Focus Tab");
     }
 }
 
