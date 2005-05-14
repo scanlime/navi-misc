@@ -1,15 +1,34 @@
+<div class="heading">14 May 2005 - More cool stuff</div>
+<p>
+    Now that you're all finished ogling at quartz composer, you can ogle at the
+    <a href="http://navi.cx/gallery/fyre-screenshots/basic_pipeline">progress on fyre 2.0!</a>
+    We spent the last couple months starting work on the pipeline editor, using a class project as an
+    excuse.
+
+    <img src="news-icons/pipeline.png" width="106" height="106" class="newsIcon" alt="Pipeline Editor" />
+</p>
+<p>
+    This screenshot shows the basic process through which algorithms will be built.  These
+    algorithms will then be compiled, and the interface for running one will look very much like
+    the fyre you know and love.  New elements are created via a simple drag-and-drop mechanism,
+    Eventually this will show which connections have valid type connections, as well as be able
+    to make intelligent decisions about what can be parallelized across a cluster.
+</p>
+
 <div class="heading">3 May 2005 - Cool stuff</div>
 <p>
-For those of you who are still confused about what fyre2 is going to be all about, you may
-want to look at Apple's new
-<a href="http://developer.apple.com/documentation/GraphicsImaging/Conceptual/QuartzComposer/index.html">Quartz Composer</a>
-application.  This is, in a general sense, what we're aiming for -- a visual language that
-lets you build new algorithms for fyre.  I haven't actually tried it, since I don't use Apple
-stuff personally, but it's cool to see that we're not the only ones who think this is a good idea :)
+    For those of you who are still confused about what fyre2 is going to be all about, you may
+    want to look at Apple's new
+    <a href="http://developer.apple.com/documentation/GraphicsImaging/Conceptual/QuartzComposer/index.html">Quartz Composer</a>
+    application.  This is, in a general sense, what we're aiming for -- a visual language that
+    lets you build new algorithms for fyre.  I haven't actually tried it, since I don't use Apple
+    stuff personally, but it's cool to see that we're not the only ones who think this is a good idea :)
 </p>
 
 <div class="heading">1 May 2005 - Another package</div>
-<p>Curtis S. Netterville contributed a x86_64 fedora package for y'all. Thanks Curtis!</p>
+<p>
+    Curtis S. Netterville contributed a x86_64 fedora package for y'all. Thanks Curtis!
+</p>
 <ul>
     <li><a href="http://flapjack.navi.cx/releases/fyre/fyre-1.0.0-2.x86_64.rpm">fyre-1.0.0-2.x86_64.rpm</a></li>
 </ul>
