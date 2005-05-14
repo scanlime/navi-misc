@@ -21,7 +21,7 @@
 	  <br />
 	  <b>Q.</b> What is xchat-gnome?<br />
 	  <b>A.</b> xchat-gnome is a new frontend for the popular <a href="http://www.xchat.org">X-Chat IRC client</a>
-	  targetted towards the <a href="http://www.gnome.org">GNOME</a> platform. Our eventual goals include full
+	  targeted towards the <a href="http://www.gnome.org">GNOME</a> platform. Our eventual goals include full
 	  desktop integration and <a href="http://developer.gnome.org/projects/gup/hig/">HIG</a> compliance.<br />
 	  <br />
 	  <b>Q.</b> Why is xchat-gnome?<br />
@@ -43,16 +43,21 @@
 	  will ever be closed as well. However, since people seem to worry about such things, here's the answer:
 	  xchat-gnome will always stay GPL.<br />
 	  <br />
+	  <b>Q.</b> Can you provide packages for my distro?<br />
+	  <b>A.</b> Probably not. There are some people who contribute packages for their particular distributions,
+	  and we're happy to host/provide links to these packages, but it's really not worth our time to learn the
+	  ins and outs of packaging for every distribution, especially when there are so many expert packages out
+	  there.<br />
+        </div>
+	<div class="section-title">How to not act like rocko</div>
+	<div class="section">
 	  <b>Q.</b> Ayo Jerks, you got the treeview for windows yet?<br />
 	  <b>A.</b> There are no plans to make xchat-gnome run under windows at this point. If eventually the
 	  GNOME libraries are ported, support for windows will probably follow.<br />
 	  <br />
 	  <b>Q.</b> You are our slaves! Implement my silly feature requests! Have some drugs!<br />
 	  <b>A.</b> No, and that wasn't a question.<br />
-	  <br />
-	  <b>Q.</b> Can you provide packages for <i>X</i> distro?<br />
-	  <b>A.</b> Probably not. There are some people who contribute packages for their particular distributions, and we're happy to host/provide links to these packages, but it's not really feasable for us to learn how to package things for distributions we don't use.<br />
-        </div>
+	</div>
         <div class="section-title">Migrating from X-Chat gtk+</div>
         <div class="section">
           <b>Q.</b> Can xchat-gnome be configured to use tabs?<br />
@@ -70,6 +75,11 @@
 	  <br />
 	  <b>Q.</b> How is the server list edited?<br />
 	  <b>A.</b> The server list is edited from the preferences window rather than the connect dialog<br />
+	  <br />
+	  <b>Q.</b> How can I use DCC?<br />
+	  <b>A.</b> At the moment, the only way is through /dcc commands.  You can get a list of these with
+	  <pre>/dcc help</pre> command.  We have plans to implement GUI for this for 0.5 or 0.6, so you shouldn't
+	  have to wait too long.<br />
         </div>
         <div class="section-title">Compiling and Running</div>
         <div class="section">
