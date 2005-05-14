@@ -14,6 +14,15 @@
         <!--#include file="navigation.inc"-->
       </div>
       <div class="content">
+        <div class="section-title">0.4 "Buyer beware - Penis patches!"</div>
+	<div class="section">
+	  <i>04 May 2005</i> - Mostly bugfixes.  In particular, the memory and speed
+	  usage is much improved.
+	  <br /><br />
+	  Source:<br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.4.tar.gz">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.4.tar.gz</a><br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.4.tar.bz2">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.4.tar.bz2</a><br />
+	</div>
         <div class="section-title">0.3 "You be the horse, I'll be the buggy"</div>
 	<div class="section">
 	  <i>03 March 2005</i> - Another big feature/bug release. Enjoy!
