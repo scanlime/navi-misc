@@ -77,7 +77,7 @@
 	  <b>A.</b> The server list is edited from the preferences window rather than the connect dialog<br />
 	  <br />
 	  <b>Q.</b> How can I use DCC?<br />
-	  <b>A.</b> At the moment, the only way is through /dcc commands.  You can get a list of these with
+	  <b>A.</b> At the moment, the only way is through /dcc commands.  You can get a list of these with the
 	  <pre>/dcc help</pre> command.  We have plans to implement GUI for this for 0.5 or 0.6, so you shouldn't
 	  have to wait too long.<br />
         </div>
