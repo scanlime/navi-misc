@@ -4,13 +4,13 @@ RCS file: /cvsroot/xchat/xchat2/configure.in,v
 retrieving revision 1.78
 diff -u -r1.78 configure.in
 --- configure.in	5 May 2005 12:22:08 -0000	1.78
-+++ configure.in	12 May 2005 02:02:51 -0000
++++ configure.in	14 May 2005 07:49:28 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
  AM_CONFIG_HEADER(config.h)
 -AM_INIT_AUTOMAKE(xchat, 2.4.3)
-+AM_INIT_AUTOMAKE(xchat-gnome, 0.4)
++AM_INIT_AUTOMAKE(xchat-gnome, 0.5svn)
  AM_MAINTAINER_MODE
  AC_PROG_CC
  AC_PROG_CPP
@@ -181,7 +181,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.4
 diff -u -r1.4 Makefile.am
 --- plugins/Makefile.am	13 Jan 2003 07:29:36 -0000	1.4
-+++ plugins/Makefile.am	12 May 2005 02:02:51 -0000
++++ plugins/Makefile.am	14 May 2005 07:49:28 -0000
 @@ -1,10 +1,10 @@
  # temp. solution while mailcheck & xdcc arn't in SUBDIRS
 -EXTRA_DIST = plugin20.html Make.plugin plugin-conf.in \
@@ -220,7 +220,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/mailcheck/Makefile.am,v
 retrieving revision 1.1
 diff -u -r1.1 Makefile.am
 --- plugins/mailcheck/Makefile.am	17 Dec 2002 15:36:39 -0000	1.1
-+++ plugins/mailcheck/Makefile.am	12 May 2005 02:02:51 -0000
++++ plugins/mailcheck/Makefile.am	14 May 2005 07:49:28 -0000
 @@ -10,7 +10,6 @@
  
  # This file must be in the form PLUGIN-config.h.in, it can be empty but
@@ -229,13 +229,26 @@ diff -u -r1.1 Makefile.am
  
  # Remember to include this line in your Makefile.am
  include @top_srcdir@/plugins/Make.plugin
+Index: plugins/perl/Makefile.am
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/plugins/perl/Makefile.am,v
+retrieving revision 1.10
+diff -u -r1.10 Makefile.am
+--- plugins/perl/Makefile.am	29 Mar 2005 05:11:50 -0000	1.10
++++ plugins/perl/Makefile.am	14 May 2005 07:49:28 -0000
+@@ -13,3 +13,5 @@
+ CLEANFILES = xchat.pm.h
+ xchat.pm.h: Xchat.pm IRC.pm
+ 	perl generate_header
++
++EXTRA_DIST = generate_header Xchat.pm IRC.pm
 Index: src/Makefile.am
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	12 May 2005 02:03:08 -0000
++++ src/Makefile.am	14 May 2005 07:49:29 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
@@ -252,7 +265,7 @@ RCS file: /cvsroot/xchat/xchat2/src/pixmaps/Makefile.am,v
 retrieving revision 1.8
 diff -u -r1.8 Makefile.am
 --- src/pixmaps/Makefile.am	9 Jan 2003 06:22:30 -0000	1.8
-+++ src/pixmaps/Makefile.am	12 May 2005 02:03:08 -0000
++++ src/pixmaps/Makefile.am	14 May 2005 07:49:29 -0000
 @@ -14,5 +14,8 @@
  CLEANFILES = $(noinst_HEADERS)
  EXTRA_DIST = $(PNGS) makefile.msc
