@@ -64,21 +64,18 @@ static GdkPixbuf*				pixbufs[4];					/* Pixbufs */
 static gboolean
 got_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 {
-	/* Hide the notification icon. */
-	gtk_widget_hide_all (GTK_WIDGET (notification));
-
-	return FALSE;
-}
-
-static gboolean
-lost_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
-{
 	/* Reset the status. */
 	status = NOTIF_NONE;
-	gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[0]);
 
-	/* Show the notification icon. */
-	gtk_widget_show_all (GTK_WIDGET (notification));
+	if (!persistant) {
+		/* Hide the notification icon. */
+		gtk_widget_hide_all (GTK_WIDGET (notification));
+	} else {
+		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[0]);
+
+		/* Show the notification icon. */
+		gtk_widget_show_all (GTK_WIDGET (notification));
+	}
 
 	return FALSE;
 }
@@ -111,6 +108,7 @@ new_msg_cb (char **word, void *msg_lvl)
 	if (status < (NotifStatus) msg_lvl && !GTK_WIDGET_HAS_FOCUS (main_window)) {
 		status = (NotifStatus) msg_lvl;
 		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
+		gtk_widget_show_all (GTK_WIDGET (notification));
 	}
 
 	return 0;
@@ -215,7 +213,6 @@ xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
 	/* Hook up callbacks for changing focus on the main window. */
 	main_window = xg_get_main_window ();
 	g_signal_connect (main_window, "focus-in-event", G_CALLBACK (got_focus_cb), NULL);
-	g_signal_connect (main_window, "focus-out-event", G_CALLBACK (lost_focus_cb), NULL);
 
 	/* Create the menu. */
 	//menu = GTK_MENU (gtk_menu_new ());
@@ -304,7 +301,6 @@ xchat_plugin_deinit ()
 {
 	/* Disconnect the signal handlers. */
 	g_signal_handlers_disconnect_by_func (main_window, G_CALLBACK (got_focus_cb), NULL);
-	g_signal_handlers_disconnect_by_func (main_window, G_CALLBACK (lost_focus_cb), NULL);
 
 	g_object_unref (G_OBJECT (notification));
 	gtk_widget_destroy (GTK_WIDGET (notification));
