@@ -51,6 +51,7 @@ static xchat_plugin*			ph;							/* Plugin handle. */
 static xchat_gnome_plugin*	xgph;							/* xchat gnome plugin handle. */
 static NotifStatus			status = NOTIF_NONE;		/* Current status level. */
 static gboolean				window_visible = TRUE;	/* Keep track of whether the window is visible. */
+static gboolean				focused = TRUE;			/* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
 static gboolean				persistant;					/* Keep the icon in the tray at all times? */
 static GtkWidget*				main_window;				/* xchat-gnome's main window. */
 static GHashTable*			channels;					/* A reference to the navigation tree. */
@@ -64,6 +65,8 @@ static GdkPixbuf*				pixbufs[4];					/* Pixbufs */
 static gboolean
 got_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 {
+	focused = TRUE;
+
 	/* Reset the status. */
 	status = NOTIF_NONE;
 
@@ -77,6 +80,13 @@ got_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 		gtk_widget_show_all (GTK_WIDGET (notification));
 	}
 
+	return FALSE;
+}
+
+static gboolean
+lost_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
+{
+	focused = FALSE;
 	return FALSE;
 }
 
@@ -105,7 +115,7 @@ new_msg_cb (char **word, void *msg_lvl)
 				//gtk_image_new_from_pixbuf (pixbufs[(int) chan->status]));
 	}
 
-	if (status < (NotifStatus) msg_lvl && !GTK_WIDGET_HAS_FOCUS (main_window)) {
+	if (status < (NotifStatus) msg_lvl && !focused) {
 		status = (NotifStatus) msg_lvl;
 		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
 		gtk_widget_show_all (GTK_WIDGET (notification));
@@ -213,6 +223,7 @@ xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
 	/* Hook up callbacks for changing focus on the main window. */
 	main_window = xg_get_main_window ();
 	g_signal_connect (main_window, "focus-in-event", G_CALLBACK (got_focus_cb), NULL);
+	g_signal_connect (main_window, "focus-out-event", G_CALLBACK (lost_focus_cb), NULL);
 
 	/* Create the menu. */
 	//menu = GTK_MENU (gtk_menu_new ());
@@ -301,6 +312,7 @@ xchat_plugin_deinit ()
 {
 	/* Disconnect the signal handlers. */
 	g_signal_handlers_disconnect_by_func (main_window, G_CALLBACK (got_focus_cb), NULL);
+	g_signal_handlers_disconnect_by_func (main_window, G_CALLBACK (lost_focus_cb), NULL);
 
 	g_object_unref (G_OBJECT (notification));
 	gtk_widget_destroy (GTK_WIDGET (notification));
