@@ -111,8 +111,8 @@ new_msg_cb (char **word, void *msg_lvl)
 	if (chan->status < (NotifStatus) msg_lvl) {
 		chan->status = (NotifStatus) msg_lvl;
 		/* FIXME memory leak? */
-		//gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (chan->menu_item),
-				//gtk_image_new_from_pixbuf (pixbufs[(int) chan->status]));
+		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (chan->menu_item),
+				gtk_image_new_from_pixbuf (pixbufs[(int) chan->status]));
 	}
 
 	if (status < (NotifStatus) msg_lvl && !focused) {
@@ -130,8 +130,9 @@ join_chan_cb (char **word, void *data)
 	struct MenuChannel* item = (struct MenuChannel*) malloc (sizeof (struct MenuChannel));
 
 	item->status = NOTIF_NONE;
-	item->menu_item = gtk_menu_item_new_with_label ((gchar*) word[1]);
-	g_hash_table_insert (channels, (gpointer) word[1], (gpointer) item);
+	item->menu_item = gtk_menu_item_new_with_label ((gchar*) word[2]);
+	gtk_menu_append (menu, item->menu_item);
+	g_hash_table_insert (channels, (gpointer) word[2], (gpointer) item);
 
 	return 0;
 }
@@ -141,7 +142,7 @@ part_chan_cb (char **word, void *data)
 {
 	struct MenuChannel*	chan = (struct MenuChannel*) g_hash_table_lookup (channels, word[2]);
 
-	//gtk_container_remove (GTK_CONTAINER (menu), GTK_WIDGET (chan->menu_item));
+	gtk_container_remove (GTK_CONTAINER (menu), GTK_WIDGET (chan->menu_item));
 	g_hash_table_remove (channels, (gconstpointer) word[2]);
 
 	free (chan);
@@ -152,6 +153,7 @@ part_chan_cb (char **word, void *data)
 static void
 notification_menu_show (GdkEventButton *event)
 {
+	gtk_widget_show_all (GTK_WIDGET (menu));
 	gtk_menu_popup (menu, NULL, NULL, NULL, NULL, event->button, event->time);
 }
 
@@ -172,7 +174,7 @@ notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer da
 
 		/* Right click. */
 	case 3:
-		//notification_menu_show (event);
+		notification_menu_show (event);
 		break;
 
 	default:
@@ -195,7 +197,7 @@ add_channels_foreach_cb (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter *
 	item->menu_item = gtk_menu_item_new_with_label (channel);
 	g_hash_table_insert (channels, (gpointer) channel, (gpointer) item);
 
-	//gtk_menu_append (menu, item->menu_item);
+	gtk_menu_append (menu, item->menu_item);
 
 	return FALSE;
 }
@@ -226,12 +228,10 @@ xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
 	g_signal_connect (main_window, "focus-out-event", G_CALLBACK (lost_focus_cb), NULL);
 
 	/* Create the menu. */
-	//menu = GTK_MENU (gtk_menu_new ());
+	menu = GTK_MENU (gtk_menu_new ());
 
 	channels = g_hash_table_new (g_str_hash , g_str_equal);
 	gtk_tree_model_foreach (chan_model, add_channels_foreach_cb, NULL);
-
-	//gtk_widget_show (GTK_WIDGET (menu));
 
 	return 1;
 }
