@@ -14,18 +14,19 @@ using namespace std;
 #include "../graph_node/graph_node.h"
 
 vector <int> visited;
-void print_graph_helper(vector <graph_node> nodes, int index);
+void print_graph_helper (vector <graph_node> nodes, int index);
 
 
-amc_graph::amc_graph()
+amc_graph::amc_graph ()
 {
 }
 
-void amc_graph::print_graph()
+void
+amc_graph::print_graph ()
 {
 	if (nodes.size() <= 0) {
 		// return if no graph
-		cerr << "emtpy graph: nothing to print" << endl;
+		cerr << "empty graph: nothing to print" << endl;
 		return;
 	}
 
@@ -48,7 +49,8 @@ void amc_graph::print_graph()
 	cout << "}" << endl;
 }
 
-void amc_graph::dump_stats()
+void
+amc_graph::dump_stats ()
 {
 	cout << nodes.size () << "nodes" << endl;
 	cout << df << "df" << endl;
@@ -69,14 +71,6 @@ void amc_graph::dump_stats()
 		cout << dfspace[0] << endl;
 }
 
-void amc_graph::save_graph (char *filename)
-{
-}
-
-void amc_graph::read_graph(char *filename)
-{
-}
-
 struct loc
 {
 	bool isthere;
@@ -84,7 +78,8 @@ struct loc
 };
 
 
-void amc_graph::create_graph(vector <double *> data, vector <int> degf_div, int degf)
+void
+amc_graph::create_graph (vector <double *> data, vector <int> degf_div, int degf)
 {
 	// degf_div is the divy for each df
 	// degf is the df (as in MAX_(ITEM))
