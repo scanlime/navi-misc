@@ -259,8 +259,8 @@ class RulesetEditor(GladeUI):
         self.currentURI = uri
 
         # Set widget sensitivities
-        self.xml.get_widget('RevertButton').set_sensitive(gtk.FALSE)
-        self.xml.get_widget('ApplyButton').set_sensitive(gtk.FALSE)
+        self.xml.get_widget('RevertButton').set_sensitive(False)
+        self.xml.get_widget('ApplyButton').set_sensitive(False)
         self.xml.get_widget('RulesetEditor').set_sensitive(uri is not None)
 
         # Show the current URI name
@@ -274,7 +274,7 @@ class RulesetEditor(GladeUI):
             self.buffer.set_text(self.client.queryRulesets(uri)[0])
         else:
             self.buffer.set_text('')
-        self.buffer.set_modified(gtk.FALSE)
+        self.buffer.set_modified(False)
 
     def on_RulesetBuffer_modified_changed(self, buffer):
         modified = buffer.get_modified()
@@ -289,7 +289,7 @@ class RulesetEditor(GladeUI):
         """Send a modified ruleset to the server"""
         ruleset = self.buffer.get_text(*self.buffer.get_bounds())
         self.client.setRuleset(ruleset, self.currentURI)
-        self.buffer.set_modified(gtk.FALSE)
+        self.buffer.set_modified(False)
 
 
 def exceptionDialog(type, value, tb):
