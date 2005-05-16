@@ -104,7 +104,7 @@ new_msg_cb (char **word, void *msg_lvl)
 		 */
 		chan = (struct MenuChannel*) malloc (sizeof (struct MenuChannel));
 		chan->status = (NotifStatus) msg_lvl;
-		chan->menu_item = gtk_menu_item_new_with_label (chan_name);
+		chan->menu_item = gtk_image_menu_item_new_with_label (chan_name);
 		g_hash_table_insert (channels, (gpointer) chan_name, (gpointer) chan);
 	}
 
@@ -113,6 +113,7 @@ new_msg_cb (char **word, void *msg_lvl)
 		/* FIXME memory leak? */
 		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (chan->menu_item),
 				gtk_image_new_from_pixbuf (pixbufs[(int) chan->status]));
+		gtk_widget_show_all (chan->menu_item);
 	}
 
 	if (status < (NotifStatus) msg_lvl && !focused) {
@@ -130,7 +131,7 @@ join_chan_cb (char **word, void *data)
 	struct MenuChannel* item = (struct MenuChannel*) malloc (sizeof (struct MenuChannel));
 
 	item->status = NOTIF_NONE;
-	item->menu_item = gtk_menu_item_new_with_label ((gchar*) word[2]);
+	item->menu_item = gtk_image_menu_item_new_with_label ((gchar*) word[2]);
 	gtk_menu_append (menu, item->menu_item);
 	g_hash_table_insert (channels, (gpointer) word[2], (gpointer) item);
 
@@ -194,7 +195,7 @@ add_channels_foreach_cb (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter *
 
 	gtk_tree_model_get (model, iter, 1, &channel, -1);
 	item->status = NOTIF_NONE;
-	item->menu_item = gtk_menu_item_new_with_label (channel);
+	item->menu_item = gtk_image_menu_item_new_with_label (channel);
 	g_hash_table_insert (channels, (gpointer) channel, (gpointer) item);
 
 	gtk_menu_append (menu, item->menu_item);
