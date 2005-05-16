@@ -41,9 +41,11 @@ amc_graph::print_graph ()
 	// nodes
 	for (unsigned int i = 0; i < nodes.size(); i++) {
 		cout << nodes[i].name << " [label=\""
-		     << "node: " << nodes[i].name << "\\n" << "visited: " << nodes[i].times_visited
-		     << "\\n" << "range: [" << nodes[i].min_gap << ", " << nodes[i].max_gap << "]"
-		     << "\"];" << endl;
+		     << "node: " << nodes[i].name << "\\n" << "visited: " << nodes[i].times_visited;
+		for (unsigned int i = 0; i < nodes[i].min_range.size (); i++) {
+			cout << "\\n[" << nodes[i].min_range[i] << ", " << nodes[i].max_range[i] << "]";
+		}
+		cout << "\"];" << endl;
 	}
 
 	cout << "}" << endl;
