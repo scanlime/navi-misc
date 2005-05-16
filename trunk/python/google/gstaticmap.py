@@ -5,8 +5,10 @@
 # Copyright (C) 2005 Micah Dowty
 #
 
-#import urllib, Image, pdfgen
-import urllib
+import urllib, Image
+from reportlab.pdfgen import canvas
+from reportlab.lib import pagesizes, units
+from cStringIO import StringIO
 
 
 class KeyholeTile:
@@ -118,7 +120,8 @@ class KeyholeTile:
 
     def getImage(self):
         """Download this tile and return a PIL image"""
-        return Image.load(urllib.urlopen(self.getURI()))
+        data = urllib.urlopen(self.getURI()).read()
+        return Image.open(StringIO(data))
 
     def translate(self, x=0, y=0):
         """Return a new tile relative to this tile's position"""
@@ -137,24 +140,34 @@ class KeyholeTile:
         return self.__class__(self.zoom + z, self.x+x, self.y+y)
 
 
-sbo = (40.00372, -105.2635)
+def drawMap(canvas, center, pageOrigin=(0,0), pageSize=pagesizes.letter, zoom=18, dpi=300):
+    outputTileSize = units.inch * center.size / dpi
 
-origin = KeyholeTile()
-origin.zoom = 18
-origin.setLatLong(*sbo)
+    # Calculate the size of the page in tiles, rounding up
+    tileGrid = (int(pageSize[0] / outputTileSize + 1),
+                int(pageSize[1] / outputTileSize + 1))
+
+    for y in xrange(-tileGrid[1]/2, tileGrid[1]/2+2):
+        for x in xrange(-tileGrid[0]/2, tileGrid[0]/2+2):
+            tile = center.translate(x, y)
+            print "Tile %d,%d" % (x,y)
+            canvas.drawInlineImage(tile.getImage(),
+                                   pageOrigin[0] + pageSize[0]/2 + x * outputTileSize,
+                                   pageOrigin[1] + pageSize[1]/2 - y * outputTileSize,
+                                   outputTileSize, outputTileSize)
 
 
-#def drawMap(canvas, centerTile, pageOrigin=(0,0), pageSize(, zoom=18, dpi=300):
+if __name__ == "__main__":
+    sbo = (40.00372, -105.2635)
+    c = canvas.Canvas("output.pdf", pagesize=pagesizes.letter)
 
-print "<html><body>"
-print "<p><table cellpadding=0 cellspacing=0>"
-for y in xrange(0,2):
-    print "<tr>"
-    for x in xrange(0,2):
-        t = origin.translate(x, y)
-        print '<td><img src="%s" width="%s" height="%s" border="0"/></td>' % (
-            t.getURI(), t.size, t.size)
-    print "</tr>"
-print "</table></p>"
+    origin = KeyholeTile()
+    origin.zoom = 18
+    origin.setLatLong(*sbo)
 
-print "</body></html>"
+    drawMap(c, origin)
+
+    c.showPage()
+    c.save()
+
+### The End ###
