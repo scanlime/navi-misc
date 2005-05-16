@@ -108,12 +108,13 @@ new_msg_cb (char **word, void *msg_lvl)
 		g_hash_table_insert (channels, (gpointer) chan_name, (gpointer) chan);
 	}
 
+
 	if (chan->status < (NotifStatus) msg_lvl) {
 		chan->status = (NotifStatus) msg_lvl;
 		/* FIXME memory leak? */
 		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (chan->menu_item),
 				gtk_image_new_from_pixbuf (pixbufs[(int) chan->status]));
-		gtk_widget_show_all (chan->menu_item);
+		gtk_widget_show_all (menu);
 	}
 
 	if (status < (NotifStatus) msg_lvl && !focused) {
@@ -151,9 +152,30 @@ part_chan_cb (char **word, void *data)
 	return 0;
 }
 
+static int
+chan_changed_cb (char **word, void *data)
+{
+	gchar*					chan_name = (gchar*) xchat_get_info (ph, "channel");
+	struct MenuChannel*	chan = (struct MenuChannel*) g_hash_table_lookup (channels, (gconstpointer) chan_name);
+
+	if (chan == NULL)
+		return 0;
+
+	chan->status = NOTIF_NONE;
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (chan->menu_item),
+			gtk_image_new_from_pixbuf (pixbufs[(int) chan->status]));
+
+	return 0;
+}
+
 static void
 notification_menu_show (GdkEventButton *event)
 {
+	if (menu != NULL)
+		gtk_widget_destroy (GTK_WIDGET (menu));
+
+	menu = GTK_MENU (gtk_menu_new ());
+
 	gtk_widget_show_all (GTK_WIDGET (menu));
 	gtk_menu_popup (menu, NULL, NULL, NULL, NULL, event->button, event->time);
 }
@@ -302,6 +324,7 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	xchat_hook_print (ph, "Private Message to Dialog", XCHAT_PRI_NORM, new_msg_cb, (gpointer) NOTIF_MSG);
 	xchat_hook_print (ph, "You Join",                  XCHAT_PRI_NORM, join_chan_cb, NULL);
 	xchat_hook_print (ph, "You Part",                  XCHAT_PRI_NORM, part_chan_cb, NULL);
+	xchat_hook_print (ph, "Focus Tab",						XCHAT_PRI_NORM, chan_changed_cb, NULL);
 
 	xchat_print (ph, "Notification plugin loaded.\n");
 
