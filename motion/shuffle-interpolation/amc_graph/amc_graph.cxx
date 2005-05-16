@@ -34,7 +34,8 @@ void amc_graph::print_graph()
 	// edges
 	for (unsigned int i = 0; i < nodes.size(); i++)
 		for (unsigned int j = 0; j < nodes[i].edges.size(); j++)
-			cout << nodes[i].name << " -> " << nodes[i].edges[j].to_node_id << ";" << endl;
+			cout << nodes[i].name << " -> " << nodes[i].edges[j].to_node_id
+			     << " [label=\"" << nodes[i].edges[j].weight << "\"];" << endl;
 
 	// nodes
 	for (unsigned int i = 0; i < nodes.size(); i++) {
