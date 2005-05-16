@@ -20,18 +20,15 @@ using namespace std;
 class amc_graph
 {
 public:
-	amc_graph();
+	amc_graph ();
 
 	// degf_div is a list of how many segments each dof in data is partitioned into
-	void create_graph(vector <double *> data, vector <int> degf_div, int degf);
+	void create_graph (vector <double *> data, vector <int> degf_div, int degf);
 
-	void save_graph(char *filename);
-	void read_graph(char *filename);
-
-	void dump_stats();
+	void dump_stats ();
 
 	// prints graph to stdout as .dot
-	void print_graph();
+	void print_graph ();
 
 	vector <graph_node> nodes;
 	vector <int> dfspace;
