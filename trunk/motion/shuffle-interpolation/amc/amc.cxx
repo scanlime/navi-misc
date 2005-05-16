@@ -4,133 +4,94 @@
 // implements amc.h
 ///////////////////////////////////
 
-
-
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include "amc.h"
 
-
 /************************************** needs to be changed ***************************/
 /*** use this just for now ***/
-//#define MAX_INDEX 500000
-/*** might want to make dynamic in the future ***/
+/*** might (definitely) want to make dynamic in the future ***/
 #define MAX_AMC_DATA 500000
 
 using namespace std;
-amc::amc(char *filename)
+
+amc::amc (char *filename)
 {
-    a = new amc_data [MAX_AMC_DATA];
-    num = 0;
-    ifstream in;
-    in.open(filename);
-    if(in.fail()) 
-    {
-        cerr << "Error opening file!" << endl;
-        exit(EXIT_FAILURE);
-    }
-    
-    /************************************** needs to be changed ***************************/
-    // use this just for now
-    //a = new amc_data [MAX_INDEX];
-    
-    // strip off junk at beginning a "1" marks the beginning
-    string junk;
-    do
-    {
-        in >> junk;
-          }while(junk != "1");
-    
-    num=0;
-    int index = 0;
-    while(in.peek() != EOF)
-    {
-     // input from file
-        
-        
-        in >> junk; // get item name
-        for(int i = 0; i < 6; i++) { in >> a[index].root[i]; }
-        
-        in >> junk;
-        for(int i = 0; i < 3; i++) { in >> a[index].lowerback[i]; }
-        
-        in >> junk;
-        for(int i = 0; i < 3; i++) { in >> a[index].upperback[i]; }
-        
-        in >> junk;
-        for(int i = 0; i < 3; i++) { in >> a[index].thorax[i]; }
-        
-        in >> junk;
-        for(int i = 0; i < 3; i++) { in >> a[index].lowerneck[i]; }
-                
-        in >> junk;
-        for(int i = 0; i < 3; i++) { in >> a[index].upperneck[i]; }
-                
-        in >> junk;
-        for(int i = 0; i < 3; i++) { in >> a[index].head[i]; }
-                
-        in >> junk;
-        for(int i = 0; i < 2; i++) { in >> a[index].rclavicle[i]; }
-               
-        in >> junk;
-        for(int i = 0; i < 3; i++) { in >> a[index].rhumerus[i]; }
-                
-        in >> junk;
-        in >> a[index].rradius;
-        
-        in >> junk;
-        in >> a[index].rwrist;
-        
-        in >> junk;
-        for(int i = 0; i < 2; i++) { in >> a[index].rhand[i]; }
-               
-        in >> junk;
-        in >> a[index].rfingers;
-        
-        in >> junk;
-        for(int i = 0; i < 2; i++) { in >> a[index].rthumb[i]; }
-                
-        in >> junk;
-        for(int i = 0; i < 2; i++) { in >> a[index].lclavicle[i]; }
-                
-        in >> junk;
-        for(int i = 0; i < 3; i++) { in >> a[index].lhumerus[i]; }
-                
-        in >> junk;
-        in >> a[index].lradius;
-        
-        in >> junk;
-        in >> a[index].lwrist;
-        
-        in >> junk;
+	a = new amc_data [MAX_AMC_DATA];
+	num = 0;
+	ifstream in;
+	in.open (filename);
+	if (in.fail ()) {
+		cerr << "Error opening file!" << endl;
+		exit (EXIT_FAILURE);
+	}
+
+	// strip off junk at beginning a "1" marks the beginning
+	string junk;
+	do {
+		in >> junk;
+	} while (junk != "1");
+
+	num = 0;
+	int index = 0;
+	while (in.peek () != EOF) {
+		// input from file
+		in >> junk; // get item name
+		for (int i = 0; i < 6; i++) in >> a[index].root[i];
+		in >> junk;
+		for (int i = 0; i < 3; i++) in >> a[index].lowerback[i];
+		in >> junk;
+		for (int i = 0; i < 3; i++) in >> a[index].upperback[i];
+		in >> junk;
+		for (int i = 0; i < 3; i++) in >> a[index].thorax[i];
+		in >> junk;
+		for (int i = 0; i < 3; i++) in >> a[index].lowerneck[i];
+		in >> junk;
+		for (int i = 0; i < 3; i++) in >> a[index].upperneck[i];
+		in >> junk;
+		for (int i = 0; i < 3; i++) in >> a[index].head[i];
+		in >> junk;
+		for (int i = 0; i < 2; i++) in >> a[index].rclavicle[i];
+		in >> junk;
+		for (int i = 0; i < 3; i++) in >> a[index].rhumerus[i];
+		in >> junk;
+		in >> a[index].rradius;
+		in >> junk;
+		in >> a[index].rwrist;
+		in >> junk;
+		for (int i = 0; i < 2; i++) in >> a[index].rhand[i];
+		in >> junk;
+		in >> a[index].rfingers;
+		in >> junk;
+		for (int i = 0; i < 2; i++) in >> a[index].rthumb[i];
+		in >> junk;
+		for (int i = 0; i < 2; i++) in >> a[index].lclavicle[i];
+		in >> junk;
+		for (int i = 0; i < 3; i++) in >> a[index].lhumerus[i];
+		in >> junk;
+		in >> a[index].lradius;
+		in >> junk;
+		in >> a[index].lwrist;
+		in >> junk;
         for(int i = 0; i < 2; i++) { in >> a[index].lhand[i]; }
-              
         in >> junk;
         in >> a[index].lfingers;
-        
         in >> junk;
         for(int i = 0; i < 2; i++) { in >> a[index].lthumb[i]; }
-                
         in >> junk;
         for(int i = 0; i < 3; i++) { in >> a[index].rfemur[i]; }
-                
         in >> junk;
         in >>  a[index].rtibia;
-        
         in >> junk;
         for(int i = 0; i < 2; i++) { in >> a[index].rfoot[i]; }
-               
         in >> junk;
         in >> a[index].rtoes;
-        
         in >> junk;
         for(int i = 0; i < 3; i++) { in >> a[index].lfemur[i]; }
-               
         in >> junk;
         in >> a[index].ltibia;
-        
         in >> junk;
         for(int i = 0; i < 2; i++) { in >> a[index].lfoot[i]; }
                 
