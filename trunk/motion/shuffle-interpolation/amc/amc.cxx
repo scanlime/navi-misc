@@ -75,194 +75,185 @@ amc::amc (char *filename)
 		in >> junk;
 		in >> a[index].lwrist;
 		in >> junk;
-        for(int i = 0; i < 2; i++) { in >> a[index].lhand[i]; }
-        in >> junk;
-        in >> a[index].lfingers;
-        in >> junk;
-        for(int i = 0; i < 2; i++) { in >> a[index].lthumb[i]; }
-        in >> junk;
-        for(int i = 0; i < 3; i++) { in >> a[index].rfemur[i]; }
-        in >> junk;
-        in >>  a[index].rtibia;
-        in >> junk;
-        for(int i = 0; i < 2; i++) { in >> a[index].rfoot[i]; }
-        in >> junk;
-        in >> a[index].rtoes;
-        in >> junk;
-        for(int i = 0; i < 3; i++) { in >> a[index].lfemur[i]; }
-        in >> junk;
-        in >> a[index].ltibia;
-        in >> junk;
-        for(int i = 0; i < 2; i++) { in >> a[index].lfoot[i]; }
-                
-        in >> junk;
-        in >> a[index].ltoes;
-        
-        num++;
-        index++;
-        // next index
-        in >> junk;
-    }
-    
-    in.close();
+		for (int i = 0; i < 2; i++) in >> a[index].lhand[i];
+		in >> junk;
+		in >> a[index].lfingers;
+		in >> junk;
+		for (int i = 0; i < 2; i++) in >> a[index].lthumb[i];
+		in >> junk;
+		for (int i = 0; i < 3; i++) in >> a[index].rfemur[i];
+		in >> junk;
+		in >>  a[index].rtibia;
+		in >> junk;
+		for (int i = 0; i < 2; i++) in >> a[index].rfoot[i];
+		in >> junk;
+		in >> a[index].rtoes;
+		in >> junk;
+		for (int i = 0; i < 3; i++) in >> a[index].lfemur[i];
+		in >> junk;
+		in >> a[index].ltibia;
+		in >> junk;
+		for (int i = 0; i < 2; i++) in >> a[index].lfoot[i];
+		in >> junk;
+		in >> a[index].ltoes;
+
+		num++;
+		index++;
+		// next index
+		in >> junk;
+	}
+
+	in.close();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // splice constructor
-// splices second onto first (splice means it shits the root values over)
+// splices second onto first (shifts the root values to maintain continuity)
 ////////////////////////////////////////////////////////////////////////////
-amc::amc(amc first, amc second)
+amc::amc (amc first, amc second)
 {
-    // compute differece for each piece in first element
-    amc_data diff;
+	// compute differece for each piece in first element
+	amc_data diff;
 
-    // just compute difference for root //
-    for(int i = 0; i < MAX_ROOT; i++) { diff.root[i] = first.a[first.num-1].root[i] - second.a[0].root[i]; }
-        
-    // copy first part over
-    a = new amc_data [first.index()+second.index()]; 
-    num = first.index()+second.index();
-    
-    /************ might need to do a piece by piece copy ***************/    
-    // but do this for now //
-    for(int i = 0; i < first.index(); i++)
-    {
-        a[i] = first.a[i];
-    }
-    
-    // add second part
-    for(int i = 0; i < second.index(); i++)
-    {
-        a[first.index()+i] = second.a[i];
-        
-        // shift root
-        for(int k = 0; k < 3; k++)
-        {
-            a[first.index()+i].root[k] = second.a[i].root[k] + diff.root[k];
-        }
-        
-    }
-    
-    //cout << first.num << " :: " << second.num << " :: " << num << " ::> " << first.num+second.num << endl;
+	// just compute difference for root
+	for (int i = 0; i < MAX_ROOT; i++) {
+		diff.root[i] = first.a[first.num-1].root[i] - second.a[0].root[i];
+	}
+
+	// copy first part over
+	a = new amc_data [first.index()+second.index()];
+	num = first.index() + second.index();
+
+	/************ might need to do a piece by piece copy ***************/
+	// but do this for now //
+	for (int i = 0; i < first.index(); i++) {
+		a[i] = first.a[i];
+	}
+
+	// add second part
+	for (int i = 0; i < second.index(); i++) {
+		a[first.index()+i] = second.a[i];
+
+		// shift root
+		for(int k = 0; k < 3; k++)
+			a[first.index()+i].root[k] = second.a[i].root[k] + diff.root[k];
+	}
 }
 
-void amc::dumpall()
+void
+amc::dumpall ()
 {
-    for(int i = 0; i < num; i++) 
-    {
-        cout << i+1<< endl;
-        dumpindex(i);
-    };
+	for (int i = 0; i < num; i++) {
+		cout << i + 1 << endl;
+		dumpindex (i);
+	};
 }
 
 void amc::dumpindex(int index)
 {
-    //ofstream out;
-    //out.open(file.c_string());
-    
-    cout << "root ";
-    for(int i = 0; i < 6; i++) { cout << a[index].root[i] << " "; }
-    cout << endl;
-    
-    cout << "lowerback ";
-    for(int i = 0; i < 3; i++) { cout << a[index].lowerback[i] << " "; }
-    cout << endl;
-    
-    cout << "upperback ";
-    for(int i = 0; i < 3; i++) { cout << a[index].upperback[i] << " "; }
-    cout << endl;
-    
-    cout << "thorax ";
-    for(int i = 0; i < 3; i++) { cout << a[index].thorax[i] << " "; }
-    cout << endl;
-    
-    cout << "lowerneck ";
-    for(int i = 0; i < 3; i++) { cout << a[index].lowerneck[i] << " "; }
-    cout << endl;
-    
-    cout << "upperneck ";
-    for(int i = 0; i < 3; i++) { cout << a[index].upperneck[i] << " "; }
-    cout << endl;
-    
-    cout << "head ";
-    for(int i = 0; i < 3; i++) { cout << a[index].head[i] << " "; }
-    cout << endl;
+	cout << "root ";
+	for(int i = 0; i < 6; i++) { cout << a[index].root[i] << " "; }
+	cout << endl;
 
-    cout << "rclavicle ";
-    for(int i = 0; i < 2; i++) { cout << a[index].rclavicle[i] << " "; }
-    cout << endl;
+	cout << "lowerback ";
+	for(int i = 0; i < 3; i++) { cout << a[index].lowerback[i] << " "; }
+	cout << endl;
 
-    cout << "rhumerus ";
-    for(int i = 0; i < 3; i++) { cout << a[index].rhumerus[i] << " "; }
-    cout << endl;
+	cout << "upperback ";
+	for(int i = 0; i < 3; i++) { cout << a[index].upperback[i] << " "; }
+	cout << endl;
 
-    cout << "rradius ";
-    cout << a[index].rradius << endl;
+	cout << "thorax ";
+	for(int i = 0; i < 3; i++) { cout << a[index].thorax[i] << " "; }
+	cout << endl;
 
-    cout << "rwrist ";
-    cout << a[index].rwrist << endl;
+	cout << "lowerneck ";
+	for(int i = 0; i < 3; i++) { cout << a[index].lowerneck[i] << " "; }
+	cout << endl;
 
-    cout << "rhand ";
-    for(int i = 0; i < 2; i++) { cout << a[index].rhand[i] << " "; }
-    cout << endl;
+	cout << "upperneck ";
+	for(int i = 0; i < 3; i++) { cout << a[index].upperneck[i] << " "; }
+	cout << endl;
 
-    cout << "rfingers ";
-    cout << a[index].rfingers << endl;
+	cout << "head ";
+	for(int i = 0; i < 3; i++) { cout << a[index].head[i] << " "; }
+	cout << endl;
 
-    cout << "rthumb ";
-    for(int i = 0; i < 2; i++) { cout << a[index].rthumb[i] << " "; }
-    cout << endl;
+	cout << "rclavicle ";
+	for(int i = 0; i < 2; i++) { cout << a[index].rclavicle[i] << " "; }
+	cout << endl;
 
-    cout << "lclavicle ";
-    for(int i = 0; i < 2; i++) { cout << a[index].lclavicle[i] << " "; }
-    cout << endl;
+	cout << "rhumerus ";
+	for(int i = 0; i < 3; i++) { cout << a[index].rhumerus[i] << " "; }
+	cout << endl;
 
-    cout << "lhumerus ";
-    for(int i = 0; i < 3; i++) { cout << a[index].lhumerus[i] << " "; }
-    cout << endl;
+	cout << "rradius ";
+	cout << a[index].rradius << endl;
 
-    cout << "lradius ";
-    cout << a[index].lradius << endl;
+	cout << "rwrist ";
+	cout << a[index].rwrist << endl;
 
-    cout << "lwrist ";
-    cout << a[index].lwrist << endl;
+	cout << "rhand ";
+	for(int i = 0; i < 2; i++) { cout << a[index].rhand[i] << " "; }
+	cout << endl;
 
-    cout << "lhand ";
-    for(int i = 0; i < 2; i++) { cout << a[index].lhand[i] << " "; }
-    cout << endl;
+	cout << "rfingers ";
+	cout << a[index].rfingers << endl;
 
-    cout << "lfingers ";
-    cout << a[index].lfingers << endl;
+	cout << "rthumb ";
+	for(int i = 0; i < 2; i++) { cout << a[index].rthumb[i] << " "; }
+	cout << endl;
 
-    cout << "lthumb ";
-    for(int i = 0; i < 2; i++) { cout << a[index].lthumb[i] << " "; }
-    cout << endl;
+	cout << "lclavicle ";
+	for(int i = 0; i < 2; i++) { cout << a[index].lclavicle[i] << " "; }
+	cout << endl;
 
-    cout << "rfemur ";
-    for(int i = 0; i < 3; i++) { cout << a[index].rfemur[i] << " "; }
-    cout << endl;
+	cout << "lhumerus ";
+	for(int i = 0; i < 3; i++) { cout << a[index].lhumerus[i] << " "; }
+	cout << endl;
 
-    cout << "rtibia ";
-    cout <<  a[index].rtibia << endl;
+	cout << "lradius ";
+	cout << a[index].lradius << endl;
 
-    cout << "rfoot ";
-    for(int i = 0; i < 2; i++) { cout << a[index].rfoot[i] << " "; }
-    cout << endl;
+	cout << "lwrist ";
+	cout << a[index].lwrist << endl;
 
-    cout << "rtoes ";
-    cout << a[index].rtoes << endl;
+	cout << "lhand ";
+	for(int i = 0; i < 2; i++) { cout << a[index].lhand[i] << " "; }
+	cout << endl;
 
-    cout << "lfemur ";
-    for(int i = 0; i < 3; i++) { cout << a[index].lfemur[i] << " "; }
-    cout << endl;
+	cout << "lfingers ";
+	cout << a[index].lfingers << endl;
 
-    cout << "ltibia ";
-    cout << a[index].ltibia << endl;
+	cout << "lthumb ";
+	for(int i = 0; i < 2; i++) { cout << a[index].lthumb[i] << " "; }
+	cout << endl;
 
-    cout << "lfoot ";
-    for(int i = 0; i < 2; i++) { cout << a[index].lfoot[i] << " "; }
-    cout << endl;
+	cout << "rfemur ";
+	for(int i = 0; i < 3; i++) { cout << a[index].rfemur[i] << " "; }
+	cout << endl;
 
-    cout << "ltoes ";
-    cout << a[index].ltoes << endl;
+	cout << "rtibia ";
+	cout <<  a[index].rtibia << endl;
+
+	cout << "rfoot ";
+	for(int i = 0; i < 2; i++) { cout << a[index].rfoot[i] << " "; }
+	cout << endl;
+
+	cout << "rtoes ";
+	cout << a[index].rtoes << endl;
+
+	cout << "lfemur ";
+	for(int i = 0; i < 3; i++) { cout << a[index].lfemur[i] << " "; }
+	cout << endl;
+
+	cout << "ltibia ";
+	cout << a[index].ltibia << endl;
+
+	cout << "lfoot ";
+	for(int i = 0; i < 2; i++) { cout << a[index].lfoot[i] << " "; }
+	cout << endl;
+
+	cout << "ltoes ";
+	cout << a[index].ltoes << endl;
 }
