@@ -5,7 +5,6 @@
 // for use in amc_graph class and graph node class
 ///////////////////////////////////////////////////
 
-
 #include <stdlib.h>
 #include "../graph_node/graph_node.h"
 
@@ -14,10 +13,8 @@
 
 struct graph_edge
 {
-    int to_node_id;
-    int weight;
+	int to_node_id;
+	int weight;
 };
 
-
 #endif
-
