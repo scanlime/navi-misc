@@ -40,6 +40,7 @@ void amc_graph::print_graph()
 	for (unsigned int i = 0; i < nodes.size(); i++) {
 		cout << nodes[i].name << " [label=\""
 		     << "node: " << nodes[i].name << "\\n" << "visited: " << nodes[i].times_visited
+		     << "\\n" << "range: [" << nodes[i].min_gap << ", " << nodes[i].max_gap << "]"
 		     << "\"];" << endl;
 	}
 
@@ -52,8 +53,8 @@ void amc_graph::dump_stats()
 	cout << df << "df" << endl;
 	cout << "nodes:" << endl;
 	for (unsigned int i = 0; i < nodes.size(); i++) {
-		cout << "index " << i << ": name " << nodes[i].name 
-		     << ": visited: " << nodes[i].times_visited 
+		cout << "index " << i << ": name " << nodes[i].name
+		     << ": visited: " << nodes[i].times_visited
 		     << "  edges: " << nodes[i].num_edges<< endl;
 		cout << "----------"<< endl;
 		for (int j = 0; j < df; j++) {
@@ -155,7 +156,7 @@ void amc_graph::create_graph(vector <double *> data, vector <int> degf_div, int 
 				// should this frame go here?
 				if (data[FRAME][DF] <= limits[DF][GAPS]) {
 					// location already filled
-					if(isthere[DF][GAPS].isthere) {
+					if (isthere[DF][GAPS].isthere) {
 						nodes[isthere[DF][GAPS].index].visited_again();
 						nodes[isthere[DF][GAPS].index].allnames.push_back(FRAME);
 						if (afterfirst)
@@ -172,6 +173,12 @@ void amc_graph::create_graph(vector <double *> data, vector <int> degf_div, int 
 						node.max_range = nothing;
 						node.times_visited = 1;
 						node.num_edges = 0;
+
+						if (GAPS == 0)
+							node.min_gap = 0.0f;
+						else
+							node.min_gap = limits[DF][GAPS - 1];
+						node.max_gap = limits[DF][GAPS];
 						nodes.push_back(node);
 
 						// add edge from prev node, if not first node
