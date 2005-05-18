@@ -1062,7 +1062,7 @@ exit:
 static void rwand_delete(struct rwand_dev *dev)
 {
 	if (dev->irq) {
-		usb_unlink_urb(dev->irq);
+		usb_kill_urb(dev->irq);
 		usb_free_urb(dev->irq);
 	}
 	if (dev->irq_data) {
