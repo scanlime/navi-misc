@@ -588,11 +588,11 @@ static void rwand_set_model( struct usb_rwand *dev )
     model = rwand_read_byte( dev, RWAND_CTRL_GET_HW_MODEL, 0, 0);
     
     for( intrinsics = model_table; intrinsics->model; intrinsics++ ) {
-//	if( intrinsics->model == model) {
-//	    info("Found model %d hardware", model );
+	if( intrinsics->model == model) {
+	    info("Found model %d hardware", model );
 	    dev->intrinsics = intrinsics;
 	    return;
-//	}
+	}
     }
     
     dev->intrinsics = model_table;
