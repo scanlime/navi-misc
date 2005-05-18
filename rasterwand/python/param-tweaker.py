@@ -22,7 +22,7 @@ def main():
     if len(sys.argv) > 1:
         devnode = sys.argv[1]
     else:
-        devnode = "/dev/usb/rwand0"
+        devnode = "/dev/rwand0"
     dev = rasterwand.Device(devnode)
 
     graph = rtgraph.HScrollLineGraph(channels=[
