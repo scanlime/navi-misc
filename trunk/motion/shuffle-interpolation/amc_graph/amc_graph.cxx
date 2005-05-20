@@ -121,8 +121,9 @@ amc_graph::create_graph (vector <double *> data, vector <int> degf_div, int degf
 	vector <vector <double> > limits;
 	for(int i = 0; i < degf; i++) {
 		vector <double> dflimit;
-		for(int j = 1; j <= degf_div[i]; j++)
+		for(int j = 1; j <= degf_div[i]; j++) {
 			dflimit.push_back(j*gaps[i]+mins[i]);
+		}
 		limits.push_back(dflimit);
 	}
 
