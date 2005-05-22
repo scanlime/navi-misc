@@ -1,4 +1,7 @@
 /*
+ * test-case.h - The TestCase class is a very simple class for creating test
+ * cases.
+ *
  * Copyright (C) 2005 W. Evan Sheehan
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +20,21 @@
  *
  */
 
-/*** The End ***/
+#include <string>
 
-/* vim:ts=4:sw=4:tw=80
- */
+namespace UnitTest
+{
+	class TestCase
+	{
+		public:
+			TestCase (void (*test) (), std::string description);
+			void run ();
+
+		private:
+			std::string desc;
+			void (*func) ();
+	};
+}
+
+/*** The End ***/
+// vim:ts=4:sw=4:tw=80

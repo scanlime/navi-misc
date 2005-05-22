@@ -1,4 +1,6 @@
 /*
+ * test-case.cpp - Implementation from test-case.cpp
+ *
  * Copyright (C) 2005 W. Evan Sheehan
  *
  * This program is free software; you can redistribute it and/or
@@ -17,6 +19,11 @@
  *
  */
 
-/*** The End ***/
+#include "test-case.h"
 
+namespace UnitTest
+{
+}
+
+/*** The End ***/
 // vim:ts=4:sw=4:tw=80
