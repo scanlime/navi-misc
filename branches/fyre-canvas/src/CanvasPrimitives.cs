@@ -20,6 +20,8 @@
  *
  */
 
+using System.Drawing;
+
 namespace Fyre.Canvas
 {
 	// Our fonts.
