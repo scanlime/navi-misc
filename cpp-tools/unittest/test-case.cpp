@@ -23,6 +23,16 @@
 
 namespace UnitTest
 {
+	TestCase::TestCase (void (test) (), string description):
+		desc (description),
+		func (test)
+	{
+	}
+
+	void
+	TestCase::run ()
+	{
+	}
 }
 
 /*** The End ***/
