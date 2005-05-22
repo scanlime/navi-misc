@@ -130,8 +130,8 @@ namespace Fyre
 				System.Drawing.Point p = new System.Drawing.Point (x, y);
 
 				if (ce.Position.Contains (p)) {
-					int local_x = x - ce.X;
-					int local_y = y - ce.Y;
+					int local_x = x - ce.Position.X;
+					int local_y = y - ce.Position.Y;
 					hover_element = (string) e.Key;
 					Canvas.ElementHover eh = ce.GetHover (local_x, local_y);
 					if (eh == Canvas.ElementHover.Body)      return LayoutHover.Element;
