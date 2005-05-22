@@ -124,8 +124,8 @@ namespace Fyre
 				// Create a new Canvas.Element for this Element.
 				Canvas.Element canvas_element = new Canvas.Element (e, GdkWindow);
 
-				int w = canvas_element.Width;
-				int h = canvas_element.Height;
+				int w = canvas_element.Position.Width;
+				int h = canvas_element.Position.Height;
 
 				if (w == 0 || h == 0) {
 					System.Console.WriteLine ("uhoh\n");

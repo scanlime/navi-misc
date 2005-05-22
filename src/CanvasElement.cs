@@ -62,38 +62,13 @@ namespace Fyre.Canvas
 		// X & Y are maintained by the global layout system. We'll probably
 		// want get/set operators on this to trigger redraws, etc.
 		public Rectangle	Position;
-		ElementRoot		root;
+		public VBox		box;
 
 		Fyre.Element		element;
 
 		// Selection state
 		public bool		Selected;
 		bool			flipped;
-
-		/*** Properties ***/
-		public int
-		Width
-		{
-			get { return root.Width; }
-		}
-
-		public int
-		Height
-		{
-			get { return root.Height; }
-		}
-
-		public int
-		X
-		{
-			get { return root.X; }
-		}
-
-		public int
-		Y
-		{
-			get { return root.Y; }
-		}
 
 		/*** Constructors ***/
 		public
@@ -105,26 +80,23 @@ namespace Fyre.Canvas
 			VBox		in_box = new VBox (0, 0, 10);
 			VBox		out_box = new VBox (0, 0, 10);
 			HBox		pad_box = new HBox (0, 0, 50);
-			HBox		box;
-
-			root = new ElementRoot (name);
-			root.box.PackStart (pad_box);
+			HBox		pad;
 
 			if (e.inputs != null) {
 				foreach (Fyre.InputPad i in e.inputs) {
-					box = new HBox (0, 0, 7);
+					pad = new HBox (0, 0, 7);
 					in_box.PackStart (box);
-					box.PackStart (new Pad ());
-					box.PackStart (new Label (i.Name, Font.plain, graphics));
+					pad.PackStart (new Pad ());
+					pad.PackStart (new Label (i.Name, Font.plain, graphics));
 				}
 			}
 
 			if (e.outputs != null) {
 				foreach (Fyre.OutputPad o in e.outputs) {
-					box = new HBox (0, 0, 7);
+					pad = new HBox (0, 0, 7);
 					out_box.PackStart (box);
-					box.PackStart (new Label (o.Name, Font.plain, graphics));
-					box.PackStart (new Pad ());
+					pad.PackStart (new Label (o.Name, Font.plain, graphics));
+					pad.PackStart (new Pad ());
 				}
 			}
 
@@ -148,7 +120,27 @@ namespace Fyre.Canvas
 		public virtual void
 		Draw (System.Drawing.Graphics context)
 		{
-			root.Draw (context);
+			Pen	border = new System.Drawing.Pen (Color.fg_color);
+			Brush	background = new System.Drawing.SolidBrush (Color.element_bg_color);
+
+			context.FillRectangle (background, 10, 0, Position.Width-21, Position.Height-1);
+			context.DrawRectangle (border, 10, 0, Position.Width-21, Position.Height-1);
+
+			box.Draw (context);
+		}
+
+		public virtual void
+		RDraw (System.Drawing.Graphics context)
+		{
+			Pen	border = new Pen (Color.fg_color);
+			Brush	background = new SolidBrush (Color.element_bg_color);
+			Brush	black = new SolidBrush (System.Drawing.Color.Black);
+
+			context.FillRectangle (black, 0, 0, Position.Width, Position.Height);
+			context.FillRectangle (background, 10, 0, Position.Width-21, Position.Height-1);
+			context.DrawRectangle (border, 10, 0, Position.Width-21, Position.Height-1);
+
+			box.RDraw (context);
 		}
 
 		public virtual void
