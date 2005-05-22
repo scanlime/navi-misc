@@ -128,7 +128,7 @@ namespace Fyre
 				int h = canvas_element.Position.Height;
 
 				if (w == 0 || h == 0) {
-					System.Console.WriteLine ("uhoh\n");
+					System.Console.WriteLine ("uhoh");
 				}
 
 				// Create a pixmap for the element.

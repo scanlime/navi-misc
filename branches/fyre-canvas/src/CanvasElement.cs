@@ -87,7 +87,7 @@ namespace Fyre.Canvas
 			if (e.inputs != null) {
 				foreach (Fyre.InputPad i in e.inputs) {
 					pad = new HBox (0, 0, 7);
-					in_box.PackStart (box);
+					in_box.PackStart (pad);
 					pad.PackStart (new Pad ());
 					pad.PackStart (new Label (i.Name, Font.plain, graphics));
 				}
@@ -96,7 +96,7 @@ namespace Fyre.Canvas
 			if (e.outputs != null) {
 				foreach (Fyre.OutputPad o in e.outputs) {
 					pad = new HBox (0, 0, 7);
-					out_box.PackStart (box);
+					out_box.PackStart (pad);
 					pad.PackStart (new Label (o.Name, Font.plain, graphics));
 					pad.PackStart (new Pad ());
 				}
@@ -107,6 +107,9 @@ namespace Fyre.Canvas
 
 			box.PackStart (name);
 			box.PackStart (pad_box);
+
+			Position.Width = box.Width;
+			Position.Height = box.Height;
 
 			// Store a reference to the element we're drawing.
 			element = e;
