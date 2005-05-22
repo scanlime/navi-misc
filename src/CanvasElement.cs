@@ -82,6 +82,8 @@ namespace Fyre.Canvas
 			HBox		pad_box = new HBox (0, 0, 50);
 			HBox		pad;
 
+			box = new VBox (0, 0, 7);
+
 			if (e.inputs != null) {
 				foreach (Fyre.InputPad i in e.inputs) {
 					pad = new HBox (0, 0, 7);
@@ -102,6 +104,9 @@ namespace Fyre.Canvas
 
 			pad_box.PackStart (in_box);
 			pad_box.PackStart (out_box);
+
+			box.PackStart (name);
+			box.PackStart (pad_box);
 
 			// Store a reference to the element we're drawing.
 			element = e;
