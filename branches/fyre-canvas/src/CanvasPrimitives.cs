@@ -378,9 +378,6 @@ namespace Fyre.Canvas
 		}
 	}
 
-	// Element Root is the base Widget for all Elements drawn on the canvas.
-	// It contains a VBox for packing labels, pads, and other boxes into and
-	// handles drawing the background of the Element.
 	public class ElementRoot : Widget
 	{
 		public VBox box;
@@ -400,31 +397,6 @@ namespace Fyre.Canvas
 		}
 
 		/*** Public Methods ***/
-		public override void
-		Draw (Graphics context)
-		{
-			Pen	border = new System.Drawing.Pen (Color.fg_color);
-			Brush	background = new System.Drawing.SolidBrush (Color.element_bg_color);
-
-			context.FillRectangle (background, 10, 0, position.Width-21, position.Height-1);
-			context.DrawRectangle (border, 10, 0, position.Width-21, position.Height-1);
-
-			box.Draw (context);
-		}
-
-		public override void
-		RDraw (Graphics context)
-		{
-			Pen	border = new Pen (Color.fg_color);
-			Brush	background = new SolidBrush (Color.element_bg_color);
-			Brush	black = new SolidBrush (System.Drawing.Color.Black);
-
-			context.FillRectangle (black, 0, 0, position.Width, position.Height);
-			context.FillRectangle (background, 10, 0, position.Width-21, position.Height-1);
-			context.DrawRectangle (border, 10, 0, position.Width-21, position.Height-1);
-
-			box.RDraw (context);
-		}
 
 		/*** Protected Methods ***/
 		protected void
