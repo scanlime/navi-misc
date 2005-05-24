@@ -21,21 +21,34 @@ General classes for the web server. Muchly borrowed from Micah Dowty's CIA code
 #
 from twisted.web import server, static
 
-class File(static.File):
+class Request (server.Request):
+    """A Request subclass overriding some default policies
+       of twisted.web, including exception reporting
+    """
+    def processingFailed (self, reason):
+        """A replacement for twisted.web's usual traceback page.
+        """
+        log.err (reason)
+        page = ServerPages.InternalErrorPage (reason)
+        self.write (page.render (self))
+        self.finish ()
+        return reason
+
+class File (static.File):
     """A local subclass of static.File that overrides the default directory
        listing behavior.
     """
-    def listNames(self):
+    def listNames (self):
         """Override listNames to hide hidden files, like .svn and .xvpics"""
         listing = static.File.listNames(self)
-            return [item for item in listing if not item.startswith(".")]
+        return [item for item in listing if not item.startswith (".")]
 
-    def directoryListing(self):
+    def directoryListing (self):
         """Use our own directory lister rather than relying on Twisted's default.
            This lets us keep the site's look more consistent, and doesn't pull
            in all of Woven just for a silly listing page.
         """
-        return ServerPages.DirectoryListing(self)
+        return ServerPages.DirectoryListing (self)
 
 class Component:
     """A component is some top-level area of the site that is explicitly
@@ -54,11 +67,41 @@ class Component:
     # The component's user-visible name, if it has one
     name = None
 
-    def __contains__(self, page):
+    def __contains__ (self, page):
         """Subclasses must implement this to test whether a page
            belongs to this component.
         """
         return False
+
+class StaticJoiner (File):
+    """This web page acts mostly like a static.File, and all children
+       are files under the given directory- however this page itself
+       renders the provided 'index' page. This can be used to create
+       a dynamically generated front page that references static pages
+       or images as its children.
+    """
+    def __init__ (self, path, indexPage,
+                  defaultType = "text/plain",
+                  ignoredExts = (),
+                  registry    = None,
+                  allowExt    = 0):
+        self.indexPage = indexPage
+        static.File.__init__ (self, path, defaultType, ignoredExts, registry, allowExt)
+
+    def getChild (self, path, request):
+        if path:
+            return static.File.getChild (self, path, request)
+        else:
+            return self
+
+    def render (self, request):
+        return self.indexPage.render (request)
+
+    def createSimilarFile (self, path):
+        f = File (path, self.defaultType, self.ignoredExts, self.registry)
+        f.processors = self.processors
+        f.indexNames = self.indexNames[:]
+        return f
 
 class Site (server.Site):
     """A twisted.web.server.Site subclass, to use our modified Request class"""
@@ -71,5 +114,5 @@ class Site (server.Site):
     def putComponent (self, childName, component):
         """Install the given component instance at 'childName'"""
         component.url = '/' + childName
-        self.resource.putChild(childName, component.resource)
-        self.components.append(component)
+        self.resource.putChild (childName, component.resource)
+        self.components.append (component)
