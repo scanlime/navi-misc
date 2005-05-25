@@ -20,7 +20,6 @@ General classes for the web server. Muchly borrowed from Micah Dowty's CIA code
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-import ServerPages
 from twisted.web import server, static
 from twisted.python import log
 
