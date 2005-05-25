@@ -25,4 +25,3 @@ import BZFlag
 
 class OverviewPage (Template.Page):
     mainTitle = 'BZFS server at %s' % BZFlag.GetPublicAddr ()
-
