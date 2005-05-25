@@ -287,304 +287,241 @@ vector < vector <int> > path_finder(vector < vector <int> > pinfo,
 // and the end of the index of interpolation. the function returns and amc
 // structure of the interpolated area.
 //////////////////////////////////////////////////////////////////////////////
-amc interpolate(amc adata, vector <amc_graph> graph_data, int startidx, int endidx)
+amc interpolate (amc adata, vector <amc_graph> graph_data, int startidx, int endidx)
 {
-    // check that start and end are not the same
-    if(startidx == endidx)
-    {
-        cerr << "ERROR: TRYING TO INTERPOLATE OVER SAME FRAME" << endl;
-        exit(EXIT_FAILURE);
-    }
-    
-        // find startidx and endidx in graphs
-   /* vector <int> gstartidx; // array of, int for each graph
-    vector <int> gendidx;
-    for(unsigned int i = 0; i < graph_data.size(); i++) // iterate over each graph
-    {
-        if(graph_data[i].nodes.size())
-        {
-            cerr << "interpolate: ERROR graph : " << i << ": is empty! quitting..." << endl;
-            exit(EXIT_FAILURE);
-        }
-        for(unsigned int j = 0; j < graph_data[i].nodes.size(); j++) // iterate over each node
-        {
-            if(graph_data[i].nodes[j].name == startidx) // found start node
-            {
-                gstartidx.push_back(j);
-            }
-            
-            else if(graph_data[i].nodes[j].name == endidx) // found end node
-            {
-                gendidx.push_back(j);
-            }
-        }
-    }
-    
-    */
+	// check that start and end are not the same
+	if (startidx == endidx) {
+		cerr << "ERROR: Trying to inpterolate over same frame" << endl;
+		exit (EXIT_FAILURE);
+	}
 
-    /**************************************************************/
-    //
-    // MAJOR PROBLEM:
-    // endidx wont be found.. because the frames are all consolidated into nodes
-    // with the name of the first frame that hits it..
-    //
-    // sol?
-    // find which node this frame WOULD be in.. maybe work with graph indecies
-    // instead of amc indices
-    
-    
-    // CHECK ALLNAME (NODE) FIELD
-    
-    // get endidx that exists in a node
-    
-    /*************************************************************/
-    
-    // find all paths for each graph from start to end
-    // be careful of self loops, not to go to iterate forever
-    vector <vector < vector <int> > > path; // push paths onto this stack
-    cerr << "finding paths .. " << endl;
-    for(unsigned int each_graph = 0; each_graph < graph_data.size(); each_graph++)
-    { // can start on graph 1, because 0 is root, and we're not interpolating it the same
-        // each graph
-        // must use 0 so path.push_backs fill it
-        cerr <<each_graph << ",";
-        if(graph_data[each_graph].nodes.size() == 0)
-        {
-            cerr << "interpolate: ERROR graph : " << each_graph << ": is empty! quitting..." << endl;
-            exit(EXIT_FAILURE);
-        }
-        
-        
-        // get endidx and startidx that exists in a node
-        int rendidx;
-        int rstartidx;
-        for(unsigned int i = 0; i < graph_data[each_graph].nodes.size(); i++)
-        {// for each node
-            for(unsigned int j = 0; j < graph_data[each_graph].nodes[i].allnames.size(); j++)
-            {
-                if(endidx == graph_data[each_graph].nodes[i].allnames[j])
-                {
-                    rendidx = graph_data[each_graph].nodes[i].name;
-                }
-                if(startidx == graph_data[each_graph].nodes[i].allnames[j])
-                {
-                    rstartidx = graph_data[each_graph].nodes[i].name;
-                }
-            }
-        }
-        
-               
-        
-        
-        vector < vector <int> > graph_path; // collection of paths for a single graph
-        
-        // recursive function needed
-        vector <int> current_path; // push current path onto this stack
-                                   // once end is found, push onto graph_path stack
-        //find starting node
-        int graphidx;
-        for(int INODE = 0; INODE < (int)graph_data[each_graph].nodes.size(); INODE++)
-        {
-            if(graph_data[each_graph].nodes[INODE].name == rstartidx)
-            {
-                graphidx = INODE;
-                break;
-            }
-        }
-        
-        graph_path = path_finder(graph_path,
-                            current_path,
-                             //gstartidx[each_graph],
-                            rendidx, //gendidx[each_graph],
-                            graph_data[each_graph], 
-                            graph_data[each_graph].nodes[graphidx]
-                            ); // recurse
-        
-        
-        path.push_back(graph_path); // this way different things can be done
-                               // if path is not successful (no good path)
-                               // isgood wont be true,
-                                // or path will be empty
-        
-    }
-    cerr << " done." << endl;
-    
-    //dump path, for debugging
-    /*
-    for(unsigned int graph = 0; graph < path.size(); graph++)
-    {
-        cout << "graph " << graph << ":" << endl;
-        for(unsigned int cpath = 0; cpath < path[graph].size(); cpath++)
-        {
-            for(unsigned int i = 0; i < path[graph][cpath].size(); i++)
-            {
-                cout << path[graph][cpath][i] << ", ";
-            }
-            cout << endl;
-        }
-    }
-    */
-    
-    // calculate greatest-least path for the graphs
-    // this is the smallest value of frames for a single graph,
-    // but the largest of these small values over all the graphs
-    //
-    // is g-l what we want to do?
-    // wouldnt it be better for them all just to be the same?
-    //////////////
-    cerr << "calculating greatest-least path" << endl;
-    unsigned int greatest_least = 0;
-    for(unsigned int each_bone = 0; each_bone < path.size(); each_bone++)
-    {
-        if(path[each_bone].size() == 0)
-        {
-            //vector <vector < vector <int> > > path;
-            vector <int> ttp;
-            ttp.push_back(startidx);
-           // vector <vector <int> > tp;
-            //tp.push_back(ttp);
-            path[each_bone].push_back(ttp);
-         // no path exists!! linear interpolation?
-            cerr << "interpolation: no path exists for bone: " << each_bone << " self loop" << endl;//quitting.. " << endl;
-            //exit(EXIT_FAILURE);
-            
-        }
-            
-    //    unsigned int winner = path[0].size();
-    //    for(unsigned int each_graph = 0; path[each_bone].size(); each_graph++)
-    //    {
-   //         if(path[each_bone][each_graph].size() < winner)
-   //         {
-          //      winner = path[each_bone][each_graph].size();
-    //        }
-   //     }
-   //     if(winner > greatest_least)
-   //     {
-    //        greatest_least = winner;
-    //    }
-    }
-                greatest_least = 100;
-    cerr << "greatest-least = " << greatest_least << endl;
-    cerr << "calculating path to use ... " << endl;
-    // use paths that are closest to this value of frames for each graph
-    vector <unsigned int> path_to_use;
-    unsigned int amc_size = 0;
-    for(unsigned int each_bone = 0; each_bone < path.size(); each_bone++)
-    {
-        unsigned int winner = 0;
-        for(unsigned int each_graph = 0; each_graph < path[each_bone].size(); each_graph++)
-        {
-            if(pow((double)((int)greatest_least - (int)path[each_bone][each_graph].size()),2) <
-               pow((double)((int)greatest_least - (int)path[each_bone][winner].size()),2))
-            {
-                winner = each_graph;
-            }
-        }
-        cerr << each_bone << ",";
-        path_to_use.push_back(0); //winner);
-                                  // also find greatest size
-        cerr << "b";
-        if(path[each_bone].size() > 0 && path[each_bone][winner].size() > amc_size)
-        {
-            //cerr << "b";
-            amc_size = path[each_bone][winner].size();
-            //cerr << "e";
-        }
-        cerr << "e";
-    }
-    cerr << endl;
-    
-    // use these sequences to build new amc file
-    // if certain body parts finish before others, simply insert self loops.
-    // THIS IS WHERE BODY PART DEPENDENCIES SHOULD BE ADDED, IF EVER,
-    // OR THEY COULD BE SIMPLY BUILT INTO THE GRAPHS
-    
-    /*****************
-    // dont interpolate root position,
-    // do linear interpolation of facing... with same time as amc_size
-    //
-    // todo:
-    // for shuffle, shift root location!, (like splice) on each shuffle
-    ******************/
-    
-    // for debugging
-    //int amc_size = 120;
-    
-    amc new_amc;
-    new_amc.num = amc_size;
-    new_amc.a = new amc_data [amc_size];
-    
-    cerr << "creating frames ..." << endl;
-    for(unsigned int frame = 0; frame < amc_size; frame++)
-    {
-        cerr << frame << ",";
-        /////////////////////////////////////
-        // insert self loop if already done
-        /////////////////////////////////////
-               
-     //   cerr << "frame = " << frame << endl;
-        // else, copy indexes from amc file
-        // need an (else) after each if statement
-        // use indexes found and adata to build new amc file
-        
-        
-        /************* file dependant section *************/
-        /**** (name) problem ****/
-        // start at 1, 0 is root
-        
-        // lowerback	MAX_LOWERBACK
-       ;
-        if(frame < path[1][path_to_use[1]].size())
-        { // still good
-            for(int i = 0; i < MAX_LOWERBACK; i++)
-            {
-                new_amc.a[frame].lowerback[i] = adata.a[path[1][path_to_use[1]][frame]].lowerback[i];
-            }
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_LOWERBACK; i++)
-            {
-                new_amc.a[frame].lowerback[i] = new_amc.a[frame-1].lowerback[i];
-            }
-        }
-        
-      
-      
-        // upperback	MAX_UPPERBACK
-        if(frame < path[2][path_to_use[2]].size())
-        { // still good
-            for(int i = 0; i < MAX_UPPERBACK; i++)
-            {
-                new_amc.a[frame].upperback[i] = adata.a[path[2][path_to_use[2]][frame]].upperback[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_UPPERBACK; i++)
-            {
-                new_amc.a[frame].upperback[i] = new_amc.a[frame-1].upperback[i];
-            }
-        }
-        
-        
-        // thorax	MAX_THORAX
-        if(frame < path[3][path_to_use[3]].size())
-        { // still good
-            for(int i = 0; i < MAX_THORAX; i++)
-            {
-                new_amc.a[frame].thorax[i] = adata.a[path[3][path_to_use[3]][frame]].thorax[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_THORAX; i++)
-            {
-                new_amc.a[frame].thorax[i] = new_amc.a[frame-1].thorax[i];
-            }
-        }
-        
-        
+	// find startidx and endidx in graphs
+	/*
+	vector <int> gstartidx; // array of, int for each graph
+	vector <int> gendidx;
+	for (unsigned int i = 0; i < graph_data.size (); i++) {
+		// iterate over each graph
+		if (graph_data[i].nodes.size ()) {
+			cerr << "interpolate: ERROR graph : " << i << ": is empty! quitting..." << endl;
+			exit (EXIT_FAILURE);
+		}
+		for (unsigned int j = 0; j < graph_data[i].nodes.size (); j++) {
+			// iterate over each node
+			if(graph_data[i].nodes[j].name == startidx) {
+				// found start node
+				gstartidx.push_back(j);
+			} else if(graph_data[i].nodes[j].name == endidx) {
+				// found end node
+				gendidx.push_back(j);
+			}
+		}
+	}
+	*/
+
+	/*
+	 * MAJOR PROBLEM:
+	 * endidx wont be found.. because the frames are all consolidated into nodes
+	 * with the name of the first frame that hits it..
+	 *
+	 * solution:
+	 * find which node this frame WOULD be in.. maybe work with graph indecies
+	 * instead of amc indices
+	 *
+	 *
+	 * CHECK ALLNAME (NODE) FIELD
+	 *
+	 * get endidx that exists in a node
+	 */
+
+	// find all paths for each graph from start to end
+	// be careful of self loops, not to go to iterate forever
+	vector <vector < vector <int> > > path; // push paths onto this stack
+	cerr << "finding paths .. " << endl;
+	for (unsigned int each_graph = 0; each_graph < graph_data.size(); each_graph++) {
+		// can start on graph 1, because 0 is root, and we're not interpolating it the same
+		// each graph
+		// must use 0 so path.push_backs fill it
+		cerr <<each_graph << ",";
+		if(graph_data[each_graph].nodes.size() == 0) {
+			cerr << "interpolate: ERROR graph : " << each_graph << ": is empty! quitting..." << endl;
+			exit (EXIT_FAILURE);
+		}
+
+		// get endidx and startidx that exists in a node
+		int rendidx;
+		int rstartidx;
+		for (unsigned int i = 0; i < graph_data[each_graph].nodes.size (); i++) {
+			// for each node
+			for (unsigned int j = 0; j < graph_data[each_graph].nodes[i].allnames.size (); j++) {
+				if (endidx == graph_data[each_graph].nodes[i].allnames[j]) {
+					rendidx = graph_data[each_graph].nodes[i].name;
+				}
+				if(startidx == graph_data[each_graph].nodes[i].allnames[j]) {
+					rstartidx = graph_data[each_graph].nodes[i].name;
+				}
+			}
+		}
+
+		vector < vector <int> > graph_path; // collection of paths for a single graph
+
+		// recursive function needed
+		vector <int> current_path; // push current path onto this stack
+					   // once end is found, push onto graph_path stack
+		//find starting node
+		int graphidx;
+		for (int INODE = 0; INODE < (int) graph_data[each_graph].nodes.size (); INODE++) {
+			if (graph_data[each_graph].nodes[INODE].name == rstartidx) {
+				graphidx = INODE;
+				break;
+			}
+		}
+
+		graph_path = path_finder (graph_path,
+					  current_path,
+					  rendidx,
+					  graph_data[each_graph],
+					  graph_data[each_graph].nodes[graphidx]);
+
+
+		path.push_back(graph_path);
+		// this way different things can be done if path is not successful
+		// (no good path) isgood wont be true, or path will be empty
+	}
+	cerr << " done." << endl;
+
+	//dump path, for debugging
+	/*
+	for (unsigned int graph = 0; graph < path.size (); graph++) {
+		cout << "graph " << graph << ":" << endl;
+		for (unsigned int cpath = 0; cpath < path[graph].size (); cpath++) {
+			for (unsigned int i = 0; i < path[graph][cpath].size (); i++) {
+				cout << path[graph][cpath][i] << ", ";
+			}
+			cout << endl;
+		}
+	}
+	*/
+
+	// calculate greatest-least path for the graphs
+	// this is the smallest value of frames for a single graph,
+	// but the largest of these small values over all the graphs
+	//
+	// is g-l what we want to do?
+	// wouldnt it be better for them all just to be the same?
+	//////////////
+	cerr << "calculating greatest-least path" << endl;
+	unsigned int greatest_least = 0;
+	for (unsigned int each_bone = 0; each_bone < path.size (); each_bone++) {
+		if (path[each_bone].size () == 0) {
+			vector <int> ttp;
+			ttp.push_back(startidx);
+			path[each_bone].push_back(ttp);
+			// no path exists!! linear interpolation?
+			cerr << "interpolation: no path exists for bone: " << each_bone << " self loop" << endl;//quitting.. " << endl;
+		}
+	}
+	greatest_least = 100;
+	cerr << "greatest-least = " << greatest_least << endl;
+	cerr << "calculating path to use ... " << endl;
+	// use paths that are closest to this value of frames for each graph
+	vector <unsigned int> path_to_use;
+	unsigned int amc_size = 0;
+	for (unsigned int each_bone = 0; each_bone < path.size (); each_bone++) {
+		unsigned int winner = 0;
+		for (unsigned int each_graph = 0; each_graph < path[each_bone].size (); each_graph++) {
+			if (pow ((double)((int)greatest_least - (int)path[each_bone][each_graph].size ()),2) <
+			    pow ((double)((int)greatest_least - (int)path[each_bone][winner].size ()),2)) {
+				winner = each_graph;
+			}
+		}
+		cerr << each_bone << ",";
+		path_to_use.push_back(0); //winner);
+		// also find greatest size
+		cerr << "b";
+		if (path[each_bone].size() > 0 && path[each_bone][winner].size() > amc_size) {
+			amc_size = path[each_bone][winner].size();
+		}
+		cerr << "e";
+	}
+	cerr << endl;
+
+	// use these sequences to build new amc file
+	// if certain body parts finish before others, simply insert self loops.
+	// THIS IS WHERE BODY PART DEPENDENCIES SHOULD BE ADDED, IF EVER,
+	// OR THEY COULD BE SIMPLY BUILT INTO THE GRAPHS
+
+	/*****************
+	// dont interpolate root position,
+	// do linear interpolation of facing... with same time as amc_size
+	//
+	// todo:
+	// for shuffle, shift root location!, (like splice) on each shuffle
+	******************/
+
+	// for debugging
+	//int amc_size = 120;
+
+	amc new_amc;
+	new_amc.num = amc_size;
+	new_amc.a = new amc_data [amc_size];
+
+	cerr << "creating frames ..." << endl;
+	for (unsigned int frame = 0; frame < amc_size; frame++) {
+		cerr << frame << ",";
+		/////////////////////////////////////
+		// insert self loop if already done
+		/////////////////////////////////////
+
+		//   cerr << "frame = " << frame << endl;
+		// else, copy indexes from amc file
+		// need an (else) after each if statement
+		// use indexes found and adata to build new amc file
+
+
+		/************* file dependant section *************/
+		/**** (name) problem ****/
+		// start at 1, 0 is root
+
+		// lowerback	MAX_LOWERBACK
+		if (frame < path[1][path_to_use[1]].size()) {
+			// still good
+			for (int i = 0; i < MAX_LOWERBACK; i++) {
+				new_amc.a[frame].lowerback[i] = adata.a[path[1][path_to_use[1]][frame]].lowerback[i];
+			}
+		} else {
+			// self loops
+			for (int i = 0; i < MAX_LOWERBACK; i++) {
+				new_amc.a[frame].lowerback[i] = new_amc.a[frame-1].lowerback[i];
+			}
+		}
+
+		// upperback	MAX_UPPERBACK
+		if (frame < path[2][path_to_use[2]].size()) {
+			// still good
+			for (int i = 0; i < MAX_UPPERBACK; i++) {
+				new_amc.a[frame].upperback[i] = adata.a[path[2][path_to_use[2]][frame]].upperback[i];
+			}
+		} else {
+			// self loops
+			for (int i = 0; i < MAX_UPPERBACK; i++) {
+				new_amc.a[frame].upperback[i] = new_amc.a[frame-1].upperback[i];
+			}
+		}
+
+		// thorax	MAX_THORAX
+		if (frame < path[3][path_to_use[3]].size()) {
+			// still good
+			for (int i = 0; i < MAX_THORAX; i++) {
+				new_amc.a[frame].thorax[i] = adata.a[path[3][path_to_use[3]][frame]].thorax[i];
+			}
+		} else {
+			// self loops
+			for (int i = 0; i < MAX_THORAX; i++) {
+				new_amc.a[frame].thorax[i] = new_amc.a[frame-1].thorax[i];
+			}
+		}
+
+
         // lowerneck	MAX_LOWERNECK
         if(frame < path[4][path_to_use[4]].size())
         { // still good
