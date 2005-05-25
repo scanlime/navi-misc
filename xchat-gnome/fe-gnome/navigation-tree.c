@@ -912,7 +912,7 @@ navigation_selection_changed (GtkTreeSelection * treeselection, gpointer user_da
 	else
 	    gtk_widget_set_sensitive (menuitem, sess->type == SESS_CHANNEL);
 	button = glade_xml_get_widget (gui.xml, "close discussion");
-	if (sess->type == SESS_CHANNEL)
+	if (sess->type != SESS_SERVER)
 	    gtk_widget_set_sensitive (button, TRUE);
 	else
 	    gtk_widget_set_sensitive (button, FALSE);
