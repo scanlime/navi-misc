@@ -19,20 +19,10 @@ General classes for the web server. Muchly borrowed from Micah Dowty's CIA code
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
-from twisted.web import server, static
 
-class Request (server.Request):
-    """A Request subclass overriding some default policies
-       of twisted.web, including exception reporting
-    """
-    def processingFailed (self, reason):
-        """A replacement for twisted.web's usual traceback page.
-        """
-        log.err (reason)
-        page = ServerPages.InternalErrorPage (reason)
-        self.write (page.render (self))
-        self.finish ()
-        return reason
+import ServerPages
+from twisted.web import server, static
+from twisted.python import log
 
 class File (static.File):
     """A local subclass of static.File that overrides the default directory
@@ -104,8 +94,7 @@ class StaticJoiner (File):
         return f
 
 class Site (server.Site):
-    """A twisted.web.server.Site subclass, to use our modified Request class"""
-    requestFactory = Request
+    """A twisted.web.server.Site subclass, that might go away"""
 
     def __init__ (self, resource):
         self.components = []

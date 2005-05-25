@@ -21,7 +21,8 @@ Front page, showing a summary of the current state.
 #
 
 import Template
+import BZFlag
 
 class OverviewPage (Template.Page):
-    mainTitle = 'BZFS server at '
+    mainTitle = 'BZFS server at %s' % BZFlag.GetPublicAddr ()
 
