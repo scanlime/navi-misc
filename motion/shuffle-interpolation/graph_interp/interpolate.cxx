@@ -21,43 +21,40 @@ using namespace std;
 
 struct transition
 {
-    int index; // index of a
-    int a; // from index a
-    int b; // to index b
+	int index; // index of a
+	int a;     // from index a
+	int b;     // to index b
 };
 
 vector <transition> find_transitions(char *index_file)
 {
-    vector <transition> trans;
-    
-    ifstream in;
-    in.open(index_file);
-    if(in.fail())
-    {
-        cerr << "Error opening index.out file" << endl;
-    }
-    
-    transition t;
-    
-    in >> t.a;
-    t.index = 0;
-    do
-    {
-        in >> t.b;
-        if(t.a != (t.b-1) && t.a-t.b != 0)
-        {
-            trans.push_back(t);
-        }
-        t.index++;
-        t.a = t.b;
-    }while(in.peek() != EOF);
-    
-    in.close();
-    
-    return trans;
+	vector <transition> trans;
+
+	ifstream in;
+	in.open(index_file);
+	if (in.fail ()) {
+		cerr << "Error opening index.out file" << endl;
+	}
+
+	transition t;
+
+	in >> t.a;
+	t.index = 0;
+	do {
+		in >> t.b;
+		if (t.a != (t.b-1) && t.a-t.b != 0) {
+			trans.push_back(t);
+		}
+		t.index++;
+		t.a = t.b;
+	} while (in.peek () != EOF);
+
+	in.close ();
+
+	return trans;
 }
 
-vector <vector <int> > path_finder(vector <vector <int> > pinfo, 
+vector <vector <int> > path_finder(vector <vector <int> > pinfo,
                                          vector <int> current_path,
                                          int gendidx,
                                          amc_graph agraph,
@@ -67,219 +64,156 @@ amc interpolate(amc adata, vector <amc_graph> graph_data, int startidx, int endi
 
 int main(int argc, char **argv)
 {
+	if(argc != 4) {
+		cerr << "usage: interpolate index.out original_amc shuffled_amc\n";
+		exit (EXIT_FAILURE);
+	};
 
-    if(argc != 4)
-    {
-        cerr << "usage: interpolate index.out original_amc shuffled_amc\n";
-        exit(EXIT_FAILURE);
-    };
-    
-    // read in transitions from file
-    cerr << "finding transitions ..." << endl;
-    vector <transition> trans;
-    trans = find_transitions(argv[1]);
-    
-    // print transitions, for debugging
-   // for(unsigned int i = 0; i < trans.size(); i++)
-  //  {
-   //     cout << trans[i].index << " : " << trans[i].a << " -> " << trans[i].b << endl;
-   // }
-    
-    // read in amc files from command line
-    cerr << "getting amc files ..." << endl;
-    amc original_amc(argv[2]);
-    amc shuffled_amc(argv[3]);
-    
-    // convert all data of original
-    cerr << "converting all data ..." << endl;
-    vector <double *> *data;
-    data = convert_all(original_amc);
-    
-    // create graphs of original
-    cerr << "creating all graphs ..." << endl;
-    vector <amc_graph> agraphs;
-    agraphs = create_all_graphs(data);
-    
-    // print graph
-   // agraphs[1].print_graph();
-    
-    // interpolate and concatenate
-    cerr << "interpolating and concatenating ..." << endl;
-    amc result_amc;
-    // FIXME: is +1 correct?
-    result_amc.num = trans[0].index+1;
-    result_amc.a = new amc_data [result_amc.num];
-    //result_amc.a = new amc_data [shuffled_amc.num + (trans.size() * 120) + 10];
-   
-    // for debugging
-    cerr << "space allocated ...  " << endl;
-   // cerr << "working ... ";
-    
-    // copy over first part
-    for(int i = 0; i < result_amc.num; i++)
-    {
-        result_amc.a[i] = shuffled_amc.a[i];
-    }
-    
-    for(unsigned int transitions = 0; transitions < trans.size(); transitions++)
-    {
-        double perc = (double)((double)transitions/(double)trans.size()) * 100.0;
-        cerr << "*** " << perc << "% complete" << endl;
-        if(perc < 10 && perc != 0)
-        {
-          //  cerr << "\b\b";
-        }
-        else
-        {
-           // cerr << "\b\b\b";
-        }
-       // cerr << perc << "%";
-        
-        // interpolate
-        //FIXME: is -1 correct?
-        amc next_amc = interpolate(original_amc,agraphs,trans[transitions].a-1,trans[transitions].b-1);
-        
-        // three pieces need to go together
-        // the old result + interpolation + new chunk of shuffled
-        
-        // get new chunk
-        amc next_chunk;
-        if(transitions == trans.size()-1)
-        {
-            next_chunk.num = (shuffled_amc.num-1) - trans[transitions].index;
-            next_chunk.a = shuffled_amc.a+trans[transitions].index+1;
-        }
-        else
-        {
-    
-            next_chunk.num = (trans[transitions+1].index-(trans[transitions].index));
-            next_chunk.a = shuffled_amc.a+trans[transitions].index+1;
-        }
-        
-        amc temp(result_amc,next_amc);
-        amc temp2(temp,next_chunk);
-        result_amc.num = temp2.num;
-        result_amc.a = temp2.a;
-        
-        /*
-        // concatenate
-        amc temp;
-        temp.num = result_amc.num+next_amc.num;
-        temp.a = result_amc.a;
-        
-        result_amc.a = new amc_data [temp.num];
-        for(int i = 0; i < result_amc.num; i++)
-        {
-            result_amc.a[i] = temp.a[i];
-        }
-        for(int i = 0; i < next_amc.num; i++)
-        {
-            result_amc.a[result_amc.num+i] = next_amc.a[i];
-        }
-        result_amc.num = temp.num;
-        delete [] temp.a;
-        
-       */
-    }
-    cerr << endl;
-    
-    // dump results
-   cerr << "output results ..." << endl;
-    cout << "#!FILE PROCESSED" << endl;
-    cout << ":FULLY-SPECIFIED" << endl;
-    cout << ":DEGREES" << endl;
-    result_amc.dumpall();
-    
-    
-    cerr << "Success." << endl;
-    return EXIT_SUCCESS;
+	// read in transitions from file
+	cerr << "finding transitions ..." << endl;
+	vector <transition> trans;
+	trans = find_transitions(argv[1]);
+
+	// read in amc files from command line
+	cerr << "getting amc files ..." << endl;
+	amc original_amc(argv[2]);
+	amc shuffled_amc(argv[3]);
+
+	// convert all data of original
+	cerr << "converting all data ..." << endl;
+	vector <double *> *data;
+	data = convert_all(original_amc);
+
+	// create graphs of original
+	cerr << "creating all graphs ..." << endl;
+	vector <amc_graph> agraphs;
+	agraphs = create_all_graphs(data);
+
+	// print graph
+	// agraphs[1].print_graph();
+
+	// interpolate and concatenate
+	cerr << "interpolating and concatenating ..." << endl;
+	amc result_amc;
+	// FIXME: is +1 correct?
+	result_amc.num = trans[0].index+1;
+	result_amc.a = new amc_data [result_amc.num];
+	//result_amc.a = new amc_data [shuffled_amc.num + (trans.size() * 120) + 10];
+
+	// for debugging
+	cerr << "space allocated ...  " << endl;
+	// cerr << "working ... ";
+
+	// copy over first part
+	for (int i = 0; i < result_amc.num; i++) {
+		result_amc.a[i] = shuffled_amc.a[i];
+	}
+
+	for (unsigned int transitions = 0; transitions < trans.size(); transitions++) {
+		double perc = (double)((double)transitions/(double)trans.size()) * 100.0;
+		cerr << "*** " << perc << "% complete" << endl;
+
+		// interpolate
+		//FIXME: is -1 correct?
+		amc next_amc = interpolate(original_amc,agraphs,trans[transitions].a-1,trans[transitions].b-1);
+
+		// three pieces need to go together
+		// the old result + interpolation + new chunk of shuffled
+
+		// get new chunk
+		amc next_chunk;
+		if (transitions == trans.size()-1) {
+			next_chunk.num = (shuffled_amc.num-1) - trans[transitions].index;
+			next_chunk.a = shuffled_amc.a+trans[transitions].index+1;
+		} else {
+			next_chunk.num = (trans[transitions+1].index-(trans[transitions].index));
+			next_chunk.a = shuffled_amc.a+trans[transitions].index+1;
+		}
+
+		amc temp(result_amc,next_amc);
+		amc temp2(temp,next_chunk);
+		result_amc.num = temp2.num;
+		result_amc.a = temp2.a;
+	}
+	cerr << endl;
+
+	// dump results
+	cerr << "output results ..." << endl;
+	cout << "#!FILE PROCESSED" << endl;
+	cout << ":FULLY-SPECIFIED" << endl;
+	cout << ":DEGREES" << endl;
+	result_amc.dumpall();
+
+	cerr << "Success." << endl;
+	return EXIT_SUCCESS;
 }
 
 
-vector < vector <int> > path_finder(vector < vector <int> > pinfo, 
-                               vector <int> current_path, 
-                               int gendidx,
-                               amc_graph agraph,
-                               graph_node current_node
-                               )
+vector < vector <int> >
+path_finder(vector< vector<int> > pinfo,
+	    vector <int> current_path,
+	    int gendidx,
+	    amc_graph agraph,
+	    graph_node current_node)
 {
-    
-    // idea, keep a flag to say if it hit target, (or if not yes-run-out-of-edges)
-    // only push if this true
-    // path_info . isgood - but might want to push anyway, so outer function
-    // can tell is a path is possible
-    
-    
+	// idea, keep a flag to say if it hit target, (or if not yes-run-out-of-edges)
+	// only push if this true
+	// path_info . isgood - but might want to push anyway, so outer function
+	// can tell is a path is possible
 
-    
-    // push on current_path
-    current_path.push_back(current_node.name);
-    
-    // if hit the goal, a finishing condition
-    if(current_node.name == gendidx)
-    {
-        pinfo.push_back(current_path);
-        //cerr << "\t\t*path found" << endl;
-        return pinfo; 
-    }
-    
-    
-    
-    // for each edge
-    for(unsigned int EDGE = 0; EDGE < current_node.edges.size(); EDGE++)
-    {
-        // if this node is in current path.. its a loop, dont go there
-        bool isloop = false; // innocent until proven guilty
-        for(unsigned int i = 0; i < current_path.size(); i++)
-        {
-            if(current_path[i] == current_node.edges[EDGE].to_node_id)
-            {
-                isloop = true;
-                break;
-            }
-        }
-        
-        if(!isloop)
-        { // only recurse if no loop
-            // get next node id
-            int nodeidx;
-            for(unsigned int i = 0; i < agraph.nodes.size(); i++)
-            {
-                if(agraph.nodes[i].name == current_node.edges[EDGE].to_node_id)
-                {
-                    nodeidx = i;
-                    break;
-                }
-            }
-            
-            vector < vector <int> > pres = path_finder(pinfo,
-                                                       current_path,
-                                                       gendidx,
-                                                       agraph,
-                                                       agraph.nodes[nodeidx]
-                                                       );
-            // add onto stack
-            //if(pres.size() > 0)
-            for(unsigned int i = 0; i < pres.size(); i++)
-            {
-                pinfo.push_back(pres[i]);//i]);
-                
-                //return pinfo;   
-            }
-          //  if(pres.size() > 0)
-            //    return pinfo;
-            
-        }
-    }
-    
-    
-    // might need another recursive function
-    // for each path?
-    // THINK ABOUT THIS!!
-    
-    return pinfo; /******* might need some flag to say if this hit the target, NO if size() == 0 for a graph, then it didnt ******/
+	// push on current_path
+	current_path.push_back(current_node.name);
+
+	// if hit the goal, a finishing condition
+	if (current_node.name == gendidx) {
+		pinfo.push_back(current_path);
+		//cerr << "\t\t*path found" << endl;
+		return pinfo;
+	}
+
+	// for each edge
+	for (unsigned int EDGE = 0; EDGE < current_node.edges.size(); EDGE++) {
+		// if this node is in current path.. its a loop, dont go there
+		bool isloop = false; // innocent until proven guilty
+		for (unsigned int i = 0; i < current_path.size(); i++) {
+			if (current_path[i] == current_node.edges[EDGE].to_node_id) {
+				isloop = true;
+				break;
+			}
+		}
+
+		if (!isloop) {
+			// only recurse if no loop
+			// get next node id
+			int nodeidx;
+			for (unsigned int i = 0; i < agraph.nodes.size(); i++) {
+				if (agraph.nodes[i].name == current_node.edges[EDGE].to_node_id) {
+					nodeidx = i;
+					break;
+				}
+			}
+
+			vector < vector <int> > pres = path_finder(pinfo, current_path, gendidx, agraph, agraph.nodes[nodeidx]);
+			// add onto stack
+			//if(pres.size() > 0)
+			for (unsigned int i = 0; i < pres.size(); i++) {
+				pinfo.push_back(pres[i]);
+
+				//return pinfo;
+			}
+			//if(pres.size() > 0)
+			//	return pinfo;
+
+		}
+	}
+
+	// might need another recursive function
+	// for each path?
+	// THINK ABOUT THIS!!
+
+	return pinfo; /******* might need some flag to say if this hit the target, NO if size() == 0 for a graph, then it didnt ******/
 }
-    
+
 
 //////////////////////////////////////////////////////////////////////////////
 // interpolate() function: takes the amc file used for interpolation,
@@ -522,425 +456,332 @@ amc interpolate (amc adata, vector <amc_graph> graph_data, int startidx, int end
 		}
 
 
-        // lowerneck	MAX_LOWERNECK
-        if(frame < path[4][path_to_use[4]].size())
-        { // still good
-            for(int i = 0; i < MAX_LOWERNECK; i++)
-            {
-                new_amc.a[frame].lowerneck[i] = adata.a[path[4][path_to_use[4]][frame]].lowerneck[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_LOWERNECK; i++)
-            {
-                new_amc.a[frame].lowerneck[i] = new_amc.a[frame-1].lowerneck[i];
-            }
-        }
-         
-        
-        
-        // upperneck	MAX_UPPERNECK
-        if(frame < path[5][path_to_use[5]].size())
-        { // still good
-            for(int i = 0; i < MAX_UPPERNECK; i++)
-            {
-                new_amc.a[frame].upperneck[i] = adata.a[path[5][path_to_use[5]][frame]].upperneck[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_UPPERNECK; i++)
-            {
-                new_amc.a[frame].upperneck[i] = new_amc.a[frame-1].upperneck[i];
-            }
-        }
-        
-        
-        // head	MAX_HEAD
-        if(frame < path[6][path_to_use[6]].size())
-        { // still good
-            for(int i = 0; i < MAX_HEAD; i++)
-            {
-                new_amc.a[frame].head[i] = adata.a[path[6][path_to_use[6]][frame]].head[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_HEAD; i++)
-            {
-                new_amc.a[frame].head[i] = new_amc.a[frame-1].head[i];
-            }
-        }
-        
+		// lowerneck	MAX_LOWERNECK
+		if (frame < path[4][path_to_use[4]].size()) {
+			// still good
+			for (int i = 0; i < MAX_LOWERNECK; i++) {
+				new_amc.a[frame].lowerneck[i] = adata.a[path[4][path_to_use[4]][frame]].lowerneck[i];
+			}
+		} else {
+			// self loops
+			for (int i = 0; i < MAX_LOWERNECK; i++) {
+				new_amc.a[frame].lowerneck[i] = new_amc.a[frame-1].lowerneck[i];
+			}
+		}
 
-        
-        // rclavicle	MAX_RCLAVICLE
-        if(frame < path[7][path_to_use[7]].size())
-        { // still good
-            for(int i = 0; i < MAX_RCLAVICLE; i++)
-            {
-                new_amc.a[frame].rclavicle[i] = adata.a[path[7][path_to_use[7]][frame]].rclavicle[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_RCLAVICLE; i++)
-            {
-                new_amc.a[frame].rclavicle[i] = new_amc.a[frame-1].rclavicle[i];
-            }
-        }
-        
-      
-        
-        // rhumerus	MAX_RHUMERUS
-        if(frame < path[8][path_to_use[8]].size())
-        { // still good
-            for(int i = 0; i < MAX_RHUMERUS; i++)
-            {
-                new_amc.a[frame].rhumerus[i] = adata.a[path[8][path_to_use[8]][frame]].rhumerus[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_RHUMERUS; i++)
-            {
-                new_amc.a[frame].rhumerus[i] = new_amc.a[frame-1].rhumerus[i];
-            }
-        }
-        
-   
-        // rradius	ONE
-        if(frame < path[9][path_to_use[9]].size())
-        { // still good
-                new_amc.a[frame].rradius = adata.a[path[9][path_to_use[9]][frame]].rradius;
-        }
-        else
-        { // self loops
-                new_amc.a[frame].rradius = new_amc.a[frame-1].rradius;
-        }
-        
-        
-        
-        // rwrist	ONE
-        if(frame < path[10][path_to_use[10]].size())
-        { // still good
-            new_amc.a[frame].rwrist = adata.a[path[10][path_to_use[10]][frame]].rwrist;
-        }
-        else
-        { // self loops
-            new_amc.a[frame].rwrist = new_amc.a[frame-1].rwrist;
-        }  
-        
-        
-        
-        // rhand	MAX_RHAND
-        if(frame < path[11][path_to_use[11]].size())
-        { // still good
-            for(int i = 0; i < MAX_RHAND; i++)
-            {
-                new_amc.a[frame].rhand[i] = adata.a[path[11][path_to_use[11]][frame]].rhand[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_RHAND; i++)
-            {
-                new_amc.a[frame].rhand[i] = new_amc.a[frame-1].rhand[i];
-            }
-        }
-        
-        
-        // rfingers	ONE
-        if(frame < path[12][path_to_use[12]].size())
-        { // still good
-            new_amc.a[frame].rfingers = adata.a[path[12][path_to_use[12]][frame]].rfingers;
-        }
-        else
-        { // self loops
-            new_amc.a[frame].rfingers = new_amc.a[frame-1].rfingers;
-        }  
-        
-        
-        
-        // rthumb	MAX_RTHUMB
-        if(frame < path[13][path_to_use[13]].size())
-        { // still good
-            for(int i = 0; i < MAX_RTHUMB; i++)
-            {
-                new_amc.a[frame].rthumb[i] = adata.a[path[13][path_to_use[13]][frame]].rthumb[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_RTHUMB; i++)
-            {
-                new_amc.a[frame].rthumb[i] = new_amc.a[frame-1].rthumb[i];
-            }
-        }
-        
-        
-        
-        // lclavicle	MAX_LCLAVICLE
-        if(frame < path[14][path_to_use[14]].size())
-        { // still good
-            for(int i = 0; i < MAX_LCLAVICLE; i++)
-            {
-                new_amc.a[frame].lclavicle[i] = adata.a[path[14][path_to_use[14]][frame]].lclavicle[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_LCLAVICLE; i++)
-            {
-                new_amc.a[frame].lclavicle[i] = new_amc.a[frame-1].lclavicle[i];
-            }
-        }
-        
-        
-        // lhumerus	MAX_LHUMERUS
-        if(frame < path[15][path_to_use[15]].size())
-        { // still good
-            for(int i = 0; i < MAX_LHUMERUS; i++)
-            {
-                new_amc.a[frame].lhumerus[i] = adata.a[path[15][path_to_use[15]][frame]].lhumerus[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_LHUMERUS; i++)
-            {
-                new_amc.a[frame].lhumerus[i] = new_amc.a[frame-1].lhumerus[i];
-            }
-        }
-        
-        
-        
-        // lradius	ONE
-        if(frame < path[16][path_to_use[16]].size())
-        { // still good
-            new_amc.a[frame].lradius = adata.a[path[16][path_to_use[16]][frame]].lradius;
-        }
-        else
-        { // self loops
-            new_amc.a[frame].lradius = new_amc.a[frame-1].lradius;
-        }  
-        
-        
-        
-        // lwrist	ONE
-        if(frame < path[17][path_to_use[17]].size())
-        { // still good
-            new_amc.a[frame].lwrist = adata.a[path[17][path_to_use[17]][frame]].lwrist;
-        }
-        else
-        { // self loops
-            new_amc.a[frame].lwrist = new_amc.a[frame-1].lwrist;
-        }  
-        
-        
-        
-        // lhand	MAX_LHAND
-        if(frame < path[18][path_to_use[18]].size())
-        { // still good
-            for(int i = 0; i < MAX_LHAND; i++)
-            {
-                new_amc.a[frame].lhand[i] = adata.a[path[18][path_to_use[18]][frame]].lhand[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_LHAND; i++)
-            {
-                new_amc.a[frame].lhand[i] = new_amc.a[frame-1].lhand[i];
-            }
-        }
-        
-        
-        
-        
-        // lfingers	ONE
-        if(frame < path[19][path_to_use[19]].size())
-        { // still good
-            new_amc.a[frame].lfingers = adata.a[path[19][path_to_use[19]][frame]].lfingers;
-        }
-        else
-        { // self loops
-            new_amc.a[frame].lfingers = new_amc.a[frame-1].lfingers;
-        }  
-        
-        
-        
-        
-        // lthumb	MAX_LTHUMBS
-        if(frame < path[20][path_to_use[20]].size())
-        { // still good
-            for(int i = 0; i < MAX_LTHUMBS; i++)
-            {
-                new_amc.a[frame].lthumb[i] = adata.a[path[20][path_to_use[20]][frame]].lthumb[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_LTHUMBS; i++)
-            {
-                new_amc.a[frame].lthumb[i] = new_amc.a[frame-1].lthumb[i];
-            }
-        }
-        
-        
-        
-        
-        // rfemur	MAX_RFEMUR
-        if(frame < path[21][path_to_use[21]].size())
-        { // still good
-            for(int i = 0; i < MAX_RFEMUR; i++)
-            {
-                new_amc.a[frame].rfemur[i] = adata.a[path[21][path_to_use[21]][frame]].rfemur[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_RFEMUR; i++)
-            {
-                new_amc.a[frame].rfemur[i] = new_amc.a[frame-1].rfemur[i];
-            }
-        }
-        
-        
-        
-        // rtibia	ONE
-        if(frame < path[22][path_to_use[22]].size())
-        { // still good
-            new_amc.a[frame].rtibia = adata.a[path[22][path_to_use[22]][frame]].rtibia;
-        }
-        else
-        { // self loops
-            new_amc.a[frame].rtibia = new_amc.a[frame-1].rtibia;
-        }  
-        
-        
-        
-        // rfoot	MAX_RFOOT
-        if(frame < path[23][path_to_use[23]].size())
-        { // still good
-            for(int i = 0; i < MAX_RFOOT; i++)
-            {
-                new_amc.a[frame].rfoot[i] = adata.a[path[23][path_to_use[23]][frame]].rfoot[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_RFOOT; i++)
-            {
-                new_amc.a[frame].rfoot[i] = new_amc.a[frame-1].rfoot[i];
-            }
-        }
-        
-        
-        
-        // rtoes	ONE
-        if(frame < path[24][path_to_use[24]].size())
-        { // still good
-            new_amc.a[frame].rtoes = adata.a[path[24][path_to_use[24]][frame]].rtoes;
-        }
-        else
-        { // self loops
-            new_amc.a[frame].rtoes = new_amc.a[frame-1].rtoes;
-        }  
-        
-        
-        // lfemur	MAX_LFEMUR
-        if(frame < path[25][path_to_use[25]].size())
-        { // still good
-            for(int i = 0; i < MAX_LFEMUR; i++)
-            {
-                new_amc.a[frame].lfemur[i] = adata.a[path[25][path_to_use[25]][frame]].lfemur[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_LFEMUR; i++)
-            {
-                new_amc.a[frame].lfemur[i] = new_amc.a[frame-1].lfemur[i];
-            }
-        }
-        
-        
-        
-        // ltibia	ONE
-        if(frame < path[26][path_to_use[26]].size())
-        { // still good
-            new_amc.a[frame].ltibia = adata.a[path[26][path_to_use[26]][frame]].ltibia;
-        }
-        else
-        { // self loops
-            new_amc.a[frame].ltibia = new_amc.a[frame-1].ltibia;
-        }  
-        
-        
-        
-        // lfoot	MAX_LFOOT
-        if(frame < path[27][path_to_use[27]].size())
-        { // still good
-            for(int i = 0; i < MAX_LFOOT; i++)
-            {
-                new_amc.a[frame].lfoot[i] = adata.a[path[27][path_to_use[27]][frame]].lfoot[i];
-            }            
-        }
-        else
-        { // self loops
-            for(int i = 0; i < MAX_LFOOT; i++)
-            {
-                new_amc.a[frame].lfoot[i] = new_amc.a[frame-1].lfoot[i];
-            }
-        }
-        
-        
-        cerr << "b";
-        // ltoes	ONE
-        if(frame < path[28][path_to_use[28]].size())
-        { // still good
-            new_amc.a[frame].ltoes = adata.a[path[28][path_to_use[28]][frame]].ltoes;
-        }
-        else
-        { // self loops
-            new_amc.a[frame].ltoes = new_amc.a[frame-1].ltoes;
-        } 
-        
-   cerr << "e";
-        
-        /************* end: file dependant section *************/
-        
-        
-    }
-    
-    cerr << endl;
 
-    
-    
-    // for debugging throw in old stuff
-    //for(int i = 0; i < amc_size; i++)
-    //{
-    //    new_amc.a[i] = adata.a[startidx];
-    //}
+		// upperneck	MAX_UPPERNECK
+		if (frame < path[5][path_to_use[5]].size()) {
+			// still good
+			for (int i = 0; i < MAX_UPPERNECK; i++) {
+				new_amc.a[frame].upperneck[i] = adata.a[path[5][path_to_use[5]][frame]].upperneck[i];
+			}
+		} else {
+			// self loops
+			for(int i = 0; i < MAX_UPPERNECK; i++) {
+				new_amc.a[frame].upperneck[i] = new_amc.a[frame-1].upperneck[i];
+			}
+		}
+
+
+		// head	MAX_HEAD
+		if (frame < path[6][path_to_use[6]].size()) {
+			// still good
+			for (int i = 0; i < MAX_HEAD; i++) {
+				new_amc.a[frame].head[i] = adata.a[path[6][path_to_use[6]][frame]].head[i];
+			}
+		} else {
+			// self loops
+			for (int i = 0; i < MAX_HEAD; i++) {
+				new_amc.a[frame].head[i] = new_amc.a[frame-1].head[i];
+			}
+		}
+
+
+		// rclavicle	MAX_RCLAVICLE
+		if (frame < path[7][path_to_use[7]].size()) {
+			// still good
+			for (int i = 0; i < MAX_RCLAVICLE; i++) {
+				new_amc.a[frame].rclavicle[i] = adata.a[path[7][path_to_use[7]][frame]].rclavicle[i];
+			}
+		} else {
+			// self loops
+			for (int i = 0; i < MAX_RCLAVICLE; i++) {
+				new_amc.a[frame].rclavicle[i] = new_amc.a[frame-1].rclavicle[i];
+			}
+		}
+
+
+		// rhumerus	MAX_RHUMERUS
+		if(frame < path[8][path_to_use[8]].size()) {
+			// still good
+			for (int i = 0; i < MAX_RHUMERUS; i++) {
+				new_amc.a[frame].rhumerus[i] = adata.a[path[8][path_to_use[8]][frame]].rhumerus[i];
+			}
+		} else {
+			// self loops
+			for (int i = 0; i < MAX_RHUMERUS; i++) {
+				new_amc.a[frame].rhumerus[i] = new_amc.a[frame-1].rhumerus[i];
+			}
+		}
+
+
+		// rradius	ONE
+		if (frame < path[9][path_to_use[9]].size()) {
+			// still good
+			new_amc.a[frame].rradius = adata.a[path[9][path_to_use[9]][frame]].rradius;
+		} else {
+			// self loops
+			new_amc.a[frame].rradius = new_amc.a[frame-1].rradius;
+		}
+
+
+		// rwrist	ONE
+		if (frame < path[10][path_to_use[10]].size()) {
+			// still good
+			new_amc.a[frame].rwrist = adata.a[path[10][path_to_use[10]][frame]].rwrist;
+		} else {
+			// self loops
+			new_amc.a[frame].rwrist = new_amc.a[frame-1].rwrist;
+		}
+
+
+		// rhand	MAX_RHAND
+		if (frame < path[11][path_to_use[11]].size()) {
+			// still good
+			for (int i = 0; i < MAX_RHAND; i++) {
+				new_amc.a[frame].rhand[i] = adata.a[path[11][path_to_use[11]][frame]].rhand[i];
+			}
+		} else {
+			// self loops
+			for (int i = 0; i < MAX_RHAND; i++) {
+				new_amc.a[frame].rhand[i] = new_amc.a[frame-1].rhand[i];
+			}
+		}
+
+
+		// rfingers	ONE
+		if (frame < path[12][path_to_use[12]].size()) {
+			// still good
+			new_amc.a[frame].rfingers = adata.a[path[12][path_to_use[12]][frame]].rfingers;
+		} else {
+			// self loops
+			new_amc.a[frame].rfingers = new_amc.a[frame-1].rfingers;
+		}
+
+
+		// rthumb	MAX_RTHUMB
+		if (frame < path[13][path_to_use[13]].size()) {
+			// still good
+			for (int i = 0; i < MAX_RTHUMB; i++) {
+				new_amc.a[frame].rthumb[i] = adata.a[path[13][path_to_use[13]][frame]].rthumb[i];
+			}
+		} else {
+			// self loops
+			for (int i = 0; i < MAX_RTHUMB; i++) {
+				new_amc.a[frame].rthumb[i] = new_amc.a[frame-1].rthumb[i];
+			}
+		}
+
+
+		// lclavicle	MAX_LCLAVICLE
+		if (frame < path[14][path_to_use[14]].size()) {
+			// still good
+			for (int i = 0; i < MAX_LCLAVICLE; i++) {
+				new_amc.a[frame].lclavicle[i] = adata.a[path[14][path_to_use[14]][frame]].lclavicle[i];
+			}
+		} else {
+			// self loops
+			for (int i = 0; i < MAX_LCLAVICLE; i++) {
+				new_amc.a[frame].lclavicle[i] = new_amc.a[frame-1].lclavicle[i];
+			}
+		}
+
+
+		// lhumerus	MAX_LHUMERUS
+		if (frame < path[15][path_to_use[15]].size()) {
+			// still good
+			for (int i = 0; i < MAX_LHUMERUS; i++) {
+				new_amc.a[frame].lhumerus[i] = adata.a[path[15][path_to_use[15]][frame]].lhumerus[i];
+			}
+		} else {
+			// self loops
+			for(int i = 0; i < MAX_LHUMERUS; i++) {
+				new_amc.a[frame].lhumerus[i] = new_amc.a[frame-1].lhumerus[i];
+			}
+		}
+
+
+		// lradius	ONE
+		if (frame < path[16][path_to_use[16]].size()) {
+			// still good
+			new_amc.a[frame].lradius = adata.a[path[16][path_to_use[16]][frame]].lradius;
+		} else {
+			// self loops
+			new_amc.a[frame].lradius = new_amc.a[frame-1].lradius;
+		}
+
+
+		// lwrist	ONE
+		if (frame < path[17][path_to_use[17]].size()) {
+			// still good
+			new_amc.a[frame].lwrist = adata.a[path[17][path_to_use[17]][frame]].lwrist;
+		} else {
+			// self loops
+			new_amc.a[frame].lwrist = new_amc.a[frame-1].lwrist;
+		}
+
+
+		// lhand	MAX_LHAND
+		if (frame < path[18][path_to_use[18]].size()) {
+			// still good
+			for (int i = 0; i < MAX_LHAND; i++) {
+				new_amc.a[frame].lhand[i] = adata.a[path[18][path_to_use[18]][frame]].lhand[i];
+			}
+		} else {
+			// self loops
+			for (int i = 0; i < MAX_LHAND; i++) {
+				new_amc.a[frame].lhand[i] = new_amc.a[frame-1].lhand[i];
+			}
+		}
+
+
+		// lfingers	ONE
+		if (frame < path[19][path_to_use[19]].size()) {
+			// still good
+			new_amc.a[frame].lfingers = adata.a[path[19][path_to_use[19]][frame]].lfingers;
+		} else {
+			// self loops
+			new_amc.a[frame].lfingers = new_amc.a[frame-1].lfingers;
+		}
+
+
+		// lthumb	MAX_LTHUMBS
+		if (frame < path[20][path_to_use[20]].size()) {
+			// still good
+			for (int i = 0; i < MAX_LTHUMBS; i++) {
+				new_amc.a[frame].lthumb[i] = adata.a[path[20][path_to_use[20]][frame]].lthumb[i];
+			}
+		} else {
+			// self loops
+			for(int i = 0; i < MAX_LTHUMBS; i++) {
+				new_amc.a[frame].lthumb[i] = new_amc.a[frame-1].lthumb[i];
+			}
+		}
+
+
+		// rfemur	MAX_RFEMUR
+		if (frame < path[21][path_to_use[21]].size()) {
+			// still good
+			for (int i = 0; i < MAX_RFEMUR; i++) {
+				new_amc.a[frame].rfemur[i] = adata.a[path[21][path_to_use[21]][frame]].rfemur[i];
+			}
+		} else {
+			// self loops
+			for(int i = 0; i < MAX_RFEMUR; i++) {
+				new_amc.a[frame].rfemur[i] = new_amc.a[frame-1].rfemur[i];
+			}
+		}
+
+
+		// rtibia	ONE
+		if (frame < path[22][path_to_use[22]].size()) {
+			// still good
+			new_amc.a[frame].rtibia = adata.a[path[22][path_to_use[22]][frame]].rtibia;
+		} else {
+			// self loops
+			new_amc.a[frame].rtibia = new_amc.a[frame-1].rtibia;
+		}
+
+
+		// rfoot	MAX_RFOOT
+		if (frame < path[23][path_to_use[23]].size()) {
+			// still good
+			for (int i = 0; i < MAX_RFOOT; i++) {
+				new_amc.a[frame].rfoot[i] = adata.a[path[23][path_to_use[23]][frame]].rfoot[i];
+			}
+		} else {
+			// self loops
+			for(int i = 0; i < MAX_RFOOT; i++) {
+				new_amc.a[frame].rfoot[i] = new_amc.a[frame-1].rfoot[i];
+			}
+		}
+
+
+		// rtoes	ONE
+		if(frame < path[24][path_to_use[24]].size()) {
+			// still good
+			new_amc.a[frame].rtoes = adata.a[path[24][path_to_use[24]][frame]].rtoes;
+		} else { // self loops
+			new_amc.a[frame].rtoes = new_amc.a[frame-1].rtoes;
+		}
+
+
+		// lfemur	MAX_LFEMUR
+		if(frame < path[25][path_to_use[25]].size()) {
+			// still good
+			for(int i = 0; i < MAX_LFEMUR; i++) {
+				new_amc.a[frame].lfemur[i] = adata.a[path[25][path_to_use[25]][frame]].lfemur[i];
+			}
+		} else { // self loops
+			for(int i = 0; i < MAX_LFEMUR; i++) {
+				new_amc.a[frame].lfemur[i] = new_amc.a[frame-1].lfemur[i];
+			}
+		}
+
+
+		// ltibia	ONE
+		if(frame < path[26][path_to_use[26]].size()) {
+			// still good
+			new_amc.a[frame].ltibia = adata.a[path[26][path_to_use[26]][frame]].ltibia;
+		} else { // self loops
+			new_amc.a[frame].ltibia = new_amc.a[frame-1].ltibia;
+		}
+
+
+		// lfoot	MAX_LFOOT
+		if(frame < path[27][path_to_use[27]].size()) {
+			// still good
+			for(int i = 0; i < MAX_LFOOT; i++) {
+				new_amc.a[frame].lfoot[i] = adata.a[path[27][path_to_use[27]][frame]].lfoot[i];
+			}
+		} else { // self loops
+			for(int i = 0; i < MAX_LFOOT; i++) {
+				new_amc.a[frame].lfoot[i] = new_amc.a[frame-1].lfoot[i];
+			}
+		}
+
+
+		cerr << "b";
+		// ltoes	ONE
+		if(frame < path[28][path_to_use[28]].size()) {
+			// still good
+			new_amc.a[frame].ltoes = adata.a[path[28][path_to_use[28]][frame]].ltoes;
+		} else { // self loops
+			new_amc.a[frame].ltoes = new_amc.a[frame-1].ltoes;
+		}
+
+		cerr << "e";
+
+		/************* end: file dependant section *************/
+	}
+
+	cerr << endl;
+
         cerr << "root interpolation ... " << endl;
-    // interpolate root orientation
-    for(unsigned int amc_size_step = 0; amc_size_step < amc_size; amc_size_step++)
-    {
-        // root orientation is last three numbers
-        for(int each_root = 3; each_root < MAX_ROOT; each_root++)
-        {
-            // check if this is right
-            double total_size = adata.a[endidx].root[each_root] - adata.a[startidx].root[each_root];
-            double step_size = total_size/amc_size;
-            new_amc.a[amc_size_step].root[each_root] = step_size*amc_size_step + adata.a[startidx].root[each_root];
-        }
-        
-    }
-    
-    cerr << " new sequence size = " << amc_size << endl;;
-    
-    return new_amc;
+	// interpolate root orientation
+	for (unsigned int amc_size_step = 0; amc_size_step < amc_size; amc_size_step++) {
+		// root orientation is last three numbers
+		for (int each_root = 3; each_root < MAX_ROOT; each_root++) {
+			// check if this is right
+			double total_size = adata.a[endidx].root[each_root] - adata.a[startidx].root[each_root];
+			double step_size = total_size/amc_size;
+			new_amc.a[amc_size_step].root[each_root] = step_size*amc_size_step + adata.a[startidx].root[each_root];
+		}
+	}
+
+	cerr << " new sequence size = " << amc_size << endl;;
+
+	return new_amc;
 }
 
