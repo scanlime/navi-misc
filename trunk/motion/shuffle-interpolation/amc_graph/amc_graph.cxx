@@ -42,9 +42,12 @@ amc_graph::print_graph ()
 	for (unsigned int i = 0; i < nodes.size(); i++) {
 		cout << nodes[i].name << " [label=\""
 		     << "node: " << nodes[i].name << "\\n" << "visited: " << nodes[i].times_visited;
+		cout << "\\n[" << nodes[i].min_gap << ", " << nodes[i].max_gap << "]";
+		/*
 		for (unsigned int i = 0; i < nodes[i].min_range.size (); i++) {
 			cout << "\\n[" << nodes[i].min_range[i] << ", " << nodes[i].max_range[i] << "]";
 		}
+		*/
 		cout << "\"];" << endl;
 	}
 
@@ -149,25 +152,25 @@ amc_graph::create_graph (vector <double *> data, vector <int> degf_div, int degf
 
 	graph_node node;
 	// build graph
-	for (unsigned int FRAME = 0; FRAME < data.size(); FRAME++) {
+	for (unsigned int FRAME = 0; FRAME < data.size (); FRAME++) {
 		for (int DF = 0; DF < degf; DF++) {
 			for (int GAPS = 0; GAPS < degf_div[DF]; GAPS++) {
 				// should this frame go here?
 				if (data[FRAME][DF] <= limits[DF][GAPS]) {
 					// location already filled
 					if (isthere[DF][GAPS].isthere) {
-						nodes[isthere[DF][GAPS].index].visited_again();
-						nodes[isthere[DF][GAPS].index].allnames.push_back(FRAME);
+						nodes[isthere[DF][GAPS].index].visited_again ();
+						nodes[isthere[DF][GAPS].index].allnames.push_back (FRAME);
 						if (afterfirst)
-							nodes[previdx].add_edge(nodes[isthere[DF][GAPS].index].name);
+							nodes[previdx].add_edge (nodes[isthere[DF][GAPS].index].name);
 					} else {
 						// create new node
 						isthere[DF][GAPS].isthere = true;
-						isthere[DF][GAPS].index = nodes.size();
+						isthere[DF][GAPS].index = nodes.size ();
 
-						node.clear();
+						node.clear ();
 						node.name = FRAME;
-						node.allnames.push_back(FRAME);
+						node.allnames.push_back (FRAME);
 						node.min_range = nothing;
 						node.max_range = nothing;
 						node.times_visited = 1;
@@ -178,11 +181,11 @@ amc_graph::create_graph (vector <double *> data, vector <int> degf_div, int degf
 						else
 							node.min_gap = limits[DF][GAPS - 1];
 						node.max_gap = limits[DF][GAPS];
-						nodes.push_back(node);
+						nodes.push_back (node);
 
 						// add edge from prev node, if not first node
 						if (afterfirst)
-							nodes[previdx].add_edge(FRAME);
+							nodes[previdx].add_edge (FRAME);
 					}
 
 					previdx = isthere[DF][GAPS].index;
@@ -190,7 +193,7 @@ amc_graph::create_graph (vector <double *> data, vector <int> degf_div, int degf
 					goto _FOUND; // break out of 2 loops
 				}
 			}
-		}
 _FOUND:		;
+		}
 	}
 }

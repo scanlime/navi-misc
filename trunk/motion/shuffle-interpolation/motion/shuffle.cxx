@@ -23,7 +23,7 @@
 #define DATA_NAME "lorenz_d"
 #define INDEX_OUTFILE "index.out"
 using namespace std;
-void output(char *name,vect *data,int n,int dim)
+void output(char *name,vect **data,int n,int dim)
 {
    // cout << "Sending output to file \""<< name << "\"" << endl;
     ofstream out;
@@ -31,7 +31,7 @@ void output(char *name,vect *data,int n,int dim)
     for(int i = 0; i < n; i++)
     {
         for(int j = 0; j < dim; j++)
-            out << data[i].value(j) << "\t";
+            out << data[i]->value(j) << "\t";
         out << endl;
     }
     out.close();
@@ -39,20 +39,20 @@ void output(char *name,vect *data,int n,int dim)
 
 ///////////// changed /////////////////////////////////////////////
 // replace vector<string> q, with: int q[]
-int find_word(int q[],vect *words, int n, int dim, vect w)
+int find_word(int q[],vect **words, int n, int dim, vect w)
 {
     int winner = 0;
     double dist;
 
     double sqsum = 0;
     for(int i = 0; i < dim; i++)
-        sqsum += pow(words[0].value(i) - w.value(i),2);
+        sqsum += pow(words[0]->value(i) - w.value(i),2);
     dist = sqrt(sqsum);
     for(int i = 1; i < n; i++)
     {
         sqsum = 0;
         for(int j = 0; j < dim; j++)
-            sqsum += pow(words[i].value(j) - w.value(j),2);
+            sqsum += pow(words[i]->value(j) - w.value(j),2);
         if(dist > sqrt(sqsum))
         {
             // new winner
@@ -89,9 +89,9 @@ int main(int argc, char **argv)
     int n = atoi(argv[3]);
     int dim = atoi(argv[4]);
 
-    vect *data = new vect [n];
+    vect **data = new vect* [n];
     for (int i = 0; i < n; i++)
-	    data[i] = vect(dim);
+	    data[i] = new vect(dim);
 
     vect x(atoi(argv[4]));
     for(int i = 0; i < x.size(); i++)
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
     for(int i = 0; i < n;i++)
     {
         
-        data[i]=x;
+        *data[i]=x;
         nx = runge(x,h,t0);
         t0+=h;
         
@@ -142,13 +142,13 @@ int main(int argc, char **argv)
     //    if(i%(int)(n/q.size()) == 0)
    //         words[p++] = data[i];
    // }
-    vect *words = new vect [inter_data.index()];
+    vect **words = new vect *[inter_data.index()];
     for(int i = 0; i < inter_data.index(); i++)
-	    words[i] = vect(dim);
+	    words[i] = new vect(dim);
     for(int i = 0; i < (int)inter_data.index() * (int)(n/inter_data.index());i++)
     {
        if(i%(int)(n/inter_data.index()) == 0)
-            words[p++] = data[i];
+            *words[p++] = *data[i];
     }
     
    output("data_d",words,inter_data.index(),dim);
