@@ -14,6 +14,11 @@
         <!--#include file="navigation.inc"-->
       </div>
       <div class="content">
+        <p>
+	  Before you download here, check your distribution.  More and more distributions
+	  are including xchat-gnome in their packages, and a package will be easier than
+	  building from a source release.
+	</p>
         <div class="section-title">0.4 "Buyer beware - Penis patches!"</div>
 	<div class="section">
 	  <i>04 May 2005</i> - Mostly bugfixes.  In particular, the memory and speed
