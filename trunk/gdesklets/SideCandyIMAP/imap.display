@@ -14,11 +14,11 @@
      * Enter your name and other meta information here:
      ********************************************************************** -->
 
-  <meta name="SideCandy CPU"
+  <meta name="SideCandy IMAP"
         version="0.10"
         preview="gfx/computer.png"
-        author="Martin Grimme"
-        description="A TEMPLATE in SideCandy style."/>
+        author="W. Evan Sheehan"
+        description="An IMAP doohicky."/>
 
 <!-- ********************************************************************** -->
 
