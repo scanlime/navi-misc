@@ -24,7 +24,7 @@ A lightweight playlist editor for creating m3u playlists.
 import pygtk
 pygtk.require ('2.0')
 
-import gtk, gtk.glade
+import gtk
 import Gui
 
 window = Gui.Main ()
