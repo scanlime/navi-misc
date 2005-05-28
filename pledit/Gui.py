@@ -23,7 +23,7 @@ import pygtk, gtk, gtk.glade
 
 class Main:
     def __init__ (self):
-        window = gtk.glade.xml ("pledit.glade")
+        window = gtk.glade.XML ("pledit.glade")
 
         # FIXME Should store the ListStore.
 
@@ -41,6 +41,7 @@ class Main:
 
     def _RemoveClicked (self, button, data=None):
         ''' Remove button callback. '''
+        print "remove"
         pass
 
     def _AddClicked (self, button, data=None):
@@ -65,7 +66,8 @@ class Main:
 
     def _QuitActivated (self, item, data=None):
         ''' Quit menu item clicked. '''
-        pass
+        # FIXME Check if the playlist has been saved, if not prompt.
+        gtk.main_quit ()
 
     def _CutActivated (self, item, data=None):
         ''' Cut menu item clicked. '''
@@ -87,6 +89,9 @@ class Main:
         ''' About menu item clicked. '''
         pass
 
+    def _Delete (self, widget, event, data=None):
+        ''' Bye bye. '''
+        gtk.main_quit ()
 
 ### The End ###
 # vim:ts=4:sw=4:et:tw=80

@@ -17,6 +17,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <signal name="delete_event" handler="_Delete" last_modification_time="Sun, 29 May 2005 22:19:07 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox1">
@@ -215,7 +216,7 @@
 	      <property name="use_stock">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
-	      <signal name="clicked" handler="on_remove_clicked" last_modification_time="Sun, 29 May 2005 20:21:40 GMT"/>
+	      <signal name="clicked" handler="_RemoveClicked" last_modification_time="Sun, 29 May 2005 20:30:39 GMT"/>
 	    </widget>
 	  </child>
 
@@ -228,7 +229,7 @@
 	      <property name="use_stock">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
-	      <signal name="clicked" handler="on_add_clicked" last_modification_time="Sun, 29 May 2005 20:21:51 GMT"/>
+	      <signal name="clicked" handler="_AddClicked" last_modification_time="Sun, 29 May 2005 20:30:50 GMT"/>
 	    </widget>
 	  </child>
 	</widget>

@@ -28,7 +28,7 @@ import gtk
 import Gui
 
 window = Gui.Main ()
-gtk.mainloop ()
+gtk.main ()
 
 
 ### The End ###
