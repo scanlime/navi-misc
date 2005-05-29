@@ -24,7 +24,7 @@ import Playlist
 
 class Main:
     def __init__ (self):
-        self.xml = gtk.glade.XML ("pledit.glade")
+        self.xml = gtk.glade.XML ("data/pledit.glade")
         self.playlist = Playlist.m3u ()
         treeview = self.xml.get_widget ("playlist")
 
@@ -58,7 +58,8 @@ class Main:
         treeview = self.xml.get_widget ("playlist")
         # Replace the old playlist with the new
         if not self.playlist.saved:
-            _CloseDialog ()
+            if _CloseDialog () == gtk.RESPONSE_CANCEL:
+                return
 
         self.playlist = Playlist.m3u ()
 
@@ -67,7 +68,8 @@ class Main:
     def _OpenActivate (self, item, data=None):
         ''' Open menu item clicked. '''
         if not self.playlist.saved:
-            _CloseDialog ()
+            if _CloseDialog () == gtk.RESPONSE_CANCEL:
+                return
 
         file = _FileChooser ()
         self.playlist = Playlist.m3u (file)
@@ -94,7 +96,8 @@ class Main:
     def _QuitActivated (self, item, data=None):
         ''' Quit menu item clicked. '''
         if not self.playlist.saved:
-            _CloseDialog ()
+            if _CloseDialog () == gtk.RESPONSE_CANCEL:
+                return
 
         gtk.main_quit ()
 
@@ -122,7 +125,6 @@ class Main:
         ''' Bye bye. '''
         gtk.main_quit ()
 
-
 class _FileChooser:
     ''' File selection dialog. '''
     def __init__ (self):
@@ -146,7 +148,7 @@ class _CloseDialog:
         dialog = xml.get_widget ("close dialog")
         response = dialog.run ()
 
-        if response = gtk.RESPONSE_YES:
+        if response == gtk.RESPONSE_YES:
             if doc.file == None:
                 doc.file = _FileChooser ()
 

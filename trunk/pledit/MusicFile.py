@@ -17,6 +17,23 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+import gobject
+
+class File (gobject.GObject):
+    def __init__ (self):
+        gobject.GObject.__init__ (self)
+
+
+class Ogg (File):
+    def __init__ (self):
+        gobject.GObject.__init__ (self)
+
+
+class Mp3 (File):
+    def __init__ (self):
+        gobject.GObject.__init__ (self)
+
+
 
 ### The End ###
 # vim:ts=4:sw=4:et:tw=80

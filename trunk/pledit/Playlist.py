@@ -21,12 +21,12 @@ supported.
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-import gtk, MusicFile
+import gtk, gobject, MusicFile
 
 class m3u:
     ''' Class that represents an m3u playlist. '''
     def __init__ (self, file=None):
-        self.list = gtk.ListStore (gtk.STRING_TYPE, MusicFile.File)
+        self.list = gtk.ListStore (gobject.TYPE_STRING, MusicFile.File)
         self.saved = True
 
     def Add (self, filename):
