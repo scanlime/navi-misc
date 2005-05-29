@@ -3,7 +3,7 @@
 
 <glade-interface>
 
-<widget class="GtkDialog" id="dialog1">
+<widget class="GtkDialog" id="error dialog">
   <property name="border_width">6</property>
   <property name="visible">True</property>
   <property name="title" translatable="yes"></property>
@@ -77,7 +77,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkLabel" id="label1">
+	    <widget class="GtkLabel" id="text">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="label" translatable="yes">&lt;b&gt;Error&lt;/b&gt;

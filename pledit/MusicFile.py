@@ -19,21 +19,6 @@
 
 import gobject, re
 
-# A dictionary of the supported file types mapping the file extension to a
-# class.
-_supported = { "ogg" : Ogg,
-               "mp3" : Mp3
-             }
-
-def Factory (filename):
-    ''' A MusicFile factory that creates an object representing the file given
-        by filename of the appropriate type. If the filetype is unknown it
-        throws an exception.
-        '''
-    type = re.compile ("/[\w\.\-/]+\.(\w{3})").match (filename).group(1)
-    return _supported[type] (filename)
-
-
 class _File (gobject.GObject):
     ''' A generic music file class. '''
     def __init__ (self):
@@ -58,6 +43,25 @@ class Mp3 (_File):
     ''' Class representing an mp3 file. '''
     def __init__ (self, file):
         _File.__init__ (self)
+
+
+# A dictionary of the supported file types mapping the file extension to a
+# class.
+_supported = { "ogg" : Ogg,
+               "mp3" : Mp3
+             }
+
+def Factory (filename):
+    ''' A MusicFile factory that creates an object representing the file given
+        by filename of the appropriate type. If the filetype is unknown it
+        throws an exception.
+        '''
+    match = re.compile ("/[\w\.\-/]+\.(\w{3})").match (filename)
+    if match == None:
+        raise KeyError
+
+    type = match.group(1)
+    return _supported[type] (filename)
 
 
 

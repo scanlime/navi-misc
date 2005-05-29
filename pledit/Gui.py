@@ -129,51 +129,55 @@ class Main:
         ''' Bye bye. '''
         gtk.main_quit ()
 
-class _FileChooser:
+
+################################ Dialogs ###################################
+def _FileChooser ():
     ''' File selection dialog. '''
-    def __init__ (self):
-        xml = gtk.glade.XML ("data/filechooser.glade")
-        dialog = xml.get_widget ("filechooserdialog")
-        response = dialog.run ()
+    xml = gtk.glade.XML ("data/filechooser.glade")
+    dialog = xml.get_widget ("filechooserdialog")
+    response = dialog.run ()
 
-        if response == gtk.RESPONSE_OK:
-            return dialog.filename
+    dialog.destroy ()
 
-        return None
+    if response == gtk.RESPONSE_OK:
+        return dialog.get_filename ()
 
-class _CloseDialog:
+    return None
+
+def _CloseDialog (doc):
     ''' Prompts the user to save before closing the current document. '''
-    def __init__ (self, doc):
-        xml = gtk.glade.XML ("data/closedialog.glade")
-        if file != None:
-            text = xml.get_widget ("dialog text")
-            text.label = '<b>Save changes to playlist "' + doc.file + '"before closing?</b>\n\nThe playlist has unsaved changes, do you wish to quit anyway?'
+    xml = gtk.glade.XML ("data/closedialog.glade")
+    if doc.file != None:
+        text = xml.get_widget ("dialog text")
+        text.label = '<b>Save changes to playlist "' + doc.file + '"before closing?</b>\n\nThe playlist has unsaved changes, do you wish to quit anyway?'
 
-        dialog = xml.get_widget ("close dialog")
-        response = dialog.run ()
+    dialog = xml.get_widget ("close dialog")
+    response = dialog.run ()
 
-        if response == gtk.RESPONSE_YES:
-            if doc.file == None:
-                doc.file = _FileChooser ()
+    if response == gtk.RESPONSE_YES:
+        if doc.file == None:
+            doc.file = _FileChooser ()
 
-            doc.Write ()
-            return gtk.RESPONSE_CLOSE
+        doc.Write ()
+        return gtk.RESPONSE_CLOSE
 
-        return response
+    return response
 
 
-class _ErrDialog:
+def _ErrDialog (primary, secondary=""):
     ''' A generic error dialog box. '''
-    def __init__ (self, primary, secondary=""):
-        # FIXME
-        print "Not implemented"
+    xml = gtk.glade.XML ("data/errordialog.glade")
+
+    msg = "<b>%s</b>\n\n%s" % (primary, secondary)
+    xml.get_widget ("text").label = msg
+
+    return xml.get_widget ("error dialog").run ()
 
 
-class _AboutBox:
+def _AboutBox ():
     ''' Represents the about dialog. '''
-    def __init__ (self):
-        # FIXME
-        print "Not implemented"
+    # FIXME
+    print "Not implemented"
 
 
 ### The End ###
