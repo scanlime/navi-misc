@@ -43,11 +43,15 @@ class Main:
         ''' Remove button callback. '''
         treeview = self.xml.get_widget ("playlist")
         model, iter = treeview.get_selection ().get_selected ()
-        self.playlist.remove (iter)
+        self.playlist.Remove (iter)
 
     def _AddClicked (self, button, data=None):
         ''' Add button callback. '''
-        _FileChooser ()
+        file = _FileChooser ()
+        if file == None:
+            return
+
+        self.playlist.Add (file)
 
     def _NewActivated (self, item, data=None):
         ''' New menu item clicked. '''
@@ -65,20 +69,23 @@ class Main:
         if not self.playlist.saved:
             _SavePrompt ()
 
-        _FileChooser ()
+        file = _FileChooser ()
 
     def _SaveActivated (self, item, data=None):
         ''' Save menu item clicked. '''
         if self.playlist.filename == None:
-            _FileChooser ()
+            file = _FileChooser ()
 
-        self.playlist.Write ()
+        self.playlist.Write (file)
 
     def _SaveAsActivated (self, item, data=None):
         ''' Save As menu item clicked. '''
-        _FileChooser ()
+        file = _FileChooser ()
 
-        self.playlist.Write ()
+        if file == None:
+            return
+
+        self.playlist.Write (file)
 
     def _QuitActivated (self, item, data=None):
         ''' Quit menu item clicked. '''
@@ -113,18 +120,26 @@ class Main:
 
 
 class _FileChooser:
-    def __init__ (self, list):
-        # FIXME
-        print "Not implemented"
+    ''' File selection dialog. '''
+    def __init__ (self):
+        xml = gtk.glade.XML ("data/filechooser.glade")
+        dialog = xml.get_widget ("filechooserdialog")
+        response = dialog.run ()
 
+        if response == gtk.RESPONSE_OK:
+            return dialog.filename
+
+        return None
 
 class _SavePrompt:
+    ''' Prompts the user to save before closing the current document. '''
     def __init__ (self):
         # FIXME
         print "Not implemented"
 
 
 class _AboutBox:
+    ''' Represents the about dialog. '''
     def __init__ (self):
         # FIXME
         print "Not implemented"
