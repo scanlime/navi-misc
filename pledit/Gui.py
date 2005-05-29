@@ -140,7 +140,10 @@ def _FileChooser ():
     file = dialog.get_filename ()
     dialog.destroy ()
 
-    return file
+    if response == gtk.RESPONSE_OK:
+        return file
+
+    return None
 
 def _CloseDialog (doc):
     ''' Prompts the user to save before closing the current document. '''
@@ -165,11 +168,13 @@ def _CloseDialog (doc):
 def _ErrDialog (primary, secondary=""):
     ''' A generic error dialog box. '''
     xml = gtk.glade.XML ("data/errordialog.glade")
-
+    dialog = xml.get_widget ("error dialog")
     msg = "<b>%s</b>\n\n%s" % (primary, secondary)
-    xml.get_widget ("text").label = msg
+    lbl = xml.get_widget ("err msg")
+    lbl.set_label (msg)
 
-    return xml.get_widget ("error dialog").run ()
+    dialog.run ()
+    dialog.destroy ()
 
 
 def _AboutBox ():
