@@ -70,6 +70,10 @@ class Main:
             _SavePrompt ()
 
         file = _FileChooser ()
+        self.playlist = Playlist.m3u (file)
+
+        treeview = self.xml.get_widget ("playlist")
+        treeview.set_model (self.playlist.list)
 
     def _SaveActivated (self, item, data=None):
         ''' Save menu item clicked. '''

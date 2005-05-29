@@ -1,4 +1,7 @@
-'''
+''' Playlist.py
+
+Classes for creating playlists in various formats. Currently only m3u is
+supported.
 '''
 
 # Copyright (C) 2005 W. Evan Sheehan
@@ -16,6 +19,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+
+import gtk
+
+class m3u:
+    ''' Class that represents an m3u playlist. '''
+    def __init__ (self, file=None):
+        self.list = gtk.ListStore (gtk.STRING_TYPE)
+
+    def Add (self, filename):
+        # FIXME
+        pass
+
+    def Remove (self, iterator):
+        # FIXME
+        pass
 
 
 ### The End ###
