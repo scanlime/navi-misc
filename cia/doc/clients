@@ -45,6 +45,9 @@ only supports email, and provides no way to include branch or module information
 script written in Python, ciabot_svn.py_, uses XML-RPC via Python's standard xmlrpclib module and
 supports regular expressions for extracting module and branch information from paths.
 
+Andre Malo's spiffy svnmailer_ package is a tool that can post commit
+information to a variety of services, including mail, news, and CIA.
+
 .. _ciabot_svn.py: /clients/svn/ciabot_svn.py
 .. _ciabot_svn.sh: /clients/svn/ciabot_svn.sh
-
+.. _svnmailer: http://opensource.perlig.de/svnmailer/
