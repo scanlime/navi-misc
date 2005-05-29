@@ -58,7 +58,7 @@ class Main:
         treeview = self.xml.get_widget ("playlist")
         # Replace the old playlist with the new
         if not self.playlist.saved:
-            _SavePrompt ()
+            _CloseDialog ()
 
         self.playlist = Playlist.m3u ()
 
@@ -67,7 +67,7 @@ class Main:
     def _OpenActivate (self, item, data=None):
         ''' Open menu item clicked. '''
         if not self.playlist.saved:
-            _SavePrompt ()
+            _CloseDialog ()
 
         file = _FileChooser ()
         self.playlist = Playlist.m3u (file)
@@ -94,7 +94,7 @@ class Main:
     def _QuitActivated (self, item, data=None):
         ''' Quit menu item clicked. '''
         if not self.playlist.saved:
-            _SavePrompt ()
+            _CloseDialog ()
 
         gtk.main_quit ()
 
@@ -137,9 +137,23 @@ class _FileChooser:
 
 class _CloseDialog:
     ''' Prompts the user to save before closing the current document. '''
-    def __init__ (self, file):
-        # FIXME
-        print "Not implemented"
+    def __init__ (self, doc):
+        xml = gtk.glade.XML ("data/closedialog.glade")
+        if file != None:
+            text = xml.get_widget ("dialog text")
+            text.label = '<b>Save changes to playlist "' + doc.file + '"before closing?</b>\n\nThe playlist has unsaved changes, do you wish to quit anyway?'
+
+        dialog = xml.get_widget ("close dialog")
+        response = dialog.run ()
+
+        if response = gtk.RESPONSE_YES:
+            if doc.file == None:
+                doc.file = _FileChooser ()
+
+            doc.Write ()
+            return gtk.RESPONSE_CLOSE
+
+        return response
 
 
 class _AboutBox:
