@@ -20,54 +20,71 @@ GUI for pledit.
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 import pygtk, gtk, gtk.glade
+import Playlist
 
 class Main:
     def __init__ (self):
-        window = gtk.glade.XML ("pledit.glade")
-        playlist = window.get_widget ("playlist")
+        self.xml = gtk.glade.XML ("pledit.glade")
+        self.playlist = Playlist.m3u ()
+        treeview = self.xml.get_widget ("playlist")
 
-        # Create a ListStore for the playlist and add it to the TreeView.
-        self.songList = gtk.ListStore (gobject.TYPE_STRING,
-                                       gobject.TYPE_INT,
-                                       gobject.TYPE_STRING)
-        playlist.set_model (self.songList)
+        treeview.set_model (self.playlist.list)
 
         # Make a column that displays the desired track info for the playlist.
         cell = gtk.CellRendererText ()
         cell.mode = gtk.CELL_RENDERER_MODE_EDITABLE
         col = gtk.TreeViewColumn ("Track", cell, text=0)
-        playlist.append_column (col)
+        treeview.append_column (col)
 
         # Connect to all our signals.
-        window.signal_autoconnect (self)
+        self.xml.signal_autoconnect (self)
 
     def _RemoveClicked (self, button, data=None):
         ''' Remove button callback. '''
-        print "remove"
+        treeview = self.xml.get_widget ("playlist")
+        model, iter = treeview.get_selection ().get_selected ()
+        self.playlist.remove (iter)
 
     def _AddClicked (self, button, data=None):
         ''' Add button callback. '''
-        SongChooser (self.songList)
+        _FileChooser ()
 
     def _NewActivated (self, item, data=None):
         ''' New menu item clicked. '''
-        pass
+        treeview = self.xml.get_widget ("playlist")
+        # Replace the old playlist with the new
+        if not self.playlist.saved:
+            _SavePrompt ()
+
+        self.playlist = Playlist.m3u ()
+
+        treeview.set_model (self.playlist.list)
 
     def _OpenActivate (self, item, data=None):
         ''' Open menu item clicked. '''
-        pass
+        if not self.playlist.saved:
+            _SavePrompt ()
+
+        _FileChooser ()
 
     def _SaveActivated (self, item, data=None):
         ''' Save menu item clicked. '''
-        pass
+        if self.playlist.filename == None:
+            _FileChooser ()
+
+        self.playlist.Write ()
 
     def _SaveAsActivated (self, item, data=None):
         ''' Save As menu item clicked. '''
-        pass
+        _FileChooser ()
+
+        self.playlist.Write ()
 
     def _QuitActivated (self, item, data=None):
         ''' Quit menu item clicked. '''
-        # FIXME Check if the playlist has been saved, if not prompt.
+        if not self.playlist.saved:
+            _SavePrompt ()
+
         gtk.main_quit ()
 
     def _CutActivated (self, item, data=None):
@@ -95,14 +112,22 @@ class Main:
         gtk.main_quit ()
 
 
-class SongChooser:
+class _FileChooser:
     def __init__ (self, list):
-        pass
+        # FIXME
+        print "Not implemented"
 
 
-class AboutBox:
+class _SavePrompt:
     def __init__ (self):
-        pass
+        # FIXME
+        print "Not implemented"
+
+
+class _AboutBox:
+    def __init__ (self):
+        # FIXME
+        print "Not implemented"
 
 
 ### The End ###
