@@ -51,7 +51,11 @@ class Main:
         if file == None:
             return
 
-        self.playlist.Add (file)
+        try:
+            self.playlist.Add (file)
+        except KeyError:
+            _ErrDialog ("Unknown File Type", "%s has an unsupported file type."
+                    % (file))
 
     def _NewActivated (self, item, data=None):
         ''' New menu item clicked. '''
@@ -156,6 +160,13 @@ class _CloseDialog:
             return gtk.RESPONSE_CLOSE
 
         return response
+
+
+class _ErrDialog:
+    ''' A generic error dialog box. '''
+    def __init__ (self, primary, secondary=""):
+        # FIXME
+        print "Not implemented"
 
 
 class _AboutBox:
