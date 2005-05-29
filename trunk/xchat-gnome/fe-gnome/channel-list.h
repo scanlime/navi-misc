@@ -31,6 +31,10 @@ typedef struct
 	GtkTreeModelSort *sort;
 	GladeXML *xml;
 	struct server *server;
+
+	int minimum, maximum;
+	char *text_filter;
+	gboolean filter_topic, filter_name;
 } channel_list_window;
 
 gboolean channel_list_exists (server *serv);

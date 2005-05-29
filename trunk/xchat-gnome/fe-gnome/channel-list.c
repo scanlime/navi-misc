@@ -26,6 +26,11 @@
 
 static GSList *chanlists = NULL;
 
+static gboolean
+chanlist_filter (GtkTreeModel *model, GtkTreeIter *iter, channel_list_window *window)
+{
+}
+
 static gint
 chanlist_compare_p (gconstpointer a, gconstpointer b, gpointer data)
 {
