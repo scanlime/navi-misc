@@ -19,6 +19,16 @@
 
 import gobject
 
+
+def Factory (filename):
+    ''' A MusicFile factory that creates an object representing the file given
+        by filename of the appropriate type. If the filetype is unknown it
+        throws an exception.
+        '''
+    # FIXME
+    pass
+
+
 class File (gobject.GObject):
     def __init__ (self):
         gobject.GObject.__init__ (self)
