@@ -21,18 +21,23 @@ supported.
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-import gtk
+import gtk, MusicFile
 
 class m3u:
     ''' Class that represents an m3u playlist. '''
     def __init__ (self, file=None):
-        self.list = gtk.ListStore (gtk.STRING_TYPE)
+        self.list = gtk.ListStore (gtk.STRING_TYPE, MusicFile.File)
+        self.saved = True
 
     def Add (self, filename):
         # FIXME
         pass
 
     def Remove (self, iterator):
+        # FIXME
+        pass
+
+    def Write (self, filename=None):
         # FIXME
         pass
 
