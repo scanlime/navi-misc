@@ -23,17 +23,38 @@ supported.
 
 import gtk, gobject, MusicFile
 
-class m3u:
+
+class IPlaylist:
+    ''' Playlist interface. All playlists should impelement this. '''
+    def __init__ (self, file=None):
+        self.file = file
+        if file:
+            self.Open (file)
+
+    def Add (self, filename):
+        pass
+
+    def Remove (self, iterator):
+        pass
+
+    def Write (self, filename=None):
+        pass
+
+    def Open (self, filename):
+        pass
+
+
+class m3u (IPlaylist):
     ''' Class that represents an m3u playlist. '''
     def __init__ (self, file=None):
         self.list = gtk.ListStore (gobject.TYPE_STRING, MusicFile.File)
         self.saved = True
-        self.file = None
+        self.file = file
         self.format = "%t - %a - %p"
 
     def Add (self, filename):
         f = MusicFile.Factory (filename)
-        title = f.formatString (self.format)
+        title = f.toString (self.format)
         self.list.set (self.list.append (), 0, title, f)
 
     def Remove (self, iterator):
