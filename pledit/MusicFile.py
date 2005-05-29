@@ -19,14 +19,19 @@
 
 import gobject, re
 
+# A dictionary of the supported file types mapping the file extension to a
+# class.
+_supported = { "ogg" : Ogg,
+               "mp3" : Mp3
+             }
 
 def Factory (filename):
     ''' A MusicFile factory that creates an object representing the file given
         by filename of the appropriate type. If the filetype is unknown it
         throws an exception.
         '''
-    # FIXME
-    pass
+    type = re.compile ("/[\w\.\-/]+\.(\w{3})").match (filename).group(1)
+    return _supported[type] (filename)
 
 
 class _File (gobject.GObject):
@@ -36,19 +41,22 @@ class _File (gobject.GObject):
 
     def toString (self, format):
         ''' Create a string representing the file using format. '''
-        # FIXME
-        pass
+        s = re.sub ("%a", format, self.album)
+        s = re.sub ("%p", s, self.artist)
+        s = re.sub ("%t", s, self.title)
+
+        return s
 
 
 class Ogg (_File):
     ''' Class representing an ogg file. '''
-    def __init__ (self):
+    def __init__ (self, file):
         _File.__init__ (self)
 
 
 class Mp3 (_File):
     ''' Class representing an mp3 file. '''
-    def __init__ (self):
+    def __init__ (self, file):
         _File.__init__ (self)
 
 
