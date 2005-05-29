@@ -21,8 +21,9 @@ import gobject, re
 
 class _File (gobject.GObject):
     ''' A generic music file class. '''
-    def __init__ (self):
+    def __init__ (self, file):
         gobject.GObject.__init__ (self)
+        self.filename = file
 
     def toString (self, format):
         ''' Create a string representing the file using format. '''
@@ -36,13 +37,13 @@ class _File (gobject.GObject):
 class Ogg (_File):
     ''' Class representing an ogg file. '''
     def __init__ (self, file):
-        _File.__init__ (self)
+        _File.__init__ (self, file)
 
 
 class Mp3 (_File):
     ''' Class representing an mp3 file. '''
     def __init__ (self, file):
-        _File.__init__ (self)
+        _File.__init__ (self, file)
 
 
 # A dictionary of the supported file types mapping the file extension to a

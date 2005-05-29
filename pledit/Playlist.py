@@ -54,8 +54,8 @@ class m3u (IPlaylist):
 
     def Add (self, filename):
         f = MusicFile.Factory (filename)
-        title = f.toString (self.format)
-        self.list.set (self.list.append (), 0, title, f)
+        #title = f.toString (self.format)
+        self.list.set (self.list.append (), 0, filename, 1, f)
 
     def Remove (self, iterator):
         self.list.remove (iterator)
