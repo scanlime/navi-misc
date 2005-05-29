@@ -137,12 +137,10 @@ def _FileChooser ():
     dialog = xml.get_widget ("filechooserdialog")
     response = dialog.run ()
 
+    file = dialog.get_filename ()
     dialog.destroy ()
 
-    if response == gtk.RESPONSE_OK:
-        return dialog.get_filename ()
-
-    return None
+    return file
 
 def _CloseDialog (doc):
     ''' Prompts the user to save before closing the current document. '''
