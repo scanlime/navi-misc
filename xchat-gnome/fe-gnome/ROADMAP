@@ -14,7 +14,6 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 	possible, keeping pointers to widgets - remove most
 	of the calls to glade_xml_get_widget(), free GladeXML
 	data asap to reduce footprint
--	Refactor for multiple conversation windows
 
 0.7:
 -	User documentation!
@@ -25,6 +24,7 @@ undetermined:
 -	Make URLs in xtext show up as blue (gconf configurable color?)
 -	Make text surrounded by asterisks show up as bold, text
 	surrouned by underscores show up as underlined, etc
+-	Refactor for multiple conversation windows?
 
 when releasing:
 -	Check to make sure changelog is complete
