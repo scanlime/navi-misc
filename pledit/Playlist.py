@@ -47,10 +47,10 @@ class IPlaylist:
 class m3u (IPlaylist):
     ''' Class that represents an m3u playlist. '''
     def __init__ (self, file=None):
-        self.list = gtk.ListStore (gobject.TYPE_STRING, MusicFile.File)
+        self.list = gtk.ListStore (gobject.TYPE_STRING, MusicFile._File)
         self.saved = True
-        self.file = file
         self.format = "%t - %a - %p"
+        IPlaylist.__init__ (self, file)
 
     def Add (self, filename):
         f = MusicFile.Factory (filename)
