@@ -17,7 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-import gobject
+import gobject, re
 
 
 def Factory (filename):
@@ -29,19 +29,27 @@ def Factory (filename):
     pass
 
 
-class File (gobject.GObject):
+class _File (gobject.GObject):
+    ''' A generic music file class. '''
     def __init__ (self):
         gobject.GObject.__init__ (self)
 
+    def toString (self, format):
+        ''' Create a string representing the file using format. '''
+        # FIXME
+        pass
 
-class Ogg (File):
+
+class Ogg (_File):
+    ''' Class representing an ogg file. '''
     def __init__ (self):
-        gobject.GObject.__init__ (self)
+        _File.__init__ (self)
 
 
-class Mp3 (File):
+class Mp3 (_File):
+    ''' Class representing an mp3 file. '''
     def __init__ (self):
-        gobject.GObject.__init__ (self)
+        _File.__init__ (self)
 
 
 
