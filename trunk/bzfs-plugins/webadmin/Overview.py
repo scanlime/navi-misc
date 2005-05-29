@@ -24,4 +24,8 @@ import Template
 import BZFlag
 
 class OverviewPage (Template.Page):
-    mainTitle = 'BZFS server at %s' % BZFlag.GetPublicAddr ()
+    def __init__ (self):
+        if BZFlag.GetPublic ():
+            self.mainTitle = 'BZFS server at %s' % BZFlag.GetPublicAddr ()
+        else:
+            self.mainTitle = 'BZFS server'

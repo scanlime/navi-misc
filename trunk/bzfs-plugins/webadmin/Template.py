@@ -34,26 +34,32 @@ class Page (Nouvelle.Twisted.Page):
     siteName = ''
     extraHeaders = []
 
+    site_bottomOfFooter = []
+
     document = [
         xml ('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" '
             '"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n'),
         tag ('html', xmlns="http://www.w3.org/1999/xhtml")[
             tag ('head')[
-                xml('<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />'),
-                tag('title')[ place("pageTitle") ],
-                place('baseTag'),
-                tag('link', rel='stylesheet', href='/default.css', type='text/css'),
-                place('extraHeaders'),
+                xml ('<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />'),
+                tag ('title')[ place ("pageTitle") ],
+                place ('baseTag'),
+                tag ('link', rel='stylesheet', href='/default.css', type='text/css'),
+                place ('extraHeaders'),
+                ],
+            tag ('body')[
+                tag ('div', _class='heading'),
+                place ('site_bottomOfFooter'),
+                ],
             ],
-        ],
-    ]
+        ]
 
     def render_pageTitle(self, context):
         # Wait for the title and site name to resolve into strings so we can mess with them a bit more
-        result = defer.Deferred()
-        defer.gatherResults([
-            defer.maybeDeferred(self.render_mainTitle, context),
-            defer.maybeDeferred(self.render_siteName, context),
+        result = defer.Deferred ()
+        defer.gatherResults ([
+            defer.maybeDeferred (self.render_mainTitle, context),
+            defer.maybeDeferred (self.render_siteName, context),
         ]).addCallback (self._render_pageTitle, context, result).addErrback (result.errback)
         return result
 
@@ -61,11 +67,11 @@ class Page (Nouvelle.Twisted.Page):
         # Now that the title and site name have fully resolved, we can apply some heuristics...
         title, siteName = titleAndSite
 
-        if type(title) in types.StringTypes and type(siteName) in types.StringTypes:
+        if type (title) in types.StringTypes and type (siteName) in types.StringTypes:
             # The title and site are plain strings. If it starts with or ends with the site name,
             # just use it as-is to avoid being overly redundant.
-            if title == siteName or title.startswith(siteName + " ") or title.endswith(" " + siteName):
-                result.callback(title)
+            if title == siteName or title.startswith (siteName + ' ') or title.endswith (' ' + siteName):
+                result.callback (title)
                 return
 
         # Otherwise, stick the title and site name together
