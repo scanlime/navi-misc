@@ -28,14 +28,16 @@ class m3u:
     def __init__ (self, file=None):
         self.list = gtk.ListStore (gobject.TYPE_STRING, MusicFile.File)
         self.saved = True
+        self.file = None
+        self.format = "%t - %a - %p"
 
     def Add (self, filename):
-        # FIXME
-        pass
+        f = MusicFile.Factory (filename)
+        title = f.formatString (self.format)
+        self.list.set (self.list.append (), 0, title, f)
 
     def Remove (self, iterator):
-        # FIXME
-        pass
+        self.list.remove (iterator)
 
     def Write (self, filename=None):
         # FIXME
