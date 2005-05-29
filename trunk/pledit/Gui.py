@@ -135,9 +135,9 @@ class _FileChooser:
 
         return None
 
-class _SavePrompt:
+class _CloseDialog:
     ''' Prompts the user to save before closing the current document. '''
-    def __init__ (self):
+    def __init__ (self, file):
         # FIXME
         print "Not implemented"
 
