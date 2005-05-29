@@ -24,29 +24,30 @@ import pygtk, gtk, gtk.glade
 class Main:
     def __init__ (self):
         window = gtk.glade.XML ("pledit.glade")
+        playlist = window.get_widget ("playlist")
 
-        # FIXME Should store the ListStore.
+        # Create a ListStore for the playlist and add it to the TreeView.
+        self.songList = gtk.ListStore (gobject.TYPE_STRING,
+                                       gobject.TYPE_INT,
+                                       gobject.TYPE_STRING)
+        playlist.set_model (self.songList)
 
+        # Make a column that displays the desired track info for the playlist.
+        cell = gtk.CellRendererText ()
+        cell.mode = gtk.CELL_RENDERER_MODE_EDITABLE
+        col = gtk.TreeViewColumn ("Track", cell, text=0)
+        playlist.append_column (col)
+
+        # Connect to all our signals.
         window.signal_autoconnect (self)
-        #callbacks = { "on_remove_clicked" : self._RemoveClicked,
-                      #"on_add_clicked"    : self._AddClicked,
-                      #"on_new_activate"   : self._NewActivated,
-                      #"on_open_activate"  : self._OpenActivated,
-                      #"on_save_actiavte"  : self._SaveActivated,
-                      #"on_save_as_activate" : self._SaveAsActivated,
-                      #"on_quit_activate"    : self._QuitActivated,
-                      #"on_cut_activate"     : self._CutActivated,
-                      #"on_copy_activate"    : self._CopyActivated,
-                      #"on_paste_activate"   : self._PasteActivated,
 
     def _RemoveClicked (self, button, data=None):
         ''' Remove button callback. '''
         print "remove"
-        pass
 
     def _AddClicked (self, button, data=None):
         ''' Add button callback. '''
-        pass
+        SongChooser (self.songList)
 
     def _NewActivated (self, item, data=None):
         ''' New menu item clicked. '''
@@ -92,6 +93,17 @@ class Main:
     def _Delete (self, widget, event, data=None):
         ''' Bye bye. '''
         gtk.main_quit ()
+
+
+class SongChooser:
+    def __init__ (self, list):
+        pass
+
+
+class AboutBox:
+    def __init__ (self):
+        pass
+
 
 ### The End ###
 # vim:ts=4:sw=4:et:tw=80
