@@ -41,7 +41,8 @@ class Page:
         del kwargs['req']
         context = dict(owner=self, request=request, args=kwargs)
         self.preRender(context)
-        return self.render(context)
+        self.render(context)
+        return " "
 
     def handler(self, req):
         """Implement a standalone request handler. This can handle child requests
