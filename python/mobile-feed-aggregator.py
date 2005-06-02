@@ -4,7 +4,7 @@
 #
 
 import feedparser, time, Nouvelle
-import urllib, os, shelve
+import urllib, os, shelve, calendar
 from Nouvelle import tag, place, xml, ModPython
 from mod_python import apache
 
@@ -30,7 +30,7 @@ class Entry:
         except AttributeError:
             self.title = "Untitled"
         self.content = xml(unicode(data.summary).encode("utf-8"))
-        self.date = time.mktime(data.modified_parsed)
+        self.date = data.modified_parsed
 
         # Create a globally unique ID for this post
         # FIXME
@@ -38,7 +38,7 @@ class Entry:
 
     def __cmp__(self, other):
         """Reverse-temporal sort"""
-        return other.date - self.date
+        return cmp(other.date, self.date)
 
 class FeedCache:
     lifetime = 60 * 30
@@ -64,20 +64,24 @@ class Feed:
             defaultFeedCache.data[url] = self.xml
 
 def formatDate(t):
-    local = time.localtime(t)
+    # Convert from GMT to local time
+    t = time.localtime(calendar.timegm(t))
+
+    timeString = "%02d:%02d" % (t.tm_hour, t.tm_min)
+
+    # Try to use a more meaningful name for the date
     now = time.localtime(time.time())
-    timeString = "%02d:%02d" % (local.tm_hour, local.tm_min)
-    if local.tm_year == now.tm_year:
-        if local.tm_yday == now.tm_yday:
+    if t.tm_year == now.tm_year:
+        if t.tm_yday == now.tm_yday:
             dateString = "Today"
-        elif local.tm_yday == now.tm_yday - 1:
+        elif t.tm_yday == now.tm_yday - 1:
             dateString = "Yesterday"
-        elif now.tm_yday - local.tm_yday < 7:
-            dateString = time.strftime("%A", local)
+        elif now.tm_yday - t.tm_yday < 7:
+            dateString = time.strftime("%A", t)
         else:
-            dateString = time.strftime("%b %d", local)
+            dateString = time.strftime("%b %d", t)
     else:
-        dateString = time.strftime("%b %d", local)
+        dateString = time.strftime("%b %d", t)
 
     return "%s %s" % (timeString, dateString)
 
