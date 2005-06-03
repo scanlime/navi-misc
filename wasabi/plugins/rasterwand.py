@@ -97,7 +97,7 @@ class RasterBargraph:
     """An interface to the Rasterwand display that draws 1-D arrays of
        data as collections of bars with varying heights.
        """
-    def __init__(self, device="/dev/usb/rwand0"):
+    def __init__(self, device="/dev/rwand0"):
         self.fd = os.open(device, os.O_WRONLY)
         self.bars = 255 - ((1 << arange(8, -1, -1)) - 1)
 

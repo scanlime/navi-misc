@@ -54,7 +54,7 @@ class VideoSwitch:
     def __init__(self, device=None, reset=True):
         self.savedAudioBalance = 0.5
         if device is None:
-            device = "/dev/usb/uvswitch0"
+            device = "/dev/uvswitch0"
         self.device = device
         if reset:
             self.reset()
