@@ -193,7 +193,7 @@ class Device:
     """Container for all hardware reachable through the mi6k interface.
        Device is a pattern to search for the device node with.
        """
-    def __init__(self, devPattern="/dev/mi6k*"):
+    def __init__(self, devPattern="/dev/usb/mi6k*"):
         devs = glob.glob(devPattern)
         if not devs:
             raise IOError, "No mi6k device found"
