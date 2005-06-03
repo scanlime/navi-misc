@@ -6,13 +6,13 @@ CONFIG_VERSION = 5.15
 
 # Decide whether we're actually running on wasabi by looking for the uvswitch
 import os.path
-have_wasabi_hardware = os.path.exists("/dev/usb/uvswitch0")
+have_wasabi_hardware = os.path.exists("/dev/uvswitch0")
 
 if have_wasabi_hardware:
     START_FULLSCREEN_X  = 1
 
     ROM_DRIVES = [
-	('/mnt/cdrom', '/dev/cdrom', 'DVD'),
+	('/mnt/cdrom', '/dev/cdroms/cdrom0', 'DVD'),
 	]
     HIDE_UNUSABLE_DISCS = 1
     ROM_SPEED = 8
@@ -94,7 +94,7 @@ plugin.activate('games', level=45)
 plugin.remove('tv')
 
 # Add standard plugins we want
-plugin.activate('audio.mplayervis')
+#plugin.activate('audio.mplayervis')
 
 LIRCRC = '/home/freevo/wasabi/lircrc'
 
