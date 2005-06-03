@@ -6,7 +6,7 @@ CONFIG_VERSION = 5.15
 
 # Decide whether we're actually running on wasabi by looking for the uvswitch
 import os.path
-have_wasabi_hardware = os.path.exists("/dev/uvswitch0")
+have_wasabi_hardware = os.path.exists("/dev/usb/uvswitch0")
 
 if have_wasabi_hardware:
     START_FULLSCREEN_X  = 1
@@ -99,7 +99,7 @@ plugin.remove('tv')
 LIRCRC = '/home/freevo/wasabi/lircrc'
 
 # Recognize navi's naming scheme for covers
-AUDIO_COVER_REGEXP = 'folder.jpeg'
+AUDIO_COVER_REGEXP = 'folder'
 
 # Always start up with the wasabi skin
 SKIN_XML_FILE = 'wasabi-calm'
