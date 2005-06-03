@@ -140,7 +140,7 @@ namespace AMC
 		public void
 		FindExtents ()
 		{
-			Frame f = (Frame) frames[0];
+//			Frame f = (Frame) frames[0];
 		}
 	}
 }
