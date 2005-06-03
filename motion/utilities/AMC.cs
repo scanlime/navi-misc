@@ -73,6 +73,7 @@ namespace AMC
 	{
 		System.Collections.ArrayList		comments;
 		public System.Collections.ArrayList	frames;
+		public float[][]			min, max;
 
 		protected
 		File ()
@@ -134,6 +135,12 @@ namespace AMC
 			}
 
 			stream.Close ();
+		}
+
+		public void
+		FindExtents ()
+		{
+			Frame f = (Frame) frames[0];
 		}
 	}
 }
