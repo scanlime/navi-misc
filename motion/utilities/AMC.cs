@@ -140,7 +140,10 @@ namespace AMC
 		public void
 		FindExtents ()
 		{
-//			Frame f = (Frame) frames[0];
+			Frame f = (Frame) frames[0];
+
+			min = new float[f.data.Count] [];
+			max = new float[f.data.Count] [];
 		}
 	}
 }
