@@ -117,7 +117,7 @@ namespace Fyre.Editor
 		{
 			editors.Add (this);
 
-			Glade.XML.SetCustomHandler (new Glade.XMLCustomWidgetHandler (GladeCustomHandler));
+			Glade.XML.CustomHandler = new Glade.XMLCustomWidgetHandler (GladeCustomHandler);
 
 			Glade.XML gxml = new Glade.XML (null, "pipeline-editor.glade", "toplevel", null);
 			gxml.Autoconnect (this);
