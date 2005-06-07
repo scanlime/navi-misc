@@ -114,6 +114,38 @@ chanlist_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 	return FALSE;
 }
 
+static void
+minusers_changed (GtkSpinButton *button, channel_list_window *win)
+{
+	win->minimum = gtk_spin_button_get_value_as_int (button);
+}
+
+static void
+maxusers_changed (GtkSpinButton *button, channel_list_window *win)
+{
+	win->maximum = gtk_spin_button_get_value_as_int (button);
+}
+
+static void
+filter_changed (GtkEntry *entry, channel_list_window *win)
+{
+	if (win->text_filter != NULL)
+		g_free (win->text_filter);
+	win->text_filter = g_strdup (gtk_entry_get_text (entry));
+}
+
+static void
+apply_to_name_changed (GtkToggleButton *button, channel_list_window *win)
+{
+	win->filter_name = gtk_toggle_button_get_active (button);
+}
+
+static void
+apply_to_topic_changed (GtkToggleButton *button, channel_list_window *win)
+{
+	win->filter_topic = gtk_toggle_button_get_active (button);
+}
+
 void
 create_channel_list (session *sess)
 {
@@ -139,6 +171,12 @@ create_channel_list (session *sess)
 
 	win->server = sess->server;
 	win->xml = NULL;
+
+	win->minimum = -1;
+	win->maximum = -1;
+	win->text_filter = NULL;
+	win->filter_topic = FALSE;
+	win->filter_name = TRUE;
 
 	if (g_file_test ("channel-list.glade", G_FILE_TEST_EXISTS))
 		win->xml = glade_xml_new ("channel-list.glade", NULL, NULL);
@@ -213,6 +251,16 @@ create_channel_list (session *sess)
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (chanlist_selected), win);
 
+	widget = glade_xml_get_widget (win->xml, "minimum users");
+	g_signal_connect (G_OBJECT (widget), "value-changed", G_CALLBACK (minusers_changed), win);
+	widget = glade_xml_get_widget (win->xml, "maximum users");
+	g_signal_connect (G_OBJECT (widget), "value-changed", G_CALLBACK (maxusers_changed), win);
+	widget = glade_xml_get_widget (win->xml, "text filter");
+	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (filter_changed), win);
+	widget = glade_xml_get_widget (win->xml, "apply to topic");
+	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (apply_to_topic_changed), win);
+	widget = glade_xml_get_widget (win->xml, "apply to name");
+	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (apply_to_name_changed), win);
 
 	widget = glade_xml_get_widget (win->xml, "window 1");
 	width = gnome_config_get_int_with_default ("/xchat-gnome/channel_list/width", 0);
