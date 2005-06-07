@@ -147,7 +147,6 @@
 			  <child>
 			    <widget class="GtkSpinButton" id="minimum users">
 			      <property name="visible">True</property>
-			      <property name="sensitive">False</property>
 			      <property name="can_focus">True</property>
 			      <property name="climb_rate">1</property>
 			      <property name="digits">0</property>
@@ -201,7 +200,6 @@
 			  <child>
 			    <widget class="GtkSpinButton" id="maximum users">
 			      <property name="visible">True</property>
-			      <property name="sensitive">False</property>
 			      <property name="can_focus">True</property>
 			      <property name="climb_rate">1</property>
 			      <property name="digits">0</property>
@@ -255,7 +253,6 @@
 			  <child>
 			    <widget class="GtkEntry" id="text filter">
 			      <property name="visible">True</property>
-			      <property name="sensitive">False</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
 			      <property name="visibility">True</property>
@@ -315,7 +312,6 @@
 			      <child>
 				<widget class="GtkCheckButton" id="apply to topic">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Channel _Topic</property>
 				  <property name="use_underline">True</property>
@@ -335,7 +331,6 @@
 			      <child>
 				<widget class="GtkCheckButton" id="apply to name">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">Channel _Name</property>
 				  <property name="use_underline">True</property>
