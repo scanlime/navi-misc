@@ -92,18 +92,40 @@ class Input : Fyre.Element
 		category.Show ();
 		box.PackStart (category, false, true, 0);
 
+		Gtk.HBox h = new Gtk.HBox (false, 12);
+		Gtk.Label l = new Gtk.Label ();
 		Gtk.ComboBox b = Gtk.ComboBox.NewText ();
 		b.AppendText ("Int");
 		b.AppendText ("Float");
 		b.AppendText ("Boolean");
 		b.AppendText ("Color");
 		// FIXME - add some typical matrix inputs?
-		Gtk.HBox h = new Gtk.HBox (false, 12);
-		Gtk.Label l = new Gtk.Label ();
 		h.PackStart (l, false, false, 0);
 		h.PackStart (b, false, true, 0);
-		box.PackStart (h, false, true, 0);
 		h.ShowAll ();
+		box.PackStart (h, false, true, 0);
+
+		category = new Gtk.Label();
+		category.Xalign = 0.0f;
+		category.Markup = "<b>Bounds</b>";
+		category.Show ();
+		box.PackStart (category, false, true, 0);
+
+		// integer bounds
+		h = new Gtk.HBox (false, 12);
+		l = new Gtk.Label ();
+		Gtk.Table t = new Gtk.Table (2, 2, false);
+		t.Attach (new Gtk.Label ("Lower:"), 0, 1, 0, 1);
+		t.Attach (new Gtk.Label ("Upper:"), 0, 1, 1, 2);
+		t.Attach (new Gtk.SpinButton (-1000f, 1000f, 1f), 1, 2, 0, 1);
+		t.Attach (new Gtk.SpinButton (-1000f, 1000f, 1f), 1, 2, 1, 2);
+		t.RowSpacing = 6;
+		t.ColumnSpacing = 6;
+		h.PackStart (l, false, false, 0);
+		h.PackStart (t, false, true, 0);
+		h.ShowAll ();
+		box.PackStart (h, false, true, 0);
+
 
 		// FIXME - add type-specific information.
 
