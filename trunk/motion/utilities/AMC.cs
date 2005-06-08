@@ -144,6 +144,29 @@ namespace AMC
 
 			min = new float[f.data.Count] [];
 			max = new float[f.data.Count] [];
+
+			for (int i = 0; i < f.data.Count; i++) {
+				float[] bone = (float[]) f.data[i];
+				min[i] = new float[bone.Length];
+				max[i] = new float[bone.Length];
+				for (int j = 0; j < bone.Length; j++) {
+					min[i][j] = bone[j];
+					max[i][j] = bone[j];
+				}
+			}
+
+			// run through all the frames, finding bounds
+			// FIXME - this should probably happen during import, instead of
+			// a second pass
+			foreach (Frame frame in frames) {
+				for (int i = 0; i < frame.data.Count; i++) {
+					float[] bone = (float[]) frame.data[i];
+					for (int j = 0; j < bone.Length; j++) {
+						if (bone[j] < min[i][j]) min[i][j] = bone[j];
+						if (bone[j] > max[i][j]) max[i][j] = bone[j];
+					}
+				}
+			}
 		}
 	}
 }
