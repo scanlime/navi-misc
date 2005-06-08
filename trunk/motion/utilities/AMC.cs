@@ -37,6 +37,11 @@ namespace AMC
 			string name = tokens[0];
 
 			// hack to take care of trailing space
+			// FIXME - this isn't really very robust. The AMC file doesn't make any
+			// requirements about whitespace, so if there's a lot of it in weird
+			// places, this breaks horribly. One possibility for solving this is to
+			// use ArrayLists, but move over to the generics compiler, so we don't
+			// run into huge boxing overhead
 			if (tokens[tokens.Length - 1].Length == 0) {
 				float[] values = new float[tokens.Length - 2];
 				for (int i = 0; i < tokens.Length - 2; i++)
