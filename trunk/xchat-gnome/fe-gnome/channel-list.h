@@ -28,6 +28,7 @@
 typedef struct
 {
 	GtkListStore *store;
+	GtkTreeModel *filter;
 	GtkTreeModelSort *sort;
 	GladeXML *xml;
 	struct server *server;

@@ -19,6 +19,8 @@
  *
  */
 
+#define _GNU_SOURCE
+#include <string.h>
 #include <gnome.h>
 #include "channel-list.h"
 #include "../common/xchat.h"
@@ -29,6 +31,40 @@ static GSList *chanlists = NULL;
 static gboolean
 chanlist_filter (GtkTreeModel *model, GtkTreeIter *iter, channel_list_window *window)
 {
+	char *name, *topic;
+	int users;
+
+	/* FIXME */
+	return TRUE;
+
+	gtk_tree_model_get (model, iter, 0, &name, 2, &topic, 4, &users, -1);
+
+	if (window->filter_name && name == NULL)
+		return TRUE;
+	if (window->filter_topic && topic == NULL)
+		return TRUE;
+
+	/* filter number of users first, since it's fast */
+	if (users < window->minimum)
+		return FALSE;
+	if (window->maximum > 0 && users > window->maximum)
+		return FALSE;
+
+	if (!(window->filter_topic || window->filter_name))
+		return FALSE;
+
+	if ((window->text_filter == NULL) || (strlen (window->text_filter) == 0))
+		return FALSE;
+
+	char *found_topic = NULL, *found_name = NULL;
+
+	if (window->filter_topic)
+		found_topic = strcasestr (topic, window->text_filter);
+
+	if (window->filter_name)
+		found_name = strcasestr (name, window->text_filter);
+
+	return (found_name || found_topic);
 }
 
 static gint
@@ -63,11 +99,12 @@ static void
 chanlist_refresh (GtkWidget *button, channel_list_window *win)
 {
 	GtkWidget *treeview;
-	GtkTreeModel *model, *store;
+	GtkTreeModel *model, *store, *filter;
 
 	treeview = glade_xml_get_widget (win->xml, "channel list");
-	model = gtk_tree_view_get_model (GTK_TREE_VIEW(treeview));
-	store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT(model));
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+	filter = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
+	store = gtk_tree_model_filter_get_model (GTK_TREE_MODEL_FILTER (filter));
 	gtk_list_store_clear (GTK_LIST_STORE (store));
 	win->server->p_list_channels (win->server, "");
 }
@@ -118,12 +155,14 @@ static void
 minusers_changed (GtkSpinButton *button, channel_list_window *win)
 {
 	win->minimum = gtk_spin_button_get_value_as_int (button);
+	gtk_tree_model_filter_refilter (win->filter);
 }
 
 static void
 maxusers_changed (GtkSpinButton *button, channel_list_window *win)
 {
 	win->maximum = gtk_spin_button_get_value_as_int (button);
+	gtk_tree_model_filter_refilter (win->filter);
 }
 
 static void
@@ -132,18 +171,21 @@ filter_changed (GtkEntry *entry, channel_list_window *win)
 	if (win->text_filter != NULL)
 		g_free (win->text_filter);
 	win->text_filter = g_strdup (gtk_entry_get_text (entry));
+	gtk_tree_model_filter_refilter (win->filter);
 }
 
 static void
 apply_to_name_changed (GtkToggleButton *button, channel_list_window *win)
 {
 	win->filter_name = gtk_toggle_button_get_active (button);
+	gtk_tree_model_filter_refilter (win->filter);
 }
 
 static void
 apply_to_topic_changed (GtkToggleButton *button, channel_list_window *win)
 {
 	win->filter_topic = gtk_toggle_button_get_active (button);
+	gtk_tree_model_filter_refilter (win->filter);
 }
 
 void
@@ -172,8 +214,8 @@ create_channel_list (session *sess)
 	win->server = sess->server;
 	win->xml = NULL;
 
-	win->minimum = -1;
-	win->maximum = -1;
+	win->minimum = 1;
+	win->maximum = 0;
 	win->text_filter = NULL;
 	win->filter_topic = FALSE;
 	win->filter_name = TRUE;
@@ -204,8 +246,11 @@ create_channel_list (session *sess)
 	gtk_widget_set_sensitive (widget, FALSE);
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (chanlist_join), win);
 
+	/*                                  channel name,  n-users,       topic,         server,         users */
 	win->store = gtk_list_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_INT);
-	win->sort = GTK_TREE_MODEL_SORT (gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (win->store)));
+	win->filter = gtk_tree_model_filter_new (GTK_TREE_MODEL (win->store), NULL);
+	/* gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (win->filter), (GtkTreeModelFilterVisibleFunc) chanlist_filter, win, NULL); */
+	win->sort = GTK_TREE_MODEL_SORT (gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (win->filter)));
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeview), GTK_TREE_MODEL (win->sort));
 	gtk_tree_view_set_headers_clickable (GTK_TREE_VIEW (treeview), TRUE);
 
@@ -281,6 +326,7 @@ channel_list_append (server *serv, char *channel, char *users, char *topic)
 	GtkWidget *treeview;
 	GtkListStore *store;
 	GtkTreeModelSort *sort;
+	GtkTreeModelFilter *filter;
 	GtkTreeIter iter;
 	GSList *element;
 	channel_list_window *win;
@@ -293,7 +339,8 @@ channel_list_append (server *serv, char *channel, char *users, char *topic)
 	win = element->data;
 	treeview = glade_xml_get_widget (win->xml, "channel list");
 	sort = GTK_TREE_MODEL_SORT (gtk_tree_view_get_model (GTK_TREE_VIEW (treeview)));
-	store = GTK_LIST_STORE (gtk_tree_model_sort_get_model (sort));
+	filter = GTK_TREE_MODEL_FILTER (gtk_tree_model_sort_get_model (sort));
+	store = GTK_LIST_STORE (gtk_tree_model_filter_get_model (filter));
 
 	nusers = atoi (users);
 
