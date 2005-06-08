@@ -925,11 +925,11 @@ navigation_selection_changed (GtkTreeSelection * treeselection, gpointer user_da
 	/* Set tgui to the gui of the new session. */
 	tgui = (session_gui *) sess->gui;
 	if (tgui) {
-	    /* Show the xtext buffer for the session. */
-	    gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
-
 	    /* Set the topic. */
 	    gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
+
+	    /* Show the xtext buffer for the session. */
+	    gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
 
 	    /* Set the text entry field to whatever is in the text entry of this session. */
 	    entry = glade_xml_get_widget (gui.xml, "text entry");
