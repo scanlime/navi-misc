@@ -37,6 +37,10 @@ class WriteData
 		AMC.File f = AMC.File.Load (filename);
 		foreach (AMC.Frame frame in f.frames) {
 			float[] data = (float[]) frame.data[bone];
+			if (data[dof] < -180f)
+				data[dof] += 360;
+			if (data[dof] > 180f)
+				data[dof] -= 360;
 			System.Console.WriteLine ("{0}", data[dof]);
 		}
 	}
