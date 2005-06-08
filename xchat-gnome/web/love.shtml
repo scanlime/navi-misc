@@ -41,19 +41,23 @@
 	  <p>At the moment, the only accessibility is what gtk+ gives us for free. It
 	  would be nice if the most important widgets in the xchat-gnome interface
 	  were given a11y metadata in the glade file. This can be pretty easily done
-	  in chunks - updating just a few widgets would be better than what we have now.</p>
+	  in chunks - updating just a few widgets would be better than what we have now.</p><br />
+	  <b>Saving Transcripts</b><br />
+	  <p>The UI has a couple spots to save a transcript (navigation tree context menu and
+	  "Discussion" main menu), but these don't do anything.  This should pop up a
+	  file chooser and save a log</p>
 	</div>
 	<div class="section-title">Mid-Level Hackery Love</div>
 	<div class="section">
-	  <b>Fix navigation-pane behavior</b><br />
-	  <p>The navigation pane behaves strangely in some cases, such as parting/rejoining
-	  channels. A lot involved in fixing this is just to determine what the default
-	  behaviors ought to be. If you're unsure about your intuitions, come ask us
-	  in #xchat-gnome.</p><br /><br />
 	  <b>irc:// URI support</b><br />
 	  <p>There are a couple parts to this. The first is a parser for the URI that
 	  handles everything in <a href="http://www.ietf.org/internet-drafts/draft-butcher-irc-url-02.tx.txt">this internet draft</a>.
 	  The second is registering URL handlers with gnome.</p>
+	  <b>New "connect" dialog</b><br />
+	  <p>The current connect dialog is pretty boring.  Ideally, it would present a list
+	  of networks along with a description (and maybe logo) of the currently selected
+	  network.  Gnomechat had this the last time I tried it, and it might still.  This
+	  may require some changes to the xchat core.</p>
 	</div>
 	<div class="section-title">Difficult Hackery Love</div>
 	<div class="section">
