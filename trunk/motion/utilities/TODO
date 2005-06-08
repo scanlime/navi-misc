@@ -1,0 +1,5 @@
+* add ASF stuff
+* create a "pose" class
+* frequency domain?
+* histogram viewer for data (requires figuring out NPlot)
+* port graph stuff over from patrick's old code
