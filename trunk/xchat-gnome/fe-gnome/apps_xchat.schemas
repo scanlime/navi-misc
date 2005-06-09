@@ -180,7 +180,7 @@
       <applyto>/apps/xchat/keybindings/DiscussionClose</applyto>
       <owner>xchat</owner>
       <type>string</type>
-      <default>&lt;Control&gt;&lt;Shift&gt;W</default>
+      <default>&lt;Control&gt;W</default>
       <locale name="C">
         <short>Close current discussion</short>
       </locale>

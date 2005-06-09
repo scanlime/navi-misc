@@ -139,14 +139,14 @@ static GtkActionEntry action_entries [] = {
 	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, _("_Information"), "", NULL, G_CALLBACK (on_network_information_activate) },
 	{ "NetworkReconnect", GTK_STOCK_REFRESH, _("_Reconnect"), "<control>R", NULL, G_CALLBACK (on_network_reconnect_activate) },
 	{ "NetworkDisconnect", GTK_STOCK_STOP, _("_Disconnect"), "", NULL, G_CALLBACK (on_network_disconnect_activate) },
-	{ "NetworkClose", GTK_STOCK_CLOSE, _("_Close"), "", NULL, G_CALLBACK (on_network_close_activate) },
+	{ "NetworkClose", GTK_STOCK_CLOSE, _("_Close"), "<shift><control>W", NULL, G_CALLBACK (on_network_close_activate) },
 	{ "NetworkChannels", GTK_STOCK_INDEX, _("_Channels"), "<alt>C", NULL, G_CALLBACK (on_network_channels_activate) },
 	{ "NetworkUsers", NULL, _("_Users"), "<alt>U", NULL, G_CALLBACK (on_network_users_activate) },
 
 	/* Discussion menu */
 	{ "DiscussionSave", GTK_STOCK_SAVE, _("_Save Transcript"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
 	{ "DiscussionLeave", GTK_STOCK_QUIT, _("_Leave"), "", NULL, G_CALLBACK (on_discussion_leave_activate) },
-	{ "DiscussionClose", GTK_STOCK_CLOSE, _("Cl_ose"), "<shift><control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
+	{ "DiscussionClose", GTK_STOCK_CLOSE, _("Cl_ose"), "<control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
 	{ "DiscussionFind", GTK_STOCK_FIND, _("_Find"), "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
 	{ "DiscussionFindNext", NULL, _("Find Ne_xt"), "<control>G", NULL, G_CALLBACK (on_discussion_find_next_activate) },
 	{ "DiscussionClearWindow", GTK_STOCK_CLEAR, _("_Clear Window"), "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
@@ -522,11 +522,17 @@ run_main_window ()
 	gtk_widget_show (GTK_WIDGET (gui.main_window));
 
 	/* Temporarily disable menu items */
+	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/IRCMenu/IRCDownloadsItem");
+	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/InsertMenu/InsertColorCodeItem");
 	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/NetworkMenu/NetworkInformationItem");
 	gtk_widget_set_sensitive (widget, FALSE);
+	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/NetworkMenu/NetworkUsersItem");
+	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionSaveItem");
+	gtk_widget_set_sensitive (widget, FALSE);
+	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionBansItem");
 	gtk_widget_set_sensitive (widget, FALSE);
 }
 
