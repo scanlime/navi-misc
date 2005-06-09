@@ -1,1 +1,5 @@
 * Several options in the 'Discussion' menu don't make sense for servers
+
+* Keybindings are a bit of a mess - right now, network close vs. discussion
+  close relies on gconf to get the correct values (otherwise, things are either
+  switched or all ctrl+w). needs cleanup
