@@ -186,6 +186,17 @@
       </locale>
     </schema>
 
+    <schema>
+      <key>/schemas/apps/xchat/keybindings/NetworkClose</key>
+      <applyto>/apps/xchat/keybindings/NetworkClose</applyto>
+      <owner>xchat</owner>
+      <type>string</type>
+      <default>&lt;Shift&gt;&lt;Control&gt;W</default>
+      <locale name="C">
+        <short>Close current network</short>
+      </locale>
+    </schema>
+
 	<schema>
 		<key>/schemas/apps/xchat/plugins/enabled</key>
 		<applyto>/apps/xchat/plugins/enabled</applyto>
