@@ -311,8 +311,16 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 				return;
 			}
 		case WORD_NICK:
-			/* FIXME: show nickname context menu */
-			return;
+			{
+				GtkWidget *menu;
+				menu = gtk_ui_manager_get_widget (gui.manager, "/UserlistPopup");
+				g_return_if_fail (menu != NULL);
+				if (selected_word)
+					g_free (selected_word);
+				selected_word = g_strdup (word);
+				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+				return;
+			}
 		case WORD_CHANNEL:
 			/* FIXME: show channel context menu */
 			return;
