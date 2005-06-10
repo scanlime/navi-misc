@@ -323,6 +323,12 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 			}
 		case WORD_CHANNEL:
 			/* FIXME: show channel context menu */
+			/* This will need to be a bit more complicated than the channel context
+			 * menu shown in the navigation tree, since we'll need to check whether
+			 * we've joined the channel and display different actions.  come to think
+			 * of it, that context menu doesn't actually change based on context
+			 * (joined/parted)
+			 */
 			return;
 		case WORD_EMAIL:
 			{
@@ -337,6 +343,7 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 			}
 		case WORD_DIALOG:
 			/* FIXME: show dialog(?) context menu */
+			/* See comment in channel case above */
 			return;
 		}
 	}
