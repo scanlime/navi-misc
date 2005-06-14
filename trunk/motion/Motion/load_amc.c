@@ -34,7 +34,7 @@ LoadAmcMethods[] = {
 };
 
 PyMODINIT_FUNC
-init_load_amc (void)
+initload_amc (void)
 {
 	(void) Py_InitModule ("load_amc", LoadAmcMethods);
 }
@@ -43,10 +43,19 @@ static PyObject *
 load (PyObject *self, PyObject *args)
 {
 	char *filename;
+	FILE *file;
 
 	if (!PyArg_ParseTuple (args, "s", &filename)) {
 		// FIXME - throw error
 		return NULL;
 	}
+
+	file = fopen (filename, "r");
+	if (file == NULL) {
+		// FIXME - throw error
+		return NULL;
+	}
+
+	fclose (file);
 	PyObject *dict = PyDict_New ();
 }
