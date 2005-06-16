@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+
+common_files = [
+	'version.cpp'
+	]
