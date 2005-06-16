@@ -10,9 +10,12 @@
 * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-#ifndef _SCREAMERS_H_
-#define _SCREAMERS_H_
+#ifndef _WIN32_H_
+#define _WIN32_H_
 
-#include "win32.h"
-
-#endif //_SCREAMERS_H_
+// windows only dog
+#ifdef _WIN32
+#include "resource.h"
+#include <windows.h>
+#endif 
+#endif //_WIN32_H_

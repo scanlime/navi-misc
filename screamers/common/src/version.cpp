@@ -10,9 +10,9 @@
 * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-#ifndef _SCREAMERS_H_
-#define _SCREAMERS_H_
+#include "version.h"
 
-#include "win32.h"
-
-#endif //_SCREAMERS_H_
+std::string getMainVersion ( void )
+{
+	return std::string("0.0.1");
+}

@@ -4,4 +4,5 @@ import sys
 
 # totaly needs some stuff here
 
-SConscript(['client/SConscript'])
+SConscript(['common/SConscript',
+			'client/SConscript'])
