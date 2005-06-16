@@ -6,13 +6,15 @@ common_sources = [
 	'version.cpp',
 ]
 
-screamers_sources = [
-	'screamers.cpp',
-]
-
+# Build the server
 screamersd_sources = [
 	'screamersd.cpp',
 ]
-
-env.Program ('screamers',  common_sources + screamers_sources)
 env.Program ('screamersd', common_sources + screamersd_sources)
+
+# Build the client
+cenv = env.Copy (LIBS = ['GL'])
+screamers_sources = [
+	'screamers.cpp',
+]
+cenv.Program ('screamers',  common_sources + screamers_sources)
