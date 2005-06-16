@@ -11,12 +11,14 @@
 */
 
 #include "screamers.h"
+#include "version.h"
+
 #include <string>
 
 int appMain ( std::string commandLine );
 
 #ifdef _WIN32
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	std::string cli  = lpCmdLine;
 	return appMain(cli);
@@ -31,9 +33,11 @@ int main( int argc, char *argv[])
 	return appMain(cli);
 }
 #endif
- 
+
 int appMain ( std::string commandLine )
 {
-	printf("d00d\n");
+	std::string version = getMainVersion();
+
+	printf("vers %s\n",version.c_str());
 	return 0;
 }
