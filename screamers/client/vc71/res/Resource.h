@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by screamers3d.rc
+// Used by screamers.rc
 //
 
 #define IDS_APP_TITLE			103

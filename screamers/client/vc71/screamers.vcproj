@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="screamers3d"
+	Name="screamers"
 	ProjectGUID="{640E4C87-D32C-41C3-9790-4214754251A5}"
 	Keyword="Win32Proj">
 	<Platforms>
@@ -34,10 +34,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/screamers3d_d.exe"
+				OutputFile="$(OutDir)/screamers_d.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="debug/screamers3d.pdb"
+				ProgramDatabaseFile="debug/screamers.pdb"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
@@ -82,7 +82,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/screamers3d.exe"
+				OutputFile="$(OutDir)/screamers.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
@@ -119,7 +119,7 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\src\screamers3d.cpp">
+				RelativePath="..\src\screamers.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -130,7 +130,7 @@
 				RelativePath=".\res\Resource.h">
 			</File>
 			<File
-				RelativePath="..\inc\screamers3d.h">
+				RelativePath="..\inc\screamers.h">
 			</File>
 		</Filter>
 		<Filter
@@ -138,10 +138,10 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 			<File
-				RelativePath=".\res\screamers3d.ico">
+				RelativePath=".\res\screamers.ico">
 			</File>
 			<File
-				RelativePath=".\res\screamers3d.rc">
+				RelativePath=".\res\screamers.rc">
 			</File>
 			<File
 				RelativePath=".\res\small.ico">

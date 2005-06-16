@@ -3,3 +3,5 @@ from distutils import sysconfig
 import sys
 
 # totaly needs some stuff here
+
+SConscript(['client/SConscript'])

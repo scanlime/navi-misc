@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# screamers3d library information - this is probably broken on non-posix OSes
-
-screamers3d_files = [
-	'screamers3d.cpp',
+client_files = [
+	'screamers.cpp',
 	]

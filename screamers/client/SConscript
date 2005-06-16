@@ -2,11 +2,7 @@
 from distutils import sysconfig
 import sys
 
-# screamers3d library information - this is probably broken on non-posix OSes
-
-files = [
-	'src\screamers3d.cpp',
-	]
+SConscript(['src/SConscript'])
 
 env = Environment ()
 env.Append (CCFLAGS = '-g')
@@ -21,4 +17,4 @@ env.Append (LIBS = 'util')
 env.Append (LIBS = 'gl')
 
 
-env.Program ('screamers3d', source = files)
+env.Program ('screamers', source = client_files)
