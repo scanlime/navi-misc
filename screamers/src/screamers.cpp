@@ -10,13 +10,19 @@
 * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 */
 
+#include <string>
+#include <iostream>
 #include "screamers.h"
 #include "version.h"
 
-#include <string>
+int appMain ( std::string commandLine )
+{
+	std::cout << "version " << VERSION << std::endl;
+	return 0;
+}
 
-int appMain ( std::string commandLine );
 
+// platform-specific main functions, 'cuz one of those platforms uses a silly one
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
@@ -26,6 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
 #else
 int main( int argc, char *argv[])
 {
+	// FIXME - this is bad!
 	std::string	cli;
 	for ( int i = 1; i < argc; i++)
 		cli += argv[i] + std::string(" ");
@@ -33,11 +40,3 @@ int main( int argc, char *argv[])
 	return appMain(cli);
 }
 #endif
- 
-int appMain ( std::string commandLine )
-{
-	std::string version = getMainVersion();
-
-	printf("vers %s\n",version.c_str());
-	return 0;
-}
