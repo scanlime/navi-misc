@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-env = Environment (CPPPATH = ['../inc'])
+env = Environment (CPPPATH = ['../include'])
 Export ('env')
 
 scripts = ['src/SConscript']
