@@ -16,10 +16,13 @@
 class Pod
 {
 public:
-	float position[3];
-	float orientation[4];	// wow, a quaternion!
+	float	position[3];
+	float	velocity[3];
+	float	orientation[4];		// wow, a quaternion!
+	float	moment[4];		// and another!
 
-	float shields;		// [0,1]
+	float	shields;		// [0,1]
+	int	rounds;
 };
 
 #endif
