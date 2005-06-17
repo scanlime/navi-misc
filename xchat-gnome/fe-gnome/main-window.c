@@ -638,15 +638,18 @@ static void
 on_network_disconnect_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
-	s->server->disconnect (s, TRUE, -1);
+	if (s)
+		s->server->disconnect (s, TRUE, -1);
 }
 
 static void
 on_network_close_activate (GtkAction *actoin, gpointer data)
 {
 	session *sess = gui.current_session;
-	GtkTreeIter parent,
-				*iter =	navigation_model_get_unsorted_iter (gui.tree_model, sess);
+	if (sess == NULL)
+		return;
+
+	GtkTreeIter parent, *iter = navigation_model_get_unsorted_iter (gui.tree_model, sess);
 
 	sess->server->disconnect (sess, TRUE, -1);
 
@@ -704,6 +707,8 @@ static void
 on_discussion_close_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
+	if (s == NULL)
+		return;
 /*	navigation_tree_select_next_channel (gui.server_tree, TRUE);*/
 	if (s->type == SESS_CHANNEL) {
 		gchar *text;
@@ -1053,6 +1058,9 @@ on_discussion_topic_change_activate (GtkButton *widget, gpointer data)
 	GtkTextBuffer *buffer;
 	gchar *title;
 
+	if (gui.current_session == NULL)
+		return;
+
 	if (g_file_test ("topic-change.glade", G_FILE_TEST_EXISTS))
 		xml = glade_xml_new ("topic-change.glade", NULL, NULL);
 	if (!xml)
@@ -1239,7 +1247,3 @@ on_expand_topic (GtkExpander *expander, gpointer data)
 	}
 }
 #endif
-
-/*** The End ***/
-/* vim: ts=3:sw=3
- */
