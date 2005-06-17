@@ -34,6 +34,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="OgreMain_d.lib"
 				OutputFile="$(OutDir)/screamers_d.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
