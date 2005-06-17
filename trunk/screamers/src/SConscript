@@ -2,19 +2,15 @@
 
 Import ('env')
 
-common_sources = [
-	'version.cpp',
-]
-
 # Build the server
 screamersd_sources = [
 	'screamersd.cpp',
 ]
-env.Program ('screamersd', common_sources + screamersd_sources)
+env.Program ('screamersd', screamersd_sources)
 
 # Build the client
 cenv = env.Copy (LIBS = ['GL'])
 screamers_sources = [
 	'screamers.cpp',
 ]
-cenv.Program ('screamers',  common_sources + screamers_sources)
+cenv.Program ('screamers', screamers_sources)

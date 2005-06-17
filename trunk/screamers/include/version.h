@@ -15,6 +15,6 @@
 
 #include <string>
 
-std::string getMainVersion ( void );
+#define VERSION "0.0.1"
 
 #endif //_VERSION_H_
