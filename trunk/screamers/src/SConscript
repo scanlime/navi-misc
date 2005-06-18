@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 Import ('env')
+env.ParseConfig ('pkg-config --cflags --libs OGRE')
 
 # Build the server
 screamersd_sources = [
@@ -9,8 +10,7 @@ screamersd_sources = [
 env.Program ('screamersd', screamersd_sources)
 
 # Build the client
-cenv = env.Copy (LIBS = ['GL'])
 screamers_sources = [
 	'screamers.cpp',
 ]
-cenv.Program ('screamers', screamers_sources)
+env.Program ('screamers', screamers_sources)
