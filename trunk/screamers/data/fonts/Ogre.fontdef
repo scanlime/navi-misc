@@ -107,10 +107,10 @@ Arial Regular Custom
 
 }
 
-TrebuchetMSBold
+BitstreamVeraSans
 {
 	type 		truetype
-	source 		trebucbd.ttf
+	source 		Vera.ttf
 	size 		32
 	resolution 	55
 }
