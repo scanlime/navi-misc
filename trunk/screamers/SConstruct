@@ -1,7 +1,17 @@
 #!/usr/bin/env python
 
+import os
+
 env = Environment (CPPPATH = ['../include'])
+env.ParseConfig ('pkg-config --cflags --libs OGRE')
 Export ('env')
 
+# Create the plugins.cfg file with the correct plugin path
+pkgconfig = os.popen ('pkg-config --variable=plugindir OGRE')
+plugindir = pkgconfig.readline ()[:-1]
+pkgconfig.close ()
+env.Command ('plugins.cfg', 'plugins.cfg.in', 'sed -e "s|\@ogrepluginpath\@|%s|g" < $SOURCES > $TARGET' % plugindir)
+
+# Build stuff in src/
 scripts = ['src/SConscript']
 SConscript (scripts)
