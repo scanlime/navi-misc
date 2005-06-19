@@ -53,8 +53,11 @@ InfoListener::frameEnded (const Ogre::FrameEvent &event)
 void
 InfoListener::updateStats ()
 {
-	// FIXME - it really doesn't make any sense to update this every frame, nor
-	// does it make any sense to update this when the overlay in question his hidden
+	// if the overlay is hidden, don't update the labels
+	if (!debugOverlay->isVisible ())
+		return;
+
+	// FIXME - it really doesn't make any sense to update this every frame
 	try {
 		// FIXME - should these be cached?
 		Ogre::OverlayManager &overlay_manager = Ogre::OverlayManager::getSingleton ();
