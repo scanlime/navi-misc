@@ -19,6 +19,7 @@
  *
  */
 
+#include <iostream>
 #include "application.h"
 
 namespace Screamers
@@ -38,8 +39,10 @@ Application::~Application ()
 void
 Application::go ()
 {
-	if (!setup ())
+	if (!setup ()) {
+		std::cerr << "Could not set up OGRE, quitting\n";
 		return;
+	}
 
 	root->startRendering ();
 
@@ -105,6 +108,8 @@ Application::setup ()
 	// create the info listener - this displays things like FHz
 	infoListener = new InfoListener (renderWindow);
 	root->addFrameListener (infoListener);
+
+	return true;
 }
 
 bool
