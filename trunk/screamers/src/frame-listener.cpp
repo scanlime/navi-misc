@@ -47,6 +47,7 @@ bool
 InfoListener::frameEnded (const Ogre::FrameEvent &event)
 {
 	updateStats ();
+	return true;
 }
 
 void
