@@ -1,6 +1,5 @@
 /*
- * frame-listener.h - screamers-specific FrameListener that draws
- *	all our sexy stuff
+ * frame-listener.h - screamers-specific FrameListeners
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -31,9 +30,26 @@ namespace Screamers
 class FrameListener : public Ogre::FrameListener
 {
 public:
-	FrameListener (Ogre::RenderWindow *window,
-		       Ogre::Camera       *camera);
-	virtual ~FrameListener ();
+				 FrameListener (Ogre::RenderWindow *window);
+	virtual			~FrameListener ();
+
+protected:
+	Ogre::RenderWindow	*window;
+};
+
+class InfoListener : public FrameListener
+{
+public:
+				 InfoListener (Ogre::RenderWindow *window);
+	virtual			~InfoListener ();
+
+	virtual bool		 frameEnded (const Ogre::FrameEvent &event);
+
+protected:
+	Ogre::Overlay		*debugOverlay;
+
+private:
+	void			 updateStats ();
 };
 
 };

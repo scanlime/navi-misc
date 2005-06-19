@@ -27,13 +27,10 @@ namespace Screamers
 Application::Application ()
 {
 	root          = NULL;
-	frameListener = NULL;
 }
 
 Application::~Application ()
 {
-	if (frameListener)
-		delete frameListener;
 	if (root)
 		delete root;
 }
@@ -49,10 +46,40 @@ Application::go ()
 	// FIXME - clean up
 }
 
+void
+Application::loadResourcePaths ()
+{
+	Ogre::ConfigFile resources_config;
+	resources_config.load ("resources.cfg");
+
+	Ogre::ConfigFile::SectionIterator it = resources_config.getSectionIterator ();
+
+	Ogre::String section_name, type_name, arch_name;
+
+	while (it.hasMoreElements ()) {
+		section_name = it.peekNextKey ();
+		Ogre::ConfigFile::SettingsMultiMap *settings = it.getNext ();
+		Ogre::ConfigFile::SettingsMultiMap::iterator sec_it;
+		for (sec_it = settings->begin (); sec_it != settings->end (); ++sec_it) {
+			type_name = sec_it->first;
+			arch_name = sec_it->second;
+			Ogre::ResourceGroupManager::getSingleton ().addResourceLocation (arch_name, type_name, section_name);
+		}
+	}
+}
+
+void
+Application::loadResources ()
+{
+	Ogre::ResourceGroupManager::getSingleton ().initialiseAllResourceGroups ();
+}
+
 bool
 Application::setup ()
 {
 	root = new Ogre::Root ();
+	loadResourcePaths ();
+
 	if (!configure ())
 		return false;
 
@@ -71,9 +98,13 @@ Application::setup ()
 	viewport->setBackgroundColour (Ogre::ColourValue (0, 0, 0));
 	camera->setAspectRatio (Ogre::Real (viewport->getActualWidth ()) / Ogre::Real (viewport->getActualHeight ()));
 
-	// create frame listener
-	frameListener = new FrameListener (renderWindow, camera);
-	root->addFrameListener (frameListener);
+	Ogre::TextureManager::getSingleton ().setDefaultNumMipmaps (5);
+
+	loadResources ();
+
+	// create the info listener - this displays things like FHz
+	infoListener = new InfoListener (renderWindow);
+	root->addFrameListener (infoListener);
 }
 
 bool
@@ -82,7 +113,7 @@ Application::configure ()
 	// FIXME - we'll want to store most of this stuff in whatever configuration
 	// system we end up having, rather than running this dialog every time
 	if (root->showConfigDialog ()) {
-		renderWindow = root->initialise (true);
+		renderWindow = root->initialise (true, "Screamers");
 		return true;
 	} else {
 		return false;

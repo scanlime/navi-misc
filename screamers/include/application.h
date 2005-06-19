@@ -45,10 +45,14 @@ protected:
 	Ogre::Camera		*camera;
 	Ogre::SceneManager	*sceneManager;
 	Ogre::RenderWindow	*renderWindow;
-	FrameListener		*frameListener;
+	InfoListener		*infoListener;
 
 	virtual bool		 setup ();
 	virtual bool		 configure ();
+
+private:
+	void			 loadResourcePaths ();
+	void			 loadResources ();
 };
 
 };
