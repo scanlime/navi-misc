@@ -52,14 +52,7 @@ InfoListener::frameEnded (const Ogre::FrameEvent &event)
 void
 InfoListener::updateStats ()
 {
-	static Ogre::String current_fhz    = "Current FHz: ";
-	static Ogre::String average_fhz    = "Average FHz: ";
-	static Ogre::String best_fhz       = "Best FHz: ";
-	static Ogre::String worst_fhz      = "Worse FHz: ";
-	static Ogre::String triangle_count = "Triangle Count: ";
-
 	// FIXME - it really doesn't make any sense to update this every frame
-
 	try {
 		// FIXME - should these be cached?
 		Ogre::OverlayManager &overlay_manager = Ogre::OverlayManager::getSingleton ();
@@ -72,11 +65,11 @@ InfoListener::updateStats ()
 		const Ogre::RenderTarget::FrameStats &stats = window->getStatistics ();
 
 		// FIXME - do we want to show frame times as well?
-		gui_current_fhz->setCaption    (current_fhz    + Ogre::StringConverter::toString (stats.lastFPS));
-		gui_average_fhz->setCaption    (average_fhz    + Ogre::StringConverter::toString (stats.avgFPS));
-		gui_best_fhz->setCaption       (best_fhz       + Ogre::StringConverter::toString (stats.bestFPS));
-		gui_worst_fhz->setCaption      (worst_fhz      + Ogre::StringConverter::toString (stats.worstFPS));
-		gui_triangle_count->setCaption (triangle_count + Ogre::StringConverter::toString (stats.triangleCount));
+		gui_current_fhz->setCaption    (Ogre::StringConverter::toString (stats.lastFPS));
+		gui_average_fhz->setCaption    (Ogre::StringConverter::toString (stats.avgFPS));
+		gui_best_fhz->setCaption       (Ogre::StringConverter::toString (stats.bestFPS));
+		gui_worst_fhz->setCaption      (Ogre::StringConverter::toString (stats.worstFPS));
+		gui_triangle_count->setCaption (Ogre::StringConverter::toString (stats.triangleCount));
 	} catch (...) {
 		// ignore
 	}
