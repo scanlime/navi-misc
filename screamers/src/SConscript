@@ -11,6 +11,8 @@ env.Program ('screamersd', screamersd_sources)
 
 # Build the client
 screamers_sources = [
+	'application.cpp',
+	'frame-listener.cpp',
 	'screamers.cpp',
 ]
 env.Program ('screamers', screamers_sources)
