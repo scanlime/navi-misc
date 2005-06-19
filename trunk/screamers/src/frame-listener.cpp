@@ -1,6 +1,5 @@
 /*
- * frame-listener.cpp - screamers-specific FrameListener that draws
- *	all our sexy stuff
+ * frame-listener.cpp - screamers-specific FrameListeners
  *
  * Copyright (C) 2005 David Trowbridge
  *
@@ -25,12 +24,62 @@
 namespace Screamers
 {
 
-FrameListener::FrameListener (Ogre::RenderWindow *window, Ogre::Camera *camera)
+FrameListener::FrameListener (Ogre::RenderWindow *window)
 {
+	this->window = window;
 }
 
 FrameListener::~FrameListener ()
 {
+}
+
+InfoListener::InfoListener (Ogre::RenderWindow *window) : FrameListener (window)
+{
+	debugOverlay = Ogre::OverlayManager::getSingleton ().getByName ("Core/DebugOverlay");
+	debugOverlay->show ();
+}
+
+InfoListener::~InfoListener ()
+{
+}
+
+bool
+InfoListener::frameEnded (const Ogre::FrameEvent &event)
+{
+	updateStats ();
+}
+
+void
+InfoListener::updateStats ()
+{
+	static Ogre::String current_fhz    = "Current FHz: ";
+	static Ogre::String average_fhz    = "Average FHz: ";
+	static Ogre::String best_fhz       = "Best FHz: ";
+	static Ogre::String worst_fhz      = "Worse FHz: ";
+	static Ogre::String triangle_count = "Triangle Count: ";
+
+	// FIXME - it really doesn't make any sense to update this every frame
+
+	try {
+		// FIXME - should these be cached?
+		Ogre::OverlayManager &overlay_manager = Ogre::OverlayManager::getSingleton ();
+		Ogre::OverlayElement *gui_current_fhz    = overlay_manager.getOverlayElement ("Core/CurrFps");
+		Ogre::OverlayElement *gui_average_fhz    = overlay_manager.getOverlayElement ("Core/AverageFps");
+		Ogre::OverlayElement *gui_best_fhz       = overlay_manager.getOverlayElement ("Core/BestFps");
+		Ogre::OverlayElement *gui_worst_fhz      = overlay_manager.getOverlayElement ("Core/WorstFps");
+		Ogre::OverlayElement *gui_triangle_count = overlay_manager.getOverlayElement ("Core/NumTris");
+
+		const Ogre::RenderTarget::FrameStats &stats = window->getStatistics ();
+
+		// FIXME - do we want to show frame times as well?
+		gui_current_fhz->setCaption    (current_fhz    + Ogre::StringConverter::toString (stats.lastFPS));
+		gui_average_fhz->setCaption    (average_fhz    + Ogre::StringConverter::toString (stats.avgFPS));
+		gui_best_fhz->setCaption       (best_fhz       + Ogre::StringConverter::toString (stats.bestFPS));
+		gui_worst_fhz->setCaption      (worst_fhz      + Ogre::StringConverter::toString (stats.worstFPS));
+		gui_triangle_count->setCaption (triangle_count + Ogre::StringConverter::toString (stats.triangleCount));
+	} catch (...) {
+		// ignore
+	}
 }
 
 };
