@@ -47,6 +47,11 @@ public:
 
 protected:
 	Ogre::Overlay		*debugOverlay;
+	Ogre::OverlayElement	*gui_current_fhz;
+	Ogre::OverlayElement	*gui_average_fhz;
+	Ogre::OverlayElement	*gui_best_fhz;
+	Ogre::OverlayElement	*gui_worst_fhz;
+	Ogre::OverlayElement	*gui_triangle_count;
 
 private:
 	void			 updateStats ();

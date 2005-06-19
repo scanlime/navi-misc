@@ -35,8 +35,16 @@ FrameListener::~FrameListener ()
 
 InfoListener::InfoListener (Ogre::RenderWindow *window) : FrameListener (window)
 {
-	debugOverlay = Ogre::OverlayManager::getSingleton ().getByName ("Core/DebugOverlay");
+	Ogre::OverlayManager &overlay_manager = Ogre::OverlayManager::getSingleton ();
+
+	debugOverlay = overlay_manager.getByName ("Core/DebugOverlay");
 	debugOverlay->show ();
+
+	gui_current_fhz    = overlay_manager.getOverlayElement ("Core/CurrFps");
+	gui_average_fhz    = overlay_manager.getOverlayElement ("Core/AverageFps");
+	gui_best_fhz       = overlay_manager.getOverlayElement ("Core/BestFps");
+	gui_worst_fhz      = overlay_manager.getOverlayElement ("Core/WorstFps");
+	gui_triangle_count = overlay_manager.getOverlayElement ("Core/NumTris");
 }
 
 InfoListener::~InfoListener ()
@@ -59,14 +67,6 @@ InfoListener::updateStats ()
 
 	// FIXME - it really doesn't make any sense to update this every frame
 	try {
-		// FIXME - should these be cached?
-		Ogre::OverlayManager &overlay_manager = Ogre::OverlayManager::getSingleton ();
-		Ogre::OverlayElement *gui_current_fhz    = overlay_manager.getOverlayElement ("Core/CurrFps");
-		Ogre::OverlayElement *gui_average_fhz    = overlay_manager.getOverlayElement ("Core/AverageFps");
-		Ogre::OverlayElement *gui_best_fhz       = overlay_manager.getOverlayElement ("Core/BestFps");
-		Ogre::OverlayElement *gui_worst_fhz      = overlay_manager.getOverlayElement ("Core/WorstFps");
-		Ogre::OverlayElement *gui_triangle_count = overlay_manager.getOverlayElement ("Core/NumTris");
-
 		const Ogre::RenderTarget::FrameStats &stats = window->getStatistics ();
 
 		// FIXME - do we want to show frame times as well?
