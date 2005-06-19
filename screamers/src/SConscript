@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 Import ('env')
-env.ParseConfig ('pkg-config --cflags --libs OGRE')
 env.Append (CCFLAGS = '-g')
 
 # Build the server
