@@ -136,7 +136,7 @@ Motion_fromFile (Motion *self, PyObject *args)
 	Motion *motion;
 	gchar *line;
 	int terminator;
-	int frame;
+	guint64 current_frame;
 
 	if (!PyArg_ParseTuple (args, "s", &filename)) {
 		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected 'string'"));
@@ -154,7 +154,6 @@ Motion_fromFile (Motion *self, PyObject *args)
 	while (g_io_channel_read_line (file, &line, NULL, &terminator, NULL) == G_IO_STATUS_NORMAL) {
 		// get rid of line terminator
 		line[terminator] = '\0';
-
 
 		// parse data
 		if (line[0] == '#') {
@@ -180,7 +179,7 @@ Motion_fromFile (Motion *self, PyObject *args)
 
 
 			if (newframe) {
-				g_printf ("found frame %s\n", line);
+				current_frame = g_ascii_strtoull (line, NULL, 10);
 			} else {
 				gchar **tokens = g_strsplit (line, " ", 0);
 				g_strfreev (tokens);
