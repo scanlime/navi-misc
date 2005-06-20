@@ -29,15 +29,15 @@
 static PyObject *load (PyObject *self, PyObject *args);
 
 static PyMethodDef
-LoadAmcMethods[] = {
+MotionCMethods[] = {
 	{"load", load, METH_VARARGS, "Load an AMC File"},
 	{NULL,   NULL, 0,            NULL},
 };
 
 PyMODINIT_FUNC
-initload_amc (void)
+initmotion_c (void)
 {
-	(void) Py_InitModule ("motion_c", LoadAmcMethods);
+	(void) Py_InitModule ("motion_c", MotionCMethods);
 }
 
 static PyObject *
@@ -54,8 +54,7 @@ load (PyObject *self, PyObject *args)
 
 	file = fopen (filename, "r");
 	if (file == NULL) {
-		// FIXME - throw error
-		return NULL;
+		return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
 	}
 
 	motion = CreateMotion ();
