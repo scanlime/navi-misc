@@ -67,17 +67,35 @@ PyTypeObject Motion_Type = {
 PyObject *CreateMotion ()
 {
 	Motion *m = (Motion *) PyObject_NEW (Motion, &Motion_Type);
+	m->bones = PyDict_New ();
 	return (PyObject *) m;
 }
 
 static void
 Motion_dealloc (Motion *motion)
 {
+	PyObject_DEL (motion->bones);
+	PyObject_DEL (motion);
 }
 
 static PyObject *
 Motion_getAttr (Motion *motion, char *name)
 {
+	PyObject *attr = Py_None;
+
+	if (strcmp (name, "name") == 0) {
+		// None is an appropriate response here, so don't bother with the checks below
+		if (motion->name == NULL)
+			return Py_None;
+		return PyString_FromString (motion->name);
+	} else if (strcmp (name, "__members__") == 0) {
+		attr = Py_BuildValue ("[s]", "name");
+	}
+
+	if (attr == Py_None)
+		return Py_FindMethod (Motion_methods, (PyObject *) motion, name);
+
+	return attr;
 }
 
 static void
@@ -88,4 +106,5 @@ Motion_setAttr (Motion *motion, char *name, PyObject *v)
 static PyObject *
 Motion_repr (Motion *motion)
 {
+	return PyString_FromFormat ("[Motion \"s\", d frames]");
 }

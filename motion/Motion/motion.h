@@ -29,6 +29,7 @@ typedef struct
 	PyObject_HEAD
 
 	char *name;
+	PyObject *bones;
 } Motion;
 
 PyObject *CreateMotion ();
