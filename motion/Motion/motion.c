@@ -78,8 +78,9 @@ PyTypeObject Motion_Type = {
 PyObject *CreateMotion ()
 {
 	Motion *m = (Motion *) PyObject_NEW (Motion, &Motion_Type);
-	m->bones = PyDict_New ();
+	m->bones    = PyDict_New ();
 	m->comments = PyList_New (0);
+	m->format   = PyList_New (0);
 	return (PyObject *) m;
 }
 
@@ -88,6 +89,7 @@ Motion_dealloc (Motion *motion)
 {
 	PyObject_DEL (motion->bones);
 	PyObject_DEL (motion->comments);
+	PyObject_DEL (motion->format);
 	PyObject_DEL (motion);
 }
 
@@ -103,8 +105,10 @@ Motion_getAttr (Motion *motion, char *name)
 		return PyString_FromString (motion->name);
 	} else if (strcmp (name, "comments") == 0) {
 		attr = motion->comments;
+	} else if (strcmp (name, "format") == 0) {
+		attr = motion->format;
 	} else if (strcmp (name, "__members__") == 0) {
-		attr = Py_BuildValue ("[s,s]", "name", "comments");
+		attr = Py_BuildValue ("[s,s,s]", "name", "comments", "format");
 	}
 
 	if (attr == Py_None)
@@ -131,6 +135,8 @@ Motion_fromFile (Motion *self, PyObject *args)
 	GIOChannel *file;
 	Motion *motion;
 	gchar *line;
+	int terminator;
+	int frame;
 
 	if (!PyArg_ParseTuple (args, "s", &filename)) {
 		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected 'string'"));
@@ -145,12 +151,19 @@ Motion_fromFile (Motion *self, PyObject *args)
 
 	motion = (Motion *) CreateMotion ();
 
-	while (g_io_channel_read_line (file, &line, NULL, NULL, NULL) == G_IO_STATUS_NORMAL) {
+	while (g_io_channel_read_line (file, &line, NULL, &terminator, NULL) == G_IO_STATUS_NORMAL) {
+		// get rid of line terminator
+		line[terminator] = '\0';
+
+
+		// parse data
 		if (line[0] == '#') {
 			// comment
 			PyList_Append (motion->comments, PyString_FromString (line));
 		} else if (line[0] == ':') {
 			// format specifier
+			PyList_Append (motion->format, PyString_FromString (line));
+		} else {
 		}
 		g_free (line);
 	}

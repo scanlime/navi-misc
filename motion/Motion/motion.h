@@ -31,6 +31,7 @@ typedef struct
 	char *name;
 	PyObject *bones;
 	PyObject *comments;
+	PyObject *format;
 } Motion;
 
 PyObject *CreateMotion ();
