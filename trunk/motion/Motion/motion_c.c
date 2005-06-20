@@ -59,6 +59,8 @@ load (PyObject *self, PyObject *args)
 
 	motion = CreateMotion ();
 
+	// pull in comments
+
 	fclose (file);
 
 	return motion;

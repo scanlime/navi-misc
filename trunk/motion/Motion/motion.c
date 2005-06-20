@@ -68,6 +68,7 @@ PyObject *CreateMotion ()
 {
 	Motion *m = (Motion *) PyObject_NEW (Motion, &Motion_Type);
 	m->bones = PyDict_New ();
+	m->comments = PyList_New (0);
 	return (PyObject *) m;
 }
 
@@ -75,6 +76,7 @@ static void
 Motion_dealloc (Motion *motion)
 {
 	PyObject_DEL (motion->bones);
+	PyObject_DEL (motion->comments);
 	PyObject_DEL (motion);
 }
 

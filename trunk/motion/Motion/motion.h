@@ -30,6 +30,7 @@ typedef struct
 
 	char *name;
 	PyObject *bones;
+	PyObject *comments;
 } Motion;
 
 PyObject *CreateMotion ();
