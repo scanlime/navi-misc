@@ -21,6 +21,7 @@
 
 #include <Python.h>
 #include <Numeric/arrayobject.h>
+#include <glib.h>
 #include "motion.h"
 
 static void      Motion_dealloc  (Motion *motion);
@@ -100,8 +101,10 @@ Motion_getAttr (Motion *motion, char *name)
 		if (motion->name == NULL)
 			return Py_None;
 		return PyString_FromString (motion->name);
+	} else if (strcmp (name, "comments") == 0) {
+		attr = motion->comments;
 	} else if (strcmp (name, "__members__") == 0) {
-		attr = Py_BuildValue ("[s]", "name");
+		attr = Py_BuildValue ("[s,s]", "name", "comments");
 	}
 
 	if (attr == Py_None)
@@ -125,26 +128,36 @@ static PyObject *
 Motion_fromFile (Motion *self, PyObject *args)
 {
 	char *filename;
-	FILE *file;
-	PyObject *motion;
+	GIOChannel *file;
+	Motion *motion;
+	gchar *line;
 
 	if (!PyArg_ParseTuple (args, "s", &filename)) {
 		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected 'string'"));
 		return NULL;
 	}
 
-	file = fopen (filename, "r");
+	file = g_io_channel_new_file (filename, "r", NULL);
 	if (file == NULL) {
+		// FIXME - we should be using the GError, not errno
 		return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
 	}
 
-	motion = CreateMotion ();
+	motion = (Motion *) CreateMotion ();
 
-	// pull in comments
+	while (g_io_channel_read_line (file, &line, NULL, NULL, NULL) == G_IO_STATUS_NORMAL) {
+		if (line[0] == '#') {
+			// comment
+			PyList_Append (motion->comments, PyString_FromString (line));
+		} else if (line[0] == ':') {
+			// format specifier
+		}
+		g_free (line);
+	}
 
-	fclose (file);
+	g_io_channel_close (file);
 
-	return motion;
+	return (PyObject *) motion;
 }
 
 static PyObject *
