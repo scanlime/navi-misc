@@ -19,15 +19,23 @@
  *
  */
 
+#include <Python.h>
+#include <Numeric/arrayobject.h>
 #include "motion.h"
 
-static void      Motion_dealloc (Motion *motion);
-static PyObject *Motion_getAttr (Motion *motion, char *name);
-static void      Motion_setAttr (Motion *motion, char *name, PyObject *v);
-static PyObject *Motion_repr    (Motion *motion);
+static void      Motion_dealloc  (Motion *motion);
+static PyObject *Motion_getAttr  (Motion *motion, char *name);
+static void      Motion_setAttr  (Motion *motion, char *name, PyObject *v);
+static PyObject *Motion_repr     (Motion *motion);
+static PyObject *Motion_fromFile (Motion *self, PyObject *args);
+
+static PyMethodDef MotionC_methods[] = {
+	{NULL, NULL, 0, NULL},
+};
 
 static PyMethodDef Motion_methods[] = {
-	{NULL, NULL, 0, NULL},
+	{"from_file", (PyCFunction) Motion_fromFile, METH_STATIC | METH_VARARGS, "Create from an AMC file"},
+	{NULL,        NULL,                          0,                          NULL},
 };
 
 PyTypeObject Motion_Type = {
@@ -109,4 +117,47 @@ static PyObject *
 Motion_repr (Motion *motion)
 {
 	return PyString_FromFormat ("[Motion \"s\", d frames]");
+}
+
+static PyObject *
+Motion_fromFile (Motion *self, PyObject *args)
+{
+	char *filename;
+	FILE *file;
+	PyObject *motion;
+
+	if (!PyArg_ParseTuple (args, "s", &filename)) {
+		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected 'string'"));
+		return NULL;
+	}
+
+	file = fopen (filename, "r");
+	if (file == NULL) {
+		return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
+	}
+
+	motion = CreateMotion ();
+
+	// pull in comments
+
+	fclose (file);
+
+	return motion;
+}
+
+PyMODINIT_FUNC
+initmotion_c (void)
+{
+	PyObject *module;
+
+	if (PyType_Ready (&Motion_Type) < 0)
+		return;
+
+	module = Py_InitModule ("motion_c", MotionC_methods);
+
+	if (module == NULL)
+		return;
+
+	Py_INCREF (&Motion_Type);
+	PyModule_AddObject (module, "Motion", (PyObject *) &Motion_Type);
 }
