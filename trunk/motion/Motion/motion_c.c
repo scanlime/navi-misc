@@ -24,6 +24,7 @@
 
 #include <Python.h>
 #include <Numeric/arrayobject.h>
+#include "motion.h"
 
 static PyObject *load (PyObject *self, PyObject *args);
 
@@ -36,7 +37,7 @@ LoadAmcMethods[] = {
 PyMODINIT_FUNC
 initload_amc (void)
 {
-	(void) Py_InitModule ("load_amc", LoadAmcMethods);
+	(void) Py_InitModule ("motion_c", LoadAmcMethods);
 }
 
 static PyObject *
@@ -44,6 +45,7 @@ load (PyObject *self, PyObject *args)
 {
 	char *filename;
 	FILE *file;
+	PyObject *motion;
 
 	if (!PyArg_ParseTuple (args, "s", &filename)) {
 		// FIXME - throw error
@@ -56,6 +58,9 @@ load (PyObject *self, PyObject *args)
 		return NULL;
 	}
 
+	motion = CreateMotion ();
+
 	fclose (file);
-	PyObject *dict = PyDict_New ();
+
+	return motion;
 }
