@@ -48,7 +48,7 @@ load (PyObject *self, PyObject *args)
 	PyObject *motion;
 
 	if (!PyArg_ParseTuple (args, "s", &filename)) {
-		// FIXME - throw error
+		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected 'string'"));
 		return NULL;
 	}
 
