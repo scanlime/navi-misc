@@ -28,6 +28,7 @@ static PyObject *Motion_getAttr  (Motion *motion, char *name);
 static void      Motion_setAttr  (Motion *motion, char *name, PyObject *v);
 static PyObject *Motion_repr     (Motion *motion);
 static PyObject *Motion_fromFile (Motion *self, PyObject *args);
+static PyObject *Motion_save     (Motion *self, PyObject *args);
 
 static PyMethodDef MotionC_methods[] = {
 	{NULL, NULL, 0, NULL},
@@ -35,6 +36,7 @@ static PyMethodDef MotionC_methods[] = {
 
 static PyMethodDef Motion_methods[] = {
 	{"from_file", (PyCFunction) Motion_fromFile, METH_STATIC | METH_VARARGS, "Create from an AMC file"},
+	{"save",      (PyCFunction) Motion_save,     METH_VARARGS,               "Save as an AMC file"},
 	{NULL,        NULL,                          0,                          NULL},
 };
 
@@ -143,6 +145,12 @@ Motion_fromFile (Motion *self, PyObject *args)
 	fclose (file);
 
 	return motion;
+}
+
+static PyObject *
+Motion_save (Motion *self, PyObject *args)
+{
+	return NULL;
 }
 
 PyMODINIT_FUNC
