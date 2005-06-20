@@ -164,6 +164,27 @@ Motion_fromFile (Motion *self, PyObject *args)
 			// format specifier
 			PyList_Append (motion->format, PyString_FromString (line));
 		} else {
+			gchar *ch;
+			gboolean newframe = TRUE;
+
+			g_strstrip (line);
+
+			// determine if this line just contains an int - if so, it's
+			// the beginning of a new frame
+			for (ch = line; *ch; ch++) {
+				if (!g_ascii_isdigit (*ch)) {
+					newframe = FALSE;
+					break;
+				}
+			}
+
+
+			if (newframe) {
+				g_printf ("found frame %s\n", line);
+			} else {
+				gchar **tokens = g_strsplit (line, " ", 0);
+				g_strfreev (tokens);
+			}
 		}
 		g_free (line);
 	}
