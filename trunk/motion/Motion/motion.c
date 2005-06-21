@@ -137,7 +137,8 @@ Motion_fromFile (Motion *self, PyObject *args)
 	gchar *line;
 	int terminator;
 	guint64 current_frame, total_frames;
-	GHashTable *bones;
+	GSList *bones = NULL;
+	GSList *dofs = NULL;
 
 	// get filename
 	if (!PyArg_ParseTuple (args, "s", &filename)) {
@@ -152,8 +153,6 @@ Motion_fromFile (Motion *self, PyObject *args)
 	}
 
 	motion = (Motion *) CreateMotion ();
-
-	bones = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
 	// first pass - go through, grab comments & format, parse first frame
 	// to find #dof for each bone, total number of frames
@@ -201,7 +200,11 @@ Motion_fromFile (Motion *self, PyObject *args)
 						if (strlen (tokens[token]))
 							dof++;
 					}
-					g_hash_table_insert (bones, (gpointer) g_strdup (tokens[0]), GUINT_TO_POINTER (dof));
+					// create two lists, one with the names of the bones (so we
+					// know what order things go in), the other with the number
+					// of dofs for each bone
+					bones = g_slist_append (bones, g_strdup (tokens[0]));
+					dofs = g_slist_append (dofs, GUINT_TO_POINTER (dof));
 					g_print ("found bone '%s' with %d dof\n", tokens[0], dof);
 					g_strfreev (tokens);
 				}
@@ -260,7 +263,9 @@ Motion_fromFile (Motion *self, PyObject *args)
 		g_free (line);
 	}
 
-	g_hash_table_destroy (bones);
+	g_slist_foreach (bones, g_free, NULL);
+	g_slist_free (bones);
+	g_slist_free (dofs);
 
 	g_io_channel_close (file);
 
