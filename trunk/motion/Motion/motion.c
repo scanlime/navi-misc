@@ -139,6 +139,8 @@ AMC_fromFile (AMC *self, PyObject *args)
 	guint64 current_frame, total_frames;
 	GSList *bones = NULL;
 	GSList *dofs = NULL;
+	GSList *data = NULL;
+	GSList *i;
 
 	// get filename
 	if (!PyArg_ParseTuple (args, "s", &filename)) {
@@ -216,6 +218,19 @@ AMC_fromFile (AMC *self, PyObject *args)
 	total_frames = current_frame;
 	g_print ("%lld total frames found\n", total_frames);
 
+	// allocate Numeric arrays
+	for (i = dofs; i; i = g_slist_next (i)) {
+		int dims[2];
+		guint dof = GPOINTER_TO_UINT (i->data);
+		PyObject *array;
+
+		dims[0] = dof;
+		dims[1] = total_frames;
+
+		array = PyArray_FromDims (2, dims, PyArray_FLOAT);
+		data = g_slist_append (data, array);
+	}
+
 	g_io_channel_seek_position (file, 0, G_SEEK_SET, NULL);
 
 	// second pass - read in all the data, now that we have space allocated for it
@@ -263,7 +278,7 @@ AMC_fromFile (AMC *self, PyObject *args)
 		g_free (line);
 	}
 
-	g_slist_foreach (bones, g_free, NULL);
+	g_slist_foreach (bones, (GFunc) g_free, NULL);
 	g_slist_free (bones);
 	g_slist_free (dofs);
 
@@ -287,6 +302,9 @@ initmotion_c (void)
 		return;
 
 	module = Py_InitModule ("motion_c", MotionC_methods);
+
+	// initialize Numeric
+	import_array ();
 
 	if (module == NULL)
 		return;
