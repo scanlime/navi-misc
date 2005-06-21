@@ -1,0 +1,23 @@
+This file contains my thoughts on what the game should do. Consider it as a
+sort of pseudo-requirements doc, but without any hard rules or traceability.
+
+The pod is pretty simple - it floats like a butterfly and moves like a boat (see
+the old screamers), has two guns, a set amount of ammunition (which can be refilled
+with pick-ups) and a shield (which slowly recharges itself and can be enhanced
+with pick-ups, maybe).
+
+Game modes:
+
+FFA:
+	Very simple, run around, shoot things. Maybe do smash-bros. style games
+	where you can choose between stock or timed?  Either way, I think rounds
+	are the way to go, since scoring is meaningful (as opposed to bzflag's
+	continuous play). New joining players get in on the next round.
+
+CTF:
+	bzflag-style probably works here, at least until i think of something cooler
+
+race:
+	canyon pod racing, baby. just because last exile r0x0rz my s0x0rz
+
+
