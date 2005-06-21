@@ -136,8 +136,10 @@ Motion_fromFile (Motion *self, PyObject *args)
 	Motion *motion;
 	gchar *line;
 	int terminator;
-	guint64 current_frame;
+	guint64 current_frame, total_frames;
+	GHashTable *bones;
 
+	// get filename
 	if (!PyArg_ParseTuple (args, "s", &filename)) {
 		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected 'string'"));
 		return NULL;
@@ -151,6 +153,10 @@ Motion_fromFile (Motion *self, PyObject *args)
 
 	motion = (Motion *) CreateMotion ();
 
+	bones = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+	// first pass - go through, grab comments & format, parse first frame
+	// to find #dof for each bone, total number of frames
 	while (g_io_channel_read_line (file, &line, NULL, &terminator, NULL) == G_IO_STATUS_NORMAL) {
 		// get rid of line terminator
 		line[terminator] = '\0';
@@ -168,6 +174,66 @@ Motion_fromFile (Motion *self, PyObject *args)
 
 			g_strstrip (line);
 
+			// empty line?
+			if (strlen (line) == 0)
+				continue;
+
+			// determine if this line just contains an int - if so, it's
+			// the beginning of a new frame
+			for (ch = line; *ch; ch++) {
+				if (!g_ascii_isdigit (*ch)) {
+					newframe = FALSE;
+					break;
+				}
+			}
+
+			if (newframe) {
+				current_frame = g_ascii_strtoull (line, NULL, 10);
+			} else {
+				if (current_frame == 1) {
+					gchar **tokens = g_strsplit (line, " ", 0);
+					guint token;
+					guint dof = 0;
+
+					g_strstrip (tokens[0]);
+					for (token = 1; tokens[token]; token++) {
+						g_strstrip (tokens[token]);
+						if (strlen (tokens[token]))
+							dof++;
+					}
+					g_hash_table_insert (bones, (gpointer) g_strdup (tokens[0]), GUINT_TO_POINTER (dof));
+					g_print ("found bone '%s' with %d dof\n", tokens[0], dof);
+					g_strfreev (tokens);
+				}
+			}
+		}
+		g_free (line);
+	}
+
+	total_frames = current_frame;
+	g_print ("%lld total frames found\n", total_frames);
+
+	g_io_channel_seek_position (file, 0, G_SEEK_SET, NULL);
+
+	// second pass - read in all the data, now that we have space allocated for it
+	while (g_io_channel_read_line (file, &line, NULL, &terminator, NULL) == G_IO_STATUS_NORMAL) {
+		// get rid of line terminator
+		line[terminator] = '\0';
+
+		// parse data
+		if (line[0] == '#' || line[0] == ':') {
+			// we read these in during the first pass. ignore
+			continue;
+		} else {
+			gchar *ch;
+			gboolean newframe = TRUE;
+
+			g_strstrip (line);
+
+			// empty line ?
+			if (strlen (line) == 0)
+				continue;
+
 			// determine if this line just contains an int - if so, it's
 			// the beginning of a new frame
 			for (ch = line; *ch; ch++) {
@@ -182,11 +248,19 @@ Motion_fromFile (Motion *self, PyObject *args)
 				current_frame = g_ascii_strtoull (line, NULL, 10);
 			} else {
 				gchar **tokens = g_strsplit (line, " ", 0);
+				guint token;
+
+				for (token = 0; tokens[token]; token++)
+					g_strstrip (tokens[token]);
+
 				g_strfreev (tokens);
 			}
 		}
+
 		g_free (line);
 	}
+
+	g_hash_table_destroy (bones);
 
 	g_io_channel_close (file);
 
