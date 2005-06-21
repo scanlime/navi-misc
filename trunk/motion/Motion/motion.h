@@ -24,6 +24,8 @@
 
 #include <Python.h>
 
+#define PY_ARRAY_UNIQUE_SYMBOL
+
 typedef struct
 {
 	PyObject_HEAD
