@@ -32,8 +32,8 @@ typedef struct
 	PyObject *bones;
 	PyObject *comments;
 	PyObject *format;
-} Motion;
+} AMC;
 
-PyObject *CreateMotion ();
+PyObject *CreateAMC ();
 
 #endif

@@ -24,35 +24,35 @@
 #include <glib.h>
 #include "motion.h"
 
-static void      Motion_dealloc  (Motion *motion);
-static PyObject *Motion_getAttr  (Motion *motion, char *name);
-static void      Motion_setAttr  (Motion *motion, char *name, PyObject *v);
-static PyObject *Motion_repr     (Motion *motion);
-static PyObject *Motion_fromFile (Motion *self, PyObject *args);
-static PyObject *Motion_save     (Motion *self, PyObject *args);
+static void      AMC_dealloc  (AMC *motion);
+static PyObject *AMC_getAttr  (AMC *motion, char *name);
+static void      AMC_setAttr  (AMC *motion, char *name, PyObject *v);
+static PyObject *AMC_repr     (AMC *motion);
+static PyObject *AMC_fromFile (AMC *self, PyObject *args);
+static PyObject *AMC_save     (AMC *self, PyObject *args);
 
 static PyMethodDef MotionC_methods[] = {
 	{NULL, NULL, 0, NULL},
 };
 
-static PyMethodDef Motion_methods[] = {
-	{"from_file", (PyCFunction) Motion_fromFile, METH_STATIC | METH_VARARGS, "Create from an AMC file"},
-	{"save",      (PyCFunction) Motion_save,     METH_VARARGS,               "Save as an AMC file"},
+static PyMethodDef AMC_methods[] = {
+	{"from_file", (PyCFunction) AMC_fromFile, METH_STATIC | METH_VARARGS, "Create from an AMC file"},
+	{"save",      (PyCFunction) AMC_save,     METH_VARARGS,               "Save as an AMC file"},
 	{NULL,        NULL,                          0,                          NULL},
 };
 
-PyTypeObject Motion_Type = {
+PyTypeObject AMC_Type = {
 	PyObject_HEAD_INIT(NULL)
 	0,				// ob_size
-	"AMC Motion",			// tp_name
-	sizeof (Motion),		// tp_basicsize
+	"AMC",				// tp_name
+	sizeof (AMC),			// tp_basicsize
 	0,				// tp_itemsize
-	(destructor) Motion_dealloc,	// tp_dealloc
+	(destructor) AMC_dealloc,	// tp_dealloc
 	0,				// tp_print
-	(getattrfunc) Motion_getAttr,	// tp_getattr
-	(setattrfunc) Motion_setAttr,	// tp_setattr
+	(getattrfunc) AMC_getAttr,	// tp_getattr
+	(setattrfunc) AMC_setAttr,	// tp_setattr
 	0,				// tp_compare
-	(reprfunc) Motion_repr,		// tp_repr
+	(reprfunc) AMC_repr,		// tp_repr
 	0,				// tp_as_number
 	0,				// tp_as_sequence
 	0,				// tp_as_mapping
@@ -70,14 +70,14 @@ PyTypeObject Motion_Type = {
 	0,				// tp_weaklistoffset
 	0,				// tp_iter
 	0,				// tp_iternext
-	Motion_methods,			// tp_methods
+	AMC_methods,			// tp_methods
 	0,				// tp_members
 
 };
 
-PyObject *CreateMotion ()
+PyObject *CreateAMC ()
 {
-	Motion *m = (Motion *) PyObject_NEW (Motion, &Motion_Type);
+	AMC *m = (AMC *) PyObject_NEW (AMC, &AMC_Type);
 	m->bones    = PyDict_New ();
 	m->comments = PyList_New (0);
 	m->format   = PyList_New (0);
@@ -85,7 +85,7 @@ PyObject *CreateMotion ()
 }
 
 static void
-Motion_dealloc (Motion *motion)
+AMC_dealloc (AMC *motion)
 {
 	PyObject_DEL (motion->bones);
 	PyObject_DEL (motion->comments);
@@ -94,7 +94,7 @@ Motion_dealloc (Motion *motion)
 }
 
 static PyObject *
-Motion_getAttr (Motion *motion, char *name)
+AMC_getAttr (AMC *motion, char *name)
 {
 	PyObject *attr = Py_None;
 
@@ -112,28 +112,28 @@ Motion_getAttr (Motion *motion, char *name)
 	}
 
 	if (attr == Py_None)
-		return Py_FindMethod (Motion_methods, (PyObject *) motion, name);
+		return Py_FindMethod (AMC_methods, (PyObject *) motion, name);
 
 	return attr;
 }
 
 static void
-Motion_setAttr (Motion *motion, char *name, PyObject *v)
+AMC_setAttr (AMC *motion, char *name, PyObject *v)
 {
 }
 
 static PyObject *
-Motion_repr (Motion *motion)
+AMC_repr (AMC *motion)
 {
-	return PyString_FromFormat ("[Motion \"s\", d frames]");
+	return PyString_FromFormat ("[AMC \"s\", d frames]");
 }
 
 static PyObject *
-Motion_fromFile (Motion *self, PyObject *args)
+AMC_fromFile (AMC *self, PyObject *args)
 {
 	char *filename;
 	GIOChannel *file;
-	Motion *motion;
+	AMC *motion;
 	gchar *line;
 	int terminator;
 	guint64 current_frame, total_frames;
@@ -152,7 +152,7 @@ Motion_fromFile (Motion *self, PyObject *args)
 		return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
 	}
 
-	motion = (Motion *) CreateMotion ();
+	motion = (AMC *) CreateAMC ();
 
 	// first pass - go through, grab comments & format, parse first frame
 	// to find #dof for each bone, total number of frames
@@ -273,7 +273,7 @@ Motion_fromFile (Motion *self, PyObject *args)
 }
 
 static PyObject *
-Motion_save (Motion *self, PyObject *args)
+AMC_save (AMC *self, PyObject *args)
 {
 	return NULL;
 }
@@ -283,7 +283,7 @@ initmotion_c (void)
 {
 	PyObject *module;
 
-	if (PyType_Ready (&Motion_Type) < 0)
+	if (PyType_Ready (&AMC_Type) < 0)
 		return;
 
 	module = Py_InitModule ("motion_c", MotionC_methods);
@@ -291,6 +291,6 @@ initmotion_c (void)
 	if (module == NULL)
 		return;
 
-	Py_INCREF (&Motion_Type);
-	PyModule_AddObject (module, "Motion", (PyObject *) &Motion_Type);
+	Py_INCREF (&AMC_Type);
+	PyModule_AddObject (module, "AMC", (PyObject *) &AMC_Type);
 }
