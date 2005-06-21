@@ -43,7 +43,7 @@ class DonationSection(Web.Template.Section):
 # Disable stats pruning automatically if our I/O load gets critical
 def isPruningEnabled(self):
     ioStatus = dict([t.split("=") for t in open("/proc/io_status").read().split()])
-    return ioStatus['io_tokens'] > 300000
+    return int(ioStatus['io_tokens']) > 300000
 Stats.Target.Messages.isPruningEnabled = isPruningEnabled
 
 # Remove the non-main CIA server notice, since this is in fact the
