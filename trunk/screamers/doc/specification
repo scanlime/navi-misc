@@ -3,8 +3,9 @@ sort of pseudo-requirements doc, but without any hard rules or traceability.
 
 The pod is pretty simple - it floats like a float-bot, stings like an automatic
 stingin' machine and moves like a boat (see the old screamers).  It has two guns,
-a fixed amount of ammunition (which can be refilled with pick-ups) and a shield
-(which slowly recharges itself and can be enhanced with pick-ups, maybe).
+and a fixed amount of "energy" which is used for shots, shields and afterburners.
+Energy recharges slowly and picking up specials will recharge lots.
+
 
 Game modes:
 
