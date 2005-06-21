@@ -21,3 +21,9 @@ race:
 	canyon pod racing, baby. just because last exile r0x0rz my s0x0rz
 
 
+As far as pod physics, I'd love for zipping around on a flat surface to feel just
+like the old screamers.  For more complicated worlds, I'm thinking that the pod
+will have a sort of force field pushing up whose strength is some factor of the
+distance to the ground.  This will allow moving around on terrain, but you can still
+run into it if you move to fast towards too steep a surface.  There should probably
+be some kind of jumping involved, but I haven't thought about that yet
