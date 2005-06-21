@@ -255,7 +255,6 @@ class Messages(object):
 
     def __init__(self, target):
         self.target = target
-        self.lastPruned = 0
 
     def push(self, message):
         """Store a new message for this stats target"""
@@ -282,10 +281,12 @@ class Messages(object):
                                           timestamp))
 
         # Delete old messages as we go
-        now = time.time()
-        if now > (self.lastPruned + 60*30):
-            self.lastPruned = now
+        if self.isPruningEnabled():
             self._prune(cursor)
+
+    def isPruningEnabled(self):
+        """Subclasses or .tac files can override this to control pruning behaviour."""
+        return True
 
     def _prune(self, cursor):
         """Delete messages that are too old"""
