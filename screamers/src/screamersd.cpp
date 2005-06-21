@@ -19,14 +19,21 @@
  *
  */
 
+#include "screamers.h"
 #include <string>
 #include <iostream>
-#include "screamers.h"
 #include "version.h"
+
+//#include "worldParser.h"
 
 int appMain ( std::string commandLine )
 {
 	std::cout << "version " << VERSION << std::endl;
+
+/*	World	world;
+	WorldParser parser(world);
+
+	parser.load(commandLine.c_str()); */
 	return 0;
 }
 
