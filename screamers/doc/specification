@@ -1,26 +1,26 @@
 This file contains my thoughts on what the game should do. Consider it as a
 sort of pseudo-requirements doc, but without any hard rules or traceability.
 
-The pod is pretty simple - it floats like a float-bot, stings like an automatic
-stingin' machine and moves like a boat (see the old screamers).  It has two guns,
-and a fixed amount of "energy" which is used for shots, shields and afterburners.
-Energy recharges slowly and picking up specials will recharge lots.
 
+The Pod:
 
-Game modes:
+The pod is pretty simple - it floats like a butterfly and moves like a boat (see
+the old screamers).
 
-FFA:
-	Very simple, run around, shoot things. Maybe do smash-bros. style games
-	where you can choose between stock or timed?  Either way, I think rounds
-	are the way to go, since scoring is meaningful (as opposed to bzflag's
-	continuous play). New joining players get in on the next round.
+Pod has a fixed power pool, that slowly refills over time. Pickups can be goten to 
+incrase recharge rate and total power pool size.
 
-CTF:
-	bzflag-style probably works here, at least until i think of something cooler
+Shots take power from pool. The more powerfull the shot the more power it takes.
+Players start with level 1 shots, and can get pickups to increase shots to level
+3. Pod has 2 guns.
 
-race:
-	canyon pod racing, baby. just because last exile r0x0rz my s0x0rz
+Damage from shots is absorbed by a shield, and comes directly off of power pool. 
 
+Power from the pool can be dumped to engines to move at a faster (2x?) rate.
+
+Then the power pool is 0, the pod explosed.
+
+Shooting or moving can never take the pod power pool to 0, only damage can do that.
 
 As far as pod physics, I'd love for zipping around on a flat surface to feel just
 like the old screamers.  For more complicated worlds, I'm thinking that the pod
@@ -28,3 +28,69 @@ will have a sort of force field pushing up whose strength is some factor of the
 distance to the ground.  This will allow moving around on terrain, but you can still
 run into it if you move to fast towards too steep a surface.  There should probably
 be some kind of jumping involved, but I haven't thought about that yet
+
+
+World features:
+
+The world has areas that are impasable. These are objects in the world. The pod
+should react when it hits them ( bump off, or climb up ).
+
+The world can have safety zones, where no shot may be generated or pass thru.
+Anyone in this area is conisidered safe. There should be a limit on how often
+you can go in these things. mostly it's for when you have to pee. ( just an idea)
+
+The world should have pickups. These are objects that pods can pick up, and give
+the pod "things". Things such as upgraded weapons, more power, or other abilitys.
+
+
+Scoring:
+
+Every pickup a player picks up adds 1 to his bounty. When a player dies, his bounty is set
+to 0. This means that the longer a player is alive, the higher his bounty will be.
+When you kill a player, his bounty is added to your score, as well as added to your
+bounty. This means that the better players will be "jucier" targets, and can make
+for some very fun gameplay.
+
+Some came modes will not use the bounty based score, but rely on kills or flag captures.
+
+Game modes:
+
+DeathMatch:
+	Very simple, run around, shoot other players.
+    
+    Mode options would include;
+    
+    Smash-bros. style Timed games.
+    Frag limit games.
+    Last man standing games with a respawn limit.
+    Max Score limit games
+
+	A game is a round of action. Game should be ether open or closed.
+    Open games let anyone join at a time, they will just be at a disadvantage for that round.
+    But be able to get it on next round ( good for n00b learning too ).
+    Closed games don't let players join untill a round starts.
+    This creates a more "pure" game, but can be frustrating for new players, or people
+    just looking for fun.
+
+    both team and true Free for all.
+
+Capture the flag:
+	Allways a team game. Rounds run to a max capture limit. Players move from an area(s)
+    that are designated there "base". Each base as a flag hoolder with it's assocated
+    team flag. Teams atempt to enter the other teams base and caputure there flag
+    and bring it back to there own base, and touch it to there team flag in it's holder.
+    When a flag caryer dies he drops the flag. When a team touches it's own team flag
+    and it is loose on the ground, the flag teleports back to it's holder.
+    There should be an option to respawn everyone on each capture, with some sort of dely
+    after capture, where no caputures can happen.
+    As with FFA allow options for open and closed games.
+
+Race:
+	canyon pod racing, baby. just because last exile r0x0rz my s0x0rz.
+    This is allways a closed game. Noone can join when a race is underway.
+    Players start at a start line and have to complete N laps. Each lap is a path around the map
+    procedeing acrooss N waypoints in order. Pickups spawn on the map. Weapons and stuff
+    are allowed. Anyone who dies durning the race is "out" and must observe
+    untill the race is complete.
+
+
