@@ -10,6 +10,6 @@ glib_libs = pkgconfig.readline ().strip ().split(' ')
 pkgconfig.close ()
 
 # build!
-motion_c = Extension('motion_c', sources=['motion.c'], extra_compile_args=glib_cflags, extra_link_args=glib_libs)
+motion_c = Extension('motion_c', sources=['motion.c'], extra_compile_args=glib_cflags + ['-g'], extra_link_args=glib_libs)
 
 setup (name='Motion', version='1.0', description='Modules for dealing with motion-capture data', ext_modules=[motion_c])
