@@ -69,7 +69,6 @@ InfoListener::updateStats ()
 	try {
 		const Ogre::RenderTarget::FrameStats &stats = window->getStatistics ();
 
-		// FIXME - do we want to show frame times as well?
 		gui_current_fhz->setCaption    (Ogre::StringConverter::toString (stats.lastFPS));
 		gui_average_fhz->setCaption    (Ogre::StringConverter::toString (stats.avgFPS));
 		gui_best_fhz->setCaption       (Ogre::StringConverter::toString (stats.bestFPS));
