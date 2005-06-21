@@ -1,0 +1,7 @@
+<?xml version=\"1.0\"  standalone='no' >
+<World name ="test world" description = "a simple test world">
+	<Object
+		type = "box"
+		postion = "0,0,0"
+	/>
+</World>
