@@ -1,5 +1,5 @@
 /*
- * application.h - application class which generally runs everything
+ * FrameListener.h - screamers-specific FrameListeners
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -19,40 +19,42 @@
  *
  */
 
-#include <Ogre.h>
-#include "frameListener.h"
+#ifndef _FRAME_LISTENER_H_
+#define _FRAME_LISTENER_H_
 
-#ifndef _APPLICATION_H_
-#define _APPLICATION_H_
+#include <Ogre.h>
 
 namespace Screamers
 {
 
-class Application
+class FrameListener : public Ogre::FrameListener
 {
-	// This is mostly taken from the "ExampleApplication" class in the
-	// Ogre samples, since it's a pretty nice way to set up everything
-	// we need.
-
 public:
-				 Application ();
-	virtual			~Application ();
-
-	virtual void		 go ();
+				 FrameListener (Ogre::RenderWindow *window);
+	virtual			~FrameListener ();
 
 protected:
-	Ogre::Root		*root;
-	Ogre::Camera		*camera;
-	Ogre::SceneManager	*sceneManager;
-	Ogre::RenderWindow	*renderWindow;
-	InfoListener		*infoListener;
+	Ogre::RenderWindow	*window;
+};
 
-	virtual bool		 setup ();
-	virtual bool		 configure ();
+class InfoListener : public FrameListener
+{
+public:
+				 InfoListener (Ogre::RenderWindow *window);
+	virtual			~InfoListener ();
+
+	virtual bool		 frameEnded (const Ogre::FrameEvent &event);
+
+protected:
+	Ogre::Overlay		*debugOverlay;
+	Ogre::OverlayElement	*gui_current_fhz;
+	Ogre::OverlayElement	*gui_average_fhz;
+	Ogre::OverlayElement	*gui_best_fhz;
+	Ogre::OverlayElement	*gui_worst_fhz;
+	Ogre::OverlayElement	*gui_triangle_count;
 
 private:
-	void			 loadResourcePaths ();
-	void			 loadResources ();
+	void			 updateStats ();
 };
 
 };

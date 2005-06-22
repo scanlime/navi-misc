@@ -1,5 +1,5 @@
 /*
- * screamersd.cpp - main entry point for the server
+ * ScreamersD.cpp - main entry point for the server
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -22,8 +22,8 @@
 #include <string>
 #include <iostream>
 
-#include "screamers.h"
-#include "version.h"
+#include "Screamers.h"
+#include "Version.h"
 #include "WorldParser.h"
 
 int appMain ( std::string commandLine )

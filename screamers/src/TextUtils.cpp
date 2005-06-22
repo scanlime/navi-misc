@@ -11,7 +11,7 @@
  */
 
 // interface header
-#include "textUtils.h"
+#include "TextUtils.h"
 
 // system headers
 #include <string>
