@@ -98,3 +98,11 @@ Race:
 	stuff are allowed. Anyone who dies durning the race is "out" and must observe until
 	the race is complete.
 
+
+Other stuff:
+	When a player connects in the middle of a closed game, they're put in a 'waiting
+	room'.  During this time, they're allowed to observe the current round.
+
+	When a player dies out of a round, they're put in observer mode for the remainder
+	of the round.
+
