@@ -20,7 +20,7 @@
  */
 
 #include <Ogre.h>
-#include "frame-listener.h"
+#include "frameListener.h"
 
 #ifndef _APPLICATION_H_
 #define _APPLICATION_H_

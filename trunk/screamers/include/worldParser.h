@@ -1,5 +1,5 @@
 /*
-* world-parser.h - parses worlds, dummy
+* worldParser.h - parses worlds, dummy
 *
 * Copyright (C) 2005 Screamers Group (see AUTHORS)
 *
