@@ -11,13 +11,14 @@ screamersd_sources = [
 	'tinyxmlerror.cpp',
 	'tinyxml.cpp',
 	'world.cpp',
+	'worldParser.cpp',
 ]
 env.Program ('screamersd', screamersd_sources)
 
 # Build the client
 screamers_sources = [
 	'application.cpp',
-	'frame-listener.cpp',
+	'frameListener.cpp',
 	'screamers.cpp',
 ]
 env.Program ('screamers', screamers_sources)
