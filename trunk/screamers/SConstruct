@@ -13,5 +13,8 @@ pkgconfig.close ()
 env.Command ('plugins.cfg', 'plugins.cfg.in', 'sed -e "s|\@ogrepluginpath\@|%s|g" < $SOURCES > $TARGET' % plugindir)
 
 # Build stuff in src/
-scripts = ['src/SConscript']
+scripts = [
+	'src/tinyxml/SConscript',
+	'src/SConscript',
+]
 SConscript (scripts)
