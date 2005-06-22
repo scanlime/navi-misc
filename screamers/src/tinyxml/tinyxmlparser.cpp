@@ -907,7 +907,7 @@ void TiXmlElement::StreamIn (TIXML_ISTREAM * in, TIXML_STRING * tag)
 			// We should be at a "<", regardless.
 			if ( !in->good() ) return;
 			assert( in->peek() == '<' );
-			int tagIndex = tag->length();
+			int tagIndex = (int)tag->length();
 
 			bool closingTag = false;
 			bool firstCharFound = false;

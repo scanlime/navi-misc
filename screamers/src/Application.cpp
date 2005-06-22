@@ -36,10 +36,10 @@ Application::~Application ()
 		delete root;
 }
 
-void
-Application::go ()
+void Application::go (void)
 {
-	if (!setup ()) {
+	if (!setup ())
+	{
 		std::cerr << "Could not set up OGRE, quitting\n";
 		return;
 	}
@@ -49,36 +49,39 @@ Application::go ()
 	// FIXME - clean up
 }
 
-void
-Application::loadResourcePaths ()
+void Application::loadResourcePaths (void)
 {
 	Ogre::ConfigFile resources_config;
+
 	resources_config.load ("resources.cfg");
 
 	Ogre::ConfigFile::SectionIterator it = resources_config.getSectionIterator ();
 
 	Ogre::String section_name, type_name, arch_name;
 
-	while (it.hasMoreElements ()) {
+	while (it.hasMoreElements ())
+	{
 		section_name = it.peekNextKey ();
+
 		Ogre::ConfigFile::SettingsMultiMap *settings = it.getNext ();
 		Ogre::ConfigFile::SettingsMultiMap::iterator sec_it;
-		for (sec_it = settings->begin (); sec_it != settings->end (); ++sec_it) {
+
+		for (sec_it = settings->begin (); sec_it != settings->end (); ++sec_it)
+		{
 			type_name = sec_it->first;
 			arch_name = sec_it->second;
+
 			Ogre::ResourceGroupManager::getSingleton ().addResourceLocation (arch_name, type_name, section_name);
 		}
 	}
 }
 
-void
-Application::loadResources ()
+void Application::loadResources (void)
 {
 	Ogre::ResourceGroupManager::getSingleton ().initialiseAllResourceGroups ();
 }
 
-bool
-Application::setup ()
+bool Application::setup (void)
 {
 	root = new Ogre::Root ();
 	loadResourcePaths ();
@@ -98,31 +101,32 @@ Application::setup ()
 
 	// create a viewport
 	Ogre::Viewport *viewport = renderWindow->addViewport (camera);
+
 	viewport->setBackgroundColour (Ogre::ColourValue (0, 0, 0));
 	camera->setAspectRatio (Ogre::Real (viewport->getActualWidth ()) / Ogre::Real (viewport->getActualHeight ()));
 
 	Ogre::TextureManager::getSingleton ().setDefaultNumMipmaps (5);
-
 	loadResources ();
 
 	// create the info listener - this displays things like FHz
 	infoListener = new InfoListener (renderWindow);
+
 	root->addFrameListener (infoListener);
 
 	return true;
 }
 
-bool
-Application::configure ()
+bool Application::configure (void)
 {
 	// FIXME - we'll want to store most of this stuff in whatever configuration
 	// system we end up having, rather than running this dialog every time
-	if (root->showConfigDialog ()) {
+	if (root->showConfigDialog ())
+	{
 		renderWindow = root->initialise (true, "Screamers");
 		return true;
-	} else {
+	} 
+	else
 		return false;
-	}
 }
 
 };

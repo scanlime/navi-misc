@@ -38,6 +38,7 @@ InfoListener::InfoListener (Ogre::RenderWindow *window) : FrameListener (window)
 	Ogre::OverlayManager &overlay_manager = Ogre::OverlayManager::getSingleton ();
 
 	debugOverlay = overlay_manager.getByName ("Core/DebugOverlay");
+
 	debugOverlay->show ();
 
 	gui_current_fhz    = overlay_manager.getOverlayElement ("Core/CurrFps");
@@ -51,22 +52,21 @@ InfoListener::~InfoListener ()
 {
 }
 
-bool
-InfoListener::frameEnded (const Ogre::FrameEvent &event)
+bool InfoListener::frameEnded (const Ogre::FrameEvent &event)
 {
 	updateStats ();
 	return true;
 }
 
-void
-InfoListener::updateStats ()
+void InfoListener::updateStats (void)
 {
 	// if the overlay is hidden, don't update the labels
 	if (!debugOverlay->isVisible ())
 		return;
 
 	// FIXME - it really doesn't make any sense to update this every frame
-	try {
+	try 
+	{
 		const Ogre::RenderTarget::FrameStats &stats = window->getStatistics ();
 
 		gui_current_fhz->setCaption    (Ogre::StringConverter::toString (stats.lastFPS));
@@ -74,7 +74,9 @@ InfoListener::updateStats ()
 		gui_best_fhz->setCaption       (Ogre::StringConverter::toString (stats.bestFPS));
 		gui_worst_fhz->setCaption      (Ogre::StringConverter::toString (stats.worstFPS));
 		gui_triangle_count->setCaption (Ogre::StringConverter::toString (stats.triangleCount));
-	} catch (...) {
+	}
+	catch (...) 
+	{
 		// ignore
 	}
 }

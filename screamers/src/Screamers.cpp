@@ -33,7 +33,6 @@ int appMain ( std::string commandLine )
 	return 0;
 }
 
-
 // platform-specific main functions, 'cuz one of those platforms uses a silly one
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)

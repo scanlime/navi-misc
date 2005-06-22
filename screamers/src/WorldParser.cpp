@@ -24,6 +24,9 @@
 #include "WorldParser.h"
 #include "TextUtils.h"
 
+namespace Screamers
+{
+
 typedef struct
 {
 	std::string name;
@@ -38,8 +41,7 @@ WorldParser::~WorldParser ()
 {
 }
 
-bool
-WorldParser::load (const char* mapFile)
+bool WorldParser::load (const char* mapFile)
 {
 	TiXmlDocument doc (mapFile);
 
@@ -59,7 +61,8 @@ WorldParser::load (const char* mapFile)
 
 	TiXmlAttribute *itemAttribute = itemElement->FirstAttribute ();
 
-	while (itemAttribute) {
+	while (itemAttribute)
+	{
 		WorldAttribute attrib;
 
 		attrib.name = itemAttribute->Name ();
@@ -73,7 +76,8 @@ WorldParser::load (const char* mapFile)
 	node = rootNode->FirstChild ();
 	std::string nodeName;
 
-	while (node) {
+	while (node)
+	{
 		loadObject (node);
 		node = node->NextSibling ();
 	}
@@ -81,8 +85,7 @@ WorldParser::load (const char* mapFile)
 	return true;
 }
 
-void
-WorldParser::loadObject (void * _node)
+void WorldParser::loadObject (void * _node)
 {
 	TiXmlNode* node = (TiXmlNode*) _node;
 	if (!node)
@@ -98,8 +101,7 @@ WorldParser::loadObject (void * _node)
 		parseTexture (node);
 }
 
-int
-WorldParser::parseObject (void *_node)
+int WorldParser::parseObject (void *_node)
 {
 	TiXmlNode* node = (TiXmlNode*) _node;
 	if (!node)
@@ -110,9 +112,10 @@ WorldParser::parseObject (void *_node)
 	TiXmlAttribute *itemAttribute = itemElement->FirstAttribute ();
 
 	std::vector<WorldAttribute> attribs;
-
 	std::string type;
-	while (itemAttribute) {
+
+	while (itemAttribute)
+	{
 		WorldAttribute	attrib;
 
 		attrib.name = TextUtils::tolower (itemAttribute->Name ());
@@ -125,22 +128,27 @@ WorldParser::parseObject (void *_node)
 
 		itemAttribute = itemAttribute->Next ();
 	}
+
 	if (!type.size())
 		return -1;
 
 	int objectID = world.addPrim (type);
 
-	for (unsigned int i = 0; i < attribs.size (); i++) {
+	for (unsigned int i = 0; i < attribs.size (); i++)
+	{
 		float v[3] = {0};
-		if (attribs[i].name == "position") {
+		if (attribs[i].name == "position")
+		{
 			sscanf (attribs[i].value.c_str (), "%f,%f,%f", &v[0], &v[1], &v[2]);
 			world.setObjectPos (objectID, v);
 		}
-		if (attribs[i].name == "rotation") {
+		if (attribs[i].name == "rotation")
+		{
 			sscanf (attribs[i].value.c_str (), "%f,%f,%f", &v[0], &v[1], &v[2]);
 			world.setObjectRot (objectID, v);
 		}
-		if (attribs[i].name == "scale") {
+		if (attribs[i].name == "scale") 
+		{
 			sscanf (attribs[i].value.c_str (), "%f,%f,%f", &v[0], &v[1], &v[2]);
 			world.setObjectScale (objectID, v);
 		}
@@ -150,7 +158,9 @@ WorldParser::parseObject (void *_node)
 
 	// check for any child objects
 	TiXmlNode* childNode = node->FirstChild ();
-	while (childNode) {
+
+	while (childNode)
+	{
 		std::string nodeType = TextUtils::tolower (childNode->Value ());
 
 		if (nodeType == "material")
@@ -163,8 +173,7 @@ WorldParser::parseObject (void *_node)
 	}
 }
 
-int
-WorldParser::parseMesh (void *_node)
+int WorldParser::parseMesh (void *_node)
 {
 	TiXmlNode* node = (TiXmlNode*) _node;
 	if (!node)
@@ -173,23 +182,22 @@ WorldParser::parseMesh (void *_node)
 	return -1;
 }
 
-int
-WorldParser::parseTexture (void *_node)
+int WorldParser::parseTexture (void *_node)
 {
 	TiXmlNode* node = (TiXmlNode*) _node;
+
 	if (!node)
 		return -1;
 
 	TiXmlElement* itemElement = node->ToElement ();
-
 	TiXmlAttribute *itemAttribute = itemElement->FirstAttribute ();
-
 	std::string name;
 	std::string color;
 	std::string alpha;
 	std::string image;
 
-	while (itemAttribute) {
+	while (itemAttribute)
+	{
 		WorldAttribute attrib;
 
 		attrib.name = TextUtils::tolower (itemAttribute->Name ());
@@ -208,8 +216,13 @@ WorldParser::parseTexture (void *_node)
 	}
 
 	// we have to have something
-	if (color.size() == 0 && image.size () == 0)
-		return -1;
+	if ( !color.size() || image.size() )
+	{	
+		if ( name.size())	// it's a ogre material
+			return world.addMaterial(name.c_str());	
+		else
+			return -1;
+	}
 
 	float c[3] = {1, 1, 1};
 	float a = 1;
@@ -222,20 +235,19 @@ WorldParser::parseTexture (void *_node)
 	return world.addMaterial (c, a, image.size() ? image.c_str () : NULL, name.size () ? name.c_str () : NULL );
 }
 
-int
-WorldParser::parseMatRef (void *_node)
+int WorldParser::parseMatRef (void *_node)
 {
 	TiXmlNode* node = (TiXmlNode*) _node;
+
 	if (!node)
 		return -1;
 
 	TiXmlElement* itemElement = node->ToElement ();
-
 	TiXmlAttribute *itemAttribute = itemElement->FirstAttribute ();
-
 	std::string name;
 
-	while (itemAttribute) {
+	while (itemAttribute)
+	{
 		WorldAttribute attrib;
 
 		attrib.name = TextUtils::tolower (itemAttribute->Name());
@@ -253,3 +265,5 @@ WorldParser::parseMatRef (void *_node)
 
 	return world.findMaterialByName(name.c_str());
 }
+
+};
