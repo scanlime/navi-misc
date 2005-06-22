@@ -3,14 +3,14 @@
 Import ('env')
 env.Append (CCFLAGS = '-g')
 env.Append (CPPPATH = '../include')
+env.Append (CPPPATH = 'tinyxml')
+env.Append (LIBS = 'tinyxml')
+env.Append (LIBPATH = 'tinyxml')
 
 # Build the server
 screamersd_sources = [
 	'ScreamersD.cpp',
 	'TextUtils.cpp',
-	'tinyxmlparser.cpp',
-	'tinyxmlerror.cpp',
-	'tinyxml.cpp',
 	'World.cpp',
 	'WorldParser.cpp',
 ]
