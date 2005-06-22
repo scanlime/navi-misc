@@ -2,7 +2,7 @@
 
 import os
 
-env = Environment (CPPPATH = ['../include'])
+env = Environment ()
 env.ParseConfig ('pkg-config --cflags --libs OGRE')
 Export ('env')
 
