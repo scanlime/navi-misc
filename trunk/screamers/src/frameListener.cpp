@@ -1,5 +1,5 @@
 /*
- * frame-listener.cpp - screamers-specific FrameListeners
+ * frameListener.cpp - screamers-specific FrameListeners
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -19,7 +19,7 @@
  *
  */
 
-#include "frame-listener.h"
+#include "frameListener.h"
 
 namespace Screamers
 {

@@ -19,12 +19,12 @@
  *
  */
 
-#include "screamers.h"
 #include <string>
 #include <iostream>
-#include "version.h"
 
-#include "worldParser.h"
+#include "screamers.h"
+#include "version.h"
+#include "WorldParser.h"
 
 int appMain ( std::string commandLine )
 {
