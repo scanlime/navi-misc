@@ -1,12 +1,42 @@
 <?xml version="1.0"  standalone='no' >
-<World name ="test world" description = "a simple test world">
-	<Prim
-		type = "box"
+
+<World 
+	name ="test world" 
+	description = "a simple test world"
+	size = "1000,1000"
+	wallheight = "10"
+	>
+	
+	<spawn
+		name = "defaut"
+		postion = "100,100,10"
+	/>
+	
+	<Ground>
+		<material
+			name = "basic_ground"
+		/>
+		
+		<material
+			name = "basic_ground_detail"
+			scale = "10,10"
+		/>
+	</Ground>
+	
+	<Mesh
+		model = "box.mesh"
 		postion = "0,0,0"
-		rotation = "0,0,90"
+		rotation = "0,45,45"
 		>
 		<material
-			image = "sample.png"
+			name = "boxmat"
 		/>
-	</Prim>
+	</Mesh>
+	
+	<Mesh
+		model = "tower.mesh"
+		postion = "-100,0,0"
+		rotation = "0,0,45"
+		/>
+	
 </World>
