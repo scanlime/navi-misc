@@ -1,7 +1,12 @@
-<?xml version=\"1.0\"  standalone='no' >
+<?xml version="1.0"  standalone='no' >
 <World name ="test world" description = "a simple test world">
-	<Object
+	<Prim
 		type = "box"
 		postion = "0,0,0"
-	/>
+		rotation = "0,0,90"
+		>
+		<material
+			image = "sample.png"
+		/>
+	</Prim>
 </World>

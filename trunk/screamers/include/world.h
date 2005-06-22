@@ -27,8 +27,22 @@
 class World
 {
 public:
-	World(){};
-	~World(){};
+	World();
+	~World();
+
+	// all the stuff you can add
+	void addAttribute ( std::string &attribute, std::string &value );
+	int addPrim ( std::string type );
+	int addMesh ( std::string model );
+
+	void setObjectAttribute ( int object, std::string &attribute, std::string &value );
+	void setObjectPos ( int object, float p[3] );
+	void setObjectRot ( int object, float r[3] );
+	void setObjectScale ( int object, float s[3] );
+	void addObjectMaterial ( int object, int materialID );
+
+	int addMaterial ( float color[3], float alpha = 1.0f, const char* texture = NULL, const char* name = NULL );
+	int findMaterialByName ( const char* name );
 };
 
 #endif //_WORLD_H_

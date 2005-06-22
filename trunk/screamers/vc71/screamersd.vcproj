@@ -118,6 +118,9 @@
 				RelativePath="..\src\screamersd.cpp">
 			</File>
 			<File
+				RelativePath="..\src\world.cpp">
+			</File>
+			<File
 				RelativePath="..\src\worldParser.cpp">
 			</File>
 			<Filter
