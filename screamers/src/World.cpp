@@ -29,46 +29,56 @@ World::~World()
 {
 }
 
-void World::addAttribute ( std::string &attribute, std::string &value )
+void
+World::addAttribute (std::string &attribute, std::string &value)
 {
 }
 
-int World::addPrim ( std::string type )
-{
-	return -1;
-}
-
-int World::addMesh ( std::string model )
+int
+World::addPrim (std::string type)
 {
 	return -1;
 }
 
-void World::setObjectAttribute ( int object, std::string &attribute, std::string &value )
-{
-}
-
-void World::setObjectPos ( int object, float p[3] )
-{
-}
-
-void World::setObjectRot ( int object, float r[3] )
-{
-}
-
-void World::setObjectScale ( int object, float s[3] )
-{
-}
-
-void World::addObjectMaterial ( int object, int materialID )
-{
-}
-
-int World::addMaterial ( float color[3], float alpha, const char* texture, const char* name )
+int
+World::addMesh (std::string model)
 {
 	return -1;
 }
 
-int World::findMaterialByName ( const char* name )
+void
+World::setObjectAttribute (int object, std::string &attribute, std::string &value)
+{
+}
+
+void
+World::setObjectPos (int object, float p[3])
+{
+}
+
+void
+World::setObjectRot (int object, float r[3])
+{
+}
+
+void
+World::setObjectScale (int object, float s[3])
+{
+}
+
+void
+World::addObjectMaterial (int object, int materialID)
+{
+}
+
+int
+World::addMaterial (float color[3], float alpha, const char* texture, const char* name)
+{
+	return -1;
+}
+
+int
+World::findMaterialByName (const char* name)
 {
 	return -1;
 }
