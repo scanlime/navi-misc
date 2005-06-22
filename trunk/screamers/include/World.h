@@ -45,24 +45,25 @@ public:
 	void	 setObjectScale (int object, float s[3]);
 	void	 addObjectMaterial (int object, int materialID);
 
-	int	 addMaterial ( const char* name );
+	int	 addMaterial (const char* name);
 	int	 addMaterial (float color[3], float alpha = 1.0f, const char* texture = NULL, const char* name = NULL);
 	int	 findMaterialByName (const char* name);
 
 protected:
 
-	typedef struct 
+	typedef struct
 	{
-		std::string name;
+		std::string	name;
 		bool		ogreMat;
-		std::string image;
+		std::string	image;
 		float		c[4];
-	}Material;
+	} Material;
 
 	typedef std::vector<Material>	MaterialList;
 
-	MaterialList		materials;
+	MaterialList			materials;
 };
 
 };
+
 #endif //_WORLD_H_

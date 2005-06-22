@@ -44,17 +44,17 @@
 #endif
 
 #ifdef HAVE__STRICMP
-#  define strcasecmp _stricmp
+#	define strcasecmp _stricmp
 #endif
 #ifdef HAVE__STRNICMP
-#  define strncasecmp _strnicmp
+#	define strncasecmp _strnicmp
 #endif
 #if !defined(HAVE_VSNPRINTF)
-#  ifdef HAVE__VSNPRINTF
-#    define vsnprintf _vsnprintf
-#  else
-#    define vsnprintf(buf, size, fmt, list) vsprintf(buf, fmt, list)
-#  endif
+#	ifdef HAVE__VSNPRINTF
+#		define vsnprintf _vsnprintf
+#	else
+#		define vsnprintf(buf, size, fmt, list) vsprintf(buf, fmt, list)
+#	endif
 #endif
 
 namespace TextUtils
