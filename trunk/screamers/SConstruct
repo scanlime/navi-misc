@@ -3,7 +3,6 @@
 import os
 
 env = Environment (CCFLAGS = '-g', CPPPATH = '#include')
-env.ParseConfig ('pkg-config --cflags --libs OGRE')
 Export ('env')
 
 # Create the plugins.cfg file with the correct plugin path

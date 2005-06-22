@@ -2,7 +2,9 @@
 
 Import ('env')
 e = env.Copy ();
-e.Append (CPPPATH='.')
+
+# bleh!
+e.Append (CPPPATH=['.'])
 
 libtomcrypt_sources = [
 	'keyring.c',
