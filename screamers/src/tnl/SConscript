@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-tnlenv = Environment (CPPPATH = 'libtomcrypt', LIBS = 'tomcrypt', LIBPATH = 'libtomcrypt')
+# bleh, this bothers me a bit
+tnlenv = Environment (CPPPATH = '#src/tnl/libtomcrypt', LIBS = 'tomcrypt', LIBPATH = 'libtomcrypt')
 Export ('tnlenv')
 
 tnl_sources = [

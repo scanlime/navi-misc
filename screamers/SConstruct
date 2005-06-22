@@ -17,6 +17,6 @@ scripts = [
 	'src/SConscript',
 	'src/tinyxml/SConscript',
 	'src/tnl/SConscript',
-	'src/tnl/libtomcryptSConscript',
+	'src/tnl/libtomcrypt/SConscript',
 ]
 SConscript (scripts)

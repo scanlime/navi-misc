@@ -470,7 +470,7 @@ error2:
    return err;
 }
 
-#include "rsa_sys.c"
+#include "rsa_sys.h"
 
 #endif /* RSA */
 
