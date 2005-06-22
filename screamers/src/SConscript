@@ -2,6 +2,7 @@
 
 Import ('env')
 env.Append (CCFLAGS = '-g')
+env.Append (CPPPATH = '../include')
 
 # Build the server
 screamersd_sources = [
