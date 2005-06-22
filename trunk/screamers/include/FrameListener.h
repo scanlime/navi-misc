@@ -54,7 +54,7 @@ protected:
 	Ogre::OverlayElement	*gui_triangle_count;
 
 private:
-	void			 updateStats ();
+	void			 updateStats (void);
 };
 
 };

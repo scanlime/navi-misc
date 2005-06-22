@@ -38,7 +38,7 @@ public:
 				 Application ();
 	virtual			~Application ();
 
-	virtual void		 go ();
+	virtual void		 go (void);
 
 protected:
 	Ogre::Root		*root;
@@ -47,12 +47,12 @@ protected:
 	Ogre::RenderWindow	*renderWindow;
 	InfoListener		*infoListener;
 
-	virtual bool		 setup ();
-	virtual bool		 configure ();
+	virtual bool		 setup (void);
+	virtual bool		 configure (void);
 
 private:
-	void			 loadResourcePaths ();
-	void			 loadResources ();
+	void			 loadResourcePaths (void);
+	void			 loadResources (void);
 };
 
 };
