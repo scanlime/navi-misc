@@ -43,7 +43,7 @@ const struct _cipher_descriptor aes_desc =
     &rijndael_keysize
 };
 
-#include "aes_tab.c"
+#include "aes_tab.h"
 
 int rijndael_setup(const unsigned char *key, int keylen, int rounds, symmetric_key *skey)
 {

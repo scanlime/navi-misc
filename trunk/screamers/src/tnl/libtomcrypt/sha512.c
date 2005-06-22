@@ -262,7 +262,7 @@ int  sha512_test(void)
 }
 
 #ifdef SHA384
-   #include "sha384.c"
+   #include "sha384.h"
 #endif
 
 #endif
