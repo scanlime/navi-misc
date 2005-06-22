@@ -14,7 +14,9 @@ env.Command ('plugins.cfg', 'plugins.cfg.in', 'sed -e "s|\@ogrepluginpath\@|%s|g
 
 # Build stuff in src/
 scripts = [
-	'src/tinyxml/SConscript',
 	'src/SConscript',
+	'src/tinyxml/SConscript',
+	'src/tnl/SConscript',
+	'src/tnl/libtomcryptSConscript',
 ]
 SConscript (scripts)
