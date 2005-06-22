@@ -6,6 +6,11 @@ env.Append (CCFLAGS = '-g')
 # Build the server
 screamersd_sources = [
 	'screamersd.cpp',
+	'textUtils.cpp',
+	'tinyxmlparser.cpp',
+	'tinyxmlerror.cpp',
+	'tinyxml.cpp',
+	'world.cpp',
 ]
 env.Program ('screamersd', screamersd_sources)
 
