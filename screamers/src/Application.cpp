@@ -27,7 +27,7 @@ namespace Screamers
 
 Application::Application ()
 {
-	root          = NULL;
+	root = NULL;
 }
 
 Application::~Application ()
