@@ -49,7 +49,7 @@ bool WorldParser::load (const char* mapFile)
 		return false;
 
 	TiXmlNode *node = 0;
-	TiXmlNode *rootNode = doc.FirstChild ("World");
+	TiXmlNode *rootNode = doc.FirstChild ("world");
 
 	if (!rootNode)
 		return false;
@@ -147,7 +147,7 @@ int WorldParser::parseObject (void *_node)
 			sscanf (attribs[i].value.c_str (), "%f,%f,%f", &v[0], &v[1], &v[2]);
 			world.setObjectRot (objectID, v);
 		}
-		if (attribs[i].name == "scale") 
+		if (attribs[i].name == "scale")
 		{
 			sscanf (attribs[i].value.c_str (), "%f,%f,%f", &v[0], &v[1], &v[2]);
 			world.setObjectScale (objectID, v);
@@ -216,10 +216,10 @@ int WorldParser::parseTexture (void *_node)
 	}
 
 	// we have to have something
-	if ( !color.size() || image.size() )
-	{	
-		if ( name.size())	// it's a ogre material
-			return world.addMaterial(name.c_str());	
+	if ((color.size() == 0) && (image.size() == 0))
+	{
+		if (name.size())	// it's a ogre material
+			return world.addMaterial(name.c_str());
 		else
 			return -1;
 	}
