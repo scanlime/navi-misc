@@ -65,7 +65,7 @@ void InfoListener::updateStats (void)
 		return;
 
 	// FIXME - it really doesn't make any sense to update this every frame
-	try 
+	try
 	{
 		const Ogre::RenderTarget::FrameStats &stats = window->getStatistics ();
 
@@ -75,7 +75,7 @@ void InfoListener::updateStats (void)
 		gui_worst_fhz->setCaption      (Ogre::StringConverter::toString (stats.worstFPS));
 		gui_triangle_count->setCaption (Ogre::StringConverter::toString (stats.triangleCount));
 	}
-	catch (...) 
+	catch (...)
 	{
 		// ignore
 	}
