@@ -1,5 +1,5 @@
 /*
-* worldParser.h - main entry point for the server
+* world-parser.h - parses worlds, dummy
 *
 * Copyright (C) 2005 Screamers Group (see AUTHORS)
 *
