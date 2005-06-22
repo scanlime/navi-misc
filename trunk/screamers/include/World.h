@@ -1,5 +1,5 @@
 /*
- * version.h - well, it's the version
+ * World.h - world data
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -19,11 +19,30 @@
  *
  */
 
-#ifndef _VERSION_H_
-#define _VERSION_H_
+#ifndef _WORLD_H_
+#define _WORLD_H_
 
 #include <string>
 
-#define VERSION "0.0.1"
+class World
+{
+public:
+	World();
+	~World();
 
-#endif //_VERSION_H_
+	// all the stuff you can add
+	void addAttribute ( std::string &attribute, std::string &value );
+	int addPrim ( std::string type );
+	int addMesh ( std::string model );
+
+	void setObjectAttribute ( int object, std::string &attribute, std::string &value );
+	void setObjectPos ( int object, float p[3] );
+	void setObjectRot ( int object, float r[3] );
+	void setObjectScale ( int object, float s[3] );
+	void addObjectMaterial ( int object, int materialID );
+
+	int addMaterial ( float color[3], float alpha = 1.0f, const char* texture = NULL, const char* name = NULL );
+	int findMaterialByName ( const char* name );
+};
+
+#endif //_WORLD_H_

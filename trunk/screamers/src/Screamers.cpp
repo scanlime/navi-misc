@@ -1,5 +1,5 @@
 /*
- * screamers.cpp - main entry point for the client
+ * Screamers.cpp - main entry point for the client
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -21,9 +21,9 @@
 
 #include <string>
 #include <iostream>
-#include "screamers.h"
-#include "version.h"
-#include "application.h"
+#include "Screamers.h"
+#include "Version.h"
+#include "Application.h"
 
 int appMain ( std::string commandLine )
 {

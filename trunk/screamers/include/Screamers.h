@@ -1,5 +1,5 @@
 /*
- * screamers.h - basic, application-wide info
+ * Screamers.h - basic, application-wide info
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *

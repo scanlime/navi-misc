@@ -1,5 +1,5 @@
 /*
- * pod.h - data defining a pod
+ * Pod.h - data defining a pod
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *

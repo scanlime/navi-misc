@@ -5,20 +5,20 @@ env.Append (CCFLAGS = '-g')
 
 # Build the server
 screamersd_sources = [
-	'screamersd.cpp',
-	'textUtils.cpp',
+	'ScreamersD.cpp',
+	'TextUtils.cpp',
 	'tinyxmlparser.cpp',
 	'tinyxmlerror.cpp',
 	'tinyxml.cpp',
-	'world.cpp',
-	'worldParser.cpp',
+	'World.cpp',
+	'WorldParser.cpp',
 ]
 env.Program ('screamersd', screamersd_sources)
 
 # Build the client
 screamers_sources = [
-	'application.cpp',
-	'frameListener.cpp',
-	'screamers.cpp',
+	'Application.cpp',
+	'FrameListener.cpp',
+	'Screamers.cpp',
 ]
 env.Program ('screamers', screamers_sources)

@@ -1,5 +1,5 @@
 /*
- * application.cpp - application class which generally runs everything
+ * Application.cpp - application class which generally runs everything
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -20,7 +20,7 @@
  */
 
 #include <iostream>
-#include "application.h"
+#include "Application.h"
 
 namespace Screamers
 {
