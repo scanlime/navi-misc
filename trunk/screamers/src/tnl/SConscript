@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 
 # bleh, this bothers me a bit
-tnlenv = Environment (CPPPATH = '#src/tnl/libtomcrypt', LIBS = 'tomcrypt', LIBPATH = 'libtomcrypt')
-Export ('tnlenv')
+Import('env')
+
+libraries = ['tomcrypt']
+e = env.Copy ()
+e.Append (CPPPATH = libraries, LIBS = libraries, LIBPATH = libraries)
+
+# Build sub-libraries
+SConscript (['%s/SConscript' % s for s in libraries])
 
 tnl_sources = [
 	'assert.cpp',
@@ -33,4 +39,4 @@ tnl_sources = [
 	'vector.cpp',
 ]
 
-tnlenv.StaticLibrary ('tnl', tnl_sources)
+e.StaticLibrary ('tnl', tnl_sources)
