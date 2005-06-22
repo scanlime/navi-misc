@@ -299,7 +299,9 @@ template<class T> inline bool Vector<T>::empty() const
    return (mElementCount == 0);
 }
 
-/*
+/* I've commented this out, since they're not used and they make it not compile,
+ * since it's really just a whole bunch of super crappy code */
+#if 0
 template<class T> inline T& Vector<T>::front()
 {
    return *begin();
@@ -319,7 +321,7 @@ template<class T> inline const T& Vector<T>::back() const
 {
    return *end();
 }
-*/
+#endif
 
 template<class T> inline void Vector<T>::push_front(const T &x)
 {
