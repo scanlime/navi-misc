@@ -1,42 +1,34 @@
 <?xml version="1.0"  standalone='no' >
 
-<World
-	name ="test world"
-	description = "a simple test world"
-	size = "1000,1000"
-	wallheight = "10"
-	>
+<world
+ name="test world"
+ description="a simple test world"
+ size="1000,1000"
+ wallheight="10">
 
 	<spawn
-		name = "defaut"
-		postion = "100,100,10"
+	 name="default"
+	 postion="100,100,10"
 	/>
 
-	<Ground>
-		<material
-			name = "basic_ground"
-		/>
+	<ground>
+		<material name="basic_ground"/>
 
 		<material
-			name = "basic_ground_detail"
-			scale = "10,10"
-		/>
-	</Ground>
+		 name="basic_ground_detail"
+		 scale="10,10"/>
+	</ground>
 
-	<Mesh
-		model = "box.mesh"
-		postion = "0,0,0"
-		rotation = "0,45,45"
-		>
-		<material
-			name = "boxmat"
-		/>
-	</Mesh>
+	<mesh
+	 model = "box.mesh"
+	 postion = "0,0,0"
+	 rotation = "0,45,45">
+		<material name = "boxmat"/>
+	</mesh>
 
-	<Mesh
-		model = "tower.mesh"
-		postion = "-100,0,0"
-		rotation = "0,0,45"
-		/>
+	<mesh
+	 model = "tower.mesh"
+	 postion = "-100,0,0"
+	 rotation = "0,0,45"/>
 
-</World>
+</world>
