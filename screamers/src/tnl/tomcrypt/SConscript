@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-Import ('tnlenv')
+Import ('env')
+e = env.Copy ();
+e.Append (CPPPATH='.')
 
 libtomcrypt_sources = [
 	'keyring.c',
@@ -53,4 +55,4 @@ libtomcrypt_sources = [
 	'mpi.c',
 ]
 
-tnlenv.StaticLibrary ('tomcrypt', libtomcrypt_sources)
+e.StaticLibrary ('tomcrypt', libtomcrypt_sources)

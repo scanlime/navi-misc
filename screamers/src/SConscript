@@ -4,7 +4,11 @@ Import ('env')
 
 libraries = ['tinyxml', 'tnl']
 
-env.Append (CPPPATH = libraries, LIBS = libraries, LIBPATH = libraries)
+e = env.Copy ()
+e.Append (CPPPATH = libraries, LIBS = libraries, LIBPATH = libraries)
+
+# Build our libraries
+SConscript (['%s/SConscript' % s for s in libraries])
 
 # Build the server
 screamersd_sources = [
@@ -13,7 +17,7 @@ screamersd_sources = [
 	'World.cpp',
 	'WorldParser.cpp',
 ]
-env.Program ('screamersd', screamersd_sources)
+e.Program ('screamersd', screamersd_sources)
 
 # Build the client
 screamers_sources = [
@@ -21,4 +25,4 @@ screamers_sources = [
 	'FrameListener.cpp',
 	'Screamers.cpp',
 ]
-env.Program ('screamers', screamers_sources)
+e.Program ('screamers', screamers_sources)
