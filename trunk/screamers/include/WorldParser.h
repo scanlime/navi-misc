@@ -28,20 +28,20 @@
 class WorldParser
 {
 public:
-	WorldParser( World &w );
-	~WorldParser();
+		 WorldParser (World &w);
+		~WorldParser ();
 
-	bool load ( const char* mapFile );
+	bool	 load (const char* mapFile);
 
 protected:
-	World &world;
+	World	&world;
 
-	void loadObject ( void *_node );
+	void	 loadObject (void *_node);
 
-	int parseObject ( void *_node );
-	int parseMesh ( void *_node );
-	int parseTexture ( void *_node );
-	int parseMatRef ( void *_node );
+	int	 parseObject (void *_node);
+	int	 parseMesh (void *_node);
+	int	 parseTexture (void *_node);
+	int	 parseMatRef (void *_node);
 };
 
 #endif //_WORLD_PARSER_H_
