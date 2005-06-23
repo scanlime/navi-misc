@@ -2,13 +2,8 @@
 
 # bleh, this bothers me a bit
 Import('env')
-
-libraries = ['tomcrypt']
 e = env.Copy ()
-e.Append (CPPPATH = libraries, LIBS = libraries, LIBPATH = libraries)
-
-# Build sub-libraries
-SConscript (['%s/SConscript' % s for s in libraries])
+e.Append (CPPPATH = ['#src/tomcrypt'])
 
 tnl_sources = [
 	'assert.cpp',

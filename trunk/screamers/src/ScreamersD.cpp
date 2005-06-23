@@ -23,17 +23,20 @@
 #include <iostream>
 
 #include "Screamers.h"
+#include "ConnectionManager.h"
 #include "Version.h"
 #include "WorldParser.h"
 
-int appMain ( std::string commandLine )
+int appMain (std::string commandLine)
 {
-	std::cout << "version " << VERSION << std::endl;
+	std::cout << "starting screamersd\nversion " << VERSION << std::endl;
 
-	Screamers::World	world;
+	Screamers::World world;
 	Screamers::WorldParser parser(world);
+	ConnectionManager cm;
 
-	parser.load(commandLine.c_str());
+	parser.load (commandLine.c_str ());
+
 	return 0;
 }
 
