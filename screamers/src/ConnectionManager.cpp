@@ -25,8 +25,15 @@ ConnectionManager::ConnectionManager ()
 {
 	TNL::Address address (TNL::IPProtocol, TNL::Address::Broadcast, 27050);
 	network_interface = new TNL::NetInterface (address);
+	network_interface->setAllowsConnections (true);
 }
 
 ConnectionManager::~ConnectionManager ()
 {
+}
+
+void ConnectionManager::tick (void)
+{
+	network_interface->checkIncomingPackets ();
+	network_interface->processConnections ();
 }

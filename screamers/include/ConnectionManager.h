@@ -33,6 +33,8 @@ public:
 	ConnectionManager ();
 	~ConnectionManager ();
 
+	void tick (void);
+
 private:
 	TNL::RefPtr<TNL::NetInterface>	network_interface;
 };
