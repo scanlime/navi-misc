@@ -22,6 +22,9 @@
 #include <string>
 #include <iostream>
 
+#include <tnl.h>
+#include <tnlPlatform.h>
+
 #include "Screamers.h"
 #include "ConnectionManager.h"
 #include "Version.h"
@@ -36,6 +39,11 @@ int appMain (std::string commandLine)
 	Screamers::Server::ConnectionManager cm;
 
 	parser.load (commandLine.c_str ());
+
+	while (1) {
+		cm.tick ();
+		TNL::Platform::sleep (10);
+	}
 
 	return 0;
 }
