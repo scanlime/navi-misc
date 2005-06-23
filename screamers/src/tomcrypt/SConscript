@@ -3,7 +3,6 @@
 Import ('env')
 e = env.Copy ();
 
-# bleh!
 e.Append (CPPPATH=['.'])
 
 libtomcrypt_sources = [

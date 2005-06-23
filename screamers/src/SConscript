@@ -2,7 +2,7 @@
 
 Import ('env')
 
-libraries = ['tinyxml', 'tomcrypt', 'tnl']
+libraries = ['tinyxml', 'tnl', 'tomcrypt']
 
 e = env.Copy ()
 e.Append (CPPPATH = libraries, LIBS = libraries, LIBPATH = libraries)
