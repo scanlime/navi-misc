@@ -1,5 +1,5 @@
 /*
- * ConnectionManager.h - manages client connections in the server
+ * MainLoop.cpp - manages a main loop
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -20,33 +20,44 @@
  */
 
 #include <tnl.h>
-#include <tnlEventConnection.h>
-#include <tnlNetInterface.h>
-#include <tnlRPC.h>
+#include <tnlPlatform.h>
 
 #include "MainLoop.h"
 
-#ifndef _CONNECTION_MANAGER_H_
-#define _CONNECTION_MANAGER_H_
-
 namespace Screamers
 {
-namespace Server
+
+MainLoop::MainLoop ()
 {
+	delay = 10;
+}
 
-class ConnectionManager : public MainListener
+MainLoop::~MainLoop ()
 {
-public:
-	ConnectionManager ();
-	~ConnectionManager ();
+}
 
-	virtual void tick (void);
+void MainLoop::go (void)
+{
+	while (1) {
+		for (std::vector<MainListener*>::iterator it = listeners.begin (); it != listeners.end (); it++)
+			(*it)->tick ();
+		TNL::Platform::sleep (delay);
+	}
+}
 
-private:
-	TNL::RefPtr<TNL::NetInterface>	network_interface;
+void MainLoop::addListener (MainListener *listener)
+{
+	listeners.push_back (listener);
+}
+
+unsigned int MainLoop::getDelay (void)
+{
+	return delay;
+}
+
+void MainLoop::setDelay (unsigned int ms)
+{
+	delay = ms;
+}
+
 };
-
-};
-};
-
-#endif // _CONNECTION_MANAGER_H_

@@ -1,5 +1,5 @@
 /*
- * ConnectionManager.h - manages client connections in the server
+ * MainLoop.h - manages a main loop
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -19,34 +19,40 @@
  *
  */
 
-#include <tnl.h>
-#include <tnlEventConnection.h>
-#include <tnlNetInterface.h>
-#include <tnlRPC.h>
+#include <vector>
 
-#include "MainLoop.h"
-
-#ifndef _CONNECTION_MANAGER_H_
-#define _CONNECTION_MANAGER_H_
+#ifndef _MAIN_LOOP_H_
+#define _MAIN_LOOP_H_
 
 namespace Screamers
 {
-namespace Server
-{
 
-class ConnectionManager : public MainListener
+class MainListener
 {
 public:
-	ConnectionManager ();
-	~ConnectionManager ();
+	virtual void tick (void) = 0;
+};
 
-	virtual void tick (void);
+// FIXME - should this be a singleton?
+class MainLoop
+{
+public:
+			 MainLoop ();
+			~MainLoop ();
+
+	void		 go (void);
+	void		 addListener (MainListener *listener);
+
+	unsigned int	 getDelay (void);
+	void		 setDelay (unsigned int ms);
 
 private:
-	TNL::RefPtr<TNL::NetInterface>	network_interface;
+	std::vector<MainListener*>	listeners;
+
+	// FIXME - do we want some kind of priority/negotiation thing here?
+	unsigned int			delay;
 };
 
 };
-};
 
-#endif // _CONNECTION_MANAGER_H_
+#endif // _MAIN_LOOP_H_
