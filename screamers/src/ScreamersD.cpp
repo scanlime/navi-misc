@@ -33,7 +33,7 @@ int appMain (std::string commandLine)
 
 	Screamers::World world;
 	Screamers::WorldParser parser(world);
-	ConnectionManager cm;
+	Screamers::Server::ConnectionManager cm;
 
 	parser.load (commandLine.c_str ());
 
