@@ -83,7 +83,7 @@ static unsigned long rng_ansic(unsigned char *buf, unsigned long len,
    clock_t t1;
    int l, acc, bits, a, b;
 
-   if (XCLOCKS_PER_SEC < 100 || XCLOCKS_PER_SEC > 10000) {
+   if (CLOCKS_PER_SEC < 100 || CLOCKS_PER_SEC > 10000) {
       return 0;
    }
 
@@ -94,8 +94,8 @@ static unsigned long rng_ansic(unsigned char *buf, unsigned long len,
        if (callback != NULL) callback();
        while (bits--) {
           do {
-             t1 = XCLOCK(); while (t1 == XCLOCK()) a ^= 1;
-             t1 = XCLOCK(); while (t1 == XCLOCK()) b ^= 1;
+             t1 = clock(); while (t1 == clock()) a ^= 1;
+             t1 = clock(); while (t1 == clock()) b ^= 1;
           } while (a == b);
           acc = (acc << 1) | a;
        }

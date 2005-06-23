@@ -70,7 +70,7 @@ int base64_encode(const unsigned char *in,  unsigned long len,
    *p = '\0';
 
    /* return ok */
-   *outlen = p - out;
+   *outlen = (unsigned long) (p - out);
    return CRYPT_OK;
 }
 

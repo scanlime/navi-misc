@@ -1149,7 +1149,7 @@ mp_clear (mp_int * a)
     memset (a->dp, 0, sizeof (mp_digit) * a->used);
 
     /* free ram */
-    XFREE(a->dp);
+    free(a->dp);
 
     /* reset members to make debugging easier */
     a->dp    = NULL;
@@ -2757,24 +2757,24 @@ int mp_fwrite(mp_int *a, int radix, FILE *stream)
       return MP_VAL;
    }
    
-   buf = XMALLOC (len);
+   buf = malloc (len);
    if (buf == NULL) {
       return MP_MEM;
    }
    
    if ((err = mp_toradix(a, buf, radix)) != MP_OKAY) {
-      XFREE (buf);
+      free (buf);
       return err;
    }
    
    for (x = 0; x < len; x++) {
        if (fputc(buf[x], stream) == EOF) {
-          XFREE (buf);
+          free (buf);
           return MP_VAL;
        }
    }
    
-   XFREE (buf);
+   free (buf);
    return MP_OKAY;
 }
 
@@ -2926,7 +2926,7 @@ int mp_grow (mp_int * a, int size)
      * in case the operation failed we don't want
      * to overwrite the dp member of a.
      */
-    tmp = OPT_CAST XREALLOC (a->dp, sizeof (mp_digit) * size);
+    tmp = OPT_CAST realloc (a->dp, sizeof (mp_digit) * size);
     if (tmp == NULL) {
       /* reallocation failed but "a" is still valid [can be freed] */
       return MP_MEM;
@@ -2968,7 +2968,7 @@ int mp_grow (mp_int * a, int size)
 int mp_init (mp_int * a)
 {
   /* allocate memory required and clear it */
-  a->dp = OPT_CAST XCALLOC (sizeof (mp_digit), MP_PREC);
+  a->dp = OPT_CAST calloc (sizeof (mp_digit), MP_PREC);
   if (a->dp == NULL) {
     return MP_MEM;
   }
@@ -3095,7 +3095,7 @@ int mp_init_size (mp_int * a, int size)
   size += (MP_PREC * 2) - (size % MP_PREC);	
   
   /* alloc mem */
-  a->dp = OPT_CAST XCALLOC (sizeof (mp_digit), size);
+  a->dp = OPT_CAST calloc (sizeof (mp_digit), size);
   if (a->dp == NULL) {
     return MP_MEM;
   }
@@ -5194,7 +5194,7 @@ int mp_prime_random(mp_int *a, int t, int size, int bbs, ltm_prime_callback cb, 
    }
 
    /* we need a buffer of size+1 bytes */
-   tmp = XMALLOC(size+1);
+   tmp = malloc(size+1);
    if (tmp == NULL) {
       return MP_MEM;
    }
@@ -5225,7 +5225,7 @@ int mp_prime_random(mp_int *a, int t, int size, int bbs, ltm_prime_callback cb, 
 
    err = MP_OKAY;
 error:
-   XFREE(tmp);
+   free(tmp);
    return err;
 }
 
@@ -5990,7 +5990,7 @@ int mp_shrink (mp_int * a)
 {
   mp_digit *tmp;
   if (a->alloc != a->used) {
-    if ((tmp = OPT_CAST XREALLOC (a->dp, sizeof (mp_digit) * a->used)) == NULL) {
+    if ((tmp = OPT_CAST realloc (a->dp, sizeof (mp_digit) * a->used)) == NULL) {
       return MP_MEM;
     }
     a->dp    = tmp;

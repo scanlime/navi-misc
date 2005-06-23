@@ -9,21 +9,6 @@
 	#error mycrypt_custom.h should be included before mycrypt.h
 #endif
 
-#if defined(__MWERKS__) && defined(__cplusplus)
-// codewarrior needs namespace version for c++ (otherwise we get ambiguity errors)
-#include <stdlib.h>
-#define XMALLOC std::malloc
-#define XREALLOC std::realloc
-#define XCALLOC std::calloc
-#define XFREE std::free
-#else
-#define XMALLOC malloc
-#define XREALLOC realloc
-#define XCALLOC calloc
-#define XFREE free
-#endif
-#define XCLOCK clock
-#define XCLOCKS_PER_SEC CLOCKS_PER_SEC
 #define SMALL_CODE
 #define LTC_TEST
 #define BLOWFISH
