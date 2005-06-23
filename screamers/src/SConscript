@@ -13,6 +13,7 @@ SConscript (['%s/SConscript' % s for s in libraries])
 # Build the server
 screamersd_sources = [
 	'ConnectionManager.cpp',
+	'MainLoop.cpp',
 	'ScreamersD.cpp',
 	'TextUtils.cpp',
 	'World.cpp',

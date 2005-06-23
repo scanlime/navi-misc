@@ -27,6 +27,7 @@
 
 #include "Screamers.h"
 #include "ConnectionManager.h"
+#include "MainLoop.h"
 #include "Version.h"
 #include "WorldParser.h"
 
@@ -35,15 +36,14 @@ int appMain (std::string commandLine)
 	std::cout << "starting screamersd\nversion " << VERSION << std::endl;
 
 	Screamers::World world;
-	Screamers::WorldParser parser(world);
+	Screamers::WorldParser parser (world);
 	Screamers::Server::ConnectionManager cm;
+	Screamers::MainLoop main_loop;
 
 	parser.load (commandLine.c_str ());
 
-	while (1) {
-		cm.tick ();
-		TNL::Platform::sleep (10);
-	}
+	main_loop.addListener (&cm);
+	main_loop.go ();
 
 	return 0;
 }
