@@ -968,7 +968,7 @@ int ecc_get_size(ecc_key *key)
       return INT_MAX; /* large value known to cause it to fail when passed to ecc_make_key() */
 }
 
-#include "ecc_sys.c"
+#include "ecc_sys.h"
 
 #endif
 

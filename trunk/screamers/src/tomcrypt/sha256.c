@@ -285,7 +285,7 @@ int  sha256_test(void)
 }
 
 #ifdef SHA224
-#include "sha224.c"
+#include "sha224.h"
 #endif
 
 #endif
