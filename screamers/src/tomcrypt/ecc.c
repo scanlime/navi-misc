@@ -222,12 +222,12 @@ static int is_valid_idx(int n)
 static ecc_point *new_point(void)
 {
    ecc_point *p;
-   p = XMALLOC(sizeof(ecc_point));
+   p = malloc(sizeof(ecc_point));
    if (p == NULL) {
       return NULL;
    }
    if (mp_init_multi(&p->x, &p->y, NULL) != MP_OKAY) {
-      XFREE(p);
+      free(p);
       return NULL;
    }
    return p;
@@ -240,7 +240,7 @@ static void del_point(ecc_point *p)
       return;
    } else {
       mp_clear_multi(&p->x, &p->y, NULL);
-      XFREE(p);
+      free(p);
    }
 }
 

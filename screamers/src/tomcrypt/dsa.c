@@ -186,8 +186,8 @@ retry:
 
    /* store length of r */
    len = mp_unsigned_bin_size(&r);
-   out[y++] = (len>>8)&255;
-   out[y++] = (len & 255);
+   out[y++] = (unsigned char)((len>>8)&255);
+   out[y++] = (unsigned char)((len & 255));
    
    /* store r */
    mp_to_unsigned_bin(&r, out+y);
@@ -195,8 +195,8 @@ retry:
 
    /* store length of s */
    len = mp_unsigned_bin_size(&s);
-   out[y++] = (len>>8)&255;
-   out[y++] = (len & 255);
+   out[y++] = (unsigned char)((len>>8)&255);
+   out[y++] = (unsigned char)((len & 255));
    
    /* store s */
    mp_to_unsigned_bin(&s, out+y);

@@ -89,7 +89,7 @@ int kr_init(pk_key **pk)
 {
    _ARGCHK(pk != NULL);
 
-   *pk = XCALLOC(1, sizeof(pk_key));
+   *pk = calloc(1, sizeof(pk_key));
    if (*pk == NULL) {
       return CRYPT_MEM;
    }
@@ -169,7 +169,7 @@ int kr_add(pk_key *pk, int key_type, int sys, const unsigned char *name,
    }
 
    /* now we have a spot make a next spot */
-   pk->next = XCALLOC(1, sizeof(pk_key));
+   pk->next = calloc(1, sizeof(pk_key));
    if (pk->next == NULL) {
       return CRYPT_MEM;
    }
@@ -231,11 +231,11 @@ int kr_del(pk_key **_pk, unsigned long ID)
 
    if (ppk == NULL) {       /* the first element matches the ID */
       ppk = pk->next;       /* get the 2nd element */
-      XFREE(pk);             /* free the first */
+      free(pk);             /* free the first */
       *_pk = ppk;           /* make the first element the second */
    } else {                 /* (not) first element matches the ID */
       ppk->next = pk->next; /* make the previous'es next point to the current next */
-      XFREE(pk);             /* free the element */
+      free(pk);             /* free the element */
    }
    return CRYPT_OK;
 }
@@ -250,7 +250,7 @@ int kr_clear(pk_key **pk)
           return err;
        }
    }       
-   XFREE(*pk);
+   free(*pk);
    *pk = NULL;
    return CRYPT_OK;
 }

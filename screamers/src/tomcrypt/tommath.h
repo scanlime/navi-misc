@@ -94,18 +94,18 @@ extern "C" {
 /* define heap macros */
 #ifndef CRYPT
    /* default to libc stuff */
-   #ifndef XMALLOC 
+/*   #ifndef XMALLOC 
        #define XMALLOC  malloc
-       #define XFREE    free
+       #define free    free
        #define XREALLOC realloc
        #define XCALLOC  calloc
    #endif
 
-   /* prototypes for our heap functions */
-   extern void *XMALLOC(size_t n);
-   extern void *REALLOC(void *p, size_t n);
-   extern void *XCALLOC(size_t n, size_t s);
-   extern void XFREE(void *p);
+  // prototypes for our heap functions 
+   void *XMALLOC(size_t n);
+   void *REALLOC(void *p, size_t n);
+   void *XCALLOC(size_t n, size_t s);
+   void free(void *p);*/
 #endif
 
 

@@ -54,7 +54,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
+			OutputDirectory="../lib/"
 			IntermediateDirectory="Release"
 			ConfigurationType="4"
 			CharacterSet="2">

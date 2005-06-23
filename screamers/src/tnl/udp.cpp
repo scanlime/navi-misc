@@ -217,17 +217,17 @@ Socket::Socket(const Address &bindAddress, U32 sendBufferSize, U32 recvBufferSiz
    const char *socketType = "UDP";
 
    if(bindAddress.transport == IPProtocol)
-      mPlatformSocket = socket(AF_INET, SOCK_DGRAM, 0);
+      mPlatformSocket = (S32)socket(AF_INET, SOCK_DGRAM, 0);
    else if(bindAddress.transport == TCPProtocol)
    {
       socketType = "TCP";
-      mPlatformSocket = socket(AF_INET, SOCK_STREAM, 0);
+      mPlatformSocket = (S32)socket(AF_INET, SOCK_STREAM, 0);
    }
 #if !defined(NO_IPX_SUPPORT)
    else if(bindAddress.transport == IPXProtocol)
    {
       socketType = "IPX";
-      mPlatformSocket = socket(AF_IPX, SOCK_DGRAM, NSPROTO_IPX);
+      mPlatformSocket = (S32)socket(AF_IPX, SOCK_DGRAM, NSPROTO_IPX);
    }
 #endif
    else
