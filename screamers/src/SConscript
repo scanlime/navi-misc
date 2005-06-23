@@ -2,7 +2,7 @@
 
 Import ('env')
 
-libraries = ['tinyxml', 'tnl']
+libraries = ['tinyxml', 'tomcrypt', 'tnl']
 
 e = env.Copy ()
 e.Append (CPPPATH = libraries, LIBS = libraries, LIBPATH = libraries)
@@ -12,6 +12,7 @@ SConscript (['%s/SConscript' % s for s in libraries])
 
 # Build the server
 screamersd_sources = [
+	'ConnectionManager.cpp',
 	'ScreamersD.cpp',
 	'TextUtils.cpp',
 	'World.cpp',
