@@ -21,6 +21,11 @@
 
 #include "ConnectionManager.h"
 
+namespace Screamers
+{
+namespace Server
+{
+
 ConnectionManager::ConnectionManager ()
 {
 	TNL::Address address (TNL::IPProtocol, TNL::Address::Broadcast, 27050);
@@ -37,3 +42,6 @@ void ConnectionManager::tick (void)
 	network_interface->checkIncomingPackets ();
 	network_interface->processConnections ();
 }
+
+};
+};
