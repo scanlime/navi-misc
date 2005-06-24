@@ -268,8 +268,12 @@ AMC_fromFile (AMC *self, PyObject *args)
 				gchar **tokens = g_strsplit (line, " ", 0);
 				guint token;
 
-				for (token = 0; tokens[token]; token++)
+				g_strstrip (tokens[0]);
+				for (token = 1; tokens[token]; token++) {
 					g_strstrip (tokens[token]);
+					if (strlen (tokens[token])) {
+					}
+				}
 
 				g_strfreev (tokens);
 			}
