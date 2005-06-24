@@ -1,5 +1,5 @@
 /*
- * ConnectionManager.h - manages client connections in the server
+ * ConnectionManager.cpp - manages client connections in the server
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
