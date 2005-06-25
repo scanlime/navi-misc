@@ -25,6 +25,19 @@
 namespace Screamers
 {
 
+template<> Application* Ogre::Singleton<Application>::ms_Singleton = 0;
+
+Application *Application::getSingletonPtr (void)
+{
+	return ms_Singleton;
+}
+
+Application &Application::getSingleton (void)
+{
+	assert (ms_Singleton);
+	return (*ms_Singleton);
+}
+
 Application::Application ()
 {
 	root = NULL;
@@ -120,13 +133,32 @@ bool Application::configure (void)
 {
 	// FIXME - we'll want to store most of this stuff in whatever configuration
 	// system we end up having, rather than running this dialog every time
-	if (root->showConfigDialog ())
-	{
+	if (root->showConfigDialog ()) {
 		renderWindow = root->initialise (true, "Screamers");
 		return true;
-	} 
-	else
+	} else {
 		return false;
+	}
+}
+
+Ogre::Root *Application::getRoot ()
+{
+	return root;
+}
+
+Ogre::Camera *Application::getCamera ()
+{
+	return camera;
+}
+
+Ogre::SceneManager *Application::getSceneManager ()
+{
+	return sceneManager;
+}
+
+Ogre::RenderWindow *Application::getRenderWindow ()
+{
+	return renderWindow;
 }
 
 };

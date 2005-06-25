@@ -102,11 +102,28 @@ void GuiFrameListener::keyClicked (Ogre::KeyEvent *event)
 	event->consume ();
 }
 
-Gui::Gui (Ogre::RenderWindow *window)
+Gui::Gui ()
 {
-	this->window = window;
-	gui_renderer = new CEGUI::OgreCEGUIRenderer(window, Ogre::RENDER_QUEUE_OVERLAY, false, 0, Ogre::ST_GENERIC);
+	Application &application = Application::getSingleton ();
+
+	gui_renderer = new CEGUI::OgreCEGUIRenderer(application.getRenderWindow (), Ogre::RENDER_QUEUE_OVERLAY, false, 0, Ogre::ST_GENERIC);
 	gui_system = new CEGUI::System (gui_renderer);
+
+	// create render-to-texture setup
+	// FIXME - is this really necessary?
+	Ogre::RenderTexture *rtt = application.getRoot ()->getRenderSystem ()->createRenderTexture ("RttTexture", 512, 512, Ogre::TEX_TYPE_2D, Ogre::PF_R8G8B8);
+	{
+		Ogre::SceneManager *scene_manager = application.getSceneManager ();
+		Ogre::Camera *camera = scene_manager->createCamera ("RttCamera");
+		Ogre::SceneNode *camera_node = scene_manager->getRootSceneNode ()->createChildSceneNode ("RttCameraNode");
+		camera_node->attachObject (camera);
+		camera->setPosition (0, 0, 200);
+
+		Ogre::Viewport *v = rtt->addViewport (camera);
+		v->setOverlaysEnabled (false);
+		v->setClearEveryFrame (true);
+		v->setBackgroundColour (Ogre::ColourValue::Black);
+	}
 }
 
 Gui::~Gui ()
