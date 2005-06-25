@@ -55,6 +55,8 @@ protected:
 
 private:
 	void			 updateStats (void);
+
+	int			 frames;
 };
 
 };
