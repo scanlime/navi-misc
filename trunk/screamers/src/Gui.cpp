@@ -81,6 +81,18 @@ void GuiFrameListener::mouseReleased (Ogre::MouseEvent *event)
 	CEGUI::System::getSingleton ().injectMouseButtonUp (convertOgreButtonToCegui (event->getButtonID ()));
 }
 
+void GuiFrameListener::mouseClicked (Ogre::MouseEvent *event)
+{
+}
+
+void GuiFrameListener::mouseEntered (Ogre::MouseEvent *event)
+{
+}
+
+void GuiFrameListener::mouseExited (Ogre::MouseEvent *event)
+{
+}
+
 void GuiFrameListener::keyPressed (Ogre::KeyEvent *event)
 {
 	// if the user hit escape, quit. if not, punt back into CEGUI
@@ -143,6 +155,9 @@ Gui::Gui ()
 	CEGUI::SchemeManager::getSingleton ().loadScheme ((CEGUI::utf8*) "TaharezLook.scheme");
 	gui_system->setDefaultMouseCursor ((CEGUI::utf8*) "TaharezLook", (CEGUI::utf8*) "MouseArrow");
 	gui_system->setDefaultFont ((CEGUI::utf8*) "Bitstream Vera Sans-12");
+
+	frame_listener = new GuiFrameListener (application.getRenderWindow (), gui_renderer);
+	application.getRoot ()->addFrameListener (frame_listener);
 }
 
 Gui::~Gui ()

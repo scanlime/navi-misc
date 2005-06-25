@@ -50,6 +50,9 @@ public:
 	void			 mouseDragged     (Ogre::MouseEvent *event);
 	void			 mousePressed     (Ogre::MouseEvent *event);
 	void			 mouseReleased    (Ogre::MouseEvent *event);
+	void			 mouseClicked     (Ogre::MouseEvent *event);
+	void			 mouseEntered     (Ogre::MouseEvent *event);
+	void			 mouseExited      (Ogre::MouseEvent *event);
 	void			 keyPressed       (Ogre::KeyEvent *event);
 	void			 keyReleased      (Ogre::KeyEvent *event);
 	void			 keyClicked       (Ogre::KeyEvent *event);
@@ -67,6 +70,7 @@ public:
 private:
 	CEGUI::OgreCEGUIRenderer	*gui_renderer;
 	CEGUI::System			*gui_system;
+	GuiFrameListener		*frame_listener;
 };
 
 };
