@@ -28,7 +28,7 @@
 namespace Screamers
 {
 
-class Application
+class Application : public Ogre::Singleton<Application>
 {
 	// This is mostly taken from the "ExampleApplication" class in the
 	// Ogre samples, since it's a pretty nice way to set up everything
@@ -38,7 +38,15 @@ public:
 				 Application ();
 	virtual			~Application ();
 
+	static Application	*getSingletonPtr (void);
+	static Application	&getSingleton (void);
+
 	virtual void		 go (void);
+
+	Ogre::Root		*getRoot ();
+	Ogre::Camera		*getCamera ();
+	Ogre::SceneManager	*getSceneManager ();
+	Ogre::RenderWindow	*getRenderWindow ();
 
 protected:
 	Ogre::Root		*root;

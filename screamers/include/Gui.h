@@ -26,6 +26,7 @@
 #include <OgreCEGUIRenderer.h>
 #include <CEGUI/CEGUISystem.h>
 #include "FrameListener.h"
+#include "Application.h"
 
 #ifndef _GUI_FRAME_LISTENER_H_
 #define _GUI_FRAME_LISTENER_H_
@@ -61,10 +62,9 @@ private:
 class Gui
 {
 public:
-					 Gui (Ogre::RenderWindow *window);
+					 Gui ();
 					~Gui ();
 private:
-	Ogre::RenderWindow		*window;
 	CEGUI::OgreCEGUIRenderer	*gui_renderer;
 	CEGUI::System			*gui_system;
 };
