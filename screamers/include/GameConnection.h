@@ -44,6 +44,8 @@ static char *connection_states[] = {
 
 class GameConnection : public TNL::GhostConnection
 {
+public:
+	GameConnection ();
 };
 
 }
