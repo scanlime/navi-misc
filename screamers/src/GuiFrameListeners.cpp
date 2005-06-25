@@ -26,6 +26,17 @@ namespace Screamers
 namespace Client
 {
 
+static CEGUI::MouseButton convertOgreButtonToCegui (int button)
+{
+	switch (button) {
+	case Ogre::MouseEvent::BUTTON0_MASK:	return CEGUI::LeftButton;
+	case Ogre::MouseEvent::BUTTON1_MASK:	return CEGUI::RightButton;
+	case Ogre::MouseEvent::BUTTON2_MASK:	return CEGUI::MiddleButton;
+	case Ogre::MouseEvent::BUTTON3_MASK:	return CEGUI::X1Button;
+	default:				return CEGUI::LeftButton;
+	}
+}
+
 GuiFrameListener::GuiFrameListener (Ogre::RenderWindow *window, CEGUI::Renderer *renderer) : FrameListener (window)
 {
 	event_processor = new Ogre::EventProcessor ();
@@ -52,14 +63,17 @@ void GuiFrameListener::mouseMoved (Ogre::MouseEvent *event)
 
 void GuiFrameListener::mouseDragged (Ogre::MouseEvent *event)
 {
+	mouseMoved (event);
 }
 
 void GuiFrameListener::mousePressed (Ogre::MouseEvent *event)
 {
+	CEGUI::System::getSingleton ().injectMouseButtonDown (convertOgreButtonToCegui (event->getButtonID ()));
 }
 
 void GuiFrameListener::mouseReleased (Ogre::MouseEvent *event)
 {
+	CEGUI::System::getSingleton ().injectMouseButtonUp (convertOgreButtonToCegui (event->getButtonID ()));
 }
 
 void GuiFrameListener::keyPressed (Ogre::KeyEvent *event)
