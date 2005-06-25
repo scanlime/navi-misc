@@ -19,6 +19,8 @@
  *
  */
 
+#include <CEGUI/CEGUIImageset.h>
+#include <CEGUI/CEGUISchemeManager.h>
 #include "Gui.h"
 
 namespace Screamers
@@ -109,8 +111,11 @@ Gui::Gui ()
 	gui_renderer = new CEGUI::OgreCEGUIRenderer(application.getRenderWindow (), Ogre::RENDER_QUEUE_OVERLAY, false, 0, Ogre::ST_GENERIC);
 	gui_system = new CEGUI::System (gui_renderer);
 
+	// Most of the rest of the code here is copied from the ogre samples.
+	// If you can't figure it out, check that code and the tutorial
+	// on the ogre wiki, since this stuff is pretty ugly.
+
 	// create render-to-texture setup
-	// FIXME - is this really necessary?
 	Ogre::RenderTexture *rtt = application.getRoot ()->getRenderSystem ()->createRenderTexture ("RttTexture", 512, 512, Ogre::TEX_TYPE_2D, Ogre::PF_R8G8B8);
 	{
 		Ogre::SceneManager *scene_manager = application.getSceneManager ();
@@ -124,6 +129,20 @@ Gui::Gui ()
 		v->setClearEveryFrame (true);
 		v->setBackgroundColour (Ogre::ColourValue::Black);
 	}
+
+	// Retrieve CEGUI texture for the RTT
+	CEGUI::Texture *rtt_texture = gui_renderer->createTexture ((CEGUI::utf8*) "RttTexture");
+	CEGUI::Imageset *rtt_imageset = CEGUI::ImagesetManager::getSingleton ().createImageset ((CEGUI::utf8*) "RttImageset", rtt_texture);
+
+	rtt_imageset->defineImage ((CEGUI::utf8*) "RttImage",
+				   CEGUI::Point (0.0f, 0.0f),
+				   CEGUI::Size (rtt_texture->getWidth (), rtt_texture->getHeight ()),
+				   CEGUI::Point (0.0f, 0.0f));
+
+	// Load scheme and set defaults
+	CEGUI::SchemeManager::getSingleton ().loadScheme ((CEGUI::utf8*) "TaharezLook.scheme");
+	gui_system->setDefaultMouseCursor ((CEGUI::utf8*) "TaharezLook", (CEGUI::utf8*) "MouseArrow");
+	gui_system->setDefaultFont ((CEGUI::utf8*) "Bitstream Vera Sans-12");
 }
 
 Gui::~Gui ()
