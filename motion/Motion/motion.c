@@ -105,10 +105,12 @@ AMC_getAttr (AMC *motion, char *name)
 		return PyString_FromString (motion->name);
 	} else if (strcmp (name, "comments") == 0) {
 		attr = motion->comments;
+	} else if (strcmp (name, "bones") == 0) {
+		attr = motion->bones;
 	} else if (strcmp (name, "format") == 0) {
 		attr = motion->format;
 	} else if (strcmp (name, "__members__") == 0) {
-		attr = Py_BuildValue ("[s,s,s]", "name", "comments", "format");
+		attr = Py_BuildValue ("[s,s,s,s]", "name", "comments", "bones", "format");
 	}
 
 	if (attr == Py_None)
@@ -140,7 +142,9 @@ AMC_fromFile (AMC *self, PyObject *args)
 	GSList *bones = NULL;
 	GSList *dofs = NULL;
 	GSList *data = NULL;
-	GSList *i;
+	GSList *i, *j;
+	float *f;
+	PyArrayObject *pao;
 
 	// get filename
 	if (!PyArg_ParseTuple (args, "s", &filename)) {
@@ -207,7 +211,6 @@ AMC_fromFile (AMC *self, PyObject *args)
 					// of dofs for each bone
 					bones = g_slist_append (bones, g_strdup (tokens[0]));
 					dofs = g_slist_append (dofs, GUINT_TO_POINTER (dof));
-					g_print ("found bone '%s' with %d dof\n", tokens[0], dof);
 					g_strfreev (tokens);
 				}
 			}
@@ -216,7 +219,6 @@ AMC_fromFile (AMC *self, PyObject *args)
 	}
 
 	total_frames = current_frame;
-	g_print ("%lld total frames found\n", total_frames);
 
 	// allocate Numeric arrays
 	for (i = dofs; i; i = g_slist_next (i)) {
@@ -224,8 +226,8 @@ AMC_fromFile (AMC *self, PyObject *args)
 		guint dof = GPOINTER_TO_UINT (i->data);
 		PyObject *array;
 
-		dims[0] = dof;
-		dims[1] = total_frames;
+		dims[0] = total_frames;
+		dims[1] = dof;
 
 		array = PyArray_FromDims (2, dims, PyArray_FLOAT);
 		data = g_slist_append (data, array);
@@ -263,28 +265,42 @@ AMC_fromFile (AMC *self, PyObject *args)
 
 
 			if (newframe) {
-				current_frame = g_ascii_strtoull (line, NULL, 10);
+				current_frame = g_ascii_strtoull (line, NULL, 10) - 1;
+				i = data;
+				pao = i->data;
 			} else {
 				gchar **tokens = g_strsplit (line, " ", 0);
-				guint token;
+				guint token, dof = 0;
 
 				g_strstrip (tokens[0]);
 				for (token = 1; tokens[token]; token++) {
 					g_strstrip (tokens[token]);
 					if (strlen (tokens[token])) {
+						f = (float *) (pao->data + (current_frame * pao->strides[0]) + (dof * pao->strides[1]));
+						*f = (float) g_ascii_strtod (tokens[token], NULL);
 					}
+					dof++;
 				}
 
 				g_strfreev (tokens);
+				i = g_slist_next (i);
+				if (i != NULL) {
+					pao = i->data;
+				}
 			}
 		}
 
 		g_free (line);
 	}
 
+	for (i = data, j = bones; i; i = g_slist_next (i), j = g_slist_next (j)) {
+		PyDict_SetItem (motion->bones, PyString_FromString (j->data), i->data);
+	}
+
 	g_slist_foreach (bones, (GFunc) g_free, NULL);
 	g_slist_free (bones);
 	g_slist_free (dofs);
+	g_slist_free (data);
 
 	g_io_channel_close (file);
 
