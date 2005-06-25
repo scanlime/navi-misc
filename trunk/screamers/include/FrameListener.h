@@ -19,10 +19,10 @@
  *
  */
 
+#include <Ogre.h>
+
 #ifndef _FRAME_LISTENER_H_
 #define _FRAME_LISTENER_H_
-
-#include <Ogre.h>
 
 namespace Screamers
 {
