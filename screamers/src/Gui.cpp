@@ -1,5 +1,5 @@
 /*
- * GuiFrameListeners.cpp - various GUI screens
+ * Gui.cpp - various GUI screens
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -19,7 +19,7 @@
  *
  */
 
-#include "GuiFrameListeners.h"
+#include "Gui.h"
 
 namespace Screamers
 {

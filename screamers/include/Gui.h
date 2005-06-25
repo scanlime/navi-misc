@@ -1,5 +1,5 @@
 /*
- * GuiFrameListeners.h - various GUI screens
+ * Gui.h - various GUI screens
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *

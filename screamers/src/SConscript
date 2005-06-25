@@ -27,7 +27,7 @@ ogreenv.ParseConfig ('pkg-config --cflags --libs OGRE CEGUI CEGUI-OGRE')
 screamers_sources = [
 	'Application.cpp',
 	'FrameListener.cpp',
-	'GuiFrameListeners.cpp',
+	'Gui.cpp',
 	'Screamers.cpp',
 ]
 ogreenv.Program ('screamers', screamers_sources)
