@@ -54,6 +54,7 @@ public:
 private:
 	CEGUI::Renderer		*gui_renderer;
 	Ogre::EventProcessor	*event_processor;
+	bool			 quit;
 };
 
 };

@@ -47,11 +47,14 @@ GuiFrameListener::GuiFrameListener (Ogre::RenderWindow *window, CEGUI::Renderer 
 	event_processor->addMouseListener (this);
 
 	gui_renderer = renderer;
+
+	quit = false;
 }
 
 bool GuiFrameListener::frameEnded (const Ogre::FrameEvent &event)
 {
-	// FIXME - we should return false on some key here, like ESC
+	if (quit)
+		return false;
 	return FrameListener::frameEnded (event);
 }
 
@@ -78,14 +81,25 @@ void GuiFrameListener::mouseReleased (Ogre::MouseEvent *event)
 
 void GuiFrameListener::keyPressed (Ogre::KeyEvent *event)
 {
+	// if the user hit escape, quit. if not, punt back into CEGUI
+	if (event->getKey () == Ogre::KC_ESCAPE) {
+		quit = true;
+	} else {
+		CEGUI::System::getSingleton ().injectKeyDown (event->getKey ());
+		CEGUI::System::getSingleton ().injectChar (event->getKeyChar ());
+	}
+	event->consume ();
 }
 
 void GuiFrameListener::keyReleased (Ogre::KeyEvent *event)
 {
+	CEGUI::System::getSingleton ().injectKeyUp (event->getKey ());
+	event->consume ();
 }
 
 void GuiFrameListener::keyClicked (Ogre::KeyEvent *event)
 {
+	event->consume ();
 }
 
 };
