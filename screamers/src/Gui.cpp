@@ -102,5 +102,24 @@ void GuiFrameListener::keyClicked (Ogre::KeyEvent *event)
 	event->consume ();
 }
 
+Gui::Gui (Ogre::RenderWindow *window)
+{
+	this->window = window;
+	gui_renderer = new CEGUI::OgreCEGUIRenderer(window, Ogre::RENDER_QUEUE_OVERLAY, false, 0, Ogre::ST_GENERIC);
+	gui_system = new CEGUI::System (gui_renderer);
+}
+
+Gui::~Gui ()
+{
+	if (gui_system) {
+		delete gui_system;
+		gui_system = NULL;
+	}
+	if (gui_renderer) {
+		delete gui_renderer;
+		gui_renderer = NULL;
+	}
+}
+
 };
 };

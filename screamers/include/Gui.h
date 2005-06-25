@@ -22,6 +22,7 @@
 #include <Ogre.h>
 #include <OgreKeyEvent.h>
 #include <OgreEventListeners.h>
+#include <OgreRenderWindow.h>
 #include <OgreCEGUIRenderer.h>
 #include <CEGUI/CEGUISystem.h>
 #include "FrameListener.h"
@@ -55,6 +56,17 @@ private:
 	CEGUI::Renderer		*gui_renderer;
 	Ogre::EventProcessor	*event_processor;
 	bool			 quit;
+};
+
+class Gui
+{
+public:
+					 Gui (Ogre::RenderWindow *window);
+					~Gui ();
+private:
+	Ogre::RenderWindow		*window;
+	CEGUI::OgreCEGUIRenderer	*gui_renderer;
+	CEGUI::System			*gui_system;
 };
 
 };
