@@ -128,7 +128,7 @@ Gui::Gui ()
 	// on the ogre wiki, since this stuff is pretty ugly.
 
 	// create render-to-texture setup
-	Ogre::RenderTexture *rtt = application.getRoot ()->getRenderSystem ()->createRenderTexture ("RttTexture", 512, 512, Ogre::TEX_TYPE_2D, Ogre::PF_R8G8B8);
+	gui_texture = application.getRoot ()->getRenderSystem ()->createRenderTexture ("RttTexture", 512, 512, Ogre::TEX_TYPE_2D, Ogre::PF_R8G8B8);
 	{
 		Ogre::SceneManager *scene_manager = application.getSceneManager ();
 		Ogre::Camera *camera = scene_manager->createCamera ("RttCamera");
@@ -136,11 +136,12 @@ Gui::Gui ()
 		camera_node->attachObject (camera);
 		camera->setPosition (0, 0, 200);
 
-		Ogre::Viewport *v = rtt->addViewport (camera);
+		Ogre::Viewport *v = gui_texture->addViewport (camera);
 		v->setOverlaysEnabled (false);
 		v->setClearEveryFrame (true);
 		v->setBackgroundColour (Ogre::ColourValue::Black);
 	}
+	gui_texture->setActive (false);
 
 	// Retrieve CEGUI texture for the RTT
 	CEGUI::Texture *rtt_texture = gui_renderer->createTexture ((CEGUI::utf8*) "RttTexture");
@@ -182,6 +183,7 @@ void Gui::pushPage (std::string name)
 {
 	display.push (pages[name]);
 	gui_system->setGUISheet (display.top ()->sheet);
+	gui_texture->setActive (true);
 }
 
 void Gui::popPage ()
@@ -192,6 +194,7 @@ void Gui::popPage ()
 	if (display.empty ()) {
 		// FIXME - does this work?
 		gui_system->setGUISheet (NULL);
+		gui_texture->setActive (false);
 	} else {
 		gui_system->setGUISheet (display.top ()->sheet);
 	}
