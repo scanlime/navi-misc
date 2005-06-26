@@ -2,7 +2,7 @@
 
 import os
 
-env = Environment (CCFLAGS = '-g', CPPPATH = '#include')
+env = Environment (CCFLAGS = ['-g', '-pg'], CPPPATH = '#include')
 Export ('env')
 
 # Create the plugins.cfg file with the correct plugin path
