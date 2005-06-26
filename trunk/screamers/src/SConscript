@@ -10,24 +10,26 @@ e.Append (CPPPATH = libraries, LIBS = libraries, LIBPATH = libraries)
 # Build our libraries
 SConscript (['%s/SConscript' % s for s in libraries])
 
+ogreenv = e.Copy ()
+ogreenv.ParseConfig ('pkg-config --cflags --libs OGRE')
 # Build the server
 screamersd_sources = [
 	'ConnectionManager.cpp',
+	'Log.cpp',
 	'MainLoop.cpp',
 	'ScreamersD.cpp',
 	'TextUtils.cpp',
 	'World.cpp',
 	'WorldParser.cpp',
 ]
-e.Program ('screamersd', screamersd_sources)
+ogreenv.Program ('screamersd', screamersd_sources)
 
-ogreenv = e.Copy ()
-ogreenv.ParseConfig ('pkg-config --cflags --libs OGRE')
 # Build the client
 screamers_sources = [
 	'Application.cpp',
 	'FrameListener.cpp',
 	'GameConnection.cpp',
+	'Log.cpp',
 	'TextUtils.cpp',
 	'Screamers.cpp',
 ]
