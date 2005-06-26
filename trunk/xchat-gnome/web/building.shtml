@@ -34,7 +34,7 @@
 	  <span class="comment">(make sure that gnome support was found)</span><br />
 	  xchat2$ make<br />
 	  xchat2$ cd src/fe-gnome<br />
-	  xchat2$ gconftool-2 --install-schema-file=apps_xchat.schemas<br />
+	  fe-gnome$ gconftool-2 --install-schema-file=apps_xchat.schemas<br />
 	  fe-gnome$ ./xchat-gnome<br />
         </div>
       </div>
