@@ -24,8 +24,6 @@
 #include "Screamers.h"
 #include "Version.h"
 #include "Application.h"
-#include "Gui.h"
-#include "MainMenu.h"
 
 int appMain ( std::string commandLine )
 {
@@ -35,12 +33,6 @@ int appMain ( std::string commandLine )
 	// We need to set up OGRE and all that jazz before we can initialize anything else
 	if (!app.setup ())
 		return 1;
-
-	Screamers::Client::Gui gui;
-	Screamers::Client::MainMenu main_menu;
-
-	gui.addPage ("main", &main_menu);
-	gui.pushPage ("main");
 
 	app.go ();
 	return 0;
