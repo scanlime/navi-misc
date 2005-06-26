@@ -24,11 +24,19 @@
 #include "Screamers.h"
 #include "Version.h"
 #include "Application.h"
+#include "Gui.h"
 
 int appMain ( std::string commandLine )
 {
 	std::cout << "version " << VERSION << std::endl;
 	Screamers::Application app;
+
+	// We need to set up OGRE and all that jazz before we can initialize anything else
+	if (!app.setup ())
+		return 1;
+
+	Screamers::Client::Gui gui;
+
 	app.go ();
 	return 0;
 }

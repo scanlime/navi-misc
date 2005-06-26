@@ -41,7 +41,8 @@ public:
 	static Application	*getSingletonPtr (void);
 	static Application	&getSingleton (void);
 
-	virtual void		 go (void);
+	bool			 setup (void);
+	void		 	 go (void);
 
 	Ogre::Root		*getRoot ();
 	Ogre::Camera		*getCamera ();
@@ -55,10 +56,11 @@ protected:
 	Ogre::RenderWindow	*renderWindow;
 	InfoListener		*infoListener;
 
-	virtual bool		 setup (void);
-	virtual bool		 configure (void);
+	bool			 configure (void);
 
 private:
+	bool			 configured;
+
 	void			 loadResourcePaths (void);
 	void			 loadResources (void);
 };

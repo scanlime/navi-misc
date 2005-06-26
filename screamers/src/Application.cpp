@@ -41,6 +41,7 @@ Application &Application::getSingleton (void)
 Application::Application ()
 {
 	root = NULL;
+	configured = false;
 }
 
 Application::~Application ()
@@ -51,7 +52,7 @@ Application::~Application ()
 
 void Application::go (void)
 {
-	if (!setup ())
+	if ((configured == false) && (setup () == false))
 	{
 		std::cerr << "Could not set up OGRE, quitting\n";
 		return;
@@ -96,6 +97,8 @@ void Application::loadResources (void)
 
 bool Application::setup (void)
 {
+	if (configured)
+		return true;
 	root = new Ogre::Root ();
 	loadResourcePaths ();
 
@@ -125,6 +128,8 @@ bool Application::setup (void)
 	infoListener = new InfoListener (renderWindow);
 
 	root->addFrameListener (infoListener);
+
+	configured = true;
 
 	return true;
 }
