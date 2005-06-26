@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <GUIScheme Name="TaharezLook">
 	<Imageset Name="TaharezLook" Filename="TaharezLook.imageset" />
-	<Font Name="Bitstream Vera Sans-12" Filename="bitstream-vera-sans-12.font" />
+	<Font Name="Bitstream Vera Sans-11" Filename="bitstream-vera-sans-11.font" />
 	<WindowSet Filename="CEGUITaharezLook">
 		<WindowFactory Name="TaharezLook/AlternateProgressBar" />
 		<WindowFactory Name="TaharezLook/Button" />
