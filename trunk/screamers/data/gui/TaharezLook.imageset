@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <Imageset Name="TaharezLook" Imagefile="TaharezLook.tga" NativeHorzRes="800" NativeVertRes="600" AutoScaled="false">
-	<Image Name="ClientBrush" XPos="11" YPos="2" Width="2" Height="2" />
+	<Image Name="ClientBrush" XPos="7" YPos="0" Width="2" Height="2" />
 
 	<Image Name="ButtonLeftNormal"   XPos="0" YPos="0" Width="3" Height="16" />
 	<Image Name="ButtonMiddleNormal" XPos="3" YPos="0" Width="1" Height="16" />
@@ -13,6 +13,8 @@
 	<Image Name="ButtonLeftHighlight"   XPos="0" YPos="32" Width="3" Height="16" />
 	<Image Name="ButtonMiddleHighlight" XPos="3" YPos="32" Width="1" Height="16" />
 	<Image Name="ButtonRightHighlight"  XPos="4" YPos="32" Width="3" Height="16" />
+
+	<Image Name="MouseArrow" XPos="7" YPos="2" Width="12" Height="18" XOffset="0" YOffset="1" />
 
 	<Image Name="WindowLeftEdge" XPos="6" YPos="95" Width="1" Height="22" XOffset="4" />
 	<Image Name="WindowRightEdge" XPos="34" YPos="95" Width="1" Height="22" XOffset="-5" />
@@ -169,7 +171,6 @@
 	<Image Name="MultiLineEditboxBackdrop" XPos="52" YPos="89" Width="6" Height="6" />
 	<Image Name="MultiLineEditboxSelectionBrush" XPos="9" YPos="71" Width="14" Height="14" />
 	<Image Name="MouseTarget" XPos="182" YPos="127" Width="17" Height="17" XOffset="-8" YOffset="-8" />
-	<Image Name="MouseArrow" XPos="138" YPos="127" Width="31" Height="25" XOffset="0" YOffset="0" />
 	<Image Name="MouseMoveCursor" XPos="201" YPos="127" Width="18" Height="18" XOffset="-8" YOffset="-8" />
 	<Image Name="MouseNoSoCursor" XPos="221" YPos="127" Width="8" Height="18" XOffset="-3" YOffset="-8" />
 	<Image Name="MouseEsWeCursor" XPos="182" YPos="150" Width="18" Height="8" XOffset="-8" YOffset="-3" />
