@@ -24,9 +24,9 @@
 
 namespace Screamers {
 
-Log::Log () : TNL::LogConsumer ()
+Log::Log (const char *filename) : TNL::LogConsumer ()
 {
-	log_file.open ("screamers.log");
+	log_file.open (filename);
 	if (!log_file)
 		std::cerr << "warning: could not open log file, printing log to stdout\n";
 
@@ -55,14 +55,15 @@ void Log::logString (const char *string)
 
 namespace Client {
 
-Log::Log () : Screamers::Log (), Ogre::LogListener ()
+Log::Log () : Screamers::Log ("screamers.log"), Ogre::LogListener ()
 {
-	if (Ogre::LogManager::getSingletonPtr () == NULL) {
-		Ogre::LogManager *manager = new Ogre::LogManager ();
-		manager->addListener (this);
-	} else {
-		Ogre::LogManager::getSingleton ().addListener (this);
-	}
+	Ogre::LogManager *manager;
+	if (Ogre::LogManager::getSingletonPtr () == NULL)
+		manager = new Ogre::LogManager ();
+	else
+		manager = Ogre::LogManager::getSingletonPtr ();
+	manager->addListener (this);
+	manager->setLogDetail (Ogre::LL_BOREME);
 }
 
 Log::~Log ()

@@ -27,6 +27,7 @@
 
 #include "Screamers.h"
 #include "ConnectionManager.h"
+#include "Log.h"
 #include "MainLoop.h"
 #include "Version.h"
 #include "WorldParser.h"
@@ -34,6 +35,8 @@
 int appMain (std::string commandLine)
 {
 	std::cout << "starting screamersd\nversion " << VERSION << std::endl;
+
+	Screamers::Log ("screamersd.log");
 
 	Screamers::World world;
 	Screamers::WorldParser parser (world);

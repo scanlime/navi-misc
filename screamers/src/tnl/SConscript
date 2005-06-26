@@ -3,7 +3,7 @@
 # bleh, this bothers me a bit
 Import('env')
 e = env.Copy ()
-e.Append (CPPPATH = ['#src/tomcrypt'])
+e.Append (CPPPATH = ['#src/tomcrypt'], CCFLAGS = ['-DTNL_ENABLE_LOGGING'])
 
 tnl_sources = [
 	'assert.cpp',

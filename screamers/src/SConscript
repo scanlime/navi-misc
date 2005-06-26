@@ -12,6 +12,7 @@ SConscript (['%s/SConscript' % s for s in libraries])
 
 ogreenv = e.Copy ()
 ogreenv.ParseConfig ('pkg-config --cflags --libs OGRE')
+ogreenv.Append (CCFLAGS = ['-DTNL_ENABLE_LOGGING'])
 # Build the server
 screamersd_sources = [
 	'ConnectionManager.cpp',
