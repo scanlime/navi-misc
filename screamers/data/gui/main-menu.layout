@@ -1,19 +1,22 @@
 <?xml version="1.0" ?>
 <GUILayout>
 	<Window Type="DefaultGUISheet" Name="root">
-		<Window Type="DefaultGUISheet" Name="MainMenu">
-			<Property Name="Size" Value="w:0.2 h:0.05" />
+		<Window Type="TaharezLook/FrameWindow" Name="MainMenu">
+			<Property Name="Size" Value="w:0.2 h:0.1" />
 			<Property Name="Position" Value="x:0.4 y:0.45" />
+			<Property Name="DragMovingEnabled" Value="false" />
+			<Property Name="RollUpEnabled" Value="false" />
+			<Property Name="CloseButtonEnabled" Value="false" />
 
 			<Window Type="TaharezLook/Button" Name="MainMenu/JoinButton">
-				<Property Name="Size" Value="w:0.8 h:0.4" />
-				<Property Name="Position" Value="x:0.1 y:0.0" />
+				<Property Name="Size" Value="w:0.8 h:0.23" />
+				<Property Name="Position" Value="x:0.1 y:0.3" />
 				<Property Name="Text" Value="Join Game" />
 			</Window>
 
 			<Window Type="TaharezLook/Button" Name="MainMenu/QuitButton">
-				<Property Name="Size" Value="w:0.8 h:0.4" />
-				<Property Name="Position" Value="x:0.1 y:0.6" />
+				<Property Name="Size" Value="w:0.8 h:0.23" />
+				<Property Name="Position" Value="x:0.1 y:0.65" />
 				<Property Name="Text" Value="Quit" />
 			</Window>
 		</Window>
