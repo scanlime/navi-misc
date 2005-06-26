@@ -20,5 +20,17 @@
 				<Property Name="Text" Value="Quit" />
 			</Window>
 		</Window>
+
+		<Window Type="TaharezLook/TabControl" Name="Test/TabCtrl">
+			<Property Name="Position" Value="x:0.65 y:0.65" />
+			<Property Name="Size" Value="w:0.3 h:0.3" />
+
+			<Window Type="DefaultGUISheet" Name="Test/TabCtrl/Page1">
+				<Property Name="Text" Value="  Tab 1  " />
+			</Window>
+			<Window Type="DefaultGUISheet" Name="Test/TabCtrl/Page2">
+				<Property Name="Text" Value="  Tab 2  " />
+			</Window>
+		</Window>
 	</Window>
 </GUILayout>
