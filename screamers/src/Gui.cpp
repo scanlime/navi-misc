@@ -137,7 +137,7 @@ Gui::Gui ()
 	// on the ogre wiki, since this stuff is pretty ugly.
 
 	// create render-to-texture setup
-	gui_texture = application.getRoot ()->getRenderSystem ()->createRenderTexture ("RttTexture", 512, 512, Ogre::TEX_TYPE_2D, Ogre::PF_R8G8B8);
+	gui_texture = application.getRoot ()->getRenderSystem ()->createRenderTexture ("RttTexture", 256, 256, Ogre::TEX_TYPE_2D, Ogre::PF_R8G8B8);
 	{
 		Ogre::SceneManager *scene_manager = application.getSceneManager ();
 		Ogre::Camera *camera = scene_manager->createCamera ("RttCamera");
@@ -165,7 +165,7 @@ Gui::Gui ()
 	// Load scheme and set defaults
 	// FIXME - taharez is *fugly*
 	CEGUI::SchemeManager::getSingleton ().loadScheme ((CEGUI::utf8*) "TaharezLook.scheme");
-//	gui_system->setDefaultMouseCursor ((CEGUI::utf8*) "TaharezLook", (CEGUI::utf8*) "MouseArrow");
+	gui_system->setDefaultMouseCursor ((CEGUI::utf8*) "TaharezLook", (CEGUI::utf8*) "MouseArrow");
 	gui_system->setDefaultFont ((CEGUI::utf8*) "Bitstream Vera Sans-11");
 
 	frame_listener = new GuiFrameListener (application.getRenderWindow (), gui_renderer);
