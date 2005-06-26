@@ -32,7 +32,7 @@ namespace Screamers {
 class Log : public TNL::LogConsumer
 {
 public:
-			 Log ();
+			 Log (const char *filename);
 			~Log ();
 
 	virtual void	 logString (const char *string);
