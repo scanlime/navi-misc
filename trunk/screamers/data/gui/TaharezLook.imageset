@@ -1,6 +1,19 @@
 <?xml version="1.0" ?>
-<Imageset Name="TaharezLook" Imagefile="TaharezLook.tga" NativeHorzRes="800" NativeVertRes="600" AutoScaled="true">
-	<Image Name="ClientBrush" XPos="2" YPos="2" Width="64" Height="64" />
+<Imageset Name="TaharezLook" Imagefile="TaharezLook.tga" NativeHorzRes="800" NativeVertRes="600" AutoScaled="false">
+	<Image Name="ClientBrush" XPos="11" YPos="2" Width="2" Height="2" />
+
+	<Image Name="ButtonLeftNormal"   XPos="0" YPos="0" Width="3" Height="16" />
+	<Image Name="ButtonMiddleNormal" XPos="3" YPos="0" Width="1" Height="16" />
+	<Image Name="ButtonRightNormal"  XPos="4" YPos="0" Width="3" Height="16" />
+
+	<Image Name="ButtonLeftPushed"   XPos="0" YPos="16" Width="3" Height="16" />
+	<Image Name="ButtonMiddlePushed" XPos="3" YPos="16" Width="1" Height="16" />
+	<Image Name="ButtonRightPushed"  XPos="4" YPos="16" Width="3" Height="16" />
+
+	<Image Name="ButtonLeftHighlight"   XPos="0" YPos="32" Width="3" Height="16" />
+	<Image Name="ButtonMiddleHighlight" XPos="3" YPos="32" Width="1" Height="16" />
+	<Image Name="ButtonRightHighlight"  XPos="4" YPos="32" Width="3" Height="16" />
+
 	<Image Name="WindowLeftEdge" XPos="6" YPos="95" Width="1" Height="22" XOffset="4" />
 	<Image Name="WindowRightEdge" XPos="34" YPos="95" Width="1" Height="22" XOffset="-5" />
 	<Image Name="WindowTopEdge" XPos="9" YPos="68" Width="23" Height="1" />
@@ -9,15 +22,6 @@
 	<Image Name="WindowTopRight" XPos="34" YPos="68" Width="5" Height="24" />
 	<Image Name="WindowBottomLeft" XPos="2" YPos="120" Width="5" Height="24" />
 	<Image Name="WindowBottomRight" XPos="34" YPos="120" Width="5" Height="24" />
-	<Image Name="ButtonLeftNormal" XPos="68" YPos="20" Width="12" Height="16" />
-	<Image Name="ButtonMiddleNormal" XPos="82" YPos="20" Width="12" Height="16" />
-	<Image Name="ButtonRightNormal" XPos="96" YPos="20" Width="12" Height="16" />
-	<Image Name="ButtonLeftPushed" XPos="68" YPos="38" Width="12" Height="16" />
-	<Image Name="ButtonMiddlePushed" XPos="82" YPos="38" Width="12" Height="16" />
-	<Image Name="ButtonRightPushed" XPos="96" YPos="38" Width="12" Height="16" />
-	<Image Name="ButtonLeftHighlight" XPos="68" YPos="56" Width="12" Height="16" />
-	<Image Name="ButtonMiddleHighlight" XPos="82" YPos="56" Width="12" Height="16" />
-	<Image Name="ButtonRightHighlight" XPos="96" YPos="56" Width="12" Height="16" />
 	<Image Name="CheckboxNormal" XPos="110" YPos="2" Width="12" Height="12" />
 	<Image Name="CheckboxHover" XPos="110" YPos="30" Width="12" Height="12" />
 	<Image Name="CheckboxMark" XPos="110" YPos="16" Width="12" Height="12" />
