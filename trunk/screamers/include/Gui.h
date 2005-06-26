@@ -91,6 +91,7 @@ private:
 
 	CEGUI::OgreCEGUIRenderer	*gui_renderer;
 	CEGUI::System			*gui_system;
+	Ogre::RenderTexture		*gui_texture;
 	GuiFrameListener		*frame_listener;
 };
 
