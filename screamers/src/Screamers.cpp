@@ -19,13 +19,20 @@
  *
  */
 
+#include <vector>
 #include <string>
 #include <iostream>
+
+#include <tnl.h>
+#include <tnlNetInterface.h>
+
 #include "Screamers.h"
 #include "Version.h"
 #include "Application.h"
+#include "TextUtils.h"
+#include "GameConnection.h"
 
-int appMain ( std::string commandLine )
+int appMain (std::string commandLine)
 {
 	std::cout << "version " << VERSION << std::endl;
 	Screamers::Application app;
@@ -33,6 +40,19 @@ int appMain ( std::string commandLine )
 	// We need to set up OGRE and all that jazz before we can initialize anything else
 	if (!app.setup ())
 		return 1;
+
+	std::vector<std::string> options = TextUtils::tokenize (commandLine, " \t", 0, true);
+
+	std::string server = "localhost";
+	if (options.size () == 1)
+		server = options[0];
+
+	// connect to the server specified
+	TNL::Address remote_address (TextUtils::format ("ip:%s:27050", server.c_str ()).c_str ());
+	TNL::Address local_address (TNL::IPProtocol, TNL::Address::Any, 0);
+	TNL::NetInterface *local_interface = new TNL::NetInterface (local_address);
+	Screamers::GameConnection connection;
+	connection.connect (local_interface, remote_address);
 
 	app.go ();
 	return 0;

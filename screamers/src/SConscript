@@ -27,6 +27,8 @@ ogreenv.ParseConfig ('pkg-config --cflags --libs OGRE')
 screamers_sources = [
 	'Application.cpp',
 	'FrameListener.cpp',
+	'GameConnection.cpp',
+	'TextUtils.cpp',
 	'Screamers.cpp',
 ]
 ogreenv.Program ('screamers', screamers_sources)
