@@ -72,9 +72,9 @@ Log::~Log ()
 void Log::write (const Ogre::String &name, const Ogre::String &message, Ogre::LogMessageLevel lml, bool maskDebug)
 {
 	if (log_file)
-		log_file << name << ": " << message << std::endl;
+		log_file << message << std::endl;
 	else
-		std::cout << name << ": " << message << std::endl;
+		std::cout << message << std::endl;
 }
 
 }

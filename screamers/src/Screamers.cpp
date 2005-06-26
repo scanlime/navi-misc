@@ -25,6 +25,7 @@
 
 #include <tnl.h>
 #include <tnlNetInterface.h>
+#include <tnlLog.h>
 
 #include "Application.h"
 #include "GameConnection.h"
