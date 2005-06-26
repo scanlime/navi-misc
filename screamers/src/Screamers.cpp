@@ -26,11 +26,12 @@
 #include <tnl.h>
 #include <tnlNetInterface.h>
 
-#include "Screamers.h"
-#include "Version.h"
 #include "Application.h"
-#include "TextUtils.h"
 #include "GameConnection.h"
+#include "Log.h"
+#include "Screamers.h"
+#include "TextUtils.h"
+#include "Version.h"
 
 int appMain (std::string commandLine)
 {
@@ -40,6 +41,8 @@ int appMain (std::string commandLine)
 	// We need to set up OGRE and all that jazz before we can initialize anything else
 	if (!app.setup ())
 		return 1;
+
+	Screamers::Client::Log log;
 
 	std::vector<std::string> options = TextUtils::tokenize (commandLine, " \t", 0, true);
 
