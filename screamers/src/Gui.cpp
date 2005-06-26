@@ -152,6 +152,7 @@ Gui::Gui ()
 				   CEGUI::Point (0.0f, 0.0f));
 
 	// Load scheme and set defaults
+	// FIXME - taharez is *fugly*
 	CEGUI::SchemeManager::getSingleton ().loadScheme ((CEGUI::utf8*) "TaharezLook.scheme");
 	gui_system->setDefaultMouseCursor ((CEGUI::utf8*) "TaharezLook", (CEGUI::utf8*) "MouseArrow");
 	gui_system->setDefaultFont ((CEGUI::utf8*) "Bitstream Vera Sans-12");
@@ -169,6 +170,30 @@ Gui::~Gui ()
 	if (gui_renderer) {
 		delete gui_renderer;
 		gui_renderer = NULL;
+	}
+}
+
+void Gui::addPage (std::string name, GuiPage *page)
+{
+	pages[name] = page;
+}
+
+void Gui::pushPage (std::string name)
+{
+	display.push (pages[name]);
+	gui_system->setGUISheet (display.top ()->sheet);
+}
+
+void Gui::popPage ()
+{
+	GuiPage *page = display.top ();
+	display.pop ();
+
+	if (display.empty ()) {
+		// FIXME - does this work?
+		gui_system->setGUISheet (NULL);
+	} else {
+		gui_system->setGUISheet (display.top ()->sheet);
 	}
 }
 

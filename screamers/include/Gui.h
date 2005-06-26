@@ -19,6 +19,8 @@
  *
  */
 
+#include <map>
+#include <stack>
 #include <Ogre.h>
 #include <OgreKeyEvent.h>
 #include <OgreEventListeners.h>
@@ -62,12 +64,31 @@ private:
 	bool			 quit;
 };
 
+class GuiPage
+{
+public:
+			 GuiPage ();
+			~GuiPage ();
+private:
+	CEGUI::Window	*sheet;
+
+	friend class Gui;
+};
+
 class Gui
 {
 public:
-					 Gui ();
-					~Gui ();
+					 Gui      ();
+					~Gui      ();
+
+	void				 addPage  (std::string name, GuiPage *page);
+	void				 pushPage (std::string name);
+	void				 popPage  (void);
+
 private:
+	std::map<std::string, GuiPage*>	 pages;
+	std::stack<GuiPage *>		 display;
+
 	CEGUI::OgreCEGUIRenderer	*gui_renderer;
 	CEGUI::System			*gui_system;
 	GuiFrameListener		*frame_listener;
