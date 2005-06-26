@@ -2,7 +2,9 @@
 
 import os
 
-env = Environment (CCFLAGS = ['-g', '-pg'], CPPPATH = '#include')
+# use this version if you want gprof info
+#env = Environment (CCFLAGS = ['-g', '-pg'], LINKFLAGS = ['-pg'], CPPPATH = '#include')
+env = Environment (CCFLAGS = '-g', CPPPATH = '#include')
 Export ('env')
 
 # Create the plugins.cfg file with the correct plugin path
