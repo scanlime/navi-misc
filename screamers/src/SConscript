@@ -22,13 +22,11 @@ screamersd_sources = [
 e.Program ('screamersd', screamersd_sources)
 
 ogreenv = e.Copy ()
-ogreenv.ParseConfig ('pkg-config --cflags --libs OGRE CEGUI CEGUI-OGRE')
+ogreenv.ParseConfig ('pkg-config --cflags --libs OGRE')
 # Build the client
 screamers_sources = [
 	'Application.cpp',
 	'FrameListener.cpp',
-	'Gui.cpp',
-	'MainMenu.cpp',
 	'Screamers.cpp',
 ]
 ogreenv.Program ('screamers', screamers_sources)
