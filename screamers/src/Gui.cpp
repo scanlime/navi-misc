@@ -120,7 +120,7 @@ Gui::Gui ()
 {
 	Application &application = Application::getSingleton ();
 
-	gui_renderer = new CEGUI::OgreCEGUIRenderer(application.getRenderWindow (), Ogre::RENDER_QUEUE_OVERLAY, false, 0, Ogre::ST_GENERIC);
+	gui_renderer = new CEGUI::OgreCEGUIRenderer (application.getRenderWindow (), Ogre::RENDER_QUEUE_OVERLAY, false, 0, Ogre::ST_GENERIC);
 	gui_system = new CEGUI::System (gui_renderer);
 
 	// Most of the rest of the code here is copied from the ogre samples.
@@ -142,6 +142,7 @@ Gui::Gui ()
 		v->setBackgroundColour (Ogre::ColourValue::Black);
 	}
 	gui_texture->setActive (false);
+	gui_renderer->setMutedState (true);
 
 	// Retrieve CEGUI texture for the RTT
 	CEGUI::Texture *rtt_texture = gui_renderer->createTexture ((CEGUI::utf8*) "RttTexture");
@@ -181,9 +182,11 @@ void Gui::addPage (std::string name, GuiPage *page)
 
 void Gui::pushPage (std::string name)
 {
+	gui_texture->setActive (true);
+	gui_renderer->setMutedState (false);
+
 	display.push (pages[name]);
 	gui_system->setGUISheet (display.top ()->sheet);
-	gui_texture->setActive (true);
 }
 
 void Gui::popPage ()
@@ -192,9 +195,11 @@ void Gui::popPage ()
 	display.pop ();
 
 	if (display.empty ()) {
+		gui_texture->setActive (false);
+		gui_renderer->setMutedState (true);
+
 		// FIXME - does this work?
 		gui_system->setGUISheet (NULL);
-		gui_texture->setActive (false);
 	} else {
 		gui_system->setGUISheet (display.top ()->sheet);
 	}

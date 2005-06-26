@@ -20,6 +20,7 @@
  */
 
 #include <iostream>
+#include <fstream>
 #include "Application.h"
 
 namespace Screamers
@@ -136,9 +137,7 @@ bool Application::setup (void)
 
 bool Application::configure (void)
 {
-	// FIXME - we'll want to store most of this stuff in whatever configuration
-	// system we end up having, rather than running this dialog every time
-	if (root->showConfigDialog ()) {
+	if ((root->restoreConfig () || root->showConfigDialog ())) {
 		renderWindow = root->initialise (true, "Screamers");
 		return true;
 	} else {
