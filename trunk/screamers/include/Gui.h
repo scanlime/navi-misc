@@ -68,8 +68,8 @@ class GuiPage
 {
 public:
 			 GuiPage ();
-			~GuiPage ();
-private:
+	virtual		~GuiPage ();
+protected:
 	CEGUI::Window	*sheet;
 
 	friend class Gui;

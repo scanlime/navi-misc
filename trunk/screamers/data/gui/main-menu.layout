@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<GUILayout>
+	<Window Type="DefaultGUISheet" Name="root">
+		<Window Type="DefaultGUISheet" Name="MainMenu">
+			<Property Name="Size" Value="w:0.4 h:0.1" />
+			<Property Name="Position" Value="x:0.3 y:0.45" />
+
+			<Window Type="TaharezLook/Button" Name="MainMenu/JoinButton">
+				<Property Name="Size" Value="w:0.8 h:0.3" />
+				<Property Name="Position" Value="x:0.1 h:0.3" />
+				<Property Name="Text" Value="Join Game" />
+			</Window>
+
+			<Window Type="TaharezLook/Button" Name="MainMenu/QuitButton">
+				<Property Name="Size" Value="w:0.8 h:0.3" />
+				<Property Name="Position" Value="x:0.1 h:0.6" />
+				<Property Name="Text" Value="Quit" />
+			</Window>
+		</Window>
+	</Window>
+</GUILayout>

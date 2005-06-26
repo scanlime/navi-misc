@@ -28,6 +28,7 @@ screamers_sources = [
 	'Application.cpp',
 	'FrameListener.cpp',
 	'Gui.cpp',
+	'MainMenu.cpp',
 	'Screamers.cpp',
 ]
 ogreenv.Program ('screamers', screamers_sources)

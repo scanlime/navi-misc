@@ -116,6 +116,15 @@ void GuiFrameListener::keyClicked (Ogre::KeyEvent *event)
 	event->consume ();
 }
 
+GuiPage::GuiPage ()
+{
+	sheet = NULL;
+}
+
+GuiPage::~GuiPage ()
+{
+}
+
 Gui::Gui ()
 {
 	Application &application = Application::getSingleton ();
@@ -156,8 +165,8 @@ Gui::Gui ()
 	// Load scheme and set defaults
 	// FIXME - taharez is *fugly*
 	CEGUI::SchemeManager::getSingleton ().loadScheme ((CEGUI::utf8*) "TaharezLook.scheme");
-	gui_system->setDefaultMouseCursor ((CEGUI::utf8*) "TaharezLook", (CEGUI::utf8*) "MouseArrow");
-	gui_system->setDefaultFont ((CEGUI::utf8*) "Bitstream Vera Sans-12");
+//	gui_system->setDefaultMouseCursor ((CEGUI::utf8*) "TaharezLook", (CEGUI::utf8*) "MouseArrow");
+	gui_system->setDefaultFont ((CEGUI::utf8*) "Bitstream Vera Sans-11");
 
 	frame_listener = new GuiFrameListener (application.getRenderWindow (), gui_renderer);
 	application.getRoot ()->addFrameListener (frame_listener);
