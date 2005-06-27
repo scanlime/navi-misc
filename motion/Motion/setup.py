@@ -12,4 +12,12 @@ pkgconfig.close ()
 # build!
 motion_c = Extension('motion_c', sources=['motion.c'], extra_compile_args=glib_cflags + ['-g'], extra_link_args=glib_libs)
 
-setup (name='Motion', version='1.0', description='Modules for dealing with motion-capture data', ext_modules=[motion_c])
+setup (name='Motion',
+       version='0.0.1',
+       maintainer='David Trowbridge',
+       maintainer_email='trowbrds@gmail.com',
+       license='GPL',
+       description='Modules for dealing with motion-capture data',
+       py_modules=['ASFReader', 'Bone', '__init__'],
+       extra_path='Motion',
+       ext_modules=[motion_c])
