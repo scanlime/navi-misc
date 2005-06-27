@@ -21,7 +21,6 @@
 from pyparsing import *
 from Bone import *
 import Log
-import Blender
 
 def listToDict(list):
     s = {}
