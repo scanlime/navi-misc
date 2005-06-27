@@ -22,6 +22,8 @@
 #include <tnl.h>
 #include <tnlGhostConnection.h>
 #include <tnlNetConnection.h>
+#include <tnlNetInterface.h>
+#include "FrameListener.h"
 
 #ifndef _GAME_CONNECTION_H_
 #define _GAME_CONNECTION_H_
@@ -43,18 +45,28 @@ static char *connection_states[] = {
 	"",
 };
 
-class GameConnection : public TNL::GhostConnection
+class GameConnection : public TNL::GhostConnection, public FrameListener
 {
 public:
 	TNL_DECLARE_NETCONNECTION(GameConnection);
 
-		 GameConnection ();
-	virtual ~GameConnection ();
+				 GameConnection ();
+	virtual			~GameConnection ();
 
-	bool	 isDataToTransmit ();
-	void	 onConnectTerminated (TNL::NetConnection::TerminationReason reason, const char *rejectionString);
-	void	 onConnectionTerminated (TNL::NetConnection::TerminationReason reason, const char *string);
-	void	 onConnectionEstablished ();
+	void			 connectToServer (const char *server, int port);
+
+	bool			 isDataToTransmit ();
+	void			 onConnectTerminated (TNL::NetConnection::TerminationReason reason, const char *rejectionString);
+	void			 onConnectionTerminated (TNL::NetConnection::TerminationReason reason, const char *string);
+	void			 onConnectionEstablished ();
+
+	bool			 frameEnded (const Ogre::FrameEvent &event);
+
+	TNL_DECLARE_RPC(rpcMessageTest, (TNL::StringPtr message));
+
+private:
+	TNL::Address		*remote_address;
+	TNL::NetInterface	*interface;
 };
 
 }

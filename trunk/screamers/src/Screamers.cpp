@@ -52,11 +52,9 @@ int appMain (std::string commandLine)
 		server = options[0];
 
 	// connect to the server specified
-	TNL::Address remote_address (TextUtils::format ("ip:%s:27050", server.c_str ()).c_str ());
-	TNL::Address local_address (TNL::IPProtocol, TNL::Address::Any, 0);
-	TNL::NetInterface *local_interface = new TNL::NetInterface (local_address);
 	Screamers::GameConnection connection;
-	connection.connect (local_interface, remote_address);
+	connection.connectToServer (server.c_str (), 27050);
+	connection.rpcMessageTest ("hi!");
 
 	app.go ();
 	return 0;
