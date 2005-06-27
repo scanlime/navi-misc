@@ -28,7 +28,7 @@ namespace Server
 
 ConnectionManager::ConnectionManager ()
 {
-	TNL::Address address (TNL::IPProtocol, TNL::Address::Broadcast, 27050);
+	TNL::Address address (TNL::IPProtocol, TNL::Address::Any, 27050);
 	network_interface = new TNL::NetInterface (address);
 	network_interface->setAllowsConnections (true);
 }
