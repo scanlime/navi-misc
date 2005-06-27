@@ -25,6 +25,28 @@ namespace Screamers {
 
 GameConnection::GameConnection () : TNL::GhostConnection ()
 {
+	setIsAdaptive ();
 }
+
+bool GameConnection::isDataToTransmit ()
+{
+	return true;
+}
+
+void GameConnection::onConnectTerminated (TNL::NetConnection::TerminationReason reason, const char *rejectionString)
+{
+	TNL::logprintf ("%s - %s connect terminated: %d", getNetAddressString (), isConnectionToServer () ? "server" : "client", rejectionString);
+}
+
+void GameConnection::onConnectionTerminated (TNL::NetConnection::TerminationReason reason, const char *string)
+{
+	TNL::logprintf ("%s - %s connection terminated: %d", getNetAddressString (), isConnectionToServer () ? "server" : "client", reason);
+}
+
+void GameConnection::onConnectionEstablished ()
+{
+	TNL::logprintf ("connected to server");
+}
+
 
 };

@@ -45,7 +45,12 @@ static char *connection_states[] = {
 class GameConnection : public TNL::GhostConnection
 {
 public:
-	GameConnection ();
+		GameConnection ();
+
+	bool	isDataToTransmit ();
+	void	onConnectTerminated (TNL::NetConnection::TerminationReason reason, const char *rejectionString);
+	void	onConnectionTerminated (TNL::NetConnection::TerminationReason reason, const char *string);
+	void	onConnectionEstablished ();
 };
 
 }

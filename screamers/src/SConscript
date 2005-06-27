@@ -16,6 +16,7 @@ ogreenv.Append (CCFLAGS = ['-DTNL_ENABLE_LOGGING'])
 # Build the server
 screamersd_sources = [
 	'ConnectionManager.cpp',
+	'GameConnection.cpp',
 	'Log.cpp',
 	'MainLoop.cpp',
 	'ScreamersD.cpp',
