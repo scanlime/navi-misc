@@ -193,7 +193,7 @@ amc_graph::create_graph (vector <double *> data, vector <int> degf_div, int degf
 					goto _FOUND; // break out of 2 loops
 				}
 			}
-_FOUND:		;
 		}
+_FOUND:		;
 	}
 }
