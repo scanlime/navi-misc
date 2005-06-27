@@ -21,6 +21,7 @@
 
 #include <tnl.h>
 #include <tnlGhostConnection.h>
+#include <tnlNetConnection.h>
 
 #ifndef _GAME_CONNECTION_H_
 #define _GAME_CONNECTION_H_
@@ -45,12 +46,15 @@ static char *connection_states[] = {
 class GameConnection : public TNL::GhostConnection
 {
 public:
-		GameConnection ();
+	TNL_DECLARE_NETCONNECTION(GameConnection);
 
-	bool	isDataToTransmit ();
-	void	onConnectTerminated (TNL::NetConnection::TerminationReason reason, const char *rejectionString);
-	void	onConnectionTerminated (TNL::NetConnection::TerminationReason reason, const char *string);
-	void	onConnectionEstablished ();
+		 GameConnection ();
+	virtual ~GameConnection ();
+
+	bool	 isDataToTransmit ();
+	void	 onConnectTerminated (TNL::NetConnection::TerminationReason reason, const char *rejectionString);
+	void	 onConnectionTerminated (TNL::NetConnection::TerminationReason reason, const char *string);
+	void	 onConnectionEstablished ();
 };
 
 }
