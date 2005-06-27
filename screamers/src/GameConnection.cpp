@@ -19,19 +19,38 @@
  *
  */
 
+#include <iostream>
+
 #include "GameConnection.h"
+#include "TextUtils.h"
 
 namespace Screamers {
 
 TNL_IMPLEMENT_NETCONNECTION(GameConnection, TNL::NetClassGroupGame, true);
 
-GameConnection::GameConnection () : TNL::GhostConnection ()
+GameConnection::GameConnection () :
+	TNL::GhostConnection (),
+	FrameListener (NULL)
 {
 	setIsAdaptive ();
 }
 
 GameConnection::~GameConnection ()
 {
+}
+
+void GameConnection::connectToServer (const char *server, int port)
+{
+	// connect
+	remote_address = new TNL::Address (TextUtils::format ("ip:%s:%d", server, port).c_str ());
+	TNL::Address local_address (TNL::IPProtocol, TNL::Address::Any, 0);
+	interface = new TNL::NetInterface (local_address);
+	connect (interface, *remote_address);
+
+	// Add ourselves as a frame listener, so we'll get the chance to send
+	// and recieve packets. Yay packets!
+	Ogre::Root *root = Ogre::Root::getSingletonPtr ();
+	root->addFrameListener (this);
 }
 
 bool GameConnection::isDataToTransmit ()
@@ -54,5 +73,17 @@ void GameConnection::onConnectionEstablished ()
 	TNL::logprintf ("connected to server");
 }
 
+bool GameConnection::frameEnded (const Ogre::FrameEvent &event)
+{
+	interface->checkIncomingPackets ();
+	interface->processConnections ();
+	return true;
+}
+
+TNL_IMPLEMENT_RPC(GameConnection, rpcMessageTest, (TNL::StringPtr message), (message), TNL::NetClassGroupGameMask, TNL::RPCGuaranteedOrdered, TNL::RPCDirClientToServer, 0)
+{
+	TNL::logprintf ("got message from client - \"%s\"", (const char *) message);
+	std::cout << "got message from client - \"" << (const char *) message << "\"\n";
+}
 
 };
