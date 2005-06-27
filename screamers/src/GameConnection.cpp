@@ -23,9 +23,15 @@
 
 namespace Screamers {
 
+TNL_IMPLEMENT_NETCONNECTION(GameConnection, TNL::NetClassGroupGame, true);
+
 GameConnection::GameConnection () : TNL::GhostConnection ()
 {
 	setIsAdaptive ();
+}
+
+GameConnection::~GameConnection ()
+{
 }
 
 bool GameConnection::isDataToTransmit ()
