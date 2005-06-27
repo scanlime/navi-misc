@@ -41,3 +41,40 @@ class Edge (object):
 
     def copy (self):
         return self.__class__ (self.u, self.v)
+
+class Graph (object):
+    """A generic graph. This object does not specify how the graph is stored
+       or what kind of queries can be made against it- that is done by instantiating
+       GraphRepresentation objects for this Graph. This lets one set of data be
+       represented in multiple ways, depending on what kinds of questions we expect
+       to ask.
+       """
+    edgeClass = Edge
+
+    def __init__ (self):
+        # observable?
+        pass
+
+class GraphRepresentation (object):
+    """This is an abstract base class for data structures used to represent
+       a graph. A Graph object by itself has no representation at all-
+       GraphRepresentation instances are attached to a graph in order to
+       actually provide data structures that useful queries can be made
+       against.
+
+       Note that all GraphRepresentations you plan to use should be added
+       to a Graph before populating it! GraphRepresentations will not be
+       able to store edges added before they were attached.
+       """
+    def __init__ (self, graph):
+        self.graph = graph;
+        graph.add.observe (self.onAdd)
+        graph.remove.observe (self.onRemove)
+
+    def onAdd (self, edge):
+        """Observer that is notified when an edge is added to the graph"""
+        pass
+
+    def onRemove (self, edge):
+        """Observer that is notified when an edge is removed from the graph"""
+        pass
