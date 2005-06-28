@@ -23,7 +23,7 @@
 #include <tnlGhostConnection.h>
 #include <tnlNetConnection.h>
 #include <tnlNetInterface.h>
-#include "FrameListener.h"
+#include "MainLoop.h"
 
 #ifndef _GAME_CONNECTION_H_
 #define _GAME_CONNECTION_H_
@@ -45,7 +45,7 @@ static char *connection_states[] = {
 	"",
 };
 
-class GameConnection : public TNL::GhostConnection, public FrameListener
+class GameConnection : public TNL::GhostConnection, public MainListener
 {
 public:
 	TNL_DECLARE_NETCONNECTION(GameConnection);
@@ -60,7 +60,7 @@ public:
 	void			 onConnectionTerminated (TNL::NetConnection::TerminationReason reason, const char *string);
 	void			 onConnectionEstablished ();
 
-	bool			 frameEnded (const Ogre::FrameEvent &event);
+	void			 tick (void);
 
 	TNL_DECLARE_RPC(rpcMessageTest, (TNL::StringPtr message));
 

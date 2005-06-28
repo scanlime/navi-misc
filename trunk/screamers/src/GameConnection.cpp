@@ -30,7 +30,7 @@ TNL_IMPLEMENT_NETCONNECTION(GameConnection, TNL::NetClassGroupGame, true);
 
 GameConnection::GameConnection () :
 	TNL::GhostConnection (),
-	FrameListener (NULL)
+	MainListener ()
 {
 	setIsAdaptive ();
 }
@@ -46,11 +46,6 @@ void GameConnection::connectToServer (const char *server, int port)
 	TNL::Address local_address (TNL::IPProtocol, TNL::Address::Any, 0);
 	interface = new TNL::NetInterface (local_address);
 	connect (interface, *remote_address);
-
-	// Add ourselves as a frame listener, so we'll get the chance to send
-	// and recieve packets. Yay packets!
-	Ogre::Root *root = Ogre::Root::getSingletonPtr ();
-	root->addFrameListener (this);
 }
 
 bool GameConnection::isDataToTransmit ()
@@ -73,11 +68,10 @@ void GameConnection::onConnectionEstablished ()
 	TNL::logprintf ("connected to server");
 }
 
-bool GameConnection::frameEnded (const Ogre::FrameEvent &event)
+void GameConnection::tick ()
 {
 	interface->checkIncomingPackets ();
 	interface->processConnections ();
-	return true;
 }
 
 TNL_IMPLEMENT_RPC(GameConnection, rpcMessageTest, (TNL::StringPtr message), (message), TNL::NetClassGroupGameMask, TNL::RPCGuaranteedOrdered, TNL::RPCDirClientToServer, 0)
