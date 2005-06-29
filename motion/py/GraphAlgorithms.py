@@ -6,8 +6,9 @@ GraphRepresentations to make them fast(ish)
 
 class DotPrint:
     """Simple graph walker which prints the graph as a dot(1) file.
-       By default, vertexes are visited in dictionary key order, which
-       may or may not be useful.
+       By default, vertexes are visited in dictionary key order, but
+       that doesn't matter, since dot doesn't care what order it sees
+       things in.
 
        >>> from Graph import Graph, VertexMap, Edge
        >>> nodes = [1,2,3,4,5]
@@ -34,7 +35,6 @@ class DotPrint:
        }
 
        """
-    # FIXME - should allow the user to override the vertex order
 
     def __init__ (self, vertexMap, file=None):
         self.vertexMap = vertexMap
