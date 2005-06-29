@@ -14,7 +14,7 @@ class DotPrint:
     def __init__ (self, vertexMap, file=None):
         self.vertexMap = vertexMap
 
-        self.print (file, 'Digraph {')
+        self.printline (file, 'Digraph {')
 
         # print vertices
         for vertex in vertexMap:
@@ -22,9 +22,9 @@ class DotPrint:
             # only the label will be
             if (hasattr (vertex, 'dot_label')):
                 # FIXME - escape things
-                self.print (file, '%s [label="%s"];' % (hash (vertex), vertex.dot_label))
+                self.printline (file, '%s [label="%s"];' % (hash (vertex), vertex.dot_label))
             else:
-                self.print (file, '%s [label="%s"];' % (hash (vertex), vertex))
+                self.printline (file, '%s [label="%s"];' % (hash (vertex), vertex))
 
         # print edges
         for vertex in vertexMap:
@@ -33,13 +33,13 @@ class DotPrint:
                 if edge.u is vertex:
                     if (hasattr (edge, 'dot_label')):
                         # FIXME - escape things
-                        self.print (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
-                    else
-                        self.print (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge))
+                        self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
+                    else:
+                        self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge))
 
-        self.print (file, '}')
+        self.printline (file, '}')
 
-    def print (self, file, string):
+    def printline (self, file, string):
         if file is None:
             print string
         else:
