@@ -28,7 +28,7 @@ class Event:
        The event can be constructed with a list of initial observers.
        This makes it easy to transparently make a member function
        an event with a line like:
-       self.foo = Observable.Event(self.foo)
+       self.foo = Observable.Event (self.foo)
        """
 
     __slots__ = ['unhandledCallback', 'clients', 'callables', '__weakref__']
@@ -49,8 +49,8 @@ class Event:
 
            This means that lines like the following won't work, since the callback immediately
            becomes unreferenced and is removed:
-               foo.observe(lambda: self.boing(5))
-               foo.observe(SuperClass().frob)
+               foo.observe (lambda: self.boing (5))
+               foo.observe (SuperClass ().frob)
 
            To solve these issues you must reference the callback at least one other place.
            This could be in the local namespace of your script, in your class' dictionary, etc.
@@ -63,7 +63,7 @@ class Event:
             index = -1
 
         if not self.clients.has_key (hash (callback)):
-            if type(callback) is types.MethodType:
+            if type (callback) is types.MethodType:
                 # We tread bound method objects as a special case. Bound methods
                 # are created when a class.method expression is evaluated, tying
                 # the class and method together into a single callable object.
@@ -71,48 +71,48 @@ class Event:
                 # in question, they are usually discarded immediately. Here we
                 # detect bound methods, and store proper weakrefs to the method
                 # and the class.
-                callable = _EventMethodObserver(self, callback)
+                callable = _EventMethodObserver (self, callback)
             else:
                 # The default wrapper for weak references. This class handles
                 # deleting the client list entry properly when the callback
                 # is deleted.
-                callable = _EventObserver(self, callback)
+                callable = _EventObserver (self, callback)
 
             # Store the callable in the clients hash and in the callables list.
             # Insert it in the given position. We add the list length if our index
             # is negative, to be consistent with python indexing.
-            self.clients[hash(callback)] = callable
+            self.clients[hash (callback)] = callable
             if index < 0:
-                index += len(self.callables) + 1
-            self.callables.insert(index, callable)
-            self.args[hash(callback)] = (args, kwargs)
+                index += len (self.callables) + 1
+            self.callables.insert (index, callable)
+            self.args[hash (callback)] = (args, kwargs)
 
     def strongObserve (self, callback, *args, **kwargs):
-        """Like observe(), but use a normal reference rather than a weak ref. This is
+        """Like observe (), but use a normal reference rather than a weak ref. This is
            necessary for using lambdas or other types of temporary functions as obsrvers.
            The only way for these observers to be removed is explicitly calling unobserve().
            """
-        if kwargs.has_key( 'index' ):
+        if kwargs.has_key ('index'):
             index = kwargs['index']
         else:
             index = -1
 
-        if not self.clients.has_key(hash(callback)):
+        if not self.clients.has_key (hash (callback)):
             # We don't need to worry with a wrapper class since we don't need a weakref
-            self.clients[hash(callback)] = callback
+            self.clients[hash (callback)] = callback
             if index < 0:
-                index += len(self.callables) + 1
-            self.callables.insert(index, callback)
-            self.args[hash(callback)] = (args, kwargs)
+                index += len (self.callables) + 1
+            self.callables.insert (index, callback)
+            self.args[hash (callback)] = (args, kwargs)
 
     def observeOnce (self, callback, *args, **kwargs):
         """Install an observer that is automatically removed after it fires once.
            This uses a strong reference.
            """
-        def oneshot(*args, **kwargs):
-            self.unobserve(oneshot)
-            return callback(*args, **kwargs)
-        self.strongObserve(oneshot, *args, **kwargs)
+        def oneshot (*args, **kwargs):
+            self.unobserve (oneshot)
+            return callback (*args, **kwargs)
+        self.strongObserve (oneshot, *args, **kwargs)
 
     def empty (self):
         # Our client dict maps from callback hashes to callables.
@@ -127,28 +127,28 @@ class Event:
         # A dictionary of arguments for each callback
         self.args = {}
 
-    def replace(self, callback, *args, **kwargs):
+    def replace (self, callback, *args, **kwargs):
         """Remove all existing observers for this event, and add the given one"""
-        self.empty()
-        self.observe(callback, *args, **kwargs)
+        self.empty ()
+        self.observe (callback, *args, **kwargs)
 
-    def unobserve(self, callback):
+    def unobserve (self, callback):
         """Stop calling callback() when this event is triggered"""
-        callable = self.clients[hash(callback)]
-        del self.clients[hash(callback)]
-        del self.args[hash(callback)]
-        self.callables.remove(callable)
+        callable = self.clients[hash (callback)]
+        del self.clients[hash (callback)]
+        del self.args[hash (callback)]
+        self.callables.remove (callable)
 
-    def __call__(self, *args, **kw):
+    def __call__ (self, *args, **kw):
         """Trigger this event by calling it. The parameters passed to the event will
            be broadcast to all of its observers.
            """
         if reactor.running:
-            reactor.callFromThread(self._notify, *args, **kw)
+            reactor.callFromThread (self._notify, *args, **kw)
         else:
-            self._notify(*args, **kw)
+            self._notify (*args, **kw)
 
-    def _notify(self, *args, **kw):
+    def _notify (self, *args, **kw):
         """Actually invoke the callables. This is always run from an "IO thread"
            as defined by Twisted. Usually this is the application's main thread.
            """
@@ -168,18 +168,18 @@ class Event:
                 # Retrieve the hash(callback) for this client. If we're
                 # using a wrapper function this is in the callbackHash
                 # attribute, otherwise we can take the hash directly.
-                if hasattr(client, 'callbackHash'):
+                if hasattr (client, 'callbackHash'):
                     callbackHash = client.callbackHash
                 else:
-                    callbackHash = hash(client)
+                    callbackHash = hash (client)
 
                 # Add stored args for this client if we have any
                 storedArgs, storedKwargs = self.args[callbackHash]
                 mergedArgs = args + storedArgs
-                mergedKwargs = dict(kw)
-                mergedKwargs.update(storedKwargs)
+                mergedKwargs = dict (kw)
+                mergedKwargs.update (storedKwargs)
 
-                r = client(*mergedArgs, **mergedKwargs)
+                r = client (*mergedArgs, **mergedKwargs)
 
                 # Allow the client to abort
                 if r is not None:
@@ -188,9 +188,9 @@ class Event:
         else:
             # No handlers- can we call the unhandled event callback?
             if self.unhandledCallback:
-                self.unhandledCallback(*args, **kw)
+                self.unhandledCallback (*args, **kw)
 
-    def trace(self, fmt):
+    def trace (self, fmt):
         """A debugging aid, prints a line of text whenever this event is triggered.
 
            fmt can be a printf-style format string that can include references
@@ -203,42 +203,42 @@ class Event:
 
            A reference is returned to the trace's callback function. The trace is
            referenced strongly, so it will not disappear if you discard this reference,
-           but the reference can be passed to unobserve() later to cancel the trace.
+           but the reference can be passed to unobserve () later to cancel the trace.
            """
-        def traceCallback(*args, **kw):
-            if type(fmt) == str:
+        def traceCallback (*args, **kw):
+            if type (fmt) == str:
                 # Make a dictionary with both keyword args and normal
                 # args, representing normal args by their place in the
                 # argument list, starting with 1.
                 index = 1
                 for arg in args:
-                    kw[str(index)] = arg
+                    kw[str (index)] = arg
                     index += 1
                 print fmt % kw
             else:
                 print fmt(*args, **kw)
-        self.strongObserve(traceCallback)
+        self.strongObserve (traceCallback)
         return traceCallback
 
-    def freeze(self):
+    def freeze (self):
         """Stop sending notifications for this event. If the event
-           was invoked while frozen, thaw() will send only the
+           was invoked while frozen, thaw () will send only the
            most recent one.
            """
         self._frozen = True
 
-    def thaw(self):
-        """Reverse the effects of freeze() and send at most one
+    def thaw (self):
+        """Reverse the effects of freeze () and send at most one
            pending notification event.
            """
         self._frozen = False
         if self._frozenNotify is not None:
             args, kw = self._frozenNotify
             self._frozenNotify = None
-            self._notify(*args, **kw)
+            self._notify (*args, **kw)
 
 
-def attachEvents(cls, *args):
+def attachEvents (cls, *args):
     """A convenience function for setting up several transparent
        Event instances. Pass this your class instance and the names
        of all the functions you'd like turned into events.
@@ -251,10 +251,10 @@ def attachEvents(cls, *args):
        passed through to observers.
        """
     for arg in args:
-        if hasattr(cls, arg):
-            setattr(cls, arg, Event(getattr(cls, arg)))
+        if hasattr (cls, arg):
+            setattr (cls, arg, Event (getattr (cls, arg)))
         else:
-            setattr(cls, arg, Event())
+            setattr (cls, arg, Event ())
 
 class _EventObserver:
     """A helper class for Event that wraps the callback in a weakref and
@@ -262,21 +262,21 @@ class _EventObserver:
        """
     __slots__ = ["event", "callbackHash", "ref", "__weakref__"]
 
-    def __init__(self, event, callback):
+    def __init__ (self, event, callback):
         self.event = event
-        self.callbackHash = hash(callback)
-        self.ref = weakref.ref(callback, self.unref)
+        self.callbackHash = hash (callback)
+        self.ref = weakref.ref (callback, self.unref)
 
-    def __repr__(self):
+    def __repr__ (self):
         return "<%s to %r>" % (self.__class__.__name__, self.ref)
 
-    def __call__(self, *args, **kw):
-        self.ref()(*args, **kw)
+    def __call__ (self, *args, **kw):
+        self.ref ()(*args, **kw)
 
-    def unref(self, ref):
+    def unref (self, ref):
         try:
             del self.event.clients[self.callbackHash]
-            self.event.callables.remove(self)
+            self.event.callables.remove (self)
         except KeyError:
             # Hmm, something else already deleted it
             pass
@@ -288,27 +288,27 @@ class _EventMethodObserver:
        """
     __slots__ = ["event", "callbackHash", "im_self_ref", "im_func", "__weakref__"]
 
-    def __init__(self, event, callback):
+    def __init__ (self, event, callback):
         self.event = event
-        self.callbackHash = hash(callback)
-        self.im_self_ref = weakref.ref(callback.im_self, self.unref)
+        self.callbackHash = hash (callback)
+        self.im_self_ref = weakref.ref (callback.im_self, self.unref)
         self.im_func = callback.im_func
 
-    def __repr__(self):
+    def __repr__ (self):
         return "<%s to %r::%r>" % (self.__class__.__name__,
                                    self.im_self_ref, self.im_func)
 
-    def __call__(self, *args, **kw):
-        im_self = self.im_self_ref()
+    def __call__ (self, *args, **kw):
+        im_self = self.im_self_ref ()
         if im_self is not None:
-            self.im_func(im_self, *args, **kw)
+            self.im_func (im_self, *args, **kw)
         else:
             raise weakref.ReferenceError
 
-    def unref(self, ref):
+    def unref (self, ref):
         try:
             del self.event.clients[self.callbackHash]
-            self.event.callables.remove(self)
+            self.event.callables.remove (self)
         except KeyError:
             # Hmm, something else already deleted it
             pass

@@ -20,6 +20,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+import Observable
+
 class Edge (object):
     """This object represents a graph edge.  It is immutable and
        usable as a dictionary key.
@@ -34,10 +36,10 @@ class Edge (object):
         return '<%s from %r to %r>' % (self.__class__.__name__, self.u, self.v)
 
     def __hash__ (self):
-        return hash((self.u, self.v))
+        return hash ((self.u, self.v))
 
     def __cmp__ (self, other):
-        return cmp((self.u, self.v), (other.u, other.v))
+        return cmp ((self.u, self.v), (other.u, other.v))
 
     def copy (self):
         return self.__class__ (self.u, self.v)
@@ -52,8 +54,61 @@ class Graph (object):
     edgeClass = Edge
 
     def __init__ (self):
-        # observable?
-        pass
+        Observable.attachEvents (self, 'add', 'remove')
+
+    def addList (self, edges):
+        """Add multiple edges at once, from any iterable source.
+           Returns the list of edges actually added.
+           """
+        if type (edges) is list:
+            # An optimization for the case in which we already have a list
+            for edge in edges:
+                self.add (edge)
+            return edges
+
+        else:
+            # If we have some other data type, like a generator, we need
+            # to create a new list as we add the edges.
+            l = []
+            for edge in edges:
+                self.add (edge)
+                l.append (edge)
+            return l
+
+    def removeList (self, edges):
+        """Remove multiple edges at once"""
+        for edge in edges:
+            self.remove (edge)
+
+    def addTree (self, tree):
+        """Add multiple edges at once, arranged as an adjacency list.
+           'tree' is a dictionary mapping 'u' vertices to lists of 'v'
+           vertices. Returns a list of edges actually added.
+           """
+        l = []
+        for u, vList in tree.iteritems ():
+            for v in vList:
+                l.append (self.edgeClass (u, v))
+        return self.addList (l)
+
+    def cacheAlgorithm (self, attrib, factory, *args, **kwargs):
+        """Update an attribute 'attrib' on this object that will contain
+           the results of running 'factory' with the supplied arguments.
+           Any time this graph is mutated, the cached result will be
+           invalidated.
+           """
+        if not getattr (self, attrib, None):
+            # Cache the algorithm result
+            setattr (self, attrib, factory (*args, **kwargs))
+
+            # Create an invalidator, and save a reference to it so it isn't GC'ed
+            def cacheInvalidator (_, self=self, attrib=attrib):
+                setattr (self, attrib, None)
+            setattr (self, "_%s_invalidator" % attrib, cacheInvalidator)
+
+            # Set up observers to invalidate it
+            for mutator in (self.add, self.remove):
+                mutator.observe (cacheInvalidator)
 
 class GraphRepresentation (object):
     """This is an abstract base class for data structures used to represent
