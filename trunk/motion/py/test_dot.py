@@ -27,15 +27,10 @@ nodes = [1, 2, 3, 4, 5]
 graph = Graph ()
 map = VertexMap (graph)
 
-class DotEdge (Edge):
-    def __init__ (self, u, v):
-        Edge.__init__ (self, u, v)
-        self.dot_label = ''
-
 edges = [
-        DotEdge (nodes[0], nodes[2]),
-        DotEdge (nodes[1], nodes[4]),
-        DotEdge (nodes[2], nodes[3]),
+        Edge (nodes[0], nodes[2], ''),
+        Edge (nodes[1], nodes[4], ''),
+        Edge (nodes[2], nodes[3], ''),
         ]
 
 graph.addList (edges)

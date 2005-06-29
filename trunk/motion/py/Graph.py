@@ -9,11 +9,12 @@ class Edge (object):
     """This object represents a graph edge.  It is immutable and
        usable as a dictionary key.
        """
-    __slots__ = ['u', 'v']
+    __slots__ = ['u', 'v', 'dot_label']
 
-    def __init__ (self, u, v):
+    def __init__ (self, u, v, dot_label=None):
         self.u = u
         self.v = v
+        self.dot_label = dot_label
 
     def __repr__ (self):
         return '<%s from %r to %r>' % (self.__class__.__name__, self.u, self.v)

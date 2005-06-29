@@ -20,7 +20,7 @@ class DotPrint:
         for vertex in vertexMap:
             # we use the hash of the vertex as the node id, since
             # only the label will be
-            if (hasattr (vertex, 'dot_label')):
+            if hasattr (vertex, 'dot_label') and edge.dot_label is not None:
                 # FIXME - escape things
                 self.printline (file, '%s [label="%s"];' % (hash (vertex), vertex.dot_label))
             else:
@@ -31,7 +31,7 @@ class DotPrint:
             edges = vertexMap.query (vertex)
             for edge in edges:
                 if edge.u is vertex:
-                    if (hasattr (edge, 'dot_label')):
+                    if hasattr (edge, 'dot_label') and edge.dot_label is not None:
                         # FIXME - escape things
                         self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
                     else:
