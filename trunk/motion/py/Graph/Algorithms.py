@@ -1,4 +1,4 @@
-""" GraphAlgorithms
+""" Graph.Algorithms
 
 Various algorithms which work themselves upon the appropriate
 GraphRepresentations to make them fast(ish)
@@ -10,7 +10,7 @@ class DotPrint:
        that doesn't matter, since dot doesn't care what order it sees
        things in.
 
-       >>> from Graph import Graph, VertexMap, Edge
+       >>> from Data import Graph, VertexMap, Edge
        >>> nodes = [1,2,3,4,5]
        >>> graph = Graph ()
        >>> map = VertexMap (graph)

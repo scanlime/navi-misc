@@ -2,5 +2,5 @@
 
 import doctest
 
-import GraphAlgorithms
-doctest.testmod (GraphAlgorithms)
+import Graph.Algorithms
+doctest.testmod (Graph.Algorithms)

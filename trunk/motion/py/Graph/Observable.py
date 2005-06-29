@@ -1,4 +1,4 @@
-""" Observable
+""" Graph.Observable
 
 This module provides base classes for objects that are observable,
 quantities that are observable, and expressions computed with

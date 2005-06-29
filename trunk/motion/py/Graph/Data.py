@@ -1,4 +1,4 @@
-""" Graph
+""" Graph.Data
 Graph data structures, for use in stuff.  Much of this code is "inspired"
 by Micah Dowty's code for space-grant's PyMCK system, so you should love him.
 """
