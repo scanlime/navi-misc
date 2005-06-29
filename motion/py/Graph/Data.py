@@ -34,6 +34,15 @@ class Graph (object):
        GraphRepresentation objects for this Graph. This lets one set of data be
        represented in multiple ways, depending on what kinds of questions we expect
        to ask.
+
+       >>> g = Graph ()
+       >>> g.addTree ({
+       ...     0 : [1],
+       ...     1 : [2, 3, 4],
+       ...     2 : [3, 0],
+       ...     4 : [3],
+       ...     })
+       [<Edge from 0 to 1>, <Edge from 1 to 2>, <Edge from 1 to 3>, <Edge from 1 to 4>, <Edge from 2 to 3>, <Edge from 2 to 0>, <Edge from 4 to 3>]
        """
     edgeClass = Edge
 
