@@ -143,10 +143,7 @@ class Event:
         """Trigger this event by calling it. The parameters passed to the event will
            be broadcast to all of its observers.
            """
-        if reactor.running:
-            reactor.callFromThread (self._notify, *args, **kw)
-        else:
-            self._notify (*args, **kw)
+        self._notify (*args, **kw)
 
     def _notify (self, *args, **kw):
         """Actually invoke the callables. This is always run from an "IO thread"
