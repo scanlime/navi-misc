@@ -18,8 +18,8 @@ if have_wasabi_hardware:
     ROM_SPEED = 8
 
     ENABLE_SHUTDOWN_SYS = 1
-    SHUTDOWN_SYS_CMD = 'sudo shutdown -h now'
-    RESTART_SYS_CMD  = 'sudo shutdown -r now'
+    SHUTDOWN_SYS_CMD = 'sudo /sbin/shutdown -h now'
+    RESTART_SYS_CMD  = 'sudo /sbin/shutdown -r now'
 
     plugin.activate('rasterwand')
 
@@ -94,11 +94,14 @@ plugin.activate('games', level=45)
 plugin.remove('tv')
 
 # Add standard plugins we want
-#plugin.activate('audio.mplayervis')
+# this is crashy
+# plugin.activate('audio.mplayervis')
+plugin.activate('audio.coversearch', args=('174AFH0C16WW1MHGD702',))
+
 
 LIRCRC = '/home/freevo/wasabi/lircrc'
 
-# Recognize navi's naming scheme for covers
+# Recognize our naming scheme for covers
 AUDIO_COVER_REGEXP = 'folder'
 
 # Always start up with the wasabi skin
