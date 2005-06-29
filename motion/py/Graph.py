@@ -1,24 +1,7 @@
-#
-# Graph.py - it's graphy stuff, yo.
-#            some of this stuff is inspired by Micah Dowty's code
-#            for spacegrant's "PyMCK" system, so be loving him.
-#
-# Copyright (C) 2005 David Trowbridge
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-#
+""" Graph
+Graph data structures, for use in stuff.  Much of this code is "inspired"
+by Micah Dowty's code for space-grant's PyMCK system, so you should love him.
+"""
 
 import Observable
 
@@ -176,3 +159,45 @@ class AdjacencyList (GraphRepresentation):
         del self.data[edge.u][edge.v]
         if not self.data[edge.u]:
             del self.data[edge.u]
+
+class VertexMap (GraphRepresentation):
+    """A graph representation that maps each vertex to a hash of all
+       existing edges that use that vertex. This is an efficient way to
+       iterate over all vertices in the graph, or to receive events
+       when a vertex is first seen or entirely removed.
+       """
+
+    def __init__ (self, graph):
+        GraphRepresentation.__init__ (self, graph)
+        self.data = {}
+
+        # 'added' is called with a vertex the first time
+        # it's seen, 'removed' is called with a vertex after
+        # the last edge using it is removed.
+        Observable.attachEvents (self, 'added', 'removed')
+
+    def __iter__ (self):
+        """Iterate over all vertices in this graph"""
+        return self.data.iterkeys ()
+
+    def query (self, v):
+        """Iterate over all edges containing v"""
+        try:
+            return self.data[v]
+        except KeyError:
+            return []
+
+    def onAdd(self, edge):
+        for vertex in (edge.u, edge.v):
+            if vertex not in self.data:
+                self.data[vertex] = [edge]
+                self.added(vertex)
+            else:
+                self.data[vertex].append(edge)
+
+    def onRemove(self, edge):
+        for vertex in (edge.u, edge.v):
+            self.data[vertex].remove(edge)
+            if not self.data[vertex]:
+                del self.data[vertex]
+                self.removed(vertex)
