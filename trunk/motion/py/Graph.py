@@ -133,3 +133,46 @@ class GraphRepresentation (object):
     def onRemove (self, edge):
         """Observer that is notified when an edge is removed from the graph"""
         pass
+
+class AdjacencyList (GraphRepresentation):
+    """A graph representation in which every vertex 'u' is mapped
+       to a hash of all 'v' for which an edge (u, v) exists.
+       """
+
+    def __init__ (self, graph):
+        self.graph = graph
+        GraphRepresentation.__init__ (self, graph)
+        self.data = {}
+
+    def __iter__ (self):
+        """Iterate over all edges in this graph. As an adjacency list,
+           vertices can't be efficiently iterated over.
+           """
+        for u, vList in self.data.iteritems ():
+            for v in vList:
+                yield self.graph.edgeClass (u, v)
+
+    def __contains__ (self, edge):
+        """Determine whether this already contains a given edge"""
+        return (edge.u in self.data) and (edge.v in self.data[edge.u])
+
+    def iterU (self):
+        """Iterate over all 'u' vertices efficiently"""
+        return self.data.iterkeys ()
+
+    def query (self, u):
+        """Iterate over all edges containing u"""
+        vList = self.data.get (u)
+        if vList:
+            for v in vList:
+                yield self.graph.edgeClass (u, v)
+
+    def onAdd (self, edge):
+        if edge in self:
+            raise KeyError ("Duplicate edge %r" % edge)
+        self.data.setdefault (edge.u, {})[edge.v] = 1
+
+    def onRemove (self, edge):
+        del self.data[edge.u][edge.v]
+        if not self.data[edge.u]:
+            del self.data[edge.u]
