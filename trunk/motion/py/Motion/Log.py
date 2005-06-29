@@ -19,8 +19,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-import Blender
-
 class Logger:
     """This is a singleton that collects error and warning messages, presenting
        them to the user in batches.
@@ -51,5 +49,10 @@ class Logger:
 
     def report(self, title='Errors reported'):
         """Report errors to the user"""
-        Blender.Draw.PupMenu('%s:%%t|%s' % (title, '|'.join(self.log)))
+        try:
+            import Blender
+            Blender.Draw.PupMenu('%s:%%t|%s' % (title, '|'.join(self.log)))
+        except ImportError:
+            for entry in self.log:
+                print entry
         self.clear()
