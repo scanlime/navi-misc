@@ -8,6 +8,31 @@ class DotPrint:
     """Simple graph walker which prints the graph as a dot(1) file.
        By default, vertexes are visited in dictionary key order, which
        may or may not be useful.
+
+       >>> from Graph import Graph, VertexMap, Edge
+       >>> nodes = [1,2,3,4,5]
+       >>> graph = Graph ()
+       >>> map = VertexMap (graph)
+       >>> edges = [
+       ...     Edge (nodes[0], nodes[2], ''),
+       ...     Edge (nodes[1], nodes[4], ''),
+       ...     Edge (nodes[2], nodes[3], ''),
+       ...     Edge (nodes[3], nodes[0], ''),
+       ...     ]
+       >>> x = graph.addList (edges)
+       >>> x = DotPrint (map)
+       Digraph {
+       1 [label="1"];
+       2 [label="2"];
+       3 [label="3"];
+       4 [label="4"];
+       5 [label="5"];
+       1 -> 3 [label=""];
+       2 -> 5 [label=""];
+       3 -> 4 [label=""];
+       4 -> 1 [label=""];
+       }
+
        """
     # FIXME - should allow the user to override the vertex order
 
