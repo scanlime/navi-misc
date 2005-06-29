@@ -255,3 +255,61 @@ def attachEvents(cls, *args):
             setattr(cls, arg, Event(getattr(cls, arg)))
         else:
             setattr(cls, arg, Event())
+
+class _EventObserver:
+    """A helper class for Event that wraps the callback in a weakref and
+       automatically self-destructs when it's time.
+       """
+    __slots__ = ["event", "callbackHash", "ref", "__weakref__"]
+
+    def __init__(self, event, callback):
+        self.event = event
+        self.callbackHash = hash(callback)
+        self.ref = weakref.ref(callback, self.unref)
+
+    def __repr__(self):
+        return "<%s to %r>" % (self.__class__.__name__, self.ref)
+
+    def __call__(self, *args, **kw):
+        self.ref()(*args, **kw)
+
+    def unref(self, ref):
+        try:
+            del self.event.clients[self.callbackHash]
+            self.event.callables.remove(self)
+        except KeyError:
+            # Hmm, something else already deleted it
+            pass
+
+class _EventMethodObserver:
+    """An alternative to _EventObserver that is used for bound methods.
+       Since bound methods are usually one-time-use objects, this stores the
+       unbound method and a weakref to the bound method's instance.
+       """
+    __slots__ = ["event", "callbackHash", "im_self_ref", "im_func", "__weakref__"]
+
+    def __init__(self, event, callback):
+        self.event = event
+        self.callbackHash = hash(callback)
+        self.im_self_ref = weakref.ref(callback.im_self, self.unref)
+        self.im_func = callback.im_func
+
+    def __repr__(self):
+        return "<%s to %r::%r>" % (self.__class__.__name__,
+                                   self.im_self_ref, self.im_func)
+
+    def __call__(self, *args, **kw):
+        im_self = self.im_self_ref()
+        if im_self is not None:
+            self.im_func(im_self, *args, **kw)
+        else:
+            raise weakref.ReferenceError
+
+    def unref(self, ref):
+        try:
+            del self.event.clients[self.callbackHash]
+            self.event.callables.remove(self)
+        except KeyError:
+            # Hmm, something else already deleted it
+            pass
+
