@@ -24,7 +24,7 @@
 #ifndef _FRAME_LISTENER_H_
 #define _FRAME_LISTENER_H_
 
-namespace Screamers
+namespace Client
 {
 
 class FrameListener : public Ogre::FrameListener

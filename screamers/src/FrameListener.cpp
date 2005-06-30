@@ -22,7 +22,7 @@
 #include "FrameListener.h"
 #include "MainLoop.h"
 
-namespace Screamers
+namespace Client
 {
 
 FrameListener::FrameListener (Ogre::RenderWindow *window)

@@ -23,21 +23,10 @@
 #include <fstream>
 #include "Application.h"
 
-namespace Screamers
-{
+namespace Client {
 
-template<> Application* Ogre::Singleton<Application>::ms_Singleton = 0;
-
-Application *Application::getSingletonPtr (void)
-{
-	return ms_Singleton;
-}
-
-Application &Application::getSingleton (void)
-{
-	assert (ms_Singleton);
-	return (*ms_Singleton);
-}
+template<>
+Application* Singleton<Application>::_instance = NULL;
 
 Application::Application ()
 {

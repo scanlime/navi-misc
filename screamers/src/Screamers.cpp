@@ -37,7 +37,7 @@
 int appMain (std::string commandLine)
 {
 	std::cout << "version " << VERSION << std::endl;
-	Screamers::Application app;
+	Client::Application app;
 
 	// We need to set up OGRE and all that jazz before we can initialize anything else
 	if (!app.setup ())

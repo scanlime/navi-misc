@@ -21,14 +21,14 @@
 
 #include <Ogre.h>
 #include "FrameListener.h"
+#include "Singleton.h"
 
 #ifndef _APPLICATION_H_
 #define _APPLICATION_H_
 
-namespace Screamers
-{
+namespace Client {
 
-class Application : public Ogre::Singleton<Application>
+class Application : public Singleton<Application>
 {
 	// This is mostly taken from the "ExampleApplication" class in the
 	// Ogre samples, since it's a pretty nice way to set up everything
@@ -37,9 +37,6 @@ class Application : public Ogre::Singleton<Application>
 public:
 				 Application ();
 	virtual			~Application ();
-
-	static Application	*getSingletonPtr (void);
-	static Application	&getSingleton (void);
 
 	bool			 setup (void);
 	void		 	 go (void);
@@ -54,8 +51,8 @@ protected:
 	Ogre::Camera		*camera;
 	Ogre::SceneManager	*sceneManager;
 	Ogre::RenderWindow	*renderWindow;
-	InfoListener		*infoListener;
-	MainLoopTrigger		*mainListener;
+	Client::InfoListener	*infoListener;
+	Client::MainLoopTrigger	*mainListener;
 
 	bool			 configure (void);
 
@@ -64,6 +61,8 @@ private:
 
 	void			 loadResourcePaths (void);
 	void			 loadResources (void);
+
+	friend class Singleton<Application>;
 };
 
 };
