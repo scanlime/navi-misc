@@ -55,6 +55,7 @@ protected:
 	Ogre::SceneManager	*sceneManager;
 	Ogre::RenderWindow	*renderWindow;
 	InfoListener		*infoListener;
+	MainLoopTrigger		*mainListener;
 
 	bool			 configure (void);
 

@@ -33,6 +33,7 @@ screamers_sources = [
 	'FrameListener.cpp',
 	'GameConnection.cpp',
 	'Log.cpp',
+	'MainLoop.cpp',
 	'TextUtils.cpp',
 	'Screamers.cpp',
 ]

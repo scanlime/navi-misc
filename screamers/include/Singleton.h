@@ -23,6 +23,29 @@
 #ifndef _SINGLETON_H_
 #define _SINGLETON_H_
 
+/* Singleton template class
+ *
+ * This template class pattern provides a traditional Singleton pattern.
+ * Allows you to designate a single-instance global class by inheriting
+ * off of the template class.
+ *
+ * Example:
+ *
+ *   class Whatever : public Singleton<Whatever> ...
+ *
+ * The class will need to provide either a public or a protected friend
+ * constructor:
+ *
+ *   friend class Singleton<Whatever>;
+ *
+ * The class will also need to initialize it's own instance in a single
+ * compilation unit (a .cxx file):
+ *
+ *   // statically initialize the instance to nothing
+ *   template <>
+ *   Whatever* Singleton<Whatever>::_instance = 0;
+ */
+
 template<typename T>
 class Singleton
 {

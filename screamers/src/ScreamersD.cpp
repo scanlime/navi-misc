@@ -41,12 +41,11 @@ int appMain (std::string commandLine)
 	Screamers::World world;
 	Screamers::WorldParser parser (world);
 	Screamers::Server::ConnectionManager cm;
-	Screamers::MainLoop main_loop;
 
 	parser.load (commandLine.c_str ());
 
-	main_loop.addListener (&cm);
-	main_loop.go ();
+	MainLoop::instance ().addListener (&cm);
+	MainLoop::instance ().go ();
 
 	return 0;
 }
