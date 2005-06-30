@@ -25,9 +25,6 @@
 #include <string>
 #include <vector>
 
-namespace Screamers
-{
-
 class World
 {
 public:
@@ -62,8 +59,6 @@ protected:
 	typedef std::vector<Material>	MaterialList;
 
 	MaterialList			materials;
-};
-
 };
 
 #endif //_WORLD_H_

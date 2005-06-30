@@ -21,9 +21,6 @@
 
 #include "World.h"
 
-namespace Screamers
-{
-
 World::World()
 {
 }
@@ -109,6 +106,3 @@ int World::findMaterialByName (const char* name)
 	}
 	return -1;
 }
-
-};
-

@@ -29,8 +29,6 @@
 #ifndef _CONNECTION_MANAGER_H_
 #define _CONNECTION_MANAGER_H_
 
-namespace Screamers
-{
 namespace Server
 {
 
@@ -46,7 +44,6 @@ private:
 	TNL::RefPtr<TNL::NetInterface>	network_interface;
 };
 
-};
 };
 
 #endif // _CONNECTION_MANAGER_H_

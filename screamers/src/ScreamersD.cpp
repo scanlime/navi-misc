@@ -36,11 +36,11 @@ int appMain (std::string commandLine)
 {
 	std::cout << "starting screamersd\nversion " << VERSION << std::endl;
 
-	Screamers::Log ("screamersd.log");
+	Log ("screamersd.log");
 
-	Screamers::World world;
-	Screamers::WorldParser parser (world);
-	Screamers::Server::ConnectionManager cm;
+	World world;
+	WorldParser parser (world);
+	Server::ConnectionManager cm;
 
 	parser.load (commandLine.c_str ());
 

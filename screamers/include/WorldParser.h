@@ -25,9 +25,6 @@
 #include <string>
 #include "World.h"
 
-namespace Screamers
-{
-
 class WorldParser
 {
 public:
@@ -47,5 +44,4 @@ protected:
 	int	 parseMatRef (void *_node);
 };
 
-};
 #endif //_WORLD_PARSER_H_

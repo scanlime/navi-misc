@@ -43,7 +43,7 @@ int appMain (std::string commandLine)
 	if (!app.setup ())
 		return 1;
 
-	Screamers::Client::Log log;
+	Client::Log log;
 
 	std::vector<std::string> options = TextUtils::tokenize (commandLine, " \t", 0, true);
 
@@ -52,7 +52,7 @@ int appMain (std::string commandLine)
 		server = options[0];
 
 	// connect to the server specified
-	Screamers::GameConnection connection;
+	GameConnection connection;
 	connection.connectToServer (server.c_str (), 27050);
 	connection.rpcMessageTest ("hi!");
 
