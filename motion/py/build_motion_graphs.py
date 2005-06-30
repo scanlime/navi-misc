@@ -37,8 +37,17 @@ class ProbabilityEdge (Edge):
     def normalize (self, total):
         self.weight = float (self.count) / total
 
+def build_graph (amc, key):
+    dof = amc.bones[key].shape[1]
+    print dof,key
+
+    g = Graph ()
+
 def load (filename):
-   amc = AMC.from_file (filename)
+    amc = AMC.from_file (filename)
+    bones = {}
+    for key in amc.bones.keys ():
+        g = build_graph (amc, key)
 
 if len (sys.argv) != 2:
     print 'Usage: %s [file.amc]' % sys.argv[0]
