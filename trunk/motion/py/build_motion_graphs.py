@@ -42,14 +42,24 @@ class ProbabilityEdge (Edge):
     def normalize (self, total):
         self.weight = float (self.count) / total
 
+class MotionGraph:
+    __slots__ = ['graph', 'nodes']
+
+    def __init__ (self):
+        self.graph = Graph ()
+
+class MotionGraphNode:
+    def __init__ (self):
+        pass
+
 def build_graph (key, d):
     dof = d.shape[1]
     print dof,key
 
-    g = Graph ()
-
     mins = []
     slots = []
+
+    graph = MotionGraph ()
 
     for degree in range(dof):
         data = d[:,degree]
@@ -60,6 +70,34 @@ def build_graph (key, d):
         print '        [%f, %f] = %f * %d' % (mins[-1], max, size, slots[-1])
 
     print slots
+
+    # Gross mess to create a 1, 2 or 3 dimensional array of nodes.  This will
+    # need to be generalized, since the root is 6dof.  On second thought, 3
+    # of those dof should be completely independent of the graph prediction,
+    # and just feed back into the splicing.
+    nodes = []
+    if dof == 1:
+        nodes = [0] * slots[0]
+        for i in range (len (nodes)):
+            nodes[i] = MotionGraphNode ()
+    else:
+        nodes = [[]] * slots[0]
+        if dof == 2:
+            for i in range (len (nodes)):
+                nodes[i] = [0] * slots[1]
+                for j in range (len (nodes[i])):
+                    nodes[i][j] = MotionGraphNode ()
+        else:
+            for i in range (len (nodes)):
+                nodes[i] = [[]] * slots[1]
+                for j in range (len (nodes[i])):
+                    nodes[i][j] = [0] * slots[2]
+                    for k in range (len (nodes[i][j])):
+                        nodes[i][j][k] = MotionGraphNode ()
+
+    graph.nodes = nodes
+
+    return graph
 
 def load (filename):
     amc = AMC.from_file (filename)
