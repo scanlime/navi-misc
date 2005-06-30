@@ -89,4 +89,18 @@ void InfoListener::updateStats (void)
 	}
 }
 
+MainLoopTrigger::MainLoopTrigger () : FrameListener (NULL)
+{
+}
+
+MainLoopTrigger::~MainLoopTrigger ()
+{
+}
+
+bool MainLoopTrigger::frameEnded (const Ogre::FrameEvent &event)
+{
+	// FIXME - call MainLoop::iteration() once MainLoop is a singleton
+	return true;
+}
+
 };

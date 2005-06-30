@@ -59,6 +59,15 @@ private:
 	int			 frames;
 };
 
+class MainLoopTrigger : public FrameListener
+{
+public:
+				 MainLoopTrigger ();
+				~MainLoopTrigger ();
+
+	virtual bool		 frameEnded (const Ogre::FrameEvent &event);
+};
+
 };
 
 #endif
