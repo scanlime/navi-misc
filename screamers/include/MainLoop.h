@@ -41,6 +41,7 @@ public:
 			~MainLoop ();
 
 	void		 go (void);
+	void		 iteration (void);
 	void		 addListener (MainListener *listener);
 
 	unsigned int	 getDelay (void);

@@ -45,6 +45,12 @@ void MainLoop::go (void)
 	}
 }
 
+void MainLoop::iteration (void)
+{
+	for (std::vector<MainListener*>::iterator it = listeners.begin (); it != listeners.end (); it++)
+		(*it)->tick ();
+}
+
 void MainLoop::addListener (MainListener *listener)
 {
 	listeners.push_back (listener);
