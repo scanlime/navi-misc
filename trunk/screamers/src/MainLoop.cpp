@@ -24,8 +24,8 @@
 
 #include "MainLoop.h"
 
-namespace Screamers
-{
+template <>
+MainLoop* Singleton<MainLoop>::_instance = NULL;
 
 MainLoop::MainLoop ()
 {
@@ -65,5 +65,3 @@ void MainLoop::setDelay (unsigned int ms)
 {
 	delay = ms;
 }
-
-};

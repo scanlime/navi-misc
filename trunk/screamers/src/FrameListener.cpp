@@ -20,6 +20,7 @@
  */
 
 #include "FrameListener.h"
+#include "MainLoop.h"
 
 namespace Screamers
 {
@@ -99,7 +100,7 @@ MainLoopTrigger::~MainLoopTrigger ()
 
 bool MainLoopTrigger::frameEnded (const Ogre::FrameEvent &event)
 {
-	// FIXME - call MainLoop::iteration() once MainLoop is a singleton
+	MainLoop::instance ().iteration ();
 	return true;
 }
 

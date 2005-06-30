@@ -125,10 +125,12 @@ bool Application::setup (void)
 	Ogre::TextureManager::getSingleton ().setDefaultNumMipmaps (5);
 	loadResources ();
 
-	// create the info listener - this displays things like FHz
+	// create the various frame listeners that handle important, always-on stuff
 	infoListener = new InfoListener (renderWindow);
+	mainListener = new MainLoopTrigger ();
 
 	root->addFrameListener (infoListener);
+	root->addFrameListener (mainListener);
 
 	configured = true;
 

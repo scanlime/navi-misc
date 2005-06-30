@@ -20,12 +20,10 @@
  */
 
 #include <vector>
+#include "Singleton.h"
 
 #ifndef _MAIN_LOOP_H_
 #define _MAIN_LOOP_H_
-
-namespace Screamers
-{
 
 class MainListener
 {
@@ -33,8 +31,7 @@ public:
 	virtual void tick (void) = 0;
 };
 
-// FIXME - should this be a singleton?
-class MainLoop
+class MainLoop : public Singleton<MainLoop>
 {
 public:
 			 MainLoop ();
@@ -52,8 +49,8 @@ private:
 
 	// FIXME - do we want some kind of priority/negotiation thing here?
 	unsigned int			delay;
-};
 
+	friend class Singleton<MainLoop>;
 };
 
 #endif // _MAIN_LOOP_H_
