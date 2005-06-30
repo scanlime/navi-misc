@@ -24,6 +24,7 @@
 from Graph.Data import Graph, AdjacencyList, Edge
 from Motion import AMC
 import sys
+import MLab
 
 class ProbabilityEdge (Edge):
     def __init__ (self, u, v):
@@ -37,17 +38,20 @@ class ProbabilityEdge (Edge):
     def normalize (self, total):
         self.weight = float (self.count) / total
 
-def build_graph (amc, key):
-    dof = amc.bones[key].shape[1]
+def build_graph (key, d):
+    dof = d.shape[1]
     print dof,key
 
     g = Graph ()
+    for degree in range(dof):
+        data = d[:,degree]
+        print '        [%f, %f]' % (MLab.min (data), MLab.max (data))
 
 def load (filename):
     amc = AMC.from_file (filename)
     bones = {}
-    for key in amc.bones.keys ():
-        g = build_graph (amc, key)
+    for (key, data) in amc.bones.iteritems ():
+        g = build_graph (key, data)
 
 if len (sys.argv) != 2:
     print 'Usage: %s [file.amc]' % sys.argv[0]

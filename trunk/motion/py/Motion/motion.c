@@ -81,6 +81,11 @@ PyObject *CreateAMC ()
 	m->bones    = PyDict_New ();
 	m->comments = PyList_New (0);
 	m->format   = PyList_New (0);
+
+	Py_INCREF (m->bones);
+	Py_INCREF (m->comments);
+	Py_INCREF (m->format);
+
 	return (PyObject *) m;
 }
 
@@ -230,6 +235,7 @@ AMC_fromFile (AMC *self, PyObject *args)
 		dims[1] = dof;
 
 		array = PyArray_FromDims (2, dims, PyArray_FLOAT);
+		Py_INCREF (array);
 		data = g_slist_append (data, array);
 	}
 
