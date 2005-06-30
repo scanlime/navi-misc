@@ -22,8 +22,6 @@
 #include <iostream>
 #include "Log.h"
 
-namespace Screamers {
-
 Log::Log (const char *filename) : TNL::LogConsumer ()
 {
 	log_file.open (filename);
@@ -55,7 +53,7 @@ void Log::logString (const char *string)
 
 namespace Client {
 
-Log::Log () : Screamers::Log ("screamers.log"), Ogre::LogListener ()
+Log::Log () : ::Log ("screamers.log"), Ogre::LogListener ()
 {
 	Ogre::LogManager *manager;
 	if (Ogre::LogManager::getSingletonPtr () == NULL)
@@ -76,8 +74,6 @@ void Log::write (const Ogre::String &name, const Ogre::String &message, Ogre::Lo
 		log_file << message << std::endl;
 	else
 		std::cout << message << std::endl;
-}
-
 }
 
 }

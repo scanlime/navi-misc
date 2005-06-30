@@ -24,9 +24,6 @@
 #include "WorldParser.h"
 #include "TextUtils.h"
 
-namespace Screamers
-{
-
 typedef struct
 {
 	std::string name;
@@ -265,5 +262,3 @@ int WorldParser::parseMatRef (void *_node)
 
 	return world.findMaterialByName(name.c_str());
 }
-
-};

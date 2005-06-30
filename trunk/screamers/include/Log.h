@@ -27,8 +27,6 @@
 #ifndef _LOG_H_
 #define _LOG_H_
 
-namespace Screamers {
-
 class Log : public TNL::LogConsumer
 {
 public:
@@ -42,7 +40,8 @@ protected:
 };
 
 namespace Client {
-class Log : public Screamers::Log, public Ogre::LogListener
+
+class Log : public ::Log, public Ogre::LogListener
 {
 public:
 			 Log ();
@@ -51,7 +50,6 @@ public:
 	virtual void	 write (const Ogre::String &name, const Ogre::String &message, Ogre::LogMessageLevel lml = Ogre::LML_NORMAL, bool maskDebug = false);
 };
 
-}
 }
 
 #endif // _LOG_H_

@@ -24,8 +24,6 @@
 #include "GameConnection.h"
 #include "TextUtils.h"
 
-namespace Screamers {
-
 TNL_IMPLEMENT_NETCONNECTION(GameConnection, TNL::NetClassGroupGame, true);
 
 GameConnection::GameConnection () :
@@ -79,5 +77,3 @@ TNL_IMPLEMENT_RPC(GameConnection, rpcMessageTest, (TNL::StringPtr message), (mes
 	TNL::logprintf ("got message from client - \"%s\"", (const char *) message);
 	std::cout << "got message from client - \"" << (const char *) message << "\"\n";
 }
-
-};

@@ -21,8 +21,6 @@
 
 #include "ConnectionManager.h"
 
-namespace Screamers
-{
 namespace Server
 {
 
@@ -43,5 +41,4 @@ void ConnectionManager::tick (void)
 	network_interface->processConnections ();
 }
 
-};
 };

@@ -28,9 +28,6 @@
 #ifndef _GAME_CONNECTION_H_
 #define _GAME_CONNECTION_H_
 
-namespace Screamers
-{
-
 static char *connection_states[] = {
 	// these map to the constants in TNL::NetConnectionState
 	"Not connected.",
@@ -68,7 +65,5 @@ private:
 	TNL::Address		*remote_address;
 	TNL::NetInterface	*interface;
 };
-
-}
 
 #endif // _GAME_CONNECTION_H_
