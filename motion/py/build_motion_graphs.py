@@ -25,6 +25,7 @@ from Graph.Data import Graph, AdjacencyList, Edge
 from Motion import AMC
 import sys
 import MLab
+import math
 
 class ProbabilityEdge (Edge):
     def __init__ (self, u, v):
@@ -45,7 +46,11 @@ def build_graph (key, d):
     g = Graph ()
     for degree in range(dof):
         data = d[:,degree]
-        print '        [%f, %f]' % (MLab.min (data), MLab.max (data))
+        min = MLab.min (data)
+        max = MLab.max (data)
+        size = max - min
+        slots = math.ceil (size / 5.0)
+        print '        [%f, %f] = %f * %d' % (min, max, size, slots)
 
 def load (filename):
     amc = AMC.from_file (filename)
