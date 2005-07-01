@@ -56,7 +56,6 @@ int appMain (std::string commandLine)
 	MainLoop::instance ().addTimeout (&connection, 20);
 
 	connection.connectToServer (server.c_str (), 27050);
-	connection.rpcAddConnection ();
 
 	app.go ();
 	return 0;

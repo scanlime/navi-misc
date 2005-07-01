@@ -43,6 +43,7 @@ public:
 	virtual void			 tick (void);
 
 	void				 addConnection (GameConnection *connection);
+	void				 removeConnection (GameConnection *connection);
 
 private:
 	TNL::RefPtr<TNL::NetInterface>	 network_interface;

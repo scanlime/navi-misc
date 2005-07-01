@@ -53,4 +53,15 @@ void ConnectionManager::addConnection (GameConnection *connection)
 	connections.push_back (connection);
 }
 
+void ConnectionManager::removeConnection (GameConnection *connection)
+{
+	std::cout << "removing a connection\n";
+	for (std::vector<GameConnection *>::iterator it = connections.begin (); it != connections.end (); it++) {
+		if (*it == connection) {
+			connections.erase (it);
+			break;
+		}
+	}
+}
+
 };

@@ -58,20 +58,20 @@ bool GameConnection::isDataToTransmit ()
 void GameConnection::onConnectTerminated (TNL::NetConnection::TerminationReason reason, const char *rejectionString)
 {
 	TNL::logprintf ("%s - %s connect terminated: %d", getNetAddressString (), isConnectionToServer () ? "server" : "client", rejectionString);
-	if (isConnectionToClient ())
-		std::cout << "connect terminated!\n";
 }
 
 void GameConnection::onConnectionTerminated (TNL::NetConnection::TerminationReason reason, const char *string)
 {
 	TNL::logprintf ("%s - %s connection terminated: %d", getNetAddressString (), isConnectionToServer () ? "server" : "client", reason);
-	if (isConnectionToClient ())
-		std::cout << "connection terminated!\n";
+	if (!isInitiator ())
+		Server::ConnectionManager::instance ().removeConnection (this);
 }
 
 void GameConnection::onConnectionEstablished ()
 {
 	TNL::logprintf ("connected to server");
+	if (!isInitiator ())
+		Server::ConnectionManager::instance ().addConnection (this);
 }
 
 bool GameConnection::timeout ()
@@ -79,9 +79,4 @@ bool GameConnection::timeout ()
 	interface->checkIncomingPackets ();
 	interface->processConnections ();
 	return true;
-}
-
-TNL_IMPLEMENT_RPC(GameConnection, rpcAddConnection, (), (), TNL::NetClassGroupGameMask, TNL::RPCGuaranteedOrdered, TNL::RPCDirClientToServer, 0)
-{
-	Server::ConnectionManager::instance ().addConnection (this);
 }
