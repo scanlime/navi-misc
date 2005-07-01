@@ -19,9 +19,6 @@
  *
  */
 
-#include <tnl.h>
-#include <tnlPlatform.h>
-
 #include "MainLoop.h"
 
 template <>
@@ -39,21 +36,52 @@ MainLoop::~MainLoop ()
 void MainLoop::go (void)
 {
 	while (1) {
-		for (std::vector<MainListener*>::iterator it = listeners.begin (); it != listeners.end (); it++)
-			(*it)->tick ();
+		iteration ();
 		TNL::Platform::sleep (delay);
 	}
 }
 
 void MainLoop::iteration (void)
 {
+	// Call normal listeners
 	for (std::vector<MainListener*>::iterator it = listeners.begin (); it != listeners.end (); it++)
 		(*it)->tick ();
+
+	// Call any timeouts that are registered.
+	TNL::U32 current = TNL::Platform::getRealMilliseconds ();
+	std::vector<std::vector<Timeout*>::iterator> remove_list;
+
+	for (std::vector<Timeout*>::iterator it = timeouts.begin (); it != timeouts.end (); it++) {
+		Timeout *to = *it;
+
+		// FIXME - getRealMilliseconds will wrap after about 7 days. Need to check for this.
+		if ((current - to->last) >= to->ms) {
+			to->last = current;
+			bool keep = to->listener->timeout ();
+			if (!keep)
+				remove_list.push_back (it);
+		}
+	}
+
+	// Remove listeners which want themselves removed
+	for (std::vector<std::vector<Timeout*>::iterator>::iterator it = remove_list.begin (); it != remove_list.end (); it++) {
+		std::vector<Timeout*>::iterator it2 = *it;
+		timeouts.erase (it2);
+	}
 }
 
 void MainLoop::addListener (MainListener *listener)
 {
 	listeners.push_back (listener);
+}
+
+void MainLoop::addTimeout (TimeoutListener *listener, int ms)
+{
+	Timeout *timeout = new Timeout;
+	timeout->listener = listener;
+	timeout->ms = ms;
+	timeout->last = TNL::Platform::getRealMilliseconds ();
+	timeouts.push_back (timeout);
 }
 
 unsigned int MainLoop::getDelay (void)

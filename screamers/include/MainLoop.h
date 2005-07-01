@@ -20,6 +20,8 @@
  */
 
 #include <vector>
+#include <tnl.h>
+#include <tnlPlatform.h>
 #include "Singleton.h"
 
 #ifndef _MAIN_LOOP_H_
@@ -31,6 +33,12 @@ public:
 	virtual void tick (void) = 0;
 };
 
+class TimeoutListener
+{
+public:
+	virtual bool timeout (void) = 0;
+};
+
 class MainLoop : public Singleton<MainLoop>
 {
 public:
@@ -40,12 +48,20 @@ public:
 	void		 go (void);
 	void		 iteration (void);
 	void		 addListener (MainListener *listener);
+	void		 addTimeout (TimeoutListener *listener, int ms);
 
 	unsigned int	 getDelay (void);
 	void		 setDelay (unsigned int ms);
 
 private:
 	std::vector<MainListener*>	listeners;
+	struct Timeout
+	{
+		TimeoutListener *listener;
+		int		 ms;
+		TNL::U32	 last;
+	};
+	std::vector<Timeout*>		timeouts;
 
 	// FIXME - do we want some kind of priority/negotiation thing here?
 	unsigned int			delay;
