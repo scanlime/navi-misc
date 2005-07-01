@@ -59,8 +59,6 @@ public:
 
 	bool			 timeout (void);
 
-	TNL_DECLARE_RPC(rpcAddConnection, ());
-
 private:
 	TNL::Address		*remote_address;
 	TNL::NetInterface	*interface;
