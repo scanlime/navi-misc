@@ -25,6 +25,8 @@
 #include <tnlRPC.h>
 
 #include "MainLoop.h"
+#include "Singleton.h"
+#include "GameConnection.h"
 
 #ifndef _CONNECTION_MANAGER_H_
 #define _CONNECTION_MANAGER_H_
@@ -32,16 +34,22 @@
 namespace Server
 {
 
-class ConnectionManager : public MainListener
+class ConnectionManager : public MainListener, public Singleton<ConnectionManager>
 {
 public:
-	ConnectionManager ();
-	~ConnectionManager ();
+					 ConnectionManager ();
+					~ConnectionManager ();
 
-	virtual void tick (void);
+	virtual void			 tick (void);
+
+	void				 addConnection (GameConnection *connection);
 
 private:
-	TNL::RefPtr<TNL::NetInterface>	network_interface;
+	TNL::RefPtr<TNL::NetInterface>	 network_interface;
+
+	std::vector<GameConnection *>	 connections;
+
+	friend class Singleton<ConnectionManager>;
 };
 
 };

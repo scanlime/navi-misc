@@ -30,6 +30,7 @@ ogreenv.Program ('screamersd', screamersd_sources)
 # Build the client
 screamers_sources = [
 	'Application.cpp',
+	'ConnectionManager.cpp',
 	'FrameListener.cpp',
 	'GameConnection.cpp',
 	'Log.cpp',
