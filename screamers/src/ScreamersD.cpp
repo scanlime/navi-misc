@@ -44,7 +44,6 @@ int appMain (std::string commandLine)
 
 	parser.load (commandLine.c_str ());
 
-	MainLoop::instance ().addListener (&cm);
 	MainLoop::instance ().go ();
 
 	return 0;
