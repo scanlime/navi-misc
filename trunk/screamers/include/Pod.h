@@ -19,6 +19,9 @@
  *
  */
 
+#include <tnl.h>
+#include <tnlNetObject.h>
+
 #ifndef _POD_H_
 #define _POD_H_
 
