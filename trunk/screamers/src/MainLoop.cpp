@@ -54,12 +54,16 @@ void MainLoop::iteration (void)
 	for (std::vector<Timeout*>::iterator it = timeouts.begin (); it != timeouts.end (); it++) {
 		Timeout *to = *it;
 
-		// FIXME - getRealMilliseconds will wrap after about 7 days. Need to check for this.
-		if ((current - to->last) >= to->ms) {
-			to->last = current;
-			bool keep = to->listener->timeout ();
-			if (!keep)
-				remove_list.push_back (it);
+		// getRealMilliseconds will wrap after about 7 days, so check for that
+		if (to->last > current) {
+			// FIXME - implement
+		} else {
+			if ((current - to->last) >= to->ms) {
+				to->last = current;
+				bool keep = to->listener->timeout ();
+				if (!keep)
+					remove_list.push_back (it);
+			}
 		}
 	}
 
