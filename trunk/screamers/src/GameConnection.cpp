@@ -22,6 +22,7 @@
 #include <iostream>
 
 #include "GameConnection.h"
+#include "ConnectionManager.h"
 #include "TextUtils.h"
 
 TNL_IMPLEMENT_NETCONNECTION(GameConnection, TNL::NetClassGroupGame, true);
@@ -31,6 +32,7 @@ GameConnection::GameConnection () :
 	TimeoutListener ()
 {
 	setIsAdaptive ();
+
 }
 
 GameConnection::~GameConnection ()
@@ -39,6 +41,8 @@ GameConnection::~GameConnection ()
 
 void GameConnection::connectToServer (const char *server, int port)
 {
+	setIsConnectionToServer ();
+
 	// connect
 	remote_address = new TNL::Address (TextUtils::format ("ip:%s:%d", server, port).c_str ());
 	TNL::Address local_address (TNL::IPProtocol, TNL::Address::Any, 0);
@@ -54,11 +58,15 @@ bool GameConnection::isDataToTransmit ()
 void GameConnection::onConnectTerminated (TNL::NetConnection::TerminationReason reason, const char *rejectionString)
 {
 	TNL::logprintf ("%s - %s connect terminated: %d", getNetAddressString (), isConnectionToServer () ? "server" : "client", rejectionString);
+	if (isConnectionToClient ())
+		std::cout << "connect terminated!\n";
 }
 
 void GameConnection::onConnectionTerminated (TNL::NetConnection::TerminationReason reason, const char *string)
 {
 	TNL::logprintf ("%s - %s connection terminated: %d", getNetAddressString (), isConnectionToServer () ? "server" : "client", reason);
+	if (isConnectionToClient ())
+		std::cout << "connection terminated!\n";
 }
 
 void GameConnection::onConnectionEstablished ()
@@ -73,8 +81,7 @@ bool GameConnection::timeout ()
 	return true;
 }
 
-TNL_IMPLEMENT_RPC(GameConnection, rpcMessageTest, (TNL::StringPtr message), (message), TNL::NetClassGroupGameMask, TNL::RPCGuaranteedOrdered, TNL::RPCDirClientToServer, 0)
+TNL_IMPLEMENT_RPC(GameConnection, rpcAddConnection, (), (), TNL::NetClassGroupGameMask, TNL::RPCGuaranteedOrdered, TNL::RPCDirClientToServer, 0)
 {
-	TNL::logprintf ("got message from client - \"%s\"", (const char *) message);
-	std::cout << "got message from client - \"" << (const char *) message << "\"\n";
+	Server::ConnectionManager::instance ().addConnection (this);
 }

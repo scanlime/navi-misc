@@ -40,7 +40,7 @@ int appMain (std::string commandLine)
 
 	World world;
 	WorldParser parser (world);
-	Server::ConnectionManager cm;
+	Server::ConnectionManager::instance ();
 
 	parser.load (commandLine.c_str ());
 

@@ -59,7 +59,7 @@ public:
 
 	bool			 timeout (void);
 
-	TNL_DECLARE_RPC(rpcMessageTest, (TNL::StringPtr message));
+	TNL_DECLARE_RPC(rpcAddConnection, ());
 
 private:
 	TNL::Address		*remote_address;

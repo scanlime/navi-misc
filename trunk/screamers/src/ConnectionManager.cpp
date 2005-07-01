@@ -19,10 +19,14 @@
  *
  */
 
+#include <iostream>
 #include "ConnectionManager.h"
 
 namespace Server
 {
+
+template <>
+ConnectionManager* Singleton<ConnectionManager>::_instance = NULL;
 
 ConnectionManager::ConnectionManager ()
 {
@@ -41,6 +45,12 @@ void ConnectionManager::tick (void)
 {
 	network_interface->checkIncomingPackets ();
 	network_interface->processConnections ();
+}
+
+void ConnectionManager::addConnection (GameConnection *connection)
+{
+	std::cout << "adding a connection\n";
+	connections.push_back (connection);
 }
 
 };
