@@ -70,8 +70,16 @@ void GameConnection::onConnectionTerminated (TNL::NetConnection::TerminationReas
 void GameConnection::onConnectionEstablished ()
 {
 	TNL::logprintf ("connected to server");
-	if (!isInitiator ())
+	if (isInitiator ()) {
+		setGhostFrom (false);
+		setGhostTo (true);
+		activateGhosting ();
+	} else {
+		setGhostFrom (true);
+		setGhostTo (false);
+		activateGhosting ();
 		Server::ConnectionManager::instance ().addConnection (this);
+	}
 }
 
 bool GameConnection::timeout ()
