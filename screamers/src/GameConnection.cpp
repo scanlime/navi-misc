@@ -28,7 +28,7 @@ TNL_IMPLEMENT_NETCONNECTION(GameConnection, TNL::NetClassGroupGame, true);
 
 GameConnection::GameConnection () :
 	TNL::GhostConnection (),
-	MainListener ()
+	TimeoutListener ()
 {
 	setIsAdaptive ();
 }
@@ -66,10 +66,11 @@ void GameConnection::onConnectionEstablished ()
 	TNL::logprintf ("connected to server");
 }
 
-void GameConnection::tick ()
+bool GameConnection::timeout ()
 {
 	interface->checkIncomingPackets ();
 	interface->processConnections ();
+	return true;
 }
 
 TNL_IMPLEMENT_RPC(GameConnection, rpcMessageTest, (TNL::StringPtr message), (message), TNL::NetClassGroupGameMask, TNL::RPCGuaranteedOrdered, TNL::RPCDirClientToServer, 0)

@@ -53,7 +53,7 @@ int appMain (std::string commandLine)
 
 	// connect to the server specified
 	GameConnection connection;
-	MainLoop::instance ().addListener (&connection);
+	MainLoop::instance ().addTimeout (&connection, 20);
 
 	connection.connectToServer (server.c_str (), 27050);
 	connection.rpcMessageTest ("hi!");
