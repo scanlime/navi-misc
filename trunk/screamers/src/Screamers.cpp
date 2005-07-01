@@ -53,7 +53,6 @@ int appMain (std::string commandLine)
 
 	// connect to the server specified
 	GameConnection connection;
-
 	MainLoop::instance ().addListener (&connection);
 
 	connection.connectToServer (server.c_str (), 27050);
