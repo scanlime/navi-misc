@@ -34,9 +34,10 @@ FrameListener::~FrameListener ()
 {
 }
 
-InfoListener::InfoListener (Ogre::RenderWindow *window) : FrameListener (window)
+InfoListener::InfoListener (Ogre::RenderWindow *window) : TimeoutListener ()
 {
 	Ogre::OverlayManager &overlay_manager = Ogre::OverlayManager::getSingleton ();
+	this->window = window;
 
 	debugOverlay = overlay_manager.getByName ("Core/DebugOverlay");
 
@@ -48,22 +49,16 @@ InfoListener::InfoListener (Ogre::RenderWindow *window) : FrameListener (window)
 	gui_worst_fhz      = overlay_manager.getOverlayElement ("Core/WorstFps");
 	gui_triangle_count = overlay_manager.getOverlayElement ("Core/NumTris");
 
-	frames = 0;
+	MainLoop::instance ().addTimeout (this, 1000);
 }
 
 InfoListener::~InfoListener ()
 {
 }
 
-bool InfoListener::frameEnded (const Ogre::FrameEvent &event)
+bool InfoListener::timeout ()
 {
-	frames++;
-	if (frames == 100) {
-		// only update every 100 frames. alternatively, we could update
-		// every second or so, but this will do for now
-		updateStats ();
-		frames = 0;
-	}
+	updateStats ();
 	return true;
 }
 
