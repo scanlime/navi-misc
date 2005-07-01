@@ -117,8 +117,6 @@ bool Application::setup (void)
 	// create the various frame listeners that handle important, always-on stuff
 	infoListener = new InfoListener (renderWindow);
 	mainListener = new MainLoopTrigger ();
-
-	root->addFrameListener (infoListener);
 	root->addFrameListener (mainListener);
 
 	configured = true;

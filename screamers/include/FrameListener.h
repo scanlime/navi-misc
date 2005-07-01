@@ -20,6 +20,7 @@
  */
 
 #include <Ogre.h>
+#include "MainLoop.h"
 
 #ifndef _FRAME_LISTENER_H_
 #define _FRAME_LISTENER_H_
@@ -37,26 +38,26 @@ protected:
 	Ogre::RenderWindow	*window;
 };
 
-class InfoListener : public FrameListener
+class InfoListener : public TimeoutListener
 {
+	// FIXME - this isn't an actual FrameListener anymore, but I don't know
+	// where else it should go.
 public:
 				 InfoListener (Ogre::RenderWindow *window);
 	virtual			~InfoListener ();
 
-	virtual bool		 frameEnded (const Ogre::FrameEvent &event);
+	virtual bool		 timeout ();
 
-protected:
+private:
 	Ogre::Overlay		*debugOverlay;
 	Ogre::OverlayElement	*gui_current_fhz;
 	Ogre::OverlayElement	*gui_average_fhz;
 	Ogre::OverlayElement	*gui_best_fhz;
 	Ogre::OverlayElement	*gui_worst_fhz;
 	Ogre::OverlayElement	*gui_triangle_count;
+	Ogre::RenderWindow	*window;
 
-private:
 	void			 updateStats (void);
-
-	int			 frames;
 };
 
 class MainLoopTrigger : public FrameListener
