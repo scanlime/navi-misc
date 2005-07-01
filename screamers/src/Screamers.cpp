@@ -72,7 +72,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
 #else
 int main( int argc, char *argv[])
 {
-	// FIXME - this is bad!
+	// FIXME - this is bad! the shell does all of the globing for us, so we
+	// really shouldn't do it on our own. makes more sense to use tokenize()
+	// in the windows-specific function, since they just get one big string
+	// (hahahahaha)
 	std::string	cli;
 	for ( int i = 1; i < argc; i++)
 		cli += argv[i] + std::string(" ");
