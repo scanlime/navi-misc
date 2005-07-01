@@ -42,7 +42,7 @@ static char *connection_states[] = {
 	"",
 };
 
-class GameConnection : public TNL::GhostConnection, public MainListener
+class GameConnection : public TNL::GhostConnection, public TimeoutListener
 {
 public:
 	TNL_DECLARE_NETCONNECTION(GameConnection);
@@ -57,7 +57,7 @@ public:
 	void			 onConnectionTerminated (TNL::NetConnection::TerminationReason reason, const char *string);
 	void			 onConnectionEstablished ();
 
-	void			 tick (void);
+	bool			 timeout (void);
 
 	TNL_DECLARE_RPC(rpcMessageTest, (TNL::StringPtr message));
 
