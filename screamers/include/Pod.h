@@ -1,5 +1,5 @@
 /*
- * Pod.h - data defining a pod
+ * Pod.h - podly pod
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -21,13 +21,31 @@
 
 #include <tnl.h>
 #include <tnlNetObject.h>
+#include <tnlGhostConnection.h>
 
 #ifndef _POD_H_
 #define _POD_H_
 
-class Pod
+class Pod : public TNL::NetObject
 {
 public:
+	enum MaskBits {
+		InitialMask = (1 << 0), // never set explicitly, used for initialization
+	};
+
+			 Pod              ();
+			~Pod              ();
+
+	TNL::U32	 packUpdate       (TNL::GhostConnection *connection, TNL::U32 updateMask, TNL::BitStream *stream);
+	void		 unpackUpdate     (TNL::GhostConnection *connection, TNL::BitStream *stream);
+
+	void		 onGhostAvailable (TNL::GhostConnection *connection);
+	bool		 onGhostAdd       (TNL::GhostConnection *connection);
+
+	TNL_DECLARE_CLASS(Pod);
+
+/* This is the data I've thought up to represent a pod, but I'm not sure
+ * how much of it we'll actually keep here.
 	float	position[3];
 	float	velocity[3];
 	float	orientation[4];		// wow, a quaternion!
@@ -35,6 +53,7 @@ public:
 
 	float	shields;		// [0,1]
 	int	rounds;
+*/
 };
 
 #endif

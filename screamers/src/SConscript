@@ -20,6 +20,7 @@ screamersd_sources = [
 	'GameConnection.cpp',
 	'Log.cpp',
 	'MainLoop.cpp',
+	'Pod.cpp',
 	'ScreamersD.cpp',
 	'TextUtils.cpp',
 	'World.cpp',
@@ -35,6 +36,7 @@ screamers_sources = [
 	'GameConnection.cpp',
 	'Log.cpp',
 	'MainLoop.cpp',
+	'Pod.cpp',
 	'TextUtils.cpp',
 	'Screamers.cpp',
 ]
