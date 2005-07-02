@@ -21,7 +21,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-from Graph.Data import Graph, AdjacencyList, Edge
+from Graph.Data import Graph, AdjacencyList, VertexMap, Edge
 from Motion import AMC
 
 import Numeric
@@ -42,60 +42,94 @@ class ProbabilityEdge (Edge):
     def normalize (self, total):
         self.weight = float (self.count) / total
 
-class MotionGraph:
-    __slots__ = ['graph', 'nodes']
+class MotionGraph (Graph):
+    __slots__ = ['nodes']
 
     def __init__ (self):
-        self.graph = Graph ()
+        Graph.__init__ (self)
 
 class MotionGraphNode:
-    def __init__ (self):
-        pass
+    __slots__ = ['mins', 'maxs']
+
+    def __init__ (self, mins, maxs):
+        self.mins = mins
+        self.maxs = maxs
+
+    def inside (self, point):
+        if len(point) != len(self.mins):
+            raise AttributeError ("dimension doesn't match!")
+        for i in range (len (point)):
+            if point[i] < self.mins[i] or point[i] > self.maxs[i]:
+                return False
+        return True
 
 def build_graph (key, d):
+    # if this is the root, we only want the first 3 dof
+    if (key == 'root'):
+        d = d[:,0:3]
+
     dof = d.shape[1]
-    print dof,key
+    frames = d.shape[0]
+
+    # degrees covered (angle-wise) within a single node
+    interval = 20.0
 
     mins = []
     slots = []
 
     graph = MotionGraph ()
+    adjacency_list = AdjacencyList (graph)
+    vertex_map = VertexMap (graph)
+
+    # it's silly to have angle values outside of [0,360]
+    # dunno if this will handle <0
+    d = Numeric.fmod (d, 360.0)
 
     for degree in range(dof):
         data = d[:,degree]
         mins.append (MLab.min (data))
         max = MLab.max (data)
         size = max - mins[-1]
-        slots.append (int(math.ceil (size / 5.0)))
-        print '        [%f, %f] = %f * %d' % (mins[-1], max, size, slots[-1])
+        if size == 0.0:
+            # FIXME - should probably throw something
+            return
+        slots.append (int(math.ceil (size / interval)))
 
-    print slots
-
-    # Gross mess to create a 1, 2 or 3 dimensional array of nodes.  This will
-    # need to be generalized, since the root is 6dof.  On second thought, 3
-    # of those dof should be completely independent of the graph prediction,
-    # and just feed back into the splicing.
+    # Create list of nodes
     nodes = []
-    if dof == 1:
-        nodes = [0] * slots[0]
-        for i in range (len (nodes)):
-            nodes[i] = MotionGraphNode ()
-    else:
-        nodes = [[]] * slots[0]
-        if dof == 2:
-            for i in range (len (nodes)):
-                nodes[i] = [0] * slots[1]
-                for j in range (len (nodes[i])):
-                    nodes[i][j] = MotionGraphNode ()
+    for i in range (slots[0]):
+        min0 = mins[0] + i * interval
+        if dof == 1:
+            nodes.append (MotionGraphNode ([min0], [min0 + interval]))
         else:
-            for i in range (len (nodes)):
-                nodes[i] = [[]] * slots[1]
-                for j in range (len (nodes[i])):
-                    nodes[i][j] = [0] * slots[2]
-                    for k in range (len (nodes[i][j])):
-                        nodes[i][j][k] = MotionGraphNode ()
+            for j in range (slots[1]):
+                min1 = mins[1] + j * interval
+                if dof == 2:
+                    nodes.append (MotionGraphNode ([min0, min1], [min0 + interval, min1 + interval]))
+                else:
+                    for k in range (slots[2]):
+                        min2 = mins[2] + k * interval
+                        nodes.append (MotionGraphNode ([min0, min1, min2], [min0 + interval, min1 + interval, min2 + interval]))
 
     graph.nodes = nodes
+    print 'creating graph for %s with %d dof, %d nodes' % (key, dof, len (nodes))
+
+    # find edges
+    data1 = d[0,:]
+    for node in nodes:
+        if node.inside (data1):
+            node1 = node
+    for frame in range (1, frames):
+        node2 = None
+        data2 = d[frame,:]
+        for node in nodes:
+            if node.inside (data2):
+                node2 = node
+        # FIXME - create if edge doesn't exist, update visit count if it does
+        if node2 is None:
+            raise Exception('0 nodes! muchly bad')
+        data1 = data2
+        node1 = node2
 
     return graph
 

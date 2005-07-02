@@ -48,6 +48,7 @@ class Graph (object):
 
     def __init__ (self):
         Observable.attachEvents (self, 'add', 'remove')
+        self.representations = {}
 
     def addList (self, edges):
         """Add multiple edges at once, from any iterable source.
@@ -118,6 +119,7 @@ class GraphRepresentation (object):
         self.graph = graph;
         graph.add.observe (self.onAdd)
         graph.remove.observe (self.onRemove)
+        graph.representations[self.__class__] = self
 
     def onAdd (self, edge):
         """Observer that is notified when an edge is added to the graph"""
