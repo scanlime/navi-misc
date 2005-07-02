@@ -4,6 +4,8 @@ Various algorithms which work themselves upon the appropriate
 GraphRepresentations to make them fast(ish)
 """
 
+import Data
+
 class DotPrint:
     """Simple graph walker which prints the graph as a dot(1) file.
        By default, vertexes are visited in dictionary key order, but
@@ -21,7 +23,7 @@ class DotPrint:
        ...     Edge (nodes[3], nodes[0], ''),
        ...     ]
        >>> x = graph.addList (edges)
-       >>> x = DotPrint (map)
+       >>> x = DotPrint (graph)
        Digraph {
        1 [label="1"];
        2 [label="2"];
@@ -36,13 +38,16 @@ class DotPrint:
 
        """
 
-    def __init__ (self, vertexMap, file=None):
-        self.vertexMap = vertexMap
+    def __init__ (self, graph, file=None):
+        try:
+            self.vertexMap = graph.representations[Data.VertexMap]
+        except KeyError:
+            raise Exception ('Graph does not contain VertexMap representation')
 
         self.printline (file, 'Digraph {')
 
         # print vertices
-        for vertex in vertexMap:
+        for vertex in self.vertexMap:
             # we use the hash of the vertex as the node id, since
             # only the label will be
             if hasattr (vertex, 'dot_label') and edge.dot_label is not None:
@@ -52,8 +57,8 @@ class DotPrint:
                 self.printline (file, '%s [label="%s"];' % (hash (vertex), vertex))
 
         # print edges
-        for vertex in vertexMap:
-            edges = vertexMap.query (vertex)
+        for vertex in self.vertexMap:
+            edges = self.vertexMap.query (vertex)
             for edge in edges:
                 if edge.u is vertex:
                     if hasattr (edge, 'dot_label') and edge.dot_label is not None:
