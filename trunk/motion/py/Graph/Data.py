@@ -213,3 +213,25 @@ class VertexMap (GraphRepresentation):
             if not self.data[vertex]:
                 del self.data[vertex]
                 self.removed(vertex)
+
+class EdgeMap (GraphRepresentation):
+    """A very simple graph representation that keeps a maping
+       between (u,v) pairs and edge objects.
+       """
+
+    def __init__ (self, graph):
+        GraphRepresentation.__init__ (self, graph)
+        self.data = {}
+
+    def __iter__ (self):
+        """Iterate over all edges in this graph"""
+        return self.data.itervalues ()
+
+    def query (self, u, v):
+        return self.data[hash ((u, v))]
+
+    def onAdd (self, edge):
+        self.data[hash((edge.u, edge.v))] = edge
+
+    def onRemove (self, edge):
+        pass
