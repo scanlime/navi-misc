@@ -46,12 +46,13 @@ class DotPrint:
 
         self.printline (file, 'Digraph {')
 
+        self_loops = set([])
+
         # print vertices
         for vertex in self.vertexMap:
             # we use the hash of the vertex as the node id, since
             # only the label will be
-            if hasattr (vertex, 'dot_label') and edge.dot_label is not None:
-                # FIXME - escape things
+            if hasattr (vertex, 'dot_label') and vertex.dot_label is not None:
                 self.printline (file, '%s [label="%s"];' % (hash (vertex), vertex.dot_label))
             else:
                 self.printline (file, '%s [label="%s"];' % (hash (vertex), vertex))
@@ -61,11 +62,19 @@ class DotPrint:
             edges = self.vertexMap.query (vertex)
             for edge in edges:
                 if edge.u is vertex:
-                    if hasattr (edge, 'dot_label') and edge.dot_label is not None:
-                        # FIXME - escape things
-                        self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
+                    if edge.u is edge.v:
+                        # self loop
+                        if edge.u not in self_loops:
+                            if hasattr (edge, 'dot_label') and edge.dot_label is not None:
+                                self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
+                            else:
+                                self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge))
+                            self_loops.add (edge.u)
                     else:
-                        self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge))
+                        if hasattr (edge, 'dot_label') and edge.dot_label is not None:
+                            self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
+                        else:
+                            self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge))
 
         self.printline (file, '}')
 

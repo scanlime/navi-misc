@@ -21,7 +21,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-from Graph.Data import Graph, AdjacencyList, VertexMap, Edge
+from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeMap
+from Graph.Algorithms import DotPrint
 from Motion import AMC
 
 import Numeric
@@ -41,6 +42,7 @@ class ProbabilityEdge (Edge):
 
     def normalize (self, total):
         self.weight = float (self.count) / total
+        self.dot_label = '%f' % self.weight
 
 class MotionGraph (Graph):
     __slots__ = ['nodes']
@@ -54,6 +56,11 @@ class MotionGraphNode:
     def __init__ (self, mins, maxs):
         self.mins = mins
         self.maxs = maxs
+
+        extents = []
+        for i in range (len (mins)):
+            extents.append ('[%f, %f]' % (mins[i], maxs[i]))
+        self.dot_label = '\\n'.join (extents)
 
     def inside (self, point):
         if len(point) != len(self.mins):
@@ -80,6 +87,7 @@ def build_graph (key, d):
     graph = MotionGraph ()
     adjacency_list = AdjacencyList (graph)
     vertex_map = VertexMap (graph)
+    edge_map = EdgeMap (graph)
 
     # it's silly to have angle values outside of [0,360]
     # dunno if this will handle <0
@@ -93,7 +101,7 @@ def build_graph (key, d):
         if size == 0.0:
             # FIXME - should probably throw something
             return
-        slots.append (int(math.ceil (size / interval)))
+        slots.append (int (math.ceil (size / interval)))
 
     # Create list of nodes
     nodes = []
@@ -112,7 +120,6 @@ def build_graph (key, d):
                         nodes.append (MotionGraphNode ([min0, min1, min2], [min0 + interval, min1 + interval, min2 + interval]))
 
     graph.nodes = nodes
-    print 'creating graph for %s with %d dof, %d nodes' % (key, dof, len (nodes))
 
     # find edges
     data1 = d[0,:]
@@ -125,11 +132,35 @@ def build_graph (key, d):
         for node in nodes:
             if node.inside (data2):
                 node2 = node
-        # FIXME - create if edge doesn't exist, update visit count if it does
-        if node2 is None:
-            raise Exception('0 nodes! muchly bad')
+
+        # check to see if it's a self-loop
+        if node1 is node2:
+            try:
+                edge = edge_map.query (node1, node2)
+                edge.visit ()
+            except KeyError:
+                try:
+                    edge = edge_map.query (node2, node1)
+                    edge.visit ()
+                except KeyError:
+                    edge = ProbabilityEdge (node1, node2)
+                    edge.visit ()
+                    graph.addList ([edge])
+        else:
+            try:
+                edge = edge_map.query (node1, node2)
+                edge.visit ()
+            except KeyError:
+                edge = ProbabilityEdge (node1, node2)
+                edge.visit ()
+                graph.addList ([edge])
         data1 = data2
         node1 = node2
+
+    for edge in edge_map:
+        # FIXME - we want to normalize based on number of transitions out of a
+        # particular node, not number of total transitions
+        edge.normalize (frames - 1)
 
     return graph
 
@@ -137,7 +168,12 @@ def load (filename):
     amc = AMC.from_file (filename)
     bones = {}
     for (key, data) in amc.bones.iteritems ():
+        print 'building graph for',key
         g = build_graph (key, data)
+        if g is not None:
+            f = file ('graphs/%s.dot' % key, 'w')
+            DotPrint (g, f)
+            f.close ()
 
 if len (sys.argv) != 2:
     print 'Usage: %s [file.amc]' % sys.argv[0]
