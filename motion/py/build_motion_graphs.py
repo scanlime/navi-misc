@@ -157,10 +157,17 @@ def build_graph (key, d):
         data1 = data2
         node1 = node2
 
-    for edge in edge_map:
-        # FIXME - we want to normalize based on number of transitions out of a
-        # particular node, not number of total transitions
-        edge.normalize (frames - 1)
+    for vertex in vertex_map:
+        # Normalize probabilities for all edges coming out of a vertex. The sum
+        # of probabilities along edges coming out of any given vertex will be 1.
+        total = 0
+        edges = vertex_map.query (vertex)
+        for edge in edges:
+            if edge.u is vertex:
+                total += edge.count
+        for edge in edges:
+            if edge.u is vertex:
+                edge.normalize (total)
 
     return graph
 
