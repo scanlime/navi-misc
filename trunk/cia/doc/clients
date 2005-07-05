@@ -15,6 +15,14 @@ Mike Hearn wrote a client for GNU Arch. You can find it `on the arch wiki`_ or `
 .. _on the arch wiki: http://wiki.gnuarch.org/moin.cgi/CIA
 .. _stored locally: /clients/arch/cia_arch.py
 
+Bazaar
+------
+
+Robert Collins contributed a client for Bazaar_, using email delivery: `cia_baz.sh`_.
+
+.. _Bazaar: http://bazaar.canonical.com/
+.. _cia_baz.sh: /clients/baz/cia_baz.sh
+
 BitKeeper
 ---------
 
