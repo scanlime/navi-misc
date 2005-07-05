@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ## Hook script showing CIA client usage.
 ## See the very bottom for selection of archives/categories to inform
 ## CIA of
