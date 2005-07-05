@@ -199,20 +199,35 @@ class VertexMap (GraphRepresentation):
         except KeyError:
             return []
 
-    def onAdd(self, edge):
-        for vertex in (edge.u, edge.v):
+    def onAdd (self, edge):
+        # if we have a self-loop, we only want to add this edge once, since
+        # we'll get a dupe if we just add it the normal way
+        vertices = None
+        if edge.u is edge.v:
+            vertices = [edge.u]
+        else:
+            vertices = [edge.u, edge.v]
+
+        for vertex in vertices:
             if vertex not in self.data:
                 self.data[vertex] = [edge]
-                self.added(vertex)
+                self.added (vertex)
             else:
-                self.data[vertex].append(edge)
+                self.data[vertex].append (edge)
 
-    def onRemove(self, edge):
-        for vertex in (edge.u, edge.v):
-            self.data[vertex].remove(edge)
+    def onRemove (self, edge):
+        # similar check for self-loops
+        vertices = None
+        if edge.u is edge.v:
+            vertices = [edge.u]
+        else:
+            vertices = [edge.u, edge.v]
+
+        for vertex in vertices:
+            self.data[vertex].remove (edge)
             if not self.data[vertex]:
                 del self.data[vertex]
-                self.removed(vertex)
+                self.removed (vertex)
 
 class EdgeMap (GraphRepresentation):
     """A very simple graph representation that keeps a maping

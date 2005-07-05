@@ -62,19 +62,10 @@ class DotPrint:
             edges = self.vertexMap.query (vertex)
             for edge in edges:
                 if edge.u is vertex:
-                    if edge.u is edge.v:
-                        # self loop
-                        if edge.u not in self_loops:
-                            if hasattr (edge, 'dot_label') and edge.dot_label is not None:
-                                self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
-                            else:
-                                self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge))
-                            self_loops.add (edge.u)
+                    if hasattr (edge, 'dot_label') and edge.dot_label is not None:
+                        self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
                     else:
-                        if hasattr (edge, 'dot_label') and edge.dot_label is not None:
-                            self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
-                        else:
-                            self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge))
+                        self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge))
 
         self.printline (file, '}')
 
