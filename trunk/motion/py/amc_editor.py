@@ -47,6 +47,16 @@ class AMCEditor:
         get_widget ('menu_saveas')
         get_widget ('toplevel')
 
+        self._bone_store = gtk.TreeStore (str,           # name
+                                          gtk.gdk.Color, # color
+                                          object,        # bool - shown on curve window
+                                          object,        # bool - whether toggle is visible
+                                          str,           # bone index
+                                          int,           # dof index
+                                          int            # color index
+                                          )
+        self.widgets['bone_list'].set_model (self._bone_store)
+
     def main (self):
         gtk.main ()
 
