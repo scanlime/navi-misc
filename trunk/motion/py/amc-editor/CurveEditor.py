@@ -67,3 +67,14 @@ class CurveEditor (gtk.DrawingArea):
 
     def _create_back_buffer (self):
         self._back_buffer = gtk.gdk.Pixmap (self.window, self.allocation.width, self.allocation.height)
+
+    def set_title (self):
+        if self.filename is None:
+            toplevel.set_title ('AMC Editor')
+            return
+
+        # FIXME - should really just extract the last bit of the filename
+        if self.modified:
+            toplevel.set_title (self.filename + '*')
+        else:
+            toplevel.set_title (self.filename)
