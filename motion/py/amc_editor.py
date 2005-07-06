@@ -57,18 +57,22 @@ class AMCEditor:
                                           )
         self.widgets['bone_list'].set_model (self._bone_store)
 
+        self.update_toolbar_sensitivity ()
+        self.set_title ()
+        self.widgets['toplevel'].show_all ()
+
     def main (self):
         gtk.main ()
 
     def set_title (self):
         if self.filename is None:
-            toplevel.set_title ('AMC Editor')
+            self.widgets['toplevel'].set_title ('AMC Editor')
             return
 
         if self.modified:
-            toplevel.set_title (os.path.basename (self.filename) + '*')
+            self.widgets['toplevel'].set_title (os.path.basename (self.filename) + '*')
         else:
-            toplevel.set_title (os.path.basename (self.filename))
+            self.widgets['toplevel'].set_title (os.path.basename (self.filename))
 
     def update_toolbar_sensitivity (self):
         self.widgets['menu_save'].set_sensitive   (self.modified)
