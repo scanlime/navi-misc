@@ -64,3 +64,6 @@ class CurveEditor (gtk.DrawingArea):
 
         self._big_layout.set_font_description   ('Bitstream Vera Sans 8')
         self._small_layout.set_font_description ('Bitstream Vera Sans 6')
+
+    def _create_back_buffer (self):
+        self._back_buffer = gtk.gdk.Pixmap (self.window, self.allocation.width, self.allocation.height)
