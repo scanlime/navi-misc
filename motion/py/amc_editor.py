@@ -28,6 +28,8 @@ pygtk.require ('2.0')
 import gtk
 import gtk.glade
 
+from Motion import AMC
+
 class AMCEditor:
     def __init__ (self):
         self.widgets = {}
@@ -104,6 +106,18 @@ class AMCEditor:
         response = chooser.run ()
         chooser.hide ()
 
+        if response == gtk.RESPONSE_OK:
+            self.filename = chooser.get_filename ()
+            amc = AMC.from_file (self.filename)
+            self._bone_store.clear ()
+
+            if amc is None:
+                # FIXME - pop up error dialog
+                print 'Error loading',self.filename
+                self.filename = None
+            else:
+                self.set_title ()
+
         chooser.destroy ()
 
     def on_save (self, data=None):
@@ -116,7 +130,7 @@ class AMCEditor:
 
             response = chooser.run ()
 
-            if response is gtk.RESPONSE_OK:
+            if response == gtk.RESPONSE_OK:
                 self.filename = chooser.get_filename ()
                 self.amc.save (self.filename)
                 self.update_toolbar_sensitivity ()
