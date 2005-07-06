@@ -142,7 +142,7 @@ class SvnClient:
     """A CIA client for Subversion repositories. Uses svnlook to
     gather information"""
     name = 'Python Subversion client for CIA'
-    version = '1.15'
+    version = '1.16'
 
     def __init__(self, repository, revision, config):
         self.repository = repository
@@ -184,7 +184,7 @@ class SvnClient:
             if hasattr(self, name):
                 v = getattr(self, name)
                 if v is not None:
-                    s += "<%s>%s</%s>" % (name, escapeToXml(str(v)), name)
+                    s += "<%s>%s</%s>" % (name, escapeToXml(v), name)
         return s
 
     def makeGeneratorTag(self):
@@ -220,8 +220,11 @@ class SvnClient:
     def svnlook(self, command):
         """Run the given svnlook command on our current repository and
         revision, returning all output"""
-        return os.popen('svnlook %s -r "%s" "%s"' % \
-                        (command, self.revision, self.repository)).read()
+        # We have to set LC_ALL to force svnlook to give us UTF-8 output,
+        # then we explicitly slurp that into a unicode object.
+        return unicode(os.popen(
+            'LC_ALL="en_US.UTF-8" svnlook %s -r "%s" "%s"' %
+            (command, self.revision, self.repository)).read(), 'utf-8')
 
     def collectData(self):
         self.author = self.svnlook('author').strip()
@@ -283,6 +286,7 @@ def matchAgainstFiles(regex, files):
 
 
 def escapeToXml(text, isAttrib=0):
+    text = unicode(text)
     text = text.replace("&", "&amp;")
     text = text.replace("<", "&lt;")
     text = text.replace(">", "&gt;")
