@@ -79,8 +79,31 @@ class AMCEditor:
         self.widgets['menu_saveas'].set_sensitive (self.filename is not None)
 
     # signal handlers
-    def on_quit (self, *args):
+    def on_quit (self, data=None):
         gtk.main_quit ()
+
+    def on_delete_event (self, widget, data=None):
+        return False
+
+    def on_save (self, data=None):
+        if self.filename is None:
+            chooser = gtk.FileChooserDialog ('Save...', action = gtk.FILE_CHOOSER_ACTION_SAVE,
+                                             buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                                        gtk.STOCK_OPEN,   gtk.RESPONSE_OK))
+            chooser.set_default_response (gtk.RESPONSE_OK)
+            chooser.set_current_name (self.filename)
+
+            response = chooser.run ()
+
+            if response is gtk.RESPONSE_OK:
+                self.filename = chooser.get_filename ()
+                self.amc.save (self.filename)
+                self.update_toolbar_sensitivity ()
+
+            chooser.destroy ()
+        else:
+            self.amc.save (self.filename)
+            self.modified = False
 
 if __name__ == '__main__':
     editor = AMCEditor ()
