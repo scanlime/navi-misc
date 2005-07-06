@@ -48,9 +48,9 @@ class AMCEditor:
 
         # FIXME - should really just extract the last bit of the filename
         if self.modified:
-            toplevel.set_title (os.path.split (self.filename)[1] + '*')
+            toplevel.set_title (os.path.basename (self.filename) + '*')
         else:
-            toplevel.set_title (os.path.split (self.filename)[1])
+            toplevel.set_title (os.path.basename (self.filename))
 
     def update_toolbar_sensitivity (self):
         self.widgets['menu_save'].set_sensitive   (self.modified)
