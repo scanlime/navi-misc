@@ -38,6 +38,15 @@ class AMCEditor:
         self._glade = gtk.glade.XML (gladefile)
         self._glade.signal_autoconnect (self)
 
+        def get_widget (name):
+            self.widgets[name] = self._glade.get_widget (name)
+        get_widget ('bone_list')
+        get_widget ('curve_editor')
+        get_widget ('eventbox')
+        get_widget ('menu_save')
+        get_widget ('menu_saveas')
+        get_widget ('toplevel')
+
     def main (self):
         gtk.main ()
 
