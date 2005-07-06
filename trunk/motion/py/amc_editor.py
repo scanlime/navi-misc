@@ -20,16 +20,41 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+import os
+import sys
+
 import pygtk
-pygtk.require ('2.4')
+pygtk.require ('2.0')
 import gtk
+import gtk.glade
 
 class AMCEditor:
     def __init__ (self):
-        pass
+        self.widgets = {}
+        self.modified = False
+        self.filename = None
+
+        gladefile = os.path.join (os.path.dirname(sys.argv[0]), 'amc-editor', 'amc-editor.glade')
+        self._glade = gtk.glade.XML (gladefile)
+        self._glade.signal_autoconnect (self)
 
     def main (self):
         gtk.main ()
+
+    def set_title (self):
+        if self.filename is None:
+            toplevel.set_title ('AMC Editor')
+            return
+
+        # FIXME - should really just extract the last bit of the filename
+        if self.modified:
+            toplevel.set_title (os.path.split (self.filename)[1] + '*')
+        else:
+            toplevel.set_title (os.path.split (self.filename)[1])
+
+    def update_toolbar_sensitivity (self):
+        self.widgets['menu_save'].set_sensitive   (self.modified)
+        self.widgets['menu_saveas'].set_sensitive (self.filename is not None)
 
 if __name__ == '__main__':
     editor = AMCEditor ()
