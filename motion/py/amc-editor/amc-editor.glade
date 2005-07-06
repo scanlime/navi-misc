@@ -19,7 +19,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
-  <signal name="delete_event" handler="on_quit" last_modification_time="Wed, 06 Jul 2005 21:06:38 GMT"/>
+  <signal name="delete_event" handler="on_delete_event" last_modification_time="Wed, 06 Jul 2005 21:06:38 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox1">
@@ -45,7 +45,7 @@
 		      <property name="visible">True</property>
 		      <property name="label">gtk-open</property>
 		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="OnOpen" last_modification_time="Fri, 22 Apr 2005 22:46:36 GMT"/>
+		      <signal name="activate" handler="on_open" last_modification_time="Fri, 22 Apr 2005 22:46:36 GMT"/>
 		    </widget>
 		  </child>
 
@@ -54,7 +54,7 @@
 		      <property name="visible">True</property>
 		      <property name="label">gtk-save</property>
 		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="OnSave" last_modification_time="Fri, 22 Apr 2005 22:46:36 GMT"/>
+		      <signal name="activate" handler="on_save" last_modification_time="Fri, 22 Apr 2005 22:46:36 GMT"/>
 		    </widget>
 		  </child>
 
@@ -63,7 +63,7 @@
 		      <property name="visible">True</property>
 		      <property name="label">gtk-save-as</property>
 		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="OnSaveAs" last_modification_time="Fri, 22 Apr 2005 22:46:36 GMT"/>
+		      <signal name="activate" handler="on_save_as" last_modification_time="Fri, 22 Apr 2005 22:46:36 GMT"/>
 		    </widget>
 		  </child>
 
