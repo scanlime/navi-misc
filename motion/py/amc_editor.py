@@ -25,6 +25,7 @@ import sys
 
 import pygtk
 pygtk.require ('2.0')
+import gobject
 import gtk
 import gtk.glade
 
@@ -51,13 +52,31 @@ class AMCEditor:
 
         self._bone_store = gtk.TreeStore (str,           # name
                                           gtk.gdk.Color, # color
-                                          object,        # bool - shown on curve window
-                                          object,        # bool - whether toggle is visible
+                                          'gboolean',    # shown on curve window
+                                          'gboolean',    # whether toggle is visible
                                           str,           # bone index
                                           int,           # dof index
                                           int            # color index
                                           )
         self.widgets['bone_list'].set_model (self._bone_store)
+
+        # Create text column
+        text_column   = gtk.TreeViewColumn ()
+        text_renderer = gtk.CellRendererText ()
+        text_column.pack_start (text_renderer, True)
+        text_column.add_attribute (text_renderer, 'markup'        , 0)
+        #text_column.add_attribute (text_renderer, 'foreground-gdk', 1)
+        self.widgets['bone_list'].append_column (text_column)
+
+        # Create visibility toggle column
+        visible_column   = gtk.TreeViewColumn ()
+        visible_renderer = gtk.CellRendererToggle ()
+        visible_column.pack_start (visible_renderer, False)
+        visible_column.add_attribute (visible_renderer, 'active',  2)
+        visible_column.add_attribute (visible_renderer, 'visible', 3)
+        visible_renderer.activatable = True
+        # FIXME - callback
+        self.widgets['bone_list'].append_column (visible_column)
 
         self.update_toolbar_sensitivity ()
         self.set_title ()
@@ -118,6 +137,23 @@ class AMCEditor:
             else:
                 self.set_title ()
 
+                for (bone, data) in amc.bones.iteritems ():
+                    iter = self._bone_store.append (parent = None)
+                    self._bone_store.set_value (iter, 0, bone)
+                    self._bone_store.set_value (iter, 1, gtk.gdk.Color (0x00, 0x00, 0x00));
+                    self._bone_store.set_value (iter, 3, 0)
+
+                    for degree in range (data.shape[1]):
+                        iter2 = self._bone_store.append (parent = iter)
+                        self._bone_store.set (iter2, 0, '<b>%d</b>' % degree,
+                                                     #1, color,
+                                                     2, 0,
+                                                     3, 1,
+                                                     4, bone,
+                                                     5, degree,
+                                                     #6, color,
+                                                     )
+                self.modified = False
         chooser.destroy ()
 
     def on_save (self, data=None):
