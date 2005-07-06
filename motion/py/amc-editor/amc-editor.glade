@@ -76,7 +76,7 @@
 		      <property name="visible">True</property>
 		      <property name="label">gtk-quit</property>
 		      <property name="use_stock">True</property>
-		      <signal name="activate" handler="OnQuit" last_modification_time="Fri, 22 Apr 2005 22:46:36 GMT"/>
+		      <signal name="activate" handler="on_quit" last_modification_time="Fri, 22 Apr 2005 22:46:36 GMT"/>
 		    </widget>
 		  </child>
 		</widget>

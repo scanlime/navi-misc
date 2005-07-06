@@ -78,6 +78,10 @@ class AMCEditor:
         self.widgets['menu_save'].set_sensitive   (self.modified)
         self.widgets['menu_saveas'].set_sensitive (self.filename is not None)
 
+    # signal handlers
+    def on_quit (self, *args):
+        gtk.main_quit ()
+
 if __name__ == '__main__':
     editor = AMCEditor ()
     editor.main ()
