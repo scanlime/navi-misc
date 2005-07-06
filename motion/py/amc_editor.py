@@ -55,7 +55,6 @@ class AMCEditor:
             toplevel.set_title ('AMC Editor')
             return
 
-        # FIXME - should really just extract the last bit of the filename
         if self.modified:
             toplevel.set_title (os.path.basename (self.filename) + '*')
         else:
