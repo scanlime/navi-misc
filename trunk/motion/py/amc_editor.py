@@ -85,11 +85,32 @@ class AMCEditor:
     def on_delete_event (self, widget, data=None):
         return False
 
+    def on_open (self, data=None):
+        chooser = gtk.FileChooserDialog ('Open...', action = gtk.FILE_CHOOSER_ACTION_OPEN,
+                                         buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                                    gtk.STOCK_OPEN,   gtk.RESPONSE_OK))
+        # File filter - *.amc
+        filter = gtk.FileFilter ()
+        filter.add_pattern ('*.amc')
+        filter.set_name ('Acclaim Motion Capture (*.amc)')
+        chooser.add_filter (filter)
+
+        # File filter - all files
+        filter = gtk.FileFilter ()
+        filter.add_pattern ('*')
+        filter.set_name ('All files')
+        chooser.add_filter (filter)
+
+        response = chooser.run ()
+        chooser.hide ()
+
+        chooser.destroy ()
+
     def on_save (self, data=None):
         if self.filename is None:
             chooser = gtk.FileChooserDialog ('Save...', action = gtk.FILE_CHOOSER_ACTION_SAVE,
                                              buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                                                        gtk.STOCK_OPEN,   gtk.RESPONSE_OK))
+                                                        gtk.STOCK_SAVE,   gtk.RESPONSE_OK))
             chooser.set_default_response (gtk.RESPONSE_OK)
             chooser.set_current_name (self.filename)
 
