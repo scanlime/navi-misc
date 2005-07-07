@@ -392,7 +392,8 @@ class RulesetDelivery(object):
             e = sys.exc_info()[1]
             log.msg("Exception occurred in RulesetDelivery\n" +
                     "--- Original message\n%s\n--- Exception\n%s" %
-                    (message, "".join(traceback.format_exception(*sys.exc_info()))))
+                    (unicode(message).encode('ascii', 'replace'),
+		    "".join(traceback.format_exception(*sys.exc_info()))))
 
 
 class UnsupportedURI(Exception):
