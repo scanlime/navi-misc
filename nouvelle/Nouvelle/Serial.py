@@ -113,7 +113,7 @@ class tag:
             if key[0] == '_':
                 key = key[1:]
             if value is not None:
-                s += ' %s="%s"' % (key, escapeToXml(str(value), True))
+                s += ' %s="%s"' % (key, escapeToXml(value, True))
         return s
 
     def _setAttributes(self, attributes):
@@ -167,6 +167,10 @@ class subcontext:
 
 
 def escapeToXml(text, isAttrib=0):
+    if type(text) not in (unicode, str):
+        text = str(text)
+    if type(text) is unicode:
+        text = text.encode('utf-8')
     text = text.replace("&", "&amp;")
     text = text.replace("<", "&lt;")
     text = text.replace(">", "&gt;")
@@ -216,7 +220,7 @@ class Serializer:
         return self.render_list(obj, context)
 
     def render_quote(self, obj, context):
-        return xml(escapeToXml(str(self.render(obj.item, context))))
+        return xml(escapeToXml(self.render(obj.item, context)))
 
     def render_function(self, obj, context):
         return self.render(obj(context), context)
@@ -233,7 +237,7 @@ class Serializer:
         return self.render(obj.content, newContext)
 
     def render_other(self, obj, context):
-        return xml(escapeToXml(str(obj)))
+        return xml(escapeToXml(obj))
 
 
 class DocumentOwner(object):
