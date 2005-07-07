@@ -560,7 +560,7 @@ class ModularFormatter(Formatter):
            whitespace. Subclasses should override this if they're formatting Nouvelle
            trees or other non-string data types.
            """
-        return re.sub(r'[ \t]+', ' ', ''.join(map(str, results))).strip()
+        return re.sub(r'[ \t]+', ' ', ''.join(map(unicode, results))).strip()
 
 
 filterCache = {}
