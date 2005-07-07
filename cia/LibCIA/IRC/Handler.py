@@ -93,7 +93,7 @@ class IrcURIHandler(Ruleset.RegexURIHandler):
         del self.queueMap[uri]
 
     def message(self, uri, message, content):
-        self.queueMap[uri].send(str(content))
+        self.queueMap[uri].send(unicode(content).encode('utf-8'))
 
     def rulesetsRefreshed(self):
         """Synchronize our requests with the server's only once rulesets have

@@ -277,7 +277,7 @@ class Messages(object):
                                          "INSERT INTO stats_messages (target_path, xml, timestamp)"
                                          " VALUES(%s, %s, %s)" %
                                          (Database.quote(self.target.path, 'varchar'),
-                                          Database.quote(message, 'text'),
+                                          Database.quote(unicode(message).encode('utf-8'), 'text'),
                                           timestamp))
 
         # Delete old messages as we go
@@ -304,7 +304,7 @@ class Messages(object):
 
     def getLatest(self, limit=None):
         """Return the most recent messages as (id, xml) tuples, optionally up to a provided
-           maximum value. The messages are returned in reverse chronological order.
+           maximum value. The messages are returned in reverse chronological order, encoded in UTF-8.
            """
         return Database.pool.runInteraction(self._getLatest, limit)
 
@@ -331,7 +331,7 @@ class Messages(object):
                         Database.quote(id, 'bigint')))
         row = cursor.fetchone()
         if row:
-            return row[0]
+            return unicode(row[0], 'utf-8')
 
 
 class Counters:
