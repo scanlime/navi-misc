@@ -26,7 +26,6 @@ and support for asynchronous rendering using Deferred.
 import Nouvelle
 from Nouvelle import xml
 from twisted.internet import defer
-from twisted.web import http
 from twisted.web import server, error, resource
 
 
@@ -133,7 +132,10 @@ class Page(resource.Resource):
     serializer = TwistedSerializer()
 
     def render(self, request):
-        context  = {
+        # Nouvelle encodes unicode to UTF-8 automagically by default
+	request.setHeader('Content-Type', 'text/html; charset="utf-8"')
+	
+	context  = {
             'owner': self,
             'request': request,
             'args': request.args,  # For compatibility across systems utilizing Nouvelle
