@@ -320,7 +320,6 @@ class Page(Nouvelle.Twisted.Page):
 
         tag('html', xmlns="http://www.w3.org/1999/xhtml")[
             tag('head')[
-                xml('<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />'),
                 tag('title')[ place("pageTitle") ],
                 place('baseTag'),
                 tag('link', rel='stylesheet', href='/default.css', type='text/css'),
