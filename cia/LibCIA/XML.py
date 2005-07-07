@@ -268,6 +268,10 @@ def addElement(node, name, content=None, attributes={}):
 parseStream = minidom.parse
 
 def parseString(string):
+    # Grarr.. minidom can't directly parse Unicode objects
+    if type(string) is unicode:
+        string = string.encode('utf-8')
+    
     try:
         return minidom.parseString(string)
     except:
