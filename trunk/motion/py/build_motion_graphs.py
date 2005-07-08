@@ -42,7 +42,7 @@ class ProbabilityEdge (Edge):
 
     def normalize (self, total):
         self.weight = float (self.count) / total
-        self.dot_label = '%f' % self.weight
+        self.dot_label = '%.2f' % self.weight
 
 class MotionGraph (Graph):
     __slots__ = ['nodes']
@@ -59,7 +59,7 @@ class MotionGraphNode:
 
         extents = []
         for i in range (len (mins)):
-            extents.append ('[%f, %f]' % (mins[i], maxs[i]))
+            extents.append ('[%.2f, %.2f]' % (mins[i], maxs[i]))
         self.dot_label = '\\n'.join (extents)
 
     def inside (self, point):
