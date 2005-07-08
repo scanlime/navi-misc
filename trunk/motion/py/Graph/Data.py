@@ -229,9 +229,9 @@ class VertexMap (GraphRepresentation):
                 del self.data[vertex]
                 self.removed (vertex)
 
-class EdgeMap (GraphRepresentation):
-    """A very simple graph representation that keeps a maping
-       between (u,v) pairs and edge objects.
+class EdgeList (GraphRepresentation):
+    """A very simple graph representation that keeps a map between
+       (u,v) pairs and edge objects.
        """
 
     def __init__ (self, graph):
