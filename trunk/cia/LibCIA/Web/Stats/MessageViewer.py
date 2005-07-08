@@ -133,7 +133,7 @@ class UnformattedMessagePage(resource.Resource):
     def _render(self, xml, request):
         if xml:
             request.setHeader('content-type', 'text/xml')
-            request.write(xml)
+            request.write(unicode(xml).encode('utf-8'))
             request.finish()
         else:
             request.write(error.NoResource("Message #%d not found" % self.id).render(request))
