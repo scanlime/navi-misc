@@ -30,6 +30,7 @@ import gtk
 import gtk.glade
 
 from Motion import AMC
+from amc_editor.CurveEditor import CurveEditor
 
 class AMCEditor:
     def __init__ (self):
@@ -37,7 +38,9 @@ class AMCEditor:
         self.modified = False
         self.filename = None
 
-        gladefile = os.path.join (os.path.dirname(sys.argv[0]), 'amc-editor', 'amc-editor.glade')
+        gtk.glade.set_custom_handler (self.glade_custom_handler)
+
+        gladefile = os.path.join (os.path.dirname(sys.argv[0]), 'amc_editor', 'amc-editor.glade')
         self._glade = gtk.glade.XML (gladefile)
         self._glade.signal_autoconnect (self)
 
@@ -175,6 +178,10 @@ class AMCEditor:
         else:
             self.amc.save (self.filename)
             self.modified = False
+
+    def glade_custom_handler (self, glade, func_name, name, str1, str2, int1, int2):
+        if func_name == 'CurveEditor':
+            return CurveEditor ()
 
 if __name__ == '__main__':
     editor = AMCEditor ()
