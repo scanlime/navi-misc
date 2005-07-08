@@ -21,7 +21,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeMap
+from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeList
 from Graph.Algorithms import DotPrint
 from Motion import AMC
 
@@ -87,7 +87,7 @@ def build_graph (key, d):
     graph = MotionGraph ()
     adjacency_list = AdjacencyList (graph)
     vertex_map = VertexMap (graph)
-    edge_map = EdgeMap (graph)
+    edge_list = EdgeList (graph)
 
     # it's silly to have angle values outside of [0,360]
     # dunno if this will handle <0
@@ -136,11 +136,11 @@ def build_graph (key, d):
         # check to see if it's a self-loop
         if node1 is node2:
             try:
-                edge = edge_map.query (node1, node2)
+                edge = edge_list.query (node1, node2)
                 edge.visit ()
             except KeyError:
                 try:
-                    edge = edge_map.query (node2, node1)
+                    edge = edge_list.query (node2, node1)
                     edge.visit ()
                 except KeyError:
                     edge = ProbabilityEdge (node1, node2)
@@ -148,7 +148,7 @@ def build_graph (key, d):
                     graph.addList ([edge])
         else:
             try:
-                edge = edge_map.query (node1, node2)
+                edge = edge_list.query (node1, node2)
                 edge.visit ()
             except KeyError:
                 edge = ProbabilityEdge (node1, node2)
