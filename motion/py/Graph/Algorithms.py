@@ -2,6 +2,9 @@
 
 Various algorithms which work themselves upon the appropriate
 GraphRepresentations to make them fast(ish)
+
+DFS and topoSort implementations originally Copyright (C)
+    the Python Mission Control Kit team
 """
 
 import Data
