@@ -37,10 +37,10 @@ class CurveEditor (gtk.DrawingArea):
     def _init_graphics (self):
         self._colors = {}
 
-        white = new gtk.gdk.Color (0xff, 0xff, 0xff)
-        grey  = new gtk.gdk.Color (0xde, 0xde, 0xde)
-        black = new gtk.gdk.Color (0x00, 0x00, 0x00)
-        lasso = new gtk.gdk.Color (0xa0, 0xa0, 0xa0)
+        white = gtk.gdk.Color (0xff, 0xff, 0xff)
+        grey  = gtk.gdk.Color (0xde, 0xde, 0xde)
+        black = gtk.gdk.Color (0x00, 0x00, 0x00)
+        lasso = gtk.gdk.Color (0xa0, 0xa0, 0xa0)
 
         self._colors['white'] = gtk.gdk.GC (self.window)
         self._colors['grey']  = gtk.gdk.GC (self.window)
@@ -67,3 +67,6 @@ class CurveEditor (gtk.DrawingArea):
 
     def _create_back_buffer (self):
         self._back_buffer = gtk.gdk.Pixmap (self.window, self.allocation.width, self.allocation.height)
+
+    def _set_scroll_adjustments (self, hadjustment, vadjustment, data=None):
+        pass
