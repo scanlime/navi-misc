@@ -153,5 +153,3 @@ xg_get_chan_list ()
 }
 
 /*** The End ***/
-/* vim:ts=3:sw=3
- */
