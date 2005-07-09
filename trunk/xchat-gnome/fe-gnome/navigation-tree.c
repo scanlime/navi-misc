@@ -1425,5 +1425,3 @@ on_channel_bans (GtkAction * action, gpointer data)
 }
 
 /*** The End ***/
-/* vim:ts=8:sw=4:softtabstop=4
- */

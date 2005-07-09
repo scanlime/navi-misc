@@ -46,5 +46,3 @@ char *load_plugin (session * sess, char *filename, char *arg);
 
 #endif
 /*** The End ***/
-/* vim:ts=3:sw=3
- */

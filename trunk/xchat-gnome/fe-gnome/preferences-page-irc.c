@@ -342,6 +342,3 @@ preferences_page_irc_free (PreferencesIrcPage *page)
 	gdk_pixbuf_unref (page->icon);
 	g_free (page);
 }
-
-/* vim:ts=3:sw=3
- */

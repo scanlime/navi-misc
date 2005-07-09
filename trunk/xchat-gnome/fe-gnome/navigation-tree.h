@@ -142,5 +142,3 @@ G_END_DECLS
 #endif
 
 /*** The End ***/
-/* vim:ts=8:sw=4:softtabstop=4
- */

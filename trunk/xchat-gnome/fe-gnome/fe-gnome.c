@@ -788,7 +788,7 @@ fe_get_int (char *msg, int def, void *callback, void *userdata)
 {
     GtkWidget *dialog;
     GtkWidget *spin;
-    GtkWidget *hbox;
+	GtkWidget *hbox;
     GtkWidget *label;
     GtkAdjustment *adj;
 
@@ -841,5 +841,3 @@ fe_open_url (const char *url)
 }
 
 /*** The End ***/
-/* vim:ts=8:sw=4:softtabstop=4
- */

@@ -316,6 +316,3 @@ preferences_page_plugins_free (PreferencesPluginsPage *page)
 	g_object_unref (page->plugin_store);
 	g_free (page);
 }
-
-/* vim:ts=3:sw=3
- */
