@@ -24,12 +24,8 @@ import gtk.gdk
 import pango
 
 class CurveEditor (gtk.DrawingArea):
-    __gsignals__ = {
-        'set-scroll-adjustments' : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gtk.Adjustment, gtk.Adjustment))
-    }
-
     def __init__ (self):
-        gobject.GObject.__init__ (self)
+        gtk.DrawingArea.__init__ (self)
 
         self._enabled_bones = {}
         self._pad_positions = []

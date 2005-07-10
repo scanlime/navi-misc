@@ -52,6 +52,10 @@ class AMCEditor:
         get_widget ('menu_save')
         get_widget ('menu_saveas')
         get_widget ('toplevel')
+        get_widget ('hscroll')
+        get_widget ('vscroll')
+
+        self.widgets['curve_editor'].set_scroll_adjustments (self.widgets['hscroll'], self.widgets['vscroll'])
 
         self._bone_store = gtk.TreeStore (str,           # name
                                           gtk.gdk.Color, # color
