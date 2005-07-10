@@ -22,6 +22,13 @@ Simple utilities for unit conversions
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+def datetimeTicks(d):
+    """Convert a datetime object back to Unix-style ticks"""
+    import time
+    return (time.mktime((d.year, d.month, d.day, 
+                         d.hour, d.minute, d.second, 0, 0, -1)) +
+            d.microsecond / 1000000.0)
+
 def degCtoF(degC):
     """Convert degrees centigrade to fahrenheit"""
     return degC * 9.0 / 5.0 + 32
