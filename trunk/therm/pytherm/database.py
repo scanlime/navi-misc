@@ -130,14 +130,14 @@ class ThermDatabase:
 
 
 def getDatabaseHost():
-    """Normally the database is located on navi, but if this
-       script is running on navi we shoud specify localhost
+    """Normally the database is located on zero, but if this
+       script is running on zero we shoud specify localhost
        for the security db to find us.
        """
-    if os.uname()[1] == "navi":
+    if os.uname()[1] == "zero":
         return "localhost"
     else:
-        return "navi"
+        return "zero.navi.cx"
 
 def open(cache=[None]):
     """Open a default database connection, with a very low-privilege
