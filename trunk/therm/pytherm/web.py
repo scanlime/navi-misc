@@ -92,7 +92,7 @@ def renderBatteryBargraph(latest):
 def renderTimestamp(latest):
     if 'time' not in latest:
         return "No packets received"
-    delta = time.time() - latest['time'].ticks()
+    delta = time.time() - units.datetimeTicks(latest['time'])
     return [
         units.time.format(delta), " ago",
         ]
@@ -105,7 +105,7 @@ def getSourceRrd(source, key, filter=None):
             if value is not None:
                 if filter:
                     value = filter(value)
-                yield packet['id'], packet['time'].ticks(), value
+                yield packet['id'], units.datetimeTicks(packet['time']), value
 
     rrdf = rrd.RrdFile("%s-%s" % (source.name, key))
     rrdf.update(dataGenerator)
@@ -134,7 +134,7 @@ def getPacketLossRrd(source, sequenceMask=31):
                 # situations for now.
                 loss = max(0, delta - 1)
 
-                yield packet['id'], packet['time'].ticks(), loss
+                yield packet['id'], units.datetimeTicks(packet['time']), loss
             prev = value
 
     rrdf = rrd.RrdFile("%s-sequence-deltas" % source.name)
