@@ -27,6 +27,7 @@ class CurveEditor (gtk.DrawingArea):
     def __init__ (self):
         gtk.DrawingArea.__init__ (self)
 
+        self._colors = None
         self._enabled_bones = {}
         self._pad_positions = []
         self._selected_pads = []
@@ -36,6 +37,9 @@ class CurveEditor (gtk.DrawingArea):
         self._visible_range = (0, 0)
         self._grabbed = False
         self._lasso = False
+
+        self.connect_after ('expose-event', self.on_expose_event)
+        self.connect_after ('configure-event', self.on_configure_event)
 
     def _init_graphics (self):
         self._colors = {}
@@ -65,26 +69,43 @@ class CurveEditor (gtk.DrawingArea):
         self._big_layout   = self.create_pango_layout ('')
         self._small_layout = self.create_pango_layout ('')
 
-        self._big_layout.set_font_description   ('Bitstream Vera Sans 8')
-        self._small_layout.set_font_description ('Bitstream Vera Sans 6')
+        self._big_layout.set_font_description   (pango.FontDescription ('Bitstream Vera Sans 8'))
+        self._small_layout.set_font_description (pango.FontDescription ('Bitstream Vera Sans 6'))
 
     def _create_back_buffer (self):
         self._back_buffer = gtk.gdk.Pixmap (self.window, self.allocation.width, self.allocation.height)
+
+    def _draw (self):
+        if self._colors is None:
+            self._init_graphics ()
+
+        self._back_buffer.draw_rectangle (self._colors['grey'], True, 0, 0, self.allocation.width, self.allocation.height)
 
     def set_scroll_adjustments (self, hadjustment, vadjustment, data=None):
         self.hadj = hadjustment
         self.vadj = vadjustment
 
-        self.hadj.lower          = 0;
-        self.hadj.upper          = 1;
-        self.hadj.step_increment = 0;
-        self.hadj.page_size      = 1;
-        self.hadj.page_increment = 0;
-        self.hadj.value          = 0;
+        self.hadj.lower          = 0
+        self.hadj.upper          = 1
+        self.hadj.step_increment = 0
+        self.hadj.page_size      = 1
+        self.hadj.page_increment = 0
+        self.hadj.value          = 0
 
-        self.vadj.lower          = 0;
-        self.vadj.upper          = 1;
-        self.vadj.step_increment = 0;
-        self.vadj.page_size      = 1;
-        self.vadj.page_increment = 0;
-        self.vadj.value          = 0;
+        self.vadj.lower          = 0
+        self.vadj.upper          = 1
+        self.vadj.step_increment = 0
+        self.vadj.page_size      = 1
+        self.vadj.page_increment = 0
+        self.vadj.value          = 0
+
+    def on_configure_event (self, widget, event, data=None):
+        self.hadj.page_size      = event.width
+        self.hadj.page_increment = event.width
+
+        self._create_back_buffer ()
+        self._draw ()
+
+    def on_expose_event (self, widget, event, data=None):
+        self.window.draw_drawable (self._colors['grey'], self._back_buffer, event.area.x, event.area.y, event.area.x, event.area.y, event.area.width, event.area.height)
+
