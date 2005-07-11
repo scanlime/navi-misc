@@ -58,6 +58,9 @@ class Graph (object):
             except:
                 pass
 
+    def has_representation (self, representation):
+        return self.representations.has_key (representation)
+
     def addList (self, edges):
         """Add multiple edges at once, from any iterable source.
            Returns the list of edges actually added.
@@ -124,7 +127,7 @@ class GraphRepresentation (object):
        able to store edges added before they were attached.
        """
     def __init__ (self, graph):
-        if graph.representations.has_key (self.__class__):
+        if graph.has_representation (self.__class__):
             return graph.representations[self.__class__]
         self.graph = graph;
         graph.add.observe (self.onAdd)

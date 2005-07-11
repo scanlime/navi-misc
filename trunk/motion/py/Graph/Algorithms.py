@@ -140,6 +140,21 @@ class DFS:
         l.sort()
         return [i[2] for i in l]
 
+def Relax (edge, weightf, distance, precedessors):
+    """Relaxation of path constraint, used in pathfinding algorithms.
+
+       Test whether we can improve the shortest path to v."""
+    w = weightf (edge)
+    if distance[edge.v] > (distance[edge.u] + w):
+        distance[edge.v] = distance[edge.u] + w
+        predecessors[edge.v] = edge.u
+
+class Dijkstra:
+    """An implementation of Dijkstra's single-source shortest
+       path algorithm, described on page 521 of 'Introduction to
+       Algorithms'.
+       """
+
 class DotPrint:
     """Simple graph walker which prints the graph as a dot(1) file.
        By default, vertexes are visited in dictionary key order, but
