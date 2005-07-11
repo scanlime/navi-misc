@@ -7,7 +7,7 @@ Installing PyRCPOD for Windows
  Download and run the following installers, in this order:
 
  http://www.python.org/ftp/python/2.3/Python-2.3.exe
- http://umn.dl.sourceforge.net/sourceforge/gladewin32/gtk-win32-2.4.14-rc3.exe
+ http://internap.dl.sourceforge.net/sourceforge/gladewin32/gtk-win32-2.4.14-rc3.exe
  http://www.pcpm.ucl.ac.be/~gustin/win32_ports/binaries/pygtk-2.4.1-2.win32-py2.3.exe
 
 3. Install the PyRCPOD package
