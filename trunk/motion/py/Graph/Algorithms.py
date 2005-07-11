@@ -172,6 +172,8 @@ class DotPrint:
 
        """
 
+    desired_representation = Data.VertexMap
+
     def __init__ (self, graph, file=None):
         try:
             self.vertexMap = graph.representations[Data.VertexMap]

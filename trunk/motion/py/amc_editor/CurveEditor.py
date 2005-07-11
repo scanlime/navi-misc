@@ -81,6 +81,8 @@ class CurveEditor (gtk.DrawingArea):
 
         self._back_buffer.draw_rectangle (self._colors['grey'], True, 0, 0, self.allocation.width, self.allocation.height)
 
+        # FIXME - more
+
     def set_scroll_adjustments (self, hadjustment, vadjustment, data=None):
         self.hadj = hadjustment
         self.vadj = vadjustment

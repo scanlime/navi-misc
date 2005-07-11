@@ -48,7 +48,7 @@ class MotionGraph (Graph):
     __slots__ = ['nodes']
 
     def __init__ (self):
-        Graph.__init__ (self)
+        Graph.__init__ (self, [DotPrint])
 
 class MotionGraphNode:
     __slots__ = ['mins', 'maxs']
