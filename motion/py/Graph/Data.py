@@ -48,9 +48,15 @@ class Graph (object):
        """
     edgeClass = Edge
 
-    def __init__ (self):
+    def __init__ (self, algorithms=[]):
         Observable.attachEvents (self, 'add', 'remove')
         self.representations = {}
+
+        for algorithm in algorithms:
+            try:
+                self.representations.append (algorithm.desired_representation ())
+            except:
+                pass
 
     def addList (self, edges):
         """Add multiple edges at once, from any iterable source.
@@ -118,6 +124,8 @@ class GraphRepresentation (object):
        able to store edges added before they were attached.
        """
     def __init__ (self, graph):
+        if graph.representations.has_key (self.__class__):
+            return graph.representations[self.__class__]
         self.graph = graph;
         graph.add.observe (self.onAdd)
         graph.remove.observe (self.onRemove)
