@@ -2,6 +2,7 @@ bin_PROGRAMS = xchat-gnome
 
 INCLUDES =					\
 	$(GUI_CFLAGS)				\
+	$(LIBSEXY_CFLAGS)			\
 	-DXCHATSHAREDIR="\"$(xchat_gnomedir)\""	\
 	-DXCHATLIBDIR="\"$(xchatlibdir)\""
 
@@ -97,7 +98,10 @@ EXTRA_DIST =					\
 	$(desktop_DATA)				\
 	apps_xchat.schemas
 
-xchat_gnome_LDADD = ../common/libxchatcommon.a $(GUI_LIBS)
+xchat_gnome_LDADD =				\
+	../common/libxchatcommon.a		\
+	$(GUI_LIBS)				\
+	$(LIBSEXY_LIBS)
 xchat_gnome_SOURCES =				\
 	about.h					\
 	about.c					\
