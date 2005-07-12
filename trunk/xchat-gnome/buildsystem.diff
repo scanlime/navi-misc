@@ -4,7 +4,7 @@ RCS file: /cvsroot/xchat/xchat2/configure.in,v
 retrieving revision 1.81
 diff -u -r1.81 configure.in
 --- configure.in	6 Jul 2005 07:19:28 -0000	1.81
-+++ configure.in	12 Jul 2005 08:04:00 -0000
++++ configure.in	12 Jul 2005 22:15:54 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
@@ -61,7 +61,7 @@ diff -u -r1.81 configure.in
  	zvt=no
  	COMMON_LIBS="$GLIB_LIBS"
  	COMMON_CFLAGS="$GLIB_CFLAGS"
-@@ -173,22 +184,38 @@
+@@ -173,22 +184,47 @@
  GUI_LIBS="$GUI_LIBS $GTK_LIBS"
  GUI_CFLAGS="$GUI_CFLAGS $GTK_CFLAGS"
  
@@ -113,10 +113,19 @@ diff -u -r1.81 configure.in
 +# GConf
 +AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
 +AM_GCONF_SOURCE_2
++
++# soft dependency on libsexy
++LIBSEXY_CFLAGS="`$pkgconfigpath --cflags libsexy 2>/dev/null`"
++if test "_$LIBSEXY_CFLAGS" != _ ; then
++	LIBSEXY_LIBS="`$pkgconfigpath --libs libsexy`";
++	LIBSEXY_CFLAGS="$LIBSEXY_CFLAGS -DHAVE_LIBSEXY"
++	AC_SUBST(LIBSEXY_CFLAGS)
++	AC_SUBST(LIBSEXY_LIBS)
++fi
  
  dnl *********************************************************************
  dnl ** XFT **************************************************************
-@@ -467,9 +494,12 @@
+@@ -467,9 +503,12 @@
  AM_CONDITIONAL(USE_OPENSSL, test "x$openssl" = "xyes")
  AM_CONDITIONAL(DO_TEXT, test "x$textfe" = "xyes")
  AM_CONDITIONAL(DO_GTK, test "x$gtkfe" = "xyes")
@@ -129,7 +138,7 @@ diff -u -r1.81 configure.in
  AM_CONDITIONAL(DO_PLUGIN, test "x$plugin" = "xyes")
  
  dnl *********************************************************************
-@@ -563,6 +593,10 @@
+@@ -563,6 +602,10 @@
  	fi
  fi
  
@@ -140,7 +149,7 @@ diff -u -r1.81 configure.in
  dnl *********************************************************************
  dnl ** FUNCTIONS/LIBS/CFLAGS ********************************************
  dnl *********************************************************************
-@@ -653,12 +687,16 @@
+@@ -653,12 +696,16 @@
  src/Makefile
  src/common/Makefile
  src/fe-text/Makefile
@@ -157,7 +166,7 @@ diff -u -r1.81 configure.in
  intl/Makefile
  po/Makefile.in
  ])
-@@ -666,10 +704,14 @@
+@@ -666,10 +713,14 @@
  echo
  echo xchat $VERSION
  echo
@@ -181,7 +190,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.4
 diff -u -r1.4 Makefile.am
 --- plugins/Makefile.am	13 Jan 2003 07:29:36 -0000	1.4
-+++ plugins/Makefile.am	12 Jul 2005 08:04:01 -0000
++++ plugins/Makefile.am	12 Jul 2005 22:15:54 -0000
 @@ -1,10 +1,10 @@
  # temp. solution while mailcheck & xdcc arn't in SUBDIRS
 -EXTRA_DIST = plugin20.html Make.plugin plugin-conf.in \
@@ -220,7 +229,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/mailcheck/Makefile.am,v
 retrieving revision 1.1
 diff -u -r1.1 Makefile.am
 --- plugins/mailcheck/Makefile.am	17 Dec 2002 15:36:39 -0000	1.1
-+++ plugins/mailcheck/Makefile.am	12 Jul 2005 08:04:01 -0000
++++ plugins/mailcheck/Makefile.am	12 Jul 2005 22:15:54 -0000
 @@ -10,7 +10,6 @@
  
  # This file must be in the form PLUGIN-config.h.in, it can be empty but
@@ -235,7 +244,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/perl/Makefile.am,v
 retrieving revision 1.10
 diff -u -r1.10 Makefile.am
 --- plugins/perl/Makefile.am	29 Mar 2005 05:11:50 -0000	1.10
-+++ plugins/perl/Makefile.am	12 Jul 2005 08:04:01 -0000
++++ plugins/perl/Makefile.am	12 Jul 2005 22:15:54 -0000
 @@ -13,3 +13,5 @@
  CLEANFILES = xchat.pm.h
  xchat.pm.h: Xchat.pm IRC.pm
@@ -248,7 +257,7 @@ RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	12 Jul 2005 08:05:15 -0000
++++ src/Makefile.am	12 Jul 2005 22:17:08 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
@@ -265,7 +274,7 @@ RCS file: /cvsroot/xchat/xchat2/src/pixmaps/Makefile.am,v
 retrieving revision 1.8
 diff -u -r1.8 Makefile.am
 --- src/pixmaps/Makefile.am	9 Jan 2003 06:22:30 -0000	1.8
-+++ src/pixmaps/Makefile.am	12 Jul 2005 08:05:15 -0000
++++ src/pixmaps/Makefile.am	12 Jul 2005 22:17:08 -0000
 @@ -14,5 +14,8 @@
  CLEANFILES = $(noinst_HEADERS)
  EXTRA_DIST = $(PNGS) makefile.msc
