@@ -32,6 +32,10 @@
 #include "../common/fe.h"
 #include "../common/servlist.h"
 
+#ifdef HAVE_LIBSEXY
+#include <libsexy/sexy-url-label.h>
+#endif
+
 /***** NavTree *****/
 static void navigation_tree_init (NavTree * navtree);
 static void navigation_tree_class_init (NavTreeClass * klass);
@@ -261,7 +265,12 @@ navigation_tree_create_new_channel_entry (NavTree * navtree, struct session *ses
 
     navigation_tree_select_session (navtree, sess);
 
+#ifdef HAVE_LIBSEXY
+    /* FIXME: need to enclose URLs in <a> tags */
+    sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), sess->topic);
+#else
     gtk_label_set_text (GTK_LABEL (gui.topic_label), sess->topic);
+#endif
     net = sess->server->network;
     if (net == NULL)
 	rename_main_window (NULL, sess->channel);
@@ -926,7 +935,12 @@ navigation_selection_changed (GtkTreeSelection * treeselection, gpointer user_da
 	tgui = (session_gui *) sess->gui;
 	if (tgui) {
 	    /* Set the topic. */
+#ifdef HAVE_LIBSEXY
+	    /* FIXME: need to enclose URLs in <a> tags */
+	    sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), tgui->topic);
+#else
 	    gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
+#endif
 
 	    /* Show the xtext buffer for the session. */
 	    gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);

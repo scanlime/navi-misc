@@ -29,6 +29,10 @@
 #include <libgnome/gnome-url.h> /* gnome_url_show */
 #include <gconf/gconf-client.h>
 
+#ifdef HAVE_LIBSEXY
+#include <libsexy/sexy-url-label.h>
+#endif
+
 int check_word (GtkWidget *xtext, char *word, int len);
 void clicked_word (GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
 void font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data);
@@ -249,8 +253,14 @@ set_gui_topic (session *sess, char *topic)
 			tgui->topic = g_strdup (sess->topic);
 	else
 		tgui->topic = g_strdup (topic);
-	if (sess == gui.current_session)
+	if (sess == gui.current_session) {
+#ifdef HAVE_LIBSEXY
+		/* FIXME: need to enclose URLs in <a> tags */
+		sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), tgui->topic);
+#else
 		gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
+#endif
+	}
 }
 
 void
