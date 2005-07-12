@@ -840,4 +840,16 @@ fe_open_url (const char *url)
     }
 }
 
+int
+fe_menu_del (char *path, char *label)
+{
+	/* FIXME: implement */
+}
+
+int
+fe_menu_add (int pos, char *path, char *label, char *cmd, char *ucmd, int *state)
+{
+	/* FIXME: implement */
+}
+
 /*** The End ***/
