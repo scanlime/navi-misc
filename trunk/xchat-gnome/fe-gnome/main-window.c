@@ -40,6 +40,10 @@
 #include <gtkspell/gtkspell.h>
 #endif
 
+#ifdef HAVE_LIBSEXY
+#include <libsexy/sexy-url-label.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -387,11 +391,17 @@ initialize_main_window ()
 	close = glade_xml_get_widget (gui.xml, "close discussion");
 	g_signal_connect (G_OBJECT (close), "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
 	topicbox = glade_xml_get_widget (gui.xml, "topic hbox");
-	gui.topic_label = GTK_LABEL (gtk_label_new(""));
-	gtk_widget_show (GTK_WIDGET (gui.topic_label));
-	gtk_box_pack_start (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_label), TRUE, TRUE, 0);
-	gtk_box_reorder_child (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_label), 1);
-	gtk_label_set_selectable (gui.topic_label, TRUE);
+
+#ifdef HAVE_LIBSEXY
+	gui.topic_label = sexy_url_label_new ();
+#else
+	gui.topic_label = gtk_label_new("");
+#endif
+	gtk_widget_show (gui.topic_label);
+
+	gtk_box_pack_start (GTK_BOX (topicbox), gui.topic_label, TRUE, TRUE, 0);
+	gtk_box_reorder_child (GTK_BOX (topicbox), gui.topic_label, 1);
+	gtk_label_set_selectable (GTK_LABEL (gui.topic_label), TRUE);
 #if (GTK_CHECK_VERSION(2,5,0))
 	gui.topic_expander = GTK_EXPANDER (gtk_expander_new (NULL));
 	gtk_widget_show (GTK_WIDGET (gui.topic_expander));
@@ -400,9 +410,9 @@ initialize_main_window ()
 	gtk_expander_set_expanded (GTK_EXPANDER (gui.topic_expander), FALSE);
 	gtk_expander_set_use_markup (gui.topic_expander, TRUE);
 	g_signal_connect (G_OBJECT (gui.topic_expander), "activate", G_CALLBACK (on_expand_topic), NULL);
-	gtk_label_set_ellipsize (gui.topic_label, PANGO_ELLIPSIZE_END);
+	gtk_label_set_ellipsize (GTK_LABEL (gui.topic_label), PANGO_ELLIPSIZE_END);
 #else
-	gtk_label_set_line_wrap (gui.topic_label, TRUE);
+	gtk_label_set_line_wrap (GTK_LABEL (gui.topic_label), TRUE);
 #endif
 
 	/* Hook up accelerators for pgup/pgdn */
@@ -1239,11 +1249,11 @@ static void
 on_expand_topic (GtkExpander *expander, gpointer data)
 {
 	if (gtk_expander_get_expanded (gui.topic_expander)) {
-		gtk_label_set_ellipsize(gui.topic_label, PANGO_ELLIPSIZE_END);
-		gtk_label_set_line_wrap (gui.topic_label, FALSE);
+		gtk_label_set_ellipsize(GTK_LABEL (gui.topic_label), PANGO_ELLIPSIZE_END);
+		gtk_label_set_line_wrap (GTK_LABEL (gui.topic_label), FALSE);
 	} else {
-		gtk_label_set_ellipsize(gui.topic_label, PANGO_ELLIPSIZE_NONE);
-		gtk_label_set_line_wrap (gui.topic_label, TRUE);
+		gtk_label_set_ellipsize(GTK_LABEL (gui.topic_label), PANGO_ELLIPSIZE_NONE);
+		gtk_label_set_line_wrap (GTK_LABEL (gui.topic_label), TRUE);
 	}
 }
 #endif
