@@ -37,18 +37,23 @@ import egg.trayicon
 
 import libgmail
 
-### replace these with your data
+### replace these with your own
 username = ''
 password = ''
-account = None
 
-def initialize ():
+def login_g ():
     # log into gmail
+    global account
     account = libgmail.GmailAccount (username, password)
     try:
         account.login ()
+        return True
     except libgmail.GmailLoginFailure:
         print 'login failed'
+        return False
+
+def initialize ():
+    if not login_g ():
         sys.exit (1)
 
     # set up gtk stuffs
@@ -69,15 +74,18 @@ def initialize ():
     eventbox.connect ('button-release-event', open_gmail)
 
     def check_mail (data=None):
-        unread = account.getUnreadMsgCount ()
-        if unread:
-            icon.show_all ()
-            tips.set_tip (icon, '%d unread messages' % unread)
-            tips.enable ()
-        else:
-            icon.hide_all ()
-            tips.disable ()
-        return True
+        try:
+            unread = account.getUnreadMsgCount ()
+            if unread:
+                icon.show_all ()
+                tips.set_tip (icon, '%d unread messages' % unread)
+                tips.enable ()
+            else:
+                icon.hide_all ()
+                tips.disable ()
+            return True
+        except Exception, e:
+            login_g ()
 
     # start out with an update
     check_mail ()
