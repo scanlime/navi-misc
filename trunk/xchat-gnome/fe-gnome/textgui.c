@@ -25,10 +25,11 @@
 #include "../common/text.h"
 #include "../common/xchatc.h"
 #include "../common/fe.h"
+#include "../common/url.h"
 #include <libgnome/gnome-url.h> /* gnome_url_show */
 #include <gconf/gconf-client.h>
 
-int check_word (GtkWidget *xtext, char *word);
+int check_word (GtkWidget *xtext, char *word, int len);
 void clicked_word (GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
 void font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data);
 static void gconf_timestamps_changed (GConfClient *client, GConfEntry *entry, gpointer data);
@@ -262,10 +263,10 @@ clear_buffer (struct session *sess)
 }
 
 int
-check_word (GtkWidget *xtext, char *word)
+check_word (GtkWidget *xtext, char *word, int len)
 {
 	current_sess = gui.current_session;
-	return text_word_check (word);
+	return url_check_word (word, len);
 }
 
 void
@@ -276,7 +277,7 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 
 	if (event->button == 1) {
 		/* left click */
-		int type = check_word (xtext, word);
+		int type = check_word (xtext, word, strlen (word));
 
 		switch (type) {
 		case 0:
@@ -296,7 +297,7 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 		return;
 	}
 	if (event->button == 3) {
-		switch (check_word (xtext, word)) {
+		switch (check_word (xtext, word, strlen (word))) {
 		case 0:
 			/* FIXME: show default context menu */
 			return;
