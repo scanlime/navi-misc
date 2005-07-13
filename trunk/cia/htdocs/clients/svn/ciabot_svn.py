@@ -1,14 +1,42 @@
 #!/usr/bin/env python
 #
-# CIA bot client script for Subversion repositories, written in python.
-# This generates commit messages using CIA's XML commit format, and can
-# deliver them using either XML-RPC or email.
+# This is a CIA client script for Subversion repositories, written in python.
+# It generates commit messages using CIA's XML format, and can deliver them
+# using either XML-RPC or email. See below for usage and cuztomization
+# information.
 #
-# -- Micah Dowty <micah@navi.cx>
+# --------------------------------------------------------------------------
 #
-# This script is cleaner, more featureful, and faster than the shell
-# script version, but won't work on systems without Python or that don't
-# allow outgoing HTTP connections.
+# Copyright (c) 2004-2005, Micah Dowty
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#   * Redistributions of source code must retain the above copyright notice,
+#     this list of conditions and the following disclaimer.
+#   * Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#   * The name of the author may not be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# --------------------------------------------------------------------------
+#
+# This script is cleaner and much more featureful than the shell
+# script version, but won't work on systems without Python.
 #
 # To use the CIA bot in your Subversion repository...
 #
@@ -142,7 +170,7 @@ class SvnClient:
     """A CIA client for Subversion repositories. Uses svnlook to
     gather information"""
     name = 'Python Subversion client for CIA'
-    version = '1.16'
+    version = '1.17'
 
     def __init__(self, repository, revision, config):
         self.repository = repository
@@ -308,3 +336,5 @@ if __name__ == "__main__":
 
     # Go do the real work.
     SvnClient(sys.argv[1], sys.argv[2], config).main()
+
+### The End ###
