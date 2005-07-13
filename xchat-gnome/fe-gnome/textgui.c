@@ -131,10 +131,13 @@ text_gui_add_text_buffer (struct session *sess)
 	gui.current_session = sess;
 	g_object_unref (client);
 
-	if (sess->topic == NULL)
+	if (sess->topic == NULL) {
 		tgui->topic = g_strdup ("");
-	else
+		tgui->url_topic = g_strdup ("");
+	} else {
 		tgui->topic = g_strdup (sess->topic);
+		tgui->url_topic = g_strdup (sess->topic);
+	}
 	tgui->entry = g_strdup ("");
 	tgui->lag_text = NULL;
 	tgui->queue_text = NULL;
@@ -157,6 +160,7 @@ text_gui_remove_text_buffer (struct session *sess)
 
 	gtk_xtext_buffer_free (tgui->buffer);
 	g_free (tgui->topic);
+	g_free (tgui->url_topic);
 	g_free (tgui->entry);
 	if (tgui->lag_text)
 		g_free (tgui->lag_text);
@@ -240,23 +244,102 @@ set_nickname (struct server *serv, char *newnick)
 	}
 }
 
+static gchar *
+build_url_topic (char *topic)
+{
+	/* FIXME: need to enclose URLs in <a> tags */
+	/* Good god this is icky */
+	gchar **tokens;
+	gchar *result, *temp;
+	int i;
+
+	/* Replace <'s with &lt; */
+	tokens = g_strsplit (topic, "<", 0);
+	result = g_strdup (tokens[0]);
+	for (i = 1; tokens[i]; i++) {
+		temp = g_strdup_printf ("%s&lt;%s", result, tokens[i]);
+		g_free (result);
+		result = temp;
+	}
+	g_strfreev (tokens);
+
+	/* Replace >'s with &gt; */
+	tokens = g_strsplit (result, ">", 0);
+	g_free (result);
+	result = g_strdup (tokens[0]);
+	for (i = 1; tokens[i]; i++) {
+		temp = g_strdup_printf ("%s&gt;%s", result, tokens[i]);
+		g_free (result);
+		result = temp;
+	}
+	g_strfreev (tokens);
+
+	/* Replace &'s with &amp; */
+	tokens = g_strsplit (result, "&", 0);
+	g_free (result);
+	result = g_strdup (tokens[0]);
+	for (i = 1; tokens[i]; i++) {
+		temp = g_strdup_printf ("%s&amp;%s", result, tokens[i]);
+		g_free (result);
+		result = temp;
+	}
+	g_strfreev (tokens);
+
+	/* Replace "'s with &quot; */
+	tokens = g_strsplit (result, "\"", 0);
+	g_free (result);
+	result = g_strdup (tokens[0]);
+	for (i = 1; tokens[i]; i++) {
+		temp = g_strdup_printf ("%s&quot;%s", result, tokens[i]);
+		g_free (result);
+		result = temp;
+	}
+	g_strfreev (tokens);
+
+	/* Replace ''s with &apos; */
+	tokens = g_strsplit (result, "'", 0);
+	g_free (result);
+	result = g_strdup (tokens[0]);
+	for (i = 1; tokens[i]; i++) {
+		temp = g_strdup_printf ("%s&apos;%s", result, tokens[i]);
+		g_free (result);
+		result = temp;
+	}
+	g_strfreev (tokens);
+
+	temp = g_strescape (result, NULL);
+	g_free (result);
+	result = temp;
+
+	g_printf ("escaped topic is %s\n\n", result);
+
+	return result;
+}
+
 void
 set_gui_topic (session *sess, char *topic)
 {
 	session_gui *tgui = (session_gui *) sess->gui;
 
+	gchar *escaped = build_url_topic (topic);
+
 	g_free (tgui->topic);
-	if (topic == NULL)
-		if (sess->topic == NULL)
+	g_free (tgui->url_topic);
+	if (topic == NULL) {
+		if (sess->topic == NULL) {
 			tgui->topic = g_strdup ("");
-		else
+			tgui->url_topic = g_strdup ("");
+		} else {
 			tgui->topic = g_strdup (sess->topic);
-	else
+			tgui->url_topic = g_strdup (sess->topic);
+		}
+	} else {
 		tgui->topic = g_strdup (topic);
+		tgui->url_topic = escaped;
+	}
 	if (sess == gui.current_session) {
 #ifdef HAVE_LIBSEXY
-		/* FIXME: need to enclose URLs in <a> tags */
-		sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), tgui->topic);
+		sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), tgui->url_topic);
 #else
 		gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
 #endif

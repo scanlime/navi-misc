@@ -38,6 +38,7 @@ typedef struct {
 	xtext_buffer *buffer;
 	GtkTreeModel *userlist_model;
 	char *topic;
+	char *url_topic;
 	char *entry;
 	char *lag_text;
 	gdouble lag_value;
