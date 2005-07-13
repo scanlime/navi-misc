@@ -74,8 +74,15 @@ class RidCalculator:
         # and the last 128 bytes of the file. mmpython can tell us where the
         # header starts, but only in a somewhat ugly way.
         if isinstance(mminfo, mmpython.audio.eyed3info.eyeD3Info):
-            offset = mp3info.MPEG(f)._find_header(f)[0]
-            if offset < 0:
+	    try:
+	        offset = mp3info.MPEG(f)._find_header(f)[0]
+            except ZeroDivisionError:
+	        # This is a bit of a kludge, since mmpython seems to crash
+		# here on some MP3s for a currently-unknown reason.
+		print "WARNING, mmpython got a div0 error on %r" % filename
+		offset = 0
+
+	    if offset < 0:
                 # Hmm, it couldn't find the header? Set this to zero
                 # so we still get a usable RID, but it probably
                 # won't strictly be a correct RID.
