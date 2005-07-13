@@ -248,6 +248,7 @@ navigation_tree_create_new_channel_entry (NavTree * navtree, struct session *ses
     GtkTreeIter *iter;
     GtkWidget *menuitem, *button;
     ircnet *net;
+    session_gui *tgui;
 
     navigation_model_add_new_channel (navtree->model, sess);
 
@@ -265,11 +266,12 @@ navigation_tree_create_new_channel_entry (NavTree * navtree, struct session *ses
 
     navigation_tree_select_session (navtree, sess);
 
+    tgui = (session_gui *) sess->gui;
 #ifdef HAVE_LIBSEXY
     /* FIXME: need to enclose URLs in <a> tags */
-    sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), sess->topic);
+    sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), tgui->url_topic);
 #else
-    gtk_label_set_text (GTK_LABEL (gui.topic_label), sess->topic);
+    gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
 #endif
     net = sess->server->network;
     if (net == NULL)
@@ -935,9 +937,9 @@ navigation_selection_changed (GtkTreeSelection * treeselection, gpointer user_da
 	tgui = (session_gui *) sess->gui;
 	if (tgui) {
 	    /* Set the topic. */
+	    g_print ("setting topic for %s\n", sess->channel);
 #ifdef HAVE_LIBSEXY
-	    /* FIXME: need to enclose URLs in <a> tags */
-	    sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), tgui->topic);
+	    sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), tgui->url_topic);
 #else
 	    gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
 #endif
