@@ -151,5 +151,3 @@ xg_get_chan_list ()
 {
 	return gtk_tree_view_get_model (GTK_TREE_VIEW (gui.server_tree));
 }
-
-/*** The End ***/
