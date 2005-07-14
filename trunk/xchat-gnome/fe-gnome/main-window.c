@@ -344,6 +344,12 @@ clear_find (GtkWidget *entry, gpointer data)
 	last_search_position = NULL;
 }
 
+static void
+url_activated (GtkWidget *url_label, const char *url)
+{
+	fe_open_url (url);
+}
+
 void
 initialize_main_window ()
 {
@@ -394,6 +400,7 @@ initialize_main_window ()
 
 #ifdef HAVE_LIBSEXY
 	gui.topic_label = sexy_url_label_new ();
+	g_signal_connect (gui.topic_label, "url_activated", G_CALLBACK (url_activated), NULL);
 #else
 	gui.topic_label = gtk_label_new("");
 #endif
