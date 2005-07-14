@@ -366,7 +366,7 @@ populate_autojoin_list (IrcNetworkEditor *e)
 	channels = g_strsplit (e->network->autojoin, ",", 0);
 	for (i = 0; channels[i]; i++) {
 		gtk_list_store_append (e->autojoin_store, &iter);
-		gtk_list_store_set (e->autojoin_store, &iter, 0, channels[i]);
+		gtk_list_store_set (e->autojoin_store, &iter, 0, channels[i], -1);
 	}
 
 	g_strfreev (channels);
