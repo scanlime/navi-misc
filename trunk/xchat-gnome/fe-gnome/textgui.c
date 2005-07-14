@@ -247,9 +247,33 @@ set_nickname (struct server *serv, char *newnick)
 static gchar *
 build_url_topic (char *topic)
 {
-	/* FIXME: need to enclose URLs in <a> tags */
+	gchar **tokens;
+	gchar *escaped, *result, *temp;
+	int i;
 
-	return g_markup_escape_text (topic, strlen (topic));
+	/* escape out <>&"' so that pango markup doesn't get confused */
+	escaped = g_markup_escape_text (topic, strlen (topic));
+
+	/* surround urls with <a> markup so that sexy-url-label can link it */
+	tokens = g_strsplit_set (escaped, " \t\n", 0);
+	if (url_check_word (tokens[0], strlen (tokens[0])) == WORD_URL)
+		result = g_strdup_printf ("<a href=\"%s\">%s</a>", tokens[0], tokens[0]);
+	else
+		result = g_strdup (tokens[0]);
+	for (i = 1; tokens[i]; i++) {
+		if (url_check_word (tokens[i], strlen (tokens[i])) == WORD_URL) {
+			temp = g_strdup_printf ("%s <a href=\"%s\">%s</a>", result, tokens[i], tokens[i]);
+			g_free (result);
+			result = temp;
+		} else {
+			temp = g_strdup_printf ("%s %s", result, tokens[i]);
+			g_free (result);
+			result = temp;
+		}
+	}
+	g_strfreev (tokens);
+
+	return result;
 }
 
 void
