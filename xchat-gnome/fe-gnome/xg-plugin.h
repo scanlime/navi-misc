@@ -52,5 +52,3 @@ GtkTreeModel *xg_get_chan_list ();
 
 #endif
 #endif
-
-/*** The End ***/

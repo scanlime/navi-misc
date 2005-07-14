@@ -140,5 +140,3 @@ GtkTreeIter *navigation_model_get_unsorted_iter (NavModel *model, struct session
 G_END_DECLS
 
 #endif
-
-/*** The End ***/
