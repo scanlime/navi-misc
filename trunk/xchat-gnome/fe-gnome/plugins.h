@@ -45,4 +45,3 @@ int unload_plugin (char *filename);
 char *load_plugin (session * sess, char *filename, char *arg);
 
 #endif
-/*** The End ***/
