@@ -248,72 +248,8 @@ static gchar *
 build_url_topic (char *topic)
 {
 	/* FIXME: need to enclose URLs in <a> tags */
-	/* Good god this is icky */
-	gchar **tokens;
-	gchar *result, *temp;
-	int i;
 
-	/* Replace <'s with &lt; */
-	tokens = g_strsplit (topic, "<", 0);
-	result = g_strdup (tokens[0]);
-	for (i = 1; tokens[i]; i++) {
-		temp = g_strdup_printf ("%s&lt;%s", result, tokens[i]);
-		g_free (result);
-		result = temp;
-	}
-	g_strfreev (tokens);
-
-	/* Replace >'s with &gt; */
-	tokens = g_strsplit (result, ">", 0);
-	g_free (result);
-	result = g_strdup (tokens[0]);
-	for (i = 1; tokens[i]; i++) {
-		temp = g_strdup_printf ("%s&gt;%s", result, tokens[i]);
-		g_free (result);
-		result = temp;
-	}
-	g_strfreev (tokens);
-
-	/* Replace &'s with &amp; */
-	tokens = g_strsplit (result, "&", 0);
-	g_free (result);
-	result = g_strdup (tokens[0]);
-	for (i = 1; tokens[i]; i++) {
-		temp = g_strdup_printf ("%s&amp;%s", result, tokens[i]);
-		g_free (result);
-		result = temp;
-	}
-	g_strfreev (tokens);
-
-	/* Replace "'s with &quot; */
-	tokens = g_strsplit (result, "\"", 0);
-	g_free (result);
-	result = g_strdup (tokens[0]);
-	for (i = 1; tokens[i]; i++) {
-		temp = g_strdup_printf ("%s&quot;%s", result, tokens[i]);
-		g_free (result);
-		result = temp;
-	}
-	g_strfreev (tokens);
-
-	/* Replace ''s with &apos; */
-	tokens = g_strsplit (result, "'", 0);
-	g_free (result);
-	result = g_strdup (tokens[0]);
-	for (i = 1; tokens[i]; i++) {
-		temp = g_strdup_printf ("%s&apos;%s", result, tokens[i]);
-		g_free (result);
-		result = temp;
-	}
-	g_strfreev (tokens);
-
-	temp = g_strescape (result, NULL);
-	g_free (result);
-	result = temp;
-
-	g_printf ("escaped topic is %s\n\n", result);
-
-	return result;
+	return g_markup_escape_text (topic, strlen (topic));
 }
 
 void

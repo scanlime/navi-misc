@@ -937,7 +937,6 @@ navigation_selection_changed (GtkTreeSelection * treeselection, gpointer user_da
 	tgui = (session_gui *) sess->gui;
 	if (tgui) {
 	    /* Set the topic. */
-	    g_print ("setting topic for %s\n", sess->channel);
 #ifdef HAVE_LIBSEXY
 	    sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), tgui->url_topic);
 #else
