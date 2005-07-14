@@ -478,6 +478,7 @@ apply_changes (IrcNetworkEditor *e)
 			ircserver *serv = g_new0 (ircserver, 1);
 			gtk_tree_model_get (GTK_TREE_MODEL (e->server_store), &iter, 0, &text, -1);
 			serv->hostname = g_strdup (text);
+			net->servers = g_slist_append (net->servers, serv);
 		} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (e->server_store), &iter));
 	}
 
