@@ -74,6 +74,7 @@ initialize_text_gui ()
 
 	palette_alloc (GTK_WIDGET (gui.xtext));
 	gtk_xtext_set_palette (gui.xtext, colors);
+	gtk_xtext_set_background (gui.xtext, NULL, FALSE, FALSE);
 	gtk_xtext_set_max_lines (gui.xtext, 3000);
 	gtk_xtext_set_show_separator (gui.xtext, TRUE);
 	gtk_xtext_set_indent (gui.xtext, TRUE);
@@ -82,6 +83,7 @@ initialize_text_gui ()
 	gtk_xtext_set_wordwrap (gui.xtext, TRUE);
 	gtk_xtext_set_urlcheck_function (gui.xtext, check_word);
 	g_signal_connect (G_OBJECT (gui.xtext), "word_click", G_CALLBACK (clicked_word), NULL);
+	gtk_xtext_refresh (gui.xtext, FALSE);
 
 	/* Set menus */
 	action_group = gtk_action_group_new ("TextPopups");
