@@ -86,6 +86,9 @@ chanlist_delete (GtkWidget *widget, GdkEvent *event, channel_list_window *win)
 {
 	GtkWidget *window;
 
+	if (win->refresh_timeout)
+		g_source_remove (win->refresh_timeout);
+
 	g_slist_remove (chanlists, (gpointer) win);
 
 	window = glade_xml_get_widget (win->xml, "window 1");
@@ -93,6 +96,32 @@ chanlist_delete (GtkWidget *widget, GdkEvent *event, channel_list_window *win)
 	g_object_unref (win->xml);
 	g_free (win);
 	return FALSE;
+}
+
+static gboolean
+resensitize (channel_list_window *win)
+{
+	win->refresh_calls++;
+
+	/* If we've been 2 seconds but don't have any results, make the
+	 * button sensitive.  This usually happens if the server denies
+	 * us a server list due to heavy load */
+	if (win->refresh_calls == 1 && win->empty) {
+		GtkWidget *button = glade_xml_get_widget (win->xml, "refresh button");
+		gtk_widget_set_sensitive (button, TRUE);
+		win->refresh_timeout = 0;
+		return FALSE;
+	}
+
+	/* If we've been 30 seconds, make the button sensitive no matter what
+	 * and remove the timeout */
+	if (win->refresh_calls == 15) {
+		GtkWidget *button = glade_xml_get_widget (win->xml, "refresh button");
+		gtk_widget_set_sensitive (button, TRUE);
+		win->refresh_timeout = 0;
+		return FALSE;
+	}
+	return TRUE;
 }
 
 static void
@@ -107,6 +136,17 @@ chanlist_refresh (GtkWidget *button, channel_list_window *win)
 	store = gtk_tree_model_filter_get_model (GTK_TREE_MODEL_FILTER (filter));
 	gtk_list_store_clear (GTK_LIST_STORE (store));
 	win->server->p_list_channels (win->server, "");
+	win->empty = TRUE;
+
+	gtk_widget_set_sensitive (button, FALSE);
+	/* Make the button sensitive after a while.  This lets us avoid putting
+	 * multiple entries in the list (if they click it twice), since we
+	 * can't discern which results the server is giving us correspond to
+	 * which request.  It also reduces the load on the server for
+	 * click-happy kids
+	 */
+	win->refresh_calls = 0;
+	win->refresh_timeout = g_timeout_add (2000, resensitize, win);
 }
 
 static void
@@ -219,6 +259,8 @@ create_channel_list (session *sess)
 	win->text_filter = NULL;
 	win->filter_topic = FALSE;
 	win->filter_name = TRUE;
+
+	win->refresh_timeout = 0;
 
 	if (g_file_test ("channel-list.glade", G_FILE_TEST_EXISTS))
 		win->xml = glade_xml_new ("channel-list.glade", NULL, NULL);
@@ -341,6 +383,8 @@ channel_list_append (server *serv, char *channel, char *users, char *topic)
 	sort = GTK_TREE_MODEL_SORT (gtk_tree_view_get_model (GTK_TREE_VIEW (treeview)));
 	filter = GTK_TREE_MODEL_FILTER (gtk_tree_model_sort_get_model (sort));
 	store = GTK_LIST_STORE (gtk_tree_model_filter_get_model (filter));
+
+	win->empty = FALSE;
 
 	nusers = atoi (users);
 

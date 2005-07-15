@@ -36,6 +36,9 @@ typedef struct
 	int minimum, maximum;
 	char *text_filter;
 	gboolean filter_topic, filter_name;
+	guint refresh_timeout;
+	guint refresh_calls;
+	gboolean empty;
 } channel_list_window;
 
 gboolean channel_list_exists (server *serv);
