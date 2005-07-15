@@ -31,6 +31,7 @@
 #include "util.h"
 #include "../common/fe.h"
 #include "../common/servlist.h"
+#include "../common/plugin.h"
 
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-url-label.h>
@@ -179,6 +180,7 @@ navigation_tree_finalize (GObject * object)
 {
 	NavTree *navtree = (NavTree *) object;
 	gtk_tree_path_free (navtree->current_path);
+	navtree->current_path = NULL;
 }
 
 /* New NavTree. */
@@ -243,8 +245,8 @@ navigation_tree_create_new_channel_entry (NavTree * navtree, struct session *ses
 	 */
 	iter = navigation_model_get_sorted_iter (navtree->model, gui.current_session);
 	if (iter) {
-	navtree->current_path = gtk_tree_model_get_path (GTK_TREE_MODEL (navtree->model->sorted), iter);
-	gtk_tree_iter_free (iter);
+		navtree->current_path = gtk_tree_model_get_path (GTK_TREE_MODEL (navtree->model->sorted), iter);
+		gtk_tree_iter_free (iter);
 	}
 
 	navigation_tree_select_session (navtree, sess);
@@ -843,7 +845,7 @@ navigation_selection_changed (GtkTreeSelection * treeselection, gpointer user_da
 
 	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
 
-	if (gui.server_tree->current_path)
+	if (gui.server_tree->current_path != NULL)
 		navigation_model_path_deref (gui.server_tree->model, gui.server_tree->current_path);
 
 	/* XXX: This sets model to be the GtkTreeModelSort used by the NavTree, it is
@@ -1218,7 +1220,10 @@ navigation_model_path_deref (NavModel * model, GtkTreePath * path)
 	GtkTreeIter iter;
 	GtkTreePath *unsorted = gtk_tree_model_sort_convert_path_to_child_path (GTK_TREE_MODEL_SORT (model->sorted), path);
 
-	gtk_tree_model_get_iter (GTK_TREE_MODEL (model->store), &iter, unsorted);
+	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (model->store), &iter, unsorted) == FALSE) {
+		g_critical ("path is invalid in navigation_model_path_deref\n");
+		return;
+	}
 	gtk_tree_model_get (GTK_TREE_MODEL (model->store), &iter, 5, &ref_count, -1);
 
 	if (ref_count > 0)
