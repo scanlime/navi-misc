@@ -862,7 +862,8 @@ on_text_entry_activate (GtkWidget *widget, gpointer data)
 {
 	char *entry_text = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	gtk_entry_set_text (GTK_ENTRY (widget), "");
-	handle_multiline (gui.current_session, (char *) entry_text, TRUE, FALSE);
+	if (gui.current_session != NULL)
+		handle_multiline (gui.current_session, (char *) entry_text, TRUE, FALSE);
 	g_free (entry_text);
 }
 

@@ -110,7 +110,6 @@ fe_init (void)
 	/* Force various window-related options to match our interaction model */
 	prefs.use_server_tab = TRUE;
 	prefs.notices_tabs = FALSE;
-	prefs.servernotice = TRUE;
 
 	/* Don't allow the core to autoload plugins. We use our own
 	 * method for autoloading.
@@ -848,10 +847,12 @@ int
 fe_menu_del (char *path, char *label)
 {
 	/* FIXME: implement */
+	return 0;
 }
 
 int
 fe_menu_add (int pos, char *path, char *label, char *cmd, char *ucmd, int *state)
 {
 	/* FIXME: implement */
+	return 0;
 }
