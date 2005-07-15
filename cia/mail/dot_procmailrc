@@ -24,7 +24,7 @@ $CIADIR/mail.log
 | $CIADIR/mail/filter_plone.py
 
 :0
-* ^To: cvs-commits-list@mail.gnome.org
+* ^To: cvs-commits-list@(mail.)?gnome.org
 | $CIADIR/mail/filter_gnome.py
 
 :0
