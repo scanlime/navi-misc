@@ -94,7 +94,7 @@ static void
 edit_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, PreferencesNetworksPage *page)
 {
 	GtkTreeIter iter;
-	if (gtk_tree_model_get_iter (page->sort_model, &iter, path))
+	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (page->sort_model), &iter, path))
 		edit_clicked (NULL, page);
 }
 

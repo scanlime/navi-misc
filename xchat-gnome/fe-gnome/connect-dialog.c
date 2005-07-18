@@ -68,7 +68,7 @@ dialog_response (ConnectDialog *dialog, gint response, gpointer data)
 			if (!navigation_tree_server_is_connected (gui.server_tree, network))
 				servlist_connect_by_netname (NULL, network);
 			g_free (network);
-			gtk_widget_destroy (dialog);
+			gtk_widget_destroy (GTK_WIDGET (dialog));
 		}
 	} else {
 		gtk_widget_destroy (GTK_WIDGET (dialog));
@@ -79,7 +79,7 @@ static void
 row_activated (GtkTreeView *widget, GtkTreePath *path, GtkTreeViewColumn *column, ConnectDialog *dialog)
 {
 	GtkTreeIter iter;
-	if (gtk_tree_model_get_iter (dialog->server_store, &iter, path))
+	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (dialog->server_store), &iter, path))
 		gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
 }
 
