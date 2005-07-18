@@ -1168,9 +1168,15 @@ navigation_model_set_hilight_iterate (GtkTreeModel * model, GtkTreePath * path, 
 {
 	gpointer s;
 	gint e, ref;
+
 	gtk_tree_model_get (model, iter, 2, &s, 3, &e, 5, &ref, -1);
-	if (s == data && ref == 0) {
+
+	/* FIXME Comment out the reference counting check here just to see if this is what is actually
+	 * breaking the icons.
+	 */
+	if (s == data) { /* && ref == 0) { */
 		struct session *sess = s;
+
 		if (sess->nick_said) {
 			gtk_tree_store_set (GTK_TREE_STORE (model), iter, 0, pix_nicksaid, 3, 3, -1);
 			return TRUE;
