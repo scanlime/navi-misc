@@ -104,7 +104,7 @@ navigation_tree_get_type (void)
 			NULL,		/* class finalize. */
 			NULL,		/* class data. */
 			sizeof (NavTree),
-			0,			/* n_preallocs. */
+			0,		/* n_preallocs. */
 			(GInstanceInitFunc) navigation_tree_init,
 		};
 
