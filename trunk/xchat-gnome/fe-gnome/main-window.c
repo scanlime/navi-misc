@@ -27,6 +27,7 @@
 #include "userlist-gui.h"
 #include "../common/xchatc.h"
 #include "../common/outbound.h"
+#include "../common/fe.h"
 #include "gui.h"
 #include "channel-list.h"
 #include "preferences.h"
@@ -344,11 +345,13 @@ clear_find (GtkWidget *entry, gpointer data)
 	last_search_position = NULL;
 }
 
+#ifdef HAVE_LIBSEXY
 static void
 url_activated (GtkWidget *url_label, const char *url)
 {
 	fe_open_url (url);
 }
+#endif
 
 void
 initialize_main_window ()

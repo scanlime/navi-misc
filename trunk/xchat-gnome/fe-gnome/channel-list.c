@@ -25,6 +25,7 @@
 #include "channel-list.h"
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
+#include "../common/server.h"
 
 static GSList *chanlists = NULL;
 
@@ -146,7 +147,7 @@ chanlist_refresh (GtkWidget *button, channel_list_window *win)
 	 * click-happy kids
 	 */
 	win->refresh_calls = 0;
-	win->refresh_timeout = g_timeout_add (2000, resensitize, win);
+	win->refresh_timeout = g_timeout_add (2000, (GSourceFunc) resensitize, (gpointer) win);
 }
 
 static void
@@ -195,14 +196,14 @@ static void
 minusers_changed (GtkSpinButton *button, channel_list_window *win)
 {
 	win->minimum = gtk_spin_button_get_value_as_int (button);
-	gtk_tree_model_filter_refilter (win->filter);
+	gtk_tree_model_filter_refilter (GTK_TREE_MODEL_FILTER (win->filter));
 }
 
 static void
 maxusers_changed (GtkSpinButton *button, channel_list_window *win)
 {
 	win->maximum = gtk_spin_button_get_value_as_int (button);
-	gtk_tree_model_filter_refilter (win->filter);
+	gtk_tree_model_filter_refilter (GTK_TREE_MODEL_FILTER (win->filter));
 }
 
 static void
@@ -211,21 +212,21 @@ filter_changed (GtkEntry *entry, channel_list_window *win)
 	if (win->text_filter != NULL)
 		g_free (win->text_filter);
 	win->text_filter = g_strdup (gtk_entry_get_text (entry));
-	gtk_tree_model_filter_refilter (win->filter);
+	gtk_tree_model_filter_refilter (GTK_TREE_MODEL_FILTER (win->filter));
 }
 
 static void
 apply_to_name_changed (GtkToggleButton *button, channel_list_window *win)
 {
 	win->filter_name = gtk_toggle_button_get_active (button);
-	gtk_tree_model_filter_refilter (win->filter);
+	gtk_tree_model_filter_refilter (GTK_TREE_MODEL_FILTER (win->filter));
 }
 
 static void
 apply_to_topic_changed (GtkToggleButton *button, channel_list_window *win)
 {
 	win->filter_topic = gtk_toggle_button_get_active (button);
-	gtk_tree_model_filter_refilter (win->filter);
+	gtk_tree_model_filter_refilter (GTK_TREE_MODEL_FILTER (win->filter));
 }
 
 void
