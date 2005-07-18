@@ -238,19 +238,6 @@ diff -u -r1.1 Makefile.am
  
  # Remember to include this line in your Makefile.am
  include @top_srcdir@/plugins/Make.plugin
-Index: plugins/perl/Makefile.am
-===================================================================
-RCS file: /cvsroot/xchat/xchat2/plugins/perl/Makefile.am,v
-retrieving revision 1.10
-diff -u -r1.10 Makefile.am
---- plugins/perl/Makefile.am	29 Mar 2005 05:11:50 -0000	1.10
-+++ plugins/perl/Makefile.am	13 Jul 2005 22:32:50 -0000
-@@ -13,3 +13,5 @@
- CLEANFILES = xchat.pm.h
- xchat.pm.h: Xchat.pm IRC.pm
- 	perl generate_header
-+
-+EXTRA_DIST = generate_header Xchat.pm IRC.pm
 Index: src/Makefile.am
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
