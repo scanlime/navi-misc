@@ -18,7 +18,7 @@
 	repositories, building it from subversion/cvs is an involved process. Note that we require
 	GTK+ 2.4, but you'll get better functionality if you're using GTK+ 2.5.</p>
 
-	<p>You'll get nicer results if you also install <a href="http://osiris.chipx86.com/svn/osiris-misc/trunk/libsexy">libsexy</a></p>
+	<p>We highly recommend installing libsexy <a href="http://osiris.chipx86.com/svn/osiris-misc/trunk/libsexy">from Christian Hammond's SVN</a> for, well, extra sexyness.</p>
 
         <p><b>DO NOT</b> expect support from the normal X-Chat developers, and do not submit bug
         reports/feature requests/etc to them.</p>
