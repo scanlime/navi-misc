@@ -43,6 +43,7 @@
 
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-url-label.h>
+#include <libsexy/sexy-spell-entry.h>
 #endif
 
 #include <sys/types.h>
@@ -319,8 +320,7 @@ close_find_button (GtkWidget *button, gpointer data)
 	GtkWidget *widget;
 	widget = glade_xml_get_widget (gui.xml, "find hbox");
 	gtk_widget_hide (widget);
-	widget = glade_xml_get_widget (gui.xml, "text entry");
-	gtk_widget_grab_focus (widget);
+	gtk_widget_grab_focus (gui.text_entry);
 }
 
 static gboolean
@@ -356,7 +356,7 @@ url_activated (GtkWidget *url_label, const char *url)
 void
 initialize_main_window ()
 {
-	GtkWidget *entry, *topicbox, *close, *menu_vbox, *widget;
+	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget;
 	GError *error = NULL;
 
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
@@ -392,10 +392,17 @@ initialize_main_window ()
 	/* hook up accelerators */
 	gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), gtk_ui_manager_get_accel_group (gui.manager));
 
-	entry = glade_xml_get_widget (gui.xml, "text entry");
-	g_signal_connect (G_OBJECT (entry), "activate", G_CALLBACK (on_text_entry_activate), NULL);
-	g_signal_connect_after (G_OBJECT (entry), "key_press_event", G_CALLBACK (on_text_entry_key), NULL);
-	g_signal_connect (G_OBJECT (entry), "populate-popup", G_CALLBACK (entry_context), NULL);
+	entrybox = glade_xml_get_widget (gui.xml, "entry hbox");
+#ifdef HAVE_LIBSEXY
+	gui.text_entry = sexy_spell_entry_new ();
+#else
+	gui.text_entry = gtk_entry_new ("");
+#endif
+	gtk_box_pack_start (GTK_BOX (entrybox), gui.text_entry, TRUE, TRUE, 0);
+	gtk_widget_show (gui.text_entry);
+	g_signal_connect (G_OBJECT (gui.text_entry), "activate", G_CALLBACK (on_text_entry_activate), NULL);
+	g_signal_connect_after (G_OBJECT (gui.text_entry), "key_press_event", G_CALLBACK (on_text_entry_key), NULL);
+	g_signal_connect (G_OBJECT (gui.text_entry), "populate-popup", G_CALLBACK (entry_context), NULL);
 
 	close = glade_xml_get_widget (gui.xml, "close discussion");
 	g_signal_connect (G_OBJECT (close), "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
@@ -601,29 +608,25 @@ on_irc_quit_activate (GtkAction *action, gpointer data)
 static void
 on_edit_cut_activate (GtkAction *action, gpointer data)
 {
-	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
-	gtk_editable_cut_clipboard(GTK_EDITABLE(text_entry));
+	gtk_editable_cut_clipboard(GTK_EDITABLE(gui.text_entry));
 }
 
 static void
 on_edit_copy_activate (GtkAction *action, gpointer data)
 {
-	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
-	gtk_editable_copy_clipboard(GTK_EDITABLE(text_entry));
+	gtk_editable_copy_clipboard(GTK_EDITABLE(gui.text_entry));
 }
 
 static void
 on_edit_paste_activate (GtkAction *action, gpointer data)
 {
-	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
-	gtk_editable_paste_clipboard(GTK_EDITABLE(text_entry));
+	gtk_editable_paste_clipboard(GTK_EDITABLE(gui.text_entry));
 }
 
 static void
 on_edit_clear_activate (GtkAction *action, gpointer data)
 {
-	GtkWidget *text_entry = glade_xml_get_widget(gui.xml, "text entry");
-	gtk_editable_delete_selection(GTK_EDITABLE(text_entry));
+	gtk_editable_delete_selection(GTK_EDITABLE(gui.text_entry));
 }
 
 static void
@@ -1074,7 +1077,6 @@ on_discussion_topic_change_activate (GtkButton *widget, gpointer data)
 	GladeXML *xml = NULL;
 	GtkWidget *dialog;
 	GtkWidget *entry;
-	GtkWidget *text_entry;
 	gint response;
 	GtkTextBuffer *buffer;
 	gchar *title;
@@ -1122,8 +1124,7 @@ on_discussion_topic_change_activate (GtkButton *widget, gpointer data)
 	g_object_unref (xml);
 
 	/* send focus back to the text entry */
-	text_entry = glade_xml_get_widget (gui.xml, "text entry");
-	gtk_widget_grab_focus (text_entry);
+	gtk_widget_grab_focus (gui.text_entry);
 }
 
 void
@@ -1166,11 +1167,10 @@ static void
 color_code_activate (GtkMenuItem *item, gpointer data)
 {
 	int color = (int) data;
-	GtkWidget *entry = glade_xml_get_widget (gui.xml, "text entry");
 	char *code = g_strdup_printf ("%%C%d", color);
-	int position = gtk_editable_get_position (GTK_EDITABLE (entry));
-	gtk_editable_insert_text (GTK_EDITABLE (entry), code, strlen (code), &position);
-	gtk_editable_set_position (GTK_EDITABLE (entry), position + strlen (code));
+	int position = gtk_editable_get_position (GTK_EDITABLE (gui.text_entry));
+	gtk_editable_insert_text (GTK_EDITABLE (gui.text_entry), code, strlen (code), &position);
+	gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), position + strlen (code));
 	g_free (code);
 }
 

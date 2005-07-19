@@ -45,6 +45,7 @@ typedef struct
 	GtkExpander *topic_expander;
 #endif
 	GtkWidget *topic_label;
+	GtkWidget *text_entry;
 	session *current_session;
 	GnomeDruid *setup_druid;
 	gboolean quit;
