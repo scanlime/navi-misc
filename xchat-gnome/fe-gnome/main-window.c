@@ -396,7 +396,7 @@ initialize_main_window ()
 #ifdef HAVE_LIBSEXY
 	gui.text_entry = sexy_spell_entry_new ();
 #else
-	gui.text_entry = gtk_entry_new ("");
+	gui.text_entry = gtk_entry_new ();
 #endif
 	gtk_box_pack_start (GTK_BOX (entrybox), gui.text_entry, TRUE, TRUE, 0);
 	gtk_widget_show (gui.text_entry);
