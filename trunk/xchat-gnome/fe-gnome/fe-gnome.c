@@ -110,6 +110,7 @@ fe_init (void)
 	/* Force various window-related options to match our interaction model */
 	prefs.use_server_tab = TRUE;
 	prefs.notices_tabs = FALSE;
+	prefs.indent_nicks = TRUE;
 
 	/* Don't allow the core to autoload plugins. We use our own
 	 * method for autoloading.
