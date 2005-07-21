@@ -844,16 +844,20 @@ fe_open_url (const char *url)
 	}
 }
 
-int
-fe_menu_del (char *path, char *label)
+void
+fe_menu_del (menu_entry *entry)
 {
-	/* FIXME: implement */
-	return 0;
+	/* FIXME: implement? */
 }
 
-int
-fe_menu_add (int pos, char *path, char *label, char *cmd, char *ucmd, int *state)
+void
+fe_menu_add (menu_entry *entry)
 {
-	/* FIXME: implement */
-	return 0;
+	/* FIXME: implement? */
+}
+
+void
+fe_menu_update (menu_entry *entry)
+{
+	/* FIXME: implement? */
 }
