@@ -25,6 +25,7 @@
 #include "../common/xchat.h"
 #include "userlist.h"
 #include "navigation-tree.h"
+#include "dcc-window.h"
 
 #include <gtk/gtkactiongroup.h>
 #include <gtk/gtkuimanager.h>
@@ -41,6 +42,7 @@ typedef struct
 	GtkUIManager *manager;
 	GnomeAbout *about;
 	GtkXText *xtext;
+	DccWindow *dcc;
 #if (GTK_CHECK_VERSION(2,5,0))
 	GtkExpander *topic_expander;
 #endif
