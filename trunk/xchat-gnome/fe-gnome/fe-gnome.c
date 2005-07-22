@@ -381,33 +381,39 @@ fe_userlist_clear (struct session *sess)
 void
 fe_dcc_add (struct DCC *dcc)
 {
+	dcc_window_add (dcc);
 }
 
 void
 fe_dcc_update (struct DCC *dcc)
 {
+	dcc_window_update (dcc);
 }
 
 void
 fe_dcc_remove (struct DCC *dcc)
 {
+	dcc_window_remove (dcc);
 }
 
 int
 fe_dcc_open_recv_win (int passive)
 {
+	/* FIXME: implement? */
 	return TRUE;
 }
 
 int
 fe_dcc_open_send_win (int passive)
 {
+	/* FIXME: implement? */
 	return TRUE;
 }
 
 int
 fe_dcc_open_chat_win (int passive)
 {
+	/* FIXME: implement? */
 	return TRUE;
 }
 
