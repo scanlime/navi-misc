@@ -51,9 +51,8 @@ void Log::logString (const char *string)
 		std::cout << string << std::endl;
 }
 
-namespace Client {
 
-Log::Log () : ::Log ("screamers.log"), Ogre::LogListener ()
+ClientLog::ClientLog () : ::Log ("screamers.log"), Ogre::LogListener ()
 {
 	Ogre::LogManager *manager;
 	if (Ogre::LogManager::getSingletonPtr () == NULL)
@@ -64,11 +63,11 @@ Log::Log () : ::Log ("screamers.log"), Ogre::LogListener ()
 	manager->setLogDetail (Ogre::LL_BOREME);
 }
 
-Log::~Log ()
+ClientLog::~ClientLog ()
 {
 }
 
-void Log::write (const Ogre::String &name, const Ogre::String &message, Ogre::LogMessageLevel lml, bool maskDebug)
+void ClientLog::write (const Ogre::String &name, const Ogre::String &message, Ogre::LogMessageLevel lml, bool maskDebug)
 {
 	if (log_file)
 		log_file << message << std::endl;
@@ -76,4 +75,3 @@ void Log::write (const Ogre::String &name, const Ogre::String &message, Ogre::Lo
 		std::cout << message << std::endl;
 }
 
-}

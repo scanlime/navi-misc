@@ -26,8 +26,6 @@
 #ifndef _APPLICATION_H_
 #define _APPLICATION_H_
 
-namespace Client {
-
 class Application : public Singleton<Application>
 {
 	// This is mostly taken from the "ExampleApplication" class in the
@@ -51,8 +49,8 @@ protected:
 	Ogre::Camera		*camera;
 	Ogre::SceneManager	*sceneManager;
 	Ogre::RenderWindow	*renderWindow;
-	Client::InfoListener	*infoListener;
-	Client::MainLoopTrigger	*mainListener;
+	InfoListener	*infoListener;
+	MainLoopTrigger	*mainListener;
 
 	bool			 configure (void);
 
@@ -63,8 +61,6 @@ private:
 	void			 loadResources (void);
 
 	friend class Singleton<Application>;
-};
-
 };
 
 #endif

@@ -22,8 +22,6 @@
 #include "FrameListener.h"
 #include "MainLoop.h"
 
-namespace Client
-{
 
 FrameListener::FrameListener (Ogre::RenderWindow *window)
 {
@@ -99,4 +97,3 @@ bool MainLoopTrigger::frameEnded (const Ogre::FrameEvent &event)
 	return true;
 }
 
-};

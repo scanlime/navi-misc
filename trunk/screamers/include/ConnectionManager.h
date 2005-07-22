@@ -31,8 +31,6 @@
 #ifndef _CONNECTION_MANAGER_H_
 #define _CONNECTION_MANAGER_H_
 
-namespace Server
-{
 
 class ConnectionManager : public MainListener, public Singleton<ConnectionManager>
 {
@@ -53,6 +51,5 @@ private:
 	friend class Singleton<ConnectionManager>;
 };
 
-};
 
 #endif // _CONNECTION_MANAGER_H_

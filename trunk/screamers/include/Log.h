@@ -39,17 +39,14 @@ protected:
 	std::ofstream	 log_file;
 };
 
-namespace Client {
-
-class Log : public ::Log, public Ogre::LogListener
+class ClientLog : public ::Log, public Ogre::LogListener
 {
 public:
-			 Log ();
-			~Log ();
+			 ClientLog ();
+			~ClientLog ();
 
 	virtual void	 write (const Ogre::String &name, const Ogre::String &message, Ogre::LogMessageLevel lml = Ogre::LML_NORMAL, bool maskDebug = false);
 };
 
-}
 
 #endif // _LOG_H_

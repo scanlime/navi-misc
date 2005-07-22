@@ -37,13 +37,13 @@
 int appMain (std::string commandLine)
 {
 	std::cout << "version " << VERSION << std::endl;
-	Client::Application app;
+	Application app;
 
 	// We need to set up OGRE and all that jazz before we can initialize anything else
 	if (!app.setup ())
 		return 1;
 
-	Client::Log log;
+	ClientLog log;
 
 	std::vector<std::string> options = TextUtils::tokenize (commandLine, " \t", 0, true);
 
