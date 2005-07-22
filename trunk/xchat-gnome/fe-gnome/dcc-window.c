@@ -50,19 +50,13 @@ dcc_window_init (DccWindow *window)
 
 	g_object_unref (xml);
 
-	window->transfer_store = gtk_list_store_new (7,
+	window->transfer_store = gtk_list_store_new (6,
 		G_TYPE_POINTER,		/* DCC struct */
-		G_TYPE_STRING,		/* MIME type */
-		G_TYPE_STRING,		/* nickname */
+		G_TYPE_STRING,		/* Info text */
 		GDK_TYPE_PIXBUF,	/* File icon */
-#ifdef USE_DCC64
-		G_TYPE_INT64,		/* Size */
-		G_TYPE_INT64,		/* Position */
-#else
-		G_TYPE_INT,		/* Size */
-		G_TYPE_INT,		/* Position */
-#endif
-		G_TYPE_STRING		/* filename */
+		G_TYPE_INT,		/* % done */
+		G_TYPE_STRING,		/* % done label */
+		G_TYPE_STRING		/* time remaining */
 		);
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (window->transfer_list), GTK_TREE_MODEL (window->transfer_store));
@@ -72,6 +66,35 @@ dcc_window_init (DccWindow *window)
 
 	gtk_window_set_default_size (GTK_WINDOW (window), 300, 400);
 	gtk_window_set_title (GTK_WINDOW (window), _("File Transfers"));
+
+	window->progress_column = gtk_tree_view_column_new ();
+	window->info_column = gtk_tree_view_column_new ();
+	window->remaining_column = gtk_tree_view_column_new ();
+
+	window->progress_cell = gtk_cell_renderer_progress_new ();
+	gtk_tree_view_column_pack_start (window->progress_column, window->progress_cell, FALSE);
+	gtk_tree_view_column_add_attribute (window->progress_column, window->progress_cell, "value", 3);
+	gtk_tree_view_column_add_attribute (window->progress_column, window->progress_cell, "text", 4);
+
+	window->icon_cell = gtk_cell_renderer_pixbuf_new ();
+	gtk_tree_view_column_pack_start (window->info_column, window->icon_cell, FALSE);
+	gtk_tree_view_column_add_attribute (window->info_column, window->icon_cell, "pixbuf", 2);
+
+	window->info_cell = gtk_cell_renderer_text_new ();
+	gtk_tree_view_column_pack_start (window->info_column, window->info_cell, TRUE);
+	gtk_tree_view_column_add_attribute (window->info_column, window->info_cell, "markup", 1);
+
+	window->remaining_cell = gtk_cell_renderer_text_new ();
+	gtk_tree_view_column_pack_start (window->remaining_column, window->remaining_cell, FALSE);
+	gtk_tree_view_column_add_attribute (window->remaining_column, window->remaining_cell, "text", 5);
+
+	gtk_tree_view_column_set_title (window->progress_column, "%");
+	gtk_tree_view_column_set_title (window->info_column, "File");
+	gtk_tree_view_column_set_title (window->remaining_column, "Remaining");
+
+	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->progress_column);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->info_column);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->remaining_column);
 }
 
 GType

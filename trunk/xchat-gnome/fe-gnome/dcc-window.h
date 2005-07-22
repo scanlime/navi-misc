@@ -21,9 +21,7 @@
 
 #include "../common/xchat.h"
 #include "../common/dcc.h"
-#include <gtk/gtkwindow.h>
-#include <gtk/gtkliststore.h>
-#include <gtk/gtktreeview.h>
+#include <gtk/gtk.h>
 #include <glade/glade.h>
 
 #ifndef __XCHAT_GNOME_DCC_WINDOW_H__
@@ -48,6 +46,15 @@ struct _DccWindow
 	GtkWidget *toplevel;
 
 	GtkListStore *transfer_store;
+
+	GtkCellRenderer *progress_cell;
+	GtkCellRenderer *icon_cell;
+	GtkCellRenderer *info_cell;
+	GtkCellRenderer *remaining_cell;
+
+	GtkTreeViewColumn *progress_column;
+	GtkTreeViewColumn *info_column;
+	GtkTreeViewColumn *remaining_column;
 };
 
 struct _DccWindowClass
