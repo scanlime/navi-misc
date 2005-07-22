@@ -107,9 +107,13 @@ dcc_window_init (DccWindow *window)
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->info_column);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->remaining_column);
 
-	icon_size = gtk_icon_size_register ("transfer-emblem", 24, 24);
-	window->up_icon   = gtk_widget_render_icon (GTK_WIDGET (window->transfer_list), GTK_STOCK_GO_UP,   icon_size, NULL);
-	window->down_icon = gtk_widget_render_icon (GTK_WIDGET (window->transfer_list), GTK_STOCK_GO_DOWN, icon_size, NULL);
+	if (g_file_test ("data/stock_up.png", G_FILE_TEST_EXISTS)) {
+		window->up_icon   = gdk_pixbuf_new_from_file_at_size ("data/stock_up.png",   24, 24, NULL);
+		window->down_icon = gdk_pixbuf_new_from_file_at_size ("data/stock_down.png", 24, 24, NULL);
+	} else {
+		window->up_icon   = gdk_pixbuf_new_from_file_at_size (XCHATSHAREDIR "/stock_up.png",   24, 24, NULL);
+		window->down_icon = gdk_pixbuf_new_from_file_at_size (XCHATSHAREDIR "/stock_down.png", 24, 24, NULL);
+	}
 }
 
 GType
@@ -265,9 +269,9 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 
 				gdk_pixbuf_composite (direction_emblem,
 						      file_icon,
-						      mime_w - 17, mime_w - 17,
+						      mime_w - 16, mime_w - 16,
 						      24, 24,
-						      0.0, 0.0,
+						      mime_w - 16, mime_w - 16,
 						      1.0, 1.0,
 						      GDK_INTERP_BILINEAR, 255);
 
