@@ -104,3 +104,18 @@ dcc_window_new ()
 
 	return window;
 }
+
+void
+dcc_window_add (struct DCC *dcc)
+{
+}
+
+void
+dcc_window_update (struct DCC *dcc)
+{
+}
+
+void
+dcc_window_remove (struct DCC *dcc)
+{
+}

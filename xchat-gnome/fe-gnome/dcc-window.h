@@ -19,6 +19,8 @@
  *
  */
 
+#include "../common/xchat.h"
+#include "../common/dcc.h"
 #include <gtk/gtkwindow.h>
 #include <gtk/gtkliststore.h>
 #include <gtk/gtktreeview.h>
@@ -55,6 +57,9 @@ struct _DccWindowClass
 
 GType      dcc_window_get_type (void) G_GNUC_CONST;
 DccWindow *dcc_window_new ();
+void       dcc_window_add (struct DCC *dcc);
+void       dcc_window_update (struct DCC *dcc);
+void       dcc_window_remove (struct DCC *dcc);
 
 G_END_DECLS
 
