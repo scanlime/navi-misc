@@ -265,10 +265,9 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 
 				gdk_pixbuf_composite (direction_emblem,
 						      file_icon,
-						      0, 0,
+						      mime_w - 17, mime_w - 17,
 						      24, 24,
-						      (double) mime_w - 16,
-						      (double) mime_h - 16,
+						      0.0, 0.0,
 						      1.0, 1.0,
 						      GDK_INTERP_BILINEAR, 255);
 
