@@ -80,6 +80,12 @@
 	  <b>A.</b> At the moment, the only way is through /dcc commands.  You can get a list of these with the
 	  <pre>/dcc help</pre> command.  We have plans to implement GUI for this for 0.5 or 0.6, so you shouldn't
 	  have to wait too long.<br />
+	  <br />
+	  <b>Q.</b> Can I run xchat and xchat-gnome at the same time?<br />
+	  <b>A.</b> Well, despite it being a very silly thing to do, it should be possible.  Note that there may
+	  be some weird interactions, since configuration is shared by default (and xchat-gnome forces some
+	  configuration options).  If you run into problems, we'll try to fix them, but be aware that this isn't
+	  a priority for us.<br />
         </div>
         <div class="section-title">Compiling and Running</div>
         <div class="section">
