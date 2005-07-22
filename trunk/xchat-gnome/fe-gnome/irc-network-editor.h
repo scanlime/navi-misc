@@ -34,7 +34,7 @@ G_BEGIN_DECLS
 
 typedef struct _IrcNetworkEditor      IrcNetworkEditor;
 typedef struct _IrcNetworkEditorClass IrcNetworkEditorClass;
-#define IRC_NETWORK_EDITOR_TYPE            (irc_network_editor_get_type ());
+#define IRC_NETWORK_EDITOR_TYPE            (irc_network_editor_get_type ())
 #define IRC_NETWORK_EDITOR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), IRC_NETWORK_EDITOR_TYPE, IrcNetworkEditor))
 #define IRC_NETWORK_EDITOR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), IRC_NETWORK_EDITOR_TYPE, IrcNetworkEditorClass))
 #define IS_IRC_NETWORK_EDITOR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), IRC_NETWORK_EDITOR_TYPE))
