@@ -8,9 +8,7 @@ xchat_gnome_DATA = 			\
 	plugin-manager.png		\
 	servers.png			\
 	soap.png			\
-	stock_down.png			\
 	stock_link.png			\
-	stock_up.png			\
 	toilet-paper.png		\
 	xchat-gnome-small.png
 xchat_gnomedir = $(datadir)/xchat

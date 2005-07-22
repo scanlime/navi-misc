@@ -37,6 +37,7 @@ static void
 dcc_window_init (DccWindow *window)
 {
 	GladeXML *xml;
+	GtkIconSize icon_size;
 
 	xml = NULL;
 	if (g_file_test ("dcc-window.glade", G_FILE_TEST_EXISTS))
@@ -105,6 +106,10 @@ dcc_window_init (DccWindow *window)
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->progress_column);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->info_column);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->remaining_column);
+
+	icon_size = gtk_icon_size_register ("transfer-emblem", 24, 24);
+	window->up_icon   = gtk_widget_render_icon (GTK_WIDGET (window->transfer_list), GTK_STOCK_GO_UP,   icon_size, NULL);
+	window->down_icon = gtk_widget_render_icon (GTK_WIDGET (window->transfer_list), GTK_STOCK_GO_DOWN, icon_size, NULL);
 }
 
 GType
@@ -157,28 +162,11 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 	GtkTreeIter iter;
 	gint done = (gint) ((((float)dcc->pos) / ((float) dcc->size)) * 100);
 	gchar *done_text, *info_text;
-
-	GtkIconTheme *icon_theme;
-	char *icon;
-	char *mime;
-	GdkPixbuf *mime_pixbuf, *file_icon;
-	int mime_w, mime_h;
-	gpointer data;
 	char *size, *pos;
 
 	/* We don't care about DCC chats */
 	if (dcc->type == 2)
 		return;
-
-	if (window->up_icon == NULL) {
-		if (g_file_test ("data/stock_up.png", G_FILE_TEST_EXISTS)) {
-			window->up_icon   = gdk_pixbuf_new_from_file_at_size ("data/stock_up.png",   16, 16, NULL);
-			window->down_icon = gdk_pixbuf_new_from_file_at_size ("data/stock_down.png", 16, 16, NULL);
-		} else {
-			window->up_icon   = gdk_pixbuf_new_from_file_at_size (XCHATSHAREDIR "/stock_up.png",   16, 16, NULL);
-			window->down_icon = gdk_pixbuf_new_from_file_at_size (XCHATSHAREDIR "/stock_down.png", 16, 16, NULL);
-		}
-	}
 
 	done_text = g_strdup_printf ("%d %%", done);
 	size = gnome_vfs_format_file_size_for_display (dcc->size);
@@ -187,49 +175,11 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 	g_free (size);
 	g_free (pos);
 
-	/* Get a nice MIME icon for this file */
-	mime = gnome_vfs_get_mime_type (dcc->destfile);
-	icon_theme = gtk_icon_theme_get_default ();
-	icon = gnome_icon_lookup (icon_theme, NULL, NULL, NULL, NULL, mime, GNOME_ICON_LOOKUP_FLAGS_NONE, NULL);
-	mime_pixbuf = gtk_icon_theme_load_icon (icon_theme, icon, 48, 0, NULL);
-
-	mime_w   = gdk_pixbuf_get_width  (mime_pixbuf);
-	mime_h   = gdk_pixbuf_get_height (mime_pixbuf);
-
-	data = g_new0 (char, (mime_w + 8) * (mime_h + 8) * 4 * 8);
-	file_icon = gdk_pixbuf_new_from_data (data,
-			GDK_COLORSPACE_RGB, TRUE, 8,
-			mime_w + 8, mime_h + 8, (mime_w + 8) * 4,
-			(GdkPixbufDestroyNotify) g_free, NULL);
-
-	gdk_pixbuf_composite (mime_pixbuf, file_icon, 0, 0, mime_w - 1, mime_h - 1, 0.0, 0.0, 1.0, 1.0, GDK_INTERP_BILINEAR, 255);
-
-	if (dcc->type == 1)
-		gdk_pixbuf_composite (window->down_icon,
-				      file_icon,
-				      mime_w - 8,
-				      mime_h - 8,
-				      15, 15,
-				      0.0, 0.0,
-				      1.0, 1.0,
-				      GDK_INTERP_BILINEAR, 255);
-	else
-		gdk_pixbuf_composite (window->up_icon,
-				      file_icon,
-				      mime_w - 8,
-				      mime_h - 8,
-				      15, 15,
-				      0.0, 0.0,
-				      1.0, 1.0,
-				      GDK_INTERP_BILINEAR, 255);
-
-	g_free (icon);
-
 	gtk_list_store_prepend (window->transfer_store, &iter);
 	gtk_list_store_set (window->transfer_store, &iter,
 			    0, dcc,
 			    1, info_text,
-			    2, file_icon,
+			    2, NULL,
 			    3, done,
 			    4, done_text,
 			    5, "unknown",
@@ -237,8 +187,6 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 
 	g_free (done_text);
 	g_free (info_text);
-	gdk_pixbuf_unref (mime_pixbuf);
-	gdk_pixbuf_unref (file_icon);
 }
 
 void
@@ -250,7 +198,8 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 		return;
 	do {
 		gpointer ptr;
-		gtk_tree_model_get (GTK_TREE_MODEL (window->transfer_store), &iter, 0, &ptr, -1);
+		gpointer icon;
+		gtk_tree_model_get (GTK_TREE_MODEL (window->transfer_store), &iter, 0, &ptr, 2, &icon, -1);
 		if (ptr == dcc) {
 			gint done = (gint) ((((float)dcc->pos) / ((float) dcc->size)) * 100);
 			gchar *done_text = g_strdup_printf ("%d %%", done);
@@ -267,6 +216,70 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 					    -1);
 			g_free (done_text);
 			g_free (info_text);
+
+			/* We put off rendering the icon until we get at least one update,
+			 * to ensure that gnome-vfs can determine the MIME type
+			 */
+			if (icon == NULL) {
+				GtkIconTheme *icon_theme;
+				char *icon;
+				char *mime;
+				GdkPixbuf *mime_pixbuf, *file_icon, *direction_emblem;
+				int mime_w, mime_h;
+				gpointer image_data;
+
+				/* If the file doesn't exist yet, don't do the icon */
+				if (g_file_test (dcc->destfile, G_FILE_TEST_EXISTS) == FALSE)
+					break;
+
+				/* Get MIME type from gnome-vfs, create the proper file icon for it. */
+				mime = gnome_vfs_get_mime_type (dcc->destfile);
+				icon_theme = gtk_icon_theme_get_default ();
+				icon = gnome_icon_lookup (icon_theme, NULL, NULL, NULL, NULL, mime, GNOME_ICON_LOOKUP_FLAGS_NONE, NULL);
+				mime_pixbuf = gtk_icon_theme_load_icon (icon_theme, icon, 48, 0, NULL);
+
+				mime_w   = gdk_pixbuf_get_width  (mime_pixbuf);
+				mime_h   = gdk_pixbuf_get_height (mime_pixbuf);
+
+				/* Create a new, empty image, 8px bigger than the MIME icon */
+				image_data = g_new0 (char, (mime_w + 8) * (mime_h + 8) * 4 * 8);
+				file_icon = gdk_pixbuf_new_from_data (image_data,
+								      GDK_COLORSPACE_RGB, TRUE, 8,
+								      mime_w + 8, mime_h + 8, (mime_w + 8) * 4,
+								      (GdkPixbufDestroyNotify) g_free, NULL);
+
+				/* Composite on our MIME icon */
+				gdk_pixbuf_composite (mime_pixbuf,
+						      file_icon,
+						      0, 0,
+						      mime_w, mime_h,
+						      0.0, 0.0,
+						      1.0, 1.0,
+						      GDK_INTERP_BILINEAR, 255);
+
+				/* Composite on an emblem which shows the direction of transfer */
+				if (dcc->type == 1)
+					direction_emblem = window->down_icon;
+				else
+					direction_emblem = window->up_icon;
+
+				gdk_pixbuf_composite (direction_emblem,
+						      file_icon,
+						      0, 0,
+						      24, 24,
+						      (double) mime_w - 16,
+						      (double) mime_h - 16,
+						      1.0, 1.0,
+						      GDK_INTERP_BILINEAR, 255);
+
+				g_free (icon);
+
+				gtk_list_store_set (window->transfer_store, &iter, 2, file_icon, -1);
+
+				gdk_pixbuf_unref (mime_pixbuf);
+				gdk_pixbuf_unref (file_icon);
+			}
+
 			break;
 		}
 	} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (window->transfer_store), &iter));
