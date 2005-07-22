@@ -23,6 +23,7 @@ desktop_DATA = xchat-gnome.desktop
 xchat_gnome_DATA =				\
 	channel-list.glade			\
 	connect-dialog.glade			\
+	dcc-window.glade			\
 	irc-network-editor.glade		\
 	preferences-dialog.glade		\
 	setup-dialog.glade			\
@@ -38,77 +39,20 @@ install-data-local:
 		done								\
 	fi
 
-EXTRA_DIST =					\
-	BUGS					\
-	about.h					\
-	about.c					\
-	channel-list.h				\
-	channel-list.c				\
-	connect-dialog.h			\
-	connect-dialog.c			\
-	eggaccelerators.c			\
-	eggaccelerators.h			\
-	eggcellrendererkeys.c			\
-	eggcellrendererkeys.h			\
-	fe-gnome.c				\
-	irc-network.c				\
-	irc-network.h				\
-	irc-network-editor.c			\
-	irc-network-editor.h			\
-	gui.h					\
-	gui.c					\
-	main-window.h				\
-	main-window.c				\
-	navigation-tree.h			\
-	navigation-tree.c			\
-	palette.h				\
-	palette.c				\
-	pixmaps.h				\
-	pixmaps.c				\
-	plugins.h				\
-	plugins.c				\
-	preferences.h				\
-	preferences.c				\
-	preferences-dialog.h			\
-	preferences-dialog.c			\
-	preferences-page-colors.h		\
-	preferences-page-colors.c		\
-	preferences-page-dcc.h			\
-	preferences-page-dcc.c			\
-	preferences-page-irc.h			\
-	preferences-page-irc.c			\
-	preferences-keybindings-page.c		\
-	preferences-keybindings-page.h		\
-	preferences-page-networks.c		\
-	preferences-page-networks.h		\
-	preferences-page-plugins.h		\
-	preferences-page-plugins.c		\
-	setup-dialog.h				\
-	setup-dialog.c				\
-	textgui.h				\
-	textgui.c				\
-	userlist.h				\
-	userlist.c				\
-	userlist-gui.h				\
-	userlist-gui.c				\
-	util.h					\
-	util.c					\
-	xg-plugin.h				\
-	$(xchat_gnome_DATA)			\
-	$(desktop_DATA)				\
-	apps_xchat.schemas
-
 xchat_gnome_LDADD =				\
 	../common/libxchatcommon.a		\
 	$(GUI_LIBS)				\
 	$(LIBSEXY_LIBS)
-xchat_gnome_SOURCES =				\
-	about.h					\
+
+our_sources =					\
 	about.c					\
-	channel-list.h				\
+	about.h					\
 	channel-list.c				\
-	connect-dialog.h			\
+	channel-list.h				\
 	connect-dialog.c			\
+	connect-dialog.h			\
+	dcc-window.c				\
+	dcc-window.h				\
 	eggaccelerators.c			\
 	eggaccelerators.h			\
 	eggcellrendererkeys.c			\
@@ -118,48 +62,61 @@ xchat_gnome_SOURCES =				\
 	irc-network.h				\
 	irc-network-editor.c			\
 	irc-network-editor.h			\
-	gui.h					\
 	gui.c					\
-	main-window.h				\
+	gui.h					\
 	main-window.c				\
-	$(mmx_cmod_S)				\
-	navigation-tree.h			\
+	main-window.h				\
 	navigation-tree.c			\
-	palette.h				\
+	navigation-tree.h			\
 	palette.c				\
-	pixmaps.h				\
+	palette.h				\
 	pixmaps.c				\
-	plugins.h				\
+	pixmaps.h				\
 	plugins.c				\
-	preferences.h				\
+	plugins.h				\
 	preferences.c				\
-	preferences-dialog.h			\
+	preferences.h				\
 	preferences-dialog.c			\
-	preferences-page-colors.h		\
+	preferences-dialog.h			\
 	preferences-page-colors.c		\
-	preferences-page-dcc.h			\
+	preferences-page-colors.h		\
 	preferences-page-dcc.c			\
-	preferences-page-irc.h			\
+	preferences-page-dcc.h			\
 	preferences-page-irc.c			\
-	preferences-keybindings-page.c		\
+	preferences-page-irc.h			\
 	preferences-keybindings-page.h		\
-	preferences-page-networks.c		\
+	preferences-keybindings-page.c		\
 	preferences-page-networks.h		\
-	preferences-page-plugins.h		\
+	preferences-page-networks.c		\
 	preferences-page-plugins.c		\
-	setup-dialog.h				\
+	preferences-page-plugins.h		\
 	setup-dialog.c				\
-	textgui.h				\
+	setup-dialog.h				\
 	textgui.c				\
-	userlist.h				\
+	textgui.h				\
 	userlist.c				\
-	userlist-gui.h				\
+	userlist.h				\
 	userlist-gui.c				\
-	util.h					\
+	userlist-gui.h				\
 	util.c					\
-	xg-plugin.h				\
+	util.h					\
+	xg-plugin.h
+
+xchat_sources =					\
+	$(mmx_cmod_S)				\
 	xtext.h					\
 	xtext.c
+
+xchat_gnome_SOURCES =				\
+	$(our_sources)				\
+	$(xchat_sources)
+
+EXTRA_DIST =					\
+	BUGS					\
+	$(our_sources)				\
+	$(xchat_gnome_DATA)			\
+	$(desktop_DATA)				\
+	apps_xchat.schemas
 
 about.c:	xtext.h
 
