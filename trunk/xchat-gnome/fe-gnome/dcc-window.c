@@ -186,7 +186,7 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 			    2, NULL,
 			    3, done,
 			    4, done_text,
-			    5, "unknown",
+			    5, "starting",
 			    -1);
 
 	g_free (done_text);
@@ -210,16 +210,29 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 			gchar *size = gnome_vfs_format_file_size_for_display (dcc->size);
 			gchar *pos = gnome_vfs_format_file_size_for_display (dcc->pos);
 			gchar *info_text = g_strdup_printf ("%s\nfrom %s\n%s of %s", dcc->file, dcc->nick, pos, size);
+			gchar *remaining_text;
 			g_free (size);
 			g_free (pos);
+
+			/* FIXME: do we want to show queued items at all? */
+			if (dcc->dccstat == 0)
+				remaining_text = g_strdup ("queued");
+			else if (dcc->dccstat == 2)
+				remaining_text = g_strdup ("failed");
+			else if (dcc->dccstat == 3)
+				remaining_text = g_strdup ("done");
+			else
+				remaining_text = g_strdup_printf ("xx:xx");
 
 			gtk_list_store_set (window->transfer_store, &iter,
 					    1, info_text,
 					    3, done,
 					    4, done_text,
+					    5, remaining_text,
 					    -1);
 			g_free (done_text);
 			g_free (info_text);
+			g_free (remaining_text);
 
 			/* We put off rendering the icon until we get at least one update,
 			 * to ensure that gnome-vfs can determine the MIME type
