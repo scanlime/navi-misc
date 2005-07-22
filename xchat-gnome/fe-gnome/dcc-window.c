@@ -79,3 +79,15 @@ dcc_window_get_type (void)
 
 	return dcc_window_type;
 }
+
+DccWindow *
+dcc_window_new ()
+{
+	DccWindow *window = g_object_new (dcc_window_get_type (), 0);
+	if (window->toplevel == NULL) {
+		g_object_unref (window);
+		return NULL;
+	}
+
+	return window;
+}

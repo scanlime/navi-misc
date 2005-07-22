@@ -54,7 +54,7 @@ struct _DccWindowClass
 };
 
 GType      dcc_window_get_type (void) G_GNUC_CONST;
-DccWindow *dcc_window_new (DccWindow *window);
+DccWindow *dcc_window_new ();
 
 G_END_DECLS
 

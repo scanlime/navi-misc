@@ -61,6 +61,8 @@ initialize_gui_2 ()
 	gtk_widget_show (GTK_WIDGET (gui.server_tree));
 	gtk_container_add (GTK_CONTAINER (widget), GTK_WIDGET (gui.server_tree));
 
+	gui.dcc = dcc_window_new ();
+
 	return TRUE;
 }
 
