@@ -1,7 +1,7 @@
 /*
  * irc-network.h - an object which interfaces around the core 'ircnet'
  *
- * Copyright (C) 2005 David Trowbridge
+ * Copyright (C) 2004-2005 xchat-gnome team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
