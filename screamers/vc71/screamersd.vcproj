@@ -19,8 +19,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../include;../src;res;../src/tinyxml"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;TIXML_USE_STL"
+				AdditionalIncludeDirectories="../include;../src;res;../src/tinyxml;../src/tnl;../src/tomcrypt"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;TIXML_USE_STL;TNL_ENABLE_LOGGING"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -32,6 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="OgreMain_d.lib wsock32.lib"
 				OutputFile="$(OutDir)/screamersd_d.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -115,6 +116,18 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath="..\src\ConnectionManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\GameConnection.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Log.cpp">
+			</File>
+			<File
+				RelativePath="..\src\MainLoop.cpp">
+			</File>
+			<File
 				RelativePath="..\src\ScreamersD.cpp">
 			</File>
 			<File
@@ -128,6 +141,18 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;include;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath="..\include\ConnectionManager.h">
+			</File>
+			<File
+				RelativePath="..\include\GameConnection.h">
+			</File>
+			<File
+				RelativePath="..\include\Log.h">
+			</File>
+			<File
+				RelativePath="..\include\MainLoop.h">
+			</File>
 			<File
 				RelativePath="..\include\Screamers.h">
 			</File>

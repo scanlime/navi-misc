@@ -168,6 +168,7 @@ int WorldParser::parseObject (void *_node)
 
 		childNode = childNode->NextSibling ();
 	}
+	return 1;
 }
 
 int WorldParser::parseMesh (void *_node)

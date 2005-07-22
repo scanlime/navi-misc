@@ -23,8 +23,6 @@
 #include <fstream>
 #include "Application.h"
 
-namespace Client {
-
 template<>
 Application* Singleton<Application>::_instance = NULL;
 
@@ -153,5 +151,3 @@ Ogre::RenderWindow *Application::getRenderWindow ()
 {
 	return renderWindow;
 }
-
-};

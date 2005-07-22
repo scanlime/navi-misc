@@ -46,8 +46,8 @@ void GameConnection::connectToServer (const char *server, int port)
 	// connect
 	remote_address = new TNL::Address (TextUtils::format ("ip:%s:%d", server, port).c_str ());
 	TNL::Address local_address (TNL::IPProtocol, TNL::Address::Any, 0);
-	interface = new TNL::NetInterface (local_address);
-	connect (interface, *remote_address);
+	_interface = new TNL::NetInterface (local_address);
+	connect (_interface, *remote_address);
 }
 
 bool GameConnection::isDataToTransmit ()
@@ -64,7 +64,7 @@ void GameConnection::onConnectionTerminated (TNL::NetConnection::TerminationReas
 {
 	TNL::logprintf ("%s - %s connection terminated: %d", getNetAddressString (), isConnectionToServer () ? "server" : "client", reason);
 	if (!isInitiator ())
-		Server::ConnectionManager::instance ().removeConnection (this);
+		ConnectionManager::instance ().removeConnection (this);
 }
 
 void GameConnection::onConnectionEstablished ()
@@ -78,13 +78,13 @@ void GameConnection::onConnectionEstablished ()
 		setGhostFrom (true);
 		setGhostTo (false);
 		activateGhosting ();
-		Server::ConnectionManager::instance ().addConnection (this);
+		ConnectionManager::instance ().addConnection (this);
 	}
 }
 
 bool GameConnection::timeout ()
 {
-	interface->checkIncomingPackets ();
-	interface->processConnections ();
+	_interface->checkIncomingPackets ();
+	_interface->processConnections ();
 	return true;
 }

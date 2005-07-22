@@ -42,7 +42,7 @@ namespace TNL
 /// TNLLogMessageV() macros instead of calling this.
 ///
 /// @see LogConsumer
-extern void logprintf(const char *format, ...);
+ void logprintf(const char *format, ...);
 
 
 /// LogConsumer is the base class for the message logging system in TNL.

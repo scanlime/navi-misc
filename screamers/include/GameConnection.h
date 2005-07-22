@@ -61,7 +61,7 @@ public:
 
 private:
 	TNL::Address		*remote_address;
-	TNL::NetInterface	*interface;
+	TNL::NetInterface	*_interface;
 };
 
 #endif // _GAME_CONNECTION_H_

@@ -22,9 +22,6 @@
 #include <iostream>
 #include "ConnectionManager.h"
 
-namespace Server
-{
-
 template <>
 ConnectionManager* Singleton<ConnectionManager>::_instance = NULL;
 
@@ -63,5 +60,3 @@ void ConnectionManager::removeConnection (GameConnection *connection)
 		}
 	}
 }
-
-};

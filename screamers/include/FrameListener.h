@@ -25,9 +25,6 @@
 #ifndef _FRAME_LISTENER_H_
 #define _FRAME_LISTENER_H_
 
-namespace Client
-{
-
 class FrameListener : public Ogre::FrameListener
 {
 public:
@@ -67,8 +64,6 @@ public:
 				~MainLoopTrigger ();
 
 	virtual bool		 frameEnded (const Ogre::FrameEvent &event);
-};
-
 };
 
 #endif
