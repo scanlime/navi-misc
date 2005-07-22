@@ -55,6 +55,9 @@ struct _DccWindow
 	GtkTreeViewColumn *progress_column;
 	GtkTreeViewColumn *info_column;
 	GtkTreeViewColumn *remaining_column;
+
+	GdkPixbuf *up_icon;
+	GdkPixbuf *down_icon;
 };
 
 struct _DccWindowClass
@@ -64,9 +67,9 @@ struct _DccWindowClass
 
 GType      dcc_window_get_type (void) G_GNUC_CONST;
 DccWindow *dcc_window_new ();
-void       dcc_window_add (struct DCC *dcc);
-void       dcc_window_update (struct DCC *dcc);
-void       dcc_window_remove (struct DCC *dcc);
+void       dcc_window_add (DccWindow *window, struct DCC *dcc);
+void       dcc_window_update (DccWindow *window, struct DCC *dcc);
+void       dcc_window_remove (DccWindow *window, struct DCC *dcc);
 
 G_END_DECLS
 

@@ -21,6 +21,7 @@
 
 #include <glib.h>
 #include <gnome.h>
+#include <libgnomevfs/gnome-vfs.h>
 #include <config.h>
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
@@ -94,6 +95,8 @@ fe_args (int argc, char *argv[])
 void
 fe_init (void)
 {
+	gnome_vfs_init ();
+
 	u = userlist_new ();
 	gui.quit = FALSE;
 	servlist_init ();
@@ -381,19 +384,19 @@ fe_userlist_clear (struct session *sess)
 void
 fe_dcc_add (struct DCC *dcc)
 {
-	dcc_window_add (dcc);
+	dcc_window_add (gui.dcc, dcc);
 }
 
 void
 fe_dcc_update (struct DCC *dcc)
 {
-	dcc_window_update (dcc);
+	dcc_window_update (gui.dcc, dcc);
 }
 
 void
 fe_dcc_remove (struct DCC *dcc)
 {
-	dcc_window_remove (dcc);
+	dcc_window_remove (gui.dcc, dcc);
 }
 
 int

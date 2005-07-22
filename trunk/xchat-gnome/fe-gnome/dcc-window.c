@@ -19,7 +19,10 @@
  *
  */
 
+#include <glib.h>
 #include <libgnome/gnome-i18n.h>
+#include <libgnomevfs/gnome-vfs-mime-utils.h>
+#include <libgnomeui/gnome-icon-lookup.h>
 #include "dcc-window.h"
 
 static GtkWindowClass *parent_class;
@@ -142,16 +145,124 @@ dcc_window_new ()
 }
 
 void
-dcc_window_add (struct DCC *dcc)
+dcc_window_add (DccWindow *window, struct DCC *dcc)
 {
+	GtkTreeIter iter;
+	gint done = (gint) ((((float)dcc->pos) / ((float) dcc->size)) * 100);
+	gchar *done_text, *info_text;
+
+	GtkIconTheme *icon_theme;
+	char *icon;
+	char *mime;
+	GdkPixbuf *mime_pixbuf, *file_icon;
+	int mime_w, mime_h;
+	int emblem_w, emblem_h;
+	gpointer data;
+
+	/* We don't care about DCC chats */
+	if (dcc->type == 2)
+		return;
+
+	if (window->up_icon == NULL) {
+		window->up_icon = gtk_widget_render_icon (GTK_WIDGET (window),
+							  GTK_STOCK_GO_UP,
+							  GTK_ICON_SIZE_SMALL_TOOLBAR,
+							  NULL);
+		window->down_icon = gtk_widget_render_icon (GTK_WIDGET (window),
+							    GTK_STOCK_GO_DOWN,
+							    GTK_ICON_SIZE_SMALL_TOOLBAR,
+							    NULL);
+	}
+
+	done_text = g_strdup_printf ("%d %%", done);
+	info_text = g_strdup_printf ("%s\nfrom %s\n%s of %s", dcc->file, dcc->nick, "x", "x");
+
+	/* Get a nice MIME icon for this file */
+	mime = gnome_vfs_get_mime_type (dcc->file);
+	icon_theme = gtk_icon_theme_get_default ();
+	icon = gnome_icon_lookup (icon_theme, NULL, NULL, NULL, NULL, mime, GNOME_ICON_LOOKUP_FLAGS_NONE, NULL);
+	mime_pixbuf = gtk_icon_theme_load_icon (icon_theme, icon, 32, 0, NULL);
+
+	mime_w   = gdk_pixbuf_get_width  (mime_pixbuf);
+	mime_h   = gdk_pixbuf_get_height (mime_pixbuf);
+	emblem_w = gdk_pixbuf_get_width  (window->up_icon);
+	emblem_h = gdk_pixbuf_get_height (window->up_icon);
+
+	data = g_new0 (char, (mime_w + 16) * (mime_h + 16) * 4 * 8);
+	file_icon = gdk_pixbuf_new_from_data (data,
+			GDK_COLORSPACE_RGB, TRUE, 8,
+			mime_w + 16, mime_h + 16, (mime_w + 16) * 4,
+			(GdkPixbufDestroyNotify) g_free, NULL);
+
+	gdk_pixbuf_composite (mime_pixbuf, file_icon, 0, 0, mime_w, mime_h, 0.0, 0.0, 1.0, 1.0, GDK_INTERP_BILINEAR, 255);
+
+	if (dcc->type == 1)
+		gdk_pixbuf_composite (window->down_icon,
+				      file_icon,
+				      mime_w + 16 - emblem_w,
+				      mime_h + 16 - emblem_h,
+				      emblem_w, emblem_h,
+				      0.0, 0.0,
+				      1.0, 1.0,
+				      GDK_INTERP_BILINEAR, 255);
+	else
+		gdk_pixbuf_composite (window->up_icon,
+				      file_icon,
+				      mime_w + 16 - emblem_w,
+				      mime_h + 16 - emblem_h,
+				      emblem_w, emblem_h,
+				      0.0, 0.0,
+				      1.0, 1.0,
+				      GDK_INTERP_BILINEAR, 255);
+
+	g_print ("MIME type is %s\nIcon is %s\n", mime, icon);
+
+	g_free (icon);
+
+	gtk_list_store_prepend (window->transfer_store, &iter);
+	gtk_list_store_set (window->transfer_store, &iter,
+			    0, dcc,
+			    1, info_text,
+			    2, file_icon,
+			    3, done,
+			    4, done_text,
+			    5, "unknown",
+			    -1);
+
+	g_free (done_text);
+	g_free (info_text);
+	gdk_pixbuf_unref (mime_pixbuf);
+	gdk_pixbuf_unref (file_icon);
 }
 
 void
-dcc_window_update (struct DCC *dcc)
+dcc_window_update (DccWindow *window, struct DCC *dcc)
 {
+	GtkTreeIter iter;
+
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (window->transfer_store), &iter) == FALSE)
+		return;
+	do {
+		gpointer ptr;
+		gtk_tree_model_get (GTK_TREE_MODEL (window->transfer_store), &iter, 0, &ptr, -1);
+		if (ptr == dcc) {
+			gint done = (gint) ((((float)dcc->pos) / ((float) dcc->size)) * 100);
+			gchar *done_text = g_strdup_printf ("%d %%", done);
+			gchar *info_text = g_strdup_printf ("%s\nfrom %s\n%s of %s", dcc->file, dcc->nick, "x", "x");
+
+			gtk_list_store_set (window->transfer_store, &iter,
+					    1, info_text,
+					    3, done,
+					    4, done_text,
+					    -1);
+			g_free (done_text);
+			g_free (info_text);
+			break;
+		}
+	} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (window->transfer_store), &iter));
 }
 
 void
-dcc_window_remove (struct DCC *dcc)
+dcc_window_remove (DccWindow *window, struct DCC *dcc)
 {
 }
