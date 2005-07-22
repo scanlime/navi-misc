@@ -22,6 +22,7 @@
 #include <glib.h>
 #include <libgnome/gnome-i18n.h>
 #include <libgnomevfs/gnome-vfs-mime-utils.h>
+#include <libgnomevfs/gnome-vfs-utils.h>
 #include <libgnomeui/gnome-icon-lookup.h>
 #include "dcc-window.h"
 
@@ -75,7 +76,7 @@ dcc_window_init (DccWindow *window)
 	window->remaining_column = gtk_tree_view_column_new ();
 
 	window->progress_cell = gtk_cell_renderer_progress_new ();
-	gtk_tree_view_column_pack_start (window->progress_column, window->progress_cell, FALSE);
+	gtk_tree_view_column_pack_start (window->progress_column, window->progress_cell, TRUE);
 	gtk_tree_view_column_add_attribute (window->progress_column, window->progress_cell, "value", 3);
 	gtk_tree_view_column_add_attribute (window->progress_column, window->progress_cell, "text", 4);
 
@@ -88,12 +89,18 @@ dcc_window_init (DccWindow *window)
 	gtk_tree_view_column_add_attribute (window->info_column, window->info_cell, "markup", 1);
 
 	window->remaining_cell = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start (window->remaining_column, window->remaining_cell, FALSE);
+	gtk_tree_view_column_pack_start (window->remaining_column, window->remaining_cell, TRUE);
 	gtk_tree_view_column_add_attribute (window->remaining_column, window->remaining_cell, "text", 5);
 
 	gtk_tree_view_column_set_title (window->progress_column, "%");
 	gtk_tree_view_column_set_title (window->info_column, "File");
 	gtk_tree_view_column_set_title (window->remaining_column, "Remaining");
+
+	gtk_tree_view_column_set_min_width (window->progress_column, 75);
+
+	gtk_tree_view_column_set_expand (window->progress_column, FALSE);
+	gtk_tree_view_column_set_expand (window->info_column, TRUE);
+	gtk_tree_view_column_set_expand (window->remaining_column, FALSE);
 
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->progress_column);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->info_column);
@@ -156,66 +163,65 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 	char *mime;
 	GdkPixbuf *mime_pixbuf, *file_icon;
 	int mime_w, mime_h;
-	int emblem_w, emblem_h;
 	gpointer data;
+	char *size, *pos;
 
 	/* We don't care about DCC chats */
 	if (dcc->type == 2)
 		return;
 
 	if (window->up_icon == NULL) {
-		window->up_icon = gtk_widget_render_icon (GTK_WIDGET (window),
-							  GTK_STOCK_GO_UP,
-							  GTK_ICON_SIZE_SMALL_TOOLBAR,
-							  NULL);
-		window->down_icon = gtk_widget_render_icon (GTK_WIDGET (window),
-							    GTK_STOCK_GO_DOWN,
-							    GTK_ICON_SIZE_SMALL_TOOLBAR,
-							    NULL);
+		if (g_file_test ("data/stock_up.png", G_FILE_TEST_EXISTS)) {
+			window->up_icon   = gdk_pixbuf_new_from_file_at_size ("data/stock_up.png",   16, 16, NULL);
+			window->down_icon = gdk_pixbuf_new_from_file_at_size ("data/stock_down.png", 16, 16, NULL);
+		} else {
+			window->up_icon   = gdk_pixbuf_new_from_file_at_size (XCHATSHAREDIR "/stock_up.png",   16, 16, NULL);
+			window->down_icon = gdk_pixbuf_new_from_file_at_size (XCHATSHAREDIR "/stock_down.png", 16, 16, NULL);
+		}
 	}
 
 	done_text = g_strdup_printf ("%d %%", done);
-	info_text = g_strdup_printf ("%s\nfrom %s\n%s of %s", dcc->file, dcc->nick, "x", "x");
+	size = gnome_vfs_format_file_size_for_display (dcc->size);
+	pos = gnome_vfs_format_file_size_for_display (dcc->pos);
+	info_text = g_strdup_printf ("%s\nfrom %s\n%s of %s", dcc->file, dcc->nick, pos, size);
+	g_free (size);
+	g_free (pos);
 
 	/* Get a nice MIME icon for this file */
-	mime = gnome_vfs_get_mime_type (dcc->file);
+	mime = gnome_vfs_get_mime_type (dcc->destfile);
 	icon_theme = gtk_icon_theme_get_default ();
 	icon = gnome_icon_lookup (icon_theme, NULL, NULL, NULL, NULL, mime, GNOME_ICON_LOOKUP_FLAGS_NONE, NULL);
-	mime_pixbuf = gtk_icon_theme_load_icon (icon_theme, icon, 32, 0, NULL);
+	mime_pixbuf = gtk_icon_theme_load_icon (icon_theme, icon, 48, 0, NULL);
 
 	mime_w   = gdk_pixbuf_get_width  (mime_pixbuf);
 	mime_h   = gdk_pixbuf_get_height (mime_pixbuf);
-	emblem_w = gdk_pixbuf_get_width  (window->up_icon);
-	emblem_h = gdk_pixbuf_get_height (window->up_icon);
 
-	data = g_new0 (char, (mime_w + 16) * (mime_h + 16) * 4 * 8);
+	data = g_new0 (char, (mime_w + 8) * (mime_h + 8) * 4 * 8);
 	file_icon = gdk_pixbuf_new_from_data (data,
 			GDK_COLORSPACE_RGB, TRUE, 8,
-			mime_w + 16, mime_h + 16, (mime_w + 16) * 4,
+			mime_w + 8, mime_h + 8, (mime_w + 8) * 4,
 			(GdkPixbufDestroyNotify) g_free, NULL);
 
-	gdk_pixbuf_composite (mime_pixbuf, file_icon, 0, 0, mime_w, mime_h, 0.0, 0.0, 1.0, 1.0, GDK_INTERP_BILINEAR, 255);
+	gdk_pixbuf_composite (mime_pixbuf, file_icon, 0, 0, mime_w - 1, mime_h - 1, 0.0, 0.0, 1.0, 1.0, GDK_INTERP_BILINEAR, 255);
 
 	if (dcc->type == 1)
 		gdk_pixbuf_composite (window->down_icon,
 				      file_icon,
-				      mime_w + 16 - emblem_w,
-				      mime_h + 16 - emblem_h,
-				      emblem_w, emblem_h,
+				      mime_w - 8,
+				      mime_h - 8,
+				      15, 15,
 				      0.0, 0.0,
 				      1.0, 1.0,
 				      GDK_INTERP_BILINEAR, 255);
 	else
 		gdk_pixbuf_composite (window->up_icon,
 				      file_icon,
-				      mime_w + 16 - emblem_w,
-				      mime_h + 16 - emblem_h,
-				      emblem_w, emblem_h,
+				      mime_w - 8,
+				      mime_h - 8,
+				      15, 15,
 				      0.0, 0.0,
 				      1.0, 1.0,
 				      GDK_INTERP_BILINEAR, 255);
-
-	g_print ("MIME type is %s\nIcon is %s\n", mime, icon);
 
 	g_free (icon);
 
@@ -248,7 +254,11 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 		if (ptr == dcc) {
 			gint done = (gint) ((((float)dcc->pos) / ((float) dcc->size)) * 100);
 			gchar *done_text = g_strdup_printf ("%d %%", done);
-			gchar *info_text = g_strdup_printf ("%s\nfrom %s\n%s of %s", dcc->file, dcc->nick, "x", "x");
+			gchar *size = gnome_vfs_format_file_size_for_display (dcc->size);
+			gchar *pos = gnome_vfs_format_file_size_for_display (dcc->pos);
+			gchar *info_text = g_strdup_printf ("%s\nfrom %s\n%s of %s", dcc->file, dcc->nick, pos, size);
+			g_free (size);
+			g_free (pos);
 
 			gtk_list_store_set (window->transfer_store, &iter,
 					    1, info_text,
