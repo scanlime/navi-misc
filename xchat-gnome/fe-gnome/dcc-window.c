@@ -50,7 +50,20 @@ dcc_window_init (DccWindow *window)
 
 	g_object_unref (xml);
 
-	window->transfer_store = gtk_list_store_new (1, G_TYPE_STRING);
+	window->transfer_store = gtk_list_store_new (7,
+		G_TYPE_POINTER,		/* DCC struct */
+		G_TYPE_STRING,		/* MIME type */
+		G_TYPE_STRING,		/* nickname */
+		GDK_TYPE_PIXBUF,	/* File icon */
+#ifdef USE_DCC64
+		G_TYPE_INT64,		/* Size */
+		G_TYPE_INT64,		/* Position */
+#else
+		G_TYPE_INT,		/* Size */
+		G_TYPE_INT,		/* Position */
+#endif
+		G_TYPE_STRING		/* filename */
+		);
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (window->transfer_list), GTK_TREE_MODEL (window->transfer_store));
 
