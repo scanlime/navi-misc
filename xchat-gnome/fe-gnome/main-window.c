@@ -549,8 +549,6 @@ run_main_window ()
 	gtk_widget_show (GTK_WIDGET (gui.main_window));
 
 	/* Temporarily disable menu items */
-	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/IRCMenu/IRCDownloadsItem");
-	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/InsertMenu/InsertColorCodeItem");
 	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/NetworkMenu/NetworkInformationItem");
@@ -688,6 +686,7 @@ on_network_close_activate (GtkAction *actoin, gpointer data)
 static void
 on_irc_downloads_activate (GtkAction *action, gpointer data)
 {
+	gtk_window_present (GTK_WINDOW (gui.dcc));
 }
 
 static void

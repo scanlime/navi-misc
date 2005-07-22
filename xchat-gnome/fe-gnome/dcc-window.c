@@ -19,6 +19,7 @@
  *
  */
 
+#include <libgnome/gnome-i18n.h>
 #include "dcc-window.h"
 
 static GtkWindowClass *parent_class;
@@ -55,6 +56,9 @@ dcc_window_init (DccWindow *window)
 
 	gtk_container_set_border_width (GTK_CONTAINER (window), 12);
 	gtk_container_add (GTK_CONTAINER (window), window->toplevel);
+
+	gtk_window_set_default_size (GTK_WINDOW (window), 300, 400);
+	gtk_window_set_title (GTK_WINDOW (window), _("File Transfers"));
 }
 
 GType
@@ -80,6 +84,13 @@ dcc_window_get_type (void)
 	return dcc_window_type;
 }
 
+static gboolean
+dcc_window_delete_event (GtkWidget *window, GdkEvent *event, gpointer data)
+{
+	gtk_widget_hide (window);
+	return TRUE;
+}
+
 DccWindow *
 dcc_window_new ()
 {
@@ -88,6 +99,8 @@ dcc_window_new ()
 		g_object_unref (window);
 		return NULL;
 	}
+
+	g_signal_connect (G_OBJECT (window), "delete-event", G_CALLBACK (dcc_window_delete_event), NULL);
 
 	return window;
 }
