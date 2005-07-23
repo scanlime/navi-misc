@@ -1,3 +1,7 @@
+0.5
+	* DCC user interface, including send/recieve window, preferences, file choosers, etc - David Trowbridge
+	* libsexy integration - David Trowbridge
+
 0.4 "Buyer beware - Penis patches!" (13 May 2005)
 	* Basic functionality in notification area plugin - Evan Sheehan
 	* Connect dialog will only connect once to any particular server - Evan Sheehan
