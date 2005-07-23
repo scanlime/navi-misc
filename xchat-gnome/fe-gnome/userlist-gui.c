@@ -38,13 +38,14 @@ static void user_kick_activate (GtkAction *action, gpointer data);
 static void user_ban_activate (GtkAction *action, gpointer data);
 
 static GtkActionEntry popup_action_entries [] = {
-	{ "UserlistSendFile", NULL, _("_Send File"), "", NULL, G_CALLBACK (user_send_file_activate) },
+	{ "UserlistSendFile", NULL, _("_Send File..."), "", NULL, G_CALLBACK (user_send_file_activate) },
 	{ "UserlistOpenDialog", NULL, _("Open _Dialog"), "", NULL, G_CALLBACK (user_open_dialog_activate) },
 	{ "UserlistKick", NULL, _("_Kick"), "", NULL, G_CALLBACK (user_kick_activate) },
 	{ "UserlistBan", NULL, _("_Ban"), "", NULL, G_CALLBACK (user_ban_activate) }
 };
 
-GtkTooltips *tooltips;
+static GtkTooltips *tooltips;
+static struct User *current_user;
 
 void
 initialize_userlist ()
@@ -131,12 +132,14 @@ userlist_context (GtkWidget *treeview, struct User *user)
 	menu = gtk_ui_manager_get_widget (gui.manager, "/UserlistPopup");
 	g_return_if_fail (menu != NULL);
 
+	current_user = user;
+
 	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 2, gtk_get_current_event_time ());
 }
 
 static void user_send_file_activate (GtkAction *action, gpointer data)
 {
-	/* FIXME implement me! */
+	dcc_send_file (current_user);
 }
 
 static void user_open_dialog_activate (GtkAction *action, gpointer data)

@@ -21,6 +21,7 @@
 
 #include "../common/xchat.h"
 #include "../common/dcc.h"
+#include "../common/userlist.h"
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 
@@ -70,6 +71,7 @@ DccWindow *dcc_window_new ();
 void       dcc_window_add (DccWindow *window, struct DCC *dcc);
 void       dcc_window_update (DccWindow *window, struct DCC *dcc);
 void       dcc_window_remove (DccWindow *window, struct DCC *dcc);
+void       dcc_send_file (struct User *user);
 
 G_END_DECLS
 

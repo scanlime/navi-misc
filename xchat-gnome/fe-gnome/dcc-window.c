@@ -24,6 +24,7 @@
 #include <libgnomevfs/gnome-vfs-mime-utils.h>
 #include <libgnomevfs/gnome-vfs-utils.h>
 #include <libgnomeui/gnome-icon-lookup.h>
+#include "gui.h"
 #include "dcc-window.h"
 
 static GtkWindowClass *parent_class;
@@ -37,7 +38,6 @@ static void
 dcc_window_init (DccWindow *window)
 {
 	GladeXML *xml;
-	GtkIconSize icon_size;
 
 	xml = NULL;
 	if (g_file_test ("dcc-window.glade", G_FILE_TEST_EXISTS))
@@ -317,4 +317,29 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 void
 dcc_window_remove (DccWindow *window, struct DCC *dcc)
 {
+}
+
+void
+dcc_send_file (struct User *user)
+{
+	GtkWidget *dialog;
+	GtkResponseType response;
+
+	dialog = gtk_file_chooser_dialog_new ("Send File...",
+			GTK_WINDOW (gui.main_window),
+			GTK_FILE_CHOOSER_ACTION_OPEN,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+			NULL);
+
+	response = gtk_dialog_run (GTK_DIALOG (dialog));
+	gtk_widget_hide (dialog);
+
+	if (response == GTK_RESPONSE_ACCEPT) {
+		gchar *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+		dcc_send (gui.current_session, user->nick, filename, 0, FALSE);
+		g_free (filename);
+	}
+
+	gtk_widget_destroy (dialog);
 }
