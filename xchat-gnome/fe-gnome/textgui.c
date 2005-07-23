@@ -24,6 +24,7 @@
 #include "preferences.h"
 #include "../common/text.h"
 #include "../common/xchatc.h"
+#include "../common/userlist.h"
 #include "../common/fe.h"
 #include "../common/url.h"
 #include <libgnome/gnome-url.h> /* gnome_url_show */
@@ -320,8 +321,17 @@ clear_buffer (struct session *sess)
 int
 check_word (GtkWidget *xtext, char *word, int len)
 {
+	int url;
 	current_sess = gui.current_session;
-	return url_check_word (word, len);
+
+	url = url_check_word (word, len);
+	if (url == 0) {
+		if (((word[0]=='@' || word[0]=='+') && find_name (current_sess, word+1)) || find_name (current_sess, word))
+			return WORD_NICK;
+		if (current_sess->type == SESS_DIALOG)
+			return WORD_DIALOG;
+	}
+	return url;
 }
 
 void
