@@ -35,9 +35,37 @@ dcc_window_class_init (DccWindowClass *klass)
 }
 
 static void
+transfer_selection_changed (GtkTreeSelection *selection, DccWindow *window)
+{
+	if (gtk_tree_selection_get_selected (selection, NULL, NULL))
+		gtk_widget_set_sensitive (window->stop_button, TRUE);
+	else
+		gtk_widget_set_sensitive (window->stop_button, FALSE);
+}
+
+static void
+transfer_stop_clicked (GtkButton *button, DccWindow *window)
+{
+	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	struct DCC *dcc;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (window->transfer_list));
+	if (gtk_tree_selection_get_selected (selection, &model, &iter) == FALSE)
+		return;
+
+	gtk_tree_model_get (model, &iter, 0, &dcc, -1);
+	dcc_abort (dcc->serv->server_session, dcc);
+
+	gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+}
+
+static void
 dcc_window_init (DccWindow *window)
 {
 	GladeXML *xml;
+	GtkTreeSelection *selection;
 
 	xml = NULL;
 	if (g_file_test ("dcc-window.glade", G_FILE_TEST_EXISTS))
@@ -54,6 +82,9 @@ dcc_window_init (DccWindow *window)
 #undef GW
 
 	g_object_unref (xml);
+
+	gtk_widget_set_sensitive (window->stop_button, FALSE);
+	g_signal_connect (G_OBJECT (window->stop_button), "clicked", G_CALLBACK (transfer_stop_clicked), window);
 
 	window->transfer_store = gtk_list_store_new (6,
 		G_TYPE_POINTER,		/* DCC struct */
@@ -114,6 +145,9 @@ dcc_window_init (DccWindow *window)
 		window->up_icon   = gdk_pixbuf_new_from_file_at_size (XCHATSHAREDIR "/stock_up.png",   24, 24, NULL);
 		window->down_icon = gdk_pixbuf_new_from_file_at_size (XCHATSHAREDIR "/stock_down.png", 24, 24, NULL);
 	}
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (window->transfer_list));
+	g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (transfer_selection_changed), window);
 }
 
 GType
@@ -222,9 +256,14 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 			if (dcc->dccstat == 0) {
 				remaining_text = g_strdup ("queued");
 			} else if (dcc->dccstat == 2) {
-				remaining_text = g_strdup ("failed");
+				gchar *message = g_strdup_printf ("Transfer of %s %s %s failed", dcc->file, dcc->type == 0 ? "to" : "from", dcc->nick);
+				error_dialog ("Transfer failed", message);
+				g_free (message);
+				gtk_list_store_remove (window->transfer_store, &iter);
+				break;
 			} else if (dcc->dccstat == 3) {
-				remaining_text = g_strdup ("done");
+				gtk_list_store_remove (window->transfer_store, &iter);
+				break;
 			} else {
 				if (dcc->cps == 0) {
 					remaining_text = g_strdup ("stalled");
@@ -317,6 +356,17 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 void
 dcc_window_remove (DccWindow *window, struct DCC *dcc)
 {
+	GtkTreeIter iter;
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (window->transfer_store), &iter) == FALSE)
+		return;
+	do {
+		gpointer ptr;
+		gtk_tree_model_get (GTK_TREE_MODEL (window->transfer_store), &iter, 0, &ptr, -1);
+		if (ptr == dcc) {
+			gtk_list_store_remove (window->transfer_store, &iter);
+			break;
+		}
+	} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (window->transfer_store), &iter));
 }
 
 void
