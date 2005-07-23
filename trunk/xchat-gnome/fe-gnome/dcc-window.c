@@ -215,14 +215,23 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 			g_free (pos);
 
 			/* FIXME: do we want to show queued items at all? */
-			if (dcc->dccstat == 0)
+			if (dcc->dccstat == 0) {
 				remaining_text = g_strdup ("queued");
-			else if (dcc->dccstat == 2)
+			} else if (dcc->dccstat == 2) {
 				remaining_text = g_strdup ("failed");
-			else if (dcc->dccstat == 3)
+			} else if (dcc->dccstat == 3) {
 				remaining_text = g_strdup ("done");
-			else
-				remaining_text = g_strdup_printf ("xx:xx");
+			} else {
+				if (dcc->cps == 0) {
+					remaining_text = g_strdup ("stalled");
+				} else {
+					int eta = (dcc->size - dcc->pos) / dcc->cps;
+					if (eta > 3600)
+						remaining_text = g_strdup_printf ("%.2d:%.2d:%.2d", eta / 3600, (eta / 60) % 60, eta % 60);
+					else
+						remaining_text = g_strdup_printf ("%.2d:%.2d", eta / 60, eta % 60);
+				}
+			}
 
 			gtk_list_store_set (window->transfer_store, &iter,
 					    1, info_text,
