@@ -2,28 +2,23 @@ This is just a preliminary roadmap, subject to whatever people want to work on.
 
 0.5:	Features
 -	Redo DCC UI						- David
--	Implement options in channel list dialog
+-	Implement options in channel list dialog		- David
 -	Allow plugins to add a prefs page to the prefs dialog	- Evan
+
+Future:
 -	Finish implementing keybindings UI?			- Dan
 -	Fix context menus - implement unworking,
 	make menus actually depend on the context
-
-
-0.6:	Refactoring
 -	Convert individual dialogs/pages into GObjects where
 	possible, keeping pointers to widgets - remove most
 	of the calls to glade_xml_get_widget(), free GladeXML
 	data asap to reduce footprint
-
-0.7:
 -	User documentation!
 -	Any other infrastructure for translation
-
-undetermined:
 -	Autopackage/binreloc/relaytool
 -	Make URLs in xtext show up as blue (gconf configurable color?)
 -	Make text surrounded by asterisks show up as bold, text
-	surrouned by underscores show up as underlined, etc
+	surrounded by underscores show up as underlined, etc
 -	Refactor for multiple conversation windows?
 
 when releasing:
