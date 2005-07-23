@@ -172,6 +172,10 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 	if (dcc->type == 2)
 		return;
 
+	/* FIXME: need to ask the user for confirmation if the connection
+	 * is queued and auto-accept isn't turned on
+	 */
+
 	done_text = g_strdup_printf ("%d %%", done);
 	size = gnome_vfs_format_file_size_for_display (dcc->size);
 	pos = gnome_vfs_format_file_size_for_display (dcc->pos);
