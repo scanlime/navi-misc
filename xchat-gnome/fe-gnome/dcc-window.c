@@ -175,7 +175,7 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 	done_text = g_strdup_printf ("%d %%", done);
 	size = gnome_vfs_format_file_size_for_display (dcc->size);
 	pos = gnome_vfs_format_file_size_for_display (dcc->pos);
-	info_text = g_strdup_printf ("%s\nfrom %s\n%s of %s", dcc->file, dcc->nick, pos, size);
+	info_text = g_strdup_printf ("<b>%s</b>\n<small>from %s</small>\n%s of %s", dcc->file, dcc->nick, pos, size);
 	g_free (size);
 	g_free (pos);
 
@@ -209,7 +209,7 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 			gchar *done_text = g_strdup_printf ("%d %%", done);
 			gchar *size = gnome_vfs_format_file_size_for_display (dcc->size);
 			gchar *pos = gnome_vfs_format_file_size_for_display (dcc->pos);
-			gchar *info_text = g_strdup_printf ("%s\nfrom %s\n%s of %s", dcc->file, dcc->nick, pos, size);
+			gchar *info_text = g_strdup_printf ("<b>%s</b>\n<small>from %s</small>\n%s of %s", dcc->file, dcc->nick, pos, size);
 			gchar *remaining_text;
 			g_free (size);
 			g_free (pos);
