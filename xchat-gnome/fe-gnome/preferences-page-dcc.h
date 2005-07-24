@@ -28,6 +28,20 @@
 typedef struct
 {
 	GdkPixbuf *icon;
+
+	GtkWidget *download_dir_button;
+	GtkWidget *completed_dir_button;
+	GtkWidget *convert_spaces;
+	GtkWidget *save_nicknames_dcc;
+	GtkWidget *autoaccept_dcc_chat;
+	GtkWidget *autoaccept_dcc_file;
+	GtkWidget *get_dcc_ip_from_server;
+	GtkWidget *use_specified_dcc_ip;
+	GtkWidget *special_ip_address;
+	GtkWidget *individual_send_throttle;
+	GtkWidget *global_send_throttle;
+	GtkWidget *individual_receive_throttle;
+	GtkWidget *global_recieve_throttle;
 } PreferencesDCCPage;
 
 PreferencesDCCPage *preferences_page_dcc_new  (gpointer prefs_dialog, GladeXML *xml);
