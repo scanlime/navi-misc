@@ -19,6 +19,8 @@
  *
  */
 
+#include "../common/xchat.h"
+#include "../common/xchatc.h"
 #include "preferences-page-dcc.h"
 #include "preferences-dialog.h"
 
@@ -45,6 +47,16 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	GW(individual_receive_throttle);
 	GW(global_receive_throttle);
 #undef GW
+
+	gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (page->download_dir_button), prefs.dccdir);
+	if (strlen (prefs.dcc_completed_dir) == 0)
+		gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (page->completed_dir_button), prefs.dccdir);
+	else
+		gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (page->completed_dir_button), prefs.dcc_completed_dir);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->convert_spaces), prefs.dcc_send_fillspaces);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->save_nicknames_dcc), prefs.dccwithnick);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->autoaccept_dcc_chat), prefs.autodccchat);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->autoaccept_dcc_file), prefs.autodccsend);
 
 	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 	gtk_size_group_add_widget (group, page->download_dir_button);
