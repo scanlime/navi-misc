@@ -28,6 +28,7 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	GtkTreeIter iter;
 	PreferencesDCCPage *page = g_new0 (PreferencesDCCPage, 1);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
+	GtkSizeGroup *group;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
 	GW(download_dir_button);
@@ -42,8 +43,18 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	GW(individual_send_throttle);
 	GW(global_send_throttle);
 	GW(individual_receive_throttle);
-	GW(global_recieve_throttle);
+	GW(global_receive_throttle);
 #undef GW
+
+	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
+	gtk_size_group_add_widget (group, page->download_dir_button);
+	gtk_size_group_add_widget (group, page->completed_dir_button);
+	gtk_size_group_add_widget (group, page->special_ip_address);
+	gtk_size_group_add_widget (group, page->individual_send_throttle);
+	gtk_size_group_add_widget (group, page->global_send_throttle);
+	gtk_size_group_add_widget (group, page->individual_receive_throttle);
+	gtk_size_group_add_widget (group, page->global_receive_throttle);
+	g_object_unref (group);
 
 	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/dcc.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
