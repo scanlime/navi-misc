@@ -1817,7 +1817,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkEntry" id="entry1">
+				    <widget class="GtkEntry" id="special_ip_address">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="editable">True</property>
@@ -1952,7 +1952,6 @@
 				      <property name="yalign">0.5</property>
 				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
-				      <property name="mnemonic_widget">individual send throttle</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">False</property>
@@ -1966,7 +1965,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkSpinButton" id="individual send throttle">
+				    <widget class="GtkSpinButton" id="individual_send_throttle">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="climb_rate">1</property>
@@ -2011,7 +2010,6 @@
 				      <property name="yalign">0.5</property>
 				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
-				      <property name="mnemonic_widget">global send throttle</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">False</property>
@@ -2025,7 +2023,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkSpinButton" id="global send throttle">
+				    <widget class="GtkSpinButton" id="global_send_throttle">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="climb_rate">1</property>
@@ -2070,7 +2068,6 @@
 				      <property name="yalign">0.5</property>
 				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
-				      <property name="mnemonic_widget">individual receive throttle</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">False</property>
@@ -2084,7 +2081,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkSpinButton" id="individual receive throttle">
+				    <widget class="GtkSpinButton" id="individual_receive_throttle">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="climb_rate">1</property>
@@ -2129,7 +2126,6 @@
 				      <property name="yalign">0.5</property>
 				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
-				      <property name="mnemonic_widget">global receive throttle</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">False</property>
@@ -2143,7 +2139,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkSpinButton" id="global receive throttle">
+				    <widget class="GtkSpinButton" id="global_receive_throttle">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
 				      <property name="climb_rate">1</property>

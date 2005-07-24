@@ -29,6 +29,22 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	PreferencesDCCPage *page = g_new0 (PreferencesDCCPage, 1);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
 
+#define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
+	GW(download_dir_button);
+	GW(completed_dir_button);
+	GW(convert_spaces);
+	GW(save_nicknames_dcc);
+	GW(autoaccept_dcc_chat);
+	GW(autoaccept_dcc_file);
+	GW(get_dcc_ip_from_server);
+	GW(use_specified_dcc_ip);
+	GW(special_ip_address);
+	GW(individual_send_throttle);
+	GW(global_send_throttle);
+	GW(individual_receive_throttle);
+	GW(global_recieve_throttle);
+#undef GW
+
 	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/dcc.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "File Transfers & DCC", 2, 2, -1);
