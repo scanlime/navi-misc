@@ -41,7 +41,7 @@ typedef struct
 	GtkWidget *individual_send_throttle;
 	GtkWidget *global_send_throttle;
 	GtkWidget *individual_receive_throttle;
-	GtkWidget *global_recieve_throttle;
+	GtkWidget *global_receive_throttle;
 } PreferencesDCCPage;
 
 PreferencesDCCPage *preferences_page_dcc_new  (gpointer prefs_dialog, GladeXML *xml);
