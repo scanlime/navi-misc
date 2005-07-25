@@ -58,6 +58,15 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->autoaccept_dcc_chat), prefs.autodccchat);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->autoaccept_dcc_file), prefs.autodccsend);
 
+	if (prefs.ip_from_server) {
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->get_dcc_ip_from_server), TRUE);
+		gtk_widget_set_sensitive (page->special_ip_address, FALSE);
+	} else {
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->use_specified_dcc_ip), TRUE);
+		gtk_entry_set_text (GTK_ENTRY (page->special_ip_address), prefs.dcc_ip_str);
+		gtk_widget_set_sensitive (page->special_ip_address, FALSE);
+	}
+
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->individual_send_throttle), (gdouble) prefs.dcc_max_send_cps);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->global_send_throttle), (gdouble) prefs.dcc_global_max_send_cps);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->individual_receive_throttle), (gdouble) prefs.dcc_max_get_cps);
