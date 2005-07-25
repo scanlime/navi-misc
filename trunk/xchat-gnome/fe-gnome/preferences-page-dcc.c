@@ -58,6 +58,11 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->autoaccept_dcc_chat), prefs.autodccchat);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->autoaccept_dcc_file), prefs.autodccsend);
 
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->individual_send_throttle), (gdouble) prefs.dcc_max_send_cps);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->global_send_throttle), (gdouble) prefs.dcc_global_max_send_cps);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->individual_receive_throttle), (gdouble) prefs.dcc_max_get_cps);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->global_receive_throttle), (gdouble) prefs.dcc_global_max_get_cps);
+
 	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 	gtk_size_group_add_widget (group, page->download_dir_button);
 	gtk_size_group_add_widget (group, page->completed_dir_button);

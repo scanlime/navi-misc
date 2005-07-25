@@ -113,7 +113,6 @@ fe_init (void)
 	/* Force various window-related options to match our interaction model */
 	prefs.use_server_tab = TRUE;
 	prefs.notices_tabs = FALSE;
-	prefs.indent_nicks = TRUE;
 
 	/* Don't allow the core to autoload plugins. We use our own
 	 * method for autoloading.
@@ -340,7 +339,7 @@ fe_print_text (struct session *sess, char *text)
 	session_gui *tgui = (session_gui *) sess->gui;
 	if (tgui == NULL)
 		return;
-	text_gui_print (tgui->buffer, text, TRUE);
+	text_gui_print (tgui->buffer, text, prefs.indent_nicks);
 	sess->new_data = TRUE;
 	navigation_model_set_hilight (gui.tree_model, sess);
 }
@@ -524,7 +523,7 @@ fe_lastlog_foreach (GtkXText * xtext, unsigned char *text, fe_lastlog_info * inf
 	session_gui *tgui = (session_gui *) info->sess->gui;
 
 	if (nocasestrstr (text, info->sstr))
-		text_gui_print (tgui->buffer, text, TRUE);
+		text_gui_print (tgui->buffer, text, prefs.indent_nicks);
 }
 
 void

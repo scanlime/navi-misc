@@ -77,11 +77,11 @@ initialize_text_gui ()
 	gtk_xtext_set_palette (gui.xtext, colors);
 	gtk_xtext_set_background (gui.xtext, NULL, FALSE, FALSE);
 	gtk_xtext_set_max_lines (gui.xtext, 3000);
-	gtk_xtext_set_show_separator (gui.xtext, TRUE);
-	gtk_xtext_set_indent (gui.xtext, TRUE);
-	gtk_xtext_set_max_indent (gui.xtext, 500);
-	gtk_xtext_set_thin_separator (gui.xtext, TRUE);
-	gtk_xtext_set_wordwrap (gui.xtext, TRUE);
+	gtk_xtext_set_show_separator (gui.xtext, prefs.show_separator);
+	gtk_xtext_set_indent (gui.xtext, prefs.indent_nicks);
+	gtk_xtext_set_max_indent (gui.xtext, prefs.max_auto_indent);
+	gtk_xtext_set_thin_separator (gui.xtext, prefs.thin_separator);
+	gtk_xtext_set_wordwrap (gui.xtext, prefs.wordwrap);
 	gtk_xtext_set_urlcheck_function (gui.xtext, check_word);
 	g_signal_connect (G_OBJECT (gui.xtext), "word_click", G_CALLBACK (clicked_word), NULL);
 	gtk_xtext_refresh (gui.xtext, FALSE);
