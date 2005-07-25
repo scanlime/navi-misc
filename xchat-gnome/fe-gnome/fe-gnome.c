@@ -114,6 +114,10 @@ fe_init (void)
 	prefs.use_server_tab = TRUE;
 	prefs.notices_tabs = FALSE;
 
+	/* If we don't have a specific DCC IP address, force get-from-server */
+	if (strlen (prefs.dcc_ip_str) == 0)
+		prefs.ip_from_server = TRUE;
+
 	/* Don't allow the core to autoload plugins. We use our own
 	 * method for autoloading.
 	 */
