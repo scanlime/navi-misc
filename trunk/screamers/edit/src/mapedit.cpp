@@ -3,6 +3,8 @@
 
 #include "mapedit.h"
 
+#include "WorldParser.h"
+
 #ifdef _WIN32
 #include "Win32/winApp.h"
 #include "Win32/winView.h"
@@ -110,6 +112,20 @@ void Editor::fileNew ( void )
 
 void Editor::fileOpen ( void )
 {
+	trStandardFileOpen	fileOpenData;
+	fileOpenData.filename = "*.xml";
+	fileOpenData.title = "World File To Open";
+
+	fileOpenData.extenstions.push_back(std::string("XML"));
+	fileOpenData.extenstions.push_back(std::string("WLD"));
+	fileOpenData.extenstion = 0;
+	
+	if (app->getStdFileOpen(fileOpenData))
+	{
+		world.clear();
+		WorldParser	parser(world);
+		parser.load(fileOpenData.filename.c_str());
+	}
 }
 
 void Editor::fileSave ( void )

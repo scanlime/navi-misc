@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../include;./;../../include/"
+				AdditionalIncludeDirectories="../include;./;../../include/;../../src/;;../../src/tinyxml/"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -118,12 +118,6 @@
 			<File
 				RelativePath="..\src\mapedit.cpp">
 			</File>
-			<File
-				RelativePath="..\src\openGL.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\TextUtils.cpp">
-			</File>
 			<Filter
 				Name="W32"
 				Filter="">
@@ -150,6 +144,38 @@
 			<Filter
 				Name="common"
 				Filter="">
+				<File
+					RelativePath="..\src\openGL.cpp">
+				</File>
+				<File
+					RelativePath="..\..\src\TextUtils.cpp">
+				</File>
+			</Filter>
+			<Filter
+				Name="world"
+				Filter="">
+				<File
+					RelativePath="..\..\src\World.cpp">
+				</File>
+				<File
+					RelativePath="..\..\src\WorldParser.cpp">
+				</File>
+			</Filter>
+			<Filter
+				Name="tinyxml"
+				Filter="">
+				<File
+					RelativePath="..\..\src\tinyxml\tinyxml.cpp">
+				</File>
+				<File
+					RelativePath="..\..\src\tinyxml\tinyxml.h">
+				</File>
+				<File
+					RelativePath="..\..\src\tinyxml\tinyxmlerror.cpp">
+				</File>
+				<File
+					RelativePath="..\..\src\tinyxml\tinyxmlparser.cpp">
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -164,12 +190,6 @@
 			</File>
 			<File
 				RelativePath="..\include\mathUtils.h">
-			</File>
-			<File
-				RelativePath="..\include\openGL.h">
-			</File>
-			<File
-				RelativePath="..\..\include\TextUtils.h">
 			</File>
 			<Filter
 				Name="W32"
@@ -194,6 +214,22 @@
 			<Filter
 				Name="common"
 				Filter="">
+				<File
+					RelativePath="..\include\openGL.h">
+				</File>
+				<File
+					RelativePath="..\..\include\TextUtils.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="world"
+				Filter="">
+				<File
+					RelativePath="..\..\include\World.h">
+				</File>
+				<File
+					RelativePath="..\..\include\WorldParser.h">
+				</File>
 			</Filter>
 		</Filter>
 		<Filter

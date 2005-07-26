@@ -106,3 +106,9 @@ int World::findMaterialByName (const char* name)
 	}
 	return -1;
 }
+
+void World::clear ( void )
+{
+
+}
+

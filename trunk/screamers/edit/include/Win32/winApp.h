@@ -24,6 +24,9 @@ public:
 	virtual void doAboutBox ( void );
 	virtual bool doFilePrefs ( trFilePrefsData	&data );
 
+	// file open and save
+	virtual bool getStdFileOpen ( trStandardFileOpen &data);
+
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 protected:

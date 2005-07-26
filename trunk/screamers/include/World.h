@@ -46,6 +46,7 @@ public:
 	int	 addMaterial (float color[3], float alpha = 1.0f, const char* texture = NULL, const char* name = NULL);
 	int	 findMaterialByName (const char* name);
 
+	void clear ( void );
 protected:
 
 	typedef struct

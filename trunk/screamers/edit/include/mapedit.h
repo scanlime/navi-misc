@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "dialogData.h"
+#include "World.h"
 
 /*
  *	Editor class handles all logical edit operations. It does everything the app needs to do
@@ -35,6 +36,8 @@ public:
 
 protected:
 	void checkPrefsDefaults ( void );
+
+	World	world;
 };
 
 /*
@@ -107,6 +110,8 @@ public:
 	virtual void doAboutBox ( void ) = 0;
 	virtual bool doFilePrefs ( trFilePrefsData	&data ) = 0;
 
+	// file open and save
+	virtual bool getStdFileOpen ( trStandardFileOpen &data) = 0;
 protected:
 	Editor	*editor;
 };
