@@ -65,6 +65,73 @@ bool  WinApp::doFilePrefs ( trFilePrefsData	&data )
 	return DialogBoxParam(hInst, (LPCTSTR)IDD_FILE_PREFS_DLOG, hWnd, (DLGPROC)prefs,(LPARAM)&data) == IDOK;
 }
 
+bool WinApp::getStdFileOpen ( trStandardFileOpen &data )
+{
+	OPENFILENAME	ofn;
+
+	memset(&ofn,0,sizeof(OPENFILENAME));
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hWnd;
+	ofn.hInstance = hInst;
+	
+	char filter[1024] = {0};
+
+	int pos = 0;
+
+	for (unsigned int i = 0; i < data.extenstions.size(); i++)
+	{
+		int size = 0;
+		char temp[128] = {0};
+		sprintf(temp,"%s Files (*.%s)",data.extenstions[i].c_str(),data.extenstions[i].c_str());
+		size += 11 + (data.extenstions[i].size()*2);
+		temp[size] = 0;
+		size++;
+		sprintf(temp+size,"*.%s",data.extenstions[i].c_str());
+		size += 2 + (data.extenstions[i].size());
+		temp[size] = 0;
+		size++;		
+		memcpy(filter + pos,temp,size);
+		pos += size;
+	}
+	strcat(filter+pos,"All Files (*.*)");
+	pos += 15;
+	filter[pos] = 0;
+	pos++;
+	strcat(filter+pos,"*.*");
+
+	ofn.lpstrFilter = filter;
+	ofn.nFilterIndex = data.extenstion;
+	ofn.nMaxFile = _MAX_PATH;
+	ofn.nMaxFileTitle = _MAX_PATH + _MAX_EXT;
+
+	char defaultExtension[_MAX_EXT];
+	if ( data.extenstions.size() )
+		strcpy(defaultExtension,data.extenstions[data.extenstion].c_str());
+	else
+		strcpy(defaultExtension,"*");
+
+	ofn.lpstrDefExt = defaultExtension;
+
+	char filename[MAX_PATH];
+	char title[MAX_PATH];
+
+	strcpy(filename,data.filename.c_str());
+	strcpy(title,data.title.c_str());
+
+	ofn.lpstrFile = filename;
+	ofn.lpstrFileTitle = title;
+	ofn.Flags = OFN_HIDEREADONLY;
+
+	bool good = GetOpenFileName(&ofn) != 0;
+	if (good)
+	{
+		data.filename = ofn.lpstrFile;
+	}
+
+	return good;
+}
+
+
 //
 //  FUNCTION: MyRegisterClass()
 //
