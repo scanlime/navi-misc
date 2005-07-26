@@ -158,23 +158,38 @@ class DFS:
         return [i[2] for i in l]
 
 def Relax (edge, weightf, distance, precedessors):
-    """Relaxation of path constraint, used in pathfinding algorithms.
-
-       Test whether we can improve the shortest path to v."""
+    """Relaxation of path constraint, used in numerous pathfinding
+       algorithms.  Tests whether we can improve the shortest path to v.
+       """
     w = weightf (edge)
     if distance[edge.v] > (distance[edge.u] + w):
         distance[edge.v] = distance[edge.u] + w
         predecessors[edge.v] = edge.u
 
-class Dijkstra:
+class Dijkstra (Algorithm):
     """An implementation of Dijkstra's single-source shortest
        path algorithm, described on page 521 of 'Introduction to
        Algorithms'.
        """
 
     def __init__(self, graph, source):
+        Algorithm.__init__ (self, graph)
+        self.source = source
+
+    def invalidate (self):
+        Algorithm.invalidate (self)
         self.estimates = {}
         self.predecessors = {}
+
+        try:
+            self.vertexMap = self.graph.representations[Data.VertexMap]
+        except KeyError:
+            raise Exception ('Graph does not contain VertexMap representation')
+
+        for vertex in self.vertexMap:
+            self.estimates[vertex] = None
+            self.predecessors[vertex] = {}
+        self.estimates[self.source] = 0
 
 class DotPrint (Algorithm):
     """Simple graph walker which prints the graph as a dot(1) file.
