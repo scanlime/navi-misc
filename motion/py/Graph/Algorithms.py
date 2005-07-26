@@ -29,6 +29,14 @@ class Algorithm:
     def run (self):
         pass
 
+    def identity (self):
+        """Subclasses implement this to provide some unique identifier.
+           This allows us to request algorithm results and check the
+           cache for a matching algorithm run, since different algorithms
+           require different amounts of specificity.
+           """
+        pass
+
 class CyclicGraphException (Exception):
     """This exception indicates that a cyclic graph was found where
        an acyclic graph was required. It contains a list of the back
@@ -188,8 +196,19 @@ class Dijkstra (Algorithm):
 
         for vertex in self.vertexMap:
             self.estimates[vertex] = None
-            self.predecessors[vertex] = {}
+            self.predecessors[vertex] = None
         self.estimates[self.source] = 0
+
+    def run (self):
+        if self.valid:
+            return self.results
+
+
+        self.valid = True
+        return self.results
+
+    def identity (self):
+        return hash (self.graph, self.source)
 
 class DotPrint (Algorithm):
     """Simple graph walker which prints the graph as a dot(1) file.
@@ -276,5 +295,7 @@ class DotPrint (Algorithm):
             self.file.write (self.results)
 
         self.valid = True
-
         return self.results
+
+    def identity (self):
+        return hash (self.graph)
