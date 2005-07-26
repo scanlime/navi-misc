@@ -118,18 +118,22 @@ EXTRA_DIST =					\
 	$(desktop_DATA)				\
 	apps_xchat.schemas
 
-about.c:	xtext.h
+BUILT_SOURCES =					\
+	mmx_cmod.h				\
+	mmx_cmod.S				\
+	xtext.h					\
+	xtext.c
 
 xtext.h: @top_srcdir@/src/fe-gtk/xtext.h
 	cp -pR @top_srcdir@/src/fe-gtk/xtext.h .
 
-xtext.c: @top_srcdir@/src/fe-gtk/xtext.c xtext.h
+xtext.c: @top_srcdir@/src/fe-gtk/xtext.c
 	cp -pR @top_srcdir@/src/fe-gtk/xtext.c .
 
 mmx_cmod.h:	@top_srcdir@/src/fe-gtk/mmx_cmod.h
 	cp -pR @top_srcdir@/src/fe-gtk/mmx_cmod.h .
 
-mmx_cmod.S:	@top_srcdir@/src/fe-gtk/mmx_cmod.S mmx_cmod.h
+mmx_cmod.S:	@top_srcdir@/src/fe-gtk/mmx_cmod.S
 	cp -pR @top_srcdir@/src/fe-gtk/mmx_cmod.S .
 
 SUBDIRS = data
