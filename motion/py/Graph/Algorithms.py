@@ -12,6 +12,23 @@ import Data
 # Constants for graph coloring
 WHITE, GRAY, BLACK = range(3)
 
+class Algorithm:
+    """A generic algorithm class.  This provides the basic infrastructure
+       for maintaining cached results, so if algorithms depend on one
+       another, they won't be re-run if they don't have to.
+       """
+    def __init__ (self, graph):
+        self.graph = graph
+        self.invalidate ()
+        for mutator in (graph.add, graph.remove):
+            mutator.observe (self.invalidate)
+
+    def invalidate (self):
+        self.valid = False
+
+    def run (self):
+        pass
+
 class CyclicGraphException (Exception):
     """This exception indicates that a cyclic graph was found where
        an acyclic graph was required. It contains a list of the back
@@ -155,7 +172,11 @@ class Dijkstra:
        Algorithms'.
        """
 
-class DotPrint:
+    def __init__(self, graph, source):
+        self.estimates = {}
+        self.predecessors = {}
+
+class DotPrint (Algorithm):
     """Simple graph walker which prints the graph as a dot(1) file.
        By default, vertexes are visited in dictionary key order, but
        that doesn't matter, since dot doesn't care what order it sees
@@ -173,6 +194,7 @@ class DotPrint:
        ...     ]
        >>> x = graph.addList (edges)
        >>> x = DotPrint (graph)
+       >>> print x.run ()
        Digraph {
        1 [label="1"];
        2 [label="2"];
@@ -184,29 +206,44 @@ class DotPrint:
        3 -> 4 [label=""];
        4 -> 1 [label=""];
        }
-
+       <BLANKLINE>
        """
 
     desired_representation = Data.VertexMap
 
     def __init__ (self, graph, file=None):
+        Algorithm.__init__ (self, graph)
+        self.file = file
+        self.run ()
+
+    def invalidate (self):
+        Algorithm.invalidate (self)
+        self.results = ''
+
+    def printline (self, string):
+        self.results += '%s\n' % string
+
+    def run (self):
+        if self.valid:
+            return self.results
+
         try:
-            self.vertexMap = graph.representations[Data.VertexMap]
+            self.vertexMap = self.graph.representations[Data.VertexMap]
         except KeyError:
             raise Exception ('Graph does not contain VertexMap representation')
 
-        self.printline (file, 'Digraph {')
+        self.printline ('Digraph {')
 
         self_loops = set([])
 
         # print vertices
         for vertex in self.vertexMap:
-            # we use the hash of the vertex as the node id, since
-            # only the label will be
+            # we use the hash of the vertex as the node id, since only the label will be
+            # visible, and we're relatively safe that hashes will be unique within our graph
             if hasattr (vertex, 'dot_label') and vertex.dot_label is not None:
-                self.printline (file, '%s [label="%s"];' % (hash (vertex), vertex.dot_label))
+                self.printline ('%s [label="%s"];' % (hash (vertex), vertex.dot_label))
             else:
-                self.printline (file, '%s [label="%s"];' % (hash (vertex), vertex))
+                self.printline ('%s [label="%s"];' % (hash (vertex), vertex))
 
         # print edges
         for vertex in self.vertexMap:
@@ -214,14 +251,15 @@ class DotPrint:
             for edge in edges:
                 if edge.u is vertex:
                     if hasattr (edge, 'dot_label') and edge.dot_label is not None:
-                        self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
+                        self.printline ('%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge.dot_label))
                     else:
-                        self.printline (file, '%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge))
+                        self.printline ('%s -> %s [label="%s"];' % (hash (edge.u), hash (edge.v), edge))
 
-        self.printline (file, '}')
+        self.printline ('}')
 
-    def printline (self, file, string):
-        if file is None:
-            print string
-        else:
-            file.write (string + '\n')
+        if self.file is not None:
+            self.file.write (self.results)
+
+        self.valid = True
+
+        return self.results
