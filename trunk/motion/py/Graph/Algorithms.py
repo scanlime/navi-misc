@@ -170,6 +170,7 @@ def Relax (edge, weightf, distance, precedessors):
        algorithms.  Tests whether we can improve the shortest path to v.
        """
     w = weightf (edge)
+
     if distance[edge.v] > (distance[edge.u] + w):
         distance[edge.v] = distance[edge.u] + w
         predecessors[edge.v] = edge.u
@@ -180,9 +181,12 @@ class Dijkstra (Algorithm):
        Algorithms'.
        """
 
-    def __init__(self, graph, source):
+    def __init__(self, graph, source, weightf):
         Algorithm.__init__ (self, graph)
         self.source = source
+        self.weightf = weightf
+
+        self.run ()
 
     def invalidate (self):
         Algorithm.invalidate (self)
@@ -195,7 +199,10 @@ class Dijkstra (Algorithm):
             raise Exception ('Graph does not contain VertexMap representation')
 
         for vertex in self.vertexMap:
-            self.estimates[vertex] = None
+            # Technically this should be Inf, but I'm not sure how to notate
+            # that in python.  2**30 should be sufficiently bigger than any
+            # path we might find (famous last words...)
+            self.estimates[vertex] = 2**30
             self.predecessors[vertex] = None
         self.estimates[self.source] = 0
 
@@ -203,6 +210,14 @@ class Dijkstra (Algorithm):
         if self.valid:
             return self.results
 
+        queue = PriorityQueue ()
+        queue.enqueue_list (self.vertexMap)
+        found = []
+        while not queue.Empty ():
+            u = queue.extract ()
+            found.append (u)
+            for vertex in self.vertexMap.query (u):
+                Relax (edge, self.weightf, self.estimates, self.predecessors)
 
         self.valid = True
         return self.results
