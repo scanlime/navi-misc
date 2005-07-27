@@ -23,6 +23,8 @@
 
 World::World()
 {
+	params.size[0] = 1000;
+	params.size[1] = 1000;
 }
 
 World::~World()
@@ -31,42 +33,43 @@ World::~World()
 
 void World::addAttribute (std::string &attribute, std::string &value)
 {
-}
+	std::string name = TextUtils::toupper(attribute);
 
-int World::addPrim (std::string type)
-{
-	return -1;
+	if ( name == "sise" )
+	{
+		std::vector<std::string> l = TextUtils::tokenize(value,std::string(","));
+		if ( l.size() )
+		{
+			params.size[0] = (float)atof(l[0].c_str());
+			if ( l.size() > 1)
+				params.size[1] = (float)atof(l[1].c_str());
+			else
+				params.size[1] = params.size[0];
+		}
+	}
+	else if ( name == "wallheight" )
+	{
+		params.wallHeight = (float)atof(value.c_str());
+	}
+	else if ( name == "name" )
+		params.name = value;
 }
 
 int World::addMesh (std::string model)
 {
-	return -1;
-}
+	WorldObject object;
 
-void World::setObjectAttribute (int object, std::string &attribute, std::string &value)
-{
-}
+	object.type = model;
 
-void World::setObjectPos (int object, float p[3])
-{
-}
+	objects.push_back(object);
 
-void World::setObjectRot (int object, float r[3])
-{
-}
-
-void World::setObjectScale (int object, float s[3])
-{
-}
-
-void World::addObjectMaterial (int object, int materialID)
-{
+	return (int)objects.size()-1;
 }
 
 // todo: Dude do some checks for dupes
 int World::addMaterial (const char* name)
 {
-	Material	mat;
+	WorldMaterial	mat;
 
 	mat.name = name;
 	mat.ogreMat = true;
@@ -77,7 +80,7 @@ int World::addMaterial (const char* name)
 
 int World::addMaterial (float color[3], float alpha, const char* texture, const char* name)
 {
-	Material	mat;
+	WorldMaterial	mat;
 
 	if (name)
 		mat.name = name;
@@ -107,8 +110,29 @@ int World::findMaterialByName (const char* name)
 	return -1;
 }
 
+void World::setObjectAttribute (int object, std::string &attribute, std::string &value)
+{
+}
+
+void World::setObjectPos (int object, float p[3])
+{
+}
+
+void World::setObjectRot (int object, float r[3])
+{
+}
+
+void World::setObjectScale (int object, float s[3])
+{
+}
+
+void World::addObjectMaterial (int object, int materialID)
+{
+}
+
 void World::clear ( void )
 {
-
+	materials.clear();
+	objects.clear();
 }
 
