@@ -37,10 +37,6 @@
 #include "util.h"
 #include "preferences-dialog.h"
 
-#ifdef HAVE_GTKSPELL
-#include <gtkspell/gtkspell.h>
-#endif
-
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-url-label.h>
 #include <libsexy/sexy-spell-entry.h>
@@ -359,7 +355,7 @@ spell_check (SexySpellEntry *entry, gchar *text, gpointer data)
 		gboolean match = FALSE;
 
 		gtk_tree_model_get (store, &iter, 1, &nick, -1);
-		if (strcmp (text, nick) == 0)
+		if (strncmp (text, nick, strlen (nick)) == 0)
 			match = TRUE;
 
 		g_free (nick);
@@ -526,12 +522,6 @@ initialize_main_window ()
 		/* Add the accelgroup to the main window. */
 		gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), discussion_accel);
 	}
-
-#ifdef HAVE_GTKSPELL
-#if 0
-	gtkspell_new_attach(GTK_TEXT_VIEW(entry), NULL, NULL);
-#endif
-#endif
 
 	/* setup find stuff */
 	widget = glade_xml_get_widget (gui.xml, "find entry");
