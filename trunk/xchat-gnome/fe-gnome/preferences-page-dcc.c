@@ -25,6 +25,28 @@
 #include "preferences-dialog.h"
 
 static void
+download_dir_changed (GtkFileChooser *file_chooser, gpointer data)
+{
+	gchar *dir = gtk_file_chooser_get_filename (file_chooser);
+	if (dir) {
+		strncpy (prefs.dccdir, dir, PATHLEN);
+		prefs.dccdir[PATHLEN] = '\0';
+		g_free (dir);
+	}
+}
+
+static void
+completed_dir_changed (GtkFileChooser *file_chooser, gpointer data)
+{
+	gchar *dir = gtk_file_chooser_get_filename (file_chooser);
+	if (dir) {
+		strncpy (prefs.dcc_completed_dir, dir, PATHLEN);
+		prefs.dccdir[PATHLEN] = '\0';
+		g_free (dir);
+	}
+}
+
+static void
 convert_spaces_changed (GtkToggleButton *button, gpointer data)
 {
 	prefs.dcc_send_fillspaces = gtk_toggle_button_get_active (button);
@@ -60,7 +82,8 @@ get_ip_from_server_changed (GtkRadioButton *button, PreferencesDCCPage *page)
 static void
 special_ip_changed (GtkEntry *entry, gpointer data)
 {
-	strcpy (prefs.dcc_ip_str, gtk_entry_get_text (entry));
+	strncpy (prefs.dcc_ip_str, gtk_entry_get_text (entry), 15);
+	prefs.dcc_ip_str[15] = '\0';
 }
 
 static void
@@ -135,18 +158,21 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->individual_receive_throttle), (gdouble) prefs.dcc_max_get_cps);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->global_receive_throttle), (gdouble) prefs.dcc_global_max_get_cps);
 
-	g_signal_connect (G_OBJECT (page->convert_spaces),              "toggled",       G_CALLBACK (convert_spaces_changed),     page);
-	g_signal_connect (G_OBJECT (page->save_nicknames_dcc),          "toggled",       G_CALLBACK (save_nicknames_changed),     page);
-	g_signal_connect (G_OBJECT (page->autoaccept_dcc_chat),         "toggled",       G_CALLBACK (autoaccept_chat_changed),    page);
-	g_signal_connect (G_OBJECT (page->autoaccept_dcc_file),         "toggled",       G_CALLBACK (autoaccept_file_changed),    page);
-	g_signal_connect (G_OBJECT (page->get_dcc_ip_from_server),      "toggled",       G_CALLBACK (get_ip_from_server_changed), page);
+	g_signal_connect (G_OBJECT (page->download_dir_button),         "selection-changed", G_CALLBACK (download_dir_changed),      page);
+	g_signal_connect (G_OBJECT (page->completed_dir_button),        "selection-changed", G_CALLBACK (completed_dir_changed),     page);
 
-	g_signal_connect (G_OBJECT (page->special_ip_address),          "changed",       G_CALLBACK (special_ip_changed),         page);
+	g_signal_connect (G_OBJECT (page->convert_spaces),              "toggled",           G_CALLBACK (convert_spaces_changed),     page);
+	g_signal_connect (G_OBJECT (page->save_nicknames_dcc),          "toggled",           G_CALLBACK (save_nicknames_changed),     page);
+	g_signal_connect (G_OBJECT (page->autoaccept_dcc_chat),         "toggled",           G_CALLBACK (autoaccept_chat_changed),    page);
+	g_signal_connect (G_OBJECT (page->autoaccept_dcc_file),         "toggled",           G_CALLBACK (autoaccept_file_changed),    page);
 
-	g_signal_connect (G_OBJECT (page->individual_send_throttle),    "value-changed", G_CALLBACK (ist_changed),                page);
-	g_signal_connect (G_OBJECT (page->global_send_throttle),        "value-changed", G_CALLBACK (gst_changed),                page);
-	g_signal_connect (G_OBJECT (page->individual_receive_throttle), "value-changed", G_CALLBACK (irt_changed),                page);
-	g_signal_connect (G_OBJECT (page->global_receive_throttle),     "value-changed", G_CALLBACK (grt_changed),                page);
+	g_signal_connect (G_OBJECT (page->get_dcc_ip_from_server),      "toggled",           G_CALLBACK (get_ip_from_server_changed), page);
+	g_signal_connect (G_OBJECT (page->special_ip_address),          "changed",           G_CALLBACK (special_ip_changed),         page);
+
+	g_signal_connect (G_OBJECT (page->individual_send_throttle),    "value-changed",     G_CALLBACK (ist_changed),                page);
+	g_signal_connect (G_OBJECT (page->global_send_throttle),        "value-changed",     G_CALLBACK (gst_changed),                page);
+	g_signal_connect (G_OBJECT (page->individual_receive_throttle), "value-changed",     G_CALLBACK (irt_changed),                page);
+	g_signal_connect (G_OBJECT (page->global_receive_throttle),     "value-changed",     G_CALLBACK (grt_changed),                page);
 
 	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 	gtk_size_group_add_widget (group, page->download_dir_button);
