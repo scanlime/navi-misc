@@ -24,6 +24,69 @@
 #include "preferences-page-dcc.h"
 #include "preferences-dialog.h"
 
+static void
+convert_spaces_changed (GtkToggleButton *button, gpointer data)
+{
+	prefs.dcc_send_fillspaces = gtk_toggle_button_get_active (button);
+}
+
+static void
+save_nicknames_changed (GtkToggleButton *button, gpointer data)
+{
+	prefs.dccwithnick = gtk_toggle_button_get_active (button);
+}
+
+static void
+autoaccept_chat_changed (GtkToggleButton *button, gpointer data)
+{
+	prefs.autodccchat = gtk_toggle_button_get_active (button);
+}
+
+static void
+autoaccept_file_changed (GtkToggleButton *button, gpointer data)
+{
+	prefs.autodccsend = gtk_toggle_button_get_active (button);
+}
+
+static void
+get_ip_from_server_changed (GtkRadioButton *button, PreferencesDCCPage *page)
+{
+	gboolean on = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button));
+	gtk_widget_set_sensitive (page->special_ip_address, !on);
+
+	prefs.ip_from_server = on;
+}
+
+static void
+special_ip_changed (GtkEntry *entry, gpointer data)
+{
+	strcpy (prefs.dcc_ip_str, gtk_entry_get_text (entry));
+}
+
+static void
+ist_changed (GtkSpinButton *button, gpointer data)
+{
+	prefs.dcc_max_send_cps = gtk_spin_button_get_value_as_int (button);
+}
+
+static void
+gst_changed (GtkSpinButton *button, gpointer data)
+{
+	prefs.dcc_global_max_send_cps = gtk_spin_button_get_value_as_int (button);
+}
+
+static void
+irt_changed (GtkSpinButton *button, gpointer data)
+{
+	prefs.dcc_max_get_cps = gtk_spin_button_get_value_as_int (button);
+}
+
+static void
+grt_changed (GtkSpinButton *button, gpointer data)
+{
+	prefs.dcc_global_max_get_cps = gtk_spin_button_get_value_as_int (button);
+}
+
 PreferencesDCCPage *
 preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 {
@@ -71,6 +134,19 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->global_send_throttle), (gdouble) prefs.dcc_global_max_send_cps);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->individual_receive_throttle), (gdouble) prefs.dcc_max_get_cps);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (page->global_receive_throttle), (gdouble) prefs.dcc_global_max_get_cps);
+
+	g_signal_connect (G_OBJECT (page->convert_spaces),              "toggled",       G_CALLBACK (convert_spaces_changed),     page);
+	g_signal_connect (G_OBJECT (page->save_nicknames_dcc),          "toggled",       G_CALLBACK (save_nicknames_changed),     page);
+	g_signal_connect (G_OBJECT (page->autoaccept_dcc_chat),         "toggled",       G_CALLBACK (autoaccept_chat_changed),    page);
+	g_signal_connect (G_OBJECT (page->autoaccept_dcc_file),         "toggled",       G_CALLBACK (autoaccept_file_changed),    page);
+	g_signal_connect (G_OBJECT (page->get_dcc_ip_from_server),      "toggled",       G_CALLBACK (get_ip_from_server_changed), page);
+
+	g_signal_connect (G_OBJECT (page->special_ip_address),          "changed",       G_CALLBACK (special_ip_changed),         page);
+
+	g_signal_connect (G_OBJECT (page->individual_send_throttle),    "value-changed", G_CALLBACK (ist_changed),                page);
+	g_signal_connect (G_OBJECT (page->global_send_throttle),        "value-changed", G_CALLBACK (gst_changed),                page);
+	g_signal_connect (G_OBJECT (page->individual_receive_throttle), "value-changed", G_CALLBACK (irt_changed),                page);
+	g_signal_connect (G_OBJECT (page->global_receive_throttle),     "value-changed", G_CALLBACK (grt_changed),                page);
 
 	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 	gtk_size_group_add_widget (group, page->download_dir_button);
