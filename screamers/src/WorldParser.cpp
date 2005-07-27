@@ -90,10 +90,8 @@ void WorldParser::loadObject (void * _node)
 
 	std::string nodeType = TextUtils::tolower (node->Value ());
 
-	if (nodeType == "prim")
-		parseObject (node);
 	if (nodeType == "mesh")
-		parseMesh (node);
+		parseObject (node);
 	if (nodeType == "texture")
 		parseTexture (node);
 }
@@ -118,7 +116,7 @@ int WorldParser::parseObject (void *_node)
 		attrib.name = TextUtils::tolower (itemAttribute->Name ());
 		attrib.value = itemAttribute->Value ();
 
-		if (attrib.name == "type")
+		if (attrib.name == "model")
 			type = attrib.value;
 		else
 			attribs.push_back (attrib);
@@ -129,7 +127,7 @@ int WorldParser::parseObject (void *_node)
 	if (!type.size())
 		return -1;
 
-	int objectID = world.addPrim (type);
+	int objectID = world.addMesh (type);
 
 	for (unsigned int i = 0; i < attribs.size (); i++)
 	{
@@ -169,15 +167,6 @@ int WorldParser::parseObject (void *_node)
 		childNode = childNode->NextSibling ();
 	}
 	return 1;
-}
-
-int WorldParser::parseMesh (void *_node)
-{
-	TiXmlNode* node = (TiXmlNode*) _node;
-	if (!node)
-		return -1;
-
-	return -1;
 }
 
 int WorldParser::parseTexture (void *_node)

@@ -39,7 +39,6 @@ protected:
 	void	 loadObject (void *_node);
 
 	int	 parseObject (void *_node);
-	int	 parseMesh (void *_node);
 	int	 parseTexture (void *_node);
 	int	 parseMatRef (void *_node);
 };

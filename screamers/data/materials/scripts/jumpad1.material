@@ -1,0 +1,29 @@
+
+material jumpad1
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.2 0.2 0.2 1
+			diffuse 0.8 0.8 0.8 1
+
+			scene_blend alpha_blend
+			texture_unit
+			{
+				texture el_jumpp.tga
+			}
+		}
+
+		pass
+		{
+			lighting off
+			depth_check off
+
+			texture_unit
+			{
+				texture el_basefx2.jpg
+			}
+		}
+	}
+}

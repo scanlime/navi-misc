@@ -20,15 +20,9 @@
 	</ground>
 
 	<mesh
-	 model = "box.mesh"
+	 model = "jumpad1.mesh"
 	 postion = "0,0,0"
-	 rotation = "0,45,45">
-		<material name = "boxmat"/>
+	 rotation = "0,0,0">
+		<material name = "jumpad1"/>
 	</mesh>
-
-	<mesh
-	 model = "tower.mesh"
-	 postion = "-100,0,0"
-	 rotation = "0,0,45"/>
-
 </world>

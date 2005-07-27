@@ -1,5 +1,0 @@
-//
-// Prefix header for all source files of the 'mapedit' target in the 'mapedit' project.
-//
-
-#include <Carbon/Carbon.h>

@@ -24,14 +24,14 @@
 
 #include <string>
 #include <vector>
+#include <map>
+#include "TextUtils.h"
 
 class WorldObject
 {
 public:
-	WorldObject();
-	virtual ~WorldObject();
-
-	bool prim;
+	WorldObject(){};
+	virtual ~WorldObject(){};
 
 	std::string type;
 
@@ -60,7 +60,6 @@ public:
 	// all the stuff you can add
 	void	addAttribute (std::string &attribute, std::string &value);
 	
-	int		addPrim (std::string type);
 	int		addMesh (std::string model);
 	int		addMaterial (const char* name);
 	int		addMaterial (float color[3], float alpha = 1.0f, const char* texture = NULL, const char* name = NULL);
@@ -87,6 +86,15 @@ protected:
 
 	typedef std::vector<WorldObject>	ObjectList;
 	ObjectList							objects;
+
+	typedef struct 
+	{
+		float size[2];
+		float wallHeight;
+		std::string name;
+	}trMapParamaters;
+
+	trMapParamaters	params;
 };
 
 #endif //_WORLD_H_
