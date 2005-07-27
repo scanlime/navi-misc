@@ -25,6 +25,32 @@
 #include <string>
 #include <vector>
 
+class WorldObject
+{
+public:
+	WorldObject();
+	virtual ~WorldObject();
+
+	bool prim;
+
+	std::string type;
+
+	float pos[3];
+	float rot[3];
+	float scale[3];
+
+	std::map<std::string,std::string> attributes;
+	std::vector<int>				  materials;
+};
+
+typedef struct
+{
+	std::string	name;
+	bool		ogreMat;
+	std::string	image;
+	float		c[4];
+} WorldMaterial;
+
 class World
 {
 public:
@@ -32,34 +58,35 @@ public:
 	~World ();
 
 	// all the stuff you can add
-	void	 addAttribute (std::string &attribute, std::string &value);
-	int	 addPrim (std::string type);
-	int	 addMesh (std::string model);
+	void	addAttribute (std::string &attribute, std::string &value);
+	
+	int		addPrim (std::string type);
+	int		addMesh (std::string model);
+	int		addMaterial (const char* name);
+	int		addMaterial (float color[3], float alpha = 1.0f, const char* texture = NULL, const char* name = NULL);
 
+	WorldObject	*getObject ( int object );
+	WorldMaterial *getMaterial ( int material );
+	
 	void	 setObjectAttribute (int object, std::string &attribute, std::string &value);
 	void	 setObjectPos (int object, float p[3]);
 	void	 setObjectRot (int object, float r[3]);
 	void	 setObjectScale (int object, float s[3]);
 	void	 addObjectMaterial (int object, int materialID);
 
-	int	 addMaterial (const char* name);
-	int	 addMaterial (float color[3], float alpha = 1.0f, const char* texture = NULL, const char* name = NULL);
-	int	 findMaterialByName (const char* name);
+	int		findMaterialByName (const char* name);
 
-	void clear ( void );
+	void	getObjectIDList( std::vector<int> &objectList );
+	void	getMaterialIDList( std::vector<int> &materialList );
+
+	void	clear ( void );
 protected:
 
-	typedef struct
-	{
-		std::string	name;
-		bool		ogreMat;
-		std::string	image;
-		float		c[4];
-	} Material;
+	typedef std::vector<WorldMaterial>	MaterialList;
+	MaterialList						materials;
 
-	typedef std::vector<Material>	MaterialList;
-
-	MaterialList			materials;
+	typedef std::vector<WorldObject>	ObjectList;
+	ObjectList							objects;
 };
 
 #endif //_WORLD_H_
