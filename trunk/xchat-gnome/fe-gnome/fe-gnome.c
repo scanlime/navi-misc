@@ -387,18 +387,21 @@ fe_userlist_clear (struct session *sess)
 void
 fe_dcc_add (struct DCC *dcc)
 {
+	/* FIXME: chats? */
 	dcc_window_add (gui.dcc, dcc);
 }
 
 void
 fe_dcc_update (struct DCC *dcc)
 {
+	/* FIXME: chats? */
 	dcc_window_update (gui.dcc, dcc);
 }
 
 void
 fe_dcc_remove (struct DCC *dcc)
 {
+	/* FIXME: chats? */
 	dcc_window_remove (gui.dcc, dcc);
 }
 
