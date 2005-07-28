@@ -212,7 +212,7 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 	/* If this is a recieve and auto-accept isn't turned on, pop up a
 	 * confirmation dialog */
 	if ((dcc->type == 1) && (dcc->dccstat == 0) && (prefs.autodccsend == FALSE)) {
-		/* FIXME: implement */
+		return;
 	}
 
 	done_text = g_strdup_printf ("%d %%", done);
@@ -241,121 +241,127 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 {
 	GtkTreeIter iter;
 
-	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (window->transfer_store), &iter) == FALSE)
-		return;
-	do {
-		gpointer ptr;
-		gpointer icon;
-		gtk_tree_model_get (GTK_TREE_MODEL (window->transfer_store), &iter, 0, &ptr, 2, &icon, -1);
-		if (ptr == dcc) {
-			gint done = (gint) ((((float)dcc->pos) / ((float) dcc->size)) * 100);
-			gchar *done_text = g_strdup_printf ("%d %%", done);
-			gchar *size = gnome_vfs_format_file_size_for_display (dcc->size);
-			gchar *pos = gnome_vfs_format_file_size_for_display (dcc->pos);
-			gchar *info_text = g_strdup_printf ("<b>%s</b>\n<small>from %s</small>\n%s of %s", dcc->file, dcc->nick, pos, size);
-			gchar *remaining_text;
-			g_free (size);
-			g_free (pos);
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (window->transfer_store), &iter)) {
+		do {
+			gpointer ptr;
+			gpointer icon;
+			gtk_tree_model_get (GTK_TREE_MODEL (window->transfer_store), &iter, 0, &ptr, 2, &icon, -1);
+			if (ptr == dcc) {
+				gint done = (gint) ((((float)dcc->pos) / ((float) dcc->size)) * 100);
+				gchar *done_text = g_strdup_printf ("%d %%", done);
+				gchar *size = gnome_vfs_format_file_size_for_display (dcc->size);
+				gchar *pos = gnome_vfs_format_file_size_for_display (dcc->pos);
+				gchar *info_text = g_strdup_printf ("<b>%s</b>\n<small>from %s</small>\n%s of %s", dcc->file, dcc->nick, pos, size);
+				gchar *remaining_text;
+				g_free (size);
+				g_free (pos);
 
-			/* FIXME: do we want to show queued items at all? */
-			if (dcc->dccstat == 0) {
-				remaining_text = g_strdup ("queued");
-			} else if (dcc->dccstat == 2) {
-				gchar *message = g_strdup_printf ("Transfer of %s %s %s failed", dcc->file, dcc->type == 0 ? "to" : "from", dcc->nick);
-				error_dialog ("Transfer failed", message);
-				g_free (message);
-				gtk_list_store_remove (window->transfer_store, &iter);
-				break;
-			} else if (dcc->dccstat == 3) {
-				gtk_list_store_remove (window->transfer_store, &iter);
-				break;
-			} else {
-				if (dcc->cps == 0) {
-					remaining_text = g_strdup ("stalled");
+				if (dcc->dccstat == 0) {
+					remaining_text = g_strdup ("queued");
+				} else if (dcc->dccstat == 2) {
+					gchar *message = g_strdup_printf ("Transfer of %s %s %s failed", dcc->file, dcc->type == 0 ? "to" : "from", dcc->nick);
+					error_dialog ("Transfer failed", message);
+					g_free (message);
+					gtk_list_store_remove (window->transfer_store, &iter);
+					return;
+				} else if (dcc->dccstat == 3) {
+					gtk_list_store_remove (window->transfer_store, &iter);
+					return;
 				} else {
-					int eta = (dcc->size - dcc->pos) / dcc->cps;
-					if (eta > 3600)
-						remaining_text = g_strdup_printf ("%.2d:%.2d:%.2d", eta / 3600, (eta / 60) % 60, eta % 60);
-					else
-						remaining_text = g_strdup_printf ("%.2d:%.2d", eta / 60, eta % 60);
+					if (dcc->cps == 0) {
+						remaining_text = g_strdup ("stalled");
+					} else {
+						int eta = (dcc->size - dcc->pos) / dcc->cps;
+						if (eta > 3600)
+							remaining_text = g_strdup_printf ("%.2d:%.2d:%.2d", eta / 3600, (eta / 60) % 60, eta % 60);
+						else
+							remaining_text = g_strdup_printf ("%.2d:%.2d", eta / 60, eta % 60);
+					}
 				}
+
+				gtk_list_store_set (window->transfer_store, &iter,
+						    1, info_text,
+						    3, done,
+						    4, done_text,
+						    5, remaining_text,
+						    -1);
+				g_free (done_text);
+				g_free (info_text);
+				g_free (remaining_text);
+
+				/* We put off rendering the icon until we get at least one update,
+			 	* to ensure that gnome-vfs can determine the MIME type
+			 	*/
+				if (icon == NULL) {
+					GtkIconTheme *icon_theme;
+					char *icon;
+					char *mime;
+					GdkPixbuf *mime_pixbuf, *file_icon, *direction_emblem;
+					int mime_w, mime_h;
+					gpointer image_data;
+
+					/* If the file doesn't exist yet, don't do the icon */
+					if (g_file_test (dcc->destfile, G_FILE_TEST_EXISTS) == FALSE)
+						return;
+
+					/* Get MIME type from gnome-vfs, create the proper file icon for it. */
+					mime = gnome_vfs_get_mime_type (dcc->destfile);
+					icon_theme = gtk_icon_theme_get_default ();
+					icon = gnome_icon_lookup (icon_theme, NULL, NULL, NULL, NULL, mime, GNOME_ICON_LOOKUP_FLAGS_NONE, NULL);
+					mime_pixbuf = gtk_icon_theme_load_icon (icon_theme, icon, 48, 0, NULL);
+
+					mime_w   = gdk_pixbuf_get_width  (mime_pixbuf);
+					mime_h   = gdk_pixbuf_get_height (mime_pixbuf);
+
+					/* Create a new, empty image, 8px bigger than the MIME icon */
+					image_data = g_new0 (char, (mime_w + 8) * (mime_h + 8) * 4 * 8);
+					file_icon = gdk_pixbuf_new_from_data (image_data,
+									      GDK_COLORSPACE_RGB, TRUE, 8,
+									      mime_w + 8, mime_h + 8, (mime_w + 8) * 4,
+									      (GdkPixbufDestroyNotify) g_free, NULL);
+
+					/* Composite on our MIME icon */
+					gdk_pixbuf_composite (mime_pixbuf,
+						      	file_icon,
+						      	0, 0,
+						      	mime_w, mime_h,
+						      	0.0, 0.0,
+						      	1.0, 1.0,
+						      	GDK_INTERP_BILINEAR, 255);
+
+					/* Composite on an emblem which shows the direction of transfer */
+					if (dcc->type == 1)
+						direction_emblem = window->down_icon;
+					else
+						direction_emblem = window->up_icon;
+
+					gdk_pixbuf_composite (direction_emblem,
+							      file_icon,
+							      mime_w - 16, mime_w - 16,
+							      24, 24,
+							      mime_w - 16, mime_w - 16,
+							      1.0, 1.0,
+							      GDK_INTERP_BILINEAR, 255);
+
+					g_free (icon);
+
+					gtk_list_store_set (window->transfer_store, &iter, 2, file_icon, -1);
+
+					gdk_pixbuf_unref (mime_pixbuf);
+					gdk_pixbuf_unref (file_icon);
+				}
+
+				return;
 			}
+		} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (window->transfer_store), &iter));
+	}
 
-			gtk_list_store_set (window->transfer_store, &iter,
-					    1, info_text,
-					    3, done,
-					    4, done_text,
-					    5, remaining_text,
-					    -1);
-			g_free (done_text);
-			g_free (info_text);
-			g_free (remaining_text);
-
-			/* We put off rendering the icon until we get at least one update,
-			 * to ensure that gnome-vfs can determine the MIME type
-			 */
-			if (icon == NULL) {
-				GtkIconTheme *icon_theme;
-				char *icon;
-				char *mime;
-				GdkPixbuf *mime_pixbuf, *file_icon, *direction_emblem;
-				int mime_w, mime_h;
-				gpointer image_data;
-
-				/* If the file doesn't exist yet, don't do the icon */
-				if (g_file_test (dcc->destfile, G_FILE_TEST_EXISTS) == FALSE)
-					break;
-
-				/* Get MIME type from gnome-vfs, create the proper file icon for it. */
-				mime = gnome_vfs_get_mime_type (dcc->destfile);
-				icon_theme = gtk_icon_theme_get_default ();
-				icon = gnome_icon_lookup (icon_theme, NULL, NULL, NULL, NULL, mime, GNOME_ICON_LOOKUP_FLAGS_NONE, NULL);
-				mime_pixbuf = gtk_icon_theme_load_icon (icon_theme, icon, 48, 0, NULL);
-
-				mime_w   = gdk_pixbuf_get_width  (mime_pixbuf);
-				mime_h   = gdk_pixbuf_get_height (mime_pixbuf);
-
-				/* Create a new, empty image, 8px bigger than the MIME icon */
-				image_data = g_new0 (char, (mime_w + 8) * (mime_h + 8) * 4 * 8);
-				file_icon = gdk_pixbuf_new_from_data (image_data,
-								      GDK_COLORSPACE_RGB, TRUE, 8,
-								      mime_w + 8, mime_h + 8, (mime_w + 8) * 4,
-								      (GdkPixbufDestroyNotify) g_free, NULL);
-
-				/* Composite on our MIME icon */
-				gdk_pixbuf_composite (mime_pixbuf,
-						      file_icon,
-						      0, 0,
-						      mime_w, mime_h,
-						      0.0, 0.0,
-						      1.0, 1.0,
-						      GDK_INTERP_BILINEAR, 255);
-
-				/* Composite on an emblem which shows the direction of transfer */
-				if (dcc->type == 1)
-					direction_emblem = window->down_icon;
-				else
-					direction_emblem = window->up_icon;
-
-				gdk_pixbuf_composite (direction_emblem,
-						      file_icon,
-						      mime_w - 16, mime_w - 16,
-						      24, 24,
-						      mime_w - 16, mime_w - 16,
-						      1.0, 1.0,
-						      GDK_INTERP_BILINEAR, 255);
-
-				g_free (icon);
-
-				gtk_list_store_set (window->transfer_store, &iter, 2, file_icon, -1);
-
-				gdk_pixbuf_unref (mime_pixbuf);
-				gdk_pixbuf_unref (file_icon);
-			}
-
-			break;
-		}
-	} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (window->transfer_store), &iter));
+	/* If we're here, it means we didn't find the entry. Probably
+	 * because we asked the user for confirmation. Add it now,
+	 * then perform an update
+	 */
+	dcc_window_add (window, dcc);
+	dcc_window_update (window, dcc);
 }
 
 void
