@@ -212,6 +212,39 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 	/* If this is a recieve and auto-accept isn't turned on, pop up a
 	 * confirmation dialog */
 	if ((dcc->type == 1) && (dcc->dccstat == 0) && (prefs.autodccsend == FALSE)) {
+		GladeXML *xml = NULL;
+		GtkWidget *dialog, *label;
+		GtkResponseType response;
+		gchar *text;
+
+		if (g_file_test ("dcc-accept.glade", G_FILE_TEST_EXISTS))
+			xml = glade_xml_new ("dcc-accept.glade", "toplevel", NULL);
+		if (!xml)
+			xml = glade_xml_new (XCHATSHAREDIR "/dcc-accept.glade", "toplevel", NULL);
+		if (!xml)
+			return;
+
+		dialog = glade_xml_get_widget (xml, "toplevel");
+		label  = glade_xml_get_widget (xml, "label");
+
+		g_object_unref (xml);
+
+		text = g_strdup_printf ("<span weight=\"bold\" size=\"larger\">Incoming File Transfer</span>\n\n%s is attempting to send you a file named \"%s\".  Do you wish to accept the transfer?", dcc->nick, dcc->file);
+		gtk_label_set_markup (GTK_LABEL (label), text);
+		g_free (text);
+
+		response = gtk_dialog_run (GTK_DIALOG (dialog));
+		if (response == GTK_RESPONSE_OK) {
+			/* FIXME: resume? */
+			dcc_get (dcc);
+
+			/* pop up transfers window if it isn't already shown */
+			gtk_window_present (window);
+		} else {
+			dcc_abort (dcc->serv->server_session, dcc);
+		}
+		gtk_widget_destroy (dialog);
+
 		return;
 	}
 
@@ -357,11 +390,13 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 	}
 
 	/* If we're here, it means we didn't find the entry. Probably
-	 * because we asked the user for confirmation. Add it now,
-	 * then perform an update
+	 * because we asked the user for confirmation. If we're actually
+	 * transferring the file, add it now, then perform an update
 	 */
-	dcc_window_add (window, dcc);
-	dcc_window_update (window, dcc);
+	if (dcc->dccstat == 1) {
+		dcc_window_add (window, dcc);
+		dcc_window_update (window, dcc);
+	}
 }
 
 void
