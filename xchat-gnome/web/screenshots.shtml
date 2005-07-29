@@ -17,6 +17,7 @@
         <div class="section-title">Main Window</div>
         <div class="section">
           <a href="screenshots/main.png"><img src="screenshots/main-t.png" width="300" height="215" alt="main window" /></a>
+	  <img src="screenshots/spelling.png" width="400" height="30" alt="spell checking" />
         </div>
         <div class="section-title">Preferences Dialog</div>
         <div class="section">
