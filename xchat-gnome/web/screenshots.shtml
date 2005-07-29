@@ -20,10 +20,10 @@
         </div>
         <div class="section-title">Preferences Dialog</div>
         <div class="section">
-          <a href="screenshots/prefs-irc.png"><img src="screenshots/prefs-irc-t.png" width="300" height="214" alt="irc preferences" /></a>
+          <a href="screenshots/prefs-irc.png"><img src="screenshots/prefs-irc-t.png" width="300" height="254" alt="irc preferences" /></a>
           <a href="screenshots/prefs-colors.png"><img src="screenshots/prefs-colors-t.png" width="300" height="254" alt="color preferences" /></a>
           <a href="screenshots/prefs-dcc.png"><img src="screenshots/prefs-dcc-t.png" width="300" height="254" alt="dcc preferences" /></a>
-          <a href="screenshots/prefs-plugins.png"><img src="screenshots/prefs-plugins-t.png" width="300" height="214" alt="plugins preferences" /></a>
+          <a href="screenshots/prefs-plugins.png"><img src="screenshots/prefs-plugins-t.png" width="300" height="254" alt="plugins preferences" /></a>
         </div>
         <div class="section-title">Other Windows</div>
         <div class="section">
