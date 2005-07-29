@@ -16,16 +16,19 @@
       <div class="content">
         <div class="section-title">Main Window</div>
         <div class="section">
-          <a href="main.png"><img src="main-t.png" width="480" height="377" alt="main window" /></a><br />
+          <a href="screenshots/main.png"><img src="screenshots/main-t.png" width="300" height="377" alt="main window" /></a>
         </div>
         <div class="section-title">Preferences Dialog</div>
         <div class="section">
-          <a href="prefs-irc.png"><img src="prefs-irc-t.png" width="480" height="343" alt="irc preferences" /></a><br /><br />
-          <a href="prefs-plugins.png"><img src="prefs-plugins-t.png" width="480" height="343" alt="plugins preferences" /></a><br />
+          <a href="screenshots/prefs-irc.png"><img src="screenshots/prefs-irc-t.png" width="300" height="343" alt="irc preferences" /></a>
+          <a href="screenshots/prefs-colors.png"><img src="screenshots/prefs-colors-t.png" width="300" height="343" alt="color preferences" /></a>
+          <a href="screenshots/prefs-dcc.png"><img src="screenshots/prefs-dcc-t.png" width="300" height="343" alt="dcc preferences" /></a>
+          <a href="screenshots/prefs-plugins.png"><img src="screenshots/prefs-plugins-t.png" width="300" height="343" alt="plugins preferences" /></a>
         </div>
-        <div class="section-title">Channels Window</div>
+        <div class="section-title">Other Windows</div>
         <div class="section">
-          <a href="chanlist.png"><img src="chanlist-t.png" width="480" height="446" alt="channel list" /><br />
+          <a href="screenshots/chanlist.png"><img src="screenshots/chanlist-t.png" width="300" height="446" alt="channel list" />
+          <a href="screenshots/dcc-transfer.png"><img src="screenshots/dcc-transfer-t.png" width="300" height="446" alt="file transfers" />
         </div>
       </div>
     </div>
