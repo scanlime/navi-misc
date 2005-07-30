@@ -1,5 +1,5 @@
 /*
- * FrameListener.cpp - screamers-specific FrameListeners
+ * Listeners.cpp - screamers-specific FrameListeners
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -19,7 +19,7 @@
  *
  */
 
-#include "FrameListener.h"
+#include "Listeners.h"
 #include "MainLoop.h"
 
 
@@ -47,7 +47,7 @@ InfoListener::InfoListener (Ogre::RenderWindow *window) : TimeoutListener ()
 	gui_worst_fhz      = overlay_manager.getOverlayElement ("Core/WorstFps");
 	gui_triangle_count = overlay_manager.getOverlayElement ("Core/NumTris");
 
-	MainLoop::instance ().addTimeout (this, 1000);
+	MainLoop::getSingleton ().addTimeout (this, 1000);
 }
 
 InfoListener::~InfoListener ()
@@ -93,7 +93,7 @@ MainLoopTrigger::~MainLoopTrigger ()
 
 bool MainLoopTrigger::frameEnded (const Ogre::FrameEvent &event)
 {
-	MainLoop::instance ().iteration ();
+	MainLoop::getSingleton ().iteration ();
 	return true;
 }
 

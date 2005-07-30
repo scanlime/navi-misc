@@ -23,32 +23,32 @@
 #include <tnlEventConnection.h>
 #include <tnlNetInterface.h>
 #include <tnlRPC.h>
+#include <Ogre.h>
 
 #include "MainLoop.h"
-#include "Singleton.h"
 #include "GameConnection.h"
 
 #ifndef _CONNECTION_MANAGER_H_
 #define _CONNECTION_MANAGER_H_
 
 
-class ConnectionManager : public MainListener, public Singleton<ConnectionManager>
+class ConnectionManager : public MainListener, public Ogre::Singleton<ConnectionManager>
 {
 public:
-					 ConnectionManager ();
-					~ConnectionManager ();
+					 ConnectionManager (void);
+					~ConnectionManager (void);
 
 	virtual void			 tick (void);
 
 	void				 addConnection (GameConnection *connection);
 	void				 removeConnection (GameConnection *connection);
 
+	static ConnectionManager	&getSingleton (void);
+	static ConnectionManager	*getSingletonPtr (void);
 private:
 	TNL::RefPtr<TNL::NetInterface>	 network_interface;
 
 	std::vector<GameConnection *>	 connections;
-
-	friend class Singleton<ConnectionManager>;
 };
 
 

@@ -22,19 +22,28 @@
 #include <iostream>
 #include "ConnectionManager.h"
 
-template <>
-ConnectionManager* Singleton<ConnectionManager>::_instance = NULL;
+template<> ConnectionManager *Ogre::Singleton<ConnectionManager>::ms_Singleton = 0;
+ConnectionManager &ConnectionManager::getSingleton (void)
+{
+	assert (ms_Singleton);
+	return (*ms_Singleton);
+}
 
-ConnectionManager::ConnectionManager ()
+ConnectionManager *ConnectionManager::getSingletonPtr (void)
+{
+	return ms_Singleton;
+}
+
+ConnectionManager::ConnectionManager (void)
 {
 	TNL::Address address (TNL::IPProtocol, TNL::Address::Any, 27050);
 	network_interface = new TNL::NetInterface (address);
 	network_interface->setAllowsConnections (true);
 
-	MainLoop::instance ().addListener (this);
+	MainLoop::getSingleton ().addListener (this);
 }
 
-ConnectionManager::~ConnectionManager ()
+ConnectionManager::~ConnectionManager (void)
 {
 }
 

@@ -1,8 +1,8 @@
 /*
  * TextUtils.h - a collection of handy functions for dealing with strings
  *
- * Much of this code is derived from BZFlag
- * Copyright (C) 1993 - 2005 Tim Riker
+ * Much of this code is derived from BZFlag, Copyright (C) 1993 - 2005 Tim Riker
+ * The rest Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -22,7 +22,7 @@
 #include <vector>
 #include <tnl.h>
 #include <tnlPlatform.h>
-#include "Singleton.h"
+#include <Ogre.h>
 
 #ifndef _MAIN_LOOP_H_
 #define _MAIN_LOOP_H_
@@ -39,7 +39,7 @@ public:
 	virtual bool timeout (void) = 0;
 };
 
-class MainLoop : public Singleton<MainLoop>
+class MainLoop : public Ogre::Singleton<MainLoop>
 {
 public:
 			 MainLoop ();
@@ -53,6 +53,9 @@ public:
 	unsigned int	 getDelay (void);
 	void		 setDelay (unsigned int ms);
 
+	static MainLoop	&getSingleton (void);
+	static MainLoop *getSingletonPtr (void);
+
 private:
 	std::vector<MainListener*>	listeners;
 	struct Timeout
@@ -65,8 +68,6 @@ private:
 
 	// FIXME - do we want some kind of priority/negotiation thing here?
 	unsigned int			delay;
-
-	friend class Singleton<MainLoop>;
 };
 
 #endif // _MAIN_LOOP_H_

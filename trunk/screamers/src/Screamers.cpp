@@ -34,10 +34,12 @@
 #include "TextUtils.h"
 #include "Version.h"
 
-int appMain (std::string commandLine)
+int appMain (std::vector<std::string> options)
 {
-	std::cout << "version " << VERSION << std::endl;
 	Application app;
+	MainLoop    loop;
+
+	std::cout << "version " << VERSION << std::endl;
 
 	// We need to set up OGRE and all that jazz before we can initialize anything else
 	if (!app.setup ())
@@ -45,15 +47,13 @@ int appMain (std::string commandLine)
 
 	ClientLog log;
 
-	std::vector<std::string> options = TextUtils::tokenize (commandLine, " \t", 0, true);
-
 	std::string server = "localhost";
 	if (options.size () == 1)
 		server = options[0];
 
 	// connect to the server specified
 	GameConnection connection;
-	MainLoop::instance ().addTimeout (&connection, 20);
+	loop.addTimeout (&connection, 20);
 
 	connection.connectToServer (server.c_str (), 27050);
 
@@ -66,19 +66,16 @@ int appMain (std::string commandLine)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	std::string cli  = lpCmdLine;
-	return appMain(cli);
+	std::vector<std::string> options = TextUtils::tokenize (cli, " \t", 0, true);
+	return appMain(options);
 }
 #else
-int main( int argc, char *argv[])
+int main (int argc, char *argv[])
 {
-	// FIXME - this is bad! the shell does all of the globing for us, so we
-	// really shouldn't do it on our own. makes more sense to use tokenize()
-	// in the windows-specific function, since they just get one big string
-	// (hahahahaha)
-	std::string	cli;
-	for ( int i = 1; i < argc; i++)
-		cli += argv[i] + std::string(" ");
+	std::vector<std::string> options;
+	for (int i = 1; i < argc; i++)
+		options.push_back (std::string (argv[i]));
 
-	return appMain(cli);
+	return appMain (options);
 }
 #endif
