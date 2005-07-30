@@ -35,24 +35,20 @@ void World::addAttribute (std::string &attribute, std::string &value)
 {
 	std::string name = TextUtils::toupper(attribute);
 
-	if ( name == "sise" )
-	{
-		std::vector<std::string> l = TextUtils::tokenize(value,std::string(","));
-		if ( l.size() )
-		{
-			params.size[0] = (float)atof(l[0].c_str());
-			if ( l.size() > 1)
-				params.size[1] = (float)atof(l[1].c_str());
+	if (name == "size") {
+		std::vector<std::string> l = TextUtils::tokenize (value, std::string (","));
+		if (l.size ()) {
+			params.size[0] = (float) atof (l[0].c_str ());
+			if (l.size() > 1)
+				params.size[1] = (float) atof (l[1].c_str ());
 			else
 				params.size[1] = params.size[0];
 		}
-	}
-	else if ( name == "wallheight" )
-	{
-		params.wallHeight = (float)atof(value.c_str());
-	}
-	else if ( name == "name" )
+	} else if (name == "wallheight") {
+		params.wallHeight = (float) atof (value.c_str ());
+	} else if (name == "name") {
 		params.name = value;
+	}
 }
 
 int World::addMesh (std::string model)
@@ -63,7 +59,7 @@ int World::addMesh (std::string model)
 
 	objects.push_back(object);
 
-	return (int)objects.size()-1;
+	return (int) objects.size () - 1;
 }
 
 // todo: Dude do some checks for dupes
@@ -74,8 +70,8 @@ int World::addMaterial (const char* name)
 	mat.name = name;
 	mat.ogreMat = true;
 
-	materials.push_back(mat);
-	return (int)materials.size()-1;
+	materials.push_back (mat);
+	return (int) materials.size () - 1;
 }
 
 int World::addMaterial (float color[3], float alpha, const char* texture, const char* name)
@@ -96,14 +92,13 @@ int World::addMaterial (float color[3], float alpha, const char* texture, const 
 	if (texture)
 		mat.image = texture;
 
-	materials.push_back(mat);
-	return (int)materials.size()-1;
+	materials.push_back (mat);
+	return (int) materials.size () - 1;
 }
 
 int World::findMaterialByName (const char* name)
 {
-	for (unsigned int i = 0; i < materials.size(); i++)
-	{
+	for (unsigned int i = 0; i < materials.size(); i++) {
 		if (materials[i].name == std::string(name))
 			return i;
 	}
@@ -130,9 +125,9 @@ void World::addObjectMaterial (int object, int materialID)
 {
 }
 
-void World::clear ( void )
+void World::clear (void)
 {
-	materials.clear();
-	objects.clear();
+	materials.clear ();
+	objects.clear ();
 }
 

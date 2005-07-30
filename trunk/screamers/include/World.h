@@ -39,8 +39,8 @@ public:
 	float rot[3];
 	float scale[3];
 
-	std::map<std::string,std::string> attributes;
-	std::vector<int>				  materials;
+	std::map<std::string,std::string>	attributes;
+	std::vector<int>			materials;
 };
 
 typedef struct
@@ -54,47 +54,45 @@ typedef struct
 class World
 {
 public:
-	World ();
-	~World ();
+			 World ();
+			~World ();
 
 	// all the stuff you can add
-	void	addAttribute (std::string &attribute, std::string &value);
-	
-	int		addMesh (std::string model);
-	int		addMaterial (const char* name);
-	int		addMaterial (float color[3], float alpha = 1.0f, const char* texture = NULL, const char* name = NULL);
+	void		 addAttribute (std::string &attribute, std::string &value);
 
-	WorldObject	*getObject ( int object );
-	WorldMaterial *getMaterial ( int material );
-	
-	void	 setObjectAttribute (int object, std::string &attribute, std::string &value);
-	void	 setObjectPos (int object, float p[3]);
-	void	 setObjectRot (int object, float r[3]);
-	void	 setObjectScale (int object, float s[3]);
-	void	 addObjectMaterial (int object, int materialID);
+	int		 addMesh (std::string model);
+	int		 addMaterial (const char* name);
+	int		 addMaterial (float color[3], float alpha = 1.0f, const char* texture = NULL, const char* name = NULL);
 
-	int		findMaterialByName (const char* name);
+	WorldObject	*getObject (int object);
+	WorldMaterial	*getMaterial (int material);
 
-	void	getObjectIDList( std::vector<int> &objectList );
-	void	getMaterialIDList( std::vector<int> &materialList );
+	void		 setObjectAttribute (int object, std::string &attribute, std::string &value);
+	void		 setObjectPos (int object, float p[3]);
+	void		 setObjectRot (int object, float r[3]);
+	void		 setObjectScale (int object, float s[3]);
+	void		 addObjectMaterial (int object, int materialID);
 
-	void	clear ( void );
+	int		 findMaterialByName (const char* name);
+
+	void		 getObjectIDList (std::vector<int> &objectList);
+	void		 getMaterialIDList (std::vector<int> &materialList);
+
+	void		 clear (void);
+
 protected:
-
-	typedef std::vector<WorldMaterial>	MaterialList;
-	MaterialList						materials;
-
-	typedef std::vector<WorldObject>	ObjectList;
-	ObjectList							objects;
-
-	typedef struct 
+	typedef std::vector<WorldMaterial> MaterialList;
+	typedef std::vector<WorldObject> ObjectList;
+	typedef struct
 	{
 		float size[2];
 		float wallHeight;
 		std::string name;
-	}trMapParamaters;
+	} MapParamaters;
 
-	trMapParamaters	params;
+	ObjectList	 objects;
+	MaterialList	 materials;
+	MapParamaters	 params;
 };
 
 #endif //_WORLD_H_

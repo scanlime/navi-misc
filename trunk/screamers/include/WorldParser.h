@@ -28,8 +28,8 @@
 class WorldParser
 {
 public:
-	WorldParser (World &w);
-	~WorldParser ();
+		 WorldParser (World &w);
+		~WorldParser ();
 
 	bool	 load (const char* mapFile);
 
