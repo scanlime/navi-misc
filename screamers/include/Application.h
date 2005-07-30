@@ -20,13 +20,12 @@
  */
 
 #include <Ogre.h>
-#include "FrameListener.h"
-#include "Singleton.h"
+#include "Listeners.h"
 
 #ifndef _APPLICATION_H_
 #define _APPLICATION_H_
 
-class Application : public Singleton<Application>
+class Application : public Ogre::Singleton<Application>
 {
 	// This is mostly taken from the "ExampleApplication" class in the
 	// Ogre samples, since it's a pretty nice way to set up everything
@@ -39,18 +38,21 @@ public:
 	bool			 setup (void);
 	void		 	 go (void);
 
-	Ogre::Root		*getRoot ();
-	Ogre::Camera		*getCamera ();
-	Ogre::SceneManager	*getSceneManager ();
-	Ogre::RenderWindow	*getRenderWindow ();
+	Ogre::Root		*getRoot (void);
+	Ogre::Camera		*getCamera (void);
+	Ogre::SceneManager	*getSceneManager (void);
+	Ogre::RenderWindow	*getRenderWindow (void);
+
+	static Application	&getSingleton (void);
+	static Application	*getSingletonPtr (void);
 
 protected:
 	Ogre::Root		*root;
 	Ogre::Camera		*camera;
 	Ogre::SceneManager	*sceneManager;
 	Ogre::RenderWindow	*renderWindow;
-	InfoListener	*infoListener;
-	MainLoopTrigger	*mainListener;
+	InfoListener		*infoListener;
+	MainLoopTrigger		*mainListener;
 
 	bool			 configure (void);
 
@@ -59,8 +61,6 @@ private:
 
 	void			 loadResourcePaths (void);
 	void			 loadResources (void);
-
-	friend class Singleton<Application>;
 };
 
 #endif

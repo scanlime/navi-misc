@@ -1,5 +1,5 @@
 /*
- * FrameListener.h - screamers-specific FrameListeners
+ * Listeners.h - screamers-specific FrameListeners
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -22,8 +22,8 @@
 #include <Ogre.h>
 #include "MainLoop.h"
 
-#ifndef _FRAME_LISTENER_H_
-#define _FRAME_LISTENER_H_
+#ifndef _LISTENERS_H_
+#define _LISTENERS_H_
 
 class FrameListener : public Ogre::FrameListener
 {
@@ -37,8 +37,6 @@ protected:
 
 class InfoListener : public TimeoutListener
 {
-	// FIXME - this isn't an actual FrameListener anymore, but I don't know
-	// where else it should go.
 public:
 				 InfoListener (Ogre::RenderWindow *window);
 	virtual			~InfoListener ();
@@ -66,4 +64,4 @@ public:
 	virtual bool		 frameEnded (const Ogre::FrameEvent &event);
 };
 
-#endif
+#endif /* _LISTENERS_H_ */

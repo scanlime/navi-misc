@@ -23,16 +23,25 @@
 #include <fstream>
 #include "Application.h"
 
-template<>
-Application* Singleton<Application>::_instance = NULL;
+template<> Application *Ogre::Singleton<Application>::ms_Singleton = 0;
+Application &Application::getSingleton (void)
+{
+	assert (ms_Singleton);
+	return (*ms_Singleton);
+}
 
-Application::Application ()
+Application *Application::getSingletonPtr (void)
+{
+	return ms_Singleton;
+}
+
+Application::Application (void)
 {
 	root = NULL;
 	configured = false;
 }
 
-Application::~Application ()
+Application::~Application (void)
 {
 	if (root)
 		delete root;
@@ -132,22 +141,22 @@ bool Application::configure (void)
 	}
 }
 
-Ogre::Root *Application::getRoot ()
+Ogre::Root *Application::getRoot (void)
 {
 	return root;
 }
 
-Ogre::Camera *Application::getCamera ()
+Ogre::Camera *Application::getCamera (void)
 {
 	return camera;
 }
 
-Ogre::SceneManager *Application::getSceneManager ()
+Ogre::SceneManager *Application::getSceneManager (void)
 {
 	return sceneManager;
 }
 
-Ogre::RenderWindow *Application::getRenderWindow ()
+Ogre::RenderWindow *Application::getRenderWindow (void)
 {
 	return renderWindow;
 }

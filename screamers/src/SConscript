@@ -16,8 +16,8 @@ ogreenv.Append (CCFLAGS = ['-DTNL_ENABLE_LOGGING'])
 # Build the server
 screamersd_sources = [
 	'ConnectionManager.cpp',
-	'FrameListener.cpp',
 	'GameConnection.cpp',
+	'Listeners.cpp',
 	'Log.cpp',
 	'MainLoop.cpp',
 	'Pod.cpp',
@@ -32,7 +32,7 @@ ogreenv.Program ('screamersd', screamersd_sources)
 screamers_sources = [
 	'Application.cpp',
 	'ConnectionManager.cpp',
-	'FrameListener.cpp',
+	'Listeners.cpp',
 	'GameConnection.cpp',
 	'Log.cpp',
 	'MainLoop.cpp',

@@ -21,8 +21,17 @@
 
 #include "MainLoop.h"
 
-template <>
-MainLoop* Singleton<MainLoop>::_instance = NULL;
+template<> MainLoop *Ogre::Singleton<MainLoop>::ms_Singleton = 0;
+MainLoop &MainLoop::getSingleton (void)
+{
+	assert (ms_Singleton);
+	return (*ms_Singleton);
+}
+
+MainLoop *MainLoop::getSingletonPtr (void)
+{
+	return ms_Singleton;
+}
 
 MainLoop::MainLoop ()
 {

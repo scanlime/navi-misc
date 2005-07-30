@@ -32,19 +32,22 @@
 #include "Version.h"
 #include "WorldParser.h"
 
-int appMain (std::string commandLine)
+int appMain (std::vector<std::string> options)
 {
+	MainLoop          loop;
+	ConnectionManager cm;
+	World             world;
+	WorldParser       parser (world);
+
 	std::cout << "starting screamersd\nversion " << VERSION << std::endl;
 
 	Log ("screamersd.log");
 
-	World world;
-	WorldParser parser (world);
-	ConnectionManager::instance ();
 
-	parser.load (commandLine.c_str ());
+	if (options.size () == 1)
+		parser.load (options[0].c_str ());
 
-	MainLoop::instance ().go ();
+	loop.go ();
 
 	return 0;
 }
@@ -54,19 +57,16 @@ int appMain (std::string commandLine)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	std::string cli  = lpCmdLine;
-	return appMain(cli);
+	std::vector<std::string> options = TextUtils::tokenize (cli, " \t", 0, true);
+	return appMain(options);
 }
 #else
-int main( int argc, char *argv[])
+int main (int argc, char *argv[])
 {
-	// FIXME - this is bad! the shell does all of the globing for us, so we
-	// really shouldn't do it on our own. makes more sense to use tokenize()
-	// in the windows-specific function, since they just get one big string
-	// (hahahahaha)
-	std::string	cli;
-	for ( int i = 1; i < argc; i++)
-		cli += argv[i] + std::string(" ");
+	std::vector<std::string> options;
+	for (int i = 1; i < argc; i++)
+		options.push_back (std::string (argv[i]));
 
-	return appMain(cli);
+	return appMain (options);
 }
 #endif

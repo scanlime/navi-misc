@@ -64,7 +64,7 @@ void GameConnection::onConnectionTerminated (TNL::NetConnection::TerminationReas
 {
 	TNL::logprintf ("%s - %s connection terminated: %d", getNetAddressString (), isConnectionToServer () ? "server" : "client", reason);
 	if (!isInitiator ())
-		ConnectionManager::instance ().removeConnection (this);
+		ConnectionManager::getSingleton ().removeConnection (this);
 }
 
 void GameConnection::onConnectionEstablished ()
@@ -78,7 +78,7 @@ void GameConnection::onConnectionEstablished ()
 		setGhostFrom (true);
 		setGhostTo (false);
 		activateGhosting ();
-		ConnectionManager::instance ().addConnection (this);
+		ConnectionManager::getSingleton ().addConnection (this);
 	}
 }
 
