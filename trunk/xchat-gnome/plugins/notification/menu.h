@@ -37,8 +37,10 @@ typedef struct _ChannelMenuClass ChannelMenuClass;
 
 struct _ChannelMenu
 {
+	GtkMenu parent;
 };
 
 struct _ChannelMenuClass
 {
+	GtkMenuClass parent;
 };
