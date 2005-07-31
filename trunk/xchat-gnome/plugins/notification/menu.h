@@ -19,3 +19,26 @@
  *
  */
 
+#include <gnome.h>
+
+#ifndef __XCHAT_GNOME_CHANNEL_MENU_H__
+#define __XCHAT_GNOME_CHANNEL_MENU_H__
+
+G_BEGIN_DECLS
+
+typedef struct _ChannelMenu ChannelMenu;
+typedef struct _ChannelMenuClass ChannelMenuClass;
+
+#define CHANNELMENU_TYPE		(channel_menu_get_type ())
+#define CHANNELMENU (obj)		(G_TYPE_CHECK_INSTANCE_CAST ((obj), CHANNELMENU_TYPE_, ChannelMenu))
+#define CHANNELMENU_CLASS (klass)	(G_TYPE_CHECK_CLASS_CAST ((klass), MENUCHANNEL_TYPE, ChannelMenuClass))
+#define IS_CHANNELMENU (obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), CHANNELMENU_TYPE))
+#define IS_CHANNLEMENU_CLASS (klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), CHANNLEMENU_TYPE))
+
+struct _ChannelMenu
+{
+};
+
+struct _ChannelMenuClass
+{
+};
