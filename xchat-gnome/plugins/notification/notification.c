@@ -48,18 +48,18 @@ struct MenuChannel
 	GtkWidget*	menu_item;
 };
 
-static xchat_plugin*			ph;							/* Plugin handle. */
-static xchat_gnome_plugin*	xgph;							/* xchat gnome plugin handle. */
-static NotifStatus			status = NOTIF_NONE;		/* Current status level. */
-static gboolean				window_visible = TRUE;	/* Keep track of whether the window is visible. */
-static gboolean				focused = TRUE;			/* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
-static gboolean				persistant;					/* Keep the icon in the tray at all times? */
-static GtkWidget*				main_window;				/* xchat-gnome's main window. */
-static GHashTable*			channels;					/* A reference to the navigation tree. */
-static EggTrayIcon*			notification;				/* Notification area icon. */
-static GtkMenu*				menu;							/* The menu that pops up. */
-static GtkWidget*				image;						/* The image displayed by the icon. */
-static GdkPixbuf*				pixbufs[4];					/* Pixbufs */
+static xchat_plugin*		ph;			/* Plugin handle. */
+static xchat_gnome_plugin*	xgph;			/* xchat gnome plugin handle. */
+static NotifStatus		status = NOTIF_NONE;	/* Current status level. */
+static gboolean			window_visible = TRUE;	/* Keep track of whether the window is visible. */
+static gboolean			focused = TRUE;		/* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
+static gboolean			persistant;		/* Keep the icon in the tray at all times? */
+static GtkWidget*		main_window;		/* xchat-gnome's main window. */
+static GHashTable*		channels;		/* A reference to the navigation tree. */
+static EggTrayIcon*		notification;		/* Notification area icon. */
+static GtkMenu*			menu;			/* The menu that pops up. */
+static GtkWidget*		image;			/* The image displayed by the icon. */
+static GdkPixbuf*		pixbufs[4];		/* Pixbufs */
 
 
 /*** Callbacks ***/
