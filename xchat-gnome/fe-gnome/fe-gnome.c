@@ -876,3 +876,9 @@ fe_menu_update (menu_entry *entry)
 {
 	/* FIXME: implement? */
 }
+
+void
+fe_uselect (session *sess, char *word[], int do_clear, int scroll_to)
+{
+	/* FIXME: implement? */
+}
