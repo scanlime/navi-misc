@@ -26,14 +26,16 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ChannelMenu ChannelMenu;
-typedef struct _ChannelMenuClass ChannelMenuClass;
+typedef struct _ChannelMenu          ChannelMenu;
+typedef struct _ChannelMenuClass     ChannelMenuClass;
+typedef struct _ChannelMenuItem      ChannelMenuItem;
+typedef struct _ChannelMenuItemClass ChannelMenuItemClass;
 
-#define CHANNELMENU_TYPE		(channel_menu_get_type ())
-#define CHANNELMENU (obj)		(G_TYPE_CHECK_INSTANCE_CAST ((obj), CHANNELMENU_TYPE_, ChannelMenu))
-#define CHANNELMENU_CLASS (klass)	(G_TYPE_CHECK_CLASS_CAST ((klass), MENUCHANNEL_TYPE, ChannelMenuClass))
-#define IS_CHANNELMENU (obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), CHANNELMENU_TYPE))
-#define IS_CHANNLEMENU_CLASS (klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), CHANNLEMENU_TYPE))
+#define CHANNELMENU_TYPE             (channel_menu_get_type ())
+#define CHANNELMENU (obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), CHANNELMENU_TYPE, ChannelMenu))
+#define CHANNELMENU_CLASS (klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), MENUCHANNEL_TYPE, ChannelMenuClass))
+#define IS_CHANNELMENU (obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CHANNELMENU_TYPE))
+#define IS_CHANNLEMENU_CLASS (klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CHANNLEMENU_TYPE))
 
 struct _ChannelMenu
 {
@@ -43,4 +45,20 @@ struct _ChannelMenu
 struct _ChannelMenuClass
 {
 	GtkMenuClass parent;
+};
+
+#define CHANNELMENUITEM_TYPE             (channel_menu_item_get_type ())
+#define CHANNELMENUITEM (obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), CHANNELMENUITEM_TYPE, ChannelMenuItem))
+#define CHANNELMENUITEM_CLASS (klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CHANNELMENUITEM_TYPE, ChannelMenuItemClass))
+#define IS_CHANNELMENUITEM (obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CHANNELMENUITEM_TYPE))
+#define IS_CHANNELMENUTIEM_CLASS (klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CHANNELMENUITEM_TYPE))
+
+struct _ChannelMenuItem
+{
+	GtkImageMenuItem parent;
+};
+
+struct _ChannelMenuItemClass
+{
+	GtkImageMenuItemClass parent;
 };
