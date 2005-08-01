@@ -29,7 +29,7 @@ class Algorithm:
     def run (self):
         pass
 
-    def identity (self):
+    def identity ():
         """Subclasses implement this to provide some unique identifier.
            This allows us to request algorithm results and check the
            cache for a matching algorithm run, since different algorithms
@@ -46,7 +46,7 @@ class CyclicGraphException (Exception):
         self.backEdges = backEdges
         Exception.__init__ (self, "A cycle was found when expecting an acyclic graph.  Back edges are: %r" % self.backEdges)
 
-class DFS:
+class DFS (Algorithm):
     """An implementation of the Depth First Search algorithm, as
        described on page 540 of 'Introduction to Algorithms' by
        Cormen, Leiserson, Rivest, and Stein.
@@ -61,19 +61,21 @@ class DFS:
        the vertex order can be overridden.
        """
 
-    def __init__ (self, graph, vertexOrder=None):
-        try:
-            self.adjacency = graph.representations[Data.AdjacencyList]
-        except KeyError:
-            raise Exception ('Graph does not contain AdjacencyList representation')
+    desired_representation = Data.AdjacencyList
 
-        self.time = 0
+    def __init__ (self, graph, vertexOrder=None):
+        Algorithm.__init__ (self, graph)
+        self.vertexOrder = vertexOrder
+
+    def invalidate (self):
+        Algorithm.invalidate (self)
 
         # Normal DFS results, keyed by vertex
         self.color = {}
         self.predecessor = {}
         self.discoveryTime = {}
         self.finishingTime = {}
+        self.time = 0
 
         # Edge classification
         self.edgeColor = {}
@@ -81,11 +83,23 @@ class DFS:
                              GRAY:  [],
                              BLACK: []}
 
+        try:
+            self.adjacency = graph.representations[Data.AdjacencyList]
+        except KeyError:
+            raise Exception ('Graph does not contain AdjacencyList representation')
+
+    def run (self):
+        if self.valid:
+            return self
+
         if vertexOrder is None:
             vertexOrder = self.adjacency.iterU ()
         for vertex in vertexOrder:
             if self.color.get (vertex, WHITE) == WHITE:
                 self.visit (vertex)
+
+        self.valid = True
+        return self
 
     def visit (self, u):
         self.color[u] = GRAY
@@ -268,6 +282,10 @@ class DotPrint (Algorithm):
     def invalidate (self):
         Algorithm.invalidate (self)
         self.results = ''
+        try:
+            self.vertexMap = self.graph.representations[Data.VertexMap]
+        except KeyError:
+            raise Exception ('Graph does not contain VertexMap representation')
 
     def printline (self, string):
         self.results += '%s\n' % string
@@ -275,11 +293,6 @@ class DotPrint (Algorithm):
     def run (self):
         if self.valid:
             return self.results
-
-        try:
-            self.vertexMap = self.graph.representations[Data.VertexMap]
-        except KeyError:
-            raise Exception ('Graph does not contain VertexMap representation')
 
         self.printline ('Digraph {')
 
