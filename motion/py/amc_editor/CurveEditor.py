@@ -27,6 +27,9 @@ class CurveEditor (gtk.DrawingArea):
     def __init__ (self):
         gtk.DrawingArea.__init__ (self)
 
+        self.amc = None
+        self._nframes = 0
+
         self._colors = None
         self._enabled_bones = {}
         self._pad_positions = []
@@ -34,12 +37,15 @@ class CurveEditor (gtk.DrawingArea):
 
         self._redraw_timeout = 0
 
-        self._visible_range = (0, 0)
+        self._visible_range = [0, 0]
         self._grabbed = False
         self._lasso = False
 
-        self.connect_after ('expose-event', self.on_expose_event)
-        self.connect_after ('configure-event', self.on_configure_event)
+        self.hadj = None
+        self.vadj = None
+
+        self.connect ('configure-event', self.configure_event)
+        self.connect ('expose-event', self.expose_event)
 
     def _init_graphics (self):
         self._colors = {}
@@ -75,11 +81,32 @@ class CurveEditor (gtk.DrawingArea):
     def _create_back_buffer (self):
         self._back_buffer = gtk.gdk.Pixmap (self.window, self.allocation.width, self.allocation.height)
 
+    def _draw_frame_line (self, number, position):
+        if not self._is_visible (position):
+            return
+
+        self._back_buffer.draw_line (self._colors['black'],
+                                     int (position - self.hadj.value), 0,
+                                     int (position - self.hadj.value), self.allocation.height - 30)
+
     def _draw (self):
         if self._colors is None:
             self._init_graphics ()
 
         self._back_buffer.draw_rectangle (self._colors['grey'], True, 0, 0, self.allocation.width, self.allocation.height)
+
+        if self.amc is None:
+            return
+
+        self._pad_positions = []
+
+        for i in range(self._visible_range[0], self._visible_range[1]):
+            pos = i * 40 + 20
+            self._draw_frame_line (i, pos)
+
+            # Iterate through all the bones, drawing the ones that are enabled
+            for bone in self._enabled_bones:
+                self._draw_bone (i, pos, bone)
 
         # FIXME - more
 
@@ -101,13 +128,38 @@ class CurveEditor (gtk.DrawingArea):
         self.vadj.page_increment = 0
         self.vadj.value          = 0
 
-    def on_configure_event (self, widget, event, data=None):
-        self.hadj.page_size      = event.width
-        self.hadj.page_increment = event.width
+    def configure_event (self, widget, event):
+        if self.hadj is not None:
+            self.hadj.page_size      = event.width
+            self.hadj.page_increment = event.width
+            self.hadj.step_increment = 120
 
         self._create_back_buffer ()
         self._draw ()
 
-    def on_expose_event (self, widget, event, data=None):
+        return True
+
+    def expose_event (self, widget, event):
         self.window.draw_drawable (self._colors['grey'], self._back_buffer, event.area.x, event.area.y, event.area.x, event.area.y, event.area.width, event.area.height)
 
+    def set_amc (self, amc):
+        self.amc = amc
+
+        self._enabled_bones = []
+        self._nframes = amc.bones['root'].shape[0]
+
+        self.hadj.upper = self._nframes * 40;
+        self.hadj.value = 0
+
+        self._recompute_range ()
+        self._draw ()
+
+    def _recompute_range (self):
+        self._visible_range[0] = int (self.hadj.value / 40) - 1
+        i = self._visible_range[0] + 1
+        while self._is_visible (i * 40 + 20) and i < self._nframes:
+            i = i + 1
+        self._visible_range[1] = i
+
+    def _is_visible (self, x):
+        return ((x > self.hadj.value) and (x < (self.hadj.value, + self.allocation.width)))
