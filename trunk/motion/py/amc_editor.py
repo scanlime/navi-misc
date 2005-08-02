@@ -55,7 +55,8 @@ class AMCEditor:
         get_widget ('hscroll')
         get_widget ('vscroll')
 
-        self.widgets['curve_editor'].set_scroll_adjustments (self.widgets['hscroll'], self.widgets['vscroll'])
+        self.widgets['curve_editor'].set_scroll_adjustments (self.widgets['hscroll'].get_adjustment (),
+                                                             self.widgets['vscroll'].get_adjustment ())
 
         self._bone_store = gtk.TreeStore (str,           # name
                                           gtk.gdk.Color, # color
@@ -160,6 +161,7 @@ class AMCEditor:
                                                      5, degree,
                                                      #6, color,
                                                      )
+                self.widgets['curve_editor'].set_amc (amc)
                 self.modified = False
         chooser.destroy ()
 

@@ -93,13 +93,15 @@ def build_graph (key, d):
     # dunno if this will handle <0
     d = Numeric.fmod (d, 360.0)
 
+    # FIXME - cover entire [0,360] range
     for degree in range(dof):
         data = d[:,degree]
         mins.append (MLab.min (data))
         max = MLab.max (data)
         size = max - mins[-1]
         if size == 0.0:
-            # FIXME - should probably throw something
+            # FIXME - if angle range is sizeable, we need to keep track
+            # of the specific value
             return
         slots.append (int (math.ceil (size / interval)))
 
