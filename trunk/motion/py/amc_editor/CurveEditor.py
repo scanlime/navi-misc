@@ -89,6 +89,14 @@ class CurveEditor (gtk.DrawingArea):
                                      int (position - self.hadj.value), 0,
                                      int (position - self.hadj.value), self.allocation.height - 30)
 
+        self._big_layout.set_text ('%d' % number)
+        lw, lh = self._big_layout.get_pixel_size
+
+        self._back_buffer.draw_layout (self._colors['black'],
+                                       int (position - (lw / 2) - self.hadj.value),
+                                       self.allocation.height - 28,
+                                       self._big_layout)
+
     def _draw (self):
         if self._colors is None:
             self._init_graphics ()
@@ -135,12 +143,16 @@ class CurveEditor (gtk.DrawingArea):
             self.hadj.step_increment = 120
 
         self._create_back_buffer ()
-        self._draw ()
+        self.redraw ()
 
         return True
 
     def expose_event (self, widget, event):
+        if self._colors is None:
+            self._init_graphics ()
+
         self.window.draw_drawable (self._colors['grey'], self._back_buffer, event.area.x, event.area.y, event.area.x, event.area.y, event.area.width, event.area.height)
+        return True
 
     def set_amc (self, amc):
         self.amc = amc
@@ -152,7 +164,7 @@ class CurveEditor (gtk.DrawingArea):
         self.hadj.value = 0
 
         self._recompute_range ()
-        self._draw ()
+        self._queue_redraw ()
 
     def _recompute_range (self):
         self._visible_range[0] = int (self.hadj.value / 40) - 1
@@ -163,3 +175,19 @@ class CurveEditor (gtk.DrawingArea):
 
     def _is_visible (self, x):
         return ((x > self.hadj.value) and (x < (self.hadj.value, + self.allocation.width)))
+
+    def _queue_redraw (self):
+        if self._redraw_timeout == 0:
+            self._redraw_timeout = gobject.timeout_add (20, self.redraw)
+
+    def redraw (self):
+        area = gtk.gdk.Rectangle ()
+
+        area.x = 0
+        area.y = 0
+        area.width  = self.allocation.width
+        area.height = self.allocation.height
+
+        self.window.invalidate_rect (area, True)
+
+        self._redraw_timeout = 0

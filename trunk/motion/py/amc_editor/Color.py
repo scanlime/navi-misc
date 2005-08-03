@@ -188,3 +188,11 @@ colors = [
         gtk.gdk.Color ( 68,  28,  56),
         gtk.gdk.Color (136, 136, 140),
 ]
+
+def alloc_color ():
+    global position
+    ret = position
+    position += 1
+    return ret
+
+position = 0

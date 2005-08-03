@@ -30,6 +30,7 @@ import gtk
 import gtk.glade
 
 from Motion import AMC
+from amc_editor import Color
 from amc_editor.CurveEditor import CurveEditor
 
 class AMCEditor:
@@ -73,7 +74,7 @@ class AMCEditor:
         text_renderer = gtk.CellRendererText ()
         text_column.pack_start (text_renderer, True)
         text_column.add_attribute (text_renderer, 'markup'        , 0)
-        #text_column.add_attribute (text_renderer, 'foreground-gdk', 1)
+        text_column.add_attribute (text_renderer, 'foreground-gdk', 1)
         self.widgets['bone_list'].append_column (text_column)
 
         # Create visibility toggle column
@@ -153,13 +154,14 @@ class AMCEditor:
 
                     for degree in range (data.shape[1]):
                         iter2 = self._bone_store.append (parent = iter)
+                        color = Color.alloc_color ()
                         self._bone_store.set (iter2, 0, '<b>%d</b>' % degree,
-                                                     #1, color,
+                                                     1, Color.colors[color],
                                                      2, 0,
                                                      3, 1,
                                                      4, bone,
                                                      5, degree,
-                                                     #6, color,
+                                                     6, color,
                                                      )
                 self.widgets['curve_editor'].set_amc (amc)
                 self.modified = False
