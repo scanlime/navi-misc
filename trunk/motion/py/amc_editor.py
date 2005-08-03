@@ -56,9 +56,6 @@ class AMCEditor:
         get_widget ('hscroll')
         get_widget ('vscroll')
 
-        self.widgets['curve_editor'].set_scroll_adjustments (self.widgets['hscroll'].get_adjustment (),
-                                                             self.widgets['vscroll'].get_adjustment ())
-
         self._bone_store = gtk.TreeStore (str,           # name
                                           gtk.gdk.Color, # color
                                           'gboolean',    # shown on curve window
@@ -68,6 +65,10 @@ class AMCEditor:
                                           int            # color index
                                           )
         self.widgets['bone_list'].set_model (self._bone_store)
+
+        self.widgets['curve_editor'].set_scroll_adjustments (self.widgets['hscroll'].get_adjustment (),
+                                                             self.widgets['vscroll'].get_adjustment ())
+        self.widgets['curve_editor']._bone_store = self._bone_store
 
         # Create text column
         text_column   = gtk.TreeViewColumn ()
@@ -84,7 +85,7 @@ class AMCEditor:
         visible_column.add_attribute (visible_renderer, 'active',  2)
         visible_column.add_attribute (visible_renderer, 'visible', 3)
         visible_renderer.activatable = True
-        # FIXME - callback
+        visible_renderer.connect ('toggled', self.row_toggled)
         self.widgets['bone_list'].append_column (visible_column)
 
         self.update_toolbar_sensitivity ()
@@ -93,6 +94,16 @@ class AMCEditor:
 
     def main (self):
         gtk.main ()
+
+    def row_toggled (self, cell, path):
+        iter = self._bone_store.get_iter (path)
+        t = not self._bone_store.get_value (iter, 2)
+        self._bone_store.set_value (iter, 2, t)
+
+        if (t):
+            self.widgets['curve_editor'].enable_bone (path)
+        else:
+            self.widgets['curve_editor'].disable_bone (path)
 
     def set_title (self):
         if self.filename is None:

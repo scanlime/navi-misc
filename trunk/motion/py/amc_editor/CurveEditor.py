@@ -31,6 +31,7 @@ class CurveEditor (gtk.DrawingArea):
         self._nframes = 0
 
         self._colors = None
+        self._bones = []
         self._enabled_bones = {}
         self._pad_positions = []
         self._selected_pads = []
@@ -62,10 +63,10 @@ class CurveEditor (gtk.DrawingArea):
 
         colormap = self.window.get_colormap ()
 
-        colormap.alloc_color (white, writeable = True, best_match = True)
-        colormap.alloc_color (grey,  writeable = True, best_match = True)
-        colormap.alloc_color (black, writeable = True, best_match = True)
-        colormap.alloc_color (lasso, writeable = True, best_match = True)
+        colormap.alloc_color (white, True, True)
+        colormap.alloc_color (grey,  True, True)
+        colormap.alloc_color (black, True, True)
+        colormap.alloc_color (lasso, True, True)
 
         self._colors['white'].set_foreground (white)
         self._colors['grey'].set_foreground  (grey)
@@ -90,12 +91,22 @@ class CurveEditor (gtk.DrawingArea):
                                      int (position - self.hadj.value), self.allocation.height - 30)
 
         self._big_layout.set_text ('%d' % number)
-        lw, lh = self._big_layout.get_pixel_size
+        lw, lh = self._big_layout.get_pixel_size ()
 
         self._back_buffer.draw_layout (self._colors['black'],
                                        int (position - (lw / 2) - self.hadj.value),
                                        self.allocation.height - 28,
                                        self._big_layout)
+
+    def _draw_bone (self, frame, position, bone):
+        angle, name, gc = bone
+
+        if frame + 1 != self._nframes:
+            # FIXME
+            pass
+        else:
+            # FIXME
+            pass
 
     def _draw (self):
         if self._colors is None:
@@ -113,7 +124,7 @@ class CurveEditor (gtk.DrawingArea):
             self._draw_frame_line (i, pos)
 
             # Iterate through all the bones, drawing the ones that are enabled
-            for bone in self._enabled_bones:
+            for bone in self._bones:
                 self._draw_bone (i, pos, bone)
 
         # FIXME - more
@@ -143,6 +154,7 @@ class CurveEditor (gtk.DrawingArea):
             self.hadj.step_increment = 120
 
         self._create_back_buffer ()
+        self._draw ()
         self.redraw ()
 
         return True
@@ -170,8 +182,9 @@ class CurveEditor (gtk.DrawingArea):
         self._visible_range[0] = int (self.hadj.value / 40) - 1
         i = self._visible_range[0] + 1
         while self._is_visible (i * 40 + 20) and i < self._nframes:
-            i = i + 1
+            i += 1
         self._visible_range[1] = i
+        print 'displayed range is [%d, %d]' % (self._visible_range[0], self._visible_range[1])
 
     def _is_visible (self, x):
         return ((x > self.hadj.value) and (x < (self.hadj.value, + self.allocation.width)))
@@ -191,3 +204,31 @@ class CurveEditor (gtk.DrawingArea):
         self.window.invalidate_rect (area, True)
 
         self._redraw_timeout = 0
+
+    def enable_bone (self, path):
+        self._enabled_bones.append (path)
+        self._visibility_changed ()
+
+    def disable_bone (self, path):
+        self._enabled_bones.remove (path)
+        self._visibility_changed ()
+
+    def _visibility_changed (self):
+        self._bones = []
+        self._selected_pads = []
+        for path in self._enabled_bones:
+            iter   = self._bone_store.get_iter (path)
+            parent = self._bone_store.iter_parent (iter)
+
+            num   = self._bone_store.get_value (iter, 5)
+            color = self._bone_store.get_value (iter, 1)
+            name  = self._bone_store.get_value (parent, 0)
+
+            gc = gtk.gdk.GC (self._back_buffer)
+            colormap = self._back_buffer.get_colormap ()
+            colormap.alloc_color (color, True, True)
+            gc.set_foreground (color)
+
+            self._bones.append ((num, name, color))
+
+        self._queue_redraw ()
