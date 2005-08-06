@@ -70,8 +70,36 @@ class MotionGraphNode:
                 return False
         return True
 
+def cp_range (dof, angle):
+    """Return a list of tuples which form a cartesian product of the
+       range [0,360] in steps of angle.  This is used to build our sea
+       of nodes for building the graph.
+       """
+    if dof == 1:
+        return [(x,) for x in (range (0, 360, angle))]
+    if dof == 2:
+        nodes = []
+        for x in range (0, 360, angle):
+            for y in range (0, 360, angle):
+                nodes.append ((x, y))
+        return nodes
+    if dof == 3:
+        nodes = []
+        for x in range (0, 360, angle):
+            for y in range (0, 360, angle):
+                for z in range (0, 360, angle):
+                    nodes.append ((x, y, z))
+        return nodes
+
+def fixnegative (x):
+    if x < 0:
+        return x + 360
+    return x
+
 def build_graph (key, d):
-    # if this is the root, we only want the first 3 dof
+    # if this is the root, we only want the first 3 dof, for now
+    # FIXME - we really should do some stuff to track root orientation,
+    #   but that's a much more complicated problem.
     if (key == 'root'):
         d = d[:,0:3]
 
@@ -79,7 +107,7 @@ def build_graph (key, d):
     frames = d.shape[0]
 
     # degrees covered (angle-wise) within a single node
-    interval = 20.0
+    interval = 5
 
     mins = []
     slots = []
@@ -91,49 +119,26 @@ def build_graph (key, d):
 
     # it's silly to have angle values outside of [0,360]
     # dunno if this will handle <0
-    d = Numeric.fmod (d, 360.0)
-
-    # FIXME - cover entire [0,360] range
-    for degree in range(dof):
-        data = d[:,degree]
-        mins.append (MLab.min (data))
-        max = MLab.max (data)
-        size = max - mins[-1]
-        if size == 0.0:
-            # FIXME - if angle range is sizeable, we need to keep track
-            # of the specific value
-            return
-        slots.append (int (math.ceil (size / interval)))
+    d = Numeric.remainder (d, 360.0)
 
     # Create list of nodes
-    nodes = []
-    for i in range (slots[0]):
-        min0 = mins[0] + i * interval
-        if dof == 1:
-            nodes.append (MotionGraphNode ([min0], [min0 + interval]))
-        else:
-            for j in range (slots[1]):
-                min1 = mins[1] + j * interval
-                if dof == 2:
-                    nodes.append (MotionGraphNode ([min0, min1], [min0 + interval, min1 + interval]))
-                else:
-                    for k in range (slots[2]):
-                        min2 = mins[2] + k * interval
-                        nodes.append (MotionGraphNode ([min0, min1, min2], [min0 + interval, min1 + interval, min2 + interval]))
+    nodes = {}
+    for angle in cp_range (dof, interval):
+        node = MotionGraphNode ([n for n in angle], [n + interval for n in angle])
+        nodes[angle] = node
 
     graph.nodes = nodes
 
     # find edges
     data1 = d[0,:]
-    for node in nodes:
-        if node.inside (data1):
-            node1 = node
+    bases = tuple (map (fixnegative, (int (n / interval) * interval for n in data1)))
+    node1 = nodes[bases]
+
     for frame in range (1, frames):
         node2 = None
         data2 = d[frame,:]
-        for node in nodes:
-            if node.inside (data2):
-                node2 = node
+        bases = tuple (map (fixnegative, (int (n / interval) * interval for n in data1)))
+        node2 = nodes[bases]
 
         # check to see if it's a self-loop
         if node1 is node2:
