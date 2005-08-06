@@ -29,8 +29,9 @@ Log::Log (const char *filename) : TNL::LogConsumer ()
 		std::cerr << "warning: could not open log file, printing log to stdout\n";
 
 	// hmm. would be nice to have some kind of log scoping here
-	TNLLogEnable(LogConnectionProtocol, true);
-	TNLLogEnable(LogNetConnection,      true);
+	// These are *far* too verbose
+	// TNLLogEnable(LogConnectionProtocol, true);
+	// TNLLogEnable(LogNetConnection,      true);
 	TNLLogEnable(LogEventConnection,    true);
 	TNLLogEnable(LogGhostConnection,    true);
 	TNLLogEnable(LogNetInterface,       true);
