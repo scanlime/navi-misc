@@ -94,29 +94,7 @@ lost_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 static int
 new_msg_cb (char **word, void *msg_lvl)
 {
-	gchar*					chan_name = (gchar*) xchat_get_info (ph, "channel");
-	struct MenuChannel*	chan = (struct MenuChannel*) g_hash_table_lookup (channels, (gconstpointer) chan_name);
-
-	if (chan == NULL) {
-		/* If we get a message for a channel we're not already in, add it.
-		 * This takes care of the problems David and I were seeing with our proxies
-		 * and the hash table not being populated if the plugin is loaded when x-g
-		 * starts.
-		 */
-		chan = (struct MenuChannel*) malloc (sizeof (struct MenuChannel));
-		chan->status = (NotifStatus) msg_lvl;
-		chan->menu_item = gtk_image_menu_item_new_with_label (chan_name);
-		g_hash_table_insert (channels, (gpointer) chan_name, (gpointer) chan);
-	}
-
-
-	if (chan->status < (NotifStatus) msg_lvl) {
-		chan->status = (NotifStatus) msg_lvl;
-		/* FIXME memory leak? */
-		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (chan->menu_item),
-				gtk_image_new_from_pixbuf (pixbufs[(int) chan->status]));
-		gtk_widget_show_all (menu);
-	}
+	gchar* chan_name = (gchar*) xchat_get_info (ph, "channel");
 
 	if (status < (NotifStatus) msg_lvl && !focused) {
 		status = (NotifStatus) msg_lvl;
@@ -130,41 +108,19 @@ new_msg_cb (char **word, void *msg_lvl)
 static int
 join_chan_cb (char **word, void *data)
 {
-	struct MenuChannel* item = (struct MenuChannel*) malloc (sizeof (struct MenuChannel));
-
-	item->status = NOTIF_NONE;
-	item->menu_item = gtk_image_menu_item_new_with_label ((gchar*) word[2]);
-	gtk_menu_append (menu, item->menu_item);
-	g_hash_table_insert (channels, (gpointer) word[2], (gpointer) item);
-
 	return 0;
 }
 
 static int
 part_chan_cb (char **word, void *data)
 {
-	struct MenuChannel*	chan = (struct MenuChannel*) g_hash_table_lookup (channels, word[2]);
-
-	gtk_container_remove (GTK_CONTAINER (menu), GTK_WIDGET (chan->menu_item));
-	g_hash_table_remove (channels, (gconstpointer) word[2]);
-
-	free (chan);
-
 	return 0;
 }
 
 static int
 chan_changed_cb (char **word, void *data)
 {
-	gchar*					chan_name = (gchar*) xchat_get_info (ph, "channel");
-	struct MenuChannel*	chan = (struct MenuChannel*) g_hash_table_lookup (channels, (gconstpointer) chan_name);
-
-	if (chan == NULL)
-		return 0;
-
-	chan->status = NOTIF_NONE;
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (chan->menu_item),
-			gtk_image_new_from_pixbuf (pixbufs[(int) chan->status]));
+	gchar* chan_name = (gchar*) xchat_get_info (ph, "channel");
 
 	return 0;
 }
@@ -172,13 +128,6 @@ chan_changed_cb (char **word, void *data)
 static void
 notification_menu_show (GdkEventButton *event)
 {
-	if (menu != NULL)
-		gtk_widget_destroy (GTK_WIDGET (menu));
-
-	menu = GTK_MENU (gtk_menu_new ());
-
-	gtk_widget_show_all (GTK_WIDGET (menu));
-	gtk_menu_popup (menu, NULL, NULL, NULL, NULL, event->button, event->time);
 }
 
 static gboolean
@@ -213,15 +162,9 @@ notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer da
 gboolean
 add_channels_foreach_cb (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpointer data)
 {
-	struct MenuChannel*	item = (struct MenuChannel*) malloc (sizeof (struct MenuChannel));
-	gchar*					channel;
+	gchar* channel;
 
 	gtk_tree_model_get (model, iter, 1, &channel, -1);
-	item->status = NOTIF_NONE;
-	item->menu_item = gtk_image_menu_item_new_with_label (channel);
-	g_hash_table_insert (channels, (gpointer) channel, (gpointer) item);
-
-	gtk_menu_append (menu, item->menu_item);
 
 	return FALSE;
 }
@@ -252,10 +195,6 @@ xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
 	g_signal_connect (main_window, "focus-out-event", G_CALLBACK (lost_focus_cb), NULL);
 
 	/* Create the menu. */
-	menu = GTK_MENU (gtk_menu_new ());
-
-	channels = g_hash_table_new (g_str_hash , g_str_equal);
-	gtk_tree_model_foreach (chan_model, add_channels_foreach_cb, NULL);
 
 	return 1;
 }
