@@ -1,0 +1,95 @@
+material mk3/black
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.8 0.8 0.8
+			specular 0.5 0.5 0.5 12.5
+			texture_unit
+			{
+				texture mk3-black.png
+			}
+		}
+	}
+}
+
+material mk3/blue
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.8 0.8 0.8
+			specular 0.5 0.5 0.5 12.5
+			texture_unit
+			{
+				texture mk3-blue.png
+			}
+		}
+	}
+}
+
+material mk3/green
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.8 0.8 0.8
+			specular 0.5 0.5 0.5 12.5
+			texture_unit
+			{
+				texture mk3-green.png
+			}
+		}
+	}
+}
+
+material mk3/purple
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.8 0.8 0.8
+			specular 0.5 0.5 0.5 12.5
+			texture_unit
+			{
+				texture mk3-purple.png
+			}
+		}
+	}
+}
+
+material mk3/red
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.8 0.8 0.8
+			specular 0.5 0.5 0.5 12.5
+			texture_unit
+			{
+				texture mk3-red.png
+			}
+		}
+	}
+}
+
+material mk3/yellow
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.8 0.8 0.8
+			specular 0.5 0.5 0.5 12.5
+			texture_unit
+			{
+				texture mk3-yellow.png
+			}
+		}
+	}
+}
