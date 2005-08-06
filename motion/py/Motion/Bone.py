@@ -26,10 +26,10 @@ class Bone:
     limits = []
     axis = []
 
-    def __init__(self, dict):
+    def __init__ (self, dict):
         self.name = dict['name']
-        self.id = int(dict['id'])
-        self.length = float(dict['length'])
+        self.id = int (dict['id'])
+        self.length = float (dict['length'])
         self.direction = dict['direction']
         self.axis = dict['axis'][:3]
         try:
@@ -37,7 +37,7 @@ class Bone:
             self.limits = dict['limits']
             # Our parser will automatically convert any singular value to that value,
             # but we want a tuple. Test to make sure that we've really got a tuple.
-            if type(self.dof) is str:
+            if type (self.dof) is str:
                 self.dof = [self.dof]
                 self.limits = [self.limits]
         except KeyError:
