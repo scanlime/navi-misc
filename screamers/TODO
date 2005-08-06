@@ -1,2 +1,0 @@
-- make GameConnection use the MainListener interface, and build a FrameListener->MainLoop adaptor
-- give MainLoop a way to do timeouts, rather than calling things every single frame (for things like network, info panel)
