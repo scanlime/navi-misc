@@ -1,7 +1,7 @@
 /*
- * Application.cpp - application class which generally runs everything
+ * Application.cpp - application classes which generally run everything
  *
- * Copyright (C) 2005 Screamers Group (see AUTHORS)
+ * Copyright (C) 2005 David Trowbridge
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,80 +19,108 @@
  *
  */
 
-#include <iostream>
-#include <fstream>
 #include "Application.h"
-
-template<> Application *Ogre::Singleton<Application>::ms_Singleton = 0;
-Application &Application::getSingleton (void)
-{
-	assert (ms_Singleton);
-	return (*ms_Singleton);
-}
-
-Application *Application::getSingletonPtr (void)
-{
-	return ms_Singleton;
-}
 
 Application::Application (void)
 {
-	root = NULL;
+	main_loop = new MainLoop ();
+
 	configured = false;
 }
 
 Application::~Application (void)
 {
+	if (main_loop)
+		delete main_loop;
+}
+
+void Application::main (void)
+{
+	if ((!configured) && (!setup ())) {
+		std::cerr << "Could not set up application, quitting\n";
+		return;
+	}
+	this->go ();
+	// FIXME - we may want to add something here to allow an Application to clean
+	// up things before the destructor gets called (depends on how we work out
+	// program lifecycle)
+}
+
+HeadlessApplication::HeadlessApplication (void)
+{
+}
+
+HeadlessApplication::~HeadlessApplication (void)
+{
+}
+
+template<> HeadlessApplication *Ogre::Singleton<HeadlessApplication>::ms_Singleton = 0;
+HeadlessApplication &HeadlessApplication::getSingleton (void)
+{
+	assert (ms_Singleton);
+	return (*ms_Singleton);
+}
+
+HeadlessApplication *HeadlessApplication::getSingletonPtr (void)
+{
+	return ms_Singleton;
+}
+
+bool HeadlessApplication::setup (void)
+{
+	configured = true;
+	return true;
+}
+
+void HeadlessApplication::go (void)
+{
+	main_loop->go ();
+}
+
+WindowedApplication::WindowedApplication (void)
+{
+	root = NULL;
+}
+
+WindowedApplication::~WindowedApplication (void)
+{
 	if (root)
 		delete root;
 }
 
-void Application::go (void)
+template<> WindowedApplication *Ogre::Singleton<WindowedApplication>::ms_Singleton = 0;
+WindowedApplication &WindowedApplication::getSingleton (void)
 {
-	if ((configured == false) && (setup () == false))
-	{
-		std::cerr << "Could not set up OGRE, quitting\n";
-		return;
-	}
-
-	root->startRendering ();
-
-	// FIXME - clean up
+	assert (ms_Singleton);
+	return (*ms_Singleton);
 }
 
-void Application::loadResourcePaths (void)
+WindowedApplication *WindowedApplication::getSingletonPtr (void)
 {
-	Ogre::ConfigFile resources_config;
-
-	resources_config.load ("resources.cfg");
-
-	Ogre::ConfigFile::SectionIterator it = resources_config.getSectionIterator ();
-
-	Ogre::String section_name, type_name, arch_name;
-
-	while (it.hasMoreElements ())
-	{
-		section_name = it.peekNextKey ();
-
-		Ogre::ConfigFile::SettingsMultiMap *settings = it.getNext ();
-		Ogre::ConfigFile::SettingsMultiMap::iterator sec_it;
-
-		for (sec_it = settings->begin (); sec_it != settings->end (); ++sec_it)
-		{
-			type_name = sec_it->first;
-			arch_name = sec_it->second;
-
-			Ogre::ResourceGroupManager::getSingleton ().addResourceLocation (arch_name, type_name, section_name);
-		}
-	}
+	return ms_Singleton;
 }
 
-void Application::loadResources (void)
+Ogre::Root *WindowedApplication::getRoot (void)
 {
-	Ogre::ResourceGroupManager::getSingleton ().initialiseAllResourceGroups ();
+	return root;
 }
 
-bool Application::setup (void)
+Ogre::Camera *WindowedApplication::getCamera (void)
+{
+	return camera;
+}
+
+Ogre::SceneManager *WindowedApplication::getSceneManager (void)
+{
+	return sceneManager;
+}
+
+Ogre::RenderWindow *WindowedApplication::getRenderWindow (void)
+{
+	return renderWindow;
+}
+
+bool WindowedApplication::setup (void)
 {
 	if (configured)
 		return true;
@@ -106,8 +134,7 @@ bool Application::setup (void)
 	sceneManager = root->getSceneManager (Ogre::ST_GENERIC);
 	camera = sceneManager->createCamera ("PlayerCam");
 
-	// position and aim camera - right now, this is just copied over from
-	// ExampleApplication
+	// position and aim camera - right now, this is just copied over from ExampleApplication
 	camera->setPosition (Ogre::Vector3 (0, 0, 500));
 	camera->lookAt (Ogre::Vector3 (0, 0, -300));
 	camera->setNearClipDistance (5);
@@ -127,36 +154,46 @@ bool Application::setup (void)
 	root->addFrameListener (mainListener);
 
 	configured = true;
-
 	return true;
 }
 
-bool Application::configure (void)
+void WindowedApplication::go (void)
 {
-	if ((root->restoreConfig () || root->showConfigDialog ())) {
+	root->startRendering ();
+}
+
+bool WindowedApplication::configure (void)
+{
+	if ((root->restoreConfig ()) || (root->showConfigDialog ())) {
 		renderWindow = root->initialise (true, "Screamers");
 		return true;
-	} else {
-		return false;
+	}
+	return false;
+}
+
+void WindowedApplication::loadResourcePaths (void)
+{
+	Ogre::ConfigFile resources_config;
+	resources_config.load ("resources.cfg");
+	Ogre::ConfigFile::SectionIterator it = resources_config.getSectionIterator ();
+	Ogre::String section_name, type_name, arch_name;
+
+	while (it.hasMoreElements ()) {
+		section_name = it.peekNextKey ();
+
+		Ogre::ConfigFile::SettingsMultiMap *settings = it.getNext ();
+		Ogre::ConfigFile::SettingsMultiMap::iterator sec_it;
+
+		for (sec_it = settings->begin (); sec_it != settings->end (); ++sec_it) {
+			type_name = sec_it->first;
+			arch_name = sec_it->second;
+
+			Ogre::ResourceGroupManager::getSingleton ().addResourceLocation (arch_name, type_name, section_name);
+		}
 	}
 }
 
-Ogre::Root *Application::getRoot (void)
+void WindowedApplication::loadResources (void)
 {
-	return root;
-}
-
-Ogre::Camera *Application::getCamera (void)
-{
-	return camera;
-}
-
-Ogre::SceneManager *Application::getSceneManager (void)
-{
-	return sceneManager;
-}
-
-Ogre::RenderWindow *Application::getRenderWindow (void)
-{
-	return renderWindow;
+	Ogre::ResourceGroupManager::getSingleton ().initialiseAllResourceGroups ();
 }

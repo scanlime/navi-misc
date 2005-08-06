@@ -36,14 +36,13 @@
 
 int appMain (std::vector<std::string> options)
 {
-	Application app;
-	MainLoop    loop;
-
-	std::cout << "version " << VERSION << std::endl;
+	WindowedApplication app;
 
 	// We need to set up OGRE and all that jazz before we can initialize anything else
 	if (!app.setup ())
 		return 1;
+
+	std::cout << "version " << VERSION << std::endl;
 
 	ClientLog log;
 
@@ -53,11 +52,11 @@ int appMain (std::vector<std::string> options)
 
 	// connect to the server specified
 	GameConnection connection;
-	loop.addTimeout (&connection, 20);
+	MainLoop::getSingleton ().addTimeout (&connection, 20);
 
 	connection.connectToServer (server.c_str (), 27050);
 
-	app.go ();
+	app.main ();
 	return 0;
 }
 

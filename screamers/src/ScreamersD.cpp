@@ -28,27 +28,28 @@
 #include "Screamers.h"
 #include "ConnectionManager.h"
 #include "Log.h"
-#include "MainLoop.h"
+#include "Application.h"
 #include "Version.h"
 #include "WorldParser.h"
 
 int appMain (std::vector<std::string> options)
 {
-	MainLoop          loop;
+	HeadlessApplication app;
 	ConnectionManager cm;
-	World             world;
-	WorldParser       parser (world);
+	World world;
+	WorldParser parser (world);
+
+	if (!app.setup ())
+		return 1;
 
 	std::cout << "starting screamersd\nversion " << VERSION << std::endl;
 
 	Log ("screamersd.log");
 
-
 	if (options.size () == 1)
 		parser.load (options[0].c_str ());
 
-	loop.go ();
-
+	app.main ();
 	return 0;
 }
 
