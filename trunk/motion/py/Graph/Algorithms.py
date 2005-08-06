@@ -253,7 +253,7 @@ class DotPrint (Algorithm):
        ...     Edge (nodes[0], nodes[2], ''),
        ...     Edge (nodes[1], nodes[4], ''),
        ...     Edge (nodes[2], nodes[3], ''),
-       ...     Edge (nodes[3], nodes[0], ''),
+       ...     Edge (nodes[3], nodes[0], 'hi'),
        ...     ]
        >>> x = graph.addList (edges)
        >>> x = DotPrint (graph)
@@ -267,7 +267,7 @@ class DotPrint (Algorithm):
        1 -> 3 [label=""];
        2 -> 5 [label=""];
        3 -> 4 [label=""];
-       4 -> 1 [label=""];
+       4 -> 1 [label="hi"];
        }
        <BLANKLINE>
        """

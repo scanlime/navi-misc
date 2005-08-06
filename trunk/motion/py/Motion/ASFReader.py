@@ -22,17 +22,18 @@ from pyparsing import *
 from Bone import *
 import Log
 
-def listToDict(list):
+def listToDict (list):
     s = {}
     for item in list:
         # If we've only got one item, use the item rather than a list
-        if (len(item) == 2):
+        if (len (item) == 2):
             s[item[0]] = item[1]
         else:
             s[item[0]] = item[1:]
     return s
 
-log = Log.Logger()
+# FIXME: bleh, this shouldn't be here
+log = Log.Logger ()
 
 class ASFReader:
     bones = {}
@@ -45,59 +46,63 @@ class ASFReader:
     units = {}
     hierarchy = []
 
-    def gotRoot(self, s, loc, toks):
-        s = listToDict(toks[0])
+    def gotRoot (self, s, loc, toks):
+        s = listToDict (toks[0])
         self.orientation = s['orientation']
         self.position    = s['position']
         self.order       = s['order']
         self.axis        = s['axis']
-    def gotUnit(self, s, loc, toks):
-        self.units = listToDict(toks[0])
-    def gotBone(self, s, loc, toks):
-        dict = listToDict(toks[0])
-        bone = Bone(dict)
-        self.bones[bone.name] = bone
-    def gotName(self, s, loc, toks):
-        self.name = toks[0]
-    def gotHierarchy(self, s, loc, toks):
-        lines = [s.strip(' \r') for s in toks[1].split('\n')]
-        [self.hierarchy.append(s.split(' ')) for s in lines]
 
-    def getGrammar(self):
+    def gotUnit (self, s, loc, toks):
+        self.units = listToDict (toks[0])
+
+    def gotBone (self, s, loc, toks):
+        dict = listToDict (toks[0])
+        bone = Bone (dict)
+        self.bones[bone.name] = bone
+
+    def gotName (self, s, loc, toks):
+        self.name = toks[0]
+
+    def gotHierarchy (self, s, loc, toks):
+        lines = [s.strip (' \r') for s in toks[1].split ('\n')]
+        [self.hierarchy.append (s.split (' ')) for s in lines]
+
+    def getGrammar (self):
         if self.grammar is None:
-            float = Combine(Word('+-'+nums, nums) +
-                            Optional(Literal('.') + Optional(Word(nums))) +
-                            Optional(CaselessLiteral('E') + Word('+-'+nums, nums)))
-            name = Word(printables)
-            comment = Literal('#') + Optional (restOfLine)
-            axisOrder = oneOf("XYZ XZY YXZ YZX ZXY ZYX")
-            ro = oneOf("TX TY TZ RX RY RZ")
-            rootElement = Group(
+            float = Combine (Word ('+-'+nums, nums) +
+                             Optional (Literal ('.') + Optional (Word (nums))) +
+                             Optional (CaselessLiteral ('E') + Word ('+-' + nums, nums)))
+            name = Word (printables)
+            comment = Literal ('#') + Optional (restOfLine)
+            axisOrder = oneOf ("XYZ XZY YXZ YZX ZXY ZYX")
+            ro = oneOf ("TX TY TZ RX RY RZ")
+            rootElement = Group (
                 "order" + ro + ro + ro + ro + ro + ro \
               | "axis" + axisOrder \
               | "position" + float + float + float \
               | "orientation" + float + float + float
               )
-            root = Group(OneOrMore(rootElement))
-            unitElement = Group("mass" + float | "length" + float | "angle" + oneOf("deg rad"))
-            unit = Group(OneOrMore(unitElement))
-            dof = oneOf("rx ry rz")
-            triplet = Literal('(').suppress() + float + float + Literal(')').suppress()
-            boneElement = Group(
-                "id" + Word(nums) \
-              | "name" + Word(alphanums) \
+            root = Group (OneOrMore (rootElement))
+            unitElement = Group ("mass" + float | "length" + float | "angle" + oneOf ("deg rad"))
+            unit = Group (OneOrMore (unitElement))
+            dof = oneOf ("rx ry rz")
+            triplet = Literal ('(').suppress () + float + float + Literal (')').suppress ()
+            boneElement = Group (
+                "id" + Word (nums) \
+              | "name" + Word (alphanums) \
               | "direction" + float + float + float \
               | "length" + float \
               | "axis" + float + float + float + axisOrder \
-              | "dof" + OneOrMore(dof) \
-              | "limits" + OneOrMore(triplet)
+              | "dof" + OneOrMore (dof) \
+              | "limits" + OneOrMore (triplet)
               )
-            bone = Suppress("begin") + Group(OneOrMore(boneElement)) + Suppress("end")
-            bonedata = ZeroOrMore(bone)
-            docLine = Combine(OneOrMore(Word(alphanums + '!"#$%&\'()*+,-./;<=>?@[\\]^_`{|}~')), joinString=' ', adjacent=False)
-            sectstart = LineStart() + Literal(':').suppress()
-            hierarchy = "begin" + SkipTo("end", include=True)
-            section = Group(
+            bone = Suppress ("begin") + Group (OneOrMore (boneElement)) + Suppress ("end")
+            bonedata = ZeroOrMore (bone)
+            docLine = Combine (OneOrMore (Word (alphanums + '!"#$%&\'()*+,-./;<=>?@[\\]^_`{|}~')), joinString=' ', adjacent=False)
+            sectstart = LineStart () + Literal (':').suppress ()
+            hierarchy = "begin" + SkipTo ("end", include=True)
+            section = Group (
                 sectstart + "version" + float \
               | sectstart + "name" + name \
               | sectstart + "units" + unit \
@@ -106,17 +111,17 @@ class ASFReader:
               | sectstart + "bonedata" + bonedata \
               | sectstart + "hierarchy" + hierarchy
               )
-            part = section | Suppress(comment)
-            self.grammar = OneOrMore(part)
+            part = section | Suppress (comment)
+            self.grammar = OneOrMore (part)
 
-            root.setParseAction(self.gotRoot)
-            unit.setParseAction(self.gotUnit)
-            bone.setParseAction(self.gotBone)
-            name.setParseAction(self.gotName)
-            hierarchy.setParseAction(self.gotHierarchy)
+            root.setParseAction (self.gotRoot)
+            unit.setParseAction (self.gotUnit)
+            bone.setParseAction (self.gotBone)
+            name.setParseAction (self.gotName)
+            hierarchy.setParseAction (self.gotHierarchy)
 
         return self.grammar
 
-    def parse(self, filename):
-        g = self.getGrammar()
-        g.parseFile(filename)
+    def parse (self, filename):
+        g = self.getGrammar ()
+        g.parseFile (filename)

@@ -1,6 +1,6 @@
 #
 # log.py - Provides a simple logger that collects error and warning messages,
-#          presenting them to the user in baches via blender's popups
+#          presenting them to the user in batches via blender's popups
 #
 # Copyright (C) 2005 David Trowbridge
 #
@@ -23,36 +23,36 @@ class Logger:
     """This is a singleton that collects error and warning messages, presenting
        them to the user in batches.
        """
-    def __init__(self):
-        self.clear()
+    def __init__ (self):
+        self.clear ()
 
-    def clear(self):
+    def clear (self):
         self.log = []
         self.numErrors = 0
         self.numMessages = 0
         self.numWarnings = 0
 
-    def msg(self, s):
+    def msg (self, s):
         """Log a nonfatal message"""
-        self.log.append(s)
+        self.log.append (s)
         self.numMessages += 1
 
-    def err(self, s):
+    def err (self, s):
         """Log an error"""
-        self.log.append('ERROR: %s' % s)
+        self.log.append ('ERROR: %s' % s)
         self.numErrors += 1
 
-    def warn(self, s):
+    def warn (self, s):
         """Log a nonfatal warning"""
-        self.log.append('Warning: %s' % s)
+        self.log.append ('Warning: %s' % s)
         self.numWarnings += 1
 
-    def report(self, title='Errors reported'):
+    def report (self, title='Errors reported'):
         """Report errors to the user"""
         try:
             import Blender
-            Blender.Draw.PupMenu('%s:%%t|%s' % (title, '|'.join(self.log)))
+            Blender.Draw.PupMenu ('%s:%%t|%s' % (title, '|'.join (self.log)))
         except ImportError:
             for entry in self.log:
                 print entry
-        self.clear()
+        self.clear ()
