@@ -1,5 +1,5 @@
 /*
- * Application.h - application class which generally runs everything
+ * Application.h - application classes which generally run everything
  *
  * Copyright (C) 2005 Screamers Group (see AUTHORS)
  *
@@ -20,47 +20,72 @@
  */
 
 #include <Ogre.h>
+#include "MainLoop.h"
 #include "Listeners.h"
 
 #ifndef _APPLICATION_H_
 #define _APPLICATION_H_
 
-class Application : public Ogre::Singleton<Application>
+class Application
 {
-	// This is mostly taken from the "ExampleApplication" class in the
-	// Ogre samples, since it's a pretty nice way to set up everything
-	// we need.
-
 public:
-				 Application ();
-	virtual			~Application ();
+					 Application (void);
+	virtual				~Application (void);
 
-	bool			 setup (void);
-	void		 	 go (void);
 
-	Ogre::Root		*getRoot (void);
-	Ogre::Camera		*getCamera (void);
-	Ogre::SceneManager	*getSceneManager (void);
-	Ogre::RenderWindow	*getRenderWindow (void);
-
-	static Application	&getSingleton (void);
-	static Application	*getSingletonPtr (void);
+	virtual bool			 setup (void) = 0;
+	void				 main (void);
 
 protected:
-	Ogre::Root		*root;
-	Ogre::Camera		*camera;
-	Ogre::SceneManager	*sceneManager;
-	Ogre::RenderWindow	*renderWindow;
-	InfoListener		*infoListener;
-	MainLoopTrigger		*mainListener;
+	virtual void			 go (void) = 0;
 
-	bool			 configure (void);
+	MainLoop			*main_loop;
+	bool				 configured;
+};
+
+class HeadlessApplication : public Application, public Ogre::Singleton<HeadlessApplication>
+{
+public:
+					 HeadlessApplication (void);
+	virtual				~HeadlessApplication (void);
+
+	static HeadlessApplication	&getSingleton (void);
+	static HeadlessApplication	*getSingletonPtr (void);
+
+	virtual bool			 setup (void);
+protected:
+	virtual void			 go (void);
+};
+
+class WindowedApplication : public Application, public Ogre::Singleton<WindowedApplication>
+{
+public:
+					 WindowedApplication (void);
+	virtual				~WindowedApplication (void);
+
+	Ogre::Root			*getRoot (void);
+	Ogre::Camera			*getCamera (void);
+	Ogre::SceneManager		*getSceneManager (void);
+	Ogre::RenderWindow		*getRenderWindow (void);
+
+	static WindowedApplication	&getSingleton (void);
+	static WindowedApplication	*getSingletonPtr (void);
+
+	virtual bool			 setup (void);
+protected:
+	virtual void			 go (void);
+	bool				 configure (void);
+
+	Ogre::Root			*root;
+	Ogre::Camera			*camera;
+	Ogre::SceneManager		*sceneManager;
+	Ogre::RenderWindow		*renderWindow;
+	InfoListener			*infoListener;
+	MainLoopTrigger			*mainListener;
 
 private:
-	bool			 configured;
-
-	void			 loadResourcePaths (void);
-	void			 loadResources (void);
+	void				 loadResourcePaths (void);
+	void				 loadResources (void);
 };
 
 #endif

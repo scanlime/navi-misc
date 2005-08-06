@@ -15,6 +15,7 @@ ogreenv.ParseConfig ('pkg-config --cflags --libs OGRE')
 ogreenv.Append (CCFLAGS = ['-DTNL_ENABLE_LOGGING'])
 # Build the server
 screamersd_sources = [
+	'Application.cpp',
 	'ConnectionManager.cpp',
 	'GameConnection.cpp',
 	'Listeners.cpp',
