@@ -66,7 +66,7 @@ void InfoListener::updateStats (void)
 	if (!debugOverlay->isVisible ())
 		return;
 
-	// FIXME - it really doesn't make any sense to update this every frame
+	// I'm not sure why this is in a try/catch block - maybe something with FrameStats
 	try
 	{
 		const Ogre::RenderTarget::FrameStats &stats = window->getStatistics ();

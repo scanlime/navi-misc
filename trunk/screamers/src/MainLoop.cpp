@@ -65,7 +65,15 @@ void MainLoop::iteration (void)
 
 		// getRealMilliseconds will wrap after about 7 days, so check for that
 		if (to->last > current) {
-			// FIXME - implement
+			// Keep in mind that I haven't tested this, since I don't feel the need
+			// to run useless programs for weeks at a time right now
+			TNL::U32 total_time = current + (((TNL::U32)0) - to->last);
+			if (total_time >= to->ms) {
+				to->last = current;
+				bool keep = to->listener->timeout ();
+				if (!keep)
+					remove_list.push_back (it);
+			}
 		} else {
 			if ((current - to->last) >= to->ms) {
 				to->last = current;

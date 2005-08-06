@@ -24,6 +24,7 @@
 
 #include <string>
 #include <algorithm>
+#include <iostream>
 #include <sstream>
 #include <stdarg.h>
 #include <vector>
@@ -298,7 +299,7 @@ std::string unescape (const std::string &text, char escaper)
 			if (i < len - 1)
 				destination += text[++i];
 			else
-				; // FIXME - Should print an error
+				std::cerr << "Found escape character at end of string\n";
 		} else {
 			destination += c;
 		}
