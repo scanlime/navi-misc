@@ -23,6 +23,15 @@
         <p><b>DO NOT</b> expect support from the normal X-Chat developers, and do not submit bug
         reports/feature requests/etc to them.</p>
 
+	<p>I've recently added a convenience script for myself.  If you don't need any fancy configure options
+	and don't mind it installing to /usr, you can just run:</p>
+
+	<div class="code">
+	  svn cat <a href="http://svn.navi.cx/misc/trunk/xchat-gnome/checkout-build.sh">http://svn.navi.cx/misc/trunk/xchat-gnome/checkout-build.sh</a> | sh
+	</div>
+
+	<p>Otherwise, do this:</p>
+
         <div class="code">
           $ cvs -d :pserver:anonymous@cvs.sf.net:/cvsroot/xchat co xchat2<br />
 	  $ cd xchat2<br />
