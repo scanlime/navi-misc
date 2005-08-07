@@ -12,4 +12,3 @@ popd
 make
 cd src/fe-gnome
 gconftool-2 --install-schema-file=apps_xchat.schemas
-./xchat-gnome
