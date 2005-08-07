@@ -470,8 +470,8 @@ apply_changes (IrcNetworkEditor *e)
 		g_free (serv->hostname);
 		g_free (serv);
 	}
-	g_slist_free (s);
-	s = NULL;
+	g_slist_free (net->servers);
+	net->servers = NULL;
 	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (e->server_store), &iter)) {
 		do {
 			char *text;
