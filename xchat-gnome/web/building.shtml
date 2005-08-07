@@ -24,7 +24,8 @@
         reports/feature requests/etc to them.</p>
 
 	<p>I've recently added a convenience script for myself.  If you don't need any fancy configure options
-	and don't mind it installing to /usr, you can just run:</p>
+	and don't mind building with a prefix of /usr, you can just run this.  Keep in mind it doesn't actually
+	run make install, just builds.</p>
 
 	<div class="code">
 	  svn cat <a href="http://svn.navi.cx/misc/trunk/xchat-gnome/checkout-build.sh">http://svn.navi.cx/misc/trunk/xchat-gnome/checkout-build.sh</a> | sh
