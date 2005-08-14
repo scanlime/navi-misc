@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 
       i = ioctl(fd, USBDEVFS_BULK, &bulk);
       if (i > 0) {
-         printf("[%d]", i);
+         printf("[%2d]", i);
 
          for (j=0; j<i; j++)
             printf(" %02X", buffer[j]);

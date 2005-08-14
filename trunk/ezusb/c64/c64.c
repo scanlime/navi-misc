@@ -137,7 +137,7 @@ void iec_init() {
 bool iec_pin_wait(unsigned char mask, bit high) {
    timer2_reset();
    while (iec_pin_is_high(mask) != high) {
-      if (timer2_read() > 1000 US)
+      if (timer2_read() > 10000 US)
          return 0;
    }
    return 1;
@@ -146,7 +146,7 @@ bool iec_pin_wait(unsigned char mask, bit high) {
 void iec_delay() {
    /* C64 timing: 60 microseconds */
    timer2_reset();
-   timer2_elapse_ticks(60 US);
+   timer2_elapse_ticks(80 US);
 }
 
 bool iec_read_byte(char *result) {
@@ -225,7 +225,7 @@ bool iec_write_byte(char byte, bool eoi) {
       if (byte & 1)
          iec_pin_release(IEC_DATA);
       else
-         iec_pin_release(IEC_DATA);
+         iec_pin_pull_down(IEC_DATA);
 
       iec_pin_release(IEC_CLK);
       iec_delay();
@@ -236,7 +236,7 @@ bool iec_write_byte(char byte, bool eoi) {
    }
 
    /* Wait for the listener to acknowledge */
-   if (!iec_pin_wait(IEC_CLK, 0))
+   if (!iec_pin_wait(IEC_DATA, 0))
       return 0;
 
    return 1;
@@ -361,10 +361,23 @@ void main()
          response->length = iec_listen(((char*)response) +
                                        sizeof(struct usb_response_t), 32);
 
-      if (response->cmd.need_talk)
-         response->length = iec_talk("BOING\n", 6, 1);
+      if (response->cmd.need_talk) {
+         static const unsigned char program[] = {
+            0x01, 0x08,
 
-      IN2BC = sizeof(struct usb_response_t) + response->length;
+            0x00, 0x00,
+
+            /*
+            0x11, 0x08, 0x0A, 0x00,
+            'H', 'E', 'L', 'L', 'O', ' ', 'Y', 'O', 'S', 'H', 'I',
+            0x00, 0x00, 0x00,
+            */
+         };
+         response->length = iec_talk(program, sizeof(program), 1);
+      }
+
+      IN2BC = sizeof(struct usb_response_t) +
+         (response->cmd.need_listen ? response->length : 0);
       while (IN2CS & 0x02);
    }
 }
