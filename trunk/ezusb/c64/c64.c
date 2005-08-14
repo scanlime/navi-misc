@@ -205,6 +205,43 @@ bool iec_read_byte(char *result) {
    return 1;
 }
 
+bool iec_write_byte(char byte, bool eoi) {
+   unsigned char i;
+
+   if (eoi) {
+      /* Wait for the listener to acknoledge EOI */
+      if (!iec_pin_wait(IEC_DATA, 0))
+         return 0;
+      if (!iec_pin_wait(IEC_DATA, 1))
+         return 0;
+   }
+
+   iec_delay();
+   iec_pin_pull_down(IEC_CLK);
+
+   for (i=8; i; i--) {
+      iec_delay();
+
+      if (byte & 1)
+         iec_pin_release(IEC_DATA);
+      else
+         iec_pin_release(IEC_DATA);
+
+      iec_pin_release(IEC_CLK);
+      iec_delay();
+      iec_pin_pull_down(IEC_CLK);
+      iec_pin_release(IEC_DATA);
+
+      byte >>= 1;
+   }
+
+   /* Wait for the listener to acknowledge */
+   if (!iec_pin_wait(IEC_CLK, 0))
+      return 0;
+
+   return 1;
+}
+
 void iec_next_command(struct iec_command_t *cmd_info) {
    unsigned char length = 0;
    char buffer[2];
@@ -250,6 +287,15 @@ void iec_next_command(struct iec_command_t *cmd_info) {
          cmd_info->need_talk = 1;
       break;
    }
+
+   if (cmd_info->need_talk) {
+      /* Turn-around sequence, switch from listening to talking */
+      iec_pin_wait(IEC_CLK, 1);
+      iec_pin_release(IEC_DATA);
+      iec_delay();
+      iec_pin_pull_down(IEC_CLK);
+      iec_delay();
+   }
 }
 
 unsigned char iec_listen(char *buffer, unsigned char bufferLen) {
@@ -264,6 +310,33 @@ unsigned char iec_listen(char *buffer, unsigned char bufferLen) {
    }
 
    return length;
+}
+
+unsigned char iec_talk(char *buffer, unsigned char length, bool eoi) {
+   unsigned char written = 0;
+   bit last = 0;
+
+   while (!last) {
+      last = written+1 >= length;
+
+      /* Ready to send */
+      iec_pin_release(IEC_CLK);
+
+      /* Wait for the listener */
+      if (!iec_pin_wait(IEC_CLK, 1))
+         break;
+
+      if (!iec_write_byte(buffer[written], eoi && last))
+         break;
+      written++;
+   }
+
+   if (eoi) {
+      iec_delay();
+      iec_pin_release(IEC_CLK);
+   }
+
+   return written;
 }
 
 /*********************************************/
@@ -287,6 +360,9 @@ void main()
       if (response->cmd.need_listen)
          response->length = iec_listen(((char*)response) +
                                        sizeof(struct usb_response_t), 32);
+
+      if (response->cmd.need_talk)
+         response->length = iec_talk("BOING\n", 6, 1);
 
       IN2BC = sizeof(struct usb_response_t) + response->length;
       while (IN2CS & 0x02);
