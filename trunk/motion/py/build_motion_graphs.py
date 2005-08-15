@@ -106,7 +106,9 @@ def build_graph (key, d):
     dof = d.shape[1]
     frames = d.shape[0]
 
-    # degrees covered (angle-wise) within a single node
+    # degrees covered (angle-wise) within a single node.  Note that for some
+    # bones, the number of nodes we have will be (360 / interval)^3, so be
+    # sparing when decreasing this!
     interval = 5
 
     mins = []
