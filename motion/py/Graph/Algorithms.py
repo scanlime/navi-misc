@@ -230,8 +230,10 @@ class Dijkstra (Algorithm):
         while not queue.Empty ():
             u = queue.extract ()
             found.append (u)
-            for vertex in self.vertexMap.query (u):
-                Relax (edge, self.weightf, self.estimates, self.predecessors)
+            # Iterate over all edges which have their origin at u
+            for edge in self.vertexMap.query (u):
+                if edge[0] is u:
+                    Relax (edge, self.weightf, self.estimates, self.predecessors)
 
         self.valid = True
         return self.results
