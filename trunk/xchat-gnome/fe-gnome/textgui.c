@@ -316,6 +316,7 @@ clear_buffer (struct session *sess)
 		return;
 	session_gui *sgui = (session_gui *) sess->gui;
 	gtk_xtext_clear (sgui->buffer);
+	gtk_xtext_refresh (gui.xtext, TRUE);
 }
 
 int
