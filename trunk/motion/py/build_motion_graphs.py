@@ -45,8 +45,6 @@ class ProbabilityEdge (Edge):
         self.dot_label = '%.2f' % self.weight
 
 class MotionGraph (Graph):
-    __slots__ = ['nodes']
-
     def __init__ (self):
         Graph.__init__ (self, [DotPrint])
 
@@ -92,36 +90,33 @@ def cp_range (dof, angle):
         return nodes
 
 def fixnegative (x):
-    if x < 0:
-        return x + 360
+    while x < 0:
+        x = x + 360
     return x
 
-def build_graph (key, d):
-    # if this is the root, we only want the first 3 dof, for now
+def build_graphs (key, datas):
+    """Build a graph using the data arrays from any number of files."""
+
+    # If this is the root, we only want the first 3 dof, for now
     # FIXME - we really should do some stuff to track root orientation,
     #   but that's a much more complicated problem.
-    if (key == 'root'):
-        d = d[:,0:3]
+    if key == 'root':
+        datas = [d[:,0:3] for d in datas]
+    # It's silly to have angle values outside of [0,360]
+    datas = [Numeric.remainder (d, 360.0) for d in datas]
 
-    dof = d.shape[1]
-    frames = d.shape[0]
+    # This assumes the same DOF for each bone in each file!
+    dof = datas[0].shape[1]
 
     # degrees covered (angle-wise) within a single node.  Note that for some
     # bones, the number of nodes we have will be (360 / interval)^3, so be
     # sparing when decreasing this!
     interval = 5
 
-    mins = []
-    slots = []
-
-    graph = MotionGraph ()
+    graph          = MotionGraph   ()
     adjacency_list = AdjacencyList (graph)
-    vertex_map = VertexMap (graph)
-    edge_list = EdgeList (graph)
-
-    # it's silly to have angle values outside of [0,360]
-    # dunno if this will handle <0
-    d = Numeric.remainder (d, 360.0)
+    vertex_map     = VertexMap     (graph)
+    edge_list      = EdgeList      (graph)
 
     # Create list of nodes
     nodes = {}
@@ -129,7 +124,26 @@ def build_graph (key, d):
         node = MotionGraphNode ([n for n in angle], [n + interval for n in angle])
         nodes[angle] = node
 
-    graph.nodes = nodes
+    # Add edges for data from each file
+    for d in datas:
+        build_graph (d, graph, nodes, edge_list, interval)
+
+    # Normalize probabilities for all edges coming out of a vertex. The sum
+    # of probabilities along edges coming out of any given vertex will be 1.
+    for vertex in vertex_map:
+        total = 0
+        edges = vertex_map.query (vertex)
+        for edge in edges:
+            if edge.u is vertex:
+                total += edge.count
+        for edge in edges:
+            if edge.u is vertex:
+                edge.normalize (total)
+
+    return graph
+
+def build_graph (d, graph, nodes, edge_list, interval):
+    frames = d.shape[0]
 
     # find edges
     data1 = d[0,:]
@@ -166,32 +180,28 @@ def build_graph (key, d):
         data1 = data2
         node1 = node2
 
-    for vertex in vertex_map:
-        # Normalize probabilities for all edges coming out of a vertex. The sum
-        # of probabilities along edges coming out of any given vertex will be 1.
-        total = 0
-        edges = vertex_map.query (vertex)
-        for edge in edges:
-            if edge.u is vertex:
-                total += edge.count
-        for edge in edges:
-            if edge.u is vertex:
-                edge.normalize (total)
+def load (files):
+    amcs = []
 
-    return graph
+    # Open all the AMC files at once, so we can build entire graphs at once.
+    for filename in files:
+        amcs.append (AMC.from_file (filename))
 
-def load (filename):
-    amc = AMC.from_file (filename)
-    bones = {}
-    for (key, data) in amc.bones.iteritems ():
+    # Build the actual graphs.  We iterate over bones, building graphs for each.
+    # This assumes that we have the same bones with the same dof in each file!
+    # In general, for the data we're working with, this is the case, but I'm going
+    # to mark this as FIXME because it's possible we'd want to combine multiple
+    # motion sequences.  The other option is to write a tool that can convert
+    # one AMC file to use the bones listed in another.
+    for key in amcs[0].bones.iterkeys ():
         print 'building graph for',key
-        g = build_graph (key, data)
+        g = build_graphs (key, [amc.bones[key] for amc in amcs])
         if g is not None:
             f = file ('graphs/%s.dot' % key, 'w')
             DotPrint (g, f)
             f.close ()
 
-if len (sys.argv) != 2:
-    print 'Usage: %s [file.amc]' % sys.argv[0]
+if len (sys.argv) < 2:
+    print 'Usage: %s [FILE]...' % sys.argv[0]
 else:
-    load (sys.argv[1])
+    load (sys.argv[1:])
