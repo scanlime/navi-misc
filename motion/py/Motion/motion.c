@@ -111,6 +111,7 @@ AMC_getAttr (AMC *motion, char *name)
 	} else if (strcmp (name, "comments") == 0) {
 		attr = motion->comments;
 	} else if (strcmp (name, "bones") == 0) {
+		Py_INCREF (motion->bones);
 		attr = motion->bones;
 	} else if (strcmp (name, "format") == 0) {
 		attr = motion->format;
@@ -300,7 +301,9 @@ AMC_fromFile (AMC *self, PyObject *args)
 	}
 
 	for (i = data, j = bones; i; i = g_slist_next (i), j = g_slist_next (j)) {
-		PyDict_SetItem (motion->bones, PyString_FromString (j->data), i->data);
+		PyObject *key = PyString_FromString (j->data);
+		Py_INCREF (key);
+		PyDict_SetItem (motion->bones, key, i->data);
 	}
 
 	g_slist_foreach (bones, (GFunc) g_free, NULL);
