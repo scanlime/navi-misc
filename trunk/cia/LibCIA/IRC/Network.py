@@ -140,6 +140,13 @@ class Worldforge(BaseNetwork):
         #('purple.worldforge.org', None),
         )
 
+class IRCNet(BaseNetwork):
+    alias = 'ircnet'
+    servers = (
+        ('irc.osanet.cz', None),
+        #('irc.felk.cvut.cz', 6666),
+        )
+
 _aliasCache = None
 _instCache = {}
 
