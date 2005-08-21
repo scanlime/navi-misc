@@ -30,9 +30,18 @@ from twisted.python import usage
 import xmlrpclib, os
 
 
+# Let the user override the default server
+def getDefaultServer(builtinDefault='http://localhost:3910', configFile="~/.cia_server"):
+    configFile = os.path.expanduser(configFile)
+    if os.path.isfile(configFile):
+        return open(configFile).read().strip()
+    else:
+        return builtinDefault
+
+
 class Options(usage.Options):
     optParameters = [
-        ['server', 's', 'http://localhost:3910', 'The URI of the CIA server to connect to'],
+        ['server', 's', getDefaultServer(), 'The URI of the CIA server to connect to'],
         ['key', 'k', "~/.cia_key", 'Load a capability key from this file'],
         ]
 
