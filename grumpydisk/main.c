@@ -92,10 +92,13 @@ static int disk_init(struct disk_info *di, int device_id)
 static void read_or_die_trying(struct disk_info *di, unsigned int sector, unsigned int count, char *buffer)
 {
     if (storage_cmd_read(di->devh, sector, count, buffer, count * di->sector_size) < 0) {
+	printf("Resetting\n");
+	usleep(500000);
 	disk_reset(di);
+	usleep(500000);	
 
 	/* Arbitrary threshold.. */
-	if (count > 32) {
+	if (count > 64) {
 	    int half = count >> 1;
 	    printf("Failure to read %d sectors at %d, splitting\n", count, sector);
 	    read_or_die_trying(di, sector, half, buffer);
