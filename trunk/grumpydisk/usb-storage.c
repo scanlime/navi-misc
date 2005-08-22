@@ -22,6 +22,7 @@
  */
 
 #include <stdio.h>
+#include <scsi/scsi.h>
 #include "usb-storage.h"
 
 static int storage_probe_interfaces(struct usb_device *dev)
@@ -42,7 +43,7 @@ int storage_scan(int (*callback)(int id, struct usb_device *dev, int interface, 
     struct usb_bus *bus;
     struct usb_device *dev;
     static int usb_has_initialized = 0;
-    int id = 0, retval = 0, interface;
+    int retval = 0, interface;
 
     if (!usb_has_initialized) {
 	usb_init();
@@ -57,8 +58,7 @@ int storage_scan(int (*callback)(int id, struct usb_device *dev, int interface, 
 	    interface = storage_probe_interfaces(dev);
 	    if (interface >= 0) {
 		/* Found a USB-storage device, yay */
-		id++;
-		retval = callback(id, dev, interface, userData);
+		retval = callback(atoi(dev->filename), dev, interface, userData);
 		if (retval) {
 		    goto done;
 		}
@@ -242,6 +242,38 @@ int storage_read(usb_dev_handle *devh, char *buffer, unsigned int length, char *
     }
 
     return 0;
+}
+
+int storage_cmd_read_capacity(usb_dev_handle *devh, unsigned int *sector_size, unsigned int *n_sectors)
+{
+    unsigned char cmd[] = {READ_CAPACITY};
+    unsigned char result[8];
+    unsigned char *p = result;
+
+    int retval = storage_read(devh, result, sizeof(result), cmd, sizeof(cmd));
+
+    *sector_size = read_be_uint32(&p);
+    *n_sectors = read_be_uint32(&p);
+
+    return retval;
+}
+
+int storage_cmd_read(usb_dev_handle *devh, unsigned int sector, unsigned int count, char *buffer, unsigned int length)
+{
+    unsigned char cmd[] = {
+	READ_10,
+	0,
+	sector >> 24,
+	sector >> 16,
+	sector >> 8,
+	sector,
+	0,
+	count >> 8,
+	count,
+	0,
+    };
+
+    return storage_read(devh, buffer, length, cmd, sizeof(cmd));
 }
 
 /* The End */
