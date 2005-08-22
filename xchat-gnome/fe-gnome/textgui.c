@@ -19,20 +19,24 @@
  *
  */
 
-#include "textgui.h"
-#include "palette.h"
-#include "preferences.h"
-#include "../common/text.h"
-#include "../common/xchatc.h"
-#include "../common/userlist.h"
-#include "../common/fe.h"
-#include "../common/url.h"
+#include <glib/gi18n.h>
 #include <libgnome/gnome-url.h> /* gnome_url_show */
 #include <gconf/gconf-client.h>
-
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-url-label.h>
 #endif
+
+#include "../common/xchat.h"
+#include "../common/xchatc.h"
+#include "../common/text.h"
+#include "../common/userlist.h"
+#include "../common/fe.h"
+#include "../common/url.h"
+
+#include "textgui.h"
+#include "palette.h"
+#include "preferences.h"
+#include "userlist-gui.h"
 
 int check_word (GtkWidget *xtext, char *word, int len);
 void clicked_word (GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
@@ -48,12 +52,12 @@ static gchar *selected_word = NULL;
 
 static GtkActionEntry action_entries[] = {
 	/* URL Popup */
-	{ "TextURLOpen", GTK_STOCK_OPEN, _("_Open Link in Browser"), NULL, NULL, G_CALLBACK (open_url) },
-	{ "TextURLCopy", GTK_STOCK_COPY, _("_Copy Link Location"), NULL, NULL, G_CALLBACK (copy_text) },
+	{ "TextURLOpen", GTK_STOCK_OPEN, N_("_Open Link in Browser"), NULL, NULL, G_CALLBACK (open_url) },
+	{ "TextURLCopy", GTK_STOCK_COPY, N_("_Copy Link Location"), NULL, NULL, G_CALLBACK (copy_text) },
 
 	/* Email Popup */
-	{ "TextEmailSend", GNOME_STOCK_MAIL, _("Se_nd Message To..."), NULL, NULL, G_CALLBACK (send_email) },
-	{ "TextEmailCopy", GTK_STOCK_COPY, _("_Copy Address"), NULL, NULL, G_CALLBACK (copy_text) },
+	{ "TextEmailSend", GNOME_STOCK_MAIL, N_("Se_nd Message To..."), NULL, NULL, G_CALLBACK (send_email) },
+	{ "TextEmailCopy", GTK_STOCK_COPY, N_("_Copy Address"), NULL, NULL, G_CALLBACK (copy_text) },
 };
 
 void
@@ -381,13 +385,19 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 			}
 		case WORD_NICK:
 			{
+				struct User *user;
 				GtkWidget *menu;
 				menu = gtk_ui_manager_get_widget (gui.manager, "/UserlistPopup");
 				g_return_if_fail (menu != NULL);
 				if (selected_word)
 					g_free (selected_word);
 				selected_word = g_strdup (word);
-				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+
+				user = find_name (gui.current_session, word);
+				if (user) {
+					current_user = user;
+					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+				}
 				return;
 			}
 		case WORD_CHANNEL:
