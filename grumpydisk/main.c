@@ -21,8 +21,14 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <scsi/scsi.h>
 #include "usb-storage.h"
+
+struct disk_info {
+    int device_id;
+    usb_dev_handle *devh;
+    unsigned int sector_size, n_sectors;
+};
+
 
 static int usage_device_cb(int id, struct usb_device *dev, int interface, void *userData)
 {
@@ -34,7 +40,7 @@ static int usage_device_cb(int id, struct usb_device *dev, int interface, void *
 	usb_close(devh);
     }
 
-    printf("[%d] %04x:%04x \"%s\" %s\n", id, dev->descriptor.idVendor, dev->descriptor.idProduct, name, dev->filename);
+    printf("[%d] %04x:%04x \"%s\"\n", id, dev->descriptor.idVendor, dev->descriptor.idProduct, name);
 
     return 0;
 }
@@ -57,18 +63,66 @@ static int usage(char **argv)
     storage_scan(usage_device_cb, NULL);
 }
 
+static void disk_reset(struct disk_info *di)
+{
+    while (1) {
+	if (di->devh) 
+	    usb_close(di->devh);
+	di->devh = storage_open_by_id(di->device_id);
+	if (di->devh)
+	    break;
+
+	printf("Device open failed, retrying...\n");
+	sleep(1);
+    }
+
+    usb_reset(di->devh);
+}
+
+static int disk_init(struct disk_info *di, int device_id)
+{
+    di->devh = NULL;
+    di->device_id = device_id;
+
+    disk_reset(di);
+
+    return storage_cmd_read_capacity(di->devh, &di->n_sectors, &di->sector_size);
+}
+
+static void read_or_die_trying(struct disk_info *di, unsigned int sector, unsigned int count, char *buffer)
+{
+    if (storage_cmd_read(di->devh, sector, count, buffer, count * di->sector_size) < 0) {
+	disk_reset(di);
+
+	/* Arbitrary threshold.. */
+	if (count > 16) {
+	    int half = count >> 1;
+	    printf("Failure to read %d sectors at %d, splitting\n", count, sector);
+	    read_or_die_trying(di, sector, half, buffer);
+	    read_or_die_trying(di, sector + half, count - half, buffer + (half * di->sector_size));
+	}
+	else {
+	    printf("Bad spot at %d, skipping %d sectors\n", sector, count);
+	}
+
+    }
+}
+
+
 int main(int argc, char **argv)
 {
-    usb_dev_handle *devh;
     int outfile;
+    struct disk_info di;
+    int sector;
+    int batch_size = 512;
+    unsigned char *buffer;
 
     if (argc != 3)
 	return usage(argv);
-    
-    devh = storage_open_by_id(atoi(argv[1]));
-    if (!devh)
-	return 1;
-    usb_reset(devh);
+
+    if (disk_init(&di, atoi(argv[1])) < 0)
+	return 1;    
+    printf("sector_size: %d n_sectors: %d\n", di.sector_size, di.n_sectors);
 
     outfile = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0666);
     if (outfile < 0) {
@@ -76,53 +130,23 @@ int main(int argc, char **argv)
 	return 1;
     }
 
-    {
-	unsigned char cmd[16];
-	unsigned char result[8];
-	unsigned int sector_size, n_sectors, sector;
-	int count = 64;
-	int retry;
+    buffer = malloc(di.sector_size * batch_size);
+    if (buffer == NULL) {
+	perror("malloc");
+	return 1;
+    }
 
-	cmd[0] = READ_CAPACITY;
-	storage_read(devh, result, sizeof(result), cmd, 1);
+    for (sector=0; sector<di.n_sectors; sector+=batch_size) {
 
-	n_sectors = (result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3];
-	sector_size = (result[4] << 24) | (result[5] << 16) | (result[6] << 8) | result[7];
+	printf("sector %d [%.04f%%]\n", sector, sector / (float) di.n_sectors * 100.0);
 
-	printf("sector_size: %d n_sectors: %d\n", sector_size, n_sectors);
+	read_or_die_trying(&di, sector, batch_size, buffer);
 
-	for (sector=0; sector<n_sectors; sector+=count) {
-	    unsigned char sector_buffer[sector_size * count];
-
-	    printf("sector %d [%.04f%%]\n", sector, sector / (float) n_sectors * 100.0);
-
-	    cmd[0] = READ_10;
-	    cmd[1] = 0;
-	    cmd[2] = sector >> 24;
-	    cmd[3] = sector >> 16;
-	    cmd[4] = sector >> 8;
-	    cmd[5] = sector;
-	    cmd[6] = 0;
-	    cmd[7] = 0;
-	    cmd[8] = count;
-	    cmd[9] = 0;
-	    for (retry=0; retry < 3; retry++) {
-		if (storage_read(devh, sector_buffer, sizeof(sector_buffer), cmd, 10) >= 0)
-		    break;
-		printf("reset and retry...\n");
-
-		usb_close(devh);
-		devh = storage_open_by_id(atoi(argv[1]));
-		if (!devh)
-		    return 1;
-		usb_reset(devh);
-	    }
-
-	    if (write(outfile, sector_buffer, sizeof(sector_buffer)) < 0) {
-		perror("write");
-	    }
-	    fsync(outfile);
+	if (write(outfile, buffer, di.sector_size * batch_size) < 0) {
+	    perror("write");
+	    return 1;
 	}
+	fsync(outfile);
     }
 
     return 0;
