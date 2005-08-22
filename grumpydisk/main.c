@@ -95,7 +95,7 @@ static void read_or_die_trying(struct disk_info *di, unsigned int sector, unsign
 	disk_reset(di);
 
 	/* Arbitrary threshold.. */
-	if (count > 16) {
+	if (count > 32) {
 	    int half = count >> 1;
 	    printf("Failure to read %d sectors at %d, splitting\n", count, sector);
 	    read_or_die_trying(di, sector, half, buffer);
