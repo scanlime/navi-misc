@@ -39,13 +39,13 @@ static void user_ban_activate (GtkAction *action, gpointer data);
 
 static GtkActionEntry popup_action_entries [] = {
 	{ "UserlistSendFile", NULL, _("_Send File..."), "", NULL, G_CALLBACK (user_send_file_activate) },
-	{ "UserlistOpenDialog", NULL, _("Open _Dialog"), "", NULL, G_CALLBACK (user_open_dialog_activate) },
+	{ "UserlistOpenDialog", NULL, _("Private _Chat"), "", NULL, G_CALLBACK (user_open_dialog_activate) },
 	{ "UserlistKick", NULL, _("_Kick"), "", NULL, G_CALLBACK (user_kick_activate) },
 	{ "UserlistBan", NULL, _("_Ban"), "", NULL, G_CALLBACK (user_ban_activate) }
 };
 
 static GtkTooltips *tooltips;
-static struct User *current_user;
+struct User *current_user;
 
 void
 initialize_userlist ()
@@ -142,17 +142,29 @@ static void user_send_file_activate (GtkAction *action, gpointer data)
 	dcc_send_file (current_user);
 }
 
+static gint user_cmd (gchar *cmd, gchar *nick)
+{
+	gint ret;
+	gchar *tmp;
+
+	tmp = g_strjoin (" ", cmd, nick, NULL);
+	ret = handle_command (gui.current_session, tmp, 1);
+
+	g_free(tmp);
+	return ret;
+}
+
 static void user_open_dialog_activate (GtkAction *action, gpointer data)
 {
-	/* FIXME implement me! */
+	user_cmd ("query", current_user->nick);
 }
 
 static void user_kick_activate (GtkAction *action, gpointer data)
 {
-	/* FIXME implement me! */
+	user_cmd ("kick", current_user->nick);
 }
 
 static void user_ban_activate (GtkAction *action, gpointer data)
 {
-	/* FIXME implement me! */
+	user_cmd ("ban", current_user->nick);
 }
