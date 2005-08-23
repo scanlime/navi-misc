@@ -19,6 +19,11 @@
  *
  */
 
+static void channel_menu_init       (ChannelMenu* menu);
+static void channel_menu_class_init (ChannelMenuClass* klass);
+static void channel_menu_dispose    (GObject* object);
+static void channel_menu_finalize   (GObject* object);
+
 GType
 channel_menu_get_type (void)
 {
@@ -44,6 +49,30 @@ channel_menu_get_type (void)
 
 	/* Return the type. */
 	return channel_menu_type;
+}
+
+static void
+channel_menu_init (ChannelMenu* menu)
+{
+}
+
+static void
+channel_menu_class_init (ChannelMenuClass* klass)
+{
+	GObjectClass* object_class = (GObjectClass*) klass;
+
+	object_class->dispose = channel_menu_dispose;
+	object_class->finalize = channel_menu_finalize;
+}
+
+static void
+channel_menu_dispose (GObject* object)
+{
+}
+
+static void
+channel_menu_finalize (GObject* object)
+{
 }
 
 void
