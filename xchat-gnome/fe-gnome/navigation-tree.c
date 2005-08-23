@@ -29,6 +29,7 @@
 #include "channel-list.h"
 #include "main-window.h"
 #include "util.h"
+#include "../common/xchat.h"
 #include "../common/fe.h"
 #include "../common/servlist.h"
 #include "../common/plugin.h"
@@ -1252,6 +1253,27 @@ navigation_model_sorted_iter_unref (NavModel * model, GtkTreeIter * iter)
 
 	if (ref_count > 0)
 		gtk_tree_store_set (model->store, &unsorted, 5, ref_count - 1, -1);
+}
+
+struct server *
+navigation_model_get_server (NavModel *model, ircnet *network)
+{
+	struct session *sess;
+	struct server *serv;
+	GtkTreeIter iter;
+
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model->store), &iter) == FALSE)
+		return NULL;
+
+	do {
+		gtk_tree_model_get (GTK_TREE_MODEL (model->store), &iter, 2, &sess, -1);
+		if (sess) {
+			serv = sess->server;
+			if (serv->network == network)
+				return serv;
+		}
+	} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (model->store), &iter));
+	return NULL;
 }
 
 static void

@@ -20,6 +20,8 @@
  */
 
 #include "irc-network.h"
+#include "navigation-tree.h"
+#include "gui.h"
 
 const char *encodings[] =
 {
@@ -168,6 +170,10 @@ irc_network_save (IrcNetwork *network)
 	net->real     = g_strdup (network->real);
 	net->autojoin = g_strdup (network->autojoin);
 	net->encoding = g_strdup (encodings[network->encoding]);
+
+	struct server *serv = navigation_model_get_server (gui.tree_model, net);
+	if (serv)
+		server_set_encoding (serv, net->encoding);
 
 	if (network->autoconnect) flags |= FLAG_AUTO_CONNECT;
 	if (network->use_ssl)     flags |= FLAG_USE_SSL;
