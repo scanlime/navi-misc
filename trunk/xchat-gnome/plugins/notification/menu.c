@@ -19,6 +19,28 @@
  *
  */
 
+GType
+channel_menu_get_type (void)
+{
+	static GType channel_menu_type = 0;
+
+	if (!channel_menu_type) {
+		static const GTypeInfo channel_menu_info = {
+			sizeof (ChannelMenuClass),
+			NULL,
+			NULL,
+			(GClassInitFunc) channel_menu_class_init,
+			NULL,
+			NULL,
+			sizeof (ChannelMenu),
+			0,
+			(GInstanceInitFunc) channel_menu_init,
+		};
+
+		channel_menu_type = g_type_register_static (GTK_TYPE_MENU, "ChannelMenu", &channel_menu_info, 0);
+	}
+}
+
 void
 channel_menu_item_add (gchar* name)
 {
