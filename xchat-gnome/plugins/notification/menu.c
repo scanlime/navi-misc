@@ -24,21 +24,26 @@ channel_menu_get_type (void)
 {
 	static GType channel_menu_type = 0;
 
+	/* Register the type only once. */
 	if (!channel_menu_type) {
 		static const GTypeInfo channel_menu_info = {
 			sizeof (ChannelMenuClass),
-			NULL,
-			NULL,
+			NULL, /* base init. */
+			NULL, /* base finalize. */
 			(GClassInitFunc) channel_menu_class_init,
-			NULL,
-			NULL,
+			NULL, /* class finalize. */
+			NULL, /* class data. */
 			sizeof (ChannelMenu),
-			0,
+			0,    /* n_preallocs. */
 			(GInstanceInitFunc) channel_menu_init,
 		};
 
+		/* Register the type. */
 		channel_menu_type = g_type_register_static (GTK_TYPE_MENU, "ChannelMenu", &channel_menu_info, 0);
 	}
+
+	/* Return the type. */
+	return channel_menu_type;
 }
 
 void
