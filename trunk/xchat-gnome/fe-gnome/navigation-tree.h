@@ -21,6 +21,7 @@
 
 #include <gnome.h>
 #include "../common/xchat.h"
+#include "../common/servlist.h"
 
 #ifndef __XCHAT_GNOME_NAVTREE_H__
 #define __XCHAT_GNOME_NAVTREE_H__
@@ -137,6 +138,12 @@ void navigation_model_sorted_iter_unref         (NavModel *model, GtkTreeIter *i
  */
 GtkTreeIter *navigation_model_get_sorted_iter   (NavModel *model, struct session *sess);
 GtkTreeIter *navigation_model_get_unsorted_iter (NavModel *model, struct session *sess);
+
+/* Convenience function to find the server* which matches an ircnet*, assuming that
+ * the network in question is connected to.  We need this in order to do things like
+ * change character encoding at runtime */
+struct server *navigation_model_get_server      (NavModel *model, ircnet *network);
+
 G_END_DECLS
 
 #endif
