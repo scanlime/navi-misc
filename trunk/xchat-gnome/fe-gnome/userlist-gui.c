@@ -26,9 +26,11 @@
 #include "palette.h"
 #include "../common/xchat.h"
 #include "../common/userlist.h"
+#include "../common/outbound.h"
 
 gboolean userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data);
 void userlist_context (GtkWidget *treeview, struct User *user);
+static gint user_cmd (gchar *cmd, gchar *nick);
 
 /* action callbacks */
 
@@ -44,7 +46,6 @@ static GtkActionEntry popup_action_entries [] = {
 	{ "UserlistBan", NULL, _("_Ban"), "", NULL, G_CALLBACK (user_ban_activate) }
 };
 
-static GtkTooltips *tooltips;
 struct User *current_user;
 
 void
@@ -66,8 +67,6 @@ initialize_userlist ()
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (userlist_view));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
-
-	tooltips = gtk_tooltips_new ();
 
 	g_signal_connect (G_OBJECT (userlist_view), "button_press_event", G_CALLBACK (userlist_click), NULL);
 
@@ -102,9 +101,9 @@ userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data)
 
 	if (event->type == GDK_2BUTTON_PRESS) {
 		if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (view), event->x, event->y, &path, 0, 0, 0)) {
-			g_print ("double click!\n");
-	    		gtk_tooltips_set_tip (GTK_TOOLTIPS (tooltips), view, "hi", "woof");
-			gtk_tooltips_enable (GTK_TOOLTIPS (tooltips));
+			struct User *user = userlist_get_selected ();
+			if (user != NULL)
+				user_cmd ("query", user->nick);
 			return TRUE;
 		}
 	}
