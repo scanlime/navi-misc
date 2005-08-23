@@ -48,10 +48,10 @@ static gboolean opt_noplugins = FALSE;
 static gchar *opt_cfgdir = NULL;
 
 static GOptionEntry entries[] = {
-	{"cfgdir",     'd', 0, G_OPTION_ARG_STRING, &opt_cfgdir,    "Use directory instead of the default config dir", "directory"},
-	{"no-auto",    'a', 0, G_OPTION_ARG_NONE,   &opt_noauto,    "Don't auto-connect to servers",                   NULL},
-	{"no-plugins", 'n', 0, G_OPTION_ARG_NONE,   &opt_noplugins, "Don't auto-load plugins",                         NULL},
-	{"version",    'v', 0, G_OPTION_ARG_NONE,   &opt_version,   "Show version information",                        NULL},
+	{"cfgdir",     'd', 0, G_OPTION_ARG_FILENAME, &opt_cfgdir,    "Use directory instead of the default config dir", "directory"},
+	{"no-auto",    'a', 0, G_OPTION_ARG_NONE,     &opt_noauto,    "Don't auto-connect to servers",                   NULL},
+	{"no-plugins", 'n', 0, G_OPTION_ARG_NONE,     &opt_noplugins, "Don't auto-load plugins",                         NULL},
+	{"version",    'v', 0, G_OPTION_ARG_NONE,     &opt_version,   "Show version information",                        NULL},
 };
 
 int
