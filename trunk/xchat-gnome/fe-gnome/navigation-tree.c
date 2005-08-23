@@ -20,6 +20,7 @@
  */
 
 #include <gconf/gconf-client.h>
+#include <gtk/gtk.h>
 #include "navigation-tree.h"
 #include "userlist-gui.h"
 #include "userlist.h"
@@ -233,6 +234,7 @@ navigation_tree_create_new_channel_entry (NavTree * navtree, struct session *ses
 {
 	GtkTreeIter *iter;
 	GtkWidget *menuitem, *button;
+	GtkTreeView *treeview;
 	ircnet *net;
 	session_gui *tgui;
 
@@ -249,6 +251,10 @@ navigation_tree_create_new_channel_entry (NavTree * navtree, struct session *ses
 		navtree->current_path = gtk_tree_model_get_path (GTK_TREE_MODEL (navtree->model->sorted), iter);
 		gtk_tree_iter_free (iter);
 	}
+
+	/* Set the userlist model */
+	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
+	gtk_tree_view_set_model (treeview, GTK_TREE_MODEL (userlist_get_store (u, sess)));
 
 	navigation_tree_select_session (navtree, sess);
 
