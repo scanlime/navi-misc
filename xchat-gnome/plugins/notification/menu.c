@@ -19,5 +19,23 @@
  *
  */
 
-/* vim:ts=3:sw=3
- */
+void
+channel_menu_item_add (gchar* name)
+{
+}
+
+void
+channel_menu_remove (gchar* name)
+{
+}
+
+void
+channel_menu_update (gchar* name, gint status)
+{
+}
+
+
+void
+channel_menu_item_set_status (gint status)
+{
+}
