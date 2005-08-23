@@ -287,7 +287,6 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 		enc++;
 	} while (*enc);
 
-	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_APPLY,  GTK_RESPONSE_APPLY);
 	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
 	gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_OK,     GTK_RESPONSE_OK);
 	gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
@@ -537,11 +536,6 @@ irc_network_editor_run (IrcNetworkEditor *editor)
 	gint response;
 
 	response = gtk_dialog_run (GTK_DIALOG (editor));
-	while (response == GTK_RESPONSE_APPLY) {
-		if (check_input (editor))
-			apply_changes (editor);
-		response = gtk_dialog_run (GTK_DIALOG (editor));
-	}
 	while (response == GTK_RESPONSE_OK) {
 		if (check_input (editor)) {
 			apply_changes (editor);
