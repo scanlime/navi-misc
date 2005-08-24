@@ -54,6 +54,7 @@ channel_menu_get_type (void)
 static void
 channel_menu_init (ChannelMenu* menu)
 {
+	menu->channels = g_hash_table_new (g_str_hash, g_str_equal);
 }
 
 static void
@@ -65,14 +66,27 @@ channel_menu_class_init (ChannelMenuClass* klass)
 	object_class->finalize = channel_menu_finalize;
 }
 
+static gboolean
+destroy_channels (gchar* channel, ChannelMenuItem* item, gpointer data)
+{
+	g_free (channel);
+	g_object_unref (item);
+	return TRUE;
+}
+
 static void
 channel_menu_dispose (GObject* object)
 {
+	/* Remove all the channels from the hash table. */
+	ChannelMenu* menu = (ChannelMenu*) object;
+	g_hash_table_foreach_remove (menu->channels, (GHRFunc) destroy_channels, NULL);
 }
 
 static void
 channel_menu_finalize (GObject* object)
 {
+	ChannelMenu* menu = (ChannelMenu*) object;
+	g_hash_table_destroy (menu->channels);
 }
 
 void

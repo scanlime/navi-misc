@@ -20,6 +20,7 @@
  */
 
 #include <gnome.h>
+#include <glib.h>
 
 #ifndef __XCHAT_GNOME_CHANNEL_MENU_H__
 #define __XCHAT_GNOME_CHANNEL_MENU_H__
@@ -38,11 +39,13 @@ typedef struct _ChannelMenuClass     ChannelMenuClass;
 struct _ChannelMenu
 {
 	GtkMenu parent;
+	GHashTable* channels;
 };
 
 struct _ChannelMenuClass
 {
 	GtkMenuClass parent;
+	GHashTable channels;
 };
 
 GType channel_menu_get_type (void) G_GNUC_CONST;
