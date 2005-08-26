@@ -24,32 +24,7 @@ static void channel_menu_class_init (ChannelMenuClass* klass);
 static void channel_menu_dispose    (GObject* object);
 static void channel_menu_finalize   (GObject* object);
 
-GType
-channel_menu_get_type (void)
-{
-	static GType channel_menu_type = 0;
-
-	/* Register the type only once. */
-	if (!channel_menu_type) {
-		static const GTypeInfo channel_menu_info = {
-			sizeof (ChannelMenuClass),
-			NULL, /* base init. */
-			NULL, /* base finalize. */
-			(GClassInitFunc) channel_menu_class_init,
-			NULL, /* class finalize. */
-			NULL, /* class data. */
-			sizeof (ChannelMenu),
-			0,    /* n_preallocs. */
-			(GInstanceInitFunc) channel_menu_init,
-		};
-
-		/* Register the type. */
-		channel_menu_type = g_type_register_static (GTK_TYPE_MENU, "ChannelMenu", &channel_menu_info, 0);
-	}
-
-	/* Return the type. */
-	return channel_menu_type;
-}
+G_DEFINE_TYPE (ChannelMenu, channel_menu, GTK_MENU);
 
 static void
 channel_menu_init (ChannelMenu* menu)
@@ -109,3 +84,11 @@ void
 channel_menu_item_set_status (gint status)
 {
 }
+
+
+static void channel_menu_item_init       (ChannelMenuItem* menu_item);
+static void channel_menu_item_class_init (ChannelMenuItemClass* klass);
+static void channel_menu_item_dispose    (GObject* object);
+static void channel_menu_item_finalize   (GObject* object);
+
+G_DEFINE_TYPE (ChannelMenuItem, channel_menu_item, GTK_IMAGE_MENU_ITEM);
