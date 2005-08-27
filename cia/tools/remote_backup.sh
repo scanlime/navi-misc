@@ -5,7 +5,7 @@
 # minimize the impact this has on our I/O quota.
 #
 
-CIA_HOST=cia@flapjack
+CIA_HOST=cia@flapjack.navi.cx
 BACKUPDIR=~/backups/cia
 
 DUMP_FILE=`date "+cia-%F.dump.bz2"`
