@@ -212,6 +212,12 @@ class SvnClient:
             if hasattr(self, name):
                 v = getattr(self, name)
                 if v is not None:
+                    # Recent Pythons don't need this, but Python 2.1
+                    # at least can't convert other types directly
+                    # to Unicode. We have to take an intermediate step.
+                    if type(v) not in (type(''), type(u'')):
+                        v = str(v)
+                    
                     s += "<%s>%s</%s>" % (name, escapeToXml(v), name)
         return s
 
