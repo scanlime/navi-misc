@@ -162,7 +162,7 @@ class File:
             attrs['action'] = self.action
 
         attrString = ''.join([' %s="%s"' % (key, escapeToXml(value,1))
-                              for key, value in attrs.iteritems()])
+                              for key, value in attrs.items()])
         return "<file%s>%s</file>" % (attrString, escapeToXml(self.path))
 
 
@@ -170,7 +170,7 @@ class SvnClient:
     """A CIA client for Subversion repositories. Uses svnlook to
     gather information"""
     name = 'Python Subversion client for CIA'
-    version = '1.17'
+    version = '1.18'
 
     def __init__(self, repository, revision, config):
         self.repository = repository
