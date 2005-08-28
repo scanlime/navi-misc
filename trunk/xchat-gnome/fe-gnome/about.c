@@ -30,9 +30,16 @@ initialize_about_dialog ()
 	GdkPixbuf *logo;
 	const gchar *authors[] =
 	{
-		"Evan Sheehan",
+		"Andre Dahlqvist",
+		"Bastien Nocera",
+		"Claessens Xavier",
 		"Dan Kuester",
 		"David Trowbridge",
+		"Evan Sheehan",
+		"Luis Villa",
+		"Peter Železný",
+		"Ramon Rey Vicente",
+		"Rouslan Solomakhin",
 		NULL
 	};
 	const gchar *documentors[] =
