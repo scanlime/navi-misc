@@ -1,7 +1,0 @@
-# freevo stuff
-uvswitch[0-9]*:root:root:0666
-lirc[0-9]*:freevo:users:0660
-mi6k[0-9]*:freevo:users:0660
-rwand[0-9]*:freevo:users:0660
-misc/uinput:inputpipe:daemon:0660
-hdc:root:cdrom:0664
