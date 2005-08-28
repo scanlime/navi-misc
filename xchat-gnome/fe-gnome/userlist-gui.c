@@ -34,16 +34,19 @@ static gint user_cmd (gchar *cmd, gchar *nick);
 
 /* action callbacks */
 
-static void user_send_file_activate (GtkAction *action, gpointer data);
+static void user_send_file_activate   (GtkAction *action, gpointer data);
 static void user_open_dialog_activate (GtkAction *action, gpointer data);
-static void user_kick_activate (GtkAction *action, gpointer data);
-static void user_ban_activate (GtkAction *action, gpointer data);
+static void user_kick_activate        (GtkAction *action, gpointer data);
+static void user_ban_activate         (GtkAction *action, gpointer data);
+static void user_ignore_activate      (GtkAction *action, gpointer data);
 
 static GtkActionEntry popup_action_entries [] = {
-	{ "UserlistSendFile", NULL, _("_Send File..."), "", NULL, G_CALLBACK (user_send_file_activate) },
-	{ "UserlistOpenDialog", NULL, _("Private _Chat"), "", NULL, G_CALLBACK (user_open_dialog_activate) },
-	{ "UserlistKick", NULL, _("_Kick"), "", NULL, G_CALLBACK (user_kick_activate) },
-	{ "UserlistBan", NULL, _("_Ban"), "", NULL, G_CALLBACK (user_ban_activate) }
+	{ "UserlistSendFile",   NULL, _("_Send File..."), "",   NULL, G_CALLBACK (user_send_file_activate) },
+	{ "UserlistOpenDialog", NULL, _("Private _Chat"), "",   NULL, G_CALLBACK (user_open_dialog_activate) },
+	{ "UserlistKick",       NULL, _("_Kick"),         "",   NULL, G_CALLBACK (user_kick_activate) },
+	{ "UserlistBan",        NULL, _("_Ban"),          "",   NULL, G_CALLBACK (user_ban_activate) },
+	{ "UserlistIgnore",     NULL, _("Ignore"),        "",   NULL, G_CALLBACK (user_ignore_activate) },
+	{ NULL,                 NULL,                     NULL, NULL, NULL},
 };
 
 struct User *current_user;
@@ -136,12 +139,14 @@ userlist_context (GtkWidget *treeview, struct User *user)
 	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 2, gtk_get_current_event_time ());
 }
 
-static void user_send_file_activate (GtkAction *action, gpointer data)
+static void
+user_send_file_activate (GtkAction *action, gpointer data)
 {
 	dcc_send_file (current_user);
 }
 
-static gint user_cmd (gchar *cmd, gchar *nick)
+static gint
+user_cmd (gchar *cmd, gchar *nick)
 {
 	gint ret;
 	gchar *tmp;
@@ -153,17 +158,30 @@ static gint user_cmd (gchar *cmd, gchar *nick)
 	return ret;
 }
 
-static void user_open_dialog_activate (GtkAction *action, gpointer data)
+static void
+user_open_dialog_activate (GtkAction *action, gpointer data)
 {
 	user_cmd ("query", current_user->nick);
 }
 
-static void user_kick_activate (GtkAction *action, gpointer data)
+static void
+user_kick_activate (GtkAction *action, gpointer data)
 {
 	user_cmd ("kick", current_user->nick);
 }
 
-static void user_ban_activate (GtkAction *action, gpointer data)
+static void
+user_ban_activate (GtkAction *action, gpointer data)
 {
 	user_cmd ("ban", current_user->nick);
+}
+
+static void
+user_ignore_activate (GtkAction *action, gpointer data)
+{
+	gchar *command;
+
+	command = g_strdup_printf ("ignore %s!*@* ALL", current_user->nick);
+	handle_command (gui.current_session, command, 1);
+	g_free (command);
 }
