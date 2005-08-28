@@ -1,3 +1,6 @@
+0.6
+	* Set up a gnome url handler for irc:// links - Claessens Xavier
+
 0.5 "You are what you eat" (27 August 2005)
 	* DCC user interface, including send/recieve window, preferences, file choosers, etc - David Trowbridge
 	* libsexy integration- urls in topics, spell checking - David Trowbridge
