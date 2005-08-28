@@ -19,6 +19,23 @@
 	  are including xchat-gnome in their packages, and a package will be easier than
 	  building from a source release.
 	</p>
+	<p>
+	  As of 0.5, xchat-gnome can use
+	  <a href="http://osiris.chipx86.com/projects/libsexy/releases/">libsexy</a>
+	  for sexier behavior (such as clickable links in topics and spell-checking)
+	  Beware that if you're currently on pango 1.10.0, this will make xchat-gnome
+	  unusable, due to a bug with 1.10.0's cairo implementation.  This is fixed in
+	  pango HEAD, and hopefully there will be a new release soon.
+	</p>
+	<div class="section-title">0.5 "You are what you eat"</div>
+	<div class="section">
+	  <i>27 August 2005</i> - libsexy and DCC UI, with a handful of annoying bugs
+	  fixed on the side.
+	  <br /><br />
+	  Source:<br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.5.tar.gz">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.5.tar.gz</a><br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.5.tar.bz2">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.5.tar.bz2</a><br />
+	</div>
         <div class="section-title">0.4 "Buyer beware - Penis patches!"</div>
 	<div class="section">
 	  <i>04 May 2005</i> - Mostly bugfixes.  In particular, the memory and speed
