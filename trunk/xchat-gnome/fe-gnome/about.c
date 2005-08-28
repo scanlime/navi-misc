@@ -36,6 +36,7 @@ initialize_about_dialog ()
 		"Dan Kuester",
 		"David Trowbridge",
 		"Evan Sheehan",
+		"Guillaume Desmottes",
 		"Luis Villa",
 		"Peter Železný",
 		"Ramon Rey Vicente",
