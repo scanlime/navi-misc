@@ -92,3 +92,33 @@ static void channel_menu_item_dispose    (GObject* object);
 static void channel_menu_item_finalize   (GObject* object);
 
 G_DEFINE_TYPE (ChannelMenuItem, channel_menu_item, GTK_IMAGE_MENU_ITEM);
+
+static void
+channel_menu_item_init (ChannelMenuItem* menu_item)
+{
+	menu_item->status = 0;
+}
+
+static void
+channel_menu_item_class_init (ChannelMenuItemClass* klass)
+{
+	GObjectClass* object_class = (GObjectClass*) klass;
+
+	object_class->dispose = channel_menu_item_dispose;
+	object_class->finalize = channel_menu_item_finalize;
+}
+
+static void
+channel_menu_item_dispose (GObject* object)
+{
+}
+
+static void
+channel_menu_item_finalize (GObject* object)
+{
+}
+
+ChannelMenuItem*
+channel_menu_item_new (void)
+{
+}
