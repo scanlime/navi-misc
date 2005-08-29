@@ -45,7 +45,6 @@ struct _ChannelMenu
 struct _ChannelMenuClass
 {
 	GtkMenuClass parent;
-	GHashTable channels;
 };
 
 GType channel_menu_get_type (void) G_GNUC_CONST;
