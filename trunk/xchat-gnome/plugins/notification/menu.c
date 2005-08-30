@@ -35,7 +35,7 @@ static void channel_menu_class_init (ChannelMenuClass* klass);
 static void channel_menu_dispose    (GObject* object);
 static void channel_menu_finalize   (GObject* object);
 
-static channel* channel_new         (gchar* name);
+static channel* new_channel         (gchar* name);
 static void channel_set_status      (channel* chan, gint status);
 
 G_DEFINE_TYPE (ChannelMenu, channel_menu, GTK_MENU);
@@ -79,18 +79,22 @@ channel_menu_finalize (GObject* object)
 }
 
 void
-channel_menu_item_add (gchar* name)
+channel_menu_item_add (ChannelMenu* menu, gchar* name)
 {
-	ChannelMenuItem* item = channel_menu_item_new ();
+	channel* chan = new_channel (name);
+	gtk_menu_append ((GtkMenu*)menu, chan->menu_item);
+	g_hash_table_insert (menu->channels, (gpointer) name, (gpointer) chan);
 }
 
 void
-channel_menu_remove (gchar* name)
+channel_menu_remove (ChannelMenu* menu, gchar* name)
 {
+	channel* chan = (channel*) g_hash_table_find (menu->channels, name);
+
 }
 
 void
-channel_menu_update (gchar* name, gint status)
+channel_menu_update (ChannelMenu* menu, gchar* name, gint status)
 {
 }
 
