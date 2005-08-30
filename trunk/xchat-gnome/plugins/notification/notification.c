@@ -124,18 +124,16 @@ notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer da
 {
 	switch (event->button) {
 		/* Left click. */
-	case 1:
-		if (gdk_window_get_state (main_window->window) & GDK_WINDOW_STATE_ICONIFIED) {
-			gtk_window_present (GTK_WINDOW (main_window));
-		} else if (persistant) {
-			xchat_command (ph, "GUI HIDE");
-		}
-		break;
+		case 1:
+			if (gdk_window_get_state (main_window->window) & GDK_WINDOW_STATE_ICONIFIED) {
+				gtk_window_present (GTK_WINDOW (main_window));
+			} else if (persistant) {
+				xchat_command (ph, "GUI HIDE");
+			}
+			break;
 
-		/* Right click. */
-
-	default:
-		break;
+		default:
+			break;
 	}
 
 	return TRUE;
