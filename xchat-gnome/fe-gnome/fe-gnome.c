@@ -19,10 +19,10 @@
  *
  */
 
+#include <config.h>
 #include <glib.h>
 #include <gnome.h>
 #include <libgnomevfs/gnome-vfs.h>
-#include <config.h>
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
 #include "../common/servlist.h"
