@@ -55,9 +55,7 @@ static NotifStatus		status = NOTIF_NONE;	/* Current status level. */
 static gboolean			focused = TRUE;		/* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
 static gboolean			persistant;		/* Keep the icon in the tray at all times? */
 static GtkWidget*		main_window;		/* xchat-gnome's main window. */
-static GHashTable*		channels;		/* A reference to the navigation tree. */
 static EggTrayIcon*		notification;		/* Notification area icon. */
-static GtkMenu*			menu;			/* The menu that pops up. */
 static GtkWidget*		image;			/* The image displayed by the icon. */
 static GdkPixbuf*		pixbufs[4];		/* Pixbufs */
 
@@ -94,8 +92,6 @@ lost_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 static int
 new_msg_cb (char **word, void *msg_lvl)
 {
-	gchar* chan_name = (gchar*) xchat_get_info (ph, "channel");
-
 	if (status < (NotifStatus) msg_lvl && !focused) {
 		status = (NotifStatus) msg_lvl;
 		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
@@ -120,14 +116,7 @@ part_chan_cb (char **word, void *data)
 static int
 chan_changed_cb (char **word, void *data)
 {
-	gchar* chan_name = (gchar*) xchat_get_info (ph, "channel");
-
 	return 0;
-}
-
-static void
-notification_menu_show (GdkEventButton *event)
-{
 }
 
 static gboolean
@@ -137,16 +126,13 @@ notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer da
 		/* Left click. */
 	case 1:
 		if (gdk_window_get_state (main_window->window) & GDK_WINDOW_STATE_ICONIFIED) {
-			gtk_window_present (main_window);
+			gtk_window_present (GTK_WINDOW (main_window));
 		} else if (persistant) {
 			xchat_command (ph, "GUI HIDE");
 		}
 		break;
 
 		/* Right click. */
-	case 3:
-		/* notification_menu_show (event); */
-		break;
 
 	default:
 		break;
@@ -184,8 +170,6 @@ int
 xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
 {
 	xgph = xg_plugin;
-
-	GtkTreeModel *chan_model = xg_get_chan_list ();
 
 	/* Hook up callbacks for changing focus on the main window. */
 	main_window = xg_get_main_window ();
