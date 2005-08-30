@@ -48,10 +48,10 @@ struct _ChannelMenuClass
 
 G_BEGIN_DECLS
 
-GType channel_menu_get_type (void) G_GNUC_CONST;
+GType channel_menu_get_type   (void) G_GNUC_CONST;
 ChannelMenu* channel_menu_new (void);
-void channel_menu_add (gchar* name);
-void channel_menu_remove (gchar* name);
-void channel_menu_update (gchar* name, gint status);
+void channel_menu_add         (ChannelMenu* menu, gchar* name);
+void channel_menu_remove      (ChannelMenu* menu, gchar* name);
+void channel_menu_update      (ChannelMenu* menu, gchar* name, gint status);
 
 G_END_DECLS
