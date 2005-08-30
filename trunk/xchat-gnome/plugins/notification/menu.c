@@ -19,10 +19,24 @@
  *
  */
 
+#include "menu.h"
+
+typedef _channel channel
+
+struct _channel
+{
+	GtkImageMenuItem* menu_item;
+	gint              status;
+};
+
+/* GObject functions */
 static void channel_menu_init       (ChannelMenu* menu);
 static void channel_menu_class_init (ChannelMenuClass* klass);
 static void channel_menu_dispose    (GObject* object);
 static void channel_menu_finalize   (GObject* object);
+
+static channel* channel_new         (gchar* name);
+static void channel_set_status      (channel* chan, gint status);
 
 G_DEFINE_TYPE (ChannelMenu, channel_menu, GTK_MENU);
 
@@ -67,6 +81,7 @@ channel_menu_finalize (GObject* object)
 void
 channel_menu_item_add (gchar* name)
 {
+	ChannelMenuItem* item = channel_menu_item_new ();
 }
 
 void
@@ -79,46 +94,21 @@ channel_menu_update (gchar* name, gint status)
 {
 }
 
-
-void
-channel_menu_item_set_status (gint status)
+static channel*
+new_channel (gchar* name)
 {
-}
+	channel* chan = (channel*)malloc (sizeof (channel));
 
+	chan->menu_item = gtk_image_menu_item_new_with_label (name);
+	chan->status = 0;
 
-static void channel_menu_item_init       (ChannelMenuItem* menu_item);
-static void channel_menu_item_class_init (ChannelMenuItemClass* klass);
-static void channel_menu_item_dispose    (GObject* object);
-static void channel_menu_item_finalize   (GObject* object);
-
-G_DEFINE_TYPE (ChannelMenuItem, channel_menu_item, GTK_IMAGE_MENU_ITEM);
-
-static void
-channel_menu_item_init (ChannelMenuItem* menu_item)
-{
-	menu_item->status = 0;
+	return chan;
 }
 
 static void
-channel_menu_item_class_init (ChannelMenuItemClass* klass)
+channel_set_status (channel* chan, gint status)
 {
-	GObjectClass* object_class = (GObjectClass*) klass;
-
-	object_class->dispose = channel_menu_item_dispose;
-	object_class->finalize = channel_menu_item_finalize;
-}
-
-static void
-channel_menu_item_dispose (GObject* object)
-{
-}
-
-static void
-channel_menu_item_finalize (GObject* object)
-{
-}
-
-ChannelMenuItem*
-channel_menu_item_new (void)
-{
+	/* FIXME
+	 * gtk_image_menu_item_set_image (chan->menu_item, image);
+	 */
 }

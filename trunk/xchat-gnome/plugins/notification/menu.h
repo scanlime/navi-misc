@@ -25,7 +25,6 @@
 #ifndef __XCHAT_GNOME_CHANNEL_MENU_H__
 #define __XCHAT_GNOME_CHANNEL_MENU_H__
 
-G_BEGIN_DECLS
 
 typedef struct _ChannelMenu          ChannelMenu;
 typedef struct _ChannelMenuClass     ChannelMenuClass;
@@ -47,33 +46,12 @@ struct _ChannelMenuClass
 	GtkMenuClass parent;
 };
 
+G_BEGIN_DECLS
+
 GType channel_menu_get_type (void) G_GNUC_CONST;
 ChannelMenu* channel_menu_new (void);
 void channel_menu_add (gchar* name);
 void channel_menu_remove (gchar* name);
 void channel_menu_update (gchar* name, gint status);
 
-
-typedef struct _ChannelMenuItem          ChannelMenuItem;
-typedef struct _ChannelMenuItemClass     ChannelMenuItemClass;
-
-#define CHANNELMENUITEM_TYPE             (channel_menu_item_get_type ())
-#define CHANNELMENUITEM (obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), CHANNELMENUITEM_TYPE, ChannelMenuItem))
-#define CHANNELMENUITEM_CLASS (klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CHANNELMENUITEM_TYPE, ChannelMenuItemClass))
-#define IS_CHANNELMENUITEM (obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CHANNELMENUITEM_TYPE))
-#define IS_CHANNELMENUITEM_CLASS (klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CHANNELMENUITEM_TYPE))
-
-struct _ChannelMenuItem
-{
-	GtkImageMenuItem parent;
-	gint status;
-};
-
-struct _ChannelMenuItemClass
-{
-	GtkImageMenuItemClass parent;
-};
-
-GType channel_menu_get_type (void) G_GNUC_CONST;
-ChannelMenuItem* channel_menu_item_new (void);
-void channel_menu_item_set_status (gint status);
+G_END_DECLS
