@@ -21,6 +21,7 @@
  */
 
 #include <gtk/gtk.h>
+#include <gdk/gdk.h>
 #include <gconf/gconf-client.h>
 #include <dlfcn.h>
 
@@ -51,7 +52,6 @@ struct MenuChannel
 static xchat_plugin*		ph;			/* Plugin handle. */
 static xchat_gnome_plugin*	xgph;			/* xchat gnome plugin handle. */
 static NotifStatus		status = NOTIF_NONE;	/* Current status level. */
-static gboolean			window_visible = TRUE;	/* Keep track of whether the window is visible. */
 static gboolean			focused = TRUE;		/* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
 static gboolean			persistant;		/* Keep the icon in the tray at all times? */
 static GtkWidget*		main_window;		/* xchat-gnome's main window. */
@@ -136,18 +136,16 @@ notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer da
 	switch (event->button) {
 		/* Left click. */
 	case 1:
-		if (window_visible) {
-			window_visible = FALSE;
+		if (gdk_window_get_state (main_window->window) & GDK_WINDOW_STATE_ICONIFIED) {
+			gtk_window_present (main_window);
+		} else if (persistant) {
 			xchat_command (ph, "GUI HIDE");
-		} else {
-			window_visible = TRUE;
-			xchat_command (ph, "GUI SHOW");
 		}
 		break;
 
 		/* Right click. */
 	case 3:
-		notification_menu_show (event);
+		/* notification_menu_show (event); */
 		break;
 
 	default:
