@@ -104,7 +104,7 @@ initialize_text_gui ()
 
 
 	if (gconf_client_get_bool(client, "/apps/xchat/main_window/use_sys_fonts", NULL))
-		font = gconf_client_get_string (client, "/desktop/gnome/interface/font_name", NULL);
+		font = gconf_client_get_string (client, "/desktop/gnome/interface/monospace_font_name", NULL);
 	else
 		font = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
 
@@ -435,7 +435,7 @@ font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer us
 	GtkAdjustment *adj;
 
 	if (gconf_client_get_bool (client, "/apps/xchat/main_window/use_sys_fonts", NULL))
-		font = gconf_client_get_string (client, "/desktop/gnome/interface/font_name", NULL);
+		font = gconf_client_get_string (client, "/desktop/gnome/interface/monospace_font_name", NULL);
 	else
 		font = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
 
