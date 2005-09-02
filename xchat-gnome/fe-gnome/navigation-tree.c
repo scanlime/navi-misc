@@ -44,11 +44,13 @@ static void navigation_tree_init (NavTree * navtree);
 static void navigation_tree_class_init (NavTreeClass * klass);
 static void navigation_tree_dispose (GObject * object);
 static void navigation_tree_finalize (GObject * object);
+static session* navigation_tree_get_selected_session (void);
 /* Context menus. */
 static void navigation_context (GtkWidget * treeview, session * selected);
 static void server_context (GtkWidget * treeview, session * selected);
 static void channel_context (GtkWidget * treeview, session * selected);
 static void dialog_context (GtkWidget * treeview, session * selected);
+static gboolean channel_is_autojoin (ircnet * network, gchar *chan);
 /* Callbacks. */
 static gboolean click (GtkWidget * widget, GdkEventButton * event, gpointer user_data);
 static gboolean declick (GtkWidget * widget, GdkEventButton * event, gpointer user_data);
@@ -65,6 +67,8 @@ static void on_find_again (GtkAction * action, gpointer data);
 static void on_clear (GtkAction * action, gpointer data);
 static void on_channel_leave (GtkAction * action, gpointer data);
 static void on_channel_bans (GtkAction * action, gpointer data);
+static void on_server_autoconnect (GtkAction * action, gpointer data);
+static void on_channel_autojoin (GtkAction * action, gpointer data);
 
 static GtkActionEntry action_entries[] = {
 	/* Server context menu */
@@ -89,6 +93,14 @@ static GtkActionEntry action_entries[] = {
 	{"DialogFind",        GTK_STOCK_FIND,           _("_Find..."),         "", NULL, G_CALLBACK (on_find)},
 	{"DialogFindAgain",   GTK_STOCK_FIND,           _("Find Ne_xt"),       "", NULL, G_CALLBACK (on_find_again)},
 	{"DialogClear",       GTK_STOCK_CLEAR,          _("C_lear"),           "", NULL, G_CALLBACK (on_clear)},
+};
+
+static GtkToggleActionEntry toggle_action_entries[] = {
+	/* Server context menu */
+	{"ServerAutoConnect", NULL,          _("_Auto-connect"),    "", NULL, G_CALLBACK (on_server_autoconnect), FALSE},
+
+	/* Channel context menu */
+	{"ChannelAutoJoin", NULL,          _("_Auto-join"),    "", NULL, G_CALLBACK (on_channel_autojoin), FALSE},
 };
 
 GType
@@ -131,6 +143,7 @@ navigation_tree_init (NavTree * navtree)
 
 	gui.action_group = gtk_action_group_new ("MenuAction");
 	gtk_action_group_add_actions (gui.action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
+	gtk_action_group_add_toggle_actions (gui.action_group, toggle_action_entries, G_N_ELEMENTS (toggle_action_entries), NULL);
 	gtk_ui_manager_insert_action_group (gui.manager, gui.action_group, 0);
 	g_object_unref (gui.action_group);
 
@@ -691,6 +704,24 @@ navigation_tree_select_prev_network (NavTree * navtree)
 	gtk_tree_selection_select_path (selection, path);
 }
 
+static session* 
+navigation_tree_get_selected_session (void)
+{
+	GtkTreeView *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	session *s;
+
+	treeview = GTK_TREE_VIEW (gui.server_tree);
+	select = gtk_tree_view_get_selection (treeview);
+	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
+		gtk_tree_model_get (model, &iter, 2, &s, -1);
+		return s;
+	}
+	return NULL;
+}
+
 /* Misc. Functions. */
 static gboolean
 navigation_tree_set_channel_name_iterate (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpointer data)
@@ -764,9 +795,17 @@ static void
 server_context (GtkWidget * treeview, session * selected)
 {
 	GtkWidget *menu;
+	GtkAction *action;
 
 	menu = gtk_ui_manager_get_widget (gui.manager, "/ServerPopup");
 	g_return_if_fail (menu != NULL);
+	
+	/* check if the network is in the auto-connect list */
+	action = gtk_action_group_get_action (gui.action_group, "ServerAutoConnect");
+	if (((ircnet *)selected->server->network)->flags & FLAG_AUTO_CONNECT) 
+		gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
+	else
+		gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
 
 	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 }
@@ -775,9 +814,19 @@ static void
 channel_context (GtkWidget * treeview, session * selected)
 {
 	GtkWidget *menu;
+	GtkAction *action;
+	ircnet *network;
 
 	menu = gtk_ui_manager_get_widget (gui.manager, "/ChannelPopup");
 	g_return_if_fail (menu != NULL);
+
+	/* check if the channel is in the auto-join list */
+	action = gtk_action_group_get_action (gui.action_group, "ChannelAutoJoin");
+	network = selected->server->network;
+	if (channel_is_autojoin (network, selected->channel))
+		gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
+	else
+		gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
 
 	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 }
@@ -1290,52 +1339,31 @@ on_server_information (GtkAction * action, gpointer data)
 static void
 on_server_reconnect (GtkAction * action, gpointer data)
 {
-	GtkTreeView *treeview;
-	GtkTreeSelection *select;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
 	session *s;
 
-	treeview = GTK_TREE_VIEW (gui.server_tree);
-	select = gtk_tree_view_get_selection (treeview);
-	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, 2, &s, -1);
+	s = navigation_tree_get_selected_session ();
+	if (s)
 		s->server->auto_reconnect (s->server, FALSE, -1);
-	}
 }
 
 static void
 on_server_disconnect (GtkAction * action, gpointer data)
 {
-	GtkTreeView *treeview;
-	GtkTreeSelection *select;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
 	session *s;
 
-	treeview = GTK_TREE_VIEW (gui.server_tree);
-	select = gtk_tree_view_get_selection (treeview);
-	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, 2, &s, -1);
+	s = navigation_tree_get_selected_session ();
+	if (s)
 		s->server->disconnect (s, TRUE, -1);
-	}
 }
 
 static void
 on_server_channel_list (GtkAction * action, gpointer data)
 {
-	GtkTreeView *treeview;
-	GtkTreeSelection *select;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
 	session *s;
-
-	treeview = GTK_TREE_VIEW (gui.server_tree);
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
-	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, 2, &s, -1);
+	
+	s = navigation_tree_get_selected_session ();
+	if (s)
 		create_channel_list (s);
-	}
 }
 
 static void
@@ -1392,18 +1420,11 @@ on_find_again (GtkAction * action, gpointer data)
 static void
 on_clear (GtkAction * action, gpointer data)
 {
-	GtkTreeView *treeview;
-	GtkTreeSelection *select;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
 	session *s;
 
-	treeview = GTK_TREE_VIEW (gui.server_tree);
-	select = gtk_tree_view_get_selection (treeview);
-	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, 2, &s, -1);
+	s = navigation_tree_get_selected_session ();
+	if (s)
 		clear_buffer (s);
-	}
 }
 
 static void
@@ -1440,4 +1461,105 @@ on_channel_leave (GtkAction * action, gpointer data)
 static void
 on_channel_bans (GtkAction * action, gpointer data)
 {
+}
+
+static void
+on_server_autoconnect (GtkAction *action, gpointer data)
+{
+	session *sess;
+	gboolean autoconnect, active;
+	ircnet *network;
+      
+	sess = navigation_tree_get_selected_session ();
+	network = sess->server->network;
+	autoconnect = network->flags & FLAG_AUTO_CONNECT;
+	active = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action) );
+		
+	if (sess != NULL) {
+		if (autoconnect && !active) {
+			/* remove server from autoconnect list */
+			network->flags &= !FLAG_AUTO_CONNECT;
+			servlist_save ();	
+		}
+		if (!autoconnect && active) {
+			/* add server to autoconnect list */
+			network->flags |= FLAG_AUTO_CONNECT;
+			servlist_save ();
+		}
+	}
+}
+
+static void
+on_channel_autojoin (GtkAction *action, gpointer data)
+{
+	session *sess;
+	gboolean autojoin, active;
+	ircnet *network;
+      
+	sess = navigation_tree_get_selected_session ();
+	network = sess->server->network;
+	autojoin = channel_is_autojoin (network, sess->channel);
+	active = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action) );
+		
+	if (sess != NULL) {
+		if (autojoin && !active) {
+			/* remove channel from autojoin list */
+			gchar **channels, *tmp;
+			gint i;
+
+			channels = g_strsplit (network->autojoin, ",", 0);
+
+			if (network->autojoin) g_free(network->autojoin);
+			network->autojoin = NULL;
+
+			for (i=0; channels[i]; i++) {
+				if (strcmp (channels[i], sess->channel) != 0) {
+					if ( network->autojoin == NULL)
+						network->autojoin = g_strdup (channels[i]);
+					else {
+						tmp = network->autojoin;
+						network->autojoin = g_strdup_printf ("%s,%s", network->autojoin, channels[i]);
+						g_free (tmp);
+					}
+				}
+			}
+			g_strfreev (channels);
+
+			servlist_save ();
+		}
+		if (!autojoin && active) {
+			/* add channel to autojoin list */
+			if (network->autojoin == NULL) {
+				network->autojoin = g_strdup (sess->channel);
+			}
+			else {
+				gchar *tmp = network->autojoin;
+
+				network->autojoin = g_strdup_printf ("%s,%s", network->autojoin, sess->channel);
+				g_free (tmp);
+			}
+
+			servlist_save ();
+		}
+	}
+
+}
+
+static gboolean 
+channel_is_autojoin (ircnet *network, gchar *chan)
+{
+	gchar **channels;
+	gint i;
+	gboolean find = FALSE;
+
+	if (network->autojoin == NULL) return FALSE;
+
+	channels = g_strsplit (network->autojoin, ",", 0);
+	for (i=0; channels[i] && !find; i++)
+		if (!strcmp (channels[i], chan))
+			find = TRUE;
+
+	g_strfreev (channels);
+
+	return find;
 }

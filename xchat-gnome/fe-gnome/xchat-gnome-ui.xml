@@ -72,8 +72,9 @@
                 <menuitem name="ServerInformation" action="ServerInformation"/>
                 <separator name="ServerPopupSep0"/>
                 <menuitem name="ServerReconnect" action="ServerReconnect"/>
-				<menuitem name="ServerDisconnect" action="ServerDisconnect"/>
-				<menuitem name="ServerClose" action="ServerClose"/>
+		<menuitem name="ServerDisconnect" action="ServerDisconnect"/>
+		<menuitem name="ServerClose" action="ServerClose"/>
+		<menuitem name="ServerAutoConnect" action="ServerAutoConnect"/>
                 <separator name="ServerPopupSep1"/>
                 <menuitem name="ServerChannels" action="ServerChannels"/>
         </popup>
@@ -83,6 +84,7 @@
                 <separator name="ChannelSep0"/>
                 <menuitem name="ChannelLeave" action="ChannelLeave"/>
                 <menuitem name="ChannelClose" action="ChannelClose"/>
+		<menuitem name="ChannelAutoJoin" action="ChannelAutoJoin"/>
                 <separator name="ChannelSep1"/>
                 <menuitem name="ChannelFind" action="ChannelFind"/>
                 <menuitem name="ChannelFindAgain" action="ChannelFindAgain"/>
