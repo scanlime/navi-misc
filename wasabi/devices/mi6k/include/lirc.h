@@ -1,4 +1,4 @@
-/*      $Id: lirc.h,v 5.8 2003/01/26 12:57:59 lirc Exp $      */
+/*      $Id: lirc.h,v 5.10 2005/07/10 08:34:12 lirc Exp $      */
 
 #ifndef _LINUX_LIRC_H
 #define _LINUX_LIRC_H
@@ -45,6 +45,7 @@ typedef int lirc_t;
 
 #define LIRC_CAN_SET_SEND_CARRIER      0x00000100
 #define LIRC_CAN_SET_SEND_DUTY_CYCLE   0x00000200
+#define LIRC_CAN_SET_TRANSMITTER_MASK  0x00000400
 
 #define LIRC_CAN_REC_RAW               LIRC_MODE2REC(LIRC_MODE_RAW)
 #define LIRC_CAN_REC_PULSE             LIRC_MODE2REC(LIRC_MODE_PULSE)
@@ -77,6 +78,7 @@ typedef int lirc_t;
 #define LIRC_GET_REC_CARRIER           _IOR('i', 0x00000004, __u32)
 #define LIRC_GET_SEND_DUTY_CYCLE       _IOR('i', 0x00000005, __u32)
 #define LIRC_GET_REC_DUTY_CYCLE        _IOR('i', 0x00000006, __u32)
+#define LIRC_GET_REC_RESOLUTION        _IOR('i', 0x00000007, __u32)
 
 /* code length in bits, currently only for LIRC_MODE_LIRCCODE */
 #define LIRC_GET_LENGTH                _IOR('i', 0x0000000f, __u32)
@@ -88,6 +90,7 @@ typedef int lirc_t;
 #define LIRC_SET_REC_CARRIER           _IOW('i', 0x00000014, __u32)
 #define LIRC_SET_SEND_DUTY_CYCLE       _IOW('i', 0x00000015, __u32)
 #define LIRC_SET_REC_DUTY_CYCLE        _IOW('i', 0x00000016, __u32)
+#define LIRC_SET_TRANSMITTER_MASK      _IOW('i', 0x00000017, __u32)
 
 /* to set a range use
    LIRC_SET_REC_DUTY_CYCLE_RANGE/LIRC_SET_REC_CARRIER_RANGE with the

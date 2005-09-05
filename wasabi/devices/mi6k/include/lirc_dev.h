@@ -4,14 +4,14 @@
  * (L) by Artur Lipowski <alipowski@interia.pl>
  *        This code is licensed under GNU GPL
  *
- * $Id: lirc_dev.h,v 1.13 2004/04/09 15:33:40 lirc Exp $
+ * $Id: lirc_dev.h,v 1.16 2005/02/19 15:30:20 lirc Exp $
  *
  */
 
 #ifndef _LINUX_LIRC_DEV_H
 #define _LINUX_LIRC_DEV_H
 
-#define MAX_IRCTL_DEVICES 2
+#define MAX_IRCTL_DEVICES 4
 #define BUFLEN            16
 
 //#define LIRC_BUFF_POWER_OF_2
@@ -72,11 +72,11 @@ static inline int  lirc_buffer_available(struct lirc_buffer *buf)
 {
     return (buf->size - buf->fill);
 }
-extern inline void lirc_buffer_lock(struct lirc_buffer *buf, unsigned long *flags)
+static inline void lirc_buffer_lock(struct lirc_buffer *buf, unsigned long *flags)
 {
 	spin_lock_irqsave(&buf->lock, *flags);
 }
-extern inline void lirc_buffer_unlock(struct lirc_buffer *buf, unsigned long *flags)
+static inline void lirc_buffer_unlock(struct lirc_buffer *buf, unsigned long *flags)
 {
 	spin_unlock_irqrestore(&buf->lock, *flags);
 }
@@ -168,6 +168,7 @@ struct lirc_plugin
 	int (*ioctl) (struct inode *,struct file *,unsigned int,
 		      unsigned long);
 	struct file_operations *fops;
+	struct module *owner;
 };
 /* name:
  * this string will be used for logs
@@ -219,6 +220,10 @@ struct lirc_plugin
  *
  * fops:
  * file_operations for drivers which don't fit the current plugin model.
+ * 
+ * owner:
+ * the module owning this struct
+ *
  */
 
 
