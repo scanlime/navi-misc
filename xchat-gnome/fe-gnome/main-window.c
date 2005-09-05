@@ -278,6 +278,7 @@ setup_menu_item (GConfClient *client, GtkActionEntry *entry)
 	if (e == NULL) {
 		/* no GConf data, so let's use the hardcoded values */
 		gtk_action_group_add_actions (gui.action_group, entry, 1, NULL);
+		g_free (key_string);
 		return;
 	}
 
@@ -292,6 +293,7 @@ setup_menu_item (GConfClient *client, GtkActionEntry *entry)
 	if (entry->callback != NULL)
 		g_signal_connect (action, "activate", G_CALLBACK (entry->callback), gui.xml);
 
+	g_object_unref (action);
 	g_free (key_string);
 	gconf_entry_free (e);
 }
