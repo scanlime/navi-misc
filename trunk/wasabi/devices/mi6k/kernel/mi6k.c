@@ -177,6 +177,7 @@ static struct file_operations mi6k_lirc_fops = {
 };
 
 static struct lirc_plugin mi6k_lirc_plugin = {
+	.owner       =  THIS_MODULE,
 	.name        =  "mi6k",
 	.features    =  LIRC_CAN_SEND_PULSE | LIRC_CAN_REC_MODE2,
 	.minor       =  -1,
