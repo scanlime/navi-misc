@@ -5,6 +5,8 @@ Map a sequence to a chaotic attractor and shuffle it.
 
 import Motion
 
+__all__ = ["Sequence"]
+
 class Sequence:
     """ This class represents a dance sequence mapped to an attractor.
         """
@@ -19,8 +21,8 @@ class Sequence:
     def _map (self, traj, data):
         """ Map the frames from the AMC file to the chaotic attractor. """
         result = {}
-        step = traj.len () / data.len ()
-        length = data.len () * step
+        step = len (traj) / len (data)
+        length = len (len) * step
 
         for i in range (length):
             result[traj[i * step]] = data[i]
@@ -40,7 +42,6 @@ class Sequence:
 # FIXME Not convinced this is necessary...
 class _Frame:
     """ A frame from the AMC file mapped to a point on a chaotic attractor. """
-    def __init__ (self):
-        pass
+    def __init__ (self, index, data):
 
 # vim:ts=4:sw=4:et:tw=80
