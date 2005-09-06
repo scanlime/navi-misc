@@ -44,7 +44,7 @@ class ODE:
         self.min = list (ic)
         self.max = list (ic)
 
-    def solve( self ):
+    def __call__( self ):
         pass
 
 
@@ -64,7 +64,7 @@ class RK4( ODE ):
 
         return last + self.time.h/6.*(k1 + 2.*k2 + 2.*k3 + k4)
 
-    def solve( self, withTime=False ):
+    def __call__( self, withTime=False ):
         if withTime:
             result = [(self.time.time, self.initial)]
             for i in self.time:
@@ -106,7 +106,7 @@ class ARK4( RK4 ):
 
         # Take two half steps.
         checker = RK4( self.f, last, self.time.time, 2, .5*self.time.h )
-        checker.solve()
+        checker()
 
         # Find the difference.
         diff = checker.results[2] - single
@@ -119,7 +119,7 @@ class ARK4( RK4 ):
         # If the difference is less then our tolerance try doubling h.
         elif delta < self.epsilon:
             checker = RK4( self.f, last, self.time.time, 2, 2*self.time.h )
-            checker.solve()
+            checker()
 
             diff = checker.results[2] - single
             delta = math.sqrt( Numeric.dot( diff, diff ) )
