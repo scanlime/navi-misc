@@ -12,14 +12,23 @@ class Sequence:
         """ Each Sequence object requires an ODE solver (solver) and some
             motion capture data (data).
             """
-        pass
+        self.solver = solver
+        self.solver.solve ()
+        self.mapping = self._map (solver.results, data)
 
-    def _map (self):
+    def _map (self, traj, data):
         """ Map the frames from the AMC file to the chaotic attractor. """
-        pass
+        result = {}
+        step = traj.len () / data.len ()
+        length = data.len () * step
+
+        for i in range (length):
+            result[traj[i * step]] = data[i]
+
+        return result
 
     def shuffle (self, ics):
-        """ shuffle takes a set of initial conditions (ics) and returns a new
+        """ Takes a set of initial conditions (ics) and returns a new
             sequence object containing the shuffled dance.
             """
         pass
@@ -28,7 +37,8 @@ class Sequence:
         """ Store the sequence to a file. """
         pass
 
-class _MappedFrame:
+# FIXME Not convinced this is necessary...
+class _Frame:
     """ A frame from the AMC file mapped to a point on a chaotic attractor. """
     def __init__ (self):
         pass
