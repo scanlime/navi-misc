@@ -521,6 +521,23 @@ initialize_main_window ()
 		gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("minus"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
 		g_closure_unref (closure);
 
+		/* We've had a couple of calls to hook up Ctrl-Alt-PgUp and
+		 * Ctrl-Alt-PgDown to discussion navigation. As far as I can
+		 * tell this is not HIG compliant, but for the time being we'll
+		 * put it in. It's easy enough to delete it later.
+		 */
+		closure = g_cclosure_new (G_CALLBACK (on_go_next_discussion_activate), NULL, NULL);
+		gtk_accel_group_connect (discussion_accel, GDK_Page_Down,
+				GDK_MOD1_MASK | GDK_CONTROL_MASK , GTK_ACCEL_VISIBLE, closure);
+
+		g_closure_unref (closure);
+
+		closure = g_cclosure_new (G_CALLBACK (on_go_previous_discussion_activate), NULL, NULL);
+		gtk_accel_group_connect (discussion_accel, GDK_Page_Up,
+				GDK_MOD1_MASK | GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, closure);
+
+		g_closure_unref (closure);
+
 		/* Add the accelgroup to the main window. */
 		gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), discussion_accel);
 	}
