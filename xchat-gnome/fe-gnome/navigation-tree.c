@@ -464,7 +464,7 @@ navigation_tree_select_session (NavTree * navtree, struct session *sess)
 }
 
 static gboolean
-find_next_channel_after_server (GtkTreeModel *model, GtkTreeIter *iter)
+get_next_channel_iter (GtkTreeModel *model, GtkTreeIter *iter)
 {
 	/* Find the next channel after the current server. */
 	do {
@@ -501,6 +501,7 @@ navigation_tree_select_next_channel (NavTree * navtree)
 	/* If nothing is currently selected, select the first visible channel. */
 	if (!gtk_tree_selection_get_selected (selection, &model, &iter)) {
 		navigation_tree_select_nth_channel (navtree, 0);
+		return;
 	}
 
 	/* Get a path to the iter. */
@@ -512,23 +513,15 @@ navigation_tree_select_next_channel (NavTree * navtree)
 	/* If we're on a server, move to the first channel we can find if there
 	 * is one.
 	 */
-	if (gtk_tree_path_get_depth (path) == 1) {
-		if (find_next_channel_after_server (model, &iter))
-			gtk_tree_selection_select_iter (selection, &iter);
-
-		return;
-	}
-
-	/* Try to move forward, otherwise select the first channel on this network. */
-	if (!gtk_tree_model_iter_next (model, &iter)) {
-		GtkTreeIter parent;
-
+	if (gtk_tree_path_get_depth (path) == 1 || !gtk_tree_model_iter_next (model, &iter)) {
 		gtk_tree_path_up (path);
-		gtk_tree_model_get_iter (model, &parent, path);
+		gtk_tree_model_get_iter (model, &iter, path);
 
-		if (find_next_channel_after_server (model, &parent))
-			gtk_tree_selection_select_iter (selection, &parent);
+		if (!get_next_channel_iter (model, &iter))
+			return;
 	}
+
+	gtk_tree_selection_select_iter (selection, &iter);
 }
 
 void
