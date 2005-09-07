@@ -78,7 +78,7 @@ class RK4( ODE ):
                 #self._minmax( step )
                 result.append( step )
 
-        self.results = result
+        return result
 
     def _minmax( self, point ):
         x,y,z = point
