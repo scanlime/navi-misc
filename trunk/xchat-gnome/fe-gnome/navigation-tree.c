@@ -489,10 +489,19 @@ navigation_tree_select_next_channel (NavTree * navtree)
 	/* If we're on a server, move to the first channel we can find if there
 	 * is one.
 	 */
-	if (gtk_tree_path_get_depth (path) == 1 || !gtk_tree_model_iter_next (model, &iter)) {
+	if (gtk_tree_path_get_depth (path) == 2 || !gtk_tree_model_iter_next (model, &iter)) {
 		gtk_tree_path_up (path);
 		gtk_tree_model_get_iter (model, &iter, path);
 
+		if (gtk_tree_model_iter_next (model, &iter)) {
+			gtk_tree_path_free (path);
+			path = gtk_tree_model_get_path (model, &iter);
+		} else {
+			return;
+		}
+	}
+
+	if (gtk_tree_path_get_depth (path) == 1) {
 		/* Find the next channel after the current server. */
 		do {
 			if (gtk_tree_model_iter_has_child (model, &iter)) {
@@ -502,14 +511,11 @@ navigation_tree_select_next_channel (NavTree * navtree)
 				/* Set the iter. */
 				gtk_tree_path_down (path);
 				gtk_tree_model_get_iter (model, &iter, path);
-
-				gtk_tree_path_free (path);
 			}
 		} while (gtk_tree_model_iter_next (model, &iter));
-
-		return;
 	}
 
+	gtk_tree_path_free (path);
 	gtk_tree_selection_select_iter (selection, &iter);
 }
 
