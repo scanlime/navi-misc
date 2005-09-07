@@ -463,8 +463,32 @@ navigation_tree_select_session (NavTree * navtree, struct session *sess)
 	gtk_tree_iter_free (iter);
 }
 
+static gboolean
+find_next_channel_after_server (GtkTreeModel *model, GtkTreeIter *iter)
+{
+	/* Find the next channel after the current server. */
+	do {
+		if (gtk_tree_model_iter_has_child (model, &iter)) {
+			/* Get the path. */
+			GtkTreePath* path = gtk_tree_model_get_path (model, iter);
+
+			/* Expand just in case. */
+			gtk_tree_view_expand_row (GTK_TREE_VIEW (navtree), path, TRUE);
+
+			/* Set the iter. */
+			gtk_tree_path_down (path);
+			gtk_tree_model_get_iter (model, iter, path);
+
+			gtk_tree_path_free (path);
+			return TRUE;
+		}
+	} while (gtk_tree_model_iter_next (model, &iter));
+
+	return FALSE;
+}
+
 void
-navigation_tree_select_next_channel (NavTree * navtree, gboolean wrap)
+navigation_tree_select_next_channel (NavTree * navtree)
 {
 	GtkTreeIter iter;
 	GtkTreeModel *model;
@@ -474,18 +498,9 @@ navigation_tree_select_next_channel (NavTree * navtree, gboolean wrap)
 	/* Get the GtkSelection from the GtkTreeView. */
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
 
-	/* If nothing is currently selected... */
+	/* If nothing is currently selected, select the first visible channel. */
 	if (!gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		model = gtk_tree_view_get_model (GTK_TREE_VIEW (navtree));
-		if (navtree->current_path) {
-			/* If we have a current_path, use that. */
-			gtk_tree_model_get_iter (model, &iter, navtree->current_path);
-		} else {
-			/* Otherwise return. */
-			/*gtk_tree_model_get_iter_first (model, &iter);
-			gtk_tree_selection_select_iter (selection, &iter); */
-			return;
-		}
+		navigation_tree_select_nth_channel (navtree, 0);
 	}
 
 	/* Get a path to the iter. */
@@ -494,40 +509,26 @@ navigation_tree_select_next_channel (NavTree * navtree, gboolean wrap)
 	/* Get the iter from our path because it became invalid. */
 	gtk_tree_model_get_iter (model, &iter, path);
 
-	/* If we're on a server... */
+	/* If we're on a server, move to the first channel we can find if there
+	 * is one.
+	 */
 	if (gtk_tree_path_get_depth (path) == 1) {
-		/* If we have a child, move to the first one, select it and return. */
-		if (gtk_tree_model_iter_has_child (model, &iter)) {
-			/* Expand just in case. */
-			gtk_tree_view_expand_row (GTK_TREE_VIEW (navtree), path, TRUE);
-			gtk_tree_path_down (path);
-			gtk_tree_model_get_iter (model, &iter, path);
+		if (find_next_channel_after_server (model, &iter))
 			gtk_tree_selection_select_iter (selection, &iter);
-		}
+
 		return;
 	}
 
 	/* Try to move forward, otherwise select the first channel on this network. */
 	if (!gtk_tree_model_iter_next (model, &iter)) {
-		if (wrap) {
-			gtk_tree_path_up (path);
-			gtk_tree_path_down (path);
-			gtk_tree_model_get_iter (model, &iter, path);
-		} else {
-			GtkTreeIter parent;
-			gtk_tree_path_up (path);
-			gtk_tree_model_get_iter (model, &parent, path);
+		GtkTreeIter parent;
 
-			if (!gtk_tree_model_iter_next (model, &parent))
-				return;
+		gtk_tree_path_up (path);
+		gtk_tree_model_get_iter (model, &parent, path);
 
-			if (!gtk_tree_model_iter_children (model, &iter, &parent))
-				return;
-		}
+		if (find_next_channel_after_server (model, &parent))
+			gtk_tree_selection_select_iter (selection, &parent);
 	}
-
-	/* Select the channel. */
-	gtk_tree_selection_select_iter (selection, &iter);
 }
 
 void
