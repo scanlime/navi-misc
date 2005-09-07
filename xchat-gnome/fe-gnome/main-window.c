@@ -90,6 +90,7 @@ static void on_go_next_network_activate (GtkAction *action, gpointer data);
 static void on_go_previous_discussion_activate (GtkAction *action, gpointer data);
 static void on_go_next_discussion_activate (GtkAction *action, gpointer data);
 static void on_help_about_activate (GtkAction *action, gpointer data);
+static void on_nickname_clicked (GtkButton *widget, gpointer user_data);
 
 static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *menu_vbox);
 
@@ -549,6 +550,10 @@ initialize_main_window ()
 	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (clear_find), NULL);
 	widget = glade_xml_get_widget (gui.xml, "find close button");
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (close_find_button), NULL);
+	
+	/* connect nickname button */
+	widget = glade_xml_get_widget (gui.xml, "nickname");
+	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (on_nickname_clicked), NULL);
 }
 
 void
@@ -906,6 +911,50 @@ on_text_entry_activate (GtkWidget *widget, gpointer data)
 	if (gui.current_session != NULL)
 		handle_multiline (gui.current_session, (char *) entry_text, TRUE, FALSE);
 	g_free (entry_text);
+}
+
+static void
+nickname_get_str_response (GtkDialog *dialog, gint arg1, gpointer entry)
+{
+	gchar *text, *buf;
+
+	text = (gchar *) gtk_entry_get_text (GTK_ENTRY (entry));
+
+	if (arg1 == GTK_RESPONSE_ACCEPT || arg1 == GTK_RESPONSE_OK) {
+		buf = g_strdup_printf ("nick %s", text);
+		handle_command (current_sess, buf, FALSE);
+		g_free (buf);
+	}
+	gtk_widget_hide_all (dialog);
+}
+
+static void
+nickname_str_enter (GtkWidget *entry, GtkWidget *dialog)
+{
+	gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
+}
+
+static void 
+on_nickname_clicked (GtkButton *widget, gpointer user_data)
+{
+	GtkWidget *dialog;
+	GtkWidget *entry;
+	
+	if (!current_sess)
+		return;
+
+	dialog = glade_xml_get_widget (gui.xml, "nickname dialog");
+	entry = glade_xml_get_widget (gui.xml, "nickname dialog entry");
+
+	gtk_entry_set_text (GTK_ENTRY (entry), current_sess->server->nick);
+	g_signal_connect (G_OBJECT (entry), "activate",
+						 	G_CALLBACK (nickname_str_enter),
+						 	dialog);
+	g_signal_connect (G_OBJECT (dialog), "response",
+						   G_CALLBACK (nickname_get_str_response),
+						   entry);
+
+	gtk_widget_show_all (dialog);
 }
 
 static void
