@@ -463,30 +463,6 @@ navigation_tree_select_session (NavTree * navtree, struct session *sess)
 	gtk_tree_iter_free (iter);
 }
 
-static gboolean
-get_next_channel_iter (GtkTreeModel *model, GtkTreeIter *iter)
-{
-	/* Find the next channel after the current server. */
-	do {
-		if (gtk_tree_model_iter_has_child (model, &iter)) {
-			/* Get the path. */
-			GtkTreePath* path = gtk_tree_model_get_path (model, iter);
-
-			/* Expand just in case. */
-			gtk_tree_view_expand_row (GTK_TREE_VIEW (navtree), path, TRUE);
-
-			/* Set the iter. */
-			gtk_tree_path_down (path);
-			gtk_tree_model_get_iter (model, iter, path);
-
-			gtk_tree_path_free (path);
-			return TRUE;
-		}
-	} while (gtk_tree_model_iter_next (model, &iter));
-
-	return FALSE;
-}
-
 void
 navigation_tree_select_next_channel (NavTree * navtree)
 {
@@ -517,8 +493,21 @@ navigation_tree_select_next_channel (NavTree * navtree)
 		gtk_tree_path_up (path);
 		gtk_tree_model_get_iter (model, &iter, path);
 
-		if (!get_next_channel_iter (model, &iter))
-			return;
+		/* Find the next channel after the current server. */
+		do {
+			if (gtk_tree_model_iter_has_child (model, &iter)) {
+				/* Expand just in case. */
+				gtk_tree_view_expand_row (GTK_TREE_VIEW (navtree), path, TRUE);
+
+				/* Set the iter. */
+				gtk_tree_path_down (path);
+				gtk_tree_model_get_iter (model, iter, path);
+
+				gtk_tree_path_free (path);
+			}
+		} while (gtk_tree_model_iter_next (model, &iter));
+
+		return;
 	}
 
 	gtk_tree_selection_select_iter (selection, &iter);
