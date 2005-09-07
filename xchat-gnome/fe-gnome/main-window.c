@@ -56,8 +56,6 @@ static void *last_search_position = NULL;
 
 static void on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data);
 static void on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
-static void on_discussion_plus_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
-static void on_discussion_minus_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void on_pgup (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 static void on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
 
@@ -513,12 +511,12 @@ initialize_main_window ()
 		g_closure_unref (closure);
 
 		/* alt-+ */
-		closure = g_cclosure_new (G_CALLBACK (on_discussion_plus_activate), NULL, NULL);
+		closure = g_cclosure_new (G_CALLBACK (on_go_next_discussion_activate), NULL, NULL);
 		gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("equal"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
 		g_closure_unref (closure);
 
 		/* alt-- */
-		closure = g_cclosure_new (G_CALLBACK (on_discussion_minus_activate), NULL, NULL);
+		closure = g_cclosure_new (G_CALLBACK (on_go_previous_discussion_activate), NULL, NULL);
 		gtk_accel_group_connect (discussion_accel, gdk_keyval_from_name ("minus"), GDK_MOD1_MASK, GTK_ACCEL_VISIBLE, closure);
 		g_closure_unref (closure);
 
@@ -847,18 +845,6 @@ static void
 on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
 {
 	navigation_tree_select_nth_channel (gui.server_tree, GPOINTER_TO_INT (data));
-}
-
-static void
-on_discussion_plus_activate(GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
-{
-	navigation_tree_select_next_channel (gui.server_tree);
-}
-
-static void
-on_discussion_minus_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
-{
-	navigation_tree_select_prev_channel (gui.server_tree, FALSE);
 }
 
 static void
