@@ -501,7 +501,7 @@ navigation_tree_select_next_channel (NavTree * navtree)
 
 				/* Set the iter. */
 				gtk_tree_path_down (path);
-				gtk_tree_model_get_iter (model, iter, path);
+				gtk_tree_model_get_iter (model, &iter, path);
 
 				gtk_tree_path_free (path);
 			}
