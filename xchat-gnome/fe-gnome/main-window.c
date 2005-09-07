@@ -829,13 +829,13 @@ on_go_next_network_activate(GtkAction *action, gpointer data)
 static void
 on_go_previous_discussion_activate (GtkAction *action, gpointer data)
 {
-	navigation_tree_select_prev_channel (gui.server_tree, TRUE);
+	navigation_tree_select_prev_channel (gui.server_tree);
 }
 
 static void
 on_go_next_discussion_activate (GtkAction *action, gpointer data)
 {
-	navigation_tree_select_next_channel (gui.server_tree, TRUE);
+	navigation_tree_select_next_channel (gui.server_tree);
 }
 
 static void
@@ -847,13 +847,13 @@ on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg
 static void
 on_discussion_plus_activate(GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
 {
-	navigation_tree_select_next_channel (gui.server_tree, FALSE);
+	navigation_tree_select_next_channel (gui.server_tree);
 }
 
 static void
 on_discussion_minus_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
 {
-	navigation_tree_select_prev_channel (gui.server_tree, FALSE);
+	navigation_tree_select_prev_channel (gui.server_tree);
 }
 
 static void
