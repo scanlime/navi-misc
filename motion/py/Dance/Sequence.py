@@ -10,12 +10,13 @@ __all__ = ["Sequence"]
 class Sequence:
     """ This class represents a dance sequence mapped to an attractor.
         """
-    def __init__ (self, traj, data):
-        """ Each Sequence object requires a trajectory and some motion capture
-            data (data).
+    def __init__ (self, ode, data):
+        """ Each Sequence object requires an ordinary differential equation
+            solver and some motion capture data (data).
             """
         self.mapping = {}
 
+        traj = ode ()
         step = len (traj) / len (data)
         length = len (len) * step
 
@@ -33,9 +34,15 @@ class Sequence:
         """ Store the sequence to a file. """
         pass
 
-# FIXME Not convinced this is necessary...
 class _Frame:
-    """ A frame from the AMC file mapped to a point on a chaotic attractor. """
+    """ A frame from the AMC file. """
     def __init__ (self, index, data):
+        self.__bones = {}
+
+        for bone, values in data.iteritems ():
+            self.__bones[bone] = values[index]
+
+    def __getitem__ (self, bone):
+        return self.__bones[bone]
 
 # vim:ts=4:sw=4:et:tw=80
