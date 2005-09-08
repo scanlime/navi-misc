@@ -616,8 +616,6 @@ navigation_tree_select_prev_channel (NavTree * navtree)
 		g_strfreev (split);
 
 		if (channel_index == 0) {
-			gint	channels;
-
 			if (server_index == 0)
 				server_index = navtree->model->servers;
 
@@ -625,7 +623,6 @@ navigation_tree_select_prev_channel (NavTree * navtree)
 
 			g_free (path_string);
 			path_string = g_strdup_printf ("%d", server_index);
-			gtk_tree
 		} else {
 			channel_index--;
 		}
@@ -1144,18 +1141,18 @@ navigation_model_add_new_network (NavModel * model, struct session *sess)
 	g_hash_table_insert (model->session_rows, (gpointer) sess, (gpointer) rowref);
 
 	/* Update the last_server row reference. */
-	if (last_server) {
-		sorted_path = gtk_tree_row_reference_get_path (last_server);
+	if (model->last_server) {
+		sorted_path = gtk_tree_row_reference_get_path (model->last_server);
 		gtk_tree_model_get_iter (GTK_TREE_MODEL (model->sorted), &iter, sorted_path);
 
 		while (gtk_tree_model_iter_next (GTK_TREE_MODEL (model->sorted), &iter))
 			gtk_tree_path_next (sorted_path);
 
-		gtk_tree_row_reference_free (last_server);
+		gtk_tree_row_reference_free (model->last_server);
 		gtk_tree_row_reference_new (GTK_TREE_MODEL (model->sorted), sorted_path);
 	} else {
 		sorted_path = gtk_tree_model_sort_convert_child_path_to_path (GTK_TREE_MODEL_SORT (model->sorted), path);
-		last_server = gtk_tree_row_reference_new (GTK_TREE_MODEL (model->sorted), sorted_path);
+		model->last_server = gtk_tree_row_reference_new (GTK_TREE_MODEL (model->sorted), sorted_path);
 	}
 
 	model->servers++;
@@ -1198,7 +1195,25 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel * model, GtkTree
 void
 navigation_model_add_new_channel (NavModel * model, struct session *sess)
 {
+	GtkTreeModel*	sorted_model = GTK_TREE_MODEL (model->sorted);
+	GtkTreePath*	path;
+	GtkTreeIter	iter;
+
 	gtk_tree_model_foreach (GTK_TREE_MODEL (model->store), (GtkTreeModelForeachFunc) navigation_model_create_new_channel_entry_iterate, (gpointer) sess);
+
+	path = gtk_tree_row_reference_get_path (model->last_server);
+	gtk_tree_path_append_index (path, 0);
+	gtk_tree_model_get_iter (sorted_model, &iter, path);
+
+	while (gtk_tree_model_iter_next (sorted_model, &iter))
+		gtk_tree_path_next (path);
+
+	if (model->last_channel)
+		gtk_tree_row_reference_free (model->last_channel);
+
+	model->last_channel = gtk_tree_row_reference_new (sorted_model, path);
+
+	gtk_tree_path_free (path);
 }
 
 void
