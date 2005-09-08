@@ -1127,6 +1127,7 @@ navigation_model_add_new_network (NavModel * model, struct session *sess)
 {
 	GtkTreeIter		iter;
 	GtkTreePath*		path;
+	GtkTreePath*		sorted_path;
 	GtkTreeRowReference*	rowref;
 
 	gtk_tree_store_append (model->store, &iter, NULL);
@@ -1143,10 +1144,23 @@ navigation_model_add_new_network (NavModel * model, struct session *sess)
 	g_hash_table_insert (model->session_rows, (gpointer) sess, (gpointer) rowref);
 
 	/* Update the last_server row reference. */
-	gtk_tree_path_free (path);
+	if (last_server) {
+		sorted_path = gtk_tree_row_reference_get_path (last_server);
+		gtk_tree_model_get_iter (GTK_TREE_MODEL (model->sorted), &iter, sorted_path);
+
+		while (gtk_tree_model_iter_next (GTK_TREE_MODEL (model->sorted), &iter))
+			gtk_tree_path_next (sorted_path);
+
+		gtk_tree_row_reference_free (last_server);
+		gtk_tree_row_reference_new (GTK_TREE_MODEL (model->sorted), sorted_path);
+	} else {
+		sorted_path = gtk_tree_model_sort_convert_child_path_to_path (GTK_TREE_MODEL_SORT (model->sorted), path);
+		last_server = gtk_tree_row_reference_new (GTK_TREE_MODEL (model->sorted), sorted_path);
+	}
 
 	model->servers++;
 	gtk_tree_path_free (path);
+	gtk_tree_path_free (sorted_path);
 }
 
 static gboolean
@@ -1405,7 +1419,7 @@ static void
 on_server_channel_list (GtkAction * action, gpointer data)
 {
 	session *s;
-	
+
 	s = navigation_tree_get_selected_session ();
 	if (s)
 		create_channel_list (s);
@@ -1514,17 +1528,17 @@ on_server_autoconnect (GtkAction *action, gpointer data)
 	session *sess;
 	gboolean autoconnect, active;
 	ircnet *network;
-      
+
 	sess = navigation_tree_get_selected_session ();
 	network = sess->server->network;
 	autoconnect = network->flags & FLAG_AUTO_CONNECT;
 	active = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action) );
-		
+
 	if (sess != NULL) {
 		if (autoconnect && !active) {
 			/* remove server from autoconnect list */
 			network->flags &= !FLAG_AUTO_CONNECT;
-			servlist_save ();	
+			servlist_save ();
 		}
 		if (!autoconnect && active) {
 			/* add server to autoconnect list */
@@ -1540,7 +1554,7 @@ on_channel_autojoin (GtkAction *action, gpointer data)
 	session *sess;
 	gboolean autojoin, active;
 	ircnet *network;
-      
+
 	sess = navigation_tree_get_selected_session ();
 	network = sess->server->network;
 	autojoin = channel_is_autojoin (network, sess->channel);
