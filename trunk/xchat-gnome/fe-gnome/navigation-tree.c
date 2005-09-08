@@ -1219,6 +1219,8 @@ navigation_model_add_new_channel (NavModel * model, struct session *sess)
 void
 navigation_model_remove (NavModel * model, struct session *sess)
 {
+	GtkTreeModel*	sorted = GTK_TREE_MODEL (model->sorted);
+	GtkTreeIter	server_iter;
 	GtkTreeIter*	iter = navigation_model_get_unsorted_iter (model, sess);
 	GtkTreePath*	path = gtk_tree_model_get_path (GTK_TREE_MODEL (model->store), iter);
 
@@ -1228,6 +1230,35 @@ navigation_model_remove (NavModel * model, struct session *sess)
 	gtk_tree_store_remove (model->store, iter);
 
 	gtk_tree_path_free (path);
+	gtk_tree_model_get_iter_first (sorted, &sorted_iter);
+	path = gtk_tree_path_new_first ();
+
+	while (gtk_tree_model_iter_next (sorted, &sorted_iter))
+		gtk_tree_path_next (path);
+
+	if (model->last_server)
+		gtk_tree_row_reference_free (model->last_server);
+
+	model->last_server = gtk_tree_row_reference_new (sorted, path);
+
+	do {
+		gint children = 0;
+
+		gtk_tree_model_get_iter (sorted, &sorted_iter);
+		children = gtk_tree_model_iter_n_children (sorted, &sorted_iter);
+
+		if (children > 0)
+			gtk_tree_path_append_index (path, children - 1);
+	} while (gtk_tree_path_prev (path));
+
+	if (model->last_channel)
+		gtk_tree_row_reference_free (model->last_channel);
+
+	if (gtk_tree_path_get_depth (path) == 2)
+		model->last_channel = gtk_tree_row_reference_new (sorted, &sorted_iter);
+	else
+		model->last_channel = NULL;
+
 	gtk_tree_iter_free (iter);
 }
 
