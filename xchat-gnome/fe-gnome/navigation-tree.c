@@ -514,7 +514,12 @@ navigation_tree_select_next_channel (NavTree * navtree)
 		 */
 		if (channel_index == channels) {
 			channel_index = 0;
-			server_index++;
+			if (server_index < navtree->model->servers-1) {
+				server_index++;
+			} else {
+				navigation_tree_select_nth_channel (navtree, 0);
+				return;
+			}
 			depth = 1;
 		} else {
 			channel_index++;
@@ -537,23 +542,13 @@ navigation_tree_select_next_channel (NavTree * navtree)
 		 */
 		gboolean winner = FALSE;
 
-		/* If the current server is the last one in the list, select the
-		 * first visible channel.
-		 */
-		if (server_index == (navtree->model->servers-1)) {
-			navigation_tree_select_nth_channel (navtree, 0);
-			return;
-		}
-
 		path_string = g_strdup_printf ("%d", server_index);
 		gtk_tree_model_get_iter_from_string (model, &iter, path_string);
 
 		/* Iterate over all the available servers until we find one with
 		 * a channel to select.
 		 */
-		while (gtk_tree_model_iter_next (model, &iter)) {
-			server_index++;
-
+		do {
 			/* Check each server for children. */
 			if (gtk_tree_model_iter_has_child (model, &iter)) {
 				gtk_tree_path_free (path);
@@ -564,7 +559,8 @@ navigation_tree_select_next_channel (NavTree * navtree)
 					break;
 				}
 			}
-		}
+			server_index++;
+		} while (gtk_tree_model_iter_next (model, &iter));
 
 		/* If we reached the end of the list and didn't find a channel,
 		 * select the first visible channel.
