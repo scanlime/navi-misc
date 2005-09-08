@@ -581,82 +581,56 @@ navigation_tree_select_next_channel (NavTree * navtree)
 }
 
 void
-navigation_tree_select_prev_channel (NavTree * navtree, gboolean wrap)
+navigation_tree_select_prev_channel (NavTree * navtree)
 {
-	GtkTreeModel *model;
-	GtkTreeSelection *selection;
-	GtkTreePath *path;
-	GtkTreeIter iter;
+	GtkTreeModel*		model;
+	GtkTreeSelection*	selection;
+	GtkTreeIter		iter;
+	GtkTreePath*		path;
+	gchar*			path_string;
+	gint			server_index = 0;
+	gint			channel_index = 0;
+	gint			depth;
 
 	/* Get the GtkTreeSelection. */
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
 
-	/* Try to get the currently selected item. */
-	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		path = gtk_tree_model_get_path (model, &iter);
-	} else {
-		/* If nothing is selected... */
-		model = gtk_tree_view_get_model (GTK_TREE_VIEW (navtree));
-		/* If we have a current path stored set path to that. */
-		if (navtree->current_path)
-			path = gtk_tree_path_copy (navtree->current_path);
-		else
-			/* Otherwise make path point to the root of the tree. */
-			path = gtk_tree_path_new_first ();
-	}
-
-	/* If the path is a server... */
-	if (gtk_tree_path_get_depth (path) <= 1) {
-		/* Expand it, just in case. */
-		gtk_tree_view_expand_row (GTK_TREE_VIEW (navtree), path, TRUE);
-
-		/* If it has children move it down. */
-		if (gtk_tree_model_iter_has_child (model, &iter)) {
-			gtk_tree_path_down (path);
-		} else {
-			/* If there are no children then we can't go to the previous
-			 * channel on this server so we make path NULL.
-			 */
-			gtk_tree_path_free (path);
-			path = NULL;
-		}
-	} else {
-		/* If the path isn't a server expand it's parent, just in case. */
-		GtkTreePath *parent;
-		parent = gtk_tree_path_copy (path);
-		gtk_tree_path_up (parent);
-		gtk_tree_view_expand_row (GTK_TREE_VIEW (navtree), parent, TRUE);
-	}
-
-	/* As long as path isn't NULL move it back one. If it's the first channel in the list
-	 * wrap around to the last one.
+	/* Try to get the currently selected item. Failing that, select the
+	 * first visible channel.
 	 */
-	if (path) {
-		if (!gtk_tree_path_prev (path)) {
-			if (wrap) {
-				GtkTreeIter current, previous;
-				gtk_tree_model_get_iter (model, &current, path);
-				previous = current;
+	if (!gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		navigation_tree_select_nth_channel (navtree, 0);
+		return;
+	}
 
-				/* After this loop previous is an iter for the last channel in the list. */
-				while (gtk_tree_model_iter_next (model, &current))
-					previous = current;
-				gtk_tree_path_free (path);
-				path = gtk_tree_model_get_path (model, &previous);
-			} else {
-				gtk_tree_path_up (path);
-				if (!gtk_tree_path_prev (path)) {
-					gtk_tree_path_free (path);
-					return;
-				}
+	path = gtk_tree_model_get_path (model, &iter);
+	depth = gtk_tree_path_get_depth (path);
+	path_string = gtk_tree_path_to_string (path);
 
-				gtk_tree_model_get_iter (model, &iter, path);
-				gtk_tree_path_append_index (path, gtk_tree_model_iter_n_children (model, &iter) - 1);
-			}
+	if (depth == 2) {
+		gchar**	split = g_strsplit (path_string, ":", 2);
+
+		server_index = atoi (split[0]);
+		channel_index = atoi (split[1]);
+
+		g_strfreev (split);
+
+		if (channel_index == 0) {
+			gint	channels;
+
+			if (server_index == 0)
+				server_index = navtree->model->servers;
+
+			server_index--;
+
+			g_free (path_string);
+			path_string = g_strdup_printf ("%d", server_index);
+			gtk_tree
+		} else {
+			channel_index--;
 		}
-		/* Select the new path. */
-		gtk_tree_selection_select_path (selection, path);
-		gtk_tree_path_free (path);
+	} else {
+		server_index = atoi (path_string);
 	}
 }
 
@@ -1102,6 +1076,11 @@ navigation_model_init (NavModel * navmodel)
 	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (navmodel->sorted), 1, GTK_SORT_ASCENDING);
 	gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE (navmodel->sorted), 1, gtk_tree_iter_sort_func_nocase, NULL, NULL);
 
+	navmodel->last_server = NULL;
+	navmodel->last_channel = NULL;
+
+	navmodel->servers = 0;
+
 	/* Set up our hash table for direct hashing. */
 	navmodel->session_rows = g_hash_table_new (g_direct_hash, g_direct_equal);
 }
@@ -1146,17 +1125,26 @@ navigation_model_new ()
 void
 navigation_model_add_new_network (NavModel * model, struct session *sess)
 {
-	GtkTreeIter iter;
-	GtkTreePath *path;
-	GtkTreeRowReference *rowref;
+	GtkTreeIter		iter;
+	GtkTreePath*		path;
+	GtkTreeRowReference*	rowref;
 
 	gtk_tree_store_append (model->store, &iter, NULL);
+
 	/* Add the new server to the model. By default connected is false. */
 	gtk_tree_store_set (model->store, &iter, 1, _("<none>"), 2, sess, 3, 0, 4, NULL, 5, 0, 6, FALSE, -1);
 
+	/* Insert a row reference to the new entry in the unsorted store in the
+	 * hash table. This allows us to look up entries in the navigation model
+	 * by session.
+	 */
 	path = gtk_tree_model_get_path (GTK_TREE_MODEL (model->store), &iter);
 	rowref = gtk_tree_row_reference_new (GTK_TREE_MODEL (model->store), path);
 	g_hash_table_insert (model->session_rows, (gpointer) sess, (gpointer) rowref);
+
+	/* Update the last_server row reference. */
+	gtk_tree_path_free (path);
+
 	model->servers++;
 	gtk_tree_path_free (path);
 }
