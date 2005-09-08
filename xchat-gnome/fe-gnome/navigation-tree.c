@@ -481,9 +481,6 @@ navigation_tree_select_next_channel (NavTree * navtree)
 
 	/* If nothing is currently selected, select the first visible channel. */
 	if (!gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		/* FIXME If all server with channels are collapsed, this will
-		 * not select anything. Is that behavior we want?
-		 */
 		navigation_tree_select_nth_channel (navtree, 0);
 		return;
 	}
@@ -493,73 +490,102 @@ navigation_tree_select_next_channel (NavTree * navtree)
 	depth = gtk_tree_path_get_depth (path);
 	path_string = gtk_tree_path_to_string (path);
 
+	/* If a channel is currently selected... */
 	if (depth == 2) {
-		gchar** split = g_strsplit (path_string, ":", -1);
+		gint	channels = 0;
+		gchar**	split = g_strsplit (path_string, ":", -1);
 
 		server_index = atoi (split[0]);
 		channel_index = atoi (split[1]);
 
+		g_free (path_string);
+
+		/* Find out how many channels are on this server. */
+		path_string = g_strdup_printf ("%d", server_index);
+		gtk_tree_model_get_iter_from_string (model, &iter, path_string);
+		channels = gtk_tree_model_iter_n_children (model, &iter) - 1;
+
+		/* If the current channel is the last one on the server, channel
+		 * index becomes 0 because we want the first channel on the next
+		 * available server. Move server_index up one so that we don't
+		 * check the current server. Set depth to 1 so that it looks
+		 * like we had a server selected. If the current channel isn't
+		 * the last one, just increment it and be done.
+		 */
+		if (channel_index == channels) {
+			channel_index = 0;
+			server_index++;
+			depth = 1;
+		} else {
+			channel_index++;
+		}
+
 		g_strfreev (split);
 	} else {
+		/* If a server is selected, just retrieve its index for now. */
 		server_index = atoi (path_string);
 	}
 
-	/* Test that a channel is selected. If so, try to move to the next
-	 * channel.
-	 */
-	if (gtk_tree_path_get_depth (path) == 2 && !gtk_tree_model_iter_next (model, &iter)) {
-		/* The last channel on this server is selected, so select the
-		 * next lowest server.
-		 */
-		gtk_tree_path_up (path);
-		gtk_tree_model_get_iter (model, &iter, path);
+	g_free (path_string);
 
-		/* There is another server after this one. */
-		if (gtk_tree_model_iter_next (model, &iter)) {
-			gtk_tree_path_next (path);
-			/* Make sure the iter is valid. */
-			gtk_tree_model_get_iter (model, &iter, path);
-		} else {
-			/* This is the last server in the navigation tree. Select the
-		 	 * first channel.
-		 	 *
-			 * FIXME If all server with channels are collapsed, this will
-		 	 * not select anything. Is that behavior we want?
-		 	 */
+	/* If we need to move along the list of connected servers to find our
+	 * next channel...
+	 */
+	if (depth == 1) {
+		/* winner becomes true when we've found a server and channel to
+		 * select next.
+		 */
+		gboolean winner = FALSE;
+
+		/* If the current server is the last one in the list, select the
+		 * first visible channel.
+		 */
+		if (server_index == (navtree->model->servers-1)) {
 			navigation_tree_select_nth_channel (navtree, 0);
 			return;
 		}
-	}
 
-	/* A server is selected. Find the next available channel. */
-	if (gtk_tree_path_get_depth (path) == 1) {
-		/* Make sure we have a valid iter. */
-		gtk_tree_model_get_iter (model, &iter, path);
+		path_string = g_strdup_printf ("%d", server_index);
+		gtk_tree_model_get_iter_from_string (model, &iter, path_string);
 
-		/* Look for a server with channels. */
-		do {
-			/* Found a server with channels. */
+		/* Iterate over all the available servers until we find one with
+		 * a channel to select.
+		 */
+		while (gtk_tree_model_iter_next (model, &iter)) {
+			server_index++;
+
+			/* Check each server for children. */
 			if (gtk_tree_model_iter_has_child (model, &iter)) {
-				/* Update the path. */
-				path = gtk_tree_model_get_path (model, &iter);
-
-				/* Expand just in case. */
-				gtk_tree_view_expand_row (GTK_TREE_VIEW (navtree), path, TRUE);
-
-				/* Set the iter. */
-				gtk_tree_path_down (path);
-				gtk_tree_model_get_iter (model, &iter, path);
-
-				/* Clean up and select the channel. */
-				gtk_tree_selection_select_iter (selection, &iter);
 				gtk_tree_path_free (path);
+				path = gtk_tree_model_get_path (model, &iter);
+				/* If a server has children, check to see if it's expanded. */
+				if (gtk_tree_view_row_expanded (GTK_TREE_VIEW (navtree), path)) {
+					winner = TRUE;
+					break;
+				}
 			}
-		} while (gtk_tree_model_iter_next (model, &iter));
+		}
+
+		/* If we reached the end of the list and didn't find a channel,
+		 * select the first visible channel.
+		 */
+		if (!winner) {
+			navigation_tree_select_nth_channel (navtree, 0);
+			return;
+		}
+
+		g_free (path_string);
 	}
 
-	/* Clean up and select the channel. */
+	/* Get an iter and select it. */
+	path_string = g_strdup_printf ("%d:%d", server_index, channel_index);
+	gtk_tree_model_get_iter_from_string (model, &iter, path_string);
+
 	gtk_tree_selection_select_iter (selection, &iter);
+
+	/* Clean up. */
 	gtk_tree_path_free (path);
+	g_free (path_string);
 }
 
 void
@@ -1185,7 +1211,7 @@ void
 navigation_model_remove (NavModel * model, struct session *sess)
 {
 	GtkTreeIter*	iter = navigation_model_get_unsorted_iter (model, sess);
-	GtkTreePath*	path = gtk_tree_model_get_path (GTK_TREE_MODEL (model->store), &iter);
+	GtkTreePath*	path = gtk_tree_model_get_path (GTK_TREE_MODEL (model->store), iter);
 
 	if (gtk_tree_path_get_depth (path) == 1)
 		model->servers--;
@@ -1539,7 +1565,7 @@ on_channel_autojoin (GtkAction *action, gpointer data)
 	network = sess->server->network;
 	autojoin = channel_is_autojoin (network, sess->channel);
 	active = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action) );
-		
+
 	if (sess != NULL) {
 		if (autojoin && !active) {
 			/* remove channel from autojoin list */
@@ -1584,7 +1610,7 @@ on_channel_autojoin (GtkAction *action, gpointer data)
 
 }
 
-static gboolean 
+static gboolean
 channel_is_autojoin (ircnet *network, gchar *chan)
 {
 	gchar **channels;
