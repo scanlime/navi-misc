@@ -832,7 +832,7 @@ on_go_next_network_activate(GtkAction *action, gpointer data)
 static void
 on_go_previous_discussion_activate (GtkAction *action, gpointer data)
 {
-	navigation_tree_select_prev_channel (gui.server_tree, FALSE);
+	navigation_tree_select_prev_channel (gui.server_tree);
 }
 
 static void
