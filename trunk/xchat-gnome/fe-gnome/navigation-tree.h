@@ -76,7 +76,7 @@ void navigation_tree_server_rm_chans          (NavTree *navtree, GtkTreeIter *pa
 void navigation_tree_select_nth_channel       (NavTree *navtree, gint chan_num);
 void navigation_tree_select_session           (NavTree *navtree, struct session *sess);
 void navigation_tree_select_next_channel      (NavTree *navtree);
-void navigation_tree_select_prev_channel      (NavTree *navtree, gboolean wrap);
+void navigation_tree_select_prev_channel      (NavTree *navtree);
 void navigation_tree_select_next_network      (NavTree *navtree);
 void navigation_tree_select_prev_network      (NavTree *navtree);
 
@@ -95,17 +95,25 @@ NavTree *get_navigation_tree                  ();
 
 struct _NavModel
 {
-    GObject		parent;
-    GtkTreeModel*	sorted;
-    GtkTreeStore*	store;
+    GObject			parent;
+    GtkTreeModel*		sorted;
+    GtkTreeStore*		store;
 
     /* Stores an iter for each session in the model. These iters are for the unsorted
      * store.
      */
-    GHashTable*		session_rows;
+    GHashTable*			session_rows;
+
+    /* Store row references for the last server and the last channel in the
+     * sorted model. It's cheaper to maintain these references than to
+     * recalculate it everytime we're trying to wrap in
+     * navigation_tree_prev_channel.
+     */
+    GtkTreeRowReference*	last_server;
+    GtkTreeRowReference*	last_channel;
 
     /* Number of servers we're connected to. */
-    gint		servers;
+    gint			servers;
 };
 
 struct _NavModelClass
