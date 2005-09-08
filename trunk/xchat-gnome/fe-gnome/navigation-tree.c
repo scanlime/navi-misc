@@ -466,10 +466,15 @@ navigation_tree_select_session (NavTree * navtree, struct session *sess)
 void
 navigation_tree_select_next_channel (NavTree * navtree)
 {
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-	GtkTreeSelection *selection;
-	GtkTreePath *path;
+	GtkTreeIter		iter;
+	GtkTreeModel*		model;
+	GtkTreeSelection*	selection;
+	GtkTreePath*		path;
+	gchar*			path_string;
+	gint			depth;
+	gint			server_index = 0;
+	gint			channel_index = 0;
+
 
 	/* Get the GtkSelection from the GtkTreeView. */
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
@@ -485,9 +490,19 @@ navigation_tree_select_next_channel (NavTree * navtree)
 
 	/* Get a path to the iter. */
 	path = gtk_tree_model_get_path (model, &iter);
+	depth = gtk_tree_path_get_depth (path);
+	path_string = gtk_tree_path_to_string (path);
 
-	/* Get the iter from our path because it became invalid. */
-	gtk_tree_model_get_iter (model, &iter, path);
+	if (depth == 2) {
+		gchar** split = g_strsplit (path_string, ":", -1);
+
+		server_index = atoi (split[0]);
+		channel_index = atoi (split[1]);
+
+		g_strfreev (split);
+	} else {
+		server_index = atoi (path_string);
+	}
 
 	/* Test that a channel is selected. If so, try to move to the next
 	 * channel.
@@ -1124,6 +1139,7 @@ navigation_model_add_new_network (NavModel * model, struct session *sess)
 	path = gtk_tree_model_get_path (GTK_TREE_MODEL (model->store), &iter);
 	rowref = gtk_tree_row_reference_new (GTK_TREE_MODEL (model->store), path);
 	g_hash_table_insert (model->session_rows, (gpointer) sess, (gpointer) rowref);
+	model->servers++;
 	gtk_tree_path_free (path);
 }
 
@@ -1168,9 +1184,15 @@ navigation_model_add_new_channel (NavModel * model, struct session *sess)
 void
 navigation_model_remove (NavModel * model, struct session *sess)
 {
-	GtkTreeIter *iter = navigation_model_get_unsorted_iter (model, sess);
+	GtkTreeIter*	iter = navigation_model_get_unsorted_iter (model, sess);
+	GtkTreePath*	path = gtk_tree_model_get_path (GTK_TREE_MODEL (model->store), &iter);
+
+	if (gtk_tree_path_get_depth (path) == 1)
+		model->servers--;
+
 	gtk_tree_store_remove (model->store, iter);
 
+	gtk_tree_path_free (path);
 	gtk_tree_iter_free (iter);
 }
 
