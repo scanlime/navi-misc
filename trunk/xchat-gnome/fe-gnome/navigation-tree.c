@@ -493,56 +493,54 @@ navigation_tree_select_next_channel (NavTree * navtree)
 	/* If a channel is currently selected... */
 	if (depth == 2) {
 		gint	channels = 0;
-		gchar**	split = g_strsplit (path_string, ":", -1);
+		gchar**	split = g_strsplit (path_string, ":", 2);
 
 		server_index = atoi (split[0]);
 		channel_index = atoi (split[1]);
 
-		g_free (path_string);
+		g_strfreev (split);
 
-		/* Find out how many channels are on this server. */
+		g_free (path_string);
 		path_string = g_strdup_printf ("%d", server_index);
 		gtk_tree_model_get_iter_from_string (model, &iter, path_string);
-		channels = gtk_tree_model_iter_n_children (model, &iter) - 1;
+		channels = gtk_tree_model_iter_n_children (model, &iter);
 
-		/* If the current channel is the last one on the server, channel
-		 * index becomes 0 because we want the first channel on the next
-		 * available server. Move server_index up one so that we don't
-		 * check the current server. Set depth to 1 so that it looks
-		 * like we had a server selected. If the current channel isn't
-		 * the last one, just increment it and be done.
-		 */
-		if (channel_index == channels) {
+		if (channel_index == channels - 1) {
 			channel_index = 0;
-			if (server_index < navtree->model->servers-1) {
-				server_index++;
-			} else {
+
+			if (++server_index >= navtree->model->servers) {
 				navigation_tree_select_nth_channel (navtree, 0);
+				g_free (path_string);
+				gtk_tree_path_free (path);
 				return;
 			}
+
 			depth = 1;
 		} else {
 			channel_index++;
-		}
 
-		g_strfreev (split);
+			g_free (path_string);
+			path_string = g_strdup_printf ("%d:%d", server_index, channel_index);
+
+			if (!gtk_tree_model_get_iter_from_string (model, &iter, path_string)) {
+				g_free (path_string);
+				gtk_tree_path_free (path);
+				return;
+			}
+		}
 	} else {
-		/* If a server is selected, just retrieve its index for now. */
 		server_index = atoi (path_string);
 	}
 
-	g_free (path_string);
-
-	/* If we need to move along the list of connected servers to find our
-	 * next channel...
-	 */
 	if (depth == 1) {
 		/* winner becomes true when we've found a server and channel to
 		 * select next.
 		 */
 		gboolean winner = FALSE;
 
+		g_free (path_string);
 		path_string = g_strdup_printf ("%d", server_index);
+
 		gtk_tree_model_get_iter_from_string (model, &iter, path_string);
 
 		/* Iterate over all the available servers until we find one with
@@ -565,17 +563,15 @@ navigation_tree_select_next_channel (NavTree * navtree)
 		/* If we reached the end of the list and didn't find a channel,
 		 * select the first visible channel.
 		 */
-		if (!winner) {
+		if (winner) {
+			g_free (path_string);
+			path_string = g_strdup_printf ("%d:%d", server_index, 0);
+			gtk_tree_model_get_iter_from_string (model, &iter, path_string);
+		} else {
 			navigation_tree_select_nth_channel (navtree, 0);
 			return;
 		}
-
-		g_free (path_string);
 	}
-
-	/* Get an iter and select it. */
-	path_string = g_strdup_printf ("%d:%d", server_index, channel_index);
-	gtk_tree_model_get_iter_from_string (model, &iter, path_string);
 
 	gtk_tree_selection_select_iter (selection, &iter);
 
