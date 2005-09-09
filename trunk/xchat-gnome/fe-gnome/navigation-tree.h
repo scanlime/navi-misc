@@ -42,17 +42,27 @@ typedef struct _NavModelClass NavModelClass;
 
 struct _NavTree
 {
-    GtkTreeView parent;
-    /* current_path stores a GtkTreePath to the most recently selected
-     * item in the NavTree.
-     */
-    GtkTreePath *current_path;
-    /* This is the model for the GtkTreeView. */
-    NavModel *model;
-    /* We need the handler id for the selection_changed call back so that we
-     * can block it sometimes.
-     */
-    gulong selection_changed_id;
+	GtkTreeView parent;
+
+	NavModel*		model;
+
+	/* current_path stores a GtkTreePath to the most recently selected
+	 * item in the NavTree.
+ 	 */
+	GtkTreePath*		current_path;
+
+	/* We need the handler id for the selection_changed call back so that we
+	 * can block it sometimes.
+	 */
+	gulong			selection_changed_id;
+
+	/* Store row references for the last server and the last channel in the
+	 * sorted model. It's cheaper to maintain these references than to
+	 * recalculate it everytime we're trying to wrap in
+	 * navigation_tree_prev_channel.
+	 */
+	GtkTreeRowReference*	last_server;
+	GtkTreeRowReference*	last_channel;
 };
 
 struct _NavTreeClass
@@ -103,14 +113,6 @@ struct _NavModel
      * store.
      */
     GHashTable*			session_rows;
-
-    /* Store row references for the last server and the last channel in the
-     * sorted model. It's cheaper to maintain these references than to
-     * recalculate it everytime we're trying to wrap in
-     * navigation_tree_prev_channel.
-     */
-    GtkTreeRowReference*	last_server;
-    GtkTreeRowReference*	last_channel;
 
     /* Number of servers we're connected to. */
     gint			servers;
