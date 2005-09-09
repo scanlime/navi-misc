@@ -3,7 +3,7 @@
 Map a sequence to a chaotic attractor and shuffle it.
 """
 
-import Motion
+import Motion, Numeric, math
 
 __all__ = ["Sequence"]
 
@@ -30,7 +30,7 @@ class Sequence:
 
     def _distance (self, x, y):
         """ Calculate the Euclidean distance between the points x and y. """
-        pass
+        return math.sqrt (Numeric.sum ((y - x)**2))
 
     def shuffle (self, ics):
         """ Takes a set of initial conditions (ics) and returns a new
