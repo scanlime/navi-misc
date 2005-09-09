@@ -64,7 +64,7 @@ class RK4( ODE ):
 
         return last + self.time.h/6.*(k1 + 2.*k2 + 2.*k3 + k4)
 
-    def __call__( self, withTime=False ):
+    def __call__( self, ics=None ):
         if withTime:
             result = [(self.time.time, self.initial)]
             for i in self.time:
