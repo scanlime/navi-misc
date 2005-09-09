@@ -15,10 +15,11 @@ class Sequence:
             solver and some motion capture data (data).
             """
         self.mapping = {}
+        self.ode = ode
 
         traj = ode ()
         step = len (traj) / len (data)
-        length = len (len) * step
+        length = len (data) * step
 
         # Map each frame evenly over the trajectory.
         for i in range (length):
@@ -32,14 +33,37 @@ class Sequence:
         """ Calculate the Euclidean distance between the points x and y. """
         return math.sqrt (Numeric.sum ((y - x)**2))
 
+    def _findNearest (self, point):
+        traj = self.mapping.keys ()
+        frames = self.mapping.items ()
+        dist = self._distance (traj[0], point)
+        winner = frames[0]
+
+        for i in range (1, len (traj)):
+            delta = self._distance (traj[i], point)
+            if delta < dist:
+                dist = delta
+                winner = frames[i]
+
+        return winner
+
     def shuffle (self, ics):
         """ Takes a set of initial conditions (ics) and returns a new
-            sequence object containing the shuffled dance.
+            dance sequence.
             """
-        pass
+        shuffled = []
+        traj = self.ode (ics)
+        step = len (traj) / len (self.mapping.keys ())
+        length = len (traj) * step
+
+        for i in range (length):
+            shuffled.append (self._findNearest (traj[i * step]))
+
+        return shuffled
 
     def save (self):
         """ Store the sequence to a file. """
+        # FIXME
         pass
 
 class _Frame:
