@@ -24,6 +24,14 @@ class Sequence:
         for i in range (length):
             self.mapping[traj[i * step]] = _Frame (i, data)
 
+    def __getitem__ (self, frame):
+        """ Use [] on a Sequence object to get a frame. """
+        return self.mapping.items () [frame]
+
+    def _distance (self, x, y):
+        """ Calculate the Euclidean distance between the points x and y. """
+        pass
+
     def shuffle (self, ics):
         """ Takes a set of initial conditions (ics) and returns a new
             sequence object containing the shuffled dance.
