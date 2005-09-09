@@ -57,6 +57,7 @@ static gboolean click (GtkWidget * widget, GdkEventButton * event, gpointer user
 static gboolean declick (GtkWidget * widget, GdkEventButton * event, gpointer user_data);
 static void navigation_selection_changed (GtkTreeSelection * treeselection, gpointer user_data);
 static void row_expanded (GtkTreeView * treeview, GtkTreeIter * iter, GtkTreePath * path, gpointer user_data);
+static void row_collapsed (GtkTreeView * treeview, GtkTreeIter * iter, GtkTreePath * path, gpointer user_data);
 static void on_server_information (GtkAction * action, gpointer data);
 static void on_server_reconnect (GtkAction * action, gpointer data);
 static void on_server_disconnect (GtkAction * action, gpointer data);
@@ -168,6 +169,7 @@ navigation_tree_init (NavTree * navtree)
 	/* Connect the callbacks. */
 	navtree->selection_changed_id = g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (navigation_selection_changed), NULL);
 	g_signal_connect (G_OBJECT (navtree), "row-expanded", G_CALLBACK (row_expanded), NULL);
+	g_signal_connect (G_OBJECT (navtree), "row-collapsed", G_CALLBACK (row_collapsed), NULL);
 	g_signal_connect (G_OBJECT (navtree), "button_press_event", G_CALLBACK (click), NULL);
 	g_signal_connect (G_OBJECT (navtree), "button_release_event", G_CALLBACK (declick), NULL);
 
@@ -1144,6 +1146,14 @@ row_expanded (GtkTreeView * treeview, GtkTreeIter * iter, GtkTreePath * path, gp
 		gtk_tree_selection_select_path (selection, NAVTREE (treeview)->current_path);
 		g_signal_handler_unblock ((gpointer) selection, NAVTREE (treeview)->selection_changed_id);
 	}
+
+	navigation_tree_update_refs (NAVTREE (treeview));
+}
+
+static void
+row_collapsed (GtkTreeView * treeview, GtkTreeIter * iter, GtkTreePath * path, gpointer user_data)
+{
+	navigation_tree_update_refs (NAVTREE (treeview));
 }
 
 
