@@ -1,15 +1,15 @@
 Index: configure.in
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/configure.in,v
-retrieving revision 1.82
-diff -u -r1.82 configure.in
---- configure.in	13 Jul 2005 06:44:31 -0000	1.82
-+++ configure.in	28 Aug 2005 03:03:43 -0000
+retrieving revision 1.85
+diff -u -r1.85 configure.in
+--- configure.in	10 Sep 2005 04:09:43 -0000	1.85
++++ configure.in	10 Sep 2005 22:02:31 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
  AM_CONFIG_HEADER(config.h)
--AM_INIT_AUTOMAKE(xchat, 2.4.4)
+-AM_INIT_AUTOMAKE(xchat, 2.4.5)
 +AM_INIT_AUTOMAKE(xchat-gnome, 0.6svn)
  AM_MAINTAINER_MODE
  AC_PROG_CC
@@ -92,12 +92,12 @@ diff -u -r1.82 configure.in
 -#		AC_MSG_RESULT(ok)
 -#	fi
 -#fi
-+AM_PATH_GTK_2_0(2.3.1, havenewgtk=yes, havenewgtk=no)
++AM_PATH_GTK_2_0(2.6.0, havenewgtk=yes, havenewgtk=no)
 +
 +if test "$havenewgtk" != yes; then
 +	gnomefe=no
 +	echo
-+	echo Cannot find GTK+ 2.3\! Not building GNOME FrontEnd.
++	echo Cannot find GTK+ 2.6\! Not building GNOME FrontEnd.
 +	echo
 +fi
 +
@@ -159,10 +159,10 @@ diff -u -r1.82 configure.in
 +	CFLAGS="$CFLAGS -pg"
 +fi
 +
- # does this compiler support -Wno-pointer-sign ?
+ dnl does this compiler support -Wno-pointer-sign ?
  AC_MSG_CHECKING([if gcc accepts -Wno-pointer-sign ])
  
-@@ -675,12 +724,16 @@
+@@ -699,12 +748,16 @@
  src/Makefile
  src/common/Makefile
  src/fe-text/Makefile
@@ -179,7 +179,7 @@ diff -u -r1.82 configure.in
  intl/Makefile
  po/Makefile.in
  ])
-@@ -688,10 +741,14 @@
+@@ -712,10 +765,14 @@
  echo
  echo xchat $VERSION
  echo
@@ -203,7 +203,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.4
 diff -u -r1.4 Makefile.am
 --- plugins/Makefile.am	13 Jan 2003 07:29:36 -0000	1.4
-+++ plugins/Makefile.am	28 Aug 2005 03:03:43 -0000
++++ plugins/Makefile.am	10 Sep 2005 22:02:31 -0000
 @@ -1,10 +1,10 @@
  # temp. solution while mailcheck & xdcc arn't in SUBDIRS
 -EXTRA_DIST = plugin20.html Make.plugin plugin-conf.in \
@@ -242,7 +242,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/mailcheck/Makefile.am,v
 retrieving revision 1.1
 diff -u -r1.1 Makefile.am
 --- plugins/mailcheck/Makefile.am	17 Dec 2002 15:36:39 -0000	1.1
-+++ plugins/mailcheck/Makefile.am	28 Aug 2005 03:03:43 -0000
++++ plugins/mailcheck/Makefile.am	10 Sep 2005 22:02:31 -0000
 @@ -10,7 +10,6 @@
  
  # This file must be in the form PLUGIN-config.h.in, it can be empty but
@@ -257,7 +257,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/perl/Makefile.am,v
 retrieving revision 1.10
 diff -u -r1.10 Makefile.am
 --- plugins/perl/Makefile.am	29 Mar 2005 05:11:50 -0000	1.10
-+++ plugins/perl/Makefile.am	28 Aug 2005 03:03:43 -0000
++++ plugins/perl/Makefile.am	10 Sep 2005 22:02:31 -0000
 @@ -1,5 +1,5 @@
  
 -EXTRA_DIST=alt_completion.pl ignore.pl sample_script.pl xchat2-perldocs.html xchat2-perl.html generate_header Xchat.pm IRC.pm makefile.msc
@@ -271,7 +271,7 @@ RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	28 Aug 2005 03:04:43 -0000
++++ src/Makefile.am	10 Sep 2005 22:03:39 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
@@ -288,7 +288,7 @@ RCS file: /cvsroot/xchat/xchat2/src/common/textevents.h,v
 retrieving revision 1.30
 diff -u -r1.30 textevents.h
 --- src/common/textevents.h	11 Jul 2005 07:03:53 -0000	1.30
-+++ src/common/textevents.h	28 Aug 2005 03:04:43 -0000
++++ src/common/textevents.h	10 Sep 2005 22:03:39 -0000
 @@ -3,214 +3,214 @@
  const struct text_event te[] = {
  
@@ -831,7 +831,7 @@ RCS file: /cvsroot/xchat/xchat2/src/common/textevents.in,v
 retrieving revision 1.29
 diff -u -r1.29 textevents.in
 --- src/common/textevents.in	11 Jul 2005 07:03:53 -0000	1.29
-+++ src/common/textevents.in	28 Aug 2005 03:04:43 -0000
++++ src/common/textevents.in	10 Sep 2005 22:03:39 -0000
 @@ -1,19 +1,19 @@
  Add Notify
  XP_TE_ADDNOTIFY
@@ -1742,7 +1742,7 @@ RCS file: /cvsroot/xchat/xchat2/src/pixmaps/Makefile.am,v
 retrieving revision 1.8
 diff -u -r1.8 Makefile.am
 --- src/pixmaps/Makefile.am	9 Jan 2003 06:22:30 -0000	1.8
-+++ src/pixmaps/Makefile.am	28 Aug 2005 03:04:43 -0000
++++ src/pixmaps/Makefile.am	10 Sep 2005 22:03:39 -0000
 @@ -14,5 +14,8 @@
  CLEANFILES = $(noinst_HEADERS)
  EXTRA_DIST = $(PNGS) makefile.msc
