@@ -68,7 +68,6 @@ static void on_edit_copy_activate (GtkAction *action, gpointer data);
 static void on_edit_paste_activate (GtkAction *action, gpointer data);
 static void on_edit_clear_activate (GtkAction *action, gpointer data);
 static void on_edit_preferences_activate (GtkAction *action, gpointer data);
-static void on_insert_color_code_activate (GtkAction *action, gpointer data);
 static void on_network_information_activate (GtkAction *action, gpointer data);
 static void on_network_reconnect_activate (GtkAction *action, gpointer data);
 static void on_network_disconnect_activate (GtkAction *action, gpointer data);
@@ -118,11 +117,7 @@ static GtkActionEntry action_entries [] = {
 	{ "PopupAction", NULL, _("") },
 
 	/* IRC menu */
-#if (GTK_CHECK_VERSION(2,5,0))
 	{ "IRCConnect", GTK_STOCK_CONNECT, _("_Connect"), "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
-#else
-	{ "IRCConnect", NULL, _("_Connect"), "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
-#endif
 	{ "IRCDownloads", NULL, _("_File Transfers"), "<alt>F", NULL, G_CALLBACK (on_irc_downloads_activate) },
 	{ "IRCQuit", GTK_STOCK_QUIT, _("_Quit"), "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
 
@@ -132,9 +127,6 @@ static GtkActionEntry action_entries [] = {
 	{ "EditPaste", GTK_STOCK_PASTE, _("_Paste"), "<control>V", NULL, G_CALLBACK (on_edit_paste_activate) },
 	{ "EditClear", GTK_STOCK_CLEAR, _("C_lear"), "", NULL, G_CALLBACK (on_edit_clear_activate) },
 	{ "EditPreferences", GTK_STOCK_PREFERENCES, _("Prefere_nces"), "", NULL, G_CALLBACK (on_edit_preferences_activate) },
-
-	/* Insert menu */
-	{ "InsertColorCode", GTK_STOCK_SELECT_COLOR, _("Color Code..."), "", NULL, G_CALLBACK (on_insert_color_code_activate) },
 
 	/* Network menu */
 	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, _("_Information"), "", NULL, G_CALLBACK (on_network_information_activate) },
@@ -586,8 +578,6 @@ run_main_window ()
 	gtk_widget_show (GTK_WIDGET (gui.main_window));
 
 	/* Temporarily disable menu items */
-	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/InsertMenu/InsertColorCodeItem");
-	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/NetworkMenu/NetworkInformationItem");
 	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/NetworkMenu/NetworkUsersItem");
@@ -674,12 +664,6 @@ on_edit_preferences_activate (GtkAction *action, gpointer data)
 	dialog = preferences_dialog_new ();
 	gtk_dialog_run (GTK_DIALOG (dialog));
 	gtk_widget_destroy (GTK_WIDGET (dialog));
-}
-
-static void
-on_insert_color_code_activate (GtkAction *action, gpointer data)
-{
-	/* FIXME: implement */
 }
 
 static void
