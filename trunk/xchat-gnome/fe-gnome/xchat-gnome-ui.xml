@@ -17,10 +17,6 @@
 			<menuitem name="EditPreferencesItem" action="EditPreferences"/>
 		</menu>
 
-		<menu name="InsertMenu" action="Insert">
-			<menuitem name="InsertColorCodeItem" action="InsertColorCode"/>
-		</menu>
-
 		<menu name="NetworkMenu" action="Network">
 			<menuitem name="NetworkInformationItem" action="NetworkInformation"/>
 			<separator name="NetworkSep0"/>
