@@ -46,7 +46,6 @@ static GtkActionEntry popup_action_entries [] = {
 	{ "UserlistKick",       NULL, _("_Kick"),         "",   NULL, G_CALLBACK (user_kick_activate) },
 	{ "UserlistBan",        NULL, _("_Ban"),          "",   NULL, G_CALLBACK (user_ban_activate) },
 	{ "UserlistIgnore",     NULL, _("Ignore"),        "",   NULL, G_CALLBACK (user_ignore_activate) },
-	{ NULL,                 NULL,                     NULL, NULL, NULL},
 };
 
 struct User *current_user;
