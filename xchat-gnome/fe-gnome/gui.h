@@ -40,7 +40,7 @@ typedef struct
 	GnomeApp *main_window;
 	GtkActionGroup *action_group;
 	GtkUIManager *manager;
-	GnomeAbout *about;
+	GtkWidget *about;
 	GtkXText *xtext;
 	DccWindow *dcc;
 #if (GTK_CHECK_VERSION(2,5,0))

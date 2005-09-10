@@ -1,5 +1,6 @@
 bin_PROGRAMS = xchat-gnome
 
+xchat_gnomedir = $(datadir)/xchat
 INCLUDES =					\
 	$(GUI_CFLAGS)				\
 	$(LIBSEXY_CFLAGS)			\
@@ -30,7 +31,6 @@ xchat_gnome_DATA =				\
 	topic-change.glade			\
 	xchat-gnome.glade			\
 	xchat-gnome-ui.xml
-xchat_gnomedir = $(datadir)/xchat
 
 install-data-local:
 	if test -z "$(DESTDIR)" ; then						\

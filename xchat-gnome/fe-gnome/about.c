@@ -43,23 +43,22 @@ initialize_about_dialog ()
 		"Rouslan Solomakhin",
 		NULL
 	};
-	const gchar *documentors[] =
-	{
-		NULL
-	};
+
+	if (gui.about != NULL)
+		return;
 
 	logo = gdk_pixbuf_new_from_file ("data/xchat-gnome-small.png", NULL);
 	if (!logo)
 		logo = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", NULL);
-	gui.about = GNOME_ABOUT (gnome_about_new(
-		"X-Chat GNOME",
-		VERSION,
-		_("Copyright © 2004-2005"),
-		_("It has been well observed that a trombone\nis not a suitable instrument for a gentleman"),
-		authors,
-		documentors,
-		"",
-		logo));
+
+	gui.about = gtk_about_dialog_new ();
+	gtk_about_dialog_set_name      (GTK_ABOUT_DIALOG (gui.about), "X-Chat GNOME");
+	gtk_about_dialog_set_version   (GTK_ABOUT_DIALOG (gui.about), VERSION);
+	gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (gui.about), _("Copyright © 2004-2005"));
+	gtk_about_dialog_set_comments  (GTK_ABOUT_DIALOG (gui.about), _("It has been well observed that a trombone is not a suitable instrument for a gentleman"));
+	gtk_about_dialog_set_website   (GTK_ABOUT_DIALOG (gui.about), "http://xchat-gnome.navi.cx");
+	gtk_about_dialog_set_authors   (GTK_ABOUT_DIALOG (gui.about), authors);
+	gtk_about_dialog_set_logo      (GTK_ABOUT_DIALOG (gui.about), logo);
 }
 
 void
@@ -67,10 +66,4 @@ show_about_dialog ()
 {
 	initialize_about_dialog ();
 	gtk_widget_show_all (GTK_WIDGET (gui.about));
-}
-
-void
-on_about_close (GtkWidget *widget, gpointer data)
-{
-	gtk_widget_hide_all (GTK_WIDGET (gui.about));
 }
