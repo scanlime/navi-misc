@@ -91,9 +91,7 @@ static void on_nickname_clicked (GtkButton *widget, gpointer user_data);
 
 static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *menu_vbox);
 
-#if (GTK_CHECK_VERSION(2,5,0))
 static void on_expand_topic (GtkExpander *expander, gpointer data);
-#endif
 
 static void on_text_entry_activate (GtkWidget *widget, gpointer data);
 static gboolean on_text_entry_key (GtkWidget *widget, GdkEventKey *key, gpointer data);
@@ -153,11 +151,7 @@ static GtkActionEntry action_entries [] = {
 	{ "GoNextDiscussion", GTK_STOCK_GO_FORWARD, _("_Next Discussion"), "<alt>Down", NULL, G_CALLBACK (on_go_next_discussion_activate) },
 
 	/* Help menu */
-#if (GTK_CHECK_VERSION(2,5,0))
 	{ "HelpAbout", GTK_STOCK_ABOUT, _("_About"), "", NULL, G_CALLBACK (on_help_about_activate) },
-#else
-	{ "HelpAbout", NULL, _("_About"), "", NULL, G_CALLBACK (on_help_about_activate) },
-#endif
 };
 
 /*
@@ -433,7 +427,7 @@ initialize_main_window ()
 	gtk_box_pack_start (GTK_BOX (topicbox), gui.topic_label, TRUE, TRUE, 0);
 	gtk_box_reorder_child (GTK_BOX (topicbox), gui.topic_label, 1);
 	gtk_label_set_selectable (GTK_LABEL (gui.topic_label), TRUE);
-#if (GTK_CHECK_VERSION(2,5,0))
+
 	gui.topic_expander = GTK_EXPANDER (gtk_expander_new (NULL));
 	gtk_widget_show (GTK_WIDGET (gui.topic_expander));
 	gtk_box_pack_start (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), FALSE, TRUE, 0);
@@ -442,9 +436,6 @@ initialize_main_window ()
 	gtk_expander_set_use_markup (gui.topic_expander, TRUE);
 	g_signal_connect (G_OBJECT (gui.topic_expander), "activate", G_CALLBACK (on_expand_topic), NULL);
 	gtk_label_set_ellipsize (GTK_LABEL (gui.topic_label), PANGO_ELLIPSIZE_END);
-#else
-	gtk_label_set_line_wrap (GTK_LABEL (gui.topic_label), TRUE);
-#endif
 
 	/* Hook up accelerators for pgup/pgdn */
 	{
@@ -1309,7 +1300,6 @@ entry_context (GtkEntry *entry, GtkMenu *menu, gpointer user_data)
 	gtk_widget_show_all (submenu);
 }
 
-#if (GTK_CHECK_VERSION(2,5,0))
 static void
 on_expand_topic (GtkExpander *expander, gpointer data)
 {
@@ -1321,4 +1311,3 @@ on_expand_topic (GtkExpander *expander, gpointer data)
 		gtk_label_set_line_wrap (GTK_LABEL (gui.topic_label), TRUE);
 	}
 }
-#endif

@@ -43,9 +43,7 @@ typedef struct
 	GtkWidget *about;
 	GtkXText *xtext;
 	DccWindow *dcc;
-#if (GTK_CHECK_VERSION(2,5,0))
 	GtkExpander *topic_expander;
-#endif
 	GtkWidget *topic_label;
 	GtkWidget *text_entry;
 	session *current_session;
