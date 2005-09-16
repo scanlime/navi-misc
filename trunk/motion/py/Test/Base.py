@@ -25,8 +25,6 @@ class Frontend:
     def main (self):
         """Run the tests specified on the command line."""
         self.loadTests ()
-        for suite in self.tests:
-            unittest.TextTestRunner (verbosity=3).run (suite)
 
     def loadTests (self):
         self.tests = []
@@ -34,6 +32,6 @@ class Frontend:
 
         for testname in sys.argv[1:]:
             print "Loading: test_" + testname
-            self.tests.append (loader.loadTestsFromModule ("test_"+testname))
+            unittest.TextTestRunner (verbosity=3).run (loader.loadTestsFromModule ("test_"+testname))
 
 # vim: ts=4:sw=4:et
