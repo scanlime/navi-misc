@@ -680,11 +680,12 @@ on_network_disconnect_activate (GtkAction *action, gpointer data)
 static void
 on_network_close_activate (GtkAction *actoin, gpointer data)
 {
+	GtkTreeIter parent, *iter;
 	session *sess = gui.current_session;
 	if (sess == NULL)
 		return;
 
-	GtkTreeIter parent, *iter = navigation_model_get_unsorted_iter (gui.tree_model, sess);
+	iter = navigation_model_get_unsorted_iter (gui.tree_model, sess);
 
 	sess->server->disconnect (sess, TRUE, -1);
 

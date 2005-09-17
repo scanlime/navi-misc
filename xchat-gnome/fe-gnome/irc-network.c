@@ -152,6 +152,7 @@ irc_network_save (IrcNetwork *network)
 	ircnet *net = network->net;
 	guint32 flags = 0;
 	GSList *s;
+	struct server *serv;
 
 	if (net == NULL) {
 		net = servlist_net_add (network->name, "", TRUE);
@@ -171,7 +172,7 @@ irc_network_save (IrcNetwork *network)
 	net->autojoin = g_strdup (network->autojoin);
 	net->encoding = g_strdup (encodings[network->encoding]);
 
-	struct server *serv = navigation_model_get_server (gui.tree_model, net);
+	serv = navigation_model_get_server (gui.tree_model, net);
 	if (serv)
 		server_set_encoding (serv, net->encoding);
 

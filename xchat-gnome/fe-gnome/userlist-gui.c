@@ -98,12 +98,13 @@ userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data)
 {
 	GtkTreePath *path;
 	GtkTreeSelection *select;
+	struct User *user;
 	if (!event)
 		return FALSE;
 
 	if (event->type == GDK_2BUTTON_PRESS) {
 		if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (view), event->x, event->y, &path, 0, 0, 0)) {
-			struct User *user = userlist_get_selected ();
+			user = userlist_get_selected ();
 			if (user != NULL)
 				user_cmd ("query", user->nick);
 			return TRUE;
@@ -117,9 +118,9 @@ userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data)
 			gtk_tree_selection_select_path (select, path);
 			gtk_tree_path_free (path);
 		}
-		struct User *u = userlist_get_selected ();
-		if (u != NULL)
-			userlist_context (view, u);
+		user = userlist_get_selected ();
+		if (user != NULL)
+			userlist_context (view, user);
 		return TRUE;
 	}
 	return FALSE;

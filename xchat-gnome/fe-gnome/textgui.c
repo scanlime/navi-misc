@@ -316,9 +316,12 @@ set_gui_topic (session *sess, char *topic)
 void
 clear_buffer (struct session *sess)
 {
+	session_gui *sgui;
+
 	if (sess == NULL)
 		return;
-	session_gui *sgui = (session_gui *) sess->gui;
+
+	sgui = (session_gui *) sess->gui;
 	gtk_xtext_clear (sgui->buffer);
 	gtk_xtext_refresh (gui.xtext, TRUE);
 }
