@@ -36,10 +36,10 @@
 #include "xg-plugin.h"
 #include "plugins.h"
 
-typedef int		(xchat_init_func)				(xchat_plugin *, char **, char **, char **, char *);
-typedef int		(xchat_deinit_func)			(xchat_plugin *);
-typedef void	(xchat_plugin_get_info)		(char **, char **, char **, char **);
-typedef int		(xchat_gnome_plugin_init)	(xchat_gnome_plugin *);
+typedef int  (xchat_init_func)         (xchat_plugin *, char **, char **, char **, char *);
+typedef int  (xchat_deinit_func)       (xchat_plugin *);
+typedef void (xchat_plugin_get_info)   (char **, char **, char **, char **);
+typedef int  (xchat_gnome_plugin_init) (xchat_gnome_plugin *);
 
 GSList *enabled_plugins;
 
@@ -102,7 +102,7 @@ char *
 load_plugin (session * sess, char *filename, char *arg)
 {
 	int len;
-	char *buf;
+	char *buf, *err;
 	void *handle;
 	gpointer xg_init_func;
 	xchat_gnome_plugin *pl;
@@ -118,7 +118,6 @@ load_plugin (session * sess, char *filename, char *arg)
 			((xchat_gnome_plugin_init *) xg_init_func) (pl);
 		}
 
-		char *err = NULL;
 		err = plugin_load (sess, filename, arg);
 
 		if (err != NULL)

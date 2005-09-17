@@ -32,7 +32,7 @@ static GSList *chanlists = NULL;
 static gboolean
 chanlist_filter (GtkTreeModel *model, GtkTreeIter *iter, channel_list_window *window)
 {
-	char *name, *topic;
+	char *name, *topic, *found_topic = NULL, *found_name = NULL;
 	int users;
 
 	/* FIXME */
@@ -56,8 +56,6 @@ chanlist_filter (GtkTreeModel *model, GtkTreeIter *iter, channel_list_window *wi
 
 	if ((window->text_filter == NULL) || (strlen (window->text_filter) == 0))
 		return FALSE;
-
-	char *found_topic = NULL, *found_name = NULL;
 
 	if (window->filter_topic)
 		found_topic = strcasestr (topic, window->text_filter);
@@ -239,6 +237,7 @@ create_channel_list (session *sess)
 	GtkSizeGroup *group;
 	GtkTreeSelection *select;
 	int width, height;
+	gchar *title;
 
 	if (sess == NULL)
 		return;
@@ -273,7 +272,7 @@ create_channel_list (session *sess)
 	}
 
 	widget = glade_xml_get_widget (win->xml, "window 1");
-	gchar *title = g_strdup_printf ("%s Channel List", server_get_network (sess->server, FALSE));
+	title = g_strdup_printf ("%s Channel List", server_get_network (sess->server, FALSE));
 	gtk_window_set_title (GTK_WINDOW (widget), title);
 	g_free (title);
 	g_signal_connect (G_OBJECT (widget), "delete-event", G_CALLBACK (chanlist_delete), win);
