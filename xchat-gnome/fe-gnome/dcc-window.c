@@ -30,6 +30,16 @@
 #include "dcc-window.h"
 #include "util.h"
 
+enum {
+	DCC_COLUMN,
+	INFO_COLUMN,
+	ICON_COLUMN,
+	DONE_COLUMN,
+	DONE_LABEL_COLUMN,
+	TIME_COLUMN,
+	N_COLUMNS
+};
+
 static GtkWindowClass *parent_class;
 
 static void
@@ -58,7 +68,7 @@ transfer_stop_clicked (GtkButton *button, DccWindow *window)
 	if (gtk_tree_selection_get_selected (selection, &model, &iter) == FALSE)
 		return;
 
-	gtk_tree_model_get (model, &iter, 0, &dcc, -1);
+	gtk_tree_model_get (model, &iter, DCC_COLUMN, &dcc, -1);
 	dcc_abort (dcc->serv->server_session, dcc);
 
 	gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
@@ -89,7 +99,7 @@ dcc_window_init (DccWindow *window)
 	gtk_widget_set_sensitive (window->stop_button, FALSE);
 	g_signal_connect (G_OBJECT (window->stop_button), "clicked", G_CALLBACK (transfer_stop_clicked), window);
 
-	window->transfer_store = gtk_list_store_new (6,
+	window->transfer_store = gtk_list_store_new (N_COLUMNS,
 		G_TYPE_POINTER,		/* DCC struct */
 		G_TYPE_STRING,		/* Info text */
 		GDK_TYPE_PIXBUF,	/* File icon */
@@ -112,20 +122,20 @@ dcc_window_init (DccWindow *window)
 
 	window->progress_cell = gtk_cell_renderer_progress_new ();
 	gtk_tree_view_column_pack_start (window->progress_column, window->progress_cell, TRUE);
-	gtk_tree_view_column_add_attribute (window->progress_column, window->progress_cell, "value", 3);
-	gtk_tree_view_column_add_attribute (window->progress_column, window->progress_cell, "text", 4);
+	gtk_tree_view_column_add_attribute (window->progress_column, window->progress_cell, "value", DONE_COLUMN);
+	gtk_tree_view_column_add_attribute (window->progress_column, window->progress_cell, "text", DONE_LABEL_COLUMN);
 
 	window->icon_cell = gtk_cell_renderer_pixbuf_new ();
 	gtk_tree_view_column_pack_start (window->info_column, window->icon_cell, FALSE);
-	gtk_tree_view_column_add_attribute (window->info_column, window->icon_cell, "pixbuf", 2);
+	gtk_tree_view_column_add_attribute (window->info_column, window->icon_cell, "pixbuf", ICON_COLUMN);
 
 	window->info_cell = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start (window->info_column, window->info_cell, TRUE);
-	gtk_tree_view_column_add_attribute (window->info_column, window->info_cell, "markup", 1);
+	gtk_tree_view_column_add_attribute (window->info_column, window->info_cell, "markup", INFO_COLUMN);
 
 	window->remaining_cell = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start (window->remaining_column, window->remaining_cell, TRUE);
-	gtk_tree_view_column_add_attribute (window->remaining_column, window->remaining_cell, "text", 5);
+	gtk_tree_view_column_add_attribute (window->remaining_column, window->remaining_cell, "text", TIME_COLUMN);
 
 	gtk_tree_view_column_set_title (window->progress_column, "%");
 	gtk_tree_view_column_set_title (window->info_column, "File");
@@ -239,7 +249,7 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 			dcc_get (dcc);
 
 			/* pop up transfers window if it isn't already shown */
-			gtk_window_present (window);
+			gtk_window_present (GTK_WINDOW (window));
 		} else {
 			dcc_abort (dcc->serv->server_session, dcc);
 		}
@@ -257,12 +267,12 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 
 	gtk_list_store_prepend (window->transfer_store, &iter);
 	gtk_list_store_set (window->transfer_store, &iter,
-			    0, dcc,
-			    1, info_text,
-			    2, NULL,
-			    3, done,
-			    4, done_text,
-			    5, "starting",
+			    DCC_COLUMN, dcc,
+			    INFO_COLUMN, info_text,
+			    ICON_COLUMN, NULL,
+			    DONE_COLUMN, done,
+			    DONE_LABEL_COLUMN, done_text,
+			    TIME_COLUMN, "starting",
 			    -1);
 
 	g_free (done_text);
@@ -278,16 +288,21 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 		do {
 			gpointer ptr;
 			gpointer icon;
-			gtk_tree_model_get (GTK_TREE_MODEL (window->transfer_store), &iter, 0, &ptr, 2, &icon, -1);
+			gtk_tree_model_get (GTK_TREE_MODEL (window->transfer_store), &iter, DCC_COLUMN, &ptr, ICON_COLUMN, &icon, -1);
 			if (ptr == dcc) {
 				gint done = (gint) ((((float)dcc->pos) / ((float) dcc->size)) * 100);
 				gchar *done_text = g_strdup_printf ("%d %%", done);
 				gchar *size = gnome_vfs_format_file_size_for_display (dcc->size);
 				gchar *pos = gnome_vfs_format_file_size_for_display (dcc->pos);
-				gchar *info_text = g_strdup_printf ("<b>%s</b>\n<small>from %s</small>\n%s of %s", dcc->file, dcc->nick, pos, size);
+				gchar *speed = gnome_vfs_format_file_size_for_display (dcc->cps);
+				gchar *info_text;
 				gchar *remaining_text;
+
+				info_text = g_strdup_printf ("<b>%s</b>\n<small>from %s</small>\n%s of %s at %s/s", dcc->file, dcc->nick, pos, size, speed);
+
 				g_free (size);
 				g_free (pos);
+				g_free (speed);
 
 				if (dcc->dccstat == 0) {
 					remaining_text = g_strdup ("queued");
@@ -313,10 +328,10 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 				}
 
 				gtk_list_store_set (window->transfer_store, &iter,
-						    1, info_text,
-						    3, done,
-						    4, done_text,
-						    5, remaining_text,
+						    INFO_COLUMN, info_text,
+						    DONE_COLUMN, done,
+						    DONE_LABEL_COLUMN, done_text,
+						    TIME_COLUMN, remaining_text,
 						    -1);
 				g_free (done_text);
 				g_free (info_text);
@@ -378,7 +393,7 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 
 					g_free (icon);
 
-					gtk_list_store_set (window->transfer_store, &iter, 2, file_icon, -1);
+					gtk_list_store_set (window->transfer_store, &iter, ICON_COLUMN, file_icon, -1);
 
 					gdk_pixbuf_unref (mime_pixbuf);
 					gdk_pixbuf_unref (file_icon);
@@ -407,7 +422,7 @@ dcc_window_remove (DccWindow *window, struct DCC *dcc)
 		return;
 	do {
 		gpointer ptr;
-		gtk_tree_model_get (GTK_TREE_MODEL (window->transfer_store), &iter, 0, &ptr, -1);
+		gtk_tree_model_get (GTK_TREE_MODEL (window->transfer_store), &iter, DCC_COLUMN, &ptr, -1);
 		if (ptr == dcc) {
 			gtk_list_store_remove (window->transfer_store, &iter);
 			break;
