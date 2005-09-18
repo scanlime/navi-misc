@@ -108,4 +108,12 @@
                 <menuitem name="TextEmailSend" action="TextEmailSend"/>
                 <menuitem name="TextEmailCopy" action="TextEmailCopy"/>
         </popup>
+
+	<popup name="DropFilePopup" action="PopupAction">
+		<menuitem name="DropSendFiles" action="DropSendFiles"/>
+		<menuitem name="DropPasteFile" action="DropPasteFile"/>
+		<menuitem name="DropPasteFileName" action="DropPasteFileName"/>
+		<separator name="DropSep1" />
+		<menuitem name="DropCancel" action="DropCancel"/>
+	</popup>
 </ui>
