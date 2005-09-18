@@ -42,15 +42,6 @@ class VertexArray(object):
        """
     def __init__(self, shape, format):
         super(VertexArray, self).__init__()
-
-        # glInterleavedArrays in PyOpenGL leaks memory, this is a workaround
-        try:
-            from numeric_gl import glInterleavedArrays
-            self.glInterleavedArrays = glInterleavedArrays
-        except ImportError:
-            raise Exception("Due to a bug in PyOpenGL, you must install the numeric_gl module from " +
-                            "http://py3d.org/files/numeric_gl.tar.gz")
-
         self.setupArrays(shape, format)
 
     def setupArrays(self, shape, format):
@@ -135,7 +126,7 @@ class VertexArray(object):
            """
         if GLExtension.multitexture:
             glClientActiveTextureARB(GL_TEXTURE0_ARB)
-        self.glInterleavedArrays(self.format, 0, self.interleaved)
+        glInterleavedArrays(self.format, 0, self.interleaved)
 
 
 class TriangleArray(VertexArray, GLDrawable):
