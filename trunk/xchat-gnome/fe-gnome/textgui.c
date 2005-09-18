@@ -25,6 +25,7 @@
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-url-label.h>
 #endif
+#include <libgnomevfs/gnome-vfs.h>
 
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
@@ -32,11 +33,14 @@
 #include "../common/userlist.h"
 #include "../common/fe.h"
 #include "../common/url.h"
+#include "../common/outbound.h"
 
 #include "textgui.h"
 #include "palette.h"
 #include "preferences.h"
 #include "userlist-gui.h"
+
+#define DROP_FILE_PASTE_MAX_SIZE 1024
 
 int check_word (GtkWidget *xtext, char *word, int len);
 void clicked_word (GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
@@ -47,8 +51,19 @@ static void open_url (GtkAction *action, gpointer data);
 static void copy_text (GtkAction *action, gpointer data);
 static void send_email (GtkAction *action, gpointer data);
 
+static void on_drop_send_files_activated (GtkAction *action, gpointer data);
+static void on_drop_paste_file_activated (GtkAction *action, gpointer data);
+static void on_drop_paste_filename_activated (GtkAction *action, gpointer data);
+static void on_drop_cancel_activated (GtkAction *action, gpointer data);
+
+static void drag_data_received (GtkWidget *widget, GdkDragContext *context,
+				gint x, gint y, GtkSelectionData *selection_data, guint info,
+				guint time, gpointer data);
+
+
 static GHashTable *notify_table;
 static gchar *selected_word = NULL;
+static GSList *dropped_files = NULL;
 
 static GtkActionEntry action_entries[] = {
 	/* URL Popup */
@@ -58,7 +73,33 @@ static GtkActionEntry action_entries[] = {
 	/* Email Popup */
 	{ "TextEmailSend", GNOME_STOCK_MAIL, N_("Se_nd Message To..."), NULL, NULL, G_CALLBACK (send_email) },
 	{ "TextEmailCopy", GTK_STOCK_COPY, N_("_Copy Address"), NULL, NULL, G_CALLBACK (copy_text) },
+
+	/* Drag and Drop File Popup */
+	{ "DropSendFiles", NULL, N_("_Send File"), NULL, NULL, G_CALLBACK (on_drop_send_files_activated) },
+	{ "DropPasteFile", NULL, N_("Paste File _Contents"), NULL, NULL, G_CALLBACK (on_drop_paste_file_activated) },
+	{ "DropPasteFileName", NULL, N_("Paste File_name"), NULL, NULL, G_CALLBACK (on_drop_paste_filename_activated) },
+	{ "DropCancel", NULL, N_("_Cancel"), NULL, NULL, G_CALLBACK (on_drop_cancel_activated) },
 };
+
+enum
+{
+	TARGET_URI_LIST,
+	TARGET_UTF8_STRING,
+	TARGET_TEXT,
+	TARGET_COMPOUND_TEXT,
+	TARGET_STRING,
+	TARGET_TEXT_PLAIN,
+};
+
+static GtkTargetEntry target_table[] = {
+	{ "text/uri-list",  0, TARGET_URI_LIST },
+	{ "UTF8_STRING",    0, TARGET_UTF8_STRING },
+	{ "COMPOUND_TEXT",  0, TARGET_COMPOUND_TEXT },
+	{ "TEXT",           0, TARGET_TEXT },
+	{ "STRING",         0, TARGET_STRING },
+	{ "text/plain",     0, TARGET_TEXT_PLAIN }
+};
+
 
 void
 initialize_text_gui ()
@@ -114,6 +155,10 @@ initialize_text_gui ()
 	gtk_xtext_set_font (GTK_XTEXT (gui.xtext), font);
 	g_object_unref (client);
 	g_free (font);
+
+	/* Setup drag and drop */
+	g_signal_connect (gui.xtext, "drag_data_received", G_CALLBACK (drag_data_received), NULL);
+	gtk_drag_dest_set (GTK_WIDGET (gui.xtext), GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP, target_table, G_N_ELEMENTS (target_table), GDK_ACTION_COPY | GDK_ACTION_ASK);
 
 	gtk_widget_show_all (GTK_WIDGET (gui.xtext));
 }
@@ -472,4 +517,234 @@ copy_text (GtkAction *action, gpointer data)
 static void
 send_email (GtkAction *action, gpointer data)
 {
+}
+
+static gboolean
+uri_is_text (gchar *uri)
+{
+	gchar *mime;
+	gboolean is_text = FALSE;
+
+	mime = gnome_vfs_get_mime_type (uri);
+	if (mime) {
+		is_text = g_str_has_prefix (mime, "text/");
+	       	g_free (mime);
+	}
+
+	return is_text;
+}
+
+static gboolean
+check_file_size (gchar *uri)
+{
+	GnomeVFSResult result;
+	GnomeVFSFileInfo *info;
+	gboolean file_size_ok = FALSE;
+
+	info = gnome_vfs_file_info_new ();
+	result = gnome_vfs_get_file_info (uri, info, GNOME_VFS_FILE_INFO_DEFAULT);
+
+	if (result == GNOME_VFS_OK) {
+		if (info->size <= DROP_FILE_PASTE_MAX_SIZE)
+			file_size_ok = TRUE;
+	} else {
+		g_printerr (_("Error get file information URI \"%s\": %s\n"), uri, gnome_vfs_result_to_string (result));
+	}
+
+	gnome_vfs_file_info_unref (info);
+	return file_size_ok;
+}
+
+static void
+free_dropped_files (void)
+{
+	if (dropped_files) {
+		g_slist_foreach (dropped_files, g_free, NULL);
+		g_slist_free (dropped_files);
+		dropped_files = NULL;
+	}
+}
+
+static void
+send_file (gpointer file, gpointer user_data)
+{
+	gchar *path;
+	GError *err = NULL;
+
+	path = g_filename_from_uri ((char*) file, NULL, &err);
+
+	if (err) {
+		g_printerr (_("Error converting URI \"%s\" into filename: %s\n"), (char*) file, err->message);
+		g_error_free (err);
+	} else {
+		dcc_send (gui.current_session, gui.current_session->channel, path, 0, FALSE);
+		g_free (path);
+	}
+}
+
+static void
+drop_send_files (void)
+{
+	g_return_if_fail (dropped_files != NULL);
+	g_slist_foreach (dropped_files, send_file, NULL);
+	free_dropped_files ();
+}
+
+static void
+drop_paste_file (void)
+{
+	GnomeVFSResult result;
+	gchar *contents, *uri;
+
+	g_return_if_fail (g_slist_length (dropped_files) == 1);
+
+	uri = dropped_files->data;
+	result = gnome_vfs_read_entire_file (uri, NULL, &contents);
+	if (result == GNOME_VFS_OK) {
+		if (gui.current_session != NULL)
+			handle_multiline (gui.current_session, (char *) contents, TRUE, FALSE);
+		g_free (contents);
+	} else {
+		g_printerr (_("Error reading file \"%s\": %s\n"), uri, gnome_vfs_result_to_string (result));
+	}
+
+	free_dropped_files ();
+}
+
+static void
+drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y, GtkSelectionData *selection_data, guint info, guint time, gpointer data)
+{
+	switch (info) {
+	case TARGET_TEXT:
+	case TARGET_STRING:
+	case TARGET_COMPOUND_TEXT:
+	case TARGET_UTF8_STRING:
+	case TARGET_TEXT_PLAIN:
+		{
+			gchar *txt;
+
+			txt = gtk_selection_data_get_text (selection_data);
+			if (gui.current_session != NULL)
+				handle_multiline (gui.current_session, txt, TRUE, FALSE);
+
+			g_free (txt);
+			break;
+		}
+
+	case TARGET_URI_LIST:
+		{
+			gchar *uri_list, **uris;
+			gint nb_uri;
+
+			if ((gui.current_session->type != SESS_CHANNEL) && (gui.current_session->type != SESS_DIALOG))
+				return;
+
+			if (selection_data->format != 8 || selection_data->length == 0) {
+				g_printerr (_("URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"), selection_data->format, selection_data->length);
+				return;
+			}
+
+			uri_list = g_strndup (selection_data->data, selection_data->length);
+			uris = g_strsplit (uri_list, "\r\n", 0);
+			g_free (uri_list);
+
+			free_dropped_files ();
+
+			for (nb_uri = 0; uris[nb_uri] && strlen (uris[nb_uri]) > 0; nb_uri++)
+				dropped_files = g_slist_prepend (dropped_files, uris[nb_uri]);
+			g_free (uris); /* String in uris will be freed in free_dropped_files */
+			dropped_files = g_slist_reverse (dropped_files);
+
+			if (context->action == GDK_ACTION_ASK) {
+				/* Display the context menu */
+				GtkWidget *menu, *entry;
+
+				menu = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup");
+				g_return_if_fail (menu != NULL);
+
+				/* Enable/Disable paste file content */
+				entry = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup/DropPasteFile");
+				g_return_if_fail (entry != NULL);
+				if ( nb_uri > 1 || !uri_is_text (dropped_files->data) || !check_file_size (dropped_files->data))
+					gtk_widget_set_sensitive (entry, FALSE);
+				else
+					gtk_widget_set_sensitive (entry, TRUE);
+
+				/* Enable/Disable send files */
+				entry = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup/DropSendFiles");
+				g_return_if_fail (entry != NULL);
+				if (gui.current_session->type == SESS_CHANNEL)
+					gtk_widget_set_sensitive (entry, FALSE);
+				else
+					gtk_widget_set_sensitive (entry, TRUE);
+
+				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 2, gtk_get_current_event_time ());
+			} else {
+				/* Do the default action */
+				if (gui.current_session->type == 2) {
+					/* Droped in a channel */
+					if (nb_uri == 1 && uri_is_text (dropped_files->data) && check_file_size (dropped_files->data))
+						drop_paste_file ();
+				} else {
+					/* Droped in a query */
+					if (nb_uri == 1 && uri_is_text (dropped_files->data) && check_file_size (dropped_files->data))
+						drop_paste_file ();
+					else
+						drop_send_files ();
+				}
+			}
+		}
+	}
+}
+
+static void
+on_drop_send_files_activated (GtkAction *action, gpointer data)
+{
+	/* Should be dropped in a query */
+	g_return_if_fail (gui.current_session->type == 3);
+
+	drop_send_files ();
+}
+
+static void
+on_drop_paste_file_activated (GtkAction *action, gpointer data)
+{
+	drop_paste_file ();
+}
+
+static void
+on_drop_paste_filename_activated (GtkAction *action, gpointer data)
+{
+	gchar *txt = NULL, *path, *tmp;
+	GSList *l;
+
+	g_return_if_fail (dropped_files != NULL);
+
+	for (l = dropped_files; l != NULL; l = g_slist_next (l)) {
+		path = g_filename_from_uri (l->data, NULL, NULL);
+		if (path == NULL) path = g_strdup (l->data);
+
+		if (txt == NULL) {
+			txt = g_strdup (path);
+		} else {
+			tmp = txt;
+			txt = g_strdup_printf ("%s %s", tmp, path);
+
+			g_free (tmp);
+		}
+
+		g_free (path);
+	}
+
+	if (gui.current_session != NULL)
+		handle_multiline (gui.current_session, txt, TRUE, FALSE);
+
+	g_free (txt);
+	free_dropped_files ();
+}
+
+static void
+on_drop_cancel_activated (GtkAction *action, gpointer data)
+{
+	free_dropped_files ();
 }
