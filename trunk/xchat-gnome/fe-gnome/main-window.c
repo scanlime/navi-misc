@@ -363,7 +363,7 @@ url_activated (GtkWidget *url_label, const char *url, gpointer data)
 void
 initialize_main_window ()
 {
-	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget;
+	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget, *button;
 	GError *error = NULL;
 
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
@@ -531,9 +531,10 @@ initialize_main_window ()
 	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (clear_find), NULL);
 	widget = glade_xml_get_widget (gui.xml, "find close button");
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (close_find_button), NULL);
-	
+
 	/* connect nickname button */
 	widget = glade_xml_get_widget (gui.xml, "nickname");
+	gtk_button_set_use_underline (GTK_BUTTON (widget), FALSE);
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (on_nickname_clicked), NULL);
 }
 
