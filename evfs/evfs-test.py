@@ -41,6 +41,9 @@ class DemoUI:
         return model
 
     def listener(self, event):
+        gtk.timeout_add(0, lambda: self.thunkedListener(event))
+
+    def thunkedListener(self, event):
         print event
 
         if event.dataType == evfs.METADATA:
