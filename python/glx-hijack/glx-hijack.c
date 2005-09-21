@@ -6,19 +6,31 @@
 
 void glXSwapBuffers(void *display, void *drawable) {
   static void (*orig)(void*, void*) = NULL;
-  static void *module;
-  static void *func;
+  static PyObject *module, *func, *result;
 
   if (!orig) {
     Py_Initialize();
     module = PyImport_ImportModule(getenv("PY_MODULE"));
-    printf("module: %p\n", module);
+    if (!module) {
+      PyErr_Print();
+      exit(1);
+    }
     func = PyObject_GetAttrString(module, "frame");
-    printf("func: %p\n", func);
+    if (!func) {
+      PyErr_Print();
+      exit(1);
+    }
+
     orig = dlsym(RTLD_NEXT, "glXSwapBuffers");
   }
 
-  Py_DECREF(PyObject_CallFunction(func, NULL));
+  result = PyObject_CallFunction(func, NULL);
+  if (!result) {
+    PyErr_Print();
+    exit(1);
+  }
+  Py_DECREF(result);
+
   orig(display, drawable);
 }
   
