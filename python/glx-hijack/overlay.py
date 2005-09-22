@@ -92,6 +92,8 @@ def frame():
     gl.glEnable(gl.GL_TEXTURE_2D)
 
 def viewport(x, y, width, height):
+    initted or soya.init(create_surface=0)
+
     if soya.get_screen_width() == width and soya.get_screen_height() == height:
         return
     try:
@@ -102,5 +104,3 @@ def viewport(x, y, width, height):
     assert soya.get_screen_height() == height
 
     initted or init()
-
-soya.init(create_surface=0)
