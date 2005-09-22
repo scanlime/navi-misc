@@ -1,12 +1,15 @@
-#define _GNU_SOURCE
+#include <Python.h>
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE  // RTLD_NEXT and other goodies
+#endif
+#include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <dlfcn.h>
-#include <Python.h>
 
 static PyObject *module = NULL;
 
-void init() {
+static void init() {
   Py_Initialize ();
   module = PyImport_ImportModule(getenv("PY_MODULE"));
   if (!module) {
