@@ -41,43 +41,45 @@ class BlueSmokeEmitter(soya.Smoke):
                      math.cos(self.t1)*r - r,
                      0)
 
-def soyaResolutionHack(width, height):
-    try:
-        soya.set_video(width, height, 0, 0)
-    except RuntimeError:
-        pass
-    assert soya.get_screen_width() == width
-    assert soya.get_screen_height() == height
+initted = False
+idler = None
+camera = None
 
-soya.init(create_surface=0)
-soyaResolutionHack(1280, 720)
-soya.path.append(os.getcwd())
+def init():
+    global initted
+    global idler
+    global camera
+    soya.path.append(os.getcwd())
 
-scene = soya.World()
-scene.atmosphere = soya.NoBackgroundAtmosphere()
+    scene = soya.World()
+    scene.atmosphere = soya.NoBackgroundAtmosphere()
 
-pudding.init()
-w = pudding.core.RootWidget()
+    pudding.init()
+    w = pudding.core.RootWidget()
 
-l = pudding.control.SimpleLabel(w)
-l.font = soya.Font("geodesic.ttf", 100, 100)
-l.label = "wasabi"
-l.update()
-l.left = (w.width - l.width) / 2
-l.top = w.height / 4 - l.height / 2
-print l.top, l.left
+    l = pudding.control.SimpleLabel(w)
+    l.font = soya.Font("geodesic.ttf", 100, 100)
+    l.label = "wasabi"
+    l.update()
+    l.left = (w.width - l.width) / 2
+    l.top = w.height / 4 - l.height / 2
+    print l.top, l.left
 
-particles = BlueSmokeEmitter(scene)
+    particles = BlueSmokeEmitter(scene)
 
-light = soya.Light(scene)
-light.set_xyz(0.5, 0.0, 2.0)
+    light = soya.Light(scene)
+    light.set_xyz(0.5, 0.0, 2.0)
 
-camera = soya.Camera(scene)
-camera.z = 10.0
-w.add_child(camera)
+    camera = soya.Camera(scene)
+    camera.z = 10.0
+    w.add_child(camera)
 
-idler = soya.Idler(scene)
+    idler = soya.Idler(scene)
+    initted = True
+
 def frame():
+    if not initted:
+        return
     idler.begin_round()
     idler.advance_time(1.0)
     idler.end_round()
@@ -89,3 +91,16 @@ def frame():
 
     gl.glEnable(gl.GL_TEXTURE_2D)
 
+def viewport(x, y, width, height):
+    if soya.get_screen_width() == width and soya.get_screen_height() == height:
+        return
+    try:
+        soya.set_video(width, height, 0, 0)
+    except RuntimeError:
+        pass
+    assert soya.get_screen_width() == width
+    assert soya.get_screen_height() == height
+
+    initted or init()
+
+soya.init(create_surface=0)
