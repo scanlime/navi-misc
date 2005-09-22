@@ -7,64 +7,45 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static PyObject *module = NULL;
+static PyObject *py_module, *py_frame, *py_viewport;
+static void (*glXSwapBuffers_p)(void*, void*) = NULL;
+static void (*glViewport_p)(int, int, int, int) = NULL;
 
-static void init() {
+static void handle_py_error() {
+  PyErr_Print();
+  exit(1);
+}
+
+static void __attribute__ ((constructor)) init() {
   Py_Initialize ();
-  module = PyImport_ImportModule(getenv("PY_MODULE"));
-  if (!module) {
-    PyErr_Print();
-    exit(1);
-  }
+
+  py_module = PyImport_ImportModule(getenv("PY_MODULE"));
+  if (!py_module) handle_py_error();
+
+  py_frame = PyObject_GetAttrString(py_module, "frame");
+  if (!py_frame) handle_py_error();
+
+  py_viewport = PyObject_GetAttrString(py_module, "viewport");
+  if (!py_viewport) handle_py_error();
+
+  glXSwapBuffers_p = dlsym(RTLD_NEXT, "glXSwapBuffers");
+  glViewport_p = dlsym(RTLD_NEXT, "glViewport");
 }
 
 void glXSwapBuffers(void *display, void *drawable) {
-  static void (*orig)(void*, void*) = NULL;
-  static PyObject *func, *result;
-
-  if (!orig) {
-    if (!module)
-      init ();
-    func = PyObject_GetAttrString(module, "frame");
-    if (!func) {
-      PyErr_Print();
-      exit(1);
-    }
-
-    orig = dlsym(RTLD_NEXT, "glXSwapBuffers");
-  }
-
-  result = PyObject_CallFunction(func, NULL);
-  if (!result) {
-    PyErr_Print();
-    exit(1);
-  }
+  PyObject *result = PyObject_CallFunction(py_frame, NULL);
+  if (!result) handle_py_error();
   Py_DECREF(result);
 
-  orig(display, drawable);
+  glXSwapBuffers_p(display, drawable);
 }
 
 void glViewport(int x, int y, int width, int height) {
-  static void (*orig)(int, int, int, int) = NULL;
-  static PyObject *func, *result;
+  PyObject *result;
 
-  if (!orig) {
-    if (!module)
-      init ();
-    func = PyObject_GetAttrString(module, "viewport");
-    if (!func) {
-      PyErr_Print();
-      exit(1);
-    }
-    orig = dlsym(RTLD_NEXT, "glViewport");
-  }
+  glViewport_p(x, y, width, height);
 
-  orig(x, y, width, height);
-
-  result = PyObject_CallFunction(func, "iiii", x, y, width, height);
-  if (!result) {
-    PyErr_Print();
-    exit(1);
-  }
+  result = PyObject_CallFunction(py_viewport, "iiii", x, y, width, height);
+  if (!result) handle_py_error();
   Py_DECREF(result);
 }
