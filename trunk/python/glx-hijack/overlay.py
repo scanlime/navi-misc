@@ -84,12 +84,19 @@ def frame():
     idler.advance_time(1.0)
     idler.end_round()
 
-    gl.glDisable(gl.GL_BLEND)
-    gl.glDisable(gl.GL_TEXTURE_2D)
+    # Clean out the OpenGL state, disable everything the app enabled
+    for capability, enabled in gl_enabled.iteritems():
+        if enabled:
+            gl.glDisable(capability)
 
     camera.render()
 
-    gl.glEnable(gl.GL_TEXTURE_2D)
+    # Put the GL state back the way we found it
+    for capability, enabled in gl_enabled.iteritems():
+        if enabled:
+            gl.glEnable(capability)
+        else:
+            gl.glDisable(capability)
 
 def viewport(x, y, width, height):
     initted or soya.init(create_surface=0)
