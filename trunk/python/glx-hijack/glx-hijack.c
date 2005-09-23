@@ -9,13 +9,31 @@
 
 static PyObject *py_module, *py_frame, *py_viewport;
 static PyObject *py_gl_enabled, *py_gl_textures;
+
+/* All OpenGL state tracking gets disabled when we enter Python
+ * code, so we can be sure we're only tracking the target app
+ * and not ourselves.
+ */
 static int enable_state_tracker = 1;
+
+/* Pointers to the original functions, for those we override here */
+static void* (*dlsym_p)(void*, __const char*) = NULL;
+static void* (*glXGetProcAddress_p)(char *) = NULL;
+static void* (*glXGetProcAddressARB_p)(char *) = NULL;
 static void (*glXSwapBuffers_p)(void*, void*) = NULL;
 static void (*glViewport_p)(int, int, int, int) = NULL;
 static void (*glEnable_p)(int) = NULL;
 static void (*glDisable_p)(int) = NULL;
 static void (*glBindTexture_p)(int, int) = NULL;
 
+/* A macro to resolve one of the above original symbols at runtime */
+#define RESOLVE(sym) \
+  do { \
+    if (!sym ## _p) \
+      sym ## _p = dlsym_p(RTLD_NEXT, #sym); \
+  } while (0);
+
+/* Die gracelessly (but with a traceback) if any Python exception is caught */
 static void handle_py_error() {
   PyErr_Print();
   exit(1);
@@ -30,6 +48,13 @@ static void handle_py_error() {
  * lazily, since libGL might not be loaded at this point.
  */
 static void __attribute__ ((constructor)) init() {
+  /* Absolutely the first thing we do must be retrieving
+   * a pointer to the real dlsym(). This presents a chicken-and-egg
+   * problem- we get around that by looking up dlsym() using
+   * dlvsym() instead.
+   */
+  dlsym_p = dlvsym(RTLD_NEXT, "dlsym", "GLIBC_2.0");
+
   Py_Initialize ();
 
   py_module = PyImport_ImportModule(getenv("PY_MODULE"));
@@ -56,6 +81,24 @@ static void __attribute__ ((constructor)) init() {
     handle_py_error();
 }
 
+/* Any time the target application uses dlsym(), glXGetProcAddress(),
+ * or glXGetProcAddressARB() we want to be able to override the resulting
+ * symbol with one of ours dynamically. Returns a non-NULL pointer to
+ * override the address of the specified symbol.
+ */
+static void *check_dynamic_symbol(const char *name) {
+  /* Don't even try to look up non-OpenGL symbols.
+   * When we search our own symbol namespace below,
+   * we're searching a lot of libraries other than this
+   * one and OpenGL: this can really screw up an
+   * app's plugin loader, for example.
+   */
+  if (name[0] != 'g' || name[1] != 'l')
+    return NULL;
+
+  return dlsym_p(RTLD_DEFAULT, name);
+}
+
 void glXSwapBuffers(void *display, void *drawable) {
   PyObject *result;
 
@@ -67,16 +110,14 @@ void glXSwapBuffers(void *display, void *drawable) {
     Py_DECREF(result);
   }
 
-  if (!glXSwapBuffers_p)
-    glXSwapBuffers_p = dlsym(RTLD_NEXT, "glXSwapBuffers");
+  RESOLVE(glXSwapBuffers);
   glXSwapBuffers_p(display, drawable);
 }
 
 void glEnable(int cap) {
   PyObject *py_cap;
 
-  if (!glEnable_p)
-    glEnable_p = dlsym(RTLD_NEXT, "glEnable");
+  RESOLVE(glEnable);
   glEnable_p(cap);
 
   if (enable_state_tracker) {
@@ -89,8 +130,7 @@ void glEnable(int cap) {
 void glDisable(int cap) {
   PyObject *py_cap;
 
-  if (!glDisable_p)
-    glDisable_p = dlsym(RTLD_NEXT, "glDisable");
+  RESOLVE(glDisable);
   glDisable_p(cap);
 
   if (enable_state_tracker) {
@@ -103,8 +143,7 @@ void glDisable(int cap) {
 void glViewport(int x, int y, int width, int height) {
   PyObject *result;
 
-  if (!glViewport_p)
-    glViewport_p = dlsym(RTLD_NEXT, "glViewport");
+  RESOLVE(glViewport);
   glViewport_p(x, y, width, height);
 
   if (enable_state_tracker) {
@@ -119,11 +158,8 @@ void glViewport(int x, int y, int width, int height) {
 void glBindTexture(int target, int texture) {
   PyObject *py_target, *py_texture;
 
-  if (!glBindTexture_p)
-    glBindTexture_p = dlsym(RTLD_NEXT, "glBindTexture");
+  RESOLVE(glBindTexture);
   glBindTexture_p(target, texture);
-
-  //fprintf(stderr, "glBindTexture(%d, %d) tracker:%d\n", target, texture, enable_state_tracker);
 
   if (enable_state_tracker) {
     py_target = PyInt_FromLong(target);
@@ -135,6 +171,28 @@ void glBindTexture(int target, int texture) {
 }
 
 void glBindTextureEXT(int target, int texture) {
-  fprintf(stderr, "glBindTextureEXT\n");
   glBindTexture(target, texture);
+}
+
+void *dlsym (void *__restrict handle, __const char *__restrict name) {
+  void *override = check_dynamic_symbol(name);
+  if (override)
+    return override;
+  return dlsym_p(handle, name);
+}
+
+void *glXGetProcAddress(char *name) {
+  void *override = check_dynamic_symbol(name);
+  if (override)
+    return override;
+  RESOLVE(glXGetProcAddress);
+  return glXGetProcAddress_p(name);
+}
+
+void *glXGetProcAddressARB(char *name) {
+  void *override = check_dynamic_symbol(name);
+  if (override)
+    return override;
+  RESOLVE(glXGetProcAddressARB);
+  return glXGetProcAddressARB_p(name);
 }
