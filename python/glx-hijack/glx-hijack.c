@@ -26,11 +26,23 @@ static void (*glEnable_p)(int) = NULL;
 static void (*glDisable_p)(int) = NULL;
 static void (*glBindTexture_p)(int, int) = NULL;
 
+/* A macro to resolve dlsym() itself at runtime. To avoid the
+ * chicken-and-egg problem, this reads dlsym() as a versioned symbol
+ * rather than a regular one.
+ */
+#define RESOLVE_DLSYM() \
+  do { \
+    if (!dlsym_p) \
+      dlsym_p = dlvsym(RTLD_NEXT, "dlsym", "GLIBC_2.0"); \
+  } while (0);
+
 /* A macro to resolve one of the above original symbols at runtime */
 #define RESOLVE(sym) \
   do { \
-    if (!sym ## _p) \
+    if (!sym ## _p) { \
+      RESOLVE_DLSYM(); \
       sym ## _p = dlsym_p(RTLD_NEXT, #sym); \
+    } \
   } while (0);
 
 /* Die gracelessly (but with a traceback) if any Python exception is caught */
@@ -48,13 +60,6 @@ static void handle_py_error() {
  * lazily, since libGL might not be loaded at this point.
  */
 static void __attribute__ ((constructor)) init() {
-  /* Absolutely the first thing we do must be retrieving
-   * a pointer to the real dlsym(). This presents a chicken-and-egg
-   * problem- we get around that by looking up dlsym() using
-   * dlvsym() instead.
-   */
-  dlsym_p = dlvsym(RTLD_NEXT, "dlsym", "GLIBC_2.0");
-
   Py_Initialize ();
 
   py_module = PyImport_ImportModule(getenv("PY_MODULE"));
@@ -96,6 +101,7 @@ static void *check_dynamic_symbol(const char *name) {
   if (name[0] != 'g' || name[1] != 'l')
     return NULL;
 
+  RESOLVE_DLSYM();
   return dlsym_p(RTLD_DEFAULT, name);
 }
 
@@ -178,6 +184,7 @@ void *dlsym (void *__restrict handle, __const char *__restrict name) {
   void *override = check_dynamic_symbol(name);
   if (override)
     return override;
+  RESOLVE_DLSYM();
   return dlsym_p(handle, name);
 }
 
