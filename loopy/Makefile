@@ -1,2 +1,3 @@
-glx-hijack.so: glx-hijack.c
-	gcc -o $@ $< -fPIC -shared -lpython2.4 -I/usr/include/python2.4
+# For convenience during development: This makefile just invokes distutils.
+all:
+	python setup.py build_ext --inplace
