@@ -32,17 +32,17 @@ Library for Earth System Education, http://preview.dlese.org/). DLESE has a
 pilot website for the digital teaching boxes found at http://teachingboxes.org/.
 
 One of the primary issues surrounding the design of digital teaching boxes is
-ease of implementation.  Although a teacher may have a clear lesson plan, making
-this lesson and related materials available online has thus far been something
-of a challenge.  At the present time, the teacher creates the teaching box in
+ease of creation.  Although a teacher may have a clear lesson plan, making this
+lesson and related materials available on-line has thus far been something of a
+challenge.  At the present time, the teacher creates the teaching box in
 Microsoft Word using a template and then sends Word document to an intermediary.
-The intermediary then generates HTML from the word Document and uploads the
-teaching box to the webserver. Similarly, modifying a teaching box can not be
-done directly. A teacher must send the changes to someone who can propogate the
+The intermediary then generates HTML from the Word document and uploads the
+teaching box to the web-server. Similarly, modifying a teaching box can not be
+done directly. A teacher must send the changes to someone who can propagate the
 changes to the teaching box on the website.
 
 We propose to implement a user-friendly, flexible way to allow teachers to
-create teaching boxes and modify them directly. Utilising a template provided on
+create teaching boxes and modify them directly. Utilizing a template provided on
 the website, teachers will be able to create brand new teaching boxes that will
 be immediately available to other users. It will be possible to store partially
 created lessons for completion at a later time, and to modify existing teaching
@@ -52,6 +52,7 @@ process clear to new users without bogging down expert users.
 \section{References}
 
 \section{Technical Approach}
+
 Our first step in designing this user interface will be interviewing teachers so
 that we will have data from which we can create user tasks. The tasks will be
 used throughout the development process to generate and evaluate prototypes. We
@@ -72,32 +73,35 @@ feedback to fix our design, but also to suggest further work on this project
 once our part has ended.
 
 \section{Implementation}
-The implementation of the high-fidelity interface will be done primarily in
-HTML, as the project's aim is to be completely web-based.  We intend to
-implement a robust, dynamic, and easy-to-use interface that will run on any
-standard web-browser.  The design may also include the use of JavaScript or
-another language such as PHP, depending on the level of dynamic content needed
-and the features supported by the underlying web server.
+The implementation of the high-fidelity interface will be done primarily in HTML
+because the teaching boxes are a web-based resource.  We intend to implement a
+robust, dynamic, and easy-to-use interface that will run on any standard
+web-browser.  The design may also include the use of JavaScript or another
+language such as PHP, depending on the level of dynamic content needed and the
+features supported by the underlying web-server.
 
 \section{Evaluation Plan}
-We are planning on three different kinds of evaluations throughout the life
-of the project.  The first kind will occur periodically durring the low-%
-fidelity and high-fidelity design phases, and consists of individual
-cognitive walkthroughs, as well as informal design reviews.
+We are planning on three different phases of evaluation throughout the life of
+the project. First, the low-fidelity and high-Fidelity prototypes will be
+constantly evaluated by the team using cognitive walkthroughs. The walkthroughs
+will provide us with a means to start improving the design early in the
+project's life. Periodic, informal design reviews will also be used to
+supplement the cognitive walkthroughs.
 
-The second kind of evaluations will occur during the high-fidelity design phase.
-This will involve the class in a more formal cognitive walkthrough in which
-we take some time, either before or during class, to involve some students who
-are not directly connected with our project, but are aware of the walkthrough
-system, to evaluate our design.
+The second evaluation phase will occur during the high-fidelity design phase.
+In addition to the cognitive walkthroughs performed by the team, the
+high-fidelity prototype will be put through a formal cognitive walkthrough by
+our classmates in CSCI 4838. This evaluation will provide us with feedback from
+people who are already familiar with the evaluation process, but are detached
+from the project itself.
 
-Once these walkthroughs are complete and once the high-fidelity design is
-done and implemented, we will begin formal user testing with teachers.  This
-testing will be done either before or after class for the teachers.  We plan
-to give then some time to play with the program and get a feel for how it works.
-We will ask them either to take notes or to comment on their experiences using
-a survey.  From the comments we receive from this test, we will be able to
-make our final changes to complete the project.
+Finally, once the interface is complete, we will begin formal user testing with
+teachers. The teachers will be asked to use the interface to create a new
+teaching box. Feedback from the teachers regarding their experience will be
+provided either with notes the teachers make while they are creating the box, or
+with a survey the teachers take upon completing the box. From the comments we
+receive from this test, we will be able to make our final changes to complete
+the project.
 
 \section{Schedule}
 \begin{tabular}[!h]{rl}
@@ -149,9 +153,10 @@ have to suffice.
 
 Finally, we do not know what restrictions will be placed on our project by the
 web-server that the teaching boxes website is already running on. Though it is
-our intention to use Javascript for the implementation, that may not be possible
+our intention to use JavaScript for the implementation, that may not be possible
 on the current web-server. Our implementation could be limited by the resources
 available on the web-server.
+
 \end{document}
 
 % vim: ts=4:sw=4
