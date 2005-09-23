@@ -5,12 +5,9 @@
  * This compiles to a shared object which can be loaded into
  * arbitrary OpenGL applications using LD_PRELOAD. It then
  * embeds a Python interpreter into the target process' address
- * space. The PYTHONPATH and LOOPY_MODULE environment variables
- * are used to locate a Python module containing the new code
- * to inject.
- *
- * This Python module will be able to import a "loopy" module
- * containing an interface for our OpenGL hooks and state tracking.
+ * space and runs a file named by the LOOPY_MAIN enviornment
+ * variable. This file can use the "loopy" built-in module to
+ * set up hooks invoked by the target application.
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -36,14 +33,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static PyObject *py_module, *py_frame, *py_viewport;
-static PyObject *py_gl_enabled, *py_gl_textures;
+/* Our 'loopy' extension module */
+static PyObject *loopy_module;
+
+/* Python hook functions, NULL if disabled */
+static PyObject *pyhook_frame = NULL;
+static PyObject *pyhook_viewport = NULL;
+
+/* Python dictionaries tracking OpenGL state */
+static PyObject *glstate_enabled;
+static PyObject *glstate_textures;
 
 /* All OpenGL state tracking gets disabled when we enter Python
  * code, so we can be sure we're only tracking the target app
  * and not ourselves.
  */
 static int enable_state_tracker = 1;
+
+static void *check_dynamic_symbol(const char *name);
+PyMODINIT_FUNC initloopy(void);
 
 /* Pointers to the original functions, for those we override here */
 static void* (*dlsym_p)(void*, __const char*) = NULL;
@@ -54,6 +62,10 @@ static void (*glViewport_p)(int, int, int, int) = NULL;
 static void (*glEnable_p)(int) = NULL;
 static void (*glDisable_p)(int) = NULL;
 static void (*glBindTexture_p)(int, int) = NULL;
+
+/************************************************************************/
+/********************************************** Dynamic Linker Mojo *****/
+/************************************************************************/
 
 /* A macro to resolve dlsym() itself at runtime. To avoid the
  * chicken-and-egg problem, this reads dlsym() as a versioned symbol
@@ -74,44 +86,61 @@ static void (*glBindTexture_p)(int, int) = NULL;
     } \
   } while (0);
 
-/* Die gracelessly (but with a traceback) if any Python exception is caught */
+/* 
+ * Handle python errors we can't pass back to the user module.
+ * This includes errors importing the user module, and errors
+ * in running hook functions.
+ */
 static void handle_py_error() {
   PyErr_Print();
   exit(1);
 }
 
-/* Load the Python module ASAP, so we're in as stable
- * a state as possible when we do so. This also catches
- * common Python problems before we bother letting the
- * original app initialize.
- *
- * Unfortunately we still have to do symbol resolution
- * lazily, since libGL might not be loaded at this point.
+/*
+ * This initialization function is called by the dynamic
+ * linker- if we aren't already running inside python,
+ * this sets up the interpreter and our extension module.
  */
 static void __attribute__ ((constructor)) init() {
-  Py_Initialize ();
+  char *main_filename;
+  FILE *main_file;
 
-  py_module = PyImport_ImportModule(getenv("PY_MODULE"));
-  if (!py_module) handle_py_error();
+  if (Py_IsInitialized())
+    return;
 
-  py_frame = PyObject_GetAttrString(py_module, "frame");
-  if (!py_frame) handle_py_error();
+  main_filename = getenv("LOOPY_MAIN");
+  if (!main_filename) {
+    fprintf(stderr,
+	    "You must set the LOOPY_MAIN environment variable\n"
+	    "to the name of a Python file to run within the target\n"
+	    "process.\n");
+    exit(1);
+  }
+  
+  main_file = fopen(main_filename, "r");
+  if (!main_file) {
+    perror(main_filename);
+    exit(1);
+  }
 
-  py_viewport = PyObject_GetAttrString(py_module, "viewport");
-  if (!py_viewport) handle_py_error();
-
-  /* We keep a dictionary that tracks OpenGL capabilities.
-   * glEnable() sets a capability to True, glDisable() sets it to
-   * False. The Python code can use this to clean up the OpenGL
-   * state before rendering, then safely put back anything it changed.
+  /* In Python 2.4 or later, we can use Py_InitializeEx() to
+   * skip installing signal handlers- this lets us ctrl-C
+   * the target app cleanly. If we don't have Python 2.4,
+   * no big deal.
    */
-  py_gl_enabled = PyDict_New();
-  if (PyModule_AddObject(py_module, "gl_enabled", py_gl_enabled) == -1)
-    handle_py_error();
+#if (PY_VERSION_HEX >= 0x02040000)
+  Py_InitializeEx(0);
+#else
+  Py_Initialize();
+#endif
 
-  /* This is an analogous dictionary for texture bindings */
-  py_gl_textures = PyDict_New();
-  if (PyModule_AddObject(py_module, "gl_textures", py_gl_textures) == -1)
+  /* Create the extension module */
+  initloopy();
+
+  /* Run the user module. It should exit after setting up hook functions
+   * we'll call later as the target application runs.
+   */
+  if (PyRun_SimpleFile(main_file, main_filename) < 0)
     handle_py_error();
 }
 
@@ -134,12 +163,47 @@ static void *check_dynamic_symbol(const char *name) {
   return dlsym_p(RTLD_DEFAULT, name);
 }
 
+/************************************************************************/
+/******************************************* Python Built-in Module *****/
+/************************************************************************/
+
+static PyMethodDef LoopyMethods[] = {
+  {NULL, NULL, 0, NULL}
+};
+
+/*
+ * Initialize the 'loopy' extension module. This is normally called
+ * internally for the Python interpreter we embed in the target app,
+ * but this library can also be used as a normal extension module for
+ * testing purposes.
+ */
+PyMODINIT_FUNC initloopy(void)
+{
+  loopy_module = Py_InitModule("loopy", LoopyMethods);
+
+  /* We keep a dictionary that tracks OpenGL capabilities.
+   * glEnable() sets a capability to True, glDisable() sets it to
+   * False. The Python code can use this to clean up the OpenGL
+   * state before rendering, then safely put back anything it changed.
+   */
+  glstate_enabled = PyDict_New();
+  PyModule_AddObject(loopy_module, "_glstate_enabled", glstate_enabled);
+
+  /* This is an analogous dictionary for texture bindings */
+  glstate_textures = PyDict_New();
+  PyModule_AddObject(loopy_module, "_glstate_textures", glstate_textures);
+}
+
+/************************************************************************/
+/*********************************************** Override Functions *****/
+/************************************************************************/
+
 void glXSwapBuffers(void *display, void *drawable) {
   PyObject *result;
 
-  if (enable_state_tracker) {
+  if (enable_state_tracker && pyhook_frame) {
     enable_state_tracker = 0;
-    result = PyObject_CallFunction(py_frame, NULL);
+    result = PyObject_CallFunction(pyhook_frame, NULL);
     enable_state_tracker = 1;
     if (!result) handle_py_error();
     Py_DECREF(result);
@@ -157,7 +221,7 @@ void glEnable(int cap) {
 
   if (enable_state_tracker) {
     py_cap = PyInt_FromLong(cap);
-    PyDict_SetItem(py_gl_enabled, py_cap, Py_True);
+    PyDict_SetItem(glstate_enabled, py_cap, Py_True);
     Py_DECREF(py_cap);
   }
 }
@@ -170,7 +234,7 @@ void glDisable(int cap) {
 
   if (enable_state_tracker) {
     py_cap = PyInt_FromLong(cap);
-    PyDict_SetItem(py_gl_enabled, py_cap, Py_False);
+    PyDict_SetItem(glstate_enabled, py_cap, Py_False);
     Py_DECREF(py_cap);
   }
 }
@@ -181,9 +245,10 @@ void glViewport(int x, int y, int width, int height) {
   RESOLVE(glViewport);
   glViewport_p(x, y, width, height);
 
-  if (enable_state_tracker) {
+  if (enable_state_tracker && pyhook_viewport) {
     enable_state_tracker = 0;
-    result = PyObject_CallFunction(py_viewport, "iiii", x, y, width, height);
+    result = PyObject_CallFunction(pyhook_viewport, "iiii",
+				   x, y, width, height);
     enable_state_tracker = 1;
     if (!result) handle_py_error();
     Py_DECREF(result);
@@ -199,7 +264,7 @@ void glBindTexture(int target, int texture) {
   if (enable_state_tracker) {
     py_target = PyInt_FromLong(target);
     py_texture = PyInt_FromLong(texture);
-    PyDict_SetItem(py_gl_textures, py_target, py_texture);
+    PyDict_SetItem(glstate_textures, py_target, py_texture);
     Py_DECREF(py_target);
     Py_DECREF(py_texture);
   }
@@ -234,8 +299,11 @@ void *glXGetProcAddressARB(char *name) {
 }
 
 void *SDL_GetVideoInfo() {
-  /* This is part of a hack to initialize soya without SDL and without patching it.
-   * We ensure that soya's set_video() fails just after it stores a new resolution.
+  /* This is part of a hack to initialize Soya 3D without SDL and without
+   * patching it. We ensure that soya's set_video() fails just after it
+   * stores a new resolution.
    */
   return NULL;
 }
+
+/* The End */
