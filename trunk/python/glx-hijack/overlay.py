@@ -57,13 +57,13 @@ def init():
     pudding.init()
     w = pudding.core.RootWidget()
 
-    l = pudding.control.SimpleLabel(w)
-    l.font = soya.Font("geodesic.ttf", 100, 100)
-    l.label = "wasabi"
-    l.update()
-    l.left = (w.width - l.width) / 2
-    l.top = w.height / 4 - l.height / 2
-    print l.top, l.left
+    #l = pudding.control.SimpleLabel(w)
+    #l.font = soya.Font("geodesic.ttf", 100, 100)
+    #l.label = "wasabi"
+    #l.update()
+    #l.left = (w.width - l.width) / 2
+    #l.top = w.height / 4 - l.height / 2
+    #print l.top, l.left
 
     particles = BlueSmokeEmitter(scene)
 
@@ -98,7 +98,6 @@ def frame():
         else:
             gl.glDisable(capability)
     for target, texture in gl_textures.iteritems():
-        os.write(2, "Binding %d %d\n" % (target, texture))
         gl.glBindTexture(target, texture)
 
 def viewport(x, y, width, height):

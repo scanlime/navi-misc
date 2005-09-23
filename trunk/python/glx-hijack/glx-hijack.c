@@ -1,3 +1,32 @@
+/*
+ * loopy - the Linker-assisted OpenGL Overlay for Python
+ * Copyright (C) 2005 Micah Dowty <micah@navi.cx>
+ *
+ * This compiles to a shared object which can be loaded into
+ * arbitrary OpenGL applications using LD_PRELOAD. It then
+ * embeds a Python interpreter into the target process' address
+ * space. The PYTHONPATH and LOOPY_MODULE environment variables
+ * are used to locate a Python module containing the new code
+ * to inject.
+ *
+ * This Python module will be able to import a "loopy" module
+ * containing an interface for our OpenGL hooks and state tracking.
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2.1 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this library; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 #include <Python.h>
 
 #ifndef _GNU_SOURCE
@@ -202,4 +231,11 @@ void *glXGetProcAddressARB(char *name) {
     return override;
   RESOLVE(glXGetProcAddressARB);
   return glXGetProcAddressARB_p(name);
+}
+
+void *SDL_GetVideoInfo() {
+  /* This is part of a hack to initialize soya without SDL and without patching it.
+   * We ensure that soya's set_video() fails just after it stores a new resolution.
+   */
+  return NULL;
 }
