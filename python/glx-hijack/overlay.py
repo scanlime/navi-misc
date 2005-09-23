@@ -97,6 +97,9 @@ def frame():
             gl.glEnable(capability)
         else:
             gl.glDisable(capability)
+    for target, texture in gl_textures.iteritems():
+        os.write(2, "Binding %d %d\n" % (target, texture))
+        gl.glBindTexture(target, texture)
 
 def viewport(x, y, width, height):
     initted or soya.init(create_surface=0)

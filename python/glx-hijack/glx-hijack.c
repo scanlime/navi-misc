@@ -7,11 +7,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static PyObject *py_module, *py_frame, *py_viewport, *py_gl_enabled;
+static PyObject *py_module, *py_frame, *py_viewport;
+static PyObject *py_gl_enabled, *py_gl_textures;
+static int enable_state_tracker = 1;
 static void (*glXSwapBuffers_p)(void*, void*) = NULL;
 static void (*glViewport_p)(int, int, int, int) = NULL;
 static void (*glEnable_p)(int) = NULL;
 static void (*glDisable_p)(int) = NULL;
+static void (*glBindTexture_p)(int, int) = NULL;
 
 static void handle_py_error() {
   PyErr_Print();
@@ -46,12 +49,23 @@ static void __attribute__ ((constructor)) init() {
   py_gl_enabled = PyDict_New();
   if (PyModule_AddObject(py_module, "gl_enabled", py_gl_enabled) == -1)
     handle_py_error();
+
+  /* This is an analogous dictionary for texture bindings */
+  py_gl_textures = PyDict_New();
+  if (PyModule_AddObject(py_module, "gl_textures", py_gl_textures) == -1)
+    handle_py_error();
 }
 
 void glXSwapBuffers(void *display, void *drawable) {
-  PyObject *result = PyObject_CallFunction(py_frame, NULL);
-  if (!result) handle_py_error();
-  Py_DECREF(result);
+  PyObject *result;
+
+  if (enable_state_tracker) {
+    enable_state_tracker = 0;
+    result = PyObject_CallFunction(py_frame, NULL);
+    enable_state_tracker = 1;
+    if (!result) handle_py_error();
+    Py_DECREF(result);
+  }
 
   if (!glXSwapBuffers_p)
     glXSwapBuffers_p = dlsym(RTLD_NEXT, "glXSwapBuffers");
@@ -65,9 +79,11 @@ void glEnable(int cap) {
     glEnable_p = dlsym(RTLD_NEXT, "glEnable");
   glEnable_p(cap);
 
-  py_cap = PyInt_FromLong(cap);
-  PyDict_SetItem(py_gl_enabled, py_cap, Py_True);
-  Py_DECREF(py_cap);
+  if (enable_state_tracker) {
+    py_cap = PyInt_FromLong(cap);
+    PyDict_SetItem(py_gl_enabled, py_cap, Py_True);
+    Py_DECREF(py_cap);
+  }
 }
 
 void glDisable(int cap) {
@@ -77,9 +93,11 @@ void glDisable(int cap) {
     glDisable_p = dlsym(RTLD_NEXT, "glDisable");
   glDisable_p(cap);
 
-  py_cap = PyInt_FromLong(cap);
-  PyDict_SetItem(py_gl_enabled, py_cap, Py_False);
-  Py_DECREF(py_cap);
+  if (enable_state_tracker) {
+    py_cap = PyInt_FromLong(cap);
+    PyDict_SetItem(py_gl_enabled, py_cap, Py_False);
+    Py_DECREF(py_cap);
+  }
 }
 
 void glViewport(int x, int y, int width, int height) {
@@ -89,7 +107,34 @@ void glViewport(int x, int y, int width, int height) {
     glViewport_p = dlsym(RTLD_NEXT, "glViewport");
   glViewport_p(x, y, width, height);
 
-  result = PyObject_CallFunction(py_viewport, "iiii", x, y, width, height);
-  if (!result) handle_py_error();
-  Py_DECREF(result);
+  if (enable_state_tracker) {
+    enable_state_tracker = 0;
+    result = PyObject_CallFunction(py_viewport, "iiii", x, y, width, height);
+    enable_state_tracker = 1;
+    if (!result) handle_py_error();
+    Py_DECREF(result);
+  }
+}
+
+void glBindTexture(int target, int texture) {
+  PyObject *py_target, *py_texture;
+
+  if (!glBindTexture_p)
+    glBindTexture_p = dlsym(RTLD_NEXT, "glBindTexture");
+  glBindTexture_p(target, texture);
+
+  //fprintf(stderr, "glBindTexture(%d, %d) tracker:%d\n", target, texture, enable_state_tracker);
+
+  if (enable_state_tracker) {
+    py_target = PyInt_FromLong(target);
+    py_texture = PyInt_FromLong(texture);
+    PyDict_SetItem(py_gl_textures, py_target, py_texture);
+    Py_DECREF(py_target);
+    Py_DECREF(py_texture);
+  }
+}
+
+void glBindTextureEXT(int target, int texture) {
+  fprintf(stderr, "glBindTextureEXT\n");
+  glBindTexture(target, texture);
 }
