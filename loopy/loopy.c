@@ -63,6 +63,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <SDL/SDL.h>
+
 #define GLSTATE_CAPABILITIES     (1  << 1 )
 #define GLSTATE_TEXTURE_BINDING  (1  << 2 )
 #define GLSTATE_COLOR            (1  << 3 )
@@ -85,7 +87,7 @@ static GLState* glstate_new(void);
  * is not created until just before control is transferred back
  * to the target app.
  */
-static GLState *target_glstate = NULL;
+static GLState *target_glstate;
 
 /* currentGLState is the state associated with currently executing
  * code. While we're running the target app this should be another
@@ -94,19 +96,57 @@ static GLState *target_glstate = NULL;
  * begins or while Loopy is running internal OpenGL code, this must
  * be NULL.
  */
-static GLState *current_glstate = NULL;
+static GLState *current_glstate;
 
-/* Pointers to dynamically-resolved original functions corresponding
- * to the functions we override in this library.
+/* Check whether we're running in an overlay, rather than from the
+ * target itself or something internal.
  */
-static void* (*dlsym_p)(void*, __const char*) = NULL;
-static void* (*glXGetProcAddress_p)(char *) = NULL;
-static void* (*glXGetProcAddressARB_p)(char *) = NULL;
-static void (*glXSwapBuffers_p)(void*, void*) = NULL;
-static void (*glViewport_p)(int, int, int, int) = NULL;
-static void (*glEnable_p)(int) = NULL;
-static void (*glDisable_p)(int) = NULL;
-static void (*glBindTexture_p)(int, int) = NULL;
+#define RUNNING_IN_OVERLAY \
+    (current_glstate && (current_glstate != target_glstate))
+
+/* Procedures we pull in dynamically using RESOLVE(). Most of
+ * these are functions we override locally, so we have to look
+ * up the original unmodified version ourselves.
+ */
+static void* (*dlsym_p)(void*, __const char*);
+static void* (*glXGetProcAddress_p)(char *);
+static void* (*glXGetProcAddressARB_p)(char *);
+static void  (*glXSwapBuffers_p)(void*, void*);
+static void  (*glViewport_p)(int, int, int, int);
+static void  (*glEnable_p)(int);
+static void  (*glDisable_p)(int);
+static void  (*glBindTexture_p)(int, int);
+
+static void* (*XOpenDisplay_p)(char *);
+static int   (*XCloseDisplay_p)(void *);
+static void* (*XCreateWindow_p)(void*, void*, int, int, int, int,
+                                int, int, int, void*, long, void*);
+static int   (*SDL_Init_p)(Uint32);
+static int   (*SDL_InitSubSystem_p)(Uint32);
+static void  (*SDL_QuitSubSystem_p)(Uint32);
+static void  (*SDL_Quit_p)(void);
+static void* (*SDL_GL_GetProcAddress_p)(const char*);
+static int   (*SDL_GL_SetAttribute_p)(SDL_GLattr, int);
+static int   (*SDL_GL_GetAttribute_p)(SDL_GLattr, int*);
+static void  (*SDL_GL_SwapBuffers_p)(void);
+static SDL_Surface* (*SDL_GetVideoSurface_p)(void);
+static const SDL_VideoInfo* (*SDL_GetVideoInfo_p)(void);
+static SDL_Surface* (*SDL_SetVideoMode_p)(int, int, int, Uint32);
+
+/* Fake SDL data structures for the overlay to use.
+ * We support just a smidgen of SDL so that existing
+ * 3D rendering frameworks based on SDL or pygame
+ * can be used without modification.
+ */
+static SDL_PixelFormat overlay_sdl_format = {};
+static SDL_VideoInfo overlay_sdl_info = {
+    .vfmt = &overlay_sdl_format,
+};
+static SDL_Surface overlay_sdl_surface = {
+    .flags = SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL | SDL_RESIZABLE,
+    .format = &overlay_sdl_format,
+    /* width/height filled in later */
+};
 
 /************************************************************************/
 /********************************************** Dynamic Linker Mojo *****/
@@ -198,13 +238,16 @@ static void __attribute__ ((constructor)) init() {
  * override the address of the specified symbol.
  */
 static void *check_dynamic_symbol(const char *name) {
-    /* Don't even try to look up non-OpenGL symbols.
+    /* Don't even try to look up symbols other than
+     * those with prefixes we can identify.
+     *
      * When we search our own symbol namespace below,
      * we're searching a lot of libraries other than this
      * one and OpenGL: this can really screw up an
      * app's plugin loader, for example.
      */
-    if (name[0] != 'g' || name[1] != 'l')
+    if (strncmp(name, "gl",   2) &&
+        strncmp(name, "SDL_", 4  ))
         return NULL;
 
     RESOLVE_DLSYM();
@@ -634,6 +677,12 @@ void glViewport(int x, int y, int width, int height) {
      */
     if (x==0 && y==0) {
         struct ivector2 res = {width, height};
+
+        /* Resize our fake SDL surface */
+        overlay_sdl_surface.w = res.x;
+        overlay_sdl_surface.h = res.y;
+
+        /* Notify all the overlays */
         if (foreach_overlay(overlay_resize, &res) < 0)
             handle_py_error();
         glstate_switch(target_glstate);
@@ -684,6 +733,108 @@ void *glXGetProcAddressARB(char *name) {
         return override;
     RESOLVE(glXGetProcAddressARB);
     return glXGetProcAddressARB_p(name);
+}
+
+void *SDL_GL_GetProcAddress(const char* name) {
+    void *override = check_dynamic_symbol(name);
+    if (override)
+        return override;
+    RESOLVE(SDL_GL_GetProcAddress);
+    return SDL_GL_GetProcAddress_p(name);
+}
+
+int SDL_GL_SetAttribute(SDL_GLattr attr, int value) {
+    /* Don't let the overlay touch GL attributes */
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_GL_SetAttribute);
+        return SDL_GL_SetAttribute_p(attr, value);
+    }
+    return 0;
+}
+
+int SDL_GL_GetAttribute(SDL_GLattr attr, int *value) {
+    /* Don't let the overlay touch GL attributes */
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_GL_GetAttribute);
+        return SDL_GL_GetAttribute_p(attr, value);
+    }
+    return 0;
+}
+
+void SDL_GL_SwapBuffers(void) {
+    /* This will eventually get trapped at glXSwapBuffers,
+     * but the overlay isn't going to have a properly
+     * initialized video driver so this is unsafe to call.
+     */
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_GL_SwapBuffers);
+        SDL_GL_SwapBuffers_p();
+    }
+}
+
+int SDL_Init(Uint32 flags) {
+    /* Don't let the overlay touch SDL initialization */
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_Init);
+        return SDL_Init_p(flags);
+    }
+    return 0;
+}
+
+int SDL_InitSubSystem(Uint32 flags) {
+    /* Don't let the overlay touch SDL initialization */
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_InitSubSystem);
+        return SDL_InitSubSystem_p(flags);
+    }
+    return 0;
+}
+
+void SDL_QuitSubSystem(Uint32 flags) {
+    /* Don't let the overlay touch SDL initialization */
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_QuitSubSystem);
+        SDL_QuitSubSystem_p(flags);
+    }
+}
+
+void SDL_Quit(void) {
+    /* Don't let the overlay touch SDL initialization */
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_Quit);
+        SDL_Quit_p();
+    }
+}
+
+SDL_Surface *SDL_GetVideoSurface(void) {
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_GetVideoSurface);
+        return SDL_GetVideoSurface_p();
+    }
+    /* Don't let the overlay see the real SDL surface,
+     * just give it one we've filled in with some very
+     * basic info like output resolution.
+     */
+    return &overlay_sdl_surface;
+}
+
+const SDL_VideoInfo *SDL_GetVideoInfo(void) {
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_GetVideoInfo);
+        return SDL_GetVideoInfo_p();
+    }
+    return &overlay_sdl_info;
+}
+
+SDL_Surface *SDL_SetVideoMode(int width, int height, int bpp, Uint32 flags) {
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_SetVideoMode);
+        return SDL_SetVideoMode_p(width, height, bpp, flags);
+    }
+    /* For the overlay, ignore the requested resolution
+     * and still return our fake surface.
+     */
+    return &overlay_sdl_surface;
 }
 
 /* The End */
