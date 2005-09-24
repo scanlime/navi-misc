@@ -189,7 +189,7 @@ static void __attribute__ ((constructor)) init() {
      * a GLState and start tracking it.
      */
     current_glstate = target_glstate = glstate_new();
-    Py_XINCREF(current_glstate);
+    Py_INCREF(current_glstate);
 }
 
 /* Any time the target application uses dlsym(), glXGetProcAddress(),
@@ -285,19 +285,19 @@ static PyTypeObject glstate_type = {
 static void glstate_add_const(const char *name, int value) {
     PyObject *py_value = PyInt_FromLong(value);
     PyDict_SetItemString(glstate_type.tp_dict, name, py_value);
-    Py_XDECREF(py_value);
+    Py_DECREF(py_value);
 }
 
 static GLState* glstate_new(void) {
     GLState *self = PyObject_New(GLState, &glstate_type);
     PyObject *args = PyTuple_New(0);
     glstate_init(self, args, NULL);
-    Py_XDECREF(args);
+    Py_DECREF(args);
     return self;
 }
 
 static void glstate_type_init(PyObject *module) {
-    Py_XINCREF(&glstate_type);
+    Py_INCREF(&glstate_type);
 
     glstate_type.tp_new = PyType_GenericNew;
     if (PyType_Ready(&glstate_type) < 0)
@@ -313,13 +313,51 @@ static void glstate_type_init(PyObject *module) {
 }
 
 /************************************************************************/
+/****************************************** OpenGL State Management *****/
+/************************************************************************/
+
+/* Perform an OpenGL state transition. The current_glstate as well as
+ * the next state must be non-NULL. Normally current_glstate should
+ * only be NULL while a switch is actually in progress.
+ */
+static void glstate_switch(GLState *next) {
+    /* Steal current_glstate's reference, and signal that we
+     * have a switch in progress.
+     */
+    GLState *previous = current_glstate;
+    if (next == previous) return;
+    current_glstate = NULL;
+
+    /* FIXME */
+
+    /* Complete the switch, drop the reference we stole from
+     * current_glstate, then grab a new reference for our new
+     * state.
+     */
+    Py_INCREF(next);
+    Py_DECREF(previous);
+    current_glstate = next;
+}
+
+/************************************************************************/
 /*************************************************** Overlay Object *****/
 /************************************************************************/
+
+static PyObject *overlay_list;
+
+struct ivector2 {
+    int x, y;
+};
 
 typedef struct {
     PyObject_HEAD
     int enabled;
     GLState *glState;
+    PyObject *py_resolution;
+
+    /* Hidden from Python */
+    int initialized;
+    struct ivector2 c_resolution;
 } Overlay;
 
 static PyObject* return_none(PyObject* self) {
@@ -336,6 +374,20 @@ static PyMethodDef overlay_methods[] = {
       "just before the target application is allowed to swap buffers.\n"
       "The default implementation does nothing.\n"
     },
+    { "setup", (PyCFunction) return_none, METH_NOARGS,
+      "setup() -> None\n"
+      "\n"
+      "This is called only once, after the OpenGL context is valid and\n"
+      "we know the output resolution, but before render() can be invoked.\n"
+      "Subclasses override this to perform their 3D engine initialization.\n"
+      "The default implementation does nothing.\n"
+    },
+    { "resized", (PyCFunction) return_none, METH_NOARGS,
+      "resized() -> None\n"
+      "\n"
+      "This is called any time the output resolution changes after the\n"
+      "initial call to setup(). The default implementation does nothing.\n"
+    },
     {0}
 };
 
@@ -347,6 +399,11 @@ static PyMemberDef overlay_members[] = {
       "The GLState instance tracking OpenGL state changes that occur\n"
       "while this Overlay is running. It is automatically made current\n"
       "when hook functions begin running code from this Overlay.\n"
+    },
+    { "resolution", T_OBJECT, offsetof(Overlay, py_resolution), READONLY,
+      "This is a (width, height) tuple containing the current output\n"
+      "resolution, if it's known. If not, this is None. This is guaranteed\n"
+      "to be valid before a call to setup() or resize().\n"
     },
     {0}
 };
@@ -388,84 +445,16 @@ static PyTypeObject overlay_type = {
 };
 
 static void overlay_type_init(PyObject *module) {
-    Py_XINCREF(&overlay_type);
+    Py_INCREF(&overlay_type);
 
     overlay_type.tp_new = PyType_GenericNew;
     if (PyType_Ready(&overlay_type) < 0)
         return;
 
     PyModule_AddObject(module, "Overlay", (PyObject *) &overlay_type);
-}
-
-/************************************************************************/
-/**************************************************** Python Module *****/
-/************************************************************************/
-
-PyObject *get_target_glstate(PyObject *self) {
-    if (target_glstate) {
-        Py_XINCREF(target_glstate);
-        return (PyObject*) target_glstate;
-    }
-    else {
-        Py_XINCREF(Py_None);
-        return Py_None;
-    }
-}
-
-static PyMethodDef module_methods[] = {
-    { "getTargetGLState", (PyCFunction) get_target_glstate, METH_NOARGS,
-      "getTargetGLState() -> GLState\n"
-      "\n"
-      "Return the GLState used for tracking the target application.\n"
-      "If Loopy is running without a target application, or the target\n"
-      "hasn't started executing yet, this returns None.\n"
-    },
-    {0}
-};
-
-static PyObject *overlay_list;
-
-/*
- * Initialize the 'loopy' extension module. This is normally called
- * internally for the Python interpreter we embed in the target app,
- * but this library can also be used as a normal extension module.
- */
-PyMODINIT_FUNC initloopy(void)
-{
-    PyObject *m = Py_InitModule3("loopy", module_methods, _doc);
-
-    glstate_type_init(m);
-    overlay_type_init(m);
 
     overlay_list = PyList_New(0);
-    PyModule_AddObject(m, "overlays", overlay_list);
-}
-
-/************************************************************************/
-/****************************************** OpenGL State Management *****/
-/************************************************************************/
-
-/* Perform an OpenGL state transition. The current_glstate as well as
- * the next state must be non-NULL. Normally current_glstate should
- * only be NULL while a switch is actually in progress.
- */
-static void glstate_switch(GLState *next) {
-    /* Steal current_glstate's reference, and signal that we
-     * have a switch in progress.
-     */
-    GLState *previous = current_glstate;
-    if (next == previous) return;
-    current_glstate = NULL;
-
-    /* FIXME */
-
-    /* Complete the switch, drop the reference we stole from
-     * current_glstate, then grab a new reference for our new
-     * state.
-     */
-    Py_XINCREF(next);
-    Py_XDECREF(previous);
-    current_glstate = next;
+    PyModule_AddObject(module, "overlays", overlay_list);
 }
 
 /*
@@ -504,9 +493,9 @@ static int foreach_overlay(int (*callback)(Overlay*, void*), void *user_data) {
          * we're executing user code to avoid errors caused by
          * modifying the list.
          */
-        Py_XINCREF(item);
+        Py_INCREF(item);
         result = callback(item, user_data);
-        Py_XDECREF(item);
+        Py_DECREF(item);
 
         if (result < 0)
             return -1;
@@ -514,16 +503,97 @@ static int foreach_overlay(int (*callback)(Overlay*, void*), void *user_data) {
     return 0;
 }
 
-/* Switch to this overlay's GLState and run its rendering hook */
+/* If this overlay has been initialized, switch to
+ * its GLState and render() it.
+ */
 static int overlay_render(Overlay *self, void* user_data) {
     PyObject *result;
-    glstate_switch(self->glState);
-    result = PyObject_CallMethod((PyObject*) self, "render", NULL);
-    if (result) {
-        Py_XDECREF(result);
-        return 0;
+
+    if (!self->initialized) {
+        glstate_switch(self->glState);
+        result = PyObject_CallMethod((PyObject*) self, "render", NULL);
+        if (!result)
+            return -1;
+        Py_DECREF(result);
     }
-    return -1;
+    return 0;
+}
+
+struct overlay_resize_data {
+    int width, height;
+};
+
+/* Propagate a new screen resolution to this overlay.
+ * If the overlay hasn't yet been initialized, it calls setup().
+ * Otherwise we call resize() if and only if the resolution
+ * has changed. user_data is an ivector2.
+ */
+static int overlay_resize(Overlay *self, void* user_data) {
+    struct ivector2 *current_res = (struct ivector2*) user_data;
+    PyObject *result;
+    char *method;
+
+    if (self->initialized) {
+        if (current_res->x == self->c_resolution.x &&
+            current_res->y == self->c_resolution.y)
+            return 0;
+        method = "resized";
+    }
+    else {
+        method = "setup";
+    }
+
+    Py_XDECREF(self->py_resolution);
+    self->c_resolution = *current_res;
+    self->py_resolution = Py_BuildValue("(ii)", current_res->x, current_res->y);
+
+    glstate_switch(self->glState);
+    result = PyObject_CallMethod((PyObject*) self, method, NULL);
+    if (!result)
+        return -1;
+    Py_DECREF(result);
+
+    self->initialized = 1;
+    return 0;
+}
+
+/************************************************************************/
+/**************************************************** Python Module *****/
+/************************************************************************/
+
+PyObject *get_target_glstate(PyObject *self) {
+    if (target_glstate) {
+        Py_INCREF(target_glstate);
+        return (PyObject*) target_glstate;
+    }
+    else {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+}
+
+static PyMethodDef module_methods[] = {
+    { "getTargetGLState", (PyCFunction) get_target_glstate, METH_NOARGS,
+      "getTargetGLState() -> GLState\n"
+      "\n"
+      "Return the GLState used for tracking the target application.\n"
+      "If Loopy is running without a target application, or the target\n"
+      "hasn't started executing yet, this returns None.\n"
+    },
+    {0}
+};
+
+/*
+ * Initialize the 'loopy' extension module. This is normally called
+ * internally for the Python interpreter we embed in the target app,
+ * but this library can also be used as a normal extension module.
+ */
+PyMODINIT_FUNC initloopy(void)
+{
+    PyObject *m = Py_InitModule3("loopy", module_methods, _doc);
+
+    glstate_type_init(m);
+    overlay_type_init(m);
 }
 
 /************************************************************************/
@@ -579,16 +649,17 @@ void glViewport(int x, int y, int width, int height) {
     RESOLVE(glViewport);
     glViewport_p(x, y, width, height);
 
-    /*
-    if (enable_state_tracker && pyhook_viewport) {
-        enable_state_tracker = 0;
-        result = PyObject_CallFunction(pyhook_viewport, "iiii",
-                                       x, y, width, height);
-        enable_state_tracker = 1;
-        if (!result) handle_py_error();
-        Py_XDECREF(result);
+    /* This isn't fool-proof, but we detect the current
+     * window resolution by looking for glViewport() calls
+     * with x,y == 0,0. If this turns out to be a problem,
+     * the only alternative might be hooking Xlib. Yech.
+     */
+    if (x==0 && y==0) {
+        struct ivector2 res = {width, height};
+        if (foreach_overlay(overlay_resize, &res) < 0)
+            handle_py_error();
+        glstate_switch(target_glstate);
     }
-    */
 }
 
 void glBindTexture(int target, int texture) {
