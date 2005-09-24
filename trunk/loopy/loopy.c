@@ -405,6 +405,51 @@ static void glstate_type_init(PyObject *module) {
 /****************************************** OpenGL State Management *****/
 /************************************************************************/
 
+/* Perform the glEnables and glDisables necessary to transition
+ * between two OpenGL state dictionaries. This proceeds in two steps:
+ *
+ * 1. The 'prev' dictionary is scanned. For each enabled capability
+ *    that is either missing from 'next' or disabled in 'next', run
+ *    a glDisable.
+ *
+ * 2. The 'next' dictionary is scanned. For each enabled capability
+ *    that is either missing from 'prev' or disabled in 'prev, run
+ *    a glEnable.
+ */
+static void glstate_switch_capabilities(PyObject *prev, PyObject *next) {
+    PyObject *key, *v1, *v2;
+    int pos;
+
+    RESOLVE(glDisable);
+    RESOLVE(glEnable);
+
+    pos = 0;
+    while (PyDict_Next(prev, &pos, &key, &v1)) {
+        if (!PyInt_Check(key))
+            continue;
+        if (PyObject_Not(v1))
+            continue;
+        v2 = PyDict_GetItem(next, key);
+        if (v2 && PyObject_IsTrue(v2))
+            continue;
+
+        glDisable_p(PyInt_AS_LONG(key));
+    }
+
+    pos = 0;
+    while (PyDict_Next(next, &pos, &key, &v1)) {
+        if (!PyInt_Check(key))
+            continue;
+        if (PyObject_Not(v1))
+            continue;
+        v2 = PyDict_GetItem(prev, key);
+        if (v2 && PyObject_IsTrue(v2))
+            continue;
+
+        glEnable_p(PyInt_AS_LONG(key));
+    }
+}
+
 /* Perform an OpenGL state transition. The current_glstate as well as
  * the next state must be non-NULL. Normally current_glstate should
  * only be NULL while a switch is actually in progress.
@@ -417,7 +462,9 @@ static void glstate_switch(GLState *next) {
     if (next == previous) return;
     current_glstate = NULL;
 
-    /* FIXME */
+    if (next->restoreFlags & GLSTATE_CAPABILITIES)
+        glstate_switch_capabilities(previous->capabilities,
+                                    next->capabilities);
 
     /* Complete the switch, drop the reference we stole from
      * current_glstate, then grab a new reference for our new
