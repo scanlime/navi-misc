@@ -125,10 +125,15 @@ static int   (*SDL_Init_p)(Uint32);
 static int   (*SDL_InitSubSystem_p)(Uint32);
 static void  (*SDL_QuitSubSystem_p)(Uint32);
 static void  (*SDL_Quit_p)(void);
+static void  (*SDL_PumpEvents_p)(void);
+static void  (*SDL_WM_SetCaption_p)(const char *, const char *);
+static void  (*SDL_WM_GetCaption_p)(char **, char **);
+static void  (*SDL_WM_SetIcon_p)(SDL_Surface*, Uint8*);
 static void* (*SDL_GL_GetProcAddress_p)(const char*);
 static int   (*SDL_GL_SetAttribute_p)(SDL_GLattr, int);
 static int   (*SDL_GL_GetAttribute_p)(SDL_GLattr, int*);
 static void  (*SDL_GL_SwapBuffers_p)(void);
+static Uint32 (*SDL_WasInit_p)(Uint32);
 static SDL_Surface* (*SDL_GetVideoSurface_p)(void);
 static const SDL_VideoInfo* (*SDL_GetVideoInfo_p)(void);
 static SDL_Surface* (*SDL_SetVideoMode_p)(int, int, int, Uint32);
@@ -160,15 +165,27 @@ static SDL_Surface overlay_sdl_surface = {
     do { \
         if (!dlsym_p) \
             dlsym_p = dlvsym(RTLD_NEXT, "dlsym", "GLIBC_2.0"); \
+        if (!dlsym_p) \
+            handle_link_error("dlsym"); \
     } while (0);
 
-/* A macro to resolve one of the above original symbols at runtime */
-#define RESOLVE(sym) \
+/* A macro to resolve one of the above original symbols at runtime.
+ * This can fail, leaving the symbol NULL.
+ */
+#define RESOLVE_SOFT(sym) \
     do { \
         if (!sym ## _p) { \
             RESOLVE_DLSYM(); \
             sym ## _p = dlsym_p(RTLD_NEXT, #sym); \
         } \
+    } while (0);
+
+/* Resolve a symbol at runtime, cause a fatal error if this fails */
+#define RESOLVE(sym) \
+    do { \
+        RESOLVE_SOFT(sym); \
+        if (!sym ## _p) \
+            handle_link_error(#sym); \
     } while (0);
 
 /*
@@ -182,12 +199,22 @@ static void handle_py_error() {
 }
 
 /*
+ * Handle fatal runtime symbol resolution errors
+ */
+static void handle_link_error(const char *name) {
+    fprintf(stderr,
+            "Loopy runtime link error: "
+            "Can't resolve symbol '%s'\n", name);
+    exit(1);
+}
+
+/*
  * This initialization function is called by the dynamic
  * linker- if we aren't already running inside python,
  * this sets up the interpreter and our extension module.
  */
 static void __attribute__ ((constructor)) init() {
-    char *main_filename;
+    char *var;
 
     if (Py_IsInitialized())
         return;
@@ -206,23 +233,33 @@ static void __attribute__ ((constructor)) init() {
     /* Create the extension module */
     initloopy();
 
+    /* LOOPY_EXEC is a less common environment variable that can
+     * be used as an alternative to LOOPY_MAIN- it gives a Python
+     * string to run immediately.
+     */
+    var = getenv("LOOPY_EXEC");
+    if (var) {
+        if (PyRun_SimpleString(var) < 0)
+            handle_py_error();
+    }
+
     /* LOOPY_MAIN specifies the name of a file to run code from.
      * It should nearly always be specified, but technically it's
      * optional.
      */
-    main_filename = getenv("LOOPY_MAIN");
-    if (main_filename) {
-        FILE *main_file = fopen(main_filename, "r");
-        if (!main_file) {
-            perror(main_filename);
+    var = getenv("LOOPY_MAIN");
+    if (var) {
+        FILE *f = fopen(var, "r");
+        if (!f) {
+            perror(var);
             exit(1);
         }
 
         /* Run the user program until it finishes */
-        if (PyRun_SimpleFile(main_file, main_filename) < 0)
+        if (PyRun_SimpleFile(f, var) < 0)
             handle_py_error();
 
-        fclose(main_file);
+        fclose(f);
     }
 
     /* We're about to start running the target app- allocate
@@ -790,6 +827,25 @@ int SDL_InitSubSystem(Uint32 flags) {
     return 0;
 }
 
+Uint32 SDL_WasInit(Uint32 flags) {
+    /* Let the overlay think it ran a successful initialization,
+     * even if the target application isn't using SDL at all.
+     */
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_WasInit);
+        return SDL_WasInit_p(flags);
+    }
+    if (flags) {
+        /* Return what the user wants to see */
+        return flags;
+    }
+    else {
+        /* They're asking about all subsystems */
+        return ~0;
+    }
+}
+
+
 void SDL_QuitSubSystem(Uint32 flags) {
     /* Don't let the overlay touch SDL initialization */
     if (!RUNNING_IN_OVERLAY) {
@@ -803,6 +859,43 @@ void SDL_Quit(void) {
     if (!RUNNING_IN_OVERLAY) {
         RESOLVE(SDL_Quit);
         SDL_Quit_p();
+    }
+}
+
+void SDL_PumpEvents(void) {
+    /* Very bad idea to let the overlay handle events..
+     * Note that we dont' really support running any kind
+     * of event loop in the overlay, but Pygame is naughty
+     * and calls this during initialization.
+     */
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_PumpEvents);
+        SDL_PumpEvents_p();
+    }
+}
+
+void SDL_WM_SetCaption(const char *title, const char *icon) {
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_WM_SetCaption);
+        SDL_WM_SetCaption_p(title, icon);
+    }
+}
+
+void SDL_WM_GetCaption(char **title, char **icon) {
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_WM_GetCaption);
+        SDL_WM_GetCaption_p(title, icon);
+    }
+    else {
+        if (title) *title = NULL;
+        if (icon) *icon = NULL;
+    }
+}
+
+void SDL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask) {
+    if (!RUNNING_IN_OVERLAY) {
+        RESOLVE(SDL_WM_SetIcon);
+        SDL_WM_SetIcon_p(icon, mask);
     }
 }
 
