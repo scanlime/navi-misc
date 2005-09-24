@@ -339,6 +339,18 @@ static void glstate_switch(GLState *next) {
     current_glstate = next;
 }
 
+/* Track changes to GL capabilities */
+static __inline__ void glstate_track_capability(int capability, int status) {
+    PyObject *py_cap;
+
+    if (current_glstate) {
+        py_cap = PyInt_FromLong(capability);
+        PyDict_SetItem(current_glstate->capabilities,
+                       py_cap, status ? Py_True : Py_False);
+        Py_DECREF(py_cap);
+    }
+}
+
 /************************************************************************/
 /*************************************************** Overlay Object *****/
 /************************************************************************/
@@ -613,36 +625,6 @@ void glXSwapBuffers(void *display, void *drawable) {
     glXSwapBuffers_p(display, drawable);
 }
 
-void glEnable(int cap) {
-    PyObject *py_cap;
-
-    RESOLVE(glEnable);
-    glEnable_p(cap);
-
-    /*
-    if (enable_state_tracker) {
-        py_cap = PyInt_FromLong(cap);
-        PyDict_SetItem(glstate_enabled, py_cap, Py_True);
-        Py_XDECREF(py_cap);
-    }
-    */
-}
-
-void glDisable(int cap) {
-    PyObject *py_cap;
-
-    RESOLVE(glDisable);
-    glDisable_p(cap);
-
-    /*
-    if (enable_state_tracker) {
-        py_cap = PyInt_FromLong(cap);
-        PyDict_SetItem(glstate_enabled, py_cap, Py_False);
-        Py_XDECREF(py_cap);
-    }
-    */
-}
-
 void glViewport(int x, int y, int width, int height) {
     PyObject *result;
 
@@ -662,21 +644,22 @@ void glViewport(int x, int y, int width, int height) {
     }
 }
 
-void glBindTexture(int target, int texture) {
-    PyObject *py_target, *py_texture;
+void glEnable(int cap) {
+    RESOLVE(glEnable);
+    glEnable_p(cap);
+    glstate_track_capability(cap, 1);
+}
 
+void glDisable(int cap) {
+    RESOLVE(glDisable);
+    glDisable_p(cap);
+    glstate_track_capability(cap, 0);
+}
+
+void glBindTexture(int target, int texture) {
     RESOLVE(glBindTexture);
     glBindTexture_p(target, texture);
-
-    /*
-    if (enable_state_tracker) {
-        py_target = PyInt_FromLong(target);
-        py_texture = PyInt_FromLong(texture);
-        PyDict_SetItem(glstate_textures, py_target, py_texture);
-        Py_XDECREF(py_target);
-        Py_XDECREF(py_texture);
-    }
-    */
+    //    glstate_track_texture_binding(target, texture);
 }
 
 void glBindTextureEXT(int target, int texture) {
@@ -705,14 +688,6 @@ void *glXGetProcAddressARB(char *name) {
         return override;
     RESOLVE(glXGetProcAddressARB);
     return glXGetProcAddressARB_p(name);
-}
-
-void *SDL_GetVideoInfo() {
-    /* This is part of a hack to initialize Soya 3D without SDL and without
-     * patching it. We ensure that soya's set_video() fails just after it
-     * stores a new resolution.
-     */
-    return NULL;
 }
 
 /* The End */
