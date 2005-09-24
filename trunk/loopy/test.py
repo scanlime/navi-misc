@@ -3,6 +3,11 @@ from OpenGL import GL
 
 class MyOverlay(loopy.Overlay):
     def setup(self):
+        import pygame
+        pygame.init()
+        print pygame.display.Info()
+        print pygame.display.set_mode((128,64), 0)
+
         # Demonstrate voodoo-like tracking of the local GL state
         print self.glState.capabilities
         GL.glEnable(GL.GL_LIGHTING)
