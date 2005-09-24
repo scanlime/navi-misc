@@ -341,10 +341,10 @@ static void glstate_switch(GLState *next) {
 
 /* Track changes to GL capabilities */
 static __inline__ void glstate_track_capability(int capability, int status) {
-    PyObject *py_cap;
+    if (current_glstate &&
+        (current_glstate->trackingFlags & GLSTATE_CAPABILITIES)) {
 
-    if (current_glstate) {
-        py_cap = PyInt_FromLong(capability);
+        PyObject *py_cap = PyInt_FromLong(capability);
         PyDict_SetItem(current_glstate->capabilities,
                        py_cap, status ? Py_True : Py_False);
         Py_DECREF(py_cap);
@@ -530,10 +530,6 @@ static int overlay_render(Overlay *self, void* user_data) {
     }
     return 0;
 }
-
-struct overlay_resize_data {
-    int width, height;
-};
 
 /* Propagate a new screen resolution to this overlay.
  * If the overlay hasn't yet been initialized, it calls setup().
