@@ -76,6 +76,7 @@ typedef struct {
     PyObject_HEAD
     unsigned int trackingFlags;
     unsigned int restoreFlags;
+    unsigned int clearMask;
     PyObject *capabilities;
     PyObject *textureBindings;
 } GLState;
@@ -113,6 +114,7 @@ static void* (*glXGetProcAddress_p)(char *);
 static void* (*glXGetProcAddressARB_p)(char *);
 static void  (*glXSwapBuffers_p)(void*, void*);
 static void  (*glViewport_p)(int, int, int, int);
+static void  (*glClear_p)(int);
 static void  (*glEnable_p)(int);
 static void  (*glDisable_p)(int);
 static void  (*glBindTexture_p)(int, int);
@@ -304,6 +306,12 @@ static PyMemberDef glstate_members[] = {
       "A set of flags indicating which aspects of the OpenGL\n"
       "state are restored when this GLState becomes current.\n"
     },
+    { "clearMask", T_UINT, offsetof(GLState, clearMask), 0,
+      "Any time a glClear() is run in this GLState, this mask is\n"
+      "AND'ed with its flags. This is an easy noninvasive way to\n"
+      "prevent a particular context from clearing the color buffer\n"
+      "or the depth buffer, for example.\n"
+    },
     { "capabilities", T_OBJECT, offsetof(GLState, capabilities), READONLY,
       "A dictionary mapping OpenGL capability numbers to either\n"
       "True (glEnable) or False (glDisable). Missing capabilities\n"
@@ -324,6 +332,7 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
 
     self->trackingFlags = GLSTATE_ALL;
     self->restoreFlags = GLSTATE_ALL;
+    self->clearMask = ~0;
 
     self->capabilities = PyDict_New();
     self->textureBindings = PyDict_New();
@@ -601,7 +610,7 @@ static int foreach_overlay(int (*callback)(Overlay*, void*), void *user_data) {
 static int overlay_render(Overlay *self, void* user_data) {
     PyObject *result;
 
-    if (!self->initialized) {
+    if (self->initialized) {
         glstate_switch(self->glState);
         result = PyObject_CallMethod((PyObject*) self, "render", NULL);
         if (!result)
@@ -726,6 +735,13 @@ void glViewport(int x, int y, int width, int height) {
             glstate_switch(target_glstate);
         }
     }
+}
+
+void glClear(int flags) {
+    if (current_glstate)
+        flags &= current_glstate->clearMask;
+    RESOLVE(glClear);
+    glClear_p(flags);
 }
 
 void glEnable(int cap) {

@@ -17,7 +17,7 @@ class NeheOverlay(loopy.Overlay):
         self.zrot = 0.0
         self.textures = [0]
 
-    def resize(self):
+    def resized(self):
         width, height = self.resolution
 
         glViewport(0, 0, width, height)
@@ -30,8 +30,18 @@ class NeheOverlay(loopy.Overlay):
     def setup(self):
         video_flags = OPENGL|DOUBLEBUF
 
+        # We don't actually need pygame for this demo, but this
+        # is an example of how Loopy tricks SDL into working so
+        # that 3D engines using pygame can run unmodified.
         pygame.init()
         surface = pygame.display.set_mode((640,480), video_flags)
+
+        # Another example to show off Loopy-
+        # normally your overlay wouldn't clear the color buffer,
+        # but we tell Loopy to trap that, only allowing us to clear
+        # the depth buffer. This can be used to noninvasively prevent
+        # an existing 3D engine from clearing over the target app's output.
+        self.glState.clearMask = ~GL_COLOR_BUFFER_BIT
 
         glEnable(GL_TEXTURE_2D)
         self.load_textures()
@@ -42,7 +52,7 @@ class NeheOverlay(loopy.Overlay):
         glDepthFunc(GL_LEQUAL)
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
 
-        self.resize()
+        self.resized()
 
     def load_textures(self):
         texturefile = os.path.join('data','nehe.bmp')
@@ -57,7 +67,7 @@ class NeheOverlay(loopy.Overlay):
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
 
     def render(self):
-        glClear(GL_DEPTH_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
         glTranslatef(0.0,0.0,-5.0)
 
