@@ -511,6 +511,7 @@ static int foreach_overlay(int (*callback)(Overlay*, void*), void *user_data) {
         if (result < 0)
             return -1;
     }
+    return 0;
 }
 
 /* Switch to this overlay's GLState and run its rendering hook */
