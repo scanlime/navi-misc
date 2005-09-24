@@ -707,22 +707,24 @@ void glViewport(int x, int y, int width, int height) {
     RESOLVE(glViewport);
     glViewport_p(x, y, width, height);
 
-    /* This isn't fool-proof, but we detect the current
-     * window resolution by looking for glViewport() calls
-     * with x,y == 0,0. If this turns out to be a problem,
-     * the only alternative might be hooking Xlib. Yech.
-     */
-    if (x==0 && y==0) {
-        struct ivector2 res = {width, height};
+    if (!RUNNING_IN_OVERLAY) {
+        /* This isn't fool-proof, but we detect the current
+         * window resolution by looking for glViewport() calls
+         * with x,y == 0,0. If this turns out to be a problem,
+         * the only alternative might be hooking Xlib. Yech.
+         */
+        if (x==0 && y==0) {
+            struct ivector2 res = {width, height};
 
-        /* Resize our fake SDL surface */
-        overlay_sdl_surface.w = res.x;
-        overlay_sdl_surface.h = res.y;
+            /* Resize our fake SDL surface */
+            overlay_sdl_surface.w = res.x;
+            overlay_sdl_surface.h = res.y;
 
-        /* Notify all the overlays */
-        if (foreach_overlay(overlay_resize, &res) < 0)
-            handle_py_error();
-        glstate_switch(target_glstate);
+            /* Notify all the overlays */
+            if (foreach_overlay(overlay_resize, &res) < 0)
+                handle_py_error();
+            glstate_switch(target_glstate);
+        }
     }
 }
 
