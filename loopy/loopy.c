@@ -65,12 +65,14 @@
 
 #include <SDL/SDL.h>
 
-#define GLSTATE_CAPABILITIES     (1  << 1 )
-#define GLSTATE_TEXTURE_BINDING  (1  << 2 )
-#define GLSTATE_COLOR            (1  << 3 )
-#define GLSTATE_LIGHTS           (1  << 4 )
-#define GLSTATE_MATERIALS        (1  << 5 )
-#define GLSTATE_ALL              ((1 << 6 )-1)
+#define GLSTATE_CAPABILITIES       (1  << 0 )
+#define GLSTATE_MATRICES           (1  << 1 )
+#define GLSTATE_TEXTURE_BINDING    (1  << 2 )
+#define GLSTATE_COLOR              (1  << 3 )   // FIXME: Not implemented
+#define GLSTATE_LIGHTS             (1  << 4 )   // FIXME: Not implemented
+#define GLSTATE_MATERIALS          (1  << 5 )   // FIXME: Not implemented
+#define GLSTATE_ALL                ((1 << 6 )-1)
+
 
 typedef struct {
     PyObject_HEAD
@@ -78,6 +80,7 @@ typedef struct {
     unsigned int restoreFlags;
     unsigned int clearMask;
     PyObject *capabilities;
+    PyObject *matrixModes;
     PyObject *textureBindings;
 } GLState;
 
@@ -117,6 +120,7 @@ static void  (*glViewport_p)(int, int, int, int);
 static void  (*glClear_p)(int);
 static void  (*glEnable_p)(int);
 static void  (*glDisable_p)(int);
+static void  (*glMatrixMode_p)(int);
 static void  (*glBindTexture_p)(int, int);
 
 static void* (*XOpenDisplay_p)(char *);
@@ -312,10 +316,15 @@ static PyMemberDef glstate_members[] = {
       "prevent a particular context from clearing the color buffer\n"
       "or the depth buffer, for example.\n"
     },
+
     { "capabilities", T_OBJECT, offsetof(GLState, capabilities), READONLY,
       "A dictionary mapping OpenGL capability numbers to either\n"
       "True (glEnable) or False (glDisable). Missing capabilities\n"
       "haven't been touched by either glEnable or glDisable.\n"
+    },
+    { "matrixModes", T_OBJECT, offsetof(GLState, matrixModes), READONLY,
+      "A dictionary tracking OpenGL matrix modes that are in use.\n"
+      "Keys are matrix mode IDs, values are currently unused.\n"
     },
     { "textureBindings", T_OBJECT, offsetof(GLState, textureBindings), READONLY,
       "A dictionary mapping targets (like GL_TEXTURE_2D) to\n"
@@ -335,12 +344,14 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
     self->clearMask = ~0;
 
     self->capabilities = PyDict_New();
+    self->matrixModes = PyDict_New();
     self->textureBindings = PyDict_New();
     return 0;
 }
 
 static void glstate_dealloc(GLState *self) {
     Py_XDECREF(self->capabilities);
+    Py_XDECREF(self->matrixModes);
     Py_XDECREF(self->textureBindings);
     self->ob_type->tp_free((PyObject *)self);
 }
@@ -392,12 +403,14 @@ static void glstate_type_init(PyObject *module) {
     if (PyType_Ready(&glstate_type) < 0)
         return;
 
-    glstate_add_const("CAPABILITIES",     GLSTATE_CAPABILITIES);
-    glstate_add_const("TEXTURE_BINDING",  GLSTATE_TEXTURE_BINDING);
-    glstate_add_const("COLOR",            GLSTATE_COLOR);
-    glstate_add_const("LIGHTS",           GLSTATE_LIGHTS);
-    glstate_add_const("MATERIALS",        GLSTATE_MATERIALS);
-    glstate_add_const("ALL",              GLSTATE_ALL);
+    glstate_add_const("CAPABILITIES",      GLSTATE_CAPABILITIES);
+    glstate_add_const("MATRICES",          GLSTATE_MATRICES);
+    glstate_add_const("TEXTURE_BINDING",   GLSTATE_TEXTURE_BINDING);
+    glstate_add_const("COLOR",             GLSTATE_COLOR);
+    glstate_add_const("LIGHTS",            GLSTATE_LIGHTS);
+    glstate_add_const("MATERIALS",         GLSTATE_MATERIALS);
+    glstate_add_const("ALL",               GLSTATE_ALL);
+
     PyModule_AddObject(module, "GLState", (PyObject *) &glstate_type);
 }
 
@@ -475,7 +488,6 @@ static void glstate_switch(GLState *next) {
     current_glstate = next;
 }
 
-/* Track changes to GL capabilities */
 static __inline__ void glstate_track_capability(int capability, int status) {
     if (current_glstate &&
         (current_glstate->trackingFlags & GLSTATE_CAPABILITIES)) {
@@ -484,6 +496,28 @@ static __inline__ void glstate_track_capability(int capability, int status) {
         PyDict_SetItem(current_glstate->capabilities,
                        py_cap, status ? Py_True : Py_False);
         Py_DECREF(py_cap);
+    }
+}
+
+static __inline__ void glstate_track_matrix_mode(int mode) {
+    if (current_glstate &&
+        (current_glstate->trackingFlags & GLSTATE_MATRICES)) {
+
+        PyObject *py_mode = PyInt_FromLong(mode);
+        PyDict_SetItem(current_glstate->matrixModes, py_mode, Py_None);
+        Py_DECREF(py_mode);
+    }
+}
+
+static __inline__ void glstate_track_texture_binding(int target, int texture) {
+    if (current_glstate &&
+        (current_glstate->trackingFlags & GLSTATE_TEXTURE_BINDING)) {
+
+        PyObject *py_target = PyInt_FromLong(target);
+        PyObject *py_texture = PyInt_FromLong(texture);
+        PyDict_SetItem(current_glstate->textureBindings, py_target, py_texture);
+        Py_DECREF(py_target);
+        Py_DECREF(py_texture);
     }
 }
 
@@ -803,10 +837,16 @@ void glDisable(int cap) {
     glstate_track_capability(cap, 0);
 }
 
+void glMatrixMode(int mode) {
+    RESOLVE(glMatrixMode);
+    glMatrixMode_p(mode);
+    glstate_track_matrix_mode(mode);
+}
+
 void glBindTexture(int target, int texture) {
     RESOLVE(glBindTexture);
     glBindTexture_p(target, texture);
-    //    glstate_track_texture_binding(target, texture);
+    glstate_track_texture_binding(target, texture);
 }
 
 void glBindTextureEXT(int target, int texture) {
