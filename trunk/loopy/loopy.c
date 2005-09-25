@@ -76,6 +76,7 @@ typedef struct {
     PyObject *textureBindings;
     PyObject *textures;
     PyObject *color;
+    PyObject *blendFunc;
 
     int matrixMode;
     PyObject *matrices;
@@ -96,16 +97,14 @@ static const struct {
 #   define GLSTATE_MATRICES           (1  << 1 )
 #   define GLSTATE_TEXTURES           (1  << 2 )
 #   define GLSTATE_COLOR              (1  << 3 )
-#   define GLSTATE_LIGHTS             (1  << 4 )     // FIXME: Not implemented
-#   define GLSTATE_MATERIALS          (1  << 5 )     // FIXME: Not implemented
+#   define GLSTATE_BLEND_FUNC         (1  << 4 )
 #   define GLSTATE_ALL                ((1 << 6 )-1)
 
     {"CAPABILITIES",     GLSTATE_CAPABILITIES},
     {"MATRICES",         GLSTATE_MATRICES},
     {"TEXTURES",         GLSTATE_TEXTURES},
     {"COLOR",            GLSTATE_COLOR},
-    {"LIGHTS",           GLSTATE_LIGHTS},
-    {"MATERIALS",        GLSTATE_MATERIALS},
+    {"BLEND_FUNC",       GLSTATE_BLEND_FUNC},
     {"ALL",              GLSTATE_ALL},
     {0}
 };
@@ -157,6 +156,7 @@ static void  (*glPushMatrix_p)(void);
 static void  (*glPopMatrix_p)(void);
 static GLenum(*glGetError_p)(void);
 static void  (*glColor4dv_p)(GLdouble*);
+static void  (*glBlendFunc_p)(GLenum, GLenum);
 
 static void* (*XOpenDisplay_p)(char *);
 static int   (*XCloseDisplay_p)(void *);
@@ -378,6 +378,11 @@ static PyMemberDef glstate_members[] = {
       "You may modify this, but values other than 4-tuples\n"
       "of floats will have undefined results.\n"
     },
+    { "blendFunc", T_OBJECT, offsetof(GLState, blendFunc), 0,
+      "The current OpenGL blend function, as a 2-tuple of\n"
+      "integers. You may modify this, but values other than\n"
+      "2-tuples of ints will have undefined results.\n"
+    },
     { "matrixMode", T_INT, offsetof(GLState, matrixMode), 0,
       "The current OpenGL matrix mode.\n"
     },
@@ -413,6 +418,7 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
     self->textureBindings = PyDict_New();
     self->textures = PyDict_New();
     self->color = Py_BuildValue("(ffff)", 1.0f, 1.0f, 1.0f, 1.0f);
+    self->blendFunc = Py_BuildValue("(ii)", GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     self->matrices = PyDict_New();
     self->pushedMatrices = NULL;
     return 0;
@@ -423,6 +429,7 @@ static void glstate_dealloc(GLState *self) {
     Py_XDECREF(self->textureBindings);
     Py_XDECREF(self->textures);
     Py_XDECREF(self->color);
+    Py_XDECREF(self->blendFunc);
     Py_XDECREF(self->matrices);
     Py_XDECREF(self->pushedMatrices);
     self->ob_type->tp_free((PyObject *)self);
@@ -783,6 +790,17 @@ static void glstate_switch(GLState *next) {
         GLdouble color[4];
         pytuple_to_glvector(next->color, color, 4);
         GL(glColor4dv, (color));
+    }
+
+    if (next->restoreFlags & GLSTATE_BLEND_FUNC) {
+        if (PyTuple_Check(next->blendFunc) &&
+            PyTuple_GET_SIZE(next->blendFunc) == 2) {
+            PyObject *src = PyTuple_GET_ITEM(next->blendFunc, 0);
+            PyObject *dest = PyTuple_GET_ITEM(next->blendFunc, 0);
+            if (PyInt_Check(src) && PyInt_Check(dest)) {
+                GL(glBlendFunc, (PyInt_AS_LONG(src), PyInt_AS_LONG(dest)));
+            }
+        }
     }
 
     /* Complete the switch, drop the reference we stole from
@@ -1176,6 +1194,15 @@ void glMatrixMode(GLenum mode) {
     glMatrixMode_p(mode);
     if (IS_TRACKING(GLSTATE_MATRICES))
         glstate_track_matrix_mode(mode);
+}
+
+void glBlendFunc(GLenum src, GLenum dest) {
+    RESOLVE(glBlendFunc);
+    glBlendFunc_p(src, dest);
+    if (IS_TRACKING(GLSTATE_BLEND_FUNC)) {
+        Py_XDECREF(current_glstate->blendFunc);
+        current_glstate->blendFunc = Py_BuildValue("(ii)", src, dest);
+    }
 }
 
 void glBindTexture(GLenum target, GLuint texture) {
