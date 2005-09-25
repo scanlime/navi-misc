@@ -67,8 +67,6 @@ class NeheOverlay(loopy.Overlay):
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
 
     def render(self):
-        print self.glState.matrixModes
-
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
         glTranslatef(0.0,0.0,-5.0)
