@@ -140,7 +140,6 @@ static void* (*dlsym_p)(void*, __const char*);
 static void* (*glXGetProcAddress_p)(char *);
 static void* (*glXGetProcAddressARB_p)(char *);
 static void  (*glXSwapBuffers_p)(void*, void*);
-
 static void  (*glViewport_p)(GLint, GLint, GLsizei, GLsizei);
 static void  (*glClear_p)(GLbitfield);
 static void  (*glEnable_p)(GLenum);
@@ -150,6 +149,8 @@ static void  (*glBindTexture_p)(GLenum, GLuint);
 static void  (*glGenTextures_p)(GLsizei, GLuint*);
 static void  (*glDeleteTextures_p)(GLsizei, const GLuint*);
 static GLboolean (*glIsTexture_p)(GLuint);
+static void  (*glTexParameterf_p)(GLenum, GLenum, GLfloat);
+static void  (*glTexParameteri_p)(GLenum, GLenum, GLint);
 static void  (*glGetDoublev_p)(GLenum, GLdouble*);
 static void  (*glLoadMatrixd_p)(const GLdouble*);
 static void  (*glPushMatrix_p)(void);
@@ -599,7 +600,6 @@ static int glstate_remap_texture(GLState *state, int virtual) {
     }
 
     Py_DECREF(py_virtual);
-    fprintf(stderr, "Texture remap: [%p].%d -> %d\n", state, virtual, real);
     return real;
 }
 
@@ -813,13 +813,30 @@ static void glstate_track_matrix_mode(int mode) {
     current_glstate->matrixMode = mode;
 }
 
-static __inline__ void glstate_track_texture_binding(int target, int texture) {
+static void glstate_track_texture_binding(int target, int texture) {
     /* Track texture bindings, using virtual texture IDs */
     PyObject *py_target = PyInt_FromLong(target);
     PyObject *py_texture = PyInt_FromLong(texture);
     PyDict_SetItem(current_glstate->textureBindings, py_target, py_texture);
     Py_DECREF(py_target);
     Py_DECREF(py_texture);
+}
+
+static void glstate_init_target(int target) {
+    /* Start tracking a texture target, if we aren't already.
+     * This is necessary to get up implicit texture bindings
+     * on targets an application starts using without explicitly
+     * binding a texture.
+     */
+    PyObject *py_target = PyInt_FromLong(target);
+
+    if (!PyDict_GetItem(current_glstate->textures, py_target)) {
+        RESOLVE(glBindTexture);
+        glstate_track_texture_binding(target, 0);
+        glBindTexture_p(target, glstate_remap_texture(current_glstate, 0));
+    }
+
+    Py_DECREF(py_target);
 }
 
 /************************************************************************/
@@ -1203,6 +1220,20 @@ GLboolean glIsTexture(GLuint texture) {
     }
     RESOLVE(glIsTexture);
     return glIsTexture_p(texture);
+}
+
+void glTexParameterf(GLenum target, GLenum pname, GLfloat param) {
+    if (IS_TRACKING(GLSTATE_TEXTURES))
+        glstate_init_target(target);
+    RESOLVE(glTexParameterf);
+    glTexParameterf_p(target, pname, param);
+}
+
+void glTexParameteri(GLenum target, GLenum pname, GLint param) {
+    if (IS_TRACKING(GLSTATE_TEXTURES))
+        glstate_init_target(target);
+    RESOLVE(glTexParameteri);
+    glTexParameteri_p(target, pname, param);
 }
 
 void glBindTextureEXT(GLenum target, GLuint texture) {
