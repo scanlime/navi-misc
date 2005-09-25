@@ -74,6 +74,7 @@ typedef struct {
 
     PyObject *capabilities;
     PyObject *textureBindings;
+    PyObject *textures;
     PyObject *color;
 
     int matrixMode;
@@ -93,7 +94,7 @@ static const struct {
 
 #   define GLSTATE_CAPABILITIES       (1  << 0 )
 #   define GLSTATE_MATRICES           (1  << 1 )
-#   define GLSTATE_TEXTURE_BINDING    (1  << 2 )
+#   define GLSTATE_TEXTURES           (1  << 2 )
 #   define GLSTATE_COLOR              (1  << 3 )
 #   define GLSTATE_LIGHTS             (1  << 4 )     // FIXME: Not implemented
 #   define GLSTATE_MATERIALS          (1  << 5 )     // FIXME: Not implemented
@@ -101,7 +102,7 @@ static const struct {
 
     {"CAPABILITIES",     GLSTATE_CAPABILITIES},
     {"MATRICES",         GLSTATE_MATRICES},
-    {"TEXTURE_BINDING",  GLSTATE_TEXTURE_BINDING},
+    {"TEXTURES",         GLSTATE_TEXTURES},
     {"COLOR",            GLSTATE_COLOR},
     {"LIGHTS",           GLSTATE_LIGHTS},
     {"MATERIALS",        GLSTATE_MATERIALS},
@@ -124,7 +125,9 @@ static GLState *target_glstate;
  */
 static GLState *current_glstate;
 
-#define RUNNING_IN_TARGET (current_glstate == target_glstate)
+#define RUNNING_IN_TARGET    (current_glstate == target_glstate)
+#define IS_TRACKING(flag)    (current_glstate && \
+                             (current_glstate->trackingFlags & (flag)))
 
 PyMODINIT_FUNC initloopy(void);
 static GLState* glstate_new(void);
@@ -144,6 +147,9 @@ static void  (*glEnable_p)(GLenum);
 static void  (*glDisable_p)(GLenum);
 static void  (*glMatrixMode_p)(GLenum);
 static void  (*glBindTexture_p)(GLenum, GLuint);
+static void  (*glGenTextures_p)(GLsizei, GLuint*);
+static void  (*glDeleteTextures_p)(GLsizei, const GLuint*);
+static GLboolean (*glIsTexture_p)(GLuint);
 static void  (*glGetDoublev_p)(GLenum, GLdouble*);
 static void  (*glLoadMatrixd_p)(const GLdouble*);
 static void  (*glPushMatrix_p)(void);
@@ -356,9 +362,15 @@ static PyMemberDef glstate_members[] = {
     },
     { "textureBindings", T_OBJECT, offsetof(GLState, textureBindings), READONLY,
       "A dictionary mapping targets (like GL_TEXTURE_2D) to\n"
-      "texture IDs. Missing targets haven't been bound to a texture\n"
-      "ID. This will track traditional 1D/2D/3D targets, plus new\n"
-      "targets defined by OpenGL extensions.\n"
+      "virtual texture IDs. Missing targets haven't been bound yet.\n"
+      "This will track traditional 1D/2D/3D targets, plus new targets\n"
+      "defined by OpenGL extensions.\n"
+    },
+    { "textures", T_OBJECT, offsetof(GLState, textures), READONLY,
+      "A dictionary mapping all virtual texture IDs used by this GLState\n"
+      "to their corresponding real texture IDs. All texture bindings\n"
+      "performed while this state is active get mapped through this\n"
+      "dictionary.\n"
     },
     { "color", T_OBJECT, offsetof(GLState, color), 0,
       "The current OpenGL color, as a 4-tuple of floats.\n"
@@ -398,6 +410,7 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
 
     self->capabilities = PyDict_New();
     self->textureBindings = PyDict_New();
+    self->textures = PyDict_New();
     self->color = Py_BuildValue("(ffff)", 1.0f, 1.0f, 1.0f, 1.0f);
     self->matrices = PyDict_New();
     self->pushedMatrices = NULL;
@@ -407,6 +420,7 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
 static void glstate_dealloc(GLState *self) {
     Py_XDECREF(self->capabilities);
     Py_XDECREF(self->textureBindings);
+    Py_XDECREF(self->textures);
     Py_XDECREF(self->color);
     Py_XDECREF(self->matrices);
     Py_XDECREF(self->pushedMatrices);
@@ -557,19 +571,83 @@ static void glstate_switch_capabilities(PyObject *prev, PyObject *next) {
     }
 }
 
-static void glstate_restore_texture_bindings(PyObject *textures) {
+/*
+ * Given a virtual texture ID for this GLState, return the corresponding
+ * real texture ID. If this virtual ID hasn't been seen before, we assume
+ * the application is using textures without allocating them, and we
+ * allocate a new texture on their behalf.
+ */
+static int glstate_remap_texture(GLState *state, int virtual) {
+    PyObject *py_virtual = PyInt_FromLong(virtual);
+    PyObject *py_real;
+    GLuint real;
+
+    py_real = PyDict_GetItem(state->textures, py_virtual);
+
+    if (py_real && PyInt_Check(py_real)) {
+        /* If this texture already exists in the mapping, return it */
+        real = PyInt_AS_LONG(py_real);
+    }
+    else {
+        /* If not, this app is using an ID we haven't seen. Allocate
+         * a corresponding real ID and store a new mapping.
+         */
+        GL(glGenTextures, (1, &real));
+        py_real = PyInt_FromLong(real);
+        PyDict_SetItem(state->textures, py_virtual, py_real);
+        Py_DECREF(py_real);
+    }
+
+    Py_DECREF(py_virtual);
+    fprintf(stderr, "Texture remap: [%p].%d -> %d\n", state, virtual, real);
+    return real;
+}
+
+/* Track a texture allocation performed by an application. This
+ * adds an identity mapping to the current GLState's texture map.
+ */
+static void glstate_track_texture_alloc(int texture) {
+    PyObject *py_texture = PyInt_FromLong(texture);
+    PyDict_SetItem(current_glstate->textures, py_texture, py_texture);
+    Py_DECREF(py_texture);
+}
+
+/* Track a texture free performed by an application. We're given
+ * the virtual address, and delete both the texture itself and
+ * our mapping to it.
+ */
+static void glstate_track_texture_free(int virtual) {
+    PyObject *py_virtual = PyInt_FromLong(virtual);
+    PyObject *py_real = PyDict_GetItem(current_glstate->textures, py_virtual);
+
+    if (py_real && PyInt_Check(py_real)) {
+        GLuint real = PyInt_AS_LONG(py_real);
+        GL(glDeleteTextures, (1, &real));
+
+        PyDict_DelItem(current_glstate->textures, py_virtual);
+    }
+
+    Py_DECREF(py_virtual);
+}
+
+static void glstate_restore_texture_bindings(GLState *state) {
     PyObject *key, *value;
     int pos;
 
     RESOLVE(glBindTexture);
 
     pos = 0;
-    while (PyDict_Next(textures, &pos, &key, &value)) {
+    while (PyDict_Next(state->textureBindings, &pos, &key, &value)) {
         if (!PyInt_Check(key))
             continue;
         if (!PyInt_Check(value))
             continue;
-        GL(glBindTexture, (PyInt_AS_LONG(key), PyInt_AS_LONG(value)));
+
+        /* Note that, to make our applications' lives easier,
+         * the bindings are represented in virtual texture IDs.
+         */
+        GL(glBindTexture, (PyInt_AS_LONG(key),
+                           glstate_remap_texture(state, PyInt_AS_LONG(value))));
     }
 }
 
@@ -673,8 +751,8 @@ static void glstate_switch(GLState *next) {
         glstate_switch_capabilities(previous->capabilities,
                                     next->capabilities);
 
-    if (next->restoreFlags & GLSTATE_TEXTURE_BINDING)
-        glstate_restore_texture_bindings(next->textureBindings);
+    if (next->restoreFlags & GLSTATE_TEXTURES)
+        glstate_restore_texture_bindings(next);
 
     if (previous->trackingFlags & GLSTATE_COLOR) {
         GLdouble color[4];
@@ -716,43 +794,32 @@ static void glstate_switch(GLState *next) {
     current_glstate = next;
 }
 
-static __inline__ void glstate_track_capability(int capability, int status) {
-    if (current_glstate &&
-        (current_glstate->trackingFlags & GLSTATE_CAPABILITIES)) {
-
-        PyObject *py_cap = PyInt_FromLong(capability);
-        PyDict_SetItem(current_glstate->capabilities,
-                       py_cap, status ? Py_True : Py_False);
-        Py_DECREF(py_cap);
-    }
+static void glstate_track_capability(int capability, int status) {
+    PyObject *py_cap = PyInt_FromLong(capability);
+    PyDict_SetItem(current_glstate->capabilities,
+                   py_cap, status ? Py_True : Py_False);
+    Py_DECREF(py_cap);
 }
 
-static __inline__ void glstate_track_matrix_mode(int mode) {
-    if (current_glstate &&
-        (current_glstate->trackingFlags & GLSTATE_MATRICES)) {
+static void glstate_track_matrix_mode(int mode) {
+    /* Make sure that any modes the app has touched get represented
+     * by at least a None in the matrix dictionary.
+     */
+    PyObject *py_mode = PyInt_FromLong(mode);
+    if (!PyDict_GetItem(current_glstate->matrices, py_mode))
+        PyDict_SetItem(current_glstate->matrices, py_mode, Py_None);
+    Py_DECREF(py_mode);
 
-        /* Make sure that any modes the app has touched get represented
-         * by at least a None in the matrix dictionary.
-         */
-        PyObject *py_mode = PyInt_FromLong(mode);
-        if (!PyDict_GetItem(current_glstate->matrices, py_mode))
-            PyDict_SetItem(current_glstate->matrices, py_mode, Py_None);
-        Py_DECREF(py_mode);
-
-        current_glstate->matrixMode = mode;
-    }
+    current_glstate->matrixMode = mode;
 }
 
 static __inline__ void glstate_track_texture_binding(int target, int texture) {
-    if (current_glstate &&
-        (current_glstate->trackingFlags & GLSTATE_TEXTURE_BINDING)) {
-
-        PyObject *py_target = PyInt_FromLong(target);
-        PyObject *py_texture = PyInt_FromLong(texture);
-        PyDict_SetItem(current_glstate->textureBindings, py_target, py_texture);
-        Py_DECREF(py_target);
-        Py_DECREF(py_texture);
-    }
+    /* Track texture bindings, using virtual texture IDs */
+    PyObject *py_target = PyInt_FromLong(target);
+    PyObject *py_texture = PyInt_FromLong(texture);
+    PyDict_SetItem(current_glstate->textureBindings, py_target, py_texture);
+    Py_DECREF(py_target);
+    Py_DECREF(py_texture);
 }
 
 /************************************************************************/
@@ -983,7 +1050,7 @@ static int overlay_resize(Overlay *self, void* user_data) {
 /**************************************************** Python Module *****/
 /************************************************************************/
 
-PyObject *get_target_glstate(PyObject *self) {
+static PyObject *get_target_glstate(PyObject *self) {
     if (target_glstate) {
         Py_INCREF(target_glstate);
         return (PyObject*) target_glstate;
@@ -1076,29 +1143,82 @@ void glClear(GLbitfield flags) {
 void glEnable(GLenum cap) {
     RESOLVE(glEnable);
     glEnable_p(cap);
-    glstate_track_capability(cap, 1);
+    if (IS_TRACKING(GLSTATE_CAPABILITIES))
+        glstate_track_capability(cap, 1);
 }
 
 void glDisable(GLenum cap) {
     RESOLVE(glDisable);
     glDisable_p(cap);
-    glstate_track_capability(cap, 0);
+    if (IS_TRACKING(GLSTATE_CAPABILITIES))
+        glstate_track_capability(cap, 0);
 }
 
 void glMatrixMode(GLenum mode) {
     RESOLVE(glMatrixMode);
     glMatrixMode_p(mode);
-    glstate_track_matrix_mode(mode);
+    if (IS_TRACKING(GLSTATE_MATRICES))
+        glstate_track_matrix_mode(mode);
 }
 
 void glBindTexture(GLenum target, GLuint texture) {
+    if (IS_TRACKING(GLSTATE_TEXTURES)) {
+        glstate_track_texture_binding(target, texture);
+        texture = glstate_remap_texture(current_glstate, texture);
+    }
     RESOLVE(glBindTexture);
     glBindTexture_p(target, texture);
-    glstate_track_texture_binding(target, texture);
+}
+
+void glGenTextures(GLsizei n, GLuint *textures) {
+    RESOLVE(glGenTextures);
+    glGenTextures_p(n, textures);
+    if (IS_TRACKING(GLSTATE_TEXTURES)) {
+        int i;
+        for (i=0; i<n; i++)
+            glstate_track_texture_alloc(textures[i]);
+    }
+}
+
+void glDeleteTextures(GLsizei n, const GLuint *textures) {
+    if (IS_TRACKING(GLSTATE_TEXTURES)) {
+        int i;
+        for (i=0; i<n; i++)
+            glstate_track_texture_free(textures[i]);
+    }
+    else {
+        RESOLVE(glDeleteTextures);
+        glDeleteTextures_p(n, textures);
+    }
+}
+
+GLboolean glIsTexture(GLuint texture) {
+    if (IS_TRACKING(GLSTATE_TEXTURES)) {
+        /* This could be dangerous if the app uses glIsTexture()
+         * indiscriminately on texture IDs that don't exist,
+         * since we'll end up creating a virtual texture mapping
+         * each time we're called.
+         */
+        texture = glstate_remap_texture(current_glstate, texture);
+    }
+    RESOLVE(glIsTexture);
+    return glIsTexture_p(texture);
 }
 
 void glBindTextureEXT(GLenum target, GLuint texture) {
     glBindTexture(target, texture);
+}
+
+void glGenTexturesEXT(GLsizei n, GLuint *textures) {
+    glGenTextures(n, textures);
+}
+
+void glDeleteTexturesEXT(GLsizei n, GLuint *textures) {
+    glDeleteTextures(n, textures);
+}
+
+GLboolean glIsTextureEXT(GLuint texture) {
+    return glIsTexture(texture);
 }
 
 void *dlsym (void *__restrict handle, __const char *__restrict name) {
