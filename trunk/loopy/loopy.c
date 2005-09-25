@@ -561,6 +561,8 @@ static void glstate_save_matrices(PyObject *prev) {
         value = pytuple_from_glvector(matrix, 16);
         PyDict_SetItem(prev, key, value);
         Py_DECREF(value);
+
+        printf("Saving matrix %d: %f %f %f... [%p]\n", PyInt_AS_LONG(key), matrix[0], matrix[1], matrix[2], prev);
     }
 }
 
@@ -581,6 +583,8 @@ static void glstate_restore_matrices(PyObject *next) {
         GL(glMatrixMode, (PyInt_AS_LONG(key)));
         pytuple_to_glvector(value, matrix, 16);
         GL(glLoadMatrixd, (matrix));
+
+        printf("Restoring matrix %d: %f %f %f... [%p]\n", PyInt_AS_LONG(key), matrix[0], matrix[1], matrix[2], next);
     }
 }
 
@@ -601,6 +605,7 @@ static void glstate_pushpop_matrix(int push) {
             continue;
 
         GL(glMatrixMode, (PyInt_AS_LONG(key)));
+        printf("pushpop mode %d push %d\n", PyInt_AS_LONG(key), push);
         if (push)
             GL(glPushMatrix, ());
         else
@@ -848,34 +853,43 @@ static int foreach_overlay(int (*callback)(Overlay*, void*), void *user_data) {
     return 0;
 }
 
+/* Call an arbitrary method in the Overlay, with no parameters,
+ * performing the proper OpenGL state management before and after.
+ */
+static int overlay_call_method(Overlay *self, char *method) {
+    PyObject *result;
+    int retval = 0;
+
+    /* Even if the overlay modifies its restoreFlags, we
+     * don't want the matrix stack to become unbalanced.
+     */
+    int restore_matrices = self->glState->restoreFlags & GLSTATE_MATRICES;
+    if (restore_matrices)
+        glstate_pushpop_matrix(1);
+
+    glstate_switch(self->glState);
+    printf("overlay: %s\n", method);
+    result = PyObject_CallMethod((PyObject*) self, method, NULL);
+    if (result)
+        Py_DECREF(result);
+    else
+        retval = -1;
+
+    /* Throw away any leftover errors from the Overlay */
+    RESOLVE(glGetError);
+    glGetError_p();
+
+    if (restore_matrices)
+        glstate_pushpop_matrix(0);
+    return 0;
+}
+
 /* If this overlay has been initialized, switch to
  * its GLState and render() it.
  */
 static int overlay_render(Overlay *self, void* user_data) {
-    PyObject *result;
-    GLenum error;
-
-    if (self->initialized) {
-        /* Even if the overlay modifies its restoreFlags, we
-         * don't want the matrix stack to become unbalanced.
-         */
-        int restore_matrices = self->glState->restoreFlags & GLSTATE_MATRICES;
-        if (restore_matrices)
-            glstate_pushpop_matrix(1);
-
-        glstate_switch(self->glState);
-        result = PyObject_CallMethod((PyObject*) self, "render", NULL);
-        if (!result)
-            return -1;
-        Py_DECREF(result);
-
-        /* Throw away any leftover errors from the Overlay */
-        RESOLVE(glGetError);
-        glGetError_p();
-
-        if (restore_matrices)
-            glstate_pushpop_matrix(0);
-    }
+    if (self->initialized)
+        overlay_call_method(self, "render");
     return 0;
 }
 
@@ -886,7 +900,6 @@ static int overlay_render(Overlay *self, void* user_data) {
  */
 static int overlay_resize(Overlay *self, void* user_data) {
     struct ivector2 *current_res = (struct ivector2*) user_data;
-    PyObject *result;
     char *method;
 
     if (self->initialized) {
@@ -903,15 +916,8 @@ static int overlay_resize(Overlay *self, void* user_data) {
     self->c_resolution = *current_res;
     self->py_resolution = Py_BuildValue("(ii)", current_res->x, current_res->y);
 
-    glstate_switch(self->glState);
-    result = PyObject_CallMethod((PyObject*) self, method, NULL);
-    if (!result)
+    if (overlay_call_method(self, method) < 0)
         return -1;
-    Py_DECREF(result);
-
-    /* Throw away any leftover errors from the Overlay */
-    RESOLVE(glGetError);
-    glGetError_p();
 
     self->initialized = 1;
     return 0;
@@ -963,6 +969,7 @@ PyMODINIT_FUNC initloopy(void)
 void glXSwapBuffers(void *display, void *drawable) {
     PyObject *result;
     int i, len;
+    printf("leaving target (swap)\n");
 
     /* Clear any stale errors from the target app */
     RESOLVE(glGetError);
@@ -975,6 +982,8 @@ void glXSwapBuffers(void *display, void *drawable) {
 
     RESOLVE(glXSwapBuffers);
     glXSwapBuffers_p(display, drawable);
+
+    printf("returning to target (swap)\n");
 }
 
 void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
@@ -984,6 +993,8 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
     glViewport_p(x, y, width, height);
 
     if (RUNNING_IN_TARGET) {
+        printf("leaving target (viewport)\n");
+
         /* This isn't fool-proof, but we detect the current
          * window resolution by looking for glViewport() calls
          * with x,y == 0,0. If this turns out to be a problem,
@@ -1001,6 +1012,8 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
                 handle_py_error();
             glstate_switch(target_glstate);
         }
+
+        printf("returning to target (viewport)\n");
     }
 }
 
