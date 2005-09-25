@@ -47,20 +47,17 @@ class RK4 (ODE):
 
     def _step (self, last, i):
         """ Computations performed at each iteration of the ODE. """
-        k1 = self.f (last, i.time, self.time.h)
-        k2 = self.f (last + self.time.h/2. * k1,
-                i.time + self.time.h/2., self.time.h)
-        k3 = self.f (last + self.time.h/2. * k2,
-                i.time + self.time.h/2., self.time.h)
-        k4 = self.f (last + self.time.h * k3,
-                i.time + self.time.h, self.time.h)
+        k1 = self.f (last, i.time, i.h)
+        k2 = self.f (last + i.h/2. * k1, i.time + i.h/2., i.h)
+        k3 = self.f (last + i.h/2. * k2, i.time + i.h/2., i.h)
+        k4 = self.f (last + i.h * k3, i.time + i.h, i.h)
 
-        return last + self.time.h/6.*(k1 + 2.*k2 + 2.*k3 + k4)
+        return last + i.h/6.*(k1 + 2.*k2 + 2.*k3 + k4)
 
     def __call__ (self, ic, time):
         """ Solve the system. """
         result = [ic]
-        for i in self.time:
+        for i in time:
             step = self._step (result[i.iteration], i)
             result.append (step)
 
@@ -79,7 +76,7 @@ class ARK4 (RK4):
         single = RK4._step (self, last, i)
 
         # Take two half steps.
-        checker = RK4 (self.f, last, self.time.time, 2, .5*self.time.h)
+        checker = RK4 (self.f, last, i.time, 2, .5*i.h)
         checker()
 
         # Find the difference.
@@ -88,18 +85,18 @@ class ARK4 (RK4):
         # If the difference is too large, decrease the time step.
         delta = math.sqrt (Numeric.dot (diff, diff))
         if delta > self.epsilon:
-            self.time.h *= .5
+            i.h *= .5
             return self._step (last, i)
         # If the difference is less then our tolerance try doubling h.
         elif delta < self.epsilon:
-            checker = RK4 (self.f, last, self.time.time, 2, 2*self.time.h)
+            checker = RK4 (self.f, last, i.time, 2, 2*i.h)
             checker()
 
             diff = checker.results[2] - single
             delta = math.sqrt (Numeric.dot (diff, diff))
             # Is it ok to double h?
             if delta < self.epsilon:
-                self.time.h *= 2
+                i.h *= 2
                 return checker.results[2]
 
         return single
