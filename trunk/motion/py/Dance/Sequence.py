@@ -3,7 +3,7 @@
 Map a sequence to a chaotic attractor and shuffle it.
 """
 
-import Motion, Numeric, math
+import Numeric, math
 
 __all__ = ["Sequence"]
 
