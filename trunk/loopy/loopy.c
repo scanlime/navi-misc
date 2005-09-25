@@ -63,6 +63,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <GL/gl.h>
 #include <SDL/SDL.h>
 
 #define GLSTATE_CAPABILITIES       (1  << 0 )
@@ -73,14 +74,17 @@
 #define GLSTATE_MATERIALS          (1  << 5 )   // FIXME: Not implemented
 #define GLSTATE_ALL                ((1 << 6 )-1)
 
-
 typedef struct {
     PyObject_HEAD
     unsigned int trackingFlags;
     unsigned int restoreFlags;
     unsigned int clearMask;
+
     PyObject *capabilities;
-    PyObject *matrixModes;
+
+    int matrixMode;
+    PyObject *matrices;
+
     PyObject *textureBindings;
 } GLState;
 
@@ -102,11 +106,7 @@ static GLState *target_glstate;
  */
 static GLState *current_glstate;
 
-/* Check whether we're running in an overlay, rather than from the
- * target itself or something internal.
- */
-#define RUNNING_IN_OVERLAY \
-    (current_glstate && (current_glstate != target_glstate))
+#define RUNNING_IN_TARGET (current_glstate == target_glstate)
 
 /* Procedures we pull in dynamically using RESOLVE(). Most of
  * these are functions we override locally, so we have to look
@@ -116,12 +116,18 @@ static void* (*dlsym_p)(void*, __const char*);
 static void* (*glXGetProcAddress_p)(char *);
 static void* (*glXGetProcAddressARB_p)(char *);
 static void  (*glXSwapBuffers_p)(void*, void*);
-static void  (*glViewport_p)(int, int, int, int);
-static void  (*glClear_p)(int);
-static void  (*glEnable_p)(int);
-static void  (*glDisable_p)(int);
-static void  (*glMatrixMode_p)(int);
-static void  (*glBindTexture_p)(int, int);
+
+static void  (*glViewport_p)(GLint, GLint, GLsizei, GLsizei);
+static void  (*glClear_p)(GLbitfield);
+static void  (*glEnable_p)(GLenum);
+static void  (*glDisable_p)(GLenum);
+static void  (*glMatrixMode_p)(GLenum);
+static void  (*glBindTexture_p)(GLenum, GLuint);
+static void  (*glGetDoublev_p)(GLenum, GLdouble*);
+static void  (*glLoadMatrixd_p)(const GLdouble*);
+static void  (*glPushMatrix_p)(void);
+static void  (*glPopMatrix_p)(void);
+static GLenum(*glGetError_p)(void);
 
 static void* (*XOpenDisplay_p)(char *);
 static int   (*XCloseDisplay_p)(void *);
@@ -212,6 +218,14 @@ static void handle_link_error(const char *name) {
             "Loopy runtime link error: "
             "Can't resolve symbol '%s'\n", name);
     exit(1);
+}
+
+/*
+ * Warn the user about OpenGL errors caused by Loopy's internals
+ */
+static void handle_gl_error(GLenum error) {
+    if (!error) return;
+    fprintf(stderr, "Loopy internal OpenGL error: 0x%08x\n", error);
 }
 
 /*
@@ -316,15 +330,21 @@ static PyMemberDef glstate_members[] = {
       "prevent a particular context from clearing the color buffer\n"
       "or the depth buffer, for example.\n"
     },
-
     { "capabilities", T_OBJECT, offsetof(GLState, capabilities), READONLY,
       "A dictionary mapping OpenGL capability numbers to either\n"
       "True (glEnable) or False (glDisable). Missing capabilities\n"
       "haven't been touched by either glEnable or glDisable.\n"
     },
-    { "matrixModes", T_OBJECT, offsetof(GLState, matrixModes), READONLY,
-      "A dictionary tracking OpenGL matrix modes that are in use.\n"
-      "Keys are matrix mode IDs, values are currently unused.\n"
+    { "matrixMode", T_INT, offsetof(GLState, matrixMode), 0,
+      "The current OpenGL matrix mode.\n"
+    },
+    { "matrices", T_OBJECT, offsetof(GLState, matrices), READONLY,
+      "The keys in this dictionary are all OpenGL matrix modes\n"
+      "that have been used while this state was current. Values\n"
+      "are saved OpenGL matrices. Note that the matrix tracker\n"
+      "currently only saves one matrix of each type. This means\n"
+      "that an Overlay should never try to pop matrices it pushed\n"
+      "during setup.\n"
     },
     { "textureBindings", T_OBJECT, offsetof(GLState, textureBindings), READONLY,
       "A dictionary mapping targets (like GL_TEXTURE_2D) to\n"
@@ -344,14 +364,14 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
     self->clearMask = ~0;
 
     self->capabilities = PyDict_New();
-    self->matrixModes = PyDict_New();
+    self->matrices = PyDict_New();
     self->textureBindings = PyDict_New();
     return 0;
 }
 
 static void glstate_dealloc(GLState *self) {
     Py_XDECREF(self->capabilities);
-    Py_XDECREF(self->matrixModes);
+    Py_XDECREF(self->matrices);
     Py_XDECREF(self->textureBindings);
     self->ob_type->tp_free((PyObject *)self);
 }
@@ -418,6 +438,33 @@ static void glstate_type_init(PyObject *module) {
 /****************************************** OpenGL State Management *****/
 /************************************************************************/
 
+/* Create a new Python tuple from a GLdouble vector of fixed length */
+static PyObject* pytuple_from_glvector(GLdouble *v, int len) {
+    PyObject *tuple = PyTuple_New(len);
+    int i;
+    for (i=0; i<len; i++)
+        PyTuple_SetItem(tuple, i, PyFloat_FromDouble(v[i]));
+    return tuple;
+}
+
+/* Populate a GLdouble vector of fixed length from a Python tuple.
+ * Missing or invalid entries in the tuple leave 0 in the vector.
+ */
+static void pytuple_to_glvector(PyObject *tuple, GLdouble *v, int len) {
+    int tupleLen = PyTuple_Check(tuple) ? PyTuple_GET_SIZE(tuple) : 0;
+    int i;
+    for (i=0; i<len; i++) {
+        if (i<tupleLen) {
+            PyObject *item = PyTuple_GET_ITEM(tuple, i);
+            if (PyFloat_Check(item)) {
+                v[i] = PyFloat_AS_DOUBLE(item);
+                continue;
+            }
+        }
+        v[i] = 0;
+    }
+}
+
 /* Perform the glEnables and glDisables necessary to transition
  * between two OpenGL state dictionaries. This proceeds in two steps:
  *
@@ -463,6 +510,81 @@ static void glstate_switch_capabilities(PyObject *prev, PyObject *next) {
     }
 }
 
+static void glstate_save_matrices(PyObject *prev) {
+    PyObject *key, *value;
+    GLdouble matrix[16];
+    int pos, n;
+
+    RESOLVE(glGetDoublev);
+
+    pos = 0;
+    while (PyDict_Next(prev, &pos, &key, NULL)) {
+        if (!PyInt_Check(key))
+            continue;
+
+        /* Save matrices into the previous state.
+         * This is ugly, since we have to translate from matrix
+         * name to the glGet name. Bad OpenGL!
+         */
+        switch (PyInt_AS_LONG(key)) {
+        case GL_MODELVIEW:  n = GL_MODELVIEW_MATRIX;  break;
+        case GL_PROJECTION: n = GL_PROJECTION_MATRIX; break;
+        case GL_TEXTURE:    n = GL_TEXTURE_MATRIX;    break;
+        default:
+            continue;
+        }
+
+        glGetDoublev_p(n, matrix);
+        value = pytuple_from_glvector(matrix, 16);
+        PyDict_SetItem(prev, key, value);
+        Py_DECREF(value);
+    }
+}
+
+static void glstate_restore_matrices(PyObject *next) {
+    PyObject *key, *value;
+    GLdouble matrix[16];
+    int pos;
+
+    RESOLVE(glMatrixMode);
+    RESOLVE(glLoadMatrixd);
+
+    pos = 0;
+    while (PyDict_Next(next, &pos, &key, &value)) {
+        if (!PyInt_Check(key))
+            continue;
+
+        /* Load matrices from the next state */
+        glMatrixMode_p(PyInt_AS_LONG(key));
+        pytuple_to_glvector(value, matrix, 16);
+        glLoadMatrixd_p(matrix);
+    }
+}
+
+/* Push/pop every matrix stack that's in use by the current glstate.
+ * This is used by overlay_render()- it shouldn't be part of the
+ * generic glstate_switch(), since it doesn't apply to the target
+ * application's glstate.
+ */
+static void glstate_foreach_matrix(void (*operation)(void)) {
+    PyObject *key, *value;
+    int pos;
+
+    RESOLVE(glMatrixMode);
+
+    pos = 0;
+    while (PyDict_Next(current_glstate->matrices, &pos, &key, NULL)) {
+        if (!PyInt_Check(key))
+            continue;
+
+        glMatrixMode_p(PyInt_AS_LONG(key));
+        operation();
+    }
+
+    /* Restore the matrix mode */
+    glMatrixMode_p(current_glstate->matrixMode);
+}
+
 /* Perform an OpenGL state transition. The current_glstate as well as
  * the next state must be non-NULL. Normally current_glstate should
  * only be NULL while a switch is actually in progress.
@@ -478,6 +600,20 @@ static void glstate_switch(GLState *next) {
     if (next->restoreFlags & GLSTATE_CAPABILITIES)
         glstate_switch_capabilities(previous->capabilities,
                                     next->capabilities);
+
+    if (previous->trackingFlags & GLSTATE_MATRICES)
+        glstate_save_matrices(previous->matrices);
+
+    if (next->restoreFlags & GLSTATE_MATRICES) {
+        glstate_restore_matrices(next->matrices);
+        glMatrixMode_p(next->matrixMode);
+    }
+
+    /* Report a warning if our state change caused an OpenGL error,
+     * and keep it from being detected by the overlay or target.
+     */
+    RESOLVE(glGetError);
+    handle_gl_error(glGetError_p());
 
     /* Complete the switch, drop the reference we stole from
      * current_glstate, then grab a new reference for our new
@@ -503,9 +639,15 @@ static __inline__ void glstate_track_matrix_mode(int mode) {
     if (current_glstate &&
         (current_glstate->trackingFlags & GLSTATE_MATRICES)) {
 
+        /* Make sure that any modes the app has touched get represented
+         * by at least a None in the matrix dictionary.
+         */
         PyObject *py_mode = PyInt_FromLong(mode);
-        PyDict_SetItem(current_glstate->matrixModes, py_mode, Py_None);
+        if (!PyDict_GetItem(current_glstate->matrices, py_mode))
+            PyDict_SetItem(current_glstate->matrices, py_mode, Py_None);
         Py_DECREF(py_mode);
+
+        current_glstate->matrixMode = mode;
     }
 }
 
@@ -690,13 +832,35 @@ static int foreach_overlay(int (*callback)(Overlay*, void*), void *user_data) {
  */
 static int overlay_render(Overlay *self, void* user_data) {
     PyObject *result;
+    GLenum error;
 
     if (self->initialized) {
+        /* Even if the overlay modifies its restoreFlags, we
+         * don't want the matrix stack to become unbalanced.
+         */
+        int restore_matrices = self->glState->restoreFlags & GLSTATE_MATRICES;
+
+        if (restore_matrices) {
+            RESOLVE(glPushMatrix);
+            glstate_foreach_matrix(glPushMatrix_p);
+        }
+
         glstate_switch(self->glState);
         result = PyObject_CallMethod((PyObject*) self, "render", NULL);
         if (!result)
             return -1;
         Py_DECREF(result);
+
+        /* Throw away any leftover errors from the Overlay */
+        glGetError_p();
+
+        if (restore_matrices) {
+            RESOLVE(glPopMatrix);
+            glstate_foreach_matrix(glPopMatrix_p);
+        }
+
+        /* Report any errors caused by the matrix cleanup */
+        handle_gl_error(glGetError_p());
     }
     return 0;
 }
@@ -782,6 +946,10 @@ void glXSwapBuffers(void *display, void *drawable) {
     PyObject *result;
     int i, len;
 
+    /* Clear any stale errors from the target app */
+    RESOLVE(glGetError);
+    glGetError_p();
+
     /* Give each overlay a chance to run, then swap back */
     if (foreach_overlay(overlay_render, NULL) < 0)
         handle_py_error();
@@ -791,13 +959,13 @@ void glXSwapBuffers(void *display, void *drawable) {
     glXSwapBuffers_p(display, drawable);
 }
 
-void glViewport(int x, int y, int width, int height) {
+void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
     PyObject *result;
 
     RESOLVE(glViewport);
     glViewport_p(x, y, width, height);
 
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         /* This isn't fool-proof, but we detect the current
          * window resolution by looking for glViewport() calls
          * with x,y == 0,0. If this turns out to be a problem,
@@ -818,38 +986,38 @@ void glViewport(int x, int y, int width, int height) {
     }
 }
 
-void glClear(int flags) {
+void glClear(GLbitfield flags) {
     if (current_glstate)
         flags &= current_glstate->clearMask;
     RESOLVE(glClear);
     glClear_p(flags);
 }
 
-void glEnable(int cap) {
+void glEnable(GLenum cap) {
     RESOLVE(glEnable);
     glEnable_p(cap);
     glstate_track_capability(cap, 1);
 }
 
-void glDisable(int cap) {
+void glDisable(GLenum cap) {
     RESOLVE(glDisable);
     glDisable_p(cap);
     glstate_track_capability(cap, 0);
 }
 
-void glMatrixMode(int mode) {
+void glMatrixMode(GLenum mode) {
     RESOLVE(glMatrixMode);
     glMatrixMode_p(mode);
     glstate_track_matrix_mode(mode);
 }
 
-void glBindTexture(int target, int texture) {
+void glBindTexture(GLenum target, GLuint texture) {
     RESOLVE(glBindTexture);
     glBindTexture_p(target, texture);
     glstate_track_texture_binding(target, texture);
 }
 
-void glBindTextureEXT(int target, int texture) {
+void glBindTextureEXT(GLenum target, GLuint texture) {
     glBindTexture(target, texture);
 }
 
@@ -887,7 +1055,7 @@ void *SDL_GL_GetProcAddress(const char* name) {
 
 int SDL_GL_SetAttribute(SDL_GLattr attr, int value) {
     /* Don't let the overlay touch GL attributes */
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_GL_SetAttribute);
         return SDL_GL_SetAttribute_p(attr, value);
     }
@@ -896,7 +1064,7 @@ int SDL_GL_SetAttribute(SDL_GLattr attr, int value) {
 
 int SDL_GL_GetAttribute(SDL_GLattr attr, int *value) {
     /* Don't let the overlay touch GL attributes */
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_GL_GetAttribute);
         return SDL_GL_GetAttribute_p(attr, value);
     }
@@ -908,7 +1076,7 @@ void SDL_GL_SwapBuffers(void) {
      * but the overlay isn't going to have a properly
      * initialized video driver so this is unsafe to call.
      */
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_GL_SwapBuffers);
         SDL_GL_SwapBuffers_p();
     }
@@ -916,7 +1084,7 @@ void SDL_GL_SwapBuffers(void) {
 
 int SDL_Init(Uint32 flags) {
     /* Don't let the overlay touch SDL initialization */
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_Init);
         return SDL_Init_p(flags);
     }
@@ -925,7 +1093,7 @@ int SDL_Init(Uint32 flags) {
 
 int SDL_InitSubSystem(Uint32 flags) {
     /* Don't let the overlay touch SDL initialization */
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_InitSubSystem);
         return SDL_InitSubSystem_p(flags);
     }
@@ -936,7 +1104,7 @@ Uint32 SDL_WasInit(Uint32 flags) {
     /* Let the overlay think it ran a successful initialization,
      * even if the target application isn't using SDL at all.
      */
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_WasInit);
         return SDL_WasInit_p(flags);
     }
@@ -953,7 +1121,7 @@ Uint32 SDL_WasInit(Uint32 flags) {
 
 void SDL_QuitSubSystem(Uint32 flags) {
     /* Don't let the overlay touch SDL initialization */
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_QuitSubSystem);
         SDL_QuitSubSystem_p(flags);
     }
@@ -961,7 +1129,7 @@ void SDL_QuitSubSystem(Uint32 flags) {
 
 void SDL_Quit(void) {
     /* Don't let the overlay touch SDL initialization */
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_Quit);
         SDL_Quit_p();
     }
@@ -973,21 +1141,21 @@ void SDL_PumpEvents(void) {
      * of event loop in the overlay, but Pygame is naughty
      * and calls this during initialization.
      */
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_PumpEvents);
         SDL_PumpEvents_p();
     }
 }
 
 void SDL_WM_SetCaption(const char *title, const char *icon) {
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_WM_SetCaption);
         SDL_WM_SetCaption_p(title, icon);
     }
 }
 
 void SDL_WM_GetCaption(char **title, char **icon) {
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_WM_GetCaption);
         SDL_WM_GetCaption_p(title, icon);
     }
@@ -998,14 +1166,14 @@ void SDL_WM_GetCaption(char **title, char **icon) {
 }
 
 void SDL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask) {
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_WM_SetIcon);
         SDL_WM_SetIcon_p(icon, mask);
     }
 }
 
 SDL_Surface *SDL_GetVideoSurface(void) {
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_GetVideoSurface);
         return SDL_GetVideoSurface_p();
     }
@@ -1017,7 +1185,7 @@ SDL_Surface *SDL_GetVideoSurface(void) {
 }
 
 const SDL_VideoInfo *SDL_GetVideoInfo(void) {
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_GetVideoInfo);
         return SDL_GetVideoInfo_p();
     }
@@ -1025,7 +1193,7 @@ const SDL_VideoInfo *SDL_GetVideoInfo(void) {
 }
 
 SDL_Surface *SDL_SetVideoMode(int width, int height, int bpp, Uint32 flags) {
-    if (!RUNNING_IN_OVERLAY) {
+    if (RUNNING_IN_TARGET) {
         RESOLVE(SDL_SetVideoMode);
         return SDL_SetVideoMode_p(width, height, bpp, flags);
     }
