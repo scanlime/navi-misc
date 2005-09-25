@@ -66,14 +66,6 @@
 #include <GL/gl.h>
 #include <SDL/SDL.h>
 
-#define GLSTATE_CAPABILITIES       (1  << 0 )
-#define GLSTATE_MATRICES           (1  << 1 )
-#define GLSTATE_TEXTURE_BINDING    (1  << 2 )
-#define GLSTATE_COLOR              (1  << 3 )   // FIXME: Not implemented
-#define GLSTATE_LIGHTS             (1  << 4 )   // FIXME: Not implemented
-#define GLSTATE_MATERIALS          (1  << 5 )   // FIXME: Not implemented
-#define GLSTATE_ALL                ((1 << 6 )-1)
-
 typedef struct {
     PyObject_HEAD
     unsigned int trackingFlags;
@@ -88,8 +80,33 @@ typedef struct {
     PyObject *textureBindings;
 } GLState;
 
-PyMODINIT_FUNC initloopy(void);
-static GLState* glstate_new(void);
+/*
+ * Constants for GLState trackingFlags and restoreFlags.
+ * These are defined for C and for Python. This table
+ * is loaded into a dictionary during initialization.
+ */
+static const struct {
+    const char *name;
+    int value;
+} glstate_enums[] = {
+
+#   define GLSTATE_CAPABILITIES       (1  << 0 )
+#   define GLSTATE_MATRICES           (1  << 1 )
+#   define GLSTATE_TEXTURE_BINDING    (1  << 2 )
+#   define GLSTATE_COLOR              (1  << 3 )     // FIXME: Not implemented
+#   define GLSTATE_LIGHTS             (1  << 4 )     // FIXME: Not implemented
+#   define GLSTATE_MATERIALS          (1  << 5 )     // FIXME: Not implemented
+#   define GLSTATE_ALL                ((1 << 6 )-1)
+
+    {"CAPABILITIES",     GLSTATE_CAPABILITIES},
+    {"MATRICES",         GLSTATE_MATRICES},
+    {"TEXTURE_BINDING",  GLSTATE_TEXTURE_BINDING},
+    {"COLOR",            GLSTATE_COLOR},
+    {"LIGHTS",           GLSTATE_LIGHTS},
+    {"MATERIALS",        GLSTATE_MATERIALS},
+    {"ALL",              GLSTATE_ALL},
+    {0}
+};
 
 /* targetGLState tracks the state for our target application. It
  * is not created until just before control is transferred back
@@ -107,6 +124,9 @@ static GLState *target_glstate;
 static GLState *current_glstate;
 
 #define RUNNING_IN_TARGET (current_glstate == target_glstate)
+
+PyMODINIT_FUNC initloopy(void);
+static GLState* glstate_new(void);
 
 /* Procedures we pull in dynamically using RESOLVE(). Most of
  * these are functions we override locally, so we have to look
@@ -395,12 +415,6 @@ static PyTypeObject glstate_type = {
               "and to access or modify this saved state.\n"
 };
 
-static void glstate_add_const(const char *name, int value) {
-    PyObject *py_value = PyInt_FromLong(value);
-    PyDict_SetItemString(glstate_type.tp_dict, name, py_value);
-    Py_DECREF(py_value);
-}
-
 static GLState* glstate_new(void) {
     GLState *self = PyObject_New(GLState, &glstate_type);
     PyObject *args = PyTuple_New(0);
@@ -410,19 +424,19 @@ static GLState* glstate_new(void) {
 }
 
 static void glstate_type_init(PyObject *module) {
+    int i;
     Py_INCREF(&glstate_type);
 
     glstate_type.tp_new = PyType_GenericNew;
     if (PyType_Ready(&glstate_type) < 0)
         return;
 
-    glstate_add_const("CAPABILITIES",      GLSTATE_CAPABILITIES);
-    glstate_add_const("MATRICES",          GLSTATE_MATRICES);
-    glstate_add_const("TEXTURE_BINDING",   GLSTATE_TEXTURE_BINDING);
-    glstate_add_const("COLOR",             GLSTATE_COLOR);
-    glstate_add_const("LIGHTS",            GLSTATE_LIGHTS);
-    glstate_add_const("MATERIALS",         GLSTATE_MATERIALS);
-    glstate_add_const("ALL",               GLSTATE_ALL);
+    /* Add glstate enumerations */
+    for (i=0; glstate_enums[i].name; i++) {
+        PyObject *py_value = PyInt_FromLong(glstate_enums[i].value);
+        PyDict_SetItemString(glstate_type.tp_dict, glstate_enums[i].name, py_value);
+        Py_DECREF(py_value);
+    }
 
     PyModule_AddObject(module, "GLState", (PyObject *) &glstate_type);
 }
