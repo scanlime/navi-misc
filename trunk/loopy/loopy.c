@@ -354,6 +354,7 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
     self->trackingFlags = GLSTATE_ALL;
     self->restoreFlags = GLSTATE_ALL;
     self->clearMask = ~0;
+    self->matrixMode = 0;
 
     self->capabilities = PyDict_New();
     self->matrices = PyDict_New();
@@ -617,7 +618,8 @@ static void glstate_switch(GLState *next) {
 
     if (next->restoreFlags & GLSTATE_MATRICES) {
         glstate_restore_matrices(next->matrices);
-        GL(glMatrixMode, (next->matrixMode));
+        if (next->matrixMode)
+            GL(glMatrixMode, (next->matrixMode));
     }
 
     /* Complete the switch, drop the reference we stole from
