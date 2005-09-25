@@ -549,6 +549,22 @@ static void glstate_switch_capabilities(PyObject *prev, PyObject *next) {
     }
 }
 
+static void glstate_restore_texture_bindings(PyObject *textures) {
+    PyObject *key, *value;
+    int pos;
+
+    RESOLVE(glBindTexture);
+
+    pos = 0;
+    while (PyDict_Next(textures, &pos, &key, &value)) {
+        if (!PyInt_Check(key))
+            continue;
+        if (!PyInt_Check(value))
+            continue;
+        GL(glBindTexture, (PyInt_AS_LONG(key), PyInt_AS_LONG(value)));
+    }
+}
+
 static void glstate_save_matrices(PyObject *prev) {
     PyObject *key, *value;
     GLdouble matrix[16];
@@ -648,6 +664,9 @@ static void glstate_switch(GLState *next) {
     if (next->restoreFlags & GLSTATE_CAPABILITIES)
         glstate_switch_capabilities(previous->capabilities,
                                     next->capabilities);
+
+    if (next->restoreFlags & GLSTATE_TEXTURE_BINDING)
+        glstate_restore_texture_bindings(next->textureBindings);
 
     if (previous->trackingFlags & GLSTATE_MATRICES)
         glstate_save_matrices(previous->matrices);
