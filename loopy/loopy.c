@@ -1039,7 +1039,7 @@ static int overlay_call_method(Overlay *self, char *method) {
     RESOLVE(glGetError);
     glGetError_p();
 
-    return 0;
+    return retval;
 }
 
 /* If this overlay has been initialized, switch to
