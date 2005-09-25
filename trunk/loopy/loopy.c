@@ -73,12 +73,12 @@ typedef struct {
     unsigned int clearMask;
 
     PyObject *capabilities;
+    PyObject *textureBindings;
+    PyObject *color;
 
     int matrixMode;
     PyObject *matrices;
     PyObject *pushedMatrices;
-
-    PyObject *textureBindings;
 } GLState;
 
 /*
@@ -94,7 +94,7 @@ static const struct {
 #   define GLSTATE_CAPABILITIES       (1  << 0 )
 #   define GLSTATE_MATRICES           (1  << 1 )
 #   define GLSTATE_TEXTURE_BINDING    (1  << 2 )
-#   define GLSTATE_COLOR              (1  << 3 )     // FIXME: Not implemented
+#   define GLSTATE_COLOR              (1  << 3 )
 #   define GLSTATE_LIGHTS             (1  << 4 )     // FIXME: Not implemented
 #   define GLSTATE_MATERIALS          (1  << 5 )     // FIXME: Not implemented
 #   define GLSTATE_ALL                ((1 << 6 )-1)
@@ -149,6 +149,7 @@ static void  (*glLoadMatrixd_p)(const GLdouble*);
 static void  (*glPushMatrix_p)(void);
 static void  (*glPopMatrix_p)(void);
 static GLenum(*glGetError_p)(void);
+static void  (*glColor4dv_p)(GLdouble*);
 
 static void* (*XOpenDisplay_p)(char *);
 static int   (*XCloseDisplay_p)(void *);
@@ -353,6 +354,17 @@ static PyMemberDef glstate_members[] = {
       "True (glEnable) or False (glDisable). Missing capabilities\n"
       "haven't been touched by either glEnable or glDisable.\n"
     },
+    { "textureBindings", T_OBJECT, offsetof(GLState, textureBindings), READONLY,
+      "A dictionary mapping targets (like GL_TEXTURE_2D) to\n"
+      "texture IDs. Missing targets haven't been bound to a texture\n"
+      "ID. This will track traditional 1D/2D/3D targets, plus new\n"
+      "targets defined by OpenGL extensions.\n"
+    },
+    { "color", T_OBJECT, offsetof(GLState, color), 0,
+      "The current OpenGL color, as a 4-tuple of floats.\n"
+      "You may modify this, but values other than 4-tuples\n"
+      "of floats will have undefined results.\n"
+    },
     { "matrixMode", T_INT, offsetof(GLState, matrixMode), 0,
       "The current OpenGL matrix mode.\n"
     },
@@ -372,12 +384,6 @@ static PyMemberDef glstate_members[] = {
       "time a new GLState is made current, and if no matrices are\n"
       "being tracked it will be None.\n"
     },
-    { "textureBindings", T_OBJECT, offsetof(GLState, textureBindings), READONLY,
-      "A dictionary mapping targets (like GL_TEXTURE_2D) to\n"
-      "texture IDs. Missing targets haven't been bound to a texture\n"
-      "ID. This will track traditional 1D/2D/3D targets, plus new\n"
-      "targets defined by OpenGL extensions.\n"
-    },
     {0}
 };
 
@@ -391,17 +397,19 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
     self->matrixMode = 0;
 
     self->capabilities = PyDict_New();
+    self->textureBindings = PyDict_New();
+    self->color = Py_BuildValue("(ffff)", 1.0f, 1.0f, 1.0f, 1.0f);
     self->matrices = PyDict_New();
     self->pushedMatrices = NULL;
-    self->textureBindings = PyDict_New();
     return 0;
 }
 
 static void glstate_dealloc(GLState *self) {
     Py_XDECREF(self->capabilities);
+    Py_XDECREF(self->textureBindings);
+    Py_XDECREF(self->color);
     Py_XDECREF(self->matrices);
     Py_XDECREF(self->pushedMatrices);
-    Py_XDECREF(self->textureBindings);
     self->ob_type->tp_free((PyObject *)self);
 }
 
@@ -668,6 +676,13 @@ static void glstate_switch(GLState *next) {
     if (next->restoreFlags & GLSTATE_TEXTURE_BINDING)
         glstate_restore_texture_bindings(next->textureBindings);
 
+    if (previous->trackingFlags & GLSTATE_COLOR) {
+        GLdouble color[4];
+        GL(glGetDoublev, (GL_CURRENT_COLOR, color));
+        Py_XDECREF(previous->color);
+        previous->color = pytuple_from_glvector(color, 4);
+    }
+
     if (previous->trackingFlags & GLSTATE_MATRICES)
         glstate_save_matrices(previous->matrices);
 
@@ -684,6 +699,12 @@ static void glstate_switch(GLState *next) {
         glstate_restore_matrices(next->matrices);
         if (next->matrixMode)
             GL(glMatrixMode, (next->matrixMode));
+    }
+
+    if (next->restoreFlags & GLSTATE_COLOR) {
+        GLdouble color[4];
+        pytuple_to_glvector(next->color, color, 4);
+        GL(glColor4dv, (color));
     }
 
     /* Complete the switch, drop the reference we stole from
