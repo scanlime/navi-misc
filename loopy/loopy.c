@@ -76,6 +76,7 @@ typedef struct {
 
     int matrixMode;
     PyObject *matrices;
+    PyObject *pushedMatrices;
 
     PyObject *textureBindings;
 } GLState;
@@ -299,6 +300,11 @@ static void __attribute__ ((constructor)) init() {
      */
     current_glstate = target_glstate = glstate_new();
     Py_INCREF(current_glstate);
+
+    /* We shouldn't try to wrap the target itself
+     * in matrix save/pop/push/restore sequences.
+     */
+    target_glstate->restoreFlags &= ~GLSTATE_MATRICES;
 }
 
 /* Any time the target application uses dlsym(), glXGetProcAddress(),
@@ -358,6 +364,14 @@ static PyMemberDef glstate_members[] = {
       "that an Overlay should never try to pop matrices it pushed\n"
       "during setup.\n"
     },
+    { "pushedMatrices", T_OBJECT, offsetof(GLState, pushedMatrices), READONLY,
+      "This is a list of OpenGL matrix modes that have been pushed\n"
+      "by Loopy. If an Overlay wants to prevent Loopy from popping\n"
+      "a particular matrix, for example, it can modify this list.\n"
+      "Note that this will refer to a different list object every\n"
+      "time a new GLState is made current, and if no matrices are\n"
+      "being tracked it will be None.\n"
+    },
     { "textureBindings", T_OBJECT, offsetof(GLState, textureBindings), READONLY,
       "A dictionary mapping targets (like GL_TEXTURE_2D) to\n"
       "texture IDs. Missing targets haven't been bound to a texture\n"
@@ -378,6 +392,7 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
 
     self->capabilities = PyDict_New();
     self->matrices = PyDict_New();
+    self->pushedMatrices = NULL;
     self->textureBindings = PyDict_New();
     return 0;
 }
@@ -385,6 +400,7 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
 static void glstate_dealloc(GLState *self) {
     Py_XDECREF(self->capabilities);
     Py_XDECREF(self->matrices);
+    Py_XDECREF(self->pushedMatrices);
     Py_XDECREF(self->textureBindings);
     self->ob_type->tp_free((PyObject *)self);
 }
@@ -561,8 +577,6 @@ static void glstate_save_matrices(PyObject *prev) {
         value = pytuple_from_glvector(matrix, 16);
         PyDict_SetItem(prev, key, value);
         Py_DECREF(value);
-
-        printf("Saving matrix %d: %f %f %f... [%p]\n", PyInt_AS_LONG(key), matrix[0], matrix[1], matrix[2], prev);
     }
 }
 
@@ -583,37 +597,40 @@ static void glstate_restore_matrices(PyObject *next) {
         GL(glMatrixMode, (PyInt_AS_LONG(key)));
         pytuple_to_glvector(value, matrix, 16);
         GL(glLoadMatrixd, (matrix));
-
-        printf("Restoring matrix %d: %f %f %f... [%p]\n", PyInt_AS_LONG(key), matrix[0], matrix[1], matrix[2], next);
     }
 }
 
-/* Push/pop every matrix stack that's in use by the current glstate.
- * This is used by overlay_render()- it shouldn't be part of the
- * generic glstate_switch(), since it doesn't apply to the target
- * application's glstate.
+/* Push every matrix we're tracking in the current glstate,
+ * returning a new reference to a list of those matrices.
  */
-static void glstate_pushpop_matrix(int push) {
-    PyObject *key, *value;
-    int pos;
+static PyObject* glstate_push_matrices(PyObject *matrices) {
+    PyObject *key, *value, *list = PyList_New(0);
+    int pos = 0;
 
-    RESOLVE(glMatrixMode);
+    while (PyDict_Next(matrices, &pos, &key, NULL)) {
+        if (!PyInt_Check(key))
+            continue;
 
-    pos = 0;
-    while (PyDict_Next(current_glstate->matrices, &pos, &key, NULL)) {
+        PyList_Append(list, key);
+        GL(glMatrixMode, (PyInt_AS_LONG(key)));
+        GL(glPushMatrix, ());
+    }
+
+    return list;
+}
+
+/* Pop matrices, given the list returned by glstate_push_matrices(). */
+static void glstate_pop_matrices(PyObject *list) {
+    int i, len = PyList_GET_SIZE(list);
+
+    for (i=0; i<len; i++) {
+        PyObject *key = PyList_GET_ITEM(list, i);
         if (!PyInt_Check(key))
             continue;
 
         GL(glMatrixMode, (PyInt_AS_LONG(key)));
-        printf("pushpop mode %d push %d\n", PyInt_AS_LONG(key), push);
-        if (push)
-            GL(glPushMatrix, ());
-        else
-            GL(glPopMatrix, ());
+        GL(glPopMatrix, ());
     }
-
-    /* Restore the matrix mode */
-    GL(glMatrixMode, (current_glstate->matrixMode));
 }
 
 /* Perform an OpenGL state transition. The current_glstate as well as
@@ -635,7 +652,16 @@ static void glstate_switch(GLState *next) {
     if (previous->trackingFlags & GLSTATE_MATRICES)
         glstate_save_matrices(previous->matrices);
 
+    if (previous->pushedMatrices) {
+        glstate_pop_matrices(previous->pushedMatrices);
+        Py_DECREF(previous->pushedMatrices);
+        previous->pushedMatrices = NULL;
+    }
+
     if (next->restoreFlags & GLSTATE_MATRICES) {
+        Py_XDECREF(next->pushedMatrices);
+        next->pushedMatrices = glstate_push_matrices(next->matrices);
+
         glstate_restore_matrices(next->matrices);
         if (next->matrixMode)
             GL(glMatrixMode, (next->matrixMode));
@@ -860,15 +886,7 @@ static int overlay_call_method(Overlay *self, char *method) {
     PyObject *result;
     int retval = 0;
 
-    /* Even if the overlay modifies its restoreFlags, we
-     * don't want the matrix stack to become unbalanced.
-     */
-    int restore_matrices = self->glState->restoreFlags & GLSTATE_MATRICES;
-    if (restore_matrices)
-        glstate_pushpop_matrix(1);
-
     glstate_switch(self->glState);
-    printf("overlay: %s\n", method);
     result = PyObject_CallMethod((PyObject*) self, method, NULL);
     if (result)
         Py_DECREF(result);
@@ -879,8 +897,6 @@ static int overlay_call_method(Overlay *self, char *method) {
     RESOLVE(glGetError);
     glGetError_p();
 
-    if (restore_matrices)
-        glstate_pushpop_matrix(0);
     return 0;
 }
 
@@ -969,7 +985,6 @@ PyMODINIT_FUNC initloopy(void)
 void glXSwapBuffers(void *display, void *drawable) {
     PyObject *result;
     int i, len;
-    printf("leaving target (swap)\n");
 
     /* Clear any stale errors from the target app */
     RESOLVE(glGetError);
@@ -982,8 +997,6 @@ void glXSwapBuffers(void *display, void *drawable) {
 
     RESOLVE(glXSwapBuffers);
     glXSwapBuffers_p(display, drawable);
-
-    printf("returning to target (swap)\n");
 }
 
 void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
@@ -993,8 +1006,6 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
     glViewport_p(x, y, width, height);
 
     if (RUNNING_IN_TARGET) {
-        printf("leaving target (viewport)\n");
-
         /* This isn't fool-proof, but we detect the current
          * window resolution by looking for glViewport() calls
          * with x,y == 0,0. If this turns out to be a problem,
@@ -1012,8 +1023,6 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
                 handle_py_error();
             glstate_switch(target_glstate);
         }
-
-        printf("returning to target (viewport)\n");
     }
 }
 
