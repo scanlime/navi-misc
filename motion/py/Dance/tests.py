@@ -45,11 +45,12 @@ class TestLorenz (unittest.TestCase):
 
     def testEquation (self):
         """Test the Lorenz system."""
-        self.assertEqual (Numeric.array ([1, -9, 2]), self.system (2, 3, 4))
+        self.assertEqual (Numeric.array ([1, -9, 2]), self.system ([2, 3, 4],
+            None))
 
 
 if __name__ == "__main__":
-    suite().run(unittest.TestResult ())
+    unittest.main ()
 
 
 # vim: ts=4:sw=4:et
