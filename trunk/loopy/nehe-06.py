@@ -57,7 +57,7 @@ class NeheOverlay(loopy.Overlay):
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
 
         glEnable(GL_BLEND)
-        glColor(1, 1, 1, 0.5)
+        glColor(1, 1, 1, 0.2)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         self.resized()
