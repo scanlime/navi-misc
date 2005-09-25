@@ -1,19 +1,16 @@
-import sys, os, os.path, soya, math
-from random import random
+import os, math, random
+import loopy, soya
 import soya.pudding as pudding
-from soya import opengl as gl
 
 class BlueSmokeEmitter(soya.Smoke):
-    spark_material = soya.Material()
-    spark_material.additive_blending = 1
-    spark_material.texture = soya.open_image("blue_spark.png")
-    t1 = 0.0
-    t2 = 0.0
-
     def __init__(self,parent):
         soya.Particles.__init__(self,parent,nb_max_particles=150)
+        self.t = 0
 
-        self.material = self.spark_material
+        spark_material = soya.Material()
+        spark_material.additive_blending = 1
+        spark_material.texture = soya.open_image("blue_spark.png")
+        self.material = spark_material
 
         self.set_colors((1.0, 1.0, 1.0, 1.0),
                         (0.0, 0.0, 0.0, 0.0))
@@ -22,10 +19,10 @@ class BlueSmokeEmitter(soya.Smoke):
         self.auto_generate_particle = 1
 
     def generate(self, index):
-        sx = (random() - 0.5) * 0.05
-        sy = random() * 0.1
-        sz = (random() - 0.5) * 0.05
-        l = 2.0 * random()
+        sx = (random.random() - 0.5) * 0.05
+        sy = random.random() * 0.1
+        sz = (random.random() - 0.5) * 0.05
+        l = 2.0 * random.random()
         self.set_particle(index,
                           l,           # life
                           sx, sy, sz,  # speed
@@ -34,82 +31,47 @@ class BlueSmokeEmitter(soya.Smoke):
     def advance_time(self, proportion):
         soya.Smoke.advance_time(self, proportion)
 
-        self.t1 += 0.4 * proportion
+        self.t += 0.4 * proportion
         r = 1.0
 
-        self.set_xyz(math.sin(self.t1)*r,
-                     math.cos(self.t1)*r - r,
+        self.set_xyz(math.sin(self.t)*r,
+                     math.cos(self.t)*r - r,
                      0)
 
-initted = False
-idler = None
-camera = None
+class SoyaOverlay(loopy.Overlay):
+    def setup():
+        soya.init()
+        print "argv: %r" % (sys.argv,)
+        soya.path.append(os.path.join(os.path.dirname(sys.argv[0]), "data"))
 
-def init():
-    global initted
-    global idler
-    global camera
-    soya.path.append(os.getcwd())
+        self.scene = soya.World()
+        self.scene.atmosphere = soya.NoBackgroundAtmosphere()
 
-    scene = soya.World()
-    scene.atmosphere = soya.NoBackgroundAtmosphere()
+        #pudding.init()
+        #w = pudding.core.RootWidget()
 
-    pudding.init()
-    w = pudding.core.RootWidget()
+        #l = pudding.control.SimpleLabel(w)
+        #l.font = soya.Font("geodesic.ttf", 100, 100)
+        #l.label = "wasabi"
+        #l.update()
+        #l.left = (w.width - l.width) / 2
+        #l.top = w.height / 4 - l.height / 2
+        #print l.top, l.left
 
-    #l = pudding.control.SimpleLabel(w)
-    #l.font = soya.Font("geodesic.ttf", 100, 100)
-    #l.label = "wasabi"
-    #l.update()
-    #l.left = (w.width - l.width) / 2
-    #l.top = w.height / 4 - l.height / 2
-    #print l.top, l.left
+        self.particles = BlueSmokeEmitter(self.scene)
 
-    particles = BlueSmokeEmitter(scene)
+        self.light = soya.Light(self.scene)
+        self.light.set_xyz(0.5, 0.0, 2.0)
 
-    light = soya.Light(scene)
-    light.set_xyz(0.5, 0.0, 2.0)
+        self.camera = soya.Camera(self.scene)
+        self.camera.z = 10.0
 
-    camera = soya.Camera(scene)
-    camera.z = 10.0
-    w.add_child(camera)
+        self.idler = soya.Idler(scene)
 
-    idler = soya.Idler(scene)
-    initted = True
+    def render():
+        self.idler.begin_round()
+        self.idler.advance_time(1.0)
+        self.idler.end_round()
+        self.camera.render()
 
-def frame():
-    if not initted:
-        return
-    idler.begin_round()
-    idler.advance_time(1.0)
-    idler.end_round()
-
-    # Clean out the OpenGL state, disable everything the app enabled
-    for capability, enabled in gl_enabled.iteritems():
-        if enabled:
-            gl.glDisable(capability)
-
-    camera.render()
-
-    # Put the GL state back the way we found it
-    for capability, enabled in gl_enabled.iteritems():
-        if enabled:
-            gl.glEnable(capability)
-        else:
-            gl.glDisable(capability)
-    for target, texture in gl_textures.iteritems():
-        gl.glBindTexture(target, texture)
-
-def viewport(x, y, width, height):
-    initted or soya.init(create_surface=0)
-
-    if soya.get_screen_width() == width and soya.get_screen_height() == height:
-        return
-    try:
-        soya.set_video(width, height, 0, 0)
-    except RuntimeError:
-        pass
-    assert soya.get_screen_width() == width
-    assert soya.get_screen_height() == height
-
-    initted or init()
+loopy.overlays.append(SoyaOverlay())
