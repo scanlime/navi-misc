@@ -1,8 +1,10 @@
-import loopy
+import loopy, sys
 from OpenGL import GL
 
 class MyOverlay(loopy.Overlay):
     def setup(self):
+        print "argv: " + repr(sys.argv)
+
         import pygame
         pygame.init()
         print pygame.display.Info()
