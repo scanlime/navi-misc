@@ -796,7 +796,7 @@ static void glstate_switch(GLState *next) {
         if (PyTuple_Check(next->blendFunc) &&
             PyTuple_GET_SIZE(next->blendFunc) == 2) {
             PyObject *src = PyTuple_GET_ITEM(next->blendFunc, 0);
-            PyObject *dest = PyTuple_GET_ITEM(next->blendFunc, 0);
+            PyObject *dest = PyTuple_GET_ITEM(next->blendFunc, 1);
             if (PyInt_Check(src) && PyInt_Check(dest)) {
                 GL(glBlendFunc, (PyInt_AS_LONG(src), PyInt_AS_LONG(dest)));
             }
@@ -848,7 +848,7 @@ static void glstate_init_target(int target) {
      */
     PyObject *py_target = PyInt_FromLong(target);
 
-    if (!PyDict_GetItem(current_glstate->textures, py_target)) {
+    if (!PyDict_GetItem(current_glstate->textureBindings, py_target)) {
         RESOLVE(glBindTexture);
         glstate_track_texture_binding(target, 0);
         glBindTexture_p(target, glstate_remap_texture(current_glstate, 0));
