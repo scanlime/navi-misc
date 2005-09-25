@@ -5,10 +5,6 @@ ODE solvers and related classes.
 
 import Numeric, math
 
-
-__all__ = ["RK4, ARK4"]
-
-
 class Time:
     """ A time object for use with ODE solvers. """
     def __init__ (self, initTime, iterations, stepsize):
