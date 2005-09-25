@@ -179,7 +179,7 @@ static SDL_Surface overlay_sdl_surface = {
             dlsym_p = dlvsym(RTLD_NEXT, "dlsym", "GLIBC_2.0"); \
         if (!dlsym_p) \
             handle_link_error("dlsym"); \
-    } while (0);
+    } while (0)
 
 /* A macro to resolve one of the above original symbols at runtime.
  * This can fail, leaving the symbol NULL.
@@ -190,7 +190,7 @@ static SDL_Surface overlay_sdl_surface = {
             RESOLVE_DLSYM(); \
             sym ## _p = dlsym_p(RTLD_NEXT, #sym); \
         } \
-    } while (0);
+    } while (0)
 
 /* Resolve a symbol at runtime, cause a fatal error if this fails */
 #define RESOLVE(sym) \
@@ -198,7 +198,7 @@ static SDL_Surface overlay_sdl_surface = {
         RESOLVE_SOFT(sym); \
         if (!sym ## _p) \
             handle_link_error(#sym); \
-    } while (0);
+    } while (0)
 
 /*
  * Handle python errors we can't pass back to the user module.
@@ -218,14 +218,6 @@ static void handle_link_error(const char *name) {
             "Loopy runtime link error: "
             "Can't resolve symbol '%s'\n", name);
     exit(1);
-}
-
-/*
- * Warn the user about OpenGL errors caused by Loopy's internals
- */
-static void handle_gl_error(GLenum error) {
-    if (!error) return;
-    fprintf(stderr, "Loopy internal OpenGL error: 0x%08x\n", error);
 }
 
 /*
@@ -438,6 +430,22 @@ static void glstate_type_init(PyObject *module) {
 /****************************************** OpenGL State Management *****/
 /************************************************************************/
 
+/*
+ * A macro for internal OpenGL calls, including dynamic symbol
+ * resolution and error checking.
+ */
+#define GL(name, args) \
+    do { \
+        int _gl_error; \
+        RESOLVE(name); \
+        RESOLVE(glGetError); \
+        name ## _p args; \
+        _gl_error = glGetError_p(); \
+        if (_gl_error) \
+            fprintf(stderr, "Loopy internal OpenGL error 0x%08x in '%s' at %s:%d\n", \
+                    _gl_error, #name, __FILE__, __LINE__); \
+    } while (0)
+
 /* Create a new Python tuple from a GLdouble vector of fixed length */
 static PyObject* pytuple_from_glvector(GLdouble *v, int len) {
     PyObject *tuple = PyTuple_New(len);
@@ -493,7 +501,7 @@ static void glstate_switch_capabilities(PyObject *prev, PyObject *next) {
         if (v2 && PyObject_IsTrue(v2))
             continue;
 
-        glDisable_p(PyInt_AS_LONG(key));
+        GL(glDisable, (PyInt_AS_LONG(key)));
     }
 
     pos = 0;
@@ -506,7 +514,7 @@ static void glstate_switch_capabilities(PyObject *prev, PyObject *next) {
         if (v2 && PyObject_IsTrue(v2))
             continue;
 
-        glEnable_p(PyInt_AS_LONG(key));
+        GL(glEnable, (PyInt_AS_LONG(key)));
     }
 }
 
@@ -534,7 +542,7 @@ static void glstate_save_matrices(PyObject *prev) {
             continue;
         }
 
-        glGetDoublev_p(n, matrix);
+        GL(glGetDoublev, (n, matrix));
         value = pytuple_from_glvector(matrix, 16);
         PyDict_SetItem(prev, key, value);
         Py_DECREF(value);
@@ -555,9 +563,9 @@ static void glstate_restore_matrices(PyObject *next) {
             continue;
 
         /* Load matrices from the next state */
-        glMatrixMode_p(PyInt_AS_LONG(key));
+        GL(glMatrixMode, (PyInt_AS_LONG(key)));
         pytuple_to_glvector(value, matrix, 16);
-        glLoadMatrixd_p(matrix);
+        GL(glLoadMatrixd, (matrix));
     }
 }
 
@@ -566,7 +574,7 @@ static void glstate_restore_matrices(PyObject *next) {
  * generic glstate_switch(), since it doesn't apply to the target
  * application's glstate.
  */
-static void glstate_foreach_matrix(void (*operation)(void)) {
+static void glstate_pushpop_matrix(int push) {
     PyObject *key, *value;
     int pos;
 
@@ -577,12 +585,15 @@ static void glstate_foreach_matrix(void (*operation)(void)) {
         if (!PyInt_Check(key))
             continue;
 
-        glMatrixMode_p(PyInt_AS_LONG(key));
-        operation();
+        GL(glMatrixMode, (PyInt_AS_LONG(key)));
+        if (push)
+            GL(glPushMatrix, ());
+        else
+            GL(glPopMatrix, ());
     }
 
     /* Restore the matrix mode */
-    glMatrixMode_p(current_glstate->matrixMode);
+    GL(glMatrixMode, (current_glstate->matrixMode));
 }
 
 /* Perform an OpenGL state transition. The current_glstate as well as
@@ -606,14 +617,8 @@ static void glstate_switch(GLState *next) {
 
     if (next->restoreFlags & GLSTATE_MATRICES) {
         glstate_restore_matrices(next->matrices);
-        glMatrixMode_p(next->matrixMode);
+        GL(glMatrixMode, (next->matrixMode));
     }
-
-    /* Report a warning if our state change caused an OpenGL error,
-     * and keep it from being detected by the overlay or target.
-     */
-    RESOLVE(glGetError);
-    handle_gl_error(glGetError_p());
 
     /* Complete the switch, drop the reference we stole from
      * current_glstate, then grab a new reference for our new
@@ -839,11 +844,8 @@ static int overlay_render(Overlay *self, void* user_data) {
          * don't want the matrix stack to become unbalanced.
          */
         int restore_matrices = self->glState->restoreFlags & GLSTATE_MATRICES;
-
-        if (restore_matrices) {
-            RESOLVE(glPushMatrix);
-            glstate_foreach_matrix(glPushMatrix_p);
-        }
+        if (restore_matrices)
+            glstate_pushpop_matrix(1);
 
         glstate_switch(self->glState);
         result = PyObject_CallMethod((PyObject*) self, "render", NULL);
@@ -852,15 +854,11 @@ static int overlay_render(Overlay *self, void* user_data) {
         Py_DECREF(result);
 
         /* Throw away any leftover errors from the Overlay */
+        RESOLVE(glGetError);
         glGetError_p();
 
-        if (restore_matrices) {
-            RESOLVE(glPopMatrix);
-            glstate_foreach_matrix(glPopMatrix_p);
-        }
-
-        /* Report any errors caused by the matrix cleanup */
-        handle_gl_error(glGetError_p());
+        if (restore_matrices)
+            glstate_pushpop_matrix(0);
     }
     return 0;
 }
@@ -894,6 +892,10 @@ static int overlay_resize(Overlay *self, void* user_data) {
     if (!result)
         return -1;
     Py_DECREF(result);
+
+    /* Throw away any leftover errors from the Overlay */
+    RESOLVE(glGetError);
+    glGetError_p();
 
     self->initialized = 1;
     return 0;
