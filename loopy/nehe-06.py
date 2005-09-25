@@ -15,6 +15,10 @@ class NeheOverlay(loopy.Overlay):
         self.xrot = 0.0
         self.yrot = 0.0
         self.zrot = 0.0
+
+        # This nehe demo is a naughy app that doesn't use glGenTextures.
+        # Well, a lot of our target apps do this also, so Loopy has to
+        # be smart enough to remap textures to prevent collisions.
         self.textures = [0]
 
     def resized(self):
@@ -51,6 +55,10 @@ class NeheOverlay(loopy.Overlay):
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LEQUAL)
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
+
+        glEnable(GL_BLEND)
+        glColor(1, 1, 1, 0.5)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         self.resized()
 
