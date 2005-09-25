@@ -37,12 +37,8 @@ class ODE:
         just RK4 (doubtful). All ODEs need a function, initial conditions,
         and some kind of time constraints.
         """
-    def __init__ (self, func, ic=None, time=None):
-        self.f = func
-        self.initial = ic
-        self.time = time
-        self.min = list (ic)
-        self.max = list (ic)
+    def __init__ (self, func):
+        self.func = func
 
     def __call__ (self):
         pass
@@ -50,8 +46,8 @@ class ODE:
 
 class RK4 (ODE):
     """ RK4 object. """
-    def __init__ (self, func, ic=None, time=None):
-        ODE.__init__ (self, func, ic, time)
+    def __init__ (self, func):
+        ODE.__init__ (self, func)
 
     def _step (self, last, i):
         """ Computations performed at each iteration of the ODE. """
@@ -65,14 +61,9 @@ class RK4 (ODE):
 
         return last + self.time.h/6.*(k1 + 2.*k2 + 2.*k3 + k4)
 
-    def __call__ (self, ics=None, time=None):
+    def __call__ (self, ic, time):
         """ Solve the system. """
-        if ics:
-            self.initial = ics
-        if time:
-            self.time = time
-
-        result = [self.initial]
+        result = [ic]
         for i in self.time:
             step = self._step (result[i.iteration], i)
             result.append (step)
@@ -82,8 +73,8 @@ class RK4 (ODE):
 
 class ARK4 (RK4):
     """ An adaptive RK4 object. """
-    def __init__ (self, func, ic=None, time=None, eps=.001):
-        RK4.__init__ (self, func, ic, time)
+    def __init__ (self, func, eps=.001):
+        RK4.__init__ (self, func)
         # Error tolerance.
         self.epsilon = eps
 
