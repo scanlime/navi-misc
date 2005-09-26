@@ -11,20 +11,24 @@ __all__ = ["Sequence"]
 
 class Sequence:
     """This class represents a dance sequence mapped to an attractor."""
-    def __init__ (self, system, ic, data):
+    def __init__ (self, system, ic, t, data):
         """ Each Sequence object requires an ordinary differential equation
             solver and some motion capture data (data).
             """
         self.mapping = {}
         self.ode = RK4 (system)
 
-        #traj = self.ode (ic, t)
-        #step = len (traj) / len (data)
-        #length = len (data) * step
+        if isinstance (t, Time):
+            traj = self.ode (ic, t)
+        else:
+            traj = self.ode (ic, Time (t[0], t[1], t[2]))
+
+        step = len (traj) / len (data)
+        length = len (data) * step
 
         # Map each frame evenly over the trajectory.
-        #for i in range (length):
-        #    self.mapping[traj[i * step]] = _Frame (i, data)
+        for i in range (length):
+            self.mapping[traj[i * step]] = _Frame (i, data)
 
     def __getitem__ (self, frame):
         """ Use [] on a Sequence object to get a frame. """

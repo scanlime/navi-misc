@@ -50,12 +50,15 @@ class TestLorenz (TestCase):
     def testEquation (self):
         """Test the Lorenz system"""
         self.assertEqual (Numeric.array ([1, -9, 2]), self.system ([2, 3, 4],
-            None))
+            0, 0))
 
 
 class TestSequence (TestCase):
     def setUp (self):
-        self.seq = Sequence (Lorenz (1, 1, 1), [1, 1, 1], [])
+        data = dict ([(letter, letter) for letter in
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"])
+        ic = Numeric.array ([2, 3, 4])
+        self.seq = Sequence (Lorenz (1, 1, 1), ic, (0, 100, .01), data)
 
     def testDistance (self):
         """Test the Euclidean distance calculation"""
