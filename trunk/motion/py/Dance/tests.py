@@ -83,6 +83,12 @@ class TestCoordinate (TestCase):
         self.assertTrue (self.coordinates[0] != self.coordinates[1])
         self.assertFalse (self.coordinates[0] != _Coordinate ([1,1,1]))
 
+    def testHash (self):
+        """Test _Coordinate hashing"""
+        x = {self.coordinates[0]:0}
+        self.assertEqual (x[self.coordinates[0]], 0)
+        self.assertEqual (x[_Coordinate([1,1,1])], 0)
+
 
 class TestSequence (TestCase):
     """Test the Sequence class that maps frames to a chaotic trajectory."""
