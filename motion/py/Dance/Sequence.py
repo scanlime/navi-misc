@@ -24,11 +24,12 @@ class Sequence:
             start, iterations, step = t
             traj = self.ode (ic, Time (start, iterations, step))
 
-        step = len (traj) / len (data)
-        length = len (data) * step
+        frames = len (data.values ()[0])
+        step = len (traj) / frames
+        length = frames * step
 
         # Map each frame evenly over the trajectory.
-        for i in range (length):
+        for i in range (frames):
             self.mapping[_Coordinate (traj[i * step])] = _Frame (i, data)
 
     def __getitem__ (self, frame):

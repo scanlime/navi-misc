@@ -95,7 +95,7 @@ class TestSequence (TestCase):
     def setUp (self):
         # FIXME Need to set the data up to match the structure of the ASF
         # objects.
-        data = dict ([(letter, letter) for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"])
+        data = self._createFakeData ()
         ic = Numeric.array ([2, 3, 4])
         self.seq = Sequence (Lorenz (1, 1, 1), ic, (0, 100, .01), data)
 
@@ -113,6 +113,17 @@ class TestSequence (TestCase):
     def testShuffle (self):
         """Test the chaotic shuffle"""
         self.fail ("Not implemented")
+
+    def _createFakeData (self):
+        """Return a dictionary that can be used as data for the Sequence
+           object.
+           """
+        d = {}
+        keys = [letter for letter in "ABCDEFG"]
+        for key in keys:
+            d[key] = Numeric.array ([[1,2,3],[4,5,6],[7,8,9]])
+
+        return d
 
 
 if __name__ == "__main__":
