@@ -7,15 +7,15 @@ import Numeric, math
 
 __all__ = ["Sequence"]
 
+
 class Sequence:
-    """ This class represents a dance sequence mapped to an attractor.
-        """
-    def __init__ (self, ode, data):
+    """This class represents a dance sequence mapped to an attractor."""
+    def __init__ (self, system, data):
         """ Each Sequence object requires an ordinary differential equation
             solver and some motion capture data (data).
             """
         self.mapping = {}
-        self.ode = ode
+        self.ode = RK4 (system)
 
         traj = ode ()
         step = len (traj) / len (data)
@@ -66,6 +66,7 @@ class Sequence:
         # FIXME
         pass
 
+
 class _Frame:
     """ A frame from the AMC file. """
     def __init__ (self, index, data):
@@ -76,5 +77,6 @@ class _Frame:
 
     def __getitem__ (self, bone):
         return self.__bones[bone]
+
 
 # vim:ts=4:sw=4:et:tw=80
