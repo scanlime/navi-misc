@@ -157,6 +157,7 @@ static void  (*glGetDoublev_p)(GLenum, GLdouble*);
 static void  (*glLoadMatrixd_p)(const GLdouble*);
 static void  (*glPushMatrix_p)(void);
 static void  (*glPopMatrix_p)(void);
+static void  (*glLoadIdentity_p)(void);
 static GLenum(*glGetError_p)(void);
 static void  (*glColor4dv_p)(GLdouble*);
 static void  (*glBlendFunc_p)(GLenum, GLenum);
@@ -701,13 +702,37 @@ static void glstate_save_matrices(PyObject *prev) {
     }
 }
 
-static void glstate_restore_matrices(PyObject *next) {
+/* Restore saved matrices from the next state. Like the
+ * capability tracker, this has to know which matrices
+ * need to be cleaned up from the old state. This runs
+ * in two steps:
+ *
+ * 1. The 'prev' dictionary is scanned. Any matrices
+ *    missing from 'next' are reset to the identity.
+ *
+ * 2. The 'next' dictionary is scanned, and all matrices
+ *    from it are loaded.
+ */
+static void glstate_switch_matrices(PyObject *prev, PyObject *next) {
     PyObject *key, *value;
     GLdouble matrix[16];
     int pos;
 
     RESOLVE(glMatrixMode);
+    RESOLVE(glLoadIdentity);
     RESOLVE(glLoadMatrixd);
+
+    pos = 0;
+    while (PyDict_Next(prev, &pos, &key, NULL)) {
+        if (!PyInt_Check(key))
+            continue;
+        if (PyDict_GetItem(next, key))
+            continue;
+
+        /* Reset matrices used in the old state but not the new */
+        GL(glMatrixMode, (PyInt_AS_LONG(key)));
+        GL(glLoadIdentity, ());
+    }
 
     pos = 0;
     while (PyDict_Next(next, &pos, &key, &value)) {
@@ -793,7 +818,7 @@ static void glstate_switch(GLState *next) {
         Py_XDECREF(next->pushedMatrices);
         next->pushedMatrices = glstate_push_matrices(next->matrices);
 
-        glstate_restore_matrices(next->matrices);
+        glstate_switch_matrices(previous->matrices, next->matrices);
         if (next->matrixMode)
             GL(glMatrixMode, (next->matrixMode));
     }
