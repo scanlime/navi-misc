@@ -24,13 +24,14 @@ import sys, math, Numeric
 from unittest import makeSuite, TestCase, TestSuite
 from ODE import RK4, Time
 from Systems import Lorenz
-from Sequence import Sequence
+from Sequence import Sequence, _Coordinate
 
 
 def suite ():
     tests = (makeSuite (TestRK4),
             makeSuite (TestLorenz),
-            makeSuite (TestSequence))
+            makeSuite (TestSequence),
+            makeSuite (TestCoordinate))
     return TestSuite (tests)
 
 
@@ -51,6 +52,33 @@ class TestLorenz (TestCase):
         """Test the Lorenz system"""
         self.assertEqual (Numeric.array ([1, -9, 2]), self.system ([2, 3, 4],
             0, 0))
+
+class TestCoordinate (TestCase):
+    def setUp (self):
+        self.coordinates = [\
+                _Coordinate ([1,1,1]), \
+                _Coordinate ([2,2,2]), \
+                _Coordinate ([1,2,1])]
+
+    def testLess (self):
+        """Test _Coordinate less than operator"""
+        self.assertTrue (self.coordinates[0] < self.coordinates[1])
+        self.assertFalse (self.coordinates[1] < self.coordinates[0])
+
+    def testEqual (self):
+        """Test _Coordinate equals operator"""
+        self.assertTrue (self.coordinates[0] == _Coordinate ([1,1,1]))
+        self.assertFalse (self.coordinates[0] == self.coordinates[1])
+
+    def testGreater (self):
+        """Test _Coordinate greater than operator"""
+        self.assertTrue (self.coordinates[1] > self.coordinates[0])
+        self.assertFalse (self.coordinates[0] > self.coordinates[1])
+
+    def testNotEqual (self):
+        """Test _Coordinate not equal to operator"""
+        self.assertTrue (self.coordinates[0] != self.coordinates[1])
+        self.assertFalse (self.coordinates[0] != _Coordinate ([1,1,1]))
 
 
 class TestSequence (TestCase):
