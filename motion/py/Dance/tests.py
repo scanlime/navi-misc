@@ -55,7 +55,7 @@ class TestLorenz (TestCase):
 
 class TestSequence (TestCase):
     def setUp (self):
-        self.seq = Sequence (Lorenz (1, 1, 1), None)
+        self.seq = Sequence (Lorenz (1, 1, 1), [1, 1, 1], [])
 
     def testDistance (self):
         """Test the Euclidean distance calculation"""
