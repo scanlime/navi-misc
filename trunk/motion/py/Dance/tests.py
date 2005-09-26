@@ -106,6 +106,10 @@ class TestSequence (TestCase):
 
         self.assertEqual (self.seq._distance (x, y), math.sqrt (3))
 
+    def testNearestNeigbor (self):
+        """Test the calculation of the nearest neighbor"""
+        self.fail ("Not implemented")
+
     def testShuffle (self):
         """Test the chaotic shuffle"""
         self.fail ("Not implemented")
