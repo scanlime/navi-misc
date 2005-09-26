@@ -1,6 +1,8 @@
-import os, math, random
+import os, math, random, sys
 import loopy, soya
 import soya.pudding as pudding
+
+datadir = os.path.join(os.path.dirname(sys.argv[0]), "data")
 
 class BlueSmokeEmitter(soya.Smoke):
     def __init__(self,parent):
@@ -9,7 +11,7 @@ class BlueSmokeEmitter(soya.Smoke):
 
         spark_material = soya.Material()
         spark_material.additive_blending = 1
-        spark_material.texture = soya.open_image("blue_spark.png")
+        spark_material.texture = soya.open_image(os.path.join(datadir, "blue_spark.png"))
         self.material = spark_material
 
         self.set_colors((1.0, 1.0, 1.0, 1.0),
@@ -30,19 +32,13 @@ class BlueSmokeEmitter(soya.Smoke):
 
     def advance_time(self, proportion):
         soya.Smoke.advance_time(self, proportion)
-
         self.t += 0.4 * proportion
-        r = 1.0
-
-        self.set_xyz(math.sin(self.t)*r,
-                     math.cos(self.t)*r - r,
-                     0)
+        self.set_xyz(math.sin(self.t) * 1.0,
+                     math.cos(self.t) * 1.0, 0)
 
 class SoyaOverlay(loopy.Overlay):
-    def setup():
-        soya.init()
-        print "argv: %r" % (sys.argv,)
-        soya.path.append(os.path.join(os.path.dirname(sys.argv[0]), "data"))
+    def setup(self):
+        soya.init(width=self.resolution[0], height=self.resolution[1])
 
         self.scene = soya.World()
         self.scene.atmosphere = soya.NoBackgroundAtmosphere()
@@ -66,9 +62,9 @@ class SoyaOverlay(loopy.Overlay):
         self.camera = soya.Camera(self.scene)
         self.camera.z = 10.0
 
-        self.idler = soya.Idler(scene)
+        self.idler = soya.Idler(self.scene)
 
-    def render():
+    def render(self):
         self.idler.begin_round()
         self.idler.advance_time(1.0)
         self.idler.end_round()

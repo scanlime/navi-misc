@@ -291,10 +291,16 @@ static void __attribute__ ((constructor)) init() {
     var = getenv("LOOPY_MAIN");
     if (var) {
         FILE *f = fopen(var, "r");
+        static char *py_argv;
+
         if (!f) {
             perror(var);
             exit(1);
         }
+
+        /* Set argv[0] to LOOPY_MAIN */
+        py_argv = var;
+        PySys_SetArgv(1, &py_argv);
 
         /* Run the user program until it finishes */
         if (PyRun_SimpleFile(f, var) < 0)
@@ -1047,7 +1053,7 @@ static int overlay_call_method(Overlay *self, char *method) {
  */
 static int overlay_render(Overlay *self, void* user_data) {
     if (self->initialized)
-        overlay_call_method(self, "render");
+        return overlay_call_method(self, "render");
     return 0;
 }
 
