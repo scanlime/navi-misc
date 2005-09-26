@@ -112,13 +112,11 @@ class TestSequence (TestCase):
 
     def testShuffle (self):
         """Test the chaotic shuffle"""
-        shuffled = self.seq.shuffle ([3,2,9])
+        shuffled = self.seq.shuffle ([3,2,9], Time (0, 100, .01))
         original = self.seq.mapping.values ()
 
-        print shuffled, original
-
         for d in original:
-            self.assert_ (d in shuffled)
+            self.assertTrue (d in shuffled)
 
     def _createFakeData (self):
         """Return a dictionary that can be used as data for the Sequence

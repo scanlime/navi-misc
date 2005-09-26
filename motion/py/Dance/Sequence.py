@@ -57,18 +57,16 @@ class Sequence:
 
         return winner
 
-    def shuffle (self, ic, time=None):
+    def shuffle (self, ic, time):
         """ Takes a set of initial conditions (ics) and returns a new
             dance sequence.
             """
         shuffled = []
-        traj = self.ode (ic, self.t)
+        traj = self.ode (ic, time)
         step = len (traj) / len (self.mapping.keys ())
-        length = len (traj) * step
 
-        for i in range (length):
-            print i
-            shuffled.append (self._findNearest (Numeric.array (traj[i].coordinates)))
+        for i in range (len (self.mapping.keys ())):
+            shuffled.append (self._findNearest (traj[i*step]))
 
         return shuffled
 
