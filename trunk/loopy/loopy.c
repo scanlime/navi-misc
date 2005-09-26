@@ -856,8 +856,6 @@ static void glstate_switch(GLState *next) {
     if (next->restoreFlags & GLSTATE_DEPTH_FUNC)
         GL(glDepthFunc, (next->depthFunc));
 
-    GL(glEnable, (GL_DEPTH_TEST));
-
     /* Complete the switch, drop the reference we stole from
      * current_glstate, then grab a new reference for our new
      * state.
