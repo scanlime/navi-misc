@@ -12,9 +12,9 @@ __all__ = ["Sequence"]
 class Sequence:
     """This class represents a dance sequence mapped to an attractor."""
     def __init__ (self, system, ic, t, data):
-        """ Each Sequence object requires an ordinary differential equation
-            solver and some motion capture data (data).
-            """
+        """Each Sequence object requires an ordinary differential equation
+           solver and some motion capture data (data).
+           """
         self.mapping = {}
         self.ode = RK4 (system)
 
@@ -31,14 +31,15 @@ class Sequence:
             self.mapping[_Coordinate (traj[i * step])] = _Frame (i, data)
 
     def __getitem__ (self, frame):
-        """ Use [] on a Sequence object to get a frame. """
+        """Use [] on a Sequence object to get a frame."""
         return self.mapping.items () [frame]
 
     def _distance (self, x, y):
-        """ Calculate the Euclidean distance between the points x and y. """
+        """Calculate the Euclidean distance between the points x and y."""
         return math.sqrt (Numeric.sum ((y - x)**2))
 
     def _findNearest (self, point):
+        """Find a point the trajectory nearest to the coordinate given."""
         traj = self.mapping.keys ()
         frames = self.mapping.items ()
         dist = self._distance (traj[0], point)
