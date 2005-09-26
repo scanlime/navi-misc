@@ -77,6 +77,7 @@ typedef struct {
     PyObject *textures;
     PyObject *color;
     PyObject *blendFunc;
+    PyObject *clearColor;
 
     int matrixMode;
     PyObject *matrices;
@@ -98,6 +99,7 @@ static const struct {
 #   define GLSTATE_TEXTURES           (1  << 2 )
 #   define GLSTATE_COLOR              (1  << 3 )
 #   define GLSTATE_BLEND_FUNC         (1  << 4 )
+#   define GLSTATE_CLEAR_COLOR        (1  << 5 )
 #   define GLSTATE_ALL                ((1 << 6 )-1)
 
     {"CAPABILITIES",     GLSTATE_CAPABILITIES},
@@ -105,6 +107,7 @@ static const struct {
     {"TEXTURES",         GLSTATE_TEXTURES},
     {"COLOR",            GLSTATE_COLOR},
     {"BLEND_FUNC",       GLSTATE_BLEND_FUNC},
+    {"CLEAR_COLOR",      GLSTATE_CLEAR_COLOR},
     {"ALL",              GLSTATE_ALL},
     {0}
 };
@@ -157,6 +160,7 @@ static void  (*glPopMatrix_p)(void);
 static GLenum(*glGetError_p)(void);
 static void  (*glColor4dv_p)(GLdouble*);
 static void  (*glBlendFunc_p)(GLenum, GLenum);
+static void  (*glClearColor_p)(GLclampf, GLclampf, GLclampf, GLclampf);
 
 static void* (*XOpenDisplay_p)(char *);
 static int   (*XCloseDisplay_p)(void *);
@@ -384,6 +388,11 @@ static PyMemberDef glstate_members[] = {
       "integers. You may modify this, but values other than\n"
       "2-tuples of ints will have undefined results.\n"
     },
+    { "clearColor", T_OBJECT, offsetof(GLState, color), 0,
+      "The current glClearColor, as a 4-tuple of floats.\n"
+      "You may modify this, but values other than 4-tuples\n"
+      "of floats will have undefined results.\n"
+    },
     { "matrixMode", T_INT, offsetof(GLState, matrixMode), 0,
       "The current OpenGL matrix mode.\n"
     },
@@ -420,6 +429,7 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
     self->textures = PyDict_New();
     self->color = Py_BuildValue("(ffff)", 1.0f, 1.0f, 1.0f, 1.0f);
     self->blendFunc = Py_BuildValue("(ii)", GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    self->clearColor = Py_BuildValue("(ffff)", 1.0f, 1.0f, 1.0f, 1.0f);
     self->matrices = PyDict_New();
     self->pushedMatrices = NULL;
     return 0;
@@ -431,6 +441,7 @@ static void glstate_dealloc(GLState *self) {
     Py_XDECREF(self->textures);
     Py_XDECREF(self->color);
     Py_XDECREF(self->blendFunc);
+    Py_XDECREF(self->clearColor);
     Py_XDECREF(self->matrices);
     Py_XDECREF(self->pushedMatrices);
     self->ob_type->tp_free((PyObject *)self);
@@ -791,6 +802,12 @@ static void glstate_switch(GLState *next) {
         GLdouble color[4];
         pytuple_to_glvector(next->color, color, 4);
         GL(glColor4dv, (color));
+    }
+
+    if (next->restoreFlags & GLSTATE_CLEAR_COLOR) {
+        GLdouble color[4];
+        pytuple_to_glvector(next->clearColor, color, 4);
+        GL(glClearColor, (color[0], color[1], color[2], color[3]));
     }
 
     if (next->restoreFlags & GLSTATE_BLEND_FUNC) {
@@ -1203,6 +1220,16 @@ void glBlendFunc(GLenum src, GLenum dest) {
     if (IS_TRACKING(GLSTATE_BLEND_FUNC)) {
         Py_XDECREF(current_glstate->blendFunc);
         current_glstate->blendFunc = Py_BuildValue("(ii)", src, dest);
+    }
+}
+
+void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) {
+    RESOLVE(glClearColor);
+    glClearColor_p(red, green, blue, alpha);
+    if (IS_TRACKING(GLSTATE_CLEAR_COLOR)) {
+        GLdouble color[] = {red, green, blue, alpha};
+        Py_XDECREF(current_glstate->clearColor);
+        current_glstate->clearColor = pytuple_from_glvector(color, 4);
     }
 }
 
