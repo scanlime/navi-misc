@@ -975,6 +975,14 @@ static int overlay_init(Overlay *self, PyObject *args, PyObject *kw) {
 
     self->glState = glstate_new();
     self->enabled = 1;
+
+    /* By default, don't let overlays clear the screen. This can be
+     * overridden for overlays that actually want to clear the color
+     * buffer, but it's a good default that makes writing overlays
+     * with existing 3D engines a little easier.
+     */
+    self->glState->clearMask &= ~GL_COLOR_BUFFER_BIT;
+
     return 0;
 }
 
@@ -1214,8 +1222,10 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
 void glClear(GLbitfield flags) {
     if (current_glstate)
         flags &= current_glstate->clearMask;
-    RESOLVE(glClear);
-    glClear_p(flags);
+    if (flags) {
+        RESOLVE(glClear);
+        glClear_p(flags);
+    }
 }
 
 void glEnable(GLenum cap) {

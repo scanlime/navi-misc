@@ -56,7 +56,6 @@ class Overlay(loopy.Overlay):
 
     def createScene(self):
         self.scene = soya.World()
-        self.scene.atmosphere = soya.NoBackgroundAtmosphere()
 
         particles = BlueSmokeEmitter(self.scene)
 

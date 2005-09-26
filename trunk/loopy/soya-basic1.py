@@ -10,16 +10,9 @@ import sys, os, soya, loopy
 
 class Overlay(loopy.Overlay):
     def setup(self):
-        # Soya won't detect the current resolution on its own, we
-        # have to pass it in from Loopy.
         soya.init("Loopy Demo", *self.resolution)
         soya.path.append(os.path.join(os.path.dirname(sys.argv[0]), "data"))
-
-        # NoBackgroundAtmosphere prevents Soya from clearing the
-        # screen before rendering. This is important if the original
-        # output from the target application is going to be visible.
         scene = soya.World()
-        scene.atmosphere = soya.NoBackgroundAtmosphere()
 
         sword_model = soya.Shape.get("sword")
         sword = soya.Volume(scene, sword_model)
