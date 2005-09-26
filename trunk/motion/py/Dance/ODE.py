@@ -56,7 +56,8 @@ class RK4 (ODE):
 
     def __call__ (self, ic, time):
         """ Solve the system. """
-        result = [ic]
+        result = [Numeric.array (ic)]
+
         for i in time:
             step = self._step (result[i.iteration], i)
             result.append (step)
