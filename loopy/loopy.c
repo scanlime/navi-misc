@@ -78,7 +78,7 @@ typedef struct {
     PyObject *color;
     PyObject *blendFunc;
     PyObject *clearColor;
-
+    int depthFunc;
     int matrixMode;
     PyObject *matrices;
     PyObject *pushedMatrices;
@@ -100,7 +100,8 @@ static const struct {
 #   define GLSTATE_COLOR              (1  << 3 )
 #   define GLSTATE_BLEND_FUNC         (1  << 4 )
 #   define GLSTATE_CLEAR_COLOR        (1  << 5 )
-#   define GLSTATE_ALL                ((1 << 6 )-1)
+#   define GLSTATE_DEPTH_FUNC         (1  << 6 )
+#   define GLSTATE_ALL                ((1 << 7 )-1)
 
     {"CAPABILITIES",     GLSTATE_CAPABILITIES},
     {"MATRICES",         GLSTATE_MATRICES},
@@ -108,6 +109,7 @@ static const struct {
     {"COLOR",            GLSTATE_COLOR},
     {"BLEND_FUNC",       GLSTATE_BLEND_FUNC},
     {"CLEAR_COLOR",      GLSTATE_CLEAR_COLOR},
+    {"DEPTH_FUNC",       GLSTATE_DEPTH_FUNC},
     {"ALL",              GLSTATE_ALL},
     {0}
 };
@@ -162,6 +164,7 @@ static GLenum(*glGetError_p)(void);
 static void  (*glColor4dv_p)(GLdouble*);
 static void  (*glBlendFunc_p)(GLenum, GLenum);
 static void  (*glClearColor_p)(GLclampf, GLclampf, GLclampf, GLclampf);
+static void  (*glDepthFunc_p)(GLenum);
 
 static void* (*XOpenDisplay_p)(char *);
 static int   (*XCloseDisplay_p)(void *);
@@ -394,6 +397,9 @@ static PyMemberDef glstate_members[] = {
       "You may modify this, but values other than 4-tuples\n"
       "of floats will have undefined results.\n"
     },
+    { "depthFunc", T_INT, offsetof(GLState, depthFunc), 0,
+      "The current glDepthFunc value.\n"
+    },
     { "matrixMode", T_INT, offsetof(GLState, matrixMode), 0,
       "The current OpenGL matrix mode.\n"
     },
@@ -424,6 +430,7 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
     self->restoreFlags = GLSTATE_ALL;
     self->clearMask = ~0;
     self->matrixMode = 0;
+    self->depthFunc = GL_LESS;
 
     self->capabilities = PyDict_New();
     self->textureBindings = PyDict_New();
@@ -846,6 +853,11 @@ static void glstate_switch(GLState *next) {
         }
     }
 
+    if (next->restoreFlags & GLSTATE_DEPTH_FUNC)
+        GL(glDepthFunc, (next->depthFunc));
+
+    GL(glEnable, (GL_DEPTH_TEST));
+
     /* Complete the switch, drop the reference we stole from
      * current_glstate, then grab a new reference for our new
      * state.
@@ -1266,6 +1278,13 @@ void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) {
         Py_XDECREF(current_glstate->clearColor);
         current_glstate->clearColor = pytuple_from_glvector(color, 4);
     }
+}
+
+void glDepthFunc(GLenum func) {
+    RESOLVE(glDepthFunc);
+    glDepthFunc_p(func);
+    if (IS_TRACKING(GLSTATE_DEPTH_FUNC))
+        current_glstate->depthFunc = func;
 }
 
 void glBindTexture(GLenum target, GLuint texture) {
