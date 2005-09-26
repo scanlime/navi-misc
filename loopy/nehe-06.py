@@ -9,7 +9,7 @@ from OpenGL.GLU import *
 import pygame, pygame.image
 from pygame.locals import *
 
-class NeheOverlay(loopy.Overlay):
+class Overlay(loopy.Overlay):
     def __init__(self):
         loopy.Overlay.__init__(self)
         self.xrot = 0.0
@@ -130,4 +130,6 @@ class NeheOverlay(loopy.Overlay):
         self.yrot += 0.2
         self.zrot += 0.2
 
-loopy.overlays.append(NeheOverlay())
+if __name__ == "__main__":
+    loopy.overlays.append(Overlay())
+
