@@ -34,7 +34,7 @@ class ODE:
         and some kind of time constraints.
         """
     def __init__ (self, func):
-        self.func = func
+        self.f = func
 
     def __call__ (self):
         pass

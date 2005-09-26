@@ -13,7 +13,7 @@ class System:
     ''' A superclass that effectively just specifies an interface
         for all systems.
         '''
-    def __call__( self, args, time ):
+    def __call__( self, args, time, step ):
         ''' All Systems should be callable. '''
         pass
 
@@ -25,7 +25,7 @@ class Lorenz( System ):
         self.r = r
         self.b = b
 
-    def __call__( self, args, time ):
+    def __call__( self, args, time, step ):
         x, y, z = args
 
         return Numeric.array( [self.a*(y - x),
@@ -41,7 +41,7 @@ class Rossler( System ):
         self.c = c
         self.deltaMatrix = delta
 
-    def __call__( self, args, time ):
+    def __call__( self, args, time, step ):
         x, y, z = args
 
         if self.deltaMatrix:
