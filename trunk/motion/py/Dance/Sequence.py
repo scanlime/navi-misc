@@ -65,8 +65,8 @@ class Sequence:
         traj = self.ode (ic, time)
         step = len (traj) / len (self.mapping.keys ())
 
-        for i in range (len (self.mapping.keys ())):
-            shuffled.append (self._findNearest (traj[i*step]))
+        for i in range (len (traj)):
+            shuffled.append (self._findNearest (traj[i]))
 
         return shuffled
 
