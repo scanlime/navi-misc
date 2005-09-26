@@ -36,6 +36,7 @@ def suite ():
 
 
 class TestRK4 (TestCase):
+    """Test the Runge-Kutte 4 solver."""
     def setUp (self):
         self.solver = RK4 (Lorenz (1, 1, 1))
 
@@ -45,6 +46,7 @@ class TestRK4 (TestCase):
 
 
 class TestLorenz (TestCase):
+    """Test the Lorenz equations."""
     def setUp (self):
         self.system = Lorenz (1, 1, 1)
 
@@ -54,6 +56,7 @@ class TestLorenz (TestCase):
             0, 0))
 
 class TestCoordinate (TestCase):
+    """Test the hashable _Coordinate class."""
     def setUp (self):
         self.coordinates = [\
                 _Coordinate ([1,1,1]), \
@@ -82,9 +85,11 @@ class TestCoordinate (TestCase):
 
 
 class TestSequence (TestCase):
+    """Test the Sequence class that maps frames to a chaotic trajectory."""
     def setUp (self):
-        data = dict ([(letter, letter) for letter in
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"])
+        # FIXME Need to set the data up to match the structure of the ASF
+        # objects.
+        data = dict ([(letter, letter) for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"])
         ic = Numeric.array ([2, 3, 4])
         self.seq = Sequence (Lorenz (1, 1, 1), ic, (0, 100, .01), data)
 
