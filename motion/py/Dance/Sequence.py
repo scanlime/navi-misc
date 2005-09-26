@@ -19,10 +19,12 @@ class Sequence:
         self.ode = RK4 (system)
 
         if isinstance (t, Time):
-            traj = self.ode (ic, t)
+            self.t = t
         else:
             start, iterations, step = t
-            traj = self.ode (ic, Time (start, iterations, step))
+            self.t = Time (start, iterations, step)
+
+        traj = self.ode (ic, self.t)
 
         frames = len (data.values ()[0])
         step = len (traj) / frames
@@ -55,17 +57,17 @@ class Sequence:
 
         return winner
 
-    def shuffle (self, ics):
+    def shuffle (self, ics, time=None):
         """ Takes a set of initial conditions (ics) and returns a new
             dance sequence.
             """
         shuffled = []
-        traj = self.ode (ics)
+        traj = self.ode (ics, time or self.t)
         step = len (traj) / len (self.mapping.keys ())
         length = len (traj) * step
 
         for i in range (length):
-            shuffled.append (self._findNearest (traj[i * step]))
+            shuffled.append (self._findNearest (traj[i]))
 
         return shuffled
 
