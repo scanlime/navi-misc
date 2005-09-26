@@ -28,7 +28,7 @@ class Sequence:
 
         # Map each frame evenly over the trajectory.
         for i in range (length):
-            self.mapping[traj[i * step]] = _Frame (i, data)
+            self.mapping[_Coordinate (traj[i * step])] = _Frame (i, data)
 
     def __getitem__ (self, frame):
         """ Use [] on a Sequence object to get a frame. """
@@ -70,6 +70,30 @@ class Sequence:
         """ Store the sequence to a file. """
         # FIXME
         pass
+
+
+class _Coordinate:
+    """A hashable coordinate object."""
+    def __init__ (self, coords):
+        self.coordinates = Numeric.array (coords)
+
+    def __cmp__ (self, other):
+        if math.sqrt (Numeric.sum (self.coordinates**2)) < \
+                math.sqrt (Numeric.sum (other.coordinates**2)):
+            return -1
+        else:
+            i = iter (other.coordinates)
+            for coord in self.coordinates:
+                if coord != i.next():
+                    return 1
+
+        return 0
+
+    def __hash__ (self):
+        h = 0
+        for coord in self.coordinates:
+            h = h ^ hash (coord)
+        return h
 
 
 class _Frame:
