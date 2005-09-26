@@ -99,8 +99,12 @@ class _Coordinate:
 
 
 class _Frame:
-    """ A frame from the AMC file. """
+    """A frame from the AMC file."""
     def __init__ (self, index, data):
+        # Map bone names to a list of values in a single frame. Each value
+        # corresponds to a degree of freedom for that bone. index gives the
+        # frame number and data is a dictionary mapping bones to motion data.
+        # The movement data is stored as follows: data["bone name"][frame, dof].
         self.__bones = {}
 
         for bone, values in data.iteritems ():
