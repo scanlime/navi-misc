@@ -1,3 +1,7 @@
+#
+# A spiffy particle system overlay using Soya 3D
+#
+
 import os, math, random, sys
 import loopy, soya
 import soya.pudding as pudding
@@ -36,7 +40,7 @@ class BlueSmokeEmitter(soya.Smoke):
         self.set_xyz(math.sin(self.t) * 1.0,
                      math.cos(self.t) * 1.0 - 1.0, 0)
 
-class SoyaOverlay(loopy.Overlay):
+class Overlay(loopy.Overlay):
     def createPuddingWidgets(self):
         root = pudding.core.RootWidget()
 
@@ -81,4 +85,5 @@ class SoyaOverlay(loopy.Overlay):
         self.camera.render()
         self.puddingRoot.render()
 
-loopy.overlays.append(SoyaOverlay())
+if __name__ == "__main__":
+    loopy.overlays.append(Overlay())
