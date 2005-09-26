@@ -430,7 +430,7 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
     self->textures = PyDict_New();
     self->color = Py_BuildValue("(ffff)", 1.0f, 1.0f, 1.0f, 1.0f);
     self->blendFunc = Py_BuildValue("(ii)", GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    self->clearColor = Py_BuildValue("(ffff)", 1.0f, 1.0f, 1.0f, 1.0f);
+    self->clearColor = Py_BuildValue("(ffff)", 0.0f, 0.0f, 0.0f, 1.0f);
     self->matrices = PyDict_New();
     self->pushedMatrices = NULL;
     return 0;
