@@ -166,10 +166,6 @@ static void  (*glBlendFunc_p)(GLenum, GLenum);
 static void  (*glClearColor_p)(GLclampf, GLclampf, GLclampf, GLclampf);
 static void  (*glDepthFunc_p)(GLenum);
 
-static void* (*XOpenDisplay_p)(char *);
-static int   (*XCloseDisplay_p)(void *);
-static void* (*XCreateWindow_p)(void*, void*, int, int, int, int,
-                                int, int, int, void*, long, void*);
 static int   (*SDL_Init_p)(Uint32);
 static int   (*SDL_InitSubSystem_p)(Uint32);
 static void  (*SDL_QuitSubSystem_p)(Uint32);
@@ -242,7 +238,7 @@ static SDL_Surface overlay_sdl_surface = {
  * This includes errors importing the user module, and errors
  * in running hook functions.
  */
-static void handle_py_error() {
+static void handle_py_error(void) {
     PyErr_Print();
     exit(1);
 }
@@ -262,7 +258,7 @@ static void handle_link_error(const char *name) {
  * linker- if we aren't already running inside python,
  * this sets up the interpreter and our extension module.
  */
-static void __attribute__ ((constructor)) init() {
+static void __attribute__ ((constructor)) init(void) {
     char *var;
 
     if (Py_IsInitialized())
@@ -757,7 +753,7 @@ static void glstate_switch_matrices(PyObject *prev, PyObject *next) {
  * returning a new reference to a list of those matrices.
  */
 static PyObject* glstate_push_matrices(PyObject *matrices) {
-    PyObject *key, *value, *list = PyList_New(0);
+    PyObject *key, *list = PyList_New(0);
     int pos = 0;
 
     while (PyDict_Next(matrices, &pos, &key, NULL)) {
@@ -1186,9 +1182,6 @@ PyMODINIT_FUNC initloopy(void)
 /************************************************************************/
 
 void glXSwapBuffers(void *display, void *drawable) {
-    PyObject *result;
-    int i, len;
-
     /* Clear any stale errors from the target app */
     RESOLVE(glGetError);
     glGetError_p();
@@ -1203,8 +1196,6 @@ void glXSwapBuffers(void *display, void *drawable) {
 }
 
 void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
-    PyObject *result;
-
     RESOLVE(glViewport);
     glViewport_p(x, y, width, height);
 
