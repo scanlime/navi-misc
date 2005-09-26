@@ -3,7 +3,7 @@
 # Paul Furber 2001 - m@verick.co.za
 # Loopy version - Micah Dowty
 
-import os, loopy
+import os, sys, loopy
 from OpenGL.GL import *
 from OpenGL.GLU import *
 import pygame, pygame.image
@@ -56,14 +56,17 @@ class NeheOverlay(loopy.Overlay):
         glDepthFunc(GL_LEQUAL)
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
 
+        # Make the cube glowy-translucent
         glEnable(GL_BLEND)
-        glColor(1, 1, 1, 0.2)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glColor(1, 1, 1, 1)
+        glBlendFunc(GL_ONE, GL_ONE)
+        glDisable(GL_DEPTH_TEST)
 
         self.resized()
 
     def load_textures(self):
-        texturefile = os.path.join('data','nehe.bmp')
+        datadir = os.path.join(os.path.dirname(sys.argv[0]), "data")
+        texturefile = os.path.join(datadir,'nehe.bmp')
         textureSurface = pygame.image.load(texturefile)
         textureData = pygame.image.tostring(textureSurface, "RGBX", 1)
 

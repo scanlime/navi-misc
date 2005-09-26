@@ -314,11 +314,6 @@ static void __attribute__ ((constructor)) init() {
      */
     current_glstate = target_glstate = glstate_new();
     Py_INCREF(current_glstate);
-
-    /* We shouldn't try to wrap the target itself
-     * in matrix save/pop/push/restore sequences.
-     */
-    target_glstate->restoreFlags &= ~GLSTATE_MATRICES;
 }
 
 /* Any time the target application uses dlsym(), glXGetProcAddress(),
