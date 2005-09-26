@@ -97,7 +97,7 @@ class TestSequence (TestCase):
         # objects.
         data = self._createFakeData ()
         ic = Numeric.array ([2, 3, 4])
-        self.seq = Sequence (Lorenz (1, 1, 1), ic, (0, 100, .01), data)
+        self.seq = Sequence (Lorenz (1, 1, 1), ic, Time (0, 100, .01), data)
 
     def testDistance (self):
         """Test the Euclidean distance calculation"""
@@ -112,7 +112,13 @@ class TestSequence (TestCase):
 
     def testShuffle (self):
         """Test the chaotic shuffle"""
-        self.fail ("Not implemented")
+        shuffled = self.seq.shuffle ([3,2,9])
+        original = self.seq.mapping.values ()
+
+        print shuffled, original
+
+        for d in original:
+            self.assert_ (d in shuffled)
 
     def _createFakeData (self):
         """Return a dictionary that can be used as data for the Sequence

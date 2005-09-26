@@ -44,8 +44,8 @@ class Sequence:
 
     def _findNearest (self, point):
         """Find a point the trajectory nearest to the coordinate given."""
-        traj = self.mapping.keys ()
-        frames = self.mapping.items ()
+        traj = [Numeric.array (key.coordinates) for key in self.mapping.keys ()]
+        frames = self.mapping.values ()
         dist = self._distance (traj[0], point)
         winner = frames[0]
 
@@ -57,17 +57,18 @@ class Sequence:
 
         return winner
 
-    def shuffle (self, ics, time=None):
+    def shuffle (self, ic, time=None):
         """ Takes a set of initial conditions (ics) and returns a new
             dance sequence.
             """
         shuffled = []
-        traj = self.ode (ics, time or self.t)
+        traj = self.ode (ic, self.t)
         step = len (traj) / len (self.mapping.keys ())
         length = len (traj) * step
 
         for i in range (length):
-            shuffled.append (self._findNearest (traj[i]))
+            print i
+            shuffled.append (self._findNearest (Numeric.array (traj[i].coordinates)))
 
         return shuffled
 
