@@ -21,7 +21,8 @@ class Sequence:
         if isinstance (t, Time):
             traj = self.ode (ic, t)
         else:
-            traj = self.ode (ic, Time (t[0], t[1], t[2]))
+            start, iterations, step = t
+            traj = self.ode (ic, Time (start, iterations, step))
 
         step = len (traj) / len (data)
         length = len (data) * step
