@@ -34,34 +34,44 @@ class BlueSmokeEmitter(soya.Smoke):
         soya.Smoke.advance_time(self, proportion)
         self.t += 0.4 * proportion
         self.set_xyz(math.sin(self.t) * 1.0,
-                     math.cos(self.t) * 1.0, 0)
+                     math.cos(self.t) * 1.0 - 1.0, 0)
 
 class SoyaOverlay(loopy.Overlay):
-    def setup(self):
-        soya.init(width=self.resolution[0], height=self.resolution[1])
+    def createPuddingWidgets(self):
+        root = pudding.core.RootWidget()
 
+        title = pudding.control.SimpleLabel(root)
+        title.font = soya.Font(os.path.join(datadir, "geodesic.ttf"), 100, 100)
+        title.color = (1.0, 1.0, 1.0, 0.5)
+        title.label = "wasabi"
+        title.update()
+        title.left = (self.resolution[0] - title.width) / 2
+        title.top = self.resolution[1] / 4 - title.height / 2
+
+        return root
+
+    def createScene(self):
         self.scene = soya.World()
         self.scene.atmosphere = soya.NoBackgroundAtmosphere()
 
-        #pudding.init()
-        #w = pudding.core.RootWidget()
+        particles = BlueSmokeEmitter(self.scene)
 
-        #l = pudding.control.SimpleLabel(w)
-        #l.font = soya.Font("geodesic.ttf", 100, 100)
-        #l.label = "wasabi"
-        #l.update()
-        #l.left = (w.width - l.width) / 2
-        #l.top = w.height / 4 - l.height / 2
-        #print l.top, l.left
-
-        self.particles = BlueSmokeEmitter(self.scene)
-
-        self.light = soya.Light(self.scene)
-        self.light.set_xyz(0.5, 0.0, 2.0)
+        light = soya.Light(self.scene)
+        light.set_xyz(0.5, 0.0, 2.0)
 
         self.camera = soya.Camera(self.scene)
         self.camera.z = 10.0
 
+    def resized(self):
+        soya.set_video(self.resolution[0], self.resolution[1], False, True)
+        self.camera.resize(0, 0, self.resolution[0], self.resolution[1])
+        self.puddingRoot = self.createPuddingWidgets()
+
+    def setup(self):
+        soya.init("Loopy Demo", self.resolution[0], self.resolution[1])
+        pudding.init()
+        self.puddingRoot = self.createPuddingWidgets()
+        self.createScene()
         self.idler = soya.Idler(self.scene)
 
     def render(self):
@@ -69,5 +79,6 @@ class SoyaOverlay(loopy.Overlay):
         self.idler.advance_time(1.0)
         self.idler.end_round()
         self.camera.render()
+        self.puddingRoot.render()
 
 loopy.overlays.append(SoyaOverlay())
