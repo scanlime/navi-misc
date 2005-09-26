@@ -60,4 +60,4 @@ class Rossler( System ):
         return Numeric.array( matrix )
 
 
-### The End ###
+# vim:ts=4:sw=4:et
