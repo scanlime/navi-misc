@@ -20,7 +20,7 @@ Unit tests for the Dance module.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-import sys, Numeric
+import sys, math, Numeric
 from unittest import makeSuite, TestCase, TestSuite
 from ODE import RK4, Time
 from Systems import Lorenz
@@ -54,6 +54,16 @@ class TestLorenz (TestCase):
 
 
 class TestSequence (TestCase):
+    def setUp (self):
+        self.seq = Sequence (Lorenz (1, 1, 1), None)
+
+    def testDistance (self):
+        """Test the Euclidean distance calculation"""
+        x = Numeric.array ([1,1,1])
+        y = Numeric.array ([2,2,2])
+
+        self.assertEqual (self.seq._distance (x, y), math.sqrt (3))
+
     def testShuffle (self):
         """Test the chaotic shuffle"""
         self.fail ("Not implemented")
