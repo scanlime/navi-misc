@@ -539,6 +539,134 @@ static void glstate_type_init(PyObject *module) {
 }
 
 /************************************************************************/
+/********************************************** RenderTarget Object *****/
+/************************************************************************/
+
+typedef struct {
+    PyObject_HEAD
+
+    unsigned int texture;
+    unsigned int format;
+    int w, h;
+    int current;
+    PyObject *py_texture;  /* Mirrors 'texture', but can also be None */
+
+} RenderTarget;
+
+static PyMemberDef rendertarget_members[] = {
+    { "texture", T_OBJECT, offsetof(RenderTarget, py_texture), READONLY,
+      "The OpenGL texture ID that this RenderTarget is bound to,\n"
+      "or None if this RenderTarget is not bound.\n"
+    },
+    { "format", T_UINT, offsetof(RenderTarget, format), READONLY,
+      "The texture format this RenderTarget, either GL_RGB or GL_RGBA.\n"
+    },
+    { "w", T_INT, offsetof(RenderTarget, w), READONLY,
+      "The width of this RenderTarget, in pixels.\n"
+    },
+    { "h", T_INT, offsetof(RenderTarget, h), READONLY,
+      "The width of this RenderTarget, in pixels.\n"
+    },
+    { "current", T_INT, offsetof(RenderTarget, current), READONLY,
+      "True if this is the current draw target.\n"
+    },
+    {0}
+};
+
+static int rendertarget_init(GLState *self, PyObject *args, PyObject *kw) {
+    int width, height;
+    if (!PyArg_ParseTuple(args, "ii", &width, &height))
+        return -1;
+
+    return 0;
+}
+
+static PyObject* rendertarget_bind(GLState *self, PyObject *args) {
+    int texture;
+    if (!PyArg_ParseTuple(args, "i", &texture))
+        return NULL;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject* rendertarget_lock(GLState *self) {
+
+    Py_RETURN_NONE;
+}
+
+static PyObject* rendertarget_unlock(GLState *self) {
+
+    Py_RETURN_NONE;
+}
+
+static void rendertarget_dealloc(GLState *self) {
+
+    self->ob_type->tp_free((PyObject *)self);
+}
+
+static PyMethodDef rendertarget_methods[] = {
+    { "bind", (PyCFunction) rendertarget_bind, METH_VARARGS,
+      "bind(textureID) -> None\n"
+      "\n"
+      "Set the texture that contains the color buffer of the render target\n"
+      "after it is unlocked. The texture contents are invalid between lock()\n"
+      "and unlock(). This may be called with None to delete any previous\n"
+      "texture binding.\n"
+    },
+    { "lock", (PyCFunction) rendertarget_lock, METH_NOARGS,
+      "lock() -> None\n"
+      "\n"
+      "Make this the current OpenGL drawing target.\n"
+    },
+    { "unlock", (PyCFunction) rendertarget_unlock, METH_NOARGS,
+      "unlock() -> None\n"
+      "\n"
+      "Restore the OpenGL drawing target, and update the texture currently\n"
+      "bound to this target, if any.\n"
+    },
+    {0}
+};
+
+static PyTypeObject rendertarget_type = {
+    PyObject_HEAD_INIT(0)
+    .tp_name = "loopy.RenderTarget",
+    .tp_basicsize = sizeof(RenderTarget),
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_members = rendertarget_members,
+    .tp_methods = rendertarget_methods,
+    .tp_init = (initproc) rendertarget_init,
+    .tp_dealloc = (destructor) rendertarget_dealloc,
+    .tp_doc = "RenderTarget(width, height)\n"
+              "\n"
+              "RenderTarget is an interface for rendering to texture,\n"
+              "implemented using the SGIX_pbuffer OpenGL extension. The\n"
+              "design mimics the RenderTarget API provided by current\n"
+              "development versions of SDL. It is implemented here in\n"
+              "Loopy for two reasons: Python bindings for pbuffers are\n"
+              "not generally available, and any code using pbuffers needs\n"
+              "access to GLX state that Loopy tracks internally.\n"
+              "\n"
+              "After creating a RenderTarget, it may be made current by\n"
+              "locking it. While locked, any OpenGL rendering operations\n"
+              "operate on the RenderTarget rather than the screen. When\n"
+              "the RenderTarget is unlocked, it can optionally update a\n"
+              "bound texture with its contents. This effectively provides\n"
+              "a render-to-texture without the speed hit and inconvenience\n"
+              "of rendering to the backbuffer and performing a readback.\n"
+};
+
+static void rendertarget_type_init(PyObject *module) {
+    int i;
+    Py_INCREF(&rendertarget_type);
+
+    rendertarget_type.tp_new = PyType_GenericNew;
+    if (PyType_Ready(&rendertarget_type) < 0)
+        return;
+
+    PyModule_AddObject(module, "RenderTarget", (PyObject *) &rendertarget_type);
+}
+
+/************************************************************************/
 /****************************************** OpenGL State Management *****/
 /************************************************************************/
 
@@ -1210,6 +1338,7 @@ PyMODINIT_FUNC initloopy(void)
 
     glstate_type_init(m);
     overlay_type_init(m);
+    rendertarget_type_init(m);
 }
 
 /************************************************************************/
