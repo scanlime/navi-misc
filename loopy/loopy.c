@@ -186,6 +186,7 @@ static GLboolean (*glIsTexture_p)(GLuint);
 static void  (*glTexParameterf_p)(GLenum, GLenum, GLfloat);
 static void  (*glTexParameteri_p)(GLenum, GLenum, GLint);
 static void  (*glGetDoublev_p)(GLenum, GLdouble*);
+static void  (*glGetIntegerv_p)(GLenum, GLint*);
 static void  (*glLoadMatrixd_p)(const GLdouble*);
 static void  (*glPushMatrix_p)(void);
 static void  (*glPopMatrix_p)(void);
@@ -536,134 +537,6 @@ static void glstate_type_init(PyObject *module) {
     }
 
     PyModule_AddObject(module, "GLState", (PyObject *) &glstate_type);
-}
-
-/************************************************************************/
-/********************************************** RenderTarget Object *****/
-/************************************************************************/
-
-typedef struct {
-    PyObject_HEAD
-
-    unsigned int texture;
-    unsigned int format;
-    int w, h;
-    int current;
-    PyObject *py_texture;  /* Mirrors 'texture', but can also be None */
-
-} RenderTarget;
-
-static PyMemberDef rendertarget_members[] = {
-    { "texture", T_OBJECT, offsetof(RenderTarget, py_texture), READONLY,
-      "The OpenGL texture ID that this RenderTarget is bound to,\n"
-      "or None if this RenderTarget is not bound.\n"
-    },
-    { "format", T_UINT, offsetof(RenderTarget, format), READONLY,
-      "The texture format this RenderTarget, either GL_RGB or GL_RGBA.\n"
-    },
-    { "w", T_INT, offsetof(RenderTarget, w), READONLY,
-      "The width of this RenderTarget, in pixels.\n"
-    },
-    { "h", T_INT, offsetof(RenderTarget, h), READONLY,
-      "The width of this RenderTarget, in pixels.\n"
-    },
-    { "current", T_INT, offsetof(RenderTarget, current), READONLY,
-      "True if this is the current draw target.\n"
-    },
-    {0}
-};
-
-static int rendertarget_init(GLState *self, PyObject *args, PyObject *kw) {
-    int width, height;
-    if (!PyArg_ParseTuple(args, "ii", &width, &height))
-        return -1;
-
-    return 0;
-}
-
-static PyObject* rendertarget_bind(GLState *self, PyObject *args) {
-    int texture;
-    if (!PyArg_ParseTuple(args, "i", &texture))
-        return NULL;
-
-    Py_RETURN_NONE;
-}
-
-static PyObject* rendertarget_lock(GLState *self) {
-
-    Py_RETURN_NONE;
-}
-
-static PyObject* rendertarget_unlock(GLState *self) {
-
-    Py_RETURN_NONE;
-}
-
-static void rendertarget_dealloc(GLState *self) {
-
-    self->ob_type->tp_free((PyObject *)self);
-}
-
-static PyMethodDef rendertarget_methods[] = {
-    { "bind", (PyCFunction) rendertarget_bind, METH_VARARGS,
-      "bind(textureID) -> None\n"
-      "\n"
-      "Set the texture that contains the color buffer of the render target\n"
-      "after it is unlocked. The texture contents are invalid between lock()\n"
-      "and unlock(). This may be called with None to delete any previous\n"
-      "texture binding.\n"
-    },
-    { "lock", (PyCFunction) rendertarget_lock, METH_NOARGS,
-      "lock() -> None\n"
-      "\n"
-      "Make this the current OpenGL drawing target.\n"
-    },
-    { "unlock", (PyCFunction) rendertarget_unlock, METH_NOARGS,
-      "unlock() -> None\n"
-      "\n"
-      "Restore the OpenGL drawing target, and update the texture currently\n"
-      "bound to this target, if any.\n"
-    },
-    {0}
-};
-
-static PyTypeObject rendertarget_type = {
-    PyObject_HEAD_INIT(0)
-    .tp_name = "loopy.RenderTarget",
-    .tp_basicsize = sizeof(RenderTarget),
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_members = rendertarget_members,
-    .tp_methods = rendertarget_methods,
-    .tp_init = (initproc) rendertarget_init,
-    .tp_dealloc = (destructor) rendertarget_dealloc,
-    .tp_doc = "RenderTarget(width, height)\n"
-              "\n"
-              "RenderTarget is an interface for rendering to texture,\n"
-              "implemented using the SGIX_pbuffer OpenGL extension. The\n"
-              "design mimics the RenderTarget API provided by current\n"
-              "development versions of SDL. It is implemented here in\n"
-              "Loopy for two reasons: Python bindings for pbuffers are\n"
-              "not generally available, and any code using pbuffers needs\n"
-              "access to GLX state that Loopy tracks internally.\n"
-              "\n"
-              "After creating a RenderTarget, it may be made current by\n"
-              "locking it. While locked, any OpenGL rendering operations\n"
-              "operate on the RenderTarget rather than the screen. When\n"
-              "the RenderTarget is unlocked, it can optionally update a\n"
-              "bound texture with its contents. This effectively provides\n"
-              "a render-to-texture without the speed hit and inconvenience\n"
-              "of rendering to the backbuffer and performing a readback.\n"
-};
-
-static void rendertarget_type_init(PyObject *module) {
-    int i;
-    Py_INCREF(&rendertarget_type);
-
-    rendertarget_type.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&rendertarget_type) < 0)
-        return;
-
-    PyModule_AddObject(module, "RenderTarget", (PyObject *) &rendertarget_type);
 }
 
 /************************************************************************/
@@ -1299,6 +1172,196 @@ static int overlay_resize(Overlay *self, void* user_data) {
 
     self->initialized = 1;
     return 0;
+}
+
+/************************************************************************/
+/********************************************** RenderTarget Object *****/
+/************************************************************************/
+
+typedef struct {
+    PyObject_HEAD
+
+    unsigned int texture;
+    unsigned int format;
+    int w, h;
+    int current;
+    PyObject *py_texture;  /* Mirrors 'texture', but can also be None */
+
+    XID config;
+    XID pbuffer;
+} RenderTarget;
+
+static PyMemberDef rendertarget_members[] = {
+    { "texture", T_OBJECT, offsetof(RenderTarget, py_texture), READONLY,
+      "The OpenGL texture ID that this RenderTarget is bound to,\n"
+      "or None if this RenderTarget is not bound.\n"
+    },
+    { "format", T_UINT, offsetof(RenderTarget, format), READONLY,
+      "The texture format this RenderTarget, either GL_RGB or GL_RGBA.\n"
+    },
+    { "w", T_INT, offsetof(RenderTarget, w), READONLY,
+      "The width of this RenderTarget, in pixels.\n"
+    },
+    { "h", T_INT, offsetof(RenderTarget, h), READONLY,
+      "The width of this RenderTarget, in pixels.\n"
+    },
+    { "current", T_INT, offsetof(RenderTarget, current), READONLY,
+      "True if this is the current draw target.\n"
+    },
+    {0}
+};
+
+/* Set up an OpenGL attribute, using this search order:
+ *  1. dict[dict_key]
+ *  2. glGet(pname) if pname != 0
+ *  3. default
+ */
+static int attrib_set(PyObject *dict, const char *dict_key, GLenum pname, int def) {
+    if (dict && dict_key) {
+        PyObject *py_value = PyDict_GetItemString(dict, dict_key);
+        if (py_value)
+            return PyInt_AsLong(py_value);
+    }
+    if (pname) {
+        int i;
+        printf("pname: %d\n", pname);
+        GL(glGetIntegerv, (pname, &i));
+        return i;
+    }
+    return def;
+}
+
+static int rendertarget_init(RenderTarget *self, PyObject *args, PyObject *kw) {
+    int width, height;
+    int sz_r, sz_g, sz_b, sz_a, sz;
+    int glx_attribs[] = {
+        GLX_RENDER_TYPE_SGIX,   GLX_RGBA_BIT_SGIX,
+        GLX_DRAWABLE_TYPE_SGIX, GLX_PBUFFER_BIT_SGIX,
+        GLX_RED_SIZE,           sz_r = attrib_set(kw, "red_size",         GL_RED_BITS, 0),
+        GLX_GREEN_SIZE,         sz_g = attrib_set(kw, "green_size",       GL_GREEN_BITS, 0),
+        GLX_BLUE_SIZE,          sz_b = attrib_set(kw, "blue_size",        GL_BLUE_BITS, 0),
+        GLX_ALPHA_SIZE,         sz_a = attrib_set(kw, "alpha_size",       GL_ALPHA_BITS, 0),
+        GLX_BUFFER_SIZE,        sz   = attrib_set(kw, "buffer_size",      0, sz_r + sz_g + sz_b + sz_a),
+        GLX_DOUBLEBUFFER,              attrib_set(kw, "doublebuffer",     0, 0),
+        GLX_DEPTH_SIZE,                attrib_set(kw, "depth_size",       GL_DEPTH_BITS, 0),
+        GLX_STENCIL_SIZE,              attrib_set(kw, "stencil_size",     GL_STENCIL_BITS, 0),
+        GLX_ACCUM_RED_SIZE,            attrib_set(kw, "accum_red_size",   GL_ACCUM_RED_BITS, 0),
+        GLX_ACCUM_GREEN_SIZE,          attrib_set(kw, "accum_green_size", GL_ACCUM_GREEN_BITS, 0),
+        GLX_ACCUM_BLUE_SIZE,           attrib_set(kw, "accum_blue_size",  GL_ACCUM_BLUE_BITS, 0),
+        GLX_ACCUM_ALPHA_SIZE,          attrib_set(kw, "accum_alpha_size", GL_ACCUM_ALPHA_BITS, 0),
+        GLX_STEREO,                    attrib_set(kw, "stereo",           0, 0),
+        None
+    };
+
+    if (!PyArg_ParseTuple(args, "ii", &width, &height))
+        return -1;
+
+    Py_INCREF(Py_None);
+    self->texture = 0;
+    self->py_texture = Py_None;
+    self->format = sz_a > 0 ? GL_RGBA : GL_RGB;
+    self->w = width;
+    self->h = height;
+    self->current = 0;
+
+    return 0;
+}
+
+static PyObject* rendertarget_bind(RenderTarget *self, PyObject *args) {
+    int texture;
+    if (!PyArg_ParseTuple(args, "i", &texture))
+        return NULL;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject* rendertarget_lock(RenderTarget *self) {
+
+    Py_RETURN_NONE;
+}
+
+static PyObject* rendertarget_unlock(RenderTarget *self) {
+
+    Py_RETURN_NONE;
+}
+
+static void rendertarget_dealloc(RenderTarget *self) {
+
+    self->ob_type->tp_free((PyObject *)self);
+}
+
+static PyMethodDef rendertarget_methods[] = {
+    { "bind", (PyCFunction) rendertarget_bind, METH_VARARGS,
+      "bind(textureID) -> None\n"
+      "\n"
+      "Set the texture that contains the color buffer of the render target\n"
+      "after it is unlocked. The texture contents are invalid between lock()\n"
+      "and unlock(). This may be called with None to delete any previous\n"
+      "texture binding.\n"
+    },
+    { "lock", (PyCFunction) rendertarget_lock, METH_NOARGS,
+      "lock() -> None\n"
+      "\n"
+      "Make this the current OpenGL drawing target.\n"
+    },
+    { "unlock", (PyCFunction) rendertarget_unlock, METH_NOARGS,
+      "unlock() -> None\n"
+      "\n"
+      "Restore the OpenGL drawing target, and update the texture currently\n"
+      "bound to this target, if any.\n"
+    },
+    {0}
+};
+
+static PyTypeObject rendertarget_type = {
+    PyObject_HEAD_INIT(0)
+    .tp_name = "loopy.RenderTarget",
+    .tp_basicsize = sizeof(RenderTarget),
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_members = rendertarget_members,
+    .tp_methods = rendertarget_methods,
+    .tp_init = (initproc) rendertarget_init,
+    .tp_dealloc = (destructor) rendertarget_dealloc,
+    .tp_doc = "RenderTarget(width, height, **attribs)\n"
+              "\n"
+              "RenderTarget is an interface for rendering to texture,\n"
+              "implemented using the SGIX_pbuffer OpenGL extension. The\n"
+              "design mimics the RenderTarget API provided by current\n"
+              "development versions of SDL. It is implemented here in\n"
+              "Loopy for two reasons: Python bindings for pbuffers are\n"
+              "not generally available, and any code using pbuffers needs\n"
+              "access to GLX state that Loopy tracks internally.\n"
+              "\n"
+              "After creating a RenderTarget, it may be made current by\n"
+              "locking it. While locked, any OpenGL rendering operations\n"
+              "operate on the RenderTarget rather than the screen. When\n"
+              "the RenderTarget is unlocked, it can optionally update a\n"
+              "bound texture with its contents. This effectively provides\n"
+              "a render-to-texture without the speed hit and inconvenience\n"
+              "of rendering to the backbuffer and performing a readback.\n"
+              "\n"
+              "Keyword arguments set optional OpenGL attributes to create\n"
+              "the new RenderTarget with. All default attributes are copied\n"
+              "from the current OpenGL context, with the exception of a few\n"
+              "that don't make much sense to- 'doublebuffer' and 'stereo'\n"
+              "are off by default. The 'alpha_size' attribute will determine\n"
+              "the resulting texture format, GL_RGB or GL_RGBA.\n"
+              "\n"
+              "Supported attributes: red_size, green_size, blue_size,\n"
+              "alpha_size, buffer_size, doublebuffer, depth_size,\n"
+              "stencil_size, accum_red_size, accum_green_size,\n"
+              "accum_blue_size, accum_alpha_size, stereo.\n"
+};
+
+static void rendertarget_type_init(PyObject *module) {
+    int i;
+    Py_INCREF(&rendertarget_type);
+
+    rendertarget_type.tp_new = PyType_GenericNew;
+    if (PyType_Ready(&rendertarget_type) < 0)
+        return;
+
+    PyModule_AddObject(module, "RenderTarget", (PyObject *) &rendertarget_type);
 }
 
 /************************************************************************/
