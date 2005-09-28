@@ -8,56 +8,68 @@
 import os, math, random, sys
 import loopy, soya, Numeric
 import soya.pudding as pudding
-import soya.opengl as GL
 
-class Icon(pudding.control.Control):
+class Icon(pudding.control.Image):
     def __init__(self, parent, image, aspect=1):
-        pudding.control.Control.__init__(self, parent)
         self.image = image
-        self.material = soya.Material(image)
+        pudding.control.Image.__init__(self, parent, soya.Material(self.image))
         self.width = int(self.image.width * aspect)
         self.height = self.image.height
 
     def on_resize(self):
-        # FIXME: Centered on the screen just for testing
         self.left = (self.parent.width - self.width) / 2
         self.top = (self.parent.height - self.height) / 2
 
-    def render_self(self):
-        GL.glEnable(GL.GL_BLEND)
-        self.material.activate()
-        GL.glBegin(GL.GL_QUADS)
-        w, h = self.width, self.height
-        for x, y, color in self.kernel():
-            GL.glColor4f(*color)
-            GL.glTexCoord2f(0.0, 0.0); GL.glVertex2i(x,   y)
-            GL.glTexCoord2f(0.0, 1.0); GL.glVertex2i(x,   y+h)
-            GL.glTexCoord2f(1.0, 1.0); GL.glVertex2i(x+w, y+h)
-            GL.glTexCoord2f(1.0, 0.0); GL.glVertex2i(x+w, y)
-        GL.glEnd()
-        GL.glDisable(GL.GL_BLEND)
-        soya.DEFAULT_MATERIAL.activate()
+class Shadow(pudding.control.Image):
+    def setIcon(self, icon):
+        self.icon = icon
+        self.material = soya.Material(makeShadow(icon.image))
 
-    def kernel(self):
-        n = 40
-        a = 1.0 / n
-        s = 4
-        for i in xrange(n):
-            x = random.uniform(0, 10)
-            y = random.uniform(0, 10)
-            yield (x, y, (0,0,0,gaussian(x+y, 5)))
-        yield (0,0, (1,1,1,1))
+    def on_resize(self):
+        self.width = self.icon.width
+        self.height = self.icon.height
+        self.left = self.icon.left + 10
+        self.top = self.icon.top + 10
 
-def gaussian(x, s):
-    return math.exp(-x*x/(2*s*s)) / (s*math.sqrt(2*math.pi))
+def image_to_array(image):
+    array = Numeric.fromstring(image.pixels, Numeric.UnsignedInt8)
+    array.shape = (image.width, image.height, image.nb_color)
+    return array
+
+def array_to_image(array):
+    if len(array.shape) == 3:
+        return soya.Image(array.tostring(), *array.shape)
+    else:
+        assert len(array.shape) == 2
+        return soya.Image(array.tostring(), array.shape[0], array.shape[1], 1)
+
+def blur3(a):
+    """Perform a gaussian blur with a 3x3 kernel"""
+    b = a * 4
+    b[1:,:] += a[:-1,:]
+    b[:-1,:] += a[1:,:]
+    b[:,1:] += a[:,:-1]
+    b[:,:-1] += a[:,1:]
+    return (b / 8).astype(a.typecode())
+
+def makeShadow(source):
+    alpha = image_to_array(source)[:,:,-1]
+    for i in xrange(50):
+        alpha = blur3(alpha)
+    rgba = Numeric.zeros(alpha.shape + (4,), alpha.typecode())
+    rgba[:,:,3] = alpha / Numeric.array(2, alpha.typecode())
+    return array_to_image(rgba)
 
 class Overlay(loopy.Overlay):
     def createWidgets(self):
         root = pudding.core.RootWidget()
 
+        shadow = Shadow(root)
         icon = Icon(root, soya.Image.get("icon_ps2.png"), aspect=0.983)
+        shadow.setIcon(icon)
 
         root.resize(0, 0, *self.resolution)
+        shadow.on_resize()
         return root
 
     def resized(self):
