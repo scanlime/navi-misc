@@ -59,13 +59,28 @@
 #ifndef _GNU_SOURCE        /* Python.h might be setting this already   */
 #define _GNU_SOURCE        /* RTLD_NEXT and other goodies              */
 #endif
+
+/* This is a hack to prevent glx.h and glxext.h from defining
+ * glXGetProcAddress as a function pointer, which would prevent
+ * us from using that same symbol name for a regular function below.
+ */
+#define GLX_ARB_get_proc_address 1
+typedef void * __GLXextFuncPtr;
+
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <GL/gl.h>
+#include <GL/glx.h>
+#include <GL/glxext.h>
 #include <SDL/SDL.h>
 
+/* GLState is a Python object providing a user-visible
+ * interface to saved OpenGL state. We always have at
+ * most one 'current' GLState that the OpenGL tracker
+ * runs on.
+ */
 typedef struct {
     PyObject_HEAD
     unsigned int trackingFlags;
@@ -83,6 +98,19 @@ typedef struct {
     PyObject *matrices;
     PyObject *pushedMatrices;
 } GLState;
+
+/* Unlike GLState, GLXState is not visible to Python.
+ * There's not (yet) anything in it that's interesting
+ * outside of C. We track the GLX state in order to
+ * provide extensions like RenderTarget (implemented
+ * using pbuffers)
+ */
+typedef struct {
+    Bool is_valid;
+    Display *dpy;
+    GLXDrawable drawable;
+    GLXContext ctx;
+} GLXState;
 
 /*
  * Constants for GLState trackingFlags and restoreFlags.
@@ -129,6 +157,11 @@ static GLState *target_glstate;
  */
 static GLState *current_glstate;
 
+/* There's only one GLX state. We never modify the GLX context,
+ * but we need this information to interact with GLX extensions.
+ */
+static GLXState current_glxstate;
+
 #define RUNNING_IN_TARGET    (current_glstate == target_glstate)
 #define IS_TRACKING(flag)    (current_glstate && \
                              (current_glstate->trackingFlags & (flag)))
@@ -141,9 +174,6 @@ static GLState* glstate_new(void);
  * up the original unmodified version ourselves.
  */
 static void* (*dlsym_p)(void*, __const char*);
-static void* (*glXGetProcAddress_p)(char *);
-static void* (*glXGetProcAddressARB_p)(char *);
-static void  (*glXSwapBuffers_p)(void*, void*);
 static void  (*glViewport_p)(GLint, GLint, GLsizei, GLsizei);
 static void  (*glClear_p)(GLbitfield);
 static void  (*glEnable_p)(GLenum);
@@ -165,6 +195,11 @@ static void  (*glColor4dv_p)(GLdouble*);
 static void  (*glBlendFunc_p)(GLenum, GLenum);
 static void  (*glClearColor_p)(GLclampf, GLclampf, GLclampf, GLclampf);
 static void  (*glDepthFunc_p)(GLenum);
+
+static Bool  (*glXMakeCurrent_p)(Display*, GLXDrawable, GLXContext);
+static void* (*glXGetProcAddress_p)(const GLubyte *);
+static void* (*glXGetProcAddressARB_p)(const GLubyte *);
+static void  (*glXSwapBuffers_p)(Display*, GLXDrawable);
 
 static int   (*SDL_Init_p)(Uint32);
 static int   (*SDL_InitSubSystem_p)(Uint32);
@@ -1181,7 +1216,7 @@ PyMODINIT_FUNC initloopy(void)
 /*********************************************** Override Functions *****/
 /************************************************************************/
 
-void glXSwapBuffers(void *display, void *drawable) {
+void glXSwapBuffers(Display *dpy, GLXDrawable drawable) {
     /* Clear any stale errors from the target app */
     RESOLVE(glGetError);
     glGetError_p();
@@ -1192,7 +1227,20 @@ void glXSwapBuffers(void *display, void *drawable) {
     glstate_switch(target_glstate);
 
     RESOLVE(glXSwapBuffers);
-    glXSwapBuffers_p(display, drawable);
+    glXSwapBuffers_p(dpy, drawable);
+}
+
+Bool glXMakeCurrent(Display *dpy, GLXDrawable drawable, GLXContext ctx) {
+    Bool result;
+    RESOLVE(glXMakeCurrent);
+    result = glXMakeCurrent_p(dpy, drawable, ctx);
+    if (result) {
+        current_glxstate.dpy = dpy;
+        current_glxstate.drawable = drawable;
+        current_glxstate.ctx = ctx;
+        current_glxstate.is_valid = True;
+    }
+    return result;
 }
 
 void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
@@ -1358,7 +1406,7 @@ void *dlsym (void *__restrict handle, __const char *__restrict name) {
     return dlsym_p(handle, name);
 }
 
-void *glXGetProcAddress(char *name) {
+void *glXGetProcAddress(const GLubyte *name) {
     void *override = check_dynamic_symbol(name);
     if (override)
         return override;
@@ -1366,7 +1414,7 @@ void *glXGetProcAddress(char *name) {
     return glXGetProcAddress_p(name);
 }
 
-void *glXGetProcAddressARB(char *name) {
+void *glXGetProcAddressARB(const GLubyte *name) {
     void *override = check_dynamic_symbol(name);
     if (override)
         return override;
