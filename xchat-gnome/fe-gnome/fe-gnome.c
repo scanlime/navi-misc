@@ -883,3 +883,9 @@ fe_uselect (session *sess, char *word[], int do_clear, int scroll_to)
 {
 	/* FIXME: implement? */
 }
+
+void
+fe_server_event (server *serv, int type, int arg)
+{
+	/* FIXME: implement? */
+}
