@@ -1264,18 +1264,25 @@ static int rendertarget_init(RenderTarget *self, PyObject *args, PyObject *kw) {
     if (!(current_glxstate.context_valid && current_glxstate.screen_valid))
         RAISE3(-1, RuntimeError, "A GLX context has not yet been initialized");
 
-    RESOLVE_EXC(glGetIntegerv, -1);
     RESOLVE_EXC(glXChooseFBConfig, -1);
     RESOLVE_EXC(glXCreatePbuffer, -1);
     RESOLVE_EXC(glXDestroyPbuffer, -1);
-    RESOLVE_EXC(XSync, -1);
+    RESOLVE_EXC(glGetIntegerv, -1);
     RESOLVE_EXC(glBindTexture, -1);
     RESOLVE_EXC(glCopyTexSubImage2D, -1);
     RESOLVE_EXC(glTexImage2D, -1);
+    RESOLVE_EXC(XSync, -1);
     {
         GLXFBConfig *fb_configs;
         int i, n_configs;
         int sz_r, sz_g, sz_b, sz_a;
+        /*
+         * FIXME: We probably never want a pbuffer with doublebuffer or stereo
+         *        on, but if we force them to off here we'd have to use a separate
+         *        GLX context. It is yet to be determined which behaviour we'd
+         *        really like to default to. Currently this mimicks SDL CVS
+         *        and uses the existing context.
+         */
         int glx_attribs[] = {
             GLX_RENDER_TYPE_SGIX,   GLX_RGBA_BIT_SGIX,
             GLX_DRAWABLE_TYPE_SGIX, GLX_PBUFFER_BIT_SGIX,
@@ -1290,7 +1297,7 @@ static int rendertarget_init(RenderTarget *self, PyObject *args, PyObject *kw) {
             GLX_BUFFER_SIZE,               attrib_set(kw, "buffer_size",
                                                       0, sz_r + sz_g + sz_b + sz_a),
             GLX_DOUBLEBUFFER,              attrib_set(kw, "doublebuffer",
-                                                      0, 0),
+                                                      GL_DOUBLEBUFFER, 0),
             GLX_DEPTH_SIZE,                attrib_set(kw, "depth_size",
                                                       GL_DEPTH_BITS, 0),
             GLX_STENCIL_SIZE,              attrib_set(kw, "stencil_size",
@@ -1304,7 +1311,7 @@ static int rendertarget_init(RenderTarget *self, PyObject *args, PyObject *kw) {
             GLX_ACCUM_ALPHA_SIZE,          attrib_set(kw, "accum_alpha_size",
                                                       GL_ACCUM_ALPHA_BITS, 0),
             GLX_STEREO,                    attrib_set(kw, "stereo",
-                                                      0, 0),
+                                                      GL_STEREO, 0),
             None
         };
         int pbuffer_attribs[] = {
@@ -1354,9 +1361,6 @@ static PyObject* rendertarget_bind(RenderTarget *self, PyObject *args) {
         Py_RETURN_NONE;
     }
 
-    if (!PyInt_Check(py_texture))
-        RAISE(TypeError, "Parameter must be an integer or None");
-
     /* Map virtual texture to real texture if necessary */
     if (IS_TRACKING(GLSTATE_TEXTURES)) {
         self->texture = glstate_remap_texture(current_glstate, PyInt_AsLong(py_texture));
@@ -1372,6 +1376,8 @@ static PyObject* rendertarget_bind(RenderTarget *self, PyObject *args) {
 
     /* Initialize the texture */
     GL(glBindTexture, (GL_TEXTURE_2D, self->texture));
+    GL(glTexParameterf, (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+    GL(glTexParameterf, (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GL(glTexImage2D, (GL_TEXTURE_2D, 0, self->format, self->w, self->h,
                       0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
 
@@ -1379,34 +1385,32 @@ static PyObject* rendertarget_bind(RenderTarget *self, PyObject *args) {
 }
 
 static PyObject* rendertarget_lock(RenderTarget *self) {
-    if (self->current)
-        RAISE(RuntimeError, "Locking a RenderTarget that is already locked");
     if (self->pbuffer == None)
         RAISE(RuntimeError, "RenderTarget.__init__ has not been completed");
+    if (!self->current) {
+        glXMakeCurrent_p(current_glxstate.display, self->pbuffer,
+                         current_glxstate.context);
+        XSync_p(current_glxstate.display, False);
 
-    glXMakeCurrent_p(current_glxstate.display, self->pbuffer,
-                     current_glxstate.context);
-    XSync_p(current_glxstate.display, False);
-
-    self->current = 1;
+        self->current = 1;
+    }
     Py_RETURN_NONE;
 }
 
 static PyObject* rendertarget_unlock(RenderTarget *self) {
-    if (!self->current)
-        RAISE(RuntimeError, "Unlocking a RenderTarget that is not locked");
+    if (self->current) {
+        if (self->py_texture != Py_None) {
+            GL(glBindTexture, (GL_TEXTURE_2D, self->texture));
+            GL(glCopyTexSubImage2D, (GL_TEXTURE_2D, 0, 0, 0, 0, 0,
+                                     self->w, self->h));
+        }
 
-    if (self->py_texture != Py_None) {
-        GL(glBindTexture, (GL_TEXTURE_2D, self->texture));
-        GL(glCopyTexSubImage2D, (GL_TEXTURE_2D, 0, 0, 0, 0, 0,
-                                 self->w, self->h));
+        glXMakeCurrent_p(current_glxstate.display, current_glxstate.drawable,
+                         current_glxstate.context);
+        XSync_p(current_glxstate.display, False);
+
+        self->current = 0;
     }
-
-    glXMakeCurrent_p(current_glxstate.display, current_glxstate.drawable,
-                     current_glxstate.context);
-    XSync_p(current_glxstate.display, False);
-
-    self->current = 0;
     Py_RETURN_NONE;
 }
 
@@ -1475,10 +1479,8 @@ static PyTypeObject rendertarget_type = {
               "\n"
               "Keyword arguments set optional OpenGL attributes to create\n"
               "the new RenderTarget with. All default attributes are copied\n"
-              "from the current OpenGL context, with the exception of a few\n"
-              "that don't make much sense to- 'doublebuffer' and 'stereo'\n"
-              "are off by default. The 'alpha_size' attribute will determine\n"
-              "the resulting texture format, GL_RGB or GL_RGBA.\n"
+              "from the current OpenGL context. The 'alpha_size' attribute\n"
+              "will determine the resulting texture format, GL_RGB or GL_RGBA.\n"
               "\n"
               "Supported attributes: red_size, green_size, blue_size,\n"
               "alpha_size, buffer_size, doublebuffer, depth_size,\n"
