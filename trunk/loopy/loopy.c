@@ -76,19 +76,6 @@
  * versions of glx.h.
  */
 
-/* X11 data types */
-typedef int Bool;
-typedef unsigned long XID;
-typedef struct Display Display;
-typedef struct XVisualInfo XVisualInfo;
-typedef XID GLXDrawable;
-typedef XID GLXContext;
-typedef XID GLXFBConfig;
-typedef XID GLXPbuffer;
-#define True 1
-#define False 0
-#define None 0
-
 /* GLX constants */
 #define GLX_RGBA_BIT            0x0001
 #define GLX_BUFFER_SIZE         0x0002
@@ -111,19 +98,6 @@ typedef XID GLXPbuffer;
 #define GLX_LARGEST_PBUFFER     0x801C
 #define GLX_PBUFFER_HEIGHT      0x8040
 #define GLX_PBUFFER_WIDTH       0x8041
-
-/* OpenGL data types */
-typedef unsigned char GLubyte;
-typedef void GLvoid;
-typedef int GLint;
-typedef int GLboolean;
-typedef int GLenum;
-typedef unsigned int GLbitfield;
-typedef unsigned int GLsizei;
-typedef unsigned int GLuint;
-typedef double GLdouble;
-typedef float GLfloat;
-typedef float GLclampf;
 
 /* OpenGL constants */
 #define GL_LESS                 0x0201
@@ -157,6 +131,38 @@ typedef float GLclampf;
 #define GL_TEXTURE_MIN_FILTER   0x2801
 #define GL_COLOR_BUFFER_BIT     0x4000
 
+/* SDL constants */
+#define SDL_HWSURFACE           0x00000001
+#define SDL_DOUBLEBUF           0x40000000
+#define SDL_OPENGL              0x00000002
+#define SDL_RESIZABLE           0x00000010
+
+/* X11 data types */
+typedef int Bool;
+typedef unsigned long XID;
+typedef struct Display Display;
+typedef struct XVisualInfo XVisualInfo;
+typedef XID GLXDrawable;
+typedef XID GLXContext;
+typedef XID GLXFBConfig;
+typedef XID GLXPbuffer;
+#define True 1
+#define False 0
+#define None 0
+
+/* OpenGL data types */
+typedef unsigned char GLubyte;
+typedef void GLvoid;
+typedef int GLint;
+typedef int GLboolean;
+typedef int GLenum;
+typedef unsigned int GLbitfield;
+typedef unsigned int GLsizei;
+typedef unsigned int GLuint;
+typedef double GLdouble;
+typedef float GLfloat;
+typedef float GLclampf;
+
 /* SDL data types */
 typedef unsigned int Uint32;
 typedef unsigned short Uint16;
@@ -180,11 +186,65 @@ typedef struct {
     int private[16];
 } SDL_Surface;
 
-/* SDL constants */
-#define SDL_HWSURFACE   0x00000001
-#define SDL_DOUBLEBUF   0x40000000
-#define SDL_OPENGL      0x00000002
-#define SDL_RESIZABLE   0x00000010
+/* Dynamically-resolved glibc symbols */
+static void* (*dlsym_p)(void*, __const char*);
+
+/* Dynamically-resolved OpenGL symbols */
+static void  (*glViewport_p)(GLint, GLint, GLsizei, GLsizei);
+static void  (*glClear_p)(GLbitfield);
+static void  (*glEnable_p)(GLenum);
+static void  (*glDisable_p)(GLenum);
+static void  (*glMatrixMode_p)(GLenum);
+static void  (*glBindTexture_p)(GLenum, GLuint);
+static void  (*glGenTextures_p)(GLsizei, GLuint*);
+static void  (*glDeleteTextures_p)(GLsizei, const GLuint*);
+static GLboolean (*glIsTexture_p)(GLuint);
+static void  (*glTexParameterf_p)(GLenum, GLenum, GLfloat);
+static void  (*glTexParameteri_p)(GLenum, GLenum, GLint);
+static void  (*glGetDoublev_p)(GLenum, GLdouble*);
+static void  (*glGetIntegerv_p)(GLenum, GLint*);
+static void  (*glLoadMatrixd_p)(const GLdouble*);
+static void  (*glPushMatrix_p)(void);
+static void  (*glPopMatrix_p)(void);
+static void  (*glLoadIdentity_p)(void);
+static GLenum(*glGetError_p)(void);
+static void  (*glColor4dv_p)(GLdouble*);
+static void  (*glBlendFunc_p)(GLenum, GLenum);
+static void  (*glClearColor_p)(GLclampf, GLclampf, GLclampf, GLclampf);
+static void  (*glDepthFunc_p)(GLenum);
+static void  (*glCopyTexSubImage2D_p)(GLenum, GLint, GLint, GLint,
+                                      GLint, GLint, GLsizei, GLsizei);
+static void  (*glTexImage2D_p)(GLenum, GLint, GLint, GLsizei, GLsizei,
+                               GLint, GLenum, GLenum, const GLvoid *);
+
+/* Dynamically-resolved X11 symbols */
+static int   (*XSync_p)(Display*, Bool);
+static Bool  (*glXMakeCurrent_p)(Display*, GLXDrawable, GLXContext);
+static void* (*glXGetProcAddress_p)(const GLubyte *);
+static void* (*glXGetProcAddressARB_p)(const GLubyte *);
+static void  (*glXSwapBuffers_p)(Display*, GLXDrawable);
+static XID   (*glXCreatePbuffer_p)(Display*, GLXFBConfig, const int*);
+static void  (*glXDestroyPbuffer_p)(Display*, GLXPbuffer);
+static GLXFBConfig* (*glXChooseFBConfig_p)(Display*, int, const int*, int *);
+static XVisualInfo* (*glXChooseVisual_p)(Display*, int, int*);
+
+/* Dynamically-resolved SDL symbols */
+static int   (*SDL_Init_p)(Uint32);
+static int   (*SDL_InitSubSystem_p)(Uint32);
+static void  (*SDL_QuitSubSystem_p)(Uint32);
+static void  (*SDL_Quit_p)(void);
+static void  (*SDL_PumpEvents_p)(void);
+static void  (*SDL_WM_SetCaption_p)(const char *, const char *);
+static void  (*SDL_WM_GetCaption_p)(char **, char **);
+static void  (*SDL_WM_SetIcon_p)(SDL_Surface*, Uint8*);
+static void* (*SDL_GL_GetProcAddress_p)(const char*);
+static int   (*SDL_GL_SetAttribute_p)(SDL_GLattr, int);
+static int   (*SDL_GL_GetAttribute_p)(SDL_GLattr, int*);
+static void  (*SDL_GL_SwapBuffers_p)(void);
+static Uint32 (*SDL_WasInit_p)(Uint32);
+static SDL_Surface* (*SDL_GetVideoSurface_p)(void);
+static const SDL_VideoInfo* (*SDL_GetVideoInfo_p)(void);
+static SDL_Surface* (*SDL_SetVideoMode_p)(int, int, int, Uint32);
 
 /************************************************************************/
 /************************************************ Local Definitions *****/
@@ -289,65 +349,6 @@ static GLXState current_glxstate;
 
 PyMODINIT_FUNC initloopy(void);
 static GLState* glstate_new(void);
-
-/* Procedures we pull in dynamically using RESOLVE(). Most of
- * these are functions we override locally, so we have to look
- * up the original unmodified version ourselves.
- */
-static void* (*dlsym_p)(void*, __const char*);
-static void  (*glViewport_p)(GLint, GLint, GLsizei, GLsizei);
-static void  (*glClear_p)(GLbitfield);
-static void  (*glEnable_p)(GLenum);
-static void  (*glDisable_p)(GLenum);
-static void  (*glMatrixMode_p)(GLenum);
-static void  (*glBindTexture_p)(GLenum, GLuint);
-static void  (*glGenTextures_p)(GLsizei, GLuint*);
-static void  (*glDeleteTextures_p)(GLsizei, const GLuint*);
-static GLboolean (*glIsTexture_p)(GLuint);
-static void  (*glTexParameterf_p)(GLenum, GLenum, GLfloat);
-static void  (*glTexParameteri_p)(GLenum, GLenum, GLint);
-static void  (*glGetDoublev_p)(GLenum, GLdouble*);
-static void  (*glGetIntegerv_p)(GLenum, GLint*);
-static void  (*glLoadMatrixd_p)(const GLdouble*);
-static void  (*glPushMatrix_p)(void);
-static void  (*glPopMatrix_p)(void);
-static void  (*glLoadIdentity_p)(void);
-static GLenum(*glGetError_p)(void);
-static void  (*glColor4dv_p)(GLdouble*);
-static void  (*glBlendFunc_p)(GLenum, GLenum);
-static void  (*glClearColor_p)(GLclampf, GLclampf, GLclampf, GLclampf);
-static void  (*glDepthFunc_p)(GLenum);
-static void  (*glCopyTexSubImage2D_p)(GLenum, GLint, GLint, GLint,
-                                      GLint, GLint, GLsizei, GLsizei);
-static void  (*glTexImage2D_p)(GLenum, GLint, GLint, GLsizei, GLsizei,
-                               GLint, GLenum, GLenum, const GLvoid *);
-
-static int   (*XSync_p)(Display*, Bool);
-static Bool  (*glXMakeCurrent_p)(Display*, GLXDrawable, GLXContext);
-static void* (*glXGetProcAddress_p)(const GLubyte *);
-static void* (*glXGetProcAddressARB_p)(const GLubyte *);
-static void  (*glXSwapBuffers_p)(Display*, GLXDrawable);
-static XID   (*glXCreatePbuffer_p)(Display*, GLXFBConfig, const int*);
-static void  (*glXDestroyPbuffer_p)(Display*, GLXPbuffer);
-static GLXFBConfig* (*glXChooseFBConfig_p)(Display*, int, const int*, int *);
-static XVisualInfo* (*glXChooseVisual_p)(Display*, int, int*);
-
-static int   (*SDL_Init_p)(Uint32);
-static int   (*SDL_InitSubSystem_p)(Uint32);
-static void  (*SDL_QuitSubSystem_p)(Uint32);
-static void  (*SDL_Quit_p)(void);
-static void  (*SDL_PumpEvents_p)(void);
-static void  (*SDL_WM_SetCaption_p)(const char *, const char *);
-static void  (*SDL_WM_GetCaption_p)(char **, char **);
-static void  (*SDL_WM_SetIcon_p)(SDL_Surface*, Uint8*);
-static void* (*SDL_GL_GetProcAddress_p)(const char*);
-static int   (*SDL_GL_SetAttribute_p)(SDL_GLattr, int);
-static int   (*SDL_GL_GetAttribute_p)(SDL_GLattr, int*);
-static void  (*SDL_GL_SwapBuffers_p)(void);
-static Uint32 (*SDL_WasInit_p)(Uint32);
-static SDL_Surface* (*SDL_GetVideoSurface_p)(void);
-static const SDL_VideoInfo* (*SDL_GetVideoInfo_p)(void);
-static SDL_Surface* (*SDL_SetVideoMode_p)(int, int, int, Uint32);
 
 /* Fake SDL data structures for the overlay to use.
  * We support just a smidgen of SDL so that existing
