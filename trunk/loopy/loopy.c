@@ -60,21 +60,135 @@
 #define _GNU_SOURCE        /* RTLD_NEXT and other goodies              */
 #endif
 
-/* This is a hack to prevent glx.h and glxext.h from defining
- * glXGetProcAddress as a function pointer, which would prevent
- * us from using that same symbol name for a regular function below.
- */
-#define GLX_ARB_get_proc_address 1
-typedef void * __GLXextFuncPtr;
-
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <GL/gl.h>
-#include <GL/glx.h>
-#include <GL/glxext.h>
-#include <SDL/SDL.h>
+/************************************************************************/
+/************************************************** API Definitions *****/
+/************************************************************************/
+
+/* This section includes a subset of the GL, GLX, GLX Extensions,
+ * and SDL APIs. We don't include the entire relevant headers here,
+ * since our overrides tend to cause conflicts at compile-time. The
+ * straw that broke this particular camel was glXGetProcAddress being
+ * defined as a function pointer (with no way to prevent this) in some
+ * versions of glx.h.
+ */
+
+/* X11 data types */
+typedef int Bool;
+typedef unsigned long XID;
+typedef struct Display Display;
+typedef struct XVisualInfo XVisualInfo;
+typedef XID GLXDrawable;
+typedef XID GLXContext;
+typedef XID GLXFBConfig;
+typedef XID GLXPbuffer;
+#define True 1
+#define False 0
+#define None 0
+
+/* GLX constants */
+#define GLX_RGBA_BIT            0x0001
+#define GLX_BUFFER_SIZE         0x0002
+#define GLX_PBUFFER_BIT         0x0004
+#define GLX_DOUBLEBUFFER        0x0005
+#define GLX_STEREO              0x0006
+#define GLX_RED_SIZE            0x0008
+#define GLX_GREEN_SIZE          0x0009
+#define GLX_BLUE_SIZE           0x000A
+#define GLX_ALPHA_SIZE          0x000B
+#define GLX_DEPTH_SIZE          0x000C
+#define GLX_STENCIL_SIZE        0x000D
+#define GLX_ACCUM_RED_SIZE      0x000E
+#define GLX_ACCUM_GREEN_SIZE    0x000F
+#define GLX_ACCUM_BLUE_SIZE     0x0010
+#define GLX_ACCUM_ALPHA_SIZE    0x0011
+#define GLX_DRAWABLE_TYPE       0x8010
+#define GLX_RENDER_TYPE         0x8011
+#define GLX_PRESERVED_CONTENTS  0x801B
+#define GLX_LARGEST_PBUFFER     0x801C
+#define GLX_PBUFFER_HEIGHT      0x8040
+#define GLX_PBUFFER_WIDTH       0x8041
+
+/* OpenGL data types */
+typedef unsigned char GLubyte;
+typedef void GLvoid;
+typedef int GLint;
+typedef int GLboolean;
+typedef int GLenum;
+typedef unsigned int GLbitfield;
+typedef unsigned int GLsizei;
+typedef unsigned int GLuint;
+typedef double GLdouble;
+typedef float GLfloat;
+typedef float GLclampf;
+
+/* OpenGL constants */
+#define GL_LESS                 0x0201
+#define GL_SRC_ALPHA            0x0302
+#define GL_ONE_MINUS_SRC_ALPHA  0x0303
+#define GL_MODELVIEW_MATRIX     0x0BA6
+#define GL_PROJECTION_MATRIX    0x0BA7
+#define GL_TEXTURE_MATRIX       0x0BA8
+#define GL_CURRENT_COLOR        0x0B00
+#define GL_DOUBLEBUFFER         0x0C32
+#define GL_STEREO               0x0C33
+#define GL_RED_BITS             0x0D52
+#define GL_GREEN_BITS           0x0D53
+#define GL_BLUE_BITS            0x0D54
+#define GL_ALPHA_BITS           0x0D55
+#define GL_DEPTH_BITS           0x0D56
+#define GL_STENCIL_BITS         0x0D57
+#define GL_ACCUM_RED_BITS       0x0D58
+#define GL_ACCUM_GREEN_BITS     0x0D59
+#define GL_ACCUM_BLUE_BITS      0x0D5A
+#define GL_ACCUM_ALPHA_BITS     0x0D5B
+#define GL_TEXTURE_2D           0x0DE1
+#define GL_UNSIGNED_BYTE        0x1401
+#define GL_MODELVIEW            0x1700
+#define GL_PROJECTION           0x1701
+#define GL_TEXTURE              0x1702
+#define GL_RGB                  0x1907
+#define GL_RGBA                 0x1908
+#define GL_LINEAR               0x2601
+#define GL_TEXTURE_MAG_FILTER   0x2800
+#define GL_TEXTURE_MIN_FILTER   0x2801
+#define GL_COLOR_BUFFER_BIT     0x4000
+
+/* SDL data types */
+typedef unsigned int Uint32;
+typedef unsigned short Uint16;
+typedef unsigned char Uint8;
+typedef int SDL_GLattr;
+typedef struct {
+    Uint32 private[16];
+} SDL_PixelFormat;
+typedef struct {
+    Uint32 private[2];
+    SDL_PixelFormat *vfmt;
+} SDL_VideoInfo;
+typedef struct {
+    Uint32 flags;
+    SDL_PixelFormat *format;
+    int w, h;
+    Uint16 pitch;
+    void *pixels;
+    int offset;
+    void *hwdata;
+    int private[16];
+} SDL_Surface;
+
+/* SDL constants */
+#define SDL_HWSURFACE   0x00000001
+#define SDL_DOUBLEBUF   0x40000000
+#define SDL_OPENGL      0x00000002
+#define SDL_RESIZABLE   0x00000010
+
+/************************************************************************/
+/************************************************ Local Definitions *****/
+/************************************************************************/
 
 /* GLState is a Python object providing a user-visible
  * interface to saved OpenGL state. We always have at
@@ -1284,8 +1398,8 @@ static int rendertarget_init(RenderTarget *self, PyObject *args, PyObject *kw) {
          *        and uses the existing context.
          */
         int glx_attribs[] = {
-            GLX_RENDER_TYPE_SGIX,   GLX_RGBA_BIT_SGIX,
-            GLX_DRAWABLE_TYPE_SGIX, GLX_PBUFFER_BIT_SGIX,
+            GLX_RENDER_TYPE,        GLX_RGBA_BIT,
+            GLX_DRAWABLE_TYPE,      GLX_PBUFFER_BIT,
             GLX_RED_SIZE,           sz_r = attrib_set(kw, "red_size",
                                                       GL_RED_BITS, 0),
             GLX_GREEN_SIZE,         sz_g = attrib_set(kw, "green_size",
@@ -1315,10 +1429,10 @@ static int rendertarget_init(RenderTarget *self, PyObject *args, PyObject *kw) {
             None
         };
         int pbuffer_attribs[] = {
-            GLX_LARGEST_PBUFFER_SGIX,     False,
-            GLX_PRESERVED_CONTENTS_SGIX,  True,
-            GLX_PBUFFER_WIDTH,            width,
-            GLX_PBUFFER_HEIGHT,           height,
+            GLX_LARGEST_PBUFFER,     False,
+            GLX_PRESERVED_CONTENTS,  True,
+            GLX_PBUFFER_WIDTH,       width,
+            GLX_PBUFFER_HEIGHT,      height,
             None
         };
 
