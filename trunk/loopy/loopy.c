@@ -106,10 +106,13 @@ typedef struct {
  * using pbuffers)
  */
 typedef struct {
-    Bool is_valid;
-    Display *dpy;
+    Bool context_valid;
+    Bool screen_valid;
+
+    Display *display;
     GLXDrawable drawable;
-    GLXContext ctx;
+    GLXContext context;
+    int screen;
 } GLXState;
 
 /*
@@ -165,6 +168,10 @@ static GLXState current_glxstate;
 #define RUNNING_IN_TARGET    (current_glstate == target_glstate)
 #define IS_TRACKING(flag)    (current_glstate && \
                              (current_glstate->trackingFlags & (flag)))
+#define RAISE3(retval, type, message) do { \
+        PyErr_SetString(PyExc_ ## type, (message)); \
+        return (retval); } while (0)
+#define RAISE(type, message) RAISE3(NULL, type, message)
 
 PyMODINIT_FUNC initloopy(void);
 static GLState* glstate_new(void);
@@ -196,11 +203,20 @@ static void  (*glColor4dv_p)(GLdouble*);
 static void  (*glBlendFunc_p)(GLenum, GLenum);
 static void  (*glClearColor_p)(GLclampf, GLclampf, GLclampf, GLclampf);
 static void  (*glDepthFunc_p)(GLenum);
+static void  (*glCopyTexSubImage2D_p)(GLenum, GLint, GLint, GLint,
+                                      GLint, GLint, GLsizei, GLsizei);
+static void  (*glTexImage2D_p)(GLenum, GLint, GLint, GLsizei, GLsizei,
+                               GLint, GLenum, GLenum, const GLvoid *);
 
+static int   (*XSync_p)(Display*, Bool);
 static Bool  (*glXMakeCurrent_p)(Display*, GLXDrawable, GLXContext);
 static void* (*glXGetProcAddress_p)(const GLubyte *);
 static void* (*glXGetProcAddressARB_p)(const GLubyte *);
 static void  (*glXSwapBuffers_p)(Display*, GLXDrawable);
+static XID   (*glXCreatePbuffer_p)(Display*, GLXFBConfig, const int*);
+static void  (*glXDestroyPbuffer_p)(Display*, GLXPbuffer);
+static GLXFBConfig* (*glXChooseFBConfig_p)(Display*, int, const int*, int *);
+static XVisualInfo* (*glXChooseVisual_p)(Display*, int, int*);
 
 static int   (*SDL_Init_p)(Uint32);
 static int   (*SDL_InitSubSystem_p)(Uint32);
@@ -267,6 +283,14 @@ static SDL_Surface overlay_sdl_surface = {
         RESOLVE_SOFT(sym); \
         if (!sym ## _p) \
             handle_link_error(#sym); \
+    } while (0)
+
+/* Resolve a symbol at runtime, raising a Python exception on failure */
+#define RESOLVE_EXC(sym, retval) \
+    do { \
+        RESOLVE_SOFT(sym); \
+        if (!sym ## _p) \
+            RAISE3(retval, RuntimeError, "Error resolving symbol '" #sym "'"); \
     } while (0)
 
 /*
@@ -1091,11 +1115,9 @@ static int foreach_overlay(int (*callback)(Overlay*, void*), void *user_data) {
         if (!item)
             return -1;
 
-        if (!PyObject_IsInstance((PyObject*) item, (PyObject*) &overlay_type)) {
-            PyErr_SetString(PyExc_TypeError,
-                            "Only Overlay instances are allowed in Loopy.overlays");
-            return -1;
-        }
+        if (!PyObject_IsInstance((PyObject*) item, (PyObject*) &overlay_type))
+            RAISE3(-1, TypeError,
+                   "Only Overlay instances are allowed in Loopy.overlays");
 
         if (!item->enabled)
             continue;
@@ -1181,20 +1203,23 @@ static int overlay_resize(Overlay *self, void* user_data) {
 typedef struct {
     PyObject_HEAD
 
-    unsigned int texture;
     unsigned int format;
     int w, h;
     int current;
+    unsigned int texture;  /* Real texture ID, not virtual */
     PyObject *py_texture;  /* Mirrors 'texture', but can also be None */
 
-    XID config;
-    XID pbuffer;
+    GLXFBConfig config;
+    GLXPbuffer pbuffer;
 } RenderTarget;
 
 static PyMemberDef rendertarget_members[] = {
     { "texture", T_OBJECT, offsetof(RenderTarget, py_texture), READONLY,
       "The OpenGL texture ID that this RenderTarget is bound to,\n"
-      "or None if this RenderTarget is not bound.\n"
+      "or None if this RenderTarget is not bound. This is a real\n"
+      "texture ID, not one of the virtual texture IDs assigned by\n"
+      "Loopy. This is inconvenient, but necessary to prevent binding\n"
+      "this RenderTarget to a particular GLState.\n"
     },
     { "format", T_UINT, offsetof(RenderTarget, format), READONLY,
       "The texture format this RenderTarget, either GL_RGB or GL_RGBA.\n"
@@ -1224,7 +1249,6 @@ static int attrib_set(PyObject *dict, const char *dict_key, GLenum pname, int de
     }
     if (pname) {
         int i;
-        printf("pname: %d\n", pname);
         GL(glGetIntegerv, (pname, &i));
         return i;
     }
@@ -1233,60 +1257,163 @@ static int attrib_set(PyObject *dict, const char *dict_key, GLenum pname, int de
 
 static int rendertarget_init(RenderTarget *self, PyObject *args, PyObject *kw) {
     int width, height;
-    int sz_r, sz_g, sz_b, sz_a, sz;
-    int glx_attribs[] = {
-        GLX_RENDER_TYPE_SGIX,   GLX_RGBA_BIT_SGIX,
-        GLX_DRAWABLE_TYPE_SGIX, GLX_PBUFFER_BIT_SGIX,
-        GLX_RED_SIZE,           sz_r = attrib_set(kw, "red_size",         GL_RED_BITS, 0),
-        GLX_GREEN_SIZE,         sz_g = attrib_set(kw, "green_size",       GL_GREEN_BITS, 0),
-        GLX_BLUE_SIZE,          sz_b = attrib_set(kw, "blue_size",        GL_BLUE_BITS, 0),
-        GLX_ALPHA_SIZE,         sz_a = attrib_set(kw, "alpha_size",       GL_ALPHA_BITS, 0),
-        GLX_BUFFER_SIZE,        sz   = attrib_set(kw, "buffer_size",      0, sz_r + sz_g + sz_b + sz_a),
-        GLX_DOUBLEBUFFER,              attrib_set(kw, "doublebuffer",     0, 0),
-        GLX_DEPTH_SIZE,                attrib_set(kw, "depth_size",       GL_DEPTH_BITS, 0),
-        GLX_STENCIL_SIZE,              attrib_set(kw, "stencil_size",     GL_STENCIL_BITS, 0),
-        GLX_ACCUM_RED_SIZE,            attrib_set(kw, "accum_red_size",   GL_ACCUM_RED_BITS, 0),
-        GLX_ACCUM_GREEN_SIZE,          attrib_set(kw, "accum_green_size", GL_ACCUM_GREEN_BITS, 0),
-        GLX_ACCUM_BLUE_SIZE,           attrib_set(kw, "accum_blue_size",  GL_ACCUM_BLUE_BITS, 0),
-        GLX_ACCUM_ALPHA_SIZE,          attrib_set(kw, "accum_alpha_size", GL_ACCUM_ALPHA_BITS, 0),
-        GLX_STEREO,                    attrib_set(kw, "stereo",           0, 0),
-        None
-    };
-
     if (!PyArg_ParseTuple(args, "ii", &width, &height))
         return -1;
+    if (width < 1 || height < 1)
+        RAISE3(-1, ValueError, "Invalid RenderTarget size");
+    if (!(current_glxstate.context_valid && current_glxstate.screen_valid))
+        RAISE3(-1, RuntimeError, "A GLX context has not yet been initialized");
 
-    Py_INCREF(Py_None);
-    self->texture = 0;
-    self->py_texture = Py_None;
-    self->format = sz_a > 0 ? GL_RGBA : GL_RGB;
-    self->w = width;
-    self->h = height;
-    self->current = 0;
+    RESOLVE_EXC(glGetIntegerv, -1);
+    RESOLVE_EXC(glXChooseFBConfig, -1);
+    RESOLVE_EXC(glXCreatePbuffer, -1);
+    RESOLVE_EXC(glXDestroyPbuffer, -1);
+    RESOLVE_EXC(XSync, -1);
+    RESOLVE_EXC(glBindTexture, -1);
+    RESOLVE_EXC(glCopyTexSubImage2D, -1);
+    RESOLVE_EXC(glTexImage2D, -1);
+    {
+        GLXFBConfig *fb_configs;
+        int i, n_configs;
+        int sz_r, sz_g, sz_b, sz_a;
+        int glx_attribs[] = {
+            GLX_RENDER_TYPE_SGIX,   GLX_RGBA_BIT_SGIX,
+            GLX_DRAWABLE_TYPE_SGIX, GLX_PBUFFER_BIT_SGIX,
+            GLX_RED_SIZE,           sz_r = attrib_set(kw, "red_size",
+                                                      GL_RED_BITS, 0),
+            GLX_GREEN_SIZE,         sz_g = attrib_set(kw, "green_size",
+                                                      GL_GREEN_BITS, 0),
+            GLX_BLUE_SIZE,          sz_b = attrib_set(kw, "blue_size",
+                                                      GL_BLUE_BITS, 0),
+            GLX_ALPHA_SIZE,         sz_a = attrib_set(kw, "alpha_size",
+                                                      GL_ALPHA_BITS, 0),
+            GLX_BUFFER_SIZE,               attrib_set(kw, "buffer_size",
+                                                      0, sz_r + sz_g + sz_b + sz_a),
+            GLX_DOUBLEBUFFER,              attrib_set(kw, "doublebuffer",
+                                                      0, 0),
+            GLX_DEPTH_SIZE,                attrib_set(kw, "depth_size",
+                                                      GL_DEPTH_BITS, 0),
+            GLX_STENCIL_SIZE,              attrib_set(kw, "stencil_size",
+                                                      GL_STENCIL_BITS, 0),
+            GLX_ACCUM_RED_SIZE,            attrib_set(kw, "accum_red_size",
+                                                      GL_ACCUM_RED_BITS, 0),
+            GLX_ACCUM_GREEN_SIZE,          attrib_set(kw, "accum_green_size",
+                                                      GL_ACCUM_GREEN_BITS, 0),
+            GLX_ACCUM_BLUE_SIZE,           attrib_set(kw, "accum_blue_size",
+                                                      GL_ACCUM_BLUE_BITS, 0),
+            GLX_ACCUM_ALPHA_SIZE,          attrib_set(kw, "accum_alpha_size",
+                                                      GL_ACCUM_ALPHA_BITS, 0),
+            GLX_STEREO,                    attrib_set(kw, "stereo",
+                                                      0, 0),
+            None
+        };
+        int pbuffer_attribs[] = {
+            GLX_LARGEST_PBUFFER_SGIX,     False,
+            GLX_PRESERVED_CONTENTS_SGIX,  True,
+            GLX_PBUFFER_WIDTH,            width,
+            GLX_PBUFFER_HEIGHT,           height,
+            None
+        };
 
+        Py_INCREF(Py_None);
+        self->texture = 0;
+        self->py_texture = Py_None;
+        self->format = sz_a > 0 ? GL_RGBA : GL_RGB;
+        self->w = width;
+        self->h = height;
+        self->current = 0;
+
+        fb_configs = glXChooseFBConfig_p(current_glxstate.display,
+                                         current_glxstate.screen,
+                                         glx_attribs, &n_configs);
+
+        self->pbuffer = None;
+        for (i=0; i<n_configs; i++) {
+            self->pbuffer = glXCreatePbuffer_p(current_glxstate.display,
+                                               fb_configs[i], pbuffer_attribs);
+            if (self->pbuffer != None) {
+                self->config = fb_configs[i];
+                break;
+            }
+        }
+        if (self->pbuffer == None)
+            RAISE3(-1, RuntimeError, "Could not create pbuffer");
+    }
     return 0;
 }
 
 static PyObject* rendertarget_bind(RenderTarget *self, PyObject *args) {
-    int texture;
-    if (!PyArg_ParseTuple(args, "i", &texture))
+    PyObject *py_texture;
+    if (!PyArg_ParseTuple(args, "O", &py_texture))
         return NULL;
+
+    if (py_texture == Py_None) {
+        Py_XDECREF(self->py_texture);
+        Py_INCREF(Py_None);
+        self->py_texture = Py_None;
+        Py_RETURN_NONE;
+    }
+
+    if (!PyInt_Check(py_texture))
+        RAISE(TypeError, "Parameter must be an integer or None");
+
+    /* Map virtual texture to real texture if necessary */
+    if (IS_TRACKING(GLSTATE_TEXTURES)) {
+        self->texture = glstate_remap_texture(current_glstate, PyInt_AsLong(py_texture));
+        Py_XDECREF(self->py_texture);
+        self->py_texture = PyInt_FromLong(self->texture);
+    }
+    else {
+        self->texture = PyInt_AsLong(py_texture);
+        Py_XDECREF(self->py_texture);
+        Py_INCREF(py_texture);
+        self->py_texture = py_texture;
+    }
+
+    /* Initialize the texture */
+    GL(glBindTexture, (GL_TEXTURE_2D, self->texture));
+    GL(glTexImage2D, (GL_TEXTURE_2D, 0, self->format, self->w, self->h,
+                      0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
 
     Py_RETURN_NONE;
 }
 
 static PyObject* rendertarget_lock(RenderTarget *self) {
+    if (self->current)
+        RAISE(RuntimeError, "Locking a RenderTarget that is already locked");
+    if (self->pbuffer == None)
+        RAISE(RuntimeError, "RenderTarget.__init__ has not been completed");
 
+    glXMakeCurrent_p(current_glxstate.display, self->pbuffer,
+                     current_glxstate.context);
+    XSync_p(current_glxstate.display, False);
+
+    self->current = 1;
     Py_RETURN_NONE;
 }
 
 static PyObject* rendertarget_unlock(RenderTarget *self) {
+    if (!self->current)
+        RAISE(RuntimeError, "Unlocking a RenderTarget that is not locked");
 
+    if (self->py_texture != Py_None) {
+        GL(glBindTexture, (GL_TEXTURE_2D, self->texture));
+        GL(glCopyTexSubImage2D, (GL_TEXTURE_2D, 0, 0, 0, 0, 0,
+                                 self->w, self->h));
+    }
+
+    glXMakeCurrent_p(current_glxstate.display, current_glxstate.drawable,
+                     current_glxstate.context);
+    XSync_p(current_glxstate.display, False);
+
+    self->current = 0;
     Py_RETURN_NONE;
 }
 
 static void rendertarget_dealloc(RenderTarget *self) {
-
+    Py_XDECREF(self->py_texture);
+    if (current_glxstate.context_valid && self->pbuffer != None)
+        glXDestroyPbuffer(current_glxstate.display, self->pbuffer);
     self->ob_type->tp_free((PyObject *)self);
 }
 
@@ -1298,6 +1425,10 @@ static PyMethodDef rendertarget_methods[] = {
       "after it is unlocked. The texture contents are invalid between lock()\n"
       "and unlock(). This may be called with None to delete any previous\n"
       "texture binding.\n"
+      "\n"
+      "Note that 'textureID' is given as a virtual texture ID. It will be\n"
+      "remapped using the current GLState, and the stored 'texture' member\n"
+      "will be a real texture ID.\n"
     },
     { "lock", (PyCFunction) rendertarget_lock, METH_NOARGS,
       "lock() -> None\n"
@@ -1325,8 +1456,10 @@ static PyTypeObject rendertarget_type = {
     .tp_doc = "RenderTarget(width, height, **attribs)\n"
               "\n"
               "RenderTarget is an interface for rendering to texture,\n"
-              "implemented using the SGIX_pbuffer OpenGL extension. The\n"
-              "design mimics the RenderTarget API provided by current\n"
+              "implemented using the pixel buffer (pbuffer) extension\n"
+              "present in GLX 1.3.\n"
+              "\n"
+              "The design mimics the RenderTarget API provided by current\n"
               "development versions of SDL. It is implemented here in\n"
               "Loopy for two reasons: Python bindings for pbuffers are\n"
               "not generally available, and any code using pbuffers needs\n"
@@ -1427,10 +1560,22 @@ Bool glXMakeCurrent(Display *dpy, GLXDrawable drawable, GLXContext ctx) {
     RESOLVE(glXMakeCurrent);
     result = glXMakeCurrent_p(dpy, drawable, ctx);
     if (result) {
-        current_glxstate.dpy = dpy;
+        current_glxstate.display = dpy;
         current_glxstate.drawable = drawable;
-        current_glxstate.ctx = ctx;
-        current_glxstate.is_valid = True;
+        current_glxstate.context = ctx;
+        current_glxstate.context_valid = True;
+    }
+    return result;
+}
+
+XVisualInfo* glXChooseVisual(Display *dpy, int screen, int *attribs) {
+    XVisualInfo *result;
+    RESOLVE(glXChooseVisual);
+    result = glXChooseVisual_p(dpy, screen, attribs);
+    if (result) {
+        current_glxstate.display = dpy;
+        current_glxstate.screen = screen;
+        current_glxstate.screen_valid = True;
     }
     return result;
 }
