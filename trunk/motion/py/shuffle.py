@@ -29,7 +29,6 @@ except IndexError:
     print "usage: " + sys.argv[0] + " <amc file>"
     raise
 
-print "amc read"
 lorenz = Systems.Lorenz (1, 2, 3)
 sequence = Sequence.Sequence (lorenz, Numeric.array ([4,5,6]), [0,1000,.01], amc.bones)
 newSequence = sequence.shuffle (Numeric.array ([9,9,9]), [0,1000,.01])
