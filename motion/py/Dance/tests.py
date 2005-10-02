@@ -93,8 +93,6 @@ class TestCoordinate (TestCase):
 class TestSequence (TestCase):
     """Test the Sequence class that maps frames to a chaotic trajectory."""
     def setUp (self):
-        # FIXME Need to set the data up to match the structure of the ASF
-        # objects.
         data = self._createFakeData ()
         ic = Numeric.array ([2, 3, 4])
         self.seq = Sequence (Lorenz (1, 1, 1), ic, Time (0, 100, .01), data)
@@ -112,11 +110,12 @@ class TestSequence (TestCase):
 
     def testShuffle (self):
         """Test the chaotic shuffle"""
+        # FIXME This test is pretty meaningless.
         shuffled = self.seq.shuffle ([3,2,9], Time (0, 100, .01))
         original = self.seq.mapping.values ()
 
-        for d in original:
-            self.assertTrue (d in shuffled)
+        for d in shuffled:
+            self.assertTrue (d in original)
 
     def _createFakeData (self):
         """Return a dictionary that can be used as data for the Sequence
