@@ -61,8 +61,14 @@ class Sequence:
         """ Takes a set of initial conditions (ics) and returns a new
             dance sequence.
             """
+        if isinstance (time, Time):
+            self.t = time
+        else:
+            start, iterations, step = time
+            self.t = Time (start, iterations, step)
+
         shuffled = []
-        traj = self.ode (ic, time)
+        traj = self.ode (ic, self.t)
         step = len (traj) / len (self.mapping.keys ())
 
         for i in range (len (traj)):

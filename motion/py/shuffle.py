@@ -19,6 +19,19 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-import Motion, Dance
+from Motion import AMC
+from Dance import Systems, Sequence
+import Numeric, sys
+
+try:
+    amc = AMC.from_file (sys.argv[1])
+except IndexError:
+    print "usage: " + sys.argv[0] + " <amc file>"
+    raise
+
+lorenz = Systems.Lorenz (1, 2, 3)
+sequence = Sequence.Sequence (lorenz, Numeric.array ([4,5,6]), [0,1000,.01], amc.bones)
+newSequence = sequence.shuffle (Numeric.array ([9,9,9]), [0,1000,.01])
+
 
 # vim: ts=4:sw=4:et
