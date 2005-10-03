@@ -79,7 +79,7 @@ set_color_buttons (int selection, GtkWidget **color_buttons)
 
 	palette_alloc (GTK_WIDGET (gui.xtext));
 	gtk_xtext_set_palette (gui.xtext, colors);
-	gtk_xtext_set_background (gui.xtext, NULL, FALSE, FALSE);
+	gtk_xtext_set_background (gui.xtext, NULL, FALSE);
 	gtk_xtext_refresh (gui.xtext, FALSE);
 }
 

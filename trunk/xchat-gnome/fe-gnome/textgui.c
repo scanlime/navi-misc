@@ -120,7 +120,7 @@ initialize_text_gui ()
 
 	palette_alloc (GTK_WIDGET (gui.xtext));
 	gtk_xtext_set_palette (gui.xtext, colors);
-	gtk_xtext_set_background (gui.xtext, NULL, FALSE, FALSE);
+	gtk_xtext_set_background (gui.xtext, NULL, FALSE);
 	gtk_xtext_set_max_lines (gui.xtext, 3000);
 	gtk_xtext_set_show_separator (gui.xtext, prefs.show_separator);
 	gtk_xtext_set_indent (gui.xtext, prefs.indent_nicks);
@@ -559,7 +559,7 @@ static void
 free_dropped_files (void)
 {
 	if (dropped_files) {
-		g_slist_foreach (dropped_files, g_free, NULL);
+		g_slist_foreach (dropped_files, (GFunc) g_free, NULL);
 		g_slist_free (dropped_files);
 		dropped_files = NULL;
 	}
