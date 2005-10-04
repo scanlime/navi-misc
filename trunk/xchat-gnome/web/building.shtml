@@ -14,11 +14,7 @@
         <!--#include file="navigation.inc"-->
       </div>
       <div class="content">
-        <p>Because xchat-gnome is maintained as a patch-set to xchat and things live in separate
-	repositories, building it from subversion/cvs is an involved process. Note that we require
-	GTK+ 2.4, but you'll get better functionality if you're using GTK+ 2.5.</p>
-
-	<p>We highly recommend installing libsexy <a href="http://osiris.chipx86.com/svn/osiris-misc/trunk/libsexy">from Christian Hammond's SVN</a> for, well, extra sexyness.</p>
+	<p>We highly recommend installing libsexy <a href="http://osiris.chipx86.com/svn/osiris-misc/trunk/libsexy">from Christian Hammond's SVN</a> for, well, extra sexyness.  If you're on pango 1.10.0, this will give you problems -- upgrade to 1.10.1 or later</p>
 
         <p><b>DO NOT</b> expect support from the normal X-Chat developers, and do not submit bug
         reports/feature requests/etc to them.</p>
