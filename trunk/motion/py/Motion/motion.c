@@ -349,7 +349,65 @@ AMC_fromFile (AMC *self, PyObject *args)
 static PyObject *
 AMC_save (AMC *self, PyObject *args)
 {
-	return NULL;
+	char *filename;
+	GIOChannel *file;
+	int size, i;
+
+	// get filename
+	if (!PyArg_ParseTuple (args, "s", &filename)) {
+		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected 'string'"));
+		return Py_False;
+	}
+
+	file = g_io_channel_new_file (filename, "w", NULL);
+	if (file == NULL) {
+		// FIXME - we should be using the GError, not errno
+		return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
+	}
+
+	// write out comment
+	size = PyList_Size (self->comments);
+	for (i = 0; i < size; i++) {
+		PyObject *line;
+		GIOStatus status;
+		char *cline;
+
+		line = PyList_GetItem (self->comments, i);
+		cline = PyString_AsString (line);
+
+		status = g_io_channel_write_chars (file, cline, strlen (cline), NULL, NULL);
+		if (status != G_IO_STATUS_NORMAL)
+			// FIXME - we should be using the GError, not errno
+			return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
+		status = g_io_channel_write_chars (file, "\n", 1, NULL, NULL);
+		if (status != G_IO_STATUS_NORMAL)
+			// FIXME - we should be using the GError, not errno
+			return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
+	}
+
+	// write out format
+	size = PyList_Size (self->format);
+	for (i = 0; i < size; i++) {
+		PyObject *line;
+		GIOStatus status;
+		char *cline;
+
+		line = PyList_GetItem (self->format, i);
+		cline = PyString_AsString (line);
+
+		status = g_io_channel_write_chars (file, cline, strlen (cline), NULL, NULL);
+		if (status != G_IO_STATUS_NORMAL)
+			// FIXME - we should be using the GError, not errno
+			return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
+		status = g_io_channel_write_chars (file, "\n", 1, NULL, NULL);
+		if (status != G_IO_STATUS_NORMAL)
+			// FIXME - we should be using the GError, not errno
+			return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
+	}
+
+	g_io_channel_close (file);
+
+	return Py_True;
 }
 
 PyMODINIT_FUNC
