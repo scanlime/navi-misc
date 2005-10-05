@@ -381,6 +381,8 @@ AMC_save (AMC *self, PyObject *args)
 
 	// write out format
 	size = PyList_Size (self->format);
+	if (size == 0)
+		g_io_channel_write_chars (file, ":FULLY-SPECIFIED\n:DEGREES\n", strlen (":FULLY-SPECIFIED\n:DEGREES\n"), NULL, NULL);
 	for (i = 0; i < size; i++) {
 		PyObject *line;
 		char *cline;
