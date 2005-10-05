@@ -24,6 +24,8 @@
 #include <glib.h>
 #include "motion.h"
 
+static PyObject *AMC_new      (PyTypeObject *type, PyObject *args, PyObject *kw);
+static int       AMC_init     (AMC *motion, PyObject *args, PyObject *kw);
 static void      AMC_dealloc  (AMC *motion);
 static PyObject *AMC_getAttr  (AMC *motion, char *name);
 static void      AMC_setAttr  (AMC *motion, char *name, PyObject *v);
@@ -38,55 +40,81 @@ static PyMethodDef MotionC_methods[] = {
 static PyMethodDef AMC_methods[] = {
 	{"from_file", (PyCFunction) AMC_fromFile, METH_STATIC | METH_VARARGS, "Create from an AMC file"},
 	{"save",      (PyCFunction) AMC_save,     METH_VARARGS,               "Save as an AMC file"},
-	{NULL,        NULL,                          0,                          NULL},
+	{NULL,        NULL,                       0,                          NULL},
 };
 
 PyTypeObject AMC_Type = {
 	PyObject_HEAD_INIT(NULL)
-	0,				// ob_size
-	"AMC",				// tp_name
-	sizeof (AMC),			// tp_basicsize
-	0,				// tp_itemsize
-	(destructor) AMC_dealloc,	// tp_dealloc
-	0,				// tp_print
-	(getattrfunc) AMC_getAttr,	// tp_getattr
-	(setattrfunc) AMC_setAttr,	// tp_setattr
-	0,				// tp_compare
-	(reprfunc) AMC_repr,		// tp_repr
-	0,				// tp_as_number
-	0,				// tp_as_sequence
-	0,				// tp_as_mapping
-	0,				// tp_as_hash
-	0,				// tp_call
-	0,				// tp_str
-	0,				// tp_getattro
-	0,				// tp_setattro
-	0,				// tp_as_buffer
-	0,				// tp_flags
-	0,				// tp_doc
-	0,				// tp_traverse
-	0,				// tp_clear
-	0,				// tp_richcompare
-	0,				// tp_weaklistoffset
-	0,				// tp_iter
-	0,				// tp_iternext
-	AMC_methods,			// tp_methods
-	0,				// tp_members
-
+	0,                          // ob_size
+	"AMC",                      // tp_name
+	sizeof (AMC),               // tp_basicsize
+	0,                          // tp_itemsize
+	(destructor) AMC_dealloc,   // tp_dealloc
+	0,                          // tp_print
+	(getattrfunc) AMC_getAttr,  // tp_getattr
+	(setattrfunc) AMC_setAttr,  // tp_setattr
+	0,                          // tp_compare
+	(reprfunc) AMC_repr,        // tp_repr
+	0,                          // tp_as_number
+	0,                          // tp_as_sequence
+	0,                          // tp_as_mapping
+	0,                          // tp_as_hash
+	0,                          // tp_call
+	0,                          // tp_str
+	0,                          // tp_getattro
+	0,                          // tp_setattro
+	0,                          // tp_as_buffer
+	0,                          // tp_flags
+	0,                          // tp_doc
+	0,                          // tp_traverse
+	0,                          // tp_clear
+	0,                          // tp_richcompare
+	0,                          // tp_weaklistoffset
+	0,                          // tp_iter
+	0,                          // tp_iternext
+	AMC_methods,                // tp_methods
+	0,                          // tp_members
+	0,                          // tp_getset
+	0,                          // tp_base
+	0,                          // tp_dict
+	0,                          // tp_descr_get
+	0,                          // tp_descr_set
+	0,                          // tp_dictoffset
+	(initproc) AMC_init,        // tp_init
+	0,                          // tp_alloc
+	AMC_new,                    // tp_new
 };
 
-PyObject *CreateAMC ()
+PyObject *
+CreateAMC ()
 {
-	AMC *m = (AMC *) PyObject_NEW (AMC, &AMC_Type);
-	m->bones    = PyDict_New ();
-	m->comments = PyList_New (0);
-	m->format   = PyList_New (0);
+	AMC *self;
 
-	Py_INCREF (m->bones);
-	Py_INCREF (m->comments);
-	Py_INCREF (m->format);
+	self = (AMC *) PyObject_NEW (AMC, &AMC_Type);
+	if (self != NULL)
+		AMC_init (self, NULL, NULL);
 
-	return (PyObject *) m;
+	return (PyObject *) self;
+}
+
+static PyObject *
+AMC_new (PyTypeObject *type, PyObject *args, PyObject *kw)
+{
+	return CreateAMC ();
+}
+
+static int
+AMC_init (AMC *motion, PyObject *args, PyObject *kw)
+{
+	motion->bones =    PyDict_New ();
+	motion->comments = PyList_New (0);
+	motion->format   = PyList_New (0);
+
+	Py_INCREF (motion->bones);
+	Py_INCREF (motion->comments);
+	Py_INCREF (motion->format);
+
+	return 0;
 }
 
 static void
@@ -133,7 +161,9 @@ AMC_setAttr (AMC *motion, char *name, PyObject *v)
 static PyObject *
 AMC_repr (AMC *motion)
 {
-	return PyString_FromFormat ("[AMC \"s\", d frames]");
+	if (motion->name == NULL)
+		return PyString_FromFormat ("[AMC]");
+	return PyString_FromFormat ("[AMC \"%s\"]", motion->name);
 }
 
 static PyObject *
