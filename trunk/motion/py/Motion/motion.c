@@ -351,7 +351,8 @@ AMC_save (AMC *self, PyObject *args)
 {
 	char *filename;
 	GIOChannel *file;
-	int size, i;
+	int size, frames, i, j, k;
+	PyObject *keys;
 
 	// get filename
 	if (!PyArg_ParseTuple (args, "s", &filename)) {
@@ -369,40 +370,66 @@ AMC_save (AMC *self, PyObject *args)
 	size = PyList_Size (self->comments);
 	for (i = 0; i < size; i++) {
 		PyObject *line;
-		GIOStatus status;
 		char *cline;
 
 		line = PyList_GetItem (self->comments, i);
 		cline = PyString_AsString (line);
 
-		status = g_io_channel_write_chars (file, cline, strlen (cline), NULL, NULL);
-		if (status != G_IO_STATUS_NORMAL)
-			// FIXME - we should be using the GError, not errno
-			return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
-		status = g_io_channel_write_chars (file, "\n", 1, NULL, NULL);
-		if (status != G_IO_STATUS_NORMAL)
-			// FIXME - we should be using the GError, not errno
-			return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
+		g_io_channel_write_chars (file, cline, strlen (cline), NULL, NULL);
+		g_io_channel_write_chars (file, "\n", 1, NULL, NULL);
 	}
 
 	// write out format
 	size = PyList_Size (self->format);
 	for (i = 0; i < size; i++) {
 		PyObject *line;
-		GIOStatus status;
 		char *cline;
 
 		line = PyList_GetItem (self->format, i);
 		cline = PyString_AsString (line);
 
-		status = g_io_channel_write_chars (file, cline, strlen (cline), NULL, NULL);
-		if (status != G_IO_STATUS_NORMAL)
-			// FIXME - we should be using the GError, not errno
-			return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
-		status = g_io_channel_write_chars (file, "\n", 1, NULL, NULL);
-		if (status != G_IO_STATUS_NORMAL)
-			// FIXME - we should be using the GError, not errno
-			return PyErr_SetFromErrnoWithFilename (PyExc_IOError, filename);
+		g_io_channel_write_chars (file, cline, strlen (cline), NULL, NULL);
+		g_io_channel_write_chars (file, "\n", 1, NULL, NULL);
+	}
+
+	// get keys
+	keys = PyDict_Keys (self->bones);
+	size = PyList_Size (keys);
+	if (size == 0)
+		// FIXME - throw error
+		return Py_False;
+
+	// find # of frames
+	{
+		PyObject *bone = PyDict_GetItem (self->bones, PyList_GetItem (keys, 0));
+		PyArrayObject *array = (PyArrayObject *) bone;
+		frames = array->dimensions[0];
+	}
+
+	for (j = 0; j < frames; j++) {
+		GIOStatus status;
+		char *frame;
+
+		frame = g_strdup_printf ("%d\n", j);
+		g_io_channel_write_chars (file, frame, strlen (frame), NULL, NULL);
+		g_free (frame);
+
+		for (i = 0; i < size; i++) {
+			PyObject *key;
+			char *bone_name;
+			PyArrayObject *bone;
+
+			key = PyList_GetItem (keys, i);
+			bone = (PyArrayObject *) PyDict_GetItem (self->bones, key);
+			bone_name = PyString_AsString (key);
+			g_io_channel_write_chars (file, bone_name, strlen (bone_name), NULL, NULL);
+			for (k = 0; k < bone->dimensions[1]; k++) {
+				char *data = g_strdup_printf (" %f", *((float*) (bone->data + (j * bone->strides[0]) + (k * bone->strides[1]))));
+				g_io_channel_write_chars (file, data, strlen (data), NULL, NULL);
+				g_free (data);
+			}
+			 g_io_channel_write_chars (file, "\n", 1, NULL, NULL);
+		}
 	}
 
 	g_io_channel_close (file);
