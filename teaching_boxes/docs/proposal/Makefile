@@ -1,8 +1,8 @@
-all=proposal
+DOCNAME = proposal
 
-proposal:
-	pdflatex proposal.tex
+SVG_FIGURES =
+STATIC_FIGURES =
+GENERATED_FIGURES =
 
-clean:
-	- rm *.aux *.log *.dvi
-	- rm proposal.pdf
+LIB_DIR = ../lib
+include $(LIB_DIR)/Rules.make
