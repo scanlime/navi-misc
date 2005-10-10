@@ -154,6 +154,8 @@ static GtkActionEntry action_entries [] = {
 	{ "HelpAbout", GTK_STOCK_ABOUT, _("_About"), "", NULL, G_CALLBACK (on_help_about_activate) },
 };
 
+static GCompletion *command_completion;
+
 /*
  * FIXME: for the love of god make this more efficient
  */
@@ -363,8 +365,10 @@ url_activated (GtkWidget *url_label, const char *url, gpointer data)
 void
 initialize_main_window ()
 {
-	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget, *button;
+	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget;
 	GError *error = NULL;
+	GList *tmp = NULL;
+	int i;
 
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
 	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",
@@ -536,6 +540,17 @@ initialize_main_window ()
 	widget = glade_xml_get_widget (gui.xml, "nickname");
 	gtk_button_set_use_underline (GTK_BUTTON (widget), FALSE);
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (on_nickname_clicked), NULL);
+
+	/* initialize command completion */
+	/* FIXME - would be nice to find somewhere else for this */
+	command_completion = g_completion_new (NULL);
+	g_completion_add_items (command_completion, command_list);
+	for (i = 0; xc_cmds[i].name != NULL; i++) {
+		tmp = g_list_prepend (tmp, xc_cmds[i].name);
+	}
+	g_list_reverse (tmp);
+	g_completion_add_items (command_completion, tmp);
+	g_list_free (tmp);
 }
 
 void
@@ -888,7 +903,7 @@ nickname_get_str_response (GtkDialog *dialog, gint arg1, gpointer entry)
 		handle_command (current_sess, buf, FALSE);
 		g_free (buf);
 	}
-	gtk_widget_hide_all (dialog);
+	gtk_widget_hide_all (GTK_WIDGET (dialog));
 }
 
 static void
@@ -897,12 +912,12 @@ nickname_str_enter (GtkWidget *entry, GtkWidget *dialog)
 	gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
 }
 
-static void 
+static void
 on_nickname_clicked (GtkButton *widget, gpointer user_data)
 {
 	GtkWidget *dialog;
 	GtkWidget *entry;
-	
+
 	if (!current_sess)
 		return;
 
@@ -940,6 +955,74 @@ history_key_up (GtkEntry *entry)
 		gtk_entry_set_text (entry, new_line);
 		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
 	}
+}
+
+static gboolean
+tab_complete_command (GtkEntry *entry)
+{
+	int cursor, length, pos;
+	char *prefix, *new_prefix, *text, *npt, *printtext;
+	GList *options, *list;
+	session_gui *tgui;
+
+	cursor = gtk_editable_get_position (GTK_EDITABLE (entry));
+	prefix = g_new0 (char, cursor);
+	text = gtk_entry_get_text (entry);
+	strncpy (prefix, &text[1], cursor - 1);
+	length = strlen (text);
+
+	options = g_completion_complete (command_completion, prefix, &new_prefix);
+
+	if (g_list_length (options) == 0) {
+		/* no matches */
+		g_free (prefix);
+		return TRUE;
+	}
+
+	if (g_list_length (options) == 1) {
+		/* one match */
+
+		if (length - cursor == 0) {
+			/* at the end of the entry, just insert */
+
+			npt = g_strdup_printf ("/%s ", (char *) options->data);
+			pos = strlen (npt);
+		} else {
+			npt = g_strdup_printf ("/%s %s", (char *) options->data, &text[cursor]);
+			pos = strlen ((char *) options->data) + 2;
+		}
+		gtk_entry_set_text (entry, npt);
+		gtk_editable_set_position (GTK_EDITABLE (entry), pos);
+		g_free (npt);
+		g_free (prefix);
+		return TRUE;
+	} else {
+		/* more than one match - print a list of options
+		 * to the window and update the prefix
+		 */
+		list = options;
+		printtext = g_strdup ((char *) list->data);
+		for (list = g_list_next (list); list; list = g_list_next (list)) {
+			npt = g_strdup_printf ("%s %s", printtext, (char *) list->data);
+			g_free (printtext);
+			printtext = npt;
+		}
+		tgui = (session_gui *) gui.current_session->gui;
+		text_gui_print (tgui->buffer, (guchar *) printtext, TRUE);
+		g_free (printtext);
+		if (strcasecmp (prefix, new_prefix) != 0) {
+			/* insert the new prefix into the entry */
+			npt = g_strdup_printf ("/%s%s", new_prefix, &text[cursor]);
+			gtk_entry_set_text (entry, npt);
+			g_free (npt);
+			gtk_editable_set_position (GTK_EDITABLE (entry), strlen (new_prefix));
+		}
+		g_free (prefix);
+		g_free (npt);
+		return TRUE;
+	}
+
+	return TRUE;
 }
 
 static gboolean
@@ -1011,7 +1094,7 @@ tab_complete_nickname (GtkEntry *entry, int start)
 		 */
 		list = options;
 		printtext = g_strdup ((char *) list->data);
-		for (list = list->next; list; list = list->next) {
+		for (list = g_list_next (list); list; list = g_list_next (list)) {
 			npt = g_strdup_printf ("%s %s", printtext, (char *) list->data);
 			g_free (printtext);
 			printtext = npt;
@@ -1025,12 +1108,13 @@ tab_complete_nickname (GtkEntry *entry, int start)
 			npt = g_strdup_printf ("%s%s%s", text, new_prefix, &text[cursor]);
 			gtk_entry_set_text (entry, npt);
 			g_free (npt);
-			gtk_editable_set_position (GTK_EDITABLE(entry), start + strlen(new_prefix));
+			gtk_editable_set_position (GTK_EDITABLE (entry), start + strlen (new_prefix));
 		}
-		g_free(text);
+		g_free (text);
 		g_free (prefix);
 		return TRUE;
 	}
+	return TRUE;
 }
 
 static gboolean
@@ -1063,7 +1147,7 @@ tab_complete (GtkEntry *entry)
 
 		/* check if we can match a command */
 		if (start == 0 && text[0] == '/') {
-		    /* TODO: Something? */
+			return tab_complete_command (entry);
 		}
 
 		/* check if we can match a nickname */
