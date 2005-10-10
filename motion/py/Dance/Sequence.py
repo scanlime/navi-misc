@@ -74,12 +74,20 @@ class Sequence:
         for i in range (len (traj)):
             shuffled.append (self._findNearest (traj[i]))
 
-        return shuffled
+        self.shuffled = shuffled
 
-    def save (self):
-        """ Store the sequence to a file. """
-        # FIXME
-        pass
+    def save (self, filename, format):
+        """Store the sequence to a file."""
+        amc = Motion.AMC ()
+        amc.format = format
+
+        bones = {}
+        for bone in self.shuffled[0].bones.iterkeys ():
+            bones[bone] = [frame[bone] for frame in self.shuffled]
+
+        amc.bones = dict ([(bone, Numeric.array (data)) for bone,data in bones.iteritems ()])
+
+        amc.save (filename)
 
 
 class _Coordinate:
@@ -113,13 +121,13 @@ class _Frame:
         # corresponds to a degree of freedom for that bone. index gives the
         # frame number and data is a dictionary mapping bones to motion data.
         # The movement data is stored as follows: data["bone name"][frame, dof].
-        self.__bones = {}
+        self.bones = {}
 
         for bone, values in data.iteritems ():
-            self.__bones[bone] = values[index]
+            self.bones[bone] = values[index]
 
     def __getitem__ (self, bone):
-        return self.__bones[bone]
+        return self.bones[bone]
 
 
 # vim:ts=4:sw=4:et:tw=80

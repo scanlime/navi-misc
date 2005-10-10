@@ -23,18 +23,14 @@ from Motion import AMC
 from Dance import Systems, Sequence
 import Numeric, sys
 
-try:
+if len (sys.argv) != 3:
+    print "usage: " + sys.argv[0] + " <input file> <output file>"
+else:
     amc = AMC.from_file (sys.argv[1])
-except IndexError:
-    print "usage: " + sys.argv[0] + " <amc file>"
-    raise
+    lorenz = Systems.Lorenz (1, 2, 3)
+    sequence = Sequence.Sequence (lorenz, Numeric.array ([4,5,6]), [0,1000,.01], amc.bones)
+    sequence.shuffle (Numeric.array ([9,9,9]), [0,1000,.01])
 
-lorenz = Systems.Lorenz (1, 2, 3)
-sequence = Sequence.Sequence (lorenz, Numeric.array ([4,5,6]), [0,1000,.01], amc.bones)
-newSequence = sequence.shuffle (Numeric.array ([9,9,9]), [0,1000,.01])
-
-for frame in newSequence:
-    for bone in amc.bones.keys ():
-        assert (frame[bone] in amc.bones[bone])
+    sequence.save (sys.argv[2], amc.format)
 
 # vim: ts=4:sw=4:et
