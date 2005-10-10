@@ -1,4 +1,4 @@
-DOCNAME = interview_notes
+DOCNAME = notes
 
 LIB_DIR = ../../lib
 include $(LIB_DIR)/Rules.make
