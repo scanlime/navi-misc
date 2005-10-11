@@ -358,7 +358,7 @@ fe_userlist_insert (struct session *sess, struct User *newuser, int row, int sel
 int
 fe_userlist_remove (struct session *sess, struct User *user)
 {
-	return userlist_remove (u, sess, user);
+	return userlist_remove_user (u, sess, user);
 }
 
 void
@@ -382,7 +382,7 @@ fe_userlist_numbers (struct session *sess)
 void
 fe_userlist_clear (struct session *sess)
 {
-	userlist_clear (u, sess);
+	userlist_clear_all (u, sess);
 }
 
 void

@@ -192,7 +192,7 @@ find_user (Store *store, struct User *user)
 }
 
 gboolean
-userlist_remove (Userlist *userlist, session *sess, struct User *user)
+userlist_remove_user (Userlist *userlist, session *sess, struct User *user)
 {
 	Store *store = (Store*) g_hash_table_lookup (userlist->stores, sess);
 	GtkTreeIter *iter;
@@ -260,7 +260,7 @@ userlist_move (Userlist *userlist, session *sess, struct User *user, int new_row
 }
 
 void
-userlist_clear (Userlist *userlist, session *sess)
+userlist_clear_all (Userlist *userlist, session *sess)
 {
 	Store *store = g_hash_table_lookup (userlist->stores, sess);
 
