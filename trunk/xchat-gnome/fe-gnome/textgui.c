@@ -379,7 +379,7 @@ check_word (GtkWidget *xtext, char *word, int len)
 
 	url = url_check_word (word, len);
 	if (url == 0) {
-		if (((word[0]=='@' || word[0]=='+') && find_name (current_sess, word+1)) || find_name (current_sess, word))
+		if (((word[0]=='@' || word[0]=='+') && userlist_find (current_sess, word+1)) || userlist_find (current_sess, word))
 			return WORD_NICK;
 		if (current_sess->type == SESS_DIALOG)
 			return WORD_DIALOG;
@@ -441,7 +441,7 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 					g_free (selected_word);
 				selected_word = g_strdup (word);
 
-				user = find_name (gui.current_session, word);
+				user = userlist_find (gui.current_session, word);
 				if (user) {
 					current_user = user;
 					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());

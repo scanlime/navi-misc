@@ -323,7 +323,7 @@ fe_close_window (struct session *sess)
 			navigation_tree_remove_server (gui.server_tree, sess);
 	}
 
-	kill_session_callback (sess);
+	session_free (sess);
 }
 
 void
@@ -698,6 +698,7 @@ fe_gui_info (session * sess, int info_type)
 void *
 fe_gui_info_ptr (session *sess, int info_type)
 {
+	return NULL;
 	/* FIXME implement? */
 }
 
