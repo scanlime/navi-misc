@@ -944,7 +944,7 @@ server_context (GtkWidget * treeview, session * selected)
 
 	/* check if the network is in the auto-connect list */
 	action = gtk_action_group_get_action (gui.action_group, "ServerAutoConnect");
-	if (((ircnet *)selected->server->network)->flags & FLAG_AUTO_CONNECT) 
+	if (((ircnet *)selected->server->network)->flags & FLAG_AUTO_CONNECT)
 		gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
 	else
 		gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
