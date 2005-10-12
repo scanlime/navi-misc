@@ -215,7 +215,7 @@
 			<applyto>/desktop/gnome/url-handlers/irc/command</applyto>
 			<owner>xchat</owner>
 			<type>string</type>
-			<default>xchat-gnome -a --url=%s</default>
+			<default>xchat-remote --url=%s</default>
 			<locale name="C">
 				<short>Le gestionnaire d'URLs ? irc ?</short>
 			</locale>
