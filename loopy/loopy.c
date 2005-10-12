@@ -250,6 +250,10 @@ static SDL_Surface* (*SDL_SetVideoMode_p)(int, int, int, Uint32);
 /************************************************ Local Definitions *****/
 /************************************************************************/
 
+struct ivector2 {
+    int x, y;
+};
+
 /* GLState is a Python object providing a user-visible
  * interface to saved OpenGL state. We always have at
  * most one 'current' GLState that the OpenGL tracker
@@ -261,16 +265,20 @@ typedef struct {
     unsigned int restoreFlags;
     unsigned int clearMask;
 
+    PyObject *viewportSandbox;
     PyObject *capabilities;
     PyObject *textureBindings;
     PyObject *textures;
     PyObject *color;
+    PyObject *viewport;
     PyObject *blendFunc;
     PyObject *clearColor;
     int depthFunc;
     int matrixMode;
     PyObject *matrices;
     PyObject *pushedMatrices;
+
+    struct ivector2 res;
 } GLState;
 
 /* Unlike GLState, GLXState is not visible to Python.
@@ -306,7 +314,8 @@ static const struct {
 #   define GLSTATE_BLEND_FUNC         (1  << 4 )
 #   define GLSTATE_CLEAR_COLOR        (1  << 5 )
 #   define GLSTATE_DEPTH_FUNC         (1  << 6 )
-#   define GLSTATE_ALL                ((1 << 7 )-1)
+#   define GLSTATE_VIEWPORT           (1  << 7 )
+#   define GLSTATE_ALL                ((1 << 8 )-1)
 
     {"CAPABILITIES",     GLSTATE_CAPABILITIES},
     {"MATRICES",         GLSTATE_MATRICES},
@@ -315,6 +324,7 @@ static const struct {
     {"BLEND_FUNC",       GLSTATE_BLEND_FUNC},
     {"CLEAR_COLOR",      GLSTATE_CLEAR_COLOR},
     {"DEPTH_FUNC",       GLSTATE_DEPTH_FUNC},
+    {"VIEWPORT",         GLSTATE_VIEWPORT},
     {"ALL",              GLSTATE_ALL},
     {0}
 };
@@ -536,6 +546,16 @@ static PyMemberDef glstate_members[] = {
       "prevent a particular context from clearing the color buffer\n"
       "or the depth buffer, for example.\n"
     },
+    { "viewportSandbox", T_OBJECT, offsetof(GLState, viewportSandbox), 0,
+      "If not None, this should be set to an (x, y, width, height)\n"
+      "tuple within which this GLState's viewport will be 'sandboxed'.\n"
+      "Any viewports set while this GLState is current will actually\n"
+      "be scaled such that a viewport for the entire output window\n"
+      "would be scaled into the provided rectangle. Smaller viewports\n"
+      "are scaled accordingly. This can be used to implement picture-\n"
+      "-in-picture effects, or to have another application unknowningly\n"
+      "render to texture.\n"
+    },
     { "capabilities", T_OBJECT, offsetof(GLState, capabilities), READONLY,
       "A dictionary mapping OpenGL capability numbers to either\n"
       "True (glEnable) or False (glDisable). Missing capabilities\n"
@@ -557,6 +577,14 @@ static PyMemberDef glstate_members[] = {
       "The current OpenGL color, as a 4-tuple of floats.\n"
       "You may modify this, but values other than 4-tuples\n"
       "of floats will have undefined results.\n"
+    },
+    { "viewport", T_OBJECT, offsetof(GLState, viewport), 0,
+      "The current OpenGL viewport, as a 4-tuple of ints.\n"
+      "You may modify this, but values other than 4-tuples\n"
+      "of ints will have undefined results. This is always\n"
+      "the viewport provided by the application- so it may\n"
+      "differ from the actual viewport if viewportSandbox\n"
+      "is in effect.\n"
     },
     { "blendFunc", T_OBJECT, offsetof(GLState, blendFunc), 0,
       "The current OpenGL blend function, as a 2-tuple of\n"
@@ -603,22 +631,28 @@ static int glstate_init(GLState *self, PyObject *args, PyObject *kw) {
     self->matrixMode = 0;
     self->depthFunc = GL_LESS;
 
+    self->viewportSandbox = NULL;
     self->capabilities = PyDict_New();
     self->textureBindings = PyDict_New();
     self->textures = PyDict_New();
     self->color = Py_BuildValue("(ffff)", 1.0f, 1.0f, 1.0f, 1.0f);
+    self->viewport = NULL;
     self->blendFunc = Py_BuildValue("(ii)", GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     self->clearColor = Py_BuildValue("(ffff)", 0.0f, 0.0f, 0.0f, 1.0f);
     self->matrices = PyDict_New();
     self->pushedMatrices = NULL;
+
+    self->res.x = self->res.y = 1;
     return 0;
 }
 
 static void glstate_dealloc(GLState *self) {
+    Py_XDECREF(self->viewportSandbox);
     Py_XDECREF(self->capabilities);
     Py_XDECREF(self->textureBindings);
     Py_XDECREF(self->textures);
     Py_XDECREF(self->color);
+    Py_XDECREF(self->viewport);
     Py_XDECREF(self->blendFunc);
     Py_XDECREF(self->clearColor);
     Py_XDECREF(self->matrices);
@@ -957,6 +991,33 @@ static void glstate_pop_matrices(PyObject *list) {
     }
 }
 
+/* Set the viewport on behalf of a GLState. This applies the
+ * viewportSandbox if it is active.
+ */
+static void glstate_restore_viewport(GLState *state, int x, int y, int w, int h) {
+    if (state->viewportSandbox &&
+        PyTuple_Check(state->viewportSandbox) &&
+        PyTuple_GET_SIZE(state->viewportSandbox) == 4) {
+
+        PyObject *sbx = PyTuple_GET_ITEM(state->viewportSandbox, 0);
+        PyObject *sby = PyTuple_GET_ITEM(state->viewportSandbox, 1);
+        PyObject *sbw = PyTuple_GET_ITEM(state->viewportSandbox, 2);
+        PyObject *sbh = PyTuple_GET_ITEM(state->viewportSandbox, 3);
+
+        if (PyInt_Check(sbx) && PyInt_Check(sby) &&
+            PyInt_Check(sbw) && PyInt_Check(sbh)) {
+
+            /* The sandbox is active */
+            x += PyInt_AS_LONG(sbx);
+            y += PyInt_AS_LONG(sby);
+            w = ((float)w) * PyInt_AS_LONG(sbw) / state->res.x;
+            h = ((float)h) * PyInt_AS_LONG(sbh) / state->res.y;
+        }
+    }
+
+    GL(glViewport, (x, y, w, h));
+}
+
 /* Perform an OpenGL state transition. The current_glstate as well as
  * the next state must be non-NULL. Normally current_glstate should
  * only be NULL while a switch is actually in progress.
@@ -1005,6 +1066,20 @@ static void glstate_switch(GLState *next) {
         GLdouble color[4];
         pytuple_to_glvector(next->color, color, 4);
         GL(glColor4dv, (color));
+    }
+
+    if (next->restoreFlags & GLSTATE_VIEWPORT) {
+        if (next->viewport && PyTuple_Check(next->viewport) &&
+            PyTuple_GET_SIZE(next->viewport) == 4) {
+            PyObject *x = PyTuple_GET_ITEM(next->viewport, 0);
+            PyObject *y = PyTuple_GET_ITEM(next->viewport, 1);
+            PyObject *w = PyTuple_GET_ITEM(next->viewport, 2);
+            PyObject *h = PyTuple_GET_ITEM(next->viewport, 3);
+            if (PyInt_Check(x) && PyInt_Check(y) && PyInt_Check(w) && PyInt_Check(h)) {
+                glstate_restore_viewport(next, PyInt_AS_LONG(x), PyInt_AS_LONG(y),
+                                         PyInt_AS_LONG(w), PyInt_AS_LONG(h));
+            }
+        }
     }
 
     if (next->restoreFlags & GLSTATE_CLEAR_COLOR) {
@@ -1086,10 +1161,6 @@ static void glstate_init_target(int target) {
 /************************************************************************/
 
 static PyObject *overlay_list;
-
-struct ivector2 {
-    int x, y;
-};
 
 typedef struct {
     PyObject_HEAD
@@ -1698,27 +1769,44 @@ XVisualInfo* glXChooseVisual(Display *dpy, int screen, int *attribs) {
 }
 
 void glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
-    RESOLVE(glViewport);
-    glViewport_p(x, y, width, height);
+    Bool setting_resolution = False;
 
-    if (RUNNING_IN_TARGET) {
-        /* This isn't fool-proof, but we detect the current
-         * window resolution by looking for glViewport() calls
-         * with x,y == 0,0. If this turns out to be a problem,
-         * the only alternative might be hooking Xlib. Yech.
-         */
-        if (x==0 && y==0) {
-            struct ivector2 res = {width, height};
+    /* This isn't fool-proof, but we detect the current
+     * window resolution by looking for glViewport() calls
+     * with x,y == 0,0. If this turns out to be a problem,
+     * the only alternative might be hooking Xlib. Yech.
+     *
+     * Set up the resolution as a 2-step process- record
+     * current_glstate->res first, since it's needed by
+     * glstate_restore_viewport. Perform the target resizing
+     * last, since it may invoke Overlay code that depends
+     * on having current_glstate->viewport tracked.
+     */
+    if (current_glstate && x==0 && y==0 && width>0 && height>0) {
+        current_glstate->res.x = width;
+        current_glstate->res.y = height;
+        setting_resolution = True;
+    }
 
-            /* Resize our fake SDL surface */
-            overlay_sdl_surface.w = res.x;
-            overlay_sdl_surface.h = res.y;
+    if (IS_TRACKING(GLSTATE_VIEWPORT)) {
+        Py_XDECREF(current_glstate->viewport);
+        current_glstate->viewport = Py_BuildValue("(iiii)", x, y, width, height);
+        glstate_restore_viewport(current_glstate, x, y, width, height);
+    }
+    else {
+        RESOLVE(glViewport);
+        glViewport_p(x, y, width, height);
+    }
 
-            /* Notify all the overlays */
-            if (foreach_overlay(overlay_resize, &res) < 0)
-                handle_py_error();
-            glstate_switch(target_glstate);
-        }
+    if (setting_resolution && RUNNING_IN_TARGET) {
+        /* Resize our fake SDL surface */
+        overlay_sdl_surface.w = current_glstate->res.x;
+        overlay_sdl_surface.h = current_glstate->res.y;
+
+        /* Notify all the overlays */
+        if (foreach_overlay(overlay_resize, &current_glstate->res) < 0)
+            handle_py_error();
+        glstate_switch(target_glstate);
     }
 }
 
