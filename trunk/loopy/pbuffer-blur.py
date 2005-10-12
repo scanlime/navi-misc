@@ -74,31 +74,27 @@ class Overlay(loopy.Overlay):
         buffer.unlock()
         GL.glViewport(0, 0, *self.resolution)
 
-
-    def drawBlurredShadowMask(self, h):
-        self.filter.setRadius(h)
-        self.drawShadowMask(self.filter.outputTarget)
-        self.filter.run()
-        GL.glViewport(0, 0, *self.resolution)
-
     t = 0
     def render(self):
-        #self.filter.outputTarget.unlock()
+        if self.filter.outputTarget:
+            self.filter.outputTarget.unlock()
+            self.filter.run()
+
+            # Blend the completed shadow mask
+            GL.glViewport(0, 0, *self.resolution)
+            GL.glBindTexture(GL.GL_TEXTURE_2D, self.filter.outputTarget.texture)
+            GL.glBlendFunc(GL.GL_ONE, GL.GL_ZERO)
+            GL.glColor(1,1,1,1)
+            GL.glLoadIdentity()
+            GL.glCallList(self.square)
 
         self.t += 1
-        h = (math.sin(self.t * 0.1) + 1) * 0.15
-        self.drawBlurredShadowMask(h)
+        h = max(0, math.sin(self.t * 0.15)) * 0.075
 
-        # Blend the completed shadow mask
-        GL.glBindTexture(GL.GL_TEXTURE_2D, self.filter.outputTarget.texture)
-        #GL.glBlendFunc(GL.GL_DST_COLOR, GL.GL_ZERO)
-        GL.glBlendFunc(GL.GL_ONE, GL.GL_ZERO)
-        GL.glColor(1,1,1,1)
-        GL.glLoadIdentity()
-        GL.glCallList(self.square)
-
-        #self.drawIcons(offset=(-h, h))
-        #self.filter.outputTarget.lock()
+        self.filter.setRadius(h)
+        loopy.getTargetGLState().viewportSandbox = (
+            0, 0, self.filter.outputTarget.w, self.filter.outputTarget.h)
+        self.filter.outputTarget.lock()
 
 class SeparableConvolutionFilter:
     """A separable convolution filter- that is, one that is applied
@@ -273,6 +269,8 @@ class GaussianFilterPyramid:
        speed and color quality.
        """
     def __init__(self, resolutions=(32, 64, 128, 256, 512)):
+        self.outputTarget = None
+        self.run = None
         resolutions = list(resolutions)
         resolutions.sort()
         self.filters = []
@@ -292,7 +290,6 @@ class GaussianFilterPyramid:
             size = 10.0 / minRadius
             for r, f in self.filters:
                 if size < r:
-                    print size, r
                     f.setRadius(xradius, yradius)
                     self.outputTarget = f.outputTarget
                     self.run = f.run
