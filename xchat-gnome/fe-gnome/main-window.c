@@ -1392,14 +1392,8 @@ on_expand_topic (GtkExpander *expander, gpointer data)
 	if (gtk_expander_get_expanded (gui.topic_expander)) {
 		gtk_label_set_ellipsize(GTK_LABEL (gui.topic_label), PANGO_ELLIPSIZE_END);
 		gtk_label_set_line_wrap (GTK_LABEL (gui.topic_label), FALSE);
-#ifdef HAVE_LIBSEXY
-		gtk_misc_set_alignment (GTK_MISC (gui.topic_label), 0.5f, 0.0f);
-#endif
 	} else {
 		gtk_label_set_ellipsize(GTK_LABEL (gui.topic_label), PANGO_ELLIPSIZE_NONE);
 		gtk_label_set_line_wrap (GTK_LABEL (gui.topic_label), TRUE);
-#ifdef HAVE_LIBSEXY
-		gtk_misc_set_alignment (GTK_MISC (gui.topic_label), 0.0f, 0.0f);
-#endif
 	}
 }
