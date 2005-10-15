@@ -33,3 +33,17 @@ class ParallelBFSSearch ():
         self.graph = graph
         self.start = start
         self.end   = end
+        self.paths = [[start, ], ]
+        try:
+            self.adjacency = graph.representations[Data.AdjacencyList]
+        except KeyError:
+            raise Exception ('Graph does not contain AdjacencyList representation')
+
+    def step ():
+        laststep = self.paths
+        self.paths = []
+        for path in laststep:
+            node = path[-1]
+            for edge in self.adjacency.query (node):
+                if edge.u is node:
+                    pass
