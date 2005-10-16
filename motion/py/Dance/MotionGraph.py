@@ -4,7 +4,6 @@ Build a graph from a corpus of motions
 """
 
 from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeList
-from Graph.Algorithms import DotPrint
 
 import Numeric
 import MLab
