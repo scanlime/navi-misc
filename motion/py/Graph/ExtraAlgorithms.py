@@ -34,6 +34,8 @@ class ParallelBFSSearch ():
         self.start = start
         self.end   = end
         self.paths = [[start, ], ]
+        # If the start is also the end, we're already matching
+        self.match = start is end
         try:
             self.adjacency = graph.representations[Data.AdjacencyList]
         except KeyError:
@@ -44,6 +46,14 @@ class ParallelBFSSearch ():
         self.paths = []
         for path in laststep:
             node = path[-1]
+            x = (edge in self.adjacency.query (node) if edge.u is node)
             for edge in self.adjacency.query (node):
                 if edge.u is node:
                     pass
+
+        # Update match status
+        self.match = False
+        for path in self.paths:
+            if path[-1] is self.end:
+                self.match = True
+                break
