@@ -3,7 +3,7 @@
 Map a sequence to a chaotic attractor and shuffle it.
 """
 
-import Numeric, math
+import Motion, Numeric, math
 from ODE import RK4, Time
 
 __all__ = ["Sequence"]
