@@ -159,14 +159,25 @@ AMC_setAttr (AMC *motion, char *name, PyObject *v)
 	// FIXME a) is it leaking memory?
 	//       b) it probably needs better error checking
 
-	Py_INCREF (v);
+	// If v is NULL, we're supposed to delete the attribute.
+	if (v) {
+		Py_INCREF (v);
 
-	if (strcmp (name, "bones") == 0)
-		motion->bones = v;
-	else if (strcmp (name, "format") == 0)
-		motion->format = v;
-	else if (strcmp (name, "comments") == 0)
-		motion->comments = v;
+		if (strcmp (name, "bones") == 0) {
+			Py_DECREF (motion->bones);
+			motion->bones = v;
+		} else if (strcmp (name, "format") == 0) {
+			Py_DECREF (motion->format);
+			motion->format = v;
+		} else if (strcmp (name, "comments") == 0) {
+			Py_DECREF (motion->comments);
+			motion->comments = v;
+		} else {
+			return -1;
+		}
+	} else {
+		return -1;
+	}
 
 	return 0;
 }
