@@ -12,7 +12,7 @@ Arch
 
 Mike Hearn wrote a client for GNU Arch. You can find it `on the arch wiki`_ or `stored locally`_.
 
-.. _on the arch wiki: http://wiki.gnuarch.org/moin.cgi/CIA
+.. _on the arch wiki: http://wiki.gnuarch.org/CIA
 .. _stored locally: /clients/arch/cia_arch.py
 
 Bazaar
