@@ -23,6 +23,7 @@
 
 from Motion import AMC
 from Dance import Systems, Sequence
+from Graph.ExtraAlgorithms import ParallelBFS
 import Numeric, sys
 
 try:
@@ -44,3 +45,6 @@ for key in amc.bones.iterkeys ():
 for frame in newSequence:
     for bone in amc.bones.keys ():
         assert (frame[bone] in amc.bones[bone])
+
+search = ParallelBFS ()
+
