@@ -24,6 +24,21 @@ class ParallelBFS:
             end   = self.ends[key]
             bfsObjects.append (ParallelBFSSearch (key, start, end))
 
+        done = false
+
+        while not done:
+            for search in bfsObjects:
+                if search.match
+                    done = true
+            if done:
+                break
+
+            for search in bfsObjects:
+                search.step ()
+
+        # We're done.
+        # FIXME - Find the highest probability path for each search and return that.
+
 class ParallelBFSSearch ():
     """A class which runs a BFS on a graph, but without any specific stopping
        point.
