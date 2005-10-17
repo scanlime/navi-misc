@@ -28,7 +28,7 @@ static PyObject *AMC_new      (PyTypeObject *type, PyObject *args, PyObject *kw)
 static int       AMC_init     (AMC *motion, PyObject *args, PyObject *kw);
 static void      AMC_dealloc  (AMC *motion);
 static PyObject *AMC_getAttr  (AMC *motion, char *name);
-static void      AMC_setAttr  (AMC *motion, char *name, PyObject *v);
+static int       AMC_setAttr  (AMC *motion, char *name, PyObject *v);
 static PyObject *AMC_repr     (AMC *motion);
 static PyObject *AMC_fromFile (AMC *self, PyObject *args);
 static PyObject *AMC_save     (AMC *self, PyObject *args);
@@ -153,9 +153,22 @@ AMC_getAttr (AMC *motion, char *name)
 	return attr;
 }
 
-static void
+static int
 AMC_setAttr (AMC *motion, char *name, PyObject *v)
 {
+	// FIXME a) is it leaking memory?
+	//       b) it probably needs better error checking
+
+	Py_INCREF (v);
+
+	if (strcmp (name, "bones") == 0)
+		motion->bones = v;
+	else if (strcmp (name, "format") == 0)
+		motion->format = v;
+	else if (strcmp (name, "comments") == 0)
+		motion->comments = v;
+
+	return 0;
 }
 
 static PyObject *
