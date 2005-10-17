@@ -72,3 +72,8 @@ class ParallelBFSSearch ():
             if path[-1] is self.end:
                 self.match = True
                 break
+
+    def getMatchedPaths ():
+        for path in self.paths:
+            if path[-1] is self.end:
+                yield path
