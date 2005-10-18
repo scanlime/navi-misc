@@ -48,11 +48,11 @@ static gboolean opt_noplugins = FALSE;
 static gchar *opt_cfgdir = NULL;
 
 static GOptionEntry entries[] = {
-	{"cfgdir",     'd', 0, G_OPTION_ARG_FILENAME, &opt_cfgdir,    "Use directory instead of the default config dir", "directory"},
-	{"no-auto",    'a', 0, G_OPTION_ARG_NONE,     &opt_noauto,    "Don't auto-connect to servers",                   NULL},
-	{"no-plugins", 'n', 0, G_OPTION_ARG_NONE,     &opt_noplugins, "Don't auto-load plugins",                         NULL},
-	{"url",        'u', 0, G_OPTION_ARG_STRING,   &connect_url,   "Open an irc:// url",                              "irc://server:port/channel"},
-	{"version",    'v', 0, G_OPTION_ARG_NONE,     &opt_version,   "Show version information",                        NULL},
+	{"cfgdir",     'd', 0, G_OPTION_ARG_FILENAME, &opt_cfgdir,           "Use directory instead of the default config dir", "directory"},
+	{"no-auto",    'a', 0, G_OPTION_ARG_NONE,     &arg_dont_autoconnect, "Don't auto-connect to servers",                   NULL},
+	{"no-plugins", 'n', 0, G_OPTION_ARG_NONE,     &opt_noplugins,        "Don't auto-load plugins",                         NULL},
+	{"url",        'u', 0, G_OPTION_ARG_STRING,   &arg_url,              "Open an irc:// url",                              "irc://server:port/channel"},
+	{"version",    'v', 0, G_OPTION_ARG_NONE,     &opt_version,          "Show version information",                        NULL},
 };
 
 int
@@ -78,9 +78,6 @@ fe_args (int argc, char *argv[])
 		g_print ("xchat-gnome %s\n", VERSION);
 		return 0;
 	}
-
-	if (opt_noauto)
-		auto_connect = 0;
 
 	if (opt_cfgdir)
 		xdir_fs = opt_cfgdir;
@@ -122,7 +119,7 @@ fe_init (void)
 	/* Don't allow the core to autoload plugins. We use our own
 	 * method for autoloading.
 	 */
-	skip_plugins = 1;
+	arg_skip_plugins = 1;
 
 	plugins_initialize ();
 	if (!opt_noplugins)
