@@ -4,13 +4,13 @@ RCS file: /cvsroot/xchat/xchat2/configure.in,v
 retrieving revision 1.88
 diff -u -r1.88 configure.in
 --- configure.in	12 Oct 2005 09:40:57 -0000	1.88
-+++ configure.in	12 Oct 2005 18:08:35 -0000
++++ configure.in	19 Oct 2005 20:24:31 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
  AM_CONFIG_HEADER(config.h)
 -AM_INIT_AUTOMAKE(xchat, 2.5.0dev)
-+AM_INIT_AUTOMAKE(xchat-gnome, 0.6svn)
++AM_INIT_AUTOMAKE(xchat-gnome, 0.6rc1)
  AM_MAINTAINER_MODE
  AC_PROG_CC
  AC_PROG_CPP
@@ -206,7 +206,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.5
 diff -u -r1.5 Makefile.am
 --- plugins/Makefile.am	12 Oct 2005 05:03:59 -0000	1.5
-+++ plugins/Makefile.am	12 Oct 2005 18:08:35 -0000
++++ plugins/Makefile.am	19 Oct 2005 20:24:32 -0000
 @@ -1,10 +1,10 @@
  # temp. solution while mailcheck & xdcc arn't in SUBDIRS
 -EXTRA_DIST = plugin20.html Make.plugin plugin-conf.in \
@@ -249,7 +249,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/mailcheck/Makefile.am,v
 retrieving revision 1.1
 diff -u -r1.1 Makefile.am
 --- plugins/mailcheck/Makefile.am	17 Dec 2002 15:36:39 -0000	1.1
-+++ plugins/mailcheck/Makefile.am	12 Oct 2005 18:08:35 -0000
++++ plugins/mailcheck/Makefile.am	19 Oct 2005 20:24:32 -0000
 @@ -10,7 +10,6 @@
  
  # This file must be in the form PLUGIN-config.h.in, it can be empty but
@@ -264,7 +264,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/perl/Makefile.am,v
 retrieving revision 1.10
 diff -u -r1.10 Makefile.am
 --- plugins/perl/Makefile.am	29 Mar 2005 05:11:50 -0000	1.10
-+++ plugins/perl/Makefile.am	12 Oct 2005 18:08:35 -0000
++++ plugins/perl/Makefile.am	19 Oct 2005 20:24:32 -0000
 @@ -1,5 +1,5 @@
  
 -EXTRA_DIST=alt_completion.pl ignore.pl sample_script.pl xchat2-perldocs.html xchat2-perl.html generate_header Xchat.pm IRC.pm makefile.msc
@@ -278,7 +278,7 @@ RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	12 Oct 2005 18:08:58 -0000
++++ src/Makefile.am	19 Oct 2005 20:24:44 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
@@ -295,7 +295,7 @@ RCS file: /cvsroot/xchat/xchat2/src/common/textevents.h,v
 retrieving revision 1.30
 diff -u -r1.30 textevents.h
 --- src/common/textevents.h	11 Jul 2005 07:03:53 -0000	1.30
-+++ src/common/textevents.h	12 Oct 2005 18:08:58 -0000
++++ src/common/textevents.h	19 Oct 2005 20:24:44 -0000
 @@ -3,214 +3,214 @@
  const struct text_event te[] = {
  
@@ -838,7 +838,7 @@ RCS file: /cvsroot/xchat/xchat2/src/common/textevents.in,v
 retrieving revision 1.29
 diff -u -r1.29 textevents.in
 --- src/common/textevents.in	11 Jul 2005 07:03:53 -0000	1.29
-+++ src/common/textevents.in	12 Oct 2005 18:08:58 -0000
++++ src/common/textevents.in	19 Oct 2005 20:24:44 -0000
 @@ -1,19 +1,19 @@
  Add Notify
  XP_TE_ADDNOTIFY
@@ -1749,7 +1749,7 @@ RCS file: /cvsroot/xchat/xchat2/src/pixmaps/Makefile.am,v
 retrieving revision 1.9
 diff -u -r1.9 Makefile.am
 --- src/pixmaps/Makefile.am	12 Oct 2005 05:38:32 -0000	1.9
-+++ src/pixmaps/Makefile.am	12 Oct 2005 18:08:58 -0000
++++ src/pixmaps/Makefile.am	19 Oct 2005 20:24:44 -0000
 @@ -13,5 +13,8 @@
  CLEANFILES = $(noinst_HEADERS)
  EXTRA_DIST = $(PNGS) makefile.msc
