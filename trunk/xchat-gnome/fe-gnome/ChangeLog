@@ -4,6 +4,7 @@
 	* Add autoconnect and autojoin options in context menus - Guillaume Desmottes
 	* Add nickname change dialog when clicking on the nick on the left of the input bar - Claessens Xavier
 	* Add text and files drag and drop support - Guillaume Desmottes
+	* Beginnings of command completion - David Trowbridge
 
 0.5 "You are what you eat" (27 August 2005)
 	* DCC user interface, including send/recieve window, preferences, file choosers, etc - David Trowbridge
