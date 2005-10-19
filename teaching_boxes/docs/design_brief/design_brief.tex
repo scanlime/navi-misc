@@ -140,12 +140,140 @@ classroom for 3 years.
 \section{Literature}
 
 \section{Design Priorities \& Issues}
+\subsection{Priorities}
+
+The following items we have identified as being priorities for our design of
+the Teaching Boxes interface:
+
+\begin{itemize}
+\item Users need to be able to upload individual parts of a lesson.  This may
+      include activities, important concepts, external documents, or any other
+      pieces that make up a lesson.
+
+\item Along with the ability to upload individual parts, the system also needs
+      to be able to separate out these pieces in the lesson.
+
+\item Besides worksheets and concepts, lessons quite often have activities
+      involved.  Our system needs to be able to handle these and be able
+      to manage multiple activities per lesson.
+
+\item The users of the system will be teachers, people who are not experts
+      with computers.  As such, the system needs to be as usable as possible.
+
+\item One of the requirements that our sponsors mentioned is that the system
+      needs to be non-linear in nature --- Teachers should be able to navigate
+      to any lesson, regardless of their order in a unit.
+
+\item Teaching boxes, once created, need to be editable again.
+
+\item Lessons may include outside resources, such as web links.  The system
+      needs to handle these in a consistant and friendly manner.
+
+\item Frequently, other electronic materials (such as word documents) accompany
+      a lesson.  The system needs to be able to handle these files in a manner
+      similar to attaching files to an email message.
+
+\item Some activities require materials, such as glue.  The system should allow
+      for the construction of a materials list for lessons and activities.
+
+\item Some lessons take longer than others to teach.  As such, an interface for
+      providing time estimates should be supported.
+
+\item One of the most useful things to teachers is the ability to annotate their
+      lessons after they've been taught.  As such, the system needs to be able
+      to provide this capability.
+\end{itemize}
+
+\subsection{Issues}
+
+The following items were identified as potential issues in the design of our
+interface:
+
+\begin{itemize}
+\item How should the system treat activities?  Possible options might include
+      treating all things as ``lessons'' and providing all the fields needed
+      for either.  However, this can be wasteful and may show the users a
+      confusing amount of information.  Alternatively, lessons and activities
+      can be separated out with each having its own set of dedicated fields.
+
+\item Another issue is information visibility.  Creating a teaching box can be
+      a fairly complicated task, and it is important that we don't show the
+      user too much information at once.  This maintains a clean and minimalistic
+      view and avoids overwhelming the users.
+
+\item Many teachers make use not only of online resources, but also books,
+      textbooks, magazines, and other hard-copy resources.  An issue with our
+      system is how to handle these resources, since they obviously cannot be
+      uploaded in.
+\end{itemize}
 
 \section{Abstract User Profile}
+From the interviews we've conducted so far and from our own analysis, we have
+been able to come up with an abstract profile describing projected users of this
+system.
+
+The user is a teacher of all levels from Kindergarten to $12^{th}$ grade, focusing
+in the areas of Math or Science.  They should be familiar enough with computers to
+do things such as sending email and browsing the Internet, but don't necessarily need
+to be highly experienced users.  Additionally, they should be unfamiliar with the
+system.
 
 \section{Tasks}
+Several user tasks have come out of our analysis.  They are as follows.
+
+\begin{enumerate}
+\item Mrs. Anderson has a completed lesson plan that has proven to work well over
+      the years.  She has decided that she would like to share her lesson with
+      others so that they may make use of her experiences, information, and
+      plans.
+
+\item Mr. Multon is a second-grade physical science teacher for an elementary school.
+      He has a lesson for an ``earthquakes'' unit, but needs to plan an activity
+      to accompany it.
+
+\item Ms. Frizzle recently taught a lesson she obtained from another teacher.  She
+      found some issues with teaching it and would like to make notes on the lesson
+      about her findings for next time.
+
+\item Mr. Johnson is planning a lesson to be taught the following week.  He has
+      already assembled much of the information he needs, and feels comfortable
+      with his plan.  But two days later he finds some resources that he thinks
+      would add to his lesson very nicely.  He wants to incorporate the information
+      into his plan.
+
+\item George works for the Department of Education and is developing a new content
+      standard to be taught at the $5^{th}$ grade level.  He wants to design a
+      sample lesson demonstrating how the standard could be fulfilled, and provide
+      it to school districts to use.
+\end{enumerate}
 
 \section{Testing Concerns}
+Although we anticipate final prototype testing to conclude without issue, there are
+some concerns that have been raised.  First is the ever-present worry about not
+having enough users to test with.  Even now, we have seen that some possible
+interview candidates dropped out at the last minute.
+
+To fully test the system, we will need to guide teachers through actions such as
+creating new boxes, modifying existing ones, creating activities, uploading external
+files, and creating links to external material.  These actions should cover the
+tasks we have identified above, and test the complete robustness of the system.
+However, since there are a lot of actions involved, it may be very difficult to
+test all of them within a short amount of time.
+
+Along the same lines, it will not be possible for a teacher to use the system to
+create a new lesson plan completely from scratch, as this can often times be a
+long process.  A possible work-around is to have them come prepared with a plan
+they have already completed, and have them simply enter the plan into the system.
+
+For the modification testing, we will most likely need to provide a sample box or
+two for teachers to use.  This means that either we'll need to use the existing
+boxes on the current Teaching Boxes web site, or create some of our own.  We could
+alternatively use the boxes that our testers create on other teachers.
+
+Another concern is that we will need a computer at the testing session with the
+appropriate software installed.  This is a concern not because of the ability
+to acquire the computer, but because the teachers will not be able to use their
+own computers, possibly adding an element of discomfort into the mix.
 
 \end{document}
 
