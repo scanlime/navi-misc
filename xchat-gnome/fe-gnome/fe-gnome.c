@@ -87,7 +87,7 @@ fe_args (int argc, char *argv[])
 	/* FIXME: this is kind of a silly place to put this, but it seems to want to
 	   follow gnome_program_init */
 	gnome_window_icon_set_default_from_file (XCHATSHAREDIR "/xchat-gnome-small.png");
-	return 1;
+	return -1;
 }
 
 void
