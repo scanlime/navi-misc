@@ -24,9 +24,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.0000000"
-     inkscape:cx="526.69321"
-     inkscape:cy="233.24603"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="111.01898"
+     inkscape:cy="396.24737"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -429,7 +429,7 @@
        d="M 65.702285,616.84091 L 57.241685,616.84091 L 61.471985,623.65909 L 65.702285,616.84091 z "
        style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.64190519px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000" />
     <rect
-       y="565.45789"
+       y="625.45789"
        x="40.055538"
        height="16.970562"
        width="150.44612"
@@ -542,11 +542,18 @@
        height="19.000000"
        x="29.998594"
        y="501.50000" />
+    <rect
+       style="fill:#6265be;fill-opacity:1.0000000;stroke:none;stroke-opacity:1.0000000"
+       id="rect9637"
+       width="50.000000"
+       height="18.031223"
+       x="32.000000"
+       y="502.00000" />
     <text
        id="text9563"
        y="515"
        x="40.5"
-       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#ffffff;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        xml:space="preserve"><tspan
          y="515.00000"
          x="40.500000"
