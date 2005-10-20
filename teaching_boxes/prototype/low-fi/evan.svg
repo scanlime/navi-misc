@@ -25,15 +25,17 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.0000000"
-     inkscape:cx="430.88702"
-     inkscape:cy="933.72868"
+     inkscape:cx="288.81450"
+     inkscape:cy="863.18017"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
-     showgrid="false"
+     showgrid="true"
      inkscape:window-width="1280"
      inkscape:window-height="949"
      inkscape:window-x="0"
-     inkscape:window-y="25" />
+     inkscape:window-y="25"
+     showguides="true"
+     inkscape:guide-bbox="true" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -67,9 +69,9 @@
        style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
        id="rect2763"
        width="150.50000"
-       height="358.38565"
+       height="348.29260"
        x="40.000000"
-       y="55.807175" />
+       y="65.914345" />
     <rect
        style="fill:#d6d6d4;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
        id="rect4227"
@@ -101,5 +103,64 @@
          id="tspan7165"
          x="40.500000"
          y="35.000000">New...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="42.296875"
+       y="60.117188"
+       id="text7167"><tspan
+         sodipodi:role="line"
+         id="tspan7169"
+         x="42.296875"
+         y="60.117188">Navigation</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.64190519px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+       d="M 65.702285,116.84091 L 57.241685,116.84091 L 61.471985,123.65909 L 65.702285,116.84091 z "
+       id="path7197" />
+    <rect
+       style="fill:#9badeb;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
+       id="rect7199"
+       width="150.44612"
+       height="16.970562"
+       x="40.055538"
+       y="65.457886" />
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="54.169922"
+       y="79.117188"
+       id="text7171"><tspan
+         sodipodi:role="line"
+         id="tspan7173"
+         x="54.169922"
+         y="79.117188">Earthquakes</tspan><tspan
+         sodipodi:role="line"
+         x="54.169922"
+         y="94.117188"
+         id="tspan7183">    Objectives</tspan><tspan
+         sodipodi:role="line"
+         x="54.169922"
+         y="109.11719"
+         id="tspan7185">    Schedule</tspan><tspan
+         sodipodi:role="line"
+         x="54.169922"
+         y="124.11719"
+         id="tspan7187">    Activities</tspan><tspan
+         sodipodi:role="line"
+         x="54.169922"
+         y="139.11719"
+         id="tspan7189">        Activity 1</tspan><tspan
+         sodipodi:role="line"
+         x="54.169922"
+         y="154.11719"
+         id="tspan7191">        Activity 2</tspan><tspan
+         sodipodi:role="line"
+         x="54.169922"
+         y="169.11719"
+         id="tspan7193">    Resources</tspan><tspan
+         sodipodi:role="line"
+         x="54.169922"
+         y="184.11719"
+         id="tspan7195">    References</tspan></text>
   </g>
 </svg>
