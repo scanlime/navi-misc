@@ -24,12 +24,12 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="111.01898"
-     inkscape:cy="396.24737"
+     inkscape:zoom="1.0000000"
+     inkscape:cx="369.11636"
+     inkscape:cy="602.54233"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
-     showgrid="true"
+     showgrid="false"
      inkscape:window-width="1280"
      inkscape:window-height="949"
      inkscape:window-x="0"
@@ -108,12 +108,12 @@
        d="M 65.702285,136.84091 L 57.241685,136.84091 L 61.471985,143.65909 L 65.702285,136.84091 z "
        id="path7197" />
     <rect
-       style="fill:#9badeb;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
+       style="fill:#9badeb;fill-opacity:1.0000000;stroke:none;stroke-opacity:1.0000000"
        id="rect7199"
-       width="150.44612"
+       width="149.36235"
        height="16.970562"
-       x="40.055538"
-       y="85.457886" />
+       x="40.500000"
+       y="86.500000" />
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
@@ -429,12 +429,12 @@
        d="M 65.702285,616.84091 L 57.241685,616.84091 L 61.471985,623.65909 L 65.702285,616.84091 z "
        style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.64190519px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000" />
     <rect
-       y="625.45789"
-       x="40.055538"
+       y="626.50000"
+       x="40.500000"
        height="16.970562"
-       width="150.44612"
+       width="149.50000"
        id="rect9513"
-       style="fill:#9badeb;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000" />
+       style="fill:#9badeb;fill-opacity:1.0000000;stroke:none;stroke-opacity:1.0000000" />
     <text
        id="text9515"
        y="579.11719"
@@ -545,9 +545,9 @@
     <rect
        style="fill:#6265be;fill-opacity:1.0000000;stroke:none;stroke-opacity:1.0000000"
        id="rect9637"
-       width="50.000000"
+       width="54.949749"
        height="18.031223"
-       x="32.000000"
+       x="30.000000"
        y="502.00000" />
     <text
        id="text9563"
@@ -702,5 +702,42 @@
        height="15.913356"
        x="247.50110"
        y="915.59796" />
+    <rect
+       style="fill:#dddddd;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
+       id="rect11091"
+       width="87.412735"
+       height="56.518921"
+       x="30.000000"
+       y="520.48108" />
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="38.822266"
+       y="534.83008"
+       id="text11819"><tspan
+         sodipodi:role="line"
+         x="38.822266"
+         y="534.83008"
+         id="tspan11827">Box</tspan></text>
+    <text
+       id="text11829"
+       y="549.83008"
+       x="38.822266"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       xml:space="preserve"><tspan
+         id="tspan11831"
+         y="549.83008"
+         x="38.822266"
+         sodipodi:role="line">Lesson</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="38.822266"
+       y="564.83008"
+       id="text11833"><tspan
+         sodipodi:role="line"
+         x="38.822266"
+         y="564.83008"
+         id="tspan11835">Activity</tspan></text>
   </g>
 </svg>
