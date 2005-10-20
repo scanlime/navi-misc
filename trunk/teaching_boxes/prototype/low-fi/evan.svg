@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="612.00000pt"
+   height="792.00000pt"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.42.2"
+   sodipodi:docbase="/home/evan/Projects/teaching_boxes/prototype/low-fi"
+   sodipodi:docname="evan.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.0000000"
+     inkscape:cx="430.88702"
+     inkscape:cy="933.72868"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1280"
+     inkscape:window-height="949"
+     inkscape:window-x="0"
+     inkscape:window-y="25" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.97233236px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+       id="rect1306"
+       width="701.01129"
+       height="392.04379"
+       x="29.994366"
+       y="39.478104" />
+    <rect
+       style="fill:#e8e8e8;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
+       id="rect2035"
+       width="709.00287"
+       height="19.000000"
+       x="29.998594"
+       y="21.500000" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
+       id="rect2763"
+       width="150.50000"
+       height="358.38565"
+       x="40.000000"
+       y="55.807175" />
+    <rect
+       style="fill:#d6d6d4;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
+       id="rect4227"
+       width="9.5000000"
+       height="390.95047"
+       x="729.50000"
+       y="40.524765" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
+       id="rect4955"
+       width="9.4499998"
+       height="9.5000010"
+       x="729.52502"
+       y="40.500000" />
+    <rect
+       y="422.00000"
+       x="729.50000"
+       height="9.5000010"
+       width="9.4499998"
+       id="rect5691"
+       style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000" />
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="40.5"
+       y="35"
+       id="text7163"><tspan
+         sodipodi:role="line"
+         id="tspan7165"
+         x="40.500000"
+         y="35.000000">New...</tspan></text>
+  </g>
+</svg>
