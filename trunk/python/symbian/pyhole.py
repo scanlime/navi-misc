@@ -3,44 +3,98 @@
 # Copyright (C) 2005 Micah Dowty
 #
 
-import os, math, urllib
-import appuifw, key_codes, e32, graphics
+import os, math, httplib, urlparse
 
-class MyURLopener(urllib.FancyURLopener):
-    """A tweaked URLopener that uses a proxy by default, and
-       uses a smaller blocksize. With such a slow connection,
-       8K is way too long to wait between status updates.
+# These are Symbian-specific modules. Go ahead and let this
+# module import without them, in case another app wants to run
+# this module headless.
+try:
+    import appuifw, key_codes, e32, graphics
+except ImportError:
+    pass
+
+
+class RawProxyConnection(httplib.HTTPConnection):
+    """This is a transparent wrapper for HTTPConnection that
+       uses an HTTP CONNECT to poke through a proxy server.
+       This then hands over a raw socket to HTTPConnection,
+       so it doesn't change keepalive or cache semantics at all.
        """
-    def __init__(self):
-        # FIXME: Load proxy settings dynamically
-        urllib.FancyURLopener.__init__(
-            self, {'http': 'http://flapjack.navi.cx:143'})
+    def __init__(self, host, proxy):
+        self.realHost = host
+        self.proxy = proxy
+        httplib.HTTPConnection.__init__(self, host)
+    
+    def connect(self):
+        self._set_hostport(self.proxy, None)
+        httplib.HTTPConnection.connect(self)
+        self._set_hostport(self.realHost, None)
 
-    def retrieve(self, url, filename, reporthook, data=None, blockSize=1024):
-        # Since we actually have to rewrite retrieve() just to change
-        # the block size (ick!) this is a big simplification that
-        # doesn't support temporary files.
+        self._output('CONNECT %s:%d' % (self.host, self.port))
+        self._send_output()
 
-        remote = self.open(url, data)
-        headers = remote.info()
-        local = open(filename, 'wb')
-        size = -1
-        blocknum = -1
-        if reporthook:
-            if headers.has_key("content-length"):
-                size = int(headers["Content-Length"])
-            reporthook(0, blockSize, size)
-        block = remote.read(blockSize)
-        if reporthook:
-            reporthook(1, blockSize, size)
-        while block:
-            local.write(block)
-            block = remote.read(blockSize)
-            blocknum += 1
-            if reporthook:
-                reporthook(blocknum, blockSize, size)
-        local.close()
-        remote.close()
+        response = httplib.HTTPResponse(self.sock)
+        response.begin()
+        if response.status != 200:
+            raise httplib.HTTPException("HTTP Proxy %d: %s" % (
+                response.status, response.reason))
+
+
+class SpiffyURLopener:
+    """This has a subset of the interface provided by urllib.FancyURLopener,
+       but the implementation is completely different and based on httplib.
+       This is for a couple reasons:
+
+        - We can use our own proxy implementation. In this case it lets me
+          use HTTP CONNECT if I want to, which works better with tinyproxy
+
+        - urllib doesn't support HTTP keepalive, which makes the whole
+          app much much slower
+
+        - urllib uses 8K blocks, which are really way too big for GPRS. We
+          use 1K blocks to get fine-grained progress reports.
+       """
+    def __init__(self, proxy=None):
+        self.proxy = proxy
+        self.connections = {}
+
+    def retrieve(self, url, filename, reporthook=lambda block, bs, size: None):
+        scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+
+        # Keep connections open to multiple servers if we can.
+        # We have a bounded number of servers in our app, and this speeds
+        # things up if we have a lot of images from different map backends
+        # in our queue at once.
+        try:
+            http = self.connections[netloc]
+        except KeyError:
+            if self.proxy:
+                http = RawProxyConnection(netloc, self.proxy)
+            else:
+                http = httplib.HTTPConnection(netloc)
+            self.connections[netloc] = http
+
+        http.putrequest('GET', '%s?%s' % (path, query))
+        http.endheaders()
+        response = http.getresponse()
+        try:
+            if response.status != 200:
+                raise httplib.HTTPException("%d: %s" % (
+                    response.status, response.reason))
+
+            size = response.length
+            local = open(filename, 'wb')
+            blocknum = 1
+            bs = 1024
+            reporthook(0, bs, size)
+            while response.length > 0:
+                block = response.read(bs)
+                reporthook(blocknum, bs, size)
+                local.write(block)
+                blocknum += 1
+            local.close()
+        finally:
+            response.close()
 
 
 class Viewport:
@@ -379,7 +433,8 @@ class TileFetcher:
        tiles over GPRS.
        """
     def __init__(self):
-        self.opener = MyURLopener()
+        # FIXME: Load proxy settings dynamically
+        self.opener = SpiffyURLopener(proxy='flapjack.navi.cx:143')
         self.mru = MRUlist()
 
     def request(self, url, path):
@@ -407,7 +462,7 @@ class TileFetcher:
         """Called after every block we download. Don't redraw the
            map, but do show our download progress.
            """
-        self.ui.downloadProgress = block * bs / float(size)
+        self.ui.downloadProgress = min(1.0, block * bs / float(size))
         self.ui.drawStatus()
 
     def run(self, ui):
