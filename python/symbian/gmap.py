@@ -15,7 +15,7 @@ urllib._urlopener = urllib.FancyURLopener(
 app.screen = 'full'
 app.body = c= Canvas()
 
-fmt_file = u'E:\\maps\\%s-%s-%s' # memcard has more space
+fmt_file = u'E:\\system\\data\\maps\\%s-%s-%s'
 x, y, z = 10*256, 24*256, 11
 mode = 'map'
 cache = {'map': {}, 'sat': {} }
