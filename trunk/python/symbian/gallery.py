@@ -1,10 +1,38 @@
-import httplib, time
+#
+# Gallery uploader
+# -- Micah Dowty <micah@navi.cx>
+#
+# This was designed mostly for Python on the Symbian Series 60,
+# where urllib2 is not generally available. I also had to work
+# around limitations in tinyproxy by using CONNECT rather than
+# using the HTTP proxy normally. Still, this code doesn't use
+# anything symbian-specific so it should be applicable in other
+# situations.
+#
+# To use this, you'll need to write a short config file that
+# this looks for at "E:\system\data\gallery.conf.txt". This
+# path can be changed below, if needed. My config file looks
+# something like this:
+#
+#  inpath = E:\Images\Outbox
+#  outpath = E:\Images\Uploaded
+#  host = gallery.example.com
+#  username = mobileuser
+#  password = mypassword
+#  gallery = mobilegallery
+#  proxy = proxy.example.com:8080
+#
+# When you run the script, it uploads every image it finds in
+# the "Outbox" directory, moving the files to "Uploaded"
+# once they're finished.
+#
+
+import httplib
 
 class ProxyConnection(httplib.HTTPConnection):
-    proxy = "flapjack.navi.cx:143"
-
-    def __init__(self, host):
+    def __init__(self, host, proxy):
         self.realHost = host
+        self.proxy = proxy
         httplib.HTTPConnection.__init__(self, host)
     
     def connect(self):
@@ -24,12 +52,15 @@ class ProxyConnection(httplib.HTTPConnection):
 
 class Gallery:
     def __init__(self, host, username, password,
-                 path='/gallery/gallery_remote2.php'):
+                 path='/gallery/gallery_remote2.php', proxy=None):
         self.host = host
         self.path = path
         self.cookies = {}
-        
-        self.http = ProxyConnection(host)
+
+        if proxy:
+            self.http = ProxyConnection(host, proxy)
+        else:
+            self.http = httplib.HTTPConnection(host)
         self.login(username, password)
 
     def command(self, name, **kw):
@@ -86,7 +117,7 @@ class Gallery:
 
     def add(self, album, name, data):
         self.command('add-item', set_albumName=album,
-                     userfile=(name + ".jpeg", "image/jpeg", data))
+                     userfile=(name, "image/jpeg", data))
 
 def encodeMultipartFormdata(kw):
     """This is from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/146306,
@@ -120,32 +151,28 @@ def encodeMultipartFormdata(kw):
 class GalleryError(Exception):
     pass
 
-if 1:
-    import camera, appuifw, e32
-
-    #print "Preview"
-    #previewing = True
-    #def handler(event):
-    #    if event['type'] == appuifw.EEventKeyDown:
-    #        previewing = False
-    #c = appuifw.Canvas(event_callback=handler)
-    #while previewing:
-    #    c.blit(camera.take_photo(size=(160,120)))
-    #    e32.ao_yield()
-
-    print "Taking photo..."
-    photo = camera.take_photo()
-    
-    print "Resizing and saving"
-    savedRes = (320, 240)
-    name = time.strftime("%Y%m%d-%H%M%S")
-    path = "E:\\Images\\gallery-%s.jpg" % name
-    photo.resize(savedRes).save(path)
-    del photo
-
+def upload(inpath, outpath, host, username, password, gallery, proxy=None):
     print "Logging in..."
-    g = Gallery("zero.navi.cx", "admin", "password-goes-here")
+    g = Gallery(host, username, password, proxy=proxy)
     print "Gallery connected"
-    g.add('micah-mobile', name, open(path).read())
+
+    for file in os.listdir(inpath):
+        print "Sending %r" % file
+        g.add(gallery, file, open(os.path.join(inpath, file)).read())
+        print "Moving %r to %r" % (file, outpath)
+        os.rename(os.path.join(inpath, file), os.path.join(outpath, file))
     print "Done"
 
+def readDict(filename):
+    """Read a key=value file into a dictionary"""
+    d = {}
+    for line in open(filename):
+        line = line.strip()
+        if not line:
+            continue
+        k, v = line.split("=")
+        d[k.strip()] = v.strip()
+    return d
+
+if __name__ == "__main__":
+    upload(**readDict("E:\\system\\data\\gallery.conf.txt"))
