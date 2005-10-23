@@ -6,6 +6,43 @@
 import os, math, urllib
 import appuifw, key_codes, e32, graphics
 
+class MyURLopener(urllib.FancyURLopener):
+    """A tweaked URLopener that uses a proxy by default, and
+       uses a smaller blocksize. With such a slow connection,
+       8K is way too long to wait between status updates.
+       """
+    def __init__(self):
+        # FIXME: Load proxy settings dynamically
+        urllib.FancyURLopener.__init__(
+            self, {'http': 'http://flapjack.navi.cx:143'})
+
+    def retrieve(self, url, filename, reporthook, data=None, blockSize=1024):
+        # Since we actually have to rewrite retrieve() just to change
+        # the block size (ick!) this is a big simplification that
+        # doesn't support temporary files.
+
+        remote = self.open(url, data)
+        headers = remote.info()
+        local = open(filename, 'wb')
+        size = -1
+        blocknum = -1
+        if reporthook:
+            if headers.has_key("content-length"):
+                size = int(headers["Content-Length"])
+            reporthook(0, blockSize, size)
+        block = remote.read(blockSize)
+        if reporthook:
+            reporthook(1, blockSize, size)
+        while block:
+            local.write(block)
+            block = remote.read(blockSize)
+            blocknum += 1
+            if reporthook:
+                reporthook(blocknum, blockSize, size)
+        local.close()
+        remote.close()
+
+
 class Viewport:
     """Our canonical representation of the current viewport is a
        set of (x,y) coordinates for the center of the screen,
@@ -188,11 +225,10 @@ class TilePlaceholder:
     cacheable = False
 
     def draw(self, canvas, x, y):
-        rect = (x, y,
-                x + Viewport.tileSize,
-                y + Viewport.tileSize)
-        canvas.rectangle(rect, fill=0xAAAAAA)
-        canvas.rectangle(rect, outline=0xAA8888)
+        canvas.rectangle((x, y,
+                          x + Viewport.tileSize,
+                          y + Viewport.tileSize),
+                         fill=0xAAAAAA, outline=0xAA8888)
 
 
 class MRUlist:
@@ -342,8 +378,8 @@ class TileFetcher:
        UI callbacks are active, and downloads individual
        tiles over GPRS.
        """
-    def __init__(self, proxies=None):
-        self.opener = urllib.FancyURLopener(proxies)
+    def __init__(self):
+        self.opener = MyURLopener()
         self.mru = MRUlist()
 
     def request(self, url, path):
@@ -356,35 +392,72 @@ class TileFetcher:
     def poll(self):
         if len(self.mru):
             url, path = self.mru.newest()
-            self.opener.retrieve(url, path)
+
+            self.ui.downloadProgress = 0
+            self.ui.drawStatus()
+            self.opener.retrieve(url, path, self.reporthook)
+            self.ui.downloadProgress = None
+
             self.mru.remove(url)
-            self.onCompletion()
+            self.ui.needsRedraw()
         else:
             e32.ao_sleep(0.1)
 
-    def onCompletion(self):
-        """Callback to allow the UI to update when we make progress"""
-        pass
+    def reporthook(self, block, bs, size):
+        """Called after every block we download. Don't redraw the
+           map, but do show our download progress.
+           """
+        self.ui.downloadProgress = block * bs / float(size)
+        self.ui.drawStatus()
+
+    def run(self, ui):
+        self.ui = ui
+        while ui.running:
+            self.poll()
+
+
+class InterfaceLayout:
+    """Calculates and saves rectangles that depend on the UI's size"""
+    def __init__(self, w, h):
+        self.all = (0, 0, w, h)
+
+        textHeight = 10
+        margin = 2
+        progressWidth = 32
+        statusHeight = textHeight + margin * 2
+
+        # The two main sections of the app
+        self.status = (0, 0, w, statusHeight)
+        self.map = (0, statusHeight, w, h - statusHeight)
+
+        # Items in the status bar
+        self.statusText = (margin, margin + textHeight)
+        self.progress = lambda p: (w - progressWidth - margin*2, margin,
+                                   w - progressWidth - margin*2 + int(progressWidth * p),
+                                   statusHeight - margin)
+
+        # "busy" indicator overlaid on the bottom-right corner
+        busySize = 6
+        self.busy = (w - busySize - margin,
+                     h - busySize - margin,
+                     w - margin, h - margin)
 
 
 class SymbianUI:
     """Frontend for browsing Google Maps using the Series 60 GUI."""
     def __init__(self, sources, cache):
-        appuifw.app.screen = 'full'
-        appuifw.app.exit_key_handler = self.quit
-        self.running = True
-
         self.view = None
-        self.canvas = appuifw.Canvas(self.expose)
-        appuifw.app.body = self.canvas
-
         self.sources = sources
         self.sourceIndex = 0
+        self.downloadProgress = None
         self.cache = cache
-        self.view = Viewport(*self.canvas.size)
-        self.exposeCount = 0
-        self.expose()
+        self.backbuffer = None
 
+        self.canvas = appuifw.Canvas(self.flip)
+        self.bindKeys()
+        self.show()
+
+    def bindKeys(self):
         self.canvas.bind(key_codes.EKeyRightArrow, lambda: self.scroll(1, 0))
         self.canvas.bind(key_codes.EKeyLeftArrow, lambda: self.scroll(-1, 0))
         self.canvas.bind(key_codes.EKeyUpArrow, lambda: self.scroll(0, -1))
@@ -393,62 +466,104 @@ class SymbianUI:
         self.canvas.bind(key_codes.EKeyStar, lambda: self.zoom(-1))
         self.canvas.bind(key_codes.EKeyHash, self.toggleSource)
 
+    def show(self):
+        """Attach this UI to the Application"""
+        appuifw.app.screen = 'full'
+        appuifw.app.exit_key_handler = self.quit
+        appuifw.app.body = self.canvas
+        self.running = True
+
+        # The following things depend on the canvas' size
+        self.view = Viewport(*self.canvas.size)
+        self.backbuffer = graphics.Image.new(self.canvas.size)
+        self.layout = InterfaceLayout(*self.canvas.size)
+
+        self.needsRedraw()
+
     def quit(self):
         self.running = False
 
-    def expose(self, x1=None, y1=None, x2=None, y2=None):
-        """Redraw the whole canvas. It isn't going to be any faster
-           for us to figure out the true extent of the redraw than
-           it will be for Symbian to do the clipping.
-
-           This function can take a while to execute, and potentially
-           invoke other Symbian active objects. This means that it
-           could be re-entered unless we're careful! If it is in fact
-           re-entered, it means we need to start another redraw
-           after the current one finishes.
+    def flip(self, *rect):
+        """Flip a rectangle from the backbuffer to the canvas. This
+           is called by our canvas redraw handler, or when we are done
+           painting an area of the backbuffer.
            """
-        if not self.view:
-            return
-        if self.exposeCount > 0:
-            # Something changed- run one more expose after this one finishes
-            self.exposeCount = 2
-            return
+        if self.backbuffer:
+            self.canvas.blit(self.backbuffer, source=rect, target=rect)
 
-        self.exposeCount = 1
-        while self.exposeCount:
-            self.view.foreachTile(self.drawTile)
-            self.canvas.text((5,20), u'Cache: %s  Fetch: %s' % (
-                len(self.cache.mru), len(self.cache.backing.fetcher.mru)))
+    def setBusy(self, color):
+        """Draw the 'busy' indicator, a small rectangle in the corner
+           of the screen. For debugging mostly, the color indicates
+           what we're waiting on.
+           """
+        self.canvas.rectangle(self.layout.busy, fill=color, outline=0)
 
-            self.exposeCount -= 1
+    def drawAll(self):
+        """Redraw and flip the entire screen. This needs to draw
+           the status area in addition to the map itself, since
+           the tiles will end up scribbling on top of the status
+           area. In practise this isn't bad, since we are typically
+           updating the status area much more frequently on purpose.
+           """
+        self.setBusy(0xFF0000)
+        self.view.foreachTile(self.drawTile)
+        self.drawStatus(flip=False)
+        self.flip(self.layout.all)
+
+    def drawTile(self, x, y, tile):
+        """Retrieve and draw one tile at the given position"""
+        obj = self.cache.get(self.sources[self.sourceIndex], tile)
+        obj.draw(self.backbuffer, x, y)
+
+    def drawStatus(self, flip=True):
+        """Draw the status area, and by default flip it to the frontbuffer"""
+        # Background and status text
+        self.backbuffer.rectangle(self.layout.status, fill=0x888888)
+        self.backbuffer.text(self.layout.statusText, self.getStatusText())
+
+        # Draw the progress bar if we have one
+        if self.downloadProgress is not None:
+            progressOutline = self.layout.progress(1)
+            self.backbuffer.rectangle(progressOutline, fill=0xFFFFFF)
+            self.backbuffer.rectangle(self.layout.progress(self.downloadProgress), fill=0x000088)
+            self.backbuffer.rectangle(progressOutline, outline=0)
+
+        if flip:
+            self.flip(self.layout.status)
+
+    def getStatusText(self):
+        return u'Cache: %s  Fetch: %s' % (
+            len(self.cache.mru), len(self.cache.backing.fetcher.mru))
+
+    def needsRedraw(self):
+        """Calling this function indicates that we need to redraw the
+           map. This is called by UI callbacks, so it can happen any
+           time an active object may be invoked by Symbian- even during
+           a redraw. If we get called during a redraw, this schedules
+           another redraw to happen immediately after this one is finished.
+           """
+        self.drawAll()
 
     def scroll(self, x, y):
         """A scroll event from the user. Moves the viewport in fixed
            increments, then redraws.
            """
         self.view.move(x*30, y*30)
-        self.expose()
+        self.needsRedraw()
 
     def zoom(self, z):
         """A zoom in/out event from the user"""
         self.view.move(zoom=z)
-        self.expose()
+        self.needsRedraw()
 
     def toggleSource(self):
         """A user command to toggle the data source for this view"""
         self.sourceIndex = (self.sourceIndex + 1) % len(self.sources)
-        self.expose()
-
-    def drawTile(self, x, y, tile):
-        """Retrieve and draw one tile at the given position"""
-        obj = self.cache.get(self.sources[self.sourceIndex], tile)
-        obj.draw(self.canvas, x, y)
+        self.needsRedraw()
 
 
 if __name__ == "__main__":
-    fetcher = TileFetcher(proxies={'http': 'http://flapjack.navi.cx:143'})
+    fetcher = TileFetcher()
     ui = SymbianUI((GoogleMapSource(), GoogleSatelliteSource()),
                    MemoryCache(DiskCache(fetcher)))
-    fetcher.onCompletion = ui.expose
-    while ui.running:
-        fetcher.poll()
+    fetcher.run(ui)
