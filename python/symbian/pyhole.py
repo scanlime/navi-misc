@@ -3,7 +3,7 @@
 # Copyright (C) 2005 Micah Dowty
 #
 
-import os, math, httplib, urlparse
+import os, math, socket
 
 # These are Symbian-specific modules. Go ahead and let this
 # module import without them, in case another app wants to run
@@ -14,87 +14,172 @@ except ImportError:
     pass
 
 
-class RawProxyConnection(httplib.HTTPConnection):
-    """This is a transparent wrapper for HTTPConnection that
-       uses an HTTP CONNECT to poke through a proxy server.
-       This then hands over a raw socket to HTTPConnection,
-       so it doesn't change keepalive or cache semantics at all.
+class HttpPipe:
+    """Pyhole was originally written to urllib2, but I've had to
+       rewrite its networking code at lower and lower levels in
+       order to squeeze the performance I want out of a high-latency
+       connection.
+
+       This is a fairly specialized connection that performs HTTP 1.1
+       GET requests using 'identity' content-encodings. It pipelines
+       requests, so that we can keep at least one GET in-flight
+       at all times. On a cell phone link, the high latency will kill
+       our throughput without pipelining.
+
+       We implement proxy support, but only via CONNECT requests.
+       This is done to improve latency, but also to improve compatibility
+       with some proxies that perform inefficiently in our particular
+       use case.
+
+       Both the server address and the proxy must be (host, port) tuples.
        """
-    def __init__(self, host, proxy):
-        self.realHost = host
-        self.proxy = proxy
-        httplib.HTTPConnection.__init__(self, host)
+    def __init__(self, addr, proxy=None):
+        self.addr = addr
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.pending = []
+        self.buffer = ''
+
+        if proxy:
+            self.sock.connect(proxy)
+            self.sock.sendall("CONNECT %s:%d\r\n\r\n" % addr)
+            self.pending.append(HttpPipeRequest())
+        else:
+            self.sock.connect(addr)
+
+    def submit(self, path, handler):
+        """Send out a request for the provided path. When it becomes
+           this request's turn to read a response, the handler is called
+           with a dictionary of response headers.
+           """
+        self.sock.sendall("GET %s HTTP/1.1\r\n"
+                          "Host: %s:%d\r\n"
+                          "Accept-Encoding: identity\r\n"
+                          "\r\n" % ((path,) + self.addr))
+        self.pending.append(handler)
+
+    def flush(self, blocksize=4096):
+        """Handle all received data"""
+        while self.pending:
+            block = self.sock.recv(blocksize)
+            if not block:
+                break
+            self.buffer += block
+
+            while self.pending:
+                self.buffer = self.pending[0].received(self.buffer)
+                if self.pending[0].completed:
+                    del self.pending[0]
+                else:
+                    break
+
+
+class HttpPipeRequest:
+    """Handles one request for an HttpPipe. This class by itself can
+       receive headers, but it performs a no-op with any content received.
+       Subclasses can define a way of storing content.
+       """
+    completed = False
+    hasHeader = False
+    length = None
+    bytesReceived = 0
+    bytesRemaining = None
+    statusCode = None
+    statusMessage = None
+    headers = None
     
-    def connect(self):
-        self._set_hostport(self.proxy, None)
-        httplib.HTTPConnection.connect(self)
-        self._set_hostport(self.realHost, None)
+    def received(self, buffer):
+        """After every received packet, this is called with the new
+           buffer contents. Returns any unprocessed data, to be
+           retained in the buffer.
+           """
+        if not self.hasHeader:
+            try:
+                header, buffer = buffer.split("\r\n\r\n", 1)
+            except ValueError:
+                # Haven't received the whole header
+                return buffer
 
-        self._output('CONNECT %s:%d' % (self.host, self.port))
-        self._send_output()
+            # Decode the header a bit
+            lines = header.split("\r\n")
+            protocol, code, self.statusMessage = lines[0].split(" ", 2)
+            self.statusCode = int(code)
+            self.headers = {}
+            while len(lines) > 1:
+                k, v = lines.pop().split(": ")
+                self.headers[k.lower()] = v
+            self.hasHeader = True
 
-        response = httplib.HTTPResponse(self.sock)
-        response.begin()
-        if response.status != 200:
-            raise httplib.HTTPException("HTTP Proxy %d: %s" % (
-                response.status, response.reason))
+            # If it was a success, start receiving data. If not, we're done
+            if self.statusCode != 200:
+                self.completed = True
+                self.receivedError()
+                return buffer
+
+            self.length = int(self.headers.get("content-length", 0))
+            self.bytesRemaining = self.length
+            self.receivedHeaders()
+
+        if self.bytesRemaining > 0:
+            data = buffer[:self.bytesRemaining]
+            buffer = buffer[self.bytesRemaining:]
+            self.bytesReceived += len(data)
+            self.bytesRemaining -= len(data)
+            self.receivedData(data)
+
+        if self.bytesRemaining < 1:
+            self.receiveCompleted()
+            self.completed = True
+        return buffer
+
+    def receivedError(self):
+        """An HTTP error was received, this request is now completed"""
+        pass
+
+    def receivedHeaders(self):
+        """The headers have been completely received"""
+        pass
+
+    def receivedData(self, block):
+        """One block of data has just been successfully received"""
+        pass
+
+    def receiveCompleted(self):
+        """The request has been completed successfully"""
+        pass
 
 
-class SpiffyURLopener:
-    """This has a subset of the interface provided by urllib.FancyURLopener,
-       but the implementation is completely different and based on httplib.
-       This is for a couple reasons:
+class HttpError(Exception):
+    pass
 
-        - We can use our own proxy implementation. In this case it lets me
-          use HTTP CONNECT if I want to, which works better with tinyproxy
 
-        - urllib doesn't support HTTP keepalive, which makes the whole
-          app much much slower
+class RequiredHttpRequest(HttpPipeRequest):
+    """A request that raises an exception on error, killing the pipe."""
+    def receivedError(self):
+        raise HttpError("%d %s" % (self.statusCode, self.statusMessage))
 
-        - urllib uses 8K blocks, which are really way too big for GPRS. We
-          use 1K blocks to get fine-grained progress reports.
+
+class DownloadHttpRequest(RequiredHttpRequest):
+    """Stores all received data in a local file,
+       updates the UI's progress indicator.
        """
-    def __init__(self, proxy=None):
-        self.proxy = proxy
-        self.connections = {}
+    def __init__(self, path, progressCb, completedCb):
+        self.file = open(path, 'wb')
+        self.progressCb = progressCb
+        self.completedCb = completedCb
 
-    def retrieve(self, url, filename, reporthook=lambda block, bs, size: None):
-        scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+    def receivedHeaders(self):
+        self.progressCb(0)
 
-        # Keep connections open to multiple servers if we can.
-        # We have a bounded number of servers in our app, and this speeds
-        # things up if we have a lot of images from different map backends
-        # in our queue at once.
-        try:
-            http = self.connections[netloc]
-        except KeyError:
-            if self.proxy:
-                http = RawProxyConnection(netloc, self.proxy)
-            else:
-                http = httplib.HTTPConnection(netloc)
-            self.connections[netloc] = http
+    def receivedData(self, block):
+        self.file.write(block)
+        self.progressCb(self.bytesReceived / float(self.length))
 
-        http.putrequest('GET', '%s?%s' % (path, query))
-        http.endheaders()
-        response = http.getresponse()
-        try:
-            if response.status != 200:
-                raise httplib.HTTPException("%d: %s" % (
-                    response.status, response.reason))
-
-            size = response.length
-            local = open(filename, 'wb')
-            blocknum = 1
-            bs = 1024
-            reporthook(0, bs, size)
-            while response.length > 0:
-                block = response.read(bs)
-                reporthook(blocknum, bs, size)
-                local.write(block)
-                blocknum += 1
-            local.close()
-        finally:
-            response.close()
+    def receiveCompleted(self):
+        self.file.close()
+        del self.file
+        self.completedCb()
+        del self.progressCb
+        del self.completedCb
 
 
 class Viewport:
@@ -207,6 +292,13 @@ class TileSource:
        into the format that backend uses to identify
        a tile. TileSources also have names used to identify
        them to the cache.
+
+       We treat the result of getURL like a real URL, but
+       in fact to eliminate redundant URL encoding/decoding
+       we represent it as a ((host, port), path) tuple
+       and assume an HTTP server. If there's a reason to
+       in the future, it would be trivial to use real URLs
+       here instead.
        """
     name = None
     fileExt = '.png'
@@ -220,8 +312,8 @@ class GoogleMapSource(TileSource):
     name = 'gmap'
 
     def getURL(self, tile):
-        return "http://mt.google.com/mt?v=w2.5&x=%d&y=%d&zoom=%d" % (
-            tile[0], tile[1], 17 - tile[2])
+        return (('mt.google.com', 80), '/mt?v=w2.5&x=%d&y=%d&zoom=%d' % (
+            tile[0], tile[1], 17 - tile[2]))
 
 
 class GoogleSatelliteSource(TileSource):
@@ -255,7 +347,7 @@ class GoogleSatelliteSource(TileSource):
                         tree.append('q')
                 i -= 1
                 mask = mask >> 1
-        return "http://kh.google.com/kh?v=3&t=t" + ''.join(tree)
+        return (('kh.google.com', 80), '/kh?v=3&t=t' + ''.join(tree))
 
 
 class TileImage:
@@ -434,41 +526,80 @@ class TileFetcher:
        """
     def __init__(self):
         # FIXME: Load proxy settings dynamically
-        self.opener = SpiffyURLopener(proxy='flapjack.navi.cx:143')
+        self.proxy = ('flapjack.navi.cx', 143)
+        
+        self.pipes = {}
         self.mru = MRUlist()
+        self.pendingUrls = {}
 
     def request(self, url, path):
         """Request to download the provided URL.
            If it's already been requested, this bumps
-           the priority of that URL.
+           the priority of that URL. Note that currently
+           we assume HTTP, and the URL is actually encoded
+           as a ((host, port), path) tuple to avoid redundant
+           URL encoding and decoding.
            """
-        self.mru.push(url, path)
+        if url not in self.pendingUrls:
+            self.mru.push(url, path)
 
     def poll(self):
-        if len(self.mru):
-            url, path = self.mru.newest()
+        for pipe in self.pipes.itervalues():
+            pipe.flush()
+        self.trySubmit()
 
-            self.ui.downloadProgress = 0
-            self.ui.drawStatus()
-            self.opener.retrieve(url, path, self.reporthook)
-            self.ui.downloadProgress = None
-
-            self.mru.remove(url)
-            self.ui.needsRedraw()
-        else:
-            e32.ao_sleep(0.1)
-
-    def reporthook(self, block, bs, size):
-        """Called after every block we download. Don't redraw the
-           map, but do show our download progress.
+    def trySubmit(self):
+        """Examine the next request to execute,
+           in newest-first order. This ensures we
+           focus our attention on what the user is
+           actively browsing, but if we're otherwise idle
+           we can pick up tiles we skipped earlier.
            """
-        self.ui.downloadProgress = min(1.0, block * bs / float(size))
+        while len(self.mru):
+            url, localPath = self.mru.newest()
+            addr, remotePath = url
+
+            # Create a pipe if necessary
+            try:
+                pipe = self.pipes[addr]
+            except KeyError:
+                pipe = HttpPipe(addr, self.proxy)
+                self.pipes[addr] = pipe
+
+            # Only submit if the pipe is about to stall
+            if len(pipe.pending) > 2:
+                break
+
+            # Transfer from the MRU list to the pending URL hash
+            self.pendingUrls[url] = True
+            self.mru.remove(url)
+
+            pipe.submit(remotePath, DownloadHttpRequest(
+                localPath, self.progress, lambda url=url: self.completed(url)))
+
+    def completed(self, url):
+        """A URL has completed. Notify the UI, and
+           remove it from our pending list.
+           """
+        del self.pendingUrls[url]
+        self.ui.downloadProgress = None
+        self.ui.drawStatus()
+        self.ui.needsRedraw()
+
+        # See if we can go ahead and repopulate the HTTP pipe
+        # without waiting for the next poll cycle to come around.
+        self.trySubmit()
+
+    def progress(self, p):
+        """Update the UI's progress bar"""
+        self.ui.downloadProgress = p
         self.ui.drawStatus()
 
     def run(self, ui):
         self.ui = ui
         while ui.running:
             self.poll()
+            e32.ao_sleep(0.1)
 
 
 class InterfaceLayout:
@@ -587,8 +718,16 @@ class SymbianUI:
             self.flip(self.layout.status)
 
     def getStatusText(self):
-        return u'Cache: %s  Fetch: %s' % (
-            len(self.cache.mru), len(self.cache.backing.fetcher.mru))
+        pipes = self.cache.backing.fetcher.pipes.values()
+        if pipes:
+            p = len(pipes[0].pending)
+        else:
+            p = None
+
+        return u'P.URLs: %s  Pipe: %s  MRU: %s' % (
+            len(self.cache.backing.fetcher.pendingUrls),
+            p,
+            len(self.cache.backing.fetcher.mru))
 
     def needsRedraw(self):
         """Calling this function indicates that we need to redraw the
