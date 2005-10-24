@@ -25,7 +25,7 @@
 	  for sexier behavior (such as clickable links in topics and spell-checking)
 	  Beware that if you're currently on pango 1.10.0, this will make xchat-gnome
 	  unusable, due to a bug with 1.10.0's cairo implementation.  This is fixed in
-	  pango HEAD, and hopefully there will be a new release soon.
+	  pango HEAD, and 1.10.1.
 	</p>
 	<div class="section-title">0.6 "Braindome"</div>
 	<div class="section">
