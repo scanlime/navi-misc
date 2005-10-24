@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <link href="style.css" type="text/css" rel="stylesheet" />
+    <title>xchat-gnome - screenshots</title>
+  </head>
+  <body>
+    <div class="title">
+      xchat-gnome
+      <span class="subtitle">Screenshots</span>
+    </div>
+    <div class="body">
+      <div class="sidebar">
+        <!--#include file="navigation.inc"-->
+      </div>
+      <div class="content">
+        <div class="section-title">Main Window</div>
+        <div class="section">
+          <a href="screenshots/main.png"><img src="screenshots/main-t.png" width="300" height="215" alt="main window" /></a>
+	  <img src="screenshots/spelling.png" width="400" height="30" alt="spell checking" />
+        </div>
+        <div class="section-title">Preferences Dialog</div>
+        <div class="section">
+          <a href="screenshots/prefs-irc.png"><img src="screenshots/prefs-irc-t.png" width="300" height="254" alt="irc preferences" /></a>
+          <a href="screenshots/prefs-colors.png"><img src="screenshots/prefs-colors-t.png" width="300" height="254" alt="color preferences" /></a>
+          <a href="screenshots/prefs-dcc.png"><img src="screenshots/prefs-dcc-t.png" width="300" height="254" alt="dcc preferences" /></a>
+          <a href="screenshots/prefs-plugins.png"><img src="screenshots/prefs-plugins-t.png" width="300" height="254" alt="plugins preferences" /></a>
+        </div>
+        <div class="section-title">Other Windows</div>
+        <div class="section">
+          <a href="screenshots/chanlist.png"><img src="screenshots/chanlist-t.png" width="300" height="279" alt="channel list" />
+          <a href="screenshots/dcc-transfer.png"><img src="screenshots/dcc-transfer-t.png" width="300" height="248" alt="file transfers" />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

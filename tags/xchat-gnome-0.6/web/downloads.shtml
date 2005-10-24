@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <link href="style.css" type="text/css" rel="stylesheet" />
+    <title>xchat-gnome - downloads</title>
+  </head>
+  <body>
+    <div class="title">
+      xchat-gnome
+      <span class="subtitle">Downloads</span>
+    </div>
+    <div class="body">
+      <div class="sidebar">
+        <!--#include file="navigation.inc"-->
+      </div>
+      <div class="content">
+        <p>
+	  Before you download here, check your distribution.  More and more distributions
+	  are including xchat-gnome in their packages, and a package will be easier than
+	  building from a source release.
+	</p>
+	<p>
+	  As of 0.5, xchat-gnome can use
+	  <a href="http://osiris.chipx86.com/projects/libsexy/releases/">libsexy</a>
+	  for sexier behavior (such as clickable links in topics and spell-checking)
+	  Beware that if you're currently on pango 1.10.0, this will make xchat-gnome
+	  unusable, due to a bug with 1.10.0's cairo implementation.  This is fixed in
+	  pango HEAD, and hopefully there will be a new release soon.
+	</p>
+	<div class="section-title">0.5 "You are what you eat"</div>
+	<div class="section">
+	  <i>27 August 2005</i> - libsexy and DCC UI, with a handful of annoying bugs
+	  fixed on the side.
+	  <br /><br />
+	  Source:<br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.5.tar.gz">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.5.tar.gz</a><br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.5.tar.bz2">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.5.tar.bz2</a><br />
+	</div>
+        <div class="section-title">0.4 "Buyer beware - Penis patches!"</div>
+	<div class="section">
+	  <i>04 May 2005</i> - Mostly bugfixes.  In particular, the memory and speed
+	  usage is much improved.
+	  <br /><br />
+	  Source:<br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.4.tar.gz">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.4.tar.gz</a><br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.4.tar.bz2">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.4.tar.bz2</a><br />
+	</div>
+        <div class="section-title">0.3 "You be the horse, I'll be the buggy"</div>
+	<div class="section">
+	  <i>03 March 2005</i> - Another big feature/bug release. Enjoy!
+	  <br /><br />
+	  Source:<br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.3.tar.gz">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.3.tar.gz</a><br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.3.tar.bz2">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.3.tar.bz2</a><br />
+	</div>
+        <div class="section-title">0.2 "This is my boomstick"</div>
+        <div class="section">
+          <i>13 September 2004</i> - This is mostly a feature release. A lot of the more-annoying
+	  bugs from 0.1 have been fixed, and a lot more functionality has been implemented.
+	  <br /><br />
+	  Source:<br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.2.tar.gz">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.2.tar.gz</a><br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.2.tar.bz2">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.2.tar.bz2</a><br />
+	  i386 RPMs:<br />
+	  <a class="download" href="http://files.hadess.net/redhat/perso/i386/xchat-gnome-0.2-0.i386.rpm">http://files.hadess.net/redhat/perso/i386/xchat-gnome-0.2-0.i386.rpm</a><br />
+	  <a class="download" href="http://files.hadess.net/redhat/perso/i386/xchat-gnome-perl-0.2-0.i386.rpm">http://files.hadess.net/redhat/perso/i386/xchat-gnome-perl-0.2-0.i386.rpm</a><br />
+	  <a class="download" href="http://files.hadess.net/redhat/perso/i386/xchat-gnome-python-0.2-0.i386.rpm">http://files.hadess.net/redhat/perso/i386/xchat-gnome-python-0.2-0.i386.rpm</a><br />
+	  <a class="download" href="http://files.hadess.net/redhat/perso/i386/xchat-gnome-debuginfo-0.2-0.i386.rpm">http://files.hadess.net/redhat/perso/i386/xchat-gnome-debuginfo-0.2-0.i386.rpm</a><br />
+	  source RPMs:<br />
+	  <a class="download" href="http://files.hadess.net/redhat/perso/source/xchat-gnome-0.2-0.src.rpm">http://files.hadess.net/redhat/perso/source/xchat-gnome-0.2-0.src.rpm</a><br />
+        </div>
+        <div class="section-title">0.1 "Doctors are standing by"</div>
+        <div class="section">
+          <i>3 May 2004</i> - First release. Plenty of unimplemented features, but it mostly works.
+	  <br /><br />
+	  Source:<br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.1.tar.gz">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.1.tar.gz</a><br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.1.tar.bz2">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.1.tar.bz2</a><br />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
