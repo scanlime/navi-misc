@@ -363,10 +363,10 @@ class TileImage:
         canvas.blit(self.image, target=(x,y))
 
 
-class TilePlaceholder:
+class EmptyTilePlaceholder:
     """A placeholder that renders in place of tiles we
-       haven't downloaded yet. The interface is
-       identical to a real TileImage.
+       haven't downloaded yet. This just gives us a generic
+       gray block.
        """
     cacheable = False
 
@@ -375,6 +375,23 @@ class TilePlaceholder:
                           x + Viewport.tileSize,
                           y + Viewport.tileSize),
                          fill=0xAAAAAA, outline=0xAA8888)
+
+
+class ZoomedTilePlaceholder:
+    """A placeholder that makes zooming more responsive.
+       This does a 2x zoom on the previous level of tiles.
+       """
+    cacheable = False
+
+    def __init__(self, parent, x, y, zoom=1):
+        self.image = parent.image
+        scale = Viewport.tileSize / (1 << zoom)
+        self.src = (x * scale, y * scale,
+                    (x+1) * scale, (y+1) * scale)
+
+    def draw(self, canvas, x, y):
+        canvas.blit(self.image, source=self.src, scale=1, target=(
+            x, y, x + Viewport.tileSize, y + Viewport.tileSize))
 
 
 class MRUlist:
@@ -437,7 +454,7 @@ class MemoryCache:
         self.size = size
         self.backing = backing
 
-    def get(self, *key):
+    def get(self, key):
         try:
             obj = self.mru[key]
         except KeyError:
@@ -445,7 +462,7 @@ class MemoryCache:
             if len(self.mru) == self.size:
                 self.mru.popOldest()
 
-            obj = self.backing.get(*key)
+            obj = self.backing.get(key, memCache=self)
             if obj.cacheable:
                 self.mru.push(key, obj)
             return obj
@@ -468,7 +485,7 @@ class DiskCache:
         self.fetcher = fetcher
         self.root = path
 
-    def get(self, source, tile):
+    def get(self, (source, tile), memCache=None):
         """Request a tile from the cache. Returns a TileImage
            if it's available now, otherwise returns a TilePlaceholder
            and requests the tile from our fetcher.
@@ -482,7 +499,19 @@ class DiskCache:
                 pass
 
         self.fetcher.request(source.getURL(tile), path)
-        return TilePlaceholder()
+
+        # If we can, cheat a bit and use a scaled version of the
+        # parent tile as a placeholder.
+        if memCache:
+            try:
+                x = tile[0] & 1
+                y = tile[1] & 1
+                parent = memCache.mru[(source, (tile[0] >> 1, tile[1] >> 1, tile[2] - 1))]
+            except KeyError:
+                pass
+            else:
+                return ZoomedTilePlaceholder(parent, x, y)
+        return EmptyTilePlaceholder()
 
     def getPath(self, source, tile):
         """Get an appropriate file name for a particular tile
@@ -583,7 +612,6 @@ class TileFetcher:
            """
         del self.pendingUrls[url]
         self.ui.downloadProgress = None
-        self.ui.drawStatus()
         self.ui.needsRedraw()
 
         # See if we can go ahead and repopulate the HTTP pipe
@@ -593,7 +621,7 @@ class TileFetcher:
     def progress(self, p):
         """Update the UI's progress bar"""
         self.ui.downloadProgress = p
-        self.ui.drawStatus()
+        self.ui.needsStatusUpdate()
 
     def run(self, ui):
         self.ui = ui
@@ -638,6 +666,7 @@ class SymbianUI:
         self.downloadProgress = None
         self.cache = cache
         self.backbuffer = None
+        self.redrawFlag = 0
 
         self.canvas = appuifw.Canvas(self.flip)
         self.bindKeys()
@@ -698,7 +727,7 @@ class SymbianUI:
 
     def drawTile(self, x, y, tile):
         """Retrieve and draw one tile at the given position"""
-        obj = self.cache.get(self.sources[self.sourceIndex], tile)
+        obj = self.cache.get((self.sources[self.sourceIndex], tile))
         obj.draw(self.backbuffer, x, y)
 
     def drawStatus(self, flip=True):
@@ -736,7 +765,20 @@ class SymbianUI:
            a redraw. If we get called during a redraw, this schedules
            another redraw to happen immediately after this one is finished.
            """
-        self.drawAll()
+        if self.redrawFlag:
+            self.redrawFlag = 2
+        else:
+            self.redrawFlag = 1
+            while self.redrawFlag:
+                self.drawAll()
+                self.redrawFlag -= 1
+
+    def needsStatusUpdate(self):
+        """Update the status if we aren't busy, otherwise wait
+           for drawAll to get there.
+           """
+        if not self.redrawFlag:
+            self.drawStatus()
 
     def scroll(self, x, y):
         """A scroll event from the user. Moves the viewport in fixed
