@@ -27,6 +27,14 @@
 	  unusable, due to a bug with 1.10.0's cairo implementation.  This is fixed in
 	  pango HEAD, and hopefully there will be a new release soon.
 	</p>
+	<div class="section-title">0.6 "Braindome"</div>
+	<div class="section">
+	  <i>23 October 2005</i> - Mostly features.</i>
+	  <br /><br />
+	  Source:<br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.6.tar.gz">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.6.tar.gz</a><br />
+	  <a class="download" href="http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.6.tar.bz2">http://flapjack.navi.cx/releases/xchat-gnome/xchat-gnome-0.6.tar.bz2</a><br />
+	</div>
 	<div class="section-title">0.5 "You are what you eat"</div>
 	<div class="section">
 	  <i>27 August 2005</i> - libsexy and DCC UI, with a handful of annoying bugs
