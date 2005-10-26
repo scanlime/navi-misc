@@ -512,14 +512,19 @@ class MemoryCache:
 
 class KeyboardState(dict):
     """Handles key up/down events, tracking the state of each scancode"""
+    def __init__(self, timer):
+        self.timer = timer
+
     def __getitem__(self, scan):
         return self.get(scan, False)
 
     def track(self, event):
         if event['type'] == appuifw.EEventKeyDown:
             self[event['scancode']] = True
+            self.timer.signal()
         elif event['type'] == appuifw.EEventKeyUp:
             self[event['scancode']] = False
+            self.timer.signal()
 
     def getDirection(self):
         """Decode the current state of the direction pad into an x,y tuple"""
@@ -550,29 +555,61 @@ class SmoothScroller:
         self.rx = 0
         self.ry = 0
 
-    def update(self):
-        # Get the delta time since the last update
-        now = time.clock()
-        if self.prevTime is None:
-            self.prevTime = now
-            return
-        dt = now - self.prevTime
-        self.prevTime = now
-
+    def update(self, timer):
         # Update speeds according to keyboard state
         kx, ky = self.keys.getDirection()
-        self.vx = self.vx * self.damping + kx * self.keyAccel * dt
-        self.vy = self.vy * self.damping + ky * self.keyAccel * dt
+        self.vx = self.vx * self.damping + kx * self.keyAccel * timer.dt
+        self.vy = self.vy * self.damping + ky * self.keyAccel * timer.dt
 
+        if kx or ky or abs(self.vx) > 0.1 or abs(self.vy) > 0.1:
+            timer.signal()
+            
         # Move the viewport according to our speed,
         # saving any subpixel remainders.
-        x = self.vx * dt + self.rx
-        y = self.vy * dt + self.ry
+        x = self.vx * timer.dt + self.rx
+        y = self.vy * timer.dt + self.ry
         ix = int(x + 0.5)
         iy = int(y + 0.5)
         self.view.move(ix, iy)
         self.rx = x - ix
         self.ry = y - iy
+
+
+class Timekeeper:
+    """Track the current time, and handles putting the UI
+       thread to sleep when it's no longer needed.
+       """
+    _prevTime = None
+    dt = 0
+    ticks = 0
+
+    def __init__(self):
+        self._lock = e32.Ao_lock()
+        self.signal()
+
+    def signal(self):
+        """Indicate that we need to render another frame"""
+        self._signaled = True
+        self._lock.signal()
+
+    def tick(self):
+        """Begin a new frame. May sleep until signaled, if
+           we haven't already been signaled.
+           """
+        e32.ao_yield()
+        while not self._signaled:
+            self._prevTime = None
+            self._lock.wait()
+
+        self._signaled = False
+        now = time.clock()
+        if self._prevTime is None:
+            self._prevTime = now
+            self.dt = 0.0
+        else:
+            self.dt = now - self._prevTime
+            self._prevTime = now
+        self.ticks += 1
 
 
 class InterfaceLayout:
@@ -592,8 +629,8 @@ class InterfaceLayout:
         # Items in the status bar
         self.statusText = (margin, margin + textHeight)
         self.progress = lambda p: (w - progressWidth - margin*2, margin,
-                                   w - progressWidth - margin*2 + int(progressWidth * p),
-                                   statusHeight - margin)
+                                   w - progressWidth - margin*2 +
+                                   int(progressWidth * p), statusHeight - margin)
         self.progressOutline = self.progress(1)
 
 
@@ -606,7 +643,8 @@ class Interface:
         self.sourceIndex = 0
         self.cache = cache
 
-        self.keys = KeyboardState()
+        self.timer = Timekeeper()
+        self.keys = KeyboardState(self.timer)
         self.canvas = appuifw.Canvas(self.expose, self.keys.track)
         self.show()
         self.renderer = MapRenderer(self.canvas.size, self.cache,
@@ -629,6 +667,7 @@ class Interface:
 
     def quit(self):
         self.running = False
+        self.timer.signal()
 
     def toggleSource(self):
         """A user command to toggle the data source for this view"""
@@ -642,12 +681,12 @@ class Interface:
 
     def run(self):
         while self.running:
-            e32.ao_yield()
-            self.scroll.update()
+            self.timer.tick()
+            self.scroll.update(self.timer)
             self.renderer.draw()
 
-            self.renderer.image.text(self.layout.statusText,
-                                     u'dt: %r' % (getattr(self.scroll, 'dt', None)))
+            self.renderer.image.text(self.layout.statusText, u'tick: %d pending: %d' %
+                                     (self.timer.ticks, len(self.cache.pending)))
 
             self.canvas.blit(self.renderer.image)
 
