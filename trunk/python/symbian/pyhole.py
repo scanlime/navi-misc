@@ -521,6 +521,15 @@ class KeyboardState(dict):
         elif event['type'] == appuifw.EEventKeyUp:
             self[event['scancode']] = False
 
+    def getDirection(self):
+        """Decode the current state of the direction pad into an x,y tuple"""
+        x = y = 0
+        if self[key_codes.EScancodeLeftArrow]:   x -= 1
+        if self[key_codes.EScancodeRightArrow]:  x += 1
+        if self[key_codes.EScancodeUpArrow]:     y -= 1
+        if self[key_codes.EScancodeDownArrow]:   y += 1
+        return x, y
+
 
 class SmoothScroller:
     """Animates the position of a Viewport smoothly according to keyboard input"""
@@ -529,21 +538,19 @@ class SmoothScroller:
         self.view = view
         self.prevTime = None
 
-        # In pixels per second
-        self.defaultSpeed = 32.0
+        self.maxVelocity = 1500.0
+        self.keyAccel = 200.0
+        self.damping = 0.9
+
+        # Current velocity
+        self.vx = 0
+        self.vy = 0
 
         # Subpixel remainders
         self.rx = 0
         self.ry = 0
 
     def update(self):
-        # Update speeds according to keyboard state
-        vx = vy = 0
-        if self.keys[key_codes.EKeyLeftArrow]:   vx -= self.defaultSpeed
-        if self.keys[key_codes.EKeyRightArrow]:  vx += self.defaultSpeed
-        if self.keys[key_codes.EKeyUpArrow]:     vy -= self.defaultSpeed
-        if self.keys[key_codes.EKeyDownArrow]:   vy += self.defaultSpeed
-        
         # Get the delta time since the last update
         now = time.clock()
         if self.prevTime is None:
@@ -552,15 +559,20 @@ class SmoothScroller:
         dt = now - self.prevTime
         self.prevTime = now
 
+        # Update speeds according to keyboard state
+        kx, ky = self.keys.getDirection()
+        self.vx = self.vx * self.damping + kx * self.keyAccel * dt
+        self.vy = self.vy * self.damping + ky * self.keyAccel * dt
+
         # Move the viewport according to our speed,
         # saving any subpixel remainders.
-        x = vx * dt + self.rx
-        y = vy * dt + self.ry
+        x = self.vx * dt + self.rx
+        y = self.vy * dt + self.ry
         ix = int(x + 0.5)
         iy = int(y + 0.5)
         self.view.move(ix, iy)
         self.rx = x - ix
-        self.ry = x - iy
+        self.ry = y - iy
 
 
 class InterfaceLayout:
@@ -590,18 +602,21 @@ class Interface:
        SmoothScroller, and such.
        """
     def __init__(self, sources, cache):
-        self.renderer = None
         self.sources = sources
         self.sourceIndex = 0
         self.cache = cache
 
         self.keys = KeyboardState()
-        self.canvas = appuifw.Canvas(event_callback=self.keys.track,
-                                     redraw_callback=self.expose)
-        self.bindKeys()
+        self.canvas = appuifw.Canvas(self.expose, self.keys.track)
         self.show()
+        self.renderer = MapRenderer(self.canvas.size, self.cache,
+                                    self.sources[self.sourceIndex])
+        self.layout = InterfaceLayout(*self.canvas.size)
+        self.bindKeys()
+        self.running = True
 
     def bindKeys(self):
+        self.scroll = SmoothScroller(self.keys, self.renderer.view)
         self.canvas.bind(key_codes.EKeySelect, lambda: self.renderer.view.move(zoom=1))
         self.canvas.bind(key_codes.EKey2, lambda: self.renderer.view.move(zoom=-1))
         self.canvas.bind(key_codes.EKey5, self.toggleSource)
@@ -611,12 +626,6 @@ class Interface:
         appuifw.app.screen = 'full'
         appuifw.app.exit_key_handler = self.quit
         appuifw.app.body = self.canvas
-        self.running = True
-
-        # The following things depend on the canvas' size
-        self.renderer = MapRenderer(self.canvas.size, self.cache,
-                                    self.sources[self.sourceIndex])
-        self.layout = InterfaceLayout(*self.canvas.size)
 
     def quit(self):
         self.running = False
@@ -626,7 +635,7 @@ class Interface:
         self.sourceIndex = (self.sourceIndex + 1) % len(self.sources)
         self.renderer.source = self.sources[self.sourceIndex]
 
-    def expose(self, x1, y1, x2, y2):
+    def expose(self, rect):
         """The Canvas asked us to redraw"""
         # FIXME: poke the render loop
         pass
@@ -634,7 +643,12 @@ class Interface:
     def run(self):
         while self.running:
             e32.ao_yield()
+            self.scroll.update()
             self.renderer.draw()
+
+            self.renderer.image.text(self.layout.statusText,
+                                     u'dt: %r' % (getattr(self.scroll, 'dt', None)))
+
             self.canvas.blit(self.renderer.image)
 
 
