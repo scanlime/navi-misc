@@ -14,7 +14,7 @@
    sodipodi:version="0.32"
    inkscape:version="0.42.2"
    sodipodi:docbase="/home/evan/Projects/teaching_boxes/prototype/low-fi"
-   sodipodi:docname="evan.svg">
+   sodipodi:docname="new_box.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -24,9 +24,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.0000000"
-     inkscape:cx="348.52614"
-     inkscape:cy="214.22550"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="48.925833"
+     inkscape:cy="326.88451"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -102,7 +102,7 @@
          sodipodi:role="line"
          id="tspan7169"
          x="42.296875"
-         y="80.117188">Navigation</tspan></text>
+         y="80.117188">Earthquakes</tspan></text>
     <rect
        style="fill:#9badeb;fill-opacity:1.0000000;stroke:none;stroke-opacity:1.0000000"
        id="rect7199"
@@ -120,8 +120,8 @@
          x="58.822266"
          y="99.830078"
          id="tspan7195"><tspan
-   id="tspan2331"
-   style="fill:#ffffff;fill-opacity:1.0000000">Lesson</tspan></tspan></text>
+           id="tspan2331"
+           style="fill:#ffffff;fill-opacity:1.0000000">Lesson</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
@@ -190,23 +190,6 @@
        height="74.500000"
        x="247.50110"
        y="368.00000" />
-    <rect
-       y="21.500000"
-       x="29.998594"
-       height="19.000000"
-       width="709.00287"
-       id="rect8681"
-       style="fill:#e8e8e8;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000" />
-    <text
-       xml:space="preserve"
-       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="38.822266"
-       y="34.830078"
-       id="text7163"><tspan
-         sodipodi:role="line"
-         id="tspan7165"
-         x="38.822266"
-         y="34.830078">New Lesson</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
@@ -331,16 +314,6 @@
          id="path9474" />
     </g>
     <text
-       xml:space="preserve"
-       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="124.32617"
-       y="34.830078"
-       id="text1594"><tspan
-         sodipodi:role="line"
-         id="tspan1596"
-         x="124.32617"
-         y="34.830078">Create Link</tspan></text>
-    <text
        id="text1598"
        y="101.10181"
        x="250.11447"
@@ -372,35 +345,82 @@
          id="tspan2335"
          x="514.93945"
          y="79.919922">Click here for documentation and help</tspan></text>
+    <rect
+       y="21.524769"
+       x="30.000122"
+       height="19.000000"
+       width="709.00287"
+       id="rect8681"
+       style="fill:#e8e8e8;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000" />
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="209.20898"
-       y="34.830078"
+       x="38.823792"
+       y="34.854847"
+       id="text7163"><tspan
+         sodipodi:role="line"
+         id="tspan7165"
+         x="38.823792"
+         y="34.854847">New Lesson</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="208.32773"
+       y="34.854847"
+       id="text1594"><tspan
+         sodipodi:role="line"
+         id="tspan1596"
+         x="208.32773"
+         y="34.854847">Create Link</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="293.21054"
+       y="34.854847"
        id="text3791"><tspan
          sodipodi:role="line"
          id="tspan3793"
-         x="209.20898"
-         y="34.830078">Schedule</tspan></text>
+         x="293.21054"
+         y="34.854847">Schedule</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="279.90625"
-       y="34.830078"
+       x="363.90781"
+       y="34.854847"
        id="text3795"><tspan
          sodipodi:role="line"
          id="tspan3797"
-         x="279.90625"
-         y="34.830078">Add Resource</tspan></text>
+         x="363.90781"
+         y="34.854847">Add Resource</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="379.90625"
-       y="34.830078"
+       x="463.90781"
+       y="34.854847"
        id="text3799"><tspan
          sodipodi:role="line"
          id="tspan3801"
-         x="379.90625"
-         y="34.830078">Add Reference</tspan></text>
+         x="463.90781"
+         y="34.854847">Add Reference</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="565.97461"
+       y="35.080067"
+       id="text7018"><tspan
+         sodipodi:role="line"
+         id="tspan7020"
+         x="565.97461"
+         y="35.080067">Add Note</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="120.86123"
+       y="34.873299"
+       id="text10792"><tspan
+         sodipodi:role="line"
+         id="tspan10794"
+         x="120.86123"
+         y="34.873299">Save Lesson</tspan></text>
   </g>
 </svg>
