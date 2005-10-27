@@ -39,9 +39,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.0000000"
-     inkscape:cx="285.93055"
-     inkscape:cy="424.34640"
+     inkscape:zoom="4.0000000"
+     inkscape:cx="117.57924"
+     inkscape:cy="388.56589"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -115,7 +115,7 @@
          sodipodi:role="line"
          id="tspan7169"
          x="30.646145"
-         y="70.979370">Navigation</tspan></text>
+         y="70.979370">Earthquakes</tspan></text>
     <rect
        style="fill:#9badeb;fill-opacity:1.0000000;stroke:none;stroke-opacity:1.0000000"
        id="rect7199"
@@ -133,8 +133,8 @@
          x="44.169933"
          y="89.917480"
          id="tspan7195"><tspan
-   id="tspan2331"
-   style="fill:#000000;fill-opacity:1.0000000">Lesson</tspan></tspan></text>
+           id="tspan2331"
+           style="fill:#000000;fill-opacity:1.0000000">Plate Tectonics</tspan></tspan></text>
     <rect
        y="12.362182"
        x="18.347866"
@@ -376,7 +376,7 @@
          y="126.20459">Linked Lessons</tspan></text>
     <path
        style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
-       d="M 35.847669,119.11866 L 35.847669,125.11866 L 40.847669,122.11866 L 35.847669,119.11866 z "
+       d="M 41.347669,119.61866 L 35.347669,119.61866 L 38.347669,124.61866 L 41.347669,119.61866 z "
        id="path7016" />
     <text
        xml:space="preserve"
@@ -445,5 +445,16 @@
          id="tspan10794"
          x="109.20898"
          y="25.710711">Save Lesson</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10.000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="54.018555"
+       y="142.22092"
+       id="text10796"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan10798"
+         x="54.018555"
+         y="142.22092">Plate Tectonics Sandbox</tspan></text>
   </g>
 </svg>
