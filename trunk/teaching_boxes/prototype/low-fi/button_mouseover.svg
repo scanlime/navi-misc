@@ -53,12 +53,12 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.0000000"
-     inkscape:cx="193.48622"
-     inkscape:cy="381.60371"
+     inkscape:zoom="1.0000000"
+     inkscape:cx="488.97656"
+     inkscape:cy="428.75587"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
-     showgrid="false"
+     showgrid="true"
      inkscape:window-width="1280"
      inkscape:window-height="949"
      inkscape:window-x="0"
@@ -134,18 +134,18 @@
        style="fill:#9badeb;fill-opacity:1.0000000;stroke:none;stroke-opacity:1.0000000"
        id="rect7199"
        width="149.36235"
-       height="16.970562"
+       height="15.725220"
        x="28.501602"
        y="75.387299" />
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="46.823868"
-       y="88.717377"
+       x="43.822266"
+       y="87.942596"
        id="text7171"><tspan
          sodipodi:role="line"
-         x="46.823868"
-         y="88.717377"
+         x="43.822266"
+         y="87.942596"
          id="tspan7195"><tspan
    id="tspan2331"
    style="fill:#ffffff;fill-opacity:1.0000000">Lesson</tspan></tspan></text>
@@ -224,6 +224,15 @@
        width="709.00287"
        id="rect8681"
        style="fill:#e8e8e8;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000" />
+    <rect
+       style="fill:#7e6363;fill-opacity:0.51366121;stroke:#000000;stroke-width:0.66456127;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       id="rect4770"
+       width="80.297722"
+       height="15.654197"
+       x="107.37000"
+       y="12.126041"
+       ry="0.81250000"
+       rx="0.81250000" />
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
@@ -432,17 +441,9 @@
          id="tspan3801"
          x="367.90787"
          y="23.717377">Add Reference</tspan></text>
-    <rect
-       style="fill:#342929;fill-opacity:0.51366121;stroke:#000000;stroke-width:0.66456127;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
-       id="rect4770"
-       width="80.297722"
-       height="15.654197"
-       x="107.35644"
-       y="12.035419"
-       ry="0.81250000"
-       rx="0.81250000" />
     <g
-       id="g6258">
+       id="g6258"
+       transform="matrix(1.671988,0.000000,0.000000,1.369783,-111.6948,-8.909475)">
       <path
          id="path3903"
          d="M 168.35416,29.737518 L 170.43750,35.425018"
@@ -450,7 +451,61 @@
       <path
          id="path5512"
          d="M 166.32813,24.206267 L 167.00000,33.253142 L 168.18750,30.706267 L 169.98438,35.581267 L 170.90625,35.237517 L 169.12109,30.370329 L 171.68359,31.557829 L 166.33203,24.214079"
-         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#ffffff;stroke-width:0.22500000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
+         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#ffffff;stroke-width:0.22499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
     </g>
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="288.82227"
+       y="90.229706"
+       id="text7000"><tspan
+         sodipodi:role="line"
+         id="tspan7002"
+         x="288.82227"
+         y="90.229706">Earthquakes</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="288.82227"
+       y="123.61642"
+       id="text7004"><tspan
+         sodipodi:role="line"
+         id="tspan7006"
+         x="288.82227"
+         y="123.61642">Edna Krabapple</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="44.208984"
+       y="105.9426"
+       id="text7008"><tspan
+         sodipodi:role="line"
+         id="tspan7010"
+         x="44.208984"
+         y="105.94260">Schedule</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="43.822266"
+       y="124.22971"
+       id="text7012"><tspan
+         sodipodi:role="line"
+         id="tspan7014"
+         x="43.822266"
+         y="124.22971">Linked Lessons</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
+       d="M 35.500000,117.14377 L 35.500000,123.14377 L 40.500000,120.14377 L 35.500000,117.14377 z "
+       id="path7016" />
+    <text
+       xml:space="preserve"
+       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+       x="469.97461"
+       y="23.942596"
+       id="text7018"><tspan
+         sodipodi:role="line"
+         id="tspan7020"
+         x="469.97461"
+         y="23.942596">Add Note</tspan></text>
   </g>
 </svg>
