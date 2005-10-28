@@ -1,10 +1,10 @@
 Index: configure.in
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/configure.in,v
-retrieving revision 1.88
-diff -u -r1.88 configure.in
---- configure.in	12 Oct 2005 09:40:57 -0000	1.88
-+++ configure.in	24 Oct 2005 03:19:35 -0000
+retrieving revision 1.90
+diff -u -r1.90 configure.in
+--- configure.in	28 Oct 2005 13:35:02 -0000	1.90
++++ configure.in	28 Oct 2005 15:45:57 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
@@ -136,9 +136,9 @@ diff -u -r1.88 configure.in
 +	fi
 +fi
  
- dnl *********************************************************************
- dnl ** XFT **************************************************************
-@@ -483,9 +525,12 @@
+ # GConf
+ AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
+@@ -486,9 +528,12 @@
  AM_CONDITIONAL(USE_OPENSSL, test "x$openssl" = "xyes")
  AM_CONDITIONAL(DO_TEXT, test "x$textfe" = "xyes")
  AM_CONDITIONAL(DO_GTK, test "x$gtkfe" = "xyes")
@@ -150,8 +150,8 @@ diff -u -r1.88 configure.in
 +AM_CONDITIONAL(DO_NOTIFICATION, test "x$notification" = "xyes")
  AM_CONDITIONAL(DO_PLUGIN, test "x$plugin" = "xyes")
  AM_CONDITIONAL(DO_DBUS, test "x$dbus" = "xyes")
- 
-@@ -580,6 +625,10 @@
+ AM_CONDITIONAL(DO_GCONF, test "x$GCONFTOOL" != "xno")
+@@ -584,6 +629,10 @@
  	fi
  fi
  
@@ -162,7 +162,7 @@ diff -u -r1.88 configure.in
  dnl does this compiler support -Wno-pointer-sign ?
  AC_MSG_CHECKING([if gcc accepts -Wno-pointer-sign ])
  
-@@ -719,12 +768,16 @@
+@@ -723,12 +772,16 @@
  src/Makefile
  src/common/Makefile
  src/fe-text/Makefile
@@ -179,7 +179,7 @@ diff -u -r1.88 configure.in
  plugins/dbus/Makefile
  intl/Makefile
  po/Makefile.in
-@@ -733,10 +786,17 @@
+@@ -737,10 +790,17 @@
  echo
  echo xchat $VERSION
  echo
@@ -191,12 +191,12 @@ diff -u -r1.88 configure.in
  echo
 -echo PLUGINS: Perl: $perl Python: $python TCL: $tcl DBUS: $dbus
 +echo PLUGINS:
-+echo Perl: $perl
-+echo Python: $python
-+echo TCL: $tcl
-+echo Url Scraper: $urlscraper
-+echo Notification: $notification
-+echo DBUS: $dbus
++echo "DBUS:         $dbus"
++echo "Notification: $notification"
++echo "Perl:         $perl"
++echo "Python:       $python"
++echo "TCL:          $tcl"
++echo "Url Scraper:  $urlscraper"
  echo
  echo mmx tinting ......... : $mmx
  echo XShm tinting ........ : $shm\	plugin interface .... : $plugin
@@ -206,7 +206,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.5
 diff -u -r1.5 Makefile.am
 --- plugins/Makefile.am	12 Oct 2005 05:03:59 -0000	1.5
-+++ plugins/Makefile.am	24 Oct 2005 03:19:35 -0000
++++ plugins/Makefile.am	28 Oct 2005 15:45:57 -0000
 @@ -1,10 +1,10 @@
  # temp. solution while mailcheck & xdcc arn't in SUBDIRS
 -EXTRA_DIST = plugin20.html Make.plugin plugin-conf.in \
@@ -249,7 +249,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/mailcheck/Makefile.am,v
 retrieving revision 1.1
 diff -u -r1.1 Makefile.am
 --- plugins/mailcheck/Makefile.am	17 Dec 2002 15:36:39 -0000	1.1
-+++ plugins/mailcheck/Makefile.am	24 Oct 2005 03:19:35 -0000
++++ plugins/mailcheck/Makefile.am	28 Oct 2005 15:45:57 -0000
 @@ -10,7 +10,6 @@
  
  # This file must be in the form PLUGIN-config.h.in, it can be empty but
@@ -258,27 +258,13 @@ diff -u -r1.1 Makefile.am
  
  # Remember to include this line in your Makefile.am
  include @top_srcdir@/plugins/Make.plugin
-Index: plugins/perl/Makefile.am
-===================================================================
-RCS file: /cvsroot/xchat/xchat2/plugins/perl/Makefile.am,v
-retrieving revision 1.10
-diff -u -r1.10 Makefile.am
---- plugins/perl/Makefile.am	29 Mar 2005 05:11:50 -0000	1.10
-+++ plugins/perl/Makefile.am	24 Oct 2005 03:19:35 -0000
-@@ -1,5 +1,5 @@
- 
--EXTRA_DIST=alt_completion.pl ignore.pl sample_script.pl xchat2-perldocs.html xchat2-perl.html generate_header Xchat.pm IRC.pm makefile.msc
-+EXTRA_DIST=alt_completion.pl ignore.pl sample_script.pl xchat2-perldocs.html xchat2-perl.html generate_header Xchat.pm IRC.pm makefile.msc generate_header
- 
- libdir = $(xchatlibdir)/plugins
- 
 Index: src/Makefile.am
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	24 Oct 2005 03:20:23 -0000
++++ src/Makefile.am	28 Oct 2005 15:46:46 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
@@ -295,7 +281,7 @@ RCS file: /cvsroot/xchat/xchat2/src/common/textevents.h,v
 retrieving revision 1.31
 diff -u -r1.31 textevents.h
 --- src/common/textevents.h	21 Oct 2005 09:26:07 -0000	1.31
-+++ src/common/textevents.h	24 Oct 2005 03:20:23 -0000
++++ src/common/textevents.h	28 Oct 2005 15:46:47 -0000
 @@ -3,214 +3,214 @@
  const struct text_event te[] = {
  
@@ -840,7 +826,7 @@ RCS file: /cvsroot/xchat/xchat2/src/common/textevents.in,v
 retrieving revision 1.30
 diff -u -r1.30 textevents.in
 --- src/common/textevents.in	21 Oct 2005 09:26:07 -0000	1.30
-+++ src/common/textevents.in	24 Oct 2005 03:20:23 -0000
++++ src/common/textevents.in	28 Oct 2005 15:46:47 -0000
 @@ -1,19 +1,19 @@
  Add Notify
  XP_TE_ADDNOTIFY
@@ -1753,7 +1739,7 @@ RCS file: /cvsroot/xchat/xchat2/src/pixmaps/Makefile.am,v
 retrieving revision 1.9
 diff -u -r1.9 Makefile.am
 --- src/pixmaps/Makefile.am	12 Oct 2005 05:38:32 -0000	1.9
-+++ src/pixmaps/Makefile.am	24 Oct 2005 03:20:23 -0000
++++ src/pixmaps/Makefile.am	28 Oct 2005 15:46:47 -0000
 @@ -13,5 +13,8 @@
  CLEANFILES = $(noinst_HEADERS)
  EXTRA_DIST = $(PNGS) makefile.msc
