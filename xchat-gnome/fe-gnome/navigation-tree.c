@@ -40,37 +40,37 @@
 #endif
 
 /***** NavTree *****/
-static void navigation_tree_init (NavTree * navtree);
-static void navigation_tree_class_init (NavTreeClass * klass);
-static void navigation_tree_dispose (GObject * object);
-static void navigation_tree_finalize (GObject * object);
-static session* navigation_tree_get_selected_session (void);
-static void navigation_tree_update_refs (NavTree* navtree);
+static void      navigation_tree_init (NavTree *navtree);
+static void      navigation_tree_class_init (NavTreeClass *klass);
+static void      navigation_tree_dispose (GObject *object);
+static void      navigation_tree_finalize (GObject *object);
+static session  *navigation_tree_get_selected_session (void);
+static void      navigation_tree_update_refs (NavTree *navtree);
 /* Context menus. */
-static void navigation_context (GtkWidget * treeview, session * selected);
-static void server_context (GtkWidget * treeview, session * selected);
-static void channel_context (GtkWidget * treeview, session * selected);
-static void dialog_context (GtkWidget * treeview, session * selected);
-static gboolean channel_is_autojoin (ircnet * network, gchar *chan);
+static void      navigation_context (GtkWidget *treeview, session *selected);
+static void      server_context (GtkWidget *treeview, session *selected);
+static void      channel_context (GtkWidget *treeview, session *selected);
+static void      dialog_context (GtkWidget *treeview, session *selected);
+static gboolean  channel_is_autojoin (ircnet *network, gchar *chan);
 /* Callbacks. */
-static gboolean click (GtkWidget * widget, GdkEventButton * event, gpointer user_data);
-static gboolean declick (GtkWidget * widget, GdkEventButton * event, gpointer user_data);
-static void navigation_selection_changed (GtkTreeSelection * treeselection, gpointer user_data);
-static void row_expanded (GtkTreeView * treeview, GtkTreeIter * iter, GtkTreePath * path, gpointer user_data);
-static void row_collapsed (GtkTreeView * treeview, GtkTreeIter * iter, GtkTreePath * path, gpointer user_data);
-static void on_server_information (GtkAction * action, gpointer data);
-static void on_server_reconnect (GtkAction * action, gpointer data);
-static void on_server_disconnect (GtkAction * action, gpointer data);
-static void on_server_channel_list (GtkAction * action, gpointer data);
-static void on_save (GtkAction * action, gpointer data);
-static void on_close (GtkAction * action, gpointer data);
-static void on_find (GtkAction * action, gpointer data);
-static void on_find_again (GtkAction * action, gpointer data);
-static void on_clear (GtkAction * action, gpointer data);
-static void on_channel_leave (GtkAction * action, gpointer data);
-static void on_channel_bans (GtkAction * action, gpointer data);
-static void on_server_autoconnect (GtkAction * action, gpointer data);
-static void on_channel_autojoin (GtkAction * action, gpointer data);
+static gboolean  click (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+static gboolean  declick (GtkWidget *widget, GdkEventButton *event, gpointer user_data);
+static void      navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data);
+static void      row_expanded (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpointer user_data);
+static void      row_collapsed (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpointer user_data);
+static void      on_server_information (GtkAction *action, gpointer data);
+static void      on_server_reconnect (GtkAction *action, gpointer data);
+static void      on_server_disconnect (GtkAction *action, gpointer data);
+static void      on_server_channel_list (GtkAction *action, gpointer data);
+static void      on_save (GtkAction *action, gpointer data);
+static void      on_close (GtkAction *action, gpointer data);
+static void      on_find (GtkAction *action, gpointer data);
+static void      on_find_again (GtkAction *action, gpointer data);
+static void      on_clear (GtkAction *action, gpointer data);
+static void      on_channel_leave (GtkAction *action, gpointer data);
+static void      on_channel_bans (GtkAction *action, gpointer data);
+static void      on_server_autoconnect (GtkAction *action, gpointer data);
+static void      on_channel_autojoin (GtkAction *action, gpointer data);
 
 static GtkActionEntry action_entries[] = {
 	/* Server context menu */
@@ -132,7 +132,7 @@ navigation_tree_get_type (void)
 }
 
 static void
-navigation_tree_init (NavTree * navtree)
+navigation_tree_init (NavTree *navtree)
 {
 	GtkCellRenderer *icon_renderer, *text_renderer;
 	GtkTreeViewColumn *column;
@@ -179,7 +179,7 @@ navigation_tree_init (NavTree * navtree)
 }
 
 static void
-navigation_tree_class_init (NavTreeClass * klass)
+navigation_tree_class_init (NavTreeClass *klass)
 {
 	GObjectClass *object_class = (GObjectClass *) klass;
 
@@ -188,7 +188,7 @@ navigation_tree_class_init (NavTreeClass * klass)
 }
 
 static void
-navigation_tree_dispose (GObject * object)
+navigation_tree_dispose (GObject *object)
 {
 	NavTree *navtree = (NavTree *) object;
 	if (navtree->model) {
@@ -198,7 +198,7 @@ navigation_tree_dispose (GObject * object)
 }
 
 static void
-navigation_tree_finalize (GObject * object)
+navigation_tree_finalize (GObject *object)
 {
 	NavTree *navtree = (NavTree *) object;
 	gtk_tree_path_free (navtree->current_path);
@@ -207,7 +207,7 @@ navigation_tree_finalize (GObject * object)
 
 /* New NavTree. */
 NavTree *
-navigation_tree_new (NavModel * model)
+navigation_tree_new (NavModel *model)
 {
 	NavTree *new_tree;
 
@@ -223,7 +223,7 @@ navigation_tree_new (NavModel * model)
 
 /* Add/remove server/channel functions. */
 void
-navigation_tree_create_new_network_entry (NavTree * navtree, struct session *sess)
+navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess)
 {
 	GtkTreeIter *iter;
 	GtkWidget *menuitem, *button;
@@ -259,7 +259,7 @@ navigation_tree_create_new_network_entry (NavTree * navtree, struct session *ses
 }
 
 void
-navigation_tree_create_new_channel_entry (NavTree * navtree, struct session *sess)
+navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess)
 {
 	GtkTreeIter *iter;
 	GtkWidget *menuitem, *button;
@@ -313,7 +313,7 @@ navigation_tree_create_new_channel_entry (NavTree * navtree, struct session *ses
 }
 
 void
-navigation_tree_remove_channel (NavTree * navtree, struct session *sess)
+navigation_tree_remove_channel (NavTree *navtree, struct session *sess)
 {
 	GtkTreePath *path = gtk_tree_path_copy (navtree->current_path);
 	GtkTreeSelection *select = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
@@ -352,7 +352,7 @@ navigation_tree_remove_channel (NavTree * navtree, struct session *sess)
 }
 
 void
-navigation_tree_remove_server (NavTree * navtree, struct session *sess)
+navigation_tree_remove_server (NavTree *navtree, struct session *sess)
 {
 	GtkTreePath *path = gtk_tree_path_copy (navtree->current_path);
 	GtkTreeSelection *select = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
@@ -395,7 +395,7 @@ navigation_tree_remove_server (NavTree * navtree, struct session *sess)
 }
 
 void
-navigation_tree_server_rm_chans (NavTree * navtree, GtkTreeIter * parent)
+navigation_tree_server_rm_chans (NavTree *navtree, GtkTreeIter * parent)
 {
 	GtkTreeModel *sorted = gtk_tree_view_get_model (GTK_TREE_VIEW (navtree));
 	GtkTreeModel *store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (sorted));
@@ -413,7 +413,7 @@ navigation_tree_server_rm_chans (NavTree * navtree, GtkTreeIter * parent)
 
 /* Channel/server selection functions. */
 void
-navigation_tree_select_nth_channel (NavTree * navtree, gint chan_num)
+navigation_tree_select_nth_channel (NavTree *navtree, gint chan_num)
 {
 	GtkTreeView *view;
 	GtkTreeModel *model;
@@ -465,7 +465,7 @@ navigation_tree_select_nth_channel (NavTree * navtree, gint chan_num)
 }
 
 void
-navigation_tree_select_session (NavTree * navtree, struct session *sess)
+navigation_tree_select_session (NavTree *navtree, struct session *sess)
 {
 	GtkTreeIter *iter = navigation_model_get_sorted_iter (navtree->model, sess);
 
@@ -487,16 +487,16 @@ navigation_tree_select_session (NavTree * navtree, struct session *sess)
 }
 
 void
-navigation_tree_select_next_channel (NavTree * navtree)
+navigation_tree_select_next_channel (NavTree *navtree)
 {
-	GtkTreeIter		iter;
-	GtkTreeModel*		model;
-	GtkTreeSelection*	selection;
-	GtkTreePath*		path;
-	gchar*			path_string;
-	gint			depth;
-	gint			server_index = 0;
-	gint			channel_index = 0;
+	GtkTreeIter       iter;
+	GtkTreeModel     *model;
+	GtkTreeSelection *selection;
+	GtkTreePath      *path;
+	gchar            *path_string;
+	gint              depth;
+	gint              server_index = 0;
+	gint              channel_index = 0;
 
 
 	/* Get the GtkSelection from the GtkTreeView. */
@@ -515,8 +515,8 @@ navigation_tree_select_next_channel (NavTree * navtree)
 
 	/* If a channel is currently selected... */
 	if (depth == 2) {
-		gint	channels = 0;
-		gchar**	split = g_strsplit (path_string, ":", 2);
+		gint    channels = 0;
+		gchar** split = g_strsplit (path_string, ":", 2);
 
 		server_index = atoi (split[0]);
 		channel_index = atoi (split[1]);
@@ -604,13 +604,13 @@ navigation_tree_select_next_channel (NavTree * navtree)
 }
 
 void
-navigation_tree_select_prev_channel (NavTree * navtree)
+navigation_tree_select_prev_channel (NavTree *navtree)
 {
-	GtkTreeModel*		model;
-	GtkTreeSelection*	selection;
-	GtkTreeIter		iter;
-	GtkTreePath*		path;
-	gint			depth;
+	GtkTreeModel     *model;
+	GtkTreeSelection *selection;
+	GtkTreeIter       iter;
+	GtkTreePath      *path;
+	gint              depth;
 
 	/* Get the GtkTreeSelection. */
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
@@ -689,11 +689,11 @@ navigation_tree_select_prev_channel (NavTree * navtree)
 }
 
 void
-navigation_tree_select_next_network (NavTree * navtree)
+navigation_tree_select_next_network (NavTree *navtree)
 {
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-	GtkTreePath *path;
+	GtkTreeIter      iter;
+	GtkTreeModel     *model;
+	GtkTreePath      *path;
 	GtkTreeSelection *selection;
 
 	/* Get the GtkTreeSelection. */
@@ -735,12 +735,12 @@ navigation_tree_select_next_network (NavTree * navtree)
 }
 
 void
-navigation_tree_select_prev_network (NavTree * navtree)
+navigation_tree_select_prev_network (NavTree *navtree)
 {
-	GtkTreeIter iter;
-	GtkTreeModel *model;
+	GtkTreeIter       iter;
+	GtkTreeModel     *model;
 	GtkTreeSelection *selection;
-	GtkTreePath *path;
+	GtkTreePath      *path;
 
 	/* Get our tree view and selection. */
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (navtree));
@@ -801,7 +801,7 @@ navigation_tree_get_selected_session (void)
 }
 
 static void
-navigation_tree_update_refs (NavTree* navtree)
+navigation_tree_update_refs (NavTree *navtree)
 {
 	GtkTreeModel*	model = GTK_TREE_MODEL (navtree->model->sorted);
 	GtkTreeIter	iter;
@@ -866,7 +866,7 @@ navigation_tree_update_refs (NavTree* navtree)
 
 /* Misc. Functions. */
 static gboolean
-navigation_tree_set_channel_name_iterate (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpointer data)
+navigation_tree_set_channel_name_iterate (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
 {
 	/* Iterator function for set_channel_name. */
 	gpointer s;
@@ -880,7 +880,7 @@ navigation_tree_set_channel_name_iterate (GtkTreeModel * model, GtkTreePath * pa
 }
 
 void
-navigation_tree_set_channel_name (NavTree * navtree, struct session *sess)
+navigation_tree_set_channel_name (NavTree *navtree, struct session *sess)
 {
 	GtkTreeModel *store, *model;
 
@@ -891,7 +891,7 @@ navigation_tree_set_channel_name (NavTree * navtree, struct session *sess)
 }
 
 gboolean
-navigation_tree_server_is_connected (NavTree * navtree, gchar * name)
+navigation_tree_server_is_connected (NavTree *navtree, gchar *name)
 {
 	GtkTreeModel *model, *store;
 	GtkTreeIter iter;
@@ -918,7 +918,7 @@ navigation_tree_server_is_connected (NavTree * navtree, gchar * name)
 
 /***** Context Menus *****/
 static void
-navigation_context (GtkWidget * treeview, session * selected)
+navigation_context (GtkWidget *treeview, session *selected)
 {
 	switch (selected->type) {
 	case SESS_SERVER:
@@ -934,7 +934,7 @@ navigation_context (GtkWidget * treeview, session * selected)
 }
 
 static void
-server_context (GtkWidget * treeview, session * selected)
+server_context (GtkWidget *treeview, session *selected)
 {
 	GtkWidget *menu;
 	GtkAction *action;
@@ -942,18 +942,20 @@ server_context (GtkWidget * treeview, session * selected)
 	menu = gtk_ui_manager_get_widget (gui.manager, "/ServerPopup");
 	g_return_if_fail (menu != NULL);
 
-	/* check if the network is in the auto-connect list */
-	action = gtk_action_group_get_action (gui.action_group, "ServerAutoConnect");
-	if (((ircnet *)selected->server->network)->flags & FLAG_AUTO_CONNECT)
-		gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
-	else
-		gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
+	if (selected != NULL) {
+		/* check if the network is in the auto-connect list */
+		action = gtk_action_group_get_action (gui.action_group, "ServerAutoConnect");
+		if (((ircnet *)selected->server->network)->flags & FLAG_AUTO_CONNECT)
+			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
+		else
+			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
+	}
 
 	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 }
 
 static void
-channel_context (GtkWidget * treeview, session * selected)
+channel_context (GtkWidget *treeview, session *selected)
 {
 	GtkWidget *menu;
 	GtkAction *action;
@@ -974,7 +976,7 @@ channel_context (GtkWidget * treeview, session * selected)
 }
 
 static void
-dialog_context (GtkWidget * treeview, session * selected)
+dialog_context (GtkWidget *treeview, session *selected)
 {
 	GtkWidget *menu;
 
@@ -986,7 +988,7 @@ dialog_context (GtkWidget * treeview, session * selected)
 
 /***** Callbacks *****/
 static gboolean
-click (GtkWidget * treeview, GdkEventButton * event, gpointer data)
+click (GtkWidget *treeview, GdkEventButton *event, gpointer data)
 {
 	GtkTreePath *path;
 	GtkTreeSelection *select;
@@ -1019,7 +1021,7 @@ click (GtkWidget * treeview, GdkEventButton * event, gpointer data)
 }
 
 static gboolean
-declick (GtkWidget * treeview, GdkEventButton * e, gpointer data)
+declick (GtkWidget *treeview, GdkEventButton *e, gpointer data)
 {
 	gtk_widget_grab_focus (gui.text_entry);
 	gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), -1);
@@ -1028,7 +1030,7 @@ declick (GtkWidget * treeview, GdkEventButton * e, gpointer data)
 }
 
 static void
-navigation_selection_changed (GtkTreeSelection * treeselection, gpointer user_data)
+navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data)
 {
 	GtkTreeIter iter, newiter;
 	GtkTreeModel *model, *store;
@@ -1136,7 +1138,7 @@ navigation_selection_changed (GtkTreeSelection * treeselection, gpointer user_da
 }
 
 static void
-row_expanded (GtkTreeView * treeview, GtkTreeIter * iter, GtkTreePath * path, gpointer user_data)
+row_expanded (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpointer user_data)
 {
 	/* If we had something selected before the row was collapsed make sure it gets selected. */
 	if (NAVTREE (treeview)->current_path && gtk_tree_path_is_ancestor (path, NAVTREE (treeview)->current_path)) {
@@ -1189,15 +1191,15 @@ navigation_model_get_type (void)
 }
 
 static void
-navigation_model_init (NavModel * navmodel)
+navigation_model_init (NavModel *navmodel)
 {
-	navmodel->store = gtk_tree_store_new (7, GDK_TYPE_PIXBUF,	/* status image */
-						 G_TYPE_STRING,		/* name */
-						 G_TYPE_POINTER,	/* session pointer */
-						 G_TYPE_INT,		/* status # (for tracking highest state) */
-						 GDK_TYPE_COLOR,	/* status color (disconnected, etc) */
-						 G_TYPE_INT,		/* reference count */
-						 G_TYPE_BOOLEAN);	/* connected */
+	navmodel->store = gtk_tree_store_new (7, GDK_TYPE_PIXBUF, /* status image */
+	                                         G_TYPE_STRING,   /* name */
+	                                         G_TYPE_POINTER,  /* session pointer */
+	                                         G_TYPE_INT,      /* status # (for tracking highest state) */
+	                                         GDK_TYPE_COLOR,  /* status color (disconnected, etc) */
+	                                         G_TYPE_INT,      /* reference count */
+	                                         G_TYPE_BOOLEAN); /* connected */
 	navmodel->sorted = gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (navmodel->store));
 	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (navmodel->sorted), 1, GTK_SORT_ASCENDING);
 	gtk_tree_sortable_set_sort_func (GTK_TREE_SORTABLE (navmodel->sorted), 1, gtk_tree_iter_sort_func_nocase, NULL, NULL);
@@ -1209,7 +1211,7 @@ navigation_model_init (NavModel * navmodel)
 }
 
 static void
-navigation_model_class_init (NavModelClass * klass)
+navigation_model_class_init (NavModelClass *klass)
 {
 	GObjectClass *object_class = (GObjectClass *) klass;
 	object_class->dispose = navigation_model_dispose;
@@ -1217,13 +1219,13 @@ navigation_model_class_init (NavModelClass * klass)
 }
 
 static void
-destroy_rowref (session * sess, GtkTreeRowReference * rowref, gpointer data)
+destroy_rowref (session *sess, GtkTreeRowReference *rowref, gpointer data)
 {
 	gtk_tree_row_reference_free (rowref);
 }
 
 static void
-navigation_model_dispose (GObject * object)
+navigation_model_dispose (GObject *object)
 {
 	NavModel *navmodel = NAVMODEL (object);
 	g_object_unref ((gpointer) navmodel->store);
@@ -1232,7 +1234,7 @@ navigation_model_dispose (GObject * object)
 }
 
 static void
-navigation_model_finalize (GObject * object)
+navigation_model_finalize (GObject *object)
 {
 	NavModel *model = (NavModel *) object;
 	g_hash_table_destroy (model->session_rows);
@@ -1246,11 +1248,11 @@ navigation_model_new ()
 }
 
 void
-navigation_model_add_new_network (NavModel * model, struct session *sess)
+navigation_model_add_new_network (NavModel *model, struct session *sess)
 {
-	GtkTreeIter		iter;
-	GtkTreePath*		path;
-	GtkTreeRowReference*	rowref;
+	GtkTreeIter          iter;
+	GtkTreePath         *path;
+	GtkTreeRowReference *rowref;
 
 	gtk_tree_store_append (model->store, &iter, NULL);
 
@@ -1270,7 +1272,7 @@ navigation_model_add_new_network (NavModel * model, struct session *sess)
 }
 
 static gboolean
-navigation_model_create_new_channel_entry_iterate (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, struct session *data)
+navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data)
 {
 	struct session *s;
 	gtk_tree_model_get (model, iter, 2, &s, -1);
@@ -1302,16 +1304,16 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel * model, GtkTree
 }
 
 void
-navigation_model_add_new_channel (NavModel * model, struct session *sess)
+navigation_model_add_new_channel (NavModel *model, struct session *sess)
 {
 	gtk_tree_model_foreach (GTK_TREE_MODEL (model->store), (GtkTreeModelForeachFunc) navigation_model_create_new_channel_entry_iterate, (gpointer) sess);
 }
 
 void
-navigation_model_remove (NavModel * model, struct session *sess)
+navigation_model_remove (NavModel *model, struct session *sess)
 {
-	GtkTreeIter*	iter = navigation_model_get_unsorted_iter (model, sess);
-	GtkTreePath*	path = gtk_tree_model_get_path (GTK_TREE_MODEL (model->store), iter);
+	GtkTreeIter *iter = navigation_model_get_unsorted_iter (model, sess);
+	GtkTreePath *path = gtk_tree_model_get_path (GTK_TREE_MODEL (model->store), iter);
 
 	if (gtk_tree_path_get_depth (path) == 1)
 		model->servers--;
@@ -1323,7 +1325,7 @@ navigation_model_remove (NavModel * model, struct session *sess)
 }
 
 GtkTreeIter *
-navigation_model_get_sorted_iter (NavModel * model, struct session *sess)
+navigation_model_get_sorted_iter (NavModel *model, struct session *sess)
 {
 	GtkTreeIter *iter = NULL;
 	GtkTreePath *path, *sorted;
