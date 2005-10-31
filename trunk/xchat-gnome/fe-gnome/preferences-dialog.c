@@ -34,7 +34,9 @@ preferences_dialog_finalize (GObject *object)
 	preferences_page_colors_free   (p->colors_page);
 	preferences_page_dcc_free      (p->dcc_page);
 	preferences_page_networks_free (p->networks_page);
+#ifdef USE_PLUGIN
 	preferences_page_plugins_free  (p->plugins_page);
+#endif
 
 	((GObjectClass *) parent_class)->finalize (object);
 }
@@ -127,7 +129,9 @@ preferences_dialog_init (PreferencesDialog *p)
 	p->colors_page   = preferences_page_colors_new   (p, xml);
 	p->dcc_page      = preferences_page_dcc_new      (p, xml);
 	p->networks_page = preferences_page_networks_new (p, xml);
+#ifdef USE_PLUGIN
 	p->plugins_page  = preferences_page_plugins_new  (p, xml);
+#endif
 
 	gtk_window_set_title (GTK_WINDOW (p), "Preferences");
 

@@ -44,6 +44,14 @@ xchat_gnome_LDADD =				\
 	$(GUI_LIBS)				\
 	$(LIBSEXY_LIBS)
 
+if DO_PLUGIN
+plugin_sources =				\
+	plugins.c				\
+	plugins.h				\
+	preferences-page-plugins.c		\
+	preferences-page-plugins.h
+endif
+
 our_sources =					\
 	about.c					\
 	about.h					\
@@ -72,8 +80,6 @@ our_sources =					\
 	palette.h				\
 	pixmaps.c				\
 	pixmaps.h				\
-	plugins.c				\
-	plugins.h				\
 	preferences.c				\
 	preferences.h				\
 	preferences-dialog.c			\
@@ -88,8 +94,6 @@ our_sources =					\
 	preferences-keybindings-page.c		\
 	preferences-page-networks.h		\
 	preferences-page-networks.c		\
-	preferences-page-plugins.c		\
-	preferences-page-plugins.h		\
 	setup-dialog.c				\
 	setup-dialog.h				\
 	textgui.c				\
@@ -100,7 +104,8 @@ our_sources =					\
 	userlist-gui.h				\
 	util.c					\
 	util.h					\
-	xg-plugin.h
+	xg-plugin.h				\
+	$(plugin_sources)
 
 xchat_sources =					\
 	$(mmx_cmod_S)				\
