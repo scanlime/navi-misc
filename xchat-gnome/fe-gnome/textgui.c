@@ -303,6 +303,9 @@ build_url_topic (char *topic)
 	gchar *escaped, *result, *temp;
 	int i;
 
+	if (strlen (topic) == 0)
+		return topic;
+
 	/* escape out <>&"' so that pango markup doesn't get confused */
 	escaped = g_markup_escape_text (topic, strlen (topic));
 
