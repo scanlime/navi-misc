@@ -121,9 +121,11 @@ fe_init (void)
 	 */
 	arg_skip_plugins = 1;
 
+#ifdef USE_PLUGINS
 	plugins_initialize ();
 	if (!opt_noplugins)
 		autoload_plugins ();
+#endif
 }
 
 void
