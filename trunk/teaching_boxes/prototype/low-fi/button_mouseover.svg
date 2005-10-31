@@ -84,41 +84,59 @@
        width="701.01129"
        height="392.04379"
        x="18.986166"
-       y="48.598686" />
+       y="48.598686"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <rect
        style="fill:#e8e8e8;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
        id="rect2035"
        width="709.00287"
        height="19.000000"
        x="18.000196"
-       y="30.387299" />
+       y="30.387299"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <rect
        style="fill:#d6d6d4;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
        id="rect4227"
        width="9.5000000"
        height="390.95047"
        x="717.50159"
-       y="49.412079" />
+       y="49.412079"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <rect
        style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
        id="rect4955"
        width="9.4499998"
        height="9.5000010"
        x="717.52661"
-       y="49.387299" />
+       y="49.387299"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <rect
        y="430.88730"
        x="717.50159"
        height="9.5000010"
        width="9.4499998"
        id="rect5691"
-       style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000" />
+       style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="67.963852"
        y="117.48911"
-       id="text7931"><tspan
+       id="text7931"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan7933"
          x="67.963852"
@@ -129,13 +147,19 @@
        width="544.86389"
        height="15.000000"
        x="113.67009"
-       y="105.61252" />
+       y="105.61252"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <text
        id="text8663"
        y="177.48911"
        x="67.963852"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       xml:space="preserve"><tspan
+       xml:space="preserve"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          y="177.48911"
          x="67.963852"
          id="tspan8665"
@@ -146,20 +170,29 @@
        width="596.87457"
        height="74.500000"
        x="61.656498"
-       y="180.88730" />
+       y="180.88730"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <rect
        y="280.88730"
        x="61.656498"
        height="74.500000"
        width="596.87457"
        id="rect8673"
-       style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000" />
+       style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <text
        id="text8675"
        y="278.00449"
        x="66.823868"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       xml:space="preserve"><tspan
+       xml:space="preserve"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          y="278.00449"
          x="66.823868"
          id="tspan8677"
@@ -170,7 +203,10 @@
        x="28.698868"
        y="43.887299"
        id="text8683"
-       sodipodi:linespacing="125.00000%"><tspan
+       sodipodi:linespacing="125.00000%"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan8685"
          x="28.698868"
@@ -181,14 +217,20 @@
        x="46.237396"
        y="43.887299"
        id="text8687"
-       sodipodi:linespacing="125.00000%"><tspan
+       sodipodi:linespacing="125.00000%"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan8689"
          x="46.237396"
          y="43.887299">I</tspan></text>
     <g
        id="g3806"
-       transform="translate(-11.99840,-11.11275)">
+       transform="translate(-11.99840,-11.11275)"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000">
       <text
          id="text8691"
          y="54.748047"
@@ -206,7 +248,10 @@
     </g>
     <g
        id="g9476"
-       transform="translate(-11.99840,-11.11275)">
+       transform="translate(-11.99840,-11.11275)"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000">
       <rect
          y="46.500000"
          x="90.500000"
@@ -243,7 +288,10 @@
     </g>
     <g
        id="g9484"
-       transform="translate(-11.99840,-11.11275)">
+       transform="translate(-11.99840,-11.11275)"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000">
       <text
          sodipodi:linespacing="125.00000%"
          id="text9448"
@@ -295,7 +343,10 @@
        y="89.989105"
        x="68.116074"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       xml:space="preserve"><tspan
+       xml:space="preserve"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          y="89.989105"
          x="68.116074"
          id="tspan1600"
@@ -306,18 +357,27 @@
        height="15.000000"
        width="545.86261"
        id="rect1602"
-       style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000" />
+       style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <path
        style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#1f17ff;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
        d="M 503.00160,69.887280 L 695.00160,69.887280"
-       id="path3063" />
+       id="path3063"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <text
        xml:space="preserve"
        style="font-size:10.000000px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#2717ff;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="502.94107"
        y="68.80722"
        id="text2333"
-       sodipodi:linespacing="125.00000%"><tspan
+       sodipodi:linespacing="125.00000%"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan2335"
          x="502.94107"
@@ -327,7 +387,10 @@
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="118.82227"
        y="90.229706"
-       id="text7000"><tspan
+       id="text7000"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan7002"
          x="118.82227"
@@ -337,7 +400,10 @@
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="118.82227"
        y="117.61642"
-       id="text7004"><tspan
+       id="text7004"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan7006"
          x="118.82227"
@@ -348,7 +414,10 @@
        height="19.000000"
        width="709.00287"
        id="rect8681"
-       style="fill:#e8e8e8;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000" />
+       style="fill:#e8e8e8;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <rect
        style="fill:#7e6363;fill-opacity:0.51366121;stroke:#000000;stroke-width:0.66456127;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
        id="rect4770"
@@ -357,13 +426,19 @@
        x="191.36835"
        y="12.269241"
        ry="0.81250000"
-       rx="0.81250000" />
+       rx="0.81250000"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="26.822235"
        y="23.860565"
-       id="text7163"><tspan
+       id="text7163"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan7165"
          x="26.822235"
@@ -373,7 +448,10 @@
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="196.32617"
        y="23.860565"
-       id="text1594"><tspan
+       id="text1594"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan1596"
          x="196.32617"
@@ -383,7 +461,10 @@
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="281.20898"
        y="23.860565"
-       id="text3791"><tspan
+       id="text3791"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan3793"
          x="281.20898"
@@ -393,7 +474,10 @@
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="351.90625"
        y="23.860565"
-       id="text3795"><tspan
+       id="text3795"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan3797"
          x="351.90625"
@@ -403,7 +487,10 @@
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="451.90625"
        y="23.860565"
-       id="text3799"><tspan
+       id="text3799"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan3801"
          x="451.90625"
@@ -413,7 +500,10 @@
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="553.97302"
        y="24.085785"
-       id="text7018"><tspan
+       id="text7018"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan7020"
          x="553.97302"
@@ -423,14 +513,20 @@
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="108.85969"
        y="23.879017"
-       id="text10792"><tspan
+       id="text10792"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan10794"
          x="108.85969"
          y="23.879017">Save Lesson</tspan></text>
     <g
        id="g6258"
-       transform="matrix(1.671988,0.000000,0.000000,1.369783,-38.92838,-9.168749)">
+       transform="matrix(1.671988,0.000000,0.000000,1.369783,-38.92838,-9.168749)"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000">
       <path
          id="path3903"
          d="M 168.35416,29.737518 L 170.43750,35.425018"
@@ -445,7 +541,10 @@
        y="145.22971"
        x="67.90625"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       xml:space="preserve"><tspan
+       xml:space="preserve"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          y="145.22971"
          x="67.906250"
          id="tspan1392"
@@ -456,20 +555,29 @@
        height="15.000000"
        width="493.10947"
        id="rect1394"
-       style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000" />
+       style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <rect
        style="fill:#ffffff;fill-opacity:1.0000000;stroke:#000000;stroke-opacity:1.0000000"
        id="rect1400"
        width="596.87457"
        height="56.960648"
        x="61.656498"
-       y="382.76959" />
+       y="382.76959"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="66.823868"
        y="380.00449"
-       id="text1402"><tspan
+       id="text1402"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan1404"
          x="66.823868"
@@ -479,7 +587,10 @@
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#1100f6;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        x="147.40918"
        y="379.40256"
-       id="text1406"><tspan
+       id="text1406"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan1408"
          x="147.40918"
@@ -488,6 +599,9 @@
     <path
        style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#1100f6;stroke-width:0.24031148pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
        d="M 147.14426,380.11252 L 188.26199,380.11252"
-       id="path2892" />
+       id="path2892"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
   </g>
 </svg>
