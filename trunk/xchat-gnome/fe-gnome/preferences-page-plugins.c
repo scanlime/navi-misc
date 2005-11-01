@@ -254,7 +254,7 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 
 	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/plugin-manager.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "Scripts and Plugins", 2, 4, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "Scripts and Plugins", 2, 5, -1);
 
 	/*                                          name,          version,       description,   file,          loaded*/
 	page->plugin_store = gtk_list_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);

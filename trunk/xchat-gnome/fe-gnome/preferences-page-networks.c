@@ -163,7 +163,7 @@ preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml)
 
 	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/servers.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "Networks", 2, 3, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "Networks", 2, 4, -1);
 
 	page->network_store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
 	page->sort_model = GTK_TREE_MODEL_SORT (gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (page->network_store)));

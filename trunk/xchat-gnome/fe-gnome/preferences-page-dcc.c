@@ -186,7 +186,7 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 
 	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/dcc.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "File Transfers & DCC", 2, 2, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "File Transfers & DCC", 2, 3, -1);
 
 	return page;
 }
