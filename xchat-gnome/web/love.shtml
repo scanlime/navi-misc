@@ -49,10 +49,6 @@
 	</div>
 	<div class="section-title">Mid-Level Hackery Love</div>
 	<div class="section">
-	  <b>irc:// URI support</b><br />
-	  <p>There are a couple parts to this. The first is a parser for the URI that
-	  handles everything in <a href="http://www.ietf.org/internet-drafts/draft-butcher-irc-url-02.tx.txt">this internet draft</a>.
-	  The second is registering URL handlers with gnome.</p><br />
 	  <b>New "connect" dialog</b><br />
 	  <p>The current connect dialog is pretty boring.  Ideally, it would present a list
 	  of networks along with a description (and maybe logo) of the currently selected
