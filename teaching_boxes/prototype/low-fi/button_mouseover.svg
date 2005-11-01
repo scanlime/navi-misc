@@ -54,15 +54,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.0000000"
-     inkscape:cx="330.42300"
-     inkscape:cy="234.15878"
+     inkscape:cx="450.64743"
+     inkscape:cy="347.22694"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1024"
-     inkscape:window-height="694"
+     inkscape:window-width="1280"
+     inkscape:window-height="949"
      inkscape:window-x="0"
-     inkscape:window-y="24" />
+     inkscape:window-y="25" />
   <metadata
      id="metadata3816">
     <rdf:RDF>
@@ -459,55 +459,42 @@
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="281.20898"
-       y="23.860565"
-       id="text3791"
-       inkscape:export-filename="/home/evan/button_mouseover.png"
-       inkscape:export-xdpi="90.000000"
-       inkscape:export-ydpi="90.000000"><tspan
-         sodipodi:role="line"
-         id="tspan3793"
-         x="281.20898"
-         y="23.860565">Schedule</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="351.90625"
-       y="23.860565"
+       x="349.90625"
+       y="23.942596"
        id="text3795"
        inkscape:export-filename="/home/evan/button_mouseover.png"
        inkscape:export-xdpi="90.000000"
        inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan3797"
-         x="351.90625"
-         y="23.860565">Add Resource</tspan></text>
+         x="349.90625"
+         y="23.942596">Add Resource</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="451.90625"
-       y="23.860565"
+       x="280.26172"
+       y="23.942596"
        id="text3799"
        inkscape:export-filename="/home/evan/button_mouseover.png"
        inkscape:export-xdpi="90.000000"
        inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan3801"
-         x="451.90625"
-         y="23.860565">Add Reference</tspan></text>
+         x="280.26172"
+         y="23.942596">Add Field</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="553.97302"
-       y="24.085785"
+       x="446.97461"
+       y="23.942596"
        id="text7018"
        inkscape:export-filename="/home/evan/button_mouseover.png"
        inkscape:export-xdpi="90.000000"
        inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan7020"
-         x="553.97302"
-         y="24.085785">Add Note</tspan></text>
+         x="446.97461"
+         y="23.942596">Add Note</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
