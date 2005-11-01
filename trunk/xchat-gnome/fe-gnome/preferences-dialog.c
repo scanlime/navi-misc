@@ -32,6 +32,7 @@ preferences_dialog_finalize (GObject *object)
 
 	preferences_page_irc_free      (p->irc_page);
 	preferences_page_colors_free   (p->colors_page);
+	preferences_page_effects_free  (p->effects_page);
 	preferences_page_dcc_free      (p->dcc_page);
 	preferences_page_networks_free (p->networks_page);
 #ifdef USE_PLUGIN
@@ -127,6 +128,7 @@ preferences_dialog_init (PreferencesDialog *p)
 
 	p->irc_page      = preferences_page_irc_new      (p, xml);
 	p->colors_page   = preferences_page_colors_new   (p, xml);
+	p->effects_page  = preferences_page_effects_new  (p, xml);
 	p->dcc_page      = preferences_page_dcc_new      (p, xml);
 	p->networks_page = preferences_page_networks_new (p, xml);
 #ifdef USE_PLUGIN
