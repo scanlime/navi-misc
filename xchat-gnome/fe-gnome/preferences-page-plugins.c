@@ -1,5 +1,5 @@
 /*
- * preferences-page-plugins.h - helpers for the plugins preferences page
+ * preferences-page-plugins.c - helpers for the plugins preferences page
  *
  * Copyright (C) 2004-2005 xchat-gnome team
  *
