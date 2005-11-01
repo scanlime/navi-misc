@@ -86,6 +86,8 @@ our_sources =					\
 	preferences-dialog.h			\
 	preferences-page-colors.c		\
 	preferences-page-colors.h		\
+	preferences-page-effects.c		\
+	preferences-page-effects.h		\
 	preferences-page-dcc.c			\
 	preferences-page-dcc.h			\
 	preferences-page-irc.c			\

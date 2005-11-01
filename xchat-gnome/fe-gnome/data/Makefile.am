@@ -1,6 +1,7 @@
 xchat_gnome_DATA = 			\
 	color.png			\
 	dcc.png				\
+	effects.png			\
 	global-message.png		\
 	irc.png				\
 	newdata.png			\
