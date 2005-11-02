@@ -29,7 +29,7 @@ else:
     amc = AMC.from_file (sys.argv[1])
     lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
     sequence = Sequence.Sequence (amc, lorenz, Numeric.array ([1, 2, 3]), n=1000)
-    sequence.shuffle (Numeric.array ([9,9,9]), n=1000)
+    sequence.shuffle (Numeric.array ([1,2,3]), n=1000)
 
     sequence.save (sys.argv[2], amc.format)
 
