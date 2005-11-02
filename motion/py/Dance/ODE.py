@@ -45,21 +45,21 @@ class RK4 (ODE):
     def __init__ (self, func):
         ODE.__init__ (self, func)
 
-    def _step (self, last, i):
+    def _step (self, last, h, t):
         """ Computations performed at each iteration of the ODE. """
-        k1 = self.f (last, i.time, i.h)
-        k2 = self.f (last + i.h/2. * k1, i.time + i.h/2., i.h)
-        k3 = self.f (last + i.h/2. * k2, i.time + i.h/2., i.h)
-        k4 = self.f (last + i.h * k3, i.time + i.h, i.h)
+        k1 = self.f (last, t, h)
+        k2 = self.f (last + h/2. * k1, t + h/2., h)
+        k3 = self.f (last + h/2. * k2, t + h/2., h)
+        k4 = self.f (last + h * k3, t + h, h)
 
-        return last + i.h/6.*(k1 + 2.*k2 + 2.*k3 + k4)
+        return last + h/6.*(k1 + 2.*k2 + 2.*k3 + k4)
 
-    def __call__ (self, ic, time):
+    def __call__ (self, ic, n, h):
         """ Solve the system. """
         result = [Numeric.array (ic)]
 
-        for i in time:
-            step = self._step (result[i.iteration], i)
+        for i in range (n):
+            step = self._step (result[i], h, i*h)
             result.append (step)
 
         return result

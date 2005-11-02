@@ -11,64 +11,32 @@ __all__ = ["Sequence"]
 
 class Sequence:
     """This class represents a dance sequence mapped to an attractor."""
-    def __init__ (self, system, ic, t, data):
+    def __init__ (self, data, system, ic, n=10000, h=.001):
         """Each Sequence object requires an ordinary differential equation
            solver and some motion capture data (data).
            """
-        self.mapping = {}
+        # If we got passed an AMC object, create a list from it.
+        if isinstance (data, Motion.AMC): data = self._dataFromAMC (data)
+
         self.ode = RK4 (system)
 
-        if isinstance (t, Time):
-            self.t = t
-        else:
-            start, iterations, step = t
-            self.t = Time (start, iterations, step)
+        traj = self.ode (ic, n, h)
 
-        traj = self.ode (ic, self.t)
-
-        frames = len (data.values ()[0])
+        frames = len (data)
         step = len (traj) / frames
         length = frames * step
 
         # Map each frame evenly over the trajectory.
+        self.mapping = {}
         for i in range (frames):
-            self.mapping[_Coordinate (traj[i * step])] = _Frame (i, data)
+            self.mapping[_Coordinate (traj[i * step])] = data[i]
 
-    def __getitem__ (self, frame):
-        """Use [] on a Sequence object to get a frame."""
-        return self.mapping.items () [frame]
-
-    def _distance (self, x, y):
-        """Calculate the Euclidean distance between the points x and y."""
-        return math.sqrt (Numeric.sum ((y - x)**2))
-
-    def _findNearest (self, point):
-        """Find a point the trajectory nearest to the coordinate given."""
-        traj = [Numeric.array (key.coordinates) for key in self.mapping.keys ()]
-        frames = self.mapping.values ()
-        dist = self._distance (traj[0], point)
-        winner = frames[0]
-
-        for i in range (1, len (traj)):
-            delta = self._distance (traj[i], point)
-            if delta < dist:
-                dist = delta
-                winner = frames[i]
-
-        return winner
-
-    def shuffle (self, ic, time):
-        """ Takes a set of initial conditions (ics) and returns a new
-            dance sequence.
-            """
-        if isinstance (time, Time):
-            self.t = time
-        else:
-            start, iterations, step = time
-            self.t = Time (start, iterations, step)
-
+    def shuffle (self, ic, n=10000, h=.001):
+        """Takes a set of initial conditions (ics) and returns a new
+           dance sequence.
+           """
         shuffled = []
-        traj = self.ode (ic, self.t)
+        traj = self.ode (ic, n, h)
         step = len (traj) / len (self.mapping.keys ())
 
         for i in range (len (traj)):
@@ -88,6 +56,39 @@ class Sequence:
         amc.bones = dict ([(bone, Numeric.array (data)) for bone,data in bones.iteritems ()])
 
         amc.save (filename)
+
+    def __getitem__ (self, frame):
+        """Use [] on a Sequence object to get a frame."""
+        return self.mapping.items () [frame]
+
+    def _dataFromAMC (self, amc):
+        """Create a list of _Frames from an AMC object."""
+        data = []
+        n = len (amc.bones.values ()[0])
+
+        for i in range (n):
+            data.append (_Frame (i, amc.bones))
+
+        return data
+
+    def _distance (self, x, y):
+        """Calculate the Euclidean distance between the points x and y."""
+        return math.sqrt (Numeric.sum ((y - x)**2))
+
+    def _findNearest (self, point):
+        """Find a point the trajectory nearest to the coordinate given."""
+        traj = [Numeric.array (key.coordinates) for key in self.mapping.keys ()]
+        frames = self.mapping.values ()
+        dist = self._distance (traj[0], point)
+        winner = frames[0]
+
+        for i in range (1, len (traj)):
+            delta = self._distance (traj[i], point)
+            if delta < dist:
+                dist = delta
+                winner = frames[i]
+
+        return winner
 
 
 class _Coordinate:
