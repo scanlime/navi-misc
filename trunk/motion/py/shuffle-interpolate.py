@@ -22,7 +22,7 @@
 #
 
 from Motion import AMC
-from Dance import Systems, Sequence
+from Dance import Systems, Sequence, MotionGraph
 from Graph.ExtraAlgorithms import ParallelBFS
 import Numeric, sys
 
@@ -32,17 +32,19 @@ except IndexError:
     print 'usage: %s <amc file' % sys.argv[0]
     raise
 
-lorenz = Systems.Lorenz (1, 2, 3)
-sequence = Sequence.Sequence (lorenz, Numeric.array ([4, 5, 6]), [0, 1000, 0.01], amc.bones)
-newSequence = sequence.shuffle (Numeric.array ([9, 9, 9]), [0, 1000, 0.01])
+print 'shuffling sequence'
+lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
+sequence = Sequence.Sequence (amc, lorenz, Numeric.array ([1, 2, 3]), n=5000)
+sequence.shuffle (Numeric.array ([17.0, 2.0, -1.0]), n=5000)
 
 graphs = {}
 for key in amc.bones.iterkeys ():
+    print 'creating graph for %s' % key
     g = MotionGraph.build_graphs (key, [amc.bones[key]])
-    if g is not none:
+    if g is not None:
         graphs[key] = g
 
-for frame in newSequence:
+for frame in sequence:
     for bone in amc.bones.keys ():
         assert (frame[bone] in amc.bones[bone])
 
