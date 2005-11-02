@@ -108,6 +108,40 @@
 			</locale>
 		</schema>
 
+		<!-- background -->
+		<schema>
+			<key>/schemas/apps/xchat/main_window/background_type</key>
+			<applyto>/apps/xchat/main_window/background_type</applyto>
+			<owner>xchat</owner>
+			<type>int</type>
+			<default>0</default>
+			<locale name="C">
+				<short>Selected background type</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/main_window/background_image</key>
+			<applyto>/apps/xchat/main_window/background_image</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default></default>
+			<locale name="C">
+				<short>Background image filename</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/main_window/background_transparency</key>
+			<applyto>/apps/xchat/main_window/background_transparency</applyto>
+			<owner>xchat</owner>
+			<type>float</type>
+			<default>0.5</default>
+			<locale name="C">
+				<short>Background transparency</short>
+			</locale>
+		</schema>
+
 		<!-- fonts -->
 		<schema>
 			<key>/schemas/apps/xchat/main_window/use_sys_fonts</key>
