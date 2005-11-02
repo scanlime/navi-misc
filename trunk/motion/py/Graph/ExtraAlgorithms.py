@@ -28,7 +28,7 @@ class ParallelBFS:
 
         while not done:
             for search in bfsObjects.values ():
-                if search.match
+                if search.match:
                     done = true
             if done:
                 break
@@ -39,10 +39,10 @@ class ParallelBFS:
         # We're done.
         paths = {}
         for key in self.starts.keys ():
-            paths[key ] bfsObjects[key].getBestPath ()
+            paths[key] = bfsObjects[key].getBestPath ()
         return paths
 
-class ParallelBFSSearch ():
+class ParallelBFSSearch:
     """A class which runs a BFS on a graph, but without any specific stopping
        point.
        """
@@ -86,7 +86,7 @@ class ParallelBFSSearch ():
             u = path[i]
             v = path[i + 1]
             # FIXME - there's got to be a better way
-            for edge in self.adjacency.query (u)
+            for edge in self.adjacency.query (u):
                 if edge.v is v:
                     probability = probability * edge.weight
         return probability
