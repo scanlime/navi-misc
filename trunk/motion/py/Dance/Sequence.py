@@ -161,9 +161,9 @@ class _Frame:
         for bone, values in data.iteritems ():
             self.bones[bone] = values[index]
 
-    def __cmp__ (self, other):
-        """Compare dictionaries when comparing frames."""
-        return self.bones.__cmp__ (other.bones)
+    #def __cmp__ (self, other):
+    #   """Compare dictionaries when comparing frames."""
+    #   return self.bones.__cmp__ (other.bones)
 
     def __getitem__ (self, bone):
         return self.bones[bone]
