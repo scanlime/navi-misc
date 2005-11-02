@@ -33,6 +33,9 @@ typedef struct
 	GtkWidget *background_transparency;
 
 	GdkPixbuf *icon;
+
+	/* gconf notification handlers */
+	guint nh[3];
 } PreferencesEffectsPage;
 
 PreferencesEffectsPage *preferences_page_effects_new  (gpointer prefs_dialog, GladeXML *xml);
