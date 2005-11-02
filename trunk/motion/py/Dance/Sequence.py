@@ -112,8 +112,14 @@ class Sequence:
         i = self.original.index (self.shuffled[0])
 
         for j in range (len (self.shuffled)):
+            # If we've run off the end of the original sequence, or the frame
+            # in shuffled doesn't match the frame in original, we've got the
+            # first index of a new chunk.
            if i >= len (self.original) or self.shuffled[j] != self.original[i]:
                self.boundaries.append (j)
+               # Add one to i because j will be incremented the next time
+               # around. At this point we know that shuffled[j] == original[i]
+               # because we set i to a value that makes that statement true.
                i = self.original.index (self.shuffled[j]) + 1
            else:
                i += 1
