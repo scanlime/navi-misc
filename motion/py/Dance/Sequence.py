@@ -39,11 +39,12 @@ class Sequence:
            dance sequence.
            """
         shuffled = []
+        frames = len (self.mapping.keys ())
         traj = self.ode (ic, n, h)
-        step = len (traj) / len (self.mapping.keys ())
+        step = len (traj) / frames
 
-        for i in range (len (traj)):
-            shuffled.append (self._findNearest (traj[i]))
+        for i in range (frames):
+            shuffled.append (self._findNearest (traj[i*step]))
 
         self.shuffled = shuffled
 
