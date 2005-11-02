@@ -5,28 +5,6 @@ ODE solvers and related classes.
 
 import Numeric, math
 
-class Time:
-    """ A time object for use with ODE solvers. """
-    def __init__ (self, initTime, iterations, stepsize):
-        """ Start with a start time, time step and number of iterations. """
-        self.initial = initTime
-        self.time = initTime
-        self.n = iterations
-        self.h = stepsize
-        self.iteration = -1
-
-    def __iter__ (self):
-        """ Make this object iterable. """
-        return self
-
-    def next (self):
-        self.iteration += 1
-
-        if self.iteration >= self.n: raise StopIteration
-
-        self.time += self.h
-        return self
-
 
 class ODE:
     """ Genereic ODE solver object. Just in case we end up using more than
