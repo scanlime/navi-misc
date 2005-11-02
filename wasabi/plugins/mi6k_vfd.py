@@ -194,7 +194,7 @@ class LEDUpdater:
 
 class PluginInterface(plugin.DaemonPlugin):
     """Plugin to start and stop the VFD updater thread, and pass events to it"""
-    def __init__(self, device="/dev/usb/mi6k*"):
+    def __init__(self, device="/dev/mi6k*"):
         plugin.DaemonPlugin.__init__(self)
 
         # We want OSD events even if another plugin does too
