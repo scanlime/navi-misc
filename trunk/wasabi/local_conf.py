@@ -4,9 +4,9 @@
 
 CONFIG_VERSION = 5.15
 
-# Decide whether we're actually running on wasabi by looking for the uvswitch
+# Decide whether we're actually running on wasabi by looking for the mi6k
 import os.path
-have_wasabi_hardware = os.path.exists("/dev/usb/uvswitch0")
+have_wasabi_hardware = os.path.exists("/dev/mi6k0")
 
 if have_wasabi_hardware:
     START_FULLSCREEN_X  = 1
@@ -21,7 +21,7 @@ if have_wasabi_hardware:
     SHUTDOWN_SYS_CMD = 'sudo /sbin/shutdown -h now'
     RESTART_SYS_CMD  = 'sudo /sbin/shutdown -r now'
 
-    plugin.activate('rasterwand')
+    #plugin.activate('rasterwand')
 
     # Show navigational and OSD information on the MI6K
     plugin.activate('mi6k_vfd')
@@ -33,35 +33,36 @@ if have_wasabi_hardware:
 
     # Link up our uvswitch plugin with PyUnicone to automatically
     # emulate video game controllers when a system is selected.
-    import sys; sys.path.append("/home/freevo/wasabi/devices/unicone")
-    from PyUnicone.Freevo import UniconeHooks
-    from PyUnicone.Systems import GamecubeEmulator, GenesisEmulator
+    #import sys; sys.path.append("/home/freevo/wasabi/devices/unicone")
+    #from PyUnicone.Freevo import UniconeHooks
+    #from PyUnicone.Systems import GamecubeEmulator, GenesisEmulator
 
     # Add the USB Video Switch plugin and map all our inputs
-    plugin.activate('uvswitch.detector')
-    for args in (
-        (1, 'Nintendo 64', 'n64'),
-        (2, 'Playstation 2', 'playstation'),
-        (3, 'Sega Dreamcast', 'dreamcast'),
-        (4, 'NES', 'nes'),
-        (5, 'Nintendo Gamecube', 'gamecube'), #, UniconeHooks(GamecubeEmulator)),
-        (6, 'Sega Genesis', 'sega', UniconeHooks(GenesisEmulator)),
-        (7, 'Atari', 'atari'),
-        (8, 'Video Input', 'video_input'),
-        ):
-        plugin.activate('uvswitch.input', args=args)
+    #plugin.activate('uvswitch.detector')
+    #for args in (
+        #(1, 'Nintendo 64', 'n64'),
+        #(2, 'Playstation 2', 'playstation'),
+        #(3, 'Sega Dreamcast', 'dreamcast'),
+        #(4, 'NES', 'nes'),
+        #(5, 'Nintendo Gamecube', 'gamecube'), #, UniconeHooks(GamecubeEmulator)),
+        #(6, 'Sega Genesis', 'sega', UniconeHooks(GenesisEmulator)),
+        #(7, 'Atari', 'atari'),
+        #(8, 'Video Input', 'video_input'),
+        #):
+        #plugin.activate('uvswitch.input', args=args)
 
 # Our remote has a pretty high repeat rate, make these more sensitive
-EVENTS['global']['VOL+'] = Event('MIXER_VOLUP', arg=2)
-EVENTS['global']['VOL-'] = Event('MIXER_VOLDOWN', arg=2)
-EVENTS['video']['REW']   = Event('SEEK', arg=-1)
-EVENTS['video']['FFWD']  = Event('SEEK', arg=1)
-EVENTS['video']['LEFT']  = Event('SEEK', arg=-15)
-EVENTS['video']['RIGHT'] = Event('SEEK', arg=15)
+#EVENTS['global']['VOL+'] = Event('MIXER_VOLUP', arg=2)
+#EVENTS['global']['VOL-'] = Event('MIXER_VOLDOWN', arg=2)
+#EVENTS['video']['REW']   = Event('SEEK', arg=-1)
+#EVENTS['video']['FFWD']  = Event('SEEK', arg=1)
+#EVENTS['video']['LEFT']  = Event('SEEK', arg=-15)
+#EVENTS['video']['RIGHT'] = Event('SEEK', arg=15)
 	
 # Make freevo knowful of Navi
 common_items = [
     ('Navi', '/navi'),
+    ('Warzok', '/warzok'),
     ]
 VIDEO_ITEMS = [
     ('Movies', '/navi/media/video/movies'),
@@ -109,6 +110,11 @@ SKIN_XML_FILE = 'wasabi-calm'
 
 # Always write to a visualization buffer at /tmp/mpav,
 # so we can get visualization on all media mplayer handles.
-MPLAYER_ARGS_DEF = "%s -af export=/tmp/mpav " % MPLAYER_ARGS_DEF
+#MPLAYER_ARGS_DEF = "%s -af export=/tmp/mpav " % MPLAYER_ARGS_DEF
+
+# On my setup at least (emu10k1, very long cable)
+# I have bass clipping problems with the default PCM
+# volume levels. This makes the sound quality much nicer.
+MAX_VOLUME = 60
 
 ### The End ###
