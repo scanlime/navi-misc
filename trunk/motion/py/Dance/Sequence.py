@@ -15,7 +15,10 @@ class Sequence:
         """Each Sequence object requires an ordinary differential equation
            solver and some motion capture data (data).
            """
-        # If we got passed an AMC object, create a list from it.
+        # If we got passed an AMC object, create a list from it. It's unlikely
+        # that anything other than an AMC object will be useful here, but for
+        # the purpose of testing, allow this class to work with any list of
+        # data.
         if isinstance (data, Motion.AMC): data = self._dataFromAMC (data)
 
         self.ode = RK4 (system)
@@ -76,7 +79,7 @@ class Sequence:
         return math.sqrt (Numeric.sum ((y - x)**2))
 
     def _findNearest (self, point):
-        """Find a point the trajectory nearest to the coordinate given."""
+        """Find a point in the trajectory nearest to the coordinate given."""
         traj = [Numeric.array (key.coordinates) for key in self.mapping.keys ()]
         frames = self.mapping.values ()
         dist = self._distance (traj[0], point)
