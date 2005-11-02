@@ -34,6 +34,8 @@ class Sequence:
         for i in range (frames):
             self.mapping[_Coordinate (traj[i * step])] = data[i]
 
+        self.original = data
+
     def shuffle (self, ic, n=10000, h=.001):
         """Takes a set of initial conditions (ics) and returns a new
            dance sequence.
@@ -47,6 +49,9 @@ class Sequence:
             shuffled.append (self._findNearest (traj[i*step]))
 
         self.shuffled = shuffled
+
+        # Parse the shuffled sequence looking for chunk boundaries.
+        self._markChunks ()
 
     def save (self, filename, format):
         """Store the sequence to a file."""
@@ -94,6 +99,25 @@ class Sequence:
 
         return winner
 
+    def _markChunks (self):
+        """Go over the shuffled sequence looking for chunk boundaries that
+           require interpolation. The boundaries list contains indices that mark
+           the beginning of a new chunk in the shuffled sequence. So if
+           self.boundaries = [x, y], shuffled[x] and shuffled[y] are both the
+           beginning of new chunks. This means that interpolation is needed
+           between shuffled[x-1] and shuffled[x], and shuffled[y-1] and
+           shuffled[y].
+           """
+        self.boundaries = []
+        i = self.original.index (self.shuffled[0])
+
+        for j in range (len (self.shuffled)):
+           if i >= len (self.original) or self.shuffled[j] != self.original[i]:
+               self.boundaries.append (j)
+               i = self.original.index (self.shuffled[j]) + 1
+           else:
+               i += 1
+
 
 class _Coordinate:
     """A hashable coordinate object."""
@@ -130,6 +154,10 @@ class _Frame:
 
         for bone, values in data.iteritems ():
             self.bones[bone] = values[index]
+
+    def __cmp__ (self, other):
+        """Compare dictionaries when comparing frames."""
+        return self.bones.__cmp__ (other)
 
     def __getitem__ (self, bone):
         return self.bones[bone]
