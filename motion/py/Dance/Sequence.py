@@ -163,7 +163,7 @@ class _Frame:
 
     def __cmp__ (self, other):
         """Compare dictionaries when comparing frames."""
-        return self.bones.__cmp__ (other)
+        return self.bones.__cmp__ (other.bones)
 
     def __getitem__ (self, bone):
         return self.bones[bone]
