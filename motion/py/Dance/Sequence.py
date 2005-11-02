@@ -4,7 +4,7 @@ Map a sequence to a chaotic attractor and shuffle it.
 """
 
 import Motion, Numeric, math
-from ODE import RK4, Time
+from ODE import RK4
 
 __all__ = ["Sequence"]
 
