@@ -27,9 +27,9 @@ if len (sys.argv) != 3:
     print "usage: " + sys.argv[0] + " <input file> <output file>"
 else:
     amc = AMC.from_file (sys.argv[1])
-    lorenz = Systems.Lorenz (1, 2, 3)
-    sequence = Sequence.Sequence (lorenz, Numeric.array ([4,5,6]), [0,1000,.01], amc.bones)
-    sequence.shuffle (Numeric.array ([9,9,9]), [0,1000,.01])
+    lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
+    sequence = Sequence.Sequence (amc, lorenz, Numeric.array ([1, 2, 3]), n=1000)
+    sequence.shuffle (Numeric.array ([9,9,9]), n=1000)
 
     sequence.save (sys.argv[2], amc.format)
 
