@@ -4,7 +4,7 @@ RCS file: /cvsroot/xchat/xchat2/configure.in,v
 retrieving revision 1.90
 diff -u -r1.90 configure.in
 --- configure.in	28 Oct 2005 13:35:02 -0000	1.90
-+++ configure.in	31 Oct 2005 05:45:54 -0000
++++ configure.in	2 Nov 2005 10:02:56 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
@@ -206,7 +206,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.5
 diff -u -r1.5 Makefile.am
 --- plugins/Makefile.am	12 Oct 2005 05:03:59 -0000	1.5
-+++ plugins/Makefile.am	31 Oct 2005 05:45:54 -0000
++++ plugins/Makefile.am	2 Nov 2005 10:02:56 -0000
 @@ -1,10 +1,10 @@
  # temp. solution while mailcheck & xdcc arn't in SUBDIRS
 -EXTRA_DIST = plugin20.html Make.plugin plugin-conf.in \
@@ -243,13 +243,29 @@ diff -u -r1.5 Makefile.am
 -#SUBDIRS = . $(pythondir) $(perldir) mailcheck xdcc
 -SUBDIRS = . $(pythondir) $(perldir) $(tcldir) $(dbusdir)
 +SUBDIRS = . $(pythondir) $(perldir) $(tcldir) $(urlscrprdir) $(notificationdir) $(dbusdir)
+Index: plugins/dbus/Makefile.am
+===================================================================
+RCS file: /cvsroot/xchat/xchat2/plugins/dbus/Makefile.am,v
+retrieving revision 1.5
+diff -u -r1.5 Makefile.am
+--- plugins/dbus/Makefile.am	28 Oct 2005 13:35:02 -0000	1.5
++++ plugins/dbus/Makefile.am	2 Nov 2005 10:02:56 -0000
+@@ -19,8 +19,6 @@
+ xchat_remote_SOURCES = xchat-remote.c
+ 
+ if DO_GCONF
+-GCONF_SCHEMA_CONFIG_SOURCE=`$(GCONFTOOL) --get-default-source`
+-GCONF_SCHEMA_FILE_DIR=$(sysconfdir)/gconf/schemas
+ schemadir   = $(GCONF_SCHEMA_FILE_DIR)
+ schema_DATA = apps_xchat_url_handler.schemas
+ install-data-local:
 Index: plugins/mailcheck/Makefile.am
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/plugins/mailcheck/Makefile.am,v
 retrieving revision 1.1
 diff -u -r1.1 Makefile.am
 --- plugins/mailcheck/Makefile.am	17 Dec 2002 15:36:39 -0000	1.1
-+++ plugins/mailcheck/Makefile.am	31 Oct 2005 05:45:54 -0000
++++ plugins/mailcheck/Makefile.am	2 Nov 2005 10:02:56 -0000
 @@ -10,7 +10,6 @@
  
  # This file must be in the form PLUGIN-config.h.in, it can be empty but
@@ -264,7 +280,7 @@ RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	31 Oct 2005 05:46:59 -0000
++++ src/Makefile.am	2 Nov 2005 10:02:57 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
@@ -281,7 +297,7 @@ RCS file: /cvsroot/xchat/xchat2/src/common/textevents.h,v
 retrieving revision 1.31
 diff -u -r1.31 textevents.h
 --- src/common/textevents.h	21 Oct 2005 09:26:07 -0000	1.31
-+++ src/common/textevents.h	31 Oct 2005 05:46:59 -0000
++++ src/common/textevents.h	2 Nov 2005 10:02:57 -0000
 @@ -3,214 +3,214 @@
  const struct text_event te[] = {
  
@@ -826,7 +842,7 @@ RCS file: /cvsroot/xchat/xchat2/src/common/textevents.in,v
 retrieving revision 1.30
 diff -u -r1.30 textevents.in
 --- src/common/textevents.in	21 Oct 2005 09:26:07 -0000	1.30
-+++ src/common/textevents.in	31 Oct 2005 05:46:59 -0000
++++ src/common/textevents.in	2 Nov 2005 10:02:57 -0000
 @@ -1,19 +1,19 @@
  Add Notify
  XP_TE_ADDNOTIFY
@@ -1739,7 +1755,7 @@ RCS file: /cvsroot/xchat/xchat2/src/pixmaps/Makefile.am,v
 retrieving revision 1.9
 diff -u -r1.9 Makefile.am
 --- src/pixmaps/Makefile.am	12 Oct 2005 05:38:32 -0000	1.9
-+++ src/pixmaps/Makefile.am	31 Oct 2005 05:46:59 -0000
++++ src/pixmaps/Makefile.am	2 Nov 2005 10:02:57 -0000
 @@ -13,5 +13,8 @@
  CLEANFILES = $(noinst_HEADERS)
  EXTRA_DIST = $(PNGS) makefile.msc
