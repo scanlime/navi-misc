@@ -28,10 +28,12 @@ void
 initialize_about_dialog ()
 {
 	GdkPixbuf *logo;
+	char *license_trans;
 	const gchar *authors[] =
 	{
 		"Andre Dahlqvist",
 		"Bastien Nocera",
+		"Brian Pepple",
 		"Claessens Xavier",
 		"Dan Kuester",
 		"David Trowbridge",
@@ -39,26 +41,53 @@ initialize_about_dialog ()
 		"Guillaume Desmottes",
 		"Luis Villa",
 		"Peter Železný",
-		"Ramon Rey Vicente",
+		"Ramón Rey Vicente",
 		"Rouslan Solomakhin",
 		NULL
 	};
 
+	const char *license[] = {
+		N_("X-Chat GNOME is free software; you can redistribute it and/or modify\n"
+		   "it under the terms of the GNU General Public License as published by\n"
+		   "the Free Software Foundation; either version 2 of the License, or\n"
+		   "(at your option) any later version.\n"),
+		N_("X-Chat GNOME is distributed in the hope that it will be useful,\n"
+		   "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+		   "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+		   "GNU General Public License for more details.\n"),
+		N_("You should have received a copy of the GNU General Public License\n"
+		   "along with X-Chat GNOME; if not, write to the Free Software Foundation, Inc.,\n"
+		   "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n")
+	};
+
 	if (gui.about != NULL)
 		return;
+
+	license_trans = g_strconcat (_(license[0]), "\n", _(license[1]), "\n", _(license[2]), "\n", NULL);
 
 	logo = gdk_pixbuf_new_from_file ("data/xchat-gnome-small.png", NULL);
 	if (!logo)
 		logo = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", NULL);
 
 	gui.about = gtk_about_dialog_new ();
-	gtk_about_dialog_set_name      (GTK_ABOUT_DIALOG (gui.about), "X-Chat GNOME");
-	gtk_about_dialog_set_version   (GTK_ABOUT_DIALOG (gui.about), VERSION);
-	gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (gui.about), _("Copyright © 2004-2005"));
-	gtk_about_dialog_set_comments  (GTK_ABOUT_DIALOG (gui.about), _("It has been well observed that a trombone is not a suitable instrument for a gentleman"));
-	gtk_about_dialog_set_website   (GTK_ABOUT_DIALOG (gui.about), "http://xchat-gnome.navi.cx");
-	gtk_about_dialog_set_authors   (GTK_ABOUT_DIALOG (gui.about), authors);
-	gtk_about_dialog_set_logo      (GTK_ABOUT_DIALOG (gui.about), logo);
+
+	g_object_set (G_OBJECT (gui.about),
+		      "name",      "X-Chat GNOME",
+		      "version",   VERSION,
+		      "copyright", _("Copyright © 2004-2005"),
+		      "comments",  _("It has been well observed that a trombone is not a suitable instrument for a gentleman"),
+		      "license",   license_trans,
+		      "website",   "http://xchat-gnome.navi.cx",
+		      "authors",   authors,
+		      "logo",      logo,
+		      NULL);
+
+	if (logo)
+		g_object_unref (logo);
+
+	g_free (license_trans);
+
+	gtk_window_set_transient_for (GTK_WINDOW (gui.about), GTK_WINDOW (gui.main_window));
 }
 
 void
