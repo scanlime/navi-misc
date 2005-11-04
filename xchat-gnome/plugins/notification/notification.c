@@ -47,6 +47,7 @@ static xchat_gnome_plugin* xgph;                /* xchat gnome plugin handle. */
 static NotifStatus         status = NOTIF_NONE; /* Current status level. */
 static gboolean            focused = TRUE;      /* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
 static gboolean            persistant;          /* Keep the icon in the tray at all times? */
+static gboolean            hidden = FALSE;      /* True when the main window is hidden. */
 static GtkWidget*          main_window;         /* xchat-gnome's main window. */
 static EggTrayIcon*        notification;        /* Notification area icon. */
 static GtkWidget*          image;               /* The image displayed by the icon. */
@@ -100,11 +101,18 @@ notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer da
 	switch (event->button) {
 		/* Left click. */
 		case 1:
-			if (gdk_window_get_state (main_window->window) & GDK_WINDOW_STATE_ICONIFIED) {
+			if (persistant) {
+				if (hidden) {
+					xchat_command (ph, "GUI SHOW");
+				} else {
+					xchat_command (ph, "GUI HIDE");
+				}
+
+				hidden = !hidden;
+			} else {
 				gtk_window_present (GTK_WINDOW (main_window));
-			} else if (persistant) {
-				xchat_command (ph, "GUI HIDE");
 			}
+
 			break;
 
 		default:
