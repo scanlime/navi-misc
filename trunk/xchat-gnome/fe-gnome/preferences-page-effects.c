@@ -177,6 +177,14 @@ preferences_page_effects_new (gpointer prefs_dialog, GladeXML *xml)
 void
 preferences_page_effects_free (PreferencesEffectsPage *page)
 {
+	GConfClient *client;
+	gint i;
+
+	client = gconf_client_get_default ();
+	for (i = 0; i < 3; i++)
+		gconf_client_notify_remove (client, page->nh[i]);
+	g_object_unref (client);
+
 	gdk_pixbuf_unref (page->icon);
 	g_free (page);
 }
