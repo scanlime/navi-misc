@@ -544,7 +544,8 @@ initialize_main_window ()
 	/* initialize command completion */
 	/* FIXME - would be nice to find somewhere else for this */
 	command_completion = g_completion_new (NULL);
-	g_completion_add_items (command_completion, command_list);
+	// FIXME - need to convert command_list to a GList
+	//g_completion_add_items (command_completion, command_list);
 	for (i = 0; xc_cmds[i].name != NULL; i++) {
 		tmp = g_list_prepend (tmp, xc_cmds[i].name);
 	}
@@ -961,7 +962,8 @@ static gboolean
 tab_complete_command (GtkEntry *entry)
 {
 	int cursor, length, pos;
-	char *prefix, *new_prefix, *text, *npt, *printtext;
+	char *prefix, *new_prefix, *printtext, *npt = NULL;
+	const gchar *text;
 	GList *options, *list;
 	session_gui *tgui;
 
