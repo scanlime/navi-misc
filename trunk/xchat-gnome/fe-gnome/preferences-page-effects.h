@@ -31,6 +31,7 @@ typedef struct
 	GtkWidget *background_transparent;
 	GtkWidget *background_image_file;
 	GtkWidget *background_transparency;
+	GtkWidget *image_preview;
 
 	GdkPixbuf *icon;
 

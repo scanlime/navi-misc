@@ -115,6 +115,28 @@ gconf_transparency_changed (GConfClient *client, guint cnxn_id, GConfEntry *entr
 {
 }
 
+static void
+update_preview (GtkFileChooser *file_chooser, PreferencesEffectsPage *page)
+{
+	gchar *filename;
+	GdkPixbuf *pixbuf;
+	gboolean have_preview = FALSE;
+
+	filename = gtk_file_chooser_get_preview_filename (file_chooser);
+	if (filename) {
+
+		pixbuf = gdk_pixbuf_new_from_file_at_size (filename, 128, 128, NULL);
+		have_preview = (pixbuf != NULL);
+		g_free (filename);
+
+		gtk_image_set_from_pixbuf (GTK_IMAGE (page->image_preview), pixbuf);
+		if (pixbuf)
+			gdk_pixbuf_unref (pixbuf);
+	}
+
+	gtk_file_chooser_set_preview_widget_active (file_chooser, have_preview);
+}
+
 PreferencesEffectsPage *
 preferences_page_effects_new (gpointer prefs_dialog, GladeXML *xml)
 {
@@ -136,6 +158,10 @@ preferences_page_effects_new (gpointer prefs_dialog, GladeXML *xml)
 	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/effects.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "Effects", 2, 2, -1);
+
+	page->image_preview = gtk_image_new ();
+	gtk_file_chooser_set_preview_widget (page->background_image_file, page->image_preview);
+	g_signal_connect (G_OBJECT (page->background_image_file),   "update-preview",    G_CALLBACK (update_preview),       page);
 
 	g_signal_connect (G_OBJECT (page->background_none),         "toggled",           G_CALLBACK (type_changed),         page);
 	g_signal_connect (G_OBJECT (page->background_image),        "toggled",           G_CALLBACK (type_changed),         page);
