@@ -42,22 +42,15 @@ typedef enum
 	NOTIF_NICK
 } NotifStatus;
 
-/* Represents a channel entry in the pop-up menu. */
-struct MenuChannel
-{
-	NotifStatus	status;
-	GtkWidget*	menu_item;
-};
-
-static xchat_plugin*		ph;			/* Plugin handle. */
-static xchat_gnome_plugin*	xgph;			/* xchat gnome plugin handle. */
-static NotifStatus		status = NOTIF_NONE;	/* Current status level. */
-static gboolean			focused = TRUE;		/* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
-static gboolean			persistant;		/* Keep the icon in the tray at all times? */
-static GtkWidget*		main_window;		/* xchat-gnome's main window. */
-static EggTrayIcon*		notification;		/* Notification area icon. */
-static GtkWidget*		image;			/* The image displayed by the icon. */
-static GdkPixbuf*		pixbufs[4];		/* Pixbufs */
+static xchat_plugin*       ph;                  /* Plugin handle. */
+static xchat_gnome_plugin* xgph;                /* xchat gnome plugin handle. */
+static NotifStatus         status = NOTIF_NONE; /* Current status level. */
+static gboolean            focused = TRUE;      /* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
+static gboolean            persistant;          /* Keep the icon in the tray at all times? */
+static GtkWidget*          main_window;         /* xchat-gnome's main window. */
+static EggTrayIcon*        notification;        /* Notification area icon. */
+static GtkWidget*          image;               /* The image displayed by the icon. */
+static GdkPixbuf*          pixbufs[4];          /* Pixbufs */
 
 
 /*** Callbacks ***/
@@ -98,24 +91,6 @@ new_msg_cb (char **word, void *msg_lvl)
 		gtk_widget_show_all (GTK_WIDGET (notification));
 	}
 
-	return 0;
-}
-
-static int
-join_chan_cb (char **word, void *data)
-{
-	return 0;
-}
-
-static int
-part_chan_cb (char **word, void *data)
-{
-	return 0;
-}
-
-static int
-chan_changed_cb (char **word, void *data)
-{
 	return 0;
 }
 
@@ -242,9 +217,6 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	xchat_hook_print (ph, "Channel Msg Hilight",		XCHAT_PRI_NORM, new_msg_cb, (gpointer) NOTIF_NICK);
 	xchat_hook_print (ph, "Channel Action Hilight",		XCHAT_PRI_NORM, new_msg_cb, (gpointer) NOTIF_NICK);
 	xchat_hook_print (ph, "Private Message to Dialog",	XCHAT_PRI_NORM, new_msg_cb, (gpointer) NOTIF_MSG);
-	xchat_hook_print (ph, "You Join",			XCHAT_PRI_NORM, join_chan_cb, NULL);
-	xchat_hook_print (ph, "You Part",			XCHAT_PRI_NORM, part_chan_cb, NULL);
-	xchat_hook_print (ph, "Focus Tab",			XCHAT_PRI_NORM, chan_changed_cb, NULL);
 
 	xchat_print (ph, "Notification plugin loaded.\n");
 
