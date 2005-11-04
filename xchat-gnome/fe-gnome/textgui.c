@@ -167,6 +167,25 @@ initialize_text_gui ()
 	} else if (background_type == 1) {
 		gchar *filename = gconf_client_get_string (client, "/apps/xchat/main_window/background_image", NULL);
 		gtk_xtext_set_tint (gui.xtext, 0, 0, 0);
+		gtk_xtext_set_background (gui.xtext, NULL, FALSE);
+		if (filename) {
+			GdkPixbuf *pixbuf;
+			pixbuf = gdk_pixbuf_new_from_file (filename, NULL);
+			if (pixbuf) {
+				gint width, height;
+				GdkPixmap *image;
+
+				width  = gdk_pixbuf_get_width  (pixbuf);
+				height = gdk_pixbuf_get_height (pixbuf);
+
+				image = gdk_pixmap_new (NULL, width, height, 24);
+				gdk_draw_pixbuf (image, NULL, pixbuf, 0, 0, 0, 0, width, height, GDK_RGB_DITHER_NONE, 0, 0);
+
+				gtk_xtext_set_background (gui.xtext, image, FALSE);
+				gdk_pixbuf_unref (pixbuf);
+				gdk_pixmap_unref (image);
+			}
+		}
 		g_free (filename);
 	} else {
 		float transparency = gconf_client_get_float (client, "/apps/xchat/main_window/background_transparency", NULL);
@@ -529,6 +548,25 @@ background_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpoin
 	} else if (background_type == 1) {
 		gchar *filename = gconf_client_get_string (client, "/apps/xchat/main_window/background_image", NULL);
 		gtk_xtext_set_tint (gui.xtext, 0, 0, 0);
+		gtk_xtext_set_background (gui.xtext, NULL, FALSE);
+		if (filename) {
+			GdkPixbuf *pixbuf;
+			pixbuf = gdk_pixbuf_new_from_file (filename, NULL);
+			if (pixbuf) {
+				gint width, height;
+				GdkPixmap *image;
+
+				width  = gdk_pixbuf_get_width  (pixbuf);
+				height = gdk_pixbuf_get_height (pixbuf);
+
+				image = gdk_pixmap_new (NULL, width, height, 24);
+				gdk_draw_pixbuf (image, NULL, pixbuf, 0, 0, 0, 0, width, height, GDK_RGB_DITHER_NONE, 0, 0);
+
+				gtk_xtext_set_background (gui.xtext, image, FALSE);
+				gdk_pixbuf_unref (pixbuf);
+				gdk_pixmap_unref (image);
+			}
+		}
 		g_free (filename);
 	} else {
 		float transparency = gconf_client_get_float (client, "/apps/xchat/main_window/background_transparency", NULL);
