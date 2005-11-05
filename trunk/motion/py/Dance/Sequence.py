@@ -55,6 +55,9 @@ class Sequence:
 
     def insert (self, data, index):
         """Insert a frame into the sequence at index."""
+        # FIXME - should probably do some error checking to ensure that the
+        # Frame or dictionary passed in is compatible with the existing Frames
+        # in the sequence.
         if isinstance (data, dict): data = Frame (data)
         assert (isinstance (data, Frame))
         self.shuffled.insert (index, data)
