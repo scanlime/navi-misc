@@ -53,6 +53,12 @@ class Sequence:
         # Parse the shuffled sequence looking for chunk boundaries.
         self._markChunks ()
 
+    def insert (self, data, index):
+        """Insert a frame into the sequence at index."""
+        if isinstance (data, dict): data = Frame (data)
+        assert (isinstance (data, Frame))
+        self.shuffled.insert (index, data)
+
     def save (self, filename, format):
         """Store the sequence to a file."""
         amc = Motion.AMC ()
