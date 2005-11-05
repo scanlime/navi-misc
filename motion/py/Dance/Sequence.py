@@ -6,7 +6,7 @@ Map a sequence to a chaotic attractor and shuffle it.
 import Motion, Numeric, math
 from ODE import RK4
 
-__all__ = ["Sequence"]
+__all__ = ["Sequence", "Frame"]
 
 
 class Sequence:
@@ -71,12 +71,12 @@ class Sequence:
         return self.mapping.items () [frame]
 
     def _dataFromAMC (self, amc):
-        """Create a list of _Frames from an AMC object."""
+        """Create a list of Frames from an AMC object."""
         data = []
         n = len (amc.bones.values ()[0])
 
         for i in range (n):
-            data.append (_Frame (i, amc.bones))
+            data.append (Frame (i, amc.bones))
 
         return data
 
@@ -149,7 +149,7 @@ class _Coordinate:
         return h
 
 
-class _Frame:
+class Frame:
     """A frame from the AMC file."""
     def __init__ (self, index, data):
         # Map bone names to a list of values in a single frame. Each value
