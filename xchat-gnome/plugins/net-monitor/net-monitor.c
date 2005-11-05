@@ -3,6 +3,8 @@
  *                 to control connection state
  *
  * Copyright (C) 2005 David Trowbridge
+ * Parts of this code were copied from epiphany extensions.
+ * Those parts are Copyright (C) 2005 Jean-François Rameau
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
