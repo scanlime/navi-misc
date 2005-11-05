@@ -4,7 +4,7 @@ RCS file: /cvsroot/xchat/xchat2/configure.in,v
 retrieving revision 1.91
 diff -u -r1.91 configure.in
 --- configure.in	3 Nov 2005 05:09:01 -0000	1.91
-+++ configure.in	4 Nov 2005 04:58:52 -0000
++++ configure.in	5 Nov 2005 23:19:29 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
@@ -53,7 +53,7 @@ diff -u -r1.91 configure.in
  AC_ARG_ENABLE(plugin,
  [  --disable-plugin        disable plugin support],
          plugin=$enableval, plugin=yes)
-@@ -130,6 +142,10 @@
+@@ -130,6 +142,14 @@
  [  --enable-shm            enable use of XShm for fast tinting (default: no)],
          shm=$enableval, shm=no)
  
@@ -61,10 +61,14 @@ diff -u -r1.91 configure.in
 +[  --disable-libsexy       disable use of libsexy],
 +        libsexy=$enableval, libsexy=yes)
 +
++AC_ARG_ENABLE(libnotify,
++[  --disable-libnotify     disable use of libnotify],
++        libnotify=$enableval, libnotify=yes)
++
  dnl *********************************************************************
  dnl ** DEBUG ************************************************************
  dnl *********************************************************************
-@@ -164,7 +180,6 @@
+@@ -164,7 +184,6 @@
  fi
  
  if test "$gtkfe" != yes; then
@@ -72,7 +76,7 @@ diff -u -r1.91 configure.in
  	zvt=no
  	COMMON_LIBS="$GLIB_LIBS"
  	COMMON_CFLAGS="$GLIB_CFLAGS"
-@@ -177,22 +192,49 @@
+@@ -177,22 +196,54 @@
  GUI_LIBS="$GUI_LIBS $GTK_LIBS"
  GUI_CFLAGS="$GUI_CFLAGS $GTK_CFLAGS"
  
@@ -135,10 +139,15 @@ diff -u -r1.91 configure.in
 +		AC_SUBST(LIBSEXY_LIBS)
 +	fi
 +fi
++
++# soft dependency on libnotify
++if test "$libnotify" = yes; then
++	PKG_CHECK_MODULES(LIBNOTIFY, [libnotify], libnotify=yes, libnotify=no)
++fi
  
  # GConf
  AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
-@@ -486,9 +528,12 @@
+@@ -486,11 +537,15 @@
  AM_CONDITIONAL(USE_OPENSSL, test "x$openssl" = "xyes")
  AM_CONDITIONAL(DO_TEXT, test "x$textfe" = "xyes")
  AM_CONDITIONAL(DO_GTK, test "x$gtkfe" = "xyes")
@@ -150,8 +159,11 @@ diff -u -r1.91 configure.in
 +AM_CONDITIONAL(DO_NOTIFICATION, test "x$notification" = "xyes")
  AM_CONDITIONAL(DO_PLUGIN, test "x$plugin" = "xyes")
  AM_CONDITIONAL(DO_DBUS, test "x$dbus" = "xyes")
++AM_CONDITIONAL(DO_LIBNOTIFY, test "x$libnotify" = "xyes")
  AM_CONDITIONAL(DO_GCONF, test "x$GCONFTOOL" != "xno")
-@@ -584,6 +629,10 @@
+ 
+ dnl *********************************************************************
+@@ -584,6 +639,10 @@
  	fi
  fi
  
@@ -162,7 +174,17 @@ diff -u -r1.91 configure.in
  dnl does this compiler support -Wno-pointer-sign ?
  AC_MSG_CHECKING([if gcc accepts -Wno-pointer-sign ])
  
-@@ -723,12 +772,16 @@
+@@ -697,7 +756,8 @@
+ AC_SUBST(TCL_CFLAGS)
+ AC_SUBST(DBUS_CFLAGS)
+ AC_SUBST(DBUS_LIBS)
+-
++AC_SUBST(LIBNOTIFY_CFLAGS)
++AC_SUBST(LIBNOTIFY_LIBS)
+ 
+ PLUGIN_INCLUDES='-I$(top_srcdir)/plugins'
+ AC_SUBST(PLUGIN_INCLUDES)
+@@ -723,13 +783,19 @@
  src/Makefile
  src/common/Makefile
  src/fe-text/Makefile
@@ -177,9 +199,12 @@ diff -u -r1.91 configure.in
 +plugins/url_scraper/Makefile
 +plugins/notification/Makefile
  plugins/dbus/Makefile
++plugins/notify-osd/Makefile
++plugins/net-monitor/Makefile
  intl/Makefile
  po/Makefile.in
-@@ -737,10 +790,17 @@
+ ])
+@@ -737,10 +803,19 @@
  echo
  echo xchat $VERSION
  echo
@@ -197,6 +222,8 @@ diff -u -r1.91 configure.in
 +echo "Python:       $python"
 +echo "TCL:          $tcl"
 +echo "Url Scraper:  $urlscraper"
++echo "Net Monitor:  $dbus"
++echo "OSD:          $libnotify"
  echo
  echo mmx tinting ......... : $mmx
  echo XShm tinting ........ : $shm\	plugin interface .... : $plugin
@@ -206,7 +233,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.5
 diff -u -r1.5 Makefile.am
 --- plugins/Makefile.am	12 Oct 2005 05:03:59 -0000	1.5
-+++ plugins/Makefile.am	4 Nov 2005 04:58:52 -0000
++++ plugins/Makefile.am	5 Nov 2005 23:19:29 -0000
 @@ -1,10 +1,10 @@
  # temp. solution while mailcheck & xdcc arn't in SUBDIRS
 -EXTRA_DIST = plugin20.html Make.plugin plugin-conf.in \
@@ -224,7 +251,7 @@ diff -u -r1.5 Makefile.am
  
  noinst_HEADERS = xchat-plugin.h
  
-@@ -20,9 +20,16 @@
+@@ -20,9 +20,20 @@
  tcldir = tcl
  endif
  
@@ -237,21 +264,26 @@ diff -u -r1.5 Makefile.am
 +endif
 +
  if DO_DBUS
- dbusdir = dbus
+-dbusdir = dbus
++dbusdir = dbus net-monitor
++endif
++
++if DO_LIBNOTIFY
++osddir = notify-osd
  endif
  
 -#SUBDIRS = . $(pythondir) $(perldir) mailcheck xdcc
 -SUBDIRS = . $(pythondir) $(perldir) $(tcldir) $(dbusdir)
-+SUBDIRS = . $(pythondir) $(perldir) $(tcldir) $(urlscrprdir) $(notificationdir) $(dbusdir)
++SUBDIRS = . $(pythondir) $(perldir) $(tcldir) $(urlscrprdir) $(notificationdir) $(dbusdir) $(osddir)
 Index: plugins/dbus/Makefile.am
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/plugins/dbus/Makefile.am,v
-retrieving revision 1.5
-diff -u -r1.5 Makefile.am
---- plugins/dbus/Makefile.am	28 Oct 2005 13:35:02 -0000	1.5
-+++ plugins/dbus/Makefile.am	4 Nov 2005 04:58:52 -0000
-@@ -19,8 +19,6 @@
- xchat_remote_SOURCES = xchat-remote.c
+retrieving revision 1.7
+diff -u -r1.7 Makefile.am
+--- plugins/dbus/Makefile.am	5 Nov 2005 10:44:24 -0000	1.7
++++ plugins/dbus/Makefile.am	5 Nov 2005 23:19:29 -0000
+@@ -26,8 +26,6 @@
+ 	libtool --mode=execute glib-genmarshal --header --body marshallers.list > marshallers.h
  
  if DO_GCONF
 -GCONF_SCHEMA_CONFIG_SOURCE=`$(GCONFTOOL) --get-default-source`
@@ -265,7 +297,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/mailcheck/Makefile.am,v
 retrieving revision 1.1
 diff -u -r1.1 Makefile.am
 --- plugins/mailcheck/Makefile.am	17 Dec 2002 15:36:39 -0000	1.1
-+++ plugins/mailcheck/Makefile.am	4 Nov 2005 04:58:52 -0000
++++ plugins/mailcheck/Makefile.am	5 Nov 2005 23:19:29 -0000
 @@ -10,7 +10,6 @@
  
  # This file must be in the form PLUGIN-config.h.in, it can be empty but
@@ -280,7 +312,7 @@ RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	4 Nov 2005 04:58:52 -0000
++++ src/Makefile.am	5 Nov 2005 23:19:31 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
@@ -297,7 +329,7 @@ RCS file: /cvsroot/xchat/xchat2/src/common/textevents.h,v
 retrieving revision 1.31
 diff -u -r1.31 textevents.h
 --- src/common/textevents.h	21 Oct 2005 09:26:07 -0000	1.31
-+++ src/common/textevents.h	4 Nov 2005 04:58:52 -0000
++++ src/common/textevents.h	5 Nov 2005 23:19:32 -0000
 @@ -3,214 +3,214 @@
  const struct text_event te[] = {
  
@@ -842,7 +874,7 @@ RCS file: /cvsroot/xchat/xchat2/src/common/textevents.in,v
 retrieving revision 1.30
 diff -u -r1.30 textevents.in
 --- src/common/textevents.in	21 Oct 2005 09:26:07 -0000	1.30
-+++ src/common/textevents.in	4 Nov 2005 04:58:52 -0000
++++ src/common/textevents.in	5 Nov 2005 23:19:32 -0000
 @@ -1,19 +1,19 @@
  Add Notify
  XP_TE_ADDNOTIFY
@@ -1755,7 +1787,7 @@ RCS file: /cvsroot/xchat/xchat2/src/pixmaps/Makefile.am,v
 retrieving revision 1.9
 diff -u -r1.9 Makefile.am
 --- src/pixmaps/Makefile.am	12 Oct 2005 05:38:32 -0000	1.9
-+++ src/pixmaps/Makefile.am	4 Nov 2005 04:58:52 -0000
++++ src/pixmaps/Makefile.am	5 Nov 2005 23:19:32 -0000
 @@ -13,5 +13,8 @@
  CLEANFILES = $(noinst_HEADERS)
  EXTRA_DIST = $(PNGS) makefile.msc
