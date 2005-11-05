@@ -156,13 +156,11 @@ xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_ver
 }
 
 int
-xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg)
+xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg)
 {
 	gboolean success;
 
-	*plugin_name    = NET_MONITOR_NAME;
-	*plugin_desc    = NET_MONITOR_DESCRIPTION;
-	*plugin_version = NET_MONITOR_VERSION;
+	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version, NULL);
 
 	ph = plugin_handle;
 
