@@ -76,7 +76,7 @@ class Sequence:
         n = len (amc.bones.values ()[0])
 
         for i in range (n):
-            data.append (Frame (i, amc.bones))
+            data.append (Frame (amc.bones, i))
 
         return data
 
@@ -151,15 +151,18 @@ class _Coordinate:
 
 class Frame:
     """A frame from the AMC file."""
-    def __init__ (self, index, data):
+    def __init__ (self, data, index=None):
         # Map bone names to a list of values in a single frame. Each value
         # corresponds to a degree of freedom for that bone. index gives the
         # frame number and data is a dictionary mapping bones to motion data.
         # The movement data is stored as follows: data["bone name"][frame, dof].
-        self.bones = {}
+        if index:
+            self.bones = {}
 
-        for bone, values in data.iteritems ():
-            self.bones[bone] = values[index]
+            for bone, values in data.iteritems ():
+                self.bones[bone] = values[index]
+        else:
+            self.bones = data
 
     #def __cmp__ (self, other):
     #   """Compare dictionaries when comparing frames."""
