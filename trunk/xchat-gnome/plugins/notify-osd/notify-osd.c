@@ -79,9 +79,7 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 
 	ph = plugin_handle;
 
-	success = notify_init ("XChat OSD");
-
-	if (success) {
+	if (notify_init ("Xchat OSD")) {
 		xchat_hook_print (ph, "Channel Msg Hilight",    XCHAT_PRI_NORM, new_msg_cb, NULL);
 		xchat_hook_print (ph, "Channel Action Hilight", XCHAT_PRI_NORM, new_msg_cb, NULL);
 
