@@ -20,24 +20,82 @@
  *
  */
 
+#define DBUS_API_SUBJECT_TO_CHANGE
+#include <dbus/dbus.h>
+#include <glib.h>
+#include <glib/gi18n.h>
 #include "xchat-plugin.h"
 
-#define NET_MONITOR_VERSION "0.1"
+#define NET_MONITOR_VERSION     "0.1"
+#define NET_MONITOR_NAME        "Network Monitor"
+#define NET_MONITOR_DESCRIPTION "NetworkManager connection monitor";
+#define NM_SERVICE              "org.freedesktop.NetworkManager";
+#define NM_OBJECT_PATH          "/org/freedesktop/NetworkManager";
+#define NM_INTERFACE            "org.freedesktop.NetworkManager";
+
+static xchat_plugin    *ph;
+static DBusConnection  *bus;
+
+static DBusHandlerResult
+filter_func (DBusConnection *connection, DBusMessage *message, void *data)
+{
+	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+}
+
+static gboolean
+init_dbus ()
+{
+	DBusError error;
+
+	dbus_error_init (&error);
+	bus = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
+
+	if (dbus_error_is_set (&error)) {
+		xchat_printf (ph, _("Couldn't connect to system bus : %s: %s\n"), error.name, error.message);
+		return FALSE;
+	}
+
+	dbus_connection_add_filter (bus, filter_func, NULL, NULL);
+	dbus_bus_add_match (bus, "type='signal',interface='org.freedesktop.NetworkManager'", &error);
+
+	if (dbus_error_is_set (&error)) {
+		xchat_printf (ph, _("Could not register signal handler: %s: %s"), error.name, error.message);
+		return FALSE;
+	}
+
+	return TRUE;
+}
 
 void
 xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved)
 {
-	*plugin_name = "Network Monitor";
-	*plugin_desc = "NetworkManager connection monitor";
+	*plugin_name    = NET_MONITOR_NAME;
+	*plugin_desc    = NET_MONITOR_DESCRIPTION;
 	*plugin_version = NET_MONITOR_VERSION;
+
+	if (reserved)
+		*reserved = NULL;
 }
 
 int
 xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg)
 {
+	gboolean success;
+
+	*plugin_name    = NET_MONITOR_NAME;
+	*plugin_desc    = NET_MONITOR_DESCRIPTION;
+	*plugin_version = NET_MONITOR_VERSION;
+
+	ph = plugin_handle;
+
+	success = init_dbus ();
+	if (success)
+		xchat_printf (ph, _(NET_MONITOR_NAME " loaded successfully\n"));
+	return success;
 }
 
 int
 xchat_plugin_deinit ()
 {
+	return TRUE;
 }
