@@ -50,6 +50,15 @@ static DBusConnection  *bus;
 static void
 set_network_mode (NetworkStatus status)
 {
+	xchat_list *channels;
+
+	channels = xchat_list_get (ph, "channels");
+	if (channels == NULL)
+		return;
+
+	while (xchat_list_next (ph, channels)) {
+	}
+
 	if (status == NETWORK_UP)
 		g_print ("network up!\n");
 	else
