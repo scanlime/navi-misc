@@ -63,6 +63,8 @@ init_dbus ()
 	dbus_error_init (&error);
 	bus = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
 
+	dbus_connection_setup_with_g_main (bus, NULL);
+
 	if (dbus_error_is_set (&error)) {
 		xchat_printf (ph, _("Couldn't connect to system bus : %s: %s\n"), error.name, error.message);
 		return FALSE;
