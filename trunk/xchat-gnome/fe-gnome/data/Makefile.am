@@ -13,6 +13,7 @@ xchat_gnome_DATA = 			\
 	stock_link.png			\
 	stock_up.png			\
 	toilet-paper.png		\
+	xchat-gnome.png			\
 	xchat-gnome-small.png
 xchat_gnomedir = $(datadir)/xchat
 
