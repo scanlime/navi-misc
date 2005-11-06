@@ -44,9 +44,10 @@ for key in amc.bones.iterkeys ():
     if g is not None:
         graphs[key] = g
 
-for frame in sequence:
+for boundary in sequence.boundaries:
+    search = ParallelBFS ()
+    pre  = sequence[boundary - 1]
+    post = sequence[boundary]
+
     for bone in amc.bones.keys ():
-        assert (frame[bone] in amc.bones[bone])
-
-search = ParallelBFS ()
-
+        print bone, pre[bone]
