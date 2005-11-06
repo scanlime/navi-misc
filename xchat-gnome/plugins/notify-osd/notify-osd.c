@@ -47,8 +47,29 @@ lost_focus_cb (GtkWidget *wigdet, GdkEventFocus *event, gpointer data)
 }
 
 static int
-new_msg_cb (char **word, void *msg_lvl)
+new_msg_cb (char *word[], gpointer data)
 {
+	g_print ("new msg cb\n");
+	return XCHAT_EAT_NONE;
+}
+
+static int
+new_action_cb (char *word[], gpointer data)
+{
+	g_print ("new action cb\n");
+	return XCHAT_EAT_NONE;
+}
+
+static int
+privmsg_cb (char *word[], char *word_eol[], gpointer data)
+{
+	if (strcmp (word[4], ":+\001ACTION") == 0) {
+		char *to = word[3];
+	} else {
+		char *to = word[3];
+		char *message = (word_eol[4][1] == '+') ? word_eol[4] + 2 : word_eol[4] + 1;
+	}
+	return XCHAT_EAT_NONE;
 }
 
 int
@@ -80,8 +101,10 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 	ph = plugin_handle;
 
 	if (notify_init ("Xchat OSD")) {
-		xchat_hook_print (ph, "Channel Msg Hilight",    XCHAT_PRI_NORM, new_msg_cb, NULL);
-		xchat_hook_print (ph, "Channel Action Hilight", XCHAT_PRI_NORM, new_msg_cb, NULL);
+		xchat_hook_server (ph, "PRIVMSG", XCHAT_PRI_NORM, privmsg_cb, NULL);
+
+		xchat_hook_print (ph, "Channel Msg Hilight",    XCHAT_PRI_NORM, new_msg_cb,    NULL);
+		xchat_hook_print (ph, "Channel Action Hilight", XCHAT_PRI_NORM, new_action_cb, NULL);
 
 		xchat_print (ph, "OSD loaded\n");
 
