@@ -64,15 +64,26 @@
 
 #include <Python.h>
 
+#define DEBUG
+
+#ifdef DEBUG
+#define DBG printf
+#else
+#define DBG
+#endif
+
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+
 /************************************************************************/
 /***************************************** Variable-length Integers *****/
 /************************************************************************/
 
 /* Valid samples can be up to 56 bits long */
 typedef long long sample_t;
-#define END_MARKER   -1
-#define HIT_FENCE    -2
-#define SAMPLE_INF   0x7FFFFFFFFFFFFFFFLL
+#define END_MARKER   ((sample_t) -1)
+#define HIT_FENCE    ((sample_t) -2)
+#define SAMPLE_INF   0x7FFFFFFFFFFFFFFELL
+#define SAMPLE_INIT  0x7FFFFFFFFFFFFFFFLL  /* Forces a reload, even against a SAMPLE_INF key */
 
 /*
  * Read a sample forward, incrementing 'p' to point just past the end
@@ -379,12 +390,13 @@ typedef struct {
 
 typedef struct {
     fid_file file;
-    struct {
+    struct fid_cursor_page {
         fid_page page;
         off_t loaded_offset;
         int offset;
         sample_t sample;
         unsigned long sample_number;
+        int is_dirty;
     } l0, l1;
 } fid_cursor;
 
@@ -447,17 +459,15 @@ static int fid_page_write(fid_page *self, fid_file *file)
  */
 static int fid_cursor_init(fid_cursor *self, int fd)
 {
+    /* Just be sure these pages won't be cached, and
+     * force our seek to start from the beginning.
+     */
     self->l0.loaded_offset = (off_t)-1;
-    self->l0.sample = 0;
-    self->l0.sample_number = 0;
-    self->l0.offset = 0;
-    self->l0.page.file_offset = 0;
-    
+    self->l0.sample = SAMPLE_INIT;
+    self->l0.is_dirty = 0;
     self->l1.loaded_offset = (off_t)-1;
-    self->l1.sample = 0;
-    self->l1.sample_number = 0;
-    self->l1.offset = 0;
-    self->l1.page.file_offset = 0;
+    self->l1.sample = SAMPLE_INIT;
+    self->l1.is_dirty = 0;
     
     return fid_file_init(&self->file, fd);
 }
@@ -468,14 +478,24 @@ static int fid_cursor_init(fid_cursor *self, int fd)
  */
 static int fid_cursor_seek(fid_cursor *self, sample_t key)
 {
+    if (key == SAMPLE_INF) {
+        DBG("seek to SAMPLE_INF\n");
+    }
+    else {
+        DBG("seek to %lld\n", key);
+    }
+
     /* First, the level 1 seek */
 
     /* We can only seek forwards, discard saved state
      * (but not necessarily cached pages) if we have to go back.
      */
     if (key < self->l1.sample) {
+        DBG("restarting seek\n");
+
         self->l1.sample = 0;
         self->l1.sample_number = 0;
+
         self->l1.offset = 0;
         self->l1.page.file_offset = 0;
 
@@ -492,6 +512,7 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
 
         /* Bring this l1 page into core if it isn't there already */
         if (self->l1.loaded_offset != self->l1.page.file_offset) {
+            DBG("reading L1 page at 0x%016llx\n", self->l1.page.file_offset);
             if (fid_page_read(&self->l1.page, &self->file) < 0)
                 return -1;
             self->l1.loaded_offset = self->l1.page.file_offset;
@@ -529,17 +550,13 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
         unsigned long page_item_count;
         
         while (1) {
-            page_sample_delta = sample_read_r(&p, fence);
-            if (page_sample_delta == END_MARKER) {
+            page_sample_delta = sample_read(&p, fence);
+            if (page_sample_delta < 0) {
                 /* End of page, leave the cursor here */
                 break;
             }
-            else if (page_sample_delta < 0) {
-                PyErr_SetString(PyExc_ValueError, "Improperly terminated level-1 index page");
-                return -1;
-            }
 
-            page_item_count = sample_read_r(&p, fence);
+            page_item_count = sample_read(&p, fence);
             if (page_item_count < 0) {
                 PyErr_SetString(PyExc_ValueError, "Incomplete record in level-1 index");
                 return -1;
@@ -562,6 +579,7 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
 
     /* Bring this l0 page into core if it isn't there already */
     if (self->l0.loaded_offset != self->l0.page.file_offset) {
+        DBG("reading L0 page at 0x%016llx\n", self->l0.page.file_offset);
         if (fid_page_read(&self->l0.page, &self->file) < 0)
             return -1;
         self->l0.loaded_offset = self->l0.page.file_offset;
@@ -574,7 +592,7 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
         sample_t sample_delta;
         
         while (1) {
-            sample_delta = sample_read_r(&p, fence);
+            sample_delta = sample_read(&p, fence);
             if (sample_delta < 0) {
                 /* End of page, leave the cursor here */
                 break;
@@ -590,6 +608,56 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
         }
     }
 
+    DBG("finished seek: sample=%lld sample_number=%lu offset=0x%016llx\n",
+        self->l0.sample, self->l0.sample_number,
+        self->l0.page.file_offset + self->l0.offset);
+
+    return 0;
+}
+
+/* Flush the current l0/l1 page to disk, if dirty
+ */
+static int fid_flush(fid_cursor *self, struct fid_cursor_page *cpage)
+{
+    if (cpage->is_dirty) {
+        DBG("flushing page at 0x%016llx\n", cpage->page.file_offset);
+
+        if (fid_page_write(&cpage->page, &self->file) < 0)
+            return -1;
+        cpage->is_dirty = 0;
+    }
+    return 0;
+}
+
+static int fid_flush_all(fid_cursor *self)
+{
+    /* Flush L1 first, so our write might be sequential */
+    if (fid_flush(self, &self->l1) < 0)
+        return -1;
+    if (fid_flush(self, &self->l0) < 0)
+        return -1;
+    return 0;
+}
+
+/* Append a new sample. The fid_cursor must already be seeked
+ * to SAMPLE_INF. It will still be seeked to SAMPLE_INF after
+ * this executes.
+ */
+static int fid_cursor_append(fid_cursor *self, sample_t sample)
+{
+    int len = get_sample_len(sample);
+
+    /* If there's room in this L0 page, we have very little to do.
+     * This is the most common case when appending many samples.
+     */
+    if (self->l0.offset + len <= PAGE_SIZE) {
+        sample_write(sample, self->l0.page.data + self->l0.offset);
+        self->l0.offset += len;
+        self->l0.is_dirty = 1;
+        self->l0.page.size = MAX(self->l0.page.size, self->l0.offset);
+        return 0;
+    }
+
     return 0;
 }
 
@@ -597,7 +665,6 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
 /************************************************************************/
 /************************************** High-Level Python Interface *****/
 /************************************************************************/
-
 
 /* Appends a list of new samples to a fid file */
 static PyObject* fid_append_samples(PyObject *self, PyObject *args) {
@@ -624,7 +691,11 @@ static PyObject* fid_append_samples(PyObject *self, PyObject *args) {
         if (sample == -1 && PyErr_Occurred())
             goto error;
 
+        if (fid_cursor_append(&cursor, sample) < 0)
+            goto error;
     }
+    if (fid_flush_all(&cursor) < 0)
+        goto error;
 
     Py_DECREF(iterator);
     Py_RETURN_NONE;
@@ -632,7 +703,6 @@ error:
     Py_DECREF(iterator);
     return NULL;
 }
-
 
 static PyMethodDef module_methods[] = {
     { "append_samples", (PyCFunction) fid_append_samples, METH_VARARGS },
