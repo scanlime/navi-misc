@@ -27,6 +27,7 @@
 #include <dbus/dbus-glib.h>
 #include <glib.h>
 #include <glib/gi18n.h>
+#include <string.h>
 #include "xchat-plugin.h"
 
 #define NET_MONITOR_VERSION     "0.1"
@@ -53,25 +54,71 @@ typedef enum
 	NM_STATE_DISCONNECTED,
 } NetworkManagerState;
 
-static xchat_plugin    *ph;
-static DBusConnection  *bus;
+enum {
+	SESSION_TYPE_SERVER = 1,
+	SESSION_TYPE_CHANNEL,
+	SESSION_TYPE_DIALOG,
+};
+
+static xchat_plugin   *ph;
+static DBusConnection *bus;
+static GList          *networks = NULL;
+static GHashTable     *channels = NULL;
+
+static gboolean
+free_ht_entry (gchar *key, GList *value, gpointer data)
+{
+	g_list_foreach (value, (GFunc) g_free, NULL);
+	g_list_free (value);
+	return TRUE;
+}
 
 static void
 set_network_mode (NetworkStatus status)
 {
-	xchat_list *channels;
+	xchat_list *channels_list;
 
-	channels = xchat_list_get (ph, "channels");
-	if (channels == NULL)
-		return;
+	if (status == NETWORK_DOWN) {
+		/* Store a list of currently connected networks & channels,
+		 * so we can restore the previous state when the network
+		 * becomes active again */
+		channels_list = xchat_list_get (ph, "channels");
+		if (channels_list == NULL)
+			return;
 
-	while (xchat_list_next (ph, channels)) {
+		channels = g_hash_table_new (g_str_hash, g_str_equal);
+
+		while (xchat_list_next (ph, channels_list)) {
+			const gchar *channel, *server;
+			gint type;
+
+			channel = xchat_list_str (ph, channels_list, "channel");
+			server  = xchat_list_str (ph, channels_list, "server");
+			type    = xchat_list_int (ph, channels_list, "type");
+
+			if (type == SESSION_TYPE_SERVER) {
+				networks = g_list_prepend (networks, g_strdup (server));
+			} else if (type == SESSION_TYPE_CHANNEL) {
+				GList *network_channels = g_hash_table_lookup (channels, server);
+				network_channels = g_list_append (network_channels, g_strdup (channel));
+				g_hash_table_insert (channels, (gpointer) server, network_channels);
+			}
+
+			g_print ("found %s on %s of type %d\n", channel, server, type);
+		}
+	} else {
+		GList *server, *channel;
+
+		for (server = networks; server; server = g_list_next (server)) {
+			g_print ("reconnecting to %s\n", (gchar *) server->data);
+		}
+
+		g_list_foreach (networks, (GFunc) g_free, NULL);
+		g_list_free (networks);
+
+		g_hash_table_foreach_remove (channels, (GHRFunc) free_ht_entry, NULL);
+		g_hash_table_destroy (channels);
 	}
-
-	if (status == NETWORK_UP)
-		g_print ("network up!\n");
-	else
-		g_print ("network down!\n");
 }
 
 static NetworkStatus
@@ -237,11 +284,11 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 
 	ph = plugin_handle;
 
-	xchat_set_context (ph, xchat_find_context (ph, NULL, NULL));
-
 	success = init_dbus ();
-	if (success)
+	if (success) {
+		xchat_set_context (ph, xchat_find_context (ph, NULL, NULL));
 		xchat_printf (ph, _(NET_MONITOR_NAME " loaded successfully\n"));
+	}
 	return success;
 }
 
