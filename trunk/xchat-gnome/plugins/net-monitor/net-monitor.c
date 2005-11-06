@@ -36,13 +36,22 @@
 #define NM_OBJECT_PATH          "/org/freedesktop/NetworkManager"
 #define NM_INTERFACE            "org.freedesktop.NetworkManager"
 
-#define NM_NO_ACTIVE_DEVICE     "org.freedesktop.NetworkManager.NoActiveDevice"
-
 typedef enum
 {
 	NETWORK_UP,
 	NETWORK_DOWN,
 } NetworkStatus;
+
+typedef enum
+{
+	NM_STATE_UNKNOWN = 0,
+	NM_STATE_ASLEEP,
+	NM_STATE_CONFIGURE_AP,
+	NM_STATE_CONFIGURE_DEV,
+	NM_STATE_CONFIGURE_IP,
+	NM_STATE_CONNECTED,
+	NM_STATE_DISCONNECTED,
+} NetworkManagerState;
 
 static xchat_plugin    *ph;
 static DBusConnection  *bus;
@@ -65,13 +74,59 @@ set_network_mode (NetworkStatus status)
 		g_print ("network down!\n");
 }
 
+static NetworkStatus
+check_device_state (const char *path)
+{
+	DBusMessage     *message, *reply;
+	DBusMessageIter  iter;
+	DBusError        error;
+	NetworkStatus    network_mode;
+
+	message = dbus_message_new_method_call (NM_SERVICE, path, NM_INTERFACE, "getLinkActive");
+	if (message == NULL) {
+		g_warning (_("Net Monitor: Couldn't allocate dbus message : %s: %s\n"), error.name, error.message);
+		/* just guess that we're up */
+		return NETWORK_UP;
+	}
+
+	dbus_error_init (&error);
+	reply = dbus_connection_send_with_reply_and_block (bus, message, -1, &error);
+
+	if (dbus_error_is_set (&error)) {
+		g_warning ("Net Monitor: Error retrieving device state: %s: %s\n", error.name, error.message);
+		network_mode = NETWORK_UP;
+	} else {
+		dbus_message_iter_init (reply, &iter);
+
+		if (dbus_message_iter_get_arg_type (&iter) == DBUS_TYPE_BOOLEAN) {
+			dbus_bool_t active;
+
+			dbus_message_iter_get_basic (&iter, &active);
+			network_mode = active ? NETWORK_UP : NETWORK_DOWN;
+		} else {
+			g_warning ("Net Monitor: got bad reply from NetworkManager\n");
+			network_mode = NETWORK_UP;
+		}
+	}
+
+	if (reply)
+		dbus_message_unref (reply);
+
+	if (message)
+		dbus_message_unref (message);
+
+	return network_mode;
+}
+
 static void
 determine_network_status ()
 {
-	DBusMessage *message, *reply;
-	DBusError error;
+	DBusMessage     *message, *reply;
+	DBusMessageIter  iter;
+	DBusError        error;
+	NetworkStatus    network_mode = NETWORK_DOWN;
 
-	message = dbus_message_new_method_call (NM_SERVICE, NM_OBJECT_PATH, NM_INTERFACE, "getActiveDevice");
+	message = dbus_message_new_method_call (NM_SERVICE, NM_OBJECT_PATH, NM_INTERFACE, "getDevices");
 	if (message == NULL) {
 		g_warning (_("Net Monitor: Couldn't allocate dbus message : %s: %s\n"), error.name, error.message);
 		/* just guess that we're up */
@@ -83,17 +138,35 @@ determine_network_status ()
 	reply = dbus_connection_send_with_reply_and_block (bus, message, -1, &error);
 
 	if (dbus_error_is_set (&error)) {
-		if (dbus_error_has_name (&error, NM_NO_ACTIVE_DEVICE)) {
-			set_network_mode (NETWORK_DOWN);
-		} else {
-			g_warning (_("Net Monitor: Can't talk to Network Manager: %s: %s\n"), error.name, error.message);
-			set_network_mode (NETWORK_UP);
-		}
+		g_warning ("Net Monitor: Error retrieving devices: %s: %s\n", error.name, error.message);
+		network_mode = NETWORK_UP;
 	} else {
-		if (reply == NULL)
-			g_warning ("Network Monitor plugin got NULL reply from NetworkManager");
-		set_network_mode (NETWORK_UP);
+		dbus_message_iter_init (reply, &iter);
+		if (dbus_message_iter_get_arg_type (&iter) == DBUS_TYPE_ARRAY) {
+			DBusMessageIter child;
+
+			dbus_message_iter_recurse (&iter, &child);
+
+			while (dbus_message_iter_get_arg_type (&child) != DBUS_TYPE_INVALID) {
+				const char *path;
+				gboolean state;
+
+				/* Check the state of this individual device.  If any one
+				 * device is active, the network is up */
+				dbus_message_iter_get_basic (&child, &path);
+				state = check_device_state (path);
+				if (state == NETWORK_UP)
+					network_mode = NETWORK_UP;
+
+				dbus_message_iter_next (&child);
+			}
+		} else {
+			g_warning ("Net Monitor: got bad reply from NetworkManager\n");
+			network_mode = NETWORK_UP;
+		}
 	}
+
+	set_network_mode (network_mode);
 
 	if (reply)
 		dbus_message_unref (reply);
