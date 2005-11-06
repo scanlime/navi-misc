@@ -42,7 +42,7 @@ class MotionGraphNode:
 
     def inside (self, point):
         if len (point) != len (self.mins):
-            raise AttributeError ("dimension doesn't match!")
+            raise AttributeError ("dimension doesn't match! %d vs %d" % (len (point), len (self.mins)))
         for i in range (len (point)):
             if point[i] < self.mins[i] or point[i] > self.maxs[i]:
                 return False
