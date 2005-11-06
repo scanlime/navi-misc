@@ -105,6 +105,24 @@ new_action_cb (char *word[], gpointer data)
 	return XCHAT_EAT_NONE;
 }
 
+static int
+private_msg_cb (char *word[], gpointer data)
+{
+	gchar *message, *summary;
+
+	if (focused)
+		return XCHAT_EAT_NONE;
+
+	message = xchat_strip (ph, word[2], -1, STRIP_COLORS | STRIP_ATTRS);
+	summary = g_strdup_printf ("Private Message from %s", word[1]);
+
+	notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, NULL, TRUE, 0, NULL, NULL, 0);
+
+	xchat_free (ph, message);
+	g_free (summary);
+	return XCHAT_EAT_NONE;
+}
+
 int
 xchat_gnome_plugin_init (xchat_gnome_plugin *xg_plugin)
 {
@@ -134,8 +152,10 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 	ph = plugin_handle;
 
 	if (notify_init ("Xchat OSD")) {
-		xchat_hook_print (ph, "Channel Msg Hilight",    XCHAT_PRI_NORM, new_msg_cb,    NULL);
-		xchat_hook_print (ph, "Channel Action Hilight", XCHAT_PRI_NORM, new_action_cb, NULL);
+		xchat_hook_print (ph, "Channel Msg Hilight",       XCHAT_PRI_NORM, new_msg_cb,     NULL);
+		xchat_hook_print (ph, "Channel Action Hilight",    XCHAT_PRI_NORM, new_action_cb,  NULL);
+		xchat_hook_print (ph, "Private Message",           XCHAT_PRI_NORM, private_msg_cb, NULL);
+		xchat_hook_print (ph, "Private Message to Dialog", XCHAT_PRI_NORM, private_msg_cb, NULL);
 
 		xchat_print (ph, "OSD loaded\n");
 
