@@ -21,16 +21,20 @@
 
 from Motion import AMC
 from Dance import Systems, Sequence
-import Numeric, sys
+from optparse import OptionParser
+import Numeric, string
 
-if len (sys.argv) != 3:
-    print "usage: " + sys.argv[0] + " <input file> <output file>"
-else:
-    amc = AMC.from_file (sys.argv[1])
-    lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
-    sequence = Sequence.Sequence (amc, lorenz, Numeric.array ([1, 2, 3]), n=1000)
-    sequence.shuffle (Numeric.array ([17.0, 2.0, -1.0]), n=5000)
+parser = OptionParser ("usage: %prog <comma separated ics> <input file> <output file>")
 
-    sequence.save (sys.argv[2], amc.format)
+opts, args = parser.parse_args ()
+
+if len (args) != 3: parser.error ("input and output files, and initial conditions are required")
+
+amc = AMC.from_file (args[1])
+lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
+sequence = Sequence.Sequence (amc, lorenz, Numeric.array ([60, 15, 1]), n=10000)
+sequence.shuffle (Numeric.array ([float(x) for x in string.split (args[0])]), n=10000)
+
+sequence.save (args[2], amc.format)
 
 # vim: ts=4:sw=4:et
