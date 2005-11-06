@@ -11,4 +11,5 @@ INCLUDES =				\
 	$(GUI_CFLAGS)			\
 	-I$(srcdir)/..			\
 	-I$(top_srcdir)/src/fe-gnome	\
-	$(LIBNOTIFY_CFLAGS)
+	$(LIBNOTIFY_CFLAGS)		\
+	-DXCHATSHAREDIR="\"$(datadir)/xchat\""
