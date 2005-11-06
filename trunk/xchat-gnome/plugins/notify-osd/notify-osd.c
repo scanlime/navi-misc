@@ -38,6 +38,7 @@ static xchat_plugin       *ph;
 static xchat_gnome_plugin *xgph;
 static GtkWidget          *main_window;
 static gboolean            focused = TRUE;
+static NotifyIcon         *icon;
 
 static gboolean
 got_focus_cb (GtkWidget *wigdet, GdkEventFocus *event, gpointer data)
@@ -71,7 +72,7 @@ new_msg_cb (char *word[], gpointer data)
 	else
 		summary = g_strdup_printf ("Message from %s", channel);
 
-	notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, NULL, TRUE, 0, NULL, NULL, 0);
+	notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
 
 	xchat_free (ph, stripped);
 	g_free (message);
@@ -97,7 +98,7 @@ new_action_cb (char *word[], gpointer data)
 	else
 		summary = g_strdup_printf ("Message from %s", channel);
 
-	notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, NULL, TRUE, 0, NULL, NULL, 0);
+	notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
 
 	xchat_free (ph, stripped);
 	g_free (message);
@@ -116,7 +117,7 @@ private_msg_cb (char *word[], gpointer data)
 	message = xchat_strip (ph, word[2], -1, STRIP_COLORS | STRIP_ATTRS);
 	summary = g_strdup_printf ("Private Message from %s", word[1]);
 
-	notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, NULL, TRUE, 0, NULL, NULL, 0);
+	notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
 
 	xchat_free (ph, message);
 	g_free (summary);
@@ -152,6 +153,8 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 	ph = plugin_handle;
 
 	if (notify_init ("Xchat OSD")) {
+		icon = notify_icon_new_from_uri (XCHATSHAREDIR "/xchat-gnome.png");
+
 		xchat_hook_print (ph, "Channel Msg Hilight",       XCHAT_PRI_NORM, new_msg_cb,     NULL);
 		xchat_hook_print (ph, "Channel Action Hilight",    XCHAT_PRI_NORM, new_action_cb,  NULL);
 		xchat_hook_print (ph, "Private Message",           XCHAT_PRI_NORM, private_msg_cb, NULL);
@@ -162,4 +165,10 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 		return TRUE;
 	}
 	return FALSE;
+}
+
+int
+xchat_plugin_deinit ()
+{
+	notify_icon_destroy (icon);
 }
