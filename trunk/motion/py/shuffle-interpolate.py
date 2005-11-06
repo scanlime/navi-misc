@@ -50,4 +50,4 @@ for boundary in sequence.boundaries:
     post = sequence[boundary]
 
     for bone in amc.bones.keys ():
-        print bone, pre[bone]
+        print bone, pre[1].bones[bone]
