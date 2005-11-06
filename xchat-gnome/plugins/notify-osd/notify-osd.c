@@ -163,6 +163,8 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 		xchat_print (ph, "OSD loaded\n");
 
 		return TRUE;
+	} else {
+		xchat_print (ph, "OSD initialization failed\n");
 	}
 	return FALSE;
 }
