@@ -23,8 +23,15 @@
 
 from Motion import AMC
 from Dance import Systems, Sequence, MotionGraph
+from Graph.Data import VertexMap
 from Graph.ExtraAlgorithms import ParallelBFS
 import Numeric, sys
+
+def find_node (graph, pos):
+    vertex_map = graph.representations[VertexMap]
+    for vertex in vertex_map:
+        if vertex.inside (pos):
+            return vertex
 
 try:
     amc = AMC.from_file (sys.argv[1])
@@ -50,4 +57,11 @@ for boundary in sequence.boundaries:
     post = sequence[boundary]
 
     for bone in amc.bones.keys ():
-        print bone, pre[1].bones[bone]
+        start = pre[1].bones[bone]
+        end   = post[1].bones[bone]
+
+        print start, end
+
+        startNode = find_node (graphs[bone], start)
+        endNode   = find_node (graphs[bone], end)
+        print 'found vertices', startNode, 'and', endNode
