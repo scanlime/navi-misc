@@ -62,7 +62,7 @@ enum {
 
 static xchat_plugin   *ph;
 static DBusConnection *bus;
-static GList          *networks = NULL;
+static GHashTable     *networks = NULL;
 static GHashTable     *channels = NULL;
 
 static gboolean
@@ -71,6 +71,34 @@ free_ht_entry (gchar *key, GList *value, gpointer data)
 	g_list_foreach (value, (GFunc) g_free, NULL);
 	g_list_free (value);
 	return TRUE;
+}
+
+static gboolean
+free_net_entry (gchar *key, gchar *value, gpointer data)
+{
+	g_free (value);
+	return TRUE;
+}
+
+static void
+connect_to_network (gchar *key, gchar *value, gpointer data)
+{
+	gchar *command;
+
+	g_print ("reconnecting to %s\n", value);
+	command = g_strdup_printf ("SERVER %s", value);
+	xchat_command (ph, command);
+	g_free (command);
+}
+
+static void
+disconnect_from_network (gchar *key, gchar *value, gpointer data)
+{
+	xchat_context *context;
+
+	context = xchat_find_context (ph, key, NULL);
+	xchat_set_context (ph, context);
+	xchat_command (ph, "DISCON");
 }
 
 static void
@@ -87,6 +115,7 @@ set_network_mode (NetworkStatus status)
 			return;
 
 		channels = g_hash_table_new (g_str_hash, g_str_equal);
+		networks = g_hash_table_new (g_str_hash, g_str_equal);
 
 		while (xchat_list_next (ph, channels_list)) {
 			const gchar *channel, *server;
@@ -97,27 +126,17 @@ set_network_mode (NetworkStatus status)
 			type    = xchat_list_int (ph, channels_list, "type");
 
 			if (type == SESSION_TYPE_SERVER) {
-				networks = g_list_prepend (networks, g_strdup (server));
+				g_hash_table_insert (networks, (gpointer) server, g_strdup (channel));
 			} else if (type == SESSION_TYPE_CHANNEL) {
 				GList *network_channels = g_hash_table_lookup (channels, server);
 				network_channels = g_list_append (network_channels, g_strdup (channel));
 				g_hash_table_insert (channels, (gpointer) server, network_channels);
 			}
-
-			g_print ("found %s on %s of type %d\n", channel, server, type);
 		}
+
+		g_hash_table_foreach (networks, (GHFunc) disconnect_from_network, NULL);
 	} else {
-		GList *server, *channel;
-
-		for (server = networks; server; server = g_list_next (server)) {
-			g_print ("reconnecting to %s\n", (gchar *) server->data);
-		}
-
-		g_list_foreach (networks, (GFunc) g_free, NULL);
-		g_list_free (networks);
-
-		g_hash_table_foreach_remove (channels, (GHRFunc) free_ht_entry, NULL);
-		g_hash_table_destroy (channels);
+		g_hash_table_foreach (networks, (GHFunc) connect_to_network, NULL);
 	}
 }
 
