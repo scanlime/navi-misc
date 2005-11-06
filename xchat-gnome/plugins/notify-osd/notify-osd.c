@@ -20,12 +20,19 @@
  *
  */
 
+#include <libnotify/notify.h>
 #include "xchat-plugin.h"
 #include "xg-plugin.h"
 
 #define NOTIFY_OSD_NAME        "OSD"
 #define NOTIFY_OSD_VERSION     "0.1"
 #define NOTIFY_OSD_DESCRIPTION "Pops up notification of important messages when xchat doesn't have the focus"
+
+enum
+{
+	STRIP_COLORS = 1 << 0,
+	STRIP_ATTRS  = 1 << 1,
+};
 
 static xchat_plugin       *ph;
 static xchat_gnome_plugin *xgph;
@@ -49,26 +56,52 @@ lost_focus_cb (GtkWidget *wigdet, GdkEventFocus *event, gpointer data)
 static int
 new_msg_cb (char *word[], gpointer data)
 {
-	g_print ("new msg cb\n");
+	const char *channel;
+	gchar *stripped, *message, *summary;
+
+	if (focused)
+		return XCHAT_EAT_NONE;
+
+	channel = xchat_get_info (ph, "channel");
+	stripped = xchat_strip (ph, word[2], -1, STRIP_COLORS | STRIP_ATTRS);
+
+	message = g_strdup_printf ("&lt;%s&gt; %s", word[1], stripped);
+	if (channel[0] == '#')
+		summary = g_strdup_printf ("Message in %s", channel);
+	else
+		summary = g_strdup_printf ("Message from %s", channel);
+
+	notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, NULL, TRUE, 0, NULL, NULL, 0);
+
+	xchat_free (ph, stripped);
+	g_free (message);
+	g_free (summary);
 	return XCHAT_EAT_NONE;
 }
 
 static int
 new_action_cb (char *word[], gpointer data)
 {
-	g_print ("new action cb\n");
-	return XCHAT_EAT_NONE;
-}
+	const char *channel;
+	gchar *stripped, *message, *summary;
 
-static int
-privmsg_cb (char *word[], char *word_eol[], gpointer data)
-{
-	if (strcmp (word[4], ":+\001ACTION") == 0) {
-		char *to = word[3];
-	} else {
-		char *to = word[3];
-		char *message = (word_eol[4][1] == '+') ? word_eol[4] + 2 : word_eol[4] + 1;
-	}
+	if (focused)
+		return XCHAT_EAT_NONE;
+
+	channel = xchat_get_info (ph, "channel");
+	stripped = xchat_strip (ph, word[2], -1, STRIP_COLORS | STRIP_ATTRS);
+
+	message = g_strdup_printf ("* %s %s", word[1], stripped);
+	if (channel[0] == '#')
+		summary = g_strdup_printf ("Message in %s", channel);
+	else
+		summary = g_strdup_printf ("Message from %s", channel);
+
+	notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, NULL, TRUE, 0, NULL, NULL, 0);
+
+	xchat_free (ph, stripped);
+	g_free (message);
+	g_free (summary);
 	return XCHAT_EAT_NONE;
 }
 
@@ -101,8 +134,6 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 	ph = plugin_handle;
 
 	if (notify_init ("Xchat OSD")) {
-		xchat_hook_server (ph, "PRIVMSG", XCHAT_PRI_NORM, privmsg_cb, NULL);
-
 		xchat_hook_print (ph, "Channel Msg Hilight",    XCHAT_PRI_NORM, new_msg_cb,    NULL);
 		xchat_hook_print (ph, "Channel Action Hilight", XCHAT_PRI_NORM, new_action_cb, NULL);
 
