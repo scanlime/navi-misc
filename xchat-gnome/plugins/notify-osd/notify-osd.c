@@ -39,10 +39,20 @@ static xchat_gnome_plugin *xgph;
 static GtkWidget          *main_window;
 static gboolean            focused = TRUE;
 static NotifyIcon         *icon;
+static GSList             *notifications = NULL;
+
+static void
+hide_notifications (NotifyHandle *handle)
+{
+	notify_close (handle);
+}
 
 static gboolean
 got_focus_cb (GtkWidget *wigdet, GdkEventFocus *event, gpointer data)
 {
+	g_slist_foreach (notifications, hide_notifications, NULL);
+	g_slist_free (notifications);
+	notifications = NULL;
 	focused = TRUE;
 	return FALSE;
 }
@@ -59,6 +69,7 @@ new_msg_cb (char *word[], gpointer data)
 {
 	const char *channel;
 	gchar *stripped, *message, *summary;
+	NotifyHandle *handle;
 
 	if (focused)
 		return XCHAT_EAT_NONE;
@@ -72,7 +83,8 @@ new_msg_cb (char *word[], gpointer data)
 	else
 		summary = g_strdup_printf ("Message from %s", channel);
 
-	notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
+	handle = notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
+	notifications = g_slist_prepend (notifications, handle);
 
 	xchat_free (ph, stripped);
 	g_free (message);
@@ -85,6 +97,7 @@ new_action_cb (char *word[], gpointer data)
 {
 	const char *channel;
 	gchar *stripped, *message, *summary;
+	NotifyHandle *handle;
 
 	if (focused)
 		return XCHAT_EAT_NONE;
@@ -98,7 +111,8 @@ new_action_cb (char *word[], gpointer data)
 	else
 		summary = g_strdup_printf ("Message from %s", channel);
 
-	notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
+	handle = notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
+	notifications = g_slist_prepend (notifications, handle);
 
 	xchat_free (ph, stripped);
 	g_free (message);
@@ -110,6 +124,7 @@ static int
 private_msg_cb (char *word[], gpointer data)
 {
 	gchar *message, *summary;
+	NotifyHandle *handle;
 
 	if (focused)
 		return XCHAT_EAT_NONE;
@@ -117,7 +132,8 @@ private_msg_cb (char *word[], gpointer data)
 	message = xchat_strip (ph, word[2], -1, STRIP_COLORS | STRIP_ATTRS);
 	summary = g_strdup_printf ("Private Message from %s", word[1]);
 
-	notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
+	handle = notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
+	notifications = g_slist_prepend (notifications, handle);
 
 	xchat_free (ph, message);
 	g_free (summary);
