@@ -25,8 +25,9 @@
  *     L0 pages have no entry in their L1 page yet.
  *
  *     In each completed L1 page, a pair of reversed variable-length
- *     integers at the end indicate, respectively, the absolute sample
- *     and sample index that the next L1 page begins at.
+ *     integers at the end indicate, respectively, the total
+ *     time delta encompassed by the L1 page and the total number
+ *     of samples in all of its L0 pages.
  *
  *     Incomplete L1 pages, by definition, end with an 0x00 byte
  *     indicating space reserved for these two reversed integers.
@@ -395,6 +396,15 @@ typedef struct {
         unsigned long sample_number;
         int is_dirty;
     } l0, l1;
+
+    /* "l2" pages don't actually exist, but by analogy with the relationship
+     * between l0 and l1 pages, this tracks the cursor at the beginning
+     * of the current l1 page.
+     */
+    struct {
+        sample_t sample;
+        unsigned long sample_number;
+    } l2;
 } fid_cursor;
 
 static int fid_file_init(fid_file *self, int fd)
@@ -490,6 +500,9 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
     if (key < self->l1.sample) {
         DBG("restarting seek\n");
 
+        self->l2.sample = 0;
+        self->l2.sample_number = 0;
+
         self->l1.sample = 0;
         self->l1.sample_number = 0;
 
@@ -498,13 +511,14 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
 
         self->l0.sample = 0;
         self->l0.sample_number = 0;
+
         self->l0.offset = 0;
         self->l0.page.file_offset = PAGE_SIZE;
     }
 
     while (1) {
-        sample_t next_page_sample;
-        unsigned long next_page_index;
+        sample_t page_sample_delta;
+        unsigned long page_item_count;
         unsigned char *p;
 
         /* Bring this l1 page into core if it isn't there already */
@@ -521,16 +535,19 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
             break;
 
         /* It's a completed page. We should be able to read its totals */
-        next_page_sample = sample_read_r(&p, self->l1.page.data);
-        next_page_index = sample_read_r(&p, self->l1.page.data);
-        if (next_page_sample >= key)
+        page_sample_delta = sample_read_r(&p, self->l1.page.data);
+        page_item_count = sample_read_r(&p, self->l1.page.data);
+        if (self->l1.sample + page_sample_delta >= key)
             break;
 
         /* Skip this page */
-        self->l1.page.file_offset += (1 + next_page_index - self->l1.sample_number) << PAGE_SHIFT; 
+        self->l2.sample += page_sample_delta;
+        self->l2.sample_number += page_item_count;
+
+        self->l1.sample = self->l2.sample;
+        self->l1.sample_number = self->l2.sample_number;
         self->l1.offset = 0;
-        self->l1.sample = next_page_sample;
-        self->l1.sample_number = next_page_index;
+        self->l1.page.file_offset += (1 + page_item_count) << PAGE_SHIFT;
 
         /* Point l0 at the first child of this new l1 page */
         self->l0.sample = self->l1.sample;
@@ -644,9 +661,8 @@ static int fid_cursor_append(fid_cursor *self, sample_t sample)
 {
     int len;
     sample_t sample_delta = sample - self->l0.sample;
-    int item_count;
-    sample_t l0_sample_delta, l1_sample_delta;
-    int l0_item_count, l1_item_count;
+    sample_t l0_sample_delta;
+    int l0_item_count;
 
     if (sample_delta < 0) {
         PyErr_SetString(PyExc_ValueError,
@@ -678,15 +694,44 @@ static int fid_cursor_append(fid_cursor *self, sample_t sample)
     }
     if (fid_flush(self, &self->l0) < 0)
         return -1;
+    self->l0.offset = 0;
+    self->l0.page.size = 0;
+    self->l0.page.file_offset += PAGE_SIZE;
 
     /* We need to make sure this L1 page has room for this L0 page's record,
      * plus the reverse-header that will eventually need to go at the end
-     * of the L1 page when it's completed.
+     * of the L1 page when it's completed. Note that we also need at least one
+     * byte of termination between the reverse-header and the rest of the L1 page.
+     *
+     * FIXME: This currently uses a worst-case size for the reverse header.
      */
     l0_sample_delta = self->l0.sample - self->l1.sample;
-    l1
+    l0_item_count = self->l0.sample_number - self->l1.sample_number;
+    len = get_sample_len(l0_sample_delta) + get_sample_len(l0_item_count) + 17;
 
+    if (self->l1.offset + len > PAGE_SIZE) {
+        /* Seal off and flush this L1 page, start a new one */
+        printf("L1 page full, not implemented!\n");
+        abort();
+    }
 
+    /* Append to the current L1 page */
+    sample_write(l0_sample_delta, self->l1.page.data + self->l1.offset);
+    self->l1.offset += get_sample_len(l0_sample_delta);
+    sample_write(l0_item_count, self->l1.page.data + self->l1.offset);
+    self->l1.offset += get_sample_len(l0_item_count);
+    self->l1.is_dirty = 1;
+    self->l1.page.size = MAX(self->l1.page.size, self->l1.offset);
+    self->l1.sample = self->l0.sample;
+    self->l1.sample_number = self->l0.sample_number;
+
+    /* Now finally write the first entry in our new L0 page */
+    sample_write(sample_delta, self->l0.page.data + self->l0.offset);
+    self->l0.sample = sample;
+    self->l0.sample_number++;
+    self->l0.offset += get_sample_len(sample_delta);
+    self->l0.is_dirty = 1;
+    self->l0.page.size = MAX(self->l0.page.size, self->l0.offset);
 
     return 0;
 }
