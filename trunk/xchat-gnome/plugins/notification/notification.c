@@ -42,12 +42,18 @@ typedef enum
 	NOTIF_NICK
 } NotifStatus;
 
+enum
+{
+	STRIP_COLORS = 1 << 0,
+	STRIP_ATTRS  = 1 << 1,
+};
+
 static EggTrayIcon*        notification;        /* Notification area icon. */
 static gboolean            focused = TRUE;      /* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
 static gboolean            persistant;          /* Keep the icon in the tray at all times? */
 static gboolean            hidden = FALSE;      /* True when the main window is hidden. */
-static gchar*              channel;
-static gchar*              user;
+static gchar*              channel = NULL;
+static gchar*              msg = NULL;
 static GdkPixbuf*          pixbufs[4];          /* Pixbufs */
 static GtkWidget*          image;               /* The image displayed by the icon. */
 static GtkWidget*          main_window;         /* xchat-gnome's main window. */
@@ -89,7 +95,12 @@ static int
 new_msg_cb (char **word, void *msg_lvl)
 {
 	if (status <= (NotifStatus) msg_lvl && !focused) {
-		channel = xchat_get_info (ph, "channel");
+		if (channel)
+			g_free (channel);
+		if (msg)
+			g_free (msg);
+		channel = g_strdup (xchat_get_info (ph, "channel"));
+		msg = g_strdup (xchat_strip (ph, word[2], -1, STRIP_COLORS | STRIP_ATTRS));
 		status = (NotifStatus) msg_lvl;
 		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
 		gtk_widget_show_all (GTK_WIDGET (notification));
@@ -129,8 +140,10 @@ static gboolean
 tray_entered_cb (GtkWidget* widget, GdkEventCrossing* event, gpointer data)
 {
 	GtkWidget*   tray_icon = (GtkWidget*) notification;
-	GtkWidget*   label = gtk_label_new (NULL);
-	gchar*       text = NULL;
+	GtkWidget*   chan_label = gtk_label_new (NULL);
+	GtkWidget*   msg_label = gtk_label_new (msg);
+	GtkWidget*   vbox = gtk_vbox_new (TRUE, 5);
+	gchar*       chan = NULL;
 	int          x;
 	int          y;
 	int          width;
@@ -138,10 +151,14 @@ tray_entered_cb (GtkWidget* widget, GdkEventCrossing* event, gpointer data)
 
 	tooltip = gtk_window_new (GTK_WINDOW_POPUP);
 
-	text = g_strdup_printf ("<b>%s</b>", channel);
-	gtk_label_set_markup (GTK_LABEL (label), text);
+	chan = g_strdup_printf ("<b>%s</b>", channel);
+	gtk_label_set_markup (GTK_LABEL (chan_label), chan);
 
-	gtk_container_add (GTK_CONTAINER (tooltip), label);
+	gtk_box_pack_start (GTK_BOX (vbox), chan_label, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (vbox), msg_label, TRUE, TRUE, 3);
+
+	gtk_container_set_border_width (GTK_CONTAINER (tooltip), 3);
+	gtk_container_add (GTK_CONTAINER (tooltip), vbox);
 
 	/* Position the tooltip and show. */
 	gdk_window_get_origin (tray_icon->window, &x, &y);
@@ -150,7 +167,7 @@ tray_entered_cb (GtkWidget* widget, GdkEventCrossing* event, gpointer data)
 
 	gtk_widget_show_all (tooltip);
 
-	g_free (text);
+	g_free (chan);
 
 	return TRUE;
 }
