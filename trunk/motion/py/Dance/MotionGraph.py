@@ -74,6 +74,11 @@ def fixnegative (x):
         x = x + 360
     return x
 
+def fix360 (x):
+    if x == 360:
+        return 0
+    return x
+
 def build_graphs (key, datas):
     """Build a graph using the data arrays from any number of files."""
     # If this is the root, we only want the last 3 dof, for now
@@ -127,13 +132,15 @@ def build_graph (d, graph, nodes, edge_list, interval):
 
     # find edges
     data1 = d[0,:]
-    bases = tuple (map (fixnegative, (int (n / interval) * interval for n in data1)))
+    bases = tuple (int (n / interval) * interval for n in tuple (map (fixnegative, data1)))
+    bases = tuple (map (fix360, bases))
     node1 = nodes[bases]
 
     for frame in range (1, frames):
         node2 = None
         data2 = d[frame,:]
-        bases = tuple (map (fixnegative, (int (n / interval) * interval for n in data1)))
+        bases = tuple (int (n / interval) * interval for n in tuple (map (fixnegative, data2)))
+        bases = tuple (map (fix360, bases))
         node2 = nodes[bases]
 
         # check to see if it's a self-loop

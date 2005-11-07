@@ -38,10 +38,15 @@ def fixnegative (x):
         x = x + 360
     return x
 
+def fix360 (x):
+    if x == 360:
+        return 0
+    return x
+
 try:
     amc = AMC.from_file (sys.argv[1])
 except IndexError:
-    print 'usage: %s <amc file' % sys.argv[0]
+    print 'usage: %s <amc file>' % sys.argv[0]
     raise
 
 print 'shuffling sequence'
@@ -74,8 +79,8 @@ for boundary in sequence.boundaries:
         start = [Numeric.remainder (d, 360.0) for d in start]
         end   = [Numeric.remainder (d, 360.0) for d in end]
 
-        start = tuple (map (fixnegative, start))
-        end   = tuple (map (fixnegative, end))
+        start = tuple (map (fix360, map (fixnegative, start)))
+        end   = tuple (map (fix360, map (fixnegative, end)))
 
         startNode = find_node (graphs[bone], start)
         endNode   = find_node (graphs[bone], end)
