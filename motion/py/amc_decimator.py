@@ -41,16 +41,7 @@ decimated = AMC ()
 decimated.format = amc.format
 
 for bone,frames in amc.bones.iteritems ():
-    slowed = []
-
-    # Take every nth frame and duplicate it n times. This should create a
-    # sequence from every nth frame that is the same length as the original
-    # sequence.
-    for i in range (0, length, opts.step):
-        slowed.extend ([frames[i] for j in range (opts.step)])
-
-    # Create the Numeric array
-    decimated.bones[bone] = Numeric.array (slowed)
+    decimated.bones[bone] = Numeric.array ([frames[i] for i in range (0, length, opts.step)])
 
 decimated.save (args[1])
 
