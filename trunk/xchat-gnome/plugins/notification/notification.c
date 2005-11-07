@@ -129,30 +129,19 @@ static gboolean
 tray_entered_cb (GtkWidget* widget, GdkEventCrossing* event, gpointer data)
 {
 	GtkWidget*   tray_icon = (GtkWidget*) notification;
-	PangoLayout* layout;
+	GtkWidget*   label = gtk_label_new (NULL);
 	gchar*       text = NULL;
 	int          x;
 	int          y;
 	int          width;
 	int          height;
 
-	/* Create the tooltip and Pango layout. */
 	tooltip = gtk_window_new (GTK_WINDOW_POPUP);
-	layout  = gtk_widget_create_pango_layout (tooltip, NULL);
 
-	/* Configure the Pango layout. */
-	pango_layout_set_wrap (layout, PANGO_WRAP_WORD);
-	pango_layout_set_width (layout, 500000);
-
-	/* Set the text. */
 	text = g_strdup_printf ("<b>%s</b>", channel);
-	pango_layout_set_markup (layout, text, strlen (text));
+	gtk_label_set_markup (GTK_LABEL (label), text);
 
-	/* Set the tooltip size. */
-	pango_layout_get_size (layout, &width, &height);
-	width = PANGO_PIXELS (width) + 8;
-	height = PANGO_PIXELS (height) + 8;
-	gtk_widget_set_size_request (tooltip, width, height);
+	gtk_container_add (GTK_CONTAINER (tooltip), label);
 
 	/* Position the tooltip and show. */
 	gdk_window_get_origin (tray_icon->window, &x, &y);
