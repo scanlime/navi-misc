@@ -24,10 +24,13 @@
  *     and the total number of items in that page. Incomplete
  *     L0 pages have no entry in their L1 page yet.
  *
- *     In each completed L1 page, a pair of reversed variable-length
- *     integers at the end indicate, respectively, the total
- *     time delta encompassed by the L1 page and the total number
- *     of samples in all of its L0 pages.
+ *     Each completed L1 page includes a reverse-header encoded
+ *     from the end of the page in reversed variable-length integers,
+ *     containing:
+ *       - The total time delta encompassed by the L1 page
+ *       - The total number of samples in all the L1 page's
+ *         corresponding L0 pages.
+ *       - The number of pages betewen this L1 page and the next one.
  *
  *     Incomplete L1 pages, by definition, end with an 0x00 byte
  *     indicating space reserved for these two reversed integers.
@@ -64,13 +67,30 @@
 
 #define DEBUG
 
+//#define PAGE_SHIFT 12
+#define PAGE_SHIFT 5
+#define PAGE_SIZE  (1 << PAGE_SHIFT)
+#define PAGE_MASK  (PAGE_SIZE - 1)
+
 #ifdef DEBUG
-#define DBG printf
+#define DBG(args...) fprintf(stderr, args)
 #else
-#define DBG
+#define DBG(args...)
 #endif
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
+
+#if __GNUC__ >= 3
+# define inline		inline __attribute__ ((always_inline))
+# define __const	__attribute__ ((const))
+# define likely(x)	__builtin_expect (!!(x), 1)
+# define unlikely(x)	__builtin_expect (!!(x), 0)
+#else
+# define inline
+# define __const
+# define likely(x)	(x)
+# define unlikely(x)	(x)
+#endif
 
 /************************************************************************/
 /***************************************** Variable-length Integers *****/
@@ -237,7 +257,7 @@ sample_t static inline sample_read_r(unsigned char **p, unsigned char *fence)
 /* Return the length, in bytes, necessary to store a sample.
  * This assumes a sample fits in our 56-bit limit.
  */
-int static inline get_sample_len(sample_t s)
+int static inline __const sample_len(sample_t s)
 {
     if (s < 0x80) return 1; /* This case also works for END_MARKER */
     if (s < 0x4000) return 2;
@@ -370,10 +390,6 @@ void static inline sample_write_r(sample_t s, unsigned char *p)
 /*************************************************** Page Interface *****/
 /************************************************************************/
 
-#define PAGE_SHIFT 12
-#define PAGE_SIZE  (1 << PAGE_SHIFT)
-#define PAGE_MASK  (PAGE_SIZE - 1)
-
 typedef struct {
     unsigned char data[PAGE_SIZE];
     off_t file_offset;
@@ -485,19 +501,17 @@ static int fid_cursor_init(fid_cursor *self, int fd)
  */
 static int fid_cursor_seek(fid_cursor *self, sample_t key)
 {
-    if (key == SAMPLE_INF) {
+    if (key == SAMPLE_INF)
         DBG("seek to SAMPLE_INF\n");
-    }
-    else {
+    else
         DBG("seek to %lld\n", key);
-    }
 
     /* First, the level 1 seek */
 
     /* We can only seek forwards, discard saved state
      * (but not necessarily cached pages) if we have to go back.
      */
-    if (key < self->l1.sample) {
+    if (key < self->l0.sample) {
         DBG("restarting seek\n");
 
         self->l2.sample = 0;
@@ -518,7 +532,7 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
 
     while (1) {
         sample_t page_sample_delta;
-        unsigned long page_item_count;
+        unsigned long page_item_count, page_next;
         unsigned char *p;
 
         /* Bring this l1 page into core if it isn't there already */
@@ -536,9 +550,10 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
 
         /* It's a completed page. We should be able to read its totals */
         page_sample_delta = sample_read_r(&p, self->l1.page.data);
-        page_item_count = sample_read_r(&p, self->l1.page.data);
-        if (self->l1.sample + page_sample_delta >= key)
+        if (self->l2.sample + page_sample_delta >= key)
             break;
+        page_item_count = sample_read_r(&p, self->l1.page.data);
+        page_next = sample_read_r(&p, self->l1.page.data);
 
         /* Skip this page */
         self->l2.sample += page_sample_delta;
@@ -547,7 +562,7 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
         self->l1.sample = self->l2.sample;
         self->l1.sample_number = self->l2.sample_number;
         self->l1.offset = 0;
-        self->l1.page.file_offset += (1 + page_item_count) << PAGE_SHIFT;
+        self->l1.page.file_offset += page_next << PAGE_SHIFT;
 
         /* Point l0 at the first child of this new l1 page */
         self->l0.sample = self->l1.sample;
@@ -669,29 +684,25 @@ static int fid_cursor_append(fid_cursor *self, sample_t sample)
                         "Sample is not greater than or equal to the previous sample");
         return -1;
     }
-    len = get_sample_len(sample_delta);
 
     /* If there's room in this L0 page, we have very little to do.
      * This is the most common case when appending many samples.
      */
-    if (self->l0.offset + len <= PAGE_SIZE) {
+    if (self->l0.offset + sample_len(sample_delta) <= PAGE_SIZE) {
         sample_write(sample_delta, self->l0.page.data + self->l0.offset);
 
         self->l0.sample = sample;
         self->l0.sample_number++;
 
-        self->l0.offset += len;
+        self->l0.offset += sample_len(sample_delta);
         self->l0.is_dirty = 1;
         self->l0.page.size = MAX(self->l0.page.size, self->l0.offset);
         return 0;
     }
 
     /* No room left. First, seal off and flush this L0 page. */
-    if (self->l0.offset < PAGE_SIZE) {
-        memset(self->l0.page.data + self->l0.offset, 0x00, PAGE_SIZE - self->l0.offset);
-        self->l0.page.size = PAGE_SIZE;
-        self->l0.is_dirty = 1;
-    }
+    self->l0.page.size = PAGE_SIZE;
+    self->l0.is_dirty = 1;
     if (fid_flush(self, &self->l0) < 0)
         return -1;
     self->l0.offset = 0;
@@ -707,19 +718,44 @@ static int fid_cursor_append(fid_cursor *self, sample_t sample)
      */
     l0_sample_delta = self->l0.sample - self->l1.sample;
     l0_item_count = self->l0.sample_number - self->l1.sample_number;
-    len = get_sample_len(l0_sample_delta) + get_sample_len(l0_item_count) + 17;
+    len = sample_len(l0_sample_delta) + sample_len(l0_item_count) + 15;
 
     if (self->l1.offset + len > PAGE_SIZE) {
         /* Seal off and flush this L1 page, start a new one */
-        printf("L1 page full, not implemented!\n");
-        abort();
+        sample_t l1_sample_delta = self->l0.sample - self->l2.sample;
+        int l1_item_count = self->l0.sample_number - self->l2.sample_number;
+        int l1_next = (self->l0.page.file_offset - self->l1.page.file_offset) >> PAGE_SHIFT;
+        unsigned char *reverse_p = &self->l1.page.data[PAGE_SIZE - 1];
+
+        /* Write the reverse-header */
+        sample_write_r(l1_sample_delta, reverse_p);
+        reverse_p -= sample_len(l1_sample_delta);
+        sample_write_r(l1_item_count, reverse_p);
+        reverse_p -= sample_len(l1_item_count);
+        sample_write_r(l1_next, reverse_p);
+
+        DBG("Writing reverse-header: sample_delta=%lld items=%d next=%d\n",
+            l1_sample_delta, l1_item_count, l1_next);
+
+        self->l1.page.size = PAGE_SIZE;
+        self->l1.is_dirty = 1;
+
+        if (fid_flush(self, &self->l1) < 0)
+            return -1;
+        self->l1.offset = 0;
+        self->l1.page.size = 0;
+        self->l1.page.file_offset = self->l0.page.file_offset;
+        self->l0.page.file_offset += PAGE_SIZE;
+
+        self->l2.sample = self->l0.sample;
+        self->l2.sample_number = self->l0.sample_number;
     }
 
     /* Append to the current L1 page */
     sample_write(l0_sample_delta, self->l1.page.data + self->l1.offset);
-    self->l1.offset += get_sample_len(l0_sample_delta);
+    self->l1.offset += sample_len(l0_sample_delta);
     sample_write(l0_item_count, self->l1.page.data + self->l1.offset);
-    self->l1.offset += get_sample_len(l0_item_count);
+    self->l1.offset += sample_len(l0_item_count);
     self->l1.is_dirty = 1;
     self->l1.page.size = MAX(self->l1.page.size, self->l1.offset);
     self->l1.sample = self->l0.sample;
@@ -729,7 +765,7 @@ static int fid_cursor_append(fid_cursor *self, sample_t sample)
     sample_write(sample_delta, self->l0.page.data + self->l0.offset);
     self->l0.sample = sample;
     self->l0.sample_number++;
-    self->l0.offset += get_sample_len(sample_delta);
+    self->l0.offset += sample_len(sample_delta);
     self->l0.is_dirty = 1;
     self->l0.page.size = MAX(self->l0.page.size, self->l0.offset);
 
@@ -778,12 +814,53 @@ static PyObject* fid_append_samples(PyObject *self, PyObject *args) {
 append_error:
     fid_flush_all(&cursor);
 error:
+    Py_XDECREF(iterator);
+    return NULL;
+}
+
+/* Seek to each sample in the provided sequence, returning the associated index.
+ */
+static PyObject* fid_query_samples(PyObject *self, PyObject *args) {
+    PyObject *sequence, *item, *iterator = NULL, *results = PyList_New(0);
+    int fd;
+    fid_cursor cursor;
+
+    if (!PyArg_ParseTuple(args, "iO", &fd, &sequence))
+        goto error;
+    iterator = PyObject_GetIter(sequence);
+    if (!iterator)
+        goto error;
+
+    if (fid_cursor_init(&cursor, fd) < 0)
+        goto error;
+
+    /* For each item in our sequence... */
+    while ((item = PyIter_Next(iterator))) {
+        /* Safely decode as a sample_t */
+        sample_t sample = PyLong_AsLongLong(item);
+        Py_DECREF(item);
+        if (sample == -1 && PyErr_Occurred())
+            goto error;
+
+        if (fid_cursor_seek(&cursor, sample) < 0)
+            goto error;
+
+        item = PyInt_FromLong(cursor.l0.sample_number);
+        PyList_Append(results, item);
+        Py_DECREF(item);
+    }
+
     Py_DECREF(iterator);
+    return results;
+error:
+    Py_XDECREF(iterator);
+    Py_XDECREF(results);
     return NULL;
 }
 
 static PyMethodDef module_methods[] = {
-    { "append_samples", (PyCFunction) fid_append_samples, METH_VARARGS },
+    { "append_samples",  (PyCFunction) fid_append_samples,  METH_VARARGS },
+    { "query_samples",   (PyCFunction) fid_query_samples,   METH_VARARGS },
     {0}
 };
 
