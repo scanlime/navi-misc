@@ -25,20 +25,25 @@ from Motion import AMC
 import Numeric
 
 parser = OptionParser ("usage: %prog [options] -n N <input file> <output file>")
-parser.add_option ("-n", type="int", dest="n", help="Choose every Nth frame")
+parser.add_option ("-n", type="int", dest="step", help="Choose every Nth frame")
 
 opts, args = parser.parse_args ()
 
 if len (args) != 2: parser.error ("input and output fields required")
+if opts.step == None: parser.error ("missing -n option")
 
 amc = AMC.from_file (args[0])
-l = len (amc.bones.values()[0])
+length = len (amc.bones.values()[0])
 
 decimated = AMC ()
 decimated.format = amc.format
 
 for bone,frames in amc.bones.iteritems ():
-    decimated.bones[bone] = Numeric.array ([frames[i] for i in range (0, l, opts.n)])
+    slowed = []
+    for i in range (0, length, opts.step):
+        slowed.extend ([frames[i] for j in range (opts.step)])
+
+    decimated.bones[bone] = Numeric.array (slowed)
 
 decimated.save (args[1])
 
