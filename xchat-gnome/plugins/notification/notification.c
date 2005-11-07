@@ -46,6 +46,8 @@ static EggTrayIcon*        notification;        /* Notification area icon. */
 static gboolean            focused = TRUE;      /* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
 static gboolean            persistant;          /* Keep the icon in the tray at all times? */
 static gboolean            hidden = FALSE;      /* True when the main window is hidden. */
+static gchar*              channel;
+static gchar*              user;
 static GdkPixbuf*          pixbufs[4];          /* Pixbufs */
 static GtkWidget*          image;               /* The image displayed by the icon. */
 static GtkWidget*          main_window;         /* xchat-gnome's main window. */
@@ -86,7 +88,8 @@ lost_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 static int
 new_msg_cb (char **word, void *msg_lvl)
 {
-	if (status < (NotifStatus) msg_lvl && !focused) {
+	if (status <= (NotifStatus) msg_lvl && !focused) {
+		channel = xchat_get_info (ph, "channel");
 		status = (NotifStatus) msg_lvl;
 		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
 		gtk_widget_show_all (GTK_WIDGET (notification));
@@ -127,6 +130,7 @@ tray_entered_cb (GtkWidget* widget, GdkEventCrossing* event, gpointer data)
 {
 	GtkWidget*   tray_icon = (GtkWidget*) notification;
 	PangoLayout* layout;
+	gchar*       text = NULL;
 	int          x;
 	int          y;
 	int          width;
@@ -140,7 +144,15 @@ tray_entered_cb (GtkWidget* widget, GdkEventCrossing* event, gpointer data)
 	pango_layout_set_wrap (layout, PANGO_WRAP_WORD);
 	pango_layout_set_width (layout, 500000);
 
-	/* Set the text for the Pango layout. */
+	/* Set the text. */
+	text = g_strdup_printf ("<b>%s</b>", channel);
+	pango_layout_set_markup (layout, text, strlen (text));
+
+	/* Set the tooltip size. */
+	pango_layout_get_size (layout, &width, &height);
+	width = PANGO_PIXELS (width) + 8;
+	height = PANGO_PIXELS (height) + 8;
+	gtk_widget_set_size_request (tooltip, width, height);
 
 	/* Position the tooltip and show. */
 	gdk_window_get_origin (tray_icon->window, &x, &y);
@@ -148,6 +160,8 @@ tray_entered_cb (GtkWidget* widget, GdkEventCrossing* event, gpointer data)
 	gtk_window_move (GTK_WINDOW (tooltip), x, y+height);
 
 	gtk_widget_show_all (tooltip);
+
+	g_free (text);
 
 	return TRUE;
 }
