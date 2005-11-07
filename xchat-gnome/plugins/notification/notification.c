@@ -49,6 +49,7 @@ static gboolean            focused = TRUE;      /* GTK_WIDGET_HAS_FOCUS doesn't 
 static gboolean            persistant;          /* Keep the icon in the tray at all times? */
 static gboolean            hidden = FALSE;      /* True when the main window is hidden. */
 static GtkWidget*          main_window;         /* xchat-gnome's main window. */
+static GtkWidget*          tooltip = NULL;
 static EggTrayIcon*        notification;        /* Notification area icon. */
 static GtkWidget*          image;               /* The image displayed by the icon. */
 static GdkPixbuf*          pixbufs[4];          /* Pixbufs */
@@ -118,6 +119,35 @@ notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer da
 		default:
 			break;
 	}
+
+	return TRUE;
+}
+
+static gboolean
+tray_entered_cb (GtkWidget* widget, GdkEventCrossing* event, gpointer data)
+{
+	GtkWidget* tray_icon = (GtkWidget*) notification;
+	int        x;
+	int        y;
+	int        width;
+	int        height;
+
+	gdk_window_get_origin (tray_icon->window, &x, &y);
+	gdk_drawable_get_size (tray_icon->window, &width, &height);
+
+	tooltip = gtk_window_new (GTK_WINDOW_POPUP);
+
+	gtk_window_move (GTK_WINDOW (tooltip), x, y+height);
+
+	gtk_widget_show_all (tooltip);
+
+	return TRUE;
+}
+
+static gboolean
+tray_left_cb (GtkWidget* widget, GdkEventCrossing* event, gpointer data)
+{
+	gtk_widget_destroy (tooltip);
 
 	return TRUE;
 }
@@ -206,6 +236,8 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	image = gtk_image_new_from_pixbuf (pixbufs[0]);
 
 	g_signal_connect (G_OBJECT (box), "button-press-event", G_CALLBACK (notification_clicked_cb), NULL);
+	g_signal_connect (G_OBJECT (box), "enter-notify-event", G_CALLBACK (tray_entered_cb), NULL);
+	g_signal_connect (G_OBJECT (box), "leave-notify-event", G_CALLBACK (tray_left_cb), NULL);
 
 	gtk_container_add (GTK_CONTAINER (box), image);
 	gtk_container_add (GTK_CONTAINER (notification), box);
