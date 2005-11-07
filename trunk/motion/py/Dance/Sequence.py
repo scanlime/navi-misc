@@ -68,6 +68,7 @@ class Sequence:
         amc.format = format
 
         bones = {}
+
         for bone in self.shuffled[0].bones.iterkeys ():
             bones[bone] = [frame[bone] for frame in self.shuffled]
 
@@ -165,7 +166,7 @@ class Frame:
         # corresponds to a degree of freedom for that bone. index gives the
         # frame number and data is a dictionary mapping bones to motion data.
         # The movement data is stored as follows: data["bone name"][frame, dof].
-        if index:
+        if index != None:
             self.bones = {}
 
             for bone, values in data.iteritems ():

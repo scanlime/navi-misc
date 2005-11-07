@@ -24,17 +24,17 @@ from Dance import Systems, Sequence
 from optparse import OptionParser
 import Numeric, string
 
-parser = OptionParser ("usage: %prog <comma separated ics> <input file> <output file>")
+parser = OptionParser ("usage: %prog <input file> <output file>")
 
 opts, args = parser.parse_args ()
 
-if len (args) != 3: parser.error ("input and output files, and initial conditions are required")
+if len (args) != 2: parser.error ("input and output file are required")
 
-amc = AMC.from_file (args[1])
+amc = AMC.from_file (args[0])
 lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
 sequence = Sequence.Sequence (amc, lorenz, Numeric.array ([60, 15, 1]), n=10000)
-sequence.shuffle (Numeric.array ([float(x) for x in string.split (args[0], ",")]), n=10000)
+sequence.shuffle (Numeric.array ([60,12,-3]), n=10000)
 
-sequence.save (args[2], amc.format)
+sequence.save (args[1], amc.format)
 
 # vim: ts=4:sw=4:et
