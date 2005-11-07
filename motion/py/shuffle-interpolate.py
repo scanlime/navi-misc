@@ -84,4 +84,10 @@ for boundary in sequence.boundaries:
 
         startNode = find_node (graphs[bone], start)
         endNode   = find_node (graphs[bone], end)
-        print bone, start, 'to', end, 'vertices =', startNode, 'and', endNode
+
+        search.addGraph (graphs[bone], startNode, endNode)
+
+    paths = search.search ()
+    print 'searching at boundary',boundary
+    print paths
+    print ''
