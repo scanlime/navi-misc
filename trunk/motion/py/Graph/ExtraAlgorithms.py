@@ -4,6 +4,8 @@ Various algorithms which cannot be represented as an Algorithm sub-class
 for whatever reason.
 """
 
+import Data
+
 class ParallelBFS:
     """A class which runs a breadth-first search in parallel across multiple
        graphs.  This is for used to find paths of the same length within
@@ -13,23 +15,23 @@ class ParallelBFS:
         self.starts = {}
         self.ends   = {}
 
-    def addGraph (graph, startNode, endNode):
+    def addGraph (self, graph, startNode, endNode):
         self.starts[graph] = startNode
         self.ends[graph]   = endNode
 
-    def search ():
+    def search (self):
         bfsObjects = {}
         for key in self.starts.keys ():
             start = self.starts[key]
             end   = self.ends[key]
             bfsObjects[key] = ParallelBFSSearch (key, start, end)
 
-        done = false
+        done = False
 
         while not done:
             for search in bfsObjects.values ():
                 if search.match:
-                    done = true
+                    done = True
             if done:
                 break
 
@@ -95,8 +97,9 @@ class ParallelBFSSearch:
         bestProbability = 0.0
         bestPath = None
 
-        for path in getMatchedPaths ():
-            pathProbability = computeProbability (path)
+        for path in self.getMatchedPaths ():
+            pathProbability = self.computeProbability (path)
+            print 'looking at path', path, '  probability is', pathProbability
             if pathProbability > bestProbability:
                 bestProbability = pathProbability
                 bestPath        = path
