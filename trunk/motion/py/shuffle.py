@@ -33,7 +33,7 @@ if len (args) != 3: parser.error ("input and output files, and initial condition
 amc = AMC.from_file (args[1])
 lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
 sequence = Sequence.Sequence (amc, lorenz, Numeric.array ([60, 15, 1]), n=10000)
-sequence.shuffle (Numeric.array ([float(x) for x in string.split (args[0])]), n=10000)
+sequence.shuffle (Numeric.array ([float(x) for x in string.split (args[0], ",")]), n=10000)
 
 sequence.save (args[2], amc.format)
 
