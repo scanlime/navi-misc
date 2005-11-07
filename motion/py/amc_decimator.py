@@ -32,17 +32,24 @@ opts, args = parser.parse_args ()
 if len (args) != 2: parser.error ("input and output fields required")
 if opts.step == None: parser.error ("missing -n option")
 
+# The original AMC file...
 amc = AMC.from_file (args[0])
 length = len (amc.bones.values()[0])
 
+# The decimated AMC file...
 decimated = AMC ()
 decimated.format = amc.format
 
 for bone,frames in amc.bones.iteritems ():
     slowed = []
+
+    # Take every nth frame and duplicate it n times. This should create a
+    # sequence from every nth frame that is the same length as the original
+    # sequence.
     for i in range (0, length, opts.step):
         slowed.extend ([frames[i] for j in range (opts.step)])
 
+    # Create the Numeric array
     decimated.bones[bone] = Numeric.array (slowed)
 
 decimated.save (args[1])
