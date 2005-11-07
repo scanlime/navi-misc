@@ -33,6 +33,11 @@ def find_node (graph, pos):
         if vertex.inside (pos):
             return vertex
 
+def fixnegative (x):
+    while x < 0:
+        x = x + 360
+    return x
+
 try:
     amc = AMC.from_file (sys.argv[1])
 except IndexError:
@@ -66,6 +71,12 @@ for boundary in sequence.boundaries:
             start = start[3:6]
             end   = end[3:6]
 
+        start = [Numeric.remainder (d, 360.0) for d in start]
+        end   = [Numeric.remainder (d, 360.0) for d in end]
+
+        start = tuple (map (fixnegative, start))
+        end   = tuple (map (fixnegative, end))
+
         startNode = find_node (graphs[bone], start)
         endNode   = find_node (graphs[bone], end)
-        print 'found vertices', startNode, 'and', endNode
+        print bone, start, 'to', end, 'vertices =', startNode, 'and', endNode
