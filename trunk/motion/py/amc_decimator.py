@@ -20,5 +20,27 @@ Read in an AMC file and every nth frame out to another AMC file.
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+from optparse import OptionParser
+from Motion import AMC
+import Numeric
+
+parser = OptionParser ("usage: %prog [options] -n N <input file> <output file>")
+parser.add_option ("-n", type="int", dest="n", help="Choose every Nth frame")
+
+opts, args = parser.parse_args ()
+
+if len (args) != 2: parser.error ("input and output fields required")
+
+amc = AMC.from_file (args[0])
+l = len (amc.bones.values()[0])
+
+decimated = AMC ()
+decimated.format = amc.format
+
+for bone,frames in amc.bones.iteritems ():
+    decimated.bones[bone] = Numeric.array ([frames[i] for i in range (0, l, opts.n)])
+
+decimated.save (args[1])
+
 
 # vim: ts=4:sw=4:et
