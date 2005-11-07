@@ -65,32 +65,44 @@ static DBusConnection *bus;
 static GHashTable     *networks = NULL;
 static GHashTable     *channels = NULL;
 
-static gboolean
-free_ht_entry (gchar *key, GList *value, gpointer data)
+static int
+connected_cb (char *word[], gpointer data)
 {
-	g_list_foreach (value, (GFunc) g_free, NULL);
-	g_list_free (value);
-	g_free (key);
-	return TRUE;
-}
+	GList *chans, *chan;
+	const char *server;
+	xchat_context *context;
 
-static gboolean
-free_net_entry (gchar *key, gpointer value, gpointer data)
-{
-	g_free (key);
-	return TRUE;
+	if (channels == NULL)
+		return XCHAT_EAT_NONE;
+
+	server = xchat_get_info (ph, "server");
+
+	context = g_hash_table_lookup (networks, server);
+	if (context) {
+		xchat_set_context (ph, context);
+
+		chans = g_hash_table_lookup (channels, server);
+		for (chan = chans; chan; chan = g_list_next (chan)) {
+			xchat_commandf (ph, "JOIN %s", chan->data);
+		}
+
+		g_list_foreach (chans, (GFunc) g_free, NULL);
+		g_list_free (chans);
+
+		/* Now that we've connected and re-joined, we can remove this server
+		 * from the list */
+		g_hash_table_remove (networks, server);
+		g_hash_table_remove (channels, server);
+	}
+
+	return XCHAT_EAT_NONE;
 }
 
 static void
 connect_to_network (gchar *key, xchat_context *context, gpointer data)
 {
-	gchar *command;
-
 	xchat_set_context (ph, context);
-	command = g_strdup_printf ("SERVER %s", key);
-	g_print ("running command \"%s\"\n", command);
-	xchat_command (ph, command);
-	g_free (command);
+	xchat_commandf (ph, "SERVER %s", key);
 }
 
 static void
@@ -113,8 +125,11 @@ set_network_mode (NetworkStatus status)
 		if (channels_list == NULL)
 			return;
 
-		channels = g_hash_table_new (g_str_hash, g_str_equal);
-		networks = g_hash_table_new (g_str_hash, g_str_equal);
+		if (channels) g_hash_table_destroy (channels);
+		if (networks) g_hash_table_destroy (networks);
+
+		channels = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+		networks = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
 		while (xchat_list_next (ph, channels_list)) {
 			const gchar *channel, *server;
@@ -128,9 +143,18 @@ set_network_mode (NetworkStatus status)
 				xchat_context *context = xchat_find_context (ph, server, channel);
 				g_hash_table_insert (networks, (gpointer) g_strdup (server), context);
 			} else if (type == SESSION_TYPE_CHANNEL) {
-				GList *network_channels = g_hash_table_lookup (channels, server);
-				network_channels = g_list_append (network_channels, g_strdup (channel));
-				g_hash_table_insert (channels, (gpointer) g_strdup (server), network_channels);
+				gboolean exists;
+				GList *network_channels;
+
+				network_channels = g_hash_table_lookup (channels, server);
+				exists = (network_channels != NULL);
+
+				network_channels = g_list_prepend (network_channels, g_strdup (channel));
+
+				if (exists)
+					g_hash_table_replace (channels, (gpointer) g_strdup (server), network_channels);
+				else
+					g_hash_table_insert (channels, (gpointer) g_strdup (server), network_channels);
 			}
 		}
 
@@ -305,6 +329,9 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 
 	success = init_dbus ();
 	if (success) {
+		xchat_hook_print (ph, "Motd",         XCHAT_PRI_NORM, connected_cb, NULL);
+		xchat_hook_print (ph, "MOTD Skipped", XCHAT_PRI_NORM, connected_cb, NULL);
+
 		xchat_set_context (ph, xchat_find_context (ph, NULL, NULL));
 		xchat_printf (ph, _(NET_MONITOR_NAME " loaded successfully\n"));
 	}
