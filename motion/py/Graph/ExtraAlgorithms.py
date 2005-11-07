@@ -69,7 +69,6 @@ class ParallelBFSSearch:
             for edge in self.adjacency.query (node):
                 if edge.u is node:
                     newpaths.append (list (path + [edge.v]))
-                    print 'added path', newpaths[-1]
         self.paths = newpaths
 
         # Update match status
