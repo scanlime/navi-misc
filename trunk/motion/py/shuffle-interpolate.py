@@ -44,20 +44,25 @@ def fix360 (x):
     return x
 
 try:
-    amc = AMC.from_file (sys.argv[1])
+    samc = AMC.from_file (sys.argv[1])
 except IndexError:
-    print 'usage: %s <amc file>' % sys.argv[0]
+    print 'usage: %s <shuffle file> <interpolation corpus files...>' % sys.argv[0]
     raise
 
 print 'shuffling sequence'
 lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
-sequence = Sequence.Sequence (amc, lorenz, Numeric.array ([1, 2, 3]), n=5000)
+sequence = Sequence.Sequence (samc, lorenz, Numeric.array ([1, 2, 3]), n=5000)
 sequence.shuffle (Numeric.array ([17.0, 2.0, -1.0]), n=5000)
 
+amcs = []
+for filename in sys.argv[1:]:
+    print 'loading',filename
+    amcs.append (AMC.from_file (filename))
+
 graphs = {}
-for key in amc.bones.iterkeys ():
+for key in amcs[0].bones.iterkeys ():
     print 'creating graph for %s' % key
-    g = MotionGraph.build_graphs (key, [amc.bones[key]])
+    g = MotionGraph.build_graphs (key, [amc.bones[key] for amc in amcs])
     if g is not None:
         graphs[key] = g
 
