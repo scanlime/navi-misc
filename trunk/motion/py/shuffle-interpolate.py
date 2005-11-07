@@ -56,9 +56,6 @@ for boundary in sequence.boundaries:
     pre  = sequence[boundary - 1]
     post = sequence[boundary]
 
-    if boundary == 1:
-        continue;
-
     for bone in amc.bones.keys ():
         start = pre[1].bones[bone]
         end   = post[1].bones[bone]
