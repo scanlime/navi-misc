@@ -1,32 +1,41 @@
 #!/usr/bin/env python
 import _fidtool
 import os, time, random
+import psyco
+psyco.full()
 
 fd = os.open("foo", os.O_CREAT | os.O_TRUNC | os.O_RDWR, 0666)
 
-r = range(10)
-_fidtool.append_samples(fd, r)
+dataset = map(int, open("cia-commits.dataset"))[2000:3000]
+#dataset = range(1000)
+_fidtool.append_samples(fd, dataset)
+
+def reference_query(stamps, seek_to):
+    i = 0
+    while i < len(stamps) and stamps[i] < seek_to:
+        i += 1
+    return i
+
+query = [int(random.uniform(dataset[0], dataset[-1])) for i in xrange(1000)]
+query.sort()
 
 while 1:
-    r2 = _fidtool.query_samples(fd, r)
-    if r2 == r:
+    r1 = _fidtool.query_samples(fd, query)
+    r2 = [reference_query(dataset, q) for q in query]
+    if r1 == r2:
         print "Success"
-    else:
-        print "Failure: %r -> %r" % (r, r2)
+    elif len(r1) != len(r2):
+        print "Failure, len(r1)=%d, len(r2)=%d" % (len(r1), len(r2))
         break
-    random.shuffle(r)
+    else:
+        for i, (j, k) in enumerate(zip(r1, r2)):
+            if j != k:
+                print "%d: %d != %d" % (query[i], j, k)
+            else:
+                print "%d: %d" % (query[i], j)
+        break
 
-#dataset = map(int, open("cia-commits.dataset"))
-#_fidtool.append_samples(fd, dataset)
-
-#start = 1124400000
-#hour_length = 60 * 60
-#times = [start + hour_length * hour for hour in xrange(24*7*4)]
-
-##indices = _fidtool.query_samples(fd, times)
-#indices = [_fidtool.query_samples(fd, (t,))[0] for t in times]
-
-#for i in xrange(len(times)-1):
-#    print times[i], indices[i+1] - indices[i]
+    break
+    random.shuffle(query)
 
 os.close(fd)
