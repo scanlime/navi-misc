@@ -1,5 +1,7 @@
 0.7
 	* Add background preferences - David Trowbridge
+	* Add a plugin which intelligently disconnects/reconnects based on
+	  network connection status via NetworkManager - David Trowbridge
 	* Add an "OSD" plugin, which pops up important messages with libnotify - David Trowbridge
 
 0.6 "Braindome" (23 October 2005)
