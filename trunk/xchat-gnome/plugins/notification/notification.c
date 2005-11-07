@@ -42,18 +42,17 @@ typedef enum
 	NOTIF_NICK
 } NotifStatus;
 
-static xchat_plugin*       ph;                  /* Plugin handle. */
-static xchat_gnome_plugin* xgph;                /* xchat gnome plugin handle. */
-static NotifStatus         status = NOTIF_NONE; /* Current status level. */
+static EggTrayIcon*        notification;        /* Notification area icon. */
 static gboolean            focused = TRUE;      /* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
 static gboolean            persistant;          /* Keep the icon in the tray at all times? */
 static gboolean            hidden = FALSE;      /* True when the main window is hidden. */
-static GtkWidget*          main_window;         /* xchat-gnome's main window. */
-static GtkWidget*          tooltip = NULL;
-static EggTrayIcon*        notification;        /* Notification area icon. */
-static GtkWidget*          image;               /* The image displayed by the icon. */
 static GdkPixbuf*          pixbufs[4];          /* Pixbufs */
-
+static GtkWidget*          image;               /* The image displayed by the icon. */
+static GtkWidget*          main_window;         /* xchat-gnome's main window. */
+static GtkWidget*          tooltip;             /* Tooltip displaying notification info. */
+static NotifStatus         status = NOTIF_NONE; /* Current status level. */
+static xchat_gnome_plugin* xgph;                /* xchat gnome plugin handle. */
+static xchat_plugin*       ph;                  /* Plugin handle. */
 
 /*** Callbacks ***/
 static gboolean
@@ -126,17 +125,26 @@ notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer da
 static gboolean
 tray_entered_cb (GtkWidget* widget, GdkEventCrossing* event, gpointer data)
 {
-	GtkWidget* tray_icon = (GtkWidget*) notification;
-	int        x;
-	int        y;
-	int        width;
-	int        height;
+	GtkWidget*   tray_icon = (GtkWidget*) notification;
+	PangoLayout* layout;
+	int          x;
+	int          y;
+	int          width;
+	int          height;
 
+	/* Create the tooltip and Pango layout. */
+	tooltip = gtk_window_new (GTK_WINDOW_POPUP);
+	layout  = gtk_widget_create_pango_layout (tooltip, NULL);
+
+	/* Configure the Pango layout. */
+	pango_layout_set_wrap (layout, PANGO_WRAP_WORD);
+	pango_layout_set_width (layout, 500000);
+
+	/* Set the text for the Pango layout. */
+
+	/* Position the tooltip and show. */
 	gdk_window_get_origin (tray_icon->window, &x, &y);
 	gdk_drawable_get_size (tray_icon->window, &width, &height);
-
-	tooltip = gtk_window_new (GTK_WINDOW_POPUP);
-
 	gtk_window_move (GTK_WINDOW (tooltip), x, y+height);
 
 	gtk_widget_show_all (tooltip);
