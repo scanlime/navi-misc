@@ -501,17 +501,12 @@ static int fid_cursor_init(fid_cursor *self, int fd)
  */
 static int fid_cursor_seek(fid_cursor *self, sample_t key)
 {
-    if (key == SAMPLE_INF)
-        DBG("seek to SAMPLE_INF\n");
-    else
-        DBG("seek to %lld\n", key);
-
     /* First, the level 1 seek */
 
     /* We can only seek forwards, discard saved state
      * (but not necessarily cached pages) if we have to go back.
      */
-    if (key < self->l0.sample) {
+    if (key <= self->l0.sample) {
         DBG("restarting seek\n");
 
         self->l2.sample = 0;
@@ -636,11 +631,6 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
             self->l0.offset = p - self->l0.page.data;
         }
     }
-
-    DBG("finished seek: sample=%lld sample_number=%lu offset=0x%016llx\n",
-        self->l0.sample, self->l0.sample_number,
-        self->l0.page.file_offset + self->l0.offset);
-
     return 0;
 }
 
@@ -733,9 +723,6 @@ static int fid_cursor_append(fid_cursor *self, sample_t sample)
         sample_write_r(l1_item_count, reverse_p);
         reverse_p -= sample_len(l1_item_count);
         sample_write_r(l1_next, reverse_p);
-
-        DBG("Writing reverse-header: sample_delta=%lld items=%d next=%d\n",
-            l1_sample_delta, l1_item_count, l1_next);
 
         self->l1.page.size = PAGE_SIZE;
         self->l1.is_dirty = 1;
