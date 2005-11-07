@@ -29,10 +29,11 @@ class ParallelBFS:
         done = False
 
         while not done:
+            match = True
             for search in bfsObjects.values ():
-                if search.match:
-                    done = True
-            if done:
+                if not search.match:
+                    match = False
+            if match:
                 break
 
             for search in bfsObjects.values ():
@@ -62,13 +63,14 @@ class ParallelBFSSearch:
             raise Exception ('Graph does not contain AdjacencyList representation')
 
     def step (self):
-        laststep = self.paths
-        self.paths = []
-        for path in laststep:
+        newpaths = []
+        for path in self.paths:
             node = path[-1]
             for edge in self.adjacency.query (node):
                 if edge.u is node:
-                    self.paths.append (path + edge.v)
+                    newpaths.append (list (path + [edge.v]))
+                    print 'added path', newpaths[-1]
+        self.paths = newpaths
 
         # Update match status
         self.match = False
@@ -99,7 +101,6 @@ class ParallelBFSSearch:
 
         for path in self.getMatchedPaths ():
             pathProbability = self.computeProbability (path)
-            print 'looking at path', path, '  probability is', pathProbability
             if pathProbability > bestProbability:
                 bestProbability = pathProbability
                 bestPath        = path
