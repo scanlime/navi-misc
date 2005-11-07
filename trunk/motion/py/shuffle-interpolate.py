@@ -56,11 +56,18 @@ for boundary in sequence.boundaries:
     pre  = sequence[boundary - 1]
     post = sequence[boundary]
 
+    if boundary == 1:
+        continue;
+
     for bone in amc.bones.keys ():
         start = pre[1].bones[bone]
         end   = post[1].bones[bone]
 
-        print start, end
+        if bone == 'root':
+            # we only want the root orientation
+            # FIXME - need to linearly interpolate root position
+            start = start[3:6]
+            end   = end[3:6]
 
         startNode = find_node (graphs[bone], start)
         endNode   = find_node (graphs[bone], end)
