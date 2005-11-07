@@ -70,33 +70,32 @@ free_ht_entry (gchar *key, GList *value, gpointer data)
 {
 	g_list_foreach (value, (GFunc) g_free, NULL);
 	g_list_free (value);
+	g_free (key);
 	return TRUE;
 }
 
 static gboolean
-free_net_entry (gchar *key, gchar *value, gpointer data)
+free_net_entry (gchar *key, gpointer value, gpointer data)
 {
-	g_free (value);
+	g_free (key);
 	return TRUE;
 }
 
 static void
-connect_to_network (gchar *key, gchar *value, gpointer data)
+connect_to_network (gchar *key, xchat_context *context, gpointer data)
 {
 	gchar *command;
 
-	g_print ("reconnecting to %s\n", value);
-	command = g_strdup_printf ("SERVER %s", value);
+	xchat_set_context (ph, context);
+	command = g_strdup_printf ("SERVER %s", key);
+	g_print ("running command \"%s\"\n", command);
 	xchat_command (ph, command);
 	g_free (command);
 }
 
 static void
-disconnect_from_network (gchar *key, gchar *value, gpointer data)
+disconnect_from_network (gchar *key, xchat_context *context, gpointer data)
 {
-	xchat_context *context;
-
-	context = xchat_find_context (ph, key, NULL);
 	xchat_set_context (ph, context);
 	xchat_command (ph, "DISCON");
 }
@@ -126,11 +125,12 @@ set_network_mode (NetworkStatus status)
 			type    = xchat_list_int (ph, channels_list, "type");
 
 			if (type == SESSION_TYPE_SERVER) {
-				g_hash_table_insert (networks, (gpointer) server, g_strdup (channel));
+				xchat_context *context = xchat_find_context (ph, server, channel);
+				g_hash_table_insert (networks, (gpointer) g_strdup (server), context);
 			} else if (type == SESSION_TYPE_CHANNEL) {
 				GList *network_channels = g_hash_table_lookup (channels, server);
 				network_channels = g_list_append (network_channels, g_strdup (channel));
-				g_hash_table_insert (channels, (gpointer) server, network_channels);
+				g_hash_table_insert (channels, (gpointer) g_strdup (server), network_channels);
 			}
 		}
 
