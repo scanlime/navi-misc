@@ -3,50 +3,102 @@
  * fidtool - C backend for working with Fast Interval Databases
  * Copyright (C) 2005 Micah Dowty <micah@navi.cx>
  *
- * The FID file format is made up of two types of pages:
+ * The FID format is effectively a three-level skip list, with
+ * good space-efficiency. Appends and interval queries are designed
+ * to be very I/O efficient. The format is technically O(N) for
+ * both queries and appends, however the coefficient involved is
+ * very small. A typical FID requires 2 blocks of disk I/O for
+ * a query on approximately 1 million samples. The asymptotic
+ * time could be improved by using a variable number of skiplist
+ * levels, but for the typical workloads FID was designed for, this
+ * could actually hurt efficiency.
  *
- *   - Level-0 (L0, or 'leaf') pages contain only timestamps.
- *     The stamps are all stored as variable-length integers.
- *     L0 pages need not be complete, but a complete page should
- *     have any unusable space padded with 0x00. All integers
- *     in an L0 page represent time deltas. The first item is
- *     relative to the page's entry in its parent L1 page,
- *     and all subsequent items are relative to the previous item.
+ * This example shows a FID with 20 samples. Each "*" is a sample,
+ * and the [] represent disk page boundaries. For simplicity,
+ * each L0 page in this example holds exactly 4 samples, and
+ * each L1 page holds 4 L0 pages plus its reverse-header.
  *
- *   - Level-1 (L1, or 'index') pages are used to quickly locate
- *     L0 pages. This works like a 2-level B*-tree in which all
- *     keys and values must be monotonically increasing. This concept
- *     could be extended to deeper trees, but 2 levels seems optimal
- *     for the real-world appliction this library was designed for.
+ *   L2 [                                           *             ...
+ *   L1 [       *           *           *           * ] [       * ...
+ *   L0 [ * * * * ] [ * * * * ] [ * * * * ] [ * * * * ] [ * * * * ]
+ *        0 1 2 3     4 5 6 7     8 9 1 1     1 1 1 1     1 1 1 1    
+ *                                    0 1     2 3 4 5     6 7 8 9
  *
- *     Each completed L0 page is represented in the L1 page by two
- *     variable length integers, representing the total time delta
- *     and the total number of items in that page. Incomplete
- *     L0 pages have no entry in their L1 page yet.
+ * Conceptually, this looks just like a skiplist. Each sample is actually
+ * stored as a time delta from the previous sample, so it's important to
+ * keep the three lists conceptually separate.
  *
- *     Each completed L1 page includes a reverse-header encoded
- *     from the end of the page in reversed variable-length integers,
- *     containing:
- *       - The total time delta encompassed by the L1 page
- *       - The total number of samples in all the L1 page's
- *         corresponding L0 pages.
- *       - The number of pages betewen this L1 page and the next one.
+ * The L0 skiplist is stored in a sequence of L0 pages. L0 pages store
+ * only time deltas, encoded as variable-length integers. The first L0
+ * page would begin with the delta from time zero to sample 0. It would
+ * then encode the difference between sample 0 and 1, then the difference
+ * between sample 1 and 2, and so on. The second L0 page would begin with
+ * the difference between sample 3 and 4. The first L1 page would store a
+ * delta between time zero and sample 3, then sample 3 to sample 7, and
+ * so on.
  *
- *     Incomplete L1 pages, by definition, end with an 0x00 byte
- *     indicating space reserved for these two reversed integers.
+ * The L1 skiplist and L2 skiplist are both encoded in a sequence of L1
+ * pages. The file starts out with a single L1 page, and a new L1 page is
+ * inserted any time the previous one fills up. The on-disk sequence
+ * for this example may be:
  *
- * The variable length integers are formatted as follows, shown
- * in binary:
+ *   L1 L0 L0 L0 L0 L1 ...
  *
- *   x < 0x80              1xxxxxxx
- *   x < 0x4000            01xxxxxx xxxxxxxx
- *   x < 0x200000          001xxxxx xxxxxxxx xxxxxxxx
- *   x < 0x10000000        0001xxxx xxxxxxxx xxxxxxxx xxxxxxxx
- *   ...
- *   End-of-page mark      00000000
+ * Most of the space in an L1 page is devoted to storing samples from
+ * the L1 skiplist, but a small 'reverse-header' written backward from
+ * the end of each L1 page stores a single sample from the L2 skiplist.
  *
- * The largest integer length that can be represented is 56-bits,
- * which will be prefixed by 0x01.
+ * While samples from the L0 skiplist only include time deltas, samples
+ * from the L1 skiplist include both time deltas and sample counts. It's
+ * important for the L1 list to indicate how many L0 samples are between
+ * each pair of L1 samples, for performing interval queries.
+ * 
+ * L2 samples include a time delta, a count of L0 samples, and a count
+ * of L1 samples. The L1 sample count, equal to a count of L0 pages, is
+ * necessary in order to calculate the location on disk where the next
+ * L1 page is to be found.
+ *
+ * Complete vs Incomplete pages:
+ *
+ *   The format described above applies to 'complete' pages. The last
+ *   L0 page and the last L1 page in a file will always be considered
+ *   'incomplete'.
+ *
+ *   An incomplete L0 page is not yet padded to a full PAGE_SIZE on disk.
+ *   It may or may not have room for another sample. Indeed, a page may
+ *   still be incomplete when it is full to exactly PAGE_SIZE with samples.
+ *   An L0 page is only marked 'complete' once an append causes a new page
+ *   to be created after it.
+ *
+ *   Incomplete L0 pages do not have an entry in the L1 skiplist yet.
+ *
+ *   Incomplete L1 pages do not yet have an entry in the L2 skiplist,
+ *   meaning that they don't yet have their reverse-header. When an L0
+ *   page becomes complete and it's time to append to the L1 skiplist,
+ *   an L1 page becomes complete if it is out of space. (The definition
+ *   of 'out of space' is somewhat implementation-dependent and tricky)
+ *
+ *   L1 pages are only ever completed when a new L0 page is about to be
+ *   appended. After the reverse-header is written to the L1 page,
+ *   signalling that it's complete, a new L1 page and a new L0 page
+ *   (in that order) are opened.
+ *
+ * Integer encoding:
+ *
+ *   The variable length integers are formatted as follows, shown
+ *   in binary:
+ *
+ *     x < 0x80              1xxxxxxx
+ *     x < 0x4000            01xxxxxx xxxxxxxx
+ *     x < 0x200000          001xxxxx xxxxxxxx xxxxxxxx
+ *     x < 0x10000000        0001xxxx xxxxxxxx xxxxxxxx xxxxxxxx
+ *     ...
+ *     End-of-page mark      00000000
+ *
+ *   The largest integer length that can be represented is 56-bits,
+ *   which will be prefixed by 0x01.
+ *
+ * License:
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
