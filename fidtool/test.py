@@ -7,6 +7,7 @@ psyco.full()
 fd = os.open("foo", os.O_CREAT | os.O_TRUNC | os.O_RDWR, 0666)
 
 dataset = map(int, open("cia-commits.dataset"))[2000:3000]
+#dataset.sort()
 #dataset = range(1000)
 _fidtool.append_samples(fd, dataset)
 
