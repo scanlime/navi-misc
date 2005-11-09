@@ -28,5 +28,6 @@ void initialize_main_window ();
 void run_main_window ();
 void rename_main_window (gchar *server, gchar *channel);
 void set_statusbar ();
+void save_transcript ();
 
 #endif

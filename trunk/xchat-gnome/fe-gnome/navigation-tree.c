@@ -1536,6 +1536,7 @@ on_server_channel_list (GtkAction * action, gpointer data)
 static void
 on_save (GtkAction * action, gpointer data)
 {
+	save_transcript ();
 }
 
 static void
