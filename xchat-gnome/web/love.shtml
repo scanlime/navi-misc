@@ -42,10 +42,6 @@
 	  would be nice if the most important widgets in the xchat-gnome interface
 	  were given a11y metadata in the glade file. This can be pretty easily done
 	  in chunks - updating just a few widgets would be better than what we have now.</p><br />
-	  <b>Saving Transcripts</b><br />
-	  <p>The UI has a couple spots to save a transcript (navigation tree context menu and
-	  "Discussion" main menu), but these don't do anything.  This should pop up a
-	  file chooser and save a log</p>
 	</div>
 	<div class="section-title">Mid-Level Hackery Love</div>
 	<div class="section">
