@@ -21,12 +21,13 @@
 	</p>
 	<p>
 	  As of 0.5, xchat-gnome can use
-	  <a href="http://osiris.chipx86.com/projects/libsexy/releases/">libsexy</a>
-	  for sexier behavior (such as clickable links in topics and spell-checking)
-	  Beware that if you're currently on pango 1.10.0, this will make xchat-gnome
-	  unusable, due to a bug with 1.10.0's cairo implementation.  This is fixed in
-	  pango HEAD, and 1.10.1.
+	  <a href="http://wiki.chipx86.com/wiki/Libsexy">libsexy</a> for sexier behavior
+	  (such as clickable links in topics and spell-checking).  Beware that if you're
+	  currently on pango 1.10.0, this will make xchat-gnome unusable, due to a bug with
+	  1.10.0's cairo implementation.  This is fixed in pango HEAD, and 1.10.1.  Older
+	  (1.8.x) releases are also fine.
 	</p>
+	<br />
 	<div class="section-title">0.6 "Braindome"</div>
 	<div class="section">
 	  <i>23 October 2005</i> - Mostly features.</i>
