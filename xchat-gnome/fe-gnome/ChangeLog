@@ -3,6 +3,7 @@
 	* Add a plugin which intelligently disconnects/reconnects based on
 	  network connection status via NetworkManager - David Trowbridge
 	* Add an "OSD" plugin, which pops up important messages with libnotify - David Trowbridge
+	* Implement "Save Transcript" - David Trowbridge
 
 0.6 "Braindome" (23 October 2005)
 	* Set up a gnome url handler for irc:// links - Claessens Xavier

@@ -156,9 +156,6 @@ static GtkActionEntry action_entries [] = {
 
 static GCompletion *command_completion;
 
-/*
- * FIXME: for the love of god make this more efficient
- */
 GtkActionEntry *
 find_action_entry (gchar *name)
 {
@@ -189,6 +186,49 @@ find_previous_action (gchar *name)
 	}
 
 	return NULL;
+}
+
+void
+save_transcript ()
+{
+	GtkWidget *file_chooser;
+
+	file_chooser = gtk_file_chooser_dialog_new ("Save Transcript",
+	                                            GTK_WINDOW (gui.main_window),
+	                                            GTK_FILE_CHOOSER_ACTION_SAVE,
+	                                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+	                                            GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+	                                            NULL);
+	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (file_chooser), TRUE);
+	gtk_dialog_set_default_response (GTK_DIALOG (file_chooser), GTK_RESPONSE_ACCEPT);
+
+	if (gtk_dialog_run (GTK_DIALOG (file_chooser)) == GTK_RESPONSE_ACCEPT) {
+		gchar *filename;
+		GIOChannel *file;
+		GError *error = NULL;
+
+		filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_chooser));
+		file = g_io_channel_new_file (filename, "w", &error);
+		if (error) {
+			gchar *header = g_strdup_printf ("Error saving %s", filename);
+			error_dialog (header, error->message);
+			g_free (header);
+			g_error_free (error);
+		} else {
+			gint fd = g_io_channel_unix_get_fd (file);
+			gtk_xtext_save (gui.xtext, fd);
+			g_io_channel_shutdown (file, TRUE, &error);
+
+			if (error) {
+				gchar *header = g_strdup_printf ("Error saving %s", filename);
+				error_dialog (header, error->message);
+				g_free (header);
+				g_error_free (error);
+			}
+		}
+		g_free (filename);
+	}
+	gtk_widget_destroy (file_chooser);
 }
 
 static void
@@ -590,8 +630,6 @@ run_main_window ()
 	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/NetworkMenu/NetworkUsersItem");
 	gtk_widget_set_sensitive (widget, FALSE);
-	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionSaveItem");
-	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionBansItem");
 	gtk_widget_set_sensitive (widget, FALSE);
 }
@@ -736,7 +774,7 @@ on_network_users_activate (GtkAction *action, gpointer data)
 static void
 on_discussion_save_activate (GtkAction *action, gpointer data)
 {
-	/* FIXME: implement */
+	save_transcript ();
 }
 
 static void
