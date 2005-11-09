@@ -14,7 +14,7 @@
         <!--#include file="navigation.inc"-->
       </div>
       <div class="content">
-	<p>We highly recommend installing libsexy <a href="http://osiris.chipx86.com/svn/osiris-misc/trunk/libsexy">from Christian Hammond's SVN</a> for, well, extra sexyness.  If you're on pango 1.10.0, this will give you problems -- upgrade to 1.10.1 or later</p>
+        <p>We highly recommend installing <a href="http://wiki.chipx86.com/wiki/Libsexy">libsexy</a> for extra sexyness.  Make sure you use 0.1.4 or later, and a pango other than 1.10.0 (earlier or later is fine).</p>
 
         <p><b>DO NOT</b> expect support from the normal X-Chat developers, and do not submit bug
         reports/feature requests/etc to them.</p>
