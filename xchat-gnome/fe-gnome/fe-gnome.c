@@ -82,7 +82,7 @@ fe_args (int argc, char *argv[])
 	if (opt_cfgdir)
 		xdir_fs = opt_cfgdir;
 
-	gnome_program_init ("xchat-gnome", VERSION, LIBGNOMEUI_MODULE, argc, argv, NULL);
+	gnome_program_init ("xchat-gnome", VERSION, LIBGNOMEUI_MODULE, argc, argv, GNOME_PROGRAM_STANDARD_PROPERTIES, NULL);
 
 	/* FIXME: this is kind of a silly place to put this, but it seems to want to
 	   follow gnome_program_init */
