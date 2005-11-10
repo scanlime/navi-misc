@@ -1,4 +1,5 @@
 0.7
+	* Added a help document - Brian Pepple
 	* Add background preferences - David Trowbridge
 	* Add a plugin which intelligently disconnects/reconnects based on
 	  network connection status via NetworkManager - David Trowbridge

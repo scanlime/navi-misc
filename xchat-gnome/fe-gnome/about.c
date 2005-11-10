@@ -45,6 +45,11 @@ initialize_about_dialog ()
 		"Rouslan Solomakhin",
 		NULL
 	};
+	const gchar *documentors[] =
+	{
+		"Brian Pepple",
+		NULL
+	};
 
 	const char *license[] = {
 		N_("X-Chat GNOME is free software; you can redistribute it and/or modify\n"
@@ -72,14 +77,15 @@ initialize_about_dialog ()
 	gui.about = gtk_about_dialog_new ();
 
 	g_object_set (G_OBJECT (gui.about),
-		      "name",      "X-Chat GNOME",
-		      "version",   VERSION,
-		      "copyright", _("Copyright © 2004-2005"),
-		      "comments",  _("It has been well observed that a trombone is not a suitable instrument for a gentleman"),
-		      "license",   license_trans,
-		      "website",   "http://xchat-gnome.navi.cx",
-		      "authors",   authors,
-		      "logo",      logo,
+		      "name",        "X-Chat GNOME",
+		      "version",     VERSION,
+		      "copyright",   _("Copyright © 2004-2005"),
+		      "comments",    _("It has been well observed that a trombone is not a suitable instrument for a gentleman"),
+		      "license",     license_trans,
+		      "website",     "http://xchat-gnome.navi.cx",
+		      "authors",     authors,
+		      "logo",        logo,
+		      "documentors", documentors,
 		      NULL);
 
 	if (logo)
