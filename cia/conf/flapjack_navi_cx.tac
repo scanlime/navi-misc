@@ -17,29 +17,6 @@ from Nouvelle import tag
 
 Database.init()
 
-# A donation box, in the form of a section we add to the page template
-class DonationSection(Web.Template.Section):
-    title = "Donate to CIA"
-    rows = [
-        [
-            "Any help ", tag('a', href='/doc/budget')[ "paying the bills" ],
-            " would be greatly appreciated!",
-        ],
-        tag('form', action='https://www.paypal.com/cgi-bin/webscr', method='post')[
-            tag('div')[
-                tag('input', type='hidden', _name='cmd', value='_xclick'),
-                tag('input', type='hidden', _name='business', value='micahjd@users.sourceforge.net'),
-                tag('input', type='hidden', _name='item_name', value='CIA Open Source Notification System'),
-                tag('input', type='hidden', _name='no_note', value='1'),
-                tag('input', type='hidden', _name='currency_code', value='USD'),
-                tag('input', type='hidden', _name='tax', value='0'),
-                tag('input', type='image', _name='submit',
-                    src='http://www.paypal.com/en_US/i/btn/x-click-but21.gif',
-                    alt='Make a donation via PayPal'),
-            ],
-        ],
-    ]
-
 # Disable stats pruning automatically if our I/O load gets critical
 def isPruningEnabled(self):
     # FIXME: pruning disabled completely, for now
@@ -48,10 +25,8 @@ def isPruningEnabled(self):
 #    return int(ioStatus['io_tokens']) > 300000
 Stats.Target.Messages.isPruningEnabled = isPruningEnabled
 
-# Remove the non-main CIA server notice, since this is in fact the
-# main server, and add the above donation box.
+# Remove the non-main CIA server notice, since this is in fact the main server.
 Web.Template.Page.site_mainServerNotice = []
-Web.Template.Page.site_belowLeftColumn.append(DonationSection())
 
 application = service.Application("cia_server")
 hub = Message.Hub()
