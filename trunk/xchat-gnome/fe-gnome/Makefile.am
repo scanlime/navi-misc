@@ -4,6 +4,9 @@ xchat_gnomedir = $(datadir)/xchat
 INCLUDES =					\
 	$(GUI_CFLAGS)				\
 	$(LIBSEXY_CFLAGS)			\
+	-DSYSCONFDIR="\"$(sysconfdir)\""	\
+	-DDATADIR="\"$(xchat_gnomedir)\""	\
+	-DLIBDIR="\"$(xchatlibdir)\""		\
 	-DXCHATSHAREDIR="\"$(xchat_gnomedir)\""	\
 	-DXCHATLIBDIR="\"$(xchatlibdir)\""
 

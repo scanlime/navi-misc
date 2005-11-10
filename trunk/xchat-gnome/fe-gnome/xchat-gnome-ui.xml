@@ -51,6 +51,7 @@
 		</menu>
 
 		<menu name="HelpMenu" action="Help">
+			<menuitem name="HelpContentsItem" action="HelpContents"/>
 			<menuitem name="HelpAboutItem" action="HelpAbout"/>
 		</menu>
 

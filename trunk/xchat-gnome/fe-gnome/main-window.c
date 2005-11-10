@@ -86,6 +86,7 @@ static void on_go_previous_network_activate (GtkAction *action, gpointer data);
 static void on_go_next_network_activate (GtkAction *action, gpointer data);
 static void on_go_previous_discussion_activate (GtkAction *action, gpointer data);
 static void on_go_next_discussion_activate (GtkAction *action, gpointer data);
+static void on_help_contents_activate (GtkAction *action, gpointer data);
 static void on_help_about_activate (GtkAction *action, gpointer data);
 static void on_nickname_clicked (GtkButton *widget, gpointer user_data);
 
@@ -105,26 +106,26 @@ static void entry_context (GtkEntry *entry, GtkMenu *menu, gpointer user_data);
 static GtkActionEntry action_entries [] = {
 
 	/* Toplevel */
-	{ "IRC", NULL, _("_IRC") },
-	{ "Edit", NULL, _("_Edit") },
-	{ "Insert", NULL, _("In_sert") },
-	{ "Network", NULL, _("_Network") },
-	{ "Discussion", NULL, _("_Discussion") },
-	{ "Go", NULL, _("_Go") },
-	{ "Help", NULL, _("_Help") },
+	{ "IRC",         NULL, _("_IRC") },
+	{ "Edit",        NULL, _("_Edit") },
+	{ "Insert",      NULL, _("In_sert") },
+	{ "Network",     NULL, _("_Network") },
+	{ "Discussion",  NULL, _("_Discussion") },
+	{ "Go",          NULL, _("_Go") },
+	{ "Help",        NULL, _("_Help") },
 	{ "PopupAction", NULL, _("") },
 
 	/* IRC menu */
-	{ "IRCConnect", GTK_STOCK_CONNECT, _("_Connect"), "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
-	{ "IRCDownloads", NULL, _("_File Transfers"), "<alt>F", NULL, G_CALLBACK (on_irc_downloads_activate) },
-	{ "IRCQuit", GTK_STOCK_QUIT, _("_Quit"), "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
+	{ "IRCConnect",   GTK_STOCK_CONNECT, _("_Connect"),        "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
+	{ "IRCDownloads", NULL,              _("_File Transfers"), "<alt>F",     NULL, G_CALLBACK (on_irc_downloads_activate) },
+	{ "IRCQuit",      GTK_STOCK_QUIT,    _("_Quit"),           "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
 
 	/* Edit menu */
-	{ "EditCut", GTK_STOCK_CUT, _("Cu_t"), "<control>X", NULL, G_CALLBACK (on_edit_cut_activate) },
-	{ "EditCopy", GTK_STOCK_COPY, _("_Copy"), "<control>C", NULL, G_CALLBACK (on_edit_copy_activate) },
-	{ "EditPaste", GTK_STOCK_PASTE, _("_Paste"), "<control>V", NULL, G_CALLBACK (on_edit_paste_activate) },
-	{ "EditClear", GTK_STOCK_CLEAR, _("C_lear"), "", NULL, G_CALLBACK (on_edit_clear_activate) },
-	{ "EditPreferences", GTK_STOCK_PREFERENCES, _("Prefere_nces"), "", NULL, G_CALLBACK (on_edit_preferences_activate) },
+	{ "EditCut",         GTK_STOCK_CUT,         _("Cu_t"),         "<control>X", NULL, G_CALLBACK (on_edit_cut_activate) },
+	{ "EditCopy",        GTK_STOCK_COPY,        _("_Copy"),        "<control>C", NULL, G_CALLBACK (on_edit_copy_activate) },
+	{ "EditPaste",       GTK_STOCK_PASTE,       _("_Paste"),       "<control>V", NULL, G_CALLBACK (on_edit_paste_activate) },
+	{ "EditClear",       GTK_STOCK_CLEAR,       _("C_lear"),       "",           NULL, G_CALLBACK (on_edit_clear_activate) },
+	{ "EditPreferences", GTK_STOCK_PREFERENCES, _("Prefere_nces"), "",           NULL, G_CALLBACK (on_edit_preferences_activate) },
 
 	/* Network menu */
 	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, _("_Information"), "", NULL, G_CALLBACK (on_network_information_activate) },
@@ -151,7 +152,8 @@ static GtkActionEntry action_entries [] = {
 	{ "GoNextDiscussion", GTK_STOCK_GO_FORWARD, _("_Next Discussion"), "<alt>Down", NULL, G_CALLBACK (on_go_next_discussion_activate) },
 
 	/* Help menu */
-	{ "HelpAbout", GTK_STOCK_ABOUT, _("_About"), "", NULL, G_CALLBACK (on_help_about_activate) },
+	{ "HelpContents", GTK_STOCK_HELP,  _("_Contents"), "",   NULL, G_CALLBACK (on_help_contents_activate) },
+	{ "HelpAbout",    GTK_STOCK_ABOUT, _("_About"),    "",   NULL, G_CALLBACK (on_help_about_activate) },
 };
 
 static GCompletion *command_completion;
@@ -912,6 +914,18 @@ on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType a
 	if (value > end)
 		value = end;
 	gtk_adjustment_set_value (adj, value);
+}
+
+static void
+on_help_contents_activate (GtkAction *action, gpointer data)
+{
+	GError *error = NULL;
+
+	gnome_help_display_with_doc_id (NULL, NULL, "xchat-gnome.xml", NULL, &error);
+	if (error) {
+		error_dialog ("Error showing help", error->message);
+		g_error_free (error);
+	}
 }
 
 static void
