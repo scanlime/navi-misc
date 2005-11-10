@@ -96,7 +96,7 @@ That's it. You can configure other options as you like, but these are the requir
 	cvs commit
 
 You should now be setup. If all went well, the next commit you make should show up in #commits and on the web. If you would like to have a bot in your IRC channel or edit your project's metadata_, contact
-`Micah via email`_, or as 'scanline' on irc.freenode.net. Everything else should be ready to go. Congratulations on setting up CIA to work with your project.
+`Micah via email`_. Everything else should be ready to go. Congratulations on setting up CIA to work with your project.
 
 .. _metadata: /doc/metadata
 .. _Micah via email: mailto:micah@navi.cx

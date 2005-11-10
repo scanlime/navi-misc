@@ -15,8 +15,8 @@ There are only a few steps in connecting a project with CIA:
 - Tada. The next time you commit, your project should show up in the
   #commits IRC channel on Freenode_, and in the `stats browser`_.
 
-- If you want CIA to join a new IRC channel, contact Micah_ ('scanline'
-  on Freenode_) and he will add a ruleset_ manually. The web interface
+- If you want CIA to join a new IRC channel, contact Micah_ via email
+  and he will add a ruleset_ manually. The web interface
   for rulesets_ currently is read-only.
 
 - Likewise, your project's stats page will be a bit dull. Projects
