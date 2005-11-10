@@ -131,10 +131,10 @@
 
 #include <Python.h>
 
-//#define DEBUG
+#define DEBUG
 
-#define PAGE_SHIFT 12
-//#define PAGE_SHIFT 5
+//#define PAGE_SHIFT 12
+#define PAGE_SHIFT 5
 #define PAGE_SIZE  (1 << PAGE_SHIFT)
 #define PAGE_MASK  (PAGE_SIZE - 1)
 
@@ -642,7 +642,11 @@ typedef struct {
     fid_page l1_page;   /* Doubles as the current sample in the L2 list */
     fid_page l0_page;
 
-    unsigned char *l1_sample;
+    /* These both point to the first byte after the current sample.
+     * Pointing to the beginning on one page has the same meaning as pointing
+     * past the last sample on the previous page.
+     */
+    unsigned char *l1_sample; 
     unsigned char *l0_sample;
 } fid_cursor;
 
@@ -674,7 +678,15 @@ fid_cursor_seek_l2(fid_cursor *self, sample_t key)
 {
     fid_list_delta l2_delta;
 
-    /* If the seek is backwards, reset to the very beginning */
+    /* If the seek is backwards, reset to the very beginning.
+     * Note that a key less than our current sample isn't
+     * guaranteed to return a sample before this one- but since
+     * it isn't guaranteed *not* to, we have to reset the
+     * search to be on the safe side. If this is ever a performance
+     * problem we could cache the previous sample on each cursor,
+     * but our usage patterns are intended not to seek backwards
+     * during normal operation.
+     */
     if (key < self->l2_cursor.sample) {
         DBG("L2 cursor reset\n");
 
@@ -684,6 +696,26 @@ fid_cursor_seek_l2(fid_cursor *self, sample_t key)
         self->l1_cursor.sample = SAMPLE_NEED_RESET;
     }
 
+    /* Moving the L2 cursor is tricky, since the cursor position
+     * and the current sample (L1 page number) correspond in an
+     * unintuitive way.
+     *
+     * After resetting a cursor, we're pointing to the first L1
+     * page, and we're pointing before the first L2 sample.
+     * Each iteration through this loop is a test to check whether
+     * we can move forward.
+     *
+     * If we can't move forward (the first L2 sample, stored in
+     * L1 page zero, is too big) we keep pointing at the first
+     * L1 page and *before* the first L2 sample. Our L2 cursor
+     * is still at time zero.
+     *
+     * However if we can move forward, we seek our L2 cursor
+     * forward to the first L2 sample. The sample itself,
+     * conceptually, lies inside the first L1 page. Our L2
+     * sample pointer, however, will be set to the second
+     * L1 page.
+     */
     while (1) {
         unsigned char *p = &self->l1_page.data[PAGE_SIZE - 1];
         unsigned char *fence = self->l1_page.data;
@@ -778,13 +810,15 @@ fid_cursor_seek_l0(fid_cursor *self, sample_t key)
     if (key < self->l0_cursor.sample) {
         DBG("L0 cursor reset\n");
 
-        /* Calculate the proper L0 page offset by looking at how many samples we've covered
-         * in the current L1 page since branching off from the L2 cursor.
+        /* Calculate the proper L0 page offset by looking at how many
+         * samples we've covered in the current L1 page since branching
+         * off from the L2 cursor.
          */
         self->l0_cursor = self->l1_cursor;
         if (fid_page_seek(&self->l0_page, &self->file,
                           self->l1_page.offset +
-                          ((self->l1_cursor.sample_number - self->l2_cursor.sample_number + 1) << PAGE_SHIFT)) < 0)
+                          ((self->l1_cursor.sample_number -
+                            self->l2_cursor.sample_number + 1) << PAGE_SHIFT)) < 0)
             return -1;
         self->l0_sample = self->l0_page.data;
     }
@@ -797,8 +831,9 @@ fid_cursor_seek_l0(fid_cursor *self, sample_t key)
 
         l0_delta.time_delta = sample_read(&p, self->l0_page.data + self->l0_page.size);
 
-        /* Stop the seek if we hit the end of the page. This should only happen
-         * on incomplete pages, for the same reason noted in fid_cursor_seek_l1.
+        /* Stop the seek if we hit the end of the page. This should only 
+         * happen on incomplete pages, for the same reason noted in
+         * fid_cursor_seek_l1.
          */
         if (l0_delta.time_delta < 0) {
             DBG("Hit the end\n");
@@ -848,14 +883,16 @@ static int fid_cursor_append(fid_cursor *self, sample_t sample)
 
     if (delta.time_delta < 0) {
         PyErr_SetString(PyExc_ValueError,
-                        "Sample is not greater than or equal to the previous sample");
+           "Sample is not greater than or equal to the previous sample");
         return -1;
     }
 
     /* If there's room in this L0 page, we have very little to do.
      * This is the most common case when appending many samples.
      */
-    if (self->l0_sample + sample_len(delta.time_delta) <= self->l0_page.data + PAGE_SIZE) {
+    if (self->l0_sample + sample_len(delta.time_delta) <=
+        self->l0_page.data + PAGE_SIZE) {
+
         sample_write(delta.time_delta, self->l0_sample);
         fid_list_cursor_advance(&self->l0_cursor, &delta);
         self->l0_sample += sample_len(delta.time_delta);
