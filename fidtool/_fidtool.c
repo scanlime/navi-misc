@@ -500,6 +500,7 @@ fid_file_seek(fid_file *self, off_t offset)
             PyErr_SetFromErrno(PyExc_IOError);
             return -1;
         }
+        self->offset = offset;
     }
     return 0;
 }
@@ -737,6 +738,8 @@ fid_cursor_seek_l2(fid_cursor *self, sample_t key)
         n_pages = sample_read_r(&p, fence);
 
         if (self->l2_cursor.sample + l2_delta.time_delta < key) {
+            DBG("L2 seeking forward by %d pages\n", n_pages);
+
             /* Seek the L2 cursor ahead by n_pages L1 pages */
             fid_list_cursor_advance(&self->l2_cursor, &l2_delta);
             if (fid_page_seek(&self->l1_page, &self->file,
@@ -908,7 +911,9 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
 static int fid_cursor_append(fid_cursor *self, sample_t sample)
 {
     fid_list_delta l0_delta = {sample - self->l0_cursor.sample, 1};
-    fid_list_delta l1_delta;
+    fid_list_delta l1_delta, l2_delta;
+    int l2_npages;
+    unsigned char *p;
 
     DBG("Appending sample %lld\n", sample);
 
@@ -945,9 +950,71 @@ static int fid_cursor_append(fid_cursor *self, sample_t sample)
         fid_list_cursor_advance(&self->l1_cursor, &l1_delta);
         fid_page_grow(&self->l1_page, self->l1_sample);
 
-        /* Start a new L0 page */
-        fid_page_seek(&self->l0_page, &self->file, self->l0_page.offset + PAGE_SIZE);
-        self->l0_sample = self->l0_page.data;
+        /* Is this L1 page full yet? "full" in this case means that we can't
+         * guarantee it will hold at least one more L1 sample and one L2 sample.
+         *
+         * We currently use a worst-case estimate:
+         *   - 1 separator byte
+         *   - 2 bytes for the number of L1 samples in the L2 sample
+         *   - 5 bytes for the number of L0 samples in the L2 sample
+         *   - 8 bytes for the L2 sample delta
+         *   - 5 bytes for the number of L0 samples in the L1 sample
+         *   - 8 bytes for the L1 sample delta
+         *
+         * Or, 29 bytes total.
+         *
+         * Using a worst-case estimate like this negates the usefulness of having
+         * variable-size integers here. The choice was mostly for consistency,
+         * though it may be possible to optimize the packing better in the future.
+         */
+        if (self->l1_sample + 29 > self->l1_page.data + PAGE_SIZE) {
+            /* Yes, we should complete this L1 page by giving it an
+             * L2 sample, then start a new one.
+             */
+
+            /* Generate the L2 sample */
+            l2_delta.time_delta = self->l0_cursor.sample - self->l2_cursor.sample;
+            l2_delta.n_samples = self->l0_cursor.sample_number - self->l2_cursor.sample_number;
+            l2_npages = (self->l0_page.offset - self->l1_page.offset) >> PAGE_SHIFT;
+
+            DBG("L2 append: %lld, %ld, %d\n",
+                l2_delta.time_delta, l2_delta.n_samples, l2_npages);
+
+            /* Write the L2 sample as a reverse-header on this L1 page */
+            p = &self->l1_page.data[PAGE_SIZE - 1];
+            sample_write_r(l2_delta.time_delta, p);
+            p -= sample_len(l2_delta.time_delta);
+            sample_write_r(l2_delta.n_samples, p);
+            p -= sample_len(l2_delta.n_samples);
+            sample_write_r(l2_npages, p);
+
+            fid_list_cursor_advance(&self->l2_cursor, &l2_delta);
+            fid_page_grow(&self->l1_page, &self->l1_page.data[PAGE_SIZE]);
+
+            /* Start a new L1 page after this last L0 page,
+             * then a new L0 page after that.
+             */
+            if (fid_page_seek(&self->l1_page, &self->file,
+                              self->l0_page.offset + PAGE_SIZE) < 0)
+                return -1;
+            self->l1_sample = self->l1_page.data;
+
+            if (fid_page_seek(&self->l0_page, &self->file,
+                              self->l1_page.offset + PAGE_SIZE) < 0)
+                return -1;
+            self->l0_sample = self->l0_page.data;
+
+            DBG("L1 page now at 0x%016llx\n", self->l1_page.offset);
+        }
+        else {
+            /* Just start a new L0 page */
+            if (fid_page_seek(&self->l0_page, &self->file,
+                              self->l0_page.offset + PAGE_SIZE) < 0)
+                return -1;
+            self->l0_sample = self->l0_page.data;
+        }
+
+        DBG("L0 page now at 0x%016llx\n", self->l0_page.offset);
     }
 
     /* Append the new L0 sample */
