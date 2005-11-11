@@ -131,10 +131,9 @@
 
 #include <Python.h>
 
-#define DEBUG
+//#define DEBUG
 
-//#define PAGE_SHIFT 12
-#define PAGE_SHIFT 5
+#define PAGE_SHIFT 12
 #define PAGE_SIZE  (1 << PAGE_SHIFT)
 #define PAGE_MASK  (PAGE_SIZE - 1)
 
@@ -737,6 +736,9 @@ fid_cursor_seek_l2(fid_cursor *self, sample_t key)
         l2_delta.n_samples = sample_read_r(&p, fence);
         n_pages = sample_read_r(&p, fence);
 
+        DBG("L2 reading delta: %lld, %ld, %d\n",
+            l2_delta.time_delta, l2_delta.n_samples, n_pages);
+
         if (self->l2_cursor.sample + l2_delta.time_delta < key) {
             DBG("L2 seeking forward by %d pages\n", n_pages);
 
@@ -779,7 +781,7 @@ fid_cursor_seek_l1(fid_cursor *self, sample_t key)
         }
 
         /* Force the L0 cursor to sync up with this one */
-        self->l0_cursor.sample = SAMPLE_NEED_RESET;
+        self->l0_watermark = SAMPLE_NEED_RESET;
     }
 
     while (1) {
@@ -854,7 +856,8 @@ fid_cursor_seek_l0(fid_cursor *self, sample_t key)
         p = self->l0_sample;
         l0_delta.time_delta = sample_read(&p, self->l0_page.data + self->l0_page.size);
 
-        DBG("Read L0 delta of %lld from offset 0x%04x -> 0x%04x (fence at size 0x%04x)\n",
+        DBG("L0 reading delta: %lld from offset 0x%04x -> 0x%04x"
+            " (fence at size 0x%04x)\n",
             l0_delta.time_delta,
             self->l0_sample - self->l0_page.data,
             p - self->l0_page.data,
