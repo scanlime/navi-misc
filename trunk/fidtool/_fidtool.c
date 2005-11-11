@@ -131,7 +131,7 @@
 
 #include <Python.h>
 
-#define DEBUG
+//#define DEBUG
 
 //#define PAGE_SHIFT 12
 #define PAGE_SHIFT 5
@@ -635,6 +635,22 @@ typedef struct {
      */
     unsigned char *l1_sample; 
     unsigned char *l0_sample;
+
+    /* End-of-file flag, set by the l0 cursor */
+    int l0_eof;
+
+    /* We use this to detect reverse-seeks at the L0 level.
+     * This is better than using the L0 cursor itself for a couple
+     * reasons:
+     *  1. It handles EOF cases easily
+     *  2. Any set of sequential seeks that lie within the same
+     *     two samples will actually appear to move the L0 cursor
+     *     backwards, since L0 already points to the second of the
+     *     two samples. This method optimizes for that case, which
+     *     is very common when your queries are packed more densely
+     *     than your samples.
+     */
+    sample_t l0_watermark;
 } fid_cursor;
 
 static int
@@ -643,7 +659,7 @@ fid_cursor_init(fid_cursor *self, int fd)
     fid_page_init(&self->l0_page);
     fid_page_init(&self->l1_page);
 
-    self->l0_cursor.sample = SAMPLE_NEED_RESET;
+    self->l0_watermark = SAMPLE_NEED_RESET;
     self->l1_cursor.sample = SAMPLE_NEED_RESET;
     self->l2_cursor.sample = SAMPLE_NEED_RESET;
 
@@ -775,7 +791,7 @@ fid_cursor_seek_l1(fid_cursor *self, sample_t key)
             self->l1_sample = p;
 
             /* Force the L0 cursor to sync to the L1 cursor */
-            self->l0_cursor.sample = SAMPLE_NEED_RESET;
+            self->l0_watermark = SAMPLE_NEED_RESET;
         }
         else
             break;
@@ -787,13 +803,11 @@ static int
 fid_cursor_seek_l0(fid_cursor *self, sample_t key)
 {
     fid_list_delta l0_delta;
+    unsigned char *p;
     l0_delta.n_samples = 1;
 
-    if (fid_page_read(&self->l0_page, &self->file) < 0)
-        return -1;
-
     /* If the seek is backwards, reset to the L1 cursor */
-    if (key < self->l0_cursor.sample) {
+    if (key < self->l0_watermark) {
         DBG("L0 cursor reset\n");
 
         /* Calculate the proper L0 page offset by looking at how many
@@ -807,16 +821,29 @@ fid_cursor_seek_l0(fid_cursor *self, sample_t key)
                             self->l2_cursor.sample_number + 1) << PAGE_SHIFT)) < 0)
             return -1;
         self->l0_sample = self->l0_page.data;
+        self->l0_eof = 0;
     }
+    self->l0_watermark = key;
 
-    DBG("L0 cursor at (%lld, %ld) key=%lld\n",
-        self->l0_cursor.sample, self->l0_cursor.sample_number, key);
+    if (fid_page_read(&self->l0_page, &self->file) < 0)
+        return -1;
+
+    /* Helpful infographic:
+     *
+     * -1    0           1           2            3             4
+     *  -----*-----------*-----------*------------*-------------*-----
+     *  ^L1         ^L0                 ^query
+     */
 
     while (1) {
-        unsigned char *p = self->l0_sample;
+        if (self->l0_cursor.sample >= key && self->l0_cursor.sample_number >= 0) {
+            /* This item satisfies our search criteria */
+            break;
+        }
 
+        p = self->l0_sample;
         l0_delta.time_delta = sample_read(&p, self->l0_page.data + self->l0_page.size);
-        
+
         DBG("Read L0 delta of %lld from offset 0x%04x -> 0x%04x (fence at size 0x%04x)\n",
             l0_delta.time_delta,
             self->l0_sample - self->l0_page.data,
@@ -829,25 +856,14 @@ fid_cursor_seek_l0(fid_cursor *self, sample_t key)
          */
         if (l0_delta.time_delta < 0) {
             DBG("Hit the end\n");
+            self->l0_eof = 1;
             break;
         }
 
-        DBG("L0 hit a delta of %lld\n", l0_delta.time_delta);
-
-        /* At the L0 level, it's OK to skip just past 'key'
-         * as long as we're sure we hit the first sample greater
-         * than or equal to our search key.
-         */
-        if (self->l0_cursor.sample + l0_delta.time_delta <= key) {
-            fid_list_cursor_advance(&self->l0_cursor, &l0_delta);
-            self->l0_sample = p;
-            DBG("L0 advanced to (%lld, %ld) key: %lld\n",
-                self->l0_cursor.sample, self->l0_cursor.sample_number, key);
-        }
-        else {
-            DBG("L0 terminating\n");
-            break;
-        }
+        fid_list_cursor_advance(&self->l0_cursor, &l0_delta);
+        self->l0_sample = p;
+        DBG("L0 advanced to (%lld, %ld) key: %lld\n",
+            self->l0_cursor.sample, self->l0_cursor.sample_number, key);
     }
     return 0;
 }
@@ -858,6 +874,10 @@ fid_cursor_seek_l0(fid_cursor *self, sample_t key)
  */
 static int fid_cursor_seek(fid_cursor *self, sample_t key)
 {
+    if (key < 0) {
+        key = 0;
+    }
+
     DBG("Seeking to %lld\n", key);
 
     if (fid_cursor_seek_l2(self, key) < 0)
@@ -974,7 +994,15 @@ static PyObject* fid_query_samples(PyObject *self, PyObject *args) {
         if (fid_cursor_seek(&cursor, sample) < 0)
             goto error;
 
-        item = PyInt_FromLong(cursor.l0_cursor.sample_number);
+        /* Add the EOF flag, so that if we're past the last sample
+         * we get an index of 1 past the last sample's index.
+         * For consistency reasons we'll never actually point the l0
+         * cursor past the last sample, since when it's pointing 'at'
+         * the last sample its read/write pointer is already 'past'
+         * that sample.
+         */
+        item = PyInt_FromLong(cursor.l0_cursor.sample_number +
+                              cursor.l0_eof);
         PyList_Append(results, item);
         Py_DECREF(item);
     }
