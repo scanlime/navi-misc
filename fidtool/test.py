@@ -6,6 +6,9 @@ psyco.full()
 
 def build_fid(dataset, fd):
     dataset.sort()
+    print "Dataset:"
+    for i in dataset:
+        print "\t%s" % i
     _fidtool.append_samples(fd, dataset)
 
 def reference_query(stamps, seek_to):
@@ -15,7 +18,7 @@ def reference_query(stamps, seek_to):
     return i
 
 def test_fid(dataset, fd):
-    query = [int(random.uniform(dataset[0], dataset[-1]) + 0.5)
+    query = [int(random.uniform(dataset[0] - 100, dataset[-1] + 200) + 0.5)
              for i in xrange(1000)]
     query.sort()
 
@@ -35,12 +38,11 @@ def test_fid(dataset, fd):
                     print "%d: %d" % (query[i], j)
             break
 
-        break
         random.shuffle(query)
 
 
 if __name__ == "__main__":
-    #dataset = map(int, open("cia-commits.dataset"))[2000:3000]
+    dataset = map(int, open("cia-commits.dataset"))[2000:2020]
     dataset = range(20)
 
     fd = os.open("foo", os.O_CREAT | os.O_TRUNC | os.O_RDWR, 0666)
