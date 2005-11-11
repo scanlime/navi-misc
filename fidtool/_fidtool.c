@@ -591,19 +591,19 @@ fid_page_grow(fid_page *self, unsigned char *p)
 
 typedef struct {
     sample_t sample;
-    unsigned long sample_number;
+    long sample_number;
 } fid_list_cursor;
 
 typedef struct {
     sample_t time_delta;
-    unsigned long n_samples;
+    long n_samples;
 } fid_list_delta;
 
 static void
 fid_list_cursor_reset(fid_list_cursor *self)
 {
     self->sample = 0;
-    self->sample_number = 0;
+    self->sample_number = -1;  /* After ++'ing the first time, it points to sample 0 */
 }
 
 /* Apply a fid_list_delta to the cursor, moving it forward */
@@ -613,19 +613,6 @@ fid_list_cursor_advance(fid_list_cursor *self, fid_list_delta *delta)
     self->sample += delta->time_delta;
     self->sample_number += delta->n_samples;
 }
-
-/* Test whether advancing the cursor would cause it to cross our search key.
- *
- * Returns zero if the new sample would be greater than or equal to the
- * search key. At L1 and higher this means we don't advance, at L0 it's
- * a stopping condition indicating we should advance once then bail out.
- */
-static int
-fid_list_cursor_next(fid_list_cursor *self, fid_list_delta *delta, sample_t key)
-{
-    return (self->sample + delta->time_delta < key);
-}
-
 
 /************************************************************************/
 /************************************************* FID Cursor Layer *****/
@@ -733,7 +720,7 @@ fid_cursor_seek_l2(fid_cursor *self, sample_t key)
         l2_delta.n_samples = sample_read_r(&p, fence);
         n_pages = sample_read_r(&p, fence);
 
-        if (fid_list_cursor_next(&self->l2_cursor, &l2_delta, key)) {
+        if (self->l2_cursor.sample + l2_delta.time_delta < key) {
             /* Seek the L2 cursor ahead by n_pages L1 pages */
             fid_list_cursor_advance(&self->l2_cursor, &l2_delta);
             if (fid_page_seek(&self->l1_page, &self->file,
@@ -782,7 +769,7 @@ fid_cursor_seek_l1(fid_cursor *self, sample_t key)
         if (l1_delta.time_delta < 0)
             break;
 
-        if (fid_list_cursor_next(&self->l1_cursor, &l1_delta, key)) {
+        if (self->l1_cursor.sample + l1_delta.time_delta < key) {
             /* Seek the L1 cursor forward */
             fid_list_cursor_advance(&self->l1_cursor, &l1_delta);
             self->l1_sample = p;
@@ -799,7 +786,6 @@ fid_cursor_seek_l1(fid_cursor *self, sample_t key)
 static int
 fid_cursor_seek_l0(fid_cursor *self, sample_t key)
 {
-    int next;
     fid_list_delta l0_delta;
     l0_delta.n_samples = 1;
 
@@ -823,13 +809,19 @@ fid_cursor_seek_l0(fid_cursor *self, sample_t key)
         self->l0_sample = self->l0_page.data;
     }
 
-    DBG("L0 cursor at (%lld, %lu)\n",
-        self->l0_cursor.sample, self->l0_cursor.sample_number);
+    DBG("L0 cursor at (%lld, %ld) key=%lld\n",
+        self->l0_cursor.sample, self->l0_cursor.sample_number, key);
 
-    do {
+    while (1) {
         unsigned char *p = self->l0_sample;
 
         l0_delta.time_delta = sample_read(&p, self->l0_page.data + self->l0_page.size);
+        
+        DBG("Read L0 delta of %lld from offset 0x%04x -> 0x%04x (fence at size 0x%04x)\n",
+            l0_delta.time_delta,
+            self->l0_sample - self->l0_page.data,
+            p - self->l0_page.data,
+            self->l0_page.size);
 
         /* Stop the seek if we hit the end of the page. This should only 
          * happen on incomplete pages, for the same reason noted in
@@ -846,14 +838,17 @@ fid_cursor_seek_l0(fid_cursor *self, sample_t key)
          * as long as we're sure we hit the first sample greater
          * than or equal to our search key.
          */
-        next = fid_list_cursor_next(&self->l0_cursor, &l0_delta, key);
-
-        fid_list_cursor_advance(&self->l0_cursor, &l0_delta);
-        self->l0_sample = p;
-
-        DBG("L0 advanced to (%lld, %lu) key: %lld\n",
-            self->l0_cursor.sample, self->l0_cursor.sample_number, key);
-    } while (next);
+        if (self->l0_cursor.sample + l0_delta.time_delta <= key) {
+            fid_list_cursor_advance(&self->l0_cursor, &l0_delta);
+            self->l0_sample = p;
+            DBG("L0 advanced to (%lld, %ld) key: %lld\n",
+                self->l0_cursor.sample, self->l0_cursor.sample_number, key);
+        }
+        else {
+            DBG("L0 terminating\n");
+            break;
+        }
+    }
     return 0;
 }
 
@@ -863,6 +858,8 @@ fid_cursor_seek_l0(fid_cursor *self, sample_t key)
  */
 static int fid_cursor_seek(fid_cursor *self, sample_t key)
 {
+    DBG("Seeking to %lld\n", key);
+
     if (fid_cursor_seek_l2(self, key) < 0)
         return -1;
     if (fid_cursor_seek_l1(self, key) < 0)
