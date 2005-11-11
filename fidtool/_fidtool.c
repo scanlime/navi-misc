@@ -131,7 +131,7 @@
 
 #include <Python.h>
 
-//#define DEBUG
+#define DEBUG
 
 //#define PAGE_SHIFT 12
 #define PAGE_SHIFT 5
@@ -768,6 +768,13 @@ fid_cursor_seek_l1(fid_cursor *self, sample_t key)
         self->l1_cursor = self->l2_cursor;
         self->l1_sample = self->l1_page.data;
 
+        /* Since we're starting at the first L1 sample, start at the corresponding
+         * first L0 page after this page.
+         */
+        if (fid_page_seek(&self->l0_page, &self->file, self->l1_page.offset + PAGE_SIZE) < 0) {
+            return -1;
+        }
+
         /* Force the L0 cursor to sync up with this one */
         self->l0_cursor.sample = SAMPLE_NEED_RESET;
     }
@@ -777,6 +784,9 @@ fid_cursor_seek_l1(fid_cursor *self, sample_t key)
 
         l1_delta.time_delta = sample_read(&p, self->l1_page.data + PAGE_SIZE);
         l1_delta.n_samples = sample_read(&p, self->l1_page.data + PAGE_SIZE);
+        DBG("L1 reading delta: %lld, %ld (0x%04x offset afterwards)\n",
+            l1_delta.time_delta, l1_delta.n_samples,
+            p - self->l1_page.data);
 
         /* Stop the seek if we hit the end of the page. This should only happen
          * on incomplete pages, as on complete pages we would have skipped to the
@@ -789,6 +799,12 @@ fid_cursor_seek_l1(fid_cursor *self, sample_t key)
             /* Seek the L1 cursor forward */
             fid_list_cursor_advance(&self->l1_cursor, &l1_delta);
             self->l1_sample = p;
+            
+            /* Seek to the next L0 page */
+            if (fid_page_seek(&self->l0_page, &self->file,
+                              self->l0_page.offset + PAGE_SIZE) < 0) {
+                return -1;
+            }
 
             /* Force the L0 cursor to sync to the L1 cursor */
             self->l0_watermark = SAMPLE_NEED_RESET;
@@ -810,16 +826,7 @@ fid_cursor_seek_l0(fid_cursor *self, sample_t key)
     if (key < self->l0_watermark) {
         DBG("L0 cursor reset\n");
 
-        /* Calculate the proper L0 page offset by looking at how many
-         * samples we've covered in the current L1 page since branching
-         * off from the L2 cursor.
-         */
         self->l0_cursor = self->l1_cursor;
-        if (fid_page_seek(&self->l0_page, &self->file,
-                          self->l1_page.offset +
-                          ((self->l1_cursor.sample_number -
-                            self->l2_cursor.sample_number + 1) << PAGE_SHIFT)) < 0)
-            return -1;
         self->l0_sample = self->l0_page.data;
         self->l0_eof = 0;
     }
@@ -874,6 +881,10 @@ fid_cursor_seek_l0(fid_cursor *self, sample_t key)
  */
 static int fid_cursor_seek(fid_cursor *self, sample_t key)
 {
+    /* Our seek algorithm doesn't like negative keys, and
+     * we get the same result as searching for zero (since
+     * samples cannot be less than zero)
+     */
     if (key < 0) {
         key = 0;
     }
@@ -891,36 +902,63 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
 }
 
 /* Append a new sample. The fid_cursor must already be seeked
- * to SAMPLE_INF. It will still be seeked to SAMPLE_INF after
- * this executes.
+ * to the last existing sample, with l0_eof set. It will be
+ * seeked to the new sample when this returns.
  */
 static int fid_cursor_append(fid_cursor *self, sample_t sample)
 {
-    fid_list_delta delta = {sample - self->l0_cursor.sample, 1};
+    fid_list_delta l0_delta = {sample - self->l0_cursor.sample, 1};
+    fid_list_delta l1_delta;
 
-    if (delta.time_delta < 0) {
+    DBG("Appending sample %lld\n", sample);
+
+    if (l0_delta.time_delta < 0) {
         PyErr_SetString(PyExc_ValueError,
            "Sample is not greater than or equal to the previous sample");
         return -1;
     }
 
-    /* If there's room in this L0 page, we have very little to do.
-     * This is the most common case when appending many samples.
-     */
-    if (self->l0_sample + sample_len(delta.time_delta) <=
-        self->l0_page.data + PAGE_SIZE) {
+    if (self->l0_sample + sample_len(l0_delta.time_delta) > self->l0_page.data + PAGE_SIZE) {
+        /* There's no room in the L0 page. Add a new sample to the L1
+         * page, and start a new L0 page.
+         *
+         * The L0 cursor is currently on what will be the
+         * last sample in this L0 page. We need to generate
+         * a corresponding L1 sample, then insert our new L0
+         * sample after that. See the graphic at the top of
+         * this file.
+         */
 
-        sample_write(delta.time_delta, self->l0_sample);
-        fid_list_cursor_advance(&self->l0_cursor, &delta);
-        self->l0_sample += sample_len(delta.time_delta);
-        fid_page_grow(&self->l0_page, self->l0_sample);
-        return 0;
+        /* Generate the L1 sample */
+        l1_delta.time_delta = self->l0_cursor.sample - self->l1_cursor.sample;
+        l1_delta.n_samples = self->l0_cursor.sample_number - self->l1_cursor.sample_number;
+
+        /* Append the L1 sample */
+        DBG("L1 append: %lld, %ld at 0x%04x\n", l1_delta.time_delta, l1_delta.n_samples,
+            self->l1_sample - self->l1_page.data);
+
+        sample_write(l1_delta.time_delta, self->l1_sample);
+        self->l1_sample += sample_len(l1_delta.time_delta);
+        sample_write(l1_delta.n_samples, self->l1_sample);
+        self->l1_sample += sample_len(l1_delta.n_samples);
+
+        fid_list_cursor_advance(&self->l1_cursor, &l1_delta);
+        fid_page_grow(&self->l1_page, self->l1_sample);
+
+        /* Start a new L0 page */
+        fid_page_seek(&self->l0_page, &self->file, self->l0_page.offset + PAGE_SIZE);
+        self->l0_sample = self->l0_page.data;
     }
 
-    abort();
+    /* Append the new L0 sample */
+    DBG("L0 append: %lld\n", l0_delta.time_delta);
+    sample_write(l0_delta.time_delta, self->l0_sample);
+    fid_list_cursor_advance(&self->l0_cursor, &l0_delta);
+    self->l0_sample += sample_len(l0_delta.time_delta);
+    fid_page_grow(&self->l0_page, self->l0_sample);
+
     return 0;
 }
-
 
 /************************************************************************/
 /************************************** High-Level Python Interface *****/

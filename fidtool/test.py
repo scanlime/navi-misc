@@ -43,7 +43,7 @@ def test_fid(dataset, fd):
 
 if __name__ == "__main__":
     dataset = map(int, open("cia-commits.dataset"))[2000:2020]
-    dataset = range(20)
+    dataset = [x * 5 for x in range(200)]
 
     fd = os.open("foo", os.O_CREAT | os.O_TRUNC | os.O_RDWR, 0666)
     build_fid(dataset, fd)
