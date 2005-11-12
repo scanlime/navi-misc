@@ -67,7 +67,7 @@ class DebuggyFile:
 
 def graph_test(fd):
     f = DebuggyFile(open("foo.png", "wb"))
-    _fidtool.graph_png(f, (256, 128))
+    _fidtool.graph_png(f, (256, 12800))
     f.close()
 
 if __name__ == "__main__":
