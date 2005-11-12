@@ -54,30 +54,23 @@ def dump_fid(fd):
         sample = next_sample + 1
         i = next_i
 
-class DebuggyFile:
-    def __init__(self, f):
-        self.f = f
-
-    def write(self, data):
-        print "write: %r" % data
-        self.f.write(data)
-
-    def close(self):
-        self.f.close()
-
 def graph_test(fd):
-    f = DebuggyFile(open("foo.png", "wb"))
-    _fidtool.graph_png(fd, f, (256, 128),
-                       (1124301806, 60*60/2),
-                       75)
+    f = open("foo.png", "wb")
+    _fidtool.graph_png(fd, f, (800, 256),
+                       (1125000000, 60*30),
+                       200,
+                       ( (1, 1, 1, 1),
+                         (0, 0, 0, 0.5),
+                         (0, 0, 1, 0.4) ),
+                       (64 * 60 * 64, 10))
     f.close()
 
 if __name__ == "__main__":
-    dataset = map(int, open("cia-commits.dataset"))
+    #dataset = map(int, open("cia-commits.dataset"))
     #dataset = [x * 5 for x in range(6500)]
     
-    fd = os.open("foo", os.O_CREAT | os.O_TRUNC | os.O_RDWR, 0666)
-    build_fid(dataset, fd)
+    fd = os.open("foo", os.O_CREAT | os.O_RDWR, 0666)
+    #build_fid(dataset, fd)
     #test_fid(dataset, fd)
     graph_test(fd)
     os.close(fd)
