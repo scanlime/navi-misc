@@ -1109,44 +1109,66 @@ fid_cursor_append(fid_cursor *self, sample_t sample)
 /********************************************************* Graphing *****/
 /************************************************************************/
 
-struct fid_graph_info {
-    sample_t x_offset;      /* Sample at the left side of the graph */
-    sample_t x_scale;       /* Samples per pixel */
-    int      y_fullscale;   /* Number of samples corresponding to the full height */
-    
-    int      width;         /* Pixel size */
-    int      height;
-};
-
 #define FID_COLOR_DEPTH   4
 #define FID_PALETTE_SIZE  (1 << FID_COLOR_DEPTH)
 
-
-/* This is a libpng write callback that assumes our I/O pointer
- * is an arbitrary file-like python object. It calls that object's
- * write() method with a string generated from this function's
- * parameters.
- *
- * Exceptions are propagated immediately using libpng's longjmp
- * address.
+/* This buffer size doesn't need to be very large,
+ * as it only really needs to hold PNG headers.
  */
-static void
-fid_libpng_write(png_structp png_ptr, png_bytep data, png_size_t length)
-{
-    PyObject *result = PyObject_CallMethod((PyObject*) png_get_io_ptr(png_ptr),
-                                           "write", "s#", data, length);
-    if (result)
-        Py_DECREF(result);
-    else
-        longjmp(png_jmpbuf(png_ptr), 1);
-}
+#define FID_LIBPNG_BUFFER_SIZE 1024
+
+/* This is the output data type used by fid_libpng_write
+ * and fid_libpng_flush. It directs output to a Python
+ * file-like object, but consolidates small writes to
+ * avoid all the overhead of calling a python write()
+ * so frequently.
+ */
+struct fid_libpng_stream {
+    PyObject *obj;
+    int size;
+    unsigned char buffer[FID_LIBPNG_BUFFER_SIZE];
+};
 
 static void
 fid_libpng_flush(png_structp png_ptr)
 {
-    /* No need to flush, just no-op this so libpng
-     * won't try to fflush() a PyObject.
-     */
+    struct fid_libpng_stream *self = png_get_io_ptr(png_ptr);
+
+    PyObject *result = PyObject_CallMethod(self->obj, "write", "s#", self->buffer, self->size);
+    if (!result)
+        longjmp(png_jmpbuf(png_ptr), 1);
+    self->size = 0;
+    Py_DECREF(result);
+}
+
+static void
+fid_libpng_write(png_structp png_ptr, png_bytep data, png_size_t length)
+{
+    struct fid_libpng_stream *self = png_get_io_ptr(png_ptr);
+
+    if (self->size + length > FID_LIBPNG_BUFFER_SIZE) {
+        /* Output the current buffer contents */
+        fid_libpng_flush(png_ptr);
+
+        /* Is this next write small enough to try buffering? */
+        if (length > FID_LIBPNG_BUFFER_SIZE) {
+            /* No, write it immediately */
+            PyObject *result = PyObject_CallMethod(self->obj, "write", "s#", data, length);
+            if (result)
+                Py_DECREF(result);
+            else
+                longjmp(png_jmpbuf(png_ptr), 1);
+        }
+        else {
+            memcpy(self->buffer, data, length);
+            self->size = length;
+        }
+    }
+    else {
+        /* Append to this buffer */
+        memcpy(self->buffer + self->size, data, length);
+        self->size += length;
+    }
 }
 
 static void
@@ -1159,15 +1181,14 @@ fid_libpng_error(png_structp png_ptr, png_const_charp error_msg)
 static PyObject*
 fid_graph_png(PyObject *self, PyObject *args)
 {
-    PyObject *outfile;
-    int width, height;
+    struct fid_libpng_stream output = {NULL, 0};
+    png_color palette[FID_PALETTE_SIZE];
     png_structp png_ptr;
     png_infop info_ptr;
     png_bytep row;
-    png_color palette[FID_PALETTE_SIZE];
-    int y;
+    int width, height, y;
 
-    if (!PyArg_ParseTuple(args, "O(ii)", &outfile, &width, &height))
+    if (!PyArg_ParseTuple(args, "O(ii)", &output.obj, &width, &height))
         return NULL;
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,
@@ -1198,9 +1219,9 @@ fid_graph_png(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    /* Direct writes at our Python file-like object */
-    png_set_write_fn(png_ptr, outfile,
-                     fid_libpng_write, fid_libpng_flush);
+    png_set_write_fn(png_ptr, &output,
+                     fid_libpng_write,
+                     fid_libpng_flush);
 
     /* Write the header */
     png_set_IHDR(png_ptr, info_ptr,
@@ -1222,6 +1243,7 @@ fid_graph_png(PyObject *self, PyObject *args)
     }    
 
     png_write_end(png_ptr, info_ptr);
+    fid_libpng_flush(png_ptr);
     png_destroy_write_struct(&png_ptr, &info_ptr);
     free(row);
     Py_RETURN_NONE;
