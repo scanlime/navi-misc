@@ -1108,9 +1108,23 @@ fid_cursor_append(fid_cursor *self, sample_t sample)
 /************************************************* Graph Generation *****/
 /************************************************************************/
 
-#define FID_OVERSAMPLE    4
-#define FID_COLOR_DEPTH   8
-#define FID_PALETTE_SIZE  (1 << FID_COLOR_DEPTH)
+/* The relationship between these constants is important:
+ *  FID_OVERSAMPLE controls the number of subpixels both
+ *  horizontally and vertically. Graph color indices
+ *  will range from 0 to FID_OVERSAMPLE^2.
+ *
+ * We will need twice that many colors in our palette,
+ * to implement grid lines with translucency. With 2x
+ * oversample, we end up needing a total of 10 colors,
+ * which fits safely into a 4bpp mode.
+ *
+ * Palette usage is controlled by the other constants here.
+ */
+#define FID_OVERSAMPLE       2
+#define FID_COLOR_DEPTH      4
+#define FID_PALETTE_SIZE     (1 << FID_COLOR_DEPTH)
+#define FID_GRAPH_COLOR_MAX  (FID_OVERSAMPLE * FID_OVERSAMPLE + 1)
+#define FID_GRIDLINE_BIT     8
 
 struct fid_graph {
     /* Output to the PNG interface */
@@ -1119,7 +1133,61 @@ struct fid_graph {
     png_color  palette[FID_PALETTE_SIZE];
 
     int *columns;
+    int x_grid, y_grid;
+    int y_fullscale;
 };
+
+static int
+fid_color_blend(png_color *bg, PyObject *rgba, float alpha)
+{
+    float r, g, b, a, a2;
+
+    if (!PyArg_ParseTuple(rgba, "ffff:color_blend", &r, &g, &b, &a))
+        return -1;
+
+    a *= alpha;
+    a2 = 1 - a;
+
+    bg->red   = bg->red   * a2 + r * 0xFF * a + 0.5;
+    bg->green = bg->green * a2 + g * 0xFF * a + 0.5;
+    bg->blue  = bg->blue  * a2 + b * 0xFF * a + 0.5;
+
+    return 0;
+}
+
+static int
+fid_graph_init_palette(struct fid_graph *self, PyObject *args)
+{
+    PyObject *bg, *grid, *fill;
+    int i, color;
+
+    if (!PyArg_ParseTuple(args, "OOO:graph_init_palette", &bg, &grid, &fill))
+        return -1;
+
+    memset(self->palette, 0, sizeof(self->palette));
+
+    for (i = 0; i < FID_PALETTE_SIZE; i++) {
+        if (fid_color_blend(&self->palette[i], bg, 1.0) < 0)
+            return -1;
+           
+        if (i & FID_GRIDLINE_BIT) {
+            if (fid_color_blend(&self->palette[i], grid, 1.0) < 0)
+                return -1;
+            color = i - FID_GRIDLINE_BIT;
+        }
+        else {
+            color = i;
+        }
+
+        if (i <= FID_GRAPH_COLOR_MAX) {
+            if (fid_color_blend(&self->palette[i], fill,
+                                ((float) i) / FID_GRAPH_COLOR_MAX) < 0)
+                return -1;
+        }
+    }
+
+    return 0;
+}
 
 static int
 fid_graph_init(struct fid_graph *self, PyObject *args)
@@ -1128,13 +1196,14 @@ fid_graph_init(struct fid_graph *self, PyObject *args)
     int fd, x;
     sample_t x_origin, x_scale;
     unsigned long sample_n;
-    int y_fullscale;
+    PyObject *colors;
  
-    if (!PyArg_ParseTuple(args, "iO(ii)(LL)i",
+    if (!PyArg_ParseTuple(args, "iO(ii)(LL)iO(ii):graph_init",
                           &fd, &self->output,
                           &self->width, &self->height,
                           &x_origin, &x_scale,
-                          &y_fullscale))
+                          &self->y_fullscale, &colors,
+                          &self->x_grid, &self->y_grid))
         return -1;
 
     /* Our Python code doesn't necessarily know the
@@ -1148,14 +1217,8 @@ fid_graph_init(struct fid_graph *self, PyObject *args)
         return -1;
     }
 
-    for (x=0; x<FID_PALETTE_SIZE; x++) {
-        unsigned char a = 0xFF - (x * 0xFF / 18);
-
-        self->palette[x].red   = a;
-        self->palette[x].green = a;
-        self->palette[x].blue  = a;
-    }
-
+    if (fid_graph_init_palette(self, colors) < 0)
+        return -1;
     if (fid_cursor_init(&cursor, fd) < 0)
         return -1;
 
@@ -1180,7 +1243,7 @@ fid_graph_init(struct fid_graph *self, PyObject *args)
 
         /* Convert each interval query to a column height, in subpixels */
         self->columns[x] = (cursor.l0_cursor.sample_number - sample_n)
-            * FID_OVERSAMPLE * self->height / y_fullscale;
+            * FID_OVERSAMPLE * self->height / self->y_fullscale;
 
         sample_n = cursor.l0_cursor.sample_number;
     }
@@ -1200,11 +1263,18 @@ fid_graph_draw_row(struct fid_graph *self, unsigned char *row, int y)
     int sample, color;
     int x_pixel, x_subpixel;
     int y_subpixel = y * FID_OVERSAMPLE;
+    int x_grid_flag, y_grid_flag;
+
+    /* FIXME: This is not accurate */
+    y_grid_flag = (y % (self->y_grid * self->height / self->y_fullscale)) == 0;
 
     x_pixel = 0;
     x_subpixel = 0;
     while (x_pixel < self->width) {
         color = 0;
+
+        /* FIXME */
+        x_grid_flag = y_grid_flag;
 
         /* We oversample horizontally. Vertically, we have true
          * antialiasing but we do integer calculations in the
@@ -1228,7 +1298,8 @@ fid_graph_draw_row(struct fid_graph *self, unsigned char *row, int y)
 
             x_subpixel++;
         }
-        row[x_pixel++] = color;
+
+        row[x_pixel++] = color | x_grid_flag;
     }
 }
 
