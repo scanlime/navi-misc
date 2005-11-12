@@ -114,7 +114,7 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 
 	} else {
 		/* Load the plugin. */
-		gchar *err = load_plugin (gui.current_session, filename, NULL);
+		gchar *err = load_plugin (gui.current_session, filename, NULL, TRUE, FALSE);
 		if (err == NULL) {
 			gtk_list_store_set (page->plugin_store, &iter, 4, TRUE, -1);
 			enabled_plugins = g_slist_append (enabled_plugins, filename);

@@ -46,13 +46,19 @@ GSList *enabled_plugins;
 static void
 autoload_plugin_cb (gchar * filename, gpointer data)
 {
-	load_plugin (gui.current_session, filename, NULL);
+	gboolean script = GPOINTER_TO_INT (data);
+	load_plugin (gui.current_session, filename, NULL, script, TRUE);
 }
 
 void
 autoload_plugins ()
 {
-	g_slist_foreach (enabled_plugins, (GFunc) & autoload_plugin_cb, NULL);
+	/* Split plugin loading into two passes - one for plugins, one for
+	 * scripts.  This makes sure that any language binding plugins are
+	 * loaded before we try to start any scripts.
+	 */
+	g_slist_foreach (enabled_plugins, (GFunc) & autoload_plugin_cb, GINT_TO_POINTER (FALSE));
+	g_slist_foreach (enabled_plugins, (GFunc) & autoload_plugin_cb, GINT_TO_POINTER (TRUE));
 }
 
 void
@@ -99,7 +105,7 @@ new_xg_plugin ()
 }
 
 char *
-load_plugin (session * sess, char *filename, char *arg)
+load_plugin (session * sess, char *filename, char *arg, gboolean script, gboolean autoload)
 {
 	int len;
 	char *buf, *err;
@@ -110,19 +116,21 @@ load_plugin (session * sess, char *filename, char *arg)
 	len = strlen (filename);
 
 	if (len > 3 && strcasecmp (filename + len - 3, ".so") == 0) {
-		/* Plugin */
-		handle = g_module_open (filename, 0);
+		if (!(autoload && script)) {
+			/* Plugin */
+			handle = g_module_open (filename, 0);
 
-		if (handle != NULL && g_module_symbol (handle, "xchat_gnome_plugin_init", &xg_init_func)) {
-			pl = new_xg_plugin ();
-			((xchat_gnome_plugin_init *) xg_init_func) (pl);
+			if (handle != NULL && g_module_symbol (handle, "xchat_gnome_plugin_init", &xg_init_func)) {
+				pl = new_xg_plugin ();
+				((xchat_gnome_plugin_init *) xg_init_func) (pl);
+			}
+
+			err = plugin_load (sess, filename, arg);
+
+			if (err != NULL)
+				return err;
 		}
-
-		err = plugin_load (sess, filename, arg);
-
-		if (err != NULL)
-			return err;
-	} else {
+	} else if (script == TRUE) {
 		/* Script */
 		buf = (char*) malloc (len + 9);
 		if (strchr (filename, ' '))

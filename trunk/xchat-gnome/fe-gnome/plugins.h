@@ -42,6 +42,6 @@ extern GSList *enabled_plugins;
 void plugins_initialize ();
 void autoload_plugins ();
 int unload_plugin (char *filename);
-char *load_plugin (session * sess, char *filename, char *arg);
+char *load_plugin (session * sess, char *filename, char *arg, gboolean script, gboolean autoload);
 
 #endif
