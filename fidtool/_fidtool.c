@@ -1104,13 +1104,138 @@ fid_cursor_append(fid_cursor *self, sample_t sample)
     return 0;
 }
 
-
 /************************************************************************/
-/********************************************************* Graphing *****/
+/************************************************* Graph Generation *****/
 /************************************************************************/
 
-#define FID_COLOR_DEPTH   4
+#define FID_OVERSAMPLE    4
+#define FID_COLOR_DEPTH   8
 #define FID_PALETTE_SIZE  (1 << FID_COLOR_DEPTH)
+
+struct fid_graph {
+    /* Output to the PNG interface */
+    PyObject  *output;
+    int        width, height;
+    png_color  palette[FID_PALETTE_SIZE];
+
+    int *columns;
+};
+
+static int
+fid_graph_init(struct fid_graph *self, PyObject *args)
+{
+    fid_cursor cursor;
+    int fd, x;
+    sample_t x_origin, x_scale;
+    unsigned long sample_n;
+    int y_fullscale;
+ 
+    if (!PyArg_ParseTuple(args, "iO(ii)(LL)i",
+                          &fd, &self->output,
+                          &self->width, &self->height,
+                          &x_origin, &x_scale,
+                          &y_fullscale))
+        return -1;
+
+    /* Our Python code doesn't necessarily know the
+     * oversample level- its scale is specified per-pixel,
+     * not per-subpixel. Convert it, and check sanity.
+     */
+    x_scale /= FID_OVERSAMPLE;
+    if (x_scale < 1) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Graph scale must be at least one sampling unit per subpixel");
+        return -1;
+    }
+
+    for (x=0; x<FID_PALETTE_SIZE; x++) {
+        unsigned char a = 0xFF - (x * 0xFF / 18);
+
+        self->palette[x].red   = a;
+        self->palette[x].green = a;
+        self->palette[x].blue  = a;
+    }
+
+    if (fid_cursor_init(&cursor, fd) < 0)
+        return -1;
+
+    self->columns = malloc(self->width * sizeof(int) * FID_OVERSAMPLE);
+    if (!self->columns) {
+        PyErr_NoMemory();
+        return -1;
+    }
+
+    if (fid_cursor_seek(&cursor, x_origin) < 0) {
+        free(self->columns);
+        return -1;
+    }
+    sample_n = cursor.l0_cursor.sample_number;
+
+    for (x=0; x<(self->width * FID_OVERSAMPLE); x++) {
+        x_origin += x_scale;
+        if (fid_cursor_seek(&cursor, x_origin) < 0) {
+            free(self->columns);
+            return -1;
+        }
+
+        /* Convert each interval query to a column height, in subpixels */
+        self->columns[x] = (cursor.l0_cursor.sample_number - sample_n)
+            * FID_OVERSAMPLE * self->height / y_fullscale;
+
+        sample_n = cursor.l0_cursor.sample_number;
+    }
+
+    return 0;
+}
+
+static void
+fid_graph_destroy(struct fid_graph *self)
+{
+    free(self->columns);
+}
+
+static void
+fid_graph_draw_row(struct fid_graph *self, unsigned char *row, int y)
+{
+    int sample, color;
+    int x_pixel, x_subpixel;
+    int y_subpixel = y * FID_OVERSAMPLE;
+
+    x_pixel = 0;
+    x_subpixel = 0;
+    while (x_pixel < self->width) {
+        color = 0;
+
+        /* We oversample horizontally. Vertically, we have true
+         * antialiasing but we do integer calculations in the
+         * same resolution as our horizontal oversampling,
+         * for convenience.
+         */
+        for (sample=0; sample < FID_OVERSAMPLE; sample++) {
+            int column = self->columns[x_subpixel];
+
+            if  (column < y_subpixel) {
+                /* Column is completely below this pixel */
+            }
+            else if (column >= y_subpixel + FID_OVERSAMPLE) {
+                /* Column completely above */
+                color += FID_OVERSAMPLE;
+            }
+            else {
+                /* Partially covering this pixel */
+                color += column - y_subpixel;
+            }
+
+            x_subpixel++;
+        }
+        row[x_pixel++] = color;
+    }
+}
+
+
+/************************************************************************/
+/****************************************************** PNG Support *****/
+/************************************************************************/
 
 /* This buffer size doesn't need to be very large,
  * as it only really needs to hold PNG headers.
@@ -1182,40 +1307,44 @@ static PyObject*
 fid_graph_png(PyObject *self, PyObject *args)
 {
     struct fid_libpng_stream output = {NULL, 0};
-    png_color palette[FID_PALETTE_SIZE];
+    struct fid_graph graph;
     png_structp png_ptr;
     png_infop info_ptr;
     png_bytep row;
-    int width, height, y;
+    int y;
 
-    if (!PyArg_ParseTuple(args, "O(ii)", &output.obj, &width, &height))
+    if (fid_graph_init(&graph, args) < 0)
         return NULL;
+    output.obj = graph.output;
+
+    row = malloc(graph.width);
+    if (!row) {
+        fid_graph_destroy(&graph);
+        return PyErr_NoMemory();
+    }
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,
                                       fid_libpng_error, NULL);
     if (!png_ptr) {
         PyErr_SetString(PyExc_OSError, "Error in png_create_write_struct");
+        free(row);
+        fid_graph_destroy(&graph);
         return NULL;
     }
-
     info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr) {
         PyErr_SetString(PyExc_OSError, "Error in png_create_info_struct");
+        free(row);
         png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+        fid_graph_destroy(&graph);
         return NULL;
     }
-
-    row = malloc(width);
-    if (!row) {
-        png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
-        return PyErr_NoMemory();
-    }
-
     if (setjmp(png_jmpbuf(png_ptr))) {
         if (!PyErr_Occurred())
             PyErr_SetString(PyExc_OSError, "Unknown libpng error");
-        png_destroy_write_struct(&png_ptr, &info_ptr);
         free(row);
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+        fid_graph_destroy(&graph);
         return NULL;
     }
 
@@ -1223,29 +1352,29 @@ fid_graph_png(PyObject *self, PyObject *args)
                      fid_libpng_write,
                      fid_libpng_flush);
 
-    /* Write the header */
+    /* Write all headers */
     png_set_IHDR(png_ptr, info_ptr,
-                 width, height,
+                 graph.width, graph.height,
                  FID_COLOR_DEPTH, PNG_COLOR_TYPE_PALETTE,
                  PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT,
                  PNG_FILTER_TYPE_DEFAULT);
     png_set_PLTE(png_ptr, info_ptr,
-                 palette, FID_PALETTE_SIZE);
+                 graph.palette, FID_PALETTE_SIZE);
     png_write_info(png_ptr, info_ptr);
     png_set_packing(png_ptr);
 
-    /* Write each row separately... */
-    for (y=0; y<height; y++) {
-
-
+    /* Generate and write image data, one row at a time */
+    for (y= graph.height - 1; y >= 0; y--) {
+        fid_graph_draw_row(&graph, row, y);
         png_write_row(png_ptr, row);
     }    
 
     png_write_end(png_ptr, info_ptr);
     fid_libpng_flush(png_ptr);
-    png_destroy_write_struct(&png_ptr, &info_ptr);
     free(row);
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+    fid_graph_destroy(&graph);
     Py_RETURN_NONE;
 }
 
@@ -1301,8 +1430,8 @@ error:
 static PyObject*
 fid_query_samples(PyObject *self, PyObject *args) {
     PyObject *sequence, *item, *iterator = NULL, *results = PyList_New(0);
-    int fd;
     fid_cursor cursor;
+    int fd;
 
     if (!PyArg_ParseTuple(args, "iO", &fd, &sequence))
         goto error;
