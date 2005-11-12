@@ -5,6 +5,6 @@ from distutils.sysconfig import get_python_version
 setup(
     name = "fidtool",
     ext_modules=[ 
-        Extension("_fidtool", ["_fidtool.c"]),
+        Extension("_fidtool", ["_fidtool.c"], libraries=["png"]),
     ],
 )
