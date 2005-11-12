@@ -98,6 +98,14 @@
  *   The largest integer length that can be represented is 56-bits,
  *   which will be prefixed by 0x01.
  *
+ * Header:
+ *
+ *   The first page in the file (an L1 page) begins with a file header:
+ *
+ *     - FILE_MAGIC, as a NUL-terminated string
+ *     - FILE_VERSION, as a variable int
+ *     - PAGE_SIZE, as a variable int
+ *
  * Graphing:
  *
  *   This format is designed from the ground up for fast interactive
@@ -132,6 +140,9 @@
 #include <Python.h>
 
 //#define DEBUG
+
+#define FILE_MAGIC   "Fast Interval Database\r\n"
+#define FILE_VERSION 0x0100
 
 #define PAGE_SHIFT 12
 #define PAGE_SIZE  (1 << PAGE_SHIFT)
@@ -615,6 +626,50 @@ fid_list_cursor_advance(fid_list_cursor *self, fid_list_delta *delta)
 }
 
 /************************************************************************/
+/****************************************************** File Header *****/
+/************************************************************************/
+
+static int
+fid_header_write(unsigned char **p)
+{
+    strcpy(*p, FILE_MAGIC);
+    *p += strlen(FILE_MAGIC) + 1;
+
+    sample_write(FILE_VERSION, *p);
+    *p += sample_len(FILE_VERSION);
+
+    sample_write(PAGE_SIZE, *p);
+    *p += sample_len(PAGE_SIZE);
+
+    return 0;
+}
+
+static int
+fid_header_read(unsigned char **p, unsigned char *fence)
+{
+    int magic_len = strlen(FILE_MAGIC) + 1;
+    if (fence < *p + magic_len || memcmp(*p, FILE_MAGIC, magic_len) != 0) {
+        PyErr_SetString(PyExc_ValueError,
+                        "File does not appear to be a FID database");
+        return -1;
+    }
+    *p += magic_len;
+
+    if (sample_read(p, fence) != FILE_VERSION) {
+        PyErr_SetString(PyExc_ValueError, "FID file version is incompatible");
+        return -1;
+    }
+
+    if (sample_read(p, fence) != PAGE_SIZE) {
+        PyErr_SetString(PyExc_ValueError, "FID page size is incompatible");
+        return -1;
+    }
+
+    return 0;
+}
+
+
+/************************************************************************/
 /************************************************* FID Cursor Layer *****/
 /************************************************************************/
 
@@ -772,6 +827,22 @@ fid_cursor_seek_l1(fid_cursor *self, sample_t key)
         /* Synchronize the L1 cursor to the current L2 sample (beginning of current page) */
         self->l1_cursor = self->l2_cursor;
         self->l1_sample = self->l1_page.data;
+
+        /* The first L1 page has our file header.
+         * If this page is empty, we're starting a new file and need to write a header.
+         * Otherwise, validate the existing header.
+         */
+        if (self->l1_page.offset == 0) {
+            if (self->l1_page.size > 0) {
+                if (fid_header_read(&self->l1_sample, &self->l1_page.data[self->l1_page.size]) < 0)
+                    return -1;
+            }
+            else {
+                if (fid_header_write(&self->l1_sample) < 0)
+                    return -1;
+                fid_page_grow(&self->l1_page, self->l1_sample);
+            }
+        }
 
         /* Since we're starting at the first L1 sample, start at the corresponding
          * first L0 page after this page.
@@ -1102,15 +1173,9 @@ static PyObject* fid_query_samples(PyObject *self, PyObject *args) {
         if (fid_cursor_seek(&cursor, sample) < 0)
             goto error;
 
-        /* Add the EOF flag, so that if we're past the last sample
-         * we get an index of 1 past the last sample's index.
-         * For consistency reasons we'll never actually point the l0
-         * cursor past the last sample, since when it's pointing 'at'
-         * the last sample its read/write pointer is already 'past'
-         * that sample.
-         */
-        item = PyInt_FromLong(cursor.l0_cursor.sample_number +
-                              cursor.l0_eof);
+        item = Py_BuildValue("(Ll)",
+                             cursor.l0_cursor.sample,
+                             cursor.l0_cursor.sample_number + cursor.l0_eof);
         PyList_Append(results, item);
         Py_DECREF(item);
     }
