@@ -5,6 +5,7 @@
 	  network connection status via NetworkManager - David Trowbridge
 	* Add an "OSD" plugin, which pops up important messages with libnotify - David Trowbridge
 	* Implement "Save Transcript" - David Trowbridge
+	* various and sundry bugfixes
 
 0.6 "Braindome" (23 October 2005)
 	* Set up a gnome url handler for irc:// links - Claessens Xavier
