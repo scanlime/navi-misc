@@ -137,6 +137,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <png.h>
 #include <Python.h>
 
 //#define DEBUG
@@ -956,7 +957,8 @@ fid_cursor_seek_l0(fid_cursor *self, sample_t key)
  * than the supplied key. The key SAMPLE_INF can be used to seek
  * to the end of the file, where no sample exists yet.
  */
-static int fid_cursor_seek(fid_cursor *self, sample_t key)
+static int
+fid_cursor_seek(fid_cursor *self, sample_t key)
 {
     /* Our seek algorithm doesn't like negative keys, and
      * we get the same result as searching for zero (since
@@ -982,7 +984,8 @@ static int fid_cursor_seek(fid_cursor *self, sample_t key)
  * to the last existing sample, with l0_eof set. It will be
  * seeked to the new sample when this returns.
  */
-static int fid_cursor_append(fid_cursor *self, sample_t sample)
+static int
+fid_cursor_append(fid_cursor *self, sample_t sample)
 {
     fid_list_delta l0_delta = {sample - self->l0_cursor.sample, 1};
     fid_list_delta l1_delta, l2_delta;
@@ -1101,12 +1104,137 @@ static int fid_cursor_append(fid_cursor *self, sample_t sample)
     return 0;
 }
 
+
+/************************************************************************/
+/********************************************************* Graphing *****/
+/************************************************************************/
+
+struct fid_graph_info {
+    sample_t x_offset;      /* Sample at the left side of the graph */
+    sample_t x_scale;       /* Samples per pixel */
+    int      y_fullscale;   /* Number of samples corresponding to the full height */
+    
+    int      width;         /* Pixel size */
+    int      height;
+};
+
+#define FID_COLOR_DEPTH   4
+#define FID_PALETTE_SIZE  (1 << FID_COLOR_DEPTH)
+
+
+/* This is a libpng write callback that assumes our I/O pointer
+ * is an arbitrary file-like python object. It calls that object's
+ * write() method with a string generated from this function's
+ * parameters.
+ *
+ * Exceptions are propagated immediately using libpng's longjmp
+ * address.
+ */
+static void
+fid_libpng_write(png_structp png_ptr, png_bytep data, png_size_t length)
+{
+    PyObject *result = PyObject_CallMethod((PyObject*) png_get_io_ptr(png_ptr),
+                                           "write", "s#", data, length);
+    if (result)
+        Py_DECREF(result);
+    else
+        longjmp(png_jmpbuf(png_ptr), 1);
+}
+
+static void
+fid_libpng_flush(png_structp png_ptr)
+{
+    /* No need to flush, just no-op this so libpng
+     * won't try to fflush() a PyObject.
+     */
+}
+
+static void
+fid_libpng_error(png_structp png_ptr, png_const_charp error_msg)
+{
+    PyErr_SetString(PyExc_IOError, error_msg);
+    longjmp(png_jmpbuf(png_ptr), 1);
+}
+
+static PyObject*
+fid_graph_png(PyObject *self, PyObject *args)
+{
+    PyObject *outfile;
+    int width, height;
+    png_structp png_ptr;
+    png_infop info_ptr;
+    png_bytep row;
+    png_color palette[FID_PALETTE_SIZE];
+    int y;
+
+    if (!PyArg_ParseTuple(args, "O(ii)", &outfile, &width, &height))
+        return NULL;
+
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,
+                                      fid_libpng_error, NULL);
+    if (!png_ptr) {
+        PyErr_SetString(PyExc_OSError, "Error in png_create_write_struct");
+        return NULL;
+    }
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr) {
+        PyErr_SetString(PyExc_OSError, "Error in png_create_info_struct");
+        png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+        return NULL;
+    }
+
+    row = malloc(width);
+    if (!row) {
+        png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+        return PyErr_NoMemory();
+    }
+
+    if (setjmp(png_jmpbuf(png_ptr))) {
+        if (!PyErr_Occurred())
+            PyErr_SetString(PyExc_OSError, "Unknown libpng error");
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+        free(row);
+        return NULL;
+    }
+
+    /* Direct writes at our Python file-like object */
+    png_set_write_fn(png_ptr, outfile,
+                     fid_libpng_write, fid_libpng_flush);
+
+    /* Write the header */
+    png_set_IHDR(png_ptr, info_ptr,
+                 width, height,
+                 FID_COLOR_DEPTH, PNG_COLOR_TYPE_PALETTE,
+                 PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_DEFAULT,
+                 PNG_FILTER_TYPE_DEFAULT);
+    png_set_PLTE(png_ptr, info_ptr,
+                 palette, FID_PALETTE_SIZE);
+    png_write_info(png_ptr, info_ptr);
+    png_set_packing(png_ptr);
+
+    /* Write each row separately... */
+    for (y=0; y<height; y++) {
+
+
+        png_write_row(png_ptr, row);
+    }    
+
+    png_write_end(png_ptr, info_ptr);
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+    free(row);
+    Py_RETURN_NONE;
+}
+
+
 /************************************************************************/
 /************************************** High-Level Python Interface *****/
 /************************************************************************/
 
 /* Appends a list of new samples to a fid file */
-static PyObject* fid_append_samples(PyObject *self, PyObject *args) {
+static PyObject*
+fid_append_samples(PyObject *self, PyObject *args) {
     PyObject *sequence, *item, *iterator = NULL;
     int fd;
     fid_cursor cursor;
@@ -1148,7 +1276,8 @@ error:
 
 /* Seek to each sample in the provided sequence, returning the associated index.
  */
-static PyObject* fid_query_samples(PyObject *self, PyObject *args) {
+static PyObject*
+fid_query_samples(PyObject *self, PyObject *args) {
     PyObject *sequence, *item, *iterator = NULL, *results = PyList_New(0);
     int fd;
     fid_cursor cursor;
@@ -1191,10 +1320,12 @@ error:
 static PyMethodDef module_methods[] = {
     { "append_samples",  (PyCFunction) fid_append_samples,  METH_VARARGS },
     { "query_samples",   (PyCFunction) fid_query_samples,   METH_VARARGS },
+    { "graph_png",       (PyCFunction) fid_graph_png,       METH_VARARGS },
     {0}
 };
 
-PyMODINIT_FUNC init_fidtool(void)
+PyMODINIT_FUNC
+init_fidtool(void)
 {
     Py_InitModule("_fidtool", module_methods);
 }

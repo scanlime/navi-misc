@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import _fidtool
 import os, time, random
-import psyco
-psyco.full()
+
+#import psyco
+#psyco.full()
 
 def build_fid(dataset, fd):
     dataset.sort()
@@ -12,7 +13,7 @@ def reference_query(stamps, seek_to):
     i = 0
     while i < len(stamps) and stamps[i] < seek_to:
         i += 1
-    return i
+    return (stamps[i], i)
 
 def test_fid(dataset, fd):
     query = [int(random.uniform(dataset[0] - 100, dataset[-1] + 200) + 0.5)
@@ -31,19 +32,50 @@ def test_fid(dataset, fd):
         else:
             for i, (j, k) in enumerate(zip(r1, r2)):
                 if j != k:
-                    print "%d: %d != %d" % (query[i], j, k)
+                    print "%s: %s != %s" % (query[i], j, k)
                 else:
-                    print "%d: %d" % (query[i], j)
+                    print "%s: %s" % (query[i], j)
             break
 
-        random.shuffle(query)
+        break
 
+def dump_fid(fd):
+    sample = 0
+    i = -1
+
+    while 1:
+        next_sample, next_i = _fidtool.query_samples(fd, [sample])[0]
+        if next_i <= i:
+            break
+
+        for j in xrange(i, next_i):
+            print next_sample
+
+        sample = next_sample + 1
+        i = next_i
+
+class DebuggyFile:
+    def __init__(self, f):
+        self.f = f
+
+    def write(self, data):
+        print "write: %r" % data
+        self.f.write(data)
+
+    def close(self):
+        self.f.close()
+
+def graph_test(fd):
+    f = DebuggyFile(open("foo.png", "wb"))
+    _fidtool.graph_png(f, (256, 128))
+    f.close()
 
 if __name__ == "__main__":
-    dataset = map(int, open("cia-commits.dataset"))[:1000]
+    dataset = map(int, open("cia-commits.dataset"))
     #dataset = [x * 5 for x in range(6500)]
     
     fd = os.open("foo", os.O_CREAT | os.O_TRUNC | os.O_RDWR, 0666)
     build_fid(dataset, fd)
-    test_fid(dataset, fd)
+    #test_fid(dataset, fd)
+    graph_test(fd)
     os.close(fd)
