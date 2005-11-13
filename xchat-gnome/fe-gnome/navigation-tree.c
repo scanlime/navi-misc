@@ -65,7 +65,6 @@ static void      on_server_channel_list (GtkAction *action, gpointer data);
 static void      on_save (GtkAction *action, gpointer data);
 static void      on_close (GtkAction *action, gpointer data);
 static void      on_find (GtkAction *action, gpointer data);
-static void      on_find_again (GtkAction *action, gpointer data);
 static void      on_clear (GtkAction *action, gpointer data);
 static void      on_channel_leave (GtkAction *action, gpointer data);
 static void      on_channel_bans (GtkAction *action, gpointer data);
@@ -85,7 +84,6 @@ static GtkActionEntry action_entries[] = {
 	{"ChannelLeave",      GTK_STOCK_QUIT,           _("_Leave"),           "", NULL, G_CALLBACK (on_channel_leave)},
 	{"ChannelClose",      GTK_STOCK_CLOSE,          _("_Close"),           "", NULL, G_CALLBACK (on_close)},
 	{"ChannelFind",       GTK_STOCK_FIND,           _("_Find..."),         "", NULL, G_CALLBACK (on_find)},
-	{"ChannelFindAgain",  GTK_STOCK_FIND,           _("Find Ne_xt"),       "", NULL, G_CALLBACK (on_find_again)},
 	{"ChannelClear",      GTK_STOCK_CLEAR,          _("C_lear"),           "", NULL, G_CALLBACK (on_clear)},
 	{"ChannelBans",       GTK_STOCK_DIALOG_WARNING, _("_Bans..."),         "", NULL, G_CALLBACK (on_channel_bans)},
 
@@ -93,7 +91,6 @@ static GtkActionEntry action_entries[] = {
 	{"DialogSave",        GTK_STOCK_SAVE,           _("_Save Transcript"), "", NULL, G_CALLBACK (on_save)},
 	{"DialogClose",       GTK_STOCK_CLOSE,          _("_Close"),           "", NULL, G_CALLBACK (on_close)},
 	{"DialogFind",        GTK_STOCK_FIND,           _("_Find..."),         "", NULL, G_CALLBACK (on_find)},
-	{"DialogFindAgain",   GTK_STOCK_FIND,           _("Find Ne_xt"),       "", NULL, G_CALLBACK (on_find_again)},
 	{"DialogClear",       GTK_STOCK_CLEAR,          _("C_lear"),           "", NULL, G_CALLBACK (on_clear)},
 };
 
@@ -1578,11 +1575,12 @@ on_close (GtkAction * action, gpointer data)
 static void
 on_find (GtkAction * action, gpointer data)
 {
-}
+	GtkWidget *widget;
 
-static void
-on_find_again (GtkAction * action, gpointer data)
-{
+	widget = glade_xml_get_widget (gui.xml, "find hbox");
+	gtk_widget_show (widget);
+	widget = glade_xml_get_widget (gui.xml, "find entry");
+	gtk_widget_grab_focus (widget);
 }
 
 static void

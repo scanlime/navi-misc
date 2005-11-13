@@ -35,7 +35,6 @@
 			<menuitem name="DiscussionCloseItem" action="DiscussionClose"/>
 			<separator name="DiscussionSep1"/>
 			<menuitem name="DiscussionFindItem" action="DiscussionFind"/>
-			<menuitem name="DiscussionFindNextItem" action="DiscussionFindNext"/>
 			<menuitem name="DiscussionClearWindowItem" action="DiscussionClearWindow"/>
 			<separator name="DiscussionSep3"/>
 			<menuitem name="DiscussionChangeTopicItem" action="DiscussionChangeTopic"/>
@@ -84,7 +83,6 @@
 		<menuitem name="ChannelAutoJoin" action="ChannelAutoJoin"/>
                 <separator name="ChannelSep1"/>
                 <menuitem name="ChannelFind" action="ChannelFind"/>
-                <menuitem name="ChannelFindAgain" action="ChannelFindAgain"/>
                 <menuitem name="ChannelClear" action="ChannelClear"/>
                 <separator name="ChannelSep2"/>
                 <menuitem name="ChannelBans" action="ChannelBans"/>
@@ -96,7 +94,6 @@
                 <menuitem name="DialogClose" action="DialogClose"/>
                 <separator name="DialogSep1"/>
                 <menuitem name="DialogFind" action="DialogFind"/>
-                <menuitem name="DialogFindAgain" action="DialogFindAgain"/>
                 <menuitem name="DialogClear" action="DialogClear"/>
         </popup>
 
