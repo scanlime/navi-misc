@@ -20,8 +20,14 @@ class Algorithm:
     def __init__ (self, graph):
         self.graph = graph
         self.invalidate ()
-        for mutator in (graph.add, graph.remove):
-            mutator.observe (self.invalidate)
+
+        try:
+            for mutator in (graph.add, graph.remove):
+                mutator.observe (self.invalidate)
+        except:
+            graph.addEvents ()
+            for mutator in (graph.add, graph.remove):
+                mutator.observe (self.invalidate)
 
     def invalidate (self):
         self.valid = False

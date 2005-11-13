@@ -23,11 +23,12 @@
 from Graph.Algorithms import DotPrint
 import sys, pickle
 
-def go (file):
-    graphs = pickle.load (open (file))
+def go (filename):
+    graphs = pickle.load (open (filename))
 
     for key, graph in graphs.iteritems():
         if graph is not None:
+            print 'drawing',key
             f = file ('graphs/%s.dot' % key, 'w')
             DotPrint (graph, f)
             f.close ()
