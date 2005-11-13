@@ -78,7 +78,6 @@ static void on_discussion_save_activate (GtkAction *action, gpointer data);
 static void on_discussion_leave_activate (GtkAction *action, gpointer data);
 static void on_discussion_close_activate (GtkAction *action, gpointer data);
 static void on_discussion_find_activate (GtkAction *action, gpointer data);
-static void on_discussion_find_next_activate (GtkAction *action, gpointer data);
 static void on_discussion_clear_window_activate (GtkAction *action, gpointer data);
 static void on_discussion_bans_activate (GtkAction *action, gpointer data);
 static void on_discussion_topic_change_activate (GtkButton *widget, gpointer data);
@@ -140,7 +139,6 @@ static GtkActionEntry action_entries [] = {
 	{ "DiscussionLeave", GTK_STOCK_QUIT, _("_Leave"), "", NULL, G_CALLBACK (on_discussion_leave_activate) },
 	{ "DiscussionClose", GTK_STOCK_CLOSE, _("Cl_ose"), "<control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
 	{ "DiscussionFind", GTK_STOCK_FIND, _("_Find"), "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
-	{ "DiscussionFindNext", NULL, _("Find Ne_xt"), "<control>G", NULL, G_CALLBACK (on_discussion_find_next_activate) },
 	{ "DiscussionClearWindow", GTK_STOCK_CLEAR, _("_Clear Window"), "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
 	{ "DiscussionChangeTopic", GTK_STOCK_REFRESH, _("Change _Topic"), "<alt>T", NULL, G_CALLBACK (on_discussion_topic_change_activate) },
 	{ "DiscussionBans", GTK_STOCK_DIALOG_WARNING, _("_Bans"), "<alt>B", NULL, G_CALLBACK (on_discussion_bans_activate) },
@@ -367,6 +365,13 @@ find_next (GtkWidget *entry, gpointer data)
 }
 
 static void
+find_button_next (GtkButton *button, GtkWidget *entry)
+{
+	const guchar *text = gtk_entry_get_text (GTK_ENTRY (entry));
+	last_search_position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position);
+}
+
+static void
 clear_find (GtkWidget *entry, gpointer data)
 {
 	last_search_position = NULL;
@@ -407,7 +412,7 @@ url_activated (GtkWidget *url_label, const char *url, gpointer data)
 void
 initialize_main_window ()
 {
-	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget;
+	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget, *widget2;
 	GError *error = NULL;
 	GList *tmp = NULL;
 	int i;
@@ -575,6 +580,8 @@ initialize_main_window ()
 	g_signal_connect (G_OBJECT (widget), "activate", G_CALLBACK (find_next), NULL);
 	g_signal_connect (G_OBJECT (widget), "key-press-event", G_CALLBACK (close_find_key), NULL);
 	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (clear_find), NULL);
+	widget2 = glade_xml_get_widget (gui.xml, "find_next_button");
+	g_signal_connect (G_OBJECT (widget2), "clicked", G_CALLBACK (find_button_next), widget);
 	widget = glade_xml_get_widget (gui.xml, "find close button");
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (close_find_button), NULL);
 
@@ -829,12 +836,6 @@ on_discussion_find_activate (GtkAction *action, gpointer data)
 	gtk_widget_show (widget);
 	widget = glade_xml_get_widget (gui.xml, "find entry");
 	gtk_widget_grab_focus (widget);
-}
-
-static void
-on_discussion_find_next_activate (GtkAction *action, gpointer data)
-{
-	/* FIXME: implement */
 }
 
 static void
