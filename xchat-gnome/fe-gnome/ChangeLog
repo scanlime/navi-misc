@@ -5,6 +5,7 @@
 	  network connection status via NetworkManager - David Trowbridge
 	* Add an "OSD" plugin, which pops up important messages with libnotify - David Trowbridge
 	* Implement "Save Transcript" - David Trowbridge
+	* Add a plugin which sets away status based on screensaver state - Isak Savo
 	* various and sundry bugfixes
 
 0.6 "Braindome" (23 October 2005)
