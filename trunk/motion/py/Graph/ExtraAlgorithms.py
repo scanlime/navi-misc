@@ -28,6 +28,8 @@ class ParallelBFS:
 
         done = False
 
+        step = 0
+
         while not done:
             match = True
             for search in bfsObjects.values ():
@@ -36,8 +38,10 @@ class ParallelBFS:
             if match:
                 break
 
+            print '    step',step
             for search in bfsObjects.values ():
                 search.step ()
+            step = step + 1
 
         # We're done.
         paths = {}

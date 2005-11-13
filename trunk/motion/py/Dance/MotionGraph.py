@@ -12,6 +12,8 @@ import MLab
 import math
 
 class ProbabilityEdge (Edge):
+    __slots__ = ['u', 'v', 'dot_label', 'count', 'weight']
+
     def __init__ (self, u, v):
         Edge.__init__ (self, u, v)
         self.count = 0
@@ -23,6 +25,12 @@ class ProbabilityEdge (Edge):
     def normalize (self, total):
         self.weight = float (self.count) / total
         self.dot_label = '%.2f' % self.weight
+
+    def __getstate__ (self):
+        return self.u, self.v, self.dot_label, self.count, self.weight
+
+    def __setstate__ (self, state):
+        self.u, self.v, self.dot_label, self.count, self.weight = state
 
 class MotionGraph (Graph):
     def __init__ (self):

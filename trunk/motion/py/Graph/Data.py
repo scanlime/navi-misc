@@ -30,6 +30,12 @@ class Edge (object):
     def copy (self):
         return self.__class__ (self.u, self.v)
 
+    def __getstate__ (self):
+        return self.u, self.v, self.dot_label
+
+    def __setstate__ (self, state):
+        self.u, self.v, self.dot_label = state
+
 class Graph (object):
     """A generic graph. This object does not specify how the graph is stored
        or what kind of queries can be made against it- that is done by instantiating
@@ -47,6 +53,8 @@ class Graph (object):
        [<Edge from 0 to 1>, <Edge from 1 to 2>, <Edge from 1 to 3>, <Edge from 1 to 4>, <Edge from 2 to 3>, <Edge from 2 to 0>, <Edge from 4 to 3>]
        """
     edgeClass = Edge
+
+    __slots__ = ['representations']
 
     def __init__ (self, algorithms=[]):
         Observable.attachEvents (self, 'add', 'remove')
@@ -114,6 +122,12 @@ class Graph (object):
             # Set up observers to invalidate it
             for mutator in (self.add, self.remove):
                 mutator.observe (cacheInvalidator)
+
+    def __getstate__ (self):
+        return (self.representations)
+
+    def __setstate__ (self, state):
+        self.representations = state[0]
 
 class GraphRepresentation (object):
     """This is an abstract base class for data structures used to represent
