@@ -1123,8 +1123,13 @@ fid_cursor_append(fid_cursor *self, sample_t sample)
 #define FID_OVERSAMPLE       2
 #define FID_COLOR_DEPTH      4
 #define FID_PALETTE_SIZE     (1 << FID_COLOR_DEPTH)
-#define FID_GRAPH_COLOR_MAX  (FID_OVERSAMPLE * FID_OVERSAMPLE + 1)
+#define FID_GRAPH_COLOR_MAX  (FID_OVERSAMPLE * FID_OVERSAMPLE)
 #define FID_GRIDLINE_BIT     8
+
+#define GRID_NONE    0 
+#define GRID_SOLID   1
+#define GRID_DOTTED  2
+#define GRID_DASHED  3
 
 struct fid_graph {
     /* Output to the PNG interface */
@@ -1132,9 +1137,7 @@ struct fid_graph {
     int        width, height;
     png_color  palette[FID_PALETTE_SIZE];
 
-    int *columns;
-    int x_grid, y_grid;
-    int y_fullscale;
+    int *columns, *x_grid, *y_grid;
 };
 
 static int
@@ -1164,8 +1167,6 @@ fid_graph_init_palette(struct fid_graph *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "OOO:graph_init_palette", &bg, &grid, &fill))
         return -1;
 
-    memset(self->palette, 0, sizeof(self->palette));
-
     for (i = 0; i < FID_PALETTE_SIZE; i++) {
         if (fid_color_blend(&self->palette[i], bg, 1.0) < 0)
             return -1;
@@ -1173,20 +1174,28 @@ fid_graph_init_palette(struct fid_graph *self, PyObject *args)
         if (i & FID_GRIDLINE_BIT) {
             if (fid_color_blend(&self->palette[i], grid, 1.0) < 0)
                 return -1;
-            color = i - FID_GRIDLINE_BIT;
         }
-        else {
-            color = i;
-        }
+        color = i & ~FID_GRIDLINE_BIT;
 
-        if (i <= FID_GRAPH_COLOR_MAX) {
+        if (color <= FID_GRAPH_COLOR_MAX) {
             if (fid_color_blend(&self->palette[i], fill,
-                                ((float) i) / FID_GRAPH_COLOR_MAX) < 0)
+                                ((float) color) / FID_GRAPH_COLOR_MAX) < 0)
                 return -1;
         }
     }
 
     return 0;
+}
+
+static void
+fid_graph_destroy(struct fid_graph *self)
+{
+    if (self->columns)
+        free(self->columns);
+    if (self->x_grid)
+        free(self->x_grid);
+    if (self->y_grid)
+        free(self->y_grid);
 }
 
 static int
@@ -1196,15 +1205,18 @@ fid_graph_init(struct fid_graph *self, PyObject *args)
     int fd, x;
     sample_t x_origin, x_scale;
     unsigned long sample_n;
-    PyObject *colors;
+    int y_fullscale;
+    PyObject *colors, *x_grid, *y_grid, *item;
+    PyObject *iterator = NULL;
+
+    memset(self, 0, sizeof(struct fid_graph));
  
-    if (!PyArg_ParseTuple(args, "iO(ii)(LL)iO(ii):graph_init",
+    if (!PyArg_ParseTuple(args, "iO(ii)O(((LL)O)(iO)):graph_init",
                           &fd, &self->output,
-                          &self->width, &self->height,
-                          &x_origin, &x_scale,
-                          &self->y_fullscale, &colors,
-                          &self->x_grid, &self->y_grid))
-        return -1;
+                          &self->width, &self->height, &colors,
+                          &x_origin, &x_scale, &x_grid,
+                          &y_fullscale, &y_grid))
+        goto error;
 
     /* Our Python code doesn't necessarily know the
      * oversample level- its scale is specified per-pixel,
@@ -1212,49 +1224,115 @@ fid_graph_init(struct fid_graph *self, PyObject *args)
      */
     x_scale /= FID_OVERSAMPLE;
     if (x_scale < 1) {
-        PyErr_SetString(PyExc_ValueError,
-                        "Graph scale must be at least one sampling unit per subpixel");
-        return -1;
+        PyErr_SetString(PyExc_ValueError, "Graph scale must be at least one sampling unit per subpixel");
+        goto error;
     }
 
     if (fid_graph_init_palette(self, colors) < 0)
-        return -1;
+        goto error;
     if (fid_cursor_init(&cursor, fd) < 0)
-        return -1;
+        goto error;
 
+    /*
+     * Allocate 1-D arrays for our graph data
+     */
     self->columns = malloc(self->width * sizeof(int) * FID_OVERSAMPLE);
-    if (!self->columns) {
+    self->x_grid = calloc(self->width, sizeof(int));
+    self->y_grid = calloc(self->height, sizeof(int));
+    if (!(self->columns && self->x_grid && self->y_grid)) {
         PyErr_NoMemory();
-        return -1;
+        goto error;
     }
 
-    if (fid_cursor_seek(&cursor, x_origin) < 0) {
-        free(self->columns);
-        return -1;
+    /*
+     * Set up the grids. In both axes, we read Python sequences
+     * of (position, style) tuples. For the X axis, the position
+     * is in sample_t units. For the Y axis, the position is in
+     * number of samples.
+     *
+     * First, the X grid:
+     */
+    if (!(iterator = PyObject_GetIter(x_grid)))
+        goto error;
+    while ((item = PyIter_Next(iterator))) {
+        sample_t key;
+        int style;
+        if (!PyArg_ParseTuple(item, "Li;X grid items must be (sample, style) tuples", &key, &style))
+            goto error;
+
+        if (key < x_origin)
+            continue;
+        x = (key - x_origin) / (x_scale * FID_OVERSAMPLE);
+        if (x >= self->width)
+            break;
+
+        self->x_grid[x] = style;
     }
+    if (PyErr_Occurred())
+        goto error;
+
+    /*
+     * The Y grid
+     */
+    if (!(iterator = PyObject_GetIter(y_grid)))
+        goto error;
+    while ((item = PyIter_Next(iterator))) {
+        int value, style;
+        if (!PyArg_ParseTuple(item, "ii;Y grid items must be (value, style) tuples", &value, &style))
+            goto error;
+
+        if (value < 0)
+            continue;
+        x = value * self->height / y_fullscale;
+        if (x >= self->height)
+            break;
+
+        self->y_grid[x] = style;
+    }
+    if (PyErr_Occurred())
+        goto error;
+
+    /*
+     * Perform the interval queries, and store the actual data to graph
+     * for each column of subpixels.
+     */
+    if (fid_cursor_seek(&cursor, x_origin) < 0)
+        goto error;
     sample_n = cursor.l0_cursor.sample_number;
 
     for (x=0; x<(self->width * FID_OVERSAMPLE); x++) {
         x_origin += x_scale;
-        if (fid_cursor_seek(&cursor, x_origin) < 0) {
-            free(self->columns);
-            return -1;
-        }
+        if (fid_cursor_seek(&cursor, x_origin) < 0)
+            goto error;
 
         /* Convert each interval query to a column height, in subpixels */
         self->columns[x] = (cursor.l0_cursor.sample_number - sample_n)
-            * FID_OVERSAMPLE * self->height / self->y_fullscale;
+            * FID_OVERSAMPLE * self->height / y_fullscale;
 
         sample_n = cursor.l0_cursor.sample_number;
     }
 
     return 0;
+ error:
+    fid_graph_destroy(self);
+    Py_XDECREF(iterator);
+    return -1;
 }
 
-static void
-fid_graph_destroy(struct fid_graph *self)
+static inline int
+fid_grid_eval(int pixel, int gridtype)
 {
-    free(self->columns);
+    switch (gridtype) {
+    case GRID_DASHED:
+        return (pixel & 2) ? FID_GRIDLINE_BIT : 0;
+
+    case GRID_DOTTED:
+        return (pixel & 1) ? FID_GRIDLINE_BIT : 0;
+
+    case GRID_SOLID:
+        return FID_GRIDLINE_BIT;
+    }
+    return 0;
 }
 
 static void
@@ -1263,18 +1341,11 @@ fid_graph_draw_row(struct fid_graph *self, unsigned char *row, int y)
     int sample, color;
     int x_pixel, x_subpixel;
     int y_subpixel = y * FID_OVERSAMPLE;
-    int x_grid_flag, y_grid_flag;
-
-    /* FIXME: This is not accurate */
-    y_grid_flag = (y % (self->y_grid * self->height / self->y_fullscale)) == 0;
 
     x_pixel = 0;
     x_subpixel = 0;
     while (x_pixel < self->width) {
         color = 0;
-
-        /* FIXME */
-        x_grid_flag = y_grid_flag;
 
         /* We oversample horizontally. Vertically, we have true
          * antialiasing but we do integer calculations in the
@@ -1299,7 +1370,11 @@ fid_graph_draw_row(struct fid_graph *self, unsigned char *row, int y)
             x_subpixel++;
         }
 
-        row[x_pixel++] = color | x_grid_flag;
+        row[x_pixel] = color |
+            fid_grid_eval(x_pixel, self->y_grid[y]) |
+            fid_grid_eval(y, self->x_grid[x_pixel]);
+
+        x_pixel++;
     }
 }
 
@@ -1463,10 +1538,8 @@ fid_append_samples(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "iO", &fd, &sequence))
         goto error;
-    iterator = PyObject_GetIter(sequence);
-    if (!iterator)
+    if (!(iterator = PyObject_GetIter(sequence)))
         goto error;
-
     if (fid_cursor_init(&cursor, fd) < 0)
         goto error;
     if (fid_cursor_seek(&cursor, SAMPLE_INF) < 0)
@@ -1483,6 +1556,9 @@ fid_append_samples(PyObject *self, PyObject *args) {
         if (fid_cursor_append(&cursor, sample) < 0)
             goto append_error;
     }
+    if (PyErr_Occurred())
+        goto append_error;
+
     if (fid_cursor_flush(&cursor) < 0)
         goto error;
 
@@ -1506,10 +1582,8 @@ fid_query_samples(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "iO", &fd, &sequence))
         goto error;
-    iterator = PyObject_GetIter(sequence);
-    if (!iterator)
+    if (!(iterator = PyObject_GetIter(sequence)))
         goto error;
-
     if (fid_cursor_init(&cursor, fd) < 0)
         goto error;
 
@@ -1530,6 +1604,8 @@ fid_query_samples(PyObject *self, PyObject *args) {
         PyList_Append(results, item);
         Py_DECREF(item);
     }
+    if (PyErr_Occurred())
+        goto error;
 
     Py_DECREF(iterator);
     return results;
@@ -1549,7 +1625,12 @@ static PyMethodDef module_methods[] = {
 PyMODINIT_FUNC
 init_fidtool(void)
 {
-    Py_InitModule("_fidtool", module_methods);
+    PyObject *module = Py_InitModule("_fidtool", module_methods);
+
+    PyModule_AddObject(module, "GRID_NONE",   PyInt_FromLong(GRID_NONE));
+    PyModule_AddObject(module, "GRID_SOLID",  PyInt_FromLong(GRID_SOLID));
+    PyModule_AddObject(module, "GRID_DOTTED", PyInt_FromLong(GRID_DOTTED));
+    PyModule_AddObject(module, "GRID_DASHED", PyInt_FromLong(GRID_DASHED));
 }
 
 /* The End */

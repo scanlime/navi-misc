@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import _fidtool
-import os, time, random
+import os, time, random, datetime
 
 #import psyco
 #psyco.full()
@@ -54,16 +54,35 @@ def dump_fid(fd):
         sample = next_sample + 1
         i = next_i
 
+def dayGrid(t):
+    """Generator for day-aligned grids, starting no later than the given time"""
+    date = datetime.datetime.fromtimestamp(t).date()
+
+    while 1:
+        yield int(time.mktime(date.timetuple())), _fidtool.GRID_SOLID
+        date += datetime.timedelta(days=1)
+
 def graph_test(fd):
+    size = (512, 128)
+    colors = (
+        (1.0, 1.0, 1.0, 1.0),
+        (0.0, 0.0, 0.0, 0.2),
+        (0.0, 0.0, 1.0, 0.6),
+        )
+    x_scale = (1125000000, 60*60)
+    y_scale = 200
+    x_grid = dayGrid(x_scale[0])
+    y_grid = ( (10*i, _fidtool.GRID_SOLID) for i in xrange(1, y_scale // 10 +1) )
+
+    scales = (
+        (x_scale, x_grid),
+        (y_scale, y_grid),
+        )
+
     f = open("foo.png", "wb")
-    _fidtool.graph_png(fd, f, (800, 256),
-                       (1125000000, 60*30),
-                       200,
-                       ( (1, 1, 1, 1),
-                         (0, 0, 0, 0.5),
-                         (0, 0, 1, 0.4) ),
-                       (64 * 60 * 64, 10))
+    _fidtool.graph_png(fd, f, size, colors, scales)
     f.close()
+        
 
 if __name__ == "__main__":
     #dataset = map(int, open("cia-commits.dataset"))
