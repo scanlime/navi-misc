@@ -57,7 +57,7 @@ class Graph (object):
     __slots__ = ['representations']
 
     def __init__ (self, algorithms=[]):
-        Observable.attachEvents (self, 'add', 'remove')
+        self.addEvents ()
         self.representations = {}
 
         for algorithm in algorithms:
@@ -65,6 +65,9 @@ class Graph (object):
                 self.representations.append (algorithm.desired_representation ())
             except:
                 pass
+
+    def addEvents (self):
+        Observable.attachEvents (self, 'add', 'remove')
 
     def has_representation (self, representation):
         return self.representations.has_key (representation)
