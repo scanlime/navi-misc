@@ -111,6 +111,7 @@ fe_init (void)
 	/* Force various window-related options to match our interaction model */
 	prefs.use_server_tab = TRUE;
 	prefs.notices_tabs = FALSE;
+	prefs.servernotice = TRUE;
 
 	/* If we don't have a specific DCC IP address, force get-from-server */
 	if (strlen (prefs.dcc_ip_str) == 0)
