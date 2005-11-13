@@ -38,7 +38,8 @@ length = len (amc.bones.values()[0])
 
 # The decimated AMC file...
 decimated = AMC ()
-decimated.format = amc.format
+decimated.comments = amc.comments
+decimated.format   = amc.format
 
 for bone,frames in amc.bones.iteritems ():
     decimated.bones[bone] = Numeric.array ([frames[i] for i in range (0, length, opts.step)])
