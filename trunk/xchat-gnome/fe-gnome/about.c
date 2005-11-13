@@ -32,17 +32,18 @@ initialize_about_dialog ()
 	const gchar *authors[] =
 	{
 		"Andre Dahlqvist",
+		"Guillaume Desmottes",
+		"Dan Kuester",
 		"Bastien Nocera",
 		"Brian Pepple",
-		"Claessens Xavier",
-		"Dan Kuester",
-		"David Trowbridge",
+		"Isak Savo",
 		"Evan Sheehan",
-		"Guillaume Desmottes",
-		"Luis Villa",
-		"Peter Železný",
-		"Ramón Rey Vicente",
 		"Rouslan Solomakhin",
+		"David Trowbridge",
+		"Ramón Rey Vicente",
+		"Luis Villa",
+		"Claessens Xavier",
+		"Peter Železný",
 		NULL
 	};
 	const gchar *documentors[] =
