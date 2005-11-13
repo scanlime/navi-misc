@@ -124,10 +124,10 @@ class Graph (object):
                 mutator.observe (cacheInvalidator)
 
     def __getstate__ (self):
-        return (self.representations)
+        return self.representations
 
     def __setstate__ (self, state):
-        self.representations = state[0]
+        self.representations = state
 
 class GraphRepresentation (object):
     """This is an abstract base class for data structures used to represent
