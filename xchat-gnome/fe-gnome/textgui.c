@@ -368,6 +368,8 @@ build_url_topic (char *topic)
 	}
 	g_strfreev (tokens);
 
+	g_free (escaped);
+
 	return result;
 }
 
