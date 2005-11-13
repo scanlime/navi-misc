@@ -4,7 +4,7 @@ Various algorithms which cannot be represented as an Algorithm sub-class
 for whatever reason.
 """
 
-import Data
+import Data, gc
 
 class ParallelBFS:
     """A class which runs a breadth-first search in parallel across multiple
@@ -42,6 +42,9 @@ class ParallelBFS:
             for search in bfsObjects.values ():
                 search.step ()
             step = step + 1
+
+            # Run a garbage collection pass
+            gc.collect ()
 
         # We're done.
         paths = {}

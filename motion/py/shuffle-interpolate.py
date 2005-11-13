@@ -51,8 +51,8 @@ except IndexError:
 
 print 'shuffling sequence'
 lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
-sequence = Sequence.Sequence (samc, lorenz, Numeric.array ([1, 2, 3]), n=5000)
-sequence.shuffle (Numeric.array ([17.0, 2.0, -1.0]), n=5000)
+sequence = Sequence.Sequence (samc, lorenz, Numeric.array ([1, 2, 3]), n=30)
+sequence.shuffle (Numeric.array ([17.0, 2.0, -1.0]), n=30)
 
 try:
     picklefile = sys.argv[2]
