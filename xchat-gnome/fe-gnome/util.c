@@ -40,15 +40,31 @@ gint gtk_tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTre
 {
 	gchar *as, *bs;
 	gint result;
+
 	gtk_tree_model_get (model, a, 1, &as, -1);
 	gtk_tree_model_get (model, b, 1, &bs, -1);
+
 	if (as == NULL) return 1;
 	if (bs == NULL) {
 		g_free (as);
 		return -1;
 	}
+
 	result = strcasecmp (as, bs);
+
 	g_free (as);
 	g_free (bs);
+
+	/* GtkTreeSortable has undefined results if this function isn't
+	 * reflexive, antisymmetric and transitive.  If the two strings are
+	 * equal, compare session pointers */
+	if (result == 0) {
+		gpointer ap, bp;
+		gtk_tree_model_get (model, a, 2, &ap, -1);
+		gtk_tree_model_get (model, b, 2, &bp, -1);
+
+		return (ap - bp);
+	}
+
 	return result;
 }
