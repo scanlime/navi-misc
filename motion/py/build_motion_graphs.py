@@ -24,10 +24,11 @@
 from Dance import MotionGraph
 from Motion import AMC
 from Graph.Algorithms import DotPrint
-import sys
+import sys, pickle
 
 def load (files):
     amcs = []
+    graphs = {}
 
     # Open all the AMC files at once, so we can build entire graphs at once.
     for filename in files:
@@ -46,8 +47,12 @@ def load (files):
             f = file ('graphs/%s.dot' % key, 'w')
             DotPrint (g, f)
             f.close ()
+        graphs[key] = g
+
+    return graphs
 
 if len (sys.argv) < 2:
-    print 'Usage: %s [FILE]...' % sys.argv[0]
+    print 'Usage: %s [graph page] [AMC FILE]...' % sys.argv[0]
 else:
-    load (sys.argv[1:])
+    graphs = load (sys.argv[2:])
+    pickle.dump (graphs, open (sys.argv[1], 'w'))
