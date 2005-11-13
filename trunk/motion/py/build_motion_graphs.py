@@ -54,6 +54,7 @@ else:
     print 'writing pickle'
     file = open (sys.argv[1], 'w')
     pickle.dump (graphs, file)
+    print 'flushing'
     file.flush ()
     file.close ()
     print 'done'
