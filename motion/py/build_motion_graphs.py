@@ -31,6 +31,7 @@ def load (files):
 
     # Open all the AMC files at once, so we can build entire graphs at once.
     for filename in files:
+        print 'loading',filename
         amcs.append (AMC.from_file (filename))
 
     # Build the actual graphs.  We iterate over bones, building graphs for each.
@@ -50,4 +51,7 @@ if len (sys.argv) < 2:
     print 'Usage: %s [output file] [AMC FILE]...' % sys.argv[0]
 else:
     graphs = load (sys.argv[2:])
-    pickle.dump (graphs, open (sys.argv[1], 'w'))
+    print 'writing pickle'
+    file = open (sys.argv[1], 'w')
+    pickle.dump (graphs, file)
+    file.close ()
