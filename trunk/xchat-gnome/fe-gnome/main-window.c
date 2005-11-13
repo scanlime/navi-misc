@@ -346,6 +346,9 @@ close_find_button (GtkWidget *button, gpointer data)
 	widget = glade_xml_get_widget (gui.xml, "find hbox");
 	gtk_widget_hide (widget);
 	gtk_widget_grab_focus (gui.text_entry);
+
+	widget = glade_xml_get_widget (gui.xml, "find_status_label");
+	gtk_label_set_text (GTK_LABEL (widget), "");
 }
 
 static gboolean
@@ -360,15 +363,29 @@ close_find_key (GtkWidget *entry, GdkEventKey *event, gpointer data)
 static void
 find_next (GtkWidget *entry, gpointer data)
 {
+	GtkWidget *info;
 	const guchar *text = gtk_entry_get_text (GTK_ENTRY (entry));
 	last_search_position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position);
+
+	info = glade_xml_get_widget (gui.xml, "find_status_label");
+	if (last_search_position == NULL)
+		gtk_label_set_markup (GTK_LABEL (info), "<span foreground=\"grey\">Search string not found</span>");
+	else
+		gtk_label_set_text (GTK_LABEL (info), "");
 }
 
 static void
 find_button_next (GtkButton *button, GtkWidget *entry)
 {
+	GtkWidget *info;
 	const guchar *text = gtk_entry_get_text (GTK_ENTRY (entry));
 	last_search_position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position);
+
+	info = glade_xml_get_widget (gui.xml, "find_status_label");
+	if (last_search_position == NULL)
+		gtk_label_set_markup (GTK_LABEL (info), "<span foreground=\"grey\">Search string not found</span>");
+	else
+		gtk_label_set_text (GTK_LABEL (info), "");
 }
 
 static void
