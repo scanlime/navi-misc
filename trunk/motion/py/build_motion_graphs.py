@@ -23,7 +23,6 @@
 
 from Dance import MotionGraph
 from Motion import AMC
-from Graph.Algorithms import DotPrint
 import sys, pickle
 
 def load (files):
@@ -43,16 +42,12 @@ def load (files):
     for key in amcs[0].bones.iterkeys ():
         print 'building graph for',key
         g = MotionGraph.build_graphs (key, [amc.bones[key] for amc in amcs])
-        if g is not None:
-            f = file ('graphs/%s.dot' % key, 'w')
-            DotPrint (g, f)
-            f.close ()
         graphs[key] = g
 
     return graphs
 
 if len (sys.argv) < 2:
-    print 'Usage: %s [graph page] [AMC FILE]...' % sys.argv[0]
+    print 'Usage: %s [output file] [AMC FILE]...' % sys.argv[0]
 else:
     graphs = load (sys.argv[2:])
     pickle.dump (graphs, open (sys.argv[1], 'w'))
