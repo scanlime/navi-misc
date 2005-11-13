@@ -436,7 +436,7 @@ AMC_save (AMC *self, PyObject *args)
 		GIOStatus status;
 		char *frame;
 
-		frame = g_strdup_printf ("%d\n", j);
+		frame = g_strdup_printf ("%d\n", j + 1);
 		g_io_channel_write_chars (file, frame, strlen (frame), NULL, NULL);
 		g_free (frame);
 
