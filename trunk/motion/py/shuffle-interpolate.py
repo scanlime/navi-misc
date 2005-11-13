@@ -25,7 +25,7 @@ from Motion import AMC
 from Dance import Systems, Sequence, MotionGraph
 from Graph.Data import VertexMap
 from Graph.ExtraAlgorithms import ParallelBFS
-import Numeric, sys
+import Numeric, sys, pickle
 
 def find_node (graph, pos):
     vertex_map = graph.representations[VertexMap]
@@ -46,7 +46,7 @@ def fix360 (x):
 try:
     samc = AMC.from_file (sys.argv[1])
 except IndexError:
-    print 'usage: %s <shuffle file> <interpolation corpus files...>' % sys.argv[0]
+    print 'usage: %s <shuffle file> <graph pickle>' % sys.argv[0]
     raise
 
 print 'shuffling sequence'
@@ -54,24 +54,20 @@ lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
 sequence = Sequence.Sequence (samc, lorenz, Numeric.array ([1, 2, 3]), n=5000)
 sequence.shuffle (Numeric.array ([17.0, 2.0, -1.0]), n=5000)
 
-amcs = []
-for filename in sys.argv[2:]:
-    print 'loading',filename
-    amcs.append (AMC.from_file (filename))
+try:
+    picklefile = sys.argv[2]
+except IndexError:
+    print 'usage: %s <shuffle file> <graph pickle>' % sys.argv[0]
+    raise
 
-graphs = {}
-for key in amcs[0].bones.iterkeys ():
-    print 'creating graph for %s' % key
-    g = MotionGraph.build_graphs (key, [amc.bones[key] for amc in amcs])
-    if g is not None:
-        graphs[key] = g
+graphs = pickle.load (open (picklefile))
 
 for boundary in sequence.boundaries:
     search = ParallelBFS ()
     pre  = sequence[boundary - 1]
     post = sequence[boundary]
 
-    for bone in amc.bones.keys ():
+    for bone in samc.bones.keys ():
         start = pre[1].bones[bone]
         end   = post[1].bones[bone]
 
@@ -92,7 +88,7 @@ for boundary in sequence.boundaries:
 
         search.addGraph (graphs[bone], startNode, endNode)
 
-    paths = search.search ()
     print 'searching at boundary',boundary
+    paths = search.search ()
     print paths
     print ''
