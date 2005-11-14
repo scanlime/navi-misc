@@ -14,17 +14,20 @@ class ParallelBFS:
     def __init__ (self):
         self.starts = {}
         self.ends   = {}
+        self.graphs = {}
 
-    def addGraph (self, graph, startNode, endNode):
+    def addGraph (self, name, graph, startNode, endNode):
         self.starts[graph] = startNode
         self.ends[graph]   = endNode
+        self.graphs[graph] = name
 
     def search (self):
         bfsObjects = {}
         for key in self.starts.keys ():
             start = self.starts[key]
             end   = self.ends[key]
-            bfsObjects[key] = ParallelBFSSearch (key, start, end)
+            name  = self.graphs[key]
+            bfsObjects[key] = ParallelBFSSearch (key, name, start, end)
 
         done = False
 
@@ -57,10 +60,11 @@ class ParallelBFSSearch:
        point.
        """
 
-    def __init__ (self, graph, start, end):
+    def __init__ (self, graph, name, start, end):
         self.graph = graph
         self.start = start
         self.end   = end
+        self.name  = name
         self.paths = [[start, ], ]
         # If the start is also the end, we're already matching
         self.match = start is end
@@ -72,11 +76,14 @@ class ParallelBFSSearch:
     def step (self):
         newpaths = []
         for path in self.paths:
+            #print '        current path is',path
             node = path[-1]
             for edge in self.adjacency.query (node):
                 if edge.u is node:
                     newpaths.append (list (path + [edge.v]))
+                    #print '        appending path',newpaths[-1]
         self.paths = newpaths
+        #print '        %6d paths in %s sub-graph' % (len (self.paths), self.name)
 
         # Update match status
         self.match = False
