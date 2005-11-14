@@ -43,6 +43,16 @@ def fix360 (x):
         return 0
     return x
 
+def linear_interp (start, end, pos, len):
+    result = []
+    for i in range (len (start)):
+        compstart = start[i]
+        compend   = end[i]
+
+        pos = compstart + ((compend - compstart) * (float(pos) / float(len)))
+        result.append (pos)
+    return result
+
 if len (sys.argv) != 4:
     print 'usage: %s <input amc> <graph pickle> <output amc>' % sys.argv[0]
     raise Exception ()
@@ -96,6 +106,12 @@ for boundary in sequence.boundaries:
         for bone in paths.keys():
             node = paths[bone][i]
             center = node.center ()
+
+            if bone == 'root':
+                rootstart = pre[1].bones['root'][0:3]
+                rootend   = post[1].bones['root'][0:3]
+                position = linear_interp (rootstart, rootend, i, len (paths['root']))
+                center = position + center
             frame[bone] = center
         sequence.insert (frame, index)
 
