@@ -137,7 +137,7 @@ class DLS:
 
     def search (self, depth):
         """Search the graph to a maximum depth of depth."""
-        newpaths = [[start, ], ]
+        newpaths = [[self.start, ], ]
         goodpaths = []
         for i in range (depth):
             for path in newpaths:

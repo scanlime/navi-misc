@@ -5,6 +5,7 @@ Build a graph from a corpus of motions
 
 from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeList
 from Graph.Algorithms import DotPrint
+from Graph.ExtraAlgorithms import DLS
 
 import Numeric
 import MLab
@@ -67,9 +68,9 @@ class MotionGraphNode:
 def search_graphs (graphs, starts, ends):
     paths = {}
     depth = 10
-    for bone in graphs.keys():
-        search = DLS (graph, start, end)
-        paths[bone] = search.search ()
+    for bone,graph in graphs.iteritems():
+        search = DLS (graph, starts[bone], ends[bone])
+        paths[bone] = search.search (depth)
 
     retpaths = None
     for i in range (depth):

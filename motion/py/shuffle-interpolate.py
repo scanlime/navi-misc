@@ -55,7 +55,7 @@ def linear_interp (start, end, pos, len):
 
 if len (sys.argv) != 4:
     print 'usage: %s <input amc> <graph pickle> <output amc>' % sys.argv[0]
-    raise Exception ()
+    sys.exit ()
 
 samc = AMC.from_file (sys.argv[1])
 
@@ -97,7 +97,7 @@ for boundary in sequence.boundaries:
 
 
     print 'searching at boundary',boundary
-    paths = search_graph (graphs, starts, ends)
+    paths = MotionGraph.search_graphs (graphs, starts, ends)
 
     for i in range (len (paths['root'])):
         frame = {}
