@@ -64,6 +64,28 @@ class MotionGraphNode:
     def center (self):
         return self.center
 
+def search_graphs (graphs, starts, ends):
+    paths = {}
+    depth = 10
+    for bone in graphs.keys():
+        search = DLS (graph, start, end)
+        paths[bone] = search.search ()
+
+    retpaths = None
+    for i in range (depth):
+        # If all the paths at this depth are real, we're done
+        match = True
+        for bone in graphs.keys ():
+            if paths[bone][i] is None:
+                match = False
+
+        if match:
+            retpaths = {}
+            for bone,path in paths.items ():
+                retpaths[bone] = path[i]
+            break
+    return retpaths
+
 def cp_range (dof, angle):
     """Return a list of tuples which form a cartesian product of the range
        [0, 360] in steps of angle.  This is used to build our sea of nodes

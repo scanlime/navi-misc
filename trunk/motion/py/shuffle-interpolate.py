@@ -59,9 +59,11 @@ picklefile = sys.argv[2]
 graphs = pickle.load (open (picklefile))
 
 for boundary in sequence.boundaries:
-    search = ParallelBFS ()
     pre  = sequence[boundary - 1]
     post = sequence[boundary]
+
+    starts = {}
+    ends = {}
 
     for bone in samc.bones.keys ():
         start = pre[1].bones[bone]
@@ -82,10 +84,12 @@ for boundary in sequence.boundaries:
         startNode = find_node (graphs[bone], start)
         endNode   = find_node (graphs[bone], end)
 
-        search.addGraph (bone, graphs[bone], startNode, endNode)
+        starts[bone] = startNode
+        ends[bone] = endNode
+
 
     print 'searching at boundary',boundary
-    paths = search.search ()
+    paths = search_graph (graphs, starts, ends)
 
     for i in range (len (paths['root'])):
         frame = {}
