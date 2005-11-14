@@ -939,9 +939,17 @@ server_context (GtkWidget *treeview, session *selected)
 	menu = gtk_ui_manager_get_widget (gui.manager, "/ServerPopup");
 	g_return_if_fail (menu != NULL);
 
-	if (selected != NULL) {
+	if (((ircnet *)selected->server->network) == NULL) {
+		/* disable the auto-connect action.
+		 * FIXME: it would be really nice to be able to configure this server
+		 * as part of a network here.
+		 */
+		action = gtk_action_group_get_action (gui.action_group, "ServerAutoConnect");
+		gtk_action_set_sensitive (action, FALSE);
+	} else if (selected != NULL) {
 		/* check if the network is in the auto-connect list */
 		action = gtk_action_group_get_action (gui.action_group, "ServerAutoConnect");
+		gtk_action_set_sensitive (action, TRUE);
 		if (((ircnet *)selected->server->network)->flags & FLAG_AUTO_CONNECT)
 			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
 		else
@@ -964,10 +972,16 @@ channel_context (GtkWidget *treeview, session *selected)
 	/* check if the channel is in the auto-join list */
 	action = gtk_action_group_get_action (gui.action_group, "ChannelAutoJoin");
 	network = selected->server->network;
-	if (channel_is_autojoin (network, selected->channel))
-		gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
-	else
-		gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
+
+	if (network == NULL) {
+		gtk_action_set_sensitive (action, FALSE);
+	} else {
+		gtk_action_set_sensitive (action, TRUE);
+		if (channel_is_autojoin (network, selected->channel))
+			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
+		else
+			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), FALSE);
+	}
 
 	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 }
