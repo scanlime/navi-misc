@@ -67,8 +67,9 @@ class MotionGraphNode:
 
 def search_graphs (graphs, starts, ends):
     paths = {}
-    depth = 10
+    depth = 6
     for bone,graph in graphs.iteritems():
+        print '    searching',bone
         search = DLS (graph, starts[bone], ends[bone])
         paths[bone] = search.search (depth)
 

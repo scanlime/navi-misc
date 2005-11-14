@@ -99,6 +99,11 @@ for boundary in sequence.boundaries:
     print 'searching at boundary',boundary
     paths = MotionGraph.search_graphs (graphs, starts, ends)
 
+
+    if paths is None:
+        print 'no path found!'
+        sys.exit ()
+
     for i in range (len (paths['root'])):
         frame = {}
         for bone in paths.keys():
@@ -114,4 +119,4 @@ for boundary in sequence.boundaries:
             frame[bone] = center
         sequence.insert (frame, index)
 
-sequence.save (sys.argv[3], samc.format)
+    sequence.save (sys.argv[3], samc.format)
