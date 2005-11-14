@@ -24,9 +24,7 @@ SAX events.
 #
 
 import struct, os
-import xml.sax
-from xml.dom.minidom import _append_child, _set_attribute_node
-from xml.dom.minidom import Document, Text, Element, Attr
+import xml.sax, xml.dom.minidom
 
 class CircularFile:
     """This is a file-like object wrapper that turns a fixed-size
@@ -269,13 +267,14 @@ def SAXDecoder(encoded, dictionary):
        internals- unfortunately it's a big speed bottleneck, so
        any extra performance is worth a little obfuscation here.
        """
+    dom = xml.dom.minidom
+    memo = list(dictionary)
+    stack = [dom.Document()]
+    attrs = None
+    top = stack[-1]
     m = unicode(encoded, 'utf8')
     mlen = len(m)
     i = 0
-    memo = list(dictionary)
-    stack = [Document()]
-    attrs = None
-    top = stack[-1]
 
     while i < mlen:
         op = ord(m[i])
@@ -303,9 +302,18 @@ def SAXDecoder(encoded, dictionary):
 
         # Whitespace
         elif type == 3:
-            node = Text()
+            node = dom.Text()
             node.data = " " * param
-            _append_child(top, node)
+            
+            # _append_child(top, node)
+            childNodes = top.childNodes
+            if childNodes:
+                last = childNodes[-1]
+                node.__dict__["previousSibling"] = last
+                last.__dict__["nextSibling"] = node
+            childNodes.append(node)
+            node.__dict__["parentNode"] = top
+
             i += 1
             continue
 
@@ -315,14 +323,31 @@ def SAXDecoder(encoded, dictionary):
 
             # Character data
             if op == 1:
-                node = Text()
+                node = dom.Text()
                 node.data = item[1:]
-                _append_child(top, node)
+
+                # _append_child(top, node)
+                childNodes = top.childNodes
+                if childNodes:
+                    last = childNodes[-1]
+                    node.__dict__["previousSibling"] = last
+                    last.__dict__["nextSibling"] = node
+                childNodes.append(node)
+                node.__dict__["parentNode"] = top
 
             # Element with no attributes (fast path)
             elif op == 2:
-                node = Element(item[1:])
-                _append_child(top, node)
+                node = dom.Element(item[1:])
+
+                # _append_child(top, node)
+                childNodes = top.childNodes
+                if childNodes:
+                    last = childNodes[-1]
+                    node.__dict__["previousSibling"] = last
+                    last.__dict__["nextSibling"] = node
+                childNodes.append(node)
+                node.__dict__["parentNode"] = top
+
                 stack.append(node)
                 top = node
 
@@ -330,27 +355,39 @@ def SAXDecoder(encoded, dictionary):
             else:
                 attrRemaining = op - 2
                 attrKey = None
-                attrs = Element(item[1:])
+                attrs = dom.Element(item[1:])
 
         # Attribute context
         else:
 
             # Attribute key
             if attrKey is None:
-                attrKey = Attr(item)
+                attrKey = dom.Attr(item)
 
             # Attribute value
             else:
                 d = attrKey.__dict__
                 d["value"] = d["nodeValue"] = item
                 d["ownerDocument"] = stack[0]
-                _set_attribute_node(attrs, attrKey)
+
+                # _set_attribute_node(attrs, attrKey)
+                attrs._attrs[attrKey.name] = attrKey
+                attrKey.__dict__['ownerElement'] = attrs
+
                 attrRemaining -= 1
                 attrKey = None
 
                 # Finished an element with attributes?
                 if not attrRemaining:
-                    _append_child(top, attrs)
+                    # _append_child(top, attrs)
+                    childNodes = top.childNodes
+                    if childNodes:
+                        last = childNodes[-1]
+                        node.__dict__["previousSibling"] = last
+                        last.__dict__["nextSibling"] = node
+                    childNodes.append(attrs)
+                    attrs.__dict__["parentNode"] = top
+
                     stack.append(attrs)
                     top = attrs
                     attrs = None
@@ -562,19 +599,23 @@ class MessageBuffer:
             if msg is not None:
                 yield (msgId, msg)
 
+if __name__ == "__main__":
+    import time
+    b = MessageBuffer("messages")
 
-b = MessageBuffer("messages")
+    #for msg in open("not-all-commits.txt"):
+    #    print "%x" % b.append(msg)
 
-#for msg in open("not-all-commits.txt"):
-#    print "%x" % b.append(msg)
+    i = 0
+    c1 = time.clock()
+    for msgId, dom in b.getLatest(100000):
+        i += 1
+    for msgId, dom in b.getLatest(100000):
+        i += 1
+    for msgId, dom in b.getLatest(100000):
+        i += 1
+    for msgId, dom in b.getLatest(100000):
+        i += 1
+    c2 = time.clock()
 
-i = 0
-for msgId, dom in b.getLatest(100000):
-    i += 1
-for msgId, dom in b.getLatest(100000):
-    i += 1
-for msgId, dom in b.getLatest(100000):
-    i += 1
-for msgId, dom in b.getLatest(100000):
-    i += 1
-print "%d messages accessible" % i
+print "%d messages accessed, at %.06f sec/message" % (i, (c2 - c1) / i)
