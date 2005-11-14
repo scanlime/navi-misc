@@ -139,6 +139,7 @@ class DLS:
         """Search the graph to a maximum depth of depth."""
         newpaths = [[self.start, ], ]
         goodpaths = []
+        paths = []
         for i in range (depth):
             for path in newpaths:
                 newpaths.remove (path)
@@ -148,12 +149,45 @@ class DLS:
                         if edge.v is self.end:
                             goodpaths.append (list(path + [edge.v]))
                         else:
-                            newpaths.append (list (path + [edge.v]))
+                            paths.append (list (path + [edge.v]))
             if len (goodpaths) > 0:
                 self.paths.append (goodpaths)
             else:
                 self.paths.append (None)
             goodpaths = []
+            newpaths = paths
+            paths = []
 
+        # find the best path for each depth
+        for i in range (depth):
+            if self.paths[i]:
+                self.paths[i] = self.getBestPath (self.paths[i])
+
+        return self.paths
+
+    def computeProbability (self, path):
+        probability = 1.0
+        for i in range (len (path) - 2):
+            u = path[i]
+            v = path[i + 1]
+            for edge in self.adjacency.query (u):
+                if edge.v is v:
+                    probability = probability * edge.weight
+        return probability
+
+    def getBestPath (self, paths):
+        bestPath = None
+        bestProbability = 0.0
+
+        # HACK!
+        return paths[0]
+
+        for path in paths:
+            probability = self.computeProbability (path)
+            if probability > bestProbability:
+                bestPath = path
+                bestProbability = probability
+
+        return bestPath
 
 # vim:ts=4:sw=4:et
