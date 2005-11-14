@@ -80,8 +80,6 @@ for boundary in sequence.boundaries:
         end   = post[1].bones[bone]
 
         if bone == 'root':
-            # we only want the root orientation
-            # FIXME - need to linearly interpolate root position
             start = start[3:6]
             end   = end[3:6]
 
@@ -108,6 +106,7 @@ for boundary in sequence.boundaries:
             center = node.center ()
 
             if bone == 'root':
+                # Linearly interpolate root position, for now
                 rootstart = pre[1].bones['root'][0:3]
                 rootend   = post[1].bones['root'][0:3]
                 position = linear_interp (rootstart, rootend, i, len (paths['root']))
