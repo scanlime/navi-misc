@@ -10,7 +10,7 @@ diff -u -r1.92 configure.in
  AC_INIT(src)
  AM_CONFIG_HEADER(config.h)
 -AM_INIT_AUTOMAKE(xchat, 2.6.0)
-+AM_INIT_AUTOMAKE(xchat, 0.7rc1)
++AM_INIT_AUTOMAKE(xchat-gnome, 0.7rc1)
  AM_MAINTAINER_MODE
  AC_PROG_CC
  AC_PROG_CPP
