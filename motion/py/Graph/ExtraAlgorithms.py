@@ -119,3 +119,41 @@ class ParallelBFSSearch:
                 bestPath        = path
 
         return bestPath
+
+
+class DLS:
+    """A depth limited search of a graph."""
+
+    def __init__ (self, graph, start, end):
+        self.graph = graph
+        self.start = start
+        self.end   = end
+        self.paths = []
+
+        try:
+            self.adjacency = graph.representations[Data.AdjacencyList]
+        except KeyError:
+            raise Exception ("Graph does not contain AdjacencyList representation")
+
+    def search (self, depth):
+        """Search the graph to a maximum depth of depth."""
+        newpaths = [[start, ], ]
+        goodpaths = []
+        for i in range (depth):
+            for path in newpaths:
+                newpaths.remove (path)
+                node = path[-1]
+                for edge in self.adjacency.query (node):
+                    if edge.u is node:
+                        if edge.v is self.end:
+                            goodpaths.append (list(path + [edge.v]))
+                        else:
+                            newpaths.append (list (path + [edge.v]))
+            if len (goodpaths) > 0:
+                self.paths.append (goodpaths)
+            else:
+                self.paths.append (None)
+            goodpaths = []
+
+
+# vim:ts=4:sw=4:et
