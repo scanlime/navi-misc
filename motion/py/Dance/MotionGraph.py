@@ -42,11 +42,16 @@ class MotionGraphNode:
     def __init__ (self, mins, maxs):
         self.mins = mins
         self.maxs = maxs
+        self.center = []
 
         extents = []
         for i in range (len (mins)):
             extents.append ('[%.2f, %.2f]' % (mins[i], maxs[i]))
+            self.center.append (maxs[i] - mins[i])
         self.dot_label = '\\n'.join (extents)
+
+    def __repr__ (self):
+        return '<MGNode: %s>' % self.dot_label
 
     def inside (self, point):
         if len (point) != len (self.mins):
@@ -55,6 +60,9 @@ class MotionGraphNode:
             if point[i] < self.mins[i] or point[i] > self.maxs[i]:
                 return False
         return True
+
+    def center (self):
+        return self.center
 
 def cp_range (dof, angle):
     """Return a list of tuples which form a cartesian product of the range

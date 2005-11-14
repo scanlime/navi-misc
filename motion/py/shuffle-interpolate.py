@@ -43,22 +43,18 @@ def fix360 (x):
         return 0
     return x
 
-try:
-    samc = AMC.from_file (sys.argv[1])
-except IndexError:
-    print 'usage: %s <shuffle file> <graph pickle>' % sys.argv[0]
-    raise
+if len (sys.argv) != 4:
+    print 'usage: %s <input amc> <graph pickle> <output amc>' % sys.argv[0]
+    raise Exception ()
+
+samc = AMC.from_file (sys.argv[1])
 
 print 'shuffling sequence'
 lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
 sequence = Sequence.Sequence (samc, lorenz, Numeric.array ([1, 2, 3]), n=30)
 sequence.shuffle (Numeric.array ([17.0, 2.0, -1.0]), n=30)
 
-try:
-    picklefile = sys.argv[2]
-except IndexError:
-    print 'usage: %s <shuffle file> <graph pickle>' % sys.argv[0]
-    raise
+picklefile = sys.argv[2]
 
 graphs = pickle.load (open (picklefile))
 
@@ -86,9 +82,17 @@ for boundary in sequence.boundaries:
         startNode = find_node (graphs[bone], start)
         endNode   = find_node (graphs[bone], end)
 
-        search.addGraph (graphs[bone], startNode, endNode)
+        search.addGraph (bone, graphs[bone], startNode, endNode)
 
     print 'searching at boundary',boundary
     paths = search.search ()
-    print paths
-    print ''
+
+    for i in range (len (paths['root'])):
+        frame = {}
+        for bone in paths.keys():
+            node = paths[bone][i]
+            center = node.center ()
+            frame[bone] = center
+        sequence.insert (frame, index)
+
+sequence.save (sys.argv[3], samc.format)
