@@ -1,3 +1,5 @@
+SUBDIRS = figures
+
 figdir = figures
 docname = xchat-gnome
 lang = C
