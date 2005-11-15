@@ -142,7 +142,6 @@ class DLS:
         paths = []
         for i in range (depth):
             for path in newpaths:
-                newpaths.remove (path)
                 node = path[-1]
                 for edge in self.adjacency.query (node):
                     if edge.u is node:
