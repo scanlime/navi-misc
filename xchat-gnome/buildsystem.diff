@@ -101,12 +101,12 @@ diff -u -r1.92 configure.in
 -#		AC_MSG_RESULT(ok)
 -#	fi
 -#fi
-+AM_PATH_GTK_2_0(2.6.0, havenewgtk=yes, havenewgtk=no)
++AM_PATH_GTK_2_0(2.8.0, havenewgtk=yes, havenewgtk=no)
 +
 +if test "$havenewgtk" != yes; then
 +	gnomefe=no
 +	echo
-+	echo Cannot find GTK+ 2.6\! Not building GNOME FrontEnd.
++	echo Cannot find GTK+ 2.8\! Not building GNOME FrontEnd.
 +	echo
 +fi
 +
