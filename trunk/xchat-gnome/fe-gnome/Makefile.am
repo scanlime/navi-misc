@@ -19,7 +19,13 @@ endif
 schemadir	= $(GCONF_SCHEMA_FILE_DIR)
 schema_DATA	= apps_xchat.schemas
 
-# @INTLTOOL_SCHEMAS_RULE@
+install-data-local:
+	@GCONF_SCHEMAS_INSTALL_TRUE@ \
+	if test -z "$(DESTDIR)" ; then						\
+		for p in $(schema_DATA) ; do					\
+			$(GCONFTOOL) --install-schema-file=$(srcdir)/$$p;	\
+		done								\
+	fi
 
 desktopdir = $(datadir)/applications
 desktop_DATA = xchat-gnome.desktop
@@ -34,13 +40,6 @@ xchat_gnome_DATA =				\
 	topic-change.glade			\
 	xchat-gnome.glade			\
 	xchat-gnome-ui.xml
-
-install-data-local:
-	if test -z "$(DESTDIR)" ; then						\
-		for p in $(schema_DATA) ; do					\
-			$(GCONFTOOL) --install-schema-file=$(srcdir)/$$p;	\
-		done								\
-	fi
 
 xchat_gnome_LDADD =				\
 	../common/libxchatcommon.a		\
@@ -122,7 +121,6 @@ xchat_gnome_SOURCES =				\
 	$(xchat_sources)
 
 EXTRA_DIST =					\
-	BUGS					\
 	$(our_sources)				\
 	$(xchat_gnome_DATA)			\
 	$(desktop_DATA)				\
