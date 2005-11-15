@@ -146,6 +146,7 @@ class DLS:
             for path in newpaths:
                 # Extend the current node one more level.
                 node = path[-1]
+
                 for edge in self.adjacency.query (node):
                     if edge.u is node:
                         # If this edge connects us to our goal, it is a good
@@ -156,11 +157,13 @@ class DLS:
                         # the path and check it again next iteration one level deeper.
                         else:
                             paths.append (list (path + [edge.v]))
+
             # Any good paths get stored, otherwise None is stored for this depth
             if len (goodpaths) > 0:
                 self.paths.append (goodpaths)
             else:
                 self.paths.append (None)
+
             newpaths = paths
 
         # find the best path for each depth
