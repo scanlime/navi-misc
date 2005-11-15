@@ -138,24 +138,30 @@ class DLS:
     def search (self, depth):
         """Search the graph to a maximum depth of depth."""
         newpaths = [[self.start, ], ]
-        goodpaths = []
-        paths = []
+
         for i in range (depth):
+            paths     = []
+            goodpaths = []
+
             for path in newpaths:
+                # Extend the current node one more level.
                 node = path[-1]
                 for edge in self.adjacency.query (node):
                     if edge.u is node:
+                        # If this edge connects us to our goal, it is a good
+                        # path and deserves a cookie.
                         if edge.v is self.end:
                             goodpaths.append (list(path + [edge.v]))
+                        # If this edge doesn't get us to our goal, we remember
+                        # the path and check it again next iteration one level deeper.
                         else:
                             paths.append (list (path + [edge.v]))
+            # Any good paths get stored, otherwise None is stored for this depth
             if len (goodpaths) > 0:
                 self.paths.append (goodpaths)
             else:
                 self.paths.append (None)
-            goodpaths = []
             newpaths = paths
-            paths = []
 
         # find the best path for each depth
         for i in range (depth):
