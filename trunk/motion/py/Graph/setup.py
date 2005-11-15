@@ -1,4 +1,15 @@
-from distutils.core import setup
+from distutils.core import setup, Extension
+import os
+
+# get compile info for glib from pkg-config
+pkgconfig = os.popen ('pkg-config --cflags glib-2.0')
+glib_cflags = pkgconfig.readline ().strip ().split (' ')
+pkgconfig.close ()
+pkgconfig = os.popen ('pkg-config --libs glib-2.0')
+glib_libs = pkgconfig.readline ().strip ().split (' ')
+pkgconfig.close ()
+
+algorithms = Extension ('algorithms_c', sources=['algorithms.c'], extra_compile_args=glib_cflags + ['-g'], extra_link_args=glib_libs)
 
 setup (name='Graph',
        version='1.0.0',
@@ -7,4 +18,5 @@ setup (name='Graph',
        license='GPL',
        description='Package for using graphs in python',
        py_modules=['Observable', 'Data', 'Algorithms'],
-       extra_path='Graph')
+       extra_path='Graph',
+       ext_modules=[algorithms])
