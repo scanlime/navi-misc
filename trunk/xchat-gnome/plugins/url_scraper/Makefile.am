@@ -6,6 +6,7 @@ schema_DATA = urlscraper.schemas
 EXTRA_DIST = urlscraper.schemas
 
 install-data-local:
+	@GCONF_SCHEMAS_INSTALL_TRUE@ \
 	if test -z "$(DESTDIR)" ; then \
 		for p in $(schema_DATA) ; do \
 			$(GCONFTOOL) --install-schema-file=$(srcdir)/$$p; \
