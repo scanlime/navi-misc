@@ -4,7 +4,7 @@ RCS file: /cvsroot/xchat/xchat2/configure.in,v
 retrieving revision 1.92
 diff -u -r1.92 configure.in
 --- configure.in	10 Nov 2005 10:45:41 -0000	1.92
-+++ configure.in	14 Nov 2005 09:35:32 -0000
++++ configure.in	15 Nov 2005 21:47:57 -0000
 @@ -2,7 +2,7 @@
  
  AC_INIT(src)
@@ -244,7 +244,7 @@ RCS file: /cvsroot/xchat/xchat2/plugins/Makefile.am,v
 retrieving revision 1.5
 diff -u -r1.5 Makefile.am
 --- plugins/Makefile.am	12 Oct 2005 05:03:59 -0000	1.5
-+++ plugins/Makefile.am	14 Nov 2005 09:35:33 -0000
++++ plugins/Makefile.am	15 Nov 2005 21:47:58 -0000
 @@ -1,12 +1,12 @@
  # temp. solution while mailcheck & xdcc arn't in SUBDIRS
 -EXTRA_DIST = plugin20.html Make.plugin plugin-conf.in \
@@ -299,14 +299,14 @@ RCS file: /cvsroot/xchat/xchat2/plugins/dbus/Makefile.am,v
 retrieving revision 1.7
 diff -u -r1.7 Makefile.am
 --- plugins/dbus/Makefile.am	5 Nov 2005 10:44:24 -0000	1.7
-+++ plugins/dbus/Makefile.am	14 Nov 2005 09:35:35 -0000
++++ plugins/dbus/Makefile.am	15 Nov 2005 21:47:58 -0000
 @@ -1,4 +1,4 @@
 -EXTRA_DIST=dbus-plugin.xml apps_xchat_url_handler.schemas marshallers.list example.py README
 +EXTRA_DIST=dbus-plugin.xml apps_xchat_url_handler.schemas marshallers.list README
  INCLUDES = $(DBUS_CFLAGS) $(COMMON_CFLAGS) -I$(srcdir)/.. -DLOCALEDIR=\"$(localedir)\"
  BUILT_SOURCES = dbus-plugin-glue.h marshallers.h 
  CLEANFILES = $(BUILT_SOURCES)
-@@ -26,8 +26,6 @@
+@@ -26,11 +26,10 @@
  	libtool --mode=execute glib-genmarshal --header --body marshallers.list > marshallers.h
  
  if DO_GCONF
@@ -315,13 +315,17 @@ diff -u -r1.7 Makefile.am
  schemadir   = $(GCONF_SCHEMA_FILE_DIR)
  schema_DATA = apps_xchat_url_handler.schemas
  install-data-local:
++	@GCONF_SCHEMAS_INSTALL_TRUE@ \
+ 	if test -z "$(DESTDIR)" ; then \
+ 		for p in $(schema_DATA) ; do \
+ 			GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) $(GCONFTOOL) --makefile-install-rule $(srcdir)/$$p; \
 Index: plugins/mailcheck/Makefile.am
 ===================================================================
 RCS file: /cvsroot/xchat/xchat2/plugins/mailcheck/Makefile.am,v
 retrieving revision 1.1
 diff -u -r1.1 Makefile.am
 --- plugins/mailcheck/Makefile.am	17 Dec 2002 15:36:39 -0000	1.1
-+++ plugins/mailcheck/Makefile.am	14 Nov 2005 09:35:35 -0000
++++ plugins/mailcheck/Makefile.am	15 Nov 2005 21:47:58 -0000
 @@ -10,7 +10,6 @@
  
  # This file must be in the form PLUGIN-config.h.in, it can be empty but
@@ -336,7 +340,7 @@ RCS file: /cvsroot/xchat/xchat2/src/Makefile.am,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 Makefile.am
 --- src/Makefile.am	28 Nov 2002 10:39:00 -0000	1.1.1.1
-+++ src/Makefile.am	14 Nov 2005 09:35:35 -0000
++++ src/Makefile.am	15 Nov 2005 21:47:58 -0000
 @@ -11,4 +11,8 @@
  gtk_fe = fe-gtk
  endif
@@ -353,7 +357,7 @@ RCS file: /cvsroot/xchat/xchat2/src/common/textevents.h,v
 retrieving revision 1.31
 diff -u -r1.31 textevents.h
 --- src/common/textevents.h	21 Oct 2005 09:26:07 -0000	1.31
-+++ src/common/textevents.h	14 Nov 2005 09:35:35 -0000
++++ src/common/textevents.h	15 Nov 2005 21:47:58 -0000
 @@ -3,214 +3,214 @@
  const struct text_event te[] = {
  
@@ -898,7 +902,7 @@ RCS file: /cvsroot/xchat/xchat2/src/common/textevents.in,v
 retrieving revision 1.30
 diff -u -r1.30 textevents.in
 --- src/common/textevents.in	21 Oct 2005 09:26:07 -0000	1.30
-+++ src/common/textevents.in	14 Nov 2005 09:35:35 -0000
++++ src/common/textevents.in	15 Nov 2005 21:47:58 -0000
 @@ -1,19 +1,19 @@
  Add Notify
  XP_TE_ADDNOTIFY
@@ -1811,7 +1815,7 @@ RCS file: /cvsroot/xchat/xchat2/src/pixmaps/Makefile.am,v
 retrieving revision 1.9
 diff -u -r1.9 Makefile.am
 --- src/pixmaps/Makefile.am	12 Oct 2005 05:38:32 -0000	1.9
-+++ src/pixmaps/Makefile.am	14 Nov 2005 09:35:35 -0000
++++ src/pixmaps/Makefile.am	15 Nov 2005 21:47:58 -0000
 @@ -13,5 +13,8 @@
  CLEANFILES = $(noinst_HEADERS)
  EXTRA_DIST = $(PNGS) makefile.msc
