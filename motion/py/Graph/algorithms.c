@@ -23,7 +23,6 @@
 #include <Python.h>
 
 static PyObject *depth_limited_search (PyObject* self, PyObject* args);
-static void      increase_depth       (gpointer data, gpointer user_data);
 
 static PyMethodDef AlgorithmC_methods[] = {
 		{"depthLimitedSearch", depth_limited_search, METH_VARARGS, "Execute a depth limited search of the graph"},
@@ -36,7 +35,9 @@ initalgorithms_c (void)
 	(void) Py_InitModule ("algorithms_c", AlgorithmC_methods);
 }
 
-GSList*
+static float
+
+static GSList*
 search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth)
 {
 	GSList*   good_paths = NULL;
