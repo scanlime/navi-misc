@@ -46,7 +46,7 @@ class MotionGraphNode:
         self.center = []
 
         extents = []
-        for i in range (len (mins)):
+        for i in (range (len (mins)) + 1):
             extents.append ('[%.2f, %.2f]' % (mins[i], maxs[i]))
             self.center.append (maxs[i] - mins[i])
         self.dot_label = '\\n'.join (extents)
@@ -67,14 +67,14 @@ class MotionGraphNode:
 
 def search_graphs (graphs, starts, ends):
     paths = {}
-    depth = 3
+    depth = 6
     for bone in graphs.keys():
         print '    searching',bone
         representation = graphs[bone].representations[AdjacencyList]
         paths[bone] = algorithms_c.depthLimitedSearch (representation, starts[bone], ends[bone], depth)
 
     retpaths = None
-    for i in range (depth):
+    for i in range (len (paths['root'])):
         coverage = 0
         # If all the paths at this depth are real, we're done
         match = True
@@ -91,7 +91,7 @@ def search_graphs (graphs, starts, ends):
                 retpaths[bone] = path[i]
             break
         else:
-            print '    depth = %2d, coverage = %2.1f%%, no match' % (i, float(coverage) / len (graphs.keys ()) * 100)
+            print '    depth = %2d, coverage = %2d/%2d, no match' % (i, coverage, len (graphs.keys ()))
     return retpaths
 
 def cp_range (dof, angle):
