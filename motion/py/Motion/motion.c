@@ -28,8 +28,6 @@
 static PyObject *AMC_new      (PyTypeObject *type, PyObject *args, PyObject *kw);
 static int       AMC_init     (AMC *motion, PyObject *args, PyObject *kw);
 static void      AMC_dealloc  (AMC *motion);
-static PyObject *AMC_getAttr  (AMC *motion, char *name);
-static int       AMC_setAttr  (AMC *motion, char *name, PyObject *v);
 static PyObject *AMC_repr     (AMC *motion);
 static PyObject *AMC_fromFile (AMC *self, PyObject *args);
 static PyObject *AMC_save     (AMC *self, PyObject *args);
