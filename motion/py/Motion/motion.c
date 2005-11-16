@@ -20,6 +20,7 @@
  */
 
 #include <Python.h>
+#include <structmember.h>
 #include <Numeric/arrayobject.h>
 #include <glib.h>
 #include "motion.h"
@@ -44,6 +45,13 @@ static PyMethodDef AMC_methods[] = {
 	{NULL,        NULL,                       0,                          NULL},
 };
 
+static PyMemberDef AMC_members[] = {
+	{"bones",    T_OBJECT, offsetof (AMC, bones),    0, "bones array"},
+	{"comments", T_OBJECT, offsetof (AMC, comments), 0, "comments strings"},
+	{"format",   T_OBJECT, offsetof (AMC, format),   0, "format strings"},
+	{NULL,       0,        0,                        0, NULL},
+};
+
 PyTypeObject AMC_Type = {
 	PyObject_HEAD_INIT(NULL)
 	0,                          // ob_size
@@ -52,8 +60,8 @@ PyTypeObject AMC_Type = {
 	0,                          // tp_itemsize
 	(destructor) AMC_dealloc,   // tp_dealloc
 	0,                          // tp_print
-	(getattrfunc) AMC_getAttr,  // tp_getattr
-	(setattrfunc) AMC_setAttr,  // tp_setattr
+	0,                          // tp_getattr
+	0,                          // tp_setattr
 	0,                          // tp_compare
 	(reprfunc) AMC_repr,        // tp_repr
 	0,                          // tp_as_number
@@ -74,7 +82,7 @@ PyTypeObject AMC_Type = {
 	0,                          // tp_iter
 	0,                          // tp_iternext
 	AMC_methods,                // tp_methods
-	0,                          // tp_members
+	AMC_members,                // tp_members
 	0,                          // tp_getset
 	0,                          // tp_base
 	0,                          // tp_dict
@@ -119,64 +127,6 @@ AMC_dealloc (AMC *motion)
 {
 	AMC_clear (motion);
 	PyObject_DEL (motion);
-}
-
-static PyObject *
-AMC_getAttr (AMC *motion, char *name)
-{
-	PyObject *attr = Py_None;
-
-	if (strcmp (name, "name") == 0) {
-		// None is an appropriate response here, so don't bother with the checks below
-		if (motion->name == NULL)
-			Py_RETURN_NONE;
-		return PyString_FromString (motion->name);
-	} else if (strcmp (name, "comments") == 0) {
-		Py_INCREF (motion->comments);
-		attr = motion->comments;
-	} else if (strcmp (name, "bones") == 0) {
-		Py_INCREF (motion->bones);
-		attr = motion->bones;
-	} else if (strcmp (name, "format") == 0) {
-		Py_INCREF (motion->format);
-		attr = motion->format;
-	} else if (strcmp (name, "__members__") == 0) {
-		attr = Py_BuildValue ("[s,s,s,s]", "name", "comments", "bones", "format");
-	}
-
-	if (attr == Py_None)
-		return Py_FindMethod (AMC_methods, (PyObject *) motion, name);
-
-	return attr;
-}
-
-static int
-AMC_setAttr (AMC *motion, char *name, PyObject *v)
-{
-	// FIXME a) is it leaking memory?
-	//       b) it probably needs better error checking
-
-	// If v is NULL, we're supposed to delete the attribute.
-	if (v) {
-		Py_INCREF (v);
-
-		if (strcmp (name, "bones") == 0) {
-			Py_CLEAR (motion->bones);
-			motion->bones = v;
-		} else if (strcmp (name, "format") == 0) {
-			Py_CLEAR (motion->format);
-			motion->format = v;
-		} else if (strcmp (name, "comments") == 0) {
-			Py_CLEAR (motion->comments);
-			motion->comments = v;
-		} else {
-			return -1;
-		}
-	} else {
-		return -1;
-	}
-
-	return 0;
 }
 
 static PyObject *

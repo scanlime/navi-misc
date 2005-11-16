@@ -30,7 +30,7 @@ typedef struct
 {
 	PyObject_HEAD
 
-	char *name;
+	char     *name;
 	PyObject *bones;
 	PyObject *comments;
 	PyObject *format;
