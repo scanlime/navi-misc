@@ -119,26 +119,32 @@ depth_limited_search (PyObject* self, PyObject* args)
 	/* Get the query function for the adjacency list. */
 	query = PyObject_GetAttrString (adjacency_list, "query");
 
+	/* Search */
 	paths = search (path, query, end, depth - 1);
 
+	/* Don't need our reference to query() anymore. */
 	Py_DECREF (query);
 
+	/* Create the list of paths and populate with None. */
 	path_list = PyList_New (depth);
 	for (int i = 0; i++; i < depth) {
 		Py_INCREF (Py_None);
 		PyList_SetItem (path_list, i, Py_None);
 	}
 
+	/* For each path we found, insert it in the list at the appropriate
+	 * depth.
+	 */
 	path = paths;
 	while (path) {
-		GSList* nodes  = path->data;
-		int     len    = g_slist_length (nodes);
-		PyObject* list = PyList_New (len);
+		GSList*   nodes = path->data;
+		int       len   = g_slist_length (nodes);
+		PyObject* list  = PyList_New (0);
+		PyObject* depth_list;
 
-		for (int i = 0; i < len; i++) {
-			PyObject* node = (PyObject*) (g_slist_nth (nodes, i)->data);
-			Py_INCREF (node);
-			PyList_SetItem (list, i, node);
+		while (nodes) {
+			PyList_Append (list, (PyObject*)nodes->data);
+			nodes = g_slist_next (nodes);
 		}
 
 		if (PyObject_Compare (PyList_GetItem (path_list, len-1), Py_None) == 0) {
@@ -146,10 +152,11 @@ depth_limited_search (PyObject* self, PyObject* args)
 			PyList_SetItem (path_list, len, PyList_New (0));
 		}
 
-		PyList_Insert (PyList_GetItem (path_list, len-1), 0, list);
+		g_printf ("%d\n", len);
+		depth_list = PyList_GetItem (path_list, len-1);
+		PyList_Append (depth_list, list);
 
 		path = g_slist_next (path);
-		g_slist_free (nodes);
 	}
 
 	g_slist_free (paths);
