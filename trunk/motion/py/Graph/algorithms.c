@@ -50,7 +50,7 @@ search (GSList* path, PyObject* query_func, PyObject* goal, int depth)
 		return NULL;
 	}
 
-	node = g_slist_last (path->data);
+	node = g_slist_last (path);
 	args = Py_BuildValue ("(O)", (PyObject*) node->data);
 	iter = PyEval_CallObject (query_func, args);
 
@@ -131,22 +131,22 @@ depth_limited_search (PyObject* self, PyObject* args)
 
 	path = paths;
 	while (path) {
-		GSList* nodes = path->data;
-		int     len   = g_slist_length (nodes);
+		GSList* nodes  = path->data;
+		int     len    = g_slist_length (nodes);
 		PyObject* list = PyList_New (len);
 
 		for (int i = 0; i < len; i++) {
-			PyObject* node = (PyObject*) g_slist_nth (nodes, i);
+			PyObject* node = (PyObject*) (g_slist_nth (nodes, i)->data);
 			Py_INCREF (node);
 			PyList_SetItem (list, i, node);
 		}
 
-		if (PyObject_Compare (PyList_GetItem (path_list, len), Py_None) == 0) {
+		if (PyObject_Compare (PyList_GetItem (path_list, len-1), Py_None) == 0) {
 			Py_DECREF (Py_None);
 			PyList_SetItem (path_list, len, PyList_New (0));
 		}
 
-		PyList_Insert (PyList_GetItem (path_list, len), 0, list);
+		PyList_Insert (PyList_GetItem (path_list, len-1), 0, list);
 
 		path = g_slist_next (path);
 		g_slist_free (nodes);
