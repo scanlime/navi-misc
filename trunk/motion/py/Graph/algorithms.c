@@ -68,23 +68,24 @@ search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, 
 	GSList *v_list = g_hash_table_lookup (adjacency, node);
 
 	for (GSList *vn = v_list; vn; vn = g_slist_next (vn)) {
-		int       depth = g_slist_length (path);
-		PyObject *v     = vn->data;
+		int       len = g_slist_length (path);
+		PyObject *v   = vn->data;
 		Py_INCREF (v);
 
 		GSList *tmp = g_slist_copy (path);
 		tmp = g_slist_append (tmp, v);
 
 		/* If the end of the path is our goal, it's a good path and deserves a
-		 * cookie. Otherwise put the path back in the queue for later.
+		 * cookie. Otherwise, recurse down the path.
 		 */
-		if (goal == v && (computeProbability (edges, tmp) > computeProbability (edges, g_array_index (good_paths, (GSList*), depth)))) {
-			GSList* old = g_array_index (good_paths, (GSList*), depth);
-			if (old)
-				g_slist_free (old);
-			good_paths = g_slist_prepend (good_paths, (gpointer)g_slist_reverse (tmp));
+		if (goal == v) {
+			GSList* old = g_array_index (good_paths, GSList*, len);
+			if (computeProbability (edges, tmp) > computeProbability (edges, old)) {
+				if (old)
+					g_slist_free (old);
+			}
 		} else {
-			search (tmp, adjacency, goal, depth - 1, good_paths);
+			search (tmp, adjacency, edges, goal, depth - 1, good_paths);
 		}
 
 		Py_DECREF (v);
@@ -246,15 +247,15 @@ depth_limited_search (PyObject* self, PyObject* args)
 	 * depth.
 	 */
 	for (int i = 0; i < depth; i++) {
-		GSList*   path  = g_array_index (paths, (GSList*), i);
-		int       len   = g_slist_length (nodes);
+		GSList*   path  = g_array_index (paths, GSList*, i);
+		int       len   = g_slist_length (path);
 		PyObject* list  = PyList_New (0);
 
 		/* FIXME: This could be more efficient by prepending to the list
 		 *        instead of appending nodes?
 		 */
 		if (path) {
-			for (GSList node = nodes; node; node = g_slist_next (node)) {
+			for (GSList* node = path; node; node = g_slist_next (node)) {
 				PyList_Append (list, (PyObject*)node->data);
 			}
 
@@ -265,7 +266,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 		}
 	}
 
-	g_array_free (paths, false);
+	g_array_free (paths, FALSE);
 
 	free_adjacency (adjacency);
 	free_edges (edges);
