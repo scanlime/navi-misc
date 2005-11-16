@@ -162,6 +162,9 @@ depth_limited_search (PyObject* self, PyObject* args)
 		PyObject* list  = PyList_New (0);
 		PyObject* depth_list;
 
+		/* FIXME: This could be more efficient by prepending to the list
+		 *        instead of appending nodes?
+		 */
 		while (nodes) {
 			PyList_Append (list, (PyObject*)nodes->data);
 			nodes = g_slist_next (nodes);
