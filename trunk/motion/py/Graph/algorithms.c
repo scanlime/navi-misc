@@ -36,12 +36,21 @@ initalgorithms_c (void)
 }
 
 static float
-computeProbability (GSList *path)
+computeProbability (GHashTable *edges, GSList *path)
 {
+	float probability = 1.0f;
+
+	if (path == NULL)
+		return 0.0f;
+
+	for (GSList *i = path; i && i->next; i = g_slist_next (i)) {
+		PyObject *u = i->data;
+		PyObject *v = g_slist_next (i)->data;
+	}
 }
 
 void
-search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth, GArray* good_paths)
+search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, int depth, GArray* good_paths)
 {
 	PyObject* node = (PyObject*) path->data;
 	PyObject* args;
@@ -50,7 +59,7 @@ search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth, GArray* 
 
 	if (depth < 0) {
 		g_slist_free (path);
-		return NULL;
+		return;
 	}
 
 	GSList *v_list = g_hash_table_lookup (adjacency, node);
@@ -66,7 +75,7 @@ search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth, GArray* 
 		/* If the end of the path is our goal, it's a good path and deserves a
 		 * cookie. Otherwise put the path back in the queue for later.
 		 */
-		if (goal == v && computeProbability (tmp) > computeProbability (g_array_index (good_paths, (GSList*), depth))) {
+		if (goal == v && (computeProbability (edges, tmp) > computeProbability (edges, g_array_index (good_paths, (GSList*), depth)))) {
 			good_paths = g_slist_prepend (good_paths, (gpointer)g_slist_reverse (tmp));
 		} else {
 			search (tmp, adjacency, goal, depth - 1, good_paths);
@@ -74,6 +83,30 @@ search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth, GArray* 
 
 		Py_DECREF (v);
 	}
+}
+
+static void
+free_values (gpointer key, gpointer value, gpointer data)
+{
+	g_slist_free ((GSList*) value);
+}
+
+static void
+free_adjacency (GHashTable *hash_table) {
+	g_hash_table_foreach (hash_table, free_values, NULL);
+	g_hash_table_destroy (hash_table);
+}
+
+static void
+free_floats (gpointer key, gpointer value, gpointer data)
+{
+	g_free (value);
+}
+
+static void
+free_edges (GHashTable *hash_table) {
+	g_hash_table_foreach (hash_table, free_floats, NULL);
+	g_hash_table_destroy (hash_table);
 }
 
 static GHashTable *
@@ -114,49 +147,88 @@ query_adjacency (PyObject *adjacency_list)
 error:
 	Py_XDECREF (data);
 	if (ret)
-		g_hash_table_destroy (ret);
+		free_adjacency (ret);
 
 	return NULL;
 }
 
-static void
-free_values (gpointer key, gpointer value, gpointer data)
+static GHashTable *
+query_edges (PyObject *edge_list)
 {
-	g_slist_free ((GSList*) value);
-}
+	PyObject   *data = NULL;
+	PyObject   *edge = NULL;
+	GHashTable *ret  = NULL;
 
-static void
-free_adjacency (GHashTable *hash_table) {
-	g_hash_table_foreach (hash_table, free_values, NULL);
-	g_hash_table_destroy (hash_table);
+	data = PyObject_GetAttrString (edge_list, "data");
+	if (data == NULL)
+		return NULL;
+
+	ret = g_hash_table_new (g_direct_hash, g_direct_equal);
+
+	int pos = 0;
+	while (PyDict_Next (data, &pos, NULL, &edge)) {
+		PyObject *u, *v, *weight;
+		u      = PyObject_GetAttrString (edge, "u");
+		v      = PyObject_GetAttrString (edge, "v");
+		weight = PyObject_GetAttrString (edge, "weight");
+		float  weightf = (float) PyFloat_AsDouble (weight);
+		float *weightp = g_new (float, 1);
+		*weightp = weightf;
+
+		/* FIXME: this is a really stupid way to hash (u,v) */
+		g_hash_table_insert (ret, GINT_TO_POINTER (GPOINTER_TO_INT (u) + GPOINTER_TO_INT (v)), weightp);
+
+		Py_DECREF (u);
+		Py_DECREF (v);
+		Py_DECREF (weight);
+	}
+	if (PyErr_Occurred ())
+		goto error;
+
+	Py_DECREF (data);
+
+	return ret;
+
+error:
+	Py_XDECREF (data);
+	if (ret)
+		free_edges (ret);
 }
 
 static PyObject*
 depth_limited_search (PyObject* self, PyObject* args)
 {
 	PyObject   *adjacency_list;
+	PyObject   *edge_list;
 	PyObject   *start;
 	PyObject   *end;
 	PyObject   *path_list;
 	int         depth;
-	GSList     *path  = NULL;
+	GSList     *path      = NULL;
 	GHashTable *adjacency = NULL;
-	GArray     *paths = g_array_sized_new (false, true, sizeof (GSList*), depth);
+	GHashTable *edges     = NULL;
+	GArray     *paths = g_array_sized_new (FALSE, TRUE, sizeof (GSList*), depth);
 
 	/* Get the graph and nodes or die trying. */
-	if (!PyArg_ParseTuple (args, "OOOi;expected adjacency list, start, end, depth", &adjacency_list, &start, &end, &depth))
+	if (!PyArg_ParseTuple (args, "OOOOi;expected adjacency list, edge list, start, end, depth", &adjacency_list, &edge_list, &start, &end, &depth))
 		return NULL;
 
 	path = g_slist_prepend (path, (gpointer) start);
 
 	adjacency = query_adjacency (adjacency_list);
 	if (adjacency == NULL) {
-		PyErr_SetString (PyExc_RuntimeError, "couldn't build hash table");
+		PyErr_SetString (PyExc_RuntimeError, "couldn't build adjacency hash table");
+		return NULL;
+	}
+	edges = query_edges (edge_list);
+	if (edges == NULL) {
+		PyErr_SetString (PyExc_RuntimeError, "couldn't build edge hash table");
+		free_adjacency (adjacency);
 		return NULL;
 	}
 
 	/* Search */
-	search (path, adjacency, end, depth - 1, paths);
+	search (path, adjacency, edges, end, depth - 1, paths);
 
 	/* Create the list of paths and populate with None. */
 	path_list = PyList_New (depth + 1);
@@ -199,6 +271,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 	g_slist_free (paths);
 
 	free_adjacency (adjacency);
+	free_edges (edges);
 
 	return path_list;
 }
