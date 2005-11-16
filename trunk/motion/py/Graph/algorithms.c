@@ -184,13 +184,16 @@ depth_limited_search (PyObject* self, PyObject* args)
 		}
 
 		depth_list = PyList_GetItem (path_list, len - 1);
+
 		if (depth_list == Py_None || depth_list == NULL) {
 			depth_list = PyList_New (0);
-			PyList_SetItem (path_list, len-1, depth_list);
+			PyList_SetItem (path_list, len - 1, depth_list);
 		}
 
 		PyList_Append (depth_list, list);
 
+		/* Don't leak the paths. */
+		g_slist_free (path->data);
 		path = g_slist_next (path);
 	}
 
