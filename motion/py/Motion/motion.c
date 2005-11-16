@@ -110,19 +110,15 @@ AMC_init (AMC *motion, PyObject *args, PyObject *kw)
 	motion->comments = PyList_New (0);
 	motion->format   = PyList_New (0);
 
-	Py_INCREF (motion->bones);
-	Py_INCREF (motion->comments);
-	Py_INCREF (motion->format);
-
 	return 0;
 }
 
 static void
 AMC_dealloc (AMC *motion)
 {
-	PyObject_DEL (motion->bones);
-	PyObject_DEL (motion->comments);
-	PyObject_DEL (motion->format);
+	Py_XDECREF (motion->bones);
+	Py_XDECREF (motion->comments);
+	Py_XDECREF (motion->format);
 	PyObject_DEL (motion);
 }
 
@@ -137,11 +133,13 @@ AMC_getAttr (AMC *motion, char *name)
 			return Py_None;
 		return PyString_FromString (motion->name);
 	} else if (strcmp (name, "comments") == 0) {
+		Py_INCREF (motion->comments);
 		attr = motion->comments;
 	} else if (strcmp (name, "bones") == 0) {
 		Py_INCREF (motion->bones);
 		attr = motion->bones;
 	} else if (strcmp (name, "format") == 0) {
+		Py_INCREF (motion->format);
 		attr = motion->format;
 	} else if (strcmp (name, "__members__") == 0) {
 		attr = Py_BuildValue ("[s,s,s,s]", "name", "comments", "bones", "format");
@@ -290,7 +288,6 @@ AMC_fromFile (AMC *self, PyObject *args)
 		dims[1] = dof;
 
 		array = PyArray_FromDims (2, dims, PyArray_FLOAT);
-		Py_INCREF (array);
 		data = g_slist_append (data, array);
 	}
 
@@ -356,7 +353,6 @@ AMC_fromFile (AMC *self, PyObject *args)
 
 	for (i = data, j = bones; i; i = g_slist_next (i), j = g_slist_next (j)) {
 		PyObject *key = PyString_FromString (j->data);
-		Py_INCREF (key);
 		PyDict_SetItem (motion->bones, key, i->data);
 	}
 
