@@ -32,6 +32,7 @@ static int       AMC_setAttr  (AMC *motion, char *name, PyObject *v);
 static PyObject *AMC_repr     (AMC *motion);
 static PyObject *AMC_fromFile (AMC *self, PyObject *args);
 static PyObject *AMC_save     (AMC *self, PyObject *args);
+static int       AMC_clear    (AMC *self);
 
 static PyMethodDef MotionC_methods[] = {
 	{NULL, NULL, 0, NULL},
@@ -67,7 +68,7 @@ PyTypeObject AMC_Type = {
 	0,                          // tp_flags
 	0,                          // tp_doc
 	0,                          // tp_traverse
-	0,                          // tp_clear
+	(inquiry) AMC_clear,        // tp_clear
 	0,                          // tp_richcompare
 	0,                          // tp_weaklistoffset
 	0,                          // tp_iter
@@ -106,7 +107,7 @@ AMC_new (PyTypeObject *type, PyObject *args, PyObject *kw)
 static int
 AMC_init (AMC *motion, PyObject *args, PyObject *kw)
 {
-	motion->bones =    PyDict_New ();
+	motion->bones    = PyDict_New ();
 	motion->comments = PyList_New (0);
 	motion->format   = PyList_New (0);
 
@@ -116,9 +117,7 @@ AMC_init (AMC *motion, PyObject *args, PyObject *kw)
 static void
 AMC_dealloc (AMC *motion)
 {
-	Py_XDECREF (motion->bones);
-	Py_XDECREF (motion->comments);
-	Py_XDECREF (motion->format);
+	AMC_clear (motion);
 	PyObject_DEL (motion);
 }
 
@@ -130,7 +129,7 @@ AMC_getAttr (AMC *motion, char *name)
 	if (strcmp (name, "name") == 0) {
 		// None is an appropriate response here, so don't bother with the checks below
 		if (motion->name == NULL)
-			return Py_None;
+			Py_RETURN_NONE;
 		return PyString_FromString (motion->name);
 	} else if (strcmp (name, "comments") == 0) {
 		Py_INCREF (motion->comments);
@@ -162,13 +161,13 @@ AMC_setAttr (AMC *motion, char *name, PyObject *v)
 		Py_INCREF (v);
 
 		if (strcmp (name, "bones") == 0) {
-			Py_DECREF (motion->bones);
+			Py_CLEAR (motion->bones);
 			motion->bones = v;
 		} else if (strcmp (name, "format") == 0) {
-			Py_DECREF (motion->format);
+			Py_CLEAR (motion->format);
 			motion->format = v;
 		} else if (strcmp (name, "comments") == 0) {
-			Py_DECREF (motion->comments);
+			Py_CLEAR (motion->comments);
 			motion->comments = v;
 		} else {
 			return -1;
@@ -205,10 +204,8 @@ AMC_fromFile (AMC *self, PyObject *args)
 	PyArrayObject *pao;
 
 	// get filename
-	if (!PyArg_ParseTuple (args, "s", &filename)) {
-		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected 'string'"));
+	if (!PyArg_ParseTuple (args, "s;expected 'string'", &filename))
 		return NULL;
-	}
 
 	file = g_io_channel_new_file (filename, "r", NULL);
 	if (file == NULL) {
@@ -227,10 +224,14 @@ AMC_fromFile (AMC *self, PyObject *args)
 		// parse data
 		if (line[0] == '#') {
 			// comment
-			PyList_Append (motion->comments, PyString_FromString (line));
+			PyObject *string = PyString_FromString (line);
+			PyList_Append (motion->comments, string);
+			Py_DECREF (string);
 		} else if (line[0] == ':') {
 			// format specifier
-			PyList_Append (motion->format, PyString_FromString (line));
+			PyObject *string = PyString_FromString (line);
+			PyList_Append (motion->format, string);
+			Py_DECREF (string);
 		} else {
 			gchar *ch;
 			gboolean newframe = TRUE;
@@ -456,7 +457,15 @@ AMC_save (AMC *self, PyObject *args)
 
 	g_io_channel_close (file);
 
-	return Py_True;
+	Py_RETURN_TRUE;
+}
+
+static int
+AMC_clear (AMC *self)
+{
+	Py_CLEAR (self->bones);
+	Py_CLEAR (self->comments);
+	Py_CLEAR (self->format);
 }
 
 PyMODINIT_FUNC
