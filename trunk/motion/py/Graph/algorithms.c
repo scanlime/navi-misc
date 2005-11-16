@@ -73,16 +73,17 @@ depth_limited_search (PyObject* self, PyObject* args)
 		path = paths;
 
 		while (path) {
-			PyObject* node  = Py_BuildValue ("(O)", (PyObject*) g_slist_last ((GSList*)path)->data);
-			PyObject* iter  = PyEval_CallObject (query, node);
+			GSList*   node = g_slist_last (path->data);
+			PyObject* args = Py_BuildValue ("(O)", (PyObject*) node->data);
+			PyObject* iter = PyEval_CallObject (query, args);
 			PyObject* edge;
 
-			Py_DECREF (node);
+			Py_DECREF (args);
 
 			while (edge = PyIter_Next (iter)) {
 				PyObject* u = PyObject_GetAttrString (edge, "u");
 
-				if (PyObject_Compare (node, u) == 0) {
+				if (PyObject_Compare ((PyObject*)node->data, u) == 0) {
 					PyObject* v = PyObject_GetAttrString (edge, "v");
 					GSList* tmp = g_slist_copy (path);
 
