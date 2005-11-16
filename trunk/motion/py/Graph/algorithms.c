@@ -39,6 +39,7 @@ initalgorithms_c (void)
 void
 remove_paths (gpointer data, gpointer user_data)
 {
+	g_slist_free ((GSList*) data);
 }
 
 static PyObject*
@@ -47,11 +48,15 @@ depth_limited_search (PyObject* self, PyObject* args)
 	PyObject* adjacency_list;
 	PyObject* start;
 	PyObject* end;
+	PyObject* query;
+	PyObject* ret_list;
+	int       len;
 	int       depth;
 	GSList*   paths;
 	GSList*   path;
 	GSList*   good_paths;
 	GSList*   next_paths;
+	GSList*   ret_val;
 
 	// Get the graph and nodes or die trying.
 	if (!PyArg_ParseTuple (args, "OOOi", &adjacency_list, &start, &end, &depth)) {
@@ -62,14 +67,17 @@ depth_limited_search (PyObject* self, PyObject* args)
 	path  = g_slist_prepend (path, (gpointer) start);
 	paths = g_slist_prepend (paths, (gpointer) path);
 
+	query = PyObject_GetAttrString (adjacency_list, "query");
+
 	for (int i = 0; i < depth; i++) {
 		path = paths;
 
 		while (path) {
-			PyObject* query = PyObject_GetAttrString (adjacency_list, "query");
 			PyObject* node  = Py_BuildValue ("(O)", (PyObject*) g_slist_last ((GSList*)path)->data);
 			PyObject* iter  = PyEval_CallObject (query, node);
 			PyObject* edge;
+
+			Py_DECREF (node);
 
 			while (edge = PyIter_Next (iter)) {
 				PyObject* u = PyObject_GetAttrString (edge, "u");
@@ -85,14 +93,50 @@ depth_limited_search (PyObject* self, PyObject* args)
 					} else {
 						next_paths = g_slist_prepend (next_paths, (gpointer) tmp);
 					}
+
+					Py_DECREF (v);
 				}
+
+				Py_DECREF (u);
+				Py_DECREF (edge);
 			}
 
+			Py_DECREF (iter);
 			path = g_slist_next (path);
 		}
 
 		g_slist_foreach (paths, remove_paths, NULL);
+		g_slist_free (paths);
 		paths = next_paths;
 		next_paths = NULL;
+
+		ret_val = g_slist_prepend (ret_val, good_paths);
+
+		good_paths = NULL;
 	}
+
+	Py_DECREF (query);
+
+	ret_val = g_slist_reverse (ret_val);
+
+	len = g_slist_length (ret_val);
+	ret_list = PyList_New (len);
+
+	for (int i = 0; i < len; i++) {
+		PyObject* path_pyList;
+		int       size;
+
+		path        = g_slist_nth (ret_val, i);
+		size        = g_slist_length (path);
+		path_pyList = PyList_New (size);
+
+		for (int j = 0; j < size; j++) {
+			PyObject* node = (PyObject*) g_slist_nth (path, j);
+			PyList_SetItem (path_pyList, j, node);
+		}
+
+		PyList_SetItem (ret_list, i, path_pyList);
+	}
+
+	return ret_list;
 }
