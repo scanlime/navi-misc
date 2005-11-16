@@ -120,6 +120,18 @@ error:
 	return NULL;
 }
 
+static void
+free_values (gpointer key, gpointer value, gpointer data)
+{
+	g_slist_free ((GSList*) value);
+}
+
+static void
+free_adjacency (GHashTable *hash_table) {
+	g_hash_table_foreach (hash_table, free_values, NULL);
+	g_hash_table_destroy (hash_table);
+}
+
 static PyObject*
 depth_limited_search (PyObject* self, PyObject* args)
 {
@@ -183,8 +195,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 
 	g_slist_free (paths);
 
-	/* FIXME: this leaks the hash table */
-
+	free_adjacency (adjacency);
 
 	return path_list;
 }
