@@ -5,6 +5,7 @@ for whatever reason.
 """
 
 import Data, gc
+from algorithms_c import depthLimitedSearch
 
 class ParallelBFS:
     """A class which runs a breadth-first search in parallel across multiple
