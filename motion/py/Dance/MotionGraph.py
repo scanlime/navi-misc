@@ -65,41 +65,13 @@ class MotionGraphNode:
     def center (self):
         return self.center
 
-def compute_probability (path, vertex_map):
-    probability = 1.0
-    for i in range (len (path) - 1):
-        u = path[i]
-        v = path[i + 1]
-        edges = vertex_map.query (u)
-        for edge in edges:
-            if u is edge.u and v is edge.v:
-                probability = probability * edge.weight
-    return probability
-
-def find_best_path (graph, paths):
-    best_path = None
-    best_probability = 0.0
-
-    if paths is None:
-        return None
-
-    # HACK! This is too slow :P
-    return paths[0]
-
-    for path in paths:
-        probability = compute_probability (path, graph.representations[VertexMap])
-        if (probability > best_probability):
-            best_path = path
-            best_probability = probability
-    return best_path
-
 def search_graphs (graphs, starts, ends, depth):
     paths = {}
     for bone in graphs.keys():
         print '    searching',bone
-        representation = graphs[bone].representations[AdjacencyList]
-        paths[bone] = algorithms_c.depthLimitedSearch (representation, starts[bone], ends[bone], depth)
-        paths[bone] = [find_best_path (graphs[bone], d) for d in paths[bone]]
+        adjacency = graphs[bone].representations[AdjacencyList]
+        edges     = graphs[bone].representations[EdgeList]
+        paths[bone] = algorithms_c.depthLimitedSearch (adjacency, edges, starts[bone], ends[bone], depth)
 
     retpaths = None
     for i in range (len (paths['root'])):
