@@ -83,6 +83,11 @@ search (GSList* path, PyObject* query_func, PyObject* goal, int depth)
 		Py_DECREF (edge);
 	}
 
+	if (Py_ErrorOccurred ()) {
+		Py_XDECREF (iter);
+		return NULL;
+	}
+
 	Py_DECREF (iter);
 
 	return good_paths;

@@ -67,7 +67,7 @@ class MotionGraphNode:
 
 def search_graphs (graphs, starts, ends):
     paths = {}
-    depth = 6
+    depth = 3
     for bone in graphs.keys():
         print '    searching',bone
         representation = graphs[bone].representations[AdjacencyList]
