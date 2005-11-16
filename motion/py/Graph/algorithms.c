@@ -54,7 +54,7 @@ computeProbability (GHashTable *edges, GSList *path)
 }
 
 void
-search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, int depth, GArray* good_paths)
+search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, int depth, GSList* good_paths[])
 {
 	PyObject* node = (PyObject*) path->data;
 	PyObject* args;
@@ -63,29 +63,31 @@ search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, 
 
 	if (depth < 0) {
 		g_slist_free (path);
+		return;
 	}
 
 	GSList *v_list = g_hash_table_lookup (adjacency, node);
 
 	for (GSList *vn = v_list; vn; vn = g_slist_next (vn)) {
-		int       len = g_slist_length (path);
-		PyObject *v   = vn->data;
+		int       d = g_slist_length (path) - 1;
+		PyObject *v = vn->data;
 		Py_INCREF (v);
 
-		GSList *tmp = g_slist_copy (path);
-		tmp = g_slist_append (tmp, v);
+		GSList *new = g_slist_copy (path);
+		new = g_slist_prepend (new, v);
 
 		/* If the end of the path is our goal, it's a good path and deserves a
 		 * cookie. Otherwise, recurse down the path.
 		 */
 		if (goal == v) {
-			GSList* old = g_array_index (good_paths, GSList*, len);
-			if (computeProbability (edges, tmp) > computeProbability (edges, old)) {
+			GSList* old = good_paths[d];
+			if (computeProbability (edges, new) > computeProbability (edges, old)) {
 				if (old)
 					g_slist_free (old);
+				good_paths[d] = new;
 			}
 		} else {
-			search (tmp, adjacency, edges, goal, depth - 1, good_paths);
+			search (new, adjacency, edges, goal, depth - 1, good_paths);
 		}
 
 		Py_DECREF (v);
@@ -214,11 +216,16 @@ depth_limited_search (PyObject* self, PyObject* args)
 	GSList     *path      = NULL;
 	GHashTable *adjacency = NULL;
 	GHashTable *edges     = NULL;
-	GArray     *paths = g_array_sized_new (FALSE, TRUE, sizeof (GSList*), depth);
 
 	/* Get the graph and nodes or die trying. */
 	if (!PyArg_ParseTuple (args, "OOOOi;expected adjacency list, edge list, start, end, depth", &adjacency_list, &edge_list, &start, &end, &depth))
 		return NULL;
+
+	GSList     *paths[depth];
+
+	for (int i = 0; i < depth; i++) {
+		paths[i] = NULL;
+	}
 
 	path = g_slist_prepend (path, (gpointer) start);
 
@@ -247,7 +254,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 	 * depth.
 	 */
 	for (int i = 0; i < depth; i++) {
-		GSList*   path  = g_array_index (paths, GSList*, i);
+		GSList*   path  = paths[i];
 		int       len   = g_slist_length (path);
 		PyObject* list  = PyList_New (0);
 
@@ -256,6 +263,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 		 */
 		if (path) {
 			for (GSList* node = path; node; node = g_slist_next (node)) {
+				/* FIXME: Should incref node->data? */
 				PyList_Append (list, (PyObject*)node->data);
 			}
 
@@ -265,8 +273,6 @@ depth_limited_search (PyObject* self, PyObject* args)
 			g_slist_free (path);
 		}
 	}
-
-	g_array_free (paths, FALSE);
 
 	free_adjacency (adjacency);
 	free_edges (edges);
