@@ -37,10 +37,10 @@ initalgorithms_c (void)
 }
 
 GSList*
-search (GSList* path, PyObject* query_func, PyObject* goal, int depth)
+search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth)
 {
 	GSList*   good_paths = NULL;
-	PyObject* node       = (PyObject*) path->data;
+	PyObject* node = (PyObject*) path->data;
 	PyObject* args;
 	PyObject* iter;
 	PyObject* edge;
@@ -50,79 +50,101 @@ search (GSList* path, PyObject* query_func, PyObject* goal, int depth)
 		return NULL;
 	}
 
-	args = Py_BuildValue ("(O)", node);
-	iter = PyEval_CallObject (query_func, args);
+	GSList *v_list = g_hash_table_lookup (adjacency, node);
 
-	Py_DECREF (args);
+	for (GSList *vn = v_list; vn; vn = g_slist_next (vn)) {
+		PyObject *v = vn->data;
+		Py_INCREF (v);
 
-	while (edge = PyIter_Next (iter)) {
-		PyObject* u = PyObject_GetAttrString (edge, "u");
+		GSList *tmp = g_slist_copy (path);
+		tmp = g_slist_append (tmp, v);
 
-		/* If the source of this edge is the current node... */
-		if (PyObject_Compare (node, u) == 0) {
-			/* Copy the path and append the node at the end of this edge. */
-			PyObject* v = PyObject_GetAttrString (edge, "v");
-			GSList* tmp = g_slist_copy (path);
+		/* If the end of the path is our goal, it's a good path and deserves a
+		 * cookie. Otherwise put the path back in the queue for later.
+		 */
+		if (goal == v) {
+			good_paths = g_slist_prepend (good_paths, (gpointer)tmp);
+		} else {
+			GSList* paths = search (tmp, adjacency, goal, depth - 1);
 
-			tmp = g_slist_prepend (tmp, (gpointer) v);
-
-			/* If the end of the path is our goal, it's a good path and deserves a
-			 * cookie. Otherwise put the path back in the queue for later.
-			 */
-			if (PyObject_Compare (goal, v) == 0) {
-				good_paths = g_slist_prepend (good_paths, (gpointer)g_slist_reverse (tmp));
-			} else {
-				GSList* paths = search (tmp, query_func, goal, depth - 1);
-
-				if (paths != NULL)
-					good_paths = g_slist_concat (good_paths, paths);
-			}
-
-			Py_DECREF (v);
+			if (paths != NULL)
+				good_paths = g_slist_concat (good_paths, paths);
 		}
 
-		Py_DECREF (u);
-		Py_DECREF (edge);
+		Py_DECREF (v);
 	}
-
-	if (PyErr_Occurred ()) {
-		Py_XDECREF (iter);
-		return NULL;
-	}
-
-	Py_DECREF (iter);
 
 	return good_paths;
+}
+
+static GHashTable *
+query_adjacency (PyObject *adjacency_list)
+{
+	PyObject   *data   = NULL;
+	PyObject   *u      = NULL;
+	PyObject   *v_list = NULL;
+	int         pos;
+	GHashTable *ret    = NULL;
+
+	data = PyObject_GetAttrString (adjacency_list, "data");
+	if (data == NULL)
+		return NULL;
+
+	ret = g_hash_table_new (g_direct_hash, g_direct_equal);
+
+	pos = 0;
+	while (PyDict_Next (data, &pos, &u, &v_list)) {
+		GSList *list = NULL;
+		int i = 0;
+		PyObject *v;
+
+		while (PyDict_Next (v_list, &i, &v, NULL))
+			list = g_slist_prepend (list, v);
+		if (PyErr_Occurred ())
+			goto error;
+
+		g_hash_table_insert (ret, u, list);
+	}
+	if (PyErr_Occurred ())
+		goto error;
+
+	Py_DECREF (data);
+
+	return ret;
+
+error:
+	Py_XDECREF (data);
+	if (ret)
+		g_hash_table_destroy (ret);
+
+	return NULL;
 }
 
 static PyObject*
 depth_limited_search (PyObject* self, PyObject* args)
 {
-	PyObject* adjacency_list;
-	PyObject* start;
-	PyObject* end;
-	PyObject* query;
-	PyObject* path_list;
-	int       depth;
-	GSList*   path  = NULL;
-	GSList*   paths = NULL;
+	PyObject   *adjacency_list;
+	PyObject   *start;
+	PyObject   *end;
+	PyObject   *path_list;
+	int         depth;
+	GSList     *path  = NULL;
+	GSList     *paths = NULL;
+	GHashTable *adjacency = NULL;
 
 	/* Get the graph and nodes or die trying. */
-	if (!PyArg_ParseTuple (args, "OOOi", &adjacency_list, &start, &end, &depth)) {
-		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected an adjacency list, starting and ending nodes, and a depth"));
+	if (!PyArg_ParseTuple (args, "OOOi;expected adjacency list, start, end, depth", &adjacency_list, &start, &end, &depth))
 		return NULL;
-	}
 
 	path = g_slist_prepend (path, (gpointer) start);
 
-	/* Get the query function for the adjacency list. */
-	query = PyObject_GetAttrString (adjacency_list, "query");
+	adjacency = query_adjacency (adjacency_list);
+	if (adjacency == NULL)
+		/* FIXME: set error */
+		return NULL;
 
 	/* Search */
-	paths = search (path, query, end, depth - 1);
-
-	/* Don't need our reference to query() anymore. */
-	Py_DECREF (query);
+	paths = search (path, adjacency, end, depth - 1);
 
 	/* Create the list of paths and populate with None. */
 	path_list = PyList_New (depth + 1);
@@ -157,6 +179,9 @@ depth_limited_search (PyObject* self, PyObject* args)
 	}
 
 	g_slist_free (paths);
+
+	/* FIXME: this leaks the hash table */
+
 
 	return path_list;
 }

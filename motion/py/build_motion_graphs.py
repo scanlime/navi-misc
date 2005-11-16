@@ -23,7 +23,7 @@
 
 from Dance import MotionGraph
 from Motion import AMC
-import sys, pickle, gc
+import sys, pickle
 
 def load (files):
     amcs = []
@@ -51,8 +51,6 @@ if len (sys.argv) < 2:
     print 'Usage: %s [output file] [AMC FILE]...' % sys.argv[0]
 else:
     graphs = load (sys.argv[2:])
-
-    gc.disable ()
 
     print 'writing pickle'
     file = open (sys.argv[1], 'w')
