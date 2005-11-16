@@ -324,10 +324,8 @@ AMC_save (AMC *self, PyObject *args)
 	PyObject *keys;
 
 	// get filename
-	if (!PyArg_ParseTuple (args, "s", &filename)) {
-		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected 'string'"));
-		return Py_False;
-	}
+	if (!PyArg_ParseTuple (args, "s;expected 'string'", &filename))
+		return NULL;
 
 	file = g_io_channel_new_file (filename, "w", NULL);
 	if (file == NULL) {
