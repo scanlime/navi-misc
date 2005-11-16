@@ -58,15 +58,17 @@ depth_limited_search (PyObject* self, PyObject* args)
 	GSList*   next_paths = NULL;
 	GSList*   ret_val = NULL;
 
-	// Get the graph and nodes or die trying.
+	/* Get the graph and nodes or die trying. */
 	if (!PyArg_ParseTuple (args, "OOOi", &adjacency_list, &start, &end, &depth)) {
 		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected an adjacency list, starting and ending nodes, and a depth"));
 		return NULL;
 	}
 
+	/* paths is a list of lists. */
 	path  = g_slist_prepend (path, (gpointer) start);
 	paths = g_slist_prepend (paths, (gpointer) path);
 
+	/* Get the query function for the adjacency list. */
 	query = PyObject_GetAttrString (adjacency_list, "query");
 
 	for (int i = 0; i < depth; i++) {
