@@ -8,3 +8,4 @@ those representations.
 
 import Data
 import Algorithms
+import algorithms_c
