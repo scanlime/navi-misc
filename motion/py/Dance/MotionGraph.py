@@ -6,11 +6,7 @@ Build a graph from a corpus of motions
 from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeList
 from Graph.Algorithms import DotPrint
 from Graph import algorithms_c
-
-import Numeric
-import MLab
-
-import math
+import Numeric, MLab, math, gc
 
 class ProbabilityEdge (Edge):
     __slots__ = ['u', 'v', 'dot_label', 'count', 'weight']
@@ -92,6 +88,8 @@ def search_graphs (graphs, starts, ends, depth):
             break
         else:
             print '    depth = %2d, coverage = %2d/%2d, no match' % (i, coverage, len (graphs.keys ()))
+    paths = None
+    gc.collect ()
     return retpaths
 
 def cp_range (dof, angle):
