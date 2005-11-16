@@ -151,9 +151,10 @@ depth_limited_search (PyObject* self, PyObject* args)
 	path = g_slist_prepend (path, (gpointer) start);
 
 	adjacency = query_adjacency (adjacency_list);
-	if (adjacency == NULL)
-		/* FIXME: set error */
+	if (adjacency == NULL) {
+		PyErr_SetString (PyExc_RuntimeError, "couldn't build hash table");
 		return NULL;
+	}
 
 	/* Search */
 	paths = search (path, adjacency, end, depth - 1);
