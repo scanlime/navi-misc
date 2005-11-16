@@ -50,6 +50,7 @@ computeProbability (GHashTable *edges, GSList *path)
 		float *weight = g_hash_table_lookup (edges, GINT_TO_POINTER (GPOINTER_TO_INT (u) + GPOINTER_TO_INT (v)));
 		probability *= *weight;
 	}
+
 	return probability;
 }
 
@@ -85,6 +86,8 @@ search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, 
 				if (old)
 					g_slist_free (old);
 				good_paths[d] = new;
+			} else {
+				g_slist_free (new);
 			}
 		} else {
 			search (new, adjacency, edges, goal, depth - 1, good_paths);
@@ -223,7 +226,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 	if (!PyArg_ParseTuple (args, "OOOOi;expected adjacency list, edge list, start, end, depth", &adjacency_list, &edge_list, &start, &end, &depth))
 		return NULL;
 
-	GSList     *paths[depth];
+	GSList *paths[depth];
 
 	for (int i = 0; i < depth; i++) {
 		paths[i] = NULL;
