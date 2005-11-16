@@ -229,6 +229,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 		paths[i] = NULL;
 	}
 
+	/* path gets freed when search() finishes. */
 	path = g_slist_prepend (path, (gpointer) start);
 
 	adjacency = query_adjacency (adjacency_list);
@@ -249,6 +250,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 	/* Create the list of paths and populate with None. */
 	path_list = PyList_New (depth + 1);
 	for (int i = 0; i <= depth; i++) {
+		Py_INCREF (Py_None);
 		PyList_SetItem (path_list, i, Py_None);
 	}
 
@@ -265,10 +267,9 @@ depth_limited_search (PyObject* self, PyObject* args)
 		 */
 		if (path) {
 			for (GSList* node = path; node; node = g_slist_next (node)) {
-				/* FIXME: Should incref node->data? */
 				PyList_Append (list, (PyObject*)node->data);
 			}
-
+			Py_DECREF (Py_None);
 			PyList_SetItem (path_list, i, list);
 
 			/* Don't leak the paths. */
