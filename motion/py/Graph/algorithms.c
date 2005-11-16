@@ -73,7 +73,10 @@ search (GSList* path, PyObject* query_func, PyObject* goal, int depth)
 			if (PyObject_Compare (goal, v) == 0) {
 				good_paths = g_slist_prepend (good_paths, (gpointer)tmp);
 			} else {
-				good_paths = g_slist_concat (good_paths, search (tmp, query_func, goal, depth - 1));
+				GSList* paths = search (tmp, query_func, goal, depth - 1);
+
+				if (paths != NULL)
+					good_paths = g_slist_concat (good_paths, paths);
 			}
 
 			Py_DECREF (v);
@@ -116,7 +119,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 	/* Get the query function for the adjacency list. */
 	query = PyObject_GetAttrString (adjacency_list, "query");
 
-	paths = search (path, query, end, depth);
+	paths = search (path, query, end, depth - 1);
 
 	Py_DECREF (query);
 
