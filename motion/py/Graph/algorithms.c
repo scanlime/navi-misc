@@ -63,7 +63,6 @@ search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, 
 
 	if (depth < 0) {
 		g_slist_free (path);
-		return;
 	}
 
 	GSList *v_list = g_hash_table_lookup (adjacency, node);
@@ -80,6 +79,9 @@ search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, 
 		 * cookie. Otherwise put the path back in the queue for later.
 		 */
 		if (goal == v && (computeProbability (edges, tmp) > computeProbability (edges, g_array_index (good_paths, (GSList*), depth)))) {
+			GSList* old = g_array_index (good_paths, (GSList*), depth);
+			if (old)
+				g_slist_free (old);
 			good_paths = g_slist_prepend (good_paths, (gpointer)g_slist_reverse (tmp));
 		} else {
 			search (tmp, adjacency, goal, depth - 1, good_paths);
@@ -243,36 +245,27 @@ depth_limited_search (PyObject* self, PyObject* args)
 	/* For each path we found, insert it in the list at the appropriate
 	 * depth.
 	 */
-	path = paths;
-	while (path) {
-		GSList*   nodes = path->data;
+	for (int i = 0; i < depth; i++) {
+		GSList*   path  = g_array_index (paths, (GSList*), i);
 		int       len   = g_slist_length (nodes);
 		PyObject* list  = PyList_New (0);
-		PyObject* depth_list;
 
 		/* FIXME: This could be more efficient by prepending to the list
 		 *        instead of appending nodes?
 		 */
-		while (nodes) {
-			PyList_Append (list, (PyObject*)nodes->data);
-			nodes = g_slist_next (nodes);
+		if (path) {
+			for (GSList node = nodes; node; node = g_slist_next (node)) {
+				PyList_Append (list, (PyObject*)node->data);
+			}
+
+			PyList_SetItem (path_list, i, list);
+
+			/* Don't leak the paths. */
+			g_slist_free (path);
 		}
-
-		depth_list = PyList_GetItem (path_list, len - 1);
-
-		if (depth_list == Py_None || depth_list == NULL) {
-			depth_list = PyList_New (0);
-			PyList_SetItem (path_list, len - 1, depth_list);
-		}
-
-		PyList_Append (depth_list, list);
-
-		/* Don't leak the paths. */
-		g_slist_free (path->data);
-		path = g_slist_next (path);
 	}
 
-	g_slist_free (paths);
+	g_array_free (paths, false);
 
 	free_adjacency (adjacency);
 	free_edges (edges);
