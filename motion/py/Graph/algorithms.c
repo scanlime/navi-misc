@@ -92,6 +92,8 @@ search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, 
 
 		Py_DECREF (v);
 	}
+
+	g_slist_free (path);
 }
 
 static void
