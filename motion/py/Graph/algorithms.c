@@ -36,6 +36,11 @@ initalgorithms_c (void)
 	(void) Py_InitModule ("algorithms_c", AlgorithmC_methods);
 }
 
+void
+remove_paths (gpointer data, gpointer user_data)
+{
+}
+
 static PyObject*
 depth_limited_search (PyObject* self, PyObject* args)
 {
@@ -61,7 +66,33 @@ depth_limited_search (PyObject* self, PyObject* args)
 		path = paths;
 
 		while (path) {
-			PyObject* node = Py_BuildValue ( "(O)", (PyObject*) node->data);
+			PyObject* query = PyObject_GetAttrString (adjacency_list, "query");
+			PyObject* node  = Py_BuildValue ("(O)", (PyObject*) g_slist_last ((GSList*)path)->data);
+			PyObject* iter  = PyEval_CallObject (query, node);
+			PyObject* edge;
+
+			while (edge = PyIter_Next (iter)) {
+				PyObject* u = PyObject_GetAttrString (edge, "u");
+
+				if (PyObject_Compare (node, u) == 0) {
+					PyObject* v = PyObject_GetAttrString (edge, "v");
+					GSList* tmp = g_slist_copy (path);
+
+					tmp = g_slist_prepend (tmp, (gpointer) v);
+
+					if (PyObject_Compare (end, v) == 0) {
+						good_paths = g_slist_prepend (good_paths, (gpointer) tmp);
+					} else {
+						next_paths = g_slist_prepend (next_paths, (gpointer) tmp);
+					}
+				}
+			}
+
+			path = g_slist_next (path);
 		}
+
+		g_slist_foreach (paths, remove_paths, NULL);
+		paths = next_paths;
+		next_paths = NULL;
 	}
 }
