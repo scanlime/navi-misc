@@ -36,10 +36,56 @@ initalgorithms_c (void)
 	(void) Py_InitModule ("algorithms_c", AlgorithmC_methods);
 }
 
-void
-remove_paths (gpointer data, gpointer user_data)
+GSList*
+search (GSList* path, PyObject* query_func, PyObject* goal, int depth)
 {
-	g_slist_free ((GSList*) data);
+	GSList*   node       = NULL;
+	GSList*   good_paths = NULL;
+	PyObject* args;
+	PyObject* iter;
+	PyObject* edge;
+
+	if (depth < 0) {
+		g_slist_free (path);
+		return NULL;
+	}
+
+	node = g_slist_last (path->data);
+	args = Py_BuildValue ("(O)", (PyObject*) node->data);
+	iter = PyEval_CallObject (query_func, args);
+
+	Py_DECREF (args);
+
+	while (edge = PyIter_Next (iter)) {
+		PyObject* u = PyObject_GetAttrString (edge, "u");
+
+		/* If the source of this edge is the current node... */
+		if (PyObject_Compare ((PyObject*)node->data, u) == 0) {
+			/* Copy the path and append the node at the end of this edge. */
+			PyObject* v = PyObject_GetAttrString (edge, "v");
+			GSList* tmp = g_slist_copy (path);
+
+			tmp = g_slist_append (tmp, (gpointer) v);
+
+			/* If the end of the path is our goal, it's a good path and deserves a
+			 * cookie. Otherwise put the path back in the queue for later.
+			 */
+			if (PyObject_Compare (goal, v) == 0) {
+				good_paths = g_slist_prepend (good_paths, (gpointer)tmp);
+			} else {
+				good_paths = g_slist_concat (good_paths, search (tmp, query_func, goal, depth - 1));
+			}
+
+			Py_DECREF (v);
+		}
+
+		Py_DECREF (u);
+		Py_DECREF (edge);
+	}
+
+	Py_DECREF (iter);
+
+	return good_paths;
 }
 
 static PyObject*
@@ -49,14 +95,10 @@ depth_limited_search (PyObject* self, PyObject* args)
 	PyObject* start;
 	PyObject* end;
 	PyObject* query;
-	PyObject* ret_list;
-	int       len;
+	PyObject* path_list;
 	int       depth;
+	GSList*   path  = NULL;
 	GSList*   paths = NULL;
-	GSList*   path = NULL;
-	GSList*   good_paths = NULL;
-	GSList*   next_paths = NULL;
-	GSList*   ret_val = NULL;
 
 	/* Get the graph and nodes or die trying. */
 	if (!PyArg_ParseTuple (args, "OOOi", &adjacency_list, &start, &end, &depth)) {
@@ -64,93 +106,45 @@ depth_limited_search (PyObject* self, PyObject* args)
 		return NULL;
 	}
 
-	/* paths is a list of lists. */
-	path  = g_slist_prepend (path, (gpointer) start);
-	paths = g_slist_prepend (paths, (gpointer) path);
+	path = g_slist_prepend (path, (gpointer) start);
 
 	/* Get the query function for the adjacency list. */
 	query = PyObject_GetAttrString (adjacency_list, "query");
 
-	for (int i = 0; i < depth; i++) {
-		path = paths;
-
-		while (path) {
-			GSList*   node = g_slist_last (path->data);
-			PyObject* args = Py_BuildValue ("(O)", (PyObject*) node->data);
-			PyObject* iter = PyEval_CallObject (query, args);
-			PyObject* edge;
-
-			Py_DECREF (args);
-
-			/* Loop over the edges in the adjacency list. */
-			while (edge = PyIter_Next (iter)) {
-				PyObject* u = PyObject_GetAttrString (edge, "u");
-
-				/* If the source of this edge is the current node... */
-				if (PyObject_Compare ((PyObject*)node->data, u) == 0) {
-					/* Copy the path and append the node at the end of this edge. */
-					PyObject* v = PyObject_GetAttrString (edge, "v");
-					GSList* tmp = g_slist_copy (path);
-
-					tmp = g_slist_append (tmp, (gpointer) v);
-
-					/* If the end of the path is our goal, it's a good path and deserves a
-					 * cookie. Otherwise put the path back in the queue for later.
-					 */
-					if (PyObject_Compare (end, v) == 0) {
-						good_paths = g_slist_prepend (good_paths, (gpointer) tmp);
-					} else {
-						next_paths = g_slist_prepend (next_paths, (gpointer) tmp);
-						Py_DECREF (v);
-					}
-				}
-
-				Py_DECREF (u);
-				Py_DECREF (edge);
-			}
-			if (PyErr_Occurred ()) {
-				Py_XDECREF (query);
-				return NULL;
-			}
-
-
-			Py_DECREF (iter);
-			path = g_slist_next (path);
-		}
-
-		/* Free this set of paths, and set the next list of paths. */
-		g_slist_foreach (paths, remove_paths, NULL);
-		g_slist_free (paths);
-		paths = next_paths;
-		next_paths = NULL;
-
-		ret_val = g_slist_prepend (ret_val, good_paths);
-
-		good_paths = NULL;
-	}
+	paths = search (path, query, end, depth);
 
 	Py_DECREF (query);
 
-	ret_val = g_slist_reverse (ret_val);
-
-	len = g_slist_length (ret_val);
-	ret_list = PyList_New (len);
-
-	for (int i = 0; i < len; i++) {
-		PyObject* path_pyList;
-		int       size;
-
-		path        = g_slist_nth (ret_val, i);
-		size        = g_slist_length (path);
-		path_pyList = PyList_New (size);
-
-		for (int j = 0; j < size; j++) {
-			PyObject* node = (PyObject*) g_slist_nth (path, j);
-			PyList_SetItem (path_pyList, j, node);
-		}
-
-		PyList_SetItem (ret_list, i, path_pyList);
+	path_list = PyList_New (depth);
+	for (int i = 0; i++; i < depth) {
+		Py_INCREF (Py_None);
+		PyList_SetItem (path_list, i, Py_None);
 	}
 
-	return ret_list;
+	path = paths;
+	while (path) {
+		GSList* nodes = path->data;
+		int     len   = g_slist_length (nodes);
+		PyObject* list = PyList_New (len);
+
+		for (int i = 0; i < len; i++) {
+			PyObject* node = (PyObject*) g_slist_nth (nodes, i);
+			Py_INCREF (node);
+			PyList_SetItem (list, i, node);
+		}
+
+		if (PyObject_Compare (PyList_GetItem (path_list, len), Py_None) == 0) {
+			Py_DECREF (Py_None);
+			PyList_SetItem (path_list, len, PyList_New (0));
+		}
+
+		PyList_Insert (PyList_GetItem (path_list, len), 0, list);
+
+		path = g_slist_next (path);
+		g_slist_free (nodes);
+	}
+
+	g_slist_free (paths);
+
+	return path_list;
 }
