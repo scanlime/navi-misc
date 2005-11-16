@@ -39,8 +39,8 @@ initalgorithms_c (void)
 GSList*
 search (GSList* path, PyObject* query_func, PyObject* goal, int depth)
 {
-	GSList*   node       = NULL;
 	GSList*   good_paths = NULL;
+	PyObject* node       = (PyObject*) path->data;
 	PyObject* args;
 	PyObject* iter;
 	PyObject* edge;
@@ -50,8 +50,7 @@ search (GSList* path, PyObject* query_func, PyObject* goal, int depth)
 		return NULL;
 	}
 
-	node = g_slist_last (path);
-	args = Py_BuildValue ("(O)", (PyObject*) node->data);
+	args = Py_BuildValue ("(O)", node);
 	iter = PyEval_CallObject (query_func, args);
 
 	Py_DECREF (args);
@@ -60,18 +59,18 @@ search (GSList* path, PyObject* query_func, PyObject* goal, int depth)
 		PyObject* u = PyObject_GetAttrString (edge, "u");
 
 		/* If the source of this edge is the current node... */
-		if (PyObject_Compare ((PyObject*)node->data, u) == 0) {
+		if (PyObject_Compare (node, u) == 0) {
 			/* Copy the path and append the node at the end of this edge. */
 			PyObject* v = PyObject_GetAttrString (edge, "v");
 			GSList* tmp = g_slist_copy (path);
 
-			tmp = g_slist_append (tmp, (gpointer) v);
+			tmp = g_slist_prepend (tmp, (gpointer) v);
 
 			/* If the end of the path is our goal, it's a good path and deserves a
 			 * cookie. Otherwise put the path back in the queue for later.
 			 */
 			if (PyObject_Compare (goal, v) == 0) {
-				good_paths = g_slist_prepend (good_paths, (gpointer)tmp);
+				good_paths = g_slist_prepend (good_paths, (gpointer)g_slist_reverse (tmp));
 			} else {
 				GSList* paths = search (tmp, query_func, goal, depth - 1);
 
