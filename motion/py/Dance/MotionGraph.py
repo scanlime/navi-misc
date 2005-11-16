@@ -5,7 +5,7 @@ Build a graph from a corpus of motions
 
 from Graph.Data import Graph, Edge, AdjacencyList, VertexMap, EdgeList
 from Graph.Algorithms import DotPrint
-from Graph.algorithms_c import depthLimitedSearch
+from Graph import algorithms_c
 
 import Numeric
 import MLab
@@ -70,7 +70,7 @@ def search_graphs (graphs, starts, ends):
     depth = 6
     for bone in graphs.keys():
         print '    searching',bone
-        paths[bone] = depthLimitedSearch (graphs[bone], starts[bone], ends[bone])
+        paths[bone] = algorithms_c.depthLimitedSearch (graphs[bone], starts[bone], ends[bone])
 
     retpaths = None
     for i in range (depth):
