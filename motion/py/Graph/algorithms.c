@@ -101,9 +101,8 @@ depth_limited_search (PyObject* self, PyObject* args)
 						good_paths = g_slist_prepend (good_paths, (gpointer) tmp);
 					} else {
 						next_paths = g_slist_prepend (next_paths, (gpointer) tmp);
+						Py_DECREF (v);
 					}
-
-					Py_DECREF (v);
 				}
 
 				Py_DECREF (u);
