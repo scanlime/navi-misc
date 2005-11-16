@@ -108,8 +108,10 @@ depth_limited_search (PyObject* self, PyObject* args)
 				Py_DECREF (u);
 				Py_DECREF (edge);
 			}
-			if (PyErr_Occurred ())
+			if (PyErr_Occurred ()) {
+				Py_XDECREF (query);
 				return NULL;
+			}
 
 
 			Py_DECREF (iter);
