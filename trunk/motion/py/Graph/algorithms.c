@@ -146,11 +146,15 @@ depth_limited_search (PyObject* self, PyObject* args)
 			nodes = g_slist_next (nodes);
 		}
 
-		if (PyObject_Compare (PyList_GetItem (path_list, len-1), Py_None) == 0) {
-			PyList_SetItem (path_list, len-1, PyList_New (0));
+		PyObject *tmp = PyList_GetItem (path_list, len - 1);
+		if (tmp == Py_None || tmp == NULL) {
+			depth_list = PyList_New (0);
+			PyList_SetItem (path_list, len-1, depth_list);
+			depth_list = PyList_GetItem (path_list, len-1);
+		} else {
+			depth_list = PyList_GetItem (path_list, len-1);
 		}
 
-		depth_list = PyList_GetItem (path_list, len-1);
 		PyList_Append (depth_list, list);
 
 		path = g_slist_next (path);
