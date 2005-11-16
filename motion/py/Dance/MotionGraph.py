@@ -72,21 +72,26 @@ def search_graphs (graphs, starts, ends):
         print '    searching',bone
         representation = graphs[bone].representations[AdjacencyList]
         paths[bone] = algorithms_c.depthLimitedSearch (representation, starts[bone], ends[bone], depth)
-        print paths[bone]
 
     retpaths = None
     for i in range (depth):
+        coverage = 0
         # If all the paths at this depth are real, we're done
         match = True
         for bone in graphs.keys ():
             if paths[bone][i] is None:
                 match = False
+            else:
+                coverage = coverage + 1
 
         if match:
+            print '    depth = %2d, match!' % i
             retpaths = {}
             for bone,path in paths.items ():
                 retpaths[bone] = path[i]
             break
+        else:
+            print '    depth = %2d, coverage = %2.1f%%, no match' % (i, float(coverage) / len (graphs.keys ()) * 100)
     return retpaths
 
 def cp_range (dof, angle):
