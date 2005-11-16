@@ -46,7 +46,11 @@ computeProbability (GHashTable *edges, GSList *path)
 	for (GSList *i = path; i && i->next; i = g_slist_next (i)) {
 		PyObject *u = i->data;
 		PyObject *v = g_slist_next (i)->data;
+
+		float *weight = g_hash_table_lookup (edges, GINT_TO_POINTER (GPOINTER_TO_INT (u) + GPOINTER_TO_INT (v)));
+		probability *= *weight;
 	}
+	return probability;
 }
 
 void
