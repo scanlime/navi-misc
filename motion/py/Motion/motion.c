@@ -310,7 +310,8 @@ AMC_fromFile (AMC *self, PyObject *args)
 	g_slist_free (dofs);
 	g_slist_free (data);
 
-	g_io_channel_close (file);
+	g_io_channel_shutdown (file, FALSE, NULL);
+	g_io_channel_unref (file);
 
 	return (PyObject *) motion;
 }
@@ -401,7 +402,8 @@ AMC_save (AMC *self, PyObject *args)
 		}
 	}
 
-	g_io_channel_close (file);
+	g_io_channel_shutdown (file, TRUE, NULL);
+	g_io_channel_unref (file);
 
 	Py_RETURN_TRUE;
 }
