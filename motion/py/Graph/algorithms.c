@@ -19,6 +19,7 @@
  *
  */
 
+#include <glib.h>
 #include <Python.h>
 
 static PyObject *depth_limited_search (PyObject* self, PyObject* args);
@@ -34,7 +35,32 @@ initalgorithms_c (void)
 	(void) Py_InitModule ("algorithm_c", AlgorithmC_methods);
 }
 
+void
+increase_depth (gpointer data, gpointer user_data)
+{
+}
+
 static PyObject*
 depth_limited_search (PyObject* self, PyObject* args)
 {
+	PyObject* graph;
+	PyObject* start;
+	PyObject* end;
+	int       depth;
+	GSList*   paths      = g_slist_alloc ();
+	GSList*   path       = g_slist_alloc ();
+	GSList*   good_paths = g_slist_alloc ();
+
+	// Get the graph and nodes or die trying.
+	if (!PyArg_ParseTuple (args, "OOOi", &graph, &start, &end, &depth)) {
+		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected a graph, and starting and ending nodes"));
+		return NULL;
+	}
+
+	g_slist_append (path, (gpointer) start);
+	g_slist_append (paths, (gpointer) path);
+
+	for (int i = 0; i < depth; i++) {
+		g_slist_foreach (paths, increase_depth, NULL);
+	}
 }
