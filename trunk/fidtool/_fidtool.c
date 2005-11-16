@@ -1257,8 +1257,11 @@ fid_graph_init(struct fid_graph *self, PyObject *args)
     while ((item = PyIter_Next(iterator))) {
         sample_t key;
         int style;
-        if (!PyArg_ParseTuple(item, "Li;X grid items must be (sample, style) tuples", &key, &style))
+        if (!PyArg_ParseTuple(item, "Li;X grid items must be (sample, style) tuples", &key, &style)) {
+            Py_DECREF(item);
             goto error;
+        }
+        Py_DECREF(item);
 
         if (key < x_origin)
             continue;
@@ -1278,8 +1281,11 @@ fid_graph_init(struct fid_graph *self, PyObject *args)
         goto error;
     while ((item = PyIter_Next(iterator))) {
         int value, style;
-        if (!PyArg_ParseTuple(item, "ii;Y grid items must be (value, style) tuples", &value, &style))
+        if (!PyArg_ParseTuple(item, "ii;Y grid items must be (value, style) tuples", &value, &style)) {
+            Py_DECREF(item);
             goto error;
+        }
+        Py_DECREF(item);
 
         if (value < 0)
             continue;
