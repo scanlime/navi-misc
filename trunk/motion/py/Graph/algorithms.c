@@ -108,6 +108,9 @@ depth_limited_search (PyObject* self, PyObject* args)
 				Py_DECREF (u);
 				Py_DECREF (edge);
 			}
+			if (PyErr_Occurred ())
+				return NULL;
+
 
 			Py_DECREF (iter);
 			path = g_slist_next (path);
