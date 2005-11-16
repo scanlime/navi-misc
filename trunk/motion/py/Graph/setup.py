@@ -17,6 +17,6 @@ setup (name='Graph',
        maintainer_email='trowbrds@gmail.com',
        license='GPL',
        description='Package for using graphs in python',
-       py_modules=['Observable', 'Data', 'Algorithms'],
+       py_modules=['Observable', 'Data', 'Algorithms', '__init__'],
        extra_path='Graph',
        ext_modules=[algorithms])

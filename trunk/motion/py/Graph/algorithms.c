@@ -33,7 +33,7 @@ static PyMethodDef AlgorithmC_methods[] = {
 PyMODINIT_FUNC
 initalgorithms_c (void)
 {
-	(void) Py_InitModule ("algorithm_c", AlgorithmC_methods);
+	(void) Py_InitModule ("algorithms_c", AlgorithmC_methods);
 }
 
 static void
