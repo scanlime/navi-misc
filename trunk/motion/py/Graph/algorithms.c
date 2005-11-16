@@ -66,7 +66,7 @@ search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth, GArray* 
 		/* If the end of the path is our goal, it's a good path and deserves a
 		 * cookie. Otherwise put the path back in the queue for later.
 		 */
-		if (goal == v) {
+		if (goal == v && computeProbability (tmp) > computeProbability (g_array_index (good_paths, (GSList*), depth))) {
 			good_paths = g_slist_prepend (good_paths, (gpointer)g_slist_reverse (tmp));
 		} else {
 			search (tmp, adjacency, goal, depth - 1, good_paths);
