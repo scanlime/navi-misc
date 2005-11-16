@@ -128,7 +128,6 @@ depth_limited_search (PyObject* self, PyObject* args)
 	/* Create the list of paths and populate with None. */
 	path_list = PyList_New (depth);
 	for (int i = 0; i++; i < depth) {
-		Py_INCREF (Py_None);
 		PyList_SetItem (path_list, i, Py_None);
 	}
 
@@ -148,11 +147,9 @@ depth_limited_search (PyObject* self, PyObject* args)
 		}
 
 		if (PyObject_Compare (PyList_GetItem (path_list, len-1), Py_None) == 0) {
-			Py_DECREF (Py_None);
-			PyList_SetItem (path_list, len, PyList_New (0));
+			PyList_SetItem (path_list, len-1, PyList_New (0));
 		}
 
-		g_printf ("%d\n", len);
 		depth_list = PyList_GetItem (path_list, len-1);
 		PyList_Append (depth_list, list);
 
