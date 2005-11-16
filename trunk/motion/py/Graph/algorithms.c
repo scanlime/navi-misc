@@ -36,6 +36,9 @@ initalgorithms_c (void)
 }
 
 static float
+computeProbability (GSList *path)
+{
+}
 
 static GSList*
 search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth)
