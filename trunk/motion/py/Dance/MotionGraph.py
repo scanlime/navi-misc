@@ -72,6 +72,7 @@ def search_graphs (graphs, starts, ends):
         print '    searching',bone
         representation = graphs[bone].representations[AdjacencyList]
         paths[bone] = algorithms_c.depthLimitedSearch (representation, starts[bone], ends[bone], depth)
+        print paths[bone]
 
     retpaths = None
     for i in range (depth):
