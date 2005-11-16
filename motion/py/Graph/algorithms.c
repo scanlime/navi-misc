@@ -63,7 +63,7 @@ search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth)
 		 * cookie. Otherwise put the path back in the queue for later.
 		 */
 		if (goal == v) {
-			good_paths = g_slist_prepend (good_paths, (gpointer)tmp);
+			good_paths = g_slist_prepend (good_paths, (gpointer)g_slist_reverse (tmp));
 		} else {
 			GSList* paths = search (tmp, adjacency, goal, depth - 1);
 
