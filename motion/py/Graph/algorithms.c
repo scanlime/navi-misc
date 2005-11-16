@@ -26,7 +26,7 @@ static PyMethodDef AlgorithmC_methods[] = {
 };
 
 PyMODINIT_FUNC
-initmotion_c (void)
+initalgorithm_c (void)
 {
 	PyObject *module;
 
