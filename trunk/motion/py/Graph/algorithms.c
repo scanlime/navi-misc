@@ -40,10 +40,9 @@ computeProbability (GSList *path)
 {
 }
 
-static GSList*
-search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth)
+void
+search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth, GArray* good_paths)
 {
-	GSList*   good_paths = NULL;
 	PyObject* node = (PyObject*) path->data;
 	PyObject* args;
 	PyObject* iter;
@@ -57,7 +56,8 @@ search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth)
 	GSList *v_list = g_hash_table_lookup (adjacency, node);
 
 	for (GSList *vn = v_list; vn; vn = g_slist_next (vn)) {
-		PyObject *v = vn->data;
+		int       depth = g_slist_length (path);
+		PyObject *v     = vn->data;
 		Py_INCREF (v);
 
 		GSList *tmp = g_slist_copy (path);
@@ -69,16 +69,11 @@ search (GSList* path, GHashTable* adjacency, PyObject* goal, int depth)
 		if (goal == v) {
 			good_paths = g_slist_prepend (good_paths, (gpointer)g_slist_reverse (tmp));
 		} else {
-			GSList* paths = search (tmp, adjacency, goal, depth - 1);
-
-			if (paths != NULL)
-				good_paths = g_slist_concat (good_paths, paths);
+			search (tmp, adjacency, goal, depth - 1, good_paths);
 		}
 
 		Py_DECREF (v);
 	}
-
-	return good_paths;
 }
 
 static GHashTable *
@@ -145,8 +140,8 @@ depth_limited_search (PyObject* self, PyObject* args)
 	PyObject   *path_list;
 	int         depth;
 	GSList     *path  = NULL;
-	GSList     *paths = NULL;
 	GHashTable *adjacency = NULL;
+	GArray     *paths = g_array_sized_new (false, true, sizeof (GSList*), depth);
 
 	/* Get the graph and nodes or die trying. */
 	if (!PyArg_ParseTuple (args, "OOOi;expected adjacency list, start, end, depth", &adjacency_list, &start, &end, &depth))
@@ -161,7 +156,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 	}
 
 	/* Search */
-	paths = search (path, adjacency, end, depth - 1);
+	search (path, adjacency, end, depth - 1, paths);
 
 	/* Create the list of paths and populate with None. */
 	path_list = PyList_New (depth + 1);
