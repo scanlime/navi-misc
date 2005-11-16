@@ -70,7 +70,8 @@ def search_graphs (graphs, starts, ends):
     depth = 6
     for bone in graphs.keys():
         print '    searching',bone
-        paths[bone] = algorithms_c.depthLimitedSearch (graphs[bone], starts[bone], ends[bone])
+        representation = graphs[bone].representations[AdjacencyList]
+        paths[bone] = algorithms_c.depthLimitedSearch (representation, starts[bone], ends[bone], depth)
 
     retpaths = None
     for i in range (depth):
