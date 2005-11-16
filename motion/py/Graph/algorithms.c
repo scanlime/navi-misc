@@ -36,32 +36,31 @@ initalgorithms_c (void)
 	(void) Py_InitModule ("algorithms_c", AlgorithmC_methods);
 }
 
-static void
-increase_depth (gpointer data, gpointer user_data)
-{
-}
-
 static PyObject*
 depth_limited_search (PyObject* self, PyObject* args)
 {
-	PyObject* graph;
+	PyObject* adjacency_list;
 	PyObject* start;
 	PyObject* end;
 	int       depth;
-	GSList*   paths      = g_slist_alloc ();
-	GSList*   path       = g_slist_alloc ();
-	GSList*   good_paths = g_slist_alloc ();
+	GSList*   paths;
+	GSList*   path;
+	GSList*   good_paths;
+	GSList*   next_paths;
 
 	// Get the graph and nodes or die trying.
-	if (!PyArg_ParseTuple (args, "OOOi", &graph, &start, &end, &depth)) {
-		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected a graph, and starting and ending nodes"));
+	if (!PyArg_ParseTuple (args, "OOOi", &adjacency_list, &start, &end, &depth)) {
+		PyErr_SetObject (PyExc_TypeError, PyString_FromString ("expected an adjacency list, starting and ending nodes, and a depth"));
 		return NULL;
 	}
 
-	g_slist_append (path, (gpointer) start);
-	g_slist_append (paths, (gpointer) path);
+	path  = g_slist_prepend (path, (gpointer) start);
+	paths = g_slist_prepend (paths, (gpointer) path);
 
 	for (int i = 0; i < depth; i++) {
-		g_slist_foreach (paths, increase_depth, NULL);
+		path = paths;
+
+		while (path) {
+		}
 	}
 }
