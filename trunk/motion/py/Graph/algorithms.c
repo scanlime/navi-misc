@@ -82,15 +82,21 @@ depth_limited_search (PyObject* self, PyObject* args)
 
 			Py_DECREF (args);
 
+			/* Loop over the edges in the adjacency list. */
 			while (edge = PyIter_Next (iter)) {
 				PyObject* u = PyObject_GetAttrString (edge, "u");
 
+				/* If the source of this edge is the current node... */
 				if (PyObject_Compare ((PyObject*)node->data, u) == 0) {
+					/* Copy the path and append the node at the end of this edge. */
 					PyObject* v = PyObject_GetAttrString (edge, "v");
 					GSList* tmp = g_slist_copy (path);
 
-					tmp = g_slist_prepend (tmp, (gpointer) v);
+					tmp = g_slist_append (tmp, (gpointer) v);
 
+					/* If the end of the path is our goal, it's a good path and deserves a
+					 * cookie. Otherwise put the path back in the queue for later.
+					 */
 					if (PyObject_Compare (end, v) == 0) {
 						good_paths = g_slist_prepend (good_paths, (gpointer) tmp);
 					} else {
@@ -108,6 +114,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 			path = g_slist_next (path);
 		}
 
+		/* Free this set of paths, and set the next list of paths. */
 		g_slist_foreach (paths, remove_paths, NULL);
 		g_slist_free (paths);
 		paths = next_paths;
