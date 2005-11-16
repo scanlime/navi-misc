@@ -61,6 +61,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 		path = paths;
 
 		while (path) {
+			PyObject* node = Py_BuildValue ( "(O)", (PyObject*) node->data);
 		}
 	}
 }
