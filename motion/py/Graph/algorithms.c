@@ -52,11 +52,11 @@ depth_limited_search (PyObject* self, PyObject* args)
 	PyObject* ret_list;
 	int       len;
 	int       depth;
-	GSList*   paths;
-	GSList*   path;
-	GSList*   good_paths;
-	GSList*   next_paths;
-	GSList*   ret_val;
+	GSList*   paths = NULL;
+	GSList*   path = NULL;
+	GSList*   good_paths = NULL;
+	GSList*   next_paths = NULL;
+	GSList*   ret_val = NULL;
 
 	// Get the graph and nodes or die trying.
 	if (!PyArg_ParseTuple (args, "OOOi", &adjacency_list, &start, &end, &depth)) {
