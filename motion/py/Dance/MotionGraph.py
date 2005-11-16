@@ -70,7 +70,7 @@ def search_graphs (graphs, starts, ends, depth):
         paths[bone] = algorithms_c.depthLimitedSearch (adjacency, edges, starts[bone], ends[bone], depth)
 
     retpaths = None
-    for i in range (len (paths['root'])):
+    for i in range (len (paths['root']) - 1):
         coverage = 0
         # If all the paths at this depth are real, we're done
         match = True
@@ -81,13 +81,13 @@ def search_graphs (graphs, starts, ends, depth):
                 coverage = coverage + 1
 
         if match:
-            print '    depth = %2d, match!' % i
+            print '    depth = %2d, match!' % i + 1
             retpaths = {}
             for bone,path in paths.items ():
                 retpaths[bone] = path[i]
             break
         else:
-            print '    depth = %2d, coverage = %2d/%2d, no match' % (i, coverage, len (graphs.keys ()))
+            print '    depth = %2d, coverage = %2d/%2d, no match' % (i + 1, coverage, len (graphs.keys ()))
     paths = None
     gc.collect ()
     return retpaths
