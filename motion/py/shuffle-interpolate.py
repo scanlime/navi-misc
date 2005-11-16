@@ -25,6 +25,7 @@ from Motion import AMC
 from Dance import Systems, Sequence, MotionGraph
 from Graph.Data import VertexMap
 from Graph.ExtraAlgorithms import ParallelBFS
+from optparse import OptionParser
 import Numeric, sys, pickle
 
 def find_node (graph, pos):
@@ -53,20 +54,24 @@ def linear_interp (start, end, pos, len):
         result.append (pos)
     return result
 
-if len (sys.argv) != 4:
-    print 'usage: %s <input amc> <graph pickle> <output amc>' % sys.argv[0]
-    sys.exit ()
+parser = OptionParser ("usage: %prog <input amc> <graph pickle> <output amc>")
+parser.add_option ("-i", "--initial", dest="ic", default="60,15,1", \
+        help="A comma separated list of initial conditions for the shuffle")
+parser.add_option ("-n", dest="n", type="int", default=10000, \
+        help="Number of iterations for the chaotic systems")
 
-samc = AMC.from_file (sys.argv[1])
+opts, args = parser.parse_args ()
+
+if len (args) != 3: parser.error ("input, graph and output files are required")
+
+samc = AMC.from_file (args[0])
 
 print 'shuffling sequence'
 lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
-sequence = Sequence.Sequence (samc, lorenz, Numeric.array ([1, 2, 3]), n=30)
+sequence = Sequence.Sequence (samc, lorenz, Numeric.array ([60, 15, 1]), n=opts.n)
 sequence.shuffle (Numeric.array ([17.0, 2.0, -1.0]), n=30)
 
-picklefile = sys.argv[2]
-
-graphs = pickle.load (open (picklefile))
+graphs = pickle.load (open (args[1]))
 
 for boundary in sequence.boundaries:
     pre  = sequence[boundary - 1]
@@ -119,4 +124,4 @@ for boundary in sequence.boundaries:
             frame[bone] = center
         sequence.insert (frame, index)
 
-    sequence.save (sys.argv[3], samc.format)
+    sequence.save (args[2], samc.format)
