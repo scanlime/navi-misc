@@ -29,14 +29,9 @@ static PyMethodDef AlgorithmC_methods[] = {
 };
 
 PyMODINIT_FUNC
-initalgorithm_c (void)
+initalgorithms_c (void)
 {
-	PyObject *module;
-
-	module = Py_InitModule ("algorithm_c", AlgorithmC_methods);
-
-	if (module == NULL)
-		return;
+	(void) Py_InitModule ("algorithm_c", AlgorithmC_methods);
 }
 
 static PyObject*
