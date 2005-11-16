@@ -126,7 +126,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 	Py_DECREF (query);
 
 	/* Create the list of paths and populate with None. */
-	path_list = PyList_New (depth);
+	path_list = PyList_New (depth + 1);
 	for (int i = 0; i++; i < depth) {
 		PyList_SetItem (path_list, i, Py_None);
 	}
