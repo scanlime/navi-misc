@@ -42,7 +42,7 @@ class MotionGraphNode:
         self.center = []
 
         extents = []
-        for i in (range (len (mins)) + 1):
+        for i in range (len (mins)):
             extents.append ('[%.2f, %.2f]' % (mins[i], maxs[i]))
             self.center.append (maxs[i] - mins[i])
         self.dot_label = '\\n'.join (extents)
@@ -206,6 +206,13 @@ def build_graph (d, graph, nodes, edge_list, interval):
                 edge.visit ()
             except KeyError:
                 edge = ProbabilityEdge (node1, node2)
+                edge.visit ()
+                graph.addList ([edge])
+            try:
+                edge = edge_list.query (node2, node1)
+                edge.visit ()
+            except KeyError:
+                edge = ProbabilityEdge (node2, node1)
                 edge.visit ()
                 graph.addList ([edge])
         data1 = data2
