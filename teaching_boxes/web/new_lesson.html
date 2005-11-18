@@ -3,22 +3,27 @@
 <html>
 	<head>
 		<title>DLESE Teaching Boxes</title>
-		<link rel="stylesheet" type="text/css" href="dlese_styles_screen.css"/>
-		<link rel="stylesheet" type="text/css" href="tb_styles_screen.css"/>
-		<link rel="stylesheet" type="text/css" href="tb_styles_print.css"/>
+		<link rel="stylesheet" type="text/css" href="css/dlese_styles_screen.css"/>
+		<link rel="stylesheet" type="text/css" href="css/tb_styles_screen.css"/>
+		<link rel="stylesheet" type="text/css" media="print" href="css/tb_styles_print.css"/>
+		<link rel="stylesheet" type="text/css" href="css/style.css"/>
 	</head>
 
 	<body>
-		<!-- FIXME - need css... -->
-		<img src="images/tb_top_banner.jpg"/>
-		<h1>Stuff goes here...</h1>
-		<b>Title </b><input type="text" name="title"/>
-		<br/>
-		<b>Author </b><input type="text" name="author"/>
-		<br/>
-		<b>About</b>
-		<br/>
-		<textarea name="about"></textarea>
+		<div class="banner">
+			<img src="images/tb_top_banner.jpg"/>
+		</div>
+
+		<table style="width: 100%;">
+			<td class="navigation">
+			</td>
+			<td class="main">
+				<div style="width: 100%; background-color: #888888; margin-bottom: 5px">
+					<h3>Toolbar</h3>
+				</div>
+				<iframe width="100%" scrolling="auto"/>
+			</td>
+		</table>
 	</body>
 </html>
 

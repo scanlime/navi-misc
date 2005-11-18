@@ -1,0 +1,16 @@
+.banner {
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	background-color: #09A1AE;
+	background-image: url(/teaching_boxes/images/bannerExtender3.jpg);
+	border: 1px none #000000;
+}
+
+td.navigation {
+	width: 25%
+}
+
+td.main {
+	padding: 5px
+}
