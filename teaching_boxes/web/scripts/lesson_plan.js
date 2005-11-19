@@ -57,8 +57,10 @@ function addField (name, type)
 function createField (name, type)
 {
 	// Create the title of the field
-	title = document.createElement ("h2")
+	title = document.createElement ("div")
 	text  = document.createTextNode (name)
+
+	title.setAttribute ("class", "fieldName")
 	title.appendChild (text)
 
 	// Determine which type of field we want
