@@ -274,6 +274,7 @@ function cancelButtonClicked ()
 {
 	div = newBox.div
 	div.style.visibility = "hidden"
+	history.back ()
 }
 
 //-----------------------------
