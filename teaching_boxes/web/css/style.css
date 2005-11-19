@@ -16,8 +16,18 @@ td.main {
 }
 
 .fieldName {
+	font-size: large;
 	font-weight: bold;
 	font-variant: small-caps
+}
+
+.field {
+	padding: 5px;
+}
+
+.removeButton {
+	font-style: oblique;
+	font-size: small;
 }
 
 div.new_box {
