@@ -10,8 +10,38 @@
 	</head>
 
 	<body>
+		<!-- Top image banner -->
 		<div class="banner">
 			<img id="banner" src="images/tb_top_banner.jpg"/>
+		</div>
+
+		<!-- div element for the New Box dialog -->
+		<div class="new_box" id="new_box">
+			<div style="width: 100%; background-color: #444499; margin-bottom: 5px;">
+				<h1><font style="color: white">New Teaching Box</font></h1>
+			</div>
+			<p>
+				In addition to <i>title</i>, <i>author</i>, <i>standards</i> and
+				<i>required time</i>, these fields will be added to the lesson:
+			</p>
+			<p>
+				<select id="fieldsSelect" style="width: 100%" size="5" multiple>
+					<option>Introduction
+					<option>Materials
+					<option>Detailed Schedule
+					<option>Prerequisites
+					<option>Instructions (Methods)
+				</select>
+			</p>
+			<p>
+				<div id="description" style="margin: 5px; height: 20px">
+					<b>Description: </b>
+				</div>
+			</p>
+			<p align=right>
+				<input id="cancel" type="button" value="Cancel">
+				<input id="create" type="button" value="Create">
+			</p>
 		</div>
 
 		<table style="width: 100%;">

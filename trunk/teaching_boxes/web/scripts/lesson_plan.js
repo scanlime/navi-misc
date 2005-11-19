@@ -1,3 +1,9 @@
+// Global variables
+
+// Window size
+windowWidth = 0
+windowHeight = 0
+
 // Field types
 TYPE_ENTRY = 1
 TYPE_TEXTAREA = 2
@@ -36,10 +42,89 @@ function addField (name, type)
 }
 
 // Create a new dialog
-function new_dialog ()
+function NewBox ()
 {
-	document.write ("<h3>Testing</h3><br/>Testing...")
-	return new Array ()
+	// Members
+	this.div = top.document.getElementById ('new_box')
+	this.select = top.document.getElementById ('fieldsSelect')
+	this.createButton = top.document.getElementById ('create')
+	this.cancelButton = top.document.getElementById ('cancel')
+
+	// Methods
+
+	// Add the stuff to the box
+
+	// Connect events to the selector
+	this.select.onclick = selectionChanged
+	this.select.onchange = selectionChanged
+	this.createButton.onclick = createButtonClicked
+	this.cancelButton.onclick = cancelButtonClicked
+
+	// Make the dialog visible
+	this.div.style.display = "block"
+	this.div.style.position = "absolute"
+	this.div.style.left = (windowWidth / 2) - (this.div.clientWidth / 2)
+	this.div.style.top = (windowHeight / 2) - (this.div.clientHeight / 2)
+	this.div.style.visibility = "visible"
+}
+
+// Selection changed handler
+function selectionChanged ()
+{
+	select = top.document.getElementById ('fieldsSelect')
+	div = top.document.getElementById ('description')
+
+	boldText = document.createElement ("b")
+	boldLabel = document.createTextNode ("Description: ")
+	boldText.appendChild (boldLabel)
+
+	div.innerHTML = ""
+
+	switch (select.selectedIndex)
+	{
+		case 0:
+			// Introduction
+			text = "Introduce the topic"
+			break
+		case 1:
+			// Materials
+			text = "Materials (such as scissors or glue) that are required"
+			break
+		case 2:
+			// Detailed Schedule
+			text = "Provide a detailed schedule for the lesson"
+			break
+		case 3:
+			// Prerequisites
+			text = "The concepts that students should bring in to this lesson"
+			break
+		case 4:
+			// Instructions (Methods)
+			text = "How the lesson is to be taught"
+			break
+		default:
+			// Um...
+			text = "No description"
+			break
+	}
+
+	descriptText = document.createTextNode (text)
+	div.appendChild (boldText)
+	div.appendChild (descriptText)
+}
+
+// Create button clicked
+function createButtonClicked ()
+{
+	div = top.document.getElementById ('new_box')
+	div.style.visibility = "hidden"
+}
+
+// Cancel button clicked
+function cancelButtonClicked ()
+{
+	div = top.document.getElementById ('new_box')
+	div.style.visibility = "hidden"
 }
 
 // Create a field and return it
@@ -87,12 +172,12 @@ function calculateSizes ()
 	// FIXME: We need to figure out a better way of getting rid of the
 	// blank line at the bottom of the page...The 35-point subtract
 	// covers this in my web browser. -- Cory
-	height = top.innerHeight - bannerHeight - toolbarHeight - 35
-	width = top.innerWidth
+	windowHeight = top.innerHeight - bannerHeight - toolbarHeight - 35
+	windowWidth = top.innerWidth
 
 	// Set the height and width of stuff
 	main = top.document.getElementById ('main')
-	main.setAttribute ("style", "height: " + height)
+	main.setAttribute ("style", "height: " + windowHeight)
 }
 
 // Main function that does all the kickoff stuff
@@ -107,6 +192,9 @@ function main ()
 
 	// Create the stuff.
 	lessonPlan = new LessonPlan ()
+
+	// Pop up the New Box dialog
+	newBox = new NewBox ()
 }
 
 main ()
