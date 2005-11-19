@@ -26,8 +26,11 @@ td.main {
 }
 
 .removeButton {
+	color: blue;
 	font-style: oblique;
-	font-size: small;
+	font-size: x-small;
+	text-decoration: underline;
+	margin-left: 10px;
 }
 
 div.new_box {
