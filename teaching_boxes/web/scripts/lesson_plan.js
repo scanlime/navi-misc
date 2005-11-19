@@ -37,24 +37,24 @@ function LessonPlan ()
 	this.mainDiv.appendChild (title)
 
 	// Fields
-	this.addField ("Title", TYPE_ENTRY)
-	this.addField ("Author", TYPE_ENTRY)
-	this.addField ("Required Time", TYPE_ENTRY)
-	this.addField ("About", TYPE_TEXTAREA)
-	this.addField ("Standards", TYPE_TEXTAREA)
+	this.addField ("Title", TYPE_ENTRY, false)
+	this.addField ("Author", TYPE_ENTRY, false)
+	this.addField ("Required Time", TYPE_ENTRY, false)
+	this.addField ("About", TYPE_TEXTAREA, false)
+	this.addField ("Standards", TYPE_TEXTAREA, false)
 }
 
 // Add a field to the lesson plan
-function addField (name, type)
+function addField (name, type, removable)
 {
-	field = createField (name, type)
+	field = createField (name, type, removable)
 	this.fields.push (field)
 	this.mainDiv.appendChild (field)
 }
 
 
 // Create a field and return it
-function createField (name, type)
+function createField (name, type, removable)
 {
 	// Create the title of the field
 	title = document.createElement ("span")
@@ -67,11 +67,13 @@ function createField (name, type)
 	id = new String (date.getTime ())
 
 	// FIXME - Might be nice to have this change the cursor on mouseover
-	rm = document.createElement ("span")
-	rm.setAttribute ("class", "removeButton")
-	rm.setAttribute ("id", id)
-	rm.appendChild (document.createTextNode ("Remove"))
-	rm.onclick = removeField
+	if (removable) {
+		rm = document.createElement ("span")
+		rm.setAttribute ("class", "removeButton")
+		rm.setAttribute ("id", id)
+		rm.appendChild (document.createTextNode ("Remove"))
+		rm.onclick = removeField
+	}
 
 	// Determine which type of field we want
 	switch (type)
@@ -95,7 +97,9 @@ function createField (name, type)
 	div = document.createElement ("div")
 	div.setAttribute ("id", id)
 	div.appendChild (title)
-	div.appendChild (rm)
+	if (removable) {
+		div.appendChild (rm)
+	}
 	div.appendChild (entry)
 
 	return div
@@ -264,7 +268,7 @@ function createButtonClicked ()
 	{
 		if (options[i].myCheck.checked)
 		{
-			lessonPlan.addField (newBox.fields[i], TYPE_TEXTAREA)
+			lessonPlan.addField (newBox.fields[i], TYPE_TEXTAREA, true)
 		}
 	}
 }
