@@ -57,11 +57,16 @@ function addField (name, type)
 function createField (name, type)
 {
 	// Create the title of the field
-	title = document.createElement ("div")
+	title = document.createElement ("span")
 	text  = document.createTextNode (name)
 
 	title.setAttribute ("class", "fieldName")
 	title.appendChild (text)
+
+	rm = document.createElement ("span")
+	rm.setAttribute ("class", "removeButton")
+	rm.appendChild (document.createTextNode ("Remove"))
+	rm.onclick = removeField
 
 	// Determine which type of field we want
 	switch (type)
@@ -84,9 +89,14 @@ function createField (name, type)
 	// Package it all up and return it
 	div = document.createElement ("div")
 	div.appendChild (title)
+	div.appendChild (rm)
 	div.appendChild (entry)
 
 	return div
+}
+
+function removeField (event)
+{
 }
 
 //-----------------------------
