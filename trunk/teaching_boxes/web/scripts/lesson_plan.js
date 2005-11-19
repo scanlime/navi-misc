@@ -24,11 +24,11 @@ var newBox
 function LessonPlan ()
 {
 	// Members
-	this.fields = new Array ()
+	this.fields  = new Array ()
 	this.mainDiv = document.getElementById ('mainDiv')
 
 	// Methods
-	this.addField = addField
+	this.addField    = addField
 
 	// Title
 	title = document.createElement ("h1")
@@ -63,8 +63,13 @@ function createField (name, type)
 	title.setAttribute ("class", "fieldName")
 	title.appendChild (text)
 
+	date = new Date ()
+	id = new String (date.getTime ())
+
+	// FIXME - Might be nice to have this change the cursor on mouseover
 	rm = document.createElement ("span")
 	rm.setAttribute ("class", "removeButton")
+	rm.setAttribute ("id", id)
 	rm.appendChild (document.createTextNode ("Remove"))
 	rm.onclick = removeField
 
@@ -88,6 +93,7 @@ function createField (name, type)
 
 	// Package it all up and return it
 	div = document.createElement ("div")
+	div.setAttribute ("id", id)
 	div.appendChild (title)
 	div.appendChild (rm)
 	div.appendChild (entry)
@@ -97,6 +103,17 @@ function createField (name, type)
 
 function removeField (event)
 {
+	var id
+	var mainDiv = document.getElementById ("mainDiv")
+
+	if (event.target) {
+		id = event.target.getAttribute ("id")
+	} else {
+		id = event.srcElement.getAttribute ("id")
+	}
+
+	div = document.getElementById (id)
+	mainDiv.removeChild (div)
 }
 
 //-----------------------------
