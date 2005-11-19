@@ -149,9 +149,13 @@ function NewBox ()
 	this.div.style.visibility = "visible"
 }
 
+>>>>>>> .r9421
 // Selection changed handler
 function selectionChanged (event)
 {
+<<<<<<< .mine
+	return new Array ()
+=======
 	parentDiv = newBox.div
 	select = newBox.select
 	div = top.document.getElementById ('description')
@@ -219,14 +223,28 @@ function selectionChanged (event)
 	div.innerHTML = ""
 	div.appendChild (boldText)
 	div.appendChild (descriptText)
+>>>>>>> .r9421
 }
 
+<<<<<<< .mine
+function createField (name)
+=======
 // Create button clicked
 function createButtonClicked ()
+>>>>>>> .r9421
 {
+<<<<<<< .mine
+	document.write ("<br/>")
+	title = document.createElement ("div")
+	text  = document.createTextNode (name)
+=======
 	div = newBox.div
 	div.style.visibility = "hidden"
+>>>>>>> .r9421
 
+<<<<<<< .mine
+	title.setAttribute ("class","fieldName")
+=======
 	// Figure out which fields were selected and add them to the view
 	options = div.options
 	for (i in options)
@@ -237,14 +255,25 @@ function createButtonClicked ()
 		}
 	}
 }
+>>>>>>> .r9421
 
+<<<<<<< .mine
+	title.appendChild (text)
+=======
 // Cancel button clicked
 function cancelButtonClicked ()
 {
 	div = newBox.div
 	div.style.visibility = "hidden"
 }
+>>>>>>> .r9421
 
+<<<<<<< .mine
+	entry = document.createElement ("textarea")
+
+	document.body.appendChild (title)
+	document.body.appendChild (entry)
+=======
 //-----------------------------
 // Main functions
 //-----------------------------

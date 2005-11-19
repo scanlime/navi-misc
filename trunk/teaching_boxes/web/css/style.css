@@ -15,6 +15,11 @@ td.main {
 	padding: 5px
 }
 
+.fieldName {
+	font-weight: bold;
+	font-variant: small-caps
+}
+
 div.new_box {
    margin-left: 10px;
    margin-right: 10px;
