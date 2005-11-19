@@ -69,23 +69,37 @@ function createField (name, type)
 	return div
 }
 
-// Main area
+function calculateSizes ()
+{
+	// Setup the sizes of the navigation window and lesson plan
+	// Get the size of the window
+	bannerHeight = top.document.getElementById ('banner').height
+	toolbarHeight = top.document.getElementById ('toolbar').clientHeight
 
-// Setup the sizes of the navigation window and lesson plan
-// Get the size of the window
-bannerHeight = top.document.getElementById ('banner').height
-toolbarHeight = top.document.getElementById ('toolbar').clientHeight
+	// TODO: We need to figure out a better way of getting rid of the
+	// blank line at the bottom of the page...The 35-point subtract
+	// covers this in my web browser. -- Cory
+	height = top.innerHeight - bannerHeight - toolbarHeight - 35
+	width = top.innerWidth
 
-// TODO: We need to figure out a better way of getting rid of the
-// blank line at the bottom of the page...The 35-point subtract
-// covers this in my web browser. -- Cory
-height = top.innerHeight - bannerHeight - toolbarHeight - 35
-width = top.innerWidth
+	// Set the height and width of stuff
+	main = top.document.getElementById ('main')
+	main.setAttribute ("style", "height: " + height)
+}
 
-// Set the height and width of stuff
-main = top.document.getElementById ('main')
-main.setAttribute ("style", "height: " + height)
 
-// Create the stuff.
-lessonPlan = new LessonPlan ()
+function main ()
+{
+	// Calculate the size of the window
+	calculateSizes ()
+
+	// Make sure the main window knows to call that every time we
+	// resize.
+	top.onresize = calculateSizes
+
+	// Create the stuff.
+	lessonPlan = new LessonPlan ()
+}
+
+main ()
 
