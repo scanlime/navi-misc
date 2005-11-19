@@ -75,6 +75,10 @@ function createField (name, type)
 // Get the size of the window
 bannerHeight = top.document.getElementById ('banner').height
 toolbarHeight = top.document.getElementById ('toolbar').clientHeight
+
+// TODO: We need to figure out a better way of getting rid of the
+// blank line at the bottom of the page...The 35-point subtract
+// covers this in my web browser. -- Cory
 height = top.innerHeight - bannerHeight - toolbarHeight - 35
 width = top.innerWidth
 
