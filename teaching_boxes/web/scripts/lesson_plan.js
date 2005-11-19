@@ -103,17 +103,19 @@ function createField (name, type)
 
 function removeField (event)
 {
-	var id
-	var mainDiv = document.getElementById ("mainDiv")
+	if (confirm ("Are you sure you want to remove this field?")) {
+		var id
+		var mainDiv = document.getElementById ("mainDiv")
 
-	if (event.target) {
-		id = event.target.getAttribute ("id")
-	} else {
-		id = event.srcElement.getAttribute ("id")
+		if (event.target) {
+			id = event.target.getAttribute ("id")
+		} else {
+			id = event.srcElement.getAttribute ("id")
+		}
+
+		div = document.getElementById (id)
+		mainDiv.removeChild (div)
 	}
-
-	div = document.getElementById (id)
-	mainDiv.removeChild (div)
 }
 
 //-----------------------------
