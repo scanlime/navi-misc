@@ -14,3 +14,15 @@ td.navigation {
 td.main {
 	padding: 5px
 }
+
+div.new_box {
+   margin-left: 10px;
+   margin-right: 10px;
+   margin-bottom: 10px;
+   border: thin solid #000000;
+   background-color: #e0e0e0;
+   width: 300px;
+   visibility: hidden;
+   display: none;
+}
+
