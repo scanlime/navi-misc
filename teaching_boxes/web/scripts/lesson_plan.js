@@ -2,6 +2,7 @@
 TYPE_ENTRY = 1
 TYPE_TEXTAREA = 2
 
+// Constructor for the LessonPlan object
 function LessonPlan ()
 {
 	// Members
@@ -26,6 +27,7 @@ function LessonPlan ()
 	this.addField ("Materials", TYPE_TEXTAREA)
 }
 
+// Add a field to the lesson plan
 function addField (name, type)
 {
 	field = createField (name, type)
@@ -33,18 +35,22 @@ function addField (name, type)
 	this.mainDiv.appendChild (field)
 }
 
+// Create a new dialog
 function new_dialog ()
 {
 	document.write ("<h3>Testing</h3><br/>Testing...")
 	return new Array ()
 }
 
+// Create a field and return it
 function createField (name, type)
 {
+	// Create the title of the field
 	title = document.createElement ("h2")
 	text  = document.createTextNode (name)
 	title.appendChild (text)
 
+	// Determine which type of field we want
 	switch (type)
 	{
 		case TYPE_ENTRY:
@@ -62,6 +68,7 @@ function createField (name, type)
 			break
 	}
 
+	// Package it all up and return it
 	div = document.createElement ("div")
 	div.appendChild (title)
 	div.appendChild (entry)
@@ -69,6 +76,7 @@ function createField (name, type)
 	return div
 }
 
+// Handle window resizes
 function calculateSizes ()
 {
 	// Setup the sizes of the navigation window and lesson plan
@@ -76,7 +84,7 @@ function calculateSizes ()
 	bannerHeight = top.document.getElementById ('banner').height
 	toolbarHeight = top.document.getElementById ('toolbar').clientHeight
 
-	// TODO: We need to figure out a better way of getting rid of the
+	// FIXME: We need to figure out a better way of getting rid of the
 	// blank line at the bottom of the page...The 35-point subtract
 	// covers this in my web browser. -- Cory
 	height = top.innerHeight - bannerHeight - toolbarHeight - 35
@@ -87,7 +95,7 @@ function calculateSizes ()
 	main.setAttribute ("style", "height: " + height)
 }
 
-
+// Main function that does all the kickoff stuff
 function main ()
 {
 	// Calculate the size of the window
