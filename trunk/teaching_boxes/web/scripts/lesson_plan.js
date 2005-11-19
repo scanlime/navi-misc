@@ -1,21 +1,27 @@
 function LessonPlan ()
 {
+	document.write ("new plan")
 	// Members
 	this.fields = new Array ()
 
 	// Methods
 	this.addField = addField
 
-	this.addField (createField ("Author", true)
-	this.addField (createField ("Title", true)
-	this.addField (createField ("About", false)
+	this.addField ("Author")
+	this.addField ("Title")
+	this.addField ("About")
+
+	for (field in new_dialog ()) {
+		document.write ("new field")
+	}
 }
 
 function addField (name)
 {
+	document.write (name)
 	field = createField (name, false)
-	this.fields.push (field)
-	document.body.appendChild (field)
+	//this.fields.push (field)
+	//document.body.appendChild (field)
 }
 
 function new_dialog ()
@@ -26,20 +32,21 @@ function new_dialog ()
 
 function createField (name, isEntry)
 {
-	title = document.createElement ("b")
-	text  = document.createTextElement (name)
-	title.appendChild (text)
+	document.write ("create " + name)
+	//title = document.createElement ("b")
+	//text  = document.createTextElement (name)
+	//title.appendChild (text)
 
-	if (isEntry) {
-		entry = document.createElement ("input")
-		entry.setAttribute ("type", "text")
-	} else {
-		entry = document.createElement ("text-area")
-	}
+	//if (isEntry) {
+		//entry = document.createElement ("input")
+		//entry.setAttribute ("type", "text")
+	//} else {
+		//entry = document.createElement ("text-area")
+	//}
 
-	div = document.createElement ("div")
-	div.appendChild (title)
-	div.appendChild (entry)
+	//div = document.createElement ("div")
+	//div.appendChild (title)
+	//div.appendChild (entry)
 
-	return div
+	//document.write(div)
 }
