@@ -1,27 +1,36 @@
+// Field types
+TYPE_ENTRY = 1
+TYPE_TEXTAREA = 2
+
 function LessonPlan ()
 {
-	document.write ("new plan")
 	// Members
 	this.fields = new Array ()
+	this.mainDiv = document.getElementById ('mainDiv')
 
 	// Methods
 	this.addField = addField
 
-	this.addField ("Author")
-	this.addField ("Title")
-	this.addField ("About")
+	// Title
+	title = document.createElement ("h1")
+	text = document.createTextNode ("New Plan")
+	title.appendChild (text)
+	this.mainDiv.appendChild (title)
 
-	for (field in new_dialog ()) {
-		document.write ("new field")
-	}
+	// Fields
+	this.addField ("Title", TYPE_ENTRY)
+	this.addField ("Author", TYPE_ENTRY)
+	this.addField ("Required Time", TYPE_ENTRY)
+	this.addField ("About", TYPE_TEXTAREA)
+	this.addField ("Standards", TYPE_TEXTAREA)
+	this.addField ("Materials", TYPE_TEXTAREA)
 }
 
-function addField (name)
+function addField (name, type)
 {
-	document.write (name)
-	field = createField (name, false)
-	//this.fields.push (field)
-	//document.body.appendChild (field)
+	field = createField (name, type)
+	this.fields.push (field)
+	this.mainDiv.appendChild (field)
 }
 
 function new_dialog ()
@@ -30,23 +39,49 @@ function new_dialog ()
 	return new Array ()
 }
 
-function createField (name, isEntry)
+function createField (name, type)
 {
-	document.write ("create " + name)
-	//title = document.createElement ("b")
-	//text  = document.createTextElement (name)
-	//title.appendChild (text)
+	title = document.createElement ("h2")
+	text  = document.createTextNode (name)
+	title.appendChild (text)
 
-	//if (isEntry) {
-		//entry = document.createElement ("input")
-		//entry.setAttribute ("type", "text")
-	//} else {
-		//entry = document.createElement ("text-area")
-	//}
+	switch (type)
+	{
+		case TYPE_ENTRY:
+			entry = document.createElement ("input")
+			entry.setAttribute ("type", "text")
+			entry.setAttribute ("style", "width: 100%; margin-bottom: 10px;")
+			break
+		case TYPE_TEXTAREA:
+			entry = document.createElement ("textarea")
+			entry.setAttribute ("rows", 5)
+			entry.setAttribute ("style", "width: 100%;")
+			break
+		default:
+			entry = document.createElement ("textarea")
+			break
+	}
 
-	//div = document.createElement ("div")
-	//div.appendChild (title)
-	//div.appendChild (entry)
+	div = document.createElement ("div")
+	div.appendChild (title)
+	div.appendChild (entry)
 
-	//document.write(div)
+	return div
 }
+
+// Main area
+
+// Setup the sizes of the navigation window and lesson plan
+// Get the size of the window
+bannerHeight = top.document.getElementById ('banner').height
+toolbarHeight = top.document.getElementById ('toolbar').clientHeight
+height = top.innerHeight - bannerHeight - toolbarHeight - 35
+width = top.innerWidth
+
+// Set the height and width of stuff
+main = top.document.getElementById ('main')
+main.setAttribute ("style", "height: " + height)
+
+// Create the stuff.
+lessonPlan = new LessonPlan ()
+
