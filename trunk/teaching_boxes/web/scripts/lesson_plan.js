@@ -1,12 +1,24 @@
+//------------------------------------
 // Global variables
+//------------------------------------
 
 // Window size
 windowWidth = 0
 windowHeight = 0
+bannerHeight = 0
+toolbarHeight = 0
 
 // Field types
 TYPE_ENTRY = 1
 TYPE_TEXTAREA = 2
+
+// General stuff
+var lessonPlan
+var newBox
+
+//------------------------------------
+// Class LessonPlan
+//------------------------------------
 
 // Constructor for the LessonPlan object
 function LessonPlan ()
@@ -30,7 +42,6 @@ function LessonPlan ()
 	this.addField ("Required Time", TYPE_ENTRY)
 	this.addField ("About", TYPE_TEXTAREA)
 	this.addField ("Standards", TYPE_TEXTAREA)
-	this.addField ("Materials", TYPE_TEXTAREA)
 }
 
 // Add a field to the lesson plan
@@ -41,91 +52,6 @@ function addField (name, type)
 	this.mainDiv.appendChild (field)
 }
 
-// Create a new dialog
-function NewBox ()
-{
-	// Members
-	this.div = top.document.getElementById ('new_box')
-	this.select = top.document.getElementById ('fieldsSelect')
-	this.createButton = top.document.getElementById ('create')
-	this.cancelButton = top.document.getElementById ('cancel')
-
-	// Methods
-
-	// Add the stuff to the box
-
-	// Connect events to the selector
-	this.select.onclick = selectionChanged
-	this.select.onchange = selectionChanged
-	this.createButton.onclick = createButtonClicked
-	this.cancelButton.onclick = cancelButtonClicked
-
-	// Make the dialog visible
-	this.div.style.display = "block"
-	this.div.style.position = "absolute"
-	this.div.style.left = (windowWidth / 2) - (this.div.clientWidth / 2)
-	this.div.style.top = (windowHeight / 2) - (this.div.clientHeight / 2)
-	this.div.style.visibility = "visible"
-}
-
-// Selection changed handler
-function selectionChanged ()
-{
-	select = top.document.getElementById ('fieldsSelect')
-	div = top.document.getElementById ('description')
-
-	boldText = document.createElement ("b")
-	boldLabel = document.createTextNode ("Description: ")
-	boldText.appendChild (boldLabel)
-
-	div.innerHTML = ""
-
-	switch (select.selectedIndex)
-	{
-		case 0:
-			// Introduction
-			text = "Introduce the topic"
-			break
-		case 1:
-			// Materials
-			text = "Materials (such as scissors or glue) that are required"
-			break
-		case 2:
-			// Detailed Schedule
-			text = "Provide a detailed schedule for the lesson"
-			break
-		case 3:
-			// Prerequisites
-			text = "The concepts that students should bring in to this lesson"
-			break
-		case 4:
-			// Instructions (Methods)
-			text = "How the lesson is to be taught"
-			break
-		default:
-			// Um...
-			text = "No description"
-			break
-	}
-
-	descriptText = document.createTextNode (text)
-	div.appendChild (boldText)
-	div.appendChild (descriptText)
-}
-
-// Create button clicked
-function createButtonClicked ()
-{
-	div = top.document.getElementById ('new_box')
-	div.style.visibility = "hidden"
-}
-
-// Cancel button clicked
-function cancelButtonClicked ()
-{
-	div = top.document.getElementById ('new_box')
-	div.style.visibility = "hidden"
-}
 
 // Create a field and return it
 function createField (name, type)
@@ -160,6 +86,168 @@ function createField (name, type)
 
 	return div
 }
+
+//-----------------------------
+// Class NewBox
+//-----------------------------
+
+// Create a new dialog
+function NewBox ()
+{
+	// Members
+	this.div = top.document.getElementById ('new_box')
+	this.select = top.document.getElementById ('fieldsSelect')
+	this.createButton = top.document.getElementById ('create')
+	this.cancelButton = top.document.getElementById ('cancel')
+	this.options = new Array ()
+	this.fields = new Array ()
+	this.div.options = this.options
+
+	// Methods
+	this.selectionChanged = selectionChanged
+
+	// Set the fields
+	this.fields.push ("Introduction")
+	this.fields.push ("Materials")
+	this.fields.push ("Detailed Schedule")
+	this.fields.push ("Prerequisites")
+	this.fields.push ("Instructions (Methods)")
+
+	// Add the stuff to the box
+	for (field in this.fields)
+	{
+		div = document.createElement ("div")
+
+		optionCheck = document.createElement("input")
+		optionCheck.type = "checkbox"
+		optionCheck.checked = false
+		optionCheck.optionNumber = field
+
+		optionText = document.createTextNode (this.fields[field])
+
+		div.appendChild (optionCheck)
+		div.appendChild (optionText)
+		div.optionNumber = field
+		div.myCheck = optionCheck
+
+		optionCheck.parentDiv = div
+
+		this.options.push (div)
+		this.select.appendChild (div)
+	}
+
+	// Connect events to the selector
+	this.select.onclick = selectionChanged
+	this.createButton.onclick = createButtonClicked
+	this.cancelButton.onclick = cancelButtonClicked
+
+	// Make the dialog visible
+	this.div.style.display = "block"
+	this.div.style.position = "absolute"
+	this.div.style.left = (windowWidth / 2) - (this.div.clientWidth / 2)
+	this.div.style.top = (windowHeight / 2) - (this.div.clientHeight / 2) + bannerHeight
+	this.div.style.visibility = "visible"
+}
+
+// Selection changed handler
+function selectionChanged (event)
+{
+	parentDiv = newBox.div
+	select = newBox.select
+	div = top.document.getElementById ('description')
+
+	// Prepare the description text
+	boldText = document.createElement ("b")
+	boldLabel = document.createTextNode ("Description: ")
+	boldText.appendChild (boldLabel)
+
+	// Figure out what responded to the event
+	if (event.target)
+	{
+		target = event.target
+		parent = target.parentDiv
+	}
+	else if (event.srcElement)
+	{
+		target = event.srcElement
+		parent = element.srcElement.parentDiv
+	}
+
+	// Clear the current selection
+	for (option in parentDiv.options)
+	{
+		parentDiv.options[option].style.background = "#ffffff"
+	}
+
+	// Figure out the text
+	switch (target.optionNumber)
+	{
+		case "0":
+			// Introduction
+			text = "Introduce the topic"
+			break
+		case "1":
+			// Materials
+			text = "Materials (such as scissors or glue) that are required"
+			break
+		case "2":
+			// Detailed Schedule
+			text = "Provide a detailed schedule for the lesson"
+			break
+		case "3":
+			// Prerequisites
+			text = "The concepts that students should bring in to this lesson"
+			break
+		case "4":
+			// Instructions (Methods)
+			text = "How the lesson is to be taught"
+			break
+		default:
+			text = ""
+			break
+	}
+
+	// Set the selection color
+	if (text != "")
+		if (parent)
+			parent.style.background = "#7777ff"
+		else
+			target.style.background = "#7777ff"
+
+	// Setup the div
+	descriptText = document.createTextNode (text)
+	div.innerHTML = ""
+	div.appendChild (boldText)
+	div.appendChild (descriptText)
+}
+
+// Create button clicked
+function createButtonClicked ()
+{
+	div = newBox.div
+	div.style.visibility = "hidden"
+
+	// Figure out which fields were selected and add them to the view
+	options = div.options
+	for (i in options)
+	{
+		if (options[i].myCheck.checked)
+		{
+			lessonPlan.addField (newBox.fields[i], TYPE_TEXTAREA)
+		}
+	}
+}
+
+// Cancel button clicked
+function cancelButtonClicked ()
+{
+	div = newBox.div
+	div.style.visibility = "hidden"
+}
+
+//-----------------------------
+// Main functions
+//-----------------------------
 
 // Handle window resizes
 function calculateSizes ()
