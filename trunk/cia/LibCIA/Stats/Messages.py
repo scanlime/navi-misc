@@ -334,6 +334,7 @@ def SAXDecoder(encoded, dictionary):
                     last.__dict__["nextSibling"] = node
                 childNodes.append(node)
                 node.__dict__["parentNode"] = top
+                node.__dict__["ownerDocument"] = stack[0]
 
             # Element with no attributes (fast path)
             elif op == 2:
@@ -347,6 +348,7 @@ def SAXDecoder(encoded, dictionary):
                     last.__dict__["nextSibling"] = node
                 childNodes.append(node)
                 node.__dict__["parentNode"] = top
+                node.__dict__["ownerDocument"] = stack[0]
 
                 stack.append(node)
                 top = node
@@ -387,6 +389,7 @@ def SAXDecoder(encoded, dictionary):
                         last.__dict__["nextSibling"] = node
                     childNodes.append(attrs)
                     attrs.__dict__["parentNode"] = top
+                    attrs.__dict__["ownerDocument"] = stack[0]
 
                     stack.append(attrs)
                     top = attrs
@@ -575,7 +578,7 @@ class MessageBuffer:
         self._commitHeader()
         return msgId
 
-    def getById(self, msgId):
+    def getMessageById(self, msgId):
         """Retrieve a particular message, by ID. Returns None if the
            message doesn't exist or has been overwritten.
            """
@@ -606,7 +609,7 @@ class MessageBuffer:
         index = self.indexRing.read(tail - head, head)
         for i in xrange(0, len(index), 4):
             msgId = struct.unpack(">I", index[i:i+4])[0]
-            msg = self.getById(msgId)
+            msg = self.getMessageById(msgId)
             if msg is not None:
                 yield (msgId, msg)
 

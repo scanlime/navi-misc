@@ -72,11 +72,7 @@ class BaseFeed(Nouvelle.Twisted.Page):
 
     def render_items(self, context):
         """Renders the most recent commits as items in the feed"""
-        # Get the messages, render them in our Deferred
-        result = defer.Deferred()
-        self.target.messages.getLatest(self.limit).addCallback(
-            self.formatItems, context, result).addErrback(result.errback)
-        return result
+        return self.formatItems(self.target.messages.getLatest(self.limit), context)
 
 
 class FormattedFeed(BaseFeed):
@@ -143,11 +139,11 @@ class RSS2Feed(RSSFeed):
     """A web resource representing an RSS 2.0 feed for a particular stats target,
        constructed according to the spec at http://blogs.law.harvard.edu/tech/rss
        """
-    def formatItems(self, messages, context, result):
+    def formatItems(self, messages, context):
         items = []
         for id, content in messages:
             items.append(tag('item')[self.messageToItemContent(context, Message.Message(content), id)])
-        result.callback(items)
+        return items
 
     def messageToItemContent(self, context, m, id):
         """Render an XML message as the content of an RSS <item>"""
@@ -204,7 +200,7 @@ class RSS1Feed(RSSFeed):
     def messageToItemContent(self, context, m, id):
         return []
 
-    def formatItems(self, messages, context, result):
+    def formatItems(self, messages, context):
         """This is called after we've retrieved a list of the target's recent messages.
            Most of the document can't be formatted until this point, as we need to generate
            both <item> elements and the <items> table of contents.
@@ -215,7 +211,7 @@ class RSS1Feed(RSSFeed):
         # Add <item>s for each message
         for id, messageContent in messages:
             content.append(self.render_item(context, id, messageContent))
-        result.callback(content)
+        return content
 
     def render_channel(self, context, messages):
         """Generate our <channel> element and all of its children"""
@@ -270,8 +266,8 @@ class RSS1Feed(RSSFeed):
 
 class XMLFeed(BaseFeed):
     """A web resource representing a feed of unformatted XML commits for a stats target."""
-    def formatItems(self, messages, context, result):
-        result.callback([self.formatItem(content) for id, content in messages])
+    def formatItems(self, messages, context):
+        return [self.formatItem(content) for id, content in messages]
 
     def formatItem(self, content):
         # Format one message. The hackishness here chops off XML declarations

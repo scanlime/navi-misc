@@ -259,7 +259,7 @@ class MessageContentColumn(Nouvelle.Column):
     def getValue(self, message):
         try:
             return Formatters.getFactory().findMedium('xhtml', message).formatMessage(message)
-        except Message.NoFormatterError:
+        except:
             return Template.error[str(sys.exc_info()[1])]
 
 
@@ -293,26 +293,12 @@ class RecentMessages(MessageList):
         self.limit = limit
 
     def render_rows(self, context):
-        result = defer.Deferred()
-        self.target.messages.getLatest(self.limit).addCallback(
-            self._render_rows, context, result).addErrback(result.errback)
-        return result
-
-    def _render_rows(self, messages, context, result):
-        """Actually render the rows, called after the message list has been retrieved"""
-        if messages:
-            # Parse the messages and attach URLs to them
-            parsed = []
-            for id, xml in messages:
-                try:
-                    m = Message.Message(xml)
-                    m.hyperlink = Link.MessageLink(self.target, id, text="#%d" % id)
-                    parsed.append(m)
-                except:
-                    log.err()
-            result.callback(self.renderMessages(context, parsed))
-        else:
-            result.callback(None)
+        parsed = []
+        for id, xml in self.target.messages.getLatest(self.limit):
+            m = Message.Message(xml)
+            m.hyperlink = Link.MessageLink(self.target, id, text="#%d" % id)
+            parsed.append(m)
+        return self.renderMessages(context, parsed)
 
 
 class LinksSection(Template.Section):

@@ -55,7 +55,8 @@ class StatsInterface(RpcServer.Interface):
         """Return 'limit' latest messages delivered to this stats target,
            or all available recent messages if 'limit' isn't specified.
            """
-        return StatsTarget(path).messages.getLatest(limit)
+        return [(id, XML.toString(doc)) for id, doc in
+                StatsTarget(path).messages.getLatest(limit)]
 
     def xmlrpc_getCounterValues(self, path, name):
         """Returns a dictionary with current values for the given counter.

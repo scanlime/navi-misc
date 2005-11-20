@@ -22,11 +22,13 @@ interacting with stats targets.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+import os
 from twisted.internet import defer
 from twisted.python import log
-from LibCIA import Ruleset, Database, TimeUtil, XML
+from LibCIA import Ruleset, Database, TimeUtil, Files
 import time, posixpath, sys, cPickle, random
-from Metadata import Metadata
+from LibCIA.Stats.Metadata import Metadata
+from LibCIA.Stats.Messages import MessageBuffer
 
 
 class StatsTarget:
@@ -40,7 +42,7 @@ class StatsTarget:
        """
     def __init__(self, path=''):
         self.setPath(path)
-        self.messages = Messages(self)
+        self.messages = MessageBuffer(os.path.join(self.diskPath, 'messages'))
         self.counters = Counters(self)
         self.metadata = Metadata(self)
 
@@ -55,6 +57,9 @@ class StatsTarget:
             elif segment and segment != '.':
                 self.pathSegments.append(segment)
         self.path = '/'.join(self.pathSegments)
+
+        # Every target gets a directory on disk
+        self.diskPath = Files.getDir(Files.dbDir, 'stats', *self.pathSegments)
 
         # Our database uses VARCHAR(128), make sure this fits
         if len(self.path) > 128:
@@ -245,93 +250,6 @@ class SubscriptionDelivery:
         if cursor.rowcount:
             log.msg("Unsubscribing subscriber %d for %r, more than %d consecutive failures" %
                     (id, self.target, maxFailures))
-
-
-class Messages(object):
-    """Represents the set of stored messages associated with one stats target"""
-
-    # Maximum number of messages to keep around for each stats target
-    maxMessages = 200
-
-    def __init__(self, target):
-        self.target = target
-
-    def push(self, message):
-        """Store a new message for this stats target"""
-        # This must be done inside a database interaction, since we may need
-        # to create the target's catalog entry if it doesn't exist.
-        return Database.pool.runInteraction(self._push, message)
-
-    def _push(self, cursor, message):
-        # Does this message have a timestamp?
-        timestamp = XML.digValue(message.xml, int, "message", "timestamp")
-        if timestamp:
-            # Yep, quote it
-            timestamp = Database.quote(timestamp, 'bigint')
-        else:
-            # Our message really should have had a timestamp.. don't
-            # store it, because without a timestamp it will be immortal.
-            return
-
-        self.target._autoCreateTargetFor(cursor, cursor.execute,
-                                         "INSERT INTO stats_messages (target_path, xml, timestamp)"
-                                         " VALUES(%s, %s, %s)" %
-                                         (Database.quote(self.target.path, 'varchar'),
-                                          Database.quote(unicode(message).encode('utf-8'), 'text'),
-                                          timestamp))
-
-        # Delete old messages as we go
-        if self.isPruningEnabled():
-            self._prune(cursor)
-
-    def isPruningEnabled(self):
-        """Subclasses or .tac files can override this to control pruning behaviour."""
-        return True
-
-    def _prune(self, cursor):
-        """Delete messages that are too old"""
-        # Find the ID of the oldest message we want to keep
-        cursor.execute("SELECT id FROM stats_messages WHERE target_path = %s "
-                       "ORDER BY id DESC LIMIT 1 OFFSET %d" %
-                       (Database.quote(self.target.path, 'varchar'),
-                        self.maxMessages))
-        row = cursor.fetchone()
-        if row:
-            id = row[0]
-            print "Pruning from %r up to ID %d" % (self.target.path, id)
-            cursor.execute("DELETE FROM stats_messages WHERE target_path = %s AND id <= %d" %
-                           (Database.quote(self.target.path, 'varchar'), id))
-
-    def getLatest(self, limit=None):
-        """Return the most recent messages as (id, xml) tuples, optionally up to a provided
-           maximum value. The messages are returned in reverse chronological order, encoded in UTF-8.
-           """
-        return Database.pool.runInteraction(self._getLatest, limit)
-
-    def _getLatest(self, cursor, limit):
-        if limit is None:
-            limitClause = ''
-        else:
-            limitClause = " LIMIT %d" % limit
-        cursor.execute("SELECT id, xml FROM stats_messages FORCE INDEX (target_path_2, id) "
-                       "WHERE target_path = %s ORDER BY id DESC%s" %
-                            (Database.quote(self.target.path, 'varchar'),
-                             limitClause))
-        return cursor.fetchall()
-
-    def getMessageById(self, id):
-        """Return a single message from this stats target's archive, by ID.
-           Returns None if the message isn't in our database.
-           """
-        return Database.pool.runInteraction(self._getMessageById, id)
-
-    def _getMessageById(self, cursor, id):
-        cursor.execute("SELECT xml FROM stats_messages WHERE target_path = %s AND id = %s" %
-                       (Database.quote(self.target.path, 'varchar'),
-                        Database.quote(id, 'bigint')))
-        row = cursor.fetchone()
-        if row:
-            return unicode(row[0], 'utf-8')
 
 
 class Counters:
