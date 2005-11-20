@@ -52,7 +52,7 @@
 #include <gtk/gtkactiongroup.h>
 #include <gtk/gtkuimanager.h>
 
-static void *last_search_position = NULL;
+static textentry *last_search_position = NULL;
 
 static void on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data);
 static void on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
@@ -365,27 +365,38 @@ find_next (GtkWidget *entry, gpointer data)
 {
 	GtkWidget *info;
 	const guchar *text = gtk_entry_get_text (GTK_ENTRY (entry));
-	last_search_position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position);
+	textentry *position;
+	gboolean reverse = (gboolean) GPOINTER_TO_UINT(data);
+
+	position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position, FALSE, reverse);
 
 	info = glade_xml_get_widget (gui.xml, "find_status_label");
-	if (last_search_position == NULL)
+	if (position == NULL && (last_search_position != NULL)) {
+		if (reverse) {
+			position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
+			gtk_label_set_markup (GTK_LABEL (info), "<span foreground=\"grey\">Reached beginning, continuing from bottom</span>");
+		} else {
+			position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
+			gtk_label_set_markup (GTK_LABEL (info), "<span foreground=\"grey\">Reached end, continuing from top</span>");
+		}
+	} else if (position == NULL) {
 		gtk_label_set_markup (GTK_LABEL (info), "<span foreground=\"grey\">Search string not found</span>");
-	else
+	} else {
 		gtk_label_set_text (GTK_LABEL (info), "");
+	}
+	last_search_position = position;
 }
 
 static void
 find_button_next (GtkButton *button, GtkWidget *entry)
 {
-	GtkWidget *info;
-	const guchar *text = gtk_entry_get_text (GTK_ENTRY (entry));
-	last_search_position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position);
+	find_next (entry, GUINT_TO_POINTER(FALSE));
+}
 
-	info = glade_xml_get_widget (gui.xml, "find_status_label");
-	if (last_search_position == NULL)
-		gtk_label_set_markup (GTK_LABEL (info), "<span foreground=\"grey\">Search string not found</span>");
-	else
-		gtk_label_set_text (GTK_LABEL (info), "");
+static void
+find_button_prev (GtkButton *button, GtkWidget *entry)
+{
+	find_next (entry, GUINT_TO_POINTER(TRUE));
 }
 
 static void
@@ -594,11 +605,13 @@ initialize_main_window ()
 
 	/* setup find stuff */
 	widget = glade_xml_get_widget (gui.xml, "find entry");
-	g_signal_connect (G_OBJECT (widget), "activate", G_CALLBACK (find_next), NULL);
+	g_signal_connect (G_OBJECT (widget), "activate", G_CALLBACK (find_next), GUINT_TO_POINTER(FALSE));
 	g_signal_connect (G_OBJECT (widget), "key-press-event", G_CALLBACK (close_find_key), NULL);
 	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (clear_find), NULL);
 	widget2 = glade_xml_get_widget (gui.xml, "find_next_button");
 	g_signal_connect (G_OBJECT (widget2), "clicked", G_CALLBACK (find_button_next), widget);
+	widget2 = glade_xml_get_widget (gui.xml, "find_prev_button");
+	g_signal_connect (G_OBJECT (widget2), "clicked", G_CALLBACK (find_button_prev), widget);
 	widget = glade_xml_get_widget (gui.xml, "find close button");
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (close_find_button), NULL);
 
