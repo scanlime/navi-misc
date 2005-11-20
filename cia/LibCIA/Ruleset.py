@@ -446,8 +446,8 @@ class RulesetStorage:
         self.refresh().addErrback(self._reRefresh, interval)
 
     def _reRefresh(self, failure, interval):
-        log.msg("Refresh failed, retrying in %r seconds (%r)" %
-                (interval, failure))
+        log.msg("Refresh failed, retrying in %r seconds (%s)" %
+                (interval, failure.getBriefTraceback()))
         reactor.callLater(interval, self.refreshUntilDone)
 
     def refresh(self):
