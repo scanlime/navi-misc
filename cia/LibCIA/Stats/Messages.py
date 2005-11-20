@@ -540,9 +540,13 @@ class MessageBuffer:
         # to be just a log message or something equally
         # useless.
         #
-        dict = [ key for key in encoder.memo if len(key) < 80 ]
+        dict = [ key for key in encoder.memo if len(key) < 64 ]
         dict.sort(lambda a,b: cmp(len(a), len(b)))
-        return dict
+
+        # Put an upper limit on the number of dictionary symbols,
+        # to avoid really pathological messages using up lots of
+        # disk space in the file header.
+        return dict[:128]
 
     def push(self, msg):
         """Append a new message to the buffer, returning its ID"""
