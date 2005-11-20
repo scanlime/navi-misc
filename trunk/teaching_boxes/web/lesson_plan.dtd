@@ -1,3 +1,5 @@
+<!-- DTD for a lesson plan. -->
+
 <!ELEMENT lesson (title, author, time, about, standards,
                   intro?, materials?, schedule?, prerequisites?,
                   methods?, link*)>

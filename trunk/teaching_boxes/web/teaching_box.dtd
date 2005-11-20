@@ -1,0 +1,4 @@
+<!-- Basic DTD for a teaching box. Boxes contain references to lessons. -->
+
+<!ELEMENT box    (lesson+)>
+<!ELEMENT lesson (#PCDATA)>
