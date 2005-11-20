@@ -40,8 +40,38 @@
 
 			<!-- Button bar -->
 			<p align=right>
-				<input id="cancel" type="button" value="Cancel">
-				<input id="create" type="button" value="Create">
+				<input id="newCancel" type="button" value="Cancel">
+				<input id="newCreate" type="button" value="Create">
+			</p>
+
+		</div>
+
+		<!-- div element for the Add Field dialog -->
+		<div class="new_box" id="add_field_box">
+			<!-- Titlebar -->
+			<div style="width: 100%; background-color: #444499; margin-bottom: 5px;">
+				<h1><font style="color: white">Add a Field</font></h1>
+			</div>
+
+			<!-- Descriptive text at the top -->
+			<p>
+				The following fields are available for addition into the box:
+			</p>
+
+			<!-- Field selector -->
+			<div id="addfieldsSelect" class="fieldsSelect"></div>
+
+			<!-- Description -->
+			<p>
+				<div id="addFieldsdescription" style="margin: 10px; height: 20px">
+					<b>Description: </b>
+				</div>
+			</p>
+
+			<!-- Button bar -->
+			<p align=right>
+				<input id="addFieldCancel" type="button" value="Cancel">
+				<input id="addFieldCreate" type="button" value="Create">
 			</p>
 
 		</div>
@@ -53,8 +83,7 @@
 			</td>
 
 			<td class="main" id="main">
-				<div id="toolbar" style="width: 100%; background-color: #888888; margin-bottom: 5px">
-					<h3>Toolbar</h3>
+				<div class="toolbar" id="toolbar">
 				</div>
 				<iframe id="iframe" width="100%" height=100% scrolling="auto"
 					src="blank_lesson.html" frameborder=0>

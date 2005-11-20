@@ -15,6 +15,7 @@ TYPE_TEXTAREA = 2
 // General stuff
 var lessonPlan
 var newBox
+var addField
 
 // Fields and their descriptions
 // Required fields
@@ -71,9 +72,11 @@ function LessonPlan ()
 	// Members
 	this.fields  = new Array ()
 	this.mainDiv = document.getElementById ('mainDiv')
+	this.toolbar = top.document.getElementById ('toolbar')
 
 	// Methods
-	this.addField    = addField
+	this.addField     = addField
+	this.setupToolbar = setupToolbar
 
 	// Title
 	title = document.createElement ("h1")
@@ -81,11 +84,88 @@ function LessonPlan ()
 	title.appendChild (text)
 	this.mainDiv.appendChild (title)
 
+	// Toolbar
+	this.setupToolbar (this)
+
 	// Fields
 	for (item in requiredFields)
 	{
 		this.addField (item, requiredFields[item], false)
 	}
+}
+
+function setupToolbar (plan)
+{
+	// New lesson button
+	button = document.createElement ("span")
+	button.appendChild (document.createTextNode ("New Lesson"))
+	button.style.padding = "5px"
+	button.style.margin = "0px 5px 0px 5px"
+	button.style.border = "thin solid #000000"
+	button.onmouseover = overToolbarButton
+	button.onmouseout = outToolbarButton
+	plan.toolbar.appendChild (button)
+
+	// Save lesson button
+	button = document.createElement ("span")
+	button.appendChild (document.createTextNode ("Save Lesson"))
+	button.style.padding = "5px"
+	button.style.margin = "0px 5px 0px 5px"
+	button.style.border = "thin solid #000000"
+	button.onmouseover = overToolbarButton
+	button.onmouseout = outToolbarButton
+	plan.toolbar.appendChild (button)
+
+	// Create Link button
+	button = document.createElement ("span")
+	button.appendChild (document.createTextNode ("Create Link"))
+	button.style.padding = "5px"
+	button.style.margin = "0px 5px 0px 5px"
+	button.style.border = "thin solid #000000"
+	button.onmouseover = overToolbarButton
+	button.onmouseout = outToolbarButton
+	plan.toolbar.appendChild (button)
+
+	// Add Field button
+	button = document.createElement ("span")
+	button.appendChild (document.createTextNode ("Add Field"))
+	button.style.padding = "5px"
+	button.style.margin = "0px 5px 0px 5px"
+	button.style.border = "thin solid #000000"
+	button.onmouseover = overToolbarButton
+	button.onmouseout = outToolbarButton
+	button.onclick = function (event) {addField = new AddFieldDlg ()}
+	plan.toolbar.appendChild (button)
+
+	// Add Resource button
+	button = document.createElement ("span")
+	button.appendChild (document.createTextNode ("Add Resource"))
+	button.style.padding = "5px"
+	button.style.margin = "0px 5px 0px 5px"
+	button.style.border = "thin solid #000000"
+	button.onmouseover = overToolbarButton
+	button.onmouseout = outToolbarButton
+	plan.toolbar.appendChild (button)
+
+	// Add Note button
+	button = document.createElement ("span")
+	button.appendChild (document.createTextNode ("Add Note"))
+	button.style.padding = "5px"
+	button.style.margin = "0px 5px 0px 5px"
+	button.style.border = "thin solid #000000"
+	button.onmouseover = overToolbarButton
+	button.onmouseout = outToolbarButton
+	plan.toolbar.appendChild (button)
+}
+
+function overToolbarButton (event)
+{
+	event.target.style.backgroundColor = "#eeeeee"
+}
+
+function outToolbarButton (event)
+{
+	event.target.style.backgroundColor = "#cccccc"
 }
 
 // Add a field to the lesson plan
@@ -98,7 +178,6 @@ function addField (name, field, removable)
 	this.fields[field.id] = field
 	this.mainDiv.appendChild (field)
 }
-
 
 // Create a field and return it
 function createField (name, desc, type, removable)
@@ -186,13 +265,15 @@ function NewBox ()
 	// Members
 	this.div = top.document.getElementById ('new_box')
 	this.select = top.document.getElementById ('fieldsSelect')
-	this.createButton = top.document.getElementById ('create')
-	this.cancelButton = top.document.getElementById ('cancel')
+	this.createButton = top.document.getElementById ('newCreate')
+	this.cancelButton = top.document.getElementById ('newCancel')
 	this.options = new Array ()
 	this.div.options = this.options
 
 	// Methods
-	this.selectionChanged = selectionChanged
+	this.selectionChanged = newBoxSelectionChanged
+	this.createButtonClicked = newBoxCreateButtonClicked
+	this.cancelButtonClicked = newBoxCancelButtonClicked
 
 	// Add the stuff to the box
 	for (field in optionalFields)
@@ -218,9 +299,9 @@ function NewBox ()
 	}
 
 	// Connect events to the selector
-	this.select.onclick = selectionChanged
-	this.createButton.onclick = createButtonClicked
-	this.cancelButton.onclick = cancelButtonClicked
+	this.select.onclick = this.selectionChanged
+	this.createButton.onclick = this.createButtonClicked
+	this.cancelButton.onclick = this.cancelButtonClicked
 
 	// Make the dialog visible
 	this.div.style.display = "block"
@@ -231,7 +312,7 @@ function NewBox ()
 }
 
 // Selection changed handler
-function selectionChanged (event)
+function newBoxSelectionChanged (event)
 {
 	parentDiv = newBox.div
 	select = newBox.select
@@ -279,7 +360,7 @@ function selectionChanged (event)
 }
 
 // Create button clicked
-function createButtonClicked ()
+function newBoxCreateButtonClicked ()
 {
 	div = newBox.div
 	div.style.visibility = "hidden"
@@ -297,11 +378,139 @@ function createButtonClicked ()
 }
 
 // Cancel button clicked
-function cancelButtonClicked ()
+function newBoxCancelButtonClicked ()
 {
 	div = newBox.div
 	div.style.visibility = "hidden"
 	history.back ()
+}
+
+//----------------------------
+// AddFieldDLG Class
+//----------------------------
+function AddFieldDlg ()
+{
+	// Members
+	this.div = top.document.getElementById ('add_field_box')
+	this.select = top.document.getElementById ('addfieldsSelect')
+	this.createButton = top.document.getElementById ('addFieldCreate')
+	this.cancelButton = top.document.getElementById ('addFieldCancel')
+	this.options = new Array ()
+	this.div.options = this.options
+
+	// Methods
+	this.selectionChanged = addFieldSelectionChanged
+	this.createButtonClicked = addFieldCreateButtonClicked
+	this.cancelButtonClicked = addFieldCancelButtonClicked
+
+	// Clear the old DLG stuff out
+	this.select.innerHTML = ""
+
+	// Add the stuff to the box
+	for (field in optionalFields)
+	{
+		div = document.createElement ("div")
+		div.appendChild (document.createTextNode (field))
+		div.fieldName = field
+		div.selected = false
+		div.style.padding = "3px"
+		this.options.push (div)
+		this.select.appendChild (div)
+	}
+
+	// Connect events to the selector
+	this.select.onclick = this.selectionChanged
+	this.createButton.onclick = this.createButtonClicked
+	this.cancelButton.onclick = this.cancelButtonClicked
+
+	// Make the dialog visible
+	this.div.style.display = "block"
+	this.div.style.position = "absolute"
+	this.div.style.left = (windowWidth / 2) - (this.div.clientWidth / 2)
+	this.div.style.top = (windowHeight / 2) - (this.div.clientHeight / 2) + bannerHeight
+	this.div.style.visibility = "visible"
+}
+
+// Selection changed handler
+function addFieldSelectionChanged (event)
+{
+	parentDiv = addField.div
+	select = addField.select
+	div = top.document.getElementById ('addFieldsdescription')
+
+	// Prepare the description text
+	boldText = document.createElement ("b")
+	boldLabel = document.createTextNode ("Description: ")
+	boldText.appendChild (boldLabel)
+
+	// Figure out what responded to the event
+	if (event.target)
+	{
+		target = event.target
+		parent = target.parentDiv
+	}
+	else if (event.srcElement)
+	{
+		target = event.srcElement
+		parent = element.srcElement.parentDiv
+	}
+
+	// Clear the current selection
+	for (option in parentDiv.options)
+	{
+		parentDiv.options[option].style.background = "#ffffff"
+		parentDiv.options[option].selected = false
+	}
+
+	// Grab the description
+	if (target.fieldName)
+		text = optionalFields[target.fieldName][0]
+	else
+		text = ""
+
+	// Set the selection color
+	if (text != "")
+		if (parent)
+		{
+			parent.style.background = "#7777ff"
+			parent.selected = true
+		}
+		else
+		{
+			target.style.background = "#7777ff"
+			target.selected = true
+		}
+
+	// Setup the div
+	descriptText = document.createTextNode (text)
+	div.innerHTML = ""
+	div.appendChild (boldText)
+	div.appendChild (descriptText)
+}
+
+// Create button clicked
+function addFieldCreateButtonClicked ()
+{
+	div = addField.div
+	div.style.visibility = "hidden"
+
+	// Figure out which fields were selected and add them to the view
+	options = div.options
+	for (i in options)
+	{
+		if (options[i].selected)
+		{
+			field = div.options[i].fieldName
+			lessonPlan.addField (field, optionalFields[field], true)
+		}
+	}
+}
+
+// Cancel button clicked
+function addFieldCancelButtonClicked ()
+{
+	div = addField.div
+	div.style.visibility = "hidden"
 }
 
 //-----------------------------
@@ -314,7 +523,7 @@ function calculateSizes ()
 	// Setup the sizes of the navigation window and lesson plan
 	// Get the size of the window
 	bannerHeight = top.document.getElementById ('banner').height
-	toolbarHeight = top.document.getElementById ('toolbar').clientHeight
+	toolbarHeight = top.document.getElementById ('toolbar').clientHeight + 14
 
 	// FIXME: We need to figure out a better way of getting rid of the
 	// blank line at the bottom of the page...The 35-point subtract
@@ -330,15 +539,15 @@ function calculateSizes ()
 // Main function that does all the kickoff stuff
 function main ()
 {
-	// Calculate the size of the window
-	calculateSizes ()
-
 	// Make sure the main window knows to call that every time we
 	// resize.
 	top.onresize = calculateSizes
 
 	// Create the stuff.
 	lessonPlan = new LessonPlan ()
+
+	// Calculate the size of the window
+	calculateSizes ()
 
 	// Pop up the New Box dialog
 	newBox = new NewBox ()
