@@ -33,6 +33,11 @@ td.main {
 	margin-left: 10px;
 }
 
+.descriptionField {
+	font-size: medium;
+	font-style: italic;
+}
+
 div.new_box {
    margin-left: 10px;
    margin-right: 10px;

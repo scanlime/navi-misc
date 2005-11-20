@@ -16,6 +16,51 @@ TYPE_TEXTAREA = 2
 var lessonPlan
 var newBox
 
+// Fields and their descriptions
+// Required fields
+requiredFields = new Array ();
+requiredFields["Title"] = [
+	"The title associated with this box",
+	TYPE_ENTRY]
+
+requiredFields["Author"] = [
+	"The creator(s) of this box",
+	TYPE_ENTRY]
+
+requiredFields["Required Time"] = [
+	"The amount of time required to teach this lesson",
+	TYPE_ENTRY]
+
+requiredFields["About"] = [
+	"A brief description of the box",
+    TYPE_TEXTAREA]
+
+requiredFields["Standards"] = [
+	"The school standards covered by this box",
+	TYPE_TEXTAREA]
+
+// Optional fields
+optionalFields = new Array ();
+optionalFields["Introduction"] = [
+	"Introduce the topic",
+	TYPE_TEXTAREA]
+
+optionalFields["Materials"] = [
+	"Materials (such as scissors or glue) that are required",
+	TYPE_TEXTAREA]
+
+optionalFields["Detailed Schedule"] = [
+	"Provide a detailed schedule for the lesson",
+	TYPE_TEXTAREA]
+
+optionalFields["Prerequisites"] = [
+	"The concepts that students should bring in to this lesson",
+	TYPE_TEXTAREA]
+
+optionalFields["Instructions (Methods)"] = [
+	"How the lesson is to be taught",
+	TYPE_TEXTAREA]
+
 //------------------------------------
 // Class LessonPlan
 //------------------------------------
@@ -37,24 +82,26 @@ function LessonPlan ()
 	this.mainDiv.appendChild (title)
 
 	// Fields
-	this.addField ("Title", TYPE_ENTRY, false)
-	this.addField ("Author", TYPE_ENTRY, false)
-	this.addField ("Required Time", TYPE_ENTRY, false)
-	this.addField ("About", TYPE_TEXTAREA, false)
-	this.addField ("Standards", TYPE_TEXTAREA, false)
+	for (item in requiredFields)
+	{
+		this.addField (item, requiredFields[item], false)
+	}
 }
 
 // Add a field to the lesson plan
-function addField (name, type, removable)
+function addField (name, field, removable)
 {
-	field = createField (name, type, removable)
+	desc = field[0]
+	type = field[1]
+
+	field = createField (name, desc, type, removable)
 	this.fields[field.id] = field
 	this.mainDiv.appendChild (field)
 }
 
 
 // Create a field and return it
-function createField (name, type, removable)
+function createField (name, desc, type, removable)
 {
 	// Create the title of the field
 	title = document.createElement ("span")
@@ -75,18 +122,23 @@ function createField (name, type, removable)
 		rm.onclick = removeField
 	}
 
+	// Create the description tag
+	descTag = document.createElement ("span")
+	descTag.setAttribute ("class", "descriptionField")
+	descTag.appendChild (document.createTextNode (desc))
+
 	// Determine which type of field we want
 	switch (type)
 	{
 		case TYPE_ENTRY:
 			entry = document.createElement ("input")
 			entry.setAttribute ("type", "text")
-			entry.setAttribute ("style", "width: 100%; margin-bottom: 10px;")
+			entry.setAttribute ("style", "width: 100%; margin-bottom: 20px;")
 			break
 		case TYPE_TEXTAREA:
 			entry = document.createElement ("textarea")
 			entry.setAttribute ("rows", 5)
-			entry.setAttribute ("style", "width: 100%;")
+			entry.setAttribute ("style", "width: 100%; margin-bottom: 20px;")
 			break
 		default:
 			entry = document.createElement ("textarea")
@@ -100,6 +152,8 @@ function createField (name, type, removable)
 	if (removable) {
 		div.appendChild (rm)
 	}
+	div.appendChild (document.createElement ("br"))
+	div.appendChild (descTag)
 	div.appendChild (entry)
 
 	return div
@@ -118,6 +172,7 @@ function removeField (event)
 		}
 
 		mainDiv.removeChild (lessonPlan.fields[id])
+		delete lessonPlan.fields[id]
 	}
 }
 
@@ -134,34 +189,26 @@ function NewBox ()
 	this.createButton = top.document.getElementById ('create')
 	this.cancelButton = top.document.getElementById ('cancel')
 	this.options = new Array ()
-	this.fields = new Array ()
 	this.div.options = this.options
 
 	// Methods
 	this.selectionChanged = selectionChanged
 
-	// Set the fields
-	this.fields.push ("Introduction")
-	this.fields.push ("Materials")
-	this.fields.push ("Detailed Schedule")
-	this.fields.push ("Prerequisites")
-	this.fields.push ("Instructions (Methods)")
-
 	// Add the stuff to the box
-	for (field in this.fields)
+	for (field in optionalFields)
 	{
 		div = document.createElement ("div")
 
 		optionCheck = document.createElement("input")
 		optionCheck.type = "checkbox"
 		optionCheck.checked = false
-		optionCheck.optionNumber = field
+		optionCheck.fieldName = field
 
-		optionText = document.createTextNode (this.fields[field])
+		optionText = document.createTextNode (field)
 
 		div.appendChild (optionCheck)
 		div.appendChild (optionText)
-		div.optionNumber = field
+		div.fieldName = field
 		div.myCheck = optionCheck
 
 		optionCheck.parentDiv = div
@@ -209,37 +256,13 @@ function selectionChanged (event)
 
 	// Clear the current selection
 	for (option in parentDiv.options)
-	{
 		parentDiv.options[option].style.background = "#ffffff"
-	}
 
-	// Figure out the text
-	switch (target.optionNumber)
-	{
-		case "0":
-			// Introduction
-			text = "Introduce the topic"
-			break
-		case "1":
-			// Materials
-			text = "Materials (such as scissors or glue) that are required"
-			break
-		case "2":
-			// Detailed Schedule
-			text = "Provide a detailed schedule for the lesson"
-			break
-		case "3":
-			// Prerequisites
-			text = "The concepts that students should bring in to this lesson"
-			break
-		case "4":
-			// Instructions (Methods)
-			text = "How the lesson is to be taught"
-			break
-		default:
-			text = ""
-			break
-	}
+	// Grab the description
+	if (target.fieldName)
+		text = optionalFields[target.fieldName][0]
+	else
+		text = ""
 
 	// Set the selection color
 	if (text != "")
@@ -267,7 +290,8 @@ function createButtonClicked ()
 	{
 		if (options[i].myCheck.checked)
 		{
-			lessonPlan.addField (newBox.fields[i], TYPE_TEXTAREA, true)
+			field = div.options[i].fieldName
+			lessonPlan.addField (field, optionalFields[field], true)
 		}
 	}
 }
