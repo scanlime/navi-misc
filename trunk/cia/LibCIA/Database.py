@@ -22,7 +22,7 @@ Utilities for accessing CIA's persistent data stored in an SQL database
 #
 
 from twisted.enterprise.adbapi import ConnectionPool
-import MySQLdb
+import MySQLdb.cursors
 import _mysql
 import os
 import XML
@@ -64,7 +64,7 @@ def readDictFile(path):
     return d
 
 
-def createPool(overrides={}, filename="~/.cia_db"):
+def createPool(overrides={}, filename="~/.cia_db", serverCursor=False):
     """
     This creates the global ConnectionPool object that we use to access our database.
     Note that a ConnectionPool doesn't actually connect to the database, it
@@ -84,12 +84,14 @@ def createPool(overrides={}, filename="~/.cia_db"):
 
         # This is so we don't splurt our password out to twistd.log...
         'cp_noisy':  False,
-
-        # Server side cursors. The default is to use client-side cursors,
-        # which will copy the entire result set back at once rather
-        # than iterating it!
-        'cursorclass': MySQLdb.cursors.SSCursor,
         }
+
+    # With server-side cursors we can iterate over the result set without
+    # copying it all from mysqld to twistd. Unfortunately this can't
+    # be the default yet- server side cursors require the execute/fetch
+    # cycle to be obeyed strictly, and not all of CIA does this yet.
+    if serverCursor:
+        info['cursorclass'] = MySQLdb.cursors.SSCursor
 
     # Load user settings from disk
     if filename:
