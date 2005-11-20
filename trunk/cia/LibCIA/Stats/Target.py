@@ -42,19 +42,25 @@ class StatsTarget:
        """
     def __init__(self, path=''):
         self.setPath(path)
-        self.messages = MessageBuffer(os.path.join(self.diskPath, 'messages'))
+        self.messages = MessageBuffer(os.path.join(self.diskPath, '_msg'))
         self.counters = Counters(self)
         self.metadata = Metadata(self)
 
     def setPath(self, path):
         # Remove leading and trailing slashes, remove duplicate
-        # slashes, process '.' and '..' directories.
+        # slashes, process '.' and '..' directories. We don't
+        # allow paths beginning with '.' or '_'.
         self.pathSegments = []
         for segment in path.split('/'):
             if segment == '..':
                 if self.pathSegments:
                     del self.pathSegments[-1]
-            elif segment and segment != '.':
+            elif segment == '.':
+                pass
+            elif segment[0] in ('.', '_'):
+                raise ValueError("Stats path segment %r begins with a reserved character"
+                                 % segment)
+            else:
                 self.pathSegments.append(segment)
         self.path = '/'.join(self.pathSegments)
 
@@ -74,7 +80,11 @@ class StatsTarget:
     def deliver(self, message=None):
         """An event has occurred which should be logged by this stats target"""
         if message:
-            self.messages.push(message)
+            # FIXME: This ends up converting the message to a string, just so
+            #        the message buffer can then parse it again. If the message
+            #        buffer could directly convert DOMs back to SAX events, this
+            #        would be more efficient.
+            self.messages.push(str(message))
         self.counters.increment()
         SubscriptionDelivery(self).notify('messages')
 
