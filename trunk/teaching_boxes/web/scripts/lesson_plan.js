@@ -48,7 +48,7 @@ function LessonPlan ()
 function addField (name, type, removable)
 {
 	field = createField (name, type, removable)
-	this.fields.push (field)
+	this.fields[field.id] = field
 	this.mainDiv.appendChild (field)
 }
 
@@ -117,8 +117,7 @@ function removeField (event)
 			id = event.srcElement.id
 		}
 
-		div = document.getElementById (id)
-		mainDiv.removeChild (div)
+		mainDiv.removeChild (lessonPlan.fields[id])
 	}
 }
 
