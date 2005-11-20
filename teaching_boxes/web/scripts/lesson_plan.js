@@ -112,9 +112,9 @@ function removeField (event)
 		var mainDiv = document.getElementById ("mainDiv")
 
 		if (event.target) {
-			id = event.target.getAttribute ("id")
+			id = event.target.id
 		} else {
-			id = event.srcElement.getAttribute ("id")
+			id = event.srcElement.id
 		}
 
 		div = document.getElementById (id)
