@@ -100,13 +100,13 @@ dcc_window_init (DccWindow *window)
 	g_signal_connect (G_OBJECT (window->stop_button), "clicked", G_CALLBACK (transfer_stop_clicked), window);
 
 	window->transfer_store = gtk_list_store_new (N_COLUMNS,
-		G_TYPE_POINTER,		/* DCC struct */
-		G_TYPE_STRING,		/* Info text */
-		GDK_TYPE_PIXBUF,	/* File icon */
-		G_TYPE_INT,		/* % done */
-		G_TYPE_STRING,		/* % done label */
-		G_TYPE_STRING		/* time remaining */
-		);
+	                                             G_TYPE_POINTER,	/* DCC struct */
+	                                             G_TYPE_STRING,	/* Info text */
+	                                             GDK_TYPE_PIXBUF,	/* File icon */
+	                                             G_TYPE_INT,	/* % done */
+	                                             G_TYPE_STRING,	/* % done label */
+	                                             G_TYPE_STRING	/* time remaining */
+	                                             );
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (window->transfer_list), GTK_TREE_MODEL (window->transfer_store));
 
@@ -267,13 +267,13 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 
 	gtk_list_store_prepend (window->transfer_store, &iter);
 	gtk_list_store_set (window->transfer_store, &iter,
-			    DCC_COLUMN, dcc,
-			    INFO_COLUMN, info_text,
-			    ICON_COLUMN, NULL,
-			    DONE_COLUMN, done,
-			    DONE_LABEL_COLUMN, done_text,
-			    TIME_COLUMN, "starting",
-			    -1);
+	                    DCC_COLUMN, dcc,
+	                    INFO_COLUMN, info_text,
+	                    ICON_COLUMN, NULL,
+	                    DONE_COLUMN, done,
+	                    DONE_LABEL_COLUMN, done_text,
+	                    TIME_COLUMN, "starting",
+	                    -1);
 
 	g_free (done_text);
 	g_free (info_text);
@@ -338,8 +338,8 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 				g_free (remaining_text);
 
 				/* We put off rendering the icon until we get at least one update,
-			 	* to ensure that gnome-vfs can determine the MIME type
-			 	*/
+				 * to ensure that gnome-vfs can determine the MIME type
+				 */
 				if (icon == NULL) {
 					GtkIconTheme *icon_theme;
 					char *icon;
@@ -364,18 +364,18 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 					/* Create a new, empty image, 8px bigger than the MIME icon */
 					image_data = g_new0 (char, (mime_w + 8) * (mime_h + 8) * 4 * 8);
 					file_icon = gdk_pixbuf_new_from_data (image_data,
-									      GDK_COLORSPACE_RGB, TRUE, 8,
-									      mime_w + 8, mime_h + 8, (mime_w + 8) * 4,
-									      (GdkPixbufDestroyNotify) g_free, NULL);
+					                                      GDK_COLORSPACE_RGB, TRUE, 8,
+					                                      mime_w + 8, mime_h + 8, (mime_w + 8) * 4,
+					                                      (GdkPixbufDestroyNotify) g_free, NULL);
 
 					/* Composite on our MIME icon */
 					gdk_pixbuf_composite (mime_pixbuf,
-						      	file_icon,
-						      	0, 0,
-						      	mime_w, mime_h,
-						      	0.0, 0.0,
-						      	1.0, 1.0,
-						      	GDK_INTERP_BILINEAR, 255);
+					                      file_icon,
+					                      0, 0,
+					                      mime_w, mime_h,
+					                      0.0, 0.0,
+					                      1.0, 1.0,
+					                      GDK_INTERP_BILINEAR, 255);
 
 					/* Composite on an emblem which shows the direction of transfer */
 					if (dcc->type == 1)
@@ -384,12 +384,12 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 						direction_emblem = window->up_icon;
 
 					gdk_pixbuf_composite (direction_emblem,
-							      file_icon,
-							      mime_w - 16, mime_w - 16,
-							      24, 24,
-							      mime_w - 16, mime_w - 16,
-							      1.0, 1.0,
-							      GDK_INTERP_BILINEAR, 255);
+					                      file_icon,
+					                      mime_w - 16, mime_w - 16,
+					                      24, 24,
+					                      mime_w - 16, mime_w - 16,
+					                      1.0, 1.0,
+					                      GDK_INTERP_BILINEAR, 255);
 
 					g_free (icon);
 
