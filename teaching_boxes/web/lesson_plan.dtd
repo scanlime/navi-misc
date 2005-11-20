@@ -1,0 +1,17 @@
+<!ELEMENT lesson (title, author, time, about, standards,
+                  intro?, materials?, schedule?, prerequisites?,
+                  methods?, link*)>
+
+<!ELEMENT title         (#PCDATA)>
+<!ELEMENT author        (#PCDATA)>
+<!ELEMENT time          (#PCDATA)>
+<!ELEMENT about         (#PCDATA)>
+<!ELEMENT standards     (#PCDATA)>
+<!ELEMENT intro         (#PCDATA)>
+<!ELEMENT materials     (#PCDATA)>
+<!ELEMENT schedule      (#PCDATA)>
+<!ELEMENT prerequisites (#PCDATA)>
+<!ELEMENT methods       (#PCDATA)>
+<!ELEMENT link          (#PCDATA)>
+
+<!ATTLIST link type (internal|external) #REQUIRED>
