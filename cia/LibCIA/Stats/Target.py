@@ -31,7 +31,7 @@ from LibCIA.Stats.Metadata import Metadata
 from LibCIA.Stats.Messages import MessageBuffer
 
 
-class StatsTarget:
+class StatsTarget(object):
     """Encapsulates all the stats-logging features used for one particular
        target. This can be one project, one class of messages, etc.
        Every StatsTarget is identified by a UNIX-style pathname.
@@ -42,9 +42,27 @@ class StatsTarget:
        """
     def __init__(self, path=''):
         self.setPath(path)
-        self.messages = MessageBuffer(os.path.join(self.diskPath, '_msg'))
-        self.counters = Counters(self)
-        self.metadata = Metadata(self)
+        self._messages = None
+        self._counters = None
+        self._metadata = None
+
+    def _getMessages(self):
+        if self._messages is None:
+            self._messages = MessageBuffer(os.path.join(self.getDiskPath(), '_msg'))
+        return self._messages
+    messages = property(_getMessages)
+
+    def _getCounters(self):
+        if self._counters is None:
+            self._counters = Counters(self)
+        return self._counters
+    counters = property(_getCounters)
+
+    def _getMetadata(self):
+        if self._metadata is None:
+            self._metadata = Metadata(self)
+        return self._metadata
+    metadata = property(_getMetadata)
 
     def setPath(self, path):
         # Remove leading and trailing slashes, remove duplicate
@@ -55,7 +73,7 @@ class StatsTarget:
             if segment == '..':
                 if self.pathSegments:
                     del self.pathSegments[-1]
-            elif segment == '.':
+            elif segment in ('.', ''):
                 pass
             elif segment[0] in ('.', '_'):
                 raise ValueError("Stats path segment %r begins with a reserved character"
@@ -63,9 +81,6 @@ class StatsTarget:
             else:
                 self.pathSegments.append(segment)
         self.path = '/'.join(self.pathSegments)
-
-        # Every target gets a directory on disk
-        self.diskPath = Files.getDir(Files.dbDir, 'stats', *self.pathSegments)
 
         # Our database uses VARCHAR(128), make sure this fits
         if len(self.path) > 128:
@@ -76,6 +91,10 @@ class StatsTarget:
             self.name = self.pathSegments[-1]
         else:
             self.name = None
+
+    def getDiskPath(self):
+        """Every target gets a directory on disk. This returns it, creating it if necessary."""
+        return Files.getDir(Files.dbDir, 'stats', *self.pathSegments)
 
     def deliver(self, message=None):
         """An event has occurred which should be logged by this stats target"""
