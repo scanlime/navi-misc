@@ -1,6 +1,0 @@
-- Split demo.py into separate useful utilities
-- Write a spiffy synchronization app
-- Create another local database to store play counts, profiles, and such
-  for each song. This database will be synchronized from the device, and used
-  when uploading new songs that have already been on the device at some point,
-  so that play counts and profiles aren't destroyed when re-uploading music.
