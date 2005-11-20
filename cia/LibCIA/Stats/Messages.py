@@ -313,6 +313,7 @@ def SAXDecoder(encoded, dictionary):
                 last.__dict__["nextSibling"] = node
             childNodes.append(node)
             node.__dict__["parentNode"] = top
+            node.__dict__["ownerDocument"] = stack[0]
 
             i += 1
             continue
