@@ -33,6 +33,7 @@ from xml.dom import minidom
 import xml.xpath
 from cStringIO import StringIO
 from twisted.python import log
+from xml.sax import SAXParseException as ParseException
 
 
 class XMLObject(object):

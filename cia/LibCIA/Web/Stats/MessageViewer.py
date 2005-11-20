@@ -53,36 +53,24 @@ class EnvelopeSection(Template.Section):
     """A section displaying general information contained in a message's envelope"""
     title = 'envelope'
 
-    def __init__(self, target, messageId):
+    def __init__(self, target, message):
         self.target = target
-        self.messageId = messageId
+        self.message = message
 
     def render_rows(self, context):
-        # Grab a copy of the message first. It would be nice to not have
-        # to retrieve it a separate time for this section, but there's no
-        # good way to share deferreds between multiple sections in Template.Page yet.
-        result = defer.Deferred()
-        self.target.messages.getMessageById(self.messageId).addCallback(
-            self._render_rows, context, result).addErrback(result.errback)
-        return result
-
-    def _render_rows(self, xml, context, result):
-        # No message?
-        if not xml:
-            result.callback([])
-            return
-        m = Message.Message(xml)
+        if not self.message:
+            return []
         rows = []
 
-        timestamp = XML.dig(m.xml, "message", "timestamp")
+        timestamp = XML.dig(self.message.xml, "message", "timestamp")
         if timestamp:
             rows.append(self.format_timestamp(timestamp))
 
-        generator = XML.dig(m.xml, "message", "generator")
+        generator = XML.dig(self.message.xml, "message", "generator")
         if generator:
             rows.append(self.format_generator(generator))
 
-        result.callback(rows)
+        return rows
 
     def format_generator(self, gen):
         """Format the information contained in this message's <generator> tag"""
@@ -126,14 +114,10 @@ class UnformattedMessagePage(resource.Resource):
         resource.Resource.__init__(self)
 
     def render(self, request):
-        # Retrieve the metadata value, rendering the page once it arrives
-        self.target.messages.getMessageById(self.id).addCallback(self._render, request).addErrback(request.processingFailed)
-        return server.NOT_DONE_YET
-
-    def _render(self, xml, request):
+        xml = self.target.messages.getMessageById(self.id)
         if xml:
             request.setHeader('content-type', 'text/xml')
-            request.write(unicode(xml).encode('utf-8'))
+            request.write(unicode(XML.toString(xml)).encode('utf-8'))
             request.finish()
         else:
             request.write(error.NoResource("Message #%d not found" % self.id).render(request))
@@ -152,6 +136,13 @@ class MessagePage(Template.Page):
         return self.statsPage
 
     def preRender(self, context):
+        # Load the message once, so multiple components can share it
+        xml = self.statsPage.target.messages.getMessageById(self.id)
+        if xml:
+            self.message = Message.Message(xml)
+        else:
+            self.message = None
+
         context['component'] = self.statsPage.component
 
     def render_mainTitle(self, context):
@@ -162,18 +153,8 @@ class MessagePage(Template.Page):
                 self.statsPage.render_mainTitle(context)]
 
     def render_message(self, context):
-        # Grab the message from our database first
-        result = defer.Deferred()
-        self.statsPage.target.messages.getMessageById(self.id).addCallback(
-            self._render_message, context, result).addErrback(result.errback)
-        return result
-
-    def _render_message(self, xml, context, result):
-        # No message?
-        if not xml:
-            result.callback(self.notFoundMessage)
-            return
-        m = Message.Message(xml)
+        if not self.message:
+            return self.notFoundMessage
 
         # Try to format it using several media, in order of decreasing preference.
         # The 'xhtml-long' formatter lets messages define a special formatter to
@@ -190,21 +171,21 @@ class MessagePage(Template.Page):
 
         for medium in mediaList:
             try:
-                formatted = Formatters.getFactory().findMedium(medium, m).formatMessage(m)
+                formatted = Formatters.getFactory().findMedium(
+                    medium, self.message).formatMessage(self.message)
             except Message.NoFormatterError:
                 continue
-            result.callback(formatted)
-            return
+            return formatted
 
         # Still no luck? Display a warning message and a pretty-printed XML tree
-        result.callback([
+        return [
             tag('h1')[ "No formatter available" ],
-            XML.htmlPrettyPrint(m.xml),
-            ])
+            XML.htmlPrettyPrint(self.message.xml),
+            ]
 
     def render_leftColumn(self, context):
         return [
-            EnvelopeSection(self.statsPage.target, self.id),
+            EnvelopeSection(self.statsPage.target, self.message),
             LinksSection(self.statsPage.target, self.id),
             Info.Clock(),
             ]
