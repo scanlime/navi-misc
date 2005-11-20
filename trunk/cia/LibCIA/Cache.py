@@ -24,9 +24,7 @@ A generic object cache. Arbitrary python objects are mapped to files or strings.
 
 from twisted.internet import defer
 import time, md5, os, random, cPickle
-
-
-cacheDir = "/tmp/cia-cache"
+from LibCIA import Files
 
 class CachePerformance:
     """Collects performance information about a cache.
@@ -116,23 +114,12 @@ class AbstractFileCache:
            and this data type. This combines a hash of args with the name of this class.
            We create the cache directory if necessary.
            """
-        if not os.path.isdir(cacheDir):
-            os.makedirs(cacheDir)
-        assert os.path.isdir(cacheDir)
-
         hash = md5.md5(repr(args)).hexdigest()
-        name = "%s.%s" % (self.__class__.__name__, hash)
-        return os.path.join(cacheDir, name)
-
+        return Files.getCacheFile(self.__class__.__name__, hash)
 
     def getTempFilename(self):
         """Return a suggested temporary file name for miss() to use"""
-        if not os.path.isdir(cacheDir):
-            os.makedirs(cacheDir)
-        assert os.path.isdir(cacheDir)
-
-        name = "%s.temp_%d" % (self.__class__.__name__, random.randint(100000, 999999))
-        return os.path.join(cacheDir, name)
+        return Files.getTempFile()
 
 
 class AbstractStringCache(AbstractFileCache):
