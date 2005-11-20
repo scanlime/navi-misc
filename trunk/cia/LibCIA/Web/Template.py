@@ -383,7 +383,7 @@ class Page(Nouvelle.Twisted.Page):
 
                     # Legal goop
                     tag('p', _class='smallprint')[
-                        xml("The CIA server is Copyright &copy; 2003-2004 "),
+                        xml("The CIA server is Copyright &copy; 2003-2005 "),
                         EmailLink('mailto:micah@navi.cx')["Micah Dowty"],
                         ", and released under the ",
                         tag('a', _href='/doc/COPYING')["GNU GPL"], ".", tag('br'),
