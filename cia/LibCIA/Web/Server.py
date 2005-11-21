@@ -97,8 +97,7 @@ class Request(server.Request):
         if self._isSpider is not None:
             return self._isSpider
 
-        #fullAgent = self.getHeader("user-agent")
-        fullAgent = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+        fullAgent = self.getHeader("user-agent")
         if not fullAgent:
             return False
         abridgedAgent = fullAgent.split("/")[0].split()[0].strip().lower()
