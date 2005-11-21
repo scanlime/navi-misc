@@ -31,6 +31,7 @@
 gboolean userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data);
 void userlist_context (GtkWidget *treeview, struct User *user);
 static gint user_cmd (gchar *cmd, gchar *nick);
+static void userlist_focus_changed (GtkWindow *window, GtkDirectionType type, gpointer data);
 
 /* action callbacks */
 
@@ -49,6 +50,7 @@ static GtkActionEntry popup_action_entries [] = {
 };
 
 struct User *current_user;
+static gboolean userlist_busy;
 
 void
 initialize_userlist ()
@@ -71,6 +73,7 @@ initialize_userlist ()
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 
 	g_signal_connect (G_OBJECT (gui.userlist), "button_press_event", G_CALLBACK (userlist_click), NULL);
+	g_signal_connect (G_OBJECT (gui.userlist_window), "focus", G_CALLBACK (userlist_focus_changed), NULL);
 
 	gtk_action_group_add_actions (gui.action_group, popup_action_entries, G_N_ELEMENTS (popup_action_entries), NULL);
 }
@@ -195,6 +198,7 @@ userlist_gui_show ()
 	GdkScreen *mouse_screen;
 	gint mouse_x, mouse_y;
 
+	userlist_busy = TRUE;
 	gtk_widget_show (gui.userlist_window);
 
 	screen = gtk_window_get_screen (GTK_WINDOW (gui.userlist_window));
@@ -232,10 +236,19 @@ userlist_gui_show ()
 
 	gtk_window_resize (GTK_WINDOW (gui.userlist_window), 250, desired_height);
 	gtk_widget_grab_focus (gui.userlist);
+
+	userlist_busy = FALSE;
 }
 
 void
 userlist_gui_hide ()
 {
 	gtk_widget_hide (gui.userlist_window);
+}
+
+static void
+userlist_focus_changed (GtkWindow *window, GtkDirectionType type, gpointer data)
+{
+	if (gtk_window_is_active (window) == FALSE && userlist_busy == FALSE)
+		userlist_gui_hide ();
 }
