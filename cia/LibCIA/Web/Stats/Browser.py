@@ -298,7 +298,11 @@ class RecentMessages(MessageList):
             m = Message.Message(xml)
             m.hyperlink = Link.MessageLink(self.target, id, text="#")
             parsed.append(m)
-        return self.renderMessages(context, parsed)
+
+        if parsed:
+            return self.renderMessages(context, parsed)
+        else:
+            return []
 
 
 class LinksSection(Template.Section):

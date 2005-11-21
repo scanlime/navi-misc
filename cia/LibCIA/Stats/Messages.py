@@ -437,8 +437,9 @@ class MessageBuffer:
     indexSize = 4096
     contentSize = 256 * 1024
     
-    def __init__(self, f):
-        self.filename = f
+    def __init__(self, path, filename="_msg"):
+        self.dirPath = path
+        self.filePath = os.path.join(path, filename)
         self._initialized = False
 
     def close(self):
@@ -466,7 +467,7 @@ class MessageBuffer:
            If the database is not already initialized, it will return
            False and change nothing.
            """
-        self.file = os.fdopen(os.open(self.filename, os.O_RDWR | os.O_CREAT, 0666), 'w+')
+        self.file = os.fdopen(os.open(self.filePath, os.O_RDWR | os.O_CREAT, 0666), 'w+')
         header = self.file.read(self.headerSize)
 
         if header:
@@ -555,6 +556,9 @@ class MessageBuffer:
     def push(self, msg):
         """Append a new message to the buffer, returning its ID"""
         if not self._initialized:
+            # Create the parent directory if necessary
+            if not os.path.isdir(self.dirPath):
+                os.makedirs(self.dirPath)
             self._init(msg)
 
         # Parse the message into a compressed SAX event stream
@@ -584,6 +588,9 @@ class MessageBuffer:
            message doesn't exist or has been overwritten.
            """
         if not self._initialized:
+            # This shouldn't ever create the file
+            if not os.path.isfile(self.filePath):
+                return
             if not self._init():
                 return
 
@@ -600,6 +607,9 @@ class MessageBuffer:
            the same order they were added. Yields (id, msg) tuples.
            """
         if not self._initialized:
+            # This shouldn't ever create the file
+            if not os.path.isfile(self.filePath):
+                return
             if not self._init():
                 return
         if limit is None:
