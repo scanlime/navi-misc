@@ -97,7 +97,6 @@ static void on_text_entry_activate (GtkWidget *widget, gpointer data);
 static gboolean on_text_entry_key (GtkWidget *widget, GdkEventKey *key, gpointer data);
 
 static gboolean on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
-static gboolean on_vpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 
 static void entry_context (GtkEntry *entry, GtkMenu *menu, gpointer user_data);
@@ -441,6 +440,7 @@ void
 initialize_main_window ()
 {
 	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget, *widget2;
+	GtkSizeGroup *group;
 	GError *error = NULL;
 	GList *tmp = NULL;
 	int i;
@@ -615,6 +615,18 @@ initialize_main_window ()
 	widget = glade_xml_get_widget (gui.xml, "find close button");
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (close_find_button), NULL);
 
+	/* Size group between users button and entry field */
+	group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
+	widget = glade_xml_get_widget (gui.xml, "userlist_toggle");
+	if (g_file_test ("data/users.png", G_FILE_TEST_EXISTS))
+		gtk_button_set_image (GTK_BUTTON (widget), gtk_image_new_from_file ("data/users.png"));
+	else
+		gtk_button_set_image (GTK_BUTTON (widget), gtk_image_new_from_file (XCHATSHAREDIR "/users.png"));
+	gtk_size_group_add_widget (group, widget);
+	widget = glade_xml_get_widget (gui.xml, "entry hbox");
+	gtk_size_group_add_widget (group, widget);
+	g_object_unref (group);
+
 	/* connect nickname button */
 	widget = glade_xml_get_widget (gui.xml, "nickname");
 	gtk_button_set_use_underline (GTK_BUTTON (widget), FALSE);
@@ -638,7 +650,7 @@ run_main_window ()
 {
 	GtkWidget *pane, *widget;
 	int width, height;
-	int v, h;
+	int h;
 
 	width = gnome_config_get_int_with_default ("/xchat-gnome/main_window/width", 0);
 	height = gnome_config_get_int_with_default ("/xchat-gnome/main_window/height", 0);
@@ -646,19 +658,12 @@ run_main_window ()
 		gtk_window_set_default_size (GTK_WINDOW (gui.main_window), 800, 550);
 	else
 		gtk_window_set_default_size (GTK_WINDOW (gui.main_window), width, height);
-	v = gnome_config_get_int_with_default ("/xchat-gnome/main_window/vpane", 0);
 	h = gnome_config_get_int_with_default ("/xchat-gnome/main_window/hpane", 0);
 	if(h != 0) {
 		GtkWidget *hpane = glade_xml_get_widget (gui.xml, "HPane");
 		gtk_paned_set_position (GTK_PANED (hpane), h);
 	}
-	if(v != 0) {
-		GtkWidget *vpane = glade_xml_get_widget (gui.xml, "VPane");
-		gtk_paned_set_position (GTK_PANED (vpane), v);
-	}
 	g_signal_connect (G_OBJECT (gui.main_window), "configure-event", G_CALLBACK (on_resize), NULL);
-	pane = glade_xml_get_widget (gui.xml, "VPane");
-	g_signal_connect (G_OBJECT (pane), "notify::position", G_CALLBACK (on_vpane_move), NULL);
 	pane = glade_xml_get_widget (gui.xml, "HPane");
 	g_signal_connect (G_OBJECT (pane), "notify::position", G_CALLBACK (on_hpane_move), NULL);
 
@@ -1265,15 +1270,6 @@ on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 {
 	gnome_config_set_int ("/xchat-gnome/main_window/width", event->width);
 	gnome_config_set_int ("/xchat-gnome/main_window/height", event->height);
-	gnome_config_sync ();
-	return FALSE;
-}
-
-static gboolean
-on_vpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data)
-{
-	int pos = gtk_paned_get_position (widget);
-	gnome_config_set_int ("/xchat-gnome/main_window/vpane", pos);
 	gnome_config_sync ();
 	return FALSE;
 }
