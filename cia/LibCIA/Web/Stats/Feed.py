@@ -72,7 +72,9 @@ class BaseFeed(Nouvelle.Twisted.Page):
 
     def render_items(self, context):
         """Renders the most recent commits as items in the feed"""
-        return self.formatItems(self.target.messages.getLatest(self.limit), context)
+	latest = list(self.target.messages.getLatest(self.limit))
+	latest.reverse()
+        return self.formatItems(latest, context)
 
 
 class FormattedFeed(BaseFeed):
