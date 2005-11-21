@@ -13,17 +13,26 @@ from twisted.web import vhost
 from LibCIA import Database, Message, Ruleset, IRC, Stats, IncomingMail, Cron
 from LibCIA import Debug, Security, RpcServer, RpcClient, Web, Cache
 from twisted.internet import tcp
-from Nouvelle import tag
+from Nouvelle import tag, xml
 
 Database.init()
 
-# Disable stats pruning automatically if our I/O load gets critical
-def isPruningEnabled(self):
-    # FIXME: pruning disabled completely, for now
-    return False
-#    ioStatus = dict([t.split("=") for t in open("/proc/io_status").read().split()])
-#    return int(ioStatus['io_tokens']) > 300000
-Stats.Target.Messages.isPruningEnabled = isPruningEnabled
+# Trying out Google Adsense a bit.. currently this is in a very out-of-the
+# way location. It would be better to keep the ads on the right side of the
+# page, so that they're visible but unobtrusive- but our content is awful
+# wide for that right now.
+adSense = xml('<p style="text-align: center"><script type="text/javascript"><!--\n'
+              'google_ad_client = "pub-6191259594996825";'
+              'google_ad_width = 120;'
+              'google_ad_height = 600;'
+              'google_ad_format = "120x600_as";'
+              'google_ad_type = "text";'
+              'google_ad_channel ="";\n'
+              '//--></script>'
+              '<script type="text/javascript"'
+              ' src="http://pagead2.googlesyndication.com/pagead/show_ads.js">'
+              '</script></p>')
+Web.Template.Page.site_belowLeftColumn.append(adSense)
 
 # Remove the non-main CIA server notice, since this is in fact the main server.
 Web.Template.Page.site_mainServerNotice = []
