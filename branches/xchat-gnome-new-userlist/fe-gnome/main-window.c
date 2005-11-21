@@ -1484,15 +1484,12 @@ on_expand_topic (GtkExpander *expander, gpointer data)
 static void
 on_users_toggled (GtkToggleButton *widget, gpointer user_data)
 {
-	GtkWidget *window;
 	gboolean toggled;
 
 	toggled = gtk_toggle_button_get_active (widget);
-	window = glade_xml_get_widget (gui.xml, "userlist_window");
 
-	if (toggled) {
-		gtk_widget_show (window);
-	} else {
-		gtk_widget_hide (window);
-	}
+	if (toggled)
+		userlist_gui_show ();
+	else
+		userlist_gui_hide ();
 }
