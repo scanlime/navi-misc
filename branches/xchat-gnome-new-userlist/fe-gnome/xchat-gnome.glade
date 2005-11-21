@@ -1110,6 +1110,8 @@ It's like a balloon, and something bad happens!</property>
 </widget>
 
 <widget class="GtkWindow" id="userlist_window">
+  <property name="can_focus">True</property>
+  <property name="has_focus">True</property>
   <property name="title" translatable="yes">window1</property>
   <property name="type">GTK_WINDOW_POPUP</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
