@@ -86,7 +86,7 @@ class EnvelopeSection(Template.Section):
         return items
 
     def format_timestamp(self, stamp):
-        return ["Received at ", Template.value[TimeUtil.formatDate(int(XML.shallowText(stamp)))]]
+        return ["Received ", Template.value[TimeUtil.formatRelativeDate(int(XML.shallowText(stamp)))]]
 
 
 class LinksSection(Template.Section):
