@@ -23,6 +23,16 @@ Robert Collins contributed a client for Bazaar_, using email delivery: `cia_baz.
 .. _Bazaar: http://bazaar.canonical.com/
 .. _cia_baz.sh: /clients/baz/cia_baz.sh
 
+Bazaar-NG (bzr)
+---------------
+
+Jelmer Vernooij contributed a client for bzr_, using XML-RPC delivery. Download it
+`from Jelmer's site`_ or snag the `local copy`_.
+
+.. _bzr: http://www.bazaar-ng.org/
+.. _from Jelmer's site: http://samba.org/~jelmer/bzr/cia_bzr.py
+.. _local copy: http://cia.navi.cx/clients/bzr/cia_bzr.py
+
 BitKeeper
 ---------
 
