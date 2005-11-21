@@ -359,8 +359,8 @@ class Page(Nouvelle.Twisted.Page):
 
                     # Yep, this should be valid XHTML
                     tag('a', href="http://validator.w3.org/check/referer")[
-                        tag('img', src="http://www.w3.org/Icons/valid-xhtml11",
-                            alt="Valid XHTML 1.1!", height=31, width=88, _class="footer"),
+                        tag('img', src="/images/xhtml.png",
+                            alt="Valid XHTML 1.1!", height=15, width=80, _class="footer"),
                     ],
 
                     xml(" "),
@@ -372,8 +372,8 @@ class Page(Nouvelle.Twisted.Page):
 
                     # And valid CSS
                     tag('a', href="http://jigsaw.w3.org/css-validator/check/referer")[
-                        tag('img', src="http://jigsaw.w3.org/css-validator/images/vcss",
-                            alt="Valid CSS!", height=31, width=88, _class="footer"),
+                        tag('img', src="/images/css.png",
+                            alt="Valid CSS!", height=15, width=80, _class="footer"),
                     ],
 
                     # By default include a notice that this isn't the "main" CIA server
