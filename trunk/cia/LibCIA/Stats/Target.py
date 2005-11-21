@@ -48,7 +48,7 @@ class StatsTarget(object):
 
     def _getMessages(self):
         if self._messages is None:
-            self._messages = MessageBuffer(os.path.join(self.getDiskPath(), '_msg'))
+            self._messages = MessageBuffer(self.getDiskPath())
         return self._messages
     messages = property(_getMessages)
 
@@ -93,8 +93,10 @@ class StatsTarget(object):
             self.name = None
 
     def getDiskPath(self):
-        """Every target gets a directory on disk. This returns it, creating it if necessary."""
-        return Files.getDir(Files.dbDir, 'stats', *self.pathSegments)
+        """Every target gets a directory on disk. This returns it, without any
+           guarantee that it exists yet.
+           """
+        return Files.tryGetDir(Files.dbDir, 'stats', *self.pathSegments)
 
     def deliver(self, message=None):
         """An event has occurred which should be logged by this stats target"""

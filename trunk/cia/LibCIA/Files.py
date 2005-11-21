@@ -41,9 +41,16 @@ The top-level directory ('data' by default) is split into three branches:
 
 import os, random
 
-# Override this in your .tac file if you want.
-# By default, this 'data' directory will be at the same level as LibCIA.
-dataRoot = os.path.join(os.path.split(__file__)[0], '..', 'data')
+def setDataRoot(path):
+    """Change the root 'data' directory. This can be called in
+       your .tac file to override the default location for all
+       data files. The default is set below to 'data', in the
+       same directory as LibCIA.
+       """
+    global dataRoot
+    dataRoot = os.path.realpath(path)
+
+setDataRoot(os.path.join(os.path.split(__file__)[0], '..', 'data'))
 
 # Top-level directories
 dbDir = 'db'
@@ -55,14 +62,16 @@ def getDir(*seg):
     """Get a data directory made from the provided path segments.
        This returns a full path, creating it if necessary.
        """
-    path = os.path.realpath(dataRoot)
+    path = os.path.join(dataRoot, *seg)
     if not os.path.isdir(path):
-        os.mkdir(path)
-    for s in seg:
-        path = os.path.join(path, s)
-        if not os.path.isdir(path):
-            os.mkdir(path)
+        os.makedirs(path)
     return path
+
+def tryGetDir(*seg):
+    """Like getDir, but this will not check the directory
+       for existence nor create any new directories.
+       """
+    return os.path.join(dataRoot, *seg)
 
 def getCacheFile(ns, digest):
     """Get a cache file in the provided namespace (directory)
