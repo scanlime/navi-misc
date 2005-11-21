@@ -46,7 +46,7 @@ initialize_about_dialog ()
 		"Peter Železný",
 		NULL
 	};
-	const gchar *documentors[] =
+	const gchar *documenters[] =
 	{
 		"Brian Pepple",
 		NULL
@@ -86,7 +86,7 @@ initialize_about_dialog ()
 		      "website",     "http://xchat-gnome.navi.cx",
 		      "authors",     authors,
 		      "logo",        logo,
-		      "documentors", documentors,
+		      "documenters", documenters,
 		      NULL);
 
 	if (logo)
