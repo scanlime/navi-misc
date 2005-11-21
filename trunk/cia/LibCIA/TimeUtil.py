@@ -125,6 +125,43 @@ def formatDate(t):
        """
     return time.strftime("%H:%M on %b %d, %Y", time.gmtime(t))
 
+def formatRelativeDate(t):
+    """Like formatDate, this is an arbitrary format chosen to be
+       easily human-readable, but this function is allowed to
+       render it relative to the current time.
+       """
+    now = time.time()
+    delta = int(now - t)
+
+    if delta < 0:
+        return "%ss in the future" % -delta
+    if delta < 1:
+        return "< 1 sec ago"
+    if delta < 60:
+        return "%d sec ago" % delta
+
+    delta /= 60
+    if delta < 60:
+        return "%d min ago" % delta
+
+    tmNow = time.gmtime(now)
+    tm = time.gmtime(t)
+    if tm.tm_year == tmNow.tm_year:
+
+        if tm.tm_yday == tmNow.tm_yday:
+            return time.strftime("%H:%M today", tm)
+
+        if tm.tm_yday == tmNow.tm_yday - 1:
+            return time.strftime("%H:%M yesterday", tm)
+
+        if tmNow.tm_yday - tm.tm_yday < 7:
+            return time.strftime("%H:%M %A", tm)
+
+        return time.strftime("%H:%M on %b %d", tm)
+
+    return time.strftime("%H:%M on %b %d, %Y", tm)
+    
+
 def formatLogDate(t):
     """Format a date in the format they should be in our log file.
        This should look just like the date Twisted puts in automatically,

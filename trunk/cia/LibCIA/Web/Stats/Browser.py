@@ -239,7 +239,7 @@ class MessageDateColumn(Nouvelle.Column):
         return XML.digValue(message.xml, int, "message", "timestamp")
 
     def render_data(self, context, message):
-        return TimeUtil.formatDate(self.getValue(message))
+        return TimeUtil.formatRelativeDate(self.getValue(message))
 
 
 class MessageProjectColumn(Nouvelle.Column):
