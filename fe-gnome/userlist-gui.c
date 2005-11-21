@@ -53,24 +53,24 @@ struct User *current_user;
 void
 initialize_userlist ()
 {
-	GtkWidget *userlist_view;
 	GtkCellRenderer *icon_renderer, *text_renderer;
 	GtkTreeViewColumn *icon_column, *text_column;
 	GtkTreeSelection *select;
 
-	userlist_view = glade_xml_get_widget (gui.xml, "userlist");
+	gui.userlist        = glade_xml_get_widget (gui.xml, "userlist");
+	gui.userlist_window = glade_xml_get_widget (gui.xml, "userlist_window");
 
 	icon_renderer = gtk_cell_renderer_pixbuf_new ();
 	icon_column = gtk_tree_view_column_new_with_attributes ("icon", icon_renderer, "pixbuf", 0, NULL);
-	gtk_tree_view_append_column (GTK_TREE_VIEW (userlist_view), icon_column);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (gui.userlist), icon_column);
 	text_renderer = gtk_cell_renderer_text_new ();
 	text_column = gtk_tree_view_column_new_with_attributes ("name", text_renderer, "text", 1, "foreground-gdk", 3, NULL);
-	gtk_tree_view_append_column (GTK_TREE_VIEW (userlist_view), text_column);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (gui.userlist), text_column);
 
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (userlist_view));
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (gui.userlist));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 
-	g_signal_connect (G_OBJECT (userlist_view), "button_press_event", G_CALLBACK (userlist_click), NULL);
+	g_signal_connect (G_OBJECT (gui.userlist), "button_press_event", G_CALLBACK (userlist_click), NULL);
 
 	gtk_action_group_add_actions (gui.action_group, popup_action_entries, G_N_ELEMENTS (popup_action_entries), NULL);
 }
@@ -78,14 +78,12 @@ initialize_userlist ()
 struct User*
 userlist_get_selected ()
 {
-	GtkWidget *treeview;
 	GtkTreeSelection *select;
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	struct User *u;
 
-	treeview = glade_xml_get_widget (gui.xml, "userlist");
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (gui.userlist));
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
 		gtk_tree_model_get (model, &iter, 2, &u, -1);
 		return u;
@@ -184,4 +182,17 @@ user_ignore_activate (GtkAction *action, gpointer data)
 	command = g_strdup_printf ("ignore %s!*@* ALL", current_user->nick);
 	handle_command (gui.current_session, command, 1);
 	g_free (command);
+}
+
+void
+userlist_gui_show ()
+{
+	gtk_widget_show (gui.userlist_window);
+	gtk_widget_grab_focus (gui.userlist);
+}
+
+void
+userlist_gui_hide ()
+{
+	gtk_widget_hide (gui.userlist_window);
 }
