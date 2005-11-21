@@ -88,6 +88,7 @@ static void on_go_next_discussion_activate (GtkAction *action, gpointer data);
 static void on_help_contents_activate (GtkAction *action, gpointer data);
 static void on_help_about_activate (GtkAction *action, gpointer data);
 static void on_nickname_clicked (GtkButton *widget, gpointer user_data);
+static void on_users_toggled (GtkToggleButton *widget, gpointer user_data);
 
 static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *menu_vbox);
 
@@ -618,6 +619,7 @@ initialize_main_window ()
 	/* Size group between users button and entry field */
 	group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
 	widget = glade_xml_get_widget (gui.xml, "userlist_toggle");
+	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (on_users_toggled), NULL);
 	if (g_file_test ("data/users.png", G_FILE_TEST_EXISTS))
 		gtk_button_set_image (GTK_BUTTON (widget), gtk_image_new_from_file ("data/users.png"));
 	else
@@ -1476,5 +1478,21 @@ on_expand_topic (GtkExpander *expander, gpointer data)
 	} else {
 		gtk_label_set_ellipsize(GTK_LABEL (gui.topic_label), PANGO_ELLIPSIZE_NONE);
 		gtk_label_set_line_wrap (GTK_LABEL (gui.topic_label), TRUE);
+	}
+}
+
+static void
+on_users_toggled (GtkToggleButton *widget, gpointer user_data)
+{
+	GtkWidget *window;
+	gboolean toggled;
+
+	toggled = gtk_toggle_button_get_active (widget);
+	window = glade_xml_get_widget (gui.xml, "userlist_window");
+
+	if (toggled) {
+		gtk_widget_show (window);
+	} else {
+		gtk_widget_hide (window);
 	}
 }
