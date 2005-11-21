@@ -54,7 +54,7 @@ plugin_sources =				\
 	preferences-page-plugins.h
 endif
 
-our_sources =					\
+xchat_gnome_SOURCES =				\
 	about.c					\
 	about.h					\
 	channel-list.c				\
@@ -109,39 +109,15 @@ our_sources =					\
 	util.c					\
 	util.h					\
 	xg-plugin.h				\
+	xtext.h					\
+	xtext.c					\
+	$(mmx_cmod_S)				\
 	$(plugin_sources)
 
-xchat_sources =					\
-	$(mmx_cmod_S)				\
-	xtext.h					\
-	xtext.c
-
-xchat_gnome_SOURCES =				\
-	$(our_sources)				\
-	$(xchat_sources)
-
 EXTRA_DIST =					\
-	$(our_sources)				\
+	$(xchat_gnome_SOURCES)			\
 	$(xchat_gnome_DATA)			\
 	$(desktop_DATA)				\
 	apps_xchat.schemas
-
-BUILT_SOURCES =					\
-	mmx_cmod.h				\
-	mmx_cmod.S				\
-	xtext.h					\
-	xtext.c
-
-xtext.h: @top_srcdir@/src/fe-gtk/xtext.h
-	cp -pR @top_srcdir@/src/fe-gtk/xtext.h .
-
-xtext.c: @top_srcdir@/src/fe-gtk/xtext.c
-	cp -pR @top_srcdir@/src/fe-gtk/xtext.c .
-
-mmx_cmod.h:	@top_srcdir@/src/fe-gtk/mmx_cmod.h
-	cp -pR @top_srcdir@/src/fe-gtk/mmx_cmod.h .
-
-mmx_cmod.S:	@top_srcdir@/src/fe-gtk/mmx_cmod.S
-	cp -pR @top_srcdir@/src/fe-gtk/mmx_cmod.S .
 
 SUBDIRS = data help
