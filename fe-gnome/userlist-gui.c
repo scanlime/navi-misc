@@ -28,10 +28,13 @@
 #include "../common/userlist.h"
 #include "../common/outbound.h"
 
-       gboolean userlist_click        (GtkWidget *view, GdkEventButton *event, gpointer data);
-       void userlist_context          (GtkWidget *treeview, struct User *user);
-static gint     user_cmd              (gchar *cmd, gchar *nick);
-static gboolean userlist_window_event (GtkWidget *window, GdkEvent *event, GtkWidget *userlist);
+       gboolean userlist_click              (GtkWidget *view, GdkEventButton *event, gpointer data);
+       void userlist_context                (GtkWidget *treeview, struct User *user);
+static gint     user_cmd                    (gchar *cmd, gchar *nick);
+static void     userlist_grab               ();
+static gboolean userlist_window_event       (GtkWidget *window, GdkEvent *event, GtkWidget *userlist);
+static gboolean userlist_window_grab_broken (GtkWidget *window, GdkEventGrabBroken *event, gpointer data);
+static void     userlist_popup_deactivate   (GtkMenuShell *menu, gpointer data);
 
 /* action callbacks */
 static void user_send_file_activate   (GtkAction *action, gpointer data);
@@ -48,7 +51,9 @@ static GtkActionEntry popup_action_entries [] = {
 	{ "UserlistIgnore",     NULL, _("Ignore"),        "",   NULL, G_CALLBACK (user_ignore_activate) },
 };
 
-struct User *current_user;
+struct User     *current_user;
+static gboolean  have_grab = FALSE;
+static gint      grab_menu_handler = 0;
 
 void
 initialize_userlist ()
@@ -71,6 +76,7 @@ initialize_userlist ()
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 
 	g_signal_connect (G_OBJECT (gui.userlist), "button_press_event", G_CALLBACK (userlist_click), NULL);
+	g_signal_connect (G_OBJECT (gui.userlist_window), "grab_broken_event", G_CALLBACK (userlist_window_grab_broken), NULL);
 	g_object_connect (G_OBJECT (gui.userlist_window), "signal::event", userlist_window_event, gui.userlist, NULL);
 
 	gtk_action_group_add_actions (gui.action_group, popup_action_entries, G_N_ELEMENTS (popup_action_entries), NULL);
@@ -135,6 +141,9 @@ userlist_context (GtkWidget *treeview, struct User *user)
 	g_return_if_fail (menu != NULL);
 
 	current_user = user;
+
+	if (grab_menu_handler == 0)
+		grab_menu_handler = g_signal_connect (G_OBJECT (menu), "deactivate", G_CALLBACK (userlist_popup_deactivate), NULL);
 
 	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 2, gtk_get_current_event_time ());
 }
@@ -241,18 +250,17 @@ userlist_gui_show ()
 	gtk_widget_show (gui.userlist_window);
 	gtk_window_set_focus (GTK_WINDOW (gui.userlist_window), gui.userlist);
 
-	if (gdk_pointer_grab (gui.userlist_window->window, TRUE,
-	                  GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
-	                  GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK |
-	                  GDK_POINTER_MOTION_MASK,
-	                  NULL, NULL, GDK_CURRENT_TIME) == GDK_GRAB_SUCCESS) {
-	}
+	userlist_grab ();
 }
 
 void
 userlist_gui_hide ()
 {
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gui.userlist_toggle), FALSE);
+	if (have_grab) {
+		gdk_pointer_ungrab (GDK_CURRENT_TIME);
+		have_grab = FALSE;
+	}
 	gtk_widget_hide (gui.userlist_window);
 }
 
@@ -275,4 +283,35 @@ userlist_window_event (GtkWidget *window, GdkEvent *event, GtkWidget *userlist)
 	g_object_unref (window);
 	g_object_unref (userlist);
 	return handled;
+}
+
+static gboolean
+userlist_window_grab_broken (GtkWidget *window, GdkEventGrabBroken *event, gpointer data)
+{
+	if (have_grab && event->grab_window == NULL)
+		userlist_gui_hide ();
+	return TRUE;
+}
+
+static void
+userlist_grab ()
+{
+	if (have_grab)
+		return;
+	if (gdk_pointer_grab (gui.userlist_window->window, TRUE,
+	                  GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
+	                  GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK |
+	                  GDK_POINTER_MOTION_MASK,
+	                  NULL, NULL, GDK_CURRENT_TIME) == GDK_GRAB_SUCCESS) {
+		have_grab = TRUE;
+	} else {
+		have_grab = FALSE;
+	}
+}
+
+static void
+userlist_popup_deactivate (GtkMenuShell *menu, gpointer data)
+{
+	have_grab = FALSE;
+	userlist_grab ();
 }
