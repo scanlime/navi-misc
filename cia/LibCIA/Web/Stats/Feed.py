@@ -272,11 +272,9 @@ class XMLFeed(BaseFeed):
         return [self.formatItem(content) for id, content in messages]
 
     def formatItem(self, content):
-        # Format one message. The hackishness here chops off XML declarations
-        # if they are present. It would be much cleaner but much slower to use the DOM for this.
-        if content.startswith("<?"):
-            content = content.split(">", 1)[1]
-        return xml(content)
+	# Convert the root node, not the document- we don't want to
+	# be outputting another XML declaration inside our larger document.
+	return xml(XML.toString(content.childNodes[0]))
 
     def render_metadata(self, context):
         # Look up all the metadata first
