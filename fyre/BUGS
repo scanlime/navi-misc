@@ -1,7 +1,0 @@
-When the scrollbars are recalculated (for example, after using the navigation
-image), they sometimes don't always redraw.
-
-When a user tries to quit with an unsaved pipeline, it asks them if they want
-to save.  If they choose 'save' but then cancel the save dialog, it quits the
-program.  This should act just like 'cancel' on the 'close without saving?'
-dialog (return to the main editing interface).
