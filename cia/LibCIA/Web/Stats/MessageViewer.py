@@ -44,9 +44,9 @@ class RootPage(resource.Resource):
             return self
         else:
             try:
-                return MessagePage(self.statsPage, int(name))
+                return MessagePage(self.statsPage, int(name, 16))
             except ValueError:
-                return error.NoResource("Message IDs must be integers")
+                return error.NoResource("Message ID is invalid")
 
 
 class EnvelopeSection(Template.Section):
@@ -120,12 +120,14 @@ class UnformattedMessagePage(resource.Resource):
             request.write(unicode(XML.toString(xml)).encode('utf-8'))
             request.finish()
         else:
-            request.write(error.NoResource("Message #%d not found" % self.id).render(request))
+            request.write(error.NoResource("Message not found").render(request))
             request.finish()
 
 
 class MessagePage(Template.Page):
     """A page that views one message from the stats database"""
+    mainTitle = 'Archived Message'
+
     def __init__(self, statsPage, id):
         self.statsPage = statsPage
         self.id = id
@@ -144,9 +146,6 @@ class MessagePage(Template.Page):
             self.message = None
 
         context['component'] = self.statsPage.component
-
-    def render_mainTitle(self, context):
-        return "Message #%d" % self.id
 
     def render_subTitle(self, context):
         return ["for ",
