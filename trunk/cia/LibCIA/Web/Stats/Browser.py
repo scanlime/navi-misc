@@ -296,7 +296,7 @@ class RecentMessages(MessageList):
         parsed = []
         for id, xml in self.target.messages.getLatest(self.limit):
             m = Message.Message(xml)
-            m.hyperlink = Link.MessageLink(self.target, id, text="#%d" % id)
+            m.hyperlink = Link.MessageLink(self.target, id, text="#")
             parsed.append(m)
         return self.renderMessages(context, parsed)
 
