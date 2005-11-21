@@ -28,12 +28,12 @@
 #include "../common/userlist.h"
 #include "../common/outbound.h"
 
-gboolean userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data);
-void userlist_context (GtkWidget *treeview, struct User *user);
-static gint user_cmd (gchar *cmd, gchar *nick);
+       gboolean userlist_click        (GtkWidget *view, GdkEventButton *event, gpointer data);
+       void userlist_context          (GtkWidget *treeview, struct User *user);
+static gint     user_cmd              (gchar *cmd, gchar *nick);
+static gboolean userlist_window_event (GtkWidget *window, GdkEvent *event, GtkWidget *userlist);
 
 /* action callbacks */
-
 static void user_send_file_activate   (GtkAction *action, gpointer data);
 static void user_open_dialog_activate (GtkAction *action, gpointer data);
 static void user_kick_activate        (GtkAction *action, gpointer data);
@@ -71,6 +71,7 @@ initialize_userlist ()
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 
 	g_signal_connect (G_OBJECT (gui.userlist), "button_press_event", G_CALLBACK (userlist_click), NULL);
+	g_object_connect (G_OBJECT (gui.userlist_window), "signal::event", userlist_window_event, gui.userlist, NULL);
 
 	gtk_action_group_add_actions (gui.action_group, popup_action_entries, G_N_ELEMENTS (popup_action_entries), NULL);
 }
@@ -141,6 +142,8 @@ userlist_context (GtkWidget *treeview, struct User *user)
 static void
 user_send_file_activate (GtkAction *action, gpointer data)
 {
+	userlist_gui_hide ();
+
 	dcc_send_file (current_user);
 }
 
@@ -161,18 +164,24 @@ static void
 user_open_dialog_activate (GtkAction *action, gpointer data)
 {
 	user_cmd ("query", current_user->nick);
+
+	userlist_gui_hide ();
 }
 
 static void
 user_kick_activate (GtkAction *action, gpointer data)
 {
 	user_cmd ("kick", current_user->nick);
+
+	userlist_gui_hide ();
 }
 
 static void
 user_ban_activate (GtkAction *action, gpointer data)
 {
 	user_cmd ("ban", current_user->nick);
+
+	userlist_gui_hide ();
 }
 
 static void
@@ -183,6 +192,8 @@ user_ignore_activate (GtkAction *action, gpointer data)
 	command = g_strdup_printf ("ignore %s!*@* ALL", current_user->nick);
 	handle_command (gui.current_session, command, 1);
 	g_free (command);
+
+	userlist_gui_hide ();
 }
 
 void
@@ -229,10 +240,39 @@ userlist_gui_show ()
 	gtk_window_resize (GTK_WINDOW (gui.userlist_window), 250, desired_height);
 	gtk_widget_show (gui.userlist_window);
 	gtk_window_set_focus (GTK_WINDOW (gui.userlist_window), gui.userlist);
+
+	if (gdk_pointer_grab (gui.userlist_window->window, TRUE,
+	                  GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
+	                  GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK |
+	                  GDK_POINTER_MOTION_MASK,
+	                  NULL, NULL, GDK_CURRENT_TIME) == GDK_GRAB_SUCCESS) {
+	}
 }
 
 void
 userlist_gui_hide ()
 {
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gui.userlist_toggle), FALSE);
 	gtk_widget_hide (gui.userlist_window);
+}
+
+static gboolean
+userlist_window_event (GtkWidget *window, GdkEvent *event, GtkWidget *userlist)
+{
+	gboolean handled = FALSE;
+	g_object_ref (window);
+	g_object_ref (userlist);
+
+	switch (event->type) {
+	case GDK_KEY_PRESS:
+	case GDK_KEY_RELEASE:
+		handled = gtk_widget_event (userlist, event);
+		break;
+	default:
+		break;
+	}
+
+	g_object_unref (window);
+	g_object_unref (userlist);
+	return handled;
 }
