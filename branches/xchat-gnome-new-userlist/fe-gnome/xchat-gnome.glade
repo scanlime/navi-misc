@@ -1110,6 +1110,8 @@ It's like a balloon, and something bad happens!</property>
 </widget>
 
 <widget class="GtkWindow" id="userlist_window">
+  <property name="can_default">True</property>
+  <property name="has_default">True</property>
   <property name="can_focus">True</property>
   <property name="has_focus">True</property>
   <property name="title" translatable="yes">window1</property>
@@ -1122,7 +1124,7 @@ It's like a balloon, and something bad happens!</property>
   <property name="decorated">False</property>
   <property name="skip_taskbar_hint">True</property>
   <property name="skip_pager_hint">True</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
+  <property name="type_hint">GDK_WINDOW_TYPE_HINT_MENU</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
 
