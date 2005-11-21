@@ -105,6 +105,7 @@ userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data)
 			user = userlist_get_selected ();
 			if (user != NULL)
 				user_cmd ("query", user->nick);
+			userlist_gui_hide ();
 			return TRUE;
 		}
 	}
@@ -187,7 +188,49 @@ user_ignore_activate (GtkAction *action, gpointer data)
 void
 userlist_gui_show ()
 {
+	GdkScreen *screen;
+	gint width, height, desired_height;
+	GtkAdjustment *adjustment;
+	GdkDisplay *display;
+	GdkScreen *mouse_screen;
+	gint mouse_x, mouse_y;
+
 	gtk_widget_show (gui.userlist_window);
+
+	screen = gtk_window_get_screen (GTK_WINDOW (gui.userlist_window));
+	width  = gdk_screen_get_width  (screen);
+	height = gdk_screen_get_height (screen);
+
+	adjustment = gtk_tree_view_get_vadjustment (GTK_TREE_VIEW (gui.userlist));
+
+	/* Buffer of 20 pixels.  Would be nice to know exactly how much space
+	 * the rest of the window's UI goop used up, but oh well.
+	 */
+	desired_height = (gint) adjustment->upper + 20;
+	if (desired_height > height)
+		desired_height = height;
+
+	display = gdk_display_get_default ();
+	gdk_display_get_pointer (display, &mouse_screen, &mouse_x, &mouse_y, NULL);
+	if (mouse_screen == screen) {
+		/* Mouse is in a reasonable location, use it to position the window */
+		gint screen_x, screen_y;
+
+		screen_x = mouse_x - 100;
+		screen_y = mouse_y - (desired_height / 2);
+
+		if (screen_x < 0)
+			screen_x = 0;
+		if (screen_x + 250 > width)
+			screen_x = width - 250;
+		if (screen_y < 0)
+			screen_y = 0;
+		if (screen_y + desired_height > height)
+			screen_y = height - desired_height;
+		gtk_window_move (GTK_WINDOW (gui.userlist_window), screen_x, screen_y);
+	}
+
+	gtk_window_resize (GTK_WINDOW (gui.userlist_window), 250, desired_height);
 	gtk_widget_grab_focus (gui.userlist);
 }
 
