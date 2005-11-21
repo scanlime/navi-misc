@@ -48,6 +48,7 @@ typedef struct
 	GtkWidget *text_entry;
 	GtkWidget *userlist_window;
 	GtkWidget *userlist;
+	GtkWidget *userlist_toggle;
 	session *current_session;
 	GnomeDruid *setup_druid;
 	gboolean quit;
