@@ -31,7 +31,6 @@
 gboolean userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data);
 void userlist_context (GtkWidget *treeview, struct User *user);
 static gint user_cmd (gchar *cmd, gchar *nick);
-static void userlist_focus_changed (GtkWindow *window, GtkDirectionType type, gpointer data);
 
 /* action callbacks */
 
@@ -50,7 +49,6 @@ static GtkActionEntry popup_action_entries [] = {
 };
 
 struct User *current_user;
-static gboolean userlist_busy;
 
 void
 initialize_userlist ()
@@ -73,7 +71,6 @@ initialize_userlist ()
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 
 	g_signal_connect (G_OBJECT (gui.userlist), "button_press_event", G_CALLBACK (userlist_click), NULL);
-	g_signal_connect (G_OBJECT (gui.userlist_window), "focus", G_CALLBACK (userlist_focus_changed), NULL);
 
 	gtk_action_group_add_actions (gui.action_group, popup_action_entries, G_N_ELEMENTS (popup_action_entries), NULL);
 }
@@ -191,19 +188,18 @@ user_ignore_activate (GtkAction *action, gpointer data)
 void
 userlist_gui_show ()
 {
-	GdkScreen *screen;
 	gint width, height, desired_height;
 	GtkAdjustment *adjustment;
 	GdkDisplay *display;
 	GdkScreen *mouse_screen;
+	gint screen_x, screen_y;
 	gint mouse_x, mouse_y;
 
-	userlist_busy = TRUE;
-	gtk_widget_show (gui.userlist_window);
+	display = gdk_display_get_default ();
+	gdk_display_get_pointer (display, &mouse_screen, &mouse_x, &mouse_y, NULL);
 
-	screen = gtk_window_get_screen (GTK_WINDOW (gui.userlist_window));
-	width  = gdk_screen_get_width  (screen);
-	height = gdk_screen_get_height (screen);
+	width  = gdk_screen_get_width  (mouse_screen);
+	height = gdk_screen_get_height (mouse_screen);
 
 	adjustment = gtk_tree_view_get_vadjustment (GTK_TREE_VIEW (gui.userlist));
 
@@ -214,41 +210,26 @@ userlist_gui_show ()
 	if (desired_height > height)
 		desired_height = height;
 
-	display = gdk_display_get_default ();
-	gdk_display_get_pointer (display, &mouse_screen, &mouse_x, &mouse_y, NULL);
-	if (mouse_screen == screen) {
-		/* Mouse is in a reasonable location, use it to position the window */
-		gint screen_x, screen_y;
+	screen_x = mouse_x - 100;
+	screen_y = mouse_y - (desired_height / 2);
 
-		screen_x = mouse_x - 100;
-		screen_y = mouse_y - (desired_height / 2);
-
-		if (screen_x < 0)
-			screen_x = 0;
-		if (screen_x + 250 > width)
-			screen_x = width - 250;
-		if (screen_y < 0)
-			screen_y = 0;
-		if (screen_y + desired_height > height)
-			screen_y = height - desired_height;
-		gtk_window_move (GTK_WINDOW (gui.userlist_window), screen_x, screen_y);
-	}
+	if (screen_x < 0)
+		screen_x = 0;
+	if (screen_x + 250 > width)
+		screen_x = width - 250;
+	if (screen_y < 0)
+		screen_y = 0;
+	if (screen_y + desired_height > height)
+		screen_y = height - desired_height;
+	gtk_window_move (GTK_WINDOW (gui.userlist_window), screen_x, screen_y);
 
 	gtk_window_resize (GTK_WINDOW (gui.userlist_window), 250, desired_height);
-	gtk_widget_grab_focus (gui.userlist);
-
-	userlist_busy = FALSE;
+	gtk_widget_show (gui.userlist_window);
+	gtk_window_set_focus (GTK_WINDOW (gui.userlist_window), gui.userlist);
 }
 
 void
 userlist_gui_hide ()
 {
 	gtk_widget_hide (gui.userlist_window);
-}
-
-static void
-userlist_focus_changed (GtkWindow *window, GtkDirectionType type, gpointer data)
-{
-	if (gtk_window_is_active (window) == FALSE && userlist_busy == FALSE)
-		userlist_gui_hide ();
 }
