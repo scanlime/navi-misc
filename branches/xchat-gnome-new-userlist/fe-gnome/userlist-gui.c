@@ -188,40 +188,43 @@ user_ignore_activate (GtkAction *action, gpointer data)
 void
 userlist_gui_show ()
 {
-	gint width, height, desired_height;
-	GtkAdjustment *adjustment;
+	gint screen_width, screen_height;
+	gint desired_height;
+	gint window_x, window_y;
+	gint  mouse_x,  mouse_y;
 	GdkDisplay *display;
 	GdkScreen *mouse_screen;
-	gint screen_x, screen_y;
-	gint mouse_x, mouse_y;
+	GtkRequisition request;
+
+	if (!GTK_WIDGET_REALIZED(gui.userlist_window))
+		gtk_widget_realize (gui.userlist_window);
+	gtk_widget_size_request (gui.userlist, &request);
 
 	display = gdk_display_get_default ();
 	gdk_display_get_pointer (display, &mouse_screen, &mouse_x, &mouse_y, NULL);
 
-	width  = gdk_screen_get_width  (mouse_screen);
-	height = gdk_screen_get_height (mouse_screen);
-
-	adjustment = gtk_tree_view_get_vadjustment (GTK_TREE_VIEW (gui.userlist));
+	screen_width  = gdk_screen_get_width  (mouse_screen);
+	screen_height = gdk_screen_get_height (mouse_screen);
 
 	/* Buffer of 20 pixels.  Would be nice to know exactly how much space
 	 * the rest of the window's UI goop used up, but oh well.
 	 */
-	desired_height = (gint) adjustment->upper + 20;
-	if (desired_height > height)
-		desired_height = height;
+	desired_height = request.height + 20;
+	if (desired_height > screen_height)
+		desired_height = screen_height;
 
-	screen_x = mouse_x - 100;
-	screen_y = mouse_y - (desired_height / 2);
+	window_x = mouse_x - 100;
+	window_y = mouse_y - (desired_height / 2);
 
-	if (screen_x < 0)
-		screen_x = 0;
-	if (screen_x + 250 > width)
-		screen_x = width - 250;
-	if (screen_y < 0)
-		screen_y = 0;
-	if (screen_y + desired_height > height)
-		screen_y = height - desired_height;
-	gtk_window_move (GTK_WINDOW (gui.userlist_window), screen_x, screen_y);
+	if (window_x < 0)
+		window_x = 0;
+	if (window_x + 250 > screen_width)
+		window_x = screen_width - 250;
+	if (window_y < 0)
+		window_y = 0;
+	if (window_y + desired_height > screen_height)
+		window_y = screen_height - desired_height;
+	gtk_window_move (GTK_WINDOW (gui.userlist_window), window_x, window_y);
 
 	gtk_window_resize (GTK_WINDOW (gui.userlist_window), 250, desired_height);
 	gtk_widget_show (gui.userlist_window);
