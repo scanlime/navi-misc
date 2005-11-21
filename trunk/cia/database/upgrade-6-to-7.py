@@ -9,6 +9,20 @@
 #
 # Back up your database before running this!
 #
+# Note that this process isn't fully automatic. If the
+# conversion is successful, you'll want to manually bump
+# the database version to 7, and remove the stats_messages
+# table. Since InnoDB won't reclaim the space, you may
+# wish to dump the whole database, delete the innodb table
+# space, then reload the database. This isn't nearly as
+# bad as it sounds, since the db is quite reasonably
+# sized without stats_messages.
+#
+# If the conversion takes a while and you want to pick
+# up the commits you missed while the conversion was taking
+# place, note the ID of the last converted message and add
+# a "WHERE id > foo" clause to the stats_messages query.
+#
 # -- Micah Dowty
 #
 
