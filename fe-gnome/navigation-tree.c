@@ -1104,6 +1104,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 			rename_main_window (net->name, sess->channel);
 		}
 
+		/* Set widget sensitivity based on type of the current "tab" */
 		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionChangeTopicItem");
 		if (menuitem == NULL)
 			g_warning ("can't disable topic change menu item");
@@ -1114,6 +1115,11 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 			gtk_widget_set_sensitive (button, TRUE);
 		else
 			gtk_widget_set_sensitive (button, FALSE);
+		if (sess->type == SESS_CHANNEL)
+			gtk_widget_set_sensitive (gui.userlist_toggle, TRUE);
+		else
+			gtk_widget_set_sensitive (gui.userlist_toggle, FALSE);
+
 
 		/* remove any icon that exists */
 		store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
