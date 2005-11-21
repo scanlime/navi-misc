@@ -71,33 +71,50 @@ class Request(server.Request):
         # collector.
         gc.collect()
 
+    spiderList = {
+        "googlebot" :1,
+        "mediapartners-google" :1,
+        "msnbot" :1,
+        "pompos" :1,
+        "openbot" :1,
+        "npbot" :1,
+        "willow" :1,   # "Willow Internet Crawler by Twotrees V2.1"
+        }
+
+    mozSpiderList = (
+        "Googlebot",
+        "Yahoo!",
+        "Jeeves",
+        )
+
+    _isSpider = None
+
     def isWebSpider(self):
         """Guess whether this request is coming from a web spider (search engine bot).
            We can adjust the content we deliever according to this, particularly by
            removing links that the spider shouldn't bother following.
            """
-        fullAgent = self.getHeader("user-agent")
+        if self._isSpider is not None:
+            return self._isSpider
+
+        #fullAgent = self.getHeader("user-agent")
+        fullAgent = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
         if not fullAgent:
-            return None
+            return False
         abridgedAgent = fullAgent.split("/")[0].split()[0].strip().lower()
 
-        # Ugly special case because yahoo can't stick with the fucking standards
+        # Ugly special cases for people who can't stick with the fucking standards
         if abridgedAgent == "mozilla":
-            for substr in ("Yahoo!", "Jeeves"):
+            for substr in self.mozSpiderList:
                 if fullAgent.find(substr) > 0:
+                    self._isSpider = True
                     return True
+            self._isSpider = False
             return False
 
         # Nowhere near a full list, just a sampling of the bots bothering CIA most in a day
-        return abridgedAgent in [
-            "googlebot",
-            "mediapartners-google",
-            "msnbot",
-            "pompos",
-            "openbot",
-            "npbot",
-            "willow",   # "Willow Internet Crawler by Twotrees V2.1"
-            ]
+        self._isSpider = abridgedAgent in self.spiderList
+        return self._isSpider
 
 
 class File(static.File):
