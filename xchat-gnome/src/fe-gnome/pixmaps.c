@@ -35,13 +35,25 @@ GdkPixbuf *pix_msgsaid;
 void
 pixmaps_init (void)
 {
-	pix_purple            = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/purple.png",                  NULL);
-	pix_red               = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/red.png",                     NULL);
-	pix_op                = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/op.png",                      NULL);
-	pix_hop               = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/hop.png",                     NULL);
-	pix_voice             = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/voice.png",                   NULL);
+	if (g_file_test ("../../data/purple.png", G_FILE_TEST_EXISTS)) {
+		pix_purple   = gdk_pixbuf_new_from_file ("../../data/purple.png",         NULL);
+		pix_red      = gdk_pixbuf_new_from_file ("../../data/red.png",            NULL);
+		pix_op       = gdk_pixbuf_new_from_file ("../../data/op.png",             NULL);
+		pix_hop      = gdk_pixbuf_new_from_file ("../../data/hop.png",            NULL);
+		pix_voice    = gdk_pixbuf_new_from_file ("../../data/voice.png",          NULL);
 
-	pix_newdata           = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/newdata.png",                 NULL);
-	pix_nicksaid          = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/nicksaid.png",                NULL);
-	pix_msgsaid           = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/global-message.png",          NULL);
+		pix_newdata  = gdk_pixbuf_new_from_file ("../../data/newdata.png",        NULL);
+		pix_nicksaid = gdk_pixbuf_new_from_file ("../../data/nicksaid.png",       NULL);
+		pix_msgsaid  = gdk_pixbuf_new_from_file ("../../data/global-message.png", NULL);
+	} else {
+		pix_purple   = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/purple.png",         NULL);
+		pix_red      = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/red.png",            NULL);
+		pix_op       = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/op.png",             NULL);
+		pix_hop      = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/hop.png",            NULL);
+		pix_voice    = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/voice.png",          NULL);
+
+		pix_newdata  = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/newdata.png",        NULL);
+		pix_nicksaid = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/nicksaid.png",       NULL);
+		pix_msgsaid  = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/global-message.png", NULL);
+	}
 }
