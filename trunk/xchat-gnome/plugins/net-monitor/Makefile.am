@@ -6,6 +6,6 @@ netmonitor_la_LDFLAGS = -avoid-version -module
 netmonitor_la_LIBADD = $(DBUS_LIBS)
 
 INCLUDES =			\
-	$(COMMON_CFLAGS)	\
-	-I$(srcdir)/..		\
-	$(DBUS_CFLAGS)
+	$(DEPENDENCIES_CFLAGS)	\
+	$(DBUS_CFLAGS)		\
+	-I$(srcdir)/..
