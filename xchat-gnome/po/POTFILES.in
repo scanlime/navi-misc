@@ -1,0 +1,12 @@
+src/common/cfgfiles.c
+src/common/dcc.c
+src/common/ignore.c
+src/common/notify.c
+src/common/outbound.c
+src/common/plugin.c
+src/common/server.c
+src/common/servlist.c
+src/common/textevents.h
+src/common/text.c
+src/common/util.c
+src/common/xchat.c

@@ -78,10 +78,24 @@ AM_CONDITIONAL([ENABLE_LIBNOTIFY],[false])
 AM_GCONF_SOURCE_2
 AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
 
-AC_OUTPUT([
+# i18n
+ALL_LINGUAS="`cat "$srcdir/po/LINGUAS" | grep -v '^#'`"
+
+AC_SUBST([CONFIG_STATUS_DEPENDENCIES],['$(top_srcdir)/po/LINGUAS'])
+
+GETTEXT_PACKAGE=xchat-gnome
+AC_SUBST([GETTEXT_PACKAGE])
+AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[Gettext package])
+AM_GLIB_GNU_GETTEXT
+AM_GLIB_DEFINE_LOCALEDIR([GNOMELOCALEDIR])
+
+
+AC_CONFIG_FILES([
 Makefile
 src/Makefile
 src/common/Makefile
 plugins/Makefile
 po/Makefile.in
 ])
+
+AC_OUTPUT
