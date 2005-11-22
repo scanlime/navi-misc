@@ -185,7 +185,10 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_size_group_add_widget (group, page->global_receive_throttle);
 	g_object_unref (group);
 
-	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/dcc.png", NULL);
+	if (g_file_test ("../../data/dcc.png", G_FILE_TEST_EXISTS))
+		page->icon = gdk_pixbuf_new_from_file ("../../data/dcc.png", NULL);
+	else
+		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/dcc.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "File Transfers & DCC", 2, 3, -1);
 

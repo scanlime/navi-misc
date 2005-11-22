@@ -217,7 +217,10 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->color_buttons[2]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (34));
 	g_signal_connect (G_OBJECT (page->color_buttons[3]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (35));
 
-	page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/color.png", NULL);
+	if (g_file_test ("../../data/color.png", G_FILE_TEST_EXISTS))
+		page->icon = gdk_pixbuf_new_from_file ("../../data/color.png", NULL);
+	else
+		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/color.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "Colors", 2, 1, -1);
 
