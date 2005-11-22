@@ -6,7 +6,9 @@ AC_PREREQ([2.59])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([configure.ac])
 
-AM_INIT_AUTOMAKE([1.9 dist-bzip2])
+PACKAGE=xchat-gnome
+VERSION=0.8svn
+AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
 
 AM_MAINTAINER_MODE
 if test "x$enable_maintainer_mode" = xyes; then
@@ -27,17 +29,17 @@ GCONF_REQUIRED=2.8.0
 DBUS_GLIB_REQUIRED=0.35
 LIBSEXY_REQUIRED=0.1.4
 
-AM_ENABLE_SHARED([yes])
-AM_ENABLE_STATIC([no])
-
-AC_LIBTOOL_DLOPEN
-AM_PROG_LIBTOOL
 
 AC_PROG_CC
 AC_PROG_CPP
 AM_PROG_AS
-AM_PROG_LIBTOOL
+AC_PROG_LIBTOOL
 AC_PATH_PROG([GLIB_GENMARSHAL], [glib-genmarshal])
+
+AC_C_CONST
+AC_TYPE_SIZE_T
+AC_EXEEXT
+AC_HEADER_STDC
 
 GNOME_DEBUG_CHECK
 GNOME_COMPILE_WARNINGS([maximum])
@@ -182,3 +184,14 @@ src/fe-gnome/Makefile
 ])
 
 AC_OUTPUT
+
+echo
+echo $PACKAGE $VERSION
+echo
+
+echo prefix............... : $prefix
+
+echo
+echo "Now type make to compile"
+echo "Then su to root and type: make install"
+echo
