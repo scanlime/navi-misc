@@ -32,9 +32,10 @@
        void userlist_context                (GtkWidget *treeview, struct User *user);
 static gint     user_cmd                    (gchar *cmd, gchar *nick);
 static void     userlist_grab               ();
-static gboolean userlist_window_event       (GtkWidget *window, GdkEvent *event, GtkWidget *userlist);
+static gboolean userlist_window_event       (GtkWidget *window, GdkEvent *event, gpointer data);
 static gboolean userlist_window_grab_broken (GtkWidget *window, GdkEventGrabBroken *event, gpointer data);
 static void     userlist_popup_deactivate   (GtkMenuShell *menu, gpointer data);
+static gboolean userlist_button_release     (GtkWidget *widget, GdkEventButton *button, gpointer data);
 
 /* action callbacks */
 static void user_send_file_activate   (GtkAction *action, gpointer data);
@@ -76,8 +77,9 @@ initialize_userlist ()
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
 
 	g_signal_connect (G_OBJECT (gui.userlist), "button_press_event", G_CALLBACK (userlist_click), NULL);
+	g_signal_connect (G_OBJECT (gui.userlist_window), "button_release_event", G_CALLBACK (userlist_button_release), NULL);
 	g_signal_connect (G_OBJECT (gui.userlist_window), "grab_broken_event", G_CALLBACK (userlist_window_grab_broken), NULL);
-	g_object_connect (G_OBJECT (gui.userlist_window), "signal::event", userlist_window_event, gui.userlist, NULL);
+	g_signal_connect (G_OBJECT (gui.userlist_window), "event", G_CALLBACK (userlist_window_event), NULL);
 
 	gtk_action_group_add_actions (gui.action_group, popup_action_entries, G_N_ELEMENTS (popup_action_entries), NULL);
 }
@@ -216,7 +218,7 @@ userlist_gui_show ()
 	GdkScreen *mouse_screen;
 	GtkRequisition request;
 
-	if (!GTK_WIDGET_REALIZED(gui.userlist_window))
+	if (!GTK_WIDGET_REALIZED (gui.userlist_window))
 		gtk_widget_realize (gui.userlist_window);
 	gtk_widget_size_request (gui.userlist, &request);
 
@@ -249,7 +251,6 @@ userlist_gui_show ()
 	gtk_window_resize (GTK_WINDOW (gui.userlist_window), 250, desired_height);
 	gtk_widget_show (gui.userlist_window);
 	gtk_window_set_focus (GTK_WINDOW (gui.userlist_window), gui.userlist);
-
 	userlist_grab ();
 }
 
@@ -265,23 +266,20 @@ userlist_gui_hide ()
 }
 
 static gboolean
-userlist_window_event (GtkWidget *window, GdkEvent *event, GtkWidget *userlist)
+userlist_window_event (GtkWidget *window, GdkEvent *event, gpointer data)
 {
 	gboolean handled = FALSE;
-	g_object_ref (window);
-	g_object_ref (userlist);
-
 	switch (event->type) {
-	case GDK_KEY_PRESS:
-	case GDK_KEY_RELEASE:
-		handled = gtk_widget_event (userlist, event);
+	case GDK_BUTTON_PRESS:
+	case GDK_BUTTON_RELEASE:
+	case GDK_MOTION_NOTIFY:
+	case GDK_ENTER_NOTIFY:
+	case GDK_LEAVE_NOTIFY:
+		handled = gtk_widget_event (gui.userlist, event);
 		break;
 	default:
 		break;
 	}
-
-	g_object_unref (window);
-	g_object_unref (userlist);
 	return handled;
 }
 
@@ -298,15 +296,12 @@ userlist_grab ()
 {
 	if (have_grab)
 		return;
-	if (gdk_pointer_grab (gui.userlist_window->window, TRUE,
-	                  GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
-	                  GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK |
-	                  GDK_POINTER_MOTION_MASK,
-	                  NULL, NULL, GDK_CURRENT_TIME) == GDK_GRAB_SUCCESS) {
-		have_grab = TRUE;
-	} else {
-		have_grab = FALSE;
-	}
+	have_grab = (gdk_pointer_grab (gui.userlist_window->window, FALSE,
+	                               GDK_BUTTON_PRESS_MASK   | GDK_BUTTON_RELEASE_MASK |
+	                               GDK_ENTER_NOTIFY_MASK   | GDK_LEAVE_NOTIFY_MASK |
+	                               GDK_POINTER_MOTION_MASK | GDK_BUTTON_MOTION_MASK |
+				       GDK_POINTER_MOTION_HINT_MASK,
+	                               NULL, NULL, GDK_CURRENT_TIME) == GDK_GRAB_SUCCESS);
 }
 
 static void
@@ -314,4 +309,22 @@ userlist_popup_deactivate (GtkMenuShell *menu, gpointer data)
 {
 	have_grab = FALSE;
 	userlist_grab ();
+}
+
+static gboolean
+userlist_button_release (GtkWidget *widget, GdkEventButton *button, gpointer data)
+{
+	gint x, y, width, height;
+
+	gdk_window_get_root_origin (gui.userlist_window->window, &x, &y);
+	gdk_drawable_get_size      (gui.userlist_window->window, &width, &height);
+
+	/* If the event happened on top of the userlist window, we don't want to
+	 * close it */
+	if ((button->x_root > x) && (button->x_root < x + width) &&
+	    (button->y_root > y) && (button->y_root < y + height))
+		return TRUE;
+
+	userlist_gui_hide ();
+	return TRUE;
 }
