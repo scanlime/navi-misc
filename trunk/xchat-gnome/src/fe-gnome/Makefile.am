@@ -1,5 +1,3 @@
-bin_PROGRAMS = xchat-gnome
-
 xchat_gnomedir = $(datadir)/xchat
 
 if USE_MMX
@@ -21,6 +19,7 @@ install-data-local:
 desktopdir = $(datadir)/applications
 desktop_DATA = xchat-gnome.desktop
 
+bin_PROGRAMS = xchat-gnome
 xchat_gnome_LDADD =				\
 	../common/libxchatcommon.la		\
 	$(DEPENDENCIES_LIBS)			\
