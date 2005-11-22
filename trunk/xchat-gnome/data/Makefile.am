@@ -34,9 +34,15 @@ xchat_gnome_DATA = 			\
 	xchat-gnome-ui.xml		\
 	xchat-gnome.glade
 
-xchat_gnomedir = $(datadir)/xchat
+xchat_gnomedir = $(datadir)/xchat-gnome
 
 icondir = $(datadir)/pixmaps
 icon_DATA = xchat-gnome.png
 
-EXTRA_DIST = $(xchat_gnome_DATA) $(icon_DATA)
+desktopdir = $(datadir)/applications
+desktop_DATA = xchat-gnome.desktop
+
+EXTRA_DIST = 				\
+	$(xchat_gnome_DATA)		\
+	$(icon_DATA)			\
+	$(desktop_DATA)

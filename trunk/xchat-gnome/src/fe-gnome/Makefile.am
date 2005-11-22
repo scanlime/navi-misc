@@ -16,9 +16,6 @@ install-data-local:
 		done								\
 	fi
 
-desktopdir = $(datadir)/applications
-desktop_DATA = xchat-gnome.desktop
-
 bin_PROGRAMS = xchat-gnome
 xchat_gnome_LDADD =				\
 	../common/libxchatcommon.la		\
@@ -101,5 +98,4 @@ xchat_gnome_CFLAGS =				\
 
 EXTRA_DIST =					\
 	$(xchat_gnome_SOURCES)			\
-	$(desktop_DATA)				\
 	apps_xchat.schemas
