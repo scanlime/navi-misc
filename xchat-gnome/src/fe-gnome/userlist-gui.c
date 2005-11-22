@@ -46,11 +46,11 @@ static void user_ban_activate         (GtkAction *action, gpointer data);
 static void user_ignore_activate      (GtkAction *action, gpointer data);
 
 static GtkActionEntry popup_action_entries [] = {
-	{ "UserlistSendFile",   NULL, _("_Send File..."), "",   NULL, G_CALLBACK (user_send_file_activate) },
-	{ "UserlistOpenDialog", NULL, _("Private _Chat"), "",   NULL, G_CALLBACK (user_open_dialog_activate) },
-	{ "UserlistKick",       NULL, _("_Kick"),         "",   NULL, G_CALLBACK (user_kick_activate) },
-	{ "UserlistBan",        NULL, _("_Ban"),          "",   NULL, G_CALLBACK (user_ban_activate) },
-	{ "UserlistIgnore",     NULL, _("Ignore"),        "",   NULL, G_CALLBACK (user_ignore_activate) },
+	{ "UserlistSendFile",   NULL, N_("_Send File..."), "",   NULL, G_CALLBACK (user_send_file_activate) },
+	{ "UserlistOpenDialog", NULL, N_("Private _Chat"), "",   NULL, G_CALLBACK (user_open_dialog_activate) },
+	{ "UserlistKick",       NULL, N_("_Kick"),         "",   NULL, G_CALLBACK (user_kick_activate) },
+	{ "UserlistBan",        NULL, N_("_Ban"),          "",   NULL, G_CALLBACK (user_ban_activate) },
+	{ "UserlistIgnore",     NULL, N_("Ignore"),        "",   NULL, G_CALLBACK (user_ignore_activate) },
 };
 
 struct User     *current_user;

@@ -21,7 +21,7 @@
 
 #define _GNU_SOURCE
 #include <config.h>
-#include <glib/gi18n.h>
+#include <libgnome/gnome-i18n.h>
 #include "connect-dialog.h"
 #include "navigation-tree.h"
 #include "gui.h"
