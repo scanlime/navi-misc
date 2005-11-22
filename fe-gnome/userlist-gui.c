@@ -36,6 +36,7 @@ static gboolean userlist_window_event       (GtkWidget *window, GdkEvent *event,
 static gboolean userlist_window_grab_broken (GtkWidget *window, GdkEventGrabBroken *event, gpointer data);
 static void     userlist_popup_deactivate   (GtkMenuShell *menu, gpointer data);
 static gboolean userlist_button_release     (GtkWidget *widget, GdkEventButton *button, gpointer data);
+static void     userlist_delete_event       (GtkWidget *widget, gpointer data);
 
 /* action callbacks */
 static void user_send_file_activate   (GtkAction *action, gpointer data);
@@ -259,6 +260,7 @@ userlist_gui_hide ()
 {
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gui.userlist_toggle), FALSE);
 	if (have_grab) {
+		gtk_grab_remove (gui.userlist_window);
 		gdk_pointer_ungrab (GDK_CURRENT_TIME);
 		gdk_keyboard_ungrab (GDK_CURRENT_TIME);
 		have_grab = FALSE;
@@ -271,10 +273,11 @@ userlist_window_event (GtkWidget *window, GdkEvent *event, gpointer data)
 {
 	gboolean handled = FALSE;
 	switch (event->type) {
-	case GDK_KEY_PRESS:
 	case GDK_KEY_RELEASE:
-		handled = gtk_widget_event (gui.userlist, event);
-		break;
+		if (((GdkEventKey *)event)->keyval == GDK_Escape) {
+			userlist_gui_hide ();
+			break;
+		}
 	default:
 		break;
 	}
@@ -294,7 +297,11 @@ userlist_grab ()
 {
 	if (have_grab)
 		return;
-	have_grab = (gdk_pointer_grab (gui.userlist_window->window, FALSE,
+	have_grab = (gdk_pointer_grab (gui.userlist_window->window, TRUE,
+	                               GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK |
+				       GDK_BUTTON_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK |
+				       GDK_LEAVE_NOTIFY_MASK,
+				/*
 	                               GDK_POINTER_MOTION_MASK  | GDK_POINTER_MOTION_HINT_MASK |
 	                               GDK_BUTTON_MOTION_MASK   | GDK_BUTTON1_MOTION_MASK      |
 	                               GDK_BUTTON2_MOTION_MASK  | GDK_BUTTON3_MOTION_MASK      |
@@ -304,6 +311,7 @@ userlist_grab ()
 	                               GDK_PROPERTY_CHANGE_MASK | GDK_VISIBILITY_NOTIFY_MASK   |
 	                               GDK_PROXIMITY_IN_MASK    | GDK_PROXIMITY_OUT_MASK       |
 	                               GDK_SCROLL_MASK          | GDK_SUBSTRUCTURE_MASK,
+				       */
 	                               NULL, NULL, GDK_CURRENT_TIME) == GDK_GRAB_SUCCESS);
 	if (have_grab) {
 		have_grab = (gdk_keyboard_grab (gui.userlist_window->window, TRUE, GDK_CURRENT_TIME) == GDK_GRAB_SUCCESS);
@@ -311,7 +319,9 @@ userlist_grab ()
 			/* something bad happened */
 			gdk_pointer_ungrab (GDK_CURRENT_TIME);
 			userlist_gui_hide ();
+			return;
 		}
+		gtk_grab_add (gui.userlist_window);
 	}
 }
 
@@ -340,4 +350,10 @@ userlist_button_release (GtkWidget *widget, GdkEventButton *button, gpointer dat
 
 	userlist_gui_hide ();
 	return TRUE;
+}
+
+static void
+userlist_delete_event (GtkWidget *widget, gpointer data)
+{
+	userlist_gui_hide ();
 }

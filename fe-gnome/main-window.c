@@ -712,6 +712,7 @@ on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	gui.quit = TRUE;
 	gtk_widget_hide (GTK_WIDGET (gui.dcc));
+	userlist_gui_hide ();
 	xchat_exit ();
 }
 
@@ -720,6 +721,7 @@ on_irc_quit_activate (GtkAction *action, gpointer data)
 {
 	gtk_widget_hide (GTK_WIDGET (gui.main_window));
 	gtk_widget_hide (GTK_WIDGET (gui.dcc));
+	userlist_gui_hide ();
 	gui.quit = TRUE;
 	xchat_exit ();
 }
