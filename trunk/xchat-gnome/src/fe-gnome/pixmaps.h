@@ -34,9 +34,6 @@ extern GdkPixbuf *pix_newdata;
 extern GdkPixbuf *pix_nicksaid;
 extern GdkPixbuf *pix_msgsaid;
 
-extern GdkPixbuf *pix_prefs_plugins;
-extern GdkPixbuf *pix_prefs_keybindings;
-
 extern void pixmaps_init (void);
 
 #endif
