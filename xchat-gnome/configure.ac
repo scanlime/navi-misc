@@ -47,7 +47,7 @@ AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
 # Hard dependencies
 PKG_CHECK_MODULES([DEPENDENCIES], [\
                   glib-2.0 >= $GLIB_REQUIRED \
-                  gtk-2.0 >= $GTK_REQUIRED \
+                  gtk+-2.0 >= $GTK_REQUIRED \
                   libglade-2.0 >= $LIBGLADE_REQUIRED \
                   gnome-vfs-2.0 >= $LIBGNOMEVFS_REQUIRED \
                   libgnomeui-2.0 >= $LIBGNOMEUI_REQUIRED \
