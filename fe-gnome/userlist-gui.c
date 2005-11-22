@@ -260,6 +260,7 @@ userlist_gui_hide ()
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gui.userlist_toggle), FALSE);
 	if (have_grab) {
 		gdk_pointer_ungrab (GDK_CURRENT_TIME);
+		gdk_keyboard_ungrab (GDK_CURRENT_TIME);
 		have_grab = FALSE;
 	}
 	gtk_widget_hide (gui.userlist_window);
@@ -270,11 +271,8 @@ userlist_window_event (GtkWidget *window, GdkEvent *event, gpointer data)
 {
 	gboolean handled = FALSE;
 	switch (event->type) {
-	case GDK_BUTTON_PRESS:
-	case GDK_BUTTON_RELEASE:
-	case GDK_MOTION_NOTIFY:
-	case GDK_ENTER_NOTIFY:
-	case GDK_LEAVE_NOTIFY:
+	case GDK_KEY_PRESS:
+	case GDK_KEY_RELEASE:
 		handled = gtk_widget_event (gui.userlist, event);
 		break;
 	default:
@@ -297,11 +295,24 @@ userlist_grab ()
 	if (have_grab)
 		return;
 	have_grab = (gdk_pointer_grab (gui.userlist_window->window, FALSE,
-	                               GDK_BUTTON_PRESS_MASK   | GDK_BUTTON_RELEASE_MASK |
-	                               GDK_ENTER_NOTIFY_MASK   | GDK_LEAVE_NOTIFY_MASK |
-	                               GDK_POINTER_MOTION_MASK | GDK_BUTTON_MOTION_MASK |
-				       GDK_POINTER_MOTION_HINT_MASK,
+	                               GDK_POINTER_MOTION_MASK  | GDK_POINTER_MOTION_HINT_MASK |
+	                               GDK_BUTTON_MOTION_MASK   | GDK_BUTTON1_MOTION_MASK      |
+	                               GDK_BUTTON2_MOTION_MASK  | GDK_BUTTON3_MOTION_MASK      |
+	                               GDK_BUTTON_PRESS_MASK    | GDK_BUTTON_RELEASE_MASK      |
+	                               GDK_ENTER_NOTIFY_MASK    | GDK_LEAVE_NOTIFY_MASK        |
+	                               GDK_FOCUS_CHANGE_MASK    | GDK_STRUCTURE_MASK           |
+	                               GDK_PROPERTY_CHANGE_MASK | GDK_VISIBILITY_NOTIFY_MASK   |
+	                               GDK_PROXIMITY_IN_MASK    | GDK_PROXIMITY_OUT_MASK       |
+	                               GDK_SCROLL_MASK          | GDK_SUBSTRUCTURE_MASK,
 	                               NULL, NULL, GDK_CURRENT_TIME) == GDK_GRAB_SUCCESS);
+	if (have_grab) {
+		have_grab = (gdk_keyboard_grab (gui.userlist_window->window, TRUE, GDK_CURRENT_TIME) == GDK_GRAB_SUCCESS);
+		if (have_grab == FALSE) {
+			/* something bad happened */
+			gdk_pointer_ungrab (GDK_CURRENT_TIME);
+			userlist_gui_hide ();
+		}
+	}
 }
 
 static void
@@ -322,8 +333,10 @@ userlist_button_release (GtkWidget *widget, GdkEventButton *button, gpointer dat
 	/* If the event happened on top of the userlist window, we don't want to
 	 * close it */
 	if ((button->x_root > x) && (button->x_root < x + width) &&
-	    (button->y_root > y) && (button->y_root < y + height))
+	    (button->y_root > y) && (button->y_root < y + height)) {
+		gtk_widget_event (gui.userlist, (GdkEvent *) button);
 		return TRUE;
+	}
 
 	userlist_gui_hide ();
 	return TRUE;
