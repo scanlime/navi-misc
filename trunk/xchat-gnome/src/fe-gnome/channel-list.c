@@ -20,8 +20,8 @@
  */
 
 #include <config.h>
-#include <string.h>
 #include <gnome.h>
+#include <string.h>
 #include "channel-list.h"
 #include "../common/xchat.h"
 #include "../common/xchatc.h"

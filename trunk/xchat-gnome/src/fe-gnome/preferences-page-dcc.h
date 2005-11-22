@@ -19,8 +19,8 @@
  *
  */
 
-#include "gui.h"
 #include <glade/glade-xml.h>
+#include "gui.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_PAGE_DCC_H
 #define XCHAT_GNOME_PREFERENCES_PAGE_DCC_H

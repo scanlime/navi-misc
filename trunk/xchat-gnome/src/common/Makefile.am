@@ -1,5 +1,3 @@
-LINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-
 noinst_HEADERS =			\
 	cfgfiles.h			\
 	ctcp.h				\
@@ -30,8 +28,8 @@ noinst_HEADERS =			\
 	xchat.h				\
 	xchatc.h
 
-noinst_LIBRARIES = libxchatcommon.a
-libxchatcommon_a_SOURCES =		\
+noinst_LTLIBRARIES = libxchatcommon.la
+libxchatcommon_la_SOURCES =		\
 	cfgfiles.c			\
 	ctcp.c				\
 	dcc.c				\
@@ -55,10 +53,10 @@ libxchatcommon_a_SOURCES =		\
 	util.c				\
 	xchat.c
 
-libxchatcommon_a_CFLAGS =		\
+libxchatcommon_la_LDFLAGS = -static
+libxchatcommon_la_CFLAGS =		\
 	$(DEPENDENCIES_CFLAGS)		\
 	-DXCHATLIBDIR="\"$(XCHATLIBDIR)\""
-libxchatcommon_a_LDFLAGS = -static
 
 textevents: make-te
 	./make-te < textevents.in > textevents.h 2> textenums.h

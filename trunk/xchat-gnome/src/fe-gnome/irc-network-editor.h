@@ -19,13 +19,13 @@
  *
  */
 
-#include "irc-network.h"
 #include <gtk/gtkdialog.h>
 #include <gtk/gtkliststore.h>
 #include <gtk/gtkcellrenderer.h>
 #include <gtk/gtktreeviewcolumn.h>
 #include <glade/glade.h>
 #include <gconf/gconf-client.h>
+#include "irc-network.h"
 
 #ifndef __XCHAT_GNOME_IRC_NETWORK_EDITOR_H__
 #define __XCHAT_GNOME_IRC_NETWORK_EDITOR_H__

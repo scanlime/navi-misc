@@ -20,10 +20,10 @@
  */
 
 #include <config.h>
-#include "../common/xchat.h"
-#include "../common/xchatc.h"
 #include "preferences-page-dcc.h"
 #include "preferences-dialog.h"
+#include "../common/xchat.h"
+#include "../common/xchatc.h"
 
 static void
 download_dir_changed (GtkFileChooser *file_chooser, gpointer data)

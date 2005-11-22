@@ -28,6 +28,11 @@
 #endif
 #include <libgnomevfs/gnome-vfs.h>
 
+#include "textgui.h"
+#include "palette.h"
+#include "preferences.h"
+#include "userlist-gui.h"
+
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
 #include "../common/text.h"
@@ -35,11 +40,6 @@
 #include "../common/fe.h"
 #include "../common/url.h"
 #include "../common/outbound.h"
-
-#include "textgui.h"
-#include "palette.h"
-#include "preferences.h"
-#include "userlist-gui.h"
 
 #define DROP_FILE_PASTE_MAX_SIZE 1024
 

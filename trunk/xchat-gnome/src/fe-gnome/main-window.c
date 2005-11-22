@@ -22,9 +22,15 @@
 #include <config.h>
 #include <libgnome/libgnome.h>
 #include <gconf/gconf-client.h>
-#include "../common/xchatc.h"
-#include "../common/outbound.h"
-#include "../common/fe.h"
+#include <gtk/gtk.h>
+#ifdef HAVE_LIBSEXY
+#include <libsexy/sexy-url-label.h>
+#include <libsexy/sexy-spell-entry.h>
+#endif
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include "about.h"
 #include "channel-list.h"
 #include "connect-dialog.h"
@@ -37,21 +43,9 @@
 #include "textgui.h"
 #include "userlist-gui.h"
 #include "util.h"
-
-#ifdef HAVE_LIBSEXY
-#include <libsexy/sexy-url-label.h>
-#include <libsexy/sexy-spell-entry.h>
-#endif
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-#include <gtk/gtk.h>
-#include <gtk/gtkstock.h>
-#include <gtk/gtkaction.h>
-#include <gtk/gtkactiongroup.h>
-#include <gtk/gtkuimanager.h>
+#include "../common/xchatc.h"
+#include "../common/outbound.h"
+#include "../common/fe.h"
 
 static textentry *last_search_position = NULL;
 

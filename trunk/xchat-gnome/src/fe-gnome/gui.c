@@ -20,7 +20,6 @@
  */
 
 #include <config.h>
-#include "../common/text.h"
 #include "gui.h"
 #include "main-window.h"
 #include "preferences-dialog.h"
@@ -29,6 +28,7 @@
 #include "textgui.h"
 #include "userlist-gui.h"
 #include "pixmaps.h"
+#include "../common/text.h"
 
 XChatGUI gui;
 Userlist *u;

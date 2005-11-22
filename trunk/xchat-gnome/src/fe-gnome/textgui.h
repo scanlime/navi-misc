@@ -20,8 +20,8 @@
  */
 
 #include "gui.h"
-#include "../common/xchat.h"
 #include "xtext.h"
+#include "../common/xchat.h"
 
 #ifndef XCHAT_GNOME_TEXTGUI_H
 #define XCHAT_GNOME_TEXTGUI_H
