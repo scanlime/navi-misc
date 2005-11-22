@@ -6,10 +6,12 @@
 #
 
 CIA_HOST=cia@flapjack.navi.cx
-BACKUPDIR=~/backups/cia
+BACKUPDIR=~/download/cia-backups
 
-DUMP_FILE=`date "+cia-%F.dump.bz2"`
+FILE_PREFIX=`date "+cia-%F"`
+DUMP_FILE=$FILE_PREFIX.dump.gz
+TAR_FILE=$FILE_PREFIX.tar.gz
 
-ssh $CIA_HOST 'database=cia; user=root; . ~/.cia_db; nice -n 19 mysqldump -u $user --password=$passwd $database | /usr/local/bin/io-throttle 0.8 | nice -n 19 gzip' | gunzip | bzip2 > $BACKUPDIR/$DUMP_FILE
-
+ssh $CIA_HOST 'database=cia; user=root; . ~/.cia_db; nice -n 19 mysqldump -u $user --password=$passwd $database | /usr/local/bin/io-throttle 0.8 | nice -n 19 gzip' > $BACKUPDIR/$DUMP_FILE
+ssh $CIA_HOST 'cd ~/cia/data; nice -n 19 tar cf - db | /usr/local/bin/io-throttle 0.8 | nice -n 19 gzip' > $BACKUPDIR/$TAR_FILE                            
 
