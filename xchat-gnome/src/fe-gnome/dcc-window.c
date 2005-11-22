@@ -82,8 +82,8 @@ dcc_window_init (DccWindow *window)
 	GtkTreeSelection *selection;
 
 	xml = NULL;
-	if (g_file_test ("dcc-window.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("dcc-window.glade", "toplevel", NULL);
+	if (g_file_test ("../../data/dcc-window.glade", G_FILE_TEST_EXISTS))
+		xml = glade_xml_new ("../../data/dcc-window.glade", "toplevel", NULL);
 	if (!xml)
 		xml = glade_xml_new (XCHATSHAREDIR "/dcc-window.glade", "toplevel", NULL);
 	if (!xml)
@@ -152,9 +152,9 @@ dcc_window_init (DccWindow *window)
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->info_column);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (window->transfer_list), window->remaining_column);
 
-	if (g_file_test ("data/stock_up.png", G_FILE_TEST_EXISTS)) {
-		window->up_icon   = gdk_pixbuf_new_from_file_at_size ("data/stock_up.png",   24, 24, NULL);
-		window->down_icon = gdk_pixbuf_new_from_file_at_size ("data/stock_down.png", 24, 24, NULL);
+	if (g_file_test ("../../data/stock_up.png", G_FILE_TEST_EXISTS)) {
+		window->up_icon   = gdk_pixbuf_new_from_file_at_size ("../../data/stock_up.png",   24, 24, NULL);
+		window->down_icon = gdk_pixbuf_new_from_file_at_size ("../../data/stock_down.png", 24, 24, NULL);
 	} else {
 		window->up_icon   = gdk_pixbuf_new_from_file_at_size (XCHATSHAREDIR "/stock_up.png",   24, 24, NULL);
 		window->down_icon = gdk_pixbuf_new_from_file_at_size (XCHATSHAREDIR "/stock_down.png", 24, 24, NULL);
@@ -228,8 +228,8 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 		GtkResponseType response;
 		gchar *text;
 
-		if (g_file_test ("dcc-accept.glade", G_FILE_TEST_EXISTS))
-			xml = glade_xml_new ("dcc-accept.glade", "toplevel", NULL);
+		if (g_file_test ("../../dcc-accept.glade", G_FILE_TEST_EXISTS))
+			xml = glade_xml_new ("../../dcc-accept.glade", "toplevel", NULL);
 		if (!xml)
 			xml = glade_xml_new (XCHATSHAREDIR "/dcc-accept.glade", "toplevel", NULL);
 		if (!xml)

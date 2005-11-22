@@ -220,8 +220,8 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	dialog->toplevel = NULL;
 
 	xml = NULL;
-	if (g_file_test ("irc-network-editor.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("irc-network-editor.glade", "toplevel", NULL);
+	if (g_file_test ("../../irc-network-editor.glade", G_FILE_TEST_EXISTS))
+		xml = glade_xml_new ("../../irc-network-editor.glade", "toplevel", NULL);
 	if (!xml)
 		xml = glade_xml_new (XCHATSHAREDIR "/irc-network-editor.glade", "toplevel", NULL);
 	if (!xml)
