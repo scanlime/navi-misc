@@ -21,76 +21,74 @@ install-data-local:
 desktopdir = $(datadir)/applications
 desktop_DATA = xchat-gnome.desktop
 
-noinst_HEADERS =				\
-	about.h					\
-	channel-list.h				\
-	connect-dialog.h			\
-	dcc-window.h				\
-	eggaccelerators.h			\
-	eggcellrendererkeys.h			\
-	irc-network.h				\
-	irc-network-editor.h			\
-	gui.h					\
-	main-window.h				\
-	navigation-tree.h			\
-	palette.h				\
-	pixmaps.h				\
-	plugins.h				\
-	preferences.h				\
-	preferences-dialog.h			\
-	preferences-keybindings-page.h		\
-	preferences-page-colors.h		\
-	preferences-page-effects.h		\
-	preferences-page-dcc.h			\
-	preferences-page-irc.h			\
-	preferences-page-plugins.h		\
-	preferences-page-networks.h		\
-	setup-dialog.h				\
-	textgui.h				\
-	userlist.h				\
-	userlist-gui.h				\
-	util.h					\
-	xg-plugin.h				\
-	xtext.h					\
-	$(mmx_cmod_h)
-
 xchat_gnome_LDADD =				\
-	../common/libxchatcommon.a		\
+	../common/libxchatcommon.la		\
 	$(DEPENDENCIES_LIBS)			\
 	$(LIBSEXY_LIBS)
 
 xchat_gnome_SOURCES =				\
+	$(mmx_cmod_S)				\
+	$(mmx_cmod_h)				\
 	about.c					\
+	about.h					\
 	channel-list.c				\
+	channel-list.h				\
 	connect-dialog.c			\
+	connect-dialog.h			\
 	dcc-window.c				\
+	dcc-window.h				\
 	eggaccelerators.c			\
+	eggaccelerators.h			\
 	eggcellrendererkeys.c			\
+	eggcellrendererkeys.h			\
 	fe-gnome.c				\
-	irc-network.c				\
-	irc-network-editor.c			\
 	gui.c					\
+	gui.h					\
+	irc-network-editor.c			\
+	irc-network-editor.h			\
+	irc-network.c				\
+	irc-network.h				\
 	main-window.c				\
+	main-window.h				\
 	navigation-tree.c			\
+	navigation-tree.h			\
 	palette.c				\
+	palette.h				\
 	pixmaps.c				\
+	pixmaps.h				\
 	plugins.c				\
-	preferences.c				\
+	plugins.h				\
 	preferences-dialog.c			\
+	preferences-dialog.h			\
 	preferences-keybindings-page.c		\
+	preferences-keybindings-page.h		\
 	preferences-page-colors.c		\
-	preferences-page-effects.c		\
+	preferences-page-colors.h		\
 	preferences-page-dcc.c			\
+	preferences-page-dcc.h			\
+	preferences-page-effects.c		\
+	preferences-page-effects.h		\
 	preferences-page-irc.c			\
-	preferences-page-plugins.c		\
+	preferences-page-irc.h			\
 	preferences-page-networks.c		\
+	preferences-page-networks.h		\
+	preferences-page-plugins.c		\
+	preferences-page-plugins.h		\
+	preferences.c				\
+	preferences.h				\
 	setup-dialog.c				\
+	setup-dialog.h				\
 	textgui.c				\
-	userlist.c				\
+	textgui.h				\
 	userlist-gui.c				\
+	userlist-gui.h				\
+	userlist.c				\
+	userlist.h				\
 	util.c					\
+	util.h					\
+	xg-plugin.h				\
 	xtext.c					\
-	$(mmx_cmod_S)
+	xtext.h
 
 xchat_gnome_CFLAGS =				\
 	$(DEPENDENCIES_CFLAGS)			\
@@ -104,6 +102,5 @@ xchat_gnome_CFLAGS =				\
 
 EXTRA_DIST =					\
 	$(xchat_gnome_SOURCES)			\
-	$(xchat_gnome_DATA)			\
 	$(desktop_DATA)				\
 	apps_xchat.schemas
