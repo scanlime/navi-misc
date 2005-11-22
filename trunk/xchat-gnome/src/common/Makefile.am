@@ -59,6 +59,7 @@ libxchatcommon_a_SOURCES =		\
 libxchatcommon_a_CFLAGS =		\
 	$(DEPENDENCIES_CFLAGS)		\
 	-DXCHATLIBDIR="\"$(XCHATLIBDIR)\""
+libxchatcommon_a_LDFLAGS = -static
 
 textevents: make-te
 	./make-te < textevents.in > textevents.h 2> textenums.h
