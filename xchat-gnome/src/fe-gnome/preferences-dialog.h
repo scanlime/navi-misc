@@ -19,8 +19,8 @@
  *
  */
 
-#include "gui.h"
 #include <gconf/gconf-client.h>
+#include "gui.h"
 #include "preferences-page-irc.h"
 #include "preferences-page-colors.h"
 #include "preferences-page-effects.h"

@@ -19,8 +19,8 @@
  *
  */
 
-#include "../common/xchat.h"
 #include "navigation-tree.h"
+#include "../common/xchat.h"
 
 #ifndef XG_PLUGIN_H
 #define XG_PLUGIN_H

@@ -19,8 +19,8 @@
  *
  */
 
-#include "../common/xchat.h"
 #include <glade/glade.h>
+#include "../common/xchat.h"
 
 #ifndef XCHAT_GNOME_CHANNEL_LIST_H
 #define XCHAT_GNOME_CHANNEL_LIST_H

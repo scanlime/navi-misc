@@ -23,12 +23,6 @@
 #include <glib.h>
 #include <gnome.h>
 #include <libgnomevfs/gnome-vfs.h>
-#include "../common/xchat.h"
-#include "../common/xchatc.h"
-#include "../common/servlist.h"
-#include "../common/fe.h"
-#include "../common/util.h"
-#include "../common/cfgfiles.h"
 #include "gui.h"
 #include "navigation-tree.h"
 #include "textgui.h"
@@ -41,6 +35,12 @@
 #include "channel-list.h"
 #include "util.h"
 #include "plugins.h"
+#include "../common/xchat.h"
+#include "../common/xchatc.h"
+#include "../common/servlist.h"
+#include "../common/fe.h"
+#include "../common/util.h"
+#include "../common/cfgfiles.h"
 
 static gboolean opt_version = FALSE;
 static gboolean opt_noauto = FALSE;

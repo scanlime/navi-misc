@@ -19,8 +19,8 @@
  *
  */
 
-#include "../common/xchat.h"
 #include "navigation-tree.h"
+#include "../common/xchat.h"
 
 #ifndef XCHAT_GNOME_PLUGINS_H
 #define XCHAT_GNOME_PLUGINS_H

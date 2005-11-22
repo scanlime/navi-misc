@@ -21,14 +21,14 @@
 
 #include <glade/glade.h>
 #include <gnome.h>
-#include "../common/xchat.h"
+#include <gtk/gtkactiongroup.h>
+#include <gtk/gtkuimanager.h>
 #include "userlist.h"
 #include "navigation-tree.h"
 #include "dcc-window.h"
 #include "xtext.h"
 
-#include <gtk/gtkactiongroup.h>
-#include <gtk/gtkuimanager.h>
+#include "../common/xchat.h"
 
 #ifndef XCHAT_GNOME_GUI_H
 #define XCHAT_GNOME_GUI_H

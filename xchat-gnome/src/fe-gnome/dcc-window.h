@@ -19,11 +19,11 @@
  *
  */
 
+#include <gtk/gtk.h>
+#include <glade/glade.h>
 #include "../common/xchat.h"
 #include "../common/dcc.h"
 #include "../common/userlist.h"
-#include <gtk/gtk.h>
-#include <glade/glade.h>
 
 #ifndef __XCHAT_GNOME_DCC_WINDOW_H__
 #define __XCHAT_GNOME_DCC_WINDOW_H__

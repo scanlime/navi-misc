@@ -25,11 +25,11 @@
 #include <libgnomevfs/gnome-vfs-mime-utils.h>
 #include <libgnomevfs/gnome-vfs-utils.h>
 #include <libgnomeui/gnome-icon-lookup.h>
-#include "../common/xchat.h"
-#include "../common/xchatc.h"
 #include "gui.h"
 #include "dcc-window.h"
 #include "util.h"
+#include "../common/xchat.h"
+#include "../common/xchatc.h"
 
 enum {
 	DCC_COLUMN,
