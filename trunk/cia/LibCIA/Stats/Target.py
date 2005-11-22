@@ -22,7 +22,7 @@ interacting with stats targets.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-import os
+import os, string
 from twisted.internet import defer
 from twisted.python import log
 from LibCIA import Ruleset, Database, TimeUtil, Files
@@ -96,7 +96,7 @@ class StatsTarget(object):
         """Every target gets a directory on disk. This returns it, without any
            guarantee that it exists yet.
            """
-        return Files.tryGetDir(Files.dbDir, 'stats', *self.pathSegments)
+        return Files.tryGetDir(Files.dbDir, 'stats', *map(string.lower, self.pathSegments))
 
     def deliver(self, message=None):
         """An event has occurred which should be logged by this stats target"""
