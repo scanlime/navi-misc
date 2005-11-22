@@ -57,28 +57,22 @@ AC_SUBST([DEPENDENCIES_CFLAGS])
 AC_SUBST([DEPENDENCIES_LIBS])
 
 # D-BUS soft dependency
-AC_MSG_CHECKING([whether dbus is requested])
-AC_ARG_ENABLE([dbus],
-	AS_HELP_STRING([--enable-dbus],[Enable dbus support}),
-	[enable_dbus=$enableval have_dbus=$enableval],
-	[enable_dbus=autodetect have_dbus=yes])
-AC_MSG_RESULT([$enable_dbus])
-PKG_CHECK_MODULES([DBUS], [dbus-glib-1 >= $DBUS_GLIB_REQUIRED])
+PKG_CHECK_MODULES([DBUS], [dbus-glib-1 >= $DBUS_GLIB_REQUIRED], dbus=yes, dbus=no)
 AC_SUBST([DBUS_CFLAGS])
 AC_SUBST([DBUS_LIBS])
-AM_CONDITIONAL([ENABLE_DBUS],[test "x$enable_dbus" = "xyes"])
+AM_CONDITIONAL([ENABLE_DBUS],[test "x$dbus" = "xyes"])
 
 # libsexy soft dependency
-PKG_CHECK_MODULES([LIBSEXY], [libsexy >= $LIBSEXY_REQUIRED])
+PKG_CHECK_MODULES([LIBSEXY], [libsexy >= $LIBSEXY_REQUIRED], libsexy=yes, libsexy=no)
 AC_SUBST([LIBSEXY_CFLAGS])
 AC_SUBST([LIBSEXY_LIBS])
-AM_CONDITIONAL([ENABLE_LIBSEXY],[false])
+AM_CONDITIONAL([ENABLE_LIBSEXY],[test "x$libsexy" = "xyes"])
 
 # libnotify soft dependency
-PKG_CHECK_MODULES([LIBNOTIFY], [libnotify])
+PKG_CHECK_MODULES([LIBNOTIFY], [libnotify], libnotify=yes, libnotify=no)
 AC_SUBST([LIBNOTIFY_CFLAGS])
 AC_SUBST([LIBNOTIFY_LIBS])
-AM_CONDITIONAL([ENABLE_LIBNOTIFY],[false])
+AM_CONDITIONAL([ENABLE_LIBNOTIFY],[test "x$libnotify" = "xyes"])
 
 # GConf
 AM_GCONF_SOURCE_2
@@ -107,8 +101,8 @@ TCL_PLUGINS="tcl"
 DIST_PLUGINS="$ALL_PLUGINS $DBUS_ALL_PLUGINS $LIBNOTIFY_ALL_PLUGINS $PYTHON_PLUGINS $PERL_PLUGINS $TCL_PLUGINS"
 
 # dbus-specific plugins
-if test $ENABLE_DBUS; then
-	ALL_PLUGINS="$ALL_PLUGINS $DBUS_ALL_PLUGINS"
+if test "x$dbus" = "xyes"; then
+	ALL_PLUGINS="$ALL_PLUGINS $DBUS_PLUGINS"
 else
 	AC_MSG_WARN([xchat-gnome compiled without dbus support, plugins $DBUS_PLUGINS will not be available $ENABLE_DBUS])
 fi
@@ -129,7 +123,7 @@ IFS="${IFS=     }"; plugin_save_ifs="$IFS"; IFS=","
 for plugin in $plugins; do
 	if echo "$ALL_PLUGINS" | egrep "(^| )$plugin(\$| )" > /dev/null; then
 		PLUGINS="$PLUGINS $plugin"
-	elif test "x$ext" = "xdefault"; then
+	elif test "x$plugin" = "xdefault"; then
 		PLUGINS="$PLUGINS $ALL_PLUGINS"
 	fi
 done
