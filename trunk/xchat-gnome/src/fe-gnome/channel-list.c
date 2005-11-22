@@ -262,8 +262,8 @@ create_channel_list (session *sess)
 
 	win->refresh_timeout = 0;
 
-	if (g_file_test ("channel-list.glade", G_FILE_TEST_EXISTS))
-		win->xml = glade_xml_new ("channel-list.glade", NULL, NULL);
+	if (g_file_test ("../../data/channel-list.glade", G_FILE_TEST_EXISTS))
+		win->xml = glade_xml_new ("../../data/channel-list.glade", NULL, NULL);
 	if (!win->xml)
 		win->xml = glade_xml_new (XCHATSHAREDIR"/channel-list.glade", NULL, NULL);
 	if (!win->xml) {

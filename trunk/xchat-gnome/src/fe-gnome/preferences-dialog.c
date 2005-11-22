@@ -89,8 +89,8 @@ preferences_dialog_init (PreferencesDialog *p)
 	p->toplevel = NULL;
 
 	xml = NULL;
-	if (g_file_test ("preferences-dialog.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("preferences-dialog.glade", "toplevel", NULL);
+	if (g_file_test ("../../data/preferences-dialog.glade", G_FILE_TEST_EXISTS))
+		xml = glade_xml_new ("../../data/preferences-dialog.glade", "toplevel", NULL);
 	if (!xml)
 		xml = glade_xml_new (XCHATSHAREDIR "/preferences-dialog.glade", "toplevel", NULL);
 	if (!xml)
