@@ -25,7 +25,6 @@
 			<menuitem name="NetworkCloseItem" action="NetworkClose"/>
 			<separator name="NetworkSep1"/>
 			<menuitem name="NetworkChannelsItem" action="NetworkChannels"/>
-			<menuitem name="NetworkUsersItem" action="NetworkUsers"/>
 		</menu>
 
 		<menu name="DiscussionMenu" action="Discussion">
@@ -39,6 +38,7 @@
 			<separator name="DiscussionSep3"/>
 			<menuitem name="DiscussionChangeTopicItem" action="DiscussionChangeTopic"/>
 			<menuitem name="DiscussionBansItem" action="DiscussionBans"/>
+			<menuitem name="DiscussionUsersItem" action="DiscussionUsers"/>
 		</menu>
 
 		<menu name="GoMenu" action="Go">

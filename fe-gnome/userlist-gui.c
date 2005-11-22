@@ -219,6 +219,8 @@ userlist_gui_show ()
 	GdkScreen *mouse_screen;
 	GtkRequisition request;
 
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gui.userlist_toggle), TRUE);
+
 	if (!GTK_WIDGET_REALIZED (gui.userlist_window))
 		gtk_widget_realize (gui.userlist_window);
 	gtk_widget_size_request (gui.userlist, &request);

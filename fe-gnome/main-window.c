@@ -73,7 +73,6 @@ static void on_network_reconnect_activate (GtkAction *action, gpointer data);
 static void on_network_disconnect_activate (GtkAction *action, gpointer data);
 static void on_network_close_activate (GtkAction *action, gpointer data);
 static void on_network_channels_activate (GtkAction *action, gpointer data);
-static void on_network_users_activate (GtkAction *action, gpointer data);
 static void on_discussion_save_activate (GtkAction *action, gpointer data);
 static void on_discussion_leave_activate (GtkAction *action, gpointer data);
 static void on_discussion_close_activate (GtkAction *action, gpointer data);
@@ -81,6 +80,7 @@ static void on_discussion_find_activate (GtkAction *action, gpointer data);
 static void on_discussion_clear_window_activate (GtkAction *action, gpointer data);
 static void on_discussion_bans_activate (GtkAction *action, gpointer data);
 static void on_discussion_topic_change_activate (GtkButton *widget, gpointer data);
+static void on_discussion_users_activate (GtkAction *action, gpointer data);
 static void on_go_previous_network_activate (GtkAction *action, gpointer data);
 static void on_go_next_network_activate (GtkAction *action, gpointer data);
 static void on_go_previous_discussion_activate (GtkAction *action, gpointer data);
@@ -128,26 +128,26 @@ static GtkActionEntry action_entries [] = {
 
 	/* Network menu */
 	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, _("_Information"), "", NULL, G_CALLBACK (on_network_information_activate) },
-	{ "NetworkReconnect", GTK_STOCK_REFRESH, _("_Reconnect"), "<control>R", NULL, G_CALLBACK (on_network_reconnect_activate) },
-	{ "NetworkDisconnect", GTK_STOCK_STOP, _("_Disconnect"), "", NULL, G_CALLBACK (on_network_disconnect_activate) },
-	{ "NetworkClose", GTK_STOCK_CLOSE, _("_Close"), "<shift><control>W", NULL, G_CALLBACK (on_network_close_activate) },
-	{ "NetworkChannels", GTK_STOCK_INDEX, _("_Channels"), "<alt>C", NULL, G_CALLBACK (on_network_channels_activate) },
-	{ "NetworkUsers", NULL, _("_Users"), "<alt>U", NULL, G_CALLBACK (on_network_users_activate) },
+	{ "NetworkReconnect",   GTK_STOCK_REFRESH,     _("_Reconnect"), "<control>R", NULL, G_CALLBACK (on_network_reconnect_activate) },
+	{ "NetworkDisconnect",  GTK_STOCK_STOP,        _("_Disconnect"), "", NULL, G_CALLBACK (on_network_disconnect_activate) },
+	{ "NetworkClose",       GTK_STOCK_CLOSE,       _("_Close"), "<shift><control>W", NULL, G_CALLBACK (on_network_close_activate) },
+	{ "NetworkChannels",    GTK_STOCK_INDEX,       _("_Channels"), "<alt>C", NULL, G_CALLBACK (on_network_channels_activate) },
 
 	/* Discussion menu */
-	{ "DiscussionSave", GTK_STOCK_SAVE, _("_Save Transcript"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
-	{ "DiscussionLeave", GTK_STOCK_QUIT, _("_Leave"), "", NULL, G_CALLBACK (on_discussion_leave_activate) },
-	{ "DiscussionClose", GTK_STOCK_CLOSE, _("Cl_ose"), "<control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
-	{ "DiscussionFind", GTK_STOCK_FIND, _("_Find"), "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
-	{ "DiscussionClearWindow", GTK_STOCK_CLEAR, _("_Clear Window"), "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
-	{ "DiscussionChangeTopic", GTK_STOCK_REFRESH, _("Change _Topic"), "<alt>T", NULL, G_CALLBACK (on_discussion_topic_change_activate) },
-	{ "DiscussionBans", GTK_STOCK_DIALOG_WARNING, _("_Bans"), "<alt>B", NULL, G_CALLBACK (on_discussion_bans_activate) },
+	{ "DiscussionSave",        GTK_STOCK_SAVE,           _("_Save Transcript"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
+	{ "DiscussionLeave",       GTK_STOCK_QUIT,           _("_Leave"),           "",           NULL, G_CALLBACK (on_discussion_leave_activate) },
+	{ "DiscussionClose",       GTK_STOCK_CLOSE,          _("Cl_ose"),           "<control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
+	{ "DiscussionFind",        GTK_STOCK_FIND,           _("_Find"),            "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
+	{ "DiscussionClearWindow", GTK_STOCK_CLEAR,          _("_Clear Window"),    "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
+	{ "DiscussionChangeTopic", GTK_STOCK_REFRESH,        _("Change _Topic"),    "<alt>T",     NULL, G_CALLBACK (on_discussion_topic_change_activate) },
+	{ "DiscussionBans",        GTK_STOCK_DIALOG_WARNING, _("_Bans"),            "<alt>B",     NULL, G_CALLBACK (on_discussion_bans_activate) },
+	{ "DiscussionUsers",       NULL,                     _("_Users"),           "<control>U", NULL, G_CALLBACK (on_discussion_users_activate) },
 
 	/* Go menu */
-	{ "GoPreviousNetwork", GTK_STOCK_GOTO_FIRST, _("Pre_vious Network"), "<control>Up", NULL, G_CALLBACK (on_go_previous_network_activate) },
-	{ "GoNextNetwork", GTK_STOCK_GOTO_LAST, _("Nex_t Network"), "<control>Down", NULL, G_CALLBACK (on_go_next_network_activate) },
-	{ "GoPreviousDiscussion", GTK_STOCK_GO_BACK, _("_Previous Discussion"), "<alt>Up", NULL, G_CALLBACK (on_go_previous_discussion_activate) },
-	{ "GoNextDiscussion", GTK_STOCK_GO_FORWARD, _("_Next Discussion"), "<alt>Down", NULL, G_CALLBACK (on_go_next_discussion_activate) },
+	{ "GoPreviousNetwork",    GTK_STOCK_GOTO_FIRST, _("Pre_vious Network"),    "<control>Up",   NULL, G_CALLBACK (on_go_previous_network_activate) },
+	{ "GoNextNetwork",        GTK_STOCK_GOTO_LAST,  _("Nex_t Network"),        "<control>Down", NULL, G_CALLBACK (on_go_next_network_activate) },
+	{ "GoPreviousDiscussion", GTK_STOCK_GO_BACK,    _("_Previous Discussion"), "<alt>Up",       NULL, G_CALLBACK (on_go_previous_discussion_activate) },
+	{ "GoNextDiscussion",     GTK_STOCK_GO_FORWARD, _("_Next Discussion"),     "<alt>Down",     NULL, G_CALLBACK (on_go_next_discussion_activate) },
 
 	/* Help menu */
 	{ "HelpContents", GTK_STOCK_HELP,  _("_Contents"), "",   NULL, G_CALLBACK (on_help_contents_activate) },
@@ -674,8 +674,6 @@ run_main_window ()
 	/* Temporarily disable menu items */
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/NetworkMenu/NetworkInformationItem");
 	gtk_widget_set_sensitive (widget, FALSE);
-	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/NetworkMenu/NetworkUsersItem");
-	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionBansItem");
 	gtk_widget_set_sensitive (widget, FALSE);
 }
@@ -814,9 +812,9 @@ on_network_channels_activate (GtkAction *action, gpointer data)
 }
 
 static void
-on_network_users_activate (GtkAction *action, gpointer data)
+on_discussion_users_activate (GtkAction *action, gpointer data)
 {
-	/* FIXME: implement */
+	userlist_gui_show ();
 }
 
 static void
