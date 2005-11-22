@@ -36,7 +36,6 @@ static gboolean userlist_window_event       (GtkWidget *window, GdkEvent *event,
 static gboolean userlist_window_grab_broken (GtkWidget *window, GdkEventGrabBroken *event, gpointer data);
 static void     userlist_popup_deactivate   (GtkMenuShell *menu, gpointer data);
 static gboolean userlist_button_release     (GtkWidget *widget, GdkEventButton *button, gpointer data);
-static void     userlist_delete_event       (GtkWidget *widget, gpointer data);
 
 /* action callbacks */
 static void user_send_file_activate   (GtkAction *action, gpointer data);
@@ -268,6 +267,8 @@ userlist_gui_hide ()
 		have_grab = FALSE;
 	}
 	gtk_widget_hide (gui.userlist_window);
+
+	gtk_widget_grab_focus (gui.text_entry);
 }
 
 static gboolean
@@ -352,10 +353,4 @@ userlist_button_release (GtkWidget *widget, GdkEventButton *button, gpointer dat
 
 	userlist_gui_hide ();
 	return TRUE;
-}
-
-static void
-userlist_delete_event (GtkWidget *widget, gpointer data)
-{
-	userlist_gui_hide ();
 }
