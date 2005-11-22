@@ -78,6 +78,10 @@ AM_CONDITIONAL([ENABLE_LIBNOTIFY],[false])
 AM_GCONF_SOURCE_2
 AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
 
-# plugins
-if test "x$plugin" = "xyes"; then
-fi
+AC_OUTPUT([
+Makefile
+src/Makefile
+src/common/Makefile
+src/fe-gnome/Makefile
+plugins/Makefile
+])
