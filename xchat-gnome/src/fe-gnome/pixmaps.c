@@ -32,9 +32,6 @@ GdkPixbuf *pix_newdata;
 GdkPixbuf *pix_nicksaid;
 GdkPixbuf *pix_msgsaid;
 
-GdkPixbuf *pix_prefs_plugins;
-GdkPixbuf *pix_prefs_keybindings;
-
 void
 pixmaps_init (void)
 {
@@ -47,7 +44,4 @@ pixmaps_init (void)
 	pix_newdata           = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/newdata.png",                 NULL);
 	pix_nicksaid          = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/nicksaid.png",                NULL);
 	pix_msgsaid           = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/global-message.png",          NULL);
-
-	pix_prefs_plugins     = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/plugin-manager.png",          NULL);
-	pix_prefs_keybindings = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/preferences-keybindings.png", NULL);
 }
