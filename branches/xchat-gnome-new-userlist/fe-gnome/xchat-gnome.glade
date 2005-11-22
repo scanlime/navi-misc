@@ -1115,6 +1115,7 @@ It's like a balloon, and something bad happens!</property>
   <property name="can_focus">True</property>
   <property name="has_focus">True</property>
   <property name="events">GDK_EXPOSURE_MASK | GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK</property>
+  <property name="extension_events">GDK_EXTENSION_EVENTS_ALL</property>
   <property name="title" translatable="yes">window1</property>
   <property name="type">GTK_WINDOW_POPUP</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
@@ -1150,7 +1151,8 @@ It's like a balloon, and something bad happens!</property>
 	    <widget class="GtkTreeView" id="userlist">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="events">GDK_EXPOSURE_MASK | GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK</property>
+	      <property name="has_focus">True</property>
+	      <property name="extension_events">GDK_EXTENSION_EVENTS_ALL</property>
 	      <property name="headers_visible">False</property>
 	      <property name="rules_hint">False</property>
 	      <property name="reorderable">False</property>
