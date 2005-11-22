@@ -32,10 +32,11 @@
 	  (eventually ;)) keeping the stability and power that X-Chat users have come to expect.<br />
 	  <br />
 	  <b>Q.</b> Is xchat-gnome a fork?<br />
-	  <b>A.</b> Not really. xchat-gnome is just a new frontend that drops in to a normal xchat source tree.
-	  We don't have a separate xchat codebase, and patches are contributed back to xchat where necessary.
-	  There's no technical reason why xchat-gnome couldn't become part of the standard xchat distribution,
-	  though it's too early to tell if this will ever actually happen.<br />
+	  <b>A.</b> Not really. xchat-gnome does maintain separate copies of common and plugin sources, but
+	  these are synchronized with xchat's code pretty often.  Patches are contributed back to xchat
+	  when it makes sense to do so.  There's no technical reason why xchat-gnome couldn't become part
+	  of the standard xchat distribution, though it's too early to tell if this will ever actually
+	  happen.<br />
 	  <br />
 	  <b>Q.</b>What happens if xchat goes closed source?<br />
 	  <b>A.</b>Recently, zed has stirred up plenty of emotion by licensing the windows build as shareware.
@@ -81,14 +82,6 @@
 	  be some weird interactions, since configuration is shared by default (and xchat-gnome forces some
 	  configuration options).  If you run into problems, we'll try to fix them, but be aware that this isn't
 	  a priority for us.<br />
-        </div>
-        <div class="section-title">Compiling and Running</div>
-        <div class="section">
-          <b>Q.</b> I compiled it and all I got was this lousy 'xchat' binary. Where's xchat-gnome?<br />
-	  <b>A.</b> If you're using 0.1 (which you really shouldn't be at this point), make sure you configured
-	  with --enable-gnomefe. You'll find the binary in src/fe-gnome. If you're using 0.2 or the latest SVN,
-	  make sure everything was detected properly in the configure stage.<br />
-	  <br />
         </div>
       </div>
     </div>
