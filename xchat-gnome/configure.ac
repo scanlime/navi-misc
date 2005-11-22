@@ -41,6 +41,9 @@ AC_TYPE_SIZE_T
 AC_EXEEXT
 AC_HEADER_STDC
 
+AC_CHECK_FUNCS(snprintf vsnprintf)
+AC_CHECK_FUNCS(memrchr strtoull atoll)
+
 GNOME_DEBUG_CHECK
 GNOME_COMPILE_WARNINGS([maximum])
 

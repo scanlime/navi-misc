@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include <libgnome/libgnome.h>
 #include <gconf/gconf-client.h>
 #include <gtk/gtk.h>
@@ -100,53 +101,53 @@ static void entry_context (GtkEntry *entry, GtkMenu *menu, gpointer user_data);
 static GtkActionEntry action_entries [] = {
 
 	/* Toplevel */
-	{ "IRC",         NULL, _("_IRC") },
-	{ "Edit",        NULL, _("_Edit") },
-	{ "Insert",      NULL, _("In_sert") },
-	{ "Network",     NULL, _("_Network") },
-	{ "Discussion",  NULL, _("_Discussion") },
-	{ "Go",          NULL, _("_Go") },
-	{ "Help",        NULL, _("_Help") },
-	{ "PopupAction", NULL, _("") },
+	{ "IRC",         NULL, N_("_IRC") },
+	{ "Edit",        NULL, N_("_Edit") },
+	{ "Insert",      NULL, N_("In_sert") },
+	{ "Network",     NULL, N_("_Network") },
+	{ "Discussion",  NULL, N_("_Discussion") },
+	{ "Go",          NULL, N_("_Go") },
+	{ "Help",        NULL, N_("_Help") },
+	{ "PopupAction", NULL, N_("") },
 
 	/* IRC menu */
-	{ "IRCConnect",   GTK_STOCK_CONNECT, _("_Connect"),        "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
-	{ "IRCDownloads", NULL,              _("_File Transfers"), "<alt>F",     NULL, G_CALLBACK (on_irc_downloads_activate) },
-	{ "IRCQuit",      GTK_STOCK_QUIT,    _("_Quit"),           "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
+	{ "IRCConnect",   GTK_STOCK_CONNECT, N_("_Connect"),        "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
+	{ "IRCDownloads", NULL,              N_("_File Transfers"), "<alt>F",     NULL, G_CALLBACK (on_irc_downloads_activate) },
+	{ "IRCQuit",      GTK_STOCK_QUIT,    N_("_Quit"),           "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
 
 	/* Edit menu */
-	{ "EditCut",         GTK_STOCK_CUT,         _("Cu_t"),         "<control>X", NULL, G_CALLBACK (on_edit_cut_activate) },
-	{ "EditCopy",        GTK_STOCK_COPY,        _("_Copy"),        "<control>C", NULL, G_CALLBACK (on_edit_copy_activate) },
-	{ "EditPaste",       GTK_STOCK_PASTE,       _("_Paste"),       "<control>V", NULL, G_CALLBACK (on_edit_paste_activate) },
-	{ "EditClear",       GTK_STOCK_CLEAR,       _("C_lear"),       "",           NULL, G_CALLBACK (on_edit_clear_activate) },
-	{ "EditPreferences", GTK_STOCK_PREFERENCES, _("Prefere_nces"), "",           NULL, G_CALLBACK (on_edit_preferences_activate) },
+	{ "EditCut",         GTK_STOCK_CUT,         N_("Cu_t"),         "<control>X", NULL, G_CALLBACK (on_edit_cut_activate) },
+	{ "EditCopy",        GTK_STOCK_COPY,        N_("_Copy"),        "<control>C", NULL, G_CALLBACK (on_edit_copy_activate) },
+	{ "EditPaste",       GTK_STOCK_PASTE,       N_("_Paste"),       "<control>V", NULL, G_CALLBACK (on_edit_paste_activate) },
+	{ "EditClear",       GTK_STOCK_CLEAR,       N_("C_lear"),       "",           NULL, G_CALLBACK (on_edit_clear_activate) },
+	{ "EditPreferences", GTK_STOCK_PREFERENCES, N_("Prefere_nces"), "",           NULL, G_CALLBACK (on_edit_preferences_activate) },
 
 	/* Network menu */
-	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, _("_Information"), "", NULL, G_CALLBACK (on_network_information_activate) },
-	{ "NetworkReconnect",   GTK_STOCK_REFRESH,     _("_Reconnect"), "<control>R", NULL, G_CALLBACK (on_network_reconnect_activate) },
-	{ "NetworkDisconnect",  GTK_STOCK_STOP,        _("_Disconnect"), "", NULL, G_CALLBACK (on_network_disconnect_activate) },
-	{ "NetworkClose",       GTK_STOCK_CLOSE,       _("_Close"), "<shift><control>W", NULL, G_CALLBACK (on_network_close_activate) },
-	{ "NetworkChannels",    GTK_STOCK_INDEX,       _("_Channels"), "<alt>C", NULL, G_CALLBACK (on_network_channels_activate) },
+	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, N_("_Information"), "", NULL, G_CALLBACK (on_network_information_activate) },
+	{ "NetworkReconnect",   GTK_STOCK_REFRESH,     N_("_Reconnect"), "<control>R", NULL, G_CALLBACK (on_network_reconnect_activate) },
+	{ "NetworkDisconnect",  GTK_STOCK_STOP,        N_("_Disconnect"), "", NULL, G_CALLBACK (on_network_disconnect_activate) },
+	{ "NetworkClose",       GTK_STOCK_CLOSE,       N_("_Close"), "<shift><control>W", NULL, G_CALLBACK (on_network_close_activate) },
+	{ "NetworkChannels",    GTK_STOCK_INDEX,       N_("_Channels"), "<alt>C", NULL, G_CALLBACK (on_network_channels_activate) },
 
 	/* Discussion menu */
-	{ "DiscussionSave",        GTK_STOCK_SAVE,           _("_Save Transcript"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
-	{ "DiscussionLeave",       GTK_STOCK_QUIT,           _("_Leave"),           "",           NULL, G_CALLBACK (on_discussion_leave_activate) },
-	{ "DiscussionClose",       GTK_STOCK_CLOSE,          _("Cl_ose"),           "<control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
-	{ "DiscussionFind",        GTK_STOCK_FIND,           _("_Find"),            "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
-	{ "DiscussionClearWindow", GTK_STOCK_CLEAR,          _("_Clear Window"),    "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
-	{ "DiscussionChangeTopic", GTK_STOCK_REFRESH,        _("Change _Topic"),    "<alt>T",     NULL, G_CALLBACK (on_discussion_topic_change_activate) },
-	{ "DiscussionBans",        GTK_STOCK_DIALOG_WARNING, _("_Bans"),            "<alt>B",     NULL, G_CALLBACK (on_discussion_bans_activate) },
-	{ "DiscussionUsers",       NULL,                     _("_Users"),           "<control>U", NULL, G_CALLBACK (on_discussion_users_activate) },
+	{ "DiscussionSave",        GTK_STOCK_SAVE,           N_("_Save Transcript"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
+	{ "DiscussionLeave",       GTK_STOCK_QUIT,           N_("_Leave"),           "",           NULL, G_CALLBACK (on_discussion_leave_activate) },
+	{ "DiscussionClose",       GTK_STOCK_CLOSE,          N_("Cl_ose"),           "<control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
+	{ "DiscussionFind",        GTK_STOCK_FIND,           N_("_Find"),            "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
+	{ "DiscussionClearWindow", GTK_STOCK_CLEAR,          N_("_Clear Window"),    "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
+	{ "DiscussionChangeTopic", GTK_STOCK_REFRESH,        N_("Change _Topic"),    "<alt>T",     NULL, G_CALLBACK (on_discussion_topic_change_activate) },
+	{ "DiscussionBans",        GTK_STOCK_DIALOG_WARNING, N_("_Bans"),            "<alt>B",     NULL, G_CALLBACK (on_discussion_bans_activate) },
+	{ "DiscussionUsers",       NULL,                     N_("_Users"),           "<control>U", NULL, G_CALLBACK (on_discussion_users_activate) },
 
 	/* Go menu */
-	{ "GoPreviousNetwork",    GTK_STOCK_GOTO_FIRST, _("Pre_vious Network"),    "<control>Up",   NULL, G_CALLBACK (on_go_previous_network_activate) },
-	{ "GoNextNetwork",        GTK_STOCK_GOTO_LAST,  _("Nex_t Network"),        "<control>Down", NULL, G_CALLBACK (on_go_next_network_activate) },
-	{ "GoPreviousDiscussion", GTK_STOCK_GO_BACK,    _("_Previous Discussion"), "<alt>Up",       NULL, G_CALLBACK (on_go_previous_discussion_activate) },
-	{ "GoNextDiscussion",     GTK_STOCK_GO_FORWARD, _("_Next Discussion"),     "<alt>Down",     NULL, G_CALLBACK (on_go_next_discussion_activate) },
+	{ "GoPreviousNetwork",    GTK_STOCK_GOTO_FIRST, N_("Pre_vious Network"),    "<control>Up",   NULL, G_CALLBACK (on_go_previous_network_activate) },
+	{ "GoNextNetwork",        GTK_STOCK_GOTO_LAST,  N_("Nex_t Network"),        "<control>Down", NULL, G_CALLBACK (on_go_next_network_activate) },
+	{ "GoPreviousDiscussion", GTK_STOCK_GO_BACK,    N_("_Previous Discussion"), "<alt>Up",       NULL, G_CALLBACK (on_go_previous_discussion_activate) },
+	{ "GoNextDiscussion",     GTK_STOCK_GO_FORWARD, N_("_Next Discussion"),     "<alt>Down",     NULL, G_CALLBACK (on_go_next_discussion_activate) },
 
 	/* Help menu */
-	{ "HelpContents", GTK_STOCK_HELP,  _("_Contents"), "",   NULL, G_CALLBACK (on_help_contents_activate) },
-	{ "HelpAbout",    GTK_STOCK_ABOUT, _("_About"),    "",   NULL, G_CALLBACK (on_help_about_activate) },
+	{ "HelpContents", GTK_STOCK_HELP,  N_("_Contents"), "",   NULL, G_CALLBACK (on_help_contents_activate) },
+	{ "HelpAbout",    GTK_STOCK_ABOUT, N_("_About"),    "",   NULL, G_CALLBACK (on_help_about_activate) },
 };
 
 static GCompletion *command_completion;
