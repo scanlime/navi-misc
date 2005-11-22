@@ -18,12 +18,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "eggaccelerators.h"
-
+#include <config.h>
 #include <stdlib.h>
 #include <string.h>
 #include <gdk/gdkx.h>
 #include <gdk/gdkkeysyms.h>
+#include "eggaccelerators.h"
 
 enum
 {

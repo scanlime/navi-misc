@@ -19,6 +19,7 @@
  *
  */
 
+#include <config.h>
 #include "userlist.h"
 #include "palette.h"
 #include "pixmaps.h"

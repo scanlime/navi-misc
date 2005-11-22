@@ -19,11 +19,11 @@
  *
  */
 
+#include <config.h>
 #include <gconf/gconf-client.h>
 #include <glade/glade-xml.h>
 #include <gtk/gtk.h>
 #include <string.h>
-#include <config.h>
 #include "setup-dialog.h"
 
 static GladeXML *xml = NULL;

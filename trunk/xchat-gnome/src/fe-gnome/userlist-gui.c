@@ -19,6 +19,7 @@
  *
  */
 
+#include <config.h>
 #include <gnome.h>
 #include "userlist-gui.h"
 #include "pixmaps.h"

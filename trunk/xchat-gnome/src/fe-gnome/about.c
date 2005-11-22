@@ -19,8 +19,8 @@
  *
  */
 
-#include "about.h"
 #include <config.h>
+#include "about.h"
 
 void on_about_close (GtkWidget *widget, gpointer data);
 

@@ -19,7 +19,7 @@
  *
  */
 
-#include <gnome.h>
+#include <gtk/gtk.h>
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 

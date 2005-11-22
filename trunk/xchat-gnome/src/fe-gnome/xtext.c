@@ -38,6 +38,7 @@
 #define REFRESH_TIMEOUT 20
 #define WORDWRAP_LIMIT 24
 
+#include <config.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>

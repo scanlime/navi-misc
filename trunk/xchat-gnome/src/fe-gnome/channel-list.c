@@ -19,7 +19,7 @@
  *
  */
 
-#define _GNU_SOURCE
+#include <config.h>
 #include <string.h>
 #include <gnome.h>
 #include "channel-list.h"

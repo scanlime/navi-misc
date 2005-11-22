@@ -1,19 +1,10 @@
 bin_PROGRAMS = xchat-gnome
 
 xchat_gnomedir = $(datadir)/xchat
-INCLUDES =					\
-	$(GUI_CFLAGS)				\
-	$(LIBSEXY_CFLAGS)			\
-	-DSYSCONFDIR="\"$(sysconfdir)\""	\
-	-DDATADIR="\"$(xchat_gnomedir)\""	\
-	-DLIBDIR="\"$(xchatlibdir)\""		\
-	-DXCHATSHAREDIR="\"$(xchat_gnomedir)\""	\
-	-DXCHATLIBDIR="\"$(xchatlibdir)\""
 
 if USE_MMX
-mmx_cmod_S = 					\
-	mmx_cmod.h				\
-	mmx_cmod.S
+mmx_cmod_S = mmx_cmod.S
+mmx_cmod_h = mmx_cmod.h
 endif
 
 schemadir	= $(GCONF_SCHEMA_FILE_DIR)
@@ -41,83 +32,89 @@ xchat_gnome_DATA =				\
 	xchat-gnome.glade			\
 	xchat-gnome-ui.xml
 
-xchat_gnome_LDADD =				\
-	../common/libxchatcommon.a		\
-	$(GUI_LIBS)				\
-	$(LIBSEXY_LIBS)
-
-if DO_PLUGIN
-plugin_sources =				\
-	plugins.c				\
-	plugins.h				\
-	preferences-page-plugins.c		\
-	preferences-page-plugins.h
-endif
-
-xchat_gnome_SOURCES =				\
-	about.c					\
+noinst_HEADERS =				\
 	about.h					\
-	channel-list.c				\
 	channel-list.h				\
-	connect-dialog.c			\
 	connect-dialog.h			\
-	dcc-window.c				\
 	dcc-window.h				\
-	eggaccelerators.c			\
 	eggaccelerators.h			\
-	eggcellrendererkeys.c			\
 	eggcellrendererkeys.h			\
-	fe-gnome.c				\
-	irc-network.c				\
 	irc-network.h				\
-	irc-network-editor.c			\
 	irc-network-editor.h			\
-	gui.c					\
 	gui.h					\
-	main-window.c				\
 	main-window.h				\
-	navigation-tree.c			\
 	navigation-tree.h			\
-	palette.c				\
 	palette.h				\
-	pixmaps.c				\
 	pixmaps.h				\
-	preferences.c				\
+	plugins.h				\
 	preferences.h				\
-	preferences-dialog.c			\
 	preferences-dialog.h			\
-	preferences-page-colors.c		\
-	preferences-page-colors.h		\
-	preferences-page-effects.c		\
-	preferences-page-effects.h		\
-	preferences-page-dcc.c			\
-	preferences-page-dcc.h			\
-	preferences-page-irc.c			\
-	preferences-page-irc.h			\
 	preferences-keybindings-page.h		\
-	preferences-keybindings-page.c		\
+	preferences-page-colors.h		\
+	preferences-page-effects.h		\
+	preferences-page-dcc.h			\
+	preferences-page-irc.h			\
+	preferences-page-plugins.h		\
 	preferences-page-networks.h		\
-	preferences-page-networks.c		\
-	setup-dialog.c				\
 	setup-dialog.h				\
-	textgui.c				\
 	textgui.h				\
-	userlist.c				\
 	userlist.h				\
-	userlist-gui.c				\
 	userlist-gui.h				\
-	util.c					\
 	util.h					\
 	xg-plugin.h				\
 	xtext.h					\
+	$(mmx_cmod_h)
+
+xchat_gnome_LDADD =				\
+	../common/libxchatcommon.a		\
+	$(DEPENDENCIES_LIBS)			\
+	$(LIBSEXY_LIBS)
+
+xchat_gnome_SOURCES =				\
+	about.c					\
+	channel-list.c				\
+	connect-dialog.c			\
+	dcc-window.c				\
+	eggaccelerators.c			\
+	eggcellrendererkeys.c			\
+	fe-gnome.c				\
+	irc-network.c				\
+	irc-network-editor.c			\
+	gui.c					\
+	main-window.c				\
+	navigation-tree.c			\
+	palette.c				\
+	pixmaps.c				\
+	plugins.c				\
+	preferences.c				\
+	preferences-dialog.c			\
+	preferences-keybindings-page.c		\
+	preferences-page-colors.c		\
+	preferences-page-effects.c		\
+	preferences-page-dcc.c			\
+	preferences-page-irc.c			\
+	preferences-page-plugins.c		\
+	preferences-page-networks.c		\
+	setup-dialog.c				\
+	textgui.c				\
+	userlist.c				\
+	userlist-gui.c				\
+	util.c					\
 	xtext.c					\
-	$(mmx_cmod_S)				\
-	$(plugin_sources)
+	$(mmx_cmod_S)
+
+xchat_gnome_CFLAGS =				\
+	$(DEPENDENCIES_CFLAGS)			\
+	$(LIBSEXY_CFLAGS)			\
+	-DSYSCONFDIR="\"$(sysconfdir)\""	\
+	-DDATADIR="\"$(xchat_gnomedir)\""	\
+	-DLIBDIR="\"$(xchatlibdir)\""		\
+	-DPREFIX="\"$(prefix)\""		\
+	-DXCHATSHAREDIR="\"$(xchat_gnomedir)\""	\
+	-DXCHATLIBDIR="\"$(xchatlibdir)\""
 
 EXTRA_DIST =					\
 	$(xchat_gnome_SOURCES)			\
 	$(xchat_gnome_DATA)			\
 	$(desktop_DATA)				\
 	apps_xchat.schemas
-
-SUBDIRS = data help

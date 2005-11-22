@@ -1,5 +1,3 @@
-noinst_LIBRARIES = libxchatcommon.a
-
 LINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 
 noinst_HEADERS =			\
@@ -32,6 +30,7 @@ noinst_HEADERS =			\
 	xchat.h				\
 	xchatc.h
 
+noinst_LIBRARIES = libxchatcommon.a
 libxchatcommon_a_SOURCES =		\
 	cfgfiles.c			\
 	ctcp.c				\
