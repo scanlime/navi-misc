@@ -2,23 +2,26 @@ libdir = $(xchatlibdir)/plugins
 
 lib_LTLIBRARIES = autoaway.la
 
-autoaway_la_SOURCES =			\
-	xscreensaver.c xscreensaver.h	\
-	gscreensaver.c gscreensaver.h	\
-	autoaway.c autoaway.h
+noinst_HEADERS =	\
+	xscreensaver.h	\
+	gscreensaver.h	\
+	autoaway.h
 
-autoaway_la_LDFLAGS = $(DBUS_LIBS) -avoid-version -module
+autoaway_la_SOURCES =	\
+	xscreensaver.c	\
+	gscreensaver.c	\
+	autoaway.c
 
+autoaway_la_LDFLAGS =	\
+	$(DBUS_LIBS)	\
+	-avoid-version	\
+	-module
 
+autoaway_la_CFLAGS =		\
+	 $(DEPENDENCIES_CFLAGS)	\
+	 $(DBUS_CFLAGS)		\
+	 -I$(srcdir)/..
 
-INCLUDES = $(COMMON_CFLAGS) \
-		   $(GTK_CFLAGS) \
-		   $(GUI_CFLAGS) \
-		   $(DBUS_CFLAGS) \
-		   -I$(srcdir)/.. \
-		   -I$(top_srcdir)/src/fe-gnome \
-		   -DXCHATSHAREDIR="\"$(datadir)/xchat\""
-
-if DO_DBUS
-INCLUDES += -DUSE_DBUS
+if ENABLE_DBUS
+autoaway_la_CFLAGS += -DUSE_DBUS
 endif
