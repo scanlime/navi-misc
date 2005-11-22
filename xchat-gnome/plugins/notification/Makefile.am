@@ -1,4 +1,4 @@
-libdir = $(xchatlibdir)/plugins
+libdir = $(XCHATLIBDIR)/plugins
 
 schemadir = $(GCONF_SCHEMA_FILE_DIR)
 schema_DATA = notification.schemas

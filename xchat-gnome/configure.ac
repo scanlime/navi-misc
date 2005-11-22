@@ -170,7 +170,7 @@ AC_MSG_RESULT([$PLUGINS])
 AC_DEFINE(USE_PLUGIN, 1, [Use plugins])
 
 # standard paths
-XCHATLIBDIR=${libdir}/xchat
+XCHATLIBDIR=${libdir}/$PACKAGE
 AC_SUBST([XCHATLIBDIR])
 
 AC_CONFIG_FILES([

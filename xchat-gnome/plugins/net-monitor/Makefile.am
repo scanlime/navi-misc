@@ -1,4 +1,4 @@
-libdir = $(xchatlibdir)/plugins
+libdir = $(XCHATLIBDIR)/plugins
 
 lib_LTLIBRARIES = netmonitor.la
 netmonitor_la_SOURCES =	net-monitor.c

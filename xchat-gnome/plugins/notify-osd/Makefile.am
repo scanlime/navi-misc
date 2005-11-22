@@ -1,4 +1,4 @@
-libdir = $(xchatlibdir)/plugins
+libdir = $(XCHATLIBDIR)/plugins
 
 lib_LTLIBRARIES = notifyosd.la
 notifyosd_la_SOURCES = notify-osd.c
