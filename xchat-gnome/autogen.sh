@@ -6,7 +6,7 @@ test -z "$srcdir" && srcdir=.
 
 PKG_NAME="xchat-gnome"
 
-(test -f $srcdir/src/fe-gnome/fe-gnome.c) || {
+(test -f $srcdir/src/common/xchat.c) || {
 	echo -n "**Error**: Directory "\`$srcdir\'" does not look like the"
 	echo " top-level $PKG_NAME directory"
 	exit 1

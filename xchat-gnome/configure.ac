@@ -82,6 +82,6 @@ AC_OUTPUT([
 Makefile
 src/Makefile
 src/common/Makefile
-src/fe-gnome/Makefile
 plugins/Makefile
+po/Makefile.in
 ])
