@@ -1,3 +1,4 @@
+[encoding: UTF-8]
 data/channel-list.glade
 data/connect-dialog.glade
 data/dcc-accept.glade
