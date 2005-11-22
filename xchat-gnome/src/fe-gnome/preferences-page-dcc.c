@@ -19,6 +19,7 @@
  *
  */
 
+#include <config.h>
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
 #include "preferences-page-dcc.h"

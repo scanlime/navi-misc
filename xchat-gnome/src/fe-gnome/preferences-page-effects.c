@@ -19,6 +19,7 @@
  *
  */
 
+#include <config.h>
 #include <gconf/gconf-client.h>
 
 #include "preferences-page-effects.h"

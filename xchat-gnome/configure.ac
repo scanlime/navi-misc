@@ -94,6 +94,27 @@ AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[Gettext package])
 AM_GLIB_GNU_GETTEXT
 AM_GLIB_DEFINE_LOCALEDIR([GNOMELOCALEDIR])
 
+# MMX (for xtext tinting)
+if test "$mmx" = "yes"; then
+	case $host_cpu in
+		i386|i486|i586|i686|i786|k6|k7)
+			mmx=yes
+			;;
+		*)
+		mmx=no
+	esac
+	if test "$system" = "OpenBSD"; then
+		dnl openbsd fails because mmx_cmod doesn't prefix its symbols with underscore.
+		dnl xtext.o: Undefined symbol `_shade_ximage_15_mmx' referenced from text segment
+		mmx=no
+	fi
+	if test "$mmx" = "yes"; then
+		AC_DEFINE([USE_MMX], [], [Use MMX accelerated tinting])
+	fi
+fi
+
+AM_CONDITIONAL(USE_MMX, test "$mmx" = "yes")
+
 # plugins
 AC_MSG_CHECKING([which plugins to build])
 ALL_PLUGINS="autoaway notification url_scraper"
@@ -144,8 +165,10 @@ AC_SUBST([XCHATLIBDIR])
 
 AC_CONFIG_FILES([
 Makefile
-src/Makefile
-src/common/Makefile
+data/Makefile
+help/Makefile
+help/C/Makefile
+help/C/figures/Makefile
 plugins/Makefile
 plugins/autoaway/Makefile
 plugins/dbus/Makefile
@@ -153,6 +176,9 @@ plugins/net-monitor/Makefile
 plugins/notification/Makefile
 plugins/url_scraper/Makefile
 po/Makefile.in
+src/Makefile
+src/common/Makefile
+src/fe-gnome/Makefile
 ])
 
 AC_OUTPUT

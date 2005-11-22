@@ -19,8 +19,8 @@
  *
  */
 
-#include <gconf/gconf-client.h>
 #include <config.h>
+#include <gconf/gconf-client.h>
 #include "preferences.h"
 #include "palette.h"
 #include "../common/xchatc.h"

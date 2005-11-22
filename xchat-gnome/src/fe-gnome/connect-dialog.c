@@ -19,11 +19,12 @@
  *
  */
 
+#include <config.h>
+#include "../common/xchat.h"
+#include "../common/servlist.h"
 #include "connect-dialog.h"
 #include "navigation-tree.h"
 #include "gui.h"
-#include "../common/xchat.h"
-#include "../common/servlist.h"
 
 static GtkDialogClass *parent_class;
 

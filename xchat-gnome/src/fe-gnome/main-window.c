@@ -19,23 +19,24 @@
  *
  */
 
+#include <config.h>
 #include <libgnome/libgnome.h>
 #include <gconf/gconf-client.h>
-#include "main-window.h"
-#include "connect-dialog.h"
-#include "about.h"
-#include "userlist-gui.h"
 #include "../common/xchatc.h"
 #include "../common/outbound.h"
 #include "../common/fe.h"
-#include "gui.h"
+#include "about.h"
 #include "channel-list.h"
-#include "preferences.h"
+#include "connect-dialog.h"
+#include "gui.h"
+#include "main-window.h"
 #include "navigation-tree.h"
-#include "textgui.h"
 #include "palette.h"
-#include "util.h"
 #include "preferences-dialog.h"
+#include "preferences.h"
+#include "textgui.h"
+#include "userlist-gui.h"
+#include "util.h"
 
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-url-label.h>

@@ -19,6 +19,7 @@
  *
  */
 
+#include <config.h>
 #include "preferences-dialog.h"
 #include "preferences-keybindings-page.h"
 #include "pixmaps.h"

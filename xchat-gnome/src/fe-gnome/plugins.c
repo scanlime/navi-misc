@@ -19,6 +19,7 @@
  *
  */
 
+#include <config.h>
 #include <gconf/gconf-client.h>
 #include <gmodule.h>
 #include <libgnome/gnome-i18n.h>

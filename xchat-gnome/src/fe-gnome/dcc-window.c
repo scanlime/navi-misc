@@ -19,6 +19,7 @@
  *
  */
 
+#include <config.h>
 #include <glib.h>
 #include <libgnome/gnome-i18n.h>
 #include <libgnomevfs/gnome-vfs-mime-utils.h>

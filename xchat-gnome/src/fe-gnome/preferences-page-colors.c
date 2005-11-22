@@ -19,6 +19,7 @@
  *
  */
 
+#include <config.h>
 #include <gconf/gconf-client.h>
 #include "preferences-page-colors.h"
 #include "preferences-dialog.h"
