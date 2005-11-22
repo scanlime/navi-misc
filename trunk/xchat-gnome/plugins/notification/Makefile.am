@@ -17,11 +17,9 @@ notification_la_SOURCES =	\
 	eggtrayicon.c		\
 	notification.c
 notification_la_LDFLAGS = -avoid-version -module
-
-INCLUDES = $(COMMON_CFLAGS) \
-		   $(GTK_CFLAGS) \
-		   $(GUI_CFLAGS) \
-		   -I$(srcdir)/.. \
-		   -I$(top_srcdir)/src/fe-gnome \
-		   -DEGG_COMPILATION \
-		   -DXCHATSHAREDIR="\"$(datadir)/xchat\""
+notification_la_CFLAGS =		\
+	$(DEPENDENCIES_CFLAGS)		\
+	-I$(top_srcdir)/src/fe-gnome	\
+	-I$(srcdir)/..			\
+	-DEGG_COMPILATION		\
+	-DXCHATSHAREDIR="\"$(datadir)/xchat\""

@@ -150,6 +150,7 @@ plugins/Makefile
 plugins/autoaway/Makefile
 plugins/dbus/Makefile
 plugins/net-monitor/Makefile
+plugins/notification/Makefile
 po/Makefile.in
 ])
 
