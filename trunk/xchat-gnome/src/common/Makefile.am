@@ -54,7 +54,6 @@ libxchatcommon_la_SOURCES =		\
 libxchatcommon_la_LDFLAGS = -static
 libxchatcommon_la_CFLAGS =		\
 	$(DEPENDENCIES_CFLAGS)		\
-	-DUSE_PLUGIN			\
 	-DXCHATLIBDIR="\"$(XCHATLIBDIR)\""
 
 textevents: make-te
