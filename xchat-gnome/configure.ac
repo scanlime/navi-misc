@@ -1,4 +1,4 @@
-AC_INIT([IRC Chat],[0.8svn],[http://bugzilla.gnome.org/enter_bug.cgi?product=xchat-gnome],[xchat-gnome])
+AC_INIT([XChat-GNOME IRC Chat],[0.8svn],[http://bugzilla.gnome.org/enter_bug.cgi?product=xchat-gnome],[xchat-gnome])
 GNOME_COMMON_INIT
 
 AC_PREREQ([2.59])
@@ -9,7 +9,7 @@ AC_CONFIG_SRCDIR([configure.ac])
 AM_INIT_AUTOMAKE([1.9 dist-bzip2])
 
 AM_MAINTAINER_MODE
-if test "x$enable_maintainer_mode" = "xyes"; then
+if test "x$enable_maintainer_mode" = xyes; then
 	AC_DEFINE([MAINTAINER_MODE],[1],[Define to enable 'maintainer-only' behaviour])
 	enable_debug=yes
 	MORE_WARN_FLAGS=
@@ -57,10 +57,16 @@ AC_SUBST([DEPENDENCIES_CFLAGS])
 AC_SUBST([DEPENDENCIES_LIBS])
 
 # D-BUS soft dependency
+AC_MSG_CHECKING([whether dbus is requested])
+AC_ARG_ENABLE([dbus],
+	AS_HELP_STRING([--enable-dbus],[Enable dbus support}),
+	[enable_dbus=$enableval have_dbus=$enableval],
+	[enable_dbus=autodetect have_dbus=yes])
+AC_MSG_RESULT([$enable_dbus])
 PKG_CHECK_MODULES([DBUS], [dbus-glib-1 >= $DBUS_GLIB_REQUIRED])
 AC_SUBST([DBUS_CFLAGS])
 AC_SUBST([DBUS_LIBS])
-AM_CONDITIONAL([ENABLE_DBUS],[false])
+AM_CONDITIONAL([ENABLE_DBUS],[test "x$enable_dbus" = "xyes"])
 
 # libsexy soft dependency
 PKG_CHECK_MODULES([LIBSEXY], [libsexy >= $LIBSEXY_REQUIRED])
@@ -88,6 +94,50 @@ AC_SUBST([GETTEXT_PACKAGE])
 AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[Gettext package])
 AM_GLIB_GNU_GETTEXT
 AM_GLIB_DEFINE_LOCALEDIR([GNOMELOCALEDIR])
+
+# plugins
+AC_MSG_CHECKING([which plugins to build])
+ALL_PLUGINS="autoaway notification url_scraper"
+DBUS_PLUGINS="dbus net-monitor"
+LIBNOTIFY_PLUGINS="notify-osd"
+PYTHON_PLUGINS="python"
+PERL_PLUGINS="perl"
+TCL_PLUGINS="tcl"
+
+DIST_PLUGINS="$ALL_PLUGINS $DBUS_ALL_PLUGINS $LIBNOTIFY_ALL_PLUGINS $PYTHON_PLUGINS $PERL_PLUGINS $TCL_PLUGINS"
+
+# dbus-specific plugins
+if test $ENABLE_DBUS; then
+	ALL_PLUGINS="$ALL_PLUGINS $DBUS_ALL_PLUGINS"
+else
+	AC_MSG_WARN([xchat-gnome compiled without dbus support, plugins $DBUS_PLUGINS will not be available $ENABLE_DBUS])
+fi
+
+AC_ARG_WITH([plugins],
+            [  --with-plugins=plugin1,plugin2,...
+                          build the specified plugins.  Available:
+                          autoaway, dbus, net-monitor, notification,
+                          notify-osd, perl, python, tcl, url_scraper],
+            [plugins=$with_plugins],
+            [plugins="default"])
+if test "x$with_plugins" = xyes; then
+	plugins="default"
+fi
+
+PLUGINS=
+IFS="${IFS=     }"; plugin_save_ifs="$IFS"; IFS=","
+for plugin in $plugins; do
+	if echo "$ALL_PLUGINS" | egrep "(^| )$plugin(\$| )" > /dev/null; then
+		PLUGINS="$PLUGINS $plugin"
+	elif test "x$ext" = "xdefault"; then
+		PLUGINS="$PLUGINS $ALL_PLUGINS"
+	fi
+done
+IFS="$plugin_save_ifs"
+
+AC_SUBST([DIST_PLUGINS])
+AC_SUBST([BUILD_PLUGINS],[`echo $PLUGINS | tr ' ' '\n' | sort | uniq | tr '\n' ' '`])
+AC_MSG_RESULT([$PLUGINS])
 
 # standard paths
 XCHATLIBDIR=${libdir}/xchat
