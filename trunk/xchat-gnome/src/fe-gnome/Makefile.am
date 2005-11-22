@@ -21,17 +21,6 @@ install-data-local:
 desktopdir = $(datadir)/applications
 desktop_DATA = xchat-gnome.desktop
 
-xchat_gnome_DATA =				\
-	channel-list.glade			\
-	connect-dialog.glade			\
-	dcc-window.glade			\
-	irc-network-editor.glade		\
-	preferences-dialog.glade		\
-	setup-dialog.glade			\
-	topic-change.glade			\
-	xchat-gnome.glade			\
-	xchat-gnome-ui.xml
-
 noinst_HEADERS =				\
 	about.h					\
 	channel-list.h				\
