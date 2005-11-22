@@ -151,6 +151,7 @@ plugins/autoaway/Makefile
 plugins/dbus/Makefile
 plugins/net-monitor/Makefile
 plugins/notification/Makefile
+plugins/url_scraper/Makefile
 po/Makefile.in
 ])
 
