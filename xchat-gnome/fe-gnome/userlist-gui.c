@@ -110,7 +110,7 @@ userlist_click (GtkWidget *view, GdkEventButton *event, gpointer data)
 	if (!event)
 		return FALSE;
 
-	if (event->type == GDK_2BUTTON_PRESS) {
+	if (event->button == 1) {
 		if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (view), event->x, event->y, &path, 0, 0, 0)) {
 			user = userlist_get_selected ();
 			if (user != NULL)
