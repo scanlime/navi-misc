@@ -74,33 +74,33 @@ static void      on_channel_autojoin (GtkAction *action, gpointer data);
 
 static GtkActionEntry action_entries[] = {
 	/* Server context menu */
-	{"ServerInformation", GTK_STOCK_DIALOG_INFO,    _("_Information"),     "", NULL, G_CALLBACK (on_server_information)},
-	{"ServerReconnect",   GTK_STOCK_REFRESH,        _("_Reconnect"),       "", NULL, G_CALLBACK (on_server_reconnect)},
-	{"ServerDisconnect",  GTK_STOCK_STOP,           _("_Disconnect"),      "", NULL, G_CALLBACK (on_server_disconnect)},
-	{"ServerClose",       GTK_STOCK_CLOSE,          _("_Close"),           "", NULL, G_CALLBACK (on_close)},
-	{"ServerChannels",    GTK_STOCK_INDEX,          _("_Channels..."),     "", NULL, G_CALLBACK (on_server_channel_list)},
+	{"ServerInformation", GTK_STOCK_DIALOG_INFO,    N_("_Information"),     "", NULL, G_CALLBACK (on_server_information)},
+	{"ServerReconnect",   GTK_STOCK_REFRESH,        N_("_Reconnect"),       "", NULL, G_CALLBACK (on_server_reconnect)},
+	{"ServerDisconnect",  GTK_STOCK_STOP,           N_("_Disconnect"),      "", NULL, G_CALLBACK (on_server_disconnect)},
+	{"ServerClose",       GTK_STOCK_CLOSE,          N_("_Close"),           "", NULL, G_CALLBACK (on_close)},
+	{"ServerChannels",    GTK_STOCK_INDEX,          N_("_Channels..."),     "", NULL, G_CALLBACK (on_server_channel_list)},
 
 	/* Channel context menu */
-	{"ChannelSave",       GTK_STOCK_SAVE,           _("_Save Transcript"), "", NULL, G_CALLBACK (on_save)},
-	{"ChannelLeave",      GTK_STOCK_QUIT,           _("_Leave"),           "", NULL, G_CALLBACK (on_channel_leave)},
-	{"ChannelClose",      GTK_STOCK_CLOSE,          _("_Close"),           "", NULL, G_CALLBACK (on_close)},
-	{"ChannelFind",       GTK_STOCK_FIND,           _("_Find..."),         "", NULL, G_CALLBACK (on_find)},
-	{"ChannelClear",      GTK_STOCK_CLEAR,          _("C_lear"),           "", NULL, G_CALLBACK (on_clear)},
-	{"ChannelBans",       GTK_STOCK_DIALOG_WARNING, _("_Bans..."),         "", NULL, G_CALLBACK (on_channel_bans)},
+	{"ChannelSave",       GTK_STOCK_SAVE,           N_("_Save Transcript"), "", NULL, G_CALLBACK (on_save)},
+	{"ChannelLeave",      GTK_STOCK_QUIT,           N_("_Leave"),           "", NULL, G_CALLBACK (on_channel_leave)},
+	{"ChannelClose",      GTK_STOCK_CLOSE,          N_("_Close"),           "", NULL, G_CALLBACK (on_close)},
+	{"ChannelFind",       GTK_STOCK_FIND,           N_("_Find..."),         "", NULL, G_CALLBACK (on_find)},
+	{"ChannelClear",      GTK_STOCK_CLEAR,          N_("C_lear"),           "", NULL, G_CALLBACK (on_clear)},
+	{"ChannelBans",       GTK_STOCK_DIALOG_WARNING, N_("_Bans..."),         "", NULL, G_CALLBACK (on_channel_bans)},
 
 	/* Dialog context menu */
-	{"DialogSave",        GTK_STOCK_SAVE,           _("_Save Transcript"), "", NULL, G_CALLBACK (on_save)},
-	{"DialogClose",       GTK_STOCK_CLOSE,          _("_Close"),           "", NULL, G_CALLBACK (on_close)},
-	{"DialogFind",        GTK_STOCK_FIND,           _("_Find..."),         "", NULL, G_CALLBACK (on_find)},
-	{"DialogClear",       GTK_STOCK_CLEAR,          _("C_lear"),           "", NULL, G_CALLBACK (on_clear)},
+	{"DialogSave",        GTK_STOCK_SAVE,           N_("_Save Transcript"), "", NULL, G_CALLBACK (on_save)},
+	{"DialogClose",       GTK_STOCK_CLOSE,          N_("_Close"),           "", NULL, G_CALLBACK (on_close)},
+	{"DialogFind",        GTK_STOCK_FIND,           N_("_Find..."),         "", NULL, G_CALLBACK (on_find)},
+	{"DialogClear",       GTK_STOCK_CLEAR,          N_("C_lear"),           "", NULL, G_CALLBACK (on_clear)},
 };
 
 static GtkToggleActionEntry toggle_action_entries[] = {
 	/* Server context menu */
-	{"ServerAutoConnect", NULL,          _("_Auto-connect"),    "", NULL, G_CALLBACK (on_server_autoconnect), FALSE},
+	{"ServerAutoConnect", NULL, N_("_Auto-connect"), "", NULL, G_CALLBACK (on_server_autoconnect), FALSE},
 
 	/* Channel context menu */
-	{"ChannelAutoJoin", NULL,          _("_Auto-join"),    "", NULL, G_CALLBACK (on_channel_autojoin), FALSE},
+	{"ChannelAutoJoin",   NULL, N_("_Auto-join"),    "", NULL, G_CALLBACK (on_channel_autojoin), FALSE},
 };
 
 GType
