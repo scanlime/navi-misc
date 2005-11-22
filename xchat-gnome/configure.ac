@@ -149,6 +149,7 @@ src/common/Makefile
 plugins/Makefile
 plugins/autoaway/Makefile
 plugins/dbus/Makefile
+plugins/net-monitor/Makefile
 po/Makefile.in
 ])
 
