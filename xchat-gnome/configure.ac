@@ -142,6 +142,7 @@ Makefile
 src/Makefile
 src/common/Makefile
 plugins/Makefile
+plugins/autoaway/Makefile
 po/Makefile.in
 ])
 
