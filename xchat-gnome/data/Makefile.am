@@ -7,12 +7,19 @@ xchat_gnome_DATA = 			\
 	dcc.png				\
 	effects.png			\
 	global-message.png		\
-	irc-network-editor.glade	\
+	hop.png				\
+	irc-network-editor.glade			\
 	irc.png				\
+	logout.png			\
 	newdata.png			\
 	nicksaid.png			\
+	notauthorized.png		\
+	op.png				\
 	plugin-manager.png		\
 	preferences-dialog.glade	\
+	preferences-keybindings.png	\
+	purple.png			\
+	red.png				\
 	servers.png			\
 	setup-dialog.glade		\
 	soap.png			\
@@ -22,6 +29,7 @@ xchat_gnome_DATA = 			\
 	toilet-paper.png		\
 	topic-change.glade		\
 	users.png			\
+	voice.png			\
 	xchat-gnome-small.png		\
 	xchat-gnome-ui.xml		\
 	xchat-gnome.glade		\
