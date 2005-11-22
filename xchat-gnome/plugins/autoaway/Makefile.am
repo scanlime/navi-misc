@@ -1,4 +1,4 @@
-libdir = $(xchatlibdir)/plugins
+libdir = $(XCHATLIBDIR)/plugins
 
 lib_LTLIBRARIES = autoaway.la
 
@@ -13,9 +13,11 @@ autoaway_la_SOURCES =	\
 	autoaway.c
 
 autoaway_la_LDFLAGS =	\
-	$(DBUS_LIBS)	\
 	-avoid-version	\
 	-module
+
+autoaway_la_LIBADD =	\
+	$(DBUS_LIBS)
 
 autoaway_la_CFLAGS =		\
 	 $(DEPENDENCIES_CFLAGS)	\

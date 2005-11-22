@@ -60,6 +60,11 @@ AC_SUBST([DEPENDENCIES_LIBS])
 PKG_CHECK_MODULES([DBUS], [dbus-glib-1 >= $DBUS_GLIB_REQUIRED], dbus=yes, dbus=no)
 AC_SUBST([DBUS_CFLAGS])
 AC_SUBST([DBUS_LIBS])
+AC_PATH_PROG([DBUS_BINDING_TOOL],[dbus-binding-tool],[no])
+if test "x$DBUS_BINDING_TOOL" = "xno"; then
+	AC_MSG_ERROR([dbus-binding-tool not found])
+	dbus="no"
+fi
 AM_CONDITIONAL([ENABLE_DBUS],[test "x$dbus" = "xyes"])
 
 # libsexy soft dependency
@@ -143,6 +148,7 @@ src/Makefile
 src/common/Makefile
 plugins/Makefile
 plugins/autoaway/Makefile
+plugins/dbus/Makefile
 po/Makefile.in
 ])
 
