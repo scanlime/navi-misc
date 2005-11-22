@@ -77,6 +77,7 @@ PKG_CHECK_MODULES([LIBSEXY], [libsexy >= $LIBSEXY_REQUIRED], libsexy=yes, libsex
 AC_SUBST([LIBSEXY_CFLAGS])
 AC_SUBST([LIBSEXY_LIBS])
 AM_CONDITIONAL([ENABLE_LIBSEXY],[test "x$libsexy" = "xyes"])
+AC_DEFINE(HAVE_LIBSEXY, 1, [Enable libsexy])
 
 # libnotify soft dependency
 PKG_CHECK_MODULES([LIBNOTIFY], [libnotify], libnotify=yes, libnotify=no)
@@ -100,6 +101,9 @@ AM_GLIB_GNU_GETTEXT
 AM_GLIB_DEFINE_LOCALEDIR([GNOMELOCALEDIR])
 
 # MMX (for xtext tinting)
+AC_ARG_ENABLE(mmx,
+[  --disable-mmx           disable MMX assembly routines],
+        mmx=$enableval, mmx=yes)
 if test "$mmx" = "yes"; then
 	case $host_cpu in
 		i386|i486|i586|i686|i786|k6|k7)
@@ -114,11 +118,11 @@ if test "$mmx" = "yes"; then
 		mmx=no
 	fi
 	if test "$mmx" = "yes"; then
-		AC_DEFINE([USE_MMX], [], [Use MMX accelerated tinting])
+		AC_DEFINE(USE_MMX, 1, [Use MMX assembly routines])
 	fi
 fi
 
-AM_CONDITIONAL(USE_MMX, test "$mmx" = "yes")
+AM_CONDITIONAL(USE_MMX, test "x$mmx" = "xyes")
 
 # plugins
 AC_MSG_CHECKING([which plugins to build])
@@ -135,7 +139,7 @@ DIST_PLUGINS="$ALL_PLUGINS $DBUS_ALL_PLUGINS $LIBNOTIFY_ALL_PLUGINS $PYTHON_PLUG
 if test "x$dbus" = "xyes"; then
 	ALL_PLUGINS="$ALL_PLUGINS $DBUS_PLUGINS"
 else
-	AC_MSG_WARN([xchat-gnome compiled without dbus support, plugins $DBUS_PLUGINS will not be available $ENABLE_DBUS])
+	AC_MSG_WARN([xchat-gnome compiled without dbus support, plugins $DBUS_PLUGINS will not be available])
 fi
 
 AC_ARG_WITH([plugins],
