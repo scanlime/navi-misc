@@ -1,5 +1,7 @@
 noinst_LIBRARIES = libxchatcommon.a
 
+LINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+
 noinst_HEADERS =		\
 	cfgfiles.h		\
 	ctcp.h			\
@@ -35,7 +37,6 @@ libxchatcommon_a_SOURCES =	\
 	ctcp.c			\
 	dcc.c			\
 	history.c		\
-	identd.c		\
 	ignore.c		\
 	inbound.c		\
 	modes.c			\
@@ -54,6 +55,9 @@ libxchatcommon_a_SOURCES =	\
 	userlist.c		\
 	util.c			\
 	xchat.c
+
+libxchatcommon_a_CFLAGS =	\
+	$(DEPENDENCIES_CFLAGS)
 
 textevents: make-te
 	./make-te < textevents.in > textevents.h 2> textenums.h
