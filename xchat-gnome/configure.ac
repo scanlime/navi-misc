@@ -3,6 +3,7 @@ GNOME_COMMON_INIT
 
 AC_PREREQ([2.59])
 
+AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([configure.ac])
 
@@ -89,6 +90,56 @@ AM_CONDITIONAL([ENABLE_LIBNOTIFY],[test "x$libnotify" = "xyes"])
 AM_GCONF_SOURCE_2
 AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
 
+# Python
+AC_MSG_CHECKING([whether Python support is requested])
+AC_ARG_ENABLE([python],
+	AS_HELP_STRING([--disable-python],[Disable python support]),
+	[enable_python=$enableval have_python=$enableval],
+	[enable_python=autodetect have_python=yes])
+AC_MSG_RESULT([$enable_python])
+
+if test "x$have_python" != "xno"; then
+	AM_PATH_PYTHON([2.3],[],[no])
+
+	if test "x$PYTHON" = "x:"; then
+		have_python=no
+	fi
+fi
+
+if test "x$have_python" != "xno"; then
+	AM_CHECK_PYTHON_HEADERS([],[have_python=no])
+fi
+
+if test "x$have_python" != "xno"; then
+	PY_PREFIX=`$PYTHON -c 'import sys ; print sys.prefix'`
+	PY_EXEC_PREFIX=`$PYTHON -c 'import sys ; print sys.exec_prefix'`
+	PYTHON_LIBS="-lpython$PYTHON_VERSION"
+	PYTHON_LIB_LOC="-L$PY_EXEC_PREFIX/lib/python$PYTHON_VERSION/config"
+	PYTHON_CFLAGS="-I$PY_PREFIX/include/python$PYTHON_VERSION"
+	PYTHON_MAKEFILE="$PY_EXEC_PREFIX/lib/python$PYTHON_VERSION/config/Makefile"
+	PYTHON_LOCALMODLIBS=`sed -n -e 's/^LOCALMODLIBS=\(.*\)/\1/p' $PYTHON_MAKEFILE`
+	PYTHON_BASEMODLIBS=`sed -n -e 's/^BASEMODLIBS=\(.*\)/\1/p' $PYTHON_MAKEFILE`
+	PYTHON_OTHER_LIBS=`sed -n -e 's/^LIBS=\(.*\)/\1/p' $PYTHON_MAKEFILE`
+	PYTHON_EXTRA_LIBS="$PYTHON_LOCALMODLIBS $PYTHON_BASEMODLIBS $PYTHON_OTHER_LIBS"
+	AC_SUBST([PYTHON_LIBS])
+	AC_SUBST([PYTHON_LIB_LOC])
+	AC_SUBST([PYTHON_CFLAGS])
+	AC_SUBST([PYTHON_EXTRA_LIBS])
+fi
+
+if test "x$have_python" != "xyes"; then
+	if test "x$enable_python" = "xyes"; then
+		AC_MSG_ERROR([Python not found])
+	elif test "x$enable_python" = "xautodetect"; then
+		enable_python=no
+		AC_MSG_WARN([Python not found, disabling python support])
+	fi
+elif test "x$enable_python" != "xno"; then
+	enable_python=yes
+	AC_DEFINE([ENABLE_PYTHON],[1],[Define to compile with python support])
+fi
+
+
 # i18n
 ALL_LINGUAS="`cat "$srcdir/po/LINGUAS" | grep -v '^#'`"
 
@@ -142,6 +193,13 @@ else
 	AC_MSG_WARN([xchat-gnome compiled without dbus support, plugins $DBUS_PLUGINS will not be available])
 fi
 
+# python-specific plugins
+if test "x$enable_python" = "xyes"; then
+	ALL_PLUGINS="$ALL_PLUGINS $PYTHON_PLUGINS"
+else
+	AC_MSG_WARN([xchat-gnome compiled without python support, plugins $PYTHON_PLUGINS will not be available])
+fi
+
 AC_ARG_WITH([plugins],
             [  --with-plugins=plugin1,plugin2,...
                           build the specified plugins.  Available:
@@ -184,6 +242,7 @@ plugins/autoaway/Makefile
 plugins/dbus/Makefile
 plugins/net-monitor/Makefile
 plugins/notification/Makefile
+plugins/python/Makefile
 plugins/url_scraper/Makefile
 po/Makefile.in
 src/Makefile
@@ -198,8 +257,3 @@ echo $PACKAGE $VERSION
 echo
 
 echo prefix............... : $prefix
-
-echo
-echo "Now type make to compile"
-echo "Then su to root and type: make install"
-echo
