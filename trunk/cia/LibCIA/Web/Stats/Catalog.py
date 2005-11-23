@@ -33,6 +33,7 @@ class CatalogSection(Template.Section):
        other information about the children displayed as applicable.
        """
     title = "catalog"
+    limit = 100
 
     query = """
     SELECT
@@ -61,7 +62,7 @@ class CatalogSection(Template.Section):
         C_YESTERDAY.event_count,
         C_FOREVER.event_count,
         C_FOREVER.last_time
-    ORDER BY NULL
+    ORDER BY NULL LIMIT %(limit)s
     """
 
     columns = [
@@ -79,14 +80,12 @@ class CatalogSection(Template.Section):
         self.target = target
 
     def render_rows(self, context):
-        if self.target.path in ('project', 'author'):
-            return ["Sorry, the project and author index pages are temporarily disabled due to server load"]
-			
         # First we run a big SQL query to gather all the data for this catalog.
         # Control is passed to _render_rows once we have the query results.
         result = defer.Deferred()
         Database.pool.runQuery(self.query % {
             'path': Database.quote(self.target.path, 'varchar'),
+	    'limit': self.limit,
             }).addCallback(
             self._render_rows, context, result
             ).addErrback(result.errback)
@@ -94,11 +93,19 @@ class CatalogSection(Template.Section):
 
     def _render_rows(self, queryResults, context, result):
         if queryResults:
-            result.callback([Template.Table(list(queryResults), self.columns,
-                                            id = 'catalog',
-                                            defaultSortColumnIndex = 1)])
-        else:
+            content = [Template.Table(list(queryResults), self.columns,
+                                      id = 'catalog',
+                                      defaultSortColumnIndex = 1)]
+            if len(queryResults) == self.limit:
+                content.insert(0, Template.longError[
+                    "This page has a very large number of child items, "
+                    "and CIA can not yet display them all or browse them "
+                    "incrementally. Below is an arbitrary set of %d "
+                    "items. Sorry for the inconvenience, we're working "
+                    "on resolving this issue." % self.limit
+                    ])
+            result.callback(content)
+	else:
             result.callback(None)
-
 
 ### The End ###
