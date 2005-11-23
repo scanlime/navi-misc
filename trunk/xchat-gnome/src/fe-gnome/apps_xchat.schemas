@@ -166,6 +166,61 @@
 		</schema>
 
 		<schema>
+			<key>/schemas/apps/xchat/main_window/width</key>
+			<applyto>/apps/xchat/main_window/width</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default>800</default>
+			<locale name="C">
+				<short>Width of the main window</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/main_window/height</key>
+			<applyto>/apps/xchat/main_window/height</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default>600</default>
+			<locale name="C">
+				<short>Height of the main window</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/main_window/hpane</key>
+			<applyto>/apps/xchat/main_window/hpane</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default>0</default>
+			<locale name="C">
+				<short>Position of the horizontal pane in the main window</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/channel_list/width</key>
+			<applyto>/apps/xchat/channel_list/width</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default>640</default>
+			<locale name="C">
+				<short>Height of the channel list</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/channel_list/height</key>
+			<applyto>/apps/xchat/channel_list/height</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default>480</default>
+			<locale name="C">
+				<short>Height of the channel list</short>
+			</locale>
+		</schema>
+
+		<schema>
 			<key>/schemas/apps/xchat/keybindings/GoPreviousNetwork</key>
 			<applyto>/apps/xchat/keybindings/GoPreviousNetwork</applyto>
 			<owner>xchat</owner>

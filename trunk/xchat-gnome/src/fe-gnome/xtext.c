@@ -76,6 +76,8 @@
 #include <gdk/gdkwin32.h>
 #endif
 
+#include "marshallers.h"
+
 /* is delimiter */
 #define is_del(c) \
 	(c == ' ' || c == '\n' || c == ')' || c == '(' || \
@@ -2390,7 +2392,7 @@ gtk_xtext_class_init (GtkXTextClass * class)
 							G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
 							G_STRUCT_OFFSET (GtkXTextClass, word_click),
 							NULL, NULL,
-							gtk_marshal_VOID__POINTER_POINTER,
+							g_cclosure_user_marshal_VOID__POINTER_POINTER,
 							G_TYPE_NONE,
 							2, G_TYPE_POINTER, G_TYPE_POINTER);
 	object_class->destroy = gtk_xtext_destroy;

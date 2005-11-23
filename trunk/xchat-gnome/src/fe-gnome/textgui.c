@@ -183,8 +183,8 @@ initialize_text_gui ()
 				gdk_draw_pixbuf (image, NULL, pixbuf, 0, 0, 0, 0, width, height, GDK_RGB_DITHER_NONE, 0, 0);
 
 				gtk_xtext_set_background (gui.xtext, image, FALSE);
-				gdk_pixbuf_unref (pixbuf);
-				gdk_pixmap_unref (image);
+				g_object_unref (pixbuf);
+				g_object_unref (image);
 			}
 		}
 		g_free (filename);
@@ -566,8 +566,8 @@ background_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpoin
 				gdk_draw_pixbuf (image, NULL, pixbuf, 0, 0, 0, 0, width, height, GDK_RGB_DITHER_NONE, 0, 0);
 
 				gtk_xtext_set_background (gui.xtext, image, FALSE);
-				gdk_pixbuf_unref (pixbuf);
-				gdk_pixmap_unref (image);
+				g_object_unref (pixbuf);
+				g_object_unref (image);
 			}
 		}
 		g_free (filename);

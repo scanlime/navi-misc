@@ -35,8 +35,6 @@ xchat_gnome_SOURCES =				\
 	dcc-window.h				\
 	eggaccelerators.c			\
 	eggaccelerators.h			\
-	eggcellrendererkeys.c			\
-	eggcellrendererkeys.h			\
 	fe-gnome.c				\
 	gui.c					\
 	gui.h					\
@@ -44,6 +42,7 @@ xchat_gnome_SOURCES =				\
 	irc-network-editor.h			\
 	irc-network.c				\
 	irc-network.h				\
+	marshallers.h				\
 	main-window.c				\
 	main-window.h				\
 	navigation-tree.c			\
@@ -56,8 +55,6 @@ xchat_gnome_SOURCES =				\
 	plugins.h				\
 	preferences-dialog.c			\
 	preferences-dialog.h			\
-	preferences-keybindings-page.c		\
-	preferences-keybindings-page.h		\
 	preferences-page-colors.c		\
 	preferences-page-colors.h		\
 	preferences-page-dcc.c			\
@@ -96,6 +93,13 @@ xchat_gnome_CFLAGS =				\
 	-DXCHATLIBDIR="\"$(xchatlibdir)\""	\
 	-DXCHATSHAREDIR="\"$(XCHATSHAREDIR)\""
 
+BUILT_SOURCES =					\
+	marshallers.h
+
+marshallers.h: marshallers.list
+	$(GLIB_GENMARSHAL)  --header --body $< > $@
+
 EXTRA_DIST =					\
 	$(xchat_gnome_SOURCES)			\
+	marshallers.list			\
 	apps_xchat.schemas

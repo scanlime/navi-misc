@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <string.h>
 #include "userlist.h"
 #include "palette.h"
 #include "pixmaps.h"
