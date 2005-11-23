@@ -17,6 +17,7 @@
 
 static char RCSID[] = "$Id: tclplugin.c,v 1.59 2005/08/11 02:37:55 mooooooo Exp $";
 
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

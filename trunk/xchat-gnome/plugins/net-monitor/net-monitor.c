@@ -22,6 +22,7 @@
  *
  */
 
+#include <config.h>
 #define DBUS_API_SUBJECT_TO_CHANGE
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>

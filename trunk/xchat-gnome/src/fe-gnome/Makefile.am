@@ -93,8 +93,8 @@ xchat_gnome_CFLAGS =				\
 	-DDATADIR="\"$(xchat_gnomedir)\""	\
 	-DLIBDIR="\"$(xchatlibdir)\""		\
 	-DPREFIX="\"$(prefix)\""		\
-	-DXCHATSHAREDIR="\"$(xchat_gnomedir)\""	\
-	-DXCHATLIBDIR="\"$(xchatlibdir)\""
+	-DXCHATLIBDIR="\"$(xchatlibdir)\""	\
+	-DXCHATSHAREDIR="\"$(XCHATSHAREDIR)\""
 
 EXTRA_DIST =					\
 	$(xchat_gnome_SOURCES)			\
