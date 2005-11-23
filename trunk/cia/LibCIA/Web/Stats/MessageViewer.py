@@ -153,7 +153,8 @@ class MessagePage(Template.Page):
 
     def render_message(self, context):
         if not self.message:
-            return self.notFoundMessage
+            context['request'].setResponseCode(404)
+	    return self.notFoundMessage
 
         # Try to format it using several media, in order of decreasing preference.
         # The 'xhtml-long' formatter lets messages define a special formatter to
