@@ -20,6 +20,7 @@
  *
  */
 
+#include <config.h>
 #include <glib.h>
 #include <dlfcn.h>
 #include <string.h>

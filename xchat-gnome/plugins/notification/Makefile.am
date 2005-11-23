@@ -22,4 +22,4 @@ notification_la_CFLAGS =		\
 	-I$(top_srcdir)/src/fe-gnome	\
 	-I$(srcdir)/..			\
 	-DEGG_COMPILATION		\
-	-DXCHATSHAREDIR="\"$(datadir)/xchat\""
+	-DXCHATSHAREDIR="\"$(XCHATSHAREDIR)\""

@@ -51,6 +51,7 @@
  *
  */
 
+#include <config.h>
 #include <glib.h>
 #include <string.h>
 #include <unistd.h>
@@ -65,7 +66,7 @@
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 1
-#define VERSION "0.4"
+#define PVERSION "0.4"
 
 #ifdef WIN32
 #undef WITH_THREAD /* Thread support locks up xchat on Win32. */
@@ -290,7 +291,7 @@ Usage: /PY LOAD   <filename>\n\
 
 static char *about = "\
 \n\
-X-Chat Python Interface " VERSION "\n\
+X-Chat Python Interface " PVERSION "\n\
 \n\
 Copyright (c) 2002-2003  Gustavo Niemeyer <niemeyer@conectiva.com>\n\
 \n";
@@ -2025,7 +2026,7 @@ void
 xchat_plugin_get_info(char **name, char **desc, char **version, void **reserved)
 {
 	*name = "Python";
-	*version = VERSION;
+	*version = PVERSION;
 	*desc = "Python scripting interface";
    if (reserved)
       *reserved = NULL;
@@ -2053,7 +2054,7 @@ xchat_plugin_init(xchat_plugin *plugin_handle,
 	initialized = 1;
 
 	*plugin_name = "Python";
-	*plugin_version = VERSION;
+	*plugin_version = PVERSION;
 	*plugin_desc = "Python scripting interface";
 
 	/* Initialize python. */

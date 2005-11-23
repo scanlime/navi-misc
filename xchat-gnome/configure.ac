@@ -193,6 +193,13 @@ else
 	AC_MSG_WARN([xchat-gnome compiled without dbus support, plugins $DBUS_PLUGINS will not be available])
 fi
 
+# libnotify-specific plugins
+if test "x$libnotify" = "xyes"; then
+	ALL_PLUGINS="$ALL_PLUGINS $LIBNOTIFY_PLUGINS"
+else
+	AC_MSG_WARN([xchat-gnome compiled without libnotify support, plugins $LIBNOTIFY_PLUGINS will not be available])
+fi
+
 # python-specific plugins
 if test "x$enable_python" = "xyes"; then
 	ALL_PLUGINS="$ALL_PLUGINS $PYTHON_PLUGINS"
@@ -230,6 +237,8 @@ AC_DEFINE(USE_PLUGIN, 1, [Use plugins])
 # standard paths
 XCHATLIBDIR=${libdir}/$PACKAGE
 AC_SUBST([XCHATLIBDIR])
+XCHATSHAREDIR=${datadir}/$PACKAGE
+AC_SUBST([XCHATSHAREDIR])
 
 AC_CONFIG_FILES([
 Makefile
@@ -242,6 +251,7 @@ plugins/autoaway/Makefile
 plugins/dbus/Makefile
 plugins/net-monitor/Makefile
 plugins/notification/Makefile
+plugins/notify-osd/Makefile
 plugins/python/Makefile
 plugins/url_scraper/Makefile
 po/Makefile.in

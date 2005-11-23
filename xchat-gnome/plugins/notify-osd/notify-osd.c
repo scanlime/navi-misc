@@ -20,7 +20,9 @@
  *
  */
 
+#include <config.h>
 #include <libnotify/notify.h>
+#include <libgnome/gnome-i18n.h>
 #include "xchat-plugin.h"
 #include "xg-plugin.h"
 
@@ -50,7 +52,7 @@ hide_notifications (NotifyHandle *handle)
 static gboolean
 got_focus_cb (GtkWidget *wigdet, GdkEventFocus *event, gpointer data)
 {
-	g_slist_foreach (notifications, hide_notifications, NULL);
+	g_slist_foreach (notifications, (GFunc) hide_notifications, NULL);
 	g_slist_free (notifications);
 	notifications = NULL;
 	focused = TRUE;
