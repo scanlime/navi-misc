@@ -35,6 +35,7 @@ if (not hasattr(Nouvelle, "version_info")) or Nouvelle.version_info < (0, 92, 1)
 catalogList = tag('ul', _class="catalog")
 value = tag('strong')
 error = tag('span', _class="error")
+longError = tag('p', _class="error")
 unableToFormat = error[ "Unable to format data" ]
 breadcrumbSeparator = xml(" &raquo; ")
 pageBody = tag('div', _class="pageBody")
