@@ -23,6 +23,7 @@ This is the legacy format that old non-XML commits are converted to.
 #
 
 from LibCIA import Message, XML
+from LibCIA.Web import Template
 import Nouvelle, re
 import Util
 
@@ -157,5 +158,24 @@ class ColortextToXHTML(ColortextFormatter):
                     except KeyError:
                         pass
             return Nouvelle.tag('span', style=style)[self.element_colorText(element)]
+
+
+class ColortextToXHTMLLong(ColortextToXHTML):
+    """There isn't much extra we can say about a colortext commit, so put up
+       a notice explaining why. This also might be encouragement to upgrade
+       old clients that still give us colortext messages.
+       """
+    medium = 'xhtml-long'
+
+    def format(self, args):
+        return [            
+            Nouvelle.tag('p')[
+                ColortextToXHTML.format(self, args),
+            ],
+            Template.longError[
+                "This message was received in CIA's legacy format, 'colorText'. "
+                "To see much more detailed information about each commit, "
+                "ask this project's administrators to upgrade their client script."],
+            ]
 
 ### The End ###
