@@ -337,6 +337,10 @@ span.error {
   border: 1px dashed #F00;
 }
 
+p.error {
+  background: #FCC;
+}
+
 img.footer {
   padding: 0em 1em;
 }
