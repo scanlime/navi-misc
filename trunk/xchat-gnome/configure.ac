@@ -139,6 +139,33 @@ elif test "x$enable_python" != "xno"; then
 	AC_DEFINE([ENABLE_PYTHON],[1],[Define to compile with python support])
 fi
 
+# TCL
+AC_MSG_CHECKING([whether TCL support is requested])
+AC_ARG_ENABLE([tcl],
+	AS_HELP_STRING([--disable-tcl],[Disable tcl support]),
+	[enable_tcl=$enableval have_tcl=$enableval],
+	[enable_tcl=autodetect have_tcl=yes])
+AC_MSG_RESULT([$enable_tcl])
+
+if test "x$have_tcl" != "xno"; then
+	have_tcl=no
+	for dir in $tcl /lib /usr/lib /usr/tcl/lib /usr/local/lib /usr/local/tcl-8.4/lib /usr/local/tcl/lib /opt/lib; do
+		if test -f $dir/tclConfig.sh; then
+			. $dir/tclConfig.sh
+			TCL_LIBS="$TCL_LIB_SPEC $TCL_LIBS"
+			TCL_CFLAGS="-I${TCL_PREFIX}/include $TCL_INCLUDE_SPEC"
+			AC_SUBST([TCL_LIBS])
+			AC_SUBST([TCL_CFLAGS])
+			have_tcl=yes
+			enable_tcl=yes
+			AC_MSG_RESULT($dir/tclConfig.sh)
+			break
+		fi
+	done
+	if test "x$have_tcl" == "xno"; then
+		AC_MSG_RESULT([tclConfig.sh not found.  Try --enable-tcl=/path/to/])
+	fi
+fi
 
 # i18n
 ALL_LINGUAS="`cat "$srcdir/po/LINGUAS" | grep -v '^#'`"
@@ -207,6 +234,13 @@ else
 	AC_MSG_WARN([xchat-gnome compiled without python support, plugins $PYTHON_PLUGINS will not be available])
 fi
 
+# tcl-specific plugins
+if test "x$enable_tcl" = "xyes"; then
+	ALL_PLUGINS="$ALL_PLUGINS $TCL_PLUGINS"
+else
+	AC_MSG_WARN([xchat-gnome compiled without tcl support, plugins $TCL_PLUGINS will not be available])
+fi
+
 AC_ARG_WITH([plugins],
             [  --with-plugins=plugin1,plugin2,...
                           build the specified plugins.  Available:
@@ -253,6 +287,7 @@ plugins/net-monitor/Makefile
 plugins/notification/Makefile
 plugins/notify-osd/Makefile
 plugins/python/Makefile
+plugins/tcl/Makefile
 plugins/url_scraper/Makefile
 po/Makefile.in
 src/Makefile
