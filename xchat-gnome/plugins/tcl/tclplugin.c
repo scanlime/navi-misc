@@ -45,7 +45,7 @@ static int nexttimerid = 0;
 static int nexttimerindex = 0;
 static timer timers[MAX_TIMERS];
 
-static char VERSION[16];
+static char PVERSION[16];
 
 static int initialized = 0;
 static int reinit_tried = 0;
@@ -2134,7 +2134,7 @@ static void Tcl_Plugin_DeInit()
 
 static void banner()
 {
-    xchat_printf(ph, "Tcl plugin for XChat - Version %s\n", VERSION);
+    xchat_printf(ph, "Tcl plugin for XChat - Version %s\n", PVERSION);
     xchat_print(ph, "Copyright 2002-2005 Daniel P. Stasinski\n");
     xchat_print(ph, "http://www.scriptkitties.com/tclplugin/\n");
 }
@@ -2145,7 +2145,7 @@ int xchat_plugin_init(xchat_plugin * plugin_handle, char **plugin_name, char **p
     HINSTANCE lib;
 #endif
 
-    strncpy(VERSION, &RCSID[19], 5);
+    strncpy(PVERSION, &RCSID[19], 5);
 
     ph = plugin_handle;
 
@@ -2168,7 +2168,7 @@ int xchat_plugin_init(xchat_plugin * plugin_handle, char **plugin_name, char **p
 
     *plugin_name = "Tcl";
     *plugin_desc = "Tcl scripting interface";
-    *plugin_version = VERSION;
+    *plugin_version = PVERSION;
 
     Tcl_Plugin_Init();
 
@@ -2211,10 +2211,10 @@ int xchat_plugin_deinit()
 
 void xchat_plugin_get_info(char **name, char **desc, char **version, void **reserved)
 {
-   strncpy(VERSION, &RCSID[19], 5);
+   strncpy(PVERSION, &RCSID[19], 5);
    *name = "tclplugin";
    *desc = "Tcl plugin for XChat";
-   *version = VERSION;
+   *version = PVERSION;
    if (reserved)
       *reserved = NULL;
 }
