@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <string.h>
 #include <libgnome/gnome-i18n.h>
 #include <libgnome/libgnome.h>
 #include <gconf/gconf-client.h>
@@ -108,7 +109,7 @@ static GtkActionEntry action_entries [] = {
 	{ "Discussion",  NULL, N_("_Discussion") },
 	{ "Go",          NULL, N_("_Go") },
 	{ "Help",        NULL, N_("_Help") },
-	{ "PopupAction", NULL, N_("") },
+	{ "PopupAction", NULL, "" },
 
 	/* IRC menu */
 	{ "IRCConnect",   GTK_STOCK_CONNECT, N_("_Connect"),        "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
@@ -647,16 +648,18 @@ void
 run_main_window ()
 {
 	GtkWidget *pane, *widget;
+	GConfClient *client;
 	int width, height;
 	int h;
 
-	width = gnome_config_get_int_with_default ("/xchat-gnome/main_window/width", 0);
-	height = gnome_config_get_int_with_default ("/xchat-gnome/main_window/height", 0);
+	client = gconf_client_get_default ();
+	width  = gconf_client_get_int (client, "/apps/xchat/main_window/width",  NULL);
+	height = gconf_client_get_int (client, "/apps/xchat/main_window/height", NULL);
 	if(width == 0 || height == 0)
 		gtk_window_set_default_size (GTK_WINDOW (gui.main_window), 800, 550);
 	else
 		gtk_window_set_default_size (GTK_WINDOW (gui.main_window), width, height);
-	h = gnome_config_get_int_with_default ("/xchat-gnome/main_window/hpane", 0);
+	h = gconf_client_get_int (client, "/apps/xchat/main_window/hpane", NULL);
 	if(h != 0) {
 		GtkWidget *hpane = glade_xml_get_widget (gui.xml, "HPane");
 		gtk_paned_set_position (GTK_PANED (hpane), h);
@@ -664,6 +667,7 @@ run_main_window ()
 	g_signal_connect (G_OBJECT (gui.main_window), "configure-event", G_CALLBACK (on_resize), NULL);
 	pane = glade_xml_get_widget (gui.xml, "HPane");
 	g_signal_connect (G_OBJECT (pane), "notify::position", G_CALLBACK (on_hpane_move), NULL);
+	g_object_unref (client);
 
 	gtk_widget_show (GTK_WIDGET (gui.main_window));
 
@@ -1266,18 +1270,25 @@ on_text_entry_key (GtkWidget *widget, GdkEventKey *key, gpointer data)
 static gboolean
 on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 {
-	gnome_config_set_int ("/xchat-gnome/main_window/width", event->width);
-	gnome_config_set_int ("/xchat-gnome/main_window/height", event->height);
-	gnome_config_sync ();
+	GConfClient *client;
+
+	client = gconf_client_get_default ();
+	gconf_client_set_int (client, "/apps/xchat/main_window/width",  event->width,  NULL);
+	gconf_client_set_int (client, "/apps/xchat/main_window/height", event->height, NULL);
+	g_object_unref (client);
 	return FALSE;
 }
 
 static gboolean
 on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data)
 {
-	int pos = gtk_paned_get_position (widget);
-	gnome_config_set_int ("/xchat-gnome/main_window/hpane", pos);
-	gnome_config_sync ();
+	GConfClient *client;
+	int pos;
+
+	client = gconf_client_get_default ();
+	pos = gtk_paned_get_position (widget);
+	gconf_client_set_int (client, "/apps/xchat/main_window/hpane", pos, NULL);
+	g_object_unref (client);
 	return FALSE;
 }
 
@@ -1369,7 +1380,7 @@ get_color_icon (int c, GtkStyle *s)
 	gdk_draw_rectangle (GDK_DRAWABLE (pixmap), color, TRUE, 1, 1, 14, 14);
 
 	image = gtk_image_new_from_pixmap (pixmap, NULL);
-	gdk_pixmap_unref (pixmap);
+	g_object_unref (pixmap);
 	return image;
 }
 

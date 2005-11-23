@@ -20,8 +20,9 @@
  */
 
 #include <config.h>
-#include <gnome.h>
 #include <string.h>
+#include <gtk/gtk.h>
+#include <gconf/gconf-client.h>
 #include "channel-list.h"
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
@@ -184,9 +185,12 @@ chanlist_selected (GtkTreeSelection *selection, channel_list_window *win)
 static gboolean
 chanlist_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 {
-	gnome_config_set_int ("/xchat-gnome/channel_list/width", event->width);
-	gnome_config_set_int ("/xchat-gnome/channel_list/height", event->height);
-	gnome_config_sync ();
+	GConfClient *client;
+
+	client = gconf_client_get_default ();
+	gconf_client_set_int (client, "/apps/xchat/channel_list/width",  event->width,  NULL);
+	gconf_client_set_int (client, "/apps/xchat/channel_list/height", event->height, NULL);
+	g_object_unref (client);
 	return FALSE;
 }
 
@@ -238,6 +242,7 @@ create_channel_list (session *sess)
 	GtkTreeSelection *select;
 	int width, height;
 	gchar *title;
+	GConfClient *client;
 
 	if (sess == NULL)
 		return;
@@ -350,8 +355,10 @@ create_channel_list (session *sess)
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (apply_to_name_changed), win);
 
 	widget = glade_xml_get_widget (win->xml, "window 1");
-	width = gnome_config_get_int_with_default ("/xchat-gnome/channel_list/width", 0);
-	height = gnome_config_get_int_with_default ("/xchat-gnome/channel_list/height", 0);
+	client = gconf_client_get_default ();
+	width  = gconf_client_get_int (client, "/apps/xchat/channel_list/width",  NULL);
+	height = gconf_client_get_int (client, "/apps/xchat/channel_list/height", NULL);
+	g_object_unref (client);
 	if (width == 0 || height == 0)
 		gtk_window_set_default_size (GTK_WINDOW (widget), 640, 480);
 	else
