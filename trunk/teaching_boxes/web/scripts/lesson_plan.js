@@ -371,7 +371,7 @@ function newBoxCreateButtonClicked ()
 	{
 		if (options[i].myCheck.checked)
 		{
-			field = div.options[i].fieldName
+			field = options[i].fieldName
 			lessonPlan.addField (field, optionalFields[field], true)
 		}
 	}
