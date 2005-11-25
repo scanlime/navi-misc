@@ -35,7 +35,7 @@ XChatGUI gui;
 Userlist *u;
 
 gboolean
-initialize_gui_1 ()
+initialize_gui_1 (void)
 {
 	if (g_file_test ("../../data/xchat-gnome.glade", G_FILE_TEST_EXISTS))
 		gui.xml = glade_xml_new ("../../data/xchat-gnome.glade", NULL, NULL);
@@ -47,9 +47,11 @@ initialize_gui_1 ()
 }
 
 gboolean
-initialize_gui_2 ()
+initialize_gui_2 (void)
 {
 	GtkWidget *widget;
+
+	gtk_window_set_default_icon_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", NULL);
 
 	gui.current_session = NULL;
 	pixmaps_init ();

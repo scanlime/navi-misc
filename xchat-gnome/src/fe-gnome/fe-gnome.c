@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include <glib/gi18n.h>
+#include <string.h>
 #include <glib.h>
 #include <gnome.h>
 #include <libgnomevfs/gnome-vfs.h>
@@ -97,9 +98,6 @@ fe_args (int argc, char *argv[])
 	if (opt_cfgdir)
 		xdir_fs = opt_cfgdir;
 
-	/* FIXME: this is kind of a silly place to put this, but it seems to want to
-	   follow gnome_program_init */
-	gnome_window_icon_set_default_from_file (XCHATSHAREDIR "/xchat-gnome-small.png");
 	return -1;
 }
 

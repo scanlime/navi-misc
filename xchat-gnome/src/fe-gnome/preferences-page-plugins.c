@@ -316,7 +316,7 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 void
 preferences_page_plugins_free (PreferencesPluginsPage *page)
 {
-	gdk_pixbuf_unref (page->icon);
+	g_object_unref (page->icon);
 	g_object_unref (page->plugin_store);
 	g_free (page);
 }
