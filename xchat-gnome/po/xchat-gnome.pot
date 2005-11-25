@@ -3,13 +3,12 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: ../src/fe-gnome/main-window.c:111
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-11-22 16:42-0700\n"
+"POT-Creation-Date: 2005-11-25 00:12-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -320,7 +319,7 @@ msgstr ""
 msgid "_Background color:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:44 ../src/fe-gnome/main-window.c:105
+#: ../data/preferences-dialog.glade.h:44 ../src/fe-gnome/main-window.c:106
 msgid "_Edit"
 msgstr ""
 
@@ -494,23 +493,23 @@ msgstr ""
 msgid "nickname"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:266
+#: ../plugins/dbus/dbus-plugin.c:267
 #, c-format
 msgid "Couldn't connect to session bus : %s\n"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:282
+#: ../plugins/dbus/dbus-plugin.c:283
 #, c-format
 msgid "Failed to acquire %s: %s\n"
 msgstr ""
 
 #. TODO: Close all D-BUS stuff
-#: ../plugins/dbus/dbus-plugin.c:307
+#: ../plugins/dbus/dbus-plugin.c:308
 #, c-format
 msgid "%s unloaded successfully!\n"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:327
+#: ../plugins/dbus/dbus-plugin.c:328
 #, c-format
 msgid "%s loaded successfully!\n"
 msgstr ""
@@ -607,23 +606,23 @@ msgstr ""
 msgid "%s doesn't exist\n"
 msgstr ""
 
-#: ../plugins/net-monitor/net-monitor.c:177
-#: ../plugins/net-monitor/net-monitor.c:221
+#: ../plugins/net-monitor/net-monitor.c:178
+#: ../plugins/net-monitor/net-monitor.c:222
 #, c-format
 msgid "Net Monitor: Couldn't allocate dbus message : %s: %s\n"
 msgstr ""
 
-#: ../plugins/net-monitor/net-monitor.c:295
+#: ../plugins/net-monitor/net-monitor.c:296
 #, c-format
 msgid "Net Monitor: Couldn't connect to system bus : %s: %s\n"
 msgstr ""
 
-#: ../plugins/net-monitor/net-monitor.c:303
+#: ../plugins/net-monitor/net-monitor.c:304
 #, c-format
 msgid "Net Monitor: Could not register signal handler: %s: %s\n"
 msgstr ""
 
-#: ../plugins/net-monitor/net-monitor.c:336
+#: ../plugins/net-monitor/net-monitor.c:337
 msgid " loaded successfully\n"
 msgstr ""
 
@@ -3506,40 +3505,8 @@ msgid ""
 msgstr ""
 
 #. IRC menu
-#: ../src/fe-gnome/connect-dialog.c:125 ../src/fe-gnome/main-window.c:114
+#: ../src/fe-gnome/connect-dialog.c:125 ../src/fe-gnome/main-window.c:115
 msgid "_Connect"
-msgstr ""
-
-#: ../src/fe-gnome/eggcellrendererkeys.c:21
-msgid "New accelerator..."
-msgstr ""
-
-#: ../src/fe-gnome/eggcellrendererkeys.c:163
-#: ../src/fe-gnome/eggcellrendererkeys.c:164
-msgid "Accelerator key"
-msgstr ""
-
-#: ../src/fe-gnome/eggcellrendererkeys.c:173
-#: ../src/fe-gnome/eggcellrendererkeys.c:174
-msgid "Accelerator modifiers"
-msgstr ""
-
-#: ../src/fe-gnome/eggcellrendererkeys.c:182
-#: ../src/fe-gnome/eggcellrendererkeys.c:183
-msgid "Accelerator keycode"
-msgstr ""
-
-#: ../src/fe-gnome/eggcellrendererkeys.c:193
-msgid "Accel Mode"
-msgstr ""
-
-#: ../src/fe-gnome/eggcellrendererkeys.c:194
-msgid "The type of accelerator."
-msgstr ""
-
-#: ../src/fe-gnome/eggcellrendererkeys.c:242
-#: ../src/fe-gnome/preferences-keybindings-page.c:100
-msgid "Disabled"
 msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:549
@@ -3583,150 +3550,150 @@ msgid "You must add at least one server for this network"
 msgstr ""
 
 #. Toplevel
-#: ../src/fe-gnome/main-window.c:104
+#: ../src/fe-gnome/main-window.c:105
 msgid "_IRC"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:106
+#: ../src/fe-gnome/main-window.c:107
 msgid "In_sert"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:107
+#: ../src/fe-gnome/main-window.c:108
 msgid "_Network"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:108
+#: ../src/fe-gnome/main-window.c:109
 msgid "_Discussion"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:109
+#: ../src/fe-gnome/main-window.c:110
 msgid "_Go"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:110
+#: ../src/fe-gnome/main-window.c:111
 msgid "_Help"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:115
+#: ../src/fe-gnome/main-window.c:116
 msgid "_File Transfers"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:116
+#: ../src/fe-gnome/main-window.c:117
 msgid "_Quit"
 msgstr ""
 
 #. Edit menu
-#: ../src/fe-gnome/main-window.c:119
+#: ../src/fe-gnome/main-window.c:120
 msgid "Cu_t"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:120
+#: ../src/fe-gnome/main-window.c:121
 msgid "_Copy"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:121
+#: ../src/fe-gnome/main-window.c:122
 msgid "_Paste"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:88
+#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:88
 #: ../src/fe-gnome/navigation-tree.c:95
 msgid "C_lear"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:123
+#: ../src/fe-gnome/main-window.c:124
 msgid "Prefere_nces"
 msgstr ""
 
 #. Network menu
 #. Server context menu
-#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:77
+#: ../src/fe-gnome/main-window.c:127 ../src/fe-gnome/navigation-tree.c:77
 msgid "_Information"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:127 ../src/fe-gnome/navigation-tree.c:78
+#: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:78
 msgid "_Reconnect"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:79
+#: ../src/fe-gnome/main-window.c:129 ../src/fe-gnome/navigation-tree.c:79
 msgid "_Disconnect"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:129 ../src/fe-gnome/navigation-tree.c:80
+#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:80
 #: ../src/fe-gnome/navigation-tree.c:86 ../src/fe-gnome/navigation-tree.c:93
 msgid "_Close"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:130
+#: ../src/fe-gnome/main-window.c:131
 msgid "_Channels"
 msgstr ""
 
 #. Discussion menu
 #. Channel context menu
 #. Dialog context menu
-#: ../src/fe-gnome/main-window.c:133 ../src/fe-gnome/navigation-tree.c:84
+#: ../src/fe-gnome/main-window.c:134 ../src/fe-gnome/navigation-tree.c:84
 #: ../src/fe-gnome/navigation-tree.c:92
 msgid "_Save Transcript"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:134 ../src/fe-gnome/navigation-tree.c:85
+#: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Leave"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:135
+#: ../src/fe-gnome/main-window.c:136
 msgid "Cl_ose"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:136
+#: ../src/fe-gnome/main-window.c:137
 msgid "_Find"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:137
+#: ../src/fe-gnome/main-window.c:138
 msgid "_Clear Window"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:138
+#: ../src/fe-gnome/main-window.c:139
 msgid "Change _Topic"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:139
+#: ../src/fe-gnome/main-window.c:140
 msgid "_Bans"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:140
+#: ../src/fe-gnome/main-window.c:141
 msgid "_Users"
 msgstr ""
 
 #. Go menu
-#: ../src/fe-gnome/main-window.c:143
+#: ../src/fe-gnome/main-window.c:144
 msgid "Pre_vious Network"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:144
+#: ../src/fe-gnome/main-window.c:145
 msgid "Nex_t Network"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:145
+#: ../src/fe-gnome/main-window.c:146
 msgid "_Previous Discussion"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:146
+#: ../src/fe-gnome/main-window.c:147
 msgid "_Next Discussion"
 msgstr ""
 
 #. Help menu
-#: ../src/fe-gnome/main-window.c:149
+#: ../src/fe-gnome/main-window.c:150
 msgid "_Contents"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:150
+#: ../src/fe-gnome/main-window.c:151
 msgid "_About"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:1302
+#: ../src/fe-gnome/main-window.c:1313
 msgid "Could not load topic-change.glade!"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:1302
+#: ../src/fe-gnome/main-window.c:1313
 msgid "Your installation is broken"
 msgstr ""
 
@@ -3756,6 +3723,10 @@ msgstr ""
 #: ../src/fe-gnome/navigation-tree.c:382
 #: ../src/fe-gnome/navigation-tree.c:1278
 msgid "<none>"
+msgstr ""
+
+#: ../src/fe-gnome/preferences-keybindings-page.c:100
+msgid "Disabled"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-keybindings-page.c:400

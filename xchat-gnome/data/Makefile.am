@@ -40,7 +40,9 @@ icondir = $(datadir)/pixmaps
 icon_DATA = xchat-gnome.png
 
 desktopdir = $(datadir)/applications
-desktop_DATA = xchat-gnome.desktop
+desktop_in_files = xchat-gnome.desktop.in
+desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
+@INTLTOOL_DESKTOP_RULE@
 
 EXTRA_DIST = 				\
 	$(xchat_gnome_DATA)		\
