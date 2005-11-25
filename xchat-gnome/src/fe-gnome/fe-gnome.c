@@ -73,7 +73,9 @@ fe_args (int argc, char *argv[])
 
 	gnome_program_init (PACKAGE, VERSION,
 	                    LIBGNOMEUI_MODULE, argc, argv,
+			    /*
 	                    GNOME_PARAM_GOPTION_CONTEXT, context,
+			    */
 	                    GNOME_PARAM_HUMAN_READABLE_NAME, _("IRC Chat"),
 	                    GNOME_PROGRAM_STANDARD_PROPERTIES,
 	                    NULL);
