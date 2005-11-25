@@ -27,7 +27,6 @@ src/common/xchat.c
 src/fe-gnome/about.c
 src/fe-gnome/connect-dialog.c
 src/fe-gnome/dcc-window.c
-src/fe-gnome/eggcellrendererkeys.c
 src/fe-gnome/fe-gnome.c
 src/fe-gnome/irc-network-editor.c
 src/fe-gnome/main-window.c
