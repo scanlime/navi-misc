@@ -633,7 +633,7 @@ check_file_size (gchar *uri)
 		if (info->size <= DROP_FILE_PASTE_MAX_SIZE)
 			file_size_ok = TRUE;
 	} else {
-		g_printerr (_("Error get file information URI \"%s\": %s\n"), uri, gnome_vfs_result_to_string (result));
+		g_printerr (_("Error retrieving file information for \"%s\": %s\n"), uri, gnome_vfs_result_to_string (result));
 	}
 
 	gnome_vfs_file_info_unref (info);
