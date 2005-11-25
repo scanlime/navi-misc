@@ -136,6 +136,7 @@ initialize_text_gui ()
 	/* Set menus */
 	action_group = gtk_action_group_new ("TextPopups");
 	gtk_action_group_add_actions (action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
+	gtk_action_group_set_translation_domain (action_group, GETTEXT_PACKAGE);
 	gtk_ui_manager_insert_action_group (gui.manager, action_group, 0);
 	g_object_unref (action_group);
 
