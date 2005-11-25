@@ -7,6 +7,7 @@ data/irc-network-editor.glade
 data/preferences-dialog.glade
 data/setup-dialog.glade
 data/topic-change.glade
+data/xchat-gnome.desktop
 data/xchat-gnome.glade
 plugins/dbus/dbus-plugin.c
 plugins/dbus/xchat-remote.c

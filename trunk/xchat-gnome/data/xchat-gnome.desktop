@@ -1,7 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=XChat-GNOME IRC Chat
-GenericName=IRC Chat
+_Name=XChat-GNOME IRC Chat
+_GenericName=IRC Chat
 Exec=xchat-gnome
 Icon=xchat-gnome.png
 Terminal=false
