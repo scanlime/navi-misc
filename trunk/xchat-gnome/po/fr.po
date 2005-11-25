@@ -16,10 +16,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../data/channel-list.glade.h:1 ../data/preferences-dialog.glade.h:2
-msgid "    "
-msgstr "    "
-
 #: ../data/channel-list.glade.h:2
 msgid "<span weight=\"bold\">List Filtering</span>"
 msgstr ""
@@ -60,25 +56,12 @@ msgstr ""
 msgid "C_onnect"
 msgstr ""
 
-#: ../data/connect-dialog.glade.h:2
-msgid "connect to network"
-msgstr ""
-
 #: ../data/dcc-accept.glade.h:1
 msgid "_Accept"
 msgstr ""
 
-#: ../data/dcc-accept.glade.h:2 ../data/irc-network-editor.glade.h:19
-#: ../data/topic-change.glade.h:2
-msgid "dialog1"
-msgstr ""
-
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
 msgid "File Transfers"
-msgstr ""
-
-#: ../data/irc-network-editor.glade.h:1
-msgid "\n"
 msgstr ""
 
 #: ../data/irc-network-editor.glade.h:3
@@ -143,10 +126,6 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:18
 msgid "_Use secure connection (SSL)"
-msgstr ""
-
-#: ../data/preferences-dialog.glade.h:1
-msgid "  "
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:3
@@ -343,38 +322,6 @@ msgstr ""
 msgid "_Transparent background"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:52
-msgid "colors"
-msgstr ""
-
-#: ../data/preferences-dialog.glade.h:53
-msgid "effects"
-msgstr ""
-
-#: ../data/preferences-dialog.glade.h:54
-msgid "file transfers"
-msgstr ""
-
-#: ../data/preferences-dialog.glade.h:55
-msgid "irc prefs"
-msgstr ""
-
-#: ../data/preferences-dialog.glade.h:56
-msgid "keyboard shortcuts"
-msgstr ""
-
-#: ../data/preferences-dialog.glade.h:57
-msgid "scripts and plugins"
-msgstr ""
-
-#: ../data/preferences-dialog.glade.h:58
-msgid "servers"
-msgstr ""
-
-#: ../data/setup-dialog.glade.h:1
-msgid "*"
-msgstr ""
-
 #: ../data/setup-dialog.glade.h:2
 msgid "Nick Name:"
 msgstr ""
@@ -446,10 +393,6 @@ msgstr ""
 
 #: ../data/xchat-gnome.glade.h:8
 msgid "_Previous"
-msgstr ""
-
-#: ../data/xchat-gnome.glade.h:9
-msgid "ex-chat"
 msgstr ""
 
 #: ../data/xchat-gnome.glade.h:10
