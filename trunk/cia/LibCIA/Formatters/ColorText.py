@@ -23,7 +23,6 @@ This is the legacy format that old non-XML commits are converted to.
 #
 
 from LibCIA import Message, XML
-from LibCIA.Web import Template
 import Nouvelle, re
 import Util
 
@@ -168,6 +167,7 @@ class ColortextToXHTMLLong(ColortextToXHTML):
     medium = 'xhtml-long'
 
     def format(self, args):
+        from LibCIA.Web import Template
         return [            
             Nouvelle.tag('p')[
                 ColortextToXHTML.format(self, args),
