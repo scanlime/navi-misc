@@ -1,5 +1,4 @@
 AC_INIT([XChat-GNOME IRC Chat],[0.8svn],[http://bugzilla.gnome.org/enter_bug.cgi?product=xchat-gnome],[xchat-gnome])
-GNOME_COMMON_INIT
 
 AC_PREREQ([2.59])
 
@@ -9,7 +8,7 @@ AC_CONFIG_SRCDIR([configure.ac])
 
 PACKAGE=xchat-gnome
 VERSION=0.8svn
-AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
+AM_INIT_AUTOMAKE([0.8 dist-bzip2 check-news subdir-objects])
 
 AM_MAINTAINER_MODE
 if test "x$enable_maintainer_mode" = xyes; then
@@ -32,6 +31,7 @@ LIBSEXY_REQUIRED=0.1.4
 
 
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_PROG_CPP
 AM_PROG_AS
 AC_PROG_LIBTOOL
@@ -45,6 +45,8 @@ AC_HEADER_STDC
 AC_CHECK_FUNCS(snprintf vsnprintf)
 AC_CHECK_FUNCS(memrchr strtoull atoll)
 
+GNOME_COMMON_INIT
+GNOME_MAINTAINER_MODE_DEFINES
 GNOME_DEBUG_CHECK
 GNOME_COMPILE_WARNINGS([maximum])
 

@@ -7,7 +7,7 @@ python_la_LDFLAGS =		\
 	-avoid-version -module	\
 	$(PYTHON_LIB_LOC)
 
-python_la_CFLAGS =		\
+INCLUDES =		\
 	$(PYTHON_CFLAGS)	\
 	$(DEPENDENCIES_CFLAGS)	\
 	-I$(srcdir)/..

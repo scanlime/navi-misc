@@ -19,7 +19,7 @@ install-data-local:
 bin_PROGRAMS = xchat-gnome
 xchat_gnome_LDFLAGS = -export-dynamic
 xchat_gnome_LDADD =				\
-	../common/libxchatcommon.a		\
+	../common/libxchatcommon.la		\
 	$(DEPENDENCIES_LIBS)			\
 	$(LIBSEXY_LIBS)
 
@@ -43,7 +43,6 @@ xchat_gnome_SOURCES =				\
 	irc-network-editor.h			\
 	irc-network.c				\
 	irc-network.h				\
-	marshallers.h				\
 	main-window.c				\
 	main-window.h				\
 	navigation-tree.c			\
@@ -84,7 +83,7 @@ xchat_gnome_SOURCES =				\
 	xtext.c					\
 	xtext.h
 
-xchat_gnome_CFLAGS =				\
+INCLUDES =					\
 	$(DEPENDENCIES_CFLAGS)			\
 	$(LIBSEXY_CFLAGS)			\
 	-DSYSCONFDIR="\"$(sysconfdir)\""	\
@@ -96,6 +95,8 @@ xchat_gnome_CFLAGS =				\
 
 BUILT_SOURCES =					\
 	marshallers.h
+
+CLEANFILES = $(BUILT_SOURCES)
 
 marshallers.h: marshallers.list
 	$(GLIB_GENMARSHAL)  --header --body $< > $@

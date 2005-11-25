@@ -16,6 +16,6 @@ install-data-local:
 lib_LTLIBRARIES = urlscraper.la
 urlscraper_la_SOURCES = urlscraper.c
 urlscraper_la_LDFLAGS = -avoid-version -module
-urlscraper_la_CFLAGS =		\
+INCLUDES =		\
 	$(DEPENDENCIES_CFLAGS)	\
 	-I$(srcdir)/..

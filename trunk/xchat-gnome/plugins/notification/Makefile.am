@@ -17,7 +17,7 @@ notification_la_SOURCES =	\
 	eggtrayicon.c		\
 	notification.c
 notification_la_LDFLAGS = -avoid-version -module
-notification_la_CFLAGS =		\
+INCLUDES =		\
 	$(DEPENDENCIES_CFLAGS)		\
 	-I$(top_srcdir)/src/fe-gnome	\
 	-I$(srcdir)/..			\
