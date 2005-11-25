@@ -30,6 +30,10 @@
 #include "gscreensaver.h"
 #include "xscreensaver.h"
 
+void xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved);
+int  xchat_plugin_init     (xchat_plugin * plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg);
+int  xchat_plugin_deinit   (void);
+
 static xchat_plugin *ph;		/* Plugin handle. */
 static xchat_hook *timeout_hook = NULL; /* Timeout handle */
 static GList *networks = NULL;		/* List of connected networks */
@@ -61,7 +65,7 @@ get_screensaver_type (void)
 }
 
 static gboolean
-is_away(void)
+is_away (void)
 {
 	if (xchat_get_context (ph))
 		return (xchat_get_info (ph, "away") != NULL);
@@ -71,7 +75,7 @@ is_away(void)
 
 /* Use whatever available resource to find if the screensaver has kicked in or not */
 static gboolean
-get_screensaver_active(void)
+get_screensaver_active (void)
 {
 	switch (screensaver_type) {
 		case SS_X11:
@@ -242,7 +246,7 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 }
 
 int
-xchat_plugin_deinit ()
+xchat_plugin_deinit (void)
 {
 	xchat_unhook (ph, timeout_hook);
 

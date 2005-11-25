@@ -396,8 +396,8 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 
 					gtk_list_store_set (window->transfer_store, &iter, ICON_COLUMN, file_icon, -1);
 
-					gdk_pixbuf_unref (mime_pixbuf);
-					gdk_pixbuf_unref (file_icon);
+					g_object_unref (mime_pixbuf);
+					g_object_unref (file_icon);
 				}
 
 				return;

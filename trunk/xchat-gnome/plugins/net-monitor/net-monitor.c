@@ -26,6 +26,7 @@
 #define DBUS_API_SUBJECT_TO_CHANGE
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
 #include <glib.h>
 #include <glib/gi18n.h>
 #include <string.h>
@@ -37,6 +38,10 @@
 #define NM_SERVICE              "org.freedesktop.NetworkManager"
 #define NM_OBJECT_PATH          "/org/freedesktop/NetworkManager"
 #define NM_INTERFACE            "org.freedesktop.NetworkManager"
+
+void xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved);
+int  xchat_plugin_init     (xchat_plugin *plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg);
+int  xchat_plugin_deinit   (void);
 
 typedef enum
 {
@@ -340,7 +345,7 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 }
 
 int
-xchat_plugin_deinit ()
+xchat_plugin_deinit (void)
 {
 	return TRUE;
 }

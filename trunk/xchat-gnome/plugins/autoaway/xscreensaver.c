@@ -20,6 +20,7 @@
 #include <config.h>
 #include <string.h>
 #include "autoaway.h"
+#include "xscreensaver.h"
 
 /* Use xprop to find out if screensaver is on or off */
 static gboolean
@@ -64,7 +65,7 @@ get_screensaver_running_xs_cmd (void)
  * PUBLIC
  ***********************************/
 gboolean
-get_xss_has_ipc(void)
+get_xss_has_ipc (void)
 {
 	if (g_find_program_in_path ("xprop") ||
 	    g_find_program_in_path ("xscreensaver-command"))

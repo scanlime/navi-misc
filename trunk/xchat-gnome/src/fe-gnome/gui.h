@@ -60,8 +60,8 @@ typedef struct
 extern XChatGUI gui;
 extern Userlist *u;
 
-gboolean initialize_gui_1 ();
-gboolean initialize_gui_2 ();
+gboolean initialize_gui_1 (void);
+gboolean initialize_gui_2 (void);
 int xtext_get_stamp_str (time_t tim, char **ret);
 
 #endif

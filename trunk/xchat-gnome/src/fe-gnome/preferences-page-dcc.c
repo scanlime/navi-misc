@@ -199,6 +199,6 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 void
 preferences_page_dcc_free (PreferencesDCCPage *page)
 {
-	gdk_pixbuf_unref (page->icon);
+	g_object_unref (page->icon);
 	g_free (page);
 }

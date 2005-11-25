@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include <glib/gi18n.h>
+#include <string.h>
 #include <gconf/gconf-client.h>
 #include "preferences-page-irc.h"
 #include "preferences-dialog.h"
@@ -344,6 +345,6 @@ preferences_page_irc_free (PreferencesIrcPage *page)
 	g_object_unref (client);
 
 	g_object_unref (page->highlight_store);
-	gdk_pixbuf_unref (page->icon);
+	g_object_unref (page->icon);
 	g_free (page);
 }
