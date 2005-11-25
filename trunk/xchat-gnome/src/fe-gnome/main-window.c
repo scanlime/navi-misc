@@ -124,11 +124,11 @@ static GtkActionEntry action_entries [] = {
 	{ "EditPreferences", GTK_STOCK_PREFERENCES, N_("Prefere_nces"), "",           NULL, G_CALLBACK (on_edit_preferences_activate) },
 
 	/* Network menu */
-	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, N_("_Information"), "", NULL, G_CALLBACK (on_network_information_activate) },
-	{ "NetworkReconnect",   GTK_STOCK_REFRESH,     N_("_Reconnect"), "<control>R", NULL, G_CALLBACK (on_network_reconnect_activate) },
-	{ "NetworkDisconnect",  GTK_STOCK_STOP,        N_("_Disconnect"), "", NULL, G_CALLBACK (on_network_disconnect_activate) },
-	{ "NetworkClose",       GTK_STOCK_CLOSE,       N_("_Close"), "<shift><control>W", NULL, G_CALLBACK (on_network_close_activate) },
-	{ "NetworkChannels",    GTK_STOCK_INDEX,       N_("_Channels"), "<alt>C", NULL, G_CALLBACK (on_network_channels_activate) },
+	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, N_("_Information"), "",                  NULL, G_CALLBACK (on_network_information_activate) },
+	{ "NetworkReconnect",   GTK_STOCK_REFRESH,     N_("_Reconnect"),   "<control>R",        NULL, G_CALLBACK (on_network_reconnect_activate) },
+	{ "NetworkDisconnect",  GTK_STOCK_STOP,        N_("_Disconnect"),  "",                  NULL, G_CALLBACK (on_network_disconnect_activate) },
+	{ "NetworkClose",       GTK_STOCK_CLOSE,       N_("_Close"),       "<shift><control>W", NULL, G_CALLBACK (on_network_close_activate) },
+	{ "NetworkChannels",    GTK_STOCK_INDEX,       N_("_Channels..."), "<alt>C",            NULL, G_CALLBACK (on_network_channels_activate) },
 
 	/* Discussion menu */
 	{ "DiscussionSave",        GTK_STOCK_SAVE,           N_("_Save Transcript"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
@@ -137,7 +137,7 @@ static GtkActionEntry action_entries [] = {
 	{ "DiscussionFind",        GTK_STOCK_FIND,           N_("_Find"),            "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
 	{ "DiscussionClearWindow", GTK_STOCK_CLEAR,          N_("_Clear Window"),    "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
 	{ "DiscussionChangeTopic", GTK_STOCK_REFRESH,        N_("Change _Topic"),    "<alt>T",     NULL, G_CALLBACK (on_discussion_topic_change_activate) },
-	{ "DiscussionBans",        GTK_STOCK_DIALOG_WARNING, N_("_Bans"),            "<alt>B",     NULL, G_CALLBACK (on_discussion_bans_activate) },
+	{ "DiscussionBans",        GTK_STOCK_DIALOG_WARNING, N_("_Bans..."),         "<alt>B",     NULL, G_CALLBACK (on_discussion_bans_activate) },
 	{ "DiscussionUsers",       NULL,                     N_("_Users"),           "<control>U", NULL, G_CALLBACK (on_discussion_users_activate) },
 
 	/* Go menu */
