@@ -17,6 +17,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">False</property>
 
   <child internal-child="vbox">
@@ -152,7 +153,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="label">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">&lt;span weight=&quot;bold&quot; size=&quot;larger&quot;&gt;Incoming File Transfer&lt;/span&gt;
+	      <property name="label">&lt;span weight=&quot;bold&quot; size=&quot;larger&quot;&gt;Incoming File Transfer&lt;/span&gt;
 
 ChipX86 is attempting to send you &quot;filleted chicken breast with teeth.doc&quot;.  This may be a computer virus!!  Do you wish to accept the transfer?</property>
 	      <property name="use_underline">False</property>
