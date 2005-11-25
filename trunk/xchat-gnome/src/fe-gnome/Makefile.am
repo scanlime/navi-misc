@@ -17,8 +17,9 @@ install-data-local:
 	fi
 
 bin_PROGRAMS = xchat-gnome
+xchat_gnome_LDFLAGS = -export-dynamic
 xchat_gnome_LDADD =				\
-	../common/libxchatcommon.la		\
+	../common/libxchatcommon.a		\
 	$(DEPENDENCIES_LIBS)			\
 	$(LIBSEXY_LIBS)
 
