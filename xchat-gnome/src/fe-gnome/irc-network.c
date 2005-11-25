@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include "irc-network.h"
 #include "navigation-tree.h"
 #include "gui.h"

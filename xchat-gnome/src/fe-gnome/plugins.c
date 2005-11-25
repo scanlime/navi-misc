@@ -20,9 +20,9 @@
  */
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include <gconf/gconf-client.h>
 #include <gmodule.h>
-#include <libgnome/gnome-i18n.h>
 #include <string.h>
 #include "gui.h"
 #include "../common/util.h"

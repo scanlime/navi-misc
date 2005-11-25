@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include <string.h>
 #include "userlist.h"
 #include "palette.h"

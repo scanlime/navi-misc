@@ -19,9 +19,8 @@
  *
  */
 
-#define _GNU_SOURCE
 #include <config.h>
-#include <libgnome/gnome-i18n.h>
+#include <glib/gi18n.h>
 #include "connect-dialog.h"
 #include "navigation-tree.h"
 #include "gui.h"
@@ -144,6 +143,7 @@ connect_dialog_init (ConnectDialog *dialog)
 
 	gtk_window_set_default_size (GTK_WINDOW (dialog), 320, 240);
 	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+	gtk_window_set_title (GTK_WINDOW (dialog), _("Connect"));
 	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
 	g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (dialog_response), NULL);
 }

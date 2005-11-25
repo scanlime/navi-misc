@@ -20,8 +20,8 @@
  */
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include <glib.h>
-#include <libgnome/gnome-i18n.h>
 #include <libgnomevfs/gnome-vfs-mime-utils.h>
 #include <libgnomevfs/gnome-vfs-utils.h>
 #include <libgnomeui/gnome-icon-lookup.h>

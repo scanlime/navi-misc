@@ -20,7 +20,7 @@
  */
 
 #include <config.h>
-#include <libgnome/gnome-i18n.h>
+#include <glib/gi18n.h>
 #include <libgnome/gnome-url.h> /* gnome_url_show */
 #include <gconf/gconf-client.h>
 #ifdef HAVE_LIBSEXY

@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include "about.h"
 
 void on_about_close (GtkWidget *widget, gpointer data);

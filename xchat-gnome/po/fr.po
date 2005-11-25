@@ -2,13 +2,13 @@
 # Copyright (C) 2005
 # This file is distributed under the same license as the xchat-gnome package.
 # Olivier Lê Thanh Duong, 2005.
-#
-#
+# 
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-11-25 03:38-0500\n"
+"POT-Creation-Date: 2005-11-25 03:50-0700\n"
 "PO-Revision-Date: 2005-11-25 03:33-0500\n"
 "Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: Français <olethanh@ulb.ac.be>\n"
@@ -16,39 +16,39 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../data/channel-list.glade.h:2
+#: ../data/channel-list.glade.h:1
 msgid "<span weight=\"bold\">List Filtering</span>"
 msgstr ""
 
-#: ../data/channel-list.glade.h:3
+#: ../data/channel-list.glade.h:2
 msgid "Apply Text Filter To:    "
 msgstr ""
 
-#: ../data/channel-list.glade.h:4
+#: ../data/channel-list.glade.h:3
 msgid "Channel _Name"
 msgstr ""
 
-#: ../data/channel-list.glade.h:5
+#: ../data/channel-list.glade.h:4
 msgid "Channel _Topic"
 msgstr ""
 
-#: ../data/channel-list.glade.h:6
+#: ../data/channel-list.glade.h:5
 msgid "Join Channel"
 msgstr ""
 
-#: ../data/channel-list.glade.h:7
+#: ../data/channel-list.glade.h:6
 msgid "Maximum Users:"
 msgstr ""
 
-#: ../data/channel-list.glade.h:8
+#: ../data/channel-list.glade.h:7
 msgid "Minimum Users:"
 msgstr ""
 
-#: ../data/channel-list.glade.h:9
+#: ../data/channel-list.glade.h:8
 msgid "Save List _As"
 msgstr ""
 
-#: ../data/channel-list.glade.h:10
+#: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
 msgstr ""
 
@@ -64,273 +64,273 @@ msgstr ""
 msgid "File Transfers"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:3
+#: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:4 ../data/preferences-dialog.glade.h:9
+#: ../data/irc-network-editor.glade.h:2 ../data/preferences-dialog.glade.h:7
 msgid "<span weight=\"bold\">General</span>"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:5
+#: ../data/irc-network-editor.glade.h:3
 msgid "<span weight=\"bold\">User Info</span>"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:6
+#: ../data/irc-network-editor.glade.h:4
 msgid "Character _encoding:"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:7
+#: ../data/irc-network-editor.glade.h:5
 msgid "Network Settings"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:8
+#: ../data/irc-network-editor.glade.h:6
 msgid "Server _Password:"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:9
+#: ../data/irc-network-editor.glade.h:7
 msgid "Servers"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:10
+#: ../data/irc-network-editor.glade.h:8
 msgid "Use _global user settings"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:11
+#: ../data/irc-network-editor.glade.h:9
 msgid "Use _these user settings:"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:12
+#: ../data/irc-network-editor.glade.h:10
 msgid "User and Channels"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:13
+#: ../data/irc-network-editor.glade.h:11
 msgid "_Automatically connect to network"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:14
+#: ../data/irc-network-editor.glade.h:12
 msgid "_Cycle until connected"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:15
+#: ../data/irc-network-editor.glade.h:13
 msgid "_Name:"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:16
+#: ../data/irc-network-editor.glade.h:14
 msgid "_Nick name:"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:17
+#: ../data/irc-network-editor.glade.h:15
 msgid "_Real Name:"
 msgstr ""
 
-#: ../data/irc-network-editor.glade.h:18
+#: ../data/irc-network-editor.glade.h:16
 msgid "_Use secure connection (SSL)"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:3
+#: ../data/preferences-dialog.glade.h:1
 msgid "<span size=\"small\" style=\"italic\">Opaque</span>"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:4
+#: ../data/preferences-dialog.glade.h:2
 msgid "<span size=\"small\" style=\"italic\">Transparent</span>"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:5
+#: ../data/preferences-dialog.glade.h:3
 msgid "<span weight=\"bold\">Background</span>"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:6
+#: ../data/preferences-dialog.glade.h:4
 msgid "<span weight=\"bold\">DCC Settings</span>"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:7
+#: ../data/preferences-dialog.glade.h:5
 msgid "<span weight=\"bold\">Extra Colors</span>"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:8
+#: ../data/preferences-dialog.glade.h:6
 msgid "<span weight=\"bold\">File Transfers</span>"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:10
+#: ../data/preferences-dialog.glade.h:8
 msgid "<span weight=\"bold\">Highlighting</span>"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:11
+#: ../data/preferences-dialog.glade.h:9
 msgid "<span weight=\"bold\">Text Colors</span>"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:12
+#: ../data/preferences-dialog.glade.h:10
 msgid "<span weight=\"bold\">Throttling</span>"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:13
+#: ../data/preferences-dialog.glade.h:11
 msgid "<span weight=\"bold\">User Interface</span>"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:14
+#: ../data/preferences-dialog.glade.h:12
 msgid "<span weight=\"bold\">mIRC Colors</span>"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:15
+#: ../data/preferences-dialog.glade.h:13
 msgid "A_way message:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:16
+#: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:17
+#: ../data/preferences-dialog.glade.h:15
 msgid "Auto-accept DCC File Transfers"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:18
+#: ../data/preferences-dialog.glade.h:16
 msgid "Background _image"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:19
+#: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:20
+#: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:21
+#: ../data/preferences-dialog.glade.h:19
 msgid "Convert spaces to underscores in filenames"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:22
+#: ../data/preferences-dialog.glade.h:20
 msgid "Download files to:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:23
+#: ../data/preferences-dialog.glade.h:21
 msgid "Enter extra words to trigger highlighting"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:24
+#: ../data/preferences-dialog.glade.h:22
 msgid "Foreground mark:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:25
+#: ../data/preferences-dialog.glade.h:23
 msgid "Get IP Address From Server"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:26
+#: ../data/preferences-dialog.glade.h:24
 msgid "Global receive KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:27
+#: ../data/preferences-dialog.glade.h:25
 msgid "Global send KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:28
+#: ../data/preferences-dialog.glade.h:26
 msgid "Image _file:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:29
+#: ../data/preferences-dialog.glade.h:27
 msgid "Individual receive KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:30
+#: ../data/preferences-dialog.glade.h:28
 msgid "Individual send KB/s: "
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:31
+#: ../data/preferences-dialog.glade.h:29
 msgid "Move completed files to:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:32
+#: ../data/preferences-dialog.glade.h:30
 msgid "Preferences"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:33
+#: ../data/preferences-dialog.glade.h:31
 msgid "Real na_me:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:34
+#: ../data/preferences-dialog.glade.h:32
 msgid "Save sender nickname in filenames"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:35
+#: ../data/preferences-dialog.glade.h:33
 msgid "Select A File"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:36
+#: ../data/preferences-dialog.glade.h:34
 msgid "Select Completed Files Directory"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:37
+#: ../data/preferences-dialog.glade.h:35
 msgid "Select Download Directory"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:38
+#: ../data/preferences-dialog.glade.h:36
 msgid "Show _timestamps"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:39
+#: ../data/preferences-dialog.glade.h:37
 msgid ""
 "To edit a shortcut key, click on the corresponding row and type a new "
 "accelerator, or press backspace to clear."
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:40
+#: ../data/preferences-dialog.glade.h:38
 msgid "Use System Terminal Font"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:41
+#: ../data/preferences-dialog.glade.h:39
 msgid "Use This IP Address:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:42
+#: ../data/preferences-dialog.glade.h:40
 msgid "Use this font:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:43
+#: ../data/preferences-dialog.glade.h:41
 msgid "_Background color:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:44 ../src/fe-gnome/main-window.c:106
+#: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:106
 msgid "_Edit"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:45
+#: ../data/preferences-dialog.glade.h:43
 msgid "_Foreground color:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:46
+#: ../data/preferences-dialog.glade.h:44
 msgid "_Nickname:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:47
+#: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:48
+#: ../data/preferences-dialog.glade.h:46
 msgid "_Part message:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:49
+#: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:50
+#: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
 msgstr ""
 
-#: ../data/preferences-dialog.glade.h:51
+#: ../data/preferences-dialog.glade.h:49
 msgid "_Transparent background"
 msgstr ""
 
-#: ../data/setup-dialog.glade.h:2
+#: ../data/setup-dialog.glade.h:1
 msgid "Nick Name:"
 msgstr ""
 
-#: ../data/setup-dialog.glade.h:3
+#: ../data/setup-dialog.glade.h:2
 msgid "Real Name:"
 msgstr ""
 
-#: ../data/setup-dialog.glade.h:4
+#: ../data/setup-dialog.glade.h:3
 msgid ""
 "Welcome to xchat-gnome! Since this is your first time using this "
 "application, there are a couple things you'll need to configure before you "
@@ -342,7 +342,7 @@ msgid ""
 "name if you do not want to."
 msgstr ""
 
-#: ../data/setup-dialog.glade.h:7
+#: ../data/setup-dialog.glade.h:6
 msgid "xchat-gnome setup"
 msgstr ""
 
@@ -395,7 +395,7 @@ msgstr ""
 msgid "_Previous"
 msgstr ""
 
-#: ../data/xchat-gnome.glade.h:10
+#: ../data/xchat-gnome.glade.h:9
 msgid "nickname"
 msgstr ""
 
@@ -578,7 +578,7 @@ msgid "Done"
 msgstr ""
 
 #. green
-#: ../src/common/dcc.c:70
+#: ../src/common/dcc.c:70 ../src/fe-gnome/connect-dialog.c:146
 msgid "Connect"
 msgstr ""
 
@@ -1053,7 +1053,7 @@ msgstr ""
 msgid "Unknown Command. Try /help\n"
 msgstr ""
 
-#: ../src/common/plugin.c:371 ../src/common/plugin.c:412
+#: ../src/common/plugin.c:372 ../src/common/plugin.c:413
 msgid "No xchat_plugin_init symbol; is this really an xchat plugin?"
 msgstr ""
 
@@ -3267,7 +3267,7 @@ msgstr ""
 msgid "Take Half-Ops"
 msgstr ""
 
-#: ../src/common/xchat.c:834 ../src/fe-gnome/userlist-gui.c:53
+#: ../src/common/xchat.c:834 ../src/fe-gnome/userlist-gui.c:54
 msgid "Ignore"
 msgstr ""
 
@@ -3376,7 +3376,7 @@ msgstr ""
 msgid "Clear"
 msgstr ""
 
-#: ../src/fe-gnome/about.c:56
+#: ../src/fe-gnome/about.c:57
 msgid ""
 "X-Chat GNOME is free software; you can redistribute it and/or modify\n"
 "it under the terms of the GNU General Public License as published by\n"
@@ -3384,7 +3384,7 @@ msgid ""
 "(at your option) any later version.\n"
 msgstr ""
 
-#: ../src/fe-gnome/about.c:60
+#: ../src/fe-gnome/about.c:61
 msgid ""
 "X-Chat GNOME is distributed in the hope that it will be useful,\n"
 "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
@@ -3392,7 +3392,7 @@ msgid ""
 "GNU General Public License for more details.\n"
 msgstr ""
 
-#: ../src/fe-gnome/about.c:64
+#: ../src/fe-gnome/about.c:65
 msgid ""
 "You should have received a copy of the GNU General Public License\n"
 "along with X-Chat GNOME; if not, write to the Free Software Foundation, "
@@ -3400,58 +3400,58 @@ msgid ""
 "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
 msgstr ""
 
-#: ../src/fe-gnome/about.c:83
+#: ../src/fe-gnome/about.c:84
 msgid "Copyright © 2004-2005"
 msgstr "Copyright © 2004-2005"
 
-#: ../src/fe-gnome/about.c:84
+#: ../src/fe-gnome/about.c:85
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
 "gentleman"
 msgstr ""
 
 #. IRC menu
-#: ../src/fe-gnome/connect-dialog.c:125 ../src/fe-gnome/main-window.c:115
+#: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:115
 msgid "_Connect"
 msgstr "_Connecter"
 
-#: ../src/fe-gnome/fe-gnome.c:549
+#: ../src/fe-gnome/fe-gnome.c:556
 msgid "Search buffer is empty.\n"
 msgstr "Le cache de recherche est vide.\n"
 
-#: ../src/fe-gnome/fe-gnome.c:581
+#: ../src/fe-gnome/fe-gnome.c:588
 #, c-format
 msgid "%s%d.%ds lag"
 msgstr "Lag de %s%d.%ds"
 
-#: ../src/fe-gnome/fe-gnome.c:616
+#: ../src/fe-gnome/fe-gnome.c:623
 #, c-format
 msgid "%d bytes buffered"
 msgstr "%d ont été mis en "
 
-#: ../src/fe-gnome/irc-network-editor.c:508
-#: ../src/fe-gnome/irc-network-editor.c:515
-#: ../src/fe-gnome/irc-network-editor.c:521
+#: ../src/fe-gnome/irc-network-editor.c:509
+#: ../src/fe-gnome/irc-network-editor.c:516
+#: ../src/fe-gnome/irc-network-editor.c:522
 msgid "Invalid input"
 msgstr "Entrée invalide"
 
-#: ../src/fe-gnome/irc-network-editor.c:508
+#: ../src/fe-gnome/irc-network-editor.c:509
 msgid "You must enter a network name"
 msgstr "Vous devez entrer un nom de réseau"
 
-#: ../src/fe-gnome/irc-network-editor.c:515
+#: ../src/fe-gnome/irc-network-editor.c:516
 msgid "You must enter a nick name"
 msgstr "Vous devez entrer un pseudo"
 
-#: ../src/fe-gnome/irc-network-editor.c:521
+#: ../src/fe-gnome/irc-network-editor.c:522
 msgid "You must enter a real name"
 msgstr "Vous devez entrer un vrai nom"
 
-#: ../src/fe-gnome/irc-network-editor.c:528
+#: ../src/fe-gnome/irc-network-editor.c:529
 msgid "No Servers"
 msgstr "Pas de serveurs"
 
-#: ../src/fe-gnome/irc-network-editor.c:528
+#: ../src/fe-gnome/irc-network-editor.c:529
 msgid "You must add at least one server for this network"
 msgstr "Vous devez spécifier au moins un serveur"
 
@@ -3501,8 +3501,8 @@ msgstr "_Copier"
 msgid "_Paste"
 msgstr "C_oller"
 
-#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:88
-#: ../src/fe-gnome/navigation-tree.c:95
+#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:89
+#: ../src/fe-gnome/navigation-tree.c:96
 msgid "C_lear"
 msgstr "E_ffacer"
 
@@ -3512,36 +3512,36 @@ msgstr "P_références"
 
 #. Network menu
 #. Server context menu
-#: ../src/fe-gnome/main-window.c:127 ../src/fe-gnome/navigation-tree.c:77
+#: ../src/fe-gnome/main-window.c:127 ../src/fe-gnome/navigation-tree.c:78
 msgid "_Information"
 msgstr "_Information"
 
-#: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:78
+#: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:79
 msgid "_Reconnect"
 msgstr "_Reconnecter"
 
-#: ../src/fe-gnome/main-window.c:129 ../src/fe-gnome/navigation-tree.c:79
+#: ../src/fe-gnome/main-window.c:129 ../src/fe-gnome/navigation-tree.c:80
 msgid "_Disconnect"
 msgstr "_Déconnecter"
 
-#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:80
-#: ../src/fe-gnome/navigation-tree.c:86 ../src/fe-gnome/navigation-tree.c:93
+#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:81
+#: ../src/fe-gnome/navigation-tree.c:87 ../src/fe-gnome/navigation-tree.c:94
 msgid "_Close"
 msgstr "_Fermer"
 
-#: ../src/fe-gnome/main-window.c:131 ../src/fe-gnome/navigation-tree.c:81
+#: ../src/fe-gnome/main-window.c:131 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Channels..."
 msgstr "_Cannaux"
 
 #. Discussion menu
 #. Channel context menu
 #. Dialog context menu
-#: ../src/fe-gnome/main-window.c:134 ../src/fe-gnome/navigation-tree.c:84
-#: ../src/fe-gnome/navigation-tree.c:92
+#: ../src/fe-gnome/main-window.c:134 ../src/fe-gnome/navigation-tree.c:85
+#: ../src/fe-gnome/navigation-tree.c:93
 msgid "_Save Transcript"
 msgstr "_Sauver la discussion"
 
-#: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:85
+#: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:86
 msgid "_Leave"
 msgstr "_Partir"
 
@@ -3561,7 +3561,7 @@ msgstr "_Vider la fenêtre"
 msgid "Change _Topic"
 msgstr "Changer le _topic"
 
-#: ../src/fe-gnome/main-window.c:140 ../src/fe-gnome/navigation-tree.c:89
+#: ../src/fe-gnome/main-window.c:140 ../src/fe-gnome/navigation-tree.c:90
 msgid "_Bans..."
 msgstr "Listes des _bannis"
 
@@ -3603,23 +3603,23 @@ msgstr "Impossible de charger le fichier topic-change.glade!"
 msgid "Your installation is broken"
 msgstr "Votre installation est cassé"
 
-#: ../src/fe-gnome/navigation-tree.c:87 ../src/fe-gnome/navigation-tree.c:94
+#: ../src/fe-gnome/navigation-tree.c:88 ../src/fe-gnome/navigation-tree.c:95
 msgid "_Find..."
 msgstr "_Rechercher..."
 
 #. Server context menu
-#: ../src/fe-gnome/navigation-tree.c:100
+#: ../src/fe-gnome/navigation-tree.c:101
 msgid "_Auto-connect"
 msgstr "_Reconnecter automatiquement"
 
 #. Channel context menu
-#: ../src/fe-gnome/navigation-tree.c:103
+#: ../src/fe-gnome/navigation-tree.c:104
 msgid "_Auto-join"
 msgstr "_Rejoindre automatiquement"
 
 #. Add the new server to the model. By default connected is false.
-#: ../src/fe-gnome/navigation-tree.c:382
-#: ../src/fe-gnome/navigation-tree.c:1278
+#: ../src/fe-gnome/navigation-tree.c:383
+#: ../src/fe-gnome/navigation-tree.c:1279
 msgid "<none>"
 msgstr "<aucun>"
 
@@ -3664,7 +3664,7 @@ msgstr "Action"
 msgid "Shortcut"
 msgstr "Raccourci"
 
-#: ../src/fe-gnome/preferences-page-networks.c:117
+#: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
 msgstr ""
@@ -3762,19 +3762,19 @@ msgstr ""
 "La liste d'URI déposée sur xchat-gnome a un mauvais format (%d) ou longueur "
 "(%d)\n"
 
-#: ../src/fe-gnome/userlist-gui.c:49
+#: ../src/fe-gnome/userlist-gui.c:50
 msgid "_Send File..."
 msgstr "_Envoyer un fichier"
 
-#: ../src/fe-gnome/userlist-gui.c:50
+#: ../src/fe-gnome/userlist-gui.c:51
 msgid "Private _Chat"
 msgstr "_Discussion privée"
 
-#: ../src/fe-gnome/userlist-gui.c:51
+#: ../src/fe-gnome/userlist-gui.c:52
 msgid "_Kick"
 msgstr "_Kicker"
 
-#: ../src/fe-gnome/userlist-gui.c:52
+#: ../src/fe-gnome/userlist-gui.c:53
 msgid "_Ban"
 msgstr "_Bannir"
 
@@ -3783,4 +3783,3 @@ msgstr "_Bannir"
 
 #~ msgid "_Bans"
 #~ msgstr "_Liste des bannis ..."
-
