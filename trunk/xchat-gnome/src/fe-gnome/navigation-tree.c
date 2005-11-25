@@ -104,6 +104,8 @@ static GtkToggleActionEntry toggle_action_entries[] = {
 	{"ChannelAutoJoin",   NULL, N_("_Auto-join"),    "", NULL, G_CALLBACK (on_channel_autojoin), FALSE},
 };
 
+static GtkActionGroup *action_group;
+
 GType
 navigation_tree_get_type (void)
 {
@@ -142,11 +144,12 @@ navigation_tree_init (NavTree *navtree)
 	navtree->model = NULL;
 	navtree->selection_changed_id = 0;
 
-	gui.action_group = gtk_action_group_new ("MenuAction");
-	gtk_action_group_add_actions (gui.action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
-	gtk_action_group_add_toggle_actions (gui.action_group, toggle_action_entries, G_N_ELEMENTS (toggle_action_entries), NULL);
-	gtk_ui_manager_insert_action_group (gui.manager, gui.action_group, 0);
-	g_object_unref (gui.action_group);
+	action_group = gtk_action_group_new ("MenuAction");
+	gtk_action_group_add_actions (action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
+	gtk_action_group_add_toggle_actions (action_group, toggle_action_entries, G_N_ELEMENTS (toggle_action_entries), NULL);
+	gtk_action_group_set_translation_domain (action_group, GETTEXT_PACKAGE);
+	gtk_ui_manager_insert_action_group (gui.manager, action_group, 0);
+	g_object_unref (action_group);
 
 	/* This sets up all our columns. */
 	column = gtk_tree_view_column_new ();
@@ -946,11 +949,11 @@ server_context (GtkWidget *treeview, session *selected)
 		 * FIXME: it would be really nice to be able to configure this server
 		 * as part of a network here.
 		 */
-		action = gtk_action_group_get_action (gui.action_group, "ServerAutoConnect");
+		action = gtk_action_group_get_action (action_group, "ServerAutoConnect");
 		gtk_action_set_sensitive (action, FALSE);
 	} else if (selected != NULL) {
 		/* check if the network is in the auto-connect list */
-		action = gtk_action_group_get_action (gui.action_group, "ServerAutoConnect");
+		action = gtk_action_group_get_action (action_group, "ServerAutoConnect");
 		gtk_action_set_sensitive (action, TRUE);
 		if (((ircnet *)selected->server->network)->flags & FLAG_AUTO_CONNECT)
 			gtk_toggle_action_set_active (GTK_TOGGLE_ACTION (action), TRUE);
@@ -972,7 +975,7 @@ channel_context (GtkWidget *treeview, session *selected)
 	g_return_if_fail (menu != NULL);
 
 	/* check if the channel is in the auto-join list */
-	action = gtk_action_group_get_action (gui.action_group, "ChannelAutoJoin");
+	action = gtk_action_group_get_action (action_group, "ChannelAutoJoin");
 	network = selected->server->network;
 
 	if (network == NULL) {

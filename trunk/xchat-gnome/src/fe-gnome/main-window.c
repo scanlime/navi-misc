@@ -165,26 +165,6 @@ find_action_entry (gchar *name)
 	return NULL;
 }
 
-GtkAction *
-find_previous_action (gchar *name)
-{
-	GList *actions;
-	GtkAction *result;
-
-	actions = gtk_action_group_list_actions (gui.action_group);
-
-	while (actions != NULL) {
-		if (strcmp(gtk_action_group_get_name(actions -> data), name) == 0) {
-			result = actions -> data;
-			g_list_free (actions);
-			return result;
-		}
-		actions = actions -> next;
-	}
-
-	return NULL;
-}
-
 void
 save_transcript ()
 {
@@ -259,7 +239,7 @@ keybinding_key_changed (GConfClient *client, guint cnxn_id, GConfEntry *e, gpoin
 	}
 
 	g_message("name is %s",name);
-	oldaction = gtk_action_group_get_action (gui.action_group, gconf_entry_get_key (e));
+	oldaction = gtk_ui_manager_get_action (gui.manager, gconf_entry_get_key (e));
 
 	action = gtk_action_new (entry->name, entry->label, entry->tooltip, entry->stock_id);
 
@@ -301,6 +281,7 @@ setup_menu_item (GConfClient *client, GtkActionEntry *entry)
 
 	if (e == NULL) {
 		/* no GConf data, so let's use the hardcoded values */
+		/* FIXME */
 		gtk_action_group_add_actions (gui.action_group, entry, 1, NULL);
 		g_free (key_string);
 		return;
@@ -449,14 +430,14 @@ initialize_main_window ()
 
 	/* hook up the menus */
 	gui.action_group = gtk_action_group_new ("MenuAction");
-//	gtk_action_group_add_actions (gui.action_group, action_entries,
+	gtk_action_group_set_translation_domain (gui.action_group, GETTEXT_PACKAGE);
+//	gtk_action_group_add_actions (action_group, action_entries,
 //				      G_N_ELEMENTS (action_entries), NULL);
 	setup_menu ();
 //	initialize_gconf_accels();
 
 	gui.manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (gui.manager, gui.action_group, 0);
-	g_object_unref (gui.action_group);
 
 	menu_vbox = glade_xml_get_widget (gui.xml, "menu_vbox");
 	g_signal_connect (gui.manager, "add-widget", G_CALLBACK (on_add_widget), menu_vbox);
