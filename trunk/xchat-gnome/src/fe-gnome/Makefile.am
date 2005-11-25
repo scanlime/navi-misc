@@ -1,4 +1,4 @@
-xchat_gnomedir = $(datadir)/xchat
+xchat_gnomedir = $(datadir)/$(PACKAGE)
 
 if USE_MMX
 mmx_cmod_S = mmx_cmod.S
@@ -88,9 +88,9 @@ xchat_gnome_CFLAGS =				\
 	$(LIBSEXY_CFLAGS)			\
 	-DSYSCONFDIR="\"$(sysconfdir)\""	\
 	-DDATADIR="\"$(xchat_gnomedir)\""	\
-	-DLIBDIR="\"$(xchatlibdir)\""		\
+	-DLIBDIR="\"$(libdir)\""		\
 	-DPREFIX="\"$(prefix)\""		\
-	-DXCHATLIBDIR="\"$(xchatlibdir)\""	\
+	-DXCHATLIBDIR="\"$(XCHATLIBDIR)\""	\
 	-DXCHATSHAREDIR="\"$(XCHATSHAREDIR)\""
 
 BUILT_SOURCES =					\

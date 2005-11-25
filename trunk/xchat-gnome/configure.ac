@@ -266,7 +266,8 @@ IFS="$plugin_save_ifs"
 AC_SUBST([DIST_PLUGINS])
 AC_SUBST([BUILD_PLUGINS],[`echo $PLUGINS | tr ' ' '\n' | sort | uniq | tr '\n' ' '`])
 AC_MSG_RESULT([$PLUGINS])
-AC_DEFINE(USE_PLUGIN, 1, [Use plugins])
+AC_DEFINE(USE_PLUGIN, [], [Use plugins])
+AC_DEFINE(USE_GMODULE, [], [Use gmodule for loading plugins])
 
 # standard paths
 XCHATLIBDIR=${libdir}/$PACKAGE

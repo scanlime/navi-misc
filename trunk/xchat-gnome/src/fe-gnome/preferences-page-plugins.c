@@ -53,7 +53,6 @@ fe_plugin_add (char *filename)
 	gpointer info_func;
 	char *name, *desc, *version;
 
-
 	handle = g_module_open (filename, 0);
 
 	gtk_list_store_append (pageref->plugin_store, &iter);
