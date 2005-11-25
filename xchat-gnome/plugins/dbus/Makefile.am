@@ -16,23 +16,22 @@ lib_LTLIBRARIES = dbus.la
 dbus_la_SOURCES = dbus-plugin.c
 dbus_la_LDFLAGS = -avoid-version -module
 dbus_la_LIBADD = $(DBUS_LIBS)
-dbus_la_CFLAGS = 		\
-	$(DEPENDENCIES_CFLAGS)	\
-	$(DBUS_CFLAGS)		\
-	-I$(srcdir)/..
 
 bin_PROGRAMS = xchat-remote
 xchat_remote_SOURCES = xchat-remote.c
 xchat_remote_LDADD = $(DBUS_LIBS)
-xchat_remote_CFLAGS = 				\
-	$(DBUS_CFLAGS)				\
-	-DLOCALEDIR="\"$(GNOMELOCALEDIR)\""	\
-	-DAPP="\"$(bindir)/$(PACKAGE)\""
 
 noinst_PROGRAMS = example
 example_SOURCES = example.c
 example_LDADD = $(DBUS_LIBS)
-example_CFLAGS = $(DBUS_CFLAGS)
+
+INCLUDES =					\
+	$(DEPENDENCIES_CFLAGS)			\
+	$(DBUS_CFLAGS)				\
+	-DLOCALEDIR="\"$(GNOMELOCALEDIR)\""	\
+	-DAPP="\"$(bindir)/$(PACKAGE)\""	\
+	-I$(srcdir)/..
+
 
 dbus-plugin-glue.h: dbus-plugin.xml
 	$(DBUS_BINDING_TOOL) --prefix=remote_object --mode=glib-server --output=$@ $<

@@ -19,11 +19,11 @@ autoaway_la_LDFLAGS =	\
 autoaway_la_LIBADD =	\
 	$(DBUS_LIBS)
 
-autoaway_la_CFLAGS =		\
+INCLUDES =		\
 	 $(DEPENDENCIES_CFLAGS)	\
 	 $(DBUS_CFLAGS)		\
 	 -I$(srcdir)/..
 
 if ENABLE_DBUS
-autoaway_la_CFLAGS += -DUSE_DBUS
+INCLUDES += -DUSE_DBUS
 endif

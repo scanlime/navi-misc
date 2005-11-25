@@ -1,5 +1,5 @@
-noinst_LIBRARIES = libxchatcommon.a
-libxchatcommon_a_SOURCES =		\
+noinst_LTLIBRARIES = libxchatcommon.la
+libxchatcommon_la_SOURCES =		\
 	cfgfiles.c			\
 	cfgfiles.h			\
 	ctcp.c				\
@@ -51,8 +51,8 @@ libxchatcommon_a_SOURCES =		\
 	xchat.h				\
 	xchatc.h
 
-libxchatcommon_a_LDFLAGS = -static
-libxchatcommon_a_CFLAGS =		\
+libxchatcommon_la_LDFLAGS = -static
+INCLUDES =		\
 	$(DEPENDENCIES_CFLAGS)		\
 	-DXCHATLIBDIR="\"$(XCHATLIBDIR)\""
 
