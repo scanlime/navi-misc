@@ -919,7 +919,7 @@
 	      <child>
 		<widget class="GtkLabel" id="irc prefs*">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">irc prefs</property>
+		  <property name="label">irc prefs</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1403,7 +1403,7 @@
 	      <child>
 		<widget class="GtkLabel" id="label75">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">colors</property>
+		  <property name="label">colors</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1539,7 +1539,7 @@
 			      <child>
 				<widget class="GtkLabel" id="label104">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">  </property>
+				  <property name="label">    </property>
 				  <property name="use_underline">False</property>
 				  <property name="use_markup">False</property>
 				  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1640,7 +1640,7 @@
 			      <child>
 				<widget class="GtkLabel" id="label106">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">  </property>
+				  <property name="label">    </property>
 				  <property name="use_underline">False</property>
 				  <property name="use_markup">False</property>
 				  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1762,7 +1762,7 @@
 	      <child>
 		<widget class="GtkLabel" id="effects*">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">effects</property>
+		  <property name="label">effects</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -2557,7 +2557,7 @@
 	      <child>
 		<widget class="GtkLabel" id="file transfers*">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">file transfers</property>
+		  <property name="label">file transfers</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -2734,7 +2734,7 @@
 	      <child>
 		<widget class="GtkLabel" id="servers*">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">servers</property>
+		  <property name="label">servers</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -2837,7 +2837,7 @@
 	      <child>
 		<widget class="GtkLabel" id="scripts and plugins*">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">scripts and plugins</property>
+		  <property name="label">scripts and plugins</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -2972,7 +2972,7 @@
 	      <child>
 		<widget class="GtkLabel" id="keybindings*">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">keyboard shortcuts</property>
+		  <property name="label">keyboard shortcuts</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
