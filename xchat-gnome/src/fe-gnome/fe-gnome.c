@@ -62,9 +62,21 @@ fe_args (int argc, char *argv[])
 	GError *error = NULL;
 	GOptionContext *context;
 
+#ifdef ENABLE_NLS
+	bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	textdomain (GETTEXT_PACKAGE);
+#endif
+
 	context = g_option_context_new ("");
 	g_option_context_add_main_entries (context, entries, NULL);	/* FIXME - set translation domain */
-	g_option_context_add_group (context, gtk_get_option_group (TRUE));
+
+	gnome_program_init (PACKAGE, VERSION,
+	                    LIBGNOMEUI_MODULE, argc, argv,
+	                    GNOME_PARAM_GOPTION_CONTEXT, context,
+	                    GNOME_PARAM_HUMAN_READABLE_NAME, _("IRC Chat"),
+	                    GNOME_PROGRAM_STANDARD_PROPERTIES,
+	                    NULL);
 	g_option_context_parse (context, &argc, &argv, &error);
 
 	if (error) {
@@ -83,8 +95,6 @@ fe_args (int argc, char *argv[])
 	if (opt_cfgdir)
 		xdir_fs = opt_cfgdir;
 
-	gnome_program_init ("xchat-gnome", VERSION, LIBGNOMEUI_MODULE, argc, argv, GNOME_PROGRAM_STANDARD_PROPERTIES, NULL);
-
 	/* FIXME: this is kind of a silly place to put this, but it seems to want to
 	   follow gnome_program_init */
 	gnome_window_icon_set_default_from_file (XCHATSHAREDIR "/xchat-gnome-small.png");
@@ -95,12 +105,6 @@ void
 fe_init (void)
 {
 	gnome_vfs_init ();
-
-#ifdef ENABLE_NLS
-	bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
-	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-	textdomain (GETTEXT_PACKAGE);
-#endif
 
 	u = userlist_new ();
 	gui.quit = FALSE;
