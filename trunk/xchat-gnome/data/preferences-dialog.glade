@@ -18,6 +18,7 @@
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
+  <property name="urgency_hint">False</property>
   <property name="has_separator">True</property>
 
   <child internal-child="vbox">
@@ -159,7 +160,7 @@
 			  <child>
 			    <widget class="GtkLabel" id="label29">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">    </property>
+			      <property name="label">    </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -544,7 +545,7 @@
 			  <child>
 			    <widget class="GtkLabel" id="label35">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">    </property>
+			      <property name="label">    </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -752,7 +753,7 @@
 			  <child>
 			    <widget class="GtkLabel" id="label45">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">    </property>
+			      <property name="label">    </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -978,7 +979,7 @@
 		      <child>
 			<widget class="GtkLabel" id="label78">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">    </property>
+			  <property name="label">    </property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1269,7 +1270,7 @@
 		      <child>
 			<widget class="GtkLabel" id="label96">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">    </property>
+			  <property name="label">    </property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1348,7 +1349,7 @@
 		      <child>
 			<widget class="GtkLabel" id="label97">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">    </property>
+			  <property name="label">    </property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1462,7 +1463,7 @@
 		      <child>
 			<widget class="GtkLabel" id="label103">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">    </property>
+			  <property name="label">    </property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1593,6 +1594,7 @@
 				  <property name="action">GTK_FILE_CHOOSER_ACTION_OPEN</property>
 				  <property name="local_only">True</property>
 				  <property name="show_hidden">False</property>
+				  <property name="do_overwrite_confirmation">False</property>
 				  <property name="width_chars">-1</property>
 				</widget>
 				<packing>
@@ -1826,7 +1828,7 @@
 			  <child>
 			    <widget class="GtkLabel" id="label51">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">    </property>
+			      <property name="label">    </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1892,6 +1894,7 @@
 				      <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
 				      <property name="local_only">True</property>
 				      <property name="show_hidden">False</property>
+				      <property name="do_overwrite_confirmation">False</property>
 				      <property name="width_chars">-1</property>
 				    </widget>
 				    <packing>
@@ -1947,6 +1950,7 @@
 				      <property name="action">GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER</property>
 				      <property name="local_only">True</property>
 				      <property name="show_hidden">False</property>
+				      <property name="do_overwrite_confirmation">False</property>
 				      <property name="width_chars">-1</property>
 				    </widget>
 				    <packing>
@@ -2063,7 +2067,7 @@
 			  <child>
 			    <widget class="GtkLabel" id="label26">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">    </property>
+			      <property name="label">    </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -2263,7 +2267,7 @@
 			  <child>
 			    <widget class="GtkLabel" id="label25">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">    </property>
+			      <property name="label">    </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>
