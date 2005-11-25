@@ -49,11 +49,11 @@ static gboolean opt_noplugins = FALSE;
 static gchar *opt_cfgdir = NULL;
 
 static GOptionEntry entries[] = {
-	{"cfgdir",     'd', 0, G_OPTION_ARG_FILENAME, &opt_cfgdir,           "Use directory instead of the default config dir", "directory"},
-	{"no-auto",    'a', 0, G_OPTION_ARG_NONE,     &arg_dont_autoconnect, "Don't auto-connect to servers",                   NULL},
-	{"no-plugins", 'n', 0, G_OPTION_ARG_NONE,     &opt_noplugins,        "Don't auto-load plugins",                         NULL},
-	{"url",        'u', 0, G_OPTION_ARG_STRING,   &arg_url,              "Open an irc:// url",                              "irc://server:port/channel"},
-	{"version",    'v', 0, G_OPTION_ARG_NONE,     &opt_version,          "Show version information",                        NULL},
+	{"cfgdir",     'd', 0, G_OPTION_ARG_FILENAME, &opt_cfgdir,           N_("Use directory instead of the default config dir"), "directory"},
+	{"no-auto",    'a', 0, G_OPTION_ARG_NONE,     &arg_dont_autoconnect, N_("Don't auto-connect to servers"),                   NULL},
+	{"no-plugins", 'n', 0, G_OPTION_ARG_NONE,     &opt_noplugins,        N_("Don't auto-load plugins"),                         NULL},
+	{"url",        'u', 0, G_OPTION_ARG_STRING,   &arg_url,              N_("Open an irc:// url"),                              "irc://server:port/channel"},
+	{"version",    'v', 0, G_OPTION_ARG_NONE,     &opt_version,          N_("Show version information"),                        NULL},
 };
 
 int
@@ -69,7 +69,7 @@ fe_args (int argc, char *argv[])
 #endif
 
 	context = g_option_context_new ("");
-	g_option_context_add_main_entries (context, entries, NULL);	/* FIXME - set translation domain */
+	g_option_context_add_main_entries (context, entries, GETTEXT_PACKAGE);
 
 	gnome_program_init (PACKAGE, VERSION,
 	                    LIBGNOMEUI_MODULE, argc, argv,

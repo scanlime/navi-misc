@@ -144,7 +144,7 @@ navigation_tree_init (NavTree *navtree)
 	navtree->model = NULL;
 	navtree->selection_changed_id = 0;
 
-	action_group = gtk_action_group_new ("MenuAction");
+	action_group = gtk_action_group_new ("NavigationContext");
 	gtk_action_group_add_actions (action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
 	gtk_action_group_add_toggle_actions (action_group, toggle_action_entries, G_N_ELEMENTS (toggle_action_entries), NULL);
 	gtk_action_group_set_translation_domain (action_group, GETTEXT_PACKAGE);
