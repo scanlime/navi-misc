@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include <gconf/gconf-client.h>
 #include "preferences-page-networks.h"
 #include "preferences-dialog.h"

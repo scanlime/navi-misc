@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include "gui.h"
 #include "main-window.h"
 #include "preferences-dialog.h"

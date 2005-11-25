@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include <gnome.h>
 #include "userlist-gui.h"
 #include "pixmaps.h"

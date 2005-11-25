@@ -20,8 +20,8 @@
  */
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include <string.h>
-#include <libgnome/gnome-i18n.h>
 #include <libgnome/libgnome.h>
 #include <gconf/gconf-client.h>
 #include <gtk/gtk.h>

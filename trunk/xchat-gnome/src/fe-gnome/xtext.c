@@ -39,6 +39,7 @@
 #define WORDWRAP_LIMIT 24
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>

@@ -7,7 +7,7 @@
  */
 
 #include <config.h>
-
+#include <glib/gi18n.h>
 #include <libintl.h>
 #include <string.h>
 #include <gtk/gtk.h>

@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include <glib.h>
 #include <gnome.h>
 #include <libgnomevfs/gnome-vfs.h>
@@ -94,6 +95,12 @@ void
 fe_init (void)
 {
 	gnome_vfs_init ();
+
+#ifdef ENABLE_NLS
+	bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	textdomain (GETTEXT_PACKAGE);
+#endif
 
 	u = userlist_new ();
 	gui.quit = FALSE;
