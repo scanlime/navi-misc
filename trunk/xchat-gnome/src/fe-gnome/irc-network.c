@@ -24,6 +24,7 @@
 #include "irc-network.h"
 #include "navigation-tree.h"
 #include "gui.h"
+#include "../common/server.h"
 
 const char *encodings[] =
 {
@@ -191,7 +192,8 @@ irc_network_save (IrcNetwork *network)
 	}
 	for (s = network->servers; s; s = g_slist_next (s)) {
 		ircserver *is = s->data;
-		servlist_server_add (net, is->hostname);
+		if (!(is == NULL || is->hostname == NULL))
+			servlist_server_add (net, is->hostname);
 	}
 
 	servlist_save ();
