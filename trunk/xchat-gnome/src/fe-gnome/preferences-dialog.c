@@ -22,7 +22,6 @@
 #include <config.h>
 #include <glib/gi18n.h>
 #include "preferences-dialog.h"
-#include "preferences-keybindings-page.h"
 #include "pixmaps.h"
 
 static GtkDialogClass *parent_class;
