@@ -10,7 +10,7 @@
 
 #include "xchat-plugin.h"
 
-#define VERSION "0.2"
+#define PVERSION "0.2"
 
 #define URLREGEX "(ht|f)tps?://[~a-z0-9./_=#%&?,-]+[a-z0-9]+"
 #define EMAILREGEX "[a-z0-9.+_-]+@([0-9a-z-]+\\.)+[a-z]+"
@@ -24,9 +24,10 @@ static gboolean timestamps;	// Show timestamps?
 static GtkWidget *window;
 static GtkListStore *list_store;
 
-void url_open (GtkTreeView *treeview, GtkTreePath *path,
-		GtkTreeViewColumn *column, gpointer user_data);
-
+void url_open (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data);
+void xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved);
+int xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg);
+int xchat_plugin_deinit (void);
 
 static gboolean delete_cb (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
@@ -152,7 +153,7 @@ void xchat_plugin_get_info (char **plugin_name,
 {
 	*plugin_name = "URL Scraper";
 	*plugin_desc = "Grabs URLs and puts them in a separate window for easy viewing.";
-	*plugin_version = VERSION;
+	*plugin_version = PVERSION;
 
 	if (reserved)
 		*reserved = NULL;
@@ -217,7 +218,7 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 	return 1;
 }
 
-int xchat_plugin_deinit ()
+int xchat_plugin_deinit (void)
 {
 	gtk_widget_destroy (window);
 

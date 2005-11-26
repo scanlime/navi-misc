@@ -27,7 +27,7 @@
 #include "../common/xchatc.h"
 
 gboolean
-preferences_exist ()
+preferences_exist (void)
 {
 	GConfClient *client;
 	char *text;
@@ -48,7 +48,7 @@ preferences_exist ()
 }
 
 void
-load_preferences ()
+load_preferences (void)
 {
 	GConfClient *client;
 	int color_scheme, palette_scheme;
@@ -89,7 +89,7 @@ load_preferences ()
 	g_object_unref (client);
 }
 
-void set_version ()
+void set_version (void)
 {
 	GConfClient *client;
 

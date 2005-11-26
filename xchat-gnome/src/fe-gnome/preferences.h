@@ -26,8 +26,8 @@
 #ifndef XCHAT_GNOME_PREFERENCES_H
 #define XCHAT_GNOME_PREFERENCES_H
 
-gboolean preferences_exist ();
-void load_preferences ();
-void set_version ();
+gboolean preferences_exist (void);
+void load_preferences (void);
+void set_version (void);
 
 #endif

@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include <glib/gi18n.h>
+#include <string.h>
 #include <libgnome/gnome-url.h> /* gnome_url_show */
 #include <gconf/gconf-client.h>
 #ifdef HAVE_LIBSEXY
@@ -104,7 +105,7 @@ static GtkTargetEntry target_table[] = {
 
 
 void
-initialize_text_gui ()
+initialize_text_gui (void)
 {
 	GtkWidget *frame, *scrollbar;
 	GConfClient *client;
@@ -264,7 +265,7 @@ text_gui_remove_text_buffer (struct session *sess)
 	sess->gui = NULL;
 }
 
-void
+static void
 text_gui_print_line (xtext_buffer *buf, unsigned char *text, int len, gboolean indent)
 {
 	int leftlen;

@@ -34,6 +34,12 @@
 
 #define NOTIFICATION_VERSION "0.1"
 
+void xchat_plugin_get_info   (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved);
+int  xchat_plugin_init       (xchat_plugin *plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg);
+int  xchat_plugin_deinit     (void);
+int  xchat_gnome_plugin_init (xchat_gnome_plugin *xg_plugin);
+static gboolean add_channels_foreach_cb (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpointer data);
+
 /* Enumerated type of different status levels. */
 typedef enum
 {
@@ -124,7 +130,7 @@ notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer da
 
 
 /*** Utility Functions ***/
-gboolean
+static gboolean
 add_channels_foreach_cb (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpointer data)
 {
 	gchar* channel;
@@ -232,7 +238,7 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 }
 
 int
-xchat_plugin_deinit ()
+xchat_plugin_deinit (void)
 {
 	/* Disconnect the signal handlers. */
 	g_signal_handlers_disconnect_by_func (main_window, G_CALLBACK (got_focus_cb), NULL);

@@ -176,7 +176,7 @@ preferences_page_effects_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "Effects", 2, 2, -1);
 
 	page->image_preview = gtk_image_new ();
-	gtk_file_chooser_set_preview_widget (page->background_image_file, page->image_preview);
+	gtk_file_chooser_set_preview_widget (GTK_FILE_CHOOSER (page->background_image_file), page->image_preview);
 	g_signal_connect (G_OBJECT (page->background_image_file),   "update-preview",    G_CALLBACK (update_preview),       page);
 
 	g_signal_connect (G_OBJECT (page->background_none),         "toggled",           G_CALLBACK (type_changed),         page);

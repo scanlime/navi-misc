@@ -18,6 +18,7 @@
 
 #include <config.h>
 #include <glib/gi18n.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -210,7 +211,7 @@ load_palette (int selection)
 }
 
 void
-palette_init ()
+palette_init (void)
 {
 	int i, f, l;
 	int red, green, blue;
@@ -304,7 +305,7 @@ palette_init ()
 }
 
 void
-palette_save ()
+palette_save (void)
 {
 	int i, f;
 	char prefname[256];

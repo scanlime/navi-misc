@@ -30,6 +30,11 @@
 #define NOTIFY_OSD_VERSION     "0.1"
 #define NOTIFY_OSD_DESCRIPTION "Pops up notification of important messages when xchat doesn't have the focus"
 
+int  xchat_gnome_plugin_init (xchat_gnome_plugin *xg_plugin);
+void xchat_plugin_get_info   (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved);
+int  xchat_plugin_init       (xchat_plugin *plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg);
+int  xchat_plugin_deinit     (void);
+
 enum
 {
 	STRIP_COLORS = 1 << 0,
@@ -188,7 +193,8 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 }
 
 int
-xchat_plugin_deinit ()
+xchat_plugin_deinit (void)
 {
 	notify_icon_destroy (icon);
+	return TRUE;
 }

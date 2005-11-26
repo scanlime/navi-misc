@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include <glib/gi18n.h>
+#include <string.h>
 #include "util.h"
 
 void
@@ -65,7 +66,7 @@ gint gtk_tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTre
 		gtk_tree_model_get (model, a, 2, &ap, -1);
 		gtk_tree_model_get (model, b, 2, &bp, -1);
 
-		return (ap - bp);
+		return (GPOINTER_TO_UINT(ap) - GPOINTER_TO_UINT(bp));
 	}
 
 	return result;

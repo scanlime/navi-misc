@@ -221,7 +221,7 @@ static PyObject *Context_FromServerAndChannel(char *server, char *channel);
 
 static PyObject *Plugin_New(char *filename, PyMethodDef *xchat_methods,
 			    PyObject *xcoobj);
-static PyObject *Plugin_GetCurrent();
+static PyObject *Plugin_GetCurrent(void);
 static PluginObject *Plugin_ByString(char *str);
 static Hook *Plugin_AddHook(int type, PyObject *plugin, PyObject *callback,
 			    PyObject *userdata, void *data);
@@ -257,6 +257,10 @@ static void Command_PyUnload(char *name);
 static void Command_PyReload(char *name);
 static void Command_PyAbout();
 static int Command_Py(char *word[], char *word_eol[], void *userdata);
+
+void xchat_plugin_get_info(char **name, char **desc, char **version, void **reserved);
+int xchat_plugin_init(xchat_plugin *plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg);
+int xchat_plugin_deinit(void);
 
 /* ===================================================================== */
 /* Static declarations and definitions */
@@ -1164,7 +1168,7 @@ error:
 }
 
 static PyObject *
-Plugin_GetCurrent()
+Plugin_GetCurrent(void)
 {
 	PyObject *plugin;
 	plugin = PySys_GetObject("__plugin__");
@@ -2112,7 +2116,7 @@ xchat_plugin_init(xchat_plugin *plugin_handle,
 }
 
 int
-xchat_plugin_deinit()
+xchat_plugin_deinit(void)
 {
 	GSList *list;
 
