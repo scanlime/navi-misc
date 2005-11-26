@@ -28,11 +28,17 @@
 	  fix this, we need new icons that have distinct silhouettes. This art would
 	  be useful to the main XChat line as well, since it suffers from the same problem.</p>
         </div>
-	<div class="section-title">Documentation Love</div>
+	<div class="section-title">Documentation &amp; Translation Love</div>
 	<div class="section">
-	  <b>Anything, really</b><br />
+	  <b>Help document</b><br />
 	  <p>xchat-gnome now has a basic help manual, but it is by no means complete.
 	  In addition to this, more documentation on the web site would be helpful.</p>
+	  <b>Web pages</b><br />
+	  <p>xchat-gnome's web page is nice, but doesn't have a whole lot of information.</p>
+	  <b>Translation</b><br />
+	  <p>As of 0.8svn, xchat-gnome can finally be localized.  So far we have part of
+	  a French translation.  Having full language coverage would be amazing, so if you're
+	  capable of providing a translation, please do!</p>
 	</div>
 	<div class="section-title">Easy Hackery Love</div>
 	<div class="section">
@@ -41,6 +47,11 @@
 	  would be nice if the most important widgets in the xchat-gnome interface
 	  were given a11y metadata in the glade file. This can be pretty easily done
 	  in chunks - updating just a few widgets would be better than what we have now.</p><br />
+	  <b>Non-english spell-checking</b><br />
+	  <p>SexySpellEntry includes the ability to use non-english dictionaries, but
+	  xchat-gnome doesn't take advantage of this.  Probably the first step is to just
+	  include the user's locale.
+	  See <a href="http://bugzilla.gnome.org/show_bug.cgi?id=321042">Bug #321042</a>.</p>
 	</div>
 	<div class="section-title">Mid-Level Hackery Love</div>
 	<div class="section">
@@ -49,6 +60,10 @@
 	  of networks along with a description (and maybe logo) of the currently selected
 	  network.  Gnomechat had this the last time I tried it, and it might still.  This
 	  may require some changes to the xchat core.</p>
+	  <b>Channel list filtering</b><br />
+	  <p>See <a href="http://bugzilla.gnome.org/show_bug.cgi?id=321326">Bug #321326</a>.</p>
+	  <b>Get FG/BG colors from gnome theme</b>
+	  <p>See <a href="http://bugzilla.gnome.org/show_bug.cgi?id=172168">Bug #172168</a>.</p>
 	</div>
 	<div class="section-title">Difficult Hackery Love</div>
 	<div class="section">
