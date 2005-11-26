@@ -223,12 +223,12 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	else
 		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/color.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "Colors", 2, 1, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Colors"), 2, 1, -1);
 
 	page->combo = gtk_combo_box_new_text ();
-	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), "Black on White");
-	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), "White on Black");
-	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), "Custom");
+	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), _("Black on White"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), _("White on Black"));
+	gtk_combo_box_append_text (GTK_COMBO_BOX (page->combo), _("Custom"));
 	gtk_widget_show (page->combo);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (page->color_label_1), page->combo);
 	gtk_box_pack_start (GTK_BOX (page->foreground_background_hbox), page->combo, FALSE, TRUE, 0);
