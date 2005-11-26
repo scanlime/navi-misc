@@ -34,8 +34,6 @@ xchat_gnome_SOURCES =				\
 	connect-dialog.h			\
 	dcc-window.c				\
 	dcc-window.h				\
-	eggaccelerators.c			\
-	eggaccelerators.h			\
 	fe-gnome.c				\
 	gui.c					\
 	gui.h					\
