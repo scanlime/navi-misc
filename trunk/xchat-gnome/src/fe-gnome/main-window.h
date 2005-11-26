@@ -29,5 +29,6 @@ void run_main_window        (void);
 void rename_main_window     (gchar *server, gchar *channel);
 void set_statusbar          (void);
 void save_transcript        (void);
+void close_find_button      (GtkWidget *button, gpointer data);
 
 #endif

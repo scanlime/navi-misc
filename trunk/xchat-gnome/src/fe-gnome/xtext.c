@@ -1119,7 +1119,7 @@ gtk_xtext_size_allocate (GtkWidget * widget, GtkAllocation * allocation)
 	}
 }
 
-static void
+void
 gtk_xtext_selection_clear_full (xtext_buffer *buf)
 {
 	textentry *ent = buf->text_first;

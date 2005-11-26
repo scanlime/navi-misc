@@ -1062,6 +1062,9 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	if (gui.server_tree->current_path != NULL)
 		navigation_model_path_deref (gui.server_tree->model, gui.server_tree->current_path);
 
+	/* If find bar is open, hide it */
+	close_find_button (NULL, NULL);
+
 	/* XXX: This sets model to be the GtkTreeModelSort used by the NavTree, it is
 	 *      not a GtkTreeModel. The iter is for that ModelSort.
 	 */
