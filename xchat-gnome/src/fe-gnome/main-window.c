@@ -98,7 +98,6 @@ static gboolean on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer
 static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 
 static void entry_context (GtkEntry *entry, GtkMenu *menu, gpointer user_data);
-static GtkActionEntry *find_action_entry (gchar *name);
 void setup_menu_item (GConfClient *client, GtkActionEntry *entry);
 
 static GtkActionEntry action_entries [] = {
@@ -155,18 +154,6 @@ static GtkActionEntry action_entries [] = {
 
 static GCompletion *command_completion;
 
-static GtkActionEntry *
-find_action_entry (gchar *name)
-{
-	guint i;
-
-	for (i = 0; i < G_N_ELEMENTS (action_entries); i++)
-		if (strcmp (name, action_entries[i].name) == 0)
-			return &action_entries[i];
-
-	return NULL;
-}
-
 void
 save_transcript (void)
 {
@@ -210,7 +197,7 @@ save_transcript (void)
 	gtk_widget_destroy (file_chooser);
 }
 
-static void
+void
 close_find_button (GtkWidget *button, gpointer data)
 {
 	GtkWidget *widget;
@@ -220,6 +207,9 @@ close_find_button (GtkWidget *button, gpointer data)
 
 	widget = glade_xml_get_widget (gui.xml, "find_status_label");
 	gtk_label_set_text (GTK_LABEL (widget), "");
+
+	gtk_xtext_selection_clear_full (gui.xtext->buffer);
+	gtk_xtext_refresh (gui.xtext, TRUE);
 }
 
 static gboolean
