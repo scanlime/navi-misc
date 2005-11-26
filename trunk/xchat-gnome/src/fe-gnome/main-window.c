@@ -426,14 +426,14 @@ initialize_main_window ()
 
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
 	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",
-			  G_CALLBACK (on_main_window_close), NULL);
+	                  G_CALLBACK (on_main_window_close), NULL);
 
 	/* hook up the menus */
 	gui.action_group = gtk_action_group_new ("MenuAction");
-	gtk_action_group_set_translation_domain (gui.action_group, GETTEXT_PACKAGE);
-//	gtk_action_group_add_actions (action_group, action_entries,
-//				      G_N_ELEMENTS (action_entries), NULL);
-	setup_menu ();
+	gtk_action_group_set_translation_domain (gui.action_group, NULL);
+	gtk_action_group_add_actions (gui.action_group, action_entries,
+	                              G_N_ELEMENTS (action_entries), NULL);
+//	setup_menu ();
 //	initialize_gconf_accels();
 
 	gui.manager = gtk_ui_manager_new ();
