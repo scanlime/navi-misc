@@ -92,6 +92,14 @@ AM_CONDITIONAL([ENABLE_LIBNOTIFY],[test "x$libnotify" = "xyes"])
 AM_GCONF_SOURCE_2
 AC_PATH_PROG(GCONFTOOL, gconftool-2, no)
 
+# SOCKS5
+AC_CHECK_LIB(socks5, SOCKSconnect, have_socks=yes, have_socks=no)
+AC_CHECK_HEADERS(socks.h, , have_socks=no)
+if test "x$have_socks" = xyes; then
+	AC_DEFINE(SOCKS, [], [Whether to include SOCKS5 proxy support])
+	DEPENDENCIES_LIBS="$DEPENDENCIES_LIBS -lsocks5"
+fi
+
 # Python
 AC_MSG_CHECKING([whether Python support is requested])
 AC_ARG_ENABLE([python],
