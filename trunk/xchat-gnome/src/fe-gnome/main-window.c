@@ -98,6 +98,8 @@ static gboolean on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer
 static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 
 static void entry_context (GtkEntry *entry, GtkMenu *menu, gpointer user_data);
+static GtkActionEntry *find_action_entry (gchar *name);
+void setup_menu_item (GConfClient *client, GtkActionEntry *entry);
 
 static GtkActionEntry action_entries [] = {
 
@@ -153,7 +155,7 @@ static GtkActionEntry action_entries [] = {
 
 static GCompletion *command_completion;
 
-GtkActionEntry *
+static GtkActionEntry *
 find_action_entry (gchar *name)
 {
 	guint i;
@@ -166,11 +168,11 @@ find_action_entry (gchar *name)
 }
 
 void
-save_transcript ()
+save_transcript (void)
 {
 	GtkWidget *file_chooser;
 
-	file_chooser = gtk_file_chooser_dialog_new ("Save Transcript",
+	file_chooser = gtk_file_chooser_dialog_new (_("Save Transcript"),
 	                                            GTK_WINDOW (gui.main_window),
 	                                            GTK_FILE_CHOOSER_ACTION_SAVE,
 	                                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -187,7 +189,7 @@ save_transcript ()
 		filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_chooser));
 		file = g_io_channel_new_file (filename, "w", &error);
 		if (error) {
-			gchar *header = g_strdup_printf ("Error saving %s", filename);
+			gchar *header = g_strdup_printf (_("Error saving %s"), filename);
 			error_dialog (header, error->message);
 			g_free (header);
 			g_error_free (error);
@@ -197,7 +199,7 @@ save_transcript ()
 			g_io_channel_shutdown (file, TRUE, &error);
 
 			if (error) {
-				gchar *header = g_strdup_printf ("Error saving %s", filename);
+				gchar *header = g_strdup_printf (_("Error saving %s"), filename);
 				error_dialog (header, error->message);
 				g_free (header);
 				g_error_free (error);
@@ -303,8 +305,8 @@ setup_menu_item (GConfClient *client, GtkActionEntry *entry)
 	gconf_entry_free (e);
 }
 
-void
-setup_menu ()
+static void
+setup_menu (void)
 {
 	GConfClient *client;
 	guint i;
@@ -416,7 +418,7 @@ url_activated (GtkWidget *url_label, const char *url, gpointer data)
 #endif
 
 void
-initialize_main_window ()
+initialize_main_window (void)
 {
 	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget, *widget2;
 	GtkSizeGroup *group;
