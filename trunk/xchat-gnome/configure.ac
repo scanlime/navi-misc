@@ -78,7 +78,9 @@ PKG_CHECK_MODULES([LIBSEXY], [libsexy >= $LIBSEXY_REQUIRED], libsexy=yes, libsex
 AC_SUBST([LIBSEXY_CFLAGS])
 AC_SUBST([LIBSEXY_LIBS])
 AM_CONDITIONAL([ENABLE_LIBSEXY],[test "x$libsexy" = "xyes"])
-AC_DEFINE(HAVE_LIBSEXY, 1, [Enable libsexy])
+if test "x$libsexy" = xyes; then
+	AC_DEFINE(HAVE_LIBSEXY, 1, [Enable libsexy])
+fi
 
 # libnotify soft dependency
 PKG_CHECK_MODULES([LIBNOTIFY], [libnotify], libnotify=yes, libnotify=no)
