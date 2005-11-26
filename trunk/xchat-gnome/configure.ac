@@ -61,8 +61,6 @@ PKG_CHECK_MODULES([DEPENDENCIES], [\
                   libgnomeui-2.0 >= $LIBGNOMEUI_REQUIRED \
                   gconf-2.0 >= $GCONF_REQUIRED \
                   ])
-AC_SUBST([DEPENDENCIES_CFLAGS])
-AC_SUBST([DEPENDENCIES_LIBS])
 
 # D-BUS soft dependency
 PKG_CHECK_MODULES([DBUS], [dbus-glib-1 >= $DBUS_GLIB_REQUIRED], dbus=yes, dbus=no)
@@ -180,6 +178,27 @@ AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[Gettext package])
 AM_GLIB_GNU_GETTEXT
 AM_GLIB_DEFINE_LOCALEDIR([GNOMELOCALEDIR])
 
+# ipv6
+AC_CHECK_LIB(socket, select)
+
+AC_CHECK_FUNCS(getaddrinfo, have_getaddrinfo=yes)
+AC_MSG_CHECKING(whether to enable IPv6 support)
+if test "x$have_getaddrinfo" = xyes; then
+	AC_MSG_RESULT(yes)
+	AC_DEFINE(USE_IPV6, [], [Whether to use ipv6])
+else
+	AC_MSG_RESULT(no)
+fi
+
+# Xshm (for xtext tinting)
+AC_CHECK_LIB(Xext, XShmAttach, shm=yes, shm=no)
+AC_CHECK_HEADERS(sys/ipc.h, , shm=no)
+AC_CHECK_HEADERS(sys/shm.h, , shm=no)
+if test "x$shm" = xyes; then
+	DEPENDENCIES_LIBS="$DEPENDENCIES_LIBS -lX11 -lXext"
+	AC_DEFINE(USE_SHM, [], [Whether to use Xshm tinting])
+fi
+
 # MMX (for xtext tinting)
 AC_ARG_ENABLE(mmx,
 [  --disable-mmx           disable MMX assembly routines],
@@ -283,7 +302,10 @@ AM_CFLAGS="$AM_CFLAGS $WARN_CFLAGS $MORE_WARN_FLAGS"
 AC_SUBST([AM_CPPFLAGS])
 AC_SUBST([AM_CFLAGS])
 
+# various and sundry defines and flags
 AC_DEFINE(_GNU_SOURCE, [], [Use GNU source])
+AC_SUBST([DEPENDENCIES_CFLAGS])
+AC_SUBST([DEPENDENCIES_LIBS])
 
 AC_CONFIG_FILES([
 Makefile
