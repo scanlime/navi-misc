@@ -1117,19 +1117,15 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		else
 			gtk_widget_set_sensitive (menuitem, sess->type == SESS_CHANNEL);
 		button = glade_xml_get_widget (gui.xml, "close discussion");
-		if (sess->type != SESS_SERVER)
-			gtk_widget_set_sensitive (button, TRUE);
-		else
-			gtk_widget_set_sensitive (button, FALSE);
+		gtk_widget_set_sensitive (button, sess->type != SESS_SERVER);
 
 		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionUsersItem");
-		if (sess->type == SESS_CHANNEL) {
-			gtk_widget_set_sensitive (gui.userlist_toggle, TRUE);
-			gtk_widget_set_sensitive (menuitem,            TRUE);
-		} else {
-			gtk_widget_set_sensitive (gui.userlist_toggle, FALSE);
-			gtk_widget_set_sensitive (menuitem,            FALSE);
-		}
+		gtk_widget_set_sensitive (menuitem, sess->type != SESS_SERVER);
+		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionLeaveItem");
+		gtk_widget_set_sensitive (menuitem, sess->type != SESS_SERVER);
+		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionCloseItem");
+		gtk_widget_set_sensitive (menuitem, sess->type != SESS_SERVER);
+		gtk_widget_set_sensitive (gui.userlist_toggle, sess->type != SESS_SERVER);
 
 
 		/* remove any icon that exists */
