@@ -24,10 +24,10 @@
 #ifndef XCHAT_GNOME_MAIN_WINDOW_H
 #define XCHAT_GNOME_MAIN_WINDOW_H
 
-void initialize_main_window ();
-void run_main_window ();
-void rename_main_window (gchar *server, gchar *channel);
-void set_statusbar ();
-void save_transcript ();
+void initialize_main_window (void);
+void run_main_window        (void);
+void rename_main_window     (gchar *server, gchar *channel);
+void set_statusbar          (void);
+void save_transcript        (void);
 
 #endif
