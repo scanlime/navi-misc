@@ -913,3 +913,9 @@ fe_server_event (server *serv, int type, int arg)
 {
 	/* FIXME: implement? */
 }
+
+void
+fe_userlist_set_selected (struct session *sess)
+{
+	/* FIXME: implement? */
+}
