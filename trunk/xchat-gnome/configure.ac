@@ -192,7 +192,12 @@ else
 	AC_MSG_RESULT(no)
 fi
 
-# Xshm (for xtext tinting)
+# Xlib & Xshm (for xtext tinting)
+AC_CHECK_LIB(X11, XOpenDisplay, xlib=yes, xlib=no)
+if test "x$xlib" = xyes; then
+	AC_DEFINE(USE_XLIB, [], [Use Xlib])
+fi
+
 AC_CHECK_LIB(Xext, XShmAttach, shm=yes, shm=no)
 AC_CHECK_HEADERS(sys/ipc.h, , shm=no)
 AC_CHECK_HEADERS(sys/shm.h, , shm=no)
