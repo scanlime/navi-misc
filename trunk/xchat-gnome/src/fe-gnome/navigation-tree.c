@@ -146,9 +146,9 @@ navigation_tree_init (NavTree *navtree)
 	navtree->selection_changed_id = 0;
 
 	action_group = gtk_action_group_new ("NavigationContext");
+	gtk_action_group_set_translation_domain (action_group, GETTEXT_PACKAGE);
 	gtk_action_group_add_actions (action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
 	gtk_action_group_add_toggle_actions (action_group, toggle_action_entries, G_N_ELEMENTS (toggle_action_entries), NULL);
-	gtk_action_group_set_translation_domain (action_group, GETTEXT_PACKAGE);
 	gtk_ui_manager_insert_action_group (gui.manager, action_group, 0);
 	g_object_unref (action_group);
 
@@ -1147,7 +1147,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 
 			/* Set the text entry field to whatever is in the text entry of this session. */
 			gtk_entry_set_text (GTK_ENTRY (gui.text_entry), tgui->entry);
-			gtk_entry_set_position (GTK_ENTRY (gui.text_entry), -1);
+			gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), -1);
 		} else {
 			/* If there's no gui for the new session make sure the entry is empty
 			 * and then return.
