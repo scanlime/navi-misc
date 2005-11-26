@@ -1121,10 +1121,15 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 			gtk_widget_set_sensitive (button, TRUE);
 		else
 			gtk_widget_set_sensitive (button, FALSE);
-		if (sess->type == SESS_CHANNEL)
+
+		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionUsersItem");
+		if (sess->type == SESS_CHANNEL) {
 			gtk_widget_set_sensitive (gui.userlist_toggle, TRUE);
-		else
+			gtk_widget_set_sensitive (menuitem,            TRUE);
+		} else {
 			gtk_widget_set_sensitive (gui.userlist_toggle, FALSE);
+			gtk_widget_set_sensitive (menuitem,            FALSE);
+		}
 
 
 		/* remove any icon that exists */
