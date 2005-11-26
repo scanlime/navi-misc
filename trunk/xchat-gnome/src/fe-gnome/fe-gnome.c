@@ -104,6 +104,8 @@ fe_args (int argc, char *argv[])
 void
 fe_init (void)
 {
+	gchar *accel_map;
+
 	gnome_vfs_init ();
 
 	u = userlist_new ();
@@ -133,6 +135,11 @@ fe_init (void)
 	 */
 	arg_skip_plugins = 1;
 
+	accel_map = g_strdup_printf ("%s%c%s", get_xdir_fs (), G_DIR_SEPARATOR, "accelerator_map");
+	if (g_file_test (accel_map, G_FILE_TEST_EXISTS))
+		gtk_accel_map_load (accel_map);
+	g_free (accel_map);
+
 #ifdef USE_PLUGIN
 	plugins_initialize ();
 #endif
@@ -155,7 +162,11 @@ fe_main (void)
 void
 fe_cleanup (void)
 {
-	/* FIXME: implement */
+	gchar *accel_map;
+
+	accel_map = g_strdup_printf ("%s%c%s", get_xdir_fs (), G_DIR_SEPARATOR, "accelerator_map");
+	gtk_accel_map_save (accel_map);
+	g_free (accel_map);
 }
 
 void
