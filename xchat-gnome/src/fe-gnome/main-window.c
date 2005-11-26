@@ -430,6 +430,7 @@ initialize_main_window ()
 
 	/* hook up the menus */
 	gui.action_group = gtk_action_group_new ("MenuAction");
+	gtk_action_group_set_translation_domain (gui.action_group, GETTEXT_PACKAGE);
 //	gtk_action_group_add_actions (action_group, action_entries,
 //				      G_N_ELEMENTS (action_entries), NULL);
 	setup_menu ();
@@ -437,7 +438,6 @@ initialize_main_window ()
 
 	gui.manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (gui.manager, gui.action_group, 0);
-	gtk_action_group_set_translation_domain (gui.action_group, GETTEXT_PACKAGE);
 
 	menu_vbox = glade_xml_get_widget (gui.xml, "menu_vbox");
 	g_signal_connect (gui.manager, "add-widget", G_CALLBACK (on_add_widget), menu_vbox);
