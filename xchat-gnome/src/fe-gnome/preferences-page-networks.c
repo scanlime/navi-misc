@@ -168,7 +168,7 @@ preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml)
 	else
 		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/servers.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "Networks", 2, 4, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Networks"), 2, 4, -1);
 
 	page->network_store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_POINTER);
 	page->sort_model = GTK_TREE_MODEL_SORT (gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (page->network_store)));
@@ -176,7 +176,7 @@ preferences_page_networks_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_tree_view_set_model (GTK_TREE_VIEW (page->network_list), GTK_TREE_MODEL (page->sort_model));
 
 	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes ("Name", renderer, "text", 0, NULL);
+	column = gtk_tree_view_column_new_with_attributes (_("Name"), renderer, "text", 0, NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (page->network_list), column);
 
 	g_signal_connect (G_OBJECT (page->network_list),   "row-activated", G_CALLBACK (edit_activated), page);

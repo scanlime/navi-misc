@@ -173,7 +173,7 @@ preferences_page_effects_new (gpointer prefs_dialog, GladeXML *xml)
 	else
 		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/effects.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
-	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, "Effects", 2, 2, -1);
+	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Effects"), 2, 2, -1);
 
 	page->image_preview = gtk_image_new ();
 	gtk_file_chooser_set_preview_widget (GTK_FILE_CHOOSER (page->background_image_file), page->image_preview);
