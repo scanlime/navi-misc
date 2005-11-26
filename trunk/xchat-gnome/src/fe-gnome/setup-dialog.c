@@ -33,7 +33,7 @@ static gboolean done;
 static void ok_clicked (GtkButton *button, gpointer data);
 static void entry_changed (GtkEditable *entry, gpointer user_data);
 
-void run_setup_dialog ()
+void run_setup_dialog (void)
 {
 	GtkSizeGroup *group;
 	GtkWidget *window;

@@ -32,6 +32,10 @@
 #define DBUS_SERVICE "org.xchat.service"
 #define DBUS_OBJECT "/org/xchat/RemoteObject"
 
+void xchat_plugin_get_info(char **name, char **desc, char **version, void **reserved);
+int  xchat_plugin_deinit(void);
+int  xchat_plugin_init(xchat_plugin *plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg);
+
 typedef struct RemoteObject RemoteObject;
 typedef struct RemoteObjectClass RemoteObjectClass;
 
@@ -301,7 +305,7 @@ xchat_plugin_get_info(char **name, char **desc, char **version, void **reserved)
 }
 
 int
-xchat_plugin_deinit()
+xchat_plugin_deinit(void)
 {
   g_hash_table_destroy (hook_hash_table);
   /* TODO: Close all D-BUS stuff */

@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include <glib/gi18n.h>
+#include <string.h>
 #include "preferences-page-dcc.h"
 #include "preferences-dialog.h"
 #include "../common/xchat.h"

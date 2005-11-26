@@ -165,7 +165,7 @@ preferences_dialog_get_type (void)
 }
 
 PreferencesDialog *
-preferences_dialog_new ()
+preferences_dialog_new (void)
 {
 	PreferencesDialog *p = g_object_new (preferences_dialog_get_type (), 0);
 	if (p->toplevel == NULL) {

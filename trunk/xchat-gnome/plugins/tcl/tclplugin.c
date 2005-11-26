@@ -41,6 +41,9 @@ static char RCSID[] = "$Id: tclplugin.c,v 1.59 2005/08/11 02:37:55 mooooooo Exp 
 #include "tclplugin.h"
 #include "printevents.h"
 
+int xchat_plugin_deinit(void);
+void xchat_plugin_get_info(char **name, char **desc, char **version, void **reserved);
+
 static int nexttimerid = 0;
 static int nexttimerindex = 0;
 static timer timers[MAX_TIMERS];
@@ -2186,7 +2189,7 @@ int xchat_plugin_init(xchat_plugin * plugin_handle, char **plugin_name, char **p
     return 1;                   /* return 1 for success */
 }
 
-int xchat_plugin_deinit()
+int xchat_plugin_deinit(void)
 {
     if (reinit_tried) {
         reinit_tried--;

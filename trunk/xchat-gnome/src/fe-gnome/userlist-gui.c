@@ -31,13 +31,14 @@
 #include "../common/outbound.h"
 
        gboolean userlist_click              (GtkWidget *view, GdkEventButton *event, gpointer data);
-       void userlist_context                (GtkWidget *treeview, struct User *user);
+       void     userlist_context            (GtkWidget *treeview, struct User *user);
 static gint     user_cmd                    (gchar *cmd, gchar *nick);
-static void     userlist_grab               ();
+static void     userlist_grab               (void);
 static gboolean userlist_window_event       (GtkWidget *window, GdkEvent *event, gpointer data);
 static gboolean userlist_window_grab_broken (GtkWidget *window, GdkEventGrabBroken *event, gpointer data);
 static void     userlist_popup_deactivate   (GtkMenuShell *menu, gpointer data);
 static gboolean userlist_button_release     (GtkWidget *widget, GdkEventButton *button, gpointer data);
+struct User*    userlist_get_selected       (void);
 
 /* action callbacks */
 static void user_send_file_activate   (GtkAction *action, gpointer data);
@@ -59,7 +60,7 @@ static gboolean  have_grab = FALSE;
 static gint      grab_menu_handler = 0;
 
 void
-initialize_userlist ()
+initialize_userlist (void)
 {
 	GtkCellRenderer *icon_renderer, *text_renderer;
 	GtkTreeViewColumn *icon_column, *text_column;
@@ -87,7 +88,7 @@ initialize_userlist ()
 }
 
 struct User*
-userlist_get_selected ()
+userlist_get_selected (void)
 {
 	GtkTreeSelection *select;
 	GtkTreeModel *model;
@@ -210,7 +211,7 @@ user_ignore_activate (GtkAction *action, gpointer data)
 }
 
 void
-userlist_gui_show ()
+userlist_gui_show (void)
 {
 	gint screen_width, screen_height;
 	gint desired_height;
@@ -259,7 +260,7 @@ userlist_gui_show ()
 }
 
 void
-userlist_gui_hide ()
+userlist_gui_hide (void)
 {
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gui.userlist_toggle), FALSE);
 	if (have_grab) {
@@ -297,7 +298,7 @@ userlist_window_grab_broken (GtkWidget *window, GdkEventGrabBroken *event, gpoin
 }
 
 static void
-userlist_grab ()
+userlist_grab (void)
 {
 	if (have_grab)
 		return;

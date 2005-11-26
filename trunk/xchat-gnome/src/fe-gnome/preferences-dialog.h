@@ -67,7 +67,7 @@ struct _PreferencesDialogClass
 };
 
 GType              preferences_dialog_get_type (void) G_GNUC_CONST;
-PreferencesDialog *preferences_dialog_new ();
+PreferencesDialog *preferences_dialog_new (void);
 
 G_END_DECLS
 

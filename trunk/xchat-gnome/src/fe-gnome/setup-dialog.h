@@ -22,6 +22,6 @@
 #ifndef XCHAT_GNOME_SETUP_DIALOG_H
 #define XCHAT_GNOME_SETUP_DIALOG_H
 
-void run_setup_dialog ();
+void run_setup_dialog (void);
 
 #endif

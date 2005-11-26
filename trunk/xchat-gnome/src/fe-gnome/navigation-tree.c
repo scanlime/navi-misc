@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include <glib/gi18n.h>
+#include <string.h>
 #include <gconf/gconf-client.h>
 #include <gtk/gtk.h>
 #include "navigation-tree.h"

@@ -23,6 +23,7 @@
 #include <dbus/dbus-glib.h>
 #include <unistd.h>
 #include <glib/gi18n.h>
+#include <glib.h>
 
 #define DBUS_SERVICE "org.xchat.service"
 #define DBUS_OBJECT "/org/xchat/RemoteObject"
