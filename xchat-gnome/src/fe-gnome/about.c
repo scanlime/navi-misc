@@ -88,6 +88,7 @@ initialize_about_dialog ()
 		      "authors",     authors,
 		      "logo",        logo,
 		      "documenters", documenters,
+		      "translator-credits", _("translator-credits"),
 		      NULL);
 
 	if (logo)
