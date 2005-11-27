@@ -30,6 +30,7 @@ var lessonPlan
 var newBox
 var addField
 var focusCounter = 0
+var firstBox = true
 
 // Fields and their descriptions
 // Required fields
@@ -218,7 +219,7 @@ function createButton (mytr, name, tip, icon, onClick)
 	img = document.createElement ("img")
 	td.appendChild (img)
 	img.setAttribute ("src", icon)
-	
+
 	td1 = document.createElement ("td")
 	tr.appendChild (td1)
 	td1.appendChild (document.createTextNode (name))
@@ -244,7 +245,7 @@ function setupToolbar (plan)
 	tab = document.createElement ("table")
 	tr = document.createElement ("tr")
 
-	tr = createButton (tr, 
+	tr = createButton (tr,
 		"New Lesson",
 		"Create a new lesson and add it to the box.",
 		STOCK_NEW);
@@ -266,7 +267,7 @@ function setupToolbar (plan)
 		function (e) {addField = new AddFieldDlg ()})
 
 	tr = createButton (tr,
-		"Add Resource", 
+		"Add Resource",
 		"Upload a file into your box, or create a link to an external web resource.",
 		STOCK_REF)
 
@@ -285,21 +286,13 @@ function addField (name, field, removable, doMceReplace)
 	desc = field[FIELD_DESC]
 	type = field[FIELD_TYPE]
 
-	field = createField (name, desc, type, removable)
-	this.fields[field.id] = field
-	this.mainDiv.appendChild (field)
+	newField = createField (name, desc, type, removable)
+	this.fields[newField.id] = newField
+	this.mainDiv.appendChild (newField)
 
-	id = field.id
+	id = newField.id
 
-	if (type == TYPE_TEXTAREA && doMceReplace)
-	{
-		tinyMCE.execCommand ("mceAddControl", true, "mceReplaceMe" + id)
-		obj = document.getElementById ("mceReplaceMe" + id)
-		obj.style.margin = "20px"
-		obj.style.width = "90%"
-	}
-
-	return field
+	return newField
 }
 
 // Create a field and return it
@@ -343,7 +336,7 @@ function createField (name, desc, type, removable)
 			entry = document.createElement ("div")
 			entry.style.width = "90%"
 			entry.style.margin = "20px"
-			
+
 			textarea = document.createElement ("textarea")
 			entry.appendChild (textarea)
 			textarea.setAttribute ("rows", 10)
@@ -442,7 +435,7 @@ function NewBox ()
 		optionCheck.checked = false
 		optionCheck.fieldName = field
 		td.appendChild (optionCheck)
-		
+
 		td = document.createElement ("td")
 		td.setAttribute ("valign", "middle")
 		tr.appendChild (td)
@@ -534,15 +527,53 @@ function newBoxCreateButtonClicked ()
 
 	// Figure out which fields were selected and add them to the view
 	options = div.options
+	objectFields = new Array ()
+	var firstField = null
+
 	for (i in options)
 	{
 		if (options[i].myCheck.checked)
 		{
 			field = options[i].fieldName
-			lessonPlan.addField (field, optionalFields[field], true, true)
+			objField = lessonPlan.addField (field, optionalFields[field], true, true)
 			optionalFields[field][FIELD_USED] = true;
+			objectFields.push (objField.id)
+
+			// Create a second copy of this box to work around a bug in rendering the
+			// first dynamically generated text box
+			if (!firstField)
+			{
+				firstField = objField
+				objField2 = lessonPlan.addField (field, optionalFields[field], true, true)
+				objectFields.push (objField2.id)
+			}
 		}
 	}
+
+	for (id in objectFields)
+	{
+		objId = objectFields[id]
+
+		tinyMCE.execCommand ("mceAddControl", true, "mceReplaceMe" + objId)
+
+		obj = document.getElementById ("mceReplaceMe" + objId)
+		obj.style.margin = "20px"
+		obj.style.width = "90%"
+	}
+
+	// Delete the mis-rendered box.  Note that this has to be done in a timeout
+	// loop due to a bug in Firefox that would cause a crash if done immediately.
+	deleteBox = function ()
+	{
+		var mainDiv = document.getElementById ("mainDiv")
+
+		mainDiv.removeChild (lessonPlan.fields[firstField.id])
+		delete lessonPlan.fields[firstField.id]
+		firstBox = false
+	}
+
+	if (firstBox)
+		setTimeout (deleteBox, 100)
 }
 
 // Cancel button clicked
@@ -668,14 +699,34 @@ function addFieldCreateButtonClicked ()
 
 	// Figure out which fields were selected and add them to the view
 	options = div.options
+	objectFields = new Array ()
+
 	for (i in options)
 	{
 		if (options[i].selected)
 		{
 			field = div.options[i].fieldName
-			lessonPlan.addField (field, optionalFields[field], true, true)
+			objField = lessonPlan.addField (field, optionalFields[field], true, true)
+			objectFields.push (objField.id)
 			optionalFields[field][FIELD_USED] = true
 		}
+	}
+
+	for (id in objectFields)
+	{
+		objId = objectFields[id]
+
+		tinyMCE.execCommand ("mceAddControl", true, "mceReplaceMe" + objId)
+		if (firstBox)
+		{
+			tinyMCE.execCommand ("mceRemoveControl", false, "mceReplaceMe" + objId)
+			tinyMCE.execCommand ("mceAddControl", true, "mceReplaceMe" + objId)
+			firstBox = false
+		}
+
+		obj = document.getElementById ("mceReplaceMe" + objId)
+		obj.style.margin = "20px"
+		obj.style.width = "90%"
 	}
 }
 
