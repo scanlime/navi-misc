@@ -292,7 +292,12 @@ function addField (name, field, removable, doMceReplace)
 	id = field.id
 
 	if (type == TYPE_TEXTAREA && doMceReplace)
+	{
 		tinyMCE.execCommand ("mceAddControl", true, "mceReplaceMe" + id)
+		obj = document.getElementById ("mceReplaceMe" + id)
+		obj.style.margin = "20px"
+		obj.style.width = "90%"
+	}
 
 	return field
 }
@@ -320,7 +325,7 @@ function createField (name, desc, type, removable)
 	}
 
 	// Create the description tag
-	descTag = document.createElement ("span")
+	descTag = document.createElement ("div")
 	descTag.setAttribute ("class", "descriptionField")
 	descTag.appendChild (document.createTextNode (desc))
 
@@ -330,13 +335,20 @@ function createField (name, desc, type, removable)
 		case TYPE_ENTRY:
 			entry = document.createElement ("input")
 			entry.setAttribute ("type", "text")
-			entry.setAttribute ("style", "width: 100%;")
+			entry.style.width = "90%"
+			entry.style.margin = "20px"
+			entry.style.border = "thin solid #cccccc"
 			break
 		case TYPE_TEXTAREA:
-			entry = document.createElement ("textarea")
-			entry.setAttribute ("rows", 10)
-			entry.setAttribute ("style", "width: 100%;")
-			entry.setAttribute ("id", "mceReplaceMe" + id)
+			entry = document.createElement ("div")
+			entry.style.width = "90%"
+			entry.style.margin = "20px"
+			
+			textarea = document.createElement ("textarea")
+			entry.appendChild (textarea)
+			textarea.setAttribute ("rows", 10)
+			textarea.setAttribute ("id", "mceReplaceMe" + id)
+			textarea.style.width = "100%"
 			break
 		default:
 			entry = document.createElement ("textarea")
