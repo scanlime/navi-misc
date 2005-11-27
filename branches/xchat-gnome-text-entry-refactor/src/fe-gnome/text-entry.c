@@ -23,7 +23,7 @@
 #include <gtk/gtk.h>
 #include "gui.h"
 #include "palette.h"
-#include "textentry.h"
+#include "text-entry.h"
 #include "textgui.h"
 #include "userlist.h"
 #include "../common/outbound.h"

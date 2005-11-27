@@ -41,7 +41,7 @@
 #include "palette.h"
 #include "preferences-dialog.h"
 #include "preferences.h"
-#include "textentry.h"
+#include "text-entry.h"
 #include "textgui.h"
 #include "userlist-gui.h"
 #include "util.h"
