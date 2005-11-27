@@ -21,7 +21,6 @@
 #ifndef XCHAT_GNOME_TEXTENTRY_H
 #define XCHAT_GNOME_TEXTENTRY_H
 
-#include <config.h>
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-spell-entry.h>
 #else
