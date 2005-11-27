@@ -22,6 +22,7 @@
 #include <config.h>
 #include <glib/gi18n.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include "pixmaps.h"
 
 GdkPixbuf *pix_purple;
 GdkPixbuf *pix_red;
