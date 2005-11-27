@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-11-26 05:37-0500\n"
+"POT-Creation-Date: 2005-11-26 18:36-0700\n"
 "PO-Revision-Date: 2005-11-25 03:33-0500\n"
 "Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: Français <olethanh@ulb.ac.be>\n"
@@ -293,7 +293,7 @@ msgstr "Utiliser cette police :"
 msgid "_Background color:"
 msgstr "Couleur de _fond"
 
-#: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:106
+#: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:103
 msgid "_Edit"
 msgstr "_Édition"
 
@@ -3425,8 +3425,12 @@ msgid ""
 "gentleman"
 msgstr ""
 
+#: ../src/fe-gnome/about.c:91
+msgid "translator-credits"
+msgstr ""
+
 #. IRC menu
-#: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:115
+#: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:112
 msgid "_Connect"
 msgstr "_Connecter"
 
@@ -3446,16 +3450,16 @@ msgstr "Ne pas charger automatiquement les extensions"
 msgid "Show version information"
 msgstr "Afficher le numero de version"
 
-#: ../src/fe-gnome/fe-gnome.c:560
+#: ../src/fe-gnome/fe-gnome.c:571
 msgid "Search buffer is empty.\n"
 msgstr "Le cache de recherche est vide.\n"
 
-#: ../src/fe-gnome/fe-gnome.c:592
+#: ../src/fe-gnome/fe-gnome.c:603
 #, c-format
 msgid "%s%d.%ds lag"
 msgstr "Lag de %s%d.%ds"
 
-#: ../src/fe-gnome/fe-gnome.c:627
+#: ../src/fe-gnome/fe-gnome.c:638
 #, c-format
 msgid "%d bytes buffered"
 msgstr "%d ont été mis en "
@@ -3487,150 +3491,160 @@ msgid "You must add at least one server for this network"
 msgstr "Vous devez spécifier au moins un serveur"
 
 #. Toplevel
-#: ../src/fe-gnome/main-window.c:105
+#: ../src/fe-gnome/main-window.c:102
 msgid "_IRC"
 msgstr "_IRC"
 
-#: ../src/fe-gnome/main-window.c:107
+#: ../src/fe-gnome/main-window.c:104
 msgid "In_sert"
 msgstr "In_sertion"
 
-#: ../src/fe-gnome/main-window.c:108
+#: ../src/fe-gnome/main-window.c:105
 msgid "_Network"
 msgstr "_Réseau"
 
-#: ../src/fe-gnome/main-window.c:109
+#: ../src/fe-gnome/main-window.c:106
 msgid "_Discussion"
 msgstr "_Discussion"
 
-#: ../src/fe-gnome/main-window.c:110
+#: ../src/fe-gnome/main-window.c:107
 msgid "_Go"
 msgstr "A_ller à"
 
-#: ../src/fe-gnome/main-window.c:111
+#: ../src/fe-gnome/main-window.c:108
 msgid "_Help"
 msgstr "_Aide"
 
-#: ../src/fe-gnome/main-window.c:116
+#: ../src/fe-gnome/main-window.c:113
 msgid "_File Transfers"
 msgstr "Transfert de _fichier"
 
-#: ../src/fe-gnome/main-window.c:117
+#: ../src/fe-gnome/main-window.c:114
 msgid "_Quit"
 msgstr "_Quitter"
 
 #. Edit menu
-#: ../src/fe-gnome/main-window.c:120
+#: ../src/fe-gnome/main-window.c:117
 msgid "Cu_t"
 msgstr "Co_uper"
 
-#: ../src/fe-gnome/main-window.c:121
+#: ../src/fe-gnome/main-window.c:118
 msgid "_Copy"
 msgstr "_Copier"
 
-#: ../src/fe-gnome/main-window.c:122
+#: ../src/fe-gnome/main-window.c:119
 msgid "_Paste"
 msgstr "C_oller"
 
-#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:90
+#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:90
 #: ../src/fe-gnome/navigation-tree.c:97
 msgid "C_lear"
 msgstr "_Effacer"
 
-#: ../src/fe-gnome/main-window.c:124
+#: ../src/fe-gnome/main-window.c:121
 msgid "Prefere_nces"
 msgstr "P_références"
 
 #. Network menu
 #. Server context menu
-#: ../src/fe-gnome/main-window.c:127 ../src/fe-gnome/navigation-tree.c:79
+#: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:79
 msgid "_Information"
 msgstr "_Information"
 
-#: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:80
+#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:80
 msgid "_Reconnect"
 msgstr "_Reconnecter"
 
-#: ../src/fe-gnome/main-window.c:129 ../src/fe-gnome/navigation-tree.c:81
+#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Disconnect"
 msgstr "_Déconnecter"
 
-#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:82
+#: ../src/fe-gnome/main-window.c:127 ../src/fe-gnome/navigation-tree.c:82
 #: ../src/fe-gnome/navigation-tree.c:88 ../src/fe-gnome/navigation-tree.c:95
 msgid "_Close"
 msgstr "_Fermer"
 
-#: ../src/fe-gnome/main-window.c:131 ../src/fe-gnome/navigation-tree.c:83
+#: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Channels..."
 msgstr "_Cannaux"
 
 #. Discussion menu
 #. Channel context menu
 #. Dialog context menu
-#: ../src/fe-gnome/main-window.c:134 ../src/fe-gnome/navigation-tree.c:86
+#: ../src/fe-gnome/main-window.c:131 ../src/fe-gnome/navigation-tree.c:86
 #: ../src/fe-gnome/navigation-tree.c:94
 msgid "_Save Transcript"
 msgstr "_Sauver la discussion"
 
-#: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:87
+#: ../src/fe-gnome/main-window.c:132 ../src/fe-gnome/navigation-tree.c:87
 msgid "_Leave"
 msgstr "_Partir"
 
-#: ../src/fe-gnome/main-window.c:136
+#: ../src/fe-gnome/main-window.c:133
 msgid "Cl_ose"
 msgstr "_Fermer"
 
-#: ../src/fe-gnome/main-window.c:137
+#: ../src/fe-gnome/main-window.c:134
 msgid "_Find"
 msgstr "_Rechercher"
 
-#: ../src/fe-gnome/main-window.c:138
+#: ../src/fe-gnome/main-window.c:135
 msgid "_Clear Window"
 msgstr "_Vider la fenêtre"
 
-#: ../src/fe-gnome/main-window.c:139
+#: ../src/fe-gnome/main-window.c:136
 msgid "Change _Topic"
 msgstr "Changer le _topic"
 
-#: ../src/fe-gnome/main-window.c:140 ../src/fe-gnome/navigation-tree.c:91
+#: ../src/fe-gnome/main-window.c:137 ../src/fe-gnome/navigation-tree.c:91
 msgid "_Bans..."
 msgstr "Listes des _bannis"
 
-#: ../src/fe-gnome/main-window.c:141
+#: ../src/fe-gnome/main-window.c:138
 msgid "_Users"
 msgstr "_Utilisateurs"
 
 #. Go menu
-#: ../src/fe-gnome/main-window.c:144
+#: ../src/fe-gnome/main-window.c:141
 msgid "Pre_vious Network"
 msgstr "Réseau pré_cédent"
 
-#: ../src/fe-gnome/main-window.c:145
+#: ../src/fe-gnome/main-window.c:142
 msgid "Nex_t Network"
 msgstr "Réseau sui_vant"
 
-#: ../src/fe-gnome/main-window.c:146
+#: ../src/fe-gnome/main-window.c:143
 msgid "_Previous Discussion"
 msgstr "Discussion _précédente"
 
-#: ../src/fe-gnome/main-window.c:147
+#: ../src/fe-gnome/main-window.c:144
 msgid "_Next Discussion"
 msgstr "Discussion _suivante"
 
 #. Help menu
-#: ../src/fe-gnome/main-window.c:150
+#: ../src/fe-gnome/main-window.c:147
 msgid "_Contents"
 msgstr "_Sommaire"
 
-#: ../src/fe-gnome/main-window.c:151
+#: ../src/fe-gnome/main-window.c:148
 msgid "_About"
 msgstr "À _propos"
 
-#: ../src/fe-gnome/main-window.c:1294
+#: ../src/fe-gnome/main-window.c:156
+#, fuzzy
+msgid "Save Transcript"
+msgstr "_Sauver la discussion"
+
+#: ../src/fe-gnome/main-window.c:173 ../src/fe-gnome/main-window.c:183
+#, fuzzy, c-format
+msgid "Error saving %s"
+msgstr "Erreur lors de la lecture du fichier \"%s\": %s\n"
+
+#: ../src/fe-gnome/main-window.c:874
 msgid "Could not load topic-change.glade!"
 msgstr "Impossible de charger le fichier topic-change.glade!"
 
-#: ../src/fe-gnome/main-window.c:1294
+#: ../src/fe-gnome/main-window.c:874
 msgid "Your installation is broken"
 msgstr "Votre installation est cassé"
 
@@ -3650,50 +3664,41 @@ msgstr "Rejoindre _automatiquement"
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:387
-#: ../src/fe-gnome/navigation-tree.c:1283
+#: ../src/fe-gnome/navigation-tree.c:1287
 msgid "<none>"
 msgstr "<aucun>"
 
-#: ../src/fe-gnome/preferences-keybindings-page.c:100
-msgid "Disabled"
-msgstr "Désactivé"
+#: ../src/fe-gnome/preferences-page-colors.c:226
+#, fuzzy
+msgid "Colors"
+msgstr "_Fermer"
 
-#: ../src/fe-gnome/preferences-keybindings-page.c:400
-msgid "<Unknown Action>"
+#: ../src/fe-gnome/preferences-page-colors.c:229
+msgid "Black on White"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-keybindings-page.c:419
-msgid "Navigation"
+#: ../src/fe-gnome/preferences-page-colors.c:230
+msgid "White on Black"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-keybindings-page.c:420
-msgid "Server"
+#: ../src/fe-gnome/preferences-page-colors.c:231
+#, fuzzy
+msgid "Custom"
+msgstr "Co_uper"
+
+#: ../src/fe-gnome/preferences-page-dcc.c:195
+#, fuzzy
+msgid "File Transfers & DCC"
+msgstr "Transfert de fichiers"
+
+#: ../src/fe-gnome/preferences-page-effects.c:176
+msgid "Effects"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-keybindings-page.c:508
-#, c-format
-msgid ""
-"The shortcut \"%s\" is already used for:\n"
-" \"%s\"\n"
-msgstr ""
-
-#: ../src/fe-gnome/preferences-keybindings-page.c:538
-#, c-format
-msgid "Error setting new accelerator in configuration database: %s\n"
-msgstr ""
-
-#: ../src/fe-gnome/preferences-keybindings-page.c:582
-#, c-format
-msgid "Error unsetting accelerator in configuration database: %s\n"
-msgstr ""
-
-#: ../src/fe-gnome/preferences-keybindings-page.c:654
-msgid "Action"
-msgstr "Action"
-
-#: ../src/fe-gnome/preferences-keybindings-page.c:678
-msgid "Shortcut"
-msgstr "Raccourci"
+#: ../src/fe-gnome/preferences-page-irc.c:241
+#, fuzzy
+msgid "IRC Preferences"
+msgstr "Préférences"
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
@@ -3747,6 +3752,10 @@ msgstr "Activé"
 #: ../src/fe-gnome/preferences-page-plugins.c:272
 msgid "Plugin"
 msgstr "Extension"
+
+#: ../src/fe-gnome/text-entry.c:248
+msgid "I_nsert Color Code"
+msgstr ""
 
 #. URL Popup
 #: ../src/fe-gnome/textgui.c:73
@@ -3822,9 +3831,17 @@ msgstr "_Kicker"
 msgid "_Ban"
 msgstr "_Bannir"
 
+#~ msgid "Disabled"
+#~ msgstr "Désactivé"
+
+#~ msgid "Action"
+#~ msgstr "Action"
+
+#~ msgid "Shortcut"
+#~ msgstr "Raccourci"
+
 #~ msgid "_Channels"
 #~ msgstr "_Cannaux ..."
 
 #~ msgid "_Bans"
 #~ msgstr "_Liste des bannis ..."
-

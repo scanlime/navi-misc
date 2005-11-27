@@ -32,8 +32,12 @@ src/fe-gnome/fe-gnome.c
 src/fe-gnome/irc-network-editor.c
 src/fe-gnome/main-window.c
 src/fe-gnome/navigation-tree.c
-src/fe-gnome/preferences-keybindings-page.c
+src/fe-gnome/preferences-page-colors.c
+src/fe-gnome/preferences-page-dcc.c
+src/fe-gnome/preferences-page-effects.c
+src/fe-gnome/preferences-page-irc.c
 src/fe-gnome/preferences-page-networks.c
 src/fe-gnome/preferences-page-plugins.c
+src/fe-gnome/text-entry.c
 src/fe-gnome/textgui.c
 src/fe-gnome/userlist-gui.c
