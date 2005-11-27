@@ -27,7 +27,6 @@
 #include <gtk/gtk.h>
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-url-label.h>
-#include <libsexy/sexy-spell-entry.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -42,6 +41,7 @@
 #include "palette.h"
 #include "preferences-dialog.h"
 #include "preferences.h"
+#include "textentry.h"
 #include "textgui.h"
 #include "userlist-gui.h"
 #include "util.h"
@@ -341,11 +341,9 @@ initialize_main_window (void)
 	gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), gtk_ui_manager_get_accel_group (gui.manager));
 
 	entrybox = glade_xml_get_widget (gui.xml, "entry hbox");
+	gui.text_entry = text_entry_new ();
 #ifdef HAVE_LIBSEXY
-	gui.text_entry = sexy_spell_entry_new ();
 	g_signal_connect_after (G_OBJECT (gui.text_entry), "word-check", G_CALLBACK (spell_check), NULL);
-#else
-	gui.text_entry = gtk_entry_new ();
 #endif
 	gtk_box_pack_start (GTK_BOX (entrybox), gui.text_entry, TRUE, TRUE, 0);
 	gtk_widget_show (gui.text_entry);
