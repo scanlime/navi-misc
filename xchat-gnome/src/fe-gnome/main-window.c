@@ -27,7 +27,6 @@
 #include <gtk/gtk.h>
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-url-label.h>
-#include <libsexy/sexy-spell-entry.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -42,6 +41,7 @@
 #include "palette.h"
 #include "preferences-dialog.h"
 #include "preferences.h"
+#include "text-entry.h"
 #include "textgui.h"
 #include "userlist-gui.h"
 #include "util.h"
@@ -91,13 +91,9 @@ static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *me
 
 static void on_expand_topic (GtkExpander *expander, gpointer data);
 
-static void on_text_entry_activate (GtkWidget *widget, gpointer data);
-static gboolean on_text_entry_key (GtkWidget *widget, GdkEventKey *key, gpointer data);
-
 static gboolean on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 
-static void entry_context (GtkEntry *entry, GtkMenu *menu, gpointer user_data);
 void setup_menu_item (GConfClient *client, GtkActionEntry *entry);
 
 static GtkActionEntry action_entries [] = {
@@ -151,8 +147,6 @@ static GtkActionEntry action_entries [] = {
 	{ "HelpContents", GTK_STOCK_HELP,  N_("_Contents"), "",   NULL, G_CALLBACK (on_help_contents_activate) },
 	{ "HelpAbout",    GTK_STOCK_ABOUT, N_("_About"),    "",   NULL, G_CALLBACK (on_help_about_activate) },
 };
-
-static GCompletion *command_completion;
 
 void
 save_transcript (void)
@@ -267,30 +261,6 @@ clear_find (GtkWidget *entry, gpointer data)
 }
 
 #ifdef HAVE_LIBSEXY
-static gboolean
-spell_check (SexySpellEntry *entry, gchar *text, gpointer data)
-{
-	GtkTreeModel *store = GTK_TREE_MODEL (userlist_get_store (u, gui.current_session));
-	GtkTreeIter iter;
-
-	if (gtk_tree_model_get_iter_first (store, &iter) == FALSE)
-		return TRUE;
-	do {
-		gchar *nick;
-		gboolean match = FALSE;
-
-		gtk_tree_model_get (store, &iter, 1, &nick, -1);
-		if (strncmp (text, nick, strlen (nick)) == 0)
-			match = TRUE;
-
-		g_free (nick);
-		if (match)
-			return FALSE;
-	} while (gtk_tree_model_iter_next (store, &iter));
-
-	return TRUE;
-}
-
 static void
 url_activated (GtkWidget *url_label, const char *url, gpointer data)
 {
@@ -304,8 +274,6 @@ initialize_main_window (void)
 	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget, *widget2;
 	GtkSizeGroup *group;
 	GError *error = NULL;
-	GList *tmp = NULL;
-	int i;
 
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
 	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",
@@ -341,17 +309,9 @@ initialize_main_window (void)
 	gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), gtk_ui_manager_get_accel_group (gui.manager));
 
 	entrybox = glade_xml_get_widget (gui.xml, "entry hbox");
-#ifdef HAVE_LIBSEXY
-	gui.text_entry = sexy_spell_entry_new ();
-	g_signal_connect_after (G_OBJECT (gui.text_entry), "word-check", G_CALLBACK (spell_check), NULL);
-#else
-	gui.text_entry = gtk_entry_new ();
-#endif
+	gui.text_entry = text_entry_new ();
 	gtk_box_pack_start (GTK_BOX (entrybox), gui.text_entry, TRUE, TRUE, 0);
 	gtk_widget_show (gui.text_entry);
-	g_signal_connect (G_OBJECT (gui.text_entry), "activate", G_CALLBACK (on_text_entry_activate), NULL);
-	g_signal_connect_after (G_OBJECT (gui.text_entry), "key_press_event", G_CALLBACK (on_text_entry_key), NULL);
-	g_signal_connect (G_OBJECT (gui.text_entry), "populate-popup", G_CALLBACK (entry_context), NULL);
 
 	close = glade_xml_get_widget (gui.xml, "close discussion");
 	g_signal_connect (G_OBJECT (close), "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
@@ -494,18 +454,6 @@ initialize_main_window (void)
 	widget = glade_xml_get_widget (gui.xml, "nickname");
 	gtk_button_set_use_underline (GTK_BUTTON (widget), FALSE);
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (on_nickname_clicked), NULL);
-
-	/* initialize command completion */
-	/* FIXME - would be nice to find somewhere else for this */
-	command_completion = g_completion_new (NULL);
-	// FIXME - need to convert command_list to a GList
-	//g_completion_add_items (command_completion, command_list);
-	for (i = 0; xc_cmds[i].name != NULL; i++) {
-		tmp = g_list_prepend (tmp, xc_cmds[i].name);
-	}
-	g_list_reverse (tmp);
-	g_completion_add_items (command_completion, tmp);
-	g_list_free (tmp);
 }
 
 void
@@ -837,16 +785,6 @@ on_help_about_activate (GtkAction *action, gpointer data)
 }
 
 static void
-on_text_entry_activate (GtkWidget *widget, gpointer data)
-{
-	char *entry_text = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-	gtk_entry_set_text (GTK_ENTRY (widget), "");
-	if (gui.current_session != NULL)
-		handle_multiline (gui.current_session, (char *) entry_text, TRUE, FALSE);
-	g_free (entry_text);
-}
-
-static void
 nickname_get_str_response (GtkDialog *dialog, gint arg1, gpointer entry)
 {
 	gchar *text, *buf;
@@ -888,247 +826,6 @@ on_nickname_clicked (GtkButton *widget, gpointer user_data)
 						   entry);
 
 	gtk_widget_show_all (dialog);
-}
-
-static void
-history_key_down (GtkEntry *entry)
-{
-	char *new_line;
-	new_line = history_down (&gui.current_session->history);
-	if (new_line) {
-		gtk_entry_set_text (entry, new_line);
-		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
-	}
-}
-
-static void
-history_key_up (GtkEntry *entry)
-{
-	char *new_line;
-	new_line = history_up (&gui.current_session->history, (char *)entry->text);
-	if (new_line) {
-		gtk_entry_set_text (entry, new_line);
-		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
-	}
-}
-
-static gboolean
-tab_complete_command (GtkEntry *entry)
-{
-	int cursor, length, pos;
-	char *prefix, *new_prefix, *printtext, *npt = NULL;
-	const gchar *text;
-	GList *options, *list;
-	session_gui *tgui;
-
-	cursor = gtk_editable_get_position (GTK_EDITABLE (entry));
-	prefix = g_new0 (char, cursor);
-	text = gtk_entry_get_text (entry);
-	strncpy (prefix, &text[1], cursor - 1);
-	length = strlen (text);
-
-	options = g_completion_complete (command_completion, prefix, &new_prefix);
-
-	if (g_list_length (options) == 0) {
-		/* no matches */
-		g_free (prefix);
-		return TRUE;
-	}
-
-	if (g_list_length (options) == 1) {
-		/* one match */
-
-		if (length - cursor == 0) {
-			/* at the end of the entry, just insert */
-
-			npt = g_strdup_printf ("/%s ", (char *) options->data);
-			pos = strlen (npt);
-		} else {
-			npt = g_strdup_printf ("/%s %s", (char *) options->data, &text[cursor]);
-			pos = strlen ((char *) options->data) + 2;
-		}
-		gtk_entry_set_text (entry, npt);
-		gtk_editable_set_position (GTK_EDITABLE (entry), pos);
-		g_free (npt);
-		g_free (prefix);
-		return TRUE;
-	} else {
-		/* more than one match - print a list of options
-		 * to the window and update the prefix
-		 */
-		list = options;
-		printtext = g_strdup ((char *) list->data);
-		for (list = g_list_next (list); list; list = g_list_next (list)) {
-			npt = g_strdup_printf ("%s %s", printtext, (char *) list->data);
-			g_free (printtext);
-			printtext = npt;
-		}
-		tgui = (session_gui *) gui.current_session->gui;
-		text_gui_print (tgui->buffer, (guchar *) printtext, TRUE);
-		g_free (printtext);
-		if (strcasecmp (prefix, new_prefix) != 0) {
-			/* insert the new prefix into the entry */
-			npt = g_strdup_printf ("/%s%s", new_prefix, &text[cursor]);
-			gtk_entry_set_text (entry, npt);
-			g_free (npt);
-			gtk_editable_set_position (GTK_EDITABLE (entry), strlen (new_prefix));
-		}
-		g_free (prefix);
-		g_free (npt);
-		return TRUE;
-	}
-
-	return TRUE;
-}
-
-static gboolean
-tab_complete_nickname (GtkEntry *entry, int start)
-{
-	GCompletion *completion;
-	int cursor, length;
-	char *text;
-	GList *list;
-	char *printtext, *npt;
-	session_gui *tgui;
-	GList *options;
-	gchar *new_prefix;
-	gchar *prefix;
-
-	completion = userlist_get_completion (u, gui.current_session);
-	g_completion_set_compare (completion, (GCompletionStrncmpFunc) strncasecmp);
-	text = g_strdup (gtk_entry_get_text (entry));
-	length = strlen (text);
-	cursor = gtk_editable_get_position (GTK_EDITABLE (entry));
-
-	prefix = g_new0 (char, cursor - start + 1);
-	strncpy (prefix, &text[start], cursor - start);
-	options = g_completion_complete (completion, prefix, &new_prefix);
-
-	if (g_list_length (options) == 0) {
-		/* no matches */
-		g_free (text);
-		g_free (prefix);
-		return TRUE;
-	}
-
-	if (g_list_length (options) == 1) {
-		int pos;
-
-		/* one match */
-		if (length - cursor == 0) {
-			/* at the end of the entry, just insert */
-
-			if (start != 0) {
-				text[start] = '\0';
-				npt = g_strdup_printf ("%s%s", text, (char *) options->data);
-				pos = strlen ((char *) options->data) + start;
-			} else {
-				npt = g_strdup_printf ("%s: ", (char *) options->data);
-				pos = strlen ((char *) options->data) + 2;
-			}
-		} else {
-			/* somewhere in the middle of the entry */
-
-			if (start != 0) {
-				text[start] = '\0';
-				npt = g_strdup_printf ("%s%s%s", text, (char *) options->data, &text[cursor]);
-				pos = strlen ((char *) options->data) + start;
-			} else {
-				npt = g_strdup_printf ("%s: %s", (char *) options->data, &text[cursor]);
-				pos = strlen ((char *) options->data) + 2;
-			}
-		}
-		gtk_entry_set_text (entry, npt);
-		gtk_editable_set_position (GTK_EDITABLE (entry), pos);
-		g_free (npt);
-		g_free (text);
-		g_free (prefix);
-		return TRUE;
-	} else {
-		/* more than one match - print a list of options
-		 * to the window and update the prefix
-		 */
-		list = options;
-		printtext = g_strdup ((char *) list->data);
-		for (list = g_list_next (list); list; list = g_list_next (list)) {
-			npt = g_strdup_printf ("%s %s", printtext, (char *) list->data);
-			g_free (printtext);
-			printtext = npt;
-		}
-		tgui = (session_gui *) gui.current_session->gui;
-		text_gui_print (tgui->buffer, (guchar *) printtext, TRUE);
-		g_free (printtext);
-		if (strcasecmp (prefix, new_prefix) != 0) {
-			/* insert the new prefix into the entry */
-			text[start] = '\0';
-			npt = g_strdup_printf ("%s%s%s", text, new_prefix, &text[cursor]);
-			gtk_entry_set_text (entry, npt);
-			g_free (npt);
-			gtk_editable_set_position (GTK_EDITABLE (entry), start + strlen (new_prefix));
-		}
-		g_free (text);
-		g_free (prefix);
-		return TRUE;
-	}
-	return TRUE;
-}
-
-static gboolean
-tab_complete (GtkEntry *entry)
-{
-	const char *text;
-	int start, cursor_pos;
-
-	text = gtk_entry_get_text (entry);
-	cursor_pos = gtk_editable_get_position (GTK_EDITABLE (entry));
-
-	if (cursor_pos == 0)
-		return TRUE;
-
-	/* If we're directly after a space, we have nothing to tab complete */
-	if (text[cursor_pos - 1] == ' ')
-		return TRUE;
-
-	/* search backwards to find /, #, ' ' or start */
-	for (start = cursor_pos - 1; start >= 0; --start) {
-		/* check if we can match a channel */
-#if 0 /* <- (fails for all non-constant values of zero) */
-		if(text[start] == '#') {
-			if(start == 0 || text[start - 1] == ' ') {
-				tab_complete_channel(entry, start);
-				return;
-			}
-		}
-#endif
-
-		/* check if we can match a command */
-		if (start == 0 && text[0] == '/') {
-			return tab_complete_command (entry);
-		}
-
-		/* check if we can match a nickname */
-		if (start == 0 || text[start] == ' ') {
-			return tab_complete_nickname (entry, start == 0 ? start : start + 1);
-		}
-	}
-	return TRUE;
-}
-
-static gboolean
-on_text_entry_key (GtkWidget *widget, GdkEventKey *key, gpointer data)
-{
-	if (key->keyval == GDK_Down) {
-		history_key_down (GTK_ENTRY (widget));
-		return TRUE;
-	}
-	if (key->keyval == GDK_Up) {
-		history_key_up (GTK_ENTRY (widget));
-		return TRUE;
-	}
-	if (key->keyval == GDK_Tab) {
-		return tab_complete (GTK_ENTRY (widget));
-	}
-	return FALSE;
 }
 
 static gboolean
@@ -1226,118 +923,6 @@ set_statusbar ()
 	text = g_strdup_printf ("%s%s%s", tgui->lag_text ? tgui->lag_text : "", (tgui->queue_text && tgui->lag_text) ? ", " : "", tgui->queue_text ? tgui->queue_text : "");
 	gnome_appbar_set_status (GNOME_APPBAR (appbar), text);
 	g_free (text);
-}
-
-static GtkWidget*
-get_color_icon (int c, GtkStyle *s)
-{
-	GtkWidget *image;
-	GdkPixmap *pixmap;
-	GdkGC *color;
-
-	pixmap = gdk_pixmap_new (NULL, 16, 16, 24);
-
-	color = gdk_gc_new (GDK_DRAWABLE (pixmap));
-	gdk_gc_set_foreground (color, &s->dark[GTK_STATE_NORMAL]);
-	gdk_draw_rectangle (GDK_DRAWABLE (pixmap), color, TRUE, 0, 0, 16, 16);
-	gdk_gc_set_foreground (color, &colors[c]);
-	gdk_draw_rectangle (GDK_DRAWABLE (pixmap), color, TRUE, 1, 1, 14, 14);
-
-	image = gtk_image_new_from_pixmap (pixmap, NULL);
-	g_object_unref (pixmap);
-	return image;
-}
-
-static void
-color_code_activate (GtkMenuItem *item, gpointer data)
-{
-	int color = (int) data;
-	char *code = g_strdup_printf ("%%C%d", color);
-	int position = gtk_editable_get_position (GTK_EDITABLE (gui.text_entry));
-	gtk_editable_insert_text (GTK_EDITABLE (gui.text_entry), code, strlen (code), &position);
-	gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), position + strlen (code));
-	g_free (code);
-}
-
-static void
-entry_context (GtkEntry *entry, GtkMenu *menu, gpointer user_data)
-{
-	GtkWidget *item;
-	GtkWidget *submenu;
-
-	item = gtk_menu_item_new_with_mnemonic ("I_nsert Color Code");
-	gtk_widget_show (item);
-
-	submenu = gtk_menu_new ();
-	gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), submenu);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-
-	item = gtk_image_menu_item_new_with_label ("Black");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (1, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 1);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Dark Blue");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (2, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 2);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Dark Green");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (3, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 3);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Red");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (4, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 4);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Brown");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (5, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 5);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Purple");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (6, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 6);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Orange");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (7, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 7);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Yellow");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (8, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 8);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Light Green");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (9, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 9);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Aqua");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (10, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 10);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Light Blue");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (11, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 11);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Blue");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (12, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 12);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Violet");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (13, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 13);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Grey");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (14, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 14);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("Light Grey");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (15, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 15);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-	item = gtk_image_menu_item_new_with_label ("White");
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (0, gtk_widget_get_style (item)));
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 0);
-	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
-
-	gtk_widget_show_all (submenu);
 }
 
 static void
