@@ -26,10 +26,12 @@ src/common/textevents.h
 src/common/util.c
 src/common/xchat.c
 src/fe-gnome/about.c
+src/fe-gnome/channel-list.c
 src/fe-gnome/connect-dialog.c
 src/fe-gnome/dcc-window.c
 src/fe-gnome/fe-gnome.c
 src/fe-gnome/irc-network-editor.c
+src/fe-gnome/irc-network.c
 src/fe-gnome/main-window.c
 src/fe-gnome/navigation-tree.c
 src/fe-gnome/preferences-page-colors.c

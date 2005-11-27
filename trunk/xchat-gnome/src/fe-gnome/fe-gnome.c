@@ -83,7 +83,7 @@ fe_args (int argc, char *argv[])
 	g_option_context_parse (context, &argc, &argv, &error);
 
 	if (error) {
-		fprintf (stderr, "xchat-gnome: %s\nTry `xchat-gnome --help' for more information\n", error->message);
+		fprintf (stderr, _("xchat-gnome: %s\nTry `xchat-gnome --help' for more information\n"), error->message);
 		g_error_free (error);
 		return 0;
 	}
@@ -888,8 +888,8 @@ fe_open_url (const char *url)
 	}
 
 	if (err != NULL) {
-		gchar *message = g_strdup_printf ("Unable to show '%s'", url);
-		error_dialog (_(message), _(err->message));
+		gchar *message = g_strdup_printf (_("Unable to show '%s'"), url);
+		error_dialog (message, err->message);
 		g_free (message);
 		g_error_free (err);
 	}

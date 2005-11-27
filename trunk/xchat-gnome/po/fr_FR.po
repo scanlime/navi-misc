@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-11-26 18:36-0700\n"
+"POT-Creation-Date: 2005-11-26 18:59-0700\n"
 "PO-Revision-Date: 2005-11-25 03:33-0500\n"
 "Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: Français <olethanh@ulb.ac.be>\n"
@@ -397,6 +397,7 @@ msgid "The new nickname"
 msgstr "Nouveau nom"
 
 #: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:805
+#: ../src/fe-gnome/channel-list.c:311
 msgid "Users"
 msgstr "Utilisateurs"
 
@@ -1185,10 +1186,12 @@ msgid "Nick of person who changed the topic"
 msgstr ""
 
 #: ../src/common/text.c:551 ../src/common/text.c:557
+#: ../src/fe-gnome/channel-list.c:316
 msgid "Topic"
 msgstr ""
 
 #: ../src/common/text.c:552 ../src/common/text.c:556 ../src/common/text.c:992
+#: ../src/fe-gnome/irc-network-editor.c:272
 msgid "Channel"
 msgstr ""
 
@@ -1429,6 +1432,7 @@ msgstr ""
 
 #: ../src/common/text.c:789 ../src/common/text.c:798 ../src/common/text.c:804
 #: ../src/common/text.c:833 ../src/common/text.c:987
+#: ../src/fe-gnome/channel-list.c:306
 msgid "Channel Name"
 msgstr ""
 
@@ -3434,6 +3438,87 @@ msgstr ""
 msgid "_Connect"
 msgstr "_Connecter"
 
+#. File completion percent
+#: ../src/fe-gnome/dcc-window.c:142
+msgid "%"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:143
+msgid "File"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:144
+#, fuzzy
+msgid "Remaining"
+msgstr "Part"
+
+#: ../src/fe-gnome/dcc-window.c:244
+#, c-format
+msgid ""
+"<span weight=\"bold\" size=\"larger\">Incoming File Transfer</span>\n"
+"\n"
+"%s is attempting to send you a file named \"%s\".  Do you wish to accept the "
+"transfer?"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:266
+#, c-format
+msgid ""
+"<b>%s</b>\n"
+"<small>from %s</small>\n"
+"%s of %s"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:277
+msgid "starting"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:303
+#, c-format
+msgid ""
+"<b>%s</b>\n"
+"<small>from %s</small>\n"
+"%s of %s at %s/s"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:310
+msgid "queued"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:315
+#, c-format
+msgid "Transfer of %s to %s failed"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:317
+#, c-format
+msgid "Transfer of %s from %s failed"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:318
+msgid "Transfer failed"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:327
+#, fuzzy
+msgid "stalled"
+msgstr "Désactivé"
+
+#: ../src/fe-gnome/dcc-window.c:331
+#, c-format
+msgid "%.2d:%.2d:%.2d"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:333
+#, c-format
+msgid "%.2d:%.2d"
+msgstr ""
+
+#: ../src/fe-gnome/dcc-window.c:446
+#, fuzzy
+msgid "Send File..."
+msgstr "_Envoyer un fichier"
+
 #: ../src/fe-gnome/fe-gnome.c:53
 msgid "Use directory instead of the default config dir"
 msgstr "Utiliser un repertoire de configuration spécifique"
@@ -3450,6 +3535,15 @@ msgstr "Ne pas charger automatiquement les extensions"
 msgid "Show version information"
 msgstr "Afficher le numero de version"
 
+#: ../src/fe-gnome/fe-gnome.c:86
+#, fuzzy, c-format
+msgid ""
+"xchat-gnome: %s\n"
+"Try `xchat-gnome --help' for more information\n"
+msgstr ""
+"xchat-remote: %s\n"
+"Utilisez `xchat-remote --help' pour plus d'information\n"
+
 #: ../src/fe-gnome/fe-gnome.c:571
 msgid "Search buffer is empty.\n"
 msgstr "Le cache de recherche est vide.\n"
@@ -3463,6 +3557,21 @@ msgstr "Lag de %s%d.%ds"
 #, c-format
 msgid "%d bytes buffered"
 msgstr "%d ont été mis en "
+
+#: ../src/fe-gnome/fe-gnome.c:891
+#, c-format
+msgid "Unable to show '%s'"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network-editor.c:267
+#, fuzzy
+msgid "Server"
+msgstr "Serveurs :"
+
+#: ../src/fe-gnome/irc-network-editor.c:383
+#, fuzzy, c-format
+msgid "%s Network Properties"
+msgstr "Configuration du réseau"
 
 #: ../src/fe-gnome/irc-network-editor.c:509
 #: ../src/fe-gnome/irc-network-editor.c:516
@@ -3489,6 +3598,54 @@ msgstr "Pas de serveurs"
 #: ../src/fe-gnome/irc-network-editor.c:529
 msgid "You must add at least one server for this network"
 msgstr "Vous devez spécifier au moins un serveur"
+
+#: ../src/fe-gnome/irc-network.c:31
+msgid "UTF-8"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:32
+msgid "ISO-8859-15 (Western Europe)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:33
+msgid "ISO-8859-2 (Central Europe)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:34
+msgid "ISO-8859-7 (Greek)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:35
+msgid "ISO-8859-8 (Hebrew)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:36
+msgid "ISO-8859-9 (Turkish)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:37
+msgid "ISO-2022-JP (Japanese)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:38
+msgid "SJIS (Japanese)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:39
+msgid "CP949 (Korean)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:40
+msgid "CP1251 (Cyrillic)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:41
+msgid "CP1256 (Arabic)"
+msgstr ""
+
+#: ../src/fe-gnome/irc-network.c:42
+msgid "GB18030 (Chinese)"
+msgstr ""
 
 #. Toplevel
 #: ../src/fe-gnome/main-window.c:102
@@ -3640,6 +3797,19 @@ msgstr "_Sauver la discussion"
 msgid "Error saving %s"
 msgstr "Erreur lors de la lecture du fichier \"%s\": %s\n"
 
+#: ../src/fe-gnome/main-window.c:232
+msgid ""
+"<span foreground=\"grey\">Reached beginning, continuing from bottom</span>"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:235
+msgid "<span foreground=\"grey\">Reached end, continuing from top</span>"
+msgstr ""
+
+#: ../src/fe-gnome/main-window.c:238
+msgid "<span foreground=\"grey\">Search string not found</span>"
+msgstr ""
+
 #: ../src/fe-gnome/main-window.c:874
 msgid "Could not load topic-change.glade!"
 msgstr "Impossible de charger le fichier topic-change.glade!"
@@ -3647,6 +3817,11 @@ msgstr "Impossible de charger le fichier topic-change.glade!"
 #: ../src/fe-gnome/main-window.c:874
 msgid "Your installation is broken"
 msgstr "Votre installation est cassé"
+
+#: ../src/fe-gnome/main-window.c:881
+#, c-format
+msgid "Changing topic for %s"
+msgstr ""
 
 #: ../src/fe-gnome/navigation-tree.c:89 ../src/fe-gnome/navigation-tree.c:96
 msgid "_Find..."
@@ -3830,9 +4005,6 @@ msgstr "_Kicker"
 #: ../src/fe-gnome/userlist-gui.c:54
 msgid "_Ban"
 msgstr "_Bannir"
-
-#~ msgid "Disabled"
-#~ msgstr "Désactivé"
 
 #~ msgid "Action"
 #~ msgstr "Action"

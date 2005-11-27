@@ -28,18 +28,18 @@
 
 const char *encodings[] =
 {
-	"UTF-8",
-	"ISO-8859-15 (Western Europe)",
-	"ISO-8859-2 (Central Europe)",
-	"ISO-8859-7 (Greek)",
-	"ISO-8859-8 (Hebrew)",
-	"ISO-8859-9 (Turkish)",
-	"ISO-2022-JP (Japanese)",
-	"SJIS (Japanese)",
-	"CP949 (Korean)",
-	"CP1251 (Cyrillic)",
-	"CP1256 (Arabic)",
-	"GB18030 (Chinese)",
+	N_("UTF-8"),
+	N_("ISO-8859-15 (Western Europe)"),
+	N_("ISO-8859-2 (Central Europe)"),
+	N_("ISO-8859-7 (Greek)"),
+	N_("ISO-8859-8 (Hebrew)"),
+	N_("ISO-8859-9 (Turkish)"),
+	N_("ISO-2022-JP (Japanese)"),
+	N_("SJIS (Japanese)"),
+	N_("CP949 (Korean)"),
+	N_("CP1251 (Cyrillic)"),
+	N_("CP1256 (Arabic)"),
+	N_("GB18030 (Chinese)"),
 	NULL
 };
 

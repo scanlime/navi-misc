@@ -273,7 +273,7 @@ create_channel_list (session *sess)
 	if (!win->xml)
 		win->xml = glade_xml_new (XCHATSHAREDIR"/channel-list.glade", NULL, NULL);
 	if (!win->xml) {
-		free (win);
+		g_free (win);
 		return;
 	}
 
@@ -303,17 +303,17 @@ create_channel_list (session *sess)
 	gtk_tree_view_set_headers_clickable (GTK_TREE_VIEW (treeview), TRUE);
 
 	channel_r = gtk_cell_renderer_text_new ();
-	channel_c = gtk_tree_view_column_new_with_attributes ("Channel Name", channel_r, "text", 0, NULL);
+	channel_c = gtk_tree_view_column_new_with_attributes (_("Channel Name"), channel_r, "text", 0, NULL);
 	gtk_tree_view_column_set_resizable (channel_c, TRUE);
 	gtk_tree_view_column_set_sort_column_id (channel_c, 0);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), channel_c);
 	users_r = gtk_cell_renderer_text_new ();
-	users_c = gtk_tree_view_column_new_with_attributes ("Users", users_r, "text", 1, NULL);
+	users_c = gtk_tree_view_column_new_with_attributes (_("Users"), users_r, "text", 1, NULL);
 	gtk_tree_view_column_set_resizable (users_c, TRUE);
 	gtk_tree_view_column_set_sort_column_id (users_c, 4);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), users_c);
 	topic_r = gtk_cell_renderer_text_new ();
-	topic_c = gtk_tree_view_column_new_with_attributes ("Topic", topic_r, "text", 2, NULL);
+	topic_c = gtk_tree_view_column_new_with_attributes (_("Topic"), topic_r, "text", 2, NULL);
 	gtk_tree_view_column_set_resizable (topic_c, TRUE);
 	gtk_tree_view_column_set_sort_column_id (topic_c, 2);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeview), topic_c);
@@ -394,7 +394,7 @@ channel_list_append (server *serv, char *channel, char *users, char *topic)
 
 	win->empty = FALSE;
 
-	nusers = atoi (users);
+	nusers = g_strtod (users, NULL);
 
 	gtk_list_store_append (store, &iter);
 	gtk_list_store_set (store, &iter, 0, channel, 1, users, 2, topic, 3, serv, 4, nusers, -1);

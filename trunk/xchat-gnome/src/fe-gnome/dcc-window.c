@@ -138,9 +138,10 @@ dcc_window_init (DccWindow *window)
 	gtk_tree_view_column_pack_start (window->remaining_column, window->remaining_cell, TRUE);
 	gtk_tree_view_column_add_attribute (window->remaining_column, window->remaining_cell, "text", TIME_COLUMN);
 
-	gtk_tree_view_column_set_title (window->progress_column, "%");
-	gtk_tree_view_column_set_title (window->info_column, "File");
-	gtk_tree_view_column_set_title (window->remaining_column, "Remaining");
+	/* File completion percent */
+	gtk_tree_view_column_set_title (window->progress_column, _("%"));
+	gtk_tree_view_column_set_title (window->info_column, _("File"));
+	gtk_tree_view_column_set_title (window->remaining_column, _("Remaining"));
 
 	gtk_tree_view_column_set_min_width (window->progress_column, 75);
 
@@ -195,7 +196,7 @@ dcc_window_delete_event (GtkWidget *window, GdkEvent *event, gpointer data)
 }
 
 DccWindow *
-dcc_window_new ()
+dcc_window_new (void)
 {
 	DccWindow *window = g_object_new (dcc_window_get_type (), 0);
 	if (window->toplevel == NULL) {
@@ -240,7 +241,7 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 
 		g_object_unref (xml);
 
-		text = g_strdup_printf ("<span weight=\"bold\" size=\"larger\">Incoming File Transfer</span>\n\n%s is attempting to send you a file named \"%s\".  Do you wish to accept the transfer?", dcc->nick, dcc->file);
+		text = g_strdup_printf (_("<span weight=\"bold\" size=\"larger\">Incoming File Transfer</span>\n\n%s is attempting to send you a file named \"%s\".  Do you wish to accept the transfer?"), dcc->nick, dcc->file);
 		gtk_label_set_markup (GTK_LABEL (label), text);
 		g_free (text);
 
@@ -262,7 +263,7 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 	done_text = g_strdup_printf ("%d %%", done);
 	size = gnome_vfs_format_file_size_for_display (dcc->size);
 	pos = gnome_vfs_format_file_size_for_display (dcc->pos);
-	info_text = g_strdup_printf ("<b>%s</b>\n<small>from %s</small>\n%s of %s", dcc->file, dcc->nick, pos, size);
+	info_text = g_strdup_printf (_("<b>%s</b>\n<small>from %s</small>\n%s of %s"), dcc->file, dcc->nick, pos, size);
 	g_free (size);
 	g_free (pos);
 
@@ -273,7 +274,7 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 	                    ICON_COLUMN, NULL,
 	                    DONE_COLUMN, done,
 	                    DONE_LABEL_COLUMN, done_text,
-	                    TIME_COLUMN, "starting",
+	                    TIME_COLUMN, _("starting"),
 	                    -1);
 
 	g_free (done_text);
@@ -299,17 +300,22 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 				gchar *info_text;
 				gchar *remaining_text;
 
-				info_text = g_strdup_printf ("<b>%s</b>\n<small>from %s</small>\n%s of %s at %s/s", dcc->file, dcc->nick, pos, size, speed);
+				info_text = g_strdup_printf (_("<b>%s</b>\n<small>from %s</small>\n%s of %s at %s/s"), dcc->file, dcc->nick, pos, size, speed);
 
 				g_free (size);
 				g_free (pos);
 				g_free (speed);
 
 				if (dcc->dccstat == 0) {
-					remaining_text = g_strdup ("queued");
+					remaining_text = g_strdup (_("queued"));
 				} else if (dcc->dccstat == 2) {
-					gchar *message = g_strdup_printf ("Transfer of %s %s %s failed", dcc->file, dcc->type == 0 ? "to" : "from", dcc->nick);
-					error_dialog ("Transfer failed", message);
+					gchar *message;
+
+					if (dcc->type == 0)
+						message = g_strdup_printf (_("Transfer of %s to %s failed"), dcc->file, dcc->nick);
+					else
+						message = g_strdup_printf (_("Transfer of %s from %s failed"), dcc->file, dcc->nick);
+					error_dialog (_("Transfer failed"), message);
 					g_free (message);
 					gtk_list_store_remove (window->transfer_store, &iter);
 					return;
@@ -318,13 +324,13 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 					return;
 				} else {
 					if (dcc->cps == 0) {
-						remaining_text = g_strdup ("stalled");
+						remaining_text = g_strdup (_("stalled"));
 					} else {
 						int eta = (dcc->size - dcc->pos) / dcc->cps;
 						if (eta > 3600)
-							remaining_text = g_strdup_printf ("%.2d:%.2d:%.2d", eta / 3600, (eta / 60) % 60, eta % 60);
+							remaining_text = g_strdup_printf (_("%.2d:%.2d:%.2d"), eta / 3600, (eta / 60) % 60, eta % 60);
 						else
-							remaining_text = g_strdup_printf ("%.2d:%.2d", eta / 60, eta % 60);
+							remaining_text = g_strdup_printf (_("%.2d:%.2d"), eta / 60, eta % 60);
 					}
 				}
 
@@ -437,7 +443,7 @@ dcc_send_file (struct User *user)
 	GtkWidget *dialog;
 	GtkResponseType response;
 
-	dialog = gtk_file_chooser_dialog_new ("Send File...",
+	dialog = gtk_file_chooser_dialog_new (_("Send File..."),
 			GTK_WINDOW (gui.main_window),
 			GTK_FILE_CHOOSER_ACTION_OPEN,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
