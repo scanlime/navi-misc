@@ -26,17 +26,19 @@
 #include "gui.h"
 #include "../common/outbound.h"
 
-static void     text_entry_class_init  (TextEntryClass *klass);
-static void     text_entry_init        (TextEntry      *entry);
-static void     text_entry_finalize    (GObject        *object);
-static gboolean text_entry_key_press   (GtkWidget      *widget,
-                                        GdkEventKey    *event,
-                                        gpointer        data);
-static gboolean text_entry_spell_check (SexySpellEntry *entry,
-                                        gchar          *text,
-                                        gpointer        data);
-static void     text_entry_activate    (GtkWidget      *widget,
-                                        gpointer        data);
+static void     text_entry_class_init   (TextEntryClass *klass);
+static void     text_entry_init         (TextEntry      *entry);
+static void     text_entry_finalize     (GObject        *object);
+static gboolean text_entry_key_press    (GtkWidget      *widget,
+                                         GdkEventKey    *event,
+                                         gpointer        data);
+static gboolean text_entry_spell_check  (SexySpellEntry *entry,
+                                         gchar          *text,
+                                         gpointer        data);
+static void     text_entry_activate     (GtkWidget      *widget,
+                                         gpointer        data);
+static void     text_entry_history_up   (GtkEntry       *entry);
+static void     text_entry_history_down (GtkEntry       *entry);
 
 #ifdef HAVE_LIBSEXY
 static SexySpellEntryClass *parent_class = NULL;
@@ -61,11 +63,11 @@ text_entry_class_init (TextEntryClass *klass)
 static void
 text_entry_init (TextEntry *entry)
 {
+	g_signal_connect_after (G_OBJECT (entry), "key_press_event", G_CALLBACK (text_entry_key_press),   NULL);
+	g_signal_connect       (G_OBJECT (entry), "activate",        G_CALLBACK (text_entry_activate),    NULL);
 #ifdef HAVE_LIBSEXY
 	g_signal_connect_after (G_OBJECT (entry), "word-check",      G_CALLBACK (text_entry_spell_check), NULL);
 #endif
-//	g_signal_connect_after (G_OBJECT (entry), "key_press_event", G_CALLBACK (text_entry_key_press),   NULL);
-	g_signal_connect       (G_OBJECT (entry), "activate",        G_CALLBACK (text_entry_activate),    NULL);
 }
 
 static void
@@ -78,20 +80,20 @@ text_entry_finalize (GObject *object)
 static gboolean
 text_entry_key_press (GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
-	/*
 	switch (event->keyval) {
 		case GDK_Down:
-			history_key_down (GTK_ENTRY (widget));
+			text_entry_history_down (GTK_ENTRY (widget));
 			return TRUE;
 		case GDK_Up:
-			history_key_up (GTK_ENTRY (widget));
+			text_entry_history_up (GTK_ENTRY (widget));
 			return TRUE;
 		case GDK_Tab:
+			/*
 			return text_entry_tab_complete (widget);
+			*/
 		default:
 			break;
 	}
-	*/
 	return FALSE;
 }
 
@@ -126,6 +128,28 @@ text_entry_activate (GtkWidget *widget, gpointer data)
 	if (gui.current_session != NULL)
 		handle_multiline (gui.current_session, (char *) entry_text, TRUE, FALSE);
 	g_free (entry_text);
+}
+
+static void
+text_entry_history_up (GtkEntry *entry)
+{
+	char *new_line;
+	new_line = history_up (&gui.current_session->history, (char *)entry->text);
+	if (new_line) {
+		gtk_entry_set_text (entry, new_line);
+		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
+	}
+}
+
+static void
+text_entry_history_down (GtkEntry *entry)
+{
+	char *new_line;
+	new_line = history_down (&gui.current_session->history);
+	if (new_line) {
+		gtk_entry_set_text (entry, new_line);
+		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
+	}
 }
 
 GtkWidget *
