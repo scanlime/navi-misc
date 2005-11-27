@@ -22,29 +22,37 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include "gui.h"
+#include "palette.h"
 #include "textentry.h"
 #include "textgui.h"
 #include "userlist.h"
 #include "../common/outbound.h"
 
-static void     text_entry_class_init   (TextEntryClass *klass);
-static void     text_entry_init         (TextEntry      *entry);
-static void     text_entry_finalize     (GObject        *object);
-static gboolean text_entry_key_press    (GtkWidget      *widget,
-                                         GdkEventKey    *event,
-                                         gpointer        data);
-static gboolean text_entry_spell_check  (SexySpellEntry *entry,
-                                         gchar          *text,
-                                         gpointer        data);
-static void     text_entry_activate     (GtkWidget      *widget,
-                                         gpointer        data);
-static void     text_entry_history_up   (GtkEntry       *entry);
-static void     text_entry_history_down (GtkEntry       *entry);
-static gboolean text_entry_tab_complete (GtkEntry       *entry);
+static void       text_entry_class_init     (TextEntryClass *klass);
+static void       text_entry_init           (TextEntry      *entry);
+static void       text_entry_finalize       (GObject        *object);
+static gboolean   text_entry_key_press      (GtkWidget      *widget,
+                                             GdkEventKey    *event,
+                                             gpointer        data);
+static gboolean   text_entry_spell_check    (SexySpellEntry *entry,
+                                             gchar          *text,
+                                             gpointer        data);
+static void       text_entry_activate       (GtkWidget      *widget,
+                                             gpointer        data);
+static void       text_entry_history_up     (GtkEntry       *entry);
+static void       text_entry_history_down   (GtkEntry       *entry);
+static gboolean   text_entry_tab_complete   (GtkEntry       *entry);
+static void       text_entry_populate_popup (GtkEntry       *entry,
+                                             GtkMenu        *menu,
+                                             gpointer        data);
 
-static gboolean tab_complete_command    (GtkEntry       *entry);
-static gboolean tab_complete_nickname   (GtkEntry       *entry,
-                                         int             start);
+static gboolean   tab_complete_command      (GtkEntry       *entry);
+static gboolean   tab_complete_nickname     (GtkEntry       *entry,
+                                             int             start);
+static GtkWidget *get_color_icon            (int             c,
+                                             GtkStyle       *style);
+static void       color_code_activate       (GtkMenuItem    *item,
+                                             gpointer        data);
 
 #ifdef HAVE_LIBSEXY
 static SexySpellEntryClass *parent_class = NULL;
@@ -77,10 +85,11 @@ text_entry_init (TextEntry *entry)
 	GList *items = NULL;
 	int i;
 
-	g_signal_connect_after (G_OBJECT (entry), "key_press_event", G_CALLBACK (text_entry_key_press),   NULL);
-	g_signal_connect       (G_OBJECT (entry), "activate",        G_CALLBACK (text_entry_activate),    NULL);
+	g_signal_connect_after (G_OBJECT (entry), "key_press_event", G_CALLBACK (text_entry_key_press),      NULL);
+	g_signal_connect       (G_OBJECT (entry), "activate",        G_CALLBACK (text_entry_activate),       NULL);
+	g_signal_connect       (G_OBJECT (entry), "populate-popup",  G_CALLBACK (text_entry_populate_popup), NULL);
 #ifdef HAVE_LIBSEXY
-	g_signal_connect_after (G_OBJECT (entry), "word-check",      G_CALLBACK (text_entry_spell_check), NULL);
+	g_signal_connect_after (G_OBJECT (entry), "word-check",      G_CALLBACK (text_entry_spell_check),    NULL);
 #endif
 
 	entry->priv = g_new0 (TextEntryPriv, 1);
@@ -228,6 +237,87 @@ text_entry_tab_complete (GtkEntry *entry)
 		}
 	}
 	return TRUE;
+}
+
+static void
+text_entry_populate_popup (GtkEntry *entry, GtkMenu *menu, gpointer data)
+{
+	GtkWidget *item;
+	GtkWidget *submenu;
+
+	item = gtk_menu_item_new_with_mnemonic (_("I_nsert Color Code"));
+	gtk_widget_show (item);
+
+	submenu = gtk_menu_new ();
+	gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), submenu);
+	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+
+	item = gtk_image_menu_item_new_with_label ("Black");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (1, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 1);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Dark Blue");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (2, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 2);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Dark Green");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (3, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 3);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Red");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (4, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 4);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Brown");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (5, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 5);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Purple");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (6, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 6);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Orange");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (7, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 7);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Yellow");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (8, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 8);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Light Green");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (9, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 9);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Aqua");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (10, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 10);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Light Blue");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (11, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 11);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Blue");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (12, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 12);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Violet");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (13, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 13);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Grey");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (14, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 14);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("Light Grey");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (15, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 15);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+	item = gtk_image_menu_item_new_with_label ("White");
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), get_color_icon (0, gtk_widget_get_style (item)));
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (color_code_activate), (gpointer) 0);
+	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+
+	gtk_widget_show_all (submenu);
 }
 
 static gboolean
@@ -392,6 +482,38 @@ tab_complete_nickname (GtkEntry *entry, int start)
 		return TRUE;
 	}
 	return TRUE;
+}
+
+static GtkWidget *
+get_color_icon (int c, GtkStyle *style)
+{
+	GtkWidget *image;
+	GdkPixmap *pixmap;
+	GdkGC *color;
+
+	pixmap = gdk_pixmap_new (NULL, 16, 16, 24);
+
+	color = gdk_gc_new (GDK_DRAWABLE (pixmap));
+	gdk_gc_set_foreground (color, &style->dark[GTK_STATE_NORMAL]);
+	gdk_draw_rectangle (GDK_DRAWABLE (pixmap), color, TRUE, 0, 0, 16, 16);
+	gdk_gc_set_foreground (color, &colors[c]);
+	gdk_draw_rectangle (GDK_DRAWABLE (pixmap), color, TRUE, 1, 1, 14, 14);
+	g_object_unref (color);
+
+	image = gtk_image_new_from_pixmap (pixmap, NULL);
+	g_object_unref (pixmap);
+	return image;
+}
+
+static void
+color_code_activate (GtkMenuItem *item, gpointer data)
+{
+	int color = (int) data;
+	char *code = g_strdup_printf ("%%C%d", color);
+	int position = gtk_editable_get_position (GTK_EDITABLE (gui.text_entry));
+	gtk_editable_insert_text (GTK_EDITABLE (gui.text_entry), code, strlen (code), &position);
+	gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), position + strlen (code));
+	g_free (code);
 }
 
 GtkWidget *
