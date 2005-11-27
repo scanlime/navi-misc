@@ -1,8 +1,0 @@
-C64 side          EZ-USB Side
-------------------------------
-white  4   CLK    PA6  27
-green  3   ATN    PA7  28
-black  2   GND    GND  29
-brown  5   DATA   PA5  26
-red    6   RESET  PA4  25
-blue   NC
