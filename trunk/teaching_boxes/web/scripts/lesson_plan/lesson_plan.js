@@ -16,7 +16,7 @@ function LessonPlan ()
 
 	// Title
 	title = document.createElement ("h1")
-	text = document.createTextNode ("New Plan")
+	text = document.createTextNode ("New Lesson Plan")
 	title.appendChild (text)
 	this.mainDiv.appendChild (title)
 
@@ -243,7 +243,7 @@ function createField (name, desc, type, removable)
 			entry.setAttribute ("type", "text")
 			entry.style.width = "90%"
 			entry.style.margin = "20px"
-			entry.style.border = "thin solid #cccccc"
+			entry.style.border = "thin solid #7777cc"
 			break
 		case TYPE_TEXTAREA:
 			entry = document.createElement ("div")

@@ -6,7 +6,7 @@
 function NewBox ()
 {
 	// Members
-	this.div = top.document.getElementById ('new_box')
+	this.div = top.document.getElementById ('new_lesson')
 	this.select = top.document.getElementById ('fieldsSelect')
 	this.createButton = top.document.getElementById ('newCreate')
 	this.cancelButton = top.document.getElementById ('newCancel')
