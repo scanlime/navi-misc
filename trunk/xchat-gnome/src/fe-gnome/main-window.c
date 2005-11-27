@@ -272,8 +272,6 @@ initialize_main_window (void)
 	gtk_action_group_set_translation_domain (gui.action_group, NULL);
 	gtk_action_group_add_actions (gui.action_group, action_entries,
 	                              G_N_ELEMENTS (action_entries), NULL);
-//	setup_menu ();
-//	initialize_gconf_accels();
 
 	gui.manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (gui.manager, gui.action_group, 0);
@@ -618,7 +616,7 @@ on_discussion_leave_activate (GtkAction *action, gpointer data)
 		client = gconf_client_get_default ();
 		text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
 		if (text == NULL)
-			text = g_strdup ("Ex-Chat");
+			text = g_strdup (_("Ex-Chat"));
 		s->server->p_part (s->server, s->channel, text);
 		g_object_unref (client);
 		g_free (text);
@@ -639,7 +637,7 @@ on_discussion_close_activate (GtkAction *action, gpointer data)
 		client = gconf_client_get_default ();
 		text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
 		if (text == NULL)
-			text = g_strdup ("Ex-Chat");
+			text = g_strdup (_("Ex-Chat"));
 		s->server->p_part (s->server, s->channel, text);
 		g_object_unref (client);
 		g_free (text);
@@ -745,7 +743,7 @@ on_help_contents_activate (GtkAction *action, gpointer data)
 
 	gnome_help_display_with_doc_id (NULL, NULL, "xchat-gnome.xml", NULL, &error);
 	if (error) {
-		error_dialog ("Error showing help", error->message);
+		error_dialog (_("Error showing help"), error->message);
 		g_error_free (error);
 	}
 }
