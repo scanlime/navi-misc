@@ -31,6 +31,7 @@ G_BEGIN_DECLS
 
 typedef struct _TextEntry      TextEntry;
 typedef struct _TextEntryClass TextEntryClass;
+typedef struct _TextEntryPriv  TextEntryPriv;
 
 #define TEXT_ENTRY_TYPE            (text_entry_get_type ())
 #define TEXT_ENTRY(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), TEXT_ENTRY_TYPE, TextEntry))
@@ -41,10 +42,12 @@ typedef struct _TextEntryClass TextEntryClass;
 struct _TextEntry
 {
 #ifdef HAVE_LIBSEXY
-	SexySpellEntry parent;
+	SexySpellEntry  parent;
 #else
-	GtkEntry       parent;
+	GtkEntry        parent;
 #endif
+
+	TextEntryPriv  *priv;
 };
 
 struct _TextEntryClass

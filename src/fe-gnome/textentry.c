@@ -21,9 +21,10 @@
 #include <config.h>
 #include <string.h>
 #include <gtk/gtk.h>
-#include "textentry.h"
-#include "userlist.h"
 #include "gui.h"
+#include "textentry.h"
+#include "textgui.h"
+#include "userlist.h"
 #include "../common/outbound.h"
 
 static void     text_entry_class_init   (TextEntryClass *klass);
@@ -39,6 +40,11 @@ static void     text_entry_activate     (GtkWidget      *widget,
                                          gpointer        data);
 static void     text_entry_history_up   (GtkEntry       *entry);
 static void     text_entry_history_down (GtkEntry       *entry);
+static gboolean text_entry_tab_complete (GtkEntry       *entry);
+
+static gboolean tab_complete_command    (GtkEntry       *entry);
+static gboolean tab_complete_nickname   (GtkEntry       *entry,
+                                         int             start);
 
 #ifdef HAVE_LIBSEXY
 static SexySpellEntryClass *parent_class = NULL;
@@ -47,6 +53,11 @@ G_DEFINE_TYPE (TextEntry, text_entry, SEXY_TYPE_SPELL_ENTRY);
 static GtkEntryClass       *parent_class = NULL;
 G_DEFINE_TYPE (TextEntry, text_entry, GTK_TYPE_ENTRY);
 #endif
+
+struct _TextEntryPriv
+{
+	GCompletion *command_completion;
+};
 
 static void
 text_entry_class_init (TextEntryClass *klass)
@@ -63,16 +74,42 @@ text_entry_class_init (TextEntryClass *klass)
 static void
 text_entry_init (TextEntry *entry)
 {
+	GList *items = NULL;
+	int i;
+
 	g_signal_connect_after (G_OBJECT (entry), "key_press_event", G_CALLBACK (text_entry_key_press),   NULL);
 	g_signal_connect       (G_OBJECT (entry), "activate",        G_CALLBACK (text_entry_activate),    NULL);
 #ifdef HAVE_LIBSEXY
 	g_signal_connect_after (G_OBJECT (entry), "word-check",      G_CALLBACK (text_entry_spell_check), NULL);
 #endif
+
+	entry->priv = g_new0 (TextEntryPriv, 1);
+
+	/* Initialize & populate a GCompletion for commands */
+	entry->priv->command_completion = g_completion_new (NULL);
+	/* FIXME - need to convert command_list to a GList
+	g_completion_add_items (entry->priv->command_completion, command_list);
+	*/
+	for (i = 0; xc_cmds[i].name != NULL; i++) {
+		items = g_list_prepend (items, xc_cmds[i].name);
+	}
+	items = g_list_reverse (items);
+	g_completion_add_items (entry->priv->command_completion, items);
+	g_list_free (items);
 }
 
 static void
 text_entry_finalize (GObject *object)
 {
+	TextEntry *entry;
+
+	entry = TEXT_ENTRY (object);
+
+	if (entry->priv->command_completion)
+		g_completion_free (entry->priv->command_completion);
+	if (entry->priv)
+		g_free (entry->priv);
+
 	if (G_OBJECT_CLASS (parent_class)->finalize)
 		G_OBJECT_CLASS (parent_class)->finalize (object);
 }
@@ -88,9 +125,7 @@ text_entry_key_press (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			text_entry_history_up (GTK_ENTRY (widget));
 			return TRUE;
 		case GDK_Tab:
-			/*
-			return text_entry_tab_complete (widget);
-			*/
+			return text_entry_tab_complete (GTK_ENTRY (widget));
 		default:
 			break;
 	}
@@ -150,6 +185,213 @@ text_entry_history_down (GtkEntry *entry)
 		gtk_entry_set_text (entry, new_line);
 		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
 	}
+}
+
+static gboolean
+text_entry_tab_complete (GtkEntry *entry)
+{
+	const char *text;
+	int start, cursor_pos;
+
+	/* FIXME: this probably isn't unicode clean */
+
+	text = gtk_entry_get_text (entry);
+	cursor_pos = gtk_editable_get_position (GTK_EDITABLE (entry));
+
+	if (cursor_pos == 0)
+		return TRUE;
+
+	/* If we're directly after a space, we have nothing to tab complete */
+	if (text[cursor_pos - 1] == ' ')
+		return TRUE;
+
+	/* search backwards to find /, #, ' ' or start */
+	for (start = cursor_pos - 1; start >= 0; --start) {
+		/* check if we can match a channel */
+		/* FIXME: implement
+		if (text[start] == '#') {
+			if (start == 0 || text[start - 1] == ' ') {
+				tab_complete_channel (entry, start);
+				return;
+			}
+		}
+		*/
+
+		/* check if we can match a command */
+		if (start == 0 && text[0] == '/') {
+			return tab_complete_command (entry);
+		}
+
+		/* check if we can match a nickname */
+		if (start == 0 || text[start] == ' ') {
+			return tab_complete_nickname (entry, start == 0 ? start : start + 1);
+		}
+	}
+	return TRUE;
+}
+
+static gboolean
+tab_complete_command (GtkEntry *entry)
+{
+	TextEntry *text_entry;
+	int cursor, length, pos;
+	char *prefix, *new_prefix, *printtext, *npt = NULL;
+	const gchar *text;
+	GList *options, *list;
+	session_gui *tgui;
+
+	text_entry = TEXT_ENTRY (entry);
+
+	cursor = gtk_editable_get_position (GTK_EDITABLE (entry));
+	prefix = g_new0 (char, cursor);
+	text = gtk_entry_get_text (entry);
+	strncpy (prefix, &text[1], cursor - 1);
+	length = strlen (text);
+
+	options = g_completion_complete (text_entry->priv->command_completion, prefix, &new_prefix);
+
+	if (g_list_length (options) == 0) {
+		/* no matches */
+		g_free (prefix);
+		return TRUE;
+	}
+
+	if (g_list_length (options) == 1) {
+		/* one match */
+
+		if (length - cursor == 0) {
+			/* at the end of the entry, just insert */
+
+			npt = g_strdup_printf ("/%s ", (char *) options->data);
+			pos = strlen (npt);
+		} else {
+			npt = g_strdup_printf ("/%s %s", (char *) options->data, &text[cursor]);
+			pos = strlen ((char *) options->data) + 2;
+		}
+		gtk_entry_set_text (entry, npt);
+		gtk_editable_set_position (GTK_EDITABLE (entry), pos);
+		g_free (npt);
+		g_free (prefix);
+		return TRUE;
+	} else {
+		/* more than one match - print a list of options
+		 * to the window and update the prefix
+		 */
+		list = options;
+		printtext = g_strdup ((char *) list->data);
+		for (list = g_list_next (list); list; list = g_list_next (list)) {
+			npt = g_strdup_printf ("%s %s", printtext, (char *) list->data);
+			g_free (printtext);
+			printtext = npt;
+		}
+		tgui = (session_gui *) gui.current_session->gui;
+		text_gui_print (tgui->buffer, (guchar *) printtext, TRUE);
+		g_free (printtext);
+		if (strcasecmp (prefix, new_prefix) != 0) {
+			/* insert the new prefix into the entry */
+			npt = g_strdup_printf ("/%s%s", new_prefix, &text[cursor]);
+			gtk_entry_set_text (entry, npt);
+			g_free (npt);
+			gtk_editable_set_position (GTK_EDITABLE (entry), strlen (new_prefix));
+		}
+		g_free (prefix);
+		g_free (npt);
+		return TRUE;
+	}
+
+	return TRUE;
+}
+
+static gboolean
+tab_complete_nickname (GtkEntry *entry, int start)
+{
+	GCompletion *completion;
+	int cursor, length;
+	char *text;
+	GList *list;
+	char *printtext, *npt;
+	session_gui *tgui;
+	GList *options;
+	gchar *new_prefix;
+	gchar *prefix;
+
+	completion = userlist_get_completion (u, gui.current_session);
+	g_completion_set_compare (completion, (GCompletionStrncmpFunc) strncasecmp);
+	text = g_strdup (gtk_entry_get_text (entry));
+	length = strlen (text);
+	cursor = gtk_editable_get_position (GTK_EDITABLE (entry));
+
+	prefix = g_new0 (char, cursor - start + 1);
+	strncpy (prefix, &text[start], cursor - start);
+	options = g_completion_complete (completion, prefix, &new_prefix);
+
+	if (g_list_length (options) == 0) {
+		/* no matches */
+		g_free (text);
+		g_free (prefix);
+		return TRUE;
+	}
+
+	if (g_list_length (options) == 1) {
+		int pos;
+
+		/* one match */
+		if (length - cursor == 0) {
+			/* at the end of the entry, just insert */
+
+			if (start != 0) {
+				text[start] = '\0';
+				npt = g_strdup_printf ("%s%s", text, (char *) options->data);
+				pos = strlen ((char *) options->data) + start;
+			} else {
+				npt = g_strdup_printf ("%s: ", (char *) options->data);
+				pos = strlen ((char *) options->data) + 2;
+			}
+		} else {
+			/* somewhere in the middle of the entry */
+
+			if (start != 0) {
+				text[start] = '\0';
+				npt = g_strdup_printf ("%s%s%s", text, (char *) options->data, &text[cursor]);
+				pos = strlen ((char *) options->data) + start;
+			} else {
+				npt = g_strdup_printf ("%s: %s", (char *) options->data, &text[cursor]);
+				pos = strlen ((char *) options->data) + 2;
+			}
+		}
+		gtk_entry_set_text (entry, npt);
+		gtk_editable_set_position (GTK_EDITABLE (entry), pos);
+		g_free (npt);
+		g_free (text);
+		g_free (prefix);
+		return TRUE;
+	} else {
+		/* more than one match - print a list of options
+		 * to the window and update the prefix
+		 */
+		list = options;
+		printtext = g_strdup ((char *) list->data);
+		for (list = g_list_next (list); list; list = g_list_next (list)) {
+			npt = g_strdup_printf ("%s %s", printtext, (char *) list->data);
+			g_free (printtext);
+			printtext = npt;
+		}
+		tgui = (session_gui *) gui.current_session->gui;
+		text_gui_print (tgui->buffer, (guchar *) printtext, TRUE);
+		g_free (printtext);
+		if (strcasecmp (prefix, new_prefix) != 0) {
+			/* insert the new prefix into the entry */
+			text[start] = '\0';
+			npt = g_strdup_printf ("%s%s%s", text, new_prefix, &text[cursor]);
+			gtk_entry_set_text (entry, npt);
+			g_free (npt);
+			gtk_editable_set_position (GTK_EDITABLE (entry), start + strlen (new_prefix));
+		}
+		g_free (text);
+		g_free (prefix);
+		return TRUE;
+	}
+	return TRUE;
 }
 
 GtkWidget *
