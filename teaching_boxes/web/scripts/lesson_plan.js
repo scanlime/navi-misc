@@ -112,7 +112,7 @@ function LessonPlan ()
 	// Fields
 	for (item in requiredFields)
 	{
-		this.addField (item, requiredFields[item], false)
+		this.addField (item, requiredFields[item], false, false)
 	}
 }
 
@@ -140,7 +140,7 @@ function showToolTip (x, y, counter, tip)
 	tipVisible = true
 	div = document.createElement ("div")
 	div.setAttribute ("id", "tooltip")
-	div.style.backgroundColor = "#eeff88"
+	div.style.backgroundColor = "#eeeeee"
 	div.style.border = "thin solid black"
 	div.style.padding = "5px"
 	div.appendChild (document.createTextNode (tip))
@@ -172,7 +172,7 @@ function backgroundIn (e)
 		tg.tipVisible = true
 		x = e.clientX
 		y = e.clientY
-		setTimeout ("showToolTip (" + x + ", " + y + ", " + focusCounter + ", \"" + tg.tip + "\");", 1000)
+		setTimeout ("showToolTip (" + x + ", " + y + ", " + focusCounter + ", \"" + tg.tip + "\");", 500)
 	}
 }
 
@@ -280,7 +280,7 @@ function setupToolbar (plan)
 }
 
 // Add a field to the lesson plan
-function addField (name, field, removable)
+function addField (name, field, removable, doMceReplace)
 {
 	desc = field[FIELD_DESC]
 	type = field[FIELD_TYPE]
@@ -288,6 +288,13 @@ function addField (name, field, removable)
 	field = createField (name, desc, type, removable)
 	this.fields[field.id] = field
 	this.mainDiv.appendChild (field)
+
+	id = field.id
+
+	if (type == TYPE_TEXTAREA && doMceReplace)
+		tinyMCE.execCommand ("mceAddControl", true, "mceReplaceMe" + id)
+
+	return field
 }
 
 // Create a field and return it
@@ -323,12 +330,13 @@ function createField (name, desc, type, removable)
 		case TYPE_ENTRY:
 			entry = document.createElement ("input")
 			entry.setAttribute ("type", "text")
-			entry.setAttribute ("style", "width: 100%; margin-bottom: 20px;")
+			entry.setAttribute ("style", "width: 100%;")
 			break
 		case TYPE_TEXTAREA:
 			entry = document.createElement ("textarea")
-			entry.setAttribute ("rows", 5)
-			entry.setAttribute ("style", "width: 100%; margin-bottom: 20px;")
+			entry.setAttribute ("rows", 10)
+			entry.setAttribute ("style", "width: 100%;")
+			entry.setAttribute ("id", "mceReplaceMe" + id)
 			break
 		default:
 			entry = document.createElement ("textarea")
@@ -338,6 +346,7 @@ function createField (name, desc, type, removable)
 	// Package it all up and return it
 	div = document.createElement ("div")
 	div.setAttribute ("id", id)
+	div.style.marginTop = "20px"
 	div.appendChild (title)
 	if (removable) {
 		div.appendChild (rm)
@@ -492,7 +501,7 @@ function newBoxCreateButtonClicked ()
 		if (options[i].myCheck.checked)
 		{
 			field = options[i].fieldName
-			lessonPlan.addField (field, optionalFields[field], true)
+			lessonPlan.addField (field, optionalFields[field], true, true)
 			optionalFields[field][FIELD_USED] = true;
 		}
 	}
@@ -626,7 +635,7 @@ function addFieldCreateButtonClicked ()
 		if (options[i].selected)
 		{
 			field = div.options[i].fieldName
-			lessonPlan.addField (field, optionalFields[field], true)
+			lessonPlan.addField (field, optionalFields[field], true, true)
 			optionalFields[field][FIELD_USED] = true
 		}
 	}
@@ -668,6 +677,12 @@ function main ()
 	// Make sure the main window knows to call that every time we
 	// resize.
 	top.onresize = calculateSizes
+
+	// Initialize the rich text entry
+	tinyMCE.init({
+		mode : "textareas",
+		theme : "simple"
+	});
 
 	// Create the stuff.
 	lessonPlan = new LessonPlan ()
