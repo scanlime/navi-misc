@@ -107,78 +107,27 @@ function LessonPlan ()
 	}
 }
 
+function createButton (name, onClick)
+{
+	button = document.createElement ("span")
+	button.appendChild (document.createTextNode (name))
+	button.style.padding = "5px"
+	button.style.margin = "0px 5px 0px 5px"
+	button.style.cursor = "default"
+	button.onmouseover = function (e) {e.target.style.backgroundColor = "#eeeeee"}
+	button.onmouseout = function (e) {e.target.style.backgroundColor = "#cccccc"}
+	button.onclick = onClick
+	return button
+}
+
 function setupToolbar (plan)
 {
-	// New lesson button
-	button = document.createElement ("span")
-	button.appendChild (document.createTextNode ("New Lesson"))
-	button.style.padding = "5px"
-	button.style.margin = "0px 5px 0px 5px"
-	button.style.border = "thin solid #000000"
-	button.onmouseover = overToolbarButton
-	button.onmouseout = outToolbarButton
-	plan.toolbar.appendChild (button)
-
-	// Save lesson button
-	button = document.createElement ("span")
-	button.appendChild (document.createTextNode ("Save Lesson"))
-	button.style.padding = "5px"
-	button.style.margin = "0px 5px 0px 5px"
-	button.style.border = "thin solid #000000"
-	button.onmouseover = overToolbarButton
-	button.onmouseout = outToolbarButton
-	plan.toolbar.appendChild (button)
-
-	// Create Link button
-	button = document.createElement ("span")
-	button.appendChild (document.createTextNode ("Create Link"))
-	button.style.padding = "5px"
-	button.style.margin = "0px 5px 0px 5px"
-	button.style.border = "thin solid #000000"
-	button.onmouseover = overToolbarButton
-	button.onmouseout = outToolbarButton
-	plan.toolbar.appendChild (button)
-
-	// Add Field button
-	button = document.createElement ("span")
-	button.appendChild (document.createTextNode ("Add Field"))
-	button.style.padding = "5px"
-	button.style.margin = "0px 5px 0px 5px"
-	button.style.border = "thin solid #000000"
-	button.onmouseover = overToolbarButton
-	button.onmouseout = outToolbarButton
-	button.onclick = function (event) {addField = new AddFieldDlg ()}
-	plan.toolbar.appendChild (button)
-
-	// Add Resource button
-	button = document.createElement ("span")
-	button.appendChild (document.createTextNode ("Add Resource"))
-	button.style.padding = "5px"
-	button.style.margin = "0px 5px 0px 5px"
-	button.style.border = "thin solid #000000"
-	button.onmouseover = overToolbarButton
-	button.onmouseout = outToolbarButton
-	plan.toolbar.appendChild (button)
-
-	// Add Note button
-	button = document.createElement ("span")
-	button.appendChild (document.createTextNode ("Add Note"))
-	button.style.padding = "5px"
-	button.style.margin = "0px 5px 0px 5px"
-	button.style.border = "thin solid #000000"
-	button.onmouseover = overToolbarButton
-	button.onmouseout = outToolbarButton
-	plan.toolbar.appendChild (button)
-}
-
-function overToolbarButton (event)
-{
-	event.target.style.backgroundColor = "#eeeeee"
-}
-
-function outToolbarButton (event)
-{
-	event.target.style.backgroundColor = "#cccccc"
+	plan.toolbar.appendChild (createButton ("New Lesson"))
+	plan.toolbar.appendChild (createButton ("Save Lesson"))
+	plan.toolbar.appendChild (createButton ("Create Link"))
+	plan.toolbar.appendChild (createButton ("Add Field", function (e) {addField = new AddFieldDlg ()}))
+	plan.toolbar.appendChild (createButton ("Add Resource"))
+	plan.toolbar.appendChild (createButton ("Add Note"))
 }
 
 // Add a field to the lesson plan
@@ -211,6 +160,7 @@ function createField (name, desc, type, removable)
 		rm.setAttribute ("class", "removeButton")
 		rm.setAttribute ("id", id)
 		rm.appendChild (document.createTextNode ("Remove"))
+		rm.style.cursor = "pointer"
 		rm.onclick = removeField
 	}
 
@@ -330,6 +280,7 @@ function NewBox ()
 	this.div.style.left = (windowWidth / 2) - (this.div.clientWidth / 2)
 	this.div.style.top = (windowHeight / 2) - (this.div.clientHeight / 2) + bannerHeight
 	this.div.style.visibility = "visible"
+	this.div.style.cursor = "default"
 }
 
 // Selection changed handler
@@ -454,6 +405,7 @@ function AddFieldDlg ()
 	this.div.style.left = (windowWidth / 2) - (this.div.clientWidth / 2)
 	this.div.style.top = (windowHeight / 2) - (this.div.clientHeight / 2) + bannerHeight
 	this.div.style.visibility = "visible"
+	this.div.style.cursor = "default"
 }
 
 // Selection changed handler
