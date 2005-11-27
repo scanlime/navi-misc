@@ -91,8 +91,6 @@ static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *me
 
 static void on_expand_topic (GtkExpander *expander, gpointer data);
 
-static gboolean on_text_entry_key (GtkWidget *widget, GdkEventKey *key, gpointer data);
-
 static gboolean on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 
@@ -319,7 +317,6 @@ initialize_main_window (void)
 	gui.text_entry = text_entry_new ();
 	gtk_box_pack_start (GTK_BOX (entrybox), gui.text_entry, TRUE, TRUE, 0);
 	gtk_widget_show (gui.text_entry);
-	g_signal_connect_after (G_OBJECT (gui.text_entry), "key_press_event", G_CALLBACK (on_text_entry_key), NULL);
 	g_signal_connect (G_OBJECT (gui.text_entry), "populate-popup", G_CALLBACK (entry_context), NULL);
 
 	close = glade_xml_get_widget (gui.xml, "close discussion");
@@ -849,28 +846,6 @@ on_nickname_clicked (GtkButton *widget, gpointer user_data)
 	gtk_widget_show_all (dialog);
 }
 
-static void
-history_key_down (GtkEntry *entry)
-{
-	char *new_line;
-	new_line = history_down (&gui.current_session->history);
-	if (new_line) {
-		gtk_entry_set_text (entry, new_line);
-		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
-	}
-}
-
-static void
-history_key_up (GtkEntry *entry)
-{
-	char *new_line;
-	new_line = history_up (&gui.current_session->history, (char *)entry->text);
-	if (new_line) {
-		gtk_entry_set_text (entry, new_line);
-		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
-	}
-}
-
 static gboolean
 tab_complete_command (GtkEntry *entry)
 {
@@ -1071,23 +1046,6 @@ tab_complete (GtkEntry *entry)
 		}
 	}
 	return TRUE;
-}
-
-static gboolean
-on_text_entry_key (GtkWidget *widget, GdkEventKey *key, gpointer data)
-{
-	if (key->keyval == GDK_Down) {
-		history_key_down (GTK_ENTRY (widget));
-		return TRUE;
-	}
-	if (key->keyval == GDK_Up) {
-		history_key_up (GTK_ENTRY (widget));
-		return TRUE;
-	}
-	if (key->keyval == GDK_Tab) {
-		return tab_complete (GTK_ENTRY (widget));
-	}
-	return FALSE;
 }
 
 static gboolean
