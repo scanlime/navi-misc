@@ -1578,7 +1578,7 @@ on_close (GtkAction * action, gpointer data)
 			client = gconf_client_get_default ();
 			text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
 			if (text == NULL)
-				text = g_strdup ("Ex-Chat");
+				text = g_strdup (_("Ex-Chat"));
 			s->server->p_part (s->server, s->channel, text);
 			g_object_unref (client);
 			g_free (text);
@@ -1633,7 +1633,7 @@ on_channel_leave (GtkAction * action, gpointer data)
 			client = gconf_client_get_default ();
 			text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
 			if (text == NULL)
-				text = g_strdup ("Ex-Chat");
+				text = g_strdup (_("Ex-Chat"));
 			s->server->p_part (s->server, s->channel, text);
 			g_object_unref (client);
 			g_free (text);
