@@ -32,15 +32,12 @@
 #include "palette.h"
 #include "channel-list.h"
 #include "main-window.h"
+#include "topic-label.h"
 #include "util.h"
 #include "../common/xchat.h"
 #include "../common/fe.h"
 #include "../common/servlist.h"
 #include "../common/plugin.h"
-
-#ifdef HAVE_LIBSEXY
-#include <libsexy/sexy-url-label.h>
-#endif
 
 /***** NavTree *****/
 static void      navigation_tree_init (NavTree *navtree);
@@ -294,11 +291,7 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 	gtk_tree_view_set_model (treeview, GTK_TREE_MODEL (userlist_get_store (u, sess)));
 
 	tgui = (session_gui *) sess->gui;
-#ifdef HAVE_LIBSEXY
-	sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), tgui->url_topic);
-#else
-	gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
-#endif
+	topic_label_set_topic (TOPIC_LABEL (gui.topic_label), tgui->topic);
 	net = sess->server->network;
 	if (net == NULL)
 		rename_main_window (NULL, sess->channel);
@@ -1140,11 +1133,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		tgui = (session_gui *) sess->gui;
 		if (tgui) {
 			/* Set the topic. */
-#ifdef HAVE_LIBSEXY
-			sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), tgui->url_topic);
-#else
-			gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
-#endif
+			topic_label_set_topic (TOPIC_LABEL (gui.topic_label), tgui->topic);
 
 			/* Show the xtext buffer for the session. */
 			gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);

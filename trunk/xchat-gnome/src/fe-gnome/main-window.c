@@ -25,9 +25,6 @@
 #include <libgnome/libgnome.h>
 #include <gconf/gconf-client.h>
 #include <gtk/gtk.h>
-#ifdef HAVE_LIBSEXY
-#include <libsexy/sexy-url-label.h>
-#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -43,6 +40,7 @@
 #include "preferences.h"
 #include "text-entry.h"
 #include "textgui.h"
+#include "topic-label.h"
 #include "userlist-gui.h"
 #include "util.h"
 #include "../common/xchatc.h"
@@ -88,8 +86,6 @@ static void on_nickname_clicked (GtkButton *widget, gpointer user_data);
 static void on_users_toggled (GtkToggleButton *widget, gpointer user_data);
 
 static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *menu_vbox);
-
-static void on_expand_topic (GtkExpander *expander, gpointer data);
 
 static gboolean on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
@@ -260,14 +256,6 @@ clear_find (GtkWidget *entry, gpointer data)
 	last_search_position = NULL;
 }
 
-#ifdef HAVE_LIBSEXY
-static void
-url_activated (GtkWidget *url_label, const char *url, gpointer data)
-{
-	fe_open_url (url);
-}
-#endif
-
 void
 initialize_main_window (void)
 {
@@ -317,26 +305,10 @@ initialize_main_window (void)
 	g_signal_connect (G_OBJECT (close), "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
 	topicbox = glade_xml_get_widget (gui.xml, "topic hbox");
 
-#ifdef HAVE_LIBSEXY
-	gui.topic_label = sexy_url_label_new ();
-	g_signal_connect (gui.topic_label, "url_activated", G_CALLBACK (url_activated), NULL);
-#else
-	gui.topic_label = gtk_label_new("");
-#endif
+	gui.topic_label = topic_label_new ();
 	gtk_widget_show (gui.topic_label);
-
 	gtk_box_pack_start (GTK_BOX (topicbox), gui.topic_label, TRUE, TRUE, 0);
-	gtk_box_reorder_child (GTK_BOX (topicbox), gui.topic_label, 1);
-	gtk_label_set_selectable (GTK_LABEL (gui.topic_label), TRUE);
-
-	gui.topic_expander = GTK_EXPANDER (gtk_expander_new (NULL));
-	gtk_widget_show (GTK_WIDGET (gui.topic_expander));
-	gtk_box_pack_start (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), FALSE, TRUE, 0);
-	gtk_box_reorder_child (GTK_BOX (topicbox), GTK_WIDGET (gui.topic_expander), 0);
-	gtk_expander_set_expanded (GTK_EXPANDER (gui.topic_expander), FALSE);
-	gtk_expander_set_use_markup (gui.topic_expander, TRUE);
-	g_signal_connect (G_OBJECT (gui.topic_expander), "activate", G_CALLBACK (on_expand_topic), NULL);
-	gtk_label_set_ellipsize (GTK_LABEL (gui.topic_label), PANGO_ELLIPSIZE_END);
+	gtk_box_reorder_child (GTK_BOX (topicbox), gui.topic_label, 0);
 
 	/* Hook up accelerators for pgup/pgdn */
 	{
@@ -923,18 +895,6 @@ set_statusbar ()
 	text = g_strdup_printf ("%s%s%s", tgui->lag_text ? tgui->lag_text : "", (tgui->queue_text && tgui->lag_text) ? ", " : "", tgui->queue_text ? tgui->queue_text : "");
 	gnome_appbar_set_status (GNOME_APPBAR (appbar), text);
 	g_free (text);
-}
-
-static void
-on_expand_topic (GtkExpander *expander, gpointer data)
-{
-	if (gtk_expander_get_expanded (gui.topic_expander)) {
-		gtk_label_set_ellipsize(GTK_LABEL (gui.topic_label), PANGO_ELLIPSIZE_END);
-		gtk_label_set_line_wrap (GTK_LABEL (gui.topic_label), FALSE);
-	} else {
-		gtk_label_set_ellipsize(GTK_LABEL (gui.topic_label), PANGO_ELLIPSIZE_NONE);
-		gtk_label_set_line_wrap (GTK_LABEL (gui.topic_label), TRUE);
-	}
 }
 
 static void

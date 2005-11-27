@@ -1,7 +1,7 @@
 /*
  * textentry.h - Widget encapsulating the text entry
  *
- * Copyright (C) 2005 David Trowbridge
+ * Copyright (C) 2005 xchat-gnome team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -59,7 +59,7 @@ struct _TextEntryClass
 #endif
 };
 
-GType      text_entry_get_type (void);
+GType      text_entry_get_type (void) G_GNUC_CONST;
 GtkWidget *text_entry_new      (void);
 
 G_END_DECLS
