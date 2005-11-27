@@ -24,12 +24,10 @@
 #include <string.h>
 #include <libgnome/gnome-url.h> /* gnome_url_show */
 #include <gconf/gconf-client.h>
-#ifdef HAVE_LIBSEXY
-#include <libsexy/sexy-url-label.h>
-#endif
 #include <libgnomevfs/gnome-vfs.h>
 
 #include "textgui.h"
+#include "topic-label.h"
 #include "palette.h"
 #include "preferences.h"
 #include "userlist-gui.h"
@@ -228,10 +226,8 @@ text_gui_add_text_buffer (struct session *sess)
 
 	if (sess->topic == NULL) {
 		tgui->topic = g_strdup ("");
-		tgui->url_topic = g_strdup ("");
 	} else {
 		tgui->topic = g_strdup (sess->topic);
-		tgui->url_topic = g_strdup (sess->topic);
 	}
 	tgui->entry = g_strdup ("");
 	tgui->lag_text = NULL;
@@ -255,7 +251,6 @@ text_gui_remove_text_buffer (struct session *sess)
 
 	gtk_xtext_buffer_free (tgui->buffer);
 	g_free (tgui->topic);
-	g_free (tgui->url_topic);
 	g_free (tgui->entry);
 	if (tgui->lag_text)
 		g_free (tgui->lag_text);
@@ -339,71 +334,22 @@ set_nickname (struct server *serv, char *newnick)
 	}
 }
 
-static gchar *
-build_url_topic (char *topic)
-{
-	gchar **tokens;
-	gchar *escaped, *result, *temp;
-	int i;
-
-	if (strlen (topic) == 0)
-		return topic;
-
-	/* escape out <>&"' so that pango markup doesn't get confused */
-	escaped = g_markup_escape_text (topic, strlen (topic));
-
-	/* surround urls with <a> markup so that sexy-url-label can link it */
-	tokens = g_strsplit_set (escaped, " \t\n", 0);
-	if (url_check_word (tokens[0], strlen (tokens[0])) == WORD_URL)
-		result = g_strdup_printf ("<a href=\"%s\">%s</a>", tokens[0], tokens[0]);
-	else
-		result = g_strdup (tokens[0]);
-	for (i = 1; tokens[i]; i++) {
-		if (url_check_word (tokens[i], strlen (tokens[i])) == WORD_URL) {
-			temp = g_strdup_printf ("%s <a href=\"%s\">%s</a>", result, tokens[i], tokens[i]);
-			g_free (result);
-			result = temp;
-		} else {
-			temp = g_strdup_printf ("%s %s", result, tokens[i]);
-			g_free (result);
-			result = temp;
-		}
-	}
-	g_strfreev (tokens);
-
-	g_free (escaped);
-
-	return result;
-}
-
 void
 set_gui_topic (session *sess, char *topic)
 {
 	session_gui *tgui = (session_gui *) sess->gui;
 
-	gchar *escaped = build_url_topic (topic);
-
 	g_free (tgui->topic);
-	g_free (tgui->url_topic);
 	if (topic == NULL) {
-		if (sess->topic == NULL) {
+		if (sess->topic == NULL)
 			tgui->topic = g_strdup ("");
-			tgui->url_topic = g_strdup ("");
-		} else {
+		else
 			tgui->topic = g_strdup (sess->topic);
-			tgui->url_topic = g_strdup (sess->topic);
-		}
 	} else {
-		tgui->topic = g_strdup (topic);
-		tgui->url_topic = escaped;
+		tgui->topic = topic_label_get_topic_string (topic);
 	}
-	if (sess == gui.current_session) {
-#ifdef HAVE_LIBSEXY
-		sexy_url_label_set_markup (SEXY_URL_LABEL (gui.topic_label), tgui->url_topic);
-#else
-		gtk_label_set_text (GTK_LABEL (gui.topic_label), tgui->topic);
-#endif
-	}
+	if (sess == gui.current_session)
+		topic_label_set_topic (TOPIC_LABEL (gui.topic_label), tgui->topic);
 }
 
 void
