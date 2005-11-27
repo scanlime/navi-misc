@@ -42,7 +42,7 @@ div.toolbar {
 	width: 100%-7px;
 	background-color: #cccccc;
 	margin-bottom: 5px;
-	border: 7px solid #cccccc;
+	border: thin solid black;
 	font-size: medium;
 }
 

@@ -20,13 +20,16 @@ FIELD_USED = 2
 // Stock Icons
 STOCK_NEW = "images/new.gif"
 STOCK_SAVE = "images/save.gif"
-STOCK_LINK = "images/connect.gif"
-STOCK_ADD = "images/add.gif"
+STOCK_LINK = "images/link.gif"
+STOCK_FIELD = "images/field.gif"
+STOCK_NOTE = "images/note.gif"
+STOCK_REF = "images/reference.gif"
 
 // General stuff
 var lessonPlan
 var newBox
 var addField
+var focusCounter = 0
 
 // Fields and their descriptions
 // Required fields
@@ -124,9 +127,27 @@ function borderSwitch (e)
 		tg = tg.parentNode
 	}
 
-	tmp = tg.style.borderLeft
-	tg.style.borderLeft = tg.style.borderTop = tg.style.borderBottom
-	tg.style.borderRight = tg.style.borderBottom = tmp
+	tmp = tg.style.backgroundColor
+	tg.style.backgroundColor = tg.activeColor
+	tg.activeColor = tmp
+}
+
+function showToolTip (x, y, counter, tip)
+{
+	if (tipVisible || counter != currentFocus)
+		return
+
+	tipVisible = true
+	div = document.createElement ("div")
+	div.setAttribute ("id", "tooltip")
+	div.style.backgroundColor = "#eeff88"
+	div.style.border = "thin solid black"
+	div.style.padding = "5px"
+	div.appendChild (document.createTextNode (tip))
+	div.style.position = "absolute"
+	div.style.top = "" + (y + 10) + "px"
+	div.style.left = "" + (x + 10) + "px"
+	top.document.body.appendChild (div)
 }
 
 function backgroundIn (e)
@@ -140,7 +161,19 @@ function backgroundIn (e)
 		tg = tg.parentNode
 	}
 
-	tg.style.backgroundColor = "#999999"
+	tg.style.borderLeft = tg.style.borderTop = "1px solid #5555aa"
+	tg.style.borderRight = tg.style.borderBottom = "1px solid #5555aa"
+	tg.style.backgroundColor = tg.sensitiveColor
+
+	if (!tg.tipVisible)
+	{
+		focusCounter ++
+		currentFocus = focusCounter
+		tg.tipVisible = true
+		x = e.clientX
+		y = e.clientY
+		setTimeout ("showToolTip (" + x + ", " + y + ", " + focusCounter + ", \"" + tg.tip + "\");", 1000)
+	}
 }
 
 function backgroundOut (e)
@@ -153,10 +186,23 @@ function backgroundOut (e)
 		tg = tg.parentNode
 	}
 
+	tg.style.borderLeft = tg.style.borderTop = "1px solid #cccccc"
+	tg.style.borderRight = tg.style.borderBottom = "1px solid #cccccc"
 	tg.style.backgroundColor = "#cccccc"
+	tg.focused = false
+
+	if (tg.tipVisible)
+	{
+		currentFocus = -1
+		tg.tipVisible = false
+		tipVisible = false
+		div = top.document.getElementById ("tooltip")
+		if (div)
+			top.document.body.removeChild (div)
+	}
 }
 
-function createButton (mytr, name, icon, onClick)
+function createButton (mytr, name, tip, icon, onClick)
 {
 	mytd = document.createElement ("td")
 	mytr.appendChild (mytd)
@@ -177,17 +223,19 @@ function createButton (mytr, name, icon, onClick)
 	tr.appendChild (td1)
 	td1.appendChild (document.createTextNode (name))
 
-	//mytd.style.padding = "5px"
 	mytd.style.cursor = "default"
-	mytd.style.borderLeft = mytd.style.borderTop = "2px solid #ffffff"
-	mytd.style.borderRight = mytd.style.borderBottom = "2px solid #777777"
 	mytd.setAttribute ('valign', "middle")
+	mytd.style.borderLeft = mytd.style.borderTop = "1px solid #cccccc"
+	mytd.style.borderRight = mytd.style.borderBottom = "1px solid #cccccc"
+	mytd.sensitiveColor = "#aaaaee"
+	mytd.activeColor = "#8888bb"
 	mytd.onmouseover = backgroundIn
 	mytd.onmouseout = backgroundOut
 	mytd.onmousedown = borderSwitch
 	mytd.onmouseup = borderSwitch
 	mytd.onclick = onClick
 	mytd.highlightable = true
+	mytd.tip = tip
 	return mytr
 }
 
@@ -196,12 +244,36 @@ function setupToolbar (plan)
 	tab = document.createElement ("table")
 	tr = document.createElement ("tr")
 
-	tr = createButton (tr, "New Lesson", STOCK_NEW);
-	tr = createButton (tr, "Save Lesson", STOCK_SAVE);
-	tr = createButton (tr, "Create Link", STOCK_LINK);
-	tr = createButton (tr, "Add Field", STOCK_ADD, function (e) {addField = new AddFieldDlg ()})
-	tr = createButton (tr, "Add Resource", STOCK_ADD)
-	tr = createButton (tr, "Add Note", STOCK_ADD)
+	tr = createButton (tr, 
+		"New Lesson",
+		"Create a new lesson and add it to the box.",
+		STOCK_NEW);
+
+	tr = createButton (tr,
+		"Save Lesson",
+		"Save the changes to the current lesson.",
+		STOCK_SAVE);
+
+	tr = createButton (tr,
+		"Create Link",
+		"Add a link from another box or lesson to here.",
+		STOCK_LINK);
+
+	tr = createButton (tr,
+		"Add Field",
+		"Add additional information to this lesson.",
+		STOCK_FIELD,
+		function (e) {addField = new AddFieldDlg ()})
+
+	tr = createButton (tr,
+		"Add Resource", 
+		"Upload a file into your box, or create a link to an external web resource.",
+		STOCK_REF)
+
+	tr = createButton (tr,
+		"Add Note",
+		"Add a personal note or reminder to the lesson.",
+		STOCK_NOTE)
 
 	tab.appendChild (tr)
 	plan.toolbar.appendChild (tab)
@@ -231,7 +303,6 @@ function createField (name, desc, type, removable)
 	date = new Date ()
 	id = new String (date.getTime ())
 
-	// FIXME - Might be nice to have this change the cursor on mouseover
 	if (removable) {
 		rm = document.createElement ("span")
 		rm.setAttribute ("class", "removeButton")
