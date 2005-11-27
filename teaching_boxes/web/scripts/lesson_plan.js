@@ -419,16 +419,37 @@ function NewBox ()
 			continue
 
 		div = document.createElement ("div")
+		tbl = document.createElement ("table")
+		div.appendChild (tbl)
+
+		tr = document.createElement ("tr")
+		tr.style.margin = "0px"
+		tr.style.border = "0px"
+		tr.style.padding = "0px"
+		tbl.style.margin = "0px"
+		tbl.style.border = "0px"
+		tbl.style.padding = "0px"
+
+		tbl.appendChild (tr)
+
+		td = document.createElement ("td")
+		td.setAttribute ("valign", "middle")
+		tr.appendChild (td)
 
 		optionCheck = document.createElement("input")
 		optionCheck.type = "checkbox"
+		optionCheck.style.margin = "0px"
 		optionCheck.checked = false
 		optionCheck.fieldName = field
+		td.appendChild (optionCheck)
+		
+		td = document.createElement ("td")
+		td.setAttribute ("valign", "middle")
+		tr.appendChild (td)
 
 		optionText = document.createTextNode (field)
+		td.appendChild (optionText)
 
-		div.appendChild (optionCheck)
-		div.appendChild (optionText)
 		div.fieldName = field
 		div.myCheck = optionCheck
 
@@ -474,6 +495,11 @@ function newBoxSelectionChanged (event)
 	{
 		target = event.srcElement
 		parent = element.srcElement.parentDiv
+	}
+
+	while (target.tagName == "TD" || target.tagName == "TR" || target.tagName == "TABLE")
+	{
+		target = target.parentNode
 	}
 
 	// Clear the current selection
@@ -672,10 +698,7 @@ function calculateSizes ()
 	bannerHeight = top.document.getElementById ('banner').height
 	toolbarHeight = top.document.getElementById ('toolbar').clientHeight + 14
 
-	// FIXME: We need to figure out a better way of getting rid of the
-	// blank line at the bottom of the page...The 35-point subtract
-	// covers this in my web browser. -- Cory
-	windowHeight = top.innerHeight - bannerHeight - toolbarHeight - 35
+	windowHeight = top.innerHeight - bannerHeight - toolbarHeight - 10
 	windowWidth = top.innerWidth
 
 	// Set the height and width of stuff
