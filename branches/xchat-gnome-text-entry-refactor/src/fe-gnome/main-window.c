@@ -267,30 +267,6 @@ clear_find (GtkWidget *entry, gpointer data)
 }
 
 #ifdef HAVE_LIBSEXY
-static gboolean
-spell_check (SexySpellEntry *entry, gchar *text, gpointer data)
-{
-	GtkTreeModel *store = GTK_TREE_MODEL (userlist_get_store (u, gui.current_session));
-	GtkTreeIter iter;
-
-	if (gtk_tree_model_get_iter_first (store, &iter) == FALSE)
-		return TRUE;
-	do {
-		gchar *nick;
-		gboolean match = FALSE;
-
-		gtk_tree_model_get (store, &iter, 1, &nick, -1);
-		if (strncmp (text, nick, strlen (nick)) == 0)
-			match = TRUE;
-
-		g_free (nick);
-		if (match)
-			return FALSE;
-	} while (gtk_tree_model_iter_next (store, &iter));
-
-	return TRUE;
-}
-
 static void
 url_activated (GtkWidget *url_label, const char *url, gpointer data)
 {
@@ -342,9 +318,6 @@ initialize_main_window (void)
 
 	entrybox = glade_xml_get_widget (gui.xml, "entry hbox");
 	gui.text_entry = text_entry_new ();
-#ifdef HAVE_LIBSEXY
-	g_signal_connect_after (G_OBJECT (gui.text_entry), "word-check", G_CALLBACK (spell_check), NULL);
-#endif
 	gtk_box_pack_start (GTK_BOX (entrybox), gui.text_entry, TRUE, TRUE, 0);
 	gtk_widget_show (gui.text_entry);
 	g_signal_connect (G_OBJECT (gui.text_entry), "activate", G_CALLBACK (on_text_entry_activate), NULL);
