@@ -32,7 +32,8 @@ xchat_gnome_DATA = 			\
 	voice.png			\
 	xchat-gnome-small.png		\
 	xchat-gnome-ui.xml		\
-	xchat-gnome.glade
+	xchat-gnome.glade		\
+	xchat-gnome.png
 
 xchat_gnomedir = $(datadir)/xchat-gnome
 
