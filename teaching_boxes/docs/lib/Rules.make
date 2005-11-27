@@ -15,10 +15,17 @@ ALL_FIGURES = \
 
 # Extra search paths for latex
 TEXINPUTS = .:$(LIB_DIR)
+BIBINPUTS = .:$(LIB_DIR)
 
 # Note that we run pdflatex twice, so cross-references
 # and the table of contents are up to date.
 $(DOCNAME).pdf: *.tex $(ALL_FIGURES) #$(LIB_DIR)/*.tex
+	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
+	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
+
+bib: *.tex
+	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
+	BIBINPUTS=$(BIBINPUTS):$$BIBINPUTS bibtex $(DOCNAME)
 	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
 	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
 
