@@ -264,12 +264,12 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	dialog->autojoin_renderer = gtk_cell_renderer_text_new ();
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->servers), GTK_TREE_MODEL (dialog->server_store));
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->servers), 0, "Server", dialog->server_renderer, "text", 0, NULL);
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->servers), 0, _("Server"), dialog->server_renderer, "text", 0, NULL);
 	g_object_set (G_OBJECT (dialog->server_renderer), "editable", TRUE, NULL);
 	dialog->server_column = gtk_tree_view_get_column (GTK_TREE_VIEW (dialog->servers), 0);
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (dialog->autojoin_channels), GTK_TREE_MODEL (dialog->autojoin_store));
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->autojoin_channels), 0, "Channel", dialog->autojoin_renderer, "text", 0, NULL);
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (dialog->autojoin_channels), 0, _("Channel"), dialog->autojoin_renderer, "text", 0, NULL);
 	g_object_set (G_OBJECT (dialog->autojoin_renderer), "editable", TRUE, NULL);
 	dialog->autojoin_column = gtk_tree_view_get_column (GTK_TREE_VIEW (dialog->autojoin_channels), 0);
 
@@ -380,7 +380,7 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 
 	e->gconf = gconf_client_get_default ();
 
-	title = g_strdup_printf ("%s Network Properties", e->network->name);
+	title = g_strdup_printf (_("%s Network Properties"), e->network->name);
 	gtk_window_set_title (GTK_WINDOW (e), title);
 	g_free (title);
 

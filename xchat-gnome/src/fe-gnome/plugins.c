@@ -37,6 +37,8 @@
 #include "xg-plugin.h"
 #include "plugins.h"
 
+xchat_gnome_plugin *new_xg_plugin (void);
+
 typedef int  (xchat_init_func)         (xchat_plugin *, char **, char **, char **, char *);
 typedef int  (xchat_deinit_func)       (xchat_plugin *);
 typedef void (xchat_plugin_get_info)   (char **, char **, char **, char **);
@@ -52,7 +54,7 @@ autoload_plugin_cb (gchar * filename, gpointer data)
 }
 
 void
-autoload_plugins ()
+autoload_plugins (void)
 {
 	/* Split plugin loading into two passes - one for plugins, one for
 	 * scripts.  This makes sure that any language binding plugins are
@@ -63,7 +65,7 @@ autoload_plugins ()
 }
 
 void
-plugins_initialize ()
+plugins_initialize (void)
 {
 	GConfClient *client;
 
@@ -96,7 +98,7 @@ unload_plugin (char *filename)
 }
 
 xchat_gnome_plugin *
-new_xg_plugin ()
+new_xg_plugin (void)
 {
 	xchat_gnome_plugin *plugin = malloc (sizeof (xchat_gnome_plugin));
 	plugin->xg_get_main_window = xg_get_main_window;
@@ -149,13 +151,13 @@ load_plugin (session * sess, char *filename, char *arg, gboolean script, gboolea
 
 /*** Functions called by plugins ***/
 GtkWidget *
-xg_get_main_window ()
+xg_get_main_window (void)
 {
 	return (GTK_WIDGET (gui.main_window));
 }
 
 GtkTreeModel *
-xg_get_chan_list ()
+xg_get_chan_list (void)
 {
 	return gtk_tree_view_get_model (GTK_TREE_VIEW (gui.server_tree));
 }

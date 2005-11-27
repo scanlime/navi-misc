@@ -26,7 +26,7 @@
 void on_about_close (GtkWidget *widget, gpointer data);
 
 void
-initialize_about_dialog ()
+initialize_about_dialog (void)
 {
 	GdkPixbuf *logo;
 	char *license_trans;
@@ -100,7 +100,7 @@ initialize_about_dialog ()
 }
 
 void
-show_about_dialog ()
+show_about_dialog (void)
 {
 	initialize_about_dialog ();
 	gtk_widget_show_all (GTK_WIDGET (gui.about));

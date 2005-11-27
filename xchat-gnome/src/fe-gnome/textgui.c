@@ -71,17 +71,17 @@ static GSList *dropped_files = NULL;
 static GtkActionEntry action_entries[] = {
 	/* URL Popup */
 	{ "TextURLOpen", GTK_STOCK_OPEN, N_("_Open Link in Browser"), NULL, NULL, G_CALLBACK (open_url) },
-	{ "TextURLCopy", GTK_STOCK_COPY, N_("_Copy Link Location"), NULL, NULL, G_CALLBACK (copy_text) },
+	{ "TextURLCopy", GTK_STOCK_COPY, N_("_Copy Link Location"),   NULL, NULL, G_CALLBACK (copy_text) },
 
 	/* Email Popup */
 	{ "TextEmailSend", GNOME_STOCK_MAIL, N_("Se_nd Message To..."), NULL, NULL, G_CALLBACK (send_email) },
-	{ "TextEmailCopy", GTK_STOCK_COPY, N_("_Copy Address"), NULL, NULL, G_CALLBACK (copy_text) },
+	{ "TextEmailCopy", GTK_STOCK_COPY,   N_("_Copy Address"),       NULL, NULL, G_CALLBACK (copy_text) },
 
 	/* Drag and Drop File Popup */
-	{ "DropSendFiles", NULL, N_("_Send File"), NULL, NULL, G_CALLBACK (on_drop_send_files_activated) },
-	{ "DropPasteFile", NULL, N_("Paste File _Contents"), NULL, NULL, G_CALLBACK (on_drop_paste_file_activated) },
-	{ "DropPasteFileName", NULL, N_("Paste File_name"), NULL, NULL, G_CALLBACK (on_drop_paste_filename_activated) },
-	{ "DropCancel", NULL, N_("_Cancel"), NULL, NULL, G_CALLBACK (on_drop_cancel_activated) },
+	{ "DropSendFiles",     NULL, N_("_Send File"),           NULL, NULL, G_CALLBACK (on_drop_send_files_activated) },
+	{ "DropPasteFile",     NULL, N_("Paste File _Contents"), NULL, NULL, G_CALLBACK (on_drop_paste_file_activated) },
+	{ "DropPasteFileName", NULL, N_("Paste File_name"),      NULL, NULL, G_CALLBACK (on_drop_paste_filename_activated) },
+	{ "DropCancel",        NULL, N_("_Cancel"),              NULL, NULL, G_CALLBACK (on_drop_cancel_activated) },
 };
 
 enum

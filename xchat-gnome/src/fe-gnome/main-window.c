@@ -229,13 +229,13 @@ find_next (GtkWidget *entry, gpointer data)
 	if (position == NULL && (last_search_position != NULL)) {
 		if (reverse) {
 			position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
-			gtk_label_set_markup (GTK_LABEL (info), "<span foreground=\"grey\">Reached beginning, continuing from bottom</span>");
+			gtk_label_set_markup (GTK_LABEL (info), _("<span foreground=\"grey\">Reached beginning, continuing from bottom</span>"));
 		} else {
 			position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
-			gtk_label_set_markup (GTK_LABEL (info), "<span foreground=\"grey\">Reached end, continuing from top</span>");
+			gtk_label_set_markup (GTK_LABEL (info), _("<span foreground=\"grey\">Reached end, continuing from top</span>"));
 		}
 	} else if (position == NULL) {
-		gtk_label_set_markup (GTK_LABEL (info), "<span foreground=\"grey\">Search string not found</span>");
+		gtk_label_set_markup (GTK_LABEL (info), _("<span foreground=\"grey\">Search string not found</span>"));
 	} else {
 		gtk_label_set_text (GTK_LABEL (info), "");
 	}
@@ -878,7 +878,7 @@ on_discussion_topic_change_activate (GtkButton *widget, gpointer data)
 	dialog = glade_xml_get_widget (xml, "topic change");
 	entry = glade_xml_get_widget (xml, "topic entry box");
 
-	title = g_strdup_printf ("Changing topic for %s", gui.current_session->channel);
+	title = g_strdup_printf (_("Changing topic for %s"), gui.current_session->channel);
 	gtk_window_set_title (GTK_WINDOW (dialog), title);
 	g_free (title);
 

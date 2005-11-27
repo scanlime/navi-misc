@@ -39,8 +39,8 @@ struct _xchat_gnome_plugin
 
 extern GSList *enabled_plugins;
 
-void plugins_initialize ();
-void autoload_plugins ();
+void plugins_initialize (void);
+void autoload_plugins (void);
 int unload_plugin (char *filename);
 char *load_plugin (session * sess, char *filename, char *arg, gboolean script, gboolean autoload);
 
