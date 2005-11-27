@@ -24,7 +24,7 @@
 extern GdkColor colors[];
 extern const GdkColor *color_schemes[];
 extern const GdkColor *palette_schemes[];
-extern GdkColor custom_colors[5];
+extern GdkColor custom_colors[9];
 extern GdkColor custom_palette[32];
 
 void palette_alloc (GtkWidget *widget);

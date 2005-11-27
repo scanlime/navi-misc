@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <gnome.h>
+#include "palette.h"
 #include "preferences.h"
 #include "../common/xchat.h"
 #include "../common/util.h"
