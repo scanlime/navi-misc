@@ -91,7 +91,6 @@ static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *me
 
 static void on_expand_topic (GtkExpander *expander, gpointer data);
 
-static void on_text_entry_activate (GtkWidget *widget, gpointer data);
 static gboolean on_text_entry_key (GtkWidget *widget, GdkEventKey *key, gpointer data);
 
 static gboolean on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
@@ -320,7 +319,6 @@ initialize_main_window (void)
 	gui.text_entry = text_entry_new ();
 	gtk_box_pack_start (GTK_BOX (entrybox), gui.text_entry, TRUE, TRUE, 0);
 	gtk_widget_show (gui.text_entry);
-	g_signal_connect (G_OBJECT (gui.text_entry), "activate", G_CALLBACK (on_text_entry_activate), NULL);
 	g_signal_connect_after (G_OBJECT (gui.text_entry), "key_press_event", G_CALLBACK (on_text_entry_key), NULL);
 	g_signal_connect (G_OBJECT (gui.text_entry), "populate-popup", G_CALLBACK (entry_context), NULL);
 
@@ -805,16 +803,6 @@ static void
 on_help_about_activate (GtkAction *action, gpointer data)
 {
 	show_about_dialog ();
-}
-
-static void
-on_text_entry_activate (GtkWidget *widget, gpointer data)
-{
-	char *entry_text = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
-	gtk_entry_set_text (GTK_ENTRY (widget), "");
-	if (gui.current_session != NULL)
-		handle_multiline (gui.current_session, (char *) entry_text, TRUE, FALSE);
-	g_free (entry_text);
 }
 
 static void
