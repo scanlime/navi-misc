@@ -17,6 +17,12 @@ FIELD_DESC = 0
 FIELD_TYPE = 1
 FIELD_USED = 2
 
+// Stock Icons
+STOCK_NEW = "images/new.gif"
+STOCK_SAVE = "images/save.gif"
+STOCK_LINK = "images/connect.gif"
+STOCK_ADD = "images/add.gif"
+
 // General stuff
 var lessonPlan
 var newBox
@@ -107,27 +113,98 @@ function LessonPlan ()
 	}
 }
 
-function createButton (name, onClick)
+function borderSwitch (e)
 {
-	button = document.createElement ("span")
-	button.appendChild (document.createTextNode (name))
-	button.style.padding = "5px"
-	button.style.margin = "0px 5px 0px 5px"
-	button.style.cursor = "default"
-	button.onmouseover = function (e) {e.target.style.backgroundColor = "#eeeeee"}
-	button.onmouseout = function (e) {e.target.style.backgroundColor = "#cccccc"}
-	button.onclick = onClick
-	return button
+	tg = e.target
+	while (!tg.highlightable)
+	{
+		if (!tg.parentNode)
+			return
+
+		tg = tg.parentNode
+	}
+
+	tmp = tg.style.borderLeft
+	tg.style.borderLeft = tg.style.borderTop = tg.style.borderBottom
+	tg.style.borderRight = tg.style.borderBottom = tmp
+}
+
+function backgroundIn (e)
+{
+	tg = e.target
+	while (!tg.highlightable)
+	{
+		if (!tg.parentNode)
+			return
+
+		tg = tg.parentNode
+	}
+
+	tg.style.backgroundColor = "#999999"
+}
+
+function backgroundOut (e)
+{
+	tg = e.target
+	while (!tg.highlightable)
+	{
+		if (!tg.parentNode)
+			return
+		tg = tg.parentNode
+	}
+
+	tg.style.backgroundColor = "#cccccc"
+}
+
+function createButton (mytr, name, icon, onClick)
+{
+	mytd = document.createElement ("td")
+	mytr.appendChild (mytd)
+
+	table = document.createElement ("table")
+	mytd.appendChild (table)
+
+	tr = document.createElement ("tr")
+	table.appendChild (tr)
+
+	td = document.createElement ("td")
+	tr.appendChild (td)
+	img = document.createElement ("img")
+	td.appendChild (img)
+	img.setAttribute ("src", icon)
+	
+	td1 = document.createElement ("td")
+	tr.appendChild (td1)
+	td1.appendChild (document.createTextNode (name))
+
+	//mytd.style.padding = "5px"
+	mytd.style.cursor = "default"
+	mytd.style.borderLeft = mytd.style.borderTop = "2px solid #ffffff"
+	mytd.style.borderRight = mytd.style.borderBottom = "2px solid #777777"
+	mytd.setAttribute ('valign', "middle")
+	mytd.onmouseover = backgroundIn
+	mytd.onmouseout = backgroundOut
+	mytd.onmousedown = borderSwitch
+	mytd.onmouseup = borderSwitch
+	mytd.onclick = onClick
+	mytd.highlightable = true
+	return mytr
 }
 
 function setupToolbar (plan)
 {
-	plan.toolbar.appendChild (createButton ("New Lesson"))
-	plan.toolbar.appendChild (createButton ("Save Lesson"))
-	plan.toolbar.appendChild (createButton ("Create Link"))
-	plan.toolbar.appendChild (createButton ("Add Field", function (e) {addField = new AddFieldDlg ()}))
-	plan.toolbar.appendChild (createButton ("Add Resource"))
-	plan.toolbar.appendChild (createButton ("Add Note"))
+	tab = document.createElement ("table")
+	tr = document.createElement ("tr")
+
+	tr = createButton (tr, "New Lesson", STOCK_NEW);
+	tr = createButton (tr, "Save Lesson", STOCK_SAVE);
+	tr = createButton (tr, "Create Link", STOCK_LINK);
+	tr = createButton (tr, "Add Field", STOCK_ADD, function (e) {addField = new AddFieldDlg ()})
+	tr = createButton (tr, "Add Resource", STOCK_ADD)
+	tr = createButton (tr, "Add Note", STOCK_ADD)
+
+	tab.appendChild (tr)
+	plan.toolbar.appendChild (tab)
 }
 
 // Add a field to the lesson plan
