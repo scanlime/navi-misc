@@ -12,6 +12,11 @@ toolbarHeight = 0
 TYPE_ENTRY = 1
 TYPE_TEXTAREA = 2
 
+// Field parts
+FIELD_DESC = 0
+FIELD_TYPE = 1
+FIELD_USED = 2
+
 // General stuff
 var lessonPlan
 var newBox
@@ -19,7 +24,7 @@ var addField
 
 // Fields and their descriptions
 // Required fields
-requiredFields = new Array ();
+requiredFields = new Array ()
 requiredFields["Title"] = [
 	"The title associated with this box",
 	TYPE_ENTRY]
@@ -40,27 +45,35 @@ requiredFields["Standards"] = [
 	"The school standards covered by this box",
 	TYPE_TEXTAREA]
 
-// Optional fields
-optionalFields = new Array ();
+// Optional fields.  These have three fields:
+//    Description - Description of the field
+//    Type - Type of field to create
+//    Used - Whether it has been used or not
+optionalFields = new Array ()
 optionalFields["Introduction"] = [
 	"Introduce the topic",
-	TYPE_TEXTAREA]
+	TYPE_TEXTAREA,
+	false]
 
 optionalFields["Materials"] = [
 	"Materials (such as scissors or glue) that are required",
-	TYPE_TEXTAREA]
+	TYPE_TEXTAREA,
+	false]
 
 optionalFields["Detailed Schedule"] = [
 	"Provide a detailed schedule for the lesson",
-	TYPE_TEXTAREA]
+	TYPE_TEXTAREA,
+	false]
 
 optionalFields["Prerequisites"] = [
 	"The concepts that students should bring in to this lesson",
-	TYPE_TEXTAREA]
+	TYPE_TEXTAREA,
+	false]
 
 optionalFields["Instructions (Methods)"] = [
 	"How the lesson is to be taught",
-	TYPE_TEXTAREA]
+	TYPE_TEXTAREA,
+	false]
 
 //------------------------------------
 // Class LessonPlan
@@ -171,8 +184,8 @@ function outToolbarButton (event)
 // Add a field to the lesson plan
 function addField (name, field, removable)
 {
-	desc = field[0]
-	type = field[1]
+	desc = field[FIELD_DESC]
+	type = field[FIELD_TYPE]
 
 	field = createField (name, desc, type, removable)
 	this.fields[field.id] = field
@@ -234,6 +247,7 @@ function createField (name, desc, type, removable)
 	div.appendChild (document.createElement ("br"))
 	div.appendChild (descTag)
 	div.appendChild (entry)
+	div.fieldName = name
 
 	return div
 }
@@ -249,6 +263,10 @@ function removeField (event)
 		} else {
 			id = event.srcElement.id
 		}
+
+		fieldName = lessonPlan.fields[id].fieldName
+		if (optionalFields[fieldName])
+			optionalFields[fieldName][FIELD_USED] = false
 
 		mainDiv.removeChild (lessonPlan.fields[id])
 		delete lessonPlan.fields[id]
@@ -278,6 +296,9 @@ function NewBox ()
 	// Add the stuff to the box
 	for (field in optionalFields)
 	{
+		if (optionalFields[field][FIELD_USED])
+			continue
+
 		div = document.createElement ("div")
 
 		optionCheck = document.createElement("input")
@@ -341,7 +362,7 @@ function newBoxSelectionChanged (event)
 
 	// Grab the description
 	if (target.fieldName)
-		text = optionalFields[target.fieldName][0]
+		text = optionalFields[target.fieldName][FIELD_DESC]
 	else
 		text = ""
 
@@ -373,6 +394,7 @@ function newBoxCreateButtonClicked ()
 		{
 			field = options[i].fieldName
 			lessonPlan.addField (field, optionalFields[field], true)
+			optionalFields[field][FIELD_USED] = true;
 		}
 	}
 }
@@ -409,6 +431,9 @@ function AddFieldDlg ()
 	// Add the stuff to the box
 	for (field in optionalFields)
 	{
+		if (optionalFields[field][FIELD_USED])
+			continue
+
 		div = document.createElement ("div")
 		div.appendChild (document.createTextNode (field))
 		div.fieldName = field
@@ -464,7 +489,7 @@ function addFieldSelectionChanged (event)
 
 	// Grab the description
 	if (target.fieldName)
-		text = optionalFields[target.fieldName][0]
+		text = optionalFields[target.fieldName][FIELD_DESC]
 	else
 		text = ""
 
@@ -502,6 +527,7 @@ function addFieldCreateButtonClicked ()
 		{
 			field = div.options[i].fieldName
 			lessonPlan.addField (field, optionalFields[field], true)
+			optionalFields[field][FIELD_USED] = true
 		}
 	}
 }
