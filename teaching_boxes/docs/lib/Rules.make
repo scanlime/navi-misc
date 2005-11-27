@@ -23,10 +23,8 @@ $(DOCNAME).pdf: *.tex $(ALL_FIGURES) #$(LIB_DIR)/*.tex
 	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
 	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
 
-bib: *.tex
-	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
+bib: $(DOCNAME).pdf
 	BIBINPUTS=$(BIBINPUTS):$$BIBINPUTS bibtex $(DOCNAME)
-	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
 	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
 
 %.pdf: %.ps
@@ -36,7 +34,7 @@ bib: *.tex
 	inkscape -z -f $< -p ">$@"
 
 ALL_TEMPFILES = \
-	*.log *.toc *.lof *.aux *.dvi *.glo *.out \
+	*.log *.toc *.lof *.aux *.dvi *.glo *.out *.bbl *.blg	\
 	$(CONVERTED_SVG_FIGURES)	\
 	$(GENERATED_FIGURES)		\
 	$(SVG_TEMP_POSTSCRIPT)
