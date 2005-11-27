@@ -12,8 +12,8 @@
    height="361.89000pt"
    id="svg7022"
    sodipodi:version="0.32"
-   inkscape:version="0.42.2"
-   sodipodi:docbase="/home/evan/Projects/teaching_boxes/prototype/low-fi"
+   inkscape:version="0.43"
+   sodipodi:docbase="/home/evan/Projects/teaching_boxes/low-fi_prototype"
    sodipodi:docname="linked_lessons.svg">
   <defs
      id="defs7024">
@@ -39,16 +39,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.0000000"
+     inkscape:zoom="1"
      inkscape:cx="300.13144"
-     inkscape:cy="84.532184"
+     inkscape:cy="404.53218"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1280"
-     inkscape:window-height="949"
+     inkscape:window-width="1024"
+     inkscape:window-height="694"
      inkscape:window-x="0"
-     inkscape:window-y="25" />
+     inkscape:window-y="24" />
   <metadata
      id="metadata7027">
     <rdf:RDF>
@@ -217,7 +217,7 @@
          style="font-size:4.0000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
          xml:space="preserve"><tspan
            id="tspan9454"
-           y="49.000000"
+           y="49"
            x="109.82422"
            sodipodi:role="line">1</tspan></text>
       <text
@@ -227,7 +227,7 @@
          x="109.85547"
          style="font-size:4.0000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
          xml:space="preserve"><tspan
-           y="53.000000"
+           y="53"
            x="109.85547"
            id="tspan9458"
            sodipodi:role="line">2</tspan></text>
@@ -268,7 +268,7 @@
          sodipodi:role="line"
          id="tspan9311"
          x="65.822266"
-         y="287.19260"
+         y="287.1926"
          style="font-size:12.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans">Linked Lessons</tspan></text>
     <text
        xml:space="preserve"
@@ -283,7 +283,7 @@
          sodipodi:role="line"
          id="tspan9315"
          x="89.677734"
-         y="310.69260"
+         y="310.6926"
          style="font-size:12.000000px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#0000fe;fill-opacity:1.0000000;font-family:Bitstream Vera Sans">Plate Tectonics Sandbox</tspan></text>
     <path
        style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#0000fe;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000"
@@ -432,8 +432,8 @@
          y="26.479706">New Lesson</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="196.67548"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="198.96191"
        y="26.479706"
        id="text1590"
        inkscape:export-filename="/home/evan/button_mouseover.png"
@@ -441,12 +441,12 @@
        inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan1592"
-         x="196.67548"
+         x="198.96191"
          y="26.479706">Create Link</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="350.25555"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="351.01788"
        y="26.561737"
        id="text1595"
        inkscape:export-filename="/home/evan/button_mouseover.png"
@@ -454,12 +454,12 @@
        inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan1597"
-         x="350.25555"
+         x="351.01788"
          y="26.561737">Add Resource</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="280.61102"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="281.88638"
        y="26.561737"
        id="text1599"
        inkscape:export-filename="/home/evan/button_mouseover.png"
@@ -467,12 +467,12 @@
        inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan1601"
-         x="280.61102"
+         x="281.88638"
          y="26.561737">Add Field</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="447.32391"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="447.90524"
        y="26.561737"
        id="text1603"
        inkscape:export-filename="/home/evan/button_mouseover.png"
@@ -480,12 +480,12 @@
        inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan1605"
-         x="447.32391"
+         x="447.90524"
          y="26.561737">Add Note</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:12.000000px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="109.20898"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="111.36751"
        y="26.498158"
        id="text1607"
        inkscape:export-filename="/home/evan/button_mouseover.png"
@@ -493,7 +493,7 @@
        inkscape:export-ydpi="90.000000"><tspan
          sodipodi:role="line"
          id="tspan1609"
-         x="109.20898"
+         x="111.36751"
          y="26.498158">Save Lesson</tspan></text>
     <g
        id="g3094">
@@ -508,7 +508,7 @@
          inkscape:export-ydpi="90.000000"><tspan
            sodipodi:role="line"
            id="tspan1615"
-           x="172.41510"
+           x="172.4151"
            y="286.65253"
            style="font-size:10.000000px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#1100f6;fill-opacity:1.0000000;font-family:Bitstream Vera Sans">Remove All</tspan></text>
       <path
@@ -530,7 +530,7 @@
        style="font-size:12.000000px;font-style:normal;font-weight:normal;line-height:125.00000%;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
        xml:space="preserve"><tspan
          style="font-size:12.000000px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#0000fe;fill-opacity:1.0000000;font-family:Bitstream Vera Sans"
-         y="330.69260"
+         y="330.6926"
          x="89.677734"
          id="tspan3841"
          sodipodi:role="line">Making a Volcano</tspan></text>
@@ -587,5 +587,18 @@
          d="M 619.73206,311.36248 L 660.84979,311.36248"
          style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#1100f6;stroke-width:0.75000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
     </g>
+    <text
+       inkscape:export-ydpi="90.000000"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-filename="/home/evan/button_mouseover.png"
+       id="text3347"
+       y="26.561737"
+       x="517.32385"
+       style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       xml:space="preserve"><tspan
+         y="26.561737"
+         x="517.32385"
+         id="tspan3349"
+         sodipodi:role="line">Add to Box</tspan></text>
   </g>
 </svg>
