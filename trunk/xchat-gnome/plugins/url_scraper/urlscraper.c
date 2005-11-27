@@ -1,4 +1,5 @@
 #include <config.h>
+#include <glib/gi18n.h>
 #include <sys/types.h>
 #include <regex.h>
 #include <gtk/gtk.h>
@@ -41,7 +42,7 @@ static void make_window ()
 	GtkCellRenderer *nick_rend, *chan_rend, *url_rend, *time_rend;
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title (GTK_WINDOW (window), "xchat URL scraper");
+	gtk_window_set_title (GTK_WINDOW (window), _("xchat URL scraper"));
 	gtk_window_set_default_size (GTK_WINDOW(window), 400, 400);
 	g_signal_connect (G_OBJECT(window), "delete-event", G_CALLBACK(delete_cb), 0);
 
@@ -55,21 +56,21 @@ static void make_window ()
 	gtk_tree_view_set_model (GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(list_store));
 
 	time_rend = gtk_cell_renderer_text_new ();
-	time_col = gtk_tree_view_column_new_with_attributes ("Time", time_rend, "text", 0, NULL);
+	time_col = gtk_tree_view_column_new_with_attributes (_("Time"), time_rend, "text", 0, NULL);
 	gtk_tree_view_column_set_visible (time_col, timestamps);
 	gtk_tree_view_column_set_resizable (time_col, TRUE);
 
 	nick_rend = gtk_cell_renderer_text_new ();
-	nick_col = gtk_tree_view_column_new_with_attributes ("Nick", nick_rend, "text", 1, NULL);
+	nick_col = gtk_tree_view_column_new_with_attributes (_("Nick"), nick_rend, "text", 1, NULL);
 	gtk_tree_view_column_set_resizable (nick_col, TRUE);
 
 	chan_rend = gtk_cell_renderer_text_new ();
-	chan_col = gtk_tree_view_column_new_with_attributes ("Channel", chan_rend, "text", 2, NULL);
+	chan_col = gtk_tree_view_column_new_with_attributes (_("Channel"), chan_rend, "text", 2, NULL);
 	gtk_tree_view_column_set_resizable (chan_col, TRUE);
 
 	url_rend = gtk_cell_renderer_text_new ();
 	g_object_set (G_OBJECT(url_rend), "ellipsize", PANGO_ELLIPSIZE_END, NULL);
-	url_col = gtk_tree_view_column_new_with_attributes ("URL", url_rend, "text", 3, NULL);
+	url_col = gtk_tree_view_column_new_with_attributes (_("URL"), url_rend, "text", 3, NULL);
 	gtk_tree_view_column_set_resizable (url_col, TRUE);
 
 	gtk_tree_view_append_column (GTK_TREE_VIEW(treeview), time_col);
@@ -151,8 +152,8 @@ void xchat_plugin_get_info (char **plugin_name,
 		char **plugin_version,
 		void **reserved)
 {
-	*plugin_name = "URL Scraper";
-	*plugin_desc = "Grabs URLs and puts them in a separate window for easy viewing.";
+	*plugin_name = _("URL Scraper");
+	*plugin_desc = _("Grabs URLs and puts them in a separate window for easy viewing.");
 	*plugin_version = PVERSION;
 
 	if (reserved)
@@ -192,13 +193,13 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 
 	url = malloc (sizeof (regex_t));
 	if (regcomp (url, URLREGEX, REG_ICASE | REG_EXTENDED)) {
-		xchat_print (ph, "URL Scraper failed to load: couldn't compile URL regex.\n");
+		xchat_print (ph, _("URL Scraper failed to load: couldn't compile URL regex.\n"));
 		return 0;
 	}
 
 	email = malloc (sizeof (regex_t));
 	if (regcomp (email, EMAILREGEX, REG_ICASE | REG_EXTENDED)) {
-		xchat_print (ph, "URL Scraper failed to load: couldn't compile e-mail regex.\n");
+		xchat_print (ph, _("URL Scraper failed to load: couldn't compile e-mail regex.\n"));
 		return 0;
 	}
 
@@ -213,7 +214,7 @@ int xchat_plugin_init (xchat_plugin *plugin_handle,
 	xchat_hook_print (ph, "Channel Message", XCHAT_PRI_NORM, grabURL, 0);
 	xchat_hook_print (ph, "Private Message to Dialog", XCHAT_PRI_NORM, grabURL, 0);
 
-	xchat_print (ph, "URL Scraper loaded.\n");
+	xchat_print (ph, _("URL Scraper loaded.\n"));
 
 	return 1;
 }
@@ -225,7 +226,7 @@ int xchat_plugin_deinit (void)
 	regfree (url);
 	regfree (email);
 
-	xchat_print (ph, "URL Scraper unloaded.\n");
+	xchat_print (ph, _("URL Scraper unloaded.\n"));
 
 	return 1;
 }

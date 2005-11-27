@@ -26,9 +26,9 @@
 #include "xchat-plugin.h"
 #include "xg-plugin.h"
 
-#define NOTIFY_OSD_NAME        "OSD"
+#define NOTIFY_OSD_NAME        _("On-screen display")
 #define NOTIFY_OSD_VERSION     "0.1"
-#define NOTIFY_OSD_DESCRIPTION "Pops up notification of important messages when xchat doesn't have the focus"
+#define NOTIFY_OSD_DESCRIPTION _("Pops up notification of important messages when xchat doesn't have the focus")
 
 int  xchat_gnome_plugin_init (xchat_gnome_plugin *xg_plugin);
 void xchat_plugin_get_info   (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved);
@@ -86,9 +86,9 @@ new_msg_cb (char *word[], gpointer data)
 
 	message = g_strdup_printf ("&lt;%s&gt; %s", word[1], stripped);
 	if (channel[0] == '#')
-		summary = g_strdup_printf ("Message in %s", channel);
+		summary = g_strdup_printf (_("Message in %s"), channel);
 	else
-		summary = g_strdup_printf ("Message from %s", channel);
+		summary = g_strdup_printf (_("Message from %s"), channel);
 
 	handle = notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
 	notifications = g_slist_prepend (notifications, handle);
@@ -114,9 +114,9 @@ new_action_cb (char *word[], gpointer data)
 
 	message = g_strdup_printf ("* %s %s", word[1], stripped);
 	if (channel[0] == '#')
-		summary = g_strdup_printf ("Message in %s", channel);
+		summary = g_strdup_printf (_("Message in %s"), channel);
 	else
-		summary = g_strdup_printf ("Message from %s", channel);
+		summary = g_strdup_printf (_("Message from %s"), channel);
 
 	handle = notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
 	notifications = g_slist_prepend (notifications, handle);
@@ -137,7 +137,7 @@ private_msg_cb (char *word[], gpointer data)
 		return XCHAT_EAT_NONE;
 
 	message = xchat_strip (ph, word[2], -1, STRIP_COLORS | STRIP_ATTRS);
-	summary = g_strdup_printf ("Private Message from %s", word[1]);
+	summary = g_strdup_printf (_("Private Message from %s"), word[1]);
 
 	handle = notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
 	notifications = g_slist_prepend (notifications, handle);
@@ -183,11 +183,11 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 		xchat_hook_print (ph, "Private Message",           XCHAT_PRI_NORM, private_msg_cb, NULL);
 		xchat_hook_print (ph, "Private Message to Dialog", XCHAT_PRI_NORM, private_msg_cb, NULL);
 
-		xchat_print (ph, "OSD loaded\n");
+		xchat_print (ph, _("OSD loaded\n"));
 
 		return TRUE;
 	} else {
-		xchat_print (ph, "OSD initialization failed\n");
+		xchat_print (ph, _("OSD initialization failed\n"));
 	}
 	return FALSE;
 }
