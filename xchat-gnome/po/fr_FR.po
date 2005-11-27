@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-11-27 01:41-0700\n"
+"POT-Creation-Date: 2005-11-27 01:58-0700\n"
 "PO-Revision-Date: 2005-11-25 03:33-0500\n"
 "Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: Français <olethanh@ulb.ac.be>\n"
@@ -413,6 +413,37 @@ msgstr "_Précédent"
 msgid "nickname"
 msgstr "pseudo"
 
+#: ../plugins/autoaway/autoaway.c:163
+msgid "Screensaver activated, going away."
+msgstr ""
+
+#: ../plugins/autoaway/autoaway.c:171
+msgid "Screensaver is off, welcome back"
+msgstr ""
+
+#: ../plugins/autoaway/autoaway.c:211
+msgid "Auto Away"
+msgstr ""
+
+#: ../plugins/autoaway/autoaway.c:212
+msgid "Automatically go away / come back"
+msgstr ""
+
+#. Hook up our callbacks.
+#: ../plugins/autoaway/autoaway.c:230
+#, fuzzy
+msgid "Disconnected"
+msgstr "_Déconnecter"
+
+#: ../plugins/autoaway/autoaway.c:231
+#, fuzzy
+msgid "Connected"
+msgstr "_Connecter"
+
+#: ../plugins/autoaway/autoaway.c:260
+msgid "Auto-away plugin unloaded\n"
+msgstr ""
+
 #: ../plugins/dbus/dbus-plugin.c:271
 #, c-format
 msgid "Couldn't connect to session bus : %s\n"
@@ -528,10 +559,13 @@ msgstr "Impossible de completer GetPrefs"
 msgid "%s doesn't exist\n"
 msgstr "%s n'existe pas\n"
 
-#: ../plugins/net-monitor/net-monitor.c:183
-#: ../plugins/net-monitor/net-monitor.c:227
-#, c-format
-msgid "Net Monitor: Couldn't allocate dbus message : %s: %s\n"
+#: ../plugins/net-monitor/net-monitor.c:36
+#, fuzzy
+msgid "Network Monitor"
+msgstr "_Réseau"
+
+#: ../plugins/net-monitor/net-monitor.c:37
+msgid "NetworkManager connection monitor"
 msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:301
@@ -545,8 +579,9 @@ msgid "Net Monitor: Could not register signal handler: %s: %s\n"
 msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:342
-msgid " loaded successfully\n"
-msgstr " chargement réussi\n"
+#, fuzzy, c-format
+msgid "%s loaded successfully\n"
+msgstr "%s chargement réussi!\n"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "Orientation"
@@ -554,6 +589,102 @@ msgstr "Orientation"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "The orientation of the tray."
+msgstr ""
+
+#: ../plugins/notification/notification.c:148
+msgid "Notification"
+msgstr ""
+
+#: ../plugins/notification/notification.c:149
+msgid "A notification area plugin."
+msgstr ""
+
+#: ../plugins/notification/notification.c:235
+msgid "Notification plugin loaded.\n"
+msgstr ""
+
+#: ../plugins/notification/notification.c:250
+msgid "Notification plugin unloaded.\n"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:29
+msgid "On-screen display"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:31
+msgid ""
+"Pops up notification of important messages when xchat doesn't have the focus"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:89
+#: ../plugins/notify-osd/notify-osd.c:117
+#, c-format
+msgid "Message in %s"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:91
+#: ../plugins/notify-osd/notify-osd.c:119
+#, c-format
+msgid "Message from %s"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:140
+#, c-format
+msgid "Private Message from %s"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:186
+msgid "OSD loaded\n"
+msgstr ""
+
+#: ../plugins/notify-osd/notify-osd.c:190
+msgid "OSD initialization failed\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:44
+msgid "xchat URL scraper"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:58 ../src/common/xchat.c:823
+msgid "Time"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:63 ../src/common/text.c:585
+msgid "Nick"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:67 ../src/common/text.c:552
+#: ../src/common/text.c:556 ../src/common/text.c:992
+#: ../src/fe-gnome/irc-network-editor.c:272
+msgid "Channel"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:72
+msgid "URL"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:154
+msgid "URL Scraper"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:155
+msgid "Grabs URLs and puts them in a separate window for easy viewing."
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:195
+msgid "URL Scraper failed to load: couldn't compile URL regex.\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:201
+msgid "URL Scraper failed to load: couldn't compile e-mail regex.\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:216
+msgid "URL Scraper loaded.\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.c:228
+msgid "URL Scraper unloaded.\n"
 msgstr ""
 
 #: ../src/common/cfgfiles.c:350
@@ -1190,11 +1321,6 @@ msgstr ""
 msgid "Topic"
 msgstr ""
 
-#: ../src/common/text.c:552 ../src/common/text.c:556 ../src/common/text.c:992
-#: ../src/fe-gnome/irc-network-editor.c:272
-msgid "Channel"
-msgstr ""
-
 #: ../src/common/text.c:561 ../src/common/text.c:620
 msgid "The nickname of the kicker"
 msgstr ""
@@ -1223,10 +1349,6 @@ msgstr ""
 
 #: ../src/common/text.c:580
 msgid "The creator"
-msgstr ""
-
-#: ../src/common/text.c:585
-msgid "Nick"
 msgstr ""
 
 #: ../src/common/text.c:586 ../src/common/text.c:844
@@ -3258,10 +3380,6 @@ msgstr ""
 msgid "Ping"
 msgstr ""
 
-#: ../src/common/xchat.c:823
-msgid "Time"
-msgstr ""
-
 #: ../src/common/xchat.c:824
 msgid "Finger"
 msgstr ""
@@ -4025,6 +4143,9 @@ msgstr "_Kicker"
 #: ../src/fe-gnome/userlist-gui.c:54
 msgid "_Ban"
 msgstr "_Bannir"
+
+#~ msgid " loaded successfully\n"
+#~ msgstr " chargement réussi\n"
 
 #~ msgid "Action"
 #~ msgstr "Action"

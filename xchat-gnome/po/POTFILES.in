@@ -9,10 +9,14 @@ data/setup-dialog.glade
 data/topic-change.glade
 data/xchat-gnome.desktop.in
 data/xchat-gnome.glade
+plugins/autoaway/autoaway.c
 plugins/dbus/dbus-plugin.c
 plugins/dbus/xchat-remote.c
 plugins/net-monitor/net-monitor.c
 plugins/notification/eggtrayicon.c
+plugins/notification/notification.c
+plugins/notify-osd/notify-osd.c
+plugins/url_scraper/urlscraper.c
 src/common/cfgfiles.c
 src/common/dcc.c
 src/common/ignore.c

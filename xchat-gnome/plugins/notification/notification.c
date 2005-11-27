@@ -145,8 +145,8 @@ add_channels_foreach_cb (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter *
 void
 xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved)
 {
-	*plugin_name = "Notification";
-	*plugin_desc = "A notification area plugin.";
+	*plugin_name = _("Notification");
+	*plugin_desc = _("A notification area plugin.");
 	*plugin_version = NOTIFICATION_VERSION;
 
 	if (reserved)
@@ -232,7 +232,7 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	xchat_hook_print (ph, "Channel Action Hilight",		XCHAT_PRI_NORM, new_msg_cb, (gpointer) NOTIF_NICK);
 	xchat_hook_print (ph, "Private Message to Dialog",	XCHAT_PRI_NORM, new_msg_cb, (gpointer) NOTIF_MSG);
 
-	xchat_print (ph, "Notification plugin loaded.\n");
+	xchat_print (ph, _("Notification plugin loaded.\n"));
 
 	return TRUE;
 }
@@ -247,7 +247,7 @@ xchat_plugin_deinit (void)
 	g_object_unref (G_OBJECT (notification));
 	gtk_widget_destroy (GTK_WIDGET (notification));
 
-	xchat_print (ph, "Notification plugin unloaded.\n");
+	xchat_print (ph, _("Notification plugin unloaded.\n"));
 
 	return 1;
 }

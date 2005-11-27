@@ -33,8 +33,8 @@
 #include "xchat-plugin.h"
 
 #define NET_MONITOR_VERSION     "0.1"
-#define NET_MONITOR_NAME        "Network Monitor"
-#define NET_MONITOR_DESCRIPTION "NetworkManager connection monitor"
+#define NET_MONITOR_NAME        _("Network Monitor")
+#define NET_MONITOR_DESCRIPTION _("NetworkManager connection monitor")
 #define NM_SERVICE              "org.freedesktop.NetworkManager"
 #define NM_OBJECT_PATH          "/org/freedesktop/NetworkManager"
 #define NM_INTERFACE            "org.freedesktop.NetworkManager"
@@ -180,7 +180,7 @@ check_device_state (const char *path)
 
 	message = dbus_message_new_method_call (NM_SERVICE, path, NM_INTERFACE, "getLinkActive");
 	if (message == NULL) {
-		g_warning (_("Net Monitor: Couldn't allocate dbus message : %s: %s\n"), error.name, error.message);
+		g_warning ("Net Monitor: Couldn't allocate dbus message : %s: %s\n", error.name, error.message);
 		/* just guess that we're up */
 		return NETWORK_UP;
 	}
@@ -224,7 +224,7 @@ determine_network_status ()
 
 	message = dbus_message_new_method_call (NM_SERVICE, NM_OBJECT_PATH, NM_INTERFACE, "getDevices");
 	if (message == NULL) {
-		g_warning (_("Net Monitor: Couldn't allocate dbus message : %s: %s\n"), error.name, error.message);
+		g_warning ("Net Monitor: Couldn't allocate dbus message : %s: %s\n", error.name, error.message);
 		/* just guess that we're up */
 		set_network_mode (NETWORK_UP);
 		return;
@@ -339,7 +339,7 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 		xchat_hook_print (ph, "MOTD Skipped", XCHAT_PRI_NORM, connected_cb, NULL);
 
 		xchat_set_context (ph, xchat_find_context (ph, NULL, NULL));
-		xchat_printf (ph, _(NET_MONITOR_NAME " loaded successfully\n"));
+		xchat_printf (ph, _("%s loaded successfully\n"), NET_MONITOR_NAME);
 	}
 	return success;
 }

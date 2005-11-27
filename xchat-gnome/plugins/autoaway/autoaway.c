@@ -21,6 +21,7 @@
  */
 
 #include <config.h>
+#include <glib/gi18n.h>
 #include <glib.h>
 #include <dlfcn.h>
 #include <string.h>
@@ -160,15 +161,15 @@ timeout_cb (gpointer user_data)
 	switch (state) {
 		case STATE_ACTIVE:
 			if (get_screensaver_active ()) {
-				xchat_print (ph, "Screensaver activated, going away.");
+				xchat_print (ph, _("Screensaver activated, going away."));
 				set_away ();
 				state = STATE_AWAY;
 			}
 			break;
 
 		case STATE_AWAY:
-			if (get_screensaver_active() == FALSE) {
-				xchat_print (ph, "Screensaver is off, welcome back");
+			if (get_screensaver_active () == FALSE) {
+				xchat_print (ph, _("Screensaver is off, welcome back"));
 				come_back ();
 				state = STATE_ACTIVE;
 			}
@@ -208,8 +209,8 @@ network_change_cb (gchar *word[], gpointer user_data)
 void
 xchat_plugin_get_info (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved)
 {
-	*plugin_name = "Auto Away";
-	*plugin_desc = "Automatically go away / come back";
+	*plugin_name = _("Auto Away");
+	*plugin_desc = _("Automatically go away / come back");
 	*plugin_version = AUTOAWAY_VERSION;
 
 	if (reserved)
@@ -227,8 +228,8 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version, NULL);
 
 	/* Hook up our callbacks. */
-	xchat_hook_print (ph, "Disconnected",	XCHAT_PRI_NORM, network_change_cb, GINT_TO_POINTER (FALSE));
-	xchat_hook_print (ph, "Connected",	XCHAT_PRI_NORM, network_change_cb, GINT_TO_POINTER (TRUE));
+	xchat_hook_print (ph, _("Disconnected"), XCHAT_PRI_NORM, network_change_cb, GINT_TO_POINTER (FALSE));
+	xchat_hook_print (ph, _("Connected"),    XCHAT_PRI_NORM, network_change_cb, GINT_TO_POINTER (TRUE));
 
 	timeout_hook = xchat_hook_timer (ph, 5000, timeout_cb, NULL);
 
@@ -237,9 +238,8 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	screensaver_type = get_screensaver_type ();
 
 	/* All done */
-	xchat_printf (ph, "\0033 -- \0030 Auto Away plugin v" AUTOAWAY_VERSION " loaded. (%s screensaver in use)\0033 -- \0030\n",
-		      screensaver_type == SS_GNOME ? "GNOME" :
-		      screensaver_type == SS_X11   ? "X11" : "no");
+	xchat_printf (ph, "Auto-away plugin %s loaded (using %s screensaver)\n", AUTOAWAY_VERSION,
+	              screensaver_type == SS_GNOME ? "GNOME" : screensaver_type == SS_X11 ? "X11" : "no");
 
 	/* FIXME: Perhaps return FALSE if we failed to find a running screensaver? */
 	return TRUE;
@@ -258,6 +258,6 @@ xchat_plugin_deinit (void)
 	close_gs_connection ();
 
 	xchat_set_context (ph, xchat_find_context (ph, NULL, NULL));
-	xchat_print (ph, "\0033 -- \0030 Auto Away plugin unloaded.\0033 -- \0030\n");
+	xchat_print (ph, _("Auto-away plugin unloaded\n"));
 	return TRUE;
 }
