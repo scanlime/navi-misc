@@ -164,7 +164,8 @@ function setupToolbar (plan)
 	tr = createButton (tr,
 		"Add Lesson",
 		"Create a new lesson and add it to the box.",
-		STOCK_OPEN);
+		STOCK_OPEN,
+		function () {addLesson = new AddLessonDlg ()});
 
 	tab.appendChild (tr)
 	plan.toolbar.appendChild (tab)
