@@ -27,11 +27,13 @@ STOCK_LINK = "images/link.gif"
 STOCK_FIELD = "images/field.gif"
 STOCK_NOTE = "images/note.gif"
 STOCK_REF = "images/reference.gif"
+STOCK_BOX = "images/box.gif"
 
 // General stuff
 var lessonPlan
 var newBox
 var addField
+var addToBox
 var focusCounter = 0
 var firstBox = true
 

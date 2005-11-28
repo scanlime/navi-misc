@@ -189,6 +189,12 @@ function setupToolbar (plan)
 		"Add a personal note or reminder to the lesson.",
 		STOCK_NOTE)
 
+	tr = createButton (tr,
+		"Add to Box",
+		"Add this lesson to a teaching box",
+		STOCK_BOX,
+		function (e) {addToBox = new AddToBoxDlg ()})
+
 	tab.appendChild (tr)
 	plan.toolbar.appendChild (tab)
 }

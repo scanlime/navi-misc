@@ -27,6 +27,49 @@
 			</iframe>
 		</div>
 
+		<!-- div element for the Add Lesson dialog -->
+		<div class="new_lesson" id="add_lesson">
+			<!-- Titlebar -->
+			<div style="width: 100%; background-color: #444499; margin-bottom: 5px;">
+				<font class="titleBar">Add Lesson</font>
+			</div>
+
+			<!-- Descriptive text at the top -->
+			<p>
+				<b>Available lessons:</b>
+			</p>
+
+			<!-- Field selector -->
+			<div id="lessonSelect" class="fieldsSelect"></div>
+
+			<!-- Description -->
+			<p>
+				<div id="lessonDescription" style="margin: 10px; height: 20px">
+					<b>Description: </b>
+				</div>
+			</p>
+
+			<!-- Search for Box -->
+			<p>
+				<div style="margin: 10px;">
+					<b>Search for lesson named:</b>
+				</div>
+			</p>
+			<p>
+				<div style="margin: 10px;">
+					<input id="lessonSearch" type="text" style="width: 100%; border: thin solid #7777cc;">
+				</div>
+			</p>
+
+			<!-- Button bar -->
+			<p align=right>
+				<input id="lessonCancel" type="button" value="Cancel">
+				<input id="lessonCreateNew" type="button" value="Create New">
+				<input id="lessonAdd" type="button" value="Add">
+			</p>
+
+		</div>
+
 		<div class="new_lesson" id="new_box">
 			<!-- Titlebar -->
 			<div style="width: 100%; background-color: #444499; margin-bottom: 5px;">
