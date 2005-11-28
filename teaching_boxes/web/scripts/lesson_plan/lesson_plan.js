@@ -13,6 +13,8 @@ function LessonPlan ()
 	// Methods
 	this.addField     = addField
 	this.setupToolbar = setupToolbar
+	this.addLink	  = addLink
+	this.saveYourself = saveYourself
 
 	// Title
 	title = document.createElement ("h1")
@@ -28,6 +30,16 @@ function LessonPlan ()
 	{
 		this.addField (item, requiredFields[item], false, false)
 	}
+}
+
+function saveYourself ()
+{
+}
+
+function addLink (fieldName, name, desc, linkType, addr)
+{
+	var field = document.getElementById (fieldName)
+	field.linkObj.addLink (name, desc, linkType, addr)
 }
 
 function borderSwitch (e)
@@ -224,6 +236,7 @@ function createField (name, field, removable)
 
 	date = new Date ()
 	id = new String (date.getTime ())
+	var rmL = null
 
 	if (removable) {
 		rm = document.createElement ("span")
@@ -270,7 +283,7 @@ function createField (name, field, removable)
 			entry.style.width = "90%"
 			entry.style.margin = "20px"
 			entry.id = linkID
-			entry.linkObj = new LinkField (entry)
+			entry.linkObj = new LinkField (entry, rmL)
 			break
 		default:
 			entry = document.createElement ("textarea")
@@ -285,8 +298,11 @@ function createField (name, field, removable)
 	if (removable)
 		div.appendChild (rm)
 
-	if (type == TYPE_LINK)
+	if (rmL)
+	{
 		div.appendChild (rmL)
+		div.linkObj = entry.linkObj
+	}
 
 	div.appendChild (document.createElement ("br"))
 	div.appendChild (descTag)
