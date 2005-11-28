@@ -399,9 +399,6 @@ the cursor is placed over a button.
 	\caption{Toolbar.}
 	\label{fig: toolbar ss}
 \end{figure}
-% It's important to be sure that these figures don't end up in a section much
-% later in the document.
-% \clearpage
 
 \section{User Testing}
 We are still trying to set up times to meet with users for the think-aloud;
@@ -467,6 +464,38 @@ interface created in this project, we feel that a tutorial on creating a new
 lesson and creating a teaching box should be provided.
 
 \section{Web Analytics}
+We identified two major ``business'' goals for this project: we want teachers to
+contribute resources to the library, and add their lessons to the library. Both
+of these goals are related to one another, but separated here so that they can
+be observed individually to balance them. We would like teachers to add
+resources to lessons they didn't create, as well as adding them to ones they
+created.
+
+\subsection{Control Metrics}
+A simple control metric for monitoring contributed resources is simply the
+number of uploads that have failed. If there are a high number of failed
+uploads, there is probably something wrong with the system that is preventing
+users from uploading.
+
+For monitoring lesson/box creation we can again simply count the number of
+lessons/boxes created. In addition, we can count the number of lesson/box views
+per user and compare that to how many lessons/boxes they create. This will give
+us an idea of how many lessons a user creates on average vs. how much they
+utilize the library. If this number is too low to provide a library big enough
+for our taste, something needs to be done to motivate people to contribute
+lessons. Another useful metric for this goal is how many lessons a user viewed
+before creating their first lesson or box. Given enough users, this should give
+some indication of how long an average user needs to utilize the library before
+beginning to contribute to it.
+
+\subsection{Analytic Metrics}
+The number of resources uploaded compared to the number of lessons in the
+library can be used to determine how much difficulty users have uploading
+resources. Assuming that the reason few resources are contributed is not because
+the uploads are failing, it is likely that a low number of contributed resources
+is due to something in the system discouraging users from uploading resources.
+
+\subsection{Moments of Truth}
 
 \pagebreak
 \appendix
