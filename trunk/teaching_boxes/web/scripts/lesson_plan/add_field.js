@@ -114,6 +114,7 @@ function addFieldCreateButtonClicked ()
 	// Figure out which fields were selected and add them to the view
 	options = div.options
 	objectFields = new Array ()
+	var firstField = null
 
 	for (i in options)
 	{
@@ -123,6 +124,15 @@ function addFieldCreateButtonClicked ()
 			objField = lessonPlan.addField (field, optionalFields[field], true, true)
 			objectFields.push (objField.id)
 			optionalFields[field][FIELD_USED] = true
+
+			// Create a second copy of this box to work around a bug in rendering the
+			// first dynamically generated text box
+			if (!firstField && firstBox)
+			{
+				firstField = objField
+				objField2 = lessonPlan.addField (field, optionalFields[field], true, true)
+				objectFields.push (objField2.id)
+			}
 		}
 	}
 
@@ -131,17 +141,24 @@ function addFieldCreateButtonClicked ()
 		objId = objectFields[id]
 
 		tinyMCE.execCommand ("mceAddControl", true, "mceReplaceMe" + objId)
-		if (firstBox)
-		{
-			tinyMCE.execCommand ("mceRemoveControl", false, "mceReplaceMe" + objId)
-			tinyMCE.execCommand ("mceAddControl", true, "mceReplaceMe" + objId)
-			firstBox = false
-		}
-
 		obj = document.getElementById ("mceReplaceMe" + objId)
 		obj.style.margin = "20px"
 		obj.style.width = "90%"
 	}
+
+	// Delete the mis-rendered box.  Note that this has to be done in a timeout
+	// loop due to a bug in Firefox that would cause a crash if done immediately.
+	deleteBox = function ()
+	{
+		var mainDiv = document.getElementById ("mainDiv")
+
+		mainDiv.removeChild (lessonPlan.fields[firstField.id])
+		delete lessonPlan.fields[firstField.id]
+		firstBox = false
+	}
+
+	if (firstBox && firstField)
+		setTimeout (deleteBox, 100)
 }
 
 // Cancel button clicked

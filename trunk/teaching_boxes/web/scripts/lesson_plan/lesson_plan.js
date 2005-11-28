@@ -196,21 +196,19 @@ function setupToolbar (plan)
 // Add a field to the lesson plan
 function addField (name, field, removable, doMceReplace)
 {
-	desc = field[FIELD_DESC]
-	type = field[FIELD_TYPE]
-
-	newField = createField (name, desc, type, removable)
+	newField = createField (name, field, removable)
 	this.fields[newField.id] = newField
 	this.mainDiv.appendChild (newField)
-
-	id = newField.id
 
 	return newField
 }
 
 // Create a field and return it
-function createField (name, desc, type, removable)
+function createField (name, field, removable)
 {
+	desc = field[FIELD_DESC]
+	type = field[FIELD_TYPE]
+
 	// Create the title of the field
 	title = document.createElement ("span")
 	text  = document.createTextNode (name)
@@ -226,7 +224,6 @@ function createField (name, desc, type, removable)
 		rm.setAttribute ("class", "removeButton")
 		rm.setAttribute ("id", id)
 		rm.appendChild (document.createTextNode ("Remove"))
-		rm.style.cursor = "pointer"
 		rm.onclick = removeField
 	}
 
@@ -256,6 +253,19 @@ function createField (name, desc, type, removable)
 			textarea.setAttribute ("id", "mceReplaceMe" + id)
 			textarea.style.width = "100%"
 			break
+		case TYPE_LINK:
+			rmL = document.createElement ("span")
+			rmL.setAttribute ("class", "removeButton")
+			rmL.setAttribute ("id", id)
+			rmL.appendChild (document.createTextNode ("Remove All"))
+
+			linkID = field[FIELD_LINKID]
+			entry = document.createElement ("div")
+			entry.style.width = "90%"
+			entry.style.margin = "20px"
+			entry.id = linkID
+			entry.linkObj = new LinkField (entry)
+			break
 		default:
 			entry = document.createElement ("textarea")
 			break
@@ -266,9 +276,12 @@ function createField (name, desc, type, removable)
 	div.setAttribute ("id", id)
 	div.style.marginTop = "20px"
 	div.appendChild (title)
-	if (removable) {
+	if (removable)
 		div.appendChild (rm)
-	}
+
+	if (type == TYPE_LINK)
+		div.appendChild (rmL)
+
 	div.appendChild (document.createElement ("br"))
 	div.appendChild (descTag)
 	div.appendChild (entry)

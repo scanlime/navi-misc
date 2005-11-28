@@ -14,29 +14,42 @@
 		<div class="banner">
 			<img id="banner" src="images/tb_top_banner.jpg"/>
 		</div>
+		
+		<div class="navigation" id="navigation">
+			Navigation coming soon to a web browser near you
+		</div>
 
 		<!-- div element for the New Box dialog -->
-		<div class="new_lesson" id="new_lesson">
+		<div class="toolbar" id="toolbar"></div>
+		<div id="iframeDiv" style="display: none;">
+			<iframe id="iframe" width="100%" height=100% scrolling="auto"
+				src="blank_box.html" frameborder=0 style="margin-right: 5px;">
+			</iframe>
+		</div>
+
+		<div class="new_lesson" id="new_box">
 			<!-- Titlebar -->
 			<div style="width: 100%; background-color: #444499; margin-bottom: 5px;">
-				<h1><font style="color: white">New Lesson</font></h1>
+				<font class="titleBar">New Teaching Box</font>
 			</div>
 
 			<!-- Descriptive text at the top -->
 			<p>
-				In addition to <i>Title</i>, <i>Author</i>, <i>Standards</i> and
-				<i>Required time</i>, these fields can be added to the lesson:
+				<b>Box Name:</b>
 			</p>
 
 			<!-- Field selector -->
-			<div id="fieldsSelect" class="fieldsSelect"></div>
+			<div style="margin: 10px">
+				<input type="text" id="boxName" name="boxname" style="width: 100%; border: thin solid #7777cc"/>
+			</div>
 
-			<!-- Description -->
 			<p>
-				<div id="description" style="margin: 10px; height: 20px">
-					<b>Description: </b>
-				</div>
+				<b>Description:</b>
 			</p>
+
+			<div style="margin: 10px">
+				<textarea rows="5" id="yo" name="yo" style="width: 100%; border: thin solid #7777cc"></textarea>
+			</div>
 
 			<!-- Button bar -->
 			<p align=right>
@@ -46,44 +59,6 @@
 
 		</div>
 
-		<!-- div element for the Add Field dialog -->
-		<div class="new_lesson" id="add_field_box">
-			<!-- Titlebar -->
-			<div style="width: 100%; background-color: #444499; margin-bottom: 5px;">
-				<h1><font style="color: white">Add a Field</font></h1>
-			</div>
-
-			<!-- Descriptive text at the top -->
-			<p>
-				The following fields are available for addition into the box:
-			</p>
-
-			<!-- Field selector -->
-			<div id="addfieldsSelect" class="fieldsSelect"></div>
-
-			<!-- Description -->
-			<p>
-				<div id="addFieldsdescription" style="margin: 10px; height: 20px">
-					<b>Description: </b>
-				</div>
-			</p>
-
-			<!-- Button bar -->
-			<p align=right>
-				<input id="addFieldCancel" type="button" value="Cancel">
-				<input id="addFieldCreate" type="button" value="Create">
-			</p>
-
-		</div>
-
-		<div class="navigation" id="navigation">
-			Navigation coming soon to a web browser near you
-		</div>
-
-		<div class="toolbar" id="toolbar"></div>
-		<iframe id="iframe" width="100%" height=100% scrolling="auto"
-			src="blank_lesson.html" frameborder=0>
-		</iframe>
 	</body>
 </html>
 
