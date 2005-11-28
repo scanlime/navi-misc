@@ -9,10 +9,13 @@ function Box (name, desc)
 	this.fields  = new Array ()
 	this.mainDiv = document.getElementById ('mainDiv')
 	this.toolbar = top.document.getElementById ('toolbar')
+	this.name = name
+	this.desc = desc
 
 	// Methods
 	this.addField     = addField
 	this.setupToolbar = setupToolbar
+	this.saveYourself = saveBoxToDisk
 
 	// Title
 	title = document.createElement ("h1")
@@ -27,10 +30,23 @@ function Box (name, desc)
 	this.setupToolbar (this)
 
 	// Fields
-	for (item in requiredFields)
-	{
-		this.addField (item, requiredFields[item], false, false)
-	}
+	myField = [
+		"These lessons are contained within this box.",
+		TYPE_LINK,
+		"LinkedLessons"]
+	
+	this.linkedLessonsObj = this.addField ("Lessons", myField, false, false)
+}
+
+function saveBoxToDisk ()
+{
+	// TODO: Use AJAX to send a request to the server to save
+	// the data.  The following code is just template code.
+	/*
+		http = new XMLHttpRequest ()
+		http.open ('post', '/cgi/saveBox.cgi?name=' + this.name)
+		http.send (data)
+	*/
 }
 
 function borderSwitch (e)
@@ -195,6 +211,7 @@ function createField (name, field, removable)
 
 	date = new Date ()
 	id = new String (date.getTime ())
+	var rmL = null
 
 	if (removable) {
 		rm = document.createElement ("span")
@@ -242,7 +259,7 @@ function createField (name, field, removable)
 			entry.style.width = "90%"
 			entry.style.margin = "20px"
 			entry.id = linkID
-			entry.linkObj = new LinkField (entry)
+			entry.linkObj = new LinkField (entry, rmL)
 			break
 		default:
 			entry = document.createElement ("textarea")
@@ -257,8 +274,11 @@ function createField (name, field, removable)
 	if (removable)
 		div.appendChild (rm)
 
-	if (type == TYPE_LINK)
+	if (rmL)
+	{
 		div.appendChild (rmL)
+		div.linkObj = entry.linkObj
+	}
 
 	div.appendChild (document.createElement ("br"))
 	div.appendChild (descTag)

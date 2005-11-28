@@ -17,7 +17,7 @@ TYPE_LINK = 3
 FIELD_DESC = 0
 FIELD_TYPE = 1
 FIELD_USED = 2
-FIELD_LINKID = 3
+FIELD_LINKID = 2
 
 // Stock Icons
 STOCK_NEW = "images/new.gif"

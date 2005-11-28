@@ -37,10 +37,3 @@ var addLesson
 var focusCounter = 0
 var firstBox = true
 
-// Fields and their descriptions
-requiredFields = new Array ()
-requiredFields["Lessons"] = [
-	"These lessons are contained within this box.",
-	TYPE_LINK,
-	"LinkedLessons"]
-

@@ -6,17 +6,20 @@ LINK_DESC = 1
 LINK_TYPE = 2
 LINK_ADDR = 3
 
-function LinkField (entry)
+function LinkField (entry, removeObj)
 {
 	this.entry = entry
+	this.removeObj = removeObj
 	this.links = new Array ()
 
 	this.redraw = LinkRedraw
 	this.addLink = LinkAddLink
+	this.removeAllClick = LinkRemoveAll
+	this.removeLink = LinkRemoveLink
 
 	this.redraw ()
-
-	this.addLink ("Test link", "This is a test link to something", 0, "")
+	this.removeObj.onclick = this.removeAllClick
+	this.removeObj.classObj = this
 }
 
 function LinkRedraw ()
@@ -61,6 +64,9 @@ function LinkRedraw ()
 		td2.appendChild (span3)
 		span3.setAttribute ("class", "removeButton")
 		span3.appendChild (document.createTextNode ("Remove"))
+		span3.onclick = this.removeLink
+		span3.classObj = this
+		span3.link = link
 
 		this.entry.appendChild (table)
 	}
@@ -73,3 +79,22 @@ function LinkAddLink (name, description, type, address)
 
 	this.redraw ()
 }
+
+function LinkRemoveAll (event)
+{
+	if (confirm ("Are you sure you want to remove all links?"))
+	{
+		this.classObj.links = new Array ()
+		this.classObj.redraw ()
+	}
+}
+
+function LinkRemoveLink (event)
+{
+	if (confirm ("Are you sure you want to remove this link?"))
+	{
+		this.classObj.links.splice (this.link, 1)
+		this.classObj.redraw ()
+	}
+}
+
