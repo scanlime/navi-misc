@@ -42,15 +42,9 @@
 
 #define DROP_FILE_PASTE_MAX_SIZE 1024
 
-int check_word (GtkWidget *xtext, char *word, int len);
-static void clicked_word (GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
 static void font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data);
 static void background_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
 static void gconf_timestamps_changed (GConfClient *client, GConfEntry *entry, gpointer data);
-
-static void open_url (GtkAction *action, gpointer data);
-static void copy_text (GtkAction *action, gpointer data);
-static void send_email (GtkAction *action, gpointer data);
 
 static void on_drop_send_files_activated (GtkAction *action, gpointer data);
 static void on_drop_paste_file_activated (GtkAction *action, gpointer data);
@@ -63,24 +57,7 @@ static void drag_data_received (GtkWidget *widget, GdkDragContext *context,
 
 
 static GHashTable *notify_table;
-static gchar *selected_word = NULL;
 static GSList *dropped_files = NULL;
-
-static GtkActionEntry action_entries[] = {
-	/* URL Popup */
-	{ "TextURLOpen", GTK_STOCK_OPEN, N_("_Open Link in Browser"), NULL, NULL, G_CALLBACK (open_url) },
-	{ "TextURLCopy", GTK_STOCK_COPY, N_("_Copy Link Location"),   NULL, NULL, G_CALLBACK (copy_text) },
-
-	/* Email Popup */
-	{ "TextEmailSend", GNOME_STOCK_MAIL, N_("Se_nd Message To..."), NULL, NULL, G_CALLBACK (send_email) },
-	{ "TextEmailCopy", GTK_STOCK_COPY,   N_("_Copy Address"),       NULL, NULL, G_CALLBACK (copy_text) },
-
-	/* Drag and Drop File Popup */
-	{ "DropSendFiles",     NULL, N_("_Send File"),           NULL, NULL, G_CALLBACK (on_drop_send_files_activated) },
-	{ "DropPasteFile",     NULL, N_("Paste File _Contents"), NULL, NULL, G_CALLBACK (on_drop_paste_file_activated) },
-	{ "DropPasteFileName", NULL, N_("Paste File_name"),      NULL, NULL, G_CALLBACK (on_drop_paste_filename_activated) },
-	{ "DropCancel",        NULL, N_("_Cancel"),              NULL, NULL, G_CALLBACK (on_drop_cancel_activated) },
-};
 
 enum
 {
@@ -108,36 +85,11 @@ initialize_text_gui (void)
 	GtkWidget *frame, *scrollbar;
 	GConfClient *client;
 	gchar *font;
-	GtkActionGroup *action_group;
 	gint background_type;
 
 	client = gconf_client_get_default ();
 
-	gui.xtext = GTK_XTEXT (gtk_xtext_new (colors, TRUE));
-	frame = glade_xml_get_widget (gui.xml, "text area frame");
-	gtk_container_add (GTK_CONTAINER (frame), GTK_WIDGET (gui.xtext));
-	scrollbar = glade_xml_get_widget (gui.xml, "text area scrollbar");
-	gtk_range_set_adjustment (GTK_RANGE (scrollbar), gui.xtext->adj);
-
 	notify_table = g_hash_table_new (g_direct_hash, g_direct_equal);
-
-	palette_alloc (GTK_WIDGET (gui.xtext));
-	gtk_xtext_set_palette (gui.xtext, colors);
-	gtk_xtext_set_max_lines (gui.xtext, 3000);
-	gtk_xtext_set_show_separator (gui.xtext, prefs.show_separator);
-	gtk_xtext_set_indent (gui.xtext, prefs.indent_nicks);
-	gtk_xtext_set_max_indent (gui.xtext, prefs.max_auto_indent);
-	gtk_xtext_set_thin_separator (gui.xtext, prefs.thin_separator);
-	gtk_xtext_set_wordwrap (gui.xtext, prefs.wordwrap);
-	gtk_xtext_set_urlcheck_function (gui.xtext, check_word);
-	g_signal_connect (G_OBJECT (gui.xtext), "word_click", G_CALLBACK (clicked_word), NULL);
-
-	/* Set menus */
-	action_group = gtk_action_group_new ("TextPopups");
-	gtk_action_group_set_translation_domain (action_group, GETTEXT_PACKAGE);
-	gtk_action_group_add_actions (action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
-	gtk_ui_manager_insert_action_group (gui.manager, action_group, 0);
-	g_object_unref (action_group);
 
 	/* Set the font. */
 	gconf_client_add_dir (client, "/apps/xchat/main_window", GCONF_CLIENT_PRELOAD_NONE, NULL);
@@ -365,111 +317,6 @@ clear_buffer (struct session *sess)
 	gtk_xtext_refresh (gui.xtext, FALSE);
 }
 
-int
-check_word (GtkWidget *xtext, char *word, int len)
-{
-	int url;
-	current_sess = gui.current_session;
-
-	url = url_check_word (word, len);
-	if (url == 0) {
-		if (((word[0]=='@' || word[0]=='+') && userlist_find (current_sess, word+1)) || userlist_find (current_sess, word))
-			return WORD_NICK;
-		if (current_sess->type == SESS_DIALOG)
-			return WORD_DIALOG;
-	}
-	return url;
-}
-
-static void
-clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data)
-{
-	if (word == NULL)
-		return;
-
-	if (event->button == 1) {
-		/* left click */
-		int type = check_word (xtext, word, strlen (word));
-
-		switch (type) {
-		case 0:
-			return;
-		case WORD_URL:
-		case WORD_HOST:
-			if (selected_word)
-				g_free (selected_word);
-			selected_word = g_strdup (word);
-			open_url (NULL, NULL);
-			break;
-		}
-		return;
-	}
-	if (event->button == 2) {
-		/* middle click */
-		return;
-	}
-	if (event->button == 3) {
-		switch (check_word (xtext, word, strlen (word))) {
-		case 0:
-			/* FIXME: show default context menu */
-			return;
-		case WORD_URL:
-		case WORD_HOST:
-			{
-				GtkWidget *menu;
-				menu = gtk_ui_manager_get_widget (gui.manager, "/TextURLPopup");
-				g_return_if_fail (menu != NULL);
-				if (selected_word)
-					g_free (selected_word);
-				selected_word = g_strdup (word);
-				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
-				return;
-			}
-		case WORD_NICK:
-			{
-				struct User *user;
-				GtkWidget *menu;
-				menu = gtk_ui_manager_get_widget (gui.manager, "/UserlistPopup");
-				g_return_if_fail (menu != NULL);
-				if (selected_word)
-					g_free (selected_word);
-				selected_word = g_strdup (word);
-
-				user = userlist_find (gui.current_session, word);
-				if (user) {
-					current_user = user;
-					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
-				}
-				return;
-			}
-		case WORD_CHANNEL:
-			/* FIXME: show channel context menu */
-			/* This will need to be a bit more complicated than the channel context
-			 * menu shown in the navigation tree, since we'll need to check whether
-			 * we've joined the channel and display different actions.  come to think
-			 * of it, that context menu doesn't actually change based on context
-			 * (joined/parted)
-			 */
-			return;
-		case WORD_EMAIL:
-			{
-				GtkWidget *menu;
-				menu = gtk_ui_manager_get_widget (gui.manager, "/TextEmailPopup");
-				g_return_if_fail (menu != NULL);
-				if (selected_word)
-					g_free (selected_word);
-				selected_word = g_strdup (word);
-				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
-				return;
-			}
-		case WORD_DIALOG:
-			/* FIXME: show dialog(?) context menu */
-			/* See comment in channel case above */
-			return;
-		}
-	}
-}
-
 static void
 font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data)
 {
@@ -532,24 +379,6 @@ static void
 gconf_timestamps_changed (GConfClient *client, GConfEntry *entry, gpointer data)
 {
 	gtk_xtext_set_time_stamp (data, gconf_client_get_bool (client, entry->key, NULL));
-}
-
-static void
-open_url (GtkAction *action, gpointer data)
-{
-	fe_open_url (selected_word);
-}
-
-static void
-copy_text (GtkAction *action, gpointer data)
-{
-	GtkClipboard *clipboard = gtk_clipboard_get (GDK_NONE);
-	gtk_clipboard_set_text (clipboard, selected_word, strlen (selected_word));
-}
-
-static void
-send_email (GtkAction *action, gpointer data)
-{
 }
 
 static gboolean
