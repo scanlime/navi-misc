@@ -154,7 +154,7 @@ function newBoxCreateButtonClicked ()
 
 			// Create a second copy of this box to work around a bug in rendering the
 			// first dynamically generated text box
-			if (!firstField)
+			if (!firstField && firstBox)
 			{
 				firstField = objField
 				objField2 = lessonPlan.addField (field, optionalFields[field], true, true)

@@ -16,6 +16,19 @@ td.main {
 	padding: 5px
 }
 
+H1 {
+	font-size: xx-large;
+	font-weight: bold;
+	padding-left: 0px;
+}
+
+.titleBar {
+	font-size: 145%;
+	font-weight: bold;
+	color: white;
+	margin-left: 10px;
+}
+
 .fieldName {
 	font-size: large;
 	font-weight: bold;
@@ -32,6 +45,15 @@ td.main {
 	font-size: x-small;
 	text-decoration: underline;
 	margin-left: 10px;
+	cursor: pointer;
+}
+
+.linkField {
+	color: blue;
+	font-style: oblique;
+	font-size: medium;
+	text-decoration: underline;
+	cursor: pointer;
 }
 
 .descriptionField {

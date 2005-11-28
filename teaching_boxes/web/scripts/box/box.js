@@ -1,9 +1,9 @@
 //------------------------------------
-// Class LessonPlan
+// Class Box
 //------------------------------------
 
 // Constructor for the LessonPlan object
-function LessonPlan ()
+function Box ()
 {
 	// Members
 	this.fields  = new Array ()
@@ -16,9 +16,13 @@ function LessonPlan ()
 
 	// Title
 	title = document.createElement ("h1")
-	text = document.createTextNode ("New Lesson Plan")
+	text = document.createTextNode ("Untitled Box")
 	title.appendChild (text)
 	this.mainDiv.appendChild (title)
+
+	// Description
+	desc = document.createTextNode ("This box is about such and such and la di da...")
+	this.mainDiv.appendChild (desc)
 
 	// Toolbar
 	this.setupToolbar (this)
@@ -159,35 +163,9 @@ function setupToolbar (plan)
 	tr = document.createElement ("tr")
 
 	tr = createButton (tr,
-		"New Lesson",
+		"Add Lesson",
 		"Create a new lesson and add it to the box.",
-		STOCK_NEW);
-
-	tr = createButton (tr,
-		"Save Lesson",
-		"Save the changes to the current lesson.",
-		STOCK_SAVE);
-
-	tr = createButton (tr,
-		"Create Link",
-		"Add a link from another box or lesson to here.",
-		STOCK_LINK);
-
-	tr = createButton (tr,
-		"Add Field",
-		"Add additional information to this lesson.",
-		STOCK_FIELD,
-		function (e) {addField = new AddFieldDlg ()})
-
-	tr = createButton (tr,
-		"Add Resource",
-		"Upload a file into your box, or create a link to an external web resource.",
-		STOCK_REF)
-
-	tr = createButton (tr,
-		"Add Note",
-		"Add a personal note or reminder to the lesson.",
-		STOCK_NOTE)
+		STOCK_OPEN);
 
 	tab.appendChild (tr)
 	plan.toolbar.appendChild (tab)
@@ -196,21 +174,18 @@ function setupToolbar (plan)
 // Add a field to the lesson plan
 function addField (name, field, removable, doMceReplace)
 {
-	desc = field[FIELD_DESC]
-	type = field[FIELD_TYPE]
-
-	newField = createField (name, desc, type, removable)
+	newField = createField (name, field, removable)
 	this.fields[newField.id] = newField
 	this.mainDiv.appendChild (newField)
-
-	id = newField.id
-
 	return newField
 }
 
 // Create a field and return it
-function createField (name, desc, type, removable)
+function createField (name, field, removable)
 {
+	desc = field[FIELD_DESC]
+	type = field[FIELD_TYPE]
+
 	// Create the title of the field
 	title = document.createElement ("span")
 	text  = document.createTextNode (name)
@@ -256,6 +231,19 @@ function createField (name, desc, type, removable)
 			textarea.setAttribute ("id", "mceReplaceMe" + id)
 			textarea.style.width = "100%"
 			break
+		case TYPE_LINK:
+			rmL = document.createElement ("span")
+			rmL.setAttribute ("class", "removeButton")
+			rmL.setAttribute ("id", id)
+			rmL.appendChild (document.createTextNode ("Remove All"))
+
+			linkID = field[FIELD_LINKID]
+			entry = document.createElement ("div")
+			entry.style.width = "90%"
+			entry.style.margin = "20px"
+			entry.id = linkID
+			entry.linkObj = new LinkField (entry)
+			break
 		default:
 			entry = document.createElement ("textarea")
 			break
@@ -266,36 +254,18 @@ function createField (name, desc, type, removable)
 	div.setAttribute ("id", id)
 	div.style.marginTop = "20px"
 	div.appendChild (title)
-	if (removable) {
+	if (removable)
 		div.appendChild (rm)
-	}
+
+	if (type == TYPE_LINK)
+		div.appendChild (rmL)
+
 	div.appendChild (document.createElement ("br"))
 	div.appendChild (descTag)
 	div.appendChild (entry)
 	div.fieldName = name
 
 	return div
-}
-
-function removeField (event)
-{
-	if (confirm ("Are you sure you want to remove this field?")) {
-		var id
-		var mainDiv = document.getElementById ("mainDiv")
-
-		if (event.target) {
-			id = event.target.id
-		} else {
-			id = event.srcElement.id
-		}
-
-		fieldName = lessonPlan.fields[id].fieldName
-		if (optionalFields[fieldName])
-			optionalFields[fieldName][FIELD_USED] = false
-
-		mainDiv.removeChild (lessonPlan.fields[id])
-		delete lessonPlan.fields[id]
-	}
 }
 
 //-----------------------------
@@ -319,6 +289,18 @@ function calculateSizes ()
 	main.setAttribute ("style", "height: " + windowHeight)
 }
 
+function onCancelClick (event)
+{
+	newBox.style.display = "none"
+	top.document.getElementById ("iframeDiv").style.display = "block"
+}
+
+function onCreateClick (event)
+{
+	newBox.style.display = "none"
+	top.document.getElementById ("iframeDiv").style.display = "block"
+}
+
 // Main function that does all the kickoff stuff
 function main ()
 {
@@ -326,20 +308,28 @@ function main ()
 	// resize.
 	top.onresize = calculateSizes
 
-	// Initialize the rich text entry
-	tinyMCE.init({
-		mode : "textareas",
-		theme : "simple"
-	});
-
 	// Create the stuff.
-	lessonPlan = new LessonPlan ()
+	box = new Box ()
 
 	// Calculate the size of the window
 	calculateSizes ()
 
 	// Pop up the New Box dialog
-	newBox = new NewBox ()
+	newBox = top.document.getElementById ("new_box")
+	newBox.style.display = "block"
+	newBox.style.position = "absolute"
+	newBox.style.left = (windowWidth / 2) - (newBox.clientWidth / 2)
+	newBox.style.top = (windowHeight / 2) - (newBox.clientHeight / 2) + bannerHeight
+	newBox.style.visibility = "visible"
+	newBox.style.cursor = "default"
+
+	newCancel = top.document.getElementById ("newCancel")
+	newCancel.onclick = onCancelClick
+
+	newCreate = top.document.getElementById ("newCreate")
+	newCreate.onclick = onCreateClick
+
+	// newBox = new NewBox ()
 }
 
 main ()
