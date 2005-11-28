@@ -213,7 +213,7 @@ provides will be less dissuasive for users in need of help.
 \end{figure}
 
 The interface for creating and modifying a teaching box (Figure \ref{fig: new box}
-is even more simple than that of a new lesson. Iternally, teaching boxes are
+is even more simple than that of a new lesson. Internally, teaching boxes are
 just a collection of links to lessons. There are links allowing the user to
 remove one or all of the lessons contained in the box. The box contains a text
 area for entering a brief description of the box that should give other users an
@@ -232,7 +232,7 @@ than being explicitly saved.
 The teaching boxes interface makes heavy use of dialog windows to display
 additional information to the user and present them with more detailed choices.
 The information in the dialog boxes is only needed by the user on rare
-occaisions, so most of the time it is not visible. This should help reduce
+occasions, so most of the time it is not visible. This should help reduce
 clutter on the screen and make more frequently needed information more visible.
 
 Figure \ref{fig: dialogs} shows all of the dialogs used in this interface. When
@@ -240,7 +240,7 @@ the user elects to create a new lesson, they are presented with Figure
 \ref{fig: new lesson dialog}. This dialog window allows the user to choose
 additional fields to initially include in the lesson plan in addition to the
 five required fields. Underneath the list of available fields the dialog
-displays a brief description of the hilighted field so that if the user is
+displays a brief description of the highlighted field so that if the user is
 unclear about what a field is for they have more information available.
 
 Figure \ref{fig: new field} is similar to Figure \ref{fig: new lesson dialog}. A
@@ -273,8 +273,8 @@ fields.
 \end{figure}
 
 \section{Results}
-\subsection{Cognitive Walkthrough}
-A number of problems were identified during the cognitive walkthrough.  We
+\subsection{Cognitive Walk-through}
+A number of problems were identified during the cognitive walk-through.  We
 identified that we needed more possible boxes, including potentially ones where
 a teacher could label them himself because we could not identify all of the
 sections that a teacher may want to use in their lesson plan.  Another problem
@@ -293,7 +293,7 @@ lesson meets" box to some sort of guide to the governmental standards.
 
 \subsection{Heuristic Evaluation}
 The heuristic evaluation revealed many of the same difficulties as the cognitive
-walkthrough as well as a handful of new ones.  The aforementioned problem about
+walk-through as well as a handful of new ones.  The aforementioned problem about
 what to name each subsection of the lesson plan was one concern, slightly
 broadened in this evaluation to consider the fact that different teachers might
 call different subsections different things.  Not only do we need to be
@@ -310,6 +310,38 @@ designed into the interface.
 \section{Final Design}
 
 \section{User Testing}
+We are still trying to set up times to meet with users for the think-aloud;
+however, the protocol is rather straightforward.  Using the methods of Lewis and
+Rieman, we will ask participants to think aloud as they perform a given task.
+The user will be asked to begin at http://lorien.navi.cx:8000/teaching\_boxes/
+and create a new lesson, one that they commonly teach.  Once they have created a
+lesson, their next step will be to add a field that they "forgot" into the
+lesson, and to make a note for themselves to go back and change something at a
+future date.  The user will then be asked to link to a preexisting-existing lesson that
+we've uploaded onto the server.  Once the lesson is created, they'll be asked to
+save it for future use (although the actual "save" feature may not be
+functional).  This walk-through should be rather short compared to the
+walk-throughs we did for class exercises, primarily because of the limited
+number of tasks available in this particular interface design.
+
+After the think-aloud, users will be asked a number of questions.  These include
+the following questions:
+
+\begin{itemize}
+\item What part or parts of Teaching Boxes did you find the most rewarding?
+\item What part or parts did you find the most difficult or frustrating?
+\item Looking at Teaching Boxes builder the way it is today, do you think you'd
+      use it to design your lesson plans?
+	  \begin{itemize}
+	  \item If so, why, and if not, why not?
+	  \item If so, in what ways do you think you would you use it?
+	  \end{itemize}
+\item On a scale of 1 to 5, 5 being the most satisfied and 1 the least, how
+      would you rate your overall experience with Teaching Boxes?
+\item One a scale of 1 to 5, 5 being the most similar and 1 the least, how would
+      you rank the degree of similarity of Teaching Boxes to other on-line
+      lesson-planning resources you've used?
+\end{itemize}
 
 \section{Recommendations}
 
