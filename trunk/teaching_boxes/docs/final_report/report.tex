@@ -263,6 +263,39 @@ fields.
 \end{figure}
 
 \section{Results}
+\subsection{Cognitive Walkthrough}
+A number of problems were identified during the cognitive walkthrough.  We
+identified that we needed more possible boxes, including potentially ones where
+a teacher could label them himself because we could not identify all of the
+sections that a teacher may want to use in their lesson plan.  Another problem
+was clarity and consistency about what goes into each of the sections in a
+teaching box.  The titles of the boxes and what information needed to be
+included in them needed to be specified more clearly, and there are a number of
+ways this can be addressed, all involving giving the user more information about
+the box sub-area as it's being created and edited.  The important issue of how
+the information was going to be saved was brought up, as well: how do teachers
+save teaching boxes, and how frequently is saving the box necessary?  Another
+concern was how teacher were going to upload materials such as worksheets to the
+boxes, and the need to make this as clear as possible.  Additionally,
+referencing other teaching boxes would be helpful, but could be confusing for
+teachers.  It would be good to add a link near the requisite "standards this
+lesson meets" box to some sort of guide to the governmental standards.
+
+\subsection{Heuristic Evaluation}
+The heuristic evaluation revealed many of the same difficulties as the cognitive
+walkthrough as well as a handful of new ones.  The aforementioned problem about
+what to name each subsection of the lesson plan was one concern, slightly
+broadened in this evaluation to consider the fact that different teachers might
+call different subsections different things.  Not only do we need to be
+explicitly clear, we may need to call different sub-areas multiple names.  On
+the other hand, that might get very confusing.  We also realized that the user
+memory load of our initial design, that of having each box nested within a
+larger lesson plan, might be more confusing that it needed to be because the
+lack of visibility of the subsections could tax memory load substantially.
+Consistency and feedback did not appear to be issues in our design, exits were
+easy to spot, and error messages seem to only be relevant when uploading
+additional materials such as worksheets to the site, a feature we have not yet
+designed into the interface.
 
 \section{Final Design}
 
@@ -274,8 +307,6 @@ fields.
 
 \pagebreak
 \appendix
-
-\section{Screenshots}
 
 \section{Interview Questions}
 \label{interview questions}
