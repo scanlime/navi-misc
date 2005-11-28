@@ -32,6 +32,7 @@
 #include "about.h"
 #include "channel-list.h"
 #include "connect-dialog.h"
+#include "conversation-panel.h"
 #include "gui.h"
 #include "main-window.h"
 #include "navigation-tree.h"
@@ -172,7 +173,7 @@ save_transcript (void)
 			g_error_free (error);
 		} else {
 			gint fd = g_io_channel_unix_get_fd (file);
-			gtk_xtext_save (gui.xtext, fd);
+			//gtk_xtext_save (gui.xtext, fd);
 			g_io_channel_shutdown (file, TRUE, &error);
 
 			if (error) {
@@ -198,8 +199,8 @@ close_find_button (GtkWidget *button, gpointer data)
 	widget = glade_xml_get_widget (gui.xml, "find_status_label");
 	gtk_label_set_text (GTK_LABEL (widget), "");
 
-	gtk_xtext_selection_clear_full (gui.xtext->buffer);
-	gtk_xtext_refresh (gui.xtext, TRUE);
+	//gtk_xtext_selection_clear_full (gui.xtext->buffer);
+	//gtk_xtext_refresh (gui.xtext, TRUE);
 }
 
 static gboolean
@@ -219,15 +220,15 @@ find_next (GtkWidget *entry, gpointer data)
 	textentry *position;
 	gboolean reverse = (gboolean) GPOINTER_TO_UINT(data);
 
-	position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position, FALSE, reverse);
+	//position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position, FALSE, reverse);
 
 	info = glade_xml_get_widget (gui.xml, "find_status_label");
 	if (position == NULL && (last_search_position != NULL)) {
 		if (reverse) {
-			position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
+			//position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
 			gtk_label_set_markup (GTK_LABEL (info), _("<span foreground=\"grey\">Reached beginning, continuing from bottom</span>"));
 		} else {
-			position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
+			//position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
 			gtk_label_set_markup (GTK_LABEL (info), _("<span foreground=\"grey\">Reached end, continuing from top</span>"));
 		}
 	} else if (position == NULL) {
@@ -275,6 +276,12 @@ initialize_main_window (void)
 
 	gui.manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (gui.manager, gui.action_group, 0);
+
+	widget = glade_xml_get_widget (gui.xml, "main gui vbox");
+	gui.conversation_panel = conversation_panel_new ();
+	gtk_widget_show (gui.conversation_panel);
+	gtk_box_pack_start (GTK_BOX (widget), gui.conversation_panel, TRUE, TRUE, 0);
+	gtk_box_reorder_child (GTK_BOX (widget), gui.conversation_panel, 1);
 
 	menu_vbox = glade_xml_get_widget (gui.xml, "menu_vbox");
 	g_signal_connect (gui.manager, "add-widget", G_CALLBACK (on_add_widget), menu_vbox);
