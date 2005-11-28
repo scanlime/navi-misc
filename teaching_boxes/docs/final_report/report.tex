@@ -98,19 +98,21 @@ navigable teaching box.
 
 \section{Approach}
 We began by interviewing teachers about lesson planning -- interview questions
-can be found in Appendix \ref{interview questions}, and notes in Appendix
-\ref{interview notes}. The interviews helped us gather data regarding how
-teachers create lesson plans and what requirements they have for digitizing
-lesson plans. This data was used to create some low-fidelity prototypes for
-various aspects of the user interface. We put these prototypes through cognitive
-walk-throughs and heuristic evaluations to try and improve their design before
-we began any actual coding. After evaluating the low-fidelity prototype, we
-created a functioning high-fidelity prototype based on our low-fidelity
-mock-ups. The high-fidelity prototype was created using XHTML, JavaScript, CSS,
-and AJAX. After this prototype was complete we went back to our interviewees to
-have them evaluate it. We had test users perform think-alouds on this prototype.
-The feedback gathered from the think-alouds was then used to improve the
-high-fidelity prototype and create a finished project.
+can be found in Appendix \ref{interview questions}, and notes from the
+interviews in Appendix \ref{interview notes}. The interviews helped us gather
+data regarding how teachers create lesson plans and what requirements they have
+for digitizing lesson plans. The user interviews were supplemented by a survey
+we sent out via e-mail -- found in Appendix \ref{survey}. This data was used to
+create some low-fidelity prototypes for various aspects of the user interface.
+We put these prototypes through cognitive walk-throughs and heuristic
+evaluations to try and improve their design before we began any actual coding.
+After evaluating the low-fidelity prototype, we created a functioning
+high-fidelity prototype based on our low-fidelity mock-ups. The high-fidelity
+prototype was created using XHTML, JavaScript, CSS, and AJAX. After this
+prototype was complete we went back to our interviewees to have them evaluate
+it. We had test users perform think-alouds on this prototype.  The feedback
+gathered from the think-alouds was then used to improve the high-fidelity
+prototype and create a finished project.
 
 \section{Interviews}
 \input{interview_summary}
@@ -121,7 +123,8 @@ In general, our users are teachers of any grade level -- Kindergarten through
 perform basic tasks: sending and receiving e-mail, browsing the Internet, or
 using a word processor. The user does not necessarily need to be familiar with
 the system, but a basic understanding of the teaching boxes concept is
-preferred.
+preferred. Although our target user is a teacher, it is conceivable that anyone
+involved in education might want to use this system.
 
 \section{Design Priorities \& Issues}
 From our user interviews and discussions with our sponsors we have identified
@@ -188,11 +191,12 @@ The interface provides the user with a number of common fields such as
 ``Methods'' and ``Materials''. These predefined fields are not always sufficient
 for a lesson; a teacher might want to include information not accounted for by
 these fields. It is important to allow teachers to enter whatever information
-they deem important for the lesson, so a means of creating custom fields in a
-lesson is required. But we want to discourage teachers from using these fields
-exclusively because then the common structure of lessons is lost. We do not want
-a teacher creating a custom field for ``Methods'' simply because they call it
-``Procedure'' and don't recognize that that is what is meant by ``Methods''.
+they deem important for the lesson, so a means of including this information in
+a sensible fashion is important.  But we want to discourage teachers from using
+these fields exclusively so that the common structure of lessons is not lost. We
+do not want a teacher creating a custom field for ``Methods'' simply because
+they call it ``Procedure'' and don't recognize that that is what is meant by
+``Methods''.
 
 \section{Tasks}
 The following user tasks are intended to exemplify the uses of the system and
@@ -206,7 +210,7 @@ Figure \ref{fig: main window} shows the main window for creating new digital
 lessons. It presents the user with individual labeled text areas. These labels
 will help a user identify the type of information expected in the text field.
 Wherever the title might not be sufficient or ambiguous, a brief description of
-the field will be provided next to the title. These text fields help to add
+the field is provided next to the title. These text fields help to add
 structure to the lessons so that all lessons will be somewhat similar in format
 and thus familiar and more usable.
 
@@ -227,7 +231,7 @@ applications and will most likely be familiar to the user. In the interest of
 space, these buttons only make use of icons.
 
 There is a link at the top of this page leading to help and documentation files.
-Often help buttons and menus are unhelpful; they contain either little
+Often help buttons and menus are unhelpful; they either contain little
 information, or detailed information that doesn't pertain to what most users are
 interested in. This might dissuade many users from making use of a help button.
 Our hope is that a link with more descriptive text about the kind of help it
@@ -440,10 +444,10 @@ teaching boxes and lessons. As a result, there is some missing functionality
 such as the ability to save a lesson or box, or search for a lesson or box. Our
 intent for this project was to store the lessons and boxes in XML files on the
 server. However, for the purpose of searching it might be best to store them in
-a database.
+a database in the actual system.
 
 Additionally, we raised some issues in Section \ref{sec: issues} that were not
-addressed in this project. Our interface does not address the hard copy
+addressed by this project. Our interface does not address the hard copy
 resources issue. Teachers can scan these resources to upload them, or create a
 note in the lesson citing the resource, but these are simply workarounds that
 don't really address the problem. No decision was made about whether the
@@ -480,13 +484,10 @@ users from uploading.
 For monitoring lesson/box creation we can again simply count the number of
 lessons/boxes created. In addition, we can count the number of lesson/box views
 per user and compare that to how many lessons/boxes they create. This will give
-us an idea of how many lessons a user creates on average vs. how much they
+us an idea of how many lessons a user creates on average versus how much they
 utilize the library. If this number is too low to provide a library big enough
 for our taste, something needs to be done to motivate people to contribute
-lessons. Another useful metric for this goal is how many lessons a user viewed
-before creating their first lesson or box. Given enough users, this should give
-some indication of how long an average user needs to utilize the library before
-beginning to contribute to it.
+lessons.
 
 \subsection{Analytic Metrics}
 The number of resources uploaded compared to the number of lessons in the
@@ -498,7 +499,10 @@ is due to something in the system discouraging users from uploading resources.
 Monitoring the number of creations after specific lessons have been viewed could
 also be meaningful. If there are lessons that have significantly higher creation
 rate after being viewed could possess some quality that motivates people to
-contribute lessons.
+contribute lessons. Another useful metric for this goal is how many lessons a
+user viewed before creating their first lesson or box. Given enough users, this
+should give some indication of how long an average user needs to utilize the
+library before beginning to contribute to it.
 
 \subsection{Moments of Truth}
 There are a few scenarios in which the system can cause the user a great deal of
