@@ -25,6 +25,7 @@
 #include <glib.h>
 #include <gnome.h>
 #include <libgnomevfs/gnome-vfs.h>
+#include "conversation-panel.h"
 #include "gui.h"
 #include "navigation-tree.h"
 #include "textgui.h"
@@ -192,7 +193,7 @@ fe_new_window (struct session *sess, int focus)
 {
 	static gboolean loaded = FALSE;
 
-	text_gui_add_text_buffer (sess);
+	conversation_panel_add_buffer (CONVERSATION_PANEL (gui.conversation_panel), sess);
 	if (sess->type == SESS_SERVER)
 		navigation_tree_create_new_network_entry (gui.server_tree, sess);
 	else if (sess->type == SESS_CHANNEL || sess->type == SESS_DIALOG)
