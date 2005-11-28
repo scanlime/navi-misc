@@ -156,6 +156,7 @@ should be as painless as possible so that teachers are not dissuaded from
 sharing their materials.
 
 \subsection{Issues}
+\label{sec: issues}
 Activities are conceptually different from lessons. Activities are rarely
 lessons in and of themselves, but frequently supplement lessons. However,
 we found from our interviews that planning an activity is often quite similar to
@@ -335,6 +336,13 @@ additional materials such as worksheets to the site, a feature we have not yet
 designed into the interface.
 
 \section{Final Design}
+For our final design we drew heavily on the DLESE website \cite{bib:preview} and
+the prototype site for teaching boxes \cite{bib:teachingboxes.org}. From these
+sites we gleaned the fields needed for our interface and created a look and feel
+for the interface that would fit well with the existing project. We attempted to
+make it as easy as possible to integrate this interface with the teaching boxes
+project.
+
 Our final design followed our low-fidelity prototype fairly closely. We used
 JavaScript overlays for the dialog boxes (Figures \ref{fig: new lesson ss} and
 \ref{fig: new box ss}, for example) so that the dialogs would be visible even
@@ -345,7 +353,7 @@ conjunction with JavaScript and CSS to create the interface. This forced us to
 use a simple design for the interface. It is our hope that more complex boxes
 and lessons can be created by combining the simple aspects of the interface.
 
-\begin{figure}[htb]
+\begin{figure}
 	\centering
 	\includegraphics[width=0.45\linewidth]{figures/new_lesson}
 	\caption{Dialog presented when creating a new lesson.}
@@ -361,14 +369,14 @@ Next to each field name is a link that removes the field from the lesson, if the
 field is removable. The user is asked to verify the removal of a field before it
 is removed (Figure \ref{fig: remove prompt ss}).
 
-\begin{figure}[htb]
+\begin{figure}
 	\centering
 	\includegraphics[width=0.9\linewidth]{figures/formatting}
 	\caption{A new lesson shown with some formatted text.}
 	\label{fig: blank lesson ss}
 \end{figure}
 
-\begin{figure}[htb]
+\begin{figure}
 	\centering
 	\includegraphics[width=0.45\linewidth]{figures/remove_prompt}
 	\caption{Prompt presented when a user clicks ``Remove''.}
@@ -391,6 +399,9 @@ the cursor is placed over a button.
 	\caption{Toolbar.}
 	\label{fig: toolbar ss}
 \end{figure}
+% It's important to be sure that these figures don't end up in a section much
+% later in the document.
+% \clearpage
 
 \section{User Testing}
 We are still trying to set up times to meet with users for the think-aloud;
@@ -427,6 +438,33 @@ the following questions:
 \end{itemize}
 
 \section{Recommendations}
+This project focused primarily on the interface used for creating new digital
+teaching boxes and lessons. As a result, there is some missing functionality
+such as the ability to save a lesson or box, or search for a lesson or box. Our
+intent for this project was to store the lessons and boxes in XML files on the
+server. However, for the purpose of searching it might be best to store them in
+a database.
+
+Additionally, we raised some issues in Section \ref{sec: issues} that were not
+addressed in this project. Our interface does not address the hard copy
+resources issue. Teachers can scan these resources to upload them, or create a
+note in the lesson citing the resource, but these are simply workarounds that
+don't really address the problem. No decision was made about whether the
+existing functionality is sufficient to manage these types of resources, or
+whether something more should be provided.
+
+Another unaddressed issue is that of the custom field. Further research into the
+dangers of providing a customizable field should be performed before committing
+to that solution. If it turns out that the custom field is being overused at the
+expense of predefined fields, an alternate solution should be provided for users
+who find that none of the available fields are adequate for some portion of a
+given lesson.
+
+Finally, we considered the need for user documentation for this project, but
+provided none. Good documentation that is easy to find is essential to this
+project. In addition to documentation describing teaching boxes and the
+interface created in this project, we feel that a tutorial on creating a new
+lesson and creating a teaching box should be provided.
 
 \section{Web Analytics}
 
