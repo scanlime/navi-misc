@@ -67,34 +67,34 @@ boxes. The interface will need to make all the necessary steps in the creation
 process clear to new users without bogging down expert users.
 
 \section{Related Research}
-We decided to draw upon the already available resources for this project, since
-a significant amount of information about this topic has already been researched
-by the project sponsors.  We closely examined two of their papers alongside
-looking closely at the web sites that have already been designed and other
-teaching lesson websites.  In \textit{Teaching Boxes: Lessons for Digital
-Library Resource Reuse}\cite{bib:khan-maull} the authors explore the components
-which should be included within teaching boxes, and examine how the concept of
-teaching boxes can be modified to support teachers in the most accessible way
-possible, specifically as part of their current lesson-planning methods.
-Several pilot studies were run to define teaching boxes and to examine which
-views of the box were most useful.  One of the key findings was the necessity
-for extensive flexibility and adaptation for any given teacher.  The pilot
-studies also found that teachers wanted detail about the lesson plans, including
-time required, materials, and common student misconceptions about the subject
-matter.  One important note at the end of the article is that it would be
-helpful to connect teaching boxes to each other.  This is an idea we have
-attempted to implement into our current design.
+We decided to primarily draw upon the readily available resources for this
+project that have been written by the project sponsors.  We closely examined two
+of their papers, along with looking closely at the web sites that have already
+been designed for use with teaching boxes as well as other teaching lesson
+websites.  In \textit{Teaching Boxes: Lessons for Digital Library Resource
+Reuse} \cite{bib:khan-maull} the authors explore the components which should be
+included within teaching boxes, and examine how the concept of teaching boxes
+can be modified to support teachers in the most accessible way possible,
+specifically as part of their current lesson-planning methods.  Several pilot
+studies were run to define teaching boxes and to examine which methods of
+looking at the boxes were most useful.  One of the key findings was the
+necessity for extensive flexibility and adaptation for any given teacher.  The
+pilot studies also found that teachers wanted detail about the lesson plans they
+might be borrowing, including time required, materials, and common student
+misconceptions about the subject matter.  One important note at the end of the
+article is that it would be helpful to be able to connect teaching boxes to each
+other.  This is an idea we have attempted to implement into our current design.
 
 In \textit{Customizable Teaching Boxes: A Window to Digital Library Resource
 Reuse} \cite{bib:khan-maull2} the authors utilized Lewis and Rieman's
 task-centered design approach to examine teaching boxes in a similar fashion
 that it was used in this project.  They examined the design of teaching boxes
-from the perspective of lesson-planning work flow, look at how often and in what
-matter teachers modified the lessons, and studied how they would modify and
-reuse lesson plans.  They found, as we did, that teachers rarely used prepared
-lessons as is, and instead extensively modified these lessons.  This finding
-formed the base of our project: designing an easily modifiable, intuitively
-navigable teaching box.
+from the perspective of lesson-planning work flow, looked at how often and in
+what manner teachers modified their own lessons, and studied how they would
+modify and reuse lesson plans.  They found, as we did in the current project,
+that teachers rarely used prepared lessons as they were, but instead extensively
+modified these lessons.  This finding formed the base of our project: designing
+an easily modifiable, intuitively navigable teaching box.
 
 \section{Approach}
 We began by interviewing teachers about lesson planning -- interview questions
@@ -307,21 +307,21 @@ fields.
 \section{Results}
 \subsection{Cognitive Walk-through}
 A number of problems were identified during the cognitive walk-through.  We
-identified that we needed more possible boxes, including potentially ones where
-a teacher could label them himself because we could not identify all of the
-sections that a teacher may want to use in their lesson plan.  Another problem
-was clarity and consistency about what goes into each of the sections in a
-teaching box.  The titles of the boxes and what information needed to be
-included in them needed to be specified more clearly, and there are a number of
-ways this can be addressed, all involving giving the user more information about
-the box sub-area as it's being created and edited.  The important issue of how
-the information was going to be saved was brought up, as well: how do teachers
-save teaching boxes, and how frequently is saving the box necessary?  Another
-concern was how teacher were going to upload materials such as worksheets to the
-boxes, and the need to make this as clear as possible.  Additionally,
-referencing other teaching boxes would be helpful, but could be confusing for
-teachers.  It would be good to add a link near the requisite "standards this
-lesson meets" box to some sort of guide to the governmental standards.
+identified that we needed more information boxes, including ones that a teacher
+could self-label since we could not identify all of the sections that a teacher
+may want to use in their lesson plan.  Another problem was clarity and
+consistency about what went into each of the sections in a teaching box.  The
+titles of the boxes and what information needed to be included in them needed to
+be specified more clearly.  There were a number of ways this issue could be
+addressed, all involving giving the user more information about the section as
+the box is being created and edited.  The important issue of how the information
+was going to be saved was brought up, as well: how do teachers save teaching
+boxes, and how frequently is saving the box necessary?  Another concern was how
+teachers were going to upload materials such as worksheets to the boxes, and the
+need to make this as clear as possible.  Additionally, referencing other
+teaching boxes would be helpful, but could be confusing for teachers.  It would
+be good to add a link near the requisite "standards this lesson meets" box to
+some sort of guide to the governmental standards.
 
 \subsection{Heuristic Evaluation}
 The heuristic evaluation revealed many of the same difficulties as the cognitive
@@ -329,15 +329,15 @@ walk-through as well as a handful of new ones.  The aforementioned problem about
 what to name each subsection of the lesson plan was one concern, slightly
 broadened in this evaluation to consider the fact that different teachers might
 call different subsections different things.  Not only do we need to be
-explicitly clear, we may need to call different sub-areas multiple names.  On
-the other hand, that might get very confusing.  We also realized that the user
-memory load of our initial design, that of having each box nested within a
-larger lesson plan, might be more confusing that it needed to be because the
-lack of visibility of the subsections could tax memory load substantially.
-Consistency and feedback did not appear to be issues in our design, exits were
-easy to spot, and error messages seem to only be relevant when uploading
-additional materials such as worksheets to the site, a feature we have not yet
-designed into the interface.
+explicitly clear, we may need to call different sections by multiple names, or
+provide explicit definitions.  On the other hand, that might get very confusing.
+We also realized that the user memory load of our initial design, where each
+section was nested within a larger lesson plan, might be more confusing that it
+needed to be.  This was caused by the lack of visibility of the subsections,
+thus taxing memory load substantially.  Consistency and feedback did not appear
+to be issues in our design, exits were easy to spot, and error messages seem to
+only be relevant when uploading additional materials such as worksheets to the
+site, a feature we have not yet designed into the interface.
 
 \section{Final Design}
 For our final design we drew heavily on the DLESE website \cite{bib:preview} and
@@ -405,29 +405,30 @@ the cursor is placed over a button.
 \end{figure}
 
 \section{User Testing}
-We are still trying to set up times to meet with users for the think-aloud;
-however, the protocol is rather straightforward.  Using the methods of Lewis and
-Rieman, we will ask participants to think aloud as they perform a given task.
-The user will be asked to begin at http://lorien.navi.cx:8000/teaching\_boxes/
-and create a new lesson, one that they commonly teach.  Once they have created a
-lesson, their next step will be to add a field that they "forgot" into the
-lesson, and to make a note for themselves to go back and change something at a
-future date.  The user will then be asked to link to a preexisting-existing lesson that
-we've uploaded onto the server.  Once the lesson is created, they'll be asked to
-save it for future use (although the actual "save" feature may not be
-functional).  This walk-through should be rather short compared to the
-walk-throughs we did for class exercises, primarily because of the limited
-number of tasks available in this particular interface design.
+We are still setting up times to meet with users for the think-aloud, and have
+two think-alouds currently scheduled.  However, the protocol is rather
+straightforward.  Using the methods of Lewis and Rieman, we will ask
+participants to think aloud as they perform a given task.  The user will be
+asked to begin at http://lorien.navi.cx:8000/teaching\_boxes/ and create a new
+lesson, one that they commonly teach.  Once they have created a lesson, their
+next step will be to add a field that they "forgot" into the lesson, and to make
+a note for themselves to go back and change something at a future date.  The
+user will then be asked to link to a pre-existing lesson that we've uploaded
+onto the server.  Once the lesson is created, they'll be asked to save it for
+future use (although the actual "save" feature may not be functional).  This
+walk-through should be rather short compared to the walk-throughs we did for
+class exercises, primarily because of the limited number of tasks available in
+this particular interface design.
 
-After the think-aloud, users will be asked a number of questions.  These include
-the following questions:
+After the think-aloud, users will be asked
+a number of questions.  These include the following questions:
 
 \begin{itemize}
 \item What part or parts of Teaching Boxes did you find the most rewarding?
 \item What part or parts did you find the most difficult or frustrating?
 \item Looking at Teaching Boxes builder the way it is today, do you think you'd
       use it to design your lesson plans?
-	  \begin{itemize}
+      \begin{itemize}
 	  \item If so, why, and if not, why not?
 	  \item If so, in what ways do you think you would you use it?
 	  \end{itemize}
@@ -548,8 +549,35 @@ connect a lesson to a concept that does not exist. And when a file upload fails.
 \label{interview notes}
 \input{interviews}
 
-\section{Survey Responses}
-\subsection{KW -- October 24, 2005}
+\section{Survey}
+The following survey was e-mailed to teachers that we couldn't interview in
+person due to geographic or temporal constraints as a means of supplementing
+data gathered from our interviews.
+
+\subsection{Questions}
+\begin{itemize}
+\item How do you create lesson plans?  Is it a structured process, or different
+      every time?
+\item How do you revise lesson plans, and how frequently?
+\item How long does it usually take you to create a lesson plan?
+\item What goes into your lesson plans?  What are you explicit about, and what
+      do you leave to memory?
+\item Where do you get ideas for lesson plans?
+\item How do you intergrate state guidelines into your planning?
+\item How do you find resources for lesson plans?
+\item Do you work collaboratively with other teachers?  If you do, at what point
+      in the process do you collaborate?  How does that process work?
+\item What's your biggest concern about using someone's else's lesson plan?
+\item What do you think you might like about using someone else's lesson plan?
+\item What does the term "lesson plan" mean for you?
+\item Do you have any other things about lesson planning that you'd like to tell
+      us?  We'd appreciate hearing whatever comments you'd like to share.
+\end{itemize}
+
+\subsection{Responses}
+Verbatim responses to the survey:
+
+\subsubsection{KW -- October 24, 2005}
 Okay, Deanna,
 
 I'm retired. So I actually have time to respond to your questions. When I was in
