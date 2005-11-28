@@ -3,7 +3,7 @@
 //------------------------------------
 
 // Constructor for the LessonPlan object
-function Box ()
+function Box (name, desc)
 {
 	// Members
 	this.fields  = new Array ()
@@ -16,13 +16,12 @@ function Box ()
 
 	// Title
 	title = document.createElement ("h1")
-	text = document.createTextNode ("Untitled Box")
+	text = document.createTextNode (name)
 	title.appendChild (text)
 	this.mainDiv.appendChild (title)
 
 	// Description
-	desc = document.createTextNode ("This box is about such and such and la di da...")
-	this.mainDiv.appendChild (desc)
+	this.mainDiv.appendChild (document.createTextNode (desc))
 
 	// Toolbar
 	this.setupToolbar (this)
@@ -297,6 +296,16 @@ function onCancelClick (event)
 
 function onCreateClick (event)
 {
+	// Get the name and description fields
+	boxName = top.document.getElementById ("boxName").value
+	boxDesc = top.document.getElementById ("boxDesc").value
+
+	// Create the stuff.
+	box = new Box (boxName, boxDesc)
+
+	// Calculate the size of the window
+	calculateSizes ()
+
 	newBox.style.display = "none"
 	top.document.getElementById ("iframeDiv").style.display = "block"
 }
@@ -307,9 +316,6 @@ function main ()
 	// Make sure the main window knows to call that every time we
 	// resize.
 	top.onresize = calculateSizes
-
-	// Create the stuff.
-	box = new Box ()
 
 	// Calculate the size of the window
 	calculateSizes ()
