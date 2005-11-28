@@ -308,6 +308,34 @@ additional materials such as worksheets to the site, a feature we have not yet
 designed into the interface.
 
 \section{Final Design}
+Our final design followed our low-fidelity prototype fairly closely. We used
+JavaScript overlays for the dialog boxes (Figures \ref{fig: new lesson ss} and
+\ref{fig: new box ss}, for example) so that the dialogs would be visible even
+when the user has popups disabled in their browser. We considered using a
+sophisticated widget toolkit to build the interface and rejected the idea in
+favor of a more simple approach. We use only standard HTML components in
+conjunction with JavaScript and CSS to create the interface. This forced us to
+use a simple design for the interface. It is our hope that more complex boxes
+and lessons can be created by combining the simple aspects of the interface.
+
+Figure \ref{fig: blank lesson ss} shows a newly created blank lesson with some
+text. Formatting options for each text area are provided beneath the text area;
+formatting options are not available for all fields -- such as ``Author'' -- so
+they only appear below an entry when they are available. Beneath the name of
+each field a brief description of what the field should contain is displayed.
+Next to each field name is a link that removes the field from the lesson, if the
+field is removable. The user is asked to verify the removal of a field before it
+is removed (Figure \ref{fig: remove prompt ss}).
+
+The toolbar -- Figure \ref{fig: toolbar ss} -- displays text and icons for each
+button. Some icons, such as the icons for ``New Lesson'' and ``Save Lesson'',
+are taken from other applications that use those icons for the same action;
+hopefully the icons are recognizable because of that. Other icons, such as ``Add
+to Box'', are meant to directly relate to the action they perform so that their
+function is easy to recognize. In case the icons are not enough to determine a
+button's action, there is text next to the button that displays the button's
+function. Should the text and icon not be enough, tooltips are displayed when
+the cursor is placed over a button.
 
 \section{User Testing}
 We are still trying to set up times to meet with users for the think-aloud;
