@@ -406,9 +406,6 @@ conversation_panel_set_background (ConversationPanel *panel)
 static void
 drop_send_files_activated (GtkAction *action, GSList *files)
 {
-	/* Should be dropped in a query */
-	g_return_if_fail (gui.current_session->type == 3);
-	drop_send_files ();
 }
 
 static void
@@ -429,6 +426,7 @@ drop_cancel_activated (GtkAction *action, GSList *files)
 static void
 drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y, GtkSelectionData *selection_data, guint info, guint time, gpointer data)
 {
+#if 0
 	GSList *dropped_files = NULL;
 
 	switch (info) {
@@ -508,6 +506,7 @@ drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y, 
 			}
 		}
 	}
+#endif
 }
 
 static void
@@ -525,8 +524,11 @@ gconf_background_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry,
 static void
 free_text (GtkMenuShell *menu, gchar *text)
 {
+	guint signal;
+
+	signal = g_signal_lookup ("deactivate", GTK_TYPE_MENU_SHELL);
 	g_signal_handlers_disconnect_matched (menu, G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA,
-	                                      "deactivate", NULL, NULL, free_text, text);
+	                                      signal, 0, NULL, free_text, text);
 	g_free (text);
 }
 
