@@ -164,6 +164,99 @@ derived from our user interviews.
 \input{tasks}
 
 \section{Design Approach}
+Figure \ref{fig: main window} shows the main window for creating new digital
+lessons. It presents the user with individual labeled text areas. These labels
+will help a user identify the type of information expected in the text field.
+Wherever the title might not be sufficient or ambiguous, a brief description of
+the field will be provided next to the title. These text fields help to add
+structure to the lessons so that all lessons will be somewhat similar in format
+and thus familiar and more usable.
+
+Certain fields are optional and have a link that allows the user to remove them
+from the lesson. Above the text entries is a toolbar providing the user with
+formatting options and buttons with which the user can manipulate the lesson.
+The area containing the text entries scrolls, but the toolbar does not. This
+should make as much of the system visible to the user as possible. In many cases
+it will not be feasible to display all the fields of a lesson at once, but they
+are all kept on one page and should be easy to find by scrolling. The toolbar is
+always available at the top, so the user never has to search the page to find
+the buttons they desire. All of the buttons in the toolbar will be labeled with
+text and an icon. Icons do not always clearly indicate the action performed, a
+combination of descriptive text and an icon should improve a user's ability to
+identify the correct button. The exception to this rule is the formatting
+buttons. Formatting buttons for bold, or italic fonts, etc. are common in many
+applications and will most likely be familiar to the user. In the interest of
+space, these buttons only make use of icons.
+
+There is a link at the top of this page leading to help and documentation files.
+Often help buttons and menus are unhelpful; they contain either little
+information, or detailed information that doesn't pertain to what most users are
+interested in. This might dissuade many users from making use of a help button.
+Our hope is that a link with more descriptive text about the kind of help it
+provides will be less dissuasive for users in need of help.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\linewidth]{../../low-fi_prototype/button_mouseover}
+	\caption{The basic main window for a new digital lesson.}
+	\label{fig: main window}
+\end{figure}
+
+The interface for creating and modifying a teaching box (Figure \ref{fig: new box}
+is even more simple than that of a new lesson. Iternally, teaching boxes are
+just a collection of links to lessons. There are links allowing the user to
+remove one or all of the lessons contained in the box. The box contains a text
+area for entering a brief description of the box that should give other users an
+idea of what the box is about. The only button available to the user in the
+toolbar allows the user to add another lesson to the box. Boxes are simple
+enough that they can be saved automatically when the user makes a change, rather
+than being explicitly saved.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\linewidth]{../../low-fi_prototype/teaching_box}
+	\caption{The teaching box interface.}
+	\label{fig: new box}
+\end{figure}
+
+The teaching boxes interface makes heavy use of dialog windows to display
+additional information to the user and present them with more detailed choices.
+Figure \ref{fig: dialogs} shows all of the dialogs used in this interface. When
+the user elects to create a new lesson, they are presented with Figure
+\ref{fig: new lesson dialog}. This dialog window allows the user to choose
+additional fields to initially include in the lesson plan in addition to the
+five required fields. Underneath the list of available fields the dialog
+displays a brief description of the hilighted field so that if the user is
+unclear about what a field is for they have more information available.
+
+Figure \ref{fig: new field} is similar to Figure \ref{fig: new lesson dialog}. A
+user is not limited to the fields with which they create a lesson, they may add
+more fields later. This dialog allows the user to add fields to a lesson that
+has already been created. Like the dialog in Figure \ref{fig: new lesson dialog},
+this dialog provides a description of each field for the user below the list of
+fields.
+
+\begin{figure}
+	\centering
+	\subfigure[Dialog box shown when creating a new lesson.]{
+		\label{fig: new lesson dialog}
+		\includegraphics[width=0.45\linewidth]{../../low-fi_prototype/new_lesson_dialog}
+	}
+	\subfigure[Dialog box shown when adding more fields to a lesson.]{
+		\label{fig: new field}
+		\includegraphics[width=0.45\linewidth]{../../low-fi_prototype/add_field_dialog}
+	}
+	\subfigure[Dialog used to add a lesson to a teaching box.]{
+		\label{fig: add to box}
+		\includegraphics[width=0.45\linewidth]{../../low-fi_prototype/add_to_box}
+	}
+	\subfigure[Dialog shown when creating a new teaching box.]{
+		\label{fig: new box}
+		\includegraphics[width=0.45\linewidth]{../../low-fi_prototype/new_box_dialog}
+	}
+	\caption{Dialog windows.}
+	\label{fig: dialogs}
+\end{figure}
 
 \section{Results}
 
@@ -177,37 +270,6 @@ derived from our user interviews.
 
 \pagebreak
 \appendix
-
-\section{Low-Fidelity Prototype}
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=0.9\linewidth]{../../low-fi_prototype/button_mouseover}
-	\caption{The basic main window for a new digital lesson.}
-	\label{fig: main window}
-\end{figure}
-
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=0.9\linewidth]{../../low-fi_prototype/linked_lessons}
-	\caption{Example of linked lessons in a lesson plan.}
-	\label{fig: linked lesson}
-\end{figure}
-
-\begin{figure}[htb]
-	\centering
-	\subfigure[Dialog box shown when creating a new lesson.]{
-		\label{fig: new dialog}
-		\includegraphics[width=0.45\linewidth]{../../low-fi_prototype/new_lesson_dialog}
-	}
-	\subfigure[Dialog box shown when adding more fields to a lesson.]{
-		\label{fig: new field}
-		\includegraphics[width=0.45\linewidth]{../../low-fi_prototype/add_field_dialog}
-	}
-	\caption{Dialog boxes.}
-	\label{fig: dialogs}
-\end{figure}
-
-\clearpage
 
 \section{Screenshots}
 
