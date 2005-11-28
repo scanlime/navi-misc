@@ -26,6 +26,7 @@ $(DOCNAME).pdf: *.tex $(ALL_FIGURES) #$(LIB_DIR)/*.tex
 bib: $(DOCNAME).pdf
 	BIBINPUTS=$(BIBINPUTS):$$BIBINPUTS bibtex $(DOCNAME)
 	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
+	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
 
 %.pdf: %.ps
 	epstopdf $<
