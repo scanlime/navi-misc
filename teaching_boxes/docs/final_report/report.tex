@@ -97,9 +97,12 @@ the system, but a basic understanding of the teaching boxes concept is
 preferred.
 
 \section{Design Priorities \& Issues}
+From our user interviews and discussions with our sponsors we have identified
+the following priorities and concerns for this project.
+
 \subsection{Priorities}
 The user interface needs to allow teachers to create digital lessons and
-teaching boxes in a non-linear fashion. That is, it should not enforce and order
+teaching boxes in a non-linear fashion. That is, it should not enforce an order
 for the process, users should be allowed to fill in information in any order
 they choose. The interface also needs to provide mechanisms for uploading files
 to attach to the lesson so that teachers can include resources -- such as
@@ -113,13 +116,48 @@ begin a lesson, save it, and come back to finish it at a later date by choosing
 to edit the partially complete lesson. Certain common template fields such as
 materials and standards addressed should be provided by the interface. This will
 help bring some structure to lessons written by different teachers and make it
-easier to use and understand the lessons when you didn't write them. As well as
+easier to use and understand the lessons that a user didn't write. As well as
 a number of common template fields, the interface should provide a means for
-entering information not provided for by the template fields.
+entering information not provided for by the template fields because we cannot
+forsee every possible piece of information a teacher might want to include in a
+lesson.
+
+Finally, it is vital that this interface be simple and intuitive. All fields and
+buttons should be clearly labeled so that their function or purpose is easily
+discernable. The process of digitizing a lesson for sharing via this library
+should be as painless as possible so that teachers are not dissuaded from
+sharing their materials.
 
 \subsection{Issues}
+Activities are conceptually different from lessons. Activities are rarely
+lessons in and of themselves, but frequently supplement lessons. However,
+we found from our interviews that planning an activity is often quite similar to
+planning a lesson; the process is often the same, some of the fields --
+materials, procedure, goal, etc. -- overlap, and activities are usually
+developed along with a lesson. The question that arises here is whether or not
+to treat activities and lessons differently by giving them separate interfaces.
+It might be confusing for users if there is no logical separation in the
+interface between lesson plans and activities. But there is a risk of
+duplicating much of the interface by providing separate interfaces for each.
+
+Because creating a digital lesson can be a fairly complex task, there is a lot
+of information for the user: both the information that they have entered and the
+actions that they can perform on the lesson need to be visible to the user.
+Thus, information visibility is a concern for this interface. We do not want to
+overwhelm the user with choices and text that they've entered. But at the same
+time, we do not want to make it difficult for a user to find information that
+they are looking for.
+
+Although the interface will provide a means for teachers to upload
+``attachments'' to a lesson or box, there are other resources for which this is
+not an adequate solution. Text books, and other hard copy resources cannot be
+uploaded in this fashion. It might be possible to scan the required pages in if
+there are few enough. But there needs to be some mechanism for handling
+non-digital resources in lessons and boxes so that teachers are not limited to
+what is already on a computer or what they can scan.
 
 \section{Tasks}
+\input{tasks}
 
 \section{Design Approach}
 
