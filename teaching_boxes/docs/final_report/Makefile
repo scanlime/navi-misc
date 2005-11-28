@@ -8,7 +8,10 @@ SVG_FIGURES = $(PROTOTYPE_DIR)/new_lesson_dialog.svg	\
 	      $(PROTOTYPE_DIR)/add_to_box.svg		\
 	      $(PROTOTYPE_DIR)/new_box_dialog.svg	\
 	      $(PROTOTYPE_DIR)/teaching_box.svg	
-STATIC_FIGURES =
+STATIC_FIGURES = figures/formatting.png		\
+		 figures/new_lesson.png		\
+		 figures/remove_prompt.png	\
+		 figures/toolbar.png
 GENERATED_FIGURES =
 
 LIB_DIR = ../lib
