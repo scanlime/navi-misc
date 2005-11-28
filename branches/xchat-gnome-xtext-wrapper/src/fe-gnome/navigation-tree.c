@@ -1136,7 +1136,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 			topic_label_set_topic (TOPIC_LABEL (gui.topic_label), tgui->topic);
 
 			/* Show the xtext buffer for the session. */
-			gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
+			//gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
 
 			/* Set the text entry field to whatever is in the text entry of this session. */
 			gtk_entry_set_text (GTK_ENTRY (gui.text_entry), tgui->entry);

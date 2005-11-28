@@ -42,8 +42,6 @@
 
 #define DROP_FILE_PASTE_MAX_SIZE 1024
 
-static void font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data);
-static void background_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
 static void gconf_timestamps_changed (GConfClient *client, GConfEntry *entry, gpointer data);
 
 static void on_drop_send_files_activated (GtkAction *action, gpointer data);
@@ -82,78 +80,12 @@ static GtkTargetEntry target_table[] = {
 void
 initialize_text_gui (void)
 {
-	GtkWidget *frame, *scrollbar;
-	GConfClient *client;
-	gchar *font;
-	gint background_type;
-
-	client = gconf_client_get_default ();
-
-	notify_table = g_hash_table_new (g_direct_hash, g_direct_equal);
-
-	/* Set the font. */
-	gconf_client_add_dir (client, "/apps/xchat/main_window", GCONF_CLIENT_PRELOAD_NONE, NULL);
-	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) font_changed, NULL, NULL, NULL);
-	gconf_client_notify_add (client, "/apps/xchat/main_window/font",          (GConfClientNotifyFunc) font_changed, NULL, NULL, NULL);
-
-
-	if (gconf_client_get_bool(client, "/apps/xchat/main_window/use_sys_fonts", NULL))
-		font = gconf_client_get_string (client, "/desktop/gnome/interface/monospace_font_name", NULL);
-	else
-		font = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
-
-	if (font == NULL)
-		font = g_strdup ("fixed 11");
-
-	gtk_xtext_set_font (GTK_XTEXT (gui.xtext), font);
-	g_free (font);
-
-	/* Set the background */
-	gconf_client_notify_add (client, "/apps/xchat/main_window/background_type",         (GConfClientNotifyFunc) background_changed, NULL, NULL, NULL);
-	gconf_client_notify_add (client, "/apps/xchat/main_window/background_image",        (GConfClientNotifyFunc) background_changed, NULL, NULL, NULL);
-	gconf_client_notify_add (client, "/apps/xchat/main_window/background_transparency", (GConfClientNotifyFunc) background_changed, NULL, NULL, NULL);
-
-	background_type = gconf_client_get_int (client, "/apps/xchat/main_window/background_type", NULL);
-	if (background_type == 0) {
-		gtk_xtext_set_tint (gui.xtext, 0, 0, 0);
-		gtk_xtext_set_background (gui.xtext, NULL, FALSE);
-	} else if (background_type == 1) {
-		gchar *filename = gconf_client_get_string (client, "/apps/xchat/main_window/background_image", NULL);
-		gtk_xtext_set_tint (gui.xtext, 0, 0, 0);
-		gtk_xtext_set_background (gui.xtext, NULL, FALSE);
-		if (filename) {
-			GdkPixbuf *pixbuf;
-			pixbuf = gdk_pixbuf_new_from_file (filename, NULL);
-			if (pixbuf) {
-				gint width, height;
-				GdkPixmap *image;
-
-				width  = gdk_pixbuf_get_width  (pixbuf);
-				height = gdk_pixbuf_get_height (pixbuf);
-
-				image = gdk_pixmap_new (NULL, width, height, 24);
-				gdk_draw_pixbuf (image, NULL, pixbuf, 0, 0, 0, 0, width, height, GDK_RGB_DITHER_NONE, 0, 0);
-
-				gtk_xtext_set_background (gui.xtext, image, FALSE);
-				g_object_unref (pixbuf);
-				g_object_unref (image);
-			}
-		}
-		g_free (filename);
-	} else {
-		float transparency = gconf_client_get_float (client, "/apps/xchat/main_window/background_transparency", NULL);
-		int value = 255 - ((int) (transparency * 255));
-		gtk_xtext_set_tint (gui.xtext, value, value, value);
-		gtk_xtext_set_background (gui.xtext, NULL, TRUE);
-	}
-
 	/* Setup drag and drop */
-	g_signal_connect (gui.xtext, "drag_data_received", G_CALLBACK (drag_data_received), NULL);
-	gtk_drag_dest_set (GTK_WIDGET (gui.xtext), GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP, target_table, G_N_ELEMENTS (target_table), GDK_ACTION_COPY | GDK_ACTION_ASK);
+	//g_signal_connect (gui.xtext, "drag_data_received", G_CALLBACK (drag_data_received), NULL);
+	//gtk_drag_dest_set (GTK_WIDGET (gui.xtext), GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP, target_table, G_N_ELEMENTS (target_table), GDK_ACTION_COPY | GDK_ACTION_ASK);
 
-	gtk_xtext_refresh (gui.xtext, TRUE);
-	gtk_widget_show_all (GTK_WIDGET (gui.xtext));
-	g_object_unref (client);
+	//gtk_xtext_refresh (gui.xtext, TRUE);
+	//gtk_widget_show_all (GTK_WIDGET (gui.xtext));
 }
 
 void
@@ -164,10 +96,10 @@ text_gui_add_text_buffer (struct session *sess)
 	gint notify;
 
 	tgui = g_new0 (session_gui, 1);
-	tgui->buffer = gtk_xtext_buffer_new (gui.xtext);
+	//tgui->buffer = gtk_xtext_buffer_new (gui.xtext);
 	sess->gui = (struct session_gui *) tgui;
 
-	gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
+	//gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
 
 	client = gconf_client_get_default ();
 	gtk_xtext_set_time_stamp (tgui->buffer, gconf_client_get_bool (client, "/apps/xchat/irc/showtimestamps", NULL));
@@ -314,65 +246,7 @@ clear_buffer (struct session *sess)
 
 	sgui = (session_gui *) sess->gui;
 	gtk_xtext_clear (sgui->buffer);
-	gtk_xtext_refresh (gui.xtext, FALSE);
-}
-
-static void
-font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data)
-{
-	gchar *font;
-	GtkAdjustment *adj;
-
-	if (gconf_client_get_bool (client, "/apps/xchat/main_window/use_sys_fonts", NULL))
-		font = gconf_client_get_string (client, "/desktop/gnome/interface/monospace_font_name", NULL);
-	else
-		font = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
-
-	gtk_xtext_set_font (gui.xtext, font);
-	adj = gui.xtext->adj;
-	gtk_adjustment_set_value (adj, adj->upper - adj->page_size);
-	gtk_xtext_refresh (gui.xtext, FALSE);
-
-	g_free (font);
-}
-
-static void
-background_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data)
-{
-	guint background_type = gconf_client_get_int (client, "/apps/xchat/main_window/background_type", NULL);
-	if (background_type == 0) {
-		gtk_xtext_set_tint (gui.xtext, 0, 0, 0);
-		gtk_xtext_set_background (gui.xtext, NULL, FALSE);
-	} else if (background_type == 1) {
-		gchar *filename = gconf_client_get_string (client, "/apps/xchat/main_window/background_image", NULL);
-		gtk_xtext_set_tint (gui.xtext, 0, 0, 0);
-		gtk_xtext_set_background (gui.xtext, NULL, FALSE);
-		if (filename) {
-			GdkPixbuf *pixbuf;
-			pixbuf = gdk_pixbuf_new_from_file (filename, NULL);
-			if (pixbuf) {
-				gint width, height;
-				GdkPixmap *image;
-
-				width  = gdk_pixbuf_get_width  (pixbuf);
-				height = gdk_pixbuf_get_height (pixbuf);
-
-				image = gdk_pixmap_new (NULL, width, height, 24);
-				gdk_draw_pixbuf (image, NULL, pixbuf, 0, 0, 0, 0, width, height, GDK_RGB_DITHER_NONE, 0, 0);
-
-				gtk_xtext_set_background (gui.xtext, image, FALSE);
-				g_object_unref (pixbuf);
-				g_object_unref (image);
-			}
-		}
-		g_free (filename);
-	} else {
-		float transparency = gconf_client_get_float (client, "/apps/xchat/main_window/background_transparency", NULL);
-		int value = 255 - ((int) (transparency * 255));
-		gtk_xtext_set_tint (gui.xtext, value, value, value);
-		gtk_xtext_set_background (gui.xtext, NULL, TRUE);
-	}
-	gtk_xtext_refresh (gui.xtext, TRUE);
+	//gtk_xtext_refresh (gui.xtext, FALSE);
 }
 
 static void
