@@ -25,6 +25,7 @@
 #include "conversation-panel.h"
 #include "gui.h"
 #include "palette.h"
+#include "topic-label.h"
 #include "userlist-gui.h"
 #include "xtext.h"
 #include "../common/fe.h"
@@ -76,6 +77,9 @@ static void gconf_background_changed          (GConfClient            *client,
                                                guint                   cnxn_id,
                                                GConfEntry             *entry,
                                                ConversationPanel      *panel);
+static void gconf_timestamps_changed          (GConfClient            *client,
+                                               GConfEntry             *entry,
+                                               xtext_buffer           *buffer);
 static void free_text                         (GtkMenuShell           *menu,
                                                gchar                  *text);
 
@@ -88,6 +92,8 @@ struct _ConversationPanelPriv
 	GtkWidget *xtext;
 	GtkWidget *frame;
 	GtkWidget *scrollbar;
+
+	GHashTable *timestamp_notify;
 };
 
 static GtkActionEntry url_popup_entries[] = {
@@ -155,6 +161,8 @@ conversation_panel_init (ConversationPanel *panel)
 	panel->priv->frame     = gtk_frame_new (NULL);
 	panel->priv->scrollbar = gtk_vscrollbar_new (GTK_XTEXT (panel->priv->xtext)->adj);
 
+	panel->priv->timestamp_notify = g_hash_table_new (g_direct_hash, g_direct_equal);
+
 	gtk_box_pack_start (GTK_BOX (panel), panel->priv->frame,     TRUE,  TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (panel), panel->priv->scrollbar, FALSE, TRUE, 0);
 	gtk_box_set_spacing (GTK_BOX (panel), 3);
@@ -200,6 +208,9 @@ conversation_panel_finalize (GObject *object)
 	ConversationPanel *panel;
 
 	panel = CONVERSATION_PANEL (object);
+
+	if (panel->priv->timestamp_notify)
+		g_hash_table_destroy (panel->priv->timestamp_notify);
 
 	if (panel->priv)
 		g_free (panel->priv);
@@ -522,6 +533,12 @@ gconf_background_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry,
 }
 
 static void
+gconf_timestamps_changed (GConfClient *client, GConfEntry *entry, xtext_buffer *buffer)
+{
+	gtk_xtext_set_time_stamp (buffer, gconf_client_get_bool (client, entry->key, NULL));
+}
+
+static void
 free_text (GtkMenuShell *menu, gchar *text)
 {
 	guint signal;
@@ -535,4 +552,62 @@ free_text (GtkMenuShell *menu, gchar *text)
 GtkWidget *conversation_panel_new (void)
 {
 	return GTK_WIDGET (g_object_new (conversation_panel_get_type (), NULL));
+}
+
+void
+conversation_panel_add_buffer (ConversationPanel *panel, struct session *sess)
+{
+	session_gui *tgui;
+	GConfClient *client;
+	gint         notify;
+
+	tgui = g_new0 (session_gui, 1);
+	tgui->buffer = gtk_xtext_buffer_new (GTK_XTEXT (panel->priv->xtext));
+	sess->gui = (struct session_gui *) tgui;
+
+	gtk_xtext_buffer_show (GTK_XTEXT (panel->priv->xtext), tgui->buffer, TRUE);
+
+	client = gconf_client_get_default ();
+	gtk_xtext_set_time_stamp (tgui->buffer, gconf_client_get_bool (client, "/apps/xchat/irc/showtimestamps", NULL));
+	notify = gconf_client_notify_add (client, "/apps/xchat/irc/showtimestamps",
+	                                  (GConfClientNotifyFunc) gconf_timestamps_changed,
+	                                  tgui->buffer, NULL, NULL);
+	g_hash_table_insert (panel->priv->timestamp_notify, tgui->buffer, GINT_TO_POINTER (notify));
+	gui.current_session = sess;
+	g_object_unref (client);
+
+	if (sess->topic == NULL) {
+		tgui->topic = g_strdup ("");
+	} else {
+		tgui->topic = topic_label_get_topic_string (sess->topic);
+	}
+	tgui->entry = g_strdup ("");
+	tgui->lag_text = NULL;
+	tgui->queue_text = NULL;
+}
+
+void
+conversation_panel_remove_buffer (ConversationPanel *panel, struct session *sess)
+{
+	GConfClient *client;
+	session_gui *tgui;
+	gint         notify;
+
+	tgui = (session_gui *) sess->gui;
+
+	client = gconf_client_get_default ();
+	notify = GPOINTER_TO_INT (g_hash_table_lookup (panel->priv->timestamp_notify, tgui->buffer));
+	g_hash_table_remove (panel->priv->timestamp_notify, tgui->buffer);
+	gconf_client_notify_remove (client, notify);
+	g_object_unref (client);
+
+	gtk_xtext_buffer_free (tgui->buffer);
+	g_free (tgui->topic);
+	g_free (tgui->entry);
+	if (tgui->lag_text)
+		g_free (tgui->lag_text);
+	if (tgui->queue_text)
+		g_free (tgui->queue_text);
+	g_free (tgui);
+	sess->gui = NULL;
 }

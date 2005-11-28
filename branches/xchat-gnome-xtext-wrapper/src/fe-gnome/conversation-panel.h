@@ -22,6 +22,7 @@
 #define XCHAT_GNOME_CONVERSATION_PANEL_H
 
 #include <gtk/gtkhbox.h>
+#include "../common/xchat.h"
 
 G_BEGIN_DECLS
 
@@ -47,8 +48,10 @@ struct _ConversationPanelClass
 	GtkHBoxClass parent_class;
 };
 
-GType      conversation_panel_get_type (void) G_GNUC_CONST;
-GtkWidget *conversation_panel_new      (void);
+GType      conversation_panel_get_type      (void) G_GNUC_CONST;
+GtkWidget *conversation_panel_new           (void);
+void       conversation_panel_add_buffer    (ConversationPanel *panel, struct session *sess);
+void       conversation_panel_remove_buffer (ConversationPanel *panel, struct session *sess);
 
 G_END_DECLS
 

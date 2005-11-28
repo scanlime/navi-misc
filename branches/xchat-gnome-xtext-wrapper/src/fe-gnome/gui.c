@@ -56,7 +56,6 @@ initialize_gui_2 (void)
 	gui.current_session = NULL;
 	pixmaps_init ();
 	initialize_main_window ();
-	initialize_text_gui ();
 	initialize_userlist ();
 
 	gui.tree_model = navigation_model_new ();

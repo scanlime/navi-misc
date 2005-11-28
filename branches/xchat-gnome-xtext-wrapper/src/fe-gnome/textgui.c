@@ -49,69 +49,7 @@ static void on_drop_paste_file_activated (GtkAction *action, gpointer data);
 static void on_drop_paste_filename_activated (GtkAction *action, gpointer data);
 static void on_drop_cancel_activated (GtkAction *action, gpointer data);
 
-static GHashTable *notify_table;
 static GSList *dropped_files = NULL;
-
-void
-initialize_text_gui (void)
-{
-}
-
-void
-text_gui_add_text_buffer (struct session *sess)
-{
-	session_gui *tgui;
-	GConfClient *client;
-	gint notify;
-
-	tgui = g_new0 (session_gui, 1);
-	//tgui->buffer = gtk_xtext_buffer_new (gui.xtext);
-	sess->gui = (struct session_gui *) tgui;
-
-	//gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
-
-	client = gconf_client_get_default ();
-	gtk_xtext_set_time_stamp (tgui->buffer, gconf_client_get_bool (client, "/apps/xchat/irc/showtimestamps", NULL));
-	notify = gconf_client_notify_add (client, "/apps/xchat/irc/showtimestamps", (GConfClientNotifyFunc) gconf_timestamps_changed, tgui->buffer, NULL, NULL);
-	g_hash_table_insert (notify_table, tgui->buffer, GINT_TO_POINTER (notify));
-	gui.current_session = sess;
-	g_object_unref (client);
-
-	if (sess->topic == NULL) {
-		tgui->topic = g_strdup ("");
-	} else {
-		tgui->topic = g_strdup (sess->topic);
-	}
-	tgui->entry = g_strdup ("");
-	tgui->lag_text = NULL;
-	tgui->queue_text = NULL;
-}
-
-void
-text_gui_remove_text_buffer (struct session *sess)
-{
-	session_gui *tgui;
-	gint notify;
-	GConfClient *client;
-
-	tgui = (session_gui *) sess->gui;
-
-	client = gconf_client_get_default ();
-	notify = GPOINTER_TO_INT (g_hash_table_lookup (notify_table, tgui->buffer));
-	g_hash_table_remove (notify_table, tgui->buffer);
-	gconf_client_notify_remove (client, notify);
-	g_object_unref (client);
-
-	gtk_xtext_buffer_free (tgui->buffer);
-	g_free (tgui->topic);
-	g_free (tgui->entry);
-	if (tgui->lag_text)
-		g_free (tgui->lag_text);
-	if (tgui->queue_text)
-		g_free (tgui->queue_text);
-	g_free (tgui);
-	sess->gui = NULL;
-}
 
 static void
 text_gui_print_line (xtext_buffer *buf, unsigned char *text, int len, gboolean indent)

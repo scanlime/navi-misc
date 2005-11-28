@@ -24,6 +24,7 @@
 #include <string.h>
 #include <gconf/gconf-client.h>
 #include <gtk/gtk.h>
+#include "conversation-panel.h"
 #include "navigation-tree.h"
 #include "userlist-gui.h"
 #include "userlist.h"
@@ -402,7 +403,7 @@ navigation_tree_server_rm_chans (NavTree *navtree, GtkTreeIter * parent)
 		do {
 			gtk_tree_model_get (store, &child, 2, &s, -1);
 			fe_close_window (s);
-			text_gui_remove_text_buffer (s);
+			conversation_panel_remove_buffer (CONVERSATION_PANEL (gui.conversation_panel), s);
 		} while (gtk_tree_model_iter_next (store, &child));
 	}
 }
@@ -1587,7 +1588,7 @@ on_close (GtkAction * action, gpointer data)
 		}
 
 		fe_close_window (s);
-		text_gui_remove_text_buffer (s);
+		conversation_panel_remove_buffer (CONVERSATION_PANEL (gui.conversation_panel), s);
 	}
 }
 
