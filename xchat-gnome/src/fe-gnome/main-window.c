@@ -259,7 +259,7 @@ clear_find (GtkWidget *entry, gpointer data)
 void
 initialize_main_window (void)
 {
-	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget, *widget2;
+	GtkWidget *close, *menu_vbox, *widget, *widget2;
 	GtkSizeGroup *group;
 
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));

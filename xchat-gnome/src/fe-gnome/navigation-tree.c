@@ -265,7 +265,6 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 	GtkWidget *menuitem, *button;
 	GtkTreeView *treeview;
 	ircnet *net;
-	session_gui *tgui;
 
 	navigation_model_add_new_channel (navtree->model, sess);
 
@@ -290,8 +289,7 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
 	gtk_tree_view_set_model (treeview, GTK_TREE_MODEL (userlist_get_store (u, sess)));
 
-	tgui = (session_gui *) sess->gui;
-	topic_label_set_topic (TOPIC_LABEL (gui.topic_label), tgui->topic);
+	topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
 	net = sess->server->network;
 	if (net == NULL)
 		rename_main_window (NULL, sess->channel);
@@ -1133,7 +1131,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		tgui = (session_gui *) sess->gui;
 		if (tgui) {
 			/* Set the topic. */
-			topic_label_set_topic (TOPIC_LABEL (gui.topic_label), tgui->topic);
+			topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
 
 			/* Show the xtext buffer for the session. */
 			gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
