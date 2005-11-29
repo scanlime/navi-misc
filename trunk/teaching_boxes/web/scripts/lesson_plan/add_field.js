@@ -121,7 +121,7 @@ function addFieldCreateButtonClicked ()
 		if (options[i].selected)
 		{
 			field = div.options[i].fieldName
-			objField = lessonPlan.addField (field, optionalFields[field], true, true)
+			objField = lessonPlan.addField (field, optionalFields[field], true, false)
 			objectFields.push (objField.id)
 			optionalFields[field][FIELD_USED] = true
 
@@ -130,7 +130,7 @@ function addFieldCreateButtonClicked ()
 			if (!firstField && firstBox)
 			{
 				firstField = objField
-				objField2 = lessonPlan.addField (field, optionalFields[field], true, true)
+				objField2 = lessonPlan.addField (field, optionalFields[field], true, false)
 				objectFields.push (objField2.id)
 			}
 		}

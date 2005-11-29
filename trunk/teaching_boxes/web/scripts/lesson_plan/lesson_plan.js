@@ -3,12 +3,14 @@
 //------------------------------------
 
 // Constructor for the LessonPlan object
-function LessonPlan ()
+function LessonPlan (name, desc)
 {
 	// Members
 	this.fields  = new Array ()
 	this.mainDiv = document.getElementById ('mainDiv')
 	this.toolbar = top.document.getElementById ('toolbar')
+    this.name    = name
+    this.desc    = desc
 
 	// Methods
 	this.addField     = addField
@@ -18,18 +20,27 @@ function LessonPlan ()
 
 	// Title
 	title = document.createElement ("h1")
-	text = document.createTextNode ("New Lesson Plan")
+	text = document.createTextNode (name)
 	title.appendChild (text)
 	this.mainDiv.appendChild (title)
+
+	// Description
+	this.mainDiv.appendChild (document.createTextNode (desc))
 
 	// Toolbar
 	this.setupToolbar (this)
 
-	// Fields
-	for (item in requiredFields)
-	{
-		this.addField (item, requiredFields[item], false, false)
-	}
+    // Work around a bug in the MCE
+    addFields = function ()
+    {
+        // Fields
+        for (item in requiredFields)
+        {
+            lessonPlan.addField (item, requiredFields[item], false, true)
+        }
+    }
+
+    setTimeout('addFields()', 1)
 }
 
 function saveYourself ()
@@ -212,11 +223,16 @@ function setupToolbar (plan)
 }
 
 // Add a field to the lesson plan
-function addField (name, field, removable, doMceReplace)
+function addField (name, field, removable, mceReplace)
 {
 	newField = createField (name, field, removable)
 	this.fields[newField.id] = newField
 	this.mainDiv.appendChild (newField)
+
+    if (mceReplace && document.getElementById('mceReplaceMe' + newField.id))
+    {
+        tinyMCE.execCommand ("mceAddControl", true, "mceReplaceMe" + newField.id)
+    }
 
 	return newField
 }
@@ -354,6 +370,33 @@ function calculateSizes ()
 	main.setAttribute ("style", "height: " + windowHeight)
 }
 
+function onCancelClick (event)
+{
+	newBox.style.display = "none"
+	top.document.getElementById ("iframeDiv").style.display = "block"
+    history.back ()
+}
+
+function onCreateClick (event)
+{
+	// Get the name and description fields
+	var name = top.document.getElementById ("lessonName").value
+	var desc = top.document.getElementById ("lessonDesc").value
+
+	// Create the stuff.
+	lessonPlan = new LessonPlan (name, desc)
+
+	// Calculate the size of the window
+	calculateSizes ()
+
+    // Make everything visible again
+	newBox.style.display = "none"
+	top.document.getElementById ("iframeDiv").style.display = "block"
+
+    // Show the Add Initial Fields dialog
+    addInitFieldsDlg = new AddInitFieldsDlg ()
+}
+
 // Main function that does all the kickoff stuff
 function main ()
 {
@@ -361,20 +404,22 @@ function main ()
 	// resize.
 	top.onresize = calculateSizes
 
-	// Initialize the rich text entry
-	tinyMCE.init({
-		mode : "textareas",
-		theme : "simple"
-	});
-
-	// Create the stuff.
-	lessonPlan = new LessonPlan ()
-
 	// Calculate the size of the window
 	calculateSizes ()
 
-	// Pop up the New Box dialog
-	newBox = new NewBox ()
+	newBox = top.document.getElementById ("new_lesson")
+	newBox.style.display = "block"
+	newBox.style.position = "absolute"
+	newBox.style.left = (windowWidth / 2) - (newBox.clientWidth / 2)
+	newBox.style.top = (windowHeight / 2) - (newBox.clientHeight / 2) + bannerHeight
+	newBox.style.visibility = "visible"
+	newBox.style.cursor = "default"
+
+	var newCancel = top.document.getElementById ("newCancel")
+	newCancel.onclick = onCancelClick
+
+	var newCreate = top.document.getElementById ("newCreate")
+	newCreate.onclick = onCreateClick
 }
 
 main ()

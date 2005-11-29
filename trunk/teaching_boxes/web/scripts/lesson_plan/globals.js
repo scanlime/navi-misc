@@ -32,6 +32,7 @@ STOCK_BOX = "images/box.gif"
 // General stuff
 var lessonPlan
 var newBox
+var addInitFieldsDlg
 var addField
 var addToBox
 var focusCounter = 0
@@ -40,10 +41,6 @@ var firstBox = true
 // Fields and their descriptions
 // Required fields
 requiredFields = new Array ()
-requiredFields["Title"] = [
-	"The title associated with this lesson",
-	TYPE_ENTRY]
-
 requiredFields["Author"] = [
 	"The creator(s) of this lesson",
 	TYPE_ENTRY]
