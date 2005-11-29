@@ -67,13 +67,11 @@ initialize_about_dialog (void)
 		   "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n")
 	};
 
-	if (gui.about != NULL)
-		return;
-
 	license_trans = g_strconcat (_(license[0]), "\n", _(license[1]), "\n", _(license[2]), "\n", NULL);
 
-	logo = gdk_pixbuf_new_from_file ("data/xchat-gnome-small.png", NULL);
-	if (!logo)
+	if (g_file_test ("../../data/xchat-gnome-small.png", G_FILE_TEST_EXISTS))
+		logo = gdk_pixbuf_new_from_file ("../../data/xchat-gnome-small.png", NULL);
+	else
 		logo = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", NULL);
 
 	gui.about = gtk_about_dialog_new ();
@@ -111,6 +109,7 @@ initialize_about_dialog (void)
 void
 show_about_dialog (void)
 {
-	initialize_about_dialog ();
+	if (gui.about == NULL)
+		initialize_about_dialog ();
 	gtk_widget_show_all (GTK_WIDGET (gui.about));
 }
