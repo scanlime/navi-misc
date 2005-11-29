@@ -24,7 +24,7 @@ function AddToBoxDlg ()
 
 	// Add the stuff to the box
 	http = new XMLHttpRequest ()
-	http.open ('get', 'data/boxes')
+	http.open ('get', 'cgi-bin/dosomething.py?getAllBoxes')
 	http.onreadystatechange = this.dataLoaded
 	http.classObj = this
 	http.send (null)

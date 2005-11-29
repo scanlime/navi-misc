@@ -11,15 +11,17 @@ function Box (name, desc)
 	this.toolbar = top.document.getElementById ('toolbar')
 	this.name = name
 	this.desc = desc
+    this.id = -1
 
 	// Methods
 	this.addField     = addField
 	this.setupToolbar = setupToolbar
 	this.saveYourself = saveBoxToDisk
+    this.serialize    = serializeBox
 
 	// Title
-	title = document.createElement ("h1")
-	text = document.createTextNode (name)
+	var title = document.createElement ("h1")
+	var text = document.createTextNode (name)
 	title.appendChild (text)
 	this.mainDiv.appendChild (title)
 
@@ -30,28 +32,54 @@ function Box (name, desc)
 	this.setupToolbar (this)
 
 	// Fields
-	myField = [
+	var myField = [
 		"These lessons are contained within this box.",
 		TYPE_LINK,
 		"LinkedLessons"]
 	
 	this.linkedLessonsObj = this.addField ("Lessons", myField, false, false)
+    this.linkedLessonsObj.linkObj.onlinkschange = this.saveYourself
+
+    setTimeout('saveBoxToDisk ()', 100)
 }
 
 function saveBoxToDisk ()
 {
-	// TODO: Use AJAX to send a request to the server to save
-	// the data.  The following code is just template code.
-	/*
-		http = new XMLHttpRequest ()
-		http.open ('post', '/cgi/saveBox.cgi?name=' + this.name)
-		http.send (data)
-	*/
+	var http = new XMLHttpRequest ()
+
+    saveID = function ()
+    {
+        if (http.readyState == 4)
+        {
+            box.id = http.responseText
+        }
+    }
+
+	http.open ('post', 'cgi-bin/dosomething.py?saveBox')
+	http.onreadystatechange = saveID
+	http.send (box.serialize ())
+}
+
+function serializeBox ()
+{
+    var data
+
+    // Serialize the box metadata
+    data = "\
+[meta]\n\
+title=" + this.name + "\n\
+id=" + this.id + "\n\
+desc=" + this.desc + "\n\n"
+    
+    // Serialize all the lessons
+    data += this.linkedLessonsObj.linkObj.serialize ()
+
+    return data
 }
 
 function borderSwitch (e)
 {
-	tg = e.target
+	var tg = e.target
 	while (!tg.highlightable)
 	{
 		if (!tg.parentNode)
@@ -60,7 +88,7 @@ function borderSwitch (e)
 		tg = tg.parentNode
 	}
 
-	tmp = tg.style.backgroundColor
+	var tmp = tg.style.backgroundColor
 	tg.style.backgroundColor = tg.activeColor
 	tg.activeColor = tmp
 }
@@ -71,7 +99,7 @@ function showToolTip (x, y, counter, tip)
 		return
 
 	tipVisible = true
-	div = document.createElement ("div")
+	var div = document.createElement ("div")
 	div.setAttribute ("id", "tooltip")
 	div.style.backgroundColor = "#eeeeee"
 	div.style.border = "thin solid black"
@@ -85,7 +113,7 @@ function showToolTip (x, y, counter, tip)
 
 function backgroundIn (e)
 {
-	tg = e.target
+	var tg = e.target
 	while (!tg.highlightable)
 	{
 		if (!tg.parentNode)
@@ -103,15 +131,15 @@ function backgroundIn (e)
 		focusCounter ++
 		currentFocus = focusCounter
 		tg.tipVisible = true
-		x = e.clientX
-		y = e.clientY
+		var x = e.clientX
+		var y = e.clientY
 		setTimeout ("showToolTip (" + x + ", " + y + ", " + focusCounter + ", \"" + tg.tip + "\");", 500)
 	}
 }
 
 function backgroundOut (e)
 {
-	tg = e.target
+	var tg = e.target
 	while (!tg.highlightable)
 	{
 		if (!tg.parentNode)
@@ -129,7 +157,7 @@ function backgroundOut (e)
 		currentFocus = -1
 		tg.tipVisible = false
 		tipVisible = false
-		div = top.document.getElementById ("tooltip")
+		var div = top.document.getElementById ("tooltip")
 		if (div)
 			top.document.body.removeChild (div)
 	}
@@ -137,22 +165,22 @@ function backgroundOut (e)
 
 function createButton (mytr, name, tip, icon, onClick)
 {
-	mytd = document.createElement ("td")
+	var mytd = document.createElement ("td")
 	mytr.appendChild (mytd)
 
-	table = document.createElement ("table")
+	var table = document.createElement ("table")
 	mytd.appendChild (table)
 
-	tr = document.createElement ("tr")
+	var tr = document.createElement ("tr")
 	table.appendChild (tr)
 
-	td = document.createElement ("td")
+	var td = document.createElement ("td")
 	tr.appendChild (td)
-	img = document.createElement ("img")
+	var img = document.createElement ("img")
 	td.appendChild (img)
 	img.setAttribute ("src", icon)
 
-	td1 = document.createElement ("td")
+	var td1 = document.createElement ("td")
 	tr.appendChild (td1)
 	td1.appendChild (document.createTextNode (name))
 
@@ -174,8 +202,8 @@ function createButton (mytr, name, tip, icon, onClick)
 
 function setupToolbar (plan)
 {
-	tab = document.createElement ("table")
-	tr = document.createElement ("tr")
+	var tab = document.createElement ("table")
+	var tr = document.createElement ("tr")
 
 	tr = createButton (tr,
 		"Add Lesson",
@@ -190,7 +218,7 @@ function setupToolbar (plan)
 // Add a field to the lesson plan
 function addField (name, field, removable, doMceReplace)
 {
-	newField = createField (name, field, removable)
+	var newField = createField (name, field, removable)
 	this.fields[newField.id] = newField
 	this.mainDiv.appendChild (newField)
 	return newField
@@ -199,22 +227,22 @@ function addField (name, field, removable, doMceReplace)
 // Create a field and return it
 function createField (name, field, removable)
 {
-	desc = field[FIELD_DESC]
-	type = field[FIELD_TYPE]
+	var desc = field[FIELD_DESC]
+	var type = field[FIELD_TYPE]
 
 	// Create the title of the field
-	title = document.createElement ("span")
-	text  = document.createTextNode (name)
+	var title = document.createElement ("span")
+	var text  = document.createTextNode (name)
 
 	title.setAttribute ("class", "fieldName")
 	title.appendChild (text)
 
-	date = new Date ()
-	id = new String (date.getTime ())
+	var date = new Date ()
+	var id = new String (date.getTime ())
 	var rmL = null
 
 	if (removable) {
-		rm = document.createElement ("span")
+		var rm = document.createElement ("span")
 		rm.setAttribute ("class", "removeButton")
 		rm.setAttribute ("id", id)
 		rm.appendChild (document.createTextNode ("Remove"))
@@ -223,11 +251,14 @@ function createField (name, field, removable)
 	}
 
 	// Create the description tag
-	descTag = document.createElement ("div")
+	var descTag = document.createElement ("div")
 	descTag.setAttribute ("class", "descriptionField")
 	descTag.appendChild (document.createTextNode (desc))
 
 	// Determine which type of field we want
+    var entry
+    var rmL
+
 	switch (type)
 	{
 		case TYPE_ENTRY:
@@ -242,7 +273,7 @@ function createField (name, field, removable)
 			entry.style.width = "90%"
 			entry.style.margin = "20px"
 
-			textarea = document.createElement ("textarea")
+			var textarea = document.createElement ("textarea")
 			entry.appendChild (textarea)
 			textarea.setAttribute ("rows", 10)
 			textarea.setAttribute ("id", "mceReplaceMe" + id)
@@ -267,7 +298,7 @@ function createField (name, field, removable)
 	}
 
 	// Package it all up and return it
-	div = document.createElement ("div")
+	var div = document.createElement ("div")
 	div.setAttribute ("id", id)
 	div.style.marginTop = "20px"
 	div.appendChild (title)
@@ -305,7 +336,7 @@ function calculateSizes ()
 	windowWidth = top.innerWidth
 
 	// Set the height and width of stuff
-	main = top.document.getElementById ('iframe')
+	var main = top.document.getElementById ('iframe')
 	main.setAttribute ("style", "height: " + windowHeight)
 }
 
@@ -318,8 +349,8 @@ function onCancelClick (event)
 function onCreateClick (event)
 {
 	// Get the name and description fields
-	boxName = top.document.getElementById ("boxName").value
-	boxDesc = top.document.getElementById ("boxDesc").value
+	var boxName = top.document.getElementById ("boxName").value
+	var boxDesc = top.document.getElementById ("boxDesc").value
 
 	// Create the stuff.
 	box = new Box (boxName, boxDesc)
@@ -350,10 +381,10 @@ function main ()
 	newBox.style.visibility = "visible"
 	newBox.style.cursor = "default"
 
-	newCancel = top.document.getElementById ("newCancel")
+	var newCancel = top.document.getElementById ("newCancel")
 	newCancel.onclick = onCancelClick
 
-	newCreate = top.document.getElementById ("newCreate")
+	var newCreate = top.document.getElementById ("newCreate")
 	newCreate.onclick = onCreateClick
 
 	// newBox = new NewBox ()
