@@ -176,7 +176,10 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 	ph = plugin_handle;
 
 	if (notify_init ("Xchat OSD")) {
-		icon = notify_icon_new_from_uri (XCHATSHAREDIR "/xchat-gnome.png");
+		if (g_file_test ("../../data/xchat-gnome.png", G_FILE_TEST_EXISTS))
+			icon = notify_icon_new_from_uri ("../../data/xchat-gnome.png");
+		else
+			icon = notify_icon_new_from_uri (XCHATSHAREDIR "/xchat-gnome.png");
 
 		xchat_hook_print (ph, "Channel Msg Hilight",       XCHAT_PRI_NORM, new_msg_cb,     NULL);
 		xchat_hook_print (ph, "Channel Action Hilight",    XCHAT_PRI_NORM, new_action_cb,  NULL);
