@@ -1,10 +1,11 @@
 //-------------------
 // Link Field Class
 //-------------------
-LINK_NAME = 0
-LINK_DESC = 1
-LINK_TYPE = 2
-LINK_ADDR = 3
+LINK_ID   = 0
+LINK_NAME = 1
+LINK_DESC = 2
+LINK_TYPE = 3
+LINK_ADDR = 4
 
 function LinkField (entry, removeObj)
 {
@@ -16,10 +17,26 @@ function LinkField (entry, removeObj)
 	this.addLink = LinkAddLink
 	this.removeAllClick = LinkRemoveAll
 	this.removeLink = LinkRemoveLink
+    this.serialize = LinkSerialize
+    this.onlinkschange = null
 
 	this.redraw ()
 	this.removeObj.onclick = this.removeAllClick
 	this.removeObj.classObj = this
+}
+
+function LinkSerialize ()
+{
+    var data
+    data = "[links]\n"
+
+    for (link in this.links)
+    {
+        var id   = this.links[link][LINK_ID]
+        data += "link" + link + "=" + id + "\n"
+    }
+
+    return data
 }
 
 function LinkRedraw ()
@@ -72,12 +89,15 @@ function LinkRedraw ()
 	}
 }
 
-function LinkAddLink (name, description, type, address)
+function LinkAddLink (id, name, description, type, address)
 {
-	link = [name, description, type, address]
+	link = [id, name, description, type, address]
 	this.links.push (link)
 
 	this.redraw ()
+
+    if (this.onlinkschange)
+        this.onlinkschange ()
 }
 
 function LinkRemoveAll (event)
@@ -86,6 +106,9 @@ function LinkRemoveAll (event)
 	{
 		this.classObj.links = new Array ()
 		this.classObj.redraw ()
+
+        if (this.classObj.onlinkschange)
+            this.classObj.onlinkschange ()
 	}
 }
 
@@ -95,6 +118,9 @@ function LinkRemoveLink (event)
 	{
 		this.classObj.links.splice (this.link, 1)
 		this.classObj.redraw ()
+
+        if (this.classObj.onlinkschange)
+            this.classObj.onlinkschange ()
 	}
 }
 

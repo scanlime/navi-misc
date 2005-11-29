@@ -23,12 +23,13 @@ function AddLessonDlg ()
 	this.cancelButtonClicked = lessonCancelButtonClicked
 	this.dataLoaded = lessonDataLoaded
 
-	// Clear the old DLG stuff out
-	this.select.innerHTML = ""
+    // Clear the old DLG stuff out
+    this.select.innerHTML = ""
+    this.select.appendChild (document.createTextNode ("Loading..."))
 
 	// Add the stuff to the box
 	http = new XMLHttpRequest ()
-	http.open ('get', 'data/lessons')
+	http.open ('get', 'cgi-bin/dosomething.py?getAllLessons')
 	http.onreadystatechange = this.dataLoaded
 	http.classObj = this
 	http.send (null)
@@ -63,41 +64,49 @@ function lessonDataLoaded (event)
 		var update = new Array ()
 		var lessons = new Array ()
 
-		if (response.indexOf ('|') != 1)
+		if (response.indexOf ('|') != -1)
 		{
 			update = response.split ('\n')
 			for (line in update)
 			{
 				var data
+                var id
 				var name
 				var desc
 
 				data = update[line].split('|')
-				name = data[0]
-				desc = data[1]
+                id = data[0]
+				name = data[1]
+				desc = data[2]
 
 				if (!desc)
 					continue
 
-				lessons.push ([name, desc])
+				lessons.push ([id, name, desc])
 			}
 		}
 
+		http.classObj.lessons = lessons
+
+        // Clear the old DLG stuff out
+        http.classObj.select.innerHTML = ""
+
+
 		for (lesson in lessons)
 		{
-			fieldName = lessons[lesson][0]
-			fieldDesc = lessons[lesson][1]
-			div = document.createElement ("div")
+            var fieldID = lessons[lesson][0]
+			var fieldName = lessons[lesson][1]
+			var fieldDesc = lessons[lesson][2]
+			var div = document.createElement ("div")
 			div.appendChild (document.createTextNode (fieldName))
 			div.fieldName = fieldName
 			div.desc = fieldDesc
+            div.linkID = fieldID
 			div.selected = false
 			div.style.padding = "3px"
 			http.classObj.lessonObjs.push (div)
 			http.classObj.select.appendChild (div)
 		}
-
-		http.classObj.lessons = lessons
 	}
 }
 
@@ -181,10 +190,12 @@ function lessonAddButtonClicked ()
 	if (!selectedObj)
 		return
 
-	box.linkedLessonsObj.linkObj.addLink (selectedObj.fieldName, selectedObj.desc, 0, "")
-
-	// Signal the box to save itself
-	box.saveYourself ()
+    // When we modify the link object, it will signal
+    // the box to save itself.
+	box.linkedLessonsObj.linkObj.addLink (
+        selectedObj.linkID,
+        selectedObj.fieldName,
+        selectedObj.desc, 0, "")
 }
 
 // Cancel button clicked
