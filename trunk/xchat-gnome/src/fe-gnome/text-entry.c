@@ -34,9 +34,11 @@ static void       text_entry_finalize       (GObject        *object);
 static gboolean   text_entry_key_press      (GtkWidget      *widget,
                                              GdkEventKey    *event,
                                              gpointer        data);
+#ifdef HAVE_LIBSEXY
 static gboolean   text_entry_spell_check    (SexySpellEntry *entry,
                                              gchar          *text,
                                              gpointer        data);
+#endif
 static void       text_entry_activate       (GtkWidget      *widget,
                                              gpointer        data);
 static void       text_entry_history_up     (GtkEntry       *entry);
@@ -141,6 +143,7 @@ text_entry_key_press (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	return FALSE;
 }
 
+#ifdef HAVE_LIBSEXY
 static gboolean
 text_entry_spell_check (SexySpellEntry *entry, gchar *text, gpointer data)
 {
@@ -163,6 +166,7 @@ text_entry_spell_check (SexySpellEntry *entry, gchar *text, gpointer data)
 	} while (gtk_tree_model_iter_next (store, &iter));
 	return TRUE;
 }
+#endif
 
 static void
 text_entry_activate (GtkWidget *widget, gpointer data)
