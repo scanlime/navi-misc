@@ -36,8 +36,32 @@ function LessonPlan (name, desc)
         // Fields
         for (item in requiredFields)
         {
-            lessonPlan.addField (item, requiredFields[item], false, true)
+            var myField = lessonPlan.addField (item, requiredFields[item], false, true)
+
+			// Bug fix for Firefox.  It displays the first dynamic box as a grey box
+			// with larger text.  This creates a new box that is well formed, and
+			// sets up the old one to be deleted.
+			if (requiredFields[item][FIELD_TYPE] == TYPE_TEXTAREA && firstBox == true)
+			{
+				firstBox = myField
+				lessonPlan.addField (item, requiredFields[item], false, true)
+			}	
         }
+
+		// If we have a box to delete, do it here.
+		if (firstBox)
+		{
+			myRemoveFields = function (firstField) {
+				id = firstField.id
+				fieldName = firstField.fieldName
+				lessonPlan.mainDiv.removeChild (firstField)
+				delete lessonPlan.fields[id]
+				firstBox = false
+			}
+
+			// Bug fix for Firefox, it crashes without this.
+			setTimeout('myRemoveFields(firstBox)', 200)
+		}
     }
 
     setTimeout('addFields()', 1)
@@ -47,10 +71,10 @@ function saveYourself ()
 {
 }
 
-function addLink (fieldName, name, desc, linkType, addr)
+function addLink (fieldName, id, name, desc, linkType, addr)
 {
 	var field = document.getElementById (fieldName)
-	field.linkObj.addLink (name, desc, linkType, addr)
+	field.linkObj.addLink (id, name, desc, linkType, addr)
 }
 
 function borderSwitch (e)
@@ -193,8 +217,9 @@ function setupToolbar (plan)
 
 	tr = createButton (tr,
 		"Create Link",
-		"Add a link from another box or lesson to here.",
-		STOCK_LINK);
+		"Add a link to another lesson",
+		STOCK_LINK,
+		function (e) {addLink = new AddLinkDlg ()})
 
 	tr = createButton (tr,
 		"Add Field",

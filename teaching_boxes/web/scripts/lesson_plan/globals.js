@@ -62,6 +62,17 @@ requiredFields["Linked Lessons"] = [
 	TYPE_LINK,
 	"LinkedLessons"]
 
+requiredFields["Resources"] = [
+	"External documents that have been uploaded into the system.",
+	TYPE_LINK,
+	"Resources"]
+
+requiredFields["Notes"] = [
+	"Extra notes pertaining to this lesson (i.e. a particular teaching style\
+	 worked better than another, etc.)",
+	TYPE_LINK,
+	"Notes"]
+
 // Optional fields.  These have three fields:
 //    Description - Description of the field
 //    Type - Type of field to create
