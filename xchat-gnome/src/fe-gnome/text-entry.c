@@ -107,6 +107,8 @@ text_entry_init (TextEntry *entry)
 	items = g_list_reverse (items);
 	g_completion_add_items (entry->priv->command_completion, items);
 	g_list_free (items);
+
+	gtk_widget_show (GTK_WIDGET (entry));
 }
 
 static void

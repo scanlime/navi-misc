@@ -294,19 +294,11 @@ initialize_main_window (void)
 	/* hook up accelerators */
 	gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), gtk_ui_manager_get_accel_group (gui.manager));
 
-	entrybox = glade_xml_get_widget (gui.xml, "entry hbox");
-	gui.text_entry = text_entry_new ();
-	gtk_box_pack_start (GTK_BOX (entrybox), gui.text_entry, TRUE, TRUE, 0);
-	gtk_widget_show (gui.text_entry);
-
 	close = glade_xml_get_widget (gui.xml, "close discussion");
 	g_signal_connect (G_OBJECT (close), "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
-	topicbox = glade_xml_get_widget (gui.xml, "topic hbox");
 
-	gui.topic_label = topic_label_new ();
-	gtk_widget_show (gui.topic_label);
-	gtk_box_pack_start (GTK_BOX (topicbox), gui.topic_label, TRUE, TRUE, 0);
-	gtk_box_reorder_child (GTK_BOX (topicbox), gui.topic_label, 0);
+	gui.text_entry = glade_xml_get_widget (gui.xml, "text_entry");
+	gui.topic_label = glade_xml_get_widget (gui.xml, "topic_label");
 
 	/* Hook up accelerators for pgup/pgdn */
 	{
