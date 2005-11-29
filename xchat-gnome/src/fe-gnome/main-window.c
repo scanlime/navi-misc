@@ -261,7 +261,6 @@ initialize_main_window (void)
 {
 	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget, *widget2;
 	GtkSizeGroup *group;
-	GError *error = NULL;
 
 	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
 	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",
@@ -280,16 +279,10 @@ initialize_main_window (void)
 	g_signal_connect (gui.manager, "add-widget", G_CALLBACK (on_add_widget), menu_vbox);
 
 	/* load the menus */
-	gtk_ui_manager_add_ui_from_file (gui.manager, "../../data/xchat-gnome-ui.xml", &error);
-	if (error != NULL) {
-		g_clear_error (&error);
-		gtk_ui_manager_add_ui_from_file (gui.manager, XCHATSHAREDIR "/xchat-gnome-ui.xml", &error);
-		if (error != NULL)
-		{
-			g_clear_error (&error);
-			g_warning ("Couldn't load the menus!\n");
-		}
-	}
+	if (g_file_test ("../../data/xchat-gnome-ui.xml", G_FILE_TEST_EXISTS))
+		gtk_ui_manager_add_ui_from_file (gui.manager, "../../data/xchat-gnome-ui.xml", NULL);
+	else
+		gtk_ui_manager_add_ui_from_file (gui.manager, XCHATSHAREDIR "/xchat-gnome-ui.xml", NULL);
 
 	/* hook up accelerators */
 	gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), gtk_ui_manager_get_accel_group (gui.manager));
