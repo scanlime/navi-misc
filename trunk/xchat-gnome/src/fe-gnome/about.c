@@ -22,10 +22,13 @@
 #include <config.h>
 #include <glib/gi18n.h>
 #include "about.h"
+#include "../common/fe.h"
 
-void on_about_close (GtkWidget *widget, gpointer data);
+static void initialize_about_dialog (void);
+static void about_email_hook        (GtkAboutDialog *dialog, const gchar *link, gpointer data);
+static void about_url_hook          (GtkAboutDialog *dialog, const gchar *link, gpointer data);
 
-void
+static void
 initialize_about_dialog (void)
 {
 	GdkPixbuf *logo;
@@ -41,7 +44,7 @@ initialize_about_dialog (void)
 		"Isak Savo",
 		"Evan Sheehan",
 		"Rouslan Solomakhin",
-		"David Trowbridge",
+		"David Trowbridge <trowbrds@gmail.com>",
 		"Ramón Rey Vicente",
 		"Luis Villa",
 		"Claessens Xavier",
@@ -105,12 +108,26 @@ initialize_about_dialog (void)
 		      "translator-credits", _("translator-credits"),
 		      NULL);
 
+	gtk_about_dialog_set_email_hook (about_email_hook, NULL, NULL);
+	gtk_about_dialog_set_url_hook   (about_url_hook,   NULL, NULL);
+
 	if (logo)
 		g_object_unref (logo);
 
 	g_free (license_trans);
 
 	gtk_window_set_transient_for (GTK_WINDOW (gui.about), GTK_WINDOW (gui.main_window));
+}
+
+static void
+about_email_hook (GtkAboutDialog *dialog, const gchar *link, gpointer data)
+{
+}
+
+static void
+about_url_hook (GtkAboutDialog *dialog, const gchar *link, gpointer data)
+{
+	fe_open_url (link);
 }
 
 void
