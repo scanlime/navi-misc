@@ -1,22 +1,22 @@
 //-----------------------------
-// Class NewBox
+// Class AddInitFieldsDlg
 //-----------------------------
 
 // Create a new dialog
-function NewBox ()
+function AddInitFieldsDlg ()
 {
 	// Members
-	this.div = top.document.getElementById ('new_lesson')
+	this.div = top.document.getElementById ('add_init_fields')
 	this.select = top.document.getElementById ('fieldsSelect')
-	this.createButton = top.document.getElementById ('newCreate')
-	this.cancelButton = top.document.getElementById ('newCancel')
+	this.createButton = top.document.getElementById ('initCreate')
+	this.cancelButton = top.document.getElementById ('initCancel')
 	this.options = new Array ()
 	this.div.options = this.options
 
 	// Methods
-	this.selectionChanged = newBoxSelectionChanged
-	this.createButtonClicked = newBoxCreateButtonClicked
-	this.cancelButtonClicked = newBoxCancelButtonClicked
+	this.selectionChanged = addInitSelectionChanged
+	this.createButtonClicked = addInitCreateButtonClicked
+	this.cancelButtonClicked = addInitCancelButtonClicked
 
 	// Add the stuff to the box
 	for (field in optionalFields)
@@ -80,10 +80,10 @@ function NewBox ()
 }
 
 // Selection changed handler
-function newBoxSelectionChanged (event)
+function addInitSelectionChanged (event)
 {
-	parentDiv = newBox.div
-	select = newBox.select
+	parentDiv = addInitFieldsDlg.div
+	select = addInitFieldsDlg.select
 	div = top.document.getElementById ('description')
 
 	// Prepare the description text
@@ -133,9 +133,9 @@ function newBoxSelectionChanged (event)
 }
 
 // Create button clicked
-function newBoxCreateButtonClicked ()
+function addInitCreateButtonClicked ()
 {
-	div = newBox.div
+	div = addInitFieldsDlg.div
 	div.style.visibility = "hidden"
 
 	// Figure out which fields were selected and add them to the view
@@ -148,7 +148,7 @@ function newBoxCreateButtonClicked ()
 		if (options[i].myCheck.checked)
 		{
 			field = options[i].fieldName
-			objField = lessonPlan.addField (field, optionalFields[field], true, true)
+			objField = lessonPlan.addField (field, optionalFields[field], true, false)
 			optionalFields[field][FIELD_USED] = true;
 			objectFields.push (objField.id)
 
@@ -157,7 +157,7 @@ function newBoxCreateButtonClicked ()
 			if (!firstField && firstBox)
 			{
 				firstField = objField
-				objField2 = lessonPlan.addField (field, optionalFields[field], true, true)
+				objField2 = lessonPlan.addField (field, optionalFields[field], true, false)
 				objectFields.push (objField2.id)
 			}
 		}
@@ -190,9 +190,9 @@ function newBoxCreateButtonClicked ()
 }
 
 // Cancel button clicked
-function newBoxCancelButtonClicked ()
+function addInitCancelButtonClicked ()
 {
-	div = newBox.div
+	div = addInitFieldsDlg.div
 	div.style.visibility = "hidden"
 	history.back ()
 }

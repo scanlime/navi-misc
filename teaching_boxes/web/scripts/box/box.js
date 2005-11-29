@@ -344,6 +344,7 @@ function onCancelClick (event)
 {
 	newBox.style.display = "none"
 	top.document.getElementById ("iframeDiv").style.display = "block"
+    history.back ()
 }
 
 function onCreateClick (event)

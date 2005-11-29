@@ -24,8 +24,40 @@
 
 			<!-- Descriptive text at the top -->
 			<p>
-				In addition to <i>Title</i>, <i>Author</i>, <i>Standards</i> and
-				<i>Required time</i>, these fields can be added to the lesson:
+                <b>Lesson title:</b>
+			</p>
+
+			<div style="margin: 10px">
+				<input type="text" id="lessonName" name="lessonName" style="width: 100%; border: thin solid #7777cc"/>
+			</div>
+
+			<p>
+				<b>Description:</b>
+			</p>
+
+			<div style="margin: 10px">
+				<textarea rows="5" id="lessonDesc" name="lessonDesc" style="width: 100%; border: thin solid #7777cc"></textarea>
+			</div>
+
+			<!-- Button bar -->
+			<p align=right>
+				<input id="newCancel" type="button" value="Cancel">
+				<input id="newCreate" type="button" value="Create">
+			</p>
+
+		</div>
+
+		<!-- div element for the Add Initial Fields dialog -->
+		<div class="new_lesson" id="add_init_fields">
+			<!-- Titlebar -->
+			<div style="width: 100%; background-color: #444499; margin-bottom: 5px;">
+				<font class="titleBar">Add Initial Fields</font>
+			</div>
+
+			<!-- Descriptive text at the top -->
+			<p>
+				In addition to <i>Author</i>, <i>Standards</i>,
+				<i>Required time</i>, and <i>About</i>, these fields can be added to the lesson:
 			</p>
 
 			<!-- Field selector -->
@@ -40,8 +72,8 @@
 
 			<!-- Button bar -->
 			<p align=right>
-				<input id="newCancel" type="button" value="Cancel">
-				<input id="newCreate" type="button" value="Create">
+				<input id="initCancel" type="button" value="Cancel">
+				<input id="initCreate" type="button" value="Create">
 			</p>
 
 		</div>
@@ -123,7 +155,7 @@
 		</div>
 
 		<div class="toolbar" id="toolbar"></div>
-		<div width="100%" style="margin-right: 7px">
+		<div id="iframeDiv" width="100%" style="margin-right: 7px; display: none;">
 			<iframe id="iframe" width="100%" height=100% scrolling="auto"
 				src="blank_lesson.html" frameborder=0>
 			</iframe>

@@ -21,6 +21,7 @@ function AddToBoxDlg ()
 
 	// Clear the old DLG stuff out
 	this.select.innerHTML = ""
+    this.select.appendChild (document.createTextNode ("Loading..."))
 
 	// Add the stuff to the box
 	http = new XMLHttpRequest ()
@@ -75,6 +76,8 @@ function boxDataLoaded ()
 				boxes.push ([name, desc])
 			}
 		}
+
+        http.classObj.select.innerHTML = ""
 
 		for (box in boxes)
 		{

@@ -11,12 +11,20 @@
 
 	<body id="mainDiv" style="margin: 15px;">
 		<script src="scripts/tiny_mce.js"></script>
+        <script lang="javascript">
+        	// Initialize the rich text entry
+        	tinyMCE.init({
+        		mode : "textareas",
+        		theme : "simple"
+        	})
+        </script>
 		<script src="scripts/lesson_plan/globals.js"></script>
 		<script src="scripts/lesson_plan/add_field.js"></script>
-		<script src="scripts/lesson_plan/new_box.js"></script>
+		<script src="scripts/lesson_plan/add_init_fields.js"></script>
 		<script src="scripts/lesson_plan/add_to_box.js"></script>
 		<script src="scripts/util/link_field.js"></script>
 		<script src="scripts/lesson_plan/lesson_plan.js"></script>
+
 	</body>
 </html>
 
