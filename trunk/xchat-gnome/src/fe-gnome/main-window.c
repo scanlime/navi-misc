@@ -811,57 +811,7 @@ on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data)
 static void
 on_discussion_topic_change_activate (GtkButton *widget, gpointer data)
 {
-	GladeXML *xml = NULL;
-	GtkWidget *dialog;
-	GtkWidget *entry;
-	gint response;
-	GtkTextBuffer *buffer;
-	gchar *title;
-
-	if (gui.current_session == NULL)
-		return;
-
-	if (g_file_test ("../../topic-change.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("../../topic-change.glade", NULL, NULL);
-	if (!xml)
-		xml = glade_xml_new (XCHATSHAREDIR "/topic-change.glade", NULL, NULL);
-	if (!xml) {
-		error_dialog (_("Could not load topic-change.glade!"), _("Your installation is broken"));
-		return;
-	}
-
-	dialog = glade_xml_get_widget (xml, "topic change");
-	entry = glade_xml_get_widget (xml, "topic entry box");
-
-	title = g_strdup_printf (_("Changing topic for %s"), gui.current_session->channel);
-	gtk_window_set_title (GTK_WINDOW (dialog), title);
-	g_free (title);
-
-	buffer = gtk_text_buffer_new (NULL);
-	gtk_text_view_set_buffer (GTK_TEXT_VIEW (entry), buffer);
-	gtk_text_buffer_set_text (buffer, gui.current_session->topic, -1);
-
-	response = gtk_dialog_run (GTK_DIALOG (dialog));
-
-	if (response == GTK_RESPONSE_OK) {
-		GtkTextIter start;
-		GtkTextIter end;
-		gchar *newtopic;
-
-		gtk_text_buffer_get_start_iter (buffer, &start);
-		gtk_text_buffer_get_end_iter (buffer, &end);
-		gtk_widget_hide (dialog);
-		gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (entry), GTK_WRAP_NONE);
-		newtopic = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
-		gui.current_session->server->p_topic(gui.current_session->server, gui.current_session->channel, newtopic);
-		g_free (newtopic);
-	}
-
-	gtk_widget_destroy (dialog);
-	g_object_unref (xml);
-
-	/* send focus back to the text entry */
-	gtk_widget_grab_focus (gui.text_entry);
+	topic_label_change_current (TOPIC_LABEL (gui.topic_label));
 }
 
 void

@@ -53,6 +53,7 @@ GtkWidget *topic_label_new              (void);
 void       topic_label_set_topic        (TopicLabel *label, struct session *sess, const char *topic);
 void       topic_label_remove_session   (TopicLabel *label, struct session *sess);
 void       topic_label_set_current      (TopicLabel *label, struct session *sess);
+void       topic_label_change_current   (TopicLabel *label);
 
 G_END_DECLS
 

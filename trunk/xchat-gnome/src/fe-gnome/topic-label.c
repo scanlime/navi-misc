@@ -19,8 +19,9 @@
  *
  */
 #include <config.h>
-#include <gtk/gtk.h>
 #include <string.h>
+#include <gtk/gtk.h>
+#include <glade/glade.h>
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-url-label.h>
 #endif
@@ -212,4 +213,50 @@ topic_label_get_topic_string (const char *topic)
 #else
 	return g_strdup (topic);
 #endif
+}
+
+void
+topic_label_change_current (TopicLabel *label)
+{
+	GladeXML *xml = NULL;
+	GtkWidget *dialog, *entry;
+	GtkTextBuffer *buffer;
+	gchar *title, *topic;
+
+	if ((label->priv->current == NULL) || (label->priv->current->type != SESS_CHANNEL))
+		return;
+
+	if (g_file_test ("../../topic-change.glade", G_FILE_TEST_EXISTS))
+		xml = glade_xml_new ("../../topic-change.glade", NULL, NULL);
+	else
+		xml = glade_xml_new (XCHATSHAREDIR "/topic-change.glade", NULL, NULL);
+
+	dialog = glade_xml_get_widget (xml, "topic change");
+        entry  = glade_xml_get_widget (xml, "topic entry box");
+
+	title = g_strdup_printf (_("Changing topic for %s"), label->priv->current->channel);
+	gtk_window_set_title (GTK_WINDOW (dialog), title);
+	g_free (title);
+
+	topic = g_hash_table_lookup (label->priv->topics, label->priv->current);
+	buffer = gtk_text_buffer_new (NULL);
+        gtk_text_view_set_buffer (GTK_TEXT_VIEW (entry), buffer);
+	if (topic)
+        	gtk_text_buffer_set_text (buffer, topic, -1);
+
+	if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
+		GtkTextIter start, end;
+		gchar *newtopic;
+
+		gtk_text_buffer_get_start_iter (buffer, &start);
+		gtk_text_buffer_get_end_iter (buffer, &end);
+		gtk_widget_hide (dialog);
+		gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (entry), GTK_WRAP_NONE);
+		newtopic = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
+		label->priv->current->server->p_topic (label->priv->current->server, label->priv->current->channel, newtopic);
+		g_free (newtopic);
+	}
+
+	gtk_widget_destroy (dialog);
+        g_object_unref (xml);
 }
