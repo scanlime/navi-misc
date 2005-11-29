@@ -28,7 +28,7 @@
 
 const char *encodings[] =
 {
-	N_("UTF-8"),
+	N_("UTF-8 (Unicode)"),
 	N_("ISO-8859-15 (Western Europe)"),
 	N_("ISO-8859-2 (Central Europe)"),
 	N_("ISO-8859-7 (Greek)"),
