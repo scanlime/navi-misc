@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-11-28 22:06-0700\n"
+"POT-Creation-Date: 2005-11-28 19:59-0500\n"
 "PO-Revision-Date: 2005-11-25 03:33-0500\n"
 "Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: Français <olethanh@ulb.ac.be>\n"
@@ -613,8 +613,7 @@ msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:31
 msgid ""
-"Pops up notification of important messages when XChat-GNOME doesn't have the "
-"focus"
+"Pops up notification of important messages when xchat doesn't have the focus"
 msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:89
@@ -3664,7 +3663,7 @@ msgid "Show version information"
 msgstr "Afficher le numero de version"
 
 #: ../src/fe-gnome/fe-gnome.c:86
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "xchat-gnome: %s\n"
 "Try `xchat-gnome --help' for more information\n"
@@ -3684,12 +3683,12 @@ msgstr "Lag de %s%d.%ds"
 #: ../src/fe-gnome/fe-gnome.c:638
 #, c-format
 msgid "%d bytes buffered"
-msgstr "%d ont été mis en "
+msgstr "%d bytes ont été mis en cache"
 
 #: ../src/fe-gnome/fe-gnome.c:891
 #, c-format
 msgid "Unable to show '%s'"
-msgstr ""
+msgstr "Impossible de montrer "
 
 #: ../src/fe-gnome/irc-network-editor.c:267
 #, fuzzy
@@ -4114,8 +4113,7 @@ msgstr "Erreur lors de la lecture du fichier \"%s\": %s\n"
 #: ../src/fe-gnome/textgui.c:610
 #, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
-msgstr ""
-"Erreur lors de la transformation de l'URI \"%s\" en nom de fichier: %s\n"
+msgstr "Erreur lors de la transformation de l'URI \"%s\" en nom de fichier: %s\n"
 
 #: ../src/fe-gnome/textgui.c:641
 #, c-format
