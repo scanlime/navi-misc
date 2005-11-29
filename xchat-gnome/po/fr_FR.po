@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-11-27 01:58-0700\n"
+"POT-Creation-Date: 2005-11-28 22:06-0700\n"
 "PO-Revision-Date: 2005-11-25 03:33-0500\n"
 "Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: Français <olethanh@ulb.ac.be>\n"
@@ -413,34 +413,34 @@ msgstr "_Précédent"
 msgid "nickname"
 msgstr "pseudo"
 
-#: ../plugins/autoaway/autoaway.c:163
+#: ../plugins/autoaway/autoaway.c:164
 msgid "Screensaver activated, going away."
 msgstr ""
 
-#: ../plugins/autoaway/autoaway.c:171
+#: ../plugins/autoaway/autoaway.c:172
 msgid "Screensaver is off, welcome back"
 msgstr ""
 
-#: ../plugins/autoaway/autoaway.c:211
+#: ../plugins/autoaway/autoaway.c:212
 msgid "Auto Away"
 msgstr ""
 
-#: ../plugins/autoaway/autoaway.c:212
+#: ../plugins/autoaway/autoaway.c:213
 msgid "Automatically go away / come back"
 msgstr ""
 
 #. Hook up our callbacks.
-#: ../plugins/autoaway/autoaway.c:230
+#: ../plugins/autoaway/autoaway.c:231
 #, fuzzy
 msgid "Disconnected"
 msgstr "_Déconnecter"
 
-#: ../plugins/autoaway/autoaway.c:231
+#: ../plugins/autoaway/autoaway.c:232
 #, fuzzy
 msgid "Connected"
 msgstr "_Connecter"
 
-#: ../plugins/autoaway/autoaway.c:260
+#: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
 msgstr ""
 
@@ -613,7 +613,8 @@ msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:31
 msgid ""
-"Pops up notification of important messages when xchat doesn't have the focus"
+"Pops up notification of important messages when XChat-GNOME doesn't have the "
+"focus"
 msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:89
@@ -641,49 +642,49 @@ msgstr ""
 msgid "OSD initialization failed\n"
 msgstr ""
 
-#: ../plugins/url_scraper/urlscraper.c:44
+#: ../plugins/url_scraper/urlscraper.c:45
 msgid "xchat URL scraper"
 msgstr ""
 
-#: ../plugins/url_scraper/urlscraper.c:58 ../src/common/xchat.c:823
+#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:823
 msgid "Time"
 msgstr ""
 
-#: ../plugins/url_scraper/urlscraper.c:63 ../src/common/text.c:585
+#: ../plugins/url_scraper/urlscraper.c:64 ../src/common/text.c:585
 msgid "Nick"
 msgstr ""
 
-#: ../plugins/url_scraper/urlscraper.c:67 ../src/common/text.c:552
+#: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:552
 #: ../src/common/text.c:556 ../src/common/text.c:992
 #: ../src/fe-gnome/irc-network-editor.c:272
 msgid "Channel"
 msgstr ""
 
-#: ../plugins/url_scraper/urlscraper.c:72
+#: ../plugins/url_scraper/urlscraper.c:73
 msgid "URL"
 msgstr ""
 
-#: ../plugins/url_scraper/urlscraper.c:154
+#: ../plugins/url_scraper/urlscraper.c:155
 msgid "URL Scraper"
 msgstr ""
 
-#: ../plugins/url_scraper/urlscraper.c:155
+#: ../plugins/url_scraper/urlscraper.c:156
 msgid "Grabs URLs and puts them in a separate window for easy viewing."
 msgstr ""
 
-#: ../plugins/url_scraper/urlscraper.c:195
+#: ../plugins/url_scraper/urlscraper.c:196
 msgid "URL Scraper failed to load: couldn't compile URL regex.\n"
 msgstr ""
 
-#: ../plugins/url_scraper/urlscraper.c:201
+#: ../plugins/url_scraper/urlscraper.c:202
 msgid "URL Scraper failed to load: couldn't compile e-mail regex.\n"
 msgstr ""
 
-#: ../plugins/url_scraper/urlscraper.c:216
+#: ../plugins/url_scraper/urlscraper.c:217
 msgid "URL Scraper loaded.\n"
 msgstr ""
 
-#: ../plugins/url_scraper/urlscraper.c:228
+#: ../plugins/url_scraper/urlscraper.c:229
 msgid "URL Scraper unloaded.\n"
 msgstr ""
 

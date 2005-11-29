@@ -28,7 +28,7 @@
 
 #define NOTIFY_OSD_NAME        _("On-screen display")
 #define NOTIFY_OSD_VERSION     "0.1"
-#define NOTIFY_OSD_DESCRIPTION _("Pops up notification of important messages when xchat doesn't have the focus")
+#define NOTIFY_OSD_DESCRIPTION _("Pops up notification of important messages when XChat-GNOME doesn't have the focus")
 
 int  xchat_gnome_plugin_init (xchat_gnome_plugin *xg_plugin);
 void xchat_plugin_get_info   (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved);

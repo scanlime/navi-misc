@@ -79,7 +79,7 @@ initialize_about_dialog (void)
 	gui.about = gtk_about_dialog_new ();
 
 	g_object_set (G_OBJECT (gui.about),
-		      "name",        "X-Chat GNOME",
+		      "name",        "XChat-GNOME",
 		      "version",     VERSION,
 		      "copyright",   _("Copyright © 2004-2005"),
 		      "comments",    _("It has been well observed that a trombone is not a suitable instrument for a gentleman"),
