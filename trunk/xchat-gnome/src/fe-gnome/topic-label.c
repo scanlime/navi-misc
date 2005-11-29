@@ -33,9 +33,11 @@ static void topic_label_init            (TopicLabel      *label);
 static void topic_label_finalize        (GObject         *object);
 static void topic_label_expand_activate (GtkExpander     *expander,
                                          TopicLabel      *label);
+#ifdef HAVE_LIBSEXY
 static void topic_label_url_activated   (GtkWidget       *url_label,
                                          const char      *url,
                                          gpointer         data);
+#endif
 
 struct _TopicLabelPriv
 {
@@ -77,13 +79,16 @@ topic_label_init (TopicLabel *label)
 
 	gtk_widget_show (label->priv->expander);
 	gtk_widget_show (label->priv->label);
+	gtk_widget_show (GTK_WIDGET (label));
 
 	gtk_box_pack_start (GTK_BOX (label), label->priv->expander, FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (label), label->priv->label,    TRUE,  TRUE, 0);
 	gtk_box_set_spacing (GTK_BOX (label), 6);
 
 	g_signal_connect (G_OBJECT (label->priv->expander), "activate",      G_CALLBACK (topic_label_expand_activate), (gpointer) label);
+#ifdef HAVE_LIBSEXY
 	g_signal_connect (G_OBJECT (label->priv->label),    "url_activated", G_CALLBACK (topic_label_url_activated),   NULL);
+#endif
 }
 
 static void
@@ -105,11 +110,13 @@ topic_label_expand_activate (GtkExpander *expander, TopicLabel *label)
 	}
 }
 
+#ifdef HAVE_LIBSEXY
 static void
 topic_label_url_activated (GtkWidget *url_label, const char *url, gpointer data)
 {
 	fe_open_url (url);
 }
+#endif
 
 GtkWidget *
 topic_label_new (void)
