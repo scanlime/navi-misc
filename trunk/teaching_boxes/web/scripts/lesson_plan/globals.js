@@ -17,7 +17,7 @@ TYPE_LINK = 3
 FIELD_DESC = 0
 FIELD_TYPE = 1
 FIELD_USED = 2
-FIELD_LINKID = 2
+FIELD_ID   = 2
 
 // Stock Icons
 STOCK_NEW = "images/new.gif"
@@ -41,66 +41,86 @@ var firstBox = true
 // Fields and their descriptions
 // Required fields
 requiredFields = new Array ()
-requiredFields["Author"] = [
-	"The creator(s) of this lesson",
-	TYPE_ENTRY]
+requiredFields["Title"] = {
+    desc: "The title of this lesson",
+    type: TYPE_ENTRY,
+    id:   "Title"}
 
-requiredFields["Required Time"] = [
-	"The amount of time required to teach this lesson",
-	TYPE_ENTRY]
+requiredFields["Author"] = {
+	desc: "The creator(s) of this lesson",
+	type: TYPE_ENTRY,
+    id:   "Author"}
 
-requiredFields["About"] = [
-	"A brief description of the lesson",
-	TYPE_TEXTAREA]
+requiredFields["Brief Description"] = {
+    desc: "A brief, one- or two-sentence description of this lesson",
+    type: TYPE_ENTRY,
+    id:   "Description"}
 
-requiredFields["Standards"] = [
-	"The school standards covered by this lesson",
-	TYPE_TEXTAREA]
+requiredFields["Required Time"] = {
+	desc: "The amount of time required to teach this lesson",
+	type: TYPE_ENTRY,
+    id:   "RequiredTime"}
 
-requiredFields["Linked Lessons"] = [
-	"These lessons are linked to this one.",
-	TYPE_LINK,
-	"LinkedLessons"]
+requiredFields["About"] = {
+	desc: "Elaborate more about what this box is about.  This forms\
+           the preface of the lesson.",
+	type: TYPE_TEXTAREA,
+    id:   "About"}
 
-requiredFields["Resources"] = [
-	"External documents that have been uploaded into the system.",
-	TYPE_LINK,
-	"Resources"]
+requiredFields["Standards"] = {
+	desc: "The school standards covered by this lesson",
+	type: TYPE_TEXTAREA,
+    id:   "Standards"}
 
-requiredFields["Notes"] = [
-	"Extra notes pertaining to this lesson (i.e. a particular teaching style\
-	 worked better than another, etc.)",
-	TYPE_LINK,
-	"Notes"]
+requiredFields["Linked Lessons"] = {
+	desc: "These lessons are linked to this one.",
+	type: TYPE_LINK,
+	id:   "LinkedLessons"}
+
+requiredFields["Resources"] = {
+	desc: "External documents that have been uploaded into the system.",
+	type: TYPE_LINK,
+	id:   "Resources"}
+
+requiredFields["Notes"] = {
+	desc: "Extra notes pertaining to this lesson (i.e. a particular teaching style\
+	       worked better than another, etc.)",
+	type: TYPE_LINK,
+	id:   "Notes"}
 
 // Optional fields.  These have three fields:
 //    Description - Description of the field
 //    Type - Type of field to create
 //    Used - Whether it has been used or not
 optionalFields = new Array ()
-optionalFields["Introduction"] = [
-	"Introduce the topic",
-	TYPE_TEXTAREA,
-	false]
+optionalFields["Introduction"] = {
+	desc: "Introduce the topic",
+	type: TYPE_TEXTAREA,
+    id:   "Introduction",
+	used: false}
 
-optionalFields["Materials"] = [
-	"Materials (such as scissors or glue) that are required",
-	TYPE_TEXTAREA,
-	false]
+optionalFields["Materials"] = {
+	desc: "Materials (such as scissors or glue) that are required",
+	type: TYPE_TEXTAREA,
+    id:   "Materials",
+	used: false}
 
-optionalFields["Detailed Schedule"] = [
-	"Provide a detailed schedule for the lesson",
-	TYPE_TEXTAREA,
-	false]
+optionalFields["Detailed Schedule"] = {
+	desc: "Provide a detailed schedule for the lesson",
+	type: TYPE_TEXTAREA,
+    id:   "DetailSchedule",
+	used: false}
 
-optionalFields["Prerequisites"] = [
-	"The concepts that students should bring in to this lesson",
-	TYPE_TEXTAREA,
-	false]
+optionalFields["Prerequisites"] = {
+	desc: "The concepts that students should bring in to this lesson",
+	type: TYPE_TEXTAREA,
+    id:   "Prereqs",
+	used: false}
 
-optionalFields["Instructions (Methods)"] = [
-	"How the lesson is to be taught",
-	TYPE_TEXTAREA,
-	false]
+optionalFields["Instructions (Methods)"] = {
+	desc: "How the lesson is to be taught",
+	type: TYPE_TEXTAREA,
+    id:   "Instructions",
+	used: false}
 
 

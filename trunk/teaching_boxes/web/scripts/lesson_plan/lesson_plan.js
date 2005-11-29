@@ -14,57 +14,19 @@ function LessonPlan (name, desc)
 
 	// Methods
 	this.addField     = addField
+    this.getField     = getField
 	this.setupToolbar = setupToolbar
 	this.addLink	  = addLink
 	this.saveYourself = saveYourself
 
-	// Title
-	title = document.createElement ("h1")
-	text = document.createTextNode (name)
-	title.appendChild (text)
-	this.mainDiv.appendChild (title)
-
-	// Description
-	this.mainDiv.appendChild (document.createTextNode (desc))
-
 	// Toolbar
 	this.setupToolbar (this)
 
-    // Work around a bug in the MCE
-    addFields = function ()
+    // Fields
+    for (item in requiredFields)
     {
-        // Fields
-        for (item in requiredFields)
-        {
-            var myField = lessonPlan.addField (item, requiredFields[item], false, true)
-
-			// Bug fix for Firefox.  It displays the first dynamic box as a grey box
-			// with larger text.  This creates a new box that is well formed, and
-			// sets up the old one to be deleted.
-			if (requiredFields[item][FIELD_TYPE] == TYPE_TEXTAREA && firstBox == true)
-			{
-				firstBox = myField
-				lessonPlan.addField (item, requiredFields[item], false, true)
-			}	
-        }
-
-		// If we have a box to delete, do it here.
-		if (firstBox)
-		{
-			myRemoveFields = function (firstField) {
-				id = firstField.id
-				fieldName = firstField.fieldName
-				lessonPlan.mainDiv.removeChild (firstField)
-				delete lessonPlan.fields[id]
-				firstBox = false
-			}
-
-			// Bug fix for Firefox, it crashes without this.
-			setTimeout('myRemoveFields(firstBox)', 200)
-		}
+        this.addField (item, requiredFields[item], false, false)
     }
-
-    setTimeout('addFields()', 1)
 }
 
 function saveYourself ()
@@ -254,9 +216,9 @@ function addField (name, field, removable, mceReplace)
 	this.fields[newField.id] = newField
 	this.mainDiv.appendChild (newField)
 
-    if (mceReplace && document.getElementById('mceReplaceMe' + newField.id))
+    if (mceReplace && this.getField(field['id']))
     {
-        tinyMCE.execCommand ("mceAddControl", true, "mceReplaceMe" + newField.id)
+        tinyMCE.execCommand ("mceAddControl", true, field['id'])
     }
 
 	return newField
@@ -265,8 +227,8 @@ function addField (name, field, removable, mceReplace)
 // Create a field and return it
 function createField (name, field, removable)
 {
-	desc = field[FIELD_DESC]
-	type = field[FIELD_TYPE]
+	desc = field['desc']
+	type = field['type']
 
 	// Create the title of the field
 	title = document.createElement ("span")
@@ -297,6 +259,7 @@ function createField (name, field, removable)
 	{
 		case TYPE_ENTRY:
 			entry = document.createElement ("input")
+            entry.id = field['id']
 			entry.setAttribute ("type", "text")
 			entry.style.width = "90%"
 			entry.style.margin = "20px"
@@ -310,7 +273,7 @@ function createField (name, field, removable)
 			textarea = document.createElement ("textarea")
 			entry.appendChild (textarea)
 			textarea.setAttribute ("rows", 10)
-			textarea.setAttribute ("id", "mceReplaceMe" + id)
+			textarea.id = field['id']
 			textarea.style.width = "100%"
 			break
 		case TYPE_LINK:
@@ -319,7 +282,7 @@ function createField (name, field, removable)
 			rmL.setAttribute ("id", id)
 			rmL.appendChild (document.createTextNode ("Remove All"))
 
-			linkID = field[FIELD_LINKID]
+			linkID = field['id']
 			entry = document.createElement ("div")
 			entry.style.width = "90%"
 			entry.style.margin = "20px"
@@ -353,6 +316,11 @@ function createField (name, field, removable)
 	return div
 }
 
+function getField (field)
+{
+    return document.getElementById (field)
+}
+
 function removeField (event)
 {
 	if (confirm ("Are you sure you want to remove this field?")) {
@@ -367,7 +335,7 @@ function removeField (event)
 
 		fieldName = lessonPlan.fields[id].fieldName
 		if (optionalFields[fieldName])
-			optionalFields[fieldName][FIELD_USED] = false
+			optionalFields[fieldName]['used'] = false
 
 		mainDiv.removeChild (lessonPlan.fields[id])
 		delete lessonPlan.fields[id]
@@ -429,22 +397,31 @@ function main ()
 	// resize.
 	top.onresize = calculateSizes
 
-	// Calculate the size of the window
-	calculateSizes ()
-
-	newBox = top.document.getElementById ("new_lesson")
+/*
+	newBox = top.document.getElementById ("add_init_fields")
 	newBox.style.display = "block"
 	newBox.style.position = "absolute"
 	newBox.style.left = (windowWidth / 2) - (newBox.clientWidth / 2)
 	newBox.style.top = (windowHeight / 2) - (newBox.clientHeight / 2) + bannerHeight
 	newBox.style.visibility = "visible"
 	newBox.style.cursor = "default"
+*/
+    lessonPlan = new LessonPlan ("Untitled", "No description")
+    
+	// Calculate the size of the window
+	calculateSizes ()
 
-	var newCancel = top.document.getElementById ("newCancel")
-	newCancel.onclick = onCancelClick
+    // Init MCE
+    tinyMCE.init ({
+        mode: "textareas",
+        theme: "simple"})
+    addInitFieldsDlg = new AddInitFieldsDlg ()
 
-	var newCreate = top.document.getElementById ("newCreate")
-	newCreate.onclick = onCreateClick
+	//var newCancel = top.document.getElementById ("newCancel")
+	//newCancel.onclick = onCancelClick
+
+	//var newCreate = top.document.getElementById ("newCreate")
+	//newCreate.onclick = onCreateClick
 }
 
 main ()
