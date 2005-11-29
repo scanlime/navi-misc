@@ -224,11 +224,7 @@ text_gui_add_text_buffer (struct session *sess)
 	gui.current_session = sess;
 	g_object_unref (client);
 
-	if (sess->topic == NULL) {
-		tgui->topic = g_strdup ("");
-	} else {
-		tgui->topic = g_strdup (sess->topic);
-	}
+	topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, sess->topic);
 	tgui->entry = g_strdup ("");
 	tgui->lag_text = NULL;
 	tgui->queue_text = NULL;
@@ -250,7 +246,7 @@ text_gui_remove_text_buffer (struct session *sess)
 	g_object_unref (client);
 
 	gtk_xtext_buffer_free (tgui->buffer);
-	g_free (tgui->topic);
+	topic_label_remove_session (TOPIC_LABEL (gui.topic_label), sess);
 	g_free (tgui->entry);
 	if (tgui->lag_text)
 		g_free (tgui->lag_text);
@@ -337,19 +333,9 @@ set_nickname (struct server *serv, char *newnick)
 void
 set_gui_topic (session *sess, char *topic)
 {
-	session_gui *tgui = (session_gui *) sess->gui;
-
-	g_free (tgui->topic);
-	if (topic == NULL) {
-		if (sess->topic == NULL)
-			tgui->topic = g_strdup ("");
-		else
-			tgui->topic = g_strdup (sess->topic);
-	} else {
-		tgui->topic = topic_label_get_topic_string (topic);
-	}
+	topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, topic);
 	if (sess == gui.current_session)
-		topic_label_set_topic (TOPIC_LABEL (gui.topic_label), tgui->topic);
+		topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
 }
 
 void
