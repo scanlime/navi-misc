@@ -30,6 +30,7 @@ initialize_about_dialog (void)
 {
 	GdkPixbuf *logo;
 	char *license_trans;
+
 	const gchar *authors[] =
 	{
 		"Andre Dahlqvist",
@@ -50,6 +51,11 @@ initialize_about_dialog (void)
 	const gchar *documenters[] =
 	{
 		"Brian Pepple",
+		NULL
+	};
+	const gchar *artists[] =
+	{
+		"Micah Dowty",
 		NULL
 	};
 
@@ -84,6 +90,7 @@ initialize_about_dialog (void)
 		      "license",     license_trans,
 		      "website",     "http://xchat-gnome.navi.cx",
 		      "authors",     authors,
+		      "artists",     artists,
 		      "logo",        logo,
 		      "documenters", documenters,
 		      /* Translators: This is a special message that shouldn't
