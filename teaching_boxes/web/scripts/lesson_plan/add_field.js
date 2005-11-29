@@ -22,7 +22,7 @@ function AddFieldDlg ()
 	// Add the stuff to the box
 	for (field in optionalFields)
 	{
-		if (optionalFields[field][FIELD_USED])
+		if (optionalFields[field]['used'])
 			continue
 
 		div = document.createElement ("div")
@@ -81,7 +81,7 @@ function addFieldSelectionChanged (event)
 
 	// Grab the description
 	if (target.fieldName)
-		text = optionalFields[target.fieldName][FIELD_DESC]
+		text = optionalFields[target.fieldName]['desc']
 	else
 		text = ""
 
@@ -122,17 +122,8 @@ function addFieldCreateButtonClicked ()
 		{
 			field = div.options[i].fieldName
 			objField = lessonPlan.addField (field, optionalFields[field], true, false)
-			objectFields.push (objField.id)
-			optionalFields[field][FIELD_USED] = true
-
-			// Create a second copy of this box to work around a bug in rendering the
-			// first dynamically generated text box
-			if (!firstField && firstBox)
-			{
-				firstField = objField
-				objField2 = lessonPlan.addField (field, optionalFields[field], true, false)
-				objectFields.push (objField2.id)
-			}
+			objectFields.push (optionalFields[field]['id'])
+			optionalFields[field]['used'] = true
 		}
 	}
 
@@ -140,25 +131,11 @@ function addFieldCreateButtonClicked ()
 	{
 		objId = objectFields[id]
 
-		tinyMCE.execCommand ("mceAddControl", true, "mceReplaceMe" + objId)
-		obj = document.getElementById ("mceReplaceMe" + objId)
+		tinyMCE.execCommand ("mceAddControl", true, objId)
+		obj = document.getElementById (objId)
 		obj.style.margin = "20px"
 		obj.style.width = "90%"
 	}
-
-	// Delete the mis-rendered box.  Note that this has to be done in a timeout
-	// loop due to a bug in Firefox that would cause a crash if done immediately.
-	deleteBox = function ()
-	{
-		var mainDiv = document.getElementById ("mainDiv")
-
-		mainDiv.removeChild (lessonPlan.fields[firstField.id])
-		delete lessonPlan.fields[firstField.id]
-		firstBox = false
-	}
-
-	if (firstBox && firstField)
-		setTimeout (deleteBox, 100)
 }
 
 // Cancel button clicked

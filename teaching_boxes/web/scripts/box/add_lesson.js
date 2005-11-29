@@ -192,7 +192,7 @@ function lessonAddButtonClicked ()
 
     // When we modify the link object, it will signal
     // the box to save itself.
-	box.linkedLessonsObj.linkObj.addLink (
+	box.getField("LinkedLessons").linkObj.addLink (
         selectedObj.linkID,
         selectedObj.fieldName,
         selectedObj.desc, 0, "")
@@ -210,6 +210,9 @@ function lessonCreateButtonClicked ()
 {
 	div = addLesson.div
 	div.style.visibility = "hidden"
+    box.saveYourself ()
+    alert ("Your box has been saved.")
+
 	top.window.location = "new_lesson.html"
 }
 

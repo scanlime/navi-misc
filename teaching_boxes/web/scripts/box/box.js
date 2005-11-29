@@ -15,32 +15,19 @@ function Box (name, desc)
 
 	// Methods
 	this.addField     = addField
+    this.getField     = getField
 	this.setupToolbar = setupToolbar
 	this.saveYourself = saveBoxToDisk
     this.serialize    = serializeBox
-
-	// Title
-	var title = document.createElement ("h1")
-	var text = document.createTextNode (name)
-	title.appendChild (text)
-	this.mainDiv.appendChild (title)
-
-	// Description
-	this.mainDiv.appendChild (document.createTextNode (desc))
 
 	// Toolbar
 	this.setupToolbar (this)
 
 	// Fields
-	var myField = [
-		"These lessons are contained within this box.",
-		TYPE_LINK,
-		"LinkedLessons"]
-	
-	this.linkedLessonsObj = this.addField ("Lessons", myField, false, false)
-    this.linkedLessonsObj.linkObj.onlinkschange = this.saveYourself
-
-    setTimeout('saveBoxToDisk ()', 100)
+    for (item in myFields)
+    {
+        this.addField (item, myFields[item], false, false)
+    }
 }
 
 function saveBoxToDisk ()
@@ -67,12 +54,12 @@ function serializeBox ()
     // Serialize the box metadata
     data = "\
 [meta]\n\
-title=" + this.name + "\n\
+title=" + this.getField ("Title").value + "\n\
 id=" + this.id + "\n\
-desc=" + this.desc + "\n\n"
+desc=" + this.getField ("Description").value + "\n\n"
     
     // Serialize all the lessons
-    data += this.linkedLessonsObj.linkObj.serialize ()
+    data += this.getField ("LinkedLessons").linkObj.serialize ()
 
     return data
 }
@@ -205,11 +192,17 @@ function setupToolbar (plan)
 	var tab = document.createElement ("table")
 	var tr = document.createElement ("tr")
 
+    tr = createButton (tr,
+        "Save Box",
+        "Save any changes that were made to this box.",
+        STOCK_SAVE,
+        function () {box.saveYourself ()})
+
 	tr = createButton (tr,
 		"Add Lesson",
 		"Create a new lesson and add it to the box.",
 		STOCK_OPEN,
-		function () {addLesson = new AddLessonDlg ()});
+		function () {addLesson = new AddLessonDlg ()})
 
 	tab.appendChild (tr)
 	plan.toolbar.appendChild (tab)
@@ -227,8 +220,8 @@ function addField (name, field, removable, doMceReplace)
 // Create a field and return it
 function createField (name, field, removable)
 {
-	var desc = field[FIELD_DESC]
-	var type = field[FIELD_TYPE]
+	var desc = field['desc']
+	var type = field['type']
 
 	// Create the title of the field
 	var title = document.createElement ("span")
@@ -264,12 +257,14 @@ function createField (name, field, removable)
 		case TYPE_ENTRY:
 			entry = document.createElement ("input")
 			entry.setAttribute ("type", "text")
+            entry.id = field['id']
 			entry.style.width = "90%"
 			entry.style.margin = "20px"
 			entry.style.border = "thin solid #7777cc"
 			break
 		case TYPE_TEXTAREA:
 			entry = document.createElement ("div")
+            entry.id = field['id']
 			entry.style.width = "90%"
 			entry.style.margin = "20px"
 
@@ -285,7 +280,7 @@ function createField (name, field, removable)
 			rmL.setAttribute ("id", id)
 			rmL.appendChild (document.createTextNode ("Remove All"))
 
-			linkID = field[FIELD_LINKID]
+			linkID = field['id']
 			entry = document.createElement ("div")
 			entry.style.width = "90%"
 			entry.style.margin = "20px"
@@ -319,6 +314,11 @@ function createField (name, field, removable)
 	return div
 }
 
+function getField (field)
+{
+    return document.getElementById (field)
+}
+
 //-----------------------------
 // Main functions
 //-----------------------------
@@ -332,7 +332,7 @@ function calculateSizes ()
 	toolbarHeight = top.document.getElementById ('toolbar').clientHeight + 14
 	navbarHeight = top.document.getElementById ('navigation').clientHeight - 5
 
-	windowHeight = top.innerHeight - bannerHeight - toolbarHeight - navbarHeight - 0
+	windowHeight = top.innerHeight - bannerHeight - toolbarHeight - navbarHeight
 	windowWidth = top.innerWidth
 
 	// Set the height and width of stuff
@@ -370,9 +370,12 @@ function main ()
 	// resize.
 	top.onresize = calculateSizes
 
+	// Create the stuff.
+	box = new Box ("Untitled Box", "No Description")
+
 	// Calculate the size of the window
 	calculateSizes ()
-
+/*
 	// Pop up the New Box dialog
 	newBox = top.document.getElementById ("new_box")
 	newBox.style.display = "block"
@@ -387,7 +390,7 @@ function main ()
 
 	var newCreate = top.document.getElementById ("newCreate")
 	newCreate.onclick = onCreateClick
-
+*/
 	// newBox = new NewBox ()
 }
 

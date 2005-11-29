@@ -37,3 +37,21 @@ var addLesson
 var focusCounter = 0
 var firstBox = true
 
+// Fields
+var myFields = new Array()
+
+myFields["Title"] = {
+    desc: "Title of this box",
+    type: TYPE_ENTRY,
+    id:   "Title"}
+
+myFields["Brief Description"] = {
+    desc: "A brief, one- or two-sentence description of this box",
+    type: TYPE_ENTRY,
+    id:   "Description"}
+
+myFields["Lessons"] = {
+    desc: "These lessons are contained within this box.",
+    type: TYPE_LINK,
+    id:   "LinkedLessons"}
+
