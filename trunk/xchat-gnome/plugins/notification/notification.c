@@ -191,12 +191,12 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 
 	/* Load the pixbufs. */
 	if (g_file_test ("../../data/xchat-gnome-small.png", G_FILE_TEST_EXISTS)) {
-		icon     = gdk_pixbuf_new_from_file ("../../data/xchat-gnome-small.png", 0);
+		icon     = gdk_pixbuf_new_from_file ("../../data/xchat-gnome.png", 0);
 		newdata  = gdk_pixbuf_new_from_file ("../../data/newdata.png", 0);
 		global   = gdk_pixbuf_new_from_file ("../../data/global-message.png", 0);
 		nicksaid = gdk_pixbuf_new_from_file ("../../data/nicksaid.png", 0);
 	} else {
-		icon     = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", 0);
+		icon     = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome.png", 0);
 		newdata  = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/newdata.png", 0);
 		global   = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/global-message.png", 0);
 		nicksaid = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/nicksaid.png", 0);
