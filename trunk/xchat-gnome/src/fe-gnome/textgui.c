@@ -26,6 +26,7 @@
 #include <gconf/gconf-client.h>
 #include <libgnomevfs/gnome-vfs.h>
 
+#include "status-bar.h"
 #include "text-entry.h"
 #include "textgui.h"
 #include "topic-label.h"
@@ -226,8 +227,6 @@ text_gui_add_text_buffer (struct session *sess)
 	g_object_unref (client);
 
 	topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, sess->topic);
-	tgui->lag_text = NULL;
-	tgui->queue_text = NULL;
 }
 
 void
@@ -249,10 +248,9 @@ text_gui_remove_text_buffer (struct session *sess)
 	topic_label_remove_session (TOPIC_LABEL (gui.topic_label), sess);
 	text_entry_remove_session  (TEXT_ENTRY  (gui.text_entry),  sess);
 
-	if (tgui->lag_text)
-		g_free (tgui->lag_text);
-	if (tgui->queue_text)
-		g_free (tgui->queue_text);
+	if (sess->type == SESS_SERVER)
+		status_bar_remove_server (STATUS_BAR (gui.status_bar), sess->server);
+
 	g_free (tgui);
 	sess->gui = NULL;
 }

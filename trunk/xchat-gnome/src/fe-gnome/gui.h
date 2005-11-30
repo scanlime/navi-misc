@@ -37,21 +37,23 @@ typedef struct
 {
 	GladeXML *xml;
 	GladeXML *setup_xml;
-	GnomeApp *main_window;
 	GtkActionGroup *action_group;
 	GtkUIManager *manager;
 	GtkWidget *about;
 	GtkXText *xtext;
 	DccWindow *dcc;
 	GtkExpander *topic_expander;
-	GtkWidget *topic_label;
-	GtkWidget *text_entry;
 	GtkWidget *userlist_window;
 	GtkWidget *userlist;
 	GtkWidget *userlist_toggle;
 	session *current_session;
 	GnomeDruid *setup_druid;
 	gboolean quit;
+
+	GtkWidget *main_window;
+	GtkWidget *status_bar;
+	GtkWidget *topic_label;
+	GtkWidget *text_entry;
 
 	NavModel *tree_model;
 	NavTree *server_tree;
