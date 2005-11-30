@@ -26,6 +26,7 @@ LIBGLADE_REQUIRED=2.3.0
 LIBGNOMEVFS_REQUIRED=2.9.2
 LIBGNOMEUI_REQUIRED=2.6.0
 GCONF_REQUIRED=2.8.0
+DBUS_REQUIRED=0.35
 DBUS_GLIB_REQUIRED=0.35
 LIBSEXY_REQUIRED=0.1.4
 
@@ -63,7 +64,10 @@ PKG_CHECK_MODULES([DEPENDENCIES], [\
                   ])
 
 # D-BUS soft dependency
-PKG_CHECK_MODULES([DBUS], [dbus-glib-1 >= $DBUS_GLIB_REQUIRED], dbus=yes, dbus=no)
+PKG_CHECK_MODULES([DBUS], [\
+                  dbus-1 >= $DBUS_REQUIRED \
+                  dbus-glib-1 >= $DBUS_GLIB_REQUIRED \
+		  ], dbus=yes, dbus=no)
 AC_SUBST([DBUS_CFLAGS])
 AC_SUBST([DBUS_LIBS])
 AC_PATH_PROG([DBUS_BINDING_TOOL],[dbus-binding-tool],[no])
