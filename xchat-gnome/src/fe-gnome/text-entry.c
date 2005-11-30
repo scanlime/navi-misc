@@ -66,7 +66,10 @@ G_DEFINE_TYPE (TextEntry, text_entry, GTK_TYPE_ENTRY);
 
 struct _TextEntryPriv
 {
-	GCompletion *command_completion;
+	GCompletion    *command_completion;
+
+	GHashTable     *entries;
+	struct session *current;
 };
 
 static void
@@ -96,6 +99,8 @@ text_entry_init (TextEntry *entry)
 
 	entry->priv = g_new0 (TextEntryPriv, 1);
 
+	entry->priv->entries = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
+
 	/* Initialize & populate a GCompletion for commands */
 	entry->priv->command_completion = g_completion_new (NULL);
 	/* FIXME - need to convert command_list to a GList
@@ -118,6 +123,8 @@ text_entry_finalize (GObject *object)
 
 	entry = TEXT_ENTRY (object);
 
+	if (entry->priv->entries)
+		g_hash_table_destroy (entry->priv->entries);
 	if (entry->priv->command_completion)
 		g_completion_free (entry->priv->command_completion);
 	if (entry->priv)
@@ -526,4 +533,36 @@ GtkWidget *
 text_entry_new (void)
 {
 	return GTK_WIDGET (g_object_new (text_entry_get_type (), NULL));
+}
+
+void
+text_entry_set_current (TextEntry *entry, struct session *sess)
+{
+	gchar *text;
+
+	if (sess == entry->priv->current)
+		return;
+
+	if (sess == NULL) {
+		gtk_entry_set_text (GTK_ENTRY (entry), "");
+	} else {
+		g_hash_table_insert (entry->priv->entries,
+		                     entry->priv->current,
+		                     g_strdup (gtk_entry_get_text (GTK_ENTRY (entry))));
+		text = g_hash_table_lookup (entry->priv->entries, sess);
+		if (text)
+			gtk_entry_set_text (GTK_ENTRY (entry), text);
+		else
+			gtk_entry_set_text (GTK_ENTRY (entry), "");
+		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
+	}
+	entry->priv->current = sess;
+}
+
+void
+text_entry_remove_session (TextEntry *entry, struct session *sess)
+{
+	g_hash_table_remove (entry->priv->entries, sess);
+	if (sess == entry->priv->current)
+		gtk_entry_set_text (GTK_ENTRY (entry), "");
 }

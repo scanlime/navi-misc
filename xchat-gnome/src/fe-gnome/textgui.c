@@ -26,6 +26,7 @@
 #include <gconf/gconf-client.h>
 #include <libgnomevfs/gnome-vfs.h>
 
+#include "text-entry.h"
 #include "textgui.h"
 #include "topic-label.h"
 #include "palette.h"
@@ -225,7 +226,6 @@ text_gui_add_text_buffer (struct session *sess)
 	g_object_unref (client);
 
 	topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, sess->topic);
-	tgui->entry = g_strdup ("");
 	tgui->lag_text = NULL;
 	tgui->queue_text = NULL;
 }
@@ -247,7 +247,8 @@ text_gui_remove_text_buffer (struct session *sess)
 
 	gtk_xtext_buffer_free (tgui->buffer);
 	topic_label_remove_session (TOPIC_LABEL (gui.topic_label), sess);
-	g_free (tgui->entry);
+	text_entry_remove_session  (TEXT_ENTRY  (gui.text_entry),  sess);
+
 	if (tgui->lag_text)
 		g_free (tgui->lag_text);
 	if (tgui->queue_text)
