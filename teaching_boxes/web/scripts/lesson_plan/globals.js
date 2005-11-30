@@ -103,6 +103,35 @@ requiredFields["Notes"] = {
 //    Type - Type of field to create
 //    Used - Whether it has been used or not
 optionalFields = new Array ()
+
+optionalFields["Audience"] = {
+	desc: "Describe the kinds of students for whom this lesson is intended",
+	type: TYPE_TEXTAREA,
+	id:   "Audience",
+	used: false,
+	reqd: false}
+
+optionalFields["Conclusion"] = {
+	desc: "How to bring closure to the lesson",
+	type: TYPE_TEXTAREA,
+	id:   "Conclusion",
+	used: false,
+	reqd: false}
+
+optionalFields["Detailed Schedule"] = {
+	desc: "Provide a detailed schedule for the lesson",
+	type: TYPE_TEXTAREA,
+    id:   "DetailSchedule",
+	used: false,
+    reqd: false}
+
+optionalFields["Instructions (Methods)"] = {
+	desc: "How the lesson is to be taught",
+	type: TYPE_TEXTAREA,
+    id:   "Instructions",
+	used: false,
+    reqd: false}
+
 optionalFields["Introduction"] = {
 	desc: "Introduce the topic",
 	type: TYPE_TEXTAREA,
@@ -117,12 +146,11 @@ optionalFields["Materials"] = {
 	used: false,
     reqd: false}
 
-optionalFields["Detailed Schedule"] = {
-	desc: "Provide a detailed schedule for the lesson",
+optionalFields["Other"] = {
+	desc: "For information that does not belong anywhere else",
 	type: TYPE_TEXTAREA,
-    id:   "DetailSchedule",
-	used: false,
-    reqd: false}
+	id:   "Other",
+	used: false}
 
 optionalFields["Prerequisites"] = {
 	desc: "The concepts that students should bring in to this lesson",
@@ -131,33 +159,9 @@ optionalFields["Prerequisites"] = {
 	used: false,
     reqd: false}
 
-optionalFields["Instructions (Methods)"] = {
-	desc: "How the lesson is to be taught",
-	type: TYPE_TEXTAREA,
-    id:   "Instructions",
-	used: false,
-    reqd: false}
-
-optionalFields["Conclusion"] = {
-	desc: "How to bring closure to the lesson",
-	type: TYPE_TEXTAREA,
-	id:   "Conclusion",
-	used: false}
-
 optionalFields["Rationale"] = {
 	desc: "Describe the thinking that went into the creation of this lesson",
 	type: TYPE_TEXTAREA,
 	id:   "Rationale",
-	used: false}
-
-optionalFields["Other"] = {
-	desc: "For information that does not belong anywhere else",
-	type: TYPE_TEXTAREA,
-	id:   "Other",
-	used: false}
-
-optionalFields["Audience"] = {
-	desc: "Describe the kinds of students for whom this lesson is intended",
-	type: TYPE_TEXTAREA,
-	id:   "Audience",
-	used: false}
+	used: false,
+	reqd: false}
