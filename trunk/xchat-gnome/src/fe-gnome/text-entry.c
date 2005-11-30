@@ -35,7 +35,7 @@ static gboolean   text_entry_key_press      (GtkWidget      *widget,
                                              GdkEventKey    *event,
                                              gpointer        data);
 #ifdef HAVE_LIBSEXY
-static gboolean   text_entry_spell_check    (SexySpellEntry *entry,
+static gboolean   text_entry_spell_check    (TextEntry      *entry,
                                              gchar          *text,
                                              gpointer        data);
 #endif
@@ -154,9 +154,9 @@ text_entry_key_press (GtkWidget *widget, GdkEventKey *event, gpointer data)
 
 #ifdef HAVE_LIBSEXY
 static gboolean
-text_entry_spell_check (SexySpellEntry *entry, gchar *text, gpointer data)
+text_entry_spell_check (TextEntry *entry, gchar *text, gpointer data)
 {
-	GtkTreeModel *store = GTK_TREE_MODEL (userlist_get_store (u, gui.current_session));
+	GtkTreeModel *store = GTK_TREE_MODEL (userlist_get_store (u, entry->priv->current));
 	GtkTreeIter iter;
 
 	if (gtk_tree_model_get_iter_first (store, &iter) == FALSE)
@@ -182,8 +182,8 @@ text_entry_activate (GtkWidget *widget, gpointer data)
 {
 	char *entry_text = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	gtk_entry_set_text (GTK_ENTRY (widget), "");
-	if (gui.current_session != NULL)
-		handle_multiline (gui.current_session, (char *) entry_text, TRUE, FALSE);
+	if (TEXT_ENTRY (widget)->priv->current != NULL)
+		handle_multiline (TEXT_ENTRY (widget)->priv->current, (char *) entry_text, TRUE, FALSE);
 	g_free (entry_text);
 }
 
@@ -191,7 +191,7 @@ static void
 text_entry_history_up (GtkEntry *entry)
 {
 	char *new_line;
-	new_line = history_up (&gui.current_session->history, (char *)entry->text);
+	new_line = history_up (&TEXT_ENTRY (entry)->priv->current->history, (char *)entry->text);
 	if (new_line) {
 		gtk_entry_set_text (entry, new_line);
 		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
@@ -202,7 +202,7 @@ static void
 text_entry_history_down (GtkEntry *entry)
 {
 	char *new_line;
-	new_line = history_down (&gui.current_session->history);
+	new_line = history_down (&TEXT_ENTRY (entry)->priv->current->history);
 	if (new_line) {
 		gtk_entry_set_text (entry, new_line);
 		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
@@ -387,7 +387,7 @@ tab_complete_command (GtkEntry *entry)
 			g_free (printtext);
 			printtext = npt;
 		}
-		tgui = (session_gui *) gui.current_session->gui;
+		tgui = (session_gui *) TEXT_ENTRY (entry)->priv->current->gui;
 		text_gui_print (tgui->buffer, (guchar *) printtext, TRUE);
 		g_free (printtext);
 		if (strcasecmp (prefix, new_prefix) != 0) {
@@ -418,7 +418,7 @@ tab_complete_nickname (GtkEntry *entry, int start)
 	gchar *new_prefix;
 	gchar *prefix;
 
-	completion = userlist_get_completion (u, gui.current_session);
+	completion = userlist_get_completion (u, TEXT_ENTRY (entry)->priv->current);
 	g_completion_set_compare (completion, (GCompletionStrncmpFunc) strncasecmp);
 	text = g_strdup (gtk_entry_get_text (entry));
 	length = strlen (text);
@@ -479,7 +479,7 @@ tab_complete_nickname (GtkEntry *entry, int start)
 			g_free (printtext);
 			printtext = npt;
 		}
-		tgui = (session_gui *) gui.current_session->gui;
+		tgui = (session_gui *) TEXT_ENTRY (entry)->priv->current->gui;
 		text_gui_print (tgui->buffer, (guchar *) printtext, TRUE);
 		g_free (printtext);
 		if (strcasecmp (prefix, new_prefix) != 0) {
