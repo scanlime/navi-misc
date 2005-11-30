@@ -43,15 +43,18 @@ var myFields = new Array()
 myFields["Title"] = {
     desc: "Title of this box",
     type: TYPE_ENTRY,
-    id:   "Title"}
+    id:   "Title",
+    reqd: true}
 
 myFields["Brief Description"] = {
     desc: "A brief, one- or two-sentence description of this box",
     type: TYPE_ENTRY,
-    id:   "Description"}
+    id:   "Description",
+    reqd: false}
 
 myFields["Lessons"] = {
     desc: "These lessons are contained within this box.",
     type: TYPE_LINK,
-    id:   "LinkedLessons"}
+    id:   "LinkedLessons",
+    reqd: false}
 

@@ -58,6 +58,17 @@ class GetLessons(saxutils.DefaultHandler):
                 'title': title,
                 'desc' : desc}
 
+    def writeXML(self, filename):
+        file = open(filename, "w")
+        file.write ('<?xml version="1.0" encoding="ISO-8859-1"?>\n')
+        file.write ('<lessons>\n')
+
+        for lessonID, data in self.lessons.items():
+            file.write ('   <lesson id="%s" title="%s" desc="%s"/>\n' %
+                (lessonID, data['title'], data['desc']))
+
+        file.write ('</lessons>\n')
+        file.close()
 
 def getAllBoxes():
     parser = make_parser()
@@ -91,6 +102,48 @@ def getAllLessons():
 
     for id, data in dh.lessons.items():
         print "%s|%s|%s" % (id, data['title'], data['desc'])
+
+def saveLesson():
+    # Input is simple.  id|title|desc
+    data = sys.__stdin__.read()
+    id, title, desc = data.split('|')
+    
+    # Load up our database of lessons and add this one (or
+    # modify the existing one if the ID is valid and
+    # already exists).
+    parser = make_parser()
+    parser.setFeature(feature_namespaces, 0)
+    dh = GetLessons()
+    parser.setContentHandler(dh)
+
+    file = open(LessonsFilename, "r")
+    parser.parse(file)
+    file.close()
+
+    f = open ("/home/darkstar62/output.log", "w")
+    f.write(str(dh.lessons))
+    f.close ()
+
+    # alright, we need to know the largest ID in the database
+    # if the ID isn't valid.
+    id = int(id)
+    if int(id) == -1:
+        maxID = -1
+        for newID in dh.lessons:
+            if int(newID) > maxID:
+                maxID = int(newID)
+
+        id = maxID + 1
+
+    # Make the change.
+    dh.lessons[str(id)] = {
+        'title': title,
+        'desc': desc}
+
+    dh.writeXML(LessonsFilename)
+
+    print "Content-type: text/plain\n"
+    print "%s" % id
 
 def saveBox():
     # Read in the data that the server passed us.  This

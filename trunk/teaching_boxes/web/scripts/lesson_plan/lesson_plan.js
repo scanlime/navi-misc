@@ -11,6 +11,7 @@ function LessonPlan (name, desc)
 	this.toolbar = top.document.getElementById ('toolbar')
     this.name    = name
     this.desc    = desc
+    this.id      = -1
 
 	// Methods
 	this.addField     = addField
@@ -18,6 +19,8 @@ function LessonPlan (name, desc)
 	this.setupToolbar = setupToolbar
 	this.addLink	  = addLink
 	this.saveYourself = saveYourself
+    this.serialize    = lessonSerialize
+    this.createNew    = lessonCreateNew
 
 	// Toolbar
 	this.setupToolbar (this)
@@ -29,8 +32,58 @@ function LessonPlan (name, desc)
     }
 }
 
+function lessonCreateNew ()
+{
+    if (confirm ("This action will save the current lesson and create a new one.  Continue?"))
+    {
+        var http = new XMLHttpRequest ()
+
+        saveID = function ()
+        {
+            if (http.readyState == 4)
+            {
+                lessonPlan.id = http.responseText
+                alert ("Lesson saved successfully.")
+                top.window.location = "new_lesson.html"
+            }
+        }
+
+        http.open ('post', 'cgi-bin/dosomething.py?saveLesson')
+        http.onreadystatechange = saveID
+        http.send (lessonPlan.serialize ())
+    }
+}
+
 function saveYourself ()
 {
+	var http = new XMLHttpRequest ()
+
+    if (lessonPlan.getField("Title").value.length == 0)
+    {
+        alert ("You must fill in at least the \"Title\" field.")
+        return
+    }
+
+    saveID = function ()
+    {
+        if (http.readyState == 4)
+        {
+            lessonPlan.id = http.responseText
+            alert ("Lesson saved successfully.")
+        }
+    }
+
+	http.open ('post', 'cgi-bin/dosomething.py?saveLesson')
+	http.onreadystatechange = saveID
+	http.send (lessonPlan.serialize ())
+}
+
+function lessonSerialize ()
+{
+    name = lessonPlan.getField ("Title").value
+    desc = lessonPlan.getField ("Description").value
+
+    return "" + lessonPlan.id + "|" + name + "|" + desc
 }
 
 function addLink (fieldName, id, name, desc, linkType, addr)
@@ -170,12 +223,14 @@ function setupToolbar (plan)
 	tr = createButton (tr,
 		"New Lesson",
 		"Create a new lesson and add it to the box.",
-		STOCK_NEW);
+		STOCK_NEW,
+        function (e) {lessonPlan.createNew ()});
 
 	tr = createButton (tr,
 		"Save Lesson",
 		"Save the changes to the current lesson.",
-		STOCK_SAVE);
+		STOCK_SAVE,
+        function (e) {lessonPlan.saveYourself ()});
 
 	tr = createButton (tr,
 		"Create Link",
@@ -188,12 +243,6 @@ function setupToolbar (plan)
 		"Add additional information to this lesson.",
 		STOCK_FIELD,
 		function (e) {addField = new AddFieldDlg ()})
-
-	tr = createButton (tr,
-		"Add Resource",
-		"Upload a file into your box, or create a link to an external web resource.",
-		STOCK_REF,
-        function (e) {uploadFile ()})
 
 	tr = createButton (tr,
 		"Add Note",

@@ -17,6 +17,7 @@ function LinkField (entry, removeObj, fileObject)
 	this.redraw = LinkRedraw
 	this.addLink = LinkAddLink
 	this.removeAllClick = LinkRemoveAll
+    this.uploadClicked = LinkUploadClicked
 	this.removeLink = LinkRemoveLink
     this.serialize = LinkSerialize
     this.onlinkschange = null
@@ -38,12 +39,16 @@ function LinkField (entry, removeObj, fileObject)
         this.upload = document.createElement ("input")
         this.upload.type = "submit"
         this.upload.value = "Upload"
+        this.upload.onclick = this.uploadClicked
+        this.upload.classObj = this
         this.form.appendChild (this.upload)
 
         this.target = document.createElement ("iframe")
         this.target.name = "target_upload"
         this.target.style.display = "none"
         this.form.appendChild (this.target)
+
+        this.fieldCounter = 0
     }
 
 	this.redraw ()
@@ -157,5 +162,16 @@ function LinkRemoveLink (event)
         if (this.classObj.onlinkschange)
             this.classObj.onlinkschange ()
 	}
+}
+
+function LinkUploadClicked (event)
+{
+    parent = event.target.classObj
+    name = parent.input.value
+    desc = ""
+    type = 0
+    addr = ""
+    parent.addLink (parent.fieldCounter, name, desc, type, addr)
+    parent.input.value = ""
 }
 
