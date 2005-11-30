@@ -69,6 +69,8 @@ xchat_gnome_SOURCES =				\
 	preferences.h				\
 	setup-dialog.c				\
 	setup-dialog.h				\
+	status-bar.h				\
+	status-bar.c				\
 	text-entry.c				\
 	text-entry.h				\
 	textgui.c				\
