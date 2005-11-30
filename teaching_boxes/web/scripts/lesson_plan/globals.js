@@ -12,6 +12,7 @@ toolbarHeight = 0
 TYPE_ENTRY = 1
 TYPE_TEXTAREA = 2
 TYPE_LINK = 3
+TYPE_FILELINK = 4
 
 // Field parts
 FIELD_DESC = 0
@@ -79,7 +80,7 @@ requiredFields["Linked Lessons"] = {
 
 requiredFields["Resources"] = {
 	desc: "External documents that have been uploaded into the system.",
-	type: TYPE_LINK,
+	type: TYPE_FILELINK,
 	id:   "Resources"}
 
 requiredFields["Notes"] = {

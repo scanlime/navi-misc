@@ -7,11 +7,12 @@ LINK_DESC = 2
 LINK_TYPE = 3
 LINK_ADDR = 4
 
-function LinkField (entry, removeObj)
+function LinkField (entry, removeObj, fileObject)
 {
 	this.entry = entry
 	this.removeObj = removeObj
 	this.links = new Array ()
+    this.fileObject = fileObject
 
 	this.redraw = LinkRedraw
 	this.addLink = LinkAddLink
@@ -19,6 +20,31 @@ function LinkField (entry, removeObj)
 	this.removeLink = LinkRemoveLink
     this.serialize = LinkSerialize
     this.onlinkschange = null
+
+    if (this.fileObject)
+    {
+        this.form = document.createElement ("form")
+        this.form.action = "cgi-bin/upload.py"
+        this.form.encoding = "multipart/form-data"
+        this.form.method = "post"
+        this.form.target = "target_upload"
+
+        this.input = document.createElement ("input")
+        this.input.type = "file"
+        this.input.name = "upfile"
+
+        this.form.appendChild (this.input)
+
+        this.upload = document.createElement ("input")
+        this.upload.type = "submit"
+        this.upload.value = "Upload"
+        this.form.appendChild (this.upload)
+
+        this.target = document.createElement ("iframe")
+        this.target.name = "target_upload"
+        this.target.style.display = "none"
+        this.form.appendChild (this.target)
+    }
 
 	this.redraw ()
 	this.removeObj.onclick = this.removeAllClick
@@ -42,6 +68,15 @@ function LinkSerialize ()
 function LinkRedraw ()
 {
 	this.entry.innerHTML = ""
+
+    if (this.fileObject)
+    {
+        div = document.createElement ("div")
+        div.style.marginBottom = "10px"
+
+        div.appendChild (this.form)
+        this.entry.appendChild (div)
+    }
 
 	if (this.links.length == 0)
 	{
