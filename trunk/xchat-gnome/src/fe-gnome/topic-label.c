@@ -25,6 +25,7 @@
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-url-label.h>
 #endif
+#include "text-entry.h"
 #include "topic-label.h"
 #include "../common/fe.h"
 #include "../common/url.h"
@@ -95,7 +96,7 @@ topic_label_init (TopicLabel *label)
 	g_signal_connect (G_OBJECT (label->priv->label),    "url_activated", G_CALLBACK (topic_label_url_activated),   NULL);
 #endif
 
-	label->priv->topics = g_hash_table_new (g_direct_hash, g_direct_equal);
+	label->priv->topics = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
 }
 
 static void
@@ -134,26 +135,17 @@ topic_label_new (void)
 void
 topic_label_set_topic (TopicLabel *label, struct session *sess, const char *topic)
 {
-	gchar *old, *escaped;
+	gchar *escaped;
 
 	escaped = topic_label_get_topic_string (topic);
 
-	old = g_hash_table_lookup (label->priv->topics, sess);
 	g_hash_table_insert (label->priv->topics, sess, escaped);
-	if (old)
-		g_free (old);
 }
 
 void
 topic_label_remove_session (TopicLabel *label, struct session *sess)
 {
-	gchar *topic;
-
-	topic = g_hash_table_lookup (label->priv->topics, sess);
 	g_hash_table_remove (label->priv->topics, sess);
-	if (topic)
-		g_free (topic);
-
 	if (sess == label->priv->current)
 		gtk_label_set_text (GTK_LABEL (label->priv->label), "");
 }

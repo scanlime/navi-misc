@@ -32,6 +32,7 @@
 #include "palette.h"
 #include "channel-list.h"
 #include "main-window.h"
+#include "text-entry.h"
 #include "topic-label.h"
 #include "util.h"
 #include "../common/xchat.h"
@@ -1064,10 +1065,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 
 		/* back up existing entry */
 		tgui = (session_gui *) gui.current_session->gui;
-		if (tgui) {
-			g_free (tgui->entry);
-			tgui->entry = g_strdup (gtk_entry_get_text (GTK_ENTRY (gui.text_entry)));
-		}
 
 		/* Update current_path. */
 		if (gui.server_tree->current_path) {
@@ -1137,13 +1134,12 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 			gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
 
 			/* Set the text entry field to whatever is in the text entry of this session. */
-			gtk_entry_set_text (GTK_ENTRY (gui.text_entry), tgui->entry);
-			gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), -1);
+			text_entry_set_current (TEXT_ENTRY (gui.text_entry), sess);
 		} else {
 			/* If there's no gui for the new session make sure the entry is empty
 			 * and then return.
 			 */
-			gtk_entry_set_text (GTK_ENTRY (gui.text_entry), "");
+			text_entry_set_current (TEXT_ENTRY (gui.text_entry), NULL);
 		}
 
 		/* Emit "focus tab" event */

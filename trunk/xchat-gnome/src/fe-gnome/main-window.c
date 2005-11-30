@@ -90,8 +90,6 @@ static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *me
 static gboolean on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 
-void setup_menu_item (GConfClient *client, GtkActionEntry *entry);
-
 static GtkActionEntry action_entries [] = {
 
 	/* Toplevel */
