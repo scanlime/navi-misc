@@ -138,4 +138,26 @@ optionalFields["Instructions (Methods)"] = {
 	used: false,
     reqd: false}
 
+optionalFields["Conclusion"] = {
+	desc: "How to bring closure to the lesson",
+	type: TYPE_TEXTAREA,
+	id:   "Conclusion",
+	used: false}
 
+optionalFields["Rationale"] = {
+	desc: "Describe the thinking that went into the creation of this lesson",
+	type: TYPE_TEXTAREA,
+	id:   "Rationale",
+	used: false}
+
+optionalFields["Other"] = {
+	desc: "For information that does not belong anywhere else",
+	type: TYPE_TEXTAREA,
+	id:   "Other",
+	used: false}
+
+optionalFields["Audience"] = {
+	desc: "Describe the kinds of students for whom this lesson is intended",
+	type: TYPE_TEXTAREA,
+	id:   "Audience",
+	used: false}
