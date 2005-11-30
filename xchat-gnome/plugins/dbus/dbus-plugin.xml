@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <node name="/">
-  <interface name="org.xchat.interface">
+  <interface name="org.xchatgnome.interface">
     <method name="command">
       <arg type="s"/>
     </method>

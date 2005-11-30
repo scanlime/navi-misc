@@ -25,12 +25,12 @@
 #include <glib/gi18n.h>
 
 
-#define PNAME "xchat remote access"
+#define PNAME "XChat-GNOME remote access"
 #define PDESC "plugin for remote access using DBUS";
 #define PVERSION "0.5"
 
-#define DBUS_SERVICE "org.xchat.service"
-#define DBUS_OBJECT "/org/xchat/RemoteObject"
+#define DBUS_SERVICE "org.xchatgnome.service"
+#define DBUS_OBJECT "/org/xchatgnome/RemoteObject"
 
 void xchat_plugin_get_info(char **name, char **desc, char **version, void **reserved);
 int  xchat_plugin_deinit(void);
