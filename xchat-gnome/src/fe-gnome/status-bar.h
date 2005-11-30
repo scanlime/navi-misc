@@ -48,8 +48,12 @@ struct _StatusBarClass
 	GtkStatusbarClass parent_class;
 };
 
-GType      status_bar_get_type (void) G_GNUC_CONST;
-GtkWidget *status_bar_new      (void);
+GType      status_bar_get_type      (void) G_GNUC_CONST;
+GtkWidget *status_bar_new           (void);
+void       status_bar_set_lag       (StatusBar *bar, struct server *sess, float seconds, gboolean sent);
+void       status_bar_set_queue     (StatusBar *bar, struct server *sess, int bytes);
+void       status_bar_set_current   (StatusBar *bar, struct server *sess);
+void       status_bar_remove_server (StatusBar *bar, struct server *sess);
 
 G_END_DECLS
 

@@ -260,7 +260,7 @@ initialize_main_window (void)
 	GtkWidget *close, *menu_vbox, *widget, *widget2;
 	GtkSizeGroup *group;
 
-	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
+	gui.main_window = glade_xml_get_widget (gui.xml, "xchat-gnome");
 	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",
 	                  G_CALLBACK (on_main_window_close), NULL);
 
@@ -288,7 +288,8 @@ initialize_main_window (void)
 	close = glade_xml_get_widget (gui.xml, "close discussion");
 	g_signal_connect (G_OBJECT (close), "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
 
-	gui.text_entry = glade_xml_get_widget (gui.xml, "text_entry");
+	gui.status_bar  = glade_xml_get_widget (gui.xml, "status_bar");
+	gui.text_entry  = glade_xml_get_widget (gui.xml, "text_entry");
 	gui.topic_label = glade_xml_get_widget (gui.xml, "topic_label");
 
 	/* Hook up accelerators for pgup/pgdn */
@@ -434,7 +435,7 @@ run_main_window ()
 	g_signal_connect (G_OBJECT (pane), "notify::position", G_CALLBACK (on_hpane_move), NULL);
 	g_object_unref (client);
 
-	gtk_widget_show (GTK_WIDGET (gui.main_window));
+	gtk_widget_show (gui.main_window);
 
 	/* Temporarily disable menu items */
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/NetworkMenu/NetworkInformationItem");
@@ -810,22 +811,6 @@ static void
 on_discussion_topic_change_activate (GtkButton *widget, gpointer data)
 {
 	topic_label_change_current (TOPIC_LABEL (gui.topic_label));
-}
-
-void
-set_statusbar ()
-{
-	GtkWidget *appbar;
-	session_gui *tgui;
-	char *text;
-
-	if (gui.current_session == NULL)
-		return;
-	appbar = glade_xml_get_widget (gui.xml, "appbar1");
-	tgui = (session_gui *) gui.current_session->gui;
-	text = g_strdup_printf ("%s%s%s", tgui->lag_text ? tgui->lag_text : "", (tgui->queue_text && tgui->lag_text) ? ", " : "", tgui->queue_text ? tgui->queue_text : "");
-	gnome_appbar_set_status (GNOME_APPBAR (appbar), text);
-	g_free (text);
 }
 
 static void

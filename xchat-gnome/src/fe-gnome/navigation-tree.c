@@ -32,8 +32,11 @@
 #include "palette.h"
 #include "channel-list.h"
 #include "main-window.h"
+
+#include "status-bar.h"
 #include "text-entry.h"
 #include "topic-label.h"
+
 #include "util.h"
 #include "../common/xchat.h"
 #include "../common/fe.h"
@@ -1127,14 +1130,12 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		/* Set tgui to the gui of the new session. */
 		tgui = (session_gui *) sess->gui;
 		if (tgui) {
-			/* Set the topic. */
-			topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
-
 			/* Show the xtext buffer for the session. */
 			gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
 
-			/* Set the text entry field to whatever is in the text entry of this session. */
-			text_entry_set_current (TEXT_ENTRY (gui.text_entry), sess);
+			topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
+			text_entry_set_current  (TEXT_ENTRY (gui.text_entry),   sess);
+			status_bar_set_current  (STATUS_BAR (gui.status_bar),   sess->server);
 		} else {
 			/* If there's no gui for the new session make sure the entry is empty
 			 * and then return.
