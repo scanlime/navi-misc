@@ -330,14 +330,6 @@ set_nickname (struct server *serv, char *newnick)
 }
 
 void
-set_gui_topic (session *sess, char *topic)
-{
-	topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, topic);
-	if (sess == gui.current_session)
-		topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
-}
-
-void
 clear_buffer (struct session *sess)
 {
 	session_gui *sgui;

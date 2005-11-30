@@ -32,7 +32,10 @@
 #include "userlist-gui.h"
 #include "preferences.h"
 #include "setup-dialog.h"
+
 #include "status-bar.h"
+#include "topic-label.h"
+
 #include "palette.h"
 #include "preferences-page-plugins.h"
 #include "channel-list.h"
@@ -260,7 +263,7 @@ fe_idle_add (void *func, void *data)
 void
 fe_set_topic (struct session *sess, char *topic)
 {
-	set_gui_topic (sess, topic);
+	topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, topic);
 }
 
 void

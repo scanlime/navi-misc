@@ -140,6 +140,9 @@ topic_label_set_topic (TopicLabel *label, struct session *sess, const char *topi
 	escaped = topic_label_get_topic_string (topic);
 
 	g_hash_table_insert (label->priv->topics, sess, escaped);
+
+	if (sess == label->priv->current)
+		topic_label_set_current (label, sess);
 }
 
 void
