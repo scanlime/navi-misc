@@ -160,6 +160,8 @@ function boxAddButtonClicked ()
 	div = addToBox.div
 	div.style.visibility = "hidden"
 
+    alert ("Lesson successfully added.")
+
 	// Everything we do here will be in the backend.  Tell the web-server
 	// to add this lesson to the selected box.
 
@@ -181,11 +183,6 @@ function boxAddButtonClicked ()
 
 	if (!selectedObj)
 		return
-
-	lessonPlan.addLink ("LinkedLessons", selectedObj.fieldName, selectedObj.desc, 0, "")
-
-	// Signal the box to save itself
-	lessonPlan.saveYourself ()
 }
 
 // Cancel button clicked

@@ -34,6 +34,12 @@ function saveBoxToDisk ()
 {
 	var http = new XMLHttpRequest ()
 
+    if (box.getField("Title").value.length == 0)
+    {
+        alert ("You must fill in at least the \"Title\" field.")
+        return
+    }
+
     saveID = function ()
     {
         if (http.readyState == 4)

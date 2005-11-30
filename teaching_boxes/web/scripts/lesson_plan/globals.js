@@ -45,49 +45,58 @@ requiredFields = new Array ()
 requiredFields["Title"] = {
     desc: "The title of this lesson",
     type: TYPE_ENTRY,
-    id:   "Title"}
+    id:   "Title",
+    reqd: true}
 
 requiredFields["Author"] = {
 	desc: "The creator(s) of this lesson",
 	type: TYPE_ENTRY,
-    id:   "Author"}
+    id:   "Author",
+    reqd: false}
 
 requiredFields["Brief Description"] = {
     desc: "A brief, one- or two-sentence description of this lesson",
     type: TYPE_ENTRY,
-    id:   "Description"}
+    id:   "Description",
+    reqd: false}
 
 requiredFields["Required Time"] = {
 	desc: "The amount of time required to teach this lesson",
 	type: TYPE_ENTRY,
-    id:   "RequiredTime"}
+    id:   "RequiredTime",
+    reqd: false}
 
 requiredFields["About"] = {
 	desc: "Elaborate more about what this box is about.  This forms\
            the preface of the lesson.",
 	type: TYPE_TEXTAREA,
-    id:   "About"}
+    id:   "About",
+    reqd: false}
 
 requiredFields["Standards"] = {
 	desc: "The school standards covered by this lesson",
 	type: TYPE_TEXTAREA,
-    id:   "Standards"}
+    id:   "Standards",
+    reqd: false}
 
 requiredFields["Linked Lessons"] = {
 	desc: "These lessons are linked to this one.",
 	type: TYPE_LINK,
-	id:   "LinkedLessons"}
+	id:   "LinkedLessons",
+    reqd: false}
 
 requiredFields["Resources"] = {
 	desc: "External documents that have been uploaded into the system.",
 	type: TYPE_FILELINK,
-	id:   "Resources"}
+	id:   "Resources",
+    reqd: false}
 
 requiredFields["Notes"] = {
 	desc: "Extra notes pertaining to this lesson (i.e. a particular teaching style\
 	       worked better than another, etc.)",
 	type: TYPE_LINK,
-	id:   "Notes"}
+	id:   "Notes",
+    reqd: false}
 
 // Optional fields.  These have three fields:
 //    Description - Description of the field
@@ -98,30 +107,35 @@ optionalFields["Introduction"] = {
 	desc: "Introduce the topic",
 	type: TYPE_TEXTAREA,
     id:   "Introduction",
-	used: false}
+	used: false,
+    reqd: false}
 
 optionalFields["Materials"] = {
 	desc: "Materials (such as scissors or glue) that are required",
 	type: TYPE_TEXTAREA,
     id:   "Materials",
-	used: false}
+	used: false,
+    reqd: false}
 
 optionalFields["Detailed Schedule"] = {
 	desc: "Provide a detailed schedule for the lesson",
 	type: TYPE_TEXTAREA,
     id:   "DetailSchedule",
-	used: false}
+	used: false,
+    reqd: false}
 
 optionalFields["Prerequisites"] = {
 	desc: "The concepts that students should bring in to this lesson",
 	type: TYPE_TEXTAREA,
     id:   "Prereqs",
-	used: false}
+	used: false,
+    reqd: false}
 
 optionalFields["Instructions (Methods)"] = {
 	desc: "How the lesson is to be taught",
 	type: TYPE_TEXTAREA,
     id:   "Instructions",
-	used: false}
+	used: false,
+    reqd: false}
 
 
