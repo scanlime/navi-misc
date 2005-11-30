@@ -4,6 +4,9 @@
    </box>
    <box id="0" title="Plate Tectonics" desc="Lessons concerning the movement of plates on the Earth.">
    </box>
+   <box id="3" title="My New Box" desc="This is a very happy box and stuff.">
+      <lesson id="1"/>
+   </box>
    <box id="2" title="Chemical History of a Candle" desc="All you never wanted to know about candles.">
    </box>
 </boxes>

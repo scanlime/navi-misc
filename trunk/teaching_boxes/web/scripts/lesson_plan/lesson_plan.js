@@ -192,7 +192,8 @@ function setupToolbar (plan)
 	tr = createButton (tr,
 		"Add Resource",
 		"Upload a file into your box, or create a link to an external web resource.",
-		STOCK_REF)
+		STOCK_REF,
+        function (e) {uploadFile ()})
 
 	tr = createButton (tr,
 		"Add Note",
@@ -207,6 +208,10 @@ function setupToolbar (plan)
 
 	tab.appendChild (tr)
 	plan.toolbar.appendChild (tab)
+}
+
+function uploadFile ()
+{
 }
 
 // Add a field to the lesson plan
@@ -289,6 +294,20 @@ function createField (name, field, removable)
 			entry.id = linkID
 			entry.linkObj = new LinkField (entry, rmL)
 			break
+        case TYPE_FILELINK:
+			rmL = document.createElement ("span")
+			rmL.setAttribute ("class", "removeButton")
+			rmL.setAttribute ("id", id)
+			rmL.appendChild (document.createTextNode ("Remove All"))
+
+			linkID = field['id']
+			entry = document.createElement ("div")
+			entry.style.width = "90%"
+			entry.style.margin = "20px"
+			entry.id = linkID
+			entry.linkObj = new LinkField (entry, rmL, true)
+			break
+            
 		default:
 			entry = document.createElement ("textarea")
 			break

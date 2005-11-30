@@ -195,9 +195,9 @@ function linkAddButtonClicked (event)
 }
 
 // Cancel button clicked
-function linkCancelButtonClicked ()
+function linkCancelButtonClicked (event)
 {
-	div = addLesson.div
+	div = event.target.classObj.div
 	div.style.visibility = "hidden"
 }
 
