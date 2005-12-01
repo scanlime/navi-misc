@@ -146,6 +146,10 @@ void
 save_transcript (void)
 {
 	GtkWidget *file_chooser;
+	gchar     *default_filename;
+	gchar      dates[32];
+	struct tm  date;
+	time_t     dtime;
 
 	file_chooser = gtk_file_chooser_dialog_new (_("Save Transcript"),
 	                                            GTK_WINDOW (gui.main_window),
@@ -154,7 +158,17 @@ save_transcript (void)
 	                                            GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 	                                            NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (file_chooser), TRUE);
+	gtk_file_chooser_set_local_only (GTK_FILE_CHOOSER (file_chooser), TRUE);
 	gtk_dialog_set_default_response (GTK_DIALOG (file_chooser), GTK_RESPONSE_ACCEPT);
+
+	time (&dtime);
+	localtime_r (&dtime, &date);
+	strftime (dates, 32, "%F-%R", &date);
+
+	default_filename = g_strdup_printf ("%s-%s.log", gui.current_session->channel, dates);
+	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_chooser), default_filename);
+	g_free (default_filename);
+
 
 	if (gtk_dialog_run (GTK_DIALOG (file_chooser)) == GTK_RESPONSE_ACCEPT) {
 		gchar *filename;
