@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-01 01:47-0500\n"
+"POT-Creation-Date: 2005-12-01 02:06-0500\n"
 "PO-Revision-Date: 2005-11-25 03:33-0500\n"
 "Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: Français <olethanh@ulb.ac.be>\n"
@@ -440,6 +440,14 @@ msgstr "Connecté"
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
 msgstr "Extension d'absence automatique chargé\n"
+
+#: ../plugins/dbus/dbus-plugin.c:28
+msgid "XChat-GNOME remote access"
+msgstr "Contrôle à distance de XChat-GNOME"
+
+#: ../plugins/dbus/dbus-plugin.c:29
+msgid "plugin for remote access using DBUS"
+msgstr "Extension pour controler XChat-gnome via DBUS"
 
 #: ../plugins/dbus/dbus-plugin.c:271
 #, c-format
