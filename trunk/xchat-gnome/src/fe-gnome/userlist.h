@@ -19,7 +19,8 @@
  *
  */
 
-#include <gnome.h>
+#include <glib-object.h>
+#include <gtk/gtkliststore.h>
 #include "../common/xchat.h"
 #include "../common/userlist.h"
 

@@ -21,6 +21,7 @@
 #include <config.h>
 #include <string.h>
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 #include "gui.h"
 #include "palette.h"
 #include "text-entry.h"

@@ -20,7 +20,6 @@
  */
 
 #include <gtk/gtk.h>
-#include <libgnome/gnome-i18n.h>
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 

@@ -20,7 +20,6 @@
  */
 
 #include <glade/glade.h>
-#include <gnome.h>
 #include <gtk/gtkactiongroup.h>
 #include <gtk/gtkuimanager.h>
 #include "userlist.h"
@@ -47,7 +46,6 @@ typedef struct
 	GtkWidget *userlist;
 	GtkWidget *userlist_toggle;
 	session *current_session;
-	GnomeDruid *setup_druid;
 	gboolean quit;
 
 	GtkWidget *main_window;

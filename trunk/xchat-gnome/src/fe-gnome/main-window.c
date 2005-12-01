@@ -25,6 +25,7 @@
 #include <libgnome/libgnome.h>
 #include <gconf/gconf-client.h>
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>

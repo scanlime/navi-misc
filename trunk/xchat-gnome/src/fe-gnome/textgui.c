@@ -23,6 +23,7 @@
 #include <glib/gi18n.h>
 #include <string.h>
 #include <libgnome/gnome-url.h> /* gnome_url_show */
+#include <libgnomeui/gnome-stock-icons.h>
 #include <gconf/gconf-client.h>
 #include <libgnomevfs/gnome-vfs.h>
 
