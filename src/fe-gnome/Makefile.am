@@ -81,6 +81,8 @@ xchat_gnome_SOURCES =				\
 	userlist-button.h			\
 	userlist-gui.c				\
 	userlist-gui.h				\
+	userlist-window.c			\
+	userlist-window.h			\
 	userlist.c				\
 	userlist.h				\
 	util.c					\
