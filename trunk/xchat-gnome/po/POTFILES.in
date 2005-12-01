@@ -11,7 +11,7 @@ data/xchat-gnome.desktop.in
 data/xchat-gnome.glade
 plugins/autoaway/autoaway.c
 plugins/dbus/dbus-plugin.c
-plugins/dbus/xchat-remote.c
+plugins/dbus/xchat-gnome-remote.c
 plugins/net-monitor/net-monitor.c
 plugins/notification/eggtrayicon.c
 plugins/notification/notification.c
