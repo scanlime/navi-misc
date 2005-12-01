@@ -28,7 +28,12 @@ adSense = xml('<p style="text-align: center"><script type="text/javascript"><!--
               'google_ad_format = "120x600_as";'
               'google_ad_type = "text";'
               'google_ad_channel ="";\n'
-              '//--></script>'
+              'google_color_border = "EEF4EB";\n'
+	      'google_color_bg = "EEF4EB";\n'
+	      'google_color_link = "0000CC";\n'
+	      'google_color_url = "008000";\n'
+	      'google_color_text = "000000";\n'
+	      '//--></script>'
               '<script type="text/javascript"'
               ' src="http://pagead2.googlesyndication.com/pagead/show_ads.js">'
               '</script></p>')
