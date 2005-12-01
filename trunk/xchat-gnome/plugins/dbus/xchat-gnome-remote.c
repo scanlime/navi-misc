@@ -77,8 +77,8 @@ main (int argc, char **argv)
 
   if (error)
   {
-    g_printerr (_("%s: %s\nTry `xchat-remote --help' for more information\n"),
-                argv[0], error->message);
+    g_printerr (_("%s: %s\nTry `%s --help' for more information\n"),
+                argv[0], error->message, argv[0]);
     return 1;
   }
 
