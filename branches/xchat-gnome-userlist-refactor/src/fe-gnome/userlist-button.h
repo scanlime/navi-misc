@@ -50,6 +50,8 @@ struct _UserlistButtonClass
 
 GType      userlist_button_get_type       (void) G_GNUC_CONST;
 GtkWidget *userlist_button_new            (void);
+void       userlist_button_set_users      (UserlistButton *button, struct session *sess, int users);
+void       userlist_button_set_current    (UserlistButton *button, struct session *sess);
 void       userlist_button_remove_session (UserlistButton *button, struct session *sess);
 
 G_END_DECLS
