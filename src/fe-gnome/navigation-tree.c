@@ -36,6 +36,7 @@
 #include "status-bar.h"
 #include "text-entry.h"
 #include "topic-label.h"
+#include "userlist-button.h"
 
 #include "util.h"
 #include "../common/xchat.h"
@@ -293,7 +294,9 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
 	gtk_tree_view_set_model (treeview, GTK_TREE_MODEL (userlist_get_store (u, sess)));
 
-	topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
+	topic_label_set_current     (TOPIC_LABEL     (gui.topic_label),     sess);
+	status_bar_set_current      (STATUS_BAR      (gui.status_bar),      sess->server);
+	userlist_button_set_current (USERLIST_BUTTON (gui.userlist_toggle), sess);
 	net = sess->server->network;
 	if (net == NULL)
 		rename_main_window (NULL, sess->channel);
@@ -516,8 +519,8 @@ navigation_tree_select_next_channel (NavTree *navtree)
 		gint    channels = 0;
 		gchar** split = g_strsplit (path_string, ":", 2);
 
-		server_index = atoi (split[0]);
-		channel_index = atoi (split[1]);
+		server_index = g_strtod (split[0], NULL);
+		channel_index = g_strtod (split[1], NULL);
 
 		g_strfreev (split);
 
@@ -550,7 +553,7 @@ navigation_tree_select_next_channel (NavTree *navtree)
 			}
 		}
 	} else {
-		server_index = atoi (path_string);
+		server_index = g_strtod (path_string, NULL);
 	}
 
 	if (depth == 1) {
@@ -1119,7 +1122,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		gtk_widget_set_sensitive (menuitem, sess->type != SESS_SERVER);
 		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionCloseItem");
 		gtk_widget_set_sensitive (menuitem, sess->type != SESS_SERVER);
-		gtk_widget_set_sensitive (gui.userlist_toggle, sess->type != SESS_SERVER);
 
 
 		/* remove any icon that exists */
@@ -1133,9 +1135,10 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 			/* Show the xtext buffer for the session. */
 			gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
 
-			topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
-			text_entry_set_current  (TEXT_ENTRY (gui.text_entry),   sess);
-			status_bar_set_current  (STATUS_BAR (gui.status_bar),   sess->server);
+			topic_label_set_current     (TOPIC_LABEL     (gui.topic_label),     sess);
+			text_entry_set_current      (TEXT_ENTRY      (gui.text_entry),      sess);
+			status_bar_set_current      (STATUS_BAR      (gui.status_bar),      sess->server);
+			userlist_button_set_current (USERLIST_BUTTON (gui.userlist_toggle), sess);
 		} else {
 			/* If there's no gui for the new session make sure the entry is empty
 			 * and then return.

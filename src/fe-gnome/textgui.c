@@ -27,13 +27,15 @@
 #include <gconf/gconf-client.h>
 #include <libgnomevfs/gnome-vfs.h>
 
-#include "status-bar.h"
-#include "text-entry.h"
 #include "textgui.h"
-#include "topic-label.h"
 #include "palette.h"
 #include "preferences.h"
 #include "userlist-gui.h"
+
+#include "status-bar.h"
+#include "text-entry.h"
+#include "topic-label.h"
+#include "userlist-button.h"
 
 #include "../common/xchat.h"
 #include "../common/xchatc.h"
@@ -246,8 +248,9 @@ text_gui_remove_text_buffer (struct session *sess)
 	g_object_unref (client);
 
 	gtk_xtext_buffer_free (tgui->buffer);
-	topic_label_remove_session (TOPIC_LABEL (gui.topic_label), sess);
-	text_entry_remove_session  (TEXT_ENTRY  (gui.text_entry),  sess);
+	topic_label_remove_session     (TOPIC_LABEL     (gui.topic_label),     sess);
+	text_entry_remove_session      (TEXT_ENTRY      (gui.text_entry),      sess);
+	userlist_button_remove_session (USERLIST_BUTTON (gui.userlist_toggle), sess);
 
 	if (sess->type == SESS_SERVER)
 		status_bar_remove_server (STATUS_BAR (gui.status_bar), sess->server);

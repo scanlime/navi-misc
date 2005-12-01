@@ -35,10 +35,13 @@ G_DEFINE_TYPE (UserlistButton, userlist_button, GTK_TYPE_TOGGLE_BUTTON);
 
 struct _UserlistButtonPriv
 {
-	GtkWidget *hbox;
-	GtkWidget *image;
-	GtkWidget *label;
-	GtkWidget *alignment;
+	GtkWidget      *hbox;
+	GtkWidget      *image;
+	GtkWidget      *label;
+	GtkWidget      *alignment;
+
+	GHashTable     *numbers;
+	struct session *current;
 };
 
 static void
@@ -57,8 +60,10 @@ userlist_button_init (UserlistButton *button)
 {
 	button->priv = g_new0(UserlistButtonPriv, 1);
 	button->priv->hbox      = gtk_hbox_new (FALSE, 3);
-	button->priv->label     = gtk_label_new ("Users");
+	button->priv->label     = gtk_label_new (_("Users"));
 	button->priv->alignment = gtk_alignment_new (0.5, 0.5, 0.0, 0.0);
+
+	button->priv->numbers = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
 
 	if (g_file_test ("../../data/users.png", G_FILE_TEST_EXISTS))
 		button->priv->image = gtk_image_new_from_file ("../../data/users.png");
@@ -86,6 +91,7 @@ userlist_button_finalize (GObject *object)
 
 	button = USERLIST_BUTTON (object);
 
+	g_hash_table_destroy (button->priv->numbers);
 	g_free (button->priv);
 
 	if (G_OBJECT_CLASS (parent_class)->finalize)
@@ -96,4 +102,42 @@ GtkWidget *
 userlist_button_new (void)
 {
 	return GTK_WIDGET (g_object_new (userlist_button_get_type (), NULL));
+}
+
+void
+userlist_button_set_users (UserlistButton *button, struct session *sess, int users)
+{
+	gchar *string;
+
+	string = g_strdup_printf (_("%d Users"), users);
+	g_hash_table_insert (button->priv->numbers, sess, string);
+
+	if (sess == button->priv->current)
+		gtk_label_set_text (GTK_LABEL (button->priv->label), string);
+}
+
+void
+userlist_button_set_current (UserlistButton *button, struct session *sess)
+{
+	if (sess->type == SESS_CHANNEL) {
+		gchar *users;
+
+		users = g_hash_table_lookup (button->priv->numbers, sess);
+		gtk_widget_set_sensitive (GTK_WIDGET (button), TRUE);
+		if (users)
+			gtk_label_set_text (GTK_LABEL (button->priv->label), users);
+		else
+			gtk_label_set_text (GTK_LABEL (button->priv->label), _("Users"));
+	} else {
+		gtk_widget_set_sensitive (GTK_WIDGET (button), FALSE);
+		gtk_label_set_text (GTK_LABEL (button->priv->label), _("Users"));
+	}
+}
+
+void
+userlist_button_remove_session (UserlistButton *button, struct session *sess)
+{
+	g_hash_table_remove (button->priv->numbers, sess);
+	if (sess == button->priv->current)
+		userlist_button_set_current (button, NULL);
 }
