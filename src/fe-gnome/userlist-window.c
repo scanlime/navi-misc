@@ -19,15 +19,14 @@
  *
  */
 #include <config.h>
-#include <gtk/gtkframe.h>
-#include <gtk/gtkscrolledwindow.h>
-#include <gtk/gtktreeview.h>
-#include <gtk/gtkliststore.h>
+#include <gtk/gtk.h>
 #include "userlist-window.h"
+#include "gui.h"
 
 static void userlist_window_class_init (UserlistWindowClass *klass);
 static void userlist_window_init       (UserlistWindow      *window);
 static void userlist_window_finalize   (GObject             *object);
+static void userlist_window_grab       (UserlistWindow      *window);
 
 static GtkWindowClass *parent_class;
 
@@ -39,6 +38,7 @@ struct _UserlistWindowPriv
 
 	GHashTable     *stores;
 	struct session *current;
+	gboolean        have_grab;
 };
 
 static void
@@ -64,7 +64,7 @@ userlist_window_init (UserlistWindow *window)
 	frame          = gtk_frame_new (NULL);
 	scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
 
-	window->priv->stores = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_object_unref);
+	window->priv->stores = g_hash_table_new (g_direct_hash, g_direct_equal);
 
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow),
 	                                GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
@@ -97,6 +97,29 @@ userlist_window_finalize (GObject *object)
 		G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
+static void
+userlist_window_grab (UserlistWindow *window)
+{
+	if (window->priv->have_grab)
+		return;
+	window->priv->have_grab = (gdk_pointer_grab (GTK_WIDGET (window)->window,
+	                                             TRUE, GDK_POINTER_MOTION_MASK |
+	                                             GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
+	                                             GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK,
+	                                             NULL, NULL, GDK_CURRENT_TIME) ==
+	                           GDK_GRAB_SUCCESS);
+	if (window->priv->have_grab) {
+		window->priv->have_grab = (gdk_keyboard_grab (GTK_WIDGET (window)->window, TRUE, GDK_CURRENT_TIME) == GDK_GRAB_SUCCESS);
+		if (window->priv->have_grab == FALSE) {
+			/* something bad happened */
+			gdk_pointer_ungrab (GDK_CURRENT_TIME);
+			userlist_window_hide (window);
+			return;
+		}
+		gtk_grab_add (GTK_WIDGET (window));
+	}
+}
+
 GtkWidget *
 userlist_window_new (void)
 {
@@ -106,19 +129,91 @@ userlist_window_new (void)
 void
 userlist_window_show (UserlistWindow *window)
 {
+	gint screen_width, screen_height;
+	gint desired_height;
+	gint window_x, window_y;
+	gint  mouse_x,  mouse_y;
+
+	GdkDisplay *display;
+	GdkScreen *mouse_screen;
+	GtkRequisition request;
+
+	/* FIXME: emit shown signal */
+
+	/* Get the tree view's size request.  This lets us know how big the
+	 * tree view would be if it could get all of the space it wanted.
+	 */
+	if (!GTK_WIDGET_REALIZED (window))
+		gtk_widget_realize (GTK_WIDGET (window));
+	gtk_widget_size_request (window->priv->treeview, &request);
+
+	display = gdk_display_get_default ();
+        gdk_display_get_pointer (display, &mouse_screen, &mouse_x, &mouse_y, NULL);
+
+	gtk_window_set_screen (GTK_WINDOW (window), mouse_screen);
+	screen_width  = gdk_screen_get_width  (mouse_screen);
+        screen_height = gdk_screen_get_height (mouse_screen);
+
+	/* Buffer of 20 pixels.  Would be nice to know exactly how much space
+	 * the rest of the window's UI goop used up, but oh well.
+	 */
+	desired_height = request.height + 20;
+	if (desired_height > screen_height)
+		desired_height = screen_height;
+
+	window_x = mouse_x - 100;
+	window_y = mouse_y - (desired_height / 2);
+
+	if (window_x < 0)
+		window_x = 0;
+	if (window_x + 250 > screen_width)
+		window_x = screen_width - 250;
+	if (window_y < 0)
+		window_y = 0;
+	if (window_y + desired_height > screen_height)
+		window_y = screen_height - desired_height;
+	gtk_window_move (GTK_WINDOW (window), window_x, window_y);
+
+	gtk_window_resize (GTK_WINDOW (window), 250, desired_height);
+	gtk_widget_show (GTK_WIDGET (window));
+	gtk_window_set_focus (GTK_WINDOW (window), window->priv->treeview);
+	userlist_window_grab (window);
 }
 
 void
 userlist_window_hide (UserlistWindow *window)
 {
+	/* FIXME: emit hid signal */
+	if (window->priv->have_grab) {
+		gtk_grab_remove (GTK_WIDGET (window));
+		gdk_pointer_ungrab (GDK_CURRENT_TIME);
+		gdk_keyboard_ungrab (GDK_CURRENT_TIME);
+		window->priv->have_grab = FALSE;
+	}
+	gtk_widget_hide (GTK_WIDGET (window));
+	gtk_widget_grab_focus (gui.text_entry);
 }
 
 void
 userlist_window_set_current (UserlistWindow *window, struct session *sess)
 {
+	GtkTreeModel *model;
+
+	if (sess == window->priv->current)
+		return;
+
+	model = g_hash_table_lookup (window->priv->stores, sess);
+	gtk_tree_view_set_model (GTK_TREE_VIEW (window->priv->treeview), model);
 }
 
 void
 userlist_window_remove_session (UserlistWindow *window, struct session *sess)
 {
+	GtkTreeModel *model;
+
+	model = g_hash_table_lookup (window->priv->stores, sess);
+	g_hash_table_remove (window->priv->stores, sess);
+	if (sess == window->priv->current)
+		userlist_window_set_current (window, NULL);
+	g_object_unref (model);
 }
