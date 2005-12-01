@@ -1,7 +1,7 @@
 /*
- * userlist-button.c - Widget encapsulating the userlist
+ * userlist-button.c - Widget encapsulating the userlist toggle button
  *
- * Copyright (C) 2005 David Trowbridge
+ * Copyright (C) 2005 xchat-gnome team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -61,12 +61,12 @@ userlist_button_class_init (UserlistButtonClass *klass)
 static void
 userlist_button_init (UserlistButton *button)
 {
-	button->priv = g_new0(UserlistButtonPriv, 1);
+	button->priv            = g_new0 (UserlistButtonPriv, 1);
 	button->priv->hbox      = gtk_hbox_new (FALSE, 3);
 	button->priv->label     = gtk_label_new (_("Users"));
 	button->priv->alignment = gtk_alignment_new (0.5, 0.5, 0.0, 0.0);
 
-	button->priv->numbers = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
+	button->priv->numbers   = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
 
 	if (g_file_test ("../../data/users.png", G_FILE_TEST_EXISTS))
 		button->priv->image = gtk_image_new_from_file ("../../data/users.png");
