@@ -174,7 +174,7 @@ while (<STDIN>) {
 
 $dirfiles[0] = join (' ',
   grep {
-    my $f = "$module/$dir[0]/$_";
+    my $f = "$dir[0]/$_";
     $f !~ m/$ignore_regexp/;
   } split (/\s+/, $dirfiles[0])
 ) if ($ignore_regexp);
@@ -235,7 +235,7 @@ if (-f $syncfile and -w $syncfile) {
 ### Compose the mail message
 
 
-my ($VERSION) = '2.3';
+my ($VERSION) = '2.4';
 my ($URL) = 'http://cia.navi.cx/clients/cvs/ciabot_cvs.pl';
 my $ts = time;
 
