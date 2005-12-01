@@ -84,7 +84,6 @@ static void on_go_next_discussion_activate (GtkAction *action, gpointer data);
 static void on_help_contents_activate (GtkAction *action, gpointer data);
 static void on_help_about_activate (GtkAction *action, gpointer data);
 static void on_nickname_clicked (GtkButton *widget, gpointer user_data);
-static void on_users_toggled (GtkToggleButton *widget, gpointer user_data);
 
 static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *menu_vbox);
 
@@ -408,11 +407,13 @@ initialize_main_window (void)
 
 	/* Size group between users button and entry field */
 	group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
+
 	gui.userlist_toggle = glade_xml_get_widget (gui.xml, "userlist_toggle");
-	g_signal_connect (G_OBJECT (gui.userlist_toggle), "toggled", G_CALLBACK (on_users_toggled), NULL);
+	widget              = glade_xml_get_widget (gui.xml, "entry hbox");
+
 	gtk_size_group_add_widget (group, gui.userlist_toggle);
-	widget = glade_xml_get_widget (gui.xml, "entry hbox");
 	gtk_size_group_add_widget (group, widget);
+
 	g_object_unref (group);
 
 	/* connect nickname button */
@@ -822,17 +823,4 @@ static void
 on_discussion_topic_change_activate (GtkButton *widget, gpointer data)
 {
 	topic_label_change_current (TOPIC_LABEL (gui.topic_label));
-}
-
-static void
-on_users_toggled (GtkToggleButton *widget, gpointer user_data)
-{
-	gboolean toggled;
-
-	toggled = gtk_toggle_button_get_active (widget);
-
-	if (toggled)
-		userlist_gui_show ();
-	else
-		userlist_gui_hide ();
 }
