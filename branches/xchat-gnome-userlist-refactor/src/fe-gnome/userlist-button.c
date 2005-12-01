@@ -24,10 +24,13 @@
 #include <gtk/gtkimage.h>
 #include <gtk/gtklabel.h>
 #include "userlist-button.h"
+#include "userlist-gui.h"
 
 static void userlist_button_class_init (UserlistButtonClass *klass);
 static void userlist_button_init       (UserlistButton      *button);
 static void userlist_button_finalize   (GObject             *object);
+static void userlist_button_toggled    (UserlistButton      *button,
+                                        gpointer             data);
 
 static GtkToggleButtonClass *parent_class;
 
@@ -76,6 +79,8 @@ userlist_button_init (UserlistButton *button)
 	gtk_container_add (GTK_CONTAINER (button), button->priv->alignment);
 
 	gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
+
+	g_signal_connect (G_OBJECT (button), "toggled", G_CALLBACK (userlist_button_toggled), NULL);
 
 	gtk_widget_show (button->priv->alignment);
 	gtk_widget_show (button->priv->hbox);
@@ -140,4 +145,13 @@ userlist_button_remove_session (UserlistButton *button, struct session *sess)
 	g_hash_table_remove (button->priv->numbers, sess);
 	if (sess == button->priv->current)
 		userlist_button_set_current (button, NULL);
+}
+
+static void
+userlist_button_toggled (UserlistButton *button, gpointer data)
+{
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)))
+		userlist_gui_show ();
+	else
+		userlist_gui_hide ();
 }
