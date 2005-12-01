@@ -376,6 +376,7 @@ It's like a balloon, and something bad happens!</property>
 
 		  <child>
 		    <widget class="Custom" id="userlist_toggle">
+		      <property name="height_request">29</property>
 		      <property name="visible">True</property>
 		      <property name="creation_function">userlist_button_new</property>
 		      <property name="int1">0</property>
