@@ -22,6 +22,7 @@
 #define XCHAT_GNOME_USERLIST_BUTTON_H
 
 #include <gtk/gtktogglebutton.h>
+#include "../common/xchat.h"
 
 G_BEGIN_DECLS
 
@@ -47,8 +48,9 @@ struct _UserlistButtonClass
 	GtkToggleButtonClass parent_class;
 };
 
-GType      userlist_button_get_type (void) G_GNUC_CONST;
-GtkWidget *userlist_button_new      (void);
+GType      userlist_button_get_type       (void) G_GNUC_CONST;
+GtkWidget *userlist_button_new            (void);
+void       userlist_button_remove_session (UserlistButton *button, struct session *sess);
 
 G_END_DECLS
 

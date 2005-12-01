@@ -19,6 +19,10 @@
  *
  */
 #include <config.h>
+#include <gtk/gtkalignment.h>
+#include <gtk/gtkhbox.h>
+#include <gtk/gtkimage.h>
+#include <gtk/gtklabel.h>
 #include "userlist-button.h"
 
 static void userlist_button_class_init (UserlistButtonClass *klass);
@@ -31,6 +35,10 @@ G_DEFINE_TYPE (UserlistButton, userlist_button, GTK_TYPE_TOGGLE_BUTTON);
 
 struct _UserlistButtonPriv
 {
+	GtkWidget *hbox;
+	GtkWidget *image;
+	GtkWidget *label;
+	GtkWidget *alignment;
 };
 
 static void
@@ -48,6 +56,27 @@ static void
 userlist_button_init (UserlistButton *button)
 {
 	button->priv = g_new0(UserlistButtonPriv, 1);
+	button->priv->hbox      = gtk_hbox_new (FALSE, 3);
+	button->priv->label     = gtk_label_new ("Users");
+	button->priv->alignment = gtk_alignment_new (0.5, 0.5, 0.0, 0.0);
+
+	if (g_file_test ("../../data/users.png", G_FILE_TEST_EXISTS))
+		button->priv->image = gtk_image_new_from_file ("../../data/users.png");
+	else
+		button->priv->image = gtk_image_new_from_file (XCHATSHAREDIR "/users.png");
+
+	gtk_box_pack_start (GTK_BOX (button->priv->hbox), button->priv->image, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (button->priv->hbox), button->priv->label, FALSE, TRUE, 0);
+	gtk_container_add (GTK_CONTAINER (button->priv->alignment), button->priv->hbox);
+	gtk_container_add (GTK_CONTAINER (button), button->priv->alignment);
+
+	gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
+
+	gtk_widget_show (button->priv->alignment);
+	gtk_widget_show (button->priv->hbox);
+	gtk_widget_show (button->priv->image);
+	gtk_widget_show (button->priv->label);
+	gtk_widget_show (GTK_WIDGET (button));
 }
 
 static void

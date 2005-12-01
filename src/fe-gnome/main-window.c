@@ -410,10 +410,6 @@ initialize_main_window (void)
 	group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
 	gui.userlist_toggle = glade_xml_get_widget (gui.xml, "userlist_toggle");
 	g_signal_connect (G_OBJECT (gui.userlist_toggle), "toggled", G_CALLBACK (on_users_toggled), NULL);
-	if (g_file_test ("../../data/users.png", G_FILE_TEST_EXISTS))
-		gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_file ("../../data/users.png"));
-	else
-		gtk_button_set_image (GTK_BUTTON (gui.userlist_toggle), gtk_image_new_from_file (XCHATSHAREDIR "/users.png"));
 	gtk_size_group_add_widget (group, gui.userlist_toggle);
 	widget = glade_xml_get_widget (gui.xml, "entry hbox");
 	gtk_size_group_add_widget (group, widget);
