@@ -24,7 +24,7 @@
 #include <gtk/gtkimage.h>
 #include <gtk/gtklabel.h>
 #include "userlist-button.h"
-#include "userlist-gui.h"
+#include "userlist-window.h"
 
 static void userlist_button_class_init (UserlistButtonClass *klass);
 static void userlist_button_init       (UserlistButton      *button);
@@ -42,6 +42,7 @@ struct _UserlistButtonPriv
 	GtkWidget      *image;
 	GtkWidget      *label;
 	GtkWidget      *alignment;
+	GtkWidget      *userlist;
 
 	GHashTable     *numbers;
 	struct session *current;
@@ -73,6 +74,8 @@ userlist_button_init (UserlistButton *button)
 	else
 		button->priv->image = gtk_image_new_from_file (XCHATSHAREDIR "/users.png");
 
+	button->priv->userlist = userlist_window_new ();
+
 	gtk_box_pack_start (GTK_BOX (button->priv->hbox), button->priv->image, FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (button->priv->hbox), button->priv->label, FALSE, TRUE, 0);
 	gtk_container_add (GTK_CONTAINER (button->priv->alignment), button->priv->hbox);
@@ -96,6 +99,7 @@ userlist_button_finalize (GObject *object)
 
 	button = USERLIST_BUTTON (object);
 
+	g_object_unref (button->priv->userlist);
 	g_hash_table_destroy (button->priv->numbers);
 	g_free (button->priv);
 
@@ -151,7 +155,7 @@ static void
 userlist_button_toggled (UserlistButton *button, gpointer data)
 {
 	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (button)))
-		userlist_gui_show ();
+		userlist_window_show (USERLIST_WINDOW (button->priv->userlist));
 	else
-		userlist_gui_hide ();
+		userlist_window_hide (USERLIST_WINDOW (button->priv->userlist));
 }
