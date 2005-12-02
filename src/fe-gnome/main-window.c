@@ -488,7 +488,7 @@ on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	gui.quit = TRUE;
 	gtk_widget_hide (GTK_WIDGET (gui.dcc));
-	userlist_gui_hide ();
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gui.userlist_toggle), FALSE);
 	xchat_exit ();
 }
 
@@ -497,7 +497,7 @@ on_irc_quit_activate (GtkAction *action, gpointer data)
 {
 	gtk_widget_hide (GTK_WIDGET (gui.main_window));
 	gtk_widget_hide (GTK_WIDGET (gui.dcc));
-	userlist_gui_hide ();
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gui.userlist_toggle), FALSE);
 	gui.quit = TRUE;
 	xchat_exit ();
 }
@@ -505,25 +505,25 @@ on_irc_quit_activate (GtkAction *action, gpointer data)
 static void
 on_edit_cut_activate (GtkAction *action, gpointer data)
 {
-	gtk_editable_cut_clipboard(GTK_EDITABLE(gui.text_entry));
+	gtk_editable_cut_clipboard (GTK_EDITABLE (gui.text_entry));
 }
 
 static void
 on_edit_copy_activate (GtkAction *action, gpointer data)
 {
-	gtk_editable_copy_clipboard(GTK_EDITABLE(gui.text_entry));
+	gtk_editable_copy_clipboard (GTK_EDITABLE (gui.text_entry));
 }
 
 static void
 on_edit_paste_activate (GtkAction *action, gpointer data)
 {
-	gtk_editable_paste_clipboard(GTK_EDITABLE(gui.text_entry));
+	gtk_editable_paste_clipboard (GTK_EDITABLE (gui.text_entry));
 }
 
 static void
 on_edit_clear_activate (GtkAction *action, gpointer data)
 {
-	gtk_editable_delete_selection(GTK_EDITABLE(gui.text_entry));
+	gtk_editable_delete_selection (GTK_EDITABLE (gui.text_entry));
 }
 
 static void
@@ -592,7 +592,7 @@ on_network_channels_activate (GtkAction *action, gpointer data)
 static void
 on_discussion_users_activate (GtkAction *action, gpointer data)
 {
-	userlist_gui_show ();
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gui.userlist_toggle), TRUE);
 }
 
 static void

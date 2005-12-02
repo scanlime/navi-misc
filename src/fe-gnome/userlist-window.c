@@ -83,17 +83,18 @@ userlist_window_init (UserlistWindow *window)
 
 	window->priv->stores = g_hash_table_new (g_direct_hash, g_direct_equal);
 
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow),
-	                                GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-	gtk_container_add              (GTK_CONTAINER (scrolledwindow), window->priv->treeview);
-	gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow), 3);
-	gtk_frame_set_shadow_type      (GTK_FRAME (frame), GTK_SHADOW_OUT);
-	gtk_container_add              (GTK_CONTAINER (frame), scrolledwindow);
-	gtk_container_add              (GTK_CONTAINER (window), frame);
+	gtk_scrolled_window_set_policy      (GTK_SCROLLED_WINDOW (scrolledwindow),
+	                                     GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow), GTK_SHADOW_ETCHED_IN);
+	gtk_container_add                   (GTK_CONTAINER (scrolledwindow), window->priv->treeview);
+	gtk_container_set_border_width      (GTK_CONTAINER (scrolledwindow), 3);
+	gtk_frame_set_shadow_type           (GTK_FRAME (frame), GTK_SHADOW_OUT);
+	gtk_container_add                   (GTK_CONTAINER (frame), scrolledwindow);
+	gtk_container_add                   (GTK_CONTAINER (window), frame);
 
-	g_object_set                   (G_OBJECT   (window), "type", GTK_WINDOW_POPUP);
-	gtk_window_set_decorated       (GTK_WINDOW (window), FALSE);
-	gtk_window_set_type_hint       (GTK_WINDOW (window), GDK_WINDOW_TYPE_HINT_MENU);
+	g_object_set                        (G_OBJECT   (window), "type", GTK_WINDOW_POPUP, NULL);
+	gtk_window_set_decorated            (GTK_WINDOW (window), FALSE);
+	gtk_window_set_type_hint            (GTK_WINDOW (window), GDK_WINDOW_TYPE_HINT_MENU);
 
 	gtk_widget_show (frame);
 	gtk_widget_show (scrolledwindow);
