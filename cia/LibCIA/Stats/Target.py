@@ -105,7 +105,7 @@ class StatsTarget(object):
             #        the message buffer can then parse it again. If the message
             #        buffer could directly convert DOMs back to SAX events, this
             #        would be more efficient.
-            self.messages.push(str(message).encode('utf-8'))
+            self.messages.push(unicode(message).encode('utf-8'))
         self.counters.increment()
         SubscriptionDelivery(self).notify('messages')
 
