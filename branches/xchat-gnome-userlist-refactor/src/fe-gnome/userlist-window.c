@@ -19,14 +19,26 @@
  *
  */
 #include <config.h>
+#include <string.h>
 #include <gtk/gtk.h>
-#include "userlist-window.h"
-#include "gui.h"
+#include <gdk/gdkkeysyms.h>
 
-static void userlist_window_class_init (UserlistWindowClass *klass);
-static void userlist_window_init       (UserlistWindow      *window);
-static void userlist_window_finalize   (GObject             *object);
-static void userlist_window_grab       (UserlistWindow      *window);
+#include "userlist-window.h"
+
+#include "gui.h"
+#include "palette.h"
+#include "pixmaps.h"
+
+static void       userlist_window_class_init  (UserlistWindowClass *klass);
+static void       userlist_window_init        (UserlistWindow      *window);
+static void       userlist_window_finalize    (GObject             *object);
+static void       userlist_window_grab        (UserlistWindow      *window);
+static gboolean   userlist_window_grab_broken (GtkWidget           *widget,
+                                               GdkEventGrabBroken  *event);
+static gboolean   userlist_window_event       (GtkWidget           *widget,
+                                               GdkEvent            *event);
+static GdkPixbuf *get_user_icon               (struct server       *serv,
+                                               struct User         *user);
 
 static GtkWindowClass *parent_class;
 
@@ -44,12 +56,17 @@ struct _UserlistWindowPriv
 static void
 userlist_window_class_init (UserlistWindowClass *klass)
 {
-	GObjectClass *gobject_class;
+	GObjectClass   *gobject_class;
+	GtkWidgetClass *widget_class;
 
 	parent_class = g_type_class_peek_parent (klass);
 
 	gobject_class = G_OBJECT_CLASS (klass);
 	gobject_class->finalize = userlist_window_finalize;
+
+	widget_class = GTK_WIDGET_CLASS (klass);
+	widget_class->grab_broken_event = userlist_window_grab_broken;
+	widget_class->event             = userlist_window_event;
 }
 
 static void
@@ -118,6 +135,76 @@ userlist_window_grab (UserlistWindow *window)
 		}
 		gtk_grab_add (GTK_WIDGET (window));
 	}
+}
+
+static gboolean
+userlist_window_grab_broken (GtkWidget *widget, GdkEventGrabBroken *event)
+{
+	UserlistWindow *window;
+
+	window = USERLIST_WINDOW (widget);
+
+	if (window->priv->have_grab && event->grab_window == NULL)
+		userlist_window_hide (window);
+	if (GTK_WIDGET_CLASS (parent_class)->grab_broken_event)
+		return GTK_WIDGET_CLASS (parent_class)->grab_broken_event (widget, event);
+	return TRUE;
+}
+
+static gboolean
+userlist_window_event (GtkWidget *widget, GdkEvent *event)
+{
+	if (event->type == GDK_KEY_PRESS) {
+		if (((GdkEventKey *)event)->keyval == GDK_Escape) {
+			userlist_window_hide (USERLIST_WINDOW (widget));
+			return FALSE;
+		}
+	}
+	if (GTK_WIDGET_CLASS (parent_class)->event)
+		return GTK_WIDGET_CLASS (parent_class)->event (widget, event);
+	return FALSE;
+}
+
+static GdkPixbuf *
+get_user_icon (struct server *serv, struct User *user)
+{
+	char *pre;
+	int level;
+
+	if (user == NULL)
+		return NULL;
+
+	/* handle common cases */
+	switch (user->prefix[0]) {
+	case '\0': return NULL;
+	case '@':  return pix_op;
+	case '%':  return pix_hop;
+	case '+':  return pix_voice;
+	}
+
+	/* the user is someone very special.  find out how many levels above
+	 * operator they are and return corresponding icon.
+	 */
+	pre = strchr (serv->nick_prefixes, '@');
+	if (pre && pre != serv->nick_prefixes) {
+		pre--;
+		level = 0;
+		while (1) {
+			if (pre[0] == user->prefix[0]) {
+				switch (level) {
+				case 0: return pix_red;
+				case 1: return pix_purple;
+				}
+				/* 3+, no icons */
+				break;
+			}
+			level++;
+			if (pre == serv->nick_prefixes)
+				break;
+			pre--;
+		}
+	}
+	return NULL;
 }
 
 GtkWidget *
@@ -192,6 +279,32 @@ userlist_window_hide (UserlistWindow *window)
 	}
 	gtk_widget_hide (GTK_WIDGET (window));
 	gtk_widget_grab_focus (gui.text_entry);
+}
+
+void
+userlist_window_insert_user (UserlistWindow *window, struct session *sess, struct User *user, int row, gboolean selected)
+{
+	GtkListStore *store;
+	GdkPixbuf    *icon;
+	GtkTreeIter   iter;
+
+	store = g_hash_table_lookup (window->priv->stores, sess);
+	if (store == NULL) {
+		store = gtk_list_store_new (4, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_POINTER, GDK_TYPE_COLOR);
+		/* FIXME: create completion */
+		g_hash_table_insert (window->priv->stores, sess, store);
+	}
+
+	icon = get_user_icon (sess->server, user);
+	gtk_list_store_insert (store, &iter, row);
+	gtk_list_store_set    (store, &iter, 0, icon, 1, user->nick, 2, user,
+	                       3, user->away ? &colors[40] : NULL, -1);
+	/* FIXME: completion */
+}
+
+void
+userlist_window_remove_user (UserlistWindow *window, struct session *sess, struct User *user)
+{
 }
 
 void

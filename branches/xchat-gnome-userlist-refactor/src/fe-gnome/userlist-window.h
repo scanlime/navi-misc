@@ -52,6 +52,8 @@ GType      userlist_window_get_type       (void) G_GNUC_CONST;
 GtkWidget *userlist_window_new            (void);
 void       userlist_window_show           (UserlistWindow *window);
 void       userlist_window_hide           (UserlistWindow *window);
+void       userlist_window_insert_user    (UserlistWindow *window, struct session *sess, struct User *user, int row, gboolean selected);
+void       userlist_window_remove_user    (UserlistWindow *window, struct session *sess, struct User *user);
 void       userlist_window_set_current    (UserlistWindow *window, struct session *sess);
 void       userlist_window_remove_session (UserlistWindow *window, struct session *sess);
 
