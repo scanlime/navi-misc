@@ -26,10 +26,22 @@ Top-level components of CIA
     above module into an actual application.
     The CIA server is usually started by running "twistd -oy cia_server.tac"
 
+    Note that this file is just an example. If you want to see the actual
+    configuration the main CIA server is running, this is in "flapjack_navi_cx.tac".
+    Only use this for reference- there are many reasons you shouldn't use the
+    exact same configuration on your server.
+
 - database
 
     Scripts for maintaining CIA's SQL database. You must run init.sql to
-    set up the tables CIA requires.
+    set up the tables CIA requires. This contains upgrade scripts for migrating
+    your SQL database when new revisions of the schema are released.
+
+- data
+
+    Non-SQL data goes here. This includes persistent data that needs to be
+    backed up (in the 'db' subdirectory) as well as logs and caches that
+    may be deleted at will.
 
 - mail
 
