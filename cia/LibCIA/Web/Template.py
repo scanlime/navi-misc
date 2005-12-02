@@ -323,6 +323,7 @@ class Page(Nouvelle.Twisted.Page):
             tag('head')[
                 tag('title')[ place("pageTitle") ],
                 place('baseTag'),
+		xml('<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />'),
                 tag('link', rel='stylesheet', href='/default.css', type='text/css'),
                 tag('link', rel='shortcut icon', href='/favicon.ico', type='image/png'),
                 place('extraHeaders'),
