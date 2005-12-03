@@ -72,14 +72,9 @@ desc=" + this.getField ("Description").value + "\n\n"
 
 function borderSwitch (e)
 {
-	var tg = e.target
-	while (!tg.highlightable)
-	{
-		if (!tg.parentNode)
-			return
-
-		tg = tg.parentNode
-	}
+	var tg = e.target.mouseObj
+	if (!tg)
+		return
 
 	var tmp = tg.style.backgroundColor
 	tg.style.backgroundColor = tg.activeColor
@@ -106,14 +101,9 @@ function showToolTip (x, y, counter, tip)
 
 function backgroundIn (e)
 {
-	var tg = e.target
-	while (!tg.highlightable)
-	{
-		if (!tg.parentNode)
-			return
-
-		tg = tg.parentNode
-	}
+	var tg = e.target.mouseObj
+	if (!tg)
+		return
 
 	tg.style.borderLeft = tg.style.borderTop = "1px solid #5555aa"
 	tg.style.borderRight = tg.style.borderBottom = "1px solid #5555aa"
@@ -132,13 +122,9 @@ function backgroundIn (e)
 
 function backgroundOut (e)
 {
-	var tg = e.target
-	while (!tg.highlightable)
-	{
-		if (!tg.parentNode)
-			return
-		tg = tg.parentNode
-	}
+	var tg = e.target.mouseObj
+	if (!tg)
+		return
 
 	tg.style.borderLeft = tg.style.borderTop = "1px solid #cccccc"
 	tg.style.borderRight = tg.style.borderBottom = "1px solid #cccccc"
@@ -158,22 +144,27 @@ function backgroundOut (e)
 
 function createButton (mytr, name, tip, icon, onClick)
 {
-	var mytd = document.createElement ("td")
+	mytd = document.createElement ("td")
 	mytr.appendChild (mytd)
 
-	var table = document.createElement ("table")
+	table = document.createElement ("table")
+	table.mouseObj = mytd
 	mytd.appendChild (table)
 
-	var tr = document.createElement ("tr")
+	tr = document.createElement ("tr")
+	tr.mouseObj = mytd
 	table.appendChild (tr)
 
-	var td = document.createElement ("td")
+	td = document.createElement ("td")
+	td.mouseObj = mytd
 	tr.appendChild (td)
-	var img = document.createElement ("img")
+	img = document.createElement ("img")
+	img.mouseObj = mytd
 	td.appendChild (img)
 	img.setAttribute ("src", icon)
 
-	var td1 = document.createElement ("td")
+	td1 = document.createElement ("td")
+	td1.mouseObj = mytd
 	tr.appendChild (td1)
 	td1.appendChild (document.createTextNode (name))
 
@@ -188,6 +179,7 @@ function createButton (mytr, name, tip, icon, onClick)
 	mytd.onmousedown = borderSwitch
 	mytd.onmouseup = borderSwitch
 	mytd.onclick = onClick
+	mytd.mouseObj = mytd
 	mytd.highlightable = true
 	mytd.tip = tip
 	return mytr
@@ -267,6 +259,7 @@ function createField (name, field, removable)
 			entry.style.width = "90%"
 			entry.style.margin = "20px"
 			entry.style.border = "thin solid #7777cc"
+			entry.tabIndex = "-1"
 			break
 		case TYPE_TEXTAREA:
 			entry = document.createElement ("div")

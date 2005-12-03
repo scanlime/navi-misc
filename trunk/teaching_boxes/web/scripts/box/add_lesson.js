@@ -35,9 +35,6 @@ function AddLessonDlg ()
 	http.send (null)
 
 	// Connect events to the selector
-	this.select.onclick = this.selectionChanged
-	this.select.classObj = this
-
 	this.addButton.onclick = this.addButtonClicked
 	this.addButton.classObj = this
 
@@ -104,6 +101,9 @@ function lessonDataLoaded (event)
             div.linkID = fieldID
 			div.selected = false
 			div.style.padding = "3px"
+			div.width = "100%"
+			div.classObj = http.classObj
+			div.onclick = http.classObj.selectionChanged
 			http.classObj.lessonObjs.push (div)
 			http.classObj.select.appendChild (div)
 		}

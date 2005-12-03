@@ -128,14 +128,17 @@ function showToolTip (x, y, counter, tip)
 
 function backgroundIn (e)
 {
-	tg = e.target
-	while (!tg.highlightable)
+	tg = e.target.mouseObj
+	/*while (!tg.highlightable)
 	{
 		if (!tg.parentNode)
 			return
 
 		tg = tg.parentNode
-	}
+	}*/
+
+	if (!tg)
+		return
 
 	tg.style.borderLeft = tg.style.borderTop = "1px solid #5555aa"
 	tg.style.borderRight = tg.style.borderBottom = "1px solid #5555aa"
@@ -154,13 +157,18 @@ function backgroundIn (e)
 
 function backgroundOut (e)
 {
-	tg = e.target
+	tg = e.target.mouseObj
+	/*
 	while (!tg.highlightable)
 	{
 		if (!tg.parentNode)
 			return
 		tg = tg.parentNode
 	}
+	*/
+
+	if (!tg)
+		return
 
 	tg.style.borderLeft = tg.style.borderTop = "1px solid #cccccc"
 	tg.style.borderRight = tg.style.borderBottom = "1px solid #cccccc"
@@ -184,18 +192,23 @@ function createButton (mytr, name, tip, icon, onClick)
 	mytr.appendChild (mytd)
 
 	table = document.createElement ("table")
+	table.mouseObj = mytd
 	mytd.appendChild (table)
 
 	tr = document.createElement ("tr")
+	tr.mouseObj = mytd
 	table.appendChild (tr)
 
 	td = document.createElement ("td")
+	td.mouseObj = mytd
 	tr.appendChild (td)
 	img = document.createElement ("img")
+	img.mouseObj = mytd
 	td.appendChild (img)
 	img.setAttribute ("src", icon)
 
 	td1 = document.createElement ("td")
+	td1.mouseObj = mytd
 	tr.appendChild (td1)
 	td1.appendChild (document.createTextNode (name))
 
@@ -210,6 +223,7 @@ function createButton (mytr, name, tip, icon, onClick)
 	mytd.onmousedown = borderSwitch
 	mytd.onmouseup = borderSwitch
 	mytd.onclick = onClick
+	mytd.mouseObj = mytd
 	mytd.highlightable = true
 	mytd.tip = tip
 	return mytr
@@ -318,6 +332,7 @@ function createField (name, field, removable)
 			entry.style.width = "90%"
 			entry.style.margin = "20px"
 			entry.style.border = "thin solid #7777cc"
+			entry.tabIndex = "-1"
 			break
 		case TYPE_TEXTAREA:
 			entry = document.createElement ("div")
@@ -465,24 +480,12 @@ function main ()
 	// resize.
 	top.onresize = calculateSizes
 
-/*
-	newBox = top.document.getElementById ("add_init_fields")
-	newBox.style.display = "block"
-	newBox.style.position = "absolute"
-	newBox.style.left = (windowWidth / 2) - (newBox.clientWidth / 2)
-	newBox.style.top = (windowHeight / 2) - (newBox.clientHeight / 2) + bannerHeight
-	newBox.style.visibility = "visible"
-	newBox.style.cursor = "default"
-*/
+    // Init MCE
     lessonPlan = new LessonPlan ("Untitled", "No description")
-    
+
 	// Calculate the size of the window
 	calculateSizes ()
 
-    // Init MCE
-    tinyMCE.init ({
-        mode: "textareas",
-        theme: "simple"})
     addInitFieldsDlg = new AddInitFieldsDlg ()
 
 	//var newCancel = top.document.getElementById ("newCancel")
@@ -490,7 +493,12 @@ function main ()
 
 	//var newCreate = top.document.getElementById ("newCreate")
 	//newCreate.onclick = onCreateClick
+
 }
+
+tinyMCE.init ({
+	mode: "textareas",
+	theme: "simple"})
 
 main ()
 
