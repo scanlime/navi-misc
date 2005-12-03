@@ -30,12 +30,14 @@ function AddFieldDlg ()
 		div.fieldName = field
 		div.selected = false
 		div.style.padding = "3px"
+		div.width = "100%"
+		div.onclick = this.selectionChanged
+		div.parentDiv = div
 		this.options.push (div)
 		this.select.appendChild (div)
 	}
 
 	// Connect events to the selector
-	this.select.onclick = this.selectionChanged
 	this.createButton.onclick = this.createButtonClicked
 	this.cancelButton.onclick = this.cancelButtonClicked
 
@@ -71,6 +73,8 @@ function addFieldSelectionChanged (event)
 		target = event.srcElement
 		parent = element.srcElement.parentDiv
 	}
+
+	target = parent
 
 	// Clear the current selection
 	for (option in parentDiv.options)

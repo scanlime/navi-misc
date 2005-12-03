@@ -33,9 +33,6 @@ function AddLinkDlg ()
 	http.send (null)
 
 	// Connect events to the selector
-	this.select.onclick = this.selectionChanged
-	this.select.classObj = this
-
 	this.addButton.onclick = this.addButtonClicked
 	this.addButton.classObj = this
 
@@ -93,12 +90,18 @@ function linkDataLoaded (event)
 			var fieldName = lessons[lesson][1]
 			var fieldDesc = lessons[lesson][2]
 			var div = document.createElement ("div")
-			div.appendChild (document.createTextNode (fieldName))
+			node = document.createTextNode (fieldName)
+
+			div.appendChild (node)
 			div.fieldName = fieldName
 			div.desc = fieldDesc
             div.linkID = fieldID
 			div.selected = false
 			div.style.padding = "3px"
+			div.width = "100%"
+			div.onclick = http.classObj.selectionChanged
+			div.classObj = http.classObj
+
 			http.classObj.lessonObjs.push (div)
 			http.classObj.select.appendChild (div)
 		}

@@ -47,10 +47,15 @@ function AddInitFieldsDlg ()
 		optionCheck.style.margin = "0px"
 		optionCheck.checked = false
 		optionCheck.fieldName = field
+		//optionCheck.onclick = this.selectionChanged
+		optionCheck.parentDiv = div
 		td.appendChild (optionCheck)
 
 		td = document.createElement ("td")
 		td.setAttribute ("valign", "middle")
+		td.onclick = this.selectionChanged
+		td.fieldName = field
+		td.parentDiv = div
 		tr.appendChild (td)
 
 		optionText = document.createTextNode (field)
@@ -58,15 +63,15 @@ function AddInitFieldsDlg ()
 
 		div.fieldName = field
 		div.myCheck = optionCheck
-
-		optionCheck.parentDiv = div
+		div.parentDiv = div
+		div.width = "100%"
+		div.onclick = this.selectionChanged
 
 		this.options.push (div)
 		this.select.appendChild (div)
 	}
 
 	// Connect events to the selector
-	this.select.onclick = this.selectionChanged
 	this.createButton.onclick = this.createButtonClicked
 	this.cancelButton.onclick = this.cancelButtonClicked
 
@@ -103,10 +108,7 @@ function addInitSelectionChanged (event)
 		parent = element.srcElement.parentDiv
 	}
 
-	while (target.tagName == "TD" || target.tagName == "TR" || target.tagName == "TABLE")
-	{
-		target = target.parentNode
-	}
+	target = parent
 
 	// Clear the current selection
 	for (option in parentDiv.options)
@@ -164,6 +166,7 @@ function addInitCreateButtonClicked ()
 		obj.style.margin = "20px"
 		obj.style.width = "90%"
 	}
+
 }
 
 // Cancel button clicked

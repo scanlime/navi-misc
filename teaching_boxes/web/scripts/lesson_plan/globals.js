@@ -67,7 +67,7 @@ requiredFields["Required Time"] = {
     reqd: false}
 
 requiredFields["About"] = {
-	desc: "Elaborate more about what this box is about.  This forms\
+	desc: "Elaborate more about what this lesson is about.  This forms\
            the preface of the lesson.",
 	type: TYPE_TEXTAREA,
     id:   "About",

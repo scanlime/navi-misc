@@ -9,6 +9,7 @@ function AddToBoxDlg ()
 	this.div = top.document.getElementById ('add_to_box')
 	this.select = top.document.getElementById ('boxSelect')
 	this.addButton = top.document.getElementById ('boxAdd')
+	this.createNewButton = top.document.getElementById ('boxCreate')
 	this.cancelButton = top.document.getElementById ('boxCancel')
 	this.options = new Array ()
 	this.div.options = this.options
@@ -16,6 +17,7 @@ function AddToBoxDlg ()
 	// Methods
 	this.selectionChanged = boxSelectionChanged
 	this.addButtonClicked = boxAddButtonClicked
+	this.createButtonClicked = boxCreateNewButtonClicked
 	this.cancelButtonClicked = boxCancelButtonClicked
 	this.dataLoaded = boxDataLoaded
 
@@ -31,11 +33,11 @@ function AddToBoxDlg ()
 	http.send (null)
 
 	// Connect events to the selector
-	this.select.onclick = this.selectionChanged
-	this.select.classObj = this
-
 	this.addButton.onclick = this.addButtonClicked
 	this.addButton.classObj = this
+
+	this.createNewButton.onclick = this.createButtonClicked
+	this.createNewButton.classObj = this
 
 	this.cancelButton.onclick = this.cancelButtonClicked
 	this.cancelButton.classObj = this
@@ -89,6 +91,9 @@ function boxDataLoaded ()
 			div.desc = fieldDesc
 			div.selected = false
 			div.style.padding = "3px"
+			div.width = "100%"
+			div.classObj = http.classObj
+			div.onclick = http.classObj.selectionChanged
 			http.classObj.options.push (div)
 			http.classObj.select.appendChild (div)
 		}
@@ -183,6 +188,16 @@ function boxAddButtonClicked ()
 
 	if (!selectedObj)
 		return
+}
+
+function boxCreateNewButtonClicked (event)
+{
+	div = event.target.classObj.div
+	div.style.visibility = "hidden"
+    lessonPlan.saveYourself ()
+    alert ("Your lesson has been saved.")
+
+	top.window.location = "new_box.html"
 }
 
 // Cancel button clicked

@@ -4,6 +4,8 @@
    </box>
    <box id="0" title="Plate Tectonics" desc="Lessons concerning the movement of plates on the Earth.">
    </box>
+   <box id="3" title="Pre-Algebra" desc="PA lessons 2005">
+   </box>
    <box id="2" title="Chemical History of a Candle" desc="All you never wanted to know about candles.">
    </box>
 </boxes>
