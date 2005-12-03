@@ -76,6 +76,9 @@ userlist_window_init (UserlistWindow *window)
 {
 	GtkWidget *frame;
 	GtkWidget *scrolledwindow;
+	GtkCellRenderer *icon_renderer, *text_renderer;
+	GtkTreeViewColumn *icon_column, *text_column;
+	GtkTreeSelection *select;
 
 	window->priv = g_new0 (UserlistWindowPriv, 1);
 	window->priv->treeview = gtk_tree_view_new ();
@@ -93,10 +96,24 @@ userlist_window_init (UserlistWindow *window)
 	gtk_frame_set_shadow_type           (GTK_FRAME (frame), GTK_SHADOW_OUT);
 	gtk_container_add                   (GTK_CONTAINER (frame), scrolledwindow);
 	gtk_container_add                   (GTK_CONTAINER (window), frame);
+	gtk_tree_view_set_headers_visible   (GTK_TREE_VIEW (window->priv->treeview), FALSE);
+	gtk_tree_view_set_hover_selection   (GTK_TREE_VIEW (window->priv->treeview), TRUE);
 
 	g_object_set                        (G_OBJECT   (window), "type", GTK_WINDOW_POPUP, NULL);
 	gtk_window_set_decorated            (GTK_WINDOW (window), FALSE);
 	gtk_window_set_type_hint            (GTK_WINDOW (window), GDK_WINDOW_TYPE_HINT_MENU);
+
+	icon_renderer = gtk_cell_renderer_pixbuf_new ();
+	icon_column = gtk_tree_view_column_new_with_attributes ("icon", icon_renderer, "pixbuf", 0, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (window->priv->treeview), icon_column);
+	text_renderer = gtk_cell_renderer_text_new ();
+	text_column = gtk_tree_view_column_new_with_attributes ("name", text_renderer, "text", 1, "foreground-gdk", 3, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (window->priv->treeview), text_column);
+
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (window->priv->treeview));
+	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
+
+	/* FIXME: signals */
 
 	gtk_widget_show (frame);
 	gtk_widget_show (scrolledwindow);
@@ -315,6 +332,8 @@ userlist_window_remove_user (UserlistWindow *window, struct session *sess, struc
 		return FALSE;
 
 	/* FIXME: more */
+
+	return TRUE;
 }
 
 static GtkTreeIter *
