@@ -156,6 +156,7 @@ get_user_icon (struct server *serv, struct User *user)
 	return NULL;
 }
 
+/*
 void
 userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int row, gboolean selected)
 {
@@ -176,6 +177,7 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
 	g_completion_add_items (store->completion, item);
 	store->completion_items = g_list_concat (store->completion_items, item);
 }
+*/
 
 static GtkTreeIter*
 find_user (Store *store, struct User *user)
@@ -194,6 +196,7 @@ find_user (Store *store, struct User *user)
 	return NULL;
 }
 
+/*
 gboolean
 userlist_remove_user (Userlist *userlist, session *sess, struct User *user)
 {
@@ -243,6 +246,7 @@ userlist_update (Userlist *userlist, session *sess, struct User *user)
 
 	g_free (nick);
 }
+*/
 
 void
 userlist_move (Userlist *userlist, session *sess, struct User *user, int new_row)
@@ -285,15 +289,6 @@ userlist_erase (Userlist *userlist, session *sess)
 	g_completion_free (store->completion);
 	g_free (store);
 	g_hash_table_remove (userlist->stores, sess);
-}
-
-GtkListStore*
-userlist_get_store (Userlist *userlist, session *sess)
-{
-	Store *store = g_hash_table_lookup (userlist->stores, sess);
-	if (store == NULL)
-		store = create_userlist (userlist, sess);
-	return store->liststore;
 }
 
 GCompletion*

@@ -29,16 +29,18 @@
 #include "palette.h"
 #include "pixmaps.h"
 
-static void       userlist_window_class_init  (UserlistWindowClass *klass);
-static void       userlist_window_init        (UserlistWindow      *window);
-static void       userlist_window_finalize    (GObject             *object);
-static void       userlist_window_grab        (UserlistWindow      *window);
-static gboolean   userlist_window_grab_broken (GtkWidget           *widget,
-                                               GdkEventGrabBroken  *event);
-static gboolean   userlist_window_event       (GtkWidget           *widget,
-                                               GdkEvent            *event);
-static GdkPixbuf *get_user_icon               (struct server       *serv,
-                                               struct User         *user);
+static void         userlist_window_class_init  (UserlistWindowClass *klass);
+static void         userlist_window_init        (UserlistWindow      *window);
+static void         userlist_window_finalize    (GObject             *object);
+static void         userlist_window_grab        (UserlistWindow      *window);
+static gboolean     userlist_window_grab_broken (GtkWidget           *widget,
+                                                 GdkEventGrabBroken  *event);
+static gboolean     userlist_window_event       (GtkWidget           *widget,
+                                                 GdkEvent            *event);
+static GdkPixbuf   *get_user_icon               (struct server       *serv,
+                                                 struct User         *user);
+static GtkTreeIter *find_user                   (GtkListStore        *store,
+                                                 struct User         *user);
 
 static GtkWindowClass *parent_class;
 
@@ -303,9 +305,59 @@ userlist_window_insert_user (UserlistWindow *window, struct session *sess, struc
 	/* FIXME: completion */
 }
 
-void
+gboolean
 userlist_window_remove_user (UserlistWindow *window, struct session *sess, struct User *user)
 {
+	GtkListStore *store;
+
+	store = g_hash_table_lookup (window->priv->stores, sess);
+	if (store == NULL)
+		return FALSE;
+
+	/* FIXME: more */
+}
+
+static GtkTreeIter *
+find_user (GtkListStore *store, struct User *user)
+{
+	static GtkTreeIter  iter;
+	struct User        *row_user;
+	GtkTreeModel       *model;
+
+	model = GTK_TREE_MODEL (store);
+
+	if (gtk_tree_model_get_iter_first (model, &iter)) {
+		do {
+			gtk_tree_model_get (model, &iter, 2, &row_user, -1);
+			if (row_user == user)
+				return &iter;
+		} while (gtk_tree_model_iter_next (model, &iter));
+	}
+	return NULL;
+}
+
+void
+userlist_window_update (UserlistWindow *window, struct session *sess, struct User *user)
+{
+	GtkListStore *store;
+	gchar        *nick;
+	GtkTreeIter  *iter;
+	GList        *item;
+
+	store = g_hash_table_lookup (window->priv->stores, sess);
+	if (store == NULL)
+		return;
+
+	iter = find_user (store, user);
+	gtk_tree_model_get (GTK_TREE_MODEL (store), iter, 1, &nick, -1);
+
+	/* FIXME: remove from completion */
+
+	gtk_list_store_set (store, iter, 1, user->nick, 3, user->away ? &colors[40] : NULL, -1);
+
+	/* FIXME: add to completion */
+
+	g_free (nick);
 }
 
 void
@@ -318,6 +370,8 @@ userlist_window_set_current (UserlistWindow *window, struct session *sess)
 
 	model = g_hash_table_lookup (window->priv->stores, sess);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (window->priv->treeview), model);
+
+	window->priv->current = sess;
 }
 
 void

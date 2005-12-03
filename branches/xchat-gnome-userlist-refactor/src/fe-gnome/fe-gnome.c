@@ -35,6 +35,7 @@
 
 #include "status-bar.h"
 #include "topic-label.h"
+#include "userlist-button.h"
 
 #include "palette.h"
 #include "preferences-page-plugins.h"
@@ -384,19 +385,19 @@ fe_print_text (struct session *sess, char *text)
 void
 fe_userlist_insert (struct session *sess, struct User *newuser, int row, int sel)
 {
-	userlist_insert (u, sess, newuser, row, sel);
+	userlist_button_insert_user (USERLIST_BUTTON (gui.userlist_toggle), sess, newuser, row, sel);
 }
 
 int
 fe_userlist_remove (struct session *sess, struct User *user)
 {
-	return userlist_remove_user (u, sess, user);
+	return userlist_button_remove_user (USERLIST_BUTTON (gui.userlist_toggle), sess, user);
 }
 
 void
 fe_userlist_rehash (struct session *sess, struct User *user)
 {
-	userlist_update (u, sess, user);
+	userlist_button_update (USERLIST_BUTTON (gui.userlist_toggle), sess, user);
 }
 
 void

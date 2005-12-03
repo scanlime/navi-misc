@@ -53,6 +53,9 @@ GtkWidget *userlist_button_new            (void);
 void       userlist_button_set_users      (UserlistButton *button, struct session *sess, int users);
 void       userlist_button_set_current    (UserlistButton *button, struct session *sess);
 void       userlist_button_remove_session (UserlistButton *button, struct session *sess);
+void       userlist_button_insert_user    (UserlistButton *button, struct session *sess, struct User *user, int row, gboolean selected);
+gboolean   userlist_button_remove_user    (UserlistButton *button, struct session *sess, struct User *user);
+void       userlist_button_update         (UserlistButton *button, struct session *sess, struct User *user);
 
 G_END_DECLS
 

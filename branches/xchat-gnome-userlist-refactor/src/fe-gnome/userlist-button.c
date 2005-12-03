@@ -141,6 +141,7 @@ userlist_button_set_current (UserlistButton *button, struct session *sess)
 		gtk_widget_set_sensitive (GTK_WIDGET (button), FALSE);
 		gtk_label_set_text (GTK_LABEL (button->priv->label), _("Users"));
 	}
+	userlist_window_set_current (USERLIST_WINDOW (button->priv->userlist), sess);
 }
 
 void
@@ -149,6 +150,7 @@ userlist_button_remove_session (UserlistButton *button, struct session *sess)
 	g_hash_table_remove (button->priv->numbers, sess);
 	if (sess == button->priv->current)
 		userlist_button_set_current (button, NULL);
+	userlist_window_remove_session (USERLIST_WINDOW (button->priv->userlist), sess);
 }
 
 static void
@@ -158,4 +160,22 @@ userlist_button_toggled (UserlistButton *button, gpointer data)
 		userlist_window_show (USERLIST_WINDOW (button->priv->userlist));
 	else
 		userlist_window_hide (USERLIST_WINDOW (button->priv->userlist));
+}
+
+void
+userlist_button_insert_user (UserlistButton *button, struct session *sess, struct User *user, int row, gboolean selected)
+{
+	userlist_window_insert_user (USERLIST_WINDOW (button->priv->userlist), sess, user, row, selected);
+}
+
+gboolean
+userlist_button_remove_user (UserlistButton *button, struct session *sess, struct User *user)
+{
+	return userlist_window_remove_user (USERLIST_WINDOW (button->priv->userlist), sess, user);
+}
+
+void
+userlist_button_update (UserlistButton *button, struct session *sess, struct User *user)
+{
+	userlist_window_update (USERLIST_WINDOW (button->priv->userlist), sess, user);
 }
