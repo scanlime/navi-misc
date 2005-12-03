@@ -157,6 +157,8 @@ text_entry_key_press (GtkWidget *widget, GdkEventKey *event, gpointer data)
 static gboolean
 text_entry_spell_check (TextEntry *entry, gchar *text, gpointer data)
 {
+	/* FIXME */
+#if 0
 	GtkTreeModel *store = GTK_TREE_MODEL (userlist_get_store (u, entry->priv->current));
 	GtkTreeIter iter;
 
@@ -175,6 +177,7 @@ text_entry_spell_check (TextEntry *entry, gchar *text, gpointer data)
 			return FALSE;
 	} while (gtk_tree_model_iter_next (store, &iter));
 	return TRUE;
+#endif
 }
 #endif
 
