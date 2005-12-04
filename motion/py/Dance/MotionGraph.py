@@ -44,7 +44,7 @@ class MotionGraphNode:
         extents = []
         for i in range (len (mins)):
             extents.append ('[%.2f, %.2f]' % (mins[i], maxs[i]))
-            self.center.append (maxs[i] - mins[i])
+            self.center.append (mins[i] + (maxs[i] - mins[i]) / 2.0)
         self.dot_label = '\\n'.join (extents)
 
     def __repr__ (self):
@@ -57,9 +57,6 @@ class MotionGraphNode:
             if point[i] < self.mins[i] or point[i] > self.maxs[i]:
                 return False
         return True
-
-    def center (self):
-        return self.center
 
 def search_graphs (graphs, starts, ends, depth):
     paths = {}
