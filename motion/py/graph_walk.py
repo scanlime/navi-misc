@@ -2,34 +2,32 @@
 
 from optparse import OptionParser
 from Dance import Sequence, MotionGraph
-from Graph.Data import AdjacencyList, EdgeList
+from Graph.Data import AdjacencyList, VertexMap
 import random, pickle
 
 def clicheWalk (graph, len):
     """Find a path in graph of length len by following the edges with the
        highest probabilities.
        """
-    weight = 0
     path = []
     adjacency = graph.representations[AdjacencyList]
-    edgeList  = graph.representations[EdgeList]
+    vertexMap = graph.representations[VertexMap]
 
     v = None
     u = random.choice ([u for u in adjacency.iterU ()])
     path.append (u.center)
 
     for i in range (len):
-        for edge in adjacency.query (u):
-            try:
-                probEdge = edgeList.query (u, edge.v)
-            except KeyError:
-                probEdge = edgeList.query (edge.v, u)
-            if probEdge.weight >= weight:
-                weight = probEdge.weight
-                v = edge.v
+        choice = None
+        weight = 0
+        for v in adjacency.data[u]:
+            for edge in vertexMap.query (u):
+                if edge.v is v and edge.weight >= weight:
+                    weight = edge.weight
+                    choice = v
 
-        path.append (v.center ())
-        u = v
+        path.append (choice.center)
+        u = choice
         weight = 0
 
     return path
