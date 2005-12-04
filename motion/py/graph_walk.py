@@ -2,7 +2,7 @@
 
 from optparse import OptionParser
 from Dance import Sequence, MotionGraph
-from Graph.Data import AdjacencyList, VertexMap, EdgeList
+from Graph.Data import AdjacencyList, VertexMap
 import random, pickle
 
 def clicheWalk (graph, len):
@@ -13,7 +13,7 @@ def clicheWalk (graph, len):
     vertexMap = graph.representations[VertexMap]
 
     # Choose a random starting point.
-    u = random.choice ([u for u in vertexMap])
+    u = random.choice ([v for v in vertexMap])
     path.append (u.center)
 
     for i in range (len):
@@ -38,7 +38,20 @@ def clicheWalk (graph, len):
 def randomWalk (graph, len):
     """Find a path in graph of langth len by following a random edge."""
     adjacency = graph.representations[AdjacencyList]
-    edgeList  = graph.representations[EdgeList]
+
+    # Choose a random starting place.
+    u = random.choice ([v for v in adjacency.iterU ()])
+    path = [u.center]
+
+    for i in range (len):
+        # Choose a random edge coming out of u.
+        choice = random.choice ([edge for edge in adjacency.query (u)])
+        # Append the end of that edge to the path.
+        path.append (choice.v.center)
+        # Set the current vertex to this new vertex
+        u = choice.v
+
+    return path
 
 
 parser = OptionParser ("usage: %prog <graph pickle> <output amc>")
