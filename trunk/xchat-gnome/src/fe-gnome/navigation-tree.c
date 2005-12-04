@@ -27,12 +27,12 @@
 #include "navigation-tree.h"
 #include "userlist-gui.h"
 #include "userlist.h"
-#include "textgui.h"
 #include "pixmaps.h"
 #include "palette.h"
 #include "channel-list.h"
 #include "main-window.h"
 
+#include "conversation-panel.h"
 #include "status-bar.h"
 #include "text-entry.h"
 #include "topic-label.h"
@@ -404,7 +404,9 @@ navigation_tree_server_rm_chans (NavTree *navtree, GtkTreeIter * parent)
 		do {
 			gtk_tree_model_get (store, &child, 2, &s, -1);
 			fe_close_window (s);
-			text_gui_remove_text_buffer (s);
+			conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), s);
+			topic_label_remove_session        (TOPIC_LABEL        (gui.topic_label),        s);
+			text_entry_remove_session         (TEXT_ENTRY         (gui.text_entry),         s);
 		} while (gtk_tree_model_iter_next (store, &child));
 	}
 }
@@ -1050,7 +1052,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	GtkWidget *button;
 	gpointer *s;
 	session *sess;
-	session_gui *tgui;
 
 	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
 
@@ -1065,9 +1066,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	 */
 	if (gtk_tree_selection_get_selected (treeselection, &model, &iter) && gui.current_session) {
 		GtkWidget *menuitem;
-
-		/* back up existing entry */
-		tgui = (session_gui *) gui.current_session->gui;
 
 		/* Update current_path. */
 		if (gui.server_tree->current_path) {
@@ -1127,21 +1125,10 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
 		gtk_tree_store_set (GTK_TREE_STORE (store), &newiter, 0, NULL, 3, 0, -1);
 
-		/* Set tgui to the gui of the new session. */
-		tgui = (session_gui *) sess->gui;
-		if (tgui) {
-			/* Show the xtext buffer for the session. */
-			gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
-
-			topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
-			text_entry_set_current  (TEXT_ENTRY (gui.text_entry),   sess);
-			status_bar_set_current  (STATUS_BAR (gui.status_bar),   sess->server);
-		} else {
-			/* If there's no gui for the new session make sure the entry is empty
-			 * and then return.
-			 */
-			text_entry_set_current (TEXT_ENTRY (gui.text_entry), NULL);
-		}
+		conversation_panel_set_current (CONVERSATION_PANEL (gui.conversation_panel), sess);
+		topic_label_set_current        (TOPIC_LABEL        (gui.topic_label),        sess);
+		text_entry_set_current         (TEXT_ENTRY         (gui.text_entry),         sess);
+		status_bar_set_current         (STATUS_BAR         (gui.status_bar),         sess->server);
 
 		/* Emit "focus tab" event */
 		plugin_emit_dummy_print (sess, "Focus Tab");
@@ -1547,7 +1534,7 @@ on_server_channel_list (GtkAction * action, gpointer data)
 static void
 on_save (GtkAction * action, gpointer data)
 {
-	save_transcript ();
+	conversation_panel_save_current (CONVERSATION_PANEL (gui.conversation_panel));
 }
 
 static void
@@ -1582,7 +1569,11 @@ on_close (GtkAction * action, gpointer data)
 		}
 
 		fe_close_window (s);
-		text_gui_remove_text_buffer (s);
+		if (s->type == SESS_SERVER)
+			status_bar_remove_server (STATUS_BAR (gui.status_bar), s->server);
+		conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), s);
+		topic_label_remove_session        (TOPIC_LABEL        (gui.topic_label),        s);
+		text_entry_remove_session         (TEXT_ENTRY         (gui.text_entry),         s);
 	}
 }
 
@@ -1604,7 +1595,7 @@ on_clear (GtkAction * action, gpointer data)
 
 	s = navigation_tree_get_selected_session ();
 	if (s)
-		clear_buffer (s);
+		conversation_panel_clear (CONVERSATION_PANEL (gui.conversation_panel), s);
 }
 
 static void

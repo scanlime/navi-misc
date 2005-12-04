@@ -27,12 +27,12 @@
 #include <libgnomevfs/gnome-vfs.h>
 #include "gui.h"
 #include "navigation-tree.h"
-#include "textgui.h"
 #include "main-window.h"
 #include "userlist-gui.h"
 #include "preferences.h"
 #include "setup-dialog.h"
 
+#include "conversation-panel.h"
 #include "status-bar.h"
 #include "topic-label.h"
 
@@ -196,7 +196,9 @@ fe_new_window (struct session *sess, int focus)
 {
 	static gboolean loaded = FALSE;
 
-	text_gui_add_text_buffer (sess);
+	gui.current_session = sess;
+	conversation_panel_add_session (CONVERSATION_PANEL (gui.conversation_panel), sess);
+	topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, sess->topic);
 	if (sess->type == SESS_SERVER)
 		navigation_tree_create_new_network_entry (gui.server_tree, sess);
 	else if (sess->type == SESS_CHANNEL || sess->type == SESS_DIALOG)
@@ -342,7 +344,7 @@ fe_notify_update (char *name)
 void
 fe_text_clear (struct session *sess)
 {
-	clear_buffer (sess);
+	conversation_panel_clear (CONVERSATION_PANEL (gui.conversation_panel), sess);
 }
 
 void
@@ -373,10 +375,7 @@ fe_progressbar_end (struct server *serv)
 void
 fe_print_text (struct session *sess, char *text)
 {
-	session_gui *tgui = (session_gui *) sess->gui;
-	if (tgui == NULL)
-		return;
-	text_gui_print (tgui->buffer, text, prefs.indent_nicks);
+	conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), sess, text, prefs.indent_nicks);
 	sess->new_data = TRUE;
 	navigation_model_set_hilight (gui.tree_model, sess);
 }
@@ -551,34 +550,10 @@ fe_beep (void)
 	gdk_beep ();
 }
 
-typedef struct
-{
-	session *sess;
-	unsigned char *sstr;
-} fe_lastlog_info;
-
-static void
-fe_lastlog_foreach (GtkXText * xtext, unsigned char *text, fe_lastlog_info * info)
-{
-	session_gui *tgui = (session_gui *) info->sess->gui;
-
-	if (nocasestrstr (text, info->sstr))
-		text_gui_print (tgui->buffer, text, prefs.indent_nicks);
-}
-
 void
 fe_lastlog (session * sess, session * lastlog_sess, char *sstr)
 {
-	session_gui *tgui = (session_gui *) sess->gui;
-	session_gui *lgui = (session_gui *) lastlog_sess->gui;
-	if (gtk_xtext_is_empty (tgui->buffer)) {
-		text_gui_print (lgui->buffer, _("Search buffer is empty.\n"), TRUE);
-	} else {
-		fe_lastlog_info info;
-		info.sess = lastlog_sess;
-		info.sstr = sstr;
-		gtk_xtext_foreach (tgui->buffer, (GtkXTextForeach) fe_lastlog_foreach, &info);
-	}
+	conversation_panel_lastlog (CONVERSATION_PANEL (gui.conversation_panel), sess, lastlog_sess, sstr);
 }
 
 void

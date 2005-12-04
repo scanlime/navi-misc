@@ -20,7 +20,6 @@
  */
 
 #include "gui.h"
-#include "textgui.h"
 
 #ifndef XCHAT_GNOME_USERLIST_GUI_H
 #define XCHAT_GNOME_USERLIST_GUI_H

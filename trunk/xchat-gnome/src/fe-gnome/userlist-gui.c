@@ -24,7 +24,6 @@
 #include <gnome.h>
 #include "userlist-gui.h"
 #include "pixmaps.h"
-#include "textgui.h"
 #include "palette.h"
 #include "../common/xchat.h"
 #include "../common/userlist.h"

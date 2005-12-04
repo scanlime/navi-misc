@@ -22,10 +22,10 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#include "conversation-panel.h"
 #include "gui.h"
 #include "palette.h"
 #include "text-entry.h"
-#include "textgui.h"
 #include "userlist.h"
 #include "../common/outbound.h"
 
@@ -342,7 +342,6 @@ tab_complete_command (GtkEntry *entry)
 	char *prefix, *new_prefix, *printtext, *npt = NULL;
 	const gchar *text;
 	GList *options, *list;
-	session_gui *tgui;
 
 	text_entry = TEXT_ENTRY (entry);
 
@@ -388,9 +387,9 @@ tab_complete_command (GtkEntry *entry)
 			g_free (printtext);
 			printtext = npt;
 		}
-		tgui = (session_gui *) TEXT_ENTRY (entry)->priv->current->gui;
-		text_gui_print (tgui->buffer, (guchar *) printtext, TRUE);
+		conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), text_entry->priv->current, (guchar *) printtext, TRUE);
 		g_free (printtext);
+
 		if (strcasecmp (prefix, new_prefix) != 0) {
 			/* insert the new prefix into the entry */
 			npt = g_strdup_printf ("/%s%s", new_prefix, &text[cursor]);
@@ -414,16 +413,18 @@ tab_complete_nickname (GtkEntry *entry, int start)
 	char *text;
 	GList *list;
 	char *printtext, *npt;
-	session_gui *tgui;
 	GList *options;
 	gchar *new_prefix;
 	gchar *prefix;
+	TextEntry *text_entry;
 
 	completion = userlist_get_completion (u, TEXT_ENTRY (entry)->priv->current);
 	g_completion_set_compare (completion, (GCompletionStrncmpFunc) strncasecmp);
 	text = g_strdup (gtk_entry_get_text (entry));
 	length = strlen (text);
 	cursor = gtk_editable_get_position (GTK_EDITABLE (entry));
+
+	text_entry = TEXT_ENTRY (entry);
 
 	prefix = g_new0 (char, cursor - start + 1);
 	strncpy (prefix, &text[start], cursor - start);
@@ -480,9 +481,9 @@ tab_complete_nickname (GtkEntry *entry, int start)
 			g_free (printtext);
 			printtext = npt;
 		}
-		tgui = (session_gui *) TEXT_ENTRY (entry)->priv->current->gui;
-		text_gui_print (tgui->buffer, (guchar *) printtext, TRUE);
+		conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), text_entry->priv->current, (guchar *) printtext, TRUE);
 		g_free (printtext);
+
 		if (strcasecmp (prefix, new_prefix) != 0) {
 			/* insert the new prefix into the entry */
 			text[start] = '\0';

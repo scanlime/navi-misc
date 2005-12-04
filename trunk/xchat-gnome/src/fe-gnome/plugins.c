@@ -83,15 +83,9 @@ unload_plugin (char *filename)
 		return plugin_kill (filename, 1);
 	} else {
 		/* Script. */
-		char *buf = (char*) malloc (len + 10);
-
-		if (strchr (filename, ' '))
-			sprintf (buf, "UNLOAD \"%s\"", filename);
-		else
-			sprintf (buf, "UNLOAD %s", filename);
-
-		handle_command (gui.current_session, buf, FALSE);
-		free (buf);
+		gchar *command = g_strdup_printf ("UNLOAD \"%s\"", filename);
+		handle_command (gui.current_session, command, FALSE);
+		g_free (command);
 	}
 
 	return 1;
@@ -135,14 +129,9 @@ load_plugin (session * sess, char *filename, char *arg, gboolean script, gboolea
 		}
 	} else if (script == TRUE) {
 		/* Script */
-		buf = (char*) malloc (len + 9);
-		if (strchr (filename, ' '))
-			sprintf (buf, "LOAD \"%s\"", filename);
-		else
-			sprintf (buf, "LOAD %s", filename);
-
-		handle_command (gui.current_session, buf, FALSE);
-		free (buf);
+		gchar *command = g_strdup_printf ("LOAD \"%s\"", filename);
+		handle_command (gui.current_session, command, FALSE);
+		g_free (command);
 	}
 
 	return NULL;
