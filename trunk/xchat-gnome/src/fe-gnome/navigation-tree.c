@@ -516,8 +516,8 @@ navigation_tree_select_next_channel (NavTree *navtree)
 		gint    channels = 0;
 		gchar** split = g_strsplit (path_string, ":", 2);
 
-		server_index = atoi (split[0]);
-		channel_index = atoi (split[1]);
+		server_index  = g_strtod (split[0], NULL);
+		channel_index = g_strtod (split[1], NULL);
 
 		g_strfreev (split);
 
@@ -550,7 +550,7 @@ navigation_tree_select_next_channel (NavTree *navtree)
 			}
 		}
 	} else {
-		server_index = atoi (path_string);
+		server_index = g_strtod (path_string, NULL);
 	}
 
 	if (depth == 1) {
