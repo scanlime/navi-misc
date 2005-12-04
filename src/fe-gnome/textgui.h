@@ -29,8 +29,4 @@
 void initialize_text_gui (void);
 void set_nickname (struct server *serv, char *newnick);
 
-typedef struct {
-	xtext_buffer *buffer;
-} session_gui;
-
 #endif

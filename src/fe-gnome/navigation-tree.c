@@ -1053,7 +1053,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	GtkWidget *button;
 	gpointer *s;
 	session *sess;
-	session_gui *tgui;
 
 	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
 
@@ -1068,9 +1067,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	 */
 	if (gtk_tree_selection_get_selected (treeselection, &model, &iter) && gui.current_session) {
 		GtkWidget *menuitem;
-
-		/* back up existing entry */
-		tgui = (session_gui *) gui.current_session->gui;
 
 		/* Update current_path. */
 		if (gui.server_tree->current_path) {
