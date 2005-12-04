@@ -29,6 +29,7 @@
 #include "conversation-panel.h"
 #include "gui.h"
 #include "palette.h"
+#include "userlist-gui.h"
 #include "util.h"
 #include "xtext.h"
 
@@ -122,7 +123,6 @@ struct _ConversationPanelPriv
 	GHashTable     *timestamp_notifies;
 
 	gchar          *selected_word;
-	struct User    *current_user;
 	GSList         *dropped_files;
 };
 
@@ -331,7 +331,7 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 
 				user = userlist_find (gui.current_session, word);
 				if (user) {
-					panel->priv->current_user = user;
+					current_user = user;
 					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 				}
 			}

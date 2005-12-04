@@ -75,8 +75,6 @@ xchat_gnome_SOURCES =				\
 	status-bar.c				\
 	text-entry.c				\
 	text-entry.h				\
-	textgui.c				\
-	textgui.h				\
 	topic-label.c				\
 	topic-label.h				\
 	userlist-gui.c				\
