@@ -298,7 +298,7 @@ init_dbus ()
 	dbus_connection_setup_with_g_main (bus, NULL);
 
 	if (dbus_error_is_set (&error)) {
-		xchat_printf (ph, _("Net Monitor: Couldn't connect to system bus : %s: %s\n"), error.name, error.message);
+		g_error ("Net Monitor: Couldn't connect to system bus : %s: %s\n", error.name, error.message);
 		return FALSE;
 	}
 
@@ -306,7 +306,7 @@ init_dbus ()
 	dbus_bus_add_match (bus, "type='signal',interface='" NM_INTERFACE "'", &error);
 
 	if (dbus_error_is_set (&error)) {
-		xchat_printf (ph, _("Net Monitor: Could not register signal handler: %s: %s\n"), error.name, error.message);
+		g_error ("Net Monitor: Could not register signal handler: %s: %s\n", error.name, error.message);
 		return FALSE;
 	}
 
