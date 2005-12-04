@@ -33,6 +33,7 @@
 #include "channel-list.h"
 #include "main-window.h"
 
+#include "conversation-panel.h"
 #include "status-bar.h"
 #include "text-entry.h"
 #include "topic-label.h"
@@ -1127,21 +1128,10 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
 		gtk_tree_store_set (GTK_TREE_STORE (store), &newiter, 0, NULL, 3, 0, -1);
 
-		/* Set tgui to the gui of the new session. */
-		tgui = (session_gui *) sess->gui;
-		if (tgui) {
-			/* Show the xtext buffer for the session. */
-			gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
-
-			topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
-			text_entry_set_current  (TEXT_ENTRY (gui.text_entry),   sess);
-			status_bar_set_current  (STATUS_BAR (gui.status_bar),   sess->server);
-		} else {
-			/* If there's no gui for the new session make sure the entry is empty
-			 * and then return.
-			 */
-			text_entry_set_current (TEXT_ENTRY (gui.text_entry), NULL);
-		}
+		conversation_panel_set_current (CONVERSATION_PANEL (gui.conversation_panel), sess);
+		topic_label_set_current        (TOPIC_LABEL        (gui.topic_label),        sess);
+		text_entry_set_current         (TEXT_ENTRY         (gui.text_entry),         sess);
+		status_bar_set_current         (STATUS_BAR         (gui.status_bar),         sess->server);
 
 		/* Emit "focus tab" event */
 		plugin_emit_dummy_print (sess, "Focus Tab");
@@ -1547,7 +1537,7 @@ on_server_channel_list (GtkAction * action, gpointer data)
 static void
 on_save (GtkAction * action, gpointer data)
 {
-	save_transcript ();
+	conversation_panel_save_current (CONVERSATION_PANEL (gui.conversation_panel));
 }
 
 static void
@@ -1604,7 +1594,7 @@ on_clear (GtkAction * action, gpointer data)
 
 	s = navigation_tree_get_selected_session ();
 	if (s)
-		clear_buffer (s);
+		conversation_panel_clear (CONVERSATION_PANEL (gui.conversation_panel), s);
 }
 
 static void

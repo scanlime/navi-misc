@@ -345,7 +345,7 @@ fe_notify_update (char *name)
 void
 fe_text_clear (struct session *sess)
 {
-	clear_buffer (sess);
+	conversation_panel_clear (CONVERSATION_PANEL (gui.conversation_panel), sess);
 }
 
 void
@@ -376,10 +376,7 @@ fe_progressbar_end (struct server *serv)
 void
 fe_print_text (struct session *sess, char *text)
 {
-	session_gui *tgui = (session_gui *) sess->gui;
-	if (tgui == NULL)
-		return;
-	text_gui_print (tgui->buffer, text, prefs.indent_nicks);
+	conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), sess, text, prefs.indent_nicks);
 	sess->new_data = TRUE;
 	navigation_model_set_hilight (gui.tree_model, sess);
 }
@@ -563,15 +560,18 @@ typedef struct
 static void
 fe_lastlog_foreach (GtkXText * xtext, unsigned char *text, fe_lastlog_info * info)
 {
+	/* FIXME
 	session_gui *tgui = (session_gui *) info->sess->gui;
 
 	if (nocasestrstr (text, info->sstr))
 		text_gui_print (tgui->buffer, text, prefs.indent_nicks);
+	*/
 }
 
 void
 fe_lastlog (session * sess, session * lastlog_sess, char *sstr)
 {
+	/* FIXME
 	session_gui *tgui = (session_gui *) sess->gui;
 	session_gui *lgui = (session_gui *) lastlog_sess->gui;
 	if (gtk_xtext_is_empty (tgui->buffer)) {
@@ -582,6 +582,7 @@ fe_lastlog (session * sess, session * lastlog_sess, char *sstr)
 		info.sstr = sstr;
 		gtk_xtext_foreach (tgui->buffer, (GtkXTextForeach) fe_lastlog_foreach, &info);
 	}
+	*/
 }
 
 void

@@ -48,9 +48,14 @@ struct _ConversationPanelClass
 	GtkHBoxClass parent_class;
 };
 
-GType      conversation_panel_get_type    (void) G_GNUC_CONST;
-GtkWidget *conversation_panel_new         (void);
-void       conversation_panel_add_session (ConversationPanel *panel, struct session *sess);
+GType      conversation_panel_get_type      (void) G_GNUC_CONST;
+GtkWidget *conversation_panel_new           (void);
+void       conversation_panel_update_colors (ConversationPanel *panel);
+void       conversation_panel_add_session   (ConversationPanel *panel, struct session *sess);
+void       conversation_panel_set_current   (ConversationPanel *panel, struct session *sess);
+void       conversation_panel_save_current  (ConversationPanel *panel);
+void       conversation_panel_clear         (ConversationPanel *panel, struct session *sess);
+void       conversation_panel_print         (ConversationPanel *panel, struct session *sess, guchar *text, gboolean indent);
 
 G_END_DECLS
 

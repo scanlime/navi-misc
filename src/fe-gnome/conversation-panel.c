@@ -23,7 +23,9 @@
 #include <gconf/gconf.h>
 #include <gconf/gconf-client.h>
 #include "conversation-panel.h"
+#include "gui.h"
 #include "palette.h"
+#include "util.h"
 #include "xtext.h"
 #include "../common/xchatc.h"
 
@@ -52,14 +54,20 @@ static void timestamps_changed                    (GConfClient            *clien
                                                    guint                   cnxn_id,
                                                    GConfEntry             *entry,
                                                    xtext_buffer           *buffer);
+static void conversation_panel_print_line         (xtext_buffer           *buffer,
+                                                   guchar                  *text,
+                                                   int                     len,
+                                                   gboolean                indent);
 
 struct _ConversationPanelPriv
 {
-	GtkWidget  *scrollbar;
-	GtkWidget  *xtext;
+	GtkWidget      *scrollbar;
+	GtkWidget      *xtext;
 
-	GHashTable *buffers;
-	GHashTable *timestamp_notifies;
+	struct session *current;
+
+	GHashTable     *buffers;
+	GHashTable     *timestamp_notifies;
 };
 
 static GtkHBoxClass *parent_class;
@@ -267,6 +275,14 @@ conversation_panel_new (void)
 }
 
 void
+conversation_panel_update_colors (ConversationPanel *panel)
+{
+	palette_alloc (panel->priv->xtext);
+	gtk_xtext_set_palette (GTK_XTEXT (panel->priv->xtext), colors);
+	gtk_xtext_refresh     (GTK_XTEXT (panel->priv->xtext), FALSE);
+}
+
+void
 conversation_panel_add_session (ConversationPanel *panel, struct session *sess)
 {
 	GConfClient  *client;
@@ -274,8 +290,6 @@ conversation_panel_add_session (ConversationPanel *panel, struct session *sess)
 	gint          notify;
 
 	buffer = gtk_xtext_buffer_new (GTK_XTEXT (panel->priv->xtext));
-
-	gtk_xtext_buffer_show (GTK_XTEXT (panel->priv->xtext), buffer, TRUE);
 
 	client = gconf_client_get_default ();
 	gtk_xtext_set_time_stamp (buffer, gconf_client_get_bool (client, "/apps/xchat/irc/showtimestamps", NULL));
@@ -285,4 +299,148 @@ conversation_panel_add_session (ConversationPanel *panel, struct session *sess)
 
 	g_hash_table_insert (panel->priv->buffers,            sess, buffer);
 	g_hash_table_insert (panel->priv->timestamp_notifies, sess, GINT_TO_POINTER (notify));
+
+	conversation_panel_set_current (panel, sess);
+}
+
+void
+conversation_panel_set_current (ConversationPanel *panel, struct session *sess)
+{
+	xtext_buffer *buffer;
+
+	panel->priv->current = sess;
+	buffer = g_hash_table_lookup (panel->priv->buffers, sess);
+	gtk_xtext_buffer_show (GTK_XTEXT (panel->priv->xtext), buffer, TRUE);
+}
+
+void
+conversation_panel_save_current (ConversationPanel *panel)
+{
+	GtkWidget *file_chooser;
+	gchar     *default_filename;
+	gchar      dates[32];
+	struct tm  date;
+	time_t     dtime;
+
+	file_chooser = gtk_file_chooser_dialog_new (_("Save Transcript"),
+	                                            GTK_WINDOW (gui.main_window),
+	                                            GTK_FILE_CHOOSER_ACTION_SAVE,
+	                                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+	                                            GTK_STOCK_SAVE,   GTK_RESPONSE_ACCEPT,
+	                                            NULL);
+	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (file_chooser), TRUE);
+	gtk_file_chooser_set_local_only (GTK_FILE_CHOOSER (file_chooser), TRUE);
+	gtk_dialog_set_default_response (GTK_DIALOG (file_chooser), GTK_RESPONSE_ACCEPT);
+
+	time (&dtime);
+	localtime_r (&dtime, &date);
+	strftime (dates, 32, "%F-%R", &date);
+
+	default_filename = g_strdup_printf ("%s-%s.log", panel->priv->current->channel, dates);
+	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_chooser), default_filename);
+	g_free (default_filename);
+
+	if (gtk_dialog_run (GTK_DIALOG (file_chooser)) == GTK_RESPONSE_ACCEPT) {
+		gchar *filename;
+		GIOChannel *file;
+		GError *error = NULL;
+
+		filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_chooser));
+		file = g_io_channel_new_file (filename, "w", &error);
+		if (error) {
+			gchar *header = g_strdup_printf (_("Error saving %s"), filename);
+			error_dialog (header, error->message);
+			g_free (header);
+			g_error_free (error);
+		} else {
+			gint fd = g_io_channel_unix_get_fd (file);
+			gtk_xtext_save (GTK_XTEXT (panel->priv->xtext), fd);
+			g_io_channel_shutdown (file, TRUE, &error);
+
+			if (error) {
+				gchar *header = g_strdup_printf (_("Error saving %s"), filename);
+				error_dialog (header, error->message);
+				g_free (header);
+				g_error_free (error);
+			}
+		}
+		g_free (filename);
+	}
+	gtk_widget_destroy (file_chooser);
+}
+
+void
+conversation_panel_clear (ConversationPanel *panel, struct session *sess)
+{
+	xtext_buffer *buffer;
+
+	buffer = g_hash_table_lookup (panel->priv->buffers, sess);
+	gtk_xtext_clear (buffer);
+	gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), FALSE);
+}
+
+static void
+conversation_panel_print_line (xtext_buffer *buffer, guchar *text, int len, gboolean indent)
+{
+	int            leftlen;
+	unsigned char *tab;
+
+	if (len == 0)
+		len = 1;
+
+	if (indent == FALSE) {
+		int     stamp_size;
+		char   *stamp;
+		guchar *new_text;
+
+		stamp_size = get_stamp_str (prefs.stamp_format, time(NULL), &stamp);
+		new_text = g_malloc (len + stamp_size + 1);
+		memcpy (new_text, stamp, stamp_size);
+		g_free (stamp);
+		memcpy (new_text + stamp_size, text, len);
+		gtk_xtext_append (buffer, new_text, len + stamp_size);
+		g_free (new_text);
+		return;
+	}
+
+	tab = strchr (text, '\t');
+	if (tab && tab < (text + len)) {
+		leftlen = tab - text;
+		gtk_xtext_append_indent (buffer, text, leftlen, tab + 1, len - (leftlen + 1));
+	} else {
+		gtk_xtext_append_indent (buffer, 0, 0, text, len);
+	}
+}
+
+void
+conversation_panel_print (ConversationPanel *panel, struct session *sess, guchar *text, gboolean indent)
+{
+	xtext_buffer *buffer;
+	guchar       *last_text = text;
+	int           len       = 0;
+
+	buffer = g_hash_table_lookup (panel->priv->buffers, sess);
+
+	/* split the text into separate lines */
+	while (1) {
+		switch (*text) {
+		case '\0':
+			conversation_panel_print_line (buffer, last_text, len, indent);
+			return;
+		case '\n':
+			conversation_panel_print_line (buffer, last_text, len, indent);
+			text++;
+			if (*text == '\0')
+				return;
+			last_text = text;
+			len = 0;
+			break;
+		case ATTR_BEEP:
+			*text = ' ';
+			gdk_beep ();
+		default:
+			text++;
+			len++;
+		}
+	}
 }
