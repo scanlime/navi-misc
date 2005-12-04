@@ -303,9 +303,10 @@ initialize_main_window (void)
 	close = glade_xml_get_widget (gui.xml, "close discussion");
 	g_signal_connect (G_OBJECT (close), "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
 
-	gui.status_bar  = glade_xml_get_widget (gui.xml, "status_bar");
-	gui.text_entry  = glade_xml_get_widget (gui.xml, "text_entry");
-	gui.topic_label = glade_xml_get_widget (gui.xml, "topic_label");
+	gui.conversation_panel = glade_xml_get_widget (gui.xml, "conversation_panel");
+	gui.status_bar         = glade_xml_get_widget (gui.xml, "status_bar");
+	gui.text_entry         = glade_xml_get_widget (gui.xml, "text_entry");
+	gui.topic_label        = glade_xml_get_widget (gui.xml, "topic_label");
 
 	/* Hook up accelerators for pgup/pgdn */
 	{
