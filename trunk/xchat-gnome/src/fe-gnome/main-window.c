@@ -41,15 +41,15 @@
 #include "preferences.h"
 #include "userlist-gui.h"
 #include "util.h"
-#include "../common/xchatc.h"
-#include "../common/outbound.h"
-#include "../common/fe.h"
 
 #include "conversation-panel.h"
+#include "find-bar.h"
 #include "text-entry.h"
 #include "topic-label.h"
 
-static gpointer last_search_position = NULL;
+#include "../common/xchatc.h"
+#include "../common/outbound.h"
+#include "../common/fe.h"
 
 static void on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data);
 static void on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
@@ -145,74 +145,6 @@ static GtkActionEntry action_entries [] = {
 };
 
 void
-close_find_button (GtkWidget *button, gpointer data)
-{
-	GtkWidget *widget;
-	widget = glade_xml_get_widget (gui.xml, "find hbox");
-	gtk_widget_hide (widget);
-	gtk_widget_grab_focus (gui.text_entry);
-
-	widget = glade_xml_get_widget (gui.xml, "find_status_label");
-	gtk_label_set_text (GTK_LABEL (widget), "");
-
-	conversation_panel_clear_selection (CONVERSATION_PANEL (gui.conversation_panel));
-}
-
-static gboolean
-close_find_key (GtkWidget *entry, GdkEventKey *event, gpointer data)
-{
-	if (event->keyval != GDK_Escape)
-		return FALSE;
-	close_find_button (NULL, NULL);
-	return FALSE;
-}
-
-static void
-find_next (GtkWidget *entry, gpointer data)
-{
-	GtkWidget *info;
-	const guchar *text = gtk_entry_get_text (GTK_ENTRY (entry));
-	gpointer position;
-	gboolean reverse = (gboolean) GPOINTER_TO_UINT(data);
-
-	position = conversation_panel_search (CONVERSATION_PANEL (gui.conversation_panel), text, last_search_position, FALSE, reverse);
-
-	info = glade_xml_get_widget (gui.xml, "find_status_label");
-	if (position == NULL && (last_search_position != NULL)) {
-		if (reverse) {
-			position = conversation_panel_search (CONVERSATION_PANEL (gui.conversation_panel), text, NULL, FALSE, reverse);
-			gtk_label_set_markup (GTK_LABEL (info), _("<span foreground=\"grey\">Reached beginning, continuing from bottom</span>"));
-		} else {
-			position = conversation_panel_search (CONVERSATION_PANEL (gui.conversation_panel), text, NULL, FALSE, reverse);
-			gtk_label_set_markup (GTK_LABEL (info), _("<span foreground=\"grey\">Reached end, continuing from top</span>"));
-		}
-	} else if (position == NULL) {
-		gtk_label_set_markup (GTK_LABEL (info), _("<span foreground=\"grey\">Search string not found</span>"));
-	} else {
-		gtk_label_set_text (GTK_LABEL (info), "");
-	}
-	last_search_position = position;
-}
-
-static void
-find_button_next (GtkButton *button, GtkWidget *entry)
-{
-	find_next (entry, GUINT_TO_POINTER (FALSE));
-}
-
-static void
-find_button_prev (GtkButton *button, GtkWidget *entry)
-{
-	find_next (entry, GUINT_TO_POINTER (TRUE));
-}
-
-static void
-clear_find (GtkWidget *entry, gpointer data)
-{
-	last_search_position = NULL;
-}
-
-void
 initialize_main_window (void)
 {
 	GtkWidget *close, *menu_vbox, *widget, *widget2;
@@ -246,6 +178,7 @@ initialize_main_window (void)
 	g_signal_connect (G_OBJECT (close), "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
 
 	gui.conversation_panel = glade_xml_get_widget (gui.xml, "conversation_panel");
+	gui.find_bar           = glade_xml_get_widget (gui.xml, "find_bar");
 	gui.status_bar         = glade_xml_get_widget (gui.xml, "status_bar");
 	gui.text_entry         = glade_xml_get_widget (gui.xml, "text_entry");
 	gui.topic_label        = glade_xml_get_widget (gui.xml, "topic_label");
@@ -336,18 +269,6 @@ initialize_main_window (void)
 		/* Add the accelgroup to the main window. */
 		gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), discussion_accel);
 	}
-
-	/* setup find stuff */
-	widget = glade_xml_get_widget (gui.xml, "find entry");
-	g_signal_connect (G_OBJECT (widget), "activate", G_CALLBACK (find_next), GUINT_TO_POINTER(FALSE));
-	g_signal_connect (G_OBJECT (widget), "key-press-event", G_CALLBACK (close_find_key), NULL);
-	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (clear_find), NULL);
-	widget2 = glade_xml_get_widget (gui.xml, "find_next_button");
-	g_signal_connect (G_OBJECT (widget2), "clicked", G_CALLBACK (find_button_next), widget);
-	widget2 = glade_xml_get_widget (gui.xml, "find_prev_button");
-	g_signal_connect (G_OBJECT (widget2), "clicked", G_CALLBACK (find_button_prev), widget);
-	widget = glade_xml_get_widget (gui.xml, "find close button");
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (close_find_button), NULL);
 
 	/* Size group between users button and entry field */
 	group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
@@ -593,12 +514,7 @@ on_discussion_close_activate (GtkAction *action, gpointer data)
 static void
 on_discussion_find_activate (GtkAction *action, gpointer data)
 {
-	GtkWidget *widget;
-
-	widget = glade_xml_get_widget (gui.xml, "find hbox");
-	gtk_widget_show (widget);
-	widget = glade_xml_get_widget (gui.xml, "find entry");
-	gtk_widget_grab_focus (widget);
+	find_bar_open (FIND_BAR (gui.find_bar));
 }
 
 static void

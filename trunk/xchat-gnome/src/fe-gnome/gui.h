@@ -48,6 +48,7 @@ typedef struct
 	gboolean quit;
 
 	GtkWidget *conversation_panel;
+	GtkWidget *find_bar;
 	GtkWidget *main_window;
 	GtkWidget *status_bar;
 	GtkWidget *text_entry;
