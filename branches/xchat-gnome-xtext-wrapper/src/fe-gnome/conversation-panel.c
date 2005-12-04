@@ -501,3 +501,16 @@ conversation_panel_lastlog (ConversationPanel *panel, struct session *sess, stru
 		gtk_xtext_foreach (buffer, (GtkXTextForeach) conversation_panel_lastlog_foreach, &info);
 	}
 }
+
+void
+conversation_panel_clear_selection (ConversationPanel *panel)
+{
+	gtk_xtext_selection_clear_full (GTK_XTEXT (panel->priv->xtext)->buffer);
+        gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), TRUE);
+}
+
+gpointer
+conversation_panel_search (ConversationPanel *panel, const gchar *text, gpointer start, gboolean casem, gboolean reverse)
+{
+	return gtk_xtext_search (GTK_XTEXT (panel->priv->xtext), text, start, casem, reverse);
+}
