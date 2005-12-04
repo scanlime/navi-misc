@@ -20,7 +20,10 @@ def clicheWalk (graph, len):
 
     for i in range (len):
         for edge in adjacency.query (u):
-            probEdge = edgeList.query (u, edge.v)
+            try:
+                probEdge = edgeList.query (u, edge.v)
+            except KeyError:
+                probEdge = edgeList.query (edge.v, u)
             if probEdge.weight >= weight:
                 weight = probEdge.weight
                 v = edge.v
