@@ -28,5 +28,6 @@ void initialize_main_window (void);
 void run_main_window        (void);
 void rename_main_window     (gchar *server, gchar *channel);
 void close_find_button      (GtkWidget *button, gpointer data);
+void set_nickname           (struct server *serv, char *newnick);
 
 #endif

@@ -39,7 +39,6 @@
 #include "palette.h"
 #include "preferences-dialog.h"
 #include "preferences.h"
-#include "textgui.h"
 #include "userlist-gui.h"
 #include "util.h"
 #include "../common/xchatc.h"
@@ -784,4 +783,16 @@ on_users_toggled (GtkToggleButton *widget, gpointer user_data)
 		userlist_gui_show ();
 	else
 		userlist_gui_hide ();
+}
+
+void
+set_nickname (struct server *serv, char *newnick)
+{
+	if (serv == gui.current_session->server) {
+		GtkWidget *nick = glade_xml_get_widget (gui.xml, "nickname");
+		if (newnick == NULL)
+			gtk_button_set_label (GTK_BUTTON (nick), serv->nick);
+		else
+			gtk_button_set_label (GTK_BUTTON (nick), newnick);
+	}
 }

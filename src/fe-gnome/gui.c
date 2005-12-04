@@ -26,7 +26,6 @@
 #include "preferences-dialog.h"
 #include "connect-dialog.h"
 #include "about.h"
-#include "textgui.h"
 #include "userlist-gui.h"
 #include "pixmaps.h"
 #include "../common/text.h"

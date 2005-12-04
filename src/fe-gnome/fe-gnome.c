@@ -27,7 +27,6 @@
 #include <libgnomevfs/gnome-vfs.h>
 #include "gui.h"
 #include "navigation-tree.h"
-#include "textgui.h"
 #include "main-window.h"
 #include "userlist-gui.h"
 #include "preferences.h"

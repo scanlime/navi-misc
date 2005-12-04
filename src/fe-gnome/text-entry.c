@@ -26,7 +26,6 @@
 #include "gui.h"
 #include "palette.h"
 #include "text-entry.h"
-#include "textgui.h"
 #include "userlist.h"
 #include "../common/outbound.h"
 
