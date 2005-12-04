@@ -24,7 +24,6 @@
 #ifndef XCHAT_GNOME_ABOUT_H
 #define XCHAT_GNOME_ABOUT_H
 
-void initialize_about_dialog (void);
 void show_about_dialog (void);
 
 #endif

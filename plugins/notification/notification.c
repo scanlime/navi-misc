@@ -174,7 +174,7 @@ int
 xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg)
 {
 	GtkWidget   *box;
-	GdkPixbuf   *p;
+	GdkPixbuf   *icon, *newdata, *global, *nicksaid;
 	GConfClient *client = gconf_client_get_default ();
 
 	ph = plugin_handle;
@@ -190,21 +190,21 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	 */
 
 	/* Load the pixbufs. */
-	/* xchat-gnome logo. */
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", 0);
-	pixbufs[0] = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-
-	/* New data image. */
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/newdata.png", 0);
-	pixbufs[1] = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-
-	/* New message image. */
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/global-message.png", 0);
-	pixbufs[2] = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
-
-	/* Nick said image. */
-	p = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/nicksaid.png", 0);
-	pixbufs[3] = gdk_pixbuf_scale_simple (p, 16, 16, GDK_INTERP_BILINEAR);
+	if (g_file_test ("../../data/xchat-gnome-small.png", G_FILE_TEST_EXISTS)) {
+		icon     = gdk_pixbuf_new_from_file ("../../data/xchat-gnome.png", 0);
+		newdata  = gdk_pixbuf_new_from_file ("../../data/newdata.png", 0);
+		global   = gdk_pixbuf_new_from_file ("../../data/global-message.png", 0);
+		nicksaid = gdk_pixbuf_new_from_file ("../../data/nicksaid.png", 0);
+	} else {
+		icon     = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome.png", 0);
+		newdata  = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/newdata.png", 0);
+		global   = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/global-message.png", 0);
+		nicksaid = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/nicksaid.png", 0);
+	}
+	pixbufs[0] = gdk_pixbuf_scale_simple (icon,     16, 16, GDK_INTERP_BILINEAR);
+	pixbufs[1] = gdk_pixbuf_scale_simple (newdata,  16, 16, GDK_INTERP_BILINEAR);
+	pixbufs[2] = gdk_pixbuf_scale_simple (global,   16, 16, GDK_INTERP_BILINEAR);
+	pixbufs[3] = gdk_pixbuf_scale_simple (nicksaid, 16, 16, GDK_INTERP_BILINEAR);
 
 	/* Create the notification icon. */
 	notification = egg_tray_icon_new ("xchat-gnome");

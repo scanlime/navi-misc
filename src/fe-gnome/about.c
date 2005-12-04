@@ -22,14 +22,18 @@
 #include <config.h>
 #include <glib/gi18n.h>
 #include "about.h"
+#include "../common/fe.h"
 
-void on_about_close (GtkWidget *widget, gpointer data);
+static void initialize_about_dialog (void);
+static void about_email_hook        (GtkAboutDialog *dialog, const gchar *link, gpointer data);
+static void about_url_hook          (GtkAboutDialog *dialog, const gchar *link, gpointer data);
 
-void
+static void
 initialize_about_dialog (void)
 {
 	GdkPixbuf *logo;
 	char *license_trans;
+
 	const gchar *authors[] =
 	{
 		"Andre Dahlqvist",
@@ -40,7 +44,7 @@ initialize_about_dialog (void)
 		"Isak Savo",
 		"Evan Sheehan",
 		"Rouslan Solomakhin",
-		"David Trowbridge",
+		"David Trowbridge <trowbrds@gmail.com>",
 		"Ramón Rey Vicente",
 		"Luis Villa",
 		"Claessens Xavier",
@@ -50,6 +54,11 @@ initialize_about_dialog (void)
 	const gchar *documenters[] =
 	{
 		"Brian Pepple",
+		NULL
+	};
+	const gchar *artists[] =
+	{
+		"Micah Dowty",
 		NULL
 	};
 
@@ -67,25 +76,24 @@ initialize_about_dialog (void)
 		   "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n")
 	};
 
-	if (gui.about != NULL)
-		return;
-
 	license_trans = g_strconcat (_(license[0]), "\n", _(license[1]), "\n", _(license[2]), "\n", NULL);
 
-	logo = gdk_pixbuf_new_from_file ("data/xchat-gnome-small.png", NULL);
-	if (!logo)
+	if (g_file_test ("../../data/xchat-gnome-small.png", G_FILE_TEST_EXISTS))
+		logo = gdk_pixbuf_new_from_file ("../../data/xchat-gnome-small.png", NULL);
+	else
 		logo = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", NULL);
 
 	gui.about = gtk_about_dialog_new ();
 
 	g_object_set (G_OBJECT (gui.about),
-		      "name",        "X-Chat GNOME",
+		      "name",        "XChat-GNOME",
 		      "version",     VERSION,
 		      "copyright",   _("Copyright © 2004-2005"),
 		      "comments",    _("It has been well observed that a trombone is not a suitable instrument for a gentleman"),
 		      "license",     license_trans,
 		      "website",     "http://xchat-gnome.navi.cx",
 		      "authors",     authors,
+		      "artists",     artists,
 		      "logo",        logo,
 		      "documenters", documenters,
 		      /* Translators: This is a special message that shouldn't
@@ -100,6 +108,9 @@ initialize_about_dialog (void)
 		      "translator-credits", _("translator-credits"),
 		      NULL);
 
+	gtk_about_dialog_set_email_hook (about_email_hook, NULL, NULL);
+	gtk_about_dialog_set_url_hook   (about_url_hook,   NULL, NULL);
+
 	if (logo)
 		g_object_unref (logo);
 
@@ -108,9 +119,21 @@ initialize_about_dialog (void)
 	gtk_window_set_transient_for (GTK_WINDOW (gui.about), GTK_WINDOW (gui.main_window));
 }
 
+static void
+about_email_hook (GtkAboutDialog *dialog, const gchar *link, gpointer data)
+{
+}
+
+static void
+about_url_hook (GtkAboutDialog *dialog, const gchar *link, gpointer data)
+{
+	fe_open_url (link);
+}
+
 void
 show_about_dialog (void)
 {
-	initialize_about_dialog ();
+	if (gui.about == NULL)
+		initialize_about_dialog ();
 	gtk_widget_show_all (GTK_WIDGET (gui.about));
 }

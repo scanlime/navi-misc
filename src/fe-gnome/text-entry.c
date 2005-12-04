@@ -21,6 +21,7 @@
 #include <config.h>
 #include <string.h>
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 #include "gui.h"
 #include "palette.h"
 #include "text-entry.h"
@@ -34,9 +35,11 @@ static void       text_entry_finalize       (GObject        *object);
 static gboolean   text_entry_key_press      (GtkWidget      *widget,
                                              GdkEventKey    *event,
                                              gpointer        data);
-static gboolean   text_entry_spell_check    (SexySpellEntry *entry,
+#ifdef HAVE_LIBSEXY
+static gboolean   text_entry_spell_check    (TextEntry      *entry,
                                              gchar          *text,
                                              gpointer        data);
+#endif
 static void       text_entry_activate       (GtkWidget      *widget,
                                              gpointer        data);
 static void       text_entry_history_up     (GtkEntry       *entry);
@@ -64,7 +67,10 @@ G_DEFINE_TYPE (TextEntry, text_entry, GTK_TYPE_ENTRY);
 
 struct _TextEntryPriv
 {
-	GCompletion *command_completion;
+	GCompletion    *command_completion;
+
+	GHashTable     *entries;
+	struct session *current;
 };
 
 static void
@@ -94,6 +100,8 @@ text_entry_init (TextEntry *entry)
 
 	entry->priv = g_new0 (TextEntryPriv, 1);
 
+	entry->priv->entries = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
+
 	/* Initialize & populate a GCompletion for commands */
 	entry->priv->command_completion = g_completion_new (NULL);
 	/* FIXME - need to convert command_list to a GList
@@ -105,6 +113,8 @@ text_entry_init (TextEntry *entry)
 	items = g_list_reverse (items);
 	g_completion_add_items (entry->priv->command_completion, items);
 	g_list_free (items);
+
+	gtk_widget_show (GTK_WIDGET (entry));
 }
 
 static void
@@ -114,6 +124,8 @@ text_entry_finalize (GObject *object)
 
 	entry = TEXT_ENTRY (object);
 
+	if (entry->priv->entries)
+		g_hash_table_destroy (entry->priv->entries);
 	if (entry->priv->command_completion)
 		g_completion_free (entry->priv->command_completion);
 	if (entry->priv)
@@ -141,10 +153,11 @@ text_entry_key_press (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	return FALSE;
 }
 
+#ifdef HAVE_LIBSEXY
 static gboolean
-text_entry_spell_check (SexySpellEntry *entry, gchar *text, gpointer data)
+text_entry_spell_check (TextEntry *entry, gchar *text, gpointer data)
 {
-	GtkTreeModel *store = GTK_TREE_MODEL (userlist_get_store (u, gui.current_session));
+	GtkTreeModel *store = GTK_TREE_MODEL (userlist_get_store (u, entry->priv->current));
 	GtkTreeIter iter;
 
 	if (gtk_tree_model_get_iter_first (store, &iter) == FALSE)
@@ -163,14 +176,15 @@ text_entry_spell_check (SexySpellEntry *entry, gchar *text, gpointer data)
 	} while (gtk_tree_model_iter_next (store, &iter));
 	return TRUE;
 }
+#endif
 
 static void
 text_entry_activate (GtkWidget *widget, gpointer data)
 {
 	char *entry_text = g_strdup (gtk_entry_get_text (GTK_ENTRY (widget)));
 	gtk_entry_set_text (GTK_ENTRY (widget), "");
-	if (gui.current_session != NULL)
-		handle_multiline (gui.current_session, (char *) entry_text, TRUE, FALSE);
+	if (TEXT_ENTRY (widget)->priv->current != NULL)
+		handle_multiline (TEXT_ENTRY (widget)->priv->current, (char *) entry_text, TRUE, FALSE);
 	g_free (entry_text);
 }
 
@@ -178,7 +192,7 @@ static void
 text_entry_history_up (GtkEntry *entry)
 {
 	char *new_line;
-	new_line = history_up (&gui.current_session->history, (char *)entry->text);
+	new_line = history_up (&TEXT_ENTRY (entry)->priv->current->history, (char *)entry->text);
 	if (new_line) {
 		gtk_entry_set_text (entry, new_line);
 		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
@@ -189,7 +203,7 @@ static void
 text_entry_history_down (GtkEntry *entry)
 {
 	char *new_line;
-	new_line = history_down (&gui.current_session->history);
+	new_line = history_down (&TEXT_ENTRY (entry)->priv->current->history);
 	if (new_line) {
 		gtk_entry_set_text (entry, new_line);
 		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
@@ -374,7 +388,7 @@ tab_complete_command (GtkEntry *entry)
 			g_free (printtext);
 			printtext = npt;
 		}
-		tgui = (session_gui *) gui.current_session->gui;
+		tgui = (session_gui *) TEXT_ENTRY (entry)->priv->current->gui;
 		text_gui_print (tgui->buffer, (guchar *) printtext, TRUE);
 		g_free (printtext);
 		if (strcasecmp (prefix, new_prefix) != 0) {
@@ -405,7 +419,7 @@ tab_complete_nickname (GtkEntry *entry, int start)
 	gchar *new_prefix;
 	gchar *prefix;
 
-	completion = userlist_get_completion (u, gui.current_session);
+	completion = userlist_get_completion (u, TEXT_ENTRY (entry)->priv->current);
 	g_completion_set_compare (completion, (GCompletionStrncmpFunc) strncasecmp);
 	text = g_strdup (gtk_entry_get_text (entry));
 	length = strlen (text);
@@ -466,7 +480,7 @@ tab_complete_nickname (GtkEntry *entry, int start)
 			g_free (printtext);
 			printtext = npt;
 		}
-		tgui = (session_gui *) gui.current_session->gui;
+		tgui = (session_gui *) TEXT_ENTRY (entry)->priv->current->gui;
 		text_gui_print (tgui->buffer, (guchar *) printtext, TRUE);
 		g_free (printtext);
 		if (strcasecmp (prefix, new_prefix) != 0) {
@@ -520,4 +534,36 @@ GtkWidget *
 text_entry_new (void)
 {
 	return GTK_WIDGET (g_object_new (text_entry_get_type (), NULL));
+}
+
+void
+text_entry_set_current (TextEntry *entry, struct session *sess)
+{
+	gchar *text;
+
+	if (sess == entry->priv->current)
+		return;
+
+	if (sess == NULL) {
+		gtk_entry_set_text (GTK_ENTRY (entry), "");
+	} else {
+		g_hash_table_insert (entry->priv->entries,
+		                     entry->priv->current,
+		                     g_strdup (gtk_entry_get_text (GTK_ENTRY (entry))));
+		text = g_hash_table_lookup (entry->priv->entries, sess);
+		if (text)
+			gtk_entry_set_text (GTK_ENTRY (entry), text);
+		else
+			gtk_entry_set_text (GTK_ENTRY (entry), "");
+		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
+	}
+	entry->priv->current = sess;
+}
+
+void
+text_entry_remove_session (TextEntry *entry, struct session *sess)
+{
+	g_hash_table_remove (entry->priv->entries, sess);
+	if (sess == entry->priv->current)
+		gtk_entry_set_text (GTK_ENTRY (entry), "");
 }

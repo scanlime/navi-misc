@@ -17,9 +17,9 @@ dbus_la_SOURCES = dbus-plugin.c
 dbus_la_LDFLAGS = -avoid-version -module
 dbus_la_LIBADD = $(DBUS_LIBS)
 
-bin_PROGRAMS = xchat-remote
-xchat_remote_SOURCES = xchat-remote.c
-xchat_remote_LDADD = $(DBUS_LIBS)
+bin_PROGRAMS = xchat-gnome-remote
+xchat_gnome_remote_SOURCES = xchat-gnome-remote.c
+xchat_gnome_remote_LDADD = $(DBUS_LIBS)
 
 noinst_PROGRAMS = example
 example_SOURCES = example.c

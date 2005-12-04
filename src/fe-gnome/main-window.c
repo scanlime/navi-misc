@@ -25,6 +25,7 @@
 #include <libgnome/libgnome.h>
 #include <gconf/gconf-client.h>
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -32,7 +33,6 @@
 #include "about.h"
 #include "channel-list.h"
 #include "connect-dialog.h"
-#include "conversation-panel.h"
 #include "gui.h"
 #include "main-window.h"
 #include "navigation-tree.h"
@@ -91,8 +91,6 @@ static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *me
 static gboolean on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 
-void setup_menu_item (GConfClient *client, GtkActionEntry *entry);
-
 static GtkActionEntry action_entries [] = {
 
 	/* Toplevel */
@@ -149,6 +147,10 @@ void
 save_transcript (void)
 {
 	GtkWidget *file_chooser;
+	gchar     *default_filename;
+	gchar      dates[32];
+	struct tm  date;
+	time_t     dtime;
 
 	file_chooser = gtk_file_chooser_dialog_new (_("Save Transcript"),
 	                                            GTK_WINDOW (gui.main_window),
@@ -157,7 +159,17 @@ save_transcript (void)
 	                                            GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 	                                            NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (file_chooser), TRUE);
+	gtk_file_chooser_set_local_only (GTK_FILE_CHOOSER (file_chooser), TRUE);
 	gtk_dialog_set_default_response (GTK_DIALOG (file_chooser), GTK_RESPONSE_ACCEPT);
+
+	time (&dtime);
+	localtime_r (&dtime, &date);
+	strftime (dates, 32, "%F-%R", &date);
+
+	default_filename = g_strdup_printf ("%s-%s.log", gui.current_session->channel, dates);
+	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_chooser), default_filename);
+	g_free (default_filename);
+
 
 	if (gtk_dialog_run (GTK_DIALOG (file_chooser)) == GTK_RESPONSE_ACCEPT) {
 		gchar *filename;
@@ -173,7 +185,7 @@ save_transcript (void)
 			g_error_free (error);
 		} else {
 			gint fd = g_io_channel_unix_get_fd (file);
-			//gtk_xtext_save (gui.xtext, fd);
+			gtk_xtext_save (gui.xtext, fd);
 			g_io_channel_shutdown (file, TRUE, &error);
 
 			if (error) {
@@ -199,8 +211,8 @@ close_find_button (GtkWidget *button, gpointer data)
 	widget = glade_xml_get_widget (gui.xml, "find_status_label");
 	gtk_label_set_text (GTK_LABEL (widget), "");
 
-	//gtk_xtext_selection_clear_full (gui.xtext->buffer);
-	//gtk_xtext_refresh (gui.xtext, TRUE);
+	gtk_xtext_selection_clear_full (gui.xtext->buffer);
+	gtk_xtext_refresh (gui.xtext, TRUE);
 }
 
 static gboolean
@@ -220,15 +232,15 @@ find_next (GtkWidget *entry, gpointer data)
 	textentry *position;
 	gboolean reverse = (gboolean) GPOINTER_TO_UINT(data);
 
-	//position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position, FALSE, reverse);
+	position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position, FALSE, reverse);
 
 	info = glade_xml_get_widget (gui.xml, "find_status_label");
 	if (position == NULL && (last_search_position != NULL)) {
 		if (reverse) {
-			//position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
+			position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
 			gtk_label_set_markup (GTK_LABEL (info), _("<span foreground=\"grey\">Reached beginning, continuing from bottom</span>"));
 		} else {
-			//position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
+			position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
 			gtk_label_set_markup (GTK_LABEL (info), _("<span foreground=\"grey\">Reached end, continuing from top</span>"));
 		}
 	} else if (position == NULL) {
@@ -260,11 +272,10 @@ clear_find (GtkWidget *entry, gpointer data)
 void
 initialize_main_window (void)
 {
-	GtkWidget *entrybox, *topicbox, *close, *menu_vbox, *widget, *widget2;
+	GtkWidget *close, *menu_vbox, *widget, *widget2;
 	GtkSizeGroup *group;
-	GError *error = NULL;
 
-	gui.main_window = GNOME_APP (glade_xml_get_widget (gui.xml, "xchat-gnome"));
+	gui.main_window = glade_xml_get_widget (gui.xml, "xchat-gnome");
 	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",
 	                  G_CALLBACK (on_main_window_close), NULL);
 
@@ -277,43 +288,24 @@ initialize_main_window (void)
 	gui.manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (gui.manager, gui.action_group, 0);
 
-	widget = glade_xml_get_widget (gui.xml, "main gui vbox");
-	gui.conversation_panel = conversation_panel_new ();
-	gtk_widget_show (gui.conversation_panel);
-	gtk_box_pack_start (GTK_BOX (widget), gui.conversation_panel, TRUE, TRUE, 0);
-	gtk_box_reorder_child (GTK_BOX (widget), gui.conversation_panel, 1);
-
 	menu_vbox = glade_xml_get_widget (gui.xml, "menu_vbox");
 	g_signal_connect (gui.manager, "add-widget", G_CALLBACK (on_add_widget), menu_vbox);
 
 	/* load the menus */
-	gtk_ui_manager_add_ui_from_file (gui.manager, "../../data/xchat-gnome-ui.xml", &error);
-	if (error != NULL) {
-		g_clear_error (&error);
-		gtk_ui_manager_add_ui_from_file (gui.manager, XCHATSHAREDIR "/xchat-gnome-ui.xml", &error);
-		if (error != NULL)
-		{
-			g_clear_error (&error);
-			g_warning ("Couldn't load the menus!\n");
-		}
-	}
+	if (g_file_test ("../../data/xchat-gnome-ui.xml", G_FILE_TEST_EXISTS))
+		gtk_ui_manager_add_ui_from_file (gui.manager, "../../data/xchat-gnome-ui.xml", NULL);
+	else
+		gtk_ui_manager_add_ui_from_file (gui.manager, XCHATSHAREDIR "/xchat-gnome-ui.xml", NULL);
 
 	/* hook up accelerators */
 	gtk_window_add_accel_group (GTK_WINDOW (gui.main_window), gtk_ui_manager_get_accel_group (gui.manager));
 
-	entrybox = glade_xml_get_widget (gui.xml, "entry hbox");
-	gui.text_entry = text_entry_new ();
-	gtk_box_pack_start (GTK_BOX (entrybox), gui.text_entry, TRUE, TRUE, 0);
-	gtk_widget_show (gui.text_entry);
-
 	close = glade_xml_get_widget (gui.xml, "close discussion");
 	g_signal_connect (G_OBJECT (close), "clicked", G_CALLBACK (on_discussion_close_activate), NULL);
-	topicbox = glade_xml_get_widget (gui.xml, "topic hbox");
 
-	gui.topic_label = topic_label_new ();
-	gtk_widget_show (gui.topic_label);
-	gtk_box_pack_start (GTK_BOX (topicbox), gui.topic_label, TRUE, TRUE, 0);
-	gtk_box_reorder_child (GTK_BOX (topicbox), gui.topic_label, 0);
+	gui.status_bar  = glade_xml_get_widget (gui.xml, "status_bar");
+	gui.text_entry  = glade_xml_get_widget (gui.xml, "text_entry");
+	gui.topic_label = glade_xml_get_widget (gui.xml, "topic_label");
 
 	/* Hook up accelerators for pgup/pgdn */
 	{
@@ -458,7 +450,7 @@ run_main_window ()
 	g_signal_connect (G_OBJECT (pane), "notify::position", G_CALLBACK (on_hpane_move), NULL);
 	g_object_unref (client);
 
-	gtk_widget_show (GTK_WIDGET (gui.main_window));
+	gtk_widget_show (gui.main_window);
 
 	/* Temporarily disable menu items */
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/NetworkMenu/NetworkInformationItem");
@@ -650,7 +642,7 @@ on_discussion_close_activate (GtkAction *action, gpointer data)
 		g_free (text);
 	}
 	fe_close_window (s);
-	conversation_panel_remove_buffer (CONVERSATION_PANEL (gui.conversation_panel), s);
+	text_gui_remove_text_buffer (s);
 }
 
 static void
@@ -833,73 +825,7 @@ on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data)
 static void
 on_discussion_topic_change_activate (GtkButton *widget, gpointer data)
 {
-	GladeXML *xml = NULL;
-	GtkWidget *dialog;
-	GtkWidget *entry;
-	gint response;
-	GtkTextBuffer *buffer;
-	gchar *title;
-
-	if (gui.current_session == NULL)
-		return;
-
-	if (g_file_test ("../../topic-change.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("../../topic-change.glade", NULL, NULL);
-	if (!xml)
-		xml = glade_xml_new (XCHATSHAREDIR "/topic-change.glade", NULL, NULL);
-	if (!xml) {
-		error_dialog (_("Could not load topic-change.glade!"), _("Your installation is broken"));
-		return;
-	}
-
-	dialog = glade_xml_get_widget (xml, "topic change");
-	entry = glade_xml_get_widget (xml, "topic entry box");
-
-	title = g_strdup_printf (_("Changing topic for %s"), gui.current_session->channel);
-	gtk_window_set_title (GTK_WINDOW (dialog), title);
-	g_free (title);
-
-	buffer = gtk_text_buffer_new (NULL);
-	gtk_text_view_set_buffer (GTK_TEXT_VIEW (entry), buffer);
-	gtk_text_buffer_set_text (buffer, gui.current_session->topic, -1);
-
-	response = gtk_dialog_run (GTK_DIALOG (dialog));
-
-	if (response == GTK_RESPONSE_OK) {
-		GtkTextIter start;
-		GtkTextIter end;
-		gchar *newtopic;
-
-		gtk_text_buffer_get_start_iter (buffer, &start);
-		gtk_text_buffer_get_end_iter (buffer, &end);
-		gtk_widget_hide (dialog);
-		gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (entry), GTK_WRAP_NONE);
-		newtopic = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
-		gui.current_session->server->p_topic(gui.current_session->server, gui.current_session->channel, newtopic);
-		g_free (newtopic);
-	}
-
-	gtk_widget_destroy (dialog);
-	g_object_unref (xml);
-
-	/* send focus back to the text entry */
-	gtk_widget_grab_focus (gui.text_entry);
-}
-
-void
-set_statusbar ()
-{
-	GtkWidget *appbar;
-	session_gui *tgui;
-	char *text;
-
-	if (gui.current_session == NULL)
-		return;
-	appbar = glade_xml_get_widget (gui.xml, "appbar1");
-	tgui = (session_gui *) gui.current_session->gui;
-	text = g_strdup_printf ("%s%s%s", tgui->lag_text ? tgui->lag_text : "", (tgui->queue_text && tgui->lag_text) ? ", " : "", tgui->queue_text ? tgui->queue_text : "");
-	gnome_appbar_set_status (GNOME_APPBAR (appbar), text);
-	g_free (text);
+	topic_label_change_current (TOPIC_LABEL (gui.topic_label));
 }
 
 static void

@@ -54,9 +54,9 @@ color_button_changed (GtkColorButton *button, gpointer data)
 	load_colors (2);
 	load_palette (2);
 
-	//palette_alloc (GTK_WIDGET (gui.xtext));
-	//gtk_xtext_set_palette (gui.xtext, colors);
-	//gtk_xtext_refresh (gui.xtext, FALSE);
+	palette_alloc (GTK_WIDGET (gui.xtext));
+	gtk_xtext_set_palette (gui.xtext, colors);
+	gtk_xtext_refresh (gui.xtext, FALSE);
 }
 
 static void
@@ -79,9 +79,9 @@ set_color_buttons (int selection, GtkWidget **color_buttons)
 	g_signal_handlers_unblock_by_func (G_OBJECT (color_buttons[2]), G_CALLBACK (color_button_changed), GINT_TO_POINTER (34));
 	g_signal_handlers_unblock_by_func (G_OBJECT (color_buttons[3]), G_CALLBACK (color_button_changed), GINT_TO_POINTER (35));
 
-	//palette_alloc (GTK_WIDGET (gui.xtext));
-	//gtk_xtext_set_palette (gui.xtext, colors);
-	//gtk_xtext_refresh (gui.xtext, FALSE);
+	palette_alloc (GTK_WIDGET (gui.xtext));
+	gtk_xtext_set_palette (gui.xtext, colors);
+	gtk_xtext_refresh (gui.xtext, FALSE);
 }
 
 static void
@@ -92,9 +92,9 @@ set_palette_buttons (int selection, GtkWidget **palette_buttons)
 	load_palette (selection);
 	for (i = 0; i < 32; i++)
 		gtk_color_button_set_color (GTK_COLOR_BUTTON (palette_buttons[i]), &colors[i]);
-	//palette_alloc (GTK_WIDGET (gui.xtext));
-	//gtk_xtext_set_palette (gui.xtext, colors);
-	//gtk_xtext_refresh (gui.xtext, FALSE);
+	palette_alloc (GTK_WIDGET (gui.xtext));
+	gtk_xtext_set_palette (gui.xtext, colors);
+	gtk_xtext_refresh (gui.xtext, FALSE);
 }
 
 static void

@@ -26,6 +26,7 @@
 #else
 #include <gtk/gtkentry.h>
 #endif
+#include "../common/xchat.h"
 
 G_BEGIN_DECLS
 
@@ -59,8 +60,10 @@ struct _TextEntryClass
 #endif
 };
 
-GType      text_entry_get_type (void) G_GNUC_CONST;
-GtkWidget *text_entry_new      (void);
+GType      text_entry_get_type       (void) G_GNUC_CONST;
+GtkWidget *text_entry_new            (void);
+void       text_entry_set_current    (TextEntry *entry, struct session *sess);
+void       text_entry_remove_session (TextEntry *entry, struct session *sess);
 
 G_END_DECLS
 

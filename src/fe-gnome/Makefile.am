@@ -32,8 +32,6 @@ xchat_gnome_SOURCES =				\
 	channel-list.h				\
 	connect-dialog.c			\
 	connect-dialog.h			\
-	conversation-panel.c			\
-	conversation-panel.h			\
 	dcc-window.c				\
 	dcc-window.h				\
 	fe-gnome.c				\
@@ -71,6 +69,8 @@ xchat_gnome_SOURCES =				\
 	preferences.h				\
 	setup-dialog.c				\
 	setup-dialog.h				\
+	status-bar.h				\
+	status-bar.c				\
 	text-entry.c				\
 	text-entry.h				\
 	textgui.c				\

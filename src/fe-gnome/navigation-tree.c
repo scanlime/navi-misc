@@ -24,7 +24,6 @@
 #include <string.h>
 #include <gconf/gconf-client.h>
 #include <gtk/gtk.h>
-#include "conversation-panel.h"
 #include "navigation-tree.h"
 #include "userlist-gui.h"
 #include "userlist.h"
@@ -33,7 +32,11 @@
 #include "palette.h"
 #include "channel-list.h"
 #include "main-window.h"
+
+#include "status-bar.h"
+#include "text-entry.h"
 #include "topic-label.h"
+
 #include "util.h"
 #include "../common/xchat.h"
 #include "../common/fe.h"
@@ -266,7 +269,6 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 	GtkWidget *menuitem, *button;
 	GtkTreeView *treeview;
 	ircnet *net;
-	session_gui *tgui;
 
 	navigation_model_add_new_channel (navtree->model, sess);
 
@@ -291,8 +293,7 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
 	gtk_tree_view_set_model (treeview, GTK_TREE_MODEL (userlist_get_store (u, sess)));
 
-	tgui = (session_gui *) sess->gui;
-	topic_label_set_topic (TOPIC_LABEL (gui.topic_label), tgui->topic);
+	topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
 	net = sess->server->network;
 	if (net == NULL)
 		rename_main_window (NULL, sess->channel);
@@ -403,7 +404,7 @@ navigation_tree_server_rm_chans (NavTree *navtree, GtkTreeIter * parent)
 		do {
 			gtk_tree_model_get (store, &child, 2, &s, -1);
 			fe_close_window (s);
-			conversation_panel_remove_buffer (CONVERSATION_PANEL (gui.conversation_panel), s);
+			text_gui_remove_text_buffer (s);
 		} while (gtk_tree_model_iter_next (store, &child));
 	}
 }
@@ -515,8 +516,8 @@ navigation_tree_select_next_channel (NavTree *navtree)
 		gint    channels = 0;
 		gchar** split = g_strsplit (path_string, ":", 2);
 
-		server_index = atoi (split[0]);
-		channel_index = atoi (split[1]);
+		server_index  = g_strtod (split[0], NULL);
+		channel_index = g_strtod (split[1], NULL);
 
 		g_strfreev (split);
 
@@ -549,7 +550,7 @@ navigation_tree_select_next_channel (NavTree *navtree)
 			}
 		}
 	} else {
-		server_index = atoi (path_string);
+		server_index = g_strtod (path_string, NULL);
 	}
 
 	if (depth == 1) {
@@ -1067,10 +1068,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 
 		/* back up existing entry */
 		tgui = (session_gui *) gui.current_session->gui;
-		if (tgui) {
-			g_free (tgui->entry);
-			tgui->entry = g_strdup (gtk_entry_get_text (GTK_ENTRY (gui.text_entry)));
-		}
 
 		/* Update current_path. */
 		if (gui.server_tree->current_path) {
@@ -1133,20 +1130,17 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		/* Set tgui to the gui of the new session. */
 		tgui = (session_gui *) sess->gui;
 		if (tgui) {
-			/* Set the topic. */
-			topic_label_set_topic (TOPIC_LABEL (gui.topic_label), tgui->topic);
-
 			/* Show the xtext buffer for the session. */
-			//gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
+			gtk_xtext_buffer_show (gui.xtext, tgui->buffer, TRUE);
 
-			/* Set the text entry field to whatever is in the text entry of this session. */
-			gtk_entry_set_text (GTK_ENTRY (gui.text_entry), tgui->entry);
-			gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), -1);
+			topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
+			text_entry_set_current  (TEXT_ENTRY (gui.text_entry),   sess);
+			status_bar_set_current  (STATUS_BAR (gui.status_bar),   sess->server);
 		} else {
 			/* If there's no gui for the new session make sure the entry is empty
 			 * and then return.
 			 */
-			gtk_entry_set_text (GTK_ENTRY (gui.text_entry), "");
+			text_entry_set_current (TEXT_ENTRY (gui.text_entry), NULL);
 		}
 
 		/* Emit "focus tab" event */
@@ -1588,7 +1582,7 @@ on_close (GtkAction * action, gpointer data)
 		}
 
 		fe_close_window (s);
-		conversation_panel_remove_buffer (CONVERSATION_PANEL (gui.conversation_panel), s);
+		text_gui_remove_text_buffer (s);
 	}
 }
 

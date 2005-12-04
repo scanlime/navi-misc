@@ -22,7 +22,7 @@
 #define XCHAT_GNOME_TOPIC_LABEL_H
 
 #include <gtk/gtkhbox.h>
-#include <string.h>
+#include "../common/xchat.h"
 
 G_BEGIN_DECLS
 
@@ -50,8 +50,10 @@ struct _TopicLabelClass
 
 GType      topic_label_get_type         (void) G_GNUC_CONST;
 GtkWidget *topic_label_new              (void);
-void       topic_label_set_topic        (TopicLabel *label, const char *topic);
-char      *topic_label_get_topic_string (const char *topic);
+void       topic_label_set_topic        (TopicLabel *label, struct session *sess, const char *topic);
+void       topic_label_remove_session   (TopicLabel *label, struct session *sess);
+void       topic_label_set_current      (TopicLabel *label, struct session *sess);
+void       topic_label_change_current   (TopicLabel *label);
 
 G_END_DECLS
 

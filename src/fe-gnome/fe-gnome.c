@@ -25,7 +25,6 @@
 #include <glib.h>
 #include <gnome.h>
 #include <libgnomevfs/gnome-vfs.h>
-#include "conversation-panel.h"
 #include "gui.h"
 #include "navigation-tree.h"
 #include "textgui.h"
@@ -33,6 +32,10 @@
 #include "userlist-gui.h"
 #include "preferences.h"
 #include "setup-dialog.h"
+
+#include "status-bar.h"
+#include "topic-label.h"
+
 #include "palette.h"
 #include "preferences-page-plugins.h"
 #include "channel-list.h"
@@ -193,7 +196,7 @@ fe_new_window (struct session *sess, int focus)
 {
 	static gboolean loaded = FALSE;
 
-	conversation_panel_add_buffer (CONVERSATION_PANEL (gui.conversation_panel), sess);
+	text_gui_add_text_buffer (sess);
 	if (sess->type == SESS_SERVER)
 		navigation_tree_create_new_network_entry (gui.server_tree, sess);
 	else if (sess->type == SESS_CHANNEL || sess->type == SESS_DIALOG)
@@ -260,7 +263,7 @@ fe_idle_add (void *func, void *data)
 void
 fe_set_topic (struct session *sess, char *topic)
 {
-	set_gui_topic (sess, topic);
+	topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, topic);
 }
 
 void
@@ -579,14 +582,10 @@ fe_lastlog (session * sess, session * lastlog_sess, char *sstr)
 }
 
 void
-fe_set_lag (server * serv, int lag)
+fe_set_lag (server *serv, int lag)
 {
-	GSList *list = sess_list;
-	session *sess;
-	gdouble per;
-	char tip[64];
-	unsigned long nowtim;
-	session_gui *tgui;
+	unsigned long now;
+	float seconds;
 
 	if (gui.quit)
 		return;
@@ -594,69 +593,22 @@ fe_set_lag (server * serv, int lag)
 	if (lag == -1) {
 		if (!serv->lag_sent)
 			return;
-		nowtim = make_ping_time ();
-		lag = (nowtim - serv->lag_sent) / 100000;
+		now = make_ping_time ();
+		seconds = (now - serv->lag_sent) / 1000000.0f;
+	} else {
+		seconds = lag / 10.0f;
 	}
 
-	per = (double) ((double) lag / 40.0);
-	if (per > 1.0)
-		per = 1.0;
-	snprintf (tip, sizeof (tip) - 1, _("%s%d.%ds lag"), serv->lag_sent ? "+" : "", lag / 10, lag % 10);
-	while (list) {
-		sess = list->data;
-		if (sess->server == serv) {
-			tgui = (session_gui *) sess->gui;
-			if (tgui) {
-				tgui->lag_value = per;
-				if (tgui->lag_text)
-					free (tgui->lag_text);
-				tgui->lag_text = strdup (tip);
-			}
-		}
-		list = list->next;
-	}
-	if (serv == gui.current_session->server) {
-		set_statusbar ();
-	}
+	status_bar_set_lag (STATUS_BAR (gui.status_bar), serv, seconds, (serv->lag_sent != 0.0f));
 }
 
 void
 fe_set_throttle (server * serv)
 {
-	GSList *list = sess_list;
-	session *sess;
-	gdouble per;
-	char tip[64];
-	session_gui *tgui;
-
 	if (gui.quit)
 		return;
 
-	per = (gdouble) serv->sendq_len / 1024.0;
-	if (per > 1.0)
-		per = 1.0;
-
-	snprintf (tip, sizeof (tip) - 1, _("%d bytes buffered"), serv->sendq_len);
-	while (list) {
-		sess = list->data;
-		if (sess->server == serv) {
-			tgui = (session_gui *) sess->gui;
-			if (tgui) {
-				tgui->queue_value = per;
-				if (tgui->queue_text)
-					free (tgui->queue_text);
-				if (per != 0) {
-					tgui->queue_text = strdup (tip);
-				} else {
-					tgui->queue_text = NULL;
-				}
-			}
-		}
-		list = list->next;
-	}
-	if (serv == gui.current_session->server) {
-		set_statusbar ();
-	}
+	status_bar_set_queue (STATUS_BAR (gui.status_bar), serv, serv->sendq_len);
 }
 
 void

@@ -25,9 +25,9 @@
 #include <glib/gi18n.h>
 #include <glib.h>
 
-#define DBUS_SERVICE "org.xchat.service"
-#define DBUS_OBJECT "/org/xchat/RemoteObject"
-#define DBUS_INTERFACE "org.xchat.interface"
+#define DBUS_SERVICE "org.xchatgnome.service"
+#define DBUS_OBJECT "/org/xchatgnome/RemoteObject"
+#define DBUS_INTERFACE "org.xchatgnome.interface"
 
 static DBusGProxy *remote_object = NULL;
 static gchar *opt_open_url = NULL;
@@ -77,9 +77,8 @@ main (int argc, char **argv)
 
   if (error)
   {
-    g_printerr (_("xchat-remote: %s\n"
-                  "Try `xchat-remote --help' for more information\n"),
-                error->message);
+    g_printerr (_("%s: %s\nTry `%s --help' for more information\n"),
+                argv[0], error->message, argv[0]);
     return 1;
   }
 

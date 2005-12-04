@@ -24,9 +24,9 @@
 #include <unistd.h>
 #include "marshallers.h"
 
-#define DBUS_SERVICE "org.xchat.service"
-#define DBUS_OBJECT "/org/xchat/RemoteObject"
-#define DBUS_INTERFACE "org.xchat.interface"
+#define DBUS_SERVICE "org.xchatgnome.service"
+#define DBUS_OBJECT "/org/xchatgnome/RemoteObject"
+#define DBUS_INTERFACE "org.xchatgnome.interface"
 
 int command_id, server_id;
 

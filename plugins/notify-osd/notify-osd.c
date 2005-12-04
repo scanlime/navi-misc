@@ -28,7 +28,7 @@
 
 #define NOTIFY_OSD_NAME        _("On-screen display")
 #define NOTIFY_OSD_VERSION     "0.1"
-#define NOTIFY_OSD_DESCRIPTION _("Pops up notification of important messages when xchat doesn't have the focus")
+#define NOTIFY_OSD_DESCRIPTION _("Pops up notification of important messages when XChat-GNOME doesn't have the focus")
 
 int  xchat_gnome_plugin_init (xchat_gnome_plugin *xg_plugin);
 void xchat_plugin_get_info   (char **plugin_name, char **plugin_desc, char **plugin_version, void **reserved);
@@ -176,7 +176,10 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 	ph = plugin_handle;
 
 	if (notify_init ("Xchat OSD")) {
-		icon = notify_icon_new_from_uri (XCHATSHAREDIR "/xchat-gnome.png");
+		if (g_file_test ("../../data/xchat-gnome.png", G_FILE_TEST_EXISTS))
+			icon = notify_icon_new_from_uri ("../../data/xchat-gnome.png");
+		else
+			icon = notify_icon_new_from_uri (XCHATSHAREDIR "/xchat-gnome.png");
 
 		xchat_hook_print (ph, "Channel Msg Hilight",       XCHAT_PRI_NORM, new_msg_cb,     NULL);
 		xchat_hook_print (ph, "Channel Action Hilight",    XCHAT_PRI_NORM, new_action_cb,  NULL);

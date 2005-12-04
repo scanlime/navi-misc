@@ -25,6 +25,7 @@
 #include <gconf/gconf-client.h>
 #include "preferences.h"
 #include "palette.h"
+#include "../common/xchat.h"
 #include "../common/xchatc.h"
 
 gboolean

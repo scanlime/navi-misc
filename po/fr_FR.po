@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-11-27 01:58-0700\n"
+"POT-Creation-Date: 2005-12-01 02:06-0500\n"
 "PO-Revision-Date: 2005-11-25 03:33-0500\n"
 "Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: Français <olethanh@ulb.ac.be>\n"
@@ -50,7 +50,7 @@ msgstr "_Sauver la liste ..."
 
 #: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
-msgstr ""
+msgstr "Filtre texte"
 
 #: ../data/connect-dialog.glade.h:1
 msgid "C_onnect"
@@ -74,11 +74,11 @@ msgstr "<span weight=\"bold\">Général</span>"
 
 #: ../data/irc-network-editor.glade.h:3
 msgid "<span weight=\"bold\">User Info</span>"
-msgstr "<span weight=\"bold\">Info Utilisateur</span>"
+msgstr "<span weight=\"bold\">Info utilisateur</span>"
 
 #: ../data/irc-network-editor.glade.h:4
 msgid "Character _encoding:"
-msgstr "Encodage des charactères :"
+msgstr "_Encodage des charactères :"
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Network Settings"
@@ -90,7 +90,7 @@ msgstr "Mot de _passe du serveur :"
 
 #: ../data/irc-network-editor.glade.h:7
 msgid "Servers"
-msgstr "Serveurs :"
+msgstr "Serveurs"
 
 #: ../data/irc-network-editor.glade.h:8
 msgid "Use _global user settings"
@@ -153,9 +153,8 @@ msgid "<span weight=\"bold\">File Transfers</span>"
 msgstr "<span weight=\"bold\">Transfert de fichier</span>"
 
 #: ../data/preferences-dialog.glade.h:8
-#, fuzzy
 msgid "<span weight=\"bold\">Highlighting</span>"
-msgstr "<span weight=\"bold\">Highlighting</span>"
+msgstr "<span weight=\"bold\">Notification</span>"
 
 #: ../data/preferences-dialog.glade.h:9
 msgid "<span weight=\"bold\">Text Colors</span>"
@@ -179,15 +178,15 @@ msgstr "Message d'_absence:"
 
 #: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
-msgstr "Accepter automatiquement les discussions DCC"
+msgstr "Accepter automatiquement les _discussions DCC"
 
 #: ../data/preferences-dialog.glade.h:15
 msgid "Auto-accept DCC File Transfers"
-msgstr "Accepter automatiquement les transfert de fichiers DCC"
+msgstr "Accepter automatiquement les _transfert de fichiers DCC"
 
 #: ../data/preferences-dialog.glade.h:16
 msgid "Background _image"
-msgstr "Image d'arrière-plan"
+msgstr "_Image d'arrière-plan"
 
 #: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
@@ -227,7 +226,7 @@ msgstr "Envoi total ko/s :"
 
 #: ../data/preferences-dialog.glade.h:26
 msgid "Image _file:"
-msgstr "_Image"
+msgstr "_Image :"
 
 #: ../data/preferences-dialog.glade.h:27
 msgid "Individual receive KB/s: "
@@ -291,19 +290,19 @@ msgstr "Utiliser cette police :"
 
 #: ../data/preferences-dialog.glade.h:41
 msgid "_Background color:"
-msgstr "Couleur de _fond"
+msgstr "Couleur d'arriè_re-plan"
 
-#: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:99
+#: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:98
 msgid "_Edit"
 msgstr "_Édition"
 
 #: ../data/preferences-dialog.glade.h:43
 msgid "_Foreground color:"
-msgstr "_Couleur d'avant-_plan"
+msgstr "Couleur d'a_vant-plan"
 
 #: ../data/preferences-dialog.glade.h:44
 msgid "_Nickname:"
-msgstr "_Pseudo"
+msgstr "_Pseudo :"
 
 #: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
@@ -319,11 +318,11 @@ msgstr "Message de _Quit"
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
-msgstr "_Afficher les couleurs"
+msgstr "Afficher les _couleurs"
 
 #: ../data/preferences-dialog.glade.h:49
 msgid "_Transparent background"
-msgstr "Arrière-plan transparent"
+msgstr "Arrière-plan _transparent"
 
 #: ../data/setup-dialog.glade.h:1
 msgid "Nick Name:"
@@ -344,8 +343,8 @@ msgid ""
 "things such as registering with services. You do not have to use your real "
 "name if you do not want to."
 msgstr ""
-"Bienvenue dans xchat-gnome! Puisque c'est la première fois que vousutilisez "
-"cette application, il est nécessaire de la configurer un peu avant.\n"
+"Bienvenue dans xchat-gnome! Puisque c'est la première fois que vous utilisez "
+"cette application, il est nécessaire de la configurer un peu.\n"
 "\n"
 "Ceci sont les noms selon lesquelles vous serez reconnu sur IRC. Votre "
 "pseudo  est le nom par lequel vous serez connu, alors que le nom réel est "
@@ -363,7 +362,7 @@ msgstr "Changer"
 #.
 #. GNOME_PARAM_GOPTION_CONTEXT, context,
 #.
-#: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:80
+#: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:84
 msgid "IRC Chat"
 msgstr "Discussion IRC"
 
@@ -390,11 +389,11 @@ msgstr "Erreur"
 
 #: ../data/xchat-gnome.glade.h:4
 msgid "Find:"
-msgstr "Rechercher:"
+msgstr "Rechercher :"
 
 #: ../data/xchat-gnome.glade.h:5
 msgid "The new nickname"
-msgstr "Nouveau nom"
+msgstr "Nouveau pseudo"
 
 #: ../data/xchat-gnome.glade.h:6 ../src/common/text.c:805
 #: ../src/fe-gnome/channel-list.c:311
@@ -413,36 +412,42 @@ msgstr "_Précédent"
 msgid "nickname"
 msgstr "pseudo"
 
-#: ../plugins/autoaway/autoaway.c:163
+#: ../plugins/autoaway/autoaway.c:164
 msgid "Screensaver activated, going away."
-msgstr ""
+msgstr "Écran de veille activé, mise en absence."
 
-#: ../plugins/autoaway/autoaway.c:171
+#: ../plugins/autoaway/autoaway.c:172
 msgid "Screensaver is off, welcome back"
-msgstr ""
-
-#: ../plugins/autoaway/autoaway.c:211
-msgid "Auto Away"
-msgstr ""
+msgstr "L'écran de veille est coupé, bienvenue à la maison"
 
 #: ../plugins/autoaway/autoaway.c:212
+msgid "Auto Away"
+msgstr "Absence automatique"
+
+#: ../plugins/autoaway/autoaway.c:213
 msgid "Automatically go away / come back"
-msgstr ""
+msgstr "S'absente et revient automatiquement"
 
 #. Hook up our callbacks.
-#: ../plugins/autoaway/autoaway.c:230
-#, fuzzy
-msgid "Disconnected"
-msgstr "_Déconnecter"
-
 #: ../plugins/autoaway/autoaway.c:231
-#, fuzzy
-msgid "Connected"
-msgstr "_Connecter"
+msgid "Disconnected"
+msgstr "Déconnecté"
 
-#: ../plugins/autoaway/autoaway.c:260
+#: ../plugins/autoaway/autoaway.c:232
+msgid "Connected"
+msgstr "Connecté"
+
+#: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
-msgstr ""
+msgstr "Extension d'absence automatique chargé\n"
+
+#: ../plugins/dbus/dbus-plugin.c:28
+msgid "XChat-GNOME remote access"
+msgstr "Contrôle à distance de XChat-GNOME"
+
+#: ../plugins/dbus/dbus-plugin.c:29
+msgid "plugin for remote access using DBUS"
+msgstr "Extension pour controler XChat-gnome via DBUS"
 
 #: ../plugins/dbus/dbus-plugin.c:271
 #, c-format
@@ -465,104 +470,104 @@ msgstr "%s déchargement réussi!\n"
 msgid "%s loaded successfully!\n"
 msgstr "%s chargement réussi!\n"
 
-#: ../plugins/dbus/xchat-remote.c:42 ../src/fe-gnome/fe-gnome.c:56
+#: ../plugins/dbus/xchat-gnome-remote.c:42 ../src/fe-gnome/fe-gnome.c:60
 msgid "Open an irc:// url"
 msgstr "Ouvrir une uri irc://"
 
-#: ../plugins/dbus/xchat-remote.c:42
+#: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "irc://server:port/channel"
 msgstr "irc://serveur:port/cannal"
 
-#: ../plugins/dbus/xchat-remote.c:43
+#: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "Execute a xchat command"
 msgstr "Executer une commande xchat"
 
-#: ../plugins/dbus/xchat-remote.c:43
+#: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "\"Command to execute\""
 msgstr "\"Commande à executer\""
 
-#: ../plugins/dbus/xchat-remote.c:44
+#: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "Prints some text to the current tab/window"
 msgstr "Affiche du texte dans la fenêtre/tab courante"
 
-#: ../plugins/dbus/xchat-remote.c:44
+#: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "\"Text to print\""
 msgstr "\"Text à afficher\""
 
-#: ../plugins/dbus/xchat-remote.c:45
+#: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the channel"
 msgstr "Changer le context vers le cannal"
 
-#: ../plugins/dbus/xchat-remote.c:45
+#: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "channel"
 msgstr "cannal"
 
-#: ../plugins/dbus/xchat-remote.c:46
+#: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Change the context to the server"
 msgstr "Changer le contexte vers le serveur"
 
-#: ../plugins/dbus/xchat-remote.c:46
+#: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "server"
 msgstr "serveur"
 
-#: ../plugins/dbus/xchat-remote.c:47
+#: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get some informations from xchat"
 msgstr "Obtenir des informations de xchat"
 
-#: ../plugins/dbus/xchat-remote.c:47
+#: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "id"
 msgstr "id"
 
-#: ../plugins/dbus/xchat-remote.c:48
+#: ../plugins/dbus/xchat-gnome-remote.c:48
 msgid "Get settings from xchat"
 msgstr "Obtenir la configuration de xchat"
 
-#: ../plugins/dbus/xchat-remote.c:48
+#: ../plugins/dbus/xchat-gnome-remote.c:48
 msgid "name"
 msgstr "nom"
 
-#: ../plugins/dbus/xchat-remote.c:80
+#: ../plugins/dbus/xchat-gnome-remote.c:80
 #, c-format
 msgid ""
-"xchat-remote: %s\n"
-"Try `xchat-remote --help' for more information\n"
+"%s: %s\n"
+"Try `%s --help' for more information\n"
 msgstr ""
-"xchat-remote: %s\n"
-"Utilisez `xchat-remote --help' pour plus d'information\n"
+"%s: %s\n"
+"Utilisez `%s --help' pour plus d'informations\n"
 
-#: ../plugins/dbus/xchat-remote.c:91
+#: ../plugins/dbus/xchat-gnome-remote.c:90
 msgid "Couldn't connect to session bus"
 msgstr "Impossible de se connecter au bus de session"
 
-#: ../plugins/dbus/xchat-remote.c:117 ../plugins/dbus/xchat-remote.c:131
+#: ../plugins/dbus/xchat-gnome-remote.c:116
+#: ../plugins/dbus/xchat-gnome-remote.c:130
 msgid "Failed to complete command"
 msgstr "Impossible de completer la commande"
 
-#: ../plugins/dbus/xchat-remote.c:126
+#: ../plugins/dbus/xchat-gnome-remote.c:125
 msgid "Failed to complete SetContext"
 msgstr "Impossible de completer SetContext"
 
-#: ../plugins/dbus/xchat-remote.c:136
+#: ../plugins/dbus/xchat-gnome-remote.c:135
 msgid "Failed to complete print"
 msgstr "Impossible de completer print"
 
-#: ../plugins/dbus/xchat-remote.c:143
+#: ../plugins/dbus/xchat-gnome-remote.c:142
 msgid "Failed to complete GetInfo"
 msgstr "Impossible de completer GetInfo"
 
-#: ../plugins/dbus/xchat-remote.c:156
+#: ../plugins/dbus/xchat-gnome-remote.c:155
 msgid "Failed to complete GetPrefs"
 msgstr "Impossible de completer GetPrefs"
 
-#: ../plugins/dbus/xchat-remote.c:160
+#: ../plugins/dbus/xchat-gnome-remote.c:159
 #, c-format
 msgid "%s doesn't exist\n"
 msgstr "%s n'existe pas\n"
 
 #: ../plugins/net-monitor/net-monitor.c:36
-#, fuzzy
 msgid "Network Monitor"
-msgstr "_Réseau"
+msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
@@ -579,7 +584,7 @@ msgid "Net Monitor: Could not register signal handler: %s: %s\n"
 msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:342
-#, fuzzy, c-format
+#, c-format
 msgid "%s loaded successfully\n"
 msgstr "%s chargement réussi!\n"
 
@@ -593,99 +598,104 @@ msgstr ""
 
 #: ../plugins/notification/notification.c:148
 msgid "Notification"
-msgstr ""
+msgstr "Notification"
 
 #: ../plugins/notification/notification.c:149
 msgid "A notification area plugin."
-msgstr ""
+msgstr "Une extension pour l'aire de notification"
 
 #: ../plugins/notification/notification.c:235
 msgid "Notification plugin loaded.\n"
-msgstr ""
+msgstr "Extension de notification chargé.\n"
 
 #: ../plugins/notification/notification.c:250
 msgid "Notification plugin unloaded.\n"
-msgstr ""
+msgstr "Extension de notification déchargé.\n"
 
 #: ../plugins/notify-osd/notify-osd.c:29
 msgid "On-screen display"
-msgstr ""
+msgstr "Affichage en sur-impression"
 
 #: ../plugins/notify-osd/notify-osd.c:31
 msgid ""
-"Pops up notification of important messages when xchat doesn't have the focus"
+"Pops up notification of important messages when XChat-GNOME doesn't have the "
+"focus"
 msgstr ""
+"Affiche une notification des messages importants quand XChat-Gnome est caché."
 
 #: ../plugins/notify-osd/notify-osd.c:89
 #: ../plugins/notify-osd/notify-osd.c:117
 #, c-format
 msgid "Message in %s"
-msgstr ""
+msgstr "Message dans %s"
 
 #: ../plugins/notify-osd/notify-osd.c:91
 #: ../plugins/notify-osd/notify-osd.c:119
 #, c-format
 msgid "Message from %s"
-msgstr ""
+msgstr "Message de %s"
 
 #: ../plugins/notify-osd/notify-osd.c:140
 #, c-format
 msgid "Private Message from %s"
-msgstr ""
+msgstr "Message privé de %s"
 
-#: ../plugins/notify-osd/notify-osd.c:186
+#: ../plugins/notify-osd/notify-osd.c:189
 msgid "OSD loaded\n"
-msgstr ""
+msgstr "OSD chargé\n"
 
-#: ../plugins/notify-osd/notify-osd.c:190
+#: ../plugins/notify-osd/notify-osd.c:193
 msgid "OSD initialization failed\n"
-msgstr ""
+msgstr "OSD initialisation échouée\n"
 
-#: ../plugins/url_scraper/urlscraper.c:44
+#: ../plugins/url_scraper/urlscraper.c:45
 msgid "xchat URL scraper"
-msgstr ""
+msgstr "XChat URL Scraper"
 
-#: ../plugins/url_scraper/urlscraper.c:58 ../src/common/xchat.c:823
+#: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:823
 msgid "Time"
-msgstr ""
+msgstr "Temps"
 
-#: ../plugins/url_scraper/urlscraper.c:63 ../src/common/text.c:585
+#: ../plugins/url_scraper/urlscraper.c:64 ../src/common/text.c:585
 msgid "Nick"
-msgstr ""
+msgstr "Pseudo"
 
-#: ../plugins/url_scraper/urlscraper.c:67 ../src/common/text.c:552
+#: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:552
 #: ../src/common/text.c:556 ../src/common/text.c:992
 #: ../src/fe-gnome/irc-network-editor.c:272
 msgid "Channel"
-msgstr ""
+msgstr "Cannal"
 
-#: ../plugins/url_scraper/urlscraper.c:72
+#: ../plugins/url_scraper/urlscraper.c:73
 msgid "URL"
-msgstr ""
-
-#: ../plugins/url_scraper/urlscraper.c:154
-msgid "URL Scraper"
-msgstr ""
+msgstr "URL"
 
 #: ../plugins/url_scraper/urlscraper.c:155
+msgid "URL Scraper"
+msgstr "URL Scraper"
+
+#: ../plugins/url_scraper/urlscraper.c:156
 msgid "Grabs URLs and puts them in a separate window for easy viewing."
 msgstr ""
+"Capture les URL et les mets dans une fenêtre séparé pour une consultation "
+"aisée."
 
-#: ../plugins/url_scraper/urlscraper.c:195
+#: ../plugins/url_scraper/urlscraper.c:196
 msgid "URL Scraper failed to load: couldn't compile URL regex.\n"
-msgstr ""
+msgstr "URL Scraper chargement échoué : Impossible de compiler le regex URL.\n"
 
-#: ../plugins/url_scraper/urlscraper.c:201
+#: ../plugins/url_scraper/urlscraper.c:202
 msgid "URL Scraper failed to load: couldn't compile e-mail regex.\n"
 msgstr ""
+"URL Scraper chargement échoué : Impossible de compiler le regex e-mail.\n"
 
-#: ../plugins/url_scraper/urlscraper.c:216
+#: ../plugins/url_scraper/urlscraper.c:217
 msgid "URL Scraper loaded.\n"
-msgstr ""
+msgstr "URL Scraper chargé.\n"
 
-#: ../plugins/url_scraper/urlscraper.c:228
+#: ../plugins/url_scraper/urlscraper.c:229
 msgid "URL Scraper unloaded.\n"
-msgstr ""
+msgstr "URL Scraper déchargé.\n"
 
 #: ../src/common/cfgfiles.c:350
 msgid "Cannot create ~/.xchat2"
@@ -3503,17 +3513,17 @@ msgstr ""
 
 #: ../src/common/xchat.c:901
 msgid "Send"
-msgstr ""
+msgstr "Envoyer"
 
 #: ../src/common/xchat.c:902
 msgid "Chat"
-msgstr ""
+msgstr "Discussion"
 
 #: ../src/common/xchat.c:903
 msgid "Clear"
-msgstr ""
+msgstr "Effacer"
 
-#: ../src/fe-gnome/about.c:57
+#: ../src/fe-gnome/about.c:66
 msgid ""
 "X-Chat GNOME is free software; you can redistribute it and/or modify\n"
 "it under the terms of the GNU General Public License as published by\n"
@@ -3521,7 +3531,7 @@ msgid ""
 "(at your option) any later version.\n"
 msgstr ""
 
-#: ../src/fe-gnome/about.c:61
+#: ../src/fe-gnome/about.c:70
 msgid ""
 "X-Chat GNOME is distributed in the hope that it will be useful,\n"
 "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
@@ -3529,7 +3539,7 @@ msgid ""
 "GNU General Public License for more details.\n"
 msgstr ""
 
-#: ../src/fe-gnome/about.c:65
+#: ../src/fe-gnome/about.c:74
 msgid ""
 "You should have received a copy of the GNU General Public License\n"
 "along with X-Chat GNOME; if not, write to the Free Software Foundation, "
@@ -3537,11 +3547,11 @@ msgid ""
 "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
 msgstr ""
 
-#: ../src/fe-gnome/about.c:84
+#: ../src/fe-gnome/about.c:91
 msgid "Copyright © 2004-2005"
 msgstr "Copyright © 2004-2005"
 
-#: ../src/fe-gnome/about.c:85
+#: ../src/fe-gnome/about.c:92
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
 "gentleman"
@@ -3556,28 +3566,27 @@ msgstr ""
 #. * write each of them on a separated line seperated by
 #. * newlines (\n).
 #.
-#: ../src/fe-gnome/about.c:100
+#: ../src/fe-gnome/about.c:108
 msgid "translator-credits"
-msgstr ""
+msgstr "Olivier Lê Thanh Duong <olethanh@ulb.ac.be>"
 
 #. IRC menu
-#: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:108
+#: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:107
 msgid "_Connect"
 msgstr "_Connecter"
 
 #. File completion percent
 #: ../src/fe-gnome/dcc-window.c:142
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: ../src/fe-gnome/dcc-window.c:143
 msgid "File"
-msgstr ""
+msgstr "Fichier"
 
 #: ../src/fe-gnome/dcc-window.c:144
-#, fuzzy
 msgid "Remaining"
-msgstr "Part"
+msgstr "Restant"
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -3587,6 +3596,10 @@ msgid ""
 "%s is attempting to send you a file named \"%s\".  Do you wish to accept the "
 "transfer?"
 msgstr ""
+"<span weight=\"bold\" size=\"larger\">Réception de fichier</span>\n"
+"\n"
+"%s essaye de vous envoyer un fichier nommé \"%s\".  Voulez-vous accepter ce "
+"transfert?"
 
 #: ../src/fe-gnome/dcc-window.c:266
 #, c-format
@@ -3595,10 +3608,13 @@ msgid ""
 "<small>from %s</small>\n"
 "%s of %s"
 msgstr ""
+"<b>%s</b>\n"
+"<small>depuis %s</small>\n"
+"%s de %s"
 
 #: ../src/fe-gnome/dcc-window.c:277
 msgid "starting"
-msgstr ""
+msgstr "débuté"
 
 #: ../src/fe-gnome/dcc-window.c:303
 #, c-format
@@ -3607,63 +3623,65 @@ msgid ""
 "<small>from %s</small>\n"
 "%s of %s at %s/s"
 msgstr ""
+"<b>%s</b>\n"
+"<small>depuis %s</small>\n"
+"%s de %s à %s/s"
 
 #: ../src/fe-gnome/dcc-window.c:310
 msgid "queued"
-msgstr ""
+msgstr "en attente"
 
 #: ../src/fe-gnome/dcc-window.c:315
 #, c-format
 msgid "Transfer of %s to %s failed"
-msgstr ""
+msgstr "Le Transfert de %s à %s a échoué"
 
+# file, nick
 #: ../src/fe-gnome/dcc-window.c:317
 #, c-format
 msgid "Transfer of %s from %s failed"
-msgstr ""
+msgstr "Le transfert de %s depuis %s a échoué"
 
 #: ../src/fe-gnome/dcc-window.c:318
 msgid "Transfer failed"
-msgstr ""
+msgstr "Le transfert a échoué"
 
 #: ../src/fe-gnome/dcc-window.c:327
-#, fuzzy
 msgid "stalled"
-msgstr "Désactivé"
+msgstr "bloqué"
 
 #: ../src/fe-gnome/dcc-window.c:331
 #, c-format
 msgid "%.2d:%.2d:%.2d"
-msgstr ""
+msgstr "%.2d:%.2d:%.2d"
 
 #: ../src/fe-gnome/dcc-window.c:333
 #, c-format
 msgid "%.2d:%.2d"
-msgstr ""
+msgstr "%.2d:%.2d"
 
 #: ../src/fe-gnome/dcc-window.c:446
-#, fuzzy
 msgid "Send File..."
-msgstr "_Envoyer un fichier"
+msgstr "_Envoyer un fichier ..."
 
-#: ../src/fe-gnome/fe-gnome.c:53
+#: ../src/fe-gnome/fe-gnome.c:57
 msgid "Use directory instead of the default config dir"
 msgstr "Utiliser un repertoire de configuration spécifique"
 
-#: ../src/fe-gnome/fe-gnome.c:54
+#: ../src/fe-gnome/fe-gnome.c:58
 msgid "Don't auto-connect to servers"
 msgstr "Ne pas se connecter automtiquement"
 
-#: ../src/fe-gnome/fe-gnome.c:55
+#: ../src/fe-gnome/fe-gnome.c:59
 msgid "Don't auto-load plugins"
 msgstr "Ne pas charger automatiquement les extensions"
 
-#: ../src/fe-gnome/fe-gnome.c:57
+#: ../src/fe-gnome/fe-gnome.c:61
 msgid "Show version information"
 msgstr "Afficher le numero de version"
 
-#: ../src/fe-gnome/fe-gnome.c:86
-#, fuzzy, c-format
+#: ../src/fe-gnome/fe-gnome.c:90
+#, c-format
 msgid ""
 "xchat-gnome: %s\n"
 "Try `xchat-gnome --help' for more information\n"
@@ -3671,34 +3689,23 @@ msgstr ""
 "xchat-remote: %s\n"
 "Utilisez `xchat-remote --help' pour plus d'information\n"
 
-#: ../src/fe-gnome/fe-gnome.c:571
+#: ../src/fe-gnome/fe-gnome.c:575
 msgid "Search buffer is empty.\n"
 msgstr "Le cache de recherche est vide.\n"
 
-#: ../src/fe-gnome/fe-gnome.c:603
-#, c-format
-msgid "%s%d.%ds lag"
-msgstr "Lag de %s%d.%ds"
-
-#: ../src/fe-gnome/fe-gnome.c:638
-#, c-format
-msgid "%d bytes buffered"
-msgstr "%d ont été mis en "
-
-#: ../src/fe-gnome/fe-gnome.c:891
+#: ../src/fe-gnome/fe-gnome.c:844
 #, c-format
 msgid "Unable to show '%s'"
-msgstr ""
+msgstr "Impossible de montrer '%s'"
 
 #: ../src/fe-gnome/irc-network-editor.c:267
-#, fuzzy
 msgid "Server"
-msgstr "Serveurs :"
+msgstr "Serveurs"
 
 #: ../src/fe-gnome/irc-network-editor.c:383
-#, fuzzy, c-format
+#, c-format
 msgid "%s Network Properties"
-msgstr "Configuration du réseau"
+msgstr "Configuration du réseau %s"
 
 #: ../src/fe-gnome/irc-network-editor.c:509
 #: ../src/fe-gnome/irc-network-editor.c:516
@@ -3724,294 +3731,279 @@ msgstr "Pas de serveurs"
 
 #: ../src/fe-gnome/irc-network-editor.c:529
 msgid "You must add at least one server for this network"
-msgstr "Vous devez spécifier au moins un serveur"
+msgstr "Vous devez spécifier au moins un serveur pour le réseau"
 
 #: ../src/fe-gnome/irc-network.c:31
-msgid "UTF-8"
-msgstr ""
+msgid "UTF-8 (Unicode)"
+msgstr "UTF-8 (Unicode)"
 
 #: ../src/fe-gnome/irc-network.c:32
 msgid "ISO-8859-15 (Western Europe)"
-msgstr ""
+msgstr "ISO-8859-15 (Europe de l'Ouest)"
 
 #: ../src/fe-gnome/irc-network.c:33
 msgid "ISO-8859-2 (Central Europe)"
-msgstr ""
+msgstr "ISO-8859-2 (Europe Centrale)"
 
 #: ../src/fe-gnome/irc-network.c:34
 msgid "ISO-8859-7 (Greek)"
-msgstr ""
+msgstr "ISO-8859-7 (Grec)"
 
 #: ../src/fe-gnome/irc-network.c:35
 msgid "ISO-8859-8 (Hebrew)"
-msgstr ""
+msgstr "ISO-8859-8 (Hébreux)"
 
 #: ../src/fe-gnome/irc-network.c:36
 msgid "ISO-8859-9 (Turkish)"
-msgstr ""
+msgstr "ISO-8859-9 (Turc)"
 
 #: ../src/fe-gnome/irc-network.c:37
 msgid "ISO-2022-JP (Japanese)"
-msgstr ""
+msgstr "ISO-2022-JP (Japonais)"
 
 #: ../src/fe-gnome/irc-network.c:38
 msgid "SJIS (Japanese)"
-msgstr ""
+msgstr "SJIS (Japonais)"
 
 #: ../src/fe-gnome/irc-network.c:39
 msgid "CP949 (Korean)"
-msgstr ""
+msgstr "CP949 (Coréen)"
 
 #: ../src/fe-gnome/irc-network.c:40
 msgid "CP1251 (Cyrillic)"
-msgstr ""
+msgstr "CP1251 (Cyrillique)"
 
 #: ../src/fe-gnome/irc-network.c:41
 msgid "CP1256 (Arabic)"
-msgstr ""
+msgstr "CP1256 (Arabe)"
 
 #: ../src/fe-gnome/irc-network.c:42
 msgid "GB18030 (Chinese)"
-msgstr ""
+msgstr "GB18030 (Chinois)"
 
 #. Toplevel
-#: ../src/fe-gnome/main-window.c:98
+#: ../src/fe-gnome/main-window.c:97
 msgid "_IRC"
 msgstr "_IRC"
 
-#: ../src/fe-gnome/main-window.c:100
+#: ../src/fe-gnome/main-window.c:99
 msgid "In_sert"
 msgstr "In_sertion"
 
-#: ../src/fe-gnome/main-window.c:101
+#: ../src/fe-gnome/main-window.c:100
 msgid "_Network"
 msgstr "_Réseau"
 
-#: ../src/fe-gnome/main-window.c:102
+#: ../src/fe-gnome/main-window.c:101
 msgid "_Discussion"
 msgstr "_Discussion"
 
-#: ../src/fe-gnome/main-window.c:103
+#: ../src/fe-gnome/main-window.c:102
 msgid "_Go"
 msgstr "A_ller à"
 
-#: ../src/fe-gnome/main-window.c:104
+#: ../src/fe-gnome/main-window.c:103
 msgid "_Help"
 msgstr "_Aide"
 
-#: ../src/fe-gnome/main-window.c:109
+#: ../src/fe-gnome/main-window.c:108
 msgid "_File Transfers"
 msgstr "Transfert de _fichier"
 
-#: ../src/fe-gnome/main-window.c:110
+#: ../src/fe-gnome/main-window.c:109
 msgid "_Quit"
 msgstr "_Quitter"
 
 #. Edit menu
-#: ../src/fe-gnome/main-window.c:113
+#: ../src/fe-gnome/main-window.c:112
 msgid "Cu_t"
 msgstr "Co_uper"
 
-#: ../src/fe-gnome/main-window.c:114
+#: ../src/fe-gnome/main-window.c:113
 msgid "_Copy"
 msgstr "_Copier"
 
-#: ../src/fe-gnome/main-window.c:115
+#: ../src/fe-gnome/main-window.c:114
 msgid "_Paste"
 msgstr "C_oller"
 
-#: ../src/fe-gnome/main-window.c:116 ../src/fe-gnome/navigation-tree.c:87
-#: ../src/fe-gnome/navigation-tree.c:94
+#: ../src/fe-gnome/main-window.c:115 ../src/fe-gnome/navigation-tree.c:91
+#: ../src/fe-gnome/navigation-tree.c:98
 msgid "C_lear"
 msgstr "_Effacer"
 
-#: ../src/fe-gnome/main-window.c:117
+#: ../src/fe-gnome/main-window.c:116
 msgid "Prefere_nces"
 msgstr "P_références"
 
 #. Network menu
 #. Server context menu
-#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:76
+#: ../src/fe-gnome/main-window.c:119 ../src/fe-gnome/navigation-tree.c:80
 msgid "_Information"
 msgstr "_Information"
 
-#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:77
+#: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Reconnect"
 msgstr "_Reconnecter"
 
-#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:78
+#: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Disconnect"
 msgstr "_Déconnecter"
 
-#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:79
-#: ../src/fe-gnome/navigation-tree.c:85 ../src/fe-gnome/navigation-tree.c:92
+#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:83
+#: ../src/fe-gnome/navigation-tree.c:89 ../src/fe-gnome/navigation-tree.c:96
 msgid "_Close"
 msgstr "_Fermer"
 
-#: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:80
+#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:84
 msgid "_Channels..."
-msgstr "_Cannaux"
+msgstr "_Cannaux..."
 
 #. Discussion menu
 #. Channel context menu
 #. Dialog context menu
-#: ../src/fe-gnome/main-window.c:127 ../src/fe-gnome/navigation-tree.c:83
-#: ../src/fe-gnome/navigation-tree.c:91
+#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:87
+#: ../src/fe-gnome/navigation-tree.c:95
 msgid "_Save Transcript"
 msgstr "_Sauver la discussion"
 
-#: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:84
+#: ../src/fe-gnome/main-window.c:127 ../src/fe-gnome/navigation-tree.c:88
 msgid "_Leave"
 msgstr "_Partir"
 
-#: ../src/fe-gnome/main-window.c:129
+#: ../src/fe-gnome/main-window.c:128
 msgid "Cl_ose"
 msgstr "_Fermer"
 
-#: ../src/fe-gnome/main-window.c:130
+#: ../src/fe-gnome/main-window.c:129
 msgid "_Find"
 msgstr "_Rechercher"
 
-#: ../src/fe-gnome/main-window.c:131
+#: ../src/fe-gnome/main-window.c:130
 msgid "_Clear Window"
 msgstr "_Vider la fenêtre"
 
-#: ../src/fe-gnome/main-window.c:132
+#: ../src/fe-gnome/main-window.c:131
 msgid "Change _Topic"
 msgstr "Changer le _topic"
 
-#: ../src/fe-gnome/main-window.c:133 ../src/fe-gnome/navigation-tree.c:88
+#: ../src/fe-gnome/main-window.c:132 ../src/fe-gnome/navigation-tree.c:92
 msgid "_Bans..."
 msgstr "Listes des _bannis"
 
-#: ../src/fe-gnome/main-window.c:134
+#: ../src/fe-gnome/main-window.c:133
 msgid "_Users"
 msgstr "_Utilisateurs"
 
 #. Go menu
-#: ../src/fe-gnome/main-window.c:137
+#: ../src/fe-gnome/main-window.c:136
 msgid "Pre_vious Network"
 msgstr "Réseau pré_cédent"
 
-#: ../src/fe-gnome/main-window.c:138
+#: ../src/fe-gnome/main-window.c:137
 msgid "Nex_t Network"
 msgstr "Réseau sui_vant"
 
-#: ../src/fe-gnome/main-window.c:139
+#: ../src/fe-gnome/main-window.c:138
 msgid "_Previous Discussion"
 msgstr "Discussion _précédente"
 
-#: ../src/fe-gnome/main-window.c:140
+#: ../src/fe-gnome/main-window.c:139
 msgid "_Next Discussion"
 msgstr "Discussion _suivante"
 
 #. Help menu
-#: ../src/fe-gnome/main-window.c:143
+#: ../src/fe-gnome/main-window.c:142
 msgid "_Contents"
 msgstr "_Sommaire"
 
-#: ../src/fe-gnome/main-window.c:144
+#: ../src/fe-gnome/main-window.c:143
 msgid "_About"
 msgstr "À _propos"
 
-#: ../src/fe-gnome/main-window.c:152
-#, fuzzy
+#: ../src/fe-gnome/main-window.c:155
 msgid "Save Transcript"
-msgstr "_Sauver la discussion"
+msgstr "Sauver la discussion"
 
-#: ../src/fe-gnome/main-window.c:169 ../src/fe-gnome/main-window.c:179
-#, fuzzy, c-format
+#: ../src/fe-gnome/main-window.c:182 ../src/fe-gnome/main-window.c:192
+#, c-format
 msgid "Error saving %s"
-msgstr "Erreur lors de la lecture du fichier \"%s\": %s\n"
+msgstr "Erreur lors de la sauvergarde du fichier %s"
 
-#: ../src/fe-gnome/main-window.c:228
+#: ../src/fe-gnome/main-window.c:241
 msgid ""
 "<span foreground=\"grey\">Reached beginning, continuing from bottom</span>"
 msgstr ""
+"<span foreground=\"grey\">Début atteint, la recherche continue depuis la fin."
+"</span>"
 
-#: ../src/fe-gnome/main-window.c:231
+#: ../src/fe-gnome/main-window.c:244
 msgid "<span foreground=\"grey\">Reached end, continuing from top</span>"
 msgstr ""
+"<span foreground=\"grey\">Fin atteinte, la recherche continue depuis le "
+"début</span>"
 
-#: ../src/fe-gnome/main-window.c:234
+#: ../src/fe-gnome/main-window.c:247
 msgid "<span foreground=\"grey\">Search string not found</span>"
-msgstr ""
+msgstr "<span foreground=\"grey\">Texte non trouvé</span>"
 
-#: ../src/fe-gnome/main-window.c:619 ../src/fe-gnome/main-window.c:640
-#: ../src/fe-gnome/navigation-tree.c:1581
-#: ../src/fe-gnome/navigation-tree.c:1636
+#: ../src/fe-gnome/main-window.c:618 ../src/fe-gnome/main-window.c:639
+#: ../src/fe-gnome/navigation-tree.c:1576
+#: ../src/fe-gnome/navigation-tree.c:1631
 msgid "Ex-Chat"
-msgstr ""
+msgstr "EX-Chat"
 
-#: ../src/fe-gnome/main-window.c:746
-#, fuzzy
+#: ../src/fe-gnome/main-window.c:745
 msgid "Error showing help"
-msgstr "Erreur lors de la lecture du fichier \"%s\": %s\n"
+msgstr "Erreur lors de l'affichage de l'aide"
 
-#: ../src/fe-gnome/main-window.c:844
-msgid "Could not load topic-change.glade!"
-msgstr "Impossible de charger le fichier topic-change.glade!"
-
-#: ../src/fe-gnome/main-window.c:844
-msgid "Your installation is broken"
-msgstr "Votre installation est cassé"
-
-#: ../src/fe-gnome/main-window.c:851
-#, c-format
-msgid "Changing topic for %s"
-msgstr ""
-
-#: ../src/fe-gnome/navigation-tree.c:86 ../src/fe-gnome/navigation-tree.c:93
+#: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
 msgid "_Find..."
 msgstr "_Rechercher..."
 
 #. Server context menu
-#: ../src/fe-gnome/navigation-tree.c:99
+#: ../src/fe-gnome/navigation-tree.c:103
 msgid "_Auto-connect"
 msgstr "Reconnecter _automatiquement"
 
 #. Channel context menu
-#: ../src/fe-gnome/navigation-tree.c:102
+#: ../src/fe-gnome/navigation-tree.c:106
 msgid "_Auto-join"
 msgstr "Rejoindre _automatiquement"
 
 #. Add the new server to the model. By default connected is false.
-#: ../src/fe-gnome/navigation-tree.c:380
-#: ../src/fe-gnome/navigation-tree.c:1276
+#: ../src/fe-gnome/navigation-tree.c:382
+#: ../src/fe-gnome/navigation-tree.c:1271
 msgid "<none>"
 msgstr "<aucun>"
 
 #: ../src/fe-gnome/preferences-page-colors.c:226
-#, fuzzy
 msgid "Colors"
-msgstr "_Fermer"
+msgstr "Couleurs"
 
 #: ../src/fe-gnome/preferences-page-colors.c:229
 msgid "Black on White"
-msgstr ""
+msgstr "Noir sur blanc"
 
 #: ../src/fe-gnome/preferences-page-colors.c:230
 msgid "White on Black"
-msgstr ""
+msgstr "Blanc sur noir"
 
 #: ../src/fe-gnome/preferences-page-colors.c:231
-#, fuzzy
 msgid "Custom"
-msgstr "Co_uper"
+msgstr "Personnaliser"
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
-#, fuzzy
 msgid "File Transfers & DCC"
-msgstr "Transfert de fichiers"
+msgstr "Transfert de fichiers & DCC"
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
-msgstr ""
+msgstr "Effets"
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
-#, fuzzy
 msgid "IRC Preferences"
-msgstr "Préférences"
+msgstr "Préférences IRC"
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
@@ -4022,11 +4014,11 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-networks.c:171
 msgid "Networks"
-msgstr "Réseau"
+msgstr "Réseaux"
 
 #: ../src/fe-gnome/preferences-page-networks.c:179
 msgid "Name"
-msgstr "Nom :"
+msgstr "Nom"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:74
 msgid "unknown"
@@ -4054,9 +4046,8 @@ msgid "Open Plugin"
 msgstr "Ouvrir l'extension"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:261
-#, fuzzy
 msgid "Scripts and Plugins"
-msgstr "Ouvrir l'extension"
+msgstr "Scripts et extensions"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:271
 msgid "Enable"
@@ -4066,62 +4057,62 @@ msgstr "Activé"
 msgid "Plugin"
 msgstr "Extension"
 
-#: ../src/fe-gnome/text-entry.c:248
+#: ../src/fe-gnome/text-entry.c:262
 msgid "I_nsert Color Code"
-msgstr ""
+msgstr "Insérer un code couleur"
 
 #. URL Popup
-#: ../src/fe-gnome/textgui.c:71
+#: ../src/fe-gnome/textgui.c:74
 msgid "_Open Link in Browser"
 msgstr "_Ouvrir le lien"
 
-#: ../src/fe-gnome/textgui.c:72
+#: ../src/fe-gnome/textgui.c:75
 msgid "_Copy Link Location"
 msgstr "_Copier l'adresse du lien"
 
 #. Email Popup
-#: ../src/fe-gnome/textgui.c:75
+#: ../src/fe-gnome/textgui.c:78
 msgid "Se_nd Message To..."
 msgstr "_Envoyer un message à ..."
 
-#: ../src/fe-gnome/textgui.c:76
+#: ../src/fe-gnome/textgui.c:79
 msgid "_Copy Address"
 msgstr "_Copier l'adresse"
 
 #. Drag and Drop File Popup
-#: ../src/fe-gnome/textgui.c:79
+#: ../src/fe-gnome/textgui.c:82
 msgid "_Send File"
 msgstr "_Envoyer le fichier"
 
-#: ../src/fe-gnome/textgui.c:80
+#: ../src/fe-gnome/textgui.c:83
 msgid "Paste File _Contents"
 msgstr "Coller le _contenu du fichier"
 
-#: ../src/fe-gnome/textgui.c:81
+#: ../src/fe-gnome/textgui.c:84
 msgid "Paste File_name"
 msgstr "Coller le _nom du fichier"
 
-#: ../src/fe-gnome/textgui.c:82
+#: ../src/fe-gnome/textgui.c:85
 msgid "_Cancel"
 msgstr "_Annuler"
 
-#: ../src/fe-gnome/textgui.c:584
-#, fuzzy, c-format
+#: ../src/fe-gnome/textgui.c:562
+#, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
-msgstr "Erreur lors de la lecture du fichier \"%s\": %s\n"
+msgstr "Erreur lors de la lecture des informations du fichier \"%s\": %s\n"
 
-#: ../src/fe-gnome/textgui.c:610
+#: ../src/fe-gnome/textgui.c:588
 #, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr ""
 "Erreur lors de la transformation de l'URI \"%s\" en nom de fichier: %s\n"
 
-#: ../src/fe-gnome/textgui.c:641
+#: ../src/fe-gnome/textgui.c:619
 #, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr "Erreur lors de la lecture du fichier \"%s\": %s\n"
 
-#: ../src/fe-gnome/textgui.c:676
+#: ../src/fe-gnome/textgui.c:654
 #, c-format
 msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
 msgstr ""
@@ -4143,6 +4134,24 @@ msgstr "_Kicker"
 #: ../src/fe-gnome/userlist-gui.c:54
 msgid "_Ban"
 msgstr "_Bannir"
+
+#~ msgid "%s%d.%ds lag"
+#~ msgstr "Lag de %s%d.%ds"
+
+#~ msgid "%d bytes buffered"
+#~ msgstr "%d bytes ont été mis en cache"
+
+#~ msgid "Could not load topic-change.glade!"
+#~ msgstr "Impossible de charger le fichier topic-change.glade!"
+
+#~ msgid "Your installation is broken"
+#~ msgstr "Votre installation est cassé"
+
+#~ msgid "Changing topic for %s"
+#~ msgstr "Changer le topic pour %s"
+
+#~ msgid "UTF-8"
+#~ msgstr "UTF-8 (Unicode)"
 
 #~ msgid " loaded successfully\n"
 #~ msgstr " chargement réussi\n"
