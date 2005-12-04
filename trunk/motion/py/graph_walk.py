@@ -9,12 +9,11 @@ def clicheWalk (graph, len):
     """Find a path in graph of length len by following the edges with the
        highest probabilities.
        """
-    path = []
     vertexMap = graph.representations[VertexMap]
 
     # Choose a random starting point.
     u = random.choice ([v for v in vertexMap])
-    path.append (u.center)
+    path = [u]
 
     for i in range (len):
         choice = None
@@ -29,7 +28,7 @@ def clicheWalk (graph, len):
                 choice = edge.v
 
         # Append the next vertex and set it as the current vertex.
-        path.append (choice.center)
+        path.append (choice)
         u = choice
 
     return path
@@ -41,13 +40,13 @@ def randomWalk (graph, len):
 
     # Choose a random starting place.
     u = random.choice ([v for v in adjacency.iterU ()])
-    path = [u.center]
+    path = [u]
 
     for i in range (len):
         # Choose a random edge coming out of u.
         choice = random.choice ([edge for edge in adjacency.query (u)])
         # Append the end of that edge to the path.
-        path.append (choice.v.center)
+        path.append (choice.v)
         # Set the current vertex to this new vertex
         u = choice.v
 
@@ -74,6 +73,8 @@ for bone in graphs.keys ():
     else: bones[bone] = randomWalk (graphs[bone], opts.len)
 
 for key,val in bones.iteritems ():
-    print key, val
+    print key
+    for n in val:
+        print '    ', n
 
 # vim:ts=4:sw=4:et
