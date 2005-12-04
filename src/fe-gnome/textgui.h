@@ -26,7 +26,6 @@
 #ifndef XCHAT_GNOME_TEXTGUI_H
 #define XCHAT_GNOME_TEXTGUI_H
 
-void initialize_text_gui (void);
 void set_nickname (struct server *serv, char *newnick);
 
 #endif
