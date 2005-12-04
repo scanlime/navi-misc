@@ -10,25 +10,21 @@ def clicheWalk (graph, len):
        highest probabilities.
        """
     path = []
-    adjacency = graph.representations[AdjacencyList]
     vertexMap = graph.representations[VertexMap]
 
-    v = None
     u = random.choice ([u for u in adjacency.iterU ()])
     path.append (u.center)
 
     for i in range (len):
         choice = None
         weight = 0
-        for v in adjacency.data[u]:
-            for edge in vertexMap.query (u):
-                if edge.v is v and edge.weight >= weight:
-                    weight = edge.weight
-                    choice = v
+        for edge in vertexMap.query (u):
+            if edge.u is u and edge.weight >= weight:
+                weight = edge.weight
+                choice = edge.v
 
         path.append (choice.center)
         u = choice
-        weight = 0
 
     return path
 
