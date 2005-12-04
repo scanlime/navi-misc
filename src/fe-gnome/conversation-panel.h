@@ -57,6 +57,7 @@ void       conversation_panel_save_current   (ConversationPanel *panel);
 void       conversation_panel_clear          (ConversationPanel *panel, struct session *sess);
 void       conversation_panel_print          (ConversationPanel *panel, struct session *sess, guchar *text, gboolean indent);
 void       conversation_panel_remove_session (ConversationPanel *panel, struct session *sess);
+void       conversation_panel_lastlog        (ConversationPanel *panel, struct session *sess, struct session *lsess, char *sstr);
 
 G_END_DECLS
 

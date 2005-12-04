@@ -19,6 +19,7 @@
  *
  */
 #include <config.h>
+#include <string.h>
 #include <gtk/gtk.h>
 #include <gconf/gconf.h>
 #include <gconf/gconf-client.h>
@@ -27,7 +28,11 @@
 #include "palette.h"
 #include "util.h"
 #include "xtext.h"
+#include "../common/text.h"
+#include "../common/util.h"
 #include "../common/xchatc.h"
+
+typedef struct _fe_lastlog_info fe_lastlog_info;
 
 static void conversation_panel_class_init         (ConversationPanelClass *klass);
 static void conversation_panel_init               (ConversationPanel      *panel);
@@ -58,6 +63,16 @@ static void conversation_panel_print_line         (xtext_buffer           *buffe
                                                    guchar                  *text,
                                                    int                     len,
                                                    gboolean                indent);
+static void conversation_panel_lastlog_foreach    (GtkXText               *xtext,
+                                                   guchar                 *text,
+                                                   fe_lastlog_info        *info);
+
+struct _fe_lastlog_info
+{
+	ConversationPanel *panel;
+	struct session    *sess;
+	guchar            *sstr;
+};
 
 struct _ConversationPanelPriv
 {
@@ -458,4 +473,31 @@ conversation_panel_remove_session (ConversationPanel *panel, struct session *ses
 	g_object_unref (client);
 
 	g_hash_table_remove (panel->priv->buffers, sess);
+}
+
+static void
+conversation_panel_lastlog_foreach (GtkXText *xtext, guchar *text, fe_lastlog_info *info)
+{
+	if (nocasestrstr (text, info->sstr))
+		conversation_panel_print (info->panel, info->sess, text, prefs.indent_nicks);
+}
+
+void
+conversation_panel_lastlog (ConversationPanel *panel, struct session *sess, struct session *lsess, char *sstr)
+{
+	xtext_buffer *buffer, *lbuffer;
+
+	buffer  = g_hash_table_lookup (panel->priv->buffers, sess);
+	lbuffer = g_hash_table_lookup (panel->priv->buffers, lsess);
+
+	if (gtk_xtext_is_empty (buffer)) {
+		conversation_panel_print (panel, lsess, _("Search buffer is empty.\n"), TRUE);
+	} else {
+		fe_lastlog_info info;
+		info.panel = panel;
+		info.sess  = lsess;
+		info.sstr  = sstr;
+
+		gtk_xtext_foreach (buffer, (GtkXTextForeach) conversation_panel_lastlog_foreach, &info);
+	}
 }
