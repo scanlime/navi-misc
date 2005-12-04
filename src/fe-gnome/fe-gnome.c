@@ -33,6 +33,7 @@
 #include "preferences.h"
 #include "setup-dialog.h"
 
+#include "conversation-panel.h"
 #include "status-bar.h"
 #include "topic-label.h"
 
@@ -196,7 +197,9 @@ fe_new_window (struct session *sess, int focus)
 {
 	static gboolean loaded = FALSE;
 
-	text_gui_add_text_buffer (sess);
+	gui.current_session = sess;
+	conversation_panel_add_session (CONVERSATION_PANEL (gui.conversation_panel), sess);
+	topic_label_set_topic (TOPIC_LABEL (gui.topic_label), sess, sess->topic);
 	if (sess->type == SESS_SERVER)
 		navigation_tree_create_new_network_entry (gui.server_tree, sess);
 	else if (sess->type == SESS_CHANNEL || sess->type == SESS_DIALOG)

@@ -27,22 +27,31 @@
 #include "xtext.h"
 #include "../common/xchatc.h"
 
-static void conversation_panel_class_init   (ConversationPanelClass *klass);
-static void conversation_panel_init         (ConversationPanel      *panel);
-static void conversation_panel_finalize     (GObject                *object);
-static void conversation_panel_realize      (GtkWidget              *widget);
-static int  conversation_panel_check_word   (GtkWidget              *xtext,
-                                             char                   *word,
-                                             int                     len);
-static void conversation_panel_clicked_word (GtkWidget              *xtext,
-                                             char                   *word,
-                                             GdkEventButton         *event,
-                                             gpointer                data);
-static void conversation_panel_set_font     (ConversationPanel      *panel);
-static void conversation_panel_font_changed (GConfClient            *client,
-                                             guint                   cnxn_id,
-                                             GConfEntry             *entry,
-                                             ConversationPanel      *panel);
+static void conversation_panel_class_init         (ConversationPanelClass *klass);
+static void conversation_panel_init               (ConversationPanel      *panel);
+static void conversation_panel_finalize           (GObject                *object);
+static void conversation_panel_realize            (GtkWidget              *widget);
+static int  conversation_panel_check_word         (GtkWidget              *xtext,
+                                                   char                   *word,
+                                                   int                     len);
+static void conversation_panel_clicked_word       (GtkWidget              *xtext,
+                                                   char                   *word,
+                                                   GdkEventButton         *event,
+                                                   gpointer                data);
+static void conversation_panel_set_font           (ConversationPanel      *panel);
+static void conversation_panel_font_changed       (GConfClient            *client,
+                                                   guint                   cnxn_id,
+                                                   GConfEntry             *entry,
+                                                   ConversationPanel      *panel);
+static void conversation_panel_set_background     (ConversationPanel      *panel);
+static void conversation_panel_background_changed (GConfClient            *client,
+                                                   guint                   cnxn_id,
+                                                   GConfEntry             *entry,
+                                                   ConversationPanel      *panel);
+static void timestamps_changed                    (GConfClient            *client,
+                                                   guint                   cnxn_id,
+                                                   GConfEntry             *entry,
+                                                   xtext_buffer           *buffer);
 
 struct _ConversationPanelPriv
 {
@@ -50,6 +59,7 @@ struct _ConversationPanelPriv
 	GtkWidget  *xtext;
 
 	GHashTable *buffers;
+	GHashTable *timestamp_notifies;
 };
 
 static GtkHBoxClass *parent_class;
@@ -80,6 +90,9 @@ conversation_panel_init (ConversationPanel *panel)
 	panel->priv->scrollbar = gtk_vscrollbar_new (GTK_XTEXT (panel->priv->xtext)->adj);
 	frame                  = gtk_frame_new (NULL);
 
+	panel->priv->buffers            = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, (GDestroyNotify) gtk_xtext_buffer_free);
+	panel->priv->timestamp_notifies = g_hash_table_new      (g_direct_hash, g_direct_equal);
+
 	gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_IN);
 	gtk_container_add (GTK_CONTAINER (frame), panel->priv->xtext);
 
@@ -100,6 +113,8 @@ conversation_panel_finalize (GObject *object)
 
 	panel = CONVERSATION_PANEL (object);
 
+	g_hash_table_destroy (panel->priv->buffers);
+	g_hash_table_destroy (panel->priv->timestamp_notifies);
 	g_free (panel->priv);
 
 	if (G_OBJECT_CLASS (parent_class)->finalize)
@@ -128,11 +143,20 @@ conversation_panel_realize (GtkWidget *widget)
 	gtk_xtext_set_wordwrap          (GTK_XTEXT (panel->priv->xtext), prefs.wordwrap);
 	gtk_xtext_set_urlcheck_function (GTK_XTEXT (panel->priv->xtext), conversation_panel_check_word);
 
-	conversation_panel_set_font (panel);
+	conversation_panel_set_font       (panel);
+	conversation_panel_set_background (panel);
 
 	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_click", G_CALLBACK (conversation_panel_clicked_word), NULL);
-	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) conversation_panel_font_changed, panel, NULL, NULL);
-	gconf_client_notify_add (client, "/apps/xchat/main_window/font",          (GConfClientNotifyFunc) conversation_panel_font_changed, panel, NULL, NULL);
+	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts",
+	                         (GConfClientNotifyFunc) conversation_panel_font_changed,       panel, NULL, NULL);
+	gconf_client_notify_add (client, "/apps/xchat/main_window/font",
+	                         (GConfClientNotifyFunc) conversation_panel_font_changed,       panel, NULL, NULL);
+	gconf_client_notify_add (client, "/apps/xchat/main_window/background_type",
+	                         (GConfClientNotifyFunc) conversation_panel_background_changed, panel, NULL, NULL);
+	gconf_client_notify_add (client, "/apps/xchat/main_window/background_image",
+	                         (GConfClientNotifyFunc) conversation_panel_background_changed, panel, NULL, NULL);
+	gconf_client_notify_add (client, "/apps/xchat/main_window/background_transparency",
+	                         (GConfClientNotifyFunc) conversation_panel_background_changed, panel, NULL, NULL);
 
 	g_object_unref (client);
 }
@@ -150,9 +174,8 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 static void
 conversation_panel_set_font (ConversationPanel *panel)
 {
-	GConfClient   *client;
-	gchar         *font;
-	GtkAdjustment *adj;
+	GConfClient *client;
+	gchar       *font;
 
 	client = gconf_client_get_default ();
 	if (gconf_client_get_bool(client, "/apps/xchat/main_window/use_sys_fonts", NULL))
@@ -165,9 +188,6 @@ conversation_panel_set_font (ConversationPanel *panel)
 		font = g_strdup ("fixed 11");
 
 	gtk_xtext_set_font (GTK_XTEXT (panel->priv->xtext), font);
-	adj = GTK_XTEXT (panel->priv->xtext)->adj;
-	gtk_adjustment_set_value (adj, adj->upper - adj->page_size);
-	gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), FALSE);
 
 	g_free (font);
 }
@@ -175,11 +195,94 @@ conversation_panel_set_font (ConversationPanel *panel)
 static void
 conversation_panel_font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, ConversationPanel *panel)
 {
+	GtkAdjustment *adj;
+
 	conversation_panel_set_font (panel);
+
+	adj = GTK_XTEXT (panel->priv->xtext)->adj;
+	gtk_adjustment_set_value (adj, adj->upper - adj->page_size);
+	gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), FALSE);
+}
+
+static void
+conversation_panel_set_background (ConversationPanel *panel)
+{
+	GConfClient *client;
+	gint         background_type;
+
+	client = gconf_client_get_default ();
+	background_type = gconf_client_get_int (client, "/apps/xchat/main_window/background_type", NULL);
+	if (background_type == 0) {
+		gtk_xtext_set_tint       (GTK_XTEXT (panel->priv->xtext), 0, 0, 0);
+		gtk_xtext_set_background (GTK_XTEXT (panel->priv->xtext), NULL, FALSE);
+	} else if (background_type == 1) {
+		gchar *filename = gconf_client_get_string (client, "/apps/xchat/main_window/background_image", NULL);
+		gtk_xtext_set_tint       (GTK_XTEXT (panel->priv->xtext), 0, 0, 0);
+		gtk_xtext_set_background (GTK_XTEXT (panel->priv->xtext), NULL, FALSE);
+		if (filename) {
+			GdkPixbuf *pixbuf;
+			pixbuf = gdk_pixbuf_new_from_file (filename, NULL);
+			if (pixbuf) {
+				gint width, height;
+				GdkPixmap *image;
+
+				width  = gdk_pixbuf_get_width  (pixbuf);
+				height = gdk_pixbuf_get_height (pixbuf);
+
+				image = gdk_pixmap_new (NULL, width, height, 24);
+				gdk_draw_pixbuf (image, NULL, pixbuf, 0, 0, 0, 0, width, height, GDK_RGB_DITHER_NONE, 0, 0);
+
+				gtk_xtext_set_background (GTK_XTEXT (panel->priv->xtext), image, FALSE);
+				g_object_unref (pixbuf);
+				g_object_unref (image);
+			}
+			g_free (filename);
+		}
+	} else {
+		float transparency = gconf_client_get_float (client, "/apps/xchat/main_window/background_transparency", NULL);
+		int value = 255 - ((int) (transparency * 255));
+		gtk_xtext_set_tint       (GTK_XTEXT (panel->priv->xtext), value, value, value);
+		gtk_xtext_set_background (GTK_XTEXT (panel->priv->xtext), NULL, TRUE);
+	}
+	g_object_unref (client);
+}
+
+static void
+conversation_panel_background_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, ConversationPanel *panel)
+{
+	conversation_panel_set_font (panel);
+	gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), TRUE);
+}
+
+static void
+timestamps_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, xtext_buffer *buffer)
+{
+	gtk_xtext_set_time_stamp (buffer, gconf_client_get_bool (client, entry->key, NULL));
 }
 
 GtkWidget *
 conversation_panel_new (void)
 {
 	return GTK_WIDGET (g_object_new (conversation_panel_get_type (), NULL));
+}
+
+void
+conversation_panel_add_session (ConversationPanel *panel, struct session *sess)
+{
+	GConfClient  *client;
+	xtext_buffer *buffer;
+	gint          notify;
+
+	buffer = gtk_xtext_buffer_new (GTK_XTEXT (panel->priv->xtext));
+
+	gtk_xtext_buffer_show (GTK_XTEXT (panel->priv->xtext), buffer, TRUE);
+
+	client = gconf_client_get_default ();
+	gtk_xtext_set_time_stamp (buffer, gconf_client_get_bool (client, "/apps/xchat/irc/showtimestamps", NULL));
+	notify = gconf_client_notify_add (client, "/apps/xchat/irc/showtimestamps",
+	                                  (GConfClientNotifyFunc) timestamps_changed, buffer, NULL, NULL);
+	g_object_unref (client);
+
+	g_hash_table_insert (panel->priv->buffers,            sess, buffer);
+	g_hash_table_insert (panel->priv->timestamp_notifies, sess, GINT_TO_POINTER (notify));
 }
