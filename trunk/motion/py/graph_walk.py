@@ -60,6 +60,7 @@ for bone in graphs.keys ():
     if opts.cliche: bones[bone] = clicheWalk (graphs[bone], opts.len)
     else: bones[bone] = randomWalk (graphs[bone], opts.len)
 
-print bones
+for key,val in bones.iteritems ():
+    print key, val
 
 # vim:ts=4:sw=4:et
