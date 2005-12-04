@@ -525,82 +525,82 @@ drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 	case TARGET_COMPOUND_TEXT:
 	case TARGET_UTF8_STRING:
 	case TARGET_TEXT_PLAIN:
-		{
-			gchar *txt;
+	{
+		gchar *txt;
 
-			txt = gtk_selection_data_get_text (selection_data);
-			if (gui.current_session != NULL)
-			handle_multiline (gui.current_session, txt, TRUE, FALSE);
+		txt = gtk_selection_data_get_text (selection_data);
+		if (gui.current_session != NULL)
+		handle_multiline (gui.current_session, txt, TRUE, FALSE);
 
-			g_free (txt);
-			break;
-		}
+		g_free (txt);
+		break;
+	}
 	case TARGET_URI_LIST:
-		{
-			gchar *uri_list, **uris;
-			gint nb_uri;
+	{
+		gchar *uri_list, **uris;
+		gint nb_uri;
 
-			if ((panel->priv->current->type != SESS_CHANNEL) &&
-			    (panel->priv->current->type != SESS_DIALOG))
-				return;
+		if ((panel->priv->current->type != SESS_CHANNEL) &&
+		    (panel->priv->current->type != SESS_DIALOG))
+			return;
 
-			if (selection_data->format != 8 || selection_data->length == 0) {
-				g_printerr (_("URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"),
-				            selection_data->format, selection_data->length);
-				return;
-			}
+		if (selection_data->format != 8 || selection_data->length == 0) {
+			g_printerr (_("URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"),
+			            selection_data->format, selection_data->length);
+			return;
+		}
 
-			uri_list = g_strndup (selection_data->data, selection_data->length);
-			uris = g_strsplit (uri_list, "\r\n", 0);
-			g_free (uri_list);
+		uri_list = g_strndup (selection_data->data, selection_data->length);
+		uris = g_strsplit (uri_list, "\r\n", 0);
+		g_free (uri_list);
 
-			free_dropped_files (panel);
+		free_dropped_files (panel);
 
-			for (nb_uri = 0; uris[nb_uri] && strlen (uris[nb_uri]) > 0; nb_uri++)
-				panel->priv->dropped_files = g_slist_prepend (panel->priv->dropped_files, uris[nb_uri]);
-			g_free (uris); /* String in uris will be freed in free_dropped_files */
-			panel->priv->dropped_files = g_slist_reverse (panel->priv->dropped_files);
+		for (nb_uri = 0; uris[nb_uri] && strlen (uris[nb_uri]) > 0; nb_uri++)
+			panel->priv->dropped_files = g_slist_prepend (panel->priv->dropped_files, uris[nb_uri]);
+		g_free (uris); /* String in uris will be freed in free_dropped_files */
+		panel->priv->dropped_files = g_slist_reverse (panel->priv->dropped_files);
 
-			if (context->action == GDK_ACTION_ASK) {
-				/* Display the context menu */
-				GtkWidget *menu, *entry;
+		if (context->action == GDK_ACTION_ASK) {
+			/* Display the context menu */
+			GtkWidget *menu, *entry;
 
-				menu = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup");
-				entry = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup/DropPasteFile");
-				if (nb_uri > 1 ||
-				    (uri_is_text (panel->priv->dropped_files->data) == FALSE) ||
-				    (check_file_size (panel->priv->dropped_files->data) == FALSE))
-					gtk_widget_set_sensitive (entry, FALSE);
-				else
-					gtk_widget_set_sensitive (entry, TRUE);
+			menu = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup");
+			entry = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup/DropPasteFile");
+			if (nb_uri > 1 ||
+			    (uri_is_text (panel->priv->dropped_files->data) == FALSE) ||
+			    (check_file_size (panel->priv->dropped_files->data) == FALSE))
+				gtk_widget_set_sensitive (entry, FALSE);
+			else
+				gtk_widget_set_sensitive (entry, TRUE);
 
-				/* Enable/Disable send files */
-				entry = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup/DropSendFiles");
-				if (panel->priv->current->type == SESS_CHANNEL)
-					gtk_widget_set_sensitive (entry, FALSE);
-				else
-					gtk_widget_set_sensitive (entry, TRUE);
+			/* Enable/Disable send files */
+			entry = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup/DropSendFiles");
+			if (panel->priv->current->type == SESS_CHANNEL)
+				gtk_widget_set_sensitive (entry, FALSE);
+			else
+				gtk_widget_set_sensitive (entry, TRUE);
 
-				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 2, gtk_get_current_event_time ());
+			gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 2, gtk_get_current_event_time ());
+		} else {
+			/* Do the default action */
+			if (gui.current_session->type == SESS_CHANNEL) {
+				/* Dropped in a channel */
+				if (nb_uri == 1 &&
+				    uri_is_text (panel->priv->dropped_files->data) &&
+				    check_file_size (panel->priv->dropped_files->data))
+					drop_paste (panel);
 			} else {
-				/* Do the default action */
-				if (gui.current_session->type == SESS_CHANNEL) {
-					/* Dropped in a channel */
-					if (nb_uri == 1 &&
-					    uri_is_text (panel->priv->dropped_files->data) &&
-					    check_file_size (panel->priv->dropped_files->data))
-						drop_paste (panel);
-				} else {
-					/* Dropped in a query */
-					if (nb_uri == 1 &&
-					    uri_is_text (panel->priv->dropped_files->data) &&
-					    check_file_size (panel->priv->dropped_files->data))
-						drop_paste (panel);
-					else
-						drop_send (panel);
-				}
+				/* Dropped in a query */
+				if (nb_uri == 1 &&
+				    uri_is_text (panel->priv->dropped_files->data) &&
+				    check_file_size (panel->priv->dropped_files->data))
+					drop_paste (panel);
+				else
+					drop_send (panel);
 			}
 		}
+	}
 	}
 }
 
