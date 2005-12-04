@@ -405,7 +405,9 @@ navigation_tree_server_rm_chans (NavTree *navtree, GtkTreeIter * parent)
 		do {
 			gtk_tree_model_get (store, &child, 2, &s, -1);
 			fe_close_window (s);
-			text_gui_remove_text_buffer (s);
+			conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), s);
+			topic_label_remove_session        (TOPIC_LABEL        (gui.topic_label),        s);
+			text_entry_remove_session         (TEXT_ENTRY         (gui.text_entry),         s);
 		} while (gtk_tree_model_iter_next (store, &child));
 	}
 }
@@ -1572,7 +1574,11 @@ on_close (GtkAction * action, gpointer data)
 		}
 
 		fe_close_window (s);
-		text_gui_remove_text_buffer (s);
+		if (s->type == SESS_SERVER)
+			status_bar_remove_server (STATUS_BAR (gui.status_bar), s->server);
+		conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), s);
+		topic_label_remove_session        (TOPIC_LABEL        (gui.topic_label),        s);
+		text_entry_remove_session         (TEXT_ENTRY         (gui.text_entry),         s);
 	}
 }
 
