@@ -39,14 +39,16 @@
 #include "palette.h"
 #include "preferences-dialog.h"
 #include "preferences.h"
-#include "text-entry.h"
 #include "textgui.h"
-#include "topic-label.h"
 #include "userlist-gui.h"
 #include "util.h"
 #include "../common/xchatc.h"
 #include "../common/outbound.h"
 #include "../common/fe.h"
+
+#include "conversation-panel.h"
+#include "text-entry.h"
+#include "topic-label.h"
 
 static textentry *last_search_position = NULL;
 
@@ -144,63 +146,6 @@ static GtkActionEntry action_entries [] = {
 };
 
 void
-save_transcript (void)
-{
-	GtkWidget *file_chooser;
-	gchar     *default_filename;
-	gchar      dates[32];
-	struct tm  date;
-	time_t     dtime;
-
-	file_chooser = gtk_file_chooser_dialog_new (_("Save Transcript"),
-	                                            GTK_WINDOW (gui.main_window),
-	                                            GTK_FILE_CHOOSER_ACTION_SAVE,
-	                                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-	                                            GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-	                                            NULL);
-	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (file_chooser), TRUE);
-	gtk_file_chooser_set_local_only (GTK_FILE_CHOOSER (file_chooser), TRUE);
-	gtk_dialog_set_default_response (GTK_DIALOG (file_chooser), GTK_RESPONSE_ACCEPT);
-
-	time (&dtime);
-	localtime_r (&dtime, &date);
-	strftime (dates, 32, "%F-%R", &date);
-
-	default_filename = g_strdup_printf ("%s-%s.log", gui.current_session->channel, dates);
-	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_chooser), default_filename);
-	g_free (default_filename);
-
-
-	if (gtk_dialog_run (GTK_DIALOG (file_chooser)) == GTK_RESPONSE_ACCEPT) {
-		gchar *filename;
-		GIOChannel *file;
-		GError *error = NULL;
-
-		filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (file_chooser));
-		file = g_io_channel_new_file (filename, "w", &error);
-		if (error) {
-			gchar *header = g_strdup_printf (_("Error saving %s"), filename);
-			error_dialog (header, error->message);
-			g_free (header);
-			g_error_free (error);
-		} else {
-			gint fd = g_io_channel_unix_get_fd (file);
-			gtk_xtext_save (gui.xtext, fd);
-			g_io_channel_shutdown (file, TRUE, &error);
-
-			if (error) {
-				gchar *header = g_strdup_printf (_("Error saving %s"), filename);
-				error_dialog (header, error->message);
-				g_free (header);
-				g_error_free (error);
-			}
-		}
-		g_free (filename);
-	}
-	gtk_widget_destroy (file_chooser);
-}
-
-void
 close_find_button (GtkWidget *button, gpointer data)
 {
 	GtkWidget *widget;
@@ -211,8 +156,10 @@ close_find_button (GtkWidget *button, gpointer data)
 	widget = glade_xml_get_widget (gui.xml, "find_status_label");
 	gtk_label_set_text (GTK_LABEL (widget), "");
 
+	/* FIXME
 	gtk_xtext_selection_clear_full (gui.xtext->buffer);
 	gtk_xtext_refresh (gui.xtext, TRUE);
+	*/
 }
 
 static gboolean
@@ -232,6 +179,7 @@ find_next (GtkWidget *entry, gpointer data)
 	textentry *position;
 	gboolean reverse = (gboolean) GPOINTER_TO_UINT(data);
 
+	/* FIXME
 	position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position, FALSE, reverse);
 
 	info = glade_xml_get_widget (gui.xml, "find_status_label");
@@ -249,6 +197,7 @@ find_next (GtkWidget *entry, gpointer data)
 		gtk_label_set_text (GTK_LABEL (info), "");
 	}
 	last_search_position = position;
+	*/
 }
 
 static void
@@ -602,7 +551,7 @@ on_discussion_users_activate (GtkAction *action, gpointer data)
 static void
 on_discussion_save_activate (GtkAction *action, gpointer data)
 {
-	save_transcript ();
+	conversation_panel_save_current (CONVERSATION_PANEL (gui.conversation_panel));
 }
 
 static void
@@ -660,8 +609,7 @@ on_discussion_find_activate (GtkAction *action, gpointer data)
 static void
 on_discussion_clear_window_activate (GtkAction *action, gpointer data)
 {
-	session *s = gui.current_session;
-	clear_buffer (s);
+	conversation_panel_clear (CONVERSATION_PANEL (gui.conversation_panel), gui.current_session);
 }
 
 static void

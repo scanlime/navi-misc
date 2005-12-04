@@ -39,7 +39,6 @@ typedef struct
 	GtkActionGroup *action_group;
 	GtkUIManager *manager;
 	GtkWidget *about;
-	GtkXText *xtext;
 	DccWindow *dcc;
 	GtkExpander *topic_expander;
 	GtkWidget *userlist_window;

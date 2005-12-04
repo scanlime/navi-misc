@@ -105,12 +105,7 @@ static GtkTargetEntry target_table[] = {
 void
 initialize_text_gui (void)
 {
-	GConfClient *client;
 	GtkActionGroup *action_group;
-
-	client = gconf_client_get_default ();
-
-	gui.xtext = GTK_XTEXT (gtk_xtext_new (colors, TRUE));
 
 	notify_table = g_hash_table_new (g_direct_hash, g_direct_equal);
 
@@ -122,12 +117,13 @@ initialize_text_gui (void)
 	g_object_unref (action_group);
 
 	/* Setup drag and drop */
+	/*
 	g_signal_connect (gui.xtext, "drag_data_received", G_CALLBACK (drag_data_received), NULL);
 	gtk_drag_dest_set (GTK_WIDGET (gui.xtext), GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP, target_table, G_N_ELEMENTS (target_table), GDK_ACTION_COPY | GDK_ACTION_ASK);
 
 	gtk_xtext_refresh (gui.xtext, TRUE);
 	gtk_widget_show_all (GTK_WIDGET (gui.xtext));
-	g_object_unref (client);
+	*/
 }
 
 void
@@ -156,68 +152,6 @@ text_gui_remove_text_buffer (struct session *sess)
 	sess->gui = NULL;
 }
 
-static void
-text_gui_print_line (xtext_buffer *buf, unsigned char *text, int len, gboolean indent)
-{
-	int leftlen;
-	unsigned char *tab;
-	if (len == 0)
-		len = 1;
-
-	if (!indent) {
-		int stamp_size;
-		char *stamp;
-		unsigned char *new_text;
-
-		stamp_size = get_stamp_str (prefs.stamp_format, time(NULL), &stamp);
-		new_text = g_malloc (len + stamp_size + 1);
-		memcpy (new_text, stamp, stamp_size);
-		g_free (stamp);
-		memcpy (new_text + stamp_size, text, len);
-		gtk_xtext_append (buf, new_text, len + stamp_size);
-		g_free (new_text);
-		return;
-	}
-
-	tab = strchr (text, '\t');
-	if (tab && tab < (text + len)) {
-		leftlen = tab - text;
-		gtk_xtext_append_indent (buf, text, leftlen, tab + 1, len - (leftlen + 1));
-	} else {
-		gtk_xtext_append_indent (buf, 0, 0, text, len);
-	}
-}
-
-void
-text_gui_print (xtext_buffer *buf, unsigned char *text, gboolean indent)
-{
-	char *last_text = text;
-	int len = 0;
-
-	/* split the text into separate lines */
-	while (1) {
-		switch (*text) {
-		case '\0':
-			text_gui_print_line (buf, last_text, len, indent);
-			return;
-		case '\n':
-			text_gui_print_line (buf, last_text, len, indent);
-			text++;
-			if (*text == '\0')
-				return;
-			last_text = text;
-			len = 0;
-			break;
-		case ATTR_BEEP:
-			*text = ' ';
-			gdk_beep ();
-		default:
-			text++;
-			len++;
-		}
-	}
-}
-
 void
 set_nickname (struct server *serv, char *newnick)
 {
@@ -228,19 +162,6 @@ set_nickname (struct server *serv, char *newnick)
 		else
 			gtk_button_set_label (GTK_BUTTON (nick), newnick);
 	}
-}
-
-void
-clear_buffer (struct session *sess)
-{
-	session_gui *sgui;
-
-	if (sess == NULL)
-		return;
-
-	sgui = (session_gui *) sess->gui;
-	gtk_xtext_clear (sgui->buffer);
-	gtk_xtext_refresh (gui.xtext, FALSE);
 }
 
 int
