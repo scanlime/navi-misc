@@ -13,7 +13,7 @@ def clicheWalk (graph, len):
 
     # Choose a random starting point.
     u = random.choice ([v for v in vertexMap])
-    path = [u]
+    path = [u.center]
 
     for i in range (len):
         choice = None
@@ -28,7 +28,7 @@ def clicheWalk (graph, len):
                 choice = edge.v
 
         # Append the next vertex and set it as the current vertex.
-        path.append (choice)
+        path.append (choice.center)
         u = choice
 
     return path
@@ -40,13 +40,13 @@ def randomWalk (graph, len):
 
     # Choose a random starting place.
     u = random.choice ([v for v in adjacency.iterU ()])
-    path = [u]
+    path = [u.center]
 
     for i in range (len):
         # Choose a random edge coming out of u.
         choice = random.choice ([edge for edge in adjacency.query (u)])
         # Append the end of that edge to the path.
-        path.append (choice.v)
+        path.append (choice.v.center)
         # Set the current vertex to this new vertex
         u = choice.v
 
