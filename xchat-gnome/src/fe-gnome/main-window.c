@@ -646,13 +646,9 @@ on_nickname_clicked (GtkButton *widget, gpointer user_data)
 	dialog = glade_xml_get_widget (gui.xml, "nickname dialog");
 	entry = glade_xml_get_widget (gui.xml, "nickname dialog entry");
 
-	gtk_entry_set_text (GTK_ENTRY (entry), current_sess->server->nick);
-	g_signal_connect (G_OBJECT (entry), "activate",
-						 	G_CALLBACK (nickname_str_enter),
-						 	dialog);
-	g_signal_connect (G_OBJECT (dialog), "response",
-						   G_CALLBACK (nickname_get_str_response),
-						   entry);
+	gtk_entry_set_text (GTK_ENTRY (entry), current_sess->server->nick); g_signal_connect (G_OBJECT (entry), "activate",
+	                  G_CALLBACK (nickname_str_enter), dialog);
+	g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (nickname_get_str_response), entry);
 
 	gtk_widget_show_all (dialog);
 }
