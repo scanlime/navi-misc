@@ -27,7 +27,6 @@
 #define XCHAT_GNOME_TEXTGUI_H
 
 void initialize_text_gui (void);
-void text_gui_add_text_buffer (struct session *sess);
 void text_gui_remove_text_buffer (struct session *sess);
 void text_gui_print (xtext_buffer *buf, unsigned char *text, gboolean indent);
 void set_nickname (struct server *serv, char *newnick);
