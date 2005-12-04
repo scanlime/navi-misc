@@ -3,7 +3,7 @@
 from optparse import OptionParser
 from Dance import Sequence, MotionGraph
 from Graph.Data import AdjacencyList, VertexMap
-import random, pickle
+import Motion, Numeric, pickle, random
 
 def clicheWalk (graph, len):
     """Find a path in graph of length len by following the edges with the
@@ -69,12 +69,20 @@ bones  = {}
 
 for bone in graphs.keys ():
     print 'Walking', bone
-    if opts.cliche: bones[bone] = clicheWalk (graphs[bone], opts.len)
-    else: bones[bone] = randomWalk (graphs[bone], opts.len)
 
-for key,val in bones.iteritems ():
+    if opts.cliche:
+        bones[bone] = Numeric.array (clicheWalk (graphs[bone], opts.len))
+    else:
+        bones[bone] = Numeric.array (randomWalk (graphs[bone], opts.len))
+
+amc = Motion.AMC ()
+amc.bones = bones
+amc.save (args[1])
+
+for key,val in amc.bones.iteritems ():
     print key
     for n in val:
         print '    ', n
+
 
 # vim:ts=4:sw=4:et
