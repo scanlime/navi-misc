@@ -127,32 +127,6 @@ initialize_text_gui (void)
 }
 
 void
-text_gui_remove_text_buffer (struct session *sess)
-{
-	session_gui *tgui;
-	gint notify;
-	GConfClient *client;
-
-	tgui = (session_gui *) sess->gui;
-
-	client = gconf_client_get_default ();
-	notify = GPOINTER_TO_INT (g_hash_table_lookup (notify_table, tgui->buffer));
-	g_hash_table_remove (notify_table, tgui->buffer);
-	gconf_client_notify_remove (client, notify);
-	g_object_unref (client);
-
-	gtk_xtext_buffer_free (tgui->buffer);
-	topic_label_remove_session (TOPIC_LABEL (gui.topic_label), sess);
-	text_entry_remove_session  (TEXT_ENTRY  (gui.text_entry),  sess);
-
-	if (sess->type == SESS_SERVER)
-		status_bar_remove_server (STATUS_BAR (gui.status_bar), sess->server);
-
-	g_free (tgui);
-	sess->gui = NULL;
-}
-
-void
 set_nickname (struct server *serv, char *newnick)
 {
 	if (serv == gui.current_session->server) {

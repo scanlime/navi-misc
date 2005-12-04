@@ -444,3 +444,18 @@ conversation_panel_print (ConversationPanel *panel, struct session *sess, guchar
 		}
 	}
 }
+
+void
+conversation_panel_remove_session (ConversationPanel *panel, struct session *sess)
+{
+	GConfClient *client;
+	gint         notify;
+
+	client = gconf_client_get_default ();
+	notify = GPOINTER_TO_INT (g_hash_table_lookup (panel->priv->timestamp_notifies, sess));
+	g_hash_table_remove (panel->priv->timestamp_notifies, sess);
+	gconf_client_notify_remove (client, notify);
+	g_object_unref (client);
+
+	g_hash_table_remove (panel->priv->buffers, sess);
+}

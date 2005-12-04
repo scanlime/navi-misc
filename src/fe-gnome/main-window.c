@@ -592,7 +592,9 @@ on_discussion_close_activate (GtkAction *action, gpointer data)
 		g_free (text);
 	}
 	fe_close_window (s);
-	text_gui_remove_text_buffer (s);
+	conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), s);
+	topic_label_remove_session        (TOPIC_LABEL        (gui.topic_label),        s);
+	text_entry_remove_session         (TEXT_ENTRY         (gui.text_entry),         s);
 }
 
 static void
