@@ -15,7 +15,7 @@ def clicheWalk (graph, len):
 
     v = None
     u = random.choice ([u for u in adjacency.iterU ()])
-    path.append (u.center ())
+    path.append (u.center)
 
     for i in range (len):
         for edge in adjacency.query (u):
@@ -39,16 +39,18 @@ parser = OptionParser ("usage: %prog <graph pickle> <output amc>")
 parser.add_option ("--cliche", dest="cliche", default=False,
         action="store_true", help="Choose edges based on probability")
 parser.add_option ("-l", "--len", dest="len", default=1000,
-        help="Set length of paths")
+        type="int", help="Set length of paths")
 
 opts, args = parser.parse_args ()
 
 if len (args) != 2: parser.error ("graph and output file required")
 
+print 'Reading graph'
 graphs = pickle.load (open (args[0]))
 bones  = {}
 
 for bone in graphs.keys ():
+    print 'Walking', bone
     if opts.cliche: bones[bone] = clicheWalk (graphs[bone], opts.len)
     else: bones[bone] = randomWalk (graphs[bone], opts.len)
 
