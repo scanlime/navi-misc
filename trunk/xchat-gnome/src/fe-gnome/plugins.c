@@ -94,9 +94,10 @@ unload_plugin (char *filename)
 xchat_gnome_plugin *
 new_xg_plugin (void)
 {
-	xchat_gnome_plugin *plugin = malloc (sizeof (xchat_gnome_plugin));
+	xchat_gnome_plugin *plugin = g_new0 (xchat_gnome_plugin, 1);
 	plugin->xg_get_main_window = xg_get_main_window;
-	plugin->xg_get_chan_list = xg_get_chan_list;
+	plugin->xg_get_chan_list   = xg_get_chan_list;
+	plugin->xg_get_ui_manager  = xg_get_ui_manager;
 
 	return plugin;
 }
@@ -105,7 +106,7 @@ char *
 load_plugin (session * sess, char *filename, char *arg, gboolean script, gboolean autoload)
 {
 	int len;
-	char *buf, *err;
+	char *err;
 	void *handle;
 	gpointer xg_init_func;
 	xchat_gnome_plugin *pl;
@@ -149,4 +150,10 @@ GtkTreeModel *
 xg_get_chan_list (void)
 {
 	return gtk_tree_view_get_model (GTK_TREE_VIEW (gui.server_tree));
+}
+
+GtkUIManager *
+xg_get_ui_manager (void)
+{
+	return g_object_ref (gui.manager);
 }

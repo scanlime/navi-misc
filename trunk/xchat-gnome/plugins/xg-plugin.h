@@ -1,7 +1,7 @@
 /*
  * xg-plugin.h - handle (auto)loading and unloading of plugins
  *
- * Copyright (C) 2005 David Trowbridge
+ * Copyright (C) 2004-2005 xchat-gnome team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,8 +19,8 @@
  *
  */
 
-#include "../common/xchat.h"
 #include "navigation-tree.h"
+#include "../common/xchat.h"
 
 #ifndef XG_PLUGIN_H
 #define XG_PLUGIN_H
@@ -33,13 +33,15 @@ typedef struct _xchat_gnome_plugin xchat_gnome_plugin;
  */
 struct _xchat_gnome_plugin
 {
-	GtkWidget *(*xg_get_main_window) ();
-	GtkTreeModel *(*xg_get_chan_list) ();
+    GtkWidget *(*xg_get_main_window) (void);
+    GtkTreeModel *(*xg_get_chan_list) (void);
+    GtkUIManager *(*xg_get_ui_manager) (void);
 };
 #endif
 
-GtkWidget *xg_get_main_window ();
-GtkTreeModel *xg_get_chan_list ();
+GtkWidget *xg_get_main_window (void);
+GtkTreeModel *xg_get_chan_list (void);
+GtkUIManager *xg_get_ui_manager (void);
 
 #ifndef PLUGIN_C
 
@@ -49,10 +51,7 @@ GtkTreeModel *xg_get_chan_list ();
 
 #define xg_get_main_window ((XG_PLUGIN_HANDLE)->xg_get_main_window)
 #define xg_get_chan_list ((XG_PLUGIN_HANDLE)->xg_get_chan_list)
+#define xg_get_ui_manager ((XG_PLUGIN_HANDLE)->xg_get_ui_manager)
 
 #endif
 #endif
-
-/*** The End ***/
-/* vim:ts=3:sw=3
- */
