@@ -147,7 +147,7 @@ static GtkActionEntry action_entries [] = {
 void
 initialize_main_window (void)
 {
-	GtkWidget *close, *menu_vbox, *widget, *widget2;
+	GtkWidget *close, *menu_vbox, *widget;
 	GtkSizeGroup *group;
 
 	gui.main_window = glade_xml_get_widget (gui.xml, "xchat-gnome");
@@ -562,37 +562,13 @@ on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg
 static void
 on_pgup (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
 {
-	GtkWidget *scrollbar;
-	GtkAdjustment *adj;
-	int value, end;
-
-	scrollbar = glade_xml_get_widget (gui.xml, "text area scrollbar");
-	adj = GTK_RANGE (scrollbar)->adjustment;
-	end = adj->upper - adj->lower - adj->page_size;
-	value = adj->value - (adj->page_size - 1);
-	if (value < 0)
-		value = 0;
-	if (value > end)
-		value = end;
-	gtk_adjustment_set_value (adj, value);
+	conversation_panel_page_up (CONVERSATION_PANEL (gui.conversation_panel));
 }
 
 static void
 on_pgdn (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data)
 {
-	GtkWidget *scrollbar;
-	GtkAdjustment *adj;
-	int value, end;
-
-	scrollbar = glade_xml_get_widget (gui.xml, "text area scrollbar");
-	adj = GTK_RANGE (scrollbar)->adjustment;
-	end = adj->upper - adj->lower - adj->page_size;
-	value = adj->value + (adj->page_size - 1);
-	if (value < 0)
-		value = 0;
-	if (value > end)
-		value = end;
-	gtk_adjustment_set_value (adj, value);
+	conversation_panel_page_down (CONVERSATION_PANEL (gui.conversation_panel));
 }
 
 static void
