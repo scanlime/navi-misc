@@ -50,7 +50,7 @@
 #include "text-entry.h"
 #include "topic-label.h"
 
-static textentry *last_search_position = NULL;
+static gpointer last_search_position = NULL;
 
 static void on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data);
 static void on_discussion_jump_activate (GtkAccelGroup *accelgroup, GObject *arg1, guint arg2, GdkModifierType arg3, gpointer data);
@@ -156,10 +156,7 @@ close_find_button (GtkWidget *button, gpointer data)
 	widget = glade_xml_get_widget (gui.xml, "find_status_label");
 	gtk_label_set_text (GTK_LABEL (widget), "");
 
-	/* FIXME
-	gtk_xtext_selection_clear_full (gui.xtext->buffer);
-	gtk_xtext_refresh (gui.xtext, TRUE);
-	*/
+	conversation_panel_clear_selection (CONVERSATION_PANEL (gui.conversation_panel));
 }
 
 static gboolean
@@ -176,19 +173,18 @@ find_next (GtkWidget *entry, gpointer data)
 {
 	GtkWidget *info;
 	const guchar *text = gtk_entry_get_text (GTK_ENTRY (entry));
-	textentry *position;
+	gpointer position;
 	gboolean reverse = (gboolean) GPOINTER_TO_UINT(data);
 
-	/* FIXME
-	position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, last_search_position, FALSE, reverse);
+	position = conversation_panel_search (CONVERSATION_PANEL (gui.conversation_panel), text, last_search_position, FALSE, reverse);
 
 	info = glade_xml_get_widget (gui.xml, "find_status_label");
 	if (position == NULL && (last_search_position != NULL)) {
 		if (reverse) {
-			position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
+			position = conversation_panel_search (CONVERSATION_PANEL (gui.conversation_panel), text, NULL, FALSE, reverse);
 			gtk_label_set_markup (GTK_LABEL (info), _("<span foreground=\"grey\">Reached beginning, continuing from bottom</span>"));
 		} else {
-			position = gtk_xtext_search (GTK_XTEXT (gui.xtext), text, NULL, FALSE, reverse);
+			position = conversation_panel_search (CONVERSATION_PANEL (gui.conversation_panel), text, NULL, FALSE, reverse);
 			gtk_label_set_markup (GTK_LABEL (info), _("<span foreground=\"grey\">Reached end, continuing from top</span>"));
 		}
 	} else if (position == NULL) {
@@ -197,19 +193,18 @@ find_next (GtkWidget *entry, gpointer data)
 		gtk_label_set_text (GTK_LABEL (info), "");
 	}
 	last_search_position = position;
-	*/
 }
 
 static void
 find_button_next (GtkButton *button, GtkWidget *entry)
 {
-	find_next (entry, GUINT_TO_POINTER(FALSE));
+	find_next (entry, GUINT_TO_POINTER (FALSE));
 }
 
 static void
 find_button_prev (GtkButton *button, GtkWidget *entry)
 {
-	find_next (entry, GUINT_TO_POINTER(TRUE));
+	find_next (entry, GUINT_TO_POINTER (TRUE));
 }
 
 static void
