@@ -927,3 +927,35 @@ conversation_panel_search (ConversationPanel *panel, const gchar *text, gpointer
 {
 	return gtk_xtext_search (GTK_XTEXT (panel->priv->xtext), text, start, casem, reverse);
 }
+
+void
+conversation_panel_page_up (ConversationPanel *panel)
+{
+	GtkAdjustment *adj;
+	int end, value;
+
+	adj = GTK_XTEXT (panel->priv->xtext)->adj;
+	end = adj->upper - adj->lower - adj->page_size;
+	value = adj->value - (adj->page_size - 1);
+	if (value < 0)
+		value = 0;
+	if (value > end)
+		value = end;
+	gtk_adjustment_set_value (adj, value);
+}
+
+void
+conversation_panel_page_down (ConversationPanel *panel)
+{
+	GtkAdjustment *adj;
+	int value, end;
+
+	adj = GTK_XTEXT (panel->priv->xtext)->adj;
+	end = adj->upper - adj->lower - adj->page_size;
+	value = adj->value + (adj->page_size - 1);
+	if (value < 0)
+		value = 0;
+	if (value > end)
+		value = end;
+	gtk_adjustment_set_value (adj, value);
+}
