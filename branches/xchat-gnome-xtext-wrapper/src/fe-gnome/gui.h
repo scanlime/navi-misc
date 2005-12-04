@@ -48,10 +48,11 @@ typedef struct
 	session *current_session;
 	gboolean quit;
 
+	GtkWidget *conversation_panel;
 	GtkWidget *main_window;
 	GtkWidget *status_bar;
-	GtkWidget *topic_label;
 	GtkWidget *text_entry;
+	GtkWidget *topic_label;
 
 	NavModel *tree_model;
 	NavTree *server_tree;

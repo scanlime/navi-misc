@@ -47,7 +47,6 @@
 
 int check_word (GtkWidget *xtext, char *word, int len);
 static void clicked_word (GtkWidget *xtext, char *word, GdkEventButton *even, gpointer data);
-static void font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data);
 static void background_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer data);
 static void gconf_timestamps_changed (GConfClient *client, GConfEntry *entry, gpointer data);
 
@@ -108,32 +107,15 @@ static GtkTargetEntry target_table[] = {
 void
 initialize_text_gui (void)
 {
-	GtkWidget *frame, *scrollbar;
 	GConfClient *client;
-	gchar *font;
 	GtkActionGroup *action_group;
 	gint background_type;
 
 	client = gconf_client_get_default ();
 
 	gui.xtext = GTK_XTEXT (gtk_xtext_new (colors, TRUE));
-	frame = glade_xml_get_widget (gui.xml, "text area frame");
-	gtk_container_add (GTK_CONTAINER (frame), GTK_WIDGET (gui.xtext));
-	scrollbar = glade_xml_get_widget (gui.xml, "text area scrollbar");
-	gtk_range_set_adjustment (GTK_RANGE (scrollbar), gui.xtext->adj);
 
 	notify_table = g_hash_table_new (g_direct_hash, g_direct_equal);
-
-	palette_alloc (GTK_WIDGET (gui.xtext));
-	gtk_xtext_set_palette (gui.xtext, colors);
-	gtk_xtext_set_max_lines (gui.xtext, 3000);
-	gtk_xtext_set_show_separator (gui.xtext, prefs.show_separator);
-	gtk_xtext_set_indent (gui.xtext, prefs.indent_nicks);
-	gtk_xtext_set_max_indent (gui.xtext, prefs.max_auto_indent);
-	gtk_xtext_set_thin_separator (gui.xtext, prefs.thin_separator);
-	gtk_xtext_set_wordwrap (gui.xtext, prefs.wordwrap);
-	gtk_xtext_set_urlcheck_function (gui.xtext, check_word);
-	g_signal_connect (G_OBJECT (gui.xtext), "word_click", G_CALLBACK (clicked_word), NULL);
 
 	/* Set menus */
 	action_group = gtk_action_group_new ("TextPopups");
@@ -141,23 +123,6 @@ initialize_text_gui (void)
 	gtk_action_group_add_actions (action_group, action_entries, G_N_ELEMENTS (action_entries), NULL);
 	gtk_ui_manager_insert_action_group (gui.manager, action_group, 0);
 	g_object_unref (action_group);
-
-	/* Set the font. */
-	gconf_client_add_dir (client, "/apps/xchat/main_window", GCONF_CLIENT_PRELOAD_NONE, NULL);
-	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts", (GConfClientNotifyFunc) font_changed, NULL, NULL, NULL);
-	gconf_client_notify_add (client, "/apps/xchat/main_window/font",          (GConfClientNotifyFunc) font_changed, NULL, NULL, NULL);
-
-
-	if (gconf_client_get_bool(client, "/apps/xchat/main_window/use_sys_fonts", NULL))
-		font = gconf_client_get_string (client, "/desktop/gnome/interface/monospace_font_name", NULL);
-	else
-		font = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
-
-	if (font == NULL)
-		font = g_strdup ("fixed 11");
-
-	gtk_xtext_set_font (GTK_XTEXT (gui.xtext), font);
-	g_free (font);
 
 	/* Set the background */
 	gconf_client_notify_add (client, "/apps/xchat/main_window/background_type",         (GConfClientNotifyFunc) background_changed, NULL, NULL, NULL);
@@ -446,25 +411,6 @@ clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data
 			return;
 		}
 	}
-}
-
-static void
-font_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data)
-{
-	gchar *font;
-	GtkAdjustment *adj;
-
-	if (gconf_client_get_bool (client, "/apps/xchat/main_window/use_sys_fonts", NULL))
-		font = gconf_client_get_string (client, "/desktop/gnome/interface/monospace_font_name", NULL);
-	else
-		font = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
-
-	gtk_xtext_set_font (gui.xtext, font);
-	adj = gui.xtext->adj;
-	gtk_adjustment_set_value (adj, adj->upper - adj->page_size);
-	gtk_xtext_refresh (gui.xtext, FALSE);
-
-	g_free (font);
 }
 
 static void
