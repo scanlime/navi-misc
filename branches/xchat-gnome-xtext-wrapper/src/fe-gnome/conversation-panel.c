@@ -23,49 +23,86 @@
 #include <gtk/gtk.h>
 #include <gconf/gconf.h>
 #include <gconf/gconf-client.h>
+#include <libgnomeui/gnome-stock-icons.h>
+#include <libgnomevfs/gnome-vfs.h>
+
 #include "conversation-panel.h"
 #include "gui.h"
 #include "palette.h"
 #include "util.h"
 #include "xtext.h"
+
+#include "../common/fe.h"
+#include "../common/outbound.h"
 #include "../common/text.h"
+#include "../common/url.h"
 #include "../common/util.h"
 #include "../common/xchatc.h"
 
 typedef struct _fe_lastlog_info fe_lastlog_info;
 
-static void conversation_panel_class_init         (ConversationPanelClass *klass);
-static void conversation_panel_init               (ConversationPanel      *panel);
-static void conversation_panel_finalize           (GObject                *object);
-static void conversation_panel_realize            (GtkWidget              *widget);
-static int  conversation_panel_check_word         (GtkWidget              *xtext,
-                                                   char                   *word,
-                                                   int                     len);
-static void conversation_panel_clicked_word       (GtkWidget              *xtext,
-                                                   char                   *word,
-                                                   GdkEventButton         *event,
-                                                   gpointer                data);
-static void conversation_panel_set_font           (ConversationPanel      *panel);
-static void conversation_panel_font_changed       (GConfClient            *client,
-                                                   guint                   cnxn_id,
-                                                   GConfEntry             *entry,
-                                                   ConversationPanel      *panel);
-static void conversation_panel_set_background     (ConversationPanel      *panel);
-static void conversation_panel_background_changed (GConfClient            *client,
-                                                   guint                   cnxn_id,
-                                                   GConfEntry             *entry,
-                                                   ConversationPanel      *panel);
-static void timestamps_changed                    (GConfClient            *client,
-                                                   guint                   cnxn_id,
-                                                   GConfEntry             *entry,
-                                                   xtext_buffer           *buffer);
-static void conversation_panel_print_line         (xtext_buffer           *buffer,
-                                                   guchar                  *text,
-                                                   int                     len,
-                                                   gboolean                indent);
-static void conversation_panel_lastlog_foreach    (GtkXText               *xtext,
-                                                   guchar                 *text,
-                                                   fe_lastlog_info        *info);
+static void     conversation_panel_class_init         (ConversationPanelClass *klass);
+static void     conversation_panel_init               (ConversationPanel      *panel);
+static void     conversation_panel_finalize           (GObject                *object);
+static void     conversation_panel_realize            (GtkWidget              *widget);
+static int      conversation_panel_check_word         (GtkWidget              *xtext,
+                                                       char                   *word,
+                                                       int                     len);
+static void     conversation_panel_clicked_word       (GtkWidget              *xtext,
+                                                       char                   *word,
+                                                       GdkEventButton         *event,
+                                                       ConversationPanel      *panel);
+static void     conversation_panel_set_font           (ConversationPanel      *panel);
+static void     conversation_panel_font_changed       (GConfClient            *client,
+                                                       guint                   cnxn_id,
+                                                       GConfEntry             *entry,
+                                                       ConversationPanel      *panel);
+static void     conversation_panel_set_background     (ConversationPanel      *panel);
+static void     conversation_panel_background_changed (GConfClient            *client,
+                                                       guint                   cnxn_id,
+                                                       GConfEntry             *entry,
+                                                       ConversationPanel      *panel);
+static void     timestamps_changed                    (GConfClient            *client,
+                                                       guint                   cnxn_id,
+                                                       GConfEntry             *entry,
+                                                       xtext_buffer           *buffer);
+static void     conversation_panel_print_line         (xtext_buffer           *buffer,
+                                                       guchar                  *text,
+                                                       int                     len,
+                                                       gboolean                indent);
+static void     conversation_panel_lastlog_foreach    (GtkXText               *xtext,
+                                                       guchar                 *text,
+                                                       fe_lastlog_info        *info);
+
+static void     open_url                              (GtkAction              *action,
+                                                       ConversationPanel      *panel);
+static void     copy_text                             (GtkAction              *action,
+                                                       ConversationPanel      *panel);
+static void     send_email                            (GtkAction              *action,
+                                                       ConversationPanel      *panel);
+static void     drop_send_files                       (GtkAction              *action,
+                                                       ConversationPanel      *panel);
+static void     drop_paste_file                       (GtkAction              *action,
+                                                       ConversationPanel      *panel);
+static void     drop_paste_filename                   (GtkAction              *action,
+                                                       ConversationPanel      *panel);
+static void     drop_cancel                           (GtkAction              *action,
+                                                       ConversationPanel      *panel);
+static void     drag_data_received                    (GtkWidget              *widget,
+                                                       GdkDragContext         *context,
+                                                       gint                    x,
+                                                       gint                    y,
+                                                       GtkSelectionData       *selection_data,
+                                                       guint                   info,
+                                                       guint                   time,
+                                                       ConversationPanel      *panel);
+static void     free_dropped_files                    (ConversationPanel      *panel);
+static void     drop_send                             (ConversationPanel      *panel);
+static void     drop_paste                            (ConversationPanel      *panel);
+static void     send_file                             (gpointer                file,
+                                                       gpointer                user_data);
+static gboolean uri_is_text                           (gchar *uri);
+static gboolean check_file_size                       (gchar *uri);
 
 struct _fe_lastlog_info
 {
@@ -83,6 +120,47 @@ struct _ConversationPanelPriv
 
 	GHashTable     *buffers;
 	GHashTable     *timestamp_notifies;
+
+	gchar          *selected_word;
+	struct User    *current_user;
+	GSList         *dropped_files;
+};
+
+static GtkActionEntry url_actions[] = {
+	{ "TextURLOpen", GTK_STOCK_OPEN, N_("_Open Link in Browser"), NULL, NULL, G_CALLBACK (open_url) },
+        { "TextURLCopy", GTK_STOCK_COPY, N_("_Copy Link Location"),   NULL, NULL, G_CALLBACK (copy_text) },
+};
+
+static GtkActionEntry email_actions[] = {
+	{ "TextEmailSend", GNOME_STOCK_MAIL, N_("Se_nd Message To..."), NULL, NULL, G_CALLBACK (send_email) },
+        { "TextEmailCopy", GTK_STOCK_COPY,   N_("_Copy Address"),       NULL, NULL, G_CALLBACK (copy_text) },
+};
+
+static GtkActionEntry dnd_actions[] = {
+	{ "DropSendFiles",     NULL, N_("_Send File"),           NULL, NULL, G_CALLBACK (drop_send_files) },
+	{ "DropPasteFile",     NULL, N_("Paste File _Contents"), NULL, NULL, G_CALLBACK (drop_paste_file) },
+	{ "DropPasteFileName", NULL, N_("Paste File_name"),      NULL, NULL, G_CALLBACK (drop_paste_filename) },
+	{ "DropCancel",        NULL, N_("_Cancel"),              NULL, NULL, G_CALLBACK (drop_cancel) },
+};
+
+#define DROP_FILE_PASTE_MAX_SIZE 1024
+enum
+{
+	TARGET_URI_LIST,
+	TARGET_UTF8_STRING,
+	TARGET_TEXT,
+	TARGET_COMPOUND_TEXT,
+	TARGET_STRING,
+	TARGET_TEXT_PLAIN,
+};
+
+static GtkTargetEntry target_table[] = {
+	{ "text/uri-list",  0, TARGET_URI_LIST },
+	{ "UTF8_STRING",    0, TARGET_UTF8_STRING },
+	{ "COMPOUND_TEXT",  0, TARGET_COMPOUND_TEXT },
+	{ "TEXT",           0, TARGET_TEXT },
+	{ "STRING",         0, TARGET_STRING },
+	{ "text/plain",     0, TARGET_TEXT_PLAIN }
 };
 
 static GtkHBoxClass *parent_class;
@@ -107,6 +185,7 @@ static void
 conversation_panel_init (ConversationPanel *panel)
 {
 	GtkWidget *frame;
+	GtkActionGroup *action_group;
 
 	panel->priv = g_new0 (ConversationPanelPriv, 1);
 	panel->priv->xtext     = gtk_xtext_new (colors, TRUE);
@@ -127,6 +206,18 @@ conversation_panel_init (ConversationPanel *panel)
 	gtk_widget_show (panel->priv->scrollbar);
 	gtk_widget_show (frame);
 	gtk_widget_show (GTK_WIDGET (panel));
+
+	action_group = gtk_action_group_new ("TextPopups");
+	gtk_action_group_set_translation_domain (action_group, GETTEXT_PACKAGE);
+	gtk_action_group_add_actions (action_group, url_actions,   G_N_ELEMENTS (url_actions),   panel);
+	gtk_action_group_add_actions (action_group, email_actions, G_N_ELEMENTS (email_actions), panel);
+	gtk_action_group_add_actions (action_group, dnd_actions,   G_N_ELEMENTS (dnd_actions),   panel);
+	gtk_ui_manager_insert_action_group (gui.manager, action_group, 0);
+	g_object_unref (action_group);
+
+	g_signal_connect (G_OBJECT (panel->priv->xtext), "drag_data_received", G_CALLBACK (drag_data_received), panel);
+	gtk_drag_dest_set (panel->priv->xtext, GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP,
+	                   target_table, G_N_ELEMENTS (target_table), GDK_ACTION_COPY | GDK_ACTION_ASK);
 }
 
 static void
@@ -169,7 +260,7 @@ conversation_panel_realize (GtkWidget *widget)
 	conversation_panel_set_font       (panel);
 	conversation_panel_set_background (panel);
 
-	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_click", G_CALLBACK (conversation_panel_clicked_word), NULL);
+	g_signal_connect (G_OBJECT (panel->priv->xtext), "word_click", G_CALLBACK (conversation_panel_clicked_word), panel);
 	gconf_client_notify_add (client, "/apps/xchat/main_window/use_sys_fonts",
 	                         (GConfClientNotifyFunc) conversation_panel_font_changed,       panel, NULL, NULL);
 	gconf_client_notify_add (client, "/apps/xchat/main_window/font",
@@ -187,11 +278,82 @@ conversation_panel_realize (GtkWidget *widget)
 static int
 conversation_panel_check_word (GtkWidget *xtext, char *word, int len)
 {
+	int url;
+        current_sess = gui.current_session;
+
+	url = url_check_word (word, len);
+	if (url == 0) {
+		if (((word[0]=='@' || word[0]=='+') && userlist_find (current_sess, word+1)) || userlist_find (current_sess, word))
+			return WORD_NICK;
+		if (current_sess->type == SESS_DIALOG)
+			return WORD_DIALOG;
+	}
+	return url;
 }
 
 static void
-conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, gpointer data)
+conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *event, ConversationPanel *panel)
 {
+	if (word == NULL)
+		return;
+
+	if (event->button == 1) {
+		int type = conversation_panel_check_word (xtext, word, strlen (word));
+		if (type == WORD_URL || type == WORD_HOST) {
+			fe_open_url (word);
+		}
+	}
+	if (event->button == 3) {
+		switch (conversation_panel_check_word (xtext, word, strlen (word))) {
+		case 0:
+			/* FIXME: show default? context menu */
+			break;
+		case WORD_URL:
+		case WORD_HOST:
+			{
+				GtkWidget *menu;
+				menu = gtk_ui_manager_get_widget (gui.manager, "/TextURLPopup");
+				if (panel->priv->selected_word)
+					g_free (panel->priv->selected_word);
+				panel->priv->selected_word = g_strdup (word);
+				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+			}
+			break;
+		case WORD_NICK:
+			{
+				struct User *user;
+				GtkWidget   *menu;
+
+				menu = gtk_ui_manager_get_widget (gui.manager, "/UserlistPopup");
+				if (panel->priv->selected_word)
+					g_free (panel->priv->selected_word);
+				panel->priv->selected_word = g_strdup (word);
+
+				user = userlist_find (gui.current_session, word);
+				if (user) {
+					panel->priv->current_user = user;
+					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+				}
+			}
+			break;
+		case WORD_CHANNEL:
+			/* FIXME: show channel context menu */
+			break;
+		case WORD_EMAIL:
+			{
+				GtkWidget *menu;
+				menu = gtk_ui_manager_get_widget (gui.manager, "/TextEmailPopup");
+				if (panel->priv->selected_word)
+					g_free (panel->priv->selected_word);
+				panel->priv->selected_word = g_strdup (word);
+				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+			}
+			break;
+		case WORD_DIALOG:
+			/* FIXME: show dialog context menu */
+			break;
+		}
+	}
 }
 
 static void
@@ -281,6 +443,257 @@ static void
 timestamps_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, xtext_buffer *buffer)
 {
 	gtk_xtext_set_time_stamp (buffer, gconf_client_get_bool (client, entry->key, NULL));
+}
+
+static void
+open_url (GtkAction *action, ConversationPanel *panel)
+{
+	fe_open_url (panel->priv->selected_word);
+}
+
+static void
+copy_text (GtkAction *action, ConversationPanel *panel)
+{
+	GtkClipboard *clipboard = gtk_clipboard_get (GDK_NONE);
+        gtk_clipboard_set_text (clipboard, panel->priv->selected_word, strlen (panel->priv->selected_word));
+}
+
+static void
+send_email (GtkAction *action, ConversationPanel *panel)
+{
+}
+
+static void
+drop_send_files  (GtkAction *action, ConversationPanel *panel)
+{
+	if (panel->priv->current->type != SESS_DIALOG)
+		return;
+	drop_send (panel);
+}
+
+static void
+drop_paste_file  (GtkAction *action, ConversationPanel *panel)
+{
+	drop_paste (panel);
+}
+
+static void
+drop_paste_filename  (GtkAction *action, ConversationPanel *panel)
+{
+	gchar *txt = NULL, *path, *tmp;
+	GSList *l;
+
+	g_return_if_fail (panel->priv->dropped_files != NULL);
+
+	for (l = panel->priv->dropped_files; l != NULL; l = g_slist_next (l)) {
+		path = g_filename_from_uri (l->data, NULL, NULL);
+		if (path == NULL)
+			path = g_strdup (l->data);
+
+		if (txt == NULL) {
+			txt = g_strdup (path);
+		} else {
+			tmp = txt;
+			txt = g_strdup_printf ("%s %s", tmp, path);
+
+			g_free (tmp);
+		}
+
+		g_free (path);
+	}
+
+	if (panel->priv->current != NULL)
+		handle_multiline (panel->priv->current, txt, TRUE, FALSE);
+
+	g_free (txt);
+	free_dropped_files (panel);
+}
+
+static void
+drop_cancel  (GtkAction *action, ConversationPanel *panel)
+{
+	free_dropped_files (panel);
+}
+
+static void
+drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y,
+                    GtkSelectionData *selection_data, guint info, guint time, ConversationPanel *panel)
+{
+	switch (info) {
+	case TARGET_TEXT:
+	case TARGET_STRING:
+	case TARGET_COMPOUND_TEXT:
+	case TARGET_UTF8_STRING:
+	case TARGET_TEXT_PLAIN:
+		{
+			gchar *txt;
+
+			txt = gtk_selection_data_get_text (selection_data);
+			if (gui.current_session != NULL)
+			handle_multiline (gui.current_session, txt, TRUE, FALSE);
+
+			g_free (txt);
+			break;
+		}
+	case TARGET_URI_LIST:
+		{
+			gchar *uri_list, **uris;
+			gint nb_uri;
+
+			if ((panel->priv->current->type != SESS_CHANNEL) &&
+			    (panel->priv->current->type != SESS_DIALOG))
+				return;
+
+			if (selection_data->format != 8 || selection_data->length == 0) {
+				g_printerr (_("URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"),
+				            selection_data->format, selection_data->length);
+				return;
+			}
+
+			uri_list = g_strndup (selection_data->data, selection_data->length);
+			uris = g_strsplit (uri_list, "\r\n", 0);
+			g_free (uri_list);
+
+			free_dropped_files (panel);
+
+			for (nb_uri = 0; uris[nb_uri] && strlen (uris[nb_uri]) > 0; nb_uri++)
+				panel->priv->dropped_files = g_slist_prepend (panel->priv->dropped_files, uris[nb_uri]);
+			g_free (uris); /* String in uris will be freed in free_dropped_files */
+			panel->priv->dropped_files = g_slist_reverse (panel->priv->dropped_files);
+
+			if (context->action == GDK_ACTION_ASK) {
+				/* Display the context menu */
+				GtkWidget *menu, *entry;
+
+				menu = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup");
+				entry = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup/DropPasteFile");
+				if (nb_uri > 1 ||
+				    (uri_is_text (panel->priv->dropped_files->data) == FALSE) ||
+				    (check_file_size (panel->priv->dropped_files->data) == FALSE))
+					gtk_widget_set_sensitive (entry, FALSE);
+				else
+					gtk_widget_set_sensitive (entry, TRUE);
+
+				/* Enable/Disable send files */
+				entry = gtk_ui_manager_get_widget (gui.manager, "/DropFilePopup/DropSendFiles");
+				if (panel->priv->current->type == SESS_CHANNEL)
+					gtk_widget_set_sensitive (entry, FALSE);
+				else
+					gtk_widget_set_sensitive (entry, TRUE);
+
+				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 2, gtk_get_current_event_time ());
+			} else {
+				/* Do the default action */
+				if (gui.current_session->type == SESS_CHANNEL) {
+					/* Dropped in a channel */
+					if (nb_uri == 1 &&
+					    uri_is_text (panel->priv->dropped_files->data) &&
+					    check_file_size (panel->priv->dropped_files->data))
+						drop_paste (panel);
+				} else {
+					/* Dropped in a query */
+					if (nb_uri == 1 &&
+					    uri_is_text (panel->priv->dropped_files->data) &&
+					    check_file_size (panel->priv->dropped_files->data))
+						drop_paste (panel);
+					else
+						drop_send (panel);
+				}
+			}
+		}
+	}
+}
+
+static void
+free_dropped_files (ConversationPanel *panel)
+{
+	if (panel->priv->dropped_files) {
+		g_slist_foreach (panel->priv->dropped_files, (GFunc) g_free, NULL);
+		g_slist_free    (panel->priv->dropped_files);
+		panel->priv->dropped_files = NULL;
+	}
+}
+
+static void
+drop_send (ConversationPanel *panel)
+{
+	g_return_if_fail (panel->priv->dropped_files != NULL);
+	g_slist_foreach (panel->priv->dropped_files, send_file, NULL);
+        free_dropped_files (panel);
+}
+
+static void
+drop_paste (ConversationPanel *panel)
+{
+	GnomeVFSResult result;
+	gchar *contents, *uri;
+
+	g_return_if_fail (g_slist_length (panel->priv->dropped_files) == 1);
+
+	uri = panel->priv->dropped_files->data;
+	result = gnome_vfs_read_entire_file (uri, NULL, &contents);
+	if (result == GNOME_VFS_OK) {
+		if (panel->priv->current != NULL)
+			handle_multiline (panel->priv->current, (char *) contents, TRUE, FALSE);
+		g_free (contents);
+	} else {
+		g_printerr (_("Error reading file \"%s\": %s\n"), uri, gnome_vfs_result_to_string (result));
+	}
+
+	free_dropped_files (panel);
+}
+
+static void
+send_file (gpointer file, gpointer user_data)
+{
+	gchar *path;
+	GError *err = NULL;
+
+	path = g_filename_from_uri ((char*) file, NULL, &err);
+
+	if (err) {
+		g_printerr (_("Error converting URI \"%s\" into filename: %s\n"), (char*) file, err->message);
+		g_error_free (err);
+	} else {
+		dcc_send (gui.current_session, gui.current_session->channel, path, 0, FALSE);
+		g_free (path);
+	}
+}
+
+static gboolean
+uri_is_text (gchar *uri)
+{
+	gchar *mime;
+	gboolean is_text = FALSE;
+
+	mime = gnome_vfs_get_mime_type (uri);
+	if (mime) {
+		is_text = g_str_has_prefix (mime, "text/");
+		g_free (mime);
+	}
+
+	return is_text;
+}
+
+static gboolean
+check_file_size (gchar *uri)
+{
+	GnomeVFSResult result;
+	GnomeVFSFileInfo *info;
+	gboolean file_size_ok = FALSE;
+
+	info = gnome_vfs_file_info_new ();
+	result = gnome_vfs_get_file_info (uri, info, GNOME_VFS_FILE_INFO_DEFAULT);
+
+	if (result == GNOME_VFS_OK) {
+		if (info->size <= DROP_FILE_PASTE_MAX_SIZE)
+			file_size_ok = TRUE;
+	} else {
+		g_printerr (_("Error retrieving file information for \"%s\": %s\n"), uri, gnome_vfs_result_to_string (result));
+	}
+
+	gnome_vfs_file_info_unref (info);
+	return file_size_ok;
 }
 
 GtkWidget *

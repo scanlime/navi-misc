@@ -229,7 +229,6 @@ initialize_main_window (void)
 	gtk_action_group_add_actions (gui.action_group, action_entries,
 	                              G_N_ELEMENTS (action_entries), NULL);
 
-	gui.manager = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (gui.manager, gui.action_group, 0);
 
 	menu_vbox = glade_xml_get_widget (gui.xml, "menu_vbox");

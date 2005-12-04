@@ -37,6 +37,8 @@ Userlist *u;
 gboolean
 initialize_gui_1 (void)
 {
+	gui.manager = gtk_ui_manager_new ();
+
 	if (g_file_test ("../../data/xchat-gnome.glade", G_FILE_TEST_EXISTS))
 		gui.xml = glade_xml_new ("../../data/xchat-gnome.glade", NULL, NULL);
 	if (!gui.xml)
@@ -59,7 +61,6 @@ initialize_gui_2 (void)
 	gui.current_session = NULL;
 	pixmaps_init ();
 	initialize_main_window ();
-	initialize_text_gui ();
 	initialize_userlist ();
 
 	gui.tree_model = navigation_model_new ();
