@@ -2,7 +2,7 @@
 
 from optparse import OptionParser
 from Dance import Sequence, MotionGraph
-from Graph.Data import AdjacencyList
+from Graph.Data import AdjacencyList, EdgeList
 import random, pickle
 
 def clicheWalk (graph, len):
@@ -12,6 +12,7 @@ def clicheWalk (graph, len):
     weight = 0
     path = []
     adjacency = graph.representations[AdjacencyList]
+    edgeList  = graph.representations[EdgeList]
 
     v = None
     u = random.choice ([u for u in adjacency.iterU ()])
@@ -19,9 +20,10 @@ def clicheWalk (graph, len):
 
     for i in range (len):
         for edge in adjacency.query (u):
-            if edge.weight >= weight: 
+            probEdge = edgeList.query (u, edge.v)
+            if probEdge.weight >= weight:
+                weight = probEdge.weight
                 v = edge.v
-                weight = edge.weight
 
         path.append (v.center ())
         u = v
