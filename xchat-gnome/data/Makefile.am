@@ -30,6 +30,7 @@ xchat_gnome_DATA = 			\
 	topic-change.glade		\
 	users.png			\
 	voice.png			\
+	wrap.png			\
 	xchat-gnome-small.png		\
 	xchat-gnome-ui.xml		\
 	xchat-gnome.glade		\

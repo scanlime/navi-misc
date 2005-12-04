@@ -37,6 +37,8 @@ xchat_gnome_SOURCES =				\
 	dcc-window.c				\
 	dcc-window.h				\
 	fe-gnome.c				\
+	find-bar.c				\
+	find-bar.h				\
 	gui.c					\
 	gui.h					\
 	irc-network-editor.c			\

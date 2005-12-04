@@ -33,6 +33,7 @@
 #include "main-window.h"
 
 #include "conversation-panel.h"
+#include "find-bar.h"
 #include "status-bar.h"
 #include "text-entry.h"
 #include "topic-label.h"
@@ -1059,7 +1060,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		navigation_model_path_deref (gui.server_tree->model, gui.server_tree->current_path);
 
 	/* If find bar is open, hide it */
-	close_find_button (NULL, NULL);
+	find_bar_close (FIND_BAR (gui.find_bar));
 
 	/* XXX: This sets model to be the GtkTreeModelSort used by the NavTree, it is
 	 *      not a GtkTreeModel. The iter is for that ModelSort.
