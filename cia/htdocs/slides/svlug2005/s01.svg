@@ -14,8 +14,8 @@
    id="svg2"
    sodipodi:version="0.32"
    inkscape:version="0.42"
-   sodipodi:docbase="/home/micah/presentation"
-   sodipodi:docname="slide01_whatis.svg">
+   sodipodi:docbase="/home/micah/navi-misc/cia/htdocs/slides/svlug2005"
+   sodipodi:docname="s01.svg">
   <defs
      id="defs4">
     <marker
@@ -121,15 +121,10 @@
      inkscape:current-layer="layer1"
      inkscape:window-width="755"
      inkscape:window-height="543"
-     inkscape:window-x="8"
-     inkscape:window-y="43"
+     inkscape:window-x="40"
+     inkscape:window-y="41"
      showguides="true"
-     inkscape:guide-bbox="true">
-    <sodipodi:guide
-       orientation="vertical"
-       position="554.57375"
-       id="guide18552" />
-  </sodipodi:namedview>
+     inkscape:guide-bbox="true" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -1819,7 +1814,7 @@
     </g>
     <g
        id="g18380"
-       transform="translate(0.000000,-3.814697e-6)">
+       transform="translate(0.000000,-10.00000)">
       <text
          id="text18374"
          y="121.24973"
@@ -1829,7 +1824,7 @@
            y="121.24973"
            x="84.445618"
            id="tspan18376"
-           sodipodi:role="line">Aggregates and distributes 'messages'</tspan></text>
+           sodipodi:role="line">Aggregates and distributes messages</tspan></text>
       <path
          transform="translate(21.42858,-29.47154)"
          d="M 51.428573 141.42857 A 5.7142859 5.7142859 0 1 1  40.000001,141.42857 A 5.7142859 5.7142859 0 1 1  51.428573 141.42857 z"
@@ -1843,7 +1838,7 @@
     </g>
     <g
        id="g18390"
-       transform="translate(32.85714,35.71426)">
+       transform="translate(32.85714,25.71426)">
       <g
          id="g1558"
          transform="matrix(0.824947,0.000000,0.000000,0.824947,10.75328,20.76710)">
@@ -1856,15 +1851,11 @@
              y="121.24973"
              x="84.445618"
              id="tspan18394"
-             sodipodi:role="line">Almost always commit notifications.</tspan><tspan
-             id="tspan1554"
+             sodipodi:role="line">Typically these are commits</tspan><tspan
+             id="tspan1556"
              y="152.40795"
              x="84.445618"
-             sodipodi:role="line">Experimental support for bug tracking,</tspan><tspan
-             id="tspan1556"
-             y="183.56616"
-             x="84.445618"
-             sodipodi:role="line">build-bot status, etc.</tspan></text>
+             sodipodi:role="line"></tspan></text>
         <path
            transform="translate(21.42858,-29.47154)"
            d="M 51.428573 141.42857 A 5.7142859 5.7142859 0 1 1  40.000001,141.42857 A 5.7142859 5.7142859 0 1 1  51.428573 141.42857 z"
@@ -2009,17 +2000,6 @@
          id="tspan2352"
          x="299.77399"
          y="419.81775">XML</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:21.744884px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="538.05872"
-       y="180.7726"
-       id="text2515"
-       sodipodi:linespacing="125.00000%"><tspan
-         sodipodi:role="line"
-         id="tspan2517"
-         x="538.05872"
-         y="180.77260">IRC</tspan></text>
     <g
        transform="translate(461.4286,9.991220)"
        id="g2503">
@@ -2085,6 +2065,42 @@
            id="tspan5773"
            x="80.915832"
            y="260.77258">Web</tspan></text>
+    </g>
+    <g
+       transform="translate(32.85714,55.71426)"
+       id="g1598">
+      <g
+         transform="matrix(0.824947,0.000000,0.000000,0.824947,10.75328,20.76710)"
+         id="g1600">
+        <text
+           xml:space="preserve"
+           style="font-size:24.926573px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
+           x="84.445618"
+           y="121.24973"
+           id="text1602"><tspan
+             sodipodi:role="line"
+             x="84.445618"
+             y="121.24973"
+             id="tspan1610">Experimental support for bug tracking,</tspan><tspan
+             sodipodi:role="line"
+             x="84.445618"
+             y="152.40795"
+             id="tspan1612">build-bot status, etc.</tspan><tspan
+             sodipodi:role="line"
+             x="84.445618"
+             y="183.56616"
+             id="tspan1606"></tspan></text>
+        <path
+           sodipodi:type="arc"
+           style="opacity:1.0000000;fill:#136a1c;fill-opacity:0.91803277;stroke:none;stroke-width:1.8750000;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+           id="path1608"
+           sodipodi:cx="45.714287"
+           sodipodi:cy="141.42857"
+           sodipodi:rx="5.7142859"
+           sodipodi:ry="5.7142859"
+           d="M 51.428573 141.42857 A 5.7142859 5.7142859 0 1 1  40.000001,141.42857 A 5.7142859 5.7142859 0 1 1  51.428573 141.42857 z"
+           transform="translate(21.42858,-29.47154)" />
+      </g>
     </g>
   </g>
   <g
