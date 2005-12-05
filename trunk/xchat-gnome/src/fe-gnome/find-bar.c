@@ -255,6 +255,9 @@ find_bar_new (void)
 void
 find_bar_close (FindBar *bar)
 {
+	if (!GTK_WIDGET_VISIBLE (bar))
+		return;
+
 	conversation_panel_clear_selection (CONVERSATION_PANEL (gui.conversation_panel));
 	gtk_entry_set_text (GTK_ENTRY (bar->priv->entry), "");
 	find_bar_set_status (bar, STATUS_NORMAL);
