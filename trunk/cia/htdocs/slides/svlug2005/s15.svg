@@ -15,7 +15,7 @@
    sodipodi:version="0.32"
    inkscape:version="0.42"
    sodipodi:docbase="/home/micah/navi-misc/cia/htdocs/slides/svlug2005"
-   sodipodi:docname="s14.svg">
+   sodipodi:docname="s15.svg">
   <defs
      id="defs4">
     <marker
@@ -121,8 +121,8 @@
      inkscape:current-layer="layer1"
      inkscape:window-width="755"
      inkscape:window-height="543"
-     inkscape:window-x="128"
-     inkscape:window-y="25"
+     inkscape:window-x="63"
+     inkscape:window-y="60"
      showguides="true"
      inkscape:guide-bbox="true" />
   <metadata
@@ -1777,16 +1777,6 @@
          id="rect18364"
          style="opacity:1.0000000;fill:url(#linearGradient18372);fill-opacity:1.0000000;stroke:none;stroke-width:1.8750000;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000" />
     </g>
-    <text
-       xml:space="preserve"
-       style="font-size:19.338530px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans"
-       x="402.2265"
-       y="51.289845"
-       id="text3574"><tspan
-         sodipodi:role="line"
-         id="tspan3576"
-         x="402.22650"
-         y="51.289845">(simplified)</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:18.002596px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans Mono"
