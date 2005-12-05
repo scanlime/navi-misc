@@ -81,7 +81,11 @@ print ":DEGREES"
 for i in range (opts.len):
     print i
     for bone,frames in bones.iteritems ():
-        s = bone
+        if bone == "root":
+            s = bone + " 0 0 0"
+        else:
+            s = bone
+
         for angle in frames[i]:
             a = " %6f" % (angle)
             s += a
