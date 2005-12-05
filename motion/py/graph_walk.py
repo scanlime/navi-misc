@@ -53,7 +53,7 @@ def randomWalk (graph, len):
     return path
 
 
-parser = OptionParser ("usage: %prog <graph pickle> <output amc>")
+parser = OptionParser ("usage: %prog <graph pickle>")
 parser.add_option ("--cliche", dest="cliche", default=False,
         action="store_true", help="Choose edges based on probability")
 parser.add_option ("-l", "--len", dest="len", default=1000,
@@ -61,28 +61,31 @@ parser.add_option ("-l", "--len", dest="len", default=1000,
 
 opts, args = parser.parse_args ()
 
-if len (args) != 2: parser.error ("graph and output file required")
+if len (args) != 1: parser.error ("graph file required")
 
-print 'Reading graph'
+# print 'Reading graph'
 graphs = pickle.load (open (args[0]))
 bones  = {}
 
 for bone in graphs.keys ():
-    print 'Walking', bone
+    # print 'Walking', bone
 
     if opts.cliche:
         bones[bone] = Numeric.array (clicheWalk (graphs[bone], opts.len))
     else:
         bones[bone] = Numeric.array (randomWalk (graphs[bone], opts.len))
 
-amc = Motion.AMC ()
-amc.bones = bones
-amc.save (args[1])
+print ":FULLY-SPECIFIED"
+print ":DEGREES"
 
-for key,val in amc.bones.iteritems ():
-    print key
-    for n in val:
-        print '    ', n
+for i in range (opts.len):
+    print i
+    for bone,frames in bones.iteritems ():
+        s = bone
+        for angle in frames[i]:
+            a = " %6f" % (angle)
+            s += a
+        print s
 
 
 # vim:ts=4:sw=4:et
