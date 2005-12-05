@@ -101,7 +101,7 @@ find_bar_init (FindBar *bar)
 	if (g_file_test ("../../data/wrap.png", G_FILE_TEST_EXISTS))
 		bar->priv->status_wrapped = gtk_image_new_from_file ("../../data/wrap.png");
 	else
-		bar->priv->status_wrapped = gtk_image_new_from_file (XCHATSHAREDIR "/wrap/png");
+		bar->priv->status_wrapped = gtk_image_new_from_file (XCHATSHAREDIR "/wrap.png");
 	bar->priv->status_notfound = gtk_image_new_from_stock (GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_BUTTON);
 	bar->priv->status_label = gtk_label_new (NULL);
 
