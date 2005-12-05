@@ -1,9 +1,20 @@
+/*
+ * CSS2 Stylesheet for the CIA web interface.
+ * This CSS is a tweaked and enhanced version of what
+ * runs most of the CGI scripts and such on navi, and
+ * borrows a lot of ideas from picogui.org's tweaked
+ * Plone CSS. Plone's CSS was written by Alexander Limi.
+ *
+ * --Micah Dowty <micah@navi.cx>
+ *
+ */
+
 body {
   font: 9pt sans-serif;
   color: Black;
   margin: 0;
   padding: 0;
-  background: white;
+  background: #eef4eb;
 }
 
 .centered {
@@ -39,6 +50,7 @@ pre.literal-block {
 }
 
 ul {
+  list-style-image: url(/images/bullet.png);
   padding: 0em 0em 0em 3em;
   margin: 0em;
 }
@@ -50,7 +62,6 @@ li.directory {
 li {
   padding: 0.25em;
   margin: 0em;
-  list-style: square;
 }
 
 div.relatedHeading {
@@ -136,9 +147,11 @@ div.subTitle {
 }
 
 div.footer {
-  font: 80% sans-serif;
-  color: #888;
-  margin: 0.5em;
+  background: white;
+  border-top: 1px solid #8CACBB;
+  border-bottom: 1px solid #8CACBB;
+  margin: 0em 0em 2em 0em;
+  padding: 1em;
   text-align: center;
 }
 
@@ -148,12 +161,29 @@ p.smallprint {
 }
 
 span.section {
-  border-bottom: #888 2px dotted;
-  color: #444;
+  background: #dee7ec;
+  border: 1px solid #8CACBB;
+  border-bottom: #dee7ec 1px solid;
+  color: #436976;
   font: 110% Bold;
   margin: 0px 0.5em 0em 0.8em;
   padding: 0em 2em;
   white-space: nowrap;
+}
+
+div.sectionTop {
+  background: #dee7ec;
+  padding: 0.4em;
+  margin: 0em;
+}
+
+div.section {
+  border: 1px solid #8CACBB;
+  margin: 0em 0em 2em 0em;
+  background-color: white;
+  background-image: url(/images/dots.png);
+  background-repeat: repeat-y;
+  background-position: right;
 }
 
 div.pageBody {
@@ -309,6 +339,10 @@ span.error {
 
 p.error {
   background: #FCC;
+}
+
+img.footer {
+  padding: 0em 1em;
 }
 
 img.sortIndicator {
