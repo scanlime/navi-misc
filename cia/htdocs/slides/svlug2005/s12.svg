@@ -14,8 +14,8 @@
    id="svg2"
    sodipodi:version="0.32"
    inkscape:version="0.42"
-   sodipodi:docbase="/home/micah/pres-foo"
-   sodipodi:docname="slide10_architecture.svg">
+   sodipodi:docbase="/home/micah/navi-misc/cia/htdocs/slides/svlug2005"
+   sodipodi:docname="s12.svg">
   <defs
      id="defs4">
     <marker
@@ -121,8 +121,8 @@
      inkscape:current-layer="layer1"
      inkscape:window-width="755"
      inkscape:window-height="543"
-     inkscape:window-x="117"
-     inkscape:window-y="120"
+     inkscape:window-x="29"
+     inkscape:window-y="153"
      showguides="true"
      inkscape:guide-bbox="true" />
   <metadata
@@ -1768,7 +1768,7 @@
            y="53.607269"
            x="26.160763"
            id="tspan18362"
-           sodipodi:role="line">Architecture</tspan></text>
+           sodipodi:role="line">Message flow</tspan></text>
       <rect
          y="62.806995"
          x="26.045593"
