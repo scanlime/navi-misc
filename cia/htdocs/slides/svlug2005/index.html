@@ -54,6 +54,17 @@
         (1 + slideNumber) + " of " + slideCount;
     }
 
+    document.onkeydown = function(e) {
+      if (e.keyCode == 39 || e.keyCode == 32) {
+        /* Forward arrow, spacebar */
+        nav(1);
+      }
+      if (e.keyCode == 37) {
+        /* Backward arrow */
+        nav(-1);
+      }
+    }
+
   </script>
 </head>
 <body onload="nav(0)">
