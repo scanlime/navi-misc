@@ -45,6 +45,7 @@ function saveBoxToDisk ()
         if (http.readyState == 4)
         {
             box.id = http.responseText
+			alert ("Your box was saved successfully.")
         }
     }
 
