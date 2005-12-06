@@ -243,6 +243,9 @@ navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess
 	 */
 	iter = navigation_model_get_sorted_iter (navtree->model, gui.current_session);
 	if (iter) {
+		if (navtree->current_path)
+			gtk_tree_path_free (navtree->current_path);
+
 		navtree->current_path = gtk_tree_model_get_path (GTK_TREE_MODEL (navtree->model->sorted), iter);
 		gtk_tree_iter_free (iter);
 	}
@@ -283,6 +286,9 @@ navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess
 	 */
 	iter = navigation_model_get_sorted_iter (navtree->model, gui.current_session);
 	if (iter) {
+		if (navtree->current_path)
+			gtk_tree_path_free (navtree->current_path);
+
 		navtree->current_path = gtk_tree_model_get_path (GTK_TREE_MODEL (navtree->model->sorted), iter);
 		gtk_tree_iter_free (iter);
 	}
