@@ -132,6 +132,7 @@ class File(static.File):
         '.html':  'text/html',
         '.css':   'text/css',
         '.js':    'application/x-javascript',
+	'.svg':   'image/svg+xml',
         }
 
     def listNames(self):
