@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-03 23:48-0700\n"
+"POT-Creation-Date: 2005-12-07 16:42-0700\n"
 "PO-Revision-Date: 2005-11-25 03:33-0500\n"
 "Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: Français <olethanh@ulb.ac.be>\n"
@@ -3998,12 +3998,12 @@ msgid "_About"
 msgstr "À _propos"
 
 #: ../src/fe-gnome/main-window.c:482 ../src/fe-gnome/main-window.c:503
-#: ../src/fe-gnome/navigation-tree.c:1564
-#: ../src/fe-gnome/navigation-tree.c:1623
+#: ../src/fe-gnome/navigation-tree.c:1570
+#: ../src/fe-gnome/navigation-tree.c:1629
 msgid "Ex-Chat"
 msgstr "Ex-Chat"
 
-#: ../src/fe-gnome/main-window.c:605
+#: ../src/fe-gnome/main-window.c:581
 msgid "Error showing help"
 msgstr "Erreur lors de l'affichage de l'aide"
 
@@ -4022,8 +4022,8 @@ msgid "_Auto-join"
 msgstr "Rejoindre _automatiquement"
 
 #. Add the new server to the model. By default connected is false.
-#: ../src/fe-gnome/navigation-tree.c:383
-#: ../src/fe-gnome/navigation-tree.c:1259
+#: ../src/fe-gnome/navigation-tree.c:389
+#: ../src/fe-gnome/navigation-tree.c:1265
 msgid "<none>"
 msgstr "<aucun>"
 
