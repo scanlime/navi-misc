@@ -513,7 +513,8 @@ class CommitToXHTMLLong(CommitToXHTML):
                 # Separate the file into path segments and walk into our tree
                 node = [None, fileTree]
                 for segment in XML.shallowText(fileTag).split('/'):
-                    node = node[1].setdefault(segment, [None, {}])
+                    if segment:
+                        node = node[1].setdefault(segment, [None, {}])
                 # The leaf node owns this fileTag
                 node[0] = fileTag
 
