@@ -28,6 +28,12 @@ bib: $(DOCNAME).pdf
 	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
 	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS pdflatex $(DOCNAME).tex
 
+presentation: *.tex $(ALL_FIGURES) $(LIB_DIR)/*.tex
+	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS latex $(DOCNAME).tex
+	TEXINPUTS=$(TEXINPUTS):$$TEXINPUTS latex $(DOCNAME).tex
+	dvips $(DOCNAME).dvi -o $(DOCNAME).ps
+	ps2pdf $(DOCNAME).ps $(DOCNAME).pdf
+
 %.pdf: %.ps
 	epstopdf $<
 
