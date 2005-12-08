@@ -1,0 +1,41 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+
+<refentry id="gnomevfs-constants">
+  <refnamediv>
+    <refname>gnomevfs Constants</refname>
+    <refpurpose>the built-in constants of the gnomevfs module</refpurpose>
+  </refnamediv>
+
+  <refsect1>
+    <title>Synopsis</title>
+
+    <programlisting>
+      <xref linkend="gnomevfs-constants-directory-visit" endterm="gnomevfs-constants-directory-visit-title"></xref>
+    </programlisting>
+  </refsect1>
+
+  <refsect1 id="gnomevfs-constants-description">
+    <title>Description</title>
+
+    <refsect2 id="gnomevfs-constants-directory-visit">
+      <title id="gnomevfs-constants-directory-visit-title">gnomevfs Directory Visit Options</title>
+      <para>These options control the way in which directories are visited.</para>
+      <variablelist>
+        <varlistentry>
+	  <term><literal>gnomevfs.DIRECTORY_VISIT_DEFAULT</literal></term>
+	  <listitem><simpara>The default directory visit mode.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.DIRECTORY_VISIT_LOOPCHECK</literal></term>
+	  <listitem><simpara>Prevent a loop if it would be caused (e.g. by following a symbolic link).</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.DIRECTORY_VISIT_SAMEFS</literal></term>
+	  <listitem><simpara>Visit only directories on the same file system as the parent.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+    </refsect2>
+  </refsect1>
+</refentry>
