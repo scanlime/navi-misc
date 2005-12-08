@@ -6,8 +6,11 @@
 
   <xi:include href="gnomevfs-context.xml" />
   <xi:include href="gnomevfs-directoryhandle.xml" />
+  <xi:include href="gnomevfs-drive.xml" />
   <xi:include href="gnomevfs-fileinfo.xml" />
   <xi:include href="gnomevfs-handle.xml" />
   <xi:include href="gnomevfs-uri.xml" />
+  <xi:include href="gnomevfs-volume.xml" />
+  <xi:include href="gnomevfs-volumemonitor.xml" />
   <xi:include href="gnomevfs-constants.xml" />
 </chapter>
