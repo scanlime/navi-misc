@@ -465,6 +465,37 @@ not provided for by existing fields. Although there is a generic ``Other''
 field, most users expressed the desire to rename this field to something more
 specific.
 
+In addition to comments from the test users, we noticed some recurring behavior
+that indicated the need for some changes. A couple of the users treated the
+interface as a form requesting information and allowed themselves to be guided
+by the present fields. As a result, instead of adding fields for information
+they wanted to include, they simply put that information in whatever fields were
+already there. For example, a couple of users used the ``About'' field to define
+the procedure for the lesson instead of adding a ``Methods'' field. There are a
+number of possible solutions to this problem that could be investigated.
+
+One solution is to make only ``Title'' and ``Author'' appear by default in a
+lesson.  The lack of any other field should make it clear that users are free
+and encouraged to add more fields to the lesson because ``Title'' and ``Author''
+are not sufficient for a lesson plan by any standard. Alternatively, more
+default fields could be added to the lesson. A few users expressed the desire to
+have ``Methods'' be default in a lesson because all lessons have a procedure of
+some kind. This solution does not stop users from allowing themselves to be
+guided by the interface, but it alleviates some of the symptoms caused by this
+paradigm. A third option is to leave the interface as-is and provide a tutorial
+for creating lessons. A tutorial would show users how to add fields so that we
+don't have to rely on them discovering it themselves. In addition to showing
+them how to add fields, it suggests to the user that this is the desired
+behavior for the system.
+
+Regardless of how the above problem is addressed, we feel that a tutorial is
+important. At best, it is difficult for users to devine our goals and intentions
+solely from the user interface presented to them. A tutorial can clearly and
+explicitly tell the user how we expect the system to be used. Then there is no
+guesswork on their part regarding our expectations. The tutorial can also
+explain aspects and concepts of the interface that might be difficult to
+understand otherwise (such as what a teaching box is).
+
 This project focused primarily on the interface used for creating new digital
 teaching boxes and lessons. As a result, there is some missing functionality
 such as the ability to save a lesson or box, or search for a lesson or box. Our
@@ -479,19 +510,6 @@ note in the lesson citing the resource, but these are simply workarounds that
 don't really address the problem. No decision was made about whether the
 existing functionality is sufficient to manage these types of resources, or
 whether something more should be provided.
-
-Another unaddressed issue is that of the custom field. Further research into the
-dangers of providing a customizable field should be performed before committing
-to that solution. If it turns out that the custom field is being overused at the
-expense of predefined fields, an alternate solution should be provided for users
-who find that none of the available fields are adequate for some portion of a
-given lesson.
-
-Finally, we considered the need for user documentation for this project, but
-provided none. Good documentation that is easy to find is essential to this
-project. In addition to documentation describing teaching boxes and the
-interface created in this project, we feel that a tutorial on creating a new
-lesson and creating a teaching box should be provided.
 
 \section{Web Analytics}
 We identified two major ``business'' goals for this project: we want teachers to
