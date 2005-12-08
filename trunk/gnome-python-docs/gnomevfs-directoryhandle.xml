@@ -1,0 +1,80 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+
+<refentry id="class-gnomevfs-directoryhandle">
+  <refnamediv>
+    <refname>gnomevfs.DirectoryHandle</refname>
+    <refpurpose>iterator object for reading directories</refpurpose>
+  </refnamediv>
+
+  <refsect1>
+    <title>Synopsis</title>
+    <classsynopsis language="python">
+      <ooclass><classname>gnomevfs.DirectoryHandle</classname></ooclass>
+      <constructorsynopsis language="python">
+        <methodname><link linkend="constructor-gnomevfs-directoryhandle">gnomevfs.DirectoryHandle</link></methodname>
+        <methodparam><parameter role="keyword">uri</parameter></methodparam>
+        <methodparam><parameter role="keyword">options</parameter><initializer>gnomevfs.DIRECTORY_VISIT_DEFAULT</initializer></methodparam>
+      </constructorsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-directoryhandle--next">next</link></methodname>
+        <methodparam />
+      </methodsynopsis>
+    </classsynopsis>
+  </refsect1>
+
+  <refsect1>
+    <title>Description</title>
+    <para></para>
+  </refsect1>
+
+  <refsect1>
+    <title>Constructor</title>
+
+    <refsect2 id="constructor-gnomevfs-directoryhandle">
+      <programlisting>
+        <constructorsynopsis language="python">
+          <methodname>gnomevfs.DirectoryHandle</methodname>
+          <methodparam><parameter role="keyword">uri</parameter></methodparam>
+          <methodparam><parameter role="keyword">options</parameter><initializer>gnomevfs.DIRECTORY_VISIT_DEFAULT</initializer></methodparam>
+        </constructorsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+          <term><parameter role="keyword">uri</parameter>:</term>
+          <listitem><simpara>gnome-vfs URI to open</simpara></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><parameter role="keyword">options</parameter>:</term>
+          <listitem><simpara>Or'd set of directory visit flags.</simpara></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><emphasis>Returns</emphasis>&nbsp;:</term>
+          <listitem><simpara>the new <link linkend="class-gnomevfs-directoryhandle"><classname>gnomevfs.DirectoryHandle</classname></link></simpara></listitem>
+        </varlistentry>
+      </variablelist>
+      <para>Open the directory specified by <parameter>uri</parameter>.</para>
+    </refsect2>
+  </refsect1>
+
+  <refsect1>
+    <title>Methods</title>
+
+    <refsect2 id="method-gnomevfs-directoryhandle--next">
+      <programlisting>
+      <methodsynopsis>
+        <methodname>next</methodname>
+        <methodparam />
+      </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+          <term><emphasis>Returns</emphasis>&nbsp;:</term>
+          <listitem><simpara>A <link linkend="class-gnomevfs-fileinfo">gnomevfs.FileInfo</link> describing the next directory entry.</simpara></listitem>
+        </varlistentry>
+      </variablelist>
+      <para>Read the next directory entry.</para>
+    </refsect2>
+  </refsect1>
+</refentry>
