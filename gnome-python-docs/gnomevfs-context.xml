@@ -43,7 +43,7 @@
 	  <methodparam />
         </methodsynopsis>
       </programlisting>
-      <para></para>
+      <para>As far as I can tell, the python binding for this is incomplete.</para>
     </refsect2>
 
     <refsect2 id="method-gnomevfs-context--check_cancellation">
@@ -60,7 +60,7 @@
 	  <listitem><simpara><literal>TRUE</literal> if the context has been cancelled</simpara></listitem>
         </varlistentry>
       </variablelist>
-      <para>Checks to see if this context has been cancelled.</para>
+      <para>Checks to see if this operation represented by this context has been cancelled.</para>
     </refsect2>
 
     <refsect2 id="method-gnomevfs-context--cancel">
