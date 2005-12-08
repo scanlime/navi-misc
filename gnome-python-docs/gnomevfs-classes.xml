@@ -9,4 +9,5 @@
   <xi:include href="gnomevfs-fileinfo.xml" />
   <xi:include href="gnomevfs-handle.xml" />
   <xi:include href="gnomevfs-uri.xml" />
+  <xi:include href="gnomevfs-constants.xml" />
 </chapter>

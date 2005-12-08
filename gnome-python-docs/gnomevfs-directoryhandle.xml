@@ -47,7 +47,7 @@
         </varlistentry>
         <varlistentry>
           <term><parameter role="keyword">options</parameter>:</term>
-          <listitem><simpara>Or'd set of directory visit flags.</simpara></listitem>
+          <listitem><simpara>Or'd set of <link linkend="gnomevfs-constants-directory-visit">directory visit flags</link>.</simpara></listitem>
         </varlistentry>
         <varlistentry>
           <term><emphasis>Returns</emphasis>&nbsp;:</term>
