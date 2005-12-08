@@ -59,15 +59,18 @@
       </methodsynopsis>
       <methodsynopsis language="python">
         <methodname><link linkend="method-gnomevfs-drive--mount">mount</link></methodname>
-	<methodparam></methodparam>
+	<methodparam><parameter role="keyword">callback</parameter></methodparam>
+	<methodparam><parameter role="keyword">user_data</parameter><initializer>None</initializer></methodparam>
       </methodsynopsis>
       <methodsynopsis language="python">
         <methodname><link linkend="method-gnomevfs-drive--unmount">unmount</link></methodname>
-	<methodparam></methodparam>
+	<methodparam><parameter role="keyword">callback</parameter></methodparam>
+	<methodparam><parameter role="keyword">user_data</parameter><initializer>None</initializer></methodparam>
       </methodsynopsis>
       <methodsynopsis language="python">
         <methodname><link linkend="method-gnomevfs-drive--eject">eject</link></methodname>
-	<methodparam></methodparam>
+	<methodparam><parameter role="keyword">callback</parameter></methodparam>
+	<methodparam><parameter role="keyword">user_data</parameter><initializer>None</initializer></methodparam>
       </methodsynopsis>
     </classsynopsis>
   </refsect1>
