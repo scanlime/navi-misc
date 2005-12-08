@@ -174,6 +174,5 @@ function addInitCancelButtonClicked ()
 {
 	div = addInitFieldsDlg.div
 	div.style.visibility = "hidden"
-	history.back ()
 }
 
