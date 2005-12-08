@@ -460,7 +460,10 @@ Another common request by users was for a customizable field. Often users had
 one or two pieces of information they wanted to include in the lesson that was
 not provided for by existing fields. Although there is a generic ``Other''
 field, most users expressed the desire to rename this field to something more
-specific.
+specific. The primary concern with allowing users to create custom fields,
+however, is that too many custom fields can destroy the consistency of lesson
+formats in the library. It is important that lesson formats are consistent so
+that it is not difficult for users to understand lessons they did not create.
 
 In addition to comments from the test users, we noticed some recurring behavior
 that indicated the need for some changes. A couple of the users treated the
@@ -493,20 +496,12 @@ guesswork on their part regarding our expectations. The tutorial can also
 explain aspects and concepts of the interface that might be difficult to
 understand otherwise (such as what a teaching box is).
 
-% This project focused primarily on the interface used for creating new digital
-% teaching boxes and lessons. As a result, there is some missing functionality
-% such as the ability to save a lesson or box, or search for a lesson or box. Our
-% intent for this project was to store the lessons and boxes in XML files on the
-% server. However, for the purpose of searching it might be best to store them in
-% a database in the actual system.
-
-% Additionally, we raised some issues in Section \ref{sec: issues} that were not
-% addressed by this project. Our interface does not address the hard copy
-% resources issue. Teachers can scan these resources to upload them, or create a
-% note in the lesson citing the resource, but these are simply workarounds that
-% don't really address the problem. No decision was made about whether the
-% existing functionality is sufficient to manage these types of resources, or
-% whether something more should be provided.
+Finally, because this project focused primarily on the user interface, there is
+some missing functionality. Lessons are not completely saved, nor is there a
+storage method for lessons conducive to searching. Some issues raised in section
+\ref{sec: issues} are not addressed by this project, such as the ability to cite
+resources in hard copy. Obviously, in addition to the recommendations gathered
+from testing, the missing functionality in this project is important.
 
 \section{Web Analytics}
 We identified two major ``business'' goals for this project: we want teachers to
