@@ -12,8 +12,10 @@
     <title>Synopsis</title>
 
     <programlisting>
-      <xref linkend="gnomevfs-constants-directory-visit" endterm="gnomevfs-constants-directory-visit-title"></xref>
-      <xref linkend="gnomevfs-constants-file-flags"      endterm="gnomevfs-constants-file-flags-title"></xref>
+      <xref linkend="gnomevfs-constants-directory-visit"  endterm="gnomevfs-constants-directory-visit-title"></xref>
+      <xref linkend="gnomevfs-constants-file-flags"       endterm="gnomevfs-constants-file-flags-title"></xref>
+      <xref linkend="gnomevfs-constants-fileinfo-fields"  endterm="gnomevfs-constants-fileinfo-fields-title"></xref>
+      <xref linkend="gnomevfs-constants-file-permissions" endterm="gnomevfs-constants-file-permissions-title"></xref>
     </programlisting>
   </refsect1>
 
@@ -54,6 +56,140 @@
         <varlistentry>
 	  <term><literal>gnomevfs.FILE_FLAGS_LOCAL</literal></term>
 	  <listitem><simpara>Whether the file is on a local filesystem.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+    </refsect2>
+
+    <refsect2 id="gnomevfs-constants-fileinfo-fields">
+      <title id="gnomevfs-constants-fileinfo-fields-title">gnomevfs FileInfo Fields</title>
+      <para>Flags indicating what fields in a <link linkend="class-gnomevfs-fileinfo">gnomevfs.FileInfo</link> object are valid.</para>
+      <variablelist>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_NONE</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_TYPE</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_PERMISSIONS</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_FLAGS</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_DEVICE</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_INODE</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_LINK_COUNT</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_SIZE</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_BLOCK_COUNT</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_IO_BLOCK_SIZE</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_ATIME</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_MTIME</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_CTIME</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_SYMLINK_NAME</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FIELDS_MIME_TYPE</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+    </refsect2>
+
+    <refsect2 id="gnomevfs-constants-file-permissions">
+      <title id="gnomevfs-constants-file-permissions-title">gnomevfs File Permissions</title>
+      <para>File permissions.  These are essentially the same as the unix permissions field.</para>
+      <variablelist>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_SUID</literal></term>
+	  <listitem><simpara>Set UID on access.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_SGID</literal></term>
+	  <listitem><simpara>Set GID on access.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_STICKY</literal></term>
+	  <listitem><simpara>Sticky.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_USER_READ</literal></term>
+	  <listitem><simpara>Owner has read permission.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_USER_WRITE</literal></term>
+	  <listitem><simpara>Owner has write permission.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_USER_EXEC</literal></term>
+	  <listitem><simpara>Owner has execution permission.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_USER_ALL</literal></term>
+	  <listitem><simpara>Owner has all permissions.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_GROUP_READ</literal></term>
+	  <listitem><simpara>Group has read permission.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_GROUP_WRITE</literal></term>
+	  <listitem><simpara>Group has write permission.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_GROUP_EXEC</literal></term>
+	  <listitem><simpara>Group has execution permission.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_GROUP_ALL</literal></term>
+	  <listitem><simpara>Group has all permissions.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_OTHER_READ</literal></term>
+	  <listitem><simpara>Others have read permission.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_OTHER_WRITE</literal></term>
+	  <listitem><simpara>Others have write permission.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_OTHER_EXEC</literal></term>
+	  <listitem><simpara>Others have execution permission.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.PERM_OTHER_ALL</literal></term>
+	  <listitem><simpara>Others have all permissions.</simpara></listitem>
 	</varlistentry>
       </variablelist>
     </refsect2>
