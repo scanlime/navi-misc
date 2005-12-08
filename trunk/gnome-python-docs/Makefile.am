@@ -3,9 +3,9 @@ REFERENCE_DOC_NAME = gnome-python
 DOC_MODULE = gnome-python
 
 REFERENCE_XML_FILES =			\
-	gnome-python-ref.xm		\
-	gnomevfs-classes.xm		\
-	gnomevfs-constants.xm		\
+	gnome-python-ref.xml		\
+	gnomevfs-classes.xml		\
+	gnomevfs-constants.xml		\
 	gnomevfs-context.xml		\
 	gnomevfs-directoryhandle.xml
 
