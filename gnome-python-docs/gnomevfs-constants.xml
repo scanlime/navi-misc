@@ -13,6 +13,7 @@
 
     <programlisting>
       <xref linkend="gnomevfs-constants-directory-visit" endterm="gnomevfs-constants-directory-visit-title"></xref>
+      <xref linkend="gnomevfs-constants-file-flags"      endterm="gnomevfs-constants-file-flags-title"></xref>
     </programlisting>
   </refsect1>
 
@@ -28,12 +29,31 @@
 	  <listitem><simpara>The default directory visit mode.</simpara></listitem>
 	</varlistentry>
         <varlistentry>
+	  <term><literal>gnomevfs.DIRECTORY_VISIT_SAMEFS</literal></term>
+	  <listitem><simpara>Visit only directories on the same file system as the parent.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
 	  <term><literal>gnomevfs.DIRECTORY_VISIT_LOOPCHECK</literal></term>
 	  <listitem><simpara>Prevent a loop if it would be caused (e.g. by following a symbolic link).</simpara></listitem>
 	</varlistentry>
+      </variablelist>
+    </refsect2>
+
+    <refsect2 id="gnomevfs-constants-file-flags">
+      <title id="gnomevfs-constants-file-flags-title">gnomevfs File Flags</title>
+      <para>Special flags that a <link linkend="class-gnomevfs-fileinfo">gnomevfs.FileInfo</link> object can have.</para>
+      <variablelist>
         <varlistentry>
-	  <term><literal>gnomevfs.DIRECTORY_VISIT_SAMEFS</literal></term>
-	  <listitem><simpara>Visit only directories on the same file system as the parent.</simpara></listitem>
+	  <term><literal>gnomevfs.FILE_FLAGS_NONE</literal></term>
+	  <listitem><simpara>No flags.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_FLAGS_SYMLINK</literal></term>
+	  <listitem><simpara>Whether the file is a symbolic link.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_FLAGS_LOCAL</literal></term>
+	  <listitem><simpara>Whether the file is on a local filesystem.</simpara></listitem>
 	</varlistentry>
       </variablelist>
     </refsect2>
