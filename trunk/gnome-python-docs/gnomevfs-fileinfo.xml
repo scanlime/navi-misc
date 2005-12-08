@@ -46,7 +46,7 @@
 
             <row valign="top">
 	      <entry>flags</entry>
-	      <entry>Flags for this file.</entry>
+	      <entry>Flags for this file.  See <link linkend="gnomevfs-constants-file-flags">gnomevfs File Flags</link>.</entry>
 	    </row>
 
             <row valign="top">
