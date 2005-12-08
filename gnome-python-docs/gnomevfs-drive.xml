@@ -1,0 +1,74 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+
+<refentry id="class-gnomevfs-drive">
+  <refnamediv>
+    <refname>gnomevfs.Drive</refname>
+    <refpurpose>Object representing a device which can mount a volume</refpurpose>
+  </refnamediv>
+
+  <refsect1>
+    <title>Synopsis</title>
+    <classsynopsis language="python">
+      <ooclass><classname>gnomevfs.Drive</classname></ooclass>
+      <ooclass><classname>gobject.GObject</classname></ooclass>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--get_id">get_id</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--get_device_type">get_device_type</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--get_mounted_volumes">get_mounted_volumes</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--get_device_path">get_device_path</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--get_activation_uri">get_activation_uri</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--get_display_name">get_display_name</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--get_icon">get_icon</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--get_hal_udi">get_hal_udi</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--is_user_visible">is_user_visible</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--is_connected">is_connected</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--is_mounted">is_mounted</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--mount">mount</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--unmount">unmount</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-drive--eject">eject</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+    </classsynopsis>
+  </refsect1>
+</refentry>
