@@ -63,7 +63,7 @@
 
     <refsect2 id="method-gnomevfs-directoryhandle--next">
       <programlisting>
-      <methodsynopsis>
+      <methodsynopsis language="python">
         <methodname>next</methodname>
         <methodparam />
       </methodsynopsis>
