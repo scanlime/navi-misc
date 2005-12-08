@@ -2,7 +2,7 @@
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
   "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
 
-<refentry id="class-gnomevfscontext">
+<refentry id="class-gnomevfs-context">
   <refnamediv>
     <refname>gnomevfs.Context</refname>
     <refpurpose>Thread tracking and cancellation object</refpurpose>
@@ -14,15 +14,15 @@
       <ooclass><classname>gnomevfs.Context</classname></ooclass>
       <methodsynopsis language="python">
         <methodname><link linkend="method-gnomevfs-context--get_cancellation">get_cancellation</link></methodname>
-	<methodparam />
+        <methodparam />
       </methodsynopsis>
       <methodsynopsis language="python">
         <methodname><link linkend="method-gnomevfs-context--check_cancellation">check_cancellation</link></methodname>
-	<methodparam />
+        <methodparam />
       </methodsynopsis>
       <methodsynopsis language="python">
         <methodname><link linkend="method-gnomevfs-context--cancel">cancel</link></methodname>
-	<methodparam />
+        <methodparam />
       </methodsynopsis>
     </classsynopsis>
   </refsect1>
@@ -40,7 +40,7 @@
       <programlisting>
         <methodsynopsis language="python">
           <methodname>get_cancellation</methodname>
-	  <methodparam />
+          <methodparam />
         </methodsynopsis>
       </programlisting>
       <para>As far as I can tell, the python binding for this is incomplete.</para>
@@ -51,13 +51,13 @@
       <programlisting>
         <methodsynopsis language="python">
           <methodname>check_cancellation</methodname>
-	  <methodparam />
+          <methodparam />
         </methodsynopsis>
       </programlisting>
       <variablelist>
         <varlistentry>
-	  <term><emphasis>Returns</emphasis>:</term>
-	  <listitem><simpara><literal>TRUE</literal> if the context has been cancelled</simpara></listitem>
+          <term><emphasis>Returns</emphasis>:</term>
+          <listitem><simpara><literal>TRUE</literal> if the context has been cancelled</simpara></listitem>
         </varlistentry>
       </variablelist>
       <para>Checks to see if this operation represented by this context has been cancelled.</para>
@@ -68,7 +68,7 @@
       <programlisting>
         <methodsynopsis language="python">
           <methodname>cancel</methodname>
-	  <methodparam />
+          <methodparam />
         </methodsynopsis>
       </programlisting>
       <para>Cancel the operation represented by this context.</para>
