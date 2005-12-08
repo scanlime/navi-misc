@@ -16,6 +16,8 @@
       <xref linkend="gnomevfs-constants-file-flags"       endterm="gnomevfs-constants-file-flags-title"></xref>
       <xref linkend="gnomevfs-constants-fileinfo-fields"  endterm="gnomevfs-constants-fileinfo-fields-title"></xref>
       <xref linkend="gnomevfs-constants-file-permissions" endterm="gnomevfs-constants-file-permissions-title"></xref>
+      <xref linkend="gnomevfs-constants-fileinfo-options" endterm="gnomevfs-constants-fileinfo-options-title"></xref>
+      <xref linkend="gnomevfs-constants-fileinfo-setmask" endterm="gnomevfs-constants-fileinfo-setmask-title"></xref>
     </programlisting>
   </refsect1>
 
@@ -190,6 +192,60 @@
         <varlistentry>
 	  <term><literal>gnomevfs.PERM_OTHER_ALL</literal></term>
 	  <listitem><simpara>Others have all permissions.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+    </refsect2>
+
+    <refsect2 id="gnomevfs-constants-fileinfo-options">
+      <title id="gnomevfs-constants-fileinfo-options-title">gnomevfs FileInfo Options</title>
+      <para>These options affect the way file information is retrieved.</para>
+      <variablelist>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_DEFAULT</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_GET_MIME_TYPE</literal></term>
+	  <listitem><simpara>Detect the MIME type.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FORCE_FAST_MIME_TYPE</literal></term>
+	  <listitem><simpara>Only use fast MIME type detection (file extensions).</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FORCE_SLOW_MIME_TYPE</literal></term>
+	  <listitem><simpara>Force slow MIME type detection where available (sniffing, algorithmic detection, etc).</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.FILE_INFO_FOLLOW_LINKS</literal></term>
+	  <listitem><simpara>Automatically follow symbolic links and retrieve the properties of their target (recommended).</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+    </refsect2>
+
+    <refsect2 id="gnomevfs-constants-fileinfo-setmask">
+      <title id="gnomevfs-constants-fileinfo-setmask-title">gnomevfs FileInfo Set Mask</title>
+      <para>These options affect which file aspects are changed in the <link linkend="">set_file_info</link> method.</para>
+      <variablelist>
+        <varlistentry>
+	  <term><literal>gnomevfs.SET_FILE_INFO_NONE</literal></term>
+	  <listitem><simpara>Don't set any file info fields.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.SET_FILE_INFO_NAME</literal></term>
+	  <listitem><simpara>Change the name.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.SET_FILE_INFO_PERMISSIONS</literal></term>
+	  <listitem><simpara>Change the permissions.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.SET_FILE_INFO_OWNER</literal></term>
+	  <listitem><simpara>Change the file's owner.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.SET_FILE_INFO_TIME</literal></term>
+	  <listitem><simpara>Change the file's time stamp(s).</simpara></listitem>
 	</varlistentry>
       </variablelist>
     </refsect2>
