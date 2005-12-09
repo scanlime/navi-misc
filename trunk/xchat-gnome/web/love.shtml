@@ -33,8 +33,6 @@
 	  <b>Help document</b><br />
 	  <p>xchat-gnome now has a basic help manual, but it is by no means complete.
 	  In addition to this, more documentation on the web site would be helpful.</p><br />
-	  <b>Web pages</b><br />
-	  <p>xchat-gnome's web page is nice, but doesn't have a whole lot of information.</p><br />
 	  <b>Translation</b><br />
 	  <p>As of 0.8svn, xchat-gnome can finally be localized.  So far we have part of
 	  a French translation.  Having full language coverage would be amazing, so if you're
