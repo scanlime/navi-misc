@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-07 16:42-0700\n"
+"POT-Creation-Date: 2005-12-09 14:35-0700\n"
 "PO-Revision-Date: 2005-11-25 03:33-0500\n"
 "Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: Français <olethanh@ulb.ac.be>\n"
@@ -4071,11 +4071,8 @@ msgid "Name"
 msgstr "Nom"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:74
-msgid "unknown"
-msgstr "inconnu"
-
 #: ../src/fe-gnome/preferences-page-plugins.c:75
-msgid "unkown"
+msgid "unknown"
 msgstr "inconnu"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:112
