@@ -39,7 +39,10 @@
 	  <p>As of 0.8svn, xchat-gnome can finally be localized.  So far we have part of
 	  a French translation.  Having full language coverage would be amazing, so if you're
 	  capable of providing a translation, please do!</p>
-	</div>
+          <p>xchat-gnome is using
+	  <a href="https://launchpad.net/products/xchat-gnome/+translations">rosetta</a> for
+	  translations.  Please use it to submit translation work.</p>
+        </div>
 	<div class="section-title">Easy Hackery Love</div>
 	<div class="section">
 	  <b>Basic A11y</b><br />
