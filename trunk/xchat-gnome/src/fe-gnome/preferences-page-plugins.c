@@ -72,7 +72,7 @@ fe_plugin_add (char *filename)
 		 */
 		name = strrchr (filename, '/') + 1;
 		version = _("unknown");
-		desc = _("unkown");
+		desc = _("unknown");
 	}
 
 	gtk_list_store_set (pageref->plugin_store, &iter, 0, name, 1, version, 2, desc, 3, filename, -1);
