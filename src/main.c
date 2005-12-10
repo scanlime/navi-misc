@@ -196,14 +196,14 @@ int main(int argc, char ** argv) {
 	case 'c':
 	case 'C':
 	case 'P':
-	    fprintf(stderr,
-		    "This Fyre binary was compiled without gnet support.\n"
-		    "Cluster support is not available.\n");
+	    fprintf(stderr, "%s%s",
+		    _("This Fyre binary was compiled without gnet support.\n")
+		    _("Cluster support is not available.\n"));
 	    break;
 	case 'r':
-	    fprintf(stderr,
-		    "This Fyre binary was compiled without gnet support.\n"
-		    "Cluster support is not available.\n");
+	    fprintf(stderr, "%s%s",
+		    _("This Fyre binary was compiled without gnet support.\n")
+		    _("Cluster support is not available.\n"));
 	    exit(1);
 	    break;
 #endif
@@ -268,7 +268,7 @@ int main(int argc, char ** argv) {
 	Explorer *explorer;
 
 	if (!have_gtk) {
-	    fprintf(stderr, "GTK intiailization failed, can't start in interactive mode\n");
+	    fprintf(stderr, _("GTK intiailization failed, can't start in interactive mode\n"));
 	    return 1;
 	}
 	explorer = explorer_new (map, animation);
@@ -316,9 +316,9 @@ int main(int argc, char ** argv) {
 	    discovery_server_new(FYRE_DEFAULT_SERVICE, port_number);
 	remote_server_main_loop(port_number, have_gtk, verbose);
 #else
-	fprintf(stderr,
-		"This Fyre binary was compiled without gnet support.\n"
-		"Remote control mode is not available.\n");
+	fprintf(stderr, "%s%s",
+		_("This Fyre binary was compiled without gnet support.\n")
+		_("Remote control mode is not available.\n"));
 #endif
 	break;
     }
@@ -328,7 +328,7 @@ int main(int argc, char ** argv) {
 	GtkWidget* window;
 
 	if (!have_gtk) {
-	    fprintf(stderr, "GTK intiailization failed, can't start in screensaver mode\n");
+	    fprintf(stderr, _("GTK intiailization failed, can't start in screensaver mode\n"));
 	    return 1;
 	}
 
@@ -351,7 +351,7 @@ int main(int argc, char ** argv) {
 static void usage(char **argv) {
     acquire_console();
     fprintf(stderr,
-	    "Usage: %s [options] [file]\n"
+	    _("Usage: %s [options] [file]\n"
 	    "Interactive exploration and high quality rendering of chaotic maps\n"
 	    "\n"
 	    "Actions:\n"
@@ -399,7 +399,7 @@ static void usage(char **argv) {
 	    "                            which we stop rendering. Larger numbers give\n"
 	    "                            smoother and more detailed results, but increase\n"
 	    "                            running time. The default of 1.0 gives roughly one\n"
-	    "                            histogram sample for every final image sample.\n",
+	    "                            histogram sample for every final image sample.\n"),
 	    argv[0]);
 }
 
@@ -436,7 +436,7 @@ static void animation_render_main (IterativeMap *map,
 						 &frame);
 	    current_quality = histogram_imager_compute_quality(HISTOGRAM_IMAGER(map));
 
-	    printf("\rFrame %d, %e iterations, %.04f quality", frame_count,
+	    printf(_("\rFrame %d, %e iterations, %.04f quality"), frame_count,
 		   map->iterations, current_quality);
 	    fflush(stdout);
 
@@ -471,7 +471,7 @@ static void daemonize_to_pidfile(const char* filename)
 	/* Open the file before our current directory and console disappear */
 	f = fopen(filename, "w");
 	if (!f)
-	    printf("Can't open pidfile '%s'\n", filename);
+	    printf(_("Can't open pidfile '%s'\n"), filename);
     }
 
     if (daemon(0, 0) < 0) {
@@ -495,7 +495,7 @@ static int console_running = 1;
 
 void sleep_at_exit()
 {
-    printf("\nFinished.\n");
+    printf(_("\nFinished.\n"));
     while (console_running) {
         Sleep(100);
         fgetc(stdin);
