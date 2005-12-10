@@ -6,6 +6,7 @@ src/cell-renderer-bifurcation.c
 src/cell-renderer-transition.c
 src/cluster-model.c
 src/de-jong.c
+src/discovery-server.c
 src/explorer-animation.c
 src/explorer-cluster.c
 src/explorer-history.c
@@ -13,4 +14,6 @@ src/explorer.c
 src/getopt.c
 src/histogram-imager.c
 src/main.c
+src/parameter-editor.c
 src/remote-client.c
+src/remote-server.c

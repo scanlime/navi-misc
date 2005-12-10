@@ -763,7 +763,7 @@ static gchar*   explorer_strdup_quality (Explorer *self)
 {
     gdouble q = histogram_imager_compute_quality(HISTOGRAM_IMAGER(self->map));
     if (q > (G_MAXDOUBLE / 2))
-	return g_strdup("N/A");
+	return g_strdup(_("N/A"));
     else
 	return g_strdup_printf("%.3f", q);
 }
