@@ -26,6 +26,7 @@
 #include "math-util.h"
 #include <stdlib.h>
 #include <math.h>
+#include "i18n.h"
 
 static void de_jong_class_init(DeJongClass *klass);
 static void de_jong_init(DeJong *self);
@@ -75,11 +76,11 @@ void initial_func_sphere            (gdouble *x, gdouble *y);
 static const
 GEnumValue initial_conditions_enum[] =
     {
-	{ 0, "circular_uniform",  "Circular uniform"  },
-	{ 1, "square_uniform",    "Square uniform"    },
-	{ 2, "gaussian",          "Gaussian"          },
-	{ 3, "radial",            "Radial"            },
-	{ 4, "sphere",            "Sphere"            },
+	{ 0, "circular_uniform",  N_("Circular uniform")  },
+	{ 1, "square_uniform",    N_("Square uniform")    },
+	{ 2, "gaussian",          N_("Gaussian")          },
+	{ 3, "radial",            N_("Radial")            },
+	{ 4, "sphere",            N_("Sphere")            },
 	{ 0 },
     };
 
@@ -110,11 +111,11 @@ static void tool_ab_cd(ParameterHolder *self, ToolInput *i);
 static void tool_ac_bd(ParameterHolder *self, ToolInput *i);
 
 static const ToolInfoPH tool_table[] = {
-    {"Grab",        tool_grab,           TOOL_USE_MOTION_EVENTS},
-    {"Blur",        tool_blur,           TOOL_USE_MOTION_EVENTS},
-    {"Zoom",        tool_zoom,           TOOL_USE_IDLE},
-    {"Rotate",      tool_rotate,         TOOL_USE_MOTION_EVENTS},
-    {"Gamma",       tool_exposure_gamma, TOOL_USE_MOTION_EVENTS},
+    {N_("Grab"),        tool_grab,           TOOL_USE_MOTION_EVENTS},
+    {N_("Blur"),        tool_blur,           TOOL_USE_MOTION_EVENTS},
+    {N_("Zoom"),        tool_zoom,           TOOL_USE_IDLE},
+    {N_("Rotate"),      tool_rotate,         TOOL_USE_MOTION_EVENTS},
+    {N_("Gamma"),       tool_exposure_gamma, TOOL_USE_MOTION_EVENTS},
     {"<separator>",},
     {"A / B",       tool_a_b,            TOOL_USE_MOTION_EVENTS},
     {"A / C",       tool_a_c,            TOOL_USE_MOTION_EVENTS},
@@ -185,18 +186,18 @@ static void de_jong_class_init(DeJongClass *klass) {
 
 static void de_jong_init_calc_params(GObjectClass *object_class) {
     GParamSpec *spec;
-    const gchar *current_group = "Computation";
+    const gchar *current_group = _("Computation");
 
     spec = g_param_spec_string       ("function",
-				      "Function",
-				      "Function Name",
-				      "Peter de Jong Map",
+				      _("Function"),
+				      _("Function Name"),
+				      _("Peter de Jong Map"),
 				      G_PARAM_READABLE);
     g_object_class_install_property  (object_class, PROP_FUNCTION, spec);
 
     spec = g_param_spec_double       ("a",
 				      "A",
-				      "de Jong parameter A",
+				      _("de Jong parameter A"),
 				      -100, 100, 2.38767,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -206,7 +207,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 
     spec = g_param_spec_double       ("b",
 				      "B",
-				      "de Jong parameter B",
+				      _("de Jong parameter B"),
 				      -100, 100, -1.22713,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -216,7 +217,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 
     spec = g_param_spec_double       ("c",
 				      "C",
-				      "de Jong parameter C",
+				      _("de Jong parameter C"),
 				      -100, 100, -0.39595,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -226,7 +227,7 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
 
     spec = g_param_spec_double       ("d",
 				      "D",
-				      "de Jong parameter D",
+				      _("de Jong parameter D"),
 				      -100, 100, -4.67104,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -235,8 +236,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_D, spec);
 
     spec = g_param_spec_double       ("zoom",
-				      "Zoom",
-				      "Zoom factor",
+				      _("Zoom"),
+				      _("Zoom factor"),
 				      0.01, 1000, 1,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -245,8 +246,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_ZOOM, spec);
 
     spec = g_param_spec_double       ("aspect",
-				      "Aspect",
-				      "Aspect ratio",
+				      _("Aspect"),
+				      _("Aspect ratio"),
 				      0.01, 100, 1,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -255,8 +256,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_ASPECT, spec);
 
     spec = g_param_spec_double       ("xoffset",
-				      "X offset",
-				      "Horizontal image offset",
+				      _("X offset"),
+				      _("Horizontal image offset"),
 				      -100, 100, 0,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -265,8 +266,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_XOFFSET, spec);
 
     spec = g_param_spec_double       ("yoffset",
-				      "Y offset",
-				      "Vertical image offset",
+				      _("Y offset"),
+				      _("Vertical image offset"),
 				      -100, 100, 0,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -275,8 +276,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_YOFFSET, spec);
 
     spec = g_param_spec_double       ("rotation",
-				      "Rotation",
-				      "Rotation angle, in radians",
+				      _("Rotation"),
+				      _("Rotation angle, in radians"),
 				      -100, 100, 0,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -285,8 +286,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_ROTATION, spec);
 
     spec = g_param_spec_double       ("blur_radius",
-				      "Blur radius",
-				      "Gaussian blur radius",
+				      _("Blur radius"),
+				      _("Gaussian blur radius"),
 				      0, 100, 0,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -295,8 +296,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_BLUR_RADIUS, spec);
 
     spec = g_param_spec_double       ("blur_ratio",
-				      "Blur ratio",
-				      "Amount of blurred vs non-blurred rendering",
+				      _("Blur ratio"),
+				      _("Amount of blurred vs non-blurred rendering"),
 				      0, 1, 1,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -305,8 +306,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_BLUR_RATIO, spec);
 
     spec = g_param_spec_boolean      ("tileable",
-				      "Tileable",
-				      "When set, the image is wrapped rather than clipped at the edges",
+				      _("Tileable"),
+				      _("When set, the image is wrapped rather than clipped at the edges"),
 				      FALSE,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -314,8 +315,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_TILEABLE, spec);
 
     spec = g_param_spec_boolean      ("emphasize_transient",
-				      "Emphasize transient",
-				      "Re-randomize the point periodically to emphasize transients",
+				      _("Emphasize transient"),
+				      _("Re-randomize the point periodically to emphasize transients"),
 				      FALSE,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -323,8 +324,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_EMPHASIZE_TRANSIENT, spec);
 
     spec = g_param_spec_uint         ("transient_iterations",
-				      "Transient iterations",
-				      "Number of iterations between re-randomization, when 'Emphasize transient' is enabled",
+				      _("Transient iterations"),
+				      _("Number of iterations between re-randomization, when 'Emphasize transient' is enabled"),
 				      1, 100000, 50,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -334,8 +335,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_TRANSIENT_ITERATIONS, spec);
 
     spec = g_param_spec_enum         ("initial_conditions",
-				      "Initial conditions",
-				      "Selects the function used to generate initial conditions, when 'Emphasize transient' is enabled",
+				      _("Initial conditions"),
+				      _("Selects the function used to generate initial conditions, when 'Emphasize transient' is enabled"),
 				      initial_conditions_enum_get_type(),
 				      0,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
@@ -345,8 +346,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_INITIAL_CONDITIONS, spec);
 
     spec = g_param_spec_double       ("initial_xscale",
-				      "Initial X scale",
-				      "Horizontal initial condition scale factor",
+				      _("Initial X scale"),
+				      _("Horizontal initial condition scale factor"),
 				      0, 1000, 1,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -356,8 +357,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_INITIAL_XSCALE, spec);
 
     spec = g_param_spec_double       ("initial_yscale",
-				      "Initial Y scale",
-				      "Vertical initial condition scale factor",
+				      _("Initial Y scale"),
+				      _("Vertical initial condition scale factor"),
 				      0, 1000, 1,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -367,8 +368,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_INITIAL_YSCALE, spec);
 
     spec = g_param_spec_double       ("initial_xoffset",
-				      "Initial X offset",
-				      "Horizontal initial condition offset",
+				      _("Initial X offset"),
+				      _("Horizontal initial condition offset"),
 				      -100, 100, 0,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -378,8 +379,8 @@ static void de_jong_init_calc_params(GObjectClass *object_class) {
     g_object_class_install_property  (object_class, PROP_INITIAL_XOFFSET, spec);
 
     spec = g_param_spec_double       ("initial_yoffset",
-				      "Initial Y offset",
-				      "Vertical initial condition offset",
+				      _("Initial Y offset"),
+				      _("Vertical initial condition offset"),
 				      -100, 100, 0,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);

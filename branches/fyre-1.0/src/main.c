@@ -47,6 +47,7 @@
 #include "remote-server.h"
 #include "batch-image-render.h"
 #include "gui-util.h"
+#include "i18n.h"
 
 #ifdef HAVE_GNET
 #include "cluster-model.h"
@@ -80,6 +81,12 @@ int main(int argc, char ** argv) {
     int port_number = FYRE_DEFAULT_PORT;
 #endif
     GError *error = NULL;
+
+#ifdef ENABLE_NLS
+    bindtextdomain (GETTEXT_PACKAGE, FYRELOCALEDIR);
+    bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+    textdomain (GETTEXT_PACKAGE);
+#endif
 
     g_random_set_seed(time(NULL));
     g_type_init();
@@ -272,7 +279,7 @@ int main(int argc, char ** argv) {
 	    dialog = glade_xml_get_widget (explorer->xml, "error dialog");
 	    label = glade_xml_get_widget (explorer->xml, "error label");
 
-	    text = g_strdup_printf ("<span weight=\"bold\" size=\"larger\">Error!</span>\n\n%s", error->message);
+	    text = g_strdup_printf (_("<span weight=\"bold\" size=\"larger\">Error!</span>\n\n%s"), error->message);
 	    gtk_label_set_markup (GTK_LABEL (label), text);
 	    g_free (text);
 	    g_error_free (error);

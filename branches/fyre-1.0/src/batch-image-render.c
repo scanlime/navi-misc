@@ -24,6 +24,7 @@
 #include "config.h"
 #include <stdio.h>
 #include <string.h>
+#include "i18n.h"
 #include "batch-image-render.h"
 
 #ifdef HAVE_GNET
@@ -77,7 +78,7 @@ void batch_image_render(IterativeMap*  map,
     /* Save as an OpenEXR file if it has a .exr extension, otherwise use PNG */
     if (strlen(filename) > 4 && strcmp(".exr", filename + strlen(filename) - 4)==0) {
 	GError *error = NULL;
-	printf("Creating OpenEXR image...\n");
+	printf(_("Creating OpenEXR image...\n"));
 	exr_save_image_file(HISTOGRAM_IMAGER(map), filename, &error);
 	if (error) {
 	    g_print ("Error: %s\n", error->message);
@@ -88,7 +89,7 @@ void batch_image_render(IterativeMap*  map,
 #endif
 	{
             GError *error = NULL;
-	    printf("Creating PNG image...\n");
+	    printf(_("Creating PNG image...\n"));
 	    histogram_imager_save_image_file(HISTOGRAM_IMAGER(map), filename, &error);
 	    if (error) {
                 g_print ("Error: %s\n", error->message);
@@ -122,7 +123,7 @@ static void       on_calc_finished            (IterativeMap*       map,
      * of iterations (in scientific notation), iterations per second,
      * current quality / target quality, and elapsed time / remaining time.
      */
-    printf("%6.02f%%   %.3e   %.2e/sec  %8.04f / %.01f   %02d:%02d:%02d / %02d:%02d:%02d\n",
+    printf(_("%6.02f%%   %.3e   %.2e/sec  %8.04f / %.01f   %02d:%02d:%02d / %02d:%02d:%02d\n"),
 	   100.0 * current_quality / self->quality,
 	   map->iterations, map->iterations / elapsed,
 	   current_quality, self->quality,
