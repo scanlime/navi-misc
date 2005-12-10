@@ -12,4 +12,5 @@ src/explorer-history.c
 src/explorer.c
 src/getopt.c
 src/histogram-imager.c
+src/main.c
 src/remote-client.c
