@@ -4,7 +4,7 @@
 # Olivier Lê Thanh Duong, 2005.
 # Gissehel <gissehel@vachefolle.com>, 1999.
 # Jerome Couderc <j.couderc@ifrance.com>, 1999.
-# maintainer: Olivier Berger <olberger@club-internet.fr>, 2001-2002.
+# Olivier Berger <olberger@club-internet.fr>, 2001-2002.
 # Christophe Merlet (RedFox) <redfox@redfoxcenter.org>, 2003, 2004.
 # Arnaud Jambin <a.jambin@free.fr>, 2005.
 #
