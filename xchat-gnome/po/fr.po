@@ -29,7 +29,7 @@ msgstr "Appliquer le filtre texte à :   "
 
 #: ../data/channel-list.glade.h:3
 msgid "Channel _Name"
-msgstr "Nom du _channel"
+msgstr "Nom du _canal"
 
 #: ../data/channel-list.glade.h:4
 msgid "Channel _Topic"
@@ -37,7 +37,7 @@ msgstr "Changer le _sujet"
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
-msgstr "Rejoindre un cannal"
+msgstr "Rejoindre un canal"
 
 #: ../data/channel-list.glade.h:6
 msgid "Maximum Users:"
@@ -69,7 +69,7 @@ msgstr "Transfert de fichiers"
 
 #: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
-msgstr "<span weight=\"bold\">Cannaux à rejoindre automatiquement</span>"
+msgstr "<span weight=\"bold\">Canaux à rejoindre automatiquement</span>"
 
 #: ../data/irc-network-editor.glade.h:2 ../data/preferences-dialog.glade.h:7
 msgid "<span weight=\"bold\">General</span>"
@@ -105,7 +105,7 @@ msgstr "Utiliser cette configuration :"
 
 #: ../data/irc-network-editor.glade.h:10
 msgid "User and Channels"
-msgstr "Utilisateur et cannaux"
+msgstr "Utilisateur et canaux"
 
 #: ../data/irc-network-editor.glade.h:11
 msgid "_Automatically connect to network"
@@ -467,7 +467,7 @@ msgstr "Ouvrir une uri irc://"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "irc://server:port/channel"
-msgstr "irc://serveur:port/cannal"
+msgstr "irc://serveur:port/canal"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "Execute a xchat command"
@@ -487,11 +487,11 @@ msgstr "\"Text à afficher\""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the channel"
-msgstr "Changer le context vers le cannal"
+msgstr "Changer le context vers le canal"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "channel"
-msgstr "cannal"
+msgstr "canal"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Change the context to the server"
@@ -645,7 +645,7 @@ msgstr "Pseudo"
 #: ../src/common/text.c:556 ../src/common/text.c:992
 #: ../src/fe-gnome/irc-network-editor.c:272
 msgid "Channel"
-msgstr "Cannal"
+msgstr "Canal"
 
 #: ../plugins/url_scraper/urlscraper.c:73
 msgid "URL"
@@ -1852,7 +1852,7 @@ msgstr "-%C10-%C11-%O$t$1 définit le mode $2$3 $4"
 
 #: ../src/common/textevents.h:60
 msgid "-%C10-%C11-%O$tChannel $1 modes: $2"
-msgstr "-%C10-%C11-%O$tChannel $1 modes : $2"
+msgstr "-%C10-%C11-%O$tChanal $1 modes : $2"
 
 #: ../src/common/textevents.h:63
 msgid "%C2<%C8%B$1%B%C2>%O$t$2%O"
@@ -4063,7 +4063,7 @@ msgstr "_Fermer"
 
 #: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Channels..."
-msgstr "_Cannaux..."
+msgstr "_Canaux..."
 
 #. Discussion menu
 #. Channel context menu
