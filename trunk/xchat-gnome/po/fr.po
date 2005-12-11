@@ -1,15 +1,24 @@
-# Xchat-gnome fr.# Copyright (C) 2005# This file is distributed under the same license as the xchat-gnome package.# Olivier Lê Thanh Duong, 2005.# 
+# Xchat-gnome fr.
+# Copyright (C) 2005
+# This file is distributed under the same license as the xchat-gnome package.
+# Olivier Lê Thanh Duong, 2005.
+# Gissehel <gissehel@vachefolle.com>, 1999.
+# Jerome Couderc <j.couderc@ifrance.com>, 1999.
+# maintainer: Olivier Berger <olberger@club-internet.fr>, 2001-2002.
+# Christophe Merlet (RedFox) <redfox@redfoxcenter.org>, 2003, 2004.
+# Arnaud Jambin <a.jambin@free.fr>, 2005.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-09 14:35-0700\n"
+"POT-Creation-Date: 2005-12-11 14:19-0700\n"
 "PO-Revision-Date: 2005-12-11 17:17+0100\n"
 "Last-Translator: Xavier Claessens <x_claessens@gmail.com>\n"
 "Language-Team: French <olethanh@ulb.ac.be>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit"
+"Content-Transfer-Encoding: 8bit\n"
 
 #: ../data/channel-list.glade.h:1
 msgid "<span weight=\"bold\">List Filtering</span>"
@@ -806,19 +815,27 @@ msgstr "Ce greffon refuse de se décharger.\n"
 
 #: ../src/common/outbound.c:3098
 msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
-msgstr "ADDBUTTON <nom> <action>, ajoute un bouton en-dessous de la liste des utilisateurs"
+msgstr ""
+"ADDBUTTON <nom> <action>, ajoute un bouton en-dessous de la liste des "
+"utilisateurs"
 
 #: ../src/common/outbound.c:3100
 msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
-msgstr "ALLCHAN <cmd>, envoie une commande à tous les canaux dans lesquels vous êtes présent\" \""
+msgstr ""
+"ALLCHAN <cmd>, envoie une commande à tous les canaux dans lesquels vous êtes "
+"présent\" \""
 
 #: ../src/common/outbound.c:3102
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
-msgstr "ALLCHANL <cmd>, envoie une commande à tous les canaux dans lesquels vous êtes présent"
+msgstr ""
+"ALLCHANL <cmd>, envoie une commande à tous les canaux dans lesquels vous "
+"êtes présent"
 
 #: ../src/common/outbound.c:3104
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
-msgstr "ALLSERV <cmd>, envoie une commande à tous les serveurs sur lesquels vous êtes connecté"
+msgstr ""
+"ALLSERV <cmd>, envoie une commande à tous les serveurs sur lesquels vous "
+"êtes connecté"
 
 #: ../src/common/outbound.c:3105
 msgid "AWAY [<reason>], sets you away"
@@ -829,7 +846,10 @@ msgid ""
 "BAN <mask> [<bantype>], bans everyone matching the mask from the current "
 "channel. If they are already on the channel this doesn't kick them (needs "
 "chanop)"
-msgstr "BAN <masque> [<typeban>], bannit tous ceux qui correspondent au masque dans le canal en cours. S'ils sont déjà sur le canal ça ne les met pas dehors (kick) (nécessite chanop)"
+msgstr ""
+"BAN <masque> [<typeban>], bannit tous ceux qui correspondent au masque dans "
+"le canal en cours. S'ils sont déjà sur le canal ça ne les met pas dehors "
+"(kick) (nécessite chanop)"
 
 #: ../src/common/outbound.c:3109
 msgid "CLEAR, Clears the current text window"
@@ -841,13 +861,17 @@ msgstr "CLOSE, Ferme l'onglet/fenêtre courant"
 
 #: ../src/common/outbound.c:3113
 msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
-msgstr "COUNTRY <code|caractère de substitution>, recherche un code de pays, par exemple : au = australie"
+msgstr ""
+"COUNTRY <code|caractère de substitution>, recherche un code de pays, par "
+"exemple : au = australie"
 
 #: ../src/common/outbound.c:3115
 msgid ""
 "CTCP <nick> <message>, send the CTCP message to nick, common messages are "
 "VERSION and USERINFO"
-msgstr "CTCP <pseudo> <message>, envoie le message CTCP au pseudo, les messages courants sont VERSION et USERINFO"
+msgstr ""
+"CTCP <pseudo> <message>, envoie le message CTCP au pseudo, les messages "
+"courants sont VERSION et USERINFO"
 
 #: ../src/common/outbound.c:3117
 msgid "CYCLE, parts current channel and immediately rejoins"
@@ -878,7 +902,9 @@ msgstr ""
 msgid ""
 "DEHOP <nick>, removes chanhalf-op status from the nick on the current "
 "channel (needs chanop)"
-msgstr "DEHOP <pseudo>, supprime le statut chanhalf-op d'un pseudo sur le canal courant (nécessite chanop)"
+msgstr ""
+"DEHOP <pseudo>, supprime le statut chanhalf-op d'un pseudo sur le canal "
+"courant (nécessite chanop)"
 
 #: ../src/common/outbound.c:3133
 msgid "DELBUTTON <name>, deletes a button from under the user-list"
@@ -888,13 +914,17 @@ msgstr "DELBUTTON <nom>, supprime un bouton de sous la liste des utilisateurs"
 msgid ""
 "DEOP <nick>, removes chanop status from the nick on the current channel "
 "(needs chanop)"
-msgstr "DEOP <pseudo>, supprime le statut chanop d'un pseudo sur le canal courant (nécessite chanop)"
+msgstr ""
+"DEOP <pseudo>, supprime le statut chanop d'un pseudo sur le canal courant "
+"(nécessite chanop)"
 
 #: ../src/common/outbound.c:3137
 msgid ""
 "DEVOICE <nick>, removes voice status from the nick on the current channel "
 "(needs chanop)"
-msgstr "DEVOICE <pseudo>, supprime le statut voice d'un pseudo sur le canal courant (nécessite chanop)"
+msgstr ""
+"DEVOICE <pseudo>, supprime le statut voice d'un pseudo sur le canal courant "
+"(nécessite chanop)"
 
 #: ../src/common/outbound.c:3138
 msgid "DISCON, Disconnects from server"
@@ -912,7 +942,10 @@ msgstr "ECHO <texte>, Affiche un texte en local"
 msgid ""
 "EXEC [-o] <command>, runs the command. If -o flag is used then output is "
 "sent to current channel, else is printed to current text box"
-msgstr "EXEC [-o] <commande>, exécute une commande. Si l'option -o est utilisée, la sortie est envoyée sur le canal courant, sinon elle est affichée dans la zone de texte courante"
+msgstr ""
+"EXEC [-o] <commande>, exécute une commande. Si l'option -o est utilisée, la "
+"sortie est envoyée sur le canal courant, sinon elle est affichée dans la "
+"zone de texte courante"
 
 #: ../src/common/outbound.c:3145
 msgid "EXECCONT, sends the process SIGCONT"
@@ -922,7 +955,9 @@ msgstr "EXECCONT, envoie un SIGCONT au processus"
 msgid ""
 "EXECKILL [-9], kills a running exec in the current session. If -9 is given "
 "the process is SIGKILL'ed"
-msgstr "EXECKILL [-9], tue une exécution en cours dans la session courante. Si -9 est fourni, le processus est tué par SIGKILL"
+msgstr ""
+"EXECKILL [-9], tue une exécution en cours dans la session courante. Si -9 "
+"est fourni, le processus est tué par SIGKILL"
 
 #: ../src/common/outbound.c:3150
 msgid "EXECSTOP, sends the process SIGSTOP"
@@ -938,7 +973,8 @@ msgstr "FLUSHQ, vide la queue d'envoi du serveur courant"
 
 #: ../src/common/outbound.c:3157
 msgid "GATE <host> [<port>], proxies through a host, port defaults to 23"
-msgstr "GATE <hote> [<port>], utilise un hote comme proxy, le port est 23 par défaut"
+msgstr ""
+"GATE <hote> [<port>], utilise un hote comme proxy, le port est 23 par défaut"
 
 #: ../src/common/outbound.c:3160
 msgid "GHOST <nick> <password>, Kills a ghosted nickname"
@@ -970,7 +1006,9 @@ msgstr ""
 msgid ""
 "INVITE <nick> [<channel>], invites someone to a channel, by default the "
 "current channel (needs chanop)"
-msgstr "INVITE <pseudo> [<canal>], invite quelqu'un sur un canal, par défaut le canal courant (nécessite chanop)"
+msgstr ""
+"INVITE <pseudo> [<canal>], invite quelqu'un sur un canal, par défaut le "
+"canal courant (nécessite chanop)"
 
 #: ../src/common/outbound.c:3175
 msgid "JOIN <channel>, joins the channel"
@@ -978,13 +1016,17 @@ msgstr "JOIN <canal>, rejoint le canal"
 
 #: ../src/common/outbound.c:3177
 msgid "KICK <nick>, kicks the nick from the current channel (needs chanop)"
-msgstr "KICK <pseudo>, kicke (met dehors) le pseudo du canal courant (nécessite chanop)"
+msgstr ""
+"KICK <pseudo>, kicke (met dehors) le pseudo du canal courant (nécessite "
+"chanop)"
 
 #: ../src/common/outbound.c:3179
 msgid ""
 "KICKBAN <nick>, bans then kicks the nick from the current channel (needs "
 "chanop)"
-msgstr "KICKBAN <pseudo>, bannit puis kicke (met dehors) le pseudo du canal courant (nécessite chanop)"
+msgstr ""
+"KICKBAN <pseudo>, bannit puis kicke (met dehors) le pseudo du canal courant "
+"(nécessite chanop)"
 
 #: ../src/common/outbound.c:3182
 msgid "LAGCHECK, forces a new lag check"
@@ -1001,26 +1043,36 @@ msgstr "LOAD [-e] <fichier>, charge un greffon ou un script"
 #: ../src/common/outbound.c:3189
 msgid ""
 "MDEHOP, Mass deop's all chanhalf-ops in the current channel (needs chanop)"
-msgstr "MDEHOP, fait un deop massif sur tous les chanhalf-ops du canal courant (nécessite chanop)"
+msgstr ""
+"MDEHOP, fait un deop massif sur tous les chanhalf-ops du canal courant "
+"(nécessite chanop)"
 
 #: ../src/common/outbound.c:3191
 msgid "MDEOP, Mass deop's all chanops in the current channel (needs chanop)"
-msgstr "MDEOP, fait un deop massif sur tous les chanops du canal courant (nécessite chanop)"
+msgstr ""
+"MDEOP, fait un deop massif sur tous les chanops du canal courant (nécessite "
+"chanop)"
 
 #: ../src/common/outbound.c:3193
 msgid ""
 "ME <action>, sends the action to the current channel (actions are written in "
 "the 3rd person, like /me jumps)"
-msgstr "ME <action>, envoie l'action dans le canal courant (les actions sont écrites à la 3ème personne, comme /me est content)"
+msgstr ""
+"ME <action>, envoie l'action dans le canal courant (les actions sont écrites "
+"à la 3ème personne, comme /me est content)"
 
 #: ../src/common/outbound.c:3196
 msgid ""
 "MKICK, Mass kicks everyone except you in the current channel (needs chanop)"
-msgstr "MKICK, fait un kick massif de tout le monde sauf vous dans le canal courant (nécessite chanop)"
+msgstr ""
+"MKICK, fait un kick massif de tout le monde sauf vous dans le canal courant "
+"(nécessite chanop)"
 
 #: ../src/common/outbound.c:3199
 msgid "MOP, Mass op's all users in the current channel (needs chanop)"
-msgstr "MOP, fait un op massif sur tous les utilisateurs du canal courant (nécessite chanop)"
+msgstr ""
+"MOP, fait un op massif sur tous les utilisateurs du canal courant (nécessite "
+"chanop)"
 
 #: ../src/common/outbound.c:3200
 msgid "MSG <nick> <message>, sends a private message"
@@ -1046,11 +1098,14 @@ msgstr "NICK <pseudonyme>, définit votre pseudo"
 msgid ""
 "NOTICE <nick/channel> <message>, sends a notice. Notices are a type of "
 "message that should be auto reacted to"
-msgstr "NOTICE <pseudo/canal> <message>, envoie une notification. Les notifications sont un type de message auquel on devrait réagir automatiquement"
+msgstr ""
+"NOTICE <pseudo/canal> <message>, envoie une notification. Les notifications "
+"sont un type de message auquel on devrait réagir automatiquement"
 
 #: ../src/common/outbound.c:3212
 msgid "NOTIFY [<nick>], lists your notify list or adds someone to it"
-msgstr "NOTIFY [<pseudo>], liste votre liste de notifications et y ajoute quelqu'un"
+msgstr ""
+"NOTIFY [<pseudo>], liste votre liste de notifications et y ajoute quelqu'un"
 
 #: ../src/common/outbound.c:3214
 msgid "OP <nick>, gives chanop status to the nick (needs chanop)"
@@ -1059,7 +1114,8 @@ msgstr "OP <pseudo>, donne le statut chanop au pseudo (nécessite chanop)"
 #: ../src/common/outbound.c:3216
 msgid ""
 "PART [<channel>] [<reason>], leaves the channel, by default the current one"
-msgstr "PART [<canal>] [<raison>], quitte le canal, par défaut le canal courant"
+msgstr ""
+"PART [<canal>] [<raison>], quitte le canal, par défaut le canal courant"
 
 #: ../src/common/outbound.c:3218
 msgid "PING <nick | channel>, CTCP pings nick or channel"
@@ -1067,7 +1123,8 @@ msgstr "PING <pseudo | canal>, envoie un CTCP ping au pseudo ou au canal"
 
 #: ../src/common/outbound.c:3220
 msgid "QUERY <nick>, opens up a new privmsg window to someone"
-msgstr "QUERY <pseudo>, ouvre une nouvelle fenêtre de message privé avec quelqu'un"
+msgstr ""
+"QUERY <pseudo>, ouvre une nouvelle fenêtre de message privé avec quelqu'un"
 
 #: ../src/common/outbound.c:3222
 msgid "QUIT [<reason>], disconnects from the current server"
@@ -1082,20 +1139,28 @@ msgid ""
 "RECONNECT [-ssl] [<host>] [<port>] [<password>], Can be called just as /"
 "RECONNECT to reconnect to the current server or with /RECONNECT ALL to "
 "reconnect to all the open servers"
-msgstr "RECONNECT [-ssl] [<hote>] [<port>] [<motpasse>], Peut être appellé juste avec /RECONNECT pour se reconnecter au serveur courant ou avec /RECONNECT ALL pour se reconnecter à tous les serveurs ouverts"
+msgstr ""
+"RECONNECT [-ssl] [<hote>] [<port>] [<motpasse>], Peut être appellé juste "
+"avec /RECONNECT pour se reconnecter au serveur courant ou avec /RECONNECT "
+"ALL pour se reconnecter à tous les serveurs ouverts"
 
 #: ../src/common/outbound.c:3230
 msgid ""
 "RECONNECT [<host>] [<port>] [<password>], Can be called just as /RECONNECT "
 "to reconnect to the current server or with /RECONNECT ALL to reconnect to "
 "all the open servers"
-msgstr "RECONNECT [<hote>] [<port>] [<motpasse>], Peut être appellé juste avec /RECONNECT pour se reconnecter au serveur courant ou avec /RECONNECT ALL pour se reconnecter à tous les serveurs ouverts"
+msgstr ""
+"RECONNECT [<hote>] [<port>] [<motpasse>], Peut être appellé juste avec /"
+"RECONNECT pour se reconnecter au serveur courant ou avec /RECONNECT ALL pour "
+"se reconnecter à tous les serveurs ouverts"
 
 #: ../src/common/outbound.c:3232
 msgid ""
 "RECV <text>, send raw data to xchat, as if it was received from the irc "
 "server"
-msgstr "RECV <texte>, transmet le texte sous forme brute vers xchat, comme s'il avait été reçu depuis un serveur irc"
+msgstr ""
+"RECV <texte>, transmet le texte sous forme brute vers xchat, comme s'il "
+"avait été reçu depuis un serveur irc"
 
 #: ../src/common/outbound.c:3235
 msgid "SAY <text>, sends the text to the object in the current window"
@@ -1117,13 +1182,18 @@ msgstr "SERVCHAN <hote> <port> <canal>, se connecte et rejoint un canal"
 msgid ""
 "SERVER [-ssl] <host> [<port>] [<password>], connects to a server, the "
 "default port is 6667 for normal connections, and 9999 for ssl connections"
-msgstr "SERVER [-ssl] <hote> [<port>] [<motpasse>], se connecte à un serveur, le port par défaut est 6667 pour les connexions normales, et 994 pour les connexions ssl"
+msgstr ""
+"SERVER [-ssl] <hote> [<port>] [<motpasse>], se connecte à un serveur, le "
+"port par défaut est 6667 pour les connexions normales, et 994 pour les "
+"connexions ssl"
 
 #: ../src/common/outbound.c:3249
 msgid ""
 "SERVER <host> [<port>] [<password>], connects to a server, the default port "
 "is 6667"
-msgstr "SERVER <hote> [<port>] [<motpasse>], se connecte à un serveur, le port par défaut est 6667"
+msgstr ""
+"SERVER <hote> [<port>] [<motpasse>], se connecte à un serveur, le port par "
+"défaut est 6667"
 
 #: ../src/common/outbound.c:3251
 msgid "SET [-quiet] <variable> [<value>]"
@@ -1136,7 +1206,9 @@ msgstr "SETCURSOR [-|+]<position>"
 #: ../src/common/outbound.c:3256
 msgid ""
 "TOPIC [<topic>], sets the topic if one is given, else shows the current topic"
-msgstr "TOPIC [<sujet>], définit le sujet si on en fourni un, sinon affiche le sujet actuel"
+msgstr ""
+"TOPIC [<sujet>], définit le sujet si on en fourni un, sinon affiche le sujet "
+"actuel"
 
 #: ../src/common/outbound.c:3258
 msgid "UNBAN <mask> [<mask>...], unbans the specified masks."
@@ -1170,7 +1242,8 @@ msgstr "WALLCHAN <message>, écrit le message sur tous les canaux"
 #: ../src/common/outbound.c:3270
 msgid ""
 "WALLCHOP <message>, sends the message to all chanops on the current channel"
-msgstr "WALLCHOP <message>, envoie le message à tous les chanops du canal courant"
+msgstr ""
+"WALLCHOP <message>, envoie le message à tous les chanops du canal courant"
 
 #: ../src/common/outbound.c:3303
 #, c-format
@@ -1232,7 +1305,9 @@ msgstr "On cycle vers le prochain serveur dans %s ...\n"
 msgid ""
 "Warning: \"%s\" character set is unknown. No conversion will be applied for "
 "network %s."
-msgstr "Attention: le caractère \"%s\"est inconnu. Aucune conversion ne peut être appliquée pour le reseau %s"
+msgstr ""
+"Attention: le caractère \"%s\"est inconnu. Aucune conversion ne peut être "
+"appliquée pour le reseau %s"
 
 #: ../src/common/text.c:61
 #, c-format
@@ -1702,7 +1777,8 @@ msgstr ""
 msgid ""
 "Cannot read sound file:\n"
 "%s"
-msgstr "Impossible de lire ce fichier audio:\n"
+msgstr ""
+"Impossible de lire ce fichier audio:\n"
 "%s"
 
 #: ../src/common/textevents.h:6
@@ -2259,9 +2335,14 @@ msgid "Cannot assign that address"
 msgstr "Ne peut assigner cette adresse"
 
 #: ../src/common/util.c:310
-#: ../src/common/util.c:822
-msgid "Connection reset by peerAndorra"
+#, fuzzy
+msgid "Connection reset by peer"
 msgstr "Connexion réinitialisée à l'autre boutAndorre"
+
+#: ../src/common/util.c:822
+#, fuzzy
+msgid "Andorra"
+msgstr "Angola"
 
 #: ../src/common/util.c:823
 msgid "United Arab Emirates"
@@ -3525,11 +3606,11 @@ msgid ""
 "the Free Software Foundation; either version 2 of the License, or\n"
 "(at your option) any later version.\n"
 msgstr ""
-"X-Chat GNOME est un logiciel libre ; vous pouvez le redistribuer et/ou le modifier\n"
+"X-Chat GNOME est un logiciel libre ; vous pouvez le redistribuer et/ou le "
+"modifier\n"
 "conformément aux dispositions de la Licence Publique Générale GNU, telle\n"
 "que publiée par la Free Software Foundation ; version 2 de la licence, ou\n"
 "encore (à votre choix) toute version ultérieure\n"
-""
 
 #: ../src/fe-gnome/about.c:70
 msgid ""
@@ -3551,7 +3632,8 @@ msgid ""
 "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
 msgstr ""
 "Un exemplaire de la Licence Publique Générale GNU doit être fourni avec\n"
-"ce programme ; si ce n'est pas le cas, écrivez à la Free Software Foundation Inc.,\n"
+"ce programme ; si ce n'est pas le cas, écrivez à la Free Software Foundation "
+"Inc.,\n"
 "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
 
 #: ../src/fe-gnome/about.c:91
@@ -3575,7 +3657,8 @@ msgstr ""
 #.
 #: ../src/fe-gnome/about.c:108
 msgid "translator-credits"
-msgstr "Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
+msgstr ""
+"Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Xavier Claessens <x_claessens@gmail.com>"
 
 #. IRC menu
@@ -3785,7 +3868,8 @@ msgstr "_Suivant"
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
-msgstr "<span foreground=\"dark grey\">Fin atteinte, la recherche continue depuis le "
+msgstr ""
+"<span foreground=\"dark grey\">Fin atteinte, la recherche continue depuis le "
 "début</span>"
 
 #: ../src/fe-gnome/find-bar.c:225
