@@ -7,12 +7,11 @@
 # Olivier Berger <olberger@club-internet.fr>, 2001-2002.
 # Christophe Merlet (RedFox) <redfox@redfoxcenter.org>, 2003, 2004.
 # Arnaud Jambin <a.jambin@free.fr>, 2005.
-
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-11 17:51-0500\n"
+"POT-Creation-Date: 2005-12-11 16:15-0700\n"
 "PO-Revision-Date: 2005-12-11 22:58+0100\n"
 "Last-Translator: Xavier Claessens <x_claessens@gmail.com>\n"
 "Language-Team: French <olethanh@ulb.ac.be>\n"
