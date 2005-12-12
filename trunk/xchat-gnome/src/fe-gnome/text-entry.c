@@ -191,8 +191,14 @@ text_entry_activate (GtkWidget *widget, gpointer data)
 static void
 text_entry_history_up (GtkEntry *entry)
 {
+	TextEntry *text_entry;
 	char *new_line;
-	new_line = history_up (&TEXT_ENTRY (entry)->priv->current->history, (char *)entry->text);
+
+	text_entry = TEXT_ENTRY (entry);
+	if (text_entry->priv->current == NULL)
+		return;
+
+	new_line = history_up (&(text_entry->priv->current->history), (char *)entry->text);
 	if (new_line) {
 		gtk_entry_set_text (entry, new_line);
 		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
@@ -202,8 +208,14 @@ text_entry_history_up (GtkEntry *entry)
 static void
 text_entry_history_down (GtkEntry *entry)
 {
+	TextEntry *text_entry;
 	char *new_line;
-	new_line = history_down (&TEXT_ENTRY (entry)->priv->current->history);
+
+	text_entry = TEXT_ENTRY (entry);
+	if (text_entry->priv->current == NULL)
+		return;
+
+	new_line = history_down (&(text_entry->priv->current->history));
 	if (new_line) {
 		gtk_entry_set_text (entry, new_line);
 		gtk_editable_set_position (GTK_EDITABLE (entry), -1);
