@@ -58,12 +58,12 @@ initialize_gui_2 (void)
 		gtk_window_set_default_icon_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", NULL);
 
 	gui.current_session = NULL;
+	gui.tree_model = navigation_model_new ();
+	gui.server_tree = navigation_tree_new (gui.tree_model);
 	pixmaps_init ();
 	initialize_main_window ();
 	initialize_userlist ();
 
-	gui.tree_model = navigation_model_new ();
-	gui.server_tree = navigation_tree_new (gui.tree_model);
 	widget = glade_xml_get_widget (gui.xml, "server channel list");
 	gtk_widget_show (GTK_WIDGET (gui.server_tree));
 	gtk_container_add (GTK_CONTAINER (widget), GTK_WIDGET (gui.server_tree));
