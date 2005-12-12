@@ -30,6 +30,7 @@ INCLUDES =					\
 	$(DBUS_CFLAGS)				\
 	-DLOCALEDIR="\"$(GNOMELOCALEDIR)\""	\
 	-DAPP="\"$(bindir)/$(PACKAGE)\""	\
+	-DPREFIX="\"$(prefix)\""		\
 	-I$(srcdir)/..
 
 

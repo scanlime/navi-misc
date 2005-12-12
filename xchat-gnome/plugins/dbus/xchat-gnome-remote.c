@@ -23,7 +23,6 @@
 #include <dbus/dbus-glib.h>
 #include <unistd.h>
 #include <glib/gi18n.h>
-#include <glib.h>
 
 #define DBUS_SERVICE "org.xchatgnome.service"
 #define DBUS_OBJECT "/org/xchatgnome/RemoteObject"
@@ -77,8 +76,9 @@ main (int argc, char **argv)
 
   if (error)
   {
-    g_printerr (_("%s: %s\nTry `%s --help' for more information\n"),
-                argv[0], error->message, argv[0]);
+    g_printerr (_("xchat-gnome-remote: %s\n"
+                  "Try `xchat-gnome-remote --help' for more information\n"),
+                error->message);
     return 1;
   }
 
@@ -110,7 +110,7 @@ main (int argc, char **argv)
         if (fork() == 0)
         {
           gchar *url = g_strdup_printf ("--url=%s", opt_open_url);
-	  execl (APP, PACKAGE, "-a", url, NULL);
+          execl (PREFIX"/bin/"PACKAGE, PACKAGE, "-a", url, NULL);
         }
       } else
         write_error (_("Failed to complete command"), error);
@@ -141,7 +141,7 @@ main (int argc, char **argv)
                             G_TYPE_STRING, &info, G_TYPE_INVALID))
       write_error (_("Failed to complete GetInfo"), error);
     else
-      g_printf ("%s = %s\n", opt_info, info);
+      g_print ("%s = %s\n", opt_info, info);
   }
   if (opt_prefs)
   {
@@ -156,13 +156,13 @@ main (int argc, char **argv)
     else
     {
       if (type == 0)
-        g_printf (_("%s doesn't exist\n"), opt_prefs);
+        g_print (_("%s doesn't exist\n"), opt_prefs);
       else if (type == 1)
-        g_printf ("%s = %s\n", opt_prefs, str);
+        g_print ("%s = %s\n", opt_prefs, str);
       else if (type == 2)
-        g_printf ("%s = %d\n", opt_prefs, i);
+        g_print ("%s = %d\n", opt_prefs, i);
       else
-        g_printf ("%s = %s\n", opt_prefs, i ? "TRUE" : "FALSE");
+        g_print ("%s = %s\n", opt_prefs, i ? "TRUE" : "FALSE");
     }
   }
   

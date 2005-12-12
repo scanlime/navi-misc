@@ -1060,6 +1060,9 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 	gpointer *s;
 	session *sess;
 
+	if (gui.server_tree == NULL)
+		return;
+
 	treeview = GTK_TREE_VIEW (glade_xml_get_widget (gui.xml, "userlist"));
 
 	if (gui.server_tree->current_path != NULL)
