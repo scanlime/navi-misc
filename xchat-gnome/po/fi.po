@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-11 16:15-0700\n"
+"POT-Creation-Date: 2005-12-11 17:52-0700\n"
 "PO-Revision-Date: 2005-11-09 17:34+0100\n"
 "Last-Translator: Mika Laari <laari@iki.fi>\n"
 "Language-Team: Finnish <translation-team-fi@lists.sourceforge.net>\n"
@@ -474,15 +474,15 @@ msgstr "Yhdistetty"
 msgid "Auto-away plugin unloaded\n"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:28
+#: ../plugins/dbus/dbus-plugin.c:27
 msgid "XChat-GNOME remote access"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:29
+#: ../plugins/dbus/dbus-plugin.c:28
 msgid "plugin for remote access using DBUS"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:271
+#: ../plugins/dbus/dbus-plugin.c:333
 #, c-format
 msgid "Couldn't connect to session bus : %s\n"
 msgstr "Istuntoväylään ei saatu yhteyttä: %s\n"
@@ -490,88 +490,80 @@ msgstr "Istuntoväylään ei saatu yhteyttä: %s\n"
 # Kaksi seuraavaa viestiä muodostavat yhden lauseen.
 # Niiden väliin tulee dbus-palvelu (DBUS_SERVICE).
 # Parametri on virheilmoitus.
-#: ../plugins/dbus/dbus-plugin.c:287
+#: ../plugins/dbus/dbus-plugin.c:353
 #, fuzzy, c-format
 msgid "Failed to acquire %s: %s\n"
 msgstr "Pyydettyä palvelua \""
 
 # Lauseen alkuun tulee juuri onnistuneesti alustetun
 # liitännäisen nimi (PNAME).
-#. TODO: Close all D-BUS stuff
-#: ../plugins/dbus/dbus-plugin.c:312
-#, fuzzy, c-format
-msgid "%s unloaded successfully!\n"
-msgstr " onnistuttiin lataamaan!\n"
-
-# Lauseen alkuun tulee juuri onnistuneesti alustetun
-# liitännäisen nimi (PNAME).
-#: ../plugins/dbus/dbus-plugin.c:332
+#: ../plugins/dbus/dbus-plugin.c:401
 #, fuzzy, c-format
 msgid "%s loaded successfully!\n"
 msgstr " onnistuttiin lataamaan!\n"
 
 # Dbussin käännökset on tehty sokkona.
-#: ../plugins/dbus/xchat-gnome-remote.c:42 ../src/fe-gnome/fe-gnome.c:60
+#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:60
 msgid "Open an irc:// url"
 msgstr "Avaa URLin (irc://)"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:42
+#: ../plugins/dbus/xchat-gnome-remote.c:41
 msgid "irc://server:port/channel"
 msgstr "irc://palvelin:portti/kanava"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:43
+#: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "Execute a xchat command"
 msgstr "Suorittaa XChat-komennon"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:43
+#: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "\"Command to execute\""
 msgstr "\"suoritettava komento\""
 
-#: ../plugins/dbus/xchat-gnome-remote.c:44
+#: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "Prints some text to the current tab/window"
 msgstr "Näyttää tekstin nykyisessä välilehdessä tai ikkunassa"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:44
+#: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "\"Text to print\""
 msgstr "\"näytettävä teksti\""
 
-#: ../plugins/dbus/xchat-gnome-remote.c:45
+#: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "Change the context to the channel"
 msgstr "Asetetaan toimintojen kohteeksi kanava"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:45
+#: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
 msgstr "kanava"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:46
+#: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
 msgstr "Asetetaan toimintojen kohteeksi palvelin"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:46
+#: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
 msgstr "palvelin"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:47
+#: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
 msgstr "Hakee tietoja XChatistä"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:47
+#: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
 msgstr "tunnus"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:48
+#: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
 msgstr "Hakee asetukset XChatistä"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:48
+#: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
 msgstr "nimi"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:80
+#: ../plugins/dbus/xchat-gnome-remote.c:79
 #, fuzzy, c-format
 msgid ""
-"%s: %s\n"
-"Try `%s --help' for more information\n"
+"xchat-gnome-remote: %s\n"
+"Try `xchat-gnome-remote --help' for more information\n"
 msgstr ""
 "xchat-remote: %s\n"
 "Lisätietoa saa komennolla \"xchat-remote --help\"\n"
@@ -4297,8 +4289,8 @@ msgid "_About"
 msgstr "_Tietoja"
 
 #: ../src/fe-gnome/main-window.c:482 ../src/fe-gnome/main-window.c:503
-#: ../src/fe-gnome/navigation-tree.c:1570
-#: ../src/fe-gnome/navigation-tree.c:1629
+#: ../src/fe-gnome/navigation-tree.c:1573
+#: ../src/fe-gnome/navigation-tree.c:1632
 #, fuzzy
 msgid "Ex-Chat"
 msgstr "Keskustelu"
@@ -4327,7 +4319,7 @@ msgstr "Automaattinen"
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
-#: ../src/fe-gnome/navigation-tree.c:1265
+#: ../src/fe-gnome/navigation-tree.c:1268
 msgid "<none>"
 msgstr "<ei mitään>"
 
@@ -4423,7 +4415,7 @@ msgid "%d bytes buffered"
 msgstr "%d tavua"
 
 # syöttökentän tilannevalikko
-#: ../src/fe-gnome/text-entry.c:262
+#: ../src/fe-gnome/text-entry.c:274
 #, fuzzy
 msgid "I_nsert Color Code"
 msgstr "Lisää määre tai värikoodi"
@@ -4452,3 +4444,17 @@ msgstr "Potkaise"
 #, fuzzy
 msgid "_Ban"
 msgstr "Bannaa"
+
+# Lauseen alkuun tulee juuri onnistuneesti alustetun
+# liitännäisen nimi (PNAME).
+#, fuzzy
+#~ msgid "%s unloaded successfully!\n"
+#~ msgstr " onnistuttiin lataamaan!\n"
+
+#, fuzzy
+#~ msgid ""
+#~ "%s: %s\n"
+#~ "Try `%s --help' for more information\n"
+#~ msgstr ""
+#~ "xchat-remote: %s\n"
+#~ "Lisätietoa saa komennolla \"xchat-remote --help\"\n"
