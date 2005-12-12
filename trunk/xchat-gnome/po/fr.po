@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-11 16:15-0700\n"
+"POT-Creation-Date: 2005-12-11 17:52-0700\n"
 "PO-Revision-Date: 2005-12-11 22:58+0100\n"
 "Last-Translator: Xavier Claessens <x_claessens@gmail.com>\n"
 "Language-Team: French <olethanh@ulb.ac.be>\n"
@@ -432,99 +432,93 @@ msgstr "Connecté"
 msgid "Auto-away plugin unloaded\n"
 msgstr "Extension d'absence automatique chargé\n"
 
-#: ../plugins/dbus/dbus-plugin.c:28
+#: ../plugins/dbus/dbus-plugin.c:27
 msgid "XChat-GNOME remote access"
 msgstr "Contrôle à distance de XChat-GNOME"
 
-#: ../plugins/dbus/dbus-plugin.c:29
+#: ../plugins/dbus/dbus-plugin.c:28
 msgid "plugin for remote access using DBUS"
 msgstr "Extension pour controler XChat-gnome via DBUS"
 
-#: ../plugins/dbus/dbus-plugin.c:271
+#: ../plugins/dbus/dbus-plugin.c:333
 #, c-format
 msgid "Couldn't connect to session bus : %s\n"
 msgstr "Impossible de se connecter au bus de session : %s\n"
 
-#: ../plugins/dbus/dbus-plugin.c:287
+#: ../plugins/dbus/dbus-plugin.c:353
 #, c-format
 msgid "Failed to acquire %s: %s\n"
 msgstr "Impossible d'acquérire %s : %s\n"
 
-#. TODO: Close all D-BUS stuff
-#: ../plugins/dbus/dbus-plugin.c:312
-#, c-format
-msgid "%s unloaded successfully!\n"
-msgstr "%s déchargement réussi!\n"
-
-#: ../plugins/dbus/dbus-plugin.c:332
+#: ../plugins/dbus/dbus-plugin.c:401
 #, c-format
 msgid "%s loaded successfully!\n"
 msgstr "%s chargement réussi!\n"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:42 ../src/fe-gnome/fe-gnome.c:60
+#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:60
 msgid "Open an irc:// url"
 msgstr "Ouvrir une uri irc://"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:42
+#: ../plugins/dbus/xchat-gnome-remote.c:41
 msgid "irc://server:port/channel"
 msgstr "irc://serveur:port/canal"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:43
+#: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "Execute a xchat command"
 msgstr "Executer une commande xchat"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:43
+#: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "\"Command to execute\""
 msgstr "\"Commande à executer\""
 
-#: ../plugins/dbus/xchat-gnome-remote.c:44
+#: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "Prints some text to the current tab/window"
 msgstr "Affiche du texte dans la fenêtre/tab courante"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:44
+#: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "\"Text to print\""
 msgstr "\"Text à afficher\""
 
-#: ../plugins/dbus/xchat-gnome-remote.c:45
+#: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "Change the context to the channel"
 msgstr "Changer le context vers le canal"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:45
+#: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
 msgstr "canal"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:46
+#: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
 msgstr "Changer le contexte vers le serveur"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:46
+#: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
 msgstr "serveur"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:47
+#: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
 msgstr "Obtenir des informations de xchat"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:47
+#: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
 msgstr "id"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:48
+#: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
 msgstr "Obtenir la configuration de xchat"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:48
+#: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
 msgstr "nom"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:80
+#: ../plugins/dbus/xchat-gnome-remote.c:79
 #, c-format
 msgid ""
-"%s: %s\n"
-"Try `%s --help' for more information\n"
+"xchat-gnome-remote: %s\n"
+"Try `xchat-gnome-remote --help' for more information\n"
 msgstr ""
-"%s: %s\n"
-"Utilisez `%s --help' pour plus d'informations\n"
+"xchat-gnome-remote: %s\n"
+"Utilisez `xchat-gnome-remote --help' pour plus d'information\n"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:90
 msgid "Couldn't connect to session bus"
@@ -4128,8 +4122,8 @@ msgid "_About"
 msgstr "À _propos"
 
 #: ../src/fe-gnome/main-window.c:482 ../src/fe-gnome/main-window.c:503
-#: ../src/fe-gnome/navigation-tree.c:1570
-#: ../src/fe-gnome/navigation-tree.c:1629
+#: ../src/fe-gnome/navigation-tree.c:1573
+#: ../src/fe-gnome/navigation-tree.c:1632
 msgid "Ex-Chat"
 msgstr "Ex-Chat"
 
@@ -4153,7 +4147,7 @@ msgstr "Rejoindre _automatiquement"
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
-#: ../src/fe-gnome/navigation-tree.c:1265
+#: ../src/fe-gnome/navigation-tree.c:1268
 msgid "<none>"
 msgstr "<aucun>"
 
@@ -4244,7 +4238,7 @@ msgstr "Lag de %s%.1fs"
 msgid "%d bytes buffered"
 msgstr "%d bytes ont été mis en cache"
 
-#: ../src/fe-gnome/text-entry.c:262
+#: ../src/fe-gnome/text-entry.c:274
 msgid "I_nsert Color Code"
 msgstr "Insérer un code couleur"
 
@@ -4268,6 +4262,16 @@ msgstr "_Kicker"
 #: ../src/fe-gnome/userlist-gui.c:53
 msgid "_Ban"
 msgstr "_Bannir"
+
+#~ msgid "%s unloaded successfully!\n"
+#~ msgstr "%s déchargement réussi!\n"
+
+#~ msgid ""
+#~ "%s: %s\n"
+#~ "Try `%s --help' for more information\n"
+#~ msgstr ""
+#~ "%s: %s\n"
+#~ "Utilisez `%s --help' pour plus d'informations\n"
 
 #~ msgid ""
 #~ "-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%"

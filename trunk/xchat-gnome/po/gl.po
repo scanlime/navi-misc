@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-11 16:15-0700\n"
+"POT-Creation-Date: 2005-12-11 17:52-0700\n"
 "PO-Revision-Date: 2005-11-09 21:41+0100\n"
 "Last-Translator: Ignacio Casal Quinteiro <nacho.resa@gmail.com>\n"
 "Language-Team: Galego\n"
@@ -468,96 +468,90 @@ msgstr "Conectar"
 msgid "Auto-away plugin unloaded\n"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:28
+#: ../plugins/dbus/dbus-plugin.c:27
 msgid "XChat-GNOME remote access"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:29
+#: ../plugins/dbus/dbus-plugin.c:28
 msgid "plugin for remote access using DBUS"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:271
+#: ../plugins/dbus/dbus-plugin.c:333
 #, c-format
 msgid "Couldn't connect to session bus : %s\n"
 msgstr "Non se puido conectar ao bus de sesión: %s\n"
 
-#: ../plugins/dbus/dbus-plugin.c:287
+#: ../plugins/dbus/dbus-plugin.c:353
 #, c-format
 msgid "Failed to acquire %s: %s\n"
 msgstr "Fallou ao adquirir %s: %s\n"
 
-#. TODO: Close all D-BUS stuff
-#: ../plugins/dbus/dbus-plugin.c:312
-#, fuzzy, c-format
-msgid "%s unloaded successfully!\n"
-msgstr "%s cargado correctamente!\n"
-
-#: ../plugins/dbus/dbus-plugin.c:332
+#: ../plugins/dbus/dbus-plugin.c:401
 #, c-format
 msgid "%s loaded successfully!\n"
 msgstr "%s cargado correctamente!\n"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:42 ../src/fe-gnome/fe-gnome.c:60
+#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:60
 msgid "Open an irc:// url"
 msgstr "Abrir unha url irc://"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:42
+#: ../plugins/dbus/xchat-gnome-remote.c:41
 msgid "irc://server:port/channel"
 msgstr "irc://servidor:porto/canle"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:43
+#: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "Execute a xchat command"
 msgstr "Executar un comando de xchat"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:43
+#: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "\"Command to execute\""
 msgstr "\"Comando a executar\""
 
-#: ../plugins/dbus/xchat-gnome-remote.c:44
+#: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "Prints some text to the current tab/window"
 msgstr "Imprime texto na solapa/fiestra actual"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:44
+#: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "\"Text to print\""
 msgstr "\"Texto a imprimir\""
 
-#: ../plugins/dbus/xchat-gnome-remote.c:45
+#: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "Change the context to the channel"
 msgstr "Cambiar o contexto da canle"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:45
+#: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
 msgstr "canle"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:46
+#: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
 msgstr "Cambiar o contexto do servidor"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:46
+#: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
 msgstr "servidor"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:47
+#: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
 msgstr "Obter algunha información do xchat"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:47
+#: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
 msgstr "id"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:48
+#: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
 msgstr "Obter configuración do xchat"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:48
+#: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
 msgstr "nome"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:80
+#: ../plugins/dbus/xchat-gnome-remote.c:79
 #, fuzzy, c-format
 msgid ""
-"%s: %s\n"
-"Try `%s --help' for more information\n"
+"xchat-gnome-remote: %s\n"
+"Try `xchat-gnome-remote --help' for more information\n"
 msgstr ""
 "xchat-remote: %s\n"
 "Tente `xchat-remote --help' para máis información\n"
@@ -4278,8 +4272,8 @@ msgid "_About"
 msgstr "_Acerca de"
 
 #: ../src/fe-gnome/main-window.c:482 ../src/fe-gnome/main-window.c:503
-#: ../src/fe-gnome/navigation-tree.c:1570
-#: ../src/fe-gnome/navigation-tree.c:1629
+#: ../src/fe-gnome/navigation-tree.c:1573
+#: ../src/fe-gnome/navigation-tree.c:1632
 #, fuzzy
 msgid "Ex-Chat"
 msgstr "Chat"
@@ -4307,7 +4301,7 @@ msgstr "_Automático"
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
-#: ../src/fe-gnome/navigation-tree.c:1265
+#: ../src/fe-gnome/navigation-tree.c:1268
 msgid "<none>"
 msgstr "<ningún>"
 
@@ -4402,7 +4396,7 @@ msgstr ""
 msgid "%d bytes buffered"
 msgstr "%d bytes"
 
-#: ../src/fe-gnome/text-entry.c:262
+#: ../src/fe-gnome/text-entry.c:274
 #, fuzzy
 msgid "I_nsert Color Code"
 msgstr "Inserir atributo ou código de cor"
@@ -4431,3 +4425,15 @@ msgstr "Botar"
 #, fuzzy
 msgid "_Ban"
 msgstr "Vetar"
+
+#, fuzzy
+#~ msgid "%s unloaded successfully!\n"
+#~ msgstr "%s cargado correctamente!\n"
+
+#, fuzzy
+#~ msgid ""
+#~ "%s: %s\n"
+#~ "Try `%s --help' for more information\n"
+#~ msgstr ""
+#~ "xchat-remote: %s\n"
+#~ "Tente `xchat-remote --help' para máis información\n"

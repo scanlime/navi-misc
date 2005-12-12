@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-2.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-11 16:15-0700\n"
+"POT-Creation-Date: 2005-12-11 17:52-0700\n"
 "PO-Revision-Date: 2005-11-04 08:04+0530\n"
 "Last-Translator: Amanpreet Singh Alam <amanpreetalam@yahoo.com>\n"
 "Language-Team: Punjabi <fedora-trans-pa@redhat.com>\n"
@@ -469,96 +469,90 @@ msgstr "ਜੁੜਿਆ"
 msgid "Auto-away plugin unloaded\n"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:28
+#: ../plugins/dbus/dbus-plugin.c:27
 msgid "XChat-GNOME remote access"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:29
+#: ../plugins/dbus/dbus-plugin.c:28
 msgid "plugin for remote access using DBUS"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:271
+#: ../plugins/dbus/dbus-plugin.c:333
 #, c-format
 msgid "Couldn't connect to session bus : %s\n"
 msgstr "ਅਜਲਾਸ ਬਸ ਨਾਲ ਜੁੜਨ ਲਈ ਅਸਫ਼ਲ: %s\n"
 
-#: ../plugins/dbus/dbus-plugin.c:287
+#: ../plugins/dbus/dbus-plugin.c:353
 #, fuzzy, c-format
 msgid "Failed to acquire %s: %s\n"
 msgstr "ਪ੍ਰਾਪਤ ਕਰਨ ਲਈ ਅਸਫ਼ਲ "
 
-#. TODO: Close all D-BUS stuff
-#: ../plugins/dbus/dbus-plugin.c:312
-#, fuzzy, c-format
-msgid "%s unloaded successfully!\n"
-msgstr " ਸਫ਼ਲਤਾਪੂਰਕ ਲੋਡ ਕੀਤਾ ਗਿਆ!\n"
-
-#: ../plugins/dbus/dbus-plugin.c:332
+#: ../plugins/dbus/dbus-plugin.c:401
 #, fuzzy, c-format
 msgid "%s loaded successfully!\n"
 msgstr " ਸਫ਼ਲਤਾਪੂਰਕ ਲੋਡ ਕੀਤਾ ਗਿਆ!\n"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:42 ../src/fe-gnome/fe-gnome.c:60
+#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:60
 msgid "Open an irc:// url"
 msgstr "ਇੱਕ irc:// url ਖੋਲੋ"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:42
+#: ../plugins/dbus/xchat-gnome-remote.c:41
 msgid "irc://server:port/channel"
 msgstr "irc://server:port/channel"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:43
+#: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "Execute a xchat command"
 msgstr "ਇੱਕ xchat ਕਮਾਂਡ ਚਲਾਓ"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:43
+#: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "\"Command to execute\""
 msgstr "\"ਚਲਾਉਣ ਲਈ ਕਮਾਂਡ\""
 
-#: ../plugins/dbus/xchat-gnome-remote.c:44
+#: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "Prints some text to the current tab/window"
 msgstr "ਮੌਜੂਦਾ ਟੈਬ/ਝਰੋਖੇ ਵਿੱਚ ਕੁਝ ਪਾਠ ਛਾਪੋ"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:44
+#: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "\"Text to print\""
 msgstr "\"ਛਾਪਣ ਲਈ ਪਾਠ\""
 
-#: ../plugins/dbus/xchat-gnome-remote.c:45
+#: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "Change the context to the channel"
 msgstr "ਚੈਨਲ ਤੋਂ ਪਰਸੰਗ ਲਵੋ"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:45
+#: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
 msgstr "ਚੈਨਲ"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:46
+#: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
 msgstr "ਸਰਵਰ ਤੋਂ ਪਰਸੰਗ ਤਬਦੀਲ"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:46
+#: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
 msgstr "ਸਰਵਰ"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:47
+#: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
 msgstr "xchat ਤੋਂ ਕੁਝ ਜਾਣਕਾਰੀ ਲਵੋ"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:47
+#: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
 msgstr "id"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:48
+#: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
 msgstr "xchat ਤੋਂ ਸਥਾਪਨ ਲਵੋ"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:48
+#: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
 msgstr "ਨਾਂ"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:80
+#: ../plugins/dbus/xchat-gnome-remote.c:79
 #, c-format
 msgid ""
-"%s: %s\n"
-"Try `%s --help' for more information\n"
+"xchat-gnome-remote: %s\n"
+"Try `xchat-gnome-remote --help' for more information\n"
 msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:90
@@ -4191,8 +4185,8 @@ msgid "_About"
 msgstr "ਇਸ ਬਾਰੇ(_A)"
 
 #: ../src/fe-gnome/main-window.c:482 ../src/fe-gnome/main-window.c:503
-#: ../src/fe-gnome/navigation-tree.c:1570
-#: ../src/fe-gnome/navigation-tree.c:1629
+#: ../src/fe-gnome/navigation-tree.c:1573
+#: ../src/fe-gnome/navigation-tree.c:1632
 #, fuzzy
 msgid "Ex-Chat"
 msgstr "ਗੱਲਬਾਤ"
@@ -4220,7 +4214,7 @@ msgstr "ਸਵੈ-ਚਾਲਤ(_A)"
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
-#: ../src/fe-gnome/navigation-tree.c:1265
+#: ../src/fe-gnome/navigation-tree.c:1268
 msgid "<none>"
 msgstr "<none>"
 
@@ -4315,7 +4309,7 @@ msgstr ""
 msgid "%d bytes buffered"
 msgstr "%d ਬਾਇਟ"
 
-#: ../src/fe-gnome/text-entry.c:262
+#: ../src/fe-gnome/text-entry.c:274
 #, fuzzy
 msgid "I_nsert Color Code"
 msgstr "ਗੁਣ ਜਾਂ ਰੰਗ ਕੋਡ ਸ਼ਾਮਿਲ"
@@ -4344,3 +4338,7 @@ msgstr "ਸੁੱਟੋ"
 #, fuzzy
 msgid "_Ban"
 msgstr "ਪਾਬੰਦੀ"
+
+#, fuzzy
+#~ msgid "%s unloaded successfully!\n"
+#~ msgstr " ਸਫ਼ਲਤਾਪੂਰਕ ਲੋਡ ਕੀਤਾ ਗਿਆ!\n"

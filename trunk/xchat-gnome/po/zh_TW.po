@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-11 16:15-0700\n"
+"POT-Creation-Date: 2005-12-11 17:52-0700\n"
 "PO-Revision-Date: 2005-10-25 15:25+0800\n"
 "Last-Translator: Wei-Lun Chao <chaoweilun@pcmail.com.tw>\n"
 "Language-Team: Chinese (traditional) <zh-l10n@linux.org.tw>\n"
@@ -475,96 +475,90 @@ msgstr "連接"
 msgid "Auto-away plugin unloaded\n"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:28
+#: ../plugins/dbus/dbus-plugin.c:27
 msgid "XChat-GNOME remote access"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:29
+#: ../plugins/dbus/dbus-plugin.c:28
 msgid "plugin for remote access using DBUS"
 msgstr ""
 
-#: ../plugins/dbus/dbus-plugin.c:271
+#: ../plugins/dbus/dbus-plugin.c:333
 #, c-format
 msgid "Couldn't connect to session bus : %s\n"
 msgstr "無法連接到執行階段匯流排: %s\n"
 
-#: ../plugins/dbus/dbus-plugin.c:287
+#: ../plugins/dbus/dbus-plugin.c:353
 #, fuzzy, c-format
 msgid "Failed to acquire %s: %s\n"
 msgstr "擷取動作失敗"
 
-#. TODO: Close all D-BUS stuff
-#: ../plugins/dbus/dbus-plugin.c:312
-#, fuzzy, c-format
-msgid "%s unloaded successfully!\n"
-msgstr "已成功載入！\n"
-
-#: ../plugins/dbus/dbus-plugin.c:332
+#: ../plugins/dbus/dbus-plugin.c:401
 #, fuzzy, c-format
 msgid "%s loaded successfully!\n"
 msgstr "已成功載入！\n"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:42 ../src/fe-gnome/fe-gnome.c:60
+#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:60
 msgid "Open an irc:// url"
 msgstr "開啟一個 irc:// URL"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:42
+#: ../plugins/dbus/xchat-gnome-remote.c:41
 msgid "irc://server:port/channel"
 msgstr "irc://server:port/channel"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:43
+#: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "Execute a xchat command"
 msgstr "執行 xchat 命令："
 
-#: ../plugins/dbus/xchat-gnome-remote.c:43
+#: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "\"Command to execute\""
 msgstr "\"要執行的命令\""
 
-#: ../plugins/dbus/xchat-gnome-remote.c:44
+#: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "Prints some text to the current tab/window"
 msgstr "印出一些文字到目前的分頁/視窗"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:44
+#: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "\"Text to print\""
 msgstr "\"要印出的文字\""
 
-#: ../plugins/dbus/xchat-gnome-remote.c:45
+#: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "Change the context to the channel"
 msgstr "變更上下文至聊天室"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:45
+#: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
 msgstr "聊天室"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:46
+#: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
 msgstr "變更上下文至伺服器"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:46
+#: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
 msgstr "伺服器"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:47
+#: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
 msgstr "從 xchat 擷取一些資訊"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:47
+#: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
 msgstr "id"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:48
+#: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
 msgstr "從 xchat 擷取設定"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:48
+#: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
 msgstr "名稱"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:80
+#: ../plugins/dbus/xchat-gnome-remote.c:79
 #, fuzzy, c-format
 msgid ""
-"%s: %s\n"
-"Try `%s --help' for more information\n"
+"xchat-gnome-remote: %s\n"
+"Try `xchat-gnome-remote --help' for more information\n"
 msgstr ""
 "xchat-remote: %s\n"
 "試試 `xchat-remote --help' 以獲得更多資訊\n"
@@ -4235,8 +4229,8 @@ msgid "_About"
 msgstr "關於(_A)"
 
 #: ../src/fe-gnome/main-window.c:482 ../src/fe-gnome/main-window.c:503
-#: ../src/fe-gnome/navigation-tree.c:1570
-#: ../src/fe-gnome/navigation-tree.c:1629
+#: ../src/fe-gnome/navigation-tree.c:1573
+#: ../src/fe-gnome/navigation-tree.c:1632
 #, fuzzy
 msgid "Ex-Chat"
 msgstr "聊天"
@@ -4264,7 +4258,7 @@ msgstr "自動(_A)"
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
-#: ../src/fe-gnome/navigation-tree.c:1265
+#: ../src/fe-gnome/navigation-tree.c:1268
 msgid "<none>"
 msgstr "<無>"
 
@@ -4359,7 +4353,7 @@ msgstr ""
 msgid "%d bytes buffered"
 msgstr "%d 位元組"
 
-#: ../src/fe-gnome/text-entry.c:262
+#: ../src/fe-gnome/text-entry.c:274
 #, fuzzy
 msgid "I_nsert Color Code"
 msgstr "插入屬性或顏色代碼"
@@ -4388,3 +4382,15 @@ msgstr "踢出"
 #, fuzzy
 msgid "_Ban"
 msgstr "封禁"
+
+#, fuzzy
+#~ msgid "%s unloaded successfully!\n"
+#~ msgstr "已成功載入！\n"
+
+#, fuzzy
+#~ msgid ""
+#~ "%s: %s\n"
+#~ "Try `%s --help' for more information\n"
+#~ msgstr ""
+#~ "xchat-remote: %s\n"
+#~ "試試 `xchat-remote --help' 以獲得更多資訊\n"
