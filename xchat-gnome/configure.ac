@@ -181,6 +181,12 @@ if test "x$have_tcl" != "xno"; then
 	fi
 fi
 
+# openssl
+PKG_CHECK_MODULES([OPENSSL], [openssl], openssl=yes, openssl=no)
+AC_SUBST([OPENSSL_CFLAGS])
+AC_SUBST([OPENSSL_LIBS])
+AC_DEFINE(USE_OPENSSL, [], [Whether to use OpenSSL])
+
 # i18n
 ALL_LINGUAS="`cat "$srcdir/po/LINGUAS" | grep -v '^#'`"
 
