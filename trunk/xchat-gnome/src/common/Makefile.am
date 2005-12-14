@@ -54,6 +54,7 @@ libxchatcommon_la_SOURCES =		\
 libxchatcommon_la_LDFLAGS = -static
 INCLUDES =		\
 	$(DEPENDENCIES_CFLAGS)		\
+	$(OPENSSL_CFLAGS)		\
 	-DXCHATLIBDIR="\"$(XCHATLIBDIR)\""
 
 textevents: make-te
