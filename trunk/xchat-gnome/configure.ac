@@ -104,6 +104,61 @@ if test "x$have_socks" = xyes; then
 	DEPENDENCIES_LIBS="$DEPENDENCIES_LIBS -lsocks5"
 fi
 
+# Perl
+AC_MSG_CHECKING([whether Perl support is requested])
+AC_ARG_ENABLE([perl],
+	AS_HELP_STRING([--disable-perl],[Disable perl support]),
+	[enable_perl=$enableval have_perl=$enableval],
+	[enable_perl=autodetect have_perl=yes])
+AC_MSG_RESULT([$enable_perl])
+
+if test "x$have_perl" != "xno"; then
+	AC_PATH_PROG(PERL, perl perl5)
+	if test -z $PERL ; then
+		AC_MSG_ERROR([
+*** Perl must be installed on your system
+*** but perl interpreter couldn't be found in path.
+
+Please check that perl is in path, or install
+it with your software package manager.])
+		have_perl=no
+	fi
+fi
+
+if test "x$have_perl" != "xno"; then
+	AC_MSG_CHECKING(for Perl header files)
+	PERL_HEADER_TEST=`PT=perltest.c ; echo "#include <EXTERN.h>" > $PT;  echo "#include <perl.h>" >> $PT;  echo "#include <XSUB.h>" >> $PT ;  echo "int main() { return 0; }" >> $PT ; $CC -Wall $PT -o $PT.out $($PERL -MExtUtils::Embed -e ccopts) 1>/dev/null 2>&1; echo $?; rm -f $PT $PT.out 1>/dev/null 2>&1`
+
+	if test "x$PERL_HEADER_TEST" = "x0" ; then
+		PERL_CFLAGS=`$PERL -MExtUtils::Embed -e ccopts`
+		AC_MSG_RESULT(found)
+	else
+		AC_MSG_ERROR([
+*** Perl headers couldn't be found in your system.
+*** Try to install it with your software package manager.])
+		have_perl=no
+	fi
+fi
+
+if test "x$have_perl" != "xno"; then
+	AC_MSG_CHECKING(for Perl library)
+	PERL_LIB_TEST=`PT=perltest.c ; echo "int main() { return 0; }" > $PT ; $CC -Wall $PT -o $PT.out $($PERL -MExtUtils::Embed -e ldopts) 1>/dev/null 2>&1; echo $?; rm -f $PT $PT.out 1>/dev/null 2>&1`
+
+	if test "x$PERL_LIB_TEST" = "x0" ; then
+		PERL_LDFLAGS=`$PERL -MExtUtils::Embed -e ldopts`
+		AC_MSG_RESULT(found)
+		AC_SUBST(PERL_CFLAGS)
+		AC_SUBST(PERL_LDFLAGS)
+		AC_DEFINE([ENABLE_PERL],[1],[Define to compile with perl support])
+		enable_perl=yes
+	else
+		AC_MSG_ERROR([
+*** Perl library couldn't be found in your system.
+*** Try to install it with your software package manager.])
+	fi
+
+fi
+
 # Python
 AC_MSG_CHECKING([whether Python support is requested])
 AC_ARG_ENABLE([python],
@@ -273,6 +328,13 @@ else
 	AC_MSG_WARN([xchat-gnome compiled without libnotify support, plugins $LIBNOTIFY_PLUGINS will not be available])
 fi
 
+# perl-specific plugins
+if test "x$enable_perl" = "xyes"; then
+	ALL_PLUGINS="$ALL_PLUGINS $PERL_PLUGINS"
+else
+	AC_MSG_WARN([xchat-gnome compiled without perl support, plugins $PERL_PLUGINS will not be available])
+fi
+
 # python-specific plugins
 if test "x$enable_python" = "xyes"; then
 	ALL_PLUGINS="$ALL_PLUGINS $PYTHON_PLUGINS"
@@ -344,6 +406,7 @@ plugins/dbus/Makefile
 plugins/net-monitor/Makefile
 plugins/notification/Makefile
 plugins/notify-osd/Makefile
+plugins/perl/Makefile
 plugins/python/Makefile
 plugins/tcl/Makefile
 plugins/url_scraper/Makefile
