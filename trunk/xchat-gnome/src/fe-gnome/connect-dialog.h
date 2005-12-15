@@ -51,11 +51,8 @@ struct _ConnectDialogClass
 };
 
 GType          connect_dialog_get_type (void) G_GNUC_CONST;
-ConnectDialog *connect_dialog_new ();
+ConnectDialog *connect_dialog_new (void);
 
 G_END_DECLS
-
-void initialize_connection_dialog ();
-void display_connection_dialog ();
 
 #endif
