@@ -268,7 +268,7 @@ fi
 # Xlib & Xshm (for xtext tinting)
 AC_CHECK_LIB(X11, XOpenDisplay, xlib=yes, xlib=no)
 if test "x$xlib" = xyes; then
-	AC_DEFINE(USE_XLIB, [], [Use Xlib])
+	AC_DEFINE(USE_XLIB, [1], [Use Xlib])
 fi
 
 AC_CHECK_LIB(Xext, XShmAttach, shm=yes, shm=no)
@@ -276,7 +276,7 @@ AC_CHECK_HEADERS(sys/ipc.h, , shm=no)
 AC_CHECK_HEADERS(sys/shm.h, , shm=no)
 if test "x$shm" = xyes; then
 	DEPENDENCIES_LIBS="$DEPENDENCIES_LIBS -lX11 -lXext"
-	AC_DEFINE(USE_SHM, [], [Whether to use Xshm tinting])
+	AC_DEFINE(USE_SHM, [1], [Whether to use Xshm tinting])
 fi
 
 # MMX (for xtext tinting)
