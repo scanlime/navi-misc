@@ -1,9 +1,9 @@
 libdir = $(XCHATLIBDIR)/plugins
 
-EXTRA_DIST =				\
-	dbus-plugin.xml			\
-	apps_xchat_url_handler.schemas	\
-	marshallers.list		\
+EXTRA_DIST =					\
+	dbus-plugin.xml				\
+	apps_xchat_url_handler.schemas.in	\
+	marshallers.list			\
 	README
 
 BUILT_SOURCES =				\
@@ -40,8 +40,11 @@ dbus-plugin-glue.h: dbus-plugin.xml
 marshallers.h: marshallers.list
 	$(GLIB_GENMARSHAL)  --header --body $< > $@
 
-schemadir   = $(GCONF_SCHEMA_FILE_DIR)
-schema_DATA = apps_xchat_url_handler.schemas
+schemadir	= $(GCONF_SCHEMA_FILE_DIR)
+schema_in_files	= apps_xchat_url_handler.schemas.in
+schema_DATA	= $(schema_in_files:.schemas.in=.schemas)
+@INTLTOOL_SCHEMAS_RULE@
+
 install-data-local:
 	@GCONF_SCHEMAS_INSTALL_TRUE@ \
 	if test -z "$(DESTDIR)" ; then \

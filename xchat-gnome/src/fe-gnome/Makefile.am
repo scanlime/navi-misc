@@ -6,7 +6,9 @@ mmx_cmod_h = mmx_cmod.h
 endif
 
 schemadir	= $(GCONF_SCHEMA_FILE_DIR)
-schema_DATA	= apps_xchat.schemas
+schema_in_files	= apps_xchat.schemas.in
+schema_DATA	= $(schema_in_files:.schemas.in=.schemas)
+@INTLTOOL_SCHEMAS_RULE@
 
 install-data-local:
 	@GCONF_SCHEMAS_INSTALL_TRUE@ \
@@ -111,4 +113,4 @@ marshallers.h: marshallers.list
 EXTRA_DIST =					\
 	$(xchat_gnome_SOURCES)			\
 	marshallers.list			\
-	apps_xchat.schemas
+	apps_xchat.schemas.in

@@ -1,9 +1,11 @@
 libdir = $(XCHATLIBDIR)/plugins
 
-schemadir = $(GCONF_SCHEMA_FILE_DIR)
-schema_DATA = urlscraper.schemas
+schemadir	= $(GCONF_SCHEMA_FILE_DIR)
+schema_in_files	= urlscraper.schemas
+schema_DATA	= $(schema_in_files:.schemas.in=.schemas)
+@INTLTOOL_SCHEMAS_RULE@
 
-EXTRA_DIST = urlscraper.schemas
+EXTRA_DIST = urlscraper.schemas.in
 
 install-data-local:
 	@GCONF_SCHEMAS_INSTALL_TRUE@ \
