@@ -233,7 +233,7 @@ topic_label_change_current (TopicLabel *label)
 	gtk_window_set_title (GTK_WINDOW (dialog), title);
 	g_free (title);
 
-	topic = g_hash_table_lookup (label->priv->topics, label->priv->current);
+	topic = label->priv->current->topic;
 	buffer = gtk_text_buffer_new (NULL);
         gtk_text_view_set_buffer (GTK_TEXT_VIEW (entry), buffer);
 	if (topic)
