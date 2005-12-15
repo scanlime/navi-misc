@@ -103,6 +103,7 @@ INCLUDES =					\
 	-DXCHATSHAREDIR="\"$(XCHATSHAREDIR)\""
 
 BUILT_SOURCES =					\
+	apps_xchat.schemas			\
 	marshallers.h
 
 CLEANFILES = $(BUILT_SOURCES)

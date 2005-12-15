@@ -15,6 +15,9 @@ install-data-local:
 		done \
 	fi
 
+BUILT_SOURCES = notification.schemas
+CLEANFILES = $(BUILT_SOURCES)
+
 lib_LTLIBRARIES = notification.la
 notification_la_SOURCES =	\
 	eggtrayicon.h		\

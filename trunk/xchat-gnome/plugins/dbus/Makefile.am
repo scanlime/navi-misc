@@ -6,12 +6,6 @@ EXTRA_DIST =					\
 	marshallers.list			\
 	README
 
-BUILT_SOURCES =				\
-	marshallers.h			\
-	dbus-plugin-glue.h
-
-CLEANFILES = $(BUILT_SOURCES)
-
 lib_LTLIBRARIES = dbus.la
 dbus_la_SOURCES = dbus-plugin.c
 dbus_la_LDFLAGS = -avoid-version -module
@@ -52,3 +46,11 @@ install-data-local:
 			GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) $(GCONFTOOL) --makefile-install-rule $(srcdir)/$$p; \
 		done \
 	fi
+
+BUILT_SOURCES =				\
+	marshallers.h			\
+	apps_xchat_url_handler.schemas	\
+	dbus-plugin-glue.h
+
+CLEANFILES = $(BUILT_SOURCES)
+
