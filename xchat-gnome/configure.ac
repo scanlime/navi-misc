@@ -1,4 +1,4 @@
-AC_INIT([XChat-GNOME IRC Chat],[0.8svn],[http://bugzilla.gnome.org/enter_bug.cgi?product=xchat-gnome],[xchat-gnome])
+AC_INIT([XChat-GNOME IRC Chat],[0.8rc1],[http://bugzilla.gnome.org/enter_bug.cgi?product=xchat-gnome],[xchat-gnome])
 
 AC_PREREQ([2.59])
 
@@ -312,7 +312,7 @@ PYTHON_PLUGINS="python"
 PERL_PLUGINS="perl"
 TCL_PLUGINS="tcl"
 
-DIST_PLUGINS="$ALL_PLUGINS $DBUS_ALL_PLUGINS $LIBNOTIFY_ALL_PLUGINS $PYTHON_PLUGINS $PERL_PLUGINS $TCL_PLUGINS"
+DIST_PLUGINS="$ALL_PLUGINS $DBUS_PLUGINS $LIBNOTIFY_PLUGINS $PYTHON_PLUGINS $PERL_PLUGINS $TCL_PLUGINS"
 
 # dbus-specific plugins
 if test "x$dbus" = "xyes"; then

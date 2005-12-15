@@ -49,4 +49,4 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 EXTRA_DIST = 				\
 	$(xchat_gnome_DATA)		\
 	$(icon_DATA)			\
-	$(desktop_DATA)
+	$(desktop_in_files)

@@ -171,7 +171,7 @@ connect_dialog_get_type (void)
 }
 
 ConnectDialog *
-connect_dialog_new ()
+connect_dialog_new (void)
 {
 	ConnectDialog *dialog = g_object_new (connect_dialog_get_type(), 0);
 	if (dialog->toplevel == NULL) {

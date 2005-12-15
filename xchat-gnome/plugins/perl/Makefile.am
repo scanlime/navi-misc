@@ -14,7 +14,7 @@ INCLUDES =			\
         -I$(srcdir)/..
 
 xchat.pm.h: Xchat.pm IRC.pm
-	perl generate_header
+	perl $(srcdir)/generate_header $(srcdir)/Xchat.pm $(srcdir)/IRC.pm
 
 EXTRA_DIST =			\
 	generate_header		\
