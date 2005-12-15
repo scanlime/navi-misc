@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.0.7pre1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-11 17:52-0700\n"
+"POT-Creation-Date: 2005-12-14 17:41-0700\n"
 "PO-Revision-Date: 2004-04-05 18:55+0200\n"
 "Last-Translator: Pablo Saratxaga <pablo@walon.org>\n"
 "Language-Team: Walloon <linux-wa@walon.org>\n"
@@ -450,6 +450,18 @@ msgstr "Raloyaedje"
 msgid "Auto-away plugin unloaded\n"
 msgstr ""
 
+#: ../plugins/dbus/apps_xchat_url_handler.schemas.in.h:1
+msgid "Run xchat-gnome in a terminal?"
+msgstr ""
+
+#: ../plugins/dbus/apps_xchat_url_handler.schemas.in.h:2
+msgid "Set it at TRUE if you want it activated"
+msgstr ""
+
+#: ../plugins/dbus/apps_xchat_url_handler.schemas.in.h:3
+msgid "The handler for \"irc://\" URLs"
+msgstr ""
+
 #: ../plugins/dbus/dbus-plugin.c:27
 msgid "XChat-GNOME remote access"
 msgstr ""
@@ -610,6 +622,10 @@ msgstr ""
 msgid "Notification plugin unloaded.\n"
 msgstr ""
 
+#: ../plugins/notification/notification.schemas.in.h:1
+msgid "Keep icon in tray at all times"
+msgstr ""
+
 #: ../plugins/notify-osd/notify-osd.c:29
 msgid "On-screen display"
 msgstr ""
@@ -689,6 +705,14 @@ msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:229
 msgid "URL Scraper unloaded.\n"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.schemas.in.h:1
+msgid "URL Scraper history length"
+msgstr ""
+
+#: ../plugins/url_scraper/urlscraper.schemas.in.h:2
+msgid "URL Scraper show timestamps"
 msgstr ""
 
 #: ../src/common/cfgfiles.c:350
@@ -3574,6 +3598,87 @@ msgstr ""
 #.
 #: ../src/fe-gnome/about.c:108
 msgid "translator-credits"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:1
+#, fuzzy
+msgid "Background image filename"
+msgstr "Coleur di fond:"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:2
+#, fuzzy
+msgid "Background transparency"
+msgstr "Coleur di fond:"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:3
+msgid "Default nickname used by servers without special options set"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:4
+msgid "Default real name used by servers without special options set"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:5
+msgid "Font for the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:6
+msgid "Height of the channel list"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:7
+msgid "Height of the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:8
+msgid "List of enabled plugins"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:9
+#, fuzzy
+msgid "Message sent on away"
+msgstr "Messaedje"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:10
+msgid "Message sent on channel part"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:11
+#, fuzzy
+msgid "Message sent on quit"
+msgstr "Messaedje"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:12
+msgid "Position of the horizontal pane in the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:13
+msgid "Selected background type"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:14
+msgid "Selected color scheme"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:15
+msgid "Show colors in the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:16
+msgid "Show timestamps in the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
+#, fuzzy
+msgid "Use system fonts"
+msgstr "Djivêye des uzeus"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
+msgid "Width of the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
+msgid "xchat configuration version"
 msgstr ""
 
 #. IRC menu

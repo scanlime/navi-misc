@@ -1,8 +1,12 @@
 libdir = $(XCHATLIBDIR)/plugins
 
-schemadir = $(GCONF_SCHEMA_FILE_DIR)
-schema_DATA = notification.schemas
-EXTRA_DIST = notification.schemas
+schemadir	= $(GCONF_SCHEMA_FILE_DIR)
+schema_in_files	= notification.schemas.in
+schema_DATA	= $(schema_in_files:.schemas.in=.schemas)
+@INTLTOOL_SCHEMAS_RULE@
+
+EXTRA_DIST = notification.schemas.in
+
 install-data-local:
 	@GCONF_SCHEMAS_INSTALL_TRUE@ \
 	if test -z "$(DESTDIR)" ; then \

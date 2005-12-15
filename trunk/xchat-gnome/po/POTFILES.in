@@ -10,13 +10,16 @@ data/topic-change.glade
 data/xchat-gnome.desktop.in
 data/xchat-gnome.glade
 plugins/autoaway/autoaway.c
+plugins/dbus/apps_xchat_url_handler.schemas.in
 plugins/dbus/dbus-plugin.c
 plugins/dbus/xchat-gnome-remote.c
 plugins/net-monitor/net-monitor.c
 plugins/notification/eggtrayicon.c
 plugins/notification/notification.c
+plugins/notification/notification.schemas.in
 plugins/notify-osd/notify-osd.c
 plugins/url_scraper/urlscraper.c
+plugins/url_scraper/urlscraper.schemas.in
 src/common/cfgfiles.c
 src/common/dcc.c
 src/common/ignore.c
@@ -30,6 +33,7 @@ src/common/textevents.h
 src/common/util.c
 src/common/xchat.c
 src/fe-gnome/about.c
+src/fe-gnome/apps_xchat.schemas.in
 src/fe-gnome/channel-list.c
 src/fe-gnome/connect-dialog.c
 src/fe-gnome/conversation-panel.c

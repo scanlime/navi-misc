@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-11 17:52-0700\n"
+"POT-Creation-Date: 2005-12-14 17:41-0700\n"
 "PO-Revision-Date: 2005-12-11 22:58+0100\n"
 "Last-Translator: Xavier Claessens <x_claessens@gmail.com>\n"
 "Language-Team: French <olethanh@ulb.ac.be>\n"
@@ -432,6 +432,18 @@ msgstr "Connecté"
 msgid "Auto-away plugin unloaded\n"
 msgstr "Extension d'absence automatique chargé\n"
 
+#: ../plugins/dbus/apps_xchat_url_handler.schemas.in.h:1
+msgid "Run xchat-gnome in a terminal?"
+msgstr "Lancer xchat-gnome dans un terminal?"
+
+#: ../plugins/dbus/apps_xchat_url_handler.schemas.in.h:2
+msgid "Set it at TRUE if you want it activated"
+msgstr "Mettre à vrai pour activer"
+
+#: ../plugins/dbus/apps_xchat_url_handler.schemas.in.h:3
+msgid "The handler for \"irc://\" URLs"
+msgstr "Le gestionnaire d'URLs pour \"irc://\""
+
 #: ../plugins/dbus/dbus-plugin.c:27
 msgid "XChat-GNOME remote access"
 msgstr "Contrôle à distance de XChat-GNOME"
@@ -587,6 +599,10 @@ msgstr "Extension de notification chargé.\n"
 msgid "Notification plugin unloaded.\n"
 msgstr "Extension de notification déchargé.\n"
 
+#: ../plugins/notification/notification.schemas.in.h:1
+msgid "Keep icon in tray at all times"
+msgstr ""
+
 #: ../plugins/notify-osd/notify-osd.c:29
 msgid "On-screen display"
 msgstr "Affichage en sur-impression"
@@ -671,6 +687,16 @@ msgstr "URL Scraper chargé.\n"
 #: ../plugins/url_scraper/urlscraper.c:229
 msgid "URL Scraper unloaded.\n"
 msgstr "URL Scraper déchargé.\n"
+
+#: ../plugins/url_scraper/urlscraper.schemas.in.h:1
+#, fuzzy
+msgid "URL Scraper history length"
+msgstr "URL Scraper chargé.\n"
+
+#: ../plugins/url_scraper/urlscraper.schemas.in.h:2
+#, fuzzy
+msgid "URL Scraper show timestamps"
+msgstr "Afficher les _marqueur de temps"
 
 #: ../src/common/cfgfiles.c:350
 msgid "Cannot create ~/.xchat2"
@@ -3674,6 +3700,88 @@ msgid "translator-credits"
 msgstr ""
 "Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Xavier Claessens <x_claessens@gmail.com>"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:1
+#, fuzzy
+msgid "Background image filename"
+msgstr "_Image d'arrière-plan"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:2
+#, fuzzy
+msgid "Background transparency"
+msgstr "Marqueur de fond"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:3
+msgid "Default nickname used by servers without special options set"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:4
+msgid "Default real name used by servers without special options set"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:5
+msgid "Font for the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:6
+msgid "Height of the channel list"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:7
+msgid "Height of the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:8
+msgid "List of enabled plugins"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:9
+#, fuzzy
+msgid "Message sent on away"
+msgstr "Message dans %s"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:10
+msgid "Message sent on channel part"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:11
+#, fuzzy
+msgid "Message sent on quit"
+msgstr "Message dans %s"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:12
+msgid "Position of the horizontal pane in the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:13
+msgid "Selected background type"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:14
+msgid "Selected color scheme"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:15
+msgid "Show colors in the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:16
+#, fuzzy
+msgid "Show timestamps in the main window"
+msgstr "Afficher les _marqueur de temps"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:17
+#, fuzzy
+msgid "Use system fonts"
+msgstr "Utiliser cette police :"
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:18
+msgid "Width of the main window"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:19
+msgid "xchat configuration version"
+msgstr ""
 
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:108
