@@ -12,5 +12,6 @@
   <xi:include href="gnomevfs-uri.xml" />
   <xi:include href="gnomevfs-volume.xml" />
   <xi:include href="gnomevfs-volumemonitor.xml" />
+  <xi:include href="gnomevfs-functions.xml" />
   <xi:include href="gnomevfs-constants.xml" />
 </chapter>
