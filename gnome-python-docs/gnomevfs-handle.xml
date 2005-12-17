@@ -82,4 +82,131 @@
       <para></para>
     </refsect2>
   </refsect1>
+
+  <refsect1>
+    <title>Methods</title>
+
+    <refsect2 id="method-gnomevfs-handle--close">
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>close</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <para>Close the file associated with this handle.</para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-handle--get_file_info">
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>get_file_info</methodname>
+	  <methodparam><parameter role="keyword">options</parameter><initializer>gnomevfs.FILE_INFO_DEFAULT</initializer></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">options</parameter>:</term>
+	  <listitem><simpara>Or'd set of <link linkend="gnomevfs-constants-fileinfo-options">file info options</link></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>A <link linkend="class-gnomevfs-fileinfo">gnomevfs.FileInfo</link>.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Get information about the file, persuant to the options given.</para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-handle--read">
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>read</methodname>
+	  <methodparam><parameter role="keyword">bytes</parameter></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">bytes</parameter>:</term>
+	  <listitem><simpara>The number of bytes to read</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>A string containing the data.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Read <parameter role="keyword">bytes</parameter> from file.  The actual number of bytes read may be less than this, so you may need to check the length of the string returned.</para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-handle--seek">
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>seek</methodname>
+	  <methodparam><parameter role="keyword">offset</parameter></methodparam>
+	  <methodparam><parameter role="keyword">whence</parameter><initializer>gnomevfs.SEEK_START</initializer></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">offset</parameter>:</term>
+	  <listitem><simpara>The number of bytes to offset from the position specified by <parameter role="keyword">whence</parameter>.  This can be either positive or negative.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><parameter role="keyword">whence</parameter>:</term>
+	  <listitem><simpara>The <link linkend="gnomevfs-constants-seekmode">start position</link>.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Set the current position for reading/writing.</para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-handle--tell">
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>tell</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>A long specifying the current byte position.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Returns the current position in the file.  This is the position at which any reads or writes will begin at.</para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-handle--truncate">
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>truncate</methodname>
+	  <methodparam><parameter role="keyword">length</parameter></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">length</parameter>:</term>
+	  <listitem><simpara>The length to truncate to.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Truncates the file to the length specified.</para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-handle--write">
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>write</methodname>
+	  <methodparam><parameter role="keyword">buffer</parameter></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">buffer</parameter>:</term>
+	  <listitem><simpara>The buffer to write to the file.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>The number of bytes written.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Write <parameter role="keyword">buffer</parameter> to the file.  The number of bytes actually written may be less than the buffer, as is provided as the return value.</para>
+    </refsect2>
+  </refsect1>
 </refentry>

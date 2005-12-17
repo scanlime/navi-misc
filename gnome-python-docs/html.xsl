@@ -10,6 +10,7 @@
 <xsl:param name="shade.verbatim" select="1"/>
 <xsl:param name="use.id.as.filename" select="1"/>
 <xsl:param name="chunk.fast" select="1"/>
+<xsl:param name="chunker.output.encoding" select="'utf-8'"/>
 
 <xsl:attribute-set name="shade.verbatim.style">
   <xsl:attribute name="border">0</xsl:attribute>
