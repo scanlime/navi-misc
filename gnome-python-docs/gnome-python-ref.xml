@@ -7,8 +7,10 @@
     <pubdate>December 07, 2005</pubdate>
     <title>gnome-python Reference Manual</title>
     <authorgroup>
-      <firstname>David</firstname>
-      <surname>Trowbridge</surname>
+      <author>
+        <firstname>David</firstname>
+        <surname>Trowbridge</surname>
+      </author>
     </authorgroup>
     <abstract>
       <para>This reference describes the classes of the gnome-python modules.</para>
