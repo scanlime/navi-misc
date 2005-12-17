@@ -48,4 +48,38 @@
       </methodsynopsis>
     </classsynopsis>
   </refsect1>
+
+  <refsect1>
+    <title>Description</title>
+    <para></para>
+  </refsect1>
+
+  <refsect1>
+    <title>Constructor</title>
+
+    <refsect2 id="constructor-gnomevfs-handle">
+      <programlisting>
+        <constructorsynopsis language="python">
+          <methodname><link linkend="constructor-gnomevfs-handle">gnomevfs.Handle</link></methodname>
+	  <methodparam><parameter role="keyword">uri</parameter></methodparam>
+	  <methodparam><parameter role="keyword">open_mode</parameter><initializer>gnomevfs.OPEN_READ</initializer></methodparam>
+        </constructorsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">uri</parameter>:</term>
+	  <listitem><simpara>The URI to open.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><parameter role="keyword">open_mode</parameter>:</term>
+	  <listitem><simpara>Or'd set of <link linkend="gnomevfs-constants-openmode">open mode flags</link></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>the new <link linkend="class-gnomevfs-handle"><classname>gnomevfs.Handle</classname></link></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+  </refsect1>
 </refentry>
