@@ -19,7 +19,7 @@
     <title>Attributes</title>
     <blockquote role="properties">
       <informaltable pgwide="1" frame="none">
-        <tgroup cols="3">
+        <tgroup cols="2">
 	  <colspec column="1" colwidth="1in"/>
 	  <colspec column="3" colwidth="3.5in"/>
 
