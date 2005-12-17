@@ -18,6 +18,8 @@
       <xref linkend="gnomevfs-constants-file-permissions" endterm="gnomevfs-constants-file-permissions-title"></xref>
       <xref linkend="gnomevfs-constants-fileinfo-options" endterm="gnomevfs-constants-fileinfo-options-title"></xref>
       <xref linkend="gnomevfs-constants-fileinfo-setmask" endterm="gnomevfs-constants-fileinfo-setmask-title"></xref>
+      <xref linkend="gnomevfs-constants-openmode"         endterm="gnomevfs-constants-openmode-title"></xref>
+      <xref linkend="gnomevfs-constants-seekmode"         endterm="gnomevfs-constants-seekmode-title"></xref>
     </programlisting>
   </refsect1>
 
@@ -246,6 +248,52 @@
         <varlistentry>
 	  <term><literal>gnomevfs.SET_FILE_INFO_TIME</literal></term>
 	  <listitem><simpara>Change the file's time stamp(s).</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+    </refsect2>
+
+    <refsect2 id="gnomevfs-constants-openmode">
+      <title id="gnomevfs-constants-openmode-title">gnomevfs Open Mode Constants</title>
+      <para>These options affect how files are opened.</para>
+      <variablelist>
+        <varlistentry>
+	  <term><literal>gnomevfs.OPEN_NONE</literal></term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.OPEN_READ</literal></term>
+	  <listitem><simpara>Open the file for reading.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.OPEN_WRITE</literal></term>
+	  <listitem><simpara>Open the file for writing.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.OPEN_RANDOM</literal></term>
+	  <listitem><simpara>Allow random access on the file.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.OPEN_TRUNCATE</literal></term>
+	  <listitem><simpara>Truncate the file.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+    </refsect2>
+
+    <refsect2 id="gnomevfs-constants-seekmode">
+      <title id="gnomevfs-constants-seekmode-title">gnomevfs Seek Constants</title>
+      <para>These constants are used to specify the start position for seek operations.</para>
+      <variablelist>
+        <varlistentry>
+	  <term><literal>gnomevfs.SEEK_START</literal></term>
+	  <listitem><simpara>The start of the file.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.SEEK_CURRENT</literal></term>
+	  <listitem><simpara>The current position in the file.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><literal>gnomevfs.SEEK_END</literal></term>
+	  <listitem><simpara>The end of the file.</simpara></listitem>
 	</varlistentry>
       </variablelist>
     </refsect2>
