@@ -33,8 +33,7 @@
     <title>Constructor</title>
 
     <refsect2 id="constructor-gnomevfs-directoryhandle">
-      <programlisting>
-        <constructorsynopsis language="python">
+      <programlisting><constructorsynopsis language="python">
           <methodname>gnomevfs.DirectoryHandle</methodname>
           <methodparam><parameter role="keyword">uri</parameter></methodparam>
           <methodparam><parameter role="keyword">options</parameter><initializer>gnomevfs.DIRECTORY_VISIT_DEFAULT</initializer></methodparam>
@@ -62,8 +61,8 @@
     <title>Methods</title>
 
     <refsect2 id="method-gnomevfs-directoryhandle--next">
-      <programlisting>
-        <methodsynopsis language="python">
+      <title>gnomevfs.DirectoryHandle.next</title>
+      <programlisting><methodsynopsis language="python">
           <methodname>next</methodname>
           <methodparam />
         </methodsynopsis>

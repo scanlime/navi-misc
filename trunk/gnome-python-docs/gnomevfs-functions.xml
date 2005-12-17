@@ -1,0 +1,348 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+
+<refentry id="gnomevfs-functions">
+  <refnamediv>
+    <refname>gnomevfs Functions</refname>
+    <refpurpose></refpurpose>
+  </refnamediv>
+
+  <refsect1>
+    <title>Synopsis</title>
+    <!-- I apologize for the whitespace here.  It makes fugly HTML otherwise -->
+    <programlisting><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--create">gnomevfs.create</link></methodname>
+	<methodparam><parameter role="keyword">uri</parameter></methodparam>
+	<methodparam><parameter role="keyword">open_mode</parameter><initializer>gnomevfs.OPEN_NONE</initializer></methodparam>
+	<methodparam><parameter role="keyword">exclusive</parameter><initializer>False</initializer></methodparam>
+	<methodparam><parameter role="keyword">perm</parameter><initializer>0666</initializer></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--get_file_info">gnomevfs.get_file_info</link></methodname>
+	<methodparam><parameter role="keyword">uri</parameter></methodparam>
+	<methodparam><parameter role="keyword">options</parameter><initializer>gnomevfs.FILE_INFO_DEFAULT</initializer></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--set_file_info">gnomevfs.set_file_info</link></methodname>
+	<methodparam><parameter role="keyword">uri</parameter></methodparam>
+	<methodparam><parameter role="keyword">info</parameter></methodparam>
+	<methodparam><parameter role="keyword">mask</parameter><initializer>gnomevfs.SET_FILE_INFO_NONE</initializer></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--truncate">gnomevfs.truncate</link></methodname>
+	<methodparam><parameter role="keyword">uri</parameter></methodparam>
+	<methodparam><parameter role="keyword">length</parameter></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--make_directory">gnomevfs.make_directory</link></methodname>
+	<methodparam><parameter role="keyword">uri</parameter></methodparam>
+	<methodparam><parameter role="keyword">perm</parameter></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--remove_directory">gnomevfs.remove_directory</link></methodname>
+	<methodparam><parameter role="keyword">uri</parameter></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--unlink">gnomevfs.unlink</link></methodname>
+	<methodparam><parameter role="keyword">uri</parameter></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--exists">gnomevfs.exists</link></methodname>
+	<methodparam><parameter role="keyword">uri</parameter></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--format_file_size_for_display">gnomevfs.format_file_size_for_display</link></methodname>
+	<methodparam><parameter>size</parameter></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--get_mime_type">gnomevfs.get_mime_type</link></methodname>
+	<methodparam><parameter>uri</parameter></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--get_mime_type_for_data">gnomevfs.get_mime_type_for_data</link></methodname>
+	<methodparam><parameter>data</parameter></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--mime_get_icon">gnomevfs.mime_get_icon</link></methodname>
+	<methodparam><parameter>mime_type</parameter></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_set_icon</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--mime_get_description">gnomevfs.mime_get_description</link></methodname>
+	<methodparam><parameter>mime_type</parameter></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_set_description</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_can_be_executable</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_set_can_be_executable</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.monitor_add</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.monitor_cancel</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.read_entire_file</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_get_default_application</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.xfer_uri</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.xfer_uri_list</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.xfer_delete_list</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_get_default_action_type</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_get_default_action</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_get_default_component</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_get_short_list_components</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_get_short_list_applications</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_get_all_applications</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_get_all_components</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_set_default_action_type</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_set_default_application</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_set_default_component</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_set_short_list_applications</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_set_short_list_components</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_add_application_to_short_list</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_remove_application_from_short_list</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_add_component_to_short_list</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_remove_component_from_short_list</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_add_extension</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_remove_extension</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_extend_all_applications</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_remove_from_all_applications</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.mime_application_new_from_id</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.connect_to_server</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.escape_string</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.escape_path_string</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.escape_host_and_path_string</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.escape_slashes</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.escape_set</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.unescape_string</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.make_uri_canonical</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.make_path_name_canonical</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.unescape_string_for_display</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.get_local_path_from_uri</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.get_uri_from_local_path</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.is_executable_command_string</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.get_volume_free_space</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.icon_path_from_filename</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.open_fd</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.is_primary_thread</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.format_uri_for_display</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.make_uri_from_input</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.make_uri_from_input_with_dirs</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.make_uri_canonical_strip_fragment</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.uris_match</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.get_uri_scheme</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.make_uri_from_shell_arg</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.url_show</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.resolve</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.dns_sd_browse_sync</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.dns_sd_resolve_sync</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.dns_sd_list_browse_domains_sync</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis><methodsynopsis language="python">
+        <methodname><link linkend="function-gnomevfs--">gnomevfs.get_default_browse_domains</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+    </programlisting>
+  </refsect1>
+
+  <refsect1>
+    <title>Description</title>
+    <para>These functions are part of the gnomevfs module but are not associated with a specific class.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>Functions</title>
+
+    <refsect2 id="function-gnomevfs--create">
+      <title>gnomevfs.create</title>
+      <programlisting>
+        <methodsynopsis language="python">
+	  <methodname>gnomevfs.create</methodname>
+	  <methodparam><parameter role="keyword">uri</parameter></methodparam>
+	  <methodparam><parameter role="keyword">open_mode</parameter><initializer>gnomevfs.OPEN_NONE</initializer></methodparam>
+	  <methodparam><parameter role="keyword">exclusive</parameter><initializer>False</initializer></methodparam>
+	  <methodparam><parameter role="keyword">perm</parameter><initializer>0666</initializer></methodparam>
+	</methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">uri</parameter>:</term>
+	  <listitem><simpara>The URI to create.</simpara></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><parameter role="keyword">open_mode</parameter>:</term>
+	  <listitem><simpara>Mode to leave the file in after creation (or gnomevfs.OPEN_MODE_NONE to leave the file closed).</simpara></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><parameter role="keyword">exclusive</parameter>:</term>
+	  <listitem><simpara>Whether the file should be created in "exclusive" mode. i.e. if this flag is nonzero, The operation will fail if a file with the same name already exists.</simpara></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><parameter role="keyword">perm</parameter>:</term>
+	  <listitem><simpara>Or'd set of <link linkend="gnomevfs-constants-file-permissions">file permissions flags</link></simpara></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>A <link linkend="class-gnomevfs-handle">gnomevfs.Handle</link>.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Create and open <parameter role="keyword">uri</parameter> according to <parameter role="keyword">open_mode</parameter>.</para>
+    </refsect2>
+
+    <refsect2 id="function-gnomevfs--get_file_info">
+      <title>gnomevfs.get_file_info</title>
+      <programlisting>
+        <methodsynopsis language="python">
+	  <methodname>gnomevfs.get_file_info</methodname>
+	  <methodparam><parameter role="keyword">uri</parameter></methodparam>
+	  <methodparam><parameter role="keyword">options</parameter><initializer>gnomevfs.FILE_INFO_DEFAULT</initializer></methodparam>
+	</methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">uri</parameter>:</term>
+	  <listitem><simpara>The URI to retrieve information for.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><parameter role="keyword">options</parameter>:</term>
+	  <listitem><simpara>Or'd set of <link linkend="gnomevfs-constants-fileinfo-option">file info options</link>.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>A <link linkend="class-gnomevfs-fileinfo">gnomevfs.FileInfo</link></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Retrieve information about <parameter role="keyword">uri</parameter>.</para>
+    </refsect2>
+
+    <refsect2 id="function-gnomevfs--set_file_info">
+      <title>gnomevfs.set_file_info</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>gnomevfs.set_file_info</methodname>
+	  <methodparam><parameter role="keyword">uri</parameter></methodparam>
+	  <methodparam><parameter role="keyword">info</parameter></methodparam>
+	  <methodparam><parameter role="keyword">mask</parameter><initializer>gnomevfs.SET_FILE_INFO_NONE</initializer></methodparam>
+	</methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">uri</parameter>:</term>
+	  <listitem><simpara>The URI to set information on.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><parameter role="keyword">info</parameter>:</term>
+	  <listitem><simpara><link linkend="class-gnomevfs-fileinfo">gnomevfs.FileInfo</link> with the information to set.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><parameter role="keyword">mask</parameter>:</term>
+	  <listitem><simpara>Or'd set of <link linkend="gnomevfs-constants-fileinfo-setmask">file info set flags</link>.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Set file information for <parameter role="keyword">uri</parameter>.  Only the information for which the corresponding bit in <parameter role="keyword">mask</parameter> is set is actually modified.</para>
+    </refsect2>
+  </refsect1>
+</refentry>

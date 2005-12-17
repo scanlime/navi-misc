@@ -37,8 +37,7 @@
 
     <refsect2 id="method-gnomevfs-context--get_cancellation">
       <title>gnomevfs.Context.get_cancellation</title>
-      <programlisting>
-        <methodsynopsis language="python">
+      <programlisting><methodsynopsis language="python">
           <methodname>get_cancellation</methodname>
           <methodparam />
         </methodsynopsis>
@@ -48,8 +47,7 @@
 
     <refsect2 id="method-gnomevfs-context--check_cancellation">
       <title>gnomevfs.Context.check_cancellation</title>
-      <programlisting>
-        <methodsynopsis language="python">
+      <programlisting><methodsynopsis language="python">
           <methodname>check_cancellation</methodname>
           <methodparam />
         </methodsynopsis>
@@ -65,8 +63,7 @@
 
     <refsect2 id="method-gnomevfs-context--cancel">
       <title>gnomevfs.Context.cancel</title>
-      <programlisting>
-        <methodsynopsis language="python">
+      <programlisting><methodsynopsis language="python">
           <methodname>cancel</methodname>
           <methodparam />
         </methodsynopsis>

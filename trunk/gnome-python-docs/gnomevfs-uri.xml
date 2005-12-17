@@ -170,6 +170,7 @@
     <title>Methods</title>
 
     <refsect2 id="method-gnomevfs-uri--append_file_name">
+      <title>gnomevfs.URI.append_file_name</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>append_file_name</methodname>
@@ -190,6 +191,7 @@
     </refsect2>
 
     <refsect2 id="method-gnomevfs-uri--append_path">
+      <title>gnomevfs.URI.append_path</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>append_path</methodname>
@@ -210,6 +212,7 @@
     </refsect2>
 
     <refsect2 id="method-gnomevfs-uri--append_string">
+      <title>gnomevfs.URI.append_string</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>append_string</methodname>
@@ -230,6 +233,7 @@
     </refsect2>
 
     <refsect2 id="method-gnomevfs-uri--copy">
+      <title>gnomevfs.URI.copy</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>copy</methodname>
@@ -246,6 +250,7 @@
     </refsect2>
 
     <refsect2 id="method-gnomevfs-uri--is_parent">
+      <title>gnomevfs.URI.is_parent</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>is_parent</methodname>
@@ -271,6 +276,7 @@
     </refsect2>
 
     <refsect2 id="method-gnomevfs-uri--resolve_relative">
+      <title>gnomevfs.URI.resolve_relative</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>resolve_relative</methodname>

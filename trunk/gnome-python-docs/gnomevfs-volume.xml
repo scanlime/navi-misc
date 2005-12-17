@@ -1,0 +1,362 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+
+<refentry id="class-gnomevfs-volume">
+  <refnamediv>
+    <refname>gnomevfs.Volume</refname>
+    <refpurpose>Abstraction for a mounted file system or network location</refpurpose>
+  </refnamediv>
+
+  <refsect1>
+    <title>Synopsis</title>
+    <classsynopsis language="python">
+      <ooclass><classname>gnomevfs.Volume</classname></ooclass>
+      <ooclass><classname>gobject.GObject</classname></ooclass>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--get_activation_uri">get_activation_uri</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--get_device_path">get_device_path</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--get_device_type">get_device_type</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--get_display_name">get_display_name</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--get_drive">get_drive</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--get_filesystem_type">get_filesystem_type</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--get_hal_udi">get_hal_udi</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--get_icon">get_icon</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--get_id">get_id</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--get_volume_type">get_volume_type</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--handles_trash">handles_trash</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--is_read_only">is_read_only</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--is_mounted">is_mounted</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--is_user_visible">is_user_visible</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--eject">eject</link></methodname>
+	<methodparam><parameter role="keyword">callback</parameter></methodparam>
+	<methodparam><parameter role="keyword">user_data</parameter><initializer>None</initializer></methodparam>
+      </methodsynopsis>
+      <methodsynopsis language="python">
+        <methodname><link linkend="method-gnomevfs-volume--unmount">unmount</link></methodname>
+	<methodparam><parameter role="keyword">callback</parameter></methodparam>
+	<methodparam><parameter role="keyword">user_data</parameter><initializer>None</initializer></methodparam>
+      </methodsynopsis>
+    </classsynopsis>
+  </refsect1>
+
+  <refsect1>
+    <title>Ancestry</title>
+    <synopsis>
++-- <link linkend="class-gobject">gobject.GObject</link>
+  +-- <link linkend="class-gnomevfs-volume">gnomevfs.Volume</link>
+    </synopsis>
+  </refsect1>
+
+  <refsect1>
+    <title>Methods</title>
+
+    <refsect2 id="method-gnomevfs-volume--get_activation_uri">
+      <title>gnomevfs.Volume.get_activation_uri</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>get_activation_uri</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--get_device_path">
+      <title>gnomevfs.Volume.get_device_path</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>get_device_path</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--get_device_type">
+      <title>gnomevfs.Volume.get_device_type</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>get_device_type</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--get_display_name">
+      <title>gnomevfs.Volume.get_display_name</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>get_display_name</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--get_drive">
+      <title>gnomevfs.Volume.get_drive</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>get_drive</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>A <link linkend="class-gnomevfs-drive">gnomevfs.Drive</link> for this volume.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--get_filesystem_type">
+      <title>gnomevfs.Volume.get_filesystem_type</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>get_filesystem_type</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--get_hal_udi">
+      <title>gnomevfs.Volume.get_hal_udi</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>get_hal_udi</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--get_icon">
+      <title>gnomevfs.Volume.get_icon</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>get_icon</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--get_id">
+      <title>gnomevfs.Volume.get_id</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>get_id</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--get_volume_type">
+      <title>gnomevfs.Volume.get_volume_type</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>get_volume_type</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--handles_trash">
+      <title>gnomevfs.Volume.handles_trash</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>handles_trash</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara></simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--is_read_only">
+      <title>gnomevfs.Volume.is_read_only</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>is_read_only</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>True if this volume is read-only</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--is_mounted">
+      <title>gnomevfs.Volume.is_mounted</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>is_mounted</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>True if this volume is mounted</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--is_user_visible">
+      <title>gnomevfs.Volume.is_user_visible</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>is_user_visible</methodname>
+	  <methodparam></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>True if this volume is visible to the user</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--eject">
+      <title>gnomevfs.Volume.eject</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>eject</methodname>
+	  <methodparam><parameter role="keyword">callback</parameter></methodparam>
+	  <methodparam><parameter role="keyword">user_data</parameter><initializer>None</initializer></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+      </variablelist>
+      <para></para>
+    </refsect2>
+
+    <refsect2 id="method-gnomevfs-volume--unmount">
+      <title>gnomevfs.Volume.unmount</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>unmount</methodname>
+	  <methodparam><parameter role="keyword">callback</parameter></methodparam>
+	  <methodparam><parameter role="keyword">user_data</parameter><initializer>None</initializer></methodparam>
+        </methodsynopsis>
+      </programlisting>
+      <variablelist>
+      </variablelist>
+      <para></para>
+    </refsect2>
+  </refsect1>
+</refentry>
