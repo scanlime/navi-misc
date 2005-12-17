@@ -1,0 +1,148 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+
+<refentry id="class-gnomevfs-uri">
+  <refnamediv>
+    <refname>gnomevfs.URI</refname>
+    <refpurpose>Object encapsulating a URI</refpurpose>
+  </refnamediv>
+
+  <refsect1>
+    <title>Synopsis</title>
+    <classsynopsis language="python">
+      <ooclass><classname>gnomevfs.URI</classname></ooclass>
+      <constructorsynopsis language="python">
+        <methodname><link linkend="constructor-gnomevfs-uri">gnomevfs.URI</link></methodname>
+	<methodparam><parameter role="keyword">text_uri</parameter></methodparam>
+      </constructorsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-uri--append_file_name">append_file_name</link></methodname>
+	<methodparam><parameter role="keyword">file_name</parameter></methodparam>
+      </methodsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-uri--append_path">append_path</link></methodname>
+	<methodparam><parameter role="keyword">path</parameter></methodparam>
+      </methodsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-uri--append_string">append_string</link></methodname>
+	<methodparam><parameter role="keyword">path</parameter></methodparam>
+      </methodsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-uri--copy">copy</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-uri--is_parent">is_parent</link></methodname>
+	<methodparam><parameter role="keyword">item</parameter></methodparam>
+	<methodparam><parameter role="keyword">recursive</parameter></methodparam>
+      </methodsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-uri--resolve_relative">resolve_relative</link></methodname>
+	<methodparam><parameter role="keyword">relative_reference</parameter></methodparam>
+      </methodsynopsis>
+    </classsynopsis>
+  </refsect1>
+
+  <refsect1>
+    <title>Description</title>
+    <para></para>
+  </refsect1>
+
+  <refsect1>
+    <title>Attributes</title>
+    <blockquote role="properties">
+      <informaltable pgwide="1" frame="none">
+        <tgroup cols="3">
+	  <colspec column="1" colwidth="1in"/>
+	  <colspec column="1" colwidth="1in"/>
+	  <colspec column="3" colwidth="3.5in"/>
+
+	  <tbody>
+	    <row valign="top">
+	      <entry>dirname</entry>
+	      <entry>Read/Write</entry>
+	      <entry>The name of the directory in which the file pointed to by this URI is located.</entry>
+	    </row>
+
+	    <row valign="top">
+	      <entry>fragment_identifier</entry>
+	      <entry>Read/Write</entry>
+	      <entry></entry>
+	    </row>
+
+	    <row valign="top">
+	      <entry>host_name</entry>
+	      <entry>Read</entry>
+	      <entry>Server hostname (for remote schemes).</entry>
+	    </row>
+
+	    <row valign="top">
+	      <entry>host_port</entry>
+	      <entry>Read</entry>
+	      <entry>Server port (for remote schemes).</entry>
+	    </row>
+
+	    <row valign="top">
+	      <entry>is_local</entry>
+	      <entry>Read/Write</entry>
+	      <entry>Whether the URI is a local filesystem.</entry>
+	    </row>
+
+	    <row valign="top">
+	      <entry>parent</entry>
+	      <entry>Read/Write</entry>
+	      <entry>The parent URI.</entry>
+	    </row>
+
+	    <row valign="top">
+	      <entry>password</entry>
+	      <entry>Read</entry>
+	      <entry>Password (for schemes which require authorization).</entry>
+	    </row>
+
+	    <row valign="top">
+	      <entry>path</entry>
+	      <entry>Read/Write</entry>
+	      <entry></entry>
+	    </row>
+
+	    <row valign="top">
+	      <entry>scheme</entry>
+	      <entry>Read/Write</entry>
+	      <entry>The URI scheme (`gzip', `tar', `http', etc).</entry>
+	    </row>
+
+	    <row valign="top">
+	      <entry>short_name</entry>
+	      <entry>Read/Write</entry>
+	      <entry>The base name for the file referred to by this URI.  This matches the XPG definition of a basename.  This is useful when you want the name of the URI target, but don't care whether the URI points to a file or directory.  If the URI points to the root of a domain, this is the host name.</entry>
+	    </row>
+
+	    <row valign="top">
+	      <entry>short_path_name</entry>
+	      <entry>Read/Write</entry>
+	      <entry>Same as short_name, but if the URI points to the root of a domain, this is equal to /</entry>
+	    </row>
+
+	    <row valign="top">
+	      <entry>toplevel</entry>
+	      <entry>Read/Write</entry>
+	      <entry>The toplevel URI</entry>
+	    </row>
+
+	    <row valign="top">
+	      <entry>user_name</entry>
+	      <entry>Read</entry>
+	      <entry>User name (for schemes which require authorization).</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </informaltable>
+    </blockquote>
+  </refsect1>
+
+  <refsect1>
+    <title>Constructor</title>
+  </refsect1>
+</refentry>
