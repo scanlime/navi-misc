@@ -87,6 +87,7 @@
     <title>Methods</title>
 
     <refsect2 id="method-gnomevfs-handle--close">
+      <title>gnomevfs.Handle.close</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>close</methodname>
@@ -97,6 +98,7 @@
     </refsect2>
 
     <refsect2 id="method-gnomevfs-handle--get_file_info">
+      <title>gnomevfs.Handle.get_file_info</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>get_file_info</methodname>
@@ -117,6 +119,7 @@
     </refsect2>
 
     <refsect2 id="method-gnomevfs-handle--read">
+      <title>gnomevfs.Handle.read</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>read</methodname>
@@ -137,6 +140,7 @@
     </refsect2>
 
     <refsect2 id="method-gnomevfs-handle--seek">
+      <title>gnomevfs.Handle.seek</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>seek</methodname>
@@ -158,6 +162,7 @@
     </refsect2>
 
     <refsect2 id="method-gnomevfs-handle--tell">
+      <title>gnomevfs.Handle.tell</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>tell</methodname>
@@ -174,6 +179,7 @@
     </refsect2>
 
     <refsect2 id="method-gnomevfs-handle--truncate">
+      <title>gnomevfs.Handle.truncate</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>truncate</methodname>
@@ -190,6 +196,7 @@
     </refsect2>
 
     <refsect2 id="method-gnomevfs-handle--write">
+      <title>gnomevfs.Handle.write</title>
       <programlisting>
         <methodsynopsis language="python">
           <methodname>write</methodname>
