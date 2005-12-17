@@ -50,7 +50,7 @@
           <listitem><simpara>Or'd set of <link linkend="gnomevfs-constants-directory-visit">directory visit flags</link>.</simpara></listitem>
         </varlistentry>
         <varlistentry>
-          <term><emphasis>Returns</emphasis>&nbsp;:</term>
+          <term><emphasis>Returns</emphasis>:</term>
           <listitem><simpara>the new <link linkend="class-gnomevfs-directoryhandle"><classname>gnomevfs.DirectoryHandle</classname></link></simpara></listitem>
         </varlistentry>
       </variablelist>
