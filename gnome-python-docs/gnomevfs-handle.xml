@@ -1,0 +1,51 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+
+<refentry id="class-gnomevfs-handle">
+  <refnamediv>
+    <refname>gnomevfs.Handle</refname>
+    <refpurpose>Object representing an open file</refpurpose>
+  </refnamediv>
+
+  <refsect1>
+    <title>Synopsis</title>
+    <classsynopsis language="python">
+      <ooclass><classname>gnomevfs.Handle</classname></ooclass>
+      <constructorsynopsis language="python">
+        <methodname><link linkend="constructor-gnomevfs-handle">gnomevfs.Handle</link></methodname>
+	<methodparam><parameter role="keyword">uri</parameter></methodparam>
+	<methodparam><parameter role="keyword">open_mode</parameter><initializer>gnomevfs.OPEN_READ</initializer></methodparam>
+      </constructorsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-handle--close">close</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-handle--get_file_info">get_file_info</link></methodname>
+	<methodparam><parameter role="keyword">options</parameter><initializer>gnomevfs.FILE_INFO_DEFAULT</initializer></methodparam>
+      </methodsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-handle--read">read</link></methodname>
+	<methodparam><parameter role="keyword">bytes</parameter></methodparam>
+      </methodsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-handle--seek">seek</link></methodname>
+	<methodparam><parameter role="keyword">offset</parameter></methodparam>
+	<methodparam><parameter role="keyword">whence</parameter><initializer>gnomevfs.SEEK_START</initializer></methodparam>
+      </methodsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-handle--tell">tell</link></methodname>
+	<methodparam></methodparam>
+      </methodsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-handle--truncate">truncate</link></methodname>
+	<methodparam><parameter role="keyword">length</parameter></methodparam>
+      </methodsynopsis>
+      <methodsynopsis>
+        <methodname><link linkend="method-gnomevfs-handle--write">write</link></methodname>
+	<methodparam><parameter role="keyword">buffer</parameter></methodparam>
+      </methodsynopsis>
+    </classsynopsis>
+  </refsect1>
+</refentry>
