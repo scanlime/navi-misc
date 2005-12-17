@@ -7,7 +7,10 @@ REFERENCE_XML_FILES =			\
 	gnomevfs-classes.xml		\
 	gnomevfs-constants.xml		\
 	gnomevfs-context.xml		\
-	gnomevfs-directoryhandle.xml
+	gnomevfs-directoryhandle.xml	\
+	gnomevfs-drive.xml		\
+	gnomevfs-fileinfo.xml		\
+	gnomevfs-handle.xml
 
 include $(top_srcdir)/docs/pygtk-ref-docs.make
 
