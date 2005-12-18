@@ -5,7 +5,7 @@
 <refentry id="gnomevfs-functions">
   <refnamediv>
     <refname>gnomevfs Functions</refname>
-    <refpurpose></refpurpose>
+    <refpurpose>Additional functions which are not part of a class.</refpurpose>
   </refnamediv>
 
   <refsect1>
@@ -404,6 +404,65 @@
 	</varlistentry>
       </variablelist>
       <para>Remove a directory.</para>
+    </refsect2>
+
+    <refsect2 id="function-gnomevfs--unlink">
+      <title>gnomevfs.unlink</title>
+      <programlisting>
+        <methodsynopsis language="python">
+	  <methodname>gnomevfs.unlink</methodname>
+	  <methodparam><parameter role="keyword">uri</parameter></methodparam>
+	</methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">uri</parameter>:</term>
+	  <listitem><simpara>The URI of the file to unlink</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Unlink (delete) a URI.</para>
+    </refsect2>
+
+    <refsect2 id="function-gnomevfs--exists">
+      <title>gnomevfs.exists</title>
+      <programlisting>
+        <methodsynopsis language="python">
+	  <methodname>gnomevfs.exists</methodname>
+	  <methodparam><parameter role="keyword">uri</parameter></methodparam>
+	</methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">uri</parameter>:</term>
+	  <listitem><simpara>The URI to check.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>True if the URI exists.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Check if a given URI exists.</para>
+    </refsect2>
+
+    <refsect2 id="function-gnomevfs--format_file_size_for_display">
+      <title>gnomevfs.format_file_size_for_display</title>
+      <programlisting>
+        <methodsynopsis language="python">
+	  <methodname>gnomevfs.format_file_size_for_display</methodname>
+	  <methodparam><parameter>size</parameter></methodparam>
+	</methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter>size</parameter>:</term>
+	  <listitem><simpara>The size of the file in bytes</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>A string with the printable size</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Formats <parameter>size</parameter> in a way that is easy for the user to read.  Gives the size in bytes, kilobytes, megabytes or gigabytes, choosing whatever is appropriate.</para>
     </refsect2>
   </refsect1>
 </refentry>
