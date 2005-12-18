@@ -7,11 +7,11 @@ schema_DATA	= $(schema_in_files:.schemas.in=.schemas)
 
 EXTRA_DIST = notification.schemas.in
 
-install-data-local:
+install-data-local: $(schema_DATA)
 	@GCONF_SCHEMAS_INSTALL_TRUE@ \
 	if test -z "$(DESTDIR)" ; then \
 		for p in $(schema_DATA) ; do \
-			$(GCONFTOOL) --install-schema-file=$(srcdir)/$$p; \
+			$(GCONFTOOL) --install-schema-file=$$p; \
 		done \
 	fi
 
