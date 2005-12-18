@@ -1,16 +1,17 @@
 # German translation for xchat-gnome
 # Copyright (c) (c) 2005 Canonical Ltd, and Rosetta Contributors 2005
 # This file is distributed under the same license as the xchat-gnome package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2005.
-#
-#, fuzzy
+# <>, 2005.
+# , fuzzy
+# 
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 21:04-0700\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2005-12-18 00:00-0700\n"
+"PO-Revision-Date: 2005-12-17 23:56-0700\n"
+"Last-Translator:  <>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -53,9 +54,8 @@ msgid "Text Filter:"
 msgstr "Textfilter:"
 
 #: ../data/connect-dialog.glade.h:1
-#, fuzzy
 msgid "C_onnect"
-msgstr "_Verbinden"
+msgstr ""
 
 #: ../data/dcc-accept.glade.h:1
 msgid "_Accept"
@@ -483,9 +483,8 @@ msgid "\"Text to print\""
 msgstr "\"Auszugebender Text\""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:44
-#, fuzzy
 msgid "Change the context to the channel"
-msgstr "Ändere den Kontext zum Kanal"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
@@ -679,9 +678,8 @@ msgid "URL Scraper history length"
 msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.schemas.in.h:2
-#, fuzzy
 msgid "URL Scraper show timestamps"
-msgstr "Zei_tstempel anzeigen"
+msgstr ""
 
 #: ../src/common/cfgfiles.c:350
 msgid "Cannot create ~/.xchat2"
@@ -857,9 +855,8 @@ msgstr ""
 "sie nicht gekickt. (Erfordert Op-Status)"
 
 #: ../src/common/outbound.c:3109
-#, fuzzy
 msgid "CLEAR, Clears the current text window"
-msgstr "CLEAR, leert das aktuelle Textfenster"
+msgstr ""
 
 #: ../src/common/outbound.c:3110
 msgid "CLOSE, Closes the current window/tab"
@@ -1074,9 +1071,8 @@ msgstr ""
 "MOP, gibt allen Usern im Kanal Operator-Rechte (benötigt Operator-Rechte)"
 
 #: ../src/common/outbound.c:3200
-#, fuzzy
 msgid "MSG <nick> <message>, sends a private message"
-msgstr "MSG <spitzname> <nachricht>, sendet eine private Nachricht"
+msgstr ""
 
 #: ../src/common/outbound.c:3203
 msgid "NAMES, Lists the nicks on the current channel"
@@ -1821,9 +1817,8 @@ msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
 msgstr "-%C10-%C11-%O$t$1 entfernt den Operator Status von $2"
 
 #: ../src/common/textevents.h:39
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
-msgstr "%C22*%O$t%C26$1%O entfernt Voice-Status bei%C26 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:42
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
@@ -3645,14 +3640,12 @@ msgid "translator-credits"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
-#, fuzzy
 msgid "Background image filename"
-msgstr "H_intergrundbild"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:2
-#, fuzzy
 msgid "Background transparency"
-msgstr "H_intergrundbild"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Default nickname used by servers without special options set"
@@ -3707,14 +3700,12 @@ msgid "Show colors in the main window"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:16
-#, fuzzy
 msgid "Show timestamps in the main window"
-msgstr "Zei_tstempel anzeigen"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
-#, fuzzy
 msgid "Use system fonts"
-msgstr "Diese Schriftart benutzen:"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
