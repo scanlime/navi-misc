@@ -221,14 +221,14 @@
 		</schema>
 
 		<schema>
-			<key>/schemas/apps/xchat/plugins/enabled</key>
-			<applyto>/apps/xchat/plugins/enabled</applyto>
+			<key>/schemas/apps/xchat/plugins/loaded</key>
+			<applyto>/apps/xchat/plugins/loaded</applyto>
 			<owner>xchat</owner>
 			<type>list</type>
 			<list_type>string</list_type>
 			<default>[]</default>
 			<locale name="C">
-				<short>List of enabled plugins</short>
+				<short>List of loaded plugins</short>
 			</locale>
 		</schema>
 	</schemalist>

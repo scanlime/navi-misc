@@ -127,7 +127,7 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 
 	/* Update the enabled gconf key. */
 	client = gconf_client_get_default ();
-	gconf_client_set_list (client, "/apps/xchat/plugins/enabled", GCONF_VALUE_STRING, enabled_plugins, NULL);
+	gconf_client_set_list (client, "/apps/xchat/plugins/loaded", GCONF_VALUE_STRING, enabled_plugins, NULL);
 	g_object_unref (client);
 }
 

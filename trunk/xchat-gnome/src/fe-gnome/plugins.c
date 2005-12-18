@@ -70,7 +70,7 @@ plugins_initialize (void)
 	GConfClient *client;
 
 	client = gconf_client_get_default ();
-	enabled_plugins = gconf_client_get_list (client, "/apps/xchat/plugins/enabled", GCONF_VALUE_STRING, NULL);
+	enabled_plugins = gconf_client_get_list (client, "/apps/xchat/plugins/loaded", GCONF_VALUE_STRING, NULL);
 }
 
 int
