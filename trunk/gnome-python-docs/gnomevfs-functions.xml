@@ -464,5 +464,85 @@
       </variablelist>
       <para>Formats <parameter>size</parameter> in a way that is easy for the user to read.  Gives the size in bytes, kilobytes, megabytes or gigabytes, choosing whatever is appropriate.</para>
     </refsect2>
+
+    <refsect2 id="function-gnomevfs--get_mime_type">
+      <title>gnomevfs.get_mime_type</title>
+      <programlisting>
+        <methodsynopsis language="python">
+	  <methodname>gnomevfs.get_mime_type</methodname>
+	  <methodparam><parameter>uri</parameter></methodparam>
+	</methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter>uri</parameter>:</term>
+	  <listitem><simpara>The URI to retrieve the mime type for.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>A string containing the mime type.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Determine the mime type of <parameter>uri</parameter>.  The mime type is determined in the same way as by <link linkend="function-gnomevfs--get_file_info">gnomevfs.get_file_info</link>.</para>
+    </refsect2>
+
+    <refsect2 id="function-gnomevfs--get_mime_type_for_data">
+      <title>gnomevfs.get_mime_type_for_data</title>
+      <programlisting>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter>data</parameter>:</term>
+	  <listitem><simpara>A string containing the data.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>A string containing the mime type.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Tries to guess the mime type of the data in <parameter>data</parameter> using magic patterns.</para>
+    </refsect2>
+
+    <refsect2 id="function-gnomevfs--mime_get_icon">
+      <title>gnomevfs.mime_get_icon</title>
+      <programlisting>
+        <methodsynopsis language="python">
+	  <methodname>gnomevfs.mime_get_icon</methodname>
+	  <methodparam><parameter>mime_type</parameter></methodparam>
+	</methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter>mime_type</parameter>:</term>
+	  <listitem><simpara>A string with the mime type.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>A string with an icon name.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Query the MIME database for an icon representing <parameter>mime_type</parameter>.  It usually returns a filename without path information, e.g. "i-chardev.png", and sometimes does not have an extension, e.g. "i-regular" if the icon is supposed to be image type agnostic between icon themes. Icons are generic and not theme specific. These will not necessarily match with the icons a user sees in Nautilus, you have been warned.</para>
+    </refsect2>
+
+    <refsect2 id="function-gnomevfs--mime_get_description">
+      <title>gnomevfs.mime_get_description</title>
+      <programlisting>
+        <methodsynopsis language="python">
+	  <methodname>gnomevfs.mime_get_description</methodname>
+	  <methodparam><parameter>mime_type</parameter></methodparam>
+	</methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter>mime_type</parameter>:</term>
+	  <listitem><simpara>The mime type to query.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><emphasis>Returns</emphasis>:</term>
+	  <listitem><simpara>A description of the mime type.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Query the MIME database for a description of <parameter>mime_type</parameter>.</para>
+    </refsect2>
   </refsect1>
 </refentry>
