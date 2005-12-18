@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: xchat 2.4.2\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: xchat-gnome\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org\n"
 "POT-Creation-Date: 2005-12-18 04:46-0700\n"
-"PO-Revision-Date: 2005-05-20 17:51+0300\n"
+"PO-Revision-Date: 2005-12-18 05:23-0700\n"
 "Last-Translator: Rostislav Raykov <zbrox@i-space.org>\n"
 "Language-Team: Bulgarian <dict@fsa-bg.org>\n"
 "MIME-Version: 1.0\n"

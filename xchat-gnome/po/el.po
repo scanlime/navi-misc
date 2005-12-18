@@ -7,10 +7,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: xchat 2.6.0\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: xchat-gnome\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org\n"
 "POT-Creation-Date: 2005-12-18 04:46-0700\n"
-"PO-Revision-Date: 2005-11-16 18:33+0200\n"
+"PO-Revision-Date: 2005-12-18 05:23-0700\n"
 "Last-Translator: Stavros Giannouris <stavrosg2002@freemail.gr>\n"
 "Language-Team: Greek <nls@tux.hellug.gr>\n"
 "MIME-Version: 1.0\n"
