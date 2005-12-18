@@ -1,45 +1,16 @@
-# Catalan messages for X-Chat.
-# Copyright (C) 2001, 2002, 2003, 2004 Free Software Foundation, Inc.
-# This file is distributed under the same license as the xchat package.
+# Translation of xchat-gnome into the Catalan language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Softcatalà <info@softcatala.org>, 2001.
 # Yannick Garcia <ygp@tinet.fut.es>, 2001.
 # Antoni Bella Perez <bella5@teleline.es>, 2002, 2003.
 # Ernest Adrogué Calveras <eadrogue@gmx.net>, 2004.
 #
-#   away                 absent, distret || absència
-#   buffer               NO ES TRADUEIX (MASCULÍ)
-#   ban                  bandejar || bandejament
-#   chanop               operador de canal
-#   command              ordre
-#   CTCP                 NO ES TRADUEIX (MASCULÍ)
-#   CTCP event           esdeveniment CTCP
-#   DCC                  NO ES TRADUEIX (FEMENÍ)
-#   deop                 treure l'estatus d'operador
-#   flooded              bombardejat, inundat
-#   host                 màquina
-#   hostname             nom de la màquina
-#   ignore list          llista d'usuaris ignorats
-#   join                 entrar (en un canal)
-#   keyword              contrasenya
-#   kick                 fer fora, expulsar
-#   nick                 sobrenom
-#   nickname             sobrenom
-#   notice               avís
-#   notify list          llista de notificació
-#   offline              no connectat, desconnectat
-#   online               connectat
-#   op                   operador
-#   plugin               connector
-#   topic                tema
-#   unban                readmetre, treure l'estatus de bandejat
-#   users list           llista d'usuaris
-#   wallops              missatges als operadors
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.4.1pre1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 21:04-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2004-11-28 01:39+0100\n"
 "Last-Translator: Ernest Adrogué Calveras <eadrogue@gmx.net>\n"
 "Language-Team: Catalan <ca@dodds.net>\n"

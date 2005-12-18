@@ -1,12 +1,13 @@
-# Translation of `xchat' messages to Korean.
-# Copyright (C) 1999-2005 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Korean language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Michael Kim <lavnrose@e.sarang.net>, 1999-2005.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-18 01:25-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-18 01:18-0700\n"
 "Last-Translator: Michael Kim <lavnrose@e.sarang.net>\n"
 "Language-Team: Korean <translation-team-ko@lists.sourceforge.net>\n"

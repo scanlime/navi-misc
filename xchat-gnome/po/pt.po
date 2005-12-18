@@ -1,5 +1,6 @@
-# Copyright (C) 2003, 2004 Free Software Foundation, Inc.
-# This file is distributed under the same license as the xchat package.
+# Translation of xchat-gnome into the Portuguese language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Vitor Hugo <vhda@mega.ist.utl.pt>, 2003.
 # Andre Lourenco <andrelourenco@yahoo.com>, 2004.
 #

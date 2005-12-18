@@ -1,11 +1,13 @@
-# Translation of aspell into the walloon language.
-# Copyright (C) 2004 THE PACKAGE'S COPYRIGHT HOLDER
+# Translation of xchat-gnome into the Walloon language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Pablo Saratxaga <pablo@walon.org>, 2004.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.0.7pre1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 21:04-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2004-04-05 18:55+0200\n"
 "Last-Translator: Pablo Saratxaga <pablo@walon.org>\n"
 "Language-Team: Walloon <linux-wa@walon.org>\n"

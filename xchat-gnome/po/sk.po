@@ -1,5 +1,6 @@
-# translation of xchat-2.4.0pre2.sk.po to Slovak
-# Copyright (C) 2003, 2004, 2005 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Slovak language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Martin Pekar <cortex@nextra.sk>, 2000.
 # Stanislav Visnovsky <visnovsky@nenya.ms.mff.cuni.cz>, 2002.
 # Stanislav Visnovsky <visnovsky@kde.org>, 2003.

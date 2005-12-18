@@ -1,6 +1,6 @@
-# translation of xchat-2.4.5.po to Slovenian
-# translation of xchat-2.0.8pre1.po to Slovenščina
-# Copyright (C) 2001, 2003, 2005 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Slovenian language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Roman Maurer [mailto:roman.maurer@amis.net, 2004.
 # Nejc Novak <nejc.novak@guest.arnes.si>, 2001.
 # Jure Čuhalev <gandalf@owca.info>, 2003.

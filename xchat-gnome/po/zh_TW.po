@@ -1,20 +1,20 @@
-# Traditional Chinese Messages for the xchat
-# Copyright (C) 2000, 01, 02, 03, 04, 05 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Chinese (Taiwan) language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Kevin Peng <kevpeng@ihug.co.nz>, 2000
 # Anthony Fok <foka@debian.org>, 2001
 # Zong Yaotang <zong@cosix.com.au>, 2002
 # Dalin <ayi880@hotmail.com>, 2003
 # Walte <webmaster@www.linuxfans.org>, 2003
 # Sarah Smith <sarahs@redhat.com>, 2003
-# Rongjun Mu <elanmu@sina.com>, 2003
-# Rongjun Mu <rongjunmu+i18n@gmail.com>, 2004
+# Rongjun Mu <rongjunmu+i18n@gmail.com>, 2003-2004
 # Wei-Lun Chao <chaoweilun@pcmail.com.tw>, 2005
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 23:46-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-17 23:39-0700\n"
 "Last-Translator: Wei-Lun Chao <chaoweilun@pcmail.com.tw>\n"
 "Language-Team: Chinese (traditional) <zh-l10n@linux.org.tw>\n"

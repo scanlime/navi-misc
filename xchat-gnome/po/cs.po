@@ -1,15 +1,14 @@
-# translation of xchat to Czech
-#
-# Copyright (C) 2004
-# Eva Mikulcikova <evmi@seznam.cz>,  Jozef Riha <zefo@seznam.cz>
-# from danix team (www.danix.cz)
-# GPL license
+# Translation of xchat-gnome into the Czech language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
+# Eva Mikulcikova <evmi@seznam.cz>, 2005
 # Jozef Riha <zefo@seznam.cz>, 2005
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: cs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 21:04-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-06-21 15:19+0200\n"
 "Last-Translator: Jozef Riha <zefo@seznam.cz>\n"
 "Language-Team: Slovak\n"

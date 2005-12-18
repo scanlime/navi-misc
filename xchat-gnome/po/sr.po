@@ -1,13 +1,10 @@
-# XChat translation file: Serbian language
-# Copyright (C) 2004 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Serbian language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
+# Zoltan Čala <zolika@sezampro.yu>, 1999.
+# Filip Miletić <f.miletic@ewi.tudelft.nl>, 2004, 2005.
+# Aleksandar Jelenak <jelenak@netlinkplus.net>, 2004, 2005.
 #
-# Translators:
-# o Zoltan Čala <zolika@sezampro.yu>, 1999.
-# o Filip Miletić <f.miletic@ewi.tudelft.nl>, 2004, 2005.
-# o Aleksandar Jelenak <jelenak@netlinkplus.net>, 2004, 2005.
-#
-# Note:
-# The sr@Latn.po is a machine generated file from sr.po
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.4.5\n"

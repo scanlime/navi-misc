@@ -1,15 +1,13 @@
-# xchat-gnome Lithuanian Translation.
-# Copyright (C) 2004 The Free Software Foundation.
+# Translation of xchat-gnome into the Lithuanian language
+# Copyright (C) 2004-2005 xchat-gnome team
 # This file is distributed under the same license as the xchat-gnome package.
 # Vaidrius Petrauskas <vaidrius@delfi.lt>, 2005.
-# Vaidrius Petrauskas <vaidrius@delfi.lt>, 2005.
-# 
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-18 01:25-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-18 01:25-0700\n"
 "Last-Translator:  <>\n"
 "Language-Team: English <en@li.org>\n"

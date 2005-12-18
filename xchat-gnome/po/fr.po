@@ -1,17 +1,18 @@
-# Xchat-gnome fr
-# Copyright (C) 2005
+# Translation of xchat-gnome into the French language
+# Copyright (C) 2004-2005 xchat-gnome team
 # This file is distributed under the same license as the xchat-gnome package.
-# Olivier Lê Thanh Duong, 2005.
 # Gissehel <gissehel@vachefolle.com>, 1999.
 # Jerome Couderc <j.couderc@ifrance.com>, 1999.
 # Olivier Berger <olberger@club-internet.fr>, 2001-2002.
 # Christophe Merlet (RedFox) <redfox@redfoxcenter.org>, 2003, 2004.
 # Arnaud Jambin <a.jambin@free.fr>, 2005.
+# Olivier Lê Thanh Duong, 2005.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome 0.8svn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 21:04-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-16 16:05+0100\n"
 "Last-Translator: Christophe Bliard <christophe.bliard@trux.info>\n"
 "Language-Team: French <olethanh@ulb.ac.be>\n"

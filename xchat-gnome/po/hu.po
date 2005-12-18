@@ -1,5 +1,6 @@
-# Hungarian translation of X-Chat
-# Copyright (C) 1999-2000, 2005 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Hungarian language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Horvath Szabolcs <horvathsz@penguinpowered.com>, 1999-2000, 2005.
 # Kata Konkoly <kata@linuxforum.hu>, 2005.
 # Gabor Kelemen <kelemeng@gnome.hu>, 2005.
@@ -8,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-18 00:51-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-18 00:35-0700\n"
 "Last-Translator: Gabor Kelemen <kelemeng@gnome.hu>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"

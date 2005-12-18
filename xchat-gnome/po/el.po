@@ -1,5 +1,7 @@
-# Greek translations for X-Chat package.
-# Copyright (C) Dokianakis Fanis<madf@hellug.gr>, 2000 - 2003.
+# Translation of xchat-gnome into the Greek language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
+# Dokianakis Fanis<madf@hellug.gr>, 2000-2003.
 # Sarantis Paskalis <paskalis@di.uoa.gr>
 # Stavros Giannouris <stavrosg2002@freemail.gr>, 2005.
 #
@@ -7,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 21:04-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-11-16 18:33+0200\n"
 "Last-Translator: Stavros Giannouris <stavrosg2002@freemail.gr>\n"
 "Language-Team: Greek <nls@tux.hellug.gr>\n"

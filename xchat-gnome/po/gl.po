@@ -1,14 +1,13 @@
-# translation of xchat-gnome to Galego
-# This file is put in the public domain.
+# Translation of xchat-gnome into the Galican language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Ignacio Casal Quinteiro <nacho.resa@gmail.com>, 2005.
-# Ignacio Casal Quinteiro <nacho.resa@gmail.com>, 2005.
-# 
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-18 00:21-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-18 00:11-0700\n"
 "Last-Translator:  <>\n"
 "Language-Team: English <en@li.org>\n"

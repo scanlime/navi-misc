@@ -1,9 +1,8 @@
-# Vietnamese translation for xchat-gnome
-# This file is put in the public domain.
+# Translation of xchat-gnome into the Vietnamese language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Clytie Siddall <clytie@riverland.net.au>, 2005.
-# Clytie Siddall <clytie@riverland.net.au>, 2005.
-# 
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"

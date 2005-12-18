@@ -1,12 +1,13 @@
-# xchat for Latvian.
-# Copyright (C) 2005 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Latvian language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Artis Trops <hornet@navigators>, 2001.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-18 01:25-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-18 01:11-0700\n"
 "Last-Translator: Artis Trops <hornet@navigators.lv>\n"
 "Language-Team: Latvian <ll10nt@os.lv>\n"
