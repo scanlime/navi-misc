@@ -9,16 +9,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.4.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 21:04-0700\n"
-"PO-Revision-Date: 2005-08-09 01:38+0200\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
+"PO-Revision-Date: 2005-12-18 03:38-0700\n"
 "Last-Translator: Jure Cuhalev <gandalf@owca.info>\n"
 "Language-Team: Slovenian <translation-team-sl@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.10\n"
-"Plural-Forms:  nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
-"n%100==4 ? 2 : 3);\n"
+"Plural-Forms:  nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 "
+"|| \n"
 
 #: ../data/channel-list.glade.h:1
 msgid "<span weight=\"bold\">List Filtering</span>"
@@ -29,14 +28,12 @@ msgid "Apply Text Filter To:    "
 msgstr ""
 
 #: ../data/channel-list.glade.h:3
-#, fuzzy
 msgid "Channel _Name"
-msgstr "Ime kanala"
+msgstr ""
 
 #: ../data/channel-list.glade.h:4
-#, fuzzy
 msgid "Channel _Topic"
-msgstr "Kanal"
+msgstr ""
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
@@ -51,28 +48,24 @@ msgid "Minimum Users:"
 msgstr "Najmanj uporabnikov: "
 
 #: ../data/channel-list.glade.h:8
-#, fuzzy
 msgid "Save List _As"
-msgstr "Shrani kot"
+msgstr ""
 
 #: ../data/channel-list.glade.h:9
-#, fuzzy
 msgid "Text Filter:"
-msgstr "Izpiši datoteko z besedilom"
+msgstr ""
 
 #: ../data/connect-dialog.glade.h:1
 msgid "C_onnect"
 msgstr "P_oveži se"
 
 #: ../data/dcc-accept.glade.h:1
-#, fuzzy
 msgid "_Accept"
-msgstr "Sprejmi"
+msgstr ""
 
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
-#, fuzzy
 msgid "File Transfers"
-msgstr "Prenosi datotek"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
@@ -87,60 +80,52 @@ msgid "<span weight=\"bold\">User Info</span>"
 msgstr ""
 
 #: ../data/irc-network-editor.glade.h:4
-#, fuzzy
 msgid "Character _encoding:"
-msgstr "Kodni nabor:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Network Settings"
 msgstr "Nastavitve omrežja"
 
 #: ../data/irc-network-editor.glade.h:6
-#, fuzzy
 msgid "Server _Password:"
-msgstr "Geslo strežnika:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:7
-#, fuzzy
 msgid "Servers"
-msgstr "Strežnik"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:8
-#, fuzzy
 msgid "Use _global user settings"
-msgstr "Uporabi splošne podatke o uporabniku"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:9
 msgid "Use _these user settings:"
 msgstr ""
 
 #: ../data/irc-network-editor.glade.h:10
-#, fuzzy
 msgid "User and Channels"
-msgstr "Zapusti kanal"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:11
-#, fuzzy
 msgid "_Automatically connect to network"
-msgstr "Samodejna povezava ob zagonu"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:12
 msgid "_Cycle until connected"
 msgstr ""
 
 #: ../data/irc-network-editor.glade.h:13
-#, fuzzy
 msgid "_Name:"
-msgstr "Ime"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Nick name:"
 msgstr "Vzdevek:"
 
 #: ../data/irc-network-editor.glade.h:15
-#, fuzzy
 msgid "_Real Name:"
-msgstr "Pravo ime:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:16
 msgid "_Use secure connection (SSL)"
@@ -191,57 +176,48 @@ msgid "<span weight=\"bold\">mIRC Colors</span>"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:13
-#, fuzzy
 msgid "A_way message:"
-msgstr "Novo sporočilo:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:14
-#, fuzzy
 msgid "Auto-accept DCC Chat"
-msgstr "Samodejno sprejmi neposredni pogovor"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:15
-#, fuzzy
 msgid "Auto-accept DCC File Transfers"
-msgstr "Samodejno sprejmi datoteke"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:16
-#, fuzzy
 msgid "Background _image"
-msgstr "Slika za ozadje:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:17
-#, fuzzy
 msgid "Background mark:"
-msgstr "Slika za ozadje:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:19
-#, fuzzy
 msgid "Convert spaces to underscores in filenames"
-msgstr "Pretvori presledke v podčrtaje"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:20
 msgid "Download files to:"
 msgstr "Prenesi datoteke v:"
 
 #: ../data/preferences-dialog.glade.h:21
-#, fuzzy
 msgid "Enter extra words to trigger highlighting"
-msgstr "Dodatne besede za osvetlitev:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:22
-#, fuzzy
 msgid "Foreground mark:"
-msgstr "Ospredje:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:23
-#, fuzzy
 msgid "Get IP Address From Server"
-msgstr "Pridobi moj podatke o mojem  IP od strežnika IRC"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:24
 msgid "Global receive KB/s: "
@@ -268,39 +244,32 @@ msgid "Move completed files to:"
 msgstr "Premakni dokončane datoteke v:"
 
 #: ../data/preferences-dialog.glade.h:30
-#, fuzzy
 msgid "Preferences"
-msgstr "Nastavitve ..."
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:31
-#, fuzzy
 msgid "Real na_me:"
-msgstr "Pravo ime:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:32
-#, fuzzy
 msgid "Save sender nickname in filenames"
-msgstr "Shrani vzdevek v imena datotek"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:33
-#, fuzzy
 msgid "Select A File"
-msgstr "Izberite datoteko s sliko"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:34
-#, fuzzy
 msgid "Select Completed Files Directory"
-msgstr "Premakni dokončane datoteke v:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:35
-#, fuzzy
 msgid "Select Download Directory"
-msgstr "Datoteke in imeniki"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:36
-#, fuzzy
 msgid "Show _timestamps"
-msgstr "Dnevnike opremi s časom"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:37
 msgid ""
@@ -313,61 +282,52 @@ msgid "Use System Terminal Font"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:39
-#, fuzzy
 msgid "Use This IP Address:"
-msgstr "Naslov IP DCC:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:40
-#, fuzzy
 msgid "Use this font:"
-msgstr "Seznam uporabnikov"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:41
-#, fuzzy
 msgid "_Background color:"
-msgstr "Ozadje:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:99
 msgid "_Edit"
 msgstr "Uredi"
 
 #: ../data/preferences-dialog.glade.h:43
-#, fuzzy
 msgid "_Foreground color:"
-msgstr "Ospredje:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:44
-#, fuzzy
 msgid "_Nickname:"
-msgstr "Vzdevek:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:46
-#, fuzzy
 msgid "_Part message:"
-msgstr "Novo sporočilo:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:47
-#, fuzzy
 msgid "_Quit message:"
-msgstr "Desno sporočilo"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:49
-#, fuzzy
 msgid "_Transparent background"
-msgstr "Prozorno ozadje"
+msgstr ""
 
 #: ../data/setup-dialog.glade.h:1
-#, fuzzy
 msgid "Nick Name:"
-msgstr "Vzdevek:"
+msgstr ""
 
 #: ../data/setup-dialog.glade.h:2
 msgid "Real Name:"
@@ -390,31 +350,27 @@ msgid "xchat-gnome setup"
 msgstr ""
 
 #: ../data/topic-change.glade.h:1
-#, fuzzy
 msgid "Change"
-msgstr "Kanal"
+msgstr ""
 
 #.
 #. GNOME_PARAM_GOPTION_CONTEXT, context,
 #.
 #: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:84
-#, fuzzy
 msgid "IRC Chat"
-msgstr "Klepet"
+msgstr ""
 
 #: ../data/xchat-gnome.desktop.in.h:2
 msgid "XChat-GNOME IRC Chat"
 msgstr ""
 
 #: ../data/xchat-gnome.glade.h:1
-#, fuzzy
 msgid "Close this discussion"
-msgstr "Zapri to okno/zavihek"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:2
-#, fuzzy
 msgid "Enter a new nickname"
-msgstr "Vnesite nov vzdevek:"
+msgstr ""
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
@@ -426,9 +382,8 @@ msgid "Error"
 msgstr "Napaka"
 
 #: ../data/xchat-gnome.glade.h:4
-#, fuzzy
 msgid "The new nickname"
-msgstr "Vnesite nov vzdevek:"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:805
 #: ../src/fe-gnome/channel-list.c:311
@@ -436,9 +391,8 @@ msgid "Users"
 msgstr "Uporabniki"
 
 #: ../data/xchat-gnome.glade.h:6
-#, fuzzy
 msgid "nickname"
-msgstr "Vzdevek"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:164
 msgid "Screensaver activated, going away."
@@ -449,30 +403,25 @@ msgid "Screensaver is off, welcome back"
 msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:212
-#, fuzzy
 msgid "Auto Away"
-msgstr "Odsoten"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:213
-#, fuzzy
 msgid "Automatically go away / come back"
-msgstr "Samodejno prekine odsotnost"
+msgstr ""
 
 #. Hook up our callbacks.
 #: ../plugins/autoaway/autoaway.c:231
-#, fuzzy
 msgid "Disconnected"
-msgstr "Odstrani povezavo"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:232
-#, fuzzy
 msgid "Connected"
-msgstr "Poveži se"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:261
-#, fuzzy
 msgid "Auto-away plugin unloaded\n"
-msgstr "pokaži imenik s samodejno zagnanimi vtičniki"
+msgstr ""
 
 #: ../plugins/dbus/apps_xchat_url_handler.schemas.in.h:1
 msgid "Run xchat-gnome in a terminal?"
@@ -500,12 +449,9 @@ msgid "Couldn't connect to session bus : %s\n"
 msgstr ""
 
 #: ../plugins/dbus/dbus-plugin.c:353
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to acquire %s: %s\n"
 msgstr ""
-"Ne morem odpreti pisave:\n"
-"\n"
-"%s"
 
 #: ../plugins/dbus/dbus-plugin.c:401
 #, c-format
@@ -521,9 +467,8 @@ msgid "irc://server:port/channel"
 msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:42
-#, fuzzy
 msgid "Execute a xchat command"
-msgstr "Ukaz za povezavo:"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "\"Command to execute\""
@@ -542,37 +487,32 @@ msgid "Change the context to the channel"
 msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:44
-#, fuzzy
 msgid "channel"
-msgstr "Kanal"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
 msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
-#, fuzzy
 msgid "server"
-msgstr "Strežnik"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
 msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
-#, fuzzy
 msgid "id"
-msgstr "Poišči"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
-#, fuzzy
 msgid "Get settings from xchat"
-msgstr "Shrani nastavitve ob izhodu"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
-#, fuzzy
 msgid "name"
-msgstr "Ime"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:79
 #, c-format
@@ -587,44 +527,24 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:116
 #: ../plugins/dbus/xchat-gnome-remote.c:130
-#, fuzzy
 msgid "Failed to complete command"
 msgstr ""
-"Ne morem odpreti pisave:\n"
-"\n"
-"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:125
-#, fuzzy
 msgid "Failed to complete SetContext"
 msgstr ""
-"Ne morem odpreti pisave:\n"
-"\n"
-"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:135
-#, fuzzy
 msgid "Failed to complete print"
 msgstr ""
-"Ne morem odpreti pisave:\n"
-"\n"
-"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:142
-#, fuzzy
 msgid "Failed to complete GetInfo"
 msgstr ""
-"Ne morem odpreti pisave:\n"
-"\n"
-"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:155
-#, fuzzy
 msgid "Failed to complete GetPrefs"
 msgstr ""
-"Ne morem odpreti pisave:\n"
-"\n"
-"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:159
 #, c-format
@@ -632,9 +552,8 @@ msgid "%s doesn't exist\n"
 msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:36
-#, fuzzy
 msgid "Network Monitor"
-msgstr "Omrežne nastavitve"
+msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
@@ -646,33 +565,28 @@ msgid "%s loaded successfully\n"
 msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
-#, fuzzy
 msgid "Orientation"
-msgstr "Argentina"
+msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
-#, fuzzy
 msgid "The orientation of the tray."
-msgstr "Vzdevek osebe"
+msgstr ""
 
 #: ../plugins/notification/notification.c:148
-#, fuzzy
 msgid "Notification"
-msgstr "Prenešeno"
+msgstr ""
 
 #: ../plugins/notification/notification.c:149
 msgid "A notification area plugin."
 msgstr ""
 
 #: ../plugins/notification/notification.c:235
-#, fuzzy
 msgid "Notification plugin loaded.\n"
-msgstr "Ta dodatek ne obstaja.\n"
+msgstr ""
 
 #: ../plugins/notification/notification.c:250
-#, fuzzy
 msgid "Notification plugin unloaded.\n"
-msgstr "Ta dodatek ne obstaja.\n"
+msgstr ""
 
 #: ../plugins/notification/notification.schemas.in.h:1
 msgid "Keep icon in tray at all times"
@@ -690,15 +604,15 @@ msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:89
 #: ../plugins/notify-osd/notify-osd.c:117
-#, fuzzy, c-format
+#, c-format
 msgid "Message in %s"
-msgstr "Sporočilo"
+msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:91
 #: ../plugins/notify-osd/notify-osd.c:119
-#, fuzzy, c-format
+#, c-format
 msgid "Message from %s"
-msgstr "Sporočilo"
+msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:140
 #, c-format
@@ -714,9 +628,8 @@ msgid "OSD initialization failed\n"
 msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:45
-#, fuzzy
 msgid "xchat URL scraper"
-msgstr "X-Chat: Lovilec URL-jev"
+msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:823
 msgid "Time"
@@ -737,9 +650,8 @@ msgid "URL"
 msgstr "URL"
 
 #: ../plugins/url_scraper/urlscraper.c:155
-#, fuzzy
 msgid "URL Scraper"
-msgstr "Lovilec URL ..."
+msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:156
 msgid "Grabs URLs and puts them in a separate window for easy viewing."
@@ -766,9 +678,8 @@ msgid "URL Scraper history length"
 msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.schemas.in.h:2
-#, fuzzy
 msgid "URL Scraper show timestamps"
-msgstr "Dnevnike opremi s časom"
+msgstr ""
 
 #: ../src/common/cfgfiles.c:350
 msgid "Cannot create ~/.xchat2"
@@ -1171,9 +1082,8 @@ msgid "NCTCP <nick> <message>, Sends a CTCP notice"
 msgstr "NCTCP <vzdevek> <sporočilo> pošlje obvestilo CTCP"
 
 #: ../src/common/outbound.c:3206
-#, fuzzy
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
-msgstr "NEWSERVER <gostitelj> [<vrata>]"
+msgstr ""
 
 #: ../src/common/outbound.c:3207
 msgid "NICK <nickname>, sets your nick"
@@ -1869,199 +1779,161 @@ msgstr ""
 "%s"
 
 #: ../src/common/textevents.h:6
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 added to notify list."
-msgstr "%C22*%O$t$1 dodan na seznam za obveščanje."
+msgstr ""
 
 #: ../src/common/textevents.h:9
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 Banlist: %C3$4 %C4$2 %C5$3%O"
-msgstr "%C22*%O$t$1 Seznam prepovedi:%C19 $4%C20 $2%C21 $3"
+msgstr ""
 
 #: ../src/common/textevents.h:12
-#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(You are banned)."
-msgstr "%C22*%O$tNe morem se pridružiti%C26 %B$1 %O(Imate prepoved)."
+msgstr ""
 
 #: ../src/common/textevents.h:18
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 is now known as $2"
-msgstr "%C22*%O$t$1 se odslej imenuje $2"
+msgstr ""
 
 #: ../src/common/textevents.h:21
-#, fuzzy
 msgid "%C13*%O$t$1 $2%O"
-msgstr "%C16*%O$t$1%O"
+msgstr ""
 
 #: ../src/common/textevents.h:24
-#, fuzzy
 msgid "%C13*%O$t%C8%B$1%B%O $2%O"
-msgstr "%C21*%O$t%C21%B$1%O%C21 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:27
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets ban on $2"
-msgstr "%C22*%O$t$1 je nastavil prepoved na $2"
+msgstr ""
 
 #: ../src/common/textevents.h:30
-#, fuzzy
 msgid "-%C10-%C11-%O$tChannel $1 created on $2"
-msgstr "%C22*%O$tKanal $1 ustvarjen $2"
+msgstr ""
 
 #: ../src/common/textevents.h:33
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
-msgstr "%C22*%O$t%C26$1%O odstrani status polovični-op vzdevku%C26 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:36
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
-msgstr "%C22*%O$t%C26$1%O odstrani status op vzdevku%C26 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:39
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
-msgstr "%C22*%O$t%C26$1%O odstrani glasovni privilegij vzdevku %C26 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:42
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
-msgstr "%C22*%O$t$1 je nastavil izjemo za $2"
+msgstr ""
 
 #: ../src/common/textevents.h:45
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
-msgstr "%C22*%O$t%C26$1%O dodeli status polovični-op vzdevku%C26 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:48
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets invite on $2"
-msgstr "%C22*%O$t$1 je povabil za $2"
+msgstr ""
 
 #: ../src/common/textevents.h:51
-#, fuzzy
 msgid "%UChannel          Users   Topic%O"
-msgstr "%UKanal         Uporabnikov   Tema"
+msgstr ""
 
 #: ../src/common/textevents.h:54 ../src/common/textevents.h:306
-#, fuzzy
 msgid "%C2<%O$1%C2>%O$t$2%O"
-msgstr "%C28-%C29$1%C28-%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:57
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets mode $2$3 $4"
-msgstr "%C22*%O$t$1 je nastavil izbiro na $2$3 $4"
+msgstr ""
 
 #: ../src/common/textevents.h:60
-#, fuzzy
 msgid "-%C10-%C11-%O$tChannel $1 modes: $2"
-msgstr "%C22*%O$t%C22Možnosti kanala $1 : $2"
+msgstr ""
 
 #: ../src/common/textevents.h:63
-#, fuzzy
 msgid "%C2<%C8%B$1%B%C2>%O$t$2%O"
-msgstr "%C28-%C29$1%C28-%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:66
-#, fuzzy
 msgid "%C12-%C13$1/$2%C12-%O$t$3%O"
-msgstr "%C28-%C29$1/$2%C28-%O$t$3"
+msgstr ""
 
 #: ../src/common/textevents.h:69
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
-msgstr "%C22*%O$t%C26$1%O dodeli status op vzdevku%C26 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:72
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
-msgstr "%C22*%O$t$1 je odstranil izjemo za $2"
+msgstr ""
 
 #: ../src/common/textevents.h:75
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes invite on $2"
-msgstr "%C22*%O$t$1 je odstranil povabilo za $2"
+msgstr ""
 
 #: ../src/common/textevents.h:78
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel keyword"
-msgstr "%C22*%O$t$1 je odstranil ključ na kanalu"
+msgstr ""
 
 #: ../src/common/textevents.h:81
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes user limit"
-msgstr "%C22*%O$t$1 je odstranil omejitev uporabnikov"
+msgstr ""
 
 #: ../src/common/textevents.h:84
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets channel keyword to $2"
-msgstr "%C22*%O$t$1 je nastavil ključ na $2"
+msgstr ""
 
 #: ../src/common/textevents.h:87
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets channel limit to $2"
-msgstr "%C22*%O$t$1 je nastavil omejitev uporabnikov na $2"
+msgstr ""
 
 #: ../src/common/textevents.h:90
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes ban on $2"
-msgstr "%C22*%O$t$1 je odstranil prepoved za $2"
+msgstr ""
 
 #: ../src/common/textevents.h:93
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives voice to $2"
-msgstr "%C22*%O$t%C26$1%O dodeli glasovni privilegij vzdevku %C11$2"
+msgstr ""
 
 #: ../src/common/textevents.h:96
-#, fuzzy
 msgid "-%C10-%C11-%O$tConnected. Now logging in.."
-msgstr "%C22*%O$t%C22Povezan. Prijava poteka..."
+msgstr ""
 
 #: ../src/common/textevents.h:99
-#, fuzzy
 msgid "-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
-msgstr "%C22*%O$t%C22Povezujem se z $1 ($2), vrata $3%O..."
+msgstr ""
 
 #: ../src/common/textevents.h:102
-#, fuzzy
 msgid "-%C10-%C11-%O$tConnection failed. Error: $1"
-msgstr "%C21*%O$t%C21Povezava spodletela. Napaka: $1"
+msgstr ""
 
 #: ../src/common/textevents.h:105
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2"
-msgstr "%C22*%O$tPrejet CTCP $1 od $2"
+msgstr ""
 
 #: ../src/common/textevents.h:108
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2 (to $3)"
-msgstr "%C22*%O$tprejet CTCP $1 od $2 (za $3)"
+msgstr ""
 
 #: ../src/common/textevents.h:111
-#, fuzzy
 msgid "%C3>%O$1%C3<%O$tCTCP $2%O"
-msgstr "%C19>%O$1%C19<%O$tCTCP $2"
+msgstr ""
 
 #: ../src/common/textevents.h:114
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP Sound $1 from $2"
-msgstr "%C22*%O$tPrejet CTCP zvok $1 od $2"
+msgstr ""
 
 #: ../src/common/textevents.h:117
 msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
 msgstr "%C22*%O$tPrejet CTCP zvok $1 od $2 (za $3)"
 
 #: ../src/common/textevents.h:120
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
-msgstr "%C22*%O$tDCC CHAT za %C26$1%O opuščen."
+msgstr ""
 
 #: ../src/common/textevents.h:123
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr "%C22*%O$tDCC CHAT povezava z %C26$1 %C30[%O$2%C30] vzpostavljena"
+msgstr ""
 
 #: ../src/common/textevents.h:126
 msgid ""
@@ -2069,29 +1941,24 @@ msgid ""
 msgstr ""
 
 #: ../src/common/textevents.h:129
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
-msgstr "%C22*%O$t$1 pošilja ponudbo za DCC POGOVOR"
+msgstr ""
 
 #: ../src/common/textevents.h:132
-#, fuzzy
 msgid "-%C10-%C11-%O$tOffering DCC CHAT to $1"
-msgstr "%C22*%O$tPonujam DCC POGOVOR $1"
+msgstr ""
 
 #: ../src/common/textevents.h:135
-#, fuzzy
 msgid "-%C10-%C11-%O$tAlready offering CHAT to $1"
-msgstr "%C22*%O$tŽe ponujam DCC POGOVOR $1"
+msgstr ""
 
 #: ../src/common/textevents.h:138
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 connect attempt to %C11$2%O failed (err=$3)."
-msgstr "%C22*%O$tDCC $1 poskus povezave z %C26 $2%O  ni uspel (napaka=$3)."
+msgstr ""
 
 #: ../src/common/textevents.h:141
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived '$1%O' from $2"
-msgstr "%C22*%O$tPrejet '$1%O' od $2"
+msgstr ""
 
 #: ../src/common/textevents.h:144
 #, c-format
@@ -2099,132 +1966,106 @@ msgid "%C24,18 Type  To/From    Status  Size    Pos     File         "
 msgstr "%C24,18 Vrsta Od/Za      Stanje  Velikost Prenešeno Datoteka         "
 
 #: ../src/common/textevents.h:147
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tReceived a malformed DCC request from %C11$1%O.%010-%C10-%C11-"
 "%O$tContents of packet: $2"
 msgstr ""
-"%C22*%O$tPrejet pomanjkljiv zahtevek DCC od %C26$1%O.%010%C22*%O$tVsebina "
-"paketa: $2"
 
 #: ../src/common/textevents.h:150
-#, fuzzy
 msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
-msgstr "%C22*%O$tPonujam %C26 $1%O%C26 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:153
-#, fuzzy
 msgid "-%C10-%C11-%O$tNo such DCC offer."
-msgstr "%C22*%O$tTak ponujen DCC ne obstaja."
+msgstr ""
 
 #: ../src/common/textevents.h:156
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV %C11$2%O to %C11$1%O aborted."
-msgstr "%C22*%O$tDCC RECV%C26 $2%O za%C26 $1%O opuščen."
+msgstr ""
 
 #: ../src/common/textevents.h:159
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O cps%"
 "C14]%O."
 msgstr ""
-"%C22*%O$tDCC RECV%C26 $1%O od%C26 $3%O je končano %C30[%C26$4%O cps%C30]%O."
 
 #: ../src/common/textevents.h:162
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC RECV connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr "%C22*%O$tDCC RECV povezava vzspostavljena z %C26 $1 %C30[%O$2%C30]"
+msgstr ""
 
 #: ../src/common/textevents.h:165
 msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
 msgstr ""
 
 #: ../src/common/textevents.h:168
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
-msgstr "-%C10-%C11-%O$tDCC PREJEMANJE:  Ne morem odpreti $1 za pisanje ($2)."
+msgstr ""
 
 #: ../src/common/textevents.h:171
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tThe file %C11$1%C already exists, saving it as %C11$2%O "
 "instead."
 msgstr ""
-"%C22*%O$tDatoteka%C26 $1%C že obstaja, zato jo shranjujem kot %C26 $2%O."
 
 #: ../src/common/textevents.h:174
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
-msgstr "%C22*%O$t%C26$1 %O zahteva nadaljevanje%C26 $2 %Cod%C26 $3%C."
+msgstr ""
 
 #: ../src/common/textevents.h:177
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC SEND %C11$2%O to %C11$1%O aborted."
-msgstr "%C22*%O$tDCC SEND %C26 $2%O za%C26 $1%O opuščen."
+msgstr ""
 
 #: ../src/common/textevents.h:180
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%C14]%"
 "O."
 msgstr ""
-"%C22*%O$tDCC PRENAŠANJE%C26 $1%O za%C26 $2%O končano %C30[%C26$3%O cps%C30]%"
-"O."
 
 #: ../src/common/textevents.h:183
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC SEND connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr "%C22*%O$tDCC SEND povezava vzspostavljena z %C26 $1 %C30[%O$2%C30]"
+msgstr ""
 
 #: ../src/common/textevents.h:186
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
 msgstr ""
 
 #: ../src/common/textevents.h:189
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
-msgstr "%C22*%O$t%C26$1 %Oponuja%C26 $2 %O(%C26$3 %Obajtov)"
+msgstr ""
 
 #: ../src/common/textevents.h:192
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Cstalled - aborting."
-msgstr "-%C22*%O$tDCC $1%C26 $2 %Oza%C26 $3 %Cje obstal - opuščam."
+msgstr ""
 
 #: ../src/common/textevents.h:195
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Ctimed out - aborting."
-msgstr "%C22*%O$tDCC $1%C26 $2 %Oza%C26 $3 %Očas se je iztekel - opuščam."
+msgstr ""
 
 #: ../src/common/textevents.h:198
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 deleted from notify list."
-msgstr "%C22*%O$t$1 izbrisan iz seznama za obveščanje."
+msgstr ""
 
 #: ../src/common/textevents.h:201
-#, fuzzy
 msgid "-%C10-%C11-%O$tDisconnected ($1)."
-msgstr "%C22*%O$tPovezava prekinjena ($1)."
+msgstr ""
 
 #: ../src/common/textevents.h:204
-#, fuzzy
 msgid "-%C10-%C11-%O$tFound your IP: [$1]"
-msgstr "%C22*%O$tVaš IP najden: [$1]"
+msgstr ""
 
 #: ../src/common/textevents.h:207
 msgid "$1$t$2"
 msgstr "$1$t$2"
 
 #: ../src/common/textevents.h:210
-#, fuzzy
 msgid "%O%C11$1%O added to ignore list."
-msgstr "%O%C26$1%O dodan na seznam za spregledovanje."
+msgstr ""
 
 #: ../src/common/textevents.h:213
-#, fuzzy
 msgid "Ignore on %C11$1%O changed."
-msgstr "Spregledovanje na %C26$1%O spremenjeno."
+msgstr ""
 
 #: ../src/common/textevents.h:216
 #, c-format
@@ -2238,297 +2079,238 @@ msgstr ""
 "%C24,18 Maska gostitelja                  PRIV NOTI CHAN CTCP DCC  INVI UNIG "
 
 #: ../src/common/textevents.h:222
-#, fuzzy
 msgid "%O%C11$1%O removed from ignore list."
-msgstr "%O%C26$1%O odstranjen iz seznama za spregledovanje."
+msgstr ""
 
 #: ../src/common/textevents.h:225
 msgid "  Ignore list is empty."
 msgstr "  Seznam za spregledovanje je prazen."
 
 #: ../src/common/textevents.h:228
-#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
 msgstr ""
-"%C22*%O$tNe morem se pridružiti%C26 %B$1 %O(Pridružite se lahko samo na "
-"povabilo)."
 
 #: ../src/common/textevents.h:231
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
-msgstr "%C22*%O$t%C26 $2%C vas je povabil na %C26 $1%O"
+msgstr ""
 
 #: ../src/common/textevents.h:234
-#, fuzzy
 msgid "-%C10-%C11>%O$t%B$1%B %C14(%C10$3%C14)%C has joined $2"
-msgstr "%C19*%O$t%C19%B$1 %B($3) se je pridružil $2"
+msgstr ""
 
 #: ../src/common/textevents.h:237
-#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Requires keyword)."
 msgstr ""
-"%C22*%O$tNe morem se pridružiti%C26 %B$1 %O(Zahtevana je skrivna beseda)."
 
 #: ../src/common/textevents.h:240
-#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has kicked $2 from $3 ($4%O)"
-msgstr "%C21*%O$t%C21$1 je brcnil $2 iz $3 ($4%O%C21)"
+msgstr ""
 
 #: ../src/common/textevents.h:243
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been killed by $1 ($2%O)"
-msgstr "%C22*%O$t$1ˇ($2%O%C22) vas je ubil"
+msgstr ""
 
 #: ../src/common/textevents.h:246 ../src/common/textevents.h:270
-#, fuzzy
 msgid "%C3>%O$1%C3<%O$t$2%O"
-msgstr "%C19>%O$1%C19<%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:249 ../src/common/textevents.h:327
 #: ../src/common/textevents.h:333 ../src/common/textevents.h:336
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1%O"
-msgstr "%C16*%O$t$1%O"
+msgstr ""
 
 #: ../src/common/textevents.h:252
-#, fuzzy
 msgid "-%C10-%C11-%O$tMOTD Skipped."
-msgstr "%C22*%O$t%C22MOTD preskočen."
+msgstr ""
 
 #: ../src/common/textevents.h:255
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 already in use. Retrying with $2.."
-msgstr "%C22*%O$t$1 je že v uporabi. Poskušam z $2..."
+msgstr ""
 
 #: ../src/common/textevents.h:258
-#, fuzzy
 msgid "-%C10-%C11-%O$tNickname already in use. Use /NICK to try another."
 msgstr ""
-"%C22*%O$tVzdevek že v uporabi. Uporabite /NICK, da si izberete drugega."
 
 #: ../src/common/textevents.h:261
-#, fuzzy
 msgid "-%C10-%C11-%O$tNo such DCC."
-msgstr "%C22*%O$tTa DCCja ne obstaja."
+msgstr ""
 
 #: ../src/common/textevents.h:264
-#, fuzzy
 msgid "-%C10-%C11-%O$tNo process is currently running"
-msgstr "%C22*%O$tTrenutno ni tekočih procesov"
+msgstr ""
 
 #: ../src/common/textevents.h:267
-#, fuzzy
 msgid "%C12-%C13$1%C12-%O$t$2%O"
-msgstr "%C28-%C29$1%C28-%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:273
-#, fuzzy
 msgid "-%C10-%C11-%O$tNotify list is empty."
-msgstr "Seznam za obveščanje je prazen."
+msgstr ""
 
 #: ../src/common/textevents.h:276
 msgid "%C24,18 %B  Notify List                           "
 msgstr "%C24,18 %B  Seznam za obveščanje                           "
 
 #: ../src/common/textevents.h:279
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 users in notify list."
-msgstr "%C22*%O$t$1 uporabniki v seznamu za obveščanje."
+msgstr ""
 
 #: ../src/common/textevents.h:282
-#, fuzzy
 msgid "-%C10-%C11-%O$tNotify: $1 is offline ($2)."
-msgstr "%C22*%O$tObvestilo: $1 je odšel ($2)."
+msgstr ""
 
 #: ../src/common/textevents.h:285
-#, fuzzy
 msgid "-%C10-%C11-%O$tNotify: $1 is online ($2)."
-msgstr "%C22*%O$tObvestilo: $1 je prisoten ($2)."
+msgstr ""
 
 #: ../src/common/textevents.h:291
-#, fuzzy
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3"
-msgstr "%C23*%O$t%C23$1 (%O%C23$2) je zapustil $3"
+msgstr ""
 
 #: ../src/common/textevents.h:294
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3 %C14(%O$4%C14)%O"
 msgstr ""
 
 #: ../src/common/textevents.h:297
-#, fuzzy
 msgid "-%C10-%C11-%O$tPing reply from $1 : $2 second(s)"
-msgstr "%C22*%O$tPing odgovor od $1 : $2 sekund"
+msgstr ""
 
 #: ../src/common/textevents.h:300
-#, fuzzy
 msgid "-%C10-%C11-%O$tNo ping reply for $1 seconds, disconnecting."
-msgstr "%C22*%O$tNi ping odgovora že $1 sekund, prekinjam povezavo."
+msgstr ""
 
 #: ../src/common/textevents.h:303
-#, fuzzy
 msgid "%C12*%C13$1%C12*$t%O$2%O"
-msgstr "%C28*%C29$3$1%C28*$t%O$2"
+msgstr ""
 
 #: ../src/common/textevents.h:309
-#, fuzzy
 msgid "-%C10-%C11-%O$tA process is already running"
-msgstr "%C22*%O$tProces že teče"
+msgstr ""
 
 #: ../src/common/textevents.h:312
-#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has quit %C14(%O$2%O%C14)%O"
-msgstr "%C23*%O$t%C23$1 je odšel (%O%C23%B%B$2%O%C23)"
+msgstr ""
 
 #: ../src/common/textevents.h:315
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets modes%B %C14[%O$2%B%C14]%O"
-msgstr "%C22*%O$t$1 je nastavil možnosti%B %C30[%O$2%B%C30]"
+msgstr ""
 
 #: ../src/common/textevents.h:318
-#, fuzzy
 msgid "%C12-%C13$1/Wallops%C12-%O$t$2%O"
-msgstr "%C28-%C29$1/Wallops%C28-%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:321
-#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up IP number for%C11 $1%O.."
-msgstr "%C22*%O$tIščem IP številko za%C26 $1%O..."
+msgstr ""
 
 #: ../src/common/textevents.h:324
-#, fuzzy
 msgid "-%C10-%C11-%O$tConnected."
-msgstr "%C22*%O$t%C22Povezan."
+msgstr ""
 
 #: ../src/common/textevents.h:330
-#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up %C11$1%C.."
-msgstr "%C22*%O$t%C22Iščem $1"
+msgstr ""
 
 #: ../src/common/textevents.h:339
-#, fuzzy
 msgid "-%C10-%C11-%O$tStopped previous connection attempt (pid=$1)"
-msgstr "%C22*%O$tZadnji poskus povezovanja je ustavljen (pid=$1)"
+msgstr ""
 
 #: ../src/common/textevents.h:342
-#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C is %C11$2%O"
-msgstr "%C29*%O$t%C29Tema za $1%C %C29 je $2"
+msgstr ""
 
 #: ../src/common/textevents.h:345
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 has changed the topic to: $2%O"
-msgstr "%C22*%O$t$1 je spremenil temo v: $2"
+msgstr ""
 
 #: ../src/common/textevents.h:348
-#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
-msgstr "%C29*%O$t%C29Temo za $1%C %C29 je nastavil $2%C %C29obˇ$3"
+msgstr ""
 
 #: ../src/common/textevents.h:351
-#, fuzzy
 msgid "-%C10-%C11-%O$tUnknown host. Maybe you misspelled it?"
-msgstr "%C22*%O$tNeznan gostitelj. Mogoče je črkovanje napačno?"
+msgstr ""
 
 #: ../src/common/textevents.h:354
-#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(User limit reached)."
 msgstr ""
-"%C22*%O$tNe morem se pridružiti%C26 %B$1 %O(Omejitev uporabnikov presežena)."
 
 #: ../src/common/textevents.h:357
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C11Users on $1:%C $2"
-msgstr "%C22*%O$t%C26Uporabniki na $1:%C $2"
+msgstr ""
 
 #: ../src/common/textevents.h:360
 msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 msgstr "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 
 #: ../src/common/textevents.h:363
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
-msgstr "%C22*%O$t%C28[%O$1%C28] %Cje odsoten %C30(%O$2%O%C30)"
+msgstr ""
 
 #: ../src/common/textevents.h:366
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+msgstr ""
 
 #: ../src/common/textevents.h:369
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %CEnd of WHOIS list."
-msgstr "%C22*%O$t%C28[%O$1%C28] %OKonec WHOIS seznama."
+msgstr ""
 
 #: ../src/common/textevents.h:372
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+msgstr ""
 
 #: ../src/common/textevents.h:375
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O neaktiven%C26 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:378
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O, signon: %C11$3%O"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O neaktiven %C26 $2%O, prijava: %C26 $3"
+msgstr ""
 
 #: ../src/common/textevents.h:381
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
-msgstr "%C22*%O$t%C28[%O$1%C28] %C30(%O$2@$3%C30)%O: $4"
+msgstr ""
 
 #: ../src/common/textevents.h:384
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$t%C12[%O$1%C12] %Oreal user@host %C11$2%O, real IP %C11$3%O"
 msgstr ""
-"%C22*%O$t%C28[%O$1%C28] %Opravi uporabnik@gostitelj%C27 $2%O, pravi IP%C27 $3"
 
 #: ../src/common/textevents.h:387
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+msgstr ""
 
 #: ../src/common/textevents.h:390
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:393
-#, fuzzy
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
-msgstr "%C22*%O$tOdslej ste znani kot $2"
+msgstr ""
 
 #: ../src/common/textevents.h:396
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been kicked from $2 by $3 ($4%O)"
-msgstr "%C23*$t$3ˇ ($4%O%C23) vas je brcnil iz $2"
+msgstr ""
 
 #: ../src/common/textevents.h:399
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have left channel $3"
-msgstr "%C23*$tZapustili ste kanal $3"
+msgstr ""
 
 #: ../src/common/textevents.h:402
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have left channel $3 %C14(%O$4%C14)%O"
-msgstr "%C23*$tZapustili ste kanal $3 (%O%C23%B%B$4%O%C23)"
+msgstr ""
 
 #: ../src/common/textevents.h:405
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou're inviting %C11$1%C to %C11$2%C (%C11$3%C)"
-msgstr "%C22*%O$tPovabili ste%C26 $1%O na%C26 $2%O (%C26$3%O)"
+msgstr ""
 
 #: ../src/common/textevents.h:408
-#, fuzzy
 msgid "%C6<%O$1%C6>%O$t$2%O"
-msgstr "%C19>%O$1%C19<%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:411
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou are now known as $2"
-msgstr "%C22*%O$tOdslej ste znani kot $2"
+msgstr ""
 
 #: ../src/common/util.c:296
 msgid "Remote host closed socket"
@@ -3595,18 +3377,16 @@ msgid "Open Dialog Window"
 msgstr "Odpri pogovorno okno"
 
 #: ../src/common/xchat.c:733
-#, fuzzy
 msgid "Send a File"
-msgstr "Pošlji datoteko"
+msgstr ""
 
 #: ../src/common/xchat.c:734
 msgid "User Info (WHOIS)"
 msgstr ""
 
 #: ../src/common/xchat.c:735
-#, fuzzy
 msgid "Operator Actions"
-msgstr "Možnosti"
+msgstr ""
 
 #: ../src/common/xchat.c:737 ../src/common/xchat.c:828
 msgid "Give Ops"
@@ -3863,14 +3643,12 @@ msgid "translator-credits"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
-#, fuzzy
 msgid "Background image filename"
-msgstr "Slika za ozadje:"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:2
-#, fuzzy
 msgid "Background transparency"
-msgstr "Slika za ozadje:"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Default nickname used by servers without special options set"
@@ -3897,18 +3675,16 @@ msgid "List of enabled plugins"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
-#, fuzzy
 msgid "Message sent on away"
-msgstr "Sporočilo"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Message sent on channel part"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
-#, fuzzy
 msgid "Message sent on quit"
-msgstr "Sporočilo"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Position of the horizontal pane in the main window"
@@ -3927,14 +3703,12 @@ msgid "Show colors in the main window"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:16
-#, fuzzy
 msgid "Show timestamps in the main window"
-msgstr "Dnevnike opremi s časom"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
-#, fuzzy
 msgid "Use system fonts"
-msgstr "Seznam uporabnikov"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
@@ -3946,9 +3720,8 @@ msgstr ""
 
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:108
-#, fuzzy
 msgid "_Connect"
-msgstr "Poveži se"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:130
 msgid "_Open Link in Browser"
@@ -3963,29 +3736,24 @@ msgid "Se_nd Message To..."
 msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:136
-#, fuzzy
 msgid "_Copy Address"
-msgstr "Naslov IP"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:140
-#, fuzzy
 msgid "_Send File"
-msgstr "Pošlji datoteko"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:141
-#, fuzzy
 msgid "Paste File _Contents"
-msgstr "Vs_ebina"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:142
-#, fuzzy
 msgid "Paste File_name"
-msgstr "Novo ime datoteke"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:143
-#, fuzzy
 msgid "_Cancel"
-msgstr "Prekliči"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:548
 #, c-format
@@ -4031,9 +3799,8 @@ msgid "File"
 msgstr "Datoteka"
 
 #: ../src/fe-gnome/dcc-window.c:144
-#, fuzzy
 msgid "Remaining"
-msgstr "Odhajam"
+msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -4053,9 +3820,8 @@ msgid ""
 msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
-#, fuzzy
 msgid "starting"
-msgstr "Čakam"
+msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:303
 #, c-format
@@ -4084,9 +3850,8 @@ msgid "Transfer failed"
 msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:327
-#, fuzzy
 msgid "stalled"
-msgstr "Spodletelo"
+msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:331
 #, c-format
@@ -4099,28 +3864,24 @@ msgid "%.2d:%.2d"
 msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:446
-#, fuzzy
 msgid "Send File..."
-msgstr "Pošlji datoteko"
+msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:57
 msgid "Use directory instead of the default config dir"
 msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:58
-#, fuzzy
 msgid "Don't auto-connect to servers"
-msgstr "Samodejno obnovi povezavo na strežnik"
+msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:59
-#, fuzzy
 msgid "Don't auto-load plugins"
-msgstr "ne naloži vtičnikov samodejno"
+msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:61
-#, fuzzy
 msgid "Show version information"
-msgstr "pokaži informacijo o različicah"
+msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:90
 #, c-format
@@ -4143,9 +3904,8 @@ msgid "_Previous"
 msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:99
-#, fuzzy
 msgid "_Next"
-msgstr "Besedilo"
+msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -4166,9 +3926,9 @@ msgid "Server"
 msgstr "Strežnik"
 
 #: ../src/fe-gnome/irc-network-editor.c:383
-#, fuzzy, c-format
+#, c-format
 msgid "%s Network Properties"
-msgstr "Nastavitve omrežja"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:509
 #: ../src/fe-gnome/irc-network-editor.c:516
@@ -4181,23 +3941,20 @@ msgid "You must enter a network name"
 msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:516
-#, fuzzy
 msgid "You must enter a nick name"
-msgstr "Vnesite nov vzdevek:"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:522
 msgid "You must enter a real name"
 msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:529
-#, fuzzy
 msgid "No Servers"
-msgstr "Strežnik"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:529
-#, fuzzy
 msgid "You must add at least one server for this network"
-msgstr "Uporabi povezavo SSL do vseh strežnikov v omrežju"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network.c:31
 msgid "UTF-8 (Unicode)"
@@ -4257,9 +4014,8 @@ msgid "In_sert"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:101
-#, fuzzy
 msgid "_Network"
-msgstr "Omrežje"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:102
 msgid "_Discussion"
@@ -4274,14 +4030,12 @@ msgid "_Help"
 msgstr "_Pomoč"
 
 #: ../src/fe-gnome/main-window.c:109
-#, fuzzy
 msgid "_File Transfers"
-msgstr "Prenosi datotek"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:110
-#, fuzzy
 msgid "_Quit"
-msgstr "Izhod"
+msgstr ""
 
 #. Edit menu
 #: ../src/fe-gnome/main-window.c:113
@@ -4289,42 +4043,35 @@ msgid "Cu_t"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:114
-#, fuzzy
 msgid "_Copy"
-msgstr "Kopiraj"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:115
-#, fuzzy
 msgid "_Paste"
-msgstr "Zasebno"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:116 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
-#, fuzzy
 msgid "C_lear"
-msgstr "Počisti"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:117
-#, fuzzy
 msgid "Prefere_nces"
-msgstr "Nastavitve ..."
+msgstr ""
 
 #. Network menu
 #. Server context menu
 #: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:81
-#, fuzzy
 msgid "_Information"
-msgstr "Informativno"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:82
-#, fuzzy
 msgid "_Reconnect"
-msgstr "Ponovno se poveži"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:83
-#, fuzzy
 msgid "_Disconnect"
-msgstr "Odstrani povezavo"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:84
 #: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
@@ -4332,9 +4079,8 @@ msgid "_Close"
 msgstr "_Zapri"
 
 #: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:85
-#, fuzzy
 msgid "_Channels..."
-msgstr "Seznam kanalov ..."
+msgstr ""
 
 #. Discussion menu
 #. Channel context menu
@@ -4345,49 +4091,41 @@ msgid "_Save Transcript"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:89
-#, fuzzy
 msgid "_Leave"
-msgstr "Odhajam"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:129
-#, fuzzy
 msgid "Cl_ose"
-msgstr "Zapri"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:130
-#, fuzzy
 msgid "_Find"
-msgstr "Poišči"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:131
-#, fuzzy
 msgid "_Clear Window"
-msgstr "_Okno"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "Change _Topic"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:133 ../src/fe-gnome/navigation-tree.c:93
-#, fuzzy
 msgid "_Bans..."
-msgstr "Seznam izobčenih ..."
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:134
-#, fuzzy
 msgid "_Users"
-msgstr "Uporabniki"
+msgstr ""
 
 #. Go menu
 #: ../src/fe-gnome/main-window.c:137
-#, fuzzy
 msgid "Pre_vious Network"
-msgstr "Novo omrežje"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:138
-#, fuzzy
 msgid "Nex_t Network"
-msgstr "Novo omrežje"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:139
 msgid "_Previous Discussion"
@@ -4409,30 +4147,26 @@ msgstr "_O programu"
 #: ../src/fe-gnome/main-window.c:482 ../src/fe-gnome/main-window.c:503
 #: ../src/fe-gnome/navigation-tree.c:1573
 #: ../src/fe-gnome/navigation-tree.c:1632
-#, fuzzy
 msgid "Ex-Chat"
-msgstr "Klepet"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:581
 msgid "Error showing help"
 msgstr ""
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
-#, fuzzy
 msgid "_Find..."
-msgstr "Pošiljanje datotek ..."
+msgstr ""
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
-#, fuzzy
 msgid "_Auto-connect"
-msgstr "P_oveži se"
+msgstr ""
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
-#, fuzzy
 msgid "_Auto-join"
-msgstr "Samodejno"
+msgstr ""
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
@@ -4457,23 +4191,21 @@ msgid "Custom"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
-#, fuzzy
 msgid "File Transfers & DCC"
-msgstr "Prenosi datotek"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
-#, fuzzy
 msgid "IRC Preferences"
-msgstr "X-Chat: Nastavitve"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
-#, fuzzy, c-format
+#, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
-msgstr "Res odstranim omrežje \"%s\" in vse njegove strežnike?"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-networks.c:171
 msgid "Networks"
@@ -4485,9 +4217,8 @@ msgstr "Ime"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:74
 #: ../src/fe-gnome/preferences-page-plugins.c:75
-#, fuzzy
 msgid "unknown"
-msgstr "Neznan"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:112
 #, c-format
@@ -4503,9 +4234,8 @@ msgid "Plugin Load Failed"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:161
-#, fuzzy
 msgid "Open Plugin"
-msgstr "Odpri pogovorna okna v:"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:261
 msgid "Scripts and Plugins"
@@ -4516,9 +4246,8 @@ msgid "Enable"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:272
-#, fuzzy
 msgid "Plugin"
-msgstr "Ping"
+msgstr ""
 
 #: ../src/fe-gnome/status-bar.c:92
 #, c-format
@@ -4526,14 +4255,13 @@ msgid "%s%.1fs lag"
 msgstr ""
 
 #: ../src/fe-gnome/status-bar.c:106
-#, fuzzy, c-format
+#, c-format
 msgid "%d bytes buffered"
-msgstr "%d bajtov"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:274
-#, fuzzy
 msgid "I_nsert Color Code"
-msgstr "Vnesite kodo barve"
+msgstr ""
 
 #: ../src/fe-gnome/topic-label.c:232
 #, c-format
@@ -4541,21 +4269,17 @@ msgid "Changing topic for %s"
 msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:50
-#, fuzzy
 msgid "_Send File..."
-msgstr "Pošlji datoteko"
+msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:51
-#, fuzzy
 msgid "Private _Chat"
-msgstr "Zasebno"
+msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:52
-#, fuzzy
 msgid "_Kick"
-msgstr "Brcni"
+msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:53
-#, fuzzy
 msgid "_Ban"
-msgstr "Izobči"
+msgstr ""
