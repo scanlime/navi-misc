@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-14 17:41-0700\n"
+"POT-Creation-Date: 2005-12-17 19:45-0700\n"
 "PO-Revision-Date: 2003-01-30 10:06+EDT\n"
 "Last-Translator: Ge'ez Frontier Foundation <locales@geez.org>\n"
 "Language-Team: Amharic <locales@geez.org>\n"
@@ -25,33 +25,28 @@ msgid "Apply Text Filter To:    "
 msgstr ""
 
 #: ../data/channel-list.glade.h:3
-#, fuzzy
 msgid "Channel _Name"
-msgstr "የጣቢያ ስም"
+msgstr ""
 
 #: ../data/channel-list.glade.h:4
-#, fuzzy
 msgid "Channel _Topic"
-msgstr "ጣቢያ"
+msgstr ""
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
 msgstr "ጣቢያ አትጫን"
 
 #: ../data/channel-list.glade.h:6
-#, fuzzy
 msgid "Maximum Users:"
-msgstr "ከፍተኛ መጠን ተጠቃሚዎች፦"
+msgstr ""
 
 #: ../data/channel-list.glade.h:7
-#, fuzzy
 msgid "Minimum Users:"
-msgstr "በተቻለ መጠን ተጠቃሚዎች፦"
+msgstr ""
 
 #: ../data/channel-list.glade.h:8
-#, fuzzy
 msgid "Save List _As"
-msgstr "በሌላ ስም አስቀምጥ"
+msgstr ""
 
 #: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
@@ -86,14 +81,12 @@ msgid "Character _encoding:"
 msgstr ""
 
 #: ../data/irc-network-editor.glade.h:5
-#, fuzzy
 msgid "Network Settings"
-msgstr "የመረብ ቅንጅት"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:6
-#, fuzzy
 msgid "Server _Password:"
-msgstr "የሰርቨር ሚስጢራዊ ቃል፦"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:7
 msgid "Servers"
@@ -108,9 +101,8 @@ msgid "Use _these user settings:"
 msgstr ""
 
 #: ../data/irc-network-editor.glade.h:10
-#, fuzzy
 msgid "User and Channels"
-msgstr "ጣቢያ"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:11
 msgid "_Automatically connect to network"
@@ -121,19 +113,16 @@ msgid "_Cycle until connected"
 msgstr ""
 
 #: ../data/irc-network-editor.glade.h:13
-#, fuzzy
 msgid "_Name:"
-msgstr "ስም"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:14
-#, fuzzy
 msgid "_Nick name:"
-msgstr "ቅጽል ስምች፦"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:15
-#, fuzzy
 msgid "_Real Name:"
-msgstr "የውነት ስም፦"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:16
 msgid "_Use secure connection (SSL)"
@@ -184,9 +173,8 @@ msgid "<span weight=\"bold\">mIRC Colors</span>"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:13
-#, fuzzy
 msgid "A_way message:"
-msgstr "አዲስ መልእክት፦"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
@@ -197,14 +185,12 @@ msgid "Auto-accept DCC File Transfers"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:16
-#, fuzzy
 msgid "Background _image"
-msgstr "የመደቡ ምስል፦"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:17
-#, fuzzy
 msgid "Background mark:"
-msgstr "የመደቡ ምስል፦"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
@@ -223,9 +209,8 @@ msgid "Enter extra words to trigger highlighting"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:22
-#, fuzzy
 msgid "Foreground mark:"
-msgstr "ፊት ለፊት፦"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:23
 msgid "Get IP Address From Server"
@@ -256,23 +241,20 @@ msgid "Move completed files to:"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:30
-#, fuzzy
 msgid "Preferences"
-msgstr "ምርጫዎች..."
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:31
-#, fuzzy
 msgid "Real na_me:"
-msgstr "የውነት ስም፦"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:32
 msgid "Save sender nickname in filenames"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:33
-#, fuzzy
 msgid "Select A File"
-msgstr "ቀለም ምረጡ"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:34
 msgid "Select Completed Files Directory"
@@ -297,56 +279,48 @@ msgid "Use System Terminal Font"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:39
-#, fuzzy
 msgid "Use This IP Address:"
-msgstr "IP አድራሻ"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:40
-#, fuzzy
 msgid "Use this font:"
-msgstr "የተጠቃሚ ዝርዝር"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:41
-#, fuzzy
 msgid "_Background color:"
-msgstr "መደቡ፦"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:99
 msgid "_Edit"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:43
-#, fuzzy
 msgid "_Foreground color:"
-msgstr "ፊት ለፊት፦"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:44
-#, fuzzy
 msgid "_Nickname:"
-msgstr "ቅጽል ስም"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:46
-#, fuzzy
 msgid "_Part message:"
-msgstr "መልእክቱ"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:47
-#, fuzzy
 msgid "_Quit message:"
-msgstr "መልእክቱ"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:49
-#, fuzzy
 msgid "_Transparent background"
-msgstr "የሚያሳይ መደብ"
+msgstr ""
 
 #: ../data/setup-dialog.glade.h:1
 msgid "Nick Name:"
@@ -373,17 +347,15 @@ msgid "xchat-gnome setup"
 msgstr ""
 
 #: ../data/topic-change.glade.h:1
-#, fuzzy
 msgid "Change"
-msgstr "ጣቢያ"
+msgstr ""
 
 #.
 #. GNOME_PARAM_GOPTION_CONTEXT, context,
 #.
 #: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:84
-#, fuzzy
 msgid "IRC Chat"
-msgstr "ቻድ"
+msgstr ""
 
 #: ../data/xchat-gnome.desktop.in.h:2
 msgid "XChat-GNOME IRC Chat"
@@ -394,9 +366,8 @@ msgid "Close this discussion"
 msgstr ""
 
 #: ../data/xchat-gnome.glade.h:2
-#, fuzzy
 msgid "Enter a new nickname"
-msgstr "አዲስ ቅጽል ስም"
+msgstr ""
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
@@ -408,9 +379,8 @@ msgid "Error"
 msgstr "ስህተት"
 
 #: ../data/xchat-gnome.glade.h:4
-#, fuzzy
 msgid "The new nickname"
-msgstr "አዲስ ቅጽል ስም"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:805
 #: ../src/fe-gnome/channel-list.c:311
@@ -418,9 +388,8 @@ msgid "Users"
 msgstr "ተጠቃሚዎች"
 
 #: ../data/xchat-gnome.glade.h:6
-#, fuzzy
 msgid "nickname"
-msgstr "ቅጽል ስም"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:164
 msgid "Screensaver activated, going away."
@@ -440,14 +409,12 @@ msgstr ""
 
 #. Hook up our callbacks.
 #: ../plugins/autoaway/autoaway.c:231
-#, fuzzy
 msgid "Disconnected"
-msgstr "አገናኝ"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:232
-#, fuzzy
 msgid "Connected"
-msgstr "አገናኝ"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -517,36 +484,32 @@ msgid "Change the context to the channel"
 msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:44
-#, fuzzy
 msgid "channel"
-msgstr "ጣቢያ"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
 msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
-#, fuzzy
 msgid "server"
-msgstr "ሰርቨር"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
 msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
-#, fuzzy
 msgid "id"
-msgstr "ፈልግ"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
 msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
-#, fuzzy
 msgid "name"
-msgstr "ስም"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:79
 #, c-format
@@ -586,9 +549,8 @@ msgid "%s doesn't exist\n"
 msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:36
-#, fuzzy
 msgid "Network Monitor"
-msgstr "የመረብ ቅንጅት"
+msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
@@ -600,18 +562,16 @@ msgid "%s loaded successfully\n"
 msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
-#, fuzzy
 msgid "Orientation"
-msgstr "አርጀንቲና"
+msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "The orientation of the tray."
 msgstr ""
 
 #: ../plugins/notification/notification.c:148
-#, fuzzy
 msgid "Notification"
-msgstr "ቦታ"
+msgstr ""
 
 #: ../plugins/notification/notification.c:149
 msgid "A notification area plugin."
@@ -641,15 +601,15 @@ msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:89
 #: ../plugins/notify-osd/notify-osd.c:117
-#, fuzzy, c-format
+#, c-format
 msgid "Message in %s"
-msgstr "መልእክት"
+msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:91
 #: ../plugins/notify-osd/notify-osd.c:119
-#, fuzzy, c-format
+#, c-format
 msgid "Message from %s"
-msgstr "መልእክት"
+msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:140
 #, c-format
@@ -727,9 +687,8 @@ msgid "I'm busy"
 msgstr ""
 
 #: ../src/common/cfgfiles.c:680
-#, fuzzy
 msgid "Leaving"
-msgstr "ላትቪያ"
+msgstr ""
 
 #: ../src/common/cfgfiles.c:726
 msgid ""
@@ -1281,14 +1240,12 @@ msgid ""
 msgstr ""
 
 #: ../src/common/text.c:516
-#, fuzzy
 msgid "Left message"
-msgstr "መልእክቱ"
+msgstr ""
 
 #: ../src/common/text.c:517
-#, fuzzy
 msgid "Right message"
-msgstr "መልእክቱ"
+msgstr ""
 
 #: ../src/common/text.c:521
 msgid "The nick of the joining person"
@@ -1575,9 +1532,8 @@ msgid "Message"
 msgstr "መልእክት"
 
 #: ../src/common/text.c:778
-#, fuzzy
 msgid "Account"
-msgstr "ትግባር"
+msgstr ""
 
 #: ../src/common/text.c:783
 msgid "Real user@host"
@@ -2466,9 +2422,8 @@ msgid "Switzerland"
 msgstr "ስዊዘርላንድ"
 
 #: ../src/common/util.c:866
-#, fuzzy
 msgid "Cote d'Ivoire"
-msgstr "ኮት ዲቯር"
+msgstr ""
 
 #: ../src/common/util.c:867
 msgid "Cook Islands"
@@ -3051,9 +3006,8 @@ msgid "Puerto Rico"
 msgstr "ፖርታ ሪኮ"
 
 #: ../src/common/util.c:1012
-#, fuzzy
 msgid "Palestinian Territory"
-msgstr "የብሪታኒያ ህንድ ውቂያኖስ ግዛት"
+msgstr ""
 
 #: ../src/common/util.c:1013
 msgid "Portugal"
@@ -3268,9 +3222,8 @@ msgid "Vatican City State"
 msgstr "ቫቲካን ከተማ"
 
 #: ../src/common/util.c:1066
-#, fuzzy
 msgid "St. Vincent and the Grenadines"
-msgstr "ቅዱስ ቪንሴንት እና ግሬናዲንስ"
+msgstr ""
 
 #: ../src/common/util.c:1067
 msgid "Venezuela"
@@ -3333,18 +3286,16 @@ msgid "Open Dialog Window"
 msgstr ""
 
 #: ../src/common/xchat.c:733
-#, fuzzy
 msgid "Send a File"
-msgstr "የድምፅ ፋይል፦"
+msgstr ""
 
 #: ../src/common/xchat.c:734
 msgid "User Info (WHOIS)"
 msgstr ""
 
 #: ../src/common/xchat.c:735
-#, fuzzy
 msgid "Operator Actions"
-msgstr "ትግባር"
+msgstr ""
 
 #: ../src/common/xchat.c:737 ../src/common/xchat.c:828
 msgid "Give Ops"
@@ -3368,9 +3319,8 @@ msgstr ""
 
 #: ../src/common/xchat.c:743 ../src/common/xchat.c:838
 #: ../src/common/xchat.c:887
-#, fuzzy
 msgid "Kick"
-msgstr "ቅጽል"
+msgstr ""
 
 #: ../src/common/xchat.c:744 ../src/common/xchat.c:745
 #: ../src/common/xchat.c:746 ../src/common/xchat.c:747
@@ -3378,9 +3328,8 @@ msgstr "ቅጽል"
 #: ../src/common/xchat.c:840 ../src/common/xchat.c:841
 #: ../src/common/xchat.c:842 ../src/common/xchat.c:843
 #: ../src/common/xchat.c:886
-#, fuzzy
 msgid "Ban"
-msgstr "ቡህታን"
+msgstr ""
 
 #: ../src/common/xchat.c:749 ../src/common/xchat.c:750
 #: ../src/common/xchat.c:751 ../src/common/xchat.c:752
@@ -3394,27 +3343,24 @@ msgid "Direct client-to-client"
 msgstr ""
 
 #: ../src/common/xchat.c:816
-#, fuzzy
 msgid "Send File"
-msgstr "የድምፅ ፋይል፦"
+msgstr ""
 
 #: ../src/common/xchat.c:817
 msgid "Offer Chat"
 msgstr ""
 
 #: ../src/common/xchat.c:818
-#, fuzzy
 msgid "Abort Chat"
-msgstr "ስለ X-ማውሪያ"
+msgstr ""
 
 #: ../src/common/xchat.c:819
 msgid "Version"
 msgstr "ዝርያ"
 
 #: ../src/common/xchat.c:820
-#, fuzzy
 msgid "Userinfo"
-msgstr "ተጠቃሚ"
+msgstr ""
 
 #: ../src/common/xchat.c:821
 msgid "Clientinfo"
@@ -3426,14 +3372,12 @@ msgid "Ping"
 msgstr ""
 
 #: ../src/common/xchat.c:824
-#, fuzzy
 msgid "Finger"
-msgstr "ኒጀር"
+msgstr ""
 
 #: ../src/common/xchat.c:825
-#, fuzzy
 msgid "Oper"
-msgstr "ክፈት"
+msgstr ""
 
 #: ../src/common/xchat.c:826
 msgid "Kill this user"
@@ -3480,14 +3424,12 @@ msgid "DNS Lookup"
 msgstr ""
 
 #: ../src/common/xchat.c:852
-#, fuzzy
 msgid "Trace"
-msgstr "ፈረንሳይ"
+msgstr ""
 
 #: ../src/common/xchat.c:853
-#, fuzzy
 msgid "UserHost"
-msgstr "ተጠቃሚዎች"
+msgstr ""
 
 #: ../src/common/xchat.c:854
 msgid "External"
@@ -3498,43 +3440,36 @@ msgid "Traceroute"
 msgstr ""
 
 #: ../src/common/xchat.c:857
-#, fuzzy
 msgid "Telnet"
-msgstr "አጥፉ"
+msgstr ""
 
 #: ../src/common/xchat.c:869
-#, fuzzy
 msgid "Leave Channel"
-msgstr "ጣቢያ"
+msgstr ""
 
 #: ../src/common/xchat.c:870
-#, fuzzy
 msgid "Join Channel..."
-msgstr "ጣቢያ አትጫን"
+msgstr ""
 
 #: ../src/common/xchat.c:871
 msgid "Enter Channel to Join:"
 msgstr ""
 
 #: ../src/common/xchat.c:872
-#, fuzzy
 msgid "Server Links"
-msgstr "የሰርቨር ዝርዝር..."
+msgstr ""
 
 #: ../src/common/xchat.c:873
-#, fuzzy
 msgid "Ping Server"
-msgstr "ሰርቨር"
+msgstr ""
 
 #: ../src/common/xchat.c:874
-#, fuzzy
 msgid "Hide Version"
-msgstr "ዝርያ"
+msgstr ""
 
 #: ../src/common/xchat.c:884
-#, fuzzy
 msgid "Op"
-msgstr "ክፈት"
+msgstr ""
 
 #: ../src/common/xchat.c:885
 msgid "DeOp"
@@ -3550,23 +3485,20 @@ msgid "Enter reason to kick %s:"
 msgstr ""
 
 #: ../src/common/xchat.c:890
-#, fuzzy
 msgid "Sendfile"
-msgstr "የድምፅ ፋይል፦"
+msgstr ""
 
 #: ../src/common/xchat.c:891
 msgid "Dialog"
 msgstr ""
 
 #: ../src/common/xchat.c:901
-#, fuzzy
 msgid "Send"
-msgstr "ተልኳል"
+msgstr ""
 
 #: ../src/common/xchat.c:902
-#, fuzzy
 msgid "Chat"
-msgstr "ቻድ"
+msgstr ""
 
 #: ../src/common/xchat.c:903
 msgid "Clear"
@@ -3620,14 +3552,12 @@ msgid "translator-credits"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
-#, fuzzy
 msgid "Background image filename"
-msgstr "የመደቡ ምስል፦"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:2
-#, fuzzy
 msgid "Background transparency"
-msgstr "የመደቡ ምስል፦"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Default nickname used by servers without special options set"
@@ -3654,18 +3584,16 @@ msgid "List of enabled plugins"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
-#, fuzzy
 msgid "Message sent on away"
-msgstr "መልእክት"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Message sent on channel part"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
-#, fuzzy
 msgid "Message sent on quit"
-msgstr "መልእክት"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Position of the horizontal pane in the main window"
@@ -3688,9 +3616,8 @@ msgid "Show timestamps in the main window"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
-#, fuzzy
 msgid "Use system fonts"
-msgstr "የተጠቃሚ ዝርዝር"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
@@ -3702,9 +3629,8 @@ msgstr ""
 
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:108
-#, fuzzy
 msgid "_Connect"
-msgstr "አገናኝ"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:130
 msgid "_Open Link in Browser"
@@ -3719,29 +3645,24 @@ msgid "Se_nd Message To..."
 msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:136
-#, fuzzy
 msgid "_Copy Address"
-msgstr "IP አድራሻ"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:140
-#, fuzzy
 msgid "_Send File"
-msgstr "የድምፅ ፋይል፦"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:141
-#, fuzzy
 msgid "Paste File _Contents"
-msgstr "አገናኝ"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:142
-#, fuzzy
 msgid "Paste File_name"
-msgstr "አዲስ የፋይል ስም"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:143
-#, fuzzy
 msgid "_Cancel"
-msgstr "ተወው"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:548
 #, c-format
@@ -3769,9 +3690,9 @@ msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:779
 #: ../src/fe-gnome/conversation-panel.c:789
-#, fuzzy, c-format
+#, c-format
 msgid "Error saving %s"
-msgstr "ስህተት ሐረግ"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:907
 msgid "Search buffer is empty.\n"
@@ -3787,9 +3708,8 @@ msgid "File"
 msgstr "ፋይል"
 
 #: ../src/fe-gnome/dcc-window.c:144
-#, fuzzy
 msgid "Remaining"
-msgstr "ላትቪያ"
+msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -3809,9 +3729,8 @@ msgid ""
 msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
-#, fuzzy
 msgid "starting"
-msgstr "ወሪ"
+msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:303
 #, c-format
@@ -3854,9 +3773,8 @@ msgid "%.2d:%.2d"
 msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:446
-#, fuzzy
 msgid "Send File..."
-msgstr "የድምፅ ፋይል፦"
+msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:57
 msgid "Use directory instead of the default config dir"
@@ -3895,9 +3813,8 @@ msgid "_Previous"
 msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:99
-#, fuzzy
 msgid "_Next"
-msgstr "ጽሑፍ"
+msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -3941,9 +3858,8 @@ msgid "You must enter a real name"
 msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:529
-#, fuzzy
 msgid "No Servers"
-msgstr "ሰርቨሮች"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:529
 msgid "You must add at least one server for this network"
@@ -4007,9 +3923,8 @@ msgid "In_sert"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:101
-#, fuzzy
 msgid "_Network"
-msgstr "መረብ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:102
 msgid "_Discussion"
@@ -4028,9 +3943,8 @@ msgid "_File Transfers"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:110
-#, fuzzy
 msgid "_Quit"
-msgstr "ውጣ"
+msgstr ""
 
 #. Edit menu
 #: ../src/fe-gnome/main-window.c:113
@@ -4042,20 +3956,17 @@ msgid "_Copy"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:115
-#, fuzzy
 msgid "_Paste"
-msgstr "ቀን"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:116 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
-#, fuzzy
 msgid "C_lear"
-msgstr "ሰርዝ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:117
-#, fuzzy
 msgid "Prefere_nces"
-msgstr "ምርጫዎች..."
+msgstr ""
 
 #. Network menu
 #. Server context menu
@@ -4064,25 +3975,21 @@ msgid "_Information"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:82
-#, fuzzy
 msgid "_Reconnect"
-msgstr "አገናኝ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:83
-#, fuzzy
 msgid "_Disconnect"
-msgstr "አገናኝ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:84
 #: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
-#, fuzzy
 msgid "_Close"
-msgstr "ዝጋ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:85
-#, fuzzy
 msgid "_Channels..."
-msgstr "የጣቢያ ዝርዝር..."
+msgstr ""
 
 #. Discussion menu
 #. Channel context menu
@@ -4093,49 +4000,41 @@ msgid "_Save Transcript"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:89
-#, fuzzy
 msgid "_Leave"
-msgstr "ላትቪያ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:129
-#, fuzzy
 msgid "Cl_ose"
-msgstr "ዝጋ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:130
-#, fuzzy
 msgid "_Find"
-msgstr "ፈልግ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:131
-#, fuzzy
 msgid "_Clear Window"
-msgstr "_መስኮት"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "Change _Topic"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:133 ../src/fe-gnome/navigation-tree.c:93
-#, fuzzy
 msgid "_Bans..."
-msgstr "_ጫን..."
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:134
-#, fuzzy
 msgid "_Users"
-msgstr "ተጠቃሚዎች"
+msgstr ""
 
 #. Go menu
 #: ../src/fe-gnome/main-window.c:137
-#, fuzzy
 msgid "Pre_vious Network"
-msgstr "አዲስ መረብ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:138
-#, fuzzy
 msgid "Nex_t Network"
-msgstr "አዲስ መረብ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:139
 msgid "_Previous Discussion"
@@ -4147,37 +4046,31 @@ msgstr ""
 
 #. Help menu
 #: ../src/fe-gnome/main-window.c:143
-#, fuzzy
 msgid "_Contents"
-msgstr "አገናኝ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:144
-#, fuzzy
 msgid "_About"
-msgstr "ውድቅ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:482 ../src/fe-gnome/main-window.c:503
 #: ../src/fe-gnome/navigation-tree.c:1573
 #: ../src/fe-gnome/navigation-tree.c:1632
-#, fuzzy
 msgid "Ex-Chat"
-msgstr "ቻድ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:581
-#, fuzzy
 msgid "Error showing help"
-msgstr "ስህተት ሐረግ"
+msgstr ""
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
-#, fuzzy
 msgid "_Find..."
-msgstr "ፋይልን ላክ..."
+msgstr ""
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
-#, fuzzy
 msgid "_Auto-connect"
-msgstr "_አገናኝ"
+msgstr ""
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
@@ -4215,9 +4108,8 @@ msgid "Effects"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
-#, fuzzy
 msgid "IRC Preferences"
-msgstr "X-ማውሪያ፦ ምርጫዎች"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
@@ -4234,9 +4126,8 @@ msgstr "ስም"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:74
 #: ../src/fe-gnome/preferences-page-plugins.c:75
-#, fuzzy
 msgid "unknown"
-msgstr "ያልታወቀ"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:112
 #, c-format
@@ -4287,21 +4178,17 @@ msgid "Changing topic for %s"
 msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:50
-#, fuzzy
 msgid "_Send File..."
-msgstr "የድምፅ ፋይል፦"
+msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:51
-#, fuzzy
 msgid "Private _Chat"
-msgstr "ስለ X-ማውሪያ"
+msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:52
-#, fuzzy
 msgid "_Kick"
-msgstr "ቅጽል"
+msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:53
-#, fuzzy
 msgid "_Ban"
-msgstr "ቡህታን"
+msgstr ""

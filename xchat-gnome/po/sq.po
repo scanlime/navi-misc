@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-14 17:41-0700\n"
+"POT-Creation-Date: 2005-12-17 19:45-0700\n"
 "PO-Revision-Date: 2005-11-07 21:49+0200\n"
 "Last-Translator: Besnik Bleta <besnik@spymac.com>\n"
 "Language-Team: Albanian <translation-team-sq@lists.sourceforge.net>\n"
@@ -22,14 +22,12 @@ msgid "Apply Text Filter To:    "
 msgstr ""
 
 #: ../data/channel-list.glade.h:3
-#, fuzzy
 msgid "Channel _Name"
-msgstr "EmÃ«r Kanali"
+msgstr ""
 
 #: ../data/channel-list.glade.h:4
-#, fuzzy
 msgid "Channel _Topic"
-msgstr "Kanal"
+msgstr ""
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
@@ -44,28 +42,24 @@ msgid "Minimum Users:"
 msgstr "PÃ«rdoruesa Minimum:"
 
 #: ../data/channel-list.glade.h:8
-#, fuzzy
 msgid "Save List _As"
-msgstr "Ruaj listÃ«n"
+msgstr ""
 
 #: ../data/channel-list.glade.h:9
-#, fuzzy
 msgid "Text Filter:"
-msgstr "Shtyp KartelÃ« Tekstesh"
+msgstr ""
 
 #: ../data/connect-dialog.glade.h:1
 msgid "C_onnect"
 msgstr "_Lidhu"
 
 #: ../data/dcc-accept.glade.h:1
-#, fuzzy
 msgid "_Accept"
-msgstr "Prano"
+msgstr ""
 
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
-#, fuzzy
 msgid "File Transfers"
-msgstr "ShpÃ«rngulje kartelash"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
@@ -80,61 +74,52 @@ msgid "<span weight=\"bold\">User Info</span>"
 msgstr ""
 
 #: ../data/irc-network-editor.glade.h:4
-#, fuzzy
 msgid "Character _encoding:"
-msgstr "GÃ«rma:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Network Settings"
 msgstr "Rregullime Rrjeti"
 
 #: ../data/irc-network-editor.glade.h:6
-#, fuzzy
 msgid "Server _Password:"
-msgstr "FjalÃ«kalim shÃ«rbyesi:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:7
-#, fuzzy
 msgid "Servers"
-msgstr "ShÃ«rbyes"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:8
-#, fuzzy
 msgid "Use _global user settings"
-msgstr "PÃ«rdor tÃ« dhÃ«na tÃ« pÃ«rgjithshme pÃ«rdoruesi"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:9
 msgid "Use _these user settings:"
 msgstr ""
 
 #: ../data/irc-network-editor.glade.h:10
-#, fuzzy
 msgid "User and Channels"
-msgstr "LÃ«r Kanal"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:11
-#, fuzzy
 msgid "_Automatically connect to network"
-msgstr "VetÃ«lidhu me kÃ«tÃ« rrjet gjatÃ« nisjes"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:12
-#, fuzzy
 msgid "_Cycle until connected"
-msgstr "I palidhur"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:13
-#, fuzzy
 msgid "_Name:"
-msgstr "EmÃ«r"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Nick name:"
 msgstr "NofkÃ«:"
 
 #: ../data/irc-network-editor.glade.h:15
-#, fuzzy
 msgid "_Real Name:"
-msgstr "EmÃ«r i VÃ«rtetÃ«:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:16
 msgid "_Use secure connection (SSL)"
@@ -185,9 +170,8 @@ msgid "<span weight=\"bold\">mIRC Colors</span>"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:13
-#, fuzzy
 msgid "A_way message:"
-msgstr "Mesazh i ri:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
@@ -198,42 +182,36 @@ msgid "Auto-accept DCC File Transfers"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:16
-#, fuzzy
 msgid "Background _image"
-msgstr "Pamje sfond:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:17
-#, fuzzy
 msgid "Background mark:"
-msgstr "Pamje sfond:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:19
-#, fuzzy
 msgid "Convert spaces to underscores in filenames"
-msgstr "ShndÃ«rro hapÃ«sirat nÃ« nÃ«nvija para dÃ«rgimit"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:20
 msgid "Download files to:"
 msgstr "Shkarko kartela te:"
 
 #: ../data/preferences-dialog.glade.h:21
-#, fuzzy
 msgid "Enter extra words to trigger highlighting"
-msgstr "FjalÃ« ekstra pÃ«r t'u theksuar:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:22
-#, fuzzy
 msgid "Foreground mark:"
-msgstr "PÃ«rpara:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:23
-#, fuzzy
 msgid "Get IP Address From Server"
-msgstr "Kije vendndodhjen time prej serverit IRC"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:24
 msgid "Global receive KB/s: "
@@ -260,39 +238,32 @@ msgid "Move completed files to:"
 msgstr "Zhvendos kartela tÃ« plotÃ«suara te:"
 
 #: ../data/preferences-dialog.glade.h:30
-#, fuzzy
 msgid "Preferences"
-msgstr "ParapÃ«lqime..."
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:31
-#, fuzzy
 msgid "Real na_me:"
-msgstr "EmÃ«r i _vÃ«rtetÃ«:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:32
-#, fuzzy
 msgid "Save sender nickname in filenames"
-msgstr "Ruaj nofka nÃ« emra kartelash"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:33
-#, fuzzy
 msgid "Select A File"
-msgstr "Zgjidh njÃ« KartelÃ« Pamjeje"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:34
-#, fuzzy
 msgid "Select Completed Files Directory"
-msgstr "Zhvendos kartela tÃ« plotÃ«suara te:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:35
-#, fuzzy
 msgid "Select Download Directory"
-msgstr "Kartela dhe Drejtori"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:36
-#, fuzzy
 msgid "Show _timestamps"
-msgstr "Aktivizo vula kohore"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:37
 msgid ""
@@ -305,61 +276,52 @@ msgid "Use System Terminal Font"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:39
-#, fuzzy
 msgid "Use This IP Address:"
-msgstr "Vendndodhje DCC IP:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:40
-#, fuzzy
 msgid "Use this font:"
-msgstr "ListÃ« PÃ«rdoruesish"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:41
-#, fuzzy
 msgid "_Background color:"
-msgstr "Sfond:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:99
 msgid "_Edit"
 msgstr "_PÃ«rpuno"
 
 #: ../data/preferences-dialog.glade.h:43
-#, fuzzy
 msgid "_Foreground color:"
-msgstr "PÃ«rpara:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:44
-#, fuzzy
 msgid "_Nickname:"
-msgstr "NofkÃ«:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:46
-#, fuzzy
 msgid "_Part message:"
-msgstr "Mesazh i ri:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:47
-#, fuzzy
 msgid "_Quit message:"
-msgstr "Mesazh djathtas"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:49
-#, fuzzy
 msgid "_Transparent background"
-msgstr "Sfond i tejdukshÃ«m"
+msgstr ""
 
 #: ../data/setup-dialog.glade.h:1
-#, fuzzy
 msgid "Nick Name:"
-msgstr "NofkÃ«:"
+msgstr ""
 
 #: ../data/setup-dialog.glade.h:2
 msgid "Real Name:"
@@ -382,31 +344,27 @@ msgid "xchat-gnome setup"
 msgstr ""
 
 #: ../data/topic-change.glade.h:1
-#, fuzzy
 msgid "Change"
-msgstr "Kanal"
+msgstr ""
 
 #.
 #. GNOME_PARAM_GOPTION_CONTEXT, context,
 #.
 #: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:84
-#, fuzzy
 msgid "IRC Chat"
-msgstr "Fjalosje"
+msgstr ""
 
 #: ../data/xchat-gnome.desktop.in.h:2
-#, fuzzy
 msgid "XChat-GNOME IRC Chat"
-msgstr "XChat: ListÃ« Fjalosjeje DCC"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:1
 msgid "Close this discussion"
 msgstr ""
 
 #: ../data/xchat-gnome.glade.h:2
-#, fuzzy
 msgid "Enter a new nickname"
-msgstr "Jepni nofkÃ«n e re:"
+msgstr ""
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
@@ -418,9 +376,8 @@ msgid "Error"
 msgstr "Gabim"
 
 #: ../data/xchat-gnome.glade.h:4
-#, fuzzy
 msgid "The new nickname"
-msgstr "Jepni nofkÃ«n e re:"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:805
 #: ../src/fe-gnome/channel-list.c:311
@@ -428,9 +385,8 @@ msgid "Users"
 msgstr "PÃ«rdoruesa"
 
 #: ../data/xchat-gnome.glade.h:6
-#, fuzzy
 msgid "nickname"
-msgstr "NofkÃ«"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:164
 msgid "Screensaver activated, going away."
@@ -441,25 +397,21 @@ msgid "Screensaver is off, welcome back"
 msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:212
-#, fuzzy
 msgid "Auto Away"
-msgstr "Larguar"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:213
-#, fuzzy
 msgid "Automatically go away / come back"
-msgstr "Ãshenjo automatikisht si tÃ« larguar"
+msgstr ""
 
 #. Hook up our callbacks.
 #: ../plugins/autoaway/autoaway.c:231
-#, fuzzy
 msgid "Disconnected"
-msgstr "_ShkÃ«putu"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:232
-#, fuzzy
 msgid "Connected"
-msgstr "Lidhu"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -491,14 +443,14 @@ msgid "Couldn't connect to session bus : %s\n"
 msgstr "Nuk u lidha dot me busin e sesionit : %s\n"
 
 #: ../plugins/dbus/dbus-plugin.c:353
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to acquire %s: %s\n"
-msgstr "DÃ«shtova nÃ« pasjen"
+msgstr ""
 
 #: ../plugins/dbus/dbus-plugin.c:401
-#, fuzzy, c-format
+#, c-format
 msgid "%s loaded successfully!\n"
-msgstr "ngarkuar me sukses!\n"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:60
 msgid "Open an irc:// url"
@@ -557,13 +509,11 @@ msgid "name"
 msgstr "emÃ«r"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:79
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "xchat-gnome-remote: %s\n"
 "Try `xchat-gnome-remote --help' for more information\n"
 msgstr ""
-"xchat-remote: %s\n"
-"PÃ«r mÃ« tepÃ«r tÃ« dhÃ«na provoni `xchat-remote --help'\n"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:90
 msgid "Couldn't connect to session bus"
@@ -596,47 +546,41 @@ msgid "%s doesn't exist\n"
 msgstr "%s nuk ekziston\n"
 
 #: ../plugins/net-monitor/net-monitor.c:36
-#, fuzzy
 msgid "Network Monitor"
-msgstr "MatÃ«sa _Rrjeti"
+msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
 msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:342
-#, fuzzy, c-format
+#, c-format
 msgid "%s loaded successfully\n"
-msgstr "ngarkuar me sukses!\n"
+msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
-#, fuzzy
 msgid "Orientation"
-msgstr "ArgjentinÃ«"
+msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
-#, fuzzy
 msgid "The orientation of the tray."
-msgstr "Nofka e personit"
+msgstr ""
 
 #: ../plugins/notification/notification.c:148
-#, fuzzy
 msgid "Notification"
-msgstr "Vendndodhje"
+msgstr ""
 
 #: ../plugins/notification/notification.c:149
 msgid "A notification area plugin."
 msgstr ""
 
 #: ../plugins/notification/notification.c:235
-#, fuzzy
 msgid "Notification plugin loaded.\n"
-msgstr "S'gjendet shtojcÃ« e tillÃ«.\n"
+msgstr ""
 
 #: ../plugins/notification/notification.c:250
-#, fuzzy
 msgid "Notification plugin unloaded.\n"
-msgstr "S'gjendet shtojcÃ« e tillÃ«.\n"
+msgstr ""
 
 #: ../plugins/notification/notification.schemas.in.h:1
 msgid "Keep icon in tray at all times"
@@ -654,15 +598,15 @@ msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:89
 #: ../plugins/notify-osd/notify-osd.c:117
-#, fuzzy, c-format
+#, c-format
 msgid "Message in %s"
-msgstr "Mesazh"
+msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:91
 #: ../plugins/notify-osd/notify-osd.c:119
-#, fuzzy, c-format
+#, c-format
 msgid "Message from %s"
-msgstr "Mesazh"
+msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:140
 #, c-format
@@ -678,9 +622,8 @@ msgid "OSD initialization failed\n"
 msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:45
-#, fuzzy
 msgid "xchat URL scraper"
-msgstr "XChat: Kopjues URL-sh"
+msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:823
 msgid "Time"
@@ -701,9 +644,8 @@ msgid "URL"
 msgstr "URL"
 
 #: ../plugins/url_scraper/urlscraper.c:155
-#, fuzzy
 msgid "URL Scraper"
-msgstr "Kopjues URL-sh..."
+msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:156
 msgid "Grabs URLs and puts them in a separate window for easy viewing."
@@ -730,9 +672,8 @@ msgid "URL Scraper history length"
 msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.schemas.in.h:2
-#, fuzzy
 msgid "URL Scraper show timestamps"
-msgstr "Aktivizo vula kohore"
+msgstr ""
 
 #: ../src/common/cfgfiles.c:350
 msgid "Cannot create ~/.xchat2"
@@ -1134,9 +1075,8 @@ msgid "NCTCP <nick> <message>, Sends a CTCP notice"
 msgstr "NCTCP <nofkÃ«> <mesazh>, DÃ«rgon njÃ« njoftim CTCP"
 
 #: ../src/common/outbound.c:3206
-#, fuzzy
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
-msgstr "NEWSERVER <strehÃ«emÃ«r> [<portÃ«>]"
+msgstr ""
 
 #: ../src/common/outbound.c:3207
 msgid "NICK <nickname>, sets your nick"
@@ -1835,199 +1775,161 @@ msgstr ""
 "%s"
 
 #: ../src/common/textevents.h:6
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 added to notify list."
-msgstr "%C22*%O$t$1 u shtua te lista njofto."
+msgstr ""
 
 #: ../src/common/textevents.h:9
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 Banlist: %C3$4 %C4$2 %C5$3%O"
-msgstr "%C22*%O$t$1 ListÃ« ndalimesh:%C19 $4%C20 $2%C21 $3"
+msgstr ""
 
 #: ../src/common/textevents.h:12
-#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(You are banned)."
-msgstr "%C22*%O$tNuk bashkohet dot me%C26 %B$1 %O(Ju Ã«shtÃ« ndaluar)."
+msgstr ""
 
 #: ../src/common/textevents.h:18
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 is now known as $2"
-msgstr "%C22*%O$t$1 njihet si $2"
+msgstr ""
 
 #: ../src/common/textevents.h:21
-#, fuzzy
 msgid "%C13*%O$t$1 $2%O"
-msgstr "%C16*%O$t$1%O"
+msgstr ""
 
 #: ../src/common/textevents.h:24
-#, fuzzy
 msgid "%C13*%O$t%C8%B$1%B%O $2%O"
-msgstr "%C21*%O$t%C21%B$1%O%C21 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:27
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets ban on $2"
-msgstr "%C22*%O$t$1 vendos ndalim mbi $2"
+msgstr ""
 
 #: ../src/common/textevents.h:30
-#, fuzzy
 msgid "-%C10-%C11-%O$tChannel $1 created on $2"
-msgstr "%C22*%O$tKanal $1 krijuar nÃ« $2"
+msgstr ""
 
 #: ../src/common/textevents.h:33
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
-msgstr "%C22*%O$t%C26$1%O i heq%C26 $2 gjendjen gjysmÃ«-operator kanali"
+msgstr ""
 
 #: ../src/common/textevents.h:36
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
-msgstr "%C22*%O$t%C26$1%O i heq%C26 $2 gjendjen operator kanali"
+msgstr ""
 
 #: ../src/common/textevents.h:39
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
-msgstr "%C22*%O$t%C26$1%O i heq%C26 $2 zÃ«rin"
+msgstr ""
 
 #: ../src/common/textevents.h:42
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
-msgstr "%C22*%O$t$1 vendos pÃ«rjashtim ndaj $2"
+msgstr ""
 
 #: ../src/common/textevents.h:45
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
-msgstr "%C22*%O$t%C26$1%O i jep%C26 $2 gjendjen gjysmÃ«-operator kanali"
+msgstr ""
 
 #: ../src/common/textevents.h:48
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets invite on $2"
-msgstr "%C22*%O$t$1 cakton ftesÃ« nÃ« $2"
+msgstr ""
 
 #: ../src/common/textevents.h:51
-#, fuzzy
 msgid "%UChannel          Users   Topic%O"
-msgstr "%UKanal          PÃ«rdoruesa   TemÃ«"
+msgstr ""
 
 #: ../src/common/textevents.h:54 ../src/common/textevents.h:306
-#, fuzzy
 msgid "%C2<%O$1%C2>%O$t$2%O"
-msgstr "%C28-%C29$1%C28-%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:57
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets mode $2$3 $4"
-msgstr "%C22*%O$t$1 cakton mÃ«nyrÃ« $2$3 $4"
+msgstr ""
 
 #: ../src/common/textevents.h:60
-#, fuzzy
 msgid "-%C10-%C11-%O$tChannel $1 modes: $2"
-msgstr "%C22*%O$t%C22Kanal $1 mÃ«nyra: $2"
+msgstr ""
 
 #: ../src/common/textevents.h:63
-#, fuzzy
 msgid "%C2<%C8%B$1%B%C2>%O$t$2%O"
-msgstr "%C28-%C29$1%C28-%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:66
-#, fuzzy
 msgid "%C12-%C13$1/$2%C12-%O$t$3%O"
-msgstr "%C28-%C29$1/$2%C28-%O$t$3"
+msgstr ""
 
 #: ../src/common/textevents.h:69
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
-msgstr "%C22*%O$t%C26$1%O i jep%C26 $2 gjendjen operator kanali"
+msgstr ""
 
 #: ../src/common/textevents.h:72
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
-msgstr "%C22*%O$t$1 heq pÃ«rjashtim ndaj $2"
+msgstr ""
 
 #: ../src/common/textevents.h:75
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes invite on $2"
-msgstr "%C22*%O$t$1 heq ftesÃ« nga $2"
+msgstr ""
 
 #: ../src/common/textevents.h:78
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel keyword"
-msgstr "%C22*%O$t$1 heq fjalÃ«kyÃ§a kanali"
+msgstr ""
 
 #: ../src/common/textevents.h:81
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes user limit"
-msgstr "%C22*%O$t$1 heq kufi pÃ«rdoruesi"
+msgstr ""
 
 #: ../src/common/textevents.h:84
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets channel keyword to $2"
-msgstr "%C22*%O$t$1 cakton si fjalÃ«kyÃ§ kanali $2"
+msgstr ""
 
 #: ../src/common/textevents.h:87
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets channel limit to $2"
-msgstr "%C22*%O$t$1 vendos kufi kanali nÃ« $2"
+msgstr ""
 
 #: ../src/common/textevents.h:90
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes ban on $2"
-msgstr "%C22*%O$t$1 heq ndalim pÃ«r $2"
+msgstr ""
 
 #: ../src/common/textevents.h:93
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives voice to $2"
-msgstr "%C22*%O$t%C26$1%O i jep zÃ«%C26 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:96
-#, fuzzy
 msgid "-%C10-%C11-%O$tConnected. Now logging in.."
-msgstr "%C22*%O$t%C22I lidhur. Tani po futem.."
+msgstr ""
 
 #: ../src/common/textevents.h:99
-#, fuzzy
 msgid "-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
-msgstr "%C22*%O$t%C22Po lidhem me $1 ($2) porta $3%O..."
+msgstr ""
 
 #: ../src/common/textevents.h:102
-#, fuzzy
 msgid "-%C10-%C11-%O$tConnection failed. Error: $1"
-msgstr "%C21*%O$t%C21Lidhja dÃ«shtoi. Gabim: $1"
+msgstr ""
 
 #: ../src/common/textevents.h:105
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2"
-msgstr "%C22*%O$tErdhi njÃ« CTCP $1 prej $2"
+msgstr ""
 
 #: ../src/common/textevents.h:108
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2 (to $3)"
-msgstr "%C22*%O$tErdhi njÃ« CTCP $1 prej $2 (te $3)"
+msgstr ""
 
 #: ../src/common/textevents.h:111
-#, fuzzy
 msgid "%C3>%O$1%C3<%O$tCTCP $2%O"
-msgstr "%C19>%O$1%C19<%O$tCTCP $2"
+msgstr ""
 
 #: ../src/common/textevents.h:114
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP Sound $1 from $2"
-msgstr "%C22*%O$tErdhi njÃ« Tingull CTCP $1 prej $2"
+msgstr ""
 
 #: ../src/common/textevents.h:117
 msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
 msgstr "%C22*%O$tErdhi njÃ« Tingull CTCP $1 prej $2 (te $3)"
 
 #: ../src/common/textevents.h:120
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
-msgstr "%C22*%O$tFJALOSJA DCC te %C26$1%O dÃ«shtoi."
+msgstr ""
 
 #: ../src/common/textevents.h:123
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr "%C22*%O$tLidhje FJALOSJEJE DCC me %C26$1 %C30[%O$2%C30] e vendosur"
+msgstr ""
 
 #: ../src/common/textevents.h:126
 msgid ""
@@ -2035,29 +1937,24 @@ msgid ""
 msgstr ""
 
 #: ../src/common/textevents.h:129
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
-msgstr "%C22*%O$tErdhi njÃ« ofertÃ« FJALOSJEJE DCC prej $1"
+msgstr ""
 
 #: ../src/common/textevents.h:132
-#, fuzzy
 msgid "-%C10-%C11-%O$tOffering DCC CHAT to $1"
-msgstr "%C22*%O$tPo ofroj FJALOSJE DCC pÃ«r $1"
+msgstr ""
 
 #: ../src/common/textevents.h:135
-#, fuzzy
 msgid "-%C10-%C11-%O$tAlready offering CHAT to $1"
-msgstr "%C22*%O$tKeni ofruar njÃ« herÃ« FJALOSJE pÃ«r $1"
+msgstr ""
 
 #: ../src/common/textevents.h:138
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 connect attempt to %C11$2%O failed (err=$3)."
-msgstr "%C22*%O$tDCC $1 dÃ«shtoi pÃ«rpjekja pÃ«r lidhje me%C26 $2%O (err=$3)."
+msgstr ""
 
 #: ../src/common/textevents.h:141
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived '$1%O' from $2"
-msgstr "%C22*%O$tMora '$1%O' prej $2"
+msgstr ""
 
 #: ../src/common/textevents.h:144
 #, c-format
@@ -2066,133 +1963,106 @@ msgstr ""
 "%C24,18 Tip  Prej/PÃ«r    Gjendje  MadhÃ«si    Pos     KartelÃ«         "
 
 #: ../src/common/textevents.h:147
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tReceived a malformed DCC request from %C11$1%O.%010-%C10-%C11-"
 "%O$tContents of packet: $2"
 msgstr ""
-"%C22*%O$tErdhi prej %C26$1%O njÃ« kÃ«rkesÃ« DCC e keqformuar.%010%C22*%O"
-"$tPÃ«rmbajtje pakete: $2"
 
 #: ../src/common/textevents.h:150
-#, fuzzy
 msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
-msgstr "%C22*%O$tPo ofroj%C26 $1%O te%C26 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:153
-#, fuzzy
 msgid "-%C10-%C11-%O$tNo such DCC offer."
-msgstr "%C22*%O$tNuk ka njÃ« ofertÃ« DCC tÃ« tillÃ«."
+msgstr ""
 
 #: ../src/common/textevents.h:156
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV %C11$2%O to %C11$1%O aborted."
-msgstr "%C22*%O$tDCC RECV%C26 $2%O pÃ«r%C26 $1%O dÃ«shtoi."
+msgstr ""
 
 #: ../src/common/textevents.h:159
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O cps%"
 "C14]%O."
 msgstr ""
-"%C22*%O$tDCC RECV%C26 $1%O prej%C26 $3%O e plotÃ«suar %C30[%C26$4%O cps%C30]%"
-"O."
 
 #: ../src/common/textevents.h:162
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC RECV connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr "%C22*%O$tLidhje DCC RECV me%C26 $1 %C30[%O$2%C30] e vendosur"
+msgstr ""
 
 #: ../src/common/textevents.h:165
 msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
 msgstr ""
 
 #: ../src/common/textevents.h:168
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
-msgstr "%C22*%O$tDCC RECV: Nuk hap dot $1 pÃ«r shkrim ($2)."
+msgstr ""
 
 #: ../src/common/textevents.h:171
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tThe file %C11$1%C already exists, saving it as %C11$2%O "
 "instead."
 msgstr ""
-"%C22*%O$tKa tashmÃ« njÃ« kartelÃ«%C26 $1%C, ndaj po e ruaj te%C26 $2%O "
-"ndryshe."
 
 #: ../src/common/textevents.h:174
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
-msgstr "%C22*%O$t%C26$1 %Oka kÃ«rkuar tÃ« rimarrÃ«%C26 $2 %Cprej%C26 $3%C."
+msgstr ""
 
 #: ../src/common/textevents.h:177
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC SEND %C11$2%O to %C11$1%O aborted."
-msgstr "%C22*%O$tDCC SEND%C26 $2%O te%C26 $1%O u ndÃ«rpre."
+msgstr ""
 
 #: ../src/common/textevents.h:180
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%C14]%"
 "O."
 msgstr ""
-"%C22*%O$tDCC SEND%C26 $1%O te%C26 $2%O i plotÃ«suar %C30[%C26$3%O cps%C30]%O."
 
 #: ../src/common/textevents.h:183
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC SEND connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr "%C22*%O$tLidhje DCC SEND me%C26 $1 %C30[%O$2%C30]e vendosur"
+msgstr ""
 
 #: ../src/common/textevents.h:186
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
 msgstr ""
 
 #: ../src/common/textevents.h:189
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
-msgstr "%C22*%O$t%C26$1 %Oka ofruar%C26 $2 %O(%C26$3 %Obytes)"
+msgstr ""
 
 #: ../src/common/textevents.h:192
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Cstalled - aborting."
-msgstr "%C22*%O$tDCC $1%C26 $2 %Ote%C26 $3 %Cu bajatos - po e ndÃ«rpres."
+msgstr ""
 
 #: ../src/common/textevents.h:195
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Ctimed out - aborting."
-msgstr "%C22*%O$tDCC-s $1%C26 $2 %Ote%C26 $3 %Oi mbaroi koha - po e ndÃ«rpres."
+msgstr ""
 
 #: ../src/common/textevents.h:198
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 deleted from notify list."
-msgstr "%C22*%O$t$1 u hoq prej liste njoftimesh."
+msgstr ""
 
 #: ../src/common/textevents.h:201
-#, fuzzy
 msgid "-%C10-%C11-%O$tDisconnected ($1)."
-msgstr "%C22*%O$tI shkÃ«putur ($1)."
+msgstr ""
 
 #: ../src/common/textevents.h:204
-#, fuzzy
 msgid "-%C10-%C11-%O$tFound your IP: [$1]"
-msgstr "%C22*%O$tU gjet IP-ja juaj: [$1]"
+msgstr ""
 
 #: ../src/common/textevents.h:207
 msgid "$1$t$2"
 msgstr "$1$t$2"
 
 #: ../src/common/textevents.h:210
-#, fuzzy
 msgid "%O%C11$1%O added to ignore list."
-msgstr "%O%C26$1%O ju shtua listÃ«s sÃ« shpÃ«rfilljeve."
+msgstr ""
 
 #: ../src/common/textevents.h:213
-#, fuzzy
 msgid "Ignore on %C11$1%O changed."
-msgstr "U ndryshua shpÃ«rfill mbi %C26$1%O."
+msgstr ""
 
 #: ../src/common/textevents.h:216
 #, c-format
@@ -2206,298 +2076,238 @@ msgstr ""
 "%C24,18 StrehÃ«maskÃ«                  PRIV NOTI CHAN CTCP DCC  INVI UNIG "
 
 #: ../src/common/textevents.h:222
-#, fuzzy
 msgid "%O%C11$1%O removed from ignore list."
-msgstr "%O%C26$1%O hequr prej liste shpÃ«rfill."
+msgstr ""
 
 #: ../src/common/textevents.h:225
 msgid "  Ignore list is empty."
 msgstr "Lista shpÃ«rfill Ã«shtÃ« e zbrazÃ«t."
 
 #: ../src/common/textevents.h:228
-#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
 msgstr ""
-"%C22*%O$tnuk mund t'i bashkangjitet%C26 %B$1 %O(Kanali Ã«shtÃ« vetÃ«m me "
-"ftesa)."
 
 #: ../src/common/textevents.h:231
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
-msgstr "%C22*%O$tJeni ftuar te%C26 $1%O prej%C26 $2%C (%C26$3%C)"
+msgstr ""
 
 #: ../src/common/textevents.h:234
-#, fuzzy
 msgid "-%C10-%C11>%O$t%B$1%B %C14(%C10$3%C14)%C has joined $2"
-msgstr "%C19*%O$t%C19%B$1 %B($3) i Ã«shtÃ« bashkuar $2"
+msgstr ""
 
 #: ../src/common/textevents.h:237
-#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Requires keyword)."
-msgstr "%C22*%O$tNuk mund tÃ« bashkohet me%C26 %B$1 %O(Lipset fjalÃ«kyÃ§)."
+msgstr ""
 
 #: ../src/common/textevents.h:240
-#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has kicked $2 from $3 ($4%O)"
-msgstr "%C21*%O$t%C21$1 ka pÃ«rzÃ«nÃ« $2 prej $3 ($4%O%C21)"
+msgstr ""
 
 #: ../src/common/textevents.h:243
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been killed by $1 ($2%O)"
-msgstr "%C22*%O$tJeni asgjÃ«suar prej $1 ($2%O%C22)"
+msgstr ""
 
 #: ../src/common/textevents.h:246 ../src/common/textevents.h:270
-#, fuzzy
 msgid "%C3>%O$1%C3<%O$t$2%O"
-msgstr "%C19>%O$1%C19<%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:249 ../src/common/textevents.h:327
 #: ../src/common/textevents.h:333 ../src/common/textevents.h:336
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1%O"
-msgstr "%C16*%O$t$1%O"
+msgstr ""
 
 #: ../src/common/textevents.h:252
-#, fuzzy
 msgid "-%C10-%C11-%O$tMOTD Skipped."
-msgstr "%C22*%O$t%C22MOTD Anashkaluar."
+msgstr ""
 
 #: ../src/common/textevents.h:255
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 already in use. Retrying with $2.."
-msgstr "%C22*%O$t$1 tashmÃ« i pÃ«rdorur. Po provoj me $2..."
+msgstr ""
 
 #: ../src/common/textevents.h:258
-#, fuzzy
 msgid "-%C10-%C11-%O$tNickname already in use. Use /NICK to try another."
 msgstr ""
-"%C22*%O$tNofkÃ« tashmÃ« nÃ« pÃ«rdorim. PÃ«rdorni /NICK pÃ«r tÃ« provuar njÃ« "
-"tjetÃ«r."
 
 #: ../src/common/textevents.h:261
-#, fuzzy
 msgid "-%C10-%C11-%O$tNo such DCC."
-msgstr "%C22*%O$tNuk ka DCC tÃ« tillÃ«."
+msgstr ""
 
 #: ../src/common/textevents.h:264
-#, fuzzy
 msgid "-%C10-%C11-%O$tNo process is currently running"
-msgstr "%C22*%O$tPÃ«r Ã§astin nuk ka proces nÃ« xhirim"
+msgstr ""
 
 #: ../src/common/textevents.h:267
-#, fuzzy
 msgid "%C12-%C13$1%C12-%O$t$2%O"
-msgstr "%C28-%C29$1%C28-%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:273
-#, fuzzy
 msgid "-%C10-%C11-%O$tNotify list is empty."
-msgstr "$tLista njofto Ã«shtÃ« e zbrazÃ«t."
+msgstr ""
 
 #: ../src/common/textevents.h:276
 msgid "%C24,18 %B  Notify List                           "
 msgstr "%C24,18 %B  ListÃ« Njoftimesh                           "
 
 #: ../src/common/textevents.h:279
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 users in notify list."
-msgstr "%C22*%O$t$1 pÃ«rdoruesÃ« nÃ« listÃ« njoftimesh."
+msgstr ""
 
 #: ../src/common/textevents.h:282
-#, fuzzy
 msgid "-%C10-%C11-%O$tNotify: $1 is offline ($2)."
-msgstr "%C22*%O$tNjofto: $1 Ã«shtÃ« i palidhur ($2)."
+msgstr ""
 
 #: ../src/common/textevents.h:285
-#, fuzzy
 msgid "-%C10-%C11-%O$tNotify: $1 is online ($2)."
-msgstr "%C22*%O$tNjofto: $1 Ã«shtÃ« i lidhur ($2)."
+msgstr ""
 
 #: ../src/common/textevents.h:291
-#, fuzzy
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3"
-msgstr "%C23*%O$t%C23$1 (%O%C23$2) ka ikur $3"
+msgstr ""
 
 #: ../src/common/textevents.h:294
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3 %C14(%O$4%C14)%O"
 msgstr ""
 
 #: ../src/common/textevents.h:297
-#, fuzzy
 msgid "-%C10-%C11-%O$tPing reply from $1 : $2 second(s)"
-msgstr "%C22*%O$tPÃ«rgjigje ping prej $1 : $2 sekonda"
+msgstr ""
 
 #: ../src/common/textevents.h:300
-#, fuzzy
 msgid "-%C10-%C11-%O$tNo ping reply for $1 seconds, disconnecting."
-msgstr "%C22*%O$tPa pÃ«rgjigje ping pÃ«r $1 sekonda, po shkÃ«putem."
+msgstr ""
 
 #: ../src/common/textevents.h:303
-#, fuzzy
 msgid "%C12*%C13$1%C12*$t%O$2%O"
-msgstr "%C28*%C29$3$1%C28*$t%O$2"
+msgstr ""
 
 #: ../src/common/textevents.h:309
-#, fuzzy
 msgid "-%C10-%C11-%O$tA process is already running"
-msgstr "%C22*%O$tKa njÃ« proces nÃ« xhirim e sipÃ«r"
+msgstr ""
 
 #: ../src/common/textevents.h:312
-#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has quit %C14(%O$2%O%C14)%O"
-msgstr "%C23*%O$t%C23$1 ka lÃ«nÃ« (%O%C23%B%B$2%O%C23)"
+msgstr ""
 
 #: ../src/common/textevents.h:315
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets modes%B %C14[%O$2%B%C14]%O"
-msgstr "%C22*%O$t$1 cakton mÃ«nyra%B %C30[%O$2%B%C30]"
+msgstr ""
 
 #: ../src/common/textevents.h:318
-#, fuzzy
 msgid "%C12-%C13$1/Wallops%C12-%O$t$2%O"
-msgstr "%C28-%C29$1/Wallops%C28-%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:321
-#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up IP number for%C11 $1%O.."
-msgstr "%C22*%O$tPo kÃ«rkoj numra IP pÃ«r%C26 $1%O..."
+msgstr ""
 
 #: ../src/common/textevents.h:324
-#, fuzzy
 msgid "-%C10-%C11-%O$tConnected."
-msgstr "%C22*%O$t%C22I lidhur."
+msgstr ""
 
 #: ../src/common/textevents.h:330
-#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up %C11$1%C.."
-msgstr "%C22*%O$t%C22Po kÃ«rkoj $1"
+msgstr ""
 
 #: ../src/common/textevents.h:339
-#, fuzzy
 msgid "-%C10-%C11-%O$tStopped previous connection attempt (pid=$1)"
-msgstr "%C22*%O$tU ndalua pÃ«rpjekja e mÃ«parshme pÃ«r lidhje (pid=$1)"
+msgstr ""
 
 #: ../src/common/textevents.h:342
-#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C is %C11$2%O"
-msgstr "%C29*%O$t%C29TemÃ« pÃ«r $1%C %C29is: $2"
+msgstr ""
 
 #: ../src/common/textevents.h:345
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 has changed the topic to: $2%O"
-msgstr "%C22*%O$t$1 ka ndryshuar temÃ«n nÃ«: $2"
+msgstr ""
 
 #: ../src/common/textevents.h:348
-#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
-msgstr "%C29*%O$t%C29TemÃ« pÃ«r $1%C %C29e caktuar prej $2%C %C29mÃ« $3"
+msgstr ""
 
 #: ../src/common/textevents.h:351
-#, fuzzy
 msgid "-%C10-%C11-%O$tUnknown host. Maybe you misspelled it?"
-msgstr "%C22*%O$tStrehÃ« e panjohur. Mundet e shkruajtÃ«t keq?"
+msgstr ""
 
 #: ../src/common/textevents.h:354
-#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(User limit reached)."
 msgstr ""
-"%C22*%O$tNuk mund tÃ« bashkoheni me%C26 %B$1 %O(ÃshtÃ« arritur kufi "
-"pÃ«rdoruesish)."
 
 #: ../src/common/textevents.h:357
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C11Users on $1:%C $2"
-msgstr "%C22*%O$t%C26PÃ«rdoruesa nÃ« $1:%C $2"
+msgstr ""
 
 #: ../src/common/textevents.h:360
 msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 msgstr "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 
 #: ../src/common/textevents.h:363
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
-msgstr "%C22*%O$t%C28[%O$1%C28] %Cka dalÃ« %C30(%O$2%O%C30)"
+msgstr ""
 
 #: ../src/common/textevents.h:366
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+msgstr ""
 
 #: ../src/common/textevents.h:369
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %CEnd of WHOIS list."
-msgstr "%C22*%O$t%C28[%O$1%C28] %OFund i listÃ«s WHOIS."
+msgstr ""
 
 #: ../src/common/textevents.h:372
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+msgstr ""
 
 #: ../src/common/textevents.h:375
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O pa ngarkesÃ«%C26 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:378
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O, signon: %C11$3%O"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O p ngarkesÃ«%C26 $2%O, signon:%C26 $3"
+msgstr ""
 
 #: ../src/common/textevents.h:381
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
-msgstr "%C22*%O$t%C28[%O$1%C28] %C30(%O$2@$3%C30)%O: $4"
+msgstr ""
 
 #: ../src/common/textevents.h:384
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$t%C12[%O$1%C12] %Oreal user@host %C11$2%O, real IP %C11$3%O"
 msgstr ""
-"%C22*%O$t%C28[%O$1%C28] %OpÃ«rdorues real@host%C27 $2%O, IP reale%C27 $3"
 
 #: ../src/common/textevents.h:387
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+msgstr ""
 
 #: ../src/common/textevents.h:390
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:393
-#, fuzzy
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
-msgstr "%C22*%O$tTani njiheni si $2"
+msgstr ""
 
 #: ../src/common/textevents.h:396
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been kicked from $2 by $3 ($4%O)"
-msgstr "%C23*$tJeni pÃ«rzÃ«nÃ« prej $2 nga $3 ($4%O%C23)"
+msgstr ""
 
 #: ../src/common/textevents.h:399
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have left channel $3"
-msgstr "%C23*$tKeni lÃ«nÃ« kanalin $3"
+msgstr ""
 
 #: ../src/common/textevents.h:402
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have left channel $3 %C14(%O$4%C14)%O"
-msgstr "%C23*$tKeni lÃ«nÃ« kanalin $3 (%O%C23%B%B$4%O%C23)"
+msgstr ""
 
 #: ../src/common/textevents.h:405
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou're inviting %C11$1%C to %C11$2%C (%C11$3%C)"
-msgstr "%C22*%O$tKeni ftuar%C26 $1%O te%C26 $2%O (%C26$3%O)"
+msgstr ""
 
 #: ../src/common/textevents.h:408
-#, fuzzy
 msgid "%C6<%O$1%C6>%O$t$2%O"
-msgstr "%C19>%O$1%C19<%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:411
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou are now known as $2"
-msgstr "%C22*%O$tTani njiheni si $2"
+msgstr ""
 
 #: ../src/common/util.c:296
 msgid "Remote host closed socket"
@@ -3830,14 +3640,12 @@ msgid "translator-credits"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
-#, fuzzy
 msgid "Background image filename"
-msgstr "Pamje sfond:"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:2
-#, fuzzy
 msgid "Background transparency"
-msgstr "Pamje sfond:"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Default nickname used by servers without special options set"
@@ -3864,18 +3672,16 @@ msgid "List of enabled plugins"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
-#, fuzzy
 msgid "Message sent on away"
-msgstr "Mesazh"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Message sent on channel part"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
-#, fuzzy
 msgid "Message sent on quit"
-msgstr "Mesazh"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Position of the horizontal pane in the main window"
@@ -3894,14 +3700,12 @@ msgid "Show colors in the main window"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:16
-#, fuzzy
 msgid "Show timestamps in the main window"
-msgstr "Aktivizo vula kohore"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
-#, fuzzy
 msgid "Use system fonts"
-msgstr "ListÃ« PÃ«rdoruesish"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
@@ -3913,14 +3717,12 @@ msgstr ""
 
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:108
-#, fuzzy
 msgid "_Connect"
-msgstr "Lidhu"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:130
-#, fuzzy
 msgid "_Open Link in Browser"
-msgstr "Hap Lidhje nÃ« Shfletues"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:131
 msgid "_Copy Link Location"
@@ -3931,29 +3733,24 @@ msgid "Se_nd Message To..."
 msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:136
-#, fuzzy
 msgid "_Copy Address"
-msgstr "Vendndodhja Juaj"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:140
-#, fuzzy
 msgid "_Send File"
-msgstr "DÃ«rgo KartelÃ«"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:141
-#, fuzzy
 msgid "Paste File _Contents"
-msgstr "_PÃ«rmbajtje"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:142
-#, fuzzy
 msgid "Paste File_name"
-msgstr "EmÃ«r i Ri kartele"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:143
-#, fuzzy
 msgid "_Cancel"
-msgstr "Anulo"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:548
 #, c-format
@@ -3999,9 +3796,8 @@ msgid "File"
 msgstr "KartelÃ«"
 
 #: ../src/fe-gnome/dcc-window.c:144
-#, fuzzy
 msgid "Remaining"
-msgstr "Po iki"
+msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -4021,9 +3817,8 @@ msgid ""
 msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
-#, fuzzy
 msgid "starting"
-msgstr "Po pres"
+msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:303
 #, c-format
@@ -4052,9 +3847,8 @@ msgid "Transfer failed"
 msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:327
-#, fuzzy
 msgid "stalled"
-msgstr "DÃ«shtova"
+msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:331
 #, c-format
@@ -4067,36 +3861,31 @@ msgid "%.2d:%.2d"
 msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:446
-#, fuzzy
 msgid "Send File..."
-msgstr "DÃ«rgo KartelÃ«"
+msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:57
 msgid "Use directory instead of the default config dir"
 msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:58
-#, fuzzy
 msgid "Don't auto-connect to servers"
-msgstr "Mos u vetÃ«rilidhu me shÃ«rbyesa"
+msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:59
-#, fuzzy
 msgid "Don't auto-load plugins"
-msgstr "Mos vetÃ«ngarko ndonjÃ« shtojcÃ«"
+msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:61
 msgid "Show version information"
 msgstr "Shfaq tÃ« dhÃ«na versioni"
 
 #: ../src/fe-gnome/fe-gnome.c:90
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "xchat-gnome: %s\n"
 "Try `xchat-gnome --help' for more information\n"
 msgstr ""
-"xchat-remote: %s\n"
-"PÃ«r mÃ« tepÃ«r tÃ« dhÃ«na provoni `xchat-remote --help'\n"
 
 #: ../src/fe-gnome/fe-gnome.c:819
 #, c-format
@@ -4112,9 +3901,8 @@ msgid "_Previous"
 msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:99
-#, fuzzy
 msgid "_Next"
-msgstr "_E re"
+msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -4135,9 +3923,9 @@ msgid "Server"
 msgstr "ShÃ«rbyes"
 
 #: ../src/fe-gnome/irc-network-editor.c:383
-#, fuzzy, c-format
+#, c-format
 msgid "%s Network Properties"
-msgstr "MatÃ«sa _Rrjeti"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:509
 #: ../src/fe-gnome/irc-network-editor.c:516
@@ -4150,23 +3938,20 @@ msgid "You must enter a network name"
 msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:516
-#, fuzzy
 msgid "You must enter a nick name"
-msgstr "Jepni nofkÃ«n e re:"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:522
 msgid "You must enter a real name"
 msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:529
-#, fuzzy
 msgid "No Servers"
-msgstr "ShÃ«rbyes"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:529
-#, fuzzy
 msgid "You must add at least one server for this network"
-msgstr "PÃ«rdor SSL pÃ«r tÃ«rÃ« shÃ«rbyesit nÃ« kÃ«tÃ« rrjet"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network.c:31
 msgid "UTF-8 (Unicode)"
@@ -4226,14 +4011,12 @@ msgid "In_sert"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:101
-#, fuzzy
 msgid "_Network"
-msgstr "Rrjet"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:102
-#, fuzzy
 msgid "_Discussion"
-msgstr "_ShkÃ«putu"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:103
 msgid "_Go"
@@ -4244,9 +4027,8 @@ msgid "_Help"
 msgstr "_NdihmÃ«"
 
 #: ../src/fe-gnome/main-window.c:109
-#, fuzzy
 msgid "_File Transfers"
-msgstr "ShpÃ«rngulje kartelash"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:110
 msgid "_Quit"
@@ -4258,32 +4040,27 @@ msgid "Cu_t"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:114
-#, fuzzy
 msgid "_Copy"
-msgstr "Kopjo"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:115
-#, fuzzy
 msgid "_Paste"
-msgstr "Vetiake"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:116 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
-#, fuzzy
 msgid "C_lear"
-msgstr "Pastro"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:117
-#, fuzzy
 msgid "Prefere_nces"
-msgstr "ParapÃ«lqime..."
+msgstr ""
 
 #. Network menu
 #. Server context menu
 #: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:81
-#, fuzzy
 msgid "_Information"
-msgstr "Informativ"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
@@ -4299,9 +4076,8 @@ msgid "_Close"
 msgstr "-Mbyll"
 
 #: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:85
-#, fuzzy
 msgid "_Channels..."
-msgstr "ListÃ« Kanalesh..."
+msgstr ""
 
 #. Discussion menu
 #. Channel context menu
@@ -4312,49 +4088,41 @@ msgid "_Save Transcript"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:89
-#, fuzzy
 msgid "_Leave"
-msgstr "Po iki"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:129
-#, fuzzy
 msgid "Cl_ose"
-msgstr "Mbyll"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:130
-#, fuzzy
 msgid "_Find"
-msgstr "Gjej"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:131
-#, fuzzy
 msgid "_Clear Window"
-msgstr "_Mbyll Dritare"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "Change _Topic"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:133 ../src/fe-gnome/navigation-tree.c:93
-#, fuzzy
 msgid "_Bans..."
-msgstr "ListÃ« Ndalimesh..."
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:134
-#, fuzzy
 msgid "_Users"
-msgstr "PÃ«rdoruesa"
+msgstr ""
 
 #. Go menu
 #: ../src/fe-gnome/main-window.c:137
-#, fuzzy
 msgid "Pre_vious Network"
-msgstr "Rrjet i Ri"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:138
-#, fuzzy
 msgid "Nex_t Network"
-msgstr "Rrjet i Ri"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:139
 msgid "_Previous Discussion"
@@ -4376,30 +4144,26 @@ msgstr "_Rreth"
 #: ../src/fe-gnome/main-window.c:482 ../src/fe-gnome/main-window.c:503
 #: ../src/fe-gnome/navigation-tree.c:1573
 #: ../src/fe-gnome/navigation-tree.c:1632
-#, fuzzy
 msgid "Ex-Chat"
-msgstr "Fjalosje"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:581
 msgid "Error showing help"
 msgstr ""
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
-#, fuzzy
 msgid "_Find..."
-msgstr "Gjej"
+msgstr ""
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
-#, fuzzy
 msgid "_Auto-connect"
-msgstr "_Rilidhu"
+msgstr ""
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
-#, fuzzy
 msgid "_Auto-join"
-msgstr "_Automatike"
+msgstr ""
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
@@ -4424,23 +4188,21 @@ msgid "Custom"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
-#, fuzzy
 msgid "File Transfers & DCC"
-msgstr "ShpÃ«rngulje kartelash"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
-#, fuzzy
 msgid "IRC Preferences"
-msgstr "XChat: ParapÃ«lqime"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
-#, fuzzy, c-format
+#, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
-msgstr "TÃ« heq vÃ«rtet rrjetin \"%s\" dhe tÃ«rÃ« shÃ«rbyesit e tij?"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-networks.c:171
 msgid "Networks"
@@ -4452,9 +4214,8 @@ msgstr "EmÃ«r"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:74
 #: ../src/fe-gnome/preferences-page-plugins.c:75
-#, fuzzy
 msgid "unknown"
-msgstr "I panjohur"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:112
 #, c-format
@@ -4470,23 +4231,20 @@ msgid "Plugin Load Failed"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:161
-#, fuzzy
 msgid "Open Plugin"
-msgstr "Hap dialogje nÃ«:"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:261
 msgid "Scripts and Plugins"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:271
-#, fuzzy
 msgid "Enable"
-msgstr "emÃ«r"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:272
-#, fuzzy
 msgid "Plugin"
-msgstr "Ping"
+msgstr ""
 
 #: ../src/fe-gnome/status-bar.c:92
 #, c-format
@@ -4494,14 +4252,13 @@ msgid "%s%.1fs lag"
 msgstr ""
 
 #: ../src/fe-gnome/status-bar.c:106
-#, fuzzy, c-format
+#, c-format
 msgid "%d bytes buffered"
-msgstr "%d bytes"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:274
-#, fuzzy
 msgid "I_nsert Color Code"
-msgstr "Fut Kod Ngjyre ose Atributi"
+msgstr ""
 
 #: ../src/fe-gnome/topic-label.c:232
 #, c-format
@@ -4509,33 +4266,17 @@ msgid "Changing topic for %s"
 msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:50
-#, fuzzy
 msgid "_Send File..."
-msgstr "DÃ«rgo KartelÃ«"
+msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:51
-#, fuzzy
 msgid "Private _Chat"
-msgstr "Vetiake"
+msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:52
-#, fuzzy
 msgid "_Kick"
-msgstr "PÃ«rzÃ«r"
+msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:53
-#, fuzzy
 msgid "_Ban"
-msgstr "Ndalo"
-
-#, fuzzy
-#~ msgid "%s unloaded successfully!\n"
-#~ msgstr "ngarkuar me sukses!\n"
-
-#, fuzzy
-#~ msgid ""
-#~ "%s: %s\n"
-#~ "Try `%s --help' for more information\n"
-#~ msgstr ""
-#~ "xchat-remote: %s\n"
-#~ "PÃ«r mÃ« tepÃ«r tÃ« dhÃ«na provoni `xchat-remote --help'\n"
+msgstr ""
