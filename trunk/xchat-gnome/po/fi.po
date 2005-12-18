@@ -1,6 +1,7 @@
-# X-Chat Finnish translation.
-# Copyright © 2001, 2002, 2003, 2004, 2005 Gnome Finnish Translation Team.
-# This file is distributed under the same license as the X-Chat package.
+# Translation of xchat-gnome into the Finnish language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
+# Gnome Finnish Translation Team, 2001-2005
 # Mika Laari <laari@iki.fi>, 2005
 # Lauri Nurmi <lanurmi@iki.fi>, 2003-2004.
 # Jarkko Ranta <jjranta@cc.joensuu.fi>, 2001-2002.
@@ -9,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-18 00:21-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-18 00:05-0700\n"
 "Last-Translator: Mika Laari <laari@iki.fi>\n"
 "Language-Team: Finnish <translation-team-fi@lists.sourceforge.net>\n"

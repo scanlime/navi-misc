@@ -1,6 +1,6 @@
-# Ukrainian translation to xchat
-# Copyright (C) 2004 Free Software Foundation, Inc
-# This file is distributed under the same license as the xchat package.
+# Translation of xchat-gnome into the Ukranian language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Maxim Dubovoy <max@mylinux.com.ua>, 2003
 # Maxim V. Dziumanenko <mvd@mylinux.com.ua>, 2004
 # Oleksandr Kunytsia <xakep@snark.ukma.kiev.ua>, 2004

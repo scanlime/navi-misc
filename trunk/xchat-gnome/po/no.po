@@ -1,12 +1,13 @@
-# Norwegian translation of X-chat (bokmål dialect).
-# Copyright (C) 1999 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Norwegian language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Kjartan Maraas <kmaraas@online.no>, 1999.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: X-Chat 0.96\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 21:04-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2003-01-23 23:04+0100\n"
 "Last-Translator: Kjartan Maraas <kmaraas@online.no>\n"
 "Language-Team: Norwegian <no@li.org>\n"

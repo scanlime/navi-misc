@@ -1,6 +1,6 @@
-# X-Chat Japanese message translation file.
-# Copyright (C) 1999-2003 Free Software Foundation, Inc.
-#
+# Translation of xchat-gnome into the Japanese language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Yuusuke Tahara <tahara@gehenna.u-aizu.ac.jp>, 1999
 # Takuo KITAME <kitame@debian.org>, 2000
 # Yukihiro Nakai <nakai@gnome.gr.jp>, 2002
@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-18 00:51-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-18 00:24-0700\n"
 "Last-Translator: Ryoichi INAGAKI <ryo1@bc.wakwak.com>\n"
 "Language-Team: Japanese <translation@gnome.gr.jp>\n"

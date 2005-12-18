@@ -1,13 +1,13 @@
-# translation of xchat-2.0.9pre1.mk.po to macedonian
-# Copyright (C) 2004 Free Software Foundation, Inc.
-# This file is put in the public domain.
+# Translation of xchat-gnome into the Macedonian language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Arangel Angov <ufo@linux.net.mk>, 2003, 2004.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-2.0.9pre1.mk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-18 01:25-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-18 00:55-0700\n"
 "Last-Translator: Arangel Angov <ufo@linux.net.mk>\n"
 "Language-Team: Macedonian <ufo@linux.net.mk>\n"

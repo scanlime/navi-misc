@@ -1,17 +1,13 @@
-# Bulgarian translation of xchat2.
-# This file is put in the public domain.
+# Translation of xchat-gnome into the Bulgarian language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Rostislav Raykov <zbrox@i-space.org>, 2005.
-# Rostislav Raykov <zbrox@i-space.org>, 2005.
-# Even though this file is set to correspond to 2.4.2
-# version it is synced with xchat HEAD. We still have to
-# work around the TP robot.
-#
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 21:04-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-05-20 17:51+0300\n"
 "Last-Translator: Rostislav Raykov <zbrox@i-space.org>\n"
 "Language-Team: Bulgarian <dict@fsa-bg.org>\n"

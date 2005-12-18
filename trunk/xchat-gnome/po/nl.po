@@ -1,5 +1,6 @@
-# Dutch translation of xchat.
-# Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Dutch language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Arjan Scherpenise <acscherp@wins.uva.nl>, 2000.
 # Bart Coppens <coppensbart@pi.be>, 2002.
 # Taco Witte <T.C.Witte@phys.uu.nl>, 2003.
@@ -10,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-18 00:51-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-18 00:46-0700\n"
 "Last-Translator: Luk Claes <luk@debian.org>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"

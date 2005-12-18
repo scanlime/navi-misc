@@ -1,13 +1,13 @@
-# translation of xchat-2.6.0.po to Punjabi
-# translation of xchat-2.4.2.po to Punjabi
-# This file is put in the public domain.
+# Translation of xchat-gnome into the Punjabi language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Amanpreet Singh Alam <amanpreetalam@yahoo.com>, 2005.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-2.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-18 01:25-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-18 01:06-0700\n"
 "Last-Translator: Amanpreet Singh Alam <amanpreetalam@yahoo.com>\n"
 "Language-Team: Punjabi <fedora-trans-pa@redhat.com>\n"

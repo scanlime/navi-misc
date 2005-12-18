@@ -1,6 +1,6 @@
-# Translations into the Amharic Language.
-# Copyright (C) 2002 Free Software Foundation, Inc.
-# This file is distributed under the same license as the xchat  package.
+# Translation of xchat-gnome into the Amharic language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Ge'ez Frontier Foundation <locales@geez.org>, 2002.
 #
 #
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 21:04-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2003-01-30 10:06+EDT\n"
 "Last-Translator: Ge'ez Frontier Foundation <locales@geez.org>\n"
 "Language-Team: Amharic <locales@geez.org>\n"

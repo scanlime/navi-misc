@@ -1,8 +1,7 @@
-# Swedish messages for X-Chat.
-# Copyright (C) 2000, 2001, 2002, 2003, 2004 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Swedish language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Christian Rose <menthos@menthos.com>, 2000, 2001, 2002, 2003, 2004.
-#
-# $Id: sv.po,v 1.28 2004/03/20 08:51:32 zed Exp $
 #
 msgid ""
 msgstr ""

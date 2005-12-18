@@ -1,16 +1,11 @@
-# translation of xchat-2.4.2.po to Russian
-# translation of xchat-2.4.1pre1.ru.po to Russian
-# translation of xchat-2.4.1pre1.po to
-# translation of xchat-2.4.0pre2.po to Russian
-# translation of xchat-2.0.9pre1.po to Russian
-# translation of xchat-2.0.8pre1.po to Russian
-# translation of xchat-2.0.7pre1.ru.po to Russian
-# translation of xchat-2.0.7pre1.ru.po to
-# Copyright (C) 2000, 2004, 2005 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Russian language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Volosenkov Dmitry <_bil_@mail.ru>, 1999.
 # Valek Filippov <frob@df.ru>, 2001.
 # Peter Astakhov <astakhovp@mail.ru>, 2004.
 # Peter Astakhov <astakhovp@mail.ru>, 2005.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-2.4.2\n"

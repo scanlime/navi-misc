@@ -1,12 +1,13 @@
-# Duit PPRT siapa yang kebas????      
-# Copyright (C) 2001 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Malay language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Hasbullah Bin Pit <sebol@ikhlas.com>, 2003.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.0.2pre1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-18 00:51-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-18 00:51-0700\n"
 "Last-Translator: Hasbullah Bin Pit <sebol@ikhlas.com>\n"
 "Language-Team: Malay <translation-team-ms@lists.sourceforge.net>\n"

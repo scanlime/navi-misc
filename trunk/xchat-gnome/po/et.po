@@ -1,5 +1,6 @@
-# Estonian translation of X-Chat.
-# Copyright (C) 2001 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the Estonian language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Ekke Vasli <ekke@chamber.ee>, 2001.
 # Ilmar Kerm <ikerm@hot.ee>, 2002.
 #
@@ -7,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Xchat 1.9.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 23:53-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2005-12-17 23:53-0700\n"
 "Last-Translator: Ilmar Kerm <ikerm@hot.ee>\n"
 "Language-Team: Estonian <gnome-et@linux.ee>\n"

@@ -1,13 +1,13 @@
-# translation of xchat-2.0.7pre1.po to Azerbaijani Turkish
-# Copyright (C) 2004 Free Software Foundation, Inc.
-# This file is put in the public domain.
+# Translation of xchat-gnome into the Azerbaijani Turkish language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Metin Amiroff <metin@karegen.com>, 2004.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-2.0.7pre1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 21:04-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2004-03-12 22:22+0200\n"
 "Last-Translator: Metin Amiroff <metin@karegen.com>\n"
 "Language-Team: Azerbaijani <translation-team-az@lists.sourceforge.net>\n"

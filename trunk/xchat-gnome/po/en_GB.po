@@ -1,5 +1,6 @@
-# English (British) translation for xchat
-# Copyright (C) 2004 Free Software Foundation, Inc.
+# Translation of xchat-gnome into the English (British) language
+# Copyright (C) 2004-2005 xchat-gnome team
+# This file is distributed under the same license as the xchat-gnome package.
 # Gareth Owen <gowen72@yahoo.com>, 2004
 # David Trowbridge <trowbrds@gmail.com>, 2005
 #
@@ -7,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.0.8pre1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-18 03:16-0700\n"
+"POT-Creation-Date: 2005-12-18 04:46-0700\n"
 "PO-Revision-Date: 2004-04-20 12:14-0400\n"
 "Last-Translator: Gareth Owen <gowen72@yahoo.com>\n"
 "Language-Team: English (British) <en_gb@li.org>\n"
