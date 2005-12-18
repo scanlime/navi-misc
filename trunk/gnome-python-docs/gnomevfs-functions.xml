@@ -344,5 +344,66 @@
       </variablelist>
       <para>Set file information for <parameter role="keyword">uri</parameter>.  Only the information for which the corresponding bit in <parameter role="keyword">mask</parameter> is set is actually modified.</para>
     </refsect2>
+
+    <refsect2 id="function-gnomevfs--truncate">
+      <title>gnomevfs.truncate</title>
+      <programlisting>
+        <methodsynopsis language="python">
+          <methodname>gnomevfs.truncate</methodname>
+	  <methodparam><parameter role="keyword">uri</parameter></methodparam>
+	  <methodparam><parameter role="keyword">length</parameter></methodparam>
+	</methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">uri</parameter>:</term>
+	  <listitem><simpara>The URI of the file to truncate.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><parameter role="keyword">length</parameter>:</term>
+	  <listitem><simpara>The length to truncate to.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Truncate a file to a specific length.</para>
+    </refsect2>
+
+    <refsect2 id="function-gnomevfs--make_directory">
+      <title>gnomevfs.make_directory</title>
+      <programlisting>
+        <methodsynopsis language="python">
+	  <methodname>gnomevfs.make_directory</methodname>
+	  <methodparam><parameter role="keyword">uri</parameter></methodparam>
+	  <methodparam><parameter role="keyword">perm</parameter></methodparam>
+	</methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">uri</parameter>:</term>
+	  <listitem><simpara>The URI of the directory to create.</simpara></listitem>
+	</varlistentry>
+        <varlistentry>
+	  <term><parameter role="keyword">perm</parameter>:</term>
+	  <listitem><simpara>Or'd set of <link linkend="gnomevfs-constants-file-permissions">file permissions flags</link>.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Create a directory with the given name and permissions.</para>
+    </refsect2>
+
+    <refsect2 id="function-gnomevfs--remove_directory">
+      <title>gnomevfs.remove_directory</title>
+      <programlisting>
+        <methodsynopsis language="python">
+	  <methodname>gnomevfs.remove_directory</methodname>
+	  <methodparam><parameter role="keyword">uri</parameter></methodparam>
+	</methodsynopsis>
+      </programlisting>
+      <variablelist>
+        <varlistentry>
+	  <term><parameter role="keyword">uri</parameter>:</term>
+	  <listitem><simpara>The URI of the directory to remove.</simpara></listitem>
+	</varlistentry>
+      </variablelist>
+      <para>Remove a directory.</para>
+    </refsect2>
   </refsect1>
 </refentry>
