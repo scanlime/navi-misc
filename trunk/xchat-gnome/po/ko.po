@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat 2.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-17 21:04-0700\n"
-"PO-Revision-Date: 2005-11-06 09:23 +0900\n"
+"POT-Creation-Date: 2005-12-18 01:25-0700\n"
+"PO-Revision-Date: 2005-12-18 01:18-0700\n"
 "Last-Translator: Michael Kim <lavnrose@e.sarang.net>\n"
 "Language-Team: Korean <translation-team-ko@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -23,14 +23,12 @@ msgid "Apply Text Filter To:    "
 msgstr ""
 
 #: ../data/channel-list.glade.h:3
-#, fuzzy
 msgid "Channel _Name"
-msgstr "대화방명"
+msgstr ""
 
 #: ../data/channel-list.glade.h:4
-#, fuzzy
 msgid "Channel _Topic"
-msgstr "대화방"
+msgstr ""
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
@@ -45,28 +43,24 @@ msgid "Minimum Users:"
 msgstr "최소 사용자:"
 
 #: ../data/channel-list.glade.h:8
-#, fuzzy
 msgid "Save List _As"
-msgstr "목록 저장"
+msgstr ""
 
 #: ../data/channel-list.glade.h:9
-#, fuzzy
 msgid "Text Filter:"
-msgstr "문서 화일 출력"
+msgstr ""
 
 #: ../data/connect-dialog.glade.h:1
 msgid "C_onnect"
 msgstr "접속(_o)"
 
 #: ../data/dcc-accept.glade.h:1
-#, fuzzy
 msgid "_Accept"
-msgstr "허용"
+msgstr ""
 
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
-#, fuzzy
 msgid "File Transfers"
-msgstr "화일 전송"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
@@ -81,61 +75,52 @@ msgid "<span weight=\"bold\">User Info</span>"
 msgstr ""
 
 #: ../data/irc-network-editor.glade.h:4
-#, fuzzy
 msgid "Character _encoding:"
-msgstr "문자설정:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Network Settings"
 msgstr "네트워크 설정"
 
 #: ../data/irc-network-editor.glade.h:6
-#, fuzzy
 msgid "Server _Password:"
-msgstr "서버 암호:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:7
-#, fuzzy
 msgid "Servers"
-msgstr "서버"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:8
-#, fuzzy
 msgid "Use _global user settings"
-msgstr "기본 사용자 정보를 사용합니다."
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:9
 msgid "Use _these user settings:"
 msgstr ""
 
 #: ../data/irc-network-editor.glade.h:10
-#, fuzzy
 msgid "User and Channels"
-msgstr "대화방 나가기"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:11
-#, fuzzy
 msgid "_Automatically connect to network"
-msgstr "시작시 자동 접속"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:12
-#, fuzzy
 msgid "_Cycle until connected"
-msgstr "접속되어 있지 않습니다."
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:13
-#, fuzzy
 msgid "_Name:"
-msgstr "이름"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Nick name:"
 msgstr "(_N)대화명:"
 
 #: ../data/irc-network-editor.glade.h:15
-#, fuzzy
 msgid "_Real Name:"
-msgstr "실제 이름:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:16
 msgid "_Use secure connection (SSL)"
@@ -186,9 +171,8 @@ msgid "<span weight=\"bold\">mIRC Colors</span>"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:13
-#, fuzzy
 msgid "A_way message:"
-msgstr "새 메세지:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
@@ -199,42 +183,36 @@ msgid "Auto-accept DCC File Transfers"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:16
-#, fuzzy
 msgid "Background _image"
-msgstr "배경이미지:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:17
-#, fuzzy
 msgid "Background mark:"
-msgstr "배경이미지:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:19
-#, fuzzy
 msgid "Convert spaces to underscores in filenames"
-msgstr "공백(\" \")을 밑줄(\"_\")로 변환"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:20
 msgid "Download files to:"
 msgstr "받을 화일 위치:"
 
 #: ../data/preferences-dialog.glade.h:21
-#, fuzzy
 msgid "Enter extra words to trigger highlighting"
-msgstr "강조할 문자:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:22
-#, fuzzy
 msgid "Foreground mark:"
-msgstr "글씨:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:23
-#, fuzzy
 msgid "Get IP Address From Server"
-msgstr "IRC 서버로부터 내 IP를 가져옵니다."
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:24
 msgid "Global receive KB/s: "
@@ -261,39 +239,32 @@ msgid "Move completed files to:"
 msgstr "완료된 화일을 이동:"
 
 #: ../data/preferences-dialog.glade.h:30
-#, fuzzy
 msgid "Preferences"
-msgstr "환경설정...."
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:31
-#, fuzzy
 msgid "Real na_me:"
-msgstr "실제 이름:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:32
-#, fuzzy
 msgid "Save sender nickname in filenames"
-msgstr "화일이름에 대화명을 포함해서 저장"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:33
-#, fuzzy
 msgid "Select A File"
-msgstr "이미지화일 선택"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:34
-#, fuzzy
 msgid "Select Completed Files Directory"
-msgstr "완료된 화일을 이동:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:35
-#, fuzzy
 msgid "Select Download Directory"
-msgstr "화일과 디렉토리"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:36
-#, fuzzy
 msgid "Show _timestamps"
-msgstr "기록에 시간 삽입"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:37
 msgid ""
@@ -306,66 +277,56 @@ msgid "Use System Terminal Font"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:39
-#, fuzzy
 msgid "Use This IP Address:"
-msgstr "DCC IP 주소:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:40
-#, fuzzy
 msgid "Use this font:"
-msgstr "사용자 목록"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:41
-#, fuzzy
 msgid "_Background color:"
-msgstr "배경:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:99
 msgid "_Edit"
 msgstr "(_E)편집"
 
 #: ../data/preferences-dialog.glade.h:43
-#, fuzzy
 msgid "_Foreground color:"
-msgstr "글씨:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:44
-#, fuzzy
 msgid "_Nickname:"
-msgstr "(_N)대화명:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:46
-#, fuzzy
 msgid "_Part message:"
-msgstr "새 메세지:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:47
-#, fuzzy
 msgid "_Quit message:"
-msgstr "오른쪽 메세지"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
 msgstr ""
 
 #: ../data/preferences-dialog.glade.h:49
-#, fuzzy
 msgid "_Transparent background"
-msgstr "투명한 배경 효과"
+msgstr ""
 
 #: ../data/setup-dialog.glade.h:1
-#, fuzzy
 msgid "Nick Name:"
-msgstr "(_N)대화명:"
+msgstr ""
 
 #: ../data/setup-dialog.glade.h:2
-#, fuzzy
 msgid "Real Name:"
-msgstr "실제 이름:"
+msgstr ""
 
 #: ../data/setup-dialog.glade.h:3
 msgid ""
@@ -384,31 +345,27 @@ msgid "xchat-gnome setup"
 msgstr ""
 
 #: ../data/topic-change.glade.h:1
-#, fuzzy
 msgid "Change"
-msgstr "대화방"
+msgstr ""
 
 #.
 #. GNOME_PARAM_GOPTION_CONTEXT, context,
 #.
 #: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:84
-#, fuzzy
 msgid "IRC Chat"
-msgstr "대화"
+msgstr ""
 
 #: ../data/xchat-gnome.desktop.in.h:2
-#, fuzzy
 msgid "XChat-GNOME IRC Chat"
-msgstr "XChat: DCC 대화 목록"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:1
 msgid "Close this discussion"
 msgstr ""
 
 #: ../data/xchat-gnome.glade.h:2
-#, fuzzy
 msgid "Enter a new nickname"
-msgstr "새대화명 입력:"
+msgstr ""
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
@@ -420,9 +377,8 @@ msgid "Error"
 msgstr "오류"
 
 #: ../data/xchat-gnome.glade.h:4
-#, fuzzy
 msgid "The new nickname"
-msgstr "새대화명 입력:"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:805
 #: ../src/fe-gnome/channel-list.c:311
@@ -430,9 +386,8 @@ msgid "Users"
 msgstr "참여자"
 
 #: ../data/xchat-gnome.glade.h:6
-#, fuzzy
 msgid "nickname"
-msgstr "대화명"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:164
 msgid "Screensaver activated, going away."
@@ -443,25 +398,21 @@ msgid "Screensaver is off, welcome back"
 msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:212
-#, fuzzy
 msgid "Auto Away"
-msgstr "자리비움"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:213
-#, fuzzy
 msgid "Automatically go away / come back"
-msgstr "자동으로 자리비움 해제"
+msgstr ""
 
 #. Hook up our callbacks.
 #: ../plugins/autoaway/autoaway.c:231
-#, fuzzy
 msgid "Disconnected"
-msgstr "(_D)접속해제"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:232
-#, fuzzy
 msgid "Connected"
-msgstr "접속"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -493,9 +444,9 @@ msgid "Couldn't connect to session bus : %s\n"
 msgstr "세션 버스에 접속 할 수 없음: %s\n"
 
 #: ../plugins/dbus/dbus-plugin.c:353
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to acquire %s: %s\n"
-msgstr "출력을 완료 할 수 없습니다."
+msgstr ""
 
 #: ../plugins/dbus/dbus-plugin.c:401
 #, c-format
@@ -559,13 +510,13 @@ msgid "name"
 msgstr "이름"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:79
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "xchat-gnome-remote: %s\n"
 "Try `xchat-gnome-remote --help' for more information\n"
 msgstr ""
-"xchat-remote: %s\n"
-"`xchat-remote --help'로 더 많은 정보를 얻을 수 있습니다.\n"
+"xchat-gnome-remote: %s\n"
+"`xchat-gnome-remote --help'로 더 많은 정보를 얻을 수 있습니다.\n"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:90
 msgid "Couldn't connect to session bus"
@@ -598,9 +549,8 @@ msgid "%s doesn't exist\n"
 msgstr "%s 는 존재하지 않음.\n"
 
 #: ../plugins/net-monitor/net-monitor.c:36
-#, fuzzy
 msgid "Network Monitor"
-msgstr "(_N)네트워크 표시기"
+msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
@@ -612,33 +562,28 @@ msgid "%s loaded successfully\n"
 msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
-#, fuzzy
 msgid "Orientation"
-msgstr "아르헨티나"
+msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
-#, fuzzy
 msgid "The orientation of the tray."
-msgstr "사용자의 대화명"
+msgstr ""
 
 #: ../plugins/notification/notification.c:148
-#, fuzzy
 msgid "Notification"
-msgstr "위치"
+msgstr ""
 
 #: ../plugins/notification/notification.c:149
 msgid "A notification area plugin."
 msgstr ""
 
 #: ../plugins/notification/notification.c:235
-#, fuzzy
 msgid "Notification plugin loaded.\n"
-msgstr "확장기능을 찾을 수 없습니다.\n"
+msgstr ""
 
 #: ../plugins/notification/notification.c:250
-#, fuzzy
 msgid "Notification plugin unloaded.\n"
-msgstr "확장기능을 찾을 수 없습니다.\n"
+msgstr ""
 
 #: ../plugins/notification/notification.schemas.in.h:1
 msgid "Keep icon in tray at all times"
@@ -656,15 +601,15 @@ msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:89
 #: ../plugins/notify-osd/notify-osd.c:117
-#, fuzzy, c-format
+#, c-format
 msgid "Message in %s"
-msgstr "메세지"
+msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:91
 #: ../plugins/notify-osd/notify-osd.c:119
-#, fuzzy, c-format
+#, c-format
 msgid "Message from %s"
-msgstr "메세지"
+msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:140
 #, c-format
@@ -680,9 +625,8 @@ msgid "OSD initialization failed\n"
 msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:45
-#, fuzzy
 msgid "xchat URL scraper"
-msgstr "XChat: URL 잡기도구"
+msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:823
 msgid "Time"
@@ -703,9 +647,8 @@ msgid "URL"
 msgstr "주소"
 
 #: ../plugins/url_scraper/urlscraper.c:155
-#, fuzzy
 msgid "URL Scraper"
-msgstr "URL 잡기도구..."
+msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:156
 msgid "Grabs URLs and puts them in a separate window for easy viewing."
@@ -732,9 +675,8 @@ msgid "URL Scraper history length"
 msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.schemas.in.h:2
-#, fuzzy
 msgid "URL Scraper show timestamps"
-msgstr "기록에 시간 삽입"
+msgstr ""
 
 #: ../src/common/cfgfiles.c:350
 msgid "Cannot create ~/.xchat2"
@@ -814,9 +756,9 @@ msgid "You are being CTCP flooded from %s, ignoring %s\n"
 msgstr "%s 님으로부터 너무 많은 CTCP 요청을 받아서, %s 님을 무시합니다.\n"
 
 #: ../src/common/ignore.c:398
-#, fuzzy, c-format
+#, c-format
 msgid "You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
-msgstr "%s 님으로부터 너무 많은 CTCP 요청을 받아서, %s 님을 무시합니다.\n"
+msgstr ""
 
 #: ../src/common/notify.c:400
 #, c-format
@@ -847,14 +789,12 @@ msgid "Commands Available:"
 msgstr ""
 
 #: ../src/common/outbound.c:1984
-#, fuzzy
 msgid "User defined commands:"
-msgstr "XChat: 사용자 정의 명령"
+msgstr ""
 
 #: ../src/common/outbound.c:2000
-#, fuzzy
 msgid "Plugin defined commands:"
-msgstr "접속 명령:"
+msgstr ""
 
 #: ../src/common/outbound.c:2011
 msgid "Type /HELP <command> for more information, or /HELP -l"
@@ -882,9 +822,8 @@ msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
 msgstr "ALLCHAN <명령>, 참가중인 모든 대화방에 명령을 수행합니다."
 
 #: ../src/common/outbound.c:3102
-#, fuzzy
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
-msgstr "ALLCHAN <명령>, 참가중인 모든 대화방에 명령을 수행합니다."
+msgstr ""
 
 #: ../src/common/outbound.c:3104
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
@@ -1078,9 +1017,8 @@ msgid "LASTLOG <string>, searches for a string in the buffer"
 msgstr "LASTLOG <글월>, 기억공간에서 해당 문자열을 검색합니다"
 
 #: ../src/common/outbound.c:3186
-#, fuzzy
 msgid "LOAD [-e] <file>, loads a plugin or script"
-msgstr "UNLOAD <이름>, 추가기능이나 혼자말의 사용을 중지합니다."
+msgstr ""
 
 #: ../src/common/outbound.c:3189
 msgid ""
@@ -1124,9 +1062,8 @@ msgid "NCTCP <nick> <message>, Sends a CTCP notice"
 msgstr "NCTCP <대화명> <메세지>, CTCP 알림 메세지를 보냅니다."
 
 #: ../src/common/outbound.c:3206
-#, fuzzy
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
-msgstr "NEWSERVER <호스트명> [<포트>], 새로운 서버에 접속합니다."
+msgstr ""
 
 #: ../src/common/outbound.c:3207
 msgid "NICK <nickname>, sets your nick"
@@ -1826,203 +1763,161 @@ msgstr ""
 "%s"
 
 #: ../src/common/textevents.h:6
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 added to notify list."
-msgstr "%C22*%O$t$1 님을 알림 목록에 추가 했습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:9
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 Banlist: %C3$4 %C4$2 %C5$3%O"
-msgstr "%C22*%O$t$1의 입장금지목록:%C19 $4%C20 $2%C21 $3"
+msgstr ""
 
 #: ../src/common/textevents.h:12
-#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(You are banned)."
-msgstr "%C22*%O$t참여 할 수 없음%C26 %B$1 %O(당신은 입장금지당했습니다)."
+msgstr ""
 
 #: ../src/common/textevents.h:18
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 is now known as $2"
-msgstr "%C22*%O$t$1님의 대화명은 이제 $2 입니다."
+msgstr ""
 
 #: ../src/common/textevents.h:21
-#, fuzzy
 msgid "%C13*%O$t$1 $2%O"
-msgstr "%C16*%O$t$1%O"
+msgstr ""
 
 #: ../src/common/textevents.h:24
-#, fuzzy
 msgid "%C13*%O$t%C8%B$1%B%O $2%O"
-msgstr "%C21*%O$t%C21%B$1%O%C21 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:27
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets ban on $2"
-msgstr "%C22*%O$t$1님께서 $2 에 입장금지 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:30
-#, fuzzy
 msgid "-%C10-%C11-%O$tChannel $1 created on $2"
-msgstr "%C22*%O$t대화방 $1 은(는) $2 에 만들어 졌습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:33
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
 msgstr ""
-"%C22*%O$t%C26$1%O 님께서 %C26$2%C 님에게 대화방 관리권한을 박탈 했습니다."
 
 #: ../src/common/textevents.h:36
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
 msgstr ""
-"%C22*%O$t%C26$1%O 님께서 %C26$2%C 님에게 대화방 관리권한을 박탈 했습니다."
 
 #: ../src/common/textevents.h:39
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
-msgstr "%C22*%O$t%C26$1%O님께서 %C26 $2 님의 발언권을 박탈 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:42
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
-msgstr "%C22*%O$t$1 의 초대 상태는 $2 에 설정 되었습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:45
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
 msgstr ""
-"%C22*%O$t%C26$1%O 님께서 %C26$2%C 님에게 대화방 관리권한을 부여 했습니다."
 
 #: ../src/common/textevents.h:48
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets invite on $2"
-msgstr "%C22*%O$t$1 의 초대 상태는 $2 에 설정 되었습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:51
-#, fuzzy
 msgid "%UChannel          Users   Topic%O"
-msgstr "%U대화방           사용자   제목"
+msgstr ""
 
 #: ../src/common/textevents.h:54 ../src/common/textevents.h:306
-#, fuzzy
 msgid "%C2<%O$1%C2>%O$t$2%O"
-msgstr "%C28-%C29$1%C28-%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:57
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets mode $2$3 $4"
-msgstr "%C22*%O$t$1 님께서  설정 $2$3 $4"
+msgstr ""
 
 #: ../src/common/textevents.h:60
-#, fuzzy
 msgid "-%C10-%C11-%O$tChannel $1 modes: $2"
-msgstr "%C22*%O$t%C22대화방 $1 의 상태: $2"
+msgstr ""
 
 #: ../src/common/textevents.h:63
-#, fuzzy
 msgid "%C2<%C8%B$1%B%C2>%O$t$2%O"
-msgstr "%C28-%C29$1%C28-%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:66
-#, fuzzy
 msgid "%C12-%C13$1/$2%C12-%O$t$3%O"
-msgstr "%C28-%C29$1/$2%C28-%O$t$3"
+msgstr ""
 
 #: ../src/common/textevents.h:69
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
-msgstr "%C22*%O$t%C26$1%O님께서 %C26$2님에게 대화방 관리권한을 부여 했습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:72
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
-msgstr "%C22*%O$t$1 님께서 대화방 $2 의 입장금지목록을 제거 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:75
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes invite on $2"
-msgstr "%C22*%O$t$1 님께서 $2 대화방의 초대가능 상태를 해제 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:78
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes channel keyword"
-msgstr "%C22*%O$t$1 님께서 대화방 암호를 제거 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:81
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes user limit"
-msgstr "%C22*%O$t$1 님께서 사용자 제한을 해제 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:84
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets channel keyword to $2"
-msgstr "%C22*%O$t$1 님께서 대화방 암호를 \"$2\"로 설정 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:87
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets channel limit to $2"
-msgstr "%C22*%O$t$1 님께서 대화방의 참여자 수를 $2 명으로 제한 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:90
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 removes ban on $2"
-msgstr "%C22*%O$t$1 님께서 대화방 $2 의 입장금지목록을 제거 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:93
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 gives voice to $2"
-msgstr "%C22*%O$t%C26$1%O 님께서 %C26 $2 님에게 발언권을 부여 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:96
-#, fuzzy
 msgid "-%C10-%C11-%O$tConnected. Now logging in.."
-msgstr "%C22*%O$t%C22접속되었습니다. 로그인 중입니다...."
+msgstr ""
 
 #: ../src/common/textevents.h:99
-#, fuzzy
 msgid "-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
-msgstr "%C22*%O$t%C22 $1($2)의 포트 $3%O으로 접속중입니다..."
+msgstr ""
 
 #: ../src/common/textevents.h:102
-#, fuzzy
 msgid "-%C10-%C11-%O$tConnection failed. Error: $1"
-msgstr "%C21*%O$t%C21접속 실패. 오류: $1"
+msgstr ""
 
 #: ../src/common/textevents.h:105
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2"
-msgstr "%C22*%O$t$2 님으로 부터 CTCP $1을 받았습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:108
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2 (to $3)"
-msgstr "%C22*%O$t$2 님으로 부터 CTCP $1을 받았습니다.($3)"
+msgstr ""
 
 #: ../src/common/textevents.h:111
-#, fuzzy
 msgid "%C3>%O$1%C3<%O$tCTCP $2%O"
-msgstr "%C19>%O$1%C19<%O$tCTCP $2"
+msgstr ""
 
 #: ../src/common/textevents.h:114
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a CTCP Sound $1 from $2"
-msgstr "%C22*%O$t$2 님으로 부터 CTCP Sound $1을 받았습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:117
-#, fuzzy
 msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
-msgstr "%C22*%O$t$2 님으로 부터 CTCP $1을 받았습니다.($3)"
+msgstr ""
 
 #: ../src/common/textevents.h:120
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
-msgstr "%C22*%O$t%C26$1님과 %ODCC CHAT이 취소 되었습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:123
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr "%C22*%O$t%C26$1님과 DCC CHAT접속되었습니다 %C30[%O$2%C30]"
+msgstr ""
 
 #: ../src/common/textevents.h:126
 msgid ""
@@ -2030,29 +1925,24 @@ msgid ""
 msgstr ""
 
 #: ../src/common/textevents.h:129
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
-msgstr "%C22*%O$t$1 님으로 부터 DCC CHAT 요청을 받았습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:132
-#, fuzzy
 msgid "-%C10-%C11-%O$tOffering DCC CHAT to $1"
-msgstr "%C22*%O$t$1님에게 DCC CHAT 요청중입니다"
+msgstr ""
 
 #: ../src/common/textevents.h:135
-#, fuzzy
 msgid "-%C10-%C11-%O$tAlready offering CHAT to $1"
-msgstr "%C22*%O$t이미 $1 님에게 요청 중입니다."
+msgstr ""
 
 #: ../src/common/textevents.h:138
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 connect attempt to %C11$2%O failed (err=$3)."
-msgstr "%C22*%O$tDCC $1 %C26 $2%O 에 접속 실패 (err=$3)."
+msgstr ""
 
 #: ../src/common/textevents.h:141
-#, fuzzy
 msgid "-%C10-%C11-%O$tReceived '$1%O' from $2"
-msgstr "%C22*%O$t$2님으로부터 '$1%O'을(를) 받았습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:144
 #, c-format
@@ -2060,135 +1950,106 @@ msgid "%C24,18 Type  To/From    Status  Size    Pos     File         "
 msgstr "%C24,18 형태  송/수신    상태  크기    위치    화일         "
 
 #: ../src/common/textevents.h:147
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tReceived a malformed DCC request from %C11$1%O.%010-%C10-%C11-"
 "%O$tContents of packet: $2"
 msgstr ""
-"%C22*%O$tDCC 요청을 %C26$1%O 로부터 받았습니다.%010%C22*%O$t패킷의 내용: $2"
 
 #: ../src/common/textevents.h:150
-#, fuzzy
 msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
-msgstr "%C22*%O$t%C26$2%O님에게  %C26$1%O을 전송합니다."
+msgstr ""
 
 #: ../src/common/textevents.h:153
-#, fuzzy
 msgid "-%C10-%C11-%O$tNo such DCC offer."
-msgstr "%C22*%O$tDCC 제공자를 찾을 수 없습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:156
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV %C11$2%O to %C11$1%O aborted."
-msgstr "%C22*%O$tDCC 받기%C26 $1%O님으로 부터 %C26$2%O 받기가 취소 되었습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:159
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O cps%"
 "C14]%O."
 msgstr ""
-"%C22*%O$tDCC 받기%C26$3%O님으로 부터 %C26$1%O받기 완료 %C30[%C26$4%O cps%"
-"C30]%O."
 
 #: ../src/common/textevents.h:162
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC RECV connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr "%C22*%O$tDCC 받기%C26 $1%O님과 접속됨 %C30[%O$2%C30]"
+msgstr ""
 
 #: ../src/common/textevents.h:165
 msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
 msgstr ""
 
 #: ../src/common/textevents.h:168
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
-msgstr "%C22*%O$tDCC 받기: $1 을 쓸 수 없습니다 ($2)."
+msgstr ""
 
 #: ../src/common/textevents.h:171
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tThe file %C11$1%C already exists, saving it as %C11$2%O "
 "instead."
 msgstr ""
-"%C22*%O$t화일%C26 $1%C은(는) 이미 있습니다. 이름에 %C26$2%O(을)를  추가합니"
-"다."
 
 #: ../src/common/textevents.h:174
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
 msgstr ""
-"%C22*%O$t%C26$1%O님께서 화일 %C26$2%C를 %C26$3%C부터 이어 받기를 요청 하셨습"
-"니다."
 
 #: ../src/common/textevents.h:177
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC SEND %C11$2%O to %C11$1%O aborted."
-msgstr "%C22*%O$tDCC 보내기%C26$1%O님에게 %C26$2%O 보내기 취소됨."
+msgstr ""
 
 #: ../src/common/textevents.h:180
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%C14]%"
 "O."
 msgstr ""
-"%C22*%O$tDCC 보내기%C26$2%O님에게 화일 %C26$1%O 보내기 완료 %C30[%C26$3%O cps"
-"%C30]%O."
 
 #: ../src/common/textevents.h:183
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$tDCC SEND connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr "%C22*%O$tDCC 보내기 %C26$1%C님과 접속됨.%C30[%O$2%C30]"
+msgstr ""
 
 #: ../src/common/textevents.h:186
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
 msgstr ""
 
 #: ../src/common/textevents.h:189
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
-msgstr "%C22*%O$t%C26$1%O님께서 %C26$2%O를 보내셨습니다.(%C26$3 %Obytes)"
+msgstr ""
 
 #: ../src/common/textevents.h:192
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Cstalled - aborting."
-msgstr "%C22*%O$tDCC $1%C26 $2 %Oto%C26 $3 %C지연됨 - 취소됨."
+msgstr ""
 
 #: ../src/common/textevents.h:195
-#, fuzzy
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Ctimed out - aborting."
-msgstr "%C22*%O$tDCC $1%C26 $2 %Oto%C26 $3 %O시간제한 - 취소됨."
+msgstr ""
 
 #: ../src/common/textevents.h:198
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 deleted from notify list."
-msgstr "%C22*%O$t$1님은 알림 목록에서 삭제 되었습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:201
-#, fuzzy
 msgid "-%C10-%C11-%O$tDisconnected ($1)."
-msgstr "%C22*%O$t접속 종료됨 ($1)."
+msgstr ""
 
 #: ../src/common/textevents.h:204
-#, fuzzy
 msgid "-%C10-%C11-%O$tFound your IP: [$1]"
-msgstr "%C22*%O$t당신의 IP를 찾았습니다: [$1]"
+msgstr ""
 
 #: ../src/common/textevents.h:207
 msgid "$1$t$2"
 msgstr "$1$t$2"
 
 #: ../src/common/textevents.h:210
-#, fuzzy
 msgid "%O%C11$1%O added to ignore list."
-msgstr "%O%C26$1%O님을 무시목록에 추가 했습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:213
-#, fuzzy
 msgid "Ignore on %C11$1%O changed."
-msgstr "모시목록의 %C26$1%O이(가) 변경됨."
+msgstr ""
 
 #: ../src/common/textevents.h:216
 #, c-format
@@ -2202,302 +2063,238 @@ msgstr ""
 "%C24,18 호스트 매스크              귓말 알림 대화 CTCP 연결 초대 무시안함 "
 
 #: ../src/common/textevents.h:222
-#, fuzzy
 msgid "%O%C11$1%O removed from ignore list."
-msgstr "%O%C26$1%O님을 무시목록에서 제거 했습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:225
 msgid "  Ignore list is empty."
 msgstr "  무시 목록이 비어 있습니다."
 
 #: ../src/common/textevents.h:228
-#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
 msgstr ""
-"%C22*%O$t대화방%C26 %B$1에 참여 할 수 없습니다. %O(대화방이 초대만 가능한 상"
-"태입니다)."
 
 #: ../src/common/textevents.h:231
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
 msgstr ""
-"%C22*%O$t%C26$2%O님께서 당신을 대화방 %C26$1%O로 초대 하고 계십니다. (%C26$3%"
-"C)"
 
 #: ../src/common/textevents.h:234
-#, fuzzy
 msgid "-%C10-%C11>%O$t%B$1%B %C14(%C10$3%C14)%C has joined $2"
-msgstr "%C19*%O$t%C19%B$1 %B($3) 님께서 대화방 $2에 참여하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:237
-#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Requires keyword)."
-msgstr "%C22*%O$t대화방%C26 %B$1에 참여 할 수 없습니다. %O(암호가 필요합니다)."
+msgstr ""
 
 #: ../src/common/textevents.h:240
-#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has kicked $2 from $3 ($4%O)"
 msgstr ""
-"%C21*%O$t%C21$1님께서 $3에서 $2님을 입장금지 하셨습니다. (이유:$4%O%C21)"
 
 #: ../src/common/textevents.h:243
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been killed by $1 ($2%O)"
-msgstr "%C22*%O$t당신은 $1님으로부터 죽임을 당했습니다 (이유:$2%O%C22)"
+msgstr ""
 
 #: ../src/common/textevents.h:246 ../src/common/textevents.h:270
-#, fuzzy
 msgid "%C3>%O$1%C3<%O$t$2%O"
-msgstr "%C19>%O$1%C19<%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:249 ../src/common/textevents.h:327
 #: ../src/common/textevents.h:333 ../src/common/textevents.h:336
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1%O"
-msgstr "%C16*%O$t$1%O"
+msgstr ""
 
 #: ../src/common/textevents.h:252
-#, fuzzy
 msgid "-%C10-%C11-%O$tMOTD Skipped."
-msgstr "%C22*%O$t%C22공지사항 무시됨."
+msgstr ""
 
 #: ../src/common/textevents.h:255
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 already in use. Retrying with $2.."
-msgstr "%C22*%O$t대화명 \"$1\"이 이미 사용중입니다. \"$2\"로 재시도합니다..."
+msgstr ""
 
 #: ../src/common/textevents.h:258
-#, fuzzy
 msgid "-%C10-%C11-%O$tNickname already in use. Use /NICK to try another."
 msgstr ""
-"%C22*%O$t대화명이 이미 사용중입니다. /NICK 명령으로 다른 대화명으로 변경 하십"
-"시오."
 
 #: ../src/common/textevents.h:261
-#, fuzzy
 msgid "-%C10-%C11-%O$tNo such DCC."
-msgstr "%C22*%O$t요청된 DCC가 없습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:264
-#, fuzzy
 msgid "-%C10-%C11-%O$tNo process is currently running"
-msgstr "%C22*%O$t현재 실행중인 프로세스가 없습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:267
-#, fuzzy
 msgid "%C12-%C13$1%C12-%O$t$2%O"
-msgstr "%C28-%C29$1%C28-%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:273
-#, fuzzy
 msgid "-%C10-%C11-%O$tNotify list is empty."
-msgstr "$t알림 목록은 비어 있습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:276
 msgid "%C24,18 %B  Notify List                           "
 msgstr "%C24,18 %B  알림 목록"
 
 #: ../src/common/textevents.h:279
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 users in notify list."
-msgstr "%C22*%O$t$1명의 사용자가 알림 몰록에 있습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:282
-#, fuzzy
 msgid "-%C10-%C11-%O$tNotify: $1 is offline ($2)."
-msgstr "%C22*%O$t알림: $1님이 종료하셨습니다. ($2)."
+msgstr ""
 
 #: ../src/common/textevents.h:285
-#, fuzzy
 msgid "-%C10-%C11-%O$tNotify: $1 is online ($2)."
-msgstr "%C22*%O$t알림: $1님이 접속 하셨습니다. ($2)."
+msgstr ""
 
 #: ../src/common/textevents.h:291
-#, fuzzy
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3"
-msgstr "%C23*%O$t%C23$1님(%O%C23$2)께서 대화방 $3에서 퇴장 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:294
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3 %C14(%O$4%C14)%O"
 msgstr ""
 
 #: ../src/common/textevents.h:297
-#, fuzzy
 msgid "-%C10-%C11-%O$tPing reply from $1 : $2 second(s)"
-msgstr "%C22*%O$t$1 으로부터 핑 회신: $2 초"
+msgstr ""
 
 #: ../src/common/textevents.h:300
-#, fuzzy
 msgid "-%C10-%C11-%O$tNo ping reply for $1 seconds, disconnecting."
-msgstr "%C22*%O$t$1초 동안 핑의 회신이 없으므로, 접속이 종료 되었습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:303
-#, fuzzy
 msgid "%C12*%C13$1%C12*$t%O$2%O"
-msgstr "%C28*%C29$3$1%C28*$t%O$2"
+msgstr ""
 
 #: ../src/common/textevents.h:309
-#, fuzzy
 msgid "-%C10-%C11-%O$tA process is already running"
-msgstr "%C22*%O$t프로세스가 이미 실행중입니다."
+msgstr ""
 
 #: ../src/common/textevents.h:312
-#, fuzzy
 msgid "<%C10-%C11-%O$t$1 has quit %C14(%O$2%O%C14)%O"
-msgstr "%C23*%O$t%C23$1님(%O%C23$2)께서 대화방 $3에서 퇴장 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:315
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 sets modes%B %C14[%O$2%B%C14]%O"
-msgstr "%C22*%O$t$1님께서 상태를 설정하셨습니다.%B %C30[%O$2%B%C30]"
+msgstr ""
 
 #: ../src/common/textevents.h:318
-#, fuzzy
 msgid "%C12-%C13$1/Wallops%C12-%O$t$2%O"
-msgstr "%C28-%C29$1/Wallops%C28-%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:321
-#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up IP number for%C11 $1%O.."
-msgstr "%C22*%O$tIP 주소 %C26 $1 를 찾는중%O.."
+msgstr ""
 
 #: ../src/common/textevents.h:324
-#, fuzzy
 msgid "-%C10-%C11-%O$tConnected."
-msgstr "%C22*%O$t%C22접속되었습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:330
-#, fuzzy
 msgid "-%C10-%C11-%O$tLooking up %C11$1%C.."
-msgstr "%C22*%O$t%C22찾는중 $1.."
+msgstr ""
 
 #: ../src/common/textevents.h:339
-#, fuzzy
 msgid "-%C10-%C11-%O$tStopped previous connection attempt (pid=$1)"
-msgstr "%C22*%O$t이전 접속이 중지됨 (pid=$1)"
+msgstr ""
 
 #: ../src/common/textevents.h:342
-#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C is %C11$2%O"
-msgstr "%C29*%O$t%C29 대화방 $1%C %C29의 주제는 $2 입니다."
+msgstr ""
 
 #: ../src/common/textevents.h:345
-#, fuzzy
 msgid "-%C10-%C11-%O$t$1 has changed the topic to: $2%O"
-msgstr "%C22*%O$t$1 님께서 주제를 $2(으)로 변경하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:348
-#, fuzzy
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
 msgstr ""
-"%C29*%O$t%C29대화방 $1%C %C29의 주제는 $2%C %C29님께서 설정하셨습니다. ($3)"
 
 #: ../src/common/textevents.h:351
-#, fuzzy
 msgid "-%C10-%C11-%O$tUnknown host. Maybe you misspelled it?"
-msgstr "%C22*%O$t알 수 없는 호스트. 잘못 입력 하신것이 아닙니까?"
+msgstr ""
 
 #: ../src/common/textevents.h:354
-#, fuzzy
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(User limit reached)."
-msgstr "%C22*%O$t대화방 %C26%B$1%C에 참여 할 수 없습니다. %O(참여인원수 제한)."
+msgstr ""
 
 #: ../src/common/textevents.h:357
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C11Users on $1:%C $2"
-msgstr "%C22*%O$t%C26대화방 $1의 사용자:%C $2"
+msgstr ""
 
 #: ../src/common/textevents.h:360
 msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 msgstr "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 
 #: ../src/common/textevents.h:363
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
-msgstr "%C22*%O$t%C28[%O$1%C28] %C님께서 자리를 비우셨습니다. %C30(%O$2%O%C30)"
+msgstr ""
 
 #: ../src/common/textevents.h:366
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+msgstr ""
 
 #: ../src/common/textevents.h:369
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %CEnd of WHOIS list."
-msgstr "%C22*%O$t%C28[%O$1%C28] %OWHOIS 목록의 끝."
+msgstr ""
 
 #: ../src/common/textevents.h:372
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+msgstr ""
 
 #: ../src/common/textevents.h:375
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O 잠수%C26 $2"
+msgstr ""
 
 #: ../src/common/textevents.h:378
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O, signon: %C11$3%O"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O 잠수%C26 $2%O, 접속:%C26 $3"
+msgstr ""
 
 #: ../src/common/textevents.h:381
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
-msgstr "%C22*%O$t%C28[%O$1%C28] %C30(%O$2@$3%C30)%O: $4"
+msgstr ""
 
 #: ../src/common/textevents.h:384
-#, fuzzy
 msgid ""
 "-%C10-%C11-%O$t%C12[%O$1%C12] %Oreal user@host %C11$2%O, real IP %C11$3%O"
-msgstr "%C22*%O$t%C28[%O$1%C28] %O실제사용자@호스트%C27 $2%O, 실제 IP%C27 $3"
+msgstr ""
 
 #: ../src/common/textevents.h:387
-#, fuzzy
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
-msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
+msgstr ""
 
 #: ../src/common/textevents.h:390
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
 msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:393
-#, fuzzy
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
-msgstr "%C22*%O$t당신의 대화명은 $2 입니다."
+msgstr ""
 
 #: ../src/common/textevents.h:396
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have been kicked from $2 by $3 ($4%O)"
 msgstr ""
-"%C23*$t당신은 $3님으로부터 $2 대화방에서 강제 퇴장 당했습니다. (이유:$4%O%"
-"C23)"
 
 #: ../src/common/textevents.h:399
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have left channel $3"
-msgstr "%C23*$t당신은 $3에서 퇴장 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:402
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou have left channel $3 %C14(%O$4%C14)%O"
-msgstr "%C23*$t당신은 $3에서 퇴장 하셨습니다."
+msgstr ""
 
 #: ../src/common/textevents.h:405
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou're inviting %C11$1%C to %C11$2%C (%C11$3%C)"
 msgstr ""
-"%C22*%O$t당신은 대화방 %C26$2%O로 %C26$1%O님을 초대했습니다. (%C26$3%O)"
 
 #: ../src/common/textevents.h:408
-#, fuzzy
 msgid "%C6<%O$1%C6>%O$t$2%O"
-msgstr "%C19>%O$1%C19<%O$t$2"
+msgstr ""
 
 #: ../src/common/textevents.h:411
-#, fuzzy
 msgid "-%C10-%C11-%O$tYou are now known as $2"
-msgstr "%C22*%O$t당신의 대화명은 $2 입니다."
+msgstr ""
 
 #: ../src/common/util.c:296
 msgid "Remote host closed socket"
@@ -3284,9 +3081,8 @@ msgid "Puerto Rico"
 msgstr "푸에르토 리코"
 
 #: ../src/common/util.c:1012
-#, fuzzy
 msgid "Palestinian Territory"
-msgstr "인도양"
+msgstr ""
 
 #: ../src/common/util.c:1013
 msgid "Portugal"
@@ -3622,9 +3418,8 @@ msgid "Direct client-to-client"
 msgstr "직접 연결"
 
 #: ../src/common/xchat.c:816
-#, fuzzy
 msgid "Send File"
-msgstr "화일 전송"
+msgstr ""
 
 #: ../src/common/xchat.c:817
 msgid "Offer Chat"
@@ -3832,14 +3627,12 @@ msgid "translator-credits"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
-#, fuzzy
 msgid "Background image filename"
-msgstr "배경이미지:"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:2
-#, fuzzy
 msgid "Background transparency"
-msgstr "배경이미지:"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Default nickname used by servers without special options set"
@@ -3866,18 +3659,16 @@ msgid "List of enabled plugins"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
-#, fuzzy
 msgid "Message sent on away"
-msgstr "메세지"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Message sent on channel part"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
-#, fuzzy
 msgid "Message sent on quit"
-msgstr "메세지"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Position of the horizontal pane in the main window"
@@ -3896,14 +3687,12 @@ msgid "Show colors in the main window"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:16
-#, fuzzy
 msgid "Show timestamps in the main window"
-msgstr "기록에 시간 삽입"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
-#, fuzzy
 msgid "Use system fonts"
-msgstr "사용자 목록"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
@@ -3915,14 +3704,12 @@ msgstr ""
 
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:108
-#, fuzzy
 msgid "_Connect"
-msgstr "접속"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:130
-#, fuzzy
 msgid "_Open Link in Browser"
-msgstr "브라우저로 열기"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:131
 msgid "_Copy Link Location"
@@ -3933,29 +3720,24 @@ msgid "Se_nd Message To..."
 msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:136
-#, fuzzy
 msgid "_Copy Address"
-msgstr "IP 주소"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:140
-#, fuzzy
 msgid "_Send File"
-msgstr "화일 전송"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:141
-#, fuzzy
 msgid "Paste File _Contents"
-msgstr "목록(_C)"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:142
-#, fuzzy
 msgid "Paste File_name"
-msgstr "새 화일명"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:143
-#, fuzzy
 msgid "_Cancel"
-msgstr "취소"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:548
 #, c-format
@@ -4001,9 +3783,8 @@ msgid "File"
 msgstr "화일"
 
 #: ../src/fe-gnome/dcc-window.c:144
-#, fuzzy
 msgid "Remaining"
-msgstr "전 이만 갑니다."
+msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -4023,9 +3804,8 @@ msgid ""
 msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
-#, fuzzy
 msgid "starting"
-msgstr "잠시만 기다려주십시오"
+msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:303
 #, c-format
@@ -4054,9 +3834,8 @@ msgid "Transfer failed"
 msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:327
-#, fuzzy
 msgid "stalled"
-msgstr "실패"
+msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:331
 #, c-format
@@ -4069,36 +3848,31 @@ msgid "%.2d:%.2d"
 msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:446
-#, fuzzy
 msgid "Send File..."
-msgstr "화일 전송"
+msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:57
 msgid "Use directory instead of the default config dir"
 msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:58
-#, fuzzy
 msgid "Don't auto-connect to servers"
-msgstr "서버에 자동으로 접속하지 않기"
+msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:59
-#, fuzzy
 msgid "Don't auto-load plugins"
-msgstr "추가기능을 사용하지 않음"
+msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:61
 msgid "Show version information"
 msgstr "판번호 정보 표시"
 
 #: ../src/fe-gnome/fe-gnome.c:90
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "xchat-gnome: %s\n"
 "Try `xchat-gnome --help' for more information\n"
 msgstr ""
-"xchat-remote: %s\n"
-"`xchat-remote --help'로 더 많은 정보를 얻을 수 있습니다.\n"
 
 #: ../src/fe-gnome/fe-gnome.c:819
 #, c-format
@@ -4114,9 +3888,8 @@ msgid "_Previous"
 msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:99
-#, fuzzy
 msgid "_Next"
-msgstr "(_N)새로만들기"
+msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -4137,9 +3910,9 @@ msgid "Server"
 msgstr "서버"
 
 #: ../src/fe-gnome/irc-network-editor.c:383
-#, fuzzy, c-format
+#, c-format
 msgid "%s Network Properties"
-msgstr "(_N)네트워크 표시기"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:509
 #: ../src/fe-gnome/irc-network-editor.c:516
@@ -4152,23 +3925,20 @@ msgid "You must enter a network name"
 msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:516
-#, fuzzy
 msgid "You must enter a nick name"
-msgstr "새대화명 입력:"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:522
 msgid "You must enter a real name"
 msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:529
-#, fuzzy
 msgid "No Servers"
-msgstr "서버"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:529
-#, fuzzy
 msgid "You must add at least one server for this network"
-msgstr "이 네트워크의 모든 서버에 SSL 사용"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network.c:31
 msgid "UTF-8 (Unicode)"
@@ -4228,14 +3998,12 @@ msgid "In_sert"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:101
-#, fuzzy
 msgid "_Network"
-msgstr "네트워크"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:102
-#, fuzzy
 msgid "_Discussion"
-msgstr "(_D)접속해제"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:103
 msgid "_Go"
@@ -4246,9 +4014,8 @@ msgid "_Help"
 msgstr "도움말(_H)"
 
 #: ../src/fe-gnome/main-window.c:109
-#, fuzzy
 msgid "_File Transfers"
-msgstr "화일 전송"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:110
 msgid "_Quit"
@@ -4260,32 +4027,27 @@ msgid "Cu_t"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:114
-#, fuzzy
 msgid "_Copy"
-msgstr "복사"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:115
-#, fuzzy
 msgid "_Paste"
-msgstr "개인:"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:116 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
-#, fuzzy
 msgid "C_lear"
-msgstr "비우기"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:117
-#, fuzzy
 msgid "Prefere_nces"
-msgstr "환경설정...."
+msgstr ""
 
 #. Network menu
 #. Server context menu
 #: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:81
-#, fuzzy
 msgid "_Information"
-msgstr "정보"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
@@ -4301,9 +4063,8 @@ msgid "_Close"
 msgstr "닫기(_C)"
 
 #: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:85
-#, fuzzy
 msgid "_Channels..."
-msgstr "대화방 목록..."
+msgstr ""
 
 #. Discussion menu
 #. Channel context menu
@@ -4314,49 +4075,41 @@ msgid "_Save Transcript"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:89
-#, fuzzy
 msgid "_Leave"
-msgstr "전 이만 갑니다."
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:129
-#, fuzzy
 msgid "Cl_ose"
-msgstr "닫기"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:130
-#, fuzzy
 msgid "_Find"
-msgstr "찾기"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:131
-#, fuzzy
 msgid "_Clear Window"
-msgstr "창(_W)"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "Change _Topic"
 msgstr ""
 
 #: ../src/fe-gnome/main-window.c:133 ../src/fe-gnome/navigation-tree.c:93
-#, fuzzy
 msgid "_Bans..."
-msgstr "입장금지 목록..."
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:134
-#, fuzzy
 msgid "_Users"
-msgstr "참여자"
+msgstr ""
 
 #. Go menu
 #: ../src/fe-gnome/main-window.c:137
-#, fuzzy
 msgid "Pre_vious Network"
-msgstr "새 네트워크"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:138
-#, fuzzy
 msgid "Nex_t Network"
-msgstr "새 네트워크"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:139
 msgid "_Previous Discussion"
@@ -4378,30 +4131,26 @@ msgstr "정보(_A)"
 #: ../src/fe-gnome/main-window.c:482 ../src/fe-gnome/main-window.c:503
 #: ../src/fe-gnome/navigation-tree.c:1573
 #: ../src/fe-gnome/navigation-tree.c:1632
-#, fuzzy
 msgid "Ex-Chat"
-msgstr "대화"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:581
 msgid "Error showing help"
 msgstr ""
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
-#, fuzzy
 msgid "_Find..."
-msgstr "찾기"
+msgstr ""
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
-#, fuzzy
 msgid "_Auto-connect"
-msgstr "(_R)재접속"
+msgstr ""
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
-#, fuzzy
 msgid "_Auto-join"
-msgstr "자동(_A)"
+msgstr ""
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
@@ -4426,28 +4175,25 @@ msgid "Custom"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
-#, fuzzy
 msgid "File Transfers & DCC"
-msgstr "화일 전송"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
-#, fuzzy
 msgid "IRC Preferences"
-msgstr "XChat: 환경설정"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
-#, fuzzy, c-format
+#, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
-msgstr "\"%s\" 네트워크를 정말 삭제 하시겠습니까?"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-networks.c:171
-#, fuzzy
 msgid "Networks"
-msgstr "네트워크"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-networks.c:179
 msgid "Name"
@@ -4455,9 +4201,8 @@ msgstr "이름"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:74
 #: ../src/fe-gnome/preferences-page-plugins.c:75
-#, fuzzy
 msgid "unknown"
-msgstr "알수없음"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:112
 #, c-format
@@ -4473,23 +4218,20 @@ msgid "Plugin Load Failed"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:161
-#, fuzzy
 msgid "Open Plugin"
-msgstr "귓속말 위치:"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:261
 msgid "Scripts and Plugins"
 msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:271
-#, fuzzy
 msgid "Enable"
-msgstr "이름"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:272
-#, fuzzy
 msgid "Plugin"
-msgstr "핑"
+msgstr ""
 
 #: ../src/fe-gnome/status-bar.c:92
 #, c-format
@@ -4497,14 +4239,13 @@ msgid "%s%.1fs lag"
 msgstr ""
 
 #: ../src/fe-gnome/status-bar.c:106
-#, fuzzy, c-format
+#, c-format
 msgid "%d bytes buffered"
-msgstr "%d 바이트"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:274
-#, fuzzy
 msgid "I_nsert Color Code"
-msgstr "색상코드나 속성 삽입"
+msgstr ""
 
 #: ../src/fe-gnome/topic-label.c:232
 #, c-format
@@ -4512,24 +4253,20 @@ msgid "Changing topic for %s"
 msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:50
-#, fuzzy
 msgid "_Send File..."
-msgstr "화일 전송"
+msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:51
-#, fuzzy
 msgid "Private _Chat"
-msgstr "개인:"
+msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:52
-#, fuzzy
 msgid "_Kick"
-msgstr "퇴장"
+msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:53
-#, fuzzy
 msgid "_Ban"
-msgstr "입장금지"
+msgstr ""
 
 #, fuzzy
 #~ msgid ""
