@@ -1,4 +1,4 @@
-AC_INIT([XChat-GNOME IRC Chat],[0.8rc2],[http://bugzilla.gnome.org/enter_bug.cgi?product=xchat-gnome],[xchat-gnome])
+AC_INIT([XChat-GNOME IRC Chat],[0.8],[http://bugzilla.gnome.org/enter_bug.cgi?product=xchat-gnome],[xchat-gnome])
 
 AC_PREREQ([2.59])
 
@@ -7,7 +7,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([configure.ac])
 
 PACKAGE=xchat-gnome
-VERSION=0.8svn
+VERSION=0.8
 AM_INIT_AUTOMAKE([0.8 dist-bzip2 check-news subdir-objects])
 
 AM_MAINTAINER_MODE
