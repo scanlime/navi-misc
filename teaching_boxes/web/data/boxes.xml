@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<boxes>
-   <box id="1" title="Peanut Butter" desc="Math, science, and writing lessons revolving around a peanut butter theme.">
-   </box>
-   <box id="0" title="Plate Tectonics" desc="Lessons concerning the movement of plates on the Earth.">
-   </box>
-   <box id="2" title="Chemical History of a Candle" desc="All you never wanted to know about candles.">
-   </box>
-</boxes>
