@@ -85,9 +85,9 @@ gconf_type_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, Prefe
 {
 	gint type;
 
-	g_signal_handlers_block_by_func (G_OBJECT (page->background_none), "toggled", type_changed);
-	g_signal_handlers_block_by_func (G_OBJECT (page->background_none), "toggled", type_changed);
-	g_signal_handlers_block_by_func (G_OBJECT (page->background_none), "toggled", type_changed);
+	g_signal_handlers_block_by_func (G_OBJECT (page->background_none),        G_CALLBACK (type_changed), page);
+	g_signal_handlers_block_by_func (G_OBJECT (page->background_image),       G_CALLBACK (type_changed), page);
+	g_signal_handlers_block_by_func (G_OBJECT (page->background_transparent), G_CALLBACK (type_changed), page);
 	type = gconf_client_get_int (client, entry->key, NULL);
 	if (type == 0) {
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->background_none), TRUE);
@@ -102,30 +102,30 @@ gconf_type_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, Prefe
 		gtk_widget_set_sensitive (GTK_WIDGET (page->background_image_file),   FALSE);
 		gtk_widget_set_sensitive (GTK_WIDGET (page->background_transparency), TRUE);
 	}
-	g_signal_handlers_unblock_by_func (G_OBJECT (page->background_none), "toggled", type_changed);
-	g_signal_handlers_unblock_by_func (G_OBJECT (page->background_image), "toggled", type_changed);
-	g_signal_handlers_unblock_by_func (G_OBJECT (page->background_transparent), "toggled", type_changed);
+	g_signal_handlers_unblock_by_func (G_OBJECT (page->background_none),        G_CALLBACK (type_changed), page);
+	g_signal_handlers_unblock_by_func (G_OBJECT (page->background_image),       G_CALLBACK (type_changed), page);
+	g_signal_handlers_unblock_by_func (G_OBJECT (page->background_transparent), G_CALLBACK (type_changed), page);
 }
 
 static void
 gconf_image_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, PreferencesEffectsPage *page)
 {
-	g_signal_handlers_block_by_func (G_OBJECT (page->background_image_file), "selection-changed", image_changed);
+	g_signal_handlers_block_by_func (G_OBJECT (page->background_image_file), G_CALLBACK (image_changed), page);
 	gchar *filename = gconf_client_get_string (client, entry->key, NULL);
 	if (filename) {
 		gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (page->background_image_file), filename);
 		g_free (filename);
 	}
-	g_signal_handlers_unblock_by_func (G_OBJECT (page->background_image_file), "selection-changed", image_changed);
+	g_signal_handlers_unblock_by_func (G_OBJECT (page->background_image_file), G_CALLBACK (image_changed), page);
 }
 
 static void
 gconf_transparency_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, PreferencesEffectsPage *page)
 {
-	g_signal_handlers_block_by_func (G_OBJECT (page->background_transparency), "value-changed", transparency_changed);
+	g_signal_handlers_block_by_func (G_OBJECT (page->background_transparency), G_CALLBACK (transparency_changed), page);
 	float value = gconf_client_get_float (client, entry->key, NULL);
 	gtk_range_set_value (GTK_RANGE (page->background_transparency), (double) value);
-	g_signal_handlers_unblock_by_func (G_OBJECT (page->background_transparency), "value-changed", transparency_changed);
+	g_signal_handlers_unblock_by_func (G_OBJECT (page->background_transparency), G_CALLBACK (transparency_changed), page);
 }
 
 static void
