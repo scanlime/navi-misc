@@ -1,0 +1,57 @@
+/.cvsignore/1.1/Sat Dec 28 15:38:33 2002//
+/Makefile.am/1.8/Mon Nov 29 06:26:15 2004//
+/cfgfiles.c/1.86/Thu Nov  3 05:03:08 2005//
+/cfgfiles.h/1.9/Mon Oct 10 06:42:43 2005//
+/ctcp.c/1.14/Sun Oct 23 07:58:19 2005//
+/ctcp.h/1.4/Sun Oct 23 07:58:19 2005//
+/dcc.c/1.76/Sun Oct 23 07:58:19 2005//
+/dcc.h/1.14/Sat Sep 24 06:37:20 2005//
+/history.c/1.2/Sat Oct  4 10:14:36 2003//
+/history.h/1.3/Sun Feb  1 09:58:27 2004//
+/identd.c/1.2/Mon May 24 13:47:58 2004//
+/ignore.c/1.9/Tue Oct 19 08:18:25 2004//
+/ignore.h/1.5/Sun Feb  1 09:58:27 2004//
+/inbound.c/1.58/Sun Oct 23 07:58:19 2005//
+/inbound.h/1.10/Sun Oct 23 07:58:19 2005//
+/inet.h/1.3/Sat Sep  3 10:57:48 2005//
+/make-te.c/1.3/Mon Jul 26 03:55:55 2004//
+/makefile.msc/1.1.1.1/Thu Nov 28 10:40:22 2002//
+/modes.c/1.24/Mon Oct 10 06:42:44 2005//
+/modes.h/1.4/Sat May 22 10:31:46 2004//
+/network.c/1.4/Sat Sep 24 06:37:20 2005//
+/network.h/1.3/Sat Sep 24 06:37:20 2005//
+/notify.c/1.9/Fri Mar 11 06:37:52 2005//
+/notify.h/1.4/Sun Feb  1 09:58:27 2004//
+/outbound.h/1.10/Sat Sep 24 06:37:20 2005//
+/plugin-timer.c/1.4/Wed Feb  2 10:03:50 2005//
+/plugin-timer.h/1.2/Sun Feb  1 09:58:27 2004//
+/plugin.h/1.20/Wed Jul  6 07:19:29 2005//
+/proto-irc.c/1.55/Sun Oct 23 14:19:08 2005//
+/proto-irc.h/1.2/Sun Feb  1 09:58:27 2004//
+/server.c/1.57/Fri Oct 28 10:57:01 2005//
+/server.h/1.4/Mon Oct 10 06:42:44 2005//
+/servlist.c/1.75/Fri Oct  7 06:50:08 2005//
+/servlist.h/1.12/Wed Oct  5 09:26:50 2005//
+/ssl.c/1.3/Mon Jul 11 07:03:52 2005//
+/ssl.h/1.1.1.1/Thu Nov 28 10:40:22 2002//
+/text.c/1.71/Mon Nov  7 03:47:49 2005//
+/text.h/1.13/Mon Jul  4 05:09:24 2005//
+/textenums.h/1.9/Tue May 10 13:16:00 2005//
+/textevents.h/1.31/Fri Oct 21 09:26:07 2005//
+/textevents.in/1.30/Fri Oct 21 09:26:07 2005//
+/tree.c/1.2/Sat Apr 19 05:01:34 2003//
+/tree.h/1.2/Sun Feb  1 09:58:27 2004//
+/url.c/1.9/Mon Nov 21 05:25:39 2005//
+/url.h/1.4/Mon Jul  4 05:09:24 2005//
+/userlist.c/1.21/Mon Oct 10 06:42:44 2005//
+/util.c/1.40/Tue Oct 11 06:17:36 2005//
+/util.h/1.15/Wed Jul 13 06:44:33 2005//
+/xchat-plugin.h/1.18/Wed Mar  2 07:45:54 2005//
+/xchat.c/1.63/Sat Oct 15 10:54:38 2005//
+/xchat.h/1.58/Thu Oct 20 05:04:31 2005//
+/xchatc.h/1.10/Sat Oct 15 10:54:38 2005//
+/fe.h/1.36/Result of merge//
+/outbound.c/1.97/Result of merge//
+/plugin.c/1.66/Result of merge//
+/userlist.h/1.12/Result of merge//
+D
