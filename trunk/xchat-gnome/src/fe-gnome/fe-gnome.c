@@ -25,6 +25,7 @@
 #include <glib.h>
 #include <gnome.h>
 #include <libgnomevfs/gnome-vfs.h>
+#include <gconf/gconf-client.h>
 #include "gui.h"
 #include "navigation-tree.h"
 #include "main-window.h"
@@ -109,8 +110,13 @@ void
 fe_init (void)
 {
 	gchar *accel_map;
+	GConfClient *client;
 
 	gnome_vfs_init ();
+
+	client = gconf_client_get_default ();
+	gconf_client_add_dir (client, "/apps/xchat", GCONF_CLIENT_PRELOAD_NONE, NULL);
+	g_object_unref (client);
 
 	u = userlist_new ();
 	gui.quit = FALSE;

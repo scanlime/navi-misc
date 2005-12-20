@@ -87,8 +87,11 @@ set_palette_buttons (int selection, GtkWidget **palette_buttons)
 	int i;
 
 	load_palette (selection);
-	for (i = 0; i < 32; i++)
+	for (i = 0; i < 32; i++) {
+		g_signal_handlers_block_by_func (G_OBJECT (palette_buttons[i]), G_CALLBACK (color_button_changed), GINT_TO_POINTER (i));
 		gtk_color_button_set_color (GTK_COLOR_BUTTON (palette_buttons[i]), &colors[i]);
+		g_signal_handlers_unblock_by_func (G_OBJECT (palette_buttons[i]), G_CALLBACK (color_button_changed), GINT_TO_POINTER (i));
+	}
 	conversation_panel_update_colors (CONVERSATION_PANEL (gui.conversation_panel));
 }
 
@@ -123,10 +126,10 @@ colors_changed (GtkComboBox *combo_box, PreferencesColorsPage *page)
 }
 
 static void
-gconf_color_changed (GConfClient *client, guint cnxn_id, const gchar *key, GConfValue *value, gboolean is_default, PreferencesColorsPage *page)
+gconf_color_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, PreferencesColorsPage *page)
 {
 	int selection;
-	selection = gconf_client_get_int (client, key, NULL);
+	selection = gconf_client_get_int (client, entry->key, NULL);
 	scheme = selection;
 
 	gtk_combo_box_set_active (GTK_COMBO_BOX (page->combo), selection);
@@ -229,7 +232,8 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_box_pack_start (GTK_BOX (page->foreground_background_hbox), page->combo, FALSE, TRUE, 0);
 	scheme = gconf_client_get_int (p->gconf, "/apps/xchat/irc/color_scheme", NULL);
 
-	gconf_client_notify_add (p->gconf, "/apps/xchat/irc/color_scheme", (GConfClientNotifyFunc) gconf_color_changed, page, NULL, NULL);
+	page->notify = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/color_scheme",
+	                                        (GConfClientNotifyFunc) gconf_color_changed, page, NULL, NULL);
 
 	g_signal_connect (G_OBJECT (page->combo), "changed", G_CALLBACK (colors_changed), page);
 	gtk_combo_box_set_active (GTK_COMBO_BOX (page->combo), scheme);
@@ -240,6 +244,11 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 void
 preferences_page_colors_free (PreferencesColorsPage *page)
 {
+	GConfClient *client;
+
+	client = gconf_client_get_default ();
+	gconf_client_notify_remove (client, page->notify);
+	g_object_unref (client);
 	g_object_unref (page->icon);
 	g_free (page);
 }
