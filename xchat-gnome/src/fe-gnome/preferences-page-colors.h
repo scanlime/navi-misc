@@ -48,6 +48,8 @@ typedef struct
 	GtkWidget *extra_palette_table;
 
 	GdkPixbuf *icon;
+
+	guint      notify;
 } PreferencesColorsPage;
 
 PreferencesColorsPage *preferences_page_colors_new  (gpointer prefs_dialog, GladeXML *xml);
