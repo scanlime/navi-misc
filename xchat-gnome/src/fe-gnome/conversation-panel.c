@@ -435,7 +435,7 @@ conversation_panel_set_background (ConversationPanel *panel)
 static void
 conversation_panel_background_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, ConversationPanel *panel)
 {
-	conversation_panel_set_font (panel);
+	conversation_panel_set_background (panel);
 	gtk_xtext_refresh (GTK_XTEXT (panel->priv->xtext), TRUE);
 }
 
