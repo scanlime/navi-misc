@@ -238,9 +238,12 @@ fi
 
 # openssl
 PKG_CHECK_MODULES([OPENSSL], [openssl], openssl=yes, openssl=no)
-AC_SUBST([OPENSSL_CFLAGS])
-AC_SUBST([OPENSSL_LIBS])
-AC_DEFINE(USE_OPENSSL, [], [Whether to use OpenSSL])
+AC_MSG_RESULT([$openssl])
+if test "x$openssl" = xyes; then
+	AC_SUBST([OPENSSL_CFLAGS])
+	AC_SUBST([OPENSSL_LIBS])
+	AC_DEFINE(USE_OPENSSL, [], [Whether to use OpenSSL])
+fi
 
 # i18n
 ALL_LINGUAS="`cat "$srcdir/po/LINGUAS" | grep -v '^#'`"
