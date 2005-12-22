@@ -228,7 +228,7 @@
 			<list_type>string</list_type>
 			<default>[]</default>
 			<locale name="C">
-				<short>List of loaded plugins</short>
+				<short>List of enabled plugins</short>
 			</locale>
 		</schema>
 	</schemalist>
