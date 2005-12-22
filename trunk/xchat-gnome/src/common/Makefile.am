@@ -1,3 +1,7 @@
+if USE_OPENSSL
+ssl_sources = ssl.c ssl.h
+endif
+
 noinst_LTLIBRARIES = libxchatcommon.la
 libxchatcommon_la_SOURCES =		\
 	cfgfiles.c			\
@@ -32,8 +36,6 @@ libxchatcommon_la_SOURCES =		\
 	server.h			\
 	servlist.c			\
 	servlist.h			\
-	ssl.c				\
-	ssl.h				\
 	text.c				\
 	text.h				\
 	textenums.h			\
@@ -49,7 +51,8 @@ libxchatcommon_la_SOURCES =		\
 	xchat-plugin.h			\
 	xchat.c				\
 	xchat.h				\
-	xchatc.h
+	xchatc.h			\
+	$(ssl_sources)
 
 libxchatcommon_la_LDFLAGS = -static
 INCLUDES =		\
