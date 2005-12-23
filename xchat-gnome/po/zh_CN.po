@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-22 02:06-0700\n"
+"POT-Creation-Date: 2005-12-23 00:03-0700\n"
 "PO-Revision-Date: 2005-12-18 05:23-0700\n"
 "Last-Translator: Rongjun Mu <rongjunmu+i18n@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-translation@lists.linux.net.cn>\n"
@@ -190,7 +190,7 @@ msgstr "自动接收文件"
 
 #: ../data/preferences-dialog.glade.h:16
 msgid "Background _image"
-msgstr "背景图像(_I)："
+msgstr "背景图像(_I)"
 
 #: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
@@ -312,7 +312,7 @@ msgstr "无(使用纯色)(_N)"
 
 #: ../data/preferences-dialog.glade.h:46
 msgid "_Part message:"
-msgstr "新信息(_P)："
+msgstr "新消息(_P)："
 
 #: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
@@ -514,11 +514,11 @@ msgstr "查找"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
-msgstr "退出时保存设置"
+msgstr "从xchat取设置"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
-msgstr "名称"
+msgstr "名字"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:79
 #, c-format
@@ -537,14 +537,14 @@ msgstr "不能连接到会话主线"
 #: ../plugins/dbus/xchat-gnome-remote.c:130
 msgid "Failed to complete command"
 msgstr ""
-"打开字体失败：\n"
+"补完命令时失败\n"
 "\n"
 "%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:125
 msgid "Failed to complete SetContext"
 msgstr ""
-"打开字体失败：\n"
+"补完SetContext命令失败\n"
 "\n"
 "%s"
 
@@ -553,19 +553,19 @@ msgid "Failed to complete print"
 msgstr ""
 "打开字体失败：\n"
 "\n"
-"%s"
+"补完打印命令失败"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:142
 msgid "Failed to complete GetInfo"
 msgstr ""
 "打开字体失败：\n"
 "\n"
-"%s"
+"补完GetInfo命令失败"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:155
 msgid "Failed to complete GetPrefs"
 msgstr ""
-"打开字体失败：\n"
+"补完GetPrefs命令失败\n"
 "\n"
 "%s"
 
@@ -576,7 +576,7 @@ msgstr "%s 不存在\n"
 
 #: ../plugins/net-monitor/net-monitor.c:36
 msgid "Network Monitor"
-msgstr "网络设置"
+msgstr "网络监视器"
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
@@ -589,15 +589,15 @@ msgstr "%s 装载成功。\n"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "Orientation"
-msgstr "阿根廷"
+msgstr "方位"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "The orientation of the tray."
-msgstr "此人的昵称"
+msgstr "系统托盘的方位。"
 
 #: ../plugins/notification/notification.c:148
 msgid "Notification"
-msgstr "位置"
+msgstr "通知"
 
 #: ../plugins/notification/notification.c:149
 msgid "A notification area plugin."
@@ -605,11 +605,11 @@ msgstr "通知区插件"
 
 #: ../plugins/notification/notification.c:235
 msgid "Notification plugin loaded.\n"
-msgstr "找不到该插件。\n"
+msgstr "通知区插件已装载。\n"
 
 #: ../plugins/notification/notification.c:250
 msgid "Notification plugin unloaded.\n"
-msgstr "找不到该插件。\n"
+msgstr "通知区插件已取消装载。\n"
 
 #: ../plugins/notification/notification.schemas.in.h:1
 msgid "Keep icon in tray at all times"
@@ -652,7 +652,7 @@ msgstr "屏幕菜单初始化失败\n"
 
 #: ../plugins/url_scraper/urlscraper.c:45
 msgid "xchat URL scraper"
-msgstr "X-Chat：URL 抓取程序"
+msgstr "X-Chat 网页抓取程序"
 
 #: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:823
 msgid "Time"
@@ -670,11 +670,11 @@ msgstr "聊天室"
 
 #: ../plugins/url_scraper/urlscraper.c:73
 msgid "URL"
-msgstr "URL"
+msgstr "网址"
 
 #: ../plugins/url_scraper/urlscraper.c:155
 msgid "URL Scraper"
-msgstr "URL 抓取程序..."
+msgstr "网页抓取程序"
 
 #: ../plugins/url_scraper/urlscraper.c:156
 msgid "Grabs URLs and puts them in a separate window for easy viewing."
@@ -702,7 +702,7 @@ msgstr "网页抓取历史记录长度"
 
 #: ../plugins/url_scraper/urlscraper.schemas.in.h:2
 msgid "URL Scraper show timestamps"
-msgstr "打开时间戳"
+msgstr "网页抓取程序显示时间戳"
 
 #: ../src/common/cfgfiles.c:350
 msgid "Cannot create ~/.xchat2"
@@ -751,7 +751,7 @@ msgstr "连接"
 #. black
 #: ../src/common/dcc.c:71
 msgid "Aborted"
-msgstr "中止"
+msgstr "已中止"
 
 #: ../src/common/dcc.c:1350
 #, c-format
@@ -760,7 +760,7 @@ msgstr "无法访问 %s\n"
 
 #: ../src/common/dcc.c:2000
 msgid "No active DCCs\n"
-msgstr "无活跃的 DCC\n"
+msgstr "没有活跃的 DCC\n"
 
 #: ../src/common/ignore.c:120 ../src/common/ignore.c:124
 #: ../src/common/ignore.c:128 ../src/common/ignore.c:132
@@ -784,7 +784,9 @@ msgstr "您正受到来自 %s 的 CTCP flood 攻击，忽略 %s\n"
 #: ../src/common/ignore.c:398
 #, c-format
 msgid "You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
-msgstr "您正受到来自 %s 的 MSG flood 攻击，设置界面自动打开对话框为关闭。\n"
+msgstr ""
+"您正受到来自 %s 的 MSG flood 攻击，设置界面自动打开对话框"
+"（gui_auto_open_dailog）为关闭。\n"
 
 #: ../src/common/notify.c:400
 #, c-format
@@ -798,11 +800,11 @@ msgstr "  %-20s 离线\n"
 
 #: ../src/common/outbound.c:71
 msgid "No channel joined. Try /join #<channel>\n"
-msgstr "没有加入任何聊天室。请尝试 /join #<channel>\n"
+msgstr "没有加入任何聊天室。请尝试 /join #<聊天室>\n"
 
 #: ../src/common/outbound.c:77
 msgid "Not connected. Try /server <host> [<port>]\n"
-msgstr "还未连接服务器。请尝试 /server <host> [<port>]\n"
+msgstr "还未连接服务器。请尝试 /server <主机名> [<端口>]\n"
 
 #: ../src/common/outbound.c:1642
 msgid "I need /bin/sh to run!\n"
@@ -818,11 +820,11 @@ msgstr "用户自定义命令："
 
 #: ../src/common/outbound.c:2000
 msgid "Plugin defined commands:"
-msgstr "用户自定义命令："
+msgstr "插件自定义命令："
 
 #: ../src/common/outbound.c:2011
 msgid "Type /HELP <command> for more information, or /HELP -l"
-msgstr "请键入 /HELP <command> 或者 /HELP -l 以获取更多信息。"
+msgstr "请键入 /HELP <命令名称> 或者 /HELP -l 以获取更多信息。"
 
 #: ../src/common/outbound.c:2086
 #, c-format
@@ -835,27 +837,27 @@ msgstr "找不到该插件。\n"
 
 #: ../src/common/outbound.c:2919
 msgid "That plugin is refusing to unload.\n"
-msgstr "无法卸载该插件。\n"
+msgstr "无法取消装载该插件。\n"
 
 #: ../src/common/outbound.c:3098
 msgid "ADDBUTTON <name> <action>, adds a button under the user-list"
-msgstr "ADDBUTTON <name> <action>，在用户列表下添加一个按钮"
+msgstr "ADDBUTTON <名称> <动作>，在用户列表下添加一个按钮"
 
 #: ../src/common/outbound.c:3100
 msgid "ALLCHAN <cmd>, sends a command to all channels you're in"
-msgstr "ALLCHAN <cmd>，向您所在的所有聊天室发送命令"
+msgstr "ALLCHAN <命令>，向您所在的所有聊天室发送命令"
 
 #: ../src/common/outbound.c:3102
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
-msgstr "ALLCHAN <cmd>，向您所在的所有聊天室发送命令"
+msgstr "ALLCHANL <命令>，向您所在的所有聊天室发送命令"
 
 #: ../src/common/outbound.c:3104
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
-msgstr "ALLSERV <cmd>，向您所在的所有服务器发送命令"
+msgstr "ALLSERV <命令>，向您所在的所有服务器发送命令"
 
 #: ../src/common/outbound.c:3105
 msgid "AWAY [<reason>], sets you away"
-msgstr "AWAY [<reason>]，设置您为暂离状态"
+msgstr "AWAY [<原因>]，设置您为暂离状态"
 
 #: ../src/common/outbound.c:3107
 msgid ""
@@ -1265,7 +1267,7 @@ msgstr "无 xchat_plugin_init 符号；这确实是 xchat 的插件吗？"
 
 #: ../src/common/server.c:618
 msgid "Are you sure this is a SSL capable server and port?\n"
-msgstr "您确信此服务器和端口支持·SSL ？\n"
+msgstr "您确信此服务器和端口支持 SSL？\n"
 
 #: ../src/common/server.c:970
 #, c-format
@@ -1283,7 +1285,7 @@ msgstr "代理传送失败。\n"
 #: ../src/common/servlist.c:620
 #, c-format
 msgid "Cycling to next server in %s...\n"
-msgstr "跳转至 %s 中下一个服务器中...\n"
+msgstr "正在跳转至 %s 中下一个服务器...\n"
 
 #: ../src/common/servlist.c:1009
 #, c-format
@@ -1308,8 +1310,8 @@ msgid ""
 "* Can't open log file(s) for writing. Check the\n"
 "  permissions on %s/xchatlogs"
 msgstr ""
-"不能打开日志文件进行写操作。请检查\n"
-"%s/chatlogs 的权限设置"
+"* 不能打开日志文件进行写操作。请检查\n"
+"  %s/chatlogs 的权限设置"
 
 #: ../src/common/text.c:516
 msgid "Left message"
@@ -1386,7 +1388,7 @@ msgstr "话题"
 
 #: ../src/common/text.c:561 ../src/common/text.c:620
 msgid "The nickname of the kicker"
-msgstr "能踢人的用户"
+msgstr "踢人的用户"
 
 #: ../src/common/text.c:562 ../src/common/text.c:618
 msgid "The person being kicked"
@@ -1432,7 +1434,7 @@ msgstr "时间格式为 x.x (见下)"
 
 #: ../src/common/text.c:602 ../src/common/text.c:645
 msgid "The Channel it's going to"
-msgstr "要加入的聊天室"
+msgstr "正在加入聊天室"
 
 #: ../src/common/text.c:632
 msgid "The sound"
@@ -1609,7 +1611,7 @@ msgstr "帐户"
 
 #: ../src/common/text.c:783
 msgid "Real user@host"
-msgstr "真实用户@主机"
+msgstr "实际的“用户@主机”"
 
 #: ../src/common/text.c:784
 msgid "Real IP"
@@ -1640,7 +1642,7 @@ msgstr "昵称已被使用"
 
 #: ../src/common/text.c:810
 msgid "Nick being tried"
-msgstr "已试用过的昵称"
+msgstr "已尝试使用过的昵称"
 
 #: ../src/common/text.c:819 ../src/common/text.c:954
 msgid "IP"
@@ -1684,7 +1686,7 @@ msgstr "CPS"
 
 #: ../src/common/text.c:911
 msgid "Pathname"
-msgstr "路径名"
+msgstr "路径"
 
 #: ../src/common/text.c:926
 msgid "Position"
@@ -2322,7 +2324,7 @@ msgstr "无法分配该地址"
 
 #: ../src/common/util.c:310
 msgid "Connection reset by peer"
-msgstr "连接被对端重设"
+msgstr "连接被对端重置"
 
 #: ../src/common/util.c:822
 msgid "Andorra"
@@ -2826,7 +2828,7 @@ msgstr "圣基茨和那维斯"
 
 #: ../src/common/util.c:947
 msgid "North Korea"
-msgstr "北朝鲜"
+msgstr "朝鲜"
 
 #: ../src/common/util.c:948
 msgid "South Korea"
@@ -3134,7 +3136,7 @@ msgstr "所罗门群岛"
 
 #: ../src/common/util.c:1024
 msgid "Seychelles"
-msgstr "塞舌尔群岛"
+msgstr "塞舌尔"
 
 #: ../src/common/util.c:1025
 msgid "Sudan"
@@ -3590,10 +3592,10 @@ msgid ""
 "the Free Software Foundation; either version 2 of the License, or\n"
 "(at your option) any later version.\n"
 msgstr ""
-"X-Chat GNOME 是自由软件（free software）；在遵守《GNU通用公共许可证》（GNU "
-"General Public License）的前提下，您可以分发它和／或修改它。《GNU通用公共许可"
-"证》由自由软件基金会（Free Software Foundation）发布，本软件同时适用于第二版"
-"或任何更新版本。\n"
+"X-Chat GNOME 是自由软件；您可依据自由软件基金会所发表的GNU通用公共授权条款规"
+"定，\n"
+"就本程序再为发布与／或修改；无论您依据的是本授权的第二版或（您自行选择的）\n"
+"任一日后发行的版本。\n"
 
 #: ../src/fe-gnome/about.c:70
 msgid ""
@@ -3674,15 +3676,15 @@ msgstr "已启用插件列表"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
 msgid "Message sent on away"
-msgstr "消息"
+msgstr "暂时离开时发送的消息"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Message sent on channel part"
-msgstr "发送消息到频道中"
+msgstr "离开聊天室时发送的消息"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
 msgid "Message sent on quit"
-msgstr "消息"
+msgstr "退出时发送的消息"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Position of the horizontal pane in the main window"
@@ -3702,11 +3704,11 @@ msgstr "在主窗口中显示颜色"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:16
 msgid "Show timestamps in the main window"
-msgstr "打开时间戳"
+msgstr "在主窗口中显示时间戳"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
 msgid "Use system fonts"
-msgstr "用户列表"
+msgstr "使用系统字体"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
@@ -3719,7 +3721,7 @@ msgstr "XChat 配置版本"
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:108
 msgid "_Connect"
-msgstr "连接"
+msgstr "连接(_C)"
 
 #: ../src/fe-gnome/conversation-panel.c:130
 msgid "_Open Link in Browser"
@@ -3735,23 +3737,23 @@ msgstr "发送消息给(_N)……"
 
 #: ../src/fe-gnome/conversation-panel.c:136
 msgid "_Copy Address"
-msgstr "您的地址"
+msgstr "拷贝地址(_C)"
 
 #: ../src/fe-gnome/conversation-panel.c:140
 msgid "_Send File"
-msgstr "发送文件"
+msgstr "发送文件(_S)"
 
 #: ../src/fe-gnome/conversation-panel.c:141
 msgid "Paste File _Contents"
-msgstr "内容(_C)"
+msgstr "粘贴文件内容(_C)"
 
 #: ../src/fe-gnome/conversation-panel.c:142
 msgid "Paste File_name"
-msgstr "新文件名"
+msgstr "粘贴文件名(_N)"
 
 #: ../src/fe-gnome/conversation-panel.c:143
 msgid "_Cancel"
-msgstr "取消"
+msgstr "取消(_C)"
 
 #: ../src/fe-gnome/conversation-panel.c:548
 #, c-format
@@ -3798,7 +3800,7 @@ msgstr "文件"
 
 #: ../src/fe-gnome/dcc-window.c:144
 msgid "Remaining"
-msgstr "离开"
+msgstr "剩余"
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -3825,7 +3827,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
 msgid "starting"
-msgstr "等待"
+msgstr "正在开始"
 
 #: ../src/fe-gnome/dcc-window.c:303
 #, c-format
@@ -3858,7 +3860,7 @@ msgstr "传输失败"
 
 #: ../src/fe-gnome/dcc-window.c:327
 msgid "stalled"
-msgstr "失败"
+msgstr "已暂停"
 
 #: ../src/fe-gnome/dcc-window.c:331
 #, c-format
@@ -3872,7 +3874,7 @@ msgstr "%.2d:%.2d"
 
 #: ../src/fe-gnome/dcc-window.c:446
 msgid "Send File..."
-msgstr "发送文件"
+msgstr "发送文件……"
 
 #: ../src/fe-gnome/fe-gnome.c:58
 msgid "Use directory instead of the default config dir"
@@ -3880,7 +3882,7 @@ msgstr "取代默认配置目录"
 
 #: ../src/fe-gnome/fe-gnome.c:59
 msgid "Don't auto-connect to servers"
-msgstr "断线自动重连"
+msgstr "断线时不自动重连服务器"
 
 #: ../src/fe-gnome/fe-gnome.c:60
 msgid "Don't auto-load plugins"
@@ -3914,7 +3916,7 @@ msgstr "上一个(_P)"
 
 #: ../src/fe-gnome/find-bar.c:99
 msgid "_Next"
-msgstr "文本"
+msgstr "下一个(_N)"
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -3951,7 +3953,7 @@ msgstr "必须输入网络名称"
 
 #: ../src/fe-gnome/irc-network-editor.c:516
 msgid "You must enter a nick name"
-msgstr "输入新昵称："
+msgstr "必须输入昵称"
 
 #: ../src/fe-gnome/irc-network-editor.c:522
 msgid "You must enter a real name"
@@ -3959,11 +3961,11 @@ msgstr "必须输入真名"
 
 #: ../src/fe-gnome/irc-network-editor.c:529
 msgid "No Servers"
-msgstr "服务器"
+msgstr "无服务器"
 
 #: ../src/fe-gnome/irc-network-editor.c:529
 msgid "You must add at least one server for this network"
-msgstr "为本网络的所有服务器使用 SSL"
+msgstr "您必须为这个网络至少添加一个服务器"
 
 #: ../src/fe-gnome/irc-network.c:31
 msgid "UTF-8 (Unicode)"
@@ -4024,7 +4026,7 @@ msgstr "插入(_S)"
 
 #: ../src/fe-gnome/main-window.c:101
 msgid "_Network"
-msgstr "网络"
+msgstr "网络(_N)"
 
 #: ../src/fe-gnome/main-window.c:102
 msgid "_Discussion"
@@ -4040,11 +4042,11 @@ msgstr "帮助(_H)"
 
 #: ../src/fe-gnome/main-window.c:109
 msgid "_File Transfers"
-msgstr "文件传输"
+msgstr "文件传输(_F)"
 
 #: ../src/fe-gnome/main-window.c:110
 msgid "_Quit"
-msgstr "退出"
+msgstr "退出(_Q)"
 
 #. Edit menu
 #: ../src/fe-gnome/main-window.c:113
@@ -4053,34 +4055,34 @@ msgstr "剪切(_T)"
 
 #: ../src/fe-gnome/main-window.c:114
 msgid "_Copy"
-msgstr "复制"
+msgstr "复制(_C)"
 
 #: ../src/fe-gnome/main-window.c:115
 msgid "_Paste"
-msgstr "私人"
+msgstr "粘贴(_P)"
 
 #: ../src/fe-gnome/main-window.c:116 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
 msgid "C_lear"
-msgstr "清除"
+msgstr "清除(_L)"
 
 #: ../src/fe-gnome/main-window.c:117
 msgid "Prefere_nces"
-msgstr "首选项..."
+msgstr "首选项(_N)..."
 
 #. Network menu
 #. Server context menu
 #: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Information"
-msgstr "信息的"
+msgstr "信息(_I)"
 
 #: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
-msgstr "重新连接"
+msgstr "重新连接(_R)"
 
 #: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Disconnect"
-msgstr "断开连接"
+msgstr "断开连接(_D)"
 
 #: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:84
 #: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
@@ -4089,7 +4091,7 @@ msgstr "关闭(_C)"
 
 #: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Channels..."
-msgstr "聊天室列表..."
+msgstr "聊天室列表(_C)..."
 
 #. Discussion menu
 #. Channel context menu
@@ -4101,19 +4103,19 @@ msgstr "保存副本(_S)"
 
 #: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:89
 msgid "_Leave"
-msgstr "离开"
+msgstr "离开(_L)"
 
 #: ../src/fe-gnome/main-window.c:129
 msgid "Cl_ose"
-msgstr "关闭"
+msgstr "关闭(_O)"
 
 #: ../src/fe-gnome/main-window.c:130
 msgid "_Find"
-msgstr "查找"
+msgstr "查找(_F)"
 
 #: ../src/fe-gnome/main-window.c:131
 msgid "_Clear Window"
-msgstr "窗口(_W)"
+msgstr "窗口清屏(_C)"
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "Change _Topic"
@@ -4121,28 +4123,28 @@ msgstr "改变主题(_T)"
 
 #: ../src/fe-gnome/main-window.c:133 ../src/fe-gnome/navigation-tree.c:93
 msgid "_Bans..."
-msgstr "封禁列表..."
+msgstr "封禁列表(_B)..."
 
 #: ../src/fe-gnome/main-window.c:134
 msgid "_Users"
-msgstr "用户"
+msgstr "用户(_U)"
 
 #. Go menu
 #: ../src/fe-gnome/main-window.c:137
 msgid "Pre_vious Network"
-msgstr "新网络"
+msgstr "前一网络(_V)"
 
 #: ../src/fe-gnome/main-window.c:138
 msgid "Nex_t Network"
-msgstr "新网络"
+msgstr "后一网络(_T)"
 
 #: ../src/fe-gnome/main-window.c:139
 msgid "_Previous Discussion"
-msgstr "前一个讨论(_P)"
+msgstr "前一讨论(_P)"
 
 #: ../src/fe-gnome/main-window.c:140
 msgid "_Next Discussion"
-msgstr "后一个讨论(_N)"
+msgstr "后一讨论(_N)"
 
 #. Help menu
 #: ../src/fe-gnome/main-window.c:143
@@ -4157,7 +4159,7 @@ msgstr "关于(_A)"
 #: ../src/fe-gnome/navigation-tree.c:1573
 #: ../src/fe-gnome/navigation-tree.c:1632
 msgid "Ex-Chat"
-msgstr "聊天"
+msgstr "Ex-Chat"
 
 #: ../src/fe-gnome/main-window.c:581
 msgid "Error showing help"
@@ -4165,17 +4167,17 @@ msgstr "错误字符串"
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
 msgid "_Find..."
-msgstr "文件发送..."
+msgstr "查找(_F)..."
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
 msgid "_Auto-connect"
-msgstr "连接(_C)"
+msgstr "自动连接(_A)"
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
 msgid "_Auto-join"
-msgstr "自动(_A)"
+msgstr "自动加入(_A)"
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
@@ -4201,7 +4203,7 @@ msgstr "自定义"
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
 msgid "File Transfers & DCC"
-msgstr "文件传输"
+msgstr "文件传输及DCC"
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
@@ -4209,12 +4211,12 @@ msgstr "效果"
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
 msgid "IRC Preferences"
-msgstr "X-Chat：首选项"
+msgstr "IRC 首选项"
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
-msgstr "一定要删除网络 “%s”以及它所有的服务器吗？"
+msgstr "真的要删除网络“%s”及它所有的服务器吗？"
 
 #: ../src/fe-gnome/preferences-page-networks.c:171
 msgid "Networks"
@@ -4236,15 +4238,15 @@ msgstr "取消装载 %s 时出错"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:113
 msgid "Plugin Unload Failed"
-msgstr "取消装载失败"
+msgstr "插件取消装载失败"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:124
 msgid "Plugin Load Failed"
-msgstr "装载插件失败"
+msgstr "插件装载失败"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:161
 msgid "Open Plugin"
-msgstr "打开对话框之处："
+msgstr "打开插件"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:261
 msgid "Scripts and Plugins"
@@ -4266,7 +4268,7 @@ msgstr "%s%.1f秒延迟"
 #: ../src/fe-gnome/status-bar.c:106
 #, c-format
 msgid "%d bytes buffered"
-msgstr "%d 字节"
+msgstr "%d 字节已缓冲"
 
 #: ../src/fe-gnome/text-entry.c:274
 msgid "I_nsert Color Code"
@@ -4279,11 +4281,11 @@ msgstr "修改 %s 主题"
 
 #: ../src/fe-gnome/userlist-gui.c:50
 msgid "_Send File..."
-msgstr "发送文件(_S)"
+msgstr "发送文件(_S)……"
 
 #: ../src/fe-gnome/userlist-gui.c:51
 msgid "Private _Chat"
-msgstr "私人(_C)"
+msgstr "私人聊天(_C)"
 
 #: ../src/fe-gnome/userlist-gui.c:52
 msgid "_Kick"
