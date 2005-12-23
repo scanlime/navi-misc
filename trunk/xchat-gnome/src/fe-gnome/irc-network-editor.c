@@ -235,6 +235,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	GW(use_ssl);
 	GW(cycle);
 
+	GW(nickserv_password);
 	GW(password);
 	GW(encoding_hbox);
 
@@ -281,6 +282,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 	gtk_size_group_add_widget (group, dialog->network_name);
 	gtk_size_group_add_widget (group, dialog->encoding);
 	gtk_size_group_add_widget (group, dialog->password);
+	gtk_size_group_add_widget (group, dialog->nickserv_password);
 	g_object_unref (group);
 
 	enc = (gchar **) encodings;
@@ -417,6 +419,8 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 
 	if (e->network->password)
 		gtk_entry_set_text (GTK_ENTRY (e->password), e->network->password);
+	if (e->network->nickserv_password)
+		gtk_entry_set_text (GTK_ENTRY (e->nickserv_password), e->network->nickserv_password);
 
 	gtk_combo_box_set_active (GTK_COMBO_BOX (e->encoding), e->network->encoding);
 
@@ -454,11 +458,13 @@ apply_changes (IrcNetworkEditor *e)
 	if (net->nick)     g_free (net->nick);
 	if (net->real)     g_free (net->real);
 	if (net->autojoin) g_free (net->autojoin);
+	if (net->nickserv_password) g_free (net->nickserv_password);
 
 	net->name     = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->network_name)));
 	net->password = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->password)));
 	net->nick     = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->nickname)));
 	net->real     = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->realname)));
+	net->nickserv_password = g_strdup (gtk_entry_get_text (GTK_ENTRY (e->nickserv_password)));
 
 	net->autoconnect        = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->autoconnect));
 	net->use_ssl            = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->use_ssl));

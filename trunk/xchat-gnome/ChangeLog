@@ -1,2 +1,11 @@
+Fri Dec 23 16:44:38 MST 2005  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/irc-network.c:
+	* src/fe-gnome/irc-network.h:
+	* src/fe-gnome/irc-network-editor.c:
+	* src/fe-gnome/irc-network-editor.h:
+	* data/irc-network-editor.glade:
+	  - Add UI in the network editor dialog for changing the nickserv
+	    password
 
 All changes before 23 December 2005 are listed in subversion history
