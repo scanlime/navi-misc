@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-22 16:19-0700\n"
+"POT-Creation-Date: 2005-12-23 00:38-0700\n"
 "PO-Revision-Date: 2005-12-18 05:23-0700\n"
 "Last-Translator: Ramón Rey Vicente <ramon.rey@hispalinux.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -32,7 +32,7 @@ msgstr "Nombre del canal"
 
 #: ../data/channel-list.glade.h:4
 msgid "Channel _Topic"
-msgstr "Canal"
+msgstr "Asunto de Canal"
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
@@ -48,11 +48,11 @@ msgstr "Usuarios mínimos:"
 
 #: ../data/channel-list.glade.h:8
 msgid "Save List _As"
-msgstr "Guardar como"
+msgstr ""
 
 #: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
-msgstr "Imprimir archivos de textos"
+msgstr ""
 
 #: ../data/connect-dialog.glade.h:1
 msgid "C_onnect"
@@ -60,7 +60,7 @@ msgstr "C_onectar"
 
 #: ../data/dcc-accept.glade.h:1
 msgid "_Accept"
-msgstr "Aceptar"
+msgstr "_Aceptar"
 
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
 msgid "File Transfers"
@@ -72,19 +72,19 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:2 ../data/preferences-dialog.glade.h:7
 msgid "<span weight=\"bold\">General</span>"
-msgstr ""
+msgstr "<span weight=\"bold\">General</span>"
 
 #: ../data/irc-network-editor.glade.h:3
 msgid "<span weight=\"bold\">User Info</span>"
-msgstr ""
+msgstr "<span weight=\"bold\">Información del Usuario</span>"
 
 #: ../data/irc-network-editor.glade.h:4
 msgid "Character _encoding:"
-msgstr "Lista de caracteres:"
+msgstr "Codificación de _caracteres:"
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Network Settings"
-msgstr "Recargar configuraciones"
+msgstr "Configuración de Red"
 
 #: ../data/irc-network-editor.glade.h:6
 msgid "Server _Password:"
@@ -96,15 +96,15 @@ msgstr "Servidores"
 
 #: ../data/irc-network-editor.glade.h:8
 msgid "Use _global user settings"
-msgstr "Usar información global de usuario"
+msgstr "Usar información _global de usuario"
 
 #: ../data/irc-network-editor.glade.h:9
 msgid "Use _these user settings:"
-msgstr "Configuración del servidor"
+msgstr "Uso estos configuraciónes del usuario:"
 
 #: ../data/irc-network-editor.glade.h:10
 msgid "User and Channels"
-msgstr "Abandonar canal"
+msgstr "Usuario y Canales"
 
 #: ../data/irc-network-editor.glade.h:11
 msgid "_Automatically connect to network"
@@ -112,23 +112,23 @@ msgstr "Conectarse automáticamente al inicio"
 
 #: ../data/irc-network-editor.glade.h:12
 msgid "_Cycle until connected"
-msgstr "Ciclar hasta conectarse"
+msgstr "_Ciclar hasta conectarse"
 
 #: ../data/irc-network-editor.glade.h:13
 msgid "_Name:"
-msgstr "Nombre"
+msgstr "_Nombre:"
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Nick name:"
-msgstr "Apodo:"
+msgstr "_Apodo:"
 
 #: ../data/irc-network-editor.glade.h:15
 msgid "_Real Name:"
-msgstr "Nombre verdadero:"
+msgstr "Nombre _Real:"
 
 #: ../data/irc-network-editor.glade.h:16
 msgid "_Use secure connection (SSL)"
-msgstr "Usar SSL seguro"
+msgstr "Usar conexión seguro (SSL)"
 
 #: ../data/preferences-dialog.glade.h:1
 msgid "<span size=\"small\" style=\"italic\">Opaque</span>"
@@ -140,7 +140,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:3
 msgid "<span weight=\"bold\">Background</span>"
-msgstr ""
+msgstr "<span weight=\"bold\">Fondo</span>"
 
 #: ../data/preferences-dialog.glade.h:4
 msgid "<span weight=\"bold\">DCC Settings</span>"
@@ -148,7 +148,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:5
 msgid "<span weight=\"bold\">Extra Colors</span>"
-msgstr ""
+msgstr "<span weight=\"bold\">Colores extrañas</span>"
 
 #: ../data/preferences-dialog.glade.h:6
 msgid "<span weight=\"bold\">File Transfers</span>"
@@ -176,7 +176,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:13
 msgid "A_way message:"
-msgstr "Mensaje nuevo:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
@@ -192,15 +192,15 @@ msgstr "Imagen de fondo:"
 
 #: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
-msgstr "Imagen de fondo:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
-msgstr "Respuestas por defecto"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:19
 msgid "Convert spaces to underscores in filenames"
-msgstr "Convertir espacios a guiones bajos"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:20
 msgid "Download files to:"
@@ -212,19 +212,19 @@ msgstr "Palabras adicionales para resaltar:"
 
 #: ../data/preferences-dialog.glade.h:22
 msgid "Foreground mark:"
-msgstr "Primer plano:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:23
 msgid "Get IP Address From Server"
-msgstr "Obtener mi IP del servidor IRC"
+msgstr "Obtener mi IP del servidor"
 
 #: ../data/preferences-dialog.glade.h:24
 msgid "Global receive KB/s: "
-msgstr "Máx. CPS de recepción total: "
+msgstr "Máx. KB/s de recepción total: "
 
 #: ../data/preferences-dialog.glade.h:25
 msgid "Global send KB/s: "
-msgstr "Máx. CPS de envío total: "
+msgstr "Máx. KB/s de envío total: "
 
 #: ../data/preferences-dialog.glade.h:26
 msgid "Image _file:"
@@ -244,27 +244,27 @@ msgstr "Mover archivos completados a:"
 
 #: ../data/preferences-dialog.glade.h:30
 msgid "Preferences"
-msgstr "Preferencias..."
+msgstr "Preferencias"
 
 #: ../data/preferences-dialog.glade.h:31
 msgid "Real na_me:"
-msgstr "Nombre verdadero:"
+msgstr "No_mbre real:"
 
 #: ../data/preferences-dialog.glade.h:32
 msgid "Save sender nickname in filenames"
-msgstr "Guardar el apodo en los nombres de archivos"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:33
 msgid "Select A File"
-msgstr "Seleccione un archivo de imagen"
+msgstr "Seleccione un archivo"
 
 #: ../data/preferences-dialog.glade.h:34
 msgid "Select Completed Files Directory"
-msgstr "Mover archivos completados a:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:35
 msgid "Select Download Directory"
-msgstr "Descargar archivos en:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:36
 msgid "Show _timestamps"
@@ -275,8 +275,8 @@ msgid ""
 "To edit a shortcut key, click on the corresponding row and type a new "
 "accelerator, or press backspace to clear."
 msgstr ""
-"Para editar una combinación nueva, pulse en la fila correspondiente y teclee "
-"una combinación de teclas nueva, o pulse Retroceso para borrarla."
+"Para editar una tecla rápida, haga click en la columna correspondiente y "
+"escriba un nuevo acelerador, o presione la tecla de borrado para limpiar."
 
 #: ../data/preferences-dialog.glade.h:38
 msgid "Use System Terminal Font"
@@ -284,27 +284,27 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:39
 msgid "Use This IP Address:"
-msgstr "Dirección IP DCC:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:40
 msgid "Use this font:"
-msgstr "Lista de usuarios"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:41
 msgid "_Background color:"
-msgstr "Fondo:"
+msgstr "C_olor de fondo:"
 
 #: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:99
 msgid "_Edit"
-msgstr ""
+msgstr "_Editar"
 
 #: ../data/preferences-dialog.glade.h:43
 msgid "_Foreground color:"
-msgstr "Primer plano:"
+msgstr "Color de _frente:"
 
 #: ../data/preferences-dialog.glade.h:44
 msgid "_Nickname:"
-msgstr "Apodo:"
+msgstr "_Apodo:"
 
 #: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
@@ -312,11 +312,11 @@ msgstr "_Ninguno (usar color sólido)"
 
 #: ../data/preferences-dialog.glade.h:46
 msgid "_Part message:"
-msgstr "Mensaje nuevo:"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
-msgstr "El mensaje"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
@@ -324,15 +324,15 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:49
 msgid "_Transparent background"
-msgstr "Fondo transparente"
+msgstr "Fondo _transparente"
 
 #: ../data/setup-dialog.glade.h:1
 msgid "Nick Name:"
-msgstr "Apodos:"
+msgstr "Apodo:"
 
 #: ../data/setup-dialog.glade.h:2
 msgid "Real Name:"
-msgstr "Nombre verdadero:"
+msgstr "Nombre real:"
 
 #: ../data/setup-dialog.glade.h:3
 msgid ""
@@ -352,14 +352,14 @@ msgstr ""
 
 #: ../data/topic-change.glade.h:1
 msgid "Change"
-msgstr "Canal"
+msgstr "Cambiar"
 
 #.
 #. GNOME_PARAM_GOPTION_CONTEXT, context,
 #.
 #: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:85
 msgid "IRC Chat"
-msgstr "Charla"
+msgstr "Charla IRC"
 
 #: ../data/xchat-gnome.desktop.in.h:2
 msgid "XChat-GNOME IRC Chat"
@@ -367,7 +367,7 @@ msgstr ""
 
 #: ../data/xchat-gnome.glade.h:1
 msgid "Close this discussion"
-msgstr "Cerrar esta pestaña/ventana"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:2
 msgid "Enter a new nickname"
@@ -384,7 +384,7 @@ msgstr "Error"
 
 #: ../data/xchat-gnome.glade.h:4
 msgid "The new nickname"
-msgstr "Ingrese el apodo nuevo:"
+msgstr "El apodo nuevo"
 
 #: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:805
 #: ../src/fe-gnome/channel-list.c:311
@@ -393,7 +393,7 @@ msgstr "Usuarios"
 
 #: ../data/xchat-gnome.glade.h:6
 msgid "nickname"
-msgstr "Apodo"
+msgstr "apodo"
 
 #: ../plugins/autoaway/autoaway.c:164
 msgid "Screensaver activated, going away."
@@ -405,20 +405,20 @@ msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:212
 msgid "Auto Away"
-msgstr "Noruega"
+msgstr "Ausencia automática"
 
 #: ../plugins/autoaway/autoaway.c:213
 msgid "Automatically go away / come back"
-msgstr "Desmarcar ausencia automáticamente"
+msgstr ""
 
 #. Hook up our callbacks.
 #: ../plugins/autoaway/autoaway.c:231
 msgid "Disconnected"
-msgstr "Desconectar"
+msgstr "Desconectado"
 
 #: ../plugins/autoaway/autoaway.c:232
 msgid "Connected"
-msgstr "Conectar"
+msgstr "Conectado"
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -477,7 +477,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "Prints some text to the current tab/window"
-msgstr "Usar la hora como prefijo de todo lo que se reciba"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "\"Text to print\""
@@ -489,11 +489,11 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
-msgstr "Canal"
+msgstr "canal"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
-msgstr "Hacer que el cuadro de texto parezca transparente"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
@@ -505,11 +505,11 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
-msgstr "Buscar"
+msgstr "id"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
-msgstr "Guardar configuraciones al salir"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
@@ -530,37 +530,22 @@ msgstr ""
 #: ../plugins/dbus/xchat-gnome-remote.c:130
 msgid "Failed to complete command"
 msgstr ""
-"ha fallado la apertura de la tipografía:\n"
-"\n"
-"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:125
 msgid "Failed to complete SetContext"
-msgstr ""
-"ha fallado la apertura de la tipografía:\n"
-"\n"
-"%s"
+msgstr "%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:135
 msgid "Failed to complete print"
-msgstr ""
-"ha fallado la apertura de la tipografía:\n"
-"\n"
-"%s"
+msgstr "%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:142
 msgid "Failed to complete GetInfo"
-msgstr ""
-"ha fallado la apertura de la tipografía:\n"
-"\n"
-"%s"
+msgstr "%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:155
 msgid "Failed to complete GetPrefs"
-msgstr ""
-"ha fallado la apertura de la tipografía:\n"
-"\n"
-"%s"
+msgstr "%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:159
 #, c-format
@@ -569,11 +554,11 @@ msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:36
 msgid "Network Monitor"
-msgstr "Configuración de red"
+msgstr "Monitor de Red"
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
-msgstr ""
+msgstr "NetworkManager monitor de conexión"
 
 #: ../plugins/net-monitor/net-monitor.c:342
 #, c-format
@@ -582,11 +567,11 @@ msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "Orientation"
-msgstr "Argentina"
+msgstr "Orientación"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "The orientation of the tray."
-msgstr "El apodo de la persona"
+msgstr "La orientación de la bandeja."
 
 #: ../plugins/notification/notification.c:148
 msgid "Notification"
@@ -594,15 +579,15 @@ msgstr "Notificación"
 
 #: ../plugins/notification/notification.c:149
 msgid "A notification area plugin."
-msgstr "Configuración de las notificaciones"
+msgstr ""
 
 #: ../plugins/notification/notification.c:235
 msgid "Notification plugin loaded.\n"
-msgstr "Configuración de las notificaciones\n"
+msgstr ""
 
 #: ../plugins/notification/notification.c:250
 msgid "Notification plugin unloaded.\n"
-msgstr "No se encontró la extensión.\n"
+msgstr ""
 
 #: ../plugins/notification/notification.schemas.in.h:1
 msgid "Keep icon in tray at all times"
@@ -633,7 +618,7 @@ msgstr "Mensaje de %s"
 #: ../plugins/notify-osd/notify-osd.c:140
 #, c-format
 msgid "Private Message from %s"
-msgstr ""
+msgstr "Mensage Privada de %s"
 
 #: ../plugins/notify-osd/notify-osd.c:189
 msgid "OSD loaded\n"
@@ -645,7 +630,7 @@ msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:45
 msgid "xchat URL scraper"
-msgstr "X-Chat: Registro de URL"
+msgstr "xchat capturador de URL"
 
 #: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:823
 msgid "Time"
@@ -695,7 +680,7 @@ msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.schemas.in.h:2
 msgid "URL Scraper show timestamps"
-msgstr "Insertar marcas de fecha/hora en los registros"
+msgstr ""
 
 #: ../src/common/cfgfiles.c:350
 msgid "Cannot create ~/.xchat2"
@@ -714,8 +699,8 @@ msgid ""
 "* Running IRC as root is stupid! You should\n"
 "  create a User Account and use that to login.\n"
 msgstr ""
-"* ¡Ejecutar IRC como root es peligroso!. Debería crear una\n"
-"  cuenta de usuario normal y usarla para conectarse.\n"
+"*¡Ejecutar IRC como root es estupido! Debería\n"
+"  crear una Cuenta de Usuario y utilizarla para conectarse.\n"
 
 #: ../src/common/dcc.c:66
 msgid "Waiting"
@@ -811,7 +796,7 @@ msgstr "Órdenes definidas por el usuario:"
 
 #: ../src/common/outbound.c:2000
 msgid "Plugin defined commands:"
-msgstr "Órdenes definidas por el usuario:"
+msgstr "Órdenes definidas por los extensiones:"
 
 #: ../src/common/outbound.c:2011
 msgid "Type /HELP <command> for more information, or /HELP -l"
@@ -1354,11 +1339,11 @@ msgstr ""
 
 #: ../src/common/text.c:516
 msgid "Left message"
-msgstr "Mensaje de ausencia"
+msgstr ""
 
 #: ../src/common/text.c:517
 msgid "Right message"
-msgstr "El mensaje"
+msgstr ""
 
 #: ../src/common/text.c:521
 msgid "The nick of the joining person"
@@ -1414,7 +1399,7 @@ msgstr "Apodo anterior"
 
 #: ../src/common/text.c:546 ../src/common/text.c:614
 msgid "New nickname"
-msgstr "Nuevo apodo"
+msgstr "Apodo nuevo"
 
 #: ../src/common/text.c:550
 msgid "Nick of person who changed the topic"
@@ -1461,7 +1446,7 @@ msgstr "Razón"
 
 #: ../src/common/text.c:587 ../src/common/text.c:735 ../src/common/text.c:818
 msgid "Host"
-msgstr "Equipo"
+msgstr "Servidor"
 
 #: ../src/common/text.c:591 ../src/common/text.c:596 ../src/common/text.c:601
 msgid "Who it's from"
@@ -1714,7 +1699,7 @@ msgstr "Tipo DCC"
 #: ../src/common/text.c:903 ../src/common/text.c:909 ../src/common/text.c:916
 #: ../src/common/text.c:925 ../src/common/text.c:931
 msgid "Filename"
-msgstr "Nombre de archivo"
+msgstr "Nombre del archivo"
 
 #: ../src/common/text.c:867 ../src/common/text.c:874
 msgid "Destination filename"
@@ -1726,7 +1711,7 @@ msgstr "CPS"
 
 #: ../src/common/text.c:911
 msgid "Pathname"
-msgstr "Ruta"
+msgstr "NombreRuta"
 
 #: ../src/common/text.c:926
 msgid "Position"
@@ -1881,7 +1866,7 @@ msgstr "-%C10-%C11-%O$tCanal $1 modos: $2"
 
 #: ../src/common/textevents.h:63
 msgid "%C2<%C8%B$1%B%C2>%O$t$2%O"
-msgstr "%C2<%O$1%C2>%O$t$2%O"
+msgstr "%C2<%C8%B$1%B%C2>%O$t$2%O"
 
 #: ../src/common/textevents.h:66
 msgid "%C12-%C13$1/$2%C12-%O$t$3%O"
@@ -1954,7 +1939,7 @@ msgstr "-%C10-%C11-%O$tSe ha recibido un sonido CTCP $1 de $2"
 
 #: ../src/common/textevents.h:117
 msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
-msgstr "-%C10-%C11-%O$tSe ha recibido un CTCP $1 de $2 (a $3)"
+msgstr "%C22*%O$tSe ha recibido un sonido CTCP $1 de $2 (a $3)"
 
 #: ../src/common/textevents.h:120
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
@@ -2199,7 +2184,7 @@ msgstr "-%C10-%C11-%O$tLa lista de notificaciones está vacía."
 #: ../src/common/textevents.h:276
 msgid "%C24,18 %B  Notify List                           "
 msgstr ""
-"%C08,02                                                              %"
+"%C24,18 %B Lisa de avisos                                                  %"
 "O                           "
 
 #: ../src/common/textevents.h:279
@@ -2294,7 +2279,7 @@ msgstr "-%C10-%C11-%O$t%C11Usuarios en $1:%C $2"
 
 #: ../src/common/textevents.h:360
 msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
-msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %O$2"
+msgstr "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 
 #: ../src/common/textevents.h:363
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
@@ -2337,7 +2322,7 @@ msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
 
 #: ../src/common/textevents.h:390
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
-msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:393
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
@@ -2361,7 +2346,7 @@ msgstr "-%C10-%C11-%O$tEstá invitando a %C11$1%C a %C11$2%C (%C11$3%C)"
 
 #: ../src/common/textevents.h:408
 msgid "%C6<%O$1%C6>%O$t$2%O"
-msgstr "%C3>%O$1%C3<%O$t$2%O"
+msgstr "%C6<%O$1%C6>%O$t$2%O"
 
 #: ../src/common/textevents.h:411
 msgid "-%C10-%C11-%O$tYou are now known as $2"
@@ -2377,11 +2362,11 @@ msgstr "Conexión rechazada"
 
 #: ../src/common/util.c:304
 msgid "No route to host"
-msgstr "No hay ruta hacia el equipo"
+msgstr "Sin ruta hasta el anfitrión"
 
 #: ../src/common/util.c:306
 msgid "Connection timed out"
-msgstr "Tiempo de espera de la conexión agotado"
+msgstr "Expiró la conexión"
 
 #: ../src/common/util.c:308
 msgid "Cannot assign that address"
@@ -2509,7 +2494,7 @@ msgstr "Bermuda"
 
 #: ../src/common/util.c:851
 msgid "Brunei Darussalam"
-msgstr "Brunei"
+msgstr "Darussalam de Brunei"
 
 #: ../src/common/util.c:852
 msgid "Bolivia"
@@ -2613,7 +2598,7 @@ msgstr "Cabo Verde"
 
 #: ../src/common/util.c:877
 msgid "Christmas Island"
-msgstr "Isla Natividad"
+msgstr "Isla de Navidad"
 
 #: ../src/common/util.c:878
 msgid "Cyprus"
@@ -2665,7 +2650,7 @@ msgstr "Egipto"
 
 #: ../src/common/util.c:890
 msgid "Western Sahara"
-msgstr "Sahara Occidental"
+msgstr "Sáhara Occidental"
 
 #: ../src/common/util.c:891
 msgid "Eritrea"
@@ -3719,7 +3704,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:6
 msgid "Height of the channel list"
-msgstr ""
+msgstr "La altura de la ventana lista del canal"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:7
 msgid "Height of the main window"
@@ -3731,7 +3716,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
 msgid "Message sent on away"
-msgstr "Mensaje"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Message sent on channel part"
@@ -3739,7 +3724,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
 msgid "Message sent on quit"
-msgstr "Mensaje"
+msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Position of the horizontal pane in the main window"
@@ -3763,7 +3748,7 @@ msgstr "Insertar marcas de fecha/hora en los registros"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
 msgid "Use system fonts"
-msgstr "Lista de usuarios"
+msgstr "Usar tipografía del sistema"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
@@ -3788,7 +3773,7 @@ msgstr "_Copiar destino del enlace"
 
 #: ../src/fe-gnome/conversation-panel.c:135
 msgid "Se_nd Message To..."
-msgstr ""
+msgstr "E_nviar un Mensaje a..."
 
 #: ../src/fe-gnome/conversation-panel.c:136
 msgid "_Copy Address"
@@ -3800,11 +3785,11 @@ msgstr "Enviar archivo"
 
 #: ../src/fe-gnome/conversation-panel.c:141
 msgid "Paste File _Contents"
-msgstr "_Contenidos"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:142
 msgid "Paste File_name"
-msgstr "Nombre nuevo del archivo"
+msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:143
 msgid "_Cancel"
@@ -3847,7 +3832,7 @@ msgstr "El buffer de búsqueda esta vacio.\n"
 #. File completion percent
 #: ../src/fe-gnome/dcc-window.c:142
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: ../src/fe-gnome/dcc-window.c:143
 msgid "File"
@@ -3855,7 +3840,7 @@ msgstr "Archivo"
 
 #: ../src/fe-gnome/dcc-window.c:144
 msgid "Remaining"
-msgstr "Abandonando"
+msgstr "Restante"
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -3876,7 +3861,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
 msgid "starting"
-msgstr "Esperando"
+msgstr "ssperando"
 
 #: ../src/fe-gnome/dcc-window.c:303
 #, c-format
@@ -3906,7 +3891,7 @@ msgstr "Falló transferencia"
 
 #: ../src/fe-gnome/dcc-window.c:327
 msgid "stalled"
-msgstr "Ha fallado"
+msgstr "parado"
 
 #: ../src/fe-gnome/dcc-window.c:331
 #, c-format
@@ -3920,7 +3905,7 @@ msgstr "%.2d:%.2d"
 
 #: ../src/fe-gnome/dcc-window.c:446
 msgid "Send File..."
-msgstr "Enviar archivo"
+msgstr "Enviar archivo..."
 
 #: ../src/fe-gnome/fe-gnome.c:58
 msgid "Use directory instead of the default config dir"
@@ -3928,11 +3913,11 @@ msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:59
 msgid "Don't auto-connect to servers"
-msgstr "Reconectarse al servidor automáticamente"
+msgstr "No reconectarse al servidor automáticamente"
 
 #: ../src/fe-gnome/fe-gnome.c:60
 msgid "Don't auto-load plugins"
-msgstr "no activar automáticamente ninguna extensión"
+msgstr "No activar automáticamente ninguna extensión"
 
 #: ../src/fe-gnome/fe-gnome.c:62
 msgid "Show version information"
@@ -3952,15 +3937,15 @@ msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:95
 msgid "Find:"
-msgstr "Buscar:"
+msgstr "Encontrar:"
 
 #: ../src/fe-gnome/find-bar.c:97
 msgid "_Previous"
-msgstr ""
+msgstr "_Anterior"
 
 #: ../src/fe-gnome/find-bar.c:99
 msgid "_Next"
-msgstr "Texto"
+msgstr "_Siguiente"
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -3983,7 +3968,7 @@ msgstr "Servidor"
 #: ../src/fe-gnome/irc-network-editor.c:383
 #, c-format
 msgid "%s Network Properties"
-msgstr ""
+msgstr "Configuraciones del Red %s"
 
 #: ../src/fe-gnome/irc-network-editor.c:509
 #: ../src/fe-gnome/irc-network-editor.c:516
@@ -3997,7 +3982,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:516
 msgid "You must enter a nick name"
-msgstr "Ingrese el apodo nuevo:"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:522
 msgid "You must enter a real name"
@@ -4005,7 +3990,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:529
 msgid "No Servers"
-msgstr "Servidores"
+msgstr "No Servidores"
 
 #: ../src/fe-gnome/irc-network-editor.c:529
 msgid "You must add at least one server for this network"
@@ -4017,23 +4002,23 @@ msgstr "UTF-8 (Unicode)"
 
 #: ../src/fe-gnome/irc-network.c:32
 msgid "ISO-8859-15 (Western Europe)"
-msgstr ""
+msgstr "ISO-8859-15 (Europa Occidental)"
 
 #: ../src/fe-gnome/irc-network.c:33
 msgid "ISO-8859-2 (Central Europe)"
-msgstr ""
+msgstr "ISO-8859-2 (Europa Central)"
 
 #: ../src/fe-gnome/irc-network.c:34
 msgid "ISO-8859-7 (Greek)"
-msgstr ""
+msgstr "ISO-8859-7 (Griego)"
 
 #: ../src/fe-gnome/irc-network.c:35
 msgid "ISO-8859-8 (Hebrew)"
-msgstr ""
+msgstr "ISO-8859-8 (Hebreo)"
 
 #: ../src/fe-gnome/irc-network.c:36
 msgid "ISO-8859-9 (Turkish)"
-msgstr ""
+msgstr "ISO-8859-9 (Turco)"
 
 #: ../src/fe-gnome/irc-network.c:37
 msgid "ISO-2022-JP (Japanese)"
@@ -4070,7 +4055,7 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:101
 msgid "_Network"
-msgstr "Red"
+msgstr "_Red"
 
 #: ../src/fe-gnome/main-window.c:102
 msgid "_Discussion"
@@ -4090,25 +4075,25 @@ msgstr "Transferencias de archivos"
 
 #: ../src/fe-gnome/main-window.c:110
 msgid "_Quit"
-msgstr "Salir"
+msgstr "_Salir"
 
 #. Edit menu
 #: ../src/fe-gnome/main-window.c:113
 msgid "Cu_t"
-msgstr ""
+msgstr "Cor_tar"
 
 #: ../src/fe-gnome/main-window.c:114
 msgid "_Copy"
-msgstr "Copiar"
+msgstr ")Copiar"
 
 #: ../src/fe-gnome/main-window.c:115
 msgid "_Paste"
-msgstr "Privado"
+msgstr "_Pegar"
 
 #: ../src/fe-gnome/main-window.c:116 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
 msgid "C_lear"
-msgstr "Limpiar"
+msgstr "_Limpiar"
 
 #: ../src/fe-gnome/main-window.c:117
 msgid "Prefere_nces"
@@ -4118,7 +4103,7 @@ msgstr "Prefere_ncias"
 #. Server context menu
 #: ../src/fe-gnome/main-window.c:120 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Information"
-msgstr "Informativo"
+msgstr "_Información"
 
 #: ../src/fe-gnome/main-window.c:121 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
@@ -4147,7 +4132,7 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:128 ../src/fe-gnome/navigation-tree.c:89
 msgid "_Leave"
-msgstr "Abandonando"
+msgstr "_Abandonar"
 
 #: ../src/fe-gnome/main-window.c:129
 msgid "Cl_ose"
@@ -4155,11 +4140,11 @@ msgstr "Cerrar"
 
 #: ../src/fe-gnome/main-window.c:130
 msgid "_Find"
-msgstr "Buscar"
+msgstr "_Buscar"
 
 #: ../src/fe-gnome/main-window.c:131
 msgid "_Clear Window"
-msgstr "_Ventana"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "Change _Topic"
@@ -4176,15 +4161,15 @@ msgstr "_Usuarios"
 #. Go menu
 #: ../src/fe-gnome/main-window.c:137
 msgid "Pre_vious Network"
-msgstr "Nueva red"
+msgstr "Red Anterior"
 
 #: ../src/fe-gnome/main-window.c:138
 msgid "Nex_t Network"
-msgstr "Nueva red"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:139
 msgid "_Previous Discussion"
-msgstr ""
+msgstr "Charla Anterior"
 
 #: ../src/fe-gnome/main-window.c:140
 msgid "_Next Discussion"
@@ -4203,25 +4188,25 @@ msgstr "_Acerca de"
 #: ../src/fe-gnome/navigation-tree.c:1573
 #: ../src/fe-gnome/navigation-tree.c:1632
 msgid "Ex-Chat"
-msgstr "Charla"
+msgstr ""
 
 #: ../src/fe-gnome/main-window.c:581
 msgid "Error showing help"
-msgstr "Cadena de error"
+msgstr ""
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
 msgid "_Find..."
-msgstr "Envío de archivo..."
+msgstr "_Buscar..."
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
 msgid "_Auto-connect"
-msgstr "C_onectar"
+msgstr ""
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
 msgid "_Auto-join"
-msgstr "Antártida"
+msgstr ""
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
@@ -4247,7 +4232,7 @@ msgstr "Personalizado"
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
 msgid "File Transfers & DCC"
-msgstr "Transferencias de archivos"
+msgstr "Transferencias de archivos & DCC"
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
@@ -4255,7 +4240,7 @@ msgstr "Efectos"
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
 msgid "IRC Preferences"
-msgstr "X-Chat: Preferencias"
+msgstr "Preferencias IRC"
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
@@ -4273,7 +4258,7 @@ msgstr "Nombre"
 #: ../src/fe-gnome/preferences-page-plugins.c:74
 #: ../src/fe-gnome/preferences-page-plugins.c:75
 msgid "unknown"
-msgstr "Desconocido"
+msgstr "desconocido"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:112
 #, c-format
@@ -4290,7 +4275,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:161
 msgid "Open Plugin"
-msgstr "Extensiones"
+msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:261
 msgid "Scripts and Plugins"
@@ -4298,11 +4283,11 @@ msgstr "Guiones y extensiones"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:271
 msgid "Enable"
-msgstr ""
+msgstr "Activar"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:272
 msgid "Plugin"
-msgstr "Extension"
+msgstr "Extensión"
 
 #: ../src/fe-gnome/status-bar.c:92
 #, c-format
@@ -4312,7 +4297,7 @@ msgstr ""
 #: ../src/fe-gnome/status-bar.c:106
 #, c-format
 msgid "%d bytes buffered"
-msgstr "%d bytes"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:274
 msgid "I_nsert Color Code"
@@ -4325,16 +4310,16 @@ msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:50
 msgid "_Send File..."
-msgstr "Enviar archivo"
+msgstr "_Enviar archivo..."
 
 #: ../src/fe-gnome/userlist-gui.c:51
 msgid "Private _Chat"
-msgstr "Privado"
+msgstr "_Charla Privado"
 
 #: ../src/fe-gnome/userlist-gui.c:52
 msgid "_Kick"
-msgstr "Echar"
+msgstr "_Echar"
 
 #: ../src/fe-gnome/userlist-gui.c:53
 msgid "_Ban"
-msgstr "Vetar"
+msgstr "_Banear"
