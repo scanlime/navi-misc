@@ -3703,7 +3703,7 @@ msgstr ""
 msgid "translator-credits"
 msgstr ""
 "Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
-"Xavier Claessens <x_claessens@gmail.com>\n"
+"Xavier Claessens <xclaesse@gmail.com>\n"
 "Christophe Bliard <christophe.bliard@trux.info>"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1

@@ -47,7 +47,7 @@ initialize_about_dialog (void)
 		"David Trowbridge <trowbrds@gmail.com>",
 		"Ramón Rey Vicente",
 		"Luis Villa",
-		"Claessens Xavier",
+		"Xavier Claessens <xclaesse@gmail.com>",
 		"Peter Železný",
 		NULL
 	};
