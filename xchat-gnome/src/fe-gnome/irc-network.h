@@ -48,6 +48,7 @@ struct _IrcNetwork
 	gboolean reconnect;
 	gboolean nogiveup_reconnect;
 
+	gchar *nickserv_password;
 	gchar *password;
 	gint encoding;
 

@@ -53,6 +53,7 @@ irc_network_finalize (GObject *object)
 	GSList *s;
 
 	g_free (network->name);
+	g_free (network->nickserv_password);
 	g_free (network->password);
 	g_free (network->nick);
 	g_free (network->real);
@@ -134,6 +135,7 @@ irc_network_new (ircnet *net)
 	}
 	n->servers = s2;
 
+	n->nickserv_password = g_strdup (net->nickserv);
 	n->password    = g_strdup(net->pass);
 	if (net->encoding)
 		n->encoding = GPOINTER_TO_UINT (g_hash_table_lookup (enctoindex, net->encoding));
@@ -165,6 +167,7 @@ irc_network_save (IrcNetwork *network)
 	if (net->pass)     g_free (net->pass);
 	if (net->nick)     g_free (net->nick);
 	if (net->real)     g_free (net->real);
+	if (net->nickserv) g_free (net->nickserv);
 	if (net->autojoin) g_free (net->autojoin);
 	if (net->encoding) g_free (net->encoding);
 
@@ -172,6 +175,7 @@ irc_network_save (IrcNetwork *network)
 	net->pass     = g_strdup (network->password);
 	net->nick     = g_strdup (network->nick);
 	net->real     = g_strdup (network->real);
+	net->nickserv = g_strdup (network->nickserv_password);
 	net->autojoin = g_strdup (network->autojoin);
 	net->encoding = g_strdup (encodings[network->encoding]);
 

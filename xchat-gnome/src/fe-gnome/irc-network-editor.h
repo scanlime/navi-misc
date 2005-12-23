@@ -54,6 +54,7 @@ struct _IrcNetworkEditor
 	GtkWidget *cycle;
 
 	GtkWidget *password;
+	GtkWidget *nickserv_password;
 	GtkWidget *encoding_hbox;
 	GtkWidget *encoding;
 
