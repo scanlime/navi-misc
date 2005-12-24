@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-23 00:03-0700\n"
+"POT-Creation-Date: 2005-12-23 17:15-0700\n"
 "PO-Revision-Date: 2005-12-18 05:23-0700\n"
 "Last-Translator: Rongjun Mu <rongjunmu+i18n@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-translation@lists.linux.net.cn>\n"
@@ -89,46 +89,50 @@ msgid "Network Settings"
 msgstr "网络设置"
 
 #: ../data/irc-network-editor.glade.h:6
+msgid "Nickser_v Password:"
+msgstr ""
+
+#: ../data/irc-network-editor.glade.h:7
 msgid "Server _Password:"
 msgstr "服务器口令(_P)："
 
-#: ../data/irc-network-editor.glade.h:7
+#: ../data/irc-network-editor.glade.h:8
 msgid "Servers"
 msgstr "服务器"
 
-#: ../data/irc-network-editor.glade.h:8
+#: ../data/irc-network-editor.glade.h:9
 msgid "Use _global user settings"
 msgstr "使用全局用户设置(_G)"
 
-#: ../data/irc-network-editor.glade.h:9
+#: ../data/irc-network-editor.glade.h:10
 msgid "Use _these user settings:"
 msgstr "使用以下用户设置(_T)："
 
-#: ../data/irc-network-editor.glade.h:10
+#: ../data/irc-network-editor.glade.h:11
 msgid "User and Channels"
 msgstr "用户与聊天室"
 
-#: ../data/irc-network-editor.glade.h:11
+#: ../data/irc-network-editor.glade.h:12
 msgid "_Automatically connect to network"
 msgstr "自动连接到网络(_A)"
 
-#: ../data/irc-network-editor.glade.h:12
+#: ../data/irc-network-editor.glade.h:13
 msgid "_Cycle until connected"
 msgstr "不断重连直至连通(_C)"
 
-#: ../data/irc-network-editor.glade.h:13
+#: ../data/irc-network-editor.glade.h:14
 msgid "_Name:"
 msgstr "名称(_N)"
 
-#: ../data/irc-network-editor.glade.h:14
+#: ../data/irc-network-editor.glade.h:15
 msgid "_Nick name:"
 msgstr "昵称(_N)："
 
-#: ../data/irc-network-editor.glade.h:15
+#: ../data/irc-network-editor.glade.h:16
 msgid "_Real Name:"
 msgstr "真名(_R)："
 
-#: ../data/irc-network-editor.glade.h:16
+#: ../data/irc-network-editor.glade.h:17
 msgid "_Use secure connection (SSL)"
 msgstr "使用安全套接字层SSL(_U)"
 
@@ -371,25 +375,25 @@ msgid "XChat-GNOME IRC Chat"
 msgstr "XChat-GNOME 聊天"
 
 #: ../data/xchat-gnome.glade.h:1
+msgid "Change nickname to:"
+msgstr ""
+
+#: ../data/xchat-gnome.glade.h:2
 msgid "Close this discussion"
 msgstr "关闭本会话"
 
-#: ../data/xchat-gnome.glade.h:2
+#: ../data/xchat-gnome.glade.h:3
 msgid "Enter a new nickname"
 msgstr "输入新昵称："
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
-#: ../data/xchat-gnome.glade.h:3 ../src/common/text.c:814
+#: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:814
 #: ../src/common/text.c:851 ../src/common/text.c:862 ../src/common/text.c:869
 #: ../src/common/text.c:882 ../src/common/text.c:899 ../src/common/text.c:999
 #: ../src/common/util.c:352
 msgid "Error"
 msgstr "错误"
-
-#: ../data/xchat-gnome.glade.h:4
-msgid "The new nickname"
-msgstr "新昵称"
 
 #: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:805
 #: ../src/fe-gnome/channel-list.c:311
@@ -399,6 +403,10 @@ msgstr "用户"
 #: ../data/xchat-gnome.glade.h:6
 msgid "nickname"
 msgstr "昵称"
+
+#: ../data/xchat-gnome.glade.h:7
+msgid "on all servers"
+msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:164
 msgid "Screensaver activated, going away."
@@ -664,7 +672,7 @@ msgstr "昵称"
 
 #: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:552
 #: ../src/common/text.c:556 ../src/common/text.c:992
-#: ../src/fe-gnome/irc-network-editor.c:272
+#: ../src/fe-gnome/irc-network-editor.c:273
 msgid "Channel"
 msgstr "聊天室"
 
@@ -3932,38 +3940,38 @@ msgstr "<span foreground=\"dark grey\">已到开头，再从最尾继续</span>"
 msgid "<span foreground=\"red\">Search string not found</span>"
 msgstr "<span foreground=\"red\">没有找到</span>"
 
-#: ../src/fe-gnome/irc-network-editor.c:267
+#: ../src/fe-gnome/irc-network-editor.c:268
 msgid "Server"
 msgstr "服务器"
 
-#: ../src/fe-gnome/irc-network-editor.c:383
+#: ../src/fe-gnome/irc-network-editor.c:385
 #, c-format
 msgid "%s Network Properties"
 msgstr "%s 网络设置"
 
-#: ../src/fe-gnome/irc-network-editor.c:509
-#: ../src/fe-gnome/irc-network-editor.c:516
+#: ../src/fe-gnome/irc-network-editor.c:515
 #: ../src/fe-gnome/irc-network-editor.c:522
+#: ../src/fe-gnome/irc-network-editor.c:528
 msgid "Invalid input"
 msgstr "无效输入"
 
-#: ../src/fe-gnome/irc-network-editor.c:509
+#: ../src/fe-gnome/irc-network-editor.c:515
 msgid "You must enter a network name"
 msgstr "必须输入网络名称"
 
-#: ../src/fe-gnome/irc-network-editor.c:516
+#: ../src/fe-gnome/irc-network-editor.c:522
 msgid "You must enter a nick name"
 msgstr "必须输入昵称"
 
-#: ../src/fe-gnome/irc-network-editor.c:522
+#: ../src/fe-gnome/irc-network-editor.c:528
 msgid "You must enter a real name"
 msgstr "必须输入真名"
 
-#: ../src/fe-gnome/irc-network-editor.c:529
+#: ../src/fe-gnome/irc-network-editor.c:535
 msgid "No Servers"
 msgstr "无服务器"
 
-#: ../src/fe-gnome/irc-network-editor.c:529
+#: ../src/fe-gnome/irc-network-editor.c:535
 msgid "You must add at least one server for this network"
 msgstr "您必须为这个网络至少添加一个服务器"
 

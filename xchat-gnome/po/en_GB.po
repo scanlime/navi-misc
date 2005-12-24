@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org\n"
-"POT-Creation-Date: 2005-12-18 04:46-0700\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-12-23 17:15-0700\n"
 "PO-Revision-Date: 2005-12-18 05:23-0700\n"
 "Last-Translator: Gareth Owen <gowen72@yahoo.com>\n"
 "Language-Team: English (British) <en_gb@li.org>\n"
@@ -85,46 +85,50 @@ msgid "Network Settings"
 msgstr "Network Settings"
 
 #: ../data/irc-network-editor.glade.h:6
+msgid "Nickser_v Password:"
+msgstr "Nickser_v Password:"
+
+#: ../data/irc-network-editor.glade.h:7
 msgid "Server _Password:"
 msgstr "Server _Password:"
 
-#: ../data/irc-network-editor.glade.h:7
+#: ../data/irc-network-editor.glade.h:8
 msgid "Servers"
 msgstr "Servers"
 
-#: ../data/irc-network-editor.glade.h:8
+#: ../data/irc-network-editor.glade.h:9
 msgid "Use _global user settings"
 msgstr "Use _global user settings"
 
-#: ../data/irc-network-editor.glade.h:9
+#: ../data/irc-network-editor.glade.h:10
 msgid "Use _these user settings:"
 msgstr "Use _these user settings:"
 
-#: ../data/irc-network-editor.glade.h:10
+#: ../data/irc-network-editor.glade.h:11
 msgid "User and Channels"
 msgstr "User and Channels"
 
-#: ../data/irc-network-editor.glade.h:11
+#: ../data/irc-network-editor.glade.h:12
 msgid "_Automatically connect to network"
 msgstr "_Automatically connect to network"
 
-#: ../data/irc-network-editor.glade.h:12
+#: ../data/irc-network-editor.glade.h:13
 msgid "_Cycle until connected"
 msgstr "_Cycle until connected"
 
-#: ../data/irc-network-editor.glade.h:13
+#: ../data/irc-network-editor.glade.h:14
 msgid "_Name:"
 msgstr "_Name"
 
-#: ../data/irc-network-editor.glade.h:14
+#: ../data/irc-network-editor.glade.h:15
 msgid "_Nick name:"
 msgstr "_Nick Name:"
 
-#: ../data/irc-network-editor.glade.h:15
+#: ../data/irc-network-editor.glade.h:16
 msgid "_Real Name:"
 msgstr "_Real Name:"
 
-#: ../data/irc-network-editor.glade.h:16
+#: ../data/irc-network-editor.glade.h:17
 msgid "_Use secure connection (SSL)"
 msgstr "_Use secure connection (SSL)"
 
@@ -363,7 +367,7 @@ msgstr "Change"
 #.
 #. GNOME_PARAM_GOPTION_CONTEXT, context,
 #.
-#: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:84
+#: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:85
 msgid "IRC Chat"
 msgstr "IRC Chat"
 
@@ -372,25 +376,25 @@ msgid "XChat-GNOME IRC Chat"
 msgstr "XChat-GNOME IRC Chat"
 
 #: ../data/xchat-gnome.glade.h:1
+msgid "Change nickname to:"
+msgstr "Change nickname to:"
+
+#: ../data/xchat-gnome.glade.h:2
 msgid "Close this discussion"
 msgstr "Close this discussion"
 
-#: ../data/xchat-gnome.glade.h:2
+#: ../data/xchat-gnome.glade.h:3
 msgid "Enter a new nickname"
 msgstr "Enter a new nickname"
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
-#: ../data/xchat-gnome.glade.h:3 ../src/common/text.c:814
+#: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:814
 #: ../src/common/text.c:851 ../src/common/text.c:862 ../src/common/text.c:869
 #: ../src/common/text.c:882 ../src/common/text.c:899 ../src/common/text.c:999
 #: ../src/common/util.c:352
 msgid "Error"
 msgstr "Error"
-
-#: ../data/xchat-gnome.glade.h:4
-msgid "The new nickname"
-msgstr "The new nickname"
 
 #: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:805
 #: ../src/fe-gnome/channel-list.c:311
@@ -400,6 +404,10 @@ msgstr "Users"
 #: ../data/xchat-gnome.glade.h:6
 msgid "nickname"
 msgstr "nickname"
+
+#: ../data/xchat-gnome.glade.h:7
+msgid "on all servers"
+msgstr "on all servers"
 
 #: ../plugins/autoaway/autoaway.c:164
 msgid "Screensaver activated, going away."
@@ -465,7 +473,7 @@ msgstr "Failed to acquire %s: %s\n"
 msgid "%s loaded successfully!\n"
 msgstr "%s loaded successfully!\n"
 
-#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:60
+#: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:61
 msgid "Open an irc:// url"
 msgstr "Open an irc:// url"
 
@@ -652,7 +660,7 @@ msgstr "Nick"
 
 #: ../plugins/url_scraper/urlscraper.c:68 ../src/common/text.c:552
 #: ../src/common/text.c:556 ../src/common/text.c:992
-#: ../src/fe-gnome/irc-network-editor.c:272
+#: ../src/fe-gnome/irc-network-editor.c:273
 msgid "Channel"
 msgstr "Channel"
 
@@ -3900,23 +3908,23 @@ msgstr "%.2d:%.2d"
 msgid "Send File..."
 msgstr "Send File..."
 
-#: ../src/fe-gnome/fe-gnome.c:57
+#: ../src/fe-gnome/fe-gnome.c:58
 msgid "Use directory instead of the default config dir"
 msgstr "Use directory instead of the default config dir"
 
-#: ../src/fe-gnome/fe-gnome.c:58
+#: ../src/fe-gnome/fe-gnome.c:59
 msgid "Don't auto-connect to servers"
 msgstr "Don't auto-connect to servers"
 
-#: ../src/fe-gnome/fe-gnome.c:59
+#: ../src/fe-gnome/fe-gnome.c:60
 msgid "Don't auto-load plugins"
 msgstr "Don't auto-load plugins"
 
-#: ../src/fe-gnome/fe-gnome.c:61
+#: ../src/fe-gnome/fe-gnome.c:62
 msgid "Show version information"
 msgstr "Show version information"
 
-#: ../src/fe-gnome/fe-gnome.c:90
+#: ../src/fe-gnome/fe-gnome.c:91
 #, c-format
 msgid ""
 "xchat-gnome: %s\n"
@@ -3925,7 +3933,7 @@ msgstr ""
 "xchat-gnome: %s\n"
 "Try `xchat-gnome --help' for more information\n"
 
-#: ../src/fe-gnome/fe-gnome.c:819
+#: ../src/fe-gnome/fe-gnome.c:825
 #, c-format
 msgid "Unable to show '%s'"
 msgstr "Unable to show '%s'"
@@ -3958,38 +3966,38 @@ msgstr ""
 msgid "<span foreground=\"red\">Search string not found</span>"
 msgstr "<span foreground=\"red\">Search string not found</span>"
 
-#: ../src/fe-gnome/irc-network-editor.c:267
+#: ../src/fe-gnome/irc-network-editor.c:268
 msgid "Server"
 msgstr "Server"
 
-#: ../src/fe-gnome/irc-network-editor.c:383
+#: ../src/fe-gnome/irc-network-editor.c:385
 #, c-format
 msgid "%s Network Properties"
 msgstr "%s Network Properties"
 
-#: ../src/fe-gnome/irc-network-editor.c:509
-#: ../src/fe-gnome/irc-network-editor.c:516
+#: ../src/fe-gnome/irc-network-editor.c:515
 #: ../src/fe-gnome/irc-network-editor.c:522
+#: ../src/fe-gnome/irc-network-editor.c:528
 msgid "Invalid input"
 msgstr "Invalid input"
 
-#: ../src/fe-gnome/irc-network-editor.c:509
+#: ../src/fe-gnome/irc-network-editor.c:515
 msgid "You must enter a network name"
 msgstr "You must enter a network name"
 
-#: ../src/fe-gnome/irc-network-editor.c:516
+#: ../src/fe-gnome/irc-network-editor.c:522
 msgid "You must enter a nick name"
 msgstr "You must enter a nick name"
 
-#: ../src/fe-gnome/irc-network-editor.c:522
+#: ../src/fe-gnome/irc-network-editor.c:528
 msgid "You must enter a real name"
 msgstr "You must enter a real name"
 
-#: ../src/fe-gnome/irc-network-editor.c:529
+#: ../src/fe-gnome/irc-network-editor.c:535
 msgid "No Servers"
 msgstr "No Servers"
 
-#: ../src/fe-gnome/irc-network-editor.c:529
+#: ../src/fe-gnome/irc-network-editor.c:535
 msgid "You must add at least one server for this network"
 msgstr "You must add at least one server for this network"
 
@@ -4211,19 +4219,19 @@ msgstr "_Auto-join"
 msgid "<none>"
 msgstr "<none>"
 
-#: ../src/fe-gnome/preferences-page-colors.c:221
+#: ../src/fe-gnome/preferences-page-colors.c:224
 msgid "Colors"
 msgstr "Colours"
 
-#: ../src/fe-gnome/preferences-page-colors.c:224
+#: ../src/fe-gnome/preferences-page-colors.c:227
 msgid "Black on White"
 msgstr "Black on White"
 
-#: ../src/fe-gnome/preferences-page-colors.c:225
+#: ../src/fe-gnome/preferences-page-colors.c:228
 msgid "White on Black"
 msgstr "White on Black"
 
-#: ../src/fe-gnome/preferences-page-colors.c:226
+#: ../src/fe-gnome/preferences-page-colors.c:229
 msgid "Custom"
 msgstr "Custom"
 
