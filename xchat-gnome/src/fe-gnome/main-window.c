@@ -593,11 +593,15 @@ static void
 nickname_get_str_response (GtkDialog *dialog, gint arg1, gpointer entry)
 {
 	gchar *text, *buf;
-
-	text = (gchar *) gtk_entry_get_text (GTK_ENTRY (entry));
+	GtkWidget *check;
 
 	if (arg1 == GTK_RESPONSE_ACCEPT || arg1 == GTK_RESPONSE_OK) {
-		buf = g_strdup_printf ("nick %s", text);
+		text = (gchar *) gtk_entry_get_text (GTK_ENTRY (entry));
+		check = glade_xml_get_widget (gui.xml, "nickname dialog check");
+		if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check)))
+			buf = g_strdup_printf ("allserv nick %s", text);
+		else
+			buf = g_strdup_printf ("nick %s", text);
 		handle_command (current_sess, buf, FALSE);
 		g_free (buf);
 	}
@@ -616,13 +620,15 @@ on_nickname_clicked (GtkButton *widget, gpointer user_data)
 	GtkWidget *dialog;
 	GtkWidget *entry;
 
-	if (!current_sess)
+	if (gui.current_session == NULL)
 		return;
+	current_sess = gui.current_session;
 
 	dialog = glade_xml_get_widget (gui.xml, "nickname dialog");
 	entry = glade_xml_get_widget (gui.xml, "nickname dialog entry");
 
-	gtk_entry_set_text (GTK_ENTRY (entry), current_sess->server->nick); g_signal_connect (G_OBJECT (entry), "activate",
+	gtk_entry_set_text (GTK_ENTRY (entry), current_sess->server->nick);
+	g_signal_connect (G_OBJECT (entry), "activate",
 	                  G_CALLBACK (nickname_str_enter), dialog);
 	g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (nickname_get_str_response), entry);
 
