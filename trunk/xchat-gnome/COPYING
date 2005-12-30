@@ -1,3 +1,8 @@
+This package is distributed under the GPL (below) with the additional exception
+that compiling, linking to and using OpenSSL is allowed. You may provide
+binary packages linked to the OpenSSL libraries, provided that all other
+requirements of the GPL are met.
+
 		    GNU GENERAL PUBLIC LICENSE
 		       Version 2, June 1991
 
