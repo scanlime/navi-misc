@@ -1,4 +1,9 @@
-Wed Dec 28 23:11:36 CET 2005 Guillaume Desmottes <cass@skynet.be>
+Thu Dec 29 18:03:28 MST 2005  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/about.c:
+	  - More email addresses
+
+Wed Dec 28 23:11:36 CET 2005  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/channel-list.c:
 	  - Implement chanlist_filter (#321326)
