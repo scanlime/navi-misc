@@ -10,6 +10,16 @@ Wed Dec 28 23:11:36 CET 2005  Guillaume Desmottes <cass@skynet.be>
 	  - Initialize the state of "apply to name" and "apply to topic"
 	    checkboxes according to filter_topic and filter_name values
 
+Wed Dec 27 23:48:53 CET 2005  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/irc-network.c:
+	* src/fe-gnome/irc-network.h:
+	* src/fe-gnome/irc-network-editor.c:
+	* src/fe-gnome/irc-network-editor.h:
+	* data/irc-network-editor.glade:
+	  - Add UI in the network editor dialog for allowing invalid
+	    SSL certificates
+
 Fri Dec 23 17:02:48 MST 2005  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/main-window.c:

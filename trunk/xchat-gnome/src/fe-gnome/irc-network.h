@@ -44,6 +44,7 @@ struct _IrcNetwork
 	gchar *name;
 	gboolean autoconnect;
 	gboolean use_ssl;
+	gboolean allow_invalid;
 	gboolean cycle;
 	gboolean reconnect;
 	gboolean nogiveup_reconnect;

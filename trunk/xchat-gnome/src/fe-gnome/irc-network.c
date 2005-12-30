@@ -126,6 +126,7 @@ irc_network_new (ircnet *net)
 	n->name        = g_strdup (net->name);
 	n->autoconnect = net->flags & FLAG_AUTO_CONNECT;
 	n->use_ssl     = net->flags & FLAG_USE_SSL;
+	n->allow_invalid = net->flags & FLAG_ALLOW_INVALID;
 	n->cycle       = net->flags & FLAG_CYCLE;
 
 	for (s1 = net->servlist; s1; s1 = g_slist_next (s1)) {
@@ -185,6 +186,7 @@ irc_network_save (IrcNetwork *network)
 
 	if (network->autoconnect) flags |= FLAG_AUTO_CONNECT;
 	if (network->use_ssl)     flags |= FLAG_USE_SSL;
+	if (network->allow_invalid) flags |= FLAG_ALLOW_INVALID;
 	if (network->cycle)       flags |= FLAG_CYCLE;
 	if (network->use_global)  flags |= FLAG_USE_GLOBAL;
 	net->flags = flags;
