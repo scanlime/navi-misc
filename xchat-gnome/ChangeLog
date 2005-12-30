@@ -1,3 +1,10 @@
+Wed Dec 28 23:11:36 CET 2005 Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/channel-list.c:
+	  - Implement chanlist_filter (#321326)
+	  - Initialize the state of "apply to name" and "apply to topic"
+	    checkboxes according to filter_topic and filter_name values
+
 Fri Dec 23 17:02:48 MST 2005  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/main-window.c:
