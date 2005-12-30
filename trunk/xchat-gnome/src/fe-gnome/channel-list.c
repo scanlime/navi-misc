@@ -34,18 +34,10 @@ static GSList *chanlists = NULL;
 static gboolean
 chanlist_filter (GtkTreeModel *model, GtkTreeIter *iter, channel_list_window *window)
 {
-	char *name, *topic, *found_topic = NULL, *found_name = NULL;
+	char *name, *topic;
 	int users;
 
-	/* FIXME */
-	return TRUE;
-
 	gtk_tree_model_get (model, iter, 0, &name, 2, &topic, 4, &users, -1);
-
-	if (window->filter_name && name == NULL)
-		return TRUE;
-	if (window->filter_topic && topic == NULL)
-		return TRUE;
 
 	/* filter number of users first, since it's fast */
 	if (users < window->minimum)
@@ -53,19 +45,17 @@ chanlist_filter (GtkTreeModel *model, GtkTreeIter *iter, channel_list_window *wi
 	if (window->maximum > 0 && users > window->maximum)
 		return FALSE;
 
-	if (!(window->filter_topic || window->filter_name))
-		return FALSE;
+	/* text filtering */
+	if (window->filter_topic && window->text_filter != NULL && strlen (window->text_filter) != 0)
+		/* We have something to filtre */
+		if (strcasestr (topic, window->text_filter) == NULL)
+			return FALSE;
 
-	if ((window->text_filter == NULL) || (strlen (window->text_filter) == 0))
-		return FALSE;
+	if (window->filter_name && window->text_filter != NULL && strlen (window->text_filter) != 0)
+		if (strcasestr (name, window->text_filter) == NULL)
+			return FALSE;
 
-	if (window->filter_topic)
-		found_topic = strcasestr (topic, window->text_filter);
-
-	if (window->filter_name)
-		found_name = strcasestr (name, window->text_filter);
-
-	return (found_name || found_topic);
+	return TRUE;
 }
 
 static gint
@@ -297,7 +287,7 @@ create_channel_list (session *sess)
 	/*                                  channel name,  n-users,       topic,         server,         users */
 	win->store = gtk_list_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_INT);
 	win->filter = gtk_tree_model_filter_new (GTK_TREE_MODEL (win->store), NULL);
-	/* gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (win->filter), (GtkTreeModelFilterVisibleFunc) chanlist_filter, win, NULL); */
+	 gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (win->filter), (GtkTreeModelFilterVisibleFunc) chanlist_filter, win, NULL);
 	win->sort = GTK_TREE_MODEL_SORT (gtk_tree_model_sort_new_with_model (GTK_TREE_MODEL (win->filter)));
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeview), GTK_TREE_MODEL (win->sort));
 	gtk_tree_view_set_headers_clickable (GTK_TREE_VIEW (treeview), TRUE);
@@ -351,8 +341,10 @@ create_channel_list (session *sess)
 	widget = glade_xml_get_widget (win->xml, "text filter");
 	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (filter_changed), win);
 	widget = glade_xml_get_widget (win->xml, "apply to topic");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), win->filter_topic);
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (apply_to_topic_changed), win);
 	widget = glade_xml_get_widget (win->xml, "apply to name");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), win->filter_name);
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (apply_to_name_changed), win);
 
 	widget = glade_xml_get_widget (win->xml, "window 1");
