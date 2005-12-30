@@ -36,18 +36,18 @@ initialize_about_dialog (void)
 
 	const gchar *authors[] =
 	{
+		"Xavier Claessens <xclaesse@gmail.com>",
 		"Andre Dahlqvist",
-		"Guillaume Desmottes",
-		"Dan Kuester",
+		"Guillaume Desmottes <Daniel.Kuester@colorado.edu>",
+		"Dan Kuester <Daniel.Kuester@colorado.edu>",
 		"Bastien Nocera",
 		"Brian Pepple",
 		"Isak Savo",
-		"Evan Sheehan",
+		"Evan Sheehan <Wallace.Sheehan@gmail.com>",
 		"Rouslan Solomakhin",
 		"David Trowbridge <trowbrds@gmail.com>",
 		"Ramón Rey Vicente",
 		"Luis Villa",
-		"Xavier Claessens <xclaesse@gmail.com>",
 		"Peter Železný",
 		NULL
 	};
