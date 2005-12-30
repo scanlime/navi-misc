@@ -1,3 +1,9 @@
+Thu Dec 29 18:13:10 MST 2005  David Trowbridge <trowbrds@gmail.com>
+
+	* configure.ac:
+	  - Fix checks for perl to be non-fatal, since perl isn't a hard
+	    dependency
+
 Thu Dec 29 18:03:28 MST 2005  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/about.c:

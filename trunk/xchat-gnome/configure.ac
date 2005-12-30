@@ -115,12 +115,7 @@ AC_MSG_RESULT([$enable_perl])
 if test "x$have_perl" != "xno"; then
 	AC_PATH_PROG(PERL, perl perl5)
 	if test -z $PERL ; then
-		AC_MSG_ERROR([
-*** Perl must be installed on your system
-*** but perl interpreter couldn't be found in path.
-
-Please check that perl is in path, or install
-it with your software package manager.])
+		AC_MSG_WARN([Perl interpreter not found, disabling perl support])
 		have_perl=no
 	fi
 fi
@@ -133,9 +128,7 @@ if test "x$have_perl" != "xno"; then
 		PERL_CFLAGS=`$PERL -MExtUtils::Embed -e ccopts`
 		AC_MSG_RESULT(found)
 	else
-		AC_MSG_ERROR([
-*** Perl headers couldn't be found in your system.
-*** Try to install it with your software package manager.])
+		AC_MSG_WARN([Perl headers not found, disabling perl support])
 		have_perl=no
 	fi
 fi
@@ -152,9 +145,7 @@ if test "x$have_perl" != "xno"; then
 		AC_DEFINE([ENABLE_PERL],[1],[Define to compile with perl support])
 		enable_perl=yes
 	else
-		AC_MSG_ERROR([
-*** Perl library couldn't be found in your system.
-*** Try to install it with your software package manager.])
+		AC_MSG_WARN([Perl library not found, disabling perl support])
 	fi
 
 fi
