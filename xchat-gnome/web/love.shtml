@@ -50,9 +50,9 @@
 	  in chunks - updating just a few widgets would be better than what we have now.</p><br />
 	  <b>Non-english spell-checking</b><br />
 	  <p>SexySpellEntry includes the ability to use non-english dictionaries, but
-	  xchat-gnome doesn't take advantage of this.  Probably the first step is to just
-	  include the user's locale.
-	  See <a href="http://bugzilla.gnome.org/show_bug.cgi?id=321042">Bug #321042</a>.</p>
+	  xchat-gnome doesn't take full advantage of this.  It will use languages specified
+	  in the user's LANGUAGE variable, but it would be nice to have some GUI for this as
+	  well.  See <a href="http://bugzilla.gnome.org/show_bug.cgi?id=321042">Bug #321042</a>.</p>
 	</div>
 	<div class="section-title">Mid-Level Hackery Love</div>
 	<div class="section">
@@ -61,8 +61,6 @@
 	  of networks along with a description (and maybe logo) of the currently selected
 	  network.  Gnomechat had this the last time I tried it, and it might still.  This
 	  may require some changes to the xchat core.</p><br />
-	  <b>Channel list filtering</b><br />
-	  <p>See <a href="http://bugzilla.gnome.org/show_bug.cgi?id=321326">Bug #321326</a>.</p><br />
 	  <b>Get FG/BG colors from gnome theme</b>
 	  <p>See <a href="http://bugzilla.gnome.org/show_bug.cgi?id=172168">Bug #172168</a>.</p>
 	</div>
