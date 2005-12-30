@@ -38,7 +38,7 @@ initialize_about_dialog (void)
 	{
 		"Xavier Claessens <xclaesse@gmail.com>",
 		"Andre Dahlqvist",
-		"Guillaume Desmottes <Daniel.Kuester@colorado.edu>",
+		"Guillaume Desmottes <cass@skynet.be>",
 		"Dan Kuester <Daniel.Kuester@colorado.edu>",
 		"Bastien Nocera",
 		"Brian Pepple",
