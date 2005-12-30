@@ -51,6 +51,7 @@ struct _IrcNetworkEditor
 
 	GtkWidget *autoconnect;
 	GtkWidget *use_ssl;
+	GtkWidget *allow_invalid;
 	GtkWidget *cycle;
 
 	GtkWidget *password;

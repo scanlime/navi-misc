@@ -233,6 +233,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 
 	GW(autoconnect);
 	GW(use_ssl);
+	GW(allow_invalid);
 	GW(cycle);
 
 	GW(nickserv_password);
@@ -399,6 +400,7 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->autoconnect),      e->network->autoconnect);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_ssl),          e->network->use_ssl);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->allow_invalid),    e->network->allow_invalid);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->cycle),            e->network->cycle);
 
 	if (e->network->use_global) {
@@ -468,6 +470,7 @@ apply_changes (IrcNetworkEditor *e)
 
 	net->autoconnect        = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->autoconnect));
 	net->use_ssl            = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->use_ssl));
+	net->allow_invalid      = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->allow_invalid));
 	net->cycle              = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->cycle));
 	net->use_global         = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (e->use_globals));
 	net->encoding           = gtk_combo_box_get_active (GTK_COMBO_BOX (e->encoding));
