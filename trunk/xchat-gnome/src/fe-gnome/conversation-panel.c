@@ -298,9 +298,27 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 		return;
 
 	if (event->button == 1) {
-		int type = conversation_panel_check_word (xtext, word, strlen (word));
-		if (type == WORD_URL || type == WORD_HOST) {
+		switch (conversation_panel_check_word (xtext, word, strlen (word))) {
+		case WORD_URL:
+		case WORD_HOST:
 			fe_open_url (word);
+			break;
+		case WORD_NICK:
+			{
+				char *command;
+				command = g_strdup_printf ("QUERY %s", word);
+				handle_command (gui.current_session, command, 1);
+				g_free (command);
+			}
+			break;
+		case WORD_CHANNEL:
+			{
+				char *command;
+				command = g_strdup_printf ("JOIN %s", word);
+				handle_command (gui.current_session, command, 1);
+				g_free (command);
+			}
+			break;
 		}
 	}
 	if (event->button == 3) {
