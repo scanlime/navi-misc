@@ -1,3 +1,8 @@
+Mon Jan 2 16:43:34 MST 2005  David Trowbridge <trowbrds@gmail.com>
+
+	* po/POTFILES.in:
+	  - Update to reflect moved schema file
+
 Mon Jan 2 16:18:46 MST 2005  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/fe-gnome.c:
