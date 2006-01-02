@@ -1,3 +1,9 @@
+Mon Jan 2 04:16:19 MST 2005  David Trowbridge <trowbrds@gmail.com>
+
+	* src/common/...:
+	* src/fe-gnome/fe-gnome.c:
+	  - Sync common from xchat cvs, update to build against it
+
 Mon Jan 2 04:14:27 MST 2005  Laurent Bigonville <l.bigonville@easynet.be>
 
 	* src/fe-gnome/irc-network-editor.c:

@@ -62,6 +62,8 @@ static GOptionEntry entries[] = {
 	{"version",    'v', 0, G_OPTION_ARG_NONE,     &opt_version,          N_("Show version information"),                        NULL},
 };
 
+void joind (int action, struct server *serv);
+
 int
 fe_args (int argc, char *argv[])
 {
@@ -863,4 +865,17 @@ void
 fe_userlist_set_selected (struct session *sess)
 {
 	/* FIXME: implement? */
+}
+
+void
+joind (int action, struct server *serv)
+{
+	switch (action) {
+	case 0:
+		/* FIXME: show join dialog(?) */
+		break;
+	case 1:
+		/* FIXME: hide join dialog(?) */
+		break;
+	};
 }
