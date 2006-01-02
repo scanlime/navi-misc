@@ -29,6 +29,7 @@
 #include "topic-label.h"
 #include "../common/fe.h"
 #include "../common/url.h"
+#include "../common/outbound.h"
 
 static void  topic_label_class_init       (TopicLabelClass *klass);
 static void  topic_label_init             (TopicLabel      *label);
@@ -39,7 +40,7 @@ static char *topic_label_get_topic_string (const char *topic);
 #ifdef HAVE_LIBSEXY
 static void  topic_label_url_activated    (GtkWidget       *url_label,
                                            const char      *url,
-                                           gpointer         data);
+                                           TopicLabel      *label);
 #endif
 
 struct _TopicLabelPriv
@@ -93,7 +94,7 @@ topic_label_init (TopicLabel *label)
 
 	g_signal_connect (G_OBJECT (label->priv->expander), "activate",      G_CALLBACK (topic_label_expand_activate), (gpointer) label);
 #ifdef HAVE_LIBSEXY
-	g_signal_connect (G_OBJECT (label->priv->label),    "url_activated", G_CALLBACK (topic_label_url_activated),   NULL);
+	g_signal_connect (G_OBJECT (label->priv->label),    "url_activated", G_CALLBACK (topic_label_url_activated),   (gpointer) label);
 #endif
 
 	label->priv->topics = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
@@ -120,9 +121,12 @@ topic_label_expand_activate (GtkExpander *expander, TopicLabel *label)
 
 #ifdef HAVE_LIBSEXY
 static void
-topic_label_url_activated (GtkWidget *url_label, const char *url, gpointer data)
+topic_label_url_activated (GtkWidget *url_label, const char *url, TopicLabel *label)
 {
-	fe_open_url (url);
+	char *command;
+	command = g_strdup_printf ("URL %s", url);
+	handle_command (label->priv->current, command, 1);
+	g_free (command);
 }
 #endif
 
