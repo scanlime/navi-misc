@@ -471,7 +471,10 @@ timestamps_changed (GConfClient *client, guint cnxn_id, GConfEntry *entry, xtext
 static void
 open_url (GtkAction *action, ConversationPanel *panel)
 {
-	fe_open_url (panel->priv->selected_word);
+	char *command;
+	command = g_strdup_printf ("URL %s", panel->priv->selected_word);
+	handle_command (gui.current_session, command, 1);
+	g_free (command);
 }
 
 static void
