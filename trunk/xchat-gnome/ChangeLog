@@ -1,4 +1,17 @@
-Mon Jan 2 12:28:18 MST 2005  Guillaume Desmottes <cass@skynet.be>
+Mon Jan 2 04:39:57 MST 2005  David Trowbridge <trowbrds@gmail.com>
+
+	D plugins/dbus/apps_xchat_url_handler.schemas.in:
+	A plugins/dbus/xchat_gnome_url_handler.schemas.in:
+	  - Rename schemas file to not conflict with xchat's, since the two
+	    have the same install path
+	* plugins/dbus/xchat-gnome-remote.c:
+	* plugins/dbus/dbus-plugin.xml:
+	* plugins/dbus/Makefile.am:
+	* plugins/dbus/dbus-plugin.c:
+	* plugins/dbus/example.c:
+	  - Update from xchat cvs
+
+Mon Jan 2 12:28:18 CET 2005  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/navigation-tree.c:
 	  - Only display userlist_toggle in channels (#325347)
