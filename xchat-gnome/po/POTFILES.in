@@ -10,7 +10,7 @@ data/topic-change.glade
 data/xchat-gnome.desktop.in
 data/xchat-gnome.glade
 plugins/autoaway/autoaway.c
-plugins/dbus/apps_xchat_url_handler.schemas.in
+plugins/dbus/xchat_gnome_url_handler.schemas.in
 plugins/dbus/dbus-plugin.c
 plugins/dbus/xchat-gnome-remote.c
 plugins/net-monitor/net-monitor.c
