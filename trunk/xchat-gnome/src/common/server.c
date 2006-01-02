@@ -383,7 +383,6 @@ server_read (GIOChannel *source, GIOCondition condition, server *serv)
 	int sok = serv->sok;
 	int error, i, len;
 	char lbuf[2050];
-	char *temp;
 
 	while (1)
 	{
@@ -435,15 +434,7 @@ server_read (GIOChannel *source, GIOCondition condition, server *serv)
 
 			case '\n':
 				serv->linebuf[serv->pos] = 0;
-				if (prefs.stripcolor)
-				{
-					temp = strip_color (serv->linebuf, -1, 1, 1);
-					server_inline (serv, temp, strlen (temp));
-					free (temp);
-				} else
-				{
-					server_inline (serv, serv->linebuf, serv->pos);
-				}
+				server_inline (serv, serv->linebuf, serv->pos);
 				serv->pos = 0;
 				break;
 
@@ -555,6 +546,7 @@ server_stopconnecting (server * serv)
 	fe_progressbar_end (serv);
 
 	serv->connecting = FALSE;
+	fe_server_event (serv, FE_SE_DISCONNECT, 0);
 }
 
 #ifdef USE_OPENSSL
@@ -1046,6 +1038,8 @@ server_disconnect (session * sess, int sendquit, int err)
 	server *serv = sess->server;
 	GSList *list;
 	char tbuf[64];
+
+	joind (1, serv);
 
 	/* send our QUIT reason */
 	if (sendquit && serv->connected)
@@ -1544,6 +1538,7 @@ server_connect (server *serv, char *hostname, int port, int no_login)
 	serv->port = port;
 	serv->no_login = no_login;
 
+	fe_server_event (serv, FE_SE_CONNECTING, 0);
 	fe_set_away (serv);
 	server_flush_queue (serv);
 
@@ -1568,6 +1563,9 @@ server_connect (server *serv, char *hostname, int port, int no_login)
 										(LPTHREAD_START_ROUTINE)server_child,
 										serv, 0, (DWORD *)&pid));
 #else
+#ifdef LOOKUPD
+	rand();	/* CL: net_resolve calls rand() when LOOKUPD is set, so prepare a different seed for each child. This method giver a bigger variation in seed values than calling srand(time(0)) in the child itself. */
+#endif
 	switch (pid = fork ())
 	{
 	case -1:

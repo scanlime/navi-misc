@@ -86,9 +86,8 @@ static int new_id()
 	if (id == 0)
 	{
 		/* start the first ID at a random number for pseudo security */
-		srand (time (0));
 		/* 1 - 255 */
-		id = 1 + (int) ((float)255 * rand()/(RAND_MAX+1.0));
+		id = RAND_INT(255) + 1;
 		/* ignore overflows, since it can go to 2 billion */
 	}
 	return id++;
@@ -549,7 +548,6 @@ dcc_read_chat (GIOChannel *source, GIOCondition condition, struct DCC *dcc)
 	int i, len, dead;
 	char tbuf[1226];
 	char lbuf[1026];
-	char *temp;
 
 	while (1)
 	{
@@ -588,16 +586,7 @@ dcc_read_chat (GIOChannel *source, GIOCondition condition, struct DCC *dcc)
 				break;
 			case '\n':
 				dcc->dccchat->linebuf[dcc->dccchat->pos] = 0;
-
-				if (prefs.stripcolor)
-				{
-					temp = strip_color (dcc->dccchat->linebuf, -1, 1, 1);
-					dead = dcc_chat_line (dcc, temp, tbuf);
-					free (temp);
-				} else
-				{
-					dead = dcc_chat_line (dcc, dcc->dccchat->linebuf, tbuf);
-				}
+				dead = dcc_chat_line (dcc, dcc->dccchat->linebuf, tbuf);
 
 				if (dead || !dcc->dccchat) /* the dcc has been closed, don't use (DCC *)! */
 					return TRUE;
@@ -1577,6 +1566,36 @@ dcc_malformed (struct session *sess, char *nick, char *data)
 	EMIT_SIGNAL (XP_TE_MALFORMED, sess, nick, data, NULL, NULL, 0);
 }
 
+/* is the destination file the same? new_dcc is not opened yet */
+
+static int
+is_same_file (struct DCC *dcc, struct DCC *new_dcc)
+{
+	struct stat st_a, st_b;
+
+	/* if it's the same filename, must be same */
+	if (strcmp (dcc->destfile, new_dcc->destfile) == 0)
+		return TRUE;
+
+	/* now handle case-insensitive Filesystems: HFS+, FAT */
+#ifdef WIN32
+#error implement me!
+#else
+	/* this fstat() shouldn't really fail */
+	if ((dcc->fp == -1 ? stat (dcc->destfile_fs, &st_a) : fstat (dcc->fp, &st_a)) == -1)
+		return FALSE;
+	if (stat (new_dcc->destfile_fs, &st_b) == -1)
+		return FALSE;
+
+	/* same inode, same device, same file! */
+	if (st_a.st_ino == st_b.st_ino &&
+		 st_a.st_dev == st_b.st_dev)
+		return TRUE;
+#endif
+
+	return FALSE;
+}
+
 static int
 is_resumable (struct DCC *dcc)
 {
@@ -1619,7 +1638,7 @@ is_resumable (struct DCC *dcc)
 			if (d->type == TYPE_RECV && d->dccstat != STAT_ABORTED &&
 				 d->dccstat != STAT_DONE && d->dccstat != STAT_FAILED)
 			{
-				if (d != dcc && strcmp (d->destfile, dcc->destfile) == 0)
+				if (d != dcc && is_same_file (d, dcc))
 				{
 					dcc->resume_error = 3;	/* dccgui.c uses it */
 					dcc->resumable = 0;

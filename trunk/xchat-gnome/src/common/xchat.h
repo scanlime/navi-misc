@@ -174,6 +174,7 @@ struct xchatprefs
 	int completion_sort;
 	int gui_win_state;
 	int gui_usermenu;
+	int gui_join_dialog;
 	int dialog_left;
 	int dialog_top;
 	int dialog_width;
@@ -496,5 +497,8 @@ struct popup
 	char *cmd;
 	char *name;
 };
+
+/* CL: get a random int in the range [0..n-1]. DON'T use rand() % n, it gives terrible results. */
+#define RAND_INT(n) ((int)(rand() / (RAND_MAX + 1.0) * (n)))
 
 #endif
