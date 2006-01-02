@@ -63,18 +63,36 @@ PKG_CHECK_MODULES([DEPENDENCIES], [\
                   gconf-2.0 >= $GCONF_REQUIRED \
                   ])
 
+#D-Bus
+AC_MSG_CHECKING([whether dbus support is requested])
+AC_ARG_ENABLE([dbus],
+	AS_HELP_STRING([--disable-dbus],[Disable dbus support]),
+	[enable_dbus=$enableval dbus=$enableval],
+	[enable_dbus=autodetect dbus=yes])
+AC_MSG_RESULT([$enable_dbus])
+
+if test "x$enable_dbus" != "xno"; then
 # D-BUS soft dependency
-PKG_CHECK_MODULES([DBUS], [\
-                  dbus-1 >= $DBUS_REQUIRED \
-                  dbus-glib-1 >= $DBUS_GLIB_REQUIRED \
-		  ], dbus=yes, dbus=no)
-AC_SUBST([DBUS_CFLAGS])
-AC_SUBST([DBUS_LIBS])
-AC_PATH_PROG([DBUS_BINDING_TOOL],[dbus-binding-tool],[no])
-if test "x$DBUS_BINDING_TOOL" = "xno"; then
-	AC_MSG_ERROR([dbus-binding-tool not found])
-	dbus="no"
+	PKG_CHECK_MODULES([DBUS], [\
+	                  dbus-1 >= $DBUS_REQUIRED \
+	                  dbus-glib-1 >= $DBUS_GLIB_REQUIRED \
+			  ], dbus=yes, dbus=no)
+	AC_SUBST([DBUS_CFLAGS])
+	AC_SUBST([DBUS_LIBS])
+	AC_PATH_PROG([DBUS_BINDING_TOOL],[dbus-binding-tool],[no])
+	if test "x$DBUS_BINDING_TOOL" = "xno"; then
+		dbus="no"
+	fi
 fi
+
+if test "x$dbus" != "xyes"; then
+	if test "x$enable_dbus" = "xyes"; then
+		AC_MSG_ERROR([DBus not found])
+	elif test "x$enable_dbus" = "xautodetect"; then
+		AC_MSG_WARN([DBus not found, disabling dbus support])
+	fi
+fi
+
 AM_CONDITIONAL([ENABLE_DBUS],[test "x$dbus" = "xyes"])
 
 # libsexy soft dependency
