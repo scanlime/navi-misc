@@ -60,6 +60,7 @@ static GOptionEntry entries[] = {
 	{"no-plugins", 'n', 0, G_OPTION_ARG_NONE,     &opt_noplugins,        N_("Don't auto-load plugins"),                         NULL},
 	{"url",        'u', 0, G_OPTION_ARG_STRING,   &arg_url,              N_("Open an irc:// url"),                              "irc://server:port/channel"},
 	{"version",    'v', 0, G_OPTION_ARG_NONE,     &opt_version,          N_("Show version information"),                        NULL},
+	{ NULL }
 };
 
 void joind (int action, struct server *serv);
@@ -69,6 +70,7 @@ fe_args (int argc, char *argv[])
 {
 	GError *error = NULL;
 	GOptionContext *context;
+	GnomeProgram *program;
 
 #ifdef ENABLE_NLS
 	bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
@@ -77,17 +79,20 @@ fe_args (int argc, char *argv[])
 #endif
 
 	context = g_option_context_new ("");
-	g_option_context_add_main_entries (context, entries, GETTEXT_PACKAGE);
 
-	gnome_program_init (PACKAGE, VERSION,
-	                    LIBGNOMEUI_MODULE, argc, argv,
-			    /*
-	                    GNOME_PARAM_GOPTION_CONTEXT, context,
-			    */
-	                    GNOME_PARAM_HUMAN_READABLE_NAME, _("IRC Chat"),
-	                    GNOME_PROGRAM_STANDARD_PROPERTIES,
-	                    NULL);
+#ifdef HAVE_LIBGNOME_214
+	g_option_context_add_main_entries (context, entries, GETTEXT_PACKAGE);
+	program = gnome_program_init (PACKAGE, VERSION,
+	                              LIBGNOMEUI_MODULE, argc, argv,
+	                              GNOME_PARAM_GOPTION_CONTEXT, context,
+	                              GNOME_PARAM_HUMAN_READABLE_NAME, _("IRC Chat"),
+	                              GNOME_PROGRAM_STANDARD_PROPERTIES,
+	                              NULL);
+#else
+	g_option_context_add_main_entries (context, entries, GETTEXT_PACKAGE);
+	g_option_context_add_group (context, gtk_get_option_group (TRUE));
 	g_option_context_parse (context, &argc, &argv, &error);
+#endif
 
 	if (error) {
 		fprintf (stderr, _("xchat-gnome: %s\nTry `xchat-gnome --help' for more information\n"), error->message);
