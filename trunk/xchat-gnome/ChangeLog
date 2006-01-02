@@ -1,3 +1,10 @@
+Mon Jan 2 04:57:35 MST 2005  David Trowbridge <trowbrds@gmail.com>
+
+	* plugins/dbus/xchat-gnome-remote.c:
+	* plugins/dbus/README:
+	  - Update README from xchat cvs, change command for a url to "url"
+	    instead of "newserver"
+
 Mon Jan 2 04:39:57 MST 2005  David Trowbridge <trowbrds@gmail.com>
 
 	D plugins/dbus/apps_xchat_url_handler.schemas.in:
