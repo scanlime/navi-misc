@@ -1127,7 +1127,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		gtk_widget_set_sensitive (menuitem, sess->type != SESS_SERVER);
 		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionCloseItem");
 		gtk_widget_set_sensitive (menuitem, sess->type != SESS_SERVER);
-		gtk_widget_set_sensitive (gui.userlist_toggle, sess->type != SESS_SERVER);
+		gtk_widget_set_sensitive (gui.userlist_toggle, sess->type == SESS_CHANNEL);
 
 
 		/* remove any icon that exists */

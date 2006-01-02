@@ -1,3 +1,8 @@
+Mon Jan 2 12:28:18 MST 2005  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/navigation-tree.c:
+	  - Only display userlist_toggle in channels (#325347)
+
 Mon Jan 2 04:18:49 MST 2005  Laurent Bigonville <l.bigonville@easynet.be>
 
 	* configure.ac:
