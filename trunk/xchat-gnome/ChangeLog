@@ -1,3 +1,9 @@
+Mon Jan 2 04:18:49 MST 2005  Laurent Bigonville <l.bigonville@easynet.be>
+
+	* configure.ac:
+	  - Add a flag to disable DBUS support and fix checks to not fail if
+	    dbus-binding-tool is missing
+
 Mon Jan 2 04:16:19 MST 2005  David Trowbridge <trowbrds@gmail.com>
 
 	* src/common/...:
