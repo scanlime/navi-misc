@@ -63,6 +63,14 @@ PKG_CHECK_MODULES([DEPENDENCIES], [\
                   gconf-2.0 >= $GCONF_REQUIRED \
                   ])
 
+# We can do better option parsing if we have libgnome >= 2.14
+# Once 2.14 is out and relatively common, we should probably eliminate this
+# and just force everyone to it.
+PKG_CHECK_MODULES([LIBGNOME], [libgnome-2.0 >= 2.13], newlibgnome=yes, newlibgnome=no)
+if test "x$newlibgnome" = xyes; then
+	AC_DEFINE(HAVE_LIBGNOME_214, 1, [Enable 2.14-specific code])
+fi
+
 #D-Bus
 AC_MSG_CHECKING([whether dbus support is requested])
 AC_ARG_ENABLE([dbus],

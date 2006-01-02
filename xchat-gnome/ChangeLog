@@ -1,3 +1,11 @@
+Mon Jan 2 16:18:46 MST 2005  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/fe-gnome.c:
+	* configure.ac:
+	  - If we're on libgnome >= 2.13, use full option parsing
+	    capabilities.  If not, only display the ones that actually get
+	    parsed in --help.
+
 Mon Jan 2 15:31:27 MST 2005  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/navigation-tree.c:
