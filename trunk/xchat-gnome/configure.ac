@@ -255,7 +255,6 @@ fi
 
 # openssl
 PKG_CHECK_MODULES([OPENSSL], [openssl], openssl=yes, openssl=no)
-AC_MSG_RESULT([$openssl])
 if test "x$openssl" = xyes; then
 	AC_SUBST([OPENSSL_CFLAGS])
 	AC_SUBST([OPENSSL_LIBS])
