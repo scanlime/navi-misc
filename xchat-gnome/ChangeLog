@@ -1,3 +1,8 @@
+Tue Jan 3 04:01:25 MST 2005  David Trowbridge <trowbrds@gmail.com>
+
+	* configure.ac:
+	  - Remove a spurious AC_MSG_RESULT
+
 Mon Jan 2 16:43:34 MST 2005  David Trowbridge <trowbrds@gmail.com>
 
 	* po/POTFILES.in:
