@@ -1,7 +1,7 @@
 /*
  * about.c - utilities for displaying and hiding the about dialog
  *
- * Copyright (C) 2004-2005 xchat-gnome team
+ * Copyright (C) 2004-2006 xchat-gnome team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -88,7 +88,7 @@ initialize_about_dialog (void)
 	g_object_set (G_OBJECT (gui.about),
 		      "name",        "XChat-GNOME",
 		      "version",     VERSION,
-		      "copyright",   _("Copyright © 2004-2005"),
+		      "copyright",   _("Copyright © 2004-2006"),
 		      "comments",    _("It has been well observed that a trombone is not a suitable instrument for a gentleman"),
 		      "license",     license_trans,
 		      "website",     "http://xchat-gnome.navi.cx",

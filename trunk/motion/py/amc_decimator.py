@@ -4,7 +4,7 @@
 Read in an AMC file and every nth frame out to another AMC file.
 """
 
-# Copyright (C) 2005 W. Evan Sheehan
+# Copyright (C) 2005-2006 W. Evan Sheehan
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
