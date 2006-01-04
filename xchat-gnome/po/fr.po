@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-01-02 16:42-0700\n"
-"PO-Revision-Date: 2005-12-18 05:23-0700\n"
-"Last-Translator: Christophe Bliard <christophe.bliard@trux.info>\n"
+"POT-Creation-Date: 2006-01-04 16:11-0700\n"
+"PO-Revision-Date: 2006-01-04 16:10-0700\n"
+"Last-Translator: David Trowbridge <trowbrds@gmail.com>\n"
 "Language-Team: French <olethanh@ulb.ac.be>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -3689,8 +3689,8 @@ msgstr ""
 "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
 
 #: ../src/fe-gnome/about.c:91
-msgid "Copyright © 2004-2005"
-msgstr "Copyright © 2004-2005"
+msgid "Copyright © 2004-2006"
+msgstr "Copyright © 2004-2006"
 
 #: ../src/fe-gnome/about.c:92
 msgid ""
