@@ -1,13 +1,13 @@
 /*
  * Obfuscated 99 bottles of beer on the wall.
- * -- Micah Dowty <micah@picogui.org>
+ * -- Micah Dowty <micah@navi.cx>
  *
- * Will only work on x86-linux machines. Probably
- * also requires gcc 3.2. This might not work when
- * compiled by Debian's gcc. If you want to see
- * the results but your compiler isn't supported,
- * a binary has been included. Do not compile with
- * optimization enabled.
+ * Will only work on x86-linux machines. Tested on
+ * various flavors of gcc 3.2 and 3.3. Known not
+ * to work on gcc 3.4. If you want to see the results
+ * but your compiler isn't supported, a binary has
+ * been included. Do not compile with optimization
+ * enabled!
  */
 
                char *i,*o;int
