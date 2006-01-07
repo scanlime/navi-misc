@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-01-04 16:11-0700\n"
+"POT-Creation-Date: 2006-01-07 18:20-0500\n"
 "PO-Revision-Date: 2006-01-04 16:10-0700\n"
 "Last-Translator: David Trowbridge <trowbrds@gmail.com>\n"
 "Language-Team: French <olethanh@ulb.ac.be>\n"
@@ -26,15 +26,15 @@ msgstr "<span weight=\"bold\">Filtrage</span>"
 
 #: ../data/channel-list.glade.h:2
 msgid "Apply Text Filter To:    "
-msgstr "Appliquer le filtre texte à :    "
+msgstr "Appliquer le filtre texte au :    "
 
 #: ../data/channel-list.glade.h:3
 msgid "Channel _Name"
-msgstr "Nom du _canal"
+msgstr "Nom de _canal"
 
 #: ../data/channel-list.glade.h:4
 msgid "Channel _Topic"
-msgstr "Changer le _sujet"
+msgstr "_Sujet du canal"
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
