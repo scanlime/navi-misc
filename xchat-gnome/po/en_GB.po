@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-01-04 16:11-0700\n"
+"POT-Creation-Date: 2006-01-07 16:34-0700\n"
 "PO-Revision-Date: 2006-01-04 16:10-0700\n"
 "Last-Translator: David Trowbridge <trowbrds@gmail.com>\n"
 "Language-Team: English (British) <en_gb@li.org>\n"
@@ -78,7 +78,7 @@ msgstr "<span weight=\"bold\">User Info</span>"
 
 #: ../data/irc-network-editor.glade.h:4
 msgid "Accept _invalid SSL certificate"
-msgstr ""
+msgstr "Accept _invalid SSL certificate"
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Character _encoding:"
