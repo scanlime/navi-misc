@@ -2216,11 +2216,11 @@ msgstr "-%C10-%C11-%O$ttNotification : $1 est connecté ($2)."
 
 #: ../src/common/textevents.h:291
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3"
-msgstr "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C est parti $3"
+msgstr "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C est parti de $3"
 
 #: ../src/common/textevents.h:294
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3 %C14(%O$4%C14)%O"
-msgstr "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C est parti $3 %C14(%O$4%C14)%O"
+msgstr "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C est parti de $3 %C14(%O$4%C14)%O"
 
 #: ../src/common/textevents.h:297
 msgid "-%C10-%C11-%O$tPing reply from $1 : $2 second(s)"
@@ -2276,7 +2276,7 @@ msgstr "-%C10-%C11-%O$t$1 a changé le sujet en : $2%O"
 
 #: ../src/common/textevents.h:348
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
-msgstr "-%C10-%C11-%O$tSujet de %C11$1%C défini par %C11$2%C à %C11$3%O"
+msgstr "-%C10-%C11-%O$tSujet de %C11$1%C défini par %C11$2%C le %C11$3%O"
 
 #: ../src/common/textevents.h:351
 msgid "-%C10-%C11-%O$tUnknown host. Maybe you misspelled it?"
