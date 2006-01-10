@@ -5,6 +5,12 @@ Tue Jan 10 23:23:59 CET 2006  Guillaume Desmottes <cass@skynet.be>
 	  - Add a display field in plugins model and
 	    display it in the treeview instead of plugin's name.
 
+Tue Jan 10 11:23:27 CET 2006  Xavier Claessens <xclaesse@gmail.com>
+
+	* plugins/notify-osd/notify-osd.c:
+	* configure.ac:
+	  - Update to libnotify-0.3 API
+
 Tue Jan  3 23:52:48 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* plugins/notification/notification.c:
