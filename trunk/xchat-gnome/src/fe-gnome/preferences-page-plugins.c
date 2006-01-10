@@ -45,6 +45,16 @@ extern XChatGUI gui;
 
 static PreferencesPluginsPage *pageref;
 
+enum
+{
+	COL_NAME,
+	COL_VERSION,
+	COL_DESC,
+	COL_FILENAME,
+	COL_LOADED,
+	COL_DISPLAY
+};
+
 static void
 fe_plugin_add (char *filename)
 {
@@ -52,7 +62,7 @@ fe_plugin_add (char *filename)
 
 	void *handle;
 	gpointer info_func;
-	char *name, *desc, *version;
+	char *name, *desc, *version, *display;
 
 	handle = g_module_open (filename, 0);
 
@@ -75,7 +85,10 @@ fe_plugin_add (char *filename)
 		desc = _("unknown");
 	}
 
-	gtk_list_store_set (pageref->plugin_store, &iter, 0, name, 1, version, 2, desc, 3, filename, -1);
+	display = g_strdup_printf ("<b>%s</b>\n%s", name, desc);
+	gtk_list_store_set (pageref->plugin_store, &iter, COL_NAME, name, COL_VERSION, version,
+			    COL_DESC, desc, COL_FILENAME, filename, COL_DISPLAY, display, -1);
+	g_free (display);
 
 	if (handle != NULL)
 		g_module_close (handle);
@@ -102,7 +115,7 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 		int err = unload_plugin (filename);
 
 		if (err == 1) {
-			gtk_list_store_set (page->plugin_store, &iter, 4, FALSE, -1);
+			gtk_list_store_set (page->plugin_store, &iter, COL_LOADED, FALSE, -1);
 
 			if ((removed_plugin = g_slist_find_custom (enabled_plugins, filename, &filename_test)) != NULL) {
 				enabled_plugins = g_slist_delete_link (enabled_plugins, removed_plugin);
@@ -117,7 +130,7 @@ load_unload (char *filename, gboolean loaded, PreferencesPluginsPage *page, GtkT
 		/* Load the plugin. */
 		gchar *err = load_plugin (gui.current_session, filename, NULL, TRUE, FALSE);
 		if (err == NULL) {
-			gtk_list_store_set (page->plugin_store, &iter, 4, TRUE, -1);
+			gtk_list_store_set (page->plugin_store, &iter, COL_LOADED, TRUE, -1);
 			enabled_plugins = g_slist_append (enabled_plugins, filename);
 
 		} else {
@@ -141,7 +154,9 @@ load_toggled (GtkCellRendererToggle *toggle, gchar *pathstr, PreferencesPluginsP
 
 	path = gtk_tree_path_new_from_string (pathstr);
 	if (gtk_tree_model_get_iter (GTK_TREE_MODEL (page->plugin_store), &iter, path)) {
-		gtk_tree_model_get (GTK_TREE_MODEL (page->plugin_store), &iter, 3, &filename, 4, &loaded, -1);
+		gtk_tree_model_get (GTK_TREE_MODEL (page->plugin_store), &iter, COL_FILENAME, &filename,
+		                    COL_LOADED, &loaded, -1);
+
 
 		load_unload (filename, loaded, page, iter);
 	}
@@ -186,7 +201,7 @@ remove_plugin_clicked (GtkButton *button, PreferencesPluginsPage *page)
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->plugins_list));
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, 3, &filename, 4, &loaded, -1);
+		gtk_tree_model_get (model, &iter, COL_FILENAME, &filename, COL_LOADED, &loaded, -1);
 		if (loaded)
 			unload_plugin (filename);
 		gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
@@ -210,7 +225,7 @@ row_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *colu
 
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->plugins_list));
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, 3, &filename, 4, &loaded, -1);
+		gtk_tree_model_get (model, &iter, COL_FILENAME, &filename, COL_LOADED, &loaded, -1);
 		/* Apparently setting the loaded field in the list store no longer causes
 		 * the toggle signal to be emitted. So we explicitly call load_unload
 		 * here.
@@ -224,10 +239,10 @@ set_loaded_if_match (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, 
 {
 	char *filename;
 
-	gtk_tree_model_get (model, iter, 3, &filename, -1);
+	gtk_tree_model_get (model, iter, COL_FILENAME, &filename, -1);
 
 	if (strcmp ((char*)data, filename) == 0) {
-		gtk_list_store_set (GTK_LIST_STORE (model), iter, 4, TRUE, -1);
+		gtk_list_store_set (GTK_LIST_STORE (model), iter, COL_LOADED, TRUE, -1);
 		return TRUE;
 	}
 
@@ -261,15 +276,20 @@ preferences_page_plugins_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("Scripts and Plugins"), 2, 5, -1);
 
 	/*                                          name,          version,       description,   file,          loaded*/
-	page->plugin_store = gtk_list_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);
+	page->plugin_store = gtk_list_store_new (6, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+	                                         G_TYPE_BOOLEAN, G_TYPE_STRING);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (page->plugins_list), GTK_TREE_MODEL (page->plugin_store));
 
 	page->load_renderer = gtk_cell_renderer_toggle_new ();
 	page->text_renderer = gtk_cell_renderer_text_new ();
+
+	g_object_set (G_OBJECT (page->text_renderer), "ellipsize", PANGO_ELLIPSIZE_END, NULL);
 	g_object_set (G_OBJECT (page->load_renderer), "activatable", TRUE, NULL);
 
-	page->load_column = gtk_tree_view_column_new_with_attributes (_("Enable"), page->load_renderer, "active", 4, NULL);
-	page->text_column = gtk_tree_view_column_new_with_attributes (_("Plugin"), page->text_renderer, "text",   0, NULL);
+	page->load_column = gtk_tree_view_column_new_with_attributes (_("Enable"), page->load_renderer, "active",
+	                                                              COL_LOADED, NULL);
+	page->text_column = gtk_tree_view_column_new_with_attributes (_("Plugin"), page->text_renderer, "markup",
+	                                                              COL_DISPLAY, NULL);
 
 	gtk_tree_view_append_column (GTK_TREE_VIEW (page->plugins_list), page->load_column);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (page->plugins_list), page->text_column);

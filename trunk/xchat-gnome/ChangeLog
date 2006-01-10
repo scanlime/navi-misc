@@ -1,3 +1,10 @@
+Tue Jan 10 23:23:59 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/preferences-page-plugins.c:
+	  - Add a enum for column number (avoid magic number).
+	  - Add a display field in plugins model and
+	    display it in the treeview instead of plugin's name.
+
 Tue Jan  3 23:52:48 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* plugins/notification/notification.c:
