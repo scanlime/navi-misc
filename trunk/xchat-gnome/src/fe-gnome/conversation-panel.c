@@ -788,7 +788,7 @@ conversation_panel_save_current (ConversationPanel *panel)
 
 	time (&dtime);
 	localtime_r (&dtime, &date);
-	strftime (dates, 32, "%F-%R", &date);
+	strftime (dates, 32, "%F-%Hh%M", &date);
 
 	default_filename = g_strdup_printf ("%s-%s.log", panel->priv->current->channel, dates);
 	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_chooser), default_filename);
