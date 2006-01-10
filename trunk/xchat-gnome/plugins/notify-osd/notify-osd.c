@@ -45,13 +45,35 @@ static xchat_plugin       *ph;
 static xchat_gnome_plugin *xgph;
 static GtkWidget          *main_window;
 static gboolean            focused = TRUE;
-static NotifyIcon         *icon;
+static GdkPixbuf          *notify_icon;
 static GSList             *notifications = NULL;
 
 static void
-hide_notifications (NotifyHandle *handle)
+hide_notifications (NotifyNotification *notify)
 {
-	notify_close (handle);
+	GError *error = NULL;
+	if (!notify_notification_close (notify, &error)) {
+		g_warning (_("Error closing notification: %s\n"), error->message);
+		g_error_free (error);
+	}
+}
+
+static void
+add_notify (char *summary, char *message)
+{
+	NotifyNotification *notify = NULL;
+	GError *error = NULL;
+
+	notify = notify_notification_new (summary, message, NULL, NULL);
+	notify_notification_set_urgency (notify, NOTIFY_URGENCY_NORMAL);
+	notify_notification_set_icon_data_from_pixbuf (notify, notify_icon);
+	if (!notify_notification_show (notify, &error)) {
+		g_warning (_("Failed to send notification: %s\n"), error->message);
+		g_error_free (error);
+		return;
+	}
+
+	notifications = g_slist_prepend (notifications, notify);
 }
 
 static gboolean
@@ -76,7 +98,6 @@ new_msg_cb (char *word[], gpointer data)
 {
 	const char *channel;
 	gchar *stripped, *message, *summary;
-	NotifyHandle *handle;
 
 	if (focused)
 		return XCHAT_EAT_NONE;
@@ -84,14 +105,13 @@ new_msg_cb (char *word[], gpointer data)
 	channel = xchat_get_info (ph, "channel");
 	stripped = xchat_strip (ph, word[2], -1, STRIP_COLORS | STRIP_ATTRS);
 
-	message = g_strdup_printf ("&lt;%s&gt; %s", word[1], stripped);
+	message = g_strdup_printf ("<%s> %s", word[1], stripped);
 	if (channel[0] == '#')
 		summary = g_strdup_printf (_("Message in %s"), channel);
 	else
 		summary = g_strdup_printf (_("Message from %s"), channel);
 
-	handle = notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
-	notifications = g_slist_prepend (notifications, handle);
+	add_notify (summary, message);
 
 	xchat_free (ph, stripped);
 	g_free (message);
@@ -104,7 +124,6 @@ new_action_cb (char *word[], gpointer data)
 {
 	const char *channel;
 	gchar *stripped, *message, *summary;
-	NotifyHandle *handle;
 
 	if (focused)
 		return XCHAT_EAT_NONE;
@@ -118,8 +137,7 @@ new_action_cb (char *word[], gpointer data)
 	else
 		summary = g_strdup_printf (_("Message from %s"), channel);
 
-	handle = notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
-	notifications = g_slist_prepend (notifications, handle);
+	add_notify (summary, message);
 
 	xchat_free (ph, stripped);
 	g_free (message);
@@ -131,7 +149,6 @@ static int
 private_msg_cb (char *word[], gpointer data)
 {
 	gchar *message, *summary;
-	NotifyHandle *handle;
 
 	if (focused)
 		return XCHAT_EAT_NONE;
@@ -139,8 +156,7 @@ private_msg_cb (char *word[], gpointer data)
 	message = xchat_strip (ph, word[2], -1, STRIP_COLORS | STRIP_ATTRS);
 	summary = g_strdup_printf (_("Private Message from %s"), word[1]);
 
-	handle = notify_send_notification (NULL, NULL, NOTIFY_URGENCY_NORMAL, summary, message, icon, TRUE, 0, NULL, NULL, 0);
-	notifications = g_slist_prepend (notifications, handle);
+	add_notify (summary, message);
 
 	xchat_free (ph, message);
 	g_free (summary);
@@ -177,9 +193,9 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 
 	if (notify_init ("Xchat OSD")) {
 		if (g_file_test ("../../data/xchat-gnome.png", G_FILE_TEST_EXISTS))
-			icon = notify_icon_new_from_uri ("../../data/xchat-gnome.png");
+			notify_icon = gdk_pixbuf_new_from_file ("../../data/xchat-gnome.png", 0);
 		else
-			icon = notify_icon_new_from_uri (XCHATSHAREDIR "/xchat-gnome.png");
+			notify_icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome.png", 0);
 
 		xchat_hook_print (ph, "Channel Msg Hilight",       XCHAT_PRI_NORM, new_msg_cb,     NULL);
 		xchat_hook_print (ph, "Channel Action Hilight",    XCHAT_PRI_NORM, new_action_cb,  NULL);
@@ -198,6 +214,6 @@ xchat_plugin_init (xchat_plugin *plugin_handle, char **plugin_name, char **plugi
 int
 xchat_plugin_deinit (void)
 {
-	notify_icon_destroy (icon);
+	notify_uninit ();
 	return TRUE;
 }

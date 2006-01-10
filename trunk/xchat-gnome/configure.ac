@@ -29,6 +29,7 @@ GCONF_REQUIRED=2.8.0
 DBUS_REQUIRED=0.35
 DBUS_GLIB_REQUIRED=0.35
 LIBSEXY_REQUIRED=0.1.4
+LIBNOTIFY_REQUIRED=0.3.0
 
 
 AC_PROG_CC
@@ -113,7 +114,7 @@ if test "x$libsexy" = xyes; then
 fi
 
 # libnotify soft dependency
-PKG_CHECK_MODULES([LIBNOTIFY], [libnotify], libnotify=yes, libnotify=no)
+PKG_CHECK_MODULES([LIBNOTIFY], [libnotify >= $LIBNOTIFY_REQUIRED], libnotify=yes, libnotify=no)
 AC_SUBST([LIBNOTIFY_CFLAGS])
 AC_SUBST([LIBNOTIFY_LIBS])
 AM_CONDITIONAL([ENABLE_LIBNOTIFY],[test "x$libnotify" = "xyes"])
