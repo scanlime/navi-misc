@@ -1,3 +1,8 @@
+Wed Jan 11 20:59:35 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/text-entry.c:
+	  - Mark color names for translation
+
 Tue Jan 10 23:23:59 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/preferences-page-plugins.c:
