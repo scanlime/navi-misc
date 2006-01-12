@@ -53,6 +53,12 @@ def randomWalk (graph, len):
     return path
 
 
+def interpolate (points):
+    """Add frames to smooth the animation using cubic natural splines."""
+    # FIXME Splines go here!
+    return points
+
+
 parser = OptionParser ("usage: %prog <graph pickle>")
 parser.add_option ("--cliche", dest="cliche", default=False,
         action="store_true", help="Choose edges based on probability")
@@ -71,9 +77,9 @@ for bone in graphs.keys ():
     # print 'Walking', bone
 
     if opts.cliche:
-        bones[bone] = Numeric.array (clicheWalk (graphs[bone], opts.len))
+        bones[bone] = interpolate (Numeric.array (clicheWalk (graphs[bone], opts.len)))
     else:
-        bones[bone] = Numeric.array (randomWalk (graphs[bone], opts.len))
+        bones[bone] = interpolate (Numeric.array (randomWalk (graphs[bone], opts.len)))
 
 print ":FULLY-SPECIFIED"
 print ":DEGREES"
