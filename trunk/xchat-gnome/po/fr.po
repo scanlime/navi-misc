@@ -6,15 +6,15 @@
 # Olivier Berger <olberger@club-internet.fr>, 2001-2002.
 # Christophe Merlet (RedFox) <redfox@redfoxcenter.org>, 2003, 2004.
 # Arnaud Jambin <a.jambin@free.fr>, 2005.
-# Olivier Lê Thanh Duong, 2005.
+# Olivier Lê Thanh Duong <olethanh@ulb.ac.be>, 2005.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-01-07 18:20-0500\n"
+"POT-Creation-Date: 2006-01-12 01:33-0500\n"
 "PO-Revision-Date: 2006-01-04 16:10-0700\n"
-"Last-Translator: David Trowbridge <trowbrds@gmail.com>\n"
+"Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: French <olethanh@ulb.ac.be>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -30,7 +30,7 @@ msgstr "Appliquer le filtre texte au :    "
 
 #: ../data/channel-list.glade.h:3
 msgid "Channel _Name"
-msgstr "Nom de _canal"
+msgstr "Nom du _canal"
 
 #: ../data/channel-list.glade.h:4
 msgid "Channel _Topic"
@@ -625,28 +625,38 @@ msgid ""
 msgstr ""
 "Affiche une notification des messages importants quand XChat-Gnome est caché."
 
-#: ../plugins/notify-osd/notify-osd.c:89
-#: ../plugins/notify-osd/notify-osd.c:117
+#: ../plugins/notify-osd/notify-osd.c:56
+#, c-format
+msgid "Error closing notification: %s\n"
+msgstr "Erreur à la fermeture de la notification : %s\n"
+
+#: ../plugins/notify-osd/notify-osd.c:71
+#, c-format
+msgid "Failed to send notification: %s\n"
+msgstr "Erreur à l'envoi de la notification : %s\n"
+
+#: ../plugins/notify-osd/notify-osd.c:110
+#: ../plugins/notify-osd/notify-osd.c:136
 #, c-format
 msgid "Message in %s"
 msgstr "Message dans %s"
 
-#: ../plugins/notify-osd/notify-osd.c:91
-#: ../plugins/notify-osd/notify-osd.c:119
+#: ../plugins/notify-osd/notify-osd.c:112
+#: ../plugins/notify-osd/notify-osd.c:138
 #, c-format
 msgid "Message from %s"
 msgstr "Message de %s"
 
-#: ../plugins/notify-osd/notify-osd.c:140
+#: ../plugins/notify-osd/notify-osd.c:157
 #, c-format
 msgid "Private Message from %s"
 msgstr "Message privé de %s"
 
-#: ../plugins/notify-osd/notify-osd.c:189
+#: ../plugins/notify-osd/notify-osd.c:205
 msgid "OSD loaded\n"
 msgstr "OSD chargé\n"
 
-#: ../plugins/notify-osd/notify-osd.c:193
+#: ../plugins/notify-osd/notify-osd.c:209
 msgid "OSD initialization failed\n"
 msgstr "Échec de l'initialisation d'OSD\n"
 
@@ -1671,7 +1681,7 @@ msgstr "IP réelle"
 #: ../src/common/text.c:833 ../src/common/text.c:987
 #: ../src/fe-gnome/channel-list.c:296
 msgid "Channel Name"
-msgstr "Nom de canal"
+msgstr "Nom du canal"
 
 #: ../src/common/text.c:793 ../src/common/text.c:950
 msgid "Text"
@@ -4206,7 +4216,7 @@ msgstr "Changer le suje_t"
 
 #: ../src/fe-gnome/main-window.c:133 ../src/fe-gnome/navigation-tree.c:93
 msgid "_Bans..."
-msgstr "Listes des _bannis..."
+msgstr "Liste des _bannis..."
 
 #: ../src/fe-gnome/main-window.c:134
 msgid "_Users"
@@ -4311,37 +4321,37 @@ msgstr "Réseaux"
 msgid "Name"
 msgstr "Nom"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:74
-#: ../src/fe-gnome/preferences-page-plugins.c:75
+#: ../src/fe-gnome/preferences-page-plugins.c:84
+#: ../src/fe-gnome/preferences-page-plugins.c:85
 msgid "unknown"
 msgstr "inconnu"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:112
+#: ../src/fe-gnome/preferences-page-plugins.c:125
 #, c-format
 msgid "An error occured unloading %s"
 msgstr "Une erreur est survenue lors du déchargement du greffon %s"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:113
+#: ../src/fe-gnome/preferences-page-plugins.c:126
 msgid "Plugin Unload Failed"
 msgstr "Le déchargement du greffon a échoué"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:124
+#: ../src/fe-gnome/preferences-page-plugins.c:137
 msgid "Plugin Load Failed"
 msgstr "Le chargement du greffon a échoué"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:161
+#: ../src/fe-gnome/preferences-page-plugins.c:176
 msgid "Open Plugin"
 msgstr "Ouvrir le greffon"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:261
+#: ../src/fe-gnome/preferences-page-plugins.c:276
 msgid "Scripts and Plugins"
 msgstr "Scripts et greffons"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:271
+#: ../src/fe-gnome/preferences-page-plugins.c:289
 msgid "Enable"
 msgstr "Activé"
 
-#: ../src/fe-gnome/preferences-page-plugins.c:272
+#: ../src/fe-gnome/preferences-page-plugins.c:291
 msgid "Plugin"
 msgstr "Greffon"
 
@@ -4358,6 +4368,70 @@ msgstr "%d octets ont été mis en cache"
 #: ../src/fe-gnome/text-entry.c:274
 msgid "I_nsert Color Code"
 msgstr "Insérer un code couleur"
+
+#: ../src/fe-gnome/text-entry.c:281
+msgid "Black"
+msgstr "Noir"
+
+#: ../src/fe-gnome/text-entry.c:285
+msgid "Dark Blue"
+msgstr "Bleu foncé"
+
+#: ../src/fe-gnome/text-entry.c:289
+msgid "Dark Green"
+msgstr "Vert foncé"
+
+#: ../src/fe-gnome/text-entry.c:293
+msgid "Red"
+msgstr "Rouge"
+
+#: ../src/fe-gnome/text-entry.c:297
+msgid "Brown"
+msgstr "Brun"
+
+#: ../src/fe-gnome/text-entry.c:301
+msgid "Purple"
+msgstr "Pourpre"
+
+#: ../src/fe-gnome/text-entry.c:305
+msgid "Orange"
+msgstr "Orange"
+
+#: ../src/fe-gnome/text-entry.c:309
+msgid "Yellow"
+msgstr "Jaune"
+
+#: ../src/fe-gnome/text-entry.c:313
+msgid "Light Green"
+msgstr "Vert clair"
+
+#: ../src/fe-gnome/text-entry.c:317
+msgid "Aqua"
+msgstr "Aqua"
+
+#: ../src/fe-gnome/text-entry.c:321
+msgid "Light Blue"
+msgstr "Bleu clair"
+
+#: ../src/fe-gnome/text-entry.c:325
+msgid "Blue"
+msgstr "Bleu"
+
+#: ../src/fe-gnome/text-entry.c:329
+msgid "Violet"
+msgstr "Violet"
+
+#: ../src/fe-gnome/text-entry.c:333
+msgid "Grey"
+msgstr "Gris"
+
+#: ../src/fe-gnome/text-entry.c:337
+msgid "Light Grey"
+msgstr "Gris clair"
+
+#: ../src/fe-gnome/text-entry.c:341
+msgid "White"
+msgstr "Blanc"
 
 #: ../src/fe-gnome/topic-label.c:236
 #, c-format
