@@ -48,8 +48,10 @@ def interpolate (points):
     for i in range (n):
         col = 4 * i
         t, y = intervals[i][1]
+        # First derivatives are equal.
         A[row, col:col+8] = [0, 1, 2*t, 3*t**2, 0, -1, -2*t, -3*t**2]
         row += 1
+        # Second derivatives are equal.
         A[row, col:col+8] = [0, 0, 2, 6*t, 0, 0, -2, -6*t]
         row += 1
 
@@ -65,7 +67,6 @@ def interpolate (points):
     z    = Numeric.matrixmultiply (Ainv, b)
 
     # Fill in 5 points between each point we have now to smooth the sequence.
-    # FIXME - Implement
     smoothed = []
     for i in range (n):
         t0, y0 = intervals[i][0]
@@ -101,6 +102,6 @@ for bone, data in amc.bones.iteritems():
     # the rows and columsn are frames and degrees of freedom, respectively.
     interpolated.bones[bone] = Numeric.transpose (Numeric.array (temp))
 
-# interpolated.save (sys.argv[2])
+interpolated.save (sys.argv[2])
 
 # vim: ts=4:sw=4:et
