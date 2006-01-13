@@ -65,8 +65,20 @@ def interpolate (points):
 
     # Fill in 5 points between each point we have now to smooth the sequence.
     # FIXME - Implement
+    smoothed = []
+    for i in range (n):
+        t0, y0 = intervals[i][0]
+        t1, y1 = intervals[i][1]
 
-    return points
+        smoothed.append (y0)
+        a1, a2, a3, a4 = z[i * 4:i * 4 + 4, 0]
+        for j in range (t0, t1):
+            smoothed.append (a1 + a2*j + a3*j**2 + a4*j**3)
+
+    # Append the last value
+    smoothed.append (intervals[-1][1][1])
+
+    return smoothed
 
 
 # vim: ts=4:sw=4:et
