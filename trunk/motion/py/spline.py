@@ -24,7 +24,7 @@ def interpolate (points):
     # Create the matrices
     s = n * 4
     A = Numeric.zeros ((s, s))
-    b = Numeric.zeros ((1, s))
+    b = Numeric.zeros ((s, 1))
 
     # FIXME - Filling the matrices could probably be optimized more...
 
@@ -101,6 +101,6 @@ for bone, data in amc.bones.iteritems():
     # the rows and columsn are frames and degrees of freedom, respectively.
     interpolated.bones[bone] = Numeric.transpose (Numeric.array (temp))
 
-interpolated.save (sys.argv[2])
+# interpolated.save (sys.argv[2])
 
 # vim: ts=4:sw=4:et
