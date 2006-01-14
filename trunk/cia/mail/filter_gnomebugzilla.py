@@ -44,14 +44,14 @@ class GnomeBugzillaFilter(BugFilter):
             else:
                 if cline.endswith("changed:"):
                     self.addReporter(' '.join(cline.split(' ')[:-1]))
-                if cline.startswith("------- Additional Comments From"):
+                if cline.startswith("------- Comment"):
                     self.parseNewComments()
 
     def parseNewComments(self):
         lines = []
         while True:
             line = self.pullLine()
-            if not line:
+            if not line or line.startswith("-- "):
                 break
             if line.startswith("-------"):
                 self.pushLine(line)

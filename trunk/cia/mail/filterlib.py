@@ -154,4 +154,8 @@ class BugFilter(Filter):
         self.deliverable = True
         self.xml.body.bug.addElement('comment', content=log)
 
+    def addSummary(self, summary):
+        self.deliverable = True
+        self.xml.body.bug.addElement('summary', content=summary)
+
 ### The End ###
