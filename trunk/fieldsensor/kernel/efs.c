@@ -385,7 +385,7 @@ static int efs_probe(struct usb_interface *interface, const struct usb_device_id
 {
 	struct usb_device *udev = interface_to_usbdev(interface);
 	struct field_sensor *dev = NULL;
-	struct usb_host_interface *host_interface = &interface->altsetting[interface->act_altsetting];
+	struct usb_host_interface *host_interface = interface->cur_altsetting;
 	int retval;
 
 	/* See if the device offered us matches what we can accept */
