@@ -133,11 +133,12 @@ class Request(pb.Referenceable):
         """Use an arbitrary bot in this request to send a message to a
            supplied target (channel or nickname). Currently this always
            uses the first bot if possible and ignores the request if no
-           bots are available, but it may be extended later to support
-           queueing and load balancing.
+           bots are available. This may be a good place to implement
+           smarter queueing and load balancing later. Currently bots
+           implement their own anti-flood queues.
            """
         if self.bots:
-            self.bots[0].msg(target, line)
+            self.bots[0].queueMessage(target, line)
 
     def remote_msgList(self, target, lines):
         """Send multiple msg()es"""
@@ -533,14 +534,26 @@ class Bot(irc.IRCClient, pb.Referenceable):
     # Timeout, in seconds, for joining channels
     joinTimeout = 60
 
-    # How often to ping the server, in seconds
-    pingInterval = 60
-
     # Important timestamps
     lastPingTimestamp = None
     lastPongTimestamp = None
     signonTimestamp = None
     lastPingTransmitTimestamp = None
+
+    # Byte counters. We maintain a perpetually incrementing byte counter,
+    # tracking the amount of data sent over the life of the connection.
+    # This byte counter is sent with PING, and we record the value returned
+    # with the last PONG. Taking (txByteCount - txConfirmedBytes) gives us
+    # the number of bytes transmitted but not confirmed: the maximum amount
+    # of data the server may be buffering on our behalf. This buffer
+    # level must be controlled, to avoid being kicked for flooding.
+    txByteCount = 0
+    txConfirmedBytes = 0
+
+    # Count of lines dropped due to buffer overflow. Since the buffer will
+    # be full, we can't report the error right away. Once the buffer empties,
+    # this will record the damage.
+    numDroppedLines = 0
 
     # Unhandled commands to ignore, rather than log
     ignoredCommands = [
@@ -551,6 +564,7 @@ class Bot(irc.IRCClient, pb.Referenceable):
 
     def __init__(self):
         self.emptyChannels()
+        self.messageQueue = []
         self.pendingWhoisTests = {}
         self.connectTimestamp = None
 
@@ -605,6 +619,13 @@ class Bot(irc.IRCClient, pb.Referenceable):
         tempNick = "CIA-temp%03d" % random.randint(0, 999)
         self.nicknames.append(tempNick)
         self.setNick(tempNick)
+
+    def sendLine(self, line):
+        # Override sendLine() to update txByteCount.
+        # Note that the text of 'line' doesn't count a CRLF,
+        # but we should include that in our buffer estimates.
+        self.txByteCount += len(line) + 2
+        irc.IRCClient.sendLine(self, line)
 
     def nickChanged(self, newname):
         irc.IRCClient.nickChanged(self, newname)
@@ -752,13 +773,17 @@ class Bot(irc.IRCClient, pb.Referenceable):
         # is still up and measure lag. IRC servers seem to often fail in
         # ways that leave clients' sockets connected but ignore all data
         # from them, and this lets us measure lag for free.
-        self.sendServerPing()
+        self._lagPingLoop()
 
     def sendServerPing(self):
-        """Send a ping stamped with the current time and schedule the next one"""
+        """Send a ping stamped with the current time and byte count"""
         self.lastPingTransmitTimestamp = time.time()
-        self.sendLine("PING %f" % self.lastPingTransmitTimestamp)
-        reactor.callLater(self.pingInterval, self.sendServerPing)
+        self.sendLine("PING %s-%f" % (self.txByteCount, self.lastPingTransmitTimestamp))
+        print "PING %s %f" % (self.txByteCount, self.lastPingTransmitTimestamp)
+
+    def _lagPingLoop(self):
+        self.sendServerPing()
+        reactor.callLater(self.network.pingInterval, self._lagPingLoop)
 
     def irc_PONG(self, prefix, params):
         """Handle the responses to pings sent with sendServerPing. This compares
@@ -766,12 +791,23 @@ class Bot(irc.IRCClient, pb.Referenceable):
            time, storing the lag and the current time.
            """
         try:
-            self.lastPingTimestamp = float(params[1])
+            byteCount, timestamp = params[1].split("-")
+            self.txConfirmedBytes = int(byteCount)
+            self.lastPingTimestamp = float(timestamp)
+            print "PONG %s %f" % (self.txConfirmedBytes, self.lastPingTimestamp)
+
         except (ValueError, IndexError):
             # This must be some broken IRC server that's not preserving our ping timestamp.
             # The best we can do is assume this is the pong for the most recent ping we sent.
+            log.msg("%r received bad PONG reply: %r" % (self, params))
             self.lastPingTimestamp = self.lastPingTransmitTimestamp
-        self.lastPongTimestamp = time.time()
+            self.txConfirmedBytes = self.txByteCount
+
+        now = time.time()
+        self.lastPongTimestamp = now
+
+        # We might be able to empty our queue some more
+        self._pollMessageQueue(now)
 
     def connectionLost(self, reason):
         self.emptyChannels()
@@ -805,13 +841,13 @@ class Bot(irc.IRCClient, pb.Referenceable):
             else:
                 lag = self.lastPongTimestamp - self.lastPingTimestamp
 
-        if timeSincePong < self.pingInterval * 2:
+        if timeSincePong < self.network.pingInterval * 2:
             # We're doing fine, report the raw lag
             return lag
         else:
             # Yikes, it's been a while since we've had a good pong.
             # Weigh that in to the returned lag figure as described above.
-            return ((lag or 0) + (timeSincePong - self.pingInterval)) / 2
+            return ((lag or 0) + (timeSincePong - self.network.pingInterval)) / 2
 
     def join(self, channel):
         """Called by the bot's owner to request that a channel be joined.
@@ -965,6 +1001,56 @@ class Bot(irc.IRCClient, pb.Referenceable):
             except ValueError:
                 pass
 
+    def queueMessage(self, target, text):
+        """A msg() workalike which queues messages and provides flood protection.
+           Text sent with queueMessage() isn't guaranteed to ever be sent to the
+           server.
+           """
+        now = time.time()
+        self.messageQueue.append((now, target, text))
+        self._pollMessageQueue(now)
+
+    def _pollMessageQueue(self, now):
+        """Check whether it's safe to send any queued messages, or whether any
+           messages have expired. Must be passed the current time.
+           """
+        while self.messageQueue:
+            timestamp, target, text = self.messageQueue[0]
+
+            # Too old?
+            if timestamp + self.network.messageLifetime < now:
+                del self.messageQueue[0]
+                self.numDroppedLines += 1
+                continue
+
+            # Length estimate: Includes the "PRIVMSG %s :%s" boilerplate, plus the CRLF
+            length = len(text) + len(target) + 12
+
+            # Make a worst-case prediction of the server's buffer fill level after we
+            # would have sent this string.
+            predictedFill = self.txByteCount - self.txConfirmedBytes
+
+            print "Poll message queue. Predicted fill: %d" % predictedFill
+
+            # If we're up to half our buffer fill and we haven't sent a ping
+            # recently, send another in an attempt to lower the predicted
+            # fill estimate.
+            if predictedFill > self.network.bufferSize / 2 and self.lastPingTransmitTimestamp + 5 < now:
+                self.sendServerPing()
+
+            # If we'd go above the hard limit, we can't send the message.
+            if predictedFill > self.network.bufferSize:
+                break
+
+            # Ok, I guess it's safe to send the message. If any were dropped
+            # prior to this, send a warning.
+            # XXX: The warning isn't included in our length calculations.
+            if self.numDroppedLines > 0:
+                self.msg(target, "(%d lines omitted)" % self.numDroppedLines)
+                self.numDroppedLines = 0
+            self.msg(target, text)
+            del self.messageQueue[0]
+
     def action(self, user, channel, message):
         """Just for fun"""
         text = message.lower().strip()
@@ -987,6 +1073,7 @@ class Bot(irc.IRCClient, pb.Referenceable):
 	    self.say(channel, "*purr*")
 
     def remote_msg(self, target, text):
+        """A remote request directly to this bot, ignoring the usual queueing"""
         self.msg(target, text)
 
     def remote_getNickname(self):
