@@ -235,9 +235,9 @@ def logProtectedCall(result, path, args, user, allowed=True):
         uid,
         Database.quote(".".join(path), 'text'),
         Database.quote(main_param, 'text'),
-        Database.quoteBlob(cPickle.dumps(args, -1)),
+        Database.quoteBlob(cPickle.dumps(args)),
         allowed,
-        Database.quoteBlob(cPickle.dumps(result, -1))))
+        Database.quoteBlob(cPickle.dumps(result))))
     return result
 
 
