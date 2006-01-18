@@ -92,6 +92,8 @@ static void on_add_widget (GtkUIManager *manager, GtkWidget *menu, GtkWidget *me
 static gboolean on_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 static gboolean on_hpane_move (GtkPaned *widget, GParamSpec *param_spec, gpointer data);
 
+static gboolean on_main_window_focus_in (GtkWidget *widget, GdkEventFocus *event, gpointer data);
+
 static GtkActionEntry action_entries [] = {
 
 	/* Toplevel */
@@ -153,6 +155,8 @@ initialize_main_window (void)
 	gui.main_window = glade_xml_get_widget (gui.xml, "xchat-gnome");
 	g_signal_connect (G_OBJECT (gui.main_window), "delete-event",
 	                  G_CALLBACK (on_main_window_close), NULL);
+	g_signal_connect (G_OBJECT (gui.main_window), "focus-in-event",
+	                  G_CALLBACK (on_main_window_focus_in), NULL);
 
 	/* hook up the menus */
 	gui.action_group = gtk_action_group_new ("MenuAction");
@@ -689,4 +693,11 @@ set_nickname (struct server *serv, char *newnick)
 		else
 			gtk_button_set_label (GTK_BUTTON (nick), newnick);
 	}
+}
+
+static gboolean
+on_main_window_focus_in (GtkWidget * widget, GdkEventFocus * event, gpointer data)
+{
+	gtk_window_set_urgency_hint (GTK_WINDOW (widget), FALSE);
+	return FALSE;
 }
