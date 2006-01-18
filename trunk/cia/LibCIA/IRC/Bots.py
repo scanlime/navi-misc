@@ -28,7 +28,7 @@ from twisted.protocols import irc
 from twisted.internet import protocol, reactor, defer
 from twisted.python import log, util
 from twisted.spread import pb
-import time, random
+import time, random, Queue
 from LibCIA import TimeUtil
 from LibCIA.IRC import Network
 
@@ -523,6 +523,104 @@ class ChannelInfo:
         self.nickCollector = []
 
 
+class MessageQueue:
+    """A single message FIFO with a fixed maximum size. If messages
+       are dropped, this emits a warning at the proper time.
+
+       Normally, this acts just like a bare Queue object, except that
+       it never blocks. Once it fills up, each new message increments
+       a 'dropped' counter.
+
+       Logically, the dropped messages will always be at the back of
+       the queue. After the queue empties, a new message is added
+       indicating how many lines were dropped. Normal queueing resumes
+       after this.
+       """
+    def __init__(self, maxSize):
+        self._fifo = Queue.Queue(maxSize)
+        self._numDropped = 0
+        self._next = None
+
+    def put(self, message):
+        """Push a new message onto the Queue. Never blocks, but it
+           may drop messages if the queue is full. The message
+           should never be None.
+           """
+        if self._numDropped:
+            self._numDropped += 1
+        else:
+            try:
+                self._fifo.put(message, False)
+            except Queue.Full:
+                self._numDropped = 1
+
+    def get(self):
+        """Return the next message, discarding it from the queue."""
+        try:
+            return self._fifo.get(False)
+        except Queue.Empty:
+            if self._numDropped:
+                n = self._numDropped
+                self._numDropped = 0
+                return "(%d lines omitted)" % n
+
+
+class FairQueue:
+    """A FairQueue tracks pending messages to any number of targets,
+       each of which own their own independent queue. This prevents
+       floods to one target from affecting timely delivery to other
+       targets. All queues are checked in round-robin order.
+       """
+    def __init__(self, queueSize):
+        self._queueSize = queueSize
+        self._targetDict = {}
+        self._pendingQueue = Queue.Queue()
+        self._next = None
+
+    def put(self, target, message):
+        """Queue up a new message to the supplied target"""
+        if target not in self._targetDict:
+            queue = MessageQueue(self._queueSize)
+            self._targetDict[target] = queue
+            self._pendingQueue.put(target, False)
+        else:
+            queue = self._targetDict[target]
+        queue.put(message)
+
+    def peek(self):
+        """Return the next message to be processed, without discarding
+           it. A subsequent call to peek() will return the same message.
+           Returns a (target, message) tuple if a message is available,
+           or None if all queues are empty.
+           """
+        if self._next is None:
+            while 1:
+                # Get the next queue target in round-robin order
+                try:
+                    target = self._pendingQueue.get(False)
+                except Queue.Empty:
+                    break
+
+                queue = self._targetDict[target]
+                message = queue.get()
+
+                if message:
+                    # We got a message. Reschedule this queue for later.
+                    self._next = (target, message)
+                    self._pendingQueue.put(target, False)
+                    break
+
+                else:
+                    # This queue is empty. Discard it.
+                    del self._targetDict[target]
+
+        return self._next
+
+    def flush(self):
+        """Discard the last message returned by peek()"""
+        self._next = None
+
+
 class Bot(irc.IRCClient, pb.Referenceable):
     """An IRC bot connected to one network any any number of channels,
        sending messages on behalf of the BotController.
@@ -550,10 +648,8 @@ class Bot(irc.IRCClient, pb.Referenceable):
     txByteCount = 0
     txConfirmedBytes = 0
 
-    # Count of lines dropped due to buffer overflow. Since the buffer will
-    # be full, we can't report the error right away. Once the buffer empties,
-    # this will record the damage.
-    numDroppedLines = 0
+    # Maximum number of lines to queue per target (channel/user)
+    maxQueueSize = 20
 
     # Unhandled commands to ignore, rather than log
     ignoredCommands = [
@@ -564,7 +660,7 @@ class Bot(irc.IRCClient, pb.Referenceable):
 
     def __init__(self):
         self.emptyChannels()
-        self.messageQueue = []
+        self._messageQueue = FairQueue(self.maxQueueSize)
         self.pendingWhoisTests = {}
         self.connectTimestamp = None
 
@@ -779,7 +875,6 @@ class Bot(irc.IRCClient, pb.Referenceable):
         """Send a ping stamped with the current time and byte count"""
         self.lastPingTransmitTimestamp = time.time()
         self.sendLine("PING %s-%f" % (self.txByteCount, self.lastPingTransmitTimestamp))
-        print "PING %s %f" % (self.txByteCount, self.lastPingTransmitTimestamp)
 
     def _lagPingLoop(self):
         self.sendServerPing()
@@ -794,7 +889,6 @@ class Bot(irc.IRCClient, pb.Referenceable):
             byteCount, timestamp = params[1].split("-")
             self.txConfirmedBytes = int(byteCount)
             self.lastPingTimestamp = float(timestamp)
-            print "PONG %s %f" % (self.txConfirmedBytes, self.lastPingTimestamp)
 
         except (ValueError, IndexError):
             # This must be some broken IRC server that's not preserving our ping timestamp.
@@ -805,8 +899,6 @@ class Bot(irc.IRCClient, pb.Referenceable):
 
         now = time.time()
         self.lastPongTimestamp = now
-
-        # We might be able to empty our queue some more
         self._pollMessageQueue(now)
 
     def connectionLost(self, reason):
@@ -1006,22 +1098,13 @@ class Bot(irc.IRCClient, pb.Referenceable):
            Text sent with queueMessage() isn't guaranteed to ever be sent to the
            server.
            """
-        now = time.time()
-        self.messageQueue.append((now, target, text))
-        self._pollMessageQueue(now)
+        self._messageQueue.put(target, text)
+        self._pollMessageQueue(time.time())
 
     def _pollMessageQueue(self, now):
-        """Check whether it's safe to send any queued messages, or whether any
-           messages have expired. Must be passed the current time.
-           """
-        while self.messageQueue:
-            timestamp, target, text = self.messageQueue[0]
-
-            # Too old?
-            if timestamp + self.network.messageLifetime < now:
-                del self.messageQueue[0]
-                self.numDroppedLines += 1
-                continue
+        """Check whether it's safe to send any queued messages"""
+        while self._messageQueue.peek():
+            target, text = self._messageQueue.peek()
 
             # Length estimate: Includes the "PRIVMSG %s :%s" boilerplate, plus the CRLF
             length = len(text) + len(target) + 12
@@ -1029,8 +1112,6 @@ class Bot(irc.IRCClient, pb.Referenceable):
             # Make a worst-case prediction of the server's buffer fill level after we
             # would have sent this string.
             predictedFill = self.txByteCount - self.txConfirmedBytes
-
-            print "Poll message queue. Predicted fill: %d" % predictedFill
 
             # If we're up to half our buffer fill and we haven't sent a ping
             # recently, send another in an attempt to lower the predicted
@@ -1041,15 +1122,9 @@ class Bot(irc.IRCClient, pb.Referenceable):
             # If we'd go above the hard limit, we can't send the message.
             if predictedFill > self.network.bufferSize:
                 break
-
-            # Ok, I guess it's safe to send the message. If any were dropped
-            # prior to this, send a warning.
-            # XXX: The warning isn't included in our length calculations.
-            if self.numDroppedLines > 0:
-                self.msg(target, "(%d lines omitted)" % self.numDroppedLines)
-                self.numDroppedLines = 0
+            
             self.msg(target, text)
-            del self.messageQueue[0]
+            self._messageQueue.flush()
 
     def action(self, user, channel, message):
         """Just for fun"""
