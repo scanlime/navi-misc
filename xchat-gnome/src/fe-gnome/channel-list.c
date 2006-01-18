@@ -146,22 +146,29 @@ chanlist_save (GtkWidget *button, channel_list_window *win)
 }
 
 static void
-chanlist_join (GtkWidget *button, channel_list_window *win)
+join_selected_channel (GtkTreeView *treeview)
 {
-	GtkWidget *treeview;
 	GtkTreeModel *model;
 	GtkTreeSelection *select;
 	GtkTreeIter iter;
 	char *channel;
 	server *serv;
 
-	treeview = glade_xml_get_widget (win->xml, "channel list");
-	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (treeview));
+	select = gtk_tree_view_get_selection (treeview);
 	if (gtk_tree_selection_get_selected (select, &model, &iter))
 	{
 		gtk_tree_model_get (model, &iter, 0, &channel, 3, &serv, -1);
 		serv->p_join (serv, channel, "");
 	}
+}
+
+static void
+chanlist_join (GtkWidget *button, channel_list_window *win)
+{
+	GtkWidget *treeview;
+
+	treeview = glade_xml_get_widget (win->xml, "channel list");
+	join_selected_channel (GTK_TREE_VIEW (treeview));
 }
 
 static void
@@ -183,6 +190,12 @@ chanlist_resize (GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 	gconf_client_set_int (client, "/apps/xchat/channel_list/height", event->height, NULL);
 	g_object_unref (client);
 	return FALSE;
+}
+
+static void
+row_activated (GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, channel_list_window *win)
+{
+	join_selected_channel (treeview);
 }
 
 static void
@@ -226,7 +239,7 @@ void
 create_channel_list (session *sess)
 {
 	channel_list_window *win;
-	GtkWidget *treeview, *widget;
+	GtkWidget *treeview, *widget, *refresh_button;
 	GtkCellRenderer *channel_r, *users_r, *topic_r;
 	GtkTreeViewColumn *channel_c, *users_c, *topic_c;
 	GtkSizeGroup *group;
@@ -276,13 +289,14 @@ create_channel_list (session *sess)
 	treeview = glade_xml_get_widget (win->xml, "channel list");
 	gtk_tree_view_set_search_column (GTK_TREE_VIEW (treeview), 1);
 
-	widget = glade_xml_get_widget (win->xml, "refresh button");
-	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (chanlist_refresh), win);
+	refresh_button = glade_xml_get_widget (win->xml, "refresh button");
+	g_signal_connect (G_OBJECT (refresh_button), "clicked", G_CALLBACK (chanlist_refresh), win);
 	widget = glade_xml_get_widget (win->xml, "save button");
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (chanlist_save), win);
 	widget = glade_xml_get_widget (win->xml, "join button");
 	gtk_widget_set_sensitive (widget, FALSE);
 	g_signal_connect (G_OBJECT (widget), "clicked", G_CALLBACK (chanlist_join), win);
+	g_signal_connect (G_OBJECT (treeview), "row-activated", G_CALLBACK (row_activated), win);
 
 	/*                                  channel name,  n-users,       topic,         server,         users */
 	win->store = gtk_list_store_new (5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_INT);
@@ -360,6 +374,7 @@ create_channel_list (session *sess)
 	gtk_widget_show_all (widget);
 
 	g_slist_append (chanlists, win);
+	chanlist_refresh (refresh_button, win);
 }
 
 void
