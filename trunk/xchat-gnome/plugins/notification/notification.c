@@ -46,14 +46,15 @@ typedef enum
 	NOTIF_NONE = 0,
 	NOTIF_DATA,
 	NOTIF_MSG,
-	NOTIF_NICK
+	NOTIF_NICK,
+	N_NOTIF
 } NotifStatus;
 
 static EggTrayIcon*        notification;        /* Notification area icon. */
 static gboolean            focused = TRUE;      /* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
 static gboolean            persistant;          /* Keep the icon in the tray at all times? */
 static gboolean            hidden = FALSE;      /* True when the main window is hidden. */
-static GdkPixbuf*          pixbufs[4];          /* Pixbufs */
+static GdkPixbuf*          pixbufs[N_NOTIF];    /* Pixbufs */
 static GtkWidget*          image;               /* The image displayed by the icon. */
 static GtkWidget*          main_window;         /* xchat-gnome's main window. */
 static NotifStatus         status = NOTIF_NONE; /* Current status level. */
@@ -73,7 +74,7 @@ got_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 		/* Hide the notification icon. */
 		gtk_widget_hide_all (GTK_WIDGET (notification));
 	} else {
-		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[0]);
+		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[NOTIF_NONE]);
 
 		/* Show the notification icon. */
 		gtk_widget_show_all (GTK_WIDGET (notification));
@@ -92,7 +93,7 @@ lost_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 static int
 new_msg_cb (char **word, void *msg_lvl)
 {
-	if (status <= (NotifStatus) msg_lvl && !focused) {
+	if (status <= (NotifStatus) msg_lvl && (NotifStatus) msg_lvl < N_NOTIF && !focused) {
 		status = (NotifStatus) msg_lvl;
 		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
 		gtk_widget_show_all (GTK_WIDGET (notification));
@@ -201,15 +202,16 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 		global   = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/global-message.png", 0);
 		nicksaid = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/nicksaid.png", 0);
 	}
-	pixbufs[0] = gdk_pixbuf_scale_simple (icon,     16, 16, GDK_INTERP_BILINEAR);
-	pixbufs[1] = gdk_pixbuf_scale_simple (newdata,  16, 16, GDK_INTERP_BILINEAR);
-	pixbufs[2] = gdk_pixbuf_scale_simple (global,   16, 16, GDK_INTERP_BILINEAR);
-	pixbufs[3] = gdk_pixbuf_scale_simple (nicksaid, 16, 16, GDK_INTERP_BILINEAR);
+
+	pixbufs[NOTIF_NONE] = gdk_pixbuf_scale_simple (icon,     16, 16, GDK_INTERP_BILINEAR);
+	pixbufs[NOTIF_DATA] = gdk_pixbuf_scale_simple (newdata,  16, 16, GDK_INTERP_BILINEAR);
+	pixbufs[NOTIF_MSG]  = gdk_pixbuf_scale_simple (global,   16, 16, GDK_INTERP_BILINEAR);
+	pixbufs[NOTIF_NICK] = gdk_pixbuf_scale_simple (nicksaid, 16, 16, GDK_INTERP_BILINEAR);
 
 	/* Create the notification icon. */
 	notification = egg_tray_icon_new ("xchat-gnome");
 	box = gtk_event_box_new ();
-	image = gtk_image_new_from_pixbuf (pixbufs[0]);
+	image = gtk_image_new_from_pixbuf (pixbufs[NOTIF_NONE]);
 
 	g_signal_connect (G_OBJECT (box), "button-press-event", G_CALLBACK (notification_clicked_cb), NULL);
 
