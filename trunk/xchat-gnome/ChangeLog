@@ -1,3 +1,9 @@
+Wed Jan 18 00:08:45 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/navigation-tree.c:
+	  - Fix some crazy statement ordering to avoid freeing a variable
+	    right before using it.
+
 Wed Jan 11 20:59:35 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/text-entry.c:
