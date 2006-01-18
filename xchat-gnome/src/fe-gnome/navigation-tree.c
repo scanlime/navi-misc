@@ -1580,12 +1580,12 @@ on_close (GtkAction * action, gpointer data)
 			s->server->disconnect (s, TRUE, -1);
 		}
 
-		fe_close_window (s);
 		if (s->type == SESS_SERVER)
 			status_bar_remove_server (STATUS_BAR (gui.status_bar), s->server);
 		conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), s);
 		topic_label_remove_session        (TOPIC_LABEL        (gui.topic_label),        s);
 		text_entry_remove_session         (TEXT_ENTRY         (gui.text_entry),         s);
+		fe_close_window (s);
 	}
 }
 
