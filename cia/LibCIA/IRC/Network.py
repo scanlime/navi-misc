@@ -48,13 +48,6 @@ class BaseNetwork:
     # flood-kicked.
     bufferSize = 1024
 
-    # Maximum number of seconds a message can stay in the client-side queue.
-    # If a message gets too old: either due to the above bufferSize limit,
-    # lag, or connection problems, it will be deleted. Any time a group of
-    # messages are not sent, another message will indicate the connection
-    # problem.
-    messageLifetime = 10
-
     # How often to ping the server, in seconds
     pingInterval = 60
 
