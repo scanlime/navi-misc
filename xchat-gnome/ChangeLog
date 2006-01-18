@@ -1,3 +1,8 @@
+Wed Jan 18 01:44:48 MST 2006  Xavier Claessens <xclaesse@gmail.com>
+
+	* plugins/notification/notification.c:
+	  - Make things a little cleaner, and hopefully, a little less crashy.
+
 Wed Jan 18 01:30:37 MST 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/channel-list.c:
