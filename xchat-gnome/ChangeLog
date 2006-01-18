@@ -4,6 +4,15 @@ Wed Jan 18 00:08:45 MST 2006  David Trowbridge <trowbrds@gmail.com>
 	  - Fix some crazy statement ordering to avoid freeing a variable
 	    right before using it.
 
+Sun Jan 15 00:19:53 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/fe-gnome.c:
+	- Turn on window urgency flag when nick highlighting and
+	  receive a private message. (#326970)
+	- Use gui.main_window instead of getting the main window
+	  widget with glade_xml_get_widget().
+
 Wed Jan 11 20:59:35 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/text-entry.c:
