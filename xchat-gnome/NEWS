@@ -1,3 +1,10 @@
+0.9 "You guys sell every kind of meat here except human!" (19 January 2006)
+	* Implement channel list filtering - Guillaume Desmottes
+	* Update notify-osd plugin for libnotify >=0.3 - Xavier Claessens
+	* Add UI for setting nickserv auto-identify password - David Trowbridge
+	* Cooler plugins preferences - Guillaume Desmottes
+	* Lots and lots of bug-fixes and minor improvements
+
 0.8 "Trailblazing where everyone else should follow, dammit" (19 December 2005)
 	* New pop-up userlist - David Trowbridge
 	* New, relatively sane build-system - David Trowbridge
