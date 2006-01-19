@@ -555,9 +555,13 @@ static char defaultconf_commands[] =
 	"NAME WALLOPS\n"		"CMD quote WALLOPS :&2\n\n"\
 	"NAME WII\n"			"CMD quote WHOIS %2 %2\n\n";
 
+#if 1
+static char defaultconf_urlhandlers[] =
+		"NAME Open Link in Opera\n"		"CMD !opera -remote 'openURL(%s)'\n\n";
+#else
 #ifdef WIN32
 static char defaultconf_urlhandlers[] =
-	"NAME Connect as IRC server\n"		"CMD newserver %s\n\n";
+	"NAME Connect as IRC server\n"		"CMD url %s\n\n";
 #else
 static char defaultconf_urlhandlers[] =
 	"NAME SUB\n"								"CMD Epiphany...\n\n"\
@@ -605,7 +609,8 @@ static char defaultconf_urlhandlers[] =
 		"NAME Telnet\n"						"CMD !"XTERM"telnet %s\n\n"\
 		"NAME Ping\n"							"CMD !"XTERM"ping -c 4 %s\n\n"\
 	"NAME ENDSUB\n"							"CMD \n\n"\
-	"NAME Connect as IRC server\n"		"CMD newserver %s\n\n";
+	"NAME Connect as IRC server\n"		"CMD url %s\n\n";
+#endif
 #endif
 
 #ifdef USE_SIGACTION
