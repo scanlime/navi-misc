@@ -228,8 +228,8 @@ topic_label_change_current (TopicLabel *label)
 	if ((label->priv->current == NULL) || (label->priv->current->type != SESS_CHANNEL))
 		return;
 
-	if (g_file_test ("../../topic-change.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("../../topic-change.glade", NULL, NULL);
+	if (g_file_test ("../../data/topic-change.glade", G_FILE_TEST_EXISTS))
+		xml = glade_xml_new ("../../data/topic-change.glade", NULL, NULL);
 	else
 		xml = glade_xml_new (XCHATSHAREDIR "/topic-change.glade", NULL, NULL);
 
