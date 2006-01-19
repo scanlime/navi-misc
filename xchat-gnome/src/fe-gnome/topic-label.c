@@ -82,7 +82,6 @@ topic_label_init (TopicLabel *label)
 	gtk_expander_set_expanded (GTK_EXPANDER (label->priv->expander), FALSE);
 	gtk_expander_set_use_markup (GTK_EXPANDER (label->priv->expander), TRUE);
 	gtk_label_set_ellipsize (GTK_LABEL (label->priv->label), PANGO_ELLIPSIZE_END);
-	gtk_label_set_selectable (GTK_LABEL (label->priv->label), TRUE);
 
 	gtk_widget_show (label->priv->expander);
 	gtk_widget_show (label->priv->label);
@@ -113,9 +112,11 @@ topic_label_expand_activate (GtkExpander *expander, TopicLabel *label)
 	if (gtk_expander_get_expanded (expander)) {
 		gtk_label_set_ellipsize (GTK_LABEL (label->priv->label), PANGO_ELLIPSIZE_END);
 		gtk_label_set_line_wrap (GTK_LABEL (label->priv->label), FALSE);
+		gtk_misc_set_alignment (GTK_MISC (label->priv->label), 0.5, 0.5);
 	} else {
 		gtk_label_set_ellipsize (GTK_LABEL (label->priv->label), PANGO_ELLIPSIZE_NONE);
 		gtk_label_set_line_wrap (GTK_LABEL (label->priv->label), TRUE);
+		gtk_misc_set_alignment (GTK_MISC (label->priv->label), 0.0, 0.5);
 	}
 }
 
@@ -133,7 +134,9 @@ topic_label_url_activated (GtkWidget *url_label, const char *url, TopicLabel *la
 GtkWidget *
 topic_label_new (void)
 {
-	return GTK_WIDGET (g_object_new (topic_label_get_type (), NULL));
+	TopicLabel *label = g_object_new (topic_label_get_type (), NULL);
+	gtk_label_set_selectable (GTK_LABEL (label->priv->label), TRUE);
+	return GTK_WIDGET (label);
 }
 
 void
