@@ -26,13 +26,6 @@ class Spline:
         # n is the number of pairs of points.
         n = len (points) - 1
 
-        # Create a list of all the intervals. intervals is a list of the form:
-        #    [((t0,y0), (t1,y1)), ((t1,y1), (t2,y2)),...]
-        intervals = []
-        for i in range (n):
-            t = 6 * i
-            intervals.append (((t, points[i]), (t + 6, points[i + 1])))
-
         # Create the matrices
         s = n * 4
         A = Numeric.zeros ((s, s))
@@ -41,30 +34,25 @@ class Spline:
         # FIXME - Filling the matrices could probably be optimized more...
 
         row = 0
-        # For each interval, constrain the cubic approximation to equal the
-        # endpoints at the endpoints.
         for i in range (n):
             col = 4 * i
-            t, y = intervals[i][0]
-            A[row, col:col+4] = [1, t, t**2, t**3]
-            b[row] = y
+            A[row, col:col+4] = [1, i, i**2, i**3]
+            b[row] = data[i]
             row += 1
 
-            t, y = intervals[i][1]
-            A[row, col:col+4] = [1, t, t**2, t**3]
-            b[row] = y
+            A[row, col:col+4] = [1, i+1, (i+1)**2, (i+1)**3]
+            b[row] = data[i]
             row += 1
 
         # Except for the end points, constrain the first and second derivatives of
         # each point to be equal across intervals.
         for i in range (n):
             col = 4 * i
-            t, y = intervals[i][1]
             # First derivatives are equal.
-            A[row, col:col+8] = [0, 1, 2*t, 3*t**2, 0, -1, -2*t, -3*t**2]
+            A[row, col:col+8] = [0, 1, 2*i, 3*i**2, 0, -1, -2*i, -3*i**2]
             row += 1
             # Second derivatives are equal.
-            A[row, col:col+8] = [0, 0, 2, 6*t, 0, 0, -2, -6*t]
+            A[row, col:col+8] = [0, 0, 2, 6*i, 0, 0, -2, -6*i]
             row += 1
 
         # Constrain the second derivatives of the endpoints to be 0.
