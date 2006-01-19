@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include "xchat.h"
+#include <glib/ghash.h>
 
 #include "cfgfiles.h"
 #include "fe.h"
@@ -117,6 +118,9 @@ static const struct defaultserver def[] =
 	{"AzzurraNet",	0},
 	{0,			"irc.azzurra.org"},
 	{0,			"crypto.azzurra.org"},
+
+	{"Beirut", 0},
+	{0,			"irc.beirut.com"},
 
 	{"Buzzpot", 0},
 	{0,			"irc.chatspike.net"},
@@ -449,6 +453,9 @@ static const struct defaultserver def[] =
 	{0,			"irc.telecoms.bg"},
 	{0,			"irc.tu-varna.edu"},
 
+	{"Whiffle",	0},
+	{0,			"irc.whiffle.org"},
+
 	{"Worldnet",		0},
 	{0,			"irc.worldnet.net"},
 	{0,			"irc.fr.worldnet.net"},
@@ -553,7 +560,7 @@ servlist_connect (session *sess, ircnet *net, gboolean join)
 }
 
 int
-servlist_connect_by_netname (session *sess, char *network)
+servlist_connect_by_netname (session *sess, char *network, gboolean join)
 {
 	ircnet *net;
 	GSList *list = network_list;
@@ -564,7 +571,7 @@ servlist_connect_by_netname (session *sess, char *network)
 
 		if (strcasecmp (net->name, network) == 0)
 		{
-			servlist_connect (sess, net, FALSE);
+			servlist_connect (sess, net, join);
 			return 1;
 		}
 
@@ -717,7 +724,7 @@ servlist_net_find_from_server (char *server_name)
 }
 
 ircnet *
-servlist_net_find (char *name, int *pos)
+servlist_net_find (char *name, int *pos, int (*cmpfunc) (const char *, const char *))
 {
 	GSList *list = network_list;
 	ircnet *net;
@@ -726,7 +733,7 @@ servlist_net_find (char *name, int *pos)
 	while (list)
 	{
 		net = list->data;
-		if (strcmp (net->name, name) == 0)
+		if (cmpfunc (net->name, name) == 0)
 		{
 			if (pos)
 				*pos = i;
@@ -858,7 +865,7 @@ servlist_load_defaults (void)
 				free (net->encoding);
 				net->encoding = strdup (def[i].charset);
 			}
-			if (!strcmp (def[i].network, "ChatJunkies"))
+			if (g_str_hash (def[i].network) == 0x8e1b96f7)
 				prefs.slist_select = j;
 			j++;
 		} else

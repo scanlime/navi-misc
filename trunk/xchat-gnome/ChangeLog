@@ -1,3 +1,9 @@
+Thu Jan 19 15:47:24 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/common/:
+	* src/fe-gnome/connect-dialog.c:
+	  - Sync to latest xchat CVS
+
 Thu Jan 19 02:37:19 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/topic-label.c:
