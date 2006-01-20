@@ -23,8 +23,17 @@ import Numeric
 class Spline:
     """Represents a spline."""
     def __init__ (self, data):
-        # n is the number of pairs of points.
-        n = len (points) - 1
+        A, b = self.__createMatrices (data)
+
+        # Solve for the coefficients.
+        Ainv = inverse (A)
+        z    = Numeric.matrixmultiply (Ainv, b)
+
+    def __createMatrices (self, data):
+        """Generate the two matrices for the system of linear equations used to
+           create the spline.
+           """
+        n = len (data) - 1
 
         # Create the matrices
         s = n * 4
@@ -32,7 +41,6 @@ class Spline:
         b = Numeric.zeros ((s, 1))
 
         # FIXME - Filling the matrices could probably be optimized more...
-
         row = 0
         for i in range (n):
             col = 4 * i
@@ -62,9 +70,8 @@ class Spline:
         t, y = intervals[-1][1]
         A[row, -4:] = [0, 0, 2, 6*t]
 
-        # Solve for the coefficients.
-        Ainv = inverse (A)
-        z    = Numeric.matrixmultiply (Ainv, b)
+        return (A, b)
+
 
 
 # vim: ts=4:sw=4:et
