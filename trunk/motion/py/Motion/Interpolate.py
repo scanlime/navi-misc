@@ -24,6 +24,8 @@ class Spline:
     """Represents a spline."""
     def __init__ (self, data):
         A, b = self.__createMatrices (data)
+        print A
+        print b
 
         # Solve for the coefficients.
         Ainv = inverse (A)
@@ -48,13 +50,14 @@ class Spline:
             b[row] = data[i]
             row += 1
 
-            A[row, col:col+4] = [1, i+1, (i+1)**2, (i+1)**3]
-            b[row] = data[i]
-            row += 1
+            if i <= n:
+                A[row, col:col+4] = [1, i+1, (i+1)**2, (i+1)**3]
+                b[row] = data[i + 1]
+                row += 1
 
         # Except for the end points, constrain the first and second derivatives of
         # each point to be equal across intervals.
-        for i in range (n):
+        for i in range (n-1):
             col = 4 * i
             # First derivatives are equal.
             A[row, col:col+8] = [0, 1, 2*i, 3*i**2, 0, -1, -2*i, -3*i**2]
@@ -64,14 +67,16 @@ class Spline:
             row += 1
 
         # Constrain the second derivatives of the endpoints to be 0.
-        t, y = intervals[0][0]
+        t, y = (0, data[0])
         A[row, :4] = [0, 0, 2, 6*t]
         row += 1
-        t, y = intervals[-1][1]
+        t, y = (n, data[-1])
         A[row, -4:] = [0, 0, 2, 6*t]
 
         return (A, b)
 
 
+if __name__ == "__main__":
+    s = Spline ((0, 1, 4))
 
 # vim: ts=4:sw=4:et
