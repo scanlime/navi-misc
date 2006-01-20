@@ -57,8 +57,8 @@ class Spline:
 
         # Except for the end points, constrain the first and second derivatives of
         # each point to be equal across intervals.
-        for i in range (n-1):
-            col = 4 * i
+        for i in range (1, n):
+            col = 4 * (i - 1)
             # First derivatives are equal.
             A[row, col:col+8] = [0, 1, 2*i, 3*i**2, 0, -1, -2*i, -3*i**2]
             row += 1
