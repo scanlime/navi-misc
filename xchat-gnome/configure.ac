@@ -430,7 +430,7 @@ plugins/notification/Makefile
 plugins/notify-osd/Makefile
 plugins/perl/Makefile
 plugins/python/Makefile
-plugins/sound-notification
+plugins/sound-notification/Makefile
 plugins/tcl/Makefile
 plugins/url_scraper/Makefile
 po/Makefile.in

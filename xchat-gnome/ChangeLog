@@ -1,3 +1,8 @@
+Sat Jan 21 00:20:19 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* configure.ac:
+	  - Fix a booboo
+
 Sat Jan 21 00:50:47 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* plugins/sound-notification/Makefile.am:
