@@ -1,3 +1,8 @@
+Sat Jan 21 00:38:41 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/channel-list.c:
+	  - Mark channel list window title as translatable
+
 Sat Jan 21 00:20:19 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* configure.ac:
