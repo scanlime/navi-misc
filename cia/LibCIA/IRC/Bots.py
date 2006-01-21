@@ -886,7 +886,15 @@ class Bot(irc.IRCClient, pb.Referenceable):
            time, storing the lag and the current time.
            """
         try:
-            byteCount, timestamp = params[1].split("-")
+            # Most IRC servers send back a server name as params[0] then the
+            # ping argument as params[1].. but some (broken?) ones send back
+            # only a single argument, with the ping parameter.
+            if len(params) >= 2:
+                pingParam = params[1]
+            else:
+                pingParam = params[0]
+
+            byteCount, timestamp = pingParam.split("-")
             self.txConfirmedBytes = int(byteCount)
             self.lastPingTimestamp = float(timestamp)
 
