@@ -326,7 +326,7 @@ AM_CONDITIONAL(USE_MMX, test "x$mmx" = "xyes")
 
 # plugins
 AC_MSG_CHECKING([which plugins to build])
-ALL_PLUGINS="autoaway notification url_scraper"
+ALL_PLUGINS="autoaway notification url_scraper sound-notification"
 DBUS_PLUGINS="dbus net-monitor"
 LIBNOTIFY_PLUGINS="notify-osd"
 PYTHON_PLUGINS="python"
@@ -374,7 +374,8 @@ AC_ARG_WITH([plugins],
             [  --with-plugins=plugin1,plugin2,...
                           build the specified plugins.  Available:
                           autoaway, dbus, net-monitor, notification,
-                          notify-osd, perl, python, tcl, url_scraper],
+                          notify-osd, perl, python, tcl, url_scraper,
+                          sound-notification],
             [plugins=$with_plugins],
             [plugins="default"])
 if test "x$with_plugins" = xyes; then
@@ -429,6 +430,7 @@ plugins/notification/Makefile
 plugins/notify-osd/Makefile
 plugins/perl/Makefile
 plugins/python/Makefile
+plugins/sound-notification
 plugins/tcl/Makefile
 plugins/url_scraper/Makefile
 po/Makefile.in
