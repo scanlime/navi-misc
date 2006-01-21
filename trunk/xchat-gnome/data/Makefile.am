@@ -8,9 +8,10 @@ xchat_gnome_DATA = 			\
 	effects.png			\
 	global-message.png		\
 	hop.png				\
-	irc-network-editor.glade			\
+	irc-network-editor.glade	\
 	irc.png				\
 	logout.png			\
+	message.wav			\
 	newdata.png			\
 	nicksaid.png			\
 	notauthorized.png		\
