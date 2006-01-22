@@ -1,9 +1,9 @@
-Sun Jan 22 20:03:39 CET 2006 Xavier Claessens <xclaesse@gmail.com>
+Sun Jan 22 20:03:39 CET 2006  Xavier Claessens <xclaesse@gmail.com>
 
 	* src/fe-gnome/connect-dialog.c:
 	  - Autojoin channels when connecting a network manually
 
-Sun Jan 22 22:10:35 CET 2006 Xavier Claessens <xclaesse@gmail.com>
+Sun Jan 22 22:10:35 CET 2006  Xavier Claessens <xclaesse@gmail.com>
 
 	* src/fe-gnome/text-entry.c:
 	  - Prevent a crash when typing / + <tab>
