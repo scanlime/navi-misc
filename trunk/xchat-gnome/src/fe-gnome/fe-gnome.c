@@ -63,7 +63,11 @@ static GOptionEntry entries[] = {
 	{ NULL }
 };
 
-void joind (int action, struct server *serv);
+static void setup_sm (gint argc, gchar *argv[]);
+static gint save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
+                          gint is_shutdown, GnomeInteractStyle interact_style,
+                          gint is_fast, gpointer client_data);
+static void kill_session (GnomeClient* client, gpointer client_data);
 
 int
 fe_args (int argc, char *argv[])
@@ -109,6 +113,8 @@ fe_args (int argc, char *argv[])
 
 	if (opt_cfgdir)
 		xdir_fs = opt_cfgdir;
+
+	setup_sm (argc, argv);
 
 	return -1;
 }
@@ -873,15 +879,53 @@ fe_userlist_set_selected (struct session *sess)
 	/* FIXME: implement? */
 }
 
-void
-joind (int action, struct server *serv)
+static void
+setup_sm (gint argc, gchar *argv[])
 {
-	switch (action) {
-	case 0:
-		/* FIXME: show join dialog(?) */
-		break;
-	case 1:
-		/* FIXME: hide join dialog(?) */
-		break;
-	};
+	GnomeClient *client;
+	const gchar *prefix;
+
+	client = gnome_master_client ();
+
+	g_signal_connect (G_OBJECT (client), "save_yourself", G_CALLBACK (save_session), argv[0]);
+	g_signal_connect (G_OBJECT (client), "die", G_CALLBACK (kill_session), NULL);
+
+	prefix = gnome_client_get_config_prefix (client);
+	/* FIXME: add discard command to remove saved state */
+}
+
+static gint
+save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
+              gint is_shutdown, GnomeInteractStyle interact_style,
+              gint is_fast, gpointer client_data)
+{
+	gchar **argv;
+	gint argc;
+	const gchar *prefix;
+
+	argv = g_new0 (gchar *, 3);
+	argv[0] = client_data;
+	argv[1] = "--no-auto";
+	argc = 2;
+
+	gnome_client_set_restart_style (client, GNOME_RESTART_IF_RUNNING);
+	gnome_client_set_restart_command (client, argc, argv);
+	gnome_client_set_clone_command (client, argc, argv);
+
+	prefix = gnome_client_get_config_prefix (client);
+	/* FIXME: save state */
+
+	g_free (argv);
+
+	return TRUE;
+}
+
+static void
+kill_session (GnomeClient* client, gpointer client_data)
+{
+	gtk_widget_hide (GTK_WIDGET (gui.main_window));
+	gtk_widget_hide (GTK_WIDGET (gui.dcc));
+	userlist_gui_hide ();
+	gui.quit = TRUE;
+	xchat_exit ();
 }
