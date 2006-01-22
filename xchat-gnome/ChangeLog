@@ -1,3 +1,10 @@
+Sat Jan 21 23:20:54 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/userlist.c:
+	* src/fe-gnome/userlist.h:
+	* src/fe-gnome/navigation-tree.c:
+	  - Display number of users in channels (#327995)
+
 Sat Jan 21 00:38:41 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/channel-list.c:

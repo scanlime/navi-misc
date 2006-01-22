@@ -60,6 +60,7 @@ void          userlist_clear_all      (Userlist *userlist, session *sess);
 void          userlist_erase          (Userlist *userlist, session *sess);
 GtkListStore* userlist_get_store      (Userlist *userlist, session *sess);
 GCompletion*  userlist_get_completion (Userlist *userlist, session *sess);
+void	      userlist_set_user_button(Userlist *userlist, session *sess);
 
 G_END_DECLS
 
