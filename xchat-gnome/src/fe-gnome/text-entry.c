@@ -351,7 +351,7 @@ tab_complete_command (GtkEntry *entry)
 {
 	TextEntry *text_entry;
 	int cursor, length, pos;
-	char *prefix, *new_prefix, *printtext, *npt = NULL;
+	char *prefix, *new_prefix = NULL, *printtext, *npt = NULL;
 	const gchar *text;
 	GList *options, *list;
 
@@ -401,8 +401,9 @@ tab_complete_command (GtkEntry *entry)
 		}
 		conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), text_entry->priv->current, (guchar *) printtext, TRUE);
 		g_free (printtext);
-
-		if (strcasecmp (prefix, new_prefix) != 0) {
+		
+		npt = NULL;
+		if (new_prefix && strcasecmp (prefix, new_prefix) != 0) {
 			/* insert the new prefix into the entry */
 			npt = g_strdup_printf ("/%s%s", new_prefix, &text[cursor]);
 			gtk_entry_set_text (entry, npt);
