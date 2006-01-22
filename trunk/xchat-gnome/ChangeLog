@@ -1,3 +1,8 @@
+Sun Jan 22 22:10:35 CET 2006 Xavier Claessens <xclaesse@gmail.com>
+
+	* src/fe-gnome/text-entry.c:
+	  - Prevent a crash when typing / + <tab>
+
 Sat Jan 21 20:36:48 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/fe-gnome.c:
