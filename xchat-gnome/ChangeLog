@@ -1,3 +1,8 @@
+Sat Jan 21 20:36:48 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/fe-gnome.c:
+	  - Start adding session management support
+
 Sat Jan 21 23:20:54 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/userlist.c:
