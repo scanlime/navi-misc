@@ -22,9 +22,11 @@
 #include <config.h>
 #include <glib/gi18n.h>
 #include <string.h>
+#include <gtk/gtk.h>
 #include "userlist.h"
 #include "palette.h"
 #include "pixmaps.h"
+#include "gui.h"
 
 static void userlist_class_init (UserlistClass *klass);
 static void userlist_init       (Userlist *userlist);
@@ -175,6 +177,8 @@ userlist_insert (Userlist *userlist, session *sess, struct User *newuser, int ro
 	item = g_list_append (NULL, newuser->nick);
 	g_completion_add_items (store->completion, item);
 	store->completion_items = g_list_concat (store->completion_items, item);
+
+	userlist_set_user_button (userlist, sess);
 }
 
 static GtkTreeIter*
@@ -213,6 +217,8 @@ userlist_remove_user (Userlist *userlist, session *sess, struct User *user)
 	store->completion_items = g_list_remove_link (store->completion_items, item);
 	g_completion_remove_items (store->completion, item);
 	g_list_free (item);
+
+	userlist_set_user_button (userlist, sess);
 
 	return TRUE;
 }
@@ -302,4 +308,20 @@ userlist_get_completion (Userlist *userlist, session *sess)
 	Store *store = g_hash_table_lookup (userlist->stores, sess);
 	g_assert (store != NULL);
 	return store->completion;
+}
+
+void
+userlist_set_user_button (Userlist *userlist, session *sess)
+{
+	gchar *label;
+
+	if (gui.current_session == sess) {
+		if (sess->type == SESS_CHANNEL) {
+			label = g_strdup_printf ("%d %s", sess->total, sess->total > 1 ? _("Users"): _("User"));
+			gtk_button_set_label (GTK_BUTTON (gui.userlist_toggle), label);
+			g_free (label);
+		}
+		else
+			gtk_button_set_label (GTK_BUTTON (gui.userlist_toggle), _("Users"));
+	}
 }

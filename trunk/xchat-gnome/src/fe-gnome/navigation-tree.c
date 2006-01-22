@@ -1131,7 +1131,6 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		gtk_widget_set_sensitive (menuitem, sess->type != SESS_SERVER);
 		gtk_widget_set_sensitive (gui.userlist_toggle, sess->type == SESS_CHANNEL);
 
-
 		/* remove any icon that exists */
 		store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
 		gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
@@ -1141,6 +1140,9 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		topic_label_set_current        (TOPIC_LABEL        (gui.topic_label),        sess);
 		text_entry_set_current         (TEXT_ENTRY         (gui.text_entry),         sess);
 		status_bar_set_current         (STATUS_BAR         (gui.status_bar),         sess->server);
+
+		/* Set the label of the user list button */
+		userlist_set_user_button (u, sess);
 
 		/* Emit "focus tab" event */
 		plugin_emit_dummy_print (sess, "Focus Tab");
