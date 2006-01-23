@@ -94,8 +94,21 @@ class Spline:
         return smoothed
 
 
-if __name__ == "__main__":
-    s = Spline ((0, 1, 4))
-    print s.interpolate (4)
+    class BoneSpline:
+        """A class for interpolating a single bone from an AMC file."""
+        def __init__ (self, bone):
+            self.data = bone
+            self.splines = []
+
+            for i in range (Numeric.size (bone, 1)):
+                self.splines.append (Spline (self.data[,i]))
+
+        def interpolate (self, points):
+            smoothed = []
+
+            for spline in splines:
+                smoothed.append (spline.interpolate (points))
+
+            return Numeric.array (smoothed)
 
 # vim: ts=4:sw=4:et
