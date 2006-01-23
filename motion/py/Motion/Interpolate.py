@@ -32,7 +32,7 @@ class Spline:
 
         self.constants = {}
         for i in range (Numeric.size (z) / 4):
-            self.constants[(i, i+1)] = z[i*4:(i+1)*4]
+            self.constants[(i, i+1)] = z[i*4:(i+1)*4, 0]
 
     def __createMatrices (self, data):
         """Generate the two matrices for the system of linear equations used to
@@ -86,8 +86,8 @@ class Spline:
         smoothed = [self.data[0]]
 
         for i in range (1, len (self.data)):
+            a, b, c, d = self.constants[(i-1, i)]
             for j in Numeric.arange (i - 1, i, step):
-                a, b, c, d = self.constants[(i-1, i)]
                 smoothed.append (a + b*j + c*j**2 + d*j**3)
             smoothed.append (self.data[i])
 
