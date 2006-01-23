@@ -20,6 +20,7 @@ plugins/notification/notification.schemas.in
 plugins/notify-osd/notify-osd.c
 plugins/url_scraper/urlscraper.c
 plugins/url_scraper/urlscraper.schemas.in
+plugins/sound-notification/sound-notification.c
 src/common/cfgfiles.c
 src/common/dcc.c
 src/common/ignore.c

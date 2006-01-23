@@ -1,3 +1,10 @@
+Sun Jan 22 18:49:05 EST 2006  Olivier Le Thanh <olivier@lethanh.be>
+
+	* po/POTFILES.in:
+	  - Mark sound-notifcation plugin as translatable
+	* po/fr.po
+	  - French translation for the sound-notification plugin
+
 Sun Jan 22 20:03:39 CET 2006  Xavier Claessens <xclaesse@gmail.com>
 
 	* src/fe-gnome/connect-dialog.c:

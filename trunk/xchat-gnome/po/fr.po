@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-01-21 02:42-0500\n"
+"POT-Creation-Date: 2006-01-22 18:34-0500\n"
 "PO-Revision-Date: 2006-01-04 16:10-0700\n"
 "Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: French <olethanh@ulb.ac.be>\n"
@@ -372,7 +372,7 @@ msgstr "Configuration de xchat-gnome"
 msgid "Change"
 msgstr "Changer"
 
-#: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:88
+#: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:92
 msgid "IRC Chat"
 msgstr "Discussion IRC"
 
@@ -719,6 +719,24 @@ msgstr "Longueur de l'historique du Chasseur d'URL"
 #: ../plugins/url_scraper/urlscraper.schemas.in.h:2
 msgid "URL Scraper show timestamps"
 msgstr "Afficher les marques de temps pour le Chasseur d'URL"
+
+#: ../plugins/sound-notification/sound-notification.c:55
+msgid "Sound Notification"
+msgstr "Notification sonore"
+
+#: ../plugins/sound-notification/sound-notification.c:56
+msgid ""
+"Play a sound when you receive a private message or your nick is highlighted."
+msgstr ""
+"Joue un son lorsque vous reçevez un message privé ou que votre nick est cité."
+
+#: ../plugins/sound-notification/sound-notification.c:87
+msgid "Sound-notification plugin loaded.\n"
+msgstr "Greffon de notification sonore chargé.\n"
+
+#: ../plugins/sound-notification/sound-notification.c:96
+msgid "Sound-notification plugin unloaded.\n"
+msgstr "Greffon de notification sonore déchargé.\n"
 
 #: ../src/common/cfgfiles.c:350
 msgid "Cannot create ~/.xchat2"
@@ -3986,7 +4004,7 @@ msgstr "Ne pas charger automatiquement les greffons"
 msgid "Show version information"
 msgstr "Afficher le numéro de version"
 
-#: ../src/fe-gnome/fe-gnome.c:98
+#: ../src/fe-gnome/fe-gnome.c:102
 #, c-format
 msgid ""
 "xchat-gnome: %s\n"
@@ -3995,7 +4013,7 @@ msgstr ""
 "xchat-gnome : %s\n"
 "Utilisez `xchat-gnome --help' pour plus d'informations\n"
 
-#: ../src/fe-gnome/fe-gnome.c:833
+#: ../src/fe-gnome/fe-gnome.c:839
 #, c-format
 msgid "Unable to show '%s'"
 msgstr "Impossible de montrer '%s'"
@@ -4254,8 +4272,8 @@ msgid "_About"
 msgstr "À _propos"
 
 #: ../src/fe-gnome/main-window.c:486 ../src/fe-gnome/main-window.c:507
-#: ../src/fe-gnome/navigation-tree.c:1575
-#: ../src/fe-gnome/navigation-tree.c:1634
+#: ../src/fe-gnome/navigation-tree.c:1577
+#: ../src/fe-gnome/navigation-tree.c:1636
 msgid "Ex-Chat"
 msgstr "Ex-Chat"
 
@@ -4279,7 +4297,7 @@ msgstr "Rejoindre _automatiquement"
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
-#: ../src/fe-gnome/navigation-tree.c:1270
+#: ../src/fe-gnome/navigation-tree.c:1272
 msgid "<none>"
 msgstr "<aucun>"
 
