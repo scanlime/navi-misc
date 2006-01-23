@@ -1,3 +1,9 @@
+Mon Jan 23 01:11:54 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/irc-network-editor.c:
+	  - Display "New network" instead of "(null) Network Properties"
+	    in the title of the window when we add a server.
+
 Sun Jan 22 18:49:05 EST 2006  Olivier Le Thanh <olivier@lethanh.be>
 
 	* po/POTFILES.in:
