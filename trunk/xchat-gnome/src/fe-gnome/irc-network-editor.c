@@ -383,18 +383,19 @@ irc_network_editor_populate (IrcNetworkEditor *e)
 
 	e->gconf = gconf_client_get_default ();
 
-	title = g_strdup_printf (_("%s Network Properties"), e->network->name);
-	gtk_window_set_title (GTK_WINDOW (e), title);
-	g_free (title);
-
 	if (!e->network->net) {
 		/* We're creating a new network. Don't populate things from the structure */
+		gtk_window_set_title (GTK_WINDOW (e), _("New Network"));
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (e->use_globals), TRUE);
 		use_globals_set (GTK_RADIO_BUTTON (e->use_globals), e);
 		gtk_combo_box_set_active (GTK_COMBO_BOX (e->encoding), 0);
 		gtk_widget_grab_focus (e->network_name);
 		return;
 	}
+
+	title = g_strdup_printf (_("%s Network Properties"), e->network->name);
+	gtk_window_set_title (GTK_WINDOW (e), title);
+	g_free (title);
 
 	gtk_entry_set_text (GTK_ENTRY (e->network_name), e->network->name);
 
