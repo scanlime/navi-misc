@@ -1594,12 +1594,7 @@ on_close (GtkAction * action, gpointer data)
 static void
 on_find (GtkAction * action, gpointer data)
 {
-	GtkWidget *widget;
-
-	widget = glade_xml_get_widget (gui.xml, "find hbox");
-	gtk_widget_show (widget);
-	widget = glade_xml_get_widget (gui.xml, "find entry");
-	gtk_widget_grab_focus (widget);
+	find_bar_open (FIND_BAR (gui.find_bar));
 }
 
 static void
