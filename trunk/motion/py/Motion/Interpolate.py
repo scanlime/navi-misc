@@ -30,6 +30,10 @@ class Spline:
         Ainv = inverse (A)
         z    = Numeric.matrixmultiply (Ainv, b)
 
+        self.constants = {}
+        for i in range (Numeric.size (z) / 4):
+            self.constants[(i, i+1)] = z[i*4:(i+1)*4]
+
     def __createMatrices (self, data):
         """Generate the two matrices for the system of linear equations used to
            create the spline.
