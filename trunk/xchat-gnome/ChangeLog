@@ -1,3 +1,8 @@
+Mon Jan 23 21:19:17 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/navigation-tree.c:
+	  - Fix crash when click on "find on" in a channel (#328300)
+
 Mon Jan 23 01:11:54 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/irc-network-editor.c:
