@@ -109,6 +109,6 @@ class Spline:
             for spline in splines:
                 smoothed.append (spline.interpolate (points))
 
-            return Numeric.array (smoothed)
+            return Numeric.transpose (Numeric.array (smoothed))
 
 # vim: ts=4:sw=4:et
