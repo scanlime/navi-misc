@@ -82,13 +82,13 @@ class Spline:
         """Return a list representing the interpolated data with `points'
            additional inserted inbetween the data.
            """
-        step = 1. / points
+        step = 1. / (points + 1)
         smoothed = [self.data[0]]
 
         for i in range (1, len (self.data)):
-            for j in range (i - 1, i, step):
-                # FIXME
-                smoothed.append (0)
+            for j in Numeric.arange (i - 1, i, step):
+                a, b, c, d = self.constants[(i-1, i)]
+                smoothed.append (a + b*j + c*j**2 + d*j**3)
             smoothed.append (self.data[i])
 
         return smoothed
@@ -96,5 +96,6 @@ class Spline:
 
 if __name__ == "__main__":
     s = Spline ((0, 1, 4))
+    print s.interpolate (4)
 
 # vim: ts=4:sw=4:et
