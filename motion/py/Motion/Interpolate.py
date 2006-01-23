@@ -23,9 +23,8 @@ import Numeric
 class Spline:
     """Represents a spline."""
     def __init__ (self, data):
+        self.data = data
         A, b = self.__createMatrices (data)
-        print A
-        print b
 
         # Solve for the coefficients.
         Ainv = inverse (A)
@@ -74,6 +73,21 @@ class Spline:
         A[row, -4:] = [0, 0, 2, 6*t]
 
         return (A, b)
+
+    def interpolate (self, points):
+        """Return a list representing the interpolated data with `points'
+           additional inserted inbetween the data.
+           """
+        step = 1. / points
+        smoothed = [self.data[0]]
+
+        for i in range (1, len (self.data)):
+            for j in range (i - 1, i, step):
+                # FIXME
+                smoothed.append (0)
+            smoothed.append (self.data[i])
+
+        return smoothed
 
 
 if __name__ == "__main__":
