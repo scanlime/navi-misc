@@ -66,7 +66,7 @@ add_notify (char *summary, char *message)
 
 	notify = notify_notification_new (summary, message, NULL, NULL);
 	notify_notification_set_urgency (notify, NOTIFY_URGENCY_NORMAL);
-	notify_notification_set_icon_data_from_pixbuf (notify, notify_icon);
+	notify_notification_set_icon_from_pixbuf (notify, notify_icon);
 	if (!notify_notification_show (notify, &error)) {
 		g_warning (_("Failed to send notification: %s\n"), error->message);
 		g_error_free (error);

@@ -1,3 +1,9 @@
+Wed Jan 25 00:40:56 CET 2006  Sebastien Bacher <seb128@debian.org>
+
+	* plugins/notify-osd/notify-osd.c:
+	* configure.ac:
+	  - Update to libnotify 0.3.2 API
+
 Mon Jan 23 21:19:17 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/navigation-tree.c:
