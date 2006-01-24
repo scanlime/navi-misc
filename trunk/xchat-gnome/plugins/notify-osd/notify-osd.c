@@ -97,7 +97,7 @@ static int
 new_msg_cb (char *word[], gpointer data)
 {
 	const char *channel;
-	gchar *stripped, *message, *summary;
+	gchar *stripped, *escaped, *message, *summary;
 
 	if (focused)
 		return XCHAT_EAT_NONE;
@@ -106,16 +106,19 @@ new_msg_cb (char *word[], gpointer data)
 	stripped = xchat_strip (ph, word[2], -1, STRIP_COLORS | STRIP_ATTRS);
 
 	message = g_strdup_printf ("<%s> %s", word[1], stripped);
+	escaped = g_markup_escape_text(message, strlen(message));
+
 	if (channel[0] == '#')
 		summary = g_strdup_printf (_("Message in %s"), channel);
 	else
 		summary = g_strdup_printf (_("Message from %s"), channel);
 
-	add_notify (summary, message);
+	add_notify (summary, escaped);
 
 	xchat_free (ph, stripped);
 	g_free (message);
 	g_free (summary);
+	g_free (escaped);
 	return XCHAT_EAT_NONE;
 }
 
