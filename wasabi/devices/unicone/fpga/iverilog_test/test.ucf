@@ -1,4 +1,0 @@
-#net clk   LOC=P13;
-#net reset LOC=P71;
-
-#net led   LOC=P19;

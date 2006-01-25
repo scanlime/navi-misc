@@ -1,7 +1,0 @@
-If anyone happens to dl this and try to run any of it, the existing layouts
-and sheets will not likely open on your machine because the layout file
-specified in the data sheets contains the path for the layout on my machine.
-In the future this will be a standardized thing that gets set up by the
-installer, for now you can just edit the layout attribute of the
-character tag in the data files and everything should be kosher, most of the
-rest of the paths are relative so they should work fine.
