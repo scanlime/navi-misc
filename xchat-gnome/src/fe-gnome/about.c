@@ -127,7 +127,6 @@ about_email_hook (GtkAboutDialog *dialog, const gchar *link, gpointer data)
 static void
 about_url_hook (GtkAboutDialog *dialog, const gchar *link, gpointer data)
 {
-	g_print ("beeeh\n");
 	fe_open_url (link);
 }
 
