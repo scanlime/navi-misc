@@ -85,6 +85,9 @@ initialize_about_dialog (void)
 
 	gui.about = gtk_about_dialog_new ();
 
+	gtk_about_dialog_set_url_hook   (about_url_hook,   NULL, NULL);
+	gtk_about_dialog_set_email_hook (about_email_hook, NULL, NULL);
+
 	g_object_set (G_OBJECT (gui.about),
 		      "name",        "XChat-GNOME",
 		      "version",     VERSION,
@@ -108,9 +111,6 @@ initialize_about_dialog (void)
 		      "translator-credits", _("translator-credits"),
 		      NULL);
 
-	gtk_about_dialog_set_email_hook (about_email_hook, NULL, NULL);
-	gtk_about_dialog_set_url_hook   (about_url_hook,   NULL, NULL);
-
 	if (logo)
 		g_object_unref (logo);
 
@@ -127,6 +127,7 @@ about_email_hook (GtkAboutDialog *dialog, const gchar *link, gpointer data)
 static void
 about_url_hook (GtkAboutDialog *dialog, const gchar *link, gpointer data)
 {
+	g_print ("beeeh\n");
 	fe_open_url (link);
 }
 
