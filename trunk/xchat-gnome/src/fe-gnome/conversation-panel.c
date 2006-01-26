@@ -311,14 +311,28 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 		case WORD_NICK:
 			{
 				char *command;
-				command = g_strdup_printf ("QUERY %s", word);
-				handle_command (gui.current_session, command, 1);
-				g_free (command);
+				struct session *sess;
+
+				sess = find_dialog (gui.current_session->server, word);
+				if (sess)
+					navigation_tree_select_session (gui.server_tree, sess);
+				else {
+					command = g_strdup_printf ("QUERY %s", word);
+					handle_command (gui.current_session, command, 1);
+					g_free (command);
+				}
 			}
 			break;
 		case WORD_CHANNEL:
 			{
 				char *command;
+				struct session *sess;
+
+				sess = find_channel (gui.current_session->server, word);
+				if (sess)
+					navigation_tree_select_session (gui.server_tree, sess);
+				/* Having the channel opened doesn't mean that we're still on it
+				 * (if channel was left) */
 				command = g_strdup_printf ("JOIN %s", word);
 				handle_command (gui.current_session, command, 1);
 				g_free (command);
