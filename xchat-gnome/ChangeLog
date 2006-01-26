@@ -1,3 +1,8 @@
+Thu Jan 26 22:22:20 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/about.c:
+	  - Make xchat-gnome URL clickable.
+
 Tue Jan 24 16:53:58 MST 2006  Michael Vogt <mvogt@acm.org>
 
 	* plugins/notify-osd/notify-osd.c:
