@@ -169,10 +169,7 @@ class OverviewPage(Template.Page):
                     ],
                     [
                         TimestampSection("project", "Newest projects"),
-                        TimestampSection("project", "Least active projects",
-                                         counterAttrib = 'last_time',
-                                         sort = '',
-                                         columnTitle = 'latest event'),
+                        TimestampSection("author", "Newest authors"),
                     ],
                 ),
             ]
