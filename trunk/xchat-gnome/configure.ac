@@ -86,6 +86,9 @@ if test "x$enable_dbus" != "xno"; then
 	                  dbus-1 >= $DBUS_REQUIRED \
 	                  dbus-glib-1 >= $DBUS_GLIB_REQUIRED \
 			  ], dbus=yes, dbus=no)
+	if test "x$dbus" = "xno"; then
+		AC_MSG_WARN([Library requirements (dbus-1 >= $DBUS_REQUIRED dbus-glib-1 >= $DBUS_GLIB_REQUIRED) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them.])
+	fi
 	AC_SUBST([DBUS_CFLAGS])
 	AC_SUBST([DBUS_LIBS])
 	AC_PATH_PROG([DBUS_BINDING_TOOL],[dbus-binding-tool],[no])
@@ -111,6 +114,8 @@ AC_SUBST([LIBSEXY_LIBS])
 AM_CONDITIONAL([ENABLE_LIBSEXY],[test "x$libsexy" = "xyes"])
 if test "x$libsexy" = xyes; then
 	AC_DEFINE(HAVE_LIBSEXY, 1, [Enable libsexy])
+else
+	AC_MSG_WARN([Library requirements (libsexy >= $LIBSEXY_REQUIRED) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them.])
 fi
 
 # libnotify soft dependency
@@ -118,6 +123,9 @@ PKG_CHECK_MODULES([LIBNOTIFY], [libnotify >= $LIBNOTIFY_REQUIRED], libnotify=yes
 AC_SUBST([LIBNOTIFY_CFLAGS])
 AC_SUBST([LIBNOTIFY_LIBS])
 AM_CONDITIONAL([ENABLE_LIBNOTIFY],[test "x$libnotify" = "xyes"])
+if test "x$libnotify" = xyes; then
+	AC_MSG_WARN([Library requirements (libnotify >= $LIBNOTIFY_REQUIRED) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them.])
+fi
 
 # GConf
 AM_GCONF_SOURCE_2
@@ -260,6 +268,8 @@ if test "x$openssl" = xyes; then
 	AC_SUBST([OPENSSL_CFLAGS])
 	AC_SUBST([OPENSSL_LIBS])
 	AC_DEFINE(USE_OPENSSL, [], [Whether to use OpenSSL])
+else
+	AC_MSG_WARN([Library requirements (openssl) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them.])
 fi
 AM_CONDITIONAL(USE_OPENSSL, test "x$openssl" = "xyes")
 

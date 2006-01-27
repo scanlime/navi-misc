@@ -1,3 +1,9 @@
+Fri Jan 27 00:46:33 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* configure.ac:
+	  - Fix PKG_CHECK_MODULES output for the negative case when we have a
+	    non-default action.
+
 Fri Jan 27 00:23:25 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/conversation-panel.c:
