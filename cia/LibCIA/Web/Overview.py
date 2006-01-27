@@ -133,7 +133,7 @@ class OverviewPage(Template.Page):
        a jumping-off point for the rest of the site, so this page doesn't
        include its own sidebar- it will copy the sidebar from a given page.
        """
-    mainTitle = "CIA - The open source informant."
+    mainTitle = "CIA - The open source informant"
 
     heading = Template.pageBody[
         "This is a brief overview of the information collected recently. ",
@@ -145,6 +145,7 @@ class OverviewPage(Template.Page):
         "The last best hope",
         "Resistance is useless",
         "More fun than a bucket of anchovies",
+        "We know where you're going today",
         ]
 
     def __init__(self, leftColumnFrom, statsComponent):
