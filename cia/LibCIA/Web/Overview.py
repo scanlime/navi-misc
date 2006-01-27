@@ -27,6 +27,7 @@ or choose not to use it in your .tac file.
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+import random
 import Template
 from LibCIA import Database
 from LibCIA.Stats import Target
@@ -132,17 +133,26 @@ class OverviewPage(Template.Page):
        a jumping-off point for the rest of the site, so this page doesn't
        include its own sidebar- it will copy the sidebar from a given page.
        """
-    mainTitle = "CIA Open Source Notification System"
-    subTitle = "A real-time window into the open source world"
+    mainTitle = "CIA - The open source informant."
 
     heading = Template.pageBody[
         "This is a brief overview of the information collected recently. ",
         tag("a", href="/doc")[ "Learn more about CIA" ],
         ]
 
+    taglines = [
+        "Where were YOU at 04:00?",
+        "The last best hope",
+        "Resistance is useless",
+        "More fun than a bucket of anchovies",
+        ]
+
     def __init__(self, leftColumnFrom, statsComponent):
         self.leftColumnFrom = leftColumnFrom
         self.statsComponent = statsComponent
+
+    def render_subTitle(self, context):
+        return random.choice(self.taglines)
 
     def render_leftColumn(self, context):
         return self.leftColumnFrom.leftColumn
