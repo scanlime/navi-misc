@@ -18,7 +18,31 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from LinearAlgebra import inverse
+from Motion import AMC
 import Numeric
+
+def spline(data, quality):
+    """Return an interpolated trajectory from data. The returned value will be
+       either an AMC object or a Numeric array, depending on what type the
+       original data is. quality is the number of interpolated points to insert
+       between each point in the initial data.
+       """
+    if data.__class__ == AMC:
+        interpolated = AMC()
+        for bone, motion in data.bones.iteritems():
+            interpolated.bones[bone] = spline(motion, quality)
+
+        return interpolated
+
+    data         = Numeric.array(data)
+    length, dof  = Numeric.shape(data)
+    interpolated = Numeric.empty((length * quality, dor))
+
+    for frame in range(length - 3):
+        # FIXME - Assuming a trajectory with a minimum of 4 points.
+        A = Numeric.zeros((12, 12, dof))
+        b = Numeric.zeros((12, dof))
+
 
 class Spline:
     """Represents a spline."""
