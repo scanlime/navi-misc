@@ -36,7 +36,7 @@ def spline(data, quality):
 
     data         = Numeric.array(data)
     length, dof  = Numeric.shape(data)
-    interpolated = Numeric.empty((length * quality, dor))
+    interpolated = Numeric.empty((length * quality, dof))
 
     for frame in range(length - 3):
         # FIXME - Assuming a trajectory with a minimum of 4 points.
