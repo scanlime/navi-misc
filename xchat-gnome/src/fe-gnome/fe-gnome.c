@@ -613,7 +613,7 @@ fe_set_throttle (server * serv)
 void
 fe_set_away (server * serv)
 {
-	/* FIXME: implement */
+	set_nickname_color (serv);
 }
 
 void

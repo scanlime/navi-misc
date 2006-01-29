@@ -1,3 +1,10 @@
+Sun Jan 29 15:01:46 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/main-window.h:
+	* src/fe-gnome/fe-gnome.c:
+	  - Gray out the nick when we're away (#327722)
+
 Fri Jan 27 00:46:33 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* configure.ac:
