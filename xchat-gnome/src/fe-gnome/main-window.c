@@ -704,7 +704,7 @@ set_nickname_color (struct server *serv)
 		GtkLabel *label;
 		PangoAttribute *attr;
 		PangoAttrList *l;
-		
+
 		l = pango_attr_list_new ();
 		nick_button = glade_xml_get_widget (gui.xml, "nickname");
 		label = GTK_LABEL (GTK_BIN (nick_button)->child);
