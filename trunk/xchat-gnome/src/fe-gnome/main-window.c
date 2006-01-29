@@ -692,6 +692,35 @@ set_nickname (struct server *serv, char *newnick)
 			gtk_button_set_label (GTK_BUTTON (nick), serv->nick);
 		else
 			gtk_button_set_label (GTK_BUTTON (nick), newnick);
+		set_nickname_color (serv);
+	}
+}
+
+void
+set_nickname_color (struct server *serv)
+{
+	if (serv == gui.current_session->server) {
+		GtkWidget *nick_button;
+		GtkLabel *label;
+		PangoAttribute *attr;
+		PangoAttrList *l;
+		
+		l = pango_attr_list_new ();
+		nick_button = glade_xml_get_widget (gui.xml, "nickname");
+		label = GTK_LABEL (GTK_BIN (nick_button)->child);
+
+		if (serv->is_away)
+			attr = pango_attr_foreground_new (0x9999, 0x9999, 0x9999);
+		else
+			/* FIXME: maybe we should get the color from GTK theme */
+			attr = pango_attr_foreground_new (0x0000, 0x0000, 0x0000);
+
+		attr->start_index = 0;
+		attr->end_index = G_MAXUINT;
+		pango_attr_list_insert (l, attr);
+		gtk_label_set_attributes (label, l);
+
+		pango_attr_list_unref (l);
 	}
 }
 
