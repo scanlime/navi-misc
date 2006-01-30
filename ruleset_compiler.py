@@ -72,7 +72,7 @@ class Term(object):
         return hash((id(self.variable), self.constant, self.equal))
 
     def __repr__(self):
-        return "(%r %s %r)" % (
+        return "(%s %s %r)" % (
             self.variable, ('!=', '==')[self.equal], self.constant)
 
     def _getColumn(self):
@@ -131,7 +131,7 @@ class Equation:
             return "<0>"
         elif self._sums == {(): None}:
             return "<1>"
-        return "<%s>" % " + ".join([" * ".join(map(repr, terms))
+        return "<%s>" % " + ".join(["*".join(map(repr, terms))
                                     for terms in self._sums.iterkeys()])
 
     def _getKey(self):
@@ -408,6 +408,7 @@ class RulesetOutcomes:
         activeItems = self._active.items()
         self._active = {}
         notCondition = ~condition
+        print "-------- notCondition %r" % notCondition
         for e, f in activeItems:
             enc = e & notCondition
             if enc != Equation(False):
@@ -420,7 +421,12 @@ class RulesetOutcomes:
         """Suspend all active execution paths, when condition
            is False, until the end of the current scope.
            """
+        print '---- active: %s' % self._active
+        print '---- scopes: %s' % self._scopes
+        print '-- suspendUnless %r' % condition
         self._suspendUnless(condition, self._scopes[-1])
+        print '---- active: %s' % self._active
+        print '---- scopes: %s' % self._scopes
 
     def suspendAll(self):
         """Permanently suspend all active execution paths."""
@@ -504,20 +510,32 @@ class RulesetParser(XML.XMLObjectParser):
 
 if __name__ == "__main__":
     vs = VariableSet()
-    rulesets = cPickle.load(open("rulesets.pickle"))
+    if 1:
+        e = (
+            (Equation(Term('a', 1)) & Equation(Term('b', 1))) |
+            (Equation(Term('a', 1)) & Equation(Term('b', 2))) |
+            (Equation(Term('a', 1)) & Equation(Term('b', 3)))
+            )
+        print "e = %s" % e
+        print "~e = %s" % ~e
+            
+    else:
+        rulesets = cPickle.load(open("rulesets.pickle"))
 
-    for r in rulesets:
-        print
-        print "============================================="
-        print
-        print r
-        print
-        print "---------------------------------------------"
-        for k, v in RulesetParser(r, vs).result.iteritems():
-            if v:
-                print
-                print k
-                print
-                for f in v:
-                    print "\t" + str(f)
+        for r in rulesets:
+            if r.find("stats://author")<0:
+                continue
+            print
+            print "============================================="
+            print
+            print r
+            print
+            print "---------------------------------------------"
+            for k, v in RulesetParser(r, vs).result.iteritems():
+                if v:
+                    print
+                    print k
+                    print
+                    for f in v:
+                        print "\t" + str(f)
         
