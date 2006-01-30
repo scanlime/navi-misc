@@ -1,3 +1,5 @@
+from LibCIA import XML, Formatters
+import binascii, cPickle
 
 class Column:
     """Represents one column in the final tabular model of the ruleset list.
@@ -35,7 +37,6 @@ class Variable:
 
     def __repr__(self):
         return str(self.recipe)
-
 
 class VariableSet:
     """A container for Variables. One VariableSet is shared among all
@@ -82,7 +83,6 @@ class Term(object):
 
     column = property(_getColumn)
 
-
 class Equation:
     """A combinational logic equation, specified as a sum of
        products. Equations can be created in three ways:
@@ -99,6 +99,10 @@ class Equation:
          sum-of-products list. This is actually represented
          as a dictionary of sums, in which each key is a sorted
          tuple of products. The dict values are unused and None.
+  
+       Equations should be treated as immutable objects. They
+       can be safely used as dictionary keys. All operations
+       on an Equation will result in a new instance.
        """
     def __init__(self, obj):
         if type(obj) is bool:
@@ -117,19 +121,39 @@ class Equation:
             self._sums = obj
 
         else:
-            raise TypeError
+            raise TypeError("Invalid Equation argument %r" % obj)
+
+        self._hash = None
+        self._key = None
 
     def __repr__(self):
         if self._sums == {}:
             return "<0>"
         elif self._sums == {(): None}:
             return "<1>"
-        return "<%s>" % " + ".join(["*".join(map(repr, terms))
+        return "<%s>" % " + ".join([" * ".join(map(repr, terms))
                                     for terms in self._sums.iterkeys()])
+
+    def _getKey(self):
+        # Return a hashable object that uniquely identifies this Equation
+        if self._key is None:
+            s = self._sums.keys()
+            s.sort()
+            self._key = tuple(s)
+        return self._key
+
+    def __cmp__(self, other):
+        return cmp(self._getKey(), other._getKey())
+
+    def __hash__(self):
+        # Cache the hash
+        if self._hash is None:
+            self._hash = hash(self._getKey())
+        return self._hash
 
     def __or__(self, other):
         if not isinstance(other, Equation):
-            raise TypeError
+            raise TypeError("Can't OR an Equation with %r" % other)
 
         # Concatenate the minterm list, automatically
         # overwriting any duplicated terms.
@@ -145,7 +169,7 @@ class Equation:
 
     def __and__(self, other):
         if not isinstance(other, Equation):
-            raise TypeError
+            raise TypeError("Can't AND an Equation with %r" % other)
         new = {}
 
         # Polynomial multiplication: take the cartesian product
@@ -241,36 +265,256 @@ class Equation:
             products = products & sums
         return products
 
+class XMLEquation(XML.XMLObjectParser):
+    """This object decodes an XML representation of a logic equation.
+       It isn't useful on its own, but subclasses can define terms in
+       order to yield meaningful equations.
+
+       This supports <and>, <or>, and <not> containers.
+       <true/> and <false/> are provided as constants.
+       Note that <not> typically only has a single argument,
+       but it's actually implemented as a NOR function. This
+       is intuitive, since all children must evaluate to
+       False for it to be true.
+       """
+    resultAttribute = 'equation'
+    
+    def element_and(self, element):
+        """Evaluates to True if and only if all children evaluate to True"""
+        eq = Equation(True)
+        for child in self.childParser(element):
+            if child is not None:
+                eq = eq & child
+        return eq
+
+    def element_or(self, element):
+        """Evaluates to True if any children evaluate to True"""
+        eq = Equation(False)
+        for child in self.childParser(element):
+            if child is not None:
+                eq = eq | child
+        return eq
+
+    def element_not(self, element):
+        """The NOR function, returns True if and only if
+           every child evaluates to False.
+           """
+        eq = Equation(True)
+        for child in self.childParser(element):
+            if child is not None:
+                eq = eq & ~child
+        return eq
+
+    def _noChildren(self, element):
+        for child in node.childNodes:
+            raise XML.XMLValidityError("Child elements are not allowed below %r" % element.name)
+
+    def element_true(self, element):
+        self._noChildren(element)
+        return Equation(True)
+
+    def element_false(self, element):
+        self._noChildren(element)
+        return Equation(False)
+
+class MessageFilter(XMLEquation):
+    """This is a parser for CIA's XML message filters, resulting in an
+       Equation instance. Uses the provided VariableSet instance to
+       define terms.
+       """
+    def __init__(self, doc, vars):
+        self.vars = vars
+        XMLEquation.__init__(self, doc)
+
+    def _getXPath(self, element):
+        p = element.getAttributeNS(None, 'path')
+        if not p:
+            raise XML.XMLValidityError(
+                "The %r element has a required 'path' attribute" % element.name)
+        return p
+
+    def _isCaseSensitive(self, element):
+        cs = element.getAttributeNS(None, 'caseSensitive')
+        return cs and int(cs)
+
+    def element_match(self, element):
+        text = XML.shallowText(element).strip()
+
+        if self._isCaseSensitive(element):
+            # SQL isn't guaranteed to be case sensitive, compare a
+            # hex encoded version of the string.
+            return Equation(Term(
+                self.vars.get(('match', True, self._getXPath(element))),
+                binascii.b2a_hex(text)))
+        else:
+            # On the other hand, we're not guaranteeing that
+            # SQL will be case insensitive either. Lowercase the
+            # string first.
+            return Equation(Term(
+                self.vars.get(('match', False, self._getXPath(element))),
+                text.lower()))
+
+    def element_find(self, element):
+        text = XML.shallowText(element).strip()
+        return Equation(Term(
+            self.vars.get(('find', self._isCaseSensitive(element),
+                           self._getXPath(element), text)),
+            True))
+
+class RulesetOutcomes:
+    """This object tracks a list of potential execution
+       paths. Each execution path is described by a logic
+       equation indicating its preconditions, and a stack
+       of formatters to apply.
+       """
+    def __init__(self):
+        # We have three dictionaries tracking execution
+        # paths. 'active' paths are running right now,
+        # and are operated on by formatters and by normal
+        # control flow. 'retired' paths are permanently
+        # inactive due to a 'return' operation. Finally,
+        # 'scopes' track paths that are being suspended
+        # by 'break'.
+        self._active = {Equation(True): []}
+        self._retired = {}
+        self._scopes = []
+
+    def enterScope(self):
+        self._scopes.append({})
+
+    def leaveScope(self):
+        """Reactivate all threads of execution that
+           were suspended by break() since the last
+           enterScope.
+           """
+        self._active.update(self._scopes.pop())
+
+    def pushFormatter(self, formatter):
+        """To all active execution paths at this point,
+           append a new formatter description.
+           """
+        for formatList in self._active.itervalues():
+            formatList.append(formatter)
+
+    def setFormatter(self, formatter):
+        """Replace all existing formatters with a new
+           one, on all active execution paths.
+           """
+        for formatList in self._active.itervalues():
+            del formatList[:]
+            formatList.append(formatter)
+
+    def _suspendUnless(self, condition, dest):
+        """Move all active threads of execution over to
+           the supplied destination scope iff condition==False.
+           """
+        activeItems = self._active.items()
+        self._active = {}
+        notCondition = ~condition
+        for e, f in activeItems:
+            enc = e & notCondition
+            if enc != Equation(False):
+                dest[enc] = list(f)
+            ec = e & condition
+            if ec != Equation(False):
+                self._active[ec] = f
+
+    def suspendScopeUnless(self, condition):
+        """Suspend all active execution paths, when condition
+           is False, until the end of the current scope.
+           """
+        self._suspendUnless(condition, self._scopes[-1])
+
+    def suspendAll(self):
+        """Permanently suspend all active execution paths"""
+        self._suspendUnless(Equation(False), self._retired)
+
+class RulesetParser(XML.XMLObjectParser):
+    """This object recursively parses CIA's rulesets. A ruleset
+       consists of various formatting actions, the application of
+       which is controlled by embedded Filter trees.
+
+       This will evaluate all possible execution paths in a ruleset,
+       using the RulesetOutcomes object.
+       """
+    requiredRootElement = "ruleset"
+
+    def __init__(self, doc, vars):
+        self.vars = vars
+        XML.XMLObjectParser.__init__(self, doc)
+
+    def element_ruleset(self, element):
+        """<ruleset> for the most part works just like <rule>, but since
+           it's the root node it's responsible for initialization.
+           """
+        # Go ahead and store the URI attribute if we have one.
+        # If not, this will be None.
+        self.uri = element.getAttributeNS(None, 'uri') or None
+
+        # URIs are always encoded if necessary, since just about everywhere we'd need to
+        # use a URI we can't support Unicode yet. Specific examples are IRC servers/channels
+        # and as dict keys in an XML-RPC response.
+        if type(self.uri) is unicode:
+            self.uri = self.uri.encode()
+
+        self.outcomes = RulesetOutcomes()
+        self.element_rule(element)
+
+        # Join all active threads of execution and return them
+        self.outcomes.suspendAll()
+        return self.outcomes._retired
+
+    def element_rule(self, element):
+        """Evaluate each child element in sequence until one returns False"""
+        self.outcomes.enterScope()
+        for child in self.childParser(element):
+            pass
+        self.outcomes.leaveScope()
+
+    def element_return(self, element):
+        """Set the current result and exit the ruleset immediately"""
+        path = element.getAttributeNS(None, 'path')
+        if path:
+            self.outcomes.setFormatter(('returnPath', path))
+        else:
+            self.outcomes.setFormatter(('returnConst', XML.shallowText(element)))
+        self.outcomes.suspendAll()
+
+    def element_break(self, element):
+        """Just exit the ruleset immediately, preserving the current formatter result"""
+        self.outcomes.suspendAll()
+
+    def element_formatter(self, element):
+        """Creates a Formatter instance matching the element's description,
+           returns a function that applies the formatter against the current
+           message and result.
+           """
+        # Evaluate this once at parse-time so any silly errors
+        # like unknown formatters or mediums can be detected.
+        Formatters.getFactory().fromXml(element)
+
+        self.outcomes.pushFormatter(('format', XML.toString(element)))
+
+    def unknownElement(self, element):
+        # Unknown ruleset elements should be filters
+        self.outcomes.suspendScopeUnless(MessageFilter(element, self.vars).equation)
+
 
 if __name__ == "__main__":
     vs = VariableSet()
+    rulesets = cPickle.load(open("rulesets.pickle"))
 
-    a = Equation(Term(vs.get('a'), 1))
-    b = Equation(Term(vs.get('b'), 2))
-    c = Equation(Term(vs.get('c'), 3))
-    d = Equation(Term(vs.get('d'), 4))
+    for r in rulesets[1:2]:
+        print "============================================="
+        print
+        print r
+        print
+        print "---------------------------------------------"
+        for k, v in RulesetParser(r, vs).result.iteritems():
+            if v:
+                print
+                print k
+                print
+                for f in v:
+                    print "\t" + str(f)
         
-    print (a|b) & (c|d)
-
-
-    print (
-        (Equation(Term(vs.get('project'), 'foo')) |
-         Equation(Term(vs.get('project'), 'bar')) |
-         Equation(Term(vs.get('project'), 'foo')) |
-         Equation(Term(vs.get('project'), 'bar')) |
-         Equation(Term(vs.get('project'), 'foo')) |
-         Equation(Term(vs.get('project'), 'squish')) |
-         Equation(Term(vs.get('project'), 'foo')))
-        & Equation(Term(vs.get('author'), 'x'))
-        & Equation(Term(vs.get('game'), 'y'))
-        & Equation(Term(vs.get('author'), 'x'))
-        | Equation(Term(vs.get('destination'), 'moon'))
-        )
-
-    print (
-        ~Equation(Term(vs.get('project'), 'x')) &
-        Equation(Term(vs.get('project'), 'x'))
-        )
-
-    print (a&b) | (c&d)
-    print ~( (a&b) | (c&d) )
