@@ -396,13 +396,10 @@ class RulesetOutcomes:
         for formatList in self._active.itervalues():
             formatList.append(formatter)
 
-    def setFormatter(self, formatter):
-        """Replace all existing formatters with a new
-           one, on all active execution paths.
-           """
+    def clearFormatters(self):
+        """Remove all existing formatters"""
         for formatList in self._active.itervalues():
             del formatList[:]
-            formatList.append(formatter)
 
     def _suspendUnless(self, condition, dest):
         """Move all active threads of execution over to
@@ -426,8 +423,9 @@ class RulesetOutcomes:
         self._suspendUnless(condition, self._scopes[-1])
 
     def suspendAll(self):
-        """Permanently suspend all active execution paths"""
+        """Permanently suspend all active execution paths."""
         self._suspendUnless(Equation(False), self._retired)
+
 
 class RulesetParser(XML.XMLObjectParser):
     """This object recursively parses CIA's rulesets. A ruleset
@@ -474,10 +472,14 @@ class RulesetParser(XML.XMLObjectParser):
     def element_return(self, element):
         """Set the current result and exit the ruleset immediately"""
         path = element.getAttributeNS(None, 'path')
+        const = XML.shallowText(element)
+
+        self.outcomes.clearFormatters()
         if path:
-            self.outcomes.setFormatter(('returnPath', path))
-        else:
-            self.outcomes.setFormatter(('returnConst', XML.shallowText(element)))
+            self.outcomes.pushFormatter(('returnPath', path))
+        elif const:
+            self.outcomes.pushFormatter(('returnConst', XML.shallowText(element)))
+
         self.outcomes.suspendAll()
 
     def element_break(self, element):
@@ -504,7 +506,8 @@ if __name__ == "__main__":
     vs = VariableSet()
     rulesets = cPickle.load(open("rulesets.pickle"))
 
-    for r in rulesets[1:2]:
+    for r in rulesets:
+        print
         print "============================================="
         print
         print r
