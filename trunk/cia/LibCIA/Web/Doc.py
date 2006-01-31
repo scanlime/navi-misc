@@ -204,7 +204,11 @@ class DocumentCache(Cache.AbstractObjectCache):
         core.publish_file(source_path = path,
                           writer      = w,
                           destination = NullFile(),
-                          settings_overrides = {'output_encoding': 'unicode'}
+                          settings_overrides = {
+			  	'output_encoding': 'unicode',
+				'traceback': True,
+				},
+			  enable_exit = False,
                           )
         w.mtime = mtime
         del w.document
