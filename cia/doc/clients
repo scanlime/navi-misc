@@ -27,11 +27,11 @@ Bazaar-NG (bzr)
 ---------------
 
 Jelmer Vernooij contributed a client for bzr_, using XML-RPC delivery. Download it
-`from Jelmer's site`_ or snag the `local copy`_.
+`from Jelmer's site`_ or snag the `local copy of cia_bzr.py`_.
 
 .. _bzr: http://www.bazaar-ng.org/
 .. _from Jelmer's site: http://samba.org/~jelmer/bzr/cia_bzr.py
-.. _local copy: http://cia.navi.cx/clients/bzr/cia_bzr.py
+.. _local copy of cia_bzr.py: /clients/bzr/cia_bzr.py
 
 BitKeeper
 ---------
@@ -54,6 +54,17 @@ its new loginfo format. ciabot_cvs_1.12.pl_ was contributed by Jeffrey Carlyle.
 
 .. _ciabot_cvs.pl: /clients/cvs/ciabot_cvs.pl
 .. _ciabot_cvs_1.12.pl: /clients/cvs/ciabot_cvs_1.12.pl
+
+Darcs
+-----
+
+Patrick McFarland has contrbuted a client for Darcs_, which acts as a
+wrapper for your real 'darcs' binary. Download it `from Patrick's site`_
+or grab the `local copy of cia_darcs.pl`_.
+
+.. _Darcs: http://abridgegame.org/darcs/
+.. _from Patrick's site: http://www.shadowconflict.com/darcs/darcs-cia/darcs
+.. _local copy of cia_darcs.pl: /clients/darcs/cia_darcs.pl
 
 Subversion
 ----------
