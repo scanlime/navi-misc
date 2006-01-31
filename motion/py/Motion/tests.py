@@ -29,6 +29,20 @@ class TestSplines(TestCase):
     """Test the spline functions in Interpolate.py"""
     def setUp(self):
         self.data = Numeric.array([[1,3],[2,3],[4,2],[7,5]])
+        self.A = Numeric.resize(
+                Numeric.array([[1,0,0,0,0,0,0,0,0,0,0,0],
+                               [1,1,1,1,0,0,0,0,0,0,0,0],
+                               [0,0,0,0,1,1,1,1,0,0,0,0],
+                               [0,0,0,0,1,2,4,8,0,0,0,0],
+                               [0,0,0,0,0,0,0,0,1,2,4,8],
+                               [0,0,0,0,0,0,0,0,1,3,9,27],
+                               [0,1,2,3,0,-1,-2,-3,0,0,0,0],
+                               [0,0,2,6,0,0,0,-2,-6,0,0,0],
+                               [0,0,0,0,0,1,4,12,0,-1,-4,-12],
+                               [0,0,0,0,0,0,2,12,0,0,-2,-12],
+                               [0,0,2,0,0,0,0,0,0,0,0,0],
+                               [0,0,0,0,0,0,0,0,0,0,2,18]]),
+                (12, 12, 2))
 
     def testMatrices(self):
         """Test the creation of matrices"""
@@ -37,6 +51,7 @@ class TestSplines(TestCase):
                 Numeric.array([[1,2,2,4,4,7,0,0,0,0,0,0],
                                [3,3,3,2,2,5,0,0,0,0,0,0]]),
                 (12,2)))
+        self.assertEqual(A, self.A)
 
     def testInterpolate(self):
         """Test the interpolation"""
