@@ -101,7 +101,7 @@ class NouvelleTranslator(nodes.NodeVisitor):
         del self.stack[-1]
 
     def visit_Text(self, node):
-        self.stack[-1].append(str(node))
+        self.stack[-1].append(node.astext())
 
     def depart_Text(self, node):
         pass
@@ -131,7 +131,7 @@ class NouvelleTranslator(nodes.NodeVisitor):
     def visit_subtitle(self, node):
         # We really only care about the top-level subtitle now
         if not self.headingLevel:
-            self.docSubtitle = ''.join(map(str, node.children))
+            self.docSubtitle = node.astext()
         raise nodes.SkipNode
 
     def visit_reference(self, node):
