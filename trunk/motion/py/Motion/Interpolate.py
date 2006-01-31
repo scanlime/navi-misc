@@ -37,16 +37,30 @@ def spline(data, quality):
     data         = Numeric.array(data)
     length, dof  = Numeric.shape(data)
     interpolated = Numeric.empty((length * quality, dof))
-    constants    = []
+
+    times = Numeric.arange(1, 2, 1. / quality)
+    f     = lambda c: lambda t: c[0] + c[1] * t + c[2] * t**2 + c[3] * t**3
 
     for frame in range(length - 3):
         A, b = __getMatrix(data[frame:frame + 4], dof)
+        z    = Numeric.matrixmultiply(inverse(A), b)
 
-        constants.append(Numeric.matrixmultiply(inverse(A), b))
+        if frame == 0:
+            eqs = map(f, z[:4])
+            for degree in range(dof):
+                interpolated[:quality, degree] = map(eqs, Numeric.arange(0, 1, 1. / quality))
 
-    # interploated[:quality] = map(
+        eqs = map(f, z[4:8])
+        sFrame = (frame + 1) * quality
+        for degree in range(dof):
+            interpolated[sFrame:sFrame + quality, degree] = map(eqs, times)
+
+    eqs = map(f, z[-4:])
+    for degree in range(dof):
+        interpolated[-quality:, degree] = map(eqs, Numeric.arange(2, 3, 1. / quality))
 
     return interpolated
+
 
 def __getMatrix(data, dof):
     """Create the matrices A and b for a spline with 4 data points."""    
