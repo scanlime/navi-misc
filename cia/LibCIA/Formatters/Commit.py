@@ -537,14 +537,13 @@ class CommitToXHTMLLong(CommitToXHTML):
            return a Nouvelle-serializable representation.
            """
         if fileTag:
-
             # If we have a 'uri' attribute, make this file a hyperlink
-            uri = fileTag.getAttributeNS(None, 'uri')
+            uri = fileTag.getAttribute('uri')
             if uri:
                 name = tag('a', href=uri)[ name ]
 
             # If we have an 'action' attribute, represent it with an icon
-            actionIcon = self.actionIcons.get(fileTag.getAttributeNS(None, 'action'))
+            actionIcon = self.actionIcons.get(fileTag.getAttribute('action'))
             if actionIcon:
                 name = (name, actionIcon)
 
