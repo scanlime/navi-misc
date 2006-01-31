@@ -37,37 +37,53 @@ def spline(data, quality):
     data         = Numeric.array(data)
     length, dof  = Numeric.shape(data)
     interpolated = Numeric.empty((length * quality, dof))
+    constants    = []
 
     for frame in range(length - 3):
-        # FIXME - Assuming a trajectory with a minimum of 4 points.
-        A   = Numeric.zeros((12, 12, dof))
-        b   = Numeric.zeros((12, dof))
-        row = 0
+        A, b = __getMatrix(data[frame:frame + 4], dof)
 
-        for t in range(3):
-            # Constrain the spline to fit the 4 points in this chunk of the
-            # trajectory.
-            col = row * 4
-            A[row, col:col + 4] = Numeric.resize(Numeric.array([1, t, t**2, t**3]), (1, 4, dof))
-            b[row] = data[frame + t]
-            row += 1
+        constants.append(Numeric.matrixmultiply(inverse(A), b))
 
-            A[row, col:col + 4] = [1, t + 1, (t + 1)**2, (t + 1)**3]
-            b[row] = data[t + 1]
-            row += 1
+    # interploated[:quality] = map(
 
-            # Constrain the first and second derivatives at each of the
-            # internal points to be equal.
-            if t > 0 and t < 3:
-                A[row + 6, col:col + 8, i] = \
-                        Numeric.resize(Numeric.array([0, 1, 2 * t, 3 * t**2, 0, -1, -2 * t, -3 * t**2]), (1, 8, dof))
-                A[row + 7, col:col + 8, i] = \
-                        Numeric.resize(Numeric.array([0, 0, 2, 6 * t, 0, 0, -2, -6 * t]), (1, 8, dof))
+    return interpolated
 
-        # Constrain the second derivative of the end points of the trajectory to
-        # be 0.
-        A[-2, :4]  = [0, 0, 2, 6 * t]
-        A[-1, -4:] = [0, 0, 2, 6 * t]
+def __getMatrix(data, dof):
+    """Create the matrices A and b for a spline with 4 data points."""    
+    assert(Numeric.shape(data)[0] == 4)
+
+    A   = Numeric.zeros((12, 12, dof))
+    b   = Numeric.zeros((12, dof))
+    row = 0
+
+    for t in range(3):
+        # Constrain the spline to fit the 4 points in this chunk of the
+        # trajectory.
+        col = row * 4
+        A[row, col:col + 4] = Numeric.resize(Numeric.array([1, t, t**2, t**3]), (1, 4, dof))
+        b[row] = data[t]
+        row += 1
+
+        A[row, col:col + 4] = [1, t + 1, (t + 1)**2, (t + 1)**3]
+        b[row] = data[t + 1]
+        row += 1
+
+        # Constrain the first and second derivatives at each of the
+        # internal points to be equal.
+        if t > 0 and t < 3:
+            A[row + 6, col:col + 8, i] = \
+                    Numeric.resize(Numeric.array(
+                            [0, 1, 2 * t, 3 * t**2, 0, -1, -2 * t, -3 * t**2]), (1, 8, dof))
+            A[row + 7, col:col + 8, i] = \
+                    Numeric.resize(Numeric.array(
+                            [0, 0, 2, 6 * t, 0, 0, -2, -6 * t]), (1, 8, dof))
+
+    # Constrain the second derivative of the end points of the trajectory to
+    # be 0.
+    A[-2, :4]  = [0, 0, 2, 6 * t]
+    A[-1, -4:] = [0, 0, 2, 6 * t]
+
+    return (A, b)
 
 
 # vim: ts=4:sw=4:et
