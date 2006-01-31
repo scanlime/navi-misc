@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from unittest import makeSuite, TestCase, TestSuite
+import Interpolate, Numeric
 
 def suite():
     tests = (makeSuite(TestSplines))
@@ -27,11 +28,15 @@ def suite():
 class TestSplines(TestCase):
     """Test the spline functions in Interpolate.py"""
     def setUp(self):
-        pass
+        self.data = Numeric.array([[1,3],[2,3],[4,2],[7,5]])
 
     def testMatrices(self):
         """Test the creation of matrices"""
-        self.fail("Not implemented")
+        A, b = Interpolate._getMatrix(self.data, 2)
+        self.assertEqual(b, Numeric.reshape(
+                Numeric.array([[1,2,2,4,4,7,0,0,0,0,0,0],
+                               [3,3,3,2,2,5,0,0,0,0,0,0]]),
+                (12,2)))
 
     def testInterpolate(self):
         """Test the interpolation"""
