@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from unittest import makeSuite, TestCase, TestSuite
+from LinearAlgebra import inverse
 import Interpolate, Numeric
 
 def suite():
@@ -43,15 +44,21 @@ class TestSplines(TestCase):
                                [0,0,2,0,0,0,0,0,0,0,0,0],
                                [0,0,0,0,0,0,0,0,0,0,2,18]]),
                 (12, 12, 2))
+        self.b = Numeric.reshape(Numeric.array(
+                [[1,2,2,4,4,7,0,0,0,0,0,0],
+                 [3,3,3,2,2,5,0,0,0,0,0,0]]),
+                (12,2))
 
     def testMatrices(self):
         """Test the creation of matrices"""
         A, b = Interpolate._getMatrix(self.data, 2)
-        self.assertEqual(b, Numeric.reshape(
-                Numeric.array([[1,2,2,4,4,7,0,0,0,0,0,0],
-                               [3,3,3,2,2,5,0,0,0,0,0,0]]),
-                (12,2)))
+        self.assertEqual(b, self.b)
         self.assertEqual(A, self.A)
+
+    def testMatrixSolve(self):
+        """Test the method used for solving the matrix"""
+        z = Numeric.matrixmultiply(inverse(self.A[:,:,0]), self.b[:,:,0])
+        self.fail("Not implemented")
 
     def testInterpolate(self):
         """Test the interpolation"""
