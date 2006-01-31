@@ -116,7 +116,7 @@ class NouvelleTranslator(nodes.NodeVisitor):
         self.headingLevel -= 1
 
     def visit_title(self, node):
-        title = ''.join(map(str, node.children))
+        title = node.astext()
         if self.headingLevel:
             # Make this into a heading tag
             self.stack[-1].append(tag('h%d' % self.headingLevel)[title])
