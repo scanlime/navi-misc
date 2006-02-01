@@ -76,40 +76,39 @@ def spline(data, quality):
 
     return interpolated
 
-
 def _getMatrix(data, dof):
     """Create the matrices A and b for a spline with 4 data points."""    
     # We need to be sure that we've got exactly 4 data points. 
     assert(Numeric.shape(data)[0] == 4)
 
     A   = Numeric.zeros((12, 12))
-    b   = Numeric.zeros((12, dof))
+    b   = [Numeric.zeros((12,)) for i in range(dof)]
     row = 0
 
-    for t in range(3):
+    for t in range(1,4):
         # Constrain the spline to fit the 4 points in this chunk of the
         # trajectory.
-        col = t * 4
+        col = (t - 1) * 4
         A[row, col:col + 4] = [1, t, t**2, t**3]
-        b[row] = data[t]
+        for i in range(dof): b[i][row] = data[t - 1, i]
         row += 1
 
         A[row, col:col + 4] = [1, t + 1, (t + 1)**2, (t + 1)**3]
-        b[row] = data[t + 1]
+        for i in range(dof): b[i][row] = data[t, i]
         row += 1
 
         # Constrain the first and second derivatives at each of the
         # internal points to be equal.
-        if t < 2:
+        if t < 3:
             A[row + 4, col:col + 8] = [0, 1, 2 * t, 3 * t**2, 0, -1, -2 * t, -3 * t**2]
             A[row + 5, col:col + 8] = [0, 0, 2, 6 * t, 0, 0, -2, -6 * t]
 
     # Constrain the second derivative of the end points of the trajectory to
     # be 0.
-    A[-2, :4]  = [0, 0, 2, 6 * t]
-    A[-1, -4:] = [0, 0, 2, 6 * t]
+    A[-2, :4]  = [0, 0, 2, 6]
+    A[-1, -4:] = [0, 0, 2, 24]
 
-    return (Numeric.resize(A, (12, 12, dof)), b)
+    return (A, b)
 
 
 # vim: ts=4:sw=4:et
