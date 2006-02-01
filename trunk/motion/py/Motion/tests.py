@@ -51,12 +51,6 @@ class TestSplines(TestCase):
         self.assertEqual(b, self.b)
         self.assertEqual(A, self.A)
 
-    def testMatrixSolve(self):
-        """Test the method used for solving the matrix"""
-        Ainv = inverse(self.A)
-        z = [Numeric.matrixmultiply(Ainv, b) for b in self.b]
-        self.fail("Not implemented")
-
     def testInterpolate(self):
         """Test the interpolation"""
         self.fail("Not implemented")
