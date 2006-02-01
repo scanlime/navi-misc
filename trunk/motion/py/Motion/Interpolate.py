@@ -42,11 +42,11 @@ def spline(data, quality):
 
     # This is the range of times we'll be using for the vast majority of the
     # splining process.
-    times = Numeric.arange(1, 2, 1. / quality)
+    times = Numeric.arange(2, 3, 1. / quality)
 
     # This function is used to generate the intermediate points from the
     # constants and the time. 
-    f = lambda c: lambda t: c[0] + c[1] * t + c[2] * t**2 + c[3] * t**3
+    f = lambda c, t: c[0] + c[1] * t + c[2] * t**2 + c[3] * t**3
 
     for frame in range(length - 3):
         # Generate matrices and solve for the constants for this section of the
@@ -55,23 +55,16 @@ def spline(data, quality):
         Ainv = inverse(A)
         z    = [Numeric.matrixmultiply(Ainv, x) for x in b]
 
-        # Special case: At the beginning of the data we need to use the first
-        # set of constants for the interpolation.
-        if frame == 0:
-            eqs = map(f, z[:4])
-            for degree in range(dof):
-                interpolated[:quality, degree] = map(eqs, Numeric.arange(0, 1, 1. / quality))
+        for degree in dof:
+            # Special case: At the beginning of the trajectory or the end we use
+            # the beginning or end of the spline to interpolate. Normally we
+            # only use the middle interval of the spline to interpolate.
+            if frame == 0:
+                interpolated[frame, degree] = f(z[dof][:4], Numeric.arange(1, 2, 1. / quality))
+            elif frame == length - 4:
+                interpolated[frame, degree] = f(z[dof][-4:], Numeric.arange(3, 4, 1. / quality))
 
-        # Interpolate the middle two points of this section of data.
-        eqs = map(f, z[4:8])
-        sFrame = (frame + 1) * quality
-        for degree in range(dof):
-            interpolated[sFrame:sFrame + quality, degree] = map(eqs, times)
-
-    # When all is said and done, interpolate the last two pointsin the data.
-    eqs = map(f, z[-4:])
-    for degree in range(dof):
-        interpolated[-quality:, degree] = map(eqs, Numeric.arange(2, 3, 1. / quality))
+            interpolated[frame, degree] = f(z[dof][4:8], times)
 
     return interpolated
 
