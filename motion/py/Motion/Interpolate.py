@@ -51,10 +51,9 @@ def spline(data, quality):
     for frame in range(length - 3):
         # Generate matrices and solve for the constants for this section of the
         # data.
-        # FIXME - I am wholly unconvinced that the nonsense about mapping arrays
-        # to that lambda function actually works.
         A, b = __getMatrix(data[frame:frame + 4], dof)
-        z    = Numeric.matrixmultiply(inverse(A), b)
+        Ainv = inverse(A)
+        z    = [Numeric.matrixmultiply(Ainv, x) for x in b]
 
         # Special case: At the beginning of the data we need to use the first
         # set of constants for the interpolation.
