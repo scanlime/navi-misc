@@ -102,6 +102,8 @@ static void     drop_send                             (ConversationPanel      *p
 static void     drop_paste                            (ConversationPanel      *panel);
 static void     send_file                             (gpointer                file,
                                                        gpointer                user_data);
+static void     on_default_copy_activate              (GtkAction              *action,
+                                                       ConversationPanel      *panel);
 static gboolean uri_is_text                           (gchar *uri);
 static gboolean check_file_size                       (gchar *uri);
 
@@ -141,6 +143,10 @@ static GtkActionEntry dnd_actions[] = {
 	{ "DropPasteFile",     NULL, N_("Paste File _Contents"), NULL, NULL, G_CALLBACK (drop_paste_file) },
 	{ "DropPasteFileName", NULL, N_("Paste File_name"),      NULL, NULL, G_CALLBACK (drop_paste_filename) },
 	{ "DropCancel",        NULL, N_("_Cancel"),              NULL, NULL, G_CALLBACK (drop_cancel) },
+};
+
+static GtkActionEntry default_actions[] = {
+	{ "DefaultCopy",     GTK_STOCK_COPY, N_("_Copy"),        NULL, NULL, G_CALLBACK (on_default_copy_activate) },
 };
 
 #define DROP_FILE_PASTE_MAX_SIZE 1024
@@ -212,6 +218,7 @@ conversation_panel_init (ConversationPanel *panel)
 	gtk_action_group_add_actions (action_group, url_actions,   G_N_ELEMENTS (url_actions),   panel);
 	gtk_action_group_add_actions (action_group, email_actions, G_N_ELEMENTS (email_actions), panel);
 	gtk_action_group_add_actions (action_group, dnd_actions,   G_N_ELEMENTS (dnd_actions),   panel);
+	gtk_action_group_add_actions (action_group, default_actions, G_N_ELEMENTS (default_actions),   panel);
 	gtk_ui_manager_insert_action_group (gui.manager, action_group, 0);
 	g_object_unref (action_group);
 
@@ -343,7 +350,12 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 	if (event->button == 3) {
 		switch (conversation_panel_check_word (xtext, word, strlen (word))) {
 		case 0:
-			/* FIXME: show default? context menu */
+			{
+				GtkWidget *menu;
+				menu = gtk_ui_manager_get_widget (gui.manager, "/DefaultPopup");
+				/* FIXME: we should not display the copy action if no text is selected */
+				gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+			}
 			break;
 		case WORD_URL:
 		case WORD_HOST:
@@ -698,6 +710,12 @@ send_file (gpointer file, gpointer user_data)
 		dcc_send (gui.current_session, gui.current_session->channel, path, 0, FALSE);
 		g_free (path);
 	}
+}
+
+static void
+on_default_copy_activate (GtkAction *action, ConversationPanel *panel)
+{
+	gtk_editable_copy_clipboard (GTK_EDITABLE (gui.text_entry));
 }
 
 static gboolean
