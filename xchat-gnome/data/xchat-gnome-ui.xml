@@ -114,4 +114,8 @@
 		<separator name="DropSep1" />
 		<menuitem name="DropCancel" action="DropCancel"/>
 	</popup>
+
+	<popup name="DefaultPopup" action="PopupAction">
+		<menuitem name="DefaultCopy" action="DefaultCopy"/>
+	</popup>
 </ui>

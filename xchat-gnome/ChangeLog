@@ -1,3 +1,10 @@
+Wed Feb  1 01:06:47 CET 2006  Guillaume Desmottes <cass@skynet.be>
+	
+	* src/fe-gnome/conversation-panel.c:
+	* data/xchat-gnome-ui.xml:
+	  - Add a default popup when right click in conversation panel.
+	  - Add a copy action in the default popup (#328496).
+
 Sun Jan 29 15:01:46 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/main-window.c:
