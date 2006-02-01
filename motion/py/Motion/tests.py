@@ -30,24 +30,20 @@ class TestSplines(TestCase):
     """Test the spline functions in Interpolate.py"""
     def setUp(self):
         self.data = Numeric.array([[1,3],[2,3],[4,2],[7,5]])
-        self.A = Numeric.resize(
-                Numeric.array([[1,0,0,0,0,0,0,0,0,0,0,0],
-                               [1,1,1,1,0,0,0,0,0,0,0,0],
-                               [0,0,0,0,1,1,1,1,0,0,0,0],
+        self.A = Numeric.array([[1,1,1,1,0,0,0,0,0,0,0,0],
+                               [1,2,4,8,0,0,0,0,0,0,0,0],
                                [0,0,0,0,1,2,4,8,0,0,0,0],
-                               [0,0,0,0,0,0,0,0,1,2,4,8],
+                               [0,0,0,0,1,3,9,27,0,0,0,0],
                                [0,0,0,0,0,0,0,0,1,3,9,27],
-                               [0,1,2,3,0,-1,-2,-3,0,0,0,0],
-                               [0,0,2,6,0,0,0,-2,-6,0,0,0],
-                               [0,0,0,0,0,1,4,12,0,-1,-4,-12],
-                               [0,0,0,0,0,0,2,12,0,0,-2,-12],
-                               [0,0,2,0,0,0,0,0,0,0,0,0],
-                               [0,0,0,0,0,0,0,0,0,0,2,18]]),
-                (12, 12, 2))
-        self.b = Numeric.reshape(Numeric.array(
-                [[1,2,2,4,4,7,0,0,0,0,0,0],
-                 [3,3,3,2,2,5,0,0,0,0,0,0]]),
-                (12,2))
+                               [0,0,0,0,0,0,0,0,1,4,16,64],
+                               [0,1,4,12,0,-1,-4,-12,0,0,0,0],
+                               [0,0,2,12,0,0,0,-2,-12,0,0,0],
+                               [0,0,0,0,0,1,6,27,0,-1,-6,-27],
+                               [0,0,0,0,0,0,2,18,0,0,-2,-18],
+                               [0,0,2,6,0,0,0,0,0,0,0,0],
+                               [0,0,0,0,0,0,0,0,0,0,2,24]])
+        self.b = [Numeric.reshape(Numeric.array([1,2,2,4,4,7,0,0,0,0,0,0]), (12,1)),
+                  Numeric.reshape(Numeric.array([3,3,3,2,2,5,0,0,0,0,0,0]), (12,1))]
 
     def testMatrices(self):
         """Test the creation of matrices"""
@@ -57,7 +53,8 @@ class TestSplines(TestCase):
 
     def testMatrixSolve(self):
         """Test the method used for solving the matrix"""
-        z = Numeric.matrixmultiply(inverse(self.A[:,:,0]), self.b[:,:,0])
+        Ainv = inverse(self.A)
+        z = [Numeric.matrixmultiply(Ainv, b) for b in self.b]
         self.fail("Not implemented")
 
     def testInterpolate(self):
