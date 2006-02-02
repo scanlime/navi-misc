@@ -1,3 +1,11 @@
+#
+# Experimental ruleset compiler bits for CIA
+# Copyright (C) 2006 Micah Dowty
+#
+# TODO: Fix inequality representation and optimization,
+#       validate against stats://author
+#
+
 from LibCIA import XML, Formatters
 import binascii, cPickle
 
