@@ -286,6 +286,10 @@ dcc_window_update (DccWindow *window, struct DCC *dcc)
 {
 	GtkTreeIter iter;
 
+	/* DCC chats cause crashes here, because they're not handled in this window. */
+	if (dcc->type == 2)
+		return;
+
 	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (window->transfer_store), &iter)) {
 		do {
 			gpointer ptr;
