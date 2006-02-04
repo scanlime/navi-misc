@@ -208,7 +208,6 @@ class DocumentCache(Cache.AbstractObjectCache):
 			  	'output_encoding': 'unicode',
 				'traceback': True,
 				},
-			  enable_exit = False,
                           )
         w.mtime = mtime
         del w.document
