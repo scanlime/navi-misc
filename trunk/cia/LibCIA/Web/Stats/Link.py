@@ -82,13 +82,7 @@ class MessageLink(TargetRelativeLink):
         self.text = text
 
     def render(self, context):
-        # Disable all message hyperlinks when we're being spidered,
-        # since the messages are of very little use in search results
-        # compared to the huge amounts of spidering it takes to get all of them.
-        if context['request'].isWebSpider():
-            return self.text
-        else:
-            return self.tagFactory(href=self.getURL(context))[self.text]
+        return self.tagFactory(href=self.getURL(context))[self.text]
 
 
 class MetadataLink(TargetRelativeLink):
