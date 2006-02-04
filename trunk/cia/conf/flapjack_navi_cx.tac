@@ -111,7 +111,7 @@ site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))
 site.putComponent('info', Web.Info.Component())
 
 # Now create an HTTP server holding both our XML-RPC and web interfaces
-internet.TCPServer(3910, site).setServiceParent(application)
+internet.TCPServer(3910, site, interface='localhost').setServiceParent(application)
 
 # We don't start our own secure server, apache is running https also
 # and proxying that locally to our HTTP server. We do however need to
