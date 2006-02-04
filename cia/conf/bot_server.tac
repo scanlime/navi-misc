@@ -38,6 +38,6 @@ else:
     console = ShellFactory()
     console.password = passwd
     console.namespace['botNet'] = botNet
-    internet.TCPServer(2230, console).setServiceParent(application)
+    internet.TCPServer(2230, console, interface='localhost').setServiceParent(application)
 
 ### The End ###
