@@ -75,6 +75,7 @@ for bone in graphs.keys ():
     else:
         bones[bone] = Numeric.array (randomWalk (graphs[bone], opts.len))
 
+# FIXME - Hack to print out the data because I had some trouble using AMC.save().
 print ":FULLY-SPECIFIED"
 print ":DEGREES"
 
