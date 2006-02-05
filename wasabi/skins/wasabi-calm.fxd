@@ -1,7 +1,0 @@
-<?xml version="1.0" ?>
-<freevo>
-    <skin include="wasabi" geometry="640x480">
-        <image label="background" filename="wasabi/bg-calm.png" />
-        <font label="item" name="VeraBd.ttf" size="12" color="0xdddddd" />
-    </skin>
-</freevo>
