@@ -216,7 +216,48 @@ class Equation:
         if () in new:
             return Equation(True)
 
+        self._optimizeMinterms(new)
         return Equation(new)
+
+    def _mintermImplies(self, mt1, mt2):
+        """Returns True if the first minterm implies the second-
+           the second minterm is unnecessary given the first.
+           Both minterms must be sorted tuples.
+
+           This is effectively a string matching problem:
+           Find mt1 inside mt2.
+           """
+        # Naieve string matching, for now
+        l1 = len(mt1)
+        l2 = len(mt2)
+        for i in range(l2 - l1):
+            if mt2[i:i+l1] == mt1:
+                return True
+        return False
+
+    def _optimizeMinterms(self, d):
+        """Remove unnecessary minterms from the provided dict"""
+        # XXX: the O() of this is disgusting, but
+        #      it's much better than letting the minterm
+        #      list fill with garbage.
+        #
+        # We sort the terms by length, then
+        # run _mintermImplies on pairs with
+        # dissimilar lengths.
+        sorted = [(len(k), k) for k in d.iterkeys()]
+        sorted.sort()
+
+        for i in xrange(len(sorted)):
+            si = sorted[i][1]
+            if si not in d:
+                continue
+            for j in xrange(i+1, len(sorted)):
+                sj = sorted[j][1]
+                if sj not in d:
+                    continue
+
+                if self._mintermImplies(si, sj):
+                    del d[sj]
 
     def __and__(self, other):
         if not isinstance(other, Equation):
@@ -231,6 +272,7 @@ class Equation:
                 if combined is not None:
                     new[combined] = None
 
+        self._optimizeMinterms(new)
         return Equation(new)
 
     def _combineMinterms(self, mt1, mt2):
@@ -534,8 +576,11 @@ if __name__ == "__main__":
         v3 = Equation(Term(vs.get('v'), True, '3'))
 
         #e = ~(a | b | v1 | v2)
-        e = (a & v1) | (a & v2) | (a & v3)
+        e = (a & v1) | (a & b & v2) | (a & v3)
         print "e = %s" % e
+        print "~e = %s" % ~e
+        print "~e = %s" % ~e
+        print "~e = %s" % ~e
         print "~e = %s" % ~e
             
     else:
