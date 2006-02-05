@@ -9,87 +9,130 @@
 from LibCIA import XML, Formatters
 import binascii, cPickle
 
-class Column:
-    """Represents one column in the final tabular model of the ruleset list.
-       This class tracks a usage count for the column, so unnecessary
-       columns can be excluded from the model and the order of column
-       evaluation can be optimized.
-       """
-    def __init__(self):
-        self.name = None
-        self.useCount = 0
-
-    def ref(self):
-        """Increase this column's use count, and return it"""
-        self.useCount += 1
-        return self
-
 class Variable:
-    """A Variable is a quantity which can be derived from the original
-       XML message. The variable may be a string (the text resulting
-       from an xpath match) or it may be a boolean indicating the result
-       of a test that can't be performed in SQL, like a <find>.
-
-       Each variable is modeled with two Columns, one of which is tested
-       to be equal, the other of which is tested to be inequal. This lets
-       us negate variables that may not be boolean.
-
-       The method of deriving a variable from the XML message is called
-       the variable's 'recipe'.
+    """A Variable is a quantity which can be derived from the
+       original XML message.
        """
-    def __init__(self, recipe):
-        self.recipe = recipe
-        self.equal = Column()
-        self.inequal = Column()
-        self.columns = (self.equal, self.inequal)
+    def __init__(self, name):
+        self.name = name
 
     def __repr__(self):
-        return str(self.recipe)
+        return str(self.name)
 
 class VariableSet:
     """A container for Variables. One VariableSet is shared among all
        rulesets during compilation.
        """
     def __init__(self):
-        self._recipes = {}
+        self._vars = {}
 
-    def get(self, recipe):
-        if recipe in self._recipes:
-            return self._recipes[recipe]
-        var = Variable(recipe)
-        self._recipes[recipe] = var
+    def get(self, *args):
+        if args in self._vars:
+            return self._vars[args]
+        var = Variable(*args)
+        self._vars[args] = var
         return var
 
 class Term(object):
-    """A Term in a logic equation. Every term is of the form
-       'variable == constant' or 'variable != constant'.
+    """A Term in a logic equation- an object which operates upon a
+       variable in order to yield a True or False value.
+
+       For bool variables, this is classic Boolean logic. A term
+       takes the form 'var' or '!var'.
+
+       For string variables, this gets a little more complicated.
+       A term typically takes the form 'var == constant' but,
+       in order to efficiently support equation optimizations,
+       the inverted form looks like 'var not in list'.
+
+       Boolean variables should have an empty list of constants.
+       String variables with polarity==True must have exactly
+       one constant, string variables with polarity==False
+       must have at least one constant.
        """
-    def __init__(self, variable, constant, equal=True):
+    def __init__(self, variable, polarity=True, *constants):
+        # Make constants unique and sorted
+        cdict = {}
+        for c in constants:
+            assert type(c) is str
+            cdict[c] = None
+        constants = cdict.keys()
+        constants.sort()
+
         self.variable = variable
-        self.constant = constant
-        self.equal = equal
+        self.polarity = polarity
+        self.constants = tuple(constants)
 
-    def __invert__(self):
-        return Term(self.variable, self.constant, not self.equal)
+    def invert(self):
+        """Returns a minterm sequence describing the
+           inverse of this term.
+           """
+        if not self.constants:
+            # Booleans just get inverted polarity
+            return (Term(self.variable, not self.polarity),)
+        if self.polarity:
+            # A single inequality
+            assert len(self.constants) == 1
+            return (Term(self.variable, False, self.constants[0]),)
+        else:
+            return [Term(self.variable, True, c) for c in self.constants]
 
+    def combine(self, other):
+        """Try to reduce two Terms of the same variable.
+           This is an AND operation, returning a Term or
+           returning None of the result is always false.
+           """
+        assert self.variable is other.variable
+
+        # Are these terms entirely equal?
+        if self == other:
+            return self
+
+        if self.polarity and other.polarity:
+            # Two equalities. We know they aren't equal, so
+            # this is a contradiction.
+            return None
+
+        if not (self.polarity or other.polarity):
+            # Two inequalities, merge the lists
+            return Term(self.variable, False, *(
+                self.constants + other.constants))
+
+        # By now we know that we have one equal
+        # and one inequal term.
+        if self.polarity:
+            equal, inequal = self, other
+        else:
+            equal, inequal = other, self
+
+        assert len(equal.constants) == 1
+        if equal.constants[0] in inequal.constants:
+            # We have a contradiction
+            return None
+        else:
+            # The equality already implies all the
+            # inequalities. Discard the latter.
+            return equal
+        
     def __cmp__(self, other):
-        return cmp((id(self.variable), self.constant, self.equal),
-                   (id(other.variable), other.constant, other.equal))
+        return cmp((self.variable, self.polarity, self.constants),
+                   (other.variable, other.polarity, other.constants))
 
     def __hash__(self):
-        return hash((id(self.variable), self.constant, self.equal))
+        return hash((self.variable, self.polarity, self.constants))
 
     def __repr__(self):
-        return "(%s %s %r)" % (
-            self.variable, ('!=', '==')[self.equal], self.constant)
-
-    def _getColumn(self):
-        if self.equal:
-            return self.variable.equal
+        if self.constants:
+            if self.polarity:
+                assert len(self.constants) == 1
+                return "%r=%s)" % (self.variable, self.constants[0])
+            else:
+                return "%r!%s" % (self.variable, "/".join(self.constants))
         else:
-            return self.variable.inequal
-
-    column = property(_getColumn)
+            if self.polarity:
+                return repr(self.variable)
+            else:
+                return "~%r" % self.variable
 
 class Equation:
     """A combinational logic equation, specified as a sum of
@@ -136,11 +179,11 @@ class Equation:
 
     def __repr__(self):
         if self._sums == {}:
-            return "<0>"
+            return "False"
         elif self._sums == {(): None}:
-            return "<1>"
-        return "<%s>" % " + ".join(["*".join(map(repr, terms))
-                                    for terms in self._sums.iterkeys()])
+            return "True"
+        return " | ".join(["(%s)" % " & ".join(map(repr, terms))
+                           for terms in self._sums.iterkeys()])
 
     def _getKey(self):
         # Return a hashable object that uniquely identifies this Equation
@@ -196,69 +239,30 @@ class Equation:
            is always False.
            """
         # Storage for the minterms we're combining: a dict
-        # maps variables to a list of terms containing that
-        # variable
+        # maps variables to terms
         varMap = {}
 
         # Populate it with the first minterm list. We're assuming
         # that it's already well-formed and we don't need to
         # check for contradictions or duplicates.
         for term in mt1:
-            if term.variable not in varMap:
-                varMap[term.variable] = [term]
-            else:
-                varMap[term.variable].append(term)
+            varMap[term.variable] = term
 
         # Now check the other terms, using varMap to limit
         # our search to terms with the same variable.
         for term in mt2:
             if term.variable not in varMap:
-                varMap[term.variable] = [term]
+                varMap[term.variable] = term
             else:
-                # We have other terms to check against this one
-                termList = varMap[term.variable]
-                if term in termList:
-                    # Exact duplicate. Ignore it.
-                    pass
-                elif term.equal:
-                    if termList[0].equal:
-                        # We already have a single value this variable
-                        # must equal. This means the entire minterm list
-                        # is always False. Note that duplicates are already
-                        # weeded out, so we can assume at this point that
-                        # there's a conflict.
-                        assert len(termList) == 1
-                        assert termList[0].constant != term.constant
-                        return None
-                    else:
-                        # We had a list of inequalities, but the equality
-                        # we're adding either conflicts with the inequalities
-                        # or it replaces them all.
-                        for oldTerm in termList:
-                            assert not oldTerm.equal
-                            if oldTerm.constant == term.constant:
-                                # An old inequality conflicts
-                                # with the new equality
-                                return None
-                        del termList[:]
-                        termList.append(term)
-                else:
-                    if termList[0].equal:
-                        # We're adding a new equality, but there's
-                        # always a single equality in the term list.
-                        # As long as there isn't a conflict, the new
-                        # term can be ignored.
-                        if termList[0].constant == term.constant:
-                            return None
-                    else:
-                        # We're adding an inequality to an existing list
-                        # of inequalities. Furthermore, we know it's not
-                        # a duplicate. We can just add the new term.
-                        termList.append(term)
+                v = varMap[term.variable].combine(term)
+                if v is None:
+                    # Contradiction- the whole thing is always false
+                    return None
+                assert term.variable is v.variable
+                varMap[term.variable] = v
 
         # Flatten back into a sorted tuple
-        t = []
-        map(t.extend, varMap.itervalues())
+        t = varMap.values()
         t.sort()
         return tuple(t)
 
@@ -269,7 +273,8 @@ class Equation:
         for mt in self._sums:
             sums = Equation(False)
             for term in mt:
-                sums = sums | Equation(~term)
+                for iterm in term.invert():
+                    sums = sums | Equation(iterm)
             products = products & sums
         return products
 
@@ -353,6 +358,7 @@ class MessageFilter(XMLEquation):
             # hex encoded version of the string.
             return Equation(Term(
                 self.vars.get(('match', True, self._getXPath(element))),
+                True,
                 binascii.b2a_hex(text)))
         else:
             # On the other hand, we're not guaranteeing that
@@ -360,6 +366,7 @@ class MessageFilter(XMLEquation):
             # string first.
             return Equation(Term(
                 self.vars.get(('match', False, self._getXPath(element))),
+                True,
                 text.lower()))
 
     def element_find(self, element):
@@ -519,11 +526,15 @@ class RulesetParser(XML.XMLObjectParser):
 if __name__ == "__main__":
     vs = VariableSet()
     if 1:
-        e = (
-            (Equation(Term('a', 1)) & Equation(Term('b', 1))) |
-            (Equation(Term('a', 1)) & Equation(Term('b', 2))) |
-            (Equation(Term('a', 1)) & Equation(Term('b', 3)))
-            )
+        a = Equation(Term(vs.get('a')))
+        b = Equation(Term(vs.get('b')))
+        c = Equation(Term(vs.get('c')))
+        v1 = Equation(Term(vs.get('v'), True, '1'))
+        v2 = Equation(Term(vs.get('v'), True, '2'))
+        v3 = Equation(Term(vs.get('v'), True, '3'))
+
+        #e = ~(a | b | v1 | v2)
+        e = (a & v1) | (a & v2) | (a & v3)
         print "e = %s" % e
         print "~e = %s" % ~e
             
