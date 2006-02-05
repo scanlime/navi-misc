@@ -46,7 +46,7 @@ def spline(data, quality):
 
     # This function is used to generate the intermediate points from the
     # constants and the time. 
-    f = lambda c, t: c[0] + c[1] * t + c[2] * t**2 + c[3] * t**3
+    f = lambda c: lambda t: c[0] + c[1] * t + c[2] * t**2 + c[3] * t**3
 
     for frame in range(length - 3):
         # Generate matrices and solve for the constants for this section of the
@@ -60,11 +60,11 @@ def spline(data, quality):
             # the beginning or end of the spline to interpolate. Normally we
             # only use the middle interval of the spline to interpolate.
             if frame == 0:
-                interpolated[frame, degree] = f(z[dof][:4], Numeric.arange(1, 2, 1. / quality))
+                interpolated[frame:frame + quality, degree] = map(f(z[dof][:4]), Numeric.arange(1, 2, 1. / quality))
             elif frame == length - 4:
-                interpolated[frame, degree] = f(z[dof][-4:], Numeric.arange(3, 4, 1. / quality))
+                interpolated[frame, degree] = map(f(z[dof][-4:]), Numeric.arange(3, 4, 1. / quality))
 
-            interpolated[frame, degree] = f(z[dof][4:8], times)
+            interpolated[frame, degree] = map(f(z[dof][4:8]), times)
 
     return interpolated
 
