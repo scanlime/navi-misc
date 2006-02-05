@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <string.h>
 #include <glib/gi18n.h>
 #include "gui.h"
 #include "main-window.h"
@@ -29,6 +30,7 @@
 #include "userlist-gui.h"
 #include "pixmaps.h"
 #include "../common/text.h"
+#include "../common/xchatc.h"
 
 XChatGUI gui;
 Userlist *u;
@@ -76,5 +78,9 @@ initialize_gui_2 (void)
 int
 xtext_get_stamp_str (time_t tim, char **ret)
 {
-	return get_stamp_str ("[%H:%M:%S] ", tim, ret);
+	if (strlen (prefs.stamp_format) == 0) {
+		strncpy (prefs.stamp_format, "[%H:%M:%S] ", 11);
+		prefs.stamp_format[11] = '\0';
+	}
+	return get_stamp_str (prefs.stamp_format, tim, ret);
 }
