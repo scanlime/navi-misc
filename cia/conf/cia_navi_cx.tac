@@ -108,7 +108,7 @@ site.putComponent('stats', stats)
 site.putComponent('doc', doc)
 site.putComponent('irc', Web.BotStatus.Component(remoteBots))
 site.putComponent('rulesets', Web.RulesetBrowser.Component(rulesetStorage))
-site.putComponent('info', Web.Info.Component())
+#site.putComponent('info', Web.Info.Component())
 
 # Now create an HTTP server holding both our XML-RPC and web interfaces
 internet.TCPServer(3910, site, interface='localhost').setServiceParent(application)
