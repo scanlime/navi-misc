@@ -13,11 +13,25 @@ class Variable:
     """A Variable is a quantity which can be derived from the
        original XML message.
        """
-    def __init__(self, name):
-        self.name = name
+    MATCH_HEX = 1
+    MATCH_LOWER = 2
+    FIND_EXACT = 3
+    FIND_CASE_INSENSITIVE = 4
+    
+    def __init__(self, op, path=None, arg=None):
+        self.op = op
+        self.path = path
+        self.arg = arg
 
     def __repr__(self):
-        return str(self.name)
+        # A very terse representation that leaves out
+        # most of the variable's information, but makes
+        # long Equations much more readable
+        lastPathSeg = self.path.split("/")[-1]
+        if self.arg:
+            return "%s[%s]" % (lastPathSeg, self.arg)
+        else:
+            return lastPathSeg
 
 class VariableSet:
     """A container for Variables. One VariableSet is shared among all
@@ -54,7 +68,6 @@ class Term(object):
         # Make constants unique and sorted
         cdict = {}
         for c in constants:
-            assert type(c) is str
             cdict[c] = None
         constants = cdict.keys()
         constants.sort()
@@ -87,6 +100,12 @@ class Term(object):
         # Are these terms entirely equal?
         if self == other:
             return self
+
+        # If this is a boolean variable, now we know it's
+        # a contradiction.
+        if not self.constants:
+            assert not other.constants
+            return None
 
         if self.polarity and other.polarity:
             # Two equalities. We know they aren't equal, so
@@ -125,7 +144,7 @@ class Term(object):
         if self.constants:
             if self.polarity:
                 assert len(self.constants) == 1
-                return "%r=%s)" % (self.variable, self.constants[0])
+                return "%r=%s" % (self.variable, self.constants[0])
             else:
                 return "%r!%s" % (self.variable, "/".join(self.constants))
         else:
@@ -362,7 +381,8 @@ class XMLEquation(XML.XMLObjectParser):
 
     def _noChildren(self, element):
         for child in node.childNodes:
-            raise XML.XMLValidityError("Child elements are not allowed below %r" % element.name)
+            raise XML.XMLValidityError(
+                "Child elements are not allowed below %r" % element.name)
 
     def element_true(self, element):
         self._noChildren(element)
@@ -385,7 +405,8 @@ class MessageFilter(XMLEquation):
         p = element.getAttributeNS(None, 'path')
         if not p:
             raise XML.XMLValidityError(
-                "The %r element has a required 'path' attribute" % element.name)
+                "The %r element has a required 'path' attribute" %
+                element.name)
         return p
 
     def _isCaseSensitive(self, element):
@@ -399,7 +420,8 @@ class MessageFilter(XMLEquation):
             # SQL isn't guaranteed to be case sensitive, compare a
             # hex encoded version of the string.
             return Equation(Term(
-                self.vars.get(('match', True, self._getXPath(element))),
+                self.vars.get(Variable.MATCH_HEX,
+                              self._getXPath(element)),
                 True,
                 binascii.b2a_hex(text)))
         else:
@@ -407,15 +429,19 @@ class MessageFilter(XMLEquation):
             # SQL will be case insensitive either. Lowercase the
             # string first.
             return Equation(Term(
-                self.vars.get(('match', False, self._getXPath(element))),
+                self.vars.get(Variable.MATCH_LOWER,
+                              self._getXPath(element)),
                 True,
                 text.lower()))
 
     def element_find(self, element):
         text = XML.shallowText(element).strip()
+        if self._isCaseSensitive(element):
+            op = Variable.FIND_EXACT
+        else:
+            op = Variable.FIND_CASE_INSENSITIVE
         return Equation(Term(
-            self.vars.get(('find', self._isCaseSensitive(element),
-                           self._getXPath(element), text)),
+            self.vars.get(op, self._getXPath(element), text),
             True))
 
 class RulesetOutcomes:
@@ -465,7 +491,6 @@ class RulesetOutcomes:
         activeItems = self._active.items()
         self._active = {}
         notCondition = ~condition
-        print "-------- notCondition %r" % notCondition
         for e, f in activeItems:
             enc = e & notCondition
             if enc != Equation(False):
@@ -478,12 +503,7 @@ class RulesetOutcomes:
         """Suspend all active execution paths, when condition
            is False, until the end of the current scope.
            """
-        print '---- active: %s' % self._active
-        print '---- scopes: %s' % self._scopes
-        print '-- suspendUnless %r' % condition
         self._suspendUnless(condition, self._scopes[-1])
-        print '---- active: %s' % self._active
-        print '---- scopes: %s' % self._scopes
 
     def suspendAll(self):
         """Permanently suspend all active execution paths."""
@@ -512,8 +532,9 @@ class RulesetParser(XML.XMLObjectParser):
         # If not, this will be None.
         self.uri = element.getAttributeNS(None, 'uri') or None
 
-        # URIs are always encoded if necessary, since just about everywhere we'd need to
-        # use a URI we can't support Unicode yet. Specific examples are IRC servers/channels
+        # URIs are always encoded if necessary, since just about everywhere
+        # we'd need to use a URI we can't support Unicode yet. Specific
+        # examples are IRC servers/channels
         # and as dict keys in an XML-RPC response.
         if type(self.uri) is unicode:
             self.uri = self.uri.encode()
@@ -541,12 +562,15 @@ class RulesetParser(XML.XMLObjectParser):
         if path:
             self.outcomes.pushFormatter(('returnPath', path))
         elif const:
-            self.outcomes.pushFormatter(('returnConst', XML.shallowText(element)))
+            self.outcomes.pushFormatter(('returnConst',
+                                         XML.shallowText(element)))
 
         self.outcomes.suspendAll()
 
     def element_break(self, element):
-        """Just exit the ruleset immediately, preserving the current formatter result"""
+        """Just exit the ruleset immediately, preserving the current
+           formatter result
+           """
         self.outcomes.suspendAll()
 
     def element_formatter(self, element):
@@ -562,32 +586,32 @@ class RulesetParser(XML.XMLObjectParser):
 
     def unknownElement(self, element):
         # Unknown ruleset elements should be filters
-        self.outcomes.suspendScopeUnless(MessageFilter(element, self.vars).equation)
+        self.outcomes.suspendScopeUnless(
+            MessageFilter(element, self.vars).equation)
 
 
 if __name__ == "__main__":
     vs = VariableSet()
-    if 1:
+    if 0:
         a = Equation(Term(vs.get('a')))
         b = Equation(Term(vs.get('b')))
         c = Equation(Term(vs.get('c')))
-        v1 = Equation(Term(vs.get('v'), True, '1'))
-        v2 = Equation(Term(vs.get('v'), True, '2'))
-        v3 = Equation(Term(vs.get('v'), True, '3'))
 
-        #e = ~(a | b | v1 | v2)
-        e = (a & v1) | (a & b & v2) | (a & v3)
+        e = Equation(False)
+        for i in xrange(50):
+            v = Equation(Term(vs.get('v'), True, str(i)))
+            e = e | (a & b & v)
+
         print "e = %s" % e
-        print "~e = %s" % ~e
-        print "~e = %s" % ~e
-        print "~e = %s" % ~e
-        print "~e = %s" % ~e
+        for i in xrange(20):
+            print "~e = %s" % ~e
+
             
     else:
         rulesets = cPickle.load(open("rulesets.pickle"))
 
         for r in rulesets:
-            if r.find("stats://author")<0:
+            if r.find("stats://author")>=0:
                 continue
             print
             print "============================================="
