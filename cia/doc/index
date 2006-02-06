@@ -98,8 +98,12 @@ History
 - January 17, 2005
 
     CIA moves again to a dedicated Linode_ server, http://flapjack.navi.cx
-    
 
+- February 4, 2006
+
+    After more than a year and plenty of CPU and I/O performance headaches,
+    CIA moves to a dedicated virtual machine on a much faster dedicated
+    server.
 
 Brought to you by...
 --------------------
