@@ -44,6 +44,10 @@ class XMLObject(object):
        'doc' is either a DOM node, a string containing
        the message in XML, or a stream-like object.
        """
+    # Subclasses can set this to enable some caches
+    immutable = False
+    _xpcache = {}
+    
     def __init__(self, doc=None, uri=None):
         if type(doc) in types.StringTypes:
             self.loadFromString(doc, uri)
@@ -368,6 +372,19 @@ class XPath:
             xPathCache[path] = self.compiled
 
     def queryForNodes(self, doc):
+        """Query an XML DOM, returning the result set"""
         return self.compiled.evaluate(xml.xpath.CreateContext(doc))
+
+    def queryObject(self, obj):
+        """Query an XMLObject, using its cache if possible"""        
+        if obj.immutable:
+            idc = id(self.compiled)
+            if idc in obj._xpcache:
+                return obj._xpcache[idc]
+            else:
+                r = self.queryForNodes(obj.xml)
+                obj._xpcache[idc] = r
+                return r
+        return self.queryForNodes(obj.xml)
 
 ### The End ###

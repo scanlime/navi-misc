@@ -65,6 +65,8 @@ class Message(XML.XMLObject):
          True
 
        """
+    immutable = True
+
     def preprocess(self):
         message = XML.dig(self.xml, "message")
         if not message:
@@ -288,12 +290,12 @@ class Filter(XML.XMLFunction):
             text = text.lower()
 
         def filterMatch(msg):
-            # Use queryForNodes then str() so that matched
+            # Use queryobject then str() so that matched
             # nodes without any text still give us at least
             # the empty string. This is important so that <find>
             # with an empty search string can be used to test
             # for the existence of an XPath match.
-            nodes = xp.queryForNodes(msg.xml)
+            nodes = xp.queryObject(msg)
             if nodes:
                 matchStrings = map(textExtractor, nodes)
 

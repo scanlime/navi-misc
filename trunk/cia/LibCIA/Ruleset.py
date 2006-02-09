@@ -244,7 +244,7 @@ class Ruleset(XML.XMLFunction):
             xp = XML.XPath(element.getAttributeNS(None, 'path'))
             # Define a rulesetReturn function that returns the value of the XPath
             def rulesetReturn(msg):
-                nodes = xp.queryForNodes(msg.xml)
+                nodes = xp.queryObject(msg)
                 if nodes:
                     self.result = XML.allText(nodes[0]).strip()
                 else:
