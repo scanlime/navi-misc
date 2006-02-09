@@ -1,6 +1,11 @@
+Thu Feb 09 22:33:37 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/navigation-tree.c:
+	  - Use same icon for query messages than for nick highlighting. (#330449)
+
 Sun Feb 05 02:46:18 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
-	* src/fe-gnome/gui.c
+	* src/fe-gnome/gui.c:
 	  - Use the timestamp format string in the xchat preferences if it
 	    exists.
 
