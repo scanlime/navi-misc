@@ -1,3 +1,8 @@
+Thu Feb 09 23:51:56 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/preferences-page-irc.c:
+	  - Use irc_extra_hilight instead of irc_nick_hilight. (#325681)
+
 Thu Feb 09 22:33:37 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/navigation-tree.c:
