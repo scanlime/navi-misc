@@ -1411,7 +1411,10 @@ navigation_model_set_hilight_iterate (GtkTreeModel * model, GtkTreePath * path, 
 			return TRUE;
 		}
 		if (sess->msg_said && e < 2) {
-			gtk_tree_store_set (GTK_TREE_STORE (model), iter, 0, pix_msgsaid, 3, 2, -1);
+			if (sess->type != SESS_DIALOG)
+				gtk_tree_store_set (GTK_TREE_STORE (model), iter, 0, pix_msgsaid, 3, 2, -1);
+			else
+				gtk_tree_store_set (GTK_TREE_STORE (model), iter, 0, pix_nicksaid, 3, 3, -1);
 			return TRUE;
 		}
 		if (sess->new_data && e < 1) {
