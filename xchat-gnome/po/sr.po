@@ -9,14 +9,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:18-0700\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
 "PO-Revision-Date: 2006-02-10 02:16-0700\n"
 "Last-Translator: Aleksandar Jelenak <jelenak@verizon.net>\n"
 "Language-Team: Serbian <gnu@prevod.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3;    plural=n%10==1 && n%100!=11 ? 0 :    n%10>=2 \n"
 
 #: ../data/channel-list.glade.h:1
 msgid "<span weight=\"bold\">List Filtering</span>"
@@ -28,11 +27,11 @@ msgstr ""
 
 #: ../data/channel-list.glade.h:3
 msgid "Channel _Name"
-msgstr ""
+msgstr "Име канала"
 
 #: ../data/channel-list.glade.h:4
 msgid "Channel _Topic"
-msgstr ""
+msgstr "Канал"
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
@@ -48,11 +47,11 @@ msgstr "Мин. корисника"
 
 #: ../data/channel-list.glade.h:8
 msgid "Save List _As"
-msgstr ""
+msgstr "Сними као"
 
 #: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
-msgstr ""
+msgstr "Штампај датотеку текстова"
 
 #: ../data/connect-dialog.glade.h:1
 msgid "C_onnect"
@@ -60,11 +59,11 @@ msgstr "_Повежи се"
 
 #: ../data/dcc-accept.glade.h:1
 msgid "_Accept"
-msgstr ""
+msgstr "Прихвати"
 
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
 msgid "File Transfers"
-msgstr ""
+msgstr "Пренос датотека"
 
 #: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
@@ -84,7 +83,7 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Character _encoding:"
-msgstr ""
+msgstr "Скуп знакова:"
 
 #: ../data/irc-network-editor.glade.h:6
 msgid "Network Settings"
@@ -96,15 +95,15 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:8
 msgid "Server _Password:"
-msgstr ""
+msgstr "Лозинка за сервер:"
 
 #: ../data/irc-network-editor.glade.h:9
 msgid "Servers"
-msgstr ""
+msgstr "Рачунар"
 
 #: ../data/irc-network-editor.glade.h:10
 msgid "Use _global user settings"
-msgstr ""
+msgstr "Користи главне податке о кориснику"
 
 #: ../data/irc-network-editor.glade.h:11
 msgid "Use _these user settings:"
@@ -112,11 +111,11 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:12
 msgid "User and Channels"
-msgstr ""
+msgstr "Напусти канал"
 
 #: ../data/irc-network-editor.glade.h:13
 msgid "_Automatically connect to network"
-msgstr ""
+msgstr "Повежи се аутоматски када се програм покрене"
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Cycle until connected"
@@ -124,7 +123,7 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:15
 msgid "_Name:"
-msgstr ""
+msgstr "Име"
 
 #: ../data/irc-network-editor.glade.h:16
 msgid "_Nick name:"
@@ -132,7 +131,7 @@ msgstr "_Надимак:"
 
 #: ../data/irc-network-editor.glade.h:17
 msgid "_Real Name:"
-msgstr ""
+msgstr "Право име:"
 
 #: ../data/irc-network-editor.glade.h:18
 msgid "_Use secure connection (SSL)"
@@ -184,23 +183,23 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:13
 msgid "A_way message:"
-msgstr ""
+msgstr "Нова порука:"
 
 #: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
-msgstr ""
+msgstr "Увек прихвати DCC"
 
 #: ../data/preferences-dialog.glade.h:15
 msgid "Auto-accept DCC File Transfers"
-msgstr ""
+msgstr "Увек прихвати датотеке"
 
 #: ../data/preferences-dialog.glade.h:16
 msgid "Background _image"
-msgstr ""
+msgstr "Позадина:"
 
 #: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
-msgstr ""
+msgstr "Позадина:"
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
@@ -208,7 +207,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:19
 msgid "Convert spaces to underscores in filenames"
-msgstr ""
+msgstr "Пребаци размаке у доње црте пре слања"
 
 #: ../data/preferences-dialog.glade.h:20
 msgid "Download files to:"
@@ -216,15 +215,15 @@ msgstr "Снимај датотеке у:"
 
 #: ../data/preferences-dialog.glade.h:21
 msgid "Enter extra words to trigger highlighting"
-msgstr ""
+msgstr "Речи које треба нагласити:"
 
 #: ../data/preferences-dialog.glade.h:22
 msgid "Foreground mark:"
-msgstr ""
+msgstr "Први план:"
 
 #: ../data/preferences-dialog.glade.h:23
 msgid "Get IP Address From Server"
-msgstr ""
+msgstr "Сазнај IP овог рачунара од сервера"
 
 #: ../data/preferences-dialog.glade.h:24
 msgid "Global receive KB/s: "
@@ -252,7 +251,7 @@ msgstr "Помери пренесене датотеке у дир.:"
 
 #: ../data/preferences-dialog.glade.h:30
 msgid "Preferences"
-msgstr ""
+msgstr "Поставке..."
 
 #: ../data/preferences-dialog.glade.h:31
 msgid "Real na_me:"
@@ -260,23 +259,23 @@ msgstr "Право _име:"
 
 #: ../data/preferences-dialog.glade.h:32
 msgid "Save sender nickname in filenames"
-msgstr ""
+msgstr "Запамти надимке у именима датотекама"
 
 #: ../data/preferences-dialog.glade.h:33
 msgid "Select A File"
-msgstr ""
+msgstr "Одабери слику"
 
 #: ../data/preferences-dialog.glade.h:34
 msgid "Select Completed Files Directory"
-msgstr ""
+msgstr "Помери пренесене датотеке у дир.:"
 
 #: ../data/preferences-dialog.glade.h:35
 msgid "Select Download Directory"
-msgstr ""
+msgstr "Датотеке и директоријуми"
 
 #: ../data/preferences-dialog.glade.h:36
 msgid "Show _timestamps"
-msgstr ""
+msgstr "Убацуј време у дневнике"
 
 #: ../data/preferences-dialog.glade.h:37
 msgid ""
@@ -290,15 +289,15 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:39
 msgid "Use This IP Address:"
-msgstr ""
+msgstr "DCC IP адреса:"
 
 #: ../data/preferences-dialog.glade.h:40
 msgid "Use this font:"
-msgstr ""
+msgstr "Списак имена"
 
 #: ../data/preferences-dialog.glade.h:41
 msgid "_Background color:"
-msgstr ""
+msgstr "Позадина:"
 
 #: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:101
 msgid "_Edit"
@@ -306,11 +305,11 @@ msgstr "_Уреди"
 
 #: ../data/preferences-dialog.glade.h:43
 msgid "_Foreground color:"
-msgstr ""
+msgstr "Први план:"
 
 #: ../data/preferences-dialog.glade.h:44
 msgid "_Nickname:"
-msgstr ""
+msgstr "_Надимак:"
 
 #: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
@@ -318,11 +317,11 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:46
 msgid "_Part message:"
-msgstr ""
+msgstr "Нова порука:"
 
 #: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
-msgstr ""
+msgstr "Порука здесна"
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
@@ -330,11 +329,11 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:49
 msgid "_Transparent background"
-msgstr ""
+msgstr "Провидна позадина"
 
 #: ../data/setup-dialog.glade.h:1
 msgid "Nick Name:"
-msgstr ""
+msgstr "_Надимак:"
 
 #: ../data/setup-dialog.glade.h:2
 msgid "Real Name:"
@@ -358,11 +357,11 @@ msgstr ""
 
 #: ../data/topic-change.glade.h:1
 msgid "Change"
-msgstr ""
+msgstr "Канал"
 
 #: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:92
 msgid "IRC Chat"
-msgstr ""
+msgstr "Прича"
 
 #: ../data/xchat-gnome.desktop.in.h:2
 msgid "XChat-GNOME IRC Chat"
@@ -374,11 +373,11 @@ msgstr ""
 
 #: ../data/xchat-gnome.glade.h:2
 msgid "Close this discussion"
-msgstr ""
+msgstr "Затвори прозор/језичак"
 
 #: ../data/xchat-gnome.glade.h:3
 msgid "Enter a new nickname"
-msgstr ""
+msgstr "Унесите ново име:"
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
@@ -396,7 +395,7 @@ msgstr "Корисници"
 
 #: ../data/xchat-gnome.glade.h:6
 msgid "nickname"
-msgstr ""
+msgstr "Надимак"
 
 #: ../data/xchat-gnome.glade.h:7
 msgid "on all servers"
@@ -412,24 +411,24 @@ msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:212
 msgid "Auto Away"
-msgstr ""
+msgstr "Одсутан"
 
 #: ../plugins/autoaway/autoaway.c:213
 msgid "Automatically go away / come back"
-msgstr ""
+msgstr "Склони AWAY кад се вратим"
 
 #. Hook up our callbacks.
 #: ../plugins/autoaway/autoaway.c:231
 msgid "Disconnected"
-msgstr ""
+msgstr "Искључи се"
 
 #: ../plugins/autoaway/autoaway.c:232
 msgid "Connected"
-msgstr ""
+msgstr "Повежи се"
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
-msgstr ""
+msgstr "прикажи каталог за аутоматско учитавање додатака\n"
 
 #: ../plugins/dbus/xchat_gnome_url_handler.schemas.in.h:1
 msgid "Run xchat-gnome in a terminal?"
@@ -476,7 +475,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "Execute a xchat command"
-msgstr ""
+msgstr "Пошаљи ову команду:"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "\"Command to execute\""
@@ -496,7 +495,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
-msgstr ""
+msgstr "Канал"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
@@ -504,7 +503,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
-msgstr ""
+msgstr "Рачунар"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
@@ -512,15 +511,15 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
-msgstr ""
+msgstr "Нађи"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
-msgstr ""
+msgstr "Сними подешавања при излазу"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
-msgstr ""
+msgstr "Име"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:79
 #, c-format
@@ -537,22 +536,37 @@ msgstr ""
 #: ../plugins/dbus/xchat-gnome-remote.c:130
 msgid "Failed to complete command"
 msgstr ""
+"Не може се отворити фонт:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:125
 msgid "Failed to complete SetContext"
 msgstr ""
+"Не може се отворити фонт:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:135
 msgid "Failed to complete print"
 msgstr ""
+"Не може се отворити фонт:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:142
 msgid "Failed to complete GetInfo"
 msgstr ""
+"Не може се отворити фонт:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:155
 msgid "Failed to complete GetPrefs"
 msgstr ""
+"Не може се отворити фонт:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:159
 #, c-format
@@ -561,7 +575,7 @@ msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:36
 msgid "Network Monitor"
-msgstr ""
+msgstr "Подешавање мреже"
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
@@ -574,15 +588,15 @@ msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "Orientation"
-msgstr ""
+msgstr "Аргентина"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "The orientation of the tray."
-msgstr ""
+msgstr "Име особе"
 
 #: ../plugins/notification/notification.c:151
 msgid "Notification"
-msgstr ""
+msgstr "Место"
 
 #: ../plugins/notification/notification.c:152
 msgid "A notification area plugin."
@@ -590,11 +604,11 @@ msgstr ""
 
 #: ../plugins/notification/notification.c:239
 msgid "Notification plugin loaded.\n"
-msgstr ""
+msgstr "Додатак није пронађен.\n"
 
 #: ../plugins/notification/notification.c:254
 msgid "Notification plugin unloaded.\n"
-msgstr ""
+msgstr "Додатак није пронађен.\n"
 
 #: ../plugins/notification/notification.schemas.in.h:1
 msgid "Keep icon in tray at all times"
@@ -647,7 +661,7 @@ msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:45
 msgid "xchat URL scraper"
-msgstr ""
+msgstr "X-Chat: Памћење URL-ова"
 
 #: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:828
 msgid "Time"
@@ -669,7 +683,7 @@ msgstr "URL"
 
 #: ../plugins/url_scraper/urlscraper.c:155
 msgid "URL Scraper"
-msgstr ""
+msgstr "Памћење URL-ова..."
 
 #: ../plugins/url_scraper/urlscraper.c:156
 msgid "Grabs URLs and puts them in a separate window for easy viewing."
@@ -697,7 +711,7 @@ msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.schemas.in.h:2
 msgid "URL Scraper show timestamps"
-msgstr ""
+msgstr "Убацуј време у дневнике"
 
 #: ../plugins/sound-notification/sound-notification.c:55
 msgid "Sound Notification"
@@ -779,7 +793,7 @@ msgstr "Нема активних DCC-ова\n"
 #: ../src/common/ignore.c:136 ../src/common/ignore.c:140
 #: ../src/common/ignore.c:144
 msgid "YES  "
-msgstr "ДА   "
+msgstr "ДА  "
 
 #: ../src/common/ignore.c:122 ../src/common/ignore.c:126
 #: ../src/common/ignore.c:130 ../src/common/ignore.c:134
@@ -798,7 +812,7 @@ msgstr "Корисник %s вас засипа CTCP захтевима, игн�
 msgid "You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
 msgstr ""
 "Корисник %s вас засипа MSG захтевима, искључујем посебне прозоре за "
-"разговор. \n"
+"разговор.\n"
 
 #: ../src/common/notify.c:400
 #, c-format
@@ -1004,7 +1018,7 @@ msgstr ""
 
 #: ../src/common/outbound.c:3244
 msgid "HOP <nick>, gives chanhalf-op status to the nick (needs chanop)"
-msgstr "HOP <име>, даје звање полу-оп овом имену (потребан је оп) "
+msgstr "HOP <име>, даје звање полу-оп овом имену (потребан је оп)"
 
 #: ../src/common/outbound.c:3245
 msgid "ID <password>, identifies yourself to nickserv"
@@ -1100,7 +1114,7 @@ msgstr "NCTCP <име> <порука>, шаље CTCP дојаву"
 
 #: ../src/common/outbound.c:3286
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
-msgstr ""
+msgstr "NEWSERVER <рачунар> [<порт>]"
 
 #: ../src/common/outbound.c:3287
 msgid "NICK <nickname>, sets your nick"
@@ -1788,147 +1802,147 @@ msgstr "Датотека са звучним записом „%s‟ се не �
 
 #: ../src/common/textevents.h:6
 msgid "-%C10-%C11-%O$t$1 added to notify list."
-msgstr ""
+msgstr "%C22*%O$t$1 додат на списак посматраних."
 
 #: ../src/common/textevents.h:9
 msgid "-%C10-%C11-%O$t$1 Banlist: %C3$4 %C4$2 %C5$3%O"
-msgstr ""
+msgstr "%C22*%O$t$1 Забране:%C19 $4%C20 $2%C21 $3"
 
 #: ../src/common/textevents.h:12
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(You are banned)."
-msgstr ""
+msgstr "%C22*%O$tНе успева прикључење%C26 %B$1 %O(имате забрану)."
 
 #: ../src/common/textevents.h:18
 msgid "-%C10-%C11-%O$t$1 is now known as $2"
-msgstr ""
+msgstr "Име %C22*%O$t$1 је промењено у $2"
 
 #: ../src/common/textevents.h:21
 msgid "%C13*%O$t$1 $2%O"
-msgstr ""
+msgstr "%C16*%O$t$1%O"
 
 #: ../src/common/textevents.h:24
 msgid "%C13*%O$t%C8%B$1%B%O $2%O"
-msgstr ""
+msgstr "%C21*%O$t%C21%B$1%O%C21 $2"
 
 #: ../src/common/textevents.h:27
 msgid "-%C10-%C11-%O$t$1 sets ban on $2"
-msgstr ""
+msgstr "%C22*%O$t$1 поставља забрану на $2"
 
 #: ../src/common/textevents.h:30
 msgid "-%C10-%C11-%O$tChannel $1 created on $2"
-msgstr ""
+msgstr "%C22*%O$tНаправљен је нови канал $1 на $2"
 
 #: ../src/common/textevents.h:33
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
-msgstr ""
+msgstr "%C22*%O$t%C26$1%O укида звање полу-оператора за %C26 $2"
 
 #: ../src/common/textevents.h:36
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
-msgstr ""
+msgstr "%C22*%O$t%C26$1%O укида звање оператора за %C26 $2"
 
 #: ../src/common/textevents.h:39
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
-msgstr ""
+msgstr "%C22*%O$t%C26$1%O одузима реч од %C26 $2"
 
 #: ../src/common/textevents.h:42
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
-msgstr ""
+msgstr "%C22*%O$t$1 поставља изузеће за $2"
 
 #: ../src/common/textevents.h:45
 msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
-msgstr ""
+msgstr "%C22*%O$t%C26$1%O додељује звање полу оператора за %C26 $2"
 
 #: ../src/common/textevents.h:48
 msgid "-%C10-%C11-%O$t$1 sets invite on $2"
-msgstr ""
+msgstr "%C22*%O$t$1 позива на прикључење на $2"
 
 #: ../src/common/textevents.h:51
 msgid "%UChannel          Users   Topic%O"
-msgstr ""
+msgstr "%UКанал            Бр.кор. Тема"
 
 #: ../src/common/textevents.h:54 ../src/common/textevents.h:306
 msgid "%C2<%O$1%C2>%O$t$2%O"
-msgstr ""
+msgstr "%C19>%O$1%C19<%O$t$2%O"
 
 #: ../src/common/textevents.h:57
 msgid "-%C10-%C11-%O$t$1 sets mode $2$3 $4"
-msgstr ""
+msgstr "%C22*%O$t$1 поставља приступну ознаку на $2$3 $4"
 
 #: ../src/common/textevents.h:60
 msgid "-%C10-%C11-%O$tChannel $1 modes: $2"
-msgstr ""
+msgstr "%C22*%O$t%C22Канал $1 приступне ознаке: $2"
 
 #: ../src/common/textevents.h:63
 msgid "%C2<%C8%B$1%B%C2>%O$t$2%O"
-msgstr ""
+msgstr "%C28-%C29$1%C28-%O$t$2"
 
 #: ../src/common/textevents.h:66
 msgid "%C12-%C13$1/$2%C12-%O$t$3%O"
-msgstr ""
+msgstr "%C28-%C29$1/$2%C28-%O$t$3"
 
 #: ../src/common/textevents.h:69
 msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
-msgstr ""
+msgstr "%C22*%O$t%C26$1%O додељује звање оператора за%C26 $2"
 
 #: ../src/common/textevents.h:72
 msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
-msgstr ""
+msgstr "%C22*%O$t$1 уклања изузеће за $2"
 
 #: ../src/common/textevents.h:75
 msgid "-%C10-%C11-%O$t$1 removes invite on $2"
-msgstr ""
+msgstr "%C22*%O$t$1 уклања позив за прикључење на $2"
 
 #: ../src/common/textevents.h:78
 msgid "-%C10-%C11-%O$t$1 removes channel keyword"
-msgstr ""
+msgstr "%C22*%O$t$1 уклања кључну реч за канал"
 
 #: ../src/common/textevents.h:81
 msgid "-%C10-%C11-%O$t$1 removes user limit"
-msgstr ""
+msgstr "%C22*%O$t$1 укида највећи дозвољени број корисника на каналу"
 
 #: ../src/common/textevents.h:84
 msgid "-%C10-%C11-%O$t$1 sets channel keyword to $2"
-msgstr ""
+msgstr "%C22*%O$t$1 поставља кључну реч за канал на $2"
 
 #: ../src/common/textevents.h:87
 msgid "-%C10-%C11-%O$t$1 sets channel limit to $2"
-msgstr ""
+msgstr "%C22*%O$t$1 поставља највећи дозвољени број корисника на $2"
 
 #: ../src/common/textevents.h:90
 msgid "-%C10-%C11-%O$t$1 removes ban on $2"
-msgstr ""
+msgstr "%C22*%O$t$1 уклања забрану за $2"
 
 #: ../src/common/textevents.h:93
 msgid "-%C10-%C11-%O$t$1 gives voice to $2"
-msgstr ""
+msgstr "%C22*%O$t%C26$1%O даје реч за %C26 $2"
 
 #: ../src/common/textevents.h:96
 msgid "-%C10-%C11-%O$tConnected. Now logging in.."
-msgstr ""
+msgstr "%C22*%O$t%C22Повезивање је успело. Пријава у току..."
 
 #: ../src/common/textevents.h:99
 msgid "-%C10-%C11-%O$tConnecting to %C11$1 %C14(%C11$2%C14)%C port %C11$3%C.."
-msgstr ""
+msgstr "%C22*%O$t%C22У току је повезивање на $1 ($2) порт $3%O.."
 
 #: ../src/common/textevents.h:102
 msgid "-%C10-%C11-%O$tConnection failed. Error: $1"
-msgstr ""
+msgstr "%C21*%O$t%C21Повезивање није успело. Јављена је грешка: $1"
 
 #: ../src/common/textevents.h:105
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2"
-msgstr ""
+msgstr "%C22*%O$tПримљен је CTCP захтев $1 од $2"
 
 #: ../src/common/textevents.h:108
 msgid "-%C10-%C11-%O$tReceived a CTCP $1 from $2 (to $3)"
-msgstr ""
+msgstr "%C22*%O$tПримљен је CTCP захтев $1 од $2 (за $3)"
 
 #: ../src/common/textevents.h:111
 msgid "%C3>%O$1%C3<%O$tCTCP $2%O"
-msgstr ""
+msgstr "%C19>%O$1%C19<%O$tCTCP $2"
 
 #: ../src/common/textevents.h:114
 msgid "-%C10-%C11-%O$tReceived a CTCP Sound $1 from $2"
-msgstr ""
+msgstr "%C22*%O$tПримљен је CTCP звук $1 од $2"
 
 #: ../src/common/textevents.h:117
 msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
@@ -1936,12 +1950,12 @@ msgstr "%C22*%O$tПримљен је CTCP звук $1 од $2 (за $3)"
 
 #: ../src/common/textevents.h:120
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
-msgstr ""
+msgstr "%C22*%O$tПрекинут је DCC разговор са %C26$1%O."
 
 #: ../src/common/textevents.h:123
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr ""
+msgstr "%C22*%O$tУспостављен је разговор путем DCC са %C26$1 %C30[%O$2%C30]"
 
 #: ../src/common/textevents.h:126
 msgid ""
@@ -1950,57 +1964,61 @@ msgstr ""
 
 #: ../src/common/textevents.h:129
 msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
-msgstr ""
+msgstr "%C22*%O$tПримљена је понуда за разговор путем DCC од $1"
 
 #: ../src/common/textevents.h:132
 msgid "-%C10-%C11-%O$tOffering DCC CHAT to $1"
-msgstr ""
+msgstr "%C22*%O$tНудим разговор путем DCC за $1"
 
 #: ../src/common/textevents.h:135
 msgid "-%C10-%C11-%O$tAlready offering CHAT to $1"
-msgstr ""
+msgstr "%C22*%O$t$1 већ има понуду за разговор одавде"
 
 #: ../src/common/textevents.h:138
 msgid "-%C10-%C11-%O$tDCC $1 connect attempt to %C11$2%O failed (err=$3)."
-msgstr ""
+msgstr "%C22*%O$tDCC $1 повезивање са%C26 $2%O неуспело (грешка=$3)."
 
 #: ../src/common/textevents.h:141
 msgid "-%C10-%C11-%O$tReceived '$1%O' from $2"
-msgstr ""
+msgstr "%C22*%O$tПреузета датотека '$1%O' од $2"
 
 #: ../src/common/textevents.h:144
 #, c-format
 msgid "%C24,18 Type  To/From    Status  Size    Pos     File         "
-msgstr "%C24,18 Врста  Од/за     Стање   Вел.    Место   Датотека    "
+msgstr "%C24,18 Врста  Од/за     Стање   Вел.    Место   Датотека         "
 
 #: ../src/common/textevents.h:147
 msgid ""
 "-%C10-%C11-%O$tReceived a malformed DCC request from %C11$1%O.%010-%C10-%C11-"
 "%O$tContents of packet: $2"
 msgstr ""
+"%C22*%O$tПримљен је неисправан DCC захтев од %C26$1%O.%010%C22*%O$tСадржај "
+"пакета: $2"
 
 #: ../src/common/textevents.h:150
 msgid "-%C10-%C11-%O$tOffering %C11$1 %Cto %C11$2%O"
-msgstr ""
+msgstr "%C22*%O$tНудимо %C26$1 %O за %C26 $2"
 
 #: ../src/common/textevents.h:153
 msgid "-%C10-%C11-%O$tNo such DCC offer."
-msgstr ""
+msgstr "%C22*%O$tОва DCC понуда не постоји."
 
 #: ../src/common/textevents.h:156
 msgid "-%C10-%C11-%O$tDCC RECV %C11$2%O to %C11$1%O aborted."
-msgstr ""
+msgstr "%C22*%O$tDCC RECV %C126$2%O за%C26 $1%O прекинут."
 
 #: ../src/common/textevents.h:159
 msgid ""
 "-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O cps%"
 "C14]%O."
 msgstr ""
+"%C22*%O$tDCC RECV%C26 $1%O од%C26 $3%O обављено %C30[%C26$4%O зн./сек.%C30]%"
+"O."
 
 #: ../src/common/textevents.h:162
 msgid ""
 "-%C10-%C11-%O$tDCC RECV connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr ""
+msgstr "%C22*%O$tDCC RECV веза успостављена са%C26 $1 %C30[%O$2%C30]%O"
 
 #: ../src/common/textevents.h:165
 msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
@@ -2008,32 +2026,33 @@ msgstr ""
 
 #: ../src/common/textevents.h:168
 msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
-msgstr ""
+msgstr "%C22*%O$tDCC RECV: Не може се писати у $1 ($2)."
 
 #: ../src/common/textevents.h:171
 msgid ""
 "-%C10-%C11-%O$tThe file %C11$1%C already exists, saving it as %C11$2%O "
 "instead."
-msgstr ""
+msgstr "%C22*%O$tДатотека%C26 $1%C већ постоји, снимам под именом%C26 $2%O."
 
 #: ../src/common/textevents.h:174
 msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
-msgstr ""
+msgstr "%C22*%O$t%C26$1 %Cтражи да се настави%C26 $2 %Cод%C26 $3%C."
 
 #: ../src/common/textevents.h:177
 msgid "-%C10-%C11-%O$tDCC SEND %C11$2%O to %C11$1%O aborted."
-msgstr ""
+msgstr "%C22*%O$tDCC SEND%C26 $2%O за%C26 $1%O је прекинут."
 
 #: ../src/common/textevents.h:180
 msgid ""
 "-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%C14]%"
 "O."
 msgstr ""
+"%C22*%O$tDCC SEND%C26 $1%O за%C26 $2%O обављен %C30[%C26$3%O зн./сек.%C30]%O."
 
 #: ../src/common/textevents.h:183
 msgid ""
 "-%C10-%C11-%O$tDCC SEND connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr ""
+msgstr "%C22*%O$tDCC SEND веза успостављена са%C26 $1 %C30[%O$2%C30]%O"
 
 #: ../src/common/textevents.h:186
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
@@ -2041,27 +2060,27 @@ msgstr ""
 
 #: ../src/common/textevents.h:189
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
-msgstr ""
+msgstr "%C22*%O$t%C26$1 %Cје понудио%C26 $2 %C(%C26$3 %Cбајт((ов)а))"
 
 #: ../src/common/textevents.h:192
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Cstalled - aborting."
-msgstr ""
+msgstr "%C22*%O$tDCC $1%C26 $2 %Cза%C26 $3 %Cзаостаје - прекидам."
 
 #: ../src/common/textevents.h:195
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Ctimed out - aborting."
-msgstr ""
+msgstr "%C22*%O$tDCC $1%C26 $2 %Cка%C26 $3 %Cје истекао - прекидам."
 
 #: ../src/common/textevents.h:198
 msgid "-%C10-%C11-%O$t$1 deleted from notify list."
-msgstr ""
+msgstr "%C22*%O$t$1 избрисан са списка посматраних."
 
 #: ../src/common/textevents.h:201
 msgid "-%C10-%C11-%O$tDisconnected ($1)."
-msgstr ""
+msgstr "%C22*%O$tИскључен ($1)."
 
 #: ../src/common/textevents.h:204
 msgid "-%C10-%C11-%O$tFound your IP: [$1]"
-msgstr ""
+msgstr "%C22*%O$tВаш IP број је: [$1]"
 
 #: ../src/common/textevents.h:207
 msgid "$1$t$2"
@@ -2069,11 +2088,11 @@ msgstr "$1$t$2"
 
 #: ../src/common/textevents.h:210
 msgid "%O%C11$1%O added to ignore list."
-msgstr ""
+msgstr "%O%C26$1%O додат у списак ућутканих."
 
 #: ../src/common/textevents.h:213
 msgid "Ignore on %C11$1%O changed."
-msgstr ""
+msgstr "Занемари кад се промени%C26 $1%O."
 
 #: ../src/common/textevents.h:216
 #, c-format
@@ -2087,7 +2106,7 @@ msgstr "%C24,18 Образац за име хоста      PRIV NOTI CHAN CTCP D
 
 #: ../src/common/textevents.h:222
 msgid "%O%C11$1%O removed from ignore list."
-msgstr ""
+msgstr "%O%C26$1%O избрисан са списка ућутканих."
 
 #: ../src/common/textevents.h:225
 msgid "  Ignore list is empty."
@@ -2095,84 +2114,87 @@ msgstr "  Списак ућутканих је празан."
 
 #: ../src/common/textevents.h:228
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
-msgstr ""
+msgstr "%C22*%O$tНије могуће прикључити се на%C26 %B$1 %O без позива."
 
 #: ../src/common/textevents.h:231
 msgid "-%C10-%C11-%O$tYou have been invited to %C11$1%C by %C11$2%C (%C11$3%C)"
-msgstr ""
+msgstr "%C22*%O$tПозвани сте на канал%C26 $1%C, позвао је%C26 $2%C (%C26$3%C)"
 
 #: ../src/common/textevents.h:234
 msgid "-%C10-%C11>%O$t%B$1%B %C14(%C10$3%C14)%C has joined $2"
-msgstr ""
+msgstr "%C19*%O$t%C19%B$1 %B($3) дошао на $2"
 
 #: ../src/common/textevents.h:237
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Requires keyword)."
 msgstr ""
+"%C22*%O$tНије могуће прокључити се на%C26 %B$1 %O без знања кључне речи."
 
 #: ../src/common/textevents.h:240
 msgid "<%C10-%C11-%O$t$1 has kicked $2 from $3 ($4%O)"
-msgstr ""
+msgstr "%C21*%O$t%C21$1 је избацио $2 са $3 ($4%O%C21)"
 
 #: ../src/common/textevents.h:243
 msgid "-%C10-%C11-%O$tYou have been killed by $1 ($2%O)"
-msgstr ""
+msgstr "%C22*%O$tОдстранио вас је $1 ($2%O)"
 
 #: ../src/common/textevents.h:246 ../src/common/textevents.h:270
 msgid "%C3>%O$1%C3<%O$t$2%O"
-msgstr ""
+msgstr "%C19>%O$1%C19<%O$t$2%O"
 
 #: ../src/common/textevents.h:249 ../src/common/textevents.h:327
 #: ../src/common/textevents.h:333 ../src/common/textevents.h:336
 msgid "-%C10-%C11-%O$t$1%O"
-msgstr ""
+msgstr "%C16*%O$t$1%O"
 
 #: ../src/common/textevents.h:252
 msgid "-%C10-%C11-%O$tMOTD Skipped."
-msgstr ""
+msgstr "%C22*%O$t%C22Прескочили смо вести дана."
 
 #: ../src/common/textevents.h:255
 msgid "-%C10-%C11-%O$t$1 already in use. Retrying with $2.."
-msgstr ""
+msgstr "%C22*%O$tИме $1 неко већ користи. Пробам да користим $2.."
 
 #: ../src/common/textevents.h:258
 msgid "-%C10-%C11-%O$tNickname already in use. Use /NICK to try another."
 msgstr ""
+"%C22*%O$tНеко већ користи ово име. Можете користити команду /NICK да пробате "
+"неко друго име."
 
 #: ../src/common/textevents.h:261
 msgid "-%C10-%C11-%O$tNo such DCC."
-msgstr ""
+msgstr "%C22*%O$tDCC захтев не постоји."
 
 #: ../src/common/textevents.h:264
 msgid "-%C10-%C11-%O$tNo process is currently running"
-msgstr ""
+msgstr "%C22*%O$tНиједан процес није покренут."
 
 #: ../src/common/textevents.h:267
 msgid "%C12-%C13$1%C12-%O$t$2%O"
-msgstr ""
+msgstr "%C28-%C29$1%C28-%O$t$2"
 
 #: ../src/common/textevents.h:273
 msgid "-%C10-%C11-%O$tNotify list is empty."
-msgstr ""
+msgstr "$tСписак посматраних је празан."
 
 #: ../src/common/textevents.h:276
 msgid "%C24,18 %B  Notify List                           "
-msgstr "%C24,18 %B  Списак посматраних                    "
+msgstr "%C24,18 %B  Списак посматраних                           "
 
 #: ../src/common/textevents.h:279
 msgid "-%C10-%C11-%O$t$1 users in notify list."
-msgstr ""
+msgstr "%C22*%O$t$1 корисници на списку посматраних."
 
 #: ../src/common/textevents.h:282
 msgid "-%C10-%C11-%O$tNotify: $1 is offline ($2)."
-msgstr ""
+msgstr "%C22*%O$tВест: $1 је на вези ($2)."
 
 #: ../src/common/textevents.h:285
 msgid "-%C10-%C11-%O$tNotify: $1 is online ($2)."
-msgstr ""
+msgstr "%C22*%O$tВест: $1 је на вези ($2)."
 
 #: ../src/common/textevents.h:291
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3"
-msgstr ""
+msgstr "%C23*%O$t%C23$1 (%O%C23$2) оде $3"
 
 #: ../src/common/textevents.h:294
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3 %C14(%O$4%C14)%O"
@@ -2180,71 +2202,73 @@ msgstr ""
 
 #: ../src/common/textevents.h:297
 msgid "-%C10-%C11-%O$tPing reply from $1 : $2 second(s)"
-msgstr ""
+msgstr "%C22*%O$tВреме одзива за $1 у секундама: $2"
 
 #: ../src/common/textevents.h:300
 msgid "-%C10-%C11-%O$tNo ping reply for $1 seconds, disconnecting."
-msgstr ""
+msgstr "%C22*%O$tОдзив је изостао за $1 сек., искључујем се."
 
 #: ../src/common/textevents.h:303
 msgid "%C12*%C13$1%C12*$t%O$2%O"
-msgstr ""
+msgstr "%C28*%C29$3$1%C28*$t%O$2"
 
 #: ../src/common/textevents.h:309
 msgid "-%C10-%C11-%O$tA process is already running"
-msgstr ""
+msgstr "%C22*%O$tПроцес је већ покренут"
 
 #: ../src/common/textevents.h:312
 msgid "<%C10-%C11-%O$t$1 has quit %C14(%O$2%O%C14)%O"
-msgstr ""
+msgstr "%C23*%O$t%C23$1 оде (%O%C23%B%B$2%O%C23)"
 
 #: ../src/common/textevents.h:315
 msgid "-%C10-%C11-%O$t$1 sets modes%B %C14[%O$2%B%C14]%O"
-msgstr ""
+msgstr "%C22*%O$t$1 поставља приступ%B %C30[%O$2%B%C30]"
 
 #: ../src/common/textevents.h:318
 msgid "%C12-%C13$1/Wallops%C12-%O$t$2%O"
-msgstr ""
+msgstr "%C28-%C29$1/Wallops%C28-%O$t$2"
 
 #: ../src/common/textevents.h:321
 msgid "-%C10-%C11-%O$tLooking up IP number for%C11 $1%O.."
-msgstr ""
+msgstr "%C22*%O$tТражим IP број за%C26 $1%O..."
 
 #: ../src/common/textevents.h:324
 msgid "-%C10-%C11-%O$tConnected."
-msgstr ""
+msgstr "%C22*%O$t%C22Повезан."
 
 #: ../src/common/textevents.h:330
 msgid "-%C10-%C11-%O$tLooking up %C11$1%C.."
-msgstr ""
+msgstr "%C22*%O$t%C22Тражим%C26 $1"
 
 #: ../src/common/textevents.h:339
 msgid "-%C10-%C11-%O$tStopped previous connection attempt (pid=$1)"
-msgstr ""
+msgstr "%C22*%O$tПретходно успостављање везе је прекинуто (pid=$1)"
 
 #: ../src/common/textevents.h:342
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C is %C11$2%O"
-msgstr ""
+msgstr "%C29*%O$t%C29Тема за%C29 $1%C %C29је: $2"
 
 #: ../src/common/textevents.h:345
 msgid "-%C10-%C11-%O$t$1 has changed the topic to: $2%O"
-msgstr ""
+msgstr "%C22*%O$t$1 променио је тему у: $2"
 
 #: ../src/common/textevents.h:348
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
-msgstr ""
+msgstr "%C29*%O$t%C29Тему за $1%C %C29поставио је $2%C %C29у $3"
 
 #: ../src/common/textevents.h:351
 msgid "-%C10-%C11-%O$tUnknown host. Maybe you misspelled it?"
-msgstr ""
+msgstr "%C22*%O$tНепознато име рачунара. Можда је погрешно откуцано?"
 
 #: ../src/common/textevents.h:354
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(User limit reached)."
 msgstr ""
+"%C22*%O$tНије могуће ући на%C26 %B$1 %O јер је достигнут највећи дозвољени "
+"број корисника."
 
 #: ../src/common/textevents.h:357
 msgid "-%C10-%C11-%O$t%C11Users on $1:%C $2"
-msgstr ""
+msgstr "%C22*%O$t%C26Корисници на $1:%C $2"
 
 #: ../src/common/textevents.h:360
 msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
@@ -2252,40 +2276,40 @@ msgstr "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
 
 #: ../src/common/textevents.h:363
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
-msgstr ""
+msgstr "%C22*%O$t%C28[%O$1%C28] %Cје одсутан %C30(%O$2%O%C30)"
 
 #: ../src/common/textevents.h:366
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%C $2"
-msgstr ""
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:369
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %CEnd of WHOIS list."
-msgstr ""
+msgstr "%C22*%O$t%C28[%O$1%C28] %OКрај списка за WHOIS."
 
 #: ../src/common/textevents.h:372
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
-msgstr ""
+msgstr "%C22*%O$t%C28[%O$1%C28] %O$2"
 
 #: ../src/common/textevents.h:375
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
-msgstr ""
+msgstr "%C22*%O$t%C28[%O$1%C28]%O неактиван%C26 $2"
 
 #: ../src/common/textevents.h:378
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O, signon: %C11$3%O"
-msgstr ""
+msgstr "%C22*%O$t%C28[%O$1%C28]%O неактиван%C26 $2%O, пријављен:%C26 $3%O"
 
 #: ../src/common/textevents.h:381
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
-msgstr ""
+msgstr "%C22*%O$t%C28[%O$1%C28] %C30(%O$2@$3%C30) %O: $4"
 
 #: ../src/common/textevents.h:384
 msgid ""
 "-%C10-%C11-%O$t%C12[%O$1%C12] %Oreal user@host %C11$2%O, real IP %C11$3%O"
-msgstr ""
+msgstr "%C22*%O$t%C28[%O$1%C28] %Oправи user@host%C27 $2%O, прави IP%C27 $3%O"
 
 #: ../src/common/textevents.h:387
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
-msgstr ""
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:390
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
@@ -2293,31 +2317,31 @@ msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:393
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
-msgstr ""
+msgstr "%C22*%O$tПроменили сте име у $2"
 
 #: ../src/common/textevents.h:396
 msgid "-%C10-%C11-%O$tYou have been kicked from $2 by $3 ($4%O)"
-msgstr ""
+msgstr "%C23*$t вас је избацио са канала $2 ($4%O%C23)"
 
 #: ../src/common/textevents.h:399
 msgid "-%C10-%C11-%O$tYou have left channel $3"
-msgstr ""
+msgstr "%C23*$tНапустили сте канал $3"
 
 #: ../src/common/textevents.h:402
 msgid "-%C10-%C11-%O$tYou have left channel $3 %C14(%O$4%C14)%O"
-msgstr ""
+msgstr "%C23*$tНапустили сте канал $3 (%O%C23%B%B$4%O%C23)"
 
 #: ../src/common/textevents.h:405
 msgid "-%C10-%C11-%O$tYou're inviting %C11$1%C to %C11$2%C (%C11$3%C)"
-msgstr ""
+msgstr "%C22*%O$tЗовете%C26 $1%C на%C26 $2%C (%C26$3%C)"
 
 #: ../src/common/textevents.h:408
 msgid "%C6<%O$1%C6>%O$t$2%O"
-msgstr ""
+msgstr "%C19>%O$1%C19<%O$t$2%O"
 
 #: ../src/common/textevents.h:411
 msgid "-%C10-%C11-%O$tYou are now known as $2"
-msgstr ""
+msgstr "%C22*%O$tПроменили сте име у $2"
 
 #: ../src/common/util.c:296
 msgid "Remote host closed socket"
@@ -3385,7 +3409,7 @@ msgstr "Започни разговор"
 
 #: ../src/common/xchat.c:738
 msgid "Send a File"
-msgstr ""
+msgstr "Пошаљи датотеку"
 
 #: ../src/common/xchat.c:739
 msgid "User Info (WHOIS)"
@@ -3393,7 +3417,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:740
 msgid "Operator Actions"
-msgstr ""
+msgstr "Поставке"
 
 #: ../src/common/xchat.c:742 ../src/common/xchat.c:833
 msgid "Give Ops"
@@ -3651,11 +3675,11 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
 msgid "Background image filename"
-msgstr ""
+msgstr "Позадина:"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:2
 msgid "Background transparency"
-msgstr ""
+msgstr "Позадина:"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Default nickname used by servers without special options set"
@@ -3683,7 +3707,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
 msgid "Message sent on away"
-msgstr ""
+msgstr "Порука"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Message sent on channel part"
@@ -3691,7 +3715,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
 msgid "Message sent on quit"
-msgstr ""
+msgstr "Порука"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Position of the horizontal pane in the main window"
@@ -3711,11 +3735,11 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:16
 msgid "Show timestamps in the main window"
-msgstr ""
+msgstr "Убацуј време у дневнике"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
 msgid "Use system fonts"
-msgstr ""
+msgstr "Списак имена"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
@@ -3733,7 +3757,7 @@ msgstr ""
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:110
 msgid "_Connect"
-msgstr ""
+msgstr "Повежи се"
 
 #: ../src/fe-gnome/conversation-panel.c:132
 msgid "_Open Link in Browser"
@@ -3749,27 +3773,27 @@ msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:138
 msgid "_Copy Address"
-msgstr ""
+msgstr "Ваша адреса"
 
 #: ../src/fe-gnome/conversation-panel.c:142
 msgid "_Send File"
-msgstr ""
+msgstr "Пошаљи датотеку"
 
 #: ../src/fe-gnome/conversation-panel.c:143
 msgid "Paste File _Contents"
-msgstr ""
+msgstr "_Садржај"
 
 #: ../src/fe-gnome/conversation-panel.c:144
 msgid "Paste File_name"
-msgstr ""
+msgstr "Нова датотека"
 
 #: ../src/fe-gnome/conversation-panel.c:145
 msgid "_Cancel"
-msgstr ""
+msgstr "Откажи"
 
 #: ../src/fe-gnome/conversation-panel.c:149 ../src/fe-gnome/main-window.c:116
 msgid "_Copy"
-msgstr ""
+msgstr "Пресликај"
 
 #: ../src/fe-gnome/conversation-panel.c:600
 #, c-format
@@ -3816,7 +3840,7 @@ msgstr "Датотека"
 
 #: ../src/fe-gnome/dcc-window.c:144
 msgid "Remaining"
-msgstr ""
+msgstr "Одлазим"
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -3837,7 +3861,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
 msgid "starting"
-msgstr ""
+msgstr "Чекам"
 
 #: ../src/fe-gnome/dcc-window.c:307
 #, c-format
@@ -3867,7 +3891,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:331
 msgid "stalled"
-msgstr ""
+msgstr "Неуспело"
 
 #: ../src/fe-gnome/dcc-window.c:335
 #, c-format
@@ -3881,7 +3905,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:450
 msgid "Send File..."
-msgstr ""
+msgstr "Пошаљи датотеку"
 
 #: ../src/fe-gnome/fe-gnome.c:58
 msgid "Use directory instead of the default config dir"
@@ -3889,15 +3913,15 @@ msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:59
 msgid "Don't auto-connect to servers"
-msgstr ""
+msgstr "Одржавај везу"
 
 #: ../src/fe-gnome/fe-gnome.c:60
 msgid "Don't auto-load plugins"
-msgstr ""
+msgstr "не учитавај додатке одмах"
 
 #: ../src/fe-gnome/fe-gnome.c:62
 msgid "Show version information"
-msgstr ""
+msgstr "покажи верзију"
 
 #: ../src/fe-gnome/fe-gnome.c:102
 #, c-format
@@ -3921,7 +3945,7 @@ msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:99
 msgid "_Next"
-msgstr ""
+msgstr "Текст"
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -3963,7 +3987,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:526
 msgid "You must enter a nick name"
-msgstr ""
+msgstr "Унесите ново име:"
 
 #: ../src/fe-gnome/irc-network-editor.c:532
 msgid "You must enter a real name"
@@ -3971,11 +3995,11 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "No Servers"
-msgstr ""
+msgstr "Рачунар"
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "You must add at least one server for this network"
-msgstr ""
+msgstr "Користи SSL за све рачунаре у овој мрежи"
 
 #: ../src/fe-gnome/irc-network.c:31
 msgid "UTF-8 (Unicode)"
@@ -4036,7 +4060,7 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:103
 msgid "_Network"
-msgstr ""
+msgstr "Мрежа"
 
 #: ../src/fe-gnome/main-window.c:104
 msgid "_Discussion"
@@ -4052,11 +4076,11 @@ msgstr "_Помоћ"
 
 #: ../src/fe-gnome/main-window.c:111
 msgid "_File Transfers"
-msgstr ""
+msgstr "Пренос датотека"
 
 #: ../src/fe-gnome/main-window.c:112
 msgid "_Quit"
-msgstr ""
+msgstr "Крај"
 
 #. Edit menu
 #: ../src/fe-gnome/main-window.c:115
@@ -4065,30 +4089,30 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:117
 msgid "_Paste"
-msgstr ""
+msgstr "Приватно"
 
 #: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
 msgid "C_lear"
-msgstr ""
+msgstr "Обриши"
 
 #: ../src/fe-gnome/main-window.c:119
 msgid "Prefere_nces"
-msgstr ""
+msgstr "Поставке..."
 
 #. Network menu
 #. Server context menu
 #: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Information"
-msgstr ""
+msgstr "Информациони домен"
 
 #: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
-msgstr ""
+msgstr "Опет повежи"
 
 #: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Disconnect"
-msgstr ""
+msgstr "Искључи се"
 
 #: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:84
 #: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
@@ -4097,7 +4121,7 @@ msgstr "_Затвори"
 
 #: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Channels..."
-msgstr ""
+msgstr "Списак канала..."
 
 #. Discussion menu
 #. Channel context menu
@@ -4109,19 +4133,19 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:89
 msgid "_Leave"
-msgstr ""
+msgstr "Одлазим"
 
 #: ../src/fe-gnome/main-window.c:131
 msgid "Cl_ose"
-msgstr ""
+msgstr "Затвори"
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "_Find"
-msgstr ""
+msgstr "Нађи"
 
 #: ../src/fe-gnome/main-window.c:133
 msgid "_Clear Window"
-msgstr ""
+msgstr "_Прозор"
 
 #: ../src/fe-gnome/main-window.c:134
 msgid "Change _Topic"
@@ -4129,20 +4153,20 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:93
 msgid "_Bans..."
-msgstr ""
+msgstr "Списак забрана..."
 
 #: ../src/fe-gnome/main-window.c:136
 msgid "_Users"
-msgstr ""
+msgstr "Корисници"
 
 #. Go menu
 #: ../src/fe-gnome/main-window.c:139
 msgid "Pre_vious Network"
-msgstr ""
+msgstr "Нова мрежа"
 
 #: ../src/fe-gnome/main-window.c:140
 msgid "Nex_t Network"
-msgstr ""
+msgstr "Нова мрежа"
 
 #: ../src/fe-gnome/main-window.c:141
 msgid "_Previous Discussion"
@@ -4165,7 +4189,7 @@ msgstr "_О програму"
 #: ../src/fe-gnome/navigation-tree.c:1579
 #: ../src/fe-gnome/navigation-tree.c:1633
 msgid "Ex-Chat"
-msgstr ""
+msgstr "Прича"
 
 #: ../src/fe-gnome/main-window.c:585
 msgid "Error showing help"
@@ -4173,17 +4197,17 @@ msgstr ""
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
 msgid "_Find..."
-msgstr ""
+msgstr "Слање датотеке..."
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
 msgid "_Auto-connect"
-msgstr ""
+msgstr "_Повежи се"
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
 msgid "_Auto-join"
-msgstr ""
+msgstr "Аутоматски"
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
@@ -4209,7 +4233,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
 msgid "File Transfers & DCC"
-msgstr ""
+msgstr "Пренос датотека"
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
@@ -4217,12 +4241,12 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
 msgid "IRC Preferences"
-msgstr ""
+msgstr "X-Chat: Поставке"
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
-msgstr ""
+msgstr "Да ли заиста треба брисати мрежу \"%s\" и све сервере у њој?"
 
 #: ../src/fe-gnome/preferences-page-networks.c:171
 msgid "Networks"
@@ -4235,7 +4259,7 @@ msgstr "Име"
 #: ../src/fe-gnome/preferences-page-plugins.c:84
 #: ../src/fe-gnome/preferences-page-plugins.c:85
 msgid "unknown"
-msgstr ""
+msgstr "Непознато"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:125
 #, c-format
@@ -4252,7 +4276,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:176
 msgid "Open Plugin"
-msgstr ""
+msgstr "Место за прикаѕ нових разговора:"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:276
 msgid "Scripts and Plugins"
@@ -4264,7 +4288,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:291
 msgid "Plugin"
-msgstr ""
+msgstr "Ping"
 
 #: ../src/fe-gnome/status-bar.c:92
 #, c-format
@@ -4274,11 +4298,11 @@ msgstr ""
 #: ../src/fe-gnome/status-bar.c:106
 #, c-format
 msgid "%d bytes buffered"
-msgstr ""
+msgstr "%d бајт(ов)(а)"
 
 #: ../src/fe-gnome/text-entry.c:274
 msgid "I_nsert Color Code"
-msgstr ""
+msgstr "Убаци боју"
 
 #: ../src/fe-gnome/text-entry.c:281
 msgid "Black"
@@ -4351,16 +4375,16 @@ msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:50
 msgid "_Send File..."
-msgstr ""
+msgstr "Пошаљи датотеку"
 
 #: ../src/fe-gnome/userlist-gui.c:51
 msgid "Private _Chat"
-msgstr ""
+msgstr "Приватно"
 
 #: ../src/fe-gnome/userlist-gui.c:52
 msgid "_Kick"
-msgstr ""
+msgstr "Шут"
 
 #: ../src/fe-gnome/userlist-gui.c:53
 msgid "_Ban"
-msgstr ""
+msgstr "Забр."

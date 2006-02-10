@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:42-0700\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -161,8 +161,9 @@ msgid "<span weight=\"bold\">File Transfers</span>"
 msgstr "<span weight=\"bold\">Dosya Aktarımları</span"
 
 #: ../data/preferences-dialog.glade.h:8
+#, fuzzy
 msgid "<span weight=\"bold\">Highlighting</span>"
-msgstr ""
+msgstr "<span weight=\"bold\">İşaretleme</span>"
 
 #: ../data/preferences-dialog.glade.h:9
 msgid "<span weight=\"bold\">Text Colors</span>"

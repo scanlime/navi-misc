@@ -2,13 +2,13 @@
 # Copyright (C) 2004-2005 xchat-gnome team
 # This file is distributed under the same license as the xchat-gnome package.
 # Patrick Schnorbus <patrick.schnorbus@tuxcenter.net>, 2005.
-# 
-# 
+#
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:18-0700\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
 "PO-Revision-Date: 2006-02-10 02:06-0700\n"
 "Last-Translator: <> <trowbrds@gmail.com>\n"
 "Language-Team: German <de@li.org>\n"
@@ -90,7 +90,7 @@ msgstr "Netzwerkeinstellungen"
 
 #: ../data/irc-network-editor.glade.h:7
 msgid "Nickser_v Password:"
-msgstr ""
+msgstr "Nickser_v Passwort:"
 
 #: ../data/irc-network-editor.glade.h:8
 msgid "Server _Password:"
@@ -130,7 +130,7 @@ msgstr "Spitz_name:"
 
 #: ../data/irc-network-editor.glade.h:17
 msgid "_Real Name:"
-msgstr "Wi_rklicher Name:"
+msgstr "_Wirklicher Name:"
 
 #: ../data/irc-network-editor.glade.h:18
 msgid "_Use secure connection (SSL)"
@@ -198,7 +198,7 @@ msgstr "H_intergrundbild"
 
 #: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
-msgstr ""
+msgstr "Hintergrund Kennzeichnung"
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
@@ -218,7 +218,7 @@ msgstr "Geben Sie zusätzliche Wörter ein, welche hervorgehoben werden sollen"
 
 #: ../data/preferences-dialog.glade.h:22
 msgid "Foreground mark:"
-msgstr ""
+msgstr "Vordergrund Kennzeichnung"
 
 #: ../data/preferences-dialog.glade.h:23
 msgid "Get IP Address From Server"
@@ -322,11 +322,11 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
-msgstr ""
+msgstr "_Abschiedsgruß:"
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
-msgstr ""
+msgstr "_Farben anzeigen"
 
 #: ../data/preferences-dialog.glade.h:49
 msgid "_Transparent background"
@@ -370,7 +370,7 @@ msgstr "Xchat-GNOME IRC Chat"
 
 #: ../data/xchat-gnome.glade.h:1
 msgid "Change nickname to:"
-msgstr ""
+msgstr "Spitzname ändern in:"
 
 #: ../data/xchat-gnome.glade.h:2
 msgid "Close this discussion"
@@ -1332,9 +1332,9 @@ msgid "Proxy traversal failed.\n"
 msgstr ""
 
 #: ../src/common/servlist.c:631
-#, c-format
+#, fuzzy, c-format
 msgid "Cycling to next server in %s...\n"
-msgstr ""
+msgstr "Weiterleitung zum nächsten Server in %s...\n"
 
 #: ../src/common/servlist.c:1050
 #, c-format
@@ -1349,9 +1349,9 @@ msgid "**** ENDING LOGGING AT %s\n"
 msgstr ""
 
 #: ../src/common/text.c:263
-#, c-format
+#, fuzzy, c-format
 msgid "**** BEGIN LOGGING AT %s\n"
-msgstr ""
+msgstr "**** STARTE PROTOKOLL UM %s\n"
 
 #: ../src/common/text.c:282
 #, c-format
@@ -1369,12 +1369,14 @@ msgid "Right message"
 msgstr ""
 
 #: ../src/common/text.c:521
+#, fuzzy
 msgid "The nick of the joining person"
-msgstr ""
+msgstr "Spitznahme der hinzugekommenen Person"
 
 #: ../src/common/text.c:522
+#, fuzzy
 msgid "The channel being joined"
-msgstr ""
+msgstr "Der zu betretene Kanal"
 
 #: ../src/common/text.c:523 ../src/common/text.c:569 ../src/common/text.c:626
 msgid "The host of the person"
@@ -1540,8 +1542,9 @@ msgid "The nick of the person who did the banning"
 msgstr ""
 
 #: ../src/common/text.c:675 ../src/common/text.c:702
+#, fuzzy
 msgid "The ban mask"
-msgstr ""
+msgstr "Die Bannkriterien"
 
 #: ../src/common/text.c:679
 msgid "The nick who removed the key"
@@ -1584,8 +1587,9 @@ msgid "The nick of the person who did the exempt"
 msgstr "Der Nick der Person, die die Ausnahme setzte"
 
 #: ../src/common/text.c:707 ../src/common/text.c:712
+#, fuzzy
 msgid "The exempt mask"
-msgstr ""
+msgstr "Die Ausnahmekriterien"
 
 #: ../src/common/text.c:711
 msgid "The nick of the person removed the exempt"
@@ -1596,8 +1600,9 @@ msgid "The nick of the person who did the invite"
 msgstr ""
 
 #: ../src/common/text.c:717 ../src/common/text.c:722
+#, fuzzy
 msgid "The invite mask"
-msgstr ""
+msgstr "Die Einladungskriterien"
 
 #: ../src/common/text.c:721
 msgid "The nick of the person removed the invite"
@@ -1620,8 +1625,9 @@ msgid "The channel it's being set on"
 msgstr ""
 
 #: ../src/common/text.c:734
+#, fuzzy
 msgid "Username"
-msgstr ""
+msgstr "Nutzername"
 
 #: ../src/common/text.c:736
 msgid "Full name"
@@ -1667,8 +1673,9 @@ msgstr "Echte IP"
 #: ../src/common/text.c:789 ../src/common/text.c:798 ../src/common/text.c:804
 #: ../src/common/text.c:833 ../src/common/text.c:987
 #: ../src/fe-gnome/channel-list.c:310
+#, fuzzy
 msgid "Channel Name"
-msgstr ""
+msgstr "Kanalname"
 
 #: ../src/common/text.c:793 ../src/common/text.c:950
 msgid "Text"
@@ -1684,20 +1691,24 @@ msgid "Nick of person who invited you"
 msgstr ""
 
 #: ../src/common/text.c:809
+#, fuzzy
 msgid "Nickname in use"
-msgstr ""
+msgstr "Spitzname in gebrauch"
 
 #: ../src/common/text.c:810
+#, fuzzy
 msgid "Nick being tried"
-msgstr ""
+msgstr "Versuchter Spitzname"
 
 #: ../src/common/text.c:819 ../src/common/text.c:954
+#, fuzzy
 msgid "IP"
-msgstr ""
+msgstr "Internetprotokoll-Adresse"
 
 #: ../src/common/text.c:820 ../src/common/text.c:850
+#, fuzzy
 msgid "Port"
-msgstr ""
+msgstr "Durchlaß"
 
 #: ../src/common/text.c:824
 msgid "PID"
@@ -1705,7 +1716,7 @@ msgstr ""
 
 #: ../src/common/text.c:834 ../src/common/text.c:839
 msgid "Modes string"
-msgstr ""
+msgstr "Modus-Zeichenfolge"
 
 #: ../src/common/text.c:849 ../src/common/text.c:887 ../src/common/text.c:892
 #: ../src/common/text.c:933
@@ -1784,12 +1795,13 @@ msgid "Nick of person who have been invited"
 msgstr ""
 
 #: ../src/common/text.c:993
+#, fuzzy
 msgid "Banmask"
-msgstr ""
+msgstr "Bannkriterien"
 
 #: ../src/common/text.c:994
 msgid "Who set the ban"
-msgstr ""
+msgstr "Bannersteller"
 
 #: ../src/common/text.c:995
 msgid "Ban time"
@@ -2115,8 +2127,9 @@ msgid "%O%C11$1%O removed from ignore list."
 msgstr ""
 
 #: ../src/common/textevents.h:225
+#, fuzzy
 msgid "  Ignore list is empty."
-msgstr ""
+msgstr "  Draussenbleiberliste ist Leer"
 
 #: ../src/common/textevents.h:228
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
@@ -4198,7 +4211,7 @@ msgstr ""
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
 msgid "_Find..."
-msgstr ""
+msgstr "_Suchen..."
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
@@ -4218,11 +4231,11 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-colors.c:224
 msgid "Colors"
-msgstr ""
+msgstr "Farben"
 
 #: ../src/fe-gnome/preferences-page-colors.c:227
 msgid "Black on White"
-msgstr ""
+msgstr "Schwarz auf Weiß"
 
 #: ../src/fe-gnome/preferences-page-colors.c:228
 msgid "White on Black"
@@ -4234,7 +4247,7 @@ msgstr "Individuell"
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
 msgid "File Transfers & DCC"
-msgstr ""
+msgstr "Dateiübertragungen und DCC"
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
@@ -4248,6 +4261,8 @@ msgstr "IRC Einstellungen"
 #, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
 msgstr ""
+"Sollen das Netzwerk \"%s\" und alle dazugehörigen Server wirklich gelöscht "
+"werden?"
 
 #: ../src/fe-gnome/preferences-page-networks.c:171
 msgid "Networks"
@@ -4273,11 +4288,11 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:137
 msgid "Plugin Load Failed"
-msgstr ""
+msgstr "Laden des Plugins fehlgeschlagen"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:176
 msgid "Open Plugin"
-msgstr ""
+msgstr "Plugin öffnen"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:276
 msgid "Scripts and Plugins"

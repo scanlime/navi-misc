@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:18-0700\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
 "PO-Revision-Date: 2006-02-10 02:12-0700\n"
 "Last-Translator: Hasbullah Bin Pit <sebol@ikhlas.com>\n"
 "Language-Team: Malay <translation-team-ms@lists.sourceforge.net>\n"
@@ -29,7 +29,7 @@ msgstr "_Nama Saluran"
 
 #: ../data/channel-list.glade.h:4
 msgid "Channel _Topic"
-msgstr ""
+msgstr "Saluran"
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
@@ -37,19 +37,19 @@ msgstr "Sertai Saluran"
 
 #: ../data/channel-list.glade.h:6
 msgid "Maximum Users:"
-msgstr ""
+msgstr "Pengguna Maksimum:"
 
 #: ../data/channel-list.glade.h:7
 msgid "Minimum Users:"
-msgstr ""
+msgstr "Pengguna Minimum:"
 
 #: ../data/channel-list.glade.h:8
 msgid "Save List _As"
-msgstr ""
+msgstr "Simpan Sebagai"
 
 #: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
-msgstr ""
+msgstr "Cetak Fail Teks"
 
 #: ../data/connect-dialog.glade.h:1
 msgid "C_onnect"
@@ -57,11 +57,11 @@ msgstr "S_ambung"
 
 #: ../data/dcc-accept.glade.h:1
 msgid "_Accept"
-msgstr ""
+msgstr "Terima"
 
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
 msgid "File Transfers"
-msgstr ""
+msgstr "Pemindahan fail"
 
 #: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
@@ -81,11 +81,11 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Character _encoding:"
-msgstr ""
+msgstr "Set Aksara:"
 
 #: ../data/irc-network-editor.glade.h:6
 msgid "Network Settings"
-msgstr ""
+msgstr "Ulangmuat Tetapan"
 
 #: ../data/irc-network-editor.glade.h:7
 msgid "Nickser_v Password:"
@@ -93,7 +93,7 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:8
 msgid "Server _Password:"
-msgstr ""
+msgstr "Katalaluan Pelayan:"
 
 #: ../data/irc-network-editor.glade.h:9
 msgid "Servers"
@@ -101,7 +101,7 @@ msgstr "Pelayan"
 
 #: ../data/irc-network-editor.glade.h:10
 msgid "Use _global user settings"
-msgstr ""
+msgstr "Ulangtetap semua Tetapan pengguna"
 
 #: ../data/irc-network-editor.glade.h:11
 msgid "Use _these user settings:"
@@ -109,15 +109,15 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:12
 msgid "User and Channels"
-msgstr ""
+msgstr "Saluran"
 
 #: ../data/irc-network-editor.glade.h:13
 msgid "_Automatically connect to network"
-msgstr ""
+msgstr "Auto Sambung semula ke Pelayan"
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Cycle until connected"
-msgstr ""
+msgstr "Kitar sehingga disambung"
 
 #: ../data/irc-network-editor.glade.h:15
 msgid "_Name:"
@@ -133,7 +133,7 @@ msgstr "_Nama Sebenar:"
 
 #: ../data/irc-network-editor.glade.h:18
 msgid "_Use secure connection (SSL)"
-msgstr ""
+msgstr "Guna SSL selamat"
 
 #: ../data/preferences-dialog.glade.h:1
 msgid "<span size=\"small\" style=\"italic\">Opaque</span>"
@@ -179,26 +179,25 @@ msgstr ""
 msgid "<span weight=\"bold\">mIRC Colors</span>"
 msgstr ""
 
-# libgnomeui/gnome-messagebox.c:147 libgnomeui/gnome-messagebox.c:280
 #: ../data/preferences-dialog.glade.h:13
 msgid "A_way message:"
-msgstr ""
+msgstr "Mesej Baru:"
 
 #: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
-msgstr ""
+msgstr "Auto Terima Chat  Langsung"
 
 #: ../data/preferences-dialog.glade.h:15
 msgid "Auto-accept DCC File Transfers"
-msgstr ""
+msgstr "Auto Terima Fail"
 
 #: ../data/preferences-dialog.glade.h:16
 msgid "Background _image"
-msgstr ""
+msgstr "Imej latarbelakang:"
 
 #: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
-msgstr ""
+msgstr "Imej latarbelakang:"
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
@@ -206,7 +205,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:19
 msgid "Convert spaces to underscores in filenames"
-msgstr ""
+msgstr "Tukar ruang ke underscore"
 
 #: ../data/preferences-dialog.glade.h:20
 msgid "Download files to:"
@@ -218,11 +217,11 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:22
 msgid "Foreground mark:"
-msgstr ""
+msgstr "LatarDepan:"
 
 #: ../data/preferences-dialog.glade.h:23
 msgid "Get IP Address From Server"
-msgstr ""
+msgstr "Dapatkan IP saya dari pelayan IRC"
 
 #: ../data/preferences-dialog.glade.h:24
 msgid "Global receive KB/s: "
@@ -246,31 +245,31 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:29
 msgid "Move completed files to:"
-msgstr ""
+msgstr "Muatturun fail ke:"
 
 #: ../data/preferences-dialog.glade.h:30
 msgid "Preferences"
-msgstr ""
+msgstr "Keutamaan..."
 
 #: ../data/preferences-dialog.glade.h:31
 msgid "Real na_me:"
-msgstr ""
+msgstr "Nama Sebenar:"
 
 #: ../data/preferences-dialog.glade.h:32
 msgid "Save sender nickname in filenames"
-msgstr ""
+msgstr "Simpan sebagai nama fail asal"
 
 #: ../data/preferences-dialog.glade.h:33
 msgid "Select A File"
-msgstr ""
+msgstr "Pilih fail output"
 
 #: ../data/preferences-dialog.glade.h:34
 msgid "Select Completed Files Directory"
-msgstr ""
+msgstr "Muatturun fail ke:"
 
 #: ../data/preferences-dialog.glade.h:35
 msgid "Select Download Directory"
-msgstr ""
+msgstr "Muatturun fail ke:"
 
 #: ../data/preferences-dialog.glade.h:36
 msgid "Show _timestamps"
@@ -288,15 +287,15 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:39
 msgid "Use This IP Address:"
-msgstr ""
+msgstr "Alamat IP DCC:"
 
 #: ../data/preferences-dialog.glade.h:40
 msgid "Use this font:"
-msgstr ""
+msgstr "Senarai Pengguna"
 
 #: ../data/preferences-dialog.glade.h:41
 msgid "_Background color:"
-msgstr ""
+msgstr "Latar _Belakang"
 
 #: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:101
 msgid "_Edit"
@@ -304,11 +303,11 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:43
 msgid "_Foreground color:"
-msgstr ""
+msgstr "LatarDepan:"
 
 #: ../data/preferences-dialog.glade.h:44
 msgid "_Nickname:"
-msgstr ""
+msgstr "Gelaran"
 
 #: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
@@ -316,11 +315,11 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:46
 msgid "_Part message:"
-msgstr ""
+msgstr "Mesej"
 
 #: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
-msgstr ""
+msgstr "Mesej"
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
@@ -328,7 +327,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:49
 msgid "_Transparent background"
-msgstr ""
+msgstr "Latar belakang telus"
 
 #: ../data/setup-dialog.glade.h:1
 msgid "Nick Name:"
@@ -356,11 +355,11 @@ msgstr ""
 
 #: ../data/topic-change.glade.h:1
 msgid "Change"
-msgstr ""
+msgstr "Saluran"
 
 #: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:92
 msgid "IRC Chat"
-msgstr ""
+msgstr "Chad"
 
 #: ../data/xchat-gnome.desktop.in.h:2
 msgid "XChat-GNOME IRC Chat"
@@ -372,13 +371,12 @@ msgstr ""
 
 #: ../data/xchat-gnome.glade.h:2
 msgid "Close this discussion"
-msgstr ""
+msgstr "Tutup tetingkap ini"
 
 #: ../data/xchat-gnome.glade.h:3
 msgid "Enter a new nickname"
-msgstr ""
+msgstr "Gelaran baru"
 
-# libgnomeui/gnome-messagebox.c:129 libgnomeui/gnome-messagebox.c:262
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
 #: ../data/xchat-gnome.glade.h:4 ../src/common/text.c:814
@@ -395,7 +393,7 @@ msgstr "Pengguna"
 
 #: ../data/xchat-gnome.glade.h:6
 msgid "nickname"
-msgstr ""
+msgstr "Gelaran"
 
 #: ../data/xchat-gnome.glade.h:7
 msgid "on all servers"
@@ -415,16 +413,16 @@ msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:213
 msgid "Automatically go away / come back"
-msgstr ""
+msgstr "_Automatik kemaskini setiap"
 
 #. Hook up our callbacks.
 #: ../plugins/autoaway/autoaway.c:231
 msgid "Disconnected"
-msgstr ""
+msgstr "Putus"
 
 #: ../plugins/autoaway/autoaway.c:232
 msgid "Connected"
-msgstr ""
+msgstr "Sambung"
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -495,7 +493,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
-msgstr ""
+msgstr "Saluran"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
@@ -503,7 +501,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
-msgstr ""
+msgstr "Pelayan"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
@@ -511,15 +509,15 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
-msgstr ""
+msgstr "Cari"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
-msgstr ""
+msgstr "Simpan Tetapan bila keluar"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
-msgstr ""
+msgstr "Nama"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:79
 #, c-format
@@ -536,22 +534,37 @@ msgstr ""
 #: ../plugins/dbus/xchat-gnome-remote.c:130
 msgid "Failed to complete command"
 msgstr ""
+"Gagal membuka font:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:125
 msgid "Failed to complete SetContext"
 msgstr ""
+"Gagal membuka font:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:135
 msgid "Failed to complete print"
 msgstr ""
+"Gagal membuka font:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:142
 msgid "Failed to complete GetInfo"
 msgstr ""
+"Gagal membuka font:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:155
 msgid "Failed to complete GetPrefs"
 msgstr ""
+"Gagal membuka font:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:159
 #, c-format
@@ -560,7 +573,7 @@ msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:36
 msgid "Network Monitor"
-msgstr ""
+msgstr "Tetapan rangkaian"
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
@@ -573,15 +586,15 @@ msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "Orientation"
-msgstr ""
+msgstr "Argentina"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "The orientation of the tray."
-msgstr ""
+msgstr "Gelaran orang itu"
 
 #: ../plugins/notification/notification.c:151
 msgid "Notification"
-msgstr ""
+msgstr "Posisi"
 
 #: ../plugins/notification/notification.c:152
 msgid "A notification area plugin."
@@ -589,11 +602,11 @@ msgstr ""
 
 #: ../plugins/notification/notification.c:239
 msgid "Notification plugin loaded.\n"
-msgstr ""
+msgstr "Tiada plugin dijumpai.\n"
 
 #: ../plugins/notification/notification.c:254
 msgid "Notification plugin unloaded.\n"
-msgstr ""
+msgstr "Tiada plugin dijumpai.\n"
 
 #: ../plugins/notification/notification.schemas.in.h:1
 msgid "Keep icon in tray at all times"
@@ -619,14 +632,12 @@ msgstr ""
 msgid "Failed to send notification: %s\n"
 msgstr ""
 
-# libgnomeui/gnome-messagebox.c:147 libgnomeui/gnome-messagebox.c:280
 #: ../plugins/notify-osd/notify-osd.c:112
 #: ../plugins/notify-osd/notify-osd.c:139
 #, c-format
 msgid "Message in %s"
 msgstr ""
 
-# libgnomeui/gnome-messagebox.c:147 libgnomeui/gnome-messagebox.c:280
 #: ../plugins/notify-osd/notify-osd.c:114
 #: ../plugins/notify-osd/notify-osd.c:141
 #, c-format
@@ -648,7 +659,7 @@ msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:45
 msgid "xchat URL scraper"
-msgstr ""
+msgstr "X-Chat: Penggenggam URL"
 
 #: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:828
 msgid "Time"
@@ -727,7 +738,7 @@ msgstr "Saya sibuk"
 
 #: ../src/common/cfgfiles.c:682
 msgid "Leaving"
-msgstr ""
+msgstr "Latvia"
 
 #: ../src/common/cfgfiles.c:728
 msgid ""
@@ -780,14 +791,14 @@ msgstr "Tiada DCC aktif\n"
 #: ../src/common/ignore.c:136 ../src/common/ignore.c:140
 #: ../src/common/ignore.c:144
 msgid "YES  "
-msgstr "YA"
+msgstr "YA  "
 
 #: ../src/common/ignore.c:122 ../src/common/ignore.c:126
 #: ../src/common/ignore.c:130 ../src/common/ignore.c:134
 #: ../src/common/ignore.c:138 ../src/common/ignore.c:142
 #: ../src/common/ignore.c:146
 msgid "NO   "
-msgstr "TIDAK"
+msgstr "TIDAK   "
 
 #: ../src/common/ignore.c:373
 #, c-format
@@ -823,19 +834,19 @@ msgstr "Saya perlukan /bin/sh untuk dilaksanakan!\n"
 
 #: ../src/common/outbound.c:1975
 msgid "Commands Available:"
-msgstr ""
+msgstr "Arahan yang Ada:"
 
 #: ../src/common/outbound.c:1989
 msgid "User defined commands:"
-msgstr ""
+msgstr "Arahan ditakrif pengguna:"
 
 #: ../src/common/outbound.c:2005
 msgid "Plugin defined commands:"
-msgstr ""
+msgstr "Arahan ditakrif pengguna:"
 
 #: ../src/common/outbound.c:2016
 msgid "Type /HELP <command> for more information, or /HELP -l"
-msgstr ""
+msgstr "Taip /HELP <arahan> untuk lebih maklumat, atau /HELP -l"
 
 #: ../src/common/outbound.c:2091
 #, c-format
@@ -860,7 +871,7 @@ msgstr "ALLCHAN <arahan>, hantar arahan ke semua saluran yang anda sertai"
 
 #: ../src/common/outbound.c:3182
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
-msgstr ""
+msgstr "ALLCHAN <arahan>, hantar arahan ke semua saluran yang anda sertai"
 
 #: ../src/common/outbound.c:3184
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
@@ -877,19 +888,17 @@ msgid ""
 "chanop)"
 msgstr ""
 
-# libgnomeui/gnome-app-helper.c:253
 #: ../src/common/outbound.c:3189
 msgid "CLEAR, Clears the current text window"
 msgstr "CLEAR, Kosongkan teks tetingkap semasa"
 
-# libgnomeui/gnome-app-helper.c:253
 #: ../src/common/outbound.c:3190
 msgid "CLOSE, Closes the current window/tab"
 msgstr "CLOSE, Tutup tetingkap/tab semasa"
 
 #: ../src/common/outbound.c:3193
 msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
-msgstr ""
+msgstr "COUNTRY <kod>, cari kod negara , eg: my = malaysia"
 
 #: ../src/common/outbound.c:3195
 msgid ""
@@ -1253,7 +1262,7 @@ msgstr ""
 
 #: ../src/common/server.c:967
 msgid "Proxy traversal failed.\n"
-msgstr ""
+msgstr "Notifikasi Pemindahan gagal\n"
 
 #: ../src/common/servlist.c:631
 #, c-format
@@ -1286,11 +1295,11 @@ msgstr ""
 
 #: ../src/common/text.c:516
 msgid "Left message"
-msgstr ""
+msgstr "Mesej"
 
 #: ../src/common/text.c:517
 msgid "Right message"
-msgstr ""
+msgstr "Mesej"
 
 #: ../src/common/text.c:521
 msgid "The nick of the joining person"
@@ -1333,7 +1342,7 @@ msgstr "Teks"
 
 #: ../src/common/text.c:536 ../src/common/text.c:609
 msgid "Identified text"
-msgstr ""
+msgstr "Teks maklumat"
 
 #: ../src/common/text.c:541 ../src/common/text.c:597 ../src/common/text.c:603
 #: ../src/common/text.c:608
@@ -1441,7 +1450,7 @@ msgstr "Gelaran orang yang memberi op"
 
 #: ../src/common/text.c:660
 msgid "The nick of the person who has been op'ed"
-msgstr ""
+msgstr "Gelaran orang yang telah di'op'kan"
 
 #: ../src/common/text.c:664
 msgid "The nick of the person who has been halfop'ed"
@@ -1473,7 +1482,7 @@ msgstr "Gelaran orang yang membuang kekunci"
 
 #: ../src/common/text.c:683
 msgid "The nick who removed the limit"
-msgstr ""
+msgstr "Klik untuk membuang Tatacara"
 
 #: ../src/common/text.c:687
 msgid "The nick of the person of did the deop'ing"
@@ -1481,7 +1490,7 @@ msgstr "Gelaran orang yang menarikbalik op"
 
 #: ../src/common/text.c:688
 msgid "The nick of the person who has been deop'ed"
-msgstr ""
+msgstr "Pecahan jumlah kerja yang telah selesai"
 
 #: ../src/common/text.c:691
 msgid "The nick of the person of did the dehalfop'ing"
@@ -1521,7 +1530,7 @@ msgstr ""
 
 #: ../src/common/text.c:717 ../src/common/text.c:722
 msgid "The invite mask"
-msgstr ""
+msgstr "Masa ketika permulaan"
 
 #: ../src/common/text.c:721
 msgid "The nick of the person removed the invite"
@@ -1537,7 +1546,7 @@ msgstr ""
 
 #: ../src/common/text.c:728
 msgid "The mode letter"
-msgstr ""
+msgstr "Padaman Jadual"
 
 #: ../src/common/text.c:729
 msgid "The channel it's being set on"
@@ -1565,13 +1574,12 @@ msgstr "Masa leka"
 
 #: ../src/common/text.c:757
 msgid "Signon time"
-msgstr ""
+msgstr "_T.tangan"
 
 #: ../src/common/text.c:762
 msgid "Away reason"
 msgstr "Alasan away"
 
-# libgnomeui/gnome-messagebox.c:147 libgnomeui/gnome-messagebox.c:280
 #: ../src/common/text.c:771 ../src/common/text.c:777 ../src/common/text.c:785
 #: ../src/common/text.c:964
 msgid "Message"
@@ -1579,11 +1587,11 @@ msgstr "Mesej"
 
 #: ../src/common/text.c:778
 msgid "Account"
-msgstr ""
+msgstr "Terima"
 
 #: ../src/common/text.c:783
 msgid "Real user@host"
-msgstr ""
+msgstr "Sorok/Papar Opsyen"
 
 #: ../src/common/text.c:784
 msgid "Real IP"
@@ -1595,7 +1603,6 @@ msgstr ""
 msgid "Channel Name"
 msgstr "Nama Saluran"
 
-# libgnomeui/gnome-stock.c:844
 #: ../src/common/text.c:793 ../src/common/text.c:950
 msgid "Text"
 msgstr "Teks"
@@ -1629,7 +1636,6 @@ msgstr "Liang"
 msgid "PID"
 msgstr "PID"
 
-# libgnomeui/gnome-dentry-edit.c:389
 #: ../src/common/text.c:834 ../src/common/text.c:839
 msgid "Modes string"
 msgstr "Rentetan mod"
@@ -1666,7 +1672,6 @@ msgstr "Nama path"
 msgid "Position"
 msgstr "Posisi"
 
-# Saiz bra
 #: ../src/common/text.c:932
 msgid "Size"
 msgstr "Saiz"
@@ -1755,7 +1760,7 @@ msgstr "-%C10-%C11-%O$t$1 kini dikenali sebagai $2"
 
 #: ../src/common/textevents.h:21
 msgid "%C13*%O$t$1 $2%O"
-msgstr ""
+msgstr "%C13*%O$t$1 $2%O"
 
 #: ../src/common/textevents.h:24
 msgid "%C13*%O$t%C8%B$1%B%O $2%O"
@@ -1772,14 +1777,15 @@ msgstr "-%C10-%C11-%O$tSaluran $1 dicipta pada $2"
 #: ../src/common/textevents.h:33
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
 msgstr ""
+"-%C10-%C11-%O$t%C11$1%O membuang status semi-operator saluran drpd %C11$2"
 
 #: ../src/common/textevents.h:36
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O membuang status operator saluran drpd %C11$2"
 
 #: ../src/common/textevents.h:39
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O membuang voice drpd %C11$2"
 
 #: ../src/common/textevents.h:42
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
@@ -1787,7 +1793,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:45
 msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O memberi status operator saluran kepada %C11$2"
 
 #: ../src/common/textevents.h:48
 msgid "-%C10-%C11-%O$t$1 sets invite on $2"
@@ -1819,7 +1825,7 @@ msgstr "%C12-%C13$1/$2%C12-%O$t$3%O"
 
 #: ../src/common/textevents.h:69
 msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O memberi status operator saluran kepada %C11$2"
 
 #: ../src/common/textevents.h:72
 msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
@@ -1851,7 +1857,7 @@ msgstr "-%C10-%C11-%O$t$1 membuang ban pada $2"
 
 #: ../src/common/textevents.h:93
 msgid "-%C10-%C11-%O$t$1 gives voice to $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O memberi voice kepada %C11$2"
 
 #: ../src/common/textevents.h:96
 msgid "-%C10-%C11-%O$tConnected. Now logging in.."
@@ -1884,7 +1890,7 @@ msgstr "-%C10-%C11-%O$tMenerima CTCP Sound $1 drpd $2"
 
 #: ../src/common/textevents.h:117
 msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
-msgstr ""
+msgstr "-%C10-%C11-%O$tMenerima CTCP $1 drpd $2 (ke $3)"
 
 #: ../src/common/textevents.h:120
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
@@ -1900,6 +1906,7 @@ msgstr ""
 msgid ""
 "-%C10-%C11-%O$tDCC CHAT failed. Connection to $1 %C14[%O$2:$3%C14]%O lost."
 msgstr ""
+"-%C10-%C11-%O$tSambungan DCC CHAT terjalin dengan %C11$1 %C14[%O$2%C14]%O"
 
 #: ../src/common/textevents.h:129
 msgid "-%C10-%C11-%O$tReceived a DCC CHAT offer from $1"
@@ -1957,11 +1964,11 @@ msgstr ""
 
 #: ../src/common/textevents.h:165
 msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
-msgstr ""
+msgstr "-%C10-%C11-%O$t$1 ditambah ke senarai notifikasi."
 
 #: ../src/common/textevents.h:168
 msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
-msgstr ""
+msgstr "-%C10-%C11-%O$tDCC CHAT dengan %C11$1%O hilang. $4."
 
 #: ../src/common/textevents.h:171
 msgid ""
@@ -1990,7 +1997,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:186
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O memberi voice kepada %C11$2"
 
 #: ../src/common/textevents.h:189
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
@@ -2201,7 +2208,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:360
 msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O memberi voice kepada %C11$2"
 
 #: ../src/common/textevents.h:363
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
@@ -2217,7 +2224,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:372
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O memberi voice kepada %C11$2"
 
 #: ../src/common/textevents.h:375
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
@@ -2242,7 +2249,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:390
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
-msgstr ""
+msgstr "%C13*%O$t%C8%B$1%B%O $2%O"
 
 #: ../src/common/textevents.h:393
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
@@ -2274,7 +2281,7 @@ msgstr ""
 
 #: ../src/common/util.c:296
 msgid "Remote host closed socket"
-msgstr ""
+msgstr "Buang helaian ini"
 
 #: ../src/common/util.c:301
 msgid "Connection refused"
@@ -2286,7 +2293,7 @@ msgstr "Tiada route ke hos"
 
 #: ../src/common/util.c:306
 msgid "Connection timed out"
-msgstr "Sambungan melebihi hadmasa "
+msgstr "Sambungan melebihi hadmasa"
 
 #: ../src/common/util.c:308
 msgid "Cannot assign that address"
@@ -2294,7 +2301,7 @@ msgstr "Tak dapat mengumpukkan alamat"
 
 #: ../src/common/util.c:310
 msgid "Connection reset by peer"
-msgstr ""
+msgstr "Sambungan ditolak"
 
 #: ../src/common/util.c:837
 msgid "Andorra"
@@ -2474,7 +2481,7 @@ msgstr "Switzerland"
 
 #: ../src/common/util.c:881
 msgid "Cote d'Ivoire"
-msgstr ""
+msgstr "Cote D'ivoire"
 
 #: ../src/common/util.c:882
 msgid "Cook Islands"
@@ -2588,7 +2595,6 @@ msgstr "Ethiopia"
 msgid "Finland"
 msgstr "Finland"
 
-# libgnomeui/gnome-druid.c:136
 #: ../src/common/util.c:910
 msgid "Fiji"
 msgstr "Fiji"
@@ -2635,7 +2641,7 @@ msgstr "French Guiana"
 
 #: ../src/common/util.c:921
 msgid "British Channel Isles"
-msgstr ""
+msgstr "British Virgin Islands"
 
 #: ../src/common/util.c:922
 msgid "Ghana"
@@ -2699,7 +2705,7 @@ msgstr "Hong Kong"
 
 #: ../src/common/util.c:937
 msgid "Heard and McDonald Islands"
-msgstr ""
+msgstr "Kepulauan Caicos dan Turks"
 
 #: ../src/common/util.c:938
 msgid "Honduras"
@@ -2735,7 +2741,7 @@ msgstr "India"
 
 #: ../src/common/util.c:946
 msgid "Informational"
-msgstr ""
+msgstr "Antarabangsa"
 
 #: ../src/common/util.c:947
 msgid "International"
@@ -2743,7 +2749,7 @@ msgstr "Antarabangsa"
 
 #: ../src/common/util.c:948
 msgid "British Indian Ocean Territory"
-msgstr ""
+msgstr "Wilayah Utara"
 
 #: ../src/common/util.c:949
 msgid "Iraq"
@@ -2911,7 +2917,7 @@ msgstr "Macau"
 
 #: ../src/common/util.c:990
 msgid "Northern Mariana Islands"
-msgstr ""
+msgstr "Ireland Utara"
 
 #: ../src/common/util.c:991
 msgid "Martinique"
@@ -3059,7 +3065,7 @@ msgstr "Puerto Rico"
 
 #: ../src/common/util.c:1027
 msgid "Palestinian Territory"
-msgstr ""
+msgstr "Wilayah Utara"
 
 #: ../src/common/util.c:1028
 msgid "Portugal"
@@ -3079,7 +3085,7 @@ msgstr "Qatar"
 
 #: ../src/common/util.c:1032
 msgid "Reunion"
-msgstr ""
+msgstr "Kawasan"
 
 #: ../src/common/util.c:1033
 msgid "Romania"
@@ -3187,7 +3193,7 @@ msgstr "Chad"
 
 #: ../src/common/util.c:1059
 msgid "French Southern Territories"
-msgstr ""
+msgstr "Wilayah Utara"
 
 #: ../src/common/util.c:1060
 msgid "Togo"
@@ -3255,7 +3261,7 @@ msgstr "United Kingdom"
 
 #: ../src/common/util.c:1076
 msgid "US Minor Outlying Islands"
-msgstr ""
+msgstr "Kepulauan Society"
 
 #: ../src/common/util.c:1077
 msgid "United States of America"
@@ -3271,11 +3277,11 @@ msgstr "Uzbekistan"
 
 #: ../src/common/util.c:1080
 msgid "Vatican City State"
-msgstr ""
+msgstr "Vatican City"
 
 #: ../src/common/util.c:1081
 msgid "St. Vincent and the Grenadines"
-msgstr ""
+msgstr "St. Vincent and the Grenadines"
 
 #: ../src/common/util.c:1082
 msgid "Venezuela"
@@ -3311,7 +3317,7 @@ msgstr "Yaman"
 
 #: ../src/common/util.c:1090
 msgid "Mayotte"
-msgstr ""
+msgstr "Kepulauan Mayotte"
 
 #: ../src/common/util.c:1091
 msgid "Yugoslavia"
@@ -3339,7 +3345,7 @@ msgstr "Buka Tetingkap Dialog"
 
 #: ../src/common/xchat.c:738
 msgid "Send a File"
-msgstr ""
+msgstr "Kirim fail kepada %s"
 
 #: ../src/common/xchat.c:739
 msgid "User Info (WHOIS)"
@@ -3347,7 +3353,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:740
 msgid "Operator Actions"
-msgstr ""
+msgstr "Aksi"
 
 #: ../src/common/xchat.c:742 ../src/common/xchat.c:833
 msgid "Give Ops"
@@ -3381,7 +3387,7 @@ msgstr "Tendang"
 #: ../src/common/xchat.c:847 ../src/common/xchat.c:848
 #: ../src/common/xchat.c:891
 msgid "Ban"
-msgstr ""
+msgstr "Bhutan"
 
 #: ../src/common/xchat.c:754 ../src/common/xchat.c:755
 #: ../src/common/xchat.c:756 ../src/common/xchat.c:757
@@ -3396,7 +3402,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:821
 msgid "Send File"
-msgstr ""
+msgstr "Kirim fail kepada %s"
 
 #: ../src/common/xchat.c:822
 msgid "Offer Chat"
@@ -3404,16 +3410,15 @@ msgstr ""
 
 #: ../src/common/xchat.c:823
 msgid "Abort Chat"
-msgstr ""
+msgstr "Perihal X-Chat"
 
 #: ../src/common/xchat.c:824
 msgid "Version"
 msgstr "Versi"
 
-# libgnomeui/gnome-scores.c:99
 #: ../src/common/xchat.c:825
 msgid "Userinfo"
-msgstr ""
+msgstr "Pengguna"
 
 #: ../src/common/xchat.c:826
 msgid "Clientinfo"
@@ -3426,11 +3431,11 @@ msgstr "Ping"
 
 #: ../src/common/xchat.c:829
 msgid "Finger"
-msgstr ""
+msgstr "Niger"
 
 #: ../src/common/xchat.c:830
 msgid "Oper"
-msgstr ""
+msgstr "Buka"
 
 #: ../src/common/xchat.c:831
 msgid "Kill this user"
@@ -3442,11 +3447,11 @@ msgstr "Mod"
 
 #: ../src/common/xchat.c:835
 msgid "Give Half-Ops"
-msgstr ""
+msgstr "Beri Ops"
 
 #: ../src/common/xchat.c:836
 msgid "Take Half-Ops"
-msgstr ""
+msgstr "Ambil Ops"
 
 #: ../src/common/xchat.c:839 ../src/fe-gnome/userlist-gui.c:54
 msgid "Ignore"
@@ -3498,7 +3503,7 @@ msgstr "Telnet"
 
 #: ../src/common/xchat.c:874
 msgid "Leave Channel"
-msgstr ""
+msgstr "Saluran"
 
 #: ../src/common/xchat.c:875
 msgid "Join Channel..."
@@ -3506,7 +3511,7 @@ msgstr "Sertai Saluran..."
 
 #: ../src/common/xchat.c:876
 msgid "Enter Channel to Join:"
-msgstr ""
+msgstr "Saluran ini akan"
 
 #: ../src/common/xchat.c:877
 msgid "Server Links"
@@ -3539,7 +3544,7 @@ msgstr "Masukkan alasan untuk tendang %s:"
 
 #: ../src/common/xchat.c:895
 msgid "Sendfile"
-msgstr ""
+msgstr "Fail bunyi:"
 
 #: ../src/common/xchat.c:896
 msgid "Dialog"
@@ -3547,11 +3552,11 @@ msgstr "Dialog"
 
 #: ../src/common/xchat.c:906
 msgid "Send"
-msgstr ""
+msgstr "Hantar"
 
 #: ../src/common/xchat.c:907
 msgid "Chat"
-msgstr ""
+msgstr "Chad"
 
 #: ../src/common/xchat.c:908
 msgid "Clear"
@@ -3606,11 +3611,11 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
 msgid "Background image filename"
-msgstr ""
+msgstr "Imej latarbelakang:"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:2
 msgid "Background transparency"
-msgstr ""
+msgstr "Imej latarbelakang:"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Default nickname used by servers without special options set"
@@ -3636,19 +3641,17 @@ msgstr ""
 msgid "List of enabled plugins"
 msgstr ""
 
-# libgnomeui/gnome-messagebox.c:147 libgnomeui/gnome-messagebox.c:280
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
 msgid "Message sent on away"
-msgstr ""
+msgstr "Mesej"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Message sent on channel part"
 msgstr ""
 
-# libgnomeui/gnome-messagebox.c:147 libgnomeui/gnome-messagebox.c:280
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
 msgid "Message sent on quit"
-msgstr ""
+msgstr "Mesej"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Position of the horizontal pane in the main window"
@@ -3672,7 +3675,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
 msgid "Use system fonts"
-msgstr ""
+msgstr "Senarai Pengguna"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
@@ -3690,7 +3693,7 @@ msgstr ""
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:110
 msgid "_Connect"
-msgstr ""
+msgstr "Sambung"
 
 #: ../src/fe-gnome/conversation-panel.c:132
 msgid "_Open Link in Browser"
@@ -3706,27 +3709,27 @@ msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:138
 msgid "_Copy Address"
-msgstr ""
+msgstr "Alamat IP"
 
 #: ../src/fe-gnome/conversation-panel.c:142
 msgid "_Send File"
-msgstr ""
+msgstr "Kirim fail kepada %s"
 
 #: ../src/fe-gnome/conversation-panel.c:143
 msgid "Paste File _Contents"
-msgstr ""
+msgstr "_Kandungan"
 
 #: ../src/fe-gnome/conversation-panel.c:144
 msgid "Paste File_name"
-msgstr ""
+msgstr "Namafail Baru"
 
 #: ../src/fe-gnome/conversation-panel.c:145
 msgid "_Cancel"
-msgstr ""
+msgstr "Batal"
 
 #: ../src/fe-gnome/conversation-panel.c:149 ../src/fe-gnome/main-window.c:116
 msgid "_Copy"
-msgstr ""
+msgstr "Salin"
 
 #: ../src/fe-gnome/conversation-panel.c:600
 #, c-format
@@ -3773,7 +3776,7 @@ msgstr "Fail"
 
 #: ../src/fe-gnome/dcc-window.c:144
 msgid "Remaining"
-msgstr ""
+msgstr "Latvia"
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -3794,7 +3797,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
 msgid "starting"
-msgstr ""
+msgstr "Menunggu"
 
 #: ../src/fe-gnome/dcc-window.c:307
 #, c-format
@@ -3824,7 +3827,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:331
 msgid "stalled"
-msgstr ""
+msgstr "Gagal"
 
 #: ../src/fe-gnome/dcc-window.c:335
 #, c-format
@@ -3838,7 +3841,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:450
 msgid "Send File..."
-msgstr ""
+msgstr "Kirim fail kepada %s"
 
 #: ../src/fe-gnome/fe-gnome.c:58
 msgid "Use directory instead of the default config dir"
@@ -3846,7 +3849,7 @@ msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:59
 msgid "Don't auto-connect to servers"
-msgstr ""
+msgstr "Auto Sambung semula ke Pelayan"
 
 #: ../src/fe-gnome/fe-gnome.c:60
 msgid "Don't auto-load plugins"
@@ -3854,7 +3857,7 @@ msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:62
 msgid "Show version information"
-msgstr ""
+msgstr "Maklumat Pelayan"
 
 #: ../src/fe-gnome/fe-gnome.c:102
 #, c-format
@@ -3876,10 +3879,9 @@ msgstr "Cari:"
 msgid "_Previous"
 msgstr ""
 
-# libgnomeui/gnome-stock.c:844
 #: ../src/fe-gnome/find-bar.c:99
 msgid "_Next"
-msgstr ""
+msgstr "Teks"
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -3921,7 +3923,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:526
 msgid "You must enter a nick name"
-msgstr ""
+msgstr "Gelaran baru"
 
 #: ../src/fe-gnome/irc-network-editor.c:532
 msgid "You must enter a real name"
@@ -3929,7 +3931,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "No Servers"
-msgstr ""
+msgstr "Pelayan"
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "You must add at least one server for this network"
@@ -3994,7 +3996,7 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:103
 msgid "_Network"
-msgstr ""
+msgstr "Rangkaian"
 
 #: ../src/fe-gnome/main-window.c:104
 msgid "_Discussion"
@@ -4010,11 +4012,11 @@ msgstr "_Bantuan"
 
 #: ../src/fe-gnome/main-window.c:111
 msgid "_File Transfers"
-msgstr ""
+msgstr "Pemindahan fail"
 
 #: ../src/fe-gnome/main-window.c:112
 msgid "_Quit"
-msgstr ""
+msgstr "Keluar"
 
 #. Edit menu
 #: ../src/fe-gnome/main-window.c:115
@@ -4023,32 +4025,31 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:117
 msgid "_Paste"
-msgstr ""
+msgstr "Pencetak"
 
 #: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
 msgid "C_lear"
-msgstr ""
+msgstr "Kosongkan"
 
 #: ../src/fe-gnome/main-window.c:119
 msgid "Prefere_nces"
-msgstr ""
+msgstr "Keutamaan..."
 
 #. Network menu
 #. Server context menu
 #: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Information"
-msgstr ""
+msgstr "Antarabangsa"
 
 #: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
-msgstr ""
+msgstr "UlangSambung"
 
 #: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Disconnect"
-msgstr ""
+msgstr "Putus"
 
-# libgnomeui/gnome-stock.c:840 libgnomeui/stock_demo.c:144
 #: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:84
 #: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
 msgid "_Close"
@@ -4056,7 +4057,7 @@ msgstr "_Tutup"
 
 #: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Channels..."
-msgstr ""
+msgstr "Senarai Saluran..."
 
 #. Discussion menu
 #. Channel context menu
@@ -4068,20 +4069,19 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:89
 msgid "_Leave"
-msgstr ""
+msgstr "Latvia"
 
-# libgnomeui/gnome-stock.c:840 libgnomeui/stock_demo.c:144
 #: ../src/fe-gnome/main-window.c:131
 msgid "Cl_ose"
-msgstr ""
+msgstr "Tutup"
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "_Find"
-msgstr ""
+msgstr "Cari"
 
 #: ../src/fe-gnome/main-window.c:133
 msgid "_Clear Window"
-msgstr ""
+msgstr "_Tetingkap"
 
 #: ../src/fe-gnome/main-window.c:134
 msgid "Change _Topic"
@@ -4089,20 +4089,20 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:93
 msgid "_Bans..."
-msgstr ""
+msgstr "Senarai Ban"
 
 #: ../src/fe-gnome/main-window.c:136
 msgid "_Users"
-msgstr ""
+msgstr "Pengguna"
 
 #. Go menu
 #: ../src/fe-gnome/main-window.c:139
 msgid "Pre_vious Network"
-msgstr ""
+msgstr "Rangkaian Baru"
 
 #: ../src/fe-gnome/main-window.c:140
 msgid "Nex_t Network"
-msgstr ""
+msgstr "Rangkaian Baru"
 
 #: ../src/fe-gnome/main-window.c:141
 msgid "_Previous Discussion"
@@ -4125,20 +4125,20 @@ msgstr "_Perihal"
 #: ../src/fe-gnome/navigation-tree.c:1579
 #: ../src/fe-gnome/navigation-tree.c:1633
 msgid "Ex-Chat"
-msgstr ""
+msgstr "Chad"
 
 #: ../src/fe-gnome/main-window.c:585
 msgid "Error showing help"
-msgstr ""
+msgstr "Rentetan ralat"
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
 msgid "_Find..."
-msgstr ""
+msgstr "Fail Dihantar..."
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
 msgid "_Auto-connect"
-msgstr ""
+msgstr "S_ambung"
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
@@ -4169,7 +4169,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
 msgid "File Transfers & DCC"
-msgstr ""
+msgstr "Pemindahan fail"
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
@@ -4177,7 +4177,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
 msgid "IRC Preferences"
-msgstr ""
+msgstr "X-Chat: Keutamaan"
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
@@ -4195,7 +4195,7 @@ msgstr "Nama"
 #: ../src/fe-gnome/preferences-page-plugins.c:84
 #: ../src/fe-gnome/preferences-page-plugins.c:85
 msgid "unknown"
-msgstr ""
+msgstr "Entah"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:125
 #, c-format
@@ -4212,7 +4212,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:176
 msgid "Open Plugin"
-msgstr ""
+msgstr "Buka log"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:276
 msgid "Scripts and Plugins"
@@ -4224,7 +4224,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:291
 msgid "Plugin"
-msgstr ""
+msgstr "Ping"
 
 #: ../src/fe-gnome/status-bar.c:92
 #, c-format
@@ -4238,7 +4238,7 @@ msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:274
 msgid "I_nsert Color Code"
-msgstr ""
+msgstr "Masukkan kod warna"
 
 #: ../src/fe-gnome/text-entry.c:281
 msgid "Black"
@@ -4311,16 +4311,16 @@ msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:50
 msgid "_Send File..."
-msgstr ""
+msgstr "Kirim fail kepada %s"
 
 #: ../src/fe-gnome/userlist-gui.c:51
 msgid "Private _Chat"
-msgstr ""
+msgstr "Pencetak"
 
 #: ../src/fe-gnome/userlist-gui.c:52
 msgid "_Kick"
-msgstr ""
+msgstr "Tendang"
 
 #: ../src/fe-gnome/userlist-gui.c:53
 msgid "_Ban"
-msgstr ""
+msgstr "Bhutan"

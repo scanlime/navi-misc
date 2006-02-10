@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:18-0700\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
 "PO-Revision-Date: 2006-02-10 02:12-0700\n"
 "Last-Translator: Kjartan Maraas <kmaraas@broadpark.no>\n"
 "Language-Team: Norwegian Bokmaal <i18n-nb@lister.ping.uio.no>\n"
@@ -26,11 +26,11 @@ msgstr ""
 
 #: ../data/channel-list.glade.h:3
 msgid "Channel _Name"
-msgstr ""
+msgstr "Navn på kanal"
 
 #: ../data/channel-list.glade.h:4
 msgid "Channel _Topic"
-msgstr ""
+msgstr "Kanal"
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
@@ -46,11 +46,11 @@ msgstr ""
 
 #: ../data/channel-list.glade.h:8
 msgid "Save List _As"
-msgstr ""
+msgstr "Lagre som"
 
 #: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
-msgstr ""
+msgstr "Farger"
 
 #: ../data/connect-dialog.glade.h:1
 msgid "C_onnect"
@@ -58,11 +58,11 @@ msgstr ""
 
 #: ../data/dcc-accept.glade.h:1
 msgid "_Accept"
-msgstr ""
+msgstr "Godta"
 
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
 msgid "File Transfers"
-msgstr ""
+msgstr "Filoverføringer"
 
 #: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
@@ -82,11 +82,11 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Character _encoding:"
-msgstr ""
+msgstr "Tegnsett:"
 
 #: ../data/irc-network-editor.glade.h:6
 msgid "Network Settings"
-msgstr ""
+msgstr "Gjenles innstillinger"
 
 #: ../data/irc-network-editor.glade.h:7
 msgid "Nickser_v Password:"
@@ -94,15 +94,15 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:8
 msgid "Server _Password:"
-msgstr ""
+msgstr "Passord for tjener:"
 
 #: ../data/irc-network-editor.glade.h:9
 msgid "Servers"
-msgstr ""
+msgstr "Tjener"
 
 #: ../data/irc-network-editor.glade.h:10
 msgid "Use _global user settings"
-msgstr ""
+msgstr "Gjenles innstillinger"
 
 #: ../data/irc-network-editor.glade.h:11
 msgid "Use _these user settings:"
@@ -110,11 +110,11 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:12
 msgid "User and Channels"
-msgstr ""
+msgstr "Forlat kanal"
 
 #: ../data/irc-network-editor.glade.h:13
 msgid "_Automatically connect to network"
-msgstr ""
+msgstr "Koble til igjen automatisk"
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Cycle until connected"
@@ -122,15 +122,15 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:15
 msgid "_Name:"
-msgstr ""
+msgstr "Navn"
 
 #: ../data/irc-network-editor.glade.h:16
 msgid "_Nick name:"
-msgstr ""
+msgstr "Kallenavn:"
 
 #: ../data/irc-network-editor.glade.h:17
 msgid "_Real Name:"
-msgstr ""
+msgstr "Virkelig navn:"
 
 #: ../data/irc-network-editor.glade.h:18
 msgid "_Use secure connection (SSL)"
@@ -182,23 +182,23 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:13
 msgid "A_way message:"
-msgstr ""
+msgstr "Ny melding:"
 
 #: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
-msgstr ""
+msgstr "Godta DCC-snakk automatisk"
 
 #: ../data/preferences-dialog.glade.h:15
 msgid "Auto-accept DCC File Transfers"
-msgstr ""
+msgstr "Godta DCC-send automatisk"
 
 #: ../data/preferences-dialog.glade.h:16
 msgid "Background _image"
-msgstr ""
+msgstr "Bakgrunnsbilde:"
 
 #: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
-msgstr ""
+msgstr "Bakgrunnsbilde:"
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
@@ -214,11 +214,11 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:21
 msgid "Enter extra words to trigger highlighting"
-msgstr ""
+msgstr "Ord som skal utheves:"
 
 #: ../data/preferences-dialog.glade.h:22
 msgid "Foreground mark:"
-msgstr ""
+msgstr "Forgrunn:"
 
 #: ../data/preferences-dialog.glade.h:23
 msgid "Get IP Address From Server"
@@ -250,23 +250,23 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:30
 msgid "Preferences"
-msgstr ""
+msgstr "Brukervalg..."
 
 #: ../data/preferences-dialog.glade.h:31
 msgid "Real na_me:"
-msgstr ""
+msgstr "Virkelig navn:"
 
 #: ../data/preferences-dialog.glade.h:32
 msgid "Save sender nickname in filenames"
-msgstr ""
+msgstr "Bruk avsenders kallenavn i innkommende filnavn"
 
 #: ../data/preferences-dialog.glade.h:33
 msgid "Select A File"
-msgstr ""
+msgstr "Lydfil:"
 
 #: ../data/preferences-dialog.glade.h:34
 msgid "Select Completed Files Directory"
-msgstr ""
+msgstr "Lydfil:"
 
 #: ../data/preferences-dialog.glade.h:35
 msgid "Select Download Directory"
@@ -274,7 +274,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:36
 msgid "Show _timestamps"
-msgstr ""
+msgstr "Alltid bruk tidsstempel på logger"
 
 #: ../data/preferences-dialog.glade.h:37
 msgid ""
@@ -288,15 +288,15 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:39
 msgid "Use This IP Address:"
-msgstr ""
+msgstr "IP-adresse"
 
 #: ../data/preferences-dialog.glade.h:40
 msgid "Use this font:"
-msgstr ""
+msgstr "Brukerliste"
 
 #: ../data/preferences-dialog.glade.h:41
 msgid "_Background color:"
-msgstr ""
+msgstr "Bakgrunn:"
 
 #: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:101
 msgid "_Edit"
@@ -304,11 +304,11 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:43
 msgid "_Foreground color:"
-msgstr ""
+msgstr "Forgrunn:"
 
 #: ../data/preferences-dialog.glade.h:44
 msgid "_Nickname:"
-msgstr ""
+msgstr "Kallenavn:"
 
 #: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
@@ -316,11 +316,11 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:46
 msgid "_Part message:"
-msgstr ""
+msgstr "Ny melding:"
 
 #: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
-msgstr ""
+msgstr "Høyre melding"
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
@@ -328,15 +328,15 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:49
 msgid "_Transparent background"
-msgstr ""
+msgstr "Gjennomsiktig bakgrunn"
 
 #: ../data/setup-dialog.glade.h:1
 msgid "Nick Name:"
-msgstr ""
+msgstr "Kallenavn:"
 
 #: ../data/setup-dialog.glade.h:2
 msgid "Real Name:"
-msgstr ""
+msgstr "Virkelig navn:"
 
 #: ../data/setup-dialog.glade.h:3
 msgid ""
@@ -356,11 +356,11 @@ msgstr ""
 
 #: ../data/topic-change.glade.h:1
 msgid "Change"
-msgstr ""
+msgstr "Kanal"
 
 #: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:92
 msgid "IRC Chat"
-msgstr ""
+msgstr "Chat"
 
 #: ../data/xchat-gnome.desktop.in.h:2
 msgid "XChat-GNOME IRC Chat"
@@ -376,7 +376,7 @@ msgstr ""
 
 #: ../data/xchat-gnome.glade.h:3
 msgid "Enter a new nickname"
-msgstr ""
+msgstr "Oppgi nytt kallenavn:"
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
@@ -394,7 +394,7 @@ msgstr "Brukere"
 
 #: ../data/xchat-gnome.glade.h:6
 msgid "nickname"
-msgstr ""
+msgstr "Kallenavn"
 
 #: ../data/xchat-gnome.glade.h:7
 msgid "on all servers"
@@ -414,16 +414,16 @@ msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:213
 msgid "Automatically go away / come back"
-msgstr ""
+msgstr "Åpne DCC-prat vindu automatisk"
 
 #. Hook up our callbacks.
 #: ../plugins/autoaway/autoaway.c:231
 msgid "Disconnected"
-msgstr ""
+msgstr "Koble fra"
 
 #: ../plugins/autoaway/autoaway.c:232
 msgid "Connected"
-msgstr ""
+msgstr "Koble til"
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -474,7 +474,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "Execute a xchat command"
-msgstr ""
+msgstr "Kommando ved tilkobling:"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "\"Command to execute\""
@@ -494,7 +494,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
-msgstr ""
+msgstr "Kanal"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
@@ -502,7 +502,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
-msgstr ""
+msgstr "Tjener"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
@@ -510,15 +510,15 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
-msgstr ""
+msgstr "Finn"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
-msgstr ""
+msgstr "Lagre innstillinger når du avslutter"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
-msgstr ""
+msgstr "Navn"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:79
 #, c-format
@@ -559,7 +559,7 @@ msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:36
 msgid "Network Monitor"
-msgstr ""
+msgstr "Nettverksoppsett"
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
@@ -576,11 +576,11 @@ msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "The orientation of the tray."
-msgstr ""
+msgstr "Personens kallenavn"
 
 #: ../plugins/notification/notification.c:151
 msgid "Notification"
-msgstr ""
+msgstr "Posisjon"
 
 #: ../plugins/notification/notification.c:152
 msgid "A notification area plugin."
@@ -645,7 +645,7 @@ msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:45
 msgid "xchat URL scraper"
-msgstr ""
+msgstr "X-Chat: URL-henter"
 
 #: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:828
 msgid "Time"
@@ -667,7 +667,7 @@ msgstr "URL"
 
 #: ../plugins/url_scraper/urlscraper.c:155
 msgid "URL Scraper"
-msgstr ""
+msgstr "URL-henter..."
 
 #: ../plugins/url_scraper/urlscraper.c:156
 msgid "Grabs URLs and puts them in a separate window for easy viewing."
@@ -777,14 +777,14 @@ msgstr "Ingen aktive DCC\n"
 #: ../src/common/ignore.c:136 ../src/common/ignore.c:140
 #: ../src/common/ignore.c:144
 msgid "YES  "
-msgstr "JA   "
+msgstr "JA  "
 
 #: ../src/common/ignore.c:122 ../src/common/ignore.c:126
 #: ../src/common/ignore.c:130 ../src/common/ignore.c:134
 #: ../src/common/ignore.c:138 ../src/common/ignore.c:142
 #: ../src/common/ignore.c:146
 msgid "NO   "
-msgstr "NEI  "
+msgstr "NEI   "
 
 #: ../src/common/ignore.c:373
 #, c-format
@@ -824,11 +824,11 @@ msgstr ""
 
 #: ../src/common/outbound.c:1989
 msgid "User defined commands:"
-msgstr ""
+msgstr "Brukerkommandoer..."
 
 #: ../src/common/outbound.c:2005
 msgid "Plugin defined commands:"
-msgstr ""
+msgstr "Kommando ved tilkobling:"
 
 #: ../src/common/outbound.c:2016
 msgid "Type /HELP <command> for more information, or /HELP -l"
@@ -1398,7 +1398,7 @@ msgstr ""
 
 #: ../src/common/text.c:602 ../src/common/text.c:645
 msgid "The Channel it's going to"
-msgstr ""
+msgstr "Vindu for kanalliste.."
 
 #: ../src/common/text.c:632
 msgid "The sound"
@@ -3327,7 +3327,7 @@ msgstr "Åpne dialogvindu"
 
 #: ../src/common/xchat.c:738
 msgid "Send a File"
-msgstr ""
+msgstr "Send fil"
 
 #: ../src/common/xchat.c:739
 msgid "User Info (WHOIS)"
@@ -3335,7 +3335,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:740
 msgid "Operator Actions"
-msgstr ""
+msgstr "Alternativer"
 
 #: ../src/common/xchat.c:742 ../src/common/xchat.c:833
 msgid "Give Ops"
@@ -3355,7 +3355,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:747 ../src/common/xchat.c:842
 msgid "Kick/Ban"
-msgstr ""
+msgstr "Spark"
 
 #: ../src/common/xchat.c:748 ../src/common/xchat.c:843
 #: ../src/common/xchat.c:892
@@ -3376,7 +3376,7 @@ msgstr ""
 #: ../src/common/xchat.c:849 ../src/common/xchat.c:850
 #: ../src/common/xchat.c:851 ../src/common/xchat.c:852
 msgid "KickBan"
-msgstr ""
+msgstr "Spark"
 
 #: ../src/common/xchat.c:820
 msgid "Direct client-to-client"
@@ -3675,7 +3675,7 @@ msgstr ""
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:110
 msgid "_Connect"
-msgstr ""
+msgstr "Koble til"
 
 #: ../src/fe-gnome/conversation-panel.c:132
 msgid "_Open Link in Browser"
@@ -3691,27 +3691,27 @@ msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:138
 msgid "_Copy Address"
-msgstr ""
+msgstr "IP-adresse"
 
 #: ../src/fe-gnome/conversation-panel.c:142
 msgid "_Send File"
-msgstr ""
+msgstr "Send fil"
 
 #: ../src/fe-gnome/conversation-panel.c:143
 msgid "Paste File _Contents"
-msgstr ""
+msgstr "Innhold"
 
 #: ../src/fe-gnome/conversation-panel.c:144
 msgid "Paste File_name"
-msgstr ""
+msgstr "Nytt filnavn"
 
 #: ../src/fe-gnome/conversation-panel.c:145
 msgid "_Cancel"
-msgstr ""
+msgstr "Avbryt"
 
 #: ../src/fe-gnome/conversation-panel.c:149 ../src/fe-gnome/main-window.c:116
 msgid "_Copy"
-msgstr ""
+msgstr "Kopier"
 
 #: ../src/fe-gnome/conversation-panel.c:600
 #, c-format
@@ -3758,7 +3758,7 @@ msgstr "Fil"
 
 #: ../src/fe-gnome/dcc-window.c:144
 msgid "Remaining"
-msgstr ""
+msgstr "Forlater kanalen"
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -3779,7 +3779,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
 msgid "starting"
-msgstr ""
+msgstr "Venter"
 
 #: ../src/fe-gnome/dcc-window.c:307
 #, c-format
@@ -3809,7 +3809,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:331
 msgid "stalled"
-msgstr ""
+msgstr "Feilet"
 
 #: ../src/fe-gnome/dcc-window.c:335
 #, c-format
@@ -3823,7 +3823,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:450
 msgid "Send File..."
-msgstr ""
+msgstr "Send fil"
 
 #: ../src/fe-gnome/fe-gnome.c:58
 msgid "Use directory instead of the default config dir"
@@ -3831,7 +3831,7 @@ msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:59
 msgid "Don't auto-connect to servers"
-msgstr ""
+msgstr "Koble til igjen automatisk"
 
 #: ../src/fe-gnome/fe-gnome.c:60
 msgid "Don't auto-load plugins"
@@ -3839,7 +3839,7 @@ msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:62
 msgid "Show version information"
-msgstr ""
+msgstr "Informasjon om tjener"
 
 #: ../src/fe-gnome/fe-gnome.c:102
 #, c-format
@@ -3863,7 +3863,7 @@ msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:99
 msgid "_Next"
-msgstr ""
+msgstr "Tekst"
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -3905,7 +3905,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:526
 msgid "You must enter a nick name"
-msgstr ""
+msgstr "Oppgi nytt kallenavn:"
 
 #: ../src/fe-gnome/irc-network-editor.c:532
 msgid "You must enter a real name"
@@ -3913,7 +3913,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "No Servers"
-msgstr ""
+msgstr "Tjener"
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "You must add at least one server for this network"
@@ -3978,7 +3978,7 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:103
 msgid "_Network"
-msgstr ""
+msgstr "Nettverk"
 
 #: ../src/fe-gnome/main-window.c:104
 msgid "_Discussion"
@@ -3994,11 +3994,11 @@ msgstr "_Hjelp"
 
 #: ../src/fe-gnome/main-window.c:111
 msgid "_File Transfers"
-msgstr ""
+msgstr "Filoverføringer"
 
 #: ../src/fe-gnome/main-window.c:112
 msgid "_Quit"
-msgstr ""
+msgstr "Avslutt"
 
 #. Edit menu
 #: ../src/fe-gnome/main-window.c:115
@@ -4007,39 +4007,39 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:117
 msgid "_Paste"
-msgstr ""
+msgstr "Privat"
 
 #: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
 msgid "C_lear"
-msgstr ""
+msgstr "Tøm"
 
 #: ../src/fe-gnome/main-window.c:119
 msgid "Prefere_nces"
-msgstr ""
+msgstr "Brukervalg..."
 
 #. Network menu
 #. Server context menu
 #: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Information"
-msgstr ""
+msgstr "Informativ"
 
 #: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
-msgstr ""
+msgstr "Koble til på nytt"
 
 #: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Disconnect"
-msgstr ""
+msgstr "Koble fra"
 
 #: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:84
 #: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
 msgid "_Close"
-msgstr ""
+msgstr "Lukk"
 
 #: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Channels..."
-msgstr ""
+msgstr "Kanalliste..."
 
 #. Discussion menu
 #. Channel context menu
@@ -4051,19 +4051,19 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:89
 msgid "_Leave"
-msgstr ""
+msgstr "Forlater kanalen"
 
 #: ../src/fe-gnome/main-window.c:131
 msgid "Cl_ose"
-msgstr ""
+msgstr "Lukk"
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "_Find"
-msgstr ""
+msgstr "Finn"
 
 #: ../src/fe-gnome/main-window.c:133
 msgid "_Clear Window"
-msgstr ""
+msgstr "_Vindu"
 
 #: ../src/fe-gnome/main-window.c:134
 msgid "Change _Topic"
@@ -4071,20 +4071,20 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:93
 msgid "_Bans..."
-msgstr ""
+msgstr "Bla gjennom..."
 
 #: ../src/fe-gnome/main-window.c:136
 msgid "_Users"
-msgstr ""
+msgstr "Brukere"
 
 #. Go menu
 #: ../src/fe-gnome/main-window.c:139
 msgid "Pre_vious Network"
-msgstr ""
+msgstr "Nytt nettverk"
 
 #: ../src/fe-gnome/main-window.c:140
 msgid "Nex_t Network"
-msgstr ""
+msgstr "Nytt nettverk"
 
 #: ../src/fe-gnome/main-window.c:141
 msgid "_Previous Discussion"
@@ -4097,17 +4097,17 @@ msgstr ""
 #. Help menu
 #: ../src/fe-gnome/main-window.c:145
 msgid "_Contents"
-msgstr ""
+msgstr "Innhold"
 
 #: ../src/fe-gnome/main-window.c:146
 msgid "_About"
-msgstr ""
+msgstr "Om"
 
 #: ../src/fe-gnome/main-window.c:486 ../src/fe-gnome/main-window.c:507
 #: ../src/fe-gnome/navigation-tree.c:1579
 #: ../src/fe-gnome/navigation-tree.c:1633
 msgid "Ex-Chat"
-msgstr ""
+msgstr "Chat"
 
 #: ../src/fe-gnome/main-window.c:585
 msgid "Error showing help"
@@ -4115,12 +4115,12 @@ msgstr ""
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
 msgid "_Find..."
-msgstr ""
+msgstr "Finn"
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
 msgid "_Auto-connect"
-msgstr ""
+msgstr "Pause før automatisk gjenoppkobling"
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
@@ -4151,7 +4151,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
 msgid "File Transfers & DCC"
-msgstr ""
+msgstr "Filoverføringer"
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
@@ -4159,7 +4159,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
 msgid "IRC Preferences"
-msgstr ""
+msgstr "X-Chat: Brukervalg"
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
@@ -4168,7 +4168,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-networks.c:171
 msgid "Networks"
-msgstr ""
+msgstr "Nettverk"
 
 #: ../src/fe-gnome/preferences-page-networks.c:179
 msgid "Name"
@@ -4177,7 +4177,7 @@ msgstr "Navn"
 #: ../src/fe-gnome/preferences-page-plugins.c:84
 #: ../src/fe-gnome/preferences-page-plugins.c:85
 msgid "unknown"
-msgstr ""
+msgstr "Ukjent"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:125
 #, c-format
@@ -4194,7 +4194,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:176
 msgid "Open Plugin"
-msgstr ""
+msgstr "Åpne dialoger i:"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:276
 msgid "Scripts and Plugins"
@@ -4206,7 +4206,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:291
 msgid "Plugin"
-msgstr ""
+msgstr "Ping"
 
 #: ../src/fe-gnome/status-bar.c:92
 #, c-format
@@ -4216,11 +4216,11 @@ msgstr ""
 #: ../src/fe-gnome/status-bar.c:106
 #, c-format
 msgid "%d bytes buffered"
-msgstr ""
+msgstr "%d bytes"
 
 #: ../src/fe-gnome/text-entry.c:274
 msgid "I_nsert Color Code"
-msgstr ""
+msgstr "Inndataboks"
 
 #: ../src/fe-gnome/text-entry.c:281
 msgid "Black"
@@ -4293,16 +4293,16 @@ msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:50
 msgid "_Send File..."
-msgstr ""
+msgstr "Send fil"
 
 #: ../src/fe-gnome/userlist-gui.c:51
 msgid "Private _Chat"
-msgstr ""
+msgstr "Privat"
 
 #: ../src/fe-gnome/userlist-gui.c:52
 msgid "_Kick"
-msgstr ""
+msgstr "Spark"
 
 #: ../src/fe-gnome/userlist-gui.c:53
 msgid "_Ban"
-msgstr ""
+msgstr "Bhutan"

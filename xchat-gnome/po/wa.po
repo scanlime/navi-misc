@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:18-0700\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
 "PO-Revision-Date: 2006-02-10 02:17-0700\n"
 "Last-Translator: Pablo Saratxaga <pablo@walon.org>\n"
 "Language-Team: Walloon <linux-wa@walon.org>\n"
@@ -25,11 +25,11 @@ msgstr ""
 
 #: ../data/channel-list.glade.h:3
 msgid "Channel _Name"
-msgstr ""
+msgstr "No do canå"
 
 #: ../data/channel-list.glade.h:4
 msgid "Channel _Topic"
-msgstr ""
+msgstr "Canå"
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
@@ -45,7 +45,7 @@ msgstr "Uzeus minimom:"
 
 #: ../data/channel-list.glade.h:8
 msgid "Save List _As"
-msgstr ""
+msgstr "Schaper et rlomer"
 
 #: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
@@ -57,11 +57,11 @@ msgstr "Ralo_yî"
 
 #: ../data/dcc-accept.glade.h:1
 msgid "_Accept"
-msgstr ""
+msgstr "Accepter"
 
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
 msgid "File Transfers"
-msgstr ""
+msgstr "Transfers di fitchîs"
 
 #: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
@@ -81,11 +81,11 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Character _encoding:"
-msgstr ""
+msgstr "Ecôdaedje:"
 
 #: ../data/irc-network-editor.glade.h:6
 msgid "Network Settings"
-msgstr ""
+msgstr "Apontiaedje del rantoele"
 
 #: ../data/irc-network-editor.glade.h:7
 msgid "Nickser_v Password:"
@@ -93,7 +93,7 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:8
 msgid "Server _Password:"
-msgstr ""
+msgstr "Sicret pol sierveu:"
 
 #: ../data/irc-network-editor.glade.h:9
 msgid "Servers"
@@ -109,7 +109,7 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:12
 msgid "User and Channels"
-msgstr ""
+msgstr "Cwiter l' canå"
 
 #: ../data/irc-network-editor.glade.h:13
 msgid "_Automatically connect to network"
@@ -117,11 +117,11 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Cycle until connected"
-msgstr ""
+msgstr "Continouwer e blouke disk' a s' raloyî"
 
 #: ../data/irc-network-editor.glade.h:15
 msgid "_Name:"
-msgstr ""
+msgstr "No"
 
 #: ../data/irc-network-editor.glade.h:16
 msgid "_Nick name:"
@@ -129,7 +129,7 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:17
 msgid "_Real Name:"
-msgstr ""
+msgstr "Vraiy no:"
 
 #: ../data/irc-network-editor.glade.h:18
 msgid "_Use secure connection (SSL)"
@@ -181,7 +181,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:13
 msgid "A_way message:"
-msgstr ""
+msgstr "Novea messaedje:"
 
 #: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
@@ -193,11 +193,11 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:16
 msgid "Background _image"
-msgstr ""
+msgstr "Coleur di fond:"
 
 #: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
-msgstr ""
+msgstr "Coleur di fond:"
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
@@ -217,7 +217,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:22
 msgid "Foreground mark:"
-msgstr ""
+msgstr "Coleur di dvant:"
 
 #: ../data/preferences-dialog.glade.h:23
 msgid "Get IP Address From Server"
@@ -249,19 +249,19 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:30
 msgid "Preferences"
-msgstr ""
+msgstr "Preferinces..."
 
 #: ../data/preferences-dialog.glade.h:31
 msgid "Real na_me:"
-msgstr ""
+msgstr "Vraiy no:"
 
 #: ../data/preferences-dialog.glade.h:32
 msgid "Save sender nickname in filenames"
-msgstr ""
+msgstr "No do fitchî såme"
 
 #: ../data/preferences-dialog.glade.h:33
 msgid "Select A File"
-msgstr ""
+msgstr "Tchoezixhoz on fitchî imådje"
 
 #: ../data/preferences-dialog.glade.h:34
 msgid "Select Completed Files Directory"
@@ -287,15 +287,15 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:39
 msgid "Use This IP Address:"
-msgstr ""
+msgstr "Adresse IP"
 
 #: ../data/preferences-dialog.glade.h:40
 msgid "Use this font:"
-msgstr ""
+msgstr "Djivêye des uzeus"
 
 #: ../data/preferences-dialog.glade.h:41
 msgid "_Background color:"
-msgstr ""
+msgstr "Coleur di fond:"
 
 #: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:101
 msgid "_Edit"
@@ -303,7 +303,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:43
 msgid "_Foreground color:"
-msgstr ""
+msgstr "Coleur di dvant:"
 
 #: ../data/preferences-dialog.glade.h:44
 msgid "_Nickname:"
@@ -315,15 +315,15 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:46
 msgid "_Part message:"
-msgstr ""
+msgstr "Novea messaedje:"
 
 #: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
-msgstr ""
+msgstr "Novea messaedje:"
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
-msgstr ""
+msgstr "Coleurs des linwetes"
 
 #: ../data/preferences-dialog.glade.h:49
 msgid "_Transparent background"
@@ -355,11 +355,11 @@ msgstr ""
 
 #: ../data/topic-change.glade.h:1
 msgid "Change"
-msgstr ""
+msgstr "Canå"
 
 #: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:92
 msgid "IRC Chat"
-msgstr ""
+msgstr "Tchater"
 
 #: ../data/xchat-gnome.desktop.in.h:2
 msgid "XChat-GNOME IRC Chat"
@@ -393,7 +393,7 @@ msgstr "Uzeus"
 
 #: ../data/xchat-gnome.glade.h:6
 msgid "nickname"
-msgstr ""
+msgstr "No do fitchî"
 
 #: ../data/xchat-gnome.glade.h:7
 msgid "on all servers"
@@ -418,11 +418,11 @@ msgstr ""
 #. Hook up our callbacks.
 #: ../plugins/autoaway/autoaway.c:231
 msgid "Disconnected"
-msgstr ""
+msgstr "Disraloyî"
 
 #: ../plugins/autoaway/autoaway.c:232
 msgid "Connected"
-msgstr ""
+msgstr "Raloyaedje"
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -493,7 +493,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
-msgstr ""
+msgstr "Canå"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
@@ -501,7 +501,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
-msgstr ""
+msgstr "Sierveu"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
@@ -509,7 +509,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
-msgstr ""
+msgstr "Trover"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
@@ -517,7 +517,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
-msgstr ""
+msgstr "No"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:79
 #, c-format
@@ -558,7 +558,7 @@ msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:36
 msgid "Network Monitor"
-msgstr ""
+msgstr "Apontiaedje del rantoele"
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
@@ -571,7 +571,7 @@ msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "Orientation"
-msgstr ""
+msgstr "Årdjintene"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "The orientation of the tray."
@@ -579,7 +579,7 @@ msgstr ""
 
 #: ../plugins/notification/notification.c:151
 msgid "Notification"
-msgstr ""
+msgstr "Eplaeçmint"
 
 #: ../plugins/notification/notification.c:152
 msgid "A notification area plugin."
@@ -783,7 +783,7 @@ msgstr "OYI  "
 #: ../src/common/ignore.c:138 ../src/common/ignore.c:142
 #: ../src/common/ignore.c:146
 msgid "NO   "
-msgstr "NENI "
+msgstr "NENI   "
 
 #: ../src/common/ignore.c:373
 #, c-format
@@ -819,7 +819,7 @@ msgstr "Dj' a mezåjhe di /bin/sh po roter!\n"
 
 #: ../src/common/outbound.c:1975
 msgid "Commands Available:"
-msgstr ""
+msgstr "Comandes k' i gn a:"
 
 #: ../src/common/outbound.c:1989
 msgid "User defined commands:"
@@ -2460,7 +2460,7 @@ msgstr "Swisse"
 
 #: ../src/common/util.c:881
 msgid "Cote d'Ivoire"
-msgstr ""
+msgstr "Coisse d' Ivwere"
 
 #: ../src/common/util.c:882
 msgid "Cook Islands"
@@ -2660,7 +2660,7 @@ msgstr "Grece"
 
 #: ../src/common/util.c:931
 msgid "S. Georgia and S. Sandwich Isles"
-msgstr ""
+msgstr "Iyes Sandwitch do sud"
 
 #: ../src/common/util.c:932
 msgid "Guatemala"
@@ -3044,7 +3044,7 @@ msgstr "Porto Rico"
 
 #: ../src/common/util.c:1027
 msgid "Palestinian Territory"
-msgstr ""
+msgstr "Teritweres britanikes di l' Oceyan Indyin"
 
 #: ../src/common/util.c:1028
 msgid "Portugal"
@@ -3324,7 +3324,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:738
 msgid "Send a File"
-msgstr ""
+msgstr "Evoyî fitchî"
 
 #: ../src/common/xchat.c:739
 msgid "User Info (WHOIS)"
@@ -3332,7 +3332,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:740
 msgid "Operator Actions"
-msgstr ""
+msgstr "Tchuzes"
 
 #: ../src/common/xchat.c:742 ../src/common/xchat.c:833
 msgid "Give Ops"
@@ -3590,11 +3590,11 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
 msgid "Background image filename"
-msgstr ""
+msgstr "Coleur di fond:"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:2
 msgid "Background transparency"
-msgstr ""
+msgstr "Coleur di fond:"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Default nickname used by servers without special options set"
@@ -3622,7 +3622,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
 msgid "Message sent on away"
-msgstr ""
+msgstr "Messaedje"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Message sent on channel part"
@@ -3630,7 +3630,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
 msgid "Message sent on quit"
-msgstr ""
+msgstr "Messaedje"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Position of the horizontal pane in the main window"
@@ -3654,7 +3654,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
 msgid "Use system fonts"
-msgstr ""
+msgstr "Djivêye des uzeus"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
@@ -3672,7 +3672,7 @@ msgstr ""
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:110
 msgid "_Connect"
-msgstr ""
+msgstr "Raloyaedje"
 
 #: ../src/fe-gnome/conversation-panel.c:132
 msgid "_Open Link in Browser"
@@ -3688,27 +3688,27 @@ msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:138
 msgid "_Copy Address"
-msgstr ""
+msgstr "Adresse IP"
 
 #: ../src/fe-gnome/conversation-panel.c:142
 msgid "_Send File"
-msgstr ""
+msgstr "Evoyî fitchî"
 
 #: ../src/fe-gnome/conversation-panel.c:143
 msgid "Paste File _Contents"
-msgstr ""
+msgstr "Åd_vins"
 
 #: ../src/fe-gnome/conversation-panel.c:144
 msgid "Paste File_name"
-msgstr ""
+msgstr "Novea no d' fitchî"
 
 #: ../src/fe-gnome/conversation-panel.c:145
 msgid "_Cancel"
-msgstr ""
+msgstr "Rinoncî"
 
 #: ../src/fe-gnome/conversation-panel.c:149 ../src/fe-gnome/main-window.c:116
 msgid "_Copy"
-msgstr ""
+msgstr "Copyî"
 
 #: ../src/fe-gnome/conversation-panel.c:600
 #, c-format
@@ -3755,7 +3755,7 @@ msgstr "Fitchî"
 
 #: ../src/fe-gnome/dcc-window.c:144
 msgid "Remaining"
-msgstr ""
+msgstr "Cwitant"
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -3776,7 +3776,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
 msgid "starting"
-msgstr ""
+msgstr "Ratindant"
 
 #: ../src/fe-gnome/dcc-window.c:307
 #, c-format
@@ -3806,7 +3806,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:331
 msgid "stalled"
-msgstr ""
+msgstr "Berwete"
 
 #: ../src/fe-gnome/dcc-window.c:335
 #, c-format
@@ -3820,7 +3820,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:450
 msgid "Send File..."
-msgstr ""
+msgstr "Evoyî fitchî"
 
 #: ../src/fe-gnome/fe-gnome.c:58
 msgid "Use directory instead of the default config dir"
@@ -3836,7 +3836,7 @@ msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:62
 msgid "Show version information"
-msgstr ""
+msgstr "Informåcions sol sierveu"
 
 #: ../src/fe-gnome/fe-gnome.c:102
 #, c-format
@@ -3860,7 +3860,7 @@ msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:99
 msgid "_Next"
-msgstr ""
+msgstr "Tecse"
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -3910,7 +3910,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "No Servers"
-msgstr ""
+msgstr "Sierveus"
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "You must add at least one server for this network"
@@ -3975,7 +3975,7 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:103
 msgid "_Network"
-msgstr ""
+msgstr "Rantoele"
 
 #: ../src/fe-gnome/main-window.c:104
 msgid "_Discussion"
@@ -3991,11 +3991,11 @@ msgstr "_Aidance"
 
 #: ../src/fe-gnome/main-window.c:111
 msgid "_File Transfers"
-msgstr ""
+msgstr "Transfers di fitchîs"
 
 #: ../src/fe-gnome/main-window.c:112
 msgid "_Quit"
-msgstr ""
+msgstr "Cwiter"
 
 #. Edit menu
 #: ../src/fe-gnome/main-window.c:115
@@ -4004,30 +4004,30 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:117
 msgid "_Paste"
-msgstr ""
+msgstr "Privé"
 
 #: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
 msgid "C_lear"
-msgstr ""
+msgstr "Netyî"
 
 #: ../src/fe-gnome/main-window.c:119
 msgid "Prefere_nces"
-msgstr ""
+msgstr "Preferinces..."
 
 #. Network menu
 #. Server context menu
 #: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Information"
-msgstr ""
+msgstr "Informåcions sol sierveu"
 
 #: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
-msgstr ""
+msgstr "Riraloyî"
 
 #: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Disconnect"
-msgstr ""
+msgstr "Disraloyî"
 
 #: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:84
 #: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
@@ -4036,7 +4036,7 @@ msgstr "_Clôre"
 
 #: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Channels..."
-msgstr ""
+msgstr "Djivêye des canås..."
 
 #. Discussion menu
 #. Channel context menu
@@ -4048,19 +4048,19 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:89
 msgid "_Leave"
-msgstr ""
+msgstr "Cwitant"
 
 #: ../src/fe-gnome/main-window.c:131
 msgid "Cl_ose"
-msgstr ""
+msgstr "Clôre"
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "_Find"
-msgstr ""
+msgstr "Trover"
 
 #: ../src/fe-gnome/main-window.c:133
 msgid "_Clear Window"
-msgstr ""
+msgstr "_Purnea"
 
 #: ../src/fe-gnome/main-window.c:134
 msgid "Change _Topic"
@@ -4068,20 +4068,20 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:93
 msgid "_Bans..."
-msgstr ""
+msgstr "_Tcherdjî..."
 
 #: ../src/fe-gnome/main-window.c:136
 msgid "_Users"
-msgstr ""
+msgstr "Uzeus"
 
 #. Go menu
 #: ../src/fe-gnome/main-window.c:139
 msgid "Pre_vious Network"
-msgstr ""
+msgstr "Novele rantoele"
 
 #: ../src/fe-gnome/main-window.c:140
 msgid "Nex_t Network"
-msgstr ""
+msgstr "Novele rantoele"
 
 #: ../src/fe-gnome/main-window.c:141
 msgid "_Previous Discussion"
@@ -4104,20 +4104,20 @@ msgstr "Å _dfait"
 #: ../src/fe-gnome/navigation-tree.c:1579
 #: ../src/fe-gnome/navigation-tree.c:1633
 msgid "Ex-Chat"
-msgstr ""
+msgstr "Tchater"
 
 #: ../src/fe-gnome/main-window.c:585
 msgid "Error showing help"
-msgstr ""
+msgstr "Tchinne DCC"
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
 msgid "_Find..."
-msgstr ""
+msgstr "Trover"
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
 msgid "_Auto-connect"
-msgstr ""
+msgstr "Ralo_yî"
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
@@ -4148,7 +4148,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
 msgid "File Transfers & DCC"
-msgstr ""
+msgstr "Transfers di fitchîs"
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
@@ -4156,12 +4156,12 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
 msgid "IRC Preferences"
-msgstr ""
+msgstr "X-Chat: Preferinces"
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
-msgstr ""
+msgstr "Voloz vs vormint oister l' rantoele «%s» eyet tos ses sierveus?"
 
 #: ../src/fe-gnome/preferences-page-networks.c:171
 msgid "Networks"
@@ -4174,7 +4174,7 @@ msgstr "No"
 #: ../src/fe-gnome/preferences-page-plugins.c:84
 #: ../src/fe-gnome/preferences-page-plugins.c:85
 msgid "unknown"
-msgstr ""
+msgstr "Nén cnoxhou"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:125
 #, c-format
@@ -4203,7 +4203,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:291
 msgid "Plugin"
-msgstr ""
+msgstr "Ping"
 
 #: ../src/fe-gnome/status-bar.c:92
 #, c-format
@@ -4290,11 +4290,11 @@ msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:50
 msgid "_Send File..."
-msgstr ""
+msgstr "Evoyî fitchî"
 
 #: ../src/fe-gnome/userlist-gui.c:51
 msgid "Private _Chat"
-msgstr ""
+msgstr "Privé"
 
 #: ../src/fe-gnome/userlist-gui.c:52
 msgid "_Kick"
@@ -4302,4 +4302,4 @@ msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:53
 msgid "_Ban"
-msgstr ""
+msgstr "Boutan"

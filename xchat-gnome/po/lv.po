@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:18-0700\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
 "PO-Revision-Date: 2006-02-10 02:11-0700\n"
 "Last-Translator: Artis Trops <hornet@navigators.lv>\n"
 "Language-Team: Latvian <ll10nt@os.lv>\n"
@@ -29,7 +29,7 @@ msgstr "Kanāla _Nosaukums"
 
 #: ../data/channel-list.glade.h:4
 msgid "Channel _Topic"
-msgstr ""
+msgstr "Kanāls"
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
@@ -37,19 +37,19 @@ msgstr "Pievienoties Kanālam"
 
 #: ../data/channel-list.glade.h:6
 msgid "Maximum Users:"
-msgstr ""
+msgstr "Maksimums Lietotāju:"
 
 #: ../data/channel-list.glade.h:7
 msgid "Minimum Users:"
-msgstr ""
+msgstr "Minimums Lietotāju:"
 
 #: ../data/channel-list.glade.h:8
 msgid "Save List _As"
-msgstr ""
+msgstr "Saglabāt Kā"
 
 #: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
-msgstr ""
+msgstr "Drukāt Teksta Failu"
 
 #: ../data/connect-dialog.glade.h:1
 msgid "C_onnect"
@@ -57,11 +57,11 @@ msgstr "_Pieslēgties"
 
 #: ../data/dcc-accept.glade.h:1
 msgid "_Accept"
-msgstr ""
+msgstr "Pieņemt"
 
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
 msgid "File Transfers"
-msgstr ""
+msgstr "Failu pārsūtīšanas"
 
 #: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
@@ -81,11 +81,11 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Character _encoding:"
-msgstr ""
+msgstr "Rakstzīmju Kopa:"
 
 #: ../data/irc-network-editor.glade.h:6
 msgid "Network Settings"
-msgstr ""
+msgstr "Pārlādēt Uzstādījumus"
 
 #: ../data/irc-network-editor.glade.h:7
 msgid "Nickser_v Password:"
@@ -93,7 +93,7 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:8
 msgid "Server _Password:"
-msgstr ""
+msgstr "Servera Parole:"
 
 #: ../data/irc-network-editor.glade.h:9
 msgid "Servers"
@@ -101,7 +101,7 @@ msgstr "Serveri"
 
 #: ../data/irc-network-editor.glade.h:10
 msgid "Use _global user settings"
-msgstr ""
+msgstr "Lietot vispārīgo lietotāja info"
 
 #: ../data/irc-network-editor.glade.h:11
 msgid "Use _these user settings:"
@@ -109,31 +109,31 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:12
 msgid "User and Channels"
-msgstr ""
+msgstr "Atstāt Kanālu"
 
 #: ../data/irc-network-editor.glade.h:13
 msgid "_Automatically connect to network"
-msgstr ""
+msgstr "Auto Pieslēgties Serverim"
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Cycle until connected"
-msgstr ""
+msgstr "Ciklēt līdz pieslēdzas"
 
 #: ../data/irc-network-editor.glade.h:15
 msgid "_Name:"
-msgstr ""
+msgstr "Nosaukums"
 
 #: ../data/irc-network-editor.glade.h:16
 msgid "_Nick name:"
-msgstr ""
+msgstr "Segvārds:"
 
 #: ../data/irc-network-editor.glade.h:17
 msgid "_Real Name:"
-msgstr ""
+msgstr "Īstais Vārds:"
 
 #: ../data/irc-network-editor.glade.h:18
 msgid "_Use secure connection (SSL)"
-msgstr ""
+msgstr "Lietot drošo SSL"
 
 #: ../data/preferences-dialog.glade.h:1
 msgid "<span size=\"small\" style=\"italic\">Opaque</span>"
@@ -181,23 +181,23 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:13
 msgid "A_way message:"
-msgstr ""
+msgstr "Jauna Ziņoja:"
 
 #: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
-msgstr ""
+msgstr "Auto Pieņemt Tiešo Tērzēšanu"
 
 #: ../data/preferences-dialog.glade.h:15
 msgid "Auto-accept DCC File Transfers"
-msgstr ""
+msgstr "Auto Pieņemt Failus"
 
 #: ../data/preferences-dialog.glade.h:16
 msgid "Background _image"
-msgstr ""
+msgstr "Fona attēls:"
 
 #: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
-msgstr ""
+msgstr "Fona attēls:"
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
@@ -205,7 +205,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:19
 msgid "Convert spaces to underscores in filenames"
-msgstr ""
+msgstr "Konvertēt atstarpes par zemsvītrām"
 
 #: ../data/preferences-dialog.glade.h:20
 msgid "Download files to:"
@@ -213,23 +213,23 @@ msgstr "Lejuplādēt failus uz:"
 
 #: ../data/preferences-dialog.glade.h:21
 msgid "Enter extra words to trigger highlighting"
-msgstr ""
+msgstr "Papildus vārdi, kurus izgaismot:"
 
 #: ../data/preferences-dialog.glade.h:22
 msgid "Foreground mark:"
-msgstr ""
+msgstr "Priekšplāns:"
 
 #: ../data/preferences-dialog.glade.h:23
 msgid "Get IP Address From Server"
-msgstr ""
+msgstr "Dabūt manu IP no IRC servera"
 
 #: ../data/preferences-dialog.glade.h:24
 msgid "Global receive KB/s: "
-msgstr ""
+msgstr "Maks. vispārīgās saņemšanas CPS: "
 
 #: ../data/preferences-dialog.glade.h:25
 msgid "Global send KB/s: "
-msgstr ""
+msgstr "Maks. vispārīgās sūtīšanas CPS: "
 
 #: ../data/preferences-dialog.glade.h:26
 msgid "Image _file:"
@@ -249,27 +249,27 @@ msgstr "Pārvietot pabeigtos failus uz:"
 
 #: ../data/preferences-dialog.glade.h:30
 msgid "Preferences"
-msgstr ""
+msgstr "Preferences..."
 
 #: ../data/preferences-dialog.glade.h:31
 msgid "Real na_me:"
-msgstr ""
+msgstr "Īstais Vārds:"
 
 #: ../data/preferences-dialog.glade.h:32
 msgid "Save sender nickname in filenames"
-msgstr ""
+msgstr "Saglabāt segvārdu faila nosaukumā"
 
 #: ../data/preferences-dialog.glade.h:33
 msgid "Select A File"
-msgstr ""
+msgstr "Izvēlies izvades failavārdu"
 
 #: ../data/preferences-dialog.glade.h:34
 msgid "Select Completed Files Directory"
-msgstr ""
+msgstr "Pārvietot pabeigtos failus uz:"
 
 #: ../data/preferences-dialog.glade.h:35
 msgid "Select Download Directory"
-msgstr ""
+msgstr "Lejuplādēt failus uz:"
 
 #: ../data/preferences-dialog.glade.h:36
 msgid "Show _timestamps"
@@ -287,15 +287,15 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:39
 msgid "Use This IP Address:"
-msgstr ""
+msgstr "DCC IP adrese:"
 
 #: ../data/preferences-dialog.glade.h:40
 msgid "Use this font:"
-msgstr ""
+msgstr "Lietotāju Saraksts"
 
 #: ../data/preferences-dialog.glade.h:41
 msgid "_Background color:"
-msgstr ""
+msgstr "Fons:"
 
 #: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:101
 msgid "_Edit"
@@ -303,11 +303,11 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:43
 msgid "_Foreground color:"
-msgstr ""
+msgstr "Priekšplāns:"
 
 #: ../data/preferences-dialog.glade.h:44
 msgid "_Nickname:"
-msgstr ""
+msgstr "Segvārds"
 
 #: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
@@ -315,11 +315,11 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:46
 msgid "_Part message:"
-msgstr ""
+msgstr "Ziņa"
 
 #: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
-msgstr ""
+msgstr "Ziņa"
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
@@ -327,7 +327,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:49
 msgid "_Transparent background"
-msgstr ""
+msgstr "Caurspīdīgs fons"
 
 #: ../data/setup-dialog.glade.h:1
 msgid "Nick Name:"
@@ -355,11 +355,11 @@ msgstr ""
 
 #: ../data/topic-change.glade.h:1
 msgid "Change"
-msgstr ""
+msgstr "Kanāls"
 
 #: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:92
 msgid "IRC Chat"
-msgstr ""
+msgstr "Čada"
 
 #: ../data/xchat-gnome.desktop.in.h:2
 msgid "XChat-GNOME IRC Chat"
@@ -371,11 +371,11 @@ msgstr ""
 
 #: ../data/xchat-gnome.glade.h:2
 msgid "Close this discussion"
-msgstr ""
+msgstr "Aizvērt šo sadaļu/logu"
 
 #: ../data/xchat-gnome.glade.h:3
 msgid "Enter a new nickname"
-msgstr ""
+msgstr "Ievadiet jaunu segvārdu:"
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
@@ -393,7 +393,7 @@ msgstr "Lietotāji"
 
 #: ../data/xchat-gnome.glade.h:6
 msgid "nickname"
-msgstr ""
+msgstr "Segvārds"
 
 #: ../data/xchat-gnome.glade.h:7
 msgid "on all servers"
@@ -413,16 +413,16 @@ msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:213
 msgid "Automatically go away / come back"
-msgstr ""
+msgstr "Automāiski atstatīt prombūtni"
 
 #. Hook up our callbacks.
 #: ../plugins/autoaway/autoaway.c:231
 msgid "Disconnected"
-msgstr ""
+msgstr "Pieslēgties"
 
 #: ../plugins/autoaway/autoaway.c:232
 msgid "Connected"
-msgstr ""
+msgstr "Pieslēgties"
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -493,7 +493,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
-msgstr ""
+msgstr "Kanāls"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
@@ -501,7 +501,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
-msgstr ""
+msgstr "Serveris"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
@@ -509,15 +509,15 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
-msgstr ""
+msgstr "Atrast"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
-msgstr ""
+msgstr "Saglabāt Uzstādījumus pie iziešanas"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
-msgstr ""
+msgstr "Nosaukums"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:79
 #, c-format
@@ -558,7 +558,7 @@ msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:36
 msgid "Network Monitor"
-msgstr ""
+msgstr "Tīkla uzstādīšana"
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
@@ -571,15 +571,15 @@ msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "Orientation"
-msgstr ""
+msgstr "Argentīna"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "The orientation of the tray."
-msgstr ""
+msgstr "Personas segvārds"
 
 #: ../plugins/notification/notification.c:151
 msgid "Notification"
-msgstr ""
+msgstr "Pozīcija"
 
 #: ../plugins/notification/notification.c:152
 msgid "A notification area plugin."
@@ -587,11 +587,11 @@ msgstr ""
 
 #: ../plugins/notification/notification.c:239
 msgid "Notification plugin loaded.\n"
-msgstr ""
+msgstr "Tāds iespraudnis nav atrasts.\n"
 
 #: ../plugins/notification/notification.c:254
 msgid "Notification plugin unloaded.\n"
-msgstr ""
+msgstr "Tāds iespraudnis nav atrasts.\n"
 
 #: ../plugins/notification/notification.schemas.in.h:1
 msgid "Keep icon in tray at all times"
@@ -644,11 +644,11 @@ msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:45
 msgid "xchat URL scraper"
-msgstr ""
+msgstr "X-Chat: URL Savācējs"
 
 #: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:828
 msgid "Time"
-msgstr ""
+msgstr "Laiks"
 
 #: ../plugins/url_scraper/urlscraper.c:64 ../src/common/text.c:585
 msgid "Nick"
@@ -666,7 +666,7 @@ msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:155
 msgid "URL Scraper"
-msgstr ""
+msgstr "URL Savācējs..."
 
 #: ../plugins/url_scraper/urlscraper.c:156
 msgid "Grabs URLs and puts them in a separate window for easy viewing."
@@ -723,7 +723,7 @@ msgstr "Esmu aizņemts"
 
 #: ../src/common/cfgfiles.c:682
 msgid "Leaving"
-msgstr ""
+msgstr "Latvija"
 
 #: ../src/common/cfgfiles.c:728
 msgid ""
@@ -776,7 +776,7 @@ msgstr "Nav aktīvu DCC\n"
 #: ../src/common/ignore.c:136 ../src/common/ignore.c:140
 #: ../src/common/ignore.c:144
 msgid "YES  "
-msgstr "JĀ"
+msgstr "JĀ  "
 
 #: ../src/common/ignore.c:122 ../src/common/ignore.c:126
 #: ../src/common/ignore.c:130 ../src/common/ignore.c:134
@@ -819,19 +819,19 @@ msgstr "Lai darbotos, man vajag /bin/sh!\n"
 
 #: ../src/common/outbound.c:1975
 msgid "Commands Available:"
-msgstr ""
+msgstr "Pieejamās Kommands:"
 
 #: ../src/common/outbound.c:1989
 msgid "User defined commands:"
-msgstr ""
+msgstr "Lietotāja definētās komandas:"
 
 #: ../src/common/outbound.c:2005
 msgid "Plugin defined commands:"
-msgstr ""
+msgstr "Lietotāja definētās komandas:"
 
 #: ../src/common/outbound.c:2016
 msgid "Type /HELP <command> for more information, or /HELP -l"
-msgstr ""
+msgstr "Raksti /HELP <komanda> papildus informācijai, vai /HELP -l"
 
 #: ../src/common/outbound.c:2091
 #, c-format
@@ -856,7 +856,7 @@ msgstr "ALLCHAN <komada>, sūta komandu uz visiem kanāliem, kuros esat"
 
 #: ../src/common/outbound.c:3182
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
-msgstr ""
+msgstr "ALLCHAN <komada>, sūta komandu uz visiem kanāliem, kuros esat"
 
 #: ../src/common/outbound.c:3184
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
@@ -885,7 +885,7 @@ msgstr "CLOSE, Aizver pašreizējo logu/sadaļu"
 
 #: ../src/common/outbound.c:3193
 msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
-msgstr ""
+msgstr "COUNTRY <kods>, atrod valsts kodu, piem.: lv = Latvija"
 
 #: ../src/common/outbound.c:3195
 msgid ""
@@ -911,6 +911,13 @@ msgid ""
 "DCC CLOSE <type> <nick> <file>         example:\n"
 "         /dcc close send johnsmith file.tar.gz"
 msgstr ""
+"\n"
+"DCC GET <segvārds>          - pieņem piedāvāto failu\n"
+"DCC SEND [-maxcps=#] <segvārds> [fails] - sūta failu kādam\n"
+"DCC LIST                             - parāda DCC sarakstu\n"
+"DCC CHAT <segvārds>        - piedāvā DCC Tērzēšanu kādam\n"
+"DCC CLOSE <tips> <segvārds> <fails>         piemērs:\n"
+"         /dcc close send johnsmith file.tar.gz"
 
 #: ../src/common/outbound.c:3211
 msgid ""
@@ -1012,6 +1019,11 @@ msgid ""
 "            PRIV, CHAN, NOTI, CTCP, DCC, INVI, ALL\n"
 "    options - NOSAVE, QUIET"
 msgstr ""
+"IGNORE <maska> <tipi..> <opcijas..>\n"
+"    maska - hostdatora maska, kuru ignorēt, piem.: *!*@*.aol.com\n"
+"    tipi - datu tipi, kurus ignorēt, viens vai visi:\n"
+"            PRIV, CHAN, NOTI, CTCP, INVI, ALL\n"
+"    opcijas - NOSAVE, QUIET"
 
 #: ../src/common/outbound.c:3254
 msgid ""
@@ -1048,7 +1060,7 @@ msgstr "LASTLOG <rindiņa>, buferī meklē rindiņu"
 
 #: ../src/common/outbound.c:3266
 msgid "LOAD [-e] <file>, loads a plugin or script"
-msgstr ""
+msgstr "LOAD <fails>, ielādē iespraudni vai skriptu"
 
 #: ../src/common/outbound.c:3269
 msgid ""
@@ -1080,6 +1092,7 @@ msgstr ""
 #: ../src/common/outbound.c:3279
 msgid "MOP, Mass op's all users in the current channel (needs chanop)"
 msgstr ""
+"MDEOP, Masveidā deop'o visus kanālop'us pašreizējā kanālā (vajag būt kanālop)"
 
 #: ../src/common/outbound.c:3280
 msgid "MSG <nick> <message>, sends a private message"
@@ -1095,7 +1108,7 @@ msgstr "NCTCP <segvārds> <ziņa>, Sūta CTCP paziņojumu"
 
 #: ../src/common/outbound.c:3286
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
-msgstr ""
+msgstr "NEWSERVER <hostdators> [<ports>]"
 
 #: ../src/common/outbound.c:3287
 msgid "NICK <nickname>, sets your nick"
@@ -1202,7 +1215,7 @@ msgstr ""
 
 #: ../src/common/outbound.c:3331
 msgid "SET [-quiet] <variable> [<value>]"
-msgstr ""
+msgstr "SET <mainīgais> [<vērtība>]"
 
 #: ../src/common/outbound.c:3332
 msgid "SETCURSOR [-|+]<position>"
@@ -1330,11 +1343,11 @@ msgstr ""
 
 #: ../src/common/text.c:516
 msgid "Left message"
-msgstr ""
+msgstr "Ziņa"
 
 #: ../src/common/text.c:517
 msgid "Right message"
-msgstr ""
+msgstr "Ziņa"
 
 #: ../src/common/text.c:521
 msgid "The nick of the joining person"
@@ -1377,7 +1390,7 @@ msgstr "Teksts"
 
 #: ../src/common/text.c:536 ../src/common/text.c:609
 msgid "Identified text"
-msgstr ""
+msgstr "Info teksts"
 
 #: ../src/common/text.c:541 ../src/common/text.c:597 ../src/common/text.c:603
 #: ../src/common/text.c:608
@@ -1622,11 +1635,11 @@ msgstr "Ziņojums"
 
 #: ../src/common/text.c:778
 msgid "Account"
-msgstr ""
+msgstr "Pieņemt"
 
 #: ../src/common/text.c:783
 msgid "Real user@host"
-msgstr ""
+msgstr "Parādīt/Paslēpt lietotāju sarakstu"
 
 #: ../src/common/text.c:784
 msgid "Real IP"
@@ -1769,6 +1782,8 @@ msgid ""
 "Error parsing event %s.\n"
 "Loading default."
 msgstr ""
+"Kļūda parsējot notikumu %s.\n"
+"Lādēju noklusēto"
 
 #: ../src/common/text.c:1714
 #, c-format
@@ -2512,7 +2527,7 @@ msgstr "Šveice"
 
 #: ../src/common/util.c:881
 msgid "Cote d'Ivoire"
-msgstr ""
+msgstr "Kotdivuāra"
 
 #: ../src/common/util.c:882
 msgid "Cook Islands"
@@ -2712,7 +2727,7 @@ msgstr "Grieķija"
 
 #: ../src/common/util.c:931
 msgid "S. Georgia and S. Sandwich Isles"
-msgstr ""
+msgstr "Svētā Džordžija un Svētā Sendvidža salas."
 
 #: ../src/common/util.c:932
 msgid "Guatemala"
@@ -2772,7 +2787,7 @@ msgstr "Indija"
 
 #: ../src/common/util.c:946
 msgid "Informational"
-msgstr ""
+msgstr "Starptautisks"
 
 #: ../src/common/util.c:947
 msgid "International"
@@ -3096,7 +3111,7 @@ msgstr "Puertoriko"
 
 #: ../src/common/util.c:1027
 msgid "Palestinian Territory"
-msgstr ""
+msgstr "Britu Indija okeāna teritorija"
 
 #: ../src/common/util.c:1028
 msgid "Portugal"
@@ -3312,7 +3327,7 @@ msgstr "Vatikānas Pilsētvalsts"
 
 #: ../src/common/util.c:1081
 msgid "St. Vincent and the Grenadines"
-msgstr ""
+msgstr "Svētā Vincenta salas"
 
 #: ../src/common/util.c:1082
 msgid "Venezuela"
@@ -3372,11 +3387,11 @@ msgstr "Nezināms"
 
 #: ../src/common/xchat.c:737 ../src/common/xchat.c:863
 msgid "Open Dialog Window"
-msgstr ""
+msgstr "Automātiski Atvērt Dialoga Logus"
 
 #: ../src/common/xchat.c:738
 msgid "Send a File"
-msgstr ""
+msgstr "Skaņas fails:"
 
 #: ../src/common/xchat.c:739
 msgid "User Info (WHOIS)"
@@ -3384,7 +3399,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:740
 msgid "Operator Actions"
-msgstr ""
+msgstr "Kanāla Opcijas"
 
 #: ../src/common/xchat.c:742 ../src/common/xchat.c:833
 msgid "Give Ops"
@@ -3404,12 +3419,12 @@ msgstr ""
 
 #: ../src/common/xchat.c:747 ../src/common/xchat.c:842
 msgid "Kick/Ban"
-msgstr ""
+msgstr "Segvārds"
 
 #: ../src/common/xchat.c:748 ../src/common/xchat.c:843
 #: ../src/common/xchat.c:892
 msgid "Kick"
-msgstr ""
+msgstr "Segvārds"
 
 #: ../src/common/xchat.c:749 ../src/common/xchat.c:750
 #: ../src/common/xchat.c:751 ../src/common/xchat.c:752
@@ -3418,14 +3433,14 @@ msgstr ""
 #: ../src/common/xchat.c:847 ../src/common/xchat.c:848
 #: ../src/common/xchat.c:891
 msgid "Ban"
-msgstr ""
+msgstr "Butāna"
 
 #: ../src/common/xchat.c:754 ../src/common/xchat.c:755
 #: ../src/common/xchat.c:756 ../src/common/xchat.c:757
 #: ../src/common/xchat.c:849 ../src/common/xchat.c:850
 #: ../src/common/xchat.c:851 ../src/common/xchat.c:852
 msgid "KickBan"
-msgstr ""
+msgstr "Segvārds"
 
 #: ../src/common/xchat.c:820
 msgid "Direct client-to-client"
@@ -3433,7 +3448,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:821
 msgid "Send File"
-msgstr ""
+msgstr "Skaņas fails:"
 
 #: ../src/common/xchat.c:822
 msgid "Offer Chat"
@@ -3441,7 +3456,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:823
 msgid "Abort Chat"
-msgstr ""
+msgstr "Par X-Chat"
 
 #: ../src/common/xchat.c:824
 msgid "Version"
@@ -3449,7 +3464,7 @@ msgstr "Versija"
 
 #: ../src/common/xchat.c:825
 msgid "Userinfo"
-msgstr ""
+msgstr "Lietotājs"
 
 #: ../src/common/xchat.c:826
 msgid "Clientinfo"
@@ -3462,11 +3477,11 @@ msgstr ""
 
 #: ../src/common/xchat.c:829
 msgid "Finger"
-msgstr ""
+msgstr "Nigēra"
 
 #: ../src/common/xchat.c:830
 msgid "Oper"
-msgstr ""
+msgstr "Atvērt"
 
 #: ../src/common/xchat.c:831
 msgid "Kill this user"
@@ -3474,7 +3489,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:832
 msgid "Mode"
-msgstr ""
+msgstr "Mod"
 
 #: ../src/common/xchat.c:835
 msgid "Give Half-Ops"
@@ -3486,15 +3501,15 @@ msgstr ""
 
 #: ../src/common/xchat.c:839 ../src/fe-gnome/userlist-gui.c:54
 msgid "Ignore"
-msgstr ""
+msgstr "Neignorēt"
 
 #: ../src/common/xchat.c:840
 msgid "Ignore User"
-msgstr ""
+msgstr "Ignorēšanas Maska:"
 
 #: ../src/common/xchat.c:841
 msgid "UnIgnore User"
-msgstr ""
+msgstr "Neignorēt"
 
 #: ../src/common/xchat.c:853
 msgid "Info"
@@ -3514,11 +3529,11 @@ msgstr ""
 
 #: ../src/common/xchat.c:857
 msgid "Trace"
-msgstr ""
+msgstr "Francija"
 
 #: ../src/common/xchat.c:858
 msgid "UserHost"
-msgstr ""
+msgstr "Lietotāji"
 
 #: ../src/common/xchat.c:859
 msgid "External"
@@ -3530,35 +3545,35 @@ msgstr ""
 
 #: ../src/common/xchat.c:862
 msgid "Telnet"
-msgstr ""
+msgstr "Dzēst"
 
 #: ../src/common/xchat.c:874
 msgid "Leave Channel"
-msgstr ""
+msgstr "Atstāt Kanālu"
 
 #: ../src/common/xchat.c:875
 msgid "Join Channel..."
-msgstr ""
+msgstr "Pievienoties Kanālam"
 
 #: ../src/common/xchat.c:876
 msgid "Enter Channel to Join:"
-msgstr ""
+msgstr "Kanāls gatavojas"
 
 #: ../src/common/xchat.c:877
 msgid "Server Links"
-msgstr ""
+msgstr "Serveru Saraksts..."
 
 #: ../src/common/xchat.c:878
 msgid "Ping Server"
-msgstr ""
+msgstr "Serveris"
 
 #: ../src/common/xchat.c:879
 msgid "Hide Version"
-msgstr ""
+msgstr "Versija"
 
 #: ../src/common/xchat.c:889
 msgid "Op"
-msgstr ""
+msgstr "Atvērt"
 
 #: ../src/common/xchat.c:890
 msgid "DeOp"
@@ -3575,7 +3590,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:895
 msgid "Sendfile"
-msgstr ""
+msgstr "Skaņas fails:"
 
 #: ../src/common/xchat.c:896
 msgid "Dialog"
@@ -3583,11 +3598,11 @@ msgstr ""
 
 #: ../src/common/xchat.c:906
 msgid "Send"
-msgstr ""
+msgstr "Aizs"
 
 #: ../src/common/xchat.c:907
 msgid "Chat"
-msgstr ""
+msgstr "Čada"
 
 #: ../src/common/xchat.c:908
 msgid "Clear"
@@ -3642,11 +3657,11 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
 msgid "Background image filename"
-msgstr ""
+msgstr "Fona attēls:"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:2
 msgid "Background transparency"
-msgstr ""
+msgstr "Fona attēls:"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Default nickname used by servers without special options set"
@@ -3674,7 +3689,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
 msgid "Message sent on away"
-msgstr ""
+msgstr "Ziņojums"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Message sent on channel part"
@@ -3682,7 +3697,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
 msgid "Message sent on quit"
-msgstr ""
+msgstr "Ziņojums"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Position of the horizontal pane in the main window"
@@ -3706,7 +3721,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
 msgid "Use system fonts"
-msgstr ""
+msgstr "Lietotāju Saraksts"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
@@ -3724,7 +3739,7 @@ msgstr ""
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:110
 msgid "_Connect"
-msgstr ""
+msgstr "Pieslēgties"
 
 #: ../src/fe-gnome/conversation-panel.c:132
 msgid "_Open Link in Browser"
@@ -3740,27 +3755,27 @@ msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:138
 msgid "_Copy Address"
-msgstr ""
+msgstr "IP adrese"
 
 #: ../src/fe-gnome/conversation-panel.c:142
 msgid "_Send File"
-msgstr ""
+msgstr "Skaņas fails:"
 
 #: ../src/fe-gnome/conversation-panel.c:143
 msgid "Paste File _Contents"
-msgstr ""
+msgstr "Pieslēgties"
 
 #: ../src/fe-gnome/conversation-panel.c:144
 msgid "Paste File_name"
-msgstr ""
+msgstr "Jaunais Faila nosaukums"
 
 #: ../src/fe-gnome/conversation-panel.c:145
 msgid "_Cancel"
-msgstr ""
+msgstr "Atcelt"
 
 #: ../src/fe-gnome/conversation-panel.c:149 ../src/fe-gnome/main-window.c:116
 msgid "_Copy"
-msgstr ""
+msgstr "Apcirpt"
 
 #: ../src/fe-gnome/conversation-panel.c:600
 #, c-format
@@ -3807,7 +3822,7 @@ msgstr "Fails"
 
 #: ../src/fe-gnome/dcc-window.c:144
 msgid "Remaining"
-msgstr ""
+msgstr "Latvija"
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -3828,7 +3843,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
 msgid "starting"
-msgstr ""
+msgstr "Gaidu"
 
 #: ../src/fe-gnome/dcc-window.c:307
 #, c-format
@@ -3858,7 +3873,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:331
 msgid "stalled"
-msgstr ""
+msgstr "Neizdevās"
 
 #: ../src/fe-gnome/dcc-window.c:335
 #, c-format
@@ -3872,7 +3887,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:450
 msgid "Send File..."
-msgstr ""
+msgstr "Skaņas fails:"
 
 #: ../src/fe-gnome/fe-gnome.c:58
 msgid "Use directory instead of the default config dir"
@@ -3880,7 +3895,7 @@ msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:59
 msgid "Don't auto-connect to servers"
-msgstr ""
+msgstr "Auto Pieslēgties Serverim"
 
 #: ../src/fe-gnome/fe-gnome.c:60
 msgid "Don't auto-load plugins"
@@ -3888,7 +3903,7 @@ msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:62
 msgid "Show version information"
-msgstr ""
+msgstr "Serva Informācija"
 
 #: ../src/fe-gnome/fe-gnome.c:102
 #, c-format
@@ -3912,7 +3927,7 @@ msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:99
 msgid "_Next"
-msgstr ""
+msgstr "Teksts"
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -3954,7 +3969,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:526
 msgid "You must enter a nick name"
-msgstr ""
+msgstr "Ievadiet jaunu segvārdu:"
 
 #: ../src/fe-gnome/irc-network-editor.c:532
 msgid "You must enter a real name"
@@ -3962,7 +3977,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "No Servers"
-msgstr ""
+msgstr "Serveri"
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "You must add at least one server for this network"
@@ -4027,7 +4042,7 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:103
 msgid "_Network"
-msgstr ""
+msgstr "Tīkls"
 
 #: ../src/fe-gnome/main-window.c:104
 msgid "_Discussion"
@@ -4043,11 +4058,11 @@ msgstr "_Palīdzība"
 
 #: ../src/fe-gnome/main-window.c:111
 msgid "_File Transfers"
-msgstr ""
+msgstr "Failu pārsūtīšanas"
 
 #: ../src/fe-gnome/main-window.c:112
 msgid "_Quit"
-msgstr ""
+msgstr "Iziet"
 
 #. Edit menu
 #: ../src/fe-gnome/main-window.c:115
@@ -4056,39 +4071,39 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:117
 msgid "_Paste"
-msgstr ""
+msgstr "Privāts"
 
 #: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
 msgid "C_lear"
-msgstr ""
+msgstr "Attīrīt"
 
 #: ../src/fe-gnome/main-window.c:119
 msgid "Prefere_nces"
-msgstr ""
+msgstr "Preferences..."
 
 #. Network menu
 #. Server context menu
 #: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Information"
-msgstr ""
+msgstr "Starptautisks"
 
 #: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
-msgstr ""
+msgstr "Pieslēgties"
 
 #: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Disconnect"
-msgstr ""
+msgstr "Pieslēgties"
 
 #: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:84
 #: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
 msgid "_Close"
-msgstr ""
+msgstr "Aizvērt"
 
 #: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Channels..."
-msgstr ""
+msgstr "Kanālu Saraksts..."
 
 #. Discussion menu
 #. Channel context menu
@@ -4100,19 +4115,19 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:89
 msgid "_Leave"
-msgstr ""
+msgstr "Latvija"
 
 #: ../src/fe-gnome/main-window.c:131
 msgid "Cl_ose"
-msgstr ""
+msgstr "Aizvērt"
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "_Find"
-msgstr ""
+msgstr "Atrast"
 
 #: ../src/fe-gnome/main-window.c:133
 msgid "_Clear Window"
-msgstr ""
+msgstr "_Logs"
 
 #: ../src/fe-gnome/main-window.c:134
 msgid "Change _Topic"
@@ -4120,20 +4135,20 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:93
 msgid "_Bans..."
-msgstr ""
+msgstr "Izraidīto Saraksts..."
 
 #: ../src/fe-gnome/main-window.c:136
 msgid "_Users"
-msgstr ""
+msgstr "Lietotāji"
 
 #. Go menu
 #: ../src/fe-gnome/main-window.c:139
 msgid "Pre_vious Network"
-msgstr ""
+msgstr "Jauns Tīkls"
 
 #: ../src/fe-gnome/main-window.c:140
 msgid "Nex_t Network"
-msgstr ""
+msgstr "Jauns Tīkls"
 
 #: ../src/fe-gnome/main-window.c:141
 msgid "_Previous Discussion"
@@ -4146,30 +4161,30 @@ msgstr ""
 #. Help menu
 #: ../src/fe-gnome/main-window.c:145
 msgid "_Contents"
-msgstr ""
+msgstr "Pieslēgties"
 
 #: ../src/fe-gnome/main-window.c:146
 msgid "_About"
-msgstr ""
+msgstr "Pārtraukt"
 
 #: ../src/fe-gnome/main-window.c:486 ../src/fe-gnome/main-window.c:507
 #: ../src/fe-gnome/navigation-tree.c:1579
 #: ../src/fe-gnome/navigation-tree.c:1633
 msgid "Ex-Chat"
-msgstr ""
+msgstr "Čada"
 
 #: ../src/fe-gnome/main-window.c:585
 msgid "Error showing help"
-msgstr ""
+msgstr "Kļūdas virkne"
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
 msgid "_Find..."
-msgstr ""
+msgstr "Faila Sūtīšana..."
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
 msgid "_Auto-connect"
-msgstr ""
+msgstr "_Pieslēgties"
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
@@ -4200,7 +4215,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
 msgid "File Transfers & DCC"
-msgstr ""
+msgstr "Failu pārsūtīšanas"
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
@@ -4208,12 +4223,12 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
 msgid "IRC Preferences"
-msgstr ""
+msgstr "X-Chat: Uzstādījumi"
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
-msgstr ""
+msgstr "Patiesi izņemt tīklu \"%s\" un visus tā serverus?"
 
 #: ../src/fe-gnome/preferences-page-networks.c:171
 msgid "Networks"
@@ -4226,7 +4241,7 @@ msgstr "Nosaukums"
 #: ../src/fe-gnome/preferences-page-plugins.c:84
 #: ../src/fe-gnome/preferences-page-plugins.c:85
 msgid "unknown"
-msgstr ""
+msgstr "Nezināms"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:125
 #, c-format
@@ -4243,7 +4258,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:176
 msgid "Open Plugin"
-msgstr ""
+msgstr "Atvērt dialogus iekš:"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:276
 msgid "Scripts and Plugins"
@@ -4269,7 +4284,7 @@ msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:274
 msgid "I_nsert Color Code"
-msgstr ""
+msgstr "Ievietot krāsas kodu"
 
 #: ../src/fe-gnome/text-entry.c:281
 msgid "Black"
@@ -4342,16 +4357,16 @@ msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:50
 msgid "_Send File..."
-msgstr ""
+msgstr "Skaņas fails:"
 
 #: ../src/fe-gnome/userlist-gui.c:51
 msgid "Private _Chat"
-msgstr ""
+msgstr "Privāts"
 
 #: ../src/fe-gnome/userlist-gui.c:52
 msgid "_Kick"
-msgstr ""
+msgstr "Segvārds"
 
 #: ../src/fe-gnome/userlist-gui.c:53
 msgid "_Ban"
-msgstr ""
+msgstr "Butāna"

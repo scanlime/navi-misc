@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:18-0700\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
 "PO-Revision-Date: 2006-02-10 02:18-0700\n"
 "Last-Translator: Christian Rose <menthos@menthos.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -29,7 +29,7 @@ msgstr "Kanalnam_n"
 
 #: ../data/channel-list.glade.h:4
 msgid "Channel _Topic"
-msgstr ""
+msgstr "Kanalflikar"
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
@@ -45,11 +45,11 @@ msgstr "Minsta antal användare:"
 
 #: ../data/channel-list.glade.h:8
 msgid "Save List _As"
-msgstr ""
+msgstr "Spara som"
 
 #: ../data/channel-list.glade.h:9
 msgid "Text Filter:"
-msgstr ""
+msgstr "Skriv ut textfil"
 
 #: ../data/connect-dialog.glade.h:1
 msgid "C_onnect"
@@ -57,11 +57,11 @@ msgstr "_Anslut"
 
 #: ../data/dcc-accept.glade.h:1
 msgid "_Accept"
-msgstr ""
+msgstr "Acceptera"
 
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
 msgid "File Transfers"
-msgstr ""
+msgstr "Filöverföringar"
 
 #: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
@@ -81,11 +81,11 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Character _encoding:"
-msgstr ""
+msgstr "Teckentabell:"
 
 #: ../data/irc-network-editor.glade.h:6
 msgid "Network Settings"
-msgstr ""
+msgstr "Andra inställningar"
 
 #: ../data/irc-network-editor.glade.h:7
 msgid "Nickser_v Password:"
@@ -93,7 +93,7 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:8
 msgid "Server _Password:"
-msgstr ""
+msgstr "Serverlösenord:"
 
 #: ../data/irc-network-editor.glade.h:9
 msgid "Servers"
@@ -101,23 +101,23 @@ msgstr "Servrar"
 
 #: ../data/irc-network-editor.glade.h:10
 msgid "Use _global user settings"
-msgstr ""
+msgstr "Använd global användarinformation"
 
 #: ../data/irc-network-editor.glade.h:11
 msgid "Use _these user settings:"
-msgstr ""
+msgstr "Andra inställningar"
 
 #: ../data/irc-network-editor.glade.h:12
 msgid "User and Channels"
-msgstr ""
+msgstr "Lämna kanal"
 
 #: ../data/irc-network-editor.glade.h:13
 msgid "_Automatically connect to network"
-msgstr ""
+msgstr "Automatisk återanslutning till server"
 
 #: ../data/irc-network-editor.glade.h:14
 msgid "_Cycle until connected"
-msgstr ""
+msgstr "Byt server tills ansluten"
 
 #: ../data/irc-network-editor.glade.h:15
 msgid "_Name:"
@@ -133,7 +133,7 @@ msgstr "Verkligt nam_n:"
 
 #: ../data/irc-network-editor.glade.h:18
 msgid "_Use secure connection (SSL)"
-msgstr ""
+msgstr "Använd SSL"
 
 #: ../data/preferences-dialog.glade.h:1
 msgid "<span size=\"small\" style=\"italic\">Opaque</span>"
@@ -181,31 +181,31 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:13
 msgid "A_way message:"
-msgstr ""
+msgstr "Nytt meddelande:"
 
 #: ../data/preferences-dialog.glade.h:14
 msgid "Auto-accept DCC Chat"
-msgstr ""
+msgstr "Acceptera direktchattar automatiskt"
 
 #: ../data/preferences-dialog.glade.h:15
 msgid "Auto-accept DCC File Transfers"
-msgstr ""
+msgstr "Acceptera filer automatiskt"
 
 #: ../data/preferences-dialog.glade.h:16
 msgid "Background _image"
-msgstr ""
+msgstr "Bakgrundsbild:"
 
 #: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
-msgstr ""
+msgstr "Bakgrundsbild:"
 
 #: ../data/preferences-dialog.glade.h:18
 msgid "Buil_t-in schemes:"
-msgstr ""
+msgstr "Inbyggda svar"
 
 #: ../data/preferences-dialog.glade.h:19
 msgid "Convert spaces to underscores in filenames"
-msgstr ""
+msgstr "Omvandla blanksteg till understreck"
 
 #: ../data/preferences-dialog.glade.h:20
 msgid "Download files to:"
@@ -213,23 +213,23 @@ msgstr "Spara hämtade filer i:"
 
 #: ../data/preferences-dialog.glade.h:21
 msgid "Enter extra words to trigger highlighting"
-msgstr ""
+msgstr "Extra ord att färgmarkera:"
 
 #: ../data/preferences-dialog.glade.h:22
 msgid "Foreground mark:"
-msgstr ""
+msgstr "Förgrund:"
 
 #: ../data/preferences-dialog.glade.h:23
 msgid "Get IP Address From Server"
-msgstr ""
+msgstr "Hämta mitt IP-nummer från IRC-servern"
 
 #: ../data/preferences-dialog.glade.h:24
 msgid "Global receive KB/s: "
-msgstr ""
+msgstr "Max. CPS för global mottagning: "
 
 #: ../data/preferences-dialog.glade.h:25
 msgid "Global send KB/s: "
-msgstr ""
+msgstr "Max. CPS för globalt skickande: "
 
 #: ../data/preferences-dialog.glade.h:26
 msgid "Image _file:"
@@ -249,27 +249,27 @@ msgstr "Flytta färdighämtade filer till:"
 
 #: ../data/preferences-dialog.glade.h:30
 msgid "Preferences"
-msgstr ""
+msgstr "Inställningar..."
 
 #: ../data/preferences-dialog.glade.h:31
 msgid "Real na_me:"
-msgstr ""
+msgstr "Verkligt namn:"
 
 #: ../data/preferences-dialog.glade.h:32
 msgid "Save sender nickname in filenames"
-msgstr ""
+msgstr "Spara smeknamn i filnamn"
 
 #: ../data/preferences-dialog.glade.h:33
 msgid "Select A File"
-msgstr ""
+msgstr "Välj en bildfil"
 
 #: ../data/preferences-dialog.glade.h:34
 msgid "Select Completed Files Directory"
-msgstr ""
+msgstr "Flytta färdighämtade filer till:"
 
 #: ../data/preferences-dialog.glade.h:35
 msgid "Select Download Directory"
-msgstr ""
+msgstr "Spara hämtade filer i:"
 
 #: ../data/preferences-dialog.glade.h:36
 msgid "Show _timestamps"
@@ -287,15 +287,15 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:39
 msgid "Use This IP Address:"
-msgstr ""
+msgstr "IP-adress"
 
 #: ../data/preferences-dialog.glade.h:40
 msgid "Use this font:"
-msgstr ""
+msgstr "Använd en typsnittssamling"
 
 #: ../data/preferences-dialog.glade.h:41
 msgid "_Background color:"
-msgstr ""
+msgstr "Bakgrund:"
 
 #: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:101
 msgid "_Edit"
@@ -303,7 +303,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:43
 msgid "_Foreground color:"
-msgstr ""
+msgstr "Förgrund:"
 
 #: ../data/preferences-dialog.glade.h:44
 msgid "_Nickname:"
@@ -315,19 +315,19 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:46
 msgid "_Part message:"
-msgstr ""
+msgstr "Vänstermeddelande"
 
 #: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
-msgstr ""
+msgstr "Högermeddelande"
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
-msgstr ""
+msgstr "Visa kanaler"
 
 #: ../data/preferences-dialog.glade.h:49
 msgid "_Transparent background"
-msgstr ""
+msgstr "Genomskinlig bakgrund"
 
 #: ../data/setup-dialog.glade.h:1
 msgid "Nick Name:"
@@ -355,11 +355,11 @@ msgstr ""
 
 #: ../data/topic-change.glade.h:1
 msgid "Change"
-msgstr ""
+msgstr "Kanal"
 
 #: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:92
 msgid "IRC Chat"
-msgstr ""
+msgstr "Chatta"
 
 #: ../data/xchat-gnome.desktop.in.h:2
 msgid "XChat-GNOME IRC Chat"
@@ -371,11 +371,11 @@ msgstr ""
 
 #: ../data/xchat-gnome.glade.h:2
 msgid "Close this discussion"
-msgstr ""
+msgstr "Stäng denna flik/detta fönster"
 
 #: ../data/xchat-gnome.glade.h:3
 msgid "Enter a new nickname"
-msgstr ""
+msgstr "Ange nytt smeknamn:"
 
 #. ! if (osvi.dwMajorVersion >= 5)
 #. fallback to error number
@@ -409,20 +409,20 @@ msgstr ""
 
 #: ../plugins/autoaway/autoaway.c:212
 msgid "Auto Away"
-msgstr ""
+msgstr "Borta"
 
 #: ../plugins/autoaway/autoaway.c:213
 msgid "Automatically go away / come back"
-msgstr ""
+msgstr "Avmarkera frånvaro automatiskt"
 
 #. Hook up our callbacks.
 #: ../plugins/autoaway/autoaway.c:231
 msgid "Disconnected"
-msgstr ""
+msgstr "Koppla från"
 
 #: ../plugins/autoaway/autoaway.c:232
 msgid "Connected"
-msgstr ""
+msgstr "Anslut"
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -481,7 +481,7 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "Prints some text to the current tab/window"
-msgstr ""
+msgstr "Skriv aktuell tid framför all text"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "\"Text to print\""
@@ -493,11 +493,11 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "channel"
-msgstr ""
+msgstr "Kanal"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
-msgstr ""
+msgstr "Gör textfältet genomskinligt"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
@@ -509,11 +509,11 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
-msgstr ""
+msgstr "Dölj"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
-msgstr ""
+msgstr "Spara inställningar vid avslut"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
@@ -534,22 +534,37 @@ msgstr ""
 #: ../plugins/dbus/xchat-gnome-remote.c:130
 msgid "Failed to complete command"
 msgstr ""
+"Misslyckades med att öppna typsnitt:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:125
 msgid "Failed to complete SetContext"
 msgstr ""
+"Misslyckades med att öppna typsnitt:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:135
 msgid "Failed to complete print"
 msgstr ""
+"Misslyckades med att öppna typsnitt:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:142
 msgid "Failed to complete GetInfo"
 msgstr ""
+"Misslyckades med att öppna typsnitt:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:155
 msgid "Failed to complete GetPrefs"
 msgstr ""
+"Misslyckades med att öppna typsnitt:\n"
+"\n"
+"%s"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:159
 #, c-format
@@ -558,7 +573,7 @@ msgstr ""
 
 #: ../plugins/net-monitor/net-monitor.c:36
 msgid "Network Monitor"
-msgstr ""
+msgstr "Nätverksinställningar"
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
@@ -571,11 +586,11 @@ msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "Orientation"
-msgstr ""
+msgstr "Argentina"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "The orientation of the tray."
-msgstr ""
+msgstr "Smeknamnet på personen"
 
 #: ../plugins/notification/notification.c:151
 msgid "Notification"
@@ -583,15 +598,15 @@ msgstr "Notifiering"
 
 #: ../plugins/notification/notification.c:152
 msgid "A notification area plugin."
-msgstr ""
+msgstr "Notifieringsinställlningar"
 
 #: ../plugins/notification/notification.c:239
 msgid "Notification plugin loaded.\n"
-msgstr ""
+msgstr "Tidsgränser för notifieringar\n"
 
 #: ../plugins/notification/notification.c:254
 msgid "Notification plugin unloaded.\n"
-msgstr ""
+msgstr "Ingen sådan insticksmodul hittades.\n"
 
 #: ../plugins/notification/notification.schemas.in.h:1
 msgid "Keep icon in tray at all times"
@@ -644,7 +659,7 @@ msgstr ""
 
 #: ../plugins/url_scraper/urlscraper.c:45
 msgid "xchat URL scraper"
-msgstr ""
+msgstr "X-Chat: URL-fångare"
 
 #: ../plugins/url_scraper/urlscraper.c:59 ../src/common/xchat.c:828
 msgid "Time"
@@ -666,7 +681,7 @@ msgstr "URL"
 
 #: ../plugins/url_scraper/urlscraper.c:155
 msgid "URL Scraper"
-msgstr ""
+msgstr "URL-fångare..."
 
 #: ../plugins/url_scraper/urlscraper.c:156
 msgid "Grabs URLs and puts them in a separate window for easy viewing."
@@ -776,14 +791,14 @@ msgstr "Inga aktiva DCC:er\n"
 #: ../src/common/ignore.c:136 ../src/common/ignore.c:140
 #: ../src/common/ignore.c:144
 msgid "YES  "
-msgstr "JA   "
+msgstr "JA  "
 
 #: ../src/common/ignore.c:122 ../src/common/ignore.c:126
 #: ../src/common/ignore.c:130 ../src/common/ignore.c:134
 #: ../src/common/ignore.c:138 ../src/common/ignore.c:142
 #: ../src/common/ignore.c:146
 msgid "NO   "
-msgstr "NEJ  "
+msgstr "NEJ   "
 
 #: ../src/common/ignore.c:373
 #, c-format
@@ -793,7 +808,7 @@ msgstr "Du CTCP-översvämmas från %s, ignorerar %s\n"
 #: ../src/common/ignore.c:398
 #, c-format
 msgid "You are being MSG flooded from %s, setting gui_auto_open_dialog OFF.\n"
-msgstr ""
+msgstr "Du MSG-översvämmas från %s, ställer in autodialog till AV.\n"
 
 #: ../src/common/notify.c:400
 #, c-format
@@ -819,19 +834,19 @@ msgstr "Jag behöver /bin/sh för att kunna köra!\n"
 
 #: ../src/common/outbound.c:1975
 msgid "Commands Available:"
-msgstr ""
+msgstr "Tillgängliga kommandon:"
 
 #: ../src/common/outbound.c:1989
 msgid "User defined commands:"
-msgstr ""
+msgstr "Användardefinierade kommandon:"
 
 #: ../src/common/outbound.c:2005
 msgid "Plugin defined commands:"
-msgstr ""
+msgstr "Användardefinierade kommandon:"
 
 #: ../src/common/outbound.c:2016
 msgid "Type /HELP <command> for more information, or /HELP -l"
-msgstr ""
+msgstr "Skriv /HELP <kommando> för ytterligare information, eller /HELP -l"
 
 #: ../src/common/outbound.c:2091
 #, c-format
@@ -856,7 +871,7 @@ msgstr "ALLCHAN <kmdo>, skickar ett kommando till alla kanaler du är inne i"
 
 #: ../src/common/outbound.c:3182
 msgid "ALLCHANL <cmd>, sends a command to all channels you're in"
-msgstr ""
+msgstr "ALLCHAN <kmdo>, skickar ett kommando till alla kanaler du är inne i"
 
 #: ../src/common/outbound.c:3184
 msgid "ALLSERV <cmd>, sends a command to all servers you're in"
@@ -887,7 +902,7 @@ msgstr "CLOSE, stänger det aktuella fönstret/fliken"
 
 #: ../src/common/outbound.c:3193
 msgid "COUNTRY [-s] <code|wildcard>, finds a country code, eg: au = australia"
-msgstr ""
+msgstr "COUNTRY <kod>, söker efter en landskod, exempelvis se = Sverige"
 
 #: ../src/common/outbound.c:3195
 msgid ""
@@ -913,6 +928,13 @@ msgid ""
 "DCC CLOSE <type> <nick> <file>         example:\n"
 "         /dcc close send johnsmith file.tar.gz"
 msgstr ""
+"\n"
+"DCC GET <smeknamn>                     - ta emot en erbjuden fil\n"
+"DCC SEND [-maxcps=#] <smeknamn> [fil]  - skicka en fil till någon\n"
+"DCC LIST                               - visa DCC-lista\n"
+"DCC CHAT <smeknamn>                    - erbjud någon DCC-chatt\n"
+"DCC CLOSE <typ> <smeknamn> <fil>            exempel:\n"
+"         /dcc close send nisse fil.tar.gz"
 
 #: ../src/common/outbound.c:3211
 msgid ""
@@ -1055,7 +1077,7 @@ msgstr "LASTLOG <sträng>, söker efter en sträng i bufferten"
 
 #: ../src/common/outbound.c:3266
 msgid "LOAD [-e] <file>, loads a plugin or script"
-msgstr ""
+msgstr "LOAD <fil>, läser in en insticksmodul eller ett skript"
 
 #: ../src/common/outbound.c:3269
 msgid ""
@@ -1105,7 +1127,7 @@ msgstr "NCTCP <smeknamn> <meddelande>, skickar en CTCP-notis"
 
 #: ../src/common/outbound.c:3286
 msgid "NEWSERVER [-noconnect] <hostname> [<port>]"
-msgstr ""
+msgstr "NEWSERVER <värdnamn> [<port>]"
 
 #: ../src/common/outbound.c:3287
 msgid "NICK <nickname>, sets your nick"
@@ -1218,7 +1240,7 @@ msgstr ""
 
 #: ../src/common/outbound.c:3331
 msgid "SET [-quiet] <variable> [<value>]"
-msgstr ""
+msgstr "SET <variabel> [<värde>]"
 
 #: ../src/common/outbound.c:3332
 msgid "SETCURSOR [-|+]<position>"
@@ -1402,7 +1424,7 @@ msgstr "Texten"
 
 #: ../src/common/text.c:536 ../src/common/text.c:609
 msgid "Identified text"
-msgstr ""
+msgstr "Infotext"
 
 #: ../src/common/text.c:541 ../src/common/text.c:597 ../src/common/text.c:603
 #: ../src/common/text.c:608
@@ -1488,7 +1510,6 @@ msgstr "Smeknamnet på personen"
 msgid "The CTCP event"
 msgstr "CTCP-händelsen"
 
-# I IRC-sammanhang är "keyword" ett lösenord för att komma in på en kanal.
 #: ../src/common/text.c:649
 msgid "The nick of the person who set the key"
 msgstr "Smeknamnet på personen som satte lösenordet"
@@ -1537,7 +1558,6 @@ msgstr "Smeknamnet på personen som gjorde bannlysningen"
 msgid "The ban mask"
 msgstr "Bannlysningsmasken"
 
-# I IRC-sammanhang är "keyword" ett lösenord för att komma in på en kanal.
 #: ../src/common/text.c:679
 msgid "The nick who removed the key"
 msgstr "Smeknamnet som tog bort lösenordet"
@@ -1796,6 +1816,8 @@ msgid ""
 "Error parsing event %s.\n"
 "Loading default."
 msgstr ""
+"Fel vid tolkning av händelsen %s.\n"
+"Läser in standardvärde"
 
 #: ../src/common/text.c:1714
 #, c-format
@@ -1841,14 +1863,15 @@ msgstr "-%C10-%C11-%O$tKanalen $1 skapad på $2"
 #: ../src/common/textevents.h:33
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
 msgstr ""
+"-%C10-%C11-%O$t%C11$1%O tar bort halvkanaloperatörsstatusen från %C11$2"
 
 #: ../src/common/textevents.h:36
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O tar bort kanaloperatörsstatus från %C11$2"
 
 #: ../src/common/textevents.h:39
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O tar bort röststatus från %C11$2"
 
 #: ../src/common/textevents.h:42
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
@@ -1856,7 +1879,7 @@ msgstr "-%C10-%C11-%O$t$1 sätter undantag på $2"
 
 #: ../src/common/textevents.h:45
 msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O ger halvkanaloperatörsstatus till %C11$2"
 
 #: ../src/common/textevents.h:48
 msgid "-%C10-%C11-%O$t$1 sets invite on $2"
@@ -1888,7 +1911,7 @@ msgstr "%C12-%C13$1/$2%C12-%O$t$3%O"
 
 #: ../src/common/textevents.h:69
 msgid "-%C10-%C11-%O$t$1 gives channel operator status to $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O ger kanaloperatörsstatus till %C11$2"
 
 #: ../src/common/textevents.h:72
 msgid "-%C10-%C11-%O$t$1 removes exempt on $2"
@@ -1920,7 +1943,7 @@ msgstr "-%C10-%C11-%O$t$1 tar bort bannlysning av $2"
 
 #: ../src/common/textevents.h:93
 msgid "-%C10-%C11-%O$t$1 gives voice to $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C11$1%O ger röststatus till %C11$2"
 
 #: ../src/common/textevents.h:96
 msgid "-%C10-%C11-%O$tConnected. Now logging in.."
@@ -1953,7 +1976,7 @@ msgstr "-%C10-%C11-%O$tMottog ett CTCP Sound $1 från $2"
 
 #: ../src/common/textevents.h:117
 msgid "%C22*%O$tReceived a CTCP Sound $1 from $2 (to $3)"
-msgstr ""
+msgstr "-%C10-%C11-%O$tMottog ett CTCP $1 från $2 (till $3)"
 
 #: ../src/common/textevents.h:120
 msgid "-%C10-%C11-%O$tDCC CHAT to %C11$1%O aborted."
@@ -2072,6 +2095,7 @@ msgstr ""
 #: ../src/common/textevents.h:186
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
 msgstr ""
+"-%C10-%C11-%O$tDCC RECV $1 ($2) misslyckades. Anslutningen till $3 avbruten."
 
 #: ../src/common/textevents.h:189
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
@@ -2285,7 +2309,7 @@ msgstr "-%C10-%C11-%O$t%C11Användare på $1:%C $2"
 
 #: ../src/common/textevents.h:360
 msgid "%C22*%O$t%C28[%O$1%C28] %O$2%C27 $3"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %O$2 %C11$3%O"
 
 #: ../src/common/textevents.h:363
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %Cis away %C14(%O$2%O%C14)"
@@ -2301,7 +2325,7 @@ msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %CSlut på WHOIS-lista."
 
 #: ../src/common/textevents.h:372
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C$2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C12[%O$1%C12] %O$2"
 
 #: ../src/common/textevents.h:375
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O idle %C11$2%O"
@@ -2328,7 +2352,7 @@ msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
 
 #: ../src/common/textevents.h:390
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
-msgstr ""
+msgstr "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
 
 #: ../src/common/textevents.h:393
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
@@ -2560,7 +2584,7 @@ msgstr "Schweiz"
 
 #: ../src/common/util.c:881
 msgid "Cote d'Ivoire"
-msgstr ""
+msgstr "Elfenbenskusten"
 
 #: ../src/common/util.c:882
 msgid "Cook Islands"
@@ -2760,7 +2784,7 @@ msgstr "Grekland"
 
 #: ../src/common/util.c:931
 msgid "S. Georgia and S. Sandwich Isles"
-msgstr ""
+msgstr "Sydgeorgien och Södra Sandwichöarna."
 
 #: ../src/common/util.c:932
 msgid "Guatemala"
@@ -3144,7 +3168,7 @@ msgstr "Puerto Rico"
 
 #: ../src/common/util.c:1027
 msgid "Palestinian Territory"
-msgstr ""
+msgstr "Brittiskt territiorium i Indiska Oceanen"
 
 #: ../src/common/util.c:1028
 msgid "Portugal"
@@ -3360,7 +3384,7 @@ msgstr "Vatikanstaten"
 
 #: ../src/common/util.c:1081
 msgid "St. Vincent and the Grenadines"
-msgstr ""
+msgstr "St. Vincent och grenadinerna"
 
 #: ../src/common/util.c:1082
 msgid "Venezuela"
@@ -3424,7 +3448,7 @@ msgstr "Öppna dialogfönster"
 
 #: ../src/common/xchat.c:738
 msgid "Send a File"
-msgstr ""
+msgstr "Skicka fil"
 
 #: ../src/common/xchat.c:739
 msgid "User Info (WHOIS)"
@@ -3432,7 +3456,7 @@ msgstr ""
 
 #: ../src/common/xchat.c:740
 msgid "Operator Actions"
-msgstr ""
+msgstr "Alternativ"
 
 #: ../src/common/xchat.c:742 ../src/common/xchat.c:833
 msgid "Give Ops"
@@ -3526,11 +3550,11 @@ msgstr "Läge"
 
 #: ../src/common/xchat.c:835
 msgid "Give Half-Ops"
-msgstr ""
+msgstr "Ge kanaloperatörsstatus"
 
 #: ../src/common/xchat.c:836
 msgid "Take Half-Ops"
-msgstr ""
+msgstr "Ta kanaloperatörsstatus"
 
 #: ../src/common/xchat.c:839 ../src/fe-gnome/userlist-gui.c:54
 msgid "Ignore"
@@ -3572,7 +3596,6 @@ msgstr "AnvändareVärd"
 msgid "External"
 msgstr "Extern"
 
-# Detta är väl närmast namnet på ett program
 #: ../src/common/xchat.c:860
 msgid "Traceroute"
 msgstr "Traceroute"
@@ -3691,11 +3714,11 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
 msgid "Background image filename"
-msgstr ""
+msgstr "Bakgrundsbild:"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:2
 msgid "Background transparency"
-msgstr ""
+msgstr "Bakgrundsbild:"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Default nickname used by servers without special options set"
@@ -3723,7 +3746,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
 msgid "Message sent on away"
-msgstr ""
+msgstr "Meddelande"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Message sent on channel part"
@@ -3731,7 +3754,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
 msgid "Message sent on quit"
-msgstr ""
+msgstr "Meddelande"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Position of the horizontal pane in the main window"
@@ -3755,7 +3778,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
 msgid "Use system fonts"
-msgstr ""
+msgstr "Använd en typsnittssamling"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
@@ -3773,7 +3796,7 @@ msgstr ""
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:110
 msgid "_Connect"
-msgstr ""
+msgstr "Anslut"
 
 #: ../src/fe-gnome/conversation-panel.c:132
 msgid "_Open Link in Browser"
@@ -3789,23 +3812,23 @@ msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:138
 msgid "_Copy Address"
-msgstr ""
+msgstr "Adress"
 
 #: ../src/fe-gnome/conversation-panel.c:142
 msgid "_Send File"
-msgstr ""
+msgstr "Skicka fil"
 
 #: ../src/fe-gnome/conversation-panel.c:143
 msgid "Paste File _Contents"
-msgstr ""
+msgstr "_Innehåll"
 
 #: ../src/fe-gnome/conversation-panel.c:144
 msgid "Paste File_name"
-msgstr ""
+msgstr "Nytt filnamn"
 
 #: ../src/fe-gnome/conversation-panel.c:145
 msgid "_Cancel"
-msgstr ""
+msgstr "Avbryt"
 
 #: ../src/fe-gnome/conversation-panel.c:149 ../src/fe-gnome/main-window.c:116
 msgid "_Copy"
@@ -3856,7 +3879,7 @@ msgstr "Fil"
 
 #: ../src/fe-gnome/dcc-window.c:144
 msgid "Remaining"
-msgstr ""
+msgstr "Lämnar"
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -3877,7 +3900,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
 msgid "starting"
-msgstr ""
+msgstr "Väntar"
 
 #: ../src/fe-gnome/dcc-window.c:307
 #, c-format
@@ -3907,7 +3930,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:331
 msgid "stalled"
-msgstr ""
+msgstr "Misslyckades"
 
 #: ../src/fe-gnome/dcc-window.c:335
 #, c-format
@@ -3921,7 +3944,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:450
 msgid "Send File..."
-msgstr ""
+msgstr "Skicka fil"
 
 #: ../src/fe-gnome/fe-gnome.c:58
 msgid "Use directory instead of the default config dir"
@@ -3929,11 +3952,11 @@ msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:59
 msgid "Don't auto-connect to servers"
-msgstr ""
+msgstr "Anslut inte automatiskt"
 
 #: ../src/fe-gnome/fe-gnome.c:60
 msgid "Don't auto-load plugins"
-msgstr ""
+msgstr "Läs inte automatiskt in några insticksmoduler"
 
 #: ../src/fe-gnome/fe-gnome.c:62
 msgid "Show version information"
@@ -3961,7 +3984,7 @@ msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:99
 msgid "_Next"
-msgstr ""
+msgstr "Text"
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -3989,7 +4012,7 @@ msgstr ""
 #: ../src/fe-gnome/irc-network-editor.c:396
 #, c-format
 msgid "%s Network Properties"
-msgstr ""
+msgstr "(%s) Nätverkskodning"
 
 #: ../src/fe-gnome/irc-network-editor.c:519
 #: ../src/fe-gnome/irc-network-editor.c:526
@@ -4003,7 +4026,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:526
 msgid "You must enter a nick name"
-msgstr ""
+msgstr "Ange nytt smeknamn:"
 
 #: ../src/fe-gnome/irc-network-editor.c:532
 msgid "You must enter a real name"
@@ -4011,7 +4034,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "No Servers"
-msgstr ""
+msgstr "Ingen server"
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "You must add at least one server for this network"
@@ -4076,7 +4099,7 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:103
 msgid "_Network"
-msgstr ""
+msgstr "Nätverk"
 
 #: ../src/fe-gnome/main-window.c:104
 msgid "_Discussion"
@@ -4092,11 +4115,11 @@ msgstr "_Hjälp"
 
 #: ../src/fe-gnome/main-window.c:111
 msgid "_File Transfers"
-msgstr ""
+msgstr "Filöverföringar"
 
 #: ../src/fe-gnome/main-window.c:112
 msgid "_Quit"
-msgstr ""
+msgstr "Avsluta"
 
 #. Edit menu
 #: ../src/fe-gnome/main-window.c:115
@@ -4105,30 +4128,30 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:117
 msgid "_Paste"
-msgstr ""
+msgstr "Privat"
 
 #: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
 msgid "C_lear"
-msgstr ""
+msgstr "Töm"
 
 #: ../src/fe-gnome/main-window.c:119
 msgid "Prefere_nces"
-msgstr ""
+msgstr "Inställningar..."
 
 #. Network menu
 #. Server context menu
 #: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Information"
-msgstr ""
+msgstr "Informativ"
 
 #: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
-msgstr ""
+msgstr "Återanslut"
 
 #: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:83
 msgid "_Disconnect"
-msgstr ""
+msgstr "Koppla från"
 
 #: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:84
 #: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
@@ -4137,7 +4160,7 @@ msgstr "S_täng"
 
 #: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Channels..."
-msgstr ""
+msgstr "Kanallista..."
 
 #. Discussion menu
 #. Channel context menu
@@ -4149,19 +4172,19 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:89
 msgid "_Leave"
-msgstr ""
+msgstr "Lämnar"
 
 #: ../src/fe-gnome/main-window.c:131
 msgid "Cl_ose"
-msgstr ""
+msgstr "Stäng"
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "_Find"
-msgstr ""
+msgstr "Sök"
 
 #: ../src/fe-gnome/main-window.c:133
 msgid "_Clear Window"
-msgstr ""
+msgstr "_Fönster"
 
 #: ../src/fe-gnome/main-window.c:134
 msgid "Change _Topic"
@@ -4169,20 +4192,20 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:93
 msgid "_Bans..."
-msgstr ""
+msgstr "Bannlysningslista..."
 
 #: ../src/fe-gnome/main-window.c:136
 msgid "_Users"
-msgstr ""
+msgstr "Användare"
 
 #. Go menu
 #: ../src/fe-gnome/main-window.c:139
 msgid "Pre_vious Network"
-msgstr ""
+msgstr "Nytt nätverk"
 
 #: ../src/fe-gnome/main-window.c:140
 msgid "Nex_t Network"
-msgstr ""
+msgstr "Nytt nätverk"
 
 #: ../src/fe-gnome/main-window.c:141
 msgid "_Previous Discussion"
@@ -4205,20 +4228,20 @@ msgstr "_Om"
 #: ../src/fe-gnome/navigation-tree.c:1579
 #: ../src/fe-gnome/navigation-tree.c:1633
 msgid "Ex-Chat"
-msgstr ""
+msgstr "X-Chat"
 
 #: ../src/fe-gnome/main-window.c:585
 msgid "Error showing help"
-msgstr ""
+msgstr "Felsträng"
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
 msgid "_Find..."
-msgstr ""
+msgstr "Filsändning..."
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
 msgid "_Auto-connect"
-msgstr ""
+msgstr "_Anslut"
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
@@ -4249,7 +4272,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
 msgid "File Transfers & DCC"
-msgstr ""
+msgstr "Filöverföringar"
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
@@ -4257,12 +4280,12 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
 msgid "IRC Preferences"
-msgstr ""
+msgstr "X-Chat: Inställningar"
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
-msgstr ""
+msgstr "Vill du verkligen ta bort nätverket \"%s\" och alla dess servrar?"
 
 #: ../src/fe-gnome/preferences-page-networks.c:171
 msgid "Networks"
@@ -4284,7 +4307,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:126
 msgid "Plugin Unload Failed"
-msgstr ""
+msgstr "gdk_font_load misslyckades"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:137
 msgid "Plugin Load Failed"
@@ -4292,7 +4315,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:176
 msgid "Open Plugin"
-msgstr ""
+msgstr "Insticksmoduler"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:276
 msgid "Scripts and Plugins"
@@ -4314,11 +4337,11 @@ msgstr ""
 #: ../src/fe-gnome/status-bar.c:106
 #, c-format
 msgid "%d bytes buffered"
-msgstr ""
+msgstr "%d byte"
 
 #: ../src/fe-gnome/text-entry.c:274
 msgid "I_nsert Color Code"
-msgstr ""
+msgstr "Infoga färgkod"
 
 #: ../src/fe-gnome/text-entry.c:281
 msgid "Black"
@@ -4391,16 +4414,16 @@ msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:50
 msgid "_Send File..."
-msgstr ""
+msgstr "Skicka fil"
 
 #: ../src/fe-gnome/userlist-gui.c:51
 msgid "Private _Chat"
-msgstr ""
+msgstr "Privat"
 
 #: ../src/fe-gnome/userlist-gui.c:52
 msgid "_Kick"
-msgstr ""
+msgstr "Sparka ut"
 
 #: ../src/fe-gnome/userlist-gui.c:53
 msgid "_Ban"
-msgstr ""
+msgstr "Bannlys"

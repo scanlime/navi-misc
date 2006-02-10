@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:18-0700\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
 "PO-Revision-Date: 2006-02-10 02:17-0700\n"
 "Last-Translator: David Trowbridge <trowbrds@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-translation@lists.linux.net.cn>\n"
@@ -94,7 +94,7 @@ msgstr "网络设置"
 
 #: ../data/irc-network-editor.glade.h:7
 msgid "Nickser_v Password:"
-msgstr ""
+msgstr "Nickserv 口令(_V)："
 
 #: ../data/irc-network-editor.glade.h:8
 msgid "Server _Password:"
@@ -377,7 +377,7 @@ msgstr "XChat-GNOME 聊天"
 
 #: ../data/xchat-gnome.glade.h:1
 msgid "Change nickname to:"
-msgstr ""
+msgstr "更改昵称为："
 
 #: ../data/xchat-gnome.glade.h:2
 msgid "Close this discussion"
@@ -407,7 +407,7 @@ msgstr "昵称"
 
 #: ../data/xchat-gnome.glade.h:7
 msgid "on all servers"
-msgstr ""
+msgstr "在所有服务器中"
 
 #: ../plugins/autoaway/autoaway.c:164
 msgid "Screensaver activated, going away."

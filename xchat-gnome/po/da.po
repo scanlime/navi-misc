@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:42-0700\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -25,12 +25,14 @@ msgid "Apply Text Filter To:    "
 msgstr ""
 
 #: ../data/channel-list.glade.h:3
+#, fuzzy
 msgid "Channel _Name"
-msgstr ""
+msgstr "Kanal_navn"
 
 #: ../data/channel-list.glade.h:4
+#, fuzzy
 msgid "Channel _Topic"
-msgstr ""
+msgstr "Kanal_emne"
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
