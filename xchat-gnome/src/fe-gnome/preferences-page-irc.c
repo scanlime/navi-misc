@@ -199,6 +199,22 @@ highlight_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, Pr
 	}
 }
 
+static void
+highlight_canceled (GtkCellRendererText *renderer, PreferencesIrcPage *page)
+{
+	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	gchar *text;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->highlight_list));
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		gtk_tree_model_get (GTK_TREE_MODEL (page->highlight_store), &iter, 0, &text, -1);
+		if (text == NULL)
+			gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+	}
+}
+
 PreferencesIrcPage *
 preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 {
@@ -322,6 +338,7 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (page->highlight_list));
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (highlight_selection_changed), page);
 	g_signal_connect (G_OBJECT (renderer), "edited", G_CALLBACK (highlight_edited), page);
+	g_signal_connect (G_OBJECT (renderer), "editing-canceled", G_CALLBACK (highlight_canceled), page);
 
 	highlight_entries = g_strsplit (prefs.irc_extra_hilight, ",", 0);
 	for (i = 0; highlight_entries[i]; i++) {
