@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:18-0700\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
 "PO-Revision-Date: 2006-02-10 02:01-0700\n"
 "Last-Translator: David Trowbridge <trowbrds@gmail.com>\n"
 "Language-Team: English (British) <en_gb@li.org>\n"
@@ -230,7 +230,7 @@ msgstr "Global receive KB/s: "
 
 #: ../data/preferences-dialog.glade.h:25
 msgid "Global send KB/s: "
-msgstr "Global send KB/s:"
+msgstr "Global send KB/s: "
 
 #: ../data/preferences-dialog.glade.h:26
 msgid "Image _file:"

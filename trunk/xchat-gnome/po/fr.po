@@ -6,15 +6,15 @@
 # Olivier Berger <olberger@club-internet.fr>, 2001-2002.
 # Christophe Merlet (RedFox) <redfox@redfoxcenter.org>, 2003, 2004.
 # Arnaud Jambin <a.jambin@free.fr>, 2005.
-# Olivier Lê Thanh Duong <olethanh@ulb.ac.be>, 2005.
+# Olivier Lê Thanh Duong, 2005.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:18-0700\n"
-"PO-Revision-Date: 2006-01-04 16:10-0700\n"
-"Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
+"PO-Revision-Date: 2006-01-05 23:10+0100\n"
+"Last-Translator: Christophe Bliard <christophe.bliard@trux.info>\n"
 "Language-Team: French <olethanh@ulb.ac.be>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -82,7 +82,7 @@ msgstr "<span weight=\"bold\">Informations utilisateur</span>"
 
 #: ../data/irc-network-editor.glade.h:4
 msgid "Accept _invalid SSL certificate"
-msgstr "Accepter un certificat SSL non valide"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Character _encoding:"
@@ -628,12 +628,12 @@ msgstr ""
 #: ../plugins/notify-osd/notify-osd.c:56
 #, c-format
 msgid "Error closing notification: %s\n"
-msgstr "Erreur à la fermeture de la notification : %s\n"
+msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:71
 #, c-format
 msgid "Failed to send notification: %s\n"
-msgstr "Erreur à l'envoi de la notification : %s\n"
+msgstr ""
 
 #: ../plugins/notify-osd/notify-osd.c:112
 #: ../plugins/notify-osd/notify-osd.c:139
@@ -722,21 +722,20 @@ msgstr "Afficher les marques de temps pour le Chasseur d'URL"
 
 #: ../plugins/sound-notification/sound-notification.c:55
 msgid "Sound Notification"
-msgstr "Notification sonore"
+msgstr ""
 
 #: ../plugins/sound-notification/sound-notification.c:56
 msgid ""
 "Play a sound when you receive a private message or your nick is highlighted."
 msgstr ""
-"Joue un son lorsque vous reçevez un message privé ou que votre nick est cité."
 
 #: ../plugins/sound-notification/sound-notification.c:87
 msgid "Sound-notification plugin loaded.\n"
-msgstr "Greffon de notification sonore chargé.\n"
+msgstr ""
 
 #: ../plugins/sound-notification/sound-notification.c:96
 msgid "Sound-notification plugin unloaded.\n"
-msgstr "Greffon de notification sonore déchargé.\n"
+msgstr ""
 
 #: ../src/common/cfgfiles.c:350
 msgid "Cannot create ~/.xchat2"
@@ -2244,11 +2243,11 @@ msgstr "-%C10-%C11-%O$ttNotification : $1 est connecté ($2)."
 
 #: ../src/common/textevents.h:291
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3"
-msgstr "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C est parti de $3"
+msgstr "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C est parti $3"
 
 #: ../src/common/textevents.h:294
 msgid "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C has left $3 %C14(%O$4%C14)%O"
-msgstr "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C est parti de $3 %C14(%O$4%C14)%O"
+msgstr "<%C10-%C11-%O$t$1 %C14(%O$2%C14)%C est parti $3 %C14(%O$4%C14)%O"
 
 #: ../src/common/textevents.h:297
 msgid "-%C10-%C11-%O$tPing reply from $1 : $2 second(s)"
@@ -2304,7 +2303,7 @@ msgstr "-%C10-%C11-%O$t$1 a changé le sujet en : $2%O"
 
 #: ../src/common/textevents.h:348
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
-msgstr "-%C10-%C11-%O$tSujet de %C11$1%C défini par %C11$2%C le %C11$3%O"
+msgstr "-%C10-%C11-%O$tSujet de %C11$1%C défini par %C11$2%C à %C11$3%O"
 
 #: ../src/common/textevents.h:351
 msgid "-%C10-%C11-%O$tUnknown host. Maybe you misspelled it?"
@@ -3718,7 +3717,7 @@ msgstr ""
 
 #: ../src/fe-gnome/about.c:94
 msgid "Copyright © 2004-2006"
-msgstr "Copyright © 2004-2006"
+msgstr ""
 
 #: ../src/fe-gnome/about.c:95
 msgid ""
@@ -3824,7 +3823,7 @@ msgstr "version de la configuration xchat"
 #: ../src/fe-gnome/channel-list.c:284
 #, c-format
 msgid "%s Channel List"
-msgstr "%s : Liste des canaux"
+msgstr ""
 
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:110
@@ -4058,9 +4057,8 @@ msgstr "Serveurs"
 
 #. We're creating a new network. Don't populate things from the structure
 #: ../src/fe-gnome/irc-network-editor.c:388
-#, fuzzy
 msgid "New Network"
-msgstr "Réseau sui_vant"
+msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:396
 #, c-format
@@ -4245,7 +4243,7 @@ msgstr "Changer le suje_t"
 
 #: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:93
 msgid "_Bans..."
-msgstr "Liste des _bannis..."
+msgstr "Listes des _bannis..."
 
 #: ../src/fe-gnome/main-window.c:136
 msgid "_Users"
@@ -4400,67 +4398,67 @@ msgstr "Insérer un code couleur"
 
 #: ../src/fe-gnome/text-entry.c:281
 msgid "Black"
-msgstr "Noir"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:285
 msgid "Dark Blue"
-msgstr "Bleu foncé"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:289
 msgid "Dark Green"
-msgstr "Vert foncé"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:293
 msgid "Red"
-msgstr "Rouge"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:297
 msgid "Brown"
-msgstr "Brun"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:301
 msgid "Purple"
-msgstr "Pourpre"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:305
 msgid "Orange"
-msgstr "Orange"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:309
 msgid "Yellow"
-msgstr "Jaune"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:313
 msgid "Light Green"
-msgstr "Vert clair"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:317
 msgid "Aqua"
-msgstr "Aqua"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:321
 msgid "Light Blue"
-msgstr "Bleu clair"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:325
 msgid "Blue"
-msgstr "Bleu"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:329
 msgid "Violet"
-msgstr "Violet"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:333
 msgid "Grey"
-msgstr "Gris"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:337
 msgid "Light Grey"
-msgstr "Gris clair"
+msgstr ""
 
 #: ../src/fe-gnome/text-entry.c:341
 msgid "White"
-msgstr "Blanc"
+msgstr ""
 
 #: ../src/fe-gnome/topic-label.c:239
 #, c-format
@@ -4482,6 +4480,9 @@ msgstr "_Kicker"
 #: ../src/fe-gnome/userlist-gui.c:53
 msgid "_Ban"
 msgstr "_Bannir"
+
+#~ msgid "Copyright © 2004-2005"
+#~ msgstr "Copyright © 2004-2005"
 
 #~ msgid "%s unloaded successfully!\n"
 #~ msgstr "Déchargement de %s réussi !\n"
@@ -4521,6 +4522,9 @@ msgstr "_Bannir"
 
 #~ msgid "Shortcut"
 #~ msgstr "Raccourci"
+
+#~ msgid "_Channels"
+#~ msgstr "_Cannaux ..."
 
 #~ msgid "_Bans"
 #~ msgstr "_Liste des bannis ..."

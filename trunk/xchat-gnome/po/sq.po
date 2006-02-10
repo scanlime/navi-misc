@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 02:18-0700\n"
+"POT-Creation-Date: 2006-02-10 03:22-0700\n"
 "PO-Revision-Date: 2006-02-10 02:16-0700\n"
 "Last-Translator: Besnik Bleta <besnik@spymac.com>\n"
 "Language-Team: Albanian <translation-team-sq@lists.sourceforge.net>\n"
@@ -34,15 +34,15 @@ msgstr ""
 
 #: ../data/channel-list.glade.h:5
 msgid "Join Channel"
-msgstr "Hyni nÃ« Kanal"
+msgstr "Hyni në Kanal"
 
 #: ../data/channel-list.glade.h:6
 msgid "Maximum Users:"
-msgstr "PÃ«rdoruesa Maksimum:"
+msgstr "Përdoruesa Maksimum:"
 
 #: ../data/channel-list.glade.h:7
 msgid "Minimum Users:"
-msgstr "PÃ«rdoruesa Minimum:"
+msgstr "Përdoruesa Minimum:"
 
 #: ../data/channel-list.glade.h:8
 msgid "Save List _As"
@@ -58,11 +58,11 @@ msgstr "_Lidhu"
 
 #: ../data/dcc-accept.glade.h:1
 msgid "_Accept"
-msgstr ""
+msgstr "_Prano"
 
 #: ../data/dcc-window.glade.h:1 ../src/fe-gnome/dcc-window.c:118
 msgid "File Transfers"
-msgstr ""
+msgstr "Shpërngulje Kartelash"
 
 #: ../data/irc-network-editor.glade.h:1
 msgid "<span weight=\"bold\">Automatically Join Channels</span>"
@@ -70,7 +70,7 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:2 ../data/preferences-dialog.glade.h:7
 msgid "<span weight=\"bold\">General</span>"
-msgstr ""
+msgstr "<span weight=\"bold\">E përgjithshme</span>"
 
 #: ../data/irc-network-editor.glade.h:3
 msgid "<span weight=\"bold\">User Info</span>"
@@ -86,7 +86,7 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:6
 msgid "Network Settings"
-msgstr "Rregullime Rrjeti"
+msgstr "Rrjeti periferik"
 
 #: ../data/irc-network-editor.glade.h:7
 msgid "Nickser_v Password:"
@@ -98,7 +98,7 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:9
 msgid "Servers"
-msgstr ""
+msgstr "Shërbimi"
 
 #: ../data/irc-network-editor.glade.h:10
 msgid "Use _global user settings"
@@ -122,11 +122,11 @@ msgstr ""
 
 #: ../data/irc-network-editor.glade.h:15
 msgid "_Name:"
-msgstr ""
+msgstr "_Emri:"
 
 #: ../data/irc-network-editor.glade.h:16
 msgid "_Nick name:"
-msgstr "NofkÃ«:"
+msgstr ""
 
 #: ../data/irc-network-editor.glade.h:17
 msgid "_Real Name:"
@@ -194,7 +194,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:16
 msgid "Background _image"
-msgstr ""
+msgstr "_Figura e sfondit"
 
 #: ../data/preferences-dialog.glade.h:17
 msgid "Background mark:"
@@ -234,7 +234,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:26
 msgid "Image _file:"
-msgstr ""
+msgstr "File i _figurës:"
 
 #: ../data/preferences-dialog.glade.h:27
 msgid "Individual receive KB/s: "
@@ -246,15 +246,15 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:29
 msgid "Move completed files to:"
-msgstr "Zhvendos kartela tÃ« plotÃ«suara te:"
+msgstr "Zhvendos kartela të plotësuara te:"
 
 #: ../data/preferences-dialog.glade.h:30
 msgid "Preferences"
-msgstr ""
+msgstr "Preferime"
 
 #: ../data/preferences-dialog.glade.h:31
 msgid "Real na_me:"
-msgstr ""
+msgstr "Em_ër i Vërtetë:"
 
 #: ../data/preferences-dialog.glade.h:32
 msgid "Save sender nickname in filenames"
@@ -262,7 +262,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:33
 msgid "Select A File"
-msgstr ""
+msgstr "Zgjidh një file"
 
 #: ../data/preferences-dialog.glade.h:34
 msgid "Select Completed Files Directory"
@@ -281,6 +281,8 @@ msgid ""
 "To edit a shortcut key, click on the corresponding row and type a new "
 "accelerator, or press backspace to clear."
 msgstr ""
+"Për të ndryshuar një kombinim tastesh, kliko tek rreshti korrispondues dhe "
+"shkruaj një shpejtues të ri, ose shtyp backspace për ta fshirë."
 
 #: ../data/preferences-dialog.glade.h:38
 msgid "Use System Terminal Font"
@@ -300,7 +302,7 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:42 ../src/fe-gnome/main-window.c:101
 msgid "_Edit"
-msgstr "_PÃ«rpuno"
+msgstr ""
 
 #: ../data/preferences-dialog.glade.h:43
 msgid "_Foreground color:"
@@ -308,19 +310,19 @@ msgstr ""
 
 #: ../data/preferences-dialog.glade.h:44
 msgid "_Nickname:"
-msgstr ""
+msgstr "_Pseudonimi:"
 
 #: ../data/preferences-dialog.glade.h:45
 msgid "_None (use solid color)"
-msgstr ""
+msgstr "_Asnjë (përdor një ngjyrë)"
 
 #: ../data/preferences-dialog.glade.h:46
 msgid "_Part message:"
-msgstr ""
+msgstr "Mesazh i ri:"
 
 #: ../data/preferences-dialog.glade.h:47
 msgid "_Quit message:"
-msgstr ""
+msgstr "Mesazh djathtas"
 
 #: ../data/preferences-dialog.glade.h:48
 msgid "_Show colors"
@@ -336,7 +338,7 @@ msgstr ""
 
 #: ../data/setup-dialog.glade.h:2
 msgid "Real Name:"
-msgstr "EmÃ«r i VÃ«rtetÃ«:"
+msgstr "Emër i _vërtetë:"
 
 #: ../data/setup-dialog.glade.h:3
 msgid ""
@@ -356,7 +358,7 @@ msgstr ""
 
 #: ../data/topic-change.glade.h:1
 msgid "Change"
-msgstr ""
+msgstr "Ndrysho"
 
 #: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:92
 msgid "IRC Chat"
@@ -385,12 +387,12 @@ msgstr ""
 #: ../src/common/text.c:882 ../src/common/text.c:899 ../src/common/text.c:999
 #: ../src/common/util.c:352
 msgid "Error"
-msgstr "Gabim"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:805
 #: ../src/fe-gnome/channel-list.c:315
 msgid "Users"
-msgstr "PÃ«rdoruesa"
+msgstr ""
 
 #: ../data/xchat-gnome.glade.h:6
 msgid "nickname"
@@ -419,11 +421,11 @@ msgstr ""
 #. Hook up our callbacks.
 #: ../plugins/autoaway/autoaway.c:231
 msgid "Disconnected"
-msgstr ""
+msgstr "I shkëputur"
 
 #: ../plugins/autoaway/autoaway.c:232
 msgid "Connected"
-msgstr ""
+msgstr "Lidhu"
 
 #: ../plugins/autoaway/autoaway.c:261
 msgid "Auto-away plugin unloaded\n"
@@ -466,27 +468,27 @@ msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:41 ../src/fe-gnome/fe-gnome.c:61
 msgid "Open an irc:// url"
-msgstr "Hap njÃ« url irc://"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:41
 msgid "irc://server:port/channel"
-msgstr "irc://shÃ«rbyes:port/kanal"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "Execute a xchat command"
-msgstr "PÃ«rmbush njÃ« urdhÃ«r xchat"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:42
 msgid "\"Command to execute\""
-msgstr "\"UrdhÃ«r pÃ«r t'u pÃ«rmbushur\""
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "Prints some text to the current tab/window"
-msgstr "Shtyp ca tekst nÃ« skedÃ«n/dritaren e Ã§astit"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:43
 msgid "\"Text to print\""
-msgstr "\"Tekst pÃ«r t'u shtypur"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:44
 msgid "Change the context to the channel"
@@ -498,19 +500,19 @@ msgstr "kanal"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "Change the context to the server"
-msgstr "Ja kalon kontekstin shÃ«rbyesit"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:45
 msgid "server"
-msgstr "shÃ«rbyes"
+msgstr "shërbyes"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "Get some informations from xchat"
-msgstr "Merr ca tÃ« dhÃ«na prej xchat-it"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:46
 msgid "id"
-msgstr "id"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "Get settings from xchat"
@@ -518,7 +520,7 @@ msgstr "Ki rregullime prej xchat-it"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:47
 msgid "name"
-msgstr "emÃ«r"
+msgstr "emër"
 
 #: ../plugins/dbus/xchat-gnome-remote.c:79
 #, c-format
@@ -534,23 +536,23 @@ msgstr "S'u lidha dot me busin e sesionit"
 #: ../plugins/dbus/xchat-gnome-remote.c:116
 #: ../plugins/dbus/xchat-gnome-remote.c:130
 msgid "Failed to complete command"
-msgstr "DÃ«shtova nÃ« pÃ«rmbushjen e urdhrit"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:125
 msgid "Failed to complete SetContext"
-msgstr "DÃ«shtova nÃ« pÃ«rmbushjen e SetContext-it"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:135
 msgid "Failed to complete print"
-msgstr "DÃ«shtova nÃ« kryerjen e shtypjes"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:142
 msgid "Failed to complete GetInfo"
-msgstr "DÃ«shtova nÃ« pÃ«rmbushjen e GetInfo-s"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:155
 msgid "Failed to complete GetPrefs"
-msgstr "DÃ«shtova nÃ« pÃ«rmbushjen e GetPrefs"
+msgstr ""
 
 #: ../plugins/dbus/xchat-gnome-remote.c:159
 #, c-format
@@ -559,7 +561,7 @@ msgstr "%s nuk ekziston\n"
 
 #: ../plugins/net-monitor/net-monitor.c:36
 msgid "Network Monitor"
-msgstr ""
+msgstr "Monitori i rrjetit"
 
 #: ../plugins/net-monitor/net-monitor.c:37
 msgid "NetworkManager connection monitor"
@@ -572,7 +574,7 @@ msgstr ""
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "Orientation"
-msgstr ""
+msgstr "Orientimi"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "The orientation of the tray."
@@ -785,7 +787,7 @@ msgstr "PO  "
 #: ../src/common/ignore.c:138 ../src/common/ignore.c:142
 #: ../src/common/ignore.c:146
 msgid "NO   "
-msgstr "JO  "
+msgstr "JO   "
 
 #: ../src/common/ignore.c:373
 #, c-format
@@ -1063,7 +1065,7 @@ msgstr "LAGCHECK, detyron njÃ« kontroll tÃ« ri vonese"
 
 #: ../src/common/outbound.c:3264
 msgid "LASTLOG <string>, searches for a string in the buffer"
-msgstr "LASTLOG <varg>, kÃ«rkon nÃ« shtytÃ«z pÃ«r njÃ« varg "
+msgstr "LASTLOG <varg>, kÃ«rkon nÃ« shtytÃ«z pÃ«r njÃ« varg"
 
 #: ../src/common/outbound.c:3266
 msgid "LOAD [-e] <file>, loads a plugin or script"
@@ -1839,43 +1841,43 @@ msgstr ""
 
 #: ../src/common/textevents.h:27
 msgid "-%C10-%C11-%O$t$1 sets ban on $2"
-msgstr ""
+msgstr "%C22*%O$t$1 vendos ndalim mbi $2"
 
 #: ../src/common/textevents.h:30
 msgid "-%C10-%C11-%O$tChannel $1 created on $2"
-msgstr ""
+msgstr "%C22*%O$tKanal $1 krijuar nÃ« $2"
 
 #: ../src/common/textevents.h:33
 msgid "-%C10-%C11-%O$t$1 removes channel half-operator status from $2"
-msgstr ""
+msgstr "%C22*%O$t%C26$1%O i heq%C26 $2 gjendjen gjysmÃ«-operator kanali"
 
 #: ../src/common/textevents.h:36
 msgid "-%C10-%C11-%O$t$1 removes channel operator status from $2"
-msgstr ""
+msgstr "%C22*%O$t%C26$1%O i heq%C26 $2 gjendjen operator kanali"
 
 #: ../src/common/textevents.h:39
 msgid "-%C10-%C11-%O$t$1 removes voice from $2"
-msgstr ""
+msgstr "%C22*%O$t%C26$1%O i heq%C26 $2 zÃ«rin"
 
 #: ../src/common/textevents.h:42
 msgid "-%C10-%C11-%O$t$1 sets exempt on $2"
-msgstr ""
+msgstr "%C22*%O$t$1 vendos pÃ«rjashtim ndaj $2"
 
 #: ../src/common/textevents.h:45
 msgid "-%C10-%C11-%O$t$1 gives channel half-operator status to $2"
-msgstr ""
+msgstr "%C22*%O$t%C26$1%O i jep%C26 $2 gjendjen gjysmÃ«-operator kanali"
 
 #: ../src/common/textevents.h:48
 msgid "-%C10-%C11-%O$t$1 sets invite on $2"
-msgstr ""
+msgstr "%C22*%O$t$1 cakton ftesÃ« nÃ« $2"
 
 #: ../src/common/textevents.h:51
 msgid "%UChannel          Users   Topic%O"
-msgstr ""
+msgstr "%UKanal          PÃ«rdoruesa   TemÃ«"
 
 #: ../src/common/textevents.h:54 ../src/common/textevents.h:306
 msgid "%C2<%O$1%C2>%O$t$2%O"
-msgstr ""
+msgstr "%C28-%C29$1%C28-%O$t$2"
 
 #: ../src/common/textevents.h:57
 msgid "-%C10-%C11-%O$t$1 sets mode $2$3 $4"
@@ -2017,18 +2019,20 @@ msgstr ""
 
 #: ../src/common/textevents.h:156
 msgid "-%C10-%C11-%O$tDCC RECV %C11$2%O to %C11$1%O aborted."
-msgstr ""
+msgstr "%C22*%O$tDCC RECV%C26 $2%O pÃ«r%C26 $1%O dÃ«shtoi."
 
 #: ../src/common/textevents.h:159
 msgid ""
 "-%C10-%C11-%O$tDCC RECV %C11$1%O from %C11$3%O complete %C14[%C11$4%O cps%"
 "C14]%O."
 msgstr ""
+"%C22*%O$tDCC RECV%C26 $1%O prej%C26 $3%O e plotÃ«suar %C30[%C26$4%O cps%C30]%"
+"O."
 
 #: ../src/common/textevents.h:162
 msgid ""
 "-%C10-%C11-%O$tDCC RECV connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr ""
+msgstr "%C22*%O$tLidhje DCC RECV me%C26 $1 %C30[%O$2%C30] e vendosur"
 
 #: ../src/common/textevents.h:165
 msgid "-%C10-%C11-%O$tDCC RECV $1 ($2) failed. Connection to $3 lost."
@@ -2036,32 +2040,35 @@ msgstr ""
 
 #: ../src/common/textevents.h:168
 msgid "-%C10-%C11-%O$tDCC RECV: Cannot open $1 for writing ($2)."
-msgstr ""
+msgstr "%C22*%O$tDCC RECV: Nuk hap dot $1 pÃ«r shkrim ($2)."
 
 #: ../src/common/textevents.h:171
 msgid ""
 "-%C10-%C11-%O$tThe file %C11$1%C already exists, saving it as %C11$2%O "
 "instead."
 msgstr ""
+"%C22*%O$tKa tashmÃ« njÃ« kartelÃ«%C26 $1%C, ndaj po e ruaj te%C26 $2%O "
+"ndryshe."
 
 #: ../src/common/textevents.h:174
 msgid "-%C10-%C11-%O$t%C11$1 %Chas requested to resume %C11$2 %Cfrom %C11$3%C."
-msgstr ""
+msgstr "%C22*%O$t%C26$1 %Oka kÃ«rkuar tÃ« rimarrÃ«%C26 $2 %Cprej%C26 $3%C."
 
 #: ../src/common/textevents.h:177
 msgid "-%C10-%C11-%O$tDCC SEND %C11$2%O to %C11$1%O aborted."
-msgstr ""
+msgstr "%C22*%O$tDCC SEND%C26 $2%O te%C26 $1%O u ndÃ«rpre."
 
 #: ../src/common/textevents.h:180
 msgid ""
 "-%C10-%C11-%O$tDCC SEND %C11$1%O to %C11$2%O complete %C14[%C11$3%O cps%C14]%"
 "O."
 msgstr ""
+"%C22*%O$tDCC SEND%C26 $1%O te%C26 $2%O i plotÃ«suar %C30[%C26$3%O cps%C30]%O."
 
 #: ../src/common/textevents.h:183
 msgid ""
 "-%C10-%C11-%O$tDCC SEND connection established to %C11$1 %C14[%O$2%C14]%O"
-msgstr ""
+msgstr "%C22*%O$tLidhje DCC SEND me%C26 $1 %C30[%O$2%C30]e vendosur"
 
 #: ../src/common/textevents.h:186
 msgid "-%C10-%C11-%O$tDCC SEND %C11$1%O failed. Connection to %C11$2%O lost."
@@ -2069,7 +2076,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:189
 msgid "-%C10-%C11-%O$t%C11$1 %Chas offered %C11$2 %C(%C11$3 %Cbytes)"
-msgstr ""
+msgstr "%C22*%O$t%C26$1 %Oka ofruar%C26 $2 %O(%C26$3 %Obytes)"
 
 #: ../src/common/textevents.h:192
 msgid "-%C10-%C11-%O$tDCC $1 %C11$2 %Cto %C11$3 %Cstalled - aborting."
@@ -2120,7 +2127,7 @@ msgstr ""
 
 #: ../src/common/textevents.h:225
 msgid "  Ignore list is empty."
-msgstr "Lista shpÃ«rfill Ã«shtÃ« e zbrazÃ«t."
+msgstr "  Lista shpÃ«rfill Ã«shtÃ« e zbrazÃ«t."
 
 #: ../src/common/textevents.h:228
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Channel is invite only)."
@@ -2132,44 +2139,46 @@ msgstr ""
 
 #: ../src/common/textevents.h:234
 msgid "-%C10-%C11>%O$t%B$1%B %C14(%C10$3%C14)%C has joined $2"
-msgstr ""
+msgstr "%C19*%O$t%C19%B$1 %B($3) i Ã«shtÃ« bashkuar $2"
 
 #: ../src/common/textevents.h:237
 msgid "-%C10-%C11-%O$tCannot join%C11 %B$1 %O(Requires keyword)."
-msgstr ""
+msgstr "%C22*%O$tNuk mund tÃ« bashkohet me%C26 %B$1 %O(Lipset fjalÃ«kyÃ§)."
 
 #: ../src/common/textevents.h:240
 msgid "<%C10-%C11-%O$t$1 has kicked $2 from $3 ($4%O)"
-msgstr ""
+msgstr "%C21*%O$t%C21$1 ka pÃ«rzÃ«nÃ« $2 prej $3 ($4%O%C21)"
 
 #: ../src/common/textevents.h:243
 msgid "-%C10-%C11-%O$tYou have been killed by $1 ($2%O)"
-msgstr ""
+msgstr "%C22*%O$tJeni asgjÃ«suar prej $1 ($2%O%C22)"
 
 #: ../src/common/textevents.h:246 ../src/common/textevents.h:270
 msgid "%C3>%O$1%C3<%O$t$2%O"
-msgstr ""
+msgstr "%C19>%O$1%C19<%O$t$2"
 
 #: ../src/common/textevents.h:249 ../src/common/textevents.h:327
 #: ../src/common/textevents.h:333 ../src/common/textevents.h:336
 msgid "-%C10-%C11-%O$t$1%O"
-msgstr ""
+msgstr "%C16*%O$t$1%O"
 
 #: ../src/common/textevents.h:252
 msgid "-%C10-%C11-%O$tMOTD Skipped."
-msgstr ""
+msgstr "%C22*%O$t%C22MOTD Anashkaluar."
 
 #: ../src/common/textevents.h:255
 msgid "-%C10-%C11-%O$t$1 already in use. Retrying with $2.."
-msgstr ""
+msgstr "%C22*%O$t$1 tashmÃ« i pÃ«rdorur. Po provoj me $2..."
 
 #: ../src/common/textevents.h:258
 msgid "-%C10-%C11-%O$tNickname already in use. Use /NICK to try another."
 msgstr ""
+"%C22*%O$tNofkÃ« tashmÃ« nÃ« pÃ«rdorim. PÃ«rdorni /NICK pÃ«r tÃ« provuar njÃ« "
+"tjetÃ«r."
 
 #: ../src/common/textevents.h:261
 msgid "-%C10-%C11-%O$tNo such DCC."
-msgstr ""
+msgstr "%C22*%O$tNuk ka DCC tÃ« tillÃ«."
 
 #: ../src/common/textevents.h:264
 msgid "-%C10-%C11-%O$tNo process is currently running"
@@ -2221,43 +2230,43 @@ msgstr ""
 
 #: ../src/common/textevents.h:309
 msgid "-%C10-%C11-%O$tA process is already running"
-msgstr ""
+msgstr "%C22*%O$tKa njÃ« proces nÃ« xhirim e sipÃ«r"
 
 #: ../src/common/textevents.h:312
 msgid "<%C10-%C11-%O$t$1 has quit %C14(%O$2%O%C14)%O"
-msgstr ""
+msgstr "%C23*%O$t%C23$1 ka lÃ«nÃ« (%O%C23%B%B$2%O%C23)"
 
 #: ../src/common/textevents.h:315
 msgid "-%C10-%C11-%O$t$1 sets modes%B %C14[%O$2%B%C14]%O"
-msgstr ""
+msgstr "%C22*%O$t$1 cakton mÃ«nyra%B %C30[%O$2%B%C30]"
 
 #: ../src/common/textevents.h:318
 msgid "%C12-%C13$1/Wallops%C12-%O$t$2%O"
-msgstr ""
+msgstr "%C28-%C29$1/Wallops%C28-%O$t$2"
 
 #: ../src/common/textevents.h:321
 msgid "-%C10-%C11-%O$tLooking up IP number for%C11 $1%O.."
-msgstr ""
+msgstr "%C22*%O$tPo kÃ«rkoj numra IP pÃ«r%C26 $1%O..."
 
 #: ../src/common/textevents.h:324
 msgid "-%C10-%C11-%O$tConnected."
-msgstr ""
+msgstr "%C22*%O$t%C22I lidhur."
 
 #: ../src/common/textevents.h:330
 msgid "-%C10-%C11-%O$tLooking up %C11$1%C.."
-msgstr ""
+msgstr "%C22*%O$t%C22Po kÃ«rkoj $1"
 
 #: ../src/common/textevents.h:339
 msgid "-%C10-%C11-%O$tStopped previous connection attempt (pid=$1)"
-msgstr ""
+msgstr "%C22*%O$tU ndalua pÃ«rpjekja e mÃ«parshme pÃ«r lidhje (pid=$1)"
 
 #: ../src/common/textevents.h:342
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C is %C11$2%O"
-msgstr ""
+msgstr "%C29*%O$t%C29TemÃ« pÃ«r $1%C %C29is: $2"
 
 #: ../src/common/textevents.h:345
 msgid "-%C10-%C11-%O$t$1 has changed the topic to: $2%O"
-msgstr ""
+msgstr "%C22*%O$t$1 ka ndryshuar temÃ«n nÃ«: $2"
 
 #: ../src/common/textevents.h:348
 msgid "-%C10-%C11-%O$tTopic for %C11$1%C set by %C11$2%C at %C11$3%O"
@@ -2305,16 +2314,17 @@ msgstr ""
 
 #: ../src/common/textevents.h:381
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12] %C14(%O$2@$3%C14) %O: $4%O"
-msgstr ""
+msgstr "%C22*%O$t%C28[%O$1%C28] %C30(%O$2@$3%C30)%O: $4"
 
 #: ../src/common/textevents.h:384
 msgid ""
 "-%C10-%C11-%O$t%C12[%O$1%C12] %Oreal user@host %C11$2%O, real IP %C11$3%O"
 msgstr ""
+"%C22*%O$t%C28[%O$1%C28] %OpÃ«rdorues real@host%C27 $2%O, IP reale%C27 $3"
 
 #: ../src/common/textevents.h:387
 msgid "-%C10-%C11-%O$t%C12[%O$1%C12]%O $2"
-msgstr ""
+msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:390
 msgid "%C22*%O$t%C28[%O$1%C28]%O $2"
@@ -2322,31 +2332,31 @@ msgstr "%C22*%O$t%C28[%O$1%C28]%O $2"
 
 #: ../src/common/textevents.h:393
 msgid "-%C10-%C11>%O$t%BYou%B are now talking on %C11$2%O"
-msgstr ""
+msgstr "%C22*%O$tTani njiheni si $2"
 
 #: ../src/common/textevents.h:396
 msgid "-%C10-%C11-%O$tYou have been kicked from $2 by $3 ($4%O)"
-msgstr ""
+msgstr "%C23*$tJeni pÃ«rzÃ«nÃ« prej $2 nga $3 ($4%O%C23)"
 
 #: ../src/common/textevents.h:399
 msgid "-%C10-%C11-%O$tYou have left channel $3"
-msgstr ""
+msgstr "%C23*$tKeni lÃ«nÃ« kanalin $3"
 
 #: ../src/common/textevents.h:402
 msgid "-%C10-%C11-%O$tYou have left channel $3 %C14(%O$4%C14)%O"
-msgstr ""
+msgstr "%C23*$tKeni lÃ«nÃ« kanalin $3 (%O%C23%B%B$4%O%C23)"
 
 #: ../src/common/textevents.h:405
 msgid "-%C10-%C11-%O$tYou're inviting %C11$1%C to %C11$2%C (%C11$3%C)"
-msgstr ""
+msgstr "%C22*%O$tKeni ftuar%C26 $1%O te%C26 $2%O (%C26$3%O)"
 
 #: ../src/common/textevents.h:408
 msgid "%C6<%O$1%C6>%O$t$2%O"
-msgstr ""
+msgstr "%C19>%O$1%C19<%O$t$2"
 
 #: ../src/common/textevents.h:411
 msgid "-%C10-%C11-%O$tYou are now known as $2"
-msgstr ""
+msgstr "%C22*%O$tTani njiheni si $2"
 
 #: ../src/common/util.c:296
 msgid "Remote host closed socket"
@@ -2510,7 +2520,7 @@ msgstr "Butan"
 
 #: ../src/common/util.c:871
 msgid "Bouvet Island"
-msgstr "Ishulli Bouvet "
+msgstr "Ishulli Bouvet"
 
 #: ../src/common/util.c:872
 msgid "Botswana"
@@ -3680,11 +3690,11 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:1
 msgid "Background image filename"
-msgstr ""
+msgstr "Pamje sfond:"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:2
 msgid "Background transparency"
-msgstr ""
+msgstr "Pamje sfond:"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:3
 msgid "Default nickname used by servers without special options set"
@@ -3712,7 +3722,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:9
 msgid "Message sent on away"
-msgstr ""
+msgstr "Mesazh"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:10
 msgid "Message sent on channel part"
@@ -3720,7 +3730,7 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:11
 msgid "Message sent on quit"
-msgstr ""
+msgstr "Mesazh"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:12
 msgid "Position of the horizontal pane in the main window"
@@ -3740,11 +3750,11 @@ msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:16
 msgid "Show timestamps in the main window"
-msgstr ""
+msgstr "Aktivizo vula kohore"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:17
 msgid "Use system fonts"
-msgstr ""
+msgstr "ListÃ« PÃ«rdoruesish"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:18
 msgid "Width of the main window"
@@ -3762,11 +3772,11 @@ msgstr ""
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:110
 msgid "_Connect"
-msgstr ""
+msgstr "Lidhu"
 
 #: ../src/fe-gnome/conversation-panel.c:132
 msgid "_Open Link in Browser"
-msgstr ""
+msgstr "Hap Lidhje nÃ« Shfletues"
 
 #: ../src/fe-gnome/conversation-panel.c:133
 msgid "_Copy Link Location"
@@ -3778,27 +3788,27 @@ msgstr ""
 
 #: ../src/fe-gnome/conversation-panel.c:138
 msgid "_Copy Address"
-msgstr ""
+msgstr "Vendndodhja Juaj"
 
 #: ../src/fe-gnome/conversation-panel.c:142
 msgid "_Send File"
-msgstr ""
+msgstr "DÃ«rgo KartelÃ«"
 
 #: ../src/fe-gnome/conversation-panel.c:143
 msgid "Paste File _Contents"
-msgstr ""
+msgstr "_PÃ«rmbajtje"
 
 #: ../src/fe-gnome/conversation-panel.c:144
 msgid "Paste File_name"
-msgstr ""
+msgstr "EmÃ«r i Ri kartele"
 
 #: ../src/fe-gnome/conversation-panel.c:145
 msgid "_Cancel"
-msgstr ""
+msgstr "Anulo"
 
 #: ../src/fe-gnome/conversation-panel.c:149 ../src/fe-gnome/main-window.c:116
 msgid "_Copy"
-msgstr ""
+msgstr "Kopjo"
 
 #: ../src/fe-gnome/conversation-panel.c:600
 #, c-format
@@ -3845,7 +3855,7 @@ msgstr "KartelÃ«"
 
 #: ../src/fe-gnome/dcc-window.c:144
 msgid "Remaining"
-msgstr ""
+msgstr "Po iki"
 
 #: ../src/fe-gnome/dcc-window.c:244
 #, c-format
@@ -3866,7 +3876,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:277
 msgid "starting"
-msgstr ""
+msgstr "Po pres"
 
 #: ../src/fe-gnome/dcc-window.c:307
 #, c-format
@@ -3896,7 +3906,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:331
 msgid "stalled"
-msgstr ""
+msgstr "DÃ«shtova"
 
 #: ../src/fe-gnome/dcc-window.c:335
 #, c-format
@@ -3910,7 +3920,7 @@ msgstr ""
 
 #: ../src/fe-gnome/dcc-window.c:450
 msgid "Send File..."
-msgstr ""
+msgstr "DÃ«rgo KartelÃ«"
 
 #: ../src/fe-gnome/fe-gnome.c:58
 msgid "Use directory instead of the default config dir"
@@ -3918,11 +3928,11 @@ msgstr ""
 
 #: ../src/fe-gnome/fe-gnome.c:59
 msgid "Don't auto-connect to servers"
-msgstr ""
+msgstr "Mos u vetÃ«rilidhu me shÃ«rbyesa"
 
 #: ../src/fe-gnome/fe-gnome.c:60
 msgid "Don't auto-load plugins"
-msgstr ""
+msgstr "Mos vetÃ«ngarko ndonjÃ« shtojcÃ«"
 
 #: ../src/fe-gnome/fe-gnome.c:62
 msgid "Show version information"
@@ -3934,6 +3944,8 @@ msgid ""
 "xchat-gnome: %s\n"
 "Try `xchat-gnome --help' for more information\n"
 msgstr ""
+"xchat-remote: %s\n"
+"PÃ«r mÃ« tepÃ«r tÃ« dhÃ«na provoni `xchat-remote --help'\n"
 
 #: ../src/fe-gnome/fe-gnome.c:839
 #, c-format
@@ -3950,7 +3962,7 @@ msgstr ""
 
 #: ../src/fe-gnome/find-bar.c:99
 msgid "_Next"
-msgstr ""
+msgstr "_E re"
 
 #: ../src/fe-gnome/find-bar.c:218
 msgid "<span foreground=\"dark grey\">Reached end, continuing from top</span>"
@@ -3992,7 +4004,7 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:526
 msgid "You must enter a nick name"
-msgstr ""
+msgstr "Jepni nofkÃ«n e re:"
 
 #: ../src/fe-gnome/irc-network-editor.c:532
 msgid "You must enter a real name"
@@ -4000,11 +4012,11 @@ msgstr ""
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "No Servers"
-msgstr ""
+msgstr "ShÃ«rbyes"
 
 #: ../src/fe-gnome/irc-network-editor.c:539
 msgid "You must add at least one server for this network"
-msgstr ""
+msgstr "PÃ«rdor SSL pÃ«r tÃ«rÃ« shÃ«rbyesit nÃ« kÃ«tÃ« rrjet"
 
 #: ../src/fe-gnome/irc-network.c:31
 msgid "UTF-8 (Unicode)"
@@ -4065,11 +4077,11 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:103
 msgid "_Network"
-msgstr ""
+msgstr "Rrjet"
 
 #: ../src/fe-gnome/main-window.c:104
 msgid "_Discussion"
-msgstr ""
+msgstr "_ShkÃ«putu"
 
 #: ../src/fe-gnome/main-window.c:105
 msgid "_Go"
@@ -4081,7 +4093,7 @@ msgstr "_NdihmÃ«"
 
 #: ../src/fe-gnome/main-window.c:111
 msgid "_File Transfers"
-msgstr ""
+msgstr "ShpÃ«rngulje kartelash"
 
 #: ../src/fe-gnome/main-window.c:112
 msgid "_Quit"
@@ -4094,22 +4106,22 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:117
 msgid "_Paste"
-msgstr ""
+msgstr "Vetiake"
 
 #: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:92
 #: ../src/fe-gnome/navigation-tree.c:99
 msgid "C_lear"
-msgstr ""
+msgstr "Pastro"
 
 #: ../src/fe-gnome/main-window.c:119
 msgid "Prefere_nces"
-msgstr ""
+msgstr "ParapÃ«lqime..."
 
 #. Network menu
 #. Server context menu
 #: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Information"
-msgstr ""
+msgstr "Informativ"
 
 #: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Reconnect"
@@ -4126,7 +4138,7 @@ msgstr "-Mbyll"
 
 #: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:85
 msgid "_Channels..."
-msgstr ""
+msgstr "ListÃ« Kanalesh..."
 
 #. Discussion menu
 #. Channel context menu
@@ -4138,19 +4150,19 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:89
 msgid "_Leave"
-msgstr ""
+msgstr "Po iki"
 
 #: ../src/fe-gnome/main-window.c:131
 msgid "Cl_ose"
-msgstr ""
+msgstr "Mbyll"
 
 #: ../src/fe-gnome/main-window.c:132
 msgid "_Find"
-msgstr ""
+msgstr "Gjej"
 
 #: ../src/fe-gnome/main-window.c:133
 msgid "_Clear Window"
-msgstr ""
+msgstr "_Mbyll Dritare"
 
 #: ../src/fe-gnome/main-window.c:134
 msgid "Change _Topic"
@@ -4158,20 +4170,20 @@ msgstr ""
 
 #: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:93
 msgid "_Bans..."
-msgstr ""
+msgstr "ListÃ« Ndalimesh..."
 
 #: ../src/fe-gnome/main-window.c:136
 msgid "_Users"
-msgstr ""
+msgstr "PÃ«rdoruesa"
 
 #. Go menu
 #: ../src/fe-gnome/main-window.c:139
 msgid "Pre_vious Network"
-msgstr ""
+msgstr "Rrjet i Ri"
 
 #: ../src/fe-gnome/main-window.c:140
 msgid "Nex_t Network"
-msgstr ""
+msgstr "Rrjet i Ri"
 
 #: ../src/fe-gnome/main-window.c:141
 msgid "_Previous Discussion"
@@ -4194,7 +4206,7 @@ msgstr "_Rreth"
 #: ../src/fe-gnome/navigation-tree.c:1579
 #: ../src/fe-gnome/navigation-tree.c:1633
 msgid "Ex-Chat"
-msgstr ""
+msgstr "Fjalosje"
 
 #: ../src/fe-gnome/main-window.c:585
 msgid "Error showing help"
@@ -4202,17 +4214,17 @@ msgstr ""
 
 #: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
 msgid "_Find..."
-msgstr ""
+msgstr "Gjej"
 
 #. Server context menu
 #: ../src/fe-gnome/navigation-tree.c:104
 msgid "_Auto-connect"
-msgstr ""
+msgstr "_Rilidhu"
 
 #. Channel context menu
 #: ../src/fe-gnome/navigation-tree.c:107
 msgid "_Auto-join"
-msgstr ""
+msgstr "_Automatike"
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
@@ -4238,7 +4250,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-dcc.c:195
 msgid "File Transfers & DCC"
-msgstr ""
+msgstr "ShpÃ«rngulje kartelash"
 
 #: ../src/fe-gnome/preferences-page-effects.c:176
 msgid "Effects"
@@ -4246,12 +4258,12 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-irc.c:241
 msgid "IRC Preferences"
-msgstr ""
+msgstr "XChat: ParapÃ«lqime"
 
 #: ../src/fe-gnome/preferences-page-networks.c:118
 #, c-format
 msgid "Really remove network \"%s\" and all of its servers?"
-msgstr ""
+msgstr "TÃ« heq vÃ«rtet rrjetin \"%s\" dhe tÃ«rÃ« shÃ«rbyesit e tij?"
 
 #: ../src/fe-gnome/preferences-page-networks.c:171
 msgid "Networks"
@@ -4264,7 +4276,7 @@ msgstr "EmÃ«r"
 #: ../src/fe-gnome/preferences-page-plugins.c:84
 #: ../src/fe-gnome/preferences-page-plugins.c:85
 msgid "unknown"
-msgstr ""
+msgstr "I panjohur"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:125
 #, c-format
@@ -4281,7 +4293,7 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:176
 msgid "Open Plugin"
-msgstr ""
+msgstr "Hap dialogje nÃ«:"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:276
 msgid "Scripts and Plugins"
@@ -4289,11 +4301,11 @@ msgstr ""
 
 #: ../src/fe-gnome/preferences-page-plugins.c:289
 msgid "Enable"
-msgstr ""
+msgstr "emÃ«r"
 
 #: ../src/fe-gnome/preferences-page-plugins.c:291
 msgid "Plugin"
-msgstr ""
+msgstr "Ping"
 
 #: ../src/fe-gnome/status-bar.c:92
 #, c-format
@@ -4303,11 +4315,11 @@ msgstr ""
 #: ../src/fe-gnome/status-bar.c:106
 #, c-format
 msgid "%d bytes buffered"
-msgstr ""
+msgstr "%d bytes"
 
 #: ../src/fe-gnome/text-entry.c:274
 msgid "I_nsert Color Code"
-msgstr ""
+msgstr "Fut Kod Ngjyre ose Atributi"
 
 #: ../src/fe-gnome/text-entry.c:281
 msgid "Black"
@@ -4380,16 +4392,16 @@ msgstr ""
 
 #: ../src/fe-gnome/userlist-gui.c:50
 msgid "_Send File..."
-msgstr ""
+msgstr "DÃ«rgo KartelÃ«"
 
 #: ../src/fe-gnome/userlist-gui.c:51
 msgid "Private _Chat"
-msgstr ""
+msgstr "Vetiake"
 
 #: ../src/fe-gnome/userlist-gui.c:52
 msgid "_Kick"
-msgstr ""
+msgstr "PÃ«rzÃ«r"
 
 #: ../src/fe-gnome/userlist-gui.c:53
 msgid "_Ban"
-msgstr ""
+msgstr "Ndalo"
