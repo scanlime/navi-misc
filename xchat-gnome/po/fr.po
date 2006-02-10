@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-01-22 18:34-0500\n"
+"POT-Creation-Date: 2006-02-10 02:18-0700\n"
 "PO-Revision-Date: 2006-01-04 16:10-0700\n"
 "Last-Translator: Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
 "Language-Team: French <olethanh@ulb.ac.be>\n"
@@ -594,19 +594,19 @@ msgstr "Orientation"
 msgid "The orientation of the tray."
 msgstr "L'orientation du panneau."
 
-#: ../plugins/notification/notification.c:150
+#: ../plugins/notification/notification.c:151
 msgid "Notification"
 msgstr "Notification"
 
-#: ../plugins/notification/notification.c:151
+#: ../plugins/notification/notification.c:152
 msgid "A notification area plugin."
 msgstr "Un greffon pour la zone de notification."
 
-#: ../plugins/notification/notification.c:238
+#: ../plugins/notification/notification.c:239
 msgid "Notification plugin loaded.\n"
 msgstr "Greffon de notification chargé.\n"
 
-#: ../plugins/notification/notification.c:253
+#: ../plugins/notification/notification.c:254
 msgid "Notification plugin unloaded.\n"
 msgstr "Greffon de notification déchargé.\n"
 
@@ -635,28 +635,28 @@ msgstr "Erreur à la fermeture de la notification : %s\n"
 msgid "Failed to send notification: %s\n"
 msgstr "Erreur à l'envoi de la notification : %s\n"
 
-#: ../plugins/notify-osd/notify-osd.c:110
-#: ../plugins/notify-osd/notify-osd.c:136
+#: ../plugins/notify-osd/notify-osd.c:112
+#: ../plugins/notify-osd/notify-osd.c:139
 #, c-format
 msgid "Message in %s"
 msgstr "Message dans %s"
 
-#: ../plugins/notify-osd/notify-osd.c:112
-#: ../plugins/notify-osd/notify-osd.c:138
+#: ../plugins/notify-osd/notify-osd.c:114
+#: ../plugins/notify-osd/notify-osd.c:141
 #, c-format
 msgid "Message from %s"
 msgstr "Message de %s"
 
-#: ../plugins/notify-osd/notify-osd.c:157
+#: ../plugins/notify-osd/notify-osd.c:160
 #, c-format
 msgid "Private Message from %s"
 msgstr "Message privé de %s"
 
-#: ../plugins/notify-osd/notify-osd.c:205
+#: ../plugins/notify-osd/notify-osd.c:208
 msgid "OSD loaded\n"
 msgstr "OSD chargé\n"
 
-#: ../plugins/notify-osd/notify-osd.c:209
+#: ../plugins/notify-osd/notify-osd.c:212
 msgid "OSD initialization failed\n"
 msgstr "Échec de l'initialisation d'OSD\n"
 
@@ -3716,11 +3716,11 @@ msgstr ""
 "Inc.,\n"
 "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
 
-#: ../src/fe-gnome/about.c:91
+#: ../src/fe-gnome/about.c:94
 msgid "Copyright © 2004-2006"
 msgstr "Copyright © 2004-2006"
 
-#: ../src/fe-gnome/about.c:92
+#: ../src/fe-gnome/about.c:95
 msgid ""
 "It has been well observed that a trombone is not a suitable instrument for a "
 "gentleman"
@@ -3736,7 +3736,7 @@ msgstr ""
 #. * write each of them on a separated line seperated by
 #. * newlines (\n).
 #.
-#: ../src/fe-gnome/about.c:108
+#: ../src/fe-gnome/about.c:111
 msgid "translator-credits"
 msgstr ""
 "Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
@@ -3831,72 +3831,76 @@ msgstr "%s : Liste des canaux"
 msgid "_Connect"
 msgstr "_Connecter"
 
-#: ../src/fe-gnome/conversation-panel.c:130
+#: ../src/fe-gnome/conversation-panel.c:132
 msgid "_Open Link in Browser"
 msgstr "_Ouvrir le lien"
 
-#: ../src/fe-gnome/conversation-panel.c:131
+#: ../src/fe-gnome/conversation-panel.c:133
 msgid "_Copy Link Location"
 msgstr "_Copier l'adresse du lien"
 
-#: ../src/fe-gnome/conversation-panel.c:135
+#: ../src/fe-gnome/conversation-panel.c:137
 msgid "Se_nd Message To..."
 msgstr "_Envoyer un message à..."
 
-#: ../src/fe-gnome/conversation-panel.c:136
+#: ../src/fe-gnome/conversation-panel.c:138
 msgid "_Copy Address"
 msgstr "_Copier l'adresse"
 
-#: ../src/fe-gnome/conversation-panel.c:140
+#: ../src/fe-gnome/conversation-panel.c:142
 msgid "_Send File"
 msgstr "_Envoyer le fichier"
 
-#: ../src/fe-gnome/conversation-panel.c:141
+#: ../src/fe-gnome/conversation-panel.c:143
 msgid "Paste File _Contents"
 msgstr "Coller le _contenu du fichier"
 
-#: ../src/fe-gnome/conversation-panel.c:142
+#: ../src/fe-gnome/conversation-panel.c:144
 msgid "Paste File_name"
 msgstr "Coller le _nom du fichier"
 
-#: ../src/fe-gnome/conversation-panel.c:143
+#: ../src/fe-gnome/conversation-panel.c:145
 msgid "_Cancel"
 msgstr "_Annuler"
 
-#: ../src/fe-gnome/conversation-panel.c:574
+#: ../src/fe-gnome/conversation-panel.c:149 ../src/fe-gnome/main-window.c:116
+msgid "_Copy"
+msgstr "_Copier"
+
+#: ../src/fe-gnome/conversation-panel.c:600
 #, c-format
 msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
 msgstr ""
 "La liste d'URI déposée sur xchat-gnome a un mauvais format (%d) ou longueur "
 "(%d)\n"
 
-#: ../src/fe-gnome/conversation-panel.c:666
+#: ../src/fe-gnome/conversation-panel.c:692
 #, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr "Erreur lors de la lecture du fichier \"%s\" : %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:681
+#: ../src/fe-gnome/conversation-panel.c:707
 #, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr ""
 "Erreur lors de la transformation de l'URI \"%s\" en nom de fichier : %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:718
+#: ../src/fe-gnome/conversation-panel.c:750
 #, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
 msgstr "Erreur lors de la lecture des informations du fichier \"%s\" : %s\n"
 
-#: ../src/fe-gnome/conversation-panel.c:779
+#: ../src/fe-gnome/conversation-panel.c:811
 msgid "Save Transcript"
 msgstr "Enregistrer la discussion"
 
-#: ../src/fe-gnome/conversation-panel.c:805
-#: ../src/fe-gnome/conversation-panel.c:815
+#: ../src/fe-gnome/conversation-panel.c:837
+#: ../src/fe-gnome/conversation-panel.c:847
 #, c-format
 msgid "Error saving %s"
 msgstr "Erreur lors de l'enregistrement du fichier %s"
 
-#: ../src/fe-gnome/conversation-panel.c:933
+#: ../src/fe-gnome/conversation-panel.c:965
 msgid "Search buffer is empty.\n"
 msgstr "Le cache de recherche est vide.\n"
 
@@ -3941,7 +3945,7 @@ msgstr ""
 msgid "starting"
 msgstr "débuté"
 
-#: ../src/fe-gnome/dcc-window.c:303
+#: ../src/fe-gnome/dcc-window.c:307
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -3952,39 +3956,39 @@ msgstr ""
 "<small>depuis %s</small>\n"
 "%s de %s à %s/s"
 
-#: ../src/fe-gnome/dcc-window.c:310
+#: ../src/fe-gnome/dcc-window.c:314
 msgid "queued"
 msgstr "en attente"
 
-#: ../src/fe-gnome/dcc-window.c:315
+#: ../src/fe-gnome/dcc-window.c:319
 #, c-format
 msgid "Transfer of %s to %s failed"
 msgstr "Le transfert de %s à %s a échoué"
 
-#: ../src/fe-gnome/dcc-window.c:317
+#: ../src/fe-gnome/dcc-window.c:321
 #, c-format
 msgid "Transfer of %s from %s failed"
 msgstr "Le transfert de %s depuis %s a échoué"
 
-#: ../src/fe-gnome/dcc-window.c:318
+#: ../src/fe-gnome/dcc-window.c:322
 msgid "Transfer failed"
 msgstr "Le transfert a échoué"
 
-#: ../src/fe-gnome/dcc-window.c:327
+#: ../src/fe-gnome/dcc-window.c:331
 msgid "stalled"
 msgstr "bloqué"
 
-#: ../src/fe-gnome/dcc-window.c:331
+#: ../src/fe-gnome/dcc-window.c:335
 #, c-format
 msgid "%.2d:%.2d:%.2d"
 msgstr "%.2d:%.2d:%.2d"
 
-#: ../src/fe-gnome/dcc-window.c:333
+#: ../src/fe-gnome/dcc-window.c:337
 #, c-format
 msgid "%.2d:%.2d"
 msgstr "%.2d:%.2d"
 
-#: ../src/fe-gnome/dcc-window.c:446
+#: ../src/fe-gnome/dcc-window.c:450
 msgid "Send File..."
 msgstr "_Envoyer un fichier..."
 
@@ -4052,34 +4056,40 @@ msgstr "<span foreground=\"red\">Texte recherché non trouvé</span>"
 msgid "Server"
 msgstr "Serveurs"
 
-#: ../src/fe-gnome/irc-network-editor.c:386
+#. We're creating a new network. Don't populate things from the structure
+#: ../src/fe-gnome/irc-network-editor.c:388
+#, fuzzy
+msgid "New Network"
+msgstr "Réseau sui_vant"
+
+#: ../src/fe-gnome/irc-network-editor.c:396
 #, c-format
 msgid "%s Network Properties"
 msgstr "Configuration du réseau %s"
 
-#: ../src/fe-gnome/irc-network-editor.c:518
-#: ../src/fe-gnome/irc-network-editor.c:525
-#: ../src/fe-gnome/irc-network-editor.c:531
+#: ../src/fe-gnome/irc-network-editor.c:519
+#: ../src/fe-gnome/irc-network-editor.c:526
+#: ../src/fe-gnome/irc-network-editor.c:532
 msgid "Invalid input"
 msgstr "Entrée invalide"
 
-#: ../src/fe-gnome/irc-network-editor.c:518
+#: ../src/fe-gnome/irc-network-editor.c:519
 msgid "You must enter a network name"
 msgstr "Vous devez entrer un nom de réseau"
 
-#: ../src/fe-gnome/irc-network-editor.c:525
+#: ../src/fe-gnome/irc-network-editor.c:526
 msgid "You must enter a nick name"
 msgstr "Vous devez entrer un pseudo"
 
-#: ../src/fe-gnome/irc-network-editor.c:531
+#: ../src/fe-gnome/irc-network-editor.c:532
 msgid "You must enter a real name"
 msgstr "Vous devez entrer un vrai nom"
 
-#: ../src/fe-gnome/irc-network-editor.c:538
+#: ../src/fe-gnome/irc-network-editor.c:539
 msgid "No Servers"
 msgstr "Pas de serveurs"
 
-#: ../src/fe-gnome/irc-network-editor.c:538
+#: ../src/fe-gnome/irc-network-editor.c:539
 msgid "You must add at least one server for this network"
 msgstr "Vous devez spécifier au moins un serveur pour le réseau"
 
@@ -4168,10 +4178,6 @@ msgstr "_Quitter"
 #: ../src/fe-gnome/main-window.c:115
 msgid "Cu_t"
 msgstr "Co_uper"
-
-#: ../src/fe-gnome/main-window.c:116
-msgid "_Copy"
-msgstr "_Copier"
 
 #: ../src/fe-gnome/main-window.c:117
 msgid "_Paste"
@@ -4272,8 +4278,8 @@ msgid "_About"
 msgstr "À _propos"
 
 #: ../src/fe-gnome/main-window.c:486 ../src/fe-gnome/main-window.c:507
-#: ../src/fe-gnome/navigation-tree.c:1577
-#: ../src/fe-gnome/navigation-tree.c:1636
+#: ../src/fe-gnome/navigation-tree.c:1579
+#: ../src/fe-gnome/navigation-tree.c:1633
 msgid "Ex-Chat"
 msgstr "Ex-Chat"
 
@@ -4297,7 +4303,7 @@ msgstr "Rejoindre _automatiquement"
 
 #. Add the new server to the model. By default connected is false.
 #: ../src/fe-gnome/navigation-tree.c:389
-#: ../src/fe-gnome/navigation-tree.c:1272
+#: ../src/fe-gnome/navigation-tree.c:1274
 msgid "<none>"
 msgstr "<aucun>"
 
