@@ -36,8 +36,8 @@ def spline(data, quality):
 
         return interpolated
 
-    data         = Numeric.array(data)
-    length, dof  = Numeric.shape(data)
+    data = Numeric.array(data)
+    length, dof = Numeric.shape(data)
     interpolated = Numeric.empty((length * quality, dof))
 
     # This is the range of times we'll be using for the vast majority of the
@@ -53,7 +53,7 @@ def spline(data, quality):
         # data.
         A, b = __getMatrix(data[frame:frame + 4], dof)
         Ainv = inverse(A)
-        z    = [Numeric.matrixmultiply(Ainv, x) for x in b]
+        z = [Numeric.matrixmultiply(Ainv, x) for x in b]
 
         for degree in dof:
             # Special case: At the beginning of the trajectory or the end we use
@@ -73,8 +73,8 @@ def _getMatrix(data, dof):
     # We need to be sure that we've got exactly 4 data points. 
     assert(Numeric.shape(data)[0] == 4)
 
-    A   = Numeric.zeros((12, 12))
-    b   = [Numeric.zeros((12,)) for i in range(dof)]
+    A = Numeric.zeros((12, 12))
+    b = [Numeric.zeros((12,)) for i in range(dof)]
     row = 0
 
     for t in range(1,4):
@@ -97,7 +97,7 @@ def _getMatrix(data, dof):
 
     # Constrain the second derivative of the end points of the trajectory to
     # be 0.
-    A[-2, :4]  = [0, 0, 2, 6]
+    A[-2, :4] = [0, 0, 2, 6]
     A[-1, -4:] = [0, 0, 2, 24]
 
     return (A, b)
