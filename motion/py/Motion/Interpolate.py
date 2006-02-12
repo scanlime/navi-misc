@@ -48,7 +48,7 @@ def spline(data, quality):
     # constants and the time. 
     f = lambda c: lambda t: c[0] + c[1] * t + c[2] * t**2 + c[3] * t**3
 
-    for frame in range(length - 3):
+    for frame in range(length - quality + 1):
         # Generate matrices and solve for the constants for this section of the
         # data.
         A, b = _getMatrix(data[frame:frame + 4], dof)
@@ -62,10 +62,15 @@ def spline(data, quality):
             if frame == 0:
                 interpolated[frame:frame + quality, degree] = map(f(z[degree][:4]), Numeric.arange(1, 2, 1. / quality))
             elif frame == length - 4:
-                interpolated[frame, degree] = map(f(z[degree][-4:]), Numeric.arange(3, 4, 1. / quality))
+                interpolated[frame:frame + quality, degree] = map(f(z[degree][-4:]), Numeric.arange(3, 4, 1. / quality))
 
-            interpolated[frame, degree] = map(f(z[degree][4:8]), times)
+            interpolated[frame:frame + quality, degree] = map(f(z[degree][4:8]), times)
 
+    print "original"
+    print data
+    print
+    print "smoothed"
+    print interpolated
     return interpolated
 
 def _getMatrix(data, dof):
