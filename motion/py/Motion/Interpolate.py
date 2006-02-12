@@ -52,20 +52,19 @@ def spline(data, quality):
         # Generate matrices and solve for the constants for this section of the
         # data.
         A, b = _getMatrix(data[frame:frame + 4], dof)
-        print A
         Ainv = inverse(A)
         z = [Numeric.matrixmultiply(Ainv, x) for x in b]
 
-        for degree in dof:
+        for degree in range(dof):
             # Special case: At the beginning of the trajectory or the end we use
             # the beginning or end of the spline to interpolate. Normally we
             # only use the middle interval of the spline to interpolate.
             if frame == 0:
-                interpolated[frame:frame + quality, degree] = map(f(z[dof][:4]), Numeric.arange(1, 2, 1. / quality))
+                interpolated[frame:frame + quality, degree] = map(f(z[degree][:4]), Numeric.arange(1, 2, 1. / quality))
             elif frame == length - 4:
-                interpolated[frame, degree] = map(f(z[dof][-4:]), Numeric.arange(3, 4, 1. / quality))
+                interpolated[frame, degree] = map(f(z[degree][-4:]), Numeric.arange(3, 4, 1. / quality))
 
-            interpolated[frame, degree] = map(f(z[dof][4:8]), times)
+            interpolated[frame, degree] = map(f(z[degree][4:8]), times)
 
     return interpolated
 
