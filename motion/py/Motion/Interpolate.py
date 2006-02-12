@@ -60,17 +60,15 @@ def spline(data, quality):
             # the beginning or end of the spline to interpolate. Normally we
             # only use the middle interval of the spline to interpolate.
             if frame == 0:
-                interpolated[frame:frame + quality, degree] = map(f(z[degree][:4]), Numeric.arange(1, 2, 1. / quality))
+                interpolated[frame:frame + quality, degree] = \
+                        map(f(z[degree][:4]), Numeric.arange(1, 2, 1. / quality))
             elif frame == length - 4:
-                interpolated[frame:frame + quality, degree] = map(f(z[degree][-4:]), Numeric.arange(3, 4, 1. / quality))
+                interpolated[frame:frame + quality, degree] = \
+                        map(f(z[degree][-4:]), Numeric.arange(3, 4, 1. / quality))
 
-            interpolated[frame:frame + quality, degree] = map(f(z[degree][4:8]), times)
+            interpolated[frame:frame + quality, degree] = \
+                    map(f(z[degree][4:8]), times)
 
-    print "original"
-    print data
-    print
-    print "smoothed"
-    print interpolated
     return interpolated
 
 def _getMatrix(data, dof):
