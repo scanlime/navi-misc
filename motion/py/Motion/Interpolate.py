@@ -51,7 +51,8 @@ def spline(data, quality):
     for frame in range(length - 3):
         # Generate matrices and solve for the constants for this section of the
         # data.
-        A, b = __getMatrix(data[frame:frame + 4], dof)
+        A, b = _getMatrix(data[frame:frame + 4], dof)
+        print A
         Ainv = inverse(A)
         z = [Numeric.matrixmultiply(Ainv, x) for x in b]
 

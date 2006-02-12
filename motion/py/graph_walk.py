@@ -3,6 +3,7 @@
 from optparse import OptionParser
 from Dance import Sequence, MotionGraph
 from Graph.Data import AdjacencyList, VertexMap
+from Motion.Interpolate import spline
 import Motion, Numeric, pickle, random
 
 def clicheWalk (graph, len):
@@ -54,10 +55,14 @@ def randomWalk (graph, len):
 
 
 parser = OptionParser ("usage: %prog <graph pickle>")
-parser.add_option ("--cliche", dest="cliche", default=False,
-        action="store_true", help="Choose edges based on probability")
-parser.add_option ("-l", "--len", dest="len", default=1000,
-        type="int", help="Set length of paths")
+parser.add_option("--cliche", dest="cliche", default=False,
+                   action="store_true",
+                   help="Choose edges based on probability")
+parser.add_option("-l", "--len", dest="len", default=1000,
+                   type="int", help="Set length of paths")
+parser.add_option("-q", "--quality", dest="quality", default=5,
+                  type="int",
+                  help="Set the number of points to insert during interpolation")
 
 opts, args = parser.parse_args ()
 
@@ -71,9 +76,9 @@ for bone in graphs.keys ():
     # print 'Walking', bone
 
     if opts.cliche:
-        bones[bone] = Numeric.array (clicheWalk (graphs[bone], opts.len))
+        bones[bone] = spline(clicheWalk (graphs[bone], opts.len), opts.quality)
     else:
-        bones[bone] = Numeric.array (randomWalk (graphs[bone], opts.len))
+        bones[bone] = spline(randomWalk (graphs[bone], opts.len), opts.quality)
 
 # FIXME - Hack to print out the data because I had some trouble using AMC.save().
 print ":FULLY-SPECIFIED"
