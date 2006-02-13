@@ -63,28 +63,51 @@ parser.add_option("-l", "--len", dest="len", default=1000,
 parser.add_option("-q", "--quality", dest="quality", default=5,
                   type="int",
                   help="Set the number of points to insert during interpolation")
+parser.add_option("-i", "--interpolate", dest="interpolate",
+                  help="Interpolate the walk and save it to a file")
 
-opts, args = parser.parse_args ()
+opts, args = parser.parse_args()
 
-if len (args) != 1: parser.error ("graph file required")
+if len (args) != 1:
+    parser.error("graph file required")
 
 # print 'Reading graph'
-graphs = pickle.load (open (args[0]))
-bones  = {}
+graphs = pickle.load(open(args[0]))
+bones = {}
+smoothed = {}
 
 for bone in graphs.keys ():
-    # print 'Walking', bone
-
     if opts.cliche:
-        bones[bone] = spline(clicheWalk (graphs[bone], opts.len), opts.quality)
+        bones[bone] = clicheWalk (graphs[bone], opts.len)
     else:
-        bones[bone] = spline(randomWalk (graphs[bone], opts.len), opts.quality)
+        bones[bone] = randomWalk (graphs[bone], opts.len)
 
-# FIXME - Hack to print out the data because I had some trouble using AMC.save().
+    if hasattr(opts, "interpolate"):
+        smoothed[bone] = spline(bones[bone], opts.quality)
+
+# Write the interpolated data to a file
+if hasattr(opts, "interpolate"):
+    file = open(opts.interpolate, "w")
+
+    for i in range(opts.len * opts.quality):
+        file.write("%d\n" % (i))
+
+        for bone, frames in smoothed.iteritems():
+            if bone == "root":
+                s = bone + " 0 0 0"
+            else:
+                s = bone
+            for angle in frames[i]:
+                a = " %6f" % (angle)
+                s += a
+            s += "\n"
+            file.write(s)
+
+# FIXME - Hack to print out the data because I had some trouble using AMC.save()
 print ":FULLY-SPECIFIED"
 print ":DEGREES"
 
-for i in range (opts.len * opts.quality):
+for i in range (opts.len):
     print i
     for bone,frames in bones.iteritems ():
         if bone == "root":
