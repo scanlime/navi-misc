@@ -37,18 +37,18 @@ def spline(data, quality):
         return interpolated
 
     data = Numeric.array(data)
+    # Assumming a 2-dimensional array. Needs error checking?
     length, dof = Numeric.shape(data)
     interpolated = Numeric.empty((length * quality, dof))
 
-    # This is the range of times we'll be using for the vast majority of the
-    # splining process.
+    # Range of times we'll be using for the vast majority of the splining process
     times = Numeric.arange(2, 3, 1. / quality)
 
     # This function is used to generate the intermediate points from the
     # constants and the time. 
     f = lambda c: lambda t: c[0] + c[1] * t + c[2] * t**2 + c[3] * t**3
 
-    for frame in range(length - quality + 1):
+    for frame in range(length - 3):
         # Generate matrices and solve for the constants for this section of the
         # data.
         A, b = _getMatrix(data[frame:frame + 4], dof)
@@ -60,16 +60,20 @@ def spline(data, quality):
             # the beginning or end of the spline to interpolate. Normally we
             # only use the middle interval of the spline to interpolate.
             if frame == 0:
-                interpolated[frame:frame + quality, degree] = \
+                smoothedFrame = frame * quailty
+                interpolated[smoothedFrame:smoothedFrame + quality, degree] = \
                         map(f(z[degree][:4]), Numeric.arange(1, 2, 1. / quality))
             elif frame == length - 4:
-                interpolated[frame:frame + quality, degree] = \
+                smoothedFrame = (frame + 2) * quality
+                interpolated[smoothedFrame:smoothedFrame + quality, degree] = \
                         map(f(z[degree][-4:]), Numeric.arange(3, 4, 1. / quality))
 
-            interpolated[frame:frame + quality, degree] = \
+            smoothedFrame = (frame + 1) * quality
+            interpolated[smoothedFrame:smoothedFrame + quality, degree] = \
                     map(f(z[degree][4:8]), times)
 
     return interpolated
+
 
 def _getMatrix(data, dof):
     """Create the matrices A and b for a spline with 4 data points."""    
