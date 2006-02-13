@@ -60,7 +60,7 @@ def spline(data, quality):
             # the beginning or end of the spline to interpolate. Normally we
             # only use the middle interval of the spline to interpolate.
             if frame == 0:
-                smoothedFrame = frame * quailty
+                smoothedFrame = frame * quality
                 interpolated[smoothedFrame:smoothedFrame + quality, degree] = \
                         map(f(z[degree][:4]), Numeric.arange(1, 2, 1. / quality))
             elif frame == length - 4:
