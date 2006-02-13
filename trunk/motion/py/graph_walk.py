@@ -88,6 +88,8 @@ for bone in graphs.keys ():
 # Write the interpolated data to a file
 if hasattr(opts, "interpolate"):
     file = open(opts.interpolate, "w")
+    file.write(":FULLY-SPECIFIED\n")
+    file.write(":DEGREES\n")
 
     for i in range(opts.len * opts.quality):
         file.write("%d\n" % (i))
