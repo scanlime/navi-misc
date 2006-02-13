@@ -84,7 +84,7 @@ for bone in graphs.keys ():
 print ":FULLY-SPECIFIED"
 print ":DEGREES"
 
-for i in range (opts.len):
+for i in range (opts.len * opts.quality):
     print i
     for bone,frames in bones.iteritems ():
         if bone == "root":
