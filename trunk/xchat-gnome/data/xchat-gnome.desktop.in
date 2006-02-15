@@ -2,6 +2,7 @@
 Encoding=UTF-8
 _Name=XChat-GNOME IRC Chat
 _GenericName=IRC Chat
+_Comment=Chat with people using IRC
 Exec=xchat-gnome
 Icon=xchat-gnome.png
 Terminal=false

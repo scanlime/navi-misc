@@ -1,3 +1,8 @@
+Wed Feb 15 20:14:39 CET 2006  Guillaume Desmottes <cass@skynet.be>
+	
+	* data/xchat-gnome.desktop.in:
+	  - Add Comment field to display a tooltip in the menu. (#331259)
+
 Fri Feb 10 21:35:53 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/preferences-page-irc.c:
