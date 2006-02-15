@@ -1,3 +1,9 @@
+Wed Feb 15 21:07:16 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/channel-list.c:
+	  - Grab the focus on the text filter when we open the
+	    channels list window.
+
 Wed Feb 15 20:14:39 CET 2006  Guillaume Desmottes <cass@skynet.be>
 	
 	* data/xchat-gnome.desktop.in:

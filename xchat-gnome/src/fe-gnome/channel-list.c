@@ -354,6 +354,7 @@ create_channel_list (session *sess)
 	g_signal_connect (G_OBJECT (widget), "value-changed", G_CALLBACK (maxusers_changed), win);
 	widget = glade_xml_get_widget (win->xml, "text filter");
 	g_signal_connect (G_OBJECT (widget), "changed", G_CALLBACK (filter_changed), win);
+	gtk_widget_grab_focus (widget);
 	widget = glade_xml_get_widget (win->xml, "apply to topic");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), win->filter_topic);
 	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (apply_to_topic_changed), win);
