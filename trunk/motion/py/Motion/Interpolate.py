@@ -43,6 +43,7 @@ def spline(data, quality):
         return interpolated
 
     data = Numeric.array(data)
+    quality += 1
     # Assumming a 2-dimensional array.
     # FIXME - Needs error checking?
     length, dof = Numeric.shape(data)
