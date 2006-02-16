@@ -1,6 +1,9 @@
-#
-# Interpolate.py: Classes for interpolating motion data.
-#
+"""Interpolation utilities.
+
+Functions:
+    spline -- interpolate a trajectory
+"""
+
 # Copyright (C) 2005 W. Evan Sheehan
 #
 # This program is free software; you can redistribute it and/or
@@ -21,12 +24,15 @@ from LinearAlgebra import inverse
 from Motion import AMC
 import Numeric
 
+__all__ = ["spline"]
+
 def spline(data, quality):
-    """Return an interpolated trajectory from data. The returned value will be
-       either an AMC object or a Numeric array, depending on what type the
-       original data is. quality is the number of interpolated points to insert
-       between each point in the initial data.
-       """
+    """Interpolate a trajectory using natural cubic splines.
+
+    Arguments:
+        data -- a list or AMC object containing the data to be interpolated
+        quality -- the number of new points to insert between data points
+    """
     # Special case: The input data is an AMC object. For each bone in the AMC
     # object create a spline. Return an AMC object.
     if data.__class__ == AMC:
@@ -37,37 +43,40 @@ def spline(data, quality):
         return interpolated
 
     data = Numeric.array(data)
-    # Assumming a 2-dimensional array. Needs error checking?
+    # Assumming a 2-dimensional array.
+    # FIXME - Needs error checking?
     length, dof = Numeric.shape(data)
     interpolated = Numeric.empty((length * quality, dof))
 
     # Range of times we'll be using for the vast majority of the splining process
     times = Numeric.arange(2, 3, 1. / quality)
 
-    # This function is used to generate the intermediate points from the
-    # constants and the time. 
+    # For calculating interpolated data points
     f = lambda c: lambda t: c[0] + c[1] * t + c[2] * t**2 + c[3] * t**3
 
+    # Interpolate the data using chunks of the trajectory. Each chunk consists
+    # of 4 points. Except for the first and last chunk, interpolate only the
+    # inner 2 points of each chunk.
     for frame in range(length - 3):
-        # Generate matrices and solve for the constants for this section of the
-        # data.
+        # Generate matrices and solve for the constants
         A, b = _getMatrix(data[frame:frame + 4], dof)
         Ainv = inverse(A)
         z = [Numeric.matrixmultiply(Ainv, x) for x in b]
 
+        # Handle each degree of freedom individually
         for degree in range(dof):
-            # Special case: At the beginning of the trajectory or the end we use
-            # the beginning or end of the spline to interpolate. Normally we
-            # only use the middle interval of the spline to interpolate.
+            # At the beginning of the trajectory interpolate the first 2 points
             if frame == 0:
                 smoothedFrame = frame * quality
                 interpolated[smoothedFrame:smoothedFrame + quality, degree] = \
                         map(f(z[degree][:4]), Numeric.arange(1, 2, 1. / quality))
+            # At the end of the trajectory interpolate the last 2 points
             elif frame == length - 4:
                 smoothedFrame = (frame + 2) * quality
                 interpolated[smoothedFrame:smoothedFrame + quality, degree] = \
                         map(f(z[degree][-4:]), Numeric.arange(3, 4, 1. / quality))
 
+            # Interpolate the middle 2 points
             smoothedFrame = (frame + 1) * quality
             interpolated[smoothedFrame:smoothedFrame + quality, degree] = \
                     map(f(z[degree][4:8]), times)
