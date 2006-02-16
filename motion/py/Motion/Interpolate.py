@@ -49,7 +49,7 @@ def spline(data, quality):
     interpolated = Numeric.empty((length * quality, dof))
 
     # Range of times we'll be using for the vast majority of the splining process
-    times = Numeric.arange(2, 3, 1. / quality)
+    times = Numeric.arange(2, 3, 1. / quality)[:-1]
 
     # For calculating interpolated data points
     f = lambda c: lambda t: c[0] + c[1] * t + c[2] * t**2 + c[3] * t**3
@@ -69,12 +69,12 @@ def spline(data, quality):
             if frame == 0:
                 smoothedFrame = frame * quality
                 interpolated[smoothedFrame:smoothedFrame + quality, degree] = \
-                        map(f(z[degree][:4]), Numeric.arange(1, 2, 1. / quality))
+                        map(f(z[degree][:4]), Numeric.arange(1, 2, 1. / quality)[:-1])
             # At the end of the trajectory interpolate the last 2 points
             elif frame == length - 4:
                 smoothedFrame = (frame + 2) * quality
                 interpolated[smoothedFrame:smoothedFrame + quality, degree] = \
-                        map(f(z[degree][-4:]), Numeric.arange(3, 4, 1. / quality))
+                        map(f(z[degree][-4:]), Numeric.arange(3, 4, 1. / quality)[:-1])
 
             # Interpolate the middle 2 points
             smoothedFrame = (frame + 1) * quality
