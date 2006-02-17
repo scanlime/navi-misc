@@ -291,5 +291,14 @@ depth_limited_search (PyObject* self, PyObject* args)
 static PyObject*
 a_star_search (PyObject* self, PyObject *args)
 {
+	PyObject* adjacency_list;
+	PyObject* start;
+	PyObject* end;
+	PyObject* f_cost;
+
+	if (!PyArg_ParseTuple (args, "OOO", &adjacency_list, &start, &end, &f_cost)) {
+		return NULL;
+	}
+
 	return NULL;
 }
