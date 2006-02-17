@@ -291,12 +291,35 @@ depth_limited_search (PyObject* self, PyObject* args)
 static PyObject*
 a_star_search (PyObject* self, PyObject *args)
 {
-	PyObject* adjacency_list;
-	PyObject* start;
-	PyObject* end;
-	PyObject* f_cost;
+	PyObject*   adjacency_list;
+	PyObject*   edge_list;
+	PyObject*   start;
+	PyObject*   end;
+	PyObject*   f_cost;
+	GHashTable* adjacency = NULL;
+	GHashTable* edges     = NULL;
 
-	if (!PyArg_ParseTuple (args, "OOO", &adjacency_list, &start, &end, &f_cost)) {
+	/* Get all the arguments */
+	if (!PyArg_ParseTuple (args, "OOOOO", &adjacency_list, &edge_list, &start, &end, &f_cost)) {
+		return NULL;
+	}
+
+	/* Check that f_cost is a function */
+	if (!PyMethod_Check (f_cost)) {
+		PyErr_SetString (PyExc_RuntimeError, "f cost needs to be a function object");
+		return NULL;
+	}
+
+	/* Retrieve adjacency and edge lists */
+	adjacency = query_adjacency (adjacency_list);
+	if (adjacency == NULL) {
+		PyErr_SetString (PyExc_RuntimeError, "couldn't build adjacency hash table");
+		return NULL;
+	}
+	edges = query_edges (edge_list);
+	if (edges == NULL) {
+		PyErr_SetString (PyExc_RuntimeError, "couldn't build edge hash table");
+		free_adjacency (adjacency);
 		return NULL;
 	}
 
