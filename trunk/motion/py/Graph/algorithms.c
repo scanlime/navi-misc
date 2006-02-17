@@ -23,9 +23,11 @@
 #include <Python.h>
 
 static PyObject *depth_limited_search (PyObject* self, PyObject* args);
+static PyObject *a_star_search (PyObject* self, PyObject* args);
 
 static PyMethodDef AlgorithmC_methods[] = {
 		{"depthLimitedSearch", depth_limited_search, METH_VARARGS, "Execute a depth limited search of the graph"},
+		{"aStarSearch", a_star_search, METH_VARARGS, "Execute the A* search of the graph"},
 	        {NULL,                 NULL,                 0,            NULL},
 };
 
@@ -284,4 +286,10 @@ depth_limited_search (PyObject* self, PyObject* args)
 	free_edges (edges);
 
 	return path_list;
+}
+
+static PyObject*
+a_star_search (PyObject* self, PyObject *args)
+{
+	return NULL;
 }
