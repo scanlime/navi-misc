@@ -1,3 +1,8 @@
+Sat Feb 18 14:24:18 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* m4/intltool.m4:
+	  - Update intltool macros
+
 Sat Feb 18 14:09:51 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/text-entry.c:
