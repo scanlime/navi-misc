@@ -578,7 +578,7 @@ drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 	case TARGET_UTF8_STRING:
 	case TARGET_TEXT_PLAIN:
 	{
-		gchar *txt;
+		guchar *txt;
 
 		txt = gtk_selection_data_get_text (selection_data);
 		if (gui.current_session != NULL)
@@ -589,7 +589,8 @@ drag_data_received (GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 	}
 	case TARGET_URI_LIST:
 	{
-		gchar *uri_list, **uris;
+		guchar *uri_list;
+		gchar **uris;
 		gint nb_uri;
 
 		if ((panel->priv->current->type != SESS_CHANNEL) &&

@@ -59,7 +59,7 @@ status_bar_init (StatusBar *bar)
 
 	bar->priv->context = gtk_statusbar_get_context_id (GTK_STATUSBAR (bar), "context");
 
-	gtk_widget_show (bar);
+	gtk_widget_show (GTK_WIDGET (bar));
 }
 
 static void
