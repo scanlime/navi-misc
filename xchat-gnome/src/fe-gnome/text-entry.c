@@ -226,9 +226,8 @@ static gboolean
 text_entry_tab_complete (GtkEntry *entry)
 {
 	const char *text;
-	int start, cursor_pos;
-
-	/* FIXME: this probably isn't unicode clean */
+	gint cursor_pos;
+	gchar *p;
 
 	text = gtk_entry_get_text (entry);
 	cursor_pos = gtk_editable_get_position (GTK_EDITABLE (entry));
@@ -237,31 +236,39 @@ text_entry_tab_complete (GtkEntry *entry)
 		return TRUE;
 
 	/* If we're directly after a space, we have nothing to tab complete */
-	if (text[cursor_pos - 1] == ' ')
+	p = g_utf8_offset_to_pointer (text, cursor_pos - 1);
+	if (p[0] == ' ')
 		return TRUE;
 
-	/* search backwards to find /, #, ' ' or start */
-	for (start = cursor_pos - 1; start >= 0; --start) {
+	/* search from cusror backwards to find /, #, ' ' or start */
+	p = g_utf8_offset_to_pointer (text, cursor_pos);
+	while ((p = g_utf8_find_prev_char (text, p))) {
 		/* check if we can match a channel */
 		/* FIXME: implement
-		if (text[start] == '#') {
-			if (start == 0 || text[start - 1] == ' ') {
-				tab_complete_channel (entry, start);
+		if (p[0] == '#') {
+			if (text == p || g_ascii_strcasecmp (g_utf8_prev_char (p), " ") == 0) {
+				tab_complete_channel (entry, g_utf8_pointer_to_offset (text, p));
 				return;
 			}
 		}
 		*/
 
 		/* check if we can match a command */
-		if (start == 0 && text[0] == '/') {
+		if (text == p && p[0] == '/') {
 			return tab_complete_command (entry);
 		}
 
 		/* check if we can match a nickname */
-		if (start == 0 || text[start] == ' ') {
-			return tab_complete_nickname (entry, start == 0 ? start : start + 1);
+		if (p[0] == ' ') {
+			return tab_complete_nickname (entry,
+					g_utf8_pointer_to_offset (text, p) + 1);
+		}
+		/* finally try nickname after all preceeding failed */
+		if (text == p) {
+			return tab_complete_nickname (entry, 0);
 		}
 	}
+
 	return TRUE;
 }
 
@@ -419,11 +426,11 @@ tab_complete_command (GtkEntry *entry)
 }
 
 static gboolean
-tab_complete_nickname (GtkEntry *entry, int start)
+tab_complete_nickname (GtkEntry *entry, gint start)
 {
 	GCompletion *completion;
 	int cursor, length;
-	char *text;
+	char *text, *at_cursor, *at_start;
 	GList *list;
 	char *printtext, *npt;
 	GList *options;
@@ -434,14 +441,17 @@ tab_complete_nickname (GtkEntry *entry, int start)
 	completion = userlist_get_completion (u, TEXT_ENTRY (entry)->priv->current);
 	g_completion_set_compare (completion, (GCompletionStrncmpFunc) strncasecmp);
 	text = g_strdup (gtk_entry_get_text (entry));
-	length = strlen (text);
+	length = g_utf8_strlen (text, -1);
 	cursor = gtk_editable_get_position (GTK_EDITABLE (entry));
+	at_start = g_utf8_offset_to_pointer (text, start);
+	at_cursor = g_utf8_offset_to_pointer (text, cursor);
 
 	text_entry = TEXT_ENTRY (entry);
 
-	prefix = g_new0 (char, cursor - start + 1);
-	strncpy (prefix, &text[start], cursor - start);
-	options = g_completion_complete (completion, prefix, &new_prefix);
+	/* pointer arithmatic for byte size allocation */
+	prefix = g_new0 (char, at_cursor - at_start + 1);
+	g_utf8_strncpy (prefix, at_start, cursor - start);
+	options = g_completion_complete_utf8 (completion, prefix, &new_prefix);
 
 	if (g_list_length (options) == 0) {
 		/* no matches */
@@ -458,23 +468,29 @@ tab_complete_nickname (GtkEntry *entry, int start)
 			/* at the end of the entry, just insert */
 
 			if (start != 0) {
-				text[start] = '\0';
-				npt = g_strdup_printf ("%s%s", text, (char *) options->data);
-				pos = strlen ((char *) options->data) + start;
+				gchar *p;
+				p = g_new0 (char, at_start - text + 1);
+				g_utf8_strncpy (p, text, start);
+				npt = g_strdup_printf ("%s%s", p, (char *) options->data);
+				g_free (p);
+				pos = g_utf8_strlen ((char *) options->data, -1) + start;
 			} else {
 				npt = g_strdup_printf ("%s: ", (char *) options->data);
-				pos = strlen ((char *) options->data) + 2;
+				pos = g_utf8_strlen ((char *) options->data, -1) + 2;
 			}
 		} else {
 			/* somewhere in the middle of the entry */
 
 			if (start != 0) {
-				text[start] = '\0';
-				npt = g_strdup_printf ("%s%s%s", text, (char *) options->data, &text[cursor]);
-				pos = strlen ((char *) options->data) + start;
+				gchar *p;
+				p = g_new0 (char, at_start - text + 1);
+				g_utf8_strncpy (p, text, start);
+				npt = g_strdup_printf ("%s%s%s", p, (char *) options->data, at_cursor);
+				g_free (p);
+				pos = g_utf8_strlen ((char *) options->data, -1) + start;
 			} else {
-				npt = g_strdup_printf ("%s: %s", (char *) options->data, &text[cursor]);
-				pos = strlen ((char *) options->data) + 2;
+				npt = g_strdup_printf ("%s: %s", (char *) options->data, at_cursor);
+				pos = g_utf8_strlen ((char *) options->data, -1) + 2;
 			}
 		}
 		gtk_entry_set_text (entry, npt);
@@ -499,11 +515,14 @@ tab_complete_nickname (GtkEntry *entry, int start)
 
 		if (strcasecmp (prefix, new_prefix) != 0) {
 			/* insert the new prefix into the entry */
-			text[start] = '\0';
-			npt = g_strdup_printf ("%s%s%s", text, new_prefix, &text[cursor]);
+			gchar *p;
+			p = g_new0 (char, at_start - text + 1);
+		       	g_utf8_strncpy (p, text, start);
+			npt = g_strdup_printf ("%s%s%s", p, new_prefix, at_cursor);
+			g_free (p);
 			gtk_entry_set_text (entry, npt);
 			g_free (npt);
-			gtk_editable_set_position (GTK_EDITABLE (entry), start + strlen (new_prefix));
+			gtk_editable_set_position (GTK_EDITABLE (entry), start + g_utf8_strlen (new_prefix, -1));
 		}
 		g_free (text);
 		g_free (prefix);

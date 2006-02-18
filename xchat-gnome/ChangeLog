@@ -1,3 +1,9 @@
+Sat Feb 18 14:09:51 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/text-entry.c:
+	  - Apply keizie@gmail.com's patch to make nickname completion utf-8
+	    clean.
+
 Wed Feb 15 21:07:16 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/channel-list.c:
@@ -5,7 +11,7 @@ Wed Feb 15 21:07:16 CET 2006  Guillaume Desmottes <cass@skynet.be>
 	    channels list window.
 
 Wed Feb 15 20:14:39 CET 2006  Guillaume Desmottes <cass@skynet.be>
-	
+
 	* data/xchat-gnome.desktop.in:
 	  - Add Comment field to display a tooltip in the menu. (#331259)
 
