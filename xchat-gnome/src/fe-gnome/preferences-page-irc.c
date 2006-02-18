@@ -290,24 +290,44 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	page->nh[8] = gconf_client_notify_add (p->gconf, "/apps/xchat/irc/showtimestamps",        (GConfClientNotifyFunc) gconf_bool_changed,  page->show_timestamps, NULL, NULL);
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/nickname", NULL);
-	gtk_entry_set_text (GTK_ENTRY (page->nick_name), text);
-	g_free (text);
+	if (text) {
+		gtk_entry_set_text (GTK_ENTRY (page->nick_name), text);
+		g_free (text);
+	} else {
+		gtk_entry_set_text (GTK_ENTRY (page->nick_name), "");
+	}
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/realname", NULL);
-	gtk_entry_set_text (GTK_ENTRY (page->real_name), text);
-	g_free (text);
+	if (text) {
+		gtk_entry_set_text (GTK_ENTRY (page->real_name), text);
+		g_free (text);
+	} else {
+		gtk_entry_set_text (GTK_ENTRY (page->real_name), "");
+	}
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/quitmsg", NULL);
-	gtk_entry_set_text (GTK_ENTRY (page->quit_message), text);
-	g_free (text);
+	if (text) {
+		gtk_entry_set_text (GTK_ENTRY (page->quit_message), text);
+		g_free (text);
+	} else {
+		gtk_entry_set_text (GTK_ENTRY (page->quit_message), "");
+	}
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/partmsg", NULL);
-	gtk_entry_set_text (GTK_ENTRY (page->part_message), text);
-	g_free (text);
+	if (text) {
+		gtk_entry_set_text (GTK_ENTRY (page->part_message), text);
+		g_free (text);
+	} else {
+		gtk_entry_set_text (GTK_ENTRY (page->part_message), "");
+	}
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/irc/awaymsg", NULL);
-	gtk_entry_set_text (GTK_ENTRY (page->away_message), text);
-	g_free (text);
+	if (text) {
+		gtk_entry_set_text (GTK_ENTRY (page->away_message), text);
+		g_free (text);
+	} else {
+		gtk_entry_set_text (GTK_ENTRY (page->away_message), "");
+	}
 
 	toggle = gconf_client_get_bool (p->gconf, "/apps/xchat/main_window/use_sys_fonts", NULL);
 	if (toggle)
