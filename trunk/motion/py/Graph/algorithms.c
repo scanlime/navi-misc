@@ -288,6 +288,42 @@ depth_limited_search (PyObject* self, PyObject* args)
 	return path_list;
 }
 
+/* GCompareDataFunc for sorting the agenda queue in a best first search */
+gint
+f_cost_compare (gconstpointer a, gconstpointer b, gpointer data)
+{
+	GHashTable* costs = (GHashTable*) data;
+	gint a_cost = g_hash_table_lookup (costs, a);
+	gint b_cost = g_hash_table_lookup (costs, b);
+
+	if (a < b) {
+		return -1;
+	}
+
+	return 1;
+}
+
+/* Execute a best first search using fcost to evaluate the cost of each node.
+ * Return a path from start to goal if there is one, or return NULL.
+ */
+GSList*
+best_first_search (GHashTable* adjacency, GHashTable* edges, PyObject* start,
+		PyObject* goal, PyObject* fcost)
+{
+	/* Map nodes to f-costs */
+	GHashTable* costs = g_hash_table_new (g_direct_hash, g_int_equal);
+	GQueue* agenda = g_queue_new ();
+
+	/* Push start onto the agenda */
+	g_queue_push_head (agenda, (gpointer) start);
+
+	/* Run until we run out of things to check */
+	while (!g_queue_is_empty (agenda)) {
+	}
+
+	return NULL;
+}
+
 static PyObject*
 a_star_search (PyObject* self, PyObject *args)
 {
@@ -322,6 +358,9 @@ a_star_search (PyObject* self, PyObject *args)
 		free_adjacency (adjacency);
 		return NULL;
 	}
+
+	/* Search */
+	GSList* path = best_first_search (adjacency, edges, start, end, f_cost);
 
 	return NULL;
 }
