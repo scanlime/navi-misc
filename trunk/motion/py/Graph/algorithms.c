@@ -288,13 +288,45 @@ depth_limited_search (PyObject* self, PyObject* args)
 	return path_list;
 }
 
+gint
+cost (GSList* path, PyObject* goal, PyObject* fcost)
+{
+	gint c = -1;
+	PyObject* py_path = PyList_New (0);
+	PyObject* arglist = NULL;
+	PyObject* result = NULL;
+
+	/* FIXME - error checking */
+
+	/* Build a list of nodes that is the path */
+	for (GSList* p = path; p; p = g_slist_next (p)) {
+		PyList_Insert (py_path, 0, (PyObject*) p->data);
+	}
+
+	arglist = Py_BuildValue ("(OO)", py_path, goal);
+	result = PyEval_CallObject(fcost, arglist);
+
+	Py_DECREF (arglist);
+	Py_DECREF (py_path);
+
+	/* FIXME - should raise a python exception */
+	if (result == NULL) {
+		return -1;
+	}
+
+	c = (gint) PyInt_AsLong (result);
+	Py_DECREF (result);
+
+	return c;
+}
+
 /* GCompareDataFunc for sorting the agenda queue in a best first search */
 gint
 f_cost_compare (gconstpointer a, gconstpointer b, gpointer data)
 {
 	GHashTable* costs = (GHashTable*) data;
-	gint a_cost = g_hash_table_lookup (costs, a);
-	gint b_cost = g_hash_table_lookup (costs, b);
+	gint a_cost = GPOINTER_TO_INT (g_hash_table_lookup (costs, a));
+	gint b_cost = GPOINTER_TO_INT (g_hash_table_lookup (costs, b));
 
 	if (a < b) {
 		return -1;
@@ -307,7 +339,7 @@ f_cost_compare (gconstpointer a, gconstpointer b, gpointer data)
  * Return a path from start to goal if there is one, or return NULL.
  */
 GSList*
-best_first_search (GHashTable* adjacency, GHashTable* edges, PyObject* start,
+best_first_search (GHashTable* adjacency, GHashTable* edges, GSList* start,
 		PyObject* goal, PyObject* fcost)
 {
 	/* Map nodes to f-costs */
@@ -319,6 +351,21 @@ best_first_search (GHashTable* adjacency, GHashTable* edges, PyObject* start,
 
 	/* Run until we run out of things to check */
 	while (!g_queue_is_empty (agenda)) {
+		GSList* path = (GSList*) g_queue_pop_head (agenda);
+		GSList* successors = g_hash_table_lookup (adjacency, path->data);
+
+		for (GSList* s = successors; s; s = g_slist_next (s)) {
+			if (s->data == goal) {
+				g_slist_prepend (path, s->data);
+				return path;
+			}
+			GSList* p = g_slist_copy (path);
+			g_slist_prepend (p, s);
+			g_hash_table_insert (costs, (gpointer) p,
+					GINT_TO_POINTER (cost(p, goal, fcost)));
+			g_queue_insert_sorted (agenda, (gpointer) p,
+					f_cost_compare, (gpointer) costs);
+		}
 	}
 
 	return NULL;
@@ -360,7 +407,9 @@ a_star_search (PyObject* self, PyObject *args)
 	}
 
 	/* Search */
-	GSList* path = best_first_search (adjacency, edges, start, end, f_cost);
+	GSList* p = g_slist_alloc ();
+	g_slist_prepend (p, start);
+	GSList* path = best_first_search (adjacency, edges, p, end, f_cost);
 
 	return NULL;
 }
