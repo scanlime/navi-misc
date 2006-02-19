@@ -64,7 +64,7 @@ search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, 
 	PyObject* iter;
 	PyObject* edge;
 
-	if (depth < 0) {
+	if (depth == 0) {
 		g_slist_free (path);
 		return;
 	}
@@ -250,7 +250,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 	}
 
 	/* Search */
-	search (path, adjacency, edges, end, depth - 1, paths);
+	search (path, adjacency, edges, end, depth, paths);
 
 	/* Create the list of paths and populate with None. */
 	path_list = PyList_New (depth + 1);
