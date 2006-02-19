@@ -27,7 +27,7 @@ static PyObject *a_star_search (PyObject* self, PyObject* args);
 
 static PyMethodDef AlgorithmC_methods[] = {
 		{"depthLimitedSearch", depth_limited_search, METH_VARARGS, "Execute a depth limited search of the graph"},
-		{"aStarSearch", a_star_search, METH_VARARGS, "Execute the A* search of the graph"},
+		{"aStarSearch", aStar_search, METH_VARARGS, "Execute the A* search of the graph"},
 	        {NULL,                 NULL,                 0,            NULL},
 };
 
@@ -355,10 +355,16 @@ best_first_search (GHashTable* adjacency, GHashTable* edges, GSList* start,
 		GSList* successors = g_hash_table_lookup (adjacency, path->data);
 
 		for (GSList* s = successors; s; s = g_slist_next (s)) {
+			/* If this node is the goal prepend it to the path and
+			 * return
+			 */
 			if (s->data == goal) {
 				g_slist_prepend (path, s->data);
 				return path;
 			}
+			/* If this node isn't the goal calculate its f-cost and
+			 * insert it into agenda
+			 */
 			GSList* p = g_slist_copy (path);
 			g_slist_prepend (p, s);
 			g_hash_table_insert (costs, (gpointer) p,
@@ -372,7 +378,7 @@ best_first_search (GHashTable* adjacency, GHashTable* edges, GSList* start,
 }
 
 static PyObject*
-a_star_search (PyObject* self, PyObject *args)
+aStar_search (PyObject* self, PyObject *args)
 {
 	PyObject*   adjacency_list;
 	PyObject*   edge_list;
