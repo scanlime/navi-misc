@@ -337,8 +337,10 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	gtk_widget_set_sensitive (page->font_selection, !toggle);
 
 	text = gconf_client_get_string (p->gconf, "/apps/xchat/main_window/font", NULL);
-	gtk_font_button_set_font_name (GTK_FONT_BUTTON (page->font_selection), text);
-	g_free (text);
+	if (text) {
+		gtk_font_button_set_font_name (GTK_FONT_BUTTON (page->font_selection), text);
+		g_free (text);
+	}
 
 	toggle = gconf_client_get_bool (p->gconf, "/apps/xchat/irc/showcolors", NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (page->show_colors), toggle);
