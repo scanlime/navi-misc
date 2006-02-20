@@ -396,8 +396,8 @@ aStar_search (PyObject* self, PyObject *args)
 	}
 
 	/* Check that f_cost is a function */
-	if (!PyMethod_Check (f_cost)) {
-		PyErr_SetString (PyExc_RuntimeError, "f cost needs to be a function object");
+	if (!PyCallable_Check (f_cost)) {
+		PyErr_SetString (PyExc_RuntimeError, "f cost needs to be callable");
 		return NULL;
 	}
 
