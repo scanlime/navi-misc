@@ -1,3 +1,9 @@
+Sun Feb 19 17:04:14 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/preferences-page-irc.c:
+	  - Eliminate a critical warning that occurred if the font name in
+	    gconf was bad.
+
 Sat Feb 18 14:32:42 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/conversation-panel.c:
