@@ -23,7 +23,7 @@
 #include <Python.h>
 
 static PyObject *depth_limited_search (PyObject* self, PyObject* args);
-static PyObject *a_star_search (PyObject* self, PyObject* args);
+static PyObject *aStar_search (PyObject* self, PyObject* args);
 
 static PyMethodDef AlgorithmC_methods[] = {
 		{"depthLimitedSearch", depth_limited_search, METH_VARARGS, "Execute a depth limited search of the graph"},
@@ -288,6 +288,7 @@ depth_limited_search (PyObject* self, PyObject* args)
 	return path_list;
 }
 
+/* Return the cost of a path. */
 gint
 cost (GSList* path, PyObject* goal, PyObject* fcost)
 {
@@ -385,6 +386,7 @@ aStar_search (PyObject* self, PyObject *args)
 	PyObject*   start;
 	PyObject*   end;
 	PyObject*   f_cost;
+	PyObject*   result;
 	GHashTable* adjacency = NULL;
 	GHashTable* edges     = NULL;
 
@@ -417,5 +419,15 @@ aStar_search (PyObject* self, PyObject *args)
 	g_slist_prepend (p, start);
 	GSList* path = best_first_search (adjacency, edges, p, end, f_cost);
 
-	return NULL;
+	if (path) {
+		result = PyList_New (0);
+		for (GSList* node = path; node; node = g_slist_next (node)) {
+			PyList_Insert (result, 0, (PyObject*) node->data);
+		}
+	} else {
+		Py_INCREF (Py_None);
+		result = Py_None;
+	}
+
+	return result;
 }
