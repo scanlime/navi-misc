@@ -24,6 +24,7 @@
 #include "connect-dialog.h"
 #include "navigation-tree.h"
 #include "gui.h"
+#include "util.h"
 #include "../common/xchat.h"
 #include "../common/servlist.h"
 
@@ -146,6 +147,7 @@ connect_dialog_init (ConnectDialog *dialog)
 	gtk_window_set_title (GTK_WINDOW (dialog), _("Connect"));
 	gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_OK, FALSE);
 	g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (dialog_response), NULL);
+	g_signal_connect (G_OBJECT (dialog), "key-press-event", G_CALLBACK (dialog_escape_key_handler_destroy), NULL);
 }
 
 GType

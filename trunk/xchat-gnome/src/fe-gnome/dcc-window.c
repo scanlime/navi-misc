@@ -116,6 +116,7 @@ dcc_window_init (DccWindow *window)
 
 	gtk_window_set_default_size (GTK_WINDOW (window), 300, 400);
 	gtk_window_set_title (GTK_WINDOW (window), _("File Transfers"));
+	g_signal_connect (G_OBJECT (window), "key-press-event", G_CALLBACK (dialog_escape_key_handler_hide), NULL);
 
 	window->progress_column = gtk_tree_view_column_new ();
 	window->info_column = gtk_tree_view_column_new ();
@@ -188,13 +189,6 @@ dcc_window_get_type (void)
 	return dcc_window_type;
 }
 
-static gboolean
-dcc_window_delete_event (GtkWidget *window, GdkEvent *event, gpointer data)
-{
-	gtk_widget_hide (window);
-	return TRUE;
-}
-
 DccWindow *
 dcc_window_new (void)
 {
@@ -204,7 +198,7 @@ dcc_window_new (void)
 		return NULL;
 	}
 
-	g_signal_connect (G_OBJECT (window), "delete-event", G_CALLBACK (dcc_window_delete_event), NULL);
+	g_signal_connect (G_OBJECT (window), "delete-event", G_CALLBACK (gtk_widget_hide_on_delete), NULL);
 
 	return window;
 }

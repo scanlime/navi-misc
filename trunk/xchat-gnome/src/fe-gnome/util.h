@@ -26,5 +26,7 @@
 
 void error_dialog (const gchar *header, const gchar *message);
 gint gtk_tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer data);
+gboolean dialog_escape_key_handler_destroy (GtkWidget *widget, GdkEventKey *event, gpointer data);
+gboolean dialog_escape_key_handler_hide (GtkWidget *widget, GdkEventKey *event, gpointer data);
 
 #endif
