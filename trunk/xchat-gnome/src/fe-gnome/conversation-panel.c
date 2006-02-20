@@ -409,13 +409,17 @@ static void
 conversation_panel_set_font (ConversationPanel *panel)
 {
 	GConfClient *client;
-	gchar       *font;
+	gchar       *font = NULL;
 
 	client = gconf_client_get_default ();
-	if (gconf_client_get_bool(client, "/apps/xchat/main_window/use_sys_fonts", NULL))
-		font = gconf_client_get_string (client, "/desktop/gnome/interface/monospace_font_name", NULL);
-	else
+	if (!gconf_client_get_bool(client, "/apps/xchat/main_window/use_sys_fonts", NULL))
 		font = gconf_client_get_string (client, "/apps/xchat/main_window/font", NULL);
+
+	/* Either use_sys_fonts==TRUE, or there is no current font preference.
+	 * In both cases we try the GNOME monospace font. */
+	if (font == NULL)
+		font = gconf_client_get_string (client, "/desktop/gnome/interface/monospace_font_name", NULL);
+
 	g_object_unref (client);
 
 	if (font == NULL)
