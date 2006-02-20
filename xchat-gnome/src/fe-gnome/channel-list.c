@@ -23,6 +23,7 @@
 #include <glib/gi18n.h>
 #include <string.h>
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 #include <gconf/gconf-client.h>
 #include "channel-list.h"
 #include "../common/xchat.h"
@@ -86,6 +87,18 @@ chanlist_delete (GtkWidget *widget, GdkEvent *event, channel_list_window *win)
 	gtk_widget_hide_all (window);
 	g_object_unref (win->xml);
 	g_free (win);
+	return FALSE;
+}
+
+static gboolean
+chanlist_key_press (GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
+	if (event->keyval == GDK_Escape) {
+		g_signal_stop_emission_by_name (widget, "key-press-event");
+		chanlist_delete (widget, NULL, data);
+		return TRUE;
+	}
+
 	return FALSE;
 }
 
@@ -285,6 +298,7 @@ create_channel_list (session *sess)
 	gtk_window_set_title (GTK_WINDOW (widget), title);
 	g_free (title);
 	g_signal_connect (G_OBJECT (widget), "delete-event", G_CALLBACK (chanlist_delete), win);
+	g_signal_connect (G_OBJECT (widget), "key-press-event", G_CALLBACK (chanlist_key_press), win);
 
 	treeview = glade_xml_get_widget (win->xml, "channel list");
 	gtk_tree_view_set_search_column (GTK_TREE_VIEW (treeview), 1);

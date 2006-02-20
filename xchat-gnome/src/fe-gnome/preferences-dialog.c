@@ -23,6 +23,7 @@
 #include <glib/gi18n.h>
 #include "preferences-dialog.h"
 #include "pixmaps.h"
+#include "util.h"
 
 static GtkDialogClass *parent_class;
 
@@ -109,6 +110,7 @@ preferences_dialog_init (PreferencesDialog *p)
 	gtk_container_set_border_width (GTK_CONTAINER (p), 6);
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (p)->vbox), p->toplevel);
 	gtk_dialog_set_has_separator (GTK_DIALOG (p), FALSE);
+	g_signal_connect (G_OBJECT (p), "key-press-event", G_CALLBACK (dialog_escape_key_handler_hide), NULL);
 
 	gtk_notebook_set_show_tabs (GTK_NOTEBOOK (p->settings_notebook), FALSE);
 

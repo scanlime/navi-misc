@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include <glib/gi18n.h>
+#include <gdk/gdkkeysyms.h>
 #include <string.h>
 #include "util.h"
 
@@ -71,3 +72,28 @@ gint gtk_tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTre
 
 	return result;
 }
+
+gboolean
+dialog_escape_key_handler_destroy (GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
+	if (event->keyval == GDK_Escape) {
+		g_signal_stop_emission_by_name (widget, "key-press-event");
+		gtk_widget_destroy (widget);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+gboolean
+dialog_escape_key_handler_hide (GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
+	if (event->keyval == GDK_Escape) {
+		g_signal_stop_emission_by_name (widget, "key-press-event");
+		gtk_widget_hide (widget);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+

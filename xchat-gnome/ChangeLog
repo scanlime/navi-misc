@@ -1,3 +1,13 @@
+Mon Feb 20 16:40:24 MST 2006  Daniel Drake <dsd@gentoo.org>
+
+	* src/fe-gnome/util.c:
+	* src/fe-gnome/util.h:
+	* src/fe-gnome/preferences-dialog.c:
+	* src/fe-gnome/connect-dialog.c:
+	* src/fe-gnome/dcc-window.c:
+	* src/fe-gnome/channel-list.c:
+	  - Allow dialogs to be closed with the escape key (#331911)
+
 Mon Feb 20 18:47:23 CET 2006  Daniel Drake <dsd@gentoo.org>
 
 	* src/fe-gnome/main-window.c:
