@@ -54,6 +54,9 @@ GNOME_COMPILE_WARNINGS([maximum])
 
 AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
 
+# Set up gnome-doc-utils
+GNOME_DOC_INIT
+
 # Hard dependencies
 PKG_CHECK_MODULES([DEPENDENCIES], [\
                   glib-2.0 >= $GLIB_REQUIRED \
@@ -430,8 +433,6 @@ AC_CONFIG_FILES([
 Makefile
 data/Makefile
 help/Makefile
-help/C/Makefile
-help/C/figures/Makefile
 plugins/Makefile
 plugins/autoaway/Makefile
 plugins/dbus/Makefile
