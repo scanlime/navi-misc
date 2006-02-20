@@ -348,7 +348,7 @@ best_first_search (GHashTable* adjacency, GHashTable* edges, GSList* start,
 	GQueue* agenda = g_queue_new ();
 
 	/* Push start onto the agenda */
-	g_queue_push_head (agenda, (gpointer) start);
+	g_queue_push_head (agenda, start);
 
 	/* Run until we run out of things to check */
 	while (!g_queue_is_empty (agenda)) {
@@ -416,7 +416,7 @@ aStar_search (PyObject* self, PyObject *args)
 
 	/* Search */
 	GSList* p = g_slist_alloc ();
-	g_slist_prepend (p, start);
+	p = g_slist_prepend (p, start);
 	GSList* path = best_first_search (adjacency, edges, p, end, f_cost);
 
 	if (path) {
