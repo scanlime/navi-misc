@@ -1,3 +1,8 @@
+Mon Feb 20 18:47:23 CET 2006  Daniel Drake <dsd@gentoo.org>
+
+	* src/fe-gnome/main-window.c:
+	  - Fix a crash with the change nick dialog (#331914).
+
 Sun Feb 19 18:02:19 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	A m4/gnome-doc-utils.m4:

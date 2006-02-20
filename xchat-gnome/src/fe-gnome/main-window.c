@@ -635,6 +635,7 @@ on_nickname_clicked (GtkButton *widget, gpointer user_data)
 	g_signal_connect (G_OBJECT (entry), "activate",
 	                  G_CALLBACK (nickname_str_enter), dialog);
 	g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (nickname_get_str_response), entry);
+	g_signal_connect (G_OBJECT (dialog), "delete-event", G_CALLBACK (gtk_widget_hide_on_delete), NULL);
 
 	gtk_widget_show_all (dialog);
 }
