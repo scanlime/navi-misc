@@ -49,7 +49,6 @@ static void      navigation_tree_init (NavTree *navtree);
 static void      navigation_tree_class_init (NavTreeClass *klass);
 static void      navigation_tree_dispose (GObject *object);
 static void      navigation_tree_finalize (GObject *object);
-static session  *navigation_tree_get_selected_session (void);
 static void      navigation_tree_update_refs (NavTree *navtree);
 /* Context menus. */
 static void      navigation_context (GtkWidget *treeview, session *selected);
@@ -758,19 +757,22 @@ navigation_tree_select_prev_network (NavTree *navtree)
 	gtk_tree_path_free(path);
 }
 
-static session*
-navigation_tree_get_selected_session (void)
+session*
+navigation_tree_get_selected_session (gboolean *connected)
 {
 	GtkTreeView *treeview;
 	GtkTreeSelection *select;
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	session *s;
+	gboolean temp;
 
 	treeview = GTK_TREE_VIEW (gui.server_tree);
 	select = gtk_tree_view_get_selection (treeview);
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
-		gtk_tree_model_get (model, &iter, 2, &s, -1);
+		gtk_tree_model_get (model, &iter, 2, &s, 6, &temp, -1);
+		if (connected)
+			*connected = temp;
 		return s;
 	}
 	return NULL;
@@ -1517,7 +1519,7 @@ on_server_reconnect (GtkAction * action, gpointer data)
 {
 	session *s;
 
-	s = navigation_tree_get_selected_session ();
+	s = navigation_tree_get_selected_session (NULL);
 	if (s)
 		s->server->auto_reconnect (s->server, FALSE, -1);
 }
@@ -1525,11 +1527,31 @@ on_server_reconnect (GtkAction * action, gpointer data)
 static void
 on_server_disconnect (GtkAction * action, gpointer data)
 {
+	GtkTreeView *treeview;
+	GtkTreeSelection *select;
+	GtkTreeModel *model, *store;
+	GtkTreeIter iter, newiter;
 	session *s;
+	gboolean temp;
 
-	s = navigation_tree_get_selected_session ();
-	if (s)
+	treeview = GTK_TREE_VIEW (gui.server_tree);
+	select = gtk_tree_view_get_selection (treeview);
+	if (!gtk_tree_selection_get_selected (select, &model, &iter))
+		return;
+
+	gtk_tree_model_get (model, &iter, 2, &s, -1);
+	if (s) {
 		s->server->disconnect (s, TRUE, -1);
+
+		/* disconnect call may have changed tree model, so we have to refresh
+		 * the model/iter here */
+		gtk_tree_selection_get_selected (select, &model, &iter);
+	}
+
+	/* Mark as disconnected */
+	store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
+	gtk_tree_model_sort_convert_iter_to_child_iter (GTK_TREE_MODEL_SORT (model), &newiter, &iter);
+	gtk_tree_store_set (GTK_TREE_STORE (store), &newiter, 6, FALSE, -1);
 }
 
 static void
@@ -1537,7 +1559,7 @@ on_server_channel_list (GtkAction * action, gpointer data)
 {
 	session *s;
 
-	s = navigation_tree_get_selected_session ();
+	s = navigation_tree_get_selected_session (NULL);
 	if (s)
 		create_channel_list (s);
 }
@@ -1599,7 +1621,7 @@ on_clear (GtkAction * action, gpointer data)
 {
 	session *s;
 
-	s = navigation_tree_get_selected_session ();
+	s = navigation_tree_get_selected_session (NULL);
 	if (s)
 		conversation_panel_clear (CONVERSATION_PANEL (gui.conversation_panel), s);
 }
@@ -1647,7 +1669,7 @@ on_server_autoconnect (GtkAction *action, gpointer data)
 	gboolean autoconnect, active;
 	ircnet *network;
 
-	sess = navigation_tree_get_selected_session ();
+	sess = navigation_tree_get_selected_session (NULL);
 	network = sess->server->network;
 	autoconnect = network->flags & FLAG_AUTO_CONNECT;
 	active = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action) );
@@ -1673,7 +1695,7 @@ on_channel_autojoin (GtkAction *action, gpointer data)
 	gboolean autojoin, active;
 	ircnet *network;
 
-	sess = navigation_tree_get_selected_session ();
+	sess = navigation_tree_get_selected_session (NULL);
 	network = sess->server->network;
 	autojoin = channel_is_autojoin (network, sess->channel);
 	active = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action) );

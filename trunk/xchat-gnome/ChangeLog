@@ -1,3 +1,12 @@
+Tue Feb 21 19:49:24 MST 2006  Daniel Drake <dsd@gentoo.org>
+
+	* src/fe-gnome/navigation-tree.c:
+	* src/fe-gnome/navigation-tree.h:
+	* src/fe-gnome/connect-dialog.c:
+	  - Update the connection status of the network when we disconnect.
+	  - Reuse the currently selected network session if it is
+	    disconnected. (#326464)
+
 Tue Feb 21 17:04:42 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/navigation-tree.c:
