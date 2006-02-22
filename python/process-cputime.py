@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # Collect CPU usage stats per-process, binned by the name
 # of the process' binary. Dumps a CSV to stdout when you
