@@ -536,6 +536,9 @@ servlist_connect (session *sess, ircnet *net, gboolean join)
 	serv->network = net;
 
 	port = strrchr (ircserv->hostname, '/');
+	if (!port)
+	    port = strchr (ircserv->hostname, ':');
+	
 	if (port)
 	{
 		*port = 0;
