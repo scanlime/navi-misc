@@ -1379,9 +1379,6 @@ navigation_model_set_hilight_iterate (GtkTreeModel * model, GtkTreePath * path, 
 
 	gtk_tree_model_get (model, iter, 2, &s, 3, &e, 5, &ref, -1);
 
-	/* FIXME Comment out the reference counting check here just to see if this is what is actually
-	 * breaking the icons.
-	 */
 	if (s == data && ref == 0) {
 		struct session *sess = s;
 

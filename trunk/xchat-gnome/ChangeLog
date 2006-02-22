@@ -1,3 +1,8 @@
+Tue Feb 21 17:04:42 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/navigation-tree.c:
+	  - Remove obsolete comment.
+
 Tue Feb 21 23:27:00 GMT 2006  Daniel Drake  <dsd@gentoo.org>
 
 	* src/fe-gnome/navigation-tree.h:
