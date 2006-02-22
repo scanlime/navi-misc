@@ -46,10 +46,10 @@ struct _NavTree
 
 	NavModel            *model;
 
-	/* current_path stores a GtkTreePath to the most recently selected
+	/* current_rowref stores a GtkTreeRowReference to the most recently selected
 	 * item in the NavTree.
  	 */
-	GtkTreePath         *current_path;
+	GtkTreeRowReference  *current_rowref;
 
 	/* We need the handler id for the selection_changed call back so that we
 	 * can block it sometimes.
@@ -136,8 +136,8 @@ void navigation_model_set_hilight               (NavModel *model, struct session
 
 /* Ref counting for the selected items in the model. */
 /* Find the row by path. */
-void navigation_model_path_ref                  (NavModel *model, GtkTreePath *path);
-void navigation_model_path_deref                (NavModel *model, GtkTreePath *path);
+void navigation_model_rowref_ref                  (GtkTreeRowReference *rowref);
+void navigation_model_rowref_deref                (GtkTreeRowReference *rowref);
 
 /* Find the row by iter. XXX: The iter becomes invalid after a call to this
  * function, make sure if you're going to use it again that you re-get the

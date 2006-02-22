@@ -1,3 +1,10 @@
+Tue Feb 21 23:27:00 GMT 2006  Daniel Drake  <dsd@gentoo.org>
+
+	* src/fe-gnome/navigation-tree.h:
+	* src/fe-gnome/navigation-tree.c:
+	  - Convert current_path into current_rowref which should fix reference
+	    counting. (#310688)
+
 Mon Feb 20 17:49:38 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* plugins/notification/notification.c:
