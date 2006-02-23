@@ -10,13 +10,14 @@ EXTRA_DIST = urlscraper.schemas.in
 BUILT_SOURCES = urlscraper.schemas
 CLEANFILES = $(BUILT_SOURCES)
 
-install-data-local: $(schema_DATA)
-	@GCONF_SCHEMAS_INSTALL_TRUE@				\
-	if test -z "$(DESTDIR)" ; then				\
-		for p in $(schema_DATA) ; do			\
-			$(GCONFTOOL) --install-schema-file=$$p;	\
-		done						\
+if GCONF_SCHEMAS_INSTALL
+install-data-local:
+	if test -z "$(DESTDIR)" ; then \
+		for p in $(schema_DATA) ; do \
+			GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) $(GCONFTOOL) --makefile-install-rule $$p; \
+		done \
 	fi
+endif
 
 lib_LTLIBRARIES = urlscraper.la
 urlscraper_la_SOURCES = urlscraper.c
