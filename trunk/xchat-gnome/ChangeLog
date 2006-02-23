@@ -1,3 +1,8 @@
+Thu Feb 23 16:00:24 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* plugins/notification/notification.c:
+	  - Fix a couple warnings
+
 Thu Feb 23 19:20:25 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/main-window.c:
