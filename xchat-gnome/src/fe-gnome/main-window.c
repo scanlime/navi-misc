@@ -333,7 +333,10 @@ rename_main_window (gchar *server, gchar *channel)
 	gchar *new_title;
 
 	if (server == NULL) {
-		gtk_window_set_title (GTK_WINDOW (gui.main_window), channel);
+		if (channel && strlen (channel) != 0)
+			gtk_window_set_title (GTK_WINDOW (gui.main_window), channel);
+		else
+			gtk_window_set_title (GTK_WINDOW (gui.main_window), "XChat-GNOME");
 		return;
 	}
 	new_title = g_strconcat (server, ": ", channel, NULL);
