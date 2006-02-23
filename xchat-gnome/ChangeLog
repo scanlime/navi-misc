@@ -1,3 +1,11 @@
+Thu Feb 23 16:04:52 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* plugins/url_scraper/Makefile.am:
+	* plugins/notification/Makefile.am:
+	* plugins/dbus/Makefile.am:
+	* src/fe-gnome/Makefile.am:
+	  - Fix gconf schemas install
+
 Thu Feb 23 16:00:24 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* plugins/notification/notification.c:

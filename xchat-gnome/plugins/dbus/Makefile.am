@@ -39,13 +39,14 @@ schema_in_files	= xchat_gnome_url_handler.schemas.in
 schema_DATA	= $(schema_in_files:.schemas.in=.schemas)
 @INTLTOOL_SCHEMAS_RULE@
 
-install-data-local: $(schema_DATA)
-	@GCONF_SCHEMAS_INSTALL_TRUE@ \
+if GCONF_SCHEMAS_INSTALL
+install-data-local:
 	if test -z "$(DESTDIR)" ; then \
 		for p in $(schema_DATA) ; do \
 			GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) $(GCONFTOOL) --makefile-install-rule $$p; \
 		done \
 	fi
+endif
 
 BUILT_SOURCES =				\
 	marshallers.h			\
