@@ -1,3 +1,8 @@
+Thu Feb 23 16:15:41 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* NEWS:
+	  - First crack at NEWS for 0.10
+
 Thu Feb 23 16:04:52 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* plugins/url_scraper/Makefile.am:
