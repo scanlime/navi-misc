@@ -1,3 +1,9 @@
+0.10
+	* Add a sound notification plugin - Guillaume Desmottes
+	* Session management improvements - David Trowbridge
+	* Minor UI polish
+	* A huge slew of bug-fixes
+
 0.9 "You guys sell every kind of meat here except human!" (19 January 2006)
 	* Implement channel list filtering - Guillaume Desmottes
 	* Update notify-osd plugin for libnotify >=0.3 - Xavier Claessens
