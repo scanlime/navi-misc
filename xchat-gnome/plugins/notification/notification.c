@@ -234,7 +234,7 @@ tray_destroy_cb (GtkObject *object,
 	GtkWidget   *box;
 
 	if (notification) {
-		gtk_object_sink (notification);
+		gtk_object_sink (GTK_OBJECT (notification));
 		notification = NULL;
 	}
 
@@ -249,7 +249,7 @@ tray_destroy_cb (GtkObject *object,
 
 	tray_destroy_handler = g_signal_connect_object (G_OBJECT (notification), "destroy", G_CALLBACK (tray_destroy_cb), data, 0);
 
- 	gtk_widget_show_all (notification);
+ 	gtk_widget_show_all (GTK_WIDGET (notification));
  	return TRUE;
 }
 
