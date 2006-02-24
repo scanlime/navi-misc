@@ -1,0 +1,235 @@
+<gconfschemafile>
+	<schemalist>
+
+		<!-- xchat-gnome config version -->
+		<schema>
+			<key>/schemas/apps/xchat/version</key>
+			<applyto>/apps/xchat/version</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<locale name="C">
+				<short>xchat configuration version</short>
+			</locale>
+		</schema>
+
+		<!-- nickname -->
+		<schema>
+			<key>/schemas/apps/xchat/irc/nickname</key>
+			<applyto>/apps/xchat/irc/nickname</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default></default>
+			<locale name="C">
+				<short>Default nickname used by servers without special options set</short>
+			</locale>
+		</schema>
+
+		<!-- real name -->
+		<schema>
+			<key>/schemas/apps/xchat/irc/realname</key>
+			<applyto>/apps/xchat/irc/realname</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default></default>
+			<locale name="C">
+				<short>Default real name used by servers without special options set</short>
+			</locale>
+		</schema>
+
+		<!-- quit message -->
+		<schema>
+			<key>/schemas/apps/xchat/irc/quitmsg</key>
+			<applyto>/apps/xchat/irc/quitmsg</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default>Ex-Chat</default>
+			<locale name="C">
+				<short>Message sent on quit</short>
+			</locale>
+		</schema>
+
+		<!-- part message -->
+		<schema>
+			<key>/schemas/apps/xchat/irc/partmsg</key>
+			<applyto>/apps/xchat/irc/partmsg</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default>Ex-Chat</default>
+			<locale name="C">
+				<short>Message sent on channel part</short>
+			</locale>
+		</schema>
+
+		<!-- away message -->
+		<schema>
+			<key>/schemas/apps/xchat/irc/awaymsg</key>
+			<applyto>/apps/xchat/irc/awaymsg</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default>Away</default>
+			<locale name="C">
+				<short>Message sent on away</short>
+			</locale>
+		</schema>
+
+		<!-- show colors -->
+		<schema>
+			<key>/schemas/apps/xchat/irc/showcolors</key>
+			<applyto>/apps/xchat/irc/showcolors</applyto>
+			<owner>xchat</owner>
+			<type>bool</type>
+			<default>true</default>
+			<locale name="C">
+				<short>Show colors in the main window</short>
+			</locale>
+		</schema>
+
+		<!-- show timestamps -->
+		<schema>
+			<key>/schemas/apps/xchat/irc/showtimestamps</key>
+			<applyto>/apps/xchat/irc/showtimestamps</applyto>
+			<owner>xchat</owner>
+			<type>bool</type>
+			<default>true</default>
+			<locale name="C">
+				<short>Show timestamps in the main window</short>
+			</locale>
+		</schema>
+
+		<!-- colors -->
+		<schema>
+			<key>/schemas/apps/xchat/irc/color_scheme</key>
+			<applyto>/apps/xchat/irc/color_scheme</applyto>
+			<owner>xchat</owner>
+			<type>int</type>
+			<default>0</default>
+			<locale name="C">
+				<short>Selected color scheme</short>
+			</locale>
+		</schema>
+
+		<!-- background -->
+		<schema>
+			<key>/schemas/apps/xchat/main_window/background_type</key>
+			<applyto>/apps/xchat/main_window/background_type</applyto>
+			<owner>xchat</owner>
+			<type>int</type>
+			<default>0</default>
+			<locale name="C">
+				<short>Selected background type</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/main_window/background_image</key>
+			<applyto>/apps/xchat/main_window/background_image</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default></default>
+			<locale name="C">
+				<short>Background image filename</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/main_window/background_transparency</key>
+			<applyto>/apps/xchat/main_window/background_transparency</applyto>
+			<owner>xchat</owner>
+			<type>float</type>
+			<default>0.5</default>
+			<locale name="C">
+				<short>Background transparency</short>
+			</locale>
+		</schema>
+
+		<!-- fonts -->
+		<schema>
+			<key>/schemas/apps/xchat/main_window/use_sys_fonts</key>
+			<applyto>/apps/xchat/main_window/use_sys_fonts</applyto>
+			<owner>xchat</owner>
+			<type>bool</type>
+			<default>true</default>
+			<locale name="C">
+				<short>Use system fonts</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/main_window/font</key>
+			<applyto>/apps/xchat/main_window/font</applyto>
+			<owner>xchat</owner>
+			<type>string</type>
+			<default>Bitstream Vera Sans Mono 10</default>
+			<locale name="C">
+				<short>Font for the main window</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/main_window/width</key>
+			<applyto>/apps/xchat/main_window/width</applyto>
+			<owner>xchat</owner>
+			<type>int</type>
+			<default>800</default>
+			<locale name="C">
+				<short>Width of the main window</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/main_window/height</key>
+			<applyto>/apps/xchat/main_window/height</applyto>
+			<owner>xchat</owner>
+			<type>int</type>
+			<default>600</default>
+			<locale name="C">
+				<short>Height of the main window</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/main_window/hpane</key>
+			<applyto>/apps/xchat/main_window/hpane</applyto>
+			<owner>xchat</owner>
+			<type>int</type>
+			<default>0</default>
+			<locale name="C">
+				<short>Position of the horizontal pane in the main window</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/channel_list/width</key>
+			<applyto>/apps/xchat/channel_list/width</applyto>
+			<owner>xchat</owner>
+			<type>int</type>
+			<default>640</default>
+			<locale name="C">
+				<short>Height of the channel list</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/channel_list/height</key>
+			<applyto>/apps/xchat/channel_list/height</applyto>
+			<owner>xchat</owner>
+			<type>int</type>
+			<default>480</default>
+			<locale name="C">
+				<short>Height of the channel list</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/plugins/loaded</key>
+			<applyto>/apps/xchat/plugins/loaded</applyto>
+			<owner>xchat</owner>
+			<type>list</type>
+			<list_type>string</list_type>
+			<default>[]</default>
+			<locale name="C">
+				<short>List of enabled plugins</short>
+			</locale>
+		</schema>
+	</schemalist>
+</gconfschemafile>

@@ -1,0 +1,13 @@
+<gconfschemafile>
+	<schemalist>
+		<schema>
+			<key>/schemas/apps/xchat/plugins/notification/persistant</key>
+			<applyto>/apps/xchat/plugins/notification/persistant</applyto>
+			<owner>xchat</owner>
+			<type>bool</type>
+			<locale name="C">
+				<short>Keep icon in tray at all times</short>
+			</locale>
+		</schema>
+	</schemalist>
+</gconfschemafile>
