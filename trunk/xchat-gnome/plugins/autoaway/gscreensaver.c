@@ -71,9 +71,9 @@ init_gs_connection (void)
 		return;
 	}
 	dbus_proxy = dbus_g_proxy_new_for_name (connection,
-						"org.gnome.screensaver",
-						"/org/gnome/screensaver",
-						"org.gnome.screensaver");
+						"org.gnome.ScreenSaver",
+						"/org/gnome/ScreenSaver",
+						"org.gnome.ScreenSaver");
 	if (!dbus_proxy) {
 		g_printerr ("Couldn't create a dbus proxy to gnome-screensaver\n");
 		return;
