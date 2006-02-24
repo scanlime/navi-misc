@@ -1,5 +1,13 @@
+==================== 0.10 ====================
+
+Fri Feb 24 03:06:43 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* configure.ac:
+	* NEWS:
+	  - Bump to 0.10
+
 Fri Feb 24 11:01:13 CET 2006  Guillaume Desmottes <cass@skynet.be>
-	
+
 	* src/fe-gnome/main-window.c:
 	  - Help is now working. Big thanks to seb128 for the fix. (#330837)
 
