@@ -1,5 +1,10 @@
 ==================== 0.10 ====================
 
+Fri Feb 24 04:57:20 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* Makefile.am:
+	  - Fix distcheck problems introduced by gnome-doc-utils.
+
 Fri Feb 24 03:06:43 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* configure.ac:
