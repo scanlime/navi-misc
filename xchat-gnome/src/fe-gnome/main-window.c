@@ -583,7 +583,7 @@ on_help_contents_activate (GtkAction *action, gpointer data)
 {
 	GError *error = NULL;
 
-	gnome_help_display_with_doc_id (NULL, NULL, "xchat-gnome.xml", NULL, &error);
+	gnome_help_display_with_doc_id (NULL, "xchat-gnome", "xchat-gnome.xml", NULL, &error);
 	if (error) {
 		error_dialog (_("Error showing help"), error->message);
 		g_error_free (error);
