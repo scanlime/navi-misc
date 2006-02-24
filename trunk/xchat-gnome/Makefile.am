@@ -10,3 +10,8 @@ CLEANFILES =			\
 	intltool-extract	\
 	intltool-merge		\
 	intltool-update
+
+DISTCLEANFILES =		\
+	gnome-doc-utils.make
+
+DISTCHECK_CONFIGURE_FLAGS = --disable-scrollkeeper
