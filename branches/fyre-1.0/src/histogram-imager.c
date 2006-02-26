@@ -1024,9 +1024,9 @@ histogram_imager_compute_quality (HistogramImager *self)
 	float *qual_p = self->color_table.quality;
 	guint count;
 	guint hist_clamp = self->color_table.filled_size - 1;
-	guint width = self->width * self->oversample;
-	guint height = self->height * self->oversample;
-	guint x, y, x_scale, y_scale;
+	int width = self->width * self->oversample;
+	int height = self->height * self->oversample;
+	int x, y, x_scale, y_scale;
 	guint stride;
 
 	gulong denominator = 0;
