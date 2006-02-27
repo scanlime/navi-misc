@@ -434,6 +434,12 @@ aStar_search (PyObject* self, PyObject *args)
 	return result;
 }
 
+static void
+initialize_dijkstra_d (PyObject *u, GList *vs, GHashTable *d)
+{
+	g_hash_table_insert (d, u, GINT_TO_POINTER (-1));
+}
+
 static PyObject *
 dijkstra_search (PyObject* self, PyObject* args)
 {
@@ -458,6 +464,9 @@ dijkstra_search (PyObject* self, PyObject* args)
 
 	d        = g_hash_table_new (g_direct_hash, g_direct_equal);
 	previous = g_hash_table_new (g_direct_hash, g_direct_equal);
+
+	g_hash_table_foreach (adjacency, (GHFunc) initialize_dijkstra_d, d);
+	g_hash_table_insert (d, start, GINT_TO_POINTER (0));
 
 	g_hash_table_destroy (d);
 	g_hash_table_destroy (previous);
