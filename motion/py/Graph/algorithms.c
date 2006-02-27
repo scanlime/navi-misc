@@ -23,11 +23,13 @@
 #include <Python.h>
 
 static PyObject *depth_limited_search (PyObject* self, PyObject* args);
-static PyObject *aStar_search (PyObject* self, PyObject* args);
+static PyObject *aStar_search         (PyObject* self, PyObject* args);
+static PyObject *dijkstra_search      (PyObject* self, PyObject* args);
 
 static PyMethodDef AlgorithmC_methods[] = {
 	{"depthLimitedSearch", depth_limited_search, METH_VARARGS, "Execute a depth limited search of the graph"},
 	{"aStarSearch",        aStar_search,         METH_VARARGS, "Execute the A* search of the graph"},
+	{"dijkstraSearch",     dijkstra_search,      METH_VARARGS, "Execute dijkstra's single-source shortest-path search"},
         {NULL,                 NULL,                 0,            NULL},
 };
 
@@ -430,4 +432,34 @@ aStar_search (PyObject* self, PyObject *args)
 	}
 
 	return result;
+}
+
+static PyObject *
+dijkstra_search (PyObject* self, PyObject* args)
+{
+	PyObject*   adjacency_list;
+	PyObject*   start;
+	PyObject*   end;
+	GHashTable* adjacency = NULL;
+	GHashTable* previous = NULL;
+	GHashTable* d = NULL;
+
+	/* Get all the arguments */
+	if (!PyArg_ParseTuple (args, "OOO;expected adjacency list, start, end", &adjacency_list, &start, &end)) {
+		return NULL;
+	}
+
+	/* Build adjacency hash table */
+	adjacency = query_adjacency (adjacency_list);
+	if (adjacency == NULL) {
+		PyErr_SetString (PyExc_RuntimeError, "couldn't build adjacency hash table");
+		return NULL;
+	}
+
+	d        = g_hash_table_new (g_direct_hash, g_direct_equal);
+	previous = g_hash_table_new (g_direct_hash, g_direct_equal);
+
+	g_hash_table_destroy (d);
+	g_hash_table_destroy (previous);
+	free_adjacency (adjacency);
 }
