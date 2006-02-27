@@ -26,9 +26,9 @@ static PyObject *depth_limited_search (PyObject* self, PyObject* args);
 static PyObject *aStar_search (PyObject* self, PyObject* args);
 
 static PyMethodDef AlgorithmC_methods[] = {
-		{"depthLimitedSearch", depth_limited_search, METH_VARARGS, "Execute a depth limited search of the graph"},
-		{"aStarSearch", aStar_search, METH_VARARGS, "Execute the A* search of the graph"},
-	        {NULL,                 NULL,                 0,            NULL},
+	{"depthLimitedSearch", depth_limited_search, METH_VARARGS, "Execute a depth limited search of the graph"},
+	{"aStarSearch",        aStar_search,         METH_VARARGS, "Execute the A* search of the graph"},
+        {NULL,                 NULL,                 0,            NULL},
 };
 
 PyMODINIT_FUNC
