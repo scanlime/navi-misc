@@ -197,12 +197,12 @@ int main(int argc, char ** argv) {
 	case 'C':
 	case 'P':
 	    fprintf(stderr, "%s%s",
-		    _("This Fyre binary was compiled without gnet support.\n")
+		    _("This Fyre binary was compiled without gnet support.\n"),
 		    _("Cluster support is not available.\n"));
 	    break;
 	case 'r':
 	    fprintf(stderr, "%s%s",
-		    _("This Fyre binary was compiled without gnet support.\n")
+		    _("This Fyre binary was compiled without gnet support.\n"),
 		    _("Cluster support is not available.\n"));
 	    exit(1);
 	    break;
@@ -317,7 +317,7 @@ int main(int argc, char ** argv) {
 	remote_server_main_loop(port_number, have_gtk, verbose);
 #else
 	fprintf(stderr, "%s%s",
-		_("This Fyre binary was compiled without gnet support.\n")
+		_("This Fyre binary was compiled without gnet support.\n"),
 		_("Remote control mode is not available.\n"));
 #endif
 	break;
