@@ -1,3 +1,8 @@
+Tue Feb 28 15:32:15 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/plugins.c:
+	  - Guard against loading plugins multiple times (#328907)
+
 Tue Feb 28 15:09:24 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* configure.ac:

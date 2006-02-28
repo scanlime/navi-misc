@@ -45,6 +45,7 @@ typedef void (xchat_plugin_get_info)   (char **, char **, char **, char **);
 typedef int  (xchat_gnome_plugin_init) (xchat_gnome_plugin *);
 
 GSList *enabled_plugins;
+static GSList *loaded_plugins = NULL;
 
 static void
 autoload_plugin_cb (gchar * filename, gpointer data)
@@ -76,6 +77,7 @@ plugins_initialize (void)
 int
 unload_plugin (char *filename)
 {
+	GSList *item;
 	int len = strlen (filename);
 
 	if (len > 3 && strcasecmp (filename + len - 3, ".so") == 0) {
@@ -87,6 +89,10 @@ unload_plugin (char *filename)
 		handle_command (gui.current_session, command, FALSE);
 		g_free (command);
 	}
+
+	item = g_slist_find_custom (loaded_plugins, filename, strcmp);
+	loaded_plugins = g_slist_remove (loaded_plugins, item->data);
+	g_free (item->data);
 
 	return 1;
 }
@@ -113,6 +119,13 @@ load_plugin (session * sess, char *filename, char *arg, gboolean script, gboolea
 
 	len = strlen (filename);
 
+	/* If we've already loaded this plugin, don't do so again.  This
+	 * prevents plugins from being loaded several times (which can
+	 * happen if the enabled key has something listed more than once.
+	 */
+	if (g_slist_find_custom (loaded_plugins, filename, strcmp))
+		return;
+
 	if (len > 3 && strcasecmp (filename + len - 3, ".so") == 0) {
 		if (!(autoload && script)) {
 			/* Plugin */
@@ -134,6 +147,8 @@ load_plugin (session * sess, char *filename, char *arg, gboolean script, gboolea
 		handle_command (gui.current_session, command, FALSE);
 		g_free (command);
 	}
+
+	loaded_plugins = g_slist_prepend (loaded_plugins, g_strdup (filename));
 
 	return NULL;
 }
