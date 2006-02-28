@@ -1,3 +1,8 @@
+Tue Feb 28 15:09:24 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* configure.ac:
+	  - Fix output when checking for libnotify
+
 Tue Feb 28 05:48:41 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/main-window.c:

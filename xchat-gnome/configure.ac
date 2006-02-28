@@ -115,7 +115,7 @@ PKG_CHECK_MODULES([LIBSEXY], [libsexy >= $LIBSEXY_REQUIRED], libsexy=yes, libsex
 AC_SUBST([LIBSEXY_CFLAGS])
 AC_SUBST([LIBSEXY_LIBS])
 AM_CONDITIONAL([ENABLE_LIBSEXY],[test "x$libsexy" = "xyes"])
-if test "x$libsexy" = xyes; then
+if test "x$libsexy" = "xyes"; then
 	AC_DEFINE(HAVE_LIBSEXY, 1, [Enable libsexy])
 else
 	AC_MSG_WARN([Library requirements (libsexy >= $LIBSEXY_REQUIRED) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them.])
@@ -126,7 +126,7 @@ PKG_CHECK_MODULES([LIBNOTIFY], [libnotify >= $LIBNOTIFY_REQUIRED], libnotify=yes
 AC_SUBST([LIBNOTIFY_CFLAGS])
 AC_SUBST([LIBNOTIFY_LIBS])
 AM_CONDITIONAL([ENABLE_LIBNOTIFY],[test "x$libnotify" = "xyes"])
-if test "x$libnotify" = xyes; then
+if test "x$libnotify" != "xyes"; then
 	AC_MSG_WARN([Library requirements (libnotify >= $LIBNOTIFY_REQUIRED) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them.])
 fi
 
