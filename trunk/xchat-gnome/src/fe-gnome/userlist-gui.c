@@ -239,7 +239,7 @@ userlist_gui_show (void)
 	if (desired_height > screen_height)
 		desired_height = screen_height;
 
-	window_x = mouse_x - 100;
+	window_x = mouse_x + 10;
 	window_y = mouse_y - (desired_height / 2);
 
 	if (window_x < 0)

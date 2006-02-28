@@ -1,3 +1,12 @@
+Tue Feb 28 15:38:40 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/userlist-gui.c:
+	  - Pop the list up 10 pixels to the right of the mouse button, rather
+	    than 100 pixels to the left.  This should prevent the pop-up
+	    overlapping the "Users" button in all but the most pathological
+	    cases, for users who don't realize that they can click anywhere
+	    rather than only on the button.
+
 Tue Feb 28 15:32:15 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/plugins.c:
