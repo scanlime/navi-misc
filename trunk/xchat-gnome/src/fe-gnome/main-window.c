@@ -479,7 +479,7 @@ static void
 on_discussion_leave_activate (GtkAction *action, gpointer data)
 {
 	session *s = gui.current_session;
-	if (s->type == SESS_CHANNEL) {
+	if ((s->type == SESS_CHANNEL) && (s->channel[0] != '\0')) {
 		gchar *text;
 		GConfClient *client;
 
@@ -500,18 +500,6 @@ on_discussion_close_activate (GtkAction *action, gpointer data)
 	if (s == NULL)
 		return;
 /*	navigation_tree_select_next_channel (gui.server_tree, TRUE);*/
-	if (s->type == SESS_CHANNEL) {
-		gchar *text;
-		GConfClient *client;
-
-		client = gconf_client_get_default ();
-		text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
-		if (text == NULL)
-			text = g_strdup (_("Ex-Chat"));
-		s->server->p_part (s->server, s->channel, text);
-		g_object_unref (client);
-		g_free (text);
-	}
 	fe_close_window (s);
 	conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), s);
 	topic_label_remove_session        (TOPIC_LABEL        (gui.topic_label),        s);

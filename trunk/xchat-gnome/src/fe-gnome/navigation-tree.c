@@ -1586,21 +1586,6 @@ on_close (GtkAction * action, gpointer data)
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
 		gtk_tree_model_get (model, &iter, 2, &s, 6, &joined, -1);
 
-		if (s->type == SESS_CHANNEL && joined) {
-			GConfClient *client;
-			gchar *text;
-
-			client = gconf_client_get_default ();
-			text = gconf_client_get_string (client, "/apps/xchat/irc/partmsg", NULL);
-			if (text == NULL)
-				text = g_strdup (_("Ex-Chat"));
-			s->server->p_part (s->server, s->channel, text);
-			g_object_unref (client);
-			g_free (text);
-		} else if (s->type == SESS_SERVER && joined) {
-			s->server->disconnect (s, TRUE, -1);
-		}
-
 		if (s->type == SESS_SERVER)
 			status_bar_remove_server (STATUS_BAR (gui.status_bar), s->server);
 		conversation_panel_remove_session (CONVERSATION_PANEL (gui.conversation_panel), s);
@@ -1640,7 +1625,7 @@ on_channel_leave (GtkAction * action, gpointer data)
 	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
 		gtk_tree_model_get (model, &iter, 2, &s, -1);
 		store = gtk_tree_model_sort_get_model (GTK_TREE_MODEL_SORT (model));
-		if (s->type == SESS_CHANNEL) {
+		if ((s->type == SESS_CHANNEL) && (s->channel[0] != '\0')) {
 			GConfClient *client;
 			gchar *text;
 

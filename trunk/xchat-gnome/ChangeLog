@@ -1,3 +1,11 @@
+Tue Feb 28 05:48:41 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/navigation-tree.c:
+	  - Only send part messages when a channel is being left (rather than
+	    closed), since the core was sending one as well.  This fixes the
+	    spurious "You're not on that channel" messages. (#332041)
+
 Fri Feb 24 15:09:56 MST 2006  Brian Pepple <bdpepple@gmail.com>
 
 	* plugins/autoaway/gscreensaver.c:
