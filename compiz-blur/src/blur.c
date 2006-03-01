@@ -22,7 +22,20 @@
 #include <compiz/compiz.h>
 #include <glib.h>
 
-#define GET_BLUR_DISPLAY(d) ((BlurDisplay *) (d)->privates[displayPrivateIndex].ptr)
+#define GET_BLUR_DISPLAY(display) \
+	((BlurDisplay *) (display)->privates[displayPrivateIndex].ptr)
+
+#define GET_BLUR_SCREEN_PRIV(screen, blurDisplay) \
+	((BlurScreen *) (screen)->privates[(blurDisplay)->screenPrivateIndex].ptr)
+
+#define GET_BLUR_SCREEN(screen) \
+	GET_BLUR_SCREEN_PRIV (screen, GET_BLUR_DISPLAY (screen->display))
+
+#define GET_BLUR_WINDOW_PRIV(window, blurScreen) \
+	((BlurWindow *) (window)->privates[(blurScreen)->windowPrivateIndex].ptr)
+
+#define GET_BLUR_WINDOW(window)	\
+	GET_BLUR_WINDOW_PRIV (window, GET_BLUR_SCREEN (window->screen))
 
 static Bool blurInit        (CompPlugin *plugin);
 static void blurFini        (CompPlugin *plugin);
@@ -39,9 +52,20 @@ static void blurFiniWindow  (CompPlugin *plugin, CompWindow  *window);
  */
 static int displayPrivateIndex;
 
+/*
+ * These structures contain private data and function overrides for various
+ * pieces of the display model (display, screen, window).
+ */
 typedef struct _BlurDisplay {
 	int screenPrivateIndex;
 } BlurDisplay;
+
+typedef struct _BlurScreen {
+	int windowPrivateIndex;
+} BlurScreen;
+
+typedef struct _BlurWindow {
+} BlurWindow;
 
 /*
  * The list of dependencies.  I really have no idea how these dependencies are
@@ -114,12 +138,8 @@ blurInitDisplay (CompPlugin *plugin, CompDisplay *display)
 {
 	BlurDisplay *bd;
 
-	/*
-	 * Here's where we allocate our private display structure and set up
-	 * overrides for various functions
-	 */
 	bd = g_new0 (BlurDisplay, 1);
-	if (!bd)
+	if (bd == NULL)
 		return FALSE;
 	bd->screenPrivateIndex = allocateScreenPrivateIndex (display);
 	if (bd->screenPrivateIndex < 0) {
@@ -143,23 +163,56 @@ blurFiniDisplay (CompPlugin *plugin, CompDisplay *display)
 }
 
 static Bool
-blurInitScreen  (CompPlugin *plugin, CompScreen  *screen)
+blurInitScreen  (CompPlugin *plugin, CompScreen *screen)
 {
+	BlurScreen  *bs;
+	BlurDisplay *bd;
+
+	bd = GET_BLUR_DISPLAY (screen->display);
+
+	bs = g_new0 (BlurScreen, 1);
+	if (bs == NULL)
+		return FALSE;
+	bs->windowPrivateIndex = allocateWindowPrivateIndex (screen);
+	if (bs->windowPrivateIndex < 0) {
+		g_free (bs);
+		return FALSE;
+	}
+
+	screen->privates[bd->screenPrivateIndex].ptr = bs;
 	return TRUE;
 }
 
 static void
-blurFiniScreen  (CompPlugin *plugin, CompScreen  *screen)
+blurFiniScreen  (CompPlugin *plugin, CompScreen *screen)
 {
+	BlurScreen *bs = GET_BLUR_SCREEN (screen);
+
+	freeWindowPrivateIndex (screen, bs->windowPrivateIndex);
+
+	g_free (bs);
 }
 
 static Bool
-blurInitWindow  (CompPlugin *plugin, CompWindow  *window)
+blurInitWindow  (CompPlugin *plugin, CompWindow *window)
 {
+	BlurWindow *bw;
+	BlurScreen *bs;
+
+	bs = GET_BLUR_SCREEN (window->screen);
+
+	bw = g_new0 (BlurWindow, 1);
+	if (bw == NULL)
+		return FALSE;
+	window->privates[bs->windowPrivateIndex].ptr = bw;
 	return TRUE;
 }
 
 static void
-blurFiniWindow  (CompPlugin *plugin, CompWindow  *window)
+blurFiniWindow  (CompPlugin *plugin, CompWindow *window)
 {
+	BlurWindow *bw;
+
+	bw = GET_BLUR_WINDOW (window);
+	g_free (bw);
 }
