@@ -37,14 +37,16 @@
 #define GET_BLUR_WINDOW(window)	\
 	GET_BLUR_WINDOW_PRIV (window, GET_BLUR_SCREEN (window->screen))
 
-static Bool blurInit        (CompPlugin *plugin);
-static void blurFini        (CompPlugin *plugin);
-static Bool blurInitDisplay (CompPlugin *plugin, CompDisplay *display);
-static void blurFiniDisplay (CompPlugin *plugin, CompDisplay *display);
-static Bool blurInitScreen  (CompPlugin *plugin, CompScreen  *screen);
-static void blurFiniScreen  (CompPlugin *plugin, CompScreen  *screen);
-static Bool blurInitWindow  (CompPlugin *plugin, CompWindow  *window);
-static void blurFiniWindow  (CompPlugin *plugin, CompWindow  *window);
+static Bool blurInit               (CompPlugin *plugin);
+static void blurFini               (CompPlugin *plugin);
+static Bool blurInitDisplay        (CompPlugin *plugin, CompDisplay *display);
+static void blurFiniDisplay        (CompPlugin *plugin, CompDisplay *display);
+static Bool blurInitScreen         (CompPlugin *plugin, CompScreen  *screen);
+static void blurFiniScreen         (CompPlugin *plugin, CompScreen  *screen);
+static Bool blurInitWindow         (CompPlugin *plugin, CompWindow  *window);
+static void blurFiniWindow         (CompPlugin *plugin, CompWindow  *window);
+
+static void blurDrawWindowGeometry (CompWindow *window);
 
 /*
  * This is an index into a global array of private data structures.  We store
@@ -62,9 +64,12 @@ typedef struct _BlurDisplay {
 
 typedef struct _BlurScreen {
 	int windowPrivateIndex;
+
+	DrawWindowGeometryProc drawWindowGeometry;
 } BlurScreen;
 
 typedef struct _BlurWindow {
+	int tmp;
 } BlurWindow;
 
 /*
@@ -163,7 +168,7 @@ blurFiniDisplay (CompPlugin *plugin, CompDisplay *display)
 }
 
 static Bool
-blurInitScreen  (CompPlugin *plugin, CompScreen *screen)
+blurInitScreen (CompPlugin *plugin, CompScreen *screen)
 {
 	BlurScreen  *bs;
 	BlurDisplay *bd;
@@ -179,14 +184,18 @@ blurInitScreen  (CompPlugin *plugin, CompScreen *screen)
 		return FALSE;
 	}
 
+	WRAP (bs, screen, drawWindowGeometry, blurDrawWindowGeometry);
+
 	screen->privates[bd->screenPrivateIndex].ptr = bs;
 	return TRUE;
 }
 
 static void
-blurFiniScreen  (CompPlugin *plugin, CompScreen *screen)
+blurFiniScreen (CompPlugin *plugin, CompScreen *screen)
 {
 	BlurScreen *bs = GET_BLUR_SCREEN (screen);
+
+	UNWRAP (bs, screen, drawWindowGeometry);
 
 	freeWindowPrivateIndex (screen, bs->windowPrivateIndex);
 
@@ -194,7 +203,7 @@ blurFiniScreen  (CompPlugin *plugin, CompScreen *screen)
 }
 
 static Bool
-blurInitWindow  (CompPlugin *plugin, CompWindow *window)
+blurInitWindow (CompPlugin *plugin, CompWindow *window)
 {
 	BlurWindow *bw;
 	BlurScreen *bs;
@@ -209,10 +218,24 @@ blurInitWindow  (CompPlugin *plugin, CompWindow *window)
 }
 
 static void
-blurFiniWindow  (CompPlugin *plugin, CompWindow *window)
+blurFiniWindow (CompPlugin *plugin, CompWindow *window)
 {
 	BlurWindow *bw;
 
 	bw = GET_BLUR_WINDOW (window);
 	g_free (bw);
+}
+
+static void
+blurDrawWindowGeometry (CompWindow *window)
+{
+	BlurWindow *bw;
+	BlurScreen *bs;
+
+	bw = GET_BLUR_WINDOW (window);
+	bs = GET_BLUR_SCREEN (window->screen);
+
+	UNWRAP (bs, window->screen, drawWindowGeometry);
+	(*window->screen->drawWindowGeometry) (window);
+	WRAP (bs, window->screen, drawWindowGeometry, blurDrawWindowGeometry);
 }
