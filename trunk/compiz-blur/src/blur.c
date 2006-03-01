@@ -37,16 +37,25 @@
 #define GET_BLUR_WINDOW(window)	\
 	GET_BLUR_WINDOW_PRIV (window, GET_BLUR_SCREEN (window->screen))
 
-static Bool blurInit               (CompPlugin *plugin);
-static void blurFini               (CompPlugin *plugin);
-static Bool blurInitDisplay        (CompPlugin *plugin, CompDisplay *display);
-static void blurFiniDisplay        (CompPlugin *plugin, CompDisplay *display);
-static Bool blurInitScreen         (CompPlugin *plugin, CompScreen  *screen);
-static void blurFiniScreen         (CompPlugin *plugin, CompScreen  *screen);
-static Bool blurInitWindow         (CompPlugin *plugin, CompWindow  *window);
-static void blurFiniWindow         (CompPlugin *plugin, CompWindow  *window);
+static Bool blurInit               (CompPlugin  *plugin);
+static void blurFini               (CompPlugin  *plugin);
+static Bool blurInitDisplay        (CompPlugin  *plugin,
+                                    CompDisplay *display);
+static void blurFiniDisplay        (CompPlugin  *plugin,
+                                    CompDisplay *display);
+static Bool blurInitScreen         (CompPlugin  *plugin,
+                                    CompScreen  *screen);
+static void blurFiniScreen         (CompPlugin  *plugin,
+                                    CompScreen  *screen);
+static Bool blurInitWindow         (CompPlugin  *plugin,
+                                    CompWindow  *window);
+static void blurFiniWindow         (CompPlugin  *plugin,
+                                    CompWindow  *window);
 
-static void blurDrawWindowGeometry (CompWindow *window);
+static Bool blurDamageWindowRect   (CompWindow  *window,
+                                    Bool         initial,
+                                    BoxPtr       rect);
+static void blurDrawWindowGeometry (CompWindow  *window);
 
 /*
  * This is an index into a global array of private data structures.  We store
@@ -66,6 +75,7 @@ typedef struct _BlurScreen {
 	int windowPrivateIndex;
 
 	DrawWindowGeometryProc drawWindowGeometry;
+	DamageWindowRectProc   damageWindowRect;
 } BlurScreen;
 
 typedef struct _BlurWindow {
@@ -164,6 +174,7 @@ blurFiniDisplay (CompPlugin *plugin, CompDisplay *display)
 
 	if (bd->screenPrivateIndex >= 0)
 		freeScreenPrivateIndex (display, bd->screenPrivateIndex);
+
 	g_free (bd);
 }
 
@@ -185,6 +196,7 @@ blurInitScreen (CompPlugin *plugin, CompScreen *screen)
 	}
 
 	WRAP (bs, screen, drawWindowGeometry, blurDrawWindowGeometry);
+	WRAP (bs, screen, damageWindowRect, blurDamageWindowRect);
 
 	screen->privates[bd->screenPrivateIndex].ptr = bs;
 	return TRUE;
@@ -196,6 +208,7 @@ blurFiniScreen (CompPlugin *plugin, CompScreen *screen)
 	BlurScreen *bs = GET_BLUR_SCREEN (screen);
 
 	UNWRAP (bs, screen, drawWindowGeometry);
+	UNWRAP (bs, screen, damageWindowRect);
 
 	freeWindowPrivateIndex (screen, bs->windowPrivateIndex);
 
@@ -224,6 +237,21 @@ blurFiniWindow (CompPlugin *plugin, CompWindow *window)
 
 	bw = GET_BLUR_WINDOW (window);
 	g_free (bw);
+}
+
+static Bool
+blurDamageWindowRect (CompWindow *window, Bool initial, BoxPtr rect)
+{
+	BlurScreen *bs;
+	Bool        result;
+
+	bs = GET_BLUR_SCREEN (window->screen);
+
+	UNWRAP (bs, window->screen, damageWindowRect);
+	result = (*window->screen->damageWindowRect) (window, initial, rect);
+	WRAP (bs, window->screen, damageWindowRect, blurDamageWindowRect);
+
+	return result;
 }
 
 static void
