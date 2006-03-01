@@ -26,6 +26,7 @@
 
 void initialize_main_window (void);
 void run_main_window        (void);
+void save_main_window       (void);
 void rename_main_window     (gchar *server, gchar *channel);
 void set_nickname           (struct server *serv, char *newnick);
 void set_nickname_color     (struct server *serv);

@@ -299,6 +299,7 @@ run_main_window ()
 	GtkWidget *pane, *widget;
 	GConfClient *client;
 	int width, height;
+	int x, y;
 	int h;
 
 	client = gconf_client_get_default ();
@@ -308,6 +309,10 @@ run_main_window ()
 		gtk_window_set_default_size (GTK_WINDOW (gui.main_window), 800, 550);
 	else
 		gtk_window_set_default_size (GTK_WINDOW (gui.main_window), width, height);
+	x = gconf_client_get_int (client, "/apps/xchat/main_window/x", NULL);
+	y = gconf_client_get_int (client, "/apps/xchat/main_window/y", NULL);
+	if (!(x == 0 || y == 0))
+		gtk_window_move (GTK_WINDOW (gui.main_window), x, y);
 	h = gconf_client_get_int (client, "/apps/xchat/main_window/hpane", NULL);
 	if(h != 0) {
 		GtkWidget *hpane = glade_xml_get_widget (gui.xml, "HPane");
@@ -357,10 +362,25 @@ on_irc_connect_activate (GtkAction *action, gpointer data)
 	gtk_widget_show_all (GTK_WIDGET (dialog));
 }
 
+void
+save_main_window ()
+{
+	gint x, y;
+	GConfClient *client;
+
+	gtk_window_get_position (GTK_WINDOW (gui.main_window), &x, &y);
+	client = gconf_client_get_default ();
+	gconf_client_set_int (client, "/apps/xchat/main_window/x", x, NULL);
+	gconf_client_set_int (client, "/apps/xchat/main_window/y", y, NULL);
+	g_object_unref (client);
+}
+
 static void
 on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
+	save_main_window ();
 	gui.quit = TRUE;
+
 	gtk_widget_hide (GTK_WIDGET (gui.dcc));
 	userlist_gui_hide ();
 	xchat_exit ();
@@ -369,6 +389,7 @@ on_main_window_close (GtkWidget *widget, GdkEvent *event, gpointer data)
 static void
 on_irc_quit_activate (GtkAction *action, gpointer data)
 {
+	save_main_window ();
 	gtk_widget_hide (GTK_WIDGET (gui.main_window));
 	gtk_widget_hide (GTK_WIDGET (gui.dcc));
 	userlist_gui_hide ();

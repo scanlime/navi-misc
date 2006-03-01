@@ -1,3 +1,12 @@
+Tue Feb 28 18:30:25 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/main-window.h:
+	* src/fe-gnome/apps_xchat.schemas.in:
+	  - Save and restore the position of the main window, since metacity
+	    is absolutely refusing to do this for us, even though we're
+	    technically session-managed.
+
 Tue Feb 28 18:06:12 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/preferences.c:
