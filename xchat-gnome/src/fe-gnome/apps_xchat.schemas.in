@@ -188,6 +188,28 @@
 		</schema>
 
 		<schema>
+			<key>/schemas/apps/xchat/main_window/x</key>
+			<applyto>/apps/xchat/main_window/x</applyto>
+			<owner>xchat</owner>
+			<type>int</type>
+			<default>0</default>
+			<locale name="C">
+				<short>X position of the main window on the screen</short>
+			</locale>
+		</schema>
+
+		<schema>
+			<key>/schemas/apps/xchat/main_window/y</key>
+			<applyto>/apps/xchat/main_window/y</applyto>
+			<owner>xchat</owner>
+			<type>int</type>
+			<default>0</default>
+			<locale name="C">
+				<short>Y position of the main window on the screen</short>
+			</locale>
+		</schema>
+
+		<schema>
 			<key>/schemas/apps/xchat/main_window/hpane</key>
 			<applyto>/apps/xchat/main_window/hpane</applyto>
 			<owner>xchat</owner>
