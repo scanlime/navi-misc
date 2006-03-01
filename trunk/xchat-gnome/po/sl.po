@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xchat-gnome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-02-10 03:22-0700\n"
+"POT-Creation-Date: 2006-03-01 03:36-0700\n"
 "PO-Revision-Date: 2006-02-10 02:16-0700\n"
 "Last-Translator: Jure Cuhalev <gandalf@owca.info>\n"
 "Language-Team: Slovenian <translation-team-sl@lists.sourceforge.net>\n"
@@ -359,11 +359,15 @@ msgstr ""
 msgid "Change"
 msgstr "Kanal"
 
-#: ../data/xchat-gnome.desktop.in.h:1 ../src/fe-gnome/fe-gnome.c:92
+#: ../data/xchat-gnome.desktop.in.h:1
+msgid "Chat with people using IRC"
+msgstr ""
+
+#: ../data/xchat-gnome.desktop.in.h:2 ../src/fe-gnome/fe-gnome.c:92
 msgid "IRC Chat"
 msgstr "Klepet"
 
-#: ../data/xchat-gnome.desktop.in.h:2
+#: ../data/xchat-gnome.desktop.in.h:3
 msgid "XChat-GNOME IRC Chat"
 msgstr ""
 
@@ -389,7 +393,7 @@ msgid "Error"
 msgstr "Napaka"
 
 #: ../data/xchat-gnome.glade.h:5 ../src/common/text.c:805
-#: ../src/fe-gnome/channel-list.c:315
+#: ../src/fe-gnome/channel-list.c:329
 msgid "Users"
 msgstr "Uporabniki"
 
@@ -594,19 +598,19 @@ msgstr "Argentina"
 msgid "The orientation of the tray."
 msgstr "Vzdevek osebe"
 
-#: ../plugins/notification/notification.c:151
+#: ../plugins/notification/notification.c:153
 msgid "Notification"
 msgstr "Prenešeno"
 
-#: ../plugins/notification/notification.c:152
+#: ../plugins/notification/notification.c:154
 msgid "A notification area plugin."
 msgstr ""
 
-#: ../plugins/notification/notification.c:239
+#: ../plugins/notification/notification.c:225
 msgid "Notification plugin loaded.\n"
 msgstr "Ta dodatek ne obstaja.\n"
 
-#: ../plugins/notification/notification.c:254
+#: ../plugins/notification/notification.c:270
 msgid "Notification plugin unloaded.\n"
 msgstr "Ta dodatek ne obstaja.\n"
 
@@ -770,7 +774,7 @@ msgid "Done"
 msgstr "Opravljeno"
 
 #. green
-#: ../src/common/dcc.c:70 ../src/fe-gnome/connect-dialog.c:146
+#: ../src/common/dcc.c:70 ../src/fe-gnome/connect-dialog.c:154
 msgid "Connect"
 msgstr "Poveži se"
 
@@ -1341,12 +1345,12 @@ msgstr ""
 msgid "Proxy traversal failed.\n"
 msgstr "Prečkanje proxyja neuspešno.\n"
 
-#: ../src/common/servlist.c:631
+#: ../src/common/servlist.c:634
 #, c-format
 msgid "Cycling to next server in %s...\n"
 msgstr "Povezujem se z naslednjim strežnikom v %s...\n"
 
-#: ../src/common/servlist.c:1050
+#: ../src/common/servlist.c:1053
 #, c-format
 msgid ""
 "Warning: \"%s\" character set is unknown. No conversion will be applied for "
@@ -1443,7 +1447,7 @@ msgid "Nick of person who changed the topic"
 msgstr "Vzdevek osebe, ki je spremenila temo"
 
 #: ../src/common/text.c:551 ../src/common/text.c:557
-#: ../src/fe-gnome/channel-list.c:320
+#: ../src/fe-gnome/channel-list.c:334
 msgid "Topic"
 msgstr "Tema"
 
@@ -1680,7 +1684,7 @@ msgstr "Pravi IP"
 
 #: ../src/common/text.c:789 ../src/common/text.c:798 ../src/common/text.c:804
 #: ../src/common/text.c:833 ../src/common/text.c:987
-#: ../src/fe-gnome/channel-list.c:310
+#: ../src/fe-gnome/channel-list.c:324
 msgid "Channel Name"
 msgstr "Ime kanala"
 
@@ -3776,16 +3780,24 @@ msgid "Width of the main window"
 msgstr ""
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:19
+msgid "X position of the main window on the screen"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:20
+msgid "Y position of the main window on the screen"
+msgstr ""
+
+#: ../src/fe-gnome/apps_xchat.schemas.in.h:21
 msgid "xchat configuration version"
 msgstr ""
 
-#: ../src/fe-gnome/channel-list.c:284
+#: ../src/fe-gnome/channel-list.c:297
 #, c-format
 msgid "%s Channel List"
 msgstr ""
 
 #. IRC menu
-#: ../src/fe-gnome/connect-dialog.c:124 ../src/fe-gnome/main-window.c:110
+#: ../src/fe-gnome/connect-dialog.c:132 ../src/fe-gnome/main-window.c:110
 msgid "_Connect"
 msgstr "Poveži se"
 
@@ -3825,54 +3837,54 @@ msgstr "Prekliči"
 msgid "_Copy"
 msgstr "Kopiraj"
 
-#: ../src/fe-gnome/conversation-panel.c:600
+#: ../src/fe-gnome/conversation-panel.c:605
 #, c-format
 msgid "URI list dropped on xchat-gnome had wrong format (%d) or length (%d)\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:692
+#: ../src/fe-gnome/conversation-panel.c:697
 #, c-format
 msgid "Error reading file \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:707
+#: ../src/fe-gnome/conversation-panel.c:712
 #, c-format
 msgid "Error converting URI \"%s\" into filename: %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:750
+#: ../src/fe-gnome/conversation-panel.c:755
 #, c-format
 msgid "Error retrieving file information for \"%s\": %s\n"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:811
+#: ../src/fe-gnome/conversation-panel.c:816
 msgid "Save Transcript"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:837
-#: ../src/fe-gnome/conversation-panel.c:847
+#: ../src/fe-gnome/conversation-panel.c:842
+#: ../src/fe-gnome/conversation-panel.c:852
 #, c-format
 msgid "Error saving %s"
 msgstr ""
 
-#: ../src/fe-gnome/conversation-panel.c:965
+#: ../src/fe-gnome/conversation-panel.c:970
 msgid "Search buffer is empty.\n"
 msgstr "Iskalni niz je prazen.\n"
 
 #. File completion percent
-#: ../src/fe-gnome/dcc-window.c:142
+#: ../src/fe-gnome/dcc-window.c:143
 msgid "%"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:143
+#: ../src/fe-gnome/dcc-window.c:144
 msgid "File"
 msgstr "Datoteka"
 
-#: ../src/fe-gnome/dcc-window.c:144
+#: ../src/fe-gnome/dcc-window.c:145
 msgid "Remaining"
 msgstr "Odhajam"
 
-#: ../src/fe-gnome/dcc-window.c:244
+#: ../src/fe-gnome/dcc-window.c:238
 #, c-format
 msgid ""
 "<span weight=\"bold\" size=\"larger\">Incoming File Transfer</span>\n"
@@ -3881,7 +3893,7 @@ msgid ""
 "transfer?"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:266
+#: ../src/fe-gnome/dcc-window.c:260
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -3889,11 +3901,11 @@ msgid ""
 "%s of %s"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:277
+#: ../src/fe-gnome/dcc-window.c:271
 msgid "starting"
 msgstr "Čakam"
 
-#: ../src/fe-gnome/dcc-window.c:307
+#: ../src/fe-gnome/dcc-window.c:301
 #, c-format
 msgid ""
 "<b>%s</b>\n"
@@ -3901,39 +3913,39 @@ msgid ""
 "%s of %s at %s/s"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:314
+#: ../src/fe-gnome/dcc-window.c:308
 msgid "queued"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:319
+#: ../src/fe-gnome/dcc-window.c:313
 #, c-format
 msgid "Transfer of %s to %s failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:321
+#: ../src/fe-gnome/dcc-window.c:315
 #, c-format
 msgid "Transfer of %s from %s failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:322
+#: ../src/fe-gnome/dcc-window.c:316
 msgid "Transfer failed"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:331
+#: ../src/fe-gnome/dcc-window.c:325
 msgid "stalled"
 msgstr "Spodletelo"
 
-#: ../src/fe-gnome/dcc-window.c:335
+#: ../src/fe-gnome/dcc-window.c:329
 #, c-format
 msgid "%.2d:%.2d:%.2d"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:337
+#: ../src/fe-gnome/dcc-window.c:331
 #, c-format
 msgid "%.2d:%.2d"
 msgstr ""
 
-#: ../src/fe-gnome/dcc-window.c:450
+#: ../src/fe-gnome/dcc-window.c:444
 msgid "Send File..."
 msgstr "Pošlji datoteko"
 
@@ -4121,8 +4133,8 @@ msgstr ""
 msgid "_Paste"
 msgstr "Zasebno"
 
-#: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:92
-#: ../src/fe-gnome/navigation-tree.c:99
+#: ../src/fe-gnome/main-window.c:118 ../src/fe-gnome/navigation-tree.c:91
+#: ../src/fe-gnome/navigation-tree.c:98
 msgid "C_lear"
 msgstr "Počisti"
 
@@ -4132,36 +4144,36 @@ msgstr "Nastavitve ..."
 
 #. Network menu
 #. Server context menu
-#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:81
+#: ../src/fe-gnome/main-window.c:122 ../src/fe-gnome/navigation-tree.c:80
 msgid "_Information"
 msgstr "Informativno"
 
-#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:82
+#: ../src/fe-gnome/main-window.c:123 ../src/fe-gnome/navigation-tree.c:81
 msgid "_Reconnect"
 msgstr "Ponovno se poveži"
 
-#: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:83
+#: ../src/fe-gnome/main-window.c:124 ../src/fe-gnome/navigation-tree.c:82
 msgid "_Disconnect"
 msgstr "Odstrani povezavo"
 
-#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:84
-#: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
+#: ../src/fe-gnome/main-window.c:125 ../src/fe-gnome/navigation-tree.c:83
+#: ../src/fe-gnome/navigation-tree.c:89 ../src/fe-gnome/navigation-tree.c:96
 msgid "_Close"
 msgstr "_Zapri"
 
-#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:85
+#: ../src/fe-gnome/main-window.c:126 ../src/fe-gnome/navigation-tree.c:84
 msgid "_Channels..."
 msgstr "Seznam kanalov ..."
 
 #. Discussion menu
 #. Channel context menu
 #. Dialog context menu
-#: ../src/fe-gnome/main-window.c:129 ../src/fe-gnome/navigation-tree.c:88
-#: ../src/fe-gnome/navigation-tree.c:96
+#: ../src/fe-gnome/main-window.c:129 ../src/fe-gnome/navigation-tree.c:87
+#: ../src/fe-gnome/navigation-tree.c:95
 msgid "_Save Transcript"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:89
+#: ../src/fe-gnome/main-window.c:130 ../src/fe-gnome/navigation-tree.c:88
 msgid "_Leave"
 msgstr "Odhajam"
 
@@ -4181,7 +4193,7 @@ msgstr "_Okno"
 msgid "Change _Topic"
 msgstr ""
 
-#: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:93
+#: ../src/fe-gnome/main-window.c:135 ../src/fe-gnome/navigation-tree.c:92
 msgid "_Bans..."
 msgstr "Seznam izobčenih ..."
 
@@ -4215,33 +4227,31 @@ msgstr "Vs_ebina"
 msgid "_About"
 msgstr "_O programu"
 
-#: ../src/fe-gnome/main-window.c:486 ../src/fe-gnome/main-window.c:507
-#: ../src/fe-gnome/navigation-tree.c:1579
-#: ../src/fe-gnome/navigation-tree.c:1633
+#: ../src/fe-gnome/main-window.c:510 ../src/fe-gnome/navigation-tree.c:1635
 msgid "Ex-Chat"
 msgstr "Klepet"
 
-#: ../src/fe-gnome/main-window.c:585
+#: ../src/fe-gnome/main-window.c:597
 msgid "Error showing help"
 msgstr ""
 
-#: ../src/fe-gnome/navigation-tree.c:91 ../src/fe-gnome/navigation-tree.c:98
+#: ../src/fe-gnome/navigation-tree.c:90 ../src/fe-gnome/navigation-tree.c:97
 msgid "_Find..."
 msgstr "Pošiljanje datotek ..."
 
 #. Server context menu
-#: ../src/fe-gnome/navigation-tree.c:104
+#: ../src/fe-gnome/navigation-tree.c:103
 msgid "_Auto-connect"
 msgstr "P_oveži se"
 
 #. Channel context menu
-#: ../src/fe-gnome/navigation-tree.c:107
+#: ../src/fe-gnome/navigation-tree.c:106
 msgid "_Auto-join"
 msgstr "Samodejno"
 
 #. Add the new server to the model. By default connected is false.
-#: ../src/fe-gnome/navigation-tree.c:389
-#: ../src/fe-gnome/navigation-tree.c:1274
+#: ../src/fe-gnome/navigation-tree.c:353
+#: ../src/fe-gnome/navigation-tree.c:1255
 msgid "<none>"
 msgstr "<brez>"
 
@@ -4269,7 +4279,7 @@ msgstr "Prenosi datotek"
 msgid "Effects"
 msgstr ""
 
-#: ../src/fe-gnome/preferences-page-irc.c:241
+#: ../src/fe-gnome/preferences-page-irc.c:257
 msgid "IRC Preferences"
 msgstr "X-Chat: Nastavitve"
 
@@ -4330,71 +4340,71 @@ msgstr ""
 msgid "%d bytes buffered"
 msgstr "%d bajtov"
 
-#: ../src/fe-gnome/text-entry.c:274
+#: ../src/fe-gnome/text-entry.c:281
 msgid "I_nsert Color Code"
 msgstr "Vnesite kodo barve"
 
-#: ../src/fe-gnome/text-entry.c:281
+#: ../src/fe-gnome/text-entry.c:288
 msgid "Black"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:285
+#: ../src/fe-gnome/text-entry.c:292
 msgid "Dark Blue"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:289
+#: ../src/fe-gnome/text-entry.c:296
 msgid "Dark Green"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:293
+#: ../src/fe-gnome/text-entry.c:300
 msgid "Red"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:297
+#: ../src/fe-gnome/text-entry.c:304
 msgid "Brown"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:301
+#: ../src/fe-gnome/text-entry.c:308
 msgid "Purple"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:305
+#: ../src/fe-gnome/text-entry.c:312
 msgid "Orange"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:309
+#: ../src/fe-gnome/text-entry.c:316
 msgid "Yellow"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:313
+#: ../src/fe-gnome/text-entry.c:320
 msgid "Light Green"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:317
+#: ../src/fe-gnome/text-entry.c:324
 msgid "Aqua"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:321
+#: ../src/fe-gnome/text-entry.c:328
 msgid "Light Blue"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:325
+#: ../src/fe-gnome/text-entry.c:332
 msgid "Blue"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:329
+#: ../src/fe-gnome/text-entry.c:336
 msgid "Violet"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:333
+#: ../src/fe-gnome/text-entry.c:340
 msgid "Grey"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:337
+#: ../src/fe-gnome/text-entry.c:344
 msgid "Light Grey"
 msgstr ""
 
-#: ../src/fe-gnome/text-entry.c:341
+#: ../src/fe-gnome/text-entry.c:348
 msgid "White"
 msgstr ""
 
