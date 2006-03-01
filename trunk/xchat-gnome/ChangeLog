@@ -1,3 +1,8 @@
+Tue Feb 28 18:06:12 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/preferences.c:
+	  - Actually hook up "show colors" option.
+
 Tue Feb 28 15:38:40 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/userlist-gui.c:

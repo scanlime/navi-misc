@@ -54,6 +54,7 @@ load_preferences (void)
 {
 	GConfClient *client;
 	int color_scheme, palette_scheme;
+	gboolean showcolors;
 	char *text;
 
 	client = gconf_client_get_default ();
@@ -82,6 +83,9 @@ load_preferences (void)
 	if (text != NULL)
 		strcpy (prefs.partreason, text);
 	g_free (text);
+
+	showcolors = gconf_client_get_bool (client, "/apps/xchat/irc/showcolors", NULL);
+	prefs.stripcolor = (unsigned int) (!showcolors);
 
 	color_scheme = gconf_client_get_int (client, "/apps/xchat/irc/color_scheme", NULL);
 	load_colors (color_scheme);
