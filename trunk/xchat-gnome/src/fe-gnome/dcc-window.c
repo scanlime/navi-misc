@@ -218,29 +218,19 @@ dcc_window_add (DccWindow *window, struct DCC *dcc)
 	/* If this is a recieve and auto-accept isn't turned on, pop up a
 	 * confirmation dialog */
 	if ((dcc->type == 1) && (dcc->dccstat == 0) && (prefs.autodccsend == FALSE)) {
-		GladeXML *xml = NULL;
-		GtkWidget *dialog, *label;
-		GtkResponseType response;
-		gchar *text;
+		GtkWidget *dialog;
+		gint response;
 
-		if (g_file_test ("../../dcc-accept.glade", G_FILE_TEST_EXISTS))
-			xml = glade_xml_new ("../../dcc-accept.glade", "toplevel", NULL);
-		if (!xml)
-			xml = glade_xml_new (XCHATSHAREDIR "/dcc-accept.glade", "toplevel", NULL);
-		if (!xml)
-			return;
-
-		dialog = glade_xml_get_widget (xml, "toplevel");
-		label  = glade_xml_get_widget (xml, "label");
-
-		g_object_unref (xml);
-
-		text = g_strdup_printf (_("<span weight=\"bold\" size=\"larger\">Incoming File Transfer</span>\n\n%s is attempting to send you a file named \"%s\".  Do you wish to accept the transfer?"), dcc->nick, dcc->file);
-		gtk_label_set_markup (GTK_LABEL (label), text);
-		g_free (text);
+		dialog = gtk_message_dialog_new (GTK_WINDOW (window),
+						 GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+						 GTK_MESSAGE_QUESTION,
+						 GTK_BUTTONS_CANCEL,
+						 _("Incoming File Transfer"));
+		gtk_dialog_add_button (GTK_DIALOG (dialog), _("_Accept"), GTK_RESPONSE_ACCEPT);
+		gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog), _("%s is attempting to send you a file named \"%s\". Do you wish to accept the transfer?"), dcc->nick, dcc->file);
 
 		response = gtk_dialog_run (GTK_DIALOG (dialog));
-		if (response == GTK_RESPONSE_OK) {
+		if (response == GTK_RESPONSE_ACCEPT) {
 			/* FIXME: resume? */
 			dcc_get (dcc);
 
