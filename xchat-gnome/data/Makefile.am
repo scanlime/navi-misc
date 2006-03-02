@@ -2,7 +2,6 @@ xchat_gnome_DATA = 			\
 	channel-list.glade		\
 	color.png			\
 	connect-dialog.glade		\
-	dcc-accept.glade		\
 	dcc-window.glade		\
 	dcc.png				\
 	effects.png			\

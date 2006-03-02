@@ -1,3 +1,10 @@
+Thu Mar  2 22:46:51 CET 2006  Christian Persch <chpe@gnome.org>
+
+	* src/fe-gnome/dcc-window.c:
+	* data/dcc-accept.glade:
+	* data/Makefile.am:
+	  - Use GtkMessageDialog instead of Glade. (#333178)
+
 Tue Feb 28 18:30:25 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/main-window.c:
