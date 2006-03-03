@@ -79,7 +79,7 @@ typedef struct _BlurScreen {
 } BlurScreen;
 
 typedef struct _BlurWindow {
-	int tmp;
+	GLuint blur_texture;
 } BlurWindow;
 
 /*
@@ -227,6 +227,12 @@ blurInitWindow (CompPlugin *plugin, CompWindow *window)
 	if (bw == NULL)
 		return FALSE;
 	window->privates[bs->windowPrivateIndex].ptr = bw;
+
+	glGenTextures (1, &bw->blur_texture);
+	glBindTexture (GL_TEXTURE_2D, bw->blur_texture);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 	return TRUE;
 }
 
@@ -243,8 +249,10 @@ static Bool
 blurDamageWindowRect (CompWindow *window, Bool initial, BoxPtr rect)
 {
 	BlurScreen *bs;
+	BlurWindow *bw;
 	Bool        result;
 
+	bw = GET_BLUR_WINDOW (window);
 	bs = GET_BLUR_SCREEN (window->screen);
 
 	UNWRAP (bs, window->screen, damageWindowRect);
