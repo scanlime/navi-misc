@@ -23,6 +23,7 @@
 #include <compiz/compiz.h>
 #include <glib.h>
 #include <stdio.h>
+#include <assert.h>
 
 #define GET_BLUR_DISPLAY(display) \
 	((BlurDisplay *) (display)->privates[displayPrivateIndex].ptr)
@@ -103,6 +104,7 @@ typedef struct _BlurScreen {
 typedef struct _BlurWindow {
 	GLuint blur_texture;
 	GLuint fbo;
+	GLuint depth_rb;
 } BlurWindow;
 
 /*
@@ -271,7 +273,17 @@ blurInitWindow (CompPlugin *plugin, CompWindow *window)
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glGenRenderbuffersEXT (1, &bw->fbo);
+	glGenFramebuffersEXT (1, &bw->fbo);
+	glGenRenderbuffersEXT (1, &bw->depth_rb);
+	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, WIN_W (window), WIN_H (window), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+	glFramebufferTexture2DEXT (GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, bw->blur_texture, 0);
+
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, bw->depth_rb);
+	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, WIN_W (window), WIN_H (window));
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, bw->depth_rb);
+
+	CHECK_FRAMEBUFFER_STATUS ();
 
 	return TRUE;
 }
@@ -283,8 +295,9 @@ blurFiniWindow (CompPlugin *plugin, CompWindow *window)
 
 	bw = GET_BLUR_WINDOW (window);
 
+	glDeleteRenderbuffersEXT (1, &bw->depth_rb);
+	glDeleteFramebuffersEXT (1, &bw->fbo);
 	glDeleteTextures (1, &bw->blur_texture);
-	glDeleteRenderbuffersEXT (1, &bw->fbo);
 
 	g_free (bw);
 }
@@ -323,12 +336,12 @@ blurDrawWindowGeometry (CompWindow *window)
 	bw = GET_BLUR_WINDOW (window);
 	bs = GET_BLUR_SCREEN (window->screen);
 
-	/*
 	glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, bw->fbo);
 	glFramebufferTexture2DEXT (GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, bw->blur_texture, 0);
+	glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, bw->depth_rb);
+	glFramebufferRenderbufferEXT (GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, bw->depth_rb);
 
-	CHECK_FRAMEBUFFER_STATUS ();
-	*/
+	//CHECK_FRAMEBUFFER_STATUS ();
 
 	while (texUnit--) {
 		if (texUnit != currentTexUnit) {
@@ -341,10 +354,22 @@ blurDrawWindowGeometry (CompWindow *window)
 
 	glDrawArrays (GL_QUADS, 0, window->vCount);
 
-	/*
-	glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
-	glBindTexture(GL_TEXTURE_2D, bw->blur_texture);
+	texUnit = window->texUnits;
+	while (texUnit--) {
+		if (texUnit != currentTexUnit) {
+			 window->screen->clientActiveTexture (GL_TEXTURE0_ARB + texUnit);
+			 currentTexUnit = texUnit;
+		}
+		vertices -= 2;
+		glDisable (GL_TEXTURE_2D);
+	}
 
+	glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
+	glEnable (GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, bw->blur_texture);
+	glDrawArrays (GL_QUADS, 0, window->vCount);
+
+	/*
 	UNWRAP (bs, window->screen, drawWindowGeometry);
 	(*window->screen->drawWindowGeometry) (window);
 	WRAP (bs, window->screen, drawWindowGeometry, blurDrawWindowGeometry);
@@ -362,6 +387,13 @@ blurWindowResizeNotify (CompWindow  *window)
 
 	glBindTexture (GL_TEXTURE_2D, bw->blur_texture);
 	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, WIN_W (window), WIN_H (window), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glFramebufferTexture2DEXT (GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, bw->blur_texture, 0);
+
+	glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, bw->depth_rb);
+        glRenderbufferStorageEXT (GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, WIN_W (window), WIN_H (window));
+	glFramebufferRenderbufferEXT (GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, bw->depth_rb);
+
+	CHECK_FRAMEBUFFER_STATUS ();
 
 	UNWRAP (bs, window->screen, windowResizeNotify);
 	(*window->screen->windowResizeNotify) (window);
