@@ -19,8 +19,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
+#include <GL/glew.h>
 #include <compiz/compiz.h>
 #include <glib.h>
+#include <stdio.h>
 
 #define GET_BLUR_DISPLAY(display) \
 	((BlurDisplay *) (display)->privates[displayPrivateIndex].ptr)
@@ -80,6 +82,7 @@ typedef struct _BlurScreen {
 
 typedef struct _BlurWindow {
 	GLuint blur_texture;
+	GLuint fbo;
 } BlurWindow;
 
 /*
@@ -135,9 +138,22 @@ getCompPluginInfo (void)
 static Bool
 blurInit (CompPlugin *plugin)
 {
+	GLenum err;
+
 	displayPrivateIndex = allocateDisplayPrivateIndex ();
 	if (displayPrivateIndex < 0)
 		return FALSE;
+
+	err = glewInit ();
+	if (err != GLEW_OK) {
+		fprintf (stderr, "GLEW init failed: %s\n", glewGetErrorString (err));
+		return FALSE;
+	}
+
+	if (!GLEW_EXT_framebuffer_object) {
+		fprintf (stderr, "Blur init failed: EXT_framebuffer_object not found\n");
+		return FALSE;
+	}
 	return TRUE;
 }
 
@@ -233,6 +249,8 @@ blurInitWindow (CompPlugin *plugin, CompWindow *window)
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	glGenRenderbuffersEXT (1, &bw->fbo);
+
 	return TRUE;
 }
 
@@ -242,6 +260,10 @@ blurFiniWindow (CompPlugin *plugin, CompWindow *window)
 	BlurWindow *bw;
 
 	bw = GET_BLUR_WINDOW (window);
+
+	glDeleteTextures (1, &bw->blur_texture);
+	glDeleteRenderbuffersEXT (1, &bw->fbo);
+
 	g_free (bw);
 }
 
@@ -270,6 +292,8 @@ blurDrawWindowGeometry (CompWindow *window)
 
 	bw = GET_BLUR_WINDOW (window);
 	bs = GET_BLUR_SCREEN (window->screen);
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bw->fbo);
 
 	UNWRAP (bs, window->screen, drawWindowGeometry);
 	(*window->screen->drawWindowGeometry) (window);

@@ -57,6 +57,13 @@ PKG_CHECK_MODULES(PACKAGE, \
         glib-2.0 >= $GLIB_REQUIRED_VER \
 	compiz >= $COMPIZ_REQUIRED_VER)
 
+AC_CHECK_LIB(GLEW, glewInit, have_glew=yes, have_glew=no)
+if test "x$have_glew" = "xyes"; then
+	PACKAGE_LIBS="$PACKAGE_LIBS -lGLEW"
+else
+	AC_MSG_ERROR([GL Extension Wrangler library not found.  Get it from http://glew.sourceforge.net])
+fi
+
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
