@@ -1019,8 +1019,11 @@ click (GtkWidget *treeview, GdkEventButton *event, gpointer data)
 static gboolean
 declick (GtkWidget *treeview, GdkEventButton *e, gpointer data)
 {
+	gint position;
+
+	position = gtk_editable_get_position (GTK_EDITABLE (gui.text_entry));
 	gtk_widget_grab_focus (gui.text_entry);
-	gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), -1);
+	gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), position);
 	g_object_set (G_OBJECT (treeview), "can-focus", TRUE, NULL);
 	return FALSE;
 }
@@ -1028,12 +1031,14 @@ declick (GtkWidget *treeview, GdkEventButton *e, gpointer data)
 static void
 navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_data)
 {
-	GtkTreeIter iter, newiter;
-	GtkTreeModel *model, *store;
-	GtkTreeView *treeview;
-	GtkWidget *button;
-	gpointer *s;
-	session *sess;
+	GtkTreeIter   iter;
+	GtkTreeIter   newiter;
+	GtkTreeModel *model;
+	GtkTreeModel *store;
+	GtkTreeView  *treeview;
+	GtkWidget    *button;
+	gpointer     *s;
+	session      *sess;
 
 	if (gui.server_tree == NULL)
 		return;
@@ -1118,6 +1123,7 @@ navigation_selection_changed (GtkTreeSelection *treeselection, gpointer user_dat
 		status_bar_set_current         (STATUS_BAR         (gui.status_bar),         sess->server);
 
 		gtk_widget_grab_focus (gui.text_entry);
+		gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), -1);
 
 		/* Set the label of the user list button */
 		userlist_set_user_button (u, sess);
@@ -1270,6 +1276,8 @@ static gboolean
 navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, struct session *data)
 {
 	struct session *s;
+	gint            position;
+
 	gtk_tree_model_get (model, iter, 2, &s, -1);
 	if (s->type == SESS_SERVER && s->server == data->server) {
 		GtkTreeIter child;
@@ -1290,7 +1298,9 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 		/* Set our nick. */
 		set_nickname (s->server, NULL);
 
+		position = gtk_editable_get_position (GTK_EDITABLE (gui.text_entry));
 		gtk_widget_grab_focus (gui.text_entry);
+		gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), position);
 
 		gtk_tree_path_free (path);
 		return TRUE;
@@ -1527,12 +1537,13 @@ on_server_reconnect (GtkAction * action, gpointer data)
 static void
 on_server_disconnect (GtkAction * action, gpointer data)
 {
-	GtkTreeView *treeview;
+	GtkTreeView      *treeview;
 	GtkTreeSelection *select;
-	GtkTreeModel *model, *store;
-	GtkTreeIter iter, newiter;
-	session *s;
-	gboolean temp;
+	GtkTreeModel     *model;
+	GtkTreeModel     *store;
+	GtkTreeIter       iter;
+	GtkTreeIter       newiter;
+	session          *s;
 
 	treeview = GTK_TREE_VIEW (gui.server_tree);
 	select = gtk_tree_view_get_selection (treeview);

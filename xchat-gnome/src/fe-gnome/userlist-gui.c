@@ -261,6 +261,8 @@ userlist_gui_show (void)
 void
 userlist_gui_hide (void)
 {
+	gint position;
+
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gui.userlist_toggle), FALSE);
 	if (have_grab) {
 		gtk_grab_remove (gui.userlist_window);
@@ -270,7 +272,9 @@ userlist_gui_hide (void)
 	}
 	gtk_widget_hide (gui.userlist_window);
 
+	position = gtk_editable_get_position (GTK_EDITABLE (gui.text_entry));
 	gtk_widget_grab_focus (gui.text_entry);
+	gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), position);
 }
 
 static gboolean
