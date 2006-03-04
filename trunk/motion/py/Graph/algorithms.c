@@ -338,6 +338,19 @@ f_cost_compare (gconstpointer a, gconstpointer b, gpointer data)
 	return 1;
 }
 
+void
+free_path (gpointer path, gpointer user_data)
+{
+	g_slist_free ((GSList*) path);
+}
+
+void
+free_agenda (GQueue* agenda)
+{
+	g_queue_foreach (agenda, free_path, NULL);
+	g_queue_free (agenda);
+}
+
 /* Execute a best first search using fcost to evaluate the cost of each node.
  * Return a path from start to goal if there is one, or return NULL.
  */
@@ -347,14 +360,14 @@ heuristic_search (GHashTable* adjacency, GHashTable* edges, GSList* start,
 {
 	/* Map nodes to f-costs */
 	GHashTable* costs = g_hash_table_new (g_direct_hash, g_int_equal);
-	GQueue* agenda = g_queue_new ();
+	GQueue* agenda    = g_queue_new ();
 
 	/* Push start onto the agenda */
 	g_queue_push_head (agenda, start);
 
 	/* Run until we run out of things to check */
 	while (!g_queue_is_empty (agenda)) {
-		GSList* path = (GSList*) g_queue_pop_head (agenda);
+		GSList* path       = (GSList*) g_queue_pop_head (agenda);
 		GSList* successors = g_hash_table_lookup (adjacency, path->data);
 
 		for (GSList* s = successors; s; s = g_slist_next (s)) {
@@ -363,6 +376,8 @@ heuristic_search (GHashTable* adjacency, GHashTable* edges, GSList* start,
 			 */
 			if (s->data == goal) {
 				g_slist_prepend (path, s->data);
+				free_agenda (agenda);
+				g_hash_table_destroy (costs);
 				return path;
 			}
 			/* If this node isn't the goal calculate its f-cost and
@@ -377,6 +392,8 @@ heuristic_search (GHashTable* adjacency, GHashTable* edges, GSList* start,
 		}
 	}
 
+	free_agenda (agenda);
+	g_hash_table_destroy (costs);
 	return NULL;
 }
 
