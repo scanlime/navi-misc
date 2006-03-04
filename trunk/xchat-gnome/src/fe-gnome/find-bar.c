@@ -255,6 +255,8 @@ find_bar_new (void)
 void
 find_bar_close (FindBar *bar)
 {
+	gint position;
+
 	if (!GTK_WIDGET_VISIBLE (bar))
 		return;
 
@@ -265,7 +267,9 @@ find_bar_close (FindBar *bar)
 
 	gtk_widget_hide (GTK_WIDGET (bar));
 
+	position = gtk_editable_get_position (GTK_EDITABLE (gui.text_entry));
 	gtk_widget_grab_focus (gui.text_entry);
+	gtk_editable_set_position (GTK_EDITABLE (gui.text_entry), position);
 }
 
 void
