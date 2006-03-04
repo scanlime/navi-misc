@@ -342,7 +342,7 @@ f_cost_compare (gconstpointer a, gconstpointer b, gpointer data)
  * Return a path from start to goal if there is one, or return NULL.
  */
 GSList*
-best_first_search (GHashTable* adjacency, GHashTable* edges, GSList* start,
+heuristic_search (GHashTable* adjacency, GHashTable* edges, GSList* start,
 		PyObject* goal, PyObject* fcost)
 {
 	/* Map nodes to f-costs */
@@ -419,7 +419,7 @@ aStar_search (PyObject* self, PyObject *args)
 	/* Search */
 	GSList* p = g_slist_alloc ();
 	p = g_slist_prepend (p, start);
-	GSList* path = best_first_search (adjacency, edges, p, end, f_cost);
+	GSList* path = heuristic_search (adjacency, edges, p, end, f_cost);
 
 	if (path) {
 		result = PyList_New (0);
