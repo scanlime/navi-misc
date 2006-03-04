@@ -1,3 +1,15 @@
+Sat Mar  4 01:20:05 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/main-window.c:
+	* data/xchat-gnome.glade:
+	  - We can now use the "change nick dialog" to be marked as away.
+	  - Use gtk_dialog_run instead of a non blocking call. It's fix a bug
+	    where callbacks were connected each time we opened the dialog and
+	    so called too many times.
+	  - Rename label "on all servers" to "Apply on all server" to be
+	    clearer and more HIG compliant.
+	    
+
 Thu Mar  2 22:46:51 CET 2006  Christian Persch <chpe@gnome.org>
 
 	* src/fe-gnome/dcc-window.c:
