@@ -55,29 +55,35 @@
 		}								\
 	}
 
+#define WIN_X(w) ((w)->attrib.x - (w)->output.left)
+#define WIN_Y(w) ((w)->attrib.y - (w)->output.top)
 #define WIN_W(w) ((w)->width + (w)->output.left + (w)->output.right)
 #define WIN_H(w) ((w)->height + (w)->output.top + (w)->output.bottom)
 
-static Bool blurInit               (CompPlugin  *plugin);
-static void blurFini               (CompPlugin  *plugin);
-static Bool blurInitDisplay        (CompPlugin  *plugin,
-                                    CompDisplay *display);
-static void blurFiniDisplay        (CompPlugin  *plugin,
-                                    CompDisplay *display);
-static Bool blurInitScreen         (CompPlugin  *plugin,
-                                    CompScreen  *screen);
-static void blurFiniScreen         (CompPlugin  *plugin,
-                                    CompScreen  *screen);
-static Bool blurInitWindow         (CompPlugin  *plugin,
-                                    CompWindow  *window);
-static void blurFiniWindow         (CompPlugin  *plugin,
-                                    CompWindow  *window);
+static Bool blurInit               (CompPlugin              *plugin);
+static void blurFini               (CompPlugin              *plugin);
+static Bool blurInitDisplay        (CompPlugin              *plugin,
+                                    CompDisplay             *display);
+static void blurFiniDisplay        (CompPlugin              *plugin,
+                                    CompDisplay             *display);
+static Bool blurInitScreen         (CompPlugin              *plugin,
+                                    CompScreen              *screen);
+static void blurFiniScreen         (CompPlugin              *plugin,
+                                    CompScreen              *screen);
+static Bool blurInitWindow         (CompPlugin              *plugin,
+                                    CompWindow              *window);
+static void blurFiniWindow         (CompPlugin              *plugin,
+                                    CompWindow              *window);
 
-static Bool blurDamageWindowRect   (CompWindow  *window,
-                                    Bool         initial,
-                                    BoxPtr       rect);
-static void blurDrawWindowGeometry (CompWindow  *window);
-static void blurWindowResizeNotify (CompWindow  *window);
+static Bool blurDamageWindowRect   (CompWindow              *window,
+                                    Bool                     initial,
+                                    BoxPtr                   rect);
+static void blurDrawWindowGeometry (CompWindow              *window);
+static void blurWindowResizeNotify (CompWindow              *window);
+static Bool blurPaintWindow        (CompWindow              *window,
+                                    const WindowPaintAttrib *attrib,
+                                    Region                   region,
+                                    unsigned int             mask);
 
 /*
  * This is an index into a global array of private data structures.  We store
@@ -99,12 +105,12 @@ typedef struct _BlurScreen {
 	DrawWindowGeometryProc drawWindowGeometry;
 	DamageWindowRectProc   damageWindowRect;
 	WindowResizeNotifyProc windowResizeNotify;
+	PaintWindowProc        paintWindow;
 } BlurScreen;
 
 typedef struct _BlurWindow {
 	GLuint blur_texture;
 	GLuint fbo;
-	GLuint depth_rb;
 } BlurWindow;
 
 /*
@@ -236,6 +242,7 @@ blurInitScreen (CompPlugin *plugin, CompScreen *screen)
 	WRAP (bs, screen, drawWindowGeometry, blurDrawWindowGeometry);
 	WRAP (bs, screen, damageWindowRect,   blurDamageWindowRect);
 	WRAP (bs, screen, windowResizeNotify, blurWindowResizeNotify);
+	WRAP (bs, screen, paintWindow,        blurPaintWindow);
 
 	screen->privates[bd->screenPrivateIndex].ptr = bs;
 	return TRUE;
@@ -249,6 +256,7 @@ blurFiniScreen (CompPlugin *plugin, CompScreen *screen)
 	UNWRAP (bs, screen, drawWindowGeometry);
 	UNWRAP (bs, screen, damageWindowRect);
 	UNWRAP (bs, screen, windowResizeNotify);
+	UNWRAP (bs, screen, paintWindow);
 
 	freeWindowPrivateIndex (screen, bs->windowPrivateIndex);
 
@@ -274,14 +282,9 @@ blurInitWindow (CompPlugin *plugin, CompWindow *window)
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glGenFramebuffersEXT (1, &bw->fbo);
-	glGenRenderbuffersEXT (1, &bw->depth_rb);
 	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, WIN_W (window), WIN_H (window), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
 	glFramebufferTexture2DEXT (GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, bw->blur_texture, 0);
-
-	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, bw->depth_rb);
-	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, WIN_W (window), WIN_H (window));
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, bw->depth_rb);
 
 	CHECK_FRAMEBUFFER_STATUS ();
 
@@ -295,7 +298,6 @@ blurFiniWindow (CompPlugin *plugin, CompWindow *window)
 
 	bw = GET_BLUR_WINDOW (window);
 
-	glDeleteRenderbuffersEXT (1, &bw->depth_rb);
 	glDeleteFramebuffersEXT (1, &bw->fbo);
 	glDeleteTextures (1, &bw->blur_texture);
 
@@ -308,22 +310,7 @@ blurDamageWindowRect (CompWindow *window, Bool initial, BoxPtr rect)
 	BlurScreen *bs;
 	BlurWindow *bw;
 	Bool        result;
-
-	bw = GET_BLUR_WINDOW (window);
-	bs = GET_BLUR_SCREEN (window->screen);
-
-	UNWRAP (bs, window->screen, damageWindowRect);
-	result = (*window->screen->damageWindowRect) (window, initial, rect);
-	WRAP (bs, window->screen, damageWindowRect, blurDamageWindowRect);
-
-	return result;
-}
-
-static void
-blurDrawWindowGeometry (CompWindow *window)
-{
-	BlurWindow *bw;
-	BlurScreen *bs;
+#if 0
 	int         texUnit = window->texUnits;
 	int         currentTexUnit = 0;
 	int         stride = (1 + texUnit) * 2;
@@ -332,16 +319,20 @@ blurDrawWindowGeometry (CompWindow *window)
 	stride *= sizeof (GLfloat);
 
 	glVertexPointer (2, GL_FLOAT, stride, vertices);
-
+#endif
 	bw = GET_BLUR_WINDOW (window);
 	bs = GET_BLUR_SCREEN (window->screen);
 
+	UNWRAP (bs, window->screen, damageWindowRect);
+	result = (*window->screen->damageWindowRect) (window, initial, rect);
+	WRAP (bs, window->screen, damageWindowRect, blurDamageWindowRect);
+
+#if 0
+	/* Use the new contents to render blurred version to a texture */
 	glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, bw->fbo);
 	glFramebufferTexture2DEXT (GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, bw->blur_texture, 0);
-	glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, bw->depth_rb);
-	glFramebufferRenderbufferEXT (GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, bw->depth_rb);
 
-	//CHECK_FRAMEBUFFER_STATUS ();
+	CHECK_FRAMEBUFFER_STATUS ();
 
 	while (texUnit--) {
 		if (texUnit != currentTexUnit) {
@@ -352,28 +343,32 @@ blurDrawWindowGeometry (CompWindow *window)
 		glTexCoordPointer (2, GL_FLOAT, stride, vertices);
 	}
 
+	glPushMatrix ();
+	glTranslatef (-WIN_X (window), -WIN_Y (window), 0);
 	glDrawArrays (GL_QUADS, 0, window->vCount);
-
-	texUnit = window->texUnits;
-	while (texUnit--) {
-		if (texUnit != currentTexUnit) {
-			 window->screen->clientActiveTexture (GL_TEXTURE0_ARB + texUnit);
-			 currentTexUnit = texUnit;
-		}
-		vertices -= 2;
-		glDisable (GL_TEXTURE_2D);
-	}
+	glPopMatrix ();
 
 	glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
-	glEnable (GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, bw->blur_texture);
-	glDrawArrays (GL_QUADS, 0, window->vCount);
+#endif
+	return result;
+}
+
+static void
+blurDrawWindowGeometry (CompWindow *window)
+{
+	BlurWindow *bw;
+	BlurScreen *bs;
+	bw = GET_BLUR_WINDOW (window);
+	bs = GET_BLUR_SCREEN (window->screen);
 
 	/*
+	glBindTexture(GL_TEXTURE_2D, bw->blur_texture);
+	glDrawArrays (GL_QUADS, 0, window->vCount);
+	*/
+
 	UNWRAP (bs, window->screen, drawWindowGeometry);
 	(*window->screen->drawWindowGeometry) (window);
 	WRAP (bs, window->screen, drawWindowGeometry, blurDrawWindowGeometry);
-	*/
 }
 
 static void
@@ -385,17 +380,36 @@ blurWindowResizeNotify (CompWindow  *window)
 	bw = GET_BLUR_WINDOW (window);
 	bs = GET_BLUR_SCREEN (window->screen);
 
-	glBindTexture (GL_TEXTURE_2D, bw->blur_texture);
-	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, WIN_W (window), WIN_H (window), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glFramebufferTexture2DEXT (GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, bw->blur_texture, 0);
-
-	glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, bw->depth_rb);
-        glRenderbufferStorageEXT (GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, WIN_W (window), WIN_H (window));
-	glFramebufferRenderbufferEXT (GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, bw->depth_rb);
-
-	CHECK_FRAMEBUFFER_STATUS ();
-
 	UNWRAP (bs, window->screen, windowResizeNotify);
 	(*window->screen->windowResizeNotify) (window);
 	WRAP (bs, window->screen, windowResizeNotify, blurWindowResizeNotify);
+
+	glBindTexture (GL_TEXTURE_2D, bw->blur_texture);
+	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, WIN_W (window), WIN_H (window), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, bw->fbo);
+	glFramebufferTexture2DEXT (GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, bw->blur_texture, 0);
+
+	CHECK_FRAMEBUFFER_STATUS ();
+
+	glBindFramebufferEXT (GL_FRAMEBUFFER_EXT, 0);
+	glBindTexture (GL_TEXTURE_2D, 0);
+}
+
+static Bool
+blurPaintWindow (CompWindow *window, const WindowPaintAttrib *attrib, Region region, unsigned int mask)
+{
+	BlurWindow *bw;
+	BlurScreen *bs;
+	Bool        result;
+
+	g_print ("paintWindow\n");
+
+	bw = GET_BLUR_WINDOW (window);
+	bs = GET_BLUR_SCREEN (window->screen);
+
+	UNWRAP (bs, window->screen, paintWindow);
+	result = (*window->screen->paintWindow) (window, attrib, region, mask);
+	WRAP (bs, window->screen, paintWindow, blurPaintWindow);
+
+	return result;
 }
