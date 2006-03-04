@@ -606,35 +606,11 @@ on_help_about_activate (GtkAction *action, gpointer data)
 }
 
 static void
-nickname_get_str_response (GtkDialog *dialog, gint arg1, gpointer entry)
-{
-	gchar *text, *buf;
-	GtkWidget *check;
-
-	if (arg1 == GTK_RESPONSE_ACCEPT || arg1 == GTK_RESPONSE_OK) {
-		text = (gchar *) gtk_entry_get_text (GTK_ENTRY (entry));
-		check = glade_xml_get_widget (gui.xml, "nickname dialog check");
-		if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check)))
-			buf = g_strdup_printf ("allserv nick %s", text);
-		else
-			buf = g_strdup_printf ("nick %s", text);
-		handle_command (current_sess, buf, FALSE);
-		g_free (buf);
-	}
-	gtk_widget_hide_all (GTK_WIDGET (dialog));
-}
-
-static void
-nickname_str_enter (GtkWidget *entry, GtkWidget *dialog)
-{
-	gtk_dialog_response (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT);
-}
-
-static void
 on_nickname_clicked (GtkButton *widget, gpointer user_data)
 {
 	GtkWidget *dialog;
-	GtkWidget *entry;
+	GtkWidget *entry, *away;
+	gint result;
 
 	if (gui.current_session == NULL)
 		return;
@@ -642,14 +618,38 @@ on_nickname_clicked (GtkButton *widget, gpointer user_data)
 
 	dialog = glade_xml_get_widget (gui.xml, "nickname dialog");
 	entry = glade_xml_get_widget (gui.xml, "nickname dialog entry");
+	away = glade_xml_get_widget (gui.xml, "nickname dialog away");
 
 	gtk_entry_set_text (GTK_ENTRY (entry), current_sess->server->nick);
-	g_signal_connect (G_OBJECT (entry), "activate",
-	                  G_CALLBACK (nickname_str_enter), dialog);
-	g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (nickname_get_str_response), entry);
-	g_signal_connect (G_OBJECT (dialog), "delete-event", G_CALLBACK (gtk_widget_hide_on_delete), NULL);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (away), current_sess->server->is_away);
 
-	gtk_widget_show_all (dialog);
+	result = gtk_dialog_run (GTK_DIALOG (dialog));
+	if (result == GTK_RESPONSE_OK) {
+		GtkWidget *check_all;
+		gboolean all;
+		gchar *text, *buf;
+
+		check_all = glade_xml_get_widget (gui.xml, "nickname dialog all");
+		all = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (check_all));
+
+		/* Nick */
+		text = (gchar *) gtk_entry_get_text (GTK_ENTRY (entry));
+		if (all)
+			buf = g_strdup_printf ("allserv nick %s", text);
+		else
+			buf = g_strdup_printf ("nick %s", text);
+		handle_command (current_sess, buf, FALSE);
+		g_free (buf);
+
+		/* Away */
+		if (current_sess->server->is_away != gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (away))) {
+			if (all)
+				handle_command (current_sess, "allserv away", FALSE);
+			else
+				handle_command (current_sess, "away", FALSE);	
+		}
+	}
+	gtk_widget_hide (dialog);	
 }
 
 static gboolean
