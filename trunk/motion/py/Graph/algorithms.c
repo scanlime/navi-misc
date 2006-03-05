@@ -471,11 +471,15 @@ dijkstra_compare (PyObject *u, PyObject *v, GHashTable *d)
 	gint u_cost = GPOINTER_TO_INT (g_hash_table_lookup (d, u));
 	gint v_cost;
 
+	/* If u is infinity, put it after v in the queue */
 	if (u_cost == -1) {
 		return 1;
 	}
 
 	v_cost = GPOINTER_TO_INT (g_hash_table_lookup (d, v));
+	/* If v is infinitiy, put it after u. Otherwise, compare the costs
+	 * directly.
+	 */
 	if (v_cost == -1) {
 		return -1;
 	} else if (u_cost > v_cost) {
