@@ -457,6 +457,22 @@ initialize_dijkstra_d (PyObject *u, GList *vs, GHashTable *d)
 	g_hash_table_insert (d, u, GINT_TO_POINTER (-1));
 }
 
+/* Update the table of shortest path estimates. If the path that ends with the
+ * edge (u,v) is shorter than the currently stored path to v, replace the cost
+ * in d with the new cost, and replace the old value of previous[v] with u.
+ */
+static void
+relax (GHashTable* d, GHashTable* previous, PyObject* u, PyObject* v)
+{
+	gint u_cost = GPOINTER_TO_INT (g_hash_table_lookup (d, u));
+	gint v_cost = GPOINTER_TO_INT (g_hash_table_lookup (d, v));
+
+	if (v_cost == -1 || v_cost > u_cost + 1) {
+		g_hash_table_insert (d, v, GINT_TO_POINTER (u_cost + 1));
+		g_hash_table_insert (previous, v, u);
+	}
+}
+
 static PyObject *
 dijkstra_search (PyObject* self, PyObject* args)
 {
@@ -479,12 +495,15 @@ dijkstra_search (PyObject* self, PyObject* args)
 		return NULL;
 	}
 
+	/* Shortest path estimate */
 	d        = g_hash_table_new (g_direct_hash, g_direct_equal);
 	previous = g_hash_table_new (g_direct_hash, g_direct_equal);
 
+	/* Initialize shortest path estimates */
 	g_hash_table_foreach (adjacency, (GHFunc) initialize_dijkstra_d, d);
 	g_hash_table_insert (d, start, GINT_TO_POINTER (0));
 
+	/* Clean up */
 	g_hash_table_destroy (d);
 	g_hash_table_destroy (previous);
 	free_adjacency (adjacency);
