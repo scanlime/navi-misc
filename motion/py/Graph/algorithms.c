@@ -492,7 +492,7 @@ dijkstra_compare (PyObject *u, PyObject *v, GHashTable *d)
 }
 
 static GQueue*
-build_dijkstra_queue (PyObject *start, GHashTable *adjacency, GHashTable *d)
+build_dijkstra_queue (GHashTable *adjacency, GHashTable *d)
 {
 	GQueue* q = g_queue_new ();
 
@@ -518,11 +518,21 @@ relax (GHashTable* d, GHashTable* previous, PyObject* u, PyObject* v)
 	}
 }
 
+/* The meat of Dijkstra's algorithm is here. */
 void
-find_shortest_paths (PyObject* start, GHashTable* adjacency, GHashTable* d,
-		GHashTable* previous)
+find_shortest_paths (GHashTable* adjacency, GHashTable* d, GHashTable* previous)
 {
-	GQueue* agenda = build_dijkstra_queue(start, adjacency, d);
+	GSList *S = g_slist_alloc ();
+	GQueue* agenda = build_dijkstra_queue(adjacency, d);
+
+	while (!g_queue_is_empty (agenda)) {
+		PyObject *u = (PyObject*) g_queue_pop_head (agenda);
+		GSList   *vs = (GSList*) g_hash_table_lookup (adjacency, u);
+		S = g_slist_prepend (S, u);
+		for (GSList *v = vs; v; v = g_slist_next (v)) {
+			relax (d, previous, u, (PyObject*) v->data);
+		}
+	}
 }
 
 static PyObject *
