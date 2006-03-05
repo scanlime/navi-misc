@@ -523,16 +523,29 @@ void
 find_shortest_paths (GHashTable* adjacency, GHashTable* d, GHashTable* previous)
 {
 	GSList *S = g_slist_alloc ();
-	GQueue* agenda = build_dijkstra_queue(adjacency, d);
+	GQueue* agenda = build_dijkstra_queue (adjacency, d);
 
+	/* Go through each node and calculate path costs */
 	while (!g_queue_is_empty (agenda)) {
+		/* Next node*/
 		PyObject *u = (PyObject*) g_queue_pop_head (agenda);
+		/* Nodes connected to the current node */
 		GSList   *vs = (GSList*) g_hash_table_lookup (adjacency, u);
+		/* Add the current node to the list of visited nodes */
 		S = g_slist_prepend (S, u);
+		/* For each connected node update path costs */
 		for (GSList *v = vs; v; v = g_slist_next (v)) {
 			relax (d, previous, u, (PyObject*) v->data);
 		}
+		/* Re-sort the queue so that the node with the minimum cost is
+		 * in front
+		 */
+		g_queue_sort (agenda, (GCompareDataFunc) dijkstra_compare, d);
 	}
+
+	/* Clean up */
+	g_slist_free (S);
+	g_queue_free (agenda);
 }
 
 static PyObject *
@@ -564,6 +577,9 @@ dijkstra_search (PyObject* self, PyObject* args)
 	/* Initialize shortest path estimates */
 	g_hash_table_foreach (adjacency, (GHFunc) initialize_dijkstra_d, d);
 	g_hash_table_insert (d, start, GINT_TO_POINTER (0));
+
+	/* Execute the actual search */
+	find_shortest_paths (adjacency, d, previous);
 
 	/* Clean up */
 	g_hash_table_destroy (d);
