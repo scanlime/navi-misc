@@ -22,12 +22,17 @@
 #include <config.h>
 #include <glib/gi18n.h>
 #include <gnome.h>
+#ifdef HAVE_LIBSEXY
+#include <libsexy/sexy-tree-view.h>
+#endif
 #include "userlist-gui.h"
 #include "pixmaps.h"
 #include "palette.h"
 #include "../common/xchat.h"
 #include "../common/userlist.h"
 #include "../common/outbound.h"
+#include "../common/util.h"
+#include "../common/server.h"
 
        gboolean userlist_click              (GtkWidget *view, GdkEventButton *event, gpointer data);
        void     userlist_context            (GtkWidget *treeview, struct User *user);
@@ -38,6 +43,9 @@ static gboolean userlist_window_grab_broken (GtkWidget *window, GdkEventGrabBrok
 static void     userlist_popup_deactivate   (GtkMenuShell *menu, gpointer data);
 static gboolean userlist_button_release     (GtkWidget *widget, GdkEventButton *button, gpointer data);
 struct User*    userlist_get_selected       (void);
+#ifdef HAVE_LIBSEXY
+static GtkWidget* get_user_tooltip	    (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, gpointer data);
+#endif
 
 /* action callbacks */
 static void user_send_file_activate   (GtkAction *action, gpointer data);
@@ -64,9 +72,21 @@ initialize_userlist (void)
 	GtkCellRenderer *icon_renderer, *text_renderer;
 	GtkTreeViewColumn *icon_column, *text_column;
 	GtkTreeSelection *select;
+	GtkWidget *swin;
 
-	gui.userlist        = glade_xml_get_widget (gui.xml, "userlist");
+#ifdef HAVE_LIBSEXY
+	gui.userlist = sexy_tree_view_new ();
+#else
+	gui.userlist = gtk_tree_view_new ();
+#endif
+	gtk_widget_show (gui.userlist);
 	gui.userlist_window = glade_xml_get_widget (gui.xml, "userlist_window");
+
+	swin = glade_xml_get_widget (gui.xml, "scrolledwindow_userlist");
+	gtk_container_add (GTK_CONTAINER (swin), gui.userlist);
+
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (gui.userlist), FALSE);
+	gtk_tree_view_set_hover_selection (GTK_TREE_VIEW (gui.userlist), TRUE);
 
 	icon_renderer = gtk_cell_renderer_pixbuf_new ();
 	icon_column = gtk_tree_view_column_new_with_attributes ("icon", icon_renderer, "pixbuf", 0, NULL);
@@ -82,6 +102,9 @@ initialize_userlist (void)
 	g_signal_connect (G_OBJECT (gui.userlist_window), "button_release_event", G_CALLBACK (userlist_button_release), NULL);
 	g_signal_connect (G_OBJECT (gui.userlist_window), "grab_broken_event", G_CALLBACK (userlist_window_grab_broken), NULL);
 	g_signal_connect (G_OBJECT (gui.userlist_window), "event", G_CALLBACK (userlist_window_event), NULL);
+#ifdef HAVE_LIBSEXY
+	g_signal_connect(G_OBJECT (gui.userlist), "get-tooltip", G_CALLBACK (get_user_tooltip), NULL);
+#endif
 
 	gtk_action_group_add_actions (gui.action_group, popup_action_entries, G_N_ELEMENTS (popup_action_entries), NULL);
 }
@@ -348,3 +371,65 @@ userlist_button_release (GtkWidget *widget, GdkEventButton *button, gpointer dat
 	userlist_gui_hide ();
 	return TRUE;
 }
+
+#ifdef HAVE_LIBSEXY
+static GtkWidget*
+get_user_tooltip (SexyTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, gpointer data)
+{
+	struct User *user;
+	GtkWidget *vbox, *label;
+	gchar *text, *tmp, *country_txt;
+
+	vbox = gtk_vbox_new (FALSE, 0);
+	user = userlist_get_selected ();
+
+	text = g_strdup_printf ("<span size=\"large\" weight=\"bold\">%s</span>", user->nick);
+
+	if (user->realname && strlen (user->realname) > 0) {
+		tmp = text;
+		text = g_strdup_printf (_("%s\n<span weight=\"bold\">Name:</span> %s"), text, user->realname);
+		g_free (tmp);
+	}
+
+	country_txt = country (user->hostname);
+	if (country_txt && strcmp (country_txt, _("Unknown")) != 0) {
+		tmp = text;
+		text = g_strdup_printf (_("%s\n<span weight=\"bold\">Country:</span> %s"), text, country_txt);
+		g_free (tmp);
+	}
+
+	if (user->lasttalk) {
+		gint last;
+
+		last = (gint) (time (NULL) - user->lasttalk) / 60;
+		if (last >= 1) {
+			tmp = text;
+			if (last == 1)
+				text = g_strdup_printf (_("%s\n<span weight=\"bold\">Last message:</span> 1 minute ago"), text);
+			else
+				text = g_strdup_printf (_("%s\n<span weight=\"bold\">Last message:</span> %d minutes ago"), text, last);
+			g_free (tmp);
+		}
+	}
+
+	if (user->away) {
+		struct away_msg *away_msg;
+
+		away_msg = server_away_find_message (gui.current_session->server, user->nick);
+		if (away_msg) {
+			tmp = text;
+			text =  g_strdup_printf (_("%s\n<span weight=\"bold\">Away message:</span> %s"), text, away_msg->message);
+			g_free (tmp);
+		}
+	}
+
+	label = gtk_label_new (NULL);
+	gtk_label_set_markup (GTK_LABEL (label), text);
+	gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, TRUE, 0);
+	g_free (text);
+
+	gtk_widget_show_all (vbox);	
+
+	return vbox;
+}
+#endif

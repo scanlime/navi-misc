@@ -1,3 +1,11 @@
+Sun Mar  5 01:34:09 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/userlist-gui.c:
+	* src/fe-gnome/navigation-tree.c:
+	* data/xchat-gnome.glade:
+	  - Use SexyTreeView for the userlist and so display a very cute
+	    tooltip containing user's informations.
+
 Fri Mar  3 17:46:15 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/userlist-gui.c:
