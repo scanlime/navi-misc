@@ -554,6 +554,8 @@ dijkstra_search (PyObject* self, PyObject* args)
 	PyObject*   adjacency_list;
 	PyObject*   start;
 	PyObject*   end;
+	PyObject*   ret;
+	PyObject*   node;
 	GHashTable* adjacency = NULL;
 	GHashTable* previous = NULL;
 	GHashTable* d = NULL;
@@ -581,8 +583,37 @@ dijkstra_search (PyObject* self, PyObject* args)
 	/* Execute the actual search */
 	find_shortest_paths (adjacency, d, previous);
 
+	/* Build a list containing the path */
+	ret = PyList_New (0);
+	node = g_hash_table_lookup (previous, end);
+	if (node == NULL) {
+		PyErr_SetString (PyExc_RuntimeError, "No path found");
+		g_hash_table_destroy (d);
+		g_hash_table_destroy (previous);
+		free_adjacency (adjacency);
+		Py_DECREF (ret);
+		return NULL;
+	}
+	PyList_Append (ret, node);
+	while (node != start) {
+		node = g_hash_table_lookup (previous, node);
+		if (node == NULL) {
+			PyErr_SetString (PyExc_RuntimeError, "No path found");
+			g_hash_table_destroy (d);
+			g_hash_table_destroy (previous);
+			free_adjacency (adjacency);
+			Py_DECREF (ret);
+			return NULL;
+		}
+		PyList_Append (ret, node);
+	}
+
+	PyList_Reverse (ret);
+
 	/* Clean up */
 	g_hash_table_destroy (d);
 	g_hash_table_destroy (previous);
 	free_adjacency (adjacency);
+
+	return ret;
 }
