@@ -392,8 +392,8 @@ heuristic_search (GHashTable* adjacency, GHashTable* edges, GSList* start,
 		}
 	}
 
-	free_agenda (agenda);
-	g_hash_table_destroy (costs);
+	free_costs (costs);
+	g_queue_free (agenda);
 	return NULL;
 }
 
@@ -457,6 +457,47 @@ initialize_dijkstra_d (PyObject *u, GList *vs, GHashTable *d)
 	g_hash_table_insert (d, u, GINT_TO_POINTER (-1));
 }
 
+static void
+add_to_queue (PyObject *u, GList *vs, GQueue *q)
+{
+	g_queue_push_head (q, u);
+}
+
+/* Comparison function for sorting the agenda queue for Dijkstra's algorithm.
+ */
+static gint
+dijkstra_compare (PyObject *u, PyObject *v, GHashTable *d)
+{
+	gint u_cost = GPOINTER_TO_INT (g_hash_table_lookup (d, u));
+	gint v_cost;
+
+	if (u_cost == -1) {
+		return 1;
+	}
+
+	v_cost = GPOINTER_TO_INT (g_hash_table_lookup (d, v));
+	if (v_cost == -1) {
+		return -1;
+	} else if (u_cost > v_cost) {
+		return 1;
+	} else if (u_cost == v_cost) {
+		return 0;
+	}
+
+	return -1;
+}
+
+static GQueue*
+build_dijkstra_queue (PyObject *start, GHashTable *adjacency, GHashTable *d)
+{
+	GQueue* q = g_queue_new ();
+
+	g_hash_table_foreach (adjacency, (GHFunc) add_to_queue, q);
+	g_queue_sort (q, (GCompareDataFunc) dijkstra_compare, d);
+
+	return q;
+}
+
 /* Update the table of shortest path estimates. If the path that ends with the
  * edge (u,v) is shorter than the currently stored path to v, replace the cost
  * in d with the new cost, and replace the old value of previous[v] with u.
@@ -471,6 +512,13 @@ relax (GHashTable* d, GHashTable* previous, PyObject* u, PyObject* v)
 		g_hash_table_insert (d, v, GINT_TO_POINTER (u_cost + 1));
 		g_hash_table_insert (previous, v, u);
 	}
+}
+
+void
+find_shortest_paths (PyObject* start, GHashTable* adjacency, GHashTable* d,
+		GHashTable* previous)
+{
+	GQueue* agenda = build_dijkstra_queue(start, adjacency, d);
 }
 
 static PyObject *
