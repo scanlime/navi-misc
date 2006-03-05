@@ -26,9 +26,7 @@ def f (path, goal):
     h = 0
 
     # cost to goal
-    for i in range(len(goal.center)):
-        h += (goal.center[i] - path[-1].center[i])**2
-    h = math.sqrt (h)
+    h = len (algorithms_c.dijkstraSearch (adjacency, path[-1], goal))
 
     return g + h
 
