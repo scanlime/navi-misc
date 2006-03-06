@@ -434,15 +434,15 @@ aStar_search (PyObject* self, PyObject *args)
 	}
 
 	/* Search */
-	GSList* p = g_slist_alloc ();
-	p = g_slist_prepend (p, start);
+	GSList* p = g_slist_prepend (NULL, start);
 	GSList* path = heuristic_search (adjacency, edges, p, end, f_cost);
 
 	if (path) {
 		result = PyList_New (0);
 		for (GSList* node = path; node; node = g_slist_next (node)) {
-			PyList_Insert (result, 0, (PyObject*) node->data);
+			PyList_Append (result, (PyObject*) node->data);
 		}
+		PyList_Reverse (result);
 	} else {
 		Py_INCREF (Py_None);
 		result = Py_None;
@@ -522,7 +522,7 @@ relax (GHashTable* d, GHashTable* previous, PyObject* u, PyObject* v)
 void
 find_shortest_paths (GHashTable* adjacency, GHashTable* d, GHashTable* previous)
 {
-	GSList *S = g_slist_alloc ();
+	GSList *S = NULL;
 	GQueue* agenda = build_dijkstra_queue (adjacency, d);
 
 	/* Go through each node and calculate path costs */

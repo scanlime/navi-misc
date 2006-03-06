@@ -56,8 +56,8 @@ path = algorithms_c.aStarSearch (adjacency,
 
 if path:
     print "    Path of length %d found" % (len(path))
-    for n in path:
-        print "    %s" % (n)
+    for element in path:
+        print element
 else:
     print "    No path found"
 
