@@ -33,8 +33,11 @@ get_screensaver_running_xprop (void)
 	if (g_spawn_command_line_sync (cmd, &stdout, NULL, NULL, NULL)) {
 		g_strchomp (stdout);
 		ptr = strstr (stdout, " = ") + 3;
-		if ((int) ptr > 3 && (strncmp (ptr, "BLANK", 5) == 0 || strncmp(ptr, "LOCK", 4) == 0)) 
-			rv = TRUE;
+		if (ptr != NULL) {
+			ptr += 3;
+			if ((strncmp (ptr, "BLANK", 5) == 0 || strncmp (ptr, "LOCK", 4) == 0))
+				rv = TRUE;
+		}
 	}
 	trace ("xprop_screensaver, returning %s", rv ? "TRUE" : "FALSE");
 	g_free (stdout);
@@ -51,8 +54,11 @@ get_screensaver_running_xs_cmd (void)
 
 	if (g_spawn_command_line_sync (cmd, &stdout, NULL, NULL, NULL)) {
 		ptr = strstr (stdout, " screen ") + 8;
-		if ((int) ptr > 8 && (strncmp (ptr, "blanked", 7) == 0 || strncmp (ptr, "locked", 6) == 0))
-			rv = TRUE;
+		if (ptr != NULL) {
+			ptr += 8;
+			if ((strncmp (ptr, "blanked", 7) == 0 || strncmp (ptr, "locked", 6) == 0))
+				rv = TRUE;
+		}
 	}
 	g_free (stdout);
 

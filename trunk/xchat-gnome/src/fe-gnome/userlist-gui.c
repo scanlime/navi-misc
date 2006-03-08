@@ -22,6 +22,7 @@
 #include <config.h>
 #include <glib/gi18n.h>
 #include <gnome.h>
+#include <string.h>
 #ifdef HAVE_LIBSEXY
 #include <libsexy/sexy-tree-view.h>
 #endif

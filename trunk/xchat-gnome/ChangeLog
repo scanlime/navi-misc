@@ -1,3 +1,14 @@
+Wed Mar  8 00:47:54 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* plugins/autoaway/xscreensaver.c:
+	* plugins/notify-osd/notify-osd.c:
+	* src/fe-gnome/text-entry.c:
+	* src/fe-gnome/userlist-gui.c:
+	* src/fe-gnome/channel-list.c:
+	* src/fe-gnome/plugins.c:
+	  - Fix a variety of warnings, ranging from 64-bit compatibility stuff
+	    to not including <string.h> in the right places.
+
 Wed Mar  8 00:34:15 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* data/topic-change.glade:
