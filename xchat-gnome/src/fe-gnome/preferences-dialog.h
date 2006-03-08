@@ -43,11 +43,11 @@ typedef struct _PreferencesDialogClass PreferencesDialogClass;
 
 struct _PreferencesDialog
 {
-	GtkDialog parent;
+	GObject parent;
 
 	GConfClient *gconf;
 
-	GtkWidget *toplevel;
+	GtkWidget *dialog;
 	GtkWidget *settings_page_list;
 	GtkWidget *settings_notebook;
 
@@ -63,11 +63,12 @@ struct _PreferencesDialog
 
 struct _PreferencesDialogClass
 {
-	GtkDialogClass parent_class;
+	GObjectClass parent_class;
 };
 
 GType              preferences_dialog_get_type (void) G_GNUC_CONST;
 PreferencesDialog *preferences_dialog_new (void);
+void               preferences_dialog_show (PreferencesDialog *dialog);
 
 G_END_DECLS
 

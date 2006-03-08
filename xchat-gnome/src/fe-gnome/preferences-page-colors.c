@@ -100,24 +100,24 @@ colors_changed (GtkComboBox *combo_box, PreferencesColorsPage *page)
 {
 	int i, selection;
 	GConfClient *client;
+	gboolean sensitive;
 
 	client = gconf_client_get_default ();
 
 	selection = gtk_combo_box_get_active (combo_box);
 	scheme = selection;
 
+	sensitive = (selection == 2);
+
 	/* If we've set custom, sensitize the color buttons */
-	if (selection == 2) {
-		for (i = 0; i < 4; i++)
-			gtk_widget_set_sensitive (page->color_buttons[i], TRUE);
-		for (i = 0; i < 32; i++)
-			gtk_widget_set_sensitive (page->palette_buttons[i], TRUE);
-	} else {
-		for (i = 0; i < 4; i++)
-			gtk_widget_set_sensitive (page->color_buttons[i], FALSE);
-		for (i = 0; i < 32; i++)
-			gtk_widget_set_sensitive (page->palette_buttons[i], FALSE);
-	}
+	for (i = 0; i < 4; i++)
+		gtk_widget_set_sensitive (page->color_buttons[i], sensitive);
+	for (i = 0; i < 32; i++)
+		gtk_widget_set_sensitive (page->palette_buttons[i], sensitive);
+
+	gtk_widget_set_sensitive (page->mirc_colors_box, sensitive);
+	gtk_widget_set_sensitive (page->extra_colors_box, sensitive);
+
 	gconf_client_set_int (client, "/apps/xchat/irc/color_scheme", selection, NULL);
 	set_color_buttons (selection, page->color_buttons);
 	set_palette_buttons (selection, page->palette_buttons);
@@ -161,7 +161,9 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	GW(foreground_mark_hbox);
 	GW(background_mark_hbox);
 
+	GW(mirc_colors_box);
 	GW(mirc_palette_table);
+	GW(extra_colors_box);
 	GW(extra_palette_table);
 #undef GW
 
@@ -178,7 +180,6 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 			gint c = j * 8 + i;
 			page->palette_buttons[c] = gtk_color_button_new ();
 			gtk_widget_show (page->palette_buttons[c]);
-			gtk_widget_set_sensitive (page->palette_buttons[c], FALSE);
 			gtk_table_attach_defaults (GTK_TABLE (page->mirc_palette_table), page->palette_buttons[c], i, i+1, j, j+1);
 			gtk_color_button_set_color (GTK_COLOR_BUTTON (page->palette_buttons[c]), &colors[c]);
 			g_signal_connect (G_OBJECT (page->palette_buttons[c]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (c));
@@ -189,7 +190,6 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 			gint c = j * 8 + i + 16;
 			page->palette_buttons[c] = gtk_color_button_new ();
 			gtk_widget_show (page->palette_buttons[c]);
-			gtk_widget_set_sensitive (page->palette_buttons[c], FALSE);
 			gtk_table_attach_defaults (GTK_TABLE (page->extra_palette_table), page->palette_buttons[c], i, i+1, j, j+1);
 			gtk_color_button_set_color (GTK_COLOR_BUTTON (page->palette_buttons[c]), &colors[c]);
 			g_signal_connect (G_OBJECT (page->palette_buttons[c]), "color-set", G_CALLBACK (color_button_changed), GINT_TO_POINTER (c));
@@ -199,7 +199,6 @@ preferences_page_colors_new (gpointer prefs_dialog, GladeXML *xml)
 	for (i = 0; i < 4; i++) {
 		page->color_buttons[i] = gtk_color_button_new ();
 		gtk_widget_show (page->color_buttons[i]);
-		gtk_widget_set_sensitive (page->color_buttons[i], FALSE);
 	}
 	gtk_box_pack_start (GTK_BOX (page->text_color_hbox),       page->color_buttons[0], FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (page->background_color_hbox), page->color_buttons[1], FALSE, TRUE, 0);
