@@ -1,3 +1,13 @@
+Wed Mar  8 00:34:15 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* data/topic-change.glade:
+	  - Disallow tabs in the topic input box, which makes the box much
+	    more usable with the keyboard.
+	* src/fe-gnome/topic-label.c:
+	  - Make it so typing enter into the topic change box activates the
+	    default response for the dialog, since newlines are meaningless in
+	    IRC topics.
+
 Sun Mar  5 11:28:31 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* configure.ac:
