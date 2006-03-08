@@ -90,7 +90,7 @@ unload_plugin (char *filename)
 		g_free (command);
 	}
 
-	item = g_slist_find_custom (loaded_plugins, filename, strcmp);
+	item = g_slist_find_custom (loaded_plugins, filename, (GCompareFunc) strcmp);
 	loaded_plugins = g_slist_remove (loaded_plugins, item->data);
 	g_free (item->data);
 
@@ -123,8 +123,8 @@ load_plugin (session * sess, char *filename, char *arg, gboolean script, gboolea
 	 * prevents plugins from being loaded several times (which can
 	 * happen if the enabled key has something listed more than once.
 	 */
-	if (g_slist_find_custom (loaded_plugins, filename, strcmp))
-		return;
+	if (g_slist_find_custom (loaded_plugins, filename, (GCompareFunc) strcmp))
+		return NULL;
 
 	if (len > 3 && strcasecmp (filename + len - 3, ".so") == 0) {
 		if (!(autoload && script)) {

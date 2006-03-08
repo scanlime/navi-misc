@@ -23,6 +23,7 @@
 #include <config.h>
 #include <libnotify/notify.h>
 #include <libgnome/gnome-i18n.h>
+#include <string.h>
 #include "xchat-plugin.h"
 #include "xg-plugin.h"
 

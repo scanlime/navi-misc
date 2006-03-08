@@ -81,7 +81,7 @@ chanlist_delete (GtkWidget *widget, GdkEvent *event, channel_list_window *win)
 	if (win->refresh_timeout)
 		g_source_remove (win->refresh_timeout);
 
-	g_slist_remove (chanlists, (gpointer) win);
+	chanlists = g_slist_remove (chanlists, (gpointer) win);
 
 	window = glade_xml_get_widget (win->xml, "window 1");
 	gtk_widget_hide_all (window);
@@ -388,7 +388,7 @@ create_channel_list (session *sess)
 	g_signal_connect (G_OBJECT (widget), "configure-event", G_CALLBACK (chanlist_resize), NULL);
 	gtk_widget_show_all (widget);
 
-	g_slist_append (chanlists, win);
+	chanlists = g_slist_append (chanlists, win);
 	chanlist_refresh (refresh_button, win);
 }
 
