@@ -37,7 +37,6 @@
 #include "main-window.h"
 #include "navigation-tree.h"
 #include "palette.h"
-#include "preferences-dialog.h"
 #include "preferences.h"
 #include "userlist-gui.h"
 #include "util.h"
@@ -424,11 +423,13 @@ on_edit_clear_activate (GtkAction *action, gpointer data)
 static void
 on_edit_preferences_activate (GtkAction *action, gpointer data)
 {
-	PreferencesDialog *dialog;
+	if (!gui.prefs_dialog) {
+		gui.prefs_dialog = preferences_dialog_new ();
+		g_object_add_weak_pointer (G_OBJECT (gui.prefs_dialog),
+					   (gpointer *) (&gui.prefs_dialog));
+	}
 
-	dialog = preferences_dialog_new ();
-	gtk_dialog_run (GTK_DIALOG (dialog));
-	gtk_widget_destroy (GTK_WIDGET (dialog));
+	preferences_dialog_show (gui.prefs_dialog);
 }
 
 static void

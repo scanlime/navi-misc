@@ -25,7 +25,7 @@
 #include "pixmaps.h"
 #include "util.h"
 
-static GtkDialogClass *parent_class;
+static GObjectClass *parent_class;
 
 static void
 preferences_dialog_finalize (GObject *object)
@@ -41,7 +41,7 @@ preferences_dialog_finalize (GObject *object)
 	preferences_page_plugins_free  (p->plugins_page);
 #endif
 
-	((GObjectClass *) parent_class)->finalize (object);
+	parent_class->finalize (object);
 }
 
 static void
@@ -54,15 +54,23 @@ preferences_dialog_dispose (GObject *object)
 		p->gconf = NULL;
 	}
 
-	((GObjectClass *) parent_class)->dispose (object);
+	if (p->dialog) {
+		gtk_widget_destroy (p->dialog);
+		p->dialog = NULL;
+	}
+
+	parent_class->dispose (object);
 }
 
 static void
 preferences_dialog_class_init (PreferencesDialogClass *klass)
 {
-	GObjectClass *parent = (GObjectClass *) klass;
-	parent->finalize = preferences_dialog_finalize;
-	parent->dispose = preferences_dialog_dispose;
+	GObjectClass *object_class = (GObjectClass *) klass;
+
+	parent_class = g_type_class_peek_parent (klass);
+
+	object_class->finalize = preferences_dialog_finalize;
+	object_class->dispose = preferences_dialog_dispose;
 }
 
 static void
@@ -79,6 +87,20 @@ page_selection_changed (GtkTreeSelection *select, PreferencesDialog *p)
 }
 
 static void
+preferences_response (GtkWidget *widget,
+		      gint response,
+		      PreferencesDialog *dialog)
+{
+	if (response == GTK_RESPONSE_HELP)
+	{
+		/* FIXME */
+		return;
+	}
+
+	g_object_unref (dialog);
+}
+
+static void
 preferences_dialog_init (PreferencesDialog *p)
 {
 	GtkCellRenderer *icon_renderer, *text_renderer;
@@ -87,30 +109,28 @@ preferences_dialog_init (PreferencesDialog *p)
 	GladeXML *xml;
 
 	p->gconf = NULL;
-	p->toplevel = NULL;
+	p->dialog = NULL;
 
 	xml = NULL;
 	if (g_file_test ("../../data/preferences-dialog.glade", G_FILE_TEST_EXISTS))
-		xml = glade_xml_new ("../../data/preferences-dialog.glade", "toplevel", NULL);
+		xml = glade_xml_new ("../../data/preferences-dialog.glade", "dialog", NULL);
 	if (!xml)
-		xml = glade_xml_new (XCHATSHAREDIR "/preferences-dialog.glade", "toplevel", NULL);
+		xml = glade_xml_new (XCHATSHAREDIR "/preferences-dialog.glade", "dialog", NULL);
 	if (!xml)
 		return;
 
 #define GW(name) ((p->name) = glade_xml_get_widget (xml, #name))
-	GW(toplevel);
+	GW(dialog);
 	GW(settings_page_list);
 	GW(settings_notebook);
 #undef GW
 
 	p->gconf = gconf_client_get_default ();
 
-	gtk_dialog_add_button (GTK_DIALOG (p), GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE);
-	gtk_dialog_add_button (GTK_DIALOG (p), GTK_STOCK_HELP, GTK_RESPONSE_HELP);
-	gtk_container_set_border_width (GTK_CONTAINER (p), 6);
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (p)->vbox), p->toplevel);
-	gtk_dialog_set_has_separator (GTK_DIALOG (p), FALSE);
-	g_signal_connect (G_OBJECT (p), "key-press-event", G_CALLBACK (dialog_escape_key_handler_hide), NULL);
+	g_assert (p->dialog);
+
+	g_signal_connect (p->dialog, "response", G_CALLBACK (preferences_response), p);
+	g_signal_connect (p->dialog, "key-press-event", G_CALLBACK (dialog_escape_key_handler_hide), NULL);
 
 	gtk_notebook_set_show_tabs (GTK_NOTEBOOK (p->settings_notebook), FALSE);
 
@@ -138,8 +158,6 @@ preferences_dialog_init (PreferencesDialog *p)
 	p->plugins_page  = preferences_page_plugins_new  (p, xml);
 #endif
 
-	gtk_window_set_title (GTK_WINDOW (p), "Preferences");
-
 	g_object_unref (xml);
 }
 
@@ -147,7 +165,7 @@ GType
 preferences_dialog_get_type (void)
 {
 	static GType preferences_dialog_type = 0;
-	if (!preferences_dialog_type) {
+	if (G_UNLIKELY (preferences_dialog_type == 0)) {
 		static const GTypeInfo preferences_dialog_info = {
 			sizeof (PreferencesDialogClass),
 			NULL, NULL,
@@ -157,9 +175,7 @@ preferences_dialog_get_type (void)
 			0,
 			(GInstanceInitFunc) preferences_dialog_init,
 		};
-		preferences_dialog_type = g_type_register_static (GTK_TYPE_DIALOG, "PreferencesDialog", &preferences_dialog_info, 0);
-
-		parent_class = g_type_class_ref (GTK_TYPE_DIALOG);
+		preferences_dialog_type = g_type_register_static (G_TYPE_OBJECT, "PreferencesDialog", &preferences_dialog_info, 0);
 	}
 
 	return preferences_dialog_type;
@@ -168,11 +184,18 @@ preferences_dialog_get_type (void)
 PreferencesDialog *
 preferences_dialog_new (void)
 {
-	PreferencesDialog *p = g_object_new (preferences_dialog_get_type (), 0);
-	if (p->toplevel == NULL) {
+	PreferencesDialog *p = g_object_new (preferences_dialog_get_type (), NULL);
+	if (p->dialog == NULL) {
 		g_object_unref (p);
 		return NULL;
 	}
 
 	return p;
+}
+
+void
+preferences_dialog_show (PreferencesDialog *dialog)
+{
+	gtk_window_present_with_time (GTK_WINDOW (dialog->dialog),
+				      gtk_get_current_event_time ());
 }

@@ -224,7 +224,6 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 	GtkCellRenderer *renderer;
 	gchar *text;
 	gboolean toggle;
-	GtkSizeGroup *group;
 	GtkTreeSelection *select;
 	gchar **highlight_entries;
 	gint i;
@@ -255,15 +254,6 @@ preferences_page_irc_new (gpointer prefs_dialog, GladeXML *xml)
 		page->icon = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/irc.png", NULL);
 	gtk_list_store_append (p->page_store, &iter);
 	gtk_list_store_set (p->page_store, &iter, 0, page->icon, 1, _("IRC Preferences"), 2, 0, -1);
-
-	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	gtk_size_group_add_widget (group, page->nick_name);
-	gtk_size_group_add_widget (group, page->real_name);
-	gtk_size_group_add_widget (group, page->quit_message);
-	gtk_size_group_add_widget (group, page->part_message);
-	gtk_size_group_add_widget (group, page->away_message);
-	gtk_size_group_add_widget (group, page->font_selection);
-	g_object_unref (group);
 
 	g_signal_connect (G_OBJECT (page->nick_name),        "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/nickname");
 	g_signal_connect (G_OBJECT (page->real_name),        "changed",  G_CALLBACK (entry_changed),    "/apps/xchat/irc/realname");

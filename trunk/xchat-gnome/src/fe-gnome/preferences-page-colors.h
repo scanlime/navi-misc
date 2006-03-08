@@ -44,7 +44,9 @@ typedef struct
 	GtkWidget *foreground_mark_hbox;
 	GtkWidget *background_mark_hbox;
 
+	GtkWidget *mirc_colors_box;
 	GtkWidget *mirc_palette_table;
+	GtkWidget *extra_colors_box;
 	GtkWidget *extra_palette_table;
 
 	GdkPixbuf *icon;

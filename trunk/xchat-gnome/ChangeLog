@@ -1,3 +1,17 @@
+Wed Mar  8 14:26:51 MST 2006  Christian Persch <chpe@gnome.org>
+
+	* src/fe-gnome/preferences-page-dcc.c:
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/preferences-dialog.c:
+	* src/fe-gnome/preferences-dialog.h:
+	* src/fe-gnome/preferences-page-irc.c:
+	* src/fe-gnome/gui.h:
+	* src/fe-gnome/preferences-page-colors.c:
+	* src/fe-gnome/preferences-page-colors.h:
+	* data/preferences-dialog.glade:
+	  - A variety of improvements to the preferences dialog.  This fixes
+	    some non-HIG spacing, ugliness from size groups, and modality.
+
 Wed Mar  8 01:24:22 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/userlist-gui.c:

@@ -19,18 +19,19 @@
  *
  */
 
+#ifndef XCHAT_GNOME_GUI_H
+#define XCHAT_GNOME_GUI_H
+
 #include <glade/glade.h>
 #include <gtk/gtkactiongroup.h>
 #include <gtk/gtkuimanager.h>
 #include "userlist.h"
 #include "navigation-tree.h"
 #include "dcc-window.h"
+#include "preferences-dialog.h"
 #include "xtext.h"
 
 #include "../common/xchat.h"
-
-#ifndef XCHAT_GNOME_GUI_H
-#define XCHAT_GNOME_GUI_H
 
 typedef struct
 {
@@ -39,6 +40,7 @@ typedef struct
 	GtkActionGroup *action_group;
 	GtkUIManager *manager;
 	GtkWidget *about;
+	PreferencesDialog *prefs_dialog;
 	DccWindow *dcc;
 	GtkExpander *topic_expander;
 	GtkWidget *userlist_window;

@@ -119,7 +119,6 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	GtkTreeIter iter;
 	PreferencesDCCPage *page = g_new0 (PreferencesDCCPage, 1);
 	PreferencesDialog *p = (PreferencesDialog *) prefs_dialog;
-	GtkSizeGroup *group;
 
 #define GW(name) ((page->name) = glade_xml_get_widget (xml, #name))
 	GW(download_dir_button);
@@ -176,16 +175,6 @@ preferences_page_dcc_new (gpointer prefs_dialog, GladeXML *xml)
 	g_signal_connect (G_OBJECT (page->global_send_throttle),        "value-changed",     G_CALLBACK (gst_changed),                page);
 	g_signal_connect (G_OBJECT (page->individual_receive_throttle), "value-changed",     G_CALLBACK (irt_changed),                page);
 	g_signal_connect (G_OBJECT (page->global_receive_throttle),     "value-changed",     G_CALLBACK (grt_changed),                page);
-
-	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	gtk_size_group_add_widget (group, page->download_dir_button);
-	gtk_size_group_add_widget (group, page->completed_dir_button);
-	gtk_size_group_add_widget (group, page->special_ip_address);
-	gtk_size_group_add_widget (group, page->individual_send_throttle);
-	gtk_size_group_add_widget (group, page->global_send_throttle);
-	gtk_size_group_add_widget (group, page->individual_receive_throttle);
-	gtk_size_group_add_widget (group, page->global_receive_throttle);
-	g_object_unref (group);
 
 	if (g_file_test ("../../data/dcc.png", G_FILE_TEST_EXISTS))
 		page->icon = gdk_pixbuf_new_from_file ("../../data/dcc.png", NULL);
