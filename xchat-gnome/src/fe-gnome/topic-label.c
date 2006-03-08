@@ -42,6 +42,11 @@ static void  topic_label_url_activated    (GtkWidget       *url_label,
                                            const char      *url,
                                            TopicLabel      *label);
 #endif
+static void  topic_entry_activate         (GtkTextBuffer   *textbuffer,
+                                           GtkTextIter     *arg1,
+                                           gchar           *text,
+                                           gint             len,
+                                           GtkDialog       *dialog);
 
 struct _TopicLabelPriv
 {
@@ -243,6 +248,7 @@ topic_label_change_current (TopicLabel *label)
 	topic = label->priv->current->topic;
 	buffer = gtk_text_buffer_new (NULL);
         gtk_text_view_set_buffer (GTK_TEXT_VIEW (entry), buffer);
+	g_signal_connect (G_OBJECT (buffer), "insert-text", G_CALLBACK (topic_entry_activate), dialog);
 	if (topic)
         	gtk_text_buffer_set_text (buffer, topic, -1);
 
@@ -261,4 +267,11 @@ topic_label_change_current (TopicLabel *label)
 
 	gtk_widget_destroy (dialog);
         g_object_unref (xml);
+}
+
+static void
+topic_entry_activate (GtkTextBuffer *textbuffer, GtkTextIter *arg1, gchar *text, gint len, GtkDialog *dialog)
+{
+	if (strncmp (text, "\n", len) == 0)
+		gtk_dialog_response (dialog, GTK_RESPONSE_OK);
 }
