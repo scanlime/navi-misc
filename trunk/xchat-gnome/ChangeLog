@@ -1,3 +1,10 @@
+Wed Mar  8 14:52:12 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/preferences.c:
+	* src/fe-gnome/fe-gnome.c:
+	  - Fill in extra nickname fields in the common prefs structure, so
+	    that the fallbacks are predictable (#333659)
+
 Wed Mar  8 14:26:51 MST 2006  Christian Persch <chpe@gnome.org>
 
 	* src/fe-gnome/preferences-page-dcc.c:

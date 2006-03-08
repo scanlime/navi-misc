@@ -55,13 +55,23 @@ load_preferences (void)
 	GConfClient *client;
 	int color_scheme, palette_scheme;
 	gboolean showcolors;
-	char *text;
+	gchar *text;
 
 	client = gconf_client_get_default ();
 
 	text = gconf_client_get_string (client, "/apps/xchat/irc/nickname", NULL);
-	if (text != NULL)
+	if (text != NULL) {
+		gchar *text2;
 		strcpy (prefs.nick1, text);
+
+		text2 = g_strdup_printf ("%s_", text);
+		strcpy (prefs.nick2, text2);
+		g_free (text2);
+
+		text2 = g_strdup_printf ("%s__", text);
+		strcpy (prefs.nick2, text2);
+		g_free (text2);
+	}
 	g_free (text);
 
 	text = gconf_client_get_string (client, "/apps/xchat/irc/realname", NULL);
