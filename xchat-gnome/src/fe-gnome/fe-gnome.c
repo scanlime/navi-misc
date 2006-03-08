@@ -135,12 +135,12 @@ fe_init (void)
 	gui.quit = FALSE;
 	servlist_init ();
 	palette_init ();
-	load_preferences ();
-	initialize_gui_1 ();
 	if (!preferences_exist ())
 		run_setup_dialog ();
 	else
 		set_version ();
+	load_preferences ();
+	initialize_gui_1 ();
 	initialize_gui_2 ();
 	run_main_window ();
 
