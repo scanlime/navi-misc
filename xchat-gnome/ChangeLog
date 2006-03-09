@@ -1,3 +1,9 @@
+Wed Mar  8 20:44:50 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* data/irc-network-editor.glade:
+	  - Make the servers list view reorderable, to allow users to change
+	    the the priority order.
+
 Wed Mar  8 14:52:12 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/preferences.c:
