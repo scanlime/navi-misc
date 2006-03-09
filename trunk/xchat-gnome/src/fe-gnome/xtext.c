@@ -2025,10 +2025,10 @@ gtk_xtext_set_clip_owner (GtkWidget * xtext, GdkEventButton * event)
 	if (str)
 	{
 #if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION == 0)
-		gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD),
+		gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_PRIMARY),
 										str, len);
 #else
-		gtk_clipboard_set_text (gtk_widget_get_clipboard (xtext, GDK_SELECTION_CLIPBOARD),
+		gtk_clipboard_set_text (gtk_widget_get_clipboard (xtext, GDK_SELECTION_PRIMARY),
 										str, len);
 #endif
 		free (str);

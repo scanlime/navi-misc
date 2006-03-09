@@ -399,25 +399,25 @@ on_irc_quit_activate (GtkAction *action, gpointer data)
 static void
 on_edit_cut_activate (GtkAction *action, gpointer data)
 {
-	gtk_editable_cut_clipboard(GTK_EDITABLE(gui.text_entry));
+	gtk_editable_cut_clipboard (GTK_EDITABLE (gui.text_entry));
 }
 
 static void
 on_edit_copy_activate (GtkAction *action, gpointer data)
 {
-	gtk_editable_copy_clipboard(GTK_EDITABLE(gui.text_entry));
+	gtk_editable_copy_clipboard (GTK_EDITABLE (gui.text_entry));
 }
 
 static void
 on_edit_paste_activate (GtkAction *action, gpointer data)
 {
-	gtk_editable_paste_clipboard(GTK_EDITABLE(gui.text_entry));
+	gtk_editable_paste_clipboard (GTK_EDITABLE (gui.text_entry));
 }
 
 static void
 on_edit_clear_activate (GtkAction *action, gpointer data)
 {
-	gtk_editable_delete_selection(GTK_EDITABLE(gui.text_entry));
+	gtk_editable_delete_selection (GTK_EDITABLE (gui.text_entry));
 }
 
 static void
