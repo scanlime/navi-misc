@@ -510,7 +510,7 @@ open_url (GtkAction *action, ConversationPanel *panel)
 static void
 copy_text (GtkAction *action, ConversationPanel *panel)
 {
-	GtkClipboard *clipboard = gtk_clipboard_get (GDK_NONE);
+	GtkClipboard *clipboard = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
         gtk_clipboard_set_text (clipboard, panel->priv->selected_word, strlen (panel->priv->selected_word));
 }
 
