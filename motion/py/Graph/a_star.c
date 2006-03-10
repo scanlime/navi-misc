@@ -22,6 +22,11 @@
 #include <glib.h>
 #include <Python.h>
 
+GSList*
+generate_successors (GHashTable* adjacency, GSList* path)
+{
+}
+
 /* Return the cost of a path. */
 gint
 cost (GSList* path, PyObject* goal, PyObject* fcost)
@@ -99,7 +104,7 @@ heuristic_search (GHashTable* adjacency, GSList* start, PyObject* goal,
 	/* Run until we run out of things to check */
 	while (!g_queue_is_empty (agenda)) {
 		GSList* path       = (GSList*) g_queue_pop_head (agenda);
-		GSList* successors = successors (adjacency, path->data);
+		GSList* successors = generate_successors (adjacency, path->data);
 
 		for (GSList* s = successors; s; s = g_slist_next (s)) {
 			/* If this node is the goal prepend it to the path and
