@@ -21,6 +21,7 @@
 
 #include <glib.h>
 #include <Python.h>
+#include "utilities.h"
 
 void
 search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, int depth, GSList* good_paths[])
