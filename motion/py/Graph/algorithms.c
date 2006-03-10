@@ -401,15 +401,17 @@ static PyObject*
 aStar_search (PyObject* self, PyObject *args)
 {
 	PyObject*   adjacency_list;
-	PyObject*   edge_list;
 	PyObject*   start;
 	PyObject*   end;
 	PyObject*   f_cost;
 	PyObject*   result;
+	PyObject*   key;
+	PyObject*   value;
 	GHashTable* adjacency = NULL;
+	int         pos = 0;
 
 	/* Get all the arguments */
-	if (!PyArg_ParseTuple (args, "OOOOO", &adjacency_list, &edge_list, &start, &end, &f_cost)) {
+	if (!PyArg_ParseTuple (args, "OOOO", &adjacency_list, &start, &end, &f_cost)) {
 		return NULL;
 	}
 
@@ -420,10 +422,15 @@ aStar_search (PyObject* self, PyObject *args)
 	}
 
 	/* Retrieve adjacency and edge lists */
-	adjacency = query_adjacency (adjacency_list);
-	if (adjacency == NULL) {
-		PyErr_SetString (PyExc_RuntimeError, "couldn't build adjacency hash table");
-		return NULL;
+	adjacency = g_hash_table_new (g_str_hash, g_direct_equal);
+	while (PyDict_Next (adjacency_list, &pos, &key, &value)) {
+		char* bone = PyString_AsString (key);
+		GHashTable* adj = query_adjacency (value);
+		if (adj == NULL) {
+			PyErr_SetString (PyExc_RuntimeError, "couldn't build adjacency hash table");
+			return NULL;
+		}
+		g_hash_table_insert (adjacency, bone, adj);
 	}
 
 	/* Search */
