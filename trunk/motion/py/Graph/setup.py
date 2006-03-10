@@ -9,7 +9,7 @@ pkgconfig = os.popen ('pkg-config --libs glib-2.0')
 glib_libs = pkgconfig.readline ().strip ().split (' ')
 pkgconfig.close ()
 
-algorithms = Extension ('algorithms_c', sources=['algorithms.c'], extra_compile_args=glib_cflags + ['-g', '-std=c99'], extra_link_args=glib_libs)
+algorithms = Extension ('algorithms_c', sources=['algorithms.c', 'dijkstra.c', 'a_star.c', 'depth_limited.c', 'utilities.c'], extra_compile_args=glib_cflags + ['-g', '-std=c99'], extra_link_args=glib_libs)
 
 setup (name='Graph',
        version='1.0.0',
