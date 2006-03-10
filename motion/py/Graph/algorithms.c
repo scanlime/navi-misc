@@ -551,25 +551,28 @@ find_shortest_paths (GHashTable* adjacency, GHashTable* d, GHashTable* previous)
 static PyObject *
 dijkstra_search (PyObject* self, PyObject* args)
 {
-	PyObject*   adjacency_list;
+	PyObject*   graph;
 	PyObject*   start;
 	PyObject*   end;
 	PyObject*   ret;
 	PyObject*   node;
+	PyObject*   key;
+	PyObject*   value;
 	GHashTable* adjacency = NULL;
 	GHashTable* previous = NULL;
 	GHashTable* d = NULL;
+	int         pos = 0;
 
 	/* Get all the arguments */
-	if (!PyArg_ParseTuple (args, "OOO;expected adjacency list, start, end", &adjacency_list, &start, &end)) {
+	if (!PyArg_ParseTuple (args, "OOO;expected graph, start, end", &graph, &start, &end)) {
 		return NULL;
 	}
 
-	/* Build adjacency hash table */
-	adjacency = query_adjacency (adjacency_list);
-	if (adjacency == NULL) {
-		PyErr_SetString (PyExc_RuntimeError, "couldn't build adjacency hash table");
-		return NULL;
+	/* Build hash table of adjacency lists */
+	adjacency = g_hash_table_new (g_str_hash, g_direct_equal);
+	while (PyDict_Next(graph, &pos, &key, &value)) {
+		char*     bone = PyString_AsString (key);
+		g_hash_table_insert (adjacency, bone, query_adjacency (value));
 	}
 
 	/* Shortest path estimate */
