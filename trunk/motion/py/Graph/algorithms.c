@@ -355,8 +355,8 @@ free_costs (GHashTable* table)
  * Return a path from start to goal if there is one, or return NULL.
  */
 GSList*
-heuristic_search (GHashTable* adjacency, GHashTable* edges, GSList* start,
-		PyObject* goal, PyObject* fcost)
+heuristic_search (GHashTable* adjacency, GSList* start, PyObject* goal,
+		PyObject* fcost)
 {
 	/* Map nodes to f-costs */
 	GHashTable* costs = g_hash_table_new (g_direct_hash, g_int_equal);
@@ -407,7 +407,6 @@ aStar_search (PyObject* self, PyObject *args)
 	PyObject*   f_cost;
 	PyObject*   result;
 	GHashTable* adjacency = NULL;
-	GHashTable* edges     = NULL;
 
 	/* Get all the arguments */
 	if (!PyArg_ParseTuple (args, "OOOOO", &adjacency_list, &edge_list, &start, &end, &f_cost)) {
@@ -426,16 +425,10 @@ aStar_search (PyObject* self, PyObject *args)
 		PyErr_SetString (PyExc_RuntimeError, "couldn't build adjacency hash table");
 		return NULL;
 	}
-	edges = query_edges (edge_list);
-	if (edges == NULL) {
-		PyErr_SetString (PyExc_RuntimeError, "couldn't build edge hash table");
-		free_adjacency (adjacency);
-		return NULL;
-	}
 
 	/* Search */
 	GSList* p = g_slist_prepend (NULL, start);
-	GSList* path = heuristic_search (adjacency, edges, p, end, f_cost);
+	GSList* path = heuristic_search (adjacency, p, end, f_cost);
 
 	if (path) {
 		result = PyList_New (0);
