@@ -44,4 +44,13 @@ path_append_new (path_tree* parent, gpointer data)
 void
 path_tree_destroy_all (path_tree* root)
 {
+	for (GSList* node = root->children; node; node = g_slist_next (node)) {
+		path_tree_destroy_all ((path_tree*) node->data);
+	}
+
+	if (root->children != NULL) {
+		g_slist_free (root->children);
+	}
+	/* FIXME should free the data somehow */
+	free (root);
 }
