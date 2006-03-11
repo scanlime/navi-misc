@@ -32,6 +32,12 @@ node_from_PyDict (PyObject* dict)
 	PyObject*   value;
 	int         pos = 0;
 
+	if (!PyDict_Check (dict)) {
+		PyErr_SetString (PyExc_RuntimeError, "nodes need to be dictionary objects");
+		g_hash_table_destroy (node);
+		return NULL;
+	}
+
 	while (PyDict_Next (dict, &pos, &key, &value)) {
 		char* bone = PyString_AsString (key);
 		g_hash_table_insert (node, bone, value);
