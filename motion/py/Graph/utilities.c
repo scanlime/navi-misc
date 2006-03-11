@@ -20,7 +20,7 @@
 
 #include "utilities.h"
 
-static float
+float
 computeProbability (GHashTable *edges, GSList *path)
 {
 	float probability = 1.0f;
@@ -39,31 +39,31 @@ computeProbability (GHashTable *edges, GSList *path)
 	return probability;
 }
 
-static void
+void
 free_values (gpointer key, gpointer value, gpointer data)
 {
 	g_slist_free ((GSList*) value);
 }
 
-static void
+void
 free_adjacency (GHashTable *hash_table) {
 	g_hash_table_foreach (hash_table, free_values, NULL);
 	g_hash_table_destroy (hash_table);
 }
 
-static void
+void
 free_floats (gpointer key, gpointer value, gpointer data)
 {
 	g_free (value);
 }
 
-static void
+void
 free_edges (GHashTable *hash_table) {
 	g_hash_table_foreach (hash_table, free_floats, NULL);
 	g_hash_table_destroy (hash_table);
 }
 
-static GHashTable *
+GHashTable *
 query_adjacency (PyObject *adjacency_list)
 {
 	PyObject   *data   = NULL;
@@ -106,7 +106,7 @@ error:
 	return NULL;
 }
 
-static GHashTable *
+GHashTable *
 query_edges (PyObject *edge_list)
 {
 	PyObject   *data = NULL;

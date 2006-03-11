@@ -21,6 +21,10 @@
 
 #include <glib.h>
 #include <Python.h>
+#include "utilities.h"
+
+#ifndef ASTAR_C
+#define ASTAR_C
 
 GSList*
 generate_successors (GHashTable* adjacency, GSList* path)
@@ -186,3 +190,5 @@ aStar_search (PyObject* self, PyObject *args)
 
 	return result;
 }
+
+#endif

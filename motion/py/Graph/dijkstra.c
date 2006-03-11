@@ -21,6 +21,10 @@
 
 #include <glib.h>
 #include <Python.h>
+#include "utilities.h"
+
+#ifndef DIJKSTRA_C
+#define DIJKSTRA_C
 
 static void
 initialize_dijkstra_d (PyObject *u, GList *vs, GHashTable *d)
@@ -188,3 +192,5 @@ dijkstra_search (PyObject* self, PyObject* args)
 
 	return ret;
 }
+
+#endif
