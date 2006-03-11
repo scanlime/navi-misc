@@ -127,32 +127,27 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 	GQueue*     agenda = g_queue_new ();
 
 	/* Push start onto the agenda */
-	g_queue_push_head (agenda, start);
+	g_queue_push_head (agenda, path_tree_new (node_from_PyDict (start)));
 
 	/* Run until we run out of things to check */
 	while (!g_queue_is_empty (agenda)) {
-		GSList* path       = (GSList*) g_queue_pop_head (agenda);
-		GSList* successors = generate_successors (adjacency, path->data);
+		path_tree* path       = (path_tree*) g_queue_pop_head (agenda);
+		GSList*    successors = generate_successors (adjacency, path);
 
 		for (GSList* s = successors; s; s = g_slist_next (s)) {
 			/* If this node is the goal prepend it to the path and
 			 * return
+			 * FIXME
 			 */
 			if (s->data == goal) {
-				g_slist_prepend (path, s->data);
 				free_costs (costs);
 				g_queue_free (agenda);
 				return path;
 			}
 			/* If this node isn't the goal calculate its f-cost and
 			 * insert it into agenda
+			 * FIXME
 			 */
-			GSList* p = g_slist_copy (path);
-			g_slist_prepend (p, s);
-			g_hash_table_insert (costs, (gpointer) p,
-					GINT_TO_POINTER (cost(p, goal, fcost)));
-			g_queue_insert_sorted (agenda, (gpointer) p,
-					f_cost_compare, (gpointer) costs);
 		}
 	}
 
