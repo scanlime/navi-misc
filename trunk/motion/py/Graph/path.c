@@ -23,7 +23,7 @@
 #include "path.h"
 
 path*
-path_new (GHashTable* data)
+path_new (gpointer data)
 {
 	path* ret = malloc (sizeof (path));
 	ret->parent = NULL;
@@ -34,7 +34,7 @@ path_new (GHashTable* data)
 }
 
 void
-path_append_new (path* parent, GHashTable* data)
+path_append_new (path* parent, gpointer data)
 {
 	path* child = path_new (data);
 	parent->children = g_slist_prepend (parent->children, child);
