@@ -21,7 +21,24 @@
 
 #include <glib.h>
 #include <Python.h>
+#include "path.h"
 #include "utilities.h"
+
+GHashTable*
+node_from_PyDict (PyObject* dict)
+{
+	GHashTable* node = g_hash_table_new (g_str_hash, g_direct_equal);
+	PyObject*   key;
+	PyObject*   value;
+	int         pos = 0;
+
+	while (PyDict_Next (dict, &pos, &key, &value)) {
+		char* bone = PyString_AsString (key);
+		g_hash_table_insert (node, bone, value);
+	}
+
+	return node;
+}
 
 GSList*
 generate_successors (GHashTable* adjacency, GSList* path)
@@ -92,7 +109,7 @@ free_costs (GHashTable* table)
  * Return a path from start to goal if there is one, or return NULL.
  */
 GSList*
-heuristic_search (GHashTable* adjacency, GSList* start, PyObject* goal,
+heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 		PyObject* fcost)
 {
 	/* Map nodes to f-costs */
