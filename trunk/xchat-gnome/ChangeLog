@@ -1,3 +1,8 @@
+Fri Mar 10 17:20:52 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
+	  - Put main menus on an icon diet.
+
 Thu Mar  9 15:52:14 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/conversation-panel.c:

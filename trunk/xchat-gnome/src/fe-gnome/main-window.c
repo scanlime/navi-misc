@@ -106,9 +106,9 @@ static GtkActionEntry action_entries [] = {
 	{ "PopupAction", NULL, "" },
 
 	/* IRC menu */
-	{ "IRCConnect",   GTK_STOCK_CONNECT, N_("_Connect"),        "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
-	{ "IRCDownloads", NULL,              N_("_File Transfers"), "<alt>F",     NULL, G_CALLBACK (on_irc_downloads_activate) },
-	{ "IRCQuit",      GTK_STOCK_QUIT,    N_("_Quit"),           "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
+	{ "IRCConnect",   NULL,           N_("_Connect"),        "<control>N", NULL, G_CALLBACK (on_irc_connect_activate) },
+	{ "IRCDownloads", NULL,           N_("_File Transfers"), "<alt>F",     NULL, G_CALLBACK (on_irc_downloads_activate) },
+	{ "IRCQuit",      GTK_STOCK_QUIT, N_("_Quit"),           "<control>Q", NULL, G_CALLBACK (on_irc_quit_activate) },
 
 	/* Edit menu */
 	{ "EditCut",         GTK_STOCK_CUT,         N_("Cu_t"),         "<control>X", NULL, G_CALLBACK (on_edit_cut_activate) },
@@ -120,9 +120,9 @@ static GtkActionEntry action_entries [] = {
 	/* Network menu */
 	{ "NetworkInformation", GTK_STOCK_DIALOG_INFO, N_("_Information"), "",                  NULL, G_CALLBACK (on_network_information_activate) },
 	{ "NetworkReconnect",   GTK_STOCK_REFRESH,     N_("_Reconnect"),   "<control>R",        NULL, G_CALLBACK (on_network_reconnect_activate) },
-	{ "NetworkDisconnect",  GTK_STOCK_STOP,        N_("_Disconnect"),  "",                  NULL, G_CALLBACK (on_network_disconnect_activate) },
+	{ "NetworkDisconnect",  GTK_STOCK_DISCONNECT,  N_("_Disconnect"),  "",                  NULL, G_CALLBACK (on_network_disconnect_activate) },
 	{ "NetworkClose",       GTK_STOCK_CLOSE,       N_("_Close"),       "<shift><control>W", NULL, G_CALLBACK (on_network_close_activate) },
-	{ "NetworkChannels",    GTK_STOCK_INDEX,       N_("_Channels..."), "<alt>C",            NULL, G_CALLBACK (on_network_channels_activate) },
+	{ "NetworkChannels",    NULL,                  N_("_Channels..."), "<alt>C",            NULL, G_CALLBACK (on_network_channels_activate) },
 
 	/* Discussion menu */
 	{ "DiscussionSave",        GTK_STOCK_SAVE,           N_("_Save Transcript"), "<control>S", NULL, G_CALLBACK (on_discussion_save_activate) },
@@ -130,19 +130,19 @@ static GtkActionEntry action_entries [] = {
 	{ "DiscussionClose",       GTK_STOCK_CLOSE,          N_("Cl_ose"),           "<control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
 	{ "DiscussionFind",        GTK_STOCK_FIND,           N_("_Find"),            "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
 	{ "DiscussionClearWindow", GTK_STOCK_CLEAR,          N_("_Clear Window"),    "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
-	{ "DiscussionChangeTopic", GTK_STOCK_REFRESH,        N_("Change _Topic"),    "<alt>T",     NULL, G_CALLBACK (on_discussion_topic_change_activate) },
+	{ "DiscussionChangeTopic", NULL,                     N_("Change _Topic"),    "<alt>T",     NULL, G_CALLBACK (on_discussion_topic_change_activate) },
 	{ "DiscussionBans",        GTK_STOCK_DIALOG_WARNING, N_("_Bans..."),         "<alt>B",     NULL, G_CALLBACK (on_discussion_bans_activate) },
 	{ "DiscussionUsers",       NULL,                     N_("_Users"),           "<control>U", NULL, G_CALLBACK (on_discussion_users_activate) },
 
 	/* Go menu */
-	{ "GoPreviousNetwork",    GTK_STOCK_GOTO_FIRST, N_("Pre_vious Network"),    "<control>Up",   NULL, G_CALLBACK (on_go_previous_network_activate) },
-	{ "GoNextNetwork",        GTK_STOCK_GOTO_LAST,  N_("Nex_t Network"),        "<control>Down", NULL, G_CALLBACK (on_go_next_network_activate) },
-	{ "GoPreviousDiscussion", GTK_STOCK_GO_BACK,    N_("_Previous Discussion"), "<alt>Up",       NULL, G_CALLBACK (on_go_previous_discussion_activate) },
-	{ "GoNextDiscussion",     GTK_STOCK_GO_FORWARD, N_("_Next Discussion"),     "<alt>Down",     NULL, G_CALLBACK (on_go_next_discussion_activate) },
+	{ "GoPreviousNetwork",    NULL, N_("Pre_vious Network"),    "<control>Up",   NULL, G_CALLBACK (on_go_previous_network_activate) },
+	{ "GoNextNetwork",        NULL, N_("Nex_t Network"),        "<control>Down", NULL, G_CALLBACK (on_go_next_network_activate) },
+	{ "GoPreviousDiscussion", NULL, N_("_Previous Discussion"), "<alt>Up",       NULL, G_CALLBACK (on_go_previous_discussion_activate) },
+	{ "GoNextDiscussion",     NULL, N_("_Next Discussion"),     "<alt>Down",     NULL, G_CALLBACK (on_go_next_discussion_activate) },
 
 	/* Help menu */
-	{ "HelpContents", GTK_STOCK_HELP,  N_("_Contents"), "",   NULL, G_CALLBACK (on_help_contents_activate) },
-	{ "HelpAbout",    GTK_STOCK_ABOUT, N_("_About"),    "",   NULL, G_CALLBACK (on_help_about_activate) },
+	{ "HelpContents", GTK_STOCK_HELP,  N_("_Contents"), "", NULL, G_CALLBACK (on_help_contents_activate) },
+	{ "HelpAbout",    GTK_STOCK_ABOUT, N_("_About"),    "", NULL, G_CALLBACK (on_help_about_activate) },
 };
 
 void
