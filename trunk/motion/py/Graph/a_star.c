@@ -66,7 +66,8 @@ cost (GSList* path, PyObject* goal, PyObject* fcost)
 
 	/* FIXME - error checking */
 
-	/* Build a list of nodes that is the path */ for (GSList* p = path; p; p = g_slist_next (p)) {
+	/* Build a list of nodes that is the path */
+	for (GSList* p = path; p; p = g_slist_next (p)) {
 		PyList_Insert (py_path, 0, (PyObject*) p->data);
 	}
 
