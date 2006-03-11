@@ -1,5 +1,6 @@
 /*
- * path.c - Implement the methods in path.h
+ * path.h - Define a data structure for representing graph paths in a tree-like
+ *          manner.
  *
  * Copyright (C) 2005-2006 W. Evan Sheehan
  *
@@ -19,29 +20,17 @@
  *
  */
 
-#include <stdlib.h>
-#include "path.h"
+#include <glib.h>
 
-path*
-path_new (gpointer data)
+typedef struct _path_tree path_tree;
+
+struct _path_tree
 {
-	path* ret = malloc (sizeof (path));
-	ret->parent = NULL;
-	ret->children = NULL;
-	ret->data = data;
+	path_tree*    parent;
+	GSList*  children;
+	gpointer data;
+};
 
-	return ret;
-}
-
-void
-path_append_new (path* parent, gpointer data)
-{
-	path* child = path_new (data);
-	parent->children = g_slist_prepend (parent->children, child);
-	child->parent = parent;
-}
-
-void
-path_destroy_all (path* root)
-{
-}
+path_tree* path_tree_new         (gpointer data);
+void       path_tree_append_new  (path_tree* parent, gpointer data);
+void       path_tree_destroy_all (path_tree* root);
