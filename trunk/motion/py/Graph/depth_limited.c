@@ -23,9 +23,6 @@
 #include <Python.h>
 #include "utilities.h"
 
-#ifndef DEPTH_LIMITED_C
-#define DEPTH_LIMITED_C
-
 void
 search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, int depth, GSList* good_paths[])
 {
@@ -70,82 +67,3 @@ search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, 
 
 	g_slist_free (path);
 }
-	
-static PyObject*
-depth_limited_search (PyObject* self, PyObject* args)
-{
-	PyObject   *adjacency_list;
-	PyObject   *edge_list;
-	PyObject   *start;
-	PyObject   *end;
-	PyObject   *path_list;
-	int         depth;
-	GSList     *path      = NULL;
-	GHashTable *adjacency = NULL;
-	GHashTable *edges     = NULL;
-
-	/* Get the graph and nodes or die trying. */
-	if (!PyArg_ParseTuple (args, "OOOOi;expected adjacency list, edge list, start, end, depth", &adjacency_list, &edge_list, &start, &end, &depth))
-		return NULL;
-
-	GSList *paths[depth];
-
-	for (int i = 0; i < depth; i++) {
-		paths[i] = NULL;
-	}
-
-	/* path gets freed when search() finishes. */
-	path = g_slist_prepend (path, (gpointer) start);
-
-	adjacency = query_adjacency (adjacency_list);
-	if (adjacency == NULL) {
-		PyErr_SetString (PyExc_RuntimeError, "couldn't build adjacency hash table");
-		return NULL;
-	}
-	edges = query_edges (edge_list);
-	if (edges == NULL) {
-		PyErr_SetString (PyExc_RuntimeError, "couldn't build edge hash table");
-		free_adjacency (adjacency);
-		return NULL;
-	}
-
-	/* Search */
-	search (path, adjacency, edges, end, depth, paths);
-
-	/* Create the list of paths and populate with None. */
-	path_list = PyList_New (depth + 1);
-	for (int i = 0; i <= depth; i++) {
-		Py_INCREF (Py_None);
-		PyList_SetItem (path_list, i, Py_None);
-	}
-
-	/* For each path we found, insert it in the list at the appropriate
-	 * depth.
-	 */
-	for (int i = 0; i < depth; i++) {
-		GSList*   path  = paths[i];
-		int       len   = g_slist_length (path);
-		PyObject* list  = PyList_New (0);
-
-		/* FIXME: This could be more efficient by prepending to the list
-		 *        instead of appending nodes?
-		 */
-		if (path) {
-			for (GSList* node = path; node; node = g_slist_next (node)) {
-				PyList_Append (list, (PyObject*)node->data);
-			}
-			Py_DECREF (Py_None);
-			PyList_SetItem (path_list, i, list);
-
-			/* Don't leak the paths. */
-			g_slist_free (path);
-		}
-	}
-
-	free_adjacency (adjacency);
-	free_edges (edges);
-
-	return path_list;
-}
-
-#endif

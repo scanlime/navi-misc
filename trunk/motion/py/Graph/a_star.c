@@ -23,9 +23,6 @@
 #include <Python.h>
 #include "utilities.h"
 
-#ifndef ASTAR_C
-#define ASTAR_C
-
 GSList*
 generate_successors (GHashTable* adjacency, GSList* path)
 {
@@ -136,59 +133,3 @@ heuristic_search (GHashTable* adjacency, GSList* start, PyObject* goal,
 	g_queue_free (agenda);
 	return NULL;
 }
-
-static PyObject*
-aStar_search (PyObject* self, PyObject *args)
-{
-	PyObject*   adjacency_list;
-	PyObject*   start;
-	PyObject*   end;
-	PyObject*   f_cost;
-	PyObject*   result;
-	PyObject*   key;
-	PyObject*   value;
-	GHashTable* adjacency = NULL;
-	int         pos = 0;
-
-	/* Get all the arguments */
-	if (!PyArg_ParseTuple (args, "OOOO", &adjacency_list, &start, &end, &f_cost)) {
-		return NULL;
-	}
-
-	/* Check that f_cost is a function */
-	if (!PyCallable_Check (f_cost)) {
-		PyErr_SetString (PyExc_RuntimeError, "f cost needs to be callable");
-		return NULL;
-	}
-
-	/* Retrieve adjacency and edge lists */
-	adjacency = g_hash_table_new (g_str_hash, g_direct_equal);
-	while (PyDict_Next (adjacency_list, &pos, &key, &value)) {
-		char* bone = PyString_AsString (key);
-		GHashTable* adj = query_adjacency (value);
-		if (adj == NULL) {
-			PyErr_SetString (PyExc_RuntimeError, "couldn't build adjacency hash table");
-			return NULL;
-		}
-		g_hash_table_insert (adjacency, bone, adj);
-	}
-
-	/* Search */
-	GSList* p = g_slist_prepend (NULL, start);
-	GSList* path = heuristic_search (adjacency, p, end, f_cost);
-
-	if (path) {
-		result = PyList_New (0);
-		for (GSList* node = path; node; node = g_slist_next (node)) {
-			PyList_Append (result, (PyObject*) node->data);
-		}
-		PyList_Reverse (result);
-	} else {
-		Py_INCREF (Py_None);
-		result = Py_None;
-	}
-
-	return result;
-}
-
-#endif
