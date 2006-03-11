@@ -26,11 +26,11 @@ typedef struct _path path;
 
 struct _path
 {
-	path*       parent;
-	GSList*     children;
-	GHashTable* data;
+	path*    parent;
+	GSList*  children;
+	gpointer data;
 };
 
-path* path_new         (GHashTable* data);
-void  path_append_new  (path* parent, GHashTable* data);
+path* path_new         (gpointer data);
+void  path_append_new  (path* parent, gpointer data);
 void  path_destroy_all (path* root);
