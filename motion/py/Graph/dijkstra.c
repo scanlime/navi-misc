@@ -23,9 +23,6 @@
 #include <Python.h>
 #include "utilities.h"
 
-#ifndef DIJKSTRA_C
-#define DIJKSTRA_C
-
 static void
 initialize_dijkstra_d (PyObject *u, GList *vs, GHashTable *d)
 {
@@ -122,75 +119,3 @@ find_shortest_paths (GHashTable* adjacency, GHashTable* d, GHashTable* previous)
 	g_slist_free (S);
 	g_queue_free (agenda);
 }
-
-static PyObject *
-dijkstra_search (PyObject* self, PyObject* args)
-{
-	PyObject*   adjacency_list;
-	PyObject*   start;
-	PyObject*   end;
-	PyObject*   ret;
-	PyObject*   node;
-	GHashTable* adjacency = NULL;
-	GHashTable* previous = NULL;
-	GHashTable* d = NULL;
-
-	/* Get all the arguments */
-	if (!PyArg_ParseTuple (args, "OOO;expected adjacency list, start, end", &adjacency_list, &start, &end)) {
-		return NULL;
-	}
-
-	/* Build adjacency hash table */
-	adjacency = query_adjacency (adjacency_list);
-	if (adjacency == NULL) {
-		PyErr_SetString (PyExc_RuntimeError, "couldn't build adjacency hash table");
-		return NULL;
-	}
-
-	/* Shortest path estimate */
-	d        = g_hash_table_new (g_direct_hash, g_direct_equal);
-	previous = g_hash_table_new (g_direct_hash, g_direct_equal);
-
-	/* Initialize shortest path estimates */
-	g_hash_table_foreach (adjacency, (GHFunc) initialize_dijkstra_d, d);
-	g_hash_table_insert (d, start, GINT_TO_POINTER (0));
-
-	/* Execute the actual search */
-	find_shortest_paths (adjacency, d, previous);
-
-	/* Build a list containing the path */
-	ret = PyList_New (0);
-	node = g_hash_table_lookup (previous, end);
-	if (node == NULL) {
-		PyErr_SetString (PyExc_RuntimeError, "No path found");
-		g_hash_table_destroy (d);
-		g_hash_table_destroy (previous);
-		free_adjacency (adjacency);
-		Py_DECREF (ret);
-		return NULL;
-	}
-	PyList_Append (ret, node);
-	while (node != start) {
-		node = g_hash_table_lookup (previous, node);
-		if (node == NULL) {
-			PyErr_SetString (PyExc_RuntimeError, "No path found");
-			g_hash_table_destroy (d);
-			g_hash_table_destroy (previous);
-			free_adjacency (adjacency);
-			Py_DECREF (ret);
-			return NULL;
-		}
-		PyList_Append (ret, node);
-	}
-
-	PyList_Reverse (ret);
-
-	/* Clean up */
-	g_hash_table_destroy (d);
-	g_hash_table_destroy (previous);
-	free_adjacency (adjacency);
-
-	return ret;
-}
-
-#endif
