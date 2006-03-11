@@ -21,7 +21,7 @@
 
 #include <glib.h>
 #include <Python.h>
-#include "path.h"
+#include "path_tree.h"
 #include "utilities.h"
 
 GHashTable*
@@ -47,8 +47,12 @@ node_from_PyDict (PyObject* dict)
 }
 
 GSList*
-generate_successors (GHashTable* adjacency, GSList* path)
+generate_successors (GHashTable* adjacency, path_tree* node)
 {
+	GSList*     ret = NULL;
+	GHashTable* bones = (GHashTable*) node->data;
+
+	return ret;
 }
 
 /* Return the cost of a path. */
