@@ -23,6 +23,9 @@
 #include <Python.h>
 #include "utilities.h"
 
+#ifndef DEPTH_LIMITED_C
+#define DEPTH_LIMITED_C
+
 void
 search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, int depth, GSList* good_paths[])
 {
@@ -144,3 +147,5 @@ depth_limited_search (PyObject* self, PyObject* args)
 
 	return path_list;
 }
+
+#endif

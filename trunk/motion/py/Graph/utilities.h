@@ -21,8 +21,8 @@
 #include <glib.h>
 #include <Python.h>
 
-static float computeProbability (GHashTable *edges, GSList *path);
-static GHashTable* query_adjacency (PyObject *adjacency_list);
-static GHashTable* query_edges (PyObject *edge_list);
-static void free_adjacency (GHashTable *hash_table);
-static void free_edges (GHashTable *hash_table);
+float computeProbability (GHashTable *edges, GSList *path);
+GHashTable* query_adjacency (PyObject *adjacency_list);
+GHashTable* query_edges (PyObject *edge_list);
+void free_adjacency (GHashTable *hash_table);
+void free_edges (GHashTable *hash_table);
