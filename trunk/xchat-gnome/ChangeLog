@@ -1,3 +1,17 @@
+Sun Mar 12 18:48:43 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* plugins/notification/notification.c:
+	* plugins/notification/notification.schemas.in:
+	  - Add the /apps/xchat/plugins/notification/level gconf key
+	    to configure the notification level. (#334238)
+	  - Remove the /apps/xchat/plugins/notification/persistant gconf
+	    key because we don't need it anymore with the new key.
+	  - Fix a leak by freeing the GConfClient.
+	  - Remove add_channels_foreach_cb () because this function
+	    is called nowhere.
+	  - Add a test to avoid to display the notification icon at
+	    launching if not desired.
+
 Fri Mar 10 17:20:52 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/main-window.c:
