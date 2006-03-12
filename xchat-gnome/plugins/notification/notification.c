@@ -38,7 +38,6 @@ void xchat_plugin_get_info   (char **plugin_name, char **plugin_desc, char **plu
 int  xchat_plugin_init       (xchat_plugin *plugin_handle, char **plugin_name, char **plugin_desc, char **plugin_version, char *arg);
 int  xchat_plugin_deinit     (void);
 int  xchat_gnome_plugin_init (xchat_gnome_plugin *xg_plugin);
-static gboolean add_channels_foreach_cb (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpointer data);
 static gboolean tray_destroy_cb (GtkObject *object, gpointer data);
 
 /* Enumerated type of different status levels. */
@@ -53,7 +52,7 @@ typedef enum
 
 static EggTrayIcon*        notification;         /* Notification area icon. */
 static gboolean            focused = TRUE;       /* GTK_WIDGET_HAS_FOCUS doesn't seem to be working... */
-static gboolean            persistant;           /* Keep the icon in the tray at all times? */
+static gint		   level;		 /* Level of messages that we want to notify */
 static gboolean            hidden = FALSE;       /* True when the main window is hidden. */
 static GdkPixbuf*          pixbufs[N_NOTIF];     /* Pixbufs */
 static GtkWidget*          image;                /* The image displayed by the icon. */
@@ -62,6 +61,7 @@ static NotifStatus         status = NOTIF_NONE;  /* Current status level. */
 static xchat_gnome_plugin* xgph;                 /* xchat gnome plugin handle. */
 static xchat_plugin*       ph;                   /* Plugin handle. */
 static guint               tray_destroy_handler; /* Signal handler to recreate widget if the notification area disappears */
+static guint		   gconf_notify_id;
 
 /*** Callbacks ***/
 static gboolean
@@ -72,7 +72,7 @@ got_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 	/* Reset the status. */
 	status = NOTIF_NONE;
 
-	if (!persistant) {
+	if (level != 0) {
 		/* Hide the notification icon. */
 		gtk_widget_hide_all (GTK_WIDGET (notification));
 	} else {
@@ -95,7 +95,8 @@ lost_focus_cb (GtkWidget * widget, GdkEventFocus * event, gpointer data)
 static int
 new_msg_cb (char **word, void *msg_lvl)
 {
-	if (status <= (NotifStatus) msg_lvl && (NotifStatus) msg_lvl < N_NOTIF && !focused) {
+	if (status <= (NotifStatus) msg_lvl && (NotifStatus) msg_lvl < N_NOTIF && !focused && 
+	    (NotifStatus) msg_lvl >= level) {
 		status = (NotifStatus) msg_lvl;
 		gtk_image_set_from_pixbuf (GTK_IMAGE (image), pixbufs[status]);
 		gtk_widget_show_all (GTK_WIDGET (notification));
@@ -110,7 +111,7 @@ notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer da
 	switch (event->button) {
 		/* Left click. */
 		case 1:
-			if (persistant) {
+			if (level == 0) {
 				if (hidden) {
 					xchat_command (ph, "GUI SHOW");
 					hidden = FALSE;
@@ -132,19 +133,6 @@ notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer da
 
 	return TRUE;
 }
-
-
-/*** Utility Functions ***/
-static gboolean
-add_channels_foreach_cb (GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpointer data)
-{
-	gchar* channel;
-
-	gtk_tree_model_get (model, iter, 1, &channel, -1);
-
-	return FALSE;
-}
-
 
 /*** xchat-gnome plugin functions ***/
 void
@@ -173,6 +161,11 @@ xchat_gnome_plugin_init (xchat_gnome_plugin * xg_plugin)
 	return 1;
 }
 
+static void
+level_changed (GConfClient *client, guint cnxn_id,  GConfEntry *entry, gpointer data)
+{
+	level = gconf_value_get_int (gconf_entry_get_value (entry));
+}
 
 /*** xchat plugin functions ***/
 int
@@ -187,7 +180,7 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	xchat_plugin_get_info (plugin_name, plugin_desc, plugin_version, NULL);
 
 	/* Get our preferences from gconf. */
-	persistant = gconf_client_get_bool (client, "/apps/xchat/plugins/notification/persistant", NULL);
+	level = gconf_client_get_int (client, "/apps/xchat/plugins/notification/level", NULL);
 
 	/* FIXME It would be nice to determine the size of the panel and load these
 	 *       images at that size.
@@ -222,6 +215,9 @@ xchat_plugin_init (xchat_plugin * plugin_handle, char **plugin_name, char **plug
 	xchat_hook_print (ph, "Channel Action Hilight",		XCHAT_PRI_NORM, new_msg_cb, (gpointer) NOTIF_NICK);
 	xchat_hook_print (ph, "Private Message to Dialog",	XCHAT_PRI_NORM, new_msg_cb, (gpointer) NOTIF_NICK);
 
+	gconf_notify_id = gconf_client_notify_add (client, "/apps/xchat/plugins/notification/level", (GConfClientNotifyFunc) level_changed, NULL, NULL, NULL);
+
+	g_object_unref (client);
 	xchat_print (ph, _("Notification plugin loaded.\n"));
 
 	return TRUE;
@@ -249,7 +245,8 @@ tray_destroy_cb (GtkObject *object,
 
 	tray_destroy_handler = g_signal_connect_object (G_OBJECT (notification), "destroy", G_CALLBACK (tray_destroy_cb), data, 0);
 
- 	gtk_widget_show_all (GTK_WIDGET (notification));
+	if (level == 0)
+	 	gtk_widget_show_all (GTK_WIDGET (notification));
  	return TRUE;
 }
 
@@ -257,6 +254,7 @@ tray_destroy_cb (GtkObject *object,
 int
 xchat_plugin_deinit (void)
 {
+	GConfClient *client = gconf_client_get_default ();
 	/* Disconnect the signal handlers. */
 	g_signal_handlers_disconnect_by_func (main_window, G_CALLBACK (got_focus_cb), NULL);
 	g_signal_handlers_disconnect_by_func (main_window, G_CALLBACK (lost_focus_cb), NULL);
@@ -266,6 +264,9 @@ xchat_plugin_deinit (void)
 		gtk_widget_destroy (GTK_WIDGET (notification));
 		notification = NULL;
 	}
+
+	gconf_client_notify_remove (client, gconf_notify_id);
+	g_object_unref (client);
 
 	xchat_print (ph, _("Notification plugin unloaded.\n"));
 
