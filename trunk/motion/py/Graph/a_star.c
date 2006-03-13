@@ -47,6 +47,35 @@ node_from_PyDict (PyObject* dict)
 	return node;
 }
 
+/* GHFunc that inserts a key value pair from a GHashTable into a python
+ * dictionary. The key should be a string and the value should be a python
+ * object.
+ */
+void
+insert_in_dict (const char* key, PyObject* value, PyObject* dict)
+{
+	PyDict_SetItem (dict, PyString_FromString (key), value);
+}
+
+/* Return a python dictionary with the same contents as the hash table contained
+ * in node's data field.
+ */
+PyObject*
+PyDict_from_node (path_tree* node)
+{
+	GHashTable* data = (GHashTable*) node->data;
+	PyObject*   dict = PyDict_New ();
+
+	if (dict == NULL) {
+		PyErr_SetString (PyExc_RuntimeError, "unable to create a new dictionary");
+		return NULL;
+	}
+
+	g_hash_table_foreach (data, (GHFunc) insert_in_dict, dict);
+
+	return dict;
+}
+
 /* GHFunc for getting a list of the keys from a GHashTable. */
 void
 get_keys (char* key, PyObject* value, GSList** keys)
@@ -84,16 +113,16 @@ nodes_equal (path_tree* a, PyObject* b)
 gint
 cost (path_tree* path, PyObject* goal, PyObject* fcost)
 {
-	gint c = -1;
 	PyObject* py_path = PyList_New (0);
 	PyObject* arglist = NULL;
-	PyObject* result = NULL;
+	PyObject* result  = NULL;
+	gint      c       = -1;
 
 	/* FIXME - error checking */
 
 	/* Build a list of nodes that is the path */
 	for (path_tree* p = path; p; p = p->parent) {
-		PyList_Insert (py_path, 0, (PyObject*) p->data);
+		PyList_Insert (py_path, 0, PyDict_from_node (p->data));
 	}
 
 	arglist = Py_BuildValue ("(OO)", py_path, goal);
@@ -153,7 +182,7 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 			 * return
 			 */
 			if (nodes_equal (node, goal)) {
-				/* FIXME - Leaking the list of successors? */
+				g_slist_free (successors);
 				g_queue_free (agenda);
 				return node;
 			}
@@ -164,6 +193,7 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 					GINT_TO_POINTER (cost (node, goal, fcost)));
 			g_queue_insert_sorted (agenda, node, f_cost_compare, costs);
 		}
+		g_slist_free (successors);
 	}
 
 	g_queue_free (agenda);
