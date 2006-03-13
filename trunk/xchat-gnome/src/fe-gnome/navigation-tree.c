@@ -255,39 +255,44 @@ navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess
 }
 
 void
-navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess)
+navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess, gboolean focus)
 {
 	GtkWidget *menuitem, *button;
 	ircnet *net;
 
 	navigation_model_add_new_channel (navtree->model, sess);
 
-	navigation_tree_select_session (navtree, sess);
+	if (focus) {
+		navigation_tree_select_session (navtree, sess);
 
-	/* We rely on the above select_session call triggering the selection 'changed' event to do book-keeping */
+		/* We rely on the above select_session call triggering the selection 'changed' event to do book-keeping */
 
-	/* Update the row refs here. */
-	navigation_tree_update_refs (navtree);
+		/* Update the row refs here. */
+		navigation_tree_update_refs (navtree);
 
-	/* Set the userlist model */
-	gtk_tree_view_set_model ( GTK_TREE_VIEW (gui.userlist),
-			          GTK_TREE_MODEL (userlist_get_store (u, sess)));
+		/* Set the userlist model */
+		gtk_tree_view_set_model (GTK_TREE_VIEW (gui.userlist),
+		                         GTK_TREE_MODEL (userlist_get_store (u, sess)));
 
-	topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
-	net = sess->server->network;
-	if (net == NULL)
-		rename_main_window (NULL, sess->channel);
-	else
-		rename_main_window (net->name, sess->channel);
+		topic_label_set_current (TOPIC_LABEL (gui.topic_label), sess);
+		net = sess->server->network;
+		if (net == NULL)
+			rename_main_window (NULL, sess->channel);
+		else
+			rename_main_window (net->name, sess->channel);
 
-	button = glade_xml_get_widget (gui.xml, "close discussion");
-	if (sess->type == SESS_CHANNEL)
-		gtk_widget_set_sensitive (button, TRUE);
-	menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionChangeTopicItem");
-	if (menuitem == NULL)
-		g_warning ("can't access topic change menu item");
-	else
-		gtk_widget_set_sensitive (menuitem, sess->type == SESS_CHANNEL);
+		button = glade_xml_get_widget (gui.xml, "close discussion");
+		if (sess->type == SESS_CHANNEL)
+			gtk_widget_set_sensitive (button, TRUE);
+		menuitem = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionChangeTopicItem");
+		if (menuitem == NULL)
+			g_warning ("can't access topic change menu item");
+		else
+			gtk_widget_set_sensitive (menuitem, sess->type == SESS_CHANNEL);
+
+		/* Set our nick. */
+		set_nickname (sess->server, NULL);
+	}
 }
 
 void
@@ -1136,6 +1141,8 @@ row_expanded (GtkTreeView *treeview, GtkTreeIter *iter, GtkTreePath *path, gpoin
 {
 	GtkTreePath *current_path;
 
+	if (NAVTREE (treeview)->current_rowref == NULL)
+		return;
 	current_path = gtk_tree_row_reference_get_path (NAVTREE (treeview)->current_rowref);
 
 	/* If we had something selected before the row was collapsed make sure it gets selected. */
@@ -1279,11 +1286,8 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 	gtk_tree_model_get (model, iter, 2, &s, -1);
 	if (s->type == SESS_SERVER && s->server == data->server) {
 		GtkTreeIter child;
-		GtkTreeModelSort *sort;
 		GtkTreeRowReference *rowref;
 		GtkTreePath *path;
-
-		sort = GTK_TREE_MODEL_SORT (gui.tree_model->sorted);
 
 		gtk_tree_store_append (GTK_TREE_STORE (model), &child, iter);
 		/* Add the new channel to the store. By default connected is true. */
@@ -1292,9 +1296,6 @@ navigation_model_create_new_channel_entry_iterate (GtkTreeModel *model, GtkTreeP
 		path = gtk_tree_model_get_path (model, &child);
 		rowref = gtk_tree_row_reference_new (model, path);
 		g_hash_table_insert (gui.tree_model->session_rows, (gpointer) data, (gpointer) rowref);
-
-		/* Set our nick. */
-		set_nickname (s->server, NULL);
 
 		position = gtk_editable_get_position (GTK_EDITABLE (gui.text_entry));
 		gtk_widget_grab_focus (gui.text_entry);

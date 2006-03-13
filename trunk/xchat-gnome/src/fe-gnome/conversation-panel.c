@@ -774,7 +774,7 @@ conversation_panel_update_colors (ConversationPanel *panel)
 }
 
 void
-conversation_panel_add_session (ConversationPanel *panel, struct session *sess)
+conversation_panel_add_session (ConversationPanel *panel, struct session *sess, gboolean focus)
 {
 	GConfClient  *client;
 	xtext_buffer *buffer;
@@ -791,7 +791,8 @@ conversation_panel_add_session (ConversationPanel *panel, struct session *sess)
 	g_hash_table_insert (panel->priv->buffers,            sess, buffer);
 	g_hash_table_insert (panel->priv->timestamp_notifies, sess, GINT_TO_POINTER (notify));
 
-	conversation_panel_set_current (panel, sess);
+	if (focus)
+		conversation_panel_set_current (panel, sess);
 }
 
 void

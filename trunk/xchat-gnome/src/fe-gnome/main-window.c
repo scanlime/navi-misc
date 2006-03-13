@@ -700,6 +700,9 @@ on_users_toggled (GtkToggleButton *widget, gpointer user_data)
 void
 set_nickname (struct server *serv, char *newnick)
 {
+	if (gui.current_session == NULL)
+		return;
+
 	if (serv == gui.current_session->server) {
 		GtkWidget *nick = glade_xml_get_widget (gui.xml, "nickname");
 		if (newnick == NULL)
@@ -713,6 +716,9 @@ set_nickname (struct server *serv, char *newnick)
 void
 set_nickname_color (struct server *serv)
 {
+	if (gui.current_session == NULL)
+		return;
+
 	if (serv == gui.current_session->server) {
 		GtkWidget *nick_button;
 		GtkLabel *label;
