@@ -1,3 +1,9 @@
+Sun Mar 12 21:59:03 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
+	  - Use theme-based colors for the nickname button to indicate away
+	    status, rather than hard-coded ones (#332966)
+
 Sun Mar 12 21:28:24 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/navigation-tree.h:
@@ -8,7 +14,7 @@ Sun Mar 12 21:28:24 MST 2006  David Trowbridge <trowbrds@gmail.com>
 	* src/fe-gnome/navigation-tree.c:
 	  - Handle "focus" correctly when opening new "tabs."  This means
 	    xchat-gnome will no longer interrupt you mid-sentence when someone
-	    sends a private message
+	    sends a private message (#334236)
 
 Sun Mar 12 20:23:05 MST 2006  Jeremy Nickurak <atrus@rifetech.com>
 

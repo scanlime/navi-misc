@@ -724,16 +724,18 @@ set_nickname_color (struct server *serv)
 		GtkLabel *label;
 		PangoAttribute *attr;
 		PangoAttrList *l;
+		GdkColor *color;
 
 		l = pango_attr_list_new ();
 		nick_button = glade_xml_get_widget (gui.xml, "nickname");
 		label = GTK_LABEL (GTK_BIN (nick_button)->child);
 
-		if (serv->is_away)
-			attr = pango_attr_foreground_new (0x9999, 0x9999, 0x9999);
-		else
-			/* FIXME: maybe we should get the color from GTK theme */
-			attr = pango_attr_foreground_new (0x0000, 0x0000, 0x0000);
+		if (serv->is_away) {
+			color = &(nick_button->style->fg[GTK_STATE_INSENSITIVE]);
+		} else {
+			color = &(nick_button->style->fg[GTK_STATE_NORMAL]);
+		}
+		attr = pango_attr_foreground_new (color->red, color->green, color->blue);
 
 		attr->start_index = 0;
 		attr->end_index = G_MAXUINT;
