@@ -24,6 +24,7 @@
 #include "path_tree.h"
 #include "utilities.h"
 
+/* Return a GHashTable that is identical to the python dictionary object dict. */
 GHashTable*
 node_from_PyDict (PyObject* dict)
 {
@@ -46,12 +47,14 @@ node_from_PyDict (PyObject* dict)
 	return node;
 }
 
+/* GHFunc for getting a list of the keys from a GHashTable. */
 void
 get_keys (char* key, PyObject* value, GSList** keys)
 {
 	(*keys) = g_slist_prepend ((*keys), key);
 }
 
+/* Return a list of the successor states for node. */
 GSList*
 generate_successors (GHashTable* adjacency, path_tree* node)
 {
@@ -61,12 +64,16 @@ generate_successors (GHashTable* adjacency, path_tree* node)
 
 	g_hash_table_foreach (frame, (GHFunc) get_keys, &bones);
 
+	/* FIXME */
 	for (GSList* bone = bones; bone; bone = g_slist_next (bone)) {
 	}
 
 	return ret;
 }
 
+/* Return true if the node represented by a is identical to the node represented
+ * by b.
+ */
 gboolean
 nodes_equal (path_tree* a, PyObject* b)
 {
@@ -121,19 +128,6 @@ f_cost_compare (gconstpointer a, gconstpointer b, gpointer data)
 	return 1;
 }
 
-static void
-free_path (gpointer key, gpointer value, gpointer data)
-{
-	g_slist_free ((GSList*) key);
-}
-
-static void
-free_costs (GHashTable* table)
-{
-	g_hash_table_foreach (table, free_path, NULL);
-	g_hash_table_destroy (table);
-}
-
 /* Execute a best first search using fcost to evaluate the cost of each node.
  * Return a path from start to goal if there is one, or return NULL.
  */
@@ -160,7 +154,6 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 			 */
 			if (nodes_equal (node, goal)) {
 				/* FIXME - Leaking the list of successors? */
-				free_costs (costs);
 				g_queue_free (agenda);
 				return node;
 			}
@@ -173,7 +166,6 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 		}
 	}
 
-	free_costs (costs);
 	g_queue_free (agenda);
 	return NULL;
 }
