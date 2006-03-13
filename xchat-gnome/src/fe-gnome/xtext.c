@@ -2012,11 +2012,20 @@ gtk_xtext_motion_notify (GtkWidget * widget, GdkEventMotion * event)
 static void
 gtk_xtext_set_clip_owner (GtkWidget * xtext, GdkEventButton * event)
 {
+	GtkClipboard *clipboard;
+
+	clipboard = gtk_widget_get_clipboard (xtext, GDK_SELECTION_PRIMARY);
+	gtk_xtext_copy_selection (GTK_XTEXT (xtext), clipboard);
+}
+
+void
+gtk_xtext_copy_selection (GtkXText *xtext, GtkClipboard *clipboard)
+{
 	char *str;
 	int len;
 
 	if (GTK_XTEXT (xtext)->selection_buffer &&
-		GTK_XTEXT (xtext)->selection_buffer != GTK_XTEXT (xtext)->buffer)
+	    GTK_XTEXT (xtext)->selection_buffer != GTK_XTEXT (xtext)->buffer)
 		gtk_xtext_selection_clear (GTK_XTEXT (xtext)->selection_buffer);
 
 	GTK_XTEXT (xtext)->selection_buffer = GTK_XTEXT (xtext)->buffer;
@@ -2024,17 +2033,9 @@ gtk_xtext_set_clip_owner (GtkWidget * xtext, GdkEventButton * event)
 	str = gtk_xtext_selection_get_text (GTK_XTEXT (xtext), &len);
 	if (str)
 	{
-#if (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION == 0)
-		gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_PRIMARY),
-										str, len);
-#else
-		gtk_clipboard_set_text (gtk_widget_get_clipboard (xtext, GDK_SELECTION_PRIMARY),
-										str, len);
-#endif
+		gtk_clipboard_set_text (clipboard, str, len);
 		free (str);
 	}
-
-	gtk_selection_owner_set (xtext, GDK_SELECTION_PRIMARY, event->time);
 }
 
 static void
@@ -4658,7 +4659,7 @@ gtk_xtext_search (GtkXText * xtext, const gchar *text, textentry *start, gboolea
 {
 	textentry *ent, *fent;
 	int line;
-	gchar *str, *nee, *hay;	/* needle in haystack */
+	gchar *str = NULL, *nee, *hay = NULL;	/* needle in haystack */
 
 	gtk_xtext_selection_clear_full (xtext->buffer);
 	xtext->buffer->last_ent_start = NULL;
