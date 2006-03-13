@@ -1,3 +1,10 @@
+Mon Mar 13 02:24:10 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/conversation-panel.c:
+	* src/fe-gnome/xtext.c:
+	* src/fe-gnome/xtext.h:
+	  - Hopefully fix clipboard and selection issues.
+
 Sun Mar 12 11:28:54 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/navigation-tree.c:

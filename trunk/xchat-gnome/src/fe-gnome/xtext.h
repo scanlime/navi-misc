@@ -258,5 +258,6 @@ xtext_buffer *gtk_xtext_buffer_new (GtkXText *xtext);
 void gtk_xtext_buffer_free (xtext_buffer *buf);
 void gtk_xtext_buffer_show (GtkXText *xtext, xtext_buffer *buf, int render);
 GtkType gtk_xtext_get_type (void);
+void gtk_xtext_copy_selection (GtkXText *xtext, GtkClipboard *clipboard);
 
 #endif

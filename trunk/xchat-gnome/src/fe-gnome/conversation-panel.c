@@ -510,8 +510,8 @@ open_url (GtkAction *action, ConversationPanel *panel)
 static void
 copy_text (GtkAction *action, ConversationPanel *panel)
 {
-	GtkClipboard *clipboard = gtk_clipboard_get (GDK_SELECTION_CLIPBOARD);
-        gtk_clipboard_set_text (clipboard, panel->priv->selected_word, strlen (panel->priv->selected_word));
+	GtkClipboard *clipboard = gtk_widget_get_clipboard (GTK_WIDGET (panel), GDK_SELECTION_CLIPBOARD);
+        gtk_clipboard_set_text (clipboard, panel->priv->selected_word, -1);
 }
 
 static void
@@ -720,7 +720,8 @@ send_file (gpointer file, gpointer user_data)
 static void
 on_default_copy_activate (GtkAction *action, ConversationPanel *panel)
 {
-	gtk_editable_copy_clipboard (GTK_EDITABLE (gui.text_entry));
+	GtkClipboard *clipboard = gtk_widget_get_clipboard (GTK_WIDGET (panel), GDK_SELECTION_CLIPBOARD);
+	gtk_xtext_copy_selection (GTK_XTEXT (panel->priv->xtext), clipboard);
 }
 
 static gboolean
