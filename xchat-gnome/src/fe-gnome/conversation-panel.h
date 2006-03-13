@@ -51,7 +51,7 @@ struct _ConversationPanelClass
 GType      conversation_panel_get_type        (void) G_GNUC_CONST;
 GtkWidget *conversation_panel_new             (void);
 void       conversation_panel_update_colors   (ConversationPanel *panel);
-void       conversation_panel_add_session     (ConversationPanel *panel, struct session *sess);
+void       conversation_panel_add_session     (ConversationPanel *panel, struct session *sess, gboolean focus);
 void       conversation_panel_set_current     (ConversationPanel *panel, struct session *sess);
 void       conversation_panel_save_current    (ConversationPanel *panel);
 void       conversation_panel_clear           (ConversationPanel *panel, struct session *sess);

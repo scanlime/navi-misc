@@ -1,3 +1,15 @@
+Sun Mar 12 21:28:24 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/navigation-tree.h:
+	* src/fe-gnome/conversation-panel.c:
+	* src/fe-gnome/conversation-panel.h:
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/navigation-tree.c:
+	  - Handle "focus" correctly when opening new "tabs."  This means
+	    xchat-gnome will no longer interrupt you mid-sentence when someone
+	    sends a private message
+
 Sun Mar 12 20:23:05 MST 2006  Jeremy Nickurak <atrus@rifetech.com>
 
 	* src/fe-gnome/preferences.c:

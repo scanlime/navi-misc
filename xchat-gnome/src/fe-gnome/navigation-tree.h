@@ -77,7 +77,7 @@ navigation_tree_get_type (void)
 
 /* Add/remove server/channel functions. */
 void navigation_tree_create_new_network_entry (NavTree *navtree, struct session *sess);
-void navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess);
+void navigation_tree_create_new_channel_entry (NavTree *navtree, struct session *sess, gboolean focus);
 void navigation_tree_remove_channel           (NavTree *navtree, struct session *sess);
 void navigation_tree_remove_server            (NavTree *navtree, struct session *sess);
 void navigation_tree_server_rm_chans          (NavTree *navtree, GtkTreeIter *parent);
