@@ -87,7 +87,7 @@ get_keys (char* key, PyObject* value, GSList** keys)
 GSList*
 generate_successors (GHashTable* adjacency, path_tree* node)
 {
-	GSList*     ret = NULL;
+	GSList*     ret   = NULL;
 	GSList*     bones = NULL;
 	GHashTable* frame = (GHashTable*) node->data;
 
