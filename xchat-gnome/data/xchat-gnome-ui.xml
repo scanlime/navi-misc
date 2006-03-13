@@ -64,6 +64,11 @@
 		<menuitem name="UserlistIgnoreItem" action="UserlistIgnore"/>
 	</popup>
 
+	<popup name="UserDialogPopup" action="PopupAction">
+		<menuitem name="UserlistSendFileItem" action="UserlistSendFile"/>
+		<menuitem name="UserlistIgnoreItem" action="UserlistIgnore"/>
+	</popup>
+
         <popup name="ServerPopup" action="PopupAction">
                 <menuitem name="ServerInformation" action="ServerInformation"/>
                 <separator name="ServerPopupSep0"/>

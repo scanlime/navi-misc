@@ -37,6 +37,7 @@
 #include "../common/outbound.h"
 #include "../common/text.h"
 #include "../common/url.h"
+#include "../common/userlist.h"
 #include "../common/util.h"
 #include "../common/xchatc.h"
 
@@ -169,6 +170,8 @@ static GtkTargetEntry target_table[] = {
 	{ "text/plain",     0, TARGET_TEXT_PLAIN }
 };
 
+static struct User dialog_user;
+
 static GtkHBoxClass *parent_class;
 G_DEFINE_TYPE (ConversationPanel, conversation_panel, GTK_TYPE_HBOX);
 
@@ -290,10 +293,15 @@ conversation_panel_check_word (GtkWidget *xtext, char *word, int len)
 
 	url = url_check_word (word, len);
 	if (url == 0) {
-		if (((word[0]=='@' || word[0]=='+') && userlist_find (current_sess, word+1)) || userlist_find (current_sess, word))
-			return WORD_NICK;
-		if (current_sess->type == SESS_DIALOG)
+		if (current_sess->type == SESS_DIALOG) {
+			if (strcmp (word, current_sess->channel) == 0)
+				return WORD_NICK;
 			return WORD_DIALOG;
+		} else if (((word[0]=='@' || word[0]=='+') && userlist_find (current_sess, word+1)) ||
+			   userlist_find (current_sess, word)) {
+			if (strcmp (word, current_sess->server->nick) != 0)
+				return WORD_NICK;
+		}
 	}
 	return url;
 }
@@ -319,6 +327,10 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 			{
 				char *command;
 				struct session *sess;
+
+				if ((gui.current_session->type == SESS_DIALOG) &&
+				    (strcmp (gui.current_session->channel, word) == 0))
+					break;
 
 				sess = find_dialog (gui.current_session->server, word);
 				if (sess)
@@ -373,14 +385,22 @@ conversation_panel_clicked_word (GtkWidget *xtext, char *word, GdkEventButton *e
 				struct User *user;
 				GtkWidget   *menu;
 
-				menu = gtk_ui_manager_get_widget (gui.manager, "/UserlistPopup");
 				if (panel->priv->selected_word)
 					g_free (panel->priv->selected_word);
 				panel->priv->selected_word = g_strdup (word);
 
-				user = userlist_find (gui.current_session, word);
-				if (user) {
-					current_user = user;
+				if (gui.current_session->type == SESS_CHANNEL) {
+					menu = gtk_ui_manager_get_widget (gui.manager, "/UserlistPopup");
+					user = userlist_find (gui.current_session, word);
+					if (user) {
+						current_user = user;
+						gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
+					}
+				} else if (gui.current_session->type == SESS_DIALOG) {
+					menu = gtk_ui_manager_get_widget (gui.manager, "/UserDialogPopup");
+					strcpy (dialog_user.nick, word);
+					dialog_user.nick[strlen (word)] = '\0';
+					current_user = &dialog_user;
 					gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, 3, gtk_get_current_event_time ());
 				}
 			}

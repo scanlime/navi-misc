@@ -55,7 +55,7 @@ static void user_kick_activate        (GtkAction *action, gpointer data);
 static void user_ban_activate         (GtkAction *action, gpointer data);
 static void user_ignore_activate      (GtkAction *action, gpointer data);
 
-static GtkActionEntry popup_action_entries [] = {
+static GtkActionEntry popup_action_entries[] = {
 	{ "UserlistSendFile",   NULL, N_("_Send File..."), "",   NULL, G_CALLBACK (user_send_file_activate) },
 	{ "UserlistOpenDialog", NULL, N_("Private _Chat"), "",   NULL, G_CALLBACK (user_open_dialog_activate) },
 	{ "UserlistKick",       NULL, N_("_Kick"),         "",   NULL, G_CALLBACK (user_kick_activate) },
