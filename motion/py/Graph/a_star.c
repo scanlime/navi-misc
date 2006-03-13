@@ -46,13 +46,31 @@ node_from_PyDict (PyObject* dict)
 	return node;
 }
 
+void
+get_keys (char* key, PyObject* value, GSList** keys)
+{
+	(*keys) = g_slist_prepend ((*keys), key);
+}
+
 GSList*
 generate_successors (GHashTable* adjacency, path_tree* node)
 {
 	GSList*     ret = NULL;
-	GHashTable* bones = (GHashTable*) node->data;
+	GSList*     bones = NULL;
+	GHashTable* frame = (GHashTable*) node->data;
+
+	g_hash_table_foreach (frame, (GHFunc) get_keys, &bones);
+
+	for (GSList* bone = bones; bone; bone = g_slist_next (bone)) {
+	}
 
 	return ret;
+}
+
+gboolean
+nodes_equal (path_tree* a, PyObject* b)
+{
+	return FALSE;
 }
 
 /* Return the cost of a path. */
@@ -119,7 +137,7 @@ free_costs (GHashTable* table)
 /* Execute a best first search using fcost to evaluate the cost of each node.
  * Return a path from start to goal if there is one, or return NULL.
  */
-GSList*
+path_tree*
 heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 		PyObject* fcost)
 {
@@ -138,12 +156,11 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 		for (GSList* s = successors; s; s = g_slist_next (s)) {
 			/* If this node is the goal prepend it to the path and
 			 * return
-			 * FIXME
 			 */
-			if (s->data == goal) {
+			if (nodes_equal (s->data, goal)) {
 				free_costs (costs);
 				g_queue_free (agenda);
-				return path;
+				return (path_tree*) s->data;
 			}
 			/* If this node isn't the goal calculate its f-cost and
 			 * insert it into agenda
