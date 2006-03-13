@@ -1,3 +1,9 @@
+Sun Mar 12 20:23:05 MST 2006  Jeremy Nickurak <atrus@rifetech.com>
+
+	* src/fe-gnome/preferences.c:
+	  - Stop trying to find a palette scheme, fix palette loading bug.
+	    (#327711)
+
 Sun Mar 12 18:48:43 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* plugins/notification/notification.c:
