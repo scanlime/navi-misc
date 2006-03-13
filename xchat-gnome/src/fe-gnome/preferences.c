@@ -53,7 +53,7 @@ void
 load_preferences (void)
 {
 	GConfClient *client;
-	int color_scheme, palette_scheme;
+	int color_scheme;
 	gboolean showcolors;
 	gchar *text;
 
@@ -99,8 +99,7 @@ load_preferences (void)
 
 	color_scheme = gconf_client_get_int (client, "/apps/xchat/irc/color_scheme", NULL);
 	load_colors (color_scheme);
-	palette_scheme = gconf_client_get_int (client, "/apps/xchat/irc/palette_scheme", NULL);
-	load_palette (palette_scheme);
+	load_palette (color_scheme);
 
 	g_object_unref (client);
 }
