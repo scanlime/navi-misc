@@ -1,3 +1,8 @@
+Sun Mar 12 11:28:54 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/navigation-tree.c:
+	  - Clarify autojoin/autoconnect strings
+
 Sun Mar 12 21:59:03 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/main-window.c:
