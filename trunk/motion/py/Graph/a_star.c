@@ -75,7 +75,7 @@ nodes_equal (path_tree* a, PyObject* b)
 
 /* Return the cost of a path. */
 gint
-cost (GSList* path, PyObject* goal, PyObject* fcost)
+cost (path_tree* path, PyObject* goal, PyObject* fcost)
 {
 	gint c = -1;
 	PyObject* py_path = PyList_New (0);
@@ -85,7 +85,7 @@ cost (GSList* path, PyObject* goal, PyObject* fcost)
 	/* FIXME - error checking */
 
 	/* Build a list of nodes that is the path */
-	for (GSList* p = path; p; p = g_slist_next (p)) {
+	for (path_tree* p = path; p; p = p->parent) {
 		PyList_Insert (py_path, 0, (PyObject*) p->data);
 	}
 
@@ -154,20 +154,22 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 		GSList*    successors = generate_successors (adjacency, path);
 
 		for (GSList* s = successors; s; s = g_slist_next (s)) {
+			path_tree* node = (path_tree*) s->data;
 			/* If this node is the goal prepend it to the path and
 			 * return
 			 */
-			if (nodes_equal (s->data, goal)) {
+			if (nodes_equal (node, goal)) {
+				/* FIXME - Leaking the list of successors? */
 				free_costs (costs);
 				g_queue_free (agenda);
-				return (path_tree*) s->data;
+				return node;
 			}
 			/* If this node isn't the goal calculate its f-cost and
 			 * insert it into agenda
 			 */
-			g_hash_table_insert (costs, s->data,
-					GINT_TO_POINTER (cost (s->data, goal, fcost)));
-			g_queue_insert_sorted (agenda, s->data, f_cost_compare, costs);
+			g_hash_table_insert (costs, node,
+					GINT_TO_POINTER (cost (node, goal, fcost)));
+			g_queue_insert_sorted (agenda, node, f_cost_compare, costs);
 		}
 	}
 
