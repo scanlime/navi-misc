@@ -164,8 +164,10 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 			}
 			/* If this node isn't the goal calculate its f-cost and
 			 * insert it into agenda
-			 * FIXME
 			 */
+			g_hash_table_insert (costs, s->data,
+					GINT_TO_POINTER (cost (s->data, goal, fcost)));
+			g_queue_insert_sorted (agenda, s->data, f_cost_compare, costs);
 		}
 	}
 
