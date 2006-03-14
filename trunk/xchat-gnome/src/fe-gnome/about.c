@@ -116,6 +116,7 @@ initialize_about_dialog (void)
 
 	g_free (license_trans);
 
+	g_signal_connect (G_OBJECT (gui.about), "delete-event", G_CALLBACK (gtk_widget_hide_on_delete), NULL);
 	gtk_window_set_transient_for (GTK_WINDOW (gui.about), GTK_WINDOW (gui.main_window));
 }
 
