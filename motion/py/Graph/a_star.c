@@ -182,6 +182,9 @@ nodes_equal (path_tree* a, PyObject* b)
 	PyObject* value;
 	int       pos = 0;
 
+	/* Compare each bone in the python dictionary to each bone in the
+	 * path_tree hash table. If any one of them doesn't match, return FALSE.
+	 */
 	while (PyDict_Next (b, &pos, &key, &value)) {
 		char* bone = PyString_AsString (key);
 		PyObject* u = g_hash_table_lookup ((GHashTable*) a->data, bone);
@@ -262,16 +265,18 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 
 		for (GSList* s = successors; s; s = g_slist_next (s)) {
 			path_tree* node = (path_tree*) s->data;
-			/* If this node is the goal prepend it to the path and
-			 * return
+			/* Add the node to the path tree so that we know how we
+			 * got here
 			 */
+			path_tree_append (path, node);
+			/* If this node is the goal return */
 			if (nodes_equal (node, goal)) {
 				g_slist_free (successors);
 				g_queue_free (agenda);
 				return node;
 			}
 			/* If this node isn't the goal calculate its f-cost and
-			 * insert it into agenda
+			 * insert it into the agenda
 			 */
 			g_hash_table_insert (costs, node,
 					GINT_TO_POINTER (cost (node, goal, fcost)));

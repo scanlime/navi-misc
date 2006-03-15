@@ -26,11 +26,12 @@ typedef struct _path_tree path_tree;
 
 struct _path_tree
 {
-	path_tree*    parent;
-	GSList*  children;
-	gpointer data;
+	path_tree* parent;
+	GSList*    children;
+	gpointer   data;
 };
 
 path_tree* path_tree_new         (gpointer data);
+void       path_tree_append      (path_tree* parent, path_tree* child);
 void       path_tree_append_new  (path_tree* parent, gpointer data);
 void       path_tree_destroy_all (path_tree* root);

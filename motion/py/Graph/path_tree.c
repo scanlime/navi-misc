@@ -34,7 +34,14 @@ path_tree_new (gpointer data)
 }
 
 void
-path_append_new (path_tree* parent, gpointer data)
+path_tree_append (path_tree* parent, path_tree* child)
+{
+	parent->children = g_slist_prepend (parent->children, child);
+	child->parent = parent;
+}
+
+void
+path_tree_append_new (path_tree* parent, gpointer data)
 {
 	path_tree* child = path_tree_new (data);
 	parent->children = g_slist_prepend (parent->children, child);
