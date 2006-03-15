@@ -21,14 +21,21 @@
 
 #include <glib.h>
 #include <Python.h>
+#include "dijkstra.h"
 #include "utilities.h"
-#include "depth_limited.c"
-#include "a_star.c"
-#include "dijkstra.c"
+#include "path_tree.h"
 
 static PyObject* depth_limited_search (PyObject* self, PyObject* args);
 static PyObject* aStar_search (PyObject* self, PyObject *args);
 static PyObject* dijkstra_search (PyObject* self, PyObject* args);
+
+
+/* Defined in depth_limited.c */
+void search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject*
+		goal, int depth, GSList* good_paths[]);
+/* Defined in a_star.c */
+path_tree* heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
+		PyObject* fcost);
 
 static PyMethodDef AlgorithmC_methods[] = {
 	{"depthLimitedSearch", depth_limited_search, METH_VARARGS, "Execute a depth limited search of the graph"},

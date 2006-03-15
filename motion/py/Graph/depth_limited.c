@@ -24,7 +24,8 @@
 #include "utilities.h"
 
 void
-search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal, int depth, GSList* good_paths[])
+search (GSList* path, GHashTable* adjacency, GHashTable *edges, PyObject* goal,
+		int depth, GSList* good_paths[])
 {
 	PyObject* node = (PyObject*) path->data;
 	PyObject* args;
