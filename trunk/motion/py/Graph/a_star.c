@@ -91,9 +91,9 @@ get_keys (char* key, PyObject* value, GSList** keys)
 static GSList*
 combine_successors (GSList* successors, GSList* bone)
 {
-	GSList* ret = NULL;
-	GSList* vs = (GSList*) successors->data;
-	gchar*  bone_name = (gchar*) bone->data;
+	GSList*   ret = NULL;
+	GSList*   vs = (GSList*) successors->data;
+	PyObject* bone_name = (PyObject*) bone->data;
 
 	/* Advance the pointer for the list of successor states. If this is the
 	 * last bone, assemble the return value.
@@ -101,13 +101,12 @@ combine_successors (GSList* successors, GSList* bone)
 	successors = g_slist_next (successors);
 	if (successors == NULL) {
 		for (GSList* v = vs; v; v = g_slist_next (v)) {
-			/* This goes in the data field of the path_tree */
-			GHashTable* data = g_hash_table_new (g_str_hash, g_direct_equal);
-			path_tree*  node = path_tree_new (data);
+			PyObject*  data = PyDict_New();
+			path_tree* node = path_tree_new (data);
 			/* Insert this bone and position into the hash table
 			 * that is now the data field of the path_tree node.
 			 */
-			g_hash_table_insert (data, bone_name, v->data);
+			PyDict_SetItem (data, bone_name, v->data);
 			/* Add the path_tree node to the return value */
 			ret = g_slist_prepend (ret, node);
 		}
@@ -133,8 +132,8 @@ combine_successors (GSList* successors, GSList* bone)
 		GSList* nodes = combine_successors (successors, bone);
 		/* For each combinatoric state add the position of this bone */
 		for (GSList* n = nodes; n; n = g_slist_next (n)) {
-			GHashTable* data = (GHashTable*) ((path_tree*) n)->data;
-			g_hash_table_insert (data, bone_name, v->data);
+			PyObject* data = (PyObject*) ((path_tree*) n)->data;
+			PyDict_SetItem (data, bone_name, v->data);
 		}
 		/* Add the newly modified list of states to the return value */
 		ret = g_slist_concat (ret, nodes);
@@ -147,53 +146,24 @@ combine_successors (GSList* successors, GSList* bone)
 static GSList*
 generate_successors (GHashTable* adjacency, path_tree* node)
 {
-	GSList*     successors = NULL;
-	GSList*     bones = NULL;
-	GHashTable* frame = (GHashTable*) node->data;
-
-	/* Obtain a list of the bone names from the dictionary */
-	g_hash_table_foreach (frame, (GHFunc) get_keys, &bones);
+	GSList*   successors = NULL;
+	GSList*   bones = NULL;
+	PyObject* dict = (PyObject*) node->data;
+	PyObject* bone;
+	PyObject* u;
+	int       pos = 0;
 
 	/* For every bone look up its current position and prepend the list of
 	 * its neighbors to the list of successor states.
 	 */
-	for (GSList* bone = bones; bone; bone = g_slist_next (bone)) {
-		PyObject* u = g_hash_table_lookup (frame, bone->data);
+	while (PyDict_Next (dict, &pos, &bone, &u)) {
 		GSList*   vs = g_hash_table_lookup (adjacency, u);
+		bones = g_slist_prepend (bones, bone);
 		successors = g_slist_prepend (successors, vs);
 	}
 
-	/* Reverse the list of successors because it needs to be in the same
-	 * order as the list of bones
-	 */
-	successors = g_slist_reverse (successors);
-
 	/* Use recursive combinatoric function to generate return value */
 	return combine_successors (successors, bones);
-}
-
-/* Return true if the node represented by a is identical to the node represented
- * by b.
- */
-static gboolean
-nodes_equal (path_tree* a, PyObject* b)
-{
-	PyObject* key;
-	PyObject* value;
-	int       pos = 0;
-
-	/* Compare each bone in the python dictionary to each bone in the
-	 * path_tree hash table. If any one of them doesn't match, return FALSE.
-	 */
-	while (PyDict_Next (b, &pos, &key, &value)) {
-		char* bone = PyString_AsString (key);
-		PyObject* u = g_hash_table_lookup ((GHashTable*) a->data, bone);
-		if (!PyObject_RichCompareBool (u, value, Py_EQ)) {
-			return FALSE;
-		}
-	}
-
-	return TRUE;
 }
 
 /* Return the cost of a path. */
@@ -209,7 +179,7 @@ cost (path_tree* path, PyObject* goal, PyObject* fcost)
 
 	/* Build a list of nodes that is the path */
 	for (path_tree* p = path; p; p = p->parent) {
-		PyList_Insert (py_path, 0, PyDict_from_node (p->data));
+		PyList_Insert (py_path, 0, p->data);
 	}
 
 	arglist = Py_BuildValue ("(OO)", py_path, goal);
@@ -256,7 +226,7 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 	GQueue*     agenda = g_queue_new ();
 
 	/* Push start onto the agenda */
-	g_queue_push_head (agenda, path_tree_new (node_from_PyDict (start)));
+	g_queue_push_head (agenda, path_tree_new (start));
 
 	/* Run until we run out of things to check */
 	while (!g_queue_is_empty (agenda)) {
@@ -270,7 +240,7 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 			 */
 			path_tree_append (path, node);
 			/* If this node is the goal return */
-			if (nodes_equal (node, goal)) {
+			if (PyObject_RichCompareBool ((PyObject*) node->data, goal, Py_EQ)) {
 				g_slist_free (successors);
 				g_queue_free (agenda);
 				return node;
