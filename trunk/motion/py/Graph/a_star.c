@@ -150,16 +150,24 @@ generate_successors (GHashTable* adjacency, path_tree* node)
 	GSList*     bones = NULL;
 	GHashTable* frame = (GHashTable*) node->data;
 
+	/* Obtain a list of the bone names from the dictionary */
 	g_hash_table_foreach (frame, (GHFunc) get_keys, &bones);
 
+	/* For every bone look up its current position and prepend the list of
+	 * its neighbors to the list of successor states.
+	 */
 	for (GSList* bone = bones; bone; bone = g_slist_next (bone)) {
 		PyObject* u = g_hash_table_lookup (frame, bone->data);
 		GSList*   vs = g_hash_table_lookup (adjacency, u);
 		successors = g_slist_prepend (successors, vs);
 	}
 
+	/* Reverse the list of successors because it needs to be in the same
+	 * order as the list of bones
+	 */
 	successors = g_slist_reverse (successors);
 
+	/* Use recursive combinatoric function to generate return value */
 	return combine_successors (successors, bones);
 }
 
