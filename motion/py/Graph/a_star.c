@@ -25,7 +25,7 @@
 #include "utilities.h"
 
 /* Return a GHashTable that is identical to the python dictionary object dict. */
-GHashTable*
+static GHashTable*
 node_from_PyDict (PyObject* dict)
 {
 	GHashTable* node = g_hash_table_new (g_str_hash, g_direct_equal);
@@ -51,7 +51,7 @@ node_from_PyDict (PyObject* dict)
  * dictionary. The key should be a string and the value should be a python
  * object.
  */
-void
+static void
 insert_in_dict (const char* key, PyObject* value, PyObject* dict)
 {
 	PyDict_SetItem (dict, PyString_FromString (key), value);
@@ -60,7 +60,7 @@ insert_in_dict (const char* key, PyObject* value, PyObject* dict)
 /* Return a python dictionary with the same contents as the hash table contained
  * in node's data field.
  */
-PyObject*
+static PyObject*
 PyDict_from_node (path_tree* node)
 {
 	GHashTable* data = (GHashTable*) node->data;
@@ -77,7 +77,7 @@ PyDict_from_node (path_tree* node)
 }
 
 /* GHFunc for getting a list of the keys from a GHashTable. */
-void
+static void
 get_keys (char* key, PyObject* value, GSList** keys)
 {
 	(*keys) = g_slist_prepend ((*keys), key);
@@ -88,7 +88,7 @@ get_keys (char* key, PyObject* value, GSList** keys)
  * GHashTable in its data field that maps a bone name (gchar*) to a position
  * (PyObject*).
  */
-GSList*
+static GSList*
 combine_successors (GSList* successors, GSList* bone)
 {
 	GSList* ret = NULL;
@@ -144,7 +144,7 @@ combine_successors (GSList* successors, GSList* bone)
 }
 
 /* Return a list of the successor states for node. */
-GSList*
+static GSList*
 generate_successors (GHashTable* adjacency, path_tree* node)
 {
 	GSList*     successors = NULL;
@@ -175,7 +175,7 @@ generate_successors (GHashTable* adjacency, path_tree* node)
 /* Return true if the node represented by a is identical to the node represented
  * by b.
  */
-gboolean
+static gboolean
 nodes_equal (path_tree* a, PyObject* b)
 {
 	PyObject* key;
@@ -197,7 +197,7 @@ nodes_equal (path_tree* a, PyObject* b)
 }
 
 /* Return the cost of a path. */
-gint
+static gint
 cost (path_tree* path, PyObject* goal, PyObject* fcost)
 {
 	PyObject* py_path = PyList_New (0);
@@ -230,7 +230,7 @@ cost (path_tree* path, PyObject* goal, PyObject* fcost)
 }
 
 /* GCompareDataFunc for sorting the agenda queue in a best first search */
-gint
+static gint
 f_cost_compare (gconstpointer a, gconstpointer b, gpointer data)
 {
 	GHashTable* costs = (GHashTable*) data;
