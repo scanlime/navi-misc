@@ -25,7 +25,7 @@ and the maintenance system. All the usual entry points for the stats system.
 from twisted.python import log
 from twisted.internet import defer
 from twisted.web import xmlrpc
-from LibCIA import RpcServer, Database
+from LibCIA import RpcServer, Database, XML
 from Target import StatsTarget
 import cPickle, urlparse, time
 
