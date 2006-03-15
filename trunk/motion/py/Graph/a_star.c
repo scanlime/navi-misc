@@ -83,21 +83,64 @@ get_keys (char* key, PyObject* value, GSList** keys)
 	(*keys) = g_slist_prepend ((*keys), key);
 }
 
+/* Recursively generate a list of all possible combinations of the successors
+ * for each bone.
+ */
+GSList*
+combine_successors (GSList* successors, GSList* bone)
+{
+	GSList* ret = NULL;
+	GSList* vs = (GSList*) successors->data;
+	gchar*  bone_name = (gchar*) bone->data;
+
+	successors = g_slist_next (successors);
+	if (successors == NULL) {
+		for (GSList* v = vs; v; v = g_slist_next (v)) {
+			GHashTable* data = g_hash_table_new (g_str_hash, g_direct_equal);
+			path_tree*  node = path_tree_new (data);
+			g_hash_table_insert (data, bone_name, v->data);
+			ret = g_slist_prepend (ret, node);
+		}
+
+		return ret;
+	}
+
+	bone = g_slist_next (bone);
+	if (bone == NULL) {
+		/* FIXME - error */
+	}
+
+	for (GSList* v = vs; v; v = g_slist_next (v)) {
+		GSList* nodes = combine_successors (successors, bone);
+		for (GSList* n = nodes; n; n = g_slist_next (n)) {
+			GHashTable* data = (GHashTable*) ((path_tree*) n)->data;
+			g_hash_table_insert (data, bone_name, v->data);
+		}
+		ret = g_slist_concat (ret, nodes);
+	}
+
+	return ret;
+}
+
 /* Return a list of the successor states for node. */
 GSList*
 generate_successors (GHashTable* adjacency, path_tree* node)
 {
-	GSList*     ret   = NULL;
+	GSList*     successors = NULL;
 	GSList*     bones = NULL;
 	GHashTable* frame = (GHashTable*) node->data;
 
 	g_hash_table_foreach (frame, (GHFunc) get_keys, &bones);
 
-	/* FIXME */
 	for (GSList* bone = bones; bone; bone = g_slist_next (bone)) {
+		PyObject* u = g_hash_table_lookup (frame, bone->data);
+		GSList*   vs = g_hash_table_lookup (adjacency, u);
+		successors = g_slist_prepend (successors, vs);
 	}
 
-	return ret;
+	successors = g_slist_reverse (successors);
+
+	return combine_successors (successors, bones);
 }
 
 /* Return true if the node represented by a is identical to the node represented
