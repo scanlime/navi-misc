@@ -41,14 +41,6 @@ path_tree_append (path_tree* parent, path_tree* child)
 }
 
 void
-path_tree_append_new (path_tree* parent, gpointer data)
-{
-	path_tree* child = path_tree_new (data);
-	parent->children = g_slist_prepend (parent->children, child);
-	child->parent = parent;
-}
-
-void
 path_tree_destroy_all (path_tree* root)
 {
 	for (GSList* node = root->children; node; node = g_slist_next (node)) {
