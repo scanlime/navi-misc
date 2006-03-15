@@ -164,12 +164,11 @@ aStar_search (PyObject* self, PyObject *args)
 	}
 
 	/* Search */
-	GSList* p = g_slist_prepend (NULL, start);
-	GSList* path = heuristic_search (adjacency, p, end, f_cost);
+	path_tree* path = heuristic_search (adjacency, start, end, f_cost);
 
 	if (path) {
 		result = PyList_New (0);
-		for (GSList* node = path; node; node = g_slist_next (node)) {
+		for (path_tree* node = path; node; node = node->parent) {
 			PyList_Append (result, (PyObject*) node->data);
 		}
 		PyList_Reverse (result);
