@@ -19,11 +19,10 @@
  *
  */
 
-#include <glib.h>
-#include <Python.h>
+#include "dijkstra.h"
 #include "utilities.h"
 
-static void
+void
 initialize_dijkstra_d (PyObject *u, GList *vs, GHashTable *d)
 {
 	g_hash_table_insert (d, u, GINT_TO_POINTER (-1));
