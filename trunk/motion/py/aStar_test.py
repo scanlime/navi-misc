@@ -49,7 +49,6 @@ print "    Estimated cost: %d" % (f([actualPath[0]], actualPath[-1]))
 print
 
 path = algorithms_c.aStarSearch (adjacency,
-                                 graph["root"].representations[EdgeList],
                                  actualPath[0],
                                  actualPath[-1],
                                  f)
