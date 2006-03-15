@@ -1,6 +1,36 @@
 To-do List
 ==========
 
+Deep Changes
+------------
+
+There are a few fairly large changes I'm working on under the hood, which will
+make other fixes much easier and improve general server stability and scalability.
+
+- Separate the HTTP frontend from the message delivery engine. The message delivery
+  engine itself should be a separate daemon, preferably something that can be scaled
+  well. This means more efficient algorithms for ruleset matching, and seamless
+  interaction between multiple message delivery hosts. This daemon has been codenamed
+  Esquilax_.
+
+- Once the HTTP frontend no longer has to handle message delivery, we can safely
+  have multiple processes/thread/hosts running the frontend. To make the web interface
+  more maintainable, I'd like to largely rewrite it in a framework like Django_.
+
+- The IRC bot server is another scalability and reliability bottleneck. I'd like the
+  entire bot server to be a "disposable" daemon, which keeps all its connection state
+  and the sockets itself in a separate simple process. The codename for this socket
+  broker daemon is Caterpillar_.
+
+The wiki pages linked above are really just my own notes on the subject- they are
+a little disorganized, and subject to change. If you'd like to contribute to any of
+these projects or you're curious how they work, please contact Micah_ directly.
+
+.. _Micah: mailto:micah@navi.cx
+.. _Django: http://djangoproject.com
+.. _Esquilax: http://zero.navi.cx/wiki/index.php/Esquilax
+.. _Caterpillar: http://zero.navi.cx/wiki/index.php/CaterpillarDaemon
+
 Messages
 --------
 
@@ -14,6 +44,10 @@ Messages
 - Make it possible for modular formatters to treat the files prefix and the rest
   of the file summary differently
 
+- Add message delivery information to the XML-RPC hub.deliver() frontend. It should
+  add a header in <generator> indicating the IP, hostname, and/or user agent of the sender.
+  This can be used by rulesets like stats://host.
+
 Documentation
 -------------
 
@@ -21,7 +55,10 @@ Documentation
 
 - Good ruleset documentation, including the recent Modular Formatters
 
-- Add some info on the XML-RPC interface
+- Add some more info on the XML-RPC interface. There's a little `API Documentation`_
+  but it's incomplete.
+
+.. _API Documentation: /doc/api/index
 
 
 Web Interface

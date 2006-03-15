@@ -26,6 +26,8 @@ For these reasons, this document will be the focused on setting up CIA for Sourc
 It might still be helpful if you're using CIA on a CVS server hosted elsewhere, but some commands
 will need to be adapted.
 
+Note that this document only applies to CVS projects. The Sourceforge admin interface already includes an easy-to-use setting for enabling CIA on your Subversion repository.
+
 
 Setting up CIA: Step one, getting the right stuff
 -------------------------------------------------
