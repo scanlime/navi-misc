@@ -120,7 +120,8 @@ combine_successors (GSList* successors, GSList* bone)
 	 */
 	bone = g_slist_next (bone);
 	if (bone == NULL) {
-		/* FIXME - error */
+		PyErr_SetString (PyExc_RuntimeError, "length of bone list does not match length of successors list");
+		return NULL;
 	}
 
 	/* For every position at this bone generate a list of the combinatoric
