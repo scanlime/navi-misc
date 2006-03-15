@@ -178,7 +178,19 @@ generate_successors (GHashTable* adjacency, path_tree* node)
 gboolean
 nodes_equal (path_tree* a, PyObject* b)
 {
-	return FALSE;
+	PyObject* key;
+	PyObject* value;
+	int       pos = 0;
+
+	while (PyDict_Next (b, &pos, &key, &value)) {
+		char* bone = PyString_AsString (key);
+		PyObject* u = g_hash_table_lookup ((GHashTable*) a->data, bone);
+		if (!PyObject_RichCompareBool (u, value, Py_EQ)) {
+			return FALSE;
+		}
+	}
+
+	return TRUE;
 }
 
 /* Return the cost of a path. */
