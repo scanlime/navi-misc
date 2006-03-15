@@ -84,7 +84,9 @@ get_keys (char* key, PyObject* value, GSList** keys)
 }
 
 /* Recursively generate a list of all possible combinations of the successors
- * for each bone.
+ * for each bone. Returns a GSList of path_tree nodes. Each path_tree node has a
+ * GHashTable in its data field that maps a bone name (gchar*) to a position
+ * (PyObject*).
  */
 GSList*
 combine_successors (GSList* successors, GSList* bone)
@@ -93,29 +95,47 @@ combine_successors (GSList* successors, GSList* bone)
 	GSList* vs = (GSList*) successors->data;
 	gchar*  bone_name = (gchar*) bone->data;
 
+	/* Advance the pointer for the list of successor states. If this is the
+	 * last bone, assemble the return value.
+	 */
 	successors = g_slist_next (successors);
 	if (successors == NULL) {
 		for (GSList* v = vs; v; v = g_slist_next (v)) {
+			/* This goes in the data field of the path_tree */
 			GHashTable* data = g_hash_table_new (g_str_hash, g_direct_equal);
 			path_tree*  node = path_tree_new (data);
+			/* Insert this bone and position into the hash table
+			 * that is now the data field of the path_tree node.
+			 */
 			g_hash_table_insert (data, bone_name, v->data);
+			/* Add the path_tree node to the return value */
 			ret = g_slist_prepend (ret, node);
 		}
 
 		return ret;
 	}
 
+	/* Advance the pointer on the list of bones. If we were able to advance
+	 * the successors pointer and not the bone pointer, we've got a problem.
+	 */
 	bone = g_slist_next (bone);
 	if (bone == NULL) {
 		/* FIXME - error */
 	}
 
+	/* For every position at this bone generate a list of the combinatoric
+	 * states of all remaining bones and then add the position of this bone
+	 * to each of those states.
+	 */
 	for (GSList* v = vs; v; v = g_slist_next (v)) {
+		/* Combinatoric states of all remaining bones */
 		GSList* nodes = combine_successors (successors, bone);
+		/* For each combinatoric state add the position of this bone */
 		for (GSList* n = nodes; n; n = g_slist_next (n)) {
 			GHashTable* data = (GHashTable*) ((path_tree*) n)->data;
 			g_hash_table_insert (data, bone_name, v->data);
 		}
+		/* Add the newly modified list of states to the return value */
 		ret = g_slist_concat (ret, nodes);
 	}
 
