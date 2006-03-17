@@ -172,7 +172,7 @@ text_entry_init (TextEntry *entry)
 
 	g_object_unref (client);
 #endif
-	
+
 	gtk_widget_show (GTK_WIDGET (entry));
 }
 
@@ -467,7 +467,7 @@ tab_complete_command (GtkEntry *entry)
 		}
 		conversation_panel_print (CONVERSATION_PANEL (gui.conversation_panel), text_entry->priv->current, (guchar *) printtext, TRUE);
 		g_free (printtext);
-		
+
 		npt = NULL;
 		if (new_prefix && strcasecmp (prefix, new_prefix) != 0) {
 			/* insert the new prefix into the entry */
@@ -665,11 +665,11 @@ static void
 enable_spellcheck_changed (GConfClient *client, guint cnxn_id, GConfEntry *gconf_entry, TextEntry *entry)
 {
 	GSList *langs;
-	gboolean enabled; 
-	
+	gboolean enabled;
+
 	enabled = gconf_value_get_bool (gconf_entry->value);
 	sexy_spell_entry_set_checked (SEXY_SPELL_ENTRY (entry), enabled);
-	
+
 	if (enabled) {
 		langs = sexy_spell_entry_get_active_languages (SEXY_SPELL_ENTRY (entry));
 		if (langs == NULL) {
@@ -686,18 +686,19 @@ enable_spellcheck_changed (GConfClient *client, guint cnxn_id, GConfEntry *gconf
 }
 
 /*
- * FIXME : This is done in preferences-page-spellcheck because if we have 2 notifications
- * change on the same gonf key, the one from preferences-page-spellcheck is called 
- * before this one and so it doesn't work.
- * That's suck because we can only change languages using gconf if the preference window
- * is opened.
- *
+ * FIXME : This is done in preferences-page-spellcheck because if we have 2
+ * notifications change on the same gonf key, the one from
+ * preferences-page-spellcheck is called before this one and so it doesn't
+ * work.  That's suck because we can only change languages using gconf if the
+ * preference window is opened.
+ */
+#if 0
 static void
 languages_changed (GConfClient *client, guint cnxn_id, GConfEntry *gconf_entry, TextEntry *entry)
 {
 	GError *err = NULL;
 	GSList *new_languages, *old_languages;
-	
+
 	new_languages = gconf_client_get_list (client, "/apps/xchat/spellcheck/languages", GCONF_VALUE_STRING, NULL);
 
 	if (new_languages != NULL)
@@ -719,6 +720,6 @@ languages_changed (GConfClient *client, guint cnxn_id, GConfEntry *gconf_entry, 
 	g_slist_foreach (new_languages, (GFunc) g_free, NULL);
 	g_slist_free (new_languages);
 }
-*/
+#endif
 
 #endif

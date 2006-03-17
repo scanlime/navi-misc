@@ -41,6 +41,6 @@ typedef struct
 } PreferencesSpellcheckPage;
 
 PreferencesSpellcheckPage *preferences_page_spellcheck_new  (gpointer prefs_dialog, GladeXML *xml);
-void                preferences_page_spellcheck_free (PreferencesSpellcheckPage *page);
+void                       preferences_page_spellcheck_free (PreferencesSpellcheckPage *page);
 
 #endif

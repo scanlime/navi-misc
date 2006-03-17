@@ -1,3 +1,13 @@
+Fri Mar 17 15:46:24 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/text-entry.c:
+	* src/fe-gnome/preferences-dialog.h:
+	  - Whitespace nitpickery
+	* src/fe-gnome/preferences-page-spellcheck.c:
+	* src/fe-gnome/preferences-page-spellcheck.h:
+	* data/preferences-dialog.glade:
+	  - Fiddle a bit with UI and whitespace
+
 Fri Mar 17 22:41:09 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/text-entry.c:
