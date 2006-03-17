@@ -51,6 +51,7 @@ src/fe-gnome/preferences-page-effects.c
 src/fe-gnome/preferences-page-irc.c
 src/fe-gnome/preferences-page-networks.c
 src/fe-gnome/preferences-page-plugins.c
+src/fe-gnome/preferences-page-spellcheck.c
 src/fe-gnome/status-bar.c
 src/fe-gnome/text-entry.c
 src/fe-gnome/topic-label.c

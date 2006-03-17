@@ -253,5 +253,30 @@
 				<short>List of enabled plugins</short>
 			</locale>
 		</schema>
+
+		<!-- spellchecking enabled -->
+		<schema>
+			<key>/schemas/apps/xchat/spellcheck/enabled</key>
+			<applyto>/apps/xchat/spellcheck/enabled</applyto>
+			<owner>xchat</owner>
+			<type>bool</type>
+			<default>true</default>
+			<locale name="C">
+				<short>Enable spellchecking</short>
+			</locale>
+		</schema>
+
+		<!-- languages for spellchecking -->
+		<schema>
+			<key>/schemas/apps/xchat/spellcheck/languages</key>
+			<applyto>/apps/xchat/spellcheck/languages</applyto>
+			<owner>xchat</owner>
+			<type>list</type>
+			<list_type>string</list_type>
+			<default>[]</default>
+			<locale name="C">
+				<short>Languages to use for spellchecking</short>
+			</locale>
+		</schema>
 	</schemalist>
 </gconfschemafile>

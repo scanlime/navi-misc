@@ -22,6 +22,7 @@
 #include <string.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#include <gconf/gconf-client.h>
 #include "conversation-panel.h"
 #include "gui.h"
 #include "palette.h"
@@ -39,6 +40,16 @@ static gboolean   text_entry_key_press      (GtkWidget      *widget,
 static gboolean   text_entry_spell_check    (TextEntry      *entry,
                                              gchar          *text,
                                              gpointer        data);
+static void       enable_spellcheck_changed (GConfClient *client,
+		                             guint cnxn_id,
+					     GConfEntry *gconf_entry,
+					     TextEntry *entry);
+/*
+static void       languages_changed 	    (GConfClient *client,
+		                             guint cnxn_id,
+					     GConfEntry *gconf_entry,
+					     TextEntry *entry);
+*/
 #endif
 static void       text_entry_activate       (GtkWidget      *widget,
                                              gpointer        data);
@@ -90,6 +101,12 @@ text_entry_init (TextEntry *entry)
 {
 	GList *items = NULL;
 	int i;
+#ifdef HAVE_LIBSEXY
+	GConfClient *client;
+	gboolean enable_spellcheck;
+	GSList *languages;
+	GError *err  = NULL;
+#endif
 
 	g_signal_connect_after (G_OBJECT (entry), "key_press_event", G_CALLBACK (text_entry_key_press),      NULL);
 	g_signal_connect       (G_OBJECT (entry), "activate",        G_CALLBACK (text_entry_activate),       NULL);
@@ -114,6 +131,48 @@ text_entry_init (TextEntry *entry)
 	g_completion_add_items (entry->priv->command_completion, items);
 	g_list_free (items);
 
+#ifdef HAVE_LIBSEXY
+	/* Setup spellchecking */
+	client = gconf_client_get_default ();
+
+	enable_spellcheck = gconf_client_get_bool (client, "/apps/xchat/spellcheck/enabled", NULL);
+	languages = gconf_client_get_list (client, "/apps/xchat/spellcheck/languages", GCONF_VALUE_STRING, NULL);
+
+	if (languages != NULL) {
+		sexy_spell_entry_set_active_languages (SEXY_SPELL_ENTRY (entry), languages, &err);
+
+		if (err) {
+			g_printerr (_("Error in spellchecking configuration: %s\n"), err->message);
+			g_error_free (err);
+		}
+
+		g_slist_foreach (languages, (GFunc) g_free, NULL);
+		g_slist_free (languages);
+	}
+	else {
+		if (enable_spellcheck) {
+			/* We use libsexy default languages and set it in gconf */
+			languages = sexy_spell_entry_get_active_languages (SEXY_SPELL_ENTRY (entry));
+			gconf_client_set_list (client, "/apps/xchat/spellcheck/languages",
+					       GCONF_VALUE_STRING, languages, NULL);
+
+			g_slist_foreach (languages, (GFunc) g_free, NULL);
+			g_slist_free (languages);
+		}
+	}
+
+	sexy_spell_entry_set_checked (SEXY_SPELL_ENTRY (entry), enable_spellcheck);
+
+	gconf_client_notify_add (client, "/apps/xchat/spellcheck/enabled",
+	                         (GConfClientNotifyFunc) enable_spellcheck_changed, entry, NULL, NULL);
+	/*
+	gconf_client_notify_add (client, "/apps/xchat/spellcheck/languages",
+	                         (GConfClientNotifyFunc) languages_changed, entry, NULL, NULL);
+	*/
+
+	g_object_unref (client);
+#endif
+	
 	gtk_widget_show (GTK_WIDGET (entry));
 }
 
@@ -600,3 +659,66 @@ text_entry_remove_session (TextEntry *entry, struct session *sess)
 	if (sess == entry->priv->current)
 		gtk_entry_set_text (GTK_ENTRY (entry), "");
 }
+
+#ifdef HAVE_LIBSEXY
+static void
+enable_spellcheck_changed (GConfClient *client, guint cnxn_id, GConfEntry *gconf_entry, TextEntry *entry)
+{
+	GSList *langs;
+	gboolean enabled; 
+	
+	enabled = gconf_value_get_bool (gconf_entry->value);
+	sexy_spell_entry_set_checked (SEXY_SPELL_ENTRY (entry), enabled);
+	
+	if (enabled) {
+		langs = sexy_spell_entry_get_active_languages (SEXY_SPELL_ENTRY (entry));
+		if (langs == NULL) {
+			/* No langs activated: we use the defaults */
+			sexy_spell_entry_activate_default_languages (SEXY_SPELL_ENTRY (entry));
+			langs = sexy_spell_entry_get_active_languages (SEXY_SPELL_ENTRY (entry));
+			gconf_client_set_list (client, "/apps/xchat/spellcheck/languages",
+					       GCONF_VALUE_STRING, langs, NULL);
+		}
+
+		g_slist_foreach (langs, (GFunc) g_free, NULL);
+		g_slist_free (langs);
+	}
+}
+
+/*
+ * FIXME : This is done in preferences-page-spellcheck because if we have 2 notifications
+ * change on the same gonf key, the one from preferences-page-spellcheck is called 
+ * before this one and so it doesn't work.
+ * That's suck because we can only change languages using gconf if the preference window
+ * is opened.
+ *
+static void
+languages_changed (GConfClient *client, guint cnxn_id, GConfEntry *gconf_entry, TextEntry *entry)
+{
+	GError *err = NULL;
+	GSList *new_languages, *old_languages;
+	
+	new_languages = gconf_client_get_list (client, "/apps/xchat/spellcheck/languages", GCONF_VALUE_STRING, NULL);
+
+	if (new_languages != NULL)
+		sexy_spell_entry_set_active_languages (SEXY_SPELL_ENTRY (entry), new_languages, &err);
+
+	if (err) {
+		g_printerr (_("Error in spellchecking configuration: %s\n"), err->message);
+		g_error_free (err);
+
+		old_languages = sexy_spell_entry_get_active_languages (SEXY_SPELL_ENTRY (entry));
+		if (old_languages != NULL) {
+			gconf_client_set_list (client, "/apps/xchat/spellcheck/languages",
+					       GCONF_VALUE_STRING, old_languages, NULL);
+			g_slist_foreach (old_languages, (GFunc) g_free, NULL);
+			g_slist_free (old_languages);
+		}
+	}
+
+	g_slist_foreach (new_languages, (GFunc) g_free, NULL);
+	g_slist_free (new_languages);
+}
+*/
+
+#endif
