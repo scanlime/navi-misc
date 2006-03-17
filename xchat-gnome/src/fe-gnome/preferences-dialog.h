@@ -27,6 +27,7 @@
 #include "preferences-page-dcc.h"
 #include "preferences-page-networks.h"
 #include "preferences-page-plugins.h"
+#include "preferences-page-spellcheck.h"
 
 #ifndef XCHAT_GNOME_PREFERENCES_DIALOG_H
 #define XCHAT_GNOME_PREFERENCES_DIALOG_H
@@ -53,12 +54,13 @@ struct _PreferencesDialog
 
 	GtkListStore *page_store;
 
-	PreferencesIrcPage      *irc_page;
-	PreferencesColorsPage   *colors_page;
-	PreferencesEffectsPage  *effects_page;
-	PreferencesDCCPage      *dcc_page;
-	PreferencesNetworksPage *networks_page;
-	PreferencesPluginsPage  *plugins_page;
+	PreferencesIrcPage      	*irc_page;
+	PreferencesColorsPage   	*colors_page;
+	PreferencesEffectsPage  	*effects_page;
+	PreferencesDCCPage      	*dcc_page;
+	PreferencesNetworksPage 	*networks_page;
+	PreferencesPluginsPage		*plugins_page;
+	PreferencesSpellcheckPage 	*spellcheck_page;
 };
 
 struct _PreferencesDialogClass

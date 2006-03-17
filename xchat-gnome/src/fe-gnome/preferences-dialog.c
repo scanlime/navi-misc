@@ -40,6 +40,9 @@ preferences_dialog_finalize (GObject *object)
 #ifdef USE_PLUGIN
 	preferences_page_plugins_free  (p->plugins_page);
 #endif
+#ifdef HAVE_LIBSEXY
+	preferences_page_spellcheck_free (p->spellcheck_page);
+#endif
 
 	parent_class->finalize (object);
 }
@@ -150,6 +153,9 @@ preferences_dialog_init (PreferencesDialog *p)
 	g_signal_connect (G_OBJECT (select), "changed", G_CALLBACK (page_selection_changed), p);
 
 	p->irc_page      = preferences_page_irc_new      (p, xml);
+#ifdef HAVE_LIBSEXY
+	p->spellcheck_page= preferences_page_spellcheck_new (p,xml);
+#endif
 	p->colors_page   = preferences_page_colors_new   (p, xml);
 	p->effects_page  = preferences_page_effects_new  (p, xml);
 	p->dcc_page      = preferences_page_dcc_new      (p, xml);
