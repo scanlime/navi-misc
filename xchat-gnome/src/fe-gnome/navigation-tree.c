@@ -69,7 +69,6 @@ static void      on_server_channel_list (GtkAction *action, gpointer data);
 static void      on_save (GtkAction *action, gpointer data);
 static void      on_close (GtkAction *action, gpointer data);
 static void      on_find (GtkAction *action, gpointer data);
-static void      on_clear (GtkAction *action, gpointer data);
 static void      on_channel_leave (GtkAction *action, gpointer data);
 static void      on_channel_bans (GtkAction *action, gpointer data);
 static void      on_server_autoconnect (GtkAction *action, gpointer data);
@@ -88,14 +87,12 @@ static GtkActionEntry action_entries[] = {
 	{"ChannelLeave",      GTK_STOCK_QUIT,           N_("_Leave"),           "", NULL, G_CALLBACK (on_channel_leave)},
 	{"ChannelClose",      GTK_STOCK_CLOSE,          N_("_Close"),           "", NULL, G_CALLBACK (on_close)},
 	{"ChannelFind",       GTK_STOCK_FIND,           N_("_Find..."),         "", NULL, G_CALLBACK (on_find)},
-	{"ChannelClear",      GTK_STOCK_CLEAR,          N_("C_lear"),           "", NULL, G_CALLBACK (on_clear)},
 	{"ChannelBans",       GTK_STOCK_DIALOG_WARNING, N_("_Bans..."),         "", NULL, G_CALLBACK (on_channel_bans)},
 
 	/* Dialog context menu */
 	{"DialogSave",        GTK_STOCK_SAVE,           N_("_Save Transcript"), "", NULL, G_CALLBACK (on_save)},
 	{"DialogClose",       GTK_STOCK_CLOSE,          N_("_Close"),           "", NULL, G_CALLBACK (on_close)},
 	{"DialogFind",        GTK_STOCK_FIND,           N_("_Find..."),         "", NULL, G_CALLBACK (on_find)},
-	{"DialogClear",       GTK_STOCK_CLEAR,          N_("C_lear"),           "", NULL, G_CALLBACK (on_clear)},
 };
 
 static GtkToggleActionEntry toggle_action_entries[] = {
@@ -1609,16 +1606,6 @@ static void
 on_find (GtkAction * action, gpointer data)
 {
 	find_bar_open (FIND_BAR (gui.find_bar));
-}
-
-static void
-on_clear (GtkAction * action, gpointer data)
-{
-	session *s;
-
-	s = navigation_tree_get_selected_session (NULL);
-	if (s)
-		conversation_panel_clear (CONVERSATION_PANEL (gui.conversation_panel), s);
 }
 
 static void

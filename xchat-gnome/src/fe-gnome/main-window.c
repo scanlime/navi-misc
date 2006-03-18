@@ -62,7 +62,6 @@ static void on_irc_quit_activate (GtkAction *action, gpointer data);
 static void on_edit_cut_activate (GtkAction *action, gpointer data);
 static void on_edit_copy_activate (GtkAction *action, gpointer data);
 static void on_edit_paste_activate (GtkAction *action, gpointer data);
-static void on_edit_clear_activate (GtkAction *action, gpointer data);
 static void on_edit_preferences_activate (GtkAction *action, gpointer data);
 static void on_network_information_activate (GtkAction *action, gpointer data);
 static void on_network_reconnect_activate (GtkAction *action, gpointer data);
@@ -73,7 +72,6 @@ static void on_discussion_save_activate (GtkAction *action, gpointer data);
 static void on_discussion_leave_activate (GtkAction *action, gpointer data);
 static void on_discussion_close_activate (GtkAction *action, gpointer data);
 static void on_discussion_find_activate (GtkAction *action, gpointer data);
-static void on_discussion_clear_window_activate (GtkAction *action, gpointer data);
 static void on_discussion_bans_activate (GtkAction *action, gpointer data);
 static void on_discussion_topic_change_activate (GtkButton *widget, gpointer data);
 static void on_discussion_users_activate (GtkAction *action, gpointer data);
@@ -114,7 +112,6 @@ static GtkActionEntry action_entries [] = {
 	{ "EditCut",         GTK_STOCK_CUT,         N_("Cu_t"),         "<control>X", NULL, G_CALLBACK (on_edit_cut_activate) },
 	{ "EditCopy",        GTK_STOCK_COPY,        N_("_Copy"),        "<control>C", NULL, G_CALLBACK (on_edit_copy_activate) },
 	{ "EditPaste",       GTK_STOCK_PASTE,       N_("_Paste"),       "<control>V", NULL, G_CALLBACK (on_edit_paste_activate) },
-	{ "EditClear",       GTK_STOCK_CLEAR,       N_("C_lear"),       "",           NULL, G_CALLBACK (on_edit_clear_activate) },
 	{ "EditPreferences", GTK_STOCK_PREFERENCES, N_("Prefere_nces"), "",           NULL, G_CALLBACK (on_edit_preferences_activate) },
 
 	/* Network menu */
@@ -129,7 +126,6 @@ static GtkActionEntry action_entries [] = {
 	{ "DiscussionLeave",       GTK_STOCK_QUIT,           N_("_Leave"),           "",           NULL, G_CALLBACK (on_discussion_leave_activate) },
 	{ "DiscussionClose",       GTK_STOCK_CLOSE,          N_("Cl_ose"),           "<control>W", NULL, G_CALLBACK (on_discussion_close_activate) },
 	{ "DiscussionFind",        GTK_STOCK_FIND,           N_("_Find"),            "<control>F", NULL, G_CALLBACK (on_discussion_find_activate) },
-	{ "DiscussionClearWindow", GTK_STOCK_CLEAR,          N_("_Clear Window"),    "<control>L", NULL, G_CALLBACK (on_discussion_clear_window_activate) },
 	{ "DiscussionChangeTopic", NULL,                     N_("Change _Topic"),    "<alt>T",     NULL, G_CALLBACK (on_discussion_topic_change_activate) },
 	{ "DiscussionBans",        GTK_STOCK_DIALOG_WARNING, N_("_Bans..."),         "<alt>B",     NULL, G_CALLBACK (on_discussion_bans_activate) },
 	{ "DiscussionUsers",       NULL,                     N_("_Users"),           "<control>U", NULL, G_CALLBACK (on_discussion_users_activate) },
@@ -415,12 +411,6 @@ on_edit_paste_activate (GtkAction *action, gpointer data)
 }
 
 static void
-on_edit_clear_activate (GtkAction *action, gpointer data)
-{
-	gtk_editable_delete_selection (GTK_EDITABLE (gui.text_entry));
-}
-
-static void
 on_edit_preferences_activate (GtkAction *action, gpointer data)
 {
 	if (!gui.prefs_dialog) {
@@ -532,12 +522,6 @@ static void
 on_discussion_find_activate (GtkAction *action, gpointer data)
 {
 	find_bar_open (FIND_BAR (gui.find_bar));
-}
-
-static void
-on_discussion_clear_window_activate (GtkAction *action, gpointer data)
-{
-	conversation_panel_clear (CONVERSATION_PANEL (gui.conversation_panel), gui.current_session);
 }
 
 static void
