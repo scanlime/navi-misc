@@ -114,10 +114,8 @@ notification_clicked_cb (GtkWidget * widget, GdkEventButton * event, gpointer da
 			if (level == 0) {
 				if (hidden) {
 					xchat_command (ph, "GUI SHOW");
-					hidden = FALSE;
 				} else {
 					xchat_command (ph, "GUI HIDE");
-					hidden = TRUE;
 				}
 
 				hidden = !hidden;
