@@ -1,3 +1,11 @@
+Fri Mar 17 20:11:44 MST 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/main-window.c:
+	* src/fe-gnome/navigation-tree.c:
+	* data/xchat-gnome-ui.xml:
+	  - Remove "clear" from various menus.  It's of extremely limited use,
+	    easy to use accidentally, and still available with /clear
+
 Fri Mar 17 16:23:51 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* data/preferences-dialog.glade:

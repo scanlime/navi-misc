@@ -12,7 +12,6 @@
 			<menuitem name="EditCutItem" action="EditCut"/>
 			<menuitem name="EditCopyItem" action="EditCopy"/>
 			<menuitem name="EditPasteItem" action="EditPaste"/>
-			<menuitem name="EditClearItem" action="EditClear"/>
 			<separator name="EditSep0"/>
 			<menuitem name="EditPreferencesItem" action="EditPreferences"/>
 		</menu>
@@ -34,7 +33,6 @@
 			<menuitem name="DiscussionCloseItem" action="DiscussionClose"/>
 			<separator name="DiscussionSep1"/>
 			<menuitem name="DiscussionFindItem" action="DiscussionFind"/>
-			<menuitem name="DiscussionClearWindowItem" action="DiscussionClearWindow"/>
 			<separator name="DiscussionSep3"/>
 			<menuitem name="DiscussionChangeTopicItem" action="DiscussionChangeTopic"/>
 			<menuitem name="DiscussionBansItem" action="DiscussionBans"/>
@@ -88,7 +86,6 @@
 		<menuitem name="ChannelAutoJoin" action="ChannelAutoJoin"/>
                 <separator name="ChannelSep1"/>
                 <menuitem name="ChannelFind" action="ChannelFind"/>
-                <menuitem name="ChannelClear" action="ChannelClear"/>
                 <separator name="ChannelSep2"/>
                 <menuitem name="ChannelBans" action="ChannelBans"/>
         </popup>
@@ -99,7 +96,6 @@
                 <menuitem name="DialogClose" action="DialogClose"/>
                 <separator name="DialogSep1"/>
                 <menuitem name="DialogFind" action="DialogFind"/>
-                <menuitem name="DialogClear" action="DialogClear"/>
         </popup>
 
         <popup name="TextURLPopup" action="PopupAction">
