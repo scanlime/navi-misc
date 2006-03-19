@@ -165,6 +165,8 @@ CREATE TABLE IF NOT EXISTS stats_counters
     INDEX (target_path),
     INDEX (name),
     INDEX (event_count),
+    INDEX (first_time),
+    INDEX (last_time),
     FOREIGN KEY (target_path) REFERENCES stats_catalog(target_path) ON DELETE CASCADE
 ) TYPE=INNODB;
 

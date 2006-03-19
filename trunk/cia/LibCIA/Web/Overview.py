@@ -43,16 +43,16 @@ class ActivitySection(Template.Section):
        """
     query = """
     SELECT
-        T.target_path,
+        STAT.target_path,
         M_TITLE.value,
         IF(M_ICON.name IS NOT NULL, M_ICON.name, M_PHOTO.name),
         STAT.%(counter_attrib)s
-    FROM stats_catalog T
-        LEFT OUTER JOIN stats_metadata M_TITLE     ON (T.target_path = M_TITLE.target_path     AND M_TITLE.name     = 'title')
-        LEFT OUTER JOIN stats_metadata M_PHOTO     ON (T.target_path = M_PHOTO.target_path     AND M_PHOTO.name     = 'photo')
-        LEFT OUTER JOIN stats_metadata M_ICON      ON (T.target_path = M_ICON.target_path      AND M_ICON.name      = 'icon')
-        LEFT OUTER JOIN stats_counters STAT        ON (T.target_path = STAT.target_path        AND STAT.name        = %(counter)s)
-        WHERE T.parent_path = %(path)s
+    FROM stats_counters STAT FORCE INDEX (%(counter_attrib)s)
+        LEFT OUTER JOIN stats_catalog  T           ON (STAT.target_path = T.target_path)
+        LEFT OUTER JOIN stats_metadata M_TITLE     ON (STAT.target_path = M_TITLE.target_path     AND M_TITLE.name     = 'title')
+        LEFT OUTER JOIN stats_metadata M_PHOTO     ON (STAT.target_path = M_PHOTO.target_path     AND M_PHOTO.name     = 'photo')
+        LEFT OUTER JOIN stats_metadata M_ICON      ON (STAT.target_path = M_ICON.target_path      AND M_ICON.name      = 'icon')
+        WHERE STAT.name = %(counter)s AND T.parent_path = %(path)s
     ORDER BY STAT.%(counter_attrib)s %(sort)s
     LIMIT %(limit)d
     """
