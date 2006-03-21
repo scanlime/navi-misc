@@ -153,11 +153,16 @@ generate_successors (GHashTable* adjacency, path_tree* node)
 	PyObject* u;
 	int       pos = 0;
 
+	if (!PyDict_Check (dict)) {
+		PyErr_SetString (PyExc_RuntimeError, "nodes in graph must be dictionaries");
+		return NULL;
+	}
+
 	/* For every bone look up its current position and prepend the list of
 	 * its neighbors to the list of successor states.
 	 */
 	while (PyDict_Next (dict, &pos, &bone, &u)) {
-		GSList*   vs = g_hash_table_lookup (adjacency, u);
+		GSList* vs = g_hash_table_lookup (adjacency, u);
 		bones = g_slist_prepend (bones, bone);
 		successors = g_slist_prepend (successors, vs);
 	}
@@ -179,6 +184,7 @@ cost (path_tree* path, PyObject* goal, PyObject* fcost)
 
 	/* Build a list of nodes that is the path */
 	for (path_tree* p = path; p; p = p->parent) {
+		Py_INCREF ((PyObject*) p->data);
 		PyList_Insert (py_path, 0, p->data);
 	}
 
@@ -249,8 +255,7 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 			 * insert it into the agenda
 			 */
 			g_hash_table_insert (costs, node,
-					GINT_TO_POINTER (cost (node, goal, fcost)));
-			g_queue_insert_sorted (agenda, node, f_cost_compare, costs);
+					GINT_TO_POINTER (cost (node, goal, fcost))); g_queue_insert_sorted (agenda, node, f_cost_compare, costs);
 		}
 		g_slist_free (successors);
 	}
