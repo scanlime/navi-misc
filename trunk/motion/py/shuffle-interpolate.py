@@ -23,7 +23,8 @@
 
 from Motion import AMC
 from Dance import Systems, Sequence, MotionGraph
-from Graph.Data import VertexMap
+from Graph import algorithms_c
+from Graph.Data import VertexMap, AdjacencyList
 from Graph.ExtraAlgorithms import ParallelBFS
 from optparse import OptionParser
 import Numeric, sys, pickle
@@ -54,6 +55,17 @@ def linear_interp (start, end, pos, len):
         result.append (pos)
     return result
 
+def f (path, goal):
+    end = path[-a]
+    g = len (path)
+    h = 0
+
+    for bone in end.iterkeys():
+        h += algorithms_c.dijkstraSearch (adjacency[bone], end[bone], goal[bone])
+
+    return (g + h)
+
+
 parser = OptionParser ("usage: %prog <input amc> <graph pickle> <shuffled output amc> <interpolated output amc>")
 parser.add_option ("-i", "--initial", dest="ic", default="60,15,1", \
         help="A comma separated list of initial conditions for the shuffle")
@@ -76,6 +88,13 @@ sequence.shuffle (Numeric.array ([17.0, 2.0, -1.0]), n=30)
 sequence.save (args[2], samc.format)
 
 graphs = pickle.load (open (args[1]))
+
+# Need the adjacency lists in the f-cost function
+adjacency = {}
+for bone, graph in graphs.iteritems():
+    adjacency[bone] = graph.representations[AdjacencyList]
+
+print sequence.boundaries
 
 for boundary in sequence.boundaries:
     pre  = sequence[boundary - 1]
@@ -106,7 +125,7 @@ for boundary in sequence.boundaries:
 
 
     print 'searching at boundary',boundary
-    paths = MotionGraph.search_graphs (graphs, starts, ends, opts.depth)
+    paths = algorithms_c.aStarSearch (adjacency, starts, ends, f)
 
 
     if paths is None:
@@ -129,3 +148,5 @@ for boundary in sequence.boundaries:
         sequence.insert (frame, index)
 
     sequence.save (args[3], samc.format)
+
+# vim: ts=4:sw=4:et
