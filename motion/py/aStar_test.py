@@ -48,10 +48,10 @@ actualPath = [node]
 
 for i in range (3):
     node = {}
-    adjacency = graph.representations[AdjacencyList]
     for bone, graph in graphs.iteritems ():
+        adjacency = graph.representations[AdjacencyList]
         node[bone] = (random.choice (
-                       [edge for edge in adjacency.query (actualPath[bone][-1])]).v)
+                       [edge for edge in adjacency.query (actualPath[-1][bone])]).v)
     actualPath.append (node)
 
 print "Searching for path from %s to %s..." % (actualPath[0], actualPath[-1])
