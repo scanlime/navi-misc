@@ -325,6 +325,8 @@ run_main_window ()
 	gtk_widget_set_sensitive (widget, FALSE);
 	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/menubar/DiscussionMenu/DiscussionBansItem");
 	gtk_widget_set_sensitive (widget, FALSE);
+	widget = gtk_ui_manager_get_widget (gui.manager, "/ui/ChannelPopup/ChannelBans");
+	gtk_widget_set_sensitive (widget, FALSE);
 }
 
 void
