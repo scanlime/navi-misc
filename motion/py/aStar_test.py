@@ -31,18 +31,28 @@ def f (path, goal):
     return g + h
 
 
+# Gotta have that pickle file
 if len (sys.argv) != 2:
     print "usage: %s <graph pickle>" % (sys.argv[0])
     sys.exit (1)
-  
-graph = pickle.load (open(sys.argv[1]))
-vMap = graph["root"].representations[VertexMap]
-nodes = [v for v in vMap]
-actualPath = [random.choice (nodes)]
-adjacency = graph["root"].representations[AdjacencyList]
+ 
+graphs = pickle.load (open(sys.argv[1]))
+
+# Create a random starting point
+node = {}
+for bone, graph in graphs.iteritems ():
+    vMap = graph.representations[VertexMap]
+    node[bone] = random.choice ([v for v in vMap])
+
+actualPath = [node]
+
 for i in range (3):
-    actualPath.append (random.choice (
-                       [edge for edge in adjacency.query (actualPath[-1])]).v)
+    node = {}
+    adjacency = graph.representations[AdjacencyList]
+    for bone, graph in graphs.iteritems ():
+        node[bone] = (random.choice (
+                       [edge for edge in adjacency.query (actualPath[bone][-1])]).v)
+    actualPath.append (node)
 
 print "Searching for path from %s to %s..." % (actualPath[0], actualPath[-1])
 print "    Estimated cost: %d" % (f([actualPath[0]], actualPath[-1]))
