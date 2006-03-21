@@ -152,15 +152,14 @@ aStar_search (PyObject* self, PyObject *args)
 	}
 
 	/* Retrieve adjacency and edge lists */
-	adjacency = g_hash_table_new (g_str_hash, g_direct_equal);
+	adjacency = g_hash_table_new (g_direct_hash, g_direct_equal);
 	while (PyDict_Next (adjacency_list, &pos, &key, &value)) {
-		char* bone = PyString_AsString (key);
 		GHashTable* adj = query_adjacency (value);
 		if (adj == NULL) {
 			PyErr_SetString (PyExc_RuntimeError, "couldn't build adjacency hash table");
 			return NULL;
 		}
-		g_hash_table_insert (adjacency, bone, adj);
+		g_hash_table_insert (adjacency, key, adj);
 	}
 
 	/* Search */

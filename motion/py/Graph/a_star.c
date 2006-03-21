@@ -162,7 +162,8 @@ generate_successors (GHashTable* adjacency, path_tree* node)
 	 * its neighbors to the list of successor states.
 	 */
 	while (PyDict_Next (dict, &pos, &bone, &u)) {
-		GSList* vs = g_hash_table_lookup (adjacency, u);
+		GHashTable* adj = g_hash_table_lookup (adjacency, bone);
+		GSList* vs = g_hash_table_lookup (adj, u);
 		bones = g_slist_prepend (bones, bone);
 		successors = g_slist_prepend (successors, vs);
 	}
