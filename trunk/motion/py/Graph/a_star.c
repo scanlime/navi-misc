@@ -24,29 +24,6 @@
 #include "path_tree.h"
 #include "utilities.h"
 
-/* Return a GHashTable that is identical to the python dictionary object dict. */
-static GHashTable*
-node_from_PyDict (PyObject* dict)
-{
-	GHashTable* node = g_hash_table_new (g_str_hash, g_direct_equal);
-	PyObject*   key;
-	PyObject*   value;
-	int         pos = 0;
-
-	if (!PyDict_Check (dict)) {
-		PyErr_SetString (PyExc_RuntimeError, "nodes need to be dictionary objects");
-		g_hash_table_destroy (node);
-		return NULL;
-	}
-
-	while (PyDict_Next (dict, &pos, &key, &value)) {
-		char* bone = PyString_AsString (key);
-		g_hash_table_insert (node, bone, value);
-	}
-
-	return node;
-}
-
 /* GHFunc that inserts a key value pair from a GHashTable into a python
  * dictionary. The key should be a string and the value should be a python
  * object.
