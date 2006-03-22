@@ -1,38 +1,25 @@
-==========================
-Using CIA with Sourceforge
-==========================
+==============================
+Using CIA with SourceForge.net
+==============================
 
-contributed by Christopher Forsythe
-===================================
+contributed by Christopher Forsythe, updated by Max Horn
+========================================================
 
-What is CIA?
-------------
+Purpose of this How-To:
+-----------------------
 
-CIA is one of the more innovative projects to come to open source. What CIA does is amazing, it keeps track of projects. A lot of them. It keeps stats, keeps a list of who commits to source code repositories, and even has meta data regarding projects.
+This document will be the focused on setting up CIA for SourceForge.net projects using their CVS service.
+It might still be helpful if you're using CIA on a CVS server hosted elsewhere, but some commands will need to be adapted.
 
-CIA also provides you an RSS feed of commits, a web page to provide information about a projects recent commits, and a bot that will sit in your projects IRC channel displaying new commits, if you have a channel.
+Note that this document only applies to CVS projects. The SF.net admin interface already includes an easy-to-use option for enabling CIA on your Subversion repository. You can add cia_svn.py like any other Subversion hookscript. You can learn how to do that in the `SF.net site docs`_.
 
-The CIA project started in June of 2003 by Micah. Many other projects quickly adopted CIA, and use it within their projects, in order to provide services to all of their developers and users. CIA keeps you informed, and that is what matters.
-
-How CIA works is simple. When you commit something, it runs a script, and then emails CIA. CIA then does all of it's work, and posts to the RSS feed, the web site, and the IRC channel. It formats this information to include file names modified, comment, and developer id.
-
-
-Focus of this How-To:
----------------------
-
-Most of the issues with CIA, up to this point, have been with Sourceforge projects. At the time of this writing, about 14% of all commits on CIA come from the 71 Sourceforge-hosted projects on CIA, and most new projects added to CIA are hosted on Sourceforge. It doesn't help that Sourceforge's CVS services can be confusing at times, or that CVS itself is a bit hard to grasp.
-
-For these reasons, this document will be the focused on setting up CIA for Sourceforge projects.
-It might still be helpful if you're using CIA on a CVS server hosted elsewhere, but some commands
-will need to be adapted.
-
-Note that this document only applies to CVS projects. The Sourceforge admin interface already includes an easy-to-use setting for enabling CIA on your Subversion repository.
+.. _SF.net site docs: https://sourceforge.net/docman/display_doc.php?docid=31070&group_id=1#scripts
 
 
 Setting up CIA: Step one, getting the right stuff
 -------------------------------------------------
 
-In order to get CIA to post information, it has to be emailed. In order for CIA to email, you have to run a script from the source repository. For Sourceforge, the type of repository is known as CVS (Concurrent Versions System). 
+In order to get CIA to post information, it has to be emailed. In order for CIA to email, you have to run a script from the source repository. 
 
 The script you need is called a "Client Script". Visit CIA's `list of clients`_ or jump directly to the
 `CVS client script`_. Once you have the script, you can move on to the next step.
@@ -44,16 +31,16 @@ The script you need is called a "Client Script". Visit CIA's `list of clients`_ 
 Setting up CIA: Step two, CVSROOT:
 ----------------------------------
 
-Once you have the script, you need to put it in the right location. This requires you to checkout a CVS Module called "CVSROOT". (You must capitalize this word, as this is case sensitive.)
+Once you have the script, you need to put it in the right location. This requires you to checkout a CVS module called "CVSROOT". (You must capitalize this word, as this is case sensitive.)
 
-You can do this in one of two ways. If you have not checked out a CVS Module for your project, do the following::
+You can do this in one of two ways. If you have not checked out a CVS module for your project, do the following::
 	
 	cvs -z3 -d:ext:developername@cvs.sourceforge.net:/cvsroot/projectname co CVSROOT
 
-Replace "developername" with your sourceforge id, and "projectname" with your projects name.
+Replace "developername" with your SourceForge.net user id, and "projectname" with your the SourceForge.net UNIX name of your project.
 
 
-If you have already checked out your project once, cd into the location of that on your hard disk. Once you have moved into this directory, issue the following command::
+If you have already checked out your project, change into the location of that on your hard disk. Once you have moved into this directory, issue the following command::
 	
 	cvs co CVSROOT
 	
@@ -62,7 +49,7 @@ Move or copy the file from step one into the CVSROOT directory, and then cd into
 	
 	cvs add ciabot_cvs.pl
 
-You will get a notification that the file will be added once you do a "cvs commit". We will issue that once we have modified the files we need to. On to step 3.
+You will get a notification that the file will be added once you do a "cvs commit". We will issue that once we have modified the files we need to. On to step three.
 
 
 Setting up CIA: Step three, modifying files:
@@ -78,7 +65,7 @@ First you need to add a line to a file called "checkoutlist". Files stored in CV
 	
 	ciabot_cvs.pl
 
-Next, add this line to the "loginfo" file. loginfo runs the script. Here is the line::
+Next, we need to modify the "loginfo" file, which is responsible for running the script we are adding. Add this line to it::
 	
 	ALL /usr/bin/perl $CVSROOT/CVSROOT/ciabot_cvs.pl %{,,,s} $USER
 
@@ -86,9 +73,9 @@ The last file to modify is ciabot_cvs.pl itself. You have to tell it where to se
 
 * $project = 'projectname';
 	
-	Replace projectname with your project's UNIX name assigned by Sourceforge, or whatever name you are going by. This name should be fairly short, and shouldn't contain any whitespace or odd characters. It will be used in your project's URL on CIA, and it will be used on IRC. You can use metadata_ later to assign a longer name for use in the web interface.
+	Replace projectname with your project's UNIX name assigned by SourceForge.net, or whatever name you are going by. This name should be fairly short, and shouldn't contain any whitespace or odd characters. It will be used in your project's URL on CIA, and it will be used on IRC. You can use metadata_ later to assign a longer name for use in the web interface.
 
-* $from_email = 'leader@example.org';
+* $from_email = ``'leader@example.com'``;
 	
 	Put in one of the project leaders email addresses here.
 
@@ -103,5 +90,3 @@ You should now be setup. If all went well, the next commit you make should show 
 .. _metadata: /doc/metadata
 .. _Micah via email: mailto:micah@navi.cx
 
-.. _Christopher Forsythe: mailto:the_tick@brok3n.org
-.. _site: http://brok3n.org
