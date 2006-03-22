@@ -1,3 +1,10 @@
+Wed Mar 22 22:53:20 CET 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* data/xchat-gnome.desktop.in:
+	  - Apply Vincent Fretin's suggestions about the desktop file.
+	    Remove the extension of the icon key. Add GNOME, GTK and IRCClient
+	    as categories. Set general as default component for the bugzilla.
+
 Tue Mar 21 22:51:04 CET 2006  Guillaume Desmottes <cass@skynet.be>
 
 	* src/fe-gnome/main-window.c:
