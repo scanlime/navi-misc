@@ -190,7 +190,7 @@ CREATE TABLE IF NOT EXISTS stats_subscriptions
     expiration   INT UNSIGNED NOT NULL,
     scope        VARCHAR(32),
     client       VARCHAR(64),
-    trigger      BLOB NOT NULL,
+    `trigger`    BLOB NOT NULL,
     failures     INT NOT NULL DEFAULT 0,
 
     INDEX (target_path),
