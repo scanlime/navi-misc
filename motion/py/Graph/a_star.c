@@ -32,9 +32,9 @@
 static GSList*
 combine_successors (GSList* successors, GSList* bone)
 {
-	GSList*   ret = NULL;
-	GSList*   vs = (GSList*) successors->data;
-	PyObject* bone_name = (PyObject*) bone->data;
+	GSList* ret = NULL;
+	GSList* vs = (GSList*) successors->data;
+	gchar*  bone_name = (gchar*) bone->data;
 
 	/* Advance the pointer for the list of successor states. If this is the
 	 * last bone, assemble the return value.
@@ -47,7 +47,7 @@ combine_successors (GSList* successors, GSList* bone)
 			/* Insert this bone and position into the hash table
 			 * that is now the data field of the path_tree node.
 			 */
-			PyDict_SetItem (data, bone_name, v->data);
+			PyDict_SetItem (data, PyString_FromString (bone_name), v->data);
 			/* Add the path_tree node to the return value */
 			ret = g_slist_prepend (ret, node);
 		}
@@ -74,7 +74,8 @@ combine_successors (GSList* successors, GSList* bone)
 		/* For each combinatoric state add the position of this bone */
 		for (GSList* n = nodes; n; n = g_slist_next (n)) {
 			PyObject* data = (PyObject*) ((path_tree*) n)->data;
-			PyDict_SetItem (data, bone_name, v->data);
+			PyObject* key = PyString_FromString (bone_name);
+			PyDict_SetItem (data, key, (PyObject*) v->data);
 		}
 		/* Add the newly modified list of states to the return value */
 		ret = g_slist_concat (ret, nodes);
@@ -103,9 +104,10 @@ generate_successors (GHashTable* adjacency, path_tree* node)
 	 * its neighbors to the list of successor states.
 	 */
 	while (PyDict_Next (dict, &pos, &bone, &u)) {
-		GHashTable* adj = g_hash_table_lookup (adjacency, bone);
-		GSList* vs = g_hash_table_lookup (adj, u);
-		bones = g_slist_prepend (bones, bone);
+		gchar*      name = PyString_AsString (bone);
+		GHashTable* adj = g_hash_table_lookup (adjacency, name);
+		GSList*     vs = g_hash_table_lookup (adj, u);
+		bones = g_slist_prepend (bones, name);
 		successors = g_slist_prepend (successors, vs);
 	}
 
@@ -170,7 +172,7 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 		PyObject* fcost)
 {
 	/* Map nodes to f-costs */
-	GHashTable* costs  = g_hash_table_new (g_direct_hash, g_int_equal);
+	GHashTable* costs = g_hash_table_new (g_direct_hash, g_direct_equal);
 	GQueue*     agenda = g_queue_new ();
 
 	/* Push start onto the agenda */
@@ -178,7 +180,7 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 
 	/* Run until we run out of things to check */
 	while (!g_queue_is_empty (agenda)) {
-		path_tree* path       = (path_tree*) g_queue_pop_head (agenda);
+		path_tree* path = (path_tree*) g_queue_pop_head (agenda);
 		GSList*    successors = generate_successors (adjacency, path);
 
 		for (GSList* s = successors; s; s = g_slist_next (s)) {
@@ -196,8 +198,8 @@ heuristic_search (GHashTable* adjacency, PyObject* start, PyObject* goal,
 			/* If this node isn't the goal calculate its f-cost and
 			 * insert it into the agenda
 			 */
-			g_hash_table_insert (costs, node,
-					GINT_TO_POINTER (cost (node, goal, fcost))); g_queue_insert_sorted (agenda, node, f_cost_compare, costs);
+			g_hash_table_insert (costs, node, GINT_TO_POINTER (cost (node, goal, fcost)));
+			g_queue_insert_sorted (agenda, node, f_cost_compare, costs);
 		}
 		g_slist_free (successors);
 	}

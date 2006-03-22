@@ -94,8 +94,6 @@ adjacency = {}
 for bone, graph in graphs.iteritems():
     adjacency[bone] = graph.representations[AdjacencyList]
 
-print sequence.boundaries
-
 for boundary in sequence.boundaries:
     pre  = sequence[boundary - 1]
     post = sequence[boundary]
