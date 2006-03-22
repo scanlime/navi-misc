@@ -205,7 +205,6 @@ class DocumentCache(Cache.AbstractObjectCache):
                           writer      = w,
                           destination = NullFile(),
                           settings_overrides = {
-			  	'output_encoding': 'unicode',
 				'traceback': True,
 				},
                           )
