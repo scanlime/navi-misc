@@ -24,13 +24,6 @@
 #include "path_tree.h"
 #include "utilities.h"
 
-/* GHFunc for getting a list of the keys from a GHashTable. */
-static void
-get_keys (char* key, PyObject* value, GSList** keys)
-{
-	(*keys) = g_slist_prepend ((*keys), key);
-}
-
 /* Recursively generate a list of all possible combinations of the successors
  * for each bone. Returns a GSList of path_tree nodes. Each path_tree node has a
  * GHashTable in its data field that maps a bone name (gchar*) to a position
