@@ -129,12 +129,15 @@ cost (path_tree* path, PyObject* goal, PyObject* fcost)
 	PyObject* result  = NULL;
 	gint      c       = -1;
 
-	/* FIXME - error checking */
+	/* Before we do anything else, be sure the fcost object is callable */
+	if (!PyCallable_Check (fcost)) {
+		PyErr_SetString (PyExc_RuntimeError, "fcost object is not callable");
+		return -1;
+	}
 
 	/* Build a list of nodes that is the path */
 	for (path_tree* p = path; p; p = p->parent) {
-		Py_INCREF ((PyObject*) p->data);
-		PyList_Insert (py_path, 0, p->data);
+		PyList_Insert (py_path, 0, (PyObject*) p->data);
 	}
 
 	arglist = Py_BuildValue ("(OO)", py_path, goal);
@@ -143,8 +146,8 @@ cost (path_tree* path, PyObject* goal, PyObject* fcost)
 	Py_DECREF (arglist);
 	Py_DECREF (py_path);
 
-	/* FIXME - should raise a python exception */
 	if (result == NULL) {
+		PyErr_SetString (PyExc_RuntimeError, "cost function did not return a number");
 		return -1;
 	}
 
