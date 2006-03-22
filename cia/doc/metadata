@@ -10,7 +10,7 @@ to use is the new web interface. Visit the "View/Edit Metadata" link on any stat
 page and paste in your CIA key. You'll need a browser that supports SSL. A guide
 to the supported key-value pairs is below.
 
-The other method is stats_metadata.py, a tool included with the CIA source.
+The other method is stats_metadata.py, a tool included with the `CIA source`_.
 It has fewer dependencies than the rest of CIA, but
 you will need Python_ 2.2.1 or later and Twisted_.
 
@@ -52,7 +52,7 @@ Some sample use cases for a project named "pigomatic"::
 
 
 .. _Micah: mailto:micah@navi.cx
-.. _CIA source: http://freshmeat.net/projects/cia/
+.. _CIA source: http://svn.navi.cx/trunk/misc/cia
 .. _Python: http://python.org
 .. _Twisted: http://twistedmatrix.com
 
