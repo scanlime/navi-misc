@@ -71,9 +71,7 @@ combine_successors (GSList* successors, GSList* bone)
 	for (GSList* v = vs; v; v = g_slist_next (v)) {
 		/* Combinatoric states of all remaining bones */
 		GSList* nodes = combine_successors (successors, bone);
-		if (nodes == NULL) {
-			g_print ("no combinatoric successors");
-		}
+
 		/* For each combinatoric state add the position of this bone */
 		for (GSList* n = nodes; n; n = g_slist_next (n)) {
 			/* Gets the dictionary stored in the path_tree node that
@@ -83,6 +81,7 @@ combine_successors (GSList* successors, GSList* bone)
 			PyObject* key = PyString_FromString (bone_name);
 			PyDict_SetItem (dict, key, (PyObject*) v->data);
 		}
+
 		/* Add the newly modified list of states to the return value */
 		ret = g_slist_concat (ret, nodes);
 	}
