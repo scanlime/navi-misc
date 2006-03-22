@@ -24,35 +24,6 @@
 #include "path_tree.h"
 #include "utilities.h"
 
-/* GHFunc that inserts a key value pair from a GHashTable into a python
- * dictionary. The key should be a string and the value should be a python
- * object.
- */
-static void
-insert_in_dict (const char* key, PyObject* value, PyObject* dict)
-{
-	PyDict_SetItem (dict, PyString_FromString (key), value);
-}
-
-/* Return a python dictionary with the same contents as the hash table contained
- * in node's data field.
- */
-static PyObject*
-PyDict_from_node (path_tree* node)
-{
-	GHashTable* data = (GHashTable*) node->data;
-	PyObject*   dict = PyDict_New ();
-
-	if (dict == NULL) {
-		PyErr_SetString (PyExc_RuntimeError, "unable to create a new dictionary");
-		return NULL;
-	}
-
-	g_hash_table_foreach (data, (GHFunc) insert_in_dict, dict);
-
-	return dict;
-}
-
 /* GHFunc for getting a list of the keys from a GHashTable. */
 static void
 get_keys (char* key, PyObject* value, GSList** keys)
