@@ -11,3 +11,4 @@ Categories=GNOME;GTK;Application;Network;IRCClient;
 X-GNOME-Bugzilla-Bugzilla=GNOME
 X-GNOME-Bugzilla-Product=xchat-gnome
 X-GNOME-Bugzilla-Component=general
+X-GNOME-Bugzilla-Version=@VERSION@

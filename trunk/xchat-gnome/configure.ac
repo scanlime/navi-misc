@@ -448,6 +448,7 @@ po/Makefile.in
 src/Makefile
 src/common/Makefile
 src/fe-gnome/Makefile
+data/xchat-gnome.desktop.in
 ])
 
 AC_OUTPUT
