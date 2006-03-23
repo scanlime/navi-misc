@@ -49,7 +49,7 @@ initalgorithms_c (void)
 {
 	(void) Py_InitModule ("algorithms_c", AlgorithmC_methods);
 }
-	
+
 static PyObject*
 depth_limited_search (PyObject* self, PyObject* args)
 {
@@ -225,6 +225,7 @@ dijkstra_search (PyObject* self, PyObject* args)
 		Py_DECREF (ret);
 		return NULL;
 	}
+	PyList_Append (ret, end);
 	PyList_Append (ret, node);
 	while (node != start) {
 		node = g_hash_table_lookup (previous, node);
