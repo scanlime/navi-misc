@@ -88,14 +88,26 @@ class TestDijkstra (GraphTest):
 
 class TestAStar (TestCase):
     """Test the A* search."""
-    def setUp (self):
-        pass
+    def testZeroLen (self):
+        self.fail ("unimplemented")
+
+    def testOneLen (self):
+        self.fail ("unimplemented")
+
+    def testFullPath (self):
+        self.fail ("unimplemented")
 
 
 class TestIterativeDeepening (TestCase):
     """Test the iterative deepening depth first search."""
-    def setUp (self):
-        pass
+    def testZeroLen (self):
+        self.fail ("unimplemented")
+
+    def testOneLen (self):
+        self.fail ("unimplemented")
+
+    def testFullPath (self):
+        self.fail ("unimplemented")
 
 
 if __name__ == "__main__":
