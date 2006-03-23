@@ -23,7 +23,7 @@ import sys, pickle, random
 from unittest import makeSuite, TestCase, TestSuite
 from Graph import algorithms_c
 from Graph.Data import Graph, VertexMap, AdjacencyList
-
+from Dance.MotionGraph import MotionGraph
 
 def suite ():
     """Return a TestSuite consisting of all the tests in this module."""
@@ -40,23 +40,28 @@ class GraphTest (TestCase):
     def setUp (self):
         def _subgraph (graph, node, depth):
             ret = {}
-            vs = graph.query (node)
+            vs = [edge.v for edge in graph.query (node)]
             if depth >= 0:
                 for v in vs:
                     n = _subgraph (graph, v, depth - 1)
                     for key, value in n.iteritems():
                         ret[key] = value
-            ret[node] = vs
+            if len (vs):
+                ret[node] = vs
             return ret
 
         graph = pickle.load (open (sys.argv[1]))
         root = graph['root']
 
-        start = random.choice (root.representations[VertexMap].data.keys())
+        start = random.choice (root.representations[VertexMap].data.keys ())
         nodes = _subgraph (root.representations[AdjacencyList], start, 3)
-        self.graph = Graph ()
-        self.graph.addTree (nodes)
 
+        self.graph = MotionGraph ()
+
+        vertex_map     = VertexMap (self.graph)
+        adjacency_list = AdjacencyList (self.graph)
+
+        self.graph.addTree (nodes)
 
 
 class TestDijkstra (GraphTest):
@@ -65,10 +70,16 @@ class TestDijkstra (GraphTest):
         GraphTest.setUp(self)
         vMap = self.graph.representations[VertexMap]
         self.adj = self.graph.representations[AdjacencyList]
-        start = random.choice (vMap)
+        start = random.choice (vMap.data.keys ())
         self.path = [start]
         for i in range (3):
-            self.path.append (random.choice (adj.query (self.path[-1])))
+            adjacencies = list (self.adj.query (self.path[-1]))
+            print adjacencies
+            choice = random.choice (adjacencies)
+            print choice
+            self.path.append (choice.v)
+
+        print self.path
 
     def testZeroLen (self):
         """Start and goal are the same"""
