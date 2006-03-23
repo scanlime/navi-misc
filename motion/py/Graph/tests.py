@@ -18,7 +18,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+
+import sys, pickle
 from unittest import makeSuite, TestCase, TestSuite
+from Graph import algorithms_c
 
 
 def suite ():
@@ -29,10 +32,58 @@ def suite ():
     return TestSuite (tests)
 
 
-class TestDijkstra (TestCase):
+class GraphTest (TestCase):
+    """Base class for graph tests. Initializes the graph used by all the test
+       suites.
+       """
+    def setUp (self):
+        graph = pickle.load (open (sys.argv[1]))
+        start = random.choice (graph.representations[VertexMap])
+        nodes = _subgraph (graph.representations[AdjacencyList], start, 3)
+        self.graph = Graph ()
+        self.graph.addTree (nodes)
+
+    def _subgraph (graph, node, depth):
+        ret = {}
+        vs = graph.query (node)
+        if depth >= 0:
+            for v in vs:
+                n = _subgraph (graph, v, depth - 1)
+                for key, value in n.iteritems():
+                    ret[key] = value
+        ret[node] = vs
+        return ret
+
+
+class TestDijkstra (GraphTest):
     """Test Dijkstra's shortest path algorithm."""
     def setUp (self):
-        pass
+        GraphTest.setUp(self)
+        vMap = self.graph.representations[VertexMap]
+        self.adj = self.graph.representations[AdjacencyList]
+        start = random.choice (vMap)
+        self.path = [start]
+        for i in range (3):
+            self.path.append (random.choice (adj.query (self.path[-1])))
+
+    def testZeroLen (self):
+        """Start and goal are the same"""
+        path = algorithms_c.dijkstraSearch (self.adj, self.path[0],
+                self.path[0])
+        self.assertEqual (len (path), 1)
+        self.assertEqual (path[0], self.path[0])
+
+    def testOneLen (self):
+        """Goal is a successor of start"""
+        path = algorithms_c.dijkstraSearch (self.adj, self.path[0],
+                self.path[1])
+        self.assertEqual (len (path), 2)
+
+    def testFullPath (self):
+        """Full path"""
+        path = algorithms_c.dijkstraSearch (self.adj, self.path[0],
+                self.path[-1])
+        self.failIf (len (path) > len (self.path))
 
 
 class TestAStar (TestCase):
