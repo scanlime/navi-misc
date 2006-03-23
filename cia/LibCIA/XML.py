@@ -46,7 +46,7 @@ class XMLObject(object):
        """
     # Subclasses can set this to enable some caches
     immutable = False
-    _xpcache = {}
+    _xpcache = None
     
     def __init__(self, doc=None, uri=None):
         if type(doc) in types.StringTypes:
@@ -379,6 +379,8 @@ class XPath:
         """Query an XMLObject, using its cache if possible"""        
         if obj.immutable:
             idc = id(self.compiled)
+            if not obj._xpcache:
+                obj._xpcache = {}
             if idc in obj._xpcache:
                 return obj._xpcache[idc]
             else:
