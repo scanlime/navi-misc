@@ -196,6 +196,13 @@ dijkstra_search (PyObject* self, PyObject* args)
 		return NULL;
 	}
 
+	/* Hack (not sure why this is needed) */
+	if (start == end) {
+		ret = PyList_New (0);
+		PyList_Append (ret, start);
+		return ret;
+	}
+
 	/* Build adjacency hash table */
 	adjacency = query_adjacency (adjacency_list);
 	if (adjacency == NULL) {

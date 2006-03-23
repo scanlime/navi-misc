@@ -58,8 +58,8 @@ class GraphTest (TestCase):
 
         self.graph = MotionGraph ()
 
-        vertex_map     = VertexMap (self.graph)
-        adjacency_list = AdjacencyList (self.graph)
+        self.v_map = VertexMap (self.graph)
+        self.adj   = AdjacencyList (self.graph)
 
         self.graph.addTree (nodes)
 
@@ -68,12 +68,10 @@ class TestDijkstra (GraphTest):
     """Test Dijkstra's shortest path algorithm."""
     def setUp (self):
         GraphTest.setUp(self)
-        vMap = self.graph.representations[VertexMap]
-        self.adj = self.graph.representations[AdjacencyList]
 
         self.path = []
         def find_path ():
-            start = random.choice (vMap.data.keys ())
+            start = random.choice (self.v_map.data.keys ())
             self.path = [start]
             for i in range (3):
                 adjacencies = list (self.adj.query (self.path[-1]))
@@ -87,18 +85,25 @@ class TestDijkstra (GraphTest):
             find_path ()
 
     def testZeroLen (self):
-        """Start and goal are the same"""
-        path = algorithms_c.dijkstraSearch (self.adj, self.path[0], self.path[0])
+        """Dijkstra: Start and goal are the same"""
+        # First we need to find a self-loop
+        loop = None
+        for u in self.v_map:
+            for edge in self.v_map.query (u):
+                if edge.v is u:
+                    loop = u
+                    break
+        path = algorithms_c.dijkstraSearch (self.adj, loop, loop)
         self.assertEqual (len (path), 1)
-        self.assertEqual (path[0], self.path[0])
+        self.assertEqual (path[0], loop)
 
     def testOneLen (self):
-        """Goal is a successor of start"""
+        """Dijkstra: Goal is a successor of start"""
         path = algorithms_c.dijkstraSearch (self.adj, self.path[0], self.path[1])
         self.assertEqual (len (path), 2)
 
     def testFullPath (self):
-        """Full path"""
+        """Dijkstra: Full path"""
         path = algorithms_c.dijkstraSearch (self.adj, self.path[0], self.path[-1])
         self.failIf (len (path) > len (self.path))
 
@@ -106,24 +111,30 @@ class TestDijkstra (GraphTest):
 class TestAStar (TestCase):
     """Test the A* search."""
     def testZeroLen (self):
+        """A*: Start and goal are the same"""
         self.fail ("unimplemented")
 
     def testOneLen (self):
+        """A*: Goal is a successor of start"""
         self.fail ("unimplemented")
 
     def testFullPath (self):
+        """A*: Full path"""
         self.fail ("unimplemented")
 
 
 class TestIterativeDeepening (TestCase):
     """Test the iterative deepening depth first search."""
     def testZeroLen (self):
+        """Iterative Deepening: Start and goal are the same"""
         self.fail ("unimplemented")
 
     def testOneLen (self):
+        """Iterative Deepening: Goal is a successor of start"""
         self.fail ("unimplemented")
 
     def testFullPath (self):
+        """Iterative Deepening: Full path"""
         self.fail ("unimplemented")
 
 
