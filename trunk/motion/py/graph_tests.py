@@ -22,6 +22,7 @@
 import sys, pickle, random
 from unittest import makeSuite, TestCase, TestSuite
 from Graph import algorithms_c
+from Graph.Data import Graph, VertexMap, AdjacencyList
 
 
 def suite ():
@@ -37,22 +38,25 @@ class GraphTest (TestCase):
        suites.
        """
     def setUp (self):
+        def _subgraph (graph, node, depth):
+            ret = {}
+            vs = graph.query (node)
+            if depth >= 0:
+                for v in vs:
+                    n = _subgraph (graph, v, depth - 1)
+                    for key, value in n.iteritems():
+                        ret[key] = value
+            ret[node] = vs
+            return ret
+
         graph = pickle.load (open (sys.argv[1]))
-        start = random.choice (graph.representations[VertexMap])
-        nodes = _subgraph (graph.representations[AdjacencyList], start, 3)
+        root = graph['root']
+
+        start = random.choice (root.representations[VertexMap].data.keys())
+        nodes = _subgraph (root.representations[AdjacencyList], start, 3)
         self.graph = Graph ()
         self.graph.addTree (nodes)
 
-    def _subgraph (graph, node, depth):
-        ret = {}
-        vs = graph.query (node)
-        if depth >= 0:
-            for v in vs:
-                n = _subgraph (graph, v, depth - 1)
-                for key, value in n.iteritems():
-                    ret[key] = value
-        ret[node] = vs
-        return ret
 
 
 class TestDijkstra (GraphTest):
