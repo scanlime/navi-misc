@@ -51,7 +51,7 @@ class GraphTest (TestCase):
             return ret
 
         graph = pickle.load (open (sys.argv[1]))
-        root = graph['root']
+        root = graph['lradius']
 
         start = random.choice (root.representations[VertexMap].data.keys ())
         nodes = _subgraph (root.representations[AdjacencyList], start, 3)
@@ -70,34 +70,36 @@ class TestDijkstra (GraphTest):
         GraphTest.setUp(self)
         vMap = self.graph.representations[VertexMap]
         self.adj = self.graph.representations[AdjacencyList]
-        start = random.choice (vMap.data.keys ())
-        self.path = [start]
-        for i in range (3):
-            adjacencies = list (self.adj.query (self.path[-1]))
-            print adjacencies
-            choice = random.choice (adjacencies)
-            print choice
-            self.path.append (choice.v)
 
-        print self.path
+        self.path = []
+        def find_path ():
+            start = random.choice (vMap.data.keys ())
+            self.path = [start]
+            for i in range (3):
+                adjacencies = list (self.adj.query (self.path[-1]))
+                if len (adjacencies) == 0:
+                    self.path = []
+                    return
+                choice = random.choice (adjacencies)
+                self.path.append (choice.v)
+
+        while len (self.path) == 0:
+            find_path ()
 
     def testZeroLen (self):
         """Start and goal are the same"""
-        path = algorithms_c.dijkstraSearch (self.adj, self.path[0],
-                self.path[0])
+        path = algorithms_c.dijkstraSearch (self.adj, self.path[0], self.path[0])
         self.assertEqual (len (path), 1)
         self.assertEqual (path[0], self.path[0])
 
     def testOneLen (self):
         """Goal is a successor of start"""
-        path = algorithms_c.dijkstraSearch (self.adj, self.path[0],
-                self.path[1])
+        path = algorithms_c.dijkstraSearch (self.adj, self.path[0], self.path[1])
         self.assertEqual (len (path), 2)
 
     def testFullPath (self):
         """Full path"""
-        path = algorithms_c.dijkstraSearch (self.adj, self.path[0],
-                self.path[-1])
+        path = algorithms_c.dijkstraSearch (self.adj, self.path[0], self.path[-1])
         self.failIf (len (path) > len (self.path))
 
 
