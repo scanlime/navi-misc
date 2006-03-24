@@ -43,7 +43,7 @@ void  image_add_checkerboard(GdkPixbuf *img)
 	    g0 = *(pixel++);
 	    b0 = *(pixel++);
 	    a0 = *(pixel++);
-
+	    
 	    if (a0 != 0xFF) {
 		if ((x ^ y) & CHECKERBOARD_TILE_SIZE)
 		    z = 0xAA * (255 - a0);

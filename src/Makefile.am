@@ -6,8 +6,7 @@ INCLUDES = \
 	$(EXR_CFLAGS)			\
 	$(GNET_CFLAGS)			\
 	'-DFYRE_DATADIR="data"'		\
-	'-DDATADIR="$(prefix)/share"'	\
-	'-DFYRELOCALEDIR="$(fyrelocaledir)"'
+	'-DDATADIR="$(prefix)/share"'
 
 fyre_LDADD = \
 	$(BINRELOC_LIBS)		\
@@ -114,5 +113,4 @@ noinst_HEADERS =			\
 	discovery-server.h		\
 	discovery-client.h              \
         platform.h			\
-	image-fu.h			\
-	i18n.h
+	image-fu.h

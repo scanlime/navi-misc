@@ -1,4 +1,4 @@
-SUBDIRS = data src contrib po
+SUBDIRS = data src contrib
 
 vXTRA_DIST =		\
 	AUTHORS		\

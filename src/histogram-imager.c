@@ -30,7 +30,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "i18n.h"
 
 static void histogram_imager_class_init (HistogramImagerClass *klass);
 static void histogram_imager_init_size_params (GObjectClass *object_class);
@@ -129,11 +128,11 @@ static void
 histogram_imager_init_size_params (GObjectClass *object_class)
 {
     GParamSpec *spec;
-    const gchar *current_group = _("Image Size");
+    const gchar *current_group = "Image Size";
 
     spec = g_param_spec_uint         ("width",
-				      _("Width"),
-				      _("Width of the rendered image, in pixels"),
+				      "Width",
+				      "Width of the rendered image, in pixels",
 				      1, 32767, 600,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED | PARAM_IN_GUI);
     param_spec_set_group             (spec, current_group);
@@ -141,8 +140,8 @@ histogram_imager_init_size_params (GObjectClass *object_class)
     g_object_class_install_property  (object_class, PROP_WIDTH, spec);
 
     spec = g_param_spec_uint         ("height",
-				      _("Height"),
-				      _("Height of the rendered image, in pixels"),
+				      "Height",
+				      "Height of the rendered image, in pixels",
 				      1, 32767, 600,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED | PARAM_IN_GUI);
     param_spec_set_group             (spec, current_group);
@@ -150,8 +149,8 @@ histogram_imager_init_size_params (GObjectClass *object_class)
     g_object_class_install_property  (object_class, PROP_HEIGHT, spec);
 
     spec = g_param_spec_uint         ("oversample",
-				      _("Oversampling"),
-				      _("Oversampling factor, 1 for no oversampling to 4 for heavy oversampling"),
+				      "Oversampling",
+				      "Oversampling factor, 1 for no oversampling to 4 for heavy oversampling",
 				      1, 4, 1,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED | PARAM_IN_GUI);
     param_spec_set_group             (spec, current_group);
@@ -159,15 +158,15 @@ histogram_imager_init_size_params (GObjectClass *object_class)
     g_object_class_install_property  (object_class, PROP_OVERSAMPLE, spec);
 
     spec = g_param_spec_boolean      ("oversample_enabled",
-				      _("Oversampling Enabled"),
-				      _("Indicates when oversampling has been enabled with the 'oversample' property"),
+				      "Oversampling Enabled",
+				      "Indicates when oversampling has been enabled with the 'oversample' property",
 				      FALSE,
 				      G_PARAM_READABLE);
     g_object_class_install_property  (object_class, PROP_OVERSAMPLE_ENABLED, spec);
 
     spec = g_param_spec_string       ("size",
-				      _("Size"),
-				      _("Image size as a WIDTH or WIDTHxHEIGHT string"),
+				      "Size",
+				      "Image size as a WIDTH or WIDTHxHEIGHT string",
 				      NULL,
 				      G_PARAM_READWRITE);
     g_object_class_install_property  (object_class, PROP_SIZE, spec);
@@ -178,11 +177,11 @@ static void
 histogram_imager_init_render_params (GObjectClass *object_class)
 {
     GParamSpec *spec;
-    const gchar *current_group = _("Rendering");
+    const gchar *current_group = "Rendering";
 
     spec = g_param_spec_double       ("exposure",
-				      _("Exposure"),
-				      _("The relative strength, darkness, or brightness of the image"),
+				      "Exposure",
+				      "The relative strength, darkness, or brightness of the image",
 				      0, 100, 0.05,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -191,8 +190,8 @@ histogram_imager_init_render_params (GObjectClass *object_class)
     g_object_class_install_property  (object_class, PROP_EXPOSURE, spec);
 
     spec = g_param_spec_double       ("gamma",
-				      _("Gamma"),
-				      _("A gamma correction applied while rendering the image"),
+				      "Gamma",
+				      "A gamma correction applied while rendering the image",
 				      0, 10, 1,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -201,8 +200,8 @@ histogram_imager_init_render_params (GObjectClass *object_class)
     g_object_class_install_property  (object_class, PROP_GAMMA, spec);
 
     spec = g_param_spec_double       ("oversample_gamma",
-				      _("Oversampling gamma"),
-				      _("Gamma correction used when downconverting oversampled histograms"),
+				      "Oversampling gamma",
+				      "Gamma correction used when downconverting oversampled histograms",
 				      0, 10, 1.66,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      G_PARAM_LAX_VALIDATION | PARAM_INTERPOLATE | PARAM_IN_GUI);
@@ -212,22 +211,22 @@ histogram_imager_init_render_params (GObjectClass *object_class)
     g_object_class_install_property  (object_class, PROP_OVERSAMPLE_GAMMA, spec);
 
     spec = g_param_spec_string       ("fgcolor",
-				      _("Foreground"),
-				      _("The foreground color, as a color name or #RRGGBB hex triple"),
+				      "Foreground",
+				      "The foreground color, as a color name or #RRGGBB hex triple",
 				      "#000000",
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED);
     g_object_class_install_property  (object_class, PROP_FGCOLOR, spec);
 
     spec = g_param_spec_string       ("bgcolor",
-				      _("Background"),
-				      _("The background color, as a color name or #RRGGBB hex triple"),
+				      "Background",
+				      "The background color, as a color name or #RRGGBB hex triple",
 				      "#FFFFFF",
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED);
     g_object_class_install_property  (object_class, PROP_BGCOLOR, spec);
 
     spec = g_param_spec_boxed        ("fgcolor_gdk",
-				      _("Foreground"),
-				      _("The foreground color, as a GdkColor"),
+				      "Foreground",
+				      "The foreground color, as a GdkColor",
 				      GDK_TYPE_COLOR,
 				      G_PARAM_READWRITE | PARAM_INTERPOLATE | PARAM_IN_GUI);
     param_spec_set_group             (spec, current_group);
@@ -235,8 +234,8 @@ histogram_imager_init_render_params (GObjectClass *object_class)
     g_object_class_install_property  (object_class, PROP_FGCOLOR_GDK, spec);
 
     spec = g_param_spec_boxed        ("bgcolor_gdk",
-				      _("Background"),
-				      _("The background color, as a GdkColor"),
+				      "Background",
+				      "The background color, as a GdkColor",
 				      GDK_TYPE_COLOR,
 				      G_PARAM_READWRITE | PARAM_INTERPOLATE | PARAM_IN_GUI);
     param_spec_set_group             (spec, current_group);
@@ -244,24 +243,24 @@ histogram_imager_init_render_params (GObjectClass *object_class)
     g_object_class_install_property  (object_class, PROP_BGCOLOR_GDK, spec);
 
     spec = g_param_spec_uint         ("fgalpha",
-				      _("Foreground alpha"),
-				      _("The foreground color's opacity"),
+				      "Foreground alpha",
+				      "The foreground color's opacity",
 				      0, 65535, 65535,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      PARAM_INTERPOLATE);
     g_object_class_install_property  (object_class, PROP_FGALPHA, spec);
 
     spec = g_param_spec_uint         ("bgalpha",
-				      _("Background alpha"),
-				      _("The background color's opacity"),
+				      "Background alpha",
+				      "The background color's opacity",
 				      0, 65535, 65535,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      PARAM_INTERPOLATE);
     g_object_class_install_property  (object_class, PROP_BGALPHA, spec);
 
     spec = g_param_spec_boolean      ("clamped",
-				      _("Clamped"),
-				      _("When set, luminances are clamped to [0,1] before linear interpolation"),
+				      "Clamped",
+				      "When set, luminances are clamped to [0,1] before linear interpolation",
 				      FALSE,
 				      G_PARAM_READWRITE | G_PARAM_CONSTRUCT | PARAM_SERIALIZED |
 				      PARAM_INTERPOLATE | PARAM_IN_GUI);

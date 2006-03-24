@@ -26,7 +26,6 @@
 #include "cell-renderer-transition.h"
 #include "cell-renderer-bifurcation.h"
 #include <gtk/gtk.h>
-#include "i18n.h"
 
 static void explorer_update_animation_length(Explorer *self);
 static void explorer_init_keyframe_view(Explorer *self);
@@ -142,7 +141,7 @@ static void explorer_init_keyframe_view(Explorer *self) {
     /* The first column displays the keyframe, in the form of a thumbnail
      */
     col = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(col, _("Keyframe"));
+    gtk_tree_view_column_set_title(col, "Keyframe");
 
     renderer = gtk_cell_renderer_pixbuf_new();
     g_object_set(renderer,
@@ -160,7 +159,7 @@ static void explorer_init_keyframe_view(Explorer *self) {
     /* The second column uses a custom cell renderer to show the curve and duration
      */
     col = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(col, _("Transition"));
+    gtk_tree_view_column_set_title(col, "Transition");
 
     renderer = cell_renderer_transition_new();
     g_object_set(renderer,
@@ -182,7 +181,7 @@ static void explorer_init_keyframe_view(Explorer *self) {
      * the iterator and animation.
      */
     col = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(col, _("Bifurcation Diagram"));
+    gtk_tree_view_column_set_title(col, "Bifurcation Diagram");
 
     renderer = cell_renderer_bifurcation_new();
     g_object_set(renderer,
@@ -540,7 +539,7 @@ static void on_anim_open (GtkWidget *widget, gpointer user_data) {
     GtkWidget *dialog;
 
 #if (GTK_CHECK_VERSION(2, 4, 0))
-    dialog = gtk_file_chooser_dialog_new (_("Open Animation Keyframes"),
+    dialog = gtk_file_chooser_dialog_new ("Open Animation Keyframes",
 					  GTK_WINDOW (glade_xml_get_widget (self->xml, "animation_window")),
 					  GTK_FILE_CHOOSER_ACTION_OPEN,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -557,7 +556,7 @@ static void on_anim_open (GtkWidget *widget, gpointer user_data) {
 	current_filename = filename;
     }
 #else
-    dialog = gtk_file_selection_new (_("Open Animation Keyframes"));
+    dialog = gtk_file_selection_new ("Open Animation Keyframes");
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
 	const gchar *filename;
@@ -587,7 +586,7 @@ static void on_anim_save_as (GtkWidget *widget, gpointer user_data) {
     GtkWidget *dialog;
 
 #if (GTK_CHECK_VERSION(2, 4, 0))
-    dialog = gtk_file_chooser_dialog_new (_("Save Animation Keyframes"),
+    dialog = gtk_file_chooser_dialog_new ("Save Animation Keyframes",
 		                          GTK_WINDOW (glade_xml_get_widget (self->xml, "animation_window")),
 					  GTK_FILE_CHOOSER_ACTION_SAVE,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -602,7 +601,7 @@ static void on_anim_save_as (GtkWidget *widget, gpointer user_data) {
 	current_filename = filename;
     }
 #else
-    dialog = gtk_file_selection_new (_("Save Animation Keyframes"));
+    dialog = gtk_file_selection_new ("Save Animation Keyframes");
     gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog), "animation.fa");
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {

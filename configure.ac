@@ -31,16 +31,6 @@ AC_TYPE_SIZE_T
 AC_EXEEXT
 AC_FUNC_FORK
 
-AC_PROG_INTLTOOL([0.23])
-ALL_LINGUAS=""
-GETTEXT_PACKAGE=fyre
-AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [gettext package])
-
-AM_GLIB_GNU_GETTEXT
-fyrelocaledir='${prefix}/${DATADIRNAME}/locale'
-AC_SUBST(fyrelocaledir)
-
 AM_BINRELOC
 AM_CONDITIONAL([HAVE_BINRELOC], [ test "x$br_cv_binreloc" = "xyes" ])
 
@@ -140,7 +130,6 @@ autopackage/default.apspec
 data/Makefile
 src/Makefile
 contrib/Makefile
-po/Makefile.in
 ])
 
 AC_OUTPUT

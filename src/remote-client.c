@@ -31,7 +31,6 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include "i18n.h"
 #include "remote-client.h"
 
 static void       remote_client_class_init    (RemoteClientClass*    klass);
@@ -200,7 +199,7 @@ void           remote_client_connect          (RemoteClient*         self)
     gnet_conn_connect(self->gconn);
     gnet_conn_readline(self->gconn);
 
-    remote_client_update_status(self, _("Connecting..."));
+    remote_client_update_status(self, "Connecting...");
 }
 
 static
@@ -304,24 +303,24 @@ static void       remote_client_callback      (GConn*                gconn,
 	break;
 
     case GNET_CONN_CONNECT:
-	remote_client_update_status(self, _("Connected"));
+	remote_client_update_status(self, "Connected");
 	break;
 
     case GNET_CONN_CLOSE:
 	self->is_ready = FALSE;
-	remote_client_update_status(self, _("Connection closed"));
+	remote_client_update_status(self, "Connection closed");
 	remote_client_start_retry(self);
 	break;
 
     case GNET_CONN_TIMEOUT:
 	self->is_ready = FALSE;
-	remote_client_update_status(self, _("Timed out"));
+	remote_client_update_status(self, "Timed out");
 	remote_client_start_retry(self);
 	break;
 
     case GNET_CONN_ERROR:
 	self->is_ready = FALSE;
-	remote_client_update_status(self, _("Connection error"));
+	remote_client_update_status(self, "Connection error");
 	remote_client_start_retry(self);
 	break;
 
@@ -393,10 +392,10 @@ static void       remote_client_recv_line     (RemoteClient*         self,
 	/* This was unsolicited- should only occur for the server ready message */
 	if (response->code == FYRE_RESPONSE_READY) {
 	    self->is_ready = TRUE;
-	    remote_client_update_status(self, _("Ready"));
+	    remote_client_update_status(self, "Ready");
 	}
 	else {
-	    remote_client_update_status(self, _("Protocol error"));
+	    remote_client_update_status(self, "Protocol error");
 	}
     }
 

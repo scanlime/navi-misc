@@ -3,51 +3,16 @@
 
 DIE=0
 
+# SETUP_GETTEXT=./setup-gettext
 PACKAGE=fyre
-CONFIGURE=configure.ac
 
 echo "Generating configuration files for $PACKAGE, please wait..."
 
-if grep "^AM_[A-Z0-9_]\{1,\}_GETTEXT" "$CONFIGURE" >/dev/null; then
-	if grep "sed.*POTFILES" "$CONFIGURE" >/dev/null; then
-		GETTEXTIZE=""
-	else
-		if grep "^AM_GLIB_GNU_GETTEXT" "$CONFIGURE" >/dev/null; then
-			GETTEXTIZE="glib-gettextize"
-		else
-			GETTEXTIZE="gettextize"
-		fi
-
-		$GETTEXTIZE --version < /dev/null > /dev/null 2>&1
-		if test $? -ne 0; then
-			echo
-			echo "**Error**: You must have \`$GETTEXTIZE' installed" \
-			     "to compile $PACKAGE."
-			DIE=1
-		fi
-	fi
-fi
-(grep "^AC_PROG_INTLTOOL" "$CONFIGURE" >/dev/null) && {
-	(intltoolize --version) < /dev/null > /dev/null 2>&1 || {
-		echo
-		echo "**Error**: You must have \`intltoolize' installed" \
-		     "to compile $PACKAGE."
-		DIE=1
-	}
-}
-
-if test "$GETTEXTIZE"; then
-	echo "Creating aclocal.m4 ..."
-	test -r aclocal.m4 || touch aclocal.m4
-	echo "Running $GETTEXTIZE...  Ignore non-fatal messages."
-	echo "no" | $GETTEXTIZE --force --copy
-	echo "Making aclocal.m4 writable ..."
-	test -r aclocal.m4 && chmod u+w aclocal.m4
-fi
-if grep "^AC_PROG_INTLTOOL" "$CONFIGURE" >/dev/null; then
-	echo "Running intltoolize..."
-	intltoolize --copy --force --automake
-fi
+# ($SETUP_GETTEXT --gettext-tool) < /dev/null > /dev/null 2>&1 || {
+# 	echo
+# 	echo "You must have gettext installed to compile $PACKAGE."
+# 	DIE=1
+# }
 
 (autoconf --version) < /dev/null > /dev/null 2>&1 || {
 	echo
@@ -78,12 +43,12 @@ fi
 # Backup the po/ChangeLog. This should prevent the annoying
 # gettext ChangeLog modifications.
 
-if test -e po/ChangeLog; then
-	cp -p po/ChangeLog po/ChangeLog.save
-fi
+# if test -e po/ChangeLog; then
+# 	cp -p po/ChangeLog po/ChangeLog.save
+# fi
 
-echo "Running gettextize, please ignore non-fatal messages...."
-$SETUP_GETTEXT
+# echo "Running gettextize, please ignore non-fatal messages...."
+# $SETUP_GETTEXT
 
 # Restore the po/ChangeLog file.
 # if test -e po/ChangeLog.save; then

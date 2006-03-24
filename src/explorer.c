@@ -25,7 +25,6 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
-#include "i18n.h"
 #include "explorer.h"
 #include "parameter-editor.h"
 #include "math-util.h"
@@ -110,12 +109,12 @@ static void explorer_init(Explorer *self) {
     if (!self->xml) {
 	GtkWidget *dialog;
 	dialog = gtk_message_dialog_new_with_markup(NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-						    _("<b>Fyre can't find its data files.</b>\n\n"
-						      "The main glade file could not be located.\n"
-						      "We tried looking for it in the following places:\n"
-						      "\n"
-						      "    %s\n"
-						      "    %s"),
+						    "<b>Fyre can't find its data files.</b>\n\n"
+						    "The main glade file could not be located.\n"
+						    "We tried looking for it in the following places:\n"
+						    "\n"
+						    "    %s\n"
+						    "    %s",
 						    FYRE_DATADIR "/explorer.glade",
 						    BR_DATADIR("/fyre/explorer.glade"));
 	gtk_dialog_run(GTK_DIALOG(dialog));
@@ -382,7 +381,7 @@ static void on_load_from_image (GtkWidget *widget, Explorer* self) {
     gchar *filename = NULL;
 
 #if (GTK_CHECK_VERSION(2, 4, 0))
-    dialog = gtk_file_chooser_dialog_new (_("Open Image Parameters"),
+    dialog = gtk_file_chooser_dialog_new ("Open Image Parameters",
 		                          GTK_WINDOW (glade_xml_get_widget (self->xml, "explorer_window")),
 					  GTK_FILE_CHOOSER_ACTION_OPEN,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -404,7 +403,7 @@ static void on_load_from_image (GtkWidget *widget, Explorer* self) {
 	file_location = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
     }
 #else
-    dialog = gtk_file_selection_new (_("Open Image Parameters"));
+    dialog = gtk_file_selection_new ("Open Image Parameters");
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
 	filename = gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog));
@@ -420,7 +419,7 @@ static void on_load_from_image (GtkWidget *widget, Explorer* self) {
 	dialog = glade_xml_get_widget (self->xml, "error dialog");
 	label = glade_xml_get_widget (self->xml, "error label");
 
-	text = g_strdup_printf (_("<span weight=\"bold\" size=\"larger\">Could not load \"%s\"</span>\n\n%s"), filename, error->message);
+	text = g_strdup_printf ("<span weight=\"bold\" size=\"larger\">Could not load \"%s\"</span>\n\n%s", filename, error->message);
 	gtk_label_set_markup (GTK_LABEL (label), text);
 	g_free (text);
 	g_error_free (error);
@@ -437,7 +436,7 @@ static void on_save (GtkWidget *widget, Explorer* self) {
     gchar *filename = NULL;
 
 #if (GTK_CHECK_VERSION(2, 4, 0))
-    dialog = gtk_file_chooser_dialog_new (_("Save Image"),
+    dialog = gtk_file_chooser_dialog_new ("Save Image",
 		                          GTK_WINDOW (glade_xml_get_widget (self->xml, "explorer_window")),
 					  GTK_FILE_CHOOSER_ACTION_SAVE,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -455,7 +454,7 @@ static void on_save (GtkWidget *widget, Explorer* self) {
 	file_location = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
     }
 #else
-    dialog = gtk_file_selection_new (_("Save Image"));
+    dialog = gtk_file_selection_new ("Save Image");
     gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog), "rendering.png");
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
@@ -472,7 +471,7 @@ static void on_save (GtkWidget *widget, Explorer* self) {
 	dialog = glade_xml_get_widget (self->xml, "error dialog");
 	label = glade_xml_get_widget (self->xml, "error label");
 
-	text = g_strdup_printf (_("<span weight=\"bold\" size=\"larger\">Could not save \"%s\"</span>\n\n%s"), filename, error->message);
+	text = g_strdup_printf ("<span weight=\"bold\" size=\"larger\">Could not save \"%s\"</span>\n\n%s", filename, error->message);
 	gtk_label_set_markup (GTK_LABEL (label), text);
 	g_free (text);
 	g_error_free (error);
@@ -492,7 +491,7 @@ static void on_save_exr (GtkWidget *widget, Explorer* self) {
     gchar *filename = NULL;
 
 #if (GTK_CHECK_VERSION(2, 4, 0))
-    dialog = gtk_file_chooser_dialog_new (_("Save OpenEXR Image"),
+    dialog = gtk_file_chooser_dialog_new ("Save OpenEXR Image",
 		                          GTK_WINDOW (glade_xml_get_widget (self->xml, "explorer_window")),
 					  GTK_FILE_CHOOSER_ACTION_SAVE,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -511,7 +510,7 @@ static void on_save_exr (GtkWidget *widget, Explorer* self) {
 	file_location = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
     }
 #else
-    dialog = gtk_file_selection_new (_("Save OpenEXR Image"));
+    dialog = gtk_file_selection_new ("Save OpenEXR Image");
     gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog), "rendering.exr");
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
@@ -529,7 +528,7 @@ static void on_save_exr (GtkWidget *widget, Explorer* self) {
 	dialog = glade_xml_get_widget (self->xml, "error dialog");
 	label = glade_xml_get_widget (self->xml, "error label");
 
-	text = g_strdup_printf (_("<span weight=\"bold\" size=\"larger\">Could not save \"%s\"</span>\n\n%s"), filename, error->message);
+	text = g_strdup_printf ("<span weight=\"bold\" size=\"larger\">Could not save \"%s\"</span>\n\n%s", filename, error->message);
 	gtk_label_set_markup (GTK_LABEL (label), text);
 	g_free (text);
 	g_error_free (error);
@@ -725,11 +724,11 @@ static gchar*   explorer_strdup_status (Explorer *self)
     gchar *speed = explorer_strdup_speed(self);
     gchar *quality = explorer_strdup_quality(self);
 
-    status = g_strdup_printf(_("Elapsed time: %s\t\t"
-			       "Iterations: %.3e\t\t"
-			       "Speed: %s\t\t"
-			       "Quality: %s\t\t"
-			       "Current tool: %s"),
+    status = g_strdup_printf("Elapsed time: %s\t\t"
+			     "Iterations: %.3e\t\t"
+			     "Speed: %s\t\t"
+			     "Quality: %s\t\t"
+			     "Current tool: %s",
 			     elapsed,
 			     self->map->iterations,
 			     speed,
@@ -754,16 +753,16 @@ static gchar*   explorer_strdup_elapsed (Explorer *self)
 static gchar*   explorer_strdup_speed (Explorer *self)
 {
     if (iterative_map_is_calculation_running(self->map))
-	return g_strdup_printf(_("%.3e/sec"), explorer_get_iter_speed(self));
+	return g_strdup_printf("%.3e/sec", explorer_get_iter_speed(self));
     else
-	return g_strdup(_("Paused"));
+	return g_strdup("Paused");
 }
 
 static gchar*   explorer_strdup_quality (Explorer *self)
 {
     gdouble q = histogram_imager_compute_quality(HISTOGRAM_IMAGER(self->map));
     if (q > (G_MAXDOUBLE / 2))
-	return g_strdup(_("N/A"));
+	return g_strdup("N/A");
     else
 	return g_strdup_printf("%.3f", q);
 }

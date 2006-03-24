@@ -27,7 +27,6 @@
 #include "cluster-model.h"
 #include <gtk/gtk.h>
 #include <stdlib.h>
-#include "i18n.h"
 
 static void      explorer_init_cluster_view      (Explorer *self);
 static gboolean  explorer_validate_host_and_port (Explorer *self);
@@ -92,32 +91,32 @@ static void explorer_init_cluster_view(Explorer *self) {
 
     renderer = gtk_cell_renderer_toggle_new();
     g_signal_connect(renderer, "toggled", G_CALLBACK(on_node_enabled_toggled), self);
-    gtk_tree_view_insert_column_with_attributes(tv, -1, _("Enabled"),
+    gtk_tree_view_insert_column_with_attributes(tv, -1, "Enabled",
 						renderer,
 						"active", CLUSTER_MODEL_ENABLED,
 						NULL);
 
-    gtk_tree_view_insert_column_with_attributes(tv, -1, _("Hostname"),
+    gtk_tree_view_insert_column_with_attributes(tv, -1, "Hostname",
 						gtk_cell_renderer_text_new(),
 						"text", CLUSTER_MODEL_HOSTNAME,
 						NULL);
 
-    gtk_tree_view_insert_column_with_attributes(tv, -1, _("Port"),
+    gtk_tree_view_insert_column_with_attributes(tv, -1, "Port",
 						gtk_cell_renderer_text_new(),
 						"text", CLUSTER_MODEL_PORT,
 						NULL);
 
-    gtk_tree_view_insert_column_with_attributes(tv, -1, _("Status"),
+    gtk_tree_view_insert_column_with_attributes(tv, -1, "Status",
 						gtk_cell_renderer_text_new(),
 						"text", CLUSTER_MODEL_STATUS,
 						NULL);
 
-    gtk_tree_view_insert_column_with_attributes(tv, -1, _("Speed"),
+    gtk_tree_view_insert_column_with_attributes(tv, -1, "Speed",
 						gtk_cell_renderer_text_new(),
 						"text", CLUSTER_MODEL_SPEED,
 						NULL);
 
-    gtk_tree_view_insert_column_with_attributes(tv, -1, _("Bandwidth"),
+    gtk_tree_view_insert_column_with_attributes(tv, -1, "Bandwidth",
 						gtk_cell_renderer_text_new(),
 						"text", CLUSTER_MODEL_BANDWIDTH,
 						NULL);

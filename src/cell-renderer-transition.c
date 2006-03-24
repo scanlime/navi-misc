@@ -24,7 +24,6 @@
 
 #include "cell-renderer-transition.h"
 #include <gtk/gtk.h>
-#include "i18n.h"
 
 static void cell_renderer_transition_class_init(CellRendererTransitionClass *klass);
 static void cell_renderer_transition_init(CellRendererTransition *self);
@@ -113,24 +112,24 @@ static void cell_renderer_transition_class_init(CellRendererTransitionClass *kla
     g_object_class_install_property(object_class,
 				    PROP_DURATION,
 				    g_param_spec_double("duration",
-							_("Duration"),
-							_("Duration of this keyframe's transition"),
+							"Duration",
+							"Duration of this keyframe's transition",
 							0, G_MAXDOUBLE, 0,
 							G_PARAM_READWRITE));
 
     g_object_class_install_property(object_class,
 				    PROP_SPLINE,
 				    g_param_spec_boxed("spline",
-						       _("Spline"),
-						       _("The spline object to draw this transition's curve with"),
+						       "Spline",
+						       "The spline object to draw this transition's curve with",
 						       SPLINE_TYPE,
 						       G_PARAM_READWRITE));
 
     g_object_class_install_property(object_class,
 				    PROP_SPLINE_SIZE,
 				    g_param_spec_uint("spline-size",
-						      _("Spline size"),
-						      _("The width and height to draw splines at"),
+						      "Spline size",
+						      "The width and height to draw splines at",
 						      0, 1000, 96,
 						      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 }
