@@ -337,24 +337,23 @@ class DotPrint (Algorithm):
         return hash (self.graph)
 
 
-class CombinHeuristic (Algorithm):
-    """A combinatoric heuristic best first search. The nodes in the search
-       space are combinations of nodes from a number of graphs.
-       """
-    def __init__ (self, graphs, source, goal, costf):
+class Heuristic (Algorithm):
+    """A heuristic best first search."""
+    def __init__ (self, graphs, source, goal, costf, successorf):
         Algorithm.__init__ (self)
 
         self.visited = []
-        self.predecessors = {}
+        self.predecessors = {source: None}
         self.graphs = graphs
         self.source = source
         self.goal = goal
         self.costf = costf
+        self.successorf = successorf
 
     def invalidate (self):
         Algorithm.invalidate (self)
         self.visited = []
-        self.predecessors = {}
+        self.predecessors = {self.source: None}
 
     def run (self):
         # Use this function to sort the agenda
@@ -366,14 +365,16 @@ class CombinHeuristic (Algorithm):
         while (len (agenda) > 0):
             # Get the next node and test for the goal
             node = agenda.pop ()
+            self.visited.append (node)
             if node is goal:
                 # Reconstruct the path to the goal
                 self.path = self.pathToNode (node)
+                del agenda
                 return
 
             # Add the successors of this node to the agenda and record the node
             # that generated these successors.
-            for s in self.successors (node.keys (), node.values ()):
+            for s in self.successorf (self.graph, node):
                 if s not in self.visited:
                     self.predecessors[s] = node
                     agenda.append (s)
@@ -381,13 +382,15 @@ class CombinHeuristic (Algorithm):
             # Resort the queue
             agenda.sort (compare)
 
-    def successors (self, bones, values):
-        """Return a list of successors for a combinatoric node"""
-        return []
-
     def pathToNode (self, node):
         """Return the path found by the search to node"""
-        return []
+        path = [node]
+        next = self.predecessors[node]
+        while next is not None:
+            path.insert (0, next)
+            next = self.predecessors[next]
+
+        return path
 
 
 # vim: ts=4:sw=4:et
