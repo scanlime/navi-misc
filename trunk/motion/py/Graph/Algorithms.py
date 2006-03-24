@@ -373,7 +373,7 @@ class CombinHeuristic (Algorithm):
 
             # Add the successors of this node to the agenda and record the node
             # that generated these successors.
-            for s in self.successors (node.keys (), node.values ()):
+            for s in self.successors (node.keys (), node.items ()):
                 if s not in self.visited:
                     self.predecessors[s] = node
                     agenda.append (s)
