@@ -339,12 +339,12 @@ class DotPrint (Algorithm):
 
 class Heuristic (Algorithm):
     """A heuristic best first search."""
-    def __init__ (self, graphs, source, goal, costf, successorf):
-        Algorithm.__init__ (self)
+    def __init__ (self, graph, source, goal, costf, successorf):
+        Algorithm.__init__ (self, graph)
 
         self.path = None
         self.predecessors = {source: None}
-        self.graphs = graphs
+        self.graph = graph
         self.source = source
         self.goal = goal
         self.costf = costf
@@ -352,7 +352,6 @@ class Heuristic (Algorithm):
 
     def invalidate (self):
         Algorithm.invalidate (self)
-        self.predecessors = {self.source: None}
         self.path = None
 
     def run (self):
@@ -373,7 +372,7 @@ class Heuristic (Algorithm):
             # Get the next node and test for the goal
             node = agenda.pop ()
             visited.append (node)
-            if node is goal:
+            if node is self.goal:
                 # Reconstruct the path to the goal
                 self.path = self.pathToNode (node)
                 break
