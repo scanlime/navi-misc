@@ -342,7 +342,7 @@ class Heuristic (Algorithm):
     def __init__ (self, graphs, source, goal, costf, successorf):
         Algorithm.__init__ (self)
 
-        self.visited = []
+        self.path = None
         self.predecessors = {source: None}
         self.graphs = graphs
         self.source = source
@@ -352,35 +352,45 @@ class Heuristic (Algorithm):
 
     def invalidate (self):
         Algorithm.invalidate (self)
-        self.visited = []
         self.predecessors = {self.source: None}
+        self.path = None
 
     def run (self):
         # Use this function to sort the agenda
         def compare (a, b):
             return cmp (self.costf (a), self.costf (b))
 
+        if self.valid:
+            return self.path
+
         agenda = [self.source]
+        visited = []
 
         while (len (agenda) > 0):
             # Get the next node and test for the goal
             node = agenda.pop ()
-            self.visited.append (node)
+            visited.append (node)
             if node is goal:
                 # Reconstruct the path to the goal
                 self.path = self.pathToNode (node)
-                del agenda
-                return
+                break
 
             # Add the successors of this node to the agenda and record the node
             # that generated these successors.
             for s in self.successorf (self.graph, node):
-                if s not in self.visited:
+                if s not in visited:
                     self.predecessors[s] = node
                     agenda.append (s)
 
             # Resort the queue
             agenda.sort (compare)
+
+        # Explicitly delete the agenda and visited list just to be sure we
+        # don't have any references sitting around for nodes we don't need.
+        del agenda
+        del visited
+
+        return self.path
 
     def pathToNode (self, node):
         """Return the path found by the search to node"""
