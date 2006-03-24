@@ -360,7 +360,7 @@ class Heuristic (Algorithm):
            """
         # Use this function to sort the agenda
         def compare (a, b):
-            return cmp (self.costf (a), self.costf (b))
+            return cmp (self.costf (a, self.goal), self.costf (b, self.goal))
 
         if self.valid:
             return self.path

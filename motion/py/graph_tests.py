@@ -114,21 +114,24 @@ class TestAStar (GraphTest):
     def testZeroLen (self):
         """A*: Start and goal are the same"""
         path = Algorithms.Heuristic (self.graph, self.path[0], self.path[0],
-                self.fcost, self.successors).run ()
+                lambda x,y: self.fcost (x, y),
+                lambda x,y: self.successors (x, y)).run ()
         self.assertEqual (len (path), 1)
         self.assertEqual (path[0], self.path[0])
 
     def testOneLen (self):
         """A*: Goal is a successor of start"""
         path = algorithms_c.aStarSearch (self.graph, self.path[0], self.path[1],
-                self.fcost, self.successors).run ()
+                lambda x,y: self.fcost (x, y),
+                lambda x,y: self.successors (x, y)).run ()
         self.assertEqual (len (path), 2)
         self.assertEqual (path[1], self.path[1])
 
     def testFullPath (self):
         """A*: Full path"""
         path = Algorithms.Heuristic (self.graph, self.path[0], self.path[-1],
-                self.fcost, self.successors).run ()
+                lambda x,y: self.fcost (x, y),
+                lambda x,y: self.successors (x, y)).run ()
         self.assertEqual (path[-1], self.path[-1])
         self.assertEqual (path[0], self.path[0])
 
