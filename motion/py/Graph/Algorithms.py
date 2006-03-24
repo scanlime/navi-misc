@@ -356,6 +356,9 @@ class Heuristic (Algorithm):
         self.path = None
 
     def run (self):
+        """Execute a heuristic search of a graph. Return a list of nodes that
+           is the path from the source to the goal or None if there is no path.
+           """
         # Use this function to sort the agenda
         def compare (a, b):
             return cmp (self.costf (a), self.costf (b))
@@ -384,6 +387,8 @@ class Heuristic (Algorithm):
 
             # Resort the queue
             agenda.sort (compare)
+
+        self.valid = True
 
         # Explicitly delete the agenda and visited list just to be sure we
         # don't have any references sitting around for nodes we don't need.
