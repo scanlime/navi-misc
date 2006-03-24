@@ -23,7 +23,6 @@
  */
 
 #include <config.h>
-#include "i18n.h"
 #include "animation-render-ui.h"
 #include "gui-util.h"
 #include "prefix.h"
@@ -189,7 +188,7 @@ static void on_select_output_file_clicked(GtkWidget *widget, AnimationRenderUi *
     GtkWidget *dialog;
 
 #if (GTK_CHECK_VERSION(2, 4, 0))
-    dialog = gtk_file_chooser_dialog_new (_("Select Output File"),
+    dialog = gtk_file_chooser_dialog_new ("Select Output File",
 		                          GTK_WINDOW (glade_xml_get_widget (self->xml, "window")),
 		                          GTK_FILE_CHOOSER_ACTION_SAVE,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -202,9 +201,9 @@ static void on_select_output_file_clicked(GtkWidget *widget, AnimationRenderUi *
 	    g_free (filename);
     }
 #else
-    dialog = gtk_file_selection_new (_("Select Output File"));
-    gtk_file_selection_set_current (GTK_FILE_SELECTION (dialog),
-				    gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (self->xml, "output_file"))));
+    dialog = gtk_file_selection_new ("Select Output File");
+    gtk_file_selection_set_filename (GTK_FILE_SELECTION (dialog),
+				     gtk_entry_get_text (GTK_ENTRY (glade_xml_get_widget (self->xml, "output_file"))));
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_OK) {
 	gtk_entry_set_text (GTK_ENTRY (glade_xml_get_widget (self->xml, "output_file")),

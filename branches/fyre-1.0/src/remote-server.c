@@ -45,7 +45,6 @@
 #include "histogram-view.h"
 #include "remote-server.h"
 #include "de-jong.h"
-#include "i18n.h"
 
 typedef struct _RemoteServer      RemoteServer;
 typedef struct _RemoteServerConn  RemoteServerConn;
@@ -123,7 +122,7 @@ void              remote_server_main_loop     (int        port_number,
     self.gserver = gnet_server_new(NULL, port_number,
 				   remote_server_connect, &self);
     if (!self.gserver) {
-	printf(_("Unable to listen on port %d!\n"), port_number);
+	printf("Unable to listen on port %d!\n", port_number);
 	exit(1);
     }
 
@@ -132,7 +131,7 @@ void              remote_server_main_loop     (int        port_number,
     remote_server_init_commands(&self);
 
     if (self.verbose)
-	printf(_("Fyre server listening on port %d\n"), port_number);
+	printf("Fyre server listening on port %d\n", port_number);
 
     /* At this point, now that we've bound to the port and such,
      * make sure we aren't running as a privileged user. If so,
@@ -146,7 +145,7 @@ void              remote_server_main_loop     (int        port_number,
 	g_main_loop_run(g_main_loop_new(NULL, FALSE));
 
     if (self.verbose)
-	printf(_("Fyre server shutting down.\n"));
+	printf("Fyre server shutting down.\n");
 
     gnet_server_delete(self.gserver);
     g_hash_table_destroy(self.command_hash);
@@ -163,11 +162,11 @@ static void release_privileges(RemoteServer* self)
     if (getuid() != 0)
 	return;
     if (self->verbose)
-	printf(_("Fyre is running as root, dropping all privileges\n"));
+	printf("Fyre is running as root, dropping all privileges\n");
     
     nobody = getpwnam("nobody");
     if (!nobody) {
-	printf(_("Can't find the 'nobody' user, refusing to run as root.\n"));
+	printf("Can't find the 'nobody' user, refusing to run as root.\n");
 	exit(1);
     }
 
@@ -195,10 +194,10 @@ static void       remote_server_connect       (GServer*              gserver,
     gnet_conn_readline(gconn);
 
     remote_server_send_response(self, FYRE_RESPONSE_READY,
-				_("Fyre rendering server ready"));
+				"Fyre rendering server ready");
 
     if (self->server->verbose)
-	printf(_("[%s:%d] Connected\n"), gconn->hostname, gconn->port);
+	printf("[%s:%d] Connected\n", gconn->hostname, gconn->port);
 }
 
 static void       remote_server_callback      (GConn*                gconn,
@@ -228,7 +227,7 @@ static void       remote_server_callback      (GConn*                gconn,
 static void       remote_server_disconnect    (RemoteServerConn*     self)
 {
     if (self->server->verbose)
-	printf(_("[%s:%d] Disconnected\n"), self->gconn->hostname, self->gconn->port);
+	printf("[%s:%d] Disconnected\n", self->gconn->hostname, self->gconn->port);
 
     gnet_conn_delete(self->gconn);
     iterative_map_stop_calculation(self->map);
@@ -368,7 +367,7 @@ static void       cmd_calc_start       (RemoteServerConn*  self,
 					const char*        parameters)
 {
     if (self->server->verbose)
-	printf(_("[%s:%d] Starting calculation\n"), self->gconn->hostname, self->gconn->port);
+	printf("[%s:%d] Starting calculation\n", self->gconn->hostname, self->gconn->port);
 
     iterative_map_start_calculation(self->map);
     remote_server_send_response(self, FYRE_RESPONSE_OK, "ok");
@@ -379,7 +378,7 @@ static void       cmd_calc_stop        (RemoteServerConn*  self,
 					const char*        parameters)
 {
     if (self->server->verbose)
-	printf(_("[%s:%d] Pausing calculation\n"), self->gconn->hostname, self->gconn->port);
+	printf("[%s:%d] Pausing calculation\n", self->gconn->hostname, self->gconn->port);
 
     iterative_map_stop_calculation(self->map);
     remote_server_send_response(self, FYRE_RESPONSE_OK, "ok");
@@ -403,7 +402,7 @@ static void       cmd_calc_status      (RemoteServerConn*  self,
 					const char*        parameters)
 {
     if (self->server->verbose)
-	printf(_("[%s:%d]  iterations: %.5e  density: %ld\n"),
+	printf("[%s:%d]  iterations: %.5e  density: %ld\n",
 	       self->gconn->hostname, self->gconn->port,
 	       self->map->iterations, HISTOGRAM_IMAGER(self->map)->peak_density);
 
@@ -501,7 +500,7 @@ static void       gui_init_simple     (RemoteServerConn*     self)
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     fyre_set_icon_later(window);
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
-    gtk_window_set_title(GTK_WINDOW(window), _("Fyre Server"));
+    gtk_window_set_title(GTK_WINDOW(window), "Fyre Server");
     gtk_container_add(GTK_CONTAINER(window), view);
     gtk_widget_show_all(window);
 

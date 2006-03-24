@@ -24,7 +24,6 @@
 
 #include "parameter-editor.h"
 #include "color-button.h"
-#include "i18n.h"
 #include <gtk/gtk.h>
 #include <string.h>
 
@@ -178,7 +177,7 @@ static void parameter_editor_add_paramspec(ParameterEditor *self, GParamSpec *sp
 
     else
 	g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
-	      _("Can't edit values of type %s"),
+	      "Can't edit values of type %s",
 	      g_type_name(spec->value_type));
 }
 

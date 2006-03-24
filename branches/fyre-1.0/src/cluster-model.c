@@ -27,7 +27,6 @@
 #include "cluster-model.h"
 #include <stdlib.h>
 #include <string.h>
-#include "i18n.h"
 
 typedef void      (*ClusterForeachCallback)   (ClusterModel*         self,
 					       RemoteClient*         client,
@@ -371,7 +370,7 @@ void           cluster_model_show_status      (ClusterModel*         self)
 		    host_and_port = g_strdup_printf("%s:%d", host, port);
 
 		/* These widths were chosen to line up somewhat with batch-rendering results */
-		printf(_("  %-19s %-17s %16s [%s]\n"),
+		printf("  %-19s %-17s %16s [%s]\n",
 		       host_and_port,
 		       speed ? speed : "",
 		       bandwidth ? bandwidth : "",
@@ -447,8 +446,8 @@ static void      client_speed_callback           (RemoteClient*  client,
 
     cluster_model_find_client(self, client, &iter);
 
-    speed_str = g_strdup_printf(_("%.3e iter/s"), iters_per_sec);
-    bandwidth_str = g_strdup_printf(_("%.2f KB/s"), bytes_per_sec / 1000);
+    speed_str = g_strdup_printf("%.3e iter/s", iters_per_sec);
+    bandwidth_str = g_strdup_printf("%.2f KB/s", bytes_per_sec / 1000);
 
     gtk_list_store_set(GTK_LIST_STORE(self), &iter,
 		       CLUSTER_MODEL_SPEED, speed_str,

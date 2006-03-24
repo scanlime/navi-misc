@@ -24,7 +24,6 @@
 
 #include "cell-renderer-bifurcation.h"
 #include "bifurcation-diagram.h"
-#include "i18n.h"
 #include <gtk/gtk.h>
 
 static void cell_renderer_bifurcation_class_init    (CellRendererBifurcationClass *klass);
@@ -111,16 +110,16 @@ static void cell_renderer_bifurcation_class_init(CellRendererBifurcationClass *k
     g_object_class_install_property(object_class,
 				    PROP_ROW_ID,
 				    g_param_spec_ulong("row-id",
-						       _("Row Id"),
-						       _("A row ID pointing to the keyframe this diagram starts at"),
+						       "Row Id",
+						       "A row ID pointing to the keyframe this diagram starts at",
 						       0, (gulong)-1, 1,
 						       G_PARAM_READWRITE));
 
     g_object_class_install_property(object_class,
 				    PROP_ANIMATION,
 				    g_param_spec_object("animation",
-							_("Animation"),
-							_("The animation this bifurcation diagram gets its keyframes from"),
+							"Animation",
+							"The animation this bifurcation diagram gets its keyframes from",
 							G_TYPE_OBJECT,
 							G_PARAM_READWRITE));
 }

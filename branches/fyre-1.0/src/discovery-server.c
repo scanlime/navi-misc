@@ -33,7 +33,6 @@
 #include "platform.h"
 
 #include "discovery-server.h"
-#include "i18n.h"
 #include <string.h>
 
 static void       discovery_server_class_init    (DiscoveryServerClass*  klass);
@@ -119,7 +118,7 @@ DiscoveryServer*  discovery_server_new(const gchar* service_name, int service_po
 		       G_IO_IN,  discovery_server_read, self);
     }
     else {
-	printf(_("Warning, can't listen for UDP discovery packets on port %d\n"),
+	printf("Warning, can't listen for UDP discovery packets on port %d\n",
 	       FYRE_DISCOVERY_PORT);
     }
 

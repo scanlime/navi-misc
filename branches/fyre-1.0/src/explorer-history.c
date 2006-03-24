@@ -26,7 +26,6 @@
  */
 
 #include <config.h>
-#include "i18n.h"
 #include "explorer.h"
 #include "histogram-imager.h"
 
@@ -203,18 +202,18 @@ static gchar*       explorer_strdup_time      (GTimeVal *tv)
     units = timeval_subtract(&now, tv);
 
     if (units < 120.0)
-	return g_strdup_printf(_("%.01f seconds ago"), units);
+	return g_strdup_printf("%.01f seconds ago", units);
     units /= 60.0;
 
     if (units < 120.0)
-	return g_strdup_printf(_("%.01f minutes ago"), units);
+	return g_strdup_printf("%.01f minutes ago", units);
     units /= 60.0;
 
     if (units < 120.0)
-	return g_strdup_printf(_("%.02f hours ago"), units);
+	return g_strdup_printf("%.02f hours ago", units);
     units /= 24.0;
 
-    return g_strdup_printf(_("%.02f days ago"), units);
+    return g_strdup_printf("%.02f days ago", units);
 }
 
 
