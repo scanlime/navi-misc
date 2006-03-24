@@ -357,28 +357,36 @@ class CombinHeuristic (Algorithm):
         self.predecessors = {}
 
     def run (self):
+        # Use this function to sort the agenda
         def compare (a, b):
             return cmp (self.costf (a), self.costf (b))
 
         agenda = [self.source]
 
         while (len (agenda) > 0):
+            # Get the next node and test for the goal
             node = agenda.pop ()
             if node is goal:
+                # Reconstruct the path to the goal
                 self.path = self.pathToNode (node)
                 return
 
+            # Add the successors of this node to the agenda and record the node
+            # that generated these successors.
             for s in self.successors (node.keys (), node.values ()):
                 if s not in self.visited:
                     self.predecessors[s] = node
                     agenda.append (s)
 
+            # Resort the queue
             agenda.sort (compare)
 
     def successors (self, bones, values):
+        """Return a list of successors for a combinatoric node"""
         return []
 
     def pathToNode (self, node):
+        """Return the path found by the search to node"""
         return []
 
 
