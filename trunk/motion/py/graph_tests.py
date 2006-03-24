@@ -22,6 +22,7 @@
 import sys, pickle, random
 from unittest import makeSuite, TestCase, TestSuite
 from Graph import algorithms_c
+from Graph import Algorithms
 from Graph.Data import Graph, VertexMap, AdjacencyList
 from Dance.MotionGraph import MotionGraph
 
@@ -107,28 +108,29 @@ class TestAStar (GraphTest):
         h = len (algorithms_c.dijkstraSearch (self.adj, path[-1], goal))
         return (g + h)
 
-    def successors (self, adjacency, node):
-        pass
+    def successors (self, graph, node):
+        return self.adj.query (node)
 
     def testZeroLen (self):
         """A*: Start and goal are the same"""
-        path = algorithms_c.aStarSearch (self.adj, self.path[0], self.path[0],
-                self.fcost, self.successors)
+        path = Algorithms.Heuristic (self.graph, self.path[0], self.path[0],
+                self.fcost, self.successors).run ()
         self.assertEqual (len (path), 1)
         self.assertEqual (path[0], self.path[0])
 
     def testOneLen (self):
         """A*: Goal is a successor of start"""
-        path = algorithms_c.aStarSearch (self.adj, self.path[0], self.path[1],
-                self.fcost, self.successors)
+        path = algorithms_c.aStarSearch (self.graph, self.path[0], self.path[1],
+                self.fcost, self.successors).run ()
         self.assertEqual (len (path), 2)
         self.assertEqual (path[1], self.path[1])
 
     def testFullPath (self):
         """A*: Full path"""
-        path = algorithms_c.aStarSearch (self.adj, self.path[0], self.path[-1],
-                self.fcost, self.successors)
+        path = Algorithms.Heuristic (self.graph, self.path[0], self.path[-1],
+                self.fcost, self.successors).run ()
         self.assertEqual (path[-1], self.path[-1])
+        self.assertEqual (path[0], self.path[0])
 
 
 class TestIterativeDeepening (TestCase):
