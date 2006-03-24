@@ -335,3 +335,51 @@ class DotPrint (Algorithm):
 
     def identity (self):
         return hash (self.graph)
+
+
+class CombinHeuristic (Algorithm):
+    """A combinatoric heuristic best first search. The nodes in the search
+       space are combinations of nodes from a number of graphs.
+       """
+    def __init__ (self, graphs, source, goal, costf):
+        Algorithm.__init__ (self)
+
+        self.visited = []
+        self.predecessors = {}
+        self.graphs = graphs
+        self.source = source
+        self.goal = goal
+        self.costf = costf
+
+    def invalidate (self):
+        Algorithm.invalidate (self)
+        self.visited = []
+        self.predecessors = {}
+
+    def run (self):
+        def compare (a, b):
+            return cmp (self.costf (a), self.costf (b))
+
+        agenda = [self.source]
+
+        while (len (agenda) > 0):
+            node = agenda.pop ()
+            if node is goal:
+                self.path = self.pathToNode (node)
+                return
+
+            for s in self.successors (node.keys (), node.values ()):
+                if s not in self.visited:
+                    self.predecessors[s] = node
+                    agenda.append (s)
+
+            agenda.sort (compare)
+
+    def successors (self, bones, values):
+        return []
+
+    def pathToNode (self, node):
+        return []
+
+
+# vim: ts=4:sw=4:et
