@@ -50,6 +50,17 @@ class GraphTest (TestCase):
                 ret[node] = vs
             return ret
 
+        def find_path ():
+            start = random.choice (self.v_map.data.keys ())
+            self.path = [start]
+            for i in range (3):
+                adjacencies = list (self.adj.query (self.path[-1]))
+                if len (adjacencies) == 0:
+                    self.path = []
+                    return
+                choice = random.choice (adjacencies)
+                self.path.append (choice.v)
+
         graph = pickle.load (open (sys.argv[1]))
         root = graph['lradius']
 
@@ -63,39 +74,20 @@ class GraphTest (TestCase):
 
         self.graph.addTree (nodes)
 
-
-class TestDijkstra (GraphTest):
-    """Test Dijkstra's shortest path algorithm."""
-    def setUp (self):
-        GraphTest.setUp(self)
-
         self.path = []
-        def find_path ():
-            start = random.choice (self.v_map.data.keys ())
-            self.path = [start]
-            for i in range (3):
-                adjacencies = list (self.adj.query (self.path[-1]))
-                if len (adjacencies) == 0:
-                    self.path = []
-                    return
-                choice = random.choice (adjacencies)
-                self.path.append (choice.v)
-
+        
         while len (self.path) == 0:
             find_path ()
 
+
+class TestDijkstra (GraphTest):
+    """Test Dijkstra's shortest path algorithm."""
     def testZeroLen (self):
         """Dijkstra: Start and goal are the same"""
-        # First we need to find a self-loop
-        loop = None
-        for u in self.v_map:
-            for edge in self.v_map.query (u):
-                if edge.v is u:
-                    loop = u
-                    break
-        path = algorithms_c.dijkstraSearch (self.adj, loop, loop)
+        path = algorithms_c.dijkstraSearch (self.adj, self.path[0],
+                self.path[0])
         self.assertEqual (len (path), 1)
-        self.assertEqual (path[0], loop)
+        self.assertEqual (path[0], self.path[0])
 
     def testOneLen (self):
         """Dijkstra: Goal is a successor of start"""
@@ -108,19 +100,27 @@ class TestDijkstra (GraphTest):
         self.failIf (len (path) > len (self.path))
 
 
-class TestAStar (TestCase):
+class TestAStar (GraphTest):
     """Test the A* search."""
     def testZeroLen (self):
         """A*: Start and goal are the same"""
-        self.fail ("unimplemented")
+        path = algorithms_c.aStarSearch (self.adj, self.path[0], self.path[0],
+                self.fcost, self.successors)
+        self.assertEqual (len (path), 1)
+        self.assertEqual (path[0], self.path[0])
 
     def testOneLen (self):
         """A*: Goal is a successor of start"""
-        self.fail ("unimplemented")
+        path = algorithms_c.aStarSearch (self.adj, self.path[0], self.path[1],
+                self.fcost, self.successors)
+        self.assertEqual (len (path), 2)
+        self.assertEqual (path[1], self.path[1])
 
     def testFullPath (self):
         """A*: Full path"""
-        self.fail ("unimplemented")
+        path = algorithms_c.aStarSearch (self.adj, self.path[0], self.path[-1],
+                self.fcost, self.successors)
+        self.assertEqual (path[-1], self.path[-1])
 
 
 class TestIterativeDeepening (TestCase):
