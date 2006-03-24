@@ -102,6 +102,14 @@ class TestDijkstra (GraphTest):
 
 class TestAStar (GraphTest):
     """Test the A* search."""
+    def fcost (self, path, goal):
+        g = len (path)
+        h = len (algorithms_c.dijkstraSearch (self.adj, path[-1], goal))
+        return (g + h)
+
+    def successors (self, adjacency, node):
+        pass
+
     def testZeroLen (self):
         """A*: Start and goal are the same"""
         path = algorithms_c.aStarSearch (self.adj, self.path[0], self.path[0],
