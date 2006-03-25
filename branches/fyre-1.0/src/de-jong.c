@@ -613,6 +613,7 @@ static void de_jong_get_property (GObject *object, guint prop_id, GValue *value,
 void de_jong_calculate(IterativeMap *map, guint iterations) {
     /* Copy frequently used parameters to local variables */
     DeJong *self = DE_JONG(map);
+    HistogramImager *hi = HISTOGRAM_IMAGER(map);
     const gboolean tileable = self->tileable;
     const DeJongParams param = self->param;
 
@@ -626,12 +627,20 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
     const gboolean aspect_enabled = self->aspect > 1.0001 || self->aspect < 0.9999;
     const gboolean matrix_enabled = aspect_enabled || rotation_enabled;
     const gboolean emphasize_transient = self->emphasize_transient;
+    const gboolean oversample_enabled = hi->oversample > 1;
 
     /* Blurring variables */
     int blur_table_size = 0;
     int blur_ratio_period = 0;
     int blur_index = 0, blur_ratio_index = 0, blur_ratio_threshold = 0;
     float *blur_table = NULL;
+
+    /* Oversampling irregularity table.
+     * Fixed size for now. Must be a power of two! 
+     */
+    const int oversample_table_size = 32;
+    int oversample_index = 0;
+    float oversample_table[oversample_table_size];
 
     /* Rotation/aspect matrix variables */
     double sine_rotation, cosine_rotation, mat_a = 0, mat_b = 0, mat_c = 0, mat_d = 0;
@@ -696,6 +705,20 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
 	blur_ratio_period = 1024;
 	blur_ratio_threshold = self->blur_ratio * blur_ratio_period;
     }
+
+    /* Initialize the oversample irregularity table. When we're oversampling, we
+     * add +/- 0.5 pixel of noise to the image in order to achieve the same effect
+     * as irregular-grid FSAA: avoiding unpleasant interference patterns.
+     */
+    if (oversample_enabled) {
+	/* Allocate and fill the table with uniform random numbers in the
+	 * +/- 0.5 pixel range. Since these are real pixels we're talking about,
+	 * rather than subpixels, this is actually +/- (hi->oversample / 2)
+	 */
+	for (i=0; i<oversample_table_size; i++)
+	    oversample_table[i] = (uniform_variate() - 0.5) * hi->oversample;
+	oversample_index = 0;
+    }	
 
     point_x = self->point_x;
     point_y = self->point_y;
@@ -764,6 +787,15 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
 	/* Scale and translate our (x,y) coordinates into pixel coordinates */
 	x = x * scale + xcenter;
 	y = y * scale + ycenter;
+
+	/* Apply the random oversampling jitter, if applicable */
+	if (oversample_enabled) {
+	    x += oversample_table[oversample_index];
+	    oversample_index = (oversample_index+1) & (oversample_table_size-1);
+	    y += oversample_table[oversample_index];
+	    oversample_index = (oversample_index+1) & (oversample_table_size-1);
+	}
+
 
 	/* Convert (x,y) to integers.
 	 * Note that just casting to int here is incorrect! We want the behaviour
