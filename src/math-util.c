@@ -33,20 +33,37 @@
  */
 static GRand* global_random = NULL;
 
-
 void math_init() {
     global_random = g_rand_new_with_seed(time(NULL));
 }
 
-float uniform_variate() {
+double uniform_variate() {
     /* A uniform random variate between 0 and 1 */
     return g_rand_double(global_random);
 }
 
-float normal_variate() {
-    /* A unit-normal random variate, implemented with the Box-Muller method */
-    return sqrt(-2*log(g_rand_double(global_random))) *
-	cos(g_rand_double(global_random) * (2*M_PI));
+void normal_variate_pair(double *a, double *b) {
+    /* Produce a pair of values with a standard normal distribution,
+     * using the Polar Box-Mueller method.
+     */
+    double x, y, r2, m;
+
+    do {
+	x = uniform_variate();
+	x += x - 1;
+	y = uniform_variate();
+	y += y - 1;
+
+	/* Squared radius. The vector must be nonzero,
+	 * and it must lie within the unit circle.
+	 */
+	r2 = x*x + y*y;
+    } while (r2 > 1 || r2 == 0);
+    
+    /* Perform the Box-Mueller transform on each component */
+    m = sqrt(-2.0 * log(r2) / r2);
+    *a = x * m;
+    *b = y * m;
 }
 
 int int_variate(int minimum, int maximum) {
