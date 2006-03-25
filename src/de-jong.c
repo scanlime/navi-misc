@@ -711,16 +711,13 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
     }
 
     /* Initialize the oversample irregularity table. When we're oversampling, we
-     * add +/- 0.5 pixel of noise to the image in order to achieve the same effect
-     * as irregular-grid FSAA: avoiding unpleasant interference patterns.
+     * add +/- 1 subpixel of noise to the image in order to achieve the same effect
+     * as irregular-grid FSAA: avoiding unpleasant interference patterns by filtering
+     * out very high-frequency details that will generate aliasing artifacts.
      */
     if (oversample_enabled) {
-	/* Allocate and fill the table with uniform random numbers in the
-	 * +/- 0.5 pixel range. Since these are real pixels we're talking about,
-	 * rather than subpixels, this is actually +/- (hi->oversample / 2)
-	 */
 	for (i=0; i<oversample_table_size; i++)
-	    oversample_table[i] = (uniform_variate() - 0.5) * hi->oversample;
+	    oversample_table[i] = uniform_variate();
 	oversample_index = 0;
     }	
 
@@ -837,8 +834,7 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
 
     histogram_imager_finish_plots(HISTOGRAM_IMAGER(self), &plot);
     ITERATIVE_MAP(self)->iterations += iterations;
-    self->point_x = point_x;
-    self->point_y = point_y;
+    self->point_x = point_x;    self->point_y = point_y;
     self->remaining_transient_iterations = remaining_transient_iterations;
 }
 
