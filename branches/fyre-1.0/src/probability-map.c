@@ -324,9 +324,13 @@ void             probability_map_gaussian         (ProbabilityMap*       self,
 						   gdouble*              y,
 						   double                radius)
 {
+    double a, b;
+
     probability_map_normalized(self, x, y);
-    *x += normal_variate() * self->image_scale_x * radius;
-    *y += normal_variate() * self->image_scale_y * radius;
+
+    normal_variate_pair(&a, &b);
+    *x += a * self->image_scale_x * radius;
+    *y += b * self->image_scale_y * radius;
 }
 
 /* The End */

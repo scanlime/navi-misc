@@ -696,8 +696,12 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
 
 	/* Allocate and fill the blur table */
 	blur_table = alloca(blur_table_size * sizeof(blur_table[0]));
-	for (i=0; i<blur_table_size; i++)
-	    blur_table[i] = normal_variate() * self->blur_radius;
+	for (i=0; i<blur_table_size; i+=2) {
+	    double a, b;
+	    normal_variate_pair(&a, &b);
+	    blur_table[i] = a * self->blur_radius;
+	    blur_table[i+1] = b * self->blur_radius;
+	}
 	blur_index = 0;
 
 	/* Initialize the blur ratio counter and threshold */
@@ -897,8 +901,7 @@ void initial_func_square_uniform (gdouble *x, gdouble *y) {
 
 void initial_func_gaussian (gdouble *x, gdouble *y) {
     /* Just a unit normal in each axis */
-    *x = normal_variate();
-    *y = normal_variate();
+    normal_variate_pair(x, y);
 }
 
 void initial_func_circular_uniform (gdouble *x, gdouble *y) {
@@ -937,9 +940,11 @@ void initial_func_sphere (gdouble *x, gdouble *y) {
      * We currently implement this by normalizing the vector produced
      * by three normal variates- this is really slow.
      */
-    gdouble vx = normal_variate();
-    gdouble vy = normal_variate();
-    gdouble vz = normal_variate();
+    gdouble vx, vy, vz, vq;
+
+    normal_variate_pair(&vx, &vy);
+    normal_variate_pair(&vz, &vq);
+
     gdouble mag = sqrt(vx*vx + vy*vy + vz*vz);
     *x = vx / mag;
     *y = vy / mag;

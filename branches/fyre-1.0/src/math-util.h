@@ -27,8 +27,8 @@
 void math_init();
 
 int int_variate(int minimum, int maximum);
-float uniform_variate();
-float normal_variate();
+double uniform_variate();
+void normal_variate_pair(double *a, double *b);
 
 int find_upper_pow2(int x);
 
