@@ -171,7 +171,7 @@ static void bifurcation_diagram_init_columns (BifurcationDiagram *self) {
 
 	/* Shuffle them, so we render in a seemingly-random order */
 	for (i=self->num_columns-1; i>=0; i--) {
-	    j = g_random_int_range(0, i+1);
+	    j = int_variate(0, i+1);
 	    tmp = self->columns[i].ix;
 	    self->columns[i].ix = self->columns[j].ix;
 	    self->columns[j].ix = tmp;
@@ -222,8 +222,8 @@ static void bifurcation_diagram_get_column_params (BifurcationDiagram *self,
 						   BifurcationColumn  *column,
 						   DeJongParams       *param) {
     /* Get a random parameter set from the given column, creating it if necessary */
-    int interpIndex = g_random_int_range(0, sizeof(self->columns[0].interpolated)/
-					 sizeof(self->columns[0].interpolated[0]));
+    int interpIndex = int_variate(0, sizeof(self->columns[0].interpolated)/
+				  sizeof(self->columns[0].interpolated[0]));
 
     if (!column->interpolated[interpIndex].valid) {
 

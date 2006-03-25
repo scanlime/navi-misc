@@ -25,15 +25,32 @@
 #include <glib.h>
 #include <math.h>
 
+/* It's much faster to use our own global g_rand, rather than
+ * relying on the g_random_* family of functions. Those functions
+ * are thread-safe, and the locking around that shared g_rand can
+ * take a very significant amount of CPU. We don't need thread-safe
+ * random variates yet.
+ */
+static GRand* global_random = NULL;
+
+
+void math_init() {
+    global_random = g_rand_new_with_seed(time(NULL));
+}
 
 float uniform_variate() {
     /* A uniform random variate between 0 and 1 */
-    return g_random_double();
+    return g_rand_double(global_random);
 }
 
 float normal_variate() {
     /* A unit-normal random variate, implemented with the Box-Muller method */
-    return sqrt(-2*log(g_random_double())) * cos(g_random_double() * (2*M_PI));
+    return sqrt(-2*log(g_rand_double(global_random))) *
+	cos(g_rand_double(global_random) * (2*M_PI));
+}
+
+int int_variate(int minimum, int maximum) {
+    return g_rand_int_range(global_random, minimum, maximum);
 }
 
 int find_upper_pow2(int x) {

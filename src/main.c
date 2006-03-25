@@ -81,7 +81,7 @@ int main(int argc, char ** argv) {
 #endif
     GError *error = NULL;
 
-    g_random_set_seed(time(NULL));
+    math_init();
     g_type_init();
     have_gtk = gtk_init_check(&argc, &argv);
 
