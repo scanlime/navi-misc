@@ -717,7 +717,7 @@ void de_jong_calculate(IterativeMap *map, guint iterations) {
      */
     if (oversample_enabled) {
 	for (i=0; i<oversample_table_size; i++)
-	    oversample_table[i] = uniform_variate();
+	    oversample_table[i] = uniform_variate() * 2 - 1;
 	oversample_index = 0;
     }	
 
