@@ -24,8 +24,12 @@
 #ifndef __MATH_UTIL_H__
 #define __MATH_UTIL_H__
 
+void math_init();
+
+int int_variate(int minimum, int maximum);
 float uniform_variate();
 float normal_variate();
+
 int find_upper_pow2(int x);
 
 #endif /* __MATH_UTIL_H__ */
