@@ -1,3 +1,10 @@
+Sun Mar 26 13:26:24 MST 2006  Christian Persch <chpe@gnome.org>
+
+	* src/fe-gnome/gui.h:
+	* src/fe-gnome/about.c:
+	  - Fix the about dialog to work with gtk+ changes related to #333360
+	    (#336107)
+
 Wed Mar 22 15:49:51 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* configure.ac:

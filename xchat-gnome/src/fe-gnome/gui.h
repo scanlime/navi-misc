@@ -39,7 +39,6 @@ typedef struct
 	GladeXML *setup_xml;
 	GtkActionGroup *action_group;
 	GtkUIManager *manager;
-	GtkWidget *about;
 	PreferencesDialog *prefs_dialog;
 	DccWindow *dcc;
 	GtkExpander *topic_expander;
