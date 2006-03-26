@@ -25,6 +25,7 @@
 #include <glade/glade.h>
 #include <gtk/gtkactiongroup.h>
 #include <gtk/gtkuimanager.h>
+#include <gnome.h>
 #include "userlist.h"
 #include "navigation-tree.h"
 #include "dcc-window.h"
@@ -57,6 +58,10 @@ typedef struct
 
 	NavModel *tree_model;
 	NavTree *server_tree;
+
+#ifdef HAVE_LIBGNOME_214
+	GnomeProgram *program;
+#endif
 } XChatGUI;
 
 extern XChatGUI gui;
