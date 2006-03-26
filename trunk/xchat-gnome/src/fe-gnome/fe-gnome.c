@@ -74,7 +74,6 @@ fe_args (int argc, char *argv[])
 {
 	GError *error = NULL;
 	GOptionContext *context;
-	GnomeProgram *program;
 
 #ifdef ENABLE_NLS
 	bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
@@ -86,16 +85,17 @@ fe_args (int argc, char *argv[])
 
 #ifdef HAVE_LIBGNOME_214
 	g_option_context_add_main_entries (context, entries, GETTEXT_PACKAGE);
-	program = gnome_program_init (PACKAGE, VERSION,
-	                              LIBGNOMEUI_MODULE, argc, argv,
-	                              GNOME_PARAM_GOPTION_CONTEXT, context,
-	                              GNOME_PARAM_HUMAN_READABLE_NAME, _("IRC Chat"),
-	                              GNOME_PROGRAM_STANDARD_PROPERTIES,
-	                              NULL);
+	gui.program = gnome_program_init (PACKAGE, VERSION,
+					  LIBGNOMEUI_MODULE, argc, argv,
+					  GNOME_PARAM_GOPTION_CONTEXT, context,
+					  GNOME_PARAM_HUMAN_READABLE_NAME, _("IRC Chat"),
+					  GNOME_PROGRAM_STANDARD_PROPERTIES,
+					  NULL);
 #else
 	g_option_context_add_main_entries (context, entries, GETTEXT_PACKAGE);
 	g_option_context_add_group (context, gtk_get_option_group (TRUE));
 	g_option_context_parse (context, &argc, &argv, &error);
+	g_option_context_free (context);
 #endif
 
 	if (error) {
@@ -103,8 +103,6 @@ fe_args (int argc, char *argv[])
 		g_error_free (error);
 		return 0;
 	}
-
-	g_option_context_free (context);
 
 	if (opt_version) {
 		g_print ("xchat-gnome %s\n", VERSION);
@@ -172,6 +170,11 @@ void
 fe_main (void)
 {
 	gtk_main ();
+
+#ifdef HAVE_LIBGNOME_214
+	g_object_unref (gui.program);
+#endif
+
 	/* sleep for 3 seconds so any QUIT messages are not lost. The  */
 	/* GUI is closed at this point, so the user doesn't even know! */
 

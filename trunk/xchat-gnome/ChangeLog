@@ -1,3 +1,9 @@
+Sun Mar 26 13:38:41 mST 2006  Christian Persch <chpe@gnome.org>
+
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/gui.h:
+	  - Fix some problems in GnomeProgram & GOption usage (#336108)
+
 Sun Mar 26 13:26:24 MST 2006  Christian Persch <chpe@gnome.org>
 
 	* src/fe-gnome/gui.h:
