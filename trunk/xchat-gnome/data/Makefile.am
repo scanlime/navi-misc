@@ -31,7 +31,6 @@ xchat_gnome_DATA = 			\
 	users.png			\
 	voice.png			\
 	wrap.png			\
-	xchat-gnome-small.png		\
 	xchat-gnome-ui.xml		\
 	xchat-gnome.glade		\
 	xchat-gnome.png			\
@@ -39,8 +38,19 @@ xchat_gnome_DATA = 			\
 
 xchat_gnomedir = $(datadir)/xchat-gnome
 
-icondir = $(datadir)/pixmaps
+icondir = $(datadir)/icons/hicolor/48x48/apps
 icon_DATA = xchat-gnome.png
+
+gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/icons/hicolor
+
+install-data-hook:
+	@-if test -z "$(DESTDIR)"; then \
+		echo "Updating Gtk icon cache."; \
+		$(gtk_update_icon_cache); \
+	else \
+		echo "*** Icon cache not updated.  After install, run this:"; \
+		echo "***   $(gtk_update_icon_cache)"; \
+	fi
 
 desktopdir = $(datadir)/applications
 desktop_in_files = xchat-gnome.desktop.in

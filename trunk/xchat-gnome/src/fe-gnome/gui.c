@@ -54,10 +54,7 @@ initialize_gui_2 (void)
 {
 	GtkWidget *widget;
 
-	if (g_file_test ("../../data/xchat-gnome-small.png", G_FILE_TEST_EXISTS))
-		gtk_window_set_default_icon_from_file ("../../data/xchat-gnome-small.png", NULL);
-	else
-		gtk_window_set_default_icon_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", NULL);
+	gtk_window_set_default_icon_name ("xchat-gnome");
 
 	gui.current_session = NULL;
 	gui.tree_model = navigation_model_new ();
