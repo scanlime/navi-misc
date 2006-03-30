@@ -1,4 +1,11 @@
-Sun Mar 26 13:38:41 mST 2006  Christian Persch <chpe@gnome.org>
+Wed Mar 29 19:13:23 MST 2006  Brian Pepple <bdpepple@ameritech.net>
+
+	* src/fe-gnome/gui.c:
+	* data/Makefile.am:
+	* src/fe-gnome/about.c:
+	- Use icon theme specification.
+
+Sun Mar 26 13:38:41 MST 2006  Christian Persch <chpe@gnome.org>
 
 	* src/fe-gnome/fe-gnome.c:
 	* src/fe-gnome/gui.h:

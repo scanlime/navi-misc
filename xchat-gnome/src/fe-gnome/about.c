@@ -30,7 +30,6 @@ static void about_url_hook          (GtkAboutDialog *dialog, const gchar *link, 
 void
 show_about_dialog (void)
 {
-	GdkPixbuf *logo;
 	char *license_trans;
 
 	const gchar *authors[] =
@@ -77,11 +76,6 @@ show_about_dialog (void)
 
 	license_trans = g_strjoin ("\n\n", _(license[0]), _(license[1]), _(license[2]), NULL);
 
-	if (g_file_test ("../../data/xchat-gnome-small.png", G_FILE_TEST_EXISTS))
-		logo = gdk_pixbuf_new_from_file ("../../data/xchat-gnome-small.png", NULL);
-	else
-		logo = gdk_pixbuf_new_from_file (XCHATSHAREDIR "/xchat-gnome-small.png", NULL);
-
 	gtk_about_dialog_set_url_hook   (about_url_hook,   NULL, NULL);
 	gtk_about_dialog_set_email_hook (about_email_hook, NULL, NULL);
 
@@ -96,7 +90,7 @@ show_about_dialog (void)
 	                       "website-label", _("XChat-GNOME Web Site"),
 	                       "authors",     authors,
 	                       "artists",     artists,
-	                       "logo",        logo,
+	                       "logo-icon-name", "xchat-gnome",
 	                       "documenters", documenters,
 	                       /* Translators: This is a special message that shouldn't
 	                        * be translated literally. It is used in the about box
@@ -109,9 +103,6 @@ show_about_dialog (void)
 	                        */
 	                       "translator-credits", _("translator-credits"),
 	                       NULL);
-
-	if (logo)
-		g_object_unref (logo);
 
 	g_free (license_trans);
 }
