@@ -608,6 +608,7 @@ load_config (void)
 	prefs.autoreconnect = 1;
 	prefs.recon_delay = 10;
 	prefs.tabchannels = 1;
+	prefs.tab_layout = 2;	/* 0=Tabs 1=Reserved 2=Tree */
 	prefs.tab_sort = 1;
 	prefs.paned_userlist = 1;
 	prefs.newtabstofront = 2;
@@ -975,4 +976,31 @@ cmd_set (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 		PrintText (sess, "No such variable.\n");
 
 	return TRUE;
+}
+
+int
+xchat_open_file (char *file, int flags, int mode, int xof_flags)
+{
+	char buf[1024];
+
+	if (xof_flags & XOF_FULLPATH)
+		return open (file, flags | OFLAGS);
+
+	snprintf (buf, sizeof (buf), "%s/%s", get_xdir_fs (), file);
+	if (xof_flags & XOF_DOMODE)
+		return open (buf, flags | OFLAGS, mode);
+	else
+		return open (buf, flags | OFLAGS);
+}
+
+FILE *
+xchat_fopen_file (const char *file, const char *mode, int xof_flags)
+{
+	char buf[1024];
+
+	if (xof_flags & XOF_FULLPATH)
+		return fopen (file, mode);
+
+	snprintf (buf, sizeof (buf), "%s/%s", get_xdir_fs (), file);
+	return fopen (buf, mode);
 }

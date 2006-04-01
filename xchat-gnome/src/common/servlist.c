@@ -67,23 +67,23 @@ static const struct defaultserver def[] =
 #endif
 #ifdef USE_OPENSSL
 	{0,			"irc.data.lt/+6668"},
+	{0,			"irc-ssl.omnitel.net/+6668"},
+	{0,			"irc-ssl.le.lt/+9999"},
 #endif
 	{0,			"irc.data.lt"},
+	{0,			"irc.omnitel.net"},
 	{0,			"irc.ktu.lt"},
 	{0,			"irc.le.lt"},
-	{0,			"irc.omnitel.net"},
 	{0,			"irc.takas.lt"},
 	{0,			"irc.5ci.net"},
-	{0,			"irc.interneka.lt"},
-	{0,			"irc.elekta.lt"},
-	{0,			"irc.if.lt"},
+	{0,			"irc.kis.lt"},
 
 	{"AmigaNet",	0},
 	{0,			"irc.amiganet.org"},
 	{0,			"us.amiganet.org"},
 	{0,			"uk.amiganet.org"},
-	{0,			"no.amiganet.org"},
-	{0,			"au.amiganet.org"},
+/*	{0,			"no.amiganet.org"},
+	{0,			"au.amiganet.org"},*/
 
 	{"ARCNet",	0},
 	{0,			"se1.arcnet.vapor.com"},
@@ -98,7 +98,7 @@ static const struct defaultserver def[] =
 	{0,			"nl3.arcnet.vapor.com"},
 	{0,			"uk1.arcnet.vapor.com"},
 	{0,			"uk2.arcnet.vapor.com"},
-	{0,			"uk3.arcnet.vapor.com"},
+/*	{0,			"uk3.arcnet.vapor.com"},*/
 	{0,			"fr1.arcnet.vapor.com"},
 
 	{"AstroLink",	0},
@@ -109,11 +109,11 @@ static const struct defaultserver def[] =
 	{0,			"us.austnet.org"},
 	{0,			"ca.austnet.org"},
 
-	{"AxeNet",	0},
+/*	{"AxeNet",	0},
 	{0,			"irc.axenet.org"},
 	{0,			"angel.axenet.org"},
 	{0,			"energy.axenet.org"},
-	{0,			"python.axenet.org"},
+	{0,			"python.axenet.org"},*/
 
 	{"AzzurraNet",	0},
 	{0,			"irc.azzurra.org"},
@@ -121,9 +121,6 @@ static const struct defaultserver def[] =
 
 	{"Beirut", 0},
 	{0,			"irc.beirut.com"},
-
-	{"Buzzpot", 0},
-	{0,			"irc.chatspike.net"},
 
 	{"ChatJunkies",	0, "#xchat"},
 	{0,			"irc.chatjunkies.org"},
@@ -137,10 +134,13 @@ static const struct defaultserver def[] =
 	{0,			"us.chatsociety.net"},
 	{0,			"eu.chatsociety.net"},
 
+	{"ChatSpike", 0},
+	{0,			"irc.chatspike.net"},
+
 	{"CoolChat",	0},
 	{0,			"irc.coolchat.net"},
-	{0,			"unix.coolchat.net"},
-	{0,			"toronto.coolchat.net"},
+/*	{0,			"unix.coolchat.net"},
+	{0,			"toronto.coolchat.net"},*/
 
 	{"Criten", 0},
 	{0,			"irc.criten.net"},
@@ -164,7 +164,7 @@ static const struct defaultserver def[] =
 	{0,			"irc.Qeast.net"},
 	{0,			"irc.efnet.pl"},
 	{0,			"efnet.demon.co.uk"},
-	{0,			"irc.lagged.org"},
+/*	{0,			"irc.lagged.org"},*/
 	{0,			"irc.lightning.net"},
 	{0,			"irc.mindspring.com"},
 	{0,			"irc.easynews.com"},
@@ -202,31 +202,31 @@ static const struct defaultserver def[] =
 	{"FreeNode",	0},
 	{0,				"irc.freenode.net"},
 
-	{"Freeworld",	0},
+/*	{"Freeworld",	0},
 	{0,			"kabel.freeworld.nu"},
-	{0,			"irc.freeworld.nu"},
+	{0,			"irc.freeworld.nu"},*/
 
 	{"GalaxyNet",	0},
 	{0,			"irc.galaxynet.org"},
-	{0,			"sprynet.us.galaxynet.org"},
-	{0,			"atlanta.ga.us.galaxynet.org"},
+/*	{0,			"sprynet.us.galaxynet.org"},
+	{0,			"atlanta.ga.us.galaxynet.org"},*/
 
 	{"GamesNET",	0},
 	{0,				"irc.gamesnet.net"},
-	{0,				"irc.us.gamesnet.net"},
+/*	{0,				"irc.us.gamesnet.net"},
 	{0,				"east.us.gamesnet.net"},
-	{0,				"west.us.gamesnet.net"},
+	{0,				"west.us.gamesnet.net"},*/
 	{0,				"irc.ca.gamesnet.net"},
 	{0,				"irc.eu.gamesnet.net"},
 
 	{"German-Elite",	0},
 	{0,			"dominion.german-elite.net"},
 	{0,			"komatu.german-elite.net"},
-	{0,			"liberty.german-elite.net"},
+/*	{0,			"liberty.german-elite.net"},*/
 
 	{"GimpNet",		0},
 	{0,			"irc.gimp.org"},
-	{0,			"irc.au.gimp.org"},
+/*	{0,			"irc.au.gimp.org"},*/
 	{0,			"irc.us.gimp.org"},
 
 	{"HabberNet",	0},
@@ -238,11 +238,11 @@ static const struct defaultserver def[] =
 	{"IdleMonkeys", 0},
 	{0,			"irc.idlemonkeys.net"},
 
-	{"Infinity-IRC",	0},
+/*	{"Infinity-IRC",	0},
 	{0,			"Atlanta.GA.US.Infinity-IRC.Org"},
 	{0,			"Babylon.NY.US.Infinity-IRC.Org"},
 	{0,			"Sunshine.Ca.US.Infinity-IRC.Org"},
-	{0,			"IRC.Infinity-IRC.Org"},
+	{0,			"IRC.Infinity-IRC.Org"},*/
 
 	{"insiderZ.DE",	0},
 	{0,			"irc.insiderz.de/6667"},
@@ -259,13 +259,13 @@ static const struct defaultserver def[] =
 	{0,				"irc.ircnet.com"},
 	{0,				"irc.stealth.net/6668"},
 	{0,				"ircnet.demon.co.uk"},
-	{0,				"ircnet.hinet.hr"},
+/*	{0,				"ircnet.hinet.hr"},*/
 	{0,				"irc.datacomm.ch"},
-	{0,				"ircnet.kaptech.fr"},
-	{0,				"ircnet.easynet.co.uk"},
+/*	{0,				"ircnet.kaptech.fr"},
+	{0,				"ircnet.easynet.co.uk"},*/
 	{0,				"random.ircd.de"},
 	{0,				"ircnet.netvision.net.il"},
-	{0,				"irc.seed.net.tw"},
+/*	{0,				"irc.seed.net.tw"},*/
 	{0,				"irc.cs.hut.fi"},
 
 	{"Irctoo.net",	0},
@@ -282,16 +282,19 @@ static const struct defaultserver def[] =
 	{"LinkNet",	0},
 	{0,			"irc.link-net.org"},
 	{0,			"irc.no.link-net.org"},
-	{0,			"irc.gamesden.net.au"},
+/*	{0,			"irc.gamesden.net.au"},*/
 	{0,			"irc.bahnhof.se"},
-	{0,			"irc.kinexuseurope.co.uk"},
-	{0,			"irc.gamiix.com"},
+/*	{0,			"irc.kinexuseurope.co.uk"},
+	{0,			"irc.gamiix.com"},*/
 
 	{"MagicStar",	0},
 	{0,			"irc.magicstar.net"},
 
 	{"Majistic",	0},
 	{0,			"irc.majistic.net"},
+
+	{"MindForge",	0},
+	{0,			"irc.mindforge.org"},
 
 	{"MIXXnet",		0},
 	{0,			"irc.mixxnet.net"},
@@ -359,7 +362,7 @@ static const struct defaultserver def[] =
 	{0,			"uc.PTnet.org"},
 	{0,			"ualg.ptnet.org"},
 	{0,			"madinfo.PTnet.org"},
-	{0,			"isep.PTnet.org"},
+/*	{0,			"isep.PTnet.org"},*/
 	{0,			"ua.PTnet.org"},
 	{0,			"ipg.PTnet.org"},
 	{0,			"isec.PTnet.org"},
@@ -381,7 +384,7 @@ static const struct defaultserver def[] =
 	{"RebelChat",	0},
 	{0,			"irc.rebelchat.org"},
 
-	{"Recycled-IRC",  0},
+/*	{"Recycled-IRC",  0},
 	{0,			"irc.recycled-irc.org"},
 	{0,			"vermin.recycled-irc.org"},
 	{0,			"waste.recycled-irc.org"},
@@ -389,7 +392,7 @@ static const struct defaultserver def[] =
 	{0,			"trash.recycled-irc.org"},
 	{0,			"unwashed.recycled-irc.org"},
 	{0,			"garbage.recycled-irc.org"},
-	{0,			"dustbin.recycled-irc.org"},
+	{0,			"dustbin.recycled-irc.org"},*/
 
 	{"RizeNET", 0},
 	{0,			"irc.rizenet.org"},
@@ -462,9 +465,9 @@ static const struct defaultserver def[] =
 
 	{"Xentonix.net",	0},
 	{0,			"irc.ffm.de.eu.xentonix.net"},
-	{0,			"irc.brs.de.eu.xentonix.net"},
+/*	{0,			"irc.brs.de.eu.xentonix.net"},
 	{0,			"irc.stg.ch.eu.xentonix.net"},
-	{0,			"irc.hou.tx.us.xentonix.net"},
+	{0,			"irc.hou.tx.us.xentonix.net"},*/
 	{0,			"irc.kar.de.eu.xentonix.net"},
 	{0,			"irc.vie.at.eu.xentonix.net"},
 
@@ -490,7 +493,7 @@ servlist_connect (session *sess, ircnet *net, gboolean join)
 	server *serv;
 
 	if (!sess)
-		sess = new_ircwindow (NULL, NULL, SESS_SERVER, 0);
+		sess = new_ircwindow (NULL, NULL, SESS_SERVER, TRUE);
 
 	serv = sess->server;
 
@@ -589,19 +592,18 @@ servlist_have_auto (void)
 {
 	GSList *list = network_list;
 	ircnet *net;
-	int ret = 0;
 
 	while (list)
 	{
 		net = list->data;
 
 		if (net->flags & FLAG_AUTO_CONNECT)
-			ret = 1;
+			return 1;
 
 		list = list->next;
 	}
 
-	return ret;
+	return 0;
 }
 
 int
@@ -865,7 +867,9 @@ servlist_load_defaults (void)
 				net->autojoin = strdup (def[i].channel);
 			if (def[i].charset)
 			{
+#ifdef WIN32
 				free (net->encoding);
+#endif
 				net->encoding = strdup (def[i].charset);
 			}
 			if (g_str_hash (def[i].network) == 0x8e1b96f7)
@@ -890,8 +894,7 @@ servlist_load (void)
 	char *tmp;
 	ircnet *net = NULL;
 
-	snprintf (buf, sizeof (buf), "%s/servlist_.conf", get_xdir_fs ());
-	fp = fopen (buf, "r");
+	fp = xchat_fopen_file ("servlist_.conf", "r", 0);
 	if (!fp)
 		return FALSE;
 
@@ -1009,12 +1012,15 @@ servlist_save (void)
 	ircserver *serv;
 	GSList *list;
 	GSList *hlist;
+#ifndef WIN32
 	int first = FALSE;
 
 	snprintf (buf, sizeof (buf), "%s/servlist_.conf", get_xdir_fs ());
 	if (access (buf, F_OK) != 0)
 		first = TRUE;
-	fp = fopen (buf, "w");
+#endif
+
+	fp = xchat_fopen_file ("servlist_.conf", "w", 0);
 	if (!fp)
 		return FALSE;
 

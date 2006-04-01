@@ -43,7 +43,7 @@
 #include "ignore.h"
 #include "util.h"
 #include "fe.h"
-#include "cfgfiles.h"			  /* get_xdir() */
+#include "cfgfiles.h"			  /* xchat_fopen_file() */
 #include "network.h"				/* net_ip() */
 #include "modes.h"
 #include "notify.h"
@@ -59,6 +59,7 @@
 #ifdef USE_DEBUG
 extern int current_mem_usage;
 #endif
+#define TBUFSIZE 4096
 
 static void help (session *sess, char *tbuf, char *helpcmd, int quiet);
 static int cmd_server (session *sess, char *tbuf, char *word[], char *word_eol[]);
@@ -87,8 +88,7 @@ random_line (char *file_name)
 	if (!file_name[0])
 		goto nofile;
 
-	snprintf (buf, sizeof (buf), "%s/%s", get_xdir_fs (), file_name);
-	fh = fopen (buf, "r");
+	fh = xchat_fopen_file (file_name, "r", 0);
 	if (!fh)
 	{
 	 nofile:
@@ -353,7 +353,7 @@ cmd_away (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 						(gone / 60) % 60, gone % 60);
 		} else
 		{
-			sprintf (tbuf, "me is away: %s", reason);
+			snprintf (tbuf, TBUFSIZE, "me is away: %s", reason);
 		}
 
 		list = sess_list;
@@ -458,19 +458,19 @@ ban (session * sess, char *tbuf, char *mask, char *bantypestr, int deop)
 			switch (bantype)
 			{
 			case 0:
-				sprintf (tbuf, "%s %s *!*@%s.*", mode, p2, domain);
+				snprintf (tbuf, TBUFSIZE, "%s %s *!*@%s.*", mode, p2, domain);
 				break;
 
 			case 1:
-				sprintf (tbuf, "%s %s *!*@%s", mode, p2, fullhost);
+				snprintf (tbuf, TBUFSIZE, "%s %s *!*@%s", mode, p2, fullhost);
 				break;
 
 			case 2:
-				sprintf (tbuf, "%s %s *!%s@%s.*", mode, p2, username, domain);
+				snprintf (tbuf, TBUFSIZE, "%s %s *!%s@%s.*", mode, p2, username, domain);
 				break;
 
 			case 3:
-				sprintf (tbuf, "%s %s *!%s@%s", mode, p2, username, fullhost);
+				snprintf (tbuf, TBUFSIZE, "%s %s *!%s@%s", mode, p2, username, fullhost);
 				break;
 			}
 		} else
@@ -478,26 +478,26 @@ ban (session * sess, char *tbuf, char *mask, char *bantypestr, int deop)
 			switch (bantype)
 			{
 			case 0:
-				sprintf (tbuf, "%s %s *!*@*%s", mode, p2, domain);
+				snprintf (tbuf, TBUFSIZE, "%s %s *!*@*%s", mode, p2, domain);
 				break;
 
 			case 1:
-				sprintf (tbuf, "%s %s *!*@%s", mode, p2, fullhost);
+				snprintf (tbuf, TBUFSIZE, "%s %s *!*@%s", mode, p2, fullhost);
 				break;
 
 			case 2:
-				sprintf (tbuf, "%s %s *!%s@*%s", mode, p2, username, domain);
+				snprintf (tbuf, TBUFSIZE, "%s %s *!%s@*%s", mode, p2, username, domain);
 				break;
 
 			case 3:
-				sprintf (tbuf, "%s %s *!%s@%s", mode, p2, username, fullhost);
+				snprintf (tbuf, TBUFSIZE, "%s %s *!%s@%s", mode, p2, username, fullhost);
 				break;
 			}
 		}
 
 	} else
 	{
-		sprintf (tbuf, "+b %s", mask);
+		snprintf (tbuf, TBUFSIZE, "+b %s", mask);
 	}
 	serv->p_mode (serv, sess->channel, tbuf);
 }
@@ -806,8 +806,11 @@ cmd_dcc (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 
 			return TRUE;
 		}
-	} else
-		dcc_show_list (sess);
+
+		return FALSE;
+	}
+
+	dcc_show_list (sess);
 	return TRUE;
 }
 
@@ -1285,7 +1288,7 @@ cmd_dns (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 			}
 		} else
 		{
-			sprintf (tbuf, "exec -d %s %s", prefs.dnsprogram, nick);
+			snprintf (tbuf, TBUFSIZE, "exec -d %s %s", prefs.dnsprogram, nick);
 			handle_command (sess, tbuf, FALSE);
 		}
 		return TRUE;
@@ -1880,7 +1883,12 @@ cmd_gui (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 	} else if (!strcasecmp (word[2], "MSGBOX"))
 	{
 		fe_message (word[3], FE_MSG_INFO);
-		return TRUE;
+	} else if (!strcasecmp (word[2], "ATTACH"))
+	{
+		fe_ctrl_gui (sess, 7, 2);
+	} else if (!strcasecmp (word[2], "DETACH"))
+	{
+		fe_ctrl_gui (sess, 7, 1);
 	} else
 	{
 		return FALSE;
@@ -2232,7 +2240,7 @@ cmd_load (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 	if (strcmp (word[2], "-e") == 0)
 	{
 		file = expand_homedir (word[3]);
-		fp = fopen (file, "r");
+		fp = xchat_fopen_file (file, "r", XOF_FULLPATH);
 		if (!fp)
 		{
 			PrintTextf (sess, "Cannot access %s\n", file);
@@ -2246,6 +2254,8 @@ cmd_load (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 		while (fgets (tbuf, 1024, fp))
 		{
 			nl = strchr (tbuf, '\n');
+			if (nl == tbuf) /* skip empty commands */
+				continue;
 			if (nl)
 				*nl = 0;
 			if (tbuf[0] == prefs.cmdchar[0])
@@ -2304,7 +2314,7 @@ cmd_me (struct session *sess, char *tbuf, char *word[], char *word_eol[])
 		return TRUE;
 	}
 
-	sprintf (tbuf, "\001ACTION %s\001\r", act);
+	snprintf (tbuf, TBUFSIZE, "\001ACTION %s\001\r", act);
 	/* first try through DCC CHAT */
 	if (dcc_write_chat (sess->channel, tbuf))
 	{
@@ -3238,7 +3248,8 @@ const struct commands xc_cmds[] = {
 	{"GETINT", cmd_getint, 0, 0, 1, "GETINT <default> <command> <prompt>"},
 	{"GETSTR", cmd_getstr, 0, 0, 1, "GETSTR <default> <command> <prompt>"},
 	{"GHOST", cmd_ghost, 1, 0, 1, N_("GHOST <nick> <password>, Kills a ghosted nickname")},
-	{"GUI", cmd_gui, 0, 0, 1, "GUI [SHOW|HIDE|FOCUS|FLASH|ICONIFY|MENU TOGGLE|COLOR <n>|MSGBOX <text>]"},
+	{"GUI", cmd_gui, 0, 0, 1, "GUI [ATTACH|DETACH|SHOW|HIDE|FOCUS|FLASH|ICONIFY|COLOR <n>]\n"
+									  "       GUI [MSGBOX <text>|MENU TOGGLE]"},
 	{"HELP", cmd_help, 0, 0, 1, 0},
 	{"HOP", cmd_hop, 1, 1, 1,
 	 N_("HOP <nick>, gives chanhalf-op status to the nick (needs chanop)")},
@@ -3380,7 +3391,7 @@ help (session *sess, char *tbuf, char *helpcmd, int quiet)
 	{
 		if (cmd->help)
 		{
-			sprintf (tbuf, _("Usage: %s\n"), _(cmd->help));
+			snprintf (tbuf, TBUFSIZE, _("Usage: %s\n"), _(cmd->help));
 			PrintText (sess, tbuf);
 		} else
 		{
@@ -3657,7 +3668,7 @@ nick_comp_cb (struct User *user, nickdata *data)
 		lenu = strlen (user->nick);
 		if (lenu == data->len)
 		{
-			sprintf (data->tbuf, "%s%s", user->nick, data->space);
+			snprintf (data->tbuf, TBUFSIZE, "%s%s", user->nick, data->space);
 			data->len = -1;
 			return FALSE;
 		} else if (lenu < data->bestlen)
@@ -3701,7 +3712,7 @@ perform_nick_completion (struct session *sess, char *cmd, char *tbuf)
 
 				if (data.best)
 				{
-					sprintf (tbuf, "%s%s", data.best->nick, space - 1);
+					snprintf (tbuf, TBUFSIZE, "%s%s", data.best->nick, space - 1);
 					return;
 				}
 			}
@@ -3735,10 +3746,8 @@ handle_say (session *sess, char *text, int check_spch)
 	char *word_eol[PDIWORDS];
 	char pdibuf_static[1024];
 	char newcmd_static[1024];
-	char tbuf_static[4096];
 	char *pdibuf = pdibuf_static;
 	char *newcmd = newcmd_static;
-	char *tbuf = tbuf_static;
 	int len;
 	int newcmdlen = sizeof newcmd_static;
 
@@ -3754,9 +3763,6 @@ handle_say (session *sess, char *text, int check_spch)
 
 	if (len + NICKLEN >= newcmdlen)
 		newcmd = malloc (newcmdlen = len + NICKLEN + 1);
-
-	if (len * 2 >= sizeof tbuf_static)
-		tbuf = malloc (len * 2 + 1);
 
 	if (check_spch && prefs.perc_color)
 		check_special_chars (text, prefs.perc_ascii);
@@ -3856,9 +3862,6 @@ xit:
 
 	if (newcmd != newcmd_static)
 		free (newcmd);
-
-	if (tbuf != tbuf_static)
-		free (tbuf);
 }
 
 /* handle a command, without the '/' prefix */
@@ -3874,7 +3877,7 @@ handle_command (session *sess, char *cmd, int check_spch)
 	static int command_level = 0;
 	struct commands *int_cmd;
 	char pdibuf_static[1024];
-	char tbuf_static[4096];
+	char tbuf_static[TBUFSIZE];
 	char *pdibuf;
 	char *tbuf;
 	int len;
