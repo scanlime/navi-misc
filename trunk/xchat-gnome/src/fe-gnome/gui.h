@@ -59,9 +59,7 @@ typedef struct
 	NavModel *tree_model;
 	NavTree *server_tree;
 
-#ifdef HAVE_LIBGNOME_214
 	GnomeProgram *program;
-#endif
 } XChatGUI;
 
 extern XChatGUI gui;
