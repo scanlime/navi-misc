@@ -1,3 +1,8 @@
+Sun Apr  2 15:31:51 CEST 2006  Christian Persch <chpe@gnome.org>
+
+	* data/setup-dialog.glade:
+	  - Reduce first launch dialog size. (#336923)
+
 Sat Apr  1 16:29:31 MST 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/common/outbound.c:
