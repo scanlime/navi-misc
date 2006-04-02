@@ -31,7 +31,7 @@ error_dialog (const gchar *header, const gchar *message)
 {
 	GtkWidget *dialog;
 
-	dialog = gtk_message_dialog_new (gui.main_window,
+	dialog = gtk_message_dialog_new (GTK_WINDOW (gui.main_window),
 					 GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 					 GTK_MESSAGE_ERROR,
 					 GTK_BUTTONS_OK,
