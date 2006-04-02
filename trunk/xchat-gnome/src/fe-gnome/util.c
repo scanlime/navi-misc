@@ -24,20 +24,23 @@
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
 #include "util.h"
+#include "gui.h"
 
 void
 error_dialog (const gchar *header, const gchar *message)
 {
-	GtkWidget *dialog, *label;
-	gchar *text;
+	GtkWidget *dialog;
 
-	dialog = glade_xml_get_widget (gui.xml, "error dialog");
-	label = glade_xml_get_widget (gui.xml, "error label");
-	text = g_strdup_printf ("<span weight=\"bold\" size=\"larger\">%s</span>\n\n%s", header, message);
-	gtk_label_set_markup (GTK_LABEL (label), text);
-	g_free (text);
+	dialog = gtk_message_dialog_new (gui.main_window,
+					 GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+					 GTK_MESSAGE_ERROR,
+					 GTK_BUTTONS_OK,
+					 "%s", header);
+
+	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog), "%s", message);
+
 	gtk_dialog_run (GTK_DIALOG (dialog));
-	gtk_widget_hide (dialog);
+	gtk_widget_destroy (dialog);
 }
 
 gint gtk_tree_iter_sort_func_nocase (GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer data)
