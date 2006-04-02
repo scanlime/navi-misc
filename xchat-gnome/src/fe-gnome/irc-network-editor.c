@@ -65,15 +65,13 @@ use_globals_set (GtkRadioButton *button, IrcNetworkEditor *e)
 	gtk_entry_set_text (GTK_ENTRY (e->realname), text);
 	g_free (text);
 
-	gtk_widget_set_sensitive (GTK_WIDGET (e->nickname), FALSE);
-	gtk_widget_set_sensitive (GTK_WIDGET (e->realname), FALSE);
+	gtk_widget_set_sensitive (e->custom_box, FALSE);
 }
 
 static void
 use_custom_set (GtkRadioButton *button, IrcNetworkEditor *e)
 {
-	gtk_widget_set_sensitive (e->nickname, TRUE);
-	gtk_widget_set_sensitive (e->realname, TRUE);
+	gtk_widget_set_sensitive (e->custom_box, TRUE);
 }
 
 static void
@@ -211,7 +209,6 @@ autojoin_edited (GtkCellRendererText *renderer, gchar *arg1, gchar *newtext, Irc
 static void
 irc_network_editor_init (IrcNetworkEditor *dialog)
 {
-	GtkSizeGroup *group;
 	gchar **enc;
 	GtkTreeSelection *server_selection, *autojoin_selection;
 	GladeXML *xml;
@@ -229,6 +226,8 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 		return;
 
 #define GW(name) ((dialog->name) = glade_xml_get_widget (xml, #name))
+	GW(network_settings_table);
+
 	GW(network_name);
 
 	GW(autoconnect);
@@ -238,7 +237,6 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 
 	GW(nickserv_password);
 	GW(password);
-	GW(encoding_hbox);
 
 	GW(servers);
 	GW(add_server);
@@ -247,6 +245,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 
 	GW(use_globals);
 	GW(use_custom);
+	GW(custom_box);
 	GW(nickname);
 	GW(realname);
 
@@ -277,14 +276,7 @@ irc_network_editor_init (IrcNetworkEditor *dialog)
 
 	dialog->encoding = gtk_combo_box_new_text ();
 	gtk_widget_show (dialog->encoding);
-	gtk_box_pack_start (GTK_BOX (dialog->encoding_hbox), dialog->encoding, FALSE, TRUE, 0);
-
-	group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-	gtk_size_group_add_widget (group, dialog->network_name);
-	gtk_size_group_add_widget (group, dialog->encoding);
-	gtk_size_group_add_widget (group, dialog->password);
-	gtk_size_group_add_widget (group, dialog->nickserv_password);
-	g_object_unref (group);
+	gtk_table_attach_defaults (GTK_TABLE (dialog->network_settings_table), dialog->encoding, 1, 2, 5, 6);
 
 	enc = (gchar **) encodings;
 	do {

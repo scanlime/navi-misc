@@ -47,6 +47,8 @@ struct _IrcNetworkEditor
 	IrcNetwork *network;
 	GConfClient *gconf;
 
+	GtkWidget *network_settings_table;
+
 	GtkWidget *network_name;
 
 	GtkWidget *autoconnect;
@@ -56,7 +58,6 @@ struct _IrcNetworkEditor
 
 	GtkWidget *password;
 	GtkWidget *nickserv_password;
-	GtkWidget *encoding_hbox;
 	GtkWidget *encoding;
 
 	GtkWidget *servers;
@@ -69,6 +70,7 @@ struct _IrcNetworkEditor
 
 	GtkWidget *use_globals;
 	GtkWidget *use_custom;
+	GtkWidget *custom_box;
 	GtkWidget *nickname;
 	GtkWidget *realname;
 

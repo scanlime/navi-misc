@@ -1,3 +1,11 @@
+Sun Apr  2 17:07:54 MST 2006  Christian Persch <chpe@gnome.org>
+
+	* src/fe-gnome/irc-network-editor.c:
+	* src/fe-gnome/irc-network-editor.h:
+	* data/irc-network-editor.glade:
+	  - Fix some minor spacing and layout issues in the network editor
+	    dialog. (#336924)
+
 Sun Apr  2 16:59:23 MST 2006  Christian Persch <chpe@gnome.org>
 
 	* src/fe-gnome/util.c:
