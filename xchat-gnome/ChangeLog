@@ -1,4 +1,10 @@
-Sun Apr  2 17:07:54 MST 2006  Christian Persch <chpe@gnome.org>
+Sun Apr  2 17:16:03 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/fe-gnome.c:
+	* src/fe-gnome/gui.h:
+	  - Add back the GnomeProgram init for the libgnome<2.14 case.
+
+Sun Apr  2 17:07:54 MDT 2006  Christian Persch <chpe@gnome.org>
 
 	* src/fe-gnome/irc-network-editor.c:
 	* src/fe-gnome/irc-network-editor.h:
@@ -6,7 +12,7 @@ Sun Apr  2 17:07:54 MST 2006  Christian Persch <chpe@gnome.org>
 	  - Fix some minor spacing and layout issues in the network editor
 	    dialog. (#336924)
 
-Sun Apr  2 16:59:23 MST 2006  Christian Persch <chpe@gnome.org>
+Sun Apr  2 16:59:23 MDT 2006  Christian Persch <chpe@gnome.org>
 
 	* src/fe-gnome/util.c:
 	* src/fe-gnome/fe-gnome.c:
