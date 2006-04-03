@@ -1,3 +1,8 @@
+Mon Apr  3 17:17:32 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* src/fe-gnome/preferences-page-spellcheck.c:
+	  - Don't mark property names as translatable
+
 Mon Apr  3 13:50:04 EDT 2006  Olivier Le Thanh <olivier@lethanh.be>
 
 	* po/fr.po:
@@ -6,7 +11,7 @@ Mon Apr  3 13:50:04 EDT 2006  Olivier Le Thanh <olivier@lethanh.be>
 Mon Apr  3 12:29:46 EDT 2006  Olivier Le Thanh <olivier@lethanh.be>
 
 	* po/POTFILES.in:
-	  - Removed data/dcc-accept.glade since it no longer exists. 
+	  - Removed data/dcc-accept.glade since it no longer exists.
 
 Sun Apr  2 18:02:11 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
