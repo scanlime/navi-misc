@@ -1,7 +1,6 @@
 [encoding: UTF-8]
 data/channel-list.glade
 data/connect-dialog.glade
-data/dcc-accept.glade
 data/dcc-window.glade
 data/irc-network-editor.glade
 data/preferences-dialog.glade
