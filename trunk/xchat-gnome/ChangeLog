@@ -1,3 +1,8 @@
+Mon Apr  3 12:29:46 EDT 2006  Olivier Le Thanh <olivier@lethanh.be>
+
+	* po/POTFILES.in:
+	  - Removed data/dcc-accept.glade since it no longer exists. 
+
 Sun Apr  2 18:02:11 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* src/fe-gnome/xtext.c:
