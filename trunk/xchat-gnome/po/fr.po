@@ -6,7 +6,7 @@
 # Olivier Berger <olberger@club-internet.fr>, 2001-2002.
 # Christophe Merlet (RedFox) <redfox@redfoxcenter.org>, 2003, 2004.
 # Arnaud Jambin <a.jambin@free.fr>, 2005.
-# Olivier Lê Thanh Duong, 2005.
+# Olivier Lê Thanh Duong  <olivier@lethanh.be>, 2005.
 #
 msgid ""
 msgstr ""
@@ -14,8 +14,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-03-01 03:36-0700\n"
 "PO-Revision-Date: 2006-01-05 23:10+0100\n"
-"Last-Translator: Christophe Bliard <christophe.bliard@trux.info>\n"
-"Language-Team: French <olethanh@ulb.ac.be>\n"
+"Last-Translator: Olivier Lê Thanh Duong  <olivier@lethanh.be>\n"
+"Language-Team: French <olivier@lethanh.be>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -82,7 +82,7 @@ msgstr "<span weight=\"bold\">Informations utilisateur</span>"
 
 #: ../data/irc-network-editor.glade.h:4
 msgid "Accept _invalid SSL certificate"
-msgstr ""
+msgstr "Accepter un certificat SSL _invalide"
 
 #: ../data/irc-network-editor.glade.h:5
 msgid "Character _encoding:"
@@ -355,14 +355,14 @@ msgid ""
 "things such as registering with services. You do not have to use your real "
 "name if you do not want to."
 msgstr ""
-"Bienvenue dans xchat-gnome ! Comme c'est la première fois que vous utilisez "
+"Bienvenue dans xchat-gnome ! Puisque c'est la première fois que vous utilisez "
 "cette application, il est nécessaire de configurer certaines choses avant de "
 "pouvoir continuer.\n"
 "\n"
-"Voici les noms qui vous identifieront sur IRC. Votre pseudo est le nom par "
-"lequel vous serez connu, tandis que le nom réel a d'autres utilités, comme "
-"par exemple s'enregistrer auprès de services. Vous n'êtes pas obligé "
-"d'utiliser votre véritable nom si vous ne le souhaitez pas."
+"Voici les noms selon lesquelles vous serez reconnu sur IRC. Votre pseudonyme "
+"est le nom par lequel vous serez connu, alors que le nom réel est utile pour "
+"des choses tels que s'enregistrer auprès de services. Vous n'avez pas à "
+"utiliser votre vrai nom si vous ne le souhaitez pas."
 
 #: ../data/setup-dialog.glade.h:6
 msgid "xchat-gnome setup"
@@ -374,7 +374,7 @@ msgstr "Changer"
 
 #: ../data/xchat-gnome.desktop.in.h:1
 msgid "Chat with people using IRC"
-msgstr ""
+msgstr "Discuter avec des personnes utilisant IRC"
 
 #: ../data/xchat-gnome.desktop.in.h:2 ../src/fe-gnome/fe-gnome.c:92
 msgid "IRC Chat"
@@ -588,7 +588,7 @@ msgstr "Moniteur de connexion NetworkManager"
 #: ../plugins/net-monitor/net-monitor.c:342
 #, c-format
 msgid "%s loaded successfully\n"
-msgstr "chargement de %s réussi !\n"
+msgstr "chargement de %s réussi.\n"
 
 #: ../plugins/notification/eggtrayicon.c:111
 msgid "Orientation"
@@ -632,12 +632,12 @@ msgstr ""
 #: ../plugins/notify-osd/notify-osd.c:56
 #, c-format
 msgid "Error closing notification: %s\n"
-msgstr ""
+msgstr "Erreur lors de la fermeture de la notification : %s\n"
 
 #: ../plugins/notify-osd/notify-osd.c:71
 #, c-format
 msgid "Failed to send notification: %s\n"
-msgstr ""
+msgstr "Impossible d'envoyer la notification : %s\n"
 
 #: ../plugins/notify-osd/notify-osd.c:112
 #: ../plugins/notify-osd/notify-osd.c:139
@@ -726,20 +726,21 @@ msgstr "Afficher les marques de temps pour le Chasseur d'URL"
 
 #: ../plugins/sound-notification/sound-notification.c:55
 msgid "Sound Notification"
-msgstr ""
+msgstr "Notification sonore"
 
 #: ../plugins/sound-notification/sound-notification.c:56
 msgid ""
 "Play a sound when you receive a private message or your nick is highlighted."
-msgstr ""
+msgstr "Jouer un son lors de la réception d'un message privé ou lorsque votre "
+"pseudonyme est mis en évidence."
 
 #: ../plugins/sound-notification/sound-notification.c:87
 msgid "Sound-notification plugin loaded.\n"
-msgstr ""
+msgstr "Greffon de notification sonore chargé.\n"
 
 #: ../plugins/sound-notification/sound-notification.c:96
 msgid "Sound-notification plugin unloaded.\n"
-msgstr ""
+msgstr "Greffon de notification sonore déchargé.\n"
 
 #: ../src/common/cfgfiles.c:350
 msgid "Cannot create ~/.xchat2"
@@ -766,27 +767,22 @@ msgstr ""
 msgid "Waiting"
 msgstr "Attente"
 
-#. black
 #: ../src/common/dcc.c:67
 msgid "Active"
 msgstr "Actif"
 
-#. cyan
 #: ../src/common/dcc.c:68
 msgid "Failed"
 msgstr "Échec"
 
-#. red
 #: ../src/common/dcc.c:69
 msgid "Done"
 msgstr "Terminé"
 
-#. green
 #: ../src/common/dcc.c:70 ../src/fe-gnome/connect-dialog.c:154
 msgid "Connect"
 msgstr "Connexion"
 
-#. black
 #: ../src/common/dcc.c:71
 msgid "Aborted"
 msgstr "Interrompu"
@@ -3721,7 +3717,7 @@ msgstr ""
 
 #: ../src/fe-gnome/about.c:94
 msgid "Copyright © 2004-2006"
-msgstr ""
+msgstr "Copyright © 2004-2006"
 
 #: ../src/fe-gnome/about.c:95
 msgid ""
@@ -3742,7 +3738,7 @@ msgstr ""
 #: ../src/fe-gnome/about.c:111
 msgid "translator-credits"
 msgstr ""
-"Olivier Lê Thanh Duong <olethanh@ulb.ac.be>\n"
+"Olivier Lê Thanh Duong <olivier@lethanh.be>\n"
 "Xavier Claessens <xclaesse@gmail.com>\n"
 "Christophe Bliard <christophe.bliard@trux.info>"
 
@@ -3822,11 +3818,11 @@ msgstr "Largeur de la fenêtre principale"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:19
 msgid "X position of the main window on the screen"
-msgstr ""
+msgstr "Position X de la fenêtre principale sur l'écran"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:20
 msgid "Y position of the main window on the screen"
-msgstr ""
+msgstr "Y position de la fenêtre principale sur l'écran"
 
 #: ../src/fe-gnome/apps_xchat.schemas.in.h:21
 msgid "xchat configuration version"
@@ -3835,7 +3831,7 @@ msgstr "version de la configuration xchat"
 #: ../src/fe-gnome/channel-list.c:297
 #, c-format
 msgid "%s Channel List"
-msgstr ""
+msgstr "%s Liste des canaux"
 
 #. IRC menu
 #: ../src/fe-gnome/connect-dialog.c:132 ../src/fe-gnome/main-window.c:110
@@ -4070,7 +4066,7 @@ msgstr "Serveurs"
 #. We're creating a new network. Don't populate things from the structure
 #: ../src/fe-gnome/irc-network-editor.c:388
 msgid "New Network"
-msgstr ""
+msgstr "Nouveau réseau"
 
 #: ../src/fe-gnome/irc-network-editor.c:396
 #, c-format
@@ -4408,67 +4404,67 @@ msgstr "Insérer un code couleur"
 
 #: ../src/fe-gnome/text-entry.c:288
 msgid "Black"
-msgstr ""
+msgstr "Noir"
 
 #: ../src/fe-gnome/text-entry.c:292
 msgid "Dark Blue"
-msgstr ""
+msgstr "Bleu foncé"
 
 #: ../src/fe-gnome/text-entry.c:296
 msgid "Dark Green"
-msgstr ""
+msgstr "Vert foncé"
 
 #: ../src/fe-gnome/text-entry.c:300
 msgid "Red"
-msgstr ""
+msgstr "Rouge"
 
 #: ../src/fe-gnome/text-entry.c:304
 msgid "Brown"
-msgstr ""
+msgstr "Brun"
 
 #: ../src/fe-gnome/text-entry.c:308
 msgid "Purple"
-msgstr ""
+msgstr "Pourpre"
 
 #: ../src/fe-gnome/text-entry.c:312
 msgid "Orange"
-msgstr ""
+msgstr "Orange"
 
 #: ../src/fe-gnome/text-entry.c:316
 msgid "Yellow"
-msgstr ""
+msgstr "Jaune"
 
 #: ../src/fe-gnome/text-entry.c:320
 msgid "Light Green"
-msgstr ""
+msgstr "Vert clair"
 
 #: ../src/fe-gnome/text-entry.c:324
 msgid "Aqua"
-msgstr ""
+msgstr "Eau"
 
 #: ../src/fe-gnome/text-entry.c:328
 msgid "Light Blue"
-msgstr ""
+msgstr "Bleu clair"
 
 #: ../src/fe-gnome/text-entry.c:332
 msgid "Blue"
-msgstr ""
+msgstr "Bleu"
 
 #: ../src/fe-gnome/text-entry.c:336
 msgid "Violet"
-msgstr ""
+msgstr "Violet"
 
 #: ../src/fe-gnome/text-entry.c:340
 msgid "Grey"
-msgstr ""
+msgstr "Gris"
 
 #: ../src/fe-gnome/text-entry.c:344
 msgid "Light Grey"
-msgstr ""
+msgstr "Gris clair"
 
 #: ../src/fe-gnome/text-entry.c:348
 msgid "White"
-msgstr ""
+msgstr "Blanc"
 
 #: ../src/fe-gnome/topic-label.c:239
 #, c-format
