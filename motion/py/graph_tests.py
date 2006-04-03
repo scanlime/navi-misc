@@ -109,7 +109,7 @@ class TestAStar (GraphTest):
         return (g + h)
 
     def successors (self, graph, node):
-        return self.adj.query (node)
+        return [edge.v for edge in self.adj.query (node)]
 
     def testZeroLen (self):
         """A*: Start and goal are the same"""

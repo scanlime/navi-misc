@@ -363,13 +363,10 @@ class Heuristic (Algorithm):
             a_path = self.pathToNode (a)
             b_path = self.pathToNode (b)
 
-            ret = cmp (self.costf (a_path, self.goal),
-                    self.costf (b_path, self.goal))
+            ac = self.costf (a_path, self.goal)
+            bc = self.costf (b_path, self.goal)
 
-            del a_path
-            del b_path
-
-            return ret
+            return (ac - bc)
 
         if self.valid:
             return self.path
@@ -398,18 +395,13 @@ class Heuristic (Algorithm):
 
         self.valid = True
 
-        # Explicitly delete the agenda and visited list just to be sure we
-        # don't have any references sitting around for nodes we don't need.
-        del agenda
-        del visited
-
         return self.path
 
     def pathToNode (self, node):
         """Return the path found by the search to node"""
         path = [node]
         next = self.predecessors[node]
-        while next is not None:
+        while next:
             path.insert (0, next)
             next = self.predecessors[next]
 
