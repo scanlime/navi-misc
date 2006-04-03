@@ -197,7 +197,7 @@ preferences_page_spellcheck_new (gpointer prefs_dialog, GladeXML *xml)
 	page->activated_renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT (page->activated_renderer), "activatable", TRUE, NULL);
 	column = gtk_tree_view_column_new_with_attributes (_("Enable"), page->activated_renderer,
-	                                                   _("active"), COL_LANG_ACTIVATED, NULL);
+	                                                   "active", COL_LANG_ACTIVATED, NULL);
 	gtk_tree_view_insert_column (GTK_TREE_VIEW (page->spellcheck_list), column, 0);
 
 	page->name_renderer = gtk_cell_renderer_text_new ();
