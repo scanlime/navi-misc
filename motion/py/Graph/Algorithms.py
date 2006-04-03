@@ -360,8 +360,16 @@ class Heuristic (Algorithm):
            """
         # Use this function to sort the agenda
         def compare (a, b):
-            return cmp (self.costf (self.pathToNode (a), self.goal),
-                    self.costf (self.pathToNode (b), self.goal))
+            a_path = self.pathToNode (a)
+            b_path = self.pathToNode (b)
+
+            ret = cmp (self.costf (a_path, self.goal),
+                    self.costf (b_path, self.goal))
+
+            del a_path
+            del b_path
+
+            return ret
 
         if self.valid:
             return self.path
@@ -386,7 +394,7 @@ class Heuristic (Algorithm):
                     agenda.append (s)
 
             # Resort the queue
-            agenda.sort (compare)
+            agenda.sort (cmp=compare)
 
         self.valid = True
 
