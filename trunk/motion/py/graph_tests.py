@@ -42,7 +42,7 @@ class GraphTest (TestCase):
         def _subgraph (graph, node, depth):
             ret = {}
             vs = [edge.v for edge in graph.query (node)]
-            if depth >= 0:
+            if depth > 0:
                 for v in vs:
                     n = _subgraph (graph, v, depth - 1)
                     for key, value in n.iteritems():
