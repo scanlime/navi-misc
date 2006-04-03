@@ -148,12 +148,10 @@ struct _GtkXText
 	XftColor *xft_bg;				/* both point into color[20] */
 	XftDraw *xftdraw;
 	XftFont *font;
-	XftFont *ifont;				/* italics */
 #else
 	struct pangofont
 	{
 		PangoFontDescription *font;
-		PangoFontDescription *ifont;	/* italics */
 		int ascent;
 		int descent;
 	} *font, pango_font;
