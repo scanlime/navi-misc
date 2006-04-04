@@ -129,7 +129,6 @@ class TestAStar (GraphTest):
 
     def testFullPath (self):
         """A*: Full path"""
-        self.fail ("Skipping")
         path = Algorithms.Heuristic (self.graph, self.path[0], self.path[-1],
                 lambda x,y: self.fcost (x, y),
                 lambda x,y: self.successors (x, y)).run ()
