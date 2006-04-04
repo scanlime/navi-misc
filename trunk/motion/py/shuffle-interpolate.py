@@ -43,7 +43,7 @@ def successor(self, graphs, nodes):
     immediate_successors = []
     for node in nodes:
         # FIXME: need to find the graph which holds this node
-        vs = [edge.v for edge in adj.query (node]
+        vs = [edge.v for edge in adj.query (node)]
         immediate_successors.append(vs)
 
     return comb (items)
