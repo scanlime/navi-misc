@@ -290,9 +290,6 @@ class CNode (object):
     def __init__ (self, data):
         self.data = data
 
-    def __hash__ (self):
-        return hash (self.data.values ())
-
     def iteritems (self):
         return self.data.iteritems ()
 
