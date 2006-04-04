@@ -291,7 +291,7 @@ class CNode (object):
         self.data = data
 
     def __hash__ (self):
-        return hash (self.data.keys (), self.data.values ())
+        return hash (self.data.values ())
 
     def iteritems (self):
         return self.data.iteritems ()
