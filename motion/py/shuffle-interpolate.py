@@ -29,6 +29,16 @@ from Graph.ExtraAlgorithms import ParallelBFS
 from optparse import OptionParser
 import Numeric, sys, pickle
 
+def comb(items):
+    if len (items) == 1:
+        return [[x,] for x in items[0]]
+    a = comb(items[1:])
+    ret = []
+    for x in items[0]:
+        for y in a:
+            ret.append([x,] + y)
+    return ret
+
 def find_node (graph, pos):
     vertex_map = graph.representations[VertexMap]
     for vertex in vertex_map:
