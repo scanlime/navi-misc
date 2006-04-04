@@ -405,12 +405,18 @@ class Converter:
         if details.get('type') == 'taxi':
             return details['title']
 
-        artist = details.get('artist', 'None').replace(os.sep, "").replace(" ", "_")
-        album = details.get('source', 'None').replace(os.sep, "").replace(" ", "_").lower()
-        track = details.get('tracknr', 0)
-        title = details.get('title', 'None').replace(os.sep, "").replace(" ", "_").lower()
+        # Start with just the artist...
+        name = details.get('artist', 'None').replace(os.sep, "").replace(" ", "_") + os.sep
 
-        name = "%s/%s/%02d_%s" % (artist, album, track, title)
+        album = details.get('source')
+        if album:
+            name += album.replace(os.sep, "").replace(" ", "_").lower() + os.sep
+
+        track = details.get('tracknr')
+        if track:
+            name += "%02d_" % track
+
+        name += details.get('title', 'None').replace(os.sep, "").replace(" ", "_").lower()
 
         codec = details.get('codec')
         extension = self.codecExtensions.get(codec, codec)

@@ -56,7 +56,7 @@ class RioDownloader:
         for f in self.fileManager.cache.findFiles(**self.constraints):
             filename = f.suggestFilename()
 
-            if self.action == 'get':           
+            if self.action == 'get':
                 if os.path.isfile(filename):
                     localRid = Metadata.getLocalCache().lookup(filename)['rid']
                     remoteRid = f.details['rid']
@@ -76,7 +76,10 @@ class RioDownloader:
 
 if __name__ == "__main__":
     action = sys.argv[1]
-    constraints = {}
+
+    # By default, only download audio files (not taxi or playlist files)
+    constraints = dict(type='tune')
+
     for arg in sys.argv[2:]:
         key, value = arg.split("=", 1)
         constraints[key] = value
