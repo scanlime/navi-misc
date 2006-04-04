@@ -431,8 +431,14 @@ class FileManager:
         self.updateFileDetails(remoteFile).chainDeferred(result)
 
     def saveToDisk(self, remoteFile, localFilename, blockSize=None):
-        """Save this file's content to disk. Returns a deferred signalling completion."""
+        """Save this file's content to disk. Returns a deferred signalling completion.
+           This will create parent directories automatically, as necessary.
+           """
         result = Progress.Deferred()
+
+        parentDir = os.path.split(localFilename)[0]
+        if parentDir and not os.path.isdir(parentDir):
+            os.makedirs(parentDir)
 
         dest = open(localFilename, "wb")
         transfer = ContentTransfer(Request.ReadFileChunk, self.protocol,
