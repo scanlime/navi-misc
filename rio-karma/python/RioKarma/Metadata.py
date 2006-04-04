@@ -395,24 +395,22 @@ class Converter:
         }
 
     def filenameFromDetails(self, details,
-                            replaceSpaces   = True,
-                            lowercase       = True,
                             unicodeEncoding = 'utf-8'):
         """Determine a good filename to use for a file with the given metadata
            in the Rio 'details' format. If it's a data file, this will use the
-           original file as stored in 'title'. Otherwise, it cleans up the filename
-           (always removing slashes, optionally replacing spaces with underscores)
-           and adds an extension.
+           original file as stored in 'title'.
+
+           Otherwise, it uses Navi's naming convention: Artist_Name/album_name/##_track_name.extension
            """
         if details.get('type') == 'taxi':
             return details['title']
 
-        name = details['title']
-        name = name.replace(os.sep, "")
-        if replaceSpaces:
-            name = name.replace(" ", "_")
-        if lowercase:
-            name = name.lower()
+        artist = details.get('source', 'None').replace(os.sep, "").replace(" ", "_")
+        album = details.get('source', 'None').replace(os.sep, "").replace(" ", "_").lower()
+        track = details.get('tracknr', 0)
+        title = details.get('title', 'None').replace(os.sep, "").replace(" ", "_").lower()
+
+        name = "%s/%s/%02d_%s" % (artist, album, track, title)
 
         codec = details.get('codec')
         extension = self.codecExtensions.get(codec, codec)
