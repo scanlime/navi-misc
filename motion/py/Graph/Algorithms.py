@@ -366,7 +366,7 @@ class Heuristic (Algorithm):
             ac = self.costf (a_path, self.goal)
             bc = self.costf (b_path, self.goal)
 
-            return (ac - bc)
+            return (bc - ac)
 
         if self.valid:
             return self.path
