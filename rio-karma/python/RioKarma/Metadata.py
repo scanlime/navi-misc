@@ -405,7 +405,7 @@ class Converter:
         if details.get('type') == 'taxi':
             return details['title']
 
-        artist = details.get('source', 'None').replace(os.sep, "").replace(" ", "_")
+        artist = details.get('artist', 'None').replace(os.sep, "").replace(" ", "_")
         album = details.get('source', 'None').replace(os.sep, "").replace(" ", "_").lower()
         track = details.get('tracknr', 0)
         title = details.get('title', 'None').replace(os.sep, "").replace(" ", "_").lower()
