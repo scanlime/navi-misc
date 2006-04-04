@@ -24,29 +24,37 @@
 from Motion import AMC
 from Dance import Systems, Sequence, MotionGraph
 from Graph import algorithms_c
-from Graph.Data import VertexMap, AdjacencyList
+from Graph.Data import VertexMap, AdjacencyList, CNode
 from Graph.ExtraAlgorithms import ParallelBFS, Heuristic
 from optparse import OptionParser
 import Numeric, sys, pickle
 
-def comb (items):
+def comb (bones, itemss):
+    """Returns a list of combinatoric nodes created by combining nodes from
+       items.
+       """
     if len (items) == 1:
-        return [[x,] for x in items[0]]
-    a = comb(items[1:])
+        return [{bone: x} for x in items[0]]
+
+    a = comb(bones[1:], items[1:])
     ret = []
     for x in items[0]:
         for y in a:
-            ret.append([x,] + y)
+            y[bones[0]] = x
+            ret.append(y)
     return ret
 
-def successor (self, graphs, nodes):
-    immediate_successors = []
-    for node in nodes:
-        # FIXME: need to find the graph which holds this node
-        vs = [edge.v for edge in adj.query (node)]
-        immediate_successors.append(vs)
+def successor (self, graphs, node):
+    """Generate successors of a combinatoric node."""
+    immediate_successors = {} 
+    # Create a dictionary mapping bone name to the list of successors for that
+    # bone in its current position.
+    for bone, n in node.iteritems ():
+        adj = graphs[bone].representations[AdjacencyList]
+        immediate_successors[bone] = [edge.v for edge in adj.query (n)]
 
-    return comb (items)
+    # Return a list of the combinatoric nodes
+    return [CNode (x) for x in comb (immediate_successors)]
 
 def find_node (graph, pos):
     vertex_map = graph.representations[VertexMap]
@@ -142,7 +150,7 @@ for boundary in sequence.boundaries:
 
 
     print 'searching at boundary',boundary
-    paths = Heuristic (graphs, starts, ends, f, successor).run ()
+    paths = Heuristic (graphs, CNode (starts), CNode (ends), f, successor).run ()
 
 
     if paths is None:
