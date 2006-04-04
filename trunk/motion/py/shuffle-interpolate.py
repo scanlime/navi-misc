@@ -25,11 +25,11 @@ from Motion import AMC
 from Dance import Systems, Sequence, MotionGraph
 from Graph import algorithms_c
 from Graph.Data import VertexMap, AdjacencyList
-from Graph.ExtraAlgorithms import ParallelBFS
+from Graph.ExtraAlgorithms import ParallelBFS, Heuristic
 from optparse import OptionParser
 import Numeric, sys, pickle
 
-def comb(items):
+def comb (items):
     if len (items) == 1:
         return [[x,] for x in items[0]]
     a = comb(items[1:])
@@ -39,7 +39,7 @@ def comb(items):
             ret.append([x,] + y)
     return ret
 
-def successor(self, graphs, nodes):
+def successor (self, graphs, nodes):
     immediate_successors = []
     for node in nodes:
         # FIXME: need to find the graph which holds this node
@@ -142,7 +142,7 @@ for boundary in sequence.boundaries:
 
 
     print 'searching at boundary',boundary
-    paths = algorithms_c.aStarSearch (adjacency, starts, ends, f)
+    paths = Heuristic (graphs, starts, ends, f, successor).run ()
 
 
     if paths is None:
