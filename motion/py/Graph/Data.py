@@ -280,3 +280,20 @@ class EdgeList (GraphRepresentation):
 
     def onRemove (self, edge):
         pass
+
+
+class CNode (object):
+    """A class for representing a combination of nodes from multiple graphs.
+       This primarily exists to provide a hashable object for the dictionary of
+       back pointers used by ExtraAlgorithms.Heuristic.
+       """
+    def __init__ (self, data):
+        self.data = data
+
+    def __hash__ (self):
+        return hash (self.data.keys (), self.data.values ())
+
+    def iteritems (self):
+        return self.data.iteritems ()
+
+# vim: ts=4:sw=4:et
