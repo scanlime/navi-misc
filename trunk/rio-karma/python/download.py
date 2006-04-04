@@ -18,10 +18,10 @@
 from twisted.internet import reactor, defer
 from twisted.python import log
 from twisted.flow import flow
-import sys
+import sys, os
 
 import RioKarma
-from RioKarma import Progress
+from RioKarma import Progress, Metadata
 
 class RioDownloader:
     def __init__(self, action, constraints):
@@ -56,13 +56,23 @@ class RioDownloader:
         for f in self.fileManager.cache.findFiles(**self.constraints):
             filename = f.suggestFilename()
 
-            if self.action == 'get':
-                print "%s -> %s" % (f, filename)
-                yield self.fileManager.saveToDisk(f, filename).addStatusback(self.reporter.statusback)
+            if self.action == 'get':           
+                if os.path.isfile(filename):
+                    localRid = Metadata.getLocalCache().lookup(filename)['rid']
+                    remoteRid = f.details['rid']
+                    if localRid == remoteRid:
+                        print "%s exists" % f
+                        continue
+                else:
+                    print "%s -> %s" % (f, filename)
+                    yield self.fileManager.saveToDisk(f, filename).addStatusback(self.reporter.statusback)
+
+                    # Sync the local cache after every file, to avoid
+                    # losing a lot of work if this is aborted
+                    Metadata.getLocalCache().sync()
 
             elif self.action == 'list':
                 print f
-
 
 if __name__ == "__main__":
     action = sys.argv[1]
