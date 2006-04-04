@@ -29,7 +29,7 @@ from Graph.ExtraAlgorithms import ParallelBFS, Heuristic
 from optparse import OptionParser
 import Numeric, sys, pickle
 
-def comb (bones, itemss):
+def comb (bones, items):
     """Returns a list of combinatoric nodes created by combining nodes from
        items.
        """
@@ -44,7 +44,7 @@ def comb (bones, itemss):
             ret.append(y)
     return ret
 
-def successor (self, graphs, node):
+def successor (graphs, node):
     """Generate successors of a combinatoric node."""
     immediate_successors = {} 
     # Create a dictionary mapping bone name to the list of successors for that
@@ -54,7 +54,8 @@ def successor (self, graphs, node):
         immediate_successors[bone] = [edge.v for edge in adj.query (n)]
 
     # Return a list of the combinatoric nodes
-    return [CNode (x) for x in comb (immediate_successors)]
+    return [CNode (x) for x in comb (immediate_successors.keys (),
+            immediate_successors.values ())]
 
 def find_node (graph, pos):
     vertex_map = graph.representations[VertexMap]
