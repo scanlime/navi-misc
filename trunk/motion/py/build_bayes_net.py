@@ -58,6 +58,23 @@ def load(asf, files):
     interval = 5
 
     print 'building bayes nets'
+
+    # Handle root separately
+    print 'building net for root'
+    net = {}
+    for amc in amcs:
+        bone = amc.bones['root']
+        for frame in range(len(bone)):
+            c = bone[frame,3:6]
+            # Chomp to within interval
+            c = tuple (int (n / interval) * interval for n in tuple (map (fixnegative, c)))
+            c = tuple (map (fix360, c))
+            if ((), c) in net:
+                net[((), c)] = net[((), c)] + 1
+            else:
+                net[((), c)] = 1
+    nets['root'] = net
+
     for parent, children in relationships.iteritems():
         for child in children:
             print 'building net for %s' % child
@@ -74,12 +91,14 @@ def load(asf, files):
                     cbone = amc.bones[child]
 
                     # Chomp to within interval
-                    c = tuple (int (n / interval) * interval for n in tuple (map (fixnegative, c)))
-                    c = tuple (map (fix360, c))
-                    if ((), c) in net:
-                        net[((), c)] = net[((), c)] + 1
-                    else:
-                        net[((), c)] = 1
+                    for frame in range(len(cbone)):
+                        c = cbone[frame,:]
+                        c = tuple (int (n / interval) * interval for n in tuple (map (fixnegative, c)))
+                        c = tuple (map (fix360, c))
+                        if ((), c) in net:
+                            net[((), c)] = net[((), c)] + 1
+                        else:
+                            net[((), c)] = 1
             else:
                 net = nets[child]
 
@@ -118,12 +137,15 @@ def load(asf, files):
 
     nets = {}
     for bone, parents in newnets.iteritems():
+        net = {}
         for parent, children in parents.iteritems():
             total = 0
             for count in children.itervalues():
                 total += count
             for child, count in children.iteritems():
-                nets[(parent, child)] = float(count) / float(total)
+                net[(parent, child)] = float(count) / float(total)
+
+        nets[bone] = net
 
     return nets
 
