@@ -47,7 +47,7 @@ def load (files):
 
     return graphs
 
-if len (sys.argv) < 2:
+if len (sys.argv) < 3:
     print 'Usage: %s [output file] [AMC FILE]...' % sys.argv[0]
 else:
     graphs = load (sys.argv[2:])
