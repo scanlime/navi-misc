@@ -102,18 +102,30 @@ def load(asf, files):
                         else:
                             net[(p, c)] = 1
 
-    total_frames = 0
-    for amc in amcs:
-        total_frames += len(amc.bones['root'])
-
     newnets = {}
     for bone, net in nets.iteritems():
         newnet = {}
+        parents = {}
         for pose, count in net.iteritems():
-            newnet[pose] = float(count) / float(total_frames)
-        newnets[bone] = newnet
+            ppose = pose[0]
+            cpose = pose[1]
+            if ppose not in parents:
+                parents[ppose] = {}
+            parents[ppose][cpose] = count
+        newnets[bone] = parents
 
-    return newnets
+    del nets
+
+    nets = {}
+    for bone, parents in newnets.iteritems():
+        for parent, children in parents.iteritems():
+            total = 0
+            for count in children.itervalues():
+                total += count
+            for child, count in children.iteritems():
+                nets[(parent, child)] = float(count) / float(total)
+
+    return nets
 
 if len(sys.argv) < 4:
     print 'Usage: %s [output file] [ASF FILE] [AMC FILE]...' % sys.argv[0]
