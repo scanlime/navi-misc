@@ -60,7 +60,7 @@ def successor (graphs, node):
         if bone in immediate_successors:
             bones.append(bone)
             items.append(immediate_successors[bone])
-    return [CNode (x) for x in comb(bone, items)]
+    return [CNode (x) for x in comb(bones, items)]
 
 def find_node (graph, pos):
     vertex_map = graph.representations[VertexMap]
