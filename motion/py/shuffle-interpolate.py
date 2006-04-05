@@ -99,8 +99,6 @@ parser.add_option ("-i", "--initial", dest="ic", default="60,15,1", \
         help="A comma separated list of initial conditions for the shuffle")
 parser.add_option ("-n", dest="n", type="int", default=10000, \
         help="Number of iterations for the chaotic systems")
-parser.add_option ("-d", dest="depth", type="int", default=6, \
-        help="Maximum depth for the graph search");
 
 opts, args = parser.parse_args()
 
