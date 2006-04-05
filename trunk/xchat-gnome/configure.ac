@@ -1,4 +1,4 @@
-AC_INIT([XChat-GNOME IRC Chat],[0.11svn],[http://bugzilla.gnome.org/enter_bug.cgi?product=xchat-gnome],[xchat-gnome])
+AC_INIT([XChat-GNOME IRC Chat],[0.11],[http://bugzilla.gnome.org/enter_bug.cgi?product=xchat-gnome],[xchat-gnome])
 
 AC_PREREQ([2.59])
 

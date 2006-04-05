@@ -1,3 +1,9 @@
+Tue Apr  4 20:17:27 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* configure.ac:
+	* NEWS:
+	  - Bump to 0.11
+
 Tue Apr  4 20:10:16 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* AUTHORS:
