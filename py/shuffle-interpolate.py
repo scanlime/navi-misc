@@ -36,9 +36,8 @@ def comb (bones, items):
     if len (items) == 1:
         for v in items[0]: yield {bone: v}
     else:
-        a = comb(bones[1:], items[1:])
         for x in items[0]:
-            for y in a:
+            for y in comb(bones[1:], items[1:]):
                 y[bones[0]] = x
                 yield y
 
