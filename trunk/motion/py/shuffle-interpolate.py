@@ -29,6 +29,16 @@ from Graph.ExtraAlgorithms import ParallelBFS, Heuristic
 from optparse import OptionParser
 import Numeric, sys, pickle
 
+def fixnegative (x):
+    while x < 0:
+        x = x + 360
+    return x
+
+def fix360 (x):
+    if x == 360:
+        return 0
+    return x
+
 def comb (bones, items):
     """Returns a list of combinatoric nodes created by combining nodes from
        items.
@@ -43,6 +53,37 @@ def comb (bones, items):
             y[bones[0]] = x
             ret.append(y)
     return ret
+
+def comb2(bones, items, position=0, current=[]):
+    results = []
+
+    return results
+
+##### CRUFT BARRIER #####
+    step = []
+    result = []
+    if bones[position] not in parents:
+        for item in items[position]:
+            item_pos = tuple(item.mins)
+            try:
+                p = bayes_net[bones[position]][((), item_pos)]
+                # For now, just use the fact that the pose occurred in the net
+                step.append(item)
+            except KeyError:
+                pass
+    else:
+        parent = parents[bones[position]]
+        for item in items[position]
+
+    cur_step = []
+    for item in step:
+        if len(current):
+            for set in current:
+                cur_step.append(set + [item,])
+        else:
+            cur_step.append([item])
+    print cur_step
+    deeper = comb2(bones, items, position + 1, cur_step)
 
 def successor (graphs, node):
     """Generate successors of a combinatoric node."""
@@ -60,7 +101,7 @@ def successor (graphs, node):
         if bone in immediate_successors:
             bones.append(bone)
             items.append(immediate_successors[bone])
-    return [CNode (x) for x in comb(bones, items)]
+    return [CNode (x) for x in comb2(bones, items)]
 
 def find_node (graph, pos):
     vertex_map = graph.representations[VertexMap]
@@ -134,6 +175,12 @@ asf = ASFReader()
 asf.parse(args[0])
 
 comb_order = build_order(asf)
+parents = {}
+for group in asf.hierarchy:
+    if len(group) == 0:
+        continue
+    for child in group[1:]:
+        parents[child] = group[0]
 
 print 'loading graphs'
 graphs = pickle.load(open(args[2]))
