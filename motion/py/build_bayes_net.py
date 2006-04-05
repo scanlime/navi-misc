@@ -22,7 +22,18 @@
 #
 
 from Motion import AMC, ASFReader
+import Numeric
 import sys, pickle
+
+def fixnegative (x):
+    while x < 0:
+        x = x + 360
+    return x
+
+def fix360 (x):
+    if x == 360:
+        return 0
+    return x
 
 def load(asf, files):
     amcs = []
@@ -39,13 +50,70 @@ def load(asf, files):
         if len(parent):
             relationships[parent] = children
             for child in children:
-                nets[child] = {}
-    print relationships
+                if child in amcs[0].bones:
+                    nets[child] = {}
 
-    #for amc in amcs:
+    # this *ought* to match the interval we use in the grap building, but I'm
+    # not sure it really matters
+    interval = 5
+
+    print 'building bayes nets'
     for parent, children in relationships.iteritems():
         for child in children:
-            print '%s: %d' % (child, len(asf.bones[child].dof or []))
+            print 'building net for %s' % child
+            if child not in amcs[0].bones:
+                # If the child has no DOF, we don't need to build a net at
+                # all, since we won't be interpolating that bone
+                continue
+            if parent not in amcs[0].bones:
+                # If the parent has no DOF, the bayes net for this
+                # relationship simplifies to a simple histogram of the
+                # bone positions
+                net = nets[child]
+                for amc in amcs:
+                    cbone = amc.bones[child]
+
+                    # Chomp to within interval
+                    c = tuple (int (n / interval) * interval for n in tuple (map (fixnegative, c)))
+                    c = tuple (map (fix360, c))
+                    if ((), c) in net:
+                        net[((), c)] = net[((), c)] + 1
+                    else:
+                        net[((), c)] = 1
+            else:
+                net = nets[child]
+
+                for amc in amcs:
+                    pbone = Numeric.remainder (amc.bones[parent], 360.0)
+                    cbone = Numeric.remainder (amc.bones[child], 360.0)
+
+                    for frame in range(len(pbone)):
+                        p = pbone[frame,:]
+                        c = cbone[frame,:]
+
+                        # Chomp to within interval
+                        p = tuple (int (n / interval) * interval for n in tuple (map (fixnegative, p)))
+                        c = tuple (int (n / interval) * interval for n in tuple (map (fixnegative, c)))
+                        p = tuple (map (fix360, p))
+                        c = tuple (map (fix360, c))
+
+                        if (p, c) in net:
+                            net[(p, c)] = net[(p, c)] + 1
+                        else:
+                            net[(p, c)] = 1
+
+    total_frames = 0
+    for amc in amcs:
+        total_frames += len(amc.bones['root'])
+
+    newnets = {}
+    for bone, net in nets.iteritems():
+        newnet = {}
+        for pose, count in net.iteritems():
+            newnet[pose] = float(count) / float(total_frames)
+        newnets[bone] = newnet
+
+    return newnets
 
 if len(sys.argv) < 4:
     print 'Usage: %s [output file] [ASF FILE] [AMC FILE]...' % sys.argv[0]
