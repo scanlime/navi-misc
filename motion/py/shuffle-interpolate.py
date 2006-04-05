@@ -46,7 +46,7 @@ def comb (bones, items):
 
 def successor (graphs, node):
     """Generate successors of a combinatoric node."""
-    immediate_successors = {} 
+    immediate_successors = {}
     # Create a dictionary mapping bone name to the list of successors for that
     # bone in its current position.
     for bone, n in node.iteritems ():
@@ -94,7 +94,7 @@ def f (path, goal):
     return (g + h)
 
 
-parser = OptionParser ("usage: %prog <input amc> <graph pickle> <shuffled output amc> <interpolated output amc>")
+parser = OptionParser ("usage: %prog <input amc> <graph pickle> <bayes net pickle> <shuffled output amc> <interpolated output amc>")
 parser.add_option ("-i", "--initial", dest="ic", default="60,15,1", \
         help="A comma separated list of initial conditions for the shuffle")
 parser.add_option ("-n", dest="n", type="int", default=10000, \
@@ -102,20 +102,24 @@ parser.add_option ("-n", dest="n", type="int", default=10000, \
 parser.add_option ("-d", dest="depth", type="int", default=6, \
         help="Maximum depth for the graph search");
 
-opts, args = parser.parse_args ()
+opts, args = parser.parse_args()
 
-if len (args) != 4: parser.error ("input, graph and 2 output files are required")
+if len(args) != 5: parser.error ("input, graph, bayes net and 2 output files are required")
 
-samc = AMC.from_file (args[0])
+samc = AMC.from_file(args[0])
 
 print 'shuffling sequence'
 lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
 sequence = Sequence.Sequence (samc, lorenz, Numeric.array ([60, 15, 1]), n=opts.n)
 sequence.shuffle (Numeric.array ([17.0, 2.0, -1.0]), n=30)
 
-sequence.save (args[2], samc.format)
+sequence.save (args[3], samc.format)
 
-graphs = pickle.load (open (args[1]))
+print 'loading graphs'
+graphs = pickle.load(open(args[1]))
+
+print 'loading bayes net'
+bayes_net = pickle.load(open(args[2]))
 
 # Need the adjacency lists in the f-cost function
 adjacency = {}
@@ -173,6 +177,6 @@ for boundary in sequence.boundaries:
             frame[bone] = center
         sequence.insert (frame, index)
 
-    sequence.save (args[3], samc.format)
+    sequence.save(args[4], samc.format)
 
 # vim: ts=4:sw=4:et
