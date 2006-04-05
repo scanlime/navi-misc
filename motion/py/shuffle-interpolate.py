@@ -21,7 +21,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-from Motion import AMC
+from Motion import AMC, ASFReader
 from Dance import Systems, Sequence, MotionGraph
 from Graph import algorithms_c
 from Graph.Data import VertexMap, AdjacencyList, CNode
@@ -93,8 +93,20 @@ def f (path, goal):
 
     return (g + h)
 
+def build_order(asf):
+    order = ['root']
+    pos = 0
+    while pos < len(order):
+        for group in asf.hierarchy:
+            if len(group) and group[0] == order[pos]:
+                order.extend(group[1:])
+        pos += 1
 
-parser = OptionParser ("usage: %prog <input amc> <graph pickle> <bayes net pickle> <shuffled output amc> <interpolated output amc>")
+    print order
+    return order
+
+
+parser = OptionParser ("usage: %prog <asf file> <input amc> <graph pickle> <bayes net pickle> <shuffled output amc> <interpolated output amc>")
 parser.add_option ("-i", "--initial", dest="ic", default="60,15,1", \
         help="A comma separated list of initial conditions for the shuffle")
 parser.add_option ("-n", dest="n", type="int", default=10000, \
@@ -102,22 +114,28 @@ parser.add_option ("-n", dest="n", type="int", default=10000, \
 
 opts, args = parser.parse_args()
 
-if len(args) != 5: parser.error ("input, graph, bayes net and 2 output files are required")
+if len(args) != 6: parser.error ("input, graph, bayes net and 2 output files are required")
 
-samc = AMC.from_file(args[0])
+samc = AMC.from_file(args[1])
 
 print 'shuffling sequence'
 lorenz = Systems.Lorenz (16.0, 45.0, 4.0)
 sequence = Sequence.Sequence (samc, lorenz, Numeric.array ([60, 15, 1]), n=opts.n)
 sequence.shuffle (Numeric.array ([17.0, 2.0, -1.0]), n=30)
 
-sequence.save (args[3], samc.format)
+sequence.save (args[4], samc.format)
+
+print 'loading asf'
+asf = ASFReader()
+asf.parse(args[0])
+
+comb_order = build_order(asf)
 
 print 'loading graphs'
-graphs = pickle.load(open(args[1]))
+graphs = pickle.load(open(args[2]))
 
 print 'loading bayes net'
-bayes_net = pickle.load(open(args[2]))
+bayes_net = pickle.load(open(args[3]))
 
 # Need the adjacency lists in the f-cost function
 adjacency = {}
@@ -175,6 +193,6 @@ for boundary in sequence.boundaries:
             frame[bone] = center
         sequence.insert (frame, index)
 
-    sequence.save(args[4], samc.format)
+    sequence.save(args[5], samc.format)
 
 # vim: ts=4:sw=4:et
