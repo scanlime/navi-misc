@@ -204,6 +204,7 @@ class Heuristic:
     def __init__ (self, graph, source, goal, costf, successorf):
         self.path = None
         self.predecessors = {source: None}
+        self.costs = {}
         self.graph = graph
         self.source = source
         self.goal = goal
@@ -216,11 +217,16 @@ class Heuristic:
            """
         # Use this function to sort the agenda
         def compare (a, b):
-            a_path = self.pathToNode (a)
-            b_path = self.pathToNode (b)
+            if not self.costs.has_key (a):
+                a_path = self.pathToNode (a)
+                self.costs[a] = self.costf (a_path, self.goal)
 
-            ac = self.costf (a_path, self.goal)
-            bc = self.costf (b_path, self.goal)
+            if not self.costs.has_key (b):
+                b_path = self.pathToNode (b)
+                self.costs[b] = self.costf (b_path, self.goal)
+
+            ac = self.costs[a]
+            bc = self.costs[b]
 
             return (bc - ac)
 
@@ -243,8 +249,10 @@ class Heuristic:
                     self.predecessors[s] = node
                     agenda.append (s)
 
-            # Resort the queue
-            agenda.sort (cmp=compare)
+                    # Resort the queue
+                    agenda.sort (cmp=compare)
+                    if len (agenda) > 100:
+                        for n in agenda[99:]: agenda.remove (n)
 
         return self.path
 

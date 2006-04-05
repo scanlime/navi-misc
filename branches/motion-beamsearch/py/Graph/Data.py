@@ -290,7 +290,16 @@ class CNode (object):
     def __init__ (self, data):
         self.data = data
 
+    def __getitem__ (self, key):
+        return self.data[key]
+
     def iteritems (self):
         return self.data.iteritems ()
+
+    def iterkeys (self):
+        return self.data.iterkeys ()
+
+    def itervalues (self):
+        return self.data.itervalues ()
 
 # vim: ts=4:sw=4:et

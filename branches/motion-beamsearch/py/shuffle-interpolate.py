@@ -34,19 +34,19 @@ def comb (bones, items):
        items.
        """
     if len (items) == 1:
-        return [{bone: x} for x in items[0]]
+        for v in items[0]: yield {bone: v}
+    else:
+        a = comb(bones[1:], items[1:])
+        for x in items[0]:
+            for y in a:
+                y[bones[0]] = x
+                yield y
 
-    a = comb(bones[1:], items[1:])
-    ret = []
-    for x in items[0]:
-        for y in a:
-            y[bones[0]] = x
-            ret.append(y)
-    return ret
 
 def successor (graphs, node):
     """Generate successors of a combinatoric node."""
     immediate_successors = {}
+
     # Create a dictionary mapping bone name to the list of successors for that
     # bone in its current position.
     for bone, n in node.iteritems ():
@@ -54,8 +54,9 @@ def successor (graphs, node):
         immediate_successors[bone] = [edge.v for edge in adj.query (n)]
 
     # Return a list of the combinatoric nodes
-    return [CNode (x) for x in comb (immediate_successors.keys (),
-            immediate_successors.values ())]
+    for x in comb (immediate_successors.keys (), immediate_successors.values ()):
+        yield CNode (x)
+
 
 def find_node (graph, pos):
     vertex_map = graph.representations[VertexMap]
@@ -63,15 +64,18 @@ def find_node (graph, pos):
         if vertex.inside (pos):
             return vertex
 
+
 def fixnegative (x):
     while x < 0:
         x = x + 360
     return x
 
+
 def fix360 (x):
     if x == 360:
         return 0
     return x
+
 
 def linear_interp (start, end, pos, len):
     result = []
@@ -83,13 +87,14 @@ def linear_interp (start, end, pos, len):
         result.append (pos)
     return result
 
+
 def f (path, goal):
-    end = path[-a]
+    end = path[-1]
     g = len (path)
     h = 0
 
     for bone in end.iterkeys():
-        h += algorithms_c.dijkstraSearch (adjacency[bone], end[bone], goal[bone])
+        h += len (algorithms_c.dijkstraSearch (adjacency[bone], end[bone], goal[bone]))
 
     return (g + h)
 
