@@ -34,29 +34,29 @@ show_about_dialog (void)
 
 	const gchar *authors[] =
 	{
-		"Xavier Claessens <xclaesse@gmail.com>",
-		"Andre Dahlqvist",
-		"Guillaume Desmottes <cass@skynet.be>",
+		"Andre Dahlqvist <andre.bugs@gmail.com>",
+		"Bastien Nocera <hadess@hadess.net>",
+		"Brian Pepple <bdpepple@gmail.com>",
 		"Dan Kuester <Daniel.Kuester@colorado.edu>",
-		"Bastien Nocera",
-		"Brian Pepple",
-		"Isak Savo",
-		"Evan Sheehan <Wallace.Sheehan@gmail.com>",
-		"Rouslan Solomakhin",
 		"David Trowbridge <trowbrds@gmail.com>",
-		"Ramón Rey Vicente",
-		"Luis Villa",
-		"Peter Železný",
+		"Evan Sheehan <Wallace.Sheehan@gmail.com>",
+		"Guillaume Desmottes <cass@skynet.be>",
+		"Isak Savo <iso01001@student.mdh.se>",
+		"Luis Villa <luis.villa@gmail.com>",
+		"Peter Železný <zed@xchat.org>",
+		"Ramón Rey Vicente <ramon.rey@hispalinux.es>",
+		"Rouslan Solomakhin <solomarv@cosi.clarkson.edu>",
+		"Xavier Claessens <xclaesse@gmail.com>",
 		NULL
 	};
 	const gchar *documenters[] =
 	{
-		"Brian Pepple",
+		"Brian Pepple <bdpepple@gmail.com>",
 		NULL
 	};
 	const gchar *artists[] =
 	{
-		"Micah Dowty",
+		"Micah Dowty <micah@navi.cx>",
 		NULL
 	};
 
