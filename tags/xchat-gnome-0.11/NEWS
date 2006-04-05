@@ -1,0 +1,83 @@
+0.11 "I have plenty of better things to do, I just aren't doing them" (04 April 2006)
+	* Show whois info in a tooltip on the userlist
+	* Add a preferences page for controlling spell-checking (enabling it,
+	  selecting languages)
+	* As usual, numerous bug fixes and minor improvements
+
+0.10 "Almost as great" (24 February 2006)
+	* Add a sound notification plugin
+	* Session management improvements
+	* Minor UI polish
+	* A huge slew of bug-fixes
+
+0.9 "You guys sell every kind of meat here except human!" (19 January 2006)
+	* Implement channel list filtering
+	* Update notify-osd plugin for libnotify >=0.3
+	* Add UI for setting nickserv auto-identify password
+	* Cooler plugins preferences
+	* Lots and lots of bug-fixes and minor improvements
+
+0.8 "Trailblazing where everyone else should follow, dammit" (19 December 2005)
+	* New pop-up userlist
+	* New, relatively sane build-system
+	* Translation support
+	* Translations
+	* various and sundry bugfixes
+
+0.7 "The best thing I've ever stood on" (20 November 2005)
+	* Added a help document
+	* Add background preferences
+	* Add a plugin which intelligently disconnects/reconnects based on
+	  network connection status via NetworkManager
+	* Add an "OSD" plugin, which pops up important messages with libnotify
+	* Implement "Save Transcript"
+	* Add a plugin which sets away status based on screensaver state
+	* various and sundry bugfixes
+
+0.6 "Braindome" (23 October 2005)
+	* Set up a gnome url handler for irc:// links
+	* Add "ignore" to the user context menu
+	* Add autoconnect and autojoin options in context menus
+	* Add nickname change dialog when clicking on the nick on the left of
+	  the input bar
+	* Add text and files drag and drop support
+	* Beginnings of command completion
+
+0.5 "You are what you eat" (27 August 2005)
+	* DCC user interface, including send/recieve window, preferences, file
+	  choosers, etc
+	* libsexy integration- urls in topics, spell checking
+	* lots of bugfixes
+
+0.4 "Buyer beware - Penis patches!" (13 May 2005)
+	* Basic functionality in notification area plugin
+	* Connect dialog will only connect once to any particular server
+	* Closing entire servers in the navigation list
+	* Variety of internal reorganization to optimize speed and memory
+	* Sort lists in the orders which make sense for them
+	* Various UI tweaking
+	* lots and lots of bugfixes
+
+0.3 "You be the horse, and I'll be the buggy" (03 March 2005)
+	* Plugin autoloading
+	* Network configuration
+	* Added Firefox-style search bar
+	* Conversion to GtkUIManager
+	* Hilight list editing
+	* Color configuration (schemes, custom)
+	* Infrastructure for Keybinding configuration
+	* bugfixes
+
+0.2 "This is my boomstick" (13 September 2004)
+	* various GUI prettification
+	* GUI for selecting character encoding
+	* fix build prefix for creating packages
+	* implemented various menu items
+	* new topic bar
+	* new setup dialog
+	* font configuration
+	* plugin configuration
+	* bugfixes
+
+0.1 "Doctors are Standing By" (3 May 2004)
+	* first release, generally lots of stuff
