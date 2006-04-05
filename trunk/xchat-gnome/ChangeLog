@@ -1,3 +1,9 @@
+Tue Apr  4 20:10:16 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* AUTHORS:
+	* src/fe-gnome/about.c:
+	  - Update
+
 Tue Apr  4 19:55:24 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* data/xchat-gnome.glade:
