@@ -1,5 +1,10 @@
 ==================== 0.11 ====================
 
+Wed Apr  5 12:18:24 MDT 2006  David Trowbridge <trowbrds@gmail.com>
+
+	* configure.ac:
+	  - Arg -- fix version field
+
 Tue Apr  4 20:17:27 MDT 2006  David Trowbridge <trowbrds@gmail.com>
 
 	* configure.ac:

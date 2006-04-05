@@ -8,7 +8,7 @@ AC_CONFIG_SRCDIR([configure.ac])
 
 PACKAGE=xchat-gnome
 VERSION=0.10svn
-AM_INIT_AUTOMAKE([0.10 dist-bzip2 check-news subdir-objects])
+AM_INIT_AUTOMAKE([0.11 dist-bzip2 check-news subdir-objects])
 
 AM_MAINTAINER_MODE
 if test "x$enable_maintainer_mode" = xyes; then
