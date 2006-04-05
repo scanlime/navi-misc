@@ -29,7 +29,7 @@ from Graph.ExtraAlgorithms import ParallelBFS, Heuristic
 from optparse import OptionParser
 import Numeric, sys, pickle
 
-def comb (bones, items):
+def comb (bones, items, position):
     """Returns a list of combinatoric nodes created by combining nodes from
        items.
        """
@@ -54,8 +54,10 @@ def successor (graphs, node):
         immediate_successors[bone] = [edge.v for edge in adj.query (n)]
 
     # Return a list of the combinatoric nodes
-    return [CNode (x) for x in comb (immediate_successors.keys (),
-            immediate_successors.values ())]
+    items = []
+    for bone in comb_order:
+        items.append(immediate_successors[bone])
+    return [CNode (x) for x in comb (comb_order, items)]
 
 def find_node (graph, pos):
     vertex_map = graph.representations[VertexMap]
@@ -102,7 +104,6 @@ def build_order(asf):
                 order.extend(group[1:])
         pos += 1
 
-    print order
     return order
 
 
