@@ -146,8 +146,8 @@
       <image
          y="104.18499"
          x="98.91333"
-         xlink:href="/home/evan/Projects/motion/py/lorenz.png"
-         sodipodi:absref="/home/evan/Projects/motion/py/lorenz.png"
+	 xlink:href="data/lorenz.png"
+         sodipodi:absref="data/lorenz.png"
          width="761.08667"
          height="570.815"
          id="image1357" />
