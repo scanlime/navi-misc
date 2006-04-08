@@ -16,7 +16,7 @@
    inkscape:version="0.43"
    version="1.0"
    sodipodi:docbase="/home/evan/Desktop/Projects/motion/dlc-presentation"
-   sodipodi:docname="03.svg"
+   sodipodi:docname="04.svg"
    inkscape:export-filename="/home/evan/template.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
@@ -436,7 +436,7 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1451852"
-     inkscape:cx="479.48577"
+     inkscape:cx="479.48578"
      inkscape:cy="337.5"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
@@ -445,12 +445,7 @@
      inkscape:window-x="0"
      inkscape:window-y="25"
      showguides="true"
-     inkscape:guide-bbox="true">
-    <sodipodi:guide
-       orientation="vertical"
-       position="471.53946"
-       id="guide1401" />
-  </sodipodi:namedview>
+     inkscape:guide-bbox="true" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -504,30 +499,31 @@
      id="layer2"
      inkscape:label="Data"
      style="display:inline">
-    <text
-       xml:space="preserve"
-       style="font-size:72px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:URW Gothic L"
-       x="24.805771"
-       y="72.477364"
-       id="text3138"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3140"
-         x="24.805771"
-         y="72.477364">&quot;C</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:56px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:URW Gothic L"
-       x="107.94177"
-       y="72.477364"
-       id="text3142"
-       sodipodi:linespacing="100%"><tspan
-         sodipodi:role="line"
-         id="tspan3144"
+    <g
+       id="g1396">
+      <text
+         sodipodi:linespacing="125%"
+         id="text3138"
+         y="72.477364"
+         x="46.805771"
+         style="font-size:72px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:URW Gothic L"
+         xml:space="preserve"><tspan
+           y="72.477364"
+           x="46.805771"
+           id="tspan3140"
+           sodipodi:role="line">G</tspan></text>
+      <text
+         sodipodi:linespacing="100%"
+         id="text3142"
+         y="72.477364"
          x="107.94177"
-         y="72.477364">HUNKS<tspan
-   style="font-family:URW Gothic L;font-weight:normal;font-style:oblique;font-stretch:normal;font-variant:normal;font-size:72;text-anchor:start;text-align:start;writing-mode:lr;line-height:100%"
-   id="tspan1399">&quot;</tspan></tspan></text>
+         style="font-size:56px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:URW Gothic L"
+         xml:space="preserve"><tspan
+           y="72.477364"
+           x="107.94177"
+           id="tspan3144"
+           sodipodi:role="line">RAPHS</tspan></text>
+    </g>
     <g
        id="g3968"
        transform="translate(-16.80837,-18.92433)">
@@ -562,7 +558,7 @@
          d="M 69.857697 154.99677 A 10.915265 10.915265 0 1 1  48.027167,154.99677 A 10.915265 10.915265 0 1 1  69.857697 154.99677 z" />
     </g>
     <g
-       transform="translate(-16.80837,95.179)"
+       transform="translate(-16.80837,52.82774)"
        id="g3981">
       <path
          d="M 69.482697 154.99677 A 10.540265 3.9152651 0 1 1  48.402167,154.99677 A 10.540265 3.9152651 0 1 1  69.482697 154.99677 z"
@@ -596,7 +592,7 @@
     </g>
     <g
        id="g3997"
-       transform="translate(-16.80837,209.2824)">
+       transform="translate(-16.80837,124.5799)">
       <path
          transform="matrix(-1.121202,-2.27613e-2,4.02359e-2,-0.634259,111.2509,265.0398)"
          sodipodi:type="arc"
@@ -631,16 +627,16 @@
        xml:space="preserve"
        id="flowRoot1403"
        style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans"
-       transform="translate(-15.71798,-15.71799)"><flowRegion
+       transform="translate(-17.46442,-15.71799)"><flowRegion
          id="flowRegion1405"><rect
            id="rect1407"
-           width="385.09058"
-           height="93.434685"
+           width="679.36615"
+           height="52.39328"
            x="86.448898"
            y="131.8564"
            style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" /></flowRegion><flowPara
-         id="flowPara1409">Individual frames are not shuffled</flowPara></flowRoot>    <flowRoot
-       transform="translate(-15.71798,98.38534)"
+         id="flowPara1409">Represent connections between data</flowPara></flowRoot>    <flowRoot
+       transform="translate(-17.46442,56.03408)"
        style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans"
        id="flowRoot1411"
        xml:space="preserve"><flowRegion
@@ -648,65 +644,20 @@
            style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans"
            y="131.8564"
            x="86.448898"
-           height="91.68824"
-           width="398.18884"
+           height="51.520073"
+           width="542.27039"
            id="rect1415" /></flowRegion><flowPara
-         id="flowPara1417">Groups of frames are shuffled</flowPara></flowRoot>    <flowRoot
+         id="flowPara1417">1 graph per joint for 29 joints</flowPara></flowRoot>    <flowRoot
        xml:space="preserve"
        id="flowRoot1419"
        style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans"
-       transform="translate(-15.71798,212.4887)"><flowRegion
+       transform="translate(-17.46442,127.7862)"><flowRegion
          id="flowRegion1421"><rect
            id="rect1423"
-           width="395.56918"
-           height="101.29368"
+           width="686.35187"
+           height="51.520077"
            x="86.448898"
            y="131.8564"
            style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" /></flowRegion><flowPara
-         id="flowPara1425">Causes jumps in the sequence</flowPara></flowRoot>    <g
-       transform="translate(-16.80837,330.3642)"
-       id="g1427">
-      <path
-         d="M 69.482697 154.99677 A 10.540265 3.9152651 0 1 1  48.402167,154.99677 A 10.540265 3.9152651 0 1 1  69.482697 154.99677 z"
-         sodipodi:ry="3.9152651"
-         sodipodi:rx="10.540265"
-         sodipodi:cy="154.99677"
-         sodipodi:cx="58.942432"
-         id="path1429"
-         style="fill:#2b2b2b;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         sodipodi:type="arc"
-         transform="matrix(-1.121202,-2.27613e-2,4.02359e-2,-0.634259,111.2509,265.0398)" />
-      <path
-         sodipodi:type="arc"
-         style="fill:url(#radialGradient1435);fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         id="path1431"
-         sodipodi:cx="58.942432"
-         sodipodi:cy="154.99677"
-         sodipodi:rx="10.915265"
-         sodipodi:ry="10.915265"
-         d="M 69.857697 154.99677 A 10.915265 10.915265 0 1 1  48.027167,154.99677 A 10.915265 10.915265 0 1 1  69.857697 154.99677 z" />
-      <path
-         d="M 69.857697 154.99677 A 10.915265 10.915265 0 1 1  48.027167,154.99677 A 10.915265 10.915265 0 1 1  69.857697 154.99677 z"
-         sodipodi:ry="10.915265"
-         sodipodi:rx="10.915265"
-         sodipodi:cy="154.99677"
-         sodipodi:cx="58.942432"
-         id="path1433"
-         style="fill:url(#radialGradient1437);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         sodipodi:type="arc"
-         transform="matrix(0.975707,0,0,0.963561,1.343502,5.692209)" />
-    </g>
-    <flowRoot
-       transform="translate(-15.71798,333.5705)"
-       style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans"
-       id="flowRoot1439"
-       xml:space="preserve"><flowRegion
-         id="flowRegion1441"><rect
-           style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans"
-           y="131.8564"
-           x="86.448898"
-           height="96.927567"
-           width="400.8085"
-           id="rect1443" /></flowRegion><flowPara
-         id="flowPara1445">Jumps need to be smoothed out</flowPara></flowRoot>  </g>
+         id="flowPara1425">Each node represents a joint position</flowPara></flowRoot>  </g>
 </svg>
