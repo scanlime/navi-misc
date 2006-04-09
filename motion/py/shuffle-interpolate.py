@@ -29,6 +29,9 @@ from Graph.ExtraAlgorithms import ParallelBFS, Heuristic
 from optparse import OptionParser
 import Numeric, sys, pickle
 
+# completely arbitrary
+EPSILON = 0.5**29
+
 def fixnegative (x):
     while x < 0:
         x = x + 360
@@ -64,9 +67,6 @@ def comb2(bones, items, position=0, current=[], current_probability=1.0):
                 return i
         return -1
 
-    # completely arbitrary
-    EPSILON = 0.0000001
-
     net = bayes_net[bone]
     if bone in parents:
         parent = parents[bone]
@@ -91,7 +91,7 @@ def comb2(bones, items, position=0, current=[], current_probability=1.0):
                 probability = net[spot]
                 new_current = current + [item]
                 new_prob = current_probability * probability
-                if new_prob > EPSILON:
+                if new_prob > EPSILON and probability > 0.001:
                     if position == len(bones) - 1:
                         results.append(new_current)
                     else:
