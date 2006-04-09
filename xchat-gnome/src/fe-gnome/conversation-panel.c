@@ -740,8 +740,7 @@ send_file (gpointer file, gpointer user_data)
 static void
 on_default_copy_activate (GtkAction *action, ConversationPanel *panel)
 {
-	GtkClipboard *clipboard = gtk_widget_get_clipboard (GTK_WIDGET (panel), GDK_SELECTION_CLIPBOARD);
-	gtk_xtext_copy_selection (GTK_XTEXT (panel->priv->xtext), clipboard);
+	conversation_panel_copy_selection (panel);
 }
 
 static gboolean
@@ -1043,4 +1042,11 @@ conversation_panel_page_down (ConversationPanel *panel)
 	if (value > end)
 		value = end;
 	gtk_adjustment_set_value (adj, value);
+}
+
+void
+conversation_panel_copy_selection (ConversationPanel *panel)
+{
+	GtkClipboard *clipboard = gtk_widget_get_clipboard (GTK_WIDGET (panel), GDK_SELECTION_CLIPBOARD);
+	gtk_xtext_copy_selection (GTK_XTEXT (panel->priv->xtext), clipboard);
 }
