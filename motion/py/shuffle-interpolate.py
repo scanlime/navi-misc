@@ -54,36 +54,55 @@ def comb (bones, items):
             ret.append(y)
     return ret
 
-def comb2(bones, items, position=0, current=[]):
+def comb2(bones, items, position=0, current=[], current_probability=1.0):
     results = []
+    bone = bones[position]
 
-    return results
+    def find(list, item):
+        for i in range(len(list)):
+            if list[i] == item:
+                return i
+        return -1
 
-##### CRUFT BARRIER #####
-    step = []
-    result = []
-    if bones[position] not in parents:
-        for item in items[position]:
-            item_pos = tuple(item.mins)
-            try:
-                p = bayes_net[bones[position]][((), item_pos)]
-                # For now, just use the fact that the pose occurred in the net
-                step.append(item)
-            except KeyError:
-                pass
-    else:
-        parent = parents[bones[position]]
-        for item in items[position]
+    # completely arbitrary
+    EPSILON = 0.0000001
 
-    cur_step = []
-    for item in step:
-        if len(current):
-            for set in current:
-                cur_step.append(set + [item,])
+    net = bayes_net[bone]
+    if bone in parents:
+        parent = parents[bone]
+
+        parent_pos = find(bones, parent)
+        pbone = current[parent_pos]
+
+    for item in items[position]:
+        if not (bone in parents and asf.bones[bone].dof) or parent_pos == -1:
+            # We're either on the root or a bone whose parent has no DOF.
+            # The bayes net has entries for these, just they're histograms
+            # of the bone's position, and so the probabilities are kind of
+            # low.  Treat them as if they all pass
+            new_current = current + [item]
+            children = comb2(bones, items, position + 1, new_current, current_probability)
+            if len(children):
+                results.append(children)
+            pass
         else:
-            cur_step.append([item])
-    print cur_step
-    deeper = comb2(bones, items, position + 1, cur_step)
+            spot = (tuple(pbone.mins), tuple(item.mins))
+            if spot in net:
+                probability = net[spot]
+                new_current = current + [item]
+                new_prob = current_probability * probability
+                if new_prob > EPSILON:
+                    if position == len(bones) - 1:
+                        results.append(new_current)
+                    else:
+                        children = comb2(bones, items, position + 1, new_current, new_prob)
+                        if len(children):
+                            results.append(children)
+
+    res = len(results)
+    if res:
+        print 'depth %.2d, results %d' % (position, res)
+    return results
 
 def successor (graphs, node):
     """Generate successors of a combinatoric node."""
@@ -101,6 +120,7 @@ def successor (graphs, node):
         if bone in immediate_successors:
             bones.append(bone)
             items.append(immediate_successors[bone])
+    print bones
     return [CNode (x) for x in comb2(bones, items)]
 
 def find_node (graph, pos):
@@ -130,7 +150,7 @@ def linear_interp (start, end, pos, len):
     return result
 
 def f (path, goal):
-    end = path[-a]
+    end = path[-1]
     g = len (path)
     h = 0
 
