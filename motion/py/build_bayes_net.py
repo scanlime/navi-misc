@@ -107,7 +107,10 @@ def load(asf, files):
                     cbone = Numeric.remainder (amc.bones[child], 360.0)
 
                     for frame in range(len(pbone)):
-                        p = pbone[frame,:]
+                        if parent == 'root':
+                            p = pbone[frame,3:6]
+                        else:
+                            p = pbone[frame,:]
                         c = cbone[frame,:]
 
                         # Chomp to within interval
