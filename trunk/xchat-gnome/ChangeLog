@@ -1,3 +1,13 @@
+Sun Apr  9 12:07:44 CEST 2006  Guillaume Desmottes <cass@skynet.be>
+
+	* src/fe-gnome/conversation-panel.c:
+	* src/fe-gnome/conversation-panel.h:
+	  - Add a conversation_panel_copy_selection () method.
+	* src/fe-gnome/main-window.c:
+	  - When we hit ctrl-V we copy the selection from the text entry
+	    if there is one; if not we get it from the conversation
+	    panel. (#337531)
+
 ==================== 0.11 ====================
 
 Wed Apr  5 12:18:24 MDT 2006  David Trowbridge <trowbrds@gmail.com>

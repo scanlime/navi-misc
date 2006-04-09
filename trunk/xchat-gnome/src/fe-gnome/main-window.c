@@ -403,7 +403,12 @@ on_edit_cut_activate (GtkAction *action, gpointer data)
 static void
 on_edit_copy_activate (GtkAction *action, gpointer data)
 {
-	gtk_editable_copy_clipboard (GTK_EDITABLE (gui.text_entry));
+	if (gtk_editable_get_selection_bounds (GTK_EDITABLE (gui.text_entry), NULL, NULL))
+		/* There is something selected in the text_entry */
+		gtk_editable_copy_clipboard (GTK_EDITABLE (gui.text_entry));
+	else
+		/* Nothing selected, we copy from the conversation panel */
+		conversation_panel_copy_selection (CONVERSATION_PANEL (gui.conversation_panel));
 }
 
 static void

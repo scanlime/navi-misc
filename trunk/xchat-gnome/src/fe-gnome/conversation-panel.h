@@ -63,6 +63,7 @@ void       conversation_panel_clear_selection (ConversationPanel *panel);
 gpointer   conversation_panel_search          (ConversationPanel *panel, const gchar *text, gpointer start, gboolean casem, gboolean reverse);
 void       conversation_panel_page_up         (ConversationPanel *panel);
 void       conversation_panel_page_down       (ConversationPanel *panel);
+void	   conversation_panel_copy_selection  (ConversationPanel *panel);
 
 G_END_DECLS
 
