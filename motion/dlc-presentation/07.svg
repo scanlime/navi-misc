@@ -599,7 +599,7 @@
            x="86.448898"
            y="131.8564"
            style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" /></flowRegion><flowPara
-         id="flowPara1409">5   successors per node</flowPara></flowRoot>    <g
+         id="flowPara1409">Estimated 5   successors per node</flowPara></flowRoot>    <g
        id="g10062"
        transform="translate(-5.329071e-15,139.6171)">
       <rect
@@ -7159,13 +7159,13 @@
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-       x="92.698257"
+       x="285.3172"
        y="133.78337"
        id="text11759"
        sodipodi:linespacing="100%"><tspan
          sodipodi:role="line"
          id="tspan11761"
-         x="92.698257"
+         x="285.3172"
          y="133.78337">29</tspan></text>
     <g
        transform="translate(-16.80837,58.79905)"
