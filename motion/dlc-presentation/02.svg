@@ -413,13 +413,13 @@
      borderopacity="1.0"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.1451852"
-     inkscape:cx="479.48577"
+     inkscape:zoom="0.76592593"
+     inkscape:cx="450"
      inkscape:cy="337.5"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
-     inkscape:window-width="1280"
-     inkscape:window-height="945"
+     inkscape:window-width="1024"
+     inkscape:window-height="689"
      inkscape:window-x="0"
      inkscape:window-y="25"
      showguides="true"
@@ -684,5 +684,54 @@
            x="89.941788"
            y="112.64554"
            style="font-size:24px;font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" /></flowRegion><flowPara
-         id="flowPara1421">&quot;Chaos is aperiodic long-term behavior in a deterministic system that exhibits sensitive dependence on initial conditions&quot;</flowPara></flowRoot>  </g>
+         id="flowPara1421">&quot;Chaos is aperiodic long-term behavior in a deterministic system that exhibits sensitive dependence on initial conditions&quot;</flowPara></flowRoot>    <g
+       id="g1405"
+       transform="translate(1.363193,-28)">
+      <rect
+         ry="15.694489"
+         rx="15.694488"
+         y="217.69125"
+         x="503.84863"
+         height="206.4351"
+         width="358.89392"
+         id="rect1391"
+         style="fill:#f7f9fc;fill-opacity:0.73224045;stroke:#000000;stroke-width:2.78660607;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <text
+         transform="scale(1.076579,0.928869)"
+         sodipodi:linespacing="125%"
+         id="text1393"
+         y="357.78357"
+         x="525.263"
+         style="font-size:44.58568192px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="357.78357"
+           x="525.263"
+           id="tspan1395"
+           sodipodi:role="line">Trajectory</tspan></text>
+    </g>
+    <g
+       id="g1416"
+       transform="translate(-0.819881,-28)">
+      <rect
+         ry="15.694489"
+         rx="15.694488"
+         y="454.94824"
+         x="505.59509"
+         height="206.0802"
+         width="359.76715"
+         id="rect1410"
+         style="fill:#f7f9fc;fill-opacity:0.73224045;stroke:#000000;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text1412"
+         y="571.23053"
+         x="582.27161"
+         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="571.23053"
+           x="582.27161"
+           id="tspan1414"
+           sodipodi:role="line">Mapping</tspan></text>
+    </g>
+  </g>
 </svg>
