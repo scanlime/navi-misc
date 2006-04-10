@@ -505,6 +505,28 @@
        fx="60.083389"
        fy="148.04956"
        r="10.915265" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3956"
+       id="radialGradient1541"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.652117,0.902847,-1.228845,-0.887582,285.011,240.2598)"
+       cx="54.314625"
+       cy="155.79227"
+       fx="54.314625"
+       fy="155.79227"
+       r="11.415265" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3073"
+       id="radialGradient1543"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.80853,0.253776,-0.26781,0.852355,52.11676,7.754676)"
+       cx="60.083389"
+       cy="148.04956"
+       fx="60.083389"
+       fy="148.04956"
+       r="10.915265" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -639,7 +661,7 @@
        xml:space="preserve"
        id="flowRoot1403"
        style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans"
-       transform="translate(-17.46442,-15.718)"><flowRegion
+       transform="translate(-17.46442,-15.71799)"><flowRegion
          id="flowRegion1405"><rect
            id="rect1407"
            width="732.21716"
@@ -647,8 +669,8 @@
            x="86.448898"
            y="131.8564"
            style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" /></flowRegion><flowPara
-         id="flowPara1409">Bayes' Net</flowPara></flowRoot>    <g
-       transform="translate(-16.80837,35.07567)"
+         id="flowPara1409">Some joints influence others</flowPara></flowRoot>    <g
+       transform="translate(-16.80837,33.61864)"
        id="g1377">
       <path
          d="M 69.482697 154.99677 A 10.540265 3.9152651 0 1 1  48.402167,154.99677 A 10.540265 3.9152651 0 1 1  69.482697 154.99677 z"
@@ -681,7 +703,7 @@
          transform="matrix(0.975707,0,0,0.963561,1.343502,5.692209)" />
     </g>
     <flowRoot
-       transform="translate(-17.46442,38.282)"
+       transform="translate(-17.46442,36.82498)"
        style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans"
        id="flowRoot1385"
        xml:space="preserve"><flowRegion
@@ -689,12 +711,12 @@
            style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans"
            y="131.8564"
            x="86.448898"
-           height="49.917198"
-           width="732.21716"
+           height="107.36401"
+           width="740.05084"
            id="rect1389" /></flowRegion><flowPara
-         id="flowPara1391">Hierarchical construction</flowPara></flowRoot>    <g
+         id="flowPara1391">Enforce this hierarchy during successor construction</flowPara></flowRoot>    <g
        id="g1479"
-       transform="translate(141.2234,0)">
+       transform="translate(141.2234,48)">
       <rect
          ry="15.694488"
          rx="15.694488"
@@ -1068,5 +1090,50 @@
            id="path3276" />
       </g>
     </g>
-  </g>
+    <g
+       id="g1525"
+       transform="translate(-16.80837,123.0757)">
+      <path
+         transform="matrix(-1.121202,-2.27613e-2,4.02359e-2,-0.634259,111.2509,265.0398)"
+         sodipodi:type="arc"
+         style="fill:#2b2b2b;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         id="path1527"
+         sodipodi:cx="58.942432"
+         sodipodi:cy="154.99677"
+         sodipodi:rx="10.540265"
+         sodipodi:ry="3.9152651"
+         d="M 69.482697 154.99677 A 10.540265 3.9152651 0 1 1  48.402167,154.99677 A 10.540265 3.9152651 0 1 1  69.482697 154.99677 z" />
+      <path
+         d="M 69.857697 154.99677 A 10.915265 10.915265 0 1 1  48.027167,154.99677 A 10.915265 10.915265 0 1 1  69.857697 154.99677 z"
+         sodipodi:ry="10.915265"
+         sodipodi:rx="10.915265"
+         sodipodi:cy="154.99677"
+         sodipodi:cx="58.942432"
+         id="path1529"
+         style="fill:url(#radialGradient1541);fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         sodipodi:type="arc" />
+      <path
+         transform="matrix(0.975707,0,0,0.963561,1.343502,5.692209)"
+         sodipodi:type="arc"
+         style="fill:url(#radialGradient1543);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         id="path1531"
+         sodipodi:cx="58.942432"
+         sodipodi:cy="154.99677"
+         sodipodi:rx="10.915265"
+         sodipodi:ry="10.915265"
+         d="M 69.857697 154.99677 A 10.915265 10.915265 0 1 1  48.027167,154.99677 A 10.915265 10.915265 0 1 1  69.857697 154.99677 z" />
+    </g>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot1533"
+       style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans"
+       transform="translate(-17.46442,126.282)"><flowRegion
+         id="flowRegion1535"><rect
+           id="rect1537"
+           width="733.52277"
+           height="47.305988"
+           x="86.448898"
+           y="131.8564"
+           style="font-size:36px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans" /></flowRegion><flowPara
+         id="flowPara1539">Bayes net</flowPara></flowRoot>  </g>
 </svg>
